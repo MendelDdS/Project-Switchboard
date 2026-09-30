@@ -103,7 +103,15 @@ var _warn_gen := 0
 
 func _ready() -> void:
 	Pal.init_fonts()
-	randomize()
+	# `godot -- --seed=123` repete a mesma agenda de ligações (útil para reproduzir bugs)
+	var fixed_seed := 0
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--seed="):
+			fixed_seed = int(a.get_slice("=", 1))
+	if fixed_seed != 0:
+		seed(fixed_seed)
+	else:
+		randomize()
 	theme = _make_theme()
 	for i in 10:
 		lines.append("free")

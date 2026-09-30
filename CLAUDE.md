@@ -11,17 +11,20 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - A interface inteira é montada por código em `main.gd` (a cena `main.tscn` é só a raiz). Nada de .tscn extras.
 - Todo o áudio é sintetizado em `sfx.gd` (inclusive as "vozes" por sílaba). Não há arquivos de som.
 - Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`).
-- O projeto não é repositório git: não há histórico para desfazer mudanças. Faça cópia antes de reescritas grandes.
+- Git: branch principal `development`; commits no padrão `tipo(#0000): descrição`. `.godot/` fica fora do git.
+  Só faça commit quando o usuário pedir (na reestruturação ele autorizou um commit por etapa em `refactor/definitive`).
 - Comentário `ponytail:` marca um atalho deliberado; mantenha o código enxuto e no estilo do arquivo.
 
 ## Rodar e testar
 - Godot: `/Applications/Godot.app/Contents/MacOS/Godot` (não está no PATH).
 - Checar se tudo compila: `Godot --headless --path . --quit-after 60`.
-- Testes são scripts `extends SceneTree` rodados com `Godot --headless --path . -s <script.gd>`
-  (instanciam `main.tscn`, usam `Engine.time_scale` alto e `assert`). Dois modelos foram usados:
-  teste dirigido (cenários com asserts) e "robô" que joga o turno inteiro na agenda aleatória e imprime métricas
-  (máx. de ligações simultâneas, % do tempo com 2+/3+, % sem cabo livre, ligações perdidas, horário do fim).
-  Eles ficaram em pasta temporária da sessão; recrie a partir da descrição se precisar.
+- **Testes: `tests/run.sh`** (roda tudo em headless, com limite de tempo, e falha em `SCRIPT ERROR`).
+  - `tests/test_base.gd`: base (`ok()` em vez de `assert`, que trava o headless; `wait_until`, `load_main`, `finish`).
+  - `tests/test_flow.gd`: cenários dirigidos (transferência, espera, desistência, caderno, lugar fechado, 07, cliques).
+  - `tests/test_shift.gd`: robô que joga o turno inteiro e imprime métricas (máx. simultâneas, % com 2+/3+,
+    % sem cabo livre, perdidas); `run.sh` roda com `--seed=1..3`.
+  - Rode depois de qualquer mudança em agenda, fim de ligação, mesa ou cabos.
+- Semente fixa: `Godot --path . -- --seed=123` repete a agenda do turno (sem `--seed`, é aleatória).
 - Captura de tela: rodar SEM `--headless` e salvar `root.get_texture().get_image()`.
 
 ## Arquivos

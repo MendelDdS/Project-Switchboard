@@ -1,0 +1,5 @@
+# Cache e importações geradas pelo Godot
+.godot/
+
+# Arquivos de sistema
+.DS_Store
