@@ -21,7 +21,6 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (main.gd) mistura moldes e roteiros escritos (híbrido: principais de transferência e trotes sempre escritos).
 - Todo o áudio é sintetizado no autoload `Sfx` (`scripts/sfx.gd`), inclusive as "vozes" por sílaba
   (`Sfx.speak_char`). Barramentos em `default_bus_layout.tres`: Ambience, Voices, Effects.
-  O filtro de caixa oca (`_box`) é **só para sons de aparelhos** (campainha, chamando), nunca para o ambiente.
 - Clima (`Main.weather`: "rain", "fog", "clear", sorteado; `-- --weather=X` força): `Sfx.start_ambience(w)`/
   `set_weather`/`hush_nature`/`stop_ambience`, `Background.weather` desenha a janela, `Main.smalltalk()` junta as
   falas gerais com as do clima.
@@ -134,7 +133,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 11. Turno passou a ser 18:00–00:00 (desconhecida entre 22:00 e 23:30; extras 4–6). Número errado com o FONE fora:
     não completa; foi engano, os dois desligam e o solicitante liga de novo pedindo o certo. Clique rápido num
     plug da base (mesmo mexendo uns pixels) conta como clique (`CLICK_MS`).
-12. Sons: campainha antiga e "tuuuu" abafados (caixa oca só nos aparelhos), chuva refeita. Clima sorteado por
+12. Sons: campainha antiga (martelinho + ressonadores de metal) e "tuuuu" (o filtro de caixa oca foi testado e removido a pedido do usuário), chuva e grilos (chirps + trilos) refeitos. Clima sorteado por
     noite: chuva (só chuva), névoa (grilos e coruja), limpo (brisa, grilos e coruja); coruja intercalada.
 13. Rádio mais largo e alto (3 linhas); abas 24 px mais baixas (mapa se ajusta à altura). Silhueta na janela
     `SHADOW_LEAD` (15 min) antes da ligação desconhecida (`Background.shadow`), some quando ela cai.

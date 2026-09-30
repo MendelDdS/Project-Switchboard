@@ -32,8 +32,10 @@ const OWL_WEATHERS := ["fog", "clear"]
 const OWL_HERE := Vector2(30.0, 60.0)    # segundos (reais) em que a coruja fica por perto, piando de vez em quando
 const OWL_AWAY := Vector2(45.0, 110.0)   # segundos em que ela some
 const OWL_GAP := Vector2(7.0, 14.0)      # intervalo entre pios enquanto está por perto
-# Parciais de uma campainha (razão da frequência, amplitude): sino tem parciais inarmônicos.
-const BELL := [Vector2(1.0, 1.0), Vector2(2.32, 0.45), Vector2(4.25, 0.22), Vector2(6.63, 0.1)]
+# Modos de vibração de uma campânula de metal: (razão da frequência, amplitude, decaimento em s).
+const BELL_MODES := [Vector3(1.0, 1.0, 0.22), Vector3(1.52, 0.7, 0.16), Vector3(2.38, 0.6, 0.12),
+	Vector3(3.06, 0.45, 0.1), Vector3(4.0, 0.3, 0.08)]
+const GONGS := [1150.0, 1370.0]   # as duas campânulas, levemente dissonantes (daí o "trrrim" áspero)
 
 const VMAP := {"a": "a", "á": "a", "à": "a", "â": "a", "ã": "a", "e": "e", "é": "e", "ê": "e", "i": "i", "í": "i", "o": "o", "ó": "o", "ô": "o", "õ": "o", "u": "u", "ú": "u"}
 
@@ -396,17 +398,9 @@ func _build_all() -> void:
 	for i in 14:
 		_noise(i * 0.07 + randf() * 0.03, 0.05, "bp", 5200 + randf() * 1500, 3, 0.8)
 	_end("pencil")
-	# campainha antiga, "trrrim-trrrim": o martelinho bate ~22 vezes por segundo em duas campânulas
-	_begin(1.5)
-	for burst in [0.0, 0.62]:
-		var n := 0
-		while n * 0.045 < 0.42:
-			_bell(burst + n * 0.045, 880.0 if n % 2 == 0 else 1040.0, 0.5)
-			n += 1
-	_box(1900.0)
-	_end("ring")
+	_build_ring()
 	_begin(0.03); _tone(0, 1300, 0.012, "square", 0.3); _noise(0, 0.012, "bp", 2500, 1, 0.6); _end("pulse", true)
-	# chamando: "tuuuu" contínuo de 425 Hz, pela linha e abafado
+	# chamando: "tuuuu" contínuo de 425 Hz, pela linha
 	_begin(1.3)
 	var on := 1.15
 	for i in int(on * RATE):
@@ -414,7 +408,6 @@ func _build_all() -> void:
 		var env := minf(1.0, minf(t / 0.03, (on - t) / 0.06))
 		_w[i] = (sin(TAU * 425.0 * t) + 0.15 * sin(TAU * 850.0 * t) + randf_range(-0.02, 0.02)) * env
 	_w = _biquad(_biquad(_w, "hp", 300.0, 0.7), "lp", 3000.0, 0.7)
-	_box(1400.0)
 	_end("ringback")
 	_begin(1.05)
 	for i in 3:
@@ -452,37 +445,6 @@ func _build_all() -> void:
 
 
 # ------------------------------------------------------------------ ambientes e campainhas
-
-## Caixa oca: tira o brilho, reforça ressonâncias de corpo e soma reflexões curtas (som abafado de dentro de um gabinete).
-func _box(bright: float) -> void:
-	var lp := _biquad(_biquad(_w, "lp", bright, 0.7), "lp", bright * 1.3, 0.7)
-	var r1 := _biquad(_w, "bp", 480.0, 6.0)
-	var r2 := _biquad(_w, "bp", 1100.0, 5.0)
-	var d1 := int(0.0037 * RATE)
-	var d2 := int(0.0061 * RATE)
-	for i in _w.size():
-		var v := lp[i] * 0.7 + r1[i] * 1.2 + r2[i] * 0.6
-		if i >= d2:
-			v += _w[i - d1] * 0.35 + _w[i - d2] * 0.2
-		_w[i] = v
-
-
-## Uma batida do martelinho na campânula: parciais de sino decaindo rápido, mais o estalo do metal.
-func _bell(at: float, f: float, g: float) -> void:
-	for p: Vector2 in BELL:
-		_tone(at, f * p.x, 0.35 / p.x, "sine", g * p.y, 0.001)
-	_noise(at, 0.006, "bp", 3000.0, 1.0, g * 0.3)
-
-
-## Pulso com envelope suave (canto de grilo).
-func _pulse(at: float, f: float, dur: float, g: float) -> void:
-	var s0 := int(at * RATE)
-	for i in int(dur * RATE):
-		if s0 + i >= _w.size():
-			break
-		var t := float(i) / RATE
-		_w[s0 + i] += sin(TAU * f * t) * sin(PI * t / dur) * g
-
 
 ## Fecha o loop sem estalo: os últimos `sec` segundos se misturam com o começo e são cortados.
 func _loopify(sec: float) -> void:
@@ -543,18 +505,51 @@ func _build_breeze() -> void:
 	_end("breeze", false, true, 0.6)
 
 
-## Grilos: três, com alturas e ritmos diferentes, um pouco distantes.
+## Grilos: um coro de grilos em distâncias diferentes, cada um com seu tom e seu ritmo. Cada "cri" tem de 3 a 5
+## sílabas curtas e ásperas (o raspar da asa), com o tom caindo um pouco; ao fundo, um trilo contínuo bem longe.
 func _build_crickets() -> void:
-	_begin(6.3)
-	for c in [[4300.0, 0.62, 3, 0.9], [4850.0, 0.83, 4, 0.55], [5200.0, 0.47, 2, 0.35]]:
-		var t := randf() * 0.4
-		while t < 6.3:
-			for p in int(c[2]):
-				_pulse(t + p * 0.028, c[0], 0.018, c[3] * randf_range(0.8, 1.0))
-			t += float(c[1]) * randf_range(0.95, 1.05)
-	_w = _biquad(_w, "lp", 6500.0, 0.7)
-	_loopify(0.3)
+	var L := 8.4
+	_begin(L)
+	var amps := [1.0, 0.6, 0.4, 0.3, 0.2]
+	for c in amps.size():
+		var f := randf_range(3900.0, 5100.0)
+		var syl := randi_range(3, 5)
+		var gap := randf_range(0.028, 0.036)
+		var every := randf_range(0.38, 0.75)
+		var t := randf() * every
+		while t < L - 0.3:
+			for s in syl:
+				_cricket_syllable(t + s * gap, f, 0.02, float(amps[c]) * randf_range(0.8, 1.0))
+			t += every * randf_range(0.9, 1.12)
+	# grilos de trilo: "criiiiii" de 1,5 a 4 s (pulsos rápidos, ~40 por segundo), pausa, e de novo
+	for tr in [[3800.0, 38.0, 0.55], [4400.0, 46.0, 0.35]]:
+		var t := randf() * 1.0
+		while t < L - 0.5:
+			var len := minf(randf_range(1.5, 4.0), L - 0.2 - t)
+			var p := 1.0 / float(tr[1])
+			var k := 0.0
+			while k < len:
+				var fade := minf(1.0, minf(k / 0.3, (len - k) / 0.3))
+				_cricket_syllable(t + k, tr[0], p * 0.6, float(tr[2]) * fade)
+				k += p
+			t += len + randf_range(0.5, 2.0)
+	_w = _biquad(_biquad(_w, "lp", 7000.0, 0.7), "hp", 2500.0, 0.7)
+	_loopify(0.4)
 	_end("crickets", false, true, 0.5)
+
+
+## Uma sílaba de grilo: ataque curto, tom caindo um pouco, final mais lento.
+func _cricket_syllable(at: float, f: float, dur: float, g: float) -> void:
+	var s0 := int(at * RATE)
+	var ph := randf()
+	for i in int(dur * RATE):
+		if s0 + i >= _w.size():
+			break
+		var t := float(i) / RATE
+		var k := t / dur
+		ph += f * (1.01 - 0.02 * k) / RATE
+		var env := minf(1.0, t / 0.003) * pow(1.0 - k, 0.8)
+		_w[s0 + i] += sin(TAU * ph) * env * g
 
 
 ## Coruja ao longe: "hu... hu-hu... huuu" (ou só "hu... huuu"), grave, soprado, com eco.
@@ -575,3 +570,53 @@ func _build_owl(v: int) -> void:
 	for i in range(d, _w.size()):
 		_w[i] += _w[i - d] * 0.25
 	_end("owl_%d" % v, false, false, 0.7)
+
+
+## Campainha antiga, "trrrim-trrrim": o martelinho bate 20 vezes por segundo em cada campânula, alternando.
+## Cada batida realimenta os modos de vibração do metal (ressonadores afinados), então o som vai se somando
+## e fica áspero.
+func _build_ring() -> void:
+	_begin(1.8)
+	var n := _w.size()
+	var hits := [PackedFloat32Array(), PackedFloat32Array()]
+	for h: PackedFloat32Array in hits:
+		h.resize(n)
+		h.fill(0.0)
+	for burst in [0.0, 0.6]:
+		var k := 0
+		while k * 0.025 < 0.4:
+			var i := int((burst + k * 0.025 + randf() * 0.002) * RATE)
+			hits[k % 2][i] = randf_range(0.8, 1.0)
+			k += 1
+	for g in 2:
+		for m: Vector3 in BELL_MODES:
+			var y := _resonator(hits[g], GONGS[g] * m.x, m.z)
+			for i in n:
+				_w[i] += y[i] * m.y
+	# o estalo do martelinho no metal
+	var click := PackedFloat32Array()
+	click.resize(n)
+	for i in n:
+		click[i] = (hits[0][i] + hits[1][i]) * randf_range(-1.0, 1.0)
+	click = _biquad(click, "hp", 3000.0, 0.7)
+	for i in n:
+		_w[i] += click[i] * 0.05
+	_end("ring")
+
+
+## Ressonador de dois polos: `x` excita um modo de frequência `f` que decai em `tau` segundos.
+func _resonator(x: PackedFloat32Array, f: float, tau: float) -> PackedFloat32Array:
+	var r := exp(-1.0 / (tau * RATE))
+	var c := 2.0 * r * cos(TAU * f / RATE)
+	var s := sin(TAU * f / RATE)   # normaliza: cada batida vira uma senoide de amplitude ~1
+	var r2 := r * r
+	var y := PackedFloat32Array()
+	y.resize(x.size())
+	var y1 := 0.0
+	var y2 := 0.0
+	for i in x.size():
+		var v := x[i] + c * y1 - r2 * y2
+		y2 = y1
+		y1 = v
+		y[i] = v * s
+	return y

@@ -119,9 +119,8 @@ clima em `Sfx.WEATHER_MIX`. 15 minutos antes da ligação desconhecida (`SHADOW_
 do lado de fora da janela; ela some quando a ligação cai. Antes da ligação desconhecida a noite se cala (grilos e coruja param, chuva e brisa
 baixam) e volta aos poucos depois.
 
-Todos os sons são sintetizados em `sfx.gd`. A campainha ("trrrim-trrrim" de martelinho em duas campânulas) e o
-"tuuuu" de chamando (425 Hz) passam pelo filtro de caixa oca (`_box`), só usado nos sons dos aparelhos; os sons de
-ambiente só levam o abafamento da distância.
+Todos os sons são sintetizados em `sfx.gd`: a campainha ("trrrim-trrrim" de martelinho em duas campânulas), o
+"tuuuu" de chamando (425 Hz, com o corte de frequências da linha) e os sons de ambiente (com o abafamento da distância).
 
 ## Vozes
 
