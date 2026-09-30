@@ -4,7 +4,7 @@ extends Control
 ## Os contatos vêm de GameData.CONTENT.directory; a barra de navegação fica na cena (phone_book.tscn).
 
 const PER := 6
-const BOOK := Rect2(0, 0, 576, 430)
+const BOOK := Rect2(0, 0, 576, 406)
 
 var pages: Array = []
 var spread := 0

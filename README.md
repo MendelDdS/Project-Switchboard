@@ -44,7 +44,8 @@ ligação desconhecida não contam.
 | Enviar unidade a mais (no local certo) | leve | o rádio diz que ela não era necessária, e ela volta logo |
 | Marcar o tipo de ocorrência errado no despacho | leve | — (o tipo é obrigatório para enviar) |
 
-Quando a emergência liga de novo, em `REDISPATCH_CHANCE` (60%) dos casos ainda dá para despachar (no jornal: "com
+Quem liga de novo espera a mesa esvaziar (no máximo `RETRY_WAIT`, 20 min de jogo), para não empilhar ligações
+sobre quem já está sobrecarregado. Quando a emergência liga de novo, em `REDISPATCH_CHANCE` (60%) dos casos ainda dá para despachar (no jornal: "com
 atraso"); nos outros, já é tarde (no jornal: "ninguém foi atender"). Cada pessoa liga de novo no máximo uma vez por motivo, sempre antes do fim do turno (vale também para a
 ligação do tutorial, que só não gera advertência).
 `ShiftReport.SEVERE_LIMIT` (3 graves) está pronto para somar entre noites, quando houver mais de uma.
@@ -69,7 +70,8 @@ desconhecida são sempre escritos à mão.
 
 `tests/run.sh` reimporta o projeto e roda, em modo headless, os cenários dirigidos (`test_flow.gd`), as consequências
 (`test_penalties.gd`) e três turnos completos jogados
-por um robô (`test_shift.gd`, com `--seed=1..3`). Para jogar uma agenda específica: `godot --path . -- --seed=123`.
+por um robô (`test_shift.gd`, com `--seed=1..3`), mais um turno com o robô "desastrado" (`--clumsy`, deixa de
+atender 1 em cada 3 ligações), que mede a bola de neve dos retornos. Para jogar uma agenda específica: `godot --path . -- --seed=123`.
 
 ## Tradução
 
@@ -79,7 +81,7 @@ As falas que ficam nos Resources (`data/`) também passam por `tr()` quando apar
 
 ## Ritmo do turno
 
-O relógio nunca para: 1 minuto de jogo por segundo real (18:00 → 00:00 em cerca de 6 minutos).
+O relógio nunca para: 0,75 minuto de jogo por segundo real (18:00 → 00:00 em cerca de 8 minutos).
 Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
 
 - **4 ligações principais** (transferência, transferência com nomes parecidos, emergência, trote)
@@ -96,11 +98,30 @@ Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
 - A ligação desconhecida espera a mesa ficar em silêncio, por no máximo 30 minutos de jogo.
 - Alguns números não atendem à noite (`closed_at_night` no contato). Roteiros com `alt_target` deixam o operador
   sugerir outro lugar.
-- Conexões completadas duram 45–90 minutos de jogo (`TALK_LEN` em `main.gd`); depois as lâmpadas ficam vermelhas
+- Conexões completadas duram 34–68 minutos de jogo, cerca de 45–90 s reais (`TALK_LEN` em `main.gd`); depois as lâmpadas ficam vermelhas
   até o operador desmontar. Conversas mais longas prendem os cabos de conexão por mais tempo: em turnos
   movimentados, às vezes é preciso esperar uma conversa acabar (ou cortá-la) para ter um cabo livre.
 - O caderno guarda as ocorrências numa fila: dá para registrar depois, sem travar o turno.
 - O turno termina à meia-noite (depois de a ligação desconhecida ter tocado e caído) e vem a tela final.
+
+## Clima e sons
+
+Cada turno sorteia o clima (`WEATHERS` em `main.gd`; para forçar: `godot --path . -- --weather=fog`):
+
+| Clima | Som | Janela | Conversa fiada |
+|---|---|---|---|
+| `rain` | chuva | gotas no vidro | `smalltalk` + `smalltalk_rain` |
+| `fog` | grilos e coruja | névoa passando, luzes difusas | `smalltalk` + `smalltalk_fog` |
+| `clear` | brisa leve, grilos e coruja | estrelas e lua | `smalltalk` + `smalltalk_clear` |
+
+A coruja aparece por 30–60 s, piando a cada 7–14 s, e some por 45–110 s (`OWL_*` em `sfx.gd`). Volumes de cada
+clima em `Sfx.WEATHER_MIX`. 15 minutos antes da ligação desconhecida (`SHADOW_LEAD`) aparece a silhueta de alguém
+do lado de fora da janela; ela some quando a ligação cai. Antes da ligação desconhecida a noite se cala (grilos e coruja param, chuva e brisa
+baixam) e volta aos poucos depois.
+
+Todos os sons são sintetizados em `sfx.gd`. A campainha ("trrrim-trrrim" de martelinho em duas campânulas) e o
+"tuuuu" de chamando (425 Hz) passam pelo filtro de caixa oca (`_box`), só usado nos sons dos aparelhos; os sons de
+ambiente só levam o abafamento da distância.
 
 ## Vozes
 

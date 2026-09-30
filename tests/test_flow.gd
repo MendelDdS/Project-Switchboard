@@ -59,6 +59,12 @@ func _initialize() -> void:
 		ok(not e.units.is_empty() and Array(e.units).all(func(u): return u in ["pol", "bomb", "amb"]), "unidades válidas: " + e.resource_path)
 	for p in C.pranks:
 		ok(p.steps.back().kind == PrankStep.Kind.END, "trote termina: " + p.resource_path)
+	# clima: cada um tem falas próprias, e a chuva só é comentada quando chove
+	for w in m.WEATHERS:
+		m.weather = w
+		var talk: PackedStringArray = m.smalltalk()
+		ok(not (C.get("smalltalk_" + w) as PackedStringArray).is_empty(), "falas do clima: " + w)
+		ok(w == "rain" or not Array(talk).any(func(l): return "chuva" in l), "sem chuva na conversa: " + w)
 	# moldes: nenhuma lacuna sobra sem preencher
 	var holes := func(texts: Array) -> bool: return texts.any(func(x): return "{" in x or "}" in x)
 	for i in 300:
@@ -237,4 +243,18 @@ func _initialize() -> void:
 	b._release(b.jack_rect(other_in).get_center())
 	ok(b.ends[0] == other_in, "arrastar move o FONE")
 	print("OK 7 clique devolve à base / arrastar move")
+
+	# ---- 8. silhueta na janela: aparece 15 min antes da ligação desconhecida e some quando ela cai
+	var myst := PhoneCall.mystery()
+	myst.at = m.minutes + 30.0
+	m.sched.append(myst)
+	await frames(1)
+	ok(not m.background.shadow, "ainda não aparece")
+	myst.at = m.minutes + 14.0
+	await frames(1)
+	ok(m.background.shadow, "silhueta na janela")
+	m.sched.erase(myst)
+	m._mystery_aftermath(myst)
+	ok(not m.background.shadow, "some quando a ligação cai")
+	print("OK 8 silhueta")
 	finish("fluxo da central")

@@ -1,7 +1,8 @@
 extends Node
 ## Autoload `Sfx`: todos os sons do jogo, sintetizados ao iniciar (nenhum arquivo de áudio).
 ## Para trocar por gravações reais, substitua as entradas de `streams` por AudioStreams importados.
-## Barramentos (default_bus_layout.tres): Ambience (chuva, zumbido, chiado), Voices (sílabas), Effects (o resto).
+## Barramentos (default_bus_layout.tres): Ambience (clima, coruja, zumbido, chiado), Voices (sílabas), Effects (o resto).
+## Clima (`set_weather`): "rain" só chuva; "fog" grilos e coruja; "clear" brisa, grilos e coruja.
 
 const RATE := 22050
 # Vozes abafadas: cada vogal vira uma sílaba sintetizada (fonte glotal + formantes + filtro abafado).
@@ -19,16 +20,36 @@ const VOWEL := {"a": Vector2(780, 1250), "e": Vector2(480, 1850), "i": Vector2(3
 const VOL := {
 	"click": -14.0, "sw": -10.0, "plug_in": -3.0, "plug_out": -9.0, "key": -13.0, "page": -11.0,
 	"tick": -24.0, "pencil": -13.0, "ring": -5.0, "pulse": -10.0, "ringback": -13.0, "sit": -13.0,
-	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0,
+	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "owl_0": -17.0, "owl_1": -17.0,
 }
+## Volume (dB) dos sons de ambiente em cada clima; o que não aparece fica mudo.
+const WEATHER_MIX := {
+	"rain": {"rain": -18.0},
+	"fog": {"crickets": -31.0},
+	"clear": {"breeze": -24.0, "crickets": -28.0},
+}
+const OWL_WEATHERS := ["fog", "clear"]
+const OWL_HERE := Vector2(30.0, 60.0)    # segundos (reais) em que a coruja fica por perto, piando de vez em quando
+const OWL_AWAY := Vector2(45.0, 110.0)   # segundos em que ela some
+const OWL_GAP := Vector2(7.0, 14.0)      # intervalo entre pios enquanto está por perto
+# Parciais de uma campainha (razão da frequência, amplitude): sino tem parciais inarmônicos.
+const BELL := [Vector2(1.0, 1.0), Vector2(2.32, 0.45), Vector2(4.25, 0.22), Vector2(6.63, 0.1)]
 
 const VMAP := {"a": "a", "á": "a", "à": "a", "â": "a", "ã": "a", "e": "e", "é": "e", "ê": "e", "i": "i", "í": "i", "o": "o", "ó": "o", "ô": "o", "õ": "o", "u": "u", "ú": "u"}
 
 var streams: Dictionary = {}
 var pool: Array[AudioStreamPlayer] = []
 var rain: AudioStreamPlayer
+var breeze: AudioStreamPlayer
+var crickets: AudioStreamPlayer
 var hum: AudioStreamPlayer
 var hiss: AudioStreamPlayer
+var weather := "rain"
+var _nature_on := false
+var _hushed := false
+var _owl_here := false
+var _owl_switch := 0.0   # segundos até a coruja chegar ou ir embora
+var _owl_next := 0.0     # segundos até o próximo pio
 var _ring_on := false
 var _ring_timer: Timer
 var _ring_player: AudioStreamPlayer
@@ -42,6 +63,8 @@ func _ready() -> void:
 		add_child(p)
 		pool.append(p)
 	rain = _make_loop("rain")
+	breeze = _make_loop("breeze")
+	crickets = _make_loop("crickets")
 	hum = _make_loop("hum")
 	hiss = _make_loop("hiss")
 	_ring_timer = Timer.new()
@@ -63,7 +86,7 @@ func play(id: String, db: float = 0.0, pitch: float = 1.0) -> AudioStreamPlayer:
 	if p == null:
 		p = pool[0]
 	p.stream = streams[id]
-	p.bus = &"Voices" if id.begins_with("s_") or id == "crackle" else &"Effects"
+	p.bus = &"Voices" if id.begins_with("s_") or id == "crackle" else (&"Ambience" if id.begins_with("owl") else &"Effects")
 	p.volume_db = VOL.get(id, -10.0) + db
 	p.pitch_scale = pitch
 	p.play()
@@ -77,12 +100,57 @@ func later(t: float, id: String, db: float = 0.0) -> void:
 	get_tree().create_timer(t).timeout.connect(play.bind(id, db))
 
 
-func start_ambience() -> void:
-	rain.play()
-	hum.play()
-	hiss.play()
-	fade(rain, -20.0, 2.0)
+func start_ambience(w: String) -> void:
+	for p in [rain, breeze, crickets, hum, hiss]:
+		p.play()
 	fade(hum, -29.0, 2.0)
+	_nature_on = true
+	_owl_switch = randf_range(10.0, 30.0)
+	set_weather(w, 2.0)
+
+
+func stop_ambience(sec: float) -> void:
+	_nature_on = false
+	for p in [rain, breeze, crickets, hum]:
+		fade(p, -80.0, sec)
+	fade(hiss, -80.0, minf(sec, 1.0))
+
+
+## Troca o clima (os sons do anterior somem aos poucos).
+func set_weather(w: String, sec: float = 4.0) -> void:
+	weather = w
+	_apply_mix(sec)
+
+
+## Antes da ligação desconhecida a noite se cala: grilos e coruja param, chuva e brisa baixam.
+func hush_nature(on: bool, sec: float) -> void:
+	_hushed = on
+	_apply_mix(sec)
+
+
+func _apply_mix(sec: float) -> void:
+	var mix: Dictionary = WEATHER_MIX[weather]
+	for id in ["rain", "breeze", "crickets"]:
+		var db: float = mix.get(id, -80.0)
+		if _hushed:
+			db = -80.0 if id == "crickets" else db - 10.0
+		fade(get(id), db, sec)
+
+
+## A coruja aparece por um tempo, pia de vez em quando e some de novo.
+func _process(delta: float) -> void:
+	if not _nature_on or _hushed or not weather in OWL_WEATHERS:
+		return
+	_owl_switch -= delta
+	if _owl_switch <= 0.0:
+		_owl_here = not _owl_here
+		_owl_switch = randf_range(OWL_HERE.x, OWL_HERE.y) if _owl_here else randf_range(OWL_AWAY.x, OWL_AWAY.y)
+		_owl_next = randf_range(1.0, 4.0)
+	if _owl_here:
+		_owl_next -= delta
+		if _owl_next <= 0.0:
+			play("owl_%d" % (randi() % 2))
+			_owl_next = randf_range(OWL_GAP.x, OWL_GAP.y)
 
 
 func fade(p: AudioStreamPlayer, db: float, t: float) -> void:
@@ -328,15 +396,26 @@ func _build_all() -> void:
 	for i in 14:
 		_noise(i * 0.07 + randf() * 0.03, 0.05, "bp", 5200 + randf() * 1500, 3, 0.8)
 	_end("pencil")
-	_begin(1.3)
-	for i in 30:
-		var w := i * 0.04
-		_tone(w, 900, 0.03, "tri", 0.35)
-		_tone(w, 1180, 0.03, "tri", 0.25)
-		_tone(w, 450, 0.03, "square", 0.06)
+	# campainha antiga, "trrrim-trrrim": o martelinho bate ~22 vezes por segundo em duas campânulas
+	_begin(1.5)
+	for burst in [0.0, 0.62]:
+		var n := 0
+		while n * 0.045 < 0.42:
+			_bell(burst + n * 0.045, 880.0 if n % 2 == 0 else 1040.0, 0.5)
+			n += 1
+	_box(1900.0)
 	_end("ring")
 	_begin(0.03); _tone(0, 1300, 0.012, "square", 0.3); _noise(0, 0.012, "bp", 2500, 1, 0.6); _end("pulse", true)
-	_begin(1.05); _tone(0, 425, 1.0, "sine", 0.6, 0.02); _end("ringback", true)
+	# chamando: "tuuuu" contínuo de 425 Hz, pela linha e abafado
+	_begin(1.3)
+	var on := 1.15
+	for i in int(on * RATE):
+		var t := float(i) / RATE
+		var env := minf(1.0, minf(t / 0.03, (on - t) / 0.06))
+		_w[i] = (sin(TAU * 425.0 * t) + 0.15 * sin(TAU * 850.0 * t) + randf_range(-0.02, 0.02)) * env
+	_w = _biquad(_biquad(_w, "hp", 300.0, 0.7), "lp", 3000.0, 0.7)
+	_box(1400.0)
+	_end("ringback")
 	_begin(1.05)
 	for i in 3:
 		_tone(i * 0.33, [950.0, 1400.0, 1800.0][i], 0.3, "sine", 0.6, 0.01)
@@ -355,11 +434,11 @@ func _build_all() -> void:
 			for k in 3:
 				_syllable(v, vw, [-0.12, 0.0, 0.10][k], k == 0)
 	# ambientes em loop
-	_begin(3.0)
-	for i in _w.size():
-		_w[i] = randf_range(-1.0, 1.0)
-	_w = _biquad(_biquad(_w, "lp", 1100, 0.7), "hp", 180, 0.7)
-	_end("rain", false, true, 0.6)
+	_build_rain()
+	_build_breeze()
+	_build_crickets()
+	for v in 2:
+		_build_owl(v)
 	_begin(1.0)
 	for i in _w.size():
 		var t := float(i) / RATE
@@ -370,3 +449,129 @@ func _build_all() -> void:
 		_w[i] = randf_range(-1.0, 1.0)
 	_w = _biquad(_w, "bp", 2000, 0.6)
 	_end("hiss", false, true, 0.6)
+
+
+# ------------------------------------------------------------------ ambientes e campainhas
+
+## Caixa oca: tira o brilho, reforça ressonâncias de corpo e soma reflexões curtas (som abafado de dentro de um gabinete).
+func _box(bright: float) -> void:
+	var lp := _biquad(_biquad(_w, "lp", bright, 0.7), "lp", bright * 1.3, 0.7)
+	var r1 := _biquad(_w, "bp", 480.0, 6.0)
+	var r2 := _biquad(_w, "bp", 1100.0, 5.0)
+	var d1 := int(0.0037 * RATE)
+	var d2 := int(0.0061 * RATE)
+	for i in _w.size():
+		var v := lp[i] * 0.7 + r1[i] * 1.2 + r2[i] * 0.6
+		if i >= d2:
+			v += _w[i - d1] * 0.35 + _w[i - d2] * 0.2
+		_w[i] = v
+
+
+## Uma batida do martelinho na campânula: parciais de sino decaindo rápido, mais o estalo do metal.
+func _bell(at: float, f: float, g: float) -> void:
+	for p: Vector2 in BELL:
+		_tone(at, f * p.x, 0.35 / p.x, "sine", g * p.y, 0.001)
+	_noise(at, 0.006, "bp", 3000.0, 1.0, g * 0.3)
+
+
+## Pulso com envelope suave (canto de grilo).
+func _pulse(at: float, f: float, dur: float, g: float) -> void:
+	var s0 := int(at * RATE)
+	for i in int(dur * RATE):
+		if s0 + i >= _w.size():
+			break
+		var t := float(i) / RATE
+		_w[s0 + i] += sin(TAU * f * t) * sin(PI * t / dur) * g
+
+
+## Fecha o loop sem estalo: os últimos `sec` segundos se misturam com o começo e são cortados.
+func _loopify(sec: float) -> void:
+	var f := int(sec * RATE)
+	var n := _w.size() - f
+	for i in f:
+		var k := float(i) / f
+		_w[i] = _w[i] * sqrt(k) + _w[n + i] * sqrt(1.0 - k)
+	_w.resize(n)
+
+
+## Chuva: chiado de fundo, milhares de gotinhas finas (impulsos filtrados) e batidas mais graves na janela e no telhado.
+func _build_rain() -> void:
+	_begin(5.4)
+	var n := _w.size()
+	var bed := PackedFloat32Array()
+	var fine := PackedFloat32Array()
+	var taps := PackedFloat32Array()
+	for a in [bed, fine, taps]:
+		a.resize(n)
+		a.fill(0.0)
+	for i in n:
+		bed[i] = randf_range(-1.0, 1.0)
+	for k in int(5.4 * 1400):
+		fine[randi() % n] += randf_range(-1.0, 1.0) * pow(randf(), 2.5)   # muitas fracas, poucas fortes
+	for k in int(5.4 * 40):
+		taps[randi() % n] += (1.0 if randf() < 0.5 else -1.0) * randf_range(0.3, 1.0)
+	bed = _biquad(_biquad(bed, "lp", 2400.0, 0.7), "hp", 500.0, 0.7)
+	var rumble := _biquad(_biquad(bed, "lp", 260.0, 0.7), "lp", 260.0, 0.7)
+	fine = _biquad(_biquad(fine, "bp", 3400.0, 0.8), "hp", 1200.0, 0.7)
+	taps = _biquad(taps, "bp", 1250.0, 4.0)
+	for i in n:
+		_w[i] = bed[i] * 0.22 + rumble[i] * 1.5 + fine[i] * 2.2 + taps[i] * 1.6
+	_w = _biquad(_w, "lp", 5500.0, 0.7)   # atrás da janela
+	_loopify(0.4)
+	_end("rain", false, true, 0.6)
+
+
+## Brisa leve: ruído grave em rajadas lentas (ciclos inteiros no loop de 8 s) e um assobio fraquinho.
+func _build_breeze() -> void:
+	_begin(8.6)
+	var n := _w.size()
+	var b := 0.0
+	for i in n:
+		b = b * 0.995 + randf_range(-1.0, 1.0) * 0.05
+		_w[i] = b
+	_w = _biquad(_biquad(_w, "lp", 650.0, 0.7), "hp", 70.0, 0.7)
+	var hiss := PackedFloat32Array()
+	hiss.resize(n)
+	for i in n:
+		hiss[i] = randf_range(-1.0, 1.0)
+	hiss = _biquad(hiss, "bp", 900.0, 3.0)
+	for i in n:
+		var t := float(i) / RATE
+		var gust := 0.55 + 0.3 * sin(TAU * t / 8.0) + 0.15 * sin(TAU * t * 3.0 / 8.0 + 1.3)
+		_w[i] = _w[i] * gust + hiss[i] * 0.05 * gust * gust
+	_loopify(0.6)
+	_end("breeze", false, true, 0.6)
+
+
+## Grilos: três, com alturas e ritmos diferentes, um pouco distantes.
+func _build_crickets() -> void:
+	_begin(6.3)
+	for c in [[4300.0, 0.62, 3, 0.9], [4850.0, 0.83, 4, 0.55], [5200.0, 0.47, 2, 0.35]]:
+		var t := randf() * 0.4
+		while t < 6.3:
+			for p in int(c[2]):
+				_pulse(t + p * 0.028, c[0], 0.018, c[3] * randf_range(0.8, 1.0))
+			t += float(c[1]) * randf_range(0.95, 1.05)
+	_w = _biquad(_w, "lp", 6500.0, 0.7)
+	_loopify(0.3)
+	_end("crickets", false, true, 0.5)
+
+
+## Coruja ao longe: "hu... hu-hu... huuu" (ou só "hu... huuu"), grave, soprado, com eco.
+func _build_owl(v: int) -> void:
+	_begin(2.4)
+	var hoots := [[0.0, 0.32], [0.55, 0.16], [0.78, 0.16], [1.05, 0.55]] if v == 0 else [[0.0, 0.42], [0.7, 0.55]]
+	for h in hoots:
+		var s0 := int(float(h[0]) * RATE)
+		var dur: float = h[1]
+		var ph := 0.0
+		for i in int(dur * RATE):
+			var k := float(i) / (dur * RATE)
+			ph += lerpf(395.0, 350.0, k) / RATE
+			var env := pow(sin(PI * k), 1.5)
+			_w[s0 + i] += (sin(TAU * ph) + 0.25 * sin(TAU * ph * 2.0) + randf_range(-0.15, 0.15)) * env
+	_w = _biquad(_w, "lp", 900.0, 0.7)
+	var d := int(0.14 * RATE)
+	for i in range(d, _w.size()):
+		_w[i] += _w[i - d] * 0.25
+	_end("owl_%d" % v, false, false, 0.7)

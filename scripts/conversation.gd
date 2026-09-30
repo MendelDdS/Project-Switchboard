@@ -131,7 +131,7 @@ func _transfer(c: PhoneCall) -> void:
 		if not await say(c, l):
 			return
 	if randf() < 0.55:
-		if not await say(c, GameData.pick(C.smalltalk), 0.45):
+		if not await say(c, GameData.pick(main.smalltalk()), 0.45):
 			return
 	c.phase = PhoneCall.Phase.AWAIT
 	c.state_changed.emit()

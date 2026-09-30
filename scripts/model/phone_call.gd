@@ -33,7 +33,7 @@ var caller := ""
 var main := -1              ## 0–3 = ligação principal (0 é a do tutorial); -1 = extra ou ligação desconhecida
 var filler := false
 var at := 0.0               ## minuto previsto (depois do início do turno)
-var latest := INF           ## ligação desconhecida: a partir daqui toca mesmo com a mesa ocupada
+var latest := INF           ## ligação desconhecida e retornos: a partir daqui toca mesmo com a mesa ocupada
 var retry := Retry.NONE
 var retried: Array[Retry] = []   ## motivos pelos quais esta pessoa já ligou de novo
 var too_late := false       ## emergência que liga de novo: já não adianta despachar

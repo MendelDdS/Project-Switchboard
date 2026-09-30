@@ -11,7 +11,7 @@ content_margin_top = 6
 content_margin_bottom = 6
 
 [node name="Radio" type="MarginContainer"]
-custom_minimum_size = Vector2(300, 74)
+custom_minimum_size = Vector2(480, 98)
 theme_override_constants/margin_left = 12
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 12
@@ -115,7 +115,7 @@ theme_type_variation = &"DimLabel"
 theme_override_font_sizes/font_size = 11
 
 [node name="ScreenBox" type="PanelContainer" parent="HBox/Side"]
-custom_minimum_size = Vector2(0, 42)
+custom_minimum_size = Vector2(0, 66)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_1")
 
@@ -129,4 +129,4 @@ unique_name_in_owner = true
 clip_text = true
 autowrap_mode = 3
 theme_override_constants/line_spacing = -4
-custom_minimum_size = Vector2(0, 30)
+custom_minimum_size = Vector2(0, 54)

@@ -1,5 +1,7 @@
 extends "res://tests/test_base.gd"
 ## Um robô joga o turno inteiro na agenda real (use `-- --seed=N` para repetir a agenda).
+## Com `-- --clumsy` ele deixa de atender 1 em cada 3 ligações (como alguém sobrecarregado): mede a bola de neve
+## dos retornos (quem liga de novo).
 ## Falha se houver travamento: o turno precisa chegar ao final (00:00) depois da ligação desconhecida.
 ## `m` e `b` ficam sem tipo: Main e Switchboard usam o autoload Sfx, que ainda não existe quando o Godot
 ## compila um script passado com -s.
@@ -13,6 +15,8 @@ var starved := 0
 var post := 0
 var myst_at := ""
 var answered := {}
+var clumsy := "--clumsy" in OS.get_cmdline_user_args()
+var skipped := 0
 
 
 func _home(b, e: int) -> void:
@@ -63,6 +67,10 @@ func _initialize() -> void:
 			for c in m.live:
 				var key: String = c.time + str(c.line)
 				if c.ringing and not answered.has(key):
+					if clumsy and c.kind != PhoneCall.Kind.MYSTERY and c != m.tut and answered.size() % 3 == 1:
+						answered[key] = true
+						skipped += 1
+						continue
 					_fone_to(b, c.line)
 					m.answer()
 					answered[key] = true
@@ -113,6 +121,8 @@ func _initialize() -> void:
 					f.options[0]["fn"].call()
 	var recs: Array = m.notebook.entries + m.notebook.queue + ([m.notebook.pending] if m.notebook.has_pending() else [])
 	var lost := recs.filter(func(e): return e["obs"] == "Não atendida.").size()
+	if clumsy:
+		print("desastrado: deixou tocar %d, retornos=%d" % [skipped, recs.filter(func(e): return e["who"].begins_with("Desconhecido")).size()])
 	print("desconhecida tocou às %s, atendidas depois=%d, fim às %s | máx=%d  2+=%d%%  3+=%d%%  sem_cabo=%d%%  perdidas=%d  ligações=%d" % [
 		myst_at, post, m.fmt(m.minutes), max_live, 100 * f2 / maxi(fall, 1), 100 * f3 / maxi(fall, 1),
 		100 * starved / maxi(fall, 1), lost, recs.size()])

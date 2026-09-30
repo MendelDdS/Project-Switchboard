@@ -4,7 +4,7 @@
 [ext_resource type="FontFile" path="res://fonts/VT323-Regular.ttf" id="2_vt323_regula"]
 
 [node name="Notebook" type="Control"]
-custom_minimum_size = Vector2(576, 486)
+custom_minimum_size = Vector2(576, 462)
 script = ExtResource("1_notebook")
 
 [node name="Content" type="VBoxContainer" parent="."]
@@ -35,7 +35,7 @@ theme_override_font_sizes/font_size = 13
 
 [node name="Ledger" type="RichTextLabel" parent="Content"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 176)
+custom_minimum_size = Vector2(0, 152)
 layout_mode = 2
 bbcode_enabled = true
 scroll_following = true

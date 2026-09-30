@@ -19,6 +19,7 @@ var sel: Dictionary = {}
 var hover: Dictionary = {}
 var trips: Array = []
 var _k := 0.96
+var _off := Vector2.ZERO   ## deslocamento do mapa desenhado (centralizado quando sobra largura)
 
 
 func _ready() -> void:
@@ -52,13 +53,13 @@ func _find_seg(mp: Vector2) -> Dictionary:
 
 func _gui_input(e: InputEvent) -> void:
 	if e is InputEventMouseMotion:
-		var h := _find_seg(e.position / _k)
+		var h := _find_seg((e.position - _off) / _k)
 		if h != hover:
 			hover = h
 			mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if not h.is_empty() else Control.CURSOR_ARROW
 			queue_redraw()
 	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
-		var h := _find_seg(e.position / _k)
+		var h := _find_seg((e.position - _off) / _k)
 		if not h.is_empty():
 			sel = h
 			Sfx.play("click")
@@ -105,8 +106,9 @@ func _t(p: Vector2, txt: String, sz: int, col: Color = LINE, center: bool = true
 
 
 func _draw() -> void:
-	_k = size.x / 600.0
-	var T := Transform2D(0.0, Vector2(_k, _k), 0.0, Vector2.ZERO)
+	_k = minf(size.x / 600.0, size.y / 440.0)
+	_off = Vector2((size.x - 600.0 * _k) / 2.0, 0.0)
+	var T := Transform2D(0.0, Vector2(_k, _k), 0.0, _off)
 	draw_set_transform_matrix(T)
 	draw_rect(Rect2(0, 0, 600, 440), Pal.INK_SOFT)
 	draw_rect(Rect2(2, 2, 596, 436), Color("cfc199"))

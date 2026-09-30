@@ -12,6 +12,11 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   ligações paravam. O usuário queria o turno vivo até 06:00. Eventos de roteiro se encaixam no laço; não o substituem.
 - **Comece conservador na intensidade.** Ligações simultâneas demais e conversas curtas demais foram corrigidas
   depois. Deixe esses números em constantes no topo do arquivo e diga ao usuário quais são.
+- **Encurtar o turno sem mexer no relógio comprime as ligações em tempo real.** O turno passou de 8 h para 6 h com
+  1 min de jogo por segundo: as mesmas ~10 ligações caíram em 6 min reais e viraram avalanche. Pense no ritmo em
+  **segundos reais** entre ligações (uma transferência + registro leva ~40 s para uma pessoa).
+- **O robô perfeito não enxerga bola de neve.** Retornos (quem liga de novo) só aparecem quando alguém falha; o
+  robô `--clumsy` (deixa 1 em 3 tocar) mede isso. Mecânica que gera ligações precisa de freio (esperar a mesa esvaziar).
 - **Ajuste de ritmo tem efeito colateral.** Conversas mais longas prendem cabos por mais tempo e causam falta de
   cabo livre. Meça o efeito (robô) e relate o trade-off junto com a mudança.
 - **Quando mudar algo que o usuário não pediu** (ex.: mover o final para 06:00, manter o botão Atender),

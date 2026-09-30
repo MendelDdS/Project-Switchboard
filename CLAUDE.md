@@ -21,6 +21,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (main.gd) mistura moldes e roteiros escritos (híbrido: principais de transferência e trotes sempre escritos).
 - Todo o áudio é sintetizado no autoload `Sfx` (`scripts/sfx.gd`), inclusive as "vozes" por sílaba
   (`Sfx.speak_char`). Barramentos em `default_bus_layout.tres`: Ambience, Voices, Effects.
+  O filtro de caixa oca (`_box`) é **só para sons de aparelhos** (campainha, chamando), nunca para o ambiente.
+- Clima (`Main.weather`: "rain", "fog", "clear", sorteado; `-- --weather=X` força): `Sfx.start_ambience(w)`/
+  `set_weather`/`hush_nature`/`stop_ambience`, `Background.weather` desenha a janela, `Main.smalltalk()` junta as
+  falas gerais com as do clima.
 - Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`).
 - Textos visíveis passam por `tr()` (texto em português é a própria chave). Label/Button com texto fixo em cena
   traduzem sozinhos. `internationalization/locale/translations_pot_files` já lista os arquivos para gerar o .pot.
@@ -39,7 +43,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     emergência sem despacho, espera longa, informação errada) e o relatório. Relógio parado; retornos tocados à mão.
   - `run.sh` começa com `--import`: **`class_name` novo só existe depois de reimportar** (sem isso, parse error).
   - `tests/test_shift.gd`: robô que joga o turno inteiro e imprime métricas (máx. simultâneas, % com 2+/3+,
-    % sem cabo livre, perdidas); `run.sh` roda com `--seed=1..3`.
+    % sem cabo livre, perdidas); `run.sh` roda com `--seed=1..3` e um turno `--clumsy` (deixa de atender 1 em 3).
   - Nos testes, `Main`/`Switchboard` ficam **sem tipo** (dependem do autoload `Sfx`, que não existe na hora em que
     o Godot compila um script `-s`). `PhoneCall`, `Exchange` e os Resources podem ser tipados.
   - Rode depois de qualquer mudança em agenda, fim de ligação, mesa ou cabos.
@@ -105,9 +109,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   toca com a mesa em silêncio, por no máximo 30 min de jogo (`latest`).
 - Extras: `_fillers` (`FILLERS` 4–6 pelo turno todo, `FILLER_GAP` 25 min entre ligações; pico com `PEAK_CHANCE`).
 - `GIVE_UP_SEC`: extras desistem em 60 s, principais em 90 s; tutorial (`tut`) e desconhecida nunca desistem.
-- Conversas transferidas duram `TALK_LEN` (45–90 min de jogo).
+- Conversas transferidas duram `TALK_LEN` (34–68 min de jogo ≈ 45–90 s reais).
 - Turno das 18:00 (`SHIFT_START_HOUR`) às 00:00 (`SHIFT_END` = 360 min); fim **depois** da ligação desconhecida ter caído (`_start_ending`).
-- Relógio: 1 min de jogo por segundo real (`GAME_MIN_PER_SEC`).
+- Relógio: 0,75 min de jogo por segundo real (`GAME_MIN_PER_SEC`): 6 h de turno ≈ 8 min reais.
 
 ## Histórico das decisões de design (o que o usuário pediu, em ordem)
 1. Mesa com entradas + destinos; cabos limitados; desmontar conexões encerradas.
@@ -130,6 +134,12 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 11. Turno passou a ser 18:00–00:00 (desconhecida entre 22:00 e 23:30; extras 4–6). Número errado com o FONE fora:
     não completa; foi engano, os dois desligam e o solicitante liga de novo pedindo o certo. Clique rápido num
     plug da base (mesmo mexendo uns pixels) conta como clique (`CLICK_MS`).
+12. Sons: campainha antiga e "tuuuu" abafados (caixa oca só nos aparelhos), chuva refeita. Clima sorteado por
+    noite: chuva (só chuva), névoa (grilos e coruja), limpo (brisa, grilos e coruja); coruja intercalada.
+13. Rádio mais largo e alto (3 linhas); abas 24 px mais baixas (mapa se ajusta à altura). Silhueta na janela
+    `SHADOW_LEAD` (15 min) antes da ligação desconhecida (`Background.shadow`), some quando ela cai.
+14. Ligações demais ao mesmo tempo depois do turno de 6 h: relógio a 0,75 min/s (turno volta a ~8 min reais) e
+    retornos esperam a mesa esvaziar (`RETRY_WAIT`). Medido com o robô desastrado (`--clumsy`).
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

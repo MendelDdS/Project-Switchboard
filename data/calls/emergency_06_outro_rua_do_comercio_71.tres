@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_nslod")
 caller = "Senhora"
-opening = "Central, caiu um fio do poste aqui na frente e está soltando faísca na chuva!"
+opening = "Central, caiu um fio do poste aqui na frente e está soltando faísca na calçada!"
 questions = PackedStringArray("Qual é o endereço?", "Alguém encostou no fio?", "Tem fogo?")
 answers = PackedStringArray("Rua do Comércio, 71! Na frente da barbearia!", "Não, não! Tá todo mundo longe.", "Tá começando a queimar a árvore!")
 street = "comercio"

@@ -5,7 +5,7 @@ extends Control
 ##
 ## Laço: ATENDER → ENTENDER → CONSULTAR → CONECTAR/DESPACHAR → REGISTRAR → CONTINUAR
 
-const GAME_MIN_PER_SEC := 1.0           # 360 minutos de turno ≈ 6 minutos reais
+const GAME_MIN_PER_SEC := 0.75          # 360 minutos de turno ≈ 8 minutos reais
 const SHIFT_START_HOUR := 18            # o turno vai das 18:00...
 const SHIFT_END := 360.0                # ...até 00:00 (minutos depois do início)
 const FILLER_GAP := 25.0                # minutos de jogo entre uma ligação extra e qualquer outra
@@ -13,11 +13,14 @@ const PEAK_CHANCE := 0.35               # chance de um pico (duas ou três linha
 const MYST_FROM := 240.0                # a ligação desconhecida toca em algum momento entre 22:00...
 const MYST_TO := 330.0                  # ...e 23:30 (minutos após o início do turno)
 const FILLERS := Vector2i(4, 6)         # quantas ligações extras no turno
-const TALK_LEN := Vector2(45.0, 90.0)   # duração (min de jogo) de uma conversa transferida
+const SHADOW_LEAD := 15.0              # minutos antes da ligação desconhecida em que a silhueta aparece na janela
+const WEATHERS := ["rain", "fog", "clear"]   # clima sorteado no começo do turno (`-- --weather=fog` força um)
+const TALK_LEN := Vector2(34.0, 68.0)   # duração (min de jogo) de uma conversa transferida (≈ 45–90 s reais)
 const TEMPLATE_CHANCE := 0.5            # chance de uma extra (ou a emergência) vir de um molde e não de um roteiro escrito
 const GIVE_UP_SEC := 60.0               # ligações extras desistem se ninguém atende (as principais aguentam 1,5x)
 const HOLD_GIVE_UP := 120.0             # minutos de jogo que alguém aguenta em espera antes de desligar
-const RETRY_AFTER := Vector2(15.0, 30.0)  # quem teve problema liga de novo depois de tantos minutos de jogo
+const RETRY_AFTER := Vector2(15.0, 30.0)  # quem teve problema liga de novo depois de tantos minutos de jogo...
+const RETRY_WAIT := 20.0                # ...esperando a mesa esvaziar por no máximo tantos minutos
 const REDISPATCH_CHANCE := 0.6          # emergência sem socorro que liga de novo: chance de ainda dar para despachar
 ## Tipo que o supervisor espera ver no caderno para cada ligação.
 const TYPE_OF := {
@@ -27,6 +30,7 @@ const TYPE_OF := {
 var C: GameContent = GameData.CONTENT
 
 var exchange: Exchange
+var weather := "rain"
 var report := ShiftReport.new()    ## advertências do turno, conferidas pelo supervisor no fim do turno
 var minutes := 0.0
 var running := false
@@ -65,6 +69,11 @@ var _tick_acc := 0.0
 
 func _ready() -> void:
 	_apply_seed()
+	weather = WEATHERS.pick_random()
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--weather=") and a.get_slice("=", 1) in WEATHERS:
+			weather = a.get_slice("=", 1)
+	background.weather = weather
 	exchange = Exchange.new(GameData.board_numbers())
 	board.setup(exchange, phone.fone_socket)
 	_build_schedule()
@@ -117,7 +126,7 @@ func warn(t: String) -> void:
 # ================================================================ laço principal
 
 func _start_shift() -> void:
-	Sfx.start_ambience()
+	Sfx.start_ambience(weather)
 	running = true
 	radio.say("Central, viatura 2 em ronda. Tudo tranquilo.")
 	hint(tr("Aguarde as chamadas. A lista, o mapa, o despacho e o caderno ficam nas abas acima."))
@@ -536,8 +545,10 @@ func _run_schedule() -> void:
 	for m in sched:
 		if m.kind == PhoneCall.Kind.MYSTERY and not _myst_lead and minutes >= m.at - 20.0:
 			_myst_lead = true
-			Sfx.fade(Sfx.rain, -30.0, 20.0)
+			Sfx.hush_nature(true, 20.0)
 			Sfx.fade(Sfx.hum, -34.0, 20.0)
+		if m.kind == PhoneCall.Kind.MYSTERY and minutes >= m.at - SHADOW_LEAD:
+			background.shadow = true
 	var c := sched[0]
 	if minutes < c.at:
 		return
@@ -545,8 +556,9 @@ func _run_schedule() -> void:
 	if c.kind == PhoneCall.Kind.EMERGENCY and c.retry != PhoneCall.Retry.NONE and report.is_resolved(c.data):
 		sched.pop_front()
 		return
-	# A ligação desconhecida só toca com a mesa em silêncio; as outras esperam uma entrada livre.
-	var hush := c.kind == PhoneCall.Kind.MYSTERY and not live.is_empty() and minutes < c.latest
+	# A ligação desconhecida e quem liga de novo só tocam com a mesa em silêncio (até `latest`), para não
+	# empilhar ligações sobre quem já está sobrecarregado; as outras esperam uma entrada livre.
+	var hush := (c.kind == PhoneCall.Kind.MYSTERY or c.retry != PhoneCall.Retry.NONE) and not live.is_empty() and minutes < c.latest
 	if hush or _free_line() == -1:
 		c.at = minutes + 3.0
 		sched.sort_custom(func(a: PhoneCall, b: PhoneCall): return a.at < b.at)
@@ -778,6 +790,11 @@ func _fault(id: String, detail := "") -> void:
 	report.add(id, fmt(minutes), detail)
 
 
+## Conversa fiada: as falas gerais e as do clima da noite.
+func smalltalk() -> PackedStringArray:
+	return C.smalltalk + (C.get("smalltalk_" + weather) as PackedStringArray)
+
+
 ## O que o supervisor vai anotar e quem vai ligar de novo por causa de como a ligação terminou.
 ## A ligação do tutorial, os trotes e a ligação desconhecida não contam.
 func _consequences(c: PhoneCall, reason: PhoneCall.End) -> void:
@@ -818,6 +835,7 @@ func _call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
 	n.retried = c.retried.duplicate()
 	n.retried.append(why)
 	n.at = minf(minutes + randf_range(RETRY_AFTER.x, RETRY_AFTER.y), maxf(minutes + 2.0, SHIFT_END - 4.0))
+	n.latest = n.at + RETRY_WAIT
 	sched.append(n)
 	sched.sort_custom(func(a: PhoneCall, b: PhoneCall): return a.at < b.at)
 
@@ -874,7 +892,9 @@ func _mystery_aftermath(c: PhoneCall) -> void:
 	flick = false
 	c.sys(tr("(A ligação caiu.)"))
 	after = true
+	background.shadow = false   # some junto com a ligação
 	get_tree().create_timer(1.8).timeout.connect(func(): Sfx.fade(Sfx.hum, -32.0, 3.0))
+	get_tree().create_timer(25.0).timeout.connect(Sfx.hush_nature.bind(false, 10.0))   # a noite volta aos poucos
 
 
 func _start_ending() -> void:
@@ -883,9 +903,7 @@ func _start_ending() -> void:
 	ending = true
 	running = false
 	Sfx.ring_stop()
-	Sfx.fade(Sfx.rain, -80.0, 5.0)
-	Sfx.fade(Sfx.hum, -80.0, 5.0)
-	Sfx.fade(Sfx.hiss, -80.0, 1.0)
+	Sfx.stop_ambience(5.0)
 	var left: Array = notebook.queue.duplicate()
 	if notebook.has_pending():
 		left.append(notebook.pending)

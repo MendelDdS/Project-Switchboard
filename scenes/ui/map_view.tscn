@@ -9,7 +9,7 @@ script = ExtResource("1_map_view")
 
 [node name="City" type="Control" parent="."]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(576, 422)
+custom_minimum_size = Vector2(576, 398)
 layout_mode = 2
 script = ExtResource("2_city_map")
 
