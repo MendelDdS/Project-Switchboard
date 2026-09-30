@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_srh6x"]
+
+[resource]
+script = ExtResource("1_srh6x")
+group = 1
+caller = "Dona Rute"
+opening = PackedStringArray("Me liga com a clínica, na recepção.", "Não é pra falar com o doutor, é pra marcar horário.")
+repeat = "A recepção da Clínica São Lucas."
+target = "213"
+destination = "Clínica São Lucas"
+thanks = "Obrigada."

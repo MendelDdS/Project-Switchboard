@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_adpae"]
+
+[resource]
+script = ExtResource("1_adpae")
+voice = "m"
+caller = "Caminhoneiro"
+opening = PackedStringArray("Central, boa noite.", "Meu caminhão morreu perto do moinho. O Tião da oficina atende de noite, não atende?")
+repeat = "A oficina do Tião. Na Rua do Moinho."
+target = "318"
+destination = "Oficina do Tião"
+thanks = "Deus lhe pague."

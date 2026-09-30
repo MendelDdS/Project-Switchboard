@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_jfla8"]
+
+[resource]
+script = ExtResource("1_jfla8")
+group = 1
+caller = "Sobrinha"
+opening = PackedStringArray("A Dona Célia Rocha, por favor.", "A que mora na avenida. Minha tia.")
+repeat = "Célia Rocha. A da avenida."
+target = "373"
+destination = "Célia Rocha (Av. Brasil)"
+thanks = "Obrigada, moço."

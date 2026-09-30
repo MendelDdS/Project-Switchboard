@@ -1,0 +1,368 @@
+[gd_resource type="Resource" script_class="GameContent" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_6g7xa"]
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="2_l0sn3"]
+[ext_resource type="Resource" path="res://data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres" id="3_v72nw"]
+[ext_resource type="Resource" path="res://data/calls/emergency_02_incendio_rua_do_moinho_40.tres" id="4_brh46"]
+[ext_resource type="Resource" path="res://data/calls/emergency_03_mal_subito_rua_do_sol_230.tres" id="5_t6c0w"]
+[ext_resource type="Resource" path="res://data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres" id="6_cbrcj"]
+[ext_resource type="Resource" path="res://data/calls/emergency_05_outro_rua_da_estacao_140.tres" id="7_ks6ko"]
+[ext_resource type="Resource" path="res://data/calls/emergency_06_outro_rua_do_comercio_71.tres" id="8_ec5ew"]
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="9_ev121"]
+[ext_resource type="Resource" path="res://data/calls/prank_01_crianca.tres" id="10_wfk0g"]
+[ext_resource type="Resource" path="res://data/calls/prank_02_garoto.tres" id="11_pg478"]
+[ext_resource type="Resource" path="res://data/calls/prank_03_menina.tres" id="12_3mr8u"]
+[ext_resource type="Resource" path="res://data/calls/prank_04_garoto.tres" id="13_4b6fe"]
+[ext_resource type="Resource" path="res://data/calls/prank_05_menino.tres" id="14_3w1w1"]
+[ext_resource type="Script" path="res://scripts/data/game_content.gd" id="15_65xm7"]
+[ext_resource type="Script" path="res://scripts/data/street.gd" id="16_5siro"]
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="17_q4d2e"]
+[ext_resource type="Resource" path="res://data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres" id="18_g0ddb"]
+[ext_resource type="Resource" path="res://data/calls/transfer_02_sr_nelson_hotel_estrela.tres" id="19_y6u46"]
+[ext_resource type="Resource" path="res://data/calls/transfer_03_rapaz_taxi_ponto_da_rodoviaria.tres" id="20_5hhcc"]
+[ext_resource type="Resource" path="res://data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres" id="21_r4mvx"]
+[ext_resource type="Resource" path="res://data/calls/transfer_05_rapaz_apaixonado_radio_serena_am.tres" id="22_nagbo"]
+[ext_resource type="Resource" path="res://data/calls/transfer_06_caminhoneiro_oficina_do_tiao.tres" id="23_7ad0u"]
+[ext_resource type="Resource" path="res://data/calls/transfer_07_motorista_posto_sao_cristovao.tres" id="24_76ki8"]
+[ext_resource type="Resource" path="res://data/calls/transfer_08_dona_cida_cine_odeon.tres" id="25_q3bf4"]
+[ext_resource type="Resource" path="res://data/calls/transfer_09_senhor_funeraria_paz_eterna.tres" id="26_61w3p"]
+[ext_resource type="Resource" path="res://data/calls/transfer_10_dona_neide_bar_do_ze.tres" id="27_grq3w"]
+[ext_resource type="Resource" path="res://data/calls/transfer_11_morador_dr_augusto_almeida.tres" id="28_otrev"]
+[ext_resource type="Resource" path="res://data/calls/transfer_12_sra_marta_celia_rocha_rua_do_sol.tres" id="29_flf23"]
+[ext_resource type="Resource" path="res://data/calls/transfer_13_sr_ivo_armazem_ferreira.tres" id="30_amupc"]
+[ext_resource type="Resource" path="res://data/calls/transfer_14_senhora_casa_paroquial.tres" id="31_xeepj"]
+[ext_resource type="Resource" path="res://data/calls/transfer_15_vizinho_otavio_almeida.tres" id="32_nyi6e"]
+[ext_resource type="Resource" path="res://data/calls/transfer_16_sobrinha_celia_rocha_av_brasil.tres" id="33_xdh2c"]
+[ext_resource type="Resource" path="res://data/calls/transfer_17_fregues_joaquim_ferreira_residencia.tres" id="34_hps07"]
+[ext_resource type="Resource" path="res://data/calls/transfer_18_dona_rute_clinica_sao_lucas.tres" id="35_2ubng"]
+[ext_resource type="Resource" path="res://data/calls/transfer_19_homem_bar_do_ze.tres" id="36_35dgx"]
+[ext_resource type="Resource" path="res://data/calls/transfer_20_dona_tereza_marta_costa.tres" id="37_8shhh"]
+[ext_resource type="Resource" path="res://data/calls/transfer_21_moca_lucia_pereira.tres" id="38_ko1bc"]
+[ext_resource type="Resource" path="res://data/calls/transfer_22_seu_anibal_farmacia_central.tres" id="39_11ieg"]
+[ext_resource type="Resource" path="res://data/calls/transfer_23_dona_aurora_igreja_matriz.tres" id="40_grptk"]
+[ext_resource type="Resource" path="res://data/calls/transfer_24_seu_benedito_ivo_teixeira.tres" id="41_e6ja0"]
+
+[sub_resource type="Resource" id="Resource_ssh4q"]
+script = ExtResource("1_6g7xa")
+name = "Almeida, Dr. Augusto"
+note = "Clínica São Lucas"
+address = "Rua das Flores, 12"
+number = "214"
+
+[sub_resource type="Resource" id="Resource_7bth5"]
+script = ExtResource("1_6g7xa")
+name = "Almeida, Otávio"
+note = "residência"
+address = "Rua da Estação, 9"
+number = "251"
+
+[sub_resource type="Resource" id="Resource_4thi7"]
+script = ExtResource("1_6g7xa")
+name = "Armazém Ferreira"
+note = "Joaquim Ferreira"
+address = "Rua do Comércio, 30"
+number = "288"
+spoken = "o Armazém Ferreira"
+
+[sub_resource type="Resource" id="Resource_ufmoj"]
+script = ExtResource("1_6g7xa")
+name = "Bar do Zé"
+address = "Rua da Estação, 140"
+number = "327"
+
+[sub_resource type="Resource" id="Resource_yijt6"]
+script = ExtResource("1_6g7xa")
+name = "Barbearia Navalha"
+address = "Rua do Comércio, 71"
+number = "209"
+closed_at_night = true
+
+[sub_resource type="Resource" id="Resource_em5wb"]
+script = ExtResource("1_6g7xa")
+name = "Bombeiros, Corpo de"
+note = "use o despacho"
+address = "Avenida Brasil, 210"
+number = "193"
+dispatch_only = true
+
+[sub_resource type="Resource" id="Resource_yceab"]
+script = ExtResource("1_6g7xa")
+name = "Casa Paroquial"
+note = "Pe. Anselmo"
+address = "Praça da Matriz, 1"
+number = "120"
+
+[sub_resource type="Resource" id="Resource_dmgf0"]
+script = ExtResource("1_6g7xa")
+name = "Cine Odeon"
+address = "Avenida Brasil, 95"
+number = "344"
+spoken = "o Cine Odeon"
+
+[sub_resource type="Resource" id="Resource_s63jb"]
+script = ExtResource("1_6g7xa")
+name = "Clínica São Lucas"
+note = "recepção"
+address = "Rua das Flores, 12"
+number = "213"
+
+[sub_resource type="Resource" id="Resource_d8b43"]
+script = ExtResource("1_6g7xa")
+name = "Correios e Telégrafos"
+address = "Praça da Matriz, 8"
+number = "155"
+closed_at_night = true
+
+[sub_resource type="Resource" id="Resource_xawj0"]
+script = ExtResource("1_6g7xa")
+name = "Costa, Marta"
+address = "Rua do Sol, 54"
+number = "223"
+
+[sub_resource type="Resource" id="Resource_tew1k"]
+script = ExtResource("1_6g7xa")
+name = "Delegacia de Polícia"
+note = "use o despacho"
+address = "Avenida Brasil, 120"
+number = "190"
+dispatch_only = true
+
+[sub_resource type="Resource" id="Resource_i4sgx"]
+script = ExtResource("1_6g7xa")
+name = "Escola Estadual Rui Barbosa"
+address = "Rua do Sol, 10"
+number = "280"
+closed_at_night = true
+
+[sub_resource type="Resource" id="Resource_2cdgd"]
+script = ExtResource("1_6g7xa")
+name = "Farmácia Central"
+note = "fecha às 20h"
+address = "Praça da Matriz, 3"
+number = "118"
+closed_at_night = true
+
+[sub_resource type="Resource" id="Resource_k2mqa"]
+script = ExtResource("1_6g7xa")
+name = "Farmácia Santa Rita"
+note = "plantão 24 horas"
+address = "Avenida Brasil, 220"
+number = "162"
+
+[sub_resource type="Resource" id="Resource_wgbdt"]
+script = ExtResource("1_6g7xa")
+name = "Ferreira, Joaquim"
+note = "residência"
+address = "Rua da Estação, 60"
+number = "291"
+
+[sub_resource type="Resource" id="Resource_dldyi"]
+script = ExtResource("1_6g7xa")
+name = "Funerária Paz Eterna"
+address = "Rua das Acácias, 250"
+number = "399"
+
+[sub_resource type="Resource" id="Resource_e0jml"]
+script = ExtResource("1_6g7xa")
+name = "Hospital Municipal"
+note = "use o despacho"
+address = "Rua das Flores, 150"
+number = "192"
+dispatch_only = true
+
+[sub_resource type="Resource" id="Resource_vcut8"]
+script = ExtResource("1_6g7xa")
+name = "Hotel Estrela"
+address = "Avenida Brasil, 30"
+number = "305"
+spoken = "o Hotel Estrela"
+
+[sub_resource type="Resource" id="Resource_wcyhl"]
+script = ExtResource("1_6g7xa")
+name = "Igreja Matriz"
+note = "secretaria, horário comercial"
+address = "Praça da Matriz, 1"
+number = "124"
+closed_at_night = true
+
+[sub_resource type="Resource" id="Resource_pli3n"]
+script = ExtResource("1_6g7xa")
+name = "Lima, Rosa"
+address = "Rua das Acácias, 77"
+number = "296"
+spoken = "a Dona Rosa Lima"
+
+[sub_resource type="Resource" id="Resource_kofd3"]
+script = ExtResource("1_6g7xa")
+name = "Mercearia Silva"
+address = "Rua das Acácias, 105"
+number = "262"
+spoken = "a Mercearia Silva"
+
+[sub_resource type="Resource" id="Resource_bws1x"]
+script = ExtResource("1_6g7xa")
+name = "Nogueira, Paulo"
+address = "Rua do Moinho, 18"
+number = "312"
+spoken = "o seu Paulo Nogueira"
+
+[sub_resource type="Resource" id="Resource_52df0"]
+script = ExtResource("1_6g7xa")
+name = "Oficina do Tião"
+address = "Rua do Moinho, 44"
+number = "318"
+
+[sub_resource type="Resource" id="Resource_8y4og"]
+script = ExtResource("1_6g7xa")
+name = "Padaria Pão Dourado"
+address = "Rua do Comércio, 5"
+number = "142"
+spoken = "a Padaria Pão Dourado"
+
+[sub_resource type="Resource" id="Resource_3vj4f"]
+script = ExtResource("1_6g7xa")
+name = "Pereira, Lúcia"
+address = "Rua das Flores, 90"
+number = "336"
+
+[sub_resource type="Resource" id="Resource_osrdx"]
+script = ExtResource("1_6g7xa")
+name = "Posto São Cristóvão"
+address = "Rua da Estação, 200"
+number = "347"
+spoken = "o Posto São Cristóvão"
+
+[sub_resource type="Resource" id="Resource_yi6mb"]
+script = ExtResource("1_6g7xa")
+name = "Prefeitura Municipal"
+address = "Praça da Matriz, 2"
+number = "101"
+closed_at_night = true
+
+[sub_resource type="Resource" id="Resource_drsc6"]
+script = ExtResource("1_6g7xa")
+name = "Rádio Serena AM"
+address = "Rua do Sol, 199"
+number = "390"
+spoken = "a Rádio Serena"
+
+[sub_resource type="Resource" id="Resource_dr0p2"]
+script = ExtResource("1_6g7xa")
+name = "Ramos, Alberto"
+address = "Avenida Brasil, 180"
+number = "352"
+
+[sub_resource type="Resource" id="Resource_tnurf"]
+script = ExtResource("1_6g7xa")
+name = "Rocha, Célia"
+address = "Rua do Sol, 88"
+number = "367"
+
+[sub_resource type="Resource" id="Resource_6dq54"]
+script = ExtResource("1_6g7xa")
+name = "Rocha, Célia"
+address = "Avenida Brasil, 240"
+number = "373"
+
+[sub_resource type="Resource" id="Resource_6y7ie"]
+script = ExtResource("1_6g7xa")
+name = "Serraria Moinho Velho"
+note = "desativada"
+address = "Rua do Moinho, 40"
+number = "355"
+closed_at_night = true
+
+[sub_resource type="Resource" id="Resource_7llgn"]
+script = ExtResource("1_6g7xa")
+name = "Souza, Benedito"
+address = "Rua do Sol, 230"
+number = "271"
+spoken = "o seu Benedito Souza"
+
+[sub_resource type="Resource" id="Resource_hmatr"]
+script = ExtResource("1_6g7xa")
+name = "Táxi, Ponto da Rodoviária"
+address = "Rua da Estação, 110"
+number = "176"
+
+[sub_resource type="Resource" id="Resource_uhirb"]
+script = ExtResource("1_6g7xa")
+name = "Teixeira, Ivo"
+address = "Rua das Flores, 33"
+number = "379"
+spoken = "o seu Ivo Teixeira"
+
+[sub_resource type="Resource" id="Resource_5fdhg"]
+script = ExtResource("1_6g7xa")
+name = "Vieira, Sônia"
+address = "Rua do Comércio, 120"
+number = "384"
+spoken = "a Dona Sônia Vieira"
+
+[sub_resource type="Resource" id="Resource_ecmv4"]
+script = ExtResource("16_5siro")
+id = "flores"
+name = "Rua das Flores"
+pos = 90.0
+
+[sub_resource type="Resource" id="Resource_1exdq"]
+script = ExtResource("16_5siro")
+id = "brasil"
+name = "Avenida Brasil"
+pos = 225.0
+
+[sub_resource type="Resource" id="Resource_r56aq"]
+script = ExtResource("16_5siro")
+id = "acacias"
+name = "Rua das Acácias"
+pos = 360.0
+
+[sub_resource type="Resource" id="Resource_8jahr"]
+script = ExtResource("16_5siro")
+id = "comercio"
+name = "Rua do Comércio"
+horizontal = false
+pos = 110.0
+
+[sub_resource type="Resource" id="Resource_drklu"]
+script = ExtResource("16_5siro")
+id = "estacao"
+name = "Rua da Estação"
+horizontal = false
+pos = 250.0
+
+[sub_resource type="Resource" id="Resource_6vkdf"]
+script = ExtResource("16_5siro")
+id = "sol"
+name = "Rua do Sol"
+horizontal = false
+pos = 390.0
+
+[sub_resource type="Resource" id="Resource_5w5ra"]
+script = ExtResource("16_5siro")
+id = "moinho"
+name = "Rua do Moinho"
+horizontal = false
+pos = 530.0
+
+[resource]
+script = ExtResource("15_65xm7")
+directory = Array[ExtResource("1_6g7xa")]([SubResource("Resource_ssh4q"), SubResource("Resource_7bth5"), SubResource("Resource_4thi7"), SubResource("Resource_ufmoj"), SubResource("Resource_yijt6"), SubResource("Resource_em5wb"), SubResource("Resource_yceab"), SubResource("Resource_dmgf0"), SubResource("Resource_s63jb"), SubResource("Resource_d8b43"), SubResource("Resource_xawj0"), SubResource("Resource_tew1k"), SubResource("Resource_i4sgx"), SubResource("Resource_2cdgd"), SubResource("Resource_k2mqa"), SubResource("Resource_wgbdt"), SubResource("Resource_dldyi"), SubResource("Resource_e0jml"), SubResource("Resource_vcut8"), SubResource("Resource_wcyhl"), SubResource("Resource_pli3n"), SubResource("Resource_kofd3"), SubResource("Resource_bws1x"), SubResource("Resource_52df0"), SubResource("Resource_8y4og"), SubResource("Resource_3vj4f"), SubResource("Resource_osrdx"), SubResource("Resource_yi6mb"), SubResource("Resource_drsc6"), SubResource("Resource_dr0p2"), SubResource("Resource_tnurf"), SubResource("Resource_6dq54"), SubResource("Resource_6y7ie"), SubResource("Resource_7llgn"), SubResource("Resource_hmatr"), SubResource("Resource_uhirb"), SubResource("Resource_5fdhg")])
+streets = Array[ExtResource("16_5siro")]([SubResource("Resource_ecmv4"), SubResource("Resource_1exdq"), SubResource("Resource_r56aq"), SubResource("Resource_8jahr"), SubResource("Resource_drklu"), SubResource("Resource_6vkdf"), SubResource("Resource_5w5ra")])
+block_labels = PackedStringArray("1–99", "100–199", "200–299")
+occurrences = PackedStringArray("Acidente de trânsito", "Incêndio", "Mal súbito", "Invasão / roubo", "Outro")
+main_call_at = PackedFloat32Array(5, 38, 84, 170)
+transfers = Array[ExtResource("17_q4d2e")]([ExtResource("18_g0ddb"), ExtResource("19_y6u46"), ExtResource("20_5hhcc"), ExtResource("21_r4mvx"), ExtResource("22_nagbo"), ExtResource("23_7ad0u"), ExtResource("24_76ki8"), ExtResource("25_q3bf4"), ExtResource("26_61w3p"), ExtResource("27_grq3w"), ExtResource("28_otrev"), ExtResource("29_flf23"), ExtResource("30_amupc"), ExtResource("31_xeepj"), ExtResource("32_nyi6e"), ExtResource("33_xdh2c"), ExtResource("34_hps07"), ExtResource("35_2ubng"), ExtResource("36_35dgx"), ExtResource("37_8shhh"), ExtResource("38_ko1bc"), ExtResource("39_11ieg"), ExtResource("40_grptk"), ExtResource("41_e6ja0")])
+emergencies = Array[ExtResource("2_l0sn3")]([ExtResource("3_v72nw"), ExtResource("4_brh46"), ExtResource("5_t6c0w"), ExtResource("6_cbrcj"), ExtResource("7_ks6ko"), ExtResource("8_ec5ew")])
+pranks = Array[ExtResource("9_ev121")]([ExtResource("10_wfk0g"), ExtResource("11_pg478"), ExtResource("12_3mr8u"), ExtResource("13_4b6fe"), ExtResource("14_3w1w1")])
+greetings = PackedStringArray("Central, boa noite.", "Central telefônica, pois não?", "Central, boa noite. Em que posso ajudar?", "Central, pois não?", "Central.")
+smalltalk = PackedStringArray("Que chuva, hein? Não parou desde a tarde.", "Desculpe ligar tão tarde.", "A luz piscou aqui em casa agora há pouco. Aí também?", "O senhor passa a noite inteira aí sozinho?", "Essa linha está chiando, né?", "Minha mulher disse que não era pra incomodar a central a essa hora.", "O senhor não tem medo de ficar aí de noite?", "Meu marido já dormiu, mas eu não consigo pegar no sono.", "Ouvi dizer que o rio vai encher de novo.", "Faltou luz lá na Rua do Sol ontem, sabia?", "Essa central nunca dorme, né?", "Tem um barulho engraçado na linha hoje.", "Que frio, meu Deus.", "Tinha um carro parado na frente de casa, com o farol aceso. Já foi embora.")
+waiting = PackedStringArray("Alô? Central?", "Ainda está aí?", "Alô? Conseguiu?", "Moço? A ligação caiu?", "Alô? Tô esperando...", "Demora muito?")
+emergency_waiting = PackedStringArray("Alô?! Vocês vão mandar alguém?", "Por favor, rápido!", "Central?!")
+hold_ok = PackedStringArray("Tá bom, eu espero.", "Obrigado, aguardo.", "Certo.", "Pode ser, eu fico na linha.", "Tá, mas rapidinho, tá?")
+wrong_destination = PackedStringArray("Não, moço, não é aí.", "Hã? Não é com essa pessoa que eu quero falar.", "Esse não é quem eu pedi!", "Opa, acho que o senhor ligou errado.")
+info_callers = PackedStringArray("f:Moradora", "m:Morador", "w:Senhor", "f:Senhora")
+ask_number = PackedStringArray("Boa noite. Pode me dar o número %s?", "Central, o senhor sabe o número %s?", "Queria só o número %s, pra anotar aqui.", "Perdi a caderneta. Qual é o número %s?")
+ask_time = PackedStringArray("Moço, que horas são? O relógio lá de casa parou.", "Desculpe incomodar. O senhor tem as horas certas?", "Central, que horas são agora? Faltou luz e o relógio apagou.")
+info_thanks = PackedStringArray("Anotado. Obrigada, boa noite.", "Isso, obrigado.", "Ah, tá certo. Obrigado.", "Muito obrigada. Boa noite.")
+info_doubt = PackedStringArray("Hum. Tem certeza? Bom... obrigado.", "Isso tudo? Tá bom, obrigado.", "Vou tentar esse então.")

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_qpeje"]
+
+[resource]
+script = ExtResource("1_qpeje")
+voice = "m"
+caller = "Homem"
+opening = "Central, tem fogo! Tem fogo no galpão da Rua do Moinho!"
+questions = PackedStringArray("Qual é o número?", "O que está queimando?", "Tem alguém lá dentro?")
+answers = PackedStringArray("Quarenta! O galpão da serraria velha!", "O telhado inteiro! A fumaça está preta!", "Acho que não. Acho que não...")
+street = "moinho"
+address = "Rua do Moinho, 40"
+occurrence = "Incêndio"
+units = PackedStringArray("bomb")
+after = "Tá bom. Tá bom. Eu vou tirar o carro daqui."

@@ -1,0 +1,55 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_frkd3"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_r5i6j"]
+
+[sub_resource type="Resource" id="Resource_33421"]
+script = ExtResource("2_r5i6j")
+text = "Central! É urgente! Tem um incêndio!"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_efwgl"]
+script = ExtResource("2_r5i6j")
+kind = 1
+options = PackedStringArray("Onde é o incêndio?")
+
+[sub_resource type="Resource" id="Resource_4or74"]
+script = ExtResource("2_r5i6j")
+kind = 2
+options = PackedStringArray()
+seconds = 0.9
+
+[sub_resource type="Resource" id="Resource_vrkvv"]
+script = ExtResource("2_r5i6j")
+text = "No meu coração..."
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_60ak8"]
+script = ExtResource("2_r5i6j")
+text = "...pela Marcinha da sétima série!"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_rlsok"]
+script = ExtResource("2_r5i6j")
+text = "(risadas de várias crianças)"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_5ph6k"]
+script = ExtResource("2_r5i6j")
+kind = 1
+options = PackedStringArray("Esta é uma linha de serviço, garoto.", "Onde você está ligando?")
+
+[sub_resource type="Resource" id="Resource_vdss1"]
+script = ExtResource("2_r5i6j")
+text = "Fala pra ela, tá? Tchau!"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_wlt61"]
+script = ExtResource("2_r5i6j")
+kind = 3
+options = PackedStringArray()
+
+[resource]
+script = ExtResource("1_frkd3")
+caller = "Garoto"
+steps = Array[ExtResource("2_r5i6j")]([SubResource("Resource_33421"), SubResource("Resource_efwgl"), SubResource("Resource_4or74"), SubResource("Resource_vrkvv"), SubResource("Resource_60ak8"), SubResource("Resource_rlsok"), SubResource("Resource_5ph6k"), SubResource("Resource_vdss1"), SubResource("Resource_wlt61")])

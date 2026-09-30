@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_nslod"]
+
+[resource]
+script = ExtResource("1_nslod")
+caller = "Senhora"
+opening = "Central, caiu um fio do poste aqui na frente e está soltando faísca na chuva!"
+questions = PackedStringArray("Qual é o endereço?", "Alguém encostou no fio?", "Tem fogo?")
+answers = PackedStringArray("Rua do Comércio, 71! Na frente da barbearia!", "Não, não! Tá todo mundo longe.", "Tá começando a queimar a árvore!")
+street = "comercio"
+address = "Rua do Comércio, 71"
+occurrence = "Outro"
+units = PackedStringArray("bomb")
+after = "Tá bom. Vou manter as crianças dentro de casa."

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_5dgsc"]
+
+[resource]
+script = ExtResource("1_5dgsc")
+group = 2
+caller = "Moça"
+opening = PackedStringArray("Oi. O número é 336.", "Da Lúcia Pereira.")
+repeat = "Três, três, seis."
+target = "336"
+destination = "Lúcia Pereira"
+thanks = "Obrigada!"

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_x8fs7"]
+
+[resource]
+script = ExtResource("1_x8fs7")
+voice = "w"
+caller = "Senhor"
+opening = PackedStringArray("Boa noite...", "Preciso falar com a funerária. Meu pai faleceu agora há pouco.")
+repeat = "A funerária. A Paz Eterna."
+target = "399"
+destination = "Funerária Paz Eterna"
+thanks = "Obrigado, moço."

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_45pmb"]
+
+[resource]
+script = ExtResource("1_45pmb")
+caller = "Dona Neide"
+opening = PackedStringArray("Me liga com o Bar do Zé.", "Meu marido disse que ia ficar só uma hora. Já faz três.")
+repeat = "O Bar do Zé! Na Rua da Estação."
+target = "327"
+destination = "Bar do Zé"
+thanks = "Ah, ele vai ver só."

@@ -1,0 +1,45 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_403e0"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_04pg7"]
+
+[sub_resource type="Resource" id="Resource_rkh4r"]
+script = ExtResource("2_04pg7")
+text = "Central? Aqui quem fala é o presidente da república."
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_dobp3"]
+script = ExtResource("2_04pg7")
+kind = 1
+options = PackedStringArray("Pois não, senhor presidente.", "Esta é uma linha de serviço.")
+
+[sub_resource type="Resource" id="Resource_nubhv"]
+script = ExtResource("2_04pg7")
+text = "Eu quero... eu quero pedir uma pizza!"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_nkwr5"]
+script = ExtResource("2_04pg7")
+kind = 2
+options = PackedStringArray()
+seconds = 0.6
+
+[sub_resource type="Resource" id="Resource_5r0iq"]
+script = ExtResource("2_04pg7")
+text = "(ao fundo) Pede cachorro-quente!"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_pg2mt"]
+script = ExtResource("2_04pg7")
+text = "(risadas abafadas)"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_geevs"]
+script = ExtResource("2_04pg7")
+kind = 3
+options = PackedStringArray()
+
+[resource]
+script = ExtResource("1_403e0")
+caller = "Menino"
+steps = Array[ExtResource("2_04pg7")]([SubResource("Resource_rkh4r"), SubResource("Resource_dobp3"), SubResource("Resource_nubhv"), SubResource("Resource_nkwr5"), SubResource("Resource_5r0iq"), SubResource("Resource_pg2mt"), SubResource("Resource_geevs")])

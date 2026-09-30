@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_8t6jg"]
+
+[resource]
+script = ExtResource("1_8t6jg")
+voice = "m"
+caller = "Sr. Nelson"
+opening = PackedStringArray("Boa noite, central.", "Me liga com o Hotel Estrela, por favor? Meu irmão chegou hoje da capital e está hospedado lá.")
+repeat = "O Hotel Estrela. Na avenida."
+target = "305"
+destination = "Hotel Estrela"
+thanks = "Muito obrigado."

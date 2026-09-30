@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_s7gop"]
+
+[resource]
+script = ExtResource("1_s7gop")
+voice = "m"
+caller = "Rapaz apaixonado"
+opening = PackedStringArray("Boa noite!", "Me liga com a Rádio Serena? Quero pedir uma música pra minha noiva.")
+repeat = "A rádio. A Serena AM."
+target = "390"
+destination = "Rádio Serena AM"
+thanks = "Valeu! Ela vai ouvir, tenho certeza."

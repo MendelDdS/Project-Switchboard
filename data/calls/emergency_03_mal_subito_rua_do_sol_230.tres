@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_bu2bh"]
+
+[resource]
+script = ExtResource("1_bu2bh")
+caller = "Moça"
+opening = "Central, meu pai caiu no banheiro e não acorda!"
+questions = PackedStringArray("Qual é o endereço?", "Ele está respirando?", "Tem mais alguém ferido?")
+answers = PackedStringArray("Rua do Sol, 230! A casa amarela!", "Está... mas não responde. Bateu a cabeça.", "Não, só ele. Por favor, rápido!")
+street = "sol"
+block = 2
+address = "Rua do Sol, 230"
+occurrence = "Mal súbito"
+units = PackedStringArray("amb")
+after = "Obrigada. Eu vou deixar a porta aberta."

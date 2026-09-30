@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_lqlpy"]
+
+[resource]
+script = ExtResource("1_lqlpy")
+group = 2
+caller = "Dona Aurora"
+opening = PackedStringArray("Preciso falar com a igreja. A Matriz.", "É pra pedir uma bênção... minha filha viaja amanhã cedo.")
+repeat = "A Igreja Matriz."
+target = "124"
+destination = "Igreja Matriz"
+thanks = "Deus lhe pague."
+alt_target = "120"
+alt_destination = "Casa Paroquial"
+alt_ask = "A secretaria da igreja não atende. Quer que eu tente a casa do Padre Anselmo?"
+alt_yes = "Isso, na casa do padre. Obrigada."

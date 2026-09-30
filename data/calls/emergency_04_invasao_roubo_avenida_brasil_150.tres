@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_8kd6s"]
+
+[resource]
+script = ExtResource("1_8kd6s")
+voice = "w"
+caller = "Homem (sussurrando)"
+opening = "Central... tem alguém tentando arrombar a casa do vizinho."
+questions = PackedStringArray("Qual é o endereço?", "O que você está vendo?", "Quantas pessoas?")
+answers = PackedStringArray("Avenida Brasil, 150. A casa do lado da minha.", "Forçando a janela dos fundos. O vizinho viajou.", "Dois homens. Não vi arma, não.")
+street = "brasil"
+block = 1
+address = "Avenida Brasil, 150"
+occurrence = "Invasão / roubo"
+units = PackedStringArray("pol")
+after = "Tá. Vou ficar quieto aqui dentro."

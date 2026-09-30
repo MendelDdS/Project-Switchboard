@@ -1,0 +1,73 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_427vo"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_4rqcl"]
+
+[sub_resource type="Resource" id="Resource_eodal"]
+script = ExtResource("2_4rqcl")
+text = "Central, preciso de uma ambulância!"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_d6iat"]
+script = ExtResource("2_4rqcl")
+kind = 1
+options = PackedStringArray("Qual é o endereço?")
+
+[sub_resource type="Resource" id="Resource_6uesi"]
+script = ExtResource("2_4rqcl")
+kind = 2
+options = PackedStringArray()
+seconds = 1.5
+
+[sub_resource type="Resource" id="Resource_2wshe"]
+script = ExtResource("2_4rqcl")
+text = "Na casa do meu cachorro."
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_s6qx3"]
+script = ExtResource("2_4rqcl")
+kind = 1
+options = PackedStringArray("Qual é o endereço?", "Isso é sério?")
+
+[sub_resource type="Resource" id="Resource_nyfqe"]
+script = ExtResource("2_4rqcl")
+text = "Rua Au-Au, número 4."
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_0qp6c"]
+script = ExtResource("2_4rqcl")
+kind = 2
+options = PackedStringArray()
+seconds = 1.1
+
+[sub_resource type="Resource" id="Resource_fmut0"]
+script = ExtResource("2_4rqcl")
+text = "É urgente. Ele comeu meu sanduíche."
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_ptvku"]
+script = ExtResource("2_4rqcl")
+text = "(risadas abafadas)"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_dek6j"]
+script = ExtResource("2_4rqcl")
+kind = 2
+options = PackedStringArray()
+seconds = 0.6
+
+[sub_resource type="Resource" id="Resource_822yu"]
+script = ExtResource("2_4rqcl")
+text = "(ao fundo) Desliga, desliga!"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_0nbpv"]
+script = ExtResource("2_4rqcl")
+kind = 3
+options = PackedStringArray()
+
+[resource]
+script = ExtResource("1_427vo")
+caller = "Criança"
+fake_address = "Rua Au-Au, 4"
+steps = Array[ExtResource("2_4rqcl")]([SubResource("Resource_eodal"), SubResource("Resource_d6iat"), SubResource("Resource_6uesi"), SubResource("Resource_2wshe"), SubResource("Resource_s6qx3"), SubResource("Resource_nyfqe"), SubResource("Resource_0qp6c"), SubResource("Resource_fmut0"), SubResource("Resource_ptvku"), SubResource("Resource_dek6j"), SubResource("Resource_822yu"), SubResource("Resource_0nbpv")])

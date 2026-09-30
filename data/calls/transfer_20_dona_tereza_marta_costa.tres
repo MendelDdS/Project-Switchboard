@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_dyan4"]
+
+[resource]
+script = ExtResource("1_dyan4")
+group = 2
+caller = "Dona Tereza"
+opening = PackedStringArray("Me conecta com o 223, por favor?", "É da minha comadre.")
+repeat = "Dois, dois, três. A Marta."
+target = "223"
+destination = "Marta Costa"
+thanks = "Obrigada, querido."

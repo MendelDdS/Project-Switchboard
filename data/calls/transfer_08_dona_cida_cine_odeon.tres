@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_c0ign"]
+
+[resource]
+script = ExtResource("1_c0ign")
+caller = "Dona Cida"
+opening = PackedStringArray("Boa noite, meu bem.", "Quero saber que filme passa amanhã. Me passa pro cinema?")
+repeat = "O Cine Odeon, na avenida."
+target = "344"
+destination = "Cine Odeon"
+thanks = "Obrigada, meu bem."

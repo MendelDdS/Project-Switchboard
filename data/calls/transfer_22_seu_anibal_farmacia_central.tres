@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_v0vlb"]
+
+[resource]
+script = ExtResource("1_v0vlb")
+group = 2
+voice = "w"
+caller = "Seu Aníbal"
+opening = PackedStringArray("Boa noite. Me liga com a Farmácia Central, a da praça?", "Preciso de um remédio pra pressão.")
+repeat = "A Farmácia Central. Na Praça da Matriz."
+target = "118"
+destination = "Farmácia Central"
+thanks = "Obrigado, meu filho."
+alt_target = "162"
+alt_destination = "Farmácia Santa Rita"
+alt_ask = "Ninguém atende. Quer que eu tente a Santa Rita, de plantão?"
+alt_yes = "Ah, é mesmo, a Central fecha cedo. Pode ser, obrigado."

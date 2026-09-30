@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_7fpkt"]
+
+[resource]
+script = ExtResource("1_7fpkt")
+caller = "Mulher"
+opening = "Central! Houve um acidente na Rua das Acácias! Precisamos de ajuda!"
+questions = PackedStringArray("Qual é o endereço exato?", "O que aconteceu?", "Quantas pessoas estão feridas?")
+answers = PackedStringArray("É perto do número 101! Na frente da mercearia!", "É um acidente de carro! Bateu no poste!", "Duas pessoas. Uma não está se mexendo!")
+street = "acacias"
+block = 1
+address = "Rua das Acácias, 101"
+occurrence = "Acidente de trânsito"
+units = PackedStringArray("pol", "amb")
+after = "Estão vindo? Graças a Deus... obrigada."

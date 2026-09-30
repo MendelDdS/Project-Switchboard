@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_we3yq"]
+
+[resource]
+script = ExtResource("1_we3yq")
+group = 2
+voice = "m"
+caller = "Seu Benedito"
+opening = PackedStringArray("Central, é o Benedito.", "Me liga com o Ivo Teixeira? Ele ficou de me devolver a escada.")
+repeat = "O Ivo. Ivo Teixeira, da Rua das Flores."
+target = "379"
+destination = "Ivo Teixeira"
+thanks = "Obrigado. Agora ele não escapa."

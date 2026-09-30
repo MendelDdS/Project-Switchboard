@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_f40cv"]
+
+[resource]
+script = ExtResource("1_f40cv")
+voice = "m"
+caller = "Homem nervoso"
+opening = "Central! Tão brigando aqui no Bar do Zé! Um puxou uma faca!"
+questions = PackedStringArray("Qual é o endereço?", "Alguém está ferido?", "Quantas pessoas estão brigando?")
+answers = PackedStringArray("Rua da Estação, 140! O bar do Zé!", "Um tá sangrando no braço! Rápido!", "Dois! Mas o bar tá cheio!")
+street = "estacao"
+block = 1
+address = "Rua da Estação, 140"
+occurrence = "Outro"
+units = PackedStringArray("pol", "amb")
+after = "Tão vindo? Tá, eu seguro o pessoal aqui."

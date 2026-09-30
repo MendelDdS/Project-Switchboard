@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_8d8r8"]
+
+[resource]
+script = ExtResource("1_8d8r8")
+group = 2
+voice = "m"
+caller = "Homem"
+opening = PackedStringArray("Boa noite.", "Gostaria de falar com o número 327.")
+repeat = "Três, dois, sete."
+target = "327"
+destination = "Bar do Zé"
+thanks = "Obrigado."

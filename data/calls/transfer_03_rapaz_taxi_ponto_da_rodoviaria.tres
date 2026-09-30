@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_2y35x"]
+
+[resource]
+script = ExtResource("1_2y35x")
+voice = "m"
+caller = "Rapaz"
+opening = PackedStringArray("Boa noite.", "Preciso de um táxi. Me conecta com o ponto da rodoviária?")
+repeat = "O ponto de táxi. Da rodoviária."
+target = "176"
+destination = "Táxi, Ponto da Rodoviária"
+thanks = "Valeu, central."
