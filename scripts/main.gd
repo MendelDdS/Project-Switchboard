@@ -4,8 +4,6 @@ extends Control
 ##
 ## Loop: ATENDER → ENTENDER → CONSULTAR → CONECTAR/DESPACHAR → REGISTRAR → CONTINUAR
 
-signal choice_made(i: int)
-
 # ---------------------------------------------------------------- nós
 var sfx: Sfx
 var bg: Background
@@ -19,11 +17,13 @@ var radio_led: ColorRect
 var disp_lbl: Label
 var call_line_lbl: Label
 var call_state_lbl: Label
+var others_lbl: Label
 var transcript: RichTextLabel
 var choices_box: HFlowContainer
 var warn_lbl: Label
 var answer_btn: Button
 var hang_btn: Button
+var transfer_btn: Button
 var hint_lbl: RichTextLabel
 var tab_btns := {}
 var tab_dots := {}
@@ -51,20 +51,28 @@ var minutes := 0.0
 var running := false
 const GAME_MIN_PER_SEC := 1.0   # 480 minutos de turno ≈ 8 minutos reais
 const SHIFT_END := 480.0
-var next_at := -1.0
+const FILLER_GAP := 25.0        # minutos de jogo entre uma ligação extra e qualquer outra
+const PEAK_CHANCE := 0.35       # chance de um pico (duas ou três linhas tocando juntas) no turno
+const MYST_FROM := 240.0        # a ligação desconhecida toca em algum momento entre 02:00...
+const MYST_TO := 450.0          # ...e 05:30 (minutos após 22:00)
+const TALK_LEN := Vector2(45.0, 90.0)   # duração (min de jogo) de uma conversa transferida
+const GIVE_UP_SEC := 60.0      # ligações extras desistem se ninguém atende (as principais aguentam 1,5x)
 var line_until: Array = []
 var myst_time := "02:13"
-var idx := -1
-var calls: Array = []
+var sched: Array = []           # ligações ainda por tocar, em ordem de horário
+var live: Array = []            # ligações tocando ou em andamento (podem ser várias ao mesmo tempo)
+var shown: Dictionary = {}      # ligação exibida no painel do telefone
+var tut: Dictionary = {}        # primeira ligação: guia passo a passo
+var em_call: Dictionary = {}
 var lines: Array = []
-var dial := ""
-var last_dialed := ""
+var dests := {}                 # número de destino (int) -> "free" / "ring" / "conn" / "done"
+var _dgen := {}
+var _taught_done := false
+var _taught_multi := false
+var _taught_info := false
+var _myst_lead := false
+var _calling_back := false
 var disp_until := 0
-var cur: Dictionary = {}
-var token := 0
-var phase := "idle"
-var last_talk := 0
-var talking := false
 var tab := "lista"
 var map_sel: Dictionary = {}
 var units := {"pol": "DISPONÍVEL", "bomb": "DISPONÍVEL", "amb": "DISPONÍVEL"}
@@ -76,14 +84,14 @@ var dispatch_report := ""
 var dispatch_msg := ""
 var entries: Array = []
 var pending: Dictionary = {}
+var pending_q: Array = []
 var after := false
 var note_shown := false
 var note_wanted := false
 var ending := false
 var flick := false
 var _note_gen := 0
-var _seen_started := false
-var _t_lines: Array = []
+var _closing := false
 var _radio_q: Array = []
 var _radio_busy := false
 var _tick_acc := 0.0
@@ -100,13 +108,22 @@ func _ready() -> void:
 	for i in 10:
 		lines.append("free")
 		line_until.append(-1.0)
-	calls = [
+	for d in GameData.DIR:
+		if d["s"] != "use o despacho":
+			dests[int(d["num"])] = "free"
+	var mains := [
 		_mk(GameData.T1.pick_random(), "transfer", 0),
 		_mk(GameData.T2.pick_random(), "transfer", 1),
 		_mk(GameData.EM.pick_random(), "emergency", 2),
 		_mk(GameData.TR.pick_random(), "prank", 3),
-		_mk({}, "mystery", 4),
+		_mk({}, "mystery", -1),
 	]
+	var myst: Dictionary = mains[4]
+	myst["at"] = randf_range(MYST_FROM, MYST_TO)
+	myst["latest"] = float(myst["at"]) + 30.0   # não espera a mesa silenciar para sempre
+	tut = mains[0]
+	sched = mains + _fillers(mains)
+	sched.sort_custom(func(a, b): return a["at"] < b["at"])
 	sfx = Sfx.new()
 	add_child(sfx)
 	_build()
@@ -115,7 +132,11 @@ func _ready() -> void:
 func _mk(src: Dictionary, kind: String, i: int) -> Dictionary:
 	var c: Dictionary = src.duplicate(true)
 	c["kind"] = kind
-	c["at"] = float(GameData.CALL_AT[i])
+	c["t_lines"] = []
+	c["opts"] = []
+	if i >= 0:
+		c["main"] = i
+		c["at"] = float(GameData.CALL_AT[i])
 	return c
 
 
@@ -269,9 +290,10 @@ func _build() -> void:
 	board = Switchboard.new()
 	board.position = Vector2(24, 104)
 	board.lines = lines
+	board.dests = dests
 	board.sfx = sfx
 	add_child(board)
-	board.plug_changed.connect(_on_plug_changed)
+	board.end_changed.connect(_on_end_changed)
 	board.info_requested.connect(_show_line_info)
 	board.warned.connect(warn)
 
@@ -291,62 +313,52 @@ func _build() -> void:
 
 
 func _build_phone() -> void:
-	var ph := _bevel(Vector2(24, 388), Vector2(588, 316))
+	var ph := _bevel(Vector2(24, 446), Vector2(588, 262))
 	var dbg := ColorRect.new()
 	dbg.color = Color("120d07")
-	dbg.position = Vector2(16, 14)
-	dbg.size = Vector2(200, 40)
+	dbg.position = Vector2(100, 12)   # à esquerda fica o encaixe do FONE, desenhado pela mesa
+	dbg.size = Vector2(180, 36)
 	ph.add_child(dbg)
-	disp_lbl = _label(dbg, "", Vector2(6, 0), 32, Pal.AMBER, Pal.mono, 188)
-	disp_lbl.size = Vector2(188, 40)
+	disp_lbl = _label(dbg, "", Vector2(6, 0), 22, Pal.AMBER, Pal.mono, 168)
+	disp_lbl.size = Vector2(168, 36)
 	disp_lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	disp_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	disp_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	disp_lbl.clip_text = true
-	var keys := ["1", "2", "3", "4", "5", "6", "7", "8", "9", "C", "0", "R"]
-	for i in keys.size():
-		var k: String = keys[i]
-		var txt := "Cancelar" if k == "C" else ("Rediscar" if k == "R" else k)
-		var b := _button(ph, txt, Vector2(16 + (i % 3) * 69, 64 + int(i / 3) * 46), Vector2(61, 38), Color("d4c7a2"), Color("221c13"), Color("9e906a"))
-		b.focus_mode = Control.FOCUS_NONE
-		if k == "C" or k == "R":
-			b.add_theme_font_size_override("font_size", 12)
-		else:
-			b.add_theme_font_override("font", Pal.mono)
-			b.add_theme_font_size_override("font_size", 28)
-		b.pressed.connect(_on_key.bind(k))
-	var dial_btn := _button(ph, "Discar", Vector2(16, 254), Vector2(200, 42), Pal.AMBER, Color("1c150c"), Color("a86b1d"))
-	dial_btn.focus_mode = Control.FOCUS_NONE
-	dial_btn.add_theme_font_size_override("font_size", 16)
-	dial_btn.pressed.connect(func(): do_dial(false))
-
-	call_line_lbl = _label(ph, "Nenhuma chamada", Vector2(236, 12), 13, Pal.DIM)
-	call_state_lbl = _label(ph, "", Vector2(236, 12), 13, Pal.DIM, null, 336)
+	call_line_lbl = _label(ph, "Nenhuma chamada", Vector2(292, 12), 13, Pal.DIM)
+	call_state_lbl = _label(ph, "", Vector2(292, 12), 13, Pal.DIM, null, 280)
 	call_state_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	others_lbl = _label(ph, "", Vector2(292, 32), 12, Pal.AMBER, null, 280)
 	var tp := PanelContainer.new()
-	tp.position = Vector2(236, 34)
-	tp.size = Vector2(336, 150)
+	tp.position = Vector2(16, 58)
+	tp.size = Vector2(556, 110)
 	tp.add_theme_stylebox_override("panel", _sb(Color("0f0d09"), Color.BLACK, 2, 8))
 	ph.add_child(tp)
 	transcript = RichTextLabel.new()
 	transcript.bbcode_enabled = true
 	transcript.scroll_following = true
-	transcript.custom_minimum_size = Vector2(318, 140)
+	transcript.custom_minimum_size = Vector2(538, 100)
 	transcript.add_theme_color_override("default_color", Pal.TEXT)
 	transcript.add_theme_font_size_override("normal_font_size", 14)
 	transcript.add_theme_constant_override("line_separation", 2)
 	tp.add_child(transcript)
 	choices_box = HFlowContainer.new()
-	choices_box.position = Vector2(236, 192)
-	choices_box.size = Vector2(336, 60)
+	choices_box.position = Vector2(16, 174)
+	choices_box.size = Vector2(556, 44)
 	choices_box.add_theme_constant_override("h_separation", 6)
 	choices_box.add_theme_constant_override("v_separation", 6)
 	ph.add_child(choices_box)
-	warn_lbl = _label(ph, "", Vector2(236, 250), 12, Pal.AMBER, null, 336)
-	answer_btn = _button(ph, "Atender", Vector2(236, 268), Vector2(162, 36), Pal.GREEN, Color("1c150c"), Color("5b7e44"))
+	warn_lbl = _label(ph, "", Vector2(16, 222), 12, Pal.AMBER, null, 176)
+	warn_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	warn_lbl.size = Vector2(176, 36)
+	answer_btn = _button(ph, "Atender", Vector2(200, 222), Vector2(118, 32), Pal.GREEN, Color("1c150c"), Color("5b7e44"))
 	answer_btn.add_theme_font_size_override("font_size", 16)
 	answer_btn.pressed.connect(answer)
 	answer_btn.disabled = true
-	hang_btn = _button(ph, "Desligar", Vector2(410, 268), Vector2(162, 36), Pal.RED, Color("1c150c"), Color("8e3526"))
+	transfer_btn = _button(ph, "Transferir", Vector2(324, 222), Vector2(118, 32), Pal.AMBER, Color("1c150c"), Color("a86b1d"))
+	transfer_btn.add_theme_font_size_override("font_size", 16)
+	transfer_btn.pressed.connect(transfer)
+	transfer_btn.disabled = true
+	hang_btn = _button(ph, "Desligar", Vector2(448, 222), Vector2(124, 32), Pal.RED, Color("1c150c"), Color("8e3526"))
 	hang_btn.add_theme_font_size_override("font_size", 16)
 	hang_btn.pressed.connect(hangup)
 	hang_btn.disabled = true
@@ -606,7 +618,7 @@ func _build_overlays() -> void:
 	ql.add_theme_font_size_override("font_size", 24)
 	ql.add_theme_color_override("font_color", Pal.INK)
 	q.add_child(ql)
-	var info := _label(card, "Tudo acontece na sua mesa. Use o mouse para levar os plugues até as tomadas e para consultar a lista, o mapa e o caderno. Os números também podem ser digitados pelo teclado. Use fones de ouvido.", Vector2(40, 238), 14, Pal.DIM, null, 480)
+	var info := _label(card, "Tudo acontece na sua mesa. Use o mouse para levar os plugues até as tomadas e para consultar a lista, o mapa e o caderno. Mais de uma linha pode tocar ao mesmo tempo. Use fones de ouvido.", Vector2(40, 238), 14, Pal.DIM, null, 480)
 	info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	info.custom_minimum_size = Vector2(480, 0)
 	info.size = Vector2(480, 80)
@@ -637,12 +649,8 @@ func _start_shift() -> void:
 	intro.visible = false
 	sfx.start_ambience()
 	running = true
-	last_talk = Time.get_ticks_msec()
 	radio("Central, viatura 2 em ronda. Tudo tranquilo.")
 	hint("Aguarde as chamadas. A lista, o mapa, o despacho e o caderno ficam nas abas acima.")
-	await get_tree().create_timer(2.2).timeout
-	idx = -1
-	schedule_next()
 
 
 func fmt(m: float) -> String:
@@ -659,17 +667,23 @@ func _process(delta: float) -> void:
 		if _tick_acc > 1000.0:
 			_tick_acc = 0.0
 			sfx.play("tick", -3.0)
-		if next_at >= 0.0 and minutes >= next_at:
-			ring(idx + 1)
+		_run_schedule()
 		_update_line_timers()
+		# o turno só fecha depois da linha 07 ter tocado e caído
+		if minutes >= SHIFT_END and after and not _closing:
+			_closing = true
+			_close_shift()
 		clock_lbl.text = fmt(minutes)
-		if not cur.is_empty() and cur.get("active", false) and not talking:
-			if cur["kind"] == "transfer" and phase == "await" and board.plugs["fone"] == cur["line"] and now - last_talk > 22000:
-				last_talk = now
-				say(cur, GameData.WAITING.pick_random(), token)
-			elif cur["kind"] == "emergency" and not cur.get("dispatched", false) and now - last_talk > 26000:
-				last_talk = now
-				say(cur, GameData.EM_WAITING.pick_random(), token)
+		# quem está na linha com o operador reclama da demora
+		var f := _focus()
+		if not f.is_empty() and f.get("active", false) and not f.get("talking", false):
+			var quiet: int = now - int(f.get("last_talk", now))
+			if f["kind"] == "transfer" and f.get("phase", "") == "await" and quiet > 22000:
+				f["last_talk"] = now
+				say(f, GameData.WAITING.pick_random())
+			elif f["kind"] == "emergency" and not f.get("dispatched", false) and quiet > 26000:
+				f["last_talk"] = now
+				say(f, GameData.EM_WAITING.pick_random())
 	if disp_until > 0 and now > disp_until:
 		disp_until = 0
 		_render_disp()
@@ -679,21 +693,8 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(e: InputEvent) -> void:
-	if not (e is InputEventKey) or not e.pressed or e.echo:
-		return
-	var k: InputEventKey = e
-	if k.keycode == KEY_ESCAPE and board.held != "":
+	if e is InputEventKey and e.pressed and not e.echo and e.keycode == KEY_ESCAPE and board.held != -1:
 		board.go_home(board.held)
-		return
-	var ch := k.unicode
-	if ch >= 48 and ch <= 57:
-		_on_key(char(ch))
-	elif k.keycode == KEY_BACKSPACE:
-		dial = dial.substr(0, max(0, dial.length() - 1))
-		sfx.play("key")
-		_render_disp()
-	elif k.keycode == KEY_ENTER or k.keycode == KEY_KP_ENTER:
-		do_dial(false)
 
 
 func hint(t: String) -> void:
@@ -709,165 +710,221 @@ func warn(t: String) -> void:
 		warn_lbl.text = ""
 
 
-# ================================================================ mesa comutadora
-
-func _on_plug_changed(p: String, n: int, prev: int) -> void:
-	if p == "fone" and not cur.is_empty() and not cur.get("ended", false) and int(cur.get("line", 0)) > 0:
-		var ln: int = cur["line"]
-		if prev == ln and lines[ln - 1] == "talk":
-			lines[ln - 1] = "hold"
-			if cur["kind"] == "transfer" and phase == "await":
-				_sys("(Linha do solicitante em espera.)")
-		if n == ln and lines[ln - 1] == "hold":
-			lines[ln - 1] = "talk"
-	if p == "sw" and n == 7 and after:
-		sfx.static_burst(2.0)
-	_tutorial_step()
-	_update_call_ui()
-
-
-func _show_line_info(n: int) -> void:
-	var st: String = lines[n - 1]
-	if n == 7 and after and st == "free":
-		# A linha está livre, mas guarda o registro da última chamada.
-		board.show_info(PackedStringArray(["LINHA 07", "LIVRE", "ÚLTIMA ORIGEM: ???", "NÚMERO: ???", "DURAÇÃO: " + myst_time]), true, n)
-		sfx.static_burst()
-	else:
-		var a := PackedStringArray(["LINHA %02d" % n, String(GameData.LINE_LABEL[st]).to_upper()])
-		var p := board.plug_at(n)
-		if p != "":
-			a.append("PLUG: " + ("FONE" if p == "fone" else "SWITCH"))
-		board.show_info(a, false, n)
-		sfx.play("click")
-
-
-# ================================================================ teclado numérico
-
-func _on_key(k: String) -> void:
-	if k == "C":
-		dial = ""
-		sfx.play("key")
-		_render_disp()
-	elif k == "R":
-		sfx.play("key")
-		do_dial(true)
-	else:
-		if phase == "dialing":
-			return
-		if dial.length() < 6:
-			dial += k
-		sfx.play("key")
-		_render_disp()
-
-
 func _render_disp() -> void:
 	if Time.get_ticks_msec() < disp_until:
 		return
-	disp_lbl.add_theme_font_size_override("font_size", 32)
-	disp_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	disp_lbl.text = dial
+	disp_lbl.text = ""
 
 
 func flash_disp(t: String, ms: int = 2600) -> void:
-	disp_lbl.add_theme_font_size_override("font_size", 24)
-	disp_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	disp_lbl.text = t
 	disp_until = Time.get_ticks_msec() + ms
 
 
-func do_dial(redial: bool) -> void:
-	if phase == "dialing" or ending:
-		return
-	if after:
-		await _callback_attempt(redial)
-		return
-	var num := last_dialed if redial else dial
-	if cur.is_empty() or cur.get("ended", false) or cur["kind"] != "transfer":
-		flash_disp("SEM CHAMADA", 1800)
-		warn("Não há chamada aguardando conexão.")
-		return
-	if not cur.get("active", false):
-		warn("Atenda a chamada primeiro.")
-		return
-	if phase != "await":
-		warn("Ouça o pedido do solicitante antes de discar.")
-		return
-	if board.plugs["fone"] == cur["line"]:
-		warn("Retire o plug do FONE da linha do solicitante antes de discar.")
-		return
-	if board.plugs["sw"] == -1:
-		warn("Conecte o plug do SWITCH em uma linha livre.")
-		return
-	var out: int = board.plugs["sw"]
-	if lines[out - 1] != "free":
-		warn("A linha %02d não está livre. Use uma tomada com a lâmpada apagada." % out)
-		return
-	if num == "":
-		warn("Digite o número no teclado.")
-		return
-	last_dialed = num
-	phase = "dialing"
-	_update_call_ui()
-	var tok := token
-	flash_disp("DISCANDO " + num, 60000)
-	if not await wait(sfx.dial(num) + 0.25, tok):
-		return
-	var entry := GameData.find_number(num)
-	if entry.is_empty():
-		sfx.play("sit")
-		flash_disp("NÃO ATRIBUÍDO")
-		_sys("(O número %s não existe.)" % num)
-		phase = "await"
-		dial = ""
-		_update_call_ui()
-		return
-	flash_disp("CHAMANDO…", 60000)
-	if not await wait(sfx.ringback(1 if num == cur["target"] else 2) + 0.2, tok):
-		return
-	if num != cur["target"]:
-		flash_disp("NÚMERO ERRADO")
-		_sys("(Atendeu: %s. Não é quem o solicitante pediu. A conexão foi desfeita.)" % entry["n"])
-		phase = "await"
-		dial = ""
-		_update_call_ui()
-		if idx <= 1:
-			hint("Confira o nome e o endereço na lista antes de discar. Há nomes parecidos.")
-		return
-	var talk_len := randf_range(14.0, 40.0)
-	for ln in [out, int(cur["line"])]:
-		lines[ln - 1] = "conn"
-		line_until[ln - 1] = minutes + talk_len
-	flash_disp("CONECTADO", 2400)
-	dial = ""
-	_sys("(Conexão estabelecida com %s.)" % entry["n"])
-	cur["connected"] = true
-	if not await wait(1.1, tok):
-		return
-	await say(cur, cur["thanks"], tok, 0.4)
-	end_call("connected")
+# ================================================================ mesa comutadora
+
+## Destino ligado à SAÍDA da linha n pelo cabo de conexão (-1 se não houver).
+func _dest_of_line(n: int) -> int:
+	var e := board.cord_at(n + 10)
+	if e == -1:
+		return -1
+	var j: int = board.ends[board.mate(e)]
+	return j if j > 20 else -1
 
 
-func _callback_attempt(redial: bool) -> void:
-	phase = "dialing"
-	if redial:
-		flash_disp("REDISCANDO…", 60000)
-		await get_tree().create_timer(sfx.dial("7") + 0.3).timeout
-		sfx.play("sit")
-		flash_disp("NÚMERO INVÁLIDO", 3200)
-	else:
-		var num := dial
-		var into07: bool = board.plugs["sw"] == 7
-		flash_disp("DISCANDO…", 60000)
-		await get_tree().create_timer(sfx.dial(num if num != "" else "0") + 0.3).timeout
-		var known := GameData.find_number(num)
-		if into07 or known.is_empty():
-			sfx.play("sit")
-			flash_disp("NÚMERO NÃO EXISTE" if (into07 or num.contains("7")) else "NÚMERO INVÁLIDO", 3200)
+## A ligação em que o operador está: a da entrada onde o FONE está.
+func _focus() -> Dictionary:
+	return _call_on_line(board.fone_line())
+
+
+func _call_on_line(j: int) -> Dictionary:
+	for c in live:
+		if int(c["line"]) == j:
+			return c
+	return {}
+
+
+func _on_end_changed(e: int, j: int, prev: int) -> void:
+	if prev != -1:
+		_vacated(prev, e)
+	if j != -1:
+		_filled(j, e)
+	_tutorial_step()
+	_refresh_panel()
+
+
+## FONE numa entrada: a ligação dessa linha passa a ser a do operador.
+func _filled(j: int, e: int) -> void:
+	if e != 0:
+		return
+	if j == 7 and after:
+		_callback_07()
+	var c := _call_on_line(j)
+	if c.get("active", false) and lines[j - 1] == "hold":
+		lines[j - 1] = "talk"
+
+
+## Um plug saiu da tomada j.
+func _vacated(j: int, e: int) -> void:
+	if e == 0:
+		# FONE saiu: se o destino já atendeu, a ligação segue pelo cabo de conexão; senão fica em espera.
+		var c := _call_on_line(j)
+		if c.get("active", false):
+			if not _try_complete(c):
+				lines[j - 1] = "hold"
+				_sys(c, "(Em espera.)")
+		elif c.is_empty():
+			_maybe_free(j)
+		return
+	var other: int = board.ends[board.mate(e)]
+	if j <= 20:
+		# saiu da SAÍDA da linha n
+		var n := j - 10
+		var c := _call_on_line(n)
+		if c.get("active", false):
+			if other > 20:
+				_cut_dest(c, other)
 		else:
-			sfx.ringback(3)
-			flash_disp("NINGUÉM ATENDE", 3200)
-	dial = ""
-	phase = "idle"
+			if lines[n - 1] == "conn":
+				lines[n - 1] = "done"   # a conversa foi cortada
+				line_until[n - 1] = -1.0
+				if other > 20 and dests[other] == "conn":
+					dests[other] = "done"
+			_maybe_free(n)
+		return
+	# saiu do destino j
+	var st: String = dests[j]
+	dests[j] = "free"
+	_dgen[j] = int(_dgen.get(j, 0)) + 1
+	if st == "free":
+		return
+	sfx.play("sw")
+	if other >= 11 and other <= 20:
+		var n := other - 10
+		var c := _call_on_line(n)
+		if c.get("active", false):
+			_sys(c, "(Chamada para %d cancelada.)" % j if st == "ring" else "(%d desconectado.)" % j)
+			disp_until = 0
+			_render_disp()
+		elif lines[n - 1] == "conn":
+			lines[n - 1] = "done"
+			line_until[n - 1] = -1.0
+
+
+## Cabo tirado da SAÍDA no meio de uma transferência: o destino para de tocar ou cai.
+func _cut_dest(c: Dictionary, d: int) -> void:
+	if dests[d] == "ring":
+		dests[d] = "free"
+		_dgen[d] = int(_dgen.get(d, 0)) + 1
+		_sys(c, "(Chamada para %d cancelada.)" % d)
+	elif dests[d] == "conn":
+		dests[d] = "done"
+		_sys(c, "(%d desconectado.)" % d)
+
+
+## Linha sem ligação e sem plugs volta a ficar livre.
+func _maybe_free(n: int) -> void:
+	if lines[n - 1] in ["conn", "done"] and board.cord_at(n) == -1 and board.cord_at(n + 10) == -1 and _call_on_line(n).is_empty():
+		lines[n - 1] = "free"
+		line_until[n - 1] = -1.0
+		sfx.play("sw")
+
+
+## Botão Transferir: chama o destino ligado à SAÍDA da linha em que o FONE está.
+func transfer() -> void:
+	var c := _focus()
+	if c.is_empty() or not c.get("active", false):
+		warn("Leve o FONE até a entrada da ligação que você quer transferir.")
+		return
+	if c["kind"] != "transfer":
+		warn("Esse solicitante não pediu transferência.")
+		return
+	if c.get("phase", "") != "await":
+		warn("Ouça o pedido do solicitante antes de transferir.")
+		return
+	var n := int(c["line"])
+	var d := _dest_of_line(n)
+	if d == -1:
+		warn("Ligue um cabo de conexão da SAÍDA %02d até o número de destino." % n)
+		return
+	if dests[d] != "free":
+		warn("O %d já está tocando ou em conversa." % d)
+		return
+	sfx.play("key")
+	_ring_dest(c, d)
+
+
+## O destino toca; se o cabo sair da tomada ou a chamada cair, para de tocar.
+func _ring_dest(c: Dictionary, d: int) -> void:
+	_dgen[d] = int(_dgen.get(d, 0)) + 1
+	var g: int = _dgen[d]
+	var right: bool = str(d) == String(c["target"])
+	var closed: bool = d in GameData.CLOSED
+	dests[d] = "ring"
+	flash_disp("%d TOCANDO" % d, 60000)
+	_tutorial_step()
+	_update_call_ui()
+	for i in (4 if closed else (2 if right else 3)):
+		if is_same(_focus(), c):
+			sfx.play("ringback")
+		if not await wait(c, 2.0) or _dgen[d] != g:
+			return
+	if closed:
+		dests[d] = "free"
+		flash_disp("%d SEM RESPOSTA" % d, 3000)
+		_sys(c, "(Ninguém atende no %d.)" % d)
+		if right:
+			c["no_answer"] = true
+			_transfer_choices(c)
+		_update_call_ui()
+		return
+	dests[d] = "conn"
+	sfx.play("sw")
+	flash_disp("%d CONECTADO" % d, 3000)
+	var who: String = GameData.find_number(str(d))["n"]
+	_tutorial_step()
+	_update_call_ui()
+	if _try_complete(c):
+		return
+	if right:
+		_sys(c, "(%s atendeu.)" % who)
+		await say(c, c["thanks"], 0.4)
+	else:
+		_sys(c, "(Atendeu: %s. Não é quem o solicitante pediu.)" % who)
+		if await say(c, GameData.WRONG_DEST.pick_random()) and c.get("main", -1) in [0, 1]:
+			hint("Tire a ponta do cabo desse destino. Confira o nome e o endereço na lista: há nomes parecidos.")
+
+
+## Destino atendeu e o FONE saiu da entrada: os dois lados seguem conectados pelo cabo de conexão.
+func _try_complete(c: Dictionary) -> bool:
+	var ln := int(c["line"])
+	if c.get("ended", false) or c["kind"] != "transfer" or not c.get("active", false) or board.fone_line() == ln:
+		return false
+	var d := _dest_of_line(ln)
+	if d == -1 or dests[d] != "conn":
+		return false
+	lines[ln - 1] = "conn"
+	line_until[ln - 1] = minutes + randf_range(TALK_LEN.x, TALK_LEN.y)
+	c["connected"] = true
+	c["dest_num"] = d
+	_sys(c, "(Você tirou o fone. %02d e %d seguem conectados.)" % [ln, d])
+	flash_disp("%02d - %d" % [ln, d], 2600)
+	end_call(c, "connected")
+	return true
+
+
+## Depois da linha 07: FONE na entrada 07 tenta ligar de volta.
+func _callback_07() -> void:
+	if _calling_back:
+		return
+	_calling_back = true
+	flash_disp("LINHA 07…", 60000)
+	sfx.play("ringback")
+	await get_tree().create_timer(2.2).timeout
+	sfx.static_burst(2.0)
+	sfx.play("sit")
+	flash_disp("NÚMERO NÃO EXISTE", 3200)
+	_calling_back = false
 	if not note_shown:
 		_note_gen += 1
 		var g := _note_gen
@@ -876,21 +933,59 @@ func _callback_attempt(redial: bool) -> void:
 			_trigger_note()
 
 
+func _show_line_info(n: int) -> void:
+	if n > 10 and n <= 20:
+		var d := _dest_of_line(n - 10)
+		board.show_info(PackedStringArray(["SAÍDA %02d" % (n - 10), "LIVRE" if board.cord_at(n) == -1 else ("PARA %d" % d if d != -1 else "CABO SEM DESTINO")]), false, n)
+		sfx.play("click")
+		return
+	if n > 20:
+		board.show_info(PackedStringArray(["NÚMERO %d" % n, String(GameData.DEST_LABEL[dests[n]]).to_upper()]), false, n)
+		sfx.play("click")
+		return
+	var st: String = lines[n - 1]
+	if n == 7 and after and st == "free":
+		# A linha está livre, mas guarda o registro da última chamada.
+		board.show_info(PackedStringArray(["LINHA 07", "LIVRE", "ÚLTIMA ORIGEM: ???", "NÚMERO: ???", "DURAÇÃO: " + myst_time]), true, n)
+		sfx.static_burst()
+	else:
+		var a := PackedStringArray(["LINHA %02d" % n, String(GameData.LINE_LABEL[st]).to_upper()])
+		if board.fone_line() == n:
+			a.append("FONE CONECTADO")
+		board.show_info(a, false, n)
+		sfx.play("click")
+
+
 # ================================================================ painel da chamada
+# O painel mostra a ligação do par com FALAR. As outras continuam tocando ou em espera.
 
-func _add_line(who: String, text: String, cls: String) -> int:
-	_t_lines.append({"who": who, "text": text, "cls": cls})
-	_render_transcript()
-	return _t_lines.size() - 1
+func _refresh_panel() -> void:
+	var f := _focus()
+	if not f.is_empty() and not is_same(f, shown):
+		shown = f
+		_render_transcript()
+	_render_choices()
+	if not f.is_empty() and f.get("active", false):
+		sfx.fade(sfx.hiss, -26.0 if f["kind"] == "mystery" else -36.0, 0.3)
+	else:
+		sfx.fade(sfx.hiss, -80.0, 0.2)
+	_update_call_ui()
 
 
-func _sys(t: String) -> void:
-	_add_line("", t, "sys")
+func _add_line(c: Dictionary, who: String, text: String, cls: String) -> int:
+	c["t_lines"].append({"who": who, "text": text, "cls": cls})
+	if is_same(c, shown):
+		_render_transcript()
+	return c["t_lines"].size() - 1
+
+
+func _sys(c: Dictionary, t: String) -> void:
+	_add_line(c, "", t, "sys")
 
 
 func _render_transcript() -> void:
 	var s := ""
-	for l in _t_lines:
+	for l in shown.get("t_lines", []):
 		match l["cls"]:
 			"sys":
 				s += "[color=#9a917a][font_size=13]%s[/font_size][/color]\n" % l["text"]
@@ -903,30 +998,43 @@ func _render_transcript() -> void:
 	transcript.text = s
 
 
-func say(c: Dictionary, text: String, tok: int, pause: float = 0.55) -> bool:
+## Espera o operador estar na linha dessa ligação. Falso se ela terminar antes.
+func _until_focused(c: Dictionary) -> bool:
+	while not (c.get("active", false) and is_same(_focus(), c)):
+		if c.get("ended", false):
+			return false
+		await get_tree().process_frame
+	return true
+
+
+func say(c: Dictionary, text: String, pause: float = 0.55) -> bool:
+	if not await _until_focused(c):
+		return false
 	var gv: bool = c["kind"] == "mystery"
-	var li := _add_line(String(c.get("caller", "Solicitante")), "", "ghost" if gv else "")
-	talking = true
+	var li := _add_line(c, String(c.get("caller", "Solicitante")), "", "ghost" if gv else "")
+	c["talking"] = true
 	_update_call_ui()
 	var paren := text.begins_with("(")
 	var voice := "k" if paren else ("g" if gv else String(c["voice"]))
 	var prev_vowel := false
 	for i in text.length():
-		if tok != token:
-			talking = false
+		# em espera, a pessoa para de falar até o operador voltar
+		if not is_same(_focus(), c) and not await _until_focused(c):
+			c["talking"] = false
 			_update_call_ui()
 			return false
 		var ch := text[i]
-		_t_lines[li]["text"] += ch
-		_render_transcript()
+		c["t_lines"][li]["text"] += ch
+		if is_same(c, shown):
+			_render_transcript()
 		prev_vowel = _voice_char(voice, text, i, prev_vowel, paren)
 		var d := 0.062 if gv else (0.09 if ch in [",", "."] else 0.028)
 		await get_tree().create_timer(d).timeout
-	last_talk = Time.get_ticks_msec()
+	c["last_talk"] = Time.get_ticks_msec()
 	await get_tree().create_timer(pause).timeout
-	talking = false
+	c["talking"] = false
 	_update_call_ui()
-	return tok == token
+	return not c.get("ended", false)
 
 
 const VMAP := {"a": "a", "á": "a", "à": "a", "â": "a", "ã": "a", "e": "e", "é": "e", "ê": "e", "i": "i", "í": "i", "o": "o", "ó": "o", "ô": "o", "õ": "o", "u": "u", "ú": "u"}
@@ -943,27 +1051,33 @@ func _voice_char(voice: String, text: String, i: int, prev_vowel: bool, laugh: b
 	return true
 
 
-func op(text: String, tok: int) -> bool:
-	_add_line("Você", text, "op")
+func op(c: Dictionary, text: String) -> bool:
+	if not await _until_focused(c):
+		return false
+	_add_line(c, "Você", text, "op")
 	sfx.play("click")
-	last_talk = Time.get_ticks_msec()
+	c["last_talk"] = Time.get_ticks_msec()
 	await get_tree().create_timer(0.75).timeout
-	return tok == token
+	return not c.get("ended", false)
 
 
-func wait(sec: float, tok: int) -> bool:
+func wait(c: Dictionary, sec: float) -> bool:
 	await get_tree().create_timer(sec).timeout
-	return tok == token
+	return not c.get("ended", false)
 
 
-func _clear_choices() -> void:
+func _set_opts(c: Dictionary, list: Array) -> void:
+	c["opts"] = list
+	if is_same(c, shown):
+		_render_choices()
+
+
+func _render_choices() -> void:
 	for ch in choices_box.get_children():
 		ch.queue_free()
-
-
-func _render_choices(list: Array) -> void:
-	_clear_choices()
-	for o in list:
+	if shown.is_empty() or not is_same(_focus(), shown):
+		return
+	for o in shown.get("opts", []):
 		var b := Button.new()
 		b.text = o["label"]
 		b.add_theme_font_size_override("font_size", 13)
@@ -979,169 +1093,252 @@ func _render_choices(list: Array) -> void:
 		for k in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
 			b.add_theme_color_override(k, Color("cfe3bf"))
 		b.add_theme_color_override("font_disabled_color", Color(0.81, 0.89, 0.75, 0.35))
+		b.disabled = shown.get("talking", false)
 		b.pressed.connect(o["fn"])
 		choices_box.add_child(b)
-	_update_call_ui()
 
 
-func choose(opts: Array, tok: int) -> int:
+func choose(c: Dictionary, opts: Array) -> int:
+	c["pick"] = -1
 	var list := []
 	for i in opts.size():
 		var k := i
 		var fn := func():
-			_clear_choices()
-			choice_made.emit(k)
+			c["pick"] = k
+			_set_opts(c, [])
 		list.append({"label": opts[i], "fn": fn})
-	_render_choices(list)
-	var r: int = await choice_made
-	if tok != token:
-		return -1
-	return r
+	_set_opts(c, list)
+	while int(c["pick"]) == -1:
+		if c.get("ended", false):
+			return -1
+		await get_tree().process_frame
+	return int(c["pick"])
 
 
 func _update_call_ui() -> void:
-	var c := cur
-	answer_btn.disabled = not (not c.is_empty() and c.get("ringing", false))
-	hang_btn.disabled = not (not c.is_empty() and c.get("active", false))
+	var f := _focus()
+	answer_btn.disabled = f.is_empty() or not f.get("ringing", false)
+	hang_btn.disabled = f.is_empty() or not f.get("active", false)
+	transfer_btn.disabled = f.is_empty() or not f.get("active", false) or f["kind"] != "transfer" or f.get("phase", "") != "await"
 	for b in choices_box.get_children():
 		if b is Button and not b.is_queued_for_deletion():
-			b.disabled = talking
+			b.disabled = shown.get("talking", false)
 	var line := "Nenhuma chamada"
 	var st := ""
-	if not c.is_empty() and not c.get("ended", false):
-		line = "Linha %02d" % int(c["line"])
-		if c.get("ringing", false):
+	if not shown.is_empty():
+		line = "Linha %02d" % int(shown["line"])
+		if shown.get("ended", false):
+			st = "encerrada"
+		elif not is_same(f, shown):
+			st = "tocando" if shown.get("ringing", false) else "em espera"
+		elif shown.get("ringing", false):
 			st = "tocando"
-		elif phase == "dialing":
-			st = "discando"
-		elif phase == "await":
-			st = "em linha" if board.plugs["fone"] == c["line"] else "aguardando conexão"
 		else:
 			st = "em linha"
+			var d := _dest_of_line(int(shown["line"]))
+			if shown["kind"] == "transfer" and d != -1 and dests[d] in ["ring", "conn"]:
+				st = "chamando %d" % d if dests[d] == "ring" else "%d atendeu" % d
 	call_line_lbl.text = line
 	call_state_lbl.text = st
+	var o := PackedStringArray()
+	for c in live:
+		if not is_same(c, shown):
+			o.append("%02d %s" % [int(c["line"]), "tocando" if c.get("ringing", false) else "em espera"])
+	others_lbl.text = "" if o.is_empty() else "Outras linhas: " + ", ".join(o)
 
 
-# ================================================================ fluxo das ligações
+# ================================================================ agenda das ligações
 
-func schedule_next() -> void:
-	var i := idx + 1
-	if i >= calls.size():
+## Ligações extras em horários aleatórios, espaçadas das outras (FILLER_GAP) para a mesa
+## respirar. De vez em quando vem um pico: uma extra logo depois de uma principal (duas linhas
+## juntas) e, mais raro, outra em seguida (três).
+func _fillers(mains: Array) -> Array:
+	var pool := []
+	for t in GameData.T1 + GameData.T2 + GameData.FILL:
+		if not mains.any(func(m): return m.get("caller", "") == t["caller"]):
+			pool.append(t)
+	pool.shuffle()
+	var taken := []
+	for m in mains:
+		taken.append(float(m["at"]))
+	var ats := []
+	for i in randi_range(5, 7):   # espalhadas pelo turno todo, antes e depois da linha 07
+		for _try in 40:
+			var at := randf_range(12.0, SHIFT_END - 10.0)
+			if taken.all(func(x): return absf(at - x) >= FILLER_GAP):
+				ats.append(at)
+				taken.append(at)
+				break
+	if randf() < PEAK_CHANCE:
+		var base: float = [38.0, 84.0, 170.0].pick_random()
+		ats.append(base + randf_range(2.0, 5.0))
+		if randf() < 0.4:
+			ats.append(base + randf_range(5.0, 9.0))
+	var out := []
+	for at in ats:
+		var c: Dictionary
+		if randf() < 0.65 and not pool.is_empty():
+			c = _mk(pool.pop_back(), "transfer", -1)
+		else:
+			c = _mk(_info_call(), "info", -1)
+		c["at"] = at
+		c["filler"] = true
+		out.append(c)
+	return out
+
+
+func _info_call() -> Dictionary:
+	var v: Array = GameData.INFO_VOICES.pick_random()
+	if randf() < 0.7:
+		var t: Array = GameData.INFO_NUM.pick_random()
+		return {"voice": v[0], "caller": v[1], "what": "num", "about": t[0], "answer": t[1],
+			"ask": String(GameData.ASK_NUM.pick_random()) % ("d" + String(t[0]))}
+	return {"voice": v[0], "caller": v[1], "what": "time", "ask": GameData.ASK_TIME.pick_random()}
+
+
+func _free_line() -> int:
+	var free := []
+	for n in range(1, 11):
+		if n != 7 and lines[n - 1] == "free" and board.cord_at(n) == -1 and board.cord_at(n + 10) == -1:
+			free.append(n)
+	return -1 if free.is_empty() else free.pick_random()
+
+
+func _run_schedule() -> void:
+	if sched.is_empty():
 		return
-	# O relógio nunca para: a ligação toca no horário previsto,
-	# ou alguns minutos depois se o operador ainda estiver ocupado.
-	next_at = maxf(float(calls[i]["at"]), minutes + randf_range(4.0, 8.0))
-	if i == 4:
-		var lead := clampf((next_at - minutes) / GAME_MIN_PER_SEC, 6.0, 25.0)
-		sfx.fade(sfx.rain, -30.0, lead)
-		sfx.fade(sfx.hum, -34.0, lead)
+	for m in sched:
+		if m["kind"] == "mystery" and not _myst_lead and minutes >= float(m["at"]) - 20.0:
+			_myst_lead = true
+			sfx.fade(sfx.rain, -30.0, 20.0)
+			sfx.fade(sfx.hum, -34.0, 20.0)
+	var c: Dictionary = sched[0]
+	if minutes < float(c["at"]):
+		return
+	# A ligação desconhecida só toca com a mesa em silêncio; as outras esperam uma entrada livre.
+	var hush: bool = c["kind"] == "mystery" and not live.is_empty() and minutes < float(c["latest"])
+	if hush or (c["kind"] != "mystery" and _free_line() == -1):
+		c["at"] = minutes + 3.0
+		sched.sort_custom(func(a, b): return a["at"] < b["at"])
+		return
+	sched.pop_front()
+	ring(c)
 
 
-# Linhas conectadas ficam ocupadas enquanto a conversa dura.
+# Conexões completadas duram um tempo; depois alguém desliga e a mesa mostra "desligou".
 func _update_line_timers() -> void:
 	for n in 10:
 		if lines[n] == "conn" and float(line_until[n]) >= 0.0 and minutes >= float(line_until[n]):
-			lines[n] = "free"
+			lines[n] = "done"
 			line_until[n] = -1.0
+			var d := _dest_of_line(n + 1)
+			if d != -1 and dests[d] == "conn":
+				dests[d] = "done"
 			sfx.play("sw", -8.0)
+			if not _taught_done and live.is_empty():
+				_taught_done = true
+				hint("Lâmpadas vermelhas: a conversa terminou. Tire as duas pontas do cabo de conexão para liberar a linha e o cabo.")
 
 
-func ring(i: int) -> void:
-	idx = i
-	next_at = -1.0
-	cur = calls[i]
-	token += 1
-	_t_lines.clear()
-	_render_transcript()
-	_clear_choices()
-	for n in 10:
-		if lines[n] in ["ring", "talk", "hold"]:
-			lines[n] = "free"
-	if cur["kind"] != "mystery":
-		var free := []
-		for n in range(1, 11):
-			if lines[n - 1] == "free" and n != 7:
-				free.append(n)
-		if free.is_empty():
-			free = [1, 2, 3, 4, 5, 6, 8, 9, 10]
-		cur["line"] = free.pick_random()
-		lines[int(cur["line"]) - 1] = "ring"
+func _update_bell() -> void:
+	if live.any(func(c): return c.get("ringing", false)):
+		sfx.ring_start()
 	else:
-		# A ligação desconhecida chega pela linha 07, como qualquer outra.
-		cur["line"] = 7
-		line_until[6] = -1.0
-		lines[6] = "ring"
-	cur["ringing"] = true
-	cur["time"] = fmt(minutes)
-	if cur["kind"] == "mystery":
-		myst_time = cur["time"]
+		sfx.ring_stop()
+
+
+func ring(c: Dictionary) -> void:
+	var busy := not live.is_empty()
+	c["line"] = 7 if c["kind"] == "mystery" else _free_line()
+	var ln := int(c["line"])
+	line_until[ln - 1] = -1.0
+	lines[ln - 1] = "ring"
+	c["ringing"] = true
+	c["time"] = fmt(minutes)
+	live.append(c)
+	if c["kind"] == "mystery":
+		myst_time = c["time"]
 		scrawl.set_lines(PackedStringArray([myst_time, "Linha 07", "NÃO ATENDER NOVAMENTE."]))
-	sfx.ring_start()
-	_update_call_ui()
-	if cur["kind"] == "emergency":
-		incident = {"street": cur["street"], "block": cur["block"], "req": cur["req"], "sent": [], "resolved": false, "addr": cur["addr"]}
-	match i:
-		0:
-			hint("A lâmpada da linha %02d está piscando. Clique no plug [b]FONE[/b] e depois na tomada dessa linha." % int(cur["line"]))
-		1:
-			hint("Lembre: FONE na linha que pisca, depois Atender.")
-		4:
-			hint("")
-			var tok := token
-			await get_tree().create_timer(9.0).timeout
-			if tok == token and cur.get("ringing", false) and not ending:
-				warn("O telefone está tocando.")
-		_:
-			hint("")
+	if c["kind"] == "emergency":
+		em_call = c
+		incident = {"street": c["street"], "block": c["block"], "req": c["req"], "sent": [], "resolved": false, "addr": c["addr"]}
+	_update_bell()
+	_refresh_panel()
+	if is_same(c, tut):
+		hint("A lâmpada da entrada %02d está piscando. Arraste o [b]FONE[/b] (cabo vermelho, no telefone) até a tomada dessa entrada." % ln)
+	elif busy and not _taught_multi:
+		_taught_multi = true
+		hint("Outra entrada chamando! Leve o [b]FONE[/b] até ela: a ligação atual fica em espera. Para voltar, leve o FONE de volta à entrada dela.")
+	elif c.get("main", -1) == 1:
+		hint("Lembre: FONE na entrada que pisca, depois Atender.")
+	if c["kind"] == "mystery":
+		await get_tree().create_timer(9.0).timeout
+		if c.get("ringing", false) and not ending:
+			warn("O telefone está tocando.")
+	elif not is_same(c, tut):
+		await get_tree().create_timer(GIVE_UP_SEC * (1.0 if c.get("filler", false) else 1.5)).timeout
+		if c.get("ringing", false):
+			end_call(c, "missed")
 
 
 func _tutorial_step() -> void:
-	if cur.is_empty() or cur.get("ended", false) or idx != 0:
+	var c := tut
+	if not c.has("line") or c.get("ended", false):
 		return
-	if cur.get("ringing", false) and board.plugs["fone"] == cur["line"]:
-		hint("Agora clique em [b]Atender[/b].")
-	elif phase == "await":
-		if board.plugs["fone"] == cur["line"]:
-			hint("Tire o plug do FONE da linha do solicitante (clique nele). A linha fica em espera.")
-		elif board.plugs["sw"] == -1:
-			hint("Leve o plug do [b]SWITCH[/b] até uma tomada livre (lâmpada apagada).")
-		else:
-			hint("Procure [b]%s[/b] na lista telefônica, digite o número e clique em [b]Discar[/b]." % String(cur["dest"]).split(" (")[0])
+	var n := int(c["line"])
+	if c.get("ringing", false):
+		if board.fone_line() == n:
+			hint("Agora clique em [b]Atender[/b] para falar com quem ligou.")
+		return
+	if c.get("phase", "") != "await" or board.fone_line() != n:
+		return
+	var dest := String(c["dest"]).split(" (")[0]
+	var d := _dest_of_line(n)
+	if board.cord_at(n + 10) == -1:
+		hint("Procure [b]%s[/b] na lista. Pegue um [b]cabo de conexão[/b] na base e ligue uma ponta na [b]SAÍDA %02d[/b], logo abaixo da entrada." % [dest, n])
+	elif d == -1:
+		hint("Leve a outra ponta desse cabo até o número de [b]%s[/b], na fileira de destinos." % dest)
+	elif dests[d] == "free":
+		hint("Clique em [b]Transferir[/b] para chamar o destino.")
+	elif dests[d] == "ring":
+		hint("O destino está tocando. Aguarde atender.")
+	else:
+		hint("O destino atendeu. Tire o [b]FONE[/b] da entrada (devolva ao telefone): a ligação continua pelo cabo de conexão.")
 
 
 func answer() -> void:
-	if cur.is_empty() or not cur.get("ringing", false):
-		return
-	if board.plugs["fone"] != cur["line"]:
-		warn("Conecte o plug do FONE na tomada da linha que está piscando.")
+	var c := _focus()
+	if c.is_empty() or not c.get("ringing", false):
+		warn("Leve o FONE até a entrada que está piscando.")
 		sfx.play("click")
 		return
-	cur["ringing"] = false
-	cur["active"] = true
-	sfx.ring_stop()
+	c["ringing"] = false
+	c["active"] = true
+	c["last_talk"] = Time.get_ticks_msec()
+	_update_bell()
 	sfx.play("sw")
-	if int(cur["line"]) > 0:
-		lines[int(cur["line"]) - 1] = "talk"
-	sfx.fade(sfx.hiss, -26.0 if cur["kind"] == "mystery" else -36.0, 0.3)
-	_update_call_ui()
-	var tok := token
-	match cur["kind"]:
+	lines[int(c["line"]) - 1] = "talk"
+	_refresh_panel()
+	match c["kind"]:
 		"transfer":
-			run_transfer(cur, tok)
+			run_transfer(c)
 		"emergency":
-			run_emergency(cur, tok)
+			run_emergency(c)
 		"prank":
-			run_prank(cur, tok)
+			run_prank(c)
+		"info":
+			run_info(c)
 		"mystery":
-			run_mystery(cur, tok)
+			run_mystery(c)
 
 
 func hangup() -> void:
-	if cur.is_empty() or not cur.get("active", false):
+	var c := _focus()
+	if c.is_empty() or not c.get("active", false):
 		return
 	sfx.play("sw")
-	_add_line("Você", "(desliga)", "op")
-	end_call("op")
+	_add_line(c, "Você", "(desliga)", "op")
+	end_call(c, "op")
 
 
 # ---------------------------------------------------------------- transferência
@@ -1150,257 +1347,321 @@ const GREETINGS := ["Central, boa noite.", "Central telefônica, pois não?", "C
 
 
 ## Toda ligação começa igual: o operador não sabe o que vem do outro lado.
-func _greet(tok: int) -> bool:
-	if not await wait(0.3, tok):
+func _greet(c: Dictionary) -> bool:
+	if not await wait(c, 0.3):
 		return false
-	return await op(GREETINGS.pick_random(), tok)
+	return await op(c, GREETINGS.pick_random())
 
 
-func run_transfer(c: Dictionary, tok: int) -> void:
-	if not await _greet(tok):
+func run_transfer(c: Dictionary) -> void:
+	if not await _greet(c):
 		return
-	if not await wait(0.5, tok):
+	if not await wait(c, 0.5):
 		return
 	for l in c["open"]:
-		if not await say(c, l, tok):
+		if not await say(c, l):
 			return
 	if randf() < 0.55:
-		if not await say(c, GameData.SMALLTALK.pick_random(), tok, 0.45):
+		if not await say(c, GameData.SMALLTALK.pick_random(), 0.45):
 			return
-	phase = "await"
+	c["phase"] = "await"
 	_update_call_ui()
 	_tutorial_step()
-	if idx == 1:
+	if board.free_patches() == 0 and board.cord_at(int(c["line"]) + 10) == -1:
+		hint("Não há cabos de conexão livres. Desmonte uma conexão encerrada (lâmpadas vermelhas).")
+	elif c.get("main", -1) == 1:
 		hint("Consulte a lista. Confira o nome e o endereço.")
-	_transfer_choices(c, tok)
+	_transfer_choices(c)
 
 
-func _transfer_choices(c: Dictionary, tok: int) -> void:
+func _transfer_choices(c: Dictionary) -> void:
 	var list := []
 	if not c.get("said_wait", false):
-		list.append({"label": "Um momento, vou conectar.", "fn": func(): _transfer_wait(c, tok)})
-	list.append({"label": "Pode repetir, por favor?", "fn": func(): _transfer_repeat(c, tok)})
-	_render_choices(list)
+		list.append({"label": "Um momento, vou conectar.", "fn": func(): _transfer_wait(c)})
+	list.append({"label": "Pode repetir, por favor?", "fn": func(): _transfer_repeat(c)})
+	if c.get("no_answer", false) and c.has("alt") and not c.get("alt_done", false):
+		list.append({"label": c["alt_ask"], "fn": func(): _transfer_alt(c)})
+	_set_opts(c, list)
 
 
-func _transfer_wait(c: Dictionary, tok: int) -> void:
-	if talking:
+func _transfer_wait(c: Dictionary) -> void:
+	if c.get("talking", false):
 		return
 	c["said_wait"] = true
-	_transfer_choices(c, tok)
-	if not await op("Um momento, vou conectar.", tok):
+	_transfer_choices(c)
+	if not await op(c, "Um momento, vou conectar."):
 		return
-	await say(c, ["Tá bom, eu espero.", "Obrigado, aguardo.", "Certo."].pick_random(), tok)
+	await say(c, GameData.HOLD_OK.pick_random())
 
 
-func _transfer_repeat(c: Dictionary, tok: int) -> void:
-	if talking:
+func _transfer_repeat(c: Dictionary) -> void:
+	if c.get("talking", false):
 		return
-	if not await op("Pode repetir, por favor?", tok):
+	if not await op(c, "Pode repetir, por favor?"):
 		return
-	await say(c, c["repeat"], tok)
+	await say(c, c["repeat"])
+
+
+## O lugar pedido não atende à noite: o operador sugere outro.
+func _transfer_alt(c: Dictionary) -> void:
+	if c.get("talking", false):
+		return
+	c["alt_done"] = true
+	c["target"] = c["alt"]
+	c["dest"] = c["alt_dest"]
+	c["repeat"] = String(c["alt_dest"]) + "."
+	_transfer_choices(c)
+	if not await op(c, c["alt_ask"]):
+		return
+	await say(c, c["alt_yes"])
+
+
+# ---------------------------------------------------------------- informação
+
+func run_info(c: Dictionary) -> void:
+	if not await _greet(c):
+		return
+	if not await wait(c, 0.4):
+		return
+	if not await say(c, c["ask"]):
+		return
+	var right := ""
+	var opts := []
+	if c["what"] == "num":
+		right = "É o %s." % c["answer"]
+		opts = [right]
+		while opts.size() < 3:
+			var o := "É o %s." % String(GameData.DIR.pick_random()["num"])
+			if not o in opts:
+				opts.append(o)
+	else:
+		right = "São %s." % fmt(minutes)
+		opts = [right, "São %s." % fmt(minutes + 60.0), "São %s." % fmt(minutes - 45.0)]
+	opts.shuffle()
+	c["phase"] = "info"
+	if not _taught_info:
+		_taught_info = true
+		hint("Pedido de informação: confira a lista telefônica (ou o relógio) antes de responder.")
+	var i := await choose(c, opts)
+	if i < 0 or not await op(c, opts[i]):
+		return
+	c["info_ok"] = opts[i] == right
+	if not await say(c, GameData.INFO_OK.pick_random() if c["info_ok"] else GameData.INFO_BAD.pick_random(), 0.5):
+		return
+	_sys(c, "(O solicitante desligou.)")
+	end_call(c, "caller")
 
 
 # ---------------------------------------------------------------- emergência
 
-func run_emergency(c: Dictionary, tok: int) -> void:
-	if not await _greet(tok):
+func run_emergency(c: Dictionary) -> void:
+	if not await _greet(c):
 		return
-	if not await wait(0.3, tok):
+	if not await wait(c, 0.3):
 		return
-	if not await say(c, c["open"], tok, 0.3):
+	if not await say(c, c["open"], 0.3):
 		return
-	phase = "emerg"
+	c["phase"] = "emerg"
 	hint("Pergunte o que precisa. Marque o local no mapa e envie as unidades pelo despacho.")
 	c["asked"] = []
-	_emergency_choices(c, tok)
+	_emergency_choices(c)
 
 
-func _emergency_choices(c: Dictionary, tok: int) -> void:
+func _emergency_choices(c: Dictionary) -> void:
 	var list := []
 	var qs: Array = c["q"]
 	for i in qs.size():
 		if i in c["asked"]:
 			continue
 		var k := i
-		list.append({"label": qs[i][0], "fn": func(): _em_ask(c, tok, k)})
+		list.append({"label": qs[i][0], "fn": func(): _em_ask(c, k)})
 	if not c.get("dispatched", false):
-		list.append({"label": "Fique na linha, vou enviar ajuda.", "fn": func(): _em_hold(c, tok)})
-	_render_choices(list)
+		list.append({"label": "Fique na linha, vou enviar ajuda.", "fn": func(): _em_hold(c)})
+	_set_opts(c, list)
 
 
-func _em_ask(c: Dictionary, tok: int, k: int) -> void:
-	if talking or tok != token:
+func _em_ask(c: Dictionary, k: int) -> void:
+	if c.get("talking", false) or c.get("ended", false):
 		return
 	c["asked"].append(k)
-	_emergency_choices(c, tok)
-	if not await op(c["q"][k][0], tok):
+	_emergency_choices(c)
+	if not await op(c, c["q"][k][0]):
 		return
-	await say(c, c["q"][k][1], tok)
+	await say(c, c["q"][k][1])
 
 
-func _em_hold(c: Dictionary, tok: int) -> void:
-	if talking:
+func _em_hold(c: Dictionary) -> void:
+	if c.get("talking", false):
 		return
-	if not await op("Fique na linha, vou enviar ajuda.", tok):
+	if not await op(c, "Fique na linha, vou enviar ajuda."):
 		return
-	await say(c, ["Rápido, por favor!", "Tá bom... tá bom."].pick_random(), tok)
+	await say(c, ["Rápido, por favor!", "Tá bom... tá bom."].pick_random())
 
 
 func _emergency_dispatched() -> void:
-	if cur.is_empty() or cur["kind"] != "emergency" or not cur.get("active", false) or cur.get("dispatched", false):
+	var c := em_call
+	if c.is_empty() or not c.get("active", false) or c.get("dispatched", false):
 		return
-	var c := cur
-	var tok := token
 	c["dispatched"] = true
-	_emergency_choices(c, tok)
-	while talking:
-		if not await wait(0.2, tok):
+	_emergency_choices(c)
+	while c.get("talking", false):
+		if not await wait(c, 0.2):
 			return
-	if not await op("As unidades estão a caminho.", tok):
+	if not await op(c, "As unidades estão a caminho."):
 		return
-	if not await say(c, c["after"], tok, 0.9):
+	if not await say(c, c["after"], 0.9):
 		return
-	_sys("(O solicitante desligou.)")
-	end_call("caller")
+	_sys(c, "(O solicitante desligou.)")
+	end_call(c, "caller")
 
 
 # ---------------------------------------------------------------- trote
 
-func run_prank(c: Dictionary, tok: int) -> void:
-	if not await _greet(tok):
+func run_prank(c: Dictionary) -> void:
+	if not await _greet(c):
 		return
-	if not await wait(0.6, tok):
+	if not await wait(c, 0.6):
 		return
 	for st in c["steps"]:
 		match st[0]:
 			"c":
-				if not await say(c, st[1], tok, 0.45):
+				if not await say(c, st[1], 0.45):
 					return
 			"p":
-				if not await wait(float(st[1]), tok):
+				if not await wait(c, float(st[1])):
 					return
 			"o":
-				var i := await choose(st[1], tok)
+				var i := await choose(c, st[1])
 				if i < 0:
 					return
-				if not await op(st[1][i], tok):
+				if not await op(c, st[1][i]):
 					return
 			"end":
 				sfx.play("cut")
-				_sys("(A ligação foi encerrada do outro lado.)")
-				if not await wait(0.5, tok):
+				_sys(c, "(A ligação foi encerrada do outro lado.)")
+				if not await wait(c, 0.5):
 					return
-				end_call("caller")
+				end_call(c, "caller")
 
 
 # ---------------------------------------------------------------- a ligação misteriosa
 
-func _op_line(l: String, tok: int) -> bool:
-	var i := await choose([l], tok)
+func _op_line(c: Dictionary, l: String) -> bool:
+	var i := await choose(c, [l])
 	if i < 0:
 		return false
-	return await op(l, tok)
+	return await op(c, l)
 
 
-func run_mystery(c: Dictionary, tok: int) -> void:
+func run_mystery(c: Dictionary) -> void:
 	c["caller"] = "—"
-	if not await _greet(tok): return
-	if not await wait(2.6, tok): return
-	if not await say(c, "...alô?", tok, 0.7): return
-	if not await _op_line("Central telefônica. Qual número você está tentando chamar?", tok): return
-	if not await wait(2.2, tok): return
-	if not await say(c, "Eu não sei.", tok): return
-	if not await _op_line("Qual é o seu nome?", tok): return
-	if not await wait(1.5, tok): return
-	if not await say(c, "Eu estou tentando descobrir.", tok): return
+	if not await _greet(c): return
+	if not await wait(c, 2.6): return
+	if not await say(c, "...alô?", 0.7): return
+	if not await _op_line(c, "Central telefônica. Qual número você está tentando chamar?"): return
+	if not await wait(c, 2.2): return
+	if not await say(c, "Eu não sei."): return
+	if not await _op_line(c, "Qual é o seu nome?"): return
+	if not await wait(c, 1.5): return
+	if not await say(c, "Eu estou tentando descobrir."): return
 	sfx.static_burst(2.0)
-	if not await _op_line("Onde você está?", tok): return
-	if not await wait(1.2, tok): return
-	if not await say(c, "Eu não sei.", tok): return
-	if not await _op_line("Você consegue me dizer alguma rua?", tok): return
-	if not await wait(3.4, tok): return
-	if not await say(c, "Tem uma luz.", tok, 0.6): return
-	if not await _op_line("Que luz?", tok): return
-	if not await wait(1.3, tok): return
+	if not await _op_line(c, "Onde você está?"): return
+	if not await wait(c, 1.2): return
+	if not await say(c, "Eu não sei."): return
+	if not await _op_line(c, "Você consegue me dizer alguma rua?"): return
+	if not await wait(c, 3.4): return
+	if not await say(c, "Tem uma luz.", 0.6): return
+	if not await _op_line(c, "Que luz?"): return
+	if not await wait(c, 1.3): return
 	flick = true
-	if not await say(c, "A luz da sua mesa.", tok, 2.6): return
+	if not await say(c, "A luz da sua mesa.", 2.6): return
 	sfx.static_burst()
-	if not await say(c, "Ela sempre fica acesa?", tok, 0.5): return
-	end_call("mystery")
+	if not await say(c, "Ela sempre fica acesa?", 0.5): return
+	end_call(c, "mystery")
 
 
 # ---------------------------------------------------------------- fim de chamada
 
-func end_call(reason: String) -> void:
-	if cur.is_empty() or cur.get("ended", false):
+func end_call(c: Dictionary, reason: String) -> void:
+	if c.get("ended", false):
 		return
-	var c := cur
-	token += 1
-	choice_made.emit(-1)
-	sfx.ring_stop()
-	sfx.fade(sfx.hiss, -80.0, 0.2)
-	_clear_choices()
 	c["ended"] = true
 	c["active"] = false
 	c["ringing"] = false
-	phase = "idle"
-	talking = false
+	c["talking"] = false
+	c["opts"] = []
+	for i in live.size():
+		if is_same(live[i], c):
+			live.remove_at(i)
+			break
+	_update_bell()
 	if c["kind"] == "mystery":
-		_mystery_aftermath()
-	var my_idx := idx
-	if reason == "connected":
-		_release_later(2.0, my_idx, false)
-	else:
+		_mystery_aftermath(c)
+	if reason != "connected":
+		# Os cabos ficam na mesa: a linha mostra "desligou" até o operador desmontar.
 		var ln := int(c["line"])
-		if ln > 0 and lines[ln - 1] in ["talk", "hold", "ring"]:
-			lines[ln - 1] = "free"
-		_release_later(0.9, my_idx, false)
+		var d := _dest_of_line(ln)
+		if d != -1 and dests[d] == "ring":
+			dests[d] = "free"
+			_dgen[d] = int(_dgen.get(d, 0)) + 1
+		elif d != -1 and dests[d] == "conn":
+			dests[d] = "done"
+		if lines[ln - 1] in ["talk", "hold", "ring"]:
+			var plugged := board.cord_at(ln) != -1 or board.cord_at(ln + 10) != -1
+			lines[ln - 1] = "done" if plugged and c["kind"] != "mystery" else "free"
 	if reason == "op":
-		_sys("(Você encerrou a ligação.)")
-	_update_call_ui()
+		_sys(c, "(Você encerrou a ligação.)")
+	elif reason == "missed":
+		_sys(c, "(Ninguém atendeu. A pessoa desistiu.)")
+	_refresh_panel()
 	var where := "—"
 	var unit := "—"
 	var obs := ""
 	match c["kind"]:
 		"transfer":
-			where = String(c["dest"]) if c.get("connected", false) else "—"
+			if c.get("connected", false):
+				var right: bool = str(c["dest_num"]) == String(c["target"])
+				where = String(c["dest"]) if right else String(GameData.find_number(str(c["dest_num"]))["n"])
+				if not right:
+					obs = "Conectada ao número errado."
+		"info":
+			if c.has("info_ok"):
+				obs = ("Pediu o número d%s." % c["about"]) if c["what"] == "num" else "Perguntou as horas."
+				if not c["info_ok"]:
+					obs += " Informação errada."
 		"emergency":
-			var same: bool = not sent.is_empty() and sent["call_idx"] == idx
+			var same: bool = not sent.is_empty() and is_same(sent["call"], c)
 			where = String(sent["loc"]) if same else String(c["addr"])
 			unit = String(sent["units"]) if same else "—"
 		"prank":
 			where = c["fake"]
 	if reason == "op":
 		obs = "Encerrada pelo operador."
+	elif reason == "missed":
+		obs = "Não atendida."
 	elif c["kind"] == "transfer" and not c.get("connected", false):
 		obs = "Não conectada."
 	elif c["kind"] == "mystery":
 		obs = "A ligação caiu."
-	var who := "Desconhecido" if c["kind"] == "mystery" else String(c["caller"])
-	pending = {"time": c["time"], "who": "%s (linha %02d)" % [who, int(c["line"])], "where": where, "unit": unit, "obs": obs, "kind": c["kind"]}
-	_fill_pending()
+	var who := "Desconhecido" if c["kind"] == "mystery" or reason == "missed" else String(c["caller"])
+	var rec := {"time": c["time"], "who": "%s (linha %02d)" % [who, int(c["line"])], "where": where, "unit": unit, "obs": obs, "kind": c["kind"]}
+	c["rec"] = rec
+	_add_pending(rec)
 	await get_tree().create_timer(1.5).timeout
-	if not ending:
-		set_tab("caderno")
-		hint("Registre a ocorrência no caderno para continuar o turno.")
-
-
-func _release_later(sec: float, my_idx: int, conn: bool) -> void:
-	await get_tree().create_timer(sec).timeout
-	if idx != my_idx:
+	if ending:
 		return
-	if conn:
-		pass
-	board.return_all()
-	_update_call_ui()
+	if live.is_empty():
+		set_tab("caderno")
+		hint("Registre a ocorrência no caderno.")
+	else:
+		hint("Há ocorrências para registrar no caderno quando der tempo.")
 
 
-func _mystery_aftermath() -> void:
+func _mystery_aftermath(c: Dictionary) -> void:
 	sfx.play("cut")
 	sfx.hum.volume_db = -80.0
 	flick = false
-	_sys("(A ligação caiu.)")
+	_sys(c, "(A ligação caiu.)")
 	after = true
 	get_tree().create_timer(1.8).timeout.connect(func(): sfx.fade(sfx.hum, -32.0, 3.0))
 	_note_gen += 1
@@ -1432,19 +1693,15 @@ func _show_note() -> void:
 	note_shown = true
 	note_wanted = false
 	scrawl.visible = true
-	if tab == "caderno":
-		_note_seen()
-	else:
+	if tab != "caderno":
 		tab_dots["caderno"].visible = true
-	await get_tree().create_timer(30.0).timeout
-	_start_ending()
 
 
-func _note_seen() -> void:
-	if _seen_started:
-		return
-	_seen_started = true
-	await get_tree().create_timer(7.5).timeout
+## 06:00: o turno acaba. Se a anotação ainda não apareceu, ela aparece agora; depois, o final.
+func _close_shift() -> void:
+	if not note_shown:
+		_show_note()
+	await get_tree().create_timer(12.0).timeout
 	_start_ending()
 
 
@@ -1452,6 +1709,8 @@ func _start_ending() -> void:
 	if ending:
 		return
 	ending = true
+	running = false
+	sfx.ring_stop()
 	sfx.fade(sfx.rain, -80.0, 5.0)
 	sfx.fade(sfx.hum, -80.0, 5.0)
 	sfx.fade(sfx.hiss, -80.0, 1.0)
@@ -1609,11 +1868,12 @@ func _send() -> void:
 		units[u] = "EM DESLOCAMENTO"
 		city.trip(u, target)
 		names.append(GameData.UNAME[u])
-	sent = {"call_idx": idx, "loc": target["label"], "units": ", ".join(names)}
-	if pending.get("kind", "") == "emergency":
-		pending["where"] = sent["loc"]
-		pending["unit"] = sent["units"]
-		_fill_pending()
+	sent = {"call": em_call, "loc": target["label"], "units": ", ".join(names)}
+	if em_call.has("rec"):
+		em_call["rec"]["where"] = sent["loc"]
+		em_call["rec"]["unit"] = sent["units"]
+		if is_same(pending, em_call["rec"]):
+			_fill_pending()
 	unit_sel.clear()
 	dispatch_report = _units_report("UNIDADES ENVIADAS")
 	_render_dispatch()
@@ -1718,12 +1978,14 @@ func _render_ledger() -> void:
 
 
 func _fill_pending() -> void:
+	# a anotação da linha 07 sobe para a tabela enquanto houver formulário aberto
+	scrawl.position = Vector2(30, 220) if pending.is_empty() else Vector2(250, 40)
 	if pending.is_empty():
 		pending_box.visible = false
 		tab_dots["caderno"].visible = false
 		return
 	pending_box.visible = true
-	p_time.text = "Nova ocorrência · " + String(pending["time"])
+	p_time.text = "Nova ocorrência · " + String(pending["time"]) + ("   (+%d na fila)" % pending_q.size() if not pending_q.is_empty() else "")
 	p_who.text = pending["who"]
 	p_where.text = pending["where"]
 	p_unit.text = pending["unit"]
@@ -1744,13 +2006,22 @@ func _register() -> void:
 		"type": p_type.get_item_text(p_type.selected),
 		"unit": p_unit.text if p_unit.text != "" else "—", "obs": p_obs.text if p_obs.text != "" else "—",
 	})
-	pending = {}
+	pending = pending_q.pop_front() if not pending_q.is_empty() else {}
 	sfx.play("pencil")
 	_render_ledger()
 	_fill_pending()
 	hint("")
-	await get_tree().create_timer(1.8).timeout
-	schedule_next()
+
+
+## Ocorrências encerradas entram numa fila: o caderno não segura o turno.
+func _add_pending(rec: Dictionary) -> void:
+	if pending.is_empty():
+		pending = rec
+		_fill_pending()
+		return
+	pending_q.append(rec)   # não apaga o que o jogador está preenchendo
+	p_time.text = "Nova ocorrência · %s   (+%d na fila)" % [pending["time"], pending_q.size()]
+	tab_dots["caderno"].visible = true
 
 
 # ================================================================ abas
@@ -1770,8 +2041,6 @@ func set_tab(t: String) -> void:
 	if t == "caderno":
 		if pending.is_empty():
 			tab_dots["caderno"].visible = false
-		if note_shown:
-			_note_seen()
 	if prev == "caderno" and note_wanted:
 		await get_tree().create_timer(1.2).timeout
 		_show_note()

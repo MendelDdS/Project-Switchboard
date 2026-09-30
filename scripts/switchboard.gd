@@ -1,15 +1,26 @@
 class_name Switchboard
 extends Control
-## Mesa comutadora: 10 linhas com lâmpada e tomada, e dois plugues (FONE e SWITCH).
-## Clique no plug para pegá-lo e clique na tomada para encaixar — ou arraste.
+## Mesa comutadora.
+## - ENTRADAS 01–10: onde as chamadas chegam. O FONE (cabo vermelho, que sai do telefone) entra aqui para atender.
+## - SAÍDAS: uma tomada logo abaixo de cada entrada. Uma ponta do cabo de conexão entra aqui...
+## - DESTINOS: ...e a outra ponta no número pedido.
+## Os cabos de conexão são poucos (PATCHES): desmontar as conexões encerradas libera cabos.
+## Arraste o plug até a tomada (ou clique no plug e depois na tomada). Clicar num plug encaixado,
+## ou soltá-lo fora de uma tomada, faz ele voltar sozinho para a base.
 
-signal plug_changed(plug: String, line: int, prev: int)
-signal info_requested(line: int)
+signal end_changed(end: int, jack: int, prev: int)
+signal info_requested(jack: int)
 signal warned(text: String)
 
-var lines: Array = []          # referência ao array de estados mantido pelo Main
-var plugs := {"fone": -1, "sw": -1}
-var held := ""
+const PATCHES := 3
+const DEST_COLS := 17
+const FONE_SOCKET := Rect2(16, 350, 76, 44)   # fica no painel do telefone, logo abaixo da mesa
+
+var lines: Array = []          # referência ao estado das entradas mantido pelo Main
+var dests: Dictionary = {}     # referência: número (int) -> estado do destino
+var dest_nums: Array = []
+var ends: Array = []           # tomada de cada ponta (-1 = na base). 0 = FONE; 1..2*PATCHES = pontas dos cabos de conexão
+var held := -1
 var held_from := -1
 var cursor := Vector2.ZERO
 var sfx: Sfx
@@ -17,7 +28,11 @@ var info_lines: PackedStringArray = []
 var info_ghost := false
 var info_line := -1
 var info_until := 0
-var _picked := false
+var _press_pos := Vector2.ZERO
+var _pulled := false           # o clique atual tirou um plug de uma tomada
+var _anim := {}                # ponta -> {"from": posição, "t": 0..1} voltando para a base
+const RETURN_SEC := 0.35
+var _jacks: Array = []
 
 # ---- física dos cabos (corda de Verlet) ----
 const ROPE_N := 22                 # pontos por cabo
@@ -25,7 +40,7 @@ const GRAVITY := Vector2(0, 1600)  # px/s²
 const DAMPING := 0.985             # 1 = sem atrito com o ar
 const STIFF_ITER := 14             # iterações de restrição (maior = cabo menos elástico)
 const SLACK := 70.0                # folga extra além da distância reta
-const FLOOR_Y := 300.0             # o cabo repousa sobre a mesa abaixo do painel
+const FLOOR_Y := 348.0             # o cabo repousa sobre a mesa abaixo do painel
 const STEP := 1.0 / 90.0
 var ropes := {}
 var _acc := 0.0
@@ -33,71 +48,145 @@ var _last_mouse := Vector2.ZERO
 
 
 func _ready() -> void:
-	size = Vector2(588, 268)
+	size = Vector2(588, 330)
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	for i in 1 + PATCHES * 2:
+		ends.append(-1)
+	dest_nums = dests.keys()
+	dest_nums.sort()
+	_jacks = range(1, 21) + dest_nums
 
+
+## A mesa também recebe cliques no encaixe do FONE, que fica fora do retângulo dela.
+func _has_point(p: Vector2) -> bool:
+	return Rect2(Vector2.ZERO, size).has_point(p) or FONE_SOCKET.has_point(p)
+
+
+# ------------------------------------------------------------------ geometria
+# Tomadas: 1–10 entradas, 11–20 saídas (linha + 10), destinos pelo próprio número (101–399).
 
 func col_x(i: int) -> float:
 	return 42.0 + i * 56.0
 
 
-func jack_rect(i: int) -> Rect2:
-	return Rect2(col_x(i) - 16, 104, 32, 32)
+func jack_rect(j: int) -> Rect2:
+	if j <= 10:
+		return Rect2(col_x(j - 1) - 12, 74, 24, 24)
+	if j <= 20:
+		return Rect2(col_x(j - 11) - 10, 116, 20, 20)
+	var k := dest_nums.find(j)
+	return Rect2(38.0 + (k % DEST_COLS) * 32.0 - 11, 172 + int(k / DEST_COLS) * 50, 22, 22)
+
+
+func jack_at(pos: Vector2) -> int:
+	for j in _jacks:
+		if jack_rect(j).grow(4).has_point(pos):
+			return j
+	return -1
 
 
 func top_rect(i: int) -> Rect2:
-	return Rect2(col_x(i) - 20, 42, 40, 56)
+	return Rect2(col_x(i) - 20, 36, 40, 36)
 
 
-func home_rect(p: String) -> Rect2:
-	return Rect2(17 if p == "fone" else 133, 194, 92, 62)
+func patch_x(k: int) -> float:
+	return 80.0 + k * 125.0
 
 
-func plug_at(n: int) -> String:
-	if plugs["fone"] == n:
-		return "fone"
-	if plugs["sw"] == n:
-		return "sw"
+func home_pos(e: int) -> Vector2:
+	if e == 0:
+		return Vector2(34, 374)
+	return Vector2(patch_x((e - 1) / 2) + (-14.0 if e % 2 == 1 else 14.0), 278)
+
+
+func home_rect(e: int) -> Rect2:
+	if e == 0:
+		return FONE_SOCKET
+	var h := home_pos(e)
+	return Rect2(h.x - 12, 258, 24, 50)
+
+
+## A outra ponta do mesmo cabo de conexão (-1 para o FONE).
+func mate(e: int) -> int:
+	if e == 0:
+		return -1
+	return e + 1 if e % 2 == 1 else e - 1
+
+
+func cable_of(e: int) -> int:
+	return 0 if e == 0 else (e + 1) / 2
+
+
+func cord_at(j: int) -> int:
+	return -1 if j == -1 else ends.find(j)
+
+
+func fone_line() -> int:
+	var j: int = ends[0]
+	return j if j >= 1 and j <= 10 else -1
+
+
+func free_patches() -> int:
+	var n := 0
+	for k in PATCHES:
+		var a := 1 + k * 2
+		if ends[a] == -1 and ends[a + 1] == -1 and held != a and held != a + 1:
+			n += 1
+	return n
+
+
+## Por que a ponta e não entra na tomada j ("" = entra).
+func refuse(e: int, j: int) -> String:
+	if cord_at(j) != -1:
+		return "Essa tomada já está ocupada."
+	if e == 0:
+		return "" if j <= 10 else "O FONE só entra nas ENTRADAS (01–10)."
+	if j <= 10:
+		return "O cabo de conexão vai na SAÍDA (logo abaixo da entrada) e no destino."
+	var other: int = ends[mate(e)]
+	if other != -1 and (other <= 20) == (j <= 20):
+		return "Uma ponta na SAÍDA da linha, a outra no destino."
 	return ""
 
 
 # ------------------------------------------------------------------ ações
 
-func place(p: String, n: int) -> void:
-	var other := "sw" if p == "fone" else "fone"
-	if plugs[other] == n:
-		warned.emit("Essa tomada já tem um plug.")
-		return
-	plugs[p] = n
-	held = ""
+func place(e: int, j: int) -> bool:
+	var why := refuse(e, j)
+	if why != "":
+		warned.emit(why)
+		sfx.play("click")
+		return false
+	ends[e] = j
+	held = -1
 	sfx.play("plug_in")
-	plug_changed.emit(p, n, -1)
+	end_changed.emit(e, j, -1)
+	return true
 
 
-func pick_up(p: String) -> void:
-	var prev: int = plugs[p]
-	plugs[p] = -1
-	held = p
+func pick_up(e: int) -> void:
+	var prev: int = ends[e]
+	ends[e] = -1
+	held = e
 	held_from = prev
 	sfx.play("plug_out")
-	plug_changed.emit(p, -1, prev)
-
-
-func go_home(p: String) -> void:
-	var prev: int = plugs[p]
-	plugs[p] = -1
-	if held == p:
-		held = ""
-	sfx.play("plug_out")
 	if prev != -1:
-		plug_changed.emit(p, -1, prev)
+		end_changed.emit(e, -1, prev)
 
 
-func return_all() -> void:
-	plugs["fone"] = -1
-	plugs["sw"] = -1
-	held = ""
-	sfx.play("plug_out")
+## O plug volta para a base (o FONE volta ao telefone), num arco curto.
+func go_home(e: int) -> void:
+	var from := _plug_pos(e)
+	var prev: int = ends[e]
+	ends[e] = -1
+	if held == e:
+		held = -1
+	if from.distance_to(home_pos(e)) > 2.0:
+		_anim[e] = {"from": from, "t": 0.0}
+	else:
+		sfx.play("thump", -14.0)
+	if prev != -1:
+		end_changed.emit(e, -1, prev)
 
 
 func show_info(text_lines: PackedStringArray, ghost: bool, line: int) -> void:
@@ -119,90 +208,109 @@ func _gui_input(e: InputEvent) -> void:
 
 
 func _press(pos: Vector2) -> void:
-	_picked = false
-	for p in ["fone", "sw"]:
-		if home_rect(p).has_point(pos):
-			if held == p:
-				go_home(p)
-			else:
-				if held != "":
-					go_home(held)
-				if plugs[p] != -1:
-					go_home(p)
-				else:
-					held = p
-					held_from = -1
-					_picked = true
-					sfx.play("plug_out")
+	_press_pos = pos
+	_pulled = false
+	if held != -1:
+		var j := jack_at(pos)
+		if j != -1:
+			place(held, j)
+		else:
+			go_home(held)
+		return
+	for e in ends.size():
+		if ends[e] == -1 and not _anim.has(e) and home_rect(e).has_point(pos):
+			held = e
+			held_from = -1
+			sfx.play("plug_out")
 			return
+	var j := jack_at(pos)
+	if j != -1:
+		var e := cord_at(j)
+		if e != -1:
+			pick_up(e)
+			_pulled = true
+		else:
+			info_requested.emit(j)
+		return
 	for i in 10:
-		var n := i + 1
-		if jack_rect(i).grow(4).has_point(pos):
-			if held == "":
-				var p := plug_at(n)
-				if p != "":
-					pick_up(p)
-					_picked = true
-				else:
-					info_requested.emit(n)
-			return
 		if top_rect(i).has_point(pos):
-			info_requested.emit(n)
+			info_requested.emit(i + 1)
 			return
 
 
+## Clique num plug encaixado: ele volta para a base. Clique num plug da base: fica na mão até
+## o próximo clique. Arrastar e soltar encaixa na tomada (ou devolve à base, se soltar fora).
 func _release(pos: Vector2) -> void:
-	if held != "":
-		for i in 10:
-			if jack_rect(i).grow(4).has_point(pos):
-				var n := i + 1
-				if not (_picked and held_from == n):
-					place(held, n)
-				break
-	_picked = false
+	if held == -1:
+		return
+	if pos.distance_to(_press_pos) < 6.0:
+		if _pulled:
+			go_home(held)
+		return
+	var j := jack_at(pos)
+	if j == -1 or not place(held, j):
+		go_home(held)
 
 
 func _process(delta: float) -> void:
-	if held != "":
+	if held != -1:
 		cursor = get_local_mouse_position()
+	for e in _anim.keys():
+		_anim[e]["t"] += delta / RETURN_SEC
+		if _anim[e]["t"] >= 1.0:
+			_anim.erase(e)
+			sfx.play("thump", -14.0)
 	_acc = minf(_acc + delta, STEP * 6)
 	while _acc >= STEP:
 		_acc -= STEP
-		for p in ["fone", "sw"]:
-			_step_rope(p, STEP)
+		for c in PATCHES + 1:
+			_step_rope(c, STEP)
 		_last_mouse = get_local_mouse_position()
 	queue_redraw()
 
 
-func _plug_pos(p: String) -> Vector2:
-	if held == p:
+func _plug_pos(e: int) -> Vector2:
+	if held == e:
 		return cursor
-	if plugs[p] != -1:
-		return jack_rect(int(plugs[p]) - 1).get_center()
-	var hr := home_rect(p)
-	return Vector2(hr.get_center().x, hr.position.y + 16)
+	if ends[e] != -1:
+		return jack_rect(int(ends[e])).get_center()
+	if _anim.has(e):
+		var k: float = 1.0 - pow(1.0 - float(_anim[e]["t"]), 3.0)
+		var from: Vector2 = _anim[e]["from"]
+		return from.lerp(home_pos(e), k) + Vector2(0, -sin(k * PI) * 36.0)
+	return home_pos(e)
 
 
-func _anchor(p: String) -> Vector2:
-	return Vector2(home_rect(p).get_center().x, 262)
+## Pontas da corda do cabo c (0 = FONE, 1.. = conexão); vazio = cabo recolhido.
+func _rope_ends(c: int) -> Array:
+	if c == 0:
+		if held != 0 and ends[0] == -1 and not _anim.has(0):
+			return []
+		return [Vector2(home_pos(0).x, FONE_SOCKET.position.y), _plug_pos(0) + Vector2(0, 20)]
+	var a := c * 2 - 1
+	var b := c * 2
+	if held != a and held != b and ends[a] == -1 and ends[b] == -1 and not _anim.has(a) and not _anim.has(b):
+		return []
+	return [_plug_pos(a) + Vector2(0, 20), _plug_pos(b) + Vector2(0, 20)]
 
 
 ## Simula o cabo como uma corda: os pontos têm inércia e gravidade,
-## as pontas ficam presas (saída no painel e plug) e a distância entre pontos é mantida.
-func _step_rope(p: String, dt: float) -> void:
-	var at_home: bool = held != p and plugs[p] == -1
-	if at_home:
-		ropes.erase(p)   # o cabo recolhe para dentro da mesa
+## as pontas ficam presas e a distância entre pontos é mantida.
+func _step_rope(c: int, dt: float) -> void:
+	var re := _rope_ends(c)
+	if re.is_empty():
+		ropes.erase(c)
 		return
-	var a := _anchor(p)
-	var e := _plug_pos(p) + Vector2(0, 20)
+	var a: Vector2 = re[0]
+	var e: Vector2 = re[1]
+	var floor_y := FLOOR_Y   # o fio do FONE também repousa na fresta entre a mesa e o telefone
 	var target_len := a.distance_to(e) + SLACK
-	if not ropes.has(p):
+	if not ropes.has(c):
 		var init := PackedVector2Array()
 		for i in ROPE_N:
 			init.append(a.lerp(e, float(i) / (ROPE_N - 1)))
-		ropes[p] = {"pts": init, "old": init.duplicate(), "len": target_len}
-	var r: Dictionary = ropes[p]
+		ropes[c] = {"pts": init, "old": init.duplicate(), "len": target_len}
+	var r: Dictionary = ropes[c]
 	var pts: PackedVector2Array = r["pts"]
 	var old: PackedVector2Array = r["old"]
 	var length: float = lerpf(float(r["len"]), target_len, 0.08)
@@ -210,12 +318,13 @@ func _step_rope(p: String, dt: float) -> void:
 	# inércia + gravidade
 	var mouse := get_local_mouse_position()
 	var mv := mouse - _last_mouse
+	var in_hand := held != -1 and cable_of(held) == c
 	for i in range(1, ROPE_N - 1):
 		var v := (pts[i] - old[i]) * DAMPING
 		old[i] = pts[i]
 		pts[i] += v + GRAVITY * dt * dt
 		# passar o mouse por cima do cabo empurra o fio
-		if held != p and mv.length_squared() > 0.5 and pts[i].distance_to(mouse) < 16.0:
+		if not in_hand and mv.length_squared() > 0.5 and pts[i].distance_to(mouse) < 16.0:
 			pts[i] += mv * 0.35
 	pts[0] = a
 	pts[ROPE_N - 1] = e
@@ -235,8 +344,8 @@ func _step_rope(p: String, dt: float) -> void:
 				pts[i] += corr * 0.5
 				pts[i + 1] -= corr * 0.5
 		for i in range(1, ROPE_N - 1):
-			if pts[i].y > FLOOR_Y:
-				pts[i].y = FLOOR_Y
+			if pts[i].y > floor_y:
+				pts[i].y = floor_y
 				old[i].x = lerpf(old[i].x, pts[i].x, 0.3)   # atrito com a mesa
 	r["pts"] = pts
 	r["old"] = old
@@ -244,6 +353,42 @@ func _step_rope(p: String, dt: float) -> void:
 
 
 # ------------------------------------------------------------------ desenho
+
+## Cor da lâmpada para um estado; alpha 0 = apagada.
+func _lamp(st: String, ms: int, steady: bool) -> Color:
+	match st:
+		"ring":
+			if steady or (ms / 250) % 2 == 0:
+				return Pal.AMBER
+		"talk":
+			return Pal.AMBER
+		"hold":
+			return Pal.AMBER if (ms / 800) % 2 == 0 else Pal.AMBER.darkened(0.45)
+		"conn":
+			return Pal.GREEN
+		"done":
+			return Pal.RED
+		"ghost":
+			var ph := (ms % 3300) / 3300.0
+			return Pal.GHOST if not (ph > 0.47 and ph < 0.53) else Pal.GHOST.darkened(0.6)
+	return Color(0, 0, 0, 0)
+
+
+func _draw_lamp(r: Rect2, col: Color) -> void:
+	if col.a > 0.0:
+		var gc := col
+		gc.a = 0.25
+		draw_rect(r.grow(4), gc)
+	draw_rect(r.grow(2), Color.BLACK)
+	draw_rect(r, col if col.a > 0.0 else Color("2a2016"))
+
+
+func _draw_jack(jr: Rect2, rim: Color = Pal.BRASS) -> void:
+	draw_rect(jr, Color.BLACK)
+	draw_rect(jr.grow(-2), rim)
+	var hole := jr.size.x * 0.45
+	draw_rect(Rect2(jr.get_center() - Vector2(hole, hole) / 2.0 + Vector2(0, 2), Vector2(hole, hole)), Color("050403"))
+
 
 func _draw() -> void:
 	var w := size.x
@@ -255,89 +400,104 @@ func _draw() -> void:
 	draw_rect(Rect2(3, 3, 3, h - 6), Pal.PANEL_HI)
 	draw_rect(Rect2(3, h - 6, w - 6, 3), Pal.PANEL_LO)
 	draw_rect(Rect2(w - 6, 3, 3, h - 6), Pal.PANEL_LO)
-	draw_string(Pal.mono, Vector2(17, 32), "MESA COMUTADORA", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Pal.BRASS)
-	draw_string(Pal.mono, Vector2(17, 32), "LINHAS 01–10", HORIZONTAL_ALIGNMENT_RIGHT, w - 34, 19, Pal.DIM)
+	draw_string(Pal.mono, Vector2(17, 28), "MESA COMUTADORA", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Pal.BRASS)
+	draw_string(Pal.ui, Vector2(17, 26), "ENTRADA (fone)  ·  SAÍDA (cabo de conexão)", HORIZONTAL_ALIGNMENT_RIGHT, w - 34, 11, Pal.DIM)
 
+	# entradas e saídas
 	for i in 10:
 		var n := i + 1
 		var st: String = lines[i] if i < lines.size() else "free"
 		var cx := col_x(i)
-		# número
-		draw_rect(Rect2(cx - 17, 46, 34, 24), Color.BLACK)
-		draw_rect(Rect2(cx - 15, 48, 30, 20), Color("1a1711"))
-		draw_string(Pal.mono, Vector2(cx - 15, 65), "%02d" % n, HORIZONTAL_ALIGNMENT_CENTER, 30, 22, Color("d8c9a2"))
-		# lâmpada
-		var lr := Rect2(cx - 8, 78, 16, 16)
-		var col := Color("2a2016")
-		var glow := false
-		match st:
-			"ring":
-				if (ms / 250) % 2 == 0:
-					col = Pal.AMBER
-					glow = true
-			"talk":
-				col = Pal.AMBER
-				glow = true
-			"hold":
-				col = Pal.AMBER if (ms / 800) % 2 == 0 else Pal.AMBER.darkened(0.45)
-				glow = true
-			"busy", "conn":
-				col = Pal.GREEN
-				glow = true
-			"ghost":
-				var ph := (ms % 3300) / 3300.0
-				col = Pal.GHOST if not (ph > 0.47 and ph < 0.53) else Pal.GHOST.darkened(0.6)
-				glow = true
-		if glow:
-			var gc := col
-			gc.a = 0.25
-			draw_rect(lr.grow(5), gc)
-		draw_rect(lr.grow(2), Color.BLACK)
-		draw_rect(lr, col)
-		# tomada
-		var jr := jack_rect(i)
-		draw_rect(jr, Color.BLACK)
-		draw_rect(jr.grow(-2), Pal.BRASS)
-		draw_rect(Rect2(cx - 7, jr.position.y + 9, 14, 14), Color("050403"))
-		if held != "" and plug_at(n) == "":
-			_dashed(jr.grow(5), Pal.GLOW)
-		# estado
+		draw_rect(Rect2(cx - 17, 36, 34, 20), Color.BLACK)
+		draw_rect(Rect2(cx - 15, 38, 30, 16), Color("1a1711"))
+		draw_string(Pal.mono, Vector2(cx - 15, 52), "%02d" % n, HORIZONTAL_ALIGNMENT_CENTER, 30, 19, Color("d8c9a2"))
+		_draw_lamp(Rect2(cx - 7, 60, 14, 9), _lamp(st, ms, fone_line() == n))
+		_draw_jack(jack_rect(n))
 		var lbl: String = GameData.LINE_LABEL.get(st, "")
 		var sc := Pal.DIM
 		if st in ["ring", "talk", "hold"]:
 			sc = Pal.AMBER
+		elif st == "done":
+			sc = Pal.RED
 		elif st == "ghost":
 			sc = Pal.GHOST
 		var lw := 84.0 if st == "ghost" else 56.0
-		draw_string(Pal.ui, Vector2(cx - lw / 2.0, 157), lbl, HORIZONTAL_ALIGNMENT_CENTER, lw, 10 if st == "ghost" else 11, sc)
+		draw_string(Pal.ui, Vector2(cx - lw / 2.0, 110), lbl, HORIZONTAL_ALIGNMENT_CENTER, lw, 10, sc)
+		_draw_jack(jack_rect(n + 10), Color("7a6230"))
 
-	# bases dos plugues
-	for p in ["fone", "sw"]:
-		var hr := home_rect(p)
-		draw_rect(hr, Color.BLACK)
-		draw_rect(hr.grow(-2), Color("1b1812"))
-		draw_rect(Rect2(hr.position.x + 33, hr.position.y + 6, 26, 18), Color("3a3223"))
-		draw_rect(Rect2(hr.position.x + 35, hr.position.y + 8, 22, 14), Color("050403"))
-		draw_string(Pal.mono, Vector2(hr.position.x, hr.end.y - 8), "FONE" if p == "fone" else "SWITCH", HORIZONTAL_ALIGNMENT_CENTER, hr.size.x, 18, Pal.BRASS)
+	# destinos
+	draw_rect(Rect2(12, 142, w - 24, 2), Pal.PANEL_LO)
+	draw_string(Pal.ui, Vector2(17, 154), "DESTINOS", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
+	for d in dest_nums:
+		var jr := jack_rect(d)
+		var cx := jr.get_center().x
+		var st: String = dests.get(d, "free")
+		draw_string(Pal.mono, Vector2(cx - 16, jr.position.y - 5), str(d), HORIZONTAL_ALIGNMENT_CENTER, 32, 17, Color("d8c9a2") if st == "free" else Pal.TEXT)
+		var lc := _lamp(st, ms, false)
+		if lc.a > 0.0:
+			draw_rect(jr.grow(3), lc)   # o aro da tomada acende
+		_draw_jack(jr)
+
+	# base dos cabos de conexão
+	draw_rect(Rect2(12, 250, w - 24, 2), Pal.PANEL_LO)
+	for k in PATCHES:
+		var cx := patch_x(k)
+		draw_rect(Rect2(cx - 30, 298, 60, 14), Color.BLACK)
+		draw_rect(Rect2(cx - 28, 300, 56, 10), Color("1b1812"))
+		var a := 1 + k * 2
+		if ends[a] == -1 and ends[a + 1] == -1 and held != a and held != a + 1 and not _anim.has(a) and not _anim.has(a + 1):
+			# cabo enrolado na base
+			var coil := PackedVector2Array([Vector2(cx - 14, 298), Vector2(cx - 10, 306), Vector2(cx, 309), Vector2(cx + 10, 306), Vector2(cx + 14, 298)])
+			draw_polyline(coil, Color.BLACK, 7.0)
+			draw_polyline(coil, _cable_col(a)[0], 4.0)
+		draw_string(Pal.mono, Vector2(cx - 30, 322), "CABO %d" % (k + 1), HORIZONTAL_ALIGNMENT_CENTER, 60, 14, Pal.BRASS)
 	# legenda
-	var leg := [[Pal.AMBER, "chamando ou em linha"], [Pal.GREEN, "ocupada ou conectada"], [Color("2a2016"), "livre"]]
+	var leg := [[Pal.AMBER, "chamando / em linha"], [Pal.GREEN, "conectada"], [Pal.RED, "desligou: desmonte"], [Color("2a2016"), "livre"]]
 	for k in leg.size():
-		var y := 206 + k * 17
-		draw_rect(Rect2(380, y - 9, 9, 9), Color.BLACK)
-		draw_rect(Rect2(381, y - 8, 7, 7), leg[k][0])
-		draw_string(Pal.ui, Vector2(395, y), leg[k][1], HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Pal.DIM)
+		var y := 268 + k * 16
+		draw_rect(Rect2(452, y - 9, 9, 9), Color.BLACK)
+		draw_rect(Rect2(453, y - 8, 7, 7), leg[k][0])
+		draw_string(Pal.ui, Vector2(467, y), leg[k][1], HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
 
-	# cabos e plugues
-	for p in ["fone", "sw"]:
-		_draw_cord(p)
+	# encaixe do FONE (no painel do telefone)
+	var fs := FONE_SOCKET
+	draw_rect(fs, Color.BLACK)
+	draw_rect(fs.grow(-2), Color("1b1812"))
+	draw_rect(Rect2(home_pos(0).x - 8, fs.position.y + 26, 16, 12), Color("050403"))
+	draw_string(Pal.mono, Vector2(fs.position.x + 34, fs.position.y + 28), "FONE", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Pal.BRASS)
+
+	# destaque da tomada sob o plug
+	if held != -1:
+		var hj := jack_at(get_local_mouse_position())
+		if hj != -1:
+			var ok := refuse(held, hj) == ""
+			var hr := jack_rect(hj).grow(4)
+			draw_rect(hr, Pal.GLOW if ok else Pal.RED, false, 2.0)
+			if ok:
+				var gc := Pal.GLOW
+				gc.a = 0.2
+				draw_rect(hr, gc)
+
+	# cabos e plugues (o que está na mão é desenhado por último, por cima dos outros)
+	var top := cable_of(held) if held != -1 else -1
+	for c in PATCHES + 1:
+		if c != top:
+			_draw_rope(c)
+	if top != -1:
+		_draw_rope(top)
+	for e in ends.size():
+		if e != held:
+			_draw_plug(e)
+	if held != -1:
+		_draw_plug(held)
 
 	# balão de informação
 	if ms < info_until and info_line > 0:
-		var jr := jack_rect(info_line - 1)
+		var jr := jack_rect(info_line)
 		var bw := 200.0
 		var bh := 12.0 + info_lines.size() * 19.0
 		var bx := clampf(jr.get_center().x - bw / 2, 8, w - bw - 8)
-		var by := jr.end.y + 8
+		var by := minf(jr.end.y + 8, h - bh - 8)
 		var bc := Pal.GHOST if info_ghost else Pal.BRASS
 		draw_rect(Rect2(bx, by, bw, bh), bc)
 		draw_rect(Rect2(bx + 2, by + 2, bw - 4, bh - 4), Color("0e0c08"))
@@ -345,35 +505,33 @@ func _draw() -> void:
 			draw_string(Pal.mono, Vector2(bx + 10, by + 22 + k * 19), info_lines[k], HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Pal.GHOST if info_ghost else Pal.TEXT)
 
 
-func _dashed(r: Rect2, c: Color) -> void:
-	var x := r.position.x
-	while x < r.end.x:
-		draw_rect(Rect2(x, r.position.y, 4, 2), c)
-		draw_rect(Rect2(x, r.end.y - 2, 4, 2), c)
-		x += 7
-	var y := r.position.y
-	while y < r.end.y:
-		draw_rect(Rect2(r.position.x, y, 2, 4), c)
-		draw_rect(Rect2(r.end.x - 2, y, 2, 4), c)
-		y += 7
+## [cor, brilho] do cabo: FONE vermelho, conexão ocre.
+func _cable_col(e: int) -> Array:
+	if e == 0:
+		return [Color("7d2e22"), Color("a8473a")]
+	return [Color("7a6524"), Color("b0923a")]
 
 
-func _draw_cord(p: String) -> void:
-	var end := _plug_pos(p)
-	var col := Color("7d2e22") if p == "fone" else Color("27435a")
-	var hi := Color("a8473a") if p == "fone" else Color("3b6687")
-	if ropes.has(p):
-		var pts: PackedVector2Array = ropes[p]["pts"]
-		draw_polyline(pts, Color.BLACK, 8.0)
-		draw_polyline(pts, col, 5.0)
-		var pts2 := PackedVector2Array()
-		for q in pts:
-			pts2.append(q + Vector2(-1, -1))
-		draw_polyline(pts2, hi, 1.5)
+func _draw_rope(c: int) -> void:
+	if not ropes.has(c):
+		return
+	var col: Array = _cable_col(0 if c == 0 else 1)
+	var pts: PackedVector2Array = ropes[c]["pts"]
+	draw_polyline(pts, Color.BLACK, 8.0)
+	draw_polyline(pts, col[0], 5.0)
+	var pts2 := PackedVector2Array()
+	for q in pts:
+		pts2.append(q + Vector2(-1, -1))
+	draw_polyline(pts2, col[1], 1.5)
+
+
+func _draw_plug(e: int) -> void:
+	var end := _plug_pos(e)
+	var col: Array = _cable_col(e)
 	var px := roundf(end.x)
 	var py := roundf(end.y)
 	draw_rect(Rect2(px - 7, py - 2, 14, 22), Color.BLACK)
-	draw_rect(Rect2(px - 5, py, 10, 18), col)
-	draw_rect(Rect2(px - 5, py, 3, 18), hi)
+	draw_rect(Rect2(px - 5, py, 10, 18), col[0])
+	draw_rect(Rect2(px - 5, py, 3, 18), col[1])
 	draw_rect(Rect2(px - 4, py - 9, 8, 9), Color.BLACK)
 	draw_rect(Rect2(px - 3, py - 8, 6, 8), Color("d9b56a"))
