@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_6y3jk"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_qwgly"]
+
+[sub_resource type="Resource" id="Resource_2by5j"]
+script = ExtResource("2_qwgly")
+text = "Alô? É da central?"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_gt43l"]
+script = ExtResource("2_qwgly")
+kind = 1
+options = PackedStringArray("Sim, central telefônica. Pois não?")
+
+[sub_resource type="Resource" id="Resource_1kdjr"]
+script = ExtResource("2_qwgly")
+text = "Meu irmão quer saber se o senhor tem cara de telefone."
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_dl4y7"]
+script = ExtResource("2_qwgly")
+text = "(risadas)"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_j1q67"]
+script = ExtResource("2_qwgly")
+kind = 1
+options = PackedStringArray("Esta é uma linha de serviço, menina.", "Onde estão seus pais?")
+
+[sub_resource type="Resource" id="Resource_et58k"]
+script = ExtResource("2_qwgly")
+text = "Foi ele que mandou falar! Tchau!"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_w4j5m"]
+script = ExtResource("2_qwgly")
+kind = 3
+options = PackedStringArray()
+
+[resource]
+script = ExtResource("1_6y3jk")
+caller = "Menina"
+steps = Array[ExtResource("2_qwgly")]([SubResource("Resource_2by5j"), SubResource("Resource_gt43l"), SubResource("Resource_1kdjr"), SubResource("Resource_dl4y7"), SubResource("Resource_j1q67"), SubResource("Resource_et58k"), SubResource("Resource_w4j5m")])

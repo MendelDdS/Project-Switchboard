@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_ahsm1"]
+
+[resource]
+script = ExtResource("1_ahsm1")
+caller = "Filha"
+opening = "Central, minha mãe tá passando mal! A boca tá torta e ela não fala direito!"
+questions = PackedStringArray("Qual é o endereço?", "Ela está consciente?", "Quantos anos ela tem?")
+answers = PackedStringArray("Rua do Comércio, 150. Em cima da loja.", "Tá, mas não consegue levantar o braço.", "Setenta e oito.")
+street = "comercio"
+block = 1
+address = "Rua do Comércio, 150"
+occurrence = "Mal súbito"
+units = PackedStringArray("amb")
+after = "Eu vou descer e esperar na porta."

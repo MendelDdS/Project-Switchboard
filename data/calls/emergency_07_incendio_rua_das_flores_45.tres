@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_vs0nu"]
+
+[resource]
+script = ExtResource("1_vs0nu")
+caller = "Senhora"
+opening = "Central! Tá saindo fumaça da casa do vizinho!"
+questions = PackedStringArray("Qual é o endereço?", "Tem alguém dentro da casa?", "Dá para ver o fogo?")
+answers = PackedStringArray("Rua das Flores, 45! Perto da clínica!", "Não sei! O carro dele tá aí na frente!", "Tem fogo na janela da cozinha!")
+street = "flores"
+address = "Rua das Flores, 45"
+occurrence = "Incêndio"
+units = PackedStringArray("bomb")
+after = "Tá bom. Eu vou chamar os outros vizinhos."

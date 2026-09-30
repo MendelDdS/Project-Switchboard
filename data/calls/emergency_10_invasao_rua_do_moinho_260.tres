@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_nwtnb"]
+
+[resource]
+script = ExtResource("1_nwtnb")
+voice = "w"
+caller = "Senhor"
+opening = "(sussurrando) Central... tem alguém dentro da minha casa."
+questions = PackedStringArray("Qual é o endereço?", "O senhor está em segurança?", "A pessoa está armada?")
+answers = PackedStringArray("Rua do Moinho, 260. A última casa.", "Tô trancado no quarto. Ouvi quebrarem o vidro da cozinha.", "Não sei. Não vi. Só ouço os passos.")
+street = "moinho"
+block = 2
+address = "Rua do Moinho, 260"
+occurrence = "Invasão / roubo"
+units = PackedStringArray("pol")
+after = "Tá. Eu vou ficar quieto aqui."

@@ -1,0 +1,56 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_mg81d"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_qinjy"]
+
+[sub_resource type="Resource" id="Resource_omkju"]
+script = ExtResource("2_qinjy")
+text = "Central, eu quero denunciar um crime!"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_2g0wx"]
+script = ExtResource("2_qinjy")
+kind = 1
+options = PackedStringArray("Qual crime? Onde?")
+
+[sub_resource type="Resource" id="Resource_tlskr"]
+script = ExtResource("2_qinjy")
+text = "Roubaram a minha bicicleta..."
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_imidp"]
+script = ExtResource("2_qinjy")
+kind = 2
+options = PackedStringArray()
+seconds = 0.8
+
+[sub_resource type="Resource" id="Resource_b4kre"]
+script = ExtResource("2_qinjy")
+text = "...e devolveram pintada de rosa!"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_t402i"]
+script = ExtResource("2_qinjy")
+text = "(risadas ao fundo)"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_neigq"]
+script = ExtResource("2_qinjy")
+kind = 1
+options = PackedStringArray("Você sabe que trote é crime, não sabe?", "Qual é o seu endereço?")
+
+[sub_resource type="Resource" id="Resource_jr7b4"]
+script = ExtResource("2_qinjy")
+text = "Rua dos Bobos, número zero!"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_e7584"]
+script = ExtResource("2_qinjy")
+kind = 3
+options = PackedStringArray()
+
+[resource]
+script = ExtResource("1_mg81d")
+caller = "Garoto"
+fake_address = "Rua dos Bobos, 0"
+steps = Array[ExtResource("2_qinjy")]([SubResource("Resource_omkju"), SubResource("Resource_2g0wx"), SubResource("Resource_tlskr"), SubResource("Resource_imidp"), SubResource("Resource_b4kre"), SubResource("Resource_t402i"), SubResource("Resource_neigq"), SubResource("Resource_jr7b4"), SubResource("Resource_e7584")])

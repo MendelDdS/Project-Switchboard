@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_52sne"]
+
+[resource]
+script = ExtResource("1_52sne")
+voice = "m"
+caller = "Rapaz"
+opening = "Central, um carro bateu no poste aqui na avenida!"
+questions = PackedStringArray("Qual é o endereço?", "O motorista está ferido?", "O poste caiu?")
+answers = PackedStringArray("Avenida Brasil, 60! Na frente da loja de tecidos!", "Tá preso no carro, com a cabeça sangrando. Mas tá falando.", "Tá torto, e os fios tão soltando faísca!")
+street = "brasil"
+address = "Avenida Brasil, 60"
+occurrence = "Acidente de trânsito"
+units = PackedStringArray("pol", "amb", "bomb")
+after = "Tá. Ninguém chega perto dos fios, pode deixar."

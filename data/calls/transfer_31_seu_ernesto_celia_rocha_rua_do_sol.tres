@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_iu2ym"]
+
+[resource]
+script = ExtResource("1_iu2ym")
+group = 1
+voice = "m"
+caller = "Seu Ernesto"
+opening = PackedStringArray("Boa noite. A Dona Célia Rocha, por favor.", "A que mora perto da escola.")
+repeat = "Célia Rocha. A casa dela é perto da escola."
+target = "367"
+destination = "Célia Rocha (Rua do Sol)"
+thanks = "Obrigado."

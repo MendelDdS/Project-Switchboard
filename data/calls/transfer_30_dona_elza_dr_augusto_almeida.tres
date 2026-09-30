@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_axf2e"]
+
+[resource]
+script = ExtResource("1_axf2e")
+group = 1
+caller = "Dona Elza"
+opening = PackedStringArray("Preciso falar com o Doutor Almeida.", "O médico. A pressão do meu marido subiu e ele mandou ligar se isso acontecesse.")
+repeat = "O Doutor Almeida, o médico."
+target = "214"
+destination = "Dr. Augusto Almeida"
+thanks = "Obrigada. Rápido, viu?"

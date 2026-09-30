@@ -15,6 +15,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `MonoLabel`, `InkMonoLabel`). Prefira variação de tema a override por nó.
 - **Conteúdo em Resources** (`data/content.tres` + um `.tres` por roteiro em `data/calls/`). Nada de falas no código,
   exceto as do operador e as da ligação desconhecida (roteiro fixo em `conversation.gd`).
+- **Moldes** (`data/templates/`, listas `transfer_templates`/`emergency_templates` no content): `TransferCall`/
+  `EmergencyCall` com lacunas **em inglês** (`{place}`, `{reason}`, `{street}`, `{house}`...), preenchidas por
+  `GameData.template_transfer()`/`template_emergency()`. Motivos em `DirectoryEntry.reasons`. `TEMPLATE_CHANCE`
+  (main.gd) mistura moldes e roteiros escritos (híbrido: principais de transferência e trotes sempre escritos).
 - Todo o áudio é sintetizado no autoload `Sfx` (`scripts/sfx.gd`), inclusive as "vozes" por sílaba
   (`Sfx.speak_char`). Barramentos em `default_bus_layout.tres`: Ambience, Voices, Effects.
 - Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`).
@@ -101,6 +105,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
    `Sfx` com barramentos, Input Map e `tr()`.
 8. Anotação "NÃO ATENDER NOVAMENTE" removida (o mistério será roteirizado depois); a ligação desconhecida vem
    de qualquer entrada, não só da 07.
+9. Mais roteiros escritos e conversas híbridas: moldes com lacunas (nomes em inglês) para extras e emergência.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

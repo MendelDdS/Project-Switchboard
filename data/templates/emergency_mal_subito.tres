@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_ppfut"]
+
+[resource]
+script = ExtResource("1_ppfut")
+opening = "Central, o meu vizinho desmaiou aqui na calçada!"
+questions = PackedStringArray("Qual é o endereço?", "Ele está respirando?", "Ele bateu a cabeça?")
+answers = PackedStringArray("{address}. Na frente de casa.", "Tá, mas bem fraquinho.", "Acho que sim. Tem sangue no chão.")
+occurrence = "Mal súbito"
+units = PackedStringArray("amb")
+after = "Tá. Eu fico aqui com ele."

@@ -9,18 +9,31 @@
 [ext_resource type="Resource" path="res://data/calls/emergency_05_outro_rua_da_estacao_140.tres" id="7_ks6ko"]
 [ext_resource type="Resource" path="res://data/calls/emergency_06_outro_rua_do_comercio_71.tres" id="8_ec5ew"]
 [ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="9_ev121"]
+[ext_resource type="Resource" path="res://data/calls/emergency_07_incendio_rua_das_flores_45.tres" id="9_nagbo"]
+[ext_resource type="Resource" path="res://data/calls/emergency_08_acidente_avenida_brasil_60.tres" id="10_7ad0u"]
 [ext_resource type="Resource" path="res://data/calls/prank_01_crianca.tres" id="10_wfk0g"]
+[ext_resource type="Resource" path="res://data/calls/emergency_09_mal_subito_rua_do_comercio_150.tres" id="11_76ki8"]
 [ext_resource type="Resource" path="res://data/calls/prank_02_garoto.tres" id="11_pg478"]
 [ext_resource type="Resource" path="res://data/calls/prank_03_menina.tres" id="12_3mr8u"]
+[ext_resource type="Resource" path="res://data/calls/emergency_10_invasao_rua_do_moinho_260.tres" id="12_q3bf4"]
 [ext_resource type="Resource" path="res://data/calls/prank_04_garoto.tres" id="13_4b6fe"]
+[ext_resource type="Resource" path="res://data/templates/emergency_incendio.tres" id="13_hps07"]
+[ext_resource type="Resource" path="res://data/templates/emergency_mal_subito.tres" id="14_2ubng"]
 [ext_resource type="Resource" path="res://data/calls/prank_05_menino.tres" id="14_3w1w1"]
+[ext_resource type="Resource" path="res://data/templates/emergency_acidente.tres" id="15_35dgx"]
 [ext_resource type="Script" path="res://scripts/data/game_content.gd" id="15_65xm7"]
 [ext_resource type="Script" path="res://scripts/data/street.gd" id="16_5siro"]
+[ext_resource type="Resource" path="res://data/templates/emergency_invasao.tres" id="16_8shhh"]
+[ext_resource type="Resource" path="res://data/templates/emergency_briga.tres" id="17_ko1bc"]
 [ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="17_q4d2e"]
 [ext_resource type="Resource" path="res://data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres" id="18_g0ddb"]
+[ext_resource type="Resource" path="res://data/calls/prank_06_menina.tres" id="19_61w3p"]
 [ext_resource type="Resource" path="res://data/calls/transfer_02_sr_nelson_hotel_estrela.tres" id="19_y6u46"]
 [ext_resource type="Resource" path="res://data/calls/transfer_03_rapaz_taxi_ponto_da_rodoviaria.tres" id="20_5hhcc"]
+[ext_resource type="Resource" path="res://data/calls/prank_07_garoto.tres" id="20_grq3w"]
+[ext_resource type="Resource" path="res://data/calls/prank_08_rapaz.tres" id="21_otrev"]
 [ext_resource type="Resource" path="res://data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres" id="21_r4mvx"]
+[ext_resource type="Resource" path="res://data/calls/prank_09_menino.tres" id="22_flf23"]
 [ext_resource type="Resource" path="res://data/calls/transfer_05_rapaz_apaixonado_radio_serena_am.tres" id="22_nagbo"]
 [ext_resource type="Resource" path="res://data/calls/transfer_06_caminhoneiro_oficina_do_tiao.tres" id="23_7ad0u"]
 [ext_resource type="Resource" path="res://data/calls/transfer_07_motorista_posto_sao_cristovao.tres" id="24_76ki8"]
@@ -30,17 +43,37 @@
 [ext_resource type="Resource" path="res://data/calls/transfer_11_morador_dr_augusto_almeida.tres" id="28_otrev"]
 [ext_resource type="Resource" path="res://data/calls/transfer_12_sra_marta_celia_rocha_rua_do_sol.tres" id="29_flf23"]
 [ext_resource type="Resource" path="res://data/calls/transfer_13_sr_ivo_armazem_ferreira.tres" id="30_amupc"]
+[ext_resource type="Resource" path="res://data/templates/transfer_01.tres" id="31_11ieg"]
 [ext_resource type="Resource" path="res://data/calls/transfer_14_senhora_casa_paroquial.tres" id="31_xeepj"]
+[ext_resource type="Resource" path="res://data/templates/transfer_02.tres" id="32_grptk"]
 [ext_resource type="Resource" path="res://data/calls/transfer_15_vizinho_otavio_almeida.tres" id="32_nyi6e"]
+[ext_resource type="Resource" path="res://data/templates/transfer_03.tres" id="33_e6ja0"]
 [ext_resource type="Resource" path="res://data/calls/transfer_16_sobrinha_celia_rocha_av_brasil.tres" id="33_xdh2c"]
 [ext_resource type="Resource" path="res://data/calls/transfer_17_fregues_joaquim_ferreira_residencia.tres" id="34_hps07"]
+[ext_resource type="Resource" path="res://data/templates/transfer_04.tres" id="34_ssh4q"]
 [ext_resource type="Resource" path="res://data/calls/transfer_18_dona_rute_clinica_sao_lucas.tres" id="35_2ubng"]
+[ext_resource type="Resource" path="res://data/templates/transfer_05.tres" id="35_7bth5"]
+[ext_resource type="Resource" path="res://data/templates/transfer_06.tres" id="36_4thi7"]
 [ext_resource type="Resource" path="res://data/calls/transfer_19_homem_bar_do_ze.tres" id="36_35dgx"]
 [ext_resource type="Resource" path="res://data/calls/transfer_20_dona_tereza_marta_costa.tres" id="37_8shhh"]
+[ext_resource type="Resource" path="res://data/templates/transfer_07.tres" id="37_ufmoj"]
 [ext_resource type="Resource" path="res://data/calls/transfer_21_moca_lucia_pereira.tres" id="38_ko1bc"]
 [ext_resource type="Resource" path="res://data/calls/transfer_22_seu_anibal_farmacia_central.tres" id="39_11ieg"]
 [ext_resource type="Resource" path="res://data/calls/transfer_23_dona_aurora_igreja_matriz.tres" id="40_grptk"]
 [ext_resource type="Resource" path="res://data/calls/transfer_24_seu_benedito_ivo_teixeira.tres" id="41_e6ja0"]
+[ext_resource type="Resource" path="res://data/calls/transfer_25_seu_jair_mercearia_silva.tres" id="50_amupc"]
+[ext_resource type="Resource" path="res://data/calls/transfer_26_dona_fatima_hotel_estrela.tres" id="51_xeepj"]
+[ext_resource type="Resource" path="res://data/calls/transfer_27_moca_taxi_ponto_da_rodoviaria.tres" id="52_nyi6e"]
+[ext_resource type="Resource" path="res://data/calls/transfer_28_dona_olga_radio_serena_am.tres" id="53_xdh2c"]
+[ext_resource type="Resource" path="res://data/calls/transfer_29_rapaz_cine_odeon.tres" id="54_hps07"]
+[ext_resource type="Resource" path="res://data/calls/transfer_30_dona_elza_dr_augusto_almeida.tres" id="55_2ubng"]
+[ext_resource type="Resource" path="res://data/calls/transfer_31_seu_ernesto_celia_rocha_rua_do_sol.tres" id="56_35dgx"]
+[ext_resource type="Resource" path="res://data/calls/transfer_32_seu_lauro_armazem_ferreira.tres" id="57_8shhh"]
+[ext_resource type="Resource" path="res://data/calls/transfer_33_rapaz_paulo_nogueira.tres" id="58_ko1bc"]
+[ext_resource type="Resource" path="res://data/calls/transfer_34_dona_iolanda_rosa_lima.tres" id="59_11ieg"]
+[ext_resource type="Resource" path="res://data/calls/transfer_35_seu_valdir_sonia_vieira.tres" id="60_grptk"]
+[ext_resource type="Resource" path="res://data/calls/transfer_36_senhor_alberto_ramos.tres" id="61_e6ja0"]
+[ext_resource type="Resource" path="res://data/calls/transfer_37_vizinha_benedito_souza.tres" id="62_ssh4q"]
 
 [sub_resource type="Resource" id="Resource_ssh4q"]
 script = ExtResource("1_6g7xa")
@@ -48,6 +81,7 @@ name = "Almeida, Dr. Augusto"
 note = "Clínica São Lucas"
 address = "Rua das Flores, 12"
 number = "214"
+reasons = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_7bth5"]
 script = ExtResource("1_6g7xa")
@@ -55,6 +89,7 @@ name = "Almeida, Otávio"
 note = "residência"
 address = "Rua da Estação, 9"
 number = "251"
+reasons = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_4thi7"]
 script = ExtResource("1_6g7xa")
@@ -63,12 +98,15 @@ note = "Joaquim Ferreira"
 address = "Rua do Comércio, 30"
 number = "288"
 spoken = "o Armazém Ferreira"
+reasons = PackedStringArray("Esqueci minhas compras no balcão hoje.", "Quero saber se amanhã chega querosene.")
 
 [sub_resource type="Resource" id="Resource_ufmoj"]
 script = ExtResource("1_6g7xa")
 name = "Bar do Zé"
 address = "Rua da Estação, 140"
 number = "327"
+spoken = "o Bar do Zé"
+reasons = PackedStringArray("Preciso dar um recado pra um amigo que tá lá.", "Acho que esqueci meu chapéu lá.", "Quero saber se o jogo ainda tá passando na televisão de lá.")
 
 [sub_resource type="Resource" id="Resource_yijt6"]
 script = ExtResource("1_6g7xa")
@@ -76,6 +114,7 @@ name = "Barbearia Navalha"
 address = "Rua do Comércio, 71"
 number = "209"
 closed_at_night = true
+reasons = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_em5wb"]
 script = ExtResource("1_6g7xa")
@@ -84,6 +123,7 @@ note = "use o despacho"
 address = "Avenida Brasil, 210"
 number = "193"
 dispatch_only = true
+reasons = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_yceab"]
 script = ExtResource("1_6g7xa")
@@ -91,6 +131,8 @@ name = "Casa Paroquial"
 note = "Pe. Anselmo"
 address = "Praça da Matriz, 1"
 number = "120"
+spoken = "a Casa Paroquial"
+reasons = PackedStringArray("Preciso marcar uma missa de sétimo dia.", "Quero pedir uma visita do padre pra minha mãe, que está de cama.")
 
 [sub_resource type="Resource" id="Resource_dmgf0"]
 script = ExtResource("1_6g7xa")
@@ -98,6 +140,7 @@ name = "Cine Odeon"
 address = "Avenida Brasil, 95"
 number = "344"
 spoken = "o Cine Odeon"
+reasons = PackedStringArray("Quero saber que filme passa amanhã.", "Esqueci meu guarda-chuva na sessão das oito.")
 
 [sub_resource type="Resource" id="Resource_s63jb"]
 script = ExtResource("1_6g7xa")
@@ -105,6 +148,7 @@ name = "Clínica São Lucas"
 note = "recepção"
 address = "Rua das Flores, 12"
 number = "213"
+reasons = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_d8b43"]
 script = ExtResource("1_6g7xa")
@@ -112,12 +156,15 @@ name = "Correios e Telégrafos"
 address = "Praça da Matriz, 8"
 number = "155"
 closed_at_night = true
+reasons = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_xawj0"]
 script = ExtResource("1_6g7xa")
 name = "Costa, Marta"
 address = "Rua do Sol, 54"
 number = "223"
+spoken = "a Dona Marta Costa"
+reasons = PackedStringArray("Ela é minha comadre. Quero saber como ela está.", "Ela ficou de me devolver uma panela.")
 
 [sub_resource type="Resource" id="Resource_tew1k"]
 script = ExtResource("1_6g7xa")
@@ -126,6 +173,7 @@ note = "use o despacho"
 address = "Avenida Brasil, 120"
 number = "190"
 dispatch_only = true
+reasons = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_i4sgx"]
 script = ExtResource("1_6g7xa")
@@ -133,6 +181,7 @@ name = "Escola Estadual Rui Barbosa"
 address = "Rua do Sol, 10"
 number = "280"
 closed_at_night = true
+reasons = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_2cdgd"]
 script = ExtResource("1_6g7xa")
@@ -141,6 +190,7 @@ note = "fecha às 20h"
 address = "Praça da Matriz, 3"
 number = "118"
 closed_at_night = true
+reasons = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_k2mqa"]
 script = ExtResource("1_6g7xa")
@@ -148,6 +198,8 @@ name = "Farmácia Santa Rita"
 note = "plantão 24 horas"
 address = "Avenida Brasil, 220"
 number = "162"
+spoken = "a Farmácia Santa Rita"
+reasons = PackedStringArray("Meu neto está com febre.", "Preciso de um remédio pra dor de dente.", "Quero saber se tem xarope pra tosse.")
 
 [sub_resource type="Resource" id="Resource_wgbdt"]
 script = ExtResource("1_6g7xa")
@@ -155,12 +207,15 @@ name = "Ferreira, Joaquim"
 note = "residência"
 address = "Rua da Estação, 60"
 number = "291"
+reasons = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_dldyi"]
 script = ExtResource("1_6g7xa")
 name = "Funerária Paz Eterna"
 address = "Rua das Acácias, 250"
 number = "399"
+spoken = "a Funerária Paz Eterna"
+reasons = PackedStringArray("Meu tio faleceu agora há pouco.", "Preciso acertar o velório de amanhã.")
 
 [sub_resource type="Resource" id="Resource_e0jml"]
 script = ExtResource("1_6g7xa")
@@ -169,6 +224,7 @@ note = "use o despacho"
 address = "Rua das Flores, 150"
 number = "192"
 dispatch_only = true
+reasons = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_vcut8"]
 script = ExtResource("1_6g7xa")
@@ -176,6 +232,7 @@ name = "Hotel Estrela"
 address = "Avenida Brasil, 30"
 number = "305"
 spoken = "o Hotel Estrela"
+reasons = PackedStringArray("Meu irmão chegou hoje e está hospedado lá.", "Quero saber se ainda tem quarto vago pra amanhã.")
 
 [sub_resource type="Resource" id="Resource_wcyhl"]
 script = ExtResource("1_6g7xa")
@@ -184,6 +241,7 @@ note = "secretaria, horário comercial"
 address = "Praça da Matriz, 1"
 number = "124"
 closed_at_night = true
+reasons = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_pli3n"]
 script = ExtResource("1_6g7xa")
@@ -191,6 +249,7 @@ name = "Lima, Rosa"
 address = "Rua das Acácias, 77"
 number = "296"
 spoken = "a Dona Rosa Lima"
+reasons = PackedStringArray("Sou parente dela e acabei de chegar de viagem.", "Ela pediu pra eu ligar quando chegasse em casa.")
 
 [sub_resource type="Resource" id="Resource_kofd3"]
 script = ExtResource("1_6g7xa")
@@ -198,6 +257,7 @@ name = "Mercearia Silva"
 address = "Rua das Acácias, 105"
 number = "262"
 spoken = "a Mercearia Silva"
+reasons = PackedStringArray("Acabou a vela aqui em casa e faltou luz.", "Quero deixar uma encomenda pra amanhã cedo.")
 
 [sub_resource type="Resource" id="Resource_bws1x"]
 script = ExtResource("1_6g7xa")
@@ -205,12 +265,15 @@ name = "Nogueira, Paulo"
 address = "Rua do Moinho, 18"
 number = "312"
 spoken = "o seu Paulo Nogueira"
+reasons = PackedStringArray("Ele disse que eu podia ligar a qualquer hora.", "É sobre o negócio do terreno.")
 
 [sub_resource type="Resource" id="Resource_52df0"]
 script = ExtResource("1_6g7xa")
 name = "Oficina do Tião"
 address = "Rua do Moinho, 44"
 number = "318"
+spoken = "a Oficina do Tião"
+reasons = PackedStringArray("Meu carro atolou na estrada do moinho.", "O caminhão não quer pegar de jeito nenhum.")
 
 [sub_resource type="Resource" id="Resource_8y4og"]
 script = ExtResource("1_6g7xa")
@@ -218,12 +281,15 @@ name = "Padaria Pão Dourado"
 address = "Rua do Comércio, 5"
 number = "142"
 spoken = "a Padaria Pão Dourado"
+reasons = PackedStringArray("Quero encomendar pão pra amanhã cedo.", "Esqueci o troco lá hoje de manhã.")
 
 [sub_resource type="Resource" id="Resource_3vj4f"]
 script = ExtResource("1_6g7xa")
 name = "Pereira, Lúcia"
 address = "Rua das Flores, 90"
 number = "336"
+spoken = "a Lúcia Pereira"
+reasons = PackedStringArray("Ela está esperando minha ligação.", "Preciso dar um recado da família.")
 
 [sub_resource type="Resource" id="Resource_osrdx"]
 script = ExtResource("1_6g7xa")
@@ -231,6 +297,7 @@ name = "Posto São Cristóvão"
 address = "Rua da Estação, 200"
 number = "347"
 spoken = "o Posto São Cristóvão"
+reasons = PackedStringArray("Tô quase sem gasolina.", "Quero saber se o posto ainda está aberto.")
 
 [sub_resource type="Resource" id="Resource_yi6mb"]
 script = ExtResource("1_6g7xa")
@@ -238,6 +305,7 @@ name = "Prefeitura Municipal"
 address = "Praça da Matriz, 2"
 number = "101"
 closed_at_night = true
+reasons = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_drsc6"]
 script = ExtResource("1_6g7xa")
@@ -245,24 +313,29 @@ name = "Rádio Serena AM"
 address = "Rua do Sol, 199"
 number = "390"
 spoken = "a Rádio Serena"
+reasons = PackedStringArray("Quero pedir uma música.", "Quero mandar um recado pra um parente que trabalha na roça.")
 
 [sub_resource type="Resource" id="Resource_dr0p2"]
 script = ExtResource("1_6g7xa")
 name = "Ramos, Alberto"
 address = "Avenida Brasil, 180"
 number = "352"
+spoken = "o seu Alberto Ramos"
+reasons = PackedStringArray("Somos sócios. É sobre a loja.", "Preciso confirmar a viagem de amanhã.")
 
 [sub_resource type="Resource" id="Resource_tnurf"]
 script = ExtResource("1_6g7xa")
 name = "Rocha, Célia"
 address = "Rua do Sol, 88"
 number = "367"
+reasons = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_6dq54"]
 script = ExtResource("1_6g7xa")
 name = "Rocha, Célia"
 address = "Avenida Brasil, 240"
 number = "373"
+reasons = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_6y7ie"]
 script = ExtResource("1_6g7xa")
@@ -271,6 +344,7 @@ note = "desativada"
 address = "Rua do Moinho, 40"
 number = "355"
 closed_at_night = true
+reasons = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_7llgn"]
 script = ExtResource("1_6g7xa")
@@ -278,12 +352,15 @@ name = "Souza, Benedito"
 address = "Rua do Sol, 230"
 number = "271"
 spoken = "o seu Benedito Souza"
+reasons = PackedStringArray("A luz da casa dele tá acesa e ele não atende a porta.", "Ele ficou de me emprestar a escada.")
 
 [sub_resource type="Resource" id="Resource_hmatr"]
 script = ExtResource("1_6g7xa")
 name = "Táxi, Ponto da Rodoviária"
 address = "Rua da Estação, 110"
 number = "176"
+spoken = "o ponto de táxi da rodoviária"
+reasons = PackedStringArray("Preciso de um carro até a rodoviária.", "O primeiro ônibus sai às cinco e eu não posso perder.")
 
 [sub_resource type="Resource" id="Resource_uhirb"]
 script = ExtResource("1_6g7xa")
@@ -291,6 +368,7 @@ name = "Teixeira, Ivo"
 address = "Rua das Flores, 33"
 number = "379"
 spoken = "o seu Ivo Teixeira"
+reasons = PackedStringArray("Ele ficou de me devolver a furadeira.", "É sobre a pescaria de domingo.")
 
 [sub_resource type="Resource" id="Resource_5fdhg"]
 script = ExtResource("1_6g7xa")
@@ -298,6 +376,7 @@ name = "Vieira, Sônia"
 address = "Rua do Comércio, 120"
 number = "384"
 spoken = "a Dona Sônia Vieira"
+reasons = PackedStringArray("Ela está esperando notícias minhas.", "É sobre o aniversário da mãe dela.")
 
 [sub_resource type="Resource" id="Resource_ecmv4"]
 script = ExtResource("16_5siro")
@@ -352,17 +431,20 @@ streets = Array[ExtResource("16_5siro")]([SubResource("Resource_ecmv4"), SubReso
 block_labels = PackedStringArray("1–99", "100–199", "200–299")
 occurrences = PackedStringArray("Acidente de trânsito", "Incêndio", "Mal súbito", "Invasão / roubo", "Outro")
 main_call_at = PackedFloat32Array(5, 38, 84, 170)
-transfers = Array[ExtResource("17_q4d2e")]([ExtResource("18_g0ddb"), ExtResource("19_y6u46"), ExtResource("20_5hhcc"), ExtResource("21_r4mvx"), ExtResource("22_nagbo"), ExtResource("23_7ad0u"), ExtResource("24_76ki8"), ExtResource("25_q3bf4"), ExtResource("26_61w3p"), ExtResource("27_grq3w"), ExtResource("28_otrev"), ExtResource("29_flf23"), ExtResource("30_amupc"), ExtResource("31_xeepj"), ExtResource("32_nyi6e"), ExtResource("33_xdh2c"), ExtResource("34_hps07"), ExtResource("35_2ubng"), ExtResource("36_35dgx"), ExtResource("37_8shhh"), ExtResource("38_ko1bc"), ExtResource("39_11ieg"), ExtResource("40_grptk"), ExtResource("41_e6ja0")])
-emergencies = Array[ExtResource("2_l0sn3")]([ExtResource("3_v72nw"), ExtResource("4_brh46"), ExtResource("5_t6c0w"), ExtResource("6_cbrcj"), ExtResource("7_ks6ko"), ExtResource("8_ec5ew")])
-pranks = Array[ExtResource("9_ev121")]([ExtResource("10_wfk0g"), ExtResource("11_pg478"), ExtResource("12_3mr8u"), ExtResource("13_4b6fe"), ExtResource("14_3w1w1")])
-greetings = PackedStringArray("Central, boa noite.", "Central telefônica, pois não?", "Central, boa noite. Em que posso ajudar?", "Central, pois não?", "Central.")
-smalltalk = PackedStringArray("Que chuva, hein? Não parou desde a tarde.", "Desculpe ligar tão tarde.", "A luz piscou aqui em casa agora há pouco. Aí também?", "O senhor passa a noite inteira aí sozinho?", "Essa linha está chiando, né?", "Minha mulher disse que não era pra incomodar a central a essa hora.", "O senhor não tem medo de ficar aí de noite?", "Meu marido já dormiu, mas eu não consigo pegar no sono.", "Ouvi dizer que o rio vai encher de novo.", "Faltou luz lá na Rua do Sol ontem, sabia?", "Essa central nunca dorme, né?", "Tem um barulho engraçado na linha hoje.", "Que frio, meu Deus.", "Tinha um carro parado na frente de casa, com o farol aceso. Já foi embora.")
-waiting = PackedStringArray("Alô? Central?", "Ainda está aí?", "Alô? Conseguiu?", "Moço? A ligação caiu?", "Alô? Tô esperando...", "Demora muito?")
-emergency_waiting = PackedStringArray("Alô?! Vocês vão mandar alguém?", "Por favor, rápido!", "Central?!")
-hold_ok = PackedStringArray("Tá bom, eu espero.", "Obrigado, aguardo.", "Certo.", "Pode ser, eu fico na linha.", "Tá, mas rapidinho, tá?")
-wrong_destination = PackedStringArray("Não, moço, não é aí.", "Hã? Não é com essa pessoa que eu quero falar.", "Esse não é quem eu pedi!", "Opa, acho que o senhor ligou errado.")
-info_callers = PackedStringArray("f:Moradora", "m:Morador", "w:Senhor", "f:Senhora")
-ask_number = PackedStringArray("Boa noite. Pode me dar o número %s?", "Central, o senhor sabe o número %s?", "Queria só o número %s, pra anotar aqui.", "Perdi a caderneta. Qual é o número %s?")
-ask_time = PackedStringArray("Moço, que horas são? O relógio lá de casa parou.", "Desculpe incomodar. O senhor tem as horas certas?", "Central, que horas são agora? Faltou luz e o relógio apagou.")
-info_thanks = PackedStringArray("Anotado. Obrigada, boa noite.", "Isso, obrigado.", "Ah, tá certo. Obrigado.", "Muito obrigada. Boa noite.")
-info_doubt = PackedStringArray("Hum. Tem certeza? Bom... obrigado.", "Isso tudo? Tá bom, obrigado.", "Vou tentar esse então.")
+transfers = Array[ExtResource("17_q4d2e")]([ExtResource("18_g0ddb"), ExtResource("19_y6u46"), ExtResource("20_5hhcc"), ExtResource("21_r4mvx"), ExtResource("22_nagbo"), ExtResource("23_7ad0u"), ExtResource("24_76ki8"), ExtResource("25_q3bf4"), ExtResource("26_61w3p"), ExtResource("27_grq3w"), ExtResource("28_otrev"), ExtResource("29_flf23"), ExtResource("30_amupc"), ExtResource("31_xeepj"), ExtResource("32_nyi6e"), ExtResource("33_xdh2c"), ExtResource("34_hps07"), ExtResource("35_2ubng"), ExtResource("36_35dgx"), ExtResource("37_8shhh"), ExtResource("38_ko1bc"), ExtResource("39_11ieg"), ExtResource("40_grptk"), ExtResource("41_e6ja0"), ExtResource("50_amupc"), ExtResource("51_xeepj"), ExtResource("52_nyi6e"), ExtResource("53_xdh2c"), ExtResource("54_hps07"), ExtResource("55_2ubng"), ExtResource("56_35dgx"), ExtResource("57_8shhh"), ExtResource("58_ko1bc"), ExtResource("59_11ieg"), ExtResource("60_grptk"), ExtResource("61_e6ja0"), ExtResource("62_ssh4q")])
+emergencies = Array[ExtResource("2_l0sn3")]([ExtResource("3_v72nw"), ExtResource("4_brh46"), ExtResource("5_t6c0w"), ExtResource("6_cbrcj"), ExtResource("7_ks6ko"), ExtResource("8_ec5ew"), ExtResource("9_nagbo"), ExtResource("10_7ad0u"), ExtResource("11_76ki8"), ExtResource("12_q3bf4")])
+pranks = Array[ExtResource("9_ev121")]([ExtResource("10_wfk0g"), ExtResource("11_pg478"), ExtResource("12_3mr8u"), ExtResource("13_4b6fe"), ExtResource("14_3w1w1"), ExtResource("19_61w3p"), ExtResource("20_grq3w"), ExtResource("21_otrev"), ExtResource("22_flf23")])
+transfer_templates = Array[ExtResource("17_q4d2e")]([ExtResource("31_11ieg"), ExtResource("32_grptk"), ExtResource("33_e6ja0"), ExtResource("34_ssh4q"), ExtResource("35_7bth5"), ExtResource("36_4thi7"), ExtResource("37_ufmoj")])
+transfer_thanks = PackedStringArray("Deus lhe pague.", "Valeu, central.", "Agradeço. Boa noite.", "Ótimo. Boa noite.", "Isso. Boa noite pro senhor.")
+emergency_templates = Array[ExtResource("2_l0sn3")]([ExtResource("13_hps07"), ExtResource("14_2ubng"), ExtResource("15_35dgx"), ExtResource("16_8shhh"), ExtResource("17_ko1bc")])
+greetings = PackedStringArray("Central, boa noite.", "Central telefônica, pois não?", "Central, boa noite. Em que posso ajudar?", "Central, pois não?", "Central.", "Central telefônica, boa noite.", "Central de Vila Serena, pois não?")
+smalltalk = PackedStringArray("Que chuva, hein? Não parou desde a tarde.", "Desculpe ligar tão tarde.", "A luz piscou aqui em casa agora há pouco. Aí também?", "O senhor passa a noite inteira aí sozinho?", "Essa linha está chiando, né?", "Minha mulher disse que não era pra incomodar a central a essa hora.", "O senhor não tem medo de ficar aí de noite?", "Meu marido já dormiu, mas eu não consigo pegar no sono.", "Ouvi dizer que o rio vai encher de novo.", "Faltou luz lá na Rua do Sol ontem, sabia?", "Essa central nunca dorme, né?", "Tem um barulho engraçado na linha hoje.", "Que frio, meu Deus.", "Tinha um carro parado na frente de casa, com o farol aceso. Já foi embora.", "O cachorro não para de latir hoje.", "Amanhã é dia de feira, né?", "Meu relógio adiantou de novo.", "O rio subiu bastante com essa chuva.", "Desculpa, é que eu não consigo dormir.", "Faz tempo que eu não ligo pra central.")
+waiting = PackedStringArray("Alô? Central?", "Ainda está aí?", "Alô? Conseguiu?", "Moço? A ligação caiu?", "Alô? Tô esperando...", "Demora muito?", "Central? Tá me ouvindo?", "Ainda tô aqui, viu?", "Alô? Caiu?")
+emergency_waiting = PackedStringArray("Alô?! Vocês vão mandar alguém?", "Por favor, rápido!", "Central?!", "Alô! Tá demorando!", "Central, ainda tá aí?", "Manda alguém, pelo amor de Deus!")
+hold_ok = PackedStringArray("Tá bom, eu espero.", "Obrigado, aguardo.", "Certo.", "Pode ser, eu fico na linha.", "Tá, mas rapidinho, tá?", "Tá, fico esperando.", "Sem pressa, moço.", "Tá bem, obrigada.")
+wrong_destination = PackedStringArray("Não, moço, não é aí.", "Hã? Não é com essa pessoa que eu quero falar.", "Esse não é quem eu pedi!", "Opa, acho que o senhor ligou errado.", "Ih, quem atendeu não foi quem eu pedi.", "Moço, essa voz eu não conheço.", "Não é esse número, não.")
+callers = PackedStringArray("f:Moradora", "m:Morador", "w:Senhor", "f:Senhora", "m:Rapaz", "f:Moça", "w:Seu Jair", "f:Dona Cida", "m:Seu Valdir", "f:Dona Olga")
+ask_number = PackedStringArray("Boa noite. Pode me dar o número %s?", "Central, o senhor sabe o número %s?", "Queria só o número %s, pra anotar aqui.", "Perdi a caderneta. Qual é o número %s?", "Central, me passa o número %s, por favor?", "Boa noite. Qual é o telefone %s?", "O senhor tem aí o número %s?")
+ask_time = PackedStringArray("Moço, que horas são? O relógio lá de casa parou.", "Desculpe incomodar. O senhor tem as horas certas?", "Central, que horas são agora? Faltou luz e o relógio apagou.", "Central, desculpe, sabe me dizer as horas?", "Que horas são, moço? Tô sem relógio.")
+info_thanks = PackedStringArray("Anotado. Obrigada, boa noite.", "Isso, obrigado.", "Ah, tá certo. Obrigado.", "Muito obrigada. Boa noite.", "Brigado, moço.", "Tá anotado. Boa noite.")
+info_doubt = PackedStringArray("Hum. Tem certeza? Bom... obrigado.", "Isso tudo? Tá bom, obrigado.", "Vou tentar esse então.", "Será? Bom, vou tentar.", "Hum... tá bom, então.")

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_hjt0e"]
+
+[resource]
+script = ExtResource("1_hjt0e")
+group = 1
+voice = "w"
+caller = "Seu Lauro"
+opening = PackedStringArray("Me liga com o seu Ferreira.", "O do armazém. Deixei minha carteira no balcão hoje de tarde.")
+repeat = "O Ferreira do armazém. O Joaquim."
+target = "288"
+destination = "Armazém Ferreira"
+thanks = "Obrigado, moço. Tomara que ele atenda."

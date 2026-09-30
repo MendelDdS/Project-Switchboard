@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_lapem"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_k37in"]
+
+[sub_resource type="Resource" id="Resource_covl7"]
+script = ExtResource("2_k37in")
+text = "Alô, central? Aqui é da companhia telefônica."
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_ytmxk"]
+script = ExtResource("2_k37in")
+text = "Vamos testar a linha. O senhor pode assoviar?"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_rsc20"]
+script = ExtResource("2_k37in")
+kind = 1
+options = PackedStringArray("Isso não é um teste de verdade, é?", "Qual companhia?")
+
+[sub_resource type="Resource" id="Resource_lehfd"]
+script = ExtResource("2_k37in")
+kind = 2
+options = PackedStringArray()
+seconds = 1.0
+
+[sub_resource type="Resource" id="Resource_331oy"]
+script = ExtResource("2_k37in")
+text = "(tentando não rir) Assovia, por favor..."
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_cgj8v"]
+script = ExtResource("2_k37in")
+text = "(risadas)"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_rmyfd"]
+script = ExtResource("2_k37in")
+text = "Tchau!"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_t1od1"]
+script = ExtResource("2_k37in")
+kind = 3
+options = PackedStringArray()
+
+[resource]
+script = ExtResource("1_lapem")
+caller = "Menino"
+steps = Array[ExtResource("2_k37in")]([SubResource("Resource_covl7"), SubResource("Resource_ytmxk"), SubResource("Resource_rsc20"), SubResource("Resource_lehfd"), SubResource("Resource_331oy"), SubResource("Resource_cgj8v"), SubResource("Resource_rmyfd"), SubResource("Resource_t1od1")])

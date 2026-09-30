@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_wepbg"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_f4j14"]
+
+[sub_resource type="Resource" id="Resource_nvhq5"]
+script = ExtResource("2_f4j14")
+text = "Boa noite, é do Corpo de Bombeiros?"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_a0o23"]
+script = ExtResource("2_f4j14")
+kind = 1
+options = PackedStringArray("Não, aqui é a central telefônica. Precisa dos bombeiros?")
+
+[sub_resource type="Resource" id="Resource_41uai"]
+script = ExtResource("2_f4j14")
+text = "Preciso. Tem um bicho enorme em cima da caixa d'água."
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_2uwo5"]
+script = ExtResource("2_f4j14")
+kind = 2
+options = PackedStringArray()
+seconds = 0.7
+
+[sub_resource type="Resource" id="Resource_xayda"]
+script = ExtResource("2_f4j14")
+text = "Ah não, pera... é a minha sogra."
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_wj5ap"]
+script = ExtResource("2_f4j14")
+text = "(risadas)"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_jko2l"]
+script = ExtResource("2_f4j14")
+kind = 3
+options = PackedStringArray()
+
+[resource]
+script = ExtResource("1_wepbg")
+voice = "m"
+caller = "Rapaz"
+steps = Array[ExtResource("2_f4j14")]([SubResource("Resource_nvhq5"), SubResource("Resource_a0o23"), SubResource("Resource_41uai"), SubResource("Resource_2uwo5"), SubResource("Resource_xayda"), SubResource("Resource_wj5ap"), SubResource("Resource_jko2l")])

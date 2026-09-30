@@ -11,6 +11,7 @@ Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
   listas de roteiros. Cada roteiro de ligação é um arquivo em `data/calls/` (transferências, emergências, trotes).
   Para criar uma ligação nova: duplique um `.tres` em `data/calls/`, edite no inspetor e arraste para a lista certa
   no `content.tres`.
+- `data/templates/` — **moldes**: roteiros com lacunas em inglês, preenchidas na hora (veja abaixo).
 - `scripts/main.gd` — conduz o turno (relógio, agenda, mesa, fim de ligação, final).
 - `scripts/conversation.gd` — como cada tipo de ligação se desenrola (falas, escolhas do operador).
 - `scripts/model/` — `PhoneCall` (uma ligação) e `Exchange` (estado das linhas e destinos).
@@ -20,6 +21,22 @@ Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
   Effects (`default_bus_layout.tres`). Troque as entradas de `streams` por arquivos reais quando tiver áudio gravado.
 - `tests/` — testes automatizados (`tests/run.sh`).
 - `fonts/` — Pixelify Sans e VT323 (SIL Open Font License).
+
+## Moldes (conversas geradas)
+
+Metade das ligações extras e da emergência do turno (`TEMPLATE_CHANCE` em `main.gd`) vem de um molde; a outra metade,
+dos roteiros escritos em `data/calls/`. As ligações principais de transferência, os trotes, o tutorial e a ligação
+desconhecida são sempre escritos à mão.
+
+- **Transferência** (`transfer_templates`): o molde é um `TransferCall` com lacunas em `opening` e `repeat`.
+  O contato é sorteado entre os que têm `spoken` e `reasons` na lista e atendem à noite; quem liga sai de `callers`.
+  Lacunas: `{place}` "o Hotel Estrela", `{of_place}` "do Hotel Estrela", `{to_place}` "pro Hotel Estrela",
+  `{street}` rua do contato, `{number}` "305", `{digits}` "três, zero, cinco", `{reason}` um dos motivos do contato.
+- **Emergência** (`emergency_templates`): o molde é um `EmergencyCall`; valem ocorrência, unidades e as falas.
+  Rua e número são sorteados; o trecho do mapa sai do número. Lacunas: `{street}`, `{house}`, `{address}`.
+- **Para ter mais variedade:** acrescente motivos (`reasons`) aos contatos, ou um `spoken` + motivos a um contato
+  novo. Um molde novo vale para todos os contatos. Escreva motivos que sirvam para quem liga, homem ou mulher.
+- A primeira letra de cada fala vira maiúscula depois de preenchida (`GameData.fill`).
 
 ## Testes
 

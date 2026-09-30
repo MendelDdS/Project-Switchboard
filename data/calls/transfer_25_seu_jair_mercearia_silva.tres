@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_tsdyx"]
+
+[resource]
+script = ExtResource("1_tsdyx")
+voice = "w"
+caller = "Seu Jair"
+opening = PackedStringArray("Boa noite.", "A Mercearia Silva ainda atende? O Silva mora nos fundos. Acabou a vela aqui em casa.")
+repeat = "A Mercearia Silva, na Rua das Acácias."
+target = "262"
+destination = "Mercearia Silva"
+thanks = "Obrigado. Tá um breu aqui."

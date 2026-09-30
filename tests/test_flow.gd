@@ -48,6 +48,31 @@ func _initialize() -> void:
 	b = m.board
 	ex = m.exchange
 
+	# ---- 0. conteúdo: todo roteiro aponta para números, ruas e unidades que existem
+	var C: GameContent = GameData.CONTENT
+	var nums := GameData.board_numbers()
+	for t in C.transfers:
+		ok(int(t.target) in nums and (t.alt_target == "" or int(t.alt_target) in nums), "destino existe: " + t.resource_path)
+		ok(not GameData.is_closed(int(t.target)) or t.alt_target != "", "lugar fechado tem alternativa: " + t.resource_path)
+	for e in C.emergencies:
+		ok(GameData.street(e.street) != null and e.questions.size() == e.answers.size() and e.occurrence in C.occurrences, "emergência válida: " + e.resource_path)
+		ok(not e.units.is_empty() and Array(e.units).all(func(u): return u in ["pol", "bomb", "amb"]), "unidades válidas: " + e.resource_path)
+	for p in C.pranks:
+		ok(p.steps.back().kind == PrankStep.Kind.END, "trote termina: " + p.resource_path)
+	# moldes: nenhuma lacuna sobra sem preencher
+	var holes := func(texts: Array) -> bool: return texts.any(func(x): return "{" in x or "}" in x)
+	for i in 300:
+		var t := GameData.template_transfer()
+		ok(int(t.target) in nums and not GameData.is_closed(int(t.target)), "molde: destino atende")
+		ok(not holes.call(Array(t.opening) + [t.repeat, t.thanks]) and t.caller != "", "molde de transferência preenchido: " + " / ".join(t.opening))
+		var e := GameData.template_emergency()
+		var house := int(e.address.get_slice(", ", 1))
+		ok(GameData.street(e.street) != null and e.block == floori(house / 100.0) and house >= 1, "molde: trecho bate com o número " + e.address)
+		ok(not holes.call(Array(e.answers) + [e.opening, e.after]), "molde de emergência preenchido: " + e.opening)
+	var places := C.directory.filter(func(d): return not d.reasons.is_empty())
+	print("OK 0 conteúdo (%d transferências, %d emergências, %d trotes; moldes: %d de transferência para %d contatos, %d de emergência)" % [
+		C.transfers.size(), C.emergencies.size(), C.pranks.size(), C.transfer_templates.size(), places.size(), C.emergency_templates.size()])
+
 	# ---- 1. transferência completa; tirar o FONE não derruba a conversa
 	var a: PhoneCall = m.tut
 	m.ring(a)

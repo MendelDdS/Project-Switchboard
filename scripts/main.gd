@@ -12,6 +12,7 @@ const PEAK_CHANCE := 0.35               # chance de um pico (duas ou três linha
 const MYST_FROM := 240.0                # a ligação desconhecida toca em algum momento entre 02:00...
 const MYST_TO := 450.0                  # ...e 05:30 (minutos após 22:00)
 const TALK_LEN := Vector2(45.0, 90.0)   # duração (min de jogo) de uma conversa transferida
+const TEMPLATE_CHANCE := 0.5            # chance de uma extra (ou a emergência) vir de um molde e não de um roteiro escrito
 const GIVE_UP_SEC := 60.0               # ligações extras desistem se ninguém atende (as principais aguentam 1,5x)
 var C: GameContent = GameData.CONTENT
 
@@ -415,7 +416,7 @@ func _build_schedule() -> void:
 	var mains: Array[PhoneCall] = [
 		_main_call(PhoneCall.from_transfer(GameData.transfers(TransferCall.Group.ESTABLISHMENT).pick_random()), 0),
 		_main_call(PhoneCall.from_transfer(GameData.transfers(TransferCall.Group.PERSON).pick_random()), 1),
-		_main_call(PhoneCall.from_emergency(C.emergencies.pick_random()), 2),
+		_main_call(PhoneCall.from_emergency(GameData.template_emergency() if randf() < TEMPLATE_CHANCE else C.emergencies.pick_random()), 2),
 		_main_call(PhoneCall.from_prank(C.pranks.pick_random()), 3),
 	]
 	tut = mains[0]
@@ -441,6 +442,7 @@ func _fillers(mains: Array[PhoneCall]) -> Array[PhoneCall]:
 	var used := mains.map(func(m: PhoneCall): return m.caller)
 	var pool := C.transfers.filter(func(t): return not t.caller in used)
 	pool.shuffle()
+	var targets := mains.map(func(m: PhoneCall): return m.target)
 	var taken := mains.map(func(m: PhoneCall): return m.at)
 	var ats := []
 	for i in randi_range(5, 7):
@@ -457,7 +459,13 @@ func _fillers(mains: Array[PhoneCall]) -> Array[PhoneCall]:
 			ats.append(base + randf_range(5.0, 9.0))
 	var out: Array[PhoneCall] = []
 	for at in ats:
-		var c := PhoneCall.from_transfer(pool.pop_back()) if randf() < 0.65 and not pool.is_empty() else _info_call()
+		var c: PhoneCall
+		if randf() < 0.65:
+			var t: TransferCall = pool.pop_back() if randf() >= TEMPLATE_CHANCE and not pool.is_empty() else GameData.template_transfer(targets)
+			c = PhoneCall.from_transfer(t)
+			targets.append(c.target)
+		else:
+			c = _info_call()
 		c.at = at
 		c.filler = true
 		out.append(c)
@@ -465,7 +473,7 @@ func _fillers(mains: Array[PhoneCall]) -> Array[PhoneCall]:
 
 
 func _info_call() -> PhoneCall:
-	var who := GameData.pick(C.info_callers).split(":")
+	var who := GameData.pick(C.callers).split(":")
 	if randf() < 0.7:
 		var e: DirectoryEntry = C.directory.filter(func(d): return d.spoken != "").pick_random()
 		return PhoneCall.info(who[0], who[1], tr(GameData.pick(C.ask_number)) % ("d" + e.spoken), e.spoken, e.number)

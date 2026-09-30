@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_uweeg"]
+
+[resource]
+script = ExtResource("1_uweeg")
+opening = "Central, tem uma briga feia no meio da {street}!"
+questions = PackedStringArray("Qual é o endereço?", "Alguém está armado?", "Quantas pessoas?")
+answers = PackedStringArray("{address}! Bem na frente de casa!", "Um tá com um pedaço de pau!", "Uns quatro!")
+occurrence = "Outro"
+units = PackedStringArray("pol")
+after = "Tá. Vou entrar e trancar a porta."

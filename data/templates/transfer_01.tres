@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_d0lh5"]
+
+[resource]
+script = ExtResource("1_d0lh5")
+group = 2
+opening = PackedStringArray("Boa noite.", "Me liga com {place}, por favor? {reason}")
+repeat = "Eu pedi {place}."

@@ -13,3 +13,5 @@ extends Resource
 @export var dispatch_only := false
 ## Como as pessoas se referem ao lugar ao pedir o número (ex.: "o Hotel Estrela"). Vazio = ninguém pede.
 @export var spoken := ""
+## Por que alguém liga para cá, uma frase cada (lacuna {reason} dos moldes). Vazio = não entra nos moldes.
+@export var reasons: PackedStringArray = []

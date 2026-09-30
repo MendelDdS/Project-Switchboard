@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_1y200"]
+
+[resource]
+script = ExtResource("1_1y200")
+opening = "Central, teve uma batida feia aqui na {street}!"
+questions = PackedStringArray("Qual é o endereço?", "Tem feridos?", "Quantos veículos?")
+answers = PackedStringArray("{address}, na esquina!", "O rapaz da moto. Tá no chão, mas mexe as pernas.", "Um carro e uma moto.")
+occurrence = "Acidente de trânsito"
+units = PackedStringArray("pol", "amb")
+after = "Tá. Vou sinalizar pro pessoal não passar."
