@@ -5,12 +5,14 @@ extends Control
 ##
 ## Laço: ATENDER → ENTENDER → CONSULTAR → CONECTAR/DESPACHAR → REGISTRAR → CONTINUAR
 
-const GAME_MIN_PER_SEC := 1.0           # 480 minutos de turno ≈ 8 minutos reais
-const SHIFT_END := 480.0
+const GAME_MIN_PER_SEC := 1.0           # 360 minutos de turno ≈ 6 minutos reais
+const SHIFT_START_HOUR := 18            # o turno vai das 18:00...
+const SHIFT_END := 360.0                # ...até 00:00 (minutos depois do início)
 const FILLER_GAP := 25.0                # minutos de jogo entre uma ligação extra e qualquer outra
 const PEAK_CHANCE := 0.35               # chance de um pico (duas ou três linhas tocando juntas) no turno
-const MYST_FROM := 240.0                # a ligação desconhecida toca em algum momento entre 02:00...
-const MYST_TO := 450.0                  # ...e 05:30 (minutos após 22:00)
+const MYST_FROM := 240.0                # a ligação desconhecida toca em algum momento entre 22:00...
+const MYST_TO := 330.0                  # ...e 23:30 (minutos após o início do turno)
+const FILLERS := Vector2i(4, 6)         # quantas ligações extras no turno
 const TALK_LEN := Vector2(45.0, 90.0)   # duração (min de jogo) de uma conversa transferida
 const TEMPLATE_CHANCE := 0.5            # chance de uma extra (ou a emergência) vir de um molde e não de um roteiro escrito
 const GIVE_UP_SEC := 60.0               # ligações extras desistem se ninguém atende (as principais aguentam 1,5x)
@@ -25,7 +27,7 @@ const TYPE_OF := {
 var C: GameContent = GameData.CONTENT
 
 var exchange: Exchange
-var report := ShiftReport.new()    ## advertências do turno, conferidas pelo supervisor às 06:00
+var report := ShiftReport.new()    ## advertências do turno, conferidas pelo supervisor no fim do turno
 var minutes := 0.0
 var running := false
 var sched: Array[PhoneCall] = []   ## ligações ainda por tocar, em ordem de horário
@@ -98,7 +100,7 @@ func _apply_seed() -> void:
 
 
 static func fmt(m: float) -> String:
-	var t := (22 * 60 + int(floor(m))) % 1440
+	var t := (SHIFT_START_HOUR * 60 + int(floor(m))) % 1440
 	if t < 0:
 		t += 1440
 	return "%02d:%02d" % [t / 60, t % 60]
@@ -345,6 +347,9 @@ func _try_complete(c: PhoneCall) -> bool:
 	var d := board.dest_of_output(c.line)
 	if d == -1 or exchange.dest(d) != Exchange.Dest.CONN:
 		return false
+	if str(d) != c.target:
+		_wrong_unattended(c, d)
+		return true
 	exchange.set_line(c.line, Exchange.Line.CONN, minutes + randf_range(TALK_LEN.x, TALK_LEN.y))
 	c.connected = true
 	c.dest_num = d
@@ -352,6 +357,17 @@ func _try_complete(c: PhoneCall) -> bool:
 	phone.flash("%02d - %d" % [c.line, d], 2600)
 	end_call(c, PhoneCall.End.CONNECTED)
 	return true
+
+
+## Destino errado atendeu sem o operador na linha: quem atendeu diz que foi engano e desliga, e o solicitante
+## também desliga. Mais tarde ele liga de novo reclamando e pedindo o número certo.
+func _wrong_unattended(c: PhoneCall, d: int) -> void:
+	exchange.set_dest(d, Exchange.Dest.DONE)
+	c.sys(tr("(Atendeu: %s. Foi engano, e os dois desligaram.)") % GameData.display_name(GameData.entry(str(d))))
+	end_call(c, PhoneCall.End.CALLER)
+	_call_again(c, PhoneCall.Retry.WRONG_NUMBER)
+	if c.main in [0, 1]:
+		hint(tr("Sem o FONE na linha, uma conexão errada cai. A pessoa vai ligar de novo: confira o número na lista antes de transferir."))
 
 
 ## Depois da ligação desconhecida: FONE na entrada dela tenta ligar de volta.
@@ -471,7 +487,7 @@ func _fillers(mains: Array[PhoneCall]) -> Array[PhoneCall]:
 	var targets := mains.map(func(m: PhoneCall): return m.target)
 	var taken := mains.map(func(m: PhoneCall): return m.at)
 	var ats := []
-	for i in randi_range(5, 7):
+	for i in randi_range(FILLERS.x, FILLERS.y):
 		for _try in 40:
 			var at := randf_range(12.0, SHIFT_END - 10.0)
 			if taken.all(func(x): return absf(at - x) >= FILLER_GAP):
@@ -732,7 +748,7 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> Dictionary:
 			obs = tr("Desistiu na espera.")
 		_:
 			if c.kind == PhoneCall.Kind.TRANSFER and not c.connected:
-				obs = tr("Não conectada.")
+				obs = tr("Conectada ao número errado.") if c.wrong > 0 else tr("Não conectada.")
 			elif c.kind == PhoneCall.Kind.MYSTERY:
 				obs = tr("A ligação caiu.")
 	var unknown := c.kind == PhoneCall.Kind.MYSTERY or reason == PhoneCall.End.MISSED
@@ -782,9 +798,10 @@ func _consequences(c: PhoneCall, reason: PhoneCall.End) -> void:
 		_call_again(c, PhoneCall.Retry.WRONG_INFO)
 
 
-## A mesma pessoa liga de novo mais tarde (uma vez só), irritada e com menos paciência.
+## A mesma pessoa liga de novo mais tarde, irritada e com menos paciência (no máximo uma vez por motivo).
+## Vale também para a ligação do tutorial (que só não gera advertência). Nunca fica para depois do fim do turno.
 func _call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
-	if c.retry != PhoneCall.Retry.NONE or c == tut:
+	if why in c.retried:
 		return
 	var n: PhoneCall
 	match c.kind:
@@ -798,7 +815,9 @@ func _call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
 		_:
 			return
 	n.retry = why
-	n.at = minutes + randf_range(RETRY_AFTER.x, RETRY_AFTER.y)
+	n.retried = c.retried.duplicate()
+	n.retried.append(why)
+	n.at = minf(minutes + randf_range(RETRY_AFTER.x, RETRY_AFTER.y), maxf(minutes + 2.0, SHIFT_END - 4.0))
 	sched.append(n)
 	sched.sort_custom(func(a: PhoneCall, b: PhoneCall): return a.at < b.at)
 

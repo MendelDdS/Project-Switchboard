@@ -41,7 +41,7 @@ theme_override_font_sizes/font_size = 30
 
 [node name="Date" type="Label" parent="Center/Card/VBox"]
 layout_mode = 2
-text = "Terça-feira · 22:00"
+text = "Terça-feira · 18:00"
 theme_override_fonts/font = ExtResource("3_vt323_regula")
 theme_override_colors/font_color = Color(0.9529, 0.6588, 0.2353, 1)
 theme_override_font_sizes/font_size = 24
@@ -52,7 +52,7 @@ theme_type_variation = &"NotePanel"
 
 [node name="Text" type="Label" parent="Center/Card/VBox/Note"]
 layout_mode = 2
-text = "Seu turno termina às 06:00. Atenda as chamadas, conecte-as corretamente e registre todas as ocorrências."
+text = "Seu turno termina à meia-noite. Atenda as chamadas, conecte-as corretamente e registre todas as ocorrências."
 theme_type_variation = &"InkMonoLabel"
 theme_override_font_sizes/font_size = 24
 autowrap_mode = 3

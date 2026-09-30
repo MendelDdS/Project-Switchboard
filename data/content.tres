@@ -186,7 +186,7 @@ reasons = PackedStringArray()
 [sub_resource type="Resource" id="Resource_2cdgd"]
 script = ExtResource("1_6g7xa")
 name = "Farmácia Central"
-note = "fecha às 20h"
+note = "fecha às 18h"
 address = "Praça da Matriz, 3"
 number = "118"
 closed_at_night = true
@@ -360,7 +360,7 @@ name = "Táxi, Ponto da Rodoviária"
 address = "Rua da Estação, 110"
 number = "176"
 spoken = "o ponto de táxi da rodoviária"
-reasons = PackedStringArray("Preciso de um carro até a rodoviária.", "O primeiro ônibus sai às cinco e eu não posso perder.")
+reasons = PackedStringArray("Preciso de um carro até a rodoviária.", "O último ônibus sai às onze e eu não posso perder.")
 
 [sub_resource type="Resource" id="Resource_uhirb"]
 script = ExtResource("1_6g7xa")
@@ -446,9 +446,10 @@ wrong_destination = PackedStringArray("Não, moço, não é aí.", "Hã? Não é
 callers = PackedStringArray("f:Moradora", "m:Morador", "w:Senhor", "f:Senhora", "m:Rapaz", "f:Moça", "w:Seu Jair", "f:Dona Cida", "m:Seu Valdir", "f:Dona Olga")
 retry_missed = PackedStringArray("Liguei agora há pouco e ninguém atendeu!", "Central? Até que enfim! Já liguei antes.", "Tô tentando faz tempo. Ninguém atende essa central?")
 retry_wrong_info = PackedStringArray("O número que o senhor me deu não era o certo.", "Liguei pro número que o senhor passou e era de outra pessoa!", "Central, a informação que o senhor me deu tava errada.")
+retry_wrong_number = PackedStringArray("Central, vocês me ligaram pro número errado! Agora me passa pro certo, por favor.", "Liguei antes e fui parar no lugar errado! Vamos tentar de novo.", "Me conectaram com uma pessoa nada a ver! Quero o número certo desta vez.")
 retry_worse = PackedStringArray("Central! Ninguém apareceu aqui e tá ficando pior!", "Liguei mais cedo e ninguém veio! Tá piorando!", "Pelo amor de Deus, cadê o socorro? Piorou!")
 retry_too_late = PackedStringArray("Liguei mais cedo. Ninguém veio. Agora não adianta mais.", "Não precisa mandar mais ninguém. Já era.", "Vocês demoraram demais. Eu só queria que soubessem.")
-woken_up = PackedStringArray("Alô? Quem é, a essa hora?", "Hã? Me acordou no meio da madrugada!", "Quem tá ligando? Aqui tá todo mundo dormindo!", "Alô?! Isso é hora?")
+woken_up = PackedStringArray("Alô? Quem é, a essa hora?", "Hã? Isso é hora de ligar pros outros?", "Quem tá ligando? Aqui tá todo mundo dormindo!", "Alô?! Isso é hora?")
 gave_up = PackedStringArray("Quer saber? Esquece. Eu ligo amanhã.", "Errou de novo? Deixa pra lá.", "Não, chega. Boa noite.")
 news_ok = PackedStringArray("{occurrence} na {address}: socorro chega a tempo.", "{occurrence} na {address}: equipe controla a situação.")
 news_late = PackedStringArray("{occurrence} na {address}: socorro chega com atraso.", "{occurrence} na {address}: moradores reclamam da demora.")

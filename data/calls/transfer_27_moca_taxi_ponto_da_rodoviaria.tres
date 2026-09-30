@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_uf2v7")
 caller = "Moça"
-opening = PackedStringArray("Boa noite.", "Preciso de um carro de praça. O primeiro ônibus sai às cinco e eu não posso perder.")
+opening = PackedStringArray("Boa noite.", "Preciso de um carro de praça. O último ônibus sai às onze e eu não posso perder.")
 repeat = "O ponto de táxi da rodoviária."
 target = "176"
 destination = "Táxi, Ponto da Rodoviária"

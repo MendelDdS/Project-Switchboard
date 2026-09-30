@@ -1,6 +1,6 @@
 class_name ShiftReport
 extends RefCounted
-## O que o supervisor confere às 06:00: as advertências do turno e como terminou cada emergência.
+## O que o supervisor confere no fim do turno: as advertências do turno e como terminou cada emergência.
 ## Pensado para as próximas noites: `night` e as listas podem ser salvas por noite, e `SEVERE_LIMIT`
 ## advertências graves somadas entre as noites significam demissão.
 

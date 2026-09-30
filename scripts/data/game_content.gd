@@ -14,7 +14,7 @@ extends Resource
 @export var occurrences: PackedStringArray = []
 
 @export_group("Agenda")
-## Minutos depois das 22:00 em que tocam as 4 ligações principais
+## Minutos depois do início do turno (18:00) em que tocam as 4 ligações principais
 ## (transferência de estabelecimento, transferência de pessoa, emergência, trote).
 @export var main_call_at: PackedFloat32Array = [5, 38, 84, 170]
 
@@ -56,6 +56,8 @@ extends Resource
 @export var retry_missed: PackedStringArray = []
 ## Quem liga de novo porque recebeu a informação errada.
 @export var retry_wrong_info: PackedStringArray = []
+## Quem liga de novo porque foi conectado ao número errado (e pede o certo).
+@export var retry_wrong_number: PackedStringArray = []
 ## Emergência que liga de novo: ninguém chegou e a situação piorou (ainda dá para despachar).
 @export var retry_worse: PackedStringArray = []
 ## Emergência que liga de novo quando já não adianta.

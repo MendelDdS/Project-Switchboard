@@ -31,9 +31,11 @@ var info_ghost := false
 var info_line := -1
 var info_until := 0
 var _press_pos := Vector2.ZERO
+var _press_ms := 0
 var _pulled := false           # o clique atual tirou um plug de uma tomada
 var _anim := {}                # ponta -> {"from": posição, "t": 0..1} voltando para a base
 const RETURN_SEC := 0.35
+const CLICK_MS := 300          # soltar antes disso, fora de uma tomada, conta como clique (não como arrastar)
 var _jacks: Array = []
 
 # ---- física dos cabos (corda de Verlet) ----
@@ -238,6 +240,7 @@ func _gui_input(e: InputEvent) -> void:
 
 func _press(pos: Vector2) -> void:
 	_press_pos = pos
+	_press_ms = Time.get_ticks_msec()
 	_pulled = false
 	if held != -1:
 		var j := jack_at(pos)
@@ -269,14 +272,16 @@ func _press(pos: Vector2) -> void:
 
 ## Clique num plug encaixado: ele volta para a base. Clique num plug da base: fica na mão até
 ## o próximo clique. Arrastar e soltar encaixa na tomada (ou devolve à base, se soltar fora).
+## Um clique rápido que mexe uns pixels (mouse tremendo, toque no trackpad) continua sendo clique.
 func _release(pos: Vector2) -> void:
 	if held == -1:
 		return
-	if pos.distance_to(_press_pos) < 6.0:
+	var j := jack_at(pos)
+	var quick := Time.get_ticks_msec() - _press_ms < CLICK_MS and j == -1
+	if pos.distance_to(_press_pos) < 6.0 or quick:
 		if _pulled:
 			go_home(held)
 		return
-	var j := jack_at(pos)
 	if j == -1 or not place(held, j):
 		go_home(held)
 

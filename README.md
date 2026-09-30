@@ -24,7 +24,7 @@ Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
 
 ## Consequências e relatório do supervisor
 
-Às 06:00, antes da tela final, o supervisor confere o turno (`ShiftReport` em `scripts/model/shift_report.gd`,
+À meia-noite, antes da tela final, o supervisor confere o turno (`ShiftReport` em `scripts/model/shift_report.gd`,
 tela em `scenes/ui/report_view.tscn`): lista as advertências (leve, média, grave), traz o **jornal da manhã** com o
 desfecho de cada emergência e dá um parecer (`verdicts` no content). A ligação do tutorial, os trotes e a
 ligação desconhecida não contam.
@@ -33,10 +33,10 @@ ligação desconhecida não contam.
 |---|---|---|
 | Não atender (transferência, emergência, informação) | média | a pessoa liga de novo 15–30 min depois, reclamando e com menos paciência |
 | Deixar em espera mais de `HOLD_GIVE_UP` (120 min de jogo) | média | a pessoa desliga e liga de novo depois |
-| Conectar o número errado | média | quem atende reclama de ter sido acordado; na segunda vez o solicitante desiste |
+| Conectar o número errado | média | com o FONE na linha: quem atende reclama e o solicitante pede o certo (na segunda vez, desiste); com o FONE fora: foi engano, os dois desligam e o solicitante liga de novo pedindo o número certo |
 | Cortar uma conversa em andamento | média | — |
 | Dar a informação errada | leve | a pessoa liga de novo reclamando |
-| Registrar com o tipo errado / deixar sem registro às 06:00 | leve | — |
+| Registrar com o tipo errado / deixar sem registro no fim do turno | leve | — |
 | Despachar no endereço errado | grave | o rádio avisa que não há nada no local e as unidades voltam; a pessoa agradece, mas liga de novo dizendo que piorou |
 | Encerrar uma emergência sem despachar | grave | a pessoa liga de novo dizendo que piorou |
 | Faltar unidade no despacho | média | o rádio pede a unidade que falta |
@@ -45,7 +45,8 @@ ligação desconhecida não contam.
 | Marcar o tipo de ocorrência errado no despacho | leve | — (o tipo é obrigatório para enviar) |
 
 Quando a emergência liga de novo, em `REDISPATCH_CHANCE` (60%) dos casos ainda dá para despachar (no jornal: "com
-atraso"); nos outros, já é tarde (no jornal: "ninguém foi atender"). Cada pessoa liga de novo só uma vez.
+atraso"); nos outros, já é tarde (no jornal: "ninguém foi atender"). Cada pessoa liga de novo no máximo uma vez por motivo, sempre antes do fim do turno (vale também para a
+ligação do tutorial, que só não gera advertência).
 `ShiftReport.SEVERE_LIMIT` (3 graves) está pronto para somar entre noites, quando houver mais de uma.
 
 ## Moldes (conversas geradas)
@@ -78,14 +79,14 @@ As falas que ficam nos Resources (`data/`) também passam por `tr()` quando apar
 
 ## Ritmo do turno
 
-O relógio nunca para: 1 minuto de jogo por segundo real (22:00 → 06:00 em cerca de 8 minutos).
+O relógio nunca para: 1 minuto de jogo por segundo real (18:00 → 00:00 em cerca de 6 minutos).
 Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
 
 - **4 ligações principais** (transferência, transferência com nomes parecidos, emergência, trote)
   nos horários de `main_call_at` (em `data/content.tres`), cada uma sorteada entre várias variações.
-- **Ligação desconhecida**: toca por uma entrada livre qualquer, num horário sorteado entre 02:00 e 05:30
+- **Ligação desconhecida**: toca por uma entrada livre qualquer, num horário sorteado entre 22:00 e 23:30
   (`MYST_FROM`/`MYST_TO`).
-- **5 a 7 ligações extras** em horários aleatórios pelo turno todo, antes e depois da ligação desconhecida (`_fillers`):
+- **4 a 6 ligações extras** (`FILLERS`) em horários aleatórios pelo turno todo, antes e depois da ligação desconhecida (`_fillers`):
   transferências (`data/calls/transfer_*.tres`) que não saíram como principais, ou pedidos de informação
   (número de alguém na lista, ou as horas). Ficam a pelo menos `FILLER_GAP` (25) minutos de jogo das outras ligações.
 - **Pico** (`PEAK_CHANCE`, 35% dos turnos): uma extra logo depois de uma principal, e duas linhas tocam juntas;
@@ -99,7 +100,7 @@ Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
   até o operador desmontar. Conversas mais longas prendem os cabos de conexão por mais tempo: em turnos
   movimentados, às vezes é preciso esperar uma conversa acabar (ou cortá-la) para ter um cabo livre.
 - O caderno guarda as ocorrências numa fila: dá para registrar depois, sem travar o turno.
-- O turno termina às 06:00 (depois de a ligação desconhecida ter tocado e caído) e vem a tela final.
+- O turno termina à meia-noite (depois de a ligação desconhecida ter tocado e caído) e vem a tela final.
 
 ## Vozes
 

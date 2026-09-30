@@ -1,7 +1,7 @@
 # Central de Vila Serena — memória do projeto
 
 Jogo em Godot 4.6 (GDScript, renderer GL Compatibility), a caminho da versão definitiva. O jogador é o operador
-noturno de uma central telefônica de cidade pequena (22:00–06:00). Mecânica: atender e transferir ligações numa
+noturno de uma central telefônica de cidade pequena (18:00–00:00). Mecânica: atender e transferir ligações numa
 mesa comutadora com cabos físicos; ao fundo, uma ligação misteriosa de número desconhecido (terror leve), por uma entrada sorteada.
 O README.md descreve o jogo para quem joga/edita conteúdo; este arquivo é o mapa para quem mexe no código.
 Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
@@ -92,20 +92,21 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   emergências (`trouble`/`resolved`/`failed` → OK, LATE, BAD) e `verdict()`. Pensado para várias noites (`night`,
   `SEVERE_LIMIT`); ainda não é salvo.
 - Main registra com `_fault()` onde a falha acontece; `_consequences()` (chamado em `end_call`) decide advertência e
-  retorno; `_call_again()` agenda a mesma pessoa de novo (`PhoneCall.retry`, uma vez só; `too_late` sorteado com
+  retorno; `_call_again()` agenda a mesma pessoa de novo (`PhoneCall.retry`; uma vez por motivo, `retried`;
+  também no tutorial; nunca depois do fim do turno; `too_late` sorteado com
   `REDISPATCH_CHANCE`). `_check_hold()` encerra quem passou de `HOLD_GIVE_UP` em espera (`End.GAVE_UP`).
 - Tutorial (`tut`), trotes e ligação desconhecida não geram advertência. Falas de retorno, manchetes e pareceres
   ficam no content (grupo "Supervisor e consequências").
-- Às 06:00, `_start_ending` soma o que ficou sem registro e passa o relatório para `Ending.play(report)`, que mostra
+- À meia-noite, `_start_ending` soma o que ficou sem registro e passa o relatório para `Ending.play(report)`, que mostra
   `ReportView` antes do título final.
 
 ## Agenda e ritmo (constantes no topo de main.gd)
-- Principais em `GameContent.main_call_at` (4); ligação desconhecida (`MYSTERY`, entrada livre sorteada, guardada em `myst_line`) entre `MYST_FROM` e `MYST_TO` (02:00–05:30), só
+- Principais em `GameContent.main_call_at` (4); ligação desconhecida (`MYSTERY`, entrada livre sorteada, guardada em `myst_line`) entre `MYST_FROM` e `MYST_TO` (22:00–23:30), só
   toca com a mesa em silêncio, por no máximo 30 min de jogo (`latest`).
-- Extras: `_fillers` (5–7 pelo turno todo, `FILLER_GAP` 25 min entre ligações; pico com `PEAK_CHANCE`).
+- Extras: `_fillers` (`FILLERS` 4–6 pelo turno todo, `FILLER_GAP` 25 min entre ligações; pico com `PEAK_CHANCE`).
 - `GIVE_UP_SEC`: extras desistem em 60 s, principais em 90 s; tutorial (`tut`) e desconhecida nunca desistem.
 - Conversas transferidas duram `TALK_LEN` (45–90 min de jogo).
-- Fim do turno: às 06:00 **depois** da ligação desconhecida ter caído (`_start_ending`).
+- Turno das 18:00 (`SHIFT_START_HOUR`) às 00:00 (`SHIFT_END` = 360 min); fim **depois** da ligação desconhecida ter caído (`_start_ending`).
 - Relógio: 1 min de jogo por segundo real (`GAME_MIN_PER_SEC`).
 
 ## Histórico das decisões de design (o que o usuário pediu, em ordem)
@@ -123,9 +124,12 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 8. Anotação "NÃO ATENDER NOVAMENTE" removida (o mistério será roteirizado depois); a ligação desconhecida vem
    de qualquer entrada, não só da 07.
 9. Mais roteiros escritos e conversas híbridas: moldes com lacunas (nomes em inglês) para extras e emergência.
-10. Consequências + relatório do supervisor às 06:00, pensado para as próximas noites. Despacho errado: a pessoa
+10. Consequências + relatório do supervisor no fim do turno, pensado para as próximas noites. Despacho errado: a pessoa
     agradece na hora, o rádio diz que não havia nada e as unidades voltam; ela liga de novo dizendo que piorou e,
     em alguns casos, dá para despachar de novo (a advertência fica).
+11. Turno passou a ser 18:00–00:00 (desconhecida entre 22:00 e 23:30; extras 4–6). Número errado com o FONE fora:
+    não completa; foi engano, os dois desligam e o solicitante liga de novo pedindo o certo. Clique rápido num
+    plug da base (mesmo mexendo uns pixels) conta como clique (`CLICK_MS`).
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

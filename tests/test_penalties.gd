@@ -95,6 +95,53 @@ func _initialize() -> void:
 	_clear_board()
 	print("OK 2 número errado / desiste na segunda")
 
+	# ---- 2b. número errado com o FONE fora: foi engano, os dois desligam e o solicitante liga de novo
+	var c2b := PhoneCall.from_transfer(load("res://data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres"))
+	m.ring(c2b)
+	_answer(c2b)
+	ok(await wait_until(func(): return c2b.phase == PhoneCall.Phase.AWAIT and not c2b.talking), "pedido 2b")
+	_move(1, c2b.line + 10)
+	_move(2, 142)
+	m.transfer()
+	_move(0, -1)              # tira o FONE com o destino errado ainda tocando
+	ok(await wait_until(func(): return c2b.ended), "desligaram")
+	ok(not c2b.connected and ex.dest(142) == Exchange.Dest.DONE and _faults("wrong_number") == 3, "não completa com o número errado")
+	ok(c2b.record["obs"] == "Conectada ao número errado.", "caderno: número errado")
+	var r2b := _ring_retry(PhoneCall.Retry.WRONG_NUMBER)
+	_clear_board()
+	_answer(r2b)
+	ok(await wait_until(func(): return r2b.phase == PhoneCall.Phase.AWAIT and not r2b.talking), "ligou de novo e pediu de novo")
+	ok(_said(r2b, C.retry_wrong_number), "reclamou do número errado")
+	m.hangup()
+	_clear_board()
+	print("OK 2b número errado com o FONE fora / liga de novo")
+
+	# ---- 2c. o mesmo fluxo liga de novo também na ligação do tutorial, numa ligação que já era um retorno
+	#          e perto do fim do turno (o retorno nunca fica para depois da meia-noite)
+	for kind in ["tutorial", "retorno", "fim do turno"]:
+		var cc: PhoneCall = m.tut if kind == "tutorial" else PhoneCall.from_transfer(load("res://data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres"))
+		if kind == "retorno":
+			cc.retry = PhoneCall.Retry.MISSED
+			cc.retried.append(PhoneCall.Retry.MISSED)
+		if kind == "fim do turno":
+			m.minutes = m.SHIFT_END - 3.0
+		m.ring(cc)
+		_answer(cc)
+		ok(await wait_until(func(): return cc.phase == PhoneCall.Phase.AWAIT and not cc.talking), "pedido: " + kind)
+		var wrong_dest := 142 if cc.target != "142" else 305
+		_move(1, cc.line + 10)
+		_move(2, wrong_dest)
+		m.transfer()
+		_move(0, -1)
+		ok(await wait_until(func(): return cc.ended), "desligaram: " + kind)
+		var again: Array = m.sched.filter(func(r): return r.retry == PhoneCall.Retry.WRONG_NUMBER and r.caller == cc.caller)
+		ok(again.size() == 1, "vai ligar de novo: " + kind)
+		ok(again[0].at <= m.SHIFT_END, "liga de novo antes do fim do turno: " + kind)
+		m.sched.erase(again[0])
+		_clear_board()
+	m.minutes = 0.0
+	print("OK 2c número errado com o FONE fora: tutorial, retorno e fim do turno")
+
 	# ---- 3. registro com tipo errado
 	var nb = m.notebook
 	while nb.has_pending():

@@ -1,6 +1,6 @@
 extends "res://tests/test_base.gd"
 ## Um robô joga o turno inteiro na agenda real (use `-- --seed=N` para repetir a agenda).
-## Falha se houver travamento: o turno precisa chegar ao final das 06:00 depois da ligação desconhecida.
+## Falha se houver travamento: o turno precisa chegar ao final (00:00) depois da ligação desconhecida.
 ## `m` e `b` ficam sem tipo: Main e Switchboard usam o autoload Sfx, que ainda não existe quando o Godot
 ## compila um script passado com -s.
 
@@ -117,5 +117,5 @@ func _initialize() -> void:
 		myst_at, post, m.fmt(m.minutes), max_live, 100 * f2 / maxi(fall, 1), 100 * f3 / maxi(fall, 1),
 		100 * starved / maxi(fall, 1), lost, recs.size()])
 	ok(myst_at != "", "a ligação desconhecida tocou")
-	ok(m.ending and m.minutes >= m.SHIFT_END, "o turno terminou às 06:00")
+	ok(m.ending and m.minutes >= m.SHIFT_END, "o turno terminou no horário")
 	finish("turno completo")

@@ -112,6 +112,8 @@ func greet(c: PhoneCall) -> bool:
 			return await say(c, GameData.pick(C.retry_missed))
 		PhoneCall.Retry.WRONG_INFO:
 			return await say(c, GameData.pick(C.retry_wrong_info))
+		PhoneCall.Retry.WRONG_NUMBER:
+			return await say(c, GameData.pick(C.retry_wrong_number))
 		PhoneCall.Retry.WORSE:
 			return await say(c, GameData.pick(C.retry_too_late if c.too_late else C.retry_worse))
 	return true

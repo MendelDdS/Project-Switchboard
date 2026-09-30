@@ -1,6 +1,6 @@
 class_name ReportView
 extends CenterContainer
-## Relatório do supervisor às 06:00: advertências do turno, o jornal da manhã e o parecer.
+## Relatório do supervisor no fim do turno: advertências do turno, o jornal da manhã e o parecer.
 
 signal closed
 
@@ -20,7 +20,7 @@ func _ready() -> void:
 
 
 func show_report(r: ShiftReport) -> void:
-	_night.text = tr("Noite %d · turno das 22:00 às 06:00") % r.night
+	_night.text = tr("Noite %d · turno das %s às %s") % [r.night, Main.fmt(0.0), Main.fmt(Main.SHIFT_END)]
 	var s := "[b]%s[/b]\n" % tr("ADVERTÊNCIAS")
 	if r.faults.is_empty():
 		s += tr("Nenhuma.") + "\n"

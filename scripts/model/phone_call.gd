@@ -17,11 +17,12 @@ enum End {
 	CONNECTED,  ## transferência completa; segue conectada sem o operador
 	MYSTERY,    ## a ligação desconhecida caiu
 }
-## Por que a pessoa está ligando de novo (só se liga de novo uma vez).
+## Por que a pessoa está ligando de novo (liga de novo no máximo uma vez por motivo).
 enum Retry {
 	NONE,
 	MISSED,      ## ninguém atendeu (ou desistiu na espera)
 	WRONG_INFO,  ## o operador deu a informação errada
+	WRONG_NUMBER,  ## foi conectada ao número errado sem o operador na linha
 	WORSE,       ## emergência sem socorro: a situação piorou
 }
 
@@ -31,9 +32,10 @@ var voice := "m"
 var caller := ""
 var main := -1              ## 0–3 = ligação principal (0 é a do tutorial); -1 = extra ou ligação desconhecida
 var filler := false
-var at := 0.0               ## minuto previsto (depois das 22:00)
+var at := 0.0               ## minuto previsto (depois do início do turno)
 var latest := INF           ## ligação desconhecida: a partir daqui toca mesmo com a mesa ocupada
 var retry := Retry.NONE
+var retried: Array[Retry] = []   ## motivos pelos quais esta pessoa já ligou de novo
 var too_late := false       ## emergência que liga de novo: já não adianta despachar
 
 var line := 0
