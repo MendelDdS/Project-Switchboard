@@ -1,0 +1,168 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/dispatch.gd" id="1_dispatch"]
+
+[node name="Dispatch" type="VBoxContainer"]
+theme_override_constants/separation = 6
+script = ExtResource("1_dispatch")
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 2
+text = "DESPACHO"
+theme_type_variation = &"InkMonoLabel"
+theme_override_font_sizes/font_size = 32
+
+[node name="LocCaption" type="Label" parent="."]
+layout_mode = 2
+text = "LOCAL:"
+theme_type_variation = &"InkMonoLabel"
+theme_override_colors/font_color = Color(0.3529, 0.302, 0.2275, 1)
+theme_override_font_sizes/font_size = 19
+
+[node name="LocRow" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Location" type="Label" parent="LocRow"]
+layout_mode = 2
+text = "Marque o local no mapa"
+theme_type_variation = &"InkMonoLabel"
+theme_override_font_sizes/font_size = 24
+unique_name_in_owner = true
+size_flags_vertical = 4
+
+[node name="OpenMap" type="Button" parent="LocRow"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+theme_type_variation = &"PaperToggle"
+theme_override_font_sizes/font_size = 17
+text = "Abrir mapa"
+
+[node name="Gap1" type="Control" parent="."]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+
+[node name="OccCaption" type="Label" parent="."]
+layout_mode = 2
+text = "OCORRÊNCIA:"
+theme_type_variation = &"InkMonoLabel"
+theme_override_colors/font_color = Color(0.3529, 0.302, 0.2275, 1)
+theme_override_font_sizes/font_size = 19
+
+[node name="Occurrences" type="HFlowContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="Gap2" type="Control" parent="."]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+
+[node name="UnitsCaption" type="Label" parent="."]
+layout_mode = 2
+text = "UNIDADES:"
+theme_type_variation = &"InkMonoLabel"
+theme_override_colors/font_color = Color(0.3529, 0.302, 0.2275, 1)
+theme_override_font_sizes/font_size = 19
+
+[node name="RowPol" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="UnitPol" type="Button" parent="RowPol"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+focus_mode = 0
+theme_type_variation = &"PaperToggle"
+theme_override_font_sizes/font_size = 21
+toggle_mode = true
+text = "[ POLÍCIA ]"
+alignment = 0
+
+[node name="StatusPol" type="Label" parent="RowPol"]
+layout_mode = 2
+text = "DISPONÍVEL"
+theme_type_variation = &"InkMonoLabel"
+theme_override_font_sizes/font_size = 21
+unique_name_in_owner = true
+size_flags_vertical = 4
+
+[node name="RowBomb" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="UnitBomb" type="Button" parent="RowBomb"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+focus_mode = 0
+theme_type_variation = &"PaperToggle"
+theme_override_font_sizes/font_size = 21
+toggle_mode = true
+text = "[ BOMBEIROS ]"
+alignment = 0
+
+[node name="StatusBomb" type="Label" parent="RowBomb"]
+layout_mode = 2
+text = "DISPONÍVEL"
+theme_type_variation = &"InkMonoLabel"
+theme_override_font_sizes/font_size = 21
+unique_name_in_owner = true
+size_flags_vertical = 4
+
+[node name="RowAmb" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="UnitAmb" type="Button" parent="RowAmb"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+focus_mode = 0
+theme_type_variation = &"PaperToggle"
+theme_override_font_sizes/font_size = 21
+toggle_mode = true
+text = "[ AMBULÂNCIA ]"
+alignment = 0
+
+[node name="StatusAmb" type="Label" parent="RowAmb"]
+layout_mode = 2
+text = "DISPONÍVEL"
+theme_type_variation = &"InkMonoLabel"
+theme_override_font_sizes/font_size = 21
+unique_name_in_owner = true
+size_flags_vertical = 4
+
+[node name="Gap3" type="Control" parent="."]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+
+[node name="SendRow" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Send" type="Button" parent="SendRow"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+theme_type_variation = &"PaperInk"
+text = "[ ENVIAR ]"
+
+[node name="Message" type="Label" parent="SendRow"]
+layout_mode = 2
+text = ""
+theme_override_colors/font_color = Color(0.4314, 0.102, 0.07059, 1)
+theme_override_font_sizes/font_size = 13
+unique_name_in_owner = true
+size_flags_vertical = 4
+
+[node name="Report" type="Label" parent="."]
+layout_mode = 2
+text = ""
+theme_type_variation = &"InkMonoLabel"
+theme_override_font_sizes/font_size = 21
+unique_name_in_owner = true
+visible = false

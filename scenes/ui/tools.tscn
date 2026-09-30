@@ -1,0 +1,141 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/tools.gd" id="1_tools"]
+[ext_resource type="PackedScene" path="res://scenes/ui/phone_book.tscn" id="2_phone_book"]
+[ext_resource type="PackedScene" path="res://scenes/ui/map_view.tscn" id="3_map_view"]
+[ext_resource type="PackedScene" path="res://scenes/ui/dispatch.tscn" id="4_dispatch"]
+[ext_resource type="PackedScene" path="res://scenes/ui/notebook.tscn" id="5_notebook"]
+
+[node name="Tools" type="VBoxContainer"]
+custom_minimum_size = Vector2(620, 0)
+theme_override_constants/separation = 0
+script = ExtResource("1_tools")
+
+[node name="TabBar" type="HBoxContainer" parent="."]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TabLista" type="Button" parent="TabBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 34)
+layout_mode = 2
+size_flags_vertical = 8
+focus_mode = 0
+theme_type_variation = &"TabButton"
+toggle_mode = true
+text = "Lista telefônica"
+
+[node name="Dot" type="ColorRect" parent="TabBar/TabLista"]
+visible = false
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -6.0
+offset_top = -5.0
+offset_right = 4.0
+offset_bottom = 5.0
+grow_horizontal = 0
+mouse_filter = 2
+color = Color(0.9529, 0.6588, 0.2353, 1)
+
+[node name="TabMapa" type="Button" parent="TabBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(70, 34)
+layout_mode = 2
+size_flags_vertical = 8
+focus_mode = 0
+theme_type_variation = &"TabButton"
+toggle_mode = true
+text = "Mapa"
+
+[node name="Dot" type="ColorRect" parent="TabBar/TabMapa"]
+visible = false
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -6.0
+offset_top = -5.0
+offset_right = 4.0
+offset_bottom = 5.0
+grow_horizontal = 0
+mouse_filter = 2
+color = Color(0.9529, 0.6588, 0.2353, 1)
+
+[node name="TabDespacho" type="Button" parent="TabBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(104, 34)
+layout_mode = 2
+size_flags_vertical = 8
+focus_mode = 0
+theme_type_variation = &"TabButton"
+toggle_mode = true
+text = "Despacho"
+
+[node name="Dot" type="ColorRect" parent="TabBar/TabDespacho"]
+visible = false
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -6.0
+offset_top = -5.0
+offset_right = 4.0
+offset_bottom = 5.0
+grow_horizontal = 0
+mouse_filter = 2
+color = Color(0.9529, 0.6588, 0.2353, 1)
+
+[node name="TabCaderno" type="Button" parent="TabBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 34)
+layout_mode = 2
+size_flags_vertical = 8
+focus_mode = 0
+theme_type_variation = &"TabButton"
+toggle_mode = true
+text = "Caderno"
+
+[node name="Dot" type="ColorRect" parent="TabBar/TabCaderno"]
+visible = false
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -6.0
+offset_top = -5.0
+offset_right = 4.0
+offset_bottom = 5.0
+grow_horizontal = 0
+mouse_filter = 2
+color = Color(0.9529, 0.6588, 0.2353, 1)
+
+[node name="Paper" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(0, 522)
+layout_mode = 2
+theme_type_variation = &"PaperPanel"
+
+[node name="Margin" type="MarginContainer" parent="Paper"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 18
+
+[node name="PhoneBook" parent="Paper/Margin" instance=ExtResource("2_phone_book")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="MapView" parent="Paper/Margin" instance=ExtResource("3_map_view")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Dispatch" parent="Paper/Margin" instance=ExtResource("4_dispatch")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Notebook" parent="Paper/Margin" instance=ExtResource("5_notebook")]
+unique_name_in_owner = true
+layout_mode = 2

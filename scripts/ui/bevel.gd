@@ -1,8 +1,13 @@
+@tool
 class_name Bevel
-extends Control
-## Painel com borda chanfrada em pixel.
+extends MarginContainer
+## Painel com borda chanfrada em pixel. Os filhos ficam dentro das margens (constantes margin_* do nó).
 
-var fill := Pal.PANEL
+@export var fill := Pal.PANEL:
+	set(v):
+		fill = v
+		queue_redraw()
+
 
 func _draw() -> void:
 	var w := size.x

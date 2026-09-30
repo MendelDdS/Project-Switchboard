@@ -7,6 +7,8 @@ extends Control
 ## Os cabos de conexão são poucos (PATCHES): desmontar as conexões encerradas libera cabos.
 ## Arraste o plug até a tomada (ou clique no plug e depois na tomada). Clicar num plug encaixado,
 ## ou soltá-lo fora de uma tomada, faz ele voltar sozinho para a base.
+## A mesa não conhece ligações: lê as lâmpadas de `exchange` e avisa por `end_changed` quando um plug muda.
+## Desenha por cima dos vizinhos (z_index na cena), porque o FONE mora num encaixe do painel do telefone.
 
 signal end_changed(end: int, jack: int, prev: int)
 signal info_requested(jack: int)
@@ -14,16 +16,16 @@ signal warned(text: String)
 
 const PATCHES := 3
 const DEST_COLS := 17
-const FONE_SOCKET := Rect2(16, 350, 76, 44)   # fica no painel do telefone, logo abaixo da mesa
+const SIZE := Vector2(588, 330)
+const FONE_HOME := Vector2(18, 24)   # posição do plug do FONE dentro do encaixe
 
-var lines: Array = []          # referência ao estado das entradas mantido pelo Main
-var dests: Dictionary = {}     # referência: número (int) -> estado do destino
+var exchange: Exchange
+var fone_socket: Control       # encaixe do FONE no painel do telefone
 var dest_nums: Array = []
 var ends: Array = []           # tomada de cada ponta (-1 = na base). 0 = FONE; 1..2*PATCHES = pontas dos cabos de conexão
 var held := -1
 var held_from := -1
 var cursor := Vector2.ZERO
-var sfx: Sfx
 var info_lines: PackedStringArray = []
 var info_ghost := false
 var info_line := -1
@@ -48,18 +50,28 @@ var _last_mouse := Vector2.ZERO
 
 
 func _ready() -> void:
-	size = Vector2(588, 330)
+	custom_minimum_size = SIZE
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	for i in 1 + PATCHES * 2:
 		ends.append(-1)
-	dest_nums = dests.keys()
-	dest_nums.sort()
+
+
+func setup(ex: Exchange, socket: Control) -> void:
+	exchange = ex
+	fone_socket = socket
+	dest_nums = ex.dest_numbers()
 	_jacks = range(1, 21) + dest_nums
 
 
-## A mesa também recebe cliques no encaixe do FONE, que fica fora do retângulo dela.
+## Encaixe do FONE em coordenadas da mesa (ele fica no painel do telefone, fora do retângulo dela).
+func socket_rect() -> Rect2:
+	if fone_socket == null:
+		return Rect2(16, 350, 76, 44)
+	return Rect2(fone_socket.global_position - global_position, fone_socket.size)
+
+
 func _has_point(p: Vector2) -> bool:
-	return Rect2(Vector2.ZERO, size).has_point(p) or FONE_SOCKET.has_point(p)
+	return Rect2(Vector2.ZERO, size).has_point(p) or socket_rect().has_point(p)
 
 
 # ------------------------------------------------------------------ geometria
@@ -95,13 +107,13 @@ func patch_x(k: int) -> float:
 
 func home_pos(e: int) -> Vector2:
 	if e == 0:
-		return Vector2(34, 374)
+		return socket_rect().position + FONE_HOME
 	return Vector2(patch_x((e - 1) / 2) + (-14.0 if e % 2 == 1 else 14.0), 278)
 
 
 func home_rect(e: int) -> Rect2:
 	if e == 0:
-		return FONE_SOCKET
+		return socket_rect()
 	var h := home_pos(e)
 	return Rect2(h.x - 12, 258, 24, 50)
 
@@ -119,6 +131,19 @@ func cable_of(e: int) -> int:
 
 func cord_at(j: int) -> int:
 	return -1 if j == -1 else ends.find(j)
+
+
+func end_jack(e: int) -> int:
+	return ends[e] if e >= 0 else -1
+
+
+## Destino ligado à SAÍDA da linha n pelo cabo de conexão (-1 se não houver).
+func dest_of_output(n: int) -> int:
+	var e := cord_at(n + 10)
+	if e == -1:
+		return -1
+	var j: int = ends[mate(e)]
+	return j if j > 20 else -1
 
 
 func fone_line() -> int:
@@ -155,11 +180,11 @@ func place(e: int, j: int) -> bool:
 	var why := refuse(e, j)
 	if why != "":
 		warned.emit(why)
-		sfx.play("click")
+		Sfx.play("click")
 		return false
 	ends[e] = j
 	held = -1
-	sfx.play("plug_in")
+	Sfx.play("plug_in")
 	end_changed.emit(e, j, -1)
 	return true
 
@@ -169,7 +194,7 @@ func pick_up(e: int) -> void:
 	ends[e] = -1
 	held = e
 	held_from = prev
-	sfx.play("plug_out")
+	Sfx.play("plug_out")
 	if prev != -1:
 		end_changed.emit(e, -1, prev)
 
@@ -184,7 +209,7 @@ func go_home(e: int) -> void:
 	if from.distance_to(home_pos(e)) > 2.0:
 		_anim[e] = {"from": from, "t": 0.0}
 	else:
-		sfx.play("thump", -14.0)
+		Sfx.play("thump", -14.0)
 	if prev != -1:
 		end_changed.emit(e, -1, prev)
 
@@ -199,6 +224,10 @@ func show_info(text_lines: PackedStringArray, ghost: bool, line: int) -> void:
 # ------------------------------------------------------------------ entrada
 
 func _gui_input(e: InputEvent) -> void:
+	if e.is_action_pressed("cancel_plug") and held != -1:
+		go_home(held)
+		accept_event()
+		return
 	if e is InputEventMouseButton and e.button_index == MOUSE_BUTTON_LEFT:
 		if e.pressed:
 			_press(e.position)
@@ -221,7 +250,7 @@ func _press(pos: Vector2) -> void:
 		if ends[e] == -1 and not _anim.has(e) and home_rect(e).has_point(pos):
 			held = e
 			held_from = -1
-			sfx.play("plug_out")
+			Sfx.play("plug_out")
 			return
 	var j := jack_at(pos)
 	if j != -1:
@@ -259,7 +288,7 @@ func _process(delta: float) -> void:
 		_anim[e]["t"] += delta / RETURN_SEC
 		if _anim[e]["t"] >= 1.0:
 			_anim.erase(e)
-			sfx.play("thump", -14.0)
+			Sfx.play("thump", -14.0)
 	_acc = minf(_acc + delta, STEP * 6)
 	while _acc >= STEP:
 		_acc -= STEP
@@ -286,7 +315,7 @@ func _rope_ends(c: int) -> Array:
 	if c == 0:
 		if held != 0 and ends[0] == -1 and not _anim.has(0):
 			return []
-		return [Vector2(home_pos(0).x, FONE_SOCKET.position.y), _plug_pos(0) + Vector2(0, 20)]
+		return [Vector2(home_pos(0).x, socket_rect().position.y), _plug_pos(0) + Vector2(0, 20)]
 	var a := c * 2 - 1
 	var b := c * 2
 	if held != a and held != b and ends[a] == -1 and ends[b] == -1 and not _anim.has(a) and not _anim.has(b):
@@ -354,23 +383,32 @@ func _step_rope(c: int, dt: float) -> void:
 
 # ------------------------------------------------------------------ desenho
 
-## Cor da lâmpada para um estado; alpha 0 = apagada.
-func _lamp(st: String, ms: int, steady: bool) -> Color:
+## Cor da lâmpada para um estado de linha (Exchange.Line); alpha 0 = apagada.
+func _lamp(st: int, ms: int, steady: bool) -> Color:
 	match st:
-		"ring":
+		Exchange.Line.RING:
 			if steady or (ms / 250) % 2 == 0:
 				return Pal.AMBER
-		"talk":
+		Exchange.Line.TALK:
 			return Pal.AMBER
-		"hold":
+		Exchange.Line.HOLD:
 			return Pal.AMBER if (ms / 800) % 2 == 0 else Pal.AMBER.darkened(0.45)
-		"conn":
+		Exchange.Line.CONN:
 			return Pal.GREEN
-		"done":
+		Exchange.Line.DONE:
 			return Pal.RED
-		"ghost":
-			var ph := (ms % 3300) / 3300.0
-			return Pal.GHOST if not (ph > 0.47 and ph < 0.53) else Pal.GHOST.darkened(0.6)
+	return Color(0, 0, 0, 0)
+
+
+## Os estados de destino (Exchange.Dest) acendem como os de linha equivalentes.
+func _dest_lamp(st: int, ms: int) -> Color:
+	match st:
+		Exchange.Dest.RING:
+			return _lamp(Exchange.Line.RING, ms, false)
+		Exchange.Dest.CONN:
+			return Pal.GREEN
+		Exchange.Dest.DONE:
+			return Pal.RED
 	return Color(0, 0, 0, 0)
 
 
@@ -400,40 +438,38 @@ func _draw() -> void:
 	draw_rect(Rect2(3, 3, 3, h - 6), Pal.PANEL_HI)
 	draw_rect(Rect2(3, h - 6, w - 6, 3), Pal.PANEL_LO)
 	draw_rect(Rect2(w - 6, 3, 3, h - 6), Pal.PANEL_LO)
-	draw_string(Pal.mono, Vector2(17, 28), "MESA COMUTADORA", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Pal.BRASS)
-	draw_string(Pal.ui, Vector2(17, 26), "ENTRADA (fone)  ·  SAÍDA (cabo de conexão)", HORIZONTAL_ALIGNMENT_RIGHT, w - 34, 11, Pal.DIM)
+	draw_string(Pal.mono, Vector2(17, 28), tr("MESA COMUTADORA"), HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Pal.BRASS)
+	draw_string(Pal.ui, Vector2(17, 26), tr("ENTRADA (fone)  ·  SAÍDA (cabo de conexão)"), HORIZONTAL_ALIGNMENT_RIGHT, w - 34, 11, Pal.DIM)
+	if exchange == null:
+		return
 
 	# entradas e saídas
 	for i in 10:
 		var n := i + 1
-		var st: String = lines[i] if i < lines.size() else "free"
+		var st := exchange.line(n)
 		var cx := col_x(i)
 		draw_rect(Rect2(cx - 17, 36, 34, 20), Color.BLACK)
 		draw_rect(Rect2(cx - 15, 38, 30, 16), Color("1a1711"))
 		draw_string(Pal.mono, Vector2(cx - 15, 52), "%02d" % n, HORIZONTAL_ALIGNMENT_CENTER, 30, 19, Color("d8c9a2"))
 		_draw_lamp(Rect2(cx - 7, 60, 14, 9), _lamp(st, ms, fone_line() == n))
 		_draw_jack(jack_rect(n))
-		var lbl: String = GameData.LINE_LABEL.get(st, "")
 		var sc := Pal.DIM
-		if st in ["ring", "talk", "hold"]:
+		if st in [Exchange.Line.RING, Exchange.Line.TALK, Exchange.Line.HOLD]:
 			sc = Pal.AMBER
-		elif st == "done":
+		elif st == Exchange.Line.DONE:
 			sc = Pal.RED
-		elif st == "ghost":
-			sc = Pal.GHOST
-		var lw := 84.0 if st == "ghost" else 56.0
-		draw_string(Pal.ui, Vector2(cx - lw / 2.0, 110), lbl, HORIZONTAL_ALIGNMENT_CENTER, lw, 10, sc)
+		draw_string(Pal.ui, Vector2(cx - 28, 110), tr(exchange.line_label(n)), HORIZONTAL_ALIGNMENT_CENTER, 56, 10, sc)
 		_draw_jack(jack_rect(n + 10), Color("7a6230"))
 
 	# destinos
 	draw_rect(Rect2(12, 142, w - 24, 2), Pal.PANEL_LO)
-	draw_string(Pal.ui, Vector2(17, 154), "DESTINOS", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
+	draw_string(Pal.ui, Vector2(17, 154), tr("DESTINOS"), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
 	for d in dest_nums:
 		var jr := jack_rect(d)
 		var cx := jr.get_center().x
-		var st: String = dests.get(d, "free")
-		draw_string(Pal.mono, Vector2(cx - 16, jr.position.y - 5), str(d), HORIZONTAL_ALIGNMENT_CENTER, 32, 17, Color("d8c9a2") if st == "free" else Pal.TEXT)
-		var lc := _lamp(st, ms, false)
+		var st := exchange.dest(d)
+		draw_string(Pal.mono, Vector2(cx - 16, jr.position.y - 5), str(d), HORIZONTAL_ALIGNMENT_CENTER, 32, 17, Color("d8c9a2") if st == Exchange.Dest.FREE else Pal.TEXT)
+		var lc := _dest_lamp(st, ms)
 		if lc.a > 0.0:
 			draw_rect(jr.grow(3), lc)   # o aro da tomada acende
 		_draw_jack(jr)
@@ -450,21 +486,14 @@ func _draw() -> void:
 			var coil := PackedVector2Array([Vector2(cx - 14, 298), Vector2(cx - 10, 306), Vector2(cx, 309), Vector2(cx + 10, 306), Vector2(cx + 14, 298)])
 			draw_polyline(coil, Color.BLACK, 7.0)
 			draw_polyline(coil, _cable_col(a)[0], 4.0)
-		draw_string(Pal.mono, Vector2(cx - 30, 322), "CABO %d" % (k + 1), HORIZONTAL_ALIGNMENT_CENTER, 60, 14, Pal.BRASS)
+		draw_string(Pal.mono, Vector2(cx - 30, 322), tr("CABO %d") % (k + 1), HORIZONTAL_ALIGNMENT_CENTER, 60, 14, Pal.BRASS)
 	# legenda
 	var leg := [[Pal.AMBER, "chamando / em linha"], [Pal.GREEN, "conectada"], [Pal.RED, "desligou: desmonte"], [Color("2a2016"), "livre"]]
 	for k in leg.size():
 		var y := 268 + k * 16
 		draw_rect(Rect2(452, y - 9, 9, 9), Color.BLACK)
 		draw_rect(Rect2(453, y - 8, 7, 7), leg[k][0])
-		draw_string(Pal.ui, Vector2(467, y), leg[k][1], HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
-
-	# encaixe do FONE (no painel do telefone)
-	var fs := FONE_SOCKET
-	draw_rect(fs, Color.BLACK)
-	draw_rect(fs.grow(-2), Color("1b1812"))
-	draw_rect(Rect2(home_pos(0).x - 8, fs.position.y + 26, 16, 12), Color("050403"))
-	draw_string(Pal.mono, Vector2(fs.position.x + 34, fs.position.y + 28), "FONE", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Pal.BRASS)
+		draw_string(Pal.ui, Vector2(467, y), tr(leg[k][1]), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
 
 	# destaque da tomada sob o plug
 	if held != -1:

@@ -1,0 +1,41 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/map_view.gd" id="1_map_view"]
+[ext_resource type="Script" path="res://scripts/ui/city_map.gd" id="2_city_map"]
+
+[node name="MapView" type="VBoxContainer"]
+theme_override_constants/separation = 10
+script = ExtResource("1_map_view")
+
+[node name="City" type="Control" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(576, 422)
+layout_mode = 2
+script = ExtResource("2_city_map")
+
+[node name="Row" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Caption" type="Label" parent="Row"]
+layout_mode = 2
+text = "Local marcado:"
+theme_type_variation = &"InkLabel"
+theme_override_font_sizes/font_size = 15
+size_flags_vertical = 4
+
+[node name="Selected" type="Label" parent="Row"]
+layout_mode = 2
+text = "nenhum"
+theme_type_variation = &"InkMonoLabel"
+theme_override_font_sizes/font_size = 24
+unique_name_in_owner = true
+size_flags_horizontal = 3
+clip_text = true
+
+[node name="Use" type="Button" parent="Row"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(166, 34)
+layout_mode = 2
+focus_mode = 0
+text = "Usar no despacho"

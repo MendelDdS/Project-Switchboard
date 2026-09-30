@@ -31,7 +31,7 @@ func frames(n: int) -> void:
 
 
 func load_main() -> Node:
-	var m: Node = load("res://main.tscn").instantiate()
+	var m: Node = load("res://scenes/main.tscn").instantiate()
 	root.add_child(m)
 	current_scene = m
 	await process_frame

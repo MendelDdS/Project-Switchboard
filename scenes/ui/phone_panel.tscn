@@ -1,0 +1,151 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/phone_panel.gd" id="1_phone_panel"]
+[ext_resource type="Script" path="res://scripts/ui/fone_socket.gd" id="2_fone_socket"]
+[ext_resource type="FontFile" path="res://fonts/VT323-Regular.ttf" id="3_vt323_regula"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
+bg_color = Color(0.07059, 0.05098, 0.02745, 1)
+
+[node name="Phone" type="MarginContainer"]
+custom_minimum_size = Vector2(588, 262)
+mouse_filter = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 8
+script = ExtResource("1_phone_panel")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Top" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="FoneSocket" type="Control" parent="VBox/Top"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(76, 44)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_fone_socket")
+
+[node name="DisplayBox" type="PanelContainer" parent="VBox/Top"]
+custom_minimum_size = Vector2(180, 36)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_1")
+
+[node name="Display" type="Label" parent="VBox/Top/DisplayBox"]
+layout_mode = 2
+text = ""
+theme_override_fonts/font = ExtResource("3_vt323_regula")
+theme_override_colors/font_color = Color(0.9529, 0.6588, 0.2353, 1)
+theme_override_font_sizes/font_size = 22
+unique_name_in_owner = true
+horizontal_alignment = 1
+vertical_alignment = 1
+clip_text = true
+
+[node name="Info" type="VBoxContainer" parent="VBox/Top"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="Row" type="HBoxContainer" parent="VBox/Top/Info"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="CallLine" type="Label" parent="VBox/Top/Info/Row"]
+layout_mode = 2
+text = "Nenhuma chamada"
+theme_type_variation = &"DimLabel"
+theme_override_font_sizes/font_size = 13
+unique_name_in_owner = true
+size_flags_horizontal = 3
+
+[node name="CallState" type="Label" parent="VBox/Top/Info/Row"]
+layout_mode = 2
+text = ""
+theme_type_variation = &"DimLabel"
+theme_override_font_sizes/font_size = 13
+unique_name_in_owner = true
+horizontal_alignment = 2
+
+[node name="Others" type="Label" parent="VBox/Top/Info"]
+layout_mode = 2
+text = ""
+theme_type_variation = &"AmberLabel"
+theme_override_font_sizes/font_size = 12
+unique_name_in_owner = true
+clip_text = true
+
+[node name="TranscriptBox" type="PanelContainer" parent="VBox"]
+custom_minimum_size = Vector2(0, 104)
+layout_mode = 2
+theme_type_variation = &"DarkPanel"
+
+[node name="Transcript" type="RichTextLabel" parent="VBox/TranscriptBox"]
+unique_name_in_owner = true
+layout_mode = 2
+bbcode_enabled = true
+scroll_following = true
+theme_override_colors/default_color = Color(0.902, 0.8588, 0.7412, 1)
+theme_override_font_sizes/normal_font_size = 14
+theme_override_constants/line_separation = 2
+
+[node name="Choices" type="HFlowContainer" parent="VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+
+[node name="Bottom" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Warn" type="Label" parent="VBox/Bottom"]
+layout_mode = 2
+text = ""
+theme_type_variation = &"AmberLabel"
+theme_override_font_sizes/font_size = 12
+unique_name_in_owner = true
+custom_minimum_size = Vector2(176, 0)
+size_flags_horizontal = 3
+autowrap_mode = 3
+
+[node name="Answer" type="Button" parent="VBox/Bottom"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(118, 32)
+layout_mode = 2
+size_flags_vertical = 4
+focus_mode = 0
+theme_type_variation = &"GreenButton"
+disabled = true
+text = "Atender"
+
+[node name="Transfer" type="Button" parent="VBox/Bottom"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(118, 32)
+layout_mode = 2
+size_flags_vertical = 4
+focus_mode = 0
+theme_type_variation = &"AmberButton"
+disabled = true
+text = "Transferir"
+
+[node name="Hangup" type="Button" parent="VBox/Bottom"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(124, 32)
+layout_mode = 2
+size_flags_vertical = 4
+focus_mode = 0
+theme_type_variation = &"RedButton"
+disabled = true
+text = "Desligar"

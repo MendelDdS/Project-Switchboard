@@ -1,7 +1,7 @@
-class_name Sfx
 extends Node
-## Todos os sons do protótipo são sintetizados ao iniciar (nenhum arquivo de áudio).
+## Autoload `Sfx`: todos os sons do jogo, sintetizados ao iniciar (nenhum arquivo de áudio).
 ## Para trocar por gravações reais, substitua as entradas de `streams` por AudioStreams importados.
+## Barramentos (default_bus_layout.tres): Ambience (chuva, zumbido, chiado), Voices (sílabas), Effects (o resto).
 
 const RATE := 22050
 # Vozes abafadas: cada vogal vira uma sílaba sintetizada (fonte glotal + formantes + filtro abafado).
@@ -21,6 +21,8 @@ const VOL := {
 	"tick": -24.0, "pencil": -13.0, "ring": -5.0, "pulse": -10.0, "ringback": -13.0, "sit": -13.0,
 	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0,
 }
+
+const VMAP := {"a": "a", "á": "a", "à": "a", "â": "a", "ã": "a", "e": "e", "é": "e", "ê": "e", "i": "i", "í": "i", "o": "o", "ó": "o", "ô": "o", "õ": "o", "u": "u", "ú": "u"}
 
 var streams: Dictionary = {}
 var pool: Array[AudioStreamPlayer] = []
@@ -60,6 +62,7 @@ func play(id: String, db: float = 0.0, pitch: float = 1.0) -> void:
 	if p == null:
 		p = pool[0]
 	p.stream = streams[id]
+	p.bus = &"Voices" if id.begins_with("s_") or id == "crackle" else &"Effects"
 	p.volume_db = VOL.get(id, -10.0) + db
 	p.pitch_scale = pitch
 	p.play()
@@ -121,6 +124,18 @@ func ringback(times: int) -> float:
 	return times * 2.0
 
 
+## Fala o caractere i de `text`: cada grupo de vogais dispara uma sílaba abafada (ritmo de fala,
+## estilo Papers, Please). Devolve se o caractere é vogal (passe de volta em `prev_vowel`).
+func speak_char(voice: String, text: String, i: int, prev_vowel: bool, laugh: bool = false) -> bool:
+	var lc := text[i].to_lower()
+	if not VMAP.has(lc):
+		return false
+	if not prev_vowel:
+		var rise := laugh or (text.strip_edges().ends_with("?") and i > text.length() - 9)
+		syllable(voice, VMAP[lc], rise)
+	return true
+
+
 ## Toca uma sílaba abafada. `rise` sobe a entonação (perguntas, risadas).
 func syllable(v: String, vowel: String, rise: bool = false) -> void:
 	if not VOICE.has(v):
@@ -142,6 +157,7 @@ func _make_loop(id: String) -> AudioStreamPlayer:
 	var p := AudioStreamPlayer.new()
 	p.stream = streams[id]
 	p.volume_db = -80.0
+	p.bus = &"Ambience"
 	add_child(p)
 	return p
 

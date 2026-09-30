@@ -1,0 +1,58 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/ending.gd" id="1_ending"]
+[ext_resource type="FontFile" path="res://fonts/VT323-Regular.ttf" id="2_vt323_regula"]
+
+[node name="Ending" type="ColorRect"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+script = ExtResource("1_ending")
+
+[node name="Center" type="CenterContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+layout_mode = 1
+mouse_filter = 2
+
+[node name="VBox" type="VBoxContainer" parent="Center"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 22
+
+[node name="Title" type="Label" parent="Center/VBox"]
+layout_mode = 2
+text = "Fim da demonstração"
+theme_override_font_sizes/font_size = 30
+unique_name_in_owner = true
+horizontal_alignment = 1
+
+[node name="Question" type="Label" parent="Center/VBox"]
+layout_mode = 2
+text = "Você atenderia novamente?"
+theme_override_fonts/font = ExtResource("2_vt323_regula")
+theme_override_colors/font_color = Color(0.9529, 0.6588, 0.2353, 1)
+theme_override_font_sizes/font_size = 36
+unique_name_in_owner = true
+horizontal_alignment = 1
+
+[node name="Gap" type="Control" parent="Center/VBox"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Restart" type="Button" parent="Center/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 36)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+theme_type_variation = &"DarkButton"
+text = "Recomeçar turno"

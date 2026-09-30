@@ -23,11 +23,5 @@ const TEXT := Color("e6dbbd")
 const DIM := Color("9a917a")
 const GLOW := Color("ffd183")
 
-static var ui: Font
-static var mono: Font
-
-static func init_fonts() -> void:
-	if ui != null:
-		return
-	ui = load("res://fonts/PixelifySans.ttf")
-	mono = load("res://fonts/VT323-Regular.ttf")
+static var ui: Font = preload("res://fonts/PixelifySans.ttf")
+static var mono: Font = preload("res://fonts/VT323-Regular.ttf")

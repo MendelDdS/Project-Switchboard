@@ -15,7 +15,6 @@ const STATION := {
 const ROAD := Color("e8dcb9")
 const LINE := Color("3a3226")
 
-var sfx: Sfx
 var sel: Dictionary = {}
 var hover: Dictionary = {}
 var trips: Array = []
@@ -26,28 +25,28 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 
 
-static func seg_geom(s: Dictionary, b: int) -> Array:
-	if s["o"] == "h":
+static func seg_geom(s: Street, b: int) -> Array:
+	if s.horizontal:
 		var x0 := 20.0 + b * 560.0 / 3.0
-		var a := Vector2(x0, s["y"])
-		var c := Vector2(x0 + 560.0 / 3.0, s["y"])
+		var a := Vector2(x0, s.pos)
+		var c := Vector2(x0 + 560.0 / 3.0, s.pos)
 		return [a, c, (a + c) / 2.0]
 	var y0 := 34.0 + b * 386.0 / 3.0
-	var a2 := Vector2(s["x"], y0)
-	var c2 := Vector2(s["x"], y0 + 386.0 / 3.0)
+	var a2 := Vector2(s.pos, y0)
+	var c2 := Vector2(s.pos, y0 + 386.0 / 3.0)
 	return [a2, c2, (a2 + c2) / 2.0]
 
 
 func _find_seg(mp: Vector2) -> Dictionary:
 	var best := {}
 	var bd := 13.0
-	for s in GameData.STREETS:
+	for s in GameData.CONTENT.streets:
 		for b in 3:
 			var g := seg_geom(s, b)
 			var d := Geometry2D.get_closest_point_to_segment(mp, g[0], g[1]).distance_to(mp)
 			if d < bd:
 				bd = d
-				best = {"street": s["id"], "block": b, "label": "%s, %s" % [s["name"], GameData.BLK[b]]}
+				best = {"street": s.id, "block": b, "label": "%s, %s" % [s.name, GameData.CONTENT.block_labels[b]]}
 	return best
 
 
@@ -62,7 +61,7 @@ func _gui_input(e: InputEvent) -> void:
 		var h := _find_seg(e.position / _k)
 		if not h.is_empty():
 			sel = h
-			sfx.play("click")
+			Sfx.play("click")
 			segment_selected.emit(h["street"], h["block"], h["label"])
 			queue_redraw()
 
@@ -72,8 +71,8 @@ func route(u: String, target: Dictionary) -> PackedVector2Array:
 	var s := GameData.street(target["street"])
 	var g := seg_geom(s, target["block"])
 	var m: Vector2 = g[2]
-	if s["o"] == "h":
-		if is_equal_approx(float(s["y"]), st.y):
+	if s.horizontal:
+		if is_equal_approx(s.pos, st.y):
 			return PackedVector2Array([st, m])
 		var mid := (st.x + m.x) / 2.0
 		var xv := 110.0
@@ -133,7 +132,7 @@ func _draw() -> void:
 				draw_rect(Rect2(c.x - 12, c.y - 10, 24, 20), Color("e6dab8"))
 				draw_rect(Rect2(c.x - 2, c.y - 24, 4, 14), LINE)
 				draw_rect(Rect2(c.x - 6, c.y - 20, 12, 4), LINE)
-				_t(Vector2(c.x, y1 - 6), "Praça da Matriz", 16)
+				_t(Vector2(c.x, y1 - 6), tr("Praça da Matriz"), 16)
 			elif lm != "":
 				draw_rect(r, LINE)
 				draw_rect(r.grow(-2), Color("b7a67b"))
@@ -141,10 +140,10 @@ func _draw() -> void:
 				if r.size.x < 60:
 					var c2 := r.get_center()
 					draw_set_transform_matrix(T * Transform2D(-PI / 2.0, Vector2(c2.x + 5, c2.y)))
-					_t(Vector2.ZERO, lm, 15)
+					_t(Vector2.ZERO, tr(lm), 15)
 					draw_set_transform_matrix(T)
 				else:
-					_t(r.get_center() + Vector2(0, 8), lm, 18)
+					_t(r.get_center() + Vector2(0, 8), tr(lm), 18)
 			else:
 				draw_rect(r, Color("8f7f5b"))
 				draw_rect(r.grow(-1), Color("c3b48b"))
@@ -157,27 +156,27 @@ func _draw() -> void:
 						xx += 18
 					yy += 18
 	# ruas
-	for s in GameData.STREETS:
-		var a := Vector2(20, s["y"]) if s["o"] == "h" else Vector2(s["x"], 34)
-		var b := Vector2(580, s["y"]) if s["o"] == "h" else Vector2(s["x"], 420)
+	for s in GameData.CONTENT.streets:
+		var a := Vector2(20, s.pos) if s.horizontal else Vector2(s.pos, 34)
+		var b := Vector2(580, s.pos) if s.horizontal else Vector2(s.pos, 420)
 		draw_line(a, b, LINE, 18.0)
-	for s in GameData.STREETS:
-		var a := Vector2(20, s["y"]) if s["o"] == "h" else Vector2(s["x"], 34)
-		var b := Vector2(580, s["y"]) if s["o"] == "h" else Vector2(s["x"], 420)
+	for s in GameData.CONTENT.streets:
+		var a := Vector2(20, s.pos) if s.horizontal else Vector2(s.pos, 34)
+		var b := Vector2(580, s.pos) if s.horizontal else Vector2(s.pos, 420)
 		draw_line(a, b, ROAD, 13.0)
 	# nomes e numeração
-	for s in GameData.STREETS:
-		if s["o"] == "h":
+	for s in GameData.CONTENT.streets:
+		if s.horizontal:
 			var nx := 124.0
-			var w := Pal.mono.get_string_size(s["name"], HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
-			draw_rect(Rect2(nx - 2, float(s["y"]) - 7, w + 4, 14), ROAD)
-			_t(Vector2(nx, float(s["y"]) + 5), s["name"], 16, LINE, false)
+			var w := Pal.mono.get_string_size(s.name, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
+			draw_rect(Rect2(nx - 2, s.pos - 7, w + 4, 14), ROAD)
+			_t(Vector2(nx, s.pos + 5), s.name, 16, LINE, false)
 		else:
-			_t(Vector2(float(s["x"]), 27), s["name"], 15)
+			_t(Vector2(s.pos, 27), s.name, 15)
 		for b in [1, 2]:
 			var g := seg_geom(s, b)
 			var p0: Vector2 = g[0]
-			if s["o"] == "h":
+			if s.horizontal:
 				_t(p0 + Vector2(3, 22), str(b * 100), 13, Pal.INK_SOFT, false)
 			else:
 				_t(p0 + Vector2(10, 4), str(b * 100), 13, Pal.INK_SOFT, false)

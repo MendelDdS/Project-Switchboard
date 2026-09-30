@@ -1,0 +1,175 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/notebook.gd" id="1_notebook"]
+[ext_resource type="FontFile" path="res://fonts/VT323-Regular.ttf" id="2_vt323_regula"]
+[ext_resource type="Script" path="res://scripts/ui/scrawl.gd" id="3_scrawl"]
+
+[node name="Notebook" type="Control"]
+custom_minimum_size = Vector2(576, 486)
+script = ExtResource("1_notebook")
+
+[node name="Content" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+layout_mode = 1
+theme_override_constants/separation = 6
+
+[node name="Header" type="HBoxContainer" parent="Content"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+
+[node name="Title" type="Label" parent="Content/Header"]
+layout_mode = 2
+text = "Caderno de ocorrências"
+theme_type_variation = &"InkLabel"
+theme_override_font_sizes/font_size = 18
+size_flags_horizontal = 3
+
+[node name="Date" type="Label" parent="Content/Header"]
+layout_mode = 2
+text = "Noite de 14 para 15"
+theme_type_variation = &"InkSoftLabel"
+theme_override_font_sizes/font_size = 13
+
+[node name="Ledger" type="RichTextLabel" parent="Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 176)
+layout_mode = 2
+bbcode_enabled = true
+scroll_following = true
+theme_override_colors/default_color = Color(0.1647, 0.1373, 0.09804, 1)
+theme_override_fonts/normal_font = ExtResource("2_vt323_regula")
+theme_override_font_sizes/normal_font_size = 16
+
+[node name="Form" type="PanelContainer" parent="Content"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"FormPanel"
+
+[node name="VBox" type="VBoxContainer" parent="Content/Form"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Time" type="Label" parent="Content/Form/VBox"]
+layout_mode = 2
+text = ""
+theme_type_variation = &"InkLabel"
+theme_override_font_sizes/font_size = 15
+unique_name_in_owner = true
+
+[node name="Grid" type="GridContainer" parent="Content/Form/VBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 6
+columns = 2
+
+[node name="WhoField" type="VBoxContainer" parent="Content/Form/VBox/Grid"]
+custom_minimum_size = Vector2(265, 0)
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Caption" type="Label" parent="Content/Form/VBox/Grid/WhoField"]
+layout_mode = 2
+text = "Solicitante"
+theme_type_variation = &"InkSoftLabel"
+theme_override_font_sizes/font_size = 12
+
+[node name="Who" type="LineEdit" parent="Content/Form/VBox/Grid/WhoField"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="WhereField" type="VBoxContainer" parent="Content/Form/VBox/Grid"]
+custom_minimum_size = Vector2(265, 0)
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Caption" type="Label" parent="Content/Form/VBox/Grid/WhereField"]
+layout_mode = 2
+text = "Local / destino"
+theme_type_variation = &"InkSoftLabel"
+theme_override_font_sizes/font_size = 12
+
+[node name="Where" type="LineEdit" parent="Content/Form/VBox/Grid/WhereField"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="TypeField" type="VBoxContainer" parent="Content/Form/VBox/Grid"]
+custom_minimum_size = Vector2(265, 0)
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Caption" type="Label" parent="Content/Form/VBox/Grid/TypeField"]
+layout_mode = 2
+text = "Tipo"
+theme_type_variation = &"InkSoftLabel"
+theme_override_font_sizes/font_size = 12
+
+[node name="Type" type="OptionButton" parent="Content/Form/VBox/Grid/TypeField"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="UnitField" type="VBoxContainer" parent="Content/Form/VBox/Grid"]
+custom_minimum_size = Vector2(265, 0)
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Caption" type="Label" parent="Content/Form/VBox/Grid/UnitField"]
+layout_mode = 2
+text = "Unidade enviada"
+theme_type_variation = &"InkSoftLabel"
+theme_override_font_sizes/font_size = 12
+
+[node name="Unit" type="LineEdit" parent="Content/Form/VBox/Grid/UnitField"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="ObsField" type="VBoxContainer" parent="Content/Form/VBox"]
+custom_minimum_size = Vector2(546, 0)
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Caption" type="Label" parent="Content/Form/VBox/ObsField"]
+layout_mode = 2
+text = "Observações"
+theme_type_variation = &"InkSoftLabel"
+theme_override_font_sizes/font_size = 12
+
+[node name="Obs" type="LineEdit" parent="Content/Form/VBox/ObsField"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "ex.: solicitante realizou chamada falsa"
+
+[node name="Actions" type="HBoxContainer" parent="Content/Form/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Register" type="Button" parent="Content/Form/VBox/Actions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(190, 34)
+layout_mode = 2
+focus_mode = 0
+theme_type_variation = &"InkButton"
+text = "Registrar ocorrência"
+
+[node name="Message" type="Label" parent="Content/Form/VBox/Actions"]
+layout_mode = 2
+text = ""
+theme_override_colors/font_color = Color(0.4314, 0.102, 0.07059, 1)
+theme_override_font_sizes/font_size = 12
+unique_name_in_owner = true
+size_flags_vertical = 4
+
+[node name="Scrawl" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+offset_left = 30.0
+offset_top = 220.0
+offset_right = 530.0
+offset_bottom = 330.0
+mouse_filter = 2
+script = ExtResource("3_scrawl")

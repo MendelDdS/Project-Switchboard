@@ -12,14 +12,36 @@ config_version=5
 
 config/name="Central de Vila Serena"
 config/description="Protótipo: operador de central telefônica, turno da noite."
-run/main_scene="res://main.tscn"
+run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
+
+[autoload]
+
+Sfx="*res://scripts/sfx.gd"
 
 [display]
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
 window/stretch/mode="canvas_items"
+
+[gui]
+
+theme/custom="res://themes/main_theme.tres"
+
+[input]
+
+cancel_plug={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194305,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+, Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":2,"canceled":false,"pressed":false,"double_click":false,"script":null)
+]
+}
+
+[internationalization]
+
+locale/translations_pot_files=PackedStringArray("res://scripts/conversation.gd", "res://scripts/game_data.gd", "res://scripts/main.gd", "res://scripts/pal.gd", "res://scripts/sfx.gd", "res://scripts/ui/background.gd", "res://scripts/ui/bevel.gd", "res://scripts/ui/city_map.gd", "res://scripts/ui/dispatch.gd", "res://scripts/ui/ending.gd", "res://scripts/ui/fone_socket.gd", "res://scripts/ui/intro.gd", "res://scripts/ui/map_view.gd", "res://scripts/ui/notebook.gd", "res://scripts/ui/phone_book.gd", "res://scripts/ui/phone_panel.gd", "res://scripts/ui/radio.gd", "res://scripts/ui/scanlines.gd", "res://scripts/ui/scrawl.gd", "res://scripts/ui/switchboard.gd", "res://scripts/ui/tools.gd", "res://scripts/model/exchange.gd", "res://scripts/model/phone_call.gd", "res://scenes/main.tscn", "res://scenes/ui/dispatch.tscn", "res://scenes/ui/ending.tscn", "res://scenes/ui/intro.tscn", "res://scenes/ui/map_view.tscn", "res://scenes/ui/notebook.tscn", "res://scenes/ui/phone_book.tscn", "res://scenes/ui/phone_panel.tscn", "res://scenes/ui/radio.tscn", "res://scenes/ui/tools.tscn")
+locale/fallback="pt_BR"
 
 [rendering]
 
