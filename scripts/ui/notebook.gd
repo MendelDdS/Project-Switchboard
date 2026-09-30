@@ -1,14 +1,11 @@
 class_name Notebook
 extends Control
 ## Aba do caderno de ocorrências. Cada ligação encerrada entra numa fila; o jogador registra quando puder.
-## Também guarda a anotação manuscrita da linha 07.
 
 signal pending_changed(has_pending: bool)
 signal registered
 
 const TYPES := ["Escolha…", "Ligação comum", "Emergência", "Trote", "Outro"]
-const NOTE_LOW := Vector2(30, 220)    ## anotação no espaço vazio do formulário
-const NOTE_HIGH := Vector2(250, 40)   ## anotação sobre a tabela, enquanto houver formulário aberto
 
 var entries: Array[Dictionary] = []
 var pending: Dictionary = {}
@@ -23,7 +20,6 @@ var queue: Array[Dictionary] = []
 @onready var _unit: LineEdit = %Unit
 @onready var _obs: LineEdit = %Obs
 @onready var _message: Label = %Message
-@onready var scrawl: Scrawl = %Scrawl
 
 
 func _ready() -> void:
@@ -80,16 +76,7 @@ func register() -> void:
 	registered.emit()
 
 
-func set_note(lines: PackedStringArray) -> void:
-	scrawl.set_lines(lines)
-
-
-func show_note() -> void:
-	scrawl.visible = true
-
-
 func _fill() -> void:
-	scrawl.position = NOTE_LOW if pending.is_empty() else NOTE_HIGH
 	_form.visible = not pending.is_empty()
 	if pending.is_empty():
 		return

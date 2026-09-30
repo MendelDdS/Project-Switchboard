@@ -23,9 +23,8 @@ var live: Array[PhoneCall] = []    ## tocando ou em andamento (podem ser várias
 var tut: PhoneCall                 ## primeira ligação: guia passo a passo
 var em_call: PhoneCall
 var myst_time := "02:13"
-var after := false                 ## a linha 07 já tocou e caiu
-var note_shown := false
-var note_wanted := false
+var myst_line := 0                 ## entrada por onde veio a ligação desconhecida (sorteada)
+var after := false                 ## a ligação desconhecida já tocou e caiu
 var ending := false
 var flick := false
 
@@ -35,10 +34,7 @@ var _taught_done := false
 var _taught_multi := false
 var _myst_lead := false
 var _calling_back := false
-var _note_gen := 0
-var _closing := false
 var _tick_acc := 0.0
-var _prev_tab := "lista"
 
 @onready var background: Background = %Background
 @onready var clock: Label = %Clock
@@ -122,10 +118,9 @@ func _process(delta: float) -> void:
 			Sfx.play("tick", -3.0)
 		_run_schedule()
 		_update_line_timers()
-		# o turno só fecha depois da linha 07 ter tocado e caído
-		if minutes >= SHIFT_END and after and not _closing:
-			_closing = true
-			_close_shift()
+		# o turno só fecha depois da ligação desconhecida ter tocado e caído
+		if minutes >= SHIFT_END and after:
+			_start_ending()
 		clock.text = fmt(minutes)
 		_nag()
 	background.flick = flick
@@ -179,8 +174,8 @@ func _on_end_changed(e: int, j: int, prev: int) -> void:
 func _filled(j: int, e: int) -> void:
 	if e != 0:
 		return
-	if j == 7 and after:
-		_callback_07()
+	if j == myst_line and after:
+		_call_back_mystery()
 	var c := _call_on_line(j)
 	if c != null and c.active and exchange.line(j) == Exchange.Line.HOLD:
 		exchange.set_line(j, Exchange.Line.TALK)
@@ -226,6 +221,7 @@ func _vacated(j: int, e: int) -> void:
 		if c != null and c.active:
 			c.sys((tr("(Chamada para %d cancelada.)") if st == Exchange.Dest.RING else tr("(%d desconectado.)")) % j)
 			phone.clear_flash()
+			conversation.transfer_choices(c)
 		elif exchange.line(n) == Exchange.Line.CONN:
 			exchange.set_line(n, Exchange.Line.DONE)
 
@@ -239,6 +235,7 @@ func _cut_dest(c: PhoneCall, d: int) -> void:
 	elif exchange.dest(d) == Exchange.Dest.CONN:
 		exchange.set_dest(d, Exchange.Dest.DONE)
 		c.sys(tr("(%d desconectado.)") % d)
+	conversation.transfer_choices(c)
 
 
 ## Linha sem ligação e sem plugs volta a ficar livre.
@@ -279,6 +276,7 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 	var right := str(d) == c.target
 	var closed := GameData.is_closed(d)
 	exchange.set_dest(d, Exchange.Dest.RING)
+	c.set_options([])   # a conversa agora é com o destino; as opções voltam se a transferência for desfeita
 	phone.flash(tr("%d TOCANDO") % d, 60000)
 	tutorial_step()
 	_update_call_ui()
@@ -329,24 +327,18 @@ func _try_complete(c: PhoneCall) -> bool:
 	return true
 
 
-## Depois da linha 07: FONE na entrada 07 tenta ligar de volta.
-func _callback_07() -> void:
+## Depois da ligação desconhecida: FONE na entrada dela tenta ligar de volta.
+func _call_back_mystery() -> void:
 	if _calling_back:
 		return
 	_calling_back = true
-	phone.flash(tr("LINHA 07…"), 60000)
+	phone.flash(tr("LINHA %02d…") % myst_line, 60000)
 	Sfx.play("ringback")
 	await get_tree().create_timer(2.2).timeout
 	Sfx.static_burst(2.0)
 	Sfx.play("sit")
 	phone.flash(tr("NÚMERO NÃO EXISTE"), 3200)
 	_calling_back = false
-	if not note_shown:
-		_note_gen += 1
-		var g := _note_gen
-		await get_tree().create_timer(6.0).timeout
-		if g == _note_gen:
-			_trigger_note()
 
 
 func _show_line_info(n: int) -> void:
@@ -360,9 +352,9 @@ func _show_line_info(n: int) -> void:
 		board.show_info(PackedStringArray([tr("NÚMERO %d") % n, tr(exchange.dest_label(n)).to_upper()]), false, n)
 		Sfx.play("click")
 		return
-	if n == 7 and after and exchange.line(7) == Exchange.Line.FREE:
+	if n == myst_line and after and exchange.line(n) == Exchange.Line.FREE:
 		# A linha está livre, mas guarda o registro da última chamada.
-		board.show_info(PackedStringArray([tr("LINHA 07"), tr("LIVRE"), tr("ÚLTIMA ORIGEM: ???"), tr("NÚMERO: ???"), tr("DURAÇÃO: ") + myst_time]), true, n)
+		board.show_info(PackedStringArray([tr("LINHA %02d") % n, tr("LIVRE"), tr("ÚLTIMA ORIGEM: ???"), tr("NÚMERO: ???"), tr("DURAÇÃO: ") + myst_time]), true, n)
 		Sfx.static_burst()
 		return
 	var a := PackedStringArray([tr("LINHA %02d") % n, tr(exchange.line_label(n)).to_upper()])
@@ -483,7 +475,7 @@ func _info_call() -> PhoneCall:
 func _free_line() -> int:
 	var free := []
 	for n in range(1, Exchange.LINES + 1):
-		if n != 7 and exchange.line(n) == Exchange.Line.FREE and board.cord_at(n) == -1 and board.cord_at(n + 10) == -1:
+		if exchange.line(n) == Exchange.Line.FREE and board.cord_at(n) == -1 and board.cord_at(n + 10) == -1:
 			free.append(n)
 	return -1 if free.is_empty() else free.pick_random()
 
@@ -501,7 +493,7 @@ func _run_schedule() -> void:
 		return
 	# A ligação desconhecida só toca com a mesa em silêncio; as outras esperam uma entrada livre.
 	var hush := c.kind == PhoneCall.Kind.MYSTERY and not live.is_empty() and minutes < c.latest
-	if hush or (c.kind != PhoneCall.Kind.MYSTERY and _free_line() == -1):
+	if hush or _free_line() == -1:
 		c.at = minutes + 3.0
 		sched.sort_custom(func(a: PhoneCall, b: PhoneCall): return a.at < b.at)
 		return
@@ -533,14 +525,14 @@ func _update_bell() -> void:
 
 func ring(c: PhoneCall) -> void:
 	var busy := not live.is_empty()
-	c.line = 7 if c.kind == PhoneCall.Kind.MYSTERY else _free_line()
+	c.line = _free_line()
 	exchange.set_line(c.line, Exchange.Line.RING)
 	c.ringing = true
 	c.time = fmt(minutes)
 	live.append(c)
 	if c.kind == PhoneCall.Kind.MYSTERY:
 		myst_time = c.time
-		notebook.set_note(PackedStringArray([myst_time, tr("Linha 07"), tr("NÃO ATENDER NOVAMENTE.")]))
+		myst_line = c.line
 	if c.kind == PhoneCall.Kind.EMERGENCY:
 		em_call = c
 		dispatch.set_incident(c.data)
@@ -717,18 +709,13 @@ func _on_dispatched(loc: String, units_text: String) -> void:
 
 
 func _on_tab_changed(id: String) -> void:
-	var prev := _prev_tab
-	_prev_tab = id
 	if id == "despacho":
 		tools.set_dot("despacho", false)
 	if id == "caderno" and not notebook.has_pending():
 		tools.set_dot("caderno", false)
-	if prev == "caderno" and note_wanted:
-		await get_tree().create_timer(1.2).timeout
-		_show_note()
 
 
-# ================================================================ linha 07 e final
+# ================================================================ ligação desconhecida e final
 
 func _mystery_aftermath(c: PhoneCall) -> void:
 	Sfx.play("cut")
@@ -737,46 +724,6 @@ func _mystery_aftermath(c: PhoneCall) -> void:
 	c.sys(tr("(A ligação caiu.)"))
 	after = true
 	get_tree().create_timer(1.8).timeout.connect(func(): Sfx.fade(Sfx.hum, -32.0, 3.0))
-	_note_gen += 1
-	var g := _note_gen
-	await get_tree().create_timer(45.0).timeout
-	if g == _note_gen:
-		_trigger_note()
-
-
-## A anotação aparece no caderno quando não há formulário aberto (e não debaixo dos olhos do jogador).
-func _trigger_note() -> void:
-	if note_shown or ending:
-		return
-	while notebook.has_pending():
-		await get_tree().create_timer(1.0).timeout
-		if note_shown or ending:
-			return
-	if tools.tab == "caderno":
-		note_wanted = true
-		await get_tree().create_timer(20.0).timeout
-		if not note_shown:
-			_show_note()
-		return
-	_show_note()
-
-
-func _show_note() -> void:
-	if note_shown:
-		return
-	note_shown = true
-	note_wanted = false
-	notebook.show_note()
-	if tools.tab != "caderno":
-		tools.set_dot("caderno", true)
-
-
-## 06:00: o turno acaba. Se a anotação ainda não apareceu, ela aparece agora; depois, o final.
-func _close_shift() -> void:
-	if not note_shown:
-		_show_note()
-	await get_tree().create_timer(12.0).timeout
-	_start_ending()
 
 
 func _start_ending() -> void:

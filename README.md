@@ -15,7 +15,7 @@ Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
 - `scripts/conversation.gd` — como cada tipo de ligação se desenrola (falas, escolhas do operador).
 - `scripts/model/` — `PhoneCall` (uma ligação) e `Exchange` (estado das linhas e destinos).
 - `scripts/data/` — classes dos Resources de conteúdo.
-- `scripts/ui/` — scripts das cenas e dos elementos desenhados (mesa comutadora, mapa, lista, fundo, anotação).
+- `scripts/ui/` — scripts das cenas e dos elementos desenhados (mesa comutadora, mapa, lista, fundo).
 - `scripts/sfx.gd` — autoload `Sfx`: todos os sons, sintetizados ao iniciar, nos barramentos Ambience, Voices e
   Effects (`default_bus_layout.tres`). Troque as entradas de `streams` por arquivos reais quando tiver áudio gravado.
 - `tests/` — testes automatizados (`tests/run.sh`).
@@ -39,23 +39,23 @@ Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
 
 - **4 ligações principais** (transferência, transferência com nomes parecidos, emergência, trote)
   nos horários de `main_call_at` (em `data/content.tres`), cada uma sorteada entre várias variações.
-- **Linha 07** (a ligação desconhecida): toca num horário sorteado entre 02:00 e 05:30 (`MYST_FROM`/`MYST_TO`).
-- **5 a 7 ligações extras** em horários aleatórios pelo turno todo, antes e depois da linha 07 (`_fillers`):
+- **Ligação desconhecida**: toca por uma entrada livre qualquer, num horário sorteado entre 02:00 e 05:30
+  (`MYST_FROM`/`MYST_TO`).
+- **5 a 7 ligações extras** em horários aleatórios pelo turno todo, antes e depois da ligação desconhecida (`_fillers`):
   transferências (`data/calls/transfer_*.tres`) que não saíram como principais, ou pedidos de informação
   (número de alguém na lista, ou as horas). Ficam a pelo menos `FILLER_GAP` (25) minutos de jogo das outras ligações.
 - **Pico** (`PEAK_CHANCE`, 35% dos turnos): uma extra logo depois de uma principal, e duas linhas tocam juntas;
   em 40% desses picos vem mais uma, e três tocam juntas.
 - As ligações tocam no horário mesmo com o operador ocupado. Quem ninguém atende desiste
-  (`GIVE_UP_SEC`: 60 s para extras, 90 s para principais; a do tutorial e a linha 07 não desistem).
-- A linha 07 espera a mesa ficar em silêncio, por no máximo 30 minutos de jogo.
+  (`GIVE_UP_SEC`: 60 s para extras, 90 s para principais; a do tutorial e a desconhecida não desistem).
+- A ligação desconhecida espera a mesa ficar em silêncio, por no máximo 30 minutos de jogo.
 - Alguns números não atendem à noite (`closed_at_night` no contato). Roteiros com `alt_target` deixam o operador
   sugerir outro lugar.
 - Conexões completadas duram 45–90 minutos de jogo (`TALK_LEN` em `main.gd`); depois as lâmpadas ficam vermelhas
   até o operador desmontar. Conversas mais longas prendem os cabos de conexão por mais tempo: em turnos
   movimentados, às vezes é preciso esperar uma conversa acabar (ou cortá-la) para ter um cabo livre.
 - O caderno guarda as ocorrências numa fila: dá para registrar depois, sem travar o turno.
-- O turno termina às 06:00 (depois de a linha 07 ter tocado e caído): a anotação aparece no caderno,
-  se ainda não tiver aparecido, e em seguida vem a tela final.
+- O turno termina às 06:00 (depois de a ligação desconhecida ter tocado e caído) e vem a tela final.
 
 ## Vozes
 
@@ -92,7 +92,7 @@ o botão **Desligar** encerra a ligação, e a linha fica "desligou" até o FONE
 (a pessoa para de falar até você voltar). Para voltar, leve o FONE de volta à entrada dela.
 "Outras linhas" no telefone lista quem está tocando ou em espera.
 
-Depois da linha 07, FONE na entrada 07 tenta ligar de volta.
+Depois da ligação desconhecida, FONE na entrada por onde ela veio tenta ligar de volta.
 
 ## Cabos
 
@@ -100,8 +100,8 @@ Os cabos são cordas simuladas (Verlet) em `scripts/ui/switchboard.gd`: balança
 ao passar o mouse por cima. Ajuste `SLACK` (folga), `DAMPING` (quanto demora para parar),
 `GRAVITY` e `STIFF_ITER` (rigidez) no topo do arquivo.
 
-## Linha 07
+## Ligação desconhecida
 
-A ligação desconhecida toca pela linha 07 como qualquer outra (lâmpada piscando, cabo + Atender).
-Quando cai, a linha volta a ficar livre e a ocorrência vai para o caderno; clicar na linha 07
+Toca por uma entrada livre sorteada, como qualquer outra (lâmpada piscando, cabo + Atender).
+Quando cai, a linha volta a ficar livre e a ocorrência vai para o caderno; clicar nessa linha
 mostra o registro da última chamada.

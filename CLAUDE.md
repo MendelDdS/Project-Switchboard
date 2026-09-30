@@ -2,7 +2,7 @@
 
 Jogo em Godot 4.6 (GDScript, renderer GL Compatibility), a caminho da versão definitiva. O jogador é o operador
 noturno de uma central telefônica de cidade pequena (22:00–06:00). Mecânica: atender e transferir ligações numa
-mesa comutadora com cabos físicos; ao fundo, uma ligação misteriosa pela linha 07 (terror leve).
+mesa comutadora com cabos físicos; ao fundo, uma ligação misteriosa de número desconhecido (terror leve), por uma entrada sorteada.
 O README.md descreve o jogo para quem joga/edita conteúdo; este arquivo é o mapa para quem mexe no código.
 Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 
@@ -14,7 +14,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `DarkPanel`, `PaperPanel`, `NotePanel`, `FormPanel`, `InkLabel`, `InkSoftLabel`, `DimLabel`, `AmberLabel`,
   `MonoLabel`, `InkMonoLabel`). Prefira variação de tema a override por nó.
 - **Conteúdo em Resources** (`data/content.tres` + um `.tres` por roteiro em `data/calls/`). Nada de falas no código,
-  exceto as do operador e as da linha 07 (roteiro fixo em `conversation.gd`).
+  exceto as do operador e as da ligação desconhecida (roteiro fixo em `conversation.gd`).
 - Todo o áudio é sintetizado no autoload `Sfx` (`scripts/sfx.gd`), inclusive as "vozes" por sílaba
   (`Sfx.speak_char`). Barramentos em `default_bus_layout.tres`: Ambience, Voices, Effects.
 - Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`).
@@ -30,7 +30,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Checar se tudo compila: `Godot --headless --path . --quit-after 60`.
 - **Testes: `tests/run.sh`** (roda tudo em headless, com limite de tempo, e falha em `SCRIPT ERROR`).
   - `tests/test_base.gd`: base (`ok()` em vez de `assert`, que trava o headless; `wait_until`, `load_main`, `finish`).
-  - `tests/test_flow.gd`: cenários dirigidos (transferência, espera, desistência, caderno, lugar fechado, 07, cliques).
+  - `tests/test_flow.gd`: cenários dirigidos (transferência, espera, desistência, caderno, lugar fechado, ligar de volta ao desconhecido, cliques).
   - `tests/test_shift.gd`: robô que joga o turno inteiro e imprime métricas (máx. simultâneas, % com 2+/3+,
     % sem cabo livre, perdidas); `run.sh` roda com `--seed=1..3`.
   - Nos testes, `Main`/`Switchboard` ficam **sem tipo** (dependem do autoload `Sfx`, que não existe na hora em que
@@ -41,17 +41,17 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 
 ## Arquivos
 - `scenes/main.tscn` + `scripts/main.gd` (`Main`) — orquestra o turno: relógio, agenda, o que cada plug significa
-  para as ligações, fim de ligação, linha 07 e final. Constantes de ritmo no topo.
+  para as ligações, fim de ligação, ligação desconhecida e final. Constantes de ritmo no topo.
 - `scripts/conversation.gd` (`Conversation`, nó filho de Main) — como cada tipo de ligação se desenrola:
-  `say`/`op`/`choose`/`wait` e os roteiros de transferência, informação, emergência, trote e linha 07.
+  `say`/`op`/`choose`/`wait` e os roteiros de transferência, informação, emergência, trote e ligação desconhecida.
 - `scripts/model/phone_call.gd` (`PhoneCall`) — uma ligação: roteiro (`data`) + estado; emite sinais que o telefone
   escuta. `scripts/model/exchange.gd` (`Exchange`) — **dono único** do estado das linhas e destinos (enums `Line`, `Dest`).
 - `scripts/data/*.gd` — classes de Resource do conteúdo; `scripts/game_data.gd` (`GameData`) — acesso ao
   `content.tres` (`CONTENT`, `entry()`, `street()`, `transfers()`, `pick()`...).
 - `scenes/ui/*.tscn` + `scripts/ui/*.gd` — telefone (`PhonePanel`, `FoneSocket`), rádio, abas (`Tools`) com lista
   (`PhoneBook`), mapa (`MapView` + `CityMap`), despacho (`Dispatch`, dono das unidades e da ocorrência) e caderno
-  (`Notebook`, fila de ocorrências e anotação da 07); `Intro`, `Ending`; widgets desenhados (`Switchboard`,
-  `Background`, `Scrawl`, `Bevel`, scanlines).
+  (`Notebook`, fila de ocorrências); `Intro`, `Ending`; widgets desenhados (`Switchboard`,
+  `Background`, `Bevel`, scanlines).
 
 ## Modelo da mesa (scripts/ui/switchboard.gd)
 - Tomadas por id inteiro: **1–10 entradas**, **11–20 saídas** (linha + 10), **destinos = o próprio número** (101–399,
@@ -79,12 +79,12 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `Conversation.emergency_dispatched`.
 
 ## Agenda e ritmo (constantes no topo de main.gd)
-- Principais em `GameContent.main_call_at` (4); linha 07 sorteada entre `MYST_FROM` e `MYST_TO` (02:00–05:30), só
+- Principais em `GameContent.main_call_at` (4); ligação desconhecida (`MYSTERY`, entrada livre sorteada, guardada em `myst_line`) entre `MYST_FROM` e `MYST_TO` (02:00–05:30), só
   toca com a mesa em silêncio, por no máximo 30 min de jogo (`latest`).
 - Extras: `_fillers` (5–7 pelo turno todo, `FILLER_GAP` 25 min entre ligações; pico com `PEAK_CHANCE`).
-- `GIVE_UP_SEC`: extras desistem em 60 s, principais em 90 s; tutorial (`tut`) e linha 07 nunca desistem.
+- `GIVE_UP_SEC`: extras desistem em 60 s, principais em 90 s; tutorial (`tut`) e desconhecida nunca desistem.
 - Conversas transferidas duram `TALK_LEN` (45–90 min de jogo).
-- Fim do turno: às 06:00 **depois** da linha 07 ter caído (`_close_shift` → anotação → `_start_ending`).
+- Fim do turno: às 06:00 **depois** da ligação desconhecida ter caído (`_start_ending`).
 - Relógio: 1 min de jogo por segundo real (`GAME_MIN_PER_SEC`).
 
 ## Histórico das decisões de design (o que o usuário pediu, em ordem)
@@ -99,6 +99,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 7. Reestruturação para a versão definitiva (branch `refactor/definitive`): testes no projeto, semente fixa,
    conteúdo em Resources, `PhoneCall`/`Exchange` tipados, interface em cenas com Containers e tema, autoload
    `Sfx` com barramentos, Input Map e `tr()`.
+8. Anotação "NÃO ATENDER NOVAMENTE" removida (o mistério será roteirizado depois); a ligação desconhecida vem
+   de qualquer entrada, não só da 07.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

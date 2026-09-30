@@ -14,17 +14,17 @@ enum End {
 	CALLER,     ## quem ligou desligou
 	MISSED,     ## ninguém atendeu e a pessoa desistiu
 	CONNECTED,  ## transferência completa; segue conectada sem o operador
-	MYSTERY,    ## a linha 07 caiu
+	MYSTERY,    ## a ligação desconhecida caiu
 }
 
 var kind := Kind.TRANSFER
-var data: Resource          ## roteiro (TransferCall, EmergencyCall ou PrankCall); nulo para informação e linha 07
+var data: Resource          ## roteiro (TransferCall, EmergencyCall ou PrankCall); nulo para informação e ligação desconhecida
 var voice := "m"
 var caller := ""
-var main := -1              ## 0–3 = ligação principal (0 é a do tutorial); -1 = extra ou linha 07
+var main := -1              ## 0–3 = ligação principal (0 é a do tutorial); -1 = extra ou ligação desconhecida
 var filler := false
 var at := 0.0               ## minuto previsto (depois das 22:00)
-var latest := INF           ## linha 07: a partir daqui toca mesmo com a mesa ocupada
+var latest := INF           ## ligação desconhecida: a partir daqui toca mesmo com a mesa ocupada
 
 var line := 0
 var time := ""

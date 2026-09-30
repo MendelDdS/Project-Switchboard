@@ -62,6 +62,9 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   telefone, mas quem trata o clique é a mesa: o telefone e os containers acima do encaixe precisam de IGNORE.
   O mesmo vale para overlays de tela cheia (`Ending`) que ficam visíveis com alfa 0.
 
+- **Os players do `Sfx` são reaproveitados (pool).** Para cortar um som, guarde o player e confira se o `stream`
+  ainda é o dele antes de `stop()`; logo depois do corte, outro som pode ocupar o mesmo player.
+
 ## Ferramentas e testes
 
 - **`assert` que falha em script `-s` não fecha o Godot**: o processo trava. Rode com limite de tempo

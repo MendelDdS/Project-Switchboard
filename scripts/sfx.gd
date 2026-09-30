@@ -31,6 +31,7 @@ var hum: AudioStreamPlayer
 var hiss: AudioStreamPlayer
 var _ring_on := false
 var _ring_timer: Timer
+var _ring_player: AudioStreamPlayer
 var _w := PackedFloat32Array()
 
 
@@ -51,9 +52,9 @@ func _ready() -> void:
 
 # ------------------------------------------------------------------ reprodução
 
-func play(id: String, db: float = 0.0, pitch: float = 1.0) -> void:
+func play(id: String, db: float = 0.0, pitch: float = 1.0) -> AudioStreamPlayer:
 	if not streams.has(id):
-		return
+		return null
 	var p: AudioStreamPlayer = null
 	for q in pool:
 		if not q.playing:
@@ -66,6 +67,7 @@ func play(id: String, db: float = 0.0, pitch: float = 1.0) -> void:
 	p.volume_db = VOL.get(id, -10.0) + db
 	p.pitch_scale = pitch
 	p.play()
+	return p
 
 
 func later(t: float, id: String, db: float = 0.0) -> void:
@@ -99,11 +101,14 @@ func ring_start() -> void:
 func ring_stop() -> void:
 	_ring_on = false
 	_ring_timer.stop()
+	# corta o toque que está soando (o player pode já ter sido reaproveitado por outro som)
+	if _ring_player != null and _ring_player.stream == streams["ring"]:
+		_ring_player.stop()
 
 
 func _ring_burst() -> void:
 	if _ring_on:
-		play("ring")
+		_ring_player = play("ring")
 
 
 ## Discagem por pulsos. Retorna a duração em segundos.

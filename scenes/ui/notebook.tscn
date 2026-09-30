@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" path="res://scripts/ui/notebook.gd" id="1_notebook"]
 [ext_resource type="FontFile" path="res://fonts/VT323-Regular.ttf" id="2_vt323_regula"]
-[ext_resource type="Script" path="res://scripts/ui/scrawl.gd" id="3_scrawl"]
 
 [node name="Notebook" type="Control"]
 custom_minimum_size = Vector2(576, 486)
@@ -162,14 +161,3 @@ theme_override_colors/font_color = Color(0.4314, 0.102, 0.07059, 1)
 theme_override_font_sizes/font_size = 12
 unique_name_in_owner = true
 size_flags_vertical = 4
-
-[node name="Scrawl" type="Control" parent="."]
-unique_name_in_owner = true
-visible = false
-layout_mode = 1
-offset_left = 30.0
-offset_top = 220.0
-offset_right = 530.0
-offset_bottom = 330.0
-mouse_filter = 2
-script = ExtResource("3_scrawl")

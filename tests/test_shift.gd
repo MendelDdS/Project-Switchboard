@@ -1,6 +1,6 @@
 extends "res://tests/test_base.gd"
 ## Um robô joga o turno inteiro na agenda real (use `-- --seed=N` para repetir a agenda).
-## Falha se houver travamento: o turno precisa chegar ao final das 06:00 depois da linha 07.
+## Falha se houver travamento: o turno precisa chegar ao final das 06:00 depois da ligação desconhecida.
 ## `m` e `b` ficam sem tipo: Main e Switchboard usam o autoload Sfx, que ainda não existe quando o Godot
 ## compila um script passado com -s.
 
@@ -67,7 +67,7 @@ func _initialize() -> void:
 					m.answer()
 					answered[key] = true
 					if c.kind == PhoneCall.Kind.MYSTERY:
-						myst_at = c.time
+						myst_at = "%s na linha %02d" % [c.time, c.line]
 					elif m.after:
 						post += 1
 					break
@@ -112,9 +112,9 @@ func _initialize() -> void:
 					f.options[0]["fn"].call()
 	var recs: Array = m.notebook.entries + m.notebook.queue + ([m.notebook.pending] if m.notebook.has_pending() else [])
 	var lost := recs.filter(func(e): return e["obs"] == "Não atendida.").size()
-	print("07 tocou %s, atendidas depois=%d, fim às %s | máx=%d  2+=%d%%  3+=%d%%  sem_cabo=%d%%  perdidas=%d  ligações=%d" % [
+	print("desconhecida tocou às %s, atendidas depois=%d, fim às %s | máx=%d  2+=%d%%  3+=%d%%  sem_cabo=%d%%  perdidas=%d  ligações=%d" % [
 		myst_at, post, m.fmt(m.minutes), max_live, 100 * f2 / maxi(fall, 1), 100 * f3 / maxi(fall, 1),
 		100 * starved / maxi(fall, 1), lost, recs.size()])
-	ok(myst_at != "", "a linha 07 tocou")
+	ok(myst_at != "", "a ligação desconhecida tocou")
 	ok(m.ending and m.minutes >= m.SHIFT_END, "o turno terminou às 06:00")
 	finish("turno completo")

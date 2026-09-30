@@ -1,6 +1,6 @@
 extends "res://tests/test_base.gd"
 ## Cenários dirigidos: transferência, várias ligações, desistência, caderno, lugar fechado,
-## cortar conversa, ligar de volta para a 07, clique/arraste dos plugs.
+## cortar conversa, ligar de volta para o número desconhecido, clique/arraste dos plugs.
 ## FONE = ponta 0; cabos de conexão = pontas 1..6 (da SAÍDA ao destino).
 ## `m` e `b` ficam sem tipo: Main e Switchboard usam o autoload Sfx, que ainda não existe quando o Godot
 ## compila um script passado com -s.
@@ -61,6 +61,8 @@ func _initialize() -> void:
 	ok(m._focus() == a, "FONE na entrada dá foco à ligação")
 	m.answer()
 	ok(a.active, "atendeu")
+	var sfx = m.get_node("/root/Sfx")
+	ok(not sfx.pool.any(func(p): return p.playing and p.stream == sfx.streams["ring"]), "atender corta o toque na hora")
 	ok(await wait_until(_awaiting(a)), "pedido de transferência")
 	var tgt := int(a.target)
 	_move(1, ln + 10)
@@ -71,6 +73,11 @@ func _initialize() -> void:
 	ok(b.dest_of_output(ln) == tgt, "cabo liga a saída ao destino")
 	m.transfer()
 	ok(ex.dest(tgt) == Exchange.Dest.RING, "destino tocando")
+	ok(a.options.is_empty(), "transferiu: as opções de conversa somem")
+	_move(2, -1)
+	ok(not a.options.is_empty(), "cancelou a transferência: as opções voltam")
+	_move(2, tgt)
+	m.transfer()
 	ok(await wait_until(func(): return ex.dest(tgt) == Exchange.Dest.CONN), "destino atendeu")
 	ok(not a.ended, "com o FONE na entrada o operador segue na linha")
 	_move(0, -1)
@@ -166,12 +173,12 @@ func _initialize() -> void:
 	ok(ex.dest(162) == Exchange.Dest.FREE, "destino liberado")
 	print("OK 5 cortar conversa")
 
-	# ---- 6. ligar de volta para a 07
+	# ---- 6. ligar de volta para o número desconhecido (pela entrada por onde ele veio)
 	m.after = true
-	m.note_shown = true
-	_move(0, 7)
-	ok(await wait_until(func(): return m.phone.display_text() == "NÚMERO NÃO EXISTE", 10.0), "07 não existe")
-	print("OK 6 ligação de volta 07")
+	m.myst_line = 4
+	_move(0, 4)
+	ok(await wait_until(func(): return m.phone.display_text() == "NÚMERO NÃO EXISTE", 10.0), "número não existe")
+	print("OK 6 ligação de volta ao desconhecido")
 
 	# ---- 7. clicar num plug encaixado devolve à base (com animação); arrastar move
 	var c7 := _extra(GameData.transfers(TransferCall.Group.ESTABLISHMENT)[0])
