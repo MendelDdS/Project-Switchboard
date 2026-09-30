@@ -65,6 +65,12 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
 - **Os players do `Sfx` são reaproveitados (pool).** Para cortar um som, guarde o player e confira se o `stream`
   ainda é o dele antes de `stop()`; logo depois do corte, outro som pode ocupar o mesmo player.
 
+- **`class_name` novo não existe até reimportar.** Rodando só pela linha de comando, o cache de classes globais
+  (`.godot/global_script_class_cache.cfg`) não é atualizado: todo script que usa a classe nova dá parse error, e os
+  testes travam até o limite de tempo. `tests/run.sh` agora começa com `--import`.
+- **A fonte Pixelify Sans junta "fi" numa ligadura que parece "A"** ("ficha" virou "Acha"). A ligadura foi desligada
+  na importação da fonte (`opentype_features` com `liga: 0`).
+
 ## Ferramentas e testes
 
 - **`assert` que falha em script `-s` não fecha o Godot**: o processo trava. Rode com limite de tempo

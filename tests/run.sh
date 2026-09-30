@@ -21,7 +21,16 @@ run() {   # run <script> [argumentos do jogo]
 	fi
 }
 
+# Reimporta: registra `class_name` novos (sem isso, scripts que usam a classe nova não compilam).
+"$GODOT" --headless --path . --import >"$log" 2>&1
+if grep -q "SCRIPT ERROR" "$log"; then
+	grep -E "SCRIPT ERROR|at: " "$log" | head -8
+	echo "O projeto não compila."
+	exit 1
+fi
+
 run tests/test_flow.gd
+run tests/test_penalties.gd
 for s in 1 2 3; do
 	run tests/test_shift.gd --seed=$s
 done

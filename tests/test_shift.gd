@@ -105,6 +105,7 @@ func _initialize() -> void:
 				if f.kind == PhoneCall.Kind.EMERGENCY and not f.options.is_empty() and String(f.options[0]["label"]).begins_with("Fique") and not f.dispatched:
 					var e: EmergencyCall = f.data
 					m.dispatch.set_location(e.street, e.block, e.address)
+					m.dispatch.set_occurrence(e.occurrence)
 					for u in e.units:
 						(m.dispatch._unit_buttons[u] as Button).button_pressed = true
 					m.dispatch._send()

@@ -1,10 +1,11 @@
 class_name Ending
 extends ColorRect
-## Tela final: escurece a mesa e pergunta se você atenderia novamente.
+## Tela final: escurece a mesa, mostra o relatório do supervisor e pergunta se você atenderia novamente.
 
 @onready var _title: Label = %Title
 @onready var _question: Label = %Question
 @onready var _restart: Button = %Restart
+@onready var _report: ReportView = %ReportView
 
 
 func _ready() -> void:
@@ -16,10 +17,17 @@ func _ready() -> void:
 	_restart.pressed.connect(func(): get_tree().reload_current_scene())
 
 
-func play() -> void:
+func play(report: ShiftReport) -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	create_tween().tween_property(self, "color:a", 1.0, 3.0)
 	await get_tree().create_timer(3.4).timeout
+	_report.show_report(report)
+	_report.modulate.a = 0.0
+	_report.visible = true
+	create_tween().tween_property(_report, "modulate:a", 1.0, 1.2)
+	await _report.closed
+	await create_tween().tween_property(_report, "modulate:a", 0.0, 0.8).finished
+	_report.visible = false
 	create_tween().tween_property(_title, "modulate:a", 1.0, 2.0)
 	await get_tree().create_timer(2.6).timeout
 	create_tween().tween_property(_question, "modulate:a", 1.0, 2.5)

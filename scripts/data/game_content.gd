@@ -51,6 +51,26 @@ extends Resource
 ## Quem liga nos pedidos de informação e nos moldes: "voz:nome", ex.: "f:Moradora".
 @export var callers: PackedStringArray = []
 
+@export_group("Supervisor e consequências")
+## Quem liga de novo porque ninguém atendeu.
+@export var retry_missed: PackedStringArray = []
+## Quem liga de novo porque recebeu a informação errada.
+@export var retry_wrong_info: PackedStringArray = []
+## Emergência que liga de novo: ninguém chegou e a situação piorou (ainda dá para despachar).
+@export var retry_worse: PackedStringArray = []
+## Emergência que liga de novo quando já não adianta.
+@export var retry_too_late: PackedStringArray = []
+## Quem atende no número errado, acordado no meio da noite.
+@export var woken_up: PackedStringArray = []
+## Solicitante que desiste depois da segunda conexão errada.
+@export var gave_up: PackedStringArray = []
+## Manchetes do jornal da manhã: {occurrence} e {address}.
+@export var news_ok: PackedStringArray = []
+@export var news_late: PackedStringArray = []
+@export var news_bad: PackedStringArray = []
+## O que o supervisor escreve no fim do relatório: turno bom, atenção, turno ruim.
+@export var verdicts: PackedStringArray = []
+
 @export_group("Pedidos de informação")
 ## %s vira "do Hotel Estrela" (DirectoryEntry.spoken com "d" na frente).
 @export var ask_number: PackedStringArray = []

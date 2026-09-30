@@ -13,8 +13,16 @@ enum End {
 	OPERATOR,   ## o operador desligou (botão Desligar)
 	CALLER,     ## quem ligou desligou
 	MISSED,     ## ninguém atendeu e a pessoa desistiu
+	GAVE_UP,    ## ficou em espera tempo demais e desligou
 	CONNECTED,  ## transferência completa; segue conectada sem o operador
 	MYSTERY,    ## a ligação desconhecida caiu
+}
+## Por que a pessoa está ligando de novo (só se liga de novo uma vez).
+enum Retry {
+	NONE,
+	MISSED,      ## ninguém atendeu (ou desistiu na espera)
+	WRONG_INFO,  ## o operador deu a informação errada
+	WORSE,       ## emergência sem socorro: a situação piorou
 }
 
 var kind := Kind.TRANSFER
@@ -25,6 +33,8 @@ var main := -1              ## 0–3 = ligação principal (0 é a do tutorial);
 var filler := false
 var at := 0.0               ## minuto previsto (depois das 22:00)
 var latest := INF           ## ligação desconhecida: a partir daqui toca mesmo com a mesa ocupada
+var retry := Retry.NONE
+var too_late := false       ## emergência que liga de novo: já não adianta despachar
 
 var line := 0
 var time := ""
@@ -35,6 +45,7 @@ var on_line := false        ## o FONE está na entrada desta ligação (só ela 
 var talking := false
 var phase := Phase.NONE
 var last_talk := 0
+var hold_since := 0.0       ## minuto em que ficou em espera
 var transcript: Array[Dictionary] = []   ## {"who", "text", "cls"}; cls: "" / "op" / "sys" / "ghost"
 var options: Array[Dictionary] = []      ## {"label": String, "fn": Callable}
 var record: Dictionary = {}              ## linha do caderno gerada quando a ligação termina
@@ -48,6 +59,7 @@ var no_answer := false
 var alt_done := false
 var connected := false
 var dest_num := 0
+var wrong := 0              ## quantas vezes foi conectada ao número errado
 # emergência
 var asked: Array[int] = []
 var dispatched := false

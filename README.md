@@ -22,6 +22,32 @@ Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
 - `tests/` — testes automatizados (`tests/run.sh`).
 - `fonts/` — Pixelify Sans e VT323 (SIL Open Font License).
 
+## Consequências e relatório do supervisor
+
+Às 06:00, antes da tela final, o supervisor confere o turno (`ShiftReport` em `scripts/model/shift_report.gd`,
+tela em `scenes/ui/report_view.tscn`): lista as advertências (leve, média, grave), traz o **jornal da manhã** com o
+desfecho de cada emergência e dá um parecer (`verdicts` no content). A ligação do tutorial, os trotes e a
+ligação desconhecida não contam.
+
+| Falha | Gravidade | O que acontece no turno |
+|---|---|---|
+| Não atender (transferência, emergência, informação) | média | a pessoa liga de novo 15–30 min depois, reclamando e com menos paciência |
+| Deixar em espera mais de `HOLD_GIVE_UP` (120 min de jogo) | média | a pessoa desliga e liga de novo depois |
+| Conectar o número errado | média | quem atende reclama de ter sido acordado; na segunda vez o solicitante desiste |
+| Cortar uma conversa em andamento | média | — |
+| Dar a informação errada | leve | a pessoa liga de novo reclamando |
+| Registrar com o tipo errado / deixar sem registro às 06:00 | leve | — |
+| Despachar no endereço errado | grave | o rádio avisa que não há nada no local e as unidades voltam; a pessoa agradece, mas liga de novo dizendo que piorou |
+| Encerrar uma emergência sem despachar | grave | a pessoa liga de novo dizendo que piorou |
+| Faltar unidade no despacho | média | o rádio pede a unidade que falta |
+| Enviar unidades sem emergência | média | — |
+| Enviar unidade a mais (no local certo) | leve | o rádio diz que ela não era necessária, e ela volta logo |
+| Marcar o tipo de ocorrência errado no despacho | leve | — (o tipo é obrigatório para enviar) |
+
+Quando a emergência liga de novo, em `REDISPATCH_CHANCE` (60%) dos casos ainda dá para despachar (no jornal: "com
+atraso"); nos outros, já é tarde (no jornal: "ninguém foi atender"). Cada pessoa liga de novo só uma vez.
+`ShiftReport.SEVERE_LIMIT` (3 graves) está pronto para somar entre noites, quando houver mais de uma.
+
 ## Moldes (conversas geradas)
 
 Metade das ligações extras e da emergência do turno (`TEMPLATE_CHANCE` em `main.gd`) vem de um molde; a outra metade,
@@ -40,7 +66,8 @@ desconhecida são sempre escritos à mão.
 
 ## Testes
 
-`tests/run.sh` roda, em modo headless, os cenários dirigidos (`test_flow.gd`) e três turnos completos jogados
+`tests/run.sh` reimporta o projeto e roda, em modo headless, os cenários dirigidos (`test_flow.gd`), as consequências
+(`test_penalties.gd`) e três turnos completos jogados
 por um robô (`test_shift.gd`, com `--seed=1..3`). Para jogar uma agenda específica: `godot --path . -- --seed=123`.
 
 ## Tradução

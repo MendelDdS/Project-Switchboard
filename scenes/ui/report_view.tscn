@@ -1,0 +1,67 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/report_view.gd" id="1_report"]
+[ext_resource type="FontFile" path="res://fonts/VT323-Regular.ttf" id="2_vt323"]
+
+[node name="ReportView" type="CenterContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_report")
+
+[node name="Paper" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(660, 0)
+layout_mode = 2
+theme_type_variation = &"PaperPanel"
+
+[node name="Margin" type="MarginContainer" parent="Paper"]
+layout_mode = 2
+theme_override_constants/margin_left = 22
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 22
+theme_override_constants/margin_bottom = 18
+
+[node name="VBox" type="VBoxContainer" parent="Paper/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Paper/Margin/VBox"]
+layout_mode = 2
+text = "Relatório do supervisor"
+theme_type_variation = &"InkLabel"
+theme_override_font_sizes/font_size = 22
+
+[node name="Night" type="Label" parent="Paper/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"InkSoftLabel"
+theme_override_font_sizes/font_size = 13
+
+[node name="Body" type="RichTextLabel" parent="Paper/Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 360)
+layout_mode = 2
+bbcode_enabled = true
+theme_override_colors/default_color = Color(0.1647, 0.1373, 0.09804, 1)
+theme_override_fonts/normal_font = ExtResource("2_vt323")
+theme_override_fonts/bold_font = ExtResource("2_vt323")
+theme_override_font_sizes/normal_font_size = 18
+theme_override_font_sizes/bold_font_size = 18
+
+[node name="Verdict" type="Label" parent="Paper/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"InkLabel"
+theme_override_font_sizes/font_size = 16
+autowrap_mode = 3
+
+[node name="Sign" type="Button" parent="Paper/Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 34)
+layout_mode = 2
+size_flags_horizontal = 8
+focus_mode = 0
+theme_type_variation = &"InkButton"
+text = "Assinar e sair"

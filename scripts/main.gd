@@ -14,9 +14,18 @@ const MYST_TO := 450.0                  # ...e 05:30 (minutos após 22:00)
 const TALK_LEN := Vector2(45.0, 90.0)   # duração (min de jogo) de uma conversa transferida
 const TEMPLATE_CHANCE := 0.5            # chance de uma extra (ou a emergência) vir de um molde e não de um roteiro escrito
 const GIVE_UP_SEC := 60.0               # ligações extras desistem se ninguém atende (as principais aguentam 1,5x)
+const HOLD_GIVE_UP := 120.0             # minutos de jogo que alguém aguenta em espera antes de desligar
+const RETRY_AFTER := Vector2(15.0, 30.0)  # quem teve problema liga de novo depois de tantos minutos de jogo
+const REDISPATCH_CHANCE := 0.6          # emergência sem socorro que liga de novo: chance de ainda dar para despachar
+## Tipo que o supervisor espera ver no caderno para cada ligação.
+const TYPE_OF := {
+	PhoneCall.Kind.TRANSFER: "Ligação comum", PhoneCall.Kind.INFO: "Ligação comum",
+	PhoneCall.Kind.EMERGENCY: "Emergência", PhoneCall.Kind.PRANK: "Trote",
+}
 var C: GameContent = GameData.CONTENT
 
 var exchange: Exchange
+var report := ShiftReport.new()    ## advertências do turno, conferidas pelo supervisor às 06:00
 var minutes := 0.0
 var running := false
 var sched: Array[PhoneCall] = []   ## ligações ainda por tocar, em ordem de horário
@@ -73,6 +82,8 @@ func _ready() -> void:
 	dispatch.city = tools.map_view.city
 	dispatch.radio = radio
 	dispatch.sent.connect(_on_dispatched)
+	dispatch.arrived.connect(_on_arrived)
+	notebook.registered.connect(_on_registered)
 	notebook.pending_changed.connect(func(has: bool): tools.set_dot("caderno", has))
 	_refresh_panel()
 
@@ -124,6 +135,7 @@ func _process(delta: float) -> void:
 			_start_ending()
 		clock.text = fmt(minutes)
 		_nag()
+		_check_hold()
 	background.flick = flick
 	_glow.modulate.a = background.lamp_level
 
@@ -190,6 +202,7 @@ func _vacated(j: int, e: int) -> void:
 		if c != null and c.active:
 			if not _try_complete(c):
 				exchange.set_line(j, Exchange.Line.HOLD)
+				c.hold_since = minutes
 				c.sys(tr("(Em espera.)"))
 		elif c == null:
 			_maybe_free(j)
@@ -205,6 +218,7 @@ func _vacated(j: int, e: int) -> void:
 		else:
 			if exchange.line(n) == Exchange.Line.CONN:
 				exchange.set_line(n, Exchange.Line.DONE)   # a conversa foi cortada
+				_fault("cut_call", tr("linha %02d") % n)
 				if other > 20 and exchange.dest(other) == Exchange.Dest.CONN:
 					exchange.set_dest(other, Exchange.Dest.DONE)
 			_maybe_free(n)
@@ -225,6 +239,7 @@ func _vacated(j: int, e: int) -> void:
 			conversation.transfer_choices(c)
 		elif exchange.line(n) == Exchange.Line.CONN:
 			exchange.set_line(n, Exchange.Line.DONE)
+			_fault("cut_call", tr("linha %02d") % n)
 
 
 ## Cabo tirado da SAÍDA no meio de uma transferência: o destino para de tocar ou cai.
@@ -298,18 +313,29 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 	exchange.set_dest(d, Exchange.Dest.CONN)
 	Sfx.play("sw")
 	phone.flash(tr("%d CONECTADO") % d, 3000)
-	var who := GameData.entry(str(d)).name
+	var who := GameData.display_name(GameData.entry(str(d)))
 	tutorial_step()
 	_update_call_ui()
+	if not right and c != tut:
+		_fault("wrong_number", _who(c))
+		c.wrong += 1
 	if _try_complete(c):
 		return
 	if right:
 		c.sys(tr("(%s atendeu.)") % who)
 		await conversation.say(c, (c.data as TransferCall).thanks, 0.4)
-	else:
-		c.sys(tr("(Atendeu: %s. Não é quem o solicitante pediu.)") % who)
-		if await conversation.say(c, GameData.pick(C.wrong_destination)) and c.main in [0, 1]:
-			hint(tr("Tire a ponta do cabo desse destino. Confira o nome e o endereço na lista: há nomes parecidos."))
+		return
+	# número errado: quem atendeu reclama de ter sido acordado, e o solicitante também
+	c.sys(tr("(Atendeu: %s. Não é quem o solicitante pediu.)") % who)
+	if not await conversation.say(c, GameData.pick(C.woken_up), 0.4, who, ["m", "f", "w"].pick_random()):
+		return
+	if c.wrong >= 2:
+		if await conversation.say(c, GameData.pick(C.gave_up), 0.5):
+			c.sys(tr("(O solicitante desligou.)"))
+			end_call(c, PhoneCall.End.CALLER)
+		return
+	if await conversation.say(c, GameData.pick(C.wrong_destination)) and c.main in [0, 1]:
+		hint(tr("Tire a ponta do cabo desse destino. Confira o nome e o endereço na lista: há nomes parecidos."))
 
 
 ## Destino atendeu e o FONE saiu da entrada: os dois lados seguem conectados pelo cabo de conexão.
@@ -499,6 +525,10 @@ func _run_schedule() -> void:
 	var c := sched[0]
 	if minutes < c.at:
 		return
+	# a emergência já foi resolvida (despacho refeito a tempo): ninguém precisa ligar de novo
+	if c.kind == PhoneCall.Kind.EMERGENCY and c.retry != PhoneCall.Retry.NONE and report.is_resolved(c.data):
+		sched.pop_front()
+		return
 	# A ligação desconhecida só toca com a mesa em silêncio; as outras esperam uma entrada livre.
 	var hush := c.kind == PhoneCall.Kind.MYSTERY and not live.is_empty() and minutes < c.latest
 	if hush or _free_line() == -1:
@@ -558,7 +588,7 @@ func ring(c: PhoneCall) -> void:
 		if c.ringing and not ending:
 			warn("O telefone está tocando.")
 	elif c != tut:
-		await get_tree().create_timer(GIVE_UP_SEC * (1.0 if c.filler else 1.5)).timeout
+		await get_tree().create_timer(GIVE_UP_SEC * (0.75 if c.retry != PhoneCall.Retry.NONE else 1.0 if c.filler else 1.5)).timeout
 		if c.ringing:
 			end_call(c, PhoneCall.End.MISSED)
 
@@ -654,9 +684,12 @@ func end_call(c: PhoneCall, reason: PhoneCall.End) -> void:
 		c.sys(tr("(Você encerrou a ligação.)"))
 	elif reason == PhoneCall.End.MISSED:
 		c.sys(tr("(Ninguém atendeu. A pessoa desistiu.)"))
+	elif reason == PhoneCall.End.GAVE_UP:
+		c.sys(tr("(Cansou de esperar e desligou.)"))
 	_refresh_panel()
 	c.record = _record(c, reason)
 	notebook.add(c.record)
+	_consequences(c, reason)
 	await get_tree().create_timer(1.5).timeout
 	if ending:
 		return
@@ -695,6 +728,8 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> Dictionary:
 			obs = tr("Encerrada pelo operador.")
 		PhoneCall.End.MISSED:
 			obs = tr("Não atendida.")
+		PhoneCall.End.GAVE_UP:
+			obs = tr("Desistiu na espera.")
 		_:
 			if c.kind == PhoneCall.Kind.TRANSFER and not c.connected:
 				obs = tr("Não conectada.")
@@ -702,7 +737,8 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> Dictionary:
 				obs = tr("A ligação caiu.")
 	var unknown := c.kind == PhoneCall.Kind.MYSTERY or reason == PhoneCall.End.MISSED
 	var who := tr("Desconhecido") if unknown else c.caller
-	return {"time": c.time, "who": "%s (%s)" % [who, tr("linha %02d") % c.line], "where": where, "unit": unit, "obs": obs, "kind": c.kind}
+	return {"time": c.time, "who": "%s (%s)" % [who, tr("linha %02d") % c.line], "where": where, "unit": unit, "obs": obs,
+		"kind": c.kind, "missed": reason == PhoneCall.End.MISSED, "tut": c == tut}
 
 
 func _on_dispatched(loc: String, units_text: String) -> void:
@@ -714,6 +750,94 @@ func _on_dispatched(loc: String, units_text: String) -> void:
 		em_call.record["unit"] = units_text
 		notebook.refresh_record(em_call.record)
 	conversation.emergency_dispatched(em_call)
+
+
+# ================================================================ advertências (relatório do supervisor)
+
+func _who(c: PhoneCall) -> String:
+	return "%s (%s)" % [c.caller, tr("linha %02d") % c.line]
+
+
+func _fault(id: String, detail := "") -> void:
+	report.add(id, fmt(minutes), detail)
+
+
+## O que o supervisor vai anotar e quem vai ligar de novo por causa de como a ligação terminou.
+## A ligação do tutorial, os trotes e a ligação desconhecida não contam.
+func _consequences(c: PhoneCall, reason: PhoneCall.End) -> void:
+	if c == tut or c.kind in [PhoneCall.Kind.PRANK, PhoneCall.Kind.MYSTERY]:
+		return
+	var e: EmergencyCall = c.data if c.kind == PhoneCall.Kind.EMERGENCY else null
+	if reason in [PhoneCall.End.MISSED, PhoneCall.End.GAVE_UP]:
+		_fault("missed" if reason == PhoneCall.End.MISSED else "hold", String(c.record["who"]))
+		if e != null:
+			report.trouble(e)
+		_call_again(c, PhoneCall.Retry.MISSED)
+	elif e != null and not c.dispatched and not c.too_late:
+		_fault("emergency_dropped", _who(c))
+		report.trouble(e)
+		_call_again(c, PhoneCall.Retry.WORSE)
+	elif c.kind == PhoneCall.Kind.INFO and c.info_ok == 0:
+		_fault("wrong_info", _who(c))
+		_call_again(c, PhoneCall.Retry.WRONG_INFO)
+
+
+## A mesma pessoa liga de novo mais tarde (uma vez só), irritada e com menos paciência.
+func _call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
+	if c.retry != PhoneCall.Retry.NONE or c == tut:
+		return
+	var n: PhoneCall
+	match c.kind:
+		PhoneCall.Kind.TRANSFER:
+			n = PhoneCall.from_transfer(c.data)
+		PhoneCall.Kind.EMERGENCY:
+			n = PhoneCall.from_emergency(c.data)
+			n.too_late = why == PhoneCall.Retry.WORSE and randf() >= REDISPATCH_CHANCE
+		PhoneCall.Kind.INFO:
+			n = PhoneCall.info(c.voice, c.caller, c.ask, c.about, c.answer)
+		_:
+			return
+	n.retry = why
+	n.at = minutes + randf_range(RETRY_AFTER.x, RETRY_AFTER.y)
+	sched.append(n)
+	sched.sort_custom(func(a: PhoneCall, b: PhoneCall): return a.at < b.at)
+
+
+## Quem fica em espera tempo demais desiste.
+func _check_hold() -> void:
+	for c in live.duplicate():
+		if c.active and c != tut and c.kind != PhoneCall.Kind.MYSTERY and exchange.line(c.line) == Exchange.Line.HOLD \
+				and minutes - c.hold_since > HOLD_GIVE_UP:
+			end_call(c, PhoneCall.End.GAVE_UP)
+
+
+## As unidades chegaram ao local marcado no despacho.
+func _on_arrived(e: EmergencyCall, result: String, occurrence: String, extra: Array) -> void:
+	if e != null and occurrence != e.occurrence:
+		_fault("dispatch_type", tr("classificada como %s; era %s") % [tr(occurrence), tr(e.occurrence)])
+	if not extra.is_empty():
+		_fault("dispatch_extra", ", ".join(extra.map(func(u): return tr(Dispatch.UNIT_NAMES[u]))))
+	match result:
+		"ok":
+			report.resolved(e)
+		"missing":
+			if not report.faults.any(func(f): return f["id"] == "dispatch_missing" and f["detail"] == e.address):
+				_fault("dispatch_missing", e.address)
+		"idle":
+			_fault("dispatch_idle")
+		"wrong_place":
+			_fault("dispatch_wrong_place", e.address)
+			report.trouble(e)
+			if em_call != null and em_call.data == e:
+				_call_again(em_call, PhoneCall.Retry.WORSE)
+
+
+## O supervisor confere o tipo registrado (não dá para saber o tipo de quem não foi atendido).
+func _on_registered(rec: Dictionary, type: String) -> void:
+	if rec["tut"] or rec["missed"] or not TYPE_OF.has(rec["kind"]):
+		return
+	if type != TYPE_OF[rec["kind"]]:
+		report.add("register_wrong", rec["time"], rec["who"])
 
 
 func _on_tab_changed(id: String) -> void:
@@ -743,5 +867,11 @@ func _start_ending() -> void:
 	Sfx.fade(Sfx.rain, -80.0, 5.0)
 	Sfx.fade(Sfx.hum, -80.0, 5.0)
 	Sfx.fade(Sfx.hiss, -80.0, 1.0)
+	var left: Array = notebook.queue.duplicate()
+	if notebook.has_pending():
+		left.append(notebook.pending)
+	for rec in left:
+		if not rec["tut"]:
+			report.add("register_missing", rec["time"], rec["who"])
 	await get_tree().create_timer(5.0).timeout
-	_ending.play()
+	_ending.play(report)

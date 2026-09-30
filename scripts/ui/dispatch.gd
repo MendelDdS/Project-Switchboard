@@ -5,6 +5,10 @@ extends VBoxContainer
 
 signal sent(location: String, units_text: String)
 signal open_map_pressed
+## As unidades chegaram. `result`: "ok" (resolvido), "missing" (faltou unidade), "wrong_place" ou "idle"
+## (não havia emergência em andamento). `e` é nulo em "idle". `occurrence` é o tipo marcado no despacho;
+## `extra`, as unidades que foram ao local certo sem ser necessárias.
+signal arrived(e: EmergencyCall, result: String, occurrence: String, extra: Array)
 
 enum Unit { AVAILABLE, EN_ROUTE, ON_SITE, RETURNING }
 const UNIT_IDS := ["pol", "bomb", "amb"]
@@ -16,7 +20,8 @@ var radio: Radio
 
 var _location := {}          ## {"street", "block", "label"} marcado no mapa
 var _units := {"pol": Unit.AVAILABLE, "bomb": Unit.AVAILABLE, "amb": Unit.AVAILABLE}
-var _incident := {}          ## emergência em andamento: street, block, req, sent, resolved, addr
+var _occ_group := ButtonGroup.new()
+var _incident := {}          ## emergência em andamento: call, street, block, req, sent, resolved, addr
 
 @onready var _loc_label: Label = %Location
 @onready var _occurrences: HFlowContainer = %Occurrences
@@ -29,13 +34,12 @@ var _incident := {}          ## emergência em andamento: street, block, req, se
 func _ready() -> void:
 	%OpenMap.pressed.connect(open_map_pressed.emit)
 	%Send.pressed.connect(_send)
-	var group := ButtonGroup.new()
-	group.allow_unpress = true
+	_occ_group.allow_unpress = true
 	for o in GameData.CONTENT.occurrences:
 		var b := Button.new()
 		b.text = o
 		b.toggle_mode = true
-		b.button_group = group
+		b.button_group = _occ_group
 		b.theme_type_variation = &"PaperToggle"
 		b.focus_mode = Control.FOCUS_NONE
 		b.add_theme_font_size_override("font_size", 19)
@@ -53,9 +57,15 @@ func set_location(street: String, block: int, label: String) -> void:
 	_refresh()
 
 
+## Marca o tipo de ocorrência (como clicar no botão).
+func set_occurrence(o: String) -> void:
+	for b: Button in _occurrences.get_children():
+		b.button_pressed = b.text == o
+
+
 ## Uma emergência começou a tocar: guarda onde é e o que precisa, para avaliar o que for enviado.
 func set_incident(e: EmergencyCall) -> void:
-	_incident = {"street": e.street, "block": e.block, "req": Array(e.units), "sent": [], "resolved": false, "addr": e.address}
+	_incident = {"call": e, "street": e.street, "block": e.block, "req": Array(e.units), "sent": [], "resolved": false, "addr": e.address}
 
 
 func _refresh() -> void:
@@ -90,11 +100,16 @@ func _send() -> void:
 	if _location.is_empty():
 		_message.text = tr("Marque o local no mapa antes de enviar.")
 		return
+	var occ := _occ_group.get_pressed_button()
+	if occ == null:
+		_message.text = tr("Escolha o tipo da ocorrência.")
+		return
 	if us.is_empty():
 		_message.text = tr("Selecione ao menos uma unidade.")
 		return
 	_message.text = ""
 	var target := _location.duplicate()
+	target["occurrence"] = occ.text
 	Sfx.play("sw")
 	Sfx.static_burst()
 	var names := PackedStringArray()
@@ -115,30 +130,51 @@ func _arrive(us: Array, target: Dictionary) -> void:
 		_units[u] = Unit.ON_SITE
 	_refresh()
 	var msg := ""
+	var result := "ok"
+	var extra := []
 	if _incident.is_empty() or _incident["resolved"]:
 		msg = tr("Central, estamos no local. Nada a relatar. Retornando.")
+		result = "idle"
 	elif _incident["street"] != target["street"] or _incident["block"] != target["block"]:
-		msg = tr("Central, estamos na %s e não há nada aqui. Confirme o endereço.") % String(target["label"]).split(",")[0]
+		# endereço errado: não há nada a fazer lá, e as unidades voltam a ficar disponíveis
+		msg = tr("Central, estamos na %s e não há nada aqui. Retornando.") % String(target["label"]).split(",")[0]
+		result = "wrong_place"
 	else:
 		for u in us:
 			if not u in _incident["sent"]:
 				_incident["sent"].append(u)
+			if not u in _incident["req"]:
+				extra.append(u)
 		var miss := []
 		for r in _incident["req"]:
 			if not r in _incident["sent"]:
 				miss.append(tr(UNIT_NAMES[r]).to_lower())
 		if not miss.is_empty():
 			msg = tr("Central, precisamos de %s aqui na %s.") % [(" %s " % tr("e")).join(PackedStringArray(miss)), _incident["addr"]]
+			result = "missing"
 		else:
 			msg = tr("Central, equipe no local. Vítimas atendidas, situação sob controle.")
 			_incident["resolved"] = true
 	radio.say(msg)
-	await get_tree().create_timer(12.0).timeout
+	if not extra.is_empty():
+		var names := PackedStringArray(extra.map(func(u): return tr(UNIT_NAMES[u]).to_lower()))
+		radio.say(tr("Central, aqui não precisa de %s. Liberando.") % (" %s " % tr("e")).join(names))
+	arrived.emit(null if result == "idle" else _incident["call"], result, target["occurrence"], extra)
+	# no endereço errado, e quem não era necessário, voltam logo a ficar disponíveis
+	var quick: Array = us if result == "wrong_place" else extra
+	_return(quick, 3.0, 1.0)
+	_return(us.filter(func(u): return not u in quick), 12.0, 7.0)
+
+
+func _return(us: Array, stay: float, back: float) -> void:
+	if us.is_empty():
+		return
+	await get_tree().create_timer(stay).timeout
 	for u in us:
 		if _units[u] == Unit.ON_SITE:
 			_units[u] = Unit.RETURNING
 	_refresh()
-	await get_tree().create_timer(7.0).timeout
+	await get_tree().create_timer(back).timeout
 	for u in us:
 		if _units[u] == Unit.RETURNING:
 			_units[u] = Unit.AVAILABLE

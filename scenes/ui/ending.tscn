@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/ui/ending.gd" id="1_ending"]
 [ext_resource type="FontFile" path="res://fonts/VT323-Regular.ttf" id="2_vt323_regula"]
+[ext_resource type="PackedScene" path="res://scenes/ui/report_view.tscn" id="3_report"]
 
 [node name="Ending" type="ColorRect"]
 anchors_preset = 15
@@ -56,3 +57,8 @@ size_flags_horizontal = 4
 focus_mode = 0
 theme_type_variation = &"DarkButton"
 text = "Recomeçar turno"
+
+[node name="ReportView" parent="." instance=ExtResource("3_report")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1

@@ -3,7 +3,8 @@ extends Control
 ## Aba do caderno de ocorrências. Cada ligação encerrada entra numa fila; o jogador registra quando puder.
 
 signal pending_changed(has_pending: bool)
-signal registered
+## Uma ocorrência foi registrada: `rec` é o que a ligação gerou; `type` é o tipo que o jogador escolheu.
+signal registered(rec: Dictionary, type: String)
 
 const TYPES := ["Escolha…", "Ligação comum", "Emergência", "Trote", "Outro"]
 
@@ -63,9 +64,12 @@ func register() -> void:
 	if _type.selected <= 0:
 		_message.text = tr("Escolha o tipo da ocorrência.")
 		return
+	var rec := pending
+	var chosen: String = TYPES[_type.selected]   # _fill() abaixo zera a escolha
+	var type := _type.get_item_text(_type.selected)
 	entries.append({
 		"time": pending["time"], "who": _who.text, "where": _where.text,
-		"type": _type.get_item_text(_type.selected),
+		"type": type,
 		"unit": _unit.text if _unit.text != "" else "—", "obs": _obs.text if _obs.text != "" else "—",
 	})
 	pending = queue.pop_front() if not queue.is_empty() else {}
@@ -73,7 +77,7 @@ func register() -> void:
 	_render_ledger()
 	_fill()
 	pending_changed.emit(has_pending())
-	registered.emit()
+	registered.emit(rec, chosen)
 
 
 func _fill() -> void:

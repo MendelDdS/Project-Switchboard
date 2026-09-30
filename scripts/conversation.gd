@@ -36,16 +36,16 @@ func _until_on_line(c: PhoneCall) -> bool:
 	return true
 
 
-## Quem ligou diz `text`. Falso se a ligação terminar no meio.
-func say(c: PhoneCall, text: String, pause: float = 0.55) -> bool:
+## Quem ligou diz `text` (ou outra pessoa na linha: `who` com a voz `voice`). Falso se a ligação terminar no meio.
+func say(c: PhoneCall, text: String, pause: float = 0.55, who := "", voice := "") -> bool:
 	if not await _until_on_line(c):
 		return false
 	text = tr(text)
 	var ghost := c.kind == PhoneCall.Kind.MYSTERY
-	var li := c.add_line(c.caller, "", "ghost" if ghost else "")
+	var li := c.add_line(who if who != "" else c.caller, "", "ghost" if ghost else "")
 	c.set_talking(true)
 	var paren := text.begins_with("(")
-	var voice := "k" if paren else c.voice
+	voice = "k" if paren else (voice if voice != "" else c.voice)
 	var prev_vowel := false
 	for i in text.length():
 		# em espera, a pessoa para de falar até o operador voltar
@@ -101,10 +101,20 @@ func choose(c: PhoneCall, opts: Array) -> int:
 
 
 ## Toda ligação começa igual: o operador não sabe o que vem do outro lado.
+## Quem está ligando de novo reclama logo de cara.
 func greet(c: PhoneCall) -> bool:
 	if not await wait(c, 0.3):
 		return false
-	return await op(c, GameData.pick(C.greetings))
+	if not await op(c, GameData.pick(C.greetings)):
+		return false
+	match c.retry:
+		PhoneCall.Retry.MISSED:
+			return await say(c, GameData.pick(C.retry_missed))
+		PhoneCall.Retry.WRONG_INFO:
+			return await say(c, GameData.pick(C.retry_wrong_info))
+		PhoneCall.Retry.WORSE:
+			return await say(c, GameData.pick(C.retry_too_late if c.too_late else C.retry_worse))
+	return true
 
 
 # ---------------------------------------------------------------- transferência
@@ -214,13 +224,19 @@ func _emergency(c: PhoneCall) -> void:
 	var e: EmergencyCall = c.data
 	if not await greet(c):
 		return
+	if c.too_late:
+		main.report.failed(e)
+		c.sys(tr("(O solicitante desligou.)"))
+		main.end_call(c, PhoneCall.End.CALLER)
+		return
 	if not await wait(c, 0.3):
 		return
-	if not await say(c, e.opening, 0.3):
+	# quem liga de novo porque piorou já disse o que houve; dá para perguntar e despachar de novo
+	if c.retry != PhoneCall.Retry.WORSE and not await say(c, e.opening, 0.3):
 		return
 	c.phase = PhoneCall.Phase.EMERGENCY
 	c.state_changed.emit()
-	main.hint(tr("Pergunte o que precisa. Marque o local no mapa e envie as unidades pelo despacho."))
+	main.hint(tr("Pergunte o que precisa. Marque o local no mapa, escolha o tipo da ocorrência e envie as unidades pelo despacho."))
 	emergency_choices(c)
 
 

@@ -35,6 +35,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - **Testes: `tests/run.sh`** (roda tudo em headless, com limite de tempo, e falha em `SCRIPT ERROR`).
   - `tests/test_base.gd`: base (`ok()` em vez de `assert`, que trava o headless; `wait_until`, `load_main`, `finish`).
   - `tests/test_flow.gd`: cenários dirigidos (transferência, espera, desistência, caderno, lugar fechado, ligar de volta ao desconhecido, cliques).
+  - `tests/test_penalties.gd`: consequências (perdida e retorno, número errado, registro, despacho errado,
+    emergência sem despacho, espera longa, informação errada) e o relatório. Relógio parado; retornos tocados à mão.
+  - `run.sh` começa com `--import`: **`class_name` novo só existe depois de reimportar** (sem isso, parse error).
   - `tests/test_shift.gd`: robô que joga o turno inteiro e imprime métricas (máx. simultâneas, % com 2+/3+,
     % sem cabo livre, perdidas); `run.sh` roda com `--seed=1..3`.
   - Nos testes, `Main`/`Switchboard` ficam **sem tipo** (dependem do autoload `Sfx`, que não existe na hora em que
@@ -80,7 +83,21 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   → DONE (vermelho) até o jogador tirar as pontas. `_dgen` invalida toques de destino quando o cabo sai.
 - Fim de ligação: `end_call(c, PhoneCall.End.*)` gera `c.record` e manda para `Notebook.add()` (fila; não trava o turno).
 - Despacho: `Dispatch.set_incident()` quando a emergência toca; `Dispatch.sent` → `Main._on_dispatched` →
-  `Conversation.emergency_dispatched`.
+  `Conversation.emergency_dispatched`. O tipo de ocorrência é obrigatório para enviar. Na chegada,
+  `Dispatch.arrived(e, result, occurrence, extra)` ("ok", "missing", "wrong_place", "idle"; tipo marcado; unidades
+  que não eram necessárias) → `Main._on_arrived`.
+
+## Consequências (relatório do supervisor)
+- `ShiftReport` (`scripts/model/shift_report.gd`): `FAULTS` (id → gravidade, descrição), `add()`, desfecho das
+  emergências (`trouble`/`resolved`/`failed` → OK, LATE, BAD) e `verdict()`. Pensado para várias noites (`night`,
+  `SEVERE_LIMIT`); ainda não é salvo.
+- Main registra com `_fault()` onde a falha acontece; `_consequences()` (chamado em `end_call`) decide advertência e
+  retorno; `_call_again()` agenda a mesma pessoa de novo (`PhoneCall.retry`, uma vez só; `too_late` sorteado com
+  `REDISPATCH_CHANCE`). `_check_hold()` encerra quem passou de `HOLD_GIVE_UP` em espera (`End.GAVE_UP`).
+- Tutorial (`tut`), trotes e ligação desconhecida não geram advertência. Falas de retorno, manchetes e pareceres
+  ficam no content (grupo "Supervisor e consequências").
+- Às 06:00, `_start_ending` soma o que ficou sem registro e passa o relatório para `Ending.play(report)`, que mostra
+  `ReportView` antes do título final.
 
 ## Agenda e ritmo (constantes no topo de main.gd)
 - Principais em `GameContent.main_call_at` (4); ligação desconhecida (`MYSTERY`, entrada livre sorteada, guardada em `myst_line`) entre `MYST_FROM` e `MYST_TO` (02:00–05:30), só
@@ -106,6 +123,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 8. Anotação "NÃO ATENDER NOVAMENTE" removida (o mistério será roteirizado depois); a ligação desconhecida vem
    de qualquer entrada, não só da 07.
 9. Mais roteiros escritos e conversas híbridas: moldes com lacunas (nomes em inglês) para extras e emergência.
+10. Consequências + relatório do supervisor às 06:00, pensado para as próximas noites. Despacho errado: a pessoa
+    agradece na hora, o rádio diz que não havia nada e as unidades voltam; ela liga de novo dizendo que piorou e,
+    em alguns casos, dá para despachar de novo (a advertência fica).
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.
