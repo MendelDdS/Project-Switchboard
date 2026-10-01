@@ -15,6 +15,15 @@ Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
   inicial, clima, agenda, ligações do roteiro (`story`: um roteiro de `data/calls/` num horário fixo) e o que se diz
   na ligação desconhecida (`mystery`, passos como os dos trotes). Para criar uma noite: duplique um `.tres`, edite no
   inspetor e acrescente na lista `nights`. O progresso fica salvo em `user://progress.cfg`.
+- **Escolhas que mudam as noites seguintes (marcadores)**: um marcador é um nome (ex.: `respondeu_a_luz`).
+  - Num passo de operador (`OPERATOR`), `sets` diz o que cada opção faz, na ordem de `options`: `"nome"` liga,
+    `"!nome"` desliga, vazio não faz nada.
+  - Qualquer passo e qualquer ligação do roteiro (`story`) tem `requires`: só acontece se todos os nomes estiverem
+    ligados (com `!` na frente, desligados). A ligação do roteiro confere na hora de tocar, então uma escolha às
+    19:00 já vale para uma ligação das 21:00.
+  - O jogo liga sozinho `ligou_de_volta_N` (tentou ligar de volta para a ligação desconhecida da noite N) e
+    `desligou_desconhecida_N` (desligou na cara dela).
+  - Para testar um ramo: `godot --path . -- --night=2 --flags=respondeu_a_luz`.
 - `data/templates/` — **moldes**: roteiros com lacunas em inglês, preenchidas na hora (veja abaixo).
 - `scripts/main.gd` — conduz o turno (relógio, agenda, mesa, fim de ligação, final).
 - `scripts/conversation.gd` — como cada tipo de ligação se desenrola (falas, escolhas do operador).

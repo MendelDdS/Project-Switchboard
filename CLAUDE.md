@@ -112,8 +112,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 
 ## Consequências (relatório do supervisor)
 - `ShiftReport` (`scripts/model/shift_report.gd`): `FAULTS` (id → gravidade, descrição), `add()`, desfecho das
-  emergências (`trouble`/`resolved`/`failed` → OK, LATE, BAD) e `verdict()`. Pensado para várias noites (`night`,
-  `SEVERE_LIMIT`); ainda não é salvo.
+  emergências (`trouble`/`resolved`/`failed` → OK, LATE, BAD) e `verdict()`. Entre noites só as graves somam
+  (`severe_before`, salvas no `Progress`; `SEVERE_LIMIT` = demissão).
 - Main registra com `_fault()` onde a falha acontece; `_consequences()` (chamado em `end_call`) decide advertência e
   retorno; `_call_again()` agenda a mesma pessoa de novo (`PhoneCall.retry`; uma vez por motivo, `retried`;
   também no tutorial; nunca depois do fim do turno; `too_late` sorteado com
@@ -130,9 +130,16 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   ligação desconhecida naquela noite). **Só `story` e `mystery` são fixos; não existem ligações "principais".**
 - `PrankStep` é o roteiro falado de trotes e da ligação desconhecida (`Conversation.play_steps`); `EFFECT` =
   "static", "static_loud", "flick". `PhoneCall.from_script()` aceita Transfer/Emergency/PrankCall.
+- **Marcadores** (`StoryFlags`, `scripts/model/story_flags.gd`; `Main.flags`): nomes ligados por escolhas ou pelo jogo,
+  salvos entre noites (`Progress.flags`). Genérico: qualquer sistema consulta `flags.allows(requires)` e altera
+  `flags.apply("nome" | "!nome")`; sinal `changed`. Condição `requires: PackedStringArray` (todos ligados; "!" =
+  desligado) em `StoryCall` (conferida **na hora de tocar**, via `PhoneCall.requires`) e `PrankStep` (passo pulado);
+  `PrankStep.sets` = efeito de cada opção do OPERATOR. Automáticos: `ligou_de_volta_N`, `desligou_desconhecida_N`.
+  Para um recurso novo usar marcadores: exporte `requires`/`sets` e chame `allows`/`apply`. Testar um ramo:
+  `-- --night=2 --flags=a,b`.
 - `Progress` (`scripts/model/progress.gd`, `user://progress.cfg`): próxima noite e graves acumuladas
-  (`ShiftReport.severe_before`/`severe_total()`/`fired()`). Main salva em `_start_ending` (última noite ou demissão
-  limpa o save). `-- --night=N` força uma noite **sem ler nem gravar** o save; `test_base.load_main` força a noite 1.
+  (`ShiftReport.severe_before`/`severe_total()`/`fired()`) e marcadores. Main salva em `_start_ending` (última
+  noite ou demissão limpa o save). `-- --night=N` força uma noite **sem ler nem gravar** o save; `test_base.load_main` força a noite 1.
 
 ## Agenda e ritmo (constantes no topo de main.gd; por noite em `Night`)
 - Ligação desconhecida (`MYSTERY`, entrada livre sorteada, guardada em `myst_line`) entre `Night.mystery_from` e `mystery_to` (22:00–23:30), só

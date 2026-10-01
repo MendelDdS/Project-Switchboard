@@ -6,3 +6,6 @@ extends Resource
 ## Minutos depois do início do turno (18:00).
 @export var at := 60.0
 @export var call: Resource
+## Só toca se os marcadores baterem na hora de tocar (StoryFlags): todos ligados; com "!" na frente, desligados.
+## Ex.: ["respondeu_a_luz", "!ligou_de_volta_1"].
+@export var requires: PackedStringArray = []

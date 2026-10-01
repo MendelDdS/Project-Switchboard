@@ -295,9 +295,12 @@ func emergency_dispatched(c: PhoneCall) -> void:
 
 # ---------------------------------------------------------------- roteiros falados (trote e ligação desconhecida)
 
-## Segue os passos até o fim ou até um END. Falso se a ligação terminar no meio.
+## Segue os passos até o fim ou até um END, pulando os que pedem marcadores que não batem.
+## Falso se a ligação terminar no meio.
 func play_steps(c: PhoneCall, steps: Array[PrankStep]) -> bool:
 	for st in steps:
+		if not main.flags.allows(st.requires):
+			continue
 		match st.kind:
 			PrankStep.Kind.CALLER:
 				if not await say(c, st.text, st.seconds if st.seconds > 0.0 else 0.45):
@@ -307,7 +310,11 @@ func play_steps(c: PhoneCall, steps: Array[PrankStep]) -> bool:
 					return false
 			PrankStep.Kind.OPERATOR:
 				var i := await choose(c, Array(st.options))
-				if i < 0 or not await op(c, st.options[i]):
+				if i < 0:
+					return false
+				if i < st.sets.size():
+					main.flags.apply(st.sets[i])
+				if not await op(c, st.options[i]):
 					return false
 			PrankStep.Kind.EFFECT:
 				match st.effect:

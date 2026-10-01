@@ -31,6 +31,7 @@ var data: Resource          ## roteiro (TransferCall, EmergencyCall ou PrankCall
 var voice := "m"
 var caller := ""
 var story := false          ## ligação do roteiro da noite (horário fixo; aguenta mais tempo tocando)
+var requires := PackedStringArray()   ## marcadores que precisam bater na hora de tocar (StoryFlags.allows)
 var at := 0.0               ## minuto previsto (depois do início do turno)
 var latest := INF           ## ligação desconhecida e retornos: a partir daqui toca mesmo com a mesa ocupada
 var retry := Retry.NONE

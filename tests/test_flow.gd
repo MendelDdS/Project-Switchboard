@@ -18,6 +18,14 @@ func _pick(c: PhoneCall, label_start: String) -> void:
 	ok(false, "opção não encontrada: " + label_start)
 
 
+func _step(kind: PrankStep.Kind, text := "", requires := PackedStringArray()) -> PrankStep:
+	var st := PrankStep.new()
+	st.kind = kind
+	st.text = text
+	st.requires = requires
+	return st
+
+
 func _extra(t: TransferCall) -> PhoneCall:
 	return PhoneCall.from_transfer(t)
 
@@ -209,6 +217,7 @@ func _initialize() -> void:
 	m.myst_line = 4
 	_move(0, 4)
 	ok(await wait_until(func(): return m.phone.display_text() == "NÚMERO NÃO EXISTE", 10.0), "número não existe")
+	ok(m.flags.has("ligou_de_volta_1"), "marcador automático: ligou de volta")
 	print("OK 6 ligação de volta ao desconhecido")
 
 	# ---- 7. clicar num plug encaixado devolve à base (com animação); arrastar move
@@ -259,4 +268,42 @@ func _initialize() -> void:
 	ok(not m.background.shadow, "saiu antes de ligar")
 	m.sched.erase(myst)
 	print("OK 8 silhueta")
+
+	# ---- 9. marcadores do roteiro: condição, escolha que muda a conversa e ligação do roteiro conferida na hora
+	var sf := StoryFlags.new(PackedStringArray(["a"]))
+	ok(sf.allows(PackedStringArray(["a", "!b"])) and not sf.allows(PackedStringArray(["b"])), "condição com e sem !")
+	sf.apply("!a")
+	sf.apply("b")
+	ok(not sf.has("a") and sf.has("b") and sf.names() == PackedStringArray(["b"]), "liga e desliga")
+	var ask := _step(PrankStep.Kind.OPERATOR)
+	ask.options = PackedStringArray(["Sim.", "Não."])
+	ask.sets = PackedStringArray(["disse_sim", ""])
+	var pk := PrankCall.new()
+	pk.caller = "Teste"
+	pk.steps.append(ask)
+	pk.steps.append(_step(PrankStep.Kind.CALLER, "Que bom.", PackedStringArray(["disse_sim"])))
+	pk.steps.append(_step(PrankStep.Kind.CALLER, "Que pena.", PackedStringArray(["!disse_sim"])))
+	pk.steps.append(_step(PrankStep.Kind.END))
+	m.flags = StoryFlags.new()
+	var pc := PhoneCall.from_prank(pk)
+	m.ring(pc)
+	_move(0, pc.line)
+	m.answer()
+	ok(await wait_until(func(): return not pc.options.is_empty()), "escolha do operador")
+	_pick(pc, "Sim.")
+	ok(await wait_until(func(): return pc.ended), "conversa terminou")
+	var lines := pc.transcript.map(func(t): return t["text"])
+	ok(m.flags.has("disse_sim") and "Que bom." in lines and not "Que pena." in lines, "a escolha ligou o marcador e mudou a fala")
+	_move(0, -1)
+	var sc := PhoneCall.from_transfer(GameData.transfers(TransferCall.Group.EXTRA)[1])
+	sc.requires = PackedStringArray(["!disse_sim"])
+	sc.at = m.minutes
+	m.sched.push_front(sc)
+	m._run_schedule()
+	ok(not sc in m.live and not sc in m.sched, "condição não bate: a ligação do roteiro não toca")
+	sc.requires = PackedStringArray(["disse_sim"])
+	m.sched.push_front(sc)
+	m._run_schedule()
+	ok(sc in m.live, "condição bate: toca")
+	print("OK 9 marcadores do roteiro")
 	finish("fluxo da central")

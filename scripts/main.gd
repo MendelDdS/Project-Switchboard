@@ -32,6 +32,7 @@ var exchange: Exchange
 var night_no := 0                  ## número da noite (1 = primeira); 0 = a salva (`-- --night=N` força uma, sem salvar)
 var night: Night                   ## agenda e roteiro fixo da noite
 var progress: Progress             ## progresso salvo; nulo quando a noite foi forçada (testes, `--night`)
+var flags := StoryFlags.new()      ## marcadores do roteiro valendo agora: os salvos + os desta noite
 var weather := "rain"
 var report := ShiftReport.new()    ## advertências do turno, conferidas pelo supervisor no fim do turno
 var minutes := 0.0
@@ -107,14 +108,20 @@ func _ready() -> void:
 
 
 ## Qual noite jogar: `-- --night=N`, a definida antes de entrar na árvore (testes) ou a salva.
+## `-- --flags=a,b` liga marcadores para testar um ramo do roteiro numa noite forçada.
 func _load_night() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--night="):
 			night_no = int(a.get_slice("=", 1))
+		elif a.begins_with("--flags="):
+			for f in a.get_slice("=", 1).split(",", false):
+				flags.apply(f)
 	if night_no == 0:
 		progress = Progress.load_saved()
 		night_no = progress.night
 		report.severe_before = progress.severe
+		for f in progress.flags:
+			flags.apply(f)
 	night_no = clampi(night_no, 1, C.nights.size())
 	night = C.nights[night_no - 1]
 	report.night = night_no
@@ -406,6 +413,7 @@ func _call_back_mystery() -> void:
 	if _calling_back:
 		return
 	_calling_back = true
+	flags.apply("ligou_de_volta_%d" % night_no)
 	phone.flash(tr("LINHA %02d…") % myst_line, 60000)
 	Sfx.play("ringback")
 	await get_tree().create_timer(2.2).timeout
@@ -485,13 +493,15 @@ func _update_call_ui() -> void:
 
 # ================================================================ agenda das ligações
 
-## Agenda da noite: as ligações do roteiro (horário fixo), a ligação desconhecida e as sorteadas.
+## Agenda da noite: as ligações do roteiro (horário fixo; a condição é conferida na hora de tocar), a ligação
+## desconhecida e as sorteadas.
 func _build_schedule() -> void:
 	var fixed: Array[PhoneCall] = []
 	for st in night.story:
 		var c := PhoneCall.from_script(st.call)
 		c.at = st.at
 		c.story = true
+		c.requires = st.requires
 		fixed.append(c)
 	if night.mystery.is_empty():
 		after = true   # noite sem ligação desconhecida: o turno fecha à meia-noite
@@ -592,6 +602,10 @@ func _run_schedule() -> void:
 	background.shadow = minutes >= myst_plan - SHADOW_LEAD and minutes < myst_plan - SHADOW_LEAVE
 	var c := sched[0]
 	if minutes < c.at:
+		return
+	# ligação do roteiro cuja condição não bate (os marcadores podem ter mudado durante a noite)
+	if not flags.allows(c.requires):
+		sched.pop_front()
 		return
 	# a emergência já foi resolvida (despacho refeito a tempo): ninguém precisa ligar de novo
 	if c.kind == PhoneCall.Kind.EMERGENCY and c.retry != PhoneCall.Retry.NONE and report.is_resolved(c.data):
@@ -724,6 +738,8 @@ func hangup() -> void:
 		return
 	Sfx.play("sw")
 	c.add_line("Você", tr("(desliga)"), "op")
+	if c.kind == PhoneCall.Kind.MYSTERY:
+		flags.apply("desligou_desconhecida_%d" % night_no)
 	end_call(c, PhoneCall.End.OPERATOR)
 
 
@@ -962,6 +978,7 @@ func _start_ending() -> void:
 		else:
 			progress.night = night_no + 1
 			progress.severe = report.severe_total()
+			progress.flags = flags.names()
 			progress.save()
 	await get_tree().create_timer(5.0).timeout
 	_ending.play(report, not last)
