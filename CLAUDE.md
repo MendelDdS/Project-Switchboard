@@ -25,8 +25,15 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `set_weather`/`hush_nature`/`stop_ambience`, `Background.weather` desenha a janela, `Main.smalltalk()` junta as
   falas gerais com as do clima.
 - Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`).
-- Textos visíveis passam por `tr()` (texto em português é a própria chave). Label/Button com texto fixo em cena
-  traduzem sozinhos. `internationalization/locale/translations_pot_files` já lista os arquivos para gerar o .pot.
+- **Idiomas** pt_BR (padrão), en, es. Interface/código: **enum `T.Key`** (`scripts/t.gd`, GERADO) +
+  `translations/ui.csv` (`chave,pt_BR,en,es`); use `T.text(T.Key.X)` (com valores: `T.text(T.Key.X) % n`), nunca
+  `tr("texto")` com literal. Cenas: o `text` do Label/Button é a chave (auto-tradução do Godot). Falas dos roteiros
+  (`data/`): português no Resource, `tr()` na hora de mostrar, traduções em `translations/content.{en,es}.po`
+  (nomes próprios repetem o original). Depois de mexer em textos: `Godot --headless --path . -s
+  tools/update_translations.gd` (gera o enum e mescla os .po; campos fora da extração em `SKIP`). `Settings`
+  (autoload) fixa o idioma (`set_locale`; `-- --lang=en`). `GameData.tr_text()` traduz em funções estáticas.
+  Lacunas dos moldes também se traduzem: `tr(spoken)`, `tr("d" + spoken)`, `tr("pr" + spoken)` têm entradas próprias
+  no .po. Texto que já chega traduzido num Button/Label dinâmico: `auto_translate_mode = DISABLED`.
 - Entrada: ação `cancel_plug` no Input Map (Esc e botão direito) devolve o plug que está na mão.
 - Git: branch principal `development`; commits no padrão `tipo(#0000): descrição`. `.godot/` fica fora do git.
   Só faça commit quando o usuário pedir (na reestruturação ele autorizou um commit por etapa em `refactor/definitive`).
@@ -53,7 +60,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     cabe**; o robô normal é rápido demais).
   - Nos testes, `Main`/`Switchboard` ficam **sem tipo** (dependem do autoload `Sfx`, que não existe na hora em que
     o Godot compila um script `-s`). `PhoneCall`, `Exchange` e os Resources podem ser tipados.
-  - Rode depois de qualquer mudança em agenda, fim de ligação, mesa ou cabos.
+  - Rode depois de qualquer mudança em agenda, fim de ligação, mesa ou cabos. `run.sh` também joga um turno em
+    `--lang=en` e outro em `--lang=es`; o teste de fluxo confere chaves, lacunas e cenas (`_check_translations`).
 - Semente fixa: `Godot --path . -- --seed=123` repete a agenda do turno (sem `--seed`, é aleatória).
 - Captura de tela: rodar SEM `--headless` e salvar `root.get_texture().get_image()`.
 

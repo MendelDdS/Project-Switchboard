@@ -49,6 +49,12 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   (`var fn := func(): ...`) e depois use.
 - **Um `Control` só recebe clique dentro do próprio retângulo.** Para o encaixe do FONE (fora da mesa),
   sobrescreva `_has_point`.
+- **`class_name` curto colide com variável local.** A classe de textos `T` quebrou o `city_map.gd`, que tinha
+  `var T := Transform2D(...)` no `_draw`: dentro da função, `T.Key` virava membro de Transform2D. Procure o nome antes.
+- **Dentro da própria classe, `Key` e `T.Key` não são o mesmo tipo** para o analisador ("Cannot pass T.Key as Key"):
+  `T.text()` recebe `int`.
+- **Chave de tradução igual ao texto** (ex.: `MANUAL`) parece "sem tradução" para quem confere `T.text(k) != nome`.
+  Dê nomes que não coincidam com o texto.
 - **`randomize()` em `_ready` anula `seed()` chamado no teste**: para repetir a agenda, passe `-- --seed=N` (o Main
   lê antes de sortear). Mesmo com semente, detalhes que dependem do tempo de quadro variam; para reproduzir um caso
   exato, monte as ligações à mão no teste.

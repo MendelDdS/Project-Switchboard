@@ -24,7 +24,7 @@ size_flags_vertical = 8
 focus_mode = 0
 theme_type_variation = &"TabButton"
 toggle_mode = true
-text = "Lista telefônica"
+text = "TAB_DIRECTORY"
 
 [node name="Dot" type="ColorRect" parent="TabBar/TabLista"]
 visible = false
@@ -48,7 +48,7 @@ size_flags_vertical = 8
 focus_mode = 0
 theme_type_variation = &"TabButton"
 toggle_mode = true
-text = "Mapa"
+text = "TAB_MAP"
 
 [node name="Dot" type="ColorRect" parent="TabBar/TabMapa"]
 visible = false
@@ -72,7 +72,7 @@ size_flags_vertical = 8
 focus_mode = 0
 theme_type_variation = &"TabButton"
 toggle_mode = true
-text = "Despacho"
+text = "TAB_DISPATCH"
 
 [node name="Dot" type="ColorRect" parent="TabBar/TabDespacho"]
 visible = false
@@ -96,7 +96,7 @@ size_flags_vertical = 8
 focus_mode = 0
 theme_type_variation = &"TabButton"
 toggle_mode = true
-text = "Caderno"
+text = "TAB_LOGBOOK"
 
 [node name="Dot" type="ColorRect" parent="TabBar/TabCaderno"]
 visible = false

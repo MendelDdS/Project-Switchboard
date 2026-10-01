@@ -7,8 +7,8 @@ enum Line { FREE, RING, TALK, HOLD, CONN, DONE }
 enum Dest { FREE, RING, CONN, DONE }
 
 const LINES := 10
-const LINE_LABEL := ["livre", "chamando", "em linha", "em espera", "conectada", "desligou"]
-const DEST_LABEL := ["livre", "tocando", "conectado", "desligou"]
+const LINE_LABEL := [T.Key.EX_LINE_FREE, T.Key.EX_LINE_RING, T.Key.EX_LINE_TALK, T.Key.EX_LINE_HOLD, T.Key.EX_LINE_CONN, T.Key.EX_LINE_DONE]
+const DEST_LABEL := [T.Key.EX_DEST_FREE, T.Key.EX_DEST_RING, T.Key.EX_DEST_CONN, T.Key.EX_DEST_DONE]
 
 var _lines: Array[int] = []
 var _until: Array[float] = []   ## fim da conversa conectada (minuto de jogo); -1 = sem prazo
@@ -56,8 +56,8 @@ func set_dest(d: int, st: int) -> void:
 
 
 func line_label(n: int) -> String:
-	return LINE_LABEL[line(n)]
+	return T.text(LINE_LABEL[line(n)])
 
 
 func dest_label(d: int) -> String:
-	return DEST_LABEL[dest(d)]
+	return T.text(DEST_LABEL[dest(d)])

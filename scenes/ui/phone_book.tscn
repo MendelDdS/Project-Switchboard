@@ -23,7 +23,7 @@ custom_minimum_size = Vector2(96, 34)
 layout_mode = 2
 size_flags_vertical = 4
 focus_mode = 0
-text = "◀ Voltar"
+text = "BOOK_BACK"
 
 [node name="Letters" type="HFlowContainer" parent="Nav"]
 unique_name_in_owner = true
@@ -40,4 +40,4 @@ custom_minimum_size = Vector2(96, 34)
 layout_mode = 2
 size_flags_vertical = 4
 focus_mode = 0
-text = "Virar ▶"
+text = "BOOK_TURN"

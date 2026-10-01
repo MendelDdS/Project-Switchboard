@@ -19,14 +19,14 @@ theme_override_constants/separation = 8
 
 [node name="Caption" type="Label" parent="Row"]
 layout_mode = 2
-text = "Local marcado:"
+text = "MAP_MARKED"
 theme_type_variation = &"InkLabel"
 theme_override_font_sizes/font_size = 15
 size_flags_vertical = 4
 
 [node name="Selected" type="Label" parent="Row"]
 layout_mode = 2
-text = "nenhum"
+text = "MAP_NONE"
 theme_type_variation = &"InkMonoLabel"
 theme_override_font_sizes/font_size = 24
 unique_name_in_owner = true
@@ -38,4 +38,4 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(166, 34)
 layout_mode = 2
 focus_mode = 0
-text = "Usar no despacho"
+text = "MAP_USE"

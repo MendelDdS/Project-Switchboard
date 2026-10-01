@@ -110,7 +110,7 @@ color = Color(0.2275, 0.102, 0.07059, 1)
 
 [node name="Caption" type="Label" parent="HBox/Side/Head"]
 layout_mode = 2
-text = "Rádio de despacho"
+text = "RADIO_TITLE"
 theme_type_variation = &"DimLabel"
 theme_override_font_sizes/font_size = 11
 

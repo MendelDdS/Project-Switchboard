@@ -90,9 +90,19 @@ salvo): `-- --night=2`.
 
 ## Tradução
 
-Os textos visíveis passam por `tr()`, com o português como chave. Para traduzir: gere o `.pot` em
-Projeto → Configurações → Localização → Geração de POT, crie o `.po` do idioma e adicione em Traduções.
-As falas que ficam nos Resources (`data/`) também passam por `tr()` quando aparecem na tela.
+Três idiomas: português (padrão), inglês e espanhol. O jogo sempre começa em português; a escolha do idioma vai
+ficar no menu de configurações (`Settings.set_locale`). Para testar: `godot --path . -- --lang=en` (ou `es`).
+
+- **Interface** (botões, dicas, rádio, relatório, falas fixas do operador): planilha `translations/ui.csv`, uma linha
+  por texto: `chave,pt_BR,en,es`. No código, cada chave é um ENUM: `T.text(T.Key.START_SHIFT)`. Nas cenas, o texto
+  do Label/Button é a própria chave (ex.: `START_SHIFT`), e o Godot troca pelo idioma atual (no editor aparece a chave).
+- **Falas dos roteiros** (`data/`): continuam escritas em português no inspetor; as traduções ficam em
+  `translations/content.en.po` e `content.es.po` (o português é a chave). Nomes de pessoas, ruas e estabelecimentos
+  não se traduzem (a tradução repete o original).
+- **Depois de mexer em textos**, rode `godot --headless --path . -s tools/update_translations.gd`. Ela gera o ENUM a
+  partir da planilha e atualiza os `.po` com as falas novas (vazias, mostram o português até serem traduzidas) sem
+  perder o que já foi traduzido. O teste de fluxo avisa quantas falas faltam e falha se uma tradução perder uma
+  lacuna (`%s`, `{place}`...).
 
 ## Ritmo do turno
 

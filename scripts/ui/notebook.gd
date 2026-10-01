@@ -4,9 +4,9 @@ extends Control
 
 signal pending_changed(has_pending: bool)
 ## Uma ocorrência foi registrada: `rec` é o que a ligação gerou; `type` é o tipo que o jogador escolheu.
-signal registered(rec: Dictionary, type: String)
+signal registered(rec: Dictionary, type: T.Key)
 
-const TYPES := ["Escolha…", "Ligação comum", "Emergência", "Trote", "Outro"]
+const TYPES := [T.Key.TYPE_CHOOSE, T.Key.TYPE_COMMON, T.Key.TYPE_EMERGENCY, T.Key.TYPE_PRANK, T.Key.TYPE_OTHER]
 
 var entries: Array[Dictionary] = []
 var pending: Dictionary = {}
@@ -25,7 +25,7 @@ var queue: Array[Dictionary] = []
 
 func _ready() -> void:
 	for t in TYPES:
-		_type.add_item(t)
+		_type.add_item(T.text(t))
 	%Register.pressed.connect(register)
 	_render_ledger()
 	_fill()
@@ -62,10 +62,10 @@ func register() -> void:
 	if pending.is_empty():
 		return
 	if _type.selected <= 0:
-		_message.text = tr("Escolha o tipo da ocorrência.")
+		_message.text = T.text(T.Key.CHOOSE_TYPE)
 		return
 	var rec := pending
-	var chosen: String = TYPES[_type.selected]   # _fill() abaixo zera a escolha
+	var chosen: T.Key = TYPES[_type.selected]   # _fill() abaixo zera a escolha
 	var type := _type.get_item_text(_type.selected)
 	entries.append({
 		"time": pending["time"], "who": _who.text, "where": _where.text,
@@ -94,17 +94,17 @@ func _fill() -> void:
 
 
 func _update_title() -> void:
-	_time.text = tr("Nova ocorrência · %s") % pending["time"]
+	_time.text = T.text(T.Key.NOTEBOOK_NEW) % pending["time"]
 	if not queue.is_empty():
-		_time.text += "   " + tr("(+%d na fila)") % queue.size()
+		_time.text += "   " + T.text(T.Key.NOTEBOOK_QUEUE) % queue.size()
 
 
 func _render_ledger() -> void:
 	var s := "[table=6]"
-	for h in ["Horário", "Solicitante", "Local / destino", "Tipo", "Unidade", "Obs."]:
-		s += "[cell padding=2,0,8,4][font=res://fonts/PixelifySans.ttf][font_size=12][color=#5a4d3a]%s[/color][/font_size][/font][/cell]" % tr(h)
+	for h in [T.Key.COL_TIME, T.Key.COL_CALLER, T.Key.COL_PLACE, T.Key.COL_TYPE, T.Key.COL_UNIT, T.Key.COL_OBS]:
+		s += "[cell padding=2,0,8,4][font=res://fonts/PixelifySans.ttf][font_size=12][color=#5a4d3a]%s[/color][/font_size][/font][/cell]" % T.text(h)
 	if entries.is_empty():
-		s += "[/table]\n[font=res://fonts/PixelifySans.ttf][font_size=13][color=#5a4d3a]%s[/color][/font_size][/font]" % tr("Nenhuma ocorrência registrada neste turno.")
+		s += "[/table]\n[font=res://fonts/PixelifySans.ttf][font_size=13][color=#5a4d3a]%s[/color][/font_size][/font]" % T.text(T.Key.NOTEBOOK_EMPTY)
 	else:
 		for r in entries:
 			for k in ["time", "who", "where", "type", "unit", "obs"]:

@@ -20,22 +20,22 @@ func _ready() -> void:
 
 
 func show_report(r: ShiftReport) -> void:
-	_night.text = tr("Noite %d · turno das %s às %s") % [r.night, Main.fmt(0.0), Main.fmt(Main.SHIFT_END)]
-	var s := "[b]%s[/b]\n" % tr("ADVERTÊNCIAS")
+	_night.text = T.text(T.Key.REPORT_NIGHT) % [r.night, Main.fmt(0.0), Main.fmt(Main.SHIFT_END)]
+	var s := "[b]%s[/b]\n" % T.text(T.Key.REPORT_WARNINGS)
 	if r.faults.is_empty():
-		s += tr("Nenhuma.") + "\n"
+		s += T.text(T.Key.REPORT_NONE) + "\n"
 	for f in r.faults:
 		var sev := ShiftReport.severity(f["id"])
 		var detail: String = " — " + String(f["detail"]) if f["detail"] != "" else ""
-		s += "%s  %s%s  [color=#%s](%s)[/color]\n" % [f["time"], tr(ShiftReport.FAULTS[f["id"]][1]), detail.replace("[", "("),
-			SEVERITY_COLORS[sev], tr(ShiftReport.SEVERITY_NAMES[sev])]
-	s += "\n%s: %d   ·   %s: %d   ·   %s: %d\n" % [tr("Graves"), r.count(ShiftReport.Severity.SEVERE),
-		tr("Médias"), r.count(ShiftReport.Severity.MEDIUM), tr("Leves"), r.count(ShiftReport.Severity.LIGHT)]
-	s += tr("Advertências graves acumuladas: %d de %d") % [r.severe_total(), ShiftReport.SEVERE_LIMIT] + "\n"
-	s += "\n[b]%s[/b]\n" % tr("JORNAL DA MANHÃ")
+		s += "%s  %s%s  [color=#%s](%s)[/color]\n" % [f["time"], T.text(ShiftReport.FAULTS[f["id"]][1]), detail.replace("[", "("),
+			SEVERITY_COLORS[sev], T.text(ShiftReport.SEVERITY_NAMES[sev])]
+	s += "\n%s: %d   ·   %s: %d   ·   %s: %d\n" % [T.text(T.Key.REPORT_SEVERE), r.count(ShiftReport.Severity.SEVERE),
+		T.text(T.Key.REPORT_MEDIUM), r.count(ShiftReport.Severity.MEDIUM), T.text(T.Key.REPORT_LIGHT), r.count(ShiftReport.Severity.LIGHT)]
+	s += T.text(T.Key.REPORT_ACCUMULATED) % [r.severe_total(), ShiftReport.SEVERE_LIMIT] + "\n"
+	s += "\n[b]%s[/b]\n" % T.text(T.Key.REPORT_NEWS)
 	var news := r.outcomes()
 	if news.is_empty():
-		s += tr("Noite tranquila em São Sotero.") + "\n"
+		s += T.text(T.Key.REPORT_QUIET) + "\n"
 	for e: EmergencyCall in news:
 		var pool: PackedStringArray = [C.news_ok, C.news_late, C.news_bad][news[e]]
 		s += "• %s\n" % GameData.fill(GameData.pick(pool), {"occurrence": _occurrence(e.occurrence), "address": e.address})
@@ -45,4 +45,4 @@ func show_report(r: ShiftReport) -> void:
 
 ## "Invasão / roubo" -> "Invasão"; "Outro" -> "Ocorrência".
 func _occurrence(o: String) -> String:
-	return tr("Ocorrência") if o == "Outro" else tr(o).get_slice(" /", 0)
+	return T.text(T.Key.REPORT_INCIDENT) if o == "Outro" else tr(o).get_slice(" /", 0)

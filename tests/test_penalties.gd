@@ -105,7 +105,7 @@ func _initialize() -> void:
 	_move(0, -1)              # tira o FONE com o destino errado ainda tocando
 	ok(await wait_until(func(): return c2b.ended), "desligaram")
 	ok(not c2b.connected and ex.dest(142) == Exchange.Dest.DONE and _faults("wrong_number") == 3, "não completa com o número errado")
-	ok(c2b.record["obs"] == "Conectada ao número errado.", "caderno: número errado")
+	ok(c2b.record["obs"] == T.text(T.Key.OBS_WRONG_NUMBER), "caderno: número errado")
 	var r2b := _ring_retry(PhoneCall.Retry.WRONG_NUMBER)
 	_clear_board()
 	_answer(r2b)
@@ -262,7 +262,7 @@ func _initialize() -> void:
 	var view = m._ending._report
 	view.show_report(m.report)
 	var text: String = view._body.get_parsed_text()
-	ok("ADVERTÊNCIAS" in text and "JORNAL DA MANHÃ" in text and e4.address in text and e5.address in text, "relatório com advertências e jornal")
+	ok(T.text(T.Key.REPORT_WARNINGS) in text and T.text(T.Key.REPORT_NEWS) in text and e4.address in text and e5.address in text, "relatório com advertências e jornal")
 	ok(m.report.verdict() == 2 and view._verdict.text == C.verdicts[2], "parecer: turno ruim")
 	var sev: int = m.report.count(ShiftReport.Severity.SEVERE)
 	m.report.severe_before = ShiftReport.SEVERE_LIMIT - sev - 1

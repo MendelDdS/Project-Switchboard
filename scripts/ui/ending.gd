@@ -21,13 +21,13 @@ func _ready() -> void:
 ## `more`: ainda há uma próxima noite (o progresso já foi salvo pelo Main).
 func play(report: ShiftReport, more: bool) -> void:
 	if report.fired():
-		_title.text = tr("Você foi demitido.")
-		_question.text = tr("A companhia telefônica agradece seus serviços.")
-		_restart.text = tr("Recomeçar da primeira noite")
+		_title.text = T.text(T.Key.END_FIRED_TITLE)
+		_question.text = T.text(T.Key.END_FIRED_TEXT)
+		_restart.text = T.text(T.Key.RESTART_FIRST_NIGHT)
 	elif more:
-		_title.text = tr("Fim da noite %d") % report.night
-		_question.text = tr("Amanhã, às 18:00, a central é sua de novo.")
-		_restart.text = tr("Próxima noite")
+		_title.text = T.text(T.Key.END_NIGHT_TITLE) % report.night
+		_question.text = T.text(T.Key.END_NIGHT_TEXT)
+		_restart.text = T.text(T.Key.NEXT_NIGHT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	create_tween().tween_property(self, "color:a", 1.0, 3.0)
 	await get_tree().create_timer(3.4).timeout

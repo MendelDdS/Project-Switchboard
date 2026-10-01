@@ -75,7 +75,7 @@ func say(c: PhoneCall, text: String, pause: float = 0.55, who := "", voice := ""
 func op(c: PhoneCall, text: String) -> bool:
 	if c.ended or not c.closing and not await _until_on_line(c):
 		return false
-	c.add_line("Você", tr(text), "op")
+	c.add_line("", tr(text), "op")
 	Sfx.play("click")
 	c.last_talk = Time.get_ticks_msec()
 	await get_tree().create_timer(0.75).timeout
@@ -148,8 +148,8 @@ func transfer_choices(c: PhoneCall) -> void:
 	var t: TransferCall = c.data
 	var list: Array[Dictionary] = []
 	if not c.said_wait:
-		list.append({"label": tr("Um momento, vou conectar."), "fn": _transfer_wait.bind(c)})
-	list.append({"label": tr("Pode repetir, por favor?"), "fn": _transfer_repeat.bind(c)})
+		list.append({"label": T.text(T.Key.OP_CONNECT_WAIT), "fn": _transfer_wait.bind(c)})
+	list.append({"label": T.text(T.Key.OP_REPEAT), "fn": _transfer_repeat.bind(c)})
 	if c.no_answer and t.alt_target != "" and not c.alt_done:
 		list.append({"label": tr(t.alt_ask), "fn": _transfer_alt.bind(c)})
 	c.set_options(list)
@@ -160,7 +160,7 @@ func _transfer_wait(c: PhoneCall) -> void:
 		return
 	c.said_wait = true
 	transfer_choices(c)
-	if not await op(c, "Um momento, vou conectar."):
+	if not await op(c, T.text(T.Key.OP_CONNECT_WAIT)):
 		return
 	await say(c, GameData.pick(C.hold_ok))
 
@@ -168,7 +168,7 @@ func _transfer_wait(c: PhoneCall) -> void:
 func _transfer_repeat(c: PhoneCall) -> void:
 	if c.talking:
 		return
-	if not await op(c, "Pode repetir, por favor?"):
+	if not await op(c, T.text(T.Key.OP_REPEAT)):
 		return
 	await say(c, c.repeat)
 
@@ -197,10 +197,10 @@ func _info(c: PhoneCall) -> void:
 		return
 	if not await say(c, c.ask):
 		return
-	var right := tr("É o %s.") % c.answer
+	var right := T.text(T.Key.OP_IT_IS) % c.answer
 	var opts := [right]
 	while opts.size() < 3:
-		var o := tr("É o %s.") % C.directory.pick_random().number
+		var o := T.text(T.Key.OP_IT_IS) % C.directory.pick_random().number
 		if not o in opts:
 			opts.append(o)
 	opts.shuffle()
@@ -208,7 +208,7 @@ func _info(c: PhoneCall) -> void:
 	c.state_changed.emit()
 	if not _taught_info:
 		_taught_info = true
-		main.hint(tr("Pedido de informação: confira a lista telefônica antes de responder."))
+		main.hint(T.text(T.Key.HINT_INFO))
 	var i := await choose(c, opts)
 	if i < 0:
 		return
@@ -218,7 +218,7 @@ func _info(c: PhoneCall) -> void:
 		return
 	if not await say(c, GameData.pick(C.info_thanks if c.info_ok == 1 else C.info_doubt), 0.5):
 		return
-	c.sys(tr("(O solicitante desligou.)"))
+	c.sys(T.text(T.Key.SYS_CALLER_HUNG_UP))
 	main.end_call(c, PhoneCall.End.CALLER)
 
 
@@ -230,7 +230,7 @@ func _emergency(c: PhoneCall) -> void:
 		return
 	if c.too_late:
 		main.report.failed(e)
-		c.sys(tr("(O solicitante desligou.)"))
+		c.sys(T.text(T.Key.SYS_CALLER_HUNG_UP))
 		main.end_call(c, PhoneCall.End.CALLER)
 		return
 	if not await wait(c, 0.3):
@@ -240,7 +240,7 @@ func _emergency(c: PhoneCall) -> void:
 		return
 	c.phase = PhoneCall.Phase.EMERGENCY
 	c.state_changed.emit()
-	main.hint(tr("Pergunte o que precisa. Marque o local no mapa, escolha o tipo da ocorrência e envie as unidades pelo despacho."))
+	main.hint(T.text(T.Key.HINT_EMERGENCY))
 	emergency_choices(c)
 
 
@@ -251,7 +251,7 @@ func emergency_choices(c: PhoneCall) -> void:
 		if not i in c.asked:
 			list.append({"label": tr(e.questions[i]), "fn": _em_ask.bind(c, i)})
 	if not c.dispatched:
-		list.append({"label": tr("Fique na linha, vou enviar ajuda."), "fn": _em_hold.bind(c)})
+		list.append({"label": T.text(T.Key.OP_HOLD_EMERGENCY), "fn": _em_hold.bind(c)})
 	c.set_options(list)
 
 
@@ -269,9 +269,9 @@ func _em_ask(c: PhoneCall, k: int) -> void:
 func _em_hold(c: PhoneCall) -> void:
 	if c.talking:
 		return
-	if not await op(c, "Fique na linha, vou enviar ajuda."):
+	if not await op(c, T.text(T.Key.OP_HOLD_EMERGENCY)):
 		return
-	await say(c, ["Rápido, por favor!", "Tá bom... tá bom."].pick_random())
+	await say(c, T.text([T.Key.CALLER_HURRY, T.Key.CALLER_OKAY].pick_random()))
 
 
 ## As unidades saíram: o operador avisa e a pessoa desliga.
@@ -285,11 +285,11 @@ func emergency_dispatched(c: PhoneCall) -> void:
 		if not await wait(c, 0.2):
 			return
 	# o operador só avisa se estiver na linha; a pessoa ouve as sirenes de qualquer jeito
-	if c.on_line and not await op(c, "As unidades estão a caminho."):
+	if c.on_line and not await op(c, T.text(T.Key.OP_UNITS_ON_WAY)):
 		return
 	if not await say(c, (c.data as EmergencyCall).after, 0.9):
 		return
-	c.sys(tr("(O solicitante desligou.)"))
+	c.sys(T.text(T.Key.SYS_CALLER_HUNG_UP))
 	main.end_call(c, PhoneCall.End.CALLER)
 
 
@@ -337,7 +337,7 @@ func _prank(c: PhoneCall) -> void:
 	if not await play_steps(c, (c.data as PrankCall).steps):
 		return
 	Sfx.play("cut")
-	c.sys(tr("(A ligação foi encerrada do outro lado.)"))
+	c.sys(T.text(T.Key.SYS_OTHER_SIDE_ENDED))
 	if not await wait(c, 0.5):
 		return
 	main.end_call(c, PhoneCall.End.CALLER)

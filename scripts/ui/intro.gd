@@ -15,6 +15,6 @@ func _ready() -> void:
 
 
 func setup(n: int, night: Night, can_reset: bool) -> void:
-	%Date.text = tr("Noite %d · %s · %s") % [n, tr(night.weekday), Main.fmt(0.0)]
+	%Date.text = T.text(T.Key.INTRO_NIGHT) % [n, tr(night.weekday), Main.fmt(0.0)]
 	%Text.text = tr(night.note)
 	%Reset.visible = can_reset

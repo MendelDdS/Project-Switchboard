@@ -165,14 +165,14 @@ func free_patches() -> int:
 ## Por que a ponta e não entra na tomada j ("" = entra).
 func refuse(e: int, j: int) -> String:
 	if cord_at(j) != -1:
-		return "Essa tomada já está ocupada."
+		return T.text(T.Key.WARN_JACK_TAKEN)
 	if e == 0:
-		return "" if j <= 10 else "O FONE só entra nas ENTRADAS (01–10)."
+		return "" if j <= 10 else T.text(T.Key.WARN_FONE_INPUTS)
 	if j <= 10:
-		return "O cabo de conexão vai na SAÍDA (logo abaixo da entrada) e no destino."
+		return T.text(T.Key.WARN_CORD_WHERE)
 	var other: int = ends[mate(e)]
 	if other != -1 and (other <= 20) == (j <= 20):
-		return "Uma ponta na SAÍDA da linha, a outra no destino."
+		return T.text(T.Key.WARN_CORD_ENDS)
 	return ""
 
 
@@ -443,8 +443,8 @@ func _draw() -> void:
 	draw_rect(Rect2(3, 3, 3, h - 6), Pal.PANEL_HI)
 	draw_rect(Rect2(3, h - 6, w - 6, 3), Pal.PANEL_LO)
 	draw_rect(Rect2(w - 6, 3, 3, h - 6), Pal.PANEL_LO)
-	draw_string(Pal.mono, Vector2(17, 28), tr("MESA COMUTADORA"), HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Pal.BRASS)
-	draw_string(Pal.ui, Vector2(17, 26), tr("ENTRADA (fone)  ·  SAÍDA (cabo de conexão)"), HORIZONTAL_ALIGNMENT_RIGHT, w - 34, 11, Pal.DIM)
+	draw_string(Pal.mono, Vector2(17, 28), T.text(T.Key.BOARD_TITLE), HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Pal.BRASS)
+	draw_string(Pal.ui, Vector2(17, 26), T.text(T.Key.BOARD_LEGEND), HORIZONTAL_ALIGNMENT_RIGHT, w - 34, 11, Pal.DIM)
 	if exchange == null:
 		return
 
@@ -463,12 +463,12 @@ func _draw() -> void:
 			sc = Pal.AMBER
 		elif st == Exchange.Line.DONE:
 			sc = Pal.RED
-		draw_string(Pal.ui, Vector2(cx - 28, 110), tr(exchange.line_label(n)), HORIZONTAL_ALIGNMENT_CENTER, 56, 10, sc)
+		draw_string(Pal.ui, Vector2(cx - 28, 110), exchange.line_label(n), HORIZONTAL_ALIGNMENT_CENTER, 56, 10, sc)
 		_draw_jack(jack_rect(n + 10), Color("7a6230"))
 
 	# destinos
 	draw_rect(Rect2(12, 142, w - 24, 2), Pal.PANEL_LO)
-	draw_string(Pal.ui, Vector2(17, 154), tr("DESTINOS"), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
+	draw_string(Pal.ui, Vector2(17, 154), T.text(T.Key.BOARD_DESTS), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
 	for d in dest_nums:
 		var jr := jack_rect(d)
 		var cx := jr.get_center().x
@@ -491,14 +491,14 @@ func _draw() -> void:
 			var coil := PackedVector2Array([Vector2(cx - 14, 298), Vector2(cx - 10, 306), Vector2(cx, 309), Vector2(cx + 10, 306), Vector2(cx + 14, 298)])
 			draw_polyline(coil, Color.BLACK, 7.0)
 			draw_polyline(coil, _cable_col(a)[0], 4.0)
-		draw_string(Pal.mono, Vector2(cx - 30, 322), tr("CABO %d") % (k + 1), HORIZONTAL_ALIGNMENT_CENTER, 60, 14, Pal.BRASS)
+		draw_string(Pal.mono, Vector2(cx - 30, 322), T.text(T.Key.BOARD_CORD) % (k + 1), HORIZONTAL_ALIGNMENT_CENTER, 60, 14, Pal.BRASS)
 	# legenda
-	var leg := [[Pal.AMBER, "chamando / em linha"], [Pal.GREEN, "conectada"], [Pal.RED, "desligou: desmonte"], [Color("2a2016"), "livre"]]
+	var leg := [[Pal.AMBER, T.Key.LEGEND_RING], [Pal.GREEN, T.Key.LEGEND_CONN], [Pal.RED, T.Key.LEGEND_DONE], [Color("2a2016"), T.Key.LEGEND_FREE]]
 	for k in leg.size():
 		var y := 268 + k * 16
 		draw_rect(Rect2(452, y - 9, 9, 9), Color.BLACK)
 		draw_rect(Rect2(453, y - 8, 7, 7), leg[k][0])
-		draw_string(Pal.ui, Vector2(467, y), tr(leg[k][1]), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
+		draw_string(Pal.ui, Vector2(467, y), T.text(leg[k][1]), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
 
 	# destaque da tomada sob o plug
 	if held != -1:

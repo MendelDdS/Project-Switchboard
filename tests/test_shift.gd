@@ -149,7 +149,7 @@ func _initialize() -> void:
 						_home(b, 0)
 						_acted()
 			_:
-				if f.kind == PhoneCall.Kind.EMERGENCY and not f.options.is_empty() and String(f.options[0]["label"]).begins_with("Fique") and not f.dispatched:
+				if f.kind == PhoneCall.Kind.EMERGENCY and not f.options.is_empty() and String(f.options[0]["label"]) == T.text(T.Key.OP_HOLD_EMERGENCY) and not f.dispatched:
 					var e: EmergencyCall = f.data
 					m.dispatch.set_location(e.street, e.block, e.address)
 					m.dispatch.set_occurrence(e.occurrence)
@@ -161,11 +161,11 @@ func _initialize() -> void:
 					f.options[0]["fn"].call()
 					_acted()
 	var recs: Array = m.notebook.entries + m.notebook.queue + ([m.notebook.pending] if m.notebook.has_pending() else [])
-	var lost := recs.filter(func(e): return e["obs"] == "Não atendida.").size()
+	var lost := recs.filter(func(e): return e["obs"] == T.text(T.Key.OBS_NOT_ANSWERED)).size()
 	if human:
 		print("humano: %.0f s por ação" % HUMAN_STEP)
 	if clumsy:
-		print("desastrado: deixou tocar %d, retornos=%d" % [skipped, recs.filter(func(e): return e["who"].begins_with("Desconhecido")).size()])
+		print("desastrado: deixou tocar %d, retornos=%d" % [skipped, recs.filter(func(e): return e["who"].begins_with(T.text(T.Key.UNKNOWN_CALLER))).size()])
 	max_quiet = maxf(max_quiet, m.minutes - last_ring)
 	print("desconhecida tocou às %s, atendidas depois=%d, fim às %s | máx=%d  2+=%d%%  3+=%d%%  sem_cabo=%d%%  perdidas=%d  ligações=%d (emerg=%d trotes=%d)  maior_silêncio=%d min" % [
 		myst_at, post, m.fmt(m.minutes), max_live, 100 * f2 / maxi(fall, 1), 100 * f3 / maxi(fall, 1),

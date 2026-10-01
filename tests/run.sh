@@ -39,6 +39,8 @@ done
 run tests/test_shift.gd --seed=3 --clumsy
 run tests/test_shift.gd --seed=2 --night=2
 run tests/test_shift.gd --seed=1 --human
+run tests/test_shift.gd --seed=2 --lang=en
+run tests/test_shift.gd --seed=3 --lang=es
 
 rm -f "$log"
 [ $fails -eq 0 ] && echo "Todos os testes passaram." || echo "$fails teste(s) falharam."

@@ -63,7 +63,7 @@ mouse_filter = 2
 
 [node name="CallLine" type="Label" parent="VBox/Top/Info/Row"]
 layout_mode = 2
-text = "Nenhuma chamada"
+text = "STATUS_NO_CALL"
 theme_type_variation = &"DimLabel"
 theme_override_font_sizes/font_size = 13
 unique_name_in_owner = true
@@ -128,7 +128,7 @@ size_flags_vertical = 4
 focus_mode = 0
 theme_type_variation = &"GreenButton"
 disabled = true
-text = "Atender"
+text = "ANSWER"
 
 [node name="Transfer" type="Button" parent="VBox/Bottom"]
 unique_name_in_owner = true
@@ -138,7 +138,7 @@ size_flags_vertical = 4
 focus_mode = 0
 theme_type_variation = &"AmberButton"
 disabled = true
-text = "Transferir"
+text = "TRANSFER"
 
 [node name="Hangup" type="Button" parent="VBox/Bottom"]
 unique_name_in_owner = true
@@ -148,4 +148,4 @@ size_flags_vertical = 4
 focus_mode = 0
 theme_type_variation = &"RedButton"
 disabled = true
-text = "Desligar"
+text = "HANG_UP"

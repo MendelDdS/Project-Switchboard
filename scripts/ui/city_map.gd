@@ -6,7 +6,7 @@ signal segment_selected(street: String, block: int, label: String)
 
 const XS := [20.0, 110.0, 250.0, 390.0, 530.0, 580.0]
 const YS := [34.0, 90.0, 225.0, 360.0, 420.0]
-const LM := {"1,0": "Clínica", "2,0": "Hospital", "3,0": "Escola", "4,0": "Serraria", "1,1": "Rodoviária", "2,1": "PRAÇA", "3,1": "Farmácia", "0,2": "Cine Odeon", "1,2": "Delegacia", "3,2": "Bombeiros", "1,3": "Mercearia", "3,3": "Funerária"}
+const LM := {"1,0": T.Key.MAP_CLINIC, "2,0": T.Key.MAP_HOSPITAL, "3,0": T.Key.MAP_SCHOOL, "4,0": T.Key.MAP_SAWMILL, "1,1": T.Key.MAP_BUS_STATION, "2,1": T.Key.MAP_SQUARE, "3,1": T.Key.MAP_PHARMACY, "0,2": T.Key.MAP_CINEMA, "1,2": T.Key.MAP_POLICE, "3,2": T.Key.MAP_FIRE_STATION, "1,3": T.Key.MAP_GROCERY, "3,3": T.Key.MAP_FUNERAL}
 const STATION := {
 	"pol": {"p": Vector2(180, 225), "c": Color("2d4f8a"), "l": Color("4e86e0")},
 	"bomb": {"p": Vector2(460, 225), "c": Color("b8321f"), "l": Color("e04e3a")},
@@ -108,8 +108,8 @@ func _t(p: Vector2, txt: String, sz: int, col: Color = LINE, center: bool = true
 func _draw() -> void:
 	_k = minf(size.x / 600.0, size.y / 440.0)
 	_off = Vector2((size.x - 600.0 * _k) / 2.0, 0.0)
-	var T := Transform2D(0.0, Vector2(_k, _k), 0.0, _off)
-	draw_set_transform_matrix(T)
+	var xf := Transform2D(0.0, Vector2(_k, _k), 0.0, _off)
+	draw_set_transform_matrix(xf)
 	draw_rect(Rect2(0, 0, 600, 440), Pal.INK_SOFT)
 	draw_rect(Rect2(2, 2, 596, 436), Color("cfc199"))
 	# quarteirões
@@ -123,8 +123,8 @@ func _draw() -> void:
 				y0 = 40.0
 			var r := Rect2(x0, y0, x1 - x0, y1 - y0)
 			var key := "%d,%d" % [ci, ri]
-			var lm: String = LM.get(key, "")
-			if lm == "PRAÇA":
+			var lm: int = LM.get(key, -1)
+			if lm == T.Key.MAP_SQUARE:
 				draw_rect(r, LINE)
 				draw_rect(r.grow(-2), Color("9fae78"))
 				for t in 9:
@@ -134,18 +134,18 @@ func _draw() -> void:
 				draw_rect(Rect2(c.x - 12, c.y - 10, 24, 20), Color("e6dab8"))
 				draw_rect(Rect2(c.x - 2, c.y - 24, 4, 14), LINE)
 				draw_rect(Rect2(c.x - 6, c.y - 20, 12, 4), LINE)
-				_t(Vector2(c.x, y1 - 6), tr("Praça da Matriz"), 16)
-			elif lm != "":
+				_t(Vector2(c.x, y1 - 6), T.text(T.Key.MAP_SQUARE), 16)
+			elif lm != -1:
 				draw_rect(r, LINE)
 				draw_rect(r.grow(-2), Color("b7a67b"))
 				draw_rect(Rect2(x0 + 4, y0 + 4, r.size.x - 8, minf(14.0, r.size.y - 8)), Color("a39166"))
 				if r.size.x < 60:
 					var c2 := r.get_center()
-					draw_set_transform_matrix(T * Transform2D(-PI / 2.0, Vector2(c2.x + 5, c2.y)))
-					_t(Vector2.ZERO, tr(lm), 15)
-					draw_set_transform_matrix(T)
+					draw_set_transform_matrix(xf * Transform2D(-PI / 2.0, Vector2(c2.x + 5, c2.y)))
+					_t(Vector2.ZERO, T.text(lm), 15)
+					draw_set_transform_matrix(xf)
 				else:
-					_t(r.get_center() + Vector2(0, 8), tr(lm), 18)
+					_t(r.get_center() + Vector2(0, 8), T.text(lm), 18)
 			else:
 				draw_rect(r, Color("8f7f5b"))
 				draw_rect(r.grow(-1), Color("c3b48b"))

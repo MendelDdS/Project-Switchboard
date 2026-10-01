@@ -15,4 +15,9 @@ func _draw() -> void:
 	draw_rect(Rect2(10, 26, 16, 12), Color("050403"))
 	# no editor (@tool) as fontes de Pal ainda não foram carregadas
 	var f: Font = Pal.mono if Pal.mono != null else get_theme_default_font()
-	draw_string(f, Vector2(34, 28), tr("FONE"), HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Pal.BRASS)
+	# a palavra muda com o idioma (FONE, HEADSET, AURICULAR): a fonte diminui até caber
+	var label := T.text(T.Key.FONE_LABEL)
+	var fs := 16
+	while fs > 9 and f.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > size.x - 38:
+		fs -= 1
+	draw_string(f, Vector2(34, 28), label, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Pal.BRASS)

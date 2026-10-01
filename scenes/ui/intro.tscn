@@ -36,13 +36,13 @@ theme_override_constants/separation = 14
 
 [node name="Title" type="Label" parent="Center/Card/VBox"]
 layout_mode = 2
-text = "Central de São Sotero"
+text = "GAME_TITLE"
 theme_override_font_sizes/font_size = 30
 
 [node name="Date" type="Label" parent="Center/Card/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Terça-feira · 18:00"
+text = ""
 theme_override_fonts/font = ExtResource("3_vt323_regula")
 theme_override_colors/font_color = Color(0.9529, 0.6588, 0.2353, 1)
 theme_override_font_sizes/font_size = 24
@@ -54,7 +54,7 @@ theme_type_variation = &"NotePanel"
 [node name="Text" type="Label" parent="Center/Card/VBox/Note"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Seu turno termina à meia-noite. Atenda as chamadas, conecte-as corretamente e registre todas as ocorrências."
+text = ""
 theme_type_variation = &"InkMonoLabel"
 theme_override_font_sizes/font_size = 24
 autowrap_mode = 3
@@ -62,7 +62,7 @@ custom_minimum_size = Vector2(448, 0)
 
 [node name="Info" type="Label" parent="Center/Card/VBox"]
 layout_mode = 2
-text = "Tudo acontece na sua mesa. Use o mouse para levar os plugues até as tomadas e para consultar a lista, o mapa e o caderno. Mais de uma linha pode tocar ao mesmo tempo. Use fones de ouvido."
+text = "INTRO_INFO"
 theme_type_variation = &"DimLabel"
 theme_override_font_sizes/font_size = 14
 autowrap_mode = 3
@@ -83,7 +83,7 @@ layout_mode = 2
 size_flags_horizontal = 0
 theme_type_variation = &"AmberButton"
 theme_override_font_sizes/font_size = 17
-text = "Começar turno"
+text = "START_SHIFT"
 
 [node name="Reset" type="Button" parent="Center/Card/VBox/Buttons"]
 unique_name_in_owner = true
@@ -93,4 +93,4 @@ size_flags_horizontal = 0
 size_flags_vertical = 4
 focus_mode = 0
 theme_type_variation = &"DarkButton"
-text = "Recomeçar da primeira noite"
+text = "RESTART_FIRST_NIGHT"

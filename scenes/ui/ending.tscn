@@ -30,14 +30,14 @@ theme_override_constants/separation = 22
 
 [node name="Title" type="Label" parent="Center/VBox"]
 layout_mode = 2
-text = "Fim da demonstração"
+text = "END_DEMO_TITLE"
 theme_override_font_sizes/font_size = 30
 unique_name_in_owner = true
 horizontal_alignment = 1
 
 [node name="Question" type="Label" parent="Center/VBox"]
 layout_mode = 2
-text = "Você atenderia novamente?"
+text = "END_DEMO_QUESTION"
 theme_override_fonts/font = ExtResource("2_vt323_regula")
 theme_override_colors/font_color = Color(0.9529, 0.6588, 0.2353, 1)
 theme_override_font_sizes/font_size = 36
@@ -56,7 +56,7 @@ layout_mode = 2
 size_flags_horizontal = 4
 focus_mode = 0
 theme_type_variation = &"DarkButton"
-text = "Recomeçar da primeira noite"
+text = "RESTART_FIRST_NIGHT"
 
 [node name="ReportView" parent="." instance=ExtResource("3_report")]
 unique_name_in_owner = true

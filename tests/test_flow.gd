@@ -26,6 +26,48 @@ func _step(kind: PrankStep.Kind, text := "", requires := PackedStringArray()) ->
 	return st
 
 
+## Lacunas de um texto (%s, %02d, {place}...), para comparar entre idiomas.
+func _holes(s: String) -> Array:
+	var re := RegEx.create_from_string("%[0-9]*[sd]|\\{[a-z_]+\\}")
+	var out := re.search_all(s).map(func(m: RegExMatch): return m.get_string())
+	out.sort()
+	return out
+
+
+## Traduções: toda chave do enum tem texto nos três idiomas com as mesmas lacunas; toda chave usada nas cenas existe;
+## as falas traduzidas (.po) mantêm as lacunas do português.
+func _check_translations() -> void:
+	for lang in ["en", "es", "pt_BR"]:
+		TranslationServer.set_locale(lang)
+		for k in T.Key.values():
+			var name: String = T.Key.find_key(k)
+			ok(T.text(k) != name, "chave sem texto em %s: %s" % [lang, name])
+	var csv := FileAccess.open("res://translations/ui.csv", FileAccess.READ)
+	csv.get_csv_line()
+	while not csv.eof_reached():
+		var row := csv.get_csv_line()
+		if row.size() >= 4:
+			ok(_holes(row[1]) == _holes(row[2]) and _holes(row[1]) == _holes(row[3]), "lacunas diferentes entre idiomas: " + row[0])
+	for f in DirAccess.get_files_at("res://scenes/ui") + PackedStringArray(["../main.tscn"]):
+		if f.ends_with(".tscn"):
+			for line in FileAccess.get_file_as_string("res://scenes/ui/" + f).split("\n"):
+				var m := RegEx.create_from_string("^(?:text|placeholder_text) = \"([A-Z][A-Z0-9_]+)\"$").search(line)
+				ok(m == null or T.Key.has(m.get_string(1)), "chave inexistente na cena %s: %s" % [f, m.get_string(1) if m else ""])
+	for lang in ["en", "es"]:
+		var po := FileAccess.get_file_as_string("res://translations/content.%s.po" % lang)
+		var empty := 0
+		for m in RegEx.create_from_string("msgid \"((?:[^\"\\\\]|\\\\.)*)\"\nmsgstr \"((?:[^\"\\\\]|\\\\.)*)\"").search_all(po):
+			if m.get_string(1) == "":
+				continue
+			if m.get_string(2) == "":
+				empty += 1
+			else:
+				ok(_holes(m.get_string(1)) == _holes(m.get_string(2)), "lacunas diferentes (%s): %s" % [lang, m.get_string(1)])
+		if empty > 0:
+			print("aviso: %d falas sem tradução em %s (rode tools/update_translations.gd e traduza)" % [empty, lang])
+	TranslationServer.set_locale("pt_BR")   # o padrão do jogo (Settings não existe ao compilar um teste)
+
+
 func _extra(t: TransferCall) -> PhoneCall:
 	return PhoneCall.from_transfer(t)
 
@@ -84,6 +126,7 @@ func _initialize() -> void:
 		var house := int(e.address.get_slice(", ", 1))
 		ok(GameData.street(e.street) != null and e.block == floori(house / 100.0) and house >= 1, "molde: trecho bate com o número " + e.address)
 		ok(not holes.call(Array(e.answers) + [e.opening, e.after]), "molde de emergência preenchido: " + e.opening)
+	_check_translations()
 	var places := C.directory.filter(func(d): return not d.reasons.is_empty())
 	print("OK 0 conteúdo (%d transferências, %d emergências, %d trotes; moldes: %d de transferência para %d contatos, %d de emergência)" % [
 		C.transfers.size(), C.emergencies.size(), C.pranks.size(), C.transfer_templates.size(), places.size(), C.emergency_templates.size()])
@@ -170,7 +213,7 @@ func _initialize() -> void:
 
 	# ---- 3. t3 desiste; caderno em fila
 	ok(await wait_until(func(): return t3.ended, 10.0), "t3 desistiu")
-	ok(t3.record["obs"] == "Não atendida.", "registro de não atendida")
+	ok(t3.record["obs"] == T.text(T.Key.OBS_NOT_ANSWERED), "registro de não atendida")
 	var nb = m.notebook
 	ok(nb.queue.size() >= 1, "ocorrências em fila")
 	var before: int = nb.queue.size()
@@ -216,7 +259,7 @@ func _initialize() -> void:
 	m.after = true
 	m.myst_line = 4
 	_move(0, 4)
-	ok(await wait_until(func(): return m.phone.display_text() == "NÚMERO NÃO EXISTE", 10.0), "número não existe")
+	ok(await wait_until(func(): return m.phone.display_text() == T.text(T.Key.DISPLAY_NO_NUMBER), 10.0), "número não existe")
 	ok(m.flags.has("ligou_de_volta_1"), "marcador automático: ligou de volta")
 	print("OK 6 ligação de volta ao desconhecido")
 

@@ -104,7 +104,7 @@ func _render_transcript() -> void:
 				"sys":
 					s += "[color=#9a917a][font_size=13]%s[/font_size][/color]\n" % text
 				"op":
-					s += "[color=#8dbb6c]%s[/color]  %s\n" % [tr("Você"), text]
+					s += "[color=#8dbb6c]%s[/color]  %s\n" % [T.text(T.Key.YOU), text]
 				"ghost":
 					s += "[color=#f3a83c]—[/color]  [color=#c6d3c4]%s[/color]\n" % text
 				_:
@@ -121,6 +121,7 @@ func _render_choices() -> void:
 	for o in _call.options:
 		var b := Button.new()
 		b.text = o["label"]
+		b.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED   # já vem traduzido
 		b.theme_type_variation = &"ChoiceButton"
 		b.focus_mode = Control.FOCUS_NONE
 		b.disabled = _call.talking

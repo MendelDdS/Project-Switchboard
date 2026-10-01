@@ -11,8 +11,9 @@ var _queue: Array[String] = []
 var _busy := false
 
 
+## `text` já traduzido.
 func say(text: String) -> void:
-	_queue.append(tr(text))
+	_queue.append(text)
 	if not _busy:
 		_next()
 

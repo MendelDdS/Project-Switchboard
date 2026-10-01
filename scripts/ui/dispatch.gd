@@ -12,8 +12,8 @@ signal arrived(e: EmergencyCall, result: String, occurrence: String, extra: Arra
 
 enum Unit { AVAILABLE, EN_ROUTE, ON_SITE, RETURNING }
 const UNIT_IDS := ["pol", "bomb", "amb"]
-const UNIT_NAMES := {"pol": "Polícia", "bomb": "Bombeiros", "amb": "Ambulância"}
-const UNIT_STATUS := ["DISPONÍVEL", "EM DESLOCAMENTO", "NO LOCAL", "RETORNANDO"]
+const UNIT_NAMES := {"pol": T.Key.UNIT_POLICE, "bomb": T.Key.UNIT_FIRE, "amb": T.Key.UNIT_AMBULANCE}
+const UNIT_STATUS := [T.Key.UNIT_AVAILABLE, T.Key.UNIT_EN_ROUTE, T.Key.UNIT_ON_SITE, T.Key.UNIT_RETURNING]
 
 var city: CityMap
 var radio: Radio
@@ -47,7 +47,7 @@ func _ready() -> void:
 		_occurrences.add_child(b)
 	for u in UNIT_IDS:
 		var b: Button = _unit_buttons[u]
-		b.text = "[ %s ]" % tr(UNIT_NAMES[u]).to_upper()
+		b.text = "[ %s ]" % T.text(UNIT_NAMES[u]).to_upper()
 		b.toggled.connect(func(_on): Sfx.play("sw"))
 	_refresh()
 
@@ -75,7 +75,7 @@ func en_route() -> bool:
 
 func _refresh() -> void:
 	var has_loc := not _location.is_empty()
-	_loc_label.text = _location["label"] if has_loc else tr("Marque o local no mapa")
+	_loc_label.text = _location["label"] if has_loc else T.text(T.Key.DISPATCH_MARK_MAP)
 	_loc_label.add_theme_color_override("font_color", Pal.INK if has_loc else Pal.INK_SOFT)
 	for u in UNIT_IDS:
 		var free: bool = _units[u] == Unit.AVAILABLE
@@ -84,15 +84,15 @@ func _refresh() -> void:
 		if not free:
 			b.set_pressed_no_signal(false)
 		var st: Label = _unit_status[u]
-		st.text = tr(UNIT_STATUS[_units[u]])
+		st.text = T.text(UNIT_STATUS[_units[u]])
 		st.add_theme_color_override("font_color", Pal.INK if free else Color("8a3a14"))
 	var busy := UNIT_IDS.filter(func(u): return _units[u] != Unit.AVAILABLE)
 	_report.visible = not busy.is_empty()
 	_report.text = ""
 	if not busy.is_empty():
-		var lines := PackedStringArray([tr("SITUAÇÃO DAS UNIDADES")])
+		var lines := PackedStringArray([T.text(T.Key.DISPATCH_UNITS_STATUS)])
 		for u in busy:
-			lines.append("%-12s %s" % [tr(UNIT_NAMES[u]), tr(UNIT_STATUS[_units[u]])])
+			lines.append("%-12s %s" % [T.text(UNIT_NAMES[u]), T.text(UNIT_STATUS[_units[u]])])
 		_report.text = "\n".join(lines)
 
 
@@ -103,14 +103,14 @@ func _selected_units() -> Array:
 func _send() -> void:
 	var us := _selected_units()
 	if _location.is_empty():
-		_message.text = tr("Marque o local no mapa antes de enviar.")
+		_message.text = T.text(T.Key.DISPATCH_MARK_FIRST)
 		return
 	var occ := _occ_group.get_pressed_button()
 	if occ == null:
-		_message.text = tr("Escolha o tipo da ocorrência.")
+		_message.text = T.text(T.Key.CHOOSE_TYPE)
 		return
 	if us.is_empty():
-		_message.text = tr("Selecione ao menos uma unidade.")
+		_message.text = T.text(T.Key.DISPATCH_SELECT_UNIT)
 		return
 	_message.text = ""
 	var target := _location.duplicate()
@@ -121,11 +121,11 @@ func _send() -> void:
 	for u in us:
 		_units[u] = Unit.EN_ROUTE
 		city.trip(u, target)
-		names.append(tr(UNIT_NAMES[u]))
+		names.append(T.text(UNIT_NAMES[u]))
 	_refresh()
 	sent.emit(String(target["label"]), ", ".join(names))
 	await get_tree().create_timer(1.8).timeout
-	radio.say(["Central, unidade a caminho.", "Central, recebido. Deslocando."].pick_random())
+	radio.say(T.text([T.Key.RADIO_ON_WAY, T.Key.RADIO_COPY].pick_random()))
 	await get_tree().create_timer(5.6).timeout
 	_arrive(us, target)
 
@@ -138,11 +138,11 @@ func _arrive(us: Array, target: Dictionary) -> void:
 	var result := "ok"
 	var extra := []
 	if _incident.is_empty() or _incident["resolved"]:
-		msg = tr("Central, estamos no local. Nada a relatar. Retornando.")
+		msg = T.text(T.Key.RADIO_NOTHING)
 		result = "idle"
 	elif _incident["street"] != target["street"] or _incident["block"] != target["block"]:
 		# endereço errado: não há nada a fazer lá, e as unidades voltam a ficar disponíveis
-		msg = tr("Central, estamos na %s e não há nada aqui. Retornando.") % String(target["label"]).split(",")[0]
+		msg = T.text(T.Key.RADIO_WRONG_PLACE) % String(target["label"]).split(",")[0]
 		result = "wrong_place"
 	else:
 		for u in us:
@@ -153,17 +153,17 @@ func _arrive(us: Array, target: Dictionary) -> void:
 		var miss := []
 		for r in _incident["req"]:
 			if not r in _incident["sent"]:
-				miss.append(tr(UNIT_NAMES[r]).to_lower())
+				miss.append(T.text(UNIT_NAMES[r]).to_lower())
 		if not miss.is_empty():
-			msg = tr("Central, precisamos de %s aqui na %s.") % [(" %s " % tr("e")).join(PackedStringArray(miss)), _incident["addr"]]
+			msg = T.text(T.Key.RADIO_NEED) % [(" %s " % T.text(T.Key.AND)).join(PackedStringArray(miss)), _incident["addr"]]
 			result = "missing"
 		else:
-			msg = tr("Central, equipe no local. Vítimas atendidas, situação sob controle.")
+			msg = T.text(T.Key.RADIO_UNDER_CONTROL)
 			_incident["resolved"] = true
 	radio.say(msg)
 	if not extra.is_empty():
-		var names := PackedStringArray(extra.map(func(u): return tr(UNIT_NAMES[u]).to_lower()))
-		radio.say(tr("Central, aqui não precisa de %s. Liberando.") % (" %s " % tr("e")).join(names))
+		var names := PackedStringArray(extra.map(func(u): return T.text(UNIT_NAMES[u]).to_lower()))
+		radio.say(T.text(T.Key.RADIO_NOT_NEEDED) % (" %s " % T.text(T.Key.AND)).join(names))
 	arrived.emit(null if result == "idle" else _incident["call"], result, target["occurrence"], extra)
 	# no endereço errado, e quem não era necessário, voltam logo a ficar disponíveis
 	var quick: Array = us if result == "wrong_place" else extra

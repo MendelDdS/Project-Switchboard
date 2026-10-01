@@ -29,7 +29,7 @@ theme_override_constants/separation = 8
 
 [node name="Title" type="Label" parent="Paper/Margin/VBox"]
 layout_mode = 2
-text = "Relatório do supervisor"
+text = "REPORT_TITLE"
 theme_type_variation = &"InkLabel"
 theme_override_font_sizes/font_size = 22
 
@@ -64,4 +64,4 @@ layout_mode = 2
 size_flags_horizontal = 8
 focus_mode = 0
 theme_type_variation = &"InkButton"
-text = "Assinar e sair"
+text = "REPORT_SIGN"

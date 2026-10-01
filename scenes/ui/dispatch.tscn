@@ -8,13 +8,13 @@ script = ExtResource("1_dispatch")
 
 [node name="Title" type="Label" parent="."]
 layout_mode = 2
-text = "DESPACHO"
+text = "DISPATCH_TITLE"
 theme_type_variation = &"InkMonoLabel"
 theme_override_font_sizes/font_size = 32
 
 [node name="LocCaption" type="Label" parent="."]
 layout_mode = 2
-text = "LOCAL:"
+text = "DISPATCH_LOCATION"
 theme_type_variation = &"InkMonoLabel"
 theme_override_colors/font_color = Color(0.3529, 0.302, 0.2275, 1)
 theme_override_font_sizes/font_size = 19
@@ -25,7 +25,7 @@ theme_override_constants/separation = 14
 
 [node name="Location" type="Label" parent="LocRow"]
 layout_mode = 2
-text = "Marque o local no mapa"
+text = "DISPATCH_MARK_MAP"
 theme_type_variation = &"InkMonoLabel"
 theme_override_font_sizes/font_size = 24
 unique_name_in_owner = true
@@ -37,7 +37,7 @@ layout_mode = 2
 focus_mode = 0
 theme_type_variation = &"PaperToggle"
 theme_override_font_sizes/font_size = 17
-text = "Abrir mapa"
+text = "DISPATCH_OPEN_MAP"
 
 [node name="Gap1" type="Control" parent="."]
 custom_minimum_size = Vector2(0, 4)
@@ -45,7 +45,7 @@ layout_mode = 2
 
 [node name="OccCaption" type="Label" parent="."]
 layout_mode = 2
-text = "OCORRÊNCIA:"
+text = "DISPATCH_INCIDENT"
 theme_type_variation = &"InkMonoLabel"
 theme_override_colors/font_color = Color(0.3529, 0.302, 0.2275, 1)
 theme_override_font_sizes/font_size = 19
@@ -62,7 +62,7 @@ layout_mode = 2
 
 [node name="UnitsCaption" type="Label" parent="."]
 layout_mode = 2
-text = "UNIDADES:"
+text = "DISPATCH_UNITS"
 theme_type_variation = &"InkMonoLabel"
 theme_override_colors/font_color = Color(0.3529, 0.302, 0.2275, 1)
 theme_override_font_sizes/font_size = 19
@@ -79,12 +79,12 @@ focus_mode = 0
 theme_type_variation = &"PaperToggle"
 theme_override_font_sizes/font_size = 21
 toggle_mode = true
-text = "[ POLÍCIA ]"
+text = ""
 alignment = 0
 
 [node name="StatusPol" type="Label" parent="RowPol"]
 layout_mode = 2
-text = "DISPONÍVEL"
+text = "UNIT_AVAILABLE"
 theme_type_variation = &"InkMonoLabel"
 theme_override_font_sizes/font_size = 21
 unique_name_in_owner = true
@@ -102,12 +102,12 @@ focus_mode = 0
 theme_type_variation = &"PaperToggle"
 theme_override_font_sizes/font_size = 21
 toggle_mode = true
-text = "[ BOMBEIROS ]"
+text = ""
 alignment = 0
 
 [node name="StatusBomb" type="Label" parent="RowBomb"]
 layout_mode = 2
-text = "DISPONÍVEL"
+text = "UNIT_AVAILABLE"
 theme_type_variation = &"InkMonoLabel"
 theme_override_font_sizes/font_size = 21
 unique_name_in_owner = true
@@ -125,12 +125,12 @@ focus_mode = 0
 theme_type_variation = &"PaperToggle"
 theme_override_font_sizes/font_size = 21
 toggle_mode = true
-text = "[ AMBULÂNCIA ]"
+text = ""
 alignment = 0
 
 [node name="StatusAmb" type="Label" parent="RowAmb"]
 layout_mode = 2
-text = "DISPONÍVEL"
+text = "UNIT_AVAILABLE"
 theme_type_variation = &"InkMonoLabel"
 theme_override_font_sizes/font_size = 21
 unique_name_in_owner = true
@@ -149,7 +149,7 @@ unique_name_in_owner = true
 layout_mode = 2
 focus_mode = 0
 theme_type_variation = &"PaperInk"
-text = "[ ENVIAR ]"
+text = "DISPATCH_SEND"
 
 [node name="Message" type="Label" parent="SendRow"]
 layout_mode = 2

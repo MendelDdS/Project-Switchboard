@@ -104,10 +104,10 @@ func _draw() -> void:
 		var wdt := 260.0
 		var pg = pages[pi] if pi < pages.size() else null
 		if pg == null:
-			draw_string(mono, Vector2(x0, 26), tr("Anotações"), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Pal.INK_SOFT)
+			draw_string(mono, Vector2(x0, 26), T.text(T.Key.BOOK_NOTES), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Pal.INK_SOFT)
 			draw_string(mono, Vector2(x0, 26), str(pi + 1), HORIZONTAL_ALIGNMENT_RIGHT, wdt, 18, Pal.INK_SOFT)
 			draw_rect(Rect2(x0, 31, wdt, 2), Pal.INK_SOFT)
-			var note := tr("Emergências não se transferem: marque o local no mapa e use o despacho.\n\nFarmácia de plantão nesta semana: Santa Rita.\n\nLinhas 01 a 10 são da mesa 1.")
+			var note := T.text(T.Key.BOOK_NOTE_TEXT)
 			draw_multiline_string(Pal.ui, Vector2(x0, 58), note, HORIZONTAL_ALIGNMENT_LEFT, wdt, 14, -1, Pal.INK_SOFT)
 			continue
 		var first: String = pg[0].name.substr(0, 1)

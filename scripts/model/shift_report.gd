@@ -7,22 +7,22 @@ enum Severity { LIGHT, MEDIUM, SEVERE }
 enum Outcome { OK, LATE, BAD }
 
 const SEVERE_LIMIT := 3
-const SEVERITY_NAMES := ["leve", "média", "grave"]
-## id -> [gravidade, descrição]
+const SEVERITY_NAMES := [T.Key.SEV_LIGHT, T.Key.SEV_MEDIUM, T.Key.SEV_SEVERE]
+## id -> [gravidade, descrição (T.Key)]
 const FAULTS := {
-	"missed": [Severity.MEDIUM, "Ligação não atendida"],
-	"hold": [Severity.MEDIUM, "Solicitante desistiu na espera"],
-	"wrong_number": [Severity.MEDIUM, "Conectou o número errado"],
-	"cut_call": [Severity.MEDIUM, "Conversa cortada no meio"],
-	"wrong_info": [Severity.LIGHT, "Informação errada"],
-	"register_wrong": [Severity.LIGHT, "Registro com o tipo errado"],
-	"register_missing": [Severity.LIGHT, "Ocorrência sem registro"],
-	"dispatch_wrong_place": [Severity.SEVERE, "Unidades enviadas ao endereço errado"],
-	"dispatch_missing": [Severity.MEDIUM, "Faltaram unidades no despacho"],
-	"dispatch_idle": [Severity.MEDIUM, "Unidades enviadas sem ocorrência"],
-	"dispatch_extra": [Severity.LIGHT, "Unidade enviada sem necessidade"],
-	"dispatch_type": [Severity.LIGHT, "Ocorrência classificada errado"],
-	"emergency_dropped": [Severity.SEVERE, "Emergência encerrada sem despacho"],
+	"missed": [Severity.MEDIUM, T.Key.FAULT_MISSED],
+	"hold": [Severity.MEDIUM, T.Key.FAULT_HOLD],
+	"wrong_number": [Severity.MEDIUM, T.Key.FAULT_WRONG_NUMBER],
+	"cut_call": [Severity.MEDIUM, T.Key.FAULT_CUT_CALL],
+	"wrong_info": [Severity.LIGHT, T.Key.FAULT_WRONG_INFO],
+	"register_wrong": [Severity.LIGHT, T.Key.FAULT_REGISTER_WRONG],
+	"register_missing": [Severity.LIGHT, T.Key.FAULT_REGISTER_MISSING],
+	"dispatch_wrong_place": [Severity.SEVERE, T.Key.FAULT_DISPATCH_WRONG_PLACE],
+	"dispatch_missing": [Severity.MEDIUM, T.Key.FAULT_DISPATCH_MISSING],
+	"dispatch_idle": [Severity.MEDIUM, T.Key.FAULT_DISPATCH_IDLE],
+	"dispatch_extra": [Severity.LIGHT, T.Key.FAULT_DISPATCH_EXTRA],
+	"dispatch_type": [Severity.LIGHT, T.Key.FAULT_DISPATCH_TYPE],
+	"emergency_dropped": [Severity.SEVERE, T.Key.FAULT_EMERGENCY_DROPPED],
 }
 
 var night := 1
