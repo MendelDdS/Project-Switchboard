@@ -27,18 +27,12 @@ static func entry(number: String) -> DirectoryEntry:
 	return null
 
 
-const DIGITS := [T.Key.DIGIT_0, T.Key.DIGIT_1, T.Key.DIGIT_2, T.Key.DIGIT_3, T.Key.DIGIT_4, T.Key.DIGIT_5,
-	T.Key.DIGIT_6, T.Key.DIGIT_7, T.Key.DIGIT_8, T.Key.DIGIT_9]
-
-
-## Tradução de uma fala do conteúdo (funções estáticas não têm tr()).
-static func tr_text(s: String) -> String:
-	return String(TranslationServer.translate(s))
+const DIGITS := ["zero", "um", "dois", "três", "quatro", "cinco", "seis", "sete", "oito", "nove"]
 
 
 ## Traduz o molde, preenche as lacunas {x} e põe a primeira letra em maiúscula.
 static func fill(template: String, vars: Dictionary) -> String:
-	var s := tr_text(template).format(vars)
+	var s := String(TranslationServer.translate(template)).format(vars)
 	return s.left(1).to_upper() + s.substr(1)
 
 
@@ -49,10 +43,10 @@ static func template_transfer(exclude: Array = []) -> TransferCall:
 	var fresh := places.filter(func(d: DirectoryEntry): return not d.number in exclude)
 	var e: DirectoryEntry = (fresh if not fresh.is_empty() else places).pick_random()
 	var vars := {
-		"place": tr_text(e.spoken), "of_place": tr_text("d" + e.spoken), "to_place": tr_text("pr" + e.spoken),
+		"place": e.spoken, "of_place": "d" + e.spoken, "to_place": "pr" + e.spoken,
 		"street": e.address.get_slice(",", 0), "number": e.number,
-		"digits": ", ".join(Array(e.number.split("")).map(func(ch: String): return T.text(DIGITS[int(ch)]))),
-		"reason": tr_text(pick(e.reasons)),
+		"digits": ", ".join(Array(e.number.split("")).map(func(ch: String): return DIGITS[int(ch)])),
+		"reason": String(TranslationServer.translate(pick(e.reasons))),
 	}
 	var tpl: TransferCall = CONTENT.transfer_templates.pick_random()
 	var who := pick(CONTENT.callers).split(":")

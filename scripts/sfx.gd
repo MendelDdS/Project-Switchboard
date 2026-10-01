@@ -36,7 +36,15 @@ const GONGS := [1150.0, 1370.0]   # as duas campânulas, levemente dissonantes (
 ## Atrito do fio no buraco (`cord_rub`): abaixo de RUB_MIN px/s, silêncio; em RUB_FULL, volume e tom no máximo.
 const RUB_MIN := 25.0
 const RUB_FULL := 600.0
-const RUB_PITCH := Vector2(0.8, 1.35)
+const RUB_PITCH := Vector2(1.0, 1.5)
+## O agudo do atrito (fibras e rangido) é um som à parte: mudo abaixo de RUB_HI_FROM px/s (devagar, só o fio),
+## volume normal em RUB_HI_NORMAL (médio) e RUB_HI_BOOST dB a mais em RUB_FULL (rápido).
+const RUB_HI_FROM := 120.0
+const RUB_HI_NORMAL := 300.0
+const RUB_HI_BOOST := 6.0
+## Os dois passam pelo barramento "Rub" (vai para Effects), com um passa-baixa que abre com a velocidade: fechado em
+## RUB_LP.x Hz até RUB_HI_FROM (devagar, só o "shhh" grave do fio), aberto em RUB_LP.y a partir de RUB_HI_NORMAL.
+const RUB_LP := Vector2(900.0, 11000.0)
 
 const VMAP := {"a": "a", "á": "a", "à": "a", "â": "a", "ã": "a", "e": "e", "é": "e", "ê": "e", "i": "i", "í": "i", "o": "o", "ó": "o", "ô": "o", "õ": "o", "u": "u", "ú": "u"}
 
@@ -47,9 +55,11 @@ var breeze: AudioStreamPlayer
 var crickets: AudioStreamPlayer
 var hum: AudioStreamPlayer
 var hiss: AudioStreamPlayer
-var rub: AudioStreamPlayer        # atrito do fio no buraco, em loop
+var rub: AudioStreamPlayer        # atrito do fio no buraco, em loop: o fio (agarra e solta, corpo)
+var rub_hi: AudioStreamPlayer     # e o agudo (fibras, rangido), com volume próprio
 var _rub_speed := 0.0             # px/s pedidos desde o último quadro (zera a cada quadro: sem pedido, cala)
-var _rub_level := 0.0             # 0..1, suavizado
+var _rub_v := 0.0                 # px/s, suavizado
+var _rub_lp: AudioEffectLowPassFilter
 var weather := "rain"
 var _hushed := false
 var _ring_on := false
@@ -71,7 +81,10 @@ func _ready() -> void:
 	hum = _make_loop("hum")
 	hiss = _make_loop("hiss")
 	rub = _make_loop("rub")
-	rub.bus = &"Effects"
+	rub_hi = _make_loop("rub_hi")
+	for p in [rub, rub_hi]:
+		p.bus = &"Rub"
+	_rub_lp = AudioServer.get_bus_effect(AudioServer.get_bus_index(&"Rub"), 0)
 	_ring_timer = Timer.new()
 	_ring_timer.wait_time = 3.0
 	add_child(_ring_timer)
@@ -147,16 +160,29 @@ func cord_rub(speed: float) -> void:
 
 
 func _process(delta: float) -> void:
-	var target := clampf((_rub_speed - RUB_MIN) / (RUB_FULL - RUB_MIN), 0.0, 1.0)
+	_rub_v = lerpf(_rub_v, _rub_speed, minf(1.0, delta * 18.0))
 	_rub_speed = 0.0
-	_rub_level = lerpf(_rub_level, target, minf(1.0, delta * 18.0))
-	if _rub_level < 0.01:
+	var level := clampf((_rub_v - RUB_MIN) / (RUB_FULL - RUB_MIN), 0.0, 1.0)
+	if level < 0.01:
 		rub.stop()
+		rub_hi.stop()
 		return
-	if not rub.playing:
-		rub.play(randf() * rub.stream.get_length())   # cada arrasto começa num trecho diferente do loop
-	rub.volume_db = VOL["rub"] + linear_to_db(_rub_level)
-	rub.pitch_scale = lerpf(RUB_PITCH.x, RUB_PITCH.y, _rub_level)
+	if not rub.playing:   # cada arrasto começa num trecho diferente do loop
+		rub.play(randf() * rub.stream.get_length())
+		rub_hi.play(randf() * rub_hi.stream.get_length())
+	rub.volume_db = VOL["rub"] + linear_to_db(level)
+	rub_hi.volume_db = rub.volume_db + _rub_hi_db(_rub_v)
+	rub.pitch_scale = lerpf(RUB_PITCH.x, RUB_PITCH.y, level)
+	rub_hi.pitch_scale = rub.pitch_scale
+	var open := clampf((_rub_v - RUB_HI_FROM) / (RUB_HI_NORMAL - RUB_HI_FROM), 0.0, 1.0)
+	_rub_lp.cutoff_hz = RUB_LP.x * pow(RUB_LP.y / RUB_LP.x, open)   # abre em escala de oitavas, como o ouvido
+
+
+## Volume do agudo do atrito em relação ao fio, pela velocidade (px/s): mudo devagar, igual no médio, mais forte rápido.
+func _rub_hi_db(v: float) -> float:
+	if v < RUB_HI_NORMAL:
+		return maxf(linear_to_db(clampf((v - RUB_HI_FROM) / (RUB_HI_NORMAL - RUB_HI_FROM), 0.0, 1.0)), -80.0)
+	return RUB_HI_BOOST * clampf((v - RUB_HI_NORMAL) / (RUB_FULL - RUB_HI_NORMAL), 0.0, 1.0)
 
 
 func fade(p: AudioStreamPlayer, db: float, t: float) -> void:
@@ -557,17 +583,65 @@ func _cricket_syllable(at: float, f: float, dur: float, g: float) -> void:
 		_w[s0 + i] += sin(TAU * ph) * env * g
 
 
-## Atrito do fio na borda do buraco (loop): grãos curtos de ruído, densos e irregulares, como as fibras do
-## revestimento raspando no latão. Volume e tom mudam ao tocar (`cord_rub`).
+## Atrito do fio na borda do buraco: dois loops que tocam juntos (`cord_rub` controla o volume de cada um).
+## - "rub", o fio: prende e escorrega ("agarra e solta"), estalos médios bem juntos que viram um zumbido áspero,
+##   sobre um corpo grave contínuo.
+## - "rub_hi", o agudo: brilho de fibras raspando e o rangido de corda esfregada (o agarra-e-solta em ritmo quase
+##   regular faz a corda vibrar, como um arco). Some quando o fio passa devagar.
+## Os dois saem com o mesmo ganho, como se fossem um som só.
 func _build_rub() -> void:
 	_begin(1.4)
 	var t := 0.0
-	while t < 1.38:
-		_noise(t, randf_range(0.02, 0.045), "bp", randf_range(1000.0, 2400.0), 1.6, randf_range(0.3, 1.0))
-		t += randf_range(0.008, 0.022)
-	_w = _biquad(_w, "lp", 4200.0, 0.7)
-	_loopify(0.2)
-	_end("rub", false, true)
+	while t < 1.39:   # agarra e solta
+		_noise(t, randf_range(0.008, 0.016), "bp", randf_range(1550.0, 2850.0), 1.2, randf_range(0.5, 1.0))
+		t += randf_range(0.005, 0.010)
+	var body := PackedFloat32Array()   # corpo
+	body.resize(_w.size())
+	for i in body.size():
+		body[i] = randf_range(-0.6, 0.6)
+	body = _biquad(body, "lp", 920.0, 0.8)
+	for i in _w.size():
+		_w[i] += body[i]
+	var cord := _w
+
+	_begin(1.4)
+	t = 0.0
+	while t < 1.39:   # fibras
+		_noise(t, 0.06, "bp", randf_range(1700.0, 5700.0), 2.0, randf_range(0.08, 0.25))
+		t += randf_range(0.003, 0.008)
+	# rangido: pulsos quase regulares (o ritmo e a força variam devagar, em trechos que vêm e vão) que fazem
+	# soar duas ressonâncias curtas
+	var creak := PackedFloat32Array()
+	creak.resize(_w.size())
+	var rate := 220.0
+	var amp := 0.5
+	var i := 0
+	while i < creak.size():
+		creak[i] = amp * randf_range(0.7, 1.0)
+		rate = clampf(rate + randf_range(-20.0, 20.0), 170.0, 290.0)
+		amp = clampf(amp + randf_range(-0.04, 0.04), 0.1, 1.0)
+		i += int(RATE / rate * randf_range(0.92, 1.08))
+	var ring_a := _resonator(creak, 2500.0, 0.003)
+	var ring_b := _resonator(creak, 3700.0, 0.002)
+	for k in _w.size():
+		_w[k] += (ring_a[k] + ring_b[k] * 0.6) * 0.35
+	var hi := _w
+
+	# mesmo ganho nos dois: cada um sai com o pico que teria dentro da mistura
+	var layers := {"rub": cord, "rub_hi": hi}
+	for id in layers:
+		_w = _biquad(layers[id], "lp", 8000.0, 0.7)
+		_loopify(0.2)
+		layers[id] = _w
+	var mix := 0.0001
+	for k in mini(layers["rub"].size(), layers["rub_hi"].size()):
+		mix = maxf(mix, absf(layers["rub"][k] + layers["rub_hi"][k]))
+	for id in layers:
+		_w = layers[id]
+		var own := 0.0001
+		for v in _w:
+			own = maxf(own, absf(v))
+		_end(id, false, true, 0.8 * own / mix)
 
 
 ## Campainha antiga, "trrrim-trrrim": o martelinho bate 20 vezes por segundo em cada campânula, alternando.
