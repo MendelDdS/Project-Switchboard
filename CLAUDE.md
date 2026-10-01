@@ -30,11 +30,20 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `tr("texto")` com literal. Cenas: o `text` do Label/Button é a chave (auto-tradução do Godot). Falas dos roteiros
   (`data/`): português no Resource, `tr()` na hora de mostrar, traduções em `translations/content.{en,es}.po`
   (nomes próprios repetem o original). Depois de mexer em textos: `Godot --headless --path . -s
-  tools/update_translations.gd` (gera o enum e mescla os .po; campos fora da extração em `SKIP`). `Settings`
-  (autoload) fixa o idioma (`set_locale`; `-- --lang=en`). `GameData.tr_text()` traduz em funções estáticas.
+  tools/update_translations.gd` (gera o enum e mescla os .po; campos fora da extração em `SKIP`). `Settings.set_locale`
+  troca o idioma (o jogador escolhe em Configurações; padrão pt_BR; `-- --lang=en` força). `GameData.tr_text()` traduz em funções estáticas.
   Lacunas dos moldes também se traduzem: `tr(spoken)`, `tr("d" + spoken)`, `tr("pr" + spoken)` têm entradas próprias
   no .po. Texto que já chega traduzido num Button/Label dinâmico: `auto_translate_mode = DISABLED`.
-- Entrada: ação `cancel_plug` no Input Map (Esc e botão direito) devolve o plug que está na mão.
+- Entrada: ação `cancel_plug` no Input Map (Esc e botão direito) devolve o plug que está na mão; ação `pause` (Esc, P)
+  pausa o turno quando não há plug na mão (`Main._unhandled_input`).
+- **Pausa e configurações**: `PauseMenu` (`scenes/ui/pause_menu.tscn`, z 4, `process_mode` ALWAYS) usa
+  `get_tree().paused`. **Todo `create_timer` do jogo leva `false` no 2º argumento** (senão continua contando na pausa);
+  o `Sfx` roda sempre (ambiente segue, `Main.pause()` cala a campainha e `_update_bell` a devolve). Configurações no
+  autoload `Settings` (`user://settings.cfg`): `locale`, `volumes` por barramento, `text_speed` (`char_delay()`
+  multiplica o tempo por letra na conversa e no rádio); sinal `changed`. `set_*` vale na hora (prévia) mas só
+  `save()` grava (botão Aplicar); Voltar/Esc faz `restore(snapshot)` do estado de quando a tela abriu. Testes (`-s`) não leem nem gravam o arquivo.
+  Textos montados uma vez (botões do despacho, itens do caderno, telas desenhadas) se refazem em
+  `NOTIFICATION_TRANSLATION_CHANGED`.
 - Git: branch principal `development`; commits no padrão `tipo(#0000): descrição`. `.godot/` fica fora do git.
   Só faça commit quando o usuário pedir (na reestruturação ele autorizou um commit por etapa em `refactor/definitive`).
 - Comentário `ponytail:` marca um atalho deliberado; mantenha o código enxuto e no estilo do arquivo.
@@ -92,8 +101,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 ## Modelo da mesa (scripts/ui/switchboard.gd)
 - Tomadas por id inteiro: **1–10 entradas**, **11–20 saídas** (linha + 10), **destinos = o próprio número** (101–399,
   exceto 190/192/193, que vão pelo despacho).
-- `ends[]`: tomada de cada ponta (-1 = na base). **Ponta 0 = FONE** (cabo vermelho, encaixe `FoneSocket` no painel
-  do telefone, só entra em entradas). **Pontas 1..2*PATCHES = cabos de conexão** (ocre, independentes; `mate(e)`
+- `ends[]`: tomada de cada ponta (-1 = na base). **Ponta 0 = FONE** (cabo verde, encaixe `FoneSocket` no painel
+  do telefone, só entra em entradas). **Pontas 1..2*PATCHES = cabos de conexão** (vermelho, azul, amarelo em `CORD_COLORS`; independentes; `mate(e)`
   dá a outra ponta; uma ponta na saída, a outra no destino). `PATCHES = 3`.
 - `setup(exchange, socket)` liga a mesa ao estado e ao encaixe. `dest_of_output(n)` segue o cabo da saída n.
 - `refuse(e, j)` decide compatibilidade (e o destaque amarelo/vermelho). `_has_point` estende o clique ao encaixe
@@ -167,7 +176,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 3. Menos simultaneidade (extras espaçadas, pico raro).
 4. Conversas conectadas mais longas (45–90 min de jogo).
 5. Modelo de cabos refeito: pares com chaves FALAR/TOCAR foram **substituídos** por FONE + saídas + cabos de
-   conexão + botão Transferir (o usuário considera o vermelho "o cabo do fone").
+   conexão + botão Transferir (o usuário considera o vermelho "o cabo do fone"; depois o FONE passou a branco, depois a verde, e os
+   cabos de conexão a vermelho/azul/amarelo).
 6. Ligações continuam depois da linha 07; linha 07 em horário aleatório após 02:00; final às 06:00;
    clique devolve o plug à base com animação.
 7. Reestruturação para a versão definitiva (branch `refactor/definitive`): testes no projeto, semente fixa,
@@ -194,6 +204,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     máximo (`call_gap`), o que também acabou com silêncios de ~1 h. O primeiro valor (12–32 min) era rápido demais
     para uma pessoa; passou a 28–42 (noite 2: 26–40), medido com o robô `--human`. Silhueta sai 10 min antes de ligar, preta e
     contra a luz de um poste.
+17. Três idiomas (pt_BR, en, es): enum `T.Key` + CSV para a interface, .po para as falas.
+18. Menu de pausa (Esc) com Configurações (idioma, volumes, velocidade do texto), também na tela inicial.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

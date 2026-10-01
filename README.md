@@ -90,8 +90,9 @@ salvo): `-- --night=2`.
 
 ## Tradução
 
-Três idiomas: português (padrão), inglês e espanhol. O jogo sempre começa em português; a escolha do idioma vai
-ficar no menu de configurações (`Settings.set_locale`). Para testar: `godot --path . -- --lang=en` (ou `es`).
+Três idiomas: português (padrão), inglês e espanhol. O jogador escolhe em **Configurações** (no menu de pausa, com
+Esc, ou na tela inicial), junto com o volume de ambiente, vozes e efeitos e a velocidade do texto; tudo fica salvo em
+`user://settings.cfg`. Para testar um idioma: `godot --path . -- --lang=en` (ou `es`).
 
 - **Interface** (botões, dicas, rádio, relatório, falas fixas do operador): planilha `translations/ui.csv`, uma linha
   por texto: `chave,pt_BR,en,es`. No código, cada chave é um ENUM: `T.text(T.Key.START_SHIFT)`. Nas cenas, o texto
@@ -167,9 +168,9 @@ acende em amarelo se aceita, em vermelho se não.
 - **Entradas (01–10):** onde as chamadas chegam. A lâmpada pisca e o telefone toca.
 - **Saídas:** uma tomada logo abaixo de cada entrada, para o cabo de conexão.
 - **Destinos:** um plug por número da lista (menos polícia, bombeiros e hospital, que vão pelo despacho).
-- **FONE** (cabo vermelho): sai do encaixe no canto do telefone e só entra nas entradas.
+- **FONE** (cabo verde): sai do encaixe no canto do telefone e só entra nas entradas.
   A ligação da entrada onde o FONE está é a que aparece no telefone.
-- **Cabos de conexão** (ocre): `PATCHES = 3` em `scripts/ui/switchboard.gd`, independentes, com um plug em cada ponta:
+- **Cabos de conexão** (vermelho, azul e amarelo, `CORD_COLORS`): `PATCHES = 3` em `scripts/ui/switchboard.gd`, independentes, com um plug em cada ponta:
   uma ponta na SAÍDA da linha, a outra no destino.
 
 Transferência: FONE na entrada que pisca → **Atender** → o solicitante pede → cabo de conexão da SAÍDA da linha

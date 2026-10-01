@@ -90,7 +90,7 @@ func warn(text: String) -> void:
 	_warn.text = text
 	_warn_gen += 1
 	var g := _warn_gen
-	await get_tree().create_timer(4.0).timeout
+	await get_tree().create_timer(4.0, false).timeout
 	if g == _warn_gen:
 		_warn.text = ""
 

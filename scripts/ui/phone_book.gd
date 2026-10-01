@@ -139,3 +139,9 @@ func _draw() -> void:
 				draw_rect(Rect2(dx, dy, 2, 1), Pal.PAPER_LINE)
 				dx += 4
 			ey += eh
+
+
+## O idioma mudou nas configurações: redesenha os textos.
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED:
+		queue_redraw()

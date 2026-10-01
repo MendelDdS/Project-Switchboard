@@ -55,6 +55,8 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   `T.text()` recebe `int`.
 - **Chave de tradução igual ao texto** (ex.: `MANUAL`) parece "sem tradução" para quem confere `T.text(k) != nome`.
   Dê nomes que não coincidam com o texto.
+- **`get_tree().create_timer()` ignora a pausa por padrão** (`process_always = true`). Com `get_tree().paused`, todo
+  timer do jogo precisa de `create_timer(t, false)`, senão ligações desistem e falas andam com o jogo pausado.
 - **`randomize()` em `_ready` anula `seed()` chamado no teste**: para repetir a agenda, passe `-- --seed=N` (o Main
   lê antes de sortear). Mesmo com semente, detalhes que dependem do tempo de quadro variam; para reproduzir um caso
   exato, monte as ligações à mão no teste.

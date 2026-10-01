@@ -1,0 +1,169 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/pause_menu.gd" id="1_pause"]
+[ext_resource type="Script" path="res://scripts/ui/bevel.gd" id="2_bevel"]
+
+[node name="PauseMenu" type="ColorRect"]
+process_mode = 3
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.01961, 0.02353, 0.02745, 0.86)
+script = ExtResource("1_pause")
+
+[node name="Center" type="CenterContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+layout_mode = 1
+
+[node name="Card" type="MarginContainer" parent="Center"]
+custom_minimum_size = Vector2(460, 0)
+layout_mode = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 30
+script = ExtResource("2_bevel")
+
+[node name="Main" type="VBoxContainer" parent="Center/Card"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="Center/Card/Main"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "PAUSE_TITLE"
+
+[node name="Gap" type="Control" parent="Center/Card/Main"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+
+[node name="Resume" type="Button" parent="Center/Card/Main"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_type_variation = &"AmberButton"
+theme_override_font_sizes/font_size = 17
+text = "RESUME"
+
+[node name="OpenSettings" type="Button" parent="Center/Card/Main"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+theme_type_variation = &"DarkButton"
+text = "SETTINGS"
+
+[node name="RestartNight" type="Button" parent="Center/Card/Main"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+theme_type_variation = &"DarkButton"
+text = "RESTART_NIGHT"
+
+[node name="Quit" type="Button" parent="Center/Card/Main"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+theme_type_variation = &"DarkButton"
+text = "QUIT_GAME"
+
+[node name="Settings" type="VBoxContainer" parent="Center/Card"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="Center/Card/Settings"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "SETTINGS"
+
+[node name="Grid" type="GridContainer" parent="Center/Card/Settings"]
+layout_mode = 2
+theme_override_constants/h_separation = 24
+theme_override_constants/v_separation = 14
+columns = 2
+
+[node name="LanguageLabel" type="Label" parent="Center/Card/Settings/Grid"]
+layout_mode = 2
+text = "SETTINGS_LANGUAGE"
+
+[node name="Language" type="OptionButton" parent="Center/Card/Settings/Grid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AmbienceLabel" type="Label" parent="Center/Card/Settings/Grid"]
+layout_mode = 2
+text = "SETTINGS_VOL_AMBIENCE"
+
+[node name="Ambience" type="HSlider" parent="Center/Card/Settings/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.05
+
+[node name="VoicesLabel" type="Label" parent="Center/Card/Settings/Grid"]
+layout_mode = 2
+text = "SETTINGS_VOL_VOICES"
+
+[node name="Voices" type="HSlider" parent="Center/Card/Settings/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.05
+
+[node name="EffectsLabel" type="Label" parent="Center/Card/Settings/Grid"]
+layout_mode = 2
+text = "SETTINGS_VOL_EFFECTS"
+
+[node name="Effects" type="HSlider" parent="Center/Card/Settings/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.05
+
+[node name="SpeedLabel" type="Label" parent="Center/Card/Settings/Grid"]
+layout_mode = 2
+text = "SETTINGS_TEXT_SPEED"
+
+[node name="Speed" type="OptionButton" parent="Center/Card/Settings/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Gap" type="Control" parent="Center/Card/Settings"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+
+[node name="Buttons" type="HBoxContainer" parent="Center/Card/Settings"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Apply" type="Button" parent="Center/Card/Settings/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 38)
+layout_mode = 2
+theme_type_variation = &"AmberButton"
+text = "APPLY"
+
+[node name="Back" type="Button" parent="Center/Card/Settings/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 38)
+layout_mode = 2
+theme_type_variation = &"DarkButton"
+text = "BACK"

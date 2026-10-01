@@ -116,7 +116,7 @@ HINT_EMERGENCY,"Pergunte o que precisa. Marque o local no mapa, escolha o tipo d
 HINT_WRONG_DEST,Tire a ponta do cabo desse destino. Confira o nome e o endereço na lista: há nomes parecidos.,Pull the cord out of that destination. Check the name and address in the directory: some names are similar.,Quite el cable de ese destino. Revise el nombre y la dirección en la guía: hay nombres parecidos.
 HINT_WRONG_UNATTENDED,"Sem o FONE na linha, uma conexão errada cai. A pessoa vai ligar de novo: confira o número na lista antes de transferir.","Without the HEADSET on the line, a wrong connection drops. The caller will call back: check the number in the directory before transferring.","Sin el AURICULAR en la línea, una conexión equivocada se cae. La persona volverá a llamar: revise el número en la guía antes de transferir."
 HINT_RED_LAMPS,Lâmpadas vermelhas: a conversa terminou. Tire as duas pontas do cabo de conexão para liberar a linha e o cabo.,Red lamps: the conversation is over. Pull both ends of the patch cord to free the line and the cord.,Lámparas rojas: la conversación terminó. Quite las dos puntas del cable de conexión para liberar la línea y el cable.
-HINT_TUT_PLUG,"A lâmpada da entrada %02d está piscando. Arraste o [b]FONE[/b] (cabo vermelho, no telefone) até a tomada dessa entrada.","The lamp on input %02d is blinking. Drag the [b]HEADSET[/b] (red cord, on the phone) to that input's jack.","La lámpara de la entrada %02d está parpadeando. Arrastre el [b]AURICULAR[/b] (cable rojo, en el teléfono) hasta la toma de esa entrada."
+HINT_TUT_PLUG,"A lâmpada da entrada %02d está piscando. Arraste o [b]FONE[/b] (cabo verde, no telefone) até a tomada dessa entrada.","The lamp on input %02d is blinking. Drag the [b]HEADSET[/b] (green cord, on the phone) to that input's jack.","La lámpara de la entrada %02d está parpadeando. Arrastre el [b]AURICULAR[/b] (cable verde, en el teléfono) hasta la toma de esa entrada."
 HINT_ANOTHER_CALL,"Outra entrada chamando! Leve o [b]FONE[/b] até ela: a ligação atual fica em espera. Para voltar, leve o FONE de volta à entrada dela.","Another input is ringing! Take the [b]HEADSET[/b] to it: the current call goes on hold. To go back, return the HEADSET to its input.","¡Otra entrada está llamando! Lleve el [b]AURICULAR[/b] hasta ella: la llamada actual queda en espera. Para volver, lleve el AURICULAR de nuevo a su entrada."
 HINT_REMEMBER,"Lembre: FONE na entrada que pisca, depois Atender.","Remember: HEADSET on the blinking input, then Answer.","Recuerde: AURICULAR en la entrada que parpadea, luego Contestar."
 HINT_TUT_ANSWER,Agora clique em [b]Atender[/b] para falar com quem ligou.,Now click [b]Answer[/b] to talk to the caller.,Ahora haga clic en [b]Contestar[/b] para hablar con quien llamó.
@@ -236,3 +236,18 @@ FAULT_DISPATCH_IDLE,Unidades enviadas sem ocorrência,Units sent with no emergen
 FAULT_DISPATCH_EXTRA,Unidade enviada sem necessidade,Unit sent unnecessarily,Unidad enviada sin necesidad
 FAULT_DISPATCH_TYPE,Ocorrência classificada errado,Incident misclassified,Incidente mal clasificado
 FAULT_EMERGENCY_DROPPED,Emergência encerrada sem despacho,Emergency ended without dispatch,Emergencia terminada sin despacho
+PAUSE_TITLE,Pausa,Paused,Pausa
+RESUME,Continuar,Resume,Continuar
+SETTINGS,Configurações,Settings,Configuración
+RESTART_NIGHT,Recomeçar a noite,Restart the night,Reiniciar la noche
+QUIT_GAME,Sair do jogo,Quit game,Salir del juego
+BACK,Voltar,Back,Volver
+SETTINGS_LANGUAGE,Idioma,Language,Idioma
+SETTINGS_VOL_AMBIENCE,Ambiente,Ambience,Ambiente
+SETTINGS_VOL_VOICES,Vozes,Voices,Voces
+SETTINGS_VOL_EFFECTS,Efeitos,Effects,Efectos
+SETTINGS_TEXT_SPEED,Velocidade do texto,Text speed,Velocidad del texto
+SPEED_SLOW,Lenta,Slow,Lenta
+SPEED_NORMAL,Normal,Normal,Normal
+SPEED_FAST,Rápida,Fast,Rápida
+APPLY,Aplicar,Apply,Aplicar

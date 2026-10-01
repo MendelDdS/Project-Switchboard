@@ -27,15 +27,15 @@ func _next() -> void:
 	var t: String = _queue.pop_front()
 	_led.color = Pal.RED
 	Sfx.static_burst()
-	await get_tree().create_timer(0.45).timeout
+	await get_tree().create_timer(0.45, false).timeout
 	_screen.text = ""
 	var rv := false
 	for i in t.length():
 		_screen.text += t[i]
 		rv = Sfx.speak_char("r", t, i, rv)
-		await get_tree().create_timer(0.032).timeout
+		await get_tree().create_timer(0.032 * Settings.char_delay(), false).timeout
 	Sfx.static_burst(-2.0)
-	await get_tree().create_timer(1.6).timeout
+	await get_tree().create_timer(1.6, false).timeout
 	_led.color = LED_OFF
-	await get_tree().create_timer(0.4).timeout
+	await get_tree().create_timer(0.4, false).timeout
 	_next()

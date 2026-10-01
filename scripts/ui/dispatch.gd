@@ -46,9 +46,19 @@ func _ready() -> void:
 		b.pressed.connect(Sfx.play.bind("click"))
 		_occurrences.add_child(b)
 	for u in UNIT_IDS:
-		var b: Button = _unit_buttons[u]
-		b.text = "[ %s ]" % T.text(UNIT_NAMES[u]).to_upper()
-		b.toggled.connect(func(_on): Sfx.play("sw"))
+		(_unit_buttons[u] as Button).toggled.connect(func(_on): Sfx.play("sw"))
+	_texts()
+
+
+## O idioma mudou nas configurações.
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED and is_node_ready():
+		_texts()
+
+
+func _texts() -> void:
+	for u in UNIT_IDS:
+		(_unit_buttons[u] as Button).text = "[ %s ]" % T.text(UNIT_NAMES[u]).to_upper()
 	_refresh()
 
 
@@ -124,9 +134,9 @@ func _send() -> void:
 		names.append(T.text(UNIT_NAMES[u]))
 	_refresh()
 	sent.emit(String(target["label"]), ", ".join(names))
-	await get_tree().create_timer(1.8).timeout
+	await get_tree().create_timer(1.8, false).timeout
 	radio.say(T.text([T.Key.RADIO_ON_WAY, T.Key.RADIO_COPY].pick_random()))
-	await get_tree().create_timer(5.6).timeout
+	await get_tree().create_timer(5.6, false).timeout
 	_arrive(us, target)
 
 
@@ -174,12 +184,12 @@ func _arrive(us: Array, target: Dictionary) -> void:
 func _return(us: Array, stay: float, back: float) -> void:
 	if us.is_empty():
 		return
-	await get_tree().create_timer(stay).timeout
+	await get_tree().create_timer(stay, false).timeout
 	for u in us:
 		if _units[u] == Unit.ON_SITE:
 			_units[u] = Unit.RETURNING
 	_refresh()
-	await get_tree().create_timer(back).timeout
+	await get_tree().create_timer(back, false).timeout
 	for u in us:
 		if _units[u] == Unit.RETURNING:
 			_units[u] = Unit.AVAILABLE

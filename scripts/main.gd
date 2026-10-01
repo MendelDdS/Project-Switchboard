@@ -71,6 +71,7 @@ var _tick_acc := 0.0
 @onready var _glow: CanvasItem = %Glow
 @onready var _intro: Intro = %Intro
 @onready var _ending: Ending = %Ending
+@onready var _pause: PauseMenu = %PauseMenu
 
 
 func _ready() -> void:
@@ -91,6 +92,8 @@ func _ready() -> void:
 	phone.transfer_pressed.connect(transfer)
 	phone.hangup_pressed.connect(hangup)
 	_intro.start_pressed.connect(_start_shift)
+	_intro.settings_pressed.connect(_pause.open_settings)
+	_pause.resumed.connect(_update_bell)
 	tools.tab_changed.connect(_on_tab_changed)
 	tools.map_view.location_selected.connect(func(s: String, b: int, l: String):
 		dispatch.set_location(s, b, l)
@@ -194,9 +197,19 @@ func _nag() -> void:
 		conversation.say(f, GameData.pick(C.emergency_waiting))
 
 
+## Esc: primeiro devolve o plug que está na mão; sem plug na mão, pausa o turno.
 func _unhandled_input(e: InputEvent) -> void:
 	if e.is_action_pressed("cancel_plug") and board.held != -1:
 		board.go_home(board.held)
+		get_viewport().set_input_as_handled()
+	elif e.is_action_pressed("pause") and running and not ending:
+		get_viewport().set_input_as_handled()
+		pause()
+
+
+func pause() -> void:
+	Sfx.ring_stop()   # o Sfx segue tocando na pausa; a campainha volta com _update_bell ao continuar
+	_pause.open()
 
 
 # ================================================================ mesa comutadora
@@ -416,7 +429,7 @@ func _call_back_mystery() -> void:
 	flags.apply("ligou_de_volta_%d" % night_no)
 	phone.flash(T.text(T.Key.DISPLAY_LINE_DOTS) % myst_line, 60000)
 	Sfx.play("ringback")
-	await get_tree().create_timer(2.2).timeout
+	await get_tree().create_timer(2.2, false).timeout
 	Sfx.static_burst(2.0)
 	Sfx.play("sit")
 	phone.flash(T.text(T.Key.DISPLAY_NO_NUMBER), 3200)
@@ -671,11 +684,11 @@ func ring(c: PhoneCall) -> void:
 		_taught_ring = true
 		hint(T.text(T.Key.HINT_REMEMBER))
 	if c.kind == PhoneCall.Kind.MYSTERY:
-		await get_tree().create_timer(9.0).timeout
+		await get_tree().create_timer(9.0, false).timeout
 		if c.ringing and not ending:
 			warn(T.text(T.Key.WARN_PHONE_RINGING))
 	elif c != tut:
-		await get_tree().create_timer(GIVE_UP_SEC * (0.75 if c.retry != PhoneCall.Retry.NONE else 1.5 if c.story else 1.0)).timeout
+		await get_tree().create_timer(GIVE_UP_SEC * (0.75 if c.retry != PhoneCall.Retry.NONE else 1.5 if c.story else 1.0), false).timeout
 		if c.ringing:
 			end_call(c, PhoneCall.End.MISSED)
 
@@ -780,7 +793,7 @@ func end_call(c: PhoneCall, reason: PhoneCall.End) -> void:
 	c.record = _record(c, reason)
 	notebook.add(c.record)
 	_consequences(c, reason)
-	await get_tree().create_timer(1.5).timeout
+	await get_tree().create_timer(1.5, false).timeout
 	if ending:
 		return
 	if live.is_empty():
@@ -954,8 +967,8 @@ func _mystery_aftermath(c: PhoneCall) -> void:
 	flick = false
 	c.sys(T.text(T.Key.SYS_CALL_DROPPED))
 	after = true
-	get_tree().create_timer(1.8).timeout.connect(func(): Sfx.fade(Sfx.hum, -32.0, 3.0))
-	get_tree().create_timer(25.0).timeout.connect(Sfx.hush_nature.bind(false, 10.0))   # a noite volta aos poucos
+	get_tree().create_timer(1.8, false).timeout.connect(func(): Sfx.fade(Sfx.hum, -32.0, 3.0))
+	get_tree().create_timer(25.0, false).timeout.connect(Sfx.hush_nature.bind(false, 10.0))   # a noite volta aos poucos
 
 
 func _start_ending() -> void:
@@ -980,5 +993,5 @@ func _start_ending() -> void:
 			progress.severe = report.severe_total()
 			progress.flags = flags.names()
 			progress.save()
-	await get_tree().create_timer(5.0).timeout
+	await get_tree().create_timer(5.0, false).timeout
 	_ending.play(report, not last)

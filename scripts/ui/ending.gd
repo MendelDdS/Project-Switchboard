@@ -30,7 +30,7 @@ func play(report: ShiftReport, more: bool) -> void:
 		_restart.text = T.text(T.Key.NEXT_NIGHT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	create_tween().tween_property(self, "color:a", 1.0, 3.0)
-	await get_tree().create_timer(3.4).timeout
+	await get_tree().create_timer(3.4, false).timeout
 	_report.show_report(report)
 	_report.modulate.a = 0.0
 	_report.visible = true
@@ -39,8 +39,8 @@ func play(report: ShiftReport, more: bool) -> void:
 	await create_tween().tween_property(_report, "modulate:a", 0.0, 0.8).finished
 	_report.visible = false
 	create_tween().tween_property(_title, "modulate:a", 1.0, 2.0)
-	await get_tree().create_timer(2.6).timeout
+	await get_tree().create_timer(2.6, false).timeout
 	create_tween().tween_property(_question, "modulate:a", 1.0, 2.5)
-	await get_tree().create_timer(2.4).timeout
+	await get_tree().create_timer(2.4, false).timeout
 	_restart.visible = true
 	create_tween().tween_property(_restart, "modulate:a", 1.0, 1.5)

@@ -222,3 +222,9 @@ func _draw() -> void:
 	draw_rect(Rect2(548, 384, 36, 30), Color("cfc199"))
 	_t(Vector2(566, 400), "N", 16)
 	draw_colored_polygon(PackedVector2Array([Vector2(566, 402), Vector2(560, 411), Vector2(572, 411)]), LINE)
+
+
+## O idioma mudou nas configurações: redesenha os textos.
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED:
+		queue_redraw()

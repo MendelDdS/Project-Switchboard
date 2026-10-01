@@ -85,6 +85,15 @@ theme_type_variation = &"AmberButton"
 theme_override_font_sizes/font_size = 17
 text = "START_SHIFT"
 
+[node name="Settings" type="Button" parent="Center/Card/VBox/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+focus_mode = 0
+theme_type_variation = &"DarkButton"
+text = "SETTINGS"
+
 [node name="Reset" type="Button" parent="Center/Card/VBox/Buttons"]
 unique_name_in_owner = true
 visible = false

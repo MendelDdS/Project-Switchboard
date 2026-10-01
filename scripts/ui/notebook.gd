@@ -31,6 +31,16 @@ func _ready() -> void:
 	_fill()
 
 
+## O idioma mudou nas configurações (o que já foi registrado fica como foi escrito).
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED and is_node_ready():
+		for i in TYPES.size():
+			_type.set_item_text(i, T.text(TYPES[i]))
+		_render_ledger()
+		if has_pending():
+			_update_title()
+
+
 ## Pautas do caderno.
 func _draw() -> void:
 	for k in 18:

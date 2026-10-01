@@ -21,3 +21,9 @@ func _draw() -> void:
 	while fs > 9 and f.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > size.x - 38:
 		fs -= 1
 	draw_string(f, Vector2(34, 28), label, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Pal.BRASS)
+
+
+## O idioma mudou nas configurações: redesenha os textos.
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED:
+		queue_redraw()

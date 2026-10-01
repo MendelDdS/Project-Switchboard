@@ -60,13 +60,13 @@ func say(c: PhoneCall, text: String, pause: float = 0.55, who := "", voice := ""
 				li = c.add_line(who if who != "" else c.caller, "", "ghost" if ghost else "")
 			c.append_text(li, ch)
 			prev_vowel = Sfx.speak_char(voice, text, i, prev_vowel, paren)
-		var d := 0.062 if ghost else (0.09 if ch in [",", "."] else 0.028)
-		await get_tree().create_timer(d).timeout
+		var d := (0.062 if ghost else (0.09 if ch in [",", "."] else 0.028)) * Settings.char_delay()
+		await get_tree().create_timer(d, false).timeout
 		if c.ended:
 			c.set_talking(false)
 			return false
 	c.last_talk = Time.get_ticks_msec()
-	await get_tree().create_timer(pause).timeout
+	await get_tree().create_timer(pause, false).timeout
 	c.set_talking(false)
 	return not c.ended
 
@@ -78,12 +78,12 @@ func op(c: PhoneCall, text: String) -> bool:
 	c.add_line("", tr(text), "op")
 	Sfx.play("click")
 	c.last_talk = Time.get_ticks_msec()
-	await get_tree().create_timer(0.75).timeout
+	await get_tree().create_timer(0.75, false).timeout
 	return not c.ended
 
 
 func wait(c: PhoneCall, sec: float) -> bool:
-	await get_tree().create_timer(sec).timeout
+	await get_tree().create_timer(sec, false).timeout
 	return not c.ended
 
 

@@ -59,6 +59,7 @@ var _w := PackedFloat32Array()
 
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS   # o ambiente e os sons do menu seguem durante a pausa
 	_build_all()
 	for i in 20:
 		var p := AudioStreamPlayer.new()

@@ -1,7 +1,7 @@
 class_name Switchboard
 extends Control
 ## Mesa comutadora.
-## - ENTRADAS 01–10: onde as chamadas chegam. O FONE (cabo vermelho, que sai do telefone) entra aqui para atender.
+## - ENTRADAS 01–10: onde as chamadas chegam. O FONE (cabo verde, que sai do telefone) entra aqui para atender.
 ## - SAÍDAS: uma tomada logo abaixo de cada entrada. Uma ponta do cabo de conexão entra aqui...
 ## - DESTINOS: ...e a outra ponta no número pedido.
 ## Os cabos de conexão são poucos (PATCHES): desmontar as conexões encerradas libera cabos.
@@ -15,6 +15,14 @@ signal info_requested(jack: int)
 signal warned(text: String)
 
 const PATCHES := 3
+## [cor, brilho] de cada cabo: 0 = FONE (verde), 1..PATCHES = cabos de conexão (vermelho, azul, amarelo).
+## Mais cabos de conexão pedem mais cores aqui.
+const CORD_COLORS := [
+	[Color("3d6e34"), Color("6c9e58")],
+	[Color("8e2a22"), Color("c4493b")],
+	[Color("2a4a7c"), Color("4f7bb6")],
+	[Color("b48c1c"), Color("e6c24c")],
+]
 const DEST_COLS := 17
 const SIZE := Vector2(588, 330)
 const FONE_HOME := Vector2(18, 24)   # posição do plug do FONE dentro do encaixe
@@ -539,17 +547,15 @@ func _draw() -> void:
 			draw_string(Pal.mono, Vector2(bx + 10, by + 22 + k * 19), info_lines[k], HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Pal.GHOST if info_ghost else Pal.TEXT)
 
 
-## [cor, brilho] do cabo: FONE vermelho, conexão ocre.
+## [cor, brilho] do cabo da ponta e.
 func _cable_col(e: int) -> Array:
-	if e == 0:
-		return [Color("7d2e22"), Color("a8473a")]
-	return [Color("7a6524"), Color("b0923a")]
+	return CORD_COLORS[cable_of(e)]
 
 
 func _draw_rope(c: int) -> void:
 	if not ropes.has(c):
 		return
-	var col: Array = _cable_col(0 if c == 0 else 1)
+	var col: Array = CORD_COLORS[c]
 	var pts: PackedVector2Array = ropes[c]["pts"]
 	draw_polyline(pts, Color.BLACK, 8.0)
 	draw_polyline(pts, col[0], 5.0)
@@ -569,3 +575,9 @@ func _draw_plug(e: int) -> void:
 	draw_rect(Rect2(px - 5, py, 3, 18), col[1])
 	draw_rect(Rect2(px - 4, py - 9, 8, 9), Color.BLACK)
 	draw_rect(Rect2(px - 3, py - 8, 6, 8), Color("d9b56a"))
+
+
+## O idioma mudou nas configurações: redesenha os textos.
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED:
+		queue_redraw()
