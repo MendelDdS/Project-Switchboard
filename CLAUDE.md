@@ -123,7 +123,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   área onde o mouse o acorda) e deixa de ser simulado até a ponta, o buraco ou o mouse mexerem nele.
 - Sob o mouse: `_plug_under` (plug que dá para pegar → `_hover`, desenhado com contorno claro) e `_cursor_shape`
   (mão aberta, mão fechada segurando, proibido sobre tomada que recusa, dedo em tomada/plaqueta que informa).
-  Desenho na ordem `_order`: a ponta pega ou encaixada por último (`_raise`) fica por cima (e é a primeira no clique).
+  Desenho na ordem `_order`: a ponta pega ou encaixada por último (`_raise`) fica por cima (e é a primeira no clique);
+  cada ponta desenha fio e plug juntos, para o fio mais recente passar por cima dos plugs das outras.
 - Plug (`_draw_plug`): corpo na cor do cabo, anel de latão e ponta de metal; encaixado (`PLUG_SEAT`), a ponta some
   dentro da tomada e o anel assenta no buraco. `_plug_rect(seated)` é o contorno (clique, destaque e sombra).
   Sombras (`SHADOW`): fios deslocados `ROPE_SHADOW`; plug mais longe quanto mais sai do painel (solto, na mão).

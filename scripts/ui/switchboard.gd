@@ -637,13 +637,14 @@ func _draw() -> void:
 				gc.a = 0.2
 				draw_rect(hr, gc)
 
-	# fios e plugues, o mexido por último por cima (o da mão inclusive); as sombras antes, por baixo de tudo
-	for shadow in [true, false]:
-		for e in _order:
-			_draw_rope(e, shadow)
-	for shadow in [true, false]:
-		for e in _order:
-			_draw_plug(e, shadow)
+	# cada ponta (fio e plug) na ordem em que foi mexida: o fio da mais recente passa por cima dos plugs das
+	# outras (o da mão inclusive); as sombras antes, por baixo de tudo
+	for e in _order:
+		_draw_rope(e, true)
+		_draw_plug(e, true)
+	for e in _order:
+		_draw_rope(e, false)
+		_draw_plug(e, false)
 
 	# balão de informação
 	if ms < info_until and info_line > 0:
