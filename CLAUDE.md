@@ -108,9 +108,12 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - `refuse(e, j)` decide compatibilidade (e o destaque amarelo/vermelho). `_has_point` estende o clique ao encaixe
   do FONE; por isso o telefone e seus containers acima do encaixe têm `mouse_filter = IGNORE`, e a mesa tem
   `z_index = 1` (desenha plug e fio por cima do telefone). Overlays têm z 2, intro/final z 3.
-- Clique num plug encaixado → volta à base com animação (`_anim`, `RETURN_SEC`); arrastar move; clicar num plug da
-  base deixa-o na mão até o próximo clique.
-- Cabos são cordas de Verlet (`_step_rope`), uma por cabo (0 = FONE, k = conexão k).
+- Clique num plug encaixado → solta o plug (`go_home`, `_anim`): ele vira a última conta da corda e cai (`FALL_SEC`)
+  e o fio encolhe (`PULL_SPEED`); solto acima do buraco, a qualquer altura (`NEAR_HOLE` na horizontal), não cai: vem reto, fio esticado e sem gravidade até `SEAT_LEN` e o plug assenta no lugar (`SEAT_SEC`); solto, ele gira com o fio
+  (`_plug_angle`). Arrastar move; clicar num plug da base deixa-o na mão até o próximo clique.
+- Fios são cordas de Verlet (`_step_rope`), **uma por ponta**, presas no buraco (`hole(e)`: o do FONE no alto do
+  encaixe, dois por cabo de conexão na base) e na traseira do plug (`_plug_base`); só existem com o fio para fora.
+  Folga: `SLACK` (FONE), `CORD_SLACK` (conexão).
 
 ## Modelo das ligações
 - `live`: ligações tocando ou em andamento (várias ao mesmo tempo). O painel mostra `phone.shown()`.
@@ -211,6 +214,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     contra a luz de um poste.
 17. Três idiomas (pt_BR, en, es): enum `T.Key` + CSV para a interface, .po para as falas.
 18. Menu de pausa (Esc) com Configurações (idioma, volumes, velocidade do texto), também na tela inicial.
+19. Fios saem de buracos (dois por cabo de conexão, um por ponta; o do FONE no encaixe); plug solto cai e o fio o
+    recolhe para o buraco (substituiu a volta em arco e o cabo enrolado na base).
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

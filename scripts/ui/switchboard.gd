@@ -5,8 +5,9 @@ extends Control
 ## - SAÍDAS: uma tomada logo abaixo de cada entrada. Uma ponta do cabo de conexão entra aqui...
 ## - DESTINOS: ...e a outra ponta no número pedido.
 ## Os cabos de conexão são poucos (PATCHES): desmontar as conexões encerradas libera cabos.
+## Cada ponta tem o próprio fio, que sai de um buraco (dois por cabo de conexão na base; o do FONE no encaixe).
 ## Arraste o plug até a tomada (ou clique no plug e depois na tomada). Clicar num plug encaixado,
-## ou soltá-lo fora de uma tomada, faz ele voltar sozinho para a base.
+## ou soltá-lo fora de uma tomada, solta o plug: ele cai e o fio o recolhe para o buraco.
 ## A mesa não conhece ligações: lê as lâmpadas de `exchange` e avisa por `end_changed` quando um plug muda.
 ## Desenha por cima dos vizinhos (z_index na cena), porque o FONE mora num encaixe do painel do telefone.
 
@@ -41,8 +42,13 @@ var info_until := 0
 var _press_pos := Vector2.ZERO
 var _press_ms := 0
 var _pulled := false           # o clique atual tirou um plug de uma tomada
-var _anim := {}                # ponta -> {"from": posição, "t": 0..1} voltando para a base
-const RETURN_SEC := 0.35
+var _anim := {}                # ponta solta voltando para o buraco -> {"t": s caindo/recolhendo, "seat": -1 ou 0..1 assentando, "from", "ang"}
+const FALL_SEC := 0.35         # o plug solto cai livre antes de o fio começar a recolher
+const NEAR_HOLE := 45.0        # solto acima do buraco (a qualquer altura) e com essa distância na horizontal, o fio puxa o plug direto (sem cair)
+const PULL_SPEED := 480.0      # px/s de fio que entra no buraco
+const SEAT_LEN := 12.0         # com o fio curto assim, o plug assenta no lugar
+const SEAT_SEC := 0.1
+const PLUG_BASE := Vector2(0, 20)   # do ponto de referência do plug (topo do corpo) até onde o fio entra nele
 const CLICK_MS := 300          # soltar antes disso, fora de uma tomada, conta como clique (não como arrastar)
 var _jacks: Array = []
 
@@ -51,10 +57,11 @@ const ROPE_N := 22                 # pontos por cabo
 const GRAVITY := Vector2(0, 1600)  # px/s²
 const DAMPING := 0.985             # 1 = sem atrito com o ar
 const STIFF_ITER := 14             # iterações de restrição (maior = cabo menos elástico)
-const SLACK := 70.0                # folga extra além da distância reta
+const SLACK := 70.0                # folga extra além da distância reta (fio do FONE)
+const CORD_SLACK := 14.0           # idem, fios dos cabos de conexão
 const FLOOR_Y := 348.0             # o cabo repousa sobre a mesa abaixo do painel
 const STEP := 1.0 / 90.0
-var ropes := {}
+var ropes := {}                    # ponta -> corda (só enquanto o fio está para fora do buraco)
 var _acc := 0.0
 var _last_mouse := Vector2.ZERO
 
@@ -118,7 +125,14 @@ func patch_x(k: int) -> float:
 func home_pos(e: int) -> Vector2:
 	if e == 0:
 		return socket_rect().position + FONE_HOME
-	return Vector2(patch_x((e - 1) / 2) + (-14.0 if e % 2 == 1 else 14.0), 278)
+	return Vector2(patch_x((e - 1) / 2) + (-14.0 if e % 2 == 1 else 14.0), 280)
+
+
+## Buraco de onde sai o fio da ponta e (o do FONE sai do alto do encaixe, como sempre).
+func hole(e: int) -> Vector2:
+	if e == 0:
+		return Vector2(home_pos(0).x, socket_rect().position.y)
+	return home_pos(e) + PLUG_BASE + Vector2(0, 2)
 
 
 func home_rect(e: int) -> Rect2:
@@ -194,6 +208,7 @@ func place(e: int, j: int) -> bool:
 		return false
 	ends[e] = j
 	held = -1
+	_anim.erase(e)
 	Sfx.play("plug_in")
 	end_changed.emit(e, j, -1)
 	return true
@@ -209,15 +224,21 @@ func pick_up(e: int) -> void:
 		end_changed.emit(e, -1, prev)
 
 
-## O plug volta para a base (o FONE volta ao telefone), num arco curto.
+## Solta o plug: ele cai e o fio o puxa de volta para o buraco (o FONE volta ao telefone).
 func go_home(e: int) -> void:
-	var from := _plug_pos(e)
+	var from := _plug_base(e)
 	var prev: int = ends[e]
 	ends[e] = -1
 	if held == e:
 		held = -1
-	if from.distance_to(home_pos(e)) > 2.0:
-		_anim[e] = {"from": from, "t": 0.0}
+	if from.distance_to(_rest(e)) > 2.0:
+		if not ropes.has(e):
+			_new_rope(e, from)
+		_anim[e] = {"t": 0.0, "seat": -1.0, "direct": false}
+		if from.y < hole(e).y and absf(from.x - hole(e).x) < NEAR_HOLE:
+			# acima do buraco: o fio já puxa, esticado, e o plug vai direto para ele (sem cair no chão antes)
+			_anim[e] = {"t": FALL_SEC, "seat": -1.0, "direct": true}
+			ropes[e]["len"] = minf(ropes[e]["len"], from.distance_to(hole(e)))
 	else:
 		Sfx.play("thump", -14.0)
 	if prev != -1:
@@ -247,6 +268,7 @@ func _gui_input(e: InputEvent) -> void:
 
 
 func _press(pos: Vector2) -> void:
+	cursor = pos
 	_press_pos = pos
 	_press_ms = Time.get_ticks_msec()
 	_pulled = false
@@ -297,82 +319,112 @@ func _release(pos: Vector2) -> void:
 func _process(delta: float) -> void:
 	if held != -1:
 		cursor = get_local_mouse_position()
-	for e in _anim.keys():
-		_anim[e]["t"] += delta / RETURN_SEC
-		if _anim[e]["t"] >= 1.0:
-			_anim.erase(e)
-			Sfx.play("thump", -14.0)
 	_acc = minf(_acc + delta, STEP * 6)
 	while _acc >= STEP:
 		_acc -= STEP
-		for c in PATCHES + 1:
-			_step_rope(c, STEP)
+		for e in ends.size():
+			_step_rope(e, STEP)
 		_last_mouse = get_local_mouse_position()
 	queue_redraw()
 
 
-func _plug_pos(e: int) -> Vector2:
+## Onde o fio entra no plug.
+func _plug_base(e: int) -> Vector2:
 	if held == e:
-		return cursor
+		return cursor + PLUG_BASE
 	if ends[e] != -1:
-		return jack_rect(int(ends[e])).get_center()
+		return jack_rect(int(ends[e])).get_center() + PLUG_BASE
 	if _anim.has(e):
-		var k: float = 1.0 - pow(1.0 - float(_anim[e]["t"]), 3.0)
-		var from: Vector2 = _anim[e]["from"]
-		return from.lerp(home_pos(e), k) + Vector2(0, -sin(k * PI) * 36.0)
-	return home_pos(e)
+		var an: Dictionary = _anim[e]
+		if an["seat"] >= 0.0:
+			return (an["from"] as Vector2).lerp(_rest(e), an["seat"])
+		return ropes[e]["pts"][ROPE_N - 1]
+	return _rest(e)
 
 
-## Pontas da corda do cabo c (0 = FONE, 1.. = conexão); vazio = cabo recolhido.
-func _rope_ends(c: int) -> Array:
-	if c == 0:
-		if held != 0 and ends[0] == -1 and not _anim.has(0):
-			return []
-		return [Vector2(home_pos(0).x, socket_rect().position.y), _plug_pos(0) + Vector2(0, 20)]
-	var a := c * 2 - 1
-	var b := c * 2
-	if held != a and held != b and ends[a] == -1 and ends[b] == -1 and not _anim.has(a) and not _anim.has(b):
-		return []
-	return [_plug_pos(a) + Vector2(0, 20), _plug_pos(b) + Vector2(0, 20)]
+## Onde o fio entra no plug guardado.
+func _rest(e: int) -> Vector2:
+	return home_pos(e) + PLUG_BASE
 
 
-## Simula o cabo como uma corda: os pontos têm inércia e gravidade,
-## as pontas ficam presas e a distância entre pontos é mantida.
-func _step_rope(c: int, dt: float) -> void:
-	var re := _rope_ends(c)
-	if re.is_empty():
-		ropes.erase(c)
+## Inclinação do plug: em pé, menos quando solto (segue o fio, que sai da traseira dele).
+func _plug_angle(e: int) -> float:
+	if not _anim.has(e):
+		return 0.0
+	var an: Dictionary = _anim[e]
+	if an["seat"] >= 0.0:
+		return lerp_angle(an["ang"], 0.0, an["seat"])
+	return _cord_angle(e)
+
+
+func _cord_angle(e: int) -> float:
+	var pts: PackedVector2Array = ropes[e]["pts"]
+	var d := pts[ROPE_N - 1] - pts[ROPE_N - 4]
+	return 0.0 if d.length_squared() < 1.0 else d.angle() + PI / 2
+
+
+func _new_rope(e: int, to: Vector2) -> void:
+	var a := hole(e)
+	var init := PackedVector2Array()
+	for i in ROPE_N:
+		init.append(a.lerp(to, float(i) / (ROPE_N - 1)))
+	ropes[e] = {"pts": init, "old": init.duplicate(), "len": a.distance_to(to)}
+
+
+## Simula o fio da ponta e como uma corda presa no buraco: os pontos têm inércia e gravidade e a distância
+## entre eles é mantida. A outra ponta segue o plug; solto, o plug é a última conta da corda (cai) e o
+## comprimento encolhe até ele assentar no buraco.
+func _step_rope(e: int, dt: float) -> void:
+	if held != e and ends[e] == -1 and not _anim.has(e):
+		ropes.erase(e)   # o fio está todo dentro do buraco
 		return
-	var a: Vector2 = re[0]
-	var e: Vector2 = re[1]
-	var floor_y := FLOOR_Y   # o fio do FONE também repousa na fresta entre a mesa e o telefone
-	var target_len := a.distance_to(e) + SLACK
-	if not ropes.has(c):
-		var init := PackedVector2Array()
-		for i in ROPE_N:
-			init.append(a.lerp(e, float(i) / (ROPE_N - 1)))
-		ropes[c] = {"pts": init, "old": init.duplicate(), "len": target_len}
-	var r: Dictionary = ropes[c]
+	var a := hole(e)
+	if not ropes.has(e):
+		_new_rope(e, _plug_base(e))
+	var r: Dictionary = ropes[e]
 	var pts: PackedVector2Array = r["pts"]
 	var old: PackedVector2Array = r["old"]
-	var length: float = lerpf(float(r["len"]), target_len, 0.08)
-	var seg := length / (ROPE_N - 1)
+	var last := ROPE_N - 1
+	var length: float = r["len"]
+	var an: Dictionary = _anim.get(e, {})
+	var free: bool = not an.is_empty() and an["seat"] < 0.0
+	if free:
+		an["t"] += dt
+		if an["t"] > FALL_SEC:
+			length = maxf(length - PULL_SPEED * dt, 0.0)
+	elif not an.is_empty():
+		an["seat"] += dt / SEAT_SEC
+		if an["seat"] >= 1.0:
+			_anim.erase(e)
+			ropes.erase(e)
+			Sfx.play("thump", -14.0)
+			return
+		length = a.distance_to(_plug_base(e))
+	else:
+		length = lerpf(length, a.distance_to(_plug_base(e)) + (SLACK if e == 0 else CORD_SLACK), 0.08)
+	var seg := length / last
 	# inércia + gravidade
 	var mouse := get_local_mouse_position()
 	var mv := mouse - _last_mouse
-	var in_hand := held != -1 and cable_of(held) == c
-	for i in range(1, ROPE_N - 1):
+	var moving := last + 1 if free else last
+	var direct: bool = free and an["direct"]
+	for i in range(1, moving):
 		var v := (pts[i] - old[i]) * DAMPING
 		old[i] = pts[i]
+		if direct:
+			pts[i] += v * 0.5   # puxado direto: fio esticado, sem gravidade e quase sem embalo (o plug não pendula)
+			continue
 		pts[i] += v + GRAVITY * dt * dt
-		# passar o mouse por cima do cabo empurra o fio
-		if not in_hand and mv.length_squared() > 0.5 and pts[i].distance_to(mouse) < 16.0:
+		# passar o mouse por cima do fio empurra o fio
+		if held != e and mv.length_squared() > 0.5 and pts[i].distance_to(mouse) < 16.0:
 			pts[i] += mv * 0.35
 	pts[0] = a
-	pts[ROPE_N - 1] = e
+	if not free:
+		pts[last] = _plug_base(e)
+		old[last] = pts[last]
 	# restrições de comprimento
 	for _it in STIFF_ITER:
-		for i in ROPE_N - 1:
+		for i in last:
 			var d := pts[i + 1] - pts[i]
 			var l := d.length()
 			if l < 0.0001:
@@ -380,18 +432,22 @@ func _step_rope(c: int, dt: float) -> void:
 			var corr := d * ((l - seg) / l)
 			if i == 0:
 				pts[i + 1] -= corr
-			elif i + 1 == ROPE_N - 1:
+			elif i + 1 == last and not free:
 				pts[i] += corr
 			else:
 				pts[i] += corr * 0.5
 				pts[i + 1] -= corr * 0.5
-		for i in range(1, ROPE_N - 1):
-			if pts[i].y > floor_y:
-				pts[i].y = floor_y
+		for i in range(1, moving):
+			if pts[i].y > FLOOR_Y:   # o fio do FONE também repousa na fresta entre a mesa e o telefone
+				pts[i].y = FLOOR_Y
 				old[i].x = lerpf(old[i].x, pts[i].x, 0.3)   # atrito com a mesa
 	r["pts"] = pts
 	r["old"] = old
 	r["len"] = length
+	if free and length <= SEAT_LEN:
+		an["seat"] = 0.0
+		an["from"] = pts[last]
+		an["ang"] = _cord_angle(e)
 
 
 # ------------------------------------------------------------------ desenho
@@ -493,12 +549,9 @@ func _draw() -> void:
 		var cx := patch_x(k)
 		draw_rect(Rect2(cx - 30, 298, 60, 14), Color.BLACK)
 		draw_rect(Rect2(cx - 28, 300, 56, 10), Color("1b1812"))
-		var a := 1 + k * 2
-		if ends[a] == -1 and ends[a + 1] == -1 and held != a and held != a + 1 and not _anim.has(a) and not _anim.has(a + 1):
-			# cabo enrolado na base
-			var coil := PackedVector2Array([Vector2(cx - 14, 298), Vector2(cx - 10, 306), Vector2(cx, 309), Vector2(cx + 10, 306), Vector2(cx + 14, 298)])
-			draw_polyline(coil, Color.BLACK, 7.0)
-			draw_polyline(coil, _cable_col(a)[0], 4.0)
+		for e in [1 + k * 2, 2 + k * 2]:   # os dois buracos de onde saem os fios
+			var hp := hole(e)
+			draw_rect(Rect2(hp.x - 7, hp.y - 4, 14, 8), Color("050403"))
 		draw_string(Pal.mono, Vector2(cx - 30, 322), T.text(T.Key.BOARD_CORD) % (k + 1), HORIZONTAL_ALIGNMENT_CENTER, 60, 14, Pal.BRASS)
 	# legenda
 	var leg := [[Pal.AMBER, T.Key.LEGEND_RING], [Pal.GREEN, T.Key.LEGEND_CONN], [Pal.RED, T.Key.LEGEND_DONE], [Color("2a2016"), T.Key.LEGEND_FREE]]
@@ -520,13 +573,12 @@ func _draw() -> void:
 				gc.a = 0.2
 				draw_rect(hr, gc)
 
-	# cabos e plugues (o que está na mão é desenhado por último, por cima dos outros)
-	var top := cable_of(held) if held != -1 else -1
-	for c in PATCHES + 1:
-		if c != top:
-			_draw_rope(c)
-	if top != -1:
-		_draw_rope(top)
+	# fios e plugues (o que está na mão é desenhado por último, por cima dos outros)
+	for e in ends.size():
+		if e != held:
+			_draw_rope(e)
+	if held != -1:
+		_draw_rope(held)
 	for e in ends.size():
 		if e != held:
 			_draw_plug(e)
@@ -552,11 +604,11 @@ func _cable_col(e: int) -> Array:
 	return CORD_COLORS[cable_of(e)]
 
 
-func _draw_rope(c: int) -> void:
-	if not ropes.has(c):
+func _draw_rope(e: int) -> void:
+	if not ropes.has(e):
 		return
-	var col: Array = CORD_COLORS[c]
-	var pts: PackedVector2Array = ropes[c]["pts"]
+	var col: Array = _cable_col(e)
+	var pts: PackedVector2Array = ropes[e]["pts"]
 	draw_polyline(pts, Color.BLACK, 8.0)
 	draw_polyline(pts, col[0], 5.0)
 	var pts2 := PackedVector2Array()
@@ -566,15 +618,15 @@ func _draw_rope(c: int) -> void:
 
 
 func _draw_plug(e: int) -> void:
-	var end := _plug_pos(e)
 	var col: Array = _cable_col(e)
-	var px := roundf(end.x)
-	var py := roundf(end.y)
-	draw_rect(Rect2(px - 7, py - 2, 14, 22), Color.BLACK)
-	draw_rect(Rect2(px - 5, py, 10, 18), col[0])
-	draw_rect(Rect2(px - 5, py, 3, 18), col[1])
-	draw_rect(Rect2(px - 4, py - 9, 8, 9), Color.BLACK)
-	draw_rect(Rect2(px - 3, py - 8, 6, 8), Color("d9b56a"))
+	# desenhado a partir de onde o fio entra no plug, girado quando ele está solto
+	draw_set_transform(_plug_base(e).round(), _plug_angle(e))
+	draw_rect(Rect2(-7, -22, 14, 22), Color.BLACK)
+	draw_rect(Rect2(-5, -20, 10, 18), col[0])
+	draw_rect(Rect2(-5, -20, 3, 18), col[1])
+	draw_rect(Rect2(-4, -29, 8, 9), Color.BLACK)
+	draw_rect(Rect2(-3, -28, 6, 8), Color("d9b56a"))
+	draw_set_transform(Vector2.ZERO)
 
 
 ## O idioma mudou nas configurações: redesenha os textos.
