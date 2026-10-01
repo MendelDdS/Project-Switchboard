@@ -50,6 +50,10 @@ const SEAT_SEC := 0.1
 const MAX_FLING := 1800.0      # px/s: o plug solto em movimento sai com o embalo da mão, até esse limite
 const DROP_SPEED := 120.0      # px/s: batendo na mesa mais rápido que isso, faz barulho
 const PLUG_BASE := Vector2(0, 20)   # do ponto de referência do plug (topo do corpo) até onde o fio entra nele
+## Encaixado, de onde fica a tomada até onde o fio entra: a ponta de metal some dentro dela e o anel assenta no buraco.
+const PLUG_SEAT := Vector2(0, 26)
+const SHADOW := Color(0, 0, 0, 0.35)
+const ROPE_SHADOW := Vector2(3, 4)  # deslocamento da sombra dos fios; a do plug cresce quando ele sai do painel
 var _jacks: Array = []
 
 # ---- física dos cabos (corda de Verlet) ----
@@ -298,10 +302,11 @@ func _press(pos: Vector2) -> void:
 		info_requested.emit(j)   # tomada vazia ou plaqueta da linha: mostra o que é
 
 
-## A ponta cujo plug está em p (-1 = nenhuma): guardado, solto voltando ou encaixado numa tomada.
+## A ponta cujo plug está em p (-1 = nenhuma), o de cima primeiro: guardado, solto voltando ou encaixado.
 func _plug_under(p: Vector2) -> int:
-	for e in ends.size():
-		if ends[e] == -1 and _plug_hit(e, p):
+	for i in range(_order.size() - 1, -1, -1):
+		var e: int = _order[i]
+		if e != held and _plug_hit(e, p):
 			return e
 	return cord_at(jack_at(p))
 
@@ -359,7 +364,7 @@ func _plug_base(e: int) -> Vector2:
 	if held == e:
 		return cursor + PLUG_BASE
 	if ends[e] != -1:
-		return jack_rect(int(ends[e])).get_center() + PLUG_BASE
+		return jack_rect(int(ends[e])).get_center() + PLUG_SEAT
 	if _loose.has(e):
 		var an: Dictionary = _loose[e]
 		if an["seat"] >= 0.0:
@@ -368,11 +373,17 @@ func _plug_base(e: int) -> Vector2:
 	return _rest(e)
 
 
-## O plug da ponta e (guardado, ou solto voltando para o buraco) está no ponto p.
+## O plug da ponta e está no ponto p (guardado, vale a base inteira; fora dela, o desenho do plug).
 func _plug_hit(e: int, p: Vector2) -> bool:
-	if not _loose.has(e):
+	if ends[e] == -1 and not _loose.has(e):
 		return home_rect(e).has_point(p)
-	return (_plug_base(e) + Vector2(0, -14).rotated(_plug_angle(e))).distance_to(p) < 18.0
+	var q := (p - _plug_base(e)).rotated(-_plug_angle(e))
+	return _plug_rect(ends[e] != -1).grow(2.0).has_point(q)
+
+
+## Contorno do plug a partir de onde o fio entra nele (em pé); encaixado, sem a ponta de metal.
+func _plug_rect(seated: bool) -> Rect2:
+	return Rect2(-7, -27, 14, 27) if seated else Rect2(-7, -42, 14, 42)
 
 
 ## Onde o fio entra no plug guardado.
@@ -626,11 +637,13 @@ func _draw() -> void:
 				gc.a = 0.2
 				draw_rect(hr, gc)
 
-	# fios e plugues, o mexido por último por cima (o da mão inclusive)
-	for e in _order:
-		_draw_rope(e)
-	for e in _order:
-		_draw_plug(e)
+	# fios e plugues, o mexido por último por cima (o da mão inclusive); as sombras antes, por baixo de tudo
+	for shadow in [true, false]:
+		for e in _order:
+			_draw_rope(e, shadow)
+	for shadow in [true, false]:
+		for e in _order:
+			_draw_plug(e, shadow)
 
 	# balão de informação
 	if ms < info_until and info_line > 0:
@@ -651,11 +664,17 @@ func _cable_col(e: int) -> Array:
 	return CORD_COLORS[cable_of(e)]
 
 
-func _draw_rope(e: int) -> void:
+func _draw_rope(e: int, shadow: bool) -> void:
 	if not ropes.has(e):
 		return
-	var col: Array = _cable_col(e)
 	var pts: PackedVector2Array = ropes[e]["pts"]
+	if shadow:
+		var sh := PackedVector2Array()
+		for q in pts:
+			sh.append(q + ROPE_SHADOW)
+		draw_polyline(sh, SHADOW, 7.0)
+		return
+	var col: Array = _cable_col(e)
 	draw_polyline(pts, Color.BLACK, 8.0)
 	draw_polyline(pts, col[0], 5.0)
 	var pts2 := PackedVector2Array()
@@ -664,18 +683,31 @@ func _draw_rope(e: int) -> void:
 	draw_polyline(pts2, col[1], 1.5)
 
 
-func _draw_plug(e: int) -> void:
-	var col: Array = _cable_col(e)
-	# desenhado a partir de onde o fio entra no plug, girado quando ele está solto
-	draw_set_transform(_plug_base(e).round(), _plug_angle(e))
-	if e == _hover:   # contorno claro: dá para pegar
-		draw_rect(Rect2(-9, -24, 18, 26), Pal.GLOW)
-		draw_rect(Rect2(-6, -31, 12, 10), Pal.GLOW)
-	draw_rect(Rect2(-7, -22, 14, 22), Color.BLACK)
-	draw_rect(Rect2(-5, -20, 10, 18), col[0])
-	draw_rect(Rect2(-5, -20, 3, 18), col[1])
-	draw_rect(Rect2(-4, -29, 8, 9), Color.BLACK)
-	draw_rect(Rect2(-3, -28, 6, 8), Color("d9b56a"))
+## Plug em pé, a partir de onde o fio entra nele: corpo na cor do cabo, anel de latão e ponta de metal (com o
+## risco que separa ponta e anel, como num plug de mesa telefônica). Encaixado, a ponta está dentro da tomada.
+## Girado quando solto. A sombra é o contorno, mais longe quanto mais o plug sai do painel (na mão, mais).
+func _draw_plug(e: int, shadow: bool) -> void:
+	var seated: bool = ends[e] != -1
+	var at := _plug_base(e)
+	if shadow:
+		at += Vector2(8, 10) if held == e else (Vector2(4, 5) if _loose.has(e) else Vector2(2, 2))
+	draw_set_transform(at.round(), _plug_angle(e))
+	if shadow:
+		draw_rect(_plug_rect(seated), SHADOW)
+	else:
+		var col: Array = _cable_col(e)
+		if e == _hover:   # contorno claro: dá para pegar
+			draw_rect(_plug_rect(seated).grow(2.0), Pal.GLOW)
+		draw_rect(Rect2(-7, -22, 14, 22), Color.BLACK)
+		draw_rect(Rect2(-5, -20, 10, 18), col[0])
+		draw_rect(Rect2(-5, -20, 3, 18), col[1])
+		draw_rect(Rect2(-6, -27, 12, 5), Color.BLACK)   # anel
+		draw_rect(Rect2(-5, -26, 10, 3), Color("8a6a32"))
+		if not seated:
+			draw_rect(Rect2(-4, -42, 8, 15), Color.BLACK)   # ponta de metal
+			draw_rect(Rect2(-3, -41, 6, 14), Color("d9b56a"))
+			draw_rect(Rect2(-3, -41, 2, 14), Color("f0d79a"))
+			draw_rect(Rect2(-3, -34, 6, 1), Color("5a4520"))
 	draw_set_transform(Vector2.ZERO)
 
 

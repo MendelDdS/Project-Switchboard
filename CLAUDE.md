@@ -123,7 +123,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   área onde o mouse o acorda) e deixa de ser simulado até a ponta, o buraco ou o mouse mexerem nele.
 - Sob o mouse: `_plug_under` (plug que dá para pegar → `_hover`, desenhado com contorno claro) e `_cursor_shape`
   (mão aberta, mão fechada segurando, proibido sobre tomada que recusa, dedo em tomada/plaqueta que informa).
-  Desenho na ordem `_order`: a ponta pega ou encaixada por último (`_raise`) fica por cima.
+  Desenho na ordem `_order`: a ponta pega ou encaixada por último (`_raise`) fica por cima (e é a primeira no clique).
+- Plug (`_draw_plug`): corpo na cor do cabo, anel de latão e ponta de metal; encaixado (`PLUG_SEAT`), a ponta some
+  dentro da tomada e o anel assenta no buraco. `_plug_rect(seated)` é o contorno (clique, destaque e sombra).
+  Sombras (`SHADOW`): fios deslocados `ROPE_SHADOW`; plug mais longe quanto mais sai do painel (solto, na mão).
 
 ## Modelo das ligações
 - `live`: ligações tocando ou em andamento (várias ao mesmo tempo). O painel mostra `phone.shown()`.
@@ -228,7 +231,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     recolhe para o buraco (substituiu a volta em arco e o cabo enrolado na base). Plug só se move arrastando
     (o modo "clique no plug e depois na tomada" foi removido); clique sem arrastar desconecta.
 20. Cursores próprios (botões de cena também: `node_added` ligado em `_enter_tree`) (seta, dedo, mão aberta/fechada, proibido, I-beam), plug sob o mouse com destaque, fio mexido
-    por último por cima e fios parados sem simulação.
+    por último por cima e fios parados sem simulação. Plug com ponta de metal maior, que entra na tomada; sombras.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.
