@@ -65,7 +65,7 @@ func say(c: PhoneCall, text: String, pause: float = 0.55, who := "", voice := ""
 		if c.ended:
 			c.set_talking(false)
 			return false
-	c.last_talk = Time.get_ticks_msec()
+	c.last_talk = main.talk_clock
 	await get_tree().create_timer(pause, false).timeout
 	c.set_talking(false)
 	return not c.ended
@@ -77,7 +77,7 @@ func op(c: PhoneCall, text: String) -> bool:
 		return false
 	c.add_line("", tr(text), "op")
 	Sfx.play("click")
-	c.last_talk = Time.get_ticks_msec()
+	c.last_talk = main.talk_clock
 	await get_tree().create_timer(0.75, false).timeout
 	return not c.ended
 
@@ -135,9 +135,7 @@ func _transfer(c: PhoneCall) -> void:
 	for l in t.opening:
 		if not await say(c, l):
 			return
-	if randf() < 0.55:
-		if not await say(c, GameData.pick(main.smalltalk()), 0.45):
-			return
+	# a conversa fiada vem depois, se o operador demorar (Main._nag)
 	c.phase = PhoneCall.Phase.AWAIT
 	c.state_changed.emit()
 	main.on_transfer_waiting(c)

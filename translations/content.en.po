@@ -2148,24 +2148,12 @@ msgid "Desculpe ligar tão tarde."
 msgstr "Sorry to call so late."
 
 #: data/content.tres
-msgid "A luz piscou aqui em casa agora há pouco. Aí também?"
-msgstr "The lights flickered here a moment ago. Did they there too?"
-
-#: data/content.tres
 msgid "O senhor passa a noite inteira aí sozinho?"
 msgstr "Do you spend the whole night there alone?"
 
 #: data/content.tres
-msgid "Essa linha está chiando, né?"
-msgstr "This line's crackling, isn't it?"
-
-#: data/content.tres
 msgid "Minha mulher disse que não era pra incomodar a central a essa hora."
 msgstr "My wife said not to bother the exchange at this hour."
-
-#: data/content.tres
-msgid "O senhor não tem medo de ficar aí de noite?"
-msgstr "Aren't you scared, being there all night?"
 
 #: data/content.tres
 msgid "Meu marido já dormiu, mas eu não consigo pegar no sono."
@@ -2180,20 +2168,8 @@ msgid "Essa central nunca dorme, né?"
 msgstr "This exchange never sleeps, does it?"
 
 #: data/content.tres
-msgid "Tem um barulho engraçado na linha hoje."
-msgstr "There's a funny noise on the line tonight."
-
-#: data/content.tres
 msgid "Que frio, meu Deus."
 msgstr "Lord, it's cold."
-
-#: data/content.tres
-msgid "Tinha um carro parado na frente de casa, com o farol aceso. Já foi embora."
-msgstr "There was a car parked in front of my house, with its headlights on. It's gone now."
-
-#: data/content.tres
-msgid "O cachorro não para de latir hoje."
-msgstr "The dog won't stop barking tonight."
 
 #: data/content.tres
 msgid "Amanhã é dia de feira, né?"
@@ -2210,6 +2186,30 @@ msgstr "Sorry, I just can't sleep."
 #: data/content.tres
 msgid "Faz tempo que eu não ligo pra central."
 msgstr "It's been a while since I called the exchange."
+
+#: data/content.tres
+msgid "Amanhã tem quermesse na praça, o senhor vai?"
+msgstr "There's a church fair on the square tomorrow, are you going?"
+
+#: data/content.tres
+msgid "O padre mudou o horário da missa de domingo, viu?"
+msgstr "The priest changed the time of Sunday mass, did you hear?"
+
+#: data/content.tres
+msgid "O ônibus da capital atrasou de novo hoje."
+msgstr "The bus from the capital was late again today."
+
+#: data/content.tres
+msgid "Meu neto passou no vestibular, sabia?"
+msgstr "My grandson got into university, did you know?"
+
+#: data/content.tres
+msgid "O preço do pão subiu de novo."
+msgstr "The price of bread went up again."
+
+#: data/content.tres
+msgid "Minha horta tá dando tomate que é uma beleza."
+msgstr "My vegetable garden is giving lovely tomatoes."
 
 #: data/content.tres
 msgid "Que chuva, hein? Não parou desde a tarde."

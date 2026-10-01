@@ -166,6 +166,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   emergência espera a anterior acabar e `Dispatch.en_route()`), `Night.pranks`, resto transferência/informação.
   Um destino (e `alt_target`) por noite: dois pedidos do mesmo número travavam um ao outro.
 - `GIVE_UP_SEC` 60 s (`story` 1,5x, retornos 0,75x); tutorial (`tut`) e desconhecida nunca desistem.
+- Espera na linha (`Main._nag`, silêncio medido em `talk_clock`, que para na pausa): transferência pedida e o
+  operador parado → depois de `SMALLTALK_AFTER` (10 s), com `SMALLTALK_CHANCE` (60%, uma vez por ligação), conversa
+  fiada do cotidiano (`smalltalk` + a do clima); com `NAG_AFTER` (22 s) sem falar, reclama (`waiting`). Emergência:
+  `EMERGENCY_NAG_AFTER`. A conversa fiada não vem mais logo depois do pedido. Conversa fiada só do cotidiano (nada
+  que lembre o mistério: luzes piscando, carros parados, chiado na linha).
 - Conversas transferidas duram `TALK_LEN` (34–68 min de jogo ≈ 45–90 s reais).
 - Turno das 18:00 (`SHIFT_START_HOUR`) às 00:00 (`SHIFT_END` = 360 min); fim **depois** da ligação desconhecida ter caído (`_start_ending`).
 - Relógio: 0,75 min de jogo por segundo real (`GAME_MIN_PER_SEC`): 6 h de turno ≈ 8 min reais.

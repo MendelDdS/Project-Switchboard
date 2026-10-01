@@ -2147,23 +2147,11 @@ msgid "Desculpe ligar tão tarde."
 msgstr ""
 
 #: data/content.tres
-msgid "A luz piscou aqui em casa agora há pouco. Aí também?"
-msgstr ""
-
-#: data/content.tres
 msgid "O senhor passa a noite inteira aí sozinho?"
 msgstr ""
 
 #: data/content.tres
-msgid "Essa linha está chiando, né?"
-msgstr ""
-
-#: data/content.tres
 msgid "Minha mulher disse que não era pra incomodar a central a essa hora."
-msgstr ""
-
-#: data/content.tres
-msgid "O senhor não tem medo de ficar aí de noite?"
 msgstr ""
 
 #: data/content.tres
@@ -2179,19 +2167,7 @@ msgid "Essa central nunca dorme, né?"
 msgstr ""
 
 #: data/content.tres
-msgid "Tem um barulho engraçado na linha hoje."
-msgstr ""
-
-#: data/content.tres
 msgid "Que frio, meu Deus."
-msgstr ""
-
-#: data/content.tres
-msgid "Tinha um carro parado na frente de casa, com o farol aceso. Já foi embora."
-msgstr ""
-
-#: data/content.tres
-msgid "O cachorro não para de latir hoje."
 msgstr ""
 
 #: data/content.tres
@@ -2208,6 +2184,30 @@ msgstr ""
 
 #: data/content.tres
 msgid "Faz tempo que eu não ligo pra central."
+msgstr ""
+
+#: data/content.tres
+msgid "Amanhã tem quermesse na praça, o senhor vai?"
+msgstr ""
+
+#: data/content.tres
+msgid "O padre mudou o horário da missa de domingo, viu?"
+msgstr ""
+
+#: data/content.tres
+msgid "O ônibus da capital atrasou de novo hoje."
+msgstr ""
+
+#: data/content.tres
+msgid "Meu neto passou no vestibular, sabia?"
+msgstr ""
+
+#: data/content.tres
+msgid "O preço do pão subiu de novo."
+msgstr ""
+
+#: data/content.tres
+msgid "Minha horta tá dando tomate que é uma beleza."
 msgstr ""
 
 #: data/content.tres

@@ -2148,24 +2148,12 @@ msgid "Desculpe ligar tão tarde."
 msgstr "Disculpe que llame tan tarde."
 
 #: data/content.tres
-msgid "A luz piscou aqui em casa agora há pouco. Aí também?"
-msgstr "La luz parpadeó en mi casa hace un rato. ¿Ahí también?"
-
-#: data/content.tres
 msgid "O senhor passa a noite inteira aí sozinho?"
 msgstr "¿Usted pasa toda la noche ahí solo?"
 
 #: data/content.tres
-msgid "Essa linha está chiando, né?"
-msgstr "Esta línea tiene ruido, ¿no?"
-
-#: data/content.tres
 msgid "Minha mulher disse que não era pra incomodar a central a essa hora."
 msgstr "Mi mujer me dijo que no molestara a la central a esta hora."
-
-#: data/content.tres
-msgid "O senhor não tem medo de ficar aí de noite?"
-msgstr "¿No le da miedo quedarse ahí de noche?"
 
 #: data/content.tres
 msgid "Meu marido já dormiu, mas eu não consigo pegar no sono."
@@ -2180,20 +2168,8 @@ msgid "Essa central nunca dorme, né?"
 msgstr "Esta central nunca duerme, ¿no?"
 
 #: data/content.tres
-msgid "Tem um barulho engraçado na linha hoje."
-msgstr "Hoy hay un ruido raro en la línea."
-
-#: data/content.tres
 msgid "Que frio, meu Deus."
 msgstr "Qué frío, Dios mío."
-
-#: data/content.tres
-msgid "Tinha um carro parado na frente de casa, com o farol aceso. Já foi embora."
-msgstr "Había un auto parado frente a mi casa, con las luces encendidas. Ya se fue."
-
-#: data/content.tres
-msgid "O cachorro não para de latir hoje."
-msgstr "El perro no para de ladrar hoy."
 
 #: data/content.tres
 msgid "Amanhã é dia de feira, né?"
@@ -2210,6 +2186,30 @@ msgstr "Perdón, es que no puedo dormir."
 #: data/content.tres
 msgid "Faz tempo que eu não ligo pra central."
 msgstr "Hace tiempo que no llamo a la central."
+
+#: data/content.tres
+msgid "Amanhã tem quermesse na praça, o senhor vai?"
+msgstr "Mañana hay kermés en la plaza, ¿usted va?"
+
+#: data/content.tres
+msgid "O padre mudou o horário da missa de domingo, viu?"
+msgstr "El padre cambió el horario de la misa del domingo, ¿sabía?"
+
+#: data/content.tres
+msgid "O ônibus da capital atrasou de novo hoje."
+msgstr "El autobús de la capital volvió a llegar tarde hoy."
+
+#: data/content.tres
+msgid "Meu neto passou no vestibular, sabia?"
+msgstr "Mi nieto entró a la universidad, ¿sabía?"
+
+#: data/content.tres
+msgid "O preço do pão subiu de novo."
+msgstr "El precio del pan subió otra vez."
+
+#: data/content.tres
+msgid "Minha horta tá dando tomate que é uma beleza."
+msgstr "Mi huerta está dando unos tomates hermosos."
 
 #: data/content.tres
 msgid "Que chuva, hein? Não parou desde a tarde."

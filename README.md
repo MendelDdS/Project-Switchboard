@@ -141,6 +141,10 @@ Cada turno sorteia o clima (`WEATHERS` em `main.gd`; para forçar: `godot --path
 | `fog` | grilos e coruja | névoa passando, luzes difusas | `smalltalk` + `smalltalk_fog` |
 | `clear` | brisa leve, grilos e coruja | estrelas e lua | `smalltalk` + `smalltalk_clear` |
 
+A conversa fiada aparece quando o operador demora para transferir: depois de uns 10 s em silêncio, às vezes a pessoa
+puxa assunto; se a demora continuar, ela reclama (`waiting`). Escreva só assuntos do cotidiano da cidade; o que lembra
+o mistério (luzes, barulhos na linha, vultos) fica para as falas do roteiro.
+
 A coruja aparece por 30–60 s, piando a cada 7–14 s, e some por 45–110 s (`OWL_*` em `sfx.gd`). Volumes de cada
 clima em `Sfx.WEATHER_MIX`. 15 minutos antes da ligação desconhecida (`SHADOW_LEAD`) aparece a silhueta de alguém
 do lado de fora da janela; 10 minutos antes (`SHADOW_LEAVE`) ela sai, e então a ligação toca. Antes da ligação desconhecida a noite se cala (grilos e coruja param, chuva e brisa

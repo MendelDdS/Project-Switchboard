@@ -392,4 +392,25 @@ func _initialize() -> void:
 	ok(st.char_delay() < 1.0, "texto mais rápido")
 	st.set_text_speed(1)
 	print("OK 10 pausa e configurações")
+
+	# ---- 11. esperando a transferência: às vezes conversa fiada depois de um tempo; se demorar mais, reclama
+	var wc := _extra(GameData.transfers(TransferCall.Group.EXTRA)[3])
+	m.ring(wc)
+	_move(0, wc.line)
+	m.answer()
+	ok(await wait_until(_awaiting(wc)), "pedido feito")
+	var said_at := []
+	var asked := wc.transcript.size()
+	while said_at.size() < 2 and not failed:
+		var t0: float = m.talk_clock
+		var n := wc.transcript.size()
+		ok(await wait_until(func(): return wc.transcript.size() > n and not wc.talking, 60.0), "falou enquanto esperava")
+		said_at.append([m.talk_clock - t0, String(wc.transcript.back()["text"])])
+	var waiting: Array = Array(C.waiting)
+	var chat: Array = Array(m.smalltalk())
+	ok(said_at[0][0] >= m.SMALLTALK_AFTER and (said_at[0][1] in chat or said_at[0][1] in waiting), "primeira fala só depois de um tempo: " + said_at[0][1])
+	ok(said_at[1][1] in waiting, "depois reclama da demora: " + said_at[1][1])
+	ok(asked > 0 and not wc.transcript.slice(0, asked).any(func(l): return String(l["text"]) in chat), "sem conversa fiada logo depois do pedido")
+	m.end_call(wc, PhoneCall.End.OPERATOR)
+	print("OK 11 conversa fiada e reclamação na espera")
 	finish("fluxo da central")

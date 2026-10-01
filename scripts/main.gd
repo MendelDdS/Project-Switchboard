@@ -17,6 +17,10 @@ const WEATHERS := ["rain", "fog", "clear"]   # clima sorteado no começo do turn
 const TALK_LEN := Vector2(34.0, 68.0)   # duração (min de jogo) de uma conversa transferida (≈ 45–90 s reais)
 const TEMPLATE_CHANCE := 0.5            # chance de uma transferência ou emergência vir de um molde e não de um roteiro escrito
 const GIVE_UP_SEC := 60.0               # quem liga desiste se ninguém atende (as do roteiro aguentam 1,5x; retornos, 0,75x)
+const SMALLTALK_AFTER := 10.0           # segundos de silêncio esperando a transferência até puxar conversa fiada...
+const SMALLTALK_CHANCE := 0.6           # ...às vezes (uma vez por ligação); senão, e depois dela, reclama da demora:
+const NAG_AFTER := 22.0                 # segundos de silêncio até reclamar da demora (emergência: EMERGENCY_NAG_AFTER)
+const EMERGENCY_NAG_AFTER := 26.0
 const HOLD_GIVE_UP := 120.0             # minutos de jogo que alguém aguenta em espera antes de desligar
 const RETRY_AFTER := Vector2(15.0, 30.0)  # quem teve problema liga de novo depois de tantos minutos de jogo...
 const RETRY_WAIT := 20.0                # ...esperando a mesa esvaziar por no máximo tantos minutos
@@ -57,6 +61,7 @@ var _taught_list := false
 var _myst_lead := false
 var _calling_back := false
 var _tick_acc := 0.0
+var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o silêncio na linha (PhoneCall.last_talk)
 
 @onready var background: Background = %Background
 @onready var clock: Label = %Clock
@@ -164,6 +169,7 @@ func _start_shift() -> void:
 
 
 func _process(delta: float) -> void:
+	talk_clock += delta
 	if running:
 		minutes = minf(SHIFT_END, minutes + delta * GAME_MIN_PER_SEC)
 		_tick_acc += delta
@@ -182,18 +188,24 @@ func _process(delta: float) -> void:
 	_glow.modulate.a = background.lamp_level
 
 
-## Quem está na linha com o operador reclama da demora.
+## Quem está na linha esperando o operador: na transferência, às vezes puxa conversa fiada depois de um tempo e,
+## se a demora continuar, reclama; na emergência, pede pressa.
 func _nag() -> void:
 	var f := _focus()
-	if f == null or not f.active or f.talking:
+	if f == null or not f.active or f.talking or f.closing:
 		return
-	var now := Time.get_ticks_msec()
-	var quiet := now - f.last_talk
-	if f.kind == PhoneCall.Kind.TRANSFER and f.phase == PhoneCall.Phase.AWAIT and quiet > 22000:
-		f.last_talk = now
-		conversation.say(f, GameData.pick(C.waiting))
-	elif f.kind == PhoneCall.Kind.EMERGENCY and not f.dispatched and quiet > 26000:
-		f.last_talk = now
+	var quiet := talk_clock - f.last_talk
+	if f.kind == PhoneCall.Kind.TRANSFER and f.phase == PhoneCall.Phase.AWAIT:
+		if not f.chatted and quiet > SMALLTALK_AFTER:
+			f.chatted = true
+			if randf() < SMALLTALK_CHANCE:
+				f.last_talk = talk_clock
+				conversation.say(f, GameData.pick(smalltalk()), 0.45)
+		elif quiet > NAG_AFTER:
+			f.last_talk = talk_clock
+			conversation.say(f, GameData.pick(C.waiting))
+	elif f.kind == PhoneCall.Kind.EMERGENCY and not f.dispatched and quiet > EMERGENCY_NAG_AFTER:
+		f.last_talk = talk_clock
 		conversation.say(f, GameData.pick(C.emergency_waiting))
 
 
@@ -737,7 +749,7 @@ func answer() -> void:
 		return
 	c.ringing = false
 	c.active = true
-	c.last_talk = Time.get_ticks_msec()
+	c.last_talk = talk_clock
 	_update_bell()
 	Sfx.play("sw")
 	exchange.set_line(c.line, Exchange.Line.TALK)
