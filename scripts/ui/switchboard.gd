@@ -6,7 +6,7 @@ extends Control
 ## - DESTINOS: ...e a outra ponta no número pedido.
 ## Os cabos de conexão são poucos (PATCHES): desmontar as conexões encerradas libera cabos.
 ## Cada ponta tem o próprio fio, que sai de um buraco (dois por cabo de conexão na base; o do FONE no encaixe).
-## Arraste o plug até a tomada (ou clique no plug e depois na tomada). Clicar num plug encaixado,
+## Arraste o plug até a tomada (clicar e segurar). Clicar num plug encaixado (sem arrastar),
 ## ou soltá-lo fora de uma tomada, solta o plug: ele cai e o fio o recolhe para o buraco.
 ## A mesa não conhece ligações: lê as lâmpadas de `exchange` e avisa por `end_changed` quando um plug muda.
 ## Desenha por cima dos vizinhos (z_index na cena), porque o FONE mora num encaixe do painel do telefone.
@@ -33,15 +33,12 @@ var fone_socket: Control       # encaixe do FONE no painel do telefone
 var dest_nums: Array = []
 var ends: Array = []           # tomada de cada ponta (-1 = na base). 0 = FONE; 1..2*PATCHES = pontas dos cabos de conexão
 var held := -1
-var held_from := -1
 var cursor := Vector2.ZERO
 var info_lines: PackedStringArray = []
 var info_ghost := false
 var info_line := -1
 var info_until := 0
 var _press_pos := Vector2.ZERO
-var _press_ms := 0
-var _pulled := false           # o clique atual tirou um plug de uma tomada
 var _loose := {}               # ponta solta voltando para o buraco -> {"t": s caindo/recolhendo, "seat": -1 ou 0..1 assentando, "direct", "from", "ang"}
 const FALL_SEC := 0.35         # o plug solto cai livre antes de o fio começar a recolher
 const NEAR_HOLE := 45.0        # solto acima do buraco (a qualquer altura) e com essa distância na horizontal, o fio puxa o plug direto (sem cair)
@@ -51,7 +48,6 @@ const SEAT_SEC := 0.1
 const MAX_FLING := 1800.0      # px/s: o plug solto em movimento sai com o embalo da mão, até esse limite
 const DROP_SPEED := 120.0      # px/s: batendo na mesa mais rápido que isso, faz barulho
 const PLUG_BASE := Vector2(0, 20)   # do ponto de referência do plug (topo do corpo) até onde o fio entra nele
-const CLICK_MS := 300          # soltar antes disso, fora de uma tomada, conta como clique (não como arrastar)
 var _jacks: Array = []
 
 # ---- física dos cabos (corda de Verlet) ----
@@ -221,7 +217,6 @@ func pick_up(e: int) -> void:
 	var prev: int = ends[e]
 	ends[e] = -1
 	held = e
-	held_from = prev
 	Sfx.play("plug_out")
 	if prev != -1:
 		end_changed.emit(e, -1, prev)
@@ -278,20 +273,10 @@ func _gui_input(e: InputEvent) -> void:
 func _press(pos: Vector2) -> void:
 	cursor = pos
 	_press_pos = pos
-	_press_ms = Time.get_ticks_msec()
-	_pulled = false
-	if held != -1:
-		var j := jack_at(pos)
-		if j != -1:
-			place(held, j)
-		else:
-			go_home(held)
-		return
 	for e in ends.size():
 		if ends[e] == -1 and _plug_hit(e, pos):
 			_loose.erase(e)
 			held = e
-			held_from = -1
 			Sfx.play("plug_out")
 			return
 	var j := jack_at(pos)
@@ -299,7 +284,6 @@ func _press(pos: Vector2) -> void:
 		var e := cord_at(j)
 		if e != -1:
 			pick_up(e)
-			_pulled = true
 		else:
 			info_requested.emit(j)
 		return
@@ -309,19 +293,13 @@ func _press(pos: Vector2) -> void:
 			return
 
 
-## Clique num plug encaixado: ele volta para a base. Clique num plug da base (ou solto, voltando): fica na mão até
-## o próximo clique. Arrastar e soltar encaixa na tomada (ou devolve à base, se soltar fora).
-## Um clique rápido que mexe uns pixels (mouse tremendo, toque no trackpad) continua sendo clique.
+## Arrastar e soltar encaixa na tomada; soltar fora dela, ou clicar sem arrastar (desplugar), solta o plug.
+## Mexer uns pixels (mouse tremendo, toque no trackpad) ainda conta como clique.
 func _release(pos: Vector2) -> void:
 	if held == -1:
 		return
 	var j := jack_at(pos)
-	var quick := Time.get_ticks_msec() - _press_ms < CLICK_MS and j == -1
-	if pos.distance_to(_press_pos) < 6.0 or quick:
-		if _pulled:
-			go_home(held)
-		return
-	if j == -1 or not place(held, j):
+	if pos.distance_to(_press_pos) < 6.0 or j == -1 or not place(held, j):
 		go_home(held)
 
 

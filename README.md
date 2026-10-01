@@ -160,12 +160,12 @@ Timbres por personagem em `Sfx.VOICE`: `f0` (altura), `breath` (sopro), `muffle`
 
 ## Controles
 
-Arraste o plug até a tomada (ou clique no plug da base e depois na tomada). **Clicar num plug encaixado**
+Arraste o plug até a tomada (clicar e segurar; um clique só não pega o plug). **Clicar num plug encaixado**
 solta o plug: ele cai e o fio o puxa de volta para o buraco de onde sai (solto acima do buraco, a qualquer altura, vai direto para ele). Solto em movimento, sai com o embalo da
 mão; dá para pegá-lo de volta no ar (`FALL_SEC`, `PULL_SPEED` em
 `scripts/ui/switchboard.gd`). O fio do FONE sai do encaixe no telefone; cada cabo de conexão tem dois buracos na
 base, um por ponta, e cada clique devolve uma ponta.
-Arrastar um plug encaixado para outra tomada o move. Soltar fora de uma tomada, clicar fora, apertar Esc ou o botão direito (ação `cancel_plug` no Input Map)
+Arrastar um plug encaixado para outra tomada o move. Soltar fora de uma tomada, apertar Esc ou o botão direito (ação `cancel_plug` no Input Map)
 também devolve o plug à base. Cada tipo de plug só encaixa nas tomadas compatíveis: a tomada sob o plug
 acende em amarelo se aceita, em vermelho se não.
 

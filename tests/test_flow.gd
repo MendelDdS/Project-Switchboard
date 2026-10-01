@@ -278,8 +278,7 @@ func _initialize() -> void:
 	await frames(2)
 	var air: Vector2 = b._plug_base(0) + Vector2(0, -14).rotated(b._plug_angle(0))
 	b._press(air)
-	b._release(air)
-	ok(b.held == 0 and not b._loose.has(0), "pega o FONE no ar")
+	ok(b.held == 0 and not b._loose.has(0), "pega o FONE no ar (segurando)")
 	b.cursor = Vector2(400, 200)   # longe do encaixe: cai antes de recolher
 	b._mouse_vel = Vector2(1200, 0)
 	b.go_home(0)
@@ -304,7 +303,11 @@ func _initialize() -> void:
 	b._press(jc)
 	b._release(b.jack_rect(other_in).get_center())
 	ok(b.ends[0] == other_in, "arrastar move o FONE")
-	print("OK 7 clique devolve à base / arrastar move")
+	var hp: Vector2 = b.home_pos(3)
+	b._press(hp)
+	b._release(hp)
+	ok(b.held == -1 and b.ends[3] == -1, "clique sem arrastar não pega o plug da base")
+	print("OK 7 clique desconecta / arrastar move")
 
 	# ---- 8. silhueta na janela: aparece 15 min antes da ligação desconhecida e sai 10 min antes (vai ligar)
 	var myst := PhoneCall.mystery()

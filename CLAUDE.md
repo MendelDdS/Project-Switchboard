@@ -111,8 +111,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Clique num plug encaixado → solta o plug (`go_home`, `_loose`): ele vira a última conta da corda e cai (`FALL_SEC`)
   e o fio encolhe (`PULL_SPEED`); solto acima do buraco, a qualquer altura (`NEAR_HOLE` na horizontal), não cai: vem reto, fio esticado e sem gravidade até `SEAT_LEN` e o plug assenta no lugar (`SEAT_SEC`); solto, ele gira com o fio
   (`_plug_angle`), sai com o embalo da mão (`_mouse_vel`, `MAX_FLING`) e dá para pegá-lo no ar (`_plug_hit`). Sons:
-  `drop` (bate na mesa, `DROP_SPEED`), `reel` (fio começa a recolher), `thump` (assentou). Arrastar move; clicar num
-  plug da base deixa-o na mão até o próximo clique.
+  `drop` (bate na mesa, `DROP_SPEED`), `reel` (fio começa a recolher), `thump` (assentou). Plug só se move arrastando
+  (clicar e segurar); clique sem arrastar só serve para desplugar.
 - Fios são cordas de Verlet (`_step_rope`), **uma por ponta**, presas no buraco (`hole(e)`: o do FONE no alto do
   encaixe, dois por cabo de conexão na base) e na traseira do plug (`_plug_base`); só existem com o fio para fora.
   Folga: `SLACK` (FONE), `CORD_SLACK` (conexão).
@@ -200,8 +200,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     agradece na hora, o rádio diz que não havia nada e as unidades voltam; ela liga de novo dizendo que piorou e,
     em alguns casos, dá para despachar de novo (a advertência fica).
 11. Turno passou a ser 18:00–00:00 (desconhecida entre 22:00 e 23:30; extras 4–6). Número errado com o FONE fora:
-    não completa; foi engano, os dois desligam e o solicitante liga de novo pedindo o certo. Clique rápido num
-    plug da base (mesmo mexendo uns pixels) conta como clique (`CLICK_MS`).
+    não completa; foi engano, os dois desligam e o solicitante liga de novo pedindo o certo. Clique que mexe
+    uns pixels conta como clique.
 12. Sons: campainha antiga (martelinho + ressonadores de metal) e "tuuuu" (o filtro de caixa oca foi testado e removido a pedido do usuário), chuva e grilos (chirps + trilos) refeitos. Clima sorteado por
     noite: chuva (só chuva), névoa (grilos e coruja), limpo (brisa, grilos e coruja); coruja intercalada.
 13. Rádio mais largo e alto (3 linhas); abas 24 px mais baixas (mapa se ajusta à altura). Silhueta na janela
@@ -217,7 +217,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 17. Três idiomas (pt_BR, en, es): enum `T.Key` + CSV para a interface, .po para as falas.
 18. Menu de pausa (Esc) com Configurações (idioma, volumes, velocidade do texto), também na tela inicial.
 19. Fios saem de buracos (dois por cabo de conexão, um por ponta; o do FONE no encaixe); plug solto cai e o fio o
-    recolhe para o buraco (substituiu a volta em arco e o cabo enrolado na base).
+    recolhe para o buraco (substituiu a volta em arco e o cabo enrolado na base). Plug só se move arrastando
+    (o modo "clique no plug e depois na tomada" foi removido); clique sem arrastar desconecta.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.
