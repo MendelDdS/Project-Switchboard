@@ -21,6 +21,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (main.gd) mistura moldes e roteiros escritos (híbrido: tutorial, trotes e roteiro da noite sempre escritos).
 - Todo o áudio é sintetizado no autoload `Sfx` (`scripts/sfx.gd`), inclusive as "vozes" por sílaba
   (`Sfx.speak_char`). Barramentos em `default_bus_layout.tres`: Ambience, Voices, Effects.
+- Cursores próprios no autoload `Cursors` (`scripts/cursors.gd`): pixel art 16×16 em texto (×`SCALE`), uma por forma
+  `Control.CURSOR_*` (seta, dedo, mão aberta = `MOVE`, mão fechada = `DRAG`, proibido, I-beam). Botões e sliders
+  ganham o dedo sozinhos (`node_added`); quem quer outra forma define `mouse_default_cursor_shape` (a mesa troca a
+  dela a cada quadro). Passe `Image`, não textura, ao `Input` (textura vaza ao fechar).
 - Clima (`Main.weather`: "rain", "fog", "clear", sorteado; `-- --weather=X` força): `Sfx.start_ambience(w)`/
   `set_weather`/`hush_nature`/`stop_ambience`, `Background.weather` desenha a janela, `Main.smalltalk()` junta as
   falas gerais com as do clima.
@@ -115,7 +119,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (clicar e segurar); clique sem arrastar só serve para desplugar.
 - Fios são cordas de Verlet (`_step_rope`), **uma por ponta**, presas no buraco (`hole(e)`: o do FONE no alto do
   encaixe, dois por cabo de conexão na base) e na traseira do plug (`_plug_base`); só existem com o fio para fora.
-  Folga: `SLACK` (FONE), `CORD_SLACK` (conexão).
+  Folga: `SLACK` (FONE), `CORD_SLACK` (conexão). Fio parado por `SLEEP_STEPS` passos "dorme" (`ropes[e]["sleep"]` =
+  área onde o mouse o acorda) e deixa de ser simulado até a ponta, o buraco ou o mouse mexerem nele.
+- Sob o mouse: `_plug_under` (plug que dá para pegar → `_hover`, desenhado com contorno claro) e `_cursor_shape`
+  (mão aberta, mão fechada segurando, proibido sobre tomada que recusa, dedo em tomada/plaqueta que informa).
+  Desenho na ordem `_order`: a ponta pega ou encaixada por último (`_raise`) fica por cima.
 
 ## Modelo das ligações
 - `live`: ligações tocando ou em andamento (várias ao mesmo tempo). O painel mostra `phone.shown()`.
@@ -203,7 +211,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     não completa; foi engano, os dois desligam e o solicitante liga de novo pedindo o certo. Clique que mexe
     uns pixels conta como clique.
 12. Sons: campainha antiga (martelinho + ressonadores de metal) e "tuuuu" (o filtro de caixa oca foi testado e removido a pedido do usuário), chuva e grilos (chirps + trilos) refeitos. Clima sorteado por
-    noite: chuva (só chuva), névoa (grilos e coruja), limpo (brisa, grilos e coruja); coruja intercalada.
+    noite: chuva (só chuva), névoa (grilos), limpo (brisa e grilos). A coruja que havia foi removida a pedido do usuário.
 13. Rádio mais largo e alto (3 linhas); abas 24 px mais baixas (mapa se ajusta à altura). Silhueta na janela
     `SHADOW_LEAD` (15 min) antes da ligação desconhecida (`Background.shadow`), sai `SHADOW_LEAVE` (10 min) antes
     (foi ligar); segue o horário sorteado (`myst_plan`), mesmo que a ligação atrase.
@@ -219,6 +227,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 19. Fios saem de buracos (dois por cabo de conexão, um por ponta; o do FONE no encaixe); plug solto cai e o fio o
     recolhe para o buraco (substituiu a volta em arco e o cabo enrolado na base). Plug só se move arrastando
     (o modo "clique no plug e depois na tomada" foi removido); clique sem arrastar desconecta.
+20. Cursores próprios (botões de cena também: `node_added` ligado em `_enter_tree`) (seta, dedo, mão aberta/fechada, proibido, I-beam), plug sob o mouse com destaque, fio mexido
+    por último por cima e fios parados sem simulação.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

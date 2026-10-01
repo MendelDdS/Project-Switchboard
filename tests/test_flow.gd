@@ -127,6 +127,9 @@ func _initialize() -> void:
 		ok(GameData.street(e.street) != null and e.block == floori(house / 100.0) and house >= 1, "molde: trecho bate com o número " + e.address)
 		ok(not holes.call(Array(e.answers) + [e.opening, e.after]), "molde de emergência preenchido: " + e.opening)
 	_check_translations()
+	for c in m.find_children("*", "Control", true, false):
+		if c is BaseButton or c is Slider:
+			ok(c.mouse_default_cursor_shape == Control.CURSOR_POINTING_HAND, "sem cursor de dedo: %s" % m.get_path_to(c))
 	var places := C.directory.filter(func(d): return not d.reasons.is_empty())
 	print("OK 0 conteúdo (%d transferências, %d emergências, %d trotes; moldes: %d de transferência para %d contatos, %d de emergência)" % [
 		C.transfers.size(), C.emergencies.size(), C.pranks.size(), C.transfer_templates.size(), places.size(), C.emergency_templates.size()])
@@ -303,6 +306,11 @@ func _initialize() -> void:
 	b._press(jc)
 	b._release(b.jack_rect(other_in).get_center())
 	ok(b.ends[0] == other_in, "arrastar move o FONE")
+	ok(b._order.back() == 0, "o último plug mexido fica por cima")
+	ok(await wait_until(func(): return b.ropes.has(0) and b.ropes[0].has("sleep"), 10.0), "fio parado deixa de ser simulado")
+	_move(0, l7)
+	await frames(1)
+	ok(not b.ropes[0].has("sleep") and b.ropes[0]["pts"][b.ROPE_N - 1] == b._plug_base(0), "mexer no plug acorda o fio")
 	var hp: Vector2 = b.home_pos(3)
 	b._press(hp)
 	b._release(hp)

@@ -34,6 +34,8 @@ var dest_nums: Array = []
 var ends: Array = []           # tomada de cada ponta (-1 = na base). 0 = FONE; 1..2*PATCHES = pontas dos cabos de conexão
 var held := -1
 var cursor := Vector2.ZERO
+var _hover := -1               # ponta cujo plug está sob o mouse (pode ser pega); desenhada com destaque
+var _order: Array = []         # ordem de desenho das pontas: a mexida por último fica por cima
 var info_lines: PackedStringArray = []
 var info_ghost := false
 var info_line := -1
@@ -60,6 +62,8 @@ const CORD_SLACK := 14.0           # idem, fios dos cabos de conexão
 const FLOOR_Y := 348.0             # o cabo repousa sobre a mesa abaixo do painel
 const STEP := 1.0 / 90.0
 var ropes := {}                    # ponta -> corda (só enquanto o fio está para fora do buraco)
+const SLEEP_STEPS := 30            # passos quase parado até o fio "dormir" (deixa de ser simulado até algo mexer nele)
+const SLEEP_MOVE := 0.05           # px por passo: menos que isso conta como parado
 var _acc := 0.0
 var _last_mouse := Vector2.ZERO   # mouse no último passo da física
 var _mouse_vel := Vector2.ZERO    # px/s, para o embalo do plug solto
@@ -70,6 +74,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	for i in 1 + PATCHES * 2:
 		ends.append(-1)
+		_order.append(i)
 
 
 func setup(ex: Exchange, socket: Control) -> void:
@@ -208,15 +213,23 @@ func place(e: int, j: int) -> bool:
 	ends[e] = j
 	held = -1
 	_loose.erase(e)
+	_raise(e)
 	Sfx.play("plug_in")
 	end_changed.emit(e, j, -1)
 	return true
+
+
+## A ponta e passa a ser desenhada por cima das outras.
+func _raise(e: int) -> void:
+	_order.erase(e)
+	_order.append(e)
 
 
 func pick_up(e: int) -> void:
 	var prev: int = ends[e]
 	ends[e] = -1
 	held = e
+	_raise(e)
 	Sfx.play("plug_out")
 	if prev != -1:
 		end_changed.emit(e, -1, prev)
@@ -273,24 +286,45 @@ func _gui_input(e: InputEvent) -> void:
 func _press(pos: Vector2) -> void:
 	cursor = pos
 	_press_pos = pos
-	for e in ends.size():
-		if ends[e] == -1 and _plug_hit(e, pos):
-			_loose.erase(e)
-			held = e
-			Sfx.play("plug_out")
-			return
-	var j := jack_at(pos)
-	if j != -1:
-		var e := cord_at(j)
-		if e != -1:
-			pick_up(e)
-		else:
-			info_requested.emit(j)
+	var e := _plug_under(pos)
+	if e != -1:
+		_loose.erase(e)
+		pick_up(e)
 		return
+	var j := jack_at(pos)
+	if j == -1:
+		j = _top_at(pos)
+	if j != -1:
+		info_requested.emit(j)   # tomada vazia ou plaqueta da linha: mostra o que é
+
+
+## A ponta cujo plug está em p (-1 = nenhuma): guardado, solto voltando ou encaixado numa tomada.
+func _plug_under(p: Vector2) -> int:
+	for e in ends.size():
+		if ends[e] == -1 and _plug_hit(e, p):
+			return e
+	return cord_at(jack_at(p))
+
+
+## A linha (1–10) cuja plaqueta está em p, ou -1.
+func _top_at(p: Vector2) -> int:
 	for i in 10:
-		if top_rect(i).has_point(pos):
-			info_requested.emit(i + 1)
-			return
+		if top_rect(i).has_point(p):
+			return i + 1
+	return -1
+
+
+## Cursor conforme o que está sob o mouse: mão aberta num plug que pode ser pego, fechada segurando
+## (proibido sobre uma tomada que não o aceita), dedo no que mostra informação ao clicar.
+func _cursor_shape(p: Vector2) -> CursorShape:
+	if held != -1:
+		var j := jack_at(p)
+		return CURSOR_FORBIDDEN if j != -1 and refuse(held, j) != "" else CURSOR_DRAG
+	if _hover != -1:
+		return CURSOR_MOVE
+	if jack_at(p) != -1 or _top_at(p) != -1:
+		return CURSOR_POINTING_HAND
+	return CURSOR_ARROW
 
 
 ## Arrastar e soltar encaixa na tomada; soltar fora dela, ou clicar sem arrastar (desplugar), solta o plug.
@@ -309,6 +343,8 @@ func _process(delta: float) -> void:
 		cursor = mouse
 	if delta > 0.0:
 		_mouse_vel = _mouse_vel.lerp((mouse - _last_mouse) / delta, 0.5)
+	_hover = -1 if held != -1 else _plug_under(mouse)
+	mouse_default_cursor_shape = _cursor_shape(mouse)
 	_acc = minf(_acc + delta, STEP * 6)
 	while _acc >= STEP:
 		_acc -= STEP
@@ -401,10 +437,17 @@ func _step_rope(e: int, dt: float) -> void:
 		length = a.distance_to(_plug_base(e))
 	else:
 		length = lerpf(length, a.distance_to(_plug_base(e)) + (SLACK if e == 0 else CORD_SLACK), 0.08)
-	var seg := length / last
-	# inércia + gravidade
 	var mouse := get_local_mouse_position()
 	var mv := mouse - _last_mouse
+	var settled := held != e and an.is_empty()
+	if r.has("sleep"):
+		# dormindo: só volta a simular se a ponta ou o buraco saírem do lugar, ou se o mouse passar mexendo no fio
+		var poked: bool = mv.length_squared() > 0.5 and (r["sleep"] as Rect2).has_point(mouse)
+		if settled and pts[0] == a and pts[last] == _plug_base(e) and not poked:
+			return
+		r.erase("sleep")
+	var seg := length / last
+	# inércia + gravidade
 	var moving := last + 1 if free else last
 	var direct: bool = free and an["direct"]
 	for i in range(1, moving):
@@ -445,6 +488,15 @@ func _step_rope(e: int, dt: float) -> void:
 	r["pts"] = pts
 	r["old"] = old
 	r["len"] = length
+	var moved := 0.0
+	for i in range(1, last):
+		moved = maxf(moved, pts[i].distance_squared_to(old[i]))
+	r["calm"] = r.get("calm", 0) + 1 if settled and moved < SLEEP_MOVE * SLEEP_MOVE else 0
+	if r["calm"] > SLEEP_STEPS:
+		var box := Rect2(pts[0], Vector2.ZERO)
+		for q in pts:
+			box = box.expand(q)
+		r["sleep"] = box.grow(16.0)   # área onde o mouse acorda o fio
 	if free and length <= SEAT_LEN:
 		an["seat"] = 0.0
 		an["from"] = pts[last]
@@ -574,17 +626,11 @@ func _draw() -> void:
 				gc.a = 0.2
 				draw_rect(hr, gc)
 
-	# fios e plugues (o que está na mão é desenhado por último, por cima dos outros)
-	for e in ends.size():
-		if e != held:
-			_draw_rope(e)
-	if held != -1:
-		_draw_rope(held)
-	for e in ends.size():
-		if e != held:
-			_draw_plug(e)
-	if held != -1:
-		_draw_plug(held)
+	# fios e plugues, o mexido por último por cima (o da mão inclusive)
+	for e in _order:
+		_draw_rope(e)
+	for e in _order:
+		_draw_plug(e)
 
 	# balão de informação
 	if ms < info_until and info_line > 0:
@@ -622,6 +668,9 @@ func _draw_plug(e: int) -> void:
 	var col: Array = _cable_col(e)
 	# desenhado a partir de onde o fio entra no plug, girado quando ele está solto
 	draw_set_transform(_plug_base(e).round(), _plug_angle(e))
+	if e == _hover:   # contorno claro: dá para pegar
+		draw_rect(Rect2(-9, -24, 18, 26), Pal.GLOW)
+		draw_rect(Rect2(-6, -31, 12, 10), Pal.GLOW)
 	draw_rect(Rect2(-7, -22, 14, 22), Color.BLACK)
 	draw_rect(Rect2(-5, -20, 10, 18), col[0])
 	draw_rect(Rect2(-5, -20, 3, 18), col[1])

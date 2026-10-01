@@ -138,16 +138,16 @@ Cada turno sorteia o clima (`WEATHERS` em `main.gd`; para forçar: `godot --path
 | Clima | Som | Janela | Conversa fiada |
 |---|---|---|---|
 | `rain` | chuva | gotas no vidro | `smalltalk` + `smalltalk_rain` |
-| `fog` | grilos e coruja | névoa passando, luzes difusas | `smalltalk` + `smalltalk_fog` |
-| `clear` | brisa leve, grilos e coruja | estrelas e lua | `smalltalk` + `smalltalk_clear` |
+| `fog` | grilos | névoa passando, luzes difusas | `smalltalk` + `smalltalk_fog` |
+| `clear` | brisa leve e grilos | estrelas e lua | `smalltalk` + `smalltalk_clear` |
 
 A conversa fiada aparece quando o operador demora para transferir: depois de uns 10 s em silêncio, às vezes a pessoa
 puxa assunto; se a demora continuar, ela reclama (`waiting`). Escreva só assuntos do cotidiano da cidade; o que lembra
 o mistério (luzes, barulhos na linha, vultos) fica para as falas do roteiro.
 
-A coruja aparece por 30–60 s, piando a cada 7–14 s, e some por 45–110 s (`OWL_*` em `sfx.gd`). Volumes de cada
+Volumes de cada
 clima em `Sfx.WEATHER_MIX`. 15 minutos antes da ligação desconhecida (`SHADOW_LEAD`) aparece a silhueta de alguém
-do lado de fora da janela; 10 minutos antes (`SHADOW_LEAVE`) ela sai, e então a ligação toca. Antes da ligação desconhecida a noite se cala (grilos e coruja param, chuva e brisa
+do lado de fora da janela; 10 minutos antes (`SHADOW_LEAVE`) ela sai, e então a ligação toca. Antes da ligação desconhecida a noite se cala (grilos param, chuva e brisa
 baixam) e volta aos poucos depois.
 
 Todos os sons são sintetizados em `sfx.gd`: a campainha ("trrrim-trrrim" de martelinho em duas campânulas), o
@@ -160,7 +160,9 @@ Timbres por personagem em `Sfx.VOICE`: `f0` (altura), `breath` (sopro), `muffle`
 
 ## Controles
 
-Arraste o plug até a tomada (clicar e segurar; um clique só não pega o plug). **Clicar num plug encaixado**
+Arraste o plug até a tomada (clicar e segurar; um clique só não pega o plug). O cursor mostra o que dá para fazer:
+mão aberta sobre um plug que pode ser pego (que também ganha um contorno claro), mão fechada segurando, proibido
+sobre uma tomada que não aceita aquele plug, dedo no que se clica. **Clicar num plug encaixado**
 solta o plug: ele cai e o fio o puxa de volta para o buraco de onde sai (solto acima do buraco, a qualquer altura, vai direto para ele). Solto em movimento, sai com o embalo da
 mão; dá para pegá-lo de volta no ar (`FALL_SEC`, `PULL_SPEED` em
 `scripts/ui/switchboard.gd`). O fio do FONE sai do encaixe no telefone; cada cabo de conexão tem dois buracos na

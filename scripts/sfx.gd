@@ -1,8 +1,8 @@
 extends Node
 ## Autoload `Sfx`: todos os sons do jogo, sintetizados ao iniciar (nenhum arquivo de áudio).
 ## Para trocar por gravações reais, substitua as entradas de `streams` por AudioStreams importados.
-## Barramentos (default_bus_layout.tres): Ambience (clima, coruja, zumbido, chiado), Voices (sílabas), Effects (o resto).
-## Clima (`set_weather`): "rain" só chuva; "fog" grilos e coruja; "clear" brisa, grilos e coruja.
+## Barramentos (default_bus_layout.tres): Ambience (clima, zumbido, chiado), Voices (sílabas), Effects (o resto).
+## Clima (`set_weather`): "rain" só chuva; "fog" grilos; "clear" brisa e grilos.
 
 const RATE := 22050
 # Vozes abafadas: cada vogal vira uma sílaba sintetizada (fonte glotal + formantes + filtro abafado).
@@ -20,7 +20,7 @@ const VOWEL := {"a": Vector2(780, 1250), "e": Vector2(480, 1850), "i": Vector2(3
 const VOL := {
 	"click": -14.0, "sw": -10.0, "plug_in": -3.0, "plug_out": -9.0, "key": -13.0, "page": -11.0,
 	"tick": -24.0, "pencil": -13.0, "ring": -5.0, "pulse": -10.0, "ringback": -13.0, "sit": -13.0,
-	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "reel": -18.0, "owl_0": -17.0, "owl_1": -17.0,
+	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "reel": -18.0,
 }
 ## Volume (dB) dos sons de ambiente em cada clima; o que não aparece fica mudo.
 const WEATHER_MIX := {
@@ -28,10 +28,6 @@ const WEATHER_MIX := {
 	"fog": {"crickets": -31.0},
 	"clear": {"breeze": -24.0, "crickets": -28.0},
 }
-const OWL_WEATHERS := ["fog", "clear"]
-const OWL_HERE := Vector2(30.0, 60.0)    # segundos (reais) em que a coruja fica por perto, piando de vez em quando
-const OWL_AWAY := Vector2(45.0, 110.0)   # segundos em que ela some
-const OWL_GAP := Vector2(7.0, 14.0)      # intervalo entre pios enquanto está por perto
 # Modos de vibração de uma campânula de metal: (razão da frequência, amplitude, decaimento em s).
 const BELL_MODES := [Vector3(1.0, 1.0, 0.22), Vector3(1.52, 0.7, 0.16), Vector3(2.38, 0.6, 0.12),
 	Vector3(3.06, 0.45, 0.1), Vector3(4.0, 0.3, 0.08)]
@@ -47,11 +43,7 @@ var crickets: AudioStreamPlayer
 var hum: AudioStreamPlayer
 var hiss: AudioStreamPlayer
 var weather := "rain"
-var _nature_on := false
 var _hushed := false
-var _owl_here := false
-var _owl_switch := 0.0   # segundos até a coruja chegar ou ir embora
-var _owl_next := 0.0     # segundos até o próximo pio
 var _ring_on := false
 var _ring_timer: Timer
 var _ring_player: AudioStreamPlayer
@@ -89,7 +81,7 @@ func play(id: String, db: float = 0.0, pitch: float = 1.0) -> AudioStreamPlayer:
 	if p == null:
 		p = pool[0]
 	p.stream = streams[id]
-	p.bus = &"Voices" if id.begins_with("s_") or id == "crackle" else (&"Ambience" if id.begins_with("owl") else &"Effects")
+	p.bus = &"Voices" if id.begins_with("s_") or id == "crackle" else &"Effects"
 	p.volume_db = VOL.get(id, -10.0) + db
 	p.pitch_scale = pitch
 	p.play()
@@ -107,13 +99,10 @@ func start_ambience(w: String) -> void:
 	for p in [rain, breeze, crickets, hum, hiss]:
 		p.play()
 	fade(hum, -29.0, 2.0)
-	_nature_on = true
-	_owl_switch = randf_range(10.0, 30.0)
 	set_weather(w, 2.0)
 
 
 func stop_ambience(sec: float) -> void:
-	_nature_on = false
 	for p in [rain, breeze, crickets, hum]:
 		fade(p, -80.0, sec)
 	fade(hiss, -80.0, minf(sec, 1.0))
@@ -125,7 +114,7 @@ func set_weather(w: String, sec: float = 4.0) -> void:
 	_apply_mix(sec)
 
 
-## Antes da ligação desconhecida a noite se cala: grilos e coruja param, chuva e brisa baixam.
+## Antes da ligação desconhecida a noite se cala: grilos param, chuva e brisa baixam.
 func hush_nature(on: bool, sec: float) -> void:
 	_hushed = on
 	_apply_mix(sec)
@@ -138,22 +127,6 @@ func _apply_mix(sec: float) -> void:
 		if _hushed:
 			db = -80.0 if id == "crickets" else db - 10.0
 		fade(get(id), db, sec)
-
-
-## A coruja aparece por um tempo, pia de vez em quando e some de novo.
-func _process(delta: float) -> void:
-	if not _nature_on or _hushed or not weather in OWL_WEATHERS:
-		return
-	_owl_switch -= delta
-	if _owl_switch <= 0.0:
-		_owl_here = not _owl_here
-		_owl_switch = randf_range(OWL_HERE.x, OWL_HERE.y) if _owl_here else randf_range(OWL_AWAY.x, OWL_AWAY.y)
-		_owl_next = randf_range(1.0, 4.0)
-	if _owl_here:
-		_owl_next -= delta
-		if _owl_next <= 0.0:
-			play("owl_%d" % (randi() % 2))
-			_owl_next = randf_range(OWL_GAP.x, OWL_GAP.y)
 
 
 func fade(p: AudioStreamPlayer, db: float, t: float) -> void:
@@ -437,8 +410,6 @@ func _build_all() -> void:
 	_build_rain()
 	_build_breeze()
 	_build_crickets()
-	for v in 2:
-		_build_owl(v)
 	_begin(1.0)
 	for i in _w.size():
 		var t := float(i) / RATE
@@ -557,26 +528,6 @@ func _cricket_syllable(at: float, f: float, dur: float, g: float) -> void:
 		ph += f * (1.01 - 0.02 * k) / RATE
 		var env := minf(1.0, t / 0.003) * pow(1.0 - k, 0.8)
 		_w[s0 + i] += sin(TAU * ph) * env * g
-
-
-## Coruja ao longe: "hu... hu-hu... huuu" (ou só "hu... huuu"), grave, soprado, com eco.
-func _build_owl(v: int) -> void:
-	_begin(2.4)
-	var hoots := [[0.0, 0.32], [0.55, 0.16], [0.78, 0.16], [1.05, 0.55]] if v == 0 else [[0.0, 0.42], [0.7, 0.55]]
-	for h in hoots:
-		var s0 := int(float(h[0]) * RATE)
-		var dur: float = h[1]
-		var ph := 0.0
-		for i in int(dur * RATE):
-			var k := float(i) / (dur * RATE)
-			ph += lerpf(395.0, 350.0, k) / RATE
-			var env := pow(sin(PI * k), 1.5)
-			_w[s0 + i] += (sin(TAU * ph) + 0.25 * sin(TAU * ph * 2.0) + randf_range(-0.15, 0.15)) * env
-	_w = _biquad(_w, "lp", 900.0, 0.7)
-	var d := int(0.14 * RATE)
-	for i in range(d, _w.size()):
-		_w[i] += _w[i - d] * 0.25
-	_end("owl_%d" % v, false, false, 0.7)
 
 
 ## Campainha antiga, "trrrim-trrrim": o martelinho bate 20 vezes por segundo em cada campânula, alternando.
