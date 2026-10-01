@@ -229,9 +229,10 @@ func _filled(j: int, e: int) -> void:
 ## Um plug saiu da tomada j.
 func _vacated(j: int, e: int) -> void:
 	if e == 0:
-		# FONE saiu: se o destino já atendeu, a ligação segue pelo cabo de conexão; senão fica em espera.
+		# FONE saiu: se o destino já atendeu, a ligação segue pelo cabo de conexão; se já foi resolvida, a pessoa
+		# termina de falar e desliga; senão fica em espera.
 		var c := _call_on_line(j)
-		if c != null and c.active:
+		if c != null and c.active and not c.closing:
 			if not _try_complete(c):
 				exchange.set_line(j, Exchange.Line.HOLD)
 				c.hold_since = minutes

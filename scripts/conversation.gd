@@ -1,7 +1,9 @@
 class_name Conversation
 extends Node
 ## As falas de cada ligação. Quem liga fala sílaba por sílaba; o operador escolhe o que responder.
-## Quem não está com o FONE na entrada fica em espera e não fala até o operador voltar (`on_line`).
+## Quem não está com o FONE na entrada fica em espera e não fala até o operador voltar (`on_line`), a não ser
+## que a ligação já esteja resolvida (`closing`): aí a pessoa termina de falar sozinha e desliga, sem som e sem
+## aparecer na transcrição (o operador não está ouvindo).
 ## Os roteiros vêm dos Resources em data/calls/; aqui fica só como cada tipo de ligação se desenrola.
 
 var C: GameContent = GameData.CONTENT
@@ -38,23 +40,26 @@ func _until_on_line(c: PhoneCall) -> bool:
 
 ## Quem ligou diz `text` (ou outra pessoa na linha: `who` com a voz `voice`). Falso se a ligação terminar no meio.
 func say(c: PhoneCall, text: String, pause: float = 0.55, who := "", voice := "") -> bool:
-	if not await _until_on_line(c):
+	if c.ended or not c.closing and not await _until_on_line(c):
 		return false
 	text = tr(text)
 	var ghost := c.kind == PhoneCall.Kind.MYSTERY
-	var li := c.add_line(who if who != "" else c.caller, "", "ghost" if ghost else "")
+	var li := -1   # a linha da transcrição só aparece enquanto o operador está ouvindo
 	c.set_talking(true)
 	var paren := text.begins_with("(")
 	voice = "k" if paren else (voice if voice != "" else c.voice)
 	var prev_vowel := false
 	for i in text.length():
 		# em espera, a pessoa para de falar até o operador voltar
-		if not c.on_line and not await _until_on_line(c):
+		if not c.on_line and not c.closing and not await _until_on_line(c):
 			c.set_talking(false)
 			return false
 		var ch := text[i]
-		c.append_text(li, ch)
-		prev_vowel = Sfx.speak_char(voice, text, i, prev_vowel, paren)
+		if c.on_line:
+			if li == -1:
+				li = c.add_line(who if who != "" else c.caller, "", "ghost" if ghost else "")
+			c.append_text(li, ch)
+			prev_vowel = Sfx.speak_char(voice, text, i, prev_vowel, paren)
 		var d := 0.062 if ghost else (0.09 if ch in [",", "."] else 0.028)
 		await get_tree().create_timer(d).timeout
 		if c.ended:
@@ -66,9 +71,9 @@ func say(c: PhoneCall, text: String, pause: float = 0.55, who := "", voice := ""
 	return not c.ended
 
 
-## O operador diz `text`.
+## O operador diz `text` (numa ligação resolvida, o clique já é a fala, mesmo que ele tenha ido para outra linha).
 func op(c: PhoneCall, text: String) -> bool:
-	if not await _until_on_line(c):
+	if c.ended or not c.closing and not await _until_on_line(c):
 		return false
 	c.add_line("Você", tr(text), "op")
 	Sfx.play("click")
@@ -205,9 +210,12 @@ func _info(c: PhoneCall) -> void:
 		_taught_info = true
 		main.hint(tr("Pedido de informação: confira a lista telefônica antes de responder."))
 	var i := await choose(c, opts)
-	if i < 0 or not await op(c, opts[i]):
+	if i < 0:
 		return
 	c.info_ok = 1 if opts[i] == right else 0
+	c.closing = true
+	if not await op(c, opts[i]):
+		return
 	if not await say(c, GameData.pick(C.info_thanks if c.info_ok == 1 else C.info_doubt), 0.5):
 		return
 	c.sys(tr("(O solicitante desligou.)"))
@@ -271,11 +279,13 @@ func emergency_dispatched(c: PhoneCall) -> void:
 	if not c.active or c.dispatched:
 		return
 	c.dispatched = true
+	c.closing = true
 	emergency_choices(c)
 	while c.talking:
 		if not await wait(c, 0.2):
 			return
-	if not await op(c, "As unidades estão a caminho."):
+	# o operador só avisa se estiver na linha; a pessoa ouve as sirenes de qualquer jeito
+	if c.on_line and not await op(c, "As unidades estão a caminho."):
 		return
 	if not await say(c, (c.data as EmergencyCall).after, 0.9):
 		return

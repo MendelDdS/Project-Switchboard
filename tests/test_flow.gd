@@ -149,10 +149,13 @@ func _initialize() -> void:
 		if lbl.contains(info.answer):
 			right = lbl
 	_pick(info, right)
-	ok(await wait_until(func(): return info.ended), "informação encerrada")
-	ok(info.info_ok == 1 and ex.line(info.line) == Exchange.Line.DONE, "respondeu certo; linha desligou")
-	_move(0, t1.line)         # volta para t1; a linha da informação fica livre
-	ok(ex.line(info.line) == Exchange.Line.FREE, "linha da informação liberada")
+	await frames(2)           # ninguém clica e arrasta o FONE no mesmo quadro
+	_move(0, t1.line)         # respondeu e já foi para t1: a pessoa agradece sozinha e desliga
+	ok(ex.line(info.line) != Exchange.Line.HOLD, "resolvida não fica em espera")
+	var said := info.transcript.size()
+	ok(await wait_until(func(): return info.ended), "informação encerrada sem o operador voltar")
+	ok(info.transcript.slice(said).all(func(t): return t["cls"] == "sys"), "fora da linha, a fala não aparece")
+	ok(info.info_ok == 1 and ex.line(info.line) == Exchange.Line.FREE, "respondeu certo; linha liberada")
 	ok(ex.line(t1.line) == Exchange.Line.TALK and m.phone.shown() == t1, "voltou para t1")
 	ok(t3.ringing and m.live.size() == 2, "t3 ainda tocando")
 	print("OK 2 três ligações simultâneas / espera")

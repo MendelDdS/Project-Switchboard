@@ -93,7 +93,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 ## Modelo das ligações
 - `live`: ligações tocando ou em andamento (várias ao mesmo tempo). O painel mostra `phone.shown()`.
 - **Foco** = a ligação da entrada onde está o FONE (`Main._focus()`); Main mantém `c.on_line`. Quem não está em
-  foco fica "em espera" e **não fala**: `say()`/`op()` aguardam `_until_on_line(c)`.
+  foco fica "em espera" e **não fala**: `say()`/`op()` aguardam `_until_on_line(c)`. Exceção: ligação já resolvida
+  (`c.closing`: informação respondida, emergência despachada) não entra em espera; a pessoa termina de falar sozinha
+  e desliga, sem som e sem texto na transcrição (só o que for dito com o FONE na linha aparece).
 - Transferência: FONE na entrada → Atender → pedido → cabo de conexão saída→destino → **Transferir** (`transfer()`)
   → `_ring_dest` → destino atende → tirar o FONE → `_try_complete` → linha e destino CONN por `TALK_LEN`
   → DONE (vermelho) até o jogador tirar as pontas. `_dgen` invalida toques de destino quando o cabo sai.

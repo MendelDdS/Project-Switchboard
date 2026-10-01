@@ -43,6 +43,7 @@ var ringing := false
 var active := false
 var ended := false
 var on_line := false        ## o FONE está na entrada desta ligação (só ela fala)
+var closing := false        ## já resolvida: a pessoa termina de falar e desliga mesmo sem o operador na linha
 var talking := false
 var phase := Phase.NONE
 var last_talk := 0
