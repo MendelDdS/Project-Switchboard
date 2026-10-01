@@ -146,11 +146,8 @@ func _initialize() -> void:
 	var right := ""
 	for o in info.options:
 		var lbl := String(o["label"])
-		if info.about != "" and lbl.contains(info.answer):
+		if lbl.contains(info.answer):
 			right = lbl
-		for k in 10:
-			if info.about == "" and lbl == "São %s." % m.fmt(m.minutes - k):
-				right = lbl
 	_pick(info, right)
 	ok(await wait_until(func(): return info.ended), "informação encerrada")
 	ok(info.info_ok == 1 and ex.line(info.line) == Exchange.Line.DONE, "respondeu certo; linha desligou")

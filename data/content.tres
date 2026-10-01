@@ -462,6 +462,5 @@ news_late = PackedStringArray("{occurrence} na {address}: socorro chega com atra
 news_bad = PackedStringArray("{occurrence} na {address}: ninguém foi atender.", "{occurrence} na {address}: vizinhos esperaram a noite toda por socorro.")
 verdicts = PackedStringArray("Turno sem problemas. Bom trabalho.", "Atenção aos detalhes. Os moradores contam com a central.", "Turno inaceitável. Isso vai para a sua ficha.")
 ask_number = PackedStringArray("Boa noite. Pode me dar o número %s?", "Central, o senhor sabe o número %s?", "Queria só o número %s, pra anotar aqui.", "Perdi a caderneta. Qual é o número %s?", "Central, me passa o número %s, por favor?", "Boa noite. Qual é o telefone %s?", "O senhor tem aí o número %s?")
-ask_time = PackedStringArray("Moço, que horas são? O relógio lá de casa parou.", "Desculpe incomodar. O senhor tem as horas certas?", "Central, que horas são agora? Faltou luz e o relógio apagou.", "Central, desculpe, sabe me dizer as horas?", "Que horas são, moço? Tô sem relógio.")
 info_thanks = PackedStringArray("Anotado. Obrigada, boa noite.", "Isso, obrigado.", "Ah, tá certo. Obrigado.", "Muito obrigada. Boa noite.", "Brigado, moço.", "Tá anotado. Boa noite.")
 info_doubt = PackedStringArray("Hum. Tem certeza? Bom... obrigado.", "Isso tudo? Tá bom, obrigado.", "Vou tentar esse então.", "Será? Bom, vou tentar.", "Hum... tá bom, então.")

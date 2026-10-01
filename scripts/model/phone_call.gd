@@ -66,7 +66,7 @@ var asked: Array[int] = []
 var dispatched := false
 # pedido de informação
 var ask := ""
-var about := ""             ## "o Hotel Estrela"; vazio = perguntou as horas
+var about := ""             ## de quem pediu o número: "o Hotel Estrela"
 var answer := ""
 var info_ok := -1           ## -1 sem resposta, 0 errada, 1 certa
 
@@ -110,7 +110,7 @@ static func from_script(r: Resource) -> PhoneCall:
 	return from_transfer(r)
 
 
-static func info(voice_id: String, who: String, question: String, spoken := "", number := "") -> PhoneCall:
+static func info(voice_id: String, who: String, question: String, spoken: String, number: String) -> PhoneCall:
 	var c := PhoneCall.new()
 	c.kind = Kind.INFO
 	c.voice = voice_id

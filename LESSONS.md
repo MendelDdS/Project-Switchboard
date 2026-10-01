@@ -39,8 +39,6 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
 - **Ligações são `Dictionary`: compare com `is_same()`.** `==` compara conteúdo, e `Array.erase` usa `==`;
   remova de `live` por índice com `is_same`.
 - **Ao iterar `live` e poder encerrar ligações no meio**, itere sobre `live.duplicate()` (`end_call` remove da lista).
-- **Texto que depende do relógio muda enquanto o jogador lê.** A resposta certa de "que horas são" é calculada
-  quando as opções são geradas; testes devem tolerar alguns minutos de diferença.
 
 ## GDScript / Godot 4.6
 

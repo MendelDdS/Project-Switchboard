@@ -192,24 +192,18 @@ func _info(c: PhoneCall) -> void:
 		return
 	if not await say(c, c.ask):
 		return
-	var right := ""
-	var opts := []
-	if c.about != "":
-		right = tr("É o %s.") % c.answer
-		opts = [right]
-		while opts.size() < 3:
-			var o := tr("É o %s.") % C.directory.pick_random().number
-			if not o in opts:
-				opts.append(o)
-	else:
-		right = tr("São %s.") % Main.fmt(main.minutes)
-		opts = [right, tr("São %s.") % Main.fmt(main.minutes + 60.0), tr("São %s.") % Main.fmt(main.minutes - 45.0)]
+	var right := tr("É o %s.") % c.answer
+	var opts := [right]
+	while opts.size() < 3:
+		var o := tr("É o %s.") % C.directory.pick_random().number
+		if not o in opts:
+			opts.append(o)
 	opts.shuffle()
 	c.phase = PhoneCall.Phase.INFO
 	c.state_changed.emit()
 	if not _taught_info:
 		_taught_info = true
-		main.hint(tr("Pedido de informação: confira a lista telefônica (ou o relógio) antes de responder."))
+		main.hint(tr("Pedido de informação: confira a lista telefônica antes de responder."))
 	var i := await choose(c, opts)
 	if i < 0 or not await op(c, opts[i]):
 		return

@@ -80,6 +80,5 @@ extends Resource
 @export_group("Pedidos de informação")
 ## %s vira "do Hotel Estrela" (DirectoryEntry.spoken com "d" na frente).
 @export var ask_number: PackedStringArray = []
-@export var ask_time: PackedStringArray = []
 @export var info_thanks: PackedStringArray = []
 @export var info_doubt: PackedStringArray = []

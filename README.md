@@ -95,7 +95,7 @@ Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
   é o maior silêncio possível). Ajuste medindo com o robô em ritmo humano: `tests/test_shift.gd -- --human`. Em `PEAK_CHANCE` (5%) dos intervalos a próxima vem logo em seguida (2–6 min) e duas linhas tocam juntas.
 - **Tipo sorteado**: `emergencies` emergências (1–2, a pelo menos `EMERGENCY_GAP` = 60 min uma da outra, porque o
   despacho cuida de uma por vez), `pranks` trotes (0–2) e o resto transferências (65%) ou pedidos de informação
-  (número de alguém na lista, ou as horas). Um destino não se repete na mesma noite. Na primeira noite, a primeira
+  (o número de alguém na lista). Um destino não se repete na mesma noite. Na primeira noite, a primeira
   ligação é uma transferência guiada (tutorial).
 - **Ligação desconhecida**: toca por uma entrada livre qualquer, num horário sorteado entre `mystery_from` e
   `mystery_to` da noite (22:00–23:30).

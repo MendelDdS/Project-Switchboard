@@ -567,10 +567,8 @@ func _random_calls(fixed: Array[PhoneCall]) -> Array[PhoneCall]:
 
 func _info_call() -> PhoneCall:
 	var who := GameData.pick(C.callers).split(":")
-	if randf() < 0.7:
-		var e: DirectoryEntry = C.directory.filter(func(d): return d.spoken != "").pick_random()
-		return PhoneCall.info(who[0], who[1], tr(GameData.pick(C.ask_number)) % ("d" + e.spoken), e.spoken, e.number)
-	return PhoneCall.info(who[0], who[1], GameData.pick(C.ask_time))
+	var e: DirectoryEntry = C.directory.filter(func(d): return d.spoken != "").pick_random()
+	return PhoneCall.info(who[0], who[1], tr(GameData.pick(C.ask_number)) % ("d" + e.spoken), e.spoken, e.number)
 
 
 func _free_line() -> int:
@@ -789,7 +787,7 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> Dictionary:
 					obs = tr("Conectada ao número errado.")
 		PhoneCall.Kind.INFO:
 			if c.info_ok >= 0:
-				obs = tr("Pediu o número d%s.") % c.about if c.about != "" else tr("Perguntou as horas.")
+				obs = tr("Pediu o número d%s.") % c.about
 				if c.info_ok == 0:
 					obs += " " + tr("Informação errada.")
 		PhoneCall.Kind.EMERGENCY:
