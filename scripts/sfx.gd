@@ -20,7 +20,7 @@ const VOWEL := {"a": Vector2(780, 1250), "e": Vector2(480, 1850), "i": Vector2(3
 const VOL := {
 	"click": -14.0, "sw": -10.0, "plug_in": -3.0, "plug_out": -9.0, "key": -13.0, "page": -11.0,
 	"tick": -24.0, "pencil": -13.0, "ring": -5.0, "pulse": -10.0, "ringback": -13.0, "sit": -13.0,
-	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "owl_0": -17.0, "owl_1": -17.0,
+	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "reel": -18.0, "owl_0": -17.0, "owl_1": -17.0,
 }
 ## Volume (dB) dos sons de ambiente em cada clima; o que não aparece fica mudo.
 const WEATHER_MIX := {
@@ -416,6 +416,12 @@ func _build_all() -> void:
 	_end("sit", true)
 	_begin(0.3); _tone(0, 90, 0.2, "sine", 0.9); _noise(0, 0.05, "lp", 900, 0.7, 1.0); _end("cut")
 	_begin(0.45); _tone(0, 60, 0.4, "sine", 0.9); _end("thump")
+	# plug solto batendo na mesa; fio raspando na borda do buraco enquanto é recolhido
+	_begin(0.14); _noise(0, 0.05, "lp", 1800, 0.7, 1.0); _tone(0, 150, 0.1, "sine", 0.6); _tone(0.005, 2100, 0.015, "square", 0.06); _end("drop")
+	_begin(0.5)
+	for i in 9:
+		_noise(i * 0.045 + randf() * 0.01, 0.05, "bp", 1500 + randf() * 500, 2, 0.7 * (1.0 - i / 12.0))
+	_end("reel")
 	_begin(0.55)
 	for k in 12:
 		if randf() < 0.7:

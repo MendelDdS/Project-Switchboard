@@ -42,12 +42,14 @@ var info_until := 0
 var _press_pos := Vector2.ZERO
 var _press_ms := 0
 var _pulled := false           # o clique atual tirou um plug de uma tomada
-var _anim := {}                # ponta solta voltando para o buraco -> {"t": s caindo/recolhendo, "seat": -1 ou 0..1 assentando, "from", "ang"}
+var _loose := {}               # ponta solta voltando para o buraco -> {"t": s caindo/recolhendo, "seat": -1 ou 0..1 assentando, "direct", "from", "ang"}
 const FALL_SEC := 0.35         # o plug solto cai livre antes de o fio começar a recolher
 const NEAR_HOLE := 45.0        # solto acima do buraco (a qualquer altura) e com essa distância na horizontal, o fio puxa o plug direto (sem cair)
 const PULL_SPEED := 480.0      # px/s de fio que entra no buraco
 const SEAT_LEN := 12.0         # com o fio curto assim, o plug assenta no lugar
 const SEAT_SEC := 0.1
+const MAX_FLING := 1800.0      # px/s: o plug solto em movimento sai com o embalo da mão, até esse limite
+const DROP_SPEED := 120.0      # px/s: batendo na mesa mais rápido que isso, faz barulho
 const PLUG_BASE := Vector2(0, 20)   # do ponto de referência do plug (topo do corpo) até onde o fio entra nele
 const CLICK_MS := 300          # soltar antes disso, fora de uma tomada, conta como clique (não como arrastar)
 var _jacks: Array = []
@@ -63,7 +65,8 @@ const FLOOR_Y := 348.0             # o cabo repousa sobre a mesa abaixo do paine
 const STEP := 1.0 / 90.0
 var ropes := {}                    # ponta -> corda (só enquanto o fio está para fora do buraco)
 var _acc := 0.0
-var _last_mouse := Vector2.ZERO
+var _last_mouse := Vector2.ZERO   # mouse no último passo da física
+var _mouse_vel := Vector2.ZERO    # px/s, para o embalo do plug solto
 
 
 func _ready() -> void:
@@ -208,7 +211,7 @@ func place(e: int, j: int) -> bool:
 		return false
 	ends[e] = j
 	held = -1
-	_anim.erase(e)
+	_loose.erase(e)
 	Sfx.play("plug_in")
 	end_changed.emit(e, j, -1)
 	return true
@@ -227,6 +230,7 @@ func pick_up(e: int) -> void:
 ## Solta o plug: ele cai e o fio o puxa de volta para o buraco (o FONE volta ao telefone).
 func go_home(e: int) -> void:
 	var from := _plug_base(e)
+	var fling := _mouse_vel.limit_length(MAX_FLING) if held == e else Vector2.ZERO
 	var prev: int = ends[e]
 	ends[e] = -1
 	if held == e:
@@ -234,11 +238,15 @@ func go_home(e: int) -> void:
 	if from.distance_to(_rest(e)) > 2.0:
 		if not ropes.has(e):
 			_new_rope(e, from)
-		_anim[e] = {"t": 0.0, "seat": -1.0, "direct": false}
-		if from.y < hole(e).y and absf(from.x - hole(e).x) < NEAR_HOLE:
-			# acima do buraco: o fio já puxa, esticado, e o plug vai direto para ele (sem cair no chão antes)
-			_anim[e] = {"t": FALL_SEC, "seat": -1.0, "direct": true}
-			ropes[e]["len"] = minf(ropes[e]["len"], from.distance_to(hole(e)))
+		# acima do buraco o fio já puxa, esticado, e o plug vai direto para ele (sem cair no chão antes);
+		# fora disso ele cai, com o embalo da mão, antes de o fio recolher
+		var direct := from.y < hole(e).y and absf(from.x - hole(e).x) < NEAR_HOLE
+		_loose[e] = {"t": FALL_SEC if direct else 0.0, "seat": -1.0, "direct": direct}
+		var r: Dictionary = ropes[e]
+		if direct:
+			r["len"] = minf(r["len"], from.distance_to(hole(e)))
+		else:
+			r["old"][ROPE_N - 1] = from - fling * STEP
 	else:
 		Sfx.play("thump", -14.0)
 	if prev != -1:
@@ -280,7 +288,8 @@ func _press(pos: Vector2) -> void:
 			go_home(held)
 		return
 	for e in ends.size():
-		if ends[e] == -1 and not _anim.has(e) and home_rect(e).has_point(pos):
+		if ends[e] == -1 and _plug_hit(e, pos):
+			_loose.erase(e)
 			held = e
 			held_from = -1
 			Sfx.play("plug_out")
@@ -300,7 +309,7 @@ func _press(pos: Vector2) -> void:
 			return
 
 
-## Clique num plug encaixado: ele volta para a base. Clique num plug da base: fica na mão até
+## Clique num plug encaixado: ele volta para a base. Clique num plug da base (ou solto, voltando): fica na mão até
 ## o próximo clique. Arrastar e soltar encaixa na tomada (ou devolve à base, se soltar fora).
 ## Um clique rápido que mexe uns pixels (mouse tremendo, toque no trackpad) continua sendo clique.
 func _release(pos: Vector2) -> void:
@@ -317,8 +326,11 @@ func _release(pos: Vector2) -> void:
 
 
 func _process(delta: float) -> void:
+	var mouse := get_local_mouse_position()
 	if held != -1:
-		cursor = get_local_mouse_position()
+		cursor = mouse
+	if delta > 0.0:
+		_mouse_vel = _mouse_vel.lerp((mouse - _last_mouse) / delta, 0.5)
 	_acc = minf(_acc + delta, STEP * 6)
 	while _acc >= STEP:
 		_acc -= STEP
@@ -334,12 +346,19 @@ func _plug_base(e: int) -> Vector2:
 		return cursor + PLUG_BASE
 	if ends[e] != -1:
 		return jack_rect(int(ends[e])).get_center() + PLUG_BASE
-	if _anim.has(e):
-		var an: Dictionary = _anim[e]
+	if _loose.has(e):
+		var an: Dictionary = _loose[e]
 		if an["seat"] >= 0.0:
 			return (an["from"] as Vector2).lerp(_rest(e), an["seat"])
 		return ropes[e]["pts"][ROPE_N - 1]
 	return _rest(e)
+
+
+## O plug da ponta e (guardado, ou solto voltando para o buraco) está no ponto p.
+func _plug_hit(e: int, p: Vector2) -> bool:
+	if not _loose.has(e):
+		return home_rect(e).has_point(p)
+	return (_plug_base(e) + Vector2(0, -14).rotated(_plug_angle(e))).distance_to(p) < 18.0
 
 
 ## Onde o fio entra no plug guardado.
@@ -349,9 +368,9 @@ func _rest(e: int) -> Vector2:
 
 ## Inclinação do plug: em pé, menos quando solto (segue o fio, que sai da traseira dele).
 func _plug_angle(e: int) -> float:
-	if not _anim.has(e):
+	if not _loose.has(e):
 		return 0.0
-	var an: Dictionary = _anim[e]
+	var an: Dictionary = _loose[e]
 	if an["seat"] >= 0.0:
 		return lerp_angle(an["ang"], 0.0, an["seat"])
 	return _cord_angle(e)
@@ -375,7 +394,7 @@ func _new_rope(e: int, to: Vector2) -> void:
 ## entre eles é mantida. A outra ponta segue o plug; solto, o plug é a última conta da corda (cai) e o
 ## comprimento encolhe até ele assentar no buraco.
 func _step_rope(e: int, dt: float) -> void:
-	if held != e and ends[e] == -1 and not _anim.has(e):
+	if held != e and ends[e] == -1 and not _loose.has(e):
 		ropes.erase(e)   # o fio está todo dentro do buraco
 		return
 	var a := hole(e)
@@ -386,16 +405,18 @@ func _step_rope(e: int, dt: float) -> void:
 	var old: PackedVector2Array = r["old"]
 	var last := ROPE_N - 1
 	var length: float = r["len"]
-	var an: Dictionary = _anim.get(e, {})
+	var an: Dictionary = _loose.get(e, {})
 	var free: bool = not an.is_empty() and an["seat"] < 0.0
 	if free:
 		an["t"] += dt
 		if an["t"] > FALL_SEC:
+			if an["t"] - dt <= FALL_SEC:
+				Sfx.play("reel")   # o fio começa a entrar no buraco
 			length = maxf(length - PULL_SPEED * dt, 0.0)
 	elif not an.is_empty():
 		an["seat"] += dt / SEAT_SEC
 		if an["seat"] >= 1.0:
-			_anim.erase(e)
+			_loose.erase(e)
 			ropes.erase(e)
 			Sfx.play("thump", -14.0)
 			return
@@ -415,6 +436,8 @@ func _step_rope(e: int, dt: float) -> void:
 			pts[i] += v * 0.5   # puxado direto: fio esticado, sem gravidade e quase sem embalo (o plug não pendula)
 			continue
 		pts[i] += v + GRAVITY * dt * dt
+		if i == last and pts[i].y > FLOOR_Y and v.y > DROP_SPEED * dt:
+			Sfx.play("drop")   # o plug solto bate na mesa
 		# passar o mouse por cima do fio empurra o fio
 		if held != e and mv.length_squared() > 0.5 and pts[i].distance_to(mouse) < 16.0:
 			pts[i] += mv * 0.35
