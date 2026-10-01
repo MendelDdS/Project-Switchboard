@@ -15,6 +15,10 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
 - **Encurtar o turno sem mexer no relógio comprime as ligações em tempo real.** O turno passou de 8 h para 6 h com
   1 min de jogo por segundo: as mesmas ~10 ligações caíram em 6 min reais e viraram avalanche. Pense no ritmo em
   **segundos reais** entre ligações (uma transferência + registro leva ~40 s para uma pessoa).
+- **O robô perfeito não mede o ritmo.** Ele resolve cada ligação em poucos segundos; com 12–32 min entre ligações
+  ele ia bem e uma pessoa não dava conta. Para mexer no ritmo, meça com `--human` (5 s por ação).
+- **Turnos do robô em paralelo dão métricas falsas**: a máquina disputada deixa o robô lento em relação ao relógio do
+  jogo (perdidas e turnos que "não terminam" que não acontecem rodando um de cada vez).
 - **O robô perfeito não enxerga bola de neve.** Retornos (quem liga de novo) só aparecem quando alguém falha; o
   robô `--clumsy` (deixa 1 em 3 tocar) mede isso. Mecânica que gera ligações precisa de freio (esperar a mesa esvaziar).
 - **Ajuste de ritmo tem efeito colateral.** Conversas mais longas prendem cabos por mais tempo e causam falta de

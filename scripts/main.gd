@@ -1,6 +1,6 @@
 class_name Main
 extends Control
-## Central de Vila Serena — conduz o turno: relógio, agenda das ligações, o que a mesa significa para cada
+## Project Switchboard — conduz o turno: relógio, agenda das ligações, o que a mesa significa para cada
 ## ligação, fim de ligação e o final. As falas ficam em Conversation; a interface, nas cenas de scenes/ui/.
 ##
 ## Laço: ATENDER → ENTENDER → CONSULTAR → CONECTAR/DESPACHAR → REGISTRAR → CONTINUAR

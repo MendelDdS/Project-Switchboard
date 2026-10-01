@@ -1,5 +1,7 @@
 extends "res://tests/test_base.gd"
 ## Um robô joga o turno inteiro na agenda real (use `-- --seed=N` para repetir a agenda).
+## Com `-- --human` cada ação (atender, plugar, transferir, despachar, registrar...) leva HUMAN_STEP segundos reais,
+## como uma pessoa: mede se o ritmo das ligações cabe no tempo de quem joga de verdade.
 ## Com `-- --clumsy` ele deixa de atender 1 em cada 3 ligações (como alguém sobrecarregado): mede a bola de neve
 ## dos retornos (quem liga de novo).
 ## Falha se houver travamento: o turno precisa chegar ao final (00:00) depois da ligação desconhecida.
@@ -17,6 +19,20 @@ var myst_at := ""
 var answered := {}
 var clumsy := "--clumsy" in OS.get_cmdline_user_args()
 var skipped := 0
+var human := "--human" in OS.get_cmdline_user_args()
+const HUMAN_STEP := 5.0   ## segundos reais por ação no modo --human
+var next_act := 0.0       ## instante (s, na velocidade do jogo) em que a "pessoa" pode agir de novo
+
+
+## Segundos na velocidade do jogo (o relógio do turno para às 00:00; este não).
+func _now() -> float:
+	return Time.get_ticks_msec() / 1000.0 * Engine.time_scale
+
+
+## Marca o tempo que a ação levou (só no modo --human).
+func _acted(steps := 1.0) -> void:
+	if human:
+		next_act = _now() + HUMAN_STEP * steps
 var seen := {}
 var last_ring := 0.0
 var kinds := {}           ## tipo -> quantas tocaram
@@ -44,10 +60,11 @@ func _initialize() -> void:
 	m._start_shift()
 	var b = m.board
 	var ex: Exchange = m.exchange
-	var frames_left := 60 * 200
-	while not m.ending and frames_left > 0 and not failed:
+	var frames_left := 0   # só para espaçar os registros no caderno
+	var deadline := Time.get_ticks_msec() + 180000   # limite em tempo real: a quantidade de quadros varia com a máquina
+	while not m.ending and Time.get_ticks_msec() < deadline and not failed:
 		await process_frame
-		frames_left -= 1
+		frames_left += 1
 		max_live = maxi(max_live, m.live.size())
 		for c in m.live:
 			if not seen.has(c.time + str(c.line)):
@@ -72,6 +89,8 @@ func _initialize() -> void:
 		for d in ex.dest_numbers():
 			if ex.dest(d) == Exchange.Dest.DONE and b.cord_at(d) != -1:
 				_home(b, b.cord_at(d))
+		if _now() < next_act:
+			continue
 		var f: PhoneCall = m._focus()
 		if f == null or not f.active:
 			for c in m.live:
@@ -83,6 +102,7 @@ func _initialize() -> void:
 						continue
 					_fone_to(b, c.line)
 					m.answer()
+					_acted()
 					answered[key] = true
 					if c.kind == PhoneCall.Kind.MYSTERY:
 						myst_at = "%s na linha %02d" % [c.time, c.line]
@@ -94,6 +114,7 @@ func _initialize() -> void:
 			if m.notebook.has_pending() and frames_left % 120 == 0:
 				m.notebook._type.select(1)
 				m.notebook.register()
+				_acted()
 			continue
 		match f.kind:
 			PhoneCall.Kind.TRANSFER:
@@ -106,19 +127,23 @@ func _initialize() -> void:
 							if b.ends[1 + k * 2] == -1 and b.ends[2 + k * 2] == -1:
 								b.held = 1 + k * 2
 								b.place(1 + k * 2, f.line + 10)
+								_acted()
 								break
 					elif d == -1:
 						if b.cord_at(tg) == -1:
 							b.held = b.mate(s)
 							b.place(b.mate(s), tg)
+							_acted()
 					elif ex.dest(d) == Exchange.Dest.FREE:
 						if f.no_answer and (f.data as TransferCall).alt_target != "" and not f.alt_done:
 							f.options.back()["fn"].call()
 							_home(b, b.cord_at(d))
 						else:
 							m.transfer()
+						_acted()
 					elif ex.dest(d) == Exchange.Dest.CONN:
 						_home(b, 0)
+						_acted()
 			_:
 				if f.kind == PhoneCall.Kind.EMERGENCY and not f.options.is_empty() and String(f.options[0]["label"]).begins_with("Fique") and not f.dispatched:
 					var e: EmergencyCall = f.data
@@ -127,10 +152,14 @@ func _initialize() -> void:
 					for u in e.units:
 						(m.dispatch._unit_buttons[u] as Button).button_pressed = true
 					m.dispatch._send()
+					_acted(4.0)   # mapa, tipo, unidades e enviar
 				elif not f.options.is_empty():
 					f.options[0]["fn"].call()
+					_acted()
 	var recs: Array = m.notebook.entries + m.notebook.queue + ([m.notebook.pending] if m.notebook.has_pending() else [])
 	var lost := recs.filter(func(e): return e["obs"] == "Não atendida.").size()
+	if human:
+		print("humano: %.0f s por ação" % HUMAN_STEP)
 	if clumsy:
 		print("desastrado: deixou tocar %d, retornos=%d" % [skipped, recs.filter(func(e): return e["who"].begins_with("Desconhecido")).size()])
 	max_quiet = maxf(max_quiet, m.minutes - last_ring)

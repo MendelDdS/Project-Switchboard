@@ -1,7 +1,7 @@
-[gd_resource type="Theme" format=3]
+[gd_resource type="Theme" format=3 uid="uid://y3atgoqdrdyj"]
 
-[ext_resource type="FontFile" path="res://fonts/VT323-Regular.ttf" id="1_vu6l5"]
-[ext_resource type="FontFile" path="res://fonts/PixelifySans.ttf" id="2_ydht1"]
+[ext_resource type="FontFile" uid="uid://bd85aasd7l867" path="res://fonts/VT323-Regular.ttf" id="1_vu6l5"]
+[ext_resource type="FontFile" uid="uid://60aqbf3talnj" path="res://fonts/PixelifySans.ttf" id="2_ydht1"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vu6l5"]
 content_margin_left = 6.0

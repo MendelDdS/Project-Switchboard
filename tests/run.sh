@@ -36,6 +36,7 @@ for s in 1 2 3; do
 done
 run tests/test_shift.gd --seed=3 --clumsy
 run tests/test_shift.gd --seed=2 --night=2
+run tests/test_shift.gd --seed=1 --human
 
 rm -f "$log"
 [ $fails -eq 0 ] && echo "Todos os testes passaram." || echo "$fails teste(s) falharam."

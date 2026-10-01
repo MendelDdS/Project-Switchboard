@@ -35,7 +35,7 @@ func show_report(r: ShiftReport) -> void:
 	s += "\n[b]%s[/b]\n" % tr("JORNAL DA MANHÃ")
 	var news := r.outcomes()
 	if news.is_empty():
-		s += tr("Noite tranquila em Vila Serena.") + "\n"
+		s += tr("Noite tranquila em São Sotero.") + "\n"
 	for e: EmergencyCall in news:
 		var pool: PackedStringArray = [C.news_ok, C.news_late, C.news_bad][news[e]]
 		s += "• %s\n" % GameData.fill(GameData.pick(pool), {"occurrence": _occurrence(e.occurrence), "address": e.address})

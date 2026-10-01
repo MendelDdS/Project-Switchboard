@@ -14,7 +14,7 @@ extends Resource
 
 @export_group("Agenda")
 ## Minutos de jogo entre uma ligação sorteada e a próxima (o máximo é o maior silêncio possível).
-@export var call_gap := Vector2(12.0, 32.0)
+@export var call_gap := Vector2(28.0, 42.0)
 ## Quantas emergências e quantos trotes entre as ligações sorteadas.
 @export var emergencies := Vector2i(1, 2)
 @export var pranks := Vector2i(0, 2)

@@ -1,4 +1,4 @@
-# Central de Vila Serena (Godot 4.6)
+# Project Switchboard (Godot 4.6)
 
 Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
 
@@ -91,8 +91,8 @@ O relógio nunca para: 0,75 minuto de jogo por segundo real (18:00 → 00:00 em 
 Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
 
 - **Nada é fixo, exceto o roteiro da noite** (`story` e `mystery` em `data/nights/`). O resto é sorteado (`_random_calls`):
-  entre uma ligação e a próxima passam `call_gap` minutos de jogo (12–32 na noite 1; o máximo é o maior silêncio
-  possível). Em `PEAK_CHANCE` (5%) dos intervalos a próxima vem logo em seguida (2–6 min) e duas linhas tocam juntas.
+  entre uma ligação e a próxima passam `call_gap` minutos de jogo (28–42 na noite 1, cerca de 37–56 s reais; o máximo
+  é o maior silêncio possível). Ajuste medindo com o robô em ritmo humano: `tests/test_shift.gd -- --human`. Em `PEAK_CHANCE` (5%) dos intervalos a próxima vem logo em seguida (2–6 min) e duas linhas tocam juntas.
 - **Tipo sorteado**: `emergencies` emergências (1–2, a pelo menos `EMERGENCY_GAP` = 60 min uma da outra, porque o
   despacho cuida de uma por vez), `pranks` trotes (0–2) e o resto transferências (65%) ou pedidos de informação
   (número de alguém na lista, ou as horas). Um destino não se repete na mesma noite. Na primeira noite, a primeira

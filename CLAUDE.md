@@ -1,7 +1,7 @@
-# Central de Vila Serena — memória do projeto
+# Project Switchboard — memória do projeto
 
 Jogo em Godot 4.6 (GDScript, renderer GL Compatibility), a caminho da versão definitiva. O jogador é o operador
-noturno de uma central telefônica de cidade pequena (18:00–00:00). Mecânica: atender e transferir ligações numa
+noturno da central telefônica de São Sotero, cidade pequena (18:00–00:00). Mecânica: atender e transferir ligações numa
 mesa comutadora com cabos físicos; ao fundo, uma ligação misteriosa de número desconhecido (terror leve), por uma entrada sorteada.
 O README.md descreve o jogo para quem joga/edita conteúdo; este arquivo é o mapa para quem mexe no código.
 Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
@@ -42,8 +42,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     emergência sem despacho, espera longa, informação errada) e o relatório. Relógio parado; retornos tocados à mão.
   - `run.sh` começa com `--import`: **`class_name` novo só existe depois de reimportar** (sem isso, parse error).
   - `tests/test_shift.gd`: robô que joga o turno inteiro e imprime métricas (máx. simultâneas, % com 2+/3+,
-    % sem cabo livre, perdidas, maior silêncio); `run.sh` roda com `--seed=1..3`, um turno `--clumsy` (deixa de atender 1 em 3)
-    e a noite 2 (`--night=2`).
+    % sem cabo livre, perdidas, maior silêncio); `run.sh` roda com `--seed=1..3`, um turno `--clumsy` (deixa de atender 1 em 3),
+    a noite 2 (`--night=2`) e um turno `--human` (5 s reais por ação, como uma pessoa: **é este que mede se o ritmo
+    cabe**; o robô normal é rápido demais). Limite em tempo real (180 s). **Não rode vários turnos do robô em
+    paralelo**: com a máquina disputada o robô fica lento em relação ao relógio e as métricas mentem.
   - Nos testes, `Main`/`Switchboard` ficam **sem tipo** (dependem do autoload `Sfx`, que não existe na hora em que
     o Godot compila um script `-s`). `PhoneCall`, `Exchange` e os Resources podem ser tipados.
   - Rode depois de qualquer mudança em agenda, fim de ligação, mesa ou cabos.
@@ -53,8 +55,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 ## Exportar (executáveis para testar fora do editor)
 - Presets em `export_presets.cfg`: Windows, macOS (universal, assinatura ad-hoc, sem notarização) e Linux; saída em
   `build/` (fora do git). Templates do Godot 4.6.2 ficam em `~/Library/Application Support/Godot/export_templates/`.
-- `Godot --headless --path . --import` e depois `Godot --headless --path . --export-release "Windows" build/windows/CentralDeVilaSerena.exe`
-  (idem "macOS" → `build/macos/CentralDeVilaSerena.zip`, "Linux" → `build/linux/CentralDeVilaSerena.x86_64`).
+- `Godot --headless --path . --import` e depois `Godot --headless --path . --export-release "Windows" build/windows/ProjectSwitchboard.exe`
+  (idem "macOS" → `build/macos/ProjectSwitchboard.zip`, "Linux" → `build/linux/ProjectSwitchboard.x86_64`).
 - **`editor/export/convert_text_resources_to_binary=false`**: a conversão para binário esvaziava todo `PackedStringArray`
   do conteúdo (falas, motivos, quem liga) e o jogo exportado quebrava ao montar a agenda. Não religue sem testar.
 - Teste o exportado: `Godot --headless --path . --export-pack "macOS" x.pck` e `Godot --headless --main-pack x.pck --quit-after 600`
@@ -128,7 +130,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 ## Agenda e ritmo (constantes no topo de main.gd; por noite em `Night`)
 - Ligação desconhecida (`MYSTERY`, entrada livre sorteada, guardada em `myst_line`) entre `Night.mystery_from` e `mystery_to` (22:00–23:30), só
   toca com a mesa em silêncio, por no máximo 30 min de jogo (`latest`).
-- Sorteadas: `_random_calls` — intervalo `Night.call_gap` (12–32 min) entre uma e a próxima, `PEAK_CHANCE` de vir
+- Sorteadas: `_random_calls` — intervalo `Night.call_gap` (28–42 min ≈ 37–56 s reais; medido com `--human`) entre uma e a próxima, `PEAK_CHANCE` de vir
   logo em seguida, a `STORY_GAP` das fixas. Tipos: `Night.emergencies` (a `EMERGENCY_GAP` uma da outra; no laço, a
   emergência espera a anterior acabar e `Dispatch.en_route()`), `Night.pranks`, resto transferência/informação.
   Um destino (e `alt_target`) por noite: dois pedidos do mesmo número travavam um ao outro.
@@ -167,7 +169,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     retornos esperam a mesa esvaziar (`RETRY_WAIT`). Medido com o robô desastrado (`--clumsy`).
 15. Várias noites com roteiro fixo por noite (`Night`), progresso salvo e demissão com 3 graves acumuladas.
 16. **Nada fixo além do roteiro**: as 4 "principais" com horário fixo foram removidas; tudo é sorteado com intervalo
-    máximo (`call_gap`), o que também acabou com silêncios de ~1 h. Silhueta sai 10 min antes de ligar, preta e
+    máximo (`call_gap`), o que também acabou com silêncios de ~1 h. O primeiro valor (12–32 min) era rápido demais
+    para uma pessoa; passou a 28–42 (noite 2: 26–40), medido com o robô `--human`. Silhueta sai 10 min antes de ligar, preta e
     contra a luz de um poste.
 
 ## Sobre o usuário
