@@ -38,7 +38,7 @@ func _awaiting(c: PhoneCall) -> Callable:
 
 
 func _initialize() -> void:
-	Engine.time_scale = 20.0
+	Engine.time_scale = 8.0
 	m = await load_main()
 	m.sched.clear()
 	m._intro.visible = false

@@ -24,9 +24,12 @@ const HUMAN_STEP := 5.0   ## segundos reais por ação no modo --human
 var next_act := 0.0       ## instante (s, na velocidade do jogo) em que a "pessoa" pode agir de novo
 
 
+var sim := 0.0           ## segundos simulados (somando o delta de cada quadro; com --fixed-fps não seguem o relógio real)
+
+
 ## Segundos na velocidade do jogo (o relógio do turno para às 00:00; este não).
 func _now() -> float:
-	return Time.get_ticks_msec() / 1000.0 * Engine.time_scale
+	return sim
 
 
 ## Marca o tempo que a ação levou (só no modo --human).
@@ -54,16 +57,17 @@ func _fone_to(b, j: int) -> void:
 
 
 func _initialize() -> void:
-	Engine.time_scale = 12.0
+	Engine.time_scale = 2.0
 	m = await load_main()
 	m._intro.visible = false
 	m._start_shift()
 	var b = m.board
 	var ex: Exchange = m.exchange
 	var frames_left := 0   # só para espaçar os registros no caderno
-	var deadline := Time.get_ticks_msec() + 180000   # limite em tempo real: a quantidade de quadros varia com a máquina
+	var deadline := Time.get_ticks_msec() + 90000   # limite de segurança em tempo real (um turno leva ~6 s com --fixed-fps)
 	while not m.ending and Time.get_ticks_msec() < deadline and not failed:
 		await process_frame
+		sim += m.get_process_delta_time()
 		frames_left += 1
 		max_live = maxi(max_live, m.live.size())
 		for c in m.live:

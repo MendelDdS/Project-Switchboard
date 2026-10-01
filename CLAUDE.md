@@ -35,7 +35,13 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 ## Rodar e testar
 - Godot: `/Applications/Godot.app/Contents/MacOS/Godot` (não está no PATH). Cena principal: `scenes/main.tscn`.
 - Checar se tudo compila: `Godot --headless --path . --quit-after 60`.
-- **Testes: `tests/run.sh`** (roda tudo em headless, com limite de tempo, e falha em `SCRIPT ERROR`).
+- **Testes: `tests/run.sh`** (roda tudo em headless, com limite de tempo, e falha em `SCRIPT ERROR`; ~1 min no total).
+  Roda com **`--fixed-fps 60`**: cada quadro avança 1/60 s de jogo e o motor não espera o relógio real (simulação
+  determinística, turno do robô em ~6 s). Para rodar um teste à mão, use a mesma opção:
+  `Godot --headless --fixed-fps 60 --path . -s tests/test_x.gd -- --seed=1`. Com `--fixed-fps`, tempo de teste se mede em
+  quadros/delta, nunca em `Time.get_ticks_msec()` (o robô soma `get_process_delta_time()` em `sim`).
+  `Engine.time_scale`: 8 nos cenários, 2 no robô (acima disso as falas, letra a letra, ficam presas ao quadro e
+  alongam as conversas; a 48× as métricas mudavam muito).
   - `tests/test_base.gd`: base (`ok()` em vez de `assert`, que trava o headless; `wait_until`, `load_main`, `finish`).
   - `tests/test_flow.gd`: cenários dirigidos (transferência, espera, desistência, caderno, lugar fechado, ligar de volta ao desconhecido, cliques).
   - `tests/test_penalties.gd`: consequências (perdida e retorno, número errado, registro, despacho errado,
@@ -43,9 +49,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   - `run.sh` começa com `--import`: **`class_name` novo só existe depois de reimportar** (sem isso, parse error).
   - `tests/test_shift.gd`: robô que joga o turno inteiro e imprime métricas (máx. simultâneas, % com 2+/3+,
     % sem cabo livre, perdidas, maior silêncio); `run.sh` roda com `--seed=1..3`, um turno `--clumsy` (deixa de atender 1 em 3),
-    a noite 2 (`--night=2`) e um turno `--human` (5 s reais por ação, como uma pessoa: **é este que mede se o ritmo
-    cabe**; o robô normal é rápido demais). Limite em tempo real (180 s). **Não rode vários turnos do robô em
-    paralelo**: com a máquina disputada o robô fica lento em relação ao relógio e as métricas mentem.
+    a noite 2 (`--night=2`) e um turno `--human` (5 s de jogo por ação, como uma pessoa: **é este que mede se o ritmo
+    cabe**; o robô normal é rápido demais).
   - Nos testes, `Main`/`Switchboard` ficam **sem tipo** (dependem do autoload `Sfx`, que não existe na hora em que
     o Godot compila um script `-s`). `PhoneCall`, `Exchange` e os Resources podem ser tipados.
   - Rode depois de qualquer mudança em agenda, fim de ligação, mesa ou cabos.
