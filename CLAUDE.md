@@ -120,7 +120,13 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (volume e tom entre `RUB_MIN` e `RUB_FULL`; sem chamada, cala). Dois loops com o mesmo ganho: `rub` (o fio:
   agarra e solta + corpo) e `rub_hi` (o agudo: fibras + rangido), mudo devagar (`RUB_HI_FROM`), normal no médio
   (`RUB_HI_NORMAL`) e `RUB_HI_BOOST` dB a mais rápido. Os dois passam
-  pelo barramento `Rub` (envia para Effects; passa-baixa que abre de `RUB_LP.x` a `RUB_LP.y` com a velocidade). Plug só se move arrastando
+  pelo barramento `Rub` (envia para Effects; passa-baixa que abre de `RUB_LP.x` a `RUB_LP.y` com a velocidade, e
+  panorama). A mesa também informa onde fica o buraco na tela (o som vem daquele lado, `RUB_PAN`), quanto do fio está
+  saindo ou entrando (`_count_rub`; entrando é mais liso, `RUB_IN`) e quanto é o do FONE (mais macio, `RUB_FONE`; a diferença some
+  quase toda puxando rápido, `fast`);
+  `cord_stop` ("tec") quando o fio termina de entrar; `cord_tap` quando o fio bate na mesa (`TAP_SPEED`,
+  no máximo um a cada `TAP_GAP` por fio). Sons mecânicos repetidos (`Sfx.VARIED`) saem com tom e volume levemente
+  sorteados. Plug só se move arrastando
   (clicar e segurar); clique sem arrastar só serve para desplugar.
 - Fios são cordas de Verlet (`_step_rope`), **uma por ponta**, presas no buraco (`hole(e)`: o do FONE no alto do
   encaixe, dois por cabo de conexão na base) e na traseira do plug (`_plug_base`); só existem com o fio para fora.

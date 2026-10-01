@@ -20,7 +20,7 @@ const VOWEL := {"a": Vector2(780, 1250), "e": Vector2(480, 1850), "i": Vector2(3
 const VOL := {
 	"click": -14.0, "sw": -10.0, "plug_in": -3.0, "plug_out": -9.0, "key": -13.0, "page": -11.0,
 	"tick": -24.0, "pencil": -13.0, "ring": -5.0, "pulse": -10.0, "ringback": -13.0, "sit": -13.0,
-	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "rub": -13.0,
+	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "rub": -13.0, "cord_stop": -16.0, "cord_tap": -17.0,
 }
 ## Volume (dB) dos sons de ambiente em cada clima; o que não aparece fica mudo.
 const WEATHER_MIX := {
@@ -45,6 +45,18 @@ const RUB_HI_BOOST := 6.0
 ## Os dois passam pelo barramento "Rub" (vai para Effects), com um passa-baixa que abre com a velocidade: fechado em
 ## RUB_LP.x Hz até RUB_HI_FROM (devagar, só o "shhh" grave do fio), aberto em RUB_LP.y a partir de RUB_HI_NORMAL.
 const RUB_LP := Vector2(900.0, 11000.0)
+## Fio entrando no buraco (recolhendo) soa mais liso que saindo (puxado): multiplica tom e corte, soma dB ao agudo.
+const RUB_IN := {"pitch": 0.9, "lp": 0.7, "hi_db": -6.0}
+## O fio do FONE (sai do telefone) é mais macio e grave que os cabos de conexão (saem da base de latão). A diferença
+## diminui com a velocidade: puxado rápido, sobra só `fast` dela (o puxão forte soa forte em qualquer fio).
+const RUB_FONE := {"pitch": 0.85, "lp": 0.6, "hi_db": -4.0, "fast": 0.25}
+const RUB_PAN := 0.7   # quanto o atrito vai para o lado do buraco (1 = só um lado do fone)
+
+## Sons mecânicos que se repetem muito (plugs, fios): cada vez sai com o tom e o volume levemente diferentes
+## (± VARY_PITCH, ± VARY_DB), para a mesa cheia não soar como uma máquina.
+const VARIED := ["plug_in", "plug_out", "thump", "drop", "cord_stop", "cord_tap", "click"]
+const VARY_PITCH := 0.06
+const VARY_DB := 1.5
 
 const VMAP := {"a": "a", "á": "a", "à": "a", "â": "a", "ã": "a", "e": "e", "é": "e", "ê": "e", "i": "i", "í": "i", "o": "o", "ó": "o", "ô": "o", "õ": "o", "u": "u", "ú": "u"}
 
@@ -60,6 +72,9 @@ var rub_hi: AudioStreamPlayer     # e o agudo (fibras, rangido), com volume pró
 var _rub_speed := 0.0             # px/s pedidos desde o último quadro (zera a cada quadro: sem pedido, cala)
 var _rub_v := 0.0                 # px/s, suavizado
 var _rub_lp: AudioEffectLowPassFilter
+var _rub_pan: AudioEffectPanner
+var _rub_want := Vector3(0.5, 1.0, 0.0)   # pedido: x = lugar na tela (0..1), y = parte saindo, z = parte do FONE
+var _rub_mood := Vector3(0.5, 1.0, 0.0)   # o mesmo, suavizado
 var weather := "rain"
 var _hushed := false
 var _ring_on := false
@@ -84,7 +99,9 @@ func _ready() -> void:
 	rub_hi = _make_loop("rub_hi")
 	for p in [rub, rub_hi]:
 		p.bus = &"Rub"
-	_rub_lp = AudioServer.get_bus_effect(AudioServer.get_bus_index(&"Rub"), 0)
+	var bus := AudioServer.get_bus_index(&"Rub")
+	_rub_lp = AudioServer.get_bus_effect(bus, 0)
+	_rub_pan = AudioServer.get_bus_effect(bus, 1)
 	_ring_timer = Timer.new()
 	_ring_timer.wait_time = 3.0
 	add_child(_ring_timer)
@@ -105,6 +122,9 @@ func play(id: String, db: float = 0.0, pitch: float = 1.0) -> AudioStreamPlayer:
 		p = pool[0]
 	p.stream = streams[id]
 	p.bus = &"Voices" if id.begins_with("s_") or id == "crackle" else &"Effects"
+	if id in VARIED:
+		db += randf_range(-VARY_DB, VARY_DB)
+		pitch *= 1.0 + randf_range(-VARY_PITCH, VARY_PITCH)
 	p.volume_db = VOL.get(id, -10.0) + db
 	p.pitch_scale = pitch
 	p.play()
@@ -152,15 +172,19 @@ func _apply_mix(sec: float) -> void:
 		fade(get(id), db, sec)
 
 
-## O fio está passando pelo buraco a `speed` px/s (saindo ao puxar o plug, entrando ao recolher): o atrito
-## acompanha, mais alto e mais agudo quanto mais rápido. Chamado a cada quadro pela mesa; parando de chamar
-## (pausa), o som some.
-func cord_rub(speed: float) -> void:
+## O fio está passando pelo buraco a `speed` px/s: o atrito acompanha, mais alto e mais agudo quanto mais rápido.
+## `screen_x` (0..1) é onde fica o buraco na tela (o som vem daquele lado); `out_share`, quanto do fio está saindo
+## (puxado; o resto entra, recolhendo, mais liso); `fone_share`, quanto é o fio do FONE (mais macio).
+## Chamado a cada quadro pela mesa; parando de chamar (pausa), o som some.
+func cord_rub(speed: float, screen_x := 0.5, out_share := 1.0, fone_share := 0.0) -> void:
 	_rub_speed = speed
+	if speed > 0.0:
+		_rub_want = Vector3(screen_x, out_share, fone_share)
 
 
 func _process(delta: float) -> void:
 	_rub_v = lerpf(_rub_v, _rub_speed, minf(1.0, delta * 18.0))
+	_rub_mood = _rub_mood.lerp(_rub_want, minf(1.0, delta * 10.0))
 	_rub_speed = 0.0
 	var level := clampf((_rub_v - RUB_MIN) / (RUB_FULL - RUB_MIN), 0.0, 1.0)
 	if level < 0.01:
@@ -170,12 +194,21 @@ func _process(delta: float) -> void:
 	if not rub.playing:   # cada arrasto começa num trecho diferente do loop
 		rub.play(randf() * rub.stream.get_length())
 		rub_hi.play(randf() * rub_hi.stream.get_length())
+	var smooth := 1.0 - _rub_mood.y   # parte recolhendo
+	var soft := _rub_mood.z * lerpf(1.0, RUB_FONE["fast"], level)
 	rub.volume_db = VOL["rub"] + linear_to_db(level)
-	rub_hi.volume_db = rub.volume_db + _rub_hi_db(_rub_v)
-	rub.pitch_scale = lerpf(RUB_PITCH.x, RUB_PITCH.y, level)
+	rub_hi.volume_db = rub.volume_db + _rub_hi_db(_rub_v) + RUB_IN["hi_db"] * smooth + RUB_FONE["hi_db"] * soft
+	rub.pitch_scale = lerpf(RUB_PITCH.x, RUB_PITCH.y, level) * _blend("pitch", smooth, soft)
 	rub_hi.pitch_scale = rub.pitch_scale
 	var open := clampf((_rub_v - RUB_HI_FROM) / (RUB_HI_NORMAL - RUB_HI_FROM), 0.0, 1.0)
-	_rub_lp.cutoff_hz = RUB_LP.x * pow(RUB_LP.y / RUB_LP.x, open)   # abre em escala de oitavas, como o ouvido
+	# o corte abre em escala de oitavas, como o ouvido
+	_rub_lp.cutoff_hz = RUB_LP.x * pow(RUB_LP.y / RUB_LP.x, open) * _blend("lp", smooth, soft)
+	_rub_pan.pan = (_rub_mood.x * 2.0 - 1.0) * RUB_PAN
+
+
+## Multiplicador de `key` ("pitch", "lp") para o fio recolhendo (`smooth`) e o do FONE (`soft`), ambos 0..1.
+func _blend(key: String, smooth: float, soft: float) -> float:
+	return lerpf(1.0, RUB_IN[key], smooth) * lerpf(1.0, RUB_FONE[key], soft)
 
 
 ## Volume do agudo do atrito em relação ao fio, pela velocidade (px/s): mudo devagar, igual no médio, mais forte rápido.
@@ -445,6 +478,10 @@ func _build_all() -> void:
 	_end("sit", true)
 	_begin(0.3); _tone(0, 90, 0.2, "sine", 0.9); _noise(0, 0.05, "lp", 900, 0.7, 1.0); _end("cut")
 	_begin(0.45); _tone(0, 60, 0.4, "sine", 0.9); _end("thump")
+	# o fio terminando de entrar no buraco: um "tec" seco
+	_begin(0.06); _noise(0, 0.015, "bp", 2200, 1.5, 1.0); _tone(0, 320, 0.03, "sine", 0.5); _end("cord_stop")
+	# o fio caindo na mesa: "tap" macio e abafado
+	_begin(0.09); _noise(0, 0.03, "lp", 700, 0.7, 1.0); _tone(0, 110, 0.05, "sine", 0.5); _end("cord_tap")
 	# plug solto batendo na mesa
 	_begin(0.14); _noise(0, 0.05, "lp", 1800, 0.7, 1.0); _tone(0, 150, 0.1, "sine", 0.6); _tone(0.005, 2100, 0.015, "square", 0.06); _end("drop")
 	_build_rub()

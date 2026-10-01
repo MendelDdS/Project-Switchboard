@@ -1,8 +1,11 @@
-[gd_resource type="AudioBusLayout" load_steps=2 format=3]
+[gd_resource type="AudioBusLayout" load_steps=3 format=3]
 
 [sub_resource type="AudioEffectLowPassFilter" id="AudioEffectLowPassFilter_rub"]
 resource_name = "LowPassFilter"
 cutoff_hz = 900.0
+
+[sub_resource type="AudioEffectPanner" id="AudioEffectPanner_rub"]
+resource_name = "Panner"
 
 [resource]
 bus/1/name = &"Ambience"
@@ -31,3 +34,5 @@ bus/4/volume_db = 0.0
 bus/4/send = &"Effects"
 bus/4/effect/0/effect = SubResource("AudioEffectLowPassFilter_rub")
 bus/4/effect/0/enabled = true
+bus/4/effect/1/effect = SubResource("AudioEffectPanner_rub")
+bus/4/effect/1/enabled = true

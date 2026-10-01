@@ -49,6 +49,8 @@ const SEAT_LEN := 12.0         # com o fio curto assim, o plug assenta no lugar
 const SEAT_SEC := 0.1
 const MAX_FLING := 1800.0      # px/s: o plug solto em movimento sai com o embalo da mão, até esse limite
 const DROP_SPEED := 120.0      # px/s: batendo na mesa mais rápido que isso, faz barulho
+const TAP_SPEED := Vector2(150.0, 600.0)   # px/s: o fio batendo na mesa faz "tap" a partir de x; em y, no volume máximo
+const TAP_GAP := 0.12          # s: intervalo mínimo entre dois "taps" do mesmo fio
 const PLUG_BASE := Vector2(0, 20)   # do ponto de referência do plug (topo do corpo) até onde o fio entra nele
 ## Encaixado, de onde fica a tomada até onde o fio entra: a ponta de metal some dentro dela e o anel assenta no buraco.
 const PLUG_SEAT := Vector2(0, 26)
@@ -71,7 +73,12 @@ const SLEEP_MOVE := 0.05           # px por passo: menos que isso conta como par
 var _acc := 0.0
 var _last_mouse := Vector2.ZERO   # mouse no último passo da física
 var _mouse_vel := Vector2.ZERO    # px/s, para o embalo do plug solto
-var _rubbed := 0.0                # px de fio que passaram pelos buracos neste quadro (som de atrito)
+# fio que passou pelos buracos neste quadro, para o som de atrito (px): saindo, entrando, e somas pesadas por px
+# do lugar do buraco na tela (0..1) e do que era o fio do FONE
+var _rub_out := 0.0
+var _rub_in := 0.0
+var _rub_x := 0.0
+var _rub_fone := 0.0
 
 
 func _ready() -> void:
@@ -357,9 +364,15 @@ func _process(delta: float) -> void:
 		for e in ends.size():
 			_step_rope(e, STEP)
 		_last_mouse = get_local_mouse_position()
-	if delta > 0.0:
-		Sfx.cord_rub(_rubbed / delta)
-	_rubbed = 0.0
+	var moved := _rub_out + _rub_in
+	if delta > 0.0 and moved > 0.0:
+		Sfx.cord_rub(moved / delta, _rub_x / moved, _rub_out / moved, _rub_fone / moved)
+	else:
+		Sfx.cord_rub(0.0)
+	_rub_out = 0.0
+	_rub_in = 0.0
+	_rub_x = 0.0
+	_rub_fone = 0.0
 	queue_redraw()
 
 
@@ -419,6 +432,17 @@ func _new_rope(e: int, to: Vector2) -> void:
 	ropes[e] = {"pts": init, "old": init.duplicate(), "len": a.distance_to(to)}
 
 
+## `d` px do fio da ponta e passaram pelo buraco (positivo: saindo; negativo: entrando), para o som de atrito.
+func _count_rub(e: int, d: float) -> void:
+	if d > 0.0:
+		_rub_out += d
+	else:
+		_rub_in -= d
+	_rub_x += absf(d) * (get_global_transform_with_canvas() * hole(e)).x / get_viewport_rect().size.x
+	if e == 0:
+		_rub_fone += absf(d)
+
+
 ## Simula o fio da ponta e como uma corda presa no buraco: os pontos têm inércia e gravidade e a distância
 ## entre eles é mantida. A outra ponta segue o plug; solto, o plug é a última conta da corda (cai) e o
 ## comprimento encolhe até ele assentar no buraco.
@@ -462,6 +486,7 @@ func _step_rope(e: int, dt: float) -> void:
 	var seg := length / last
 	# inércia + gravidade
 	var moving := last + 1 if free else last
+	var tap := 0.0   # a batida mais forte de um ponto do fio na mesa, neste passo (px/passo)
 	var direct: bool = free and an["direct"]
 	for i in range(1, moving):
 		var v := (pts[i] - old[i]) * DAMPING
@@ -470,8 +495,12 @@ func _step_rope(e: int, dt: float) -> void:
 			pts[i] += v * 0.5   # puxado direto: fio esticado, sem gravidade e quase sem embalo (o plug não pendula)
 			continue
 		pts[i] += v + GRAVITY * dt * dt
-		if i == last and pts[i].y > FLOOR_Y and v.y > DROP_SPEED * dt:
-			Sfx.play("drop")   # o plug solto bate na mesa
+		if pts[i].y > FLOOR_Y:
+			if i == last:
+				if v.y > DROP_SPEED * dt:
+					Sfx.play("drop")   # o plug solto bate na mesa
+			else:
+				tap = maxf(tap, v.y)
 		# passar o mouse por cima do fio empurra o fio
 		if held != e and mv.length_squared() > 0.5 and pts[i].distance_to(mouse) < 16.0:
 			pts[i] += mv * 0.35
@@ -500,7 +529,12 @@ func _step_rope(e: int, dt: float) -> void:
 				old[i].x = lerpf(old[i].x, pts[i].x, 0.3)   # atrito com a mesa
 	r["pts"] = pts
 	r["old"] = old
-	_rubbed += absf(length - float(r["len"]))   # fio entrando ou saindo do buraco
+	_count_rub(e, length - float(r["len"]))
+	r["tap"] = maxf(float(r.get("tap", 0.0)) - dt, 0.0)
+	if tap > TAP_SPEED.x * dt and r["tap"] == 0.0:   # o fio caiu ou chicoteou na mesa
+		var k := clampf((tap / dt - TAP_SPEED.x) / (TAP_SPEED.y - TAP_SPEED.x), 0.0, 1.0)
+		Sfx.play("cord_tap", lerpf(-12.0, 0.0, k))
+		r["tap"] = TAP_GAP
 	r["len"] = length
 	var moved := 0.0
 	for i in range(1, last):
@@ -512,6 +546,7 @@ func _step_rope(e: int, dt: float) -> void:
 			box = box.expand(q)
 		r["sleep"] = box.grow(16.0)   # área onde o mouse acorda o fio
 	if free and length <= SEAT_LEN:
+		Sfx.play("cord_stop")   # o fio terminou de entrar
 		an["seat"] = 0.0
 		an["from"] = pts[last]
 		an["ang"] = _cord_angle(e)
