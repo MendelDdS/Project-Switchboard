@@ -20,7 +20,7 @@ const VOWEL := {"a": Vector2(780, 1250), "e": Vector2(480, 1850), "i": Vector2(3
 const VOL := {
 	"click": -14.0, "sw": -10.0, "plug_in": -3.0, "plug_out": -9.0, "key": -13.0, "page": -11.0,
 	"tick": -24.0, "pencil": -13.0, "ring": -5.0, "pulse": -10.0, "ringback": -13.0, "sit": -13.0,
-	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "reel": -18.0,
+	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "rub": -13.0,
 }
 ## Volume (dB) dos sons de ambiente em cada clima; o que não aparece fica mudo.
 const WEATHER_MIX := {
@@ -33,6 +33,11 @@ const BELL_MODES := [Vector3(1.0, 1.0, 0.22), Vector3(1.52, 0.7, 0.16), Vector3(
 	Vector3(3.06, 0.45, 0.1), Vector3(4.0, 0.3, 0.08)]
 const GONGS := [1150.0, 1370.0]   # as duas campânulas, levemente dissonantes (daí o "trrrim" áspero)
 
+## Atrito do fio no buraco (`cord_rub`): abaixo de RUB_MIN px/s, silêncio; em RUB_FULL, volume e tom no máximo.
+const RUB_MIN := 25.0
+const RUB_FULL := 600.0
+const RUB_PITCH := Vector2(0.8, 1.35)
+
 const VMAP := {"a": "a", "á": "a", "à": "a", "â": "a", "ã": "a", "e": "e", "é": "e", "ê": "e", "i": "i", "í": "i", "o": "o", "ó": "o", "ô": "o", "õ": "o", "u": "u", "ú": "u"}
 
 var streams: Dictionary = {}
@@ -42,6 +47,9 @@ var breeze: AudioStreamPlayer
 var crickets: AudioStreamPlayer
 var hum: AudioStreamPlayer
 var hiss: AudioStreamPlayer
+var rub: AudioStreamPlayer        # atrito do fio no buraco, em loop
+var _rub_speed := 0.0             # px/s pedidos desde o último quadro (zera a cada quadro: sem pedido, cala)
+var _rub_level := 0.0             # 0..1, suavizado
 var weather := "rain"
 var _hushed := false
 var _ring_on := false
@@ -62,6 +70,8 @@ func _ready() -> void:
 	crickets = _make_loop("crickets")
 	hum = _make_loop("hum")
 	hiss = _make_loop("hiss")
+	rub = _make_loop("rub")
+	rub.bus = &"Effects"
 	_ring_timer = Timer.new()
 	_ring_timer.wait_time = 3.0
 	add_child(_ring_timer)
@@ -127,6 +137,26 @@ func _apply_mix(sec: float) -> void:
 		if _hushed:
 			db = -80.0 if id == "crickets" else db - 10.0
 		fade(get(id), db, sec)
+
+
+## O fio está passando pelo buraco a `speed` px/s (saindo ao puxar o plug, entrando ao recolher): o atrito
+## acompanha, mais alto e mais agudo quanto mais rápido. Chamado a cada quadro pela mesa; parando de chamar
+## (pausa), o som some.
+func cord_rub(speed: float) -> void:
+	_rub_speed = speed
+
+
+func _process(delta: float) -> void:
+	var target := clampf((_rub_speed - RUB_MIN) / (RUB_FULL - RUB_MIN), 0.0, 1.0)
+	_rub_speed = 0.0
+	_rub_level = lerpf(_rub_level, target, minf(1.0, delta * 18.0))
+	if _rub_level < 0.01:
+		rub.stop()
+		return
+	if not rub.playing:
+		rub.play(randf() * rub.stream.get_length())   # cada arrasto começa num trecho diferente do loop
+	rub.volume_db = VOL["rub"] + linear_to_db(_rub_level)
+	rub.pitch_scale = lerpf(RUB_PITCH.x, RUB_PITCH.y, _rub_level)
 
 
 func fade(p: AudioStreamPlayer, db: float, t: float) -> void:
@@ -389,12 +419,9 @@ func _build_all() -> void:
 	_end("sit", true)
 	_begin(0.3); _tone(0, 90, 0.2, "sine", 0.9); _noise(0, 0.05, "lp", 900, 0.7, 1.0); _end("cut")
 	_begin(0.45); _tone(0, 60, 0.4, "sine", 0.9); _end("thump")
-	# plug solto batendo na mesa; fio raspando na borda do buraco enquanto é recolhido
+	# plug solto batendo na mesa
 	_begin(0.14); _noise(0, 0.05, "lp", 1800, 0.7, 1.0); _tone(0, 150, 0.1, "sine", 0.6); _tone(0.005, 2100, 0.015, "square", 0.06); _end("drop")
-	_begin(0.5)
-	for i in 9:
-		_noise(i * 0.045 + randf() * 0.01, 0.05, "bp", 1500 + randf() * 500, 2, 0.7 * (1.0 - i / 12.0))
-	_end("reel")
+	_build_rub()
 	_begin(0.55)
 	for k in 12:
 		if randf() < 0.7:
@@ -528,6 +555,19 @@ func _cricket_syllable(at: float, f: float, dur: float, g: float) -> void:
 		ph += f * (1.01 - 0.02 * k) / RATE
 		var env := minf(1.0, t / 0.003) * pow(1.0 - k, 0.8)
 		_w[s0 + i] += sin(TAU * ph) * env * g
+
+
+## Atrito do fio na borda do buraco (loop): grãos curtos de ruído, densos e irregulares, como as fibras do
+## revestimento raspando no latão. Volume e tom mudam ao tocar (`cord_rub`).
+func _build_rub() -> void:
+	_begin(1.4)
+	var t := 0.0
+	while t < 1.38:
+		_noise(t, randf_range(0.02, 0.045), "bp", randf_range(1000.0, 2400.0), 1.6, randf_range(0.3, 1.0))
+		t += randf_range(0.008, 0.022)
+	_w = _biquad(_w, "lp", 4200.0, 0.7)
+	_loopify(0.2)
+	_end("rub", false, true)
 
 
 ## Campainha antiga, "trrrim-trrrim": o martelinho bate 20 vezes por segundo em cada campânula, alternando.

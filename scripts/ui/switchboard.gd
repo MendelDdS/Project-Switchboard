@@ -71,6 +71,7 @@ const SLEEP_MOVE := 0.05           # px por passo: menos que isso conta como par
 var _acc := 0.0
 var _last_mouse := Vector2.ZERO   # mouse no último passo da física
 var _mouse_vel := Vector2.ZERO    # px/s, para o embalo do plug solto
+var _rubbed := 0.0                # px de fio que passaram pelos buracos neste quadro (som de atrito)
 
 
 func _ready() -> void:
@@ -356,6 +357,9 @@ func _process(delta: float) -> void:
 		for e in ends.size():
 			_step_rope(e, STEP)
 		_last_mouse = get_local_mouse_position()
+	if delta > 0.0:
+		Sfx.cord_rub(_rubbed / delta)
+	_rubbed = 0.0
 	queue_redraw()
 
 
@@ -435,8 +439,6 @@ func _step_rope(e: int, dt: float) -> void:
 	if free:
 		an["t"] += dt
 		if an["t"] > FALL_SEC:
-			if an["t"] - dt <= FALL_SEC:
-				Sfx.play("reel")   # o fio começa a entrar no buraco
 			length = maxf(length - PULL_SPEED * dt, 0.0)
 	elif not an.is_empty():
 		an["seat"] += dt / SEAT_SEC
@@ -498,6 +500,7 @@ func _step_rope(e: int, dt: float) -> void:
 				old[i].x = lerpf(old[i].x, pts[i].x, 0.3)   # atrito com a mesa
 	r["pts"] = pts
 	r["old"] = old
+	_rubbed += absf(length - float(r["len"]))   # fio entrando ou saindo do buraco
 	r["len"] = length
 	var moved := 0.0
 	for i in range(1, last):
