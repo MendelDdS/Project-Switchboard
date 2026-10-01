@@ -13,4 +13,6 @@ func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), Color.BLACK)
 	draw_rect(Rect2(Vector2(2, 2), size - Vector2(4, 4)), Color("1b1812"))
 	draw_rect(Rect2(10, 26, 16, 12), Color("050403"))
-	draw_string(Pal.mono, Vector2(34, 28), tr("FONE"), HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Pal.BRASS)
+	# no editor (@tool) as fontes de Pal ainda não foram carregadas
+	var f: Font = Pal.mono if Pal.mono != null else get_theme_default_font()
+	draw_string(f, Vector2(34, 28), tr("FONE"), HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Pal.BRASS)

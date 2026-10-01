@@ -19,9 +19,7 @@ func _pick(c: PhoneCall, label_start: String) -> void:
 
 
 func _extra(t: TransferCall) -> PhoneCall:
-	var c := PhoneCall.from_transfer(t)
-	c.filler = true
-	return c
+	return PhoneCall.from_transfer(t)
 
 
 func _move(e: int, j: int) -> void:
@@ -59,6 +57,9 @@ func _initialize() -> void:
 		ok(not e.units.is_empty() and Array(e.units).all(func(u): return u in ["pol", "bomb", "amb"]), "unidades válidas: " + e.resource_path)
 	for p in C.pranks:
 		ok(p.steps.back().kind == PrankStep.Kind.END, "trote termina: " + p.resource_path)
+	for n in C.nights:
+		ok(n.story.all(func(st: StoryCall): return st.call is TransferCall or st.call is EmergencyCall or st.call is PrankCall),
+			"ligações do roteiro com roteiro escrito: " + n.resource_path)
 	# clima: cada um tem falas próprias, e a chuva só é comentada quando chove
 	for w in m.WEATHERS:
 		m.weather = w
@@ -125,7 +126,6 @@ func _initialize() -> void:
 	# ---- 2. três ligações ao mesmo tempo, com espera
 	var t1 := _extra(GameData.transfers(TransferCall.Group.ESTABLISHMENT)[1])
 	var info: PhoneCall = m._info_call()
-	info.filler = true
 	var t3 := _extra(GameData.transfers(TransferCall.Group.EXTRA)[0])
 	m.ring(t1)
 	_move(0, t1.line)
@@ -244,17 +244,19 @@ func _initialize() -> void:
 	ok(b.ends[0] == other_in, "arrastar move o FONE")
 	print("OK 7 clique devolve à base / arrastar move")
 
-	# ---- 8. silhueta na janela: aparece 15 min antes da ligação desconhecida e some quando ela cai
+	# ---- 8. silhueta na janela: aparece 15 min antes da ligação desconhecida e sai 10 min antes (vai ligar)
 	var myst := PhoneCall.mystery()
-	myst.at = m.minutes + 30.0
+	myst.at = m.minutes + 30.0   # na agenda, mas sem tocar durante o teste
+	m.myst_plan = myst.at
 	m.sched.append(myst)
 	await frames(1)
 	ok(not m.background.shadow, "ainda não aparece")
-	myst.at = m.minutes + 14.0
+	m.myst_plan = m.minutes + 14.0
 	await frames(1)
 	ok(m.background.shadow, "silhueta na janela")
+	m.myst_plan = m.minutes + 9.0
+	await frames(1)
+	ok(not m.background.shadow, "saiu antes de ligar")
 	m.sched.erase(myst)
-	m._mystery_aftermath(myst)
-	ok(not m.background.shadow, "some quando a ligação cai")
 	print("OK 8 silhueta")
 	finish("fluxo da central")

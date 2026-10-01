@@ -3,3 +3,6 @@
 
 # Arquivos de sistema
 .DS_Store
+
+# Executáveis exportados
+build/

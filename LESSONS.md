@@ -19,6 +19,9 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   robô `--clumsy` (deixa 1 em 3 tocar) mede isso. Mecânica que gera ligações precisa de freio (esperar a mesa esvaziar).
 - **Ajuste de ritmo tem efeito colateral.** Conversas mais longas prendem cabos por mais tempo e causam falta de
   cabo livre. Meça o efeito (robô) e relate o trade-off junto com a mudança.
+- **Não tratar o que já está no código como decisão de design.** As 4 ligações "principais" com horário fixo eram
+  resto do protótipo; o usuário quer tudo sorteado, exceto o roteiro da noite. Ao estender uma estrutura antiga,
+  pergunte se ela ainda vale.
 - **Quando mudar algo que o usuário não pediu** (ex.: mover o final para 06:00, manter o botão Atender),
   diga explicitamente na resposta.
 
@@ -75,6 +78,11 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   testes travam até o limite de tempo. `tests/run.sh` agora começa com `--import`.
 - **A fonte Pixelify Sans junta "fi" numa ligadura que parece "A"** ("ficha" virou "Acha"). A ligadura foi desligada
   na importação da fonte (`opentype_features` com `liga: 0`).
+
+- **Na exportação, a conversão de `.tres` para binário esvaziou todos os `PackedStringArray`** do `content.tres`
+  (listas de objetos e textos soltos sobreviveram). O jogo exportado quebrava em `pick_random()` de lista vazia, e
+  os testes passavam porque leem o `.tres` de texto. Desligado com `editor/export/convert_text_resources_to_binary=false`.
+  **Sempre rode o pacote exportado** (`--export-pack` + `--main-pack`) antes de entregar um executável.
 
 ## Ferramentas e testes
 

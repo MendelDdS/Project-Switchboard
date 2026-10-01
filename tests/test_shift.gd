@@ -17,6 +17,10 @@ var myst_at := ""
 var answered := {}
 var clumsy := "--clumsy" in OS.get_cmdline_user_args()
 var skipped := 0
+var seen := {}
+var last_ring := 0.0
+var kinds := {}           ## tipo -> quantas tocaram
+var max_quiet := 0.0      ## maior intervalo (min de jogo) sem nenhuma ligação nova tocando
 
 
 func _home(b, e: int) -> void:
@@ -45,6 +49,12 @@ func _initialize() -> void:
 		await process_frame
 		frames_left -= 1
 		max_live = maxi(max_live, m.live.size())
+		for c in m.live:
+			if not seen.has(c.time + str(c.line)):
+				seen[c.time + str(c.line)] = true
+				kinds[c.kind] = int(kinds.get(c.kind, 0)) + 1
+				max_quiet = maxf(max_quiet, m.minutes - last_ring)
+				last_ring = m.minutes
 		if not m.after:
 			fall += 1
 			if m.live.size() >= 2: f2 += 1
@@ -123,9 +133,11 @@ func _initialize() -> void:
 	var lost := recs.filter(func(e): return e["obs"] == "Não atendida.").size()
 	if clumsy:
 		print("desastrado: deixou tocar %d, retornos=%d" % [skipped, recs.filter(func(e): return e["who"].begins_with("Desconhecido")).size()])
-	print("desconhecida tocou às %s, atendidas depois=%d, fim às %s | máx=%d  2+=%d%%  3+=%d%%  sem_cabo=%d%%  perdidas=%d  ligações=%d" % [
+	max_quiet = maxf(max_quiet, m.minutes - last_ring)
+	print("desconhecida tocou às %s, atendidas depois=%d, fim às %s | máx=%d  2+=%d%%  3+=%d%%  sem_cabo=%d%%  perdidas=%d  ligações=%d (emerg=%d trotes=%d)  maior_silêncio=%d min" % [
 		myst_at, post, m.fmt(m.minutes), max_live, 100 * f2 / maxi(fall, 1), 100 * f3 / maxi(fall, 1),
-		100 * starved / maxi(fall, 1), lost, recs.size()])
+		100 * starved / maxi(fall, 1), lost, recs.size(), int(kinds.get(PhoneCall.Kind.EMERGENCY, 0)),
+		int(kinds.get(PhoneCall.Kind.PRANK, 0)), max_quiet])
 	ok(myst_at != "", "a ligação desconhecida tocou")
 	ok(m.ending and m.minutes >= m.SHIFT_END, "o turno terminou no horário")
 	finish("turno completo")

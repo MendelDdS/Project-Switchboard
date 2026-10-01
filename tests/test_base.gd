@@ -32,6 +32,7 @@ func frames(n: int) -> void:
 
 func load_main() -> Node:
 	var m: Node = load("res://scenes/main.tscn").instantiate()
+	m.night_no = 1   # não lê nem grava o progresso salvo (`-- --night=N` escolhe outra noite)
 	root.add_child(m)
 	current_scene = m
 	await process_frame

@@ -11,6 +11,10 @@ Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
   listas de roteiros. Cada roteiro de ligação é um arquivo em `data/calls/` (transferências, emergências, trotes).
   Para criar uma ligação nova: duplique um `.tres` em `data/calls/`, edite no inspetor e arraste para a lista certa
   no `content.tres`.
+- `data/nights/` — **uma noite por arquivo** (ordem em `nights` no `content.tres`): dia da semana, bilhete da tela
+  inicial, clima, agenda, ligações do roteiro (`story`: um roteiro de `data/calls/` num horário fixo) e o que se diz
+  na ligação desconhecida (`mystery`, passos como os dos trotes). Para criar uma noite: duplique um `.tres`, edite no
+  inspetor e acrescente na lista `nights`. O progresso fica salvo em `user://progress.cfg`.
 - `data/templates/` — **moldes**: roteiros com lacunas em inglês, preenchidas na hora (veja abaixo).
 - `scripts/main.gd` — conduz o turno (relógio, agenda, mesa, fim de ligação, final).
 - `scripts/conversation.gd` — como cada tipo de ligação se desenrola (falas, escolhas do operador).
@@ -48,12 +52,13 @@ Quem liga de novo espera a mesa esvaziar (no máximo `RETRY_WAIT`, 20 min de jog
 sobre quem já está sobrecarregado. Quando a emergência liga de novo, em `REDISPATCH_CHANCE` (60%) dos casos ainda dá para despachar (no jornal: "com
 atraso"); nos outros, já é tarde (no jornal: "ninguém foi atender"). Cada pessoa liga de novo no máximo uma vez por motivo, sempre antes do fim do turno (vale também para a
 ligação do tutorial, que só não gera advertência).
-`ShiftReport.SEVERE_LIMIT` (3 graves) está pronto para somar entre noites, quando houver mais de uma.
+As advertências graves se somam entre as noites: `ShiftReport.SEVERE_LIMIT` (3) graves acumuladas é demissão, e o
+jogo volta para a primeira noite.
 
 ## Moldes (conversas geradas)
 
-Metade das ligações extras e da emergência do turno (`TEMPLATE_CHANCE` em `main.gd`) vem de um molde; a outra metade,
-dos roteiros escritos em `data/calls/`. As ligações principais de transferência, os trotes, o tutorial e a ligação
+Metade das transferências e das emergências do turno (`TEMPLATE_CHANCE` em `main.gd`) vem de um molde; a outra metade,
+dos roteiros escritos em `data/calls/`. Os trotes, o tutorial, as ligações do roteiro da noite e a ligação
 desconhecida são sempre escritos à mão.
 
 - **Transferência** (`transfer_templates`): o molde é um `TransferCall` com lacunas em `opening` e `repeat`.
@@ -71,7 +76,8 @@ desconhecida são sempre escritos à mão.
 `tests/run.sh` reimporta o projeto e roda, em modo headless, os cenários dirigidos (`test_flow.gd`), as consequências
 (`test_penalties.gd`) e três turnos completos jogados
 por um robô (`test_shift.gd`, com `--seed=1..3`), mais um turno com o robô "desastrado" (`--clumsy`, deixa de
-atender 1 em cada 3 ligações), que mede a bola de neve dos retornos. Para jogar uma agenda específica: `godot --path . -- --seed=123`.
+atender 1 em cada 3 ligações), que mede a bola de neve dos retornos. Para jogar uma agenda específica: `godot --path . -- --seed=123`; uma noite específica (sem mexer no progresso
+salvo): `-- --night=2`.
 
 ## Tradução
 
@@ -84,17 +90,18 @@ As falas que ficam nos Resources (`data/`) também passam por `tr()` quando apar
 O relógio nunca para: 0,75 minuto de jogo por segundo real (18:00 → 00:00 em cerca de 8 minutos).
 Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
 
-- **4 ligações principais** (transferência, transferência com nomes parecidos, emergência, trote)
-  nos horários de `main_call_at` (em `data/content.tres`), cada uma sorteada entre várias variações.
-- **Ligação desconhecida**: toca por uma entrada livre qualquer, num horário sorteado entre 22:00 e 23:30
-  (`MYST_FROM`/`MYST_TO`).
-- **4 a 6 ligações extras** (`FILLERS`) em horários aleatórios pelo turno todo, antes e depois da ligação desconhecida (`_fillers`):
-  transferências (`data/calls/transfer_*.tres`) que não saíram como principais, ou pedidos de informação
-  (número de alguém na lista, ou as horas). Ficam a pelo menos `FILLER_GAP` (25) minutos de jogo das outras ligações.
-- **Pico** (`PEAK_CHANCE`, 35% dos turnos): uma extra logo depois de uma principal, e duas linhas tocam juntas;
-  em 40% desses picos vem mais uma, e três tocam juntas.
-- As ligações tocam no horário mesmo com o operador ocupado. Quem ninguém atende desiste
-  (`GIVE_UP_SEC`: 60 s para extras, 90 s para principais; a do tutorial e a desconhecida não desistem).
+- **Nada é fixo, exceto o roteiro da noite** (`story` e `mystery` em `data/nights/`). O resto é sorteado (`_random_calls`):
+  entre uma ligação e a próxima passam `call_gap` minutos de jogo (12–32 na noite 1; o máximo é o maior silêncio
+  possível). Em `PEAK_CHANCE` (5%) dos intervalos a próxima vem logo em seguida (2–6 min) e duas linhas tocam juntas.
+- **Tipo sorteado**: `emergencies` emergências (1–2, a pelo menos `EMERGENCY_GAP` = 60 min uma da outra, porque o
+  despacho cuida de uma por vez), `pranks` trotes (0–2) e o resto transferências (65%) ou pedidos de informação
+  (número de alguém na lista, ou as horas). Um destino não se repete na mesma noite. Na primeira noite, a primeira
+  ligação é uma transferência guiada (tutorial).
+- **Ligação desconhecida**: toca por uma entrada livre qualquer, num horário sorteado entre `mystery_from` e
+  `mystery_to` da noite (22:00–23:30).
+- As ligações tocam no horário mesmo com o operador ocupado; uma emergência espera a anterior desligar e as unidades
+  chegarem. Quem ninguém atende desiste (`GIVE_UP_SEC`: 60 s; as do roteiro aguentam 90 s, os retornos 45 s; a do
+  tutorial e a desconhecida não desistem).
 - A ligação desconhecida espera a mesa ficar em silêncio, por no máximo 30 minutos de jogo.
 - Alguns números não atendem à noite (`closed_at_night` no contato). Roteiros com `alt_target` deixam o operador
   sugerir outro lugar.
@@ -116,7 +123,7 @@ Cada turno sorteia o clima (`WEATHERS` em `main.gd`; para forçar: `godot --path
 
 A coruja aparece por 30–60 s, piando a cada 7–14 s, e some por 45–110 s (`OWL_*` em `sfx.gd`). Volumes de cada
 clima em `Sfx.WEATHER_MIX`. 15 minutos antes da ligação desconhecida (`SHADOW_LEAD`) aparece a silhueta de alguém
-do lado de fora da janela; ela some quando a ligação cai. Antes da ligação desconhecida a noite se cala (grilos e coruja param, chuva e brisa
+do lado de fora da janela; 10 minutos antes (`SHADOW_LEAVE`) ela sai, e então a ligação toca. Antes da ligação desconhecida a noite se cala (grilos e coruja param, chuva e brisa
 baixam) e volta aos poucos depois.
 
 Todos os sons são sintetizados em `sfx.gd`: a campainha ("trrrim-trrrim" de martelinho em duas campânulas), o

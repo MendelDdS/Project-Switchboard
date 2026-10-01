@@ -68,6 +68,11 @@ func set_incident(e: EmergencyCall) -> void:
 	_incident = {"call": e, "street": e.street, "block": e.block, "req": Array(e.units), "sent": [], "resolved": false, "addr": e.address}
 
 
+## Há unidades a caminho (a chegada ainda vai ser avaliada contra a emergência atual).
+func en_route() -> bool:
+	return _units.values().has(Unit.EN_ROUTE)
+
+
 func _refresh() -> void:
 	var has_loc := not _location.is_empty()
 	_loc_label.text = _location["label"] if has_loc else tr("Marque o local no mapa")

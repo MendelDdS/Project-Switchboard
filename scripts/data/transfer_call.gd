@@ -3,9 +3,9 @@ extends Resource
 ## Roteiro de um pedido de transferência: quem liga, o que diz e para qual número quer ir.
 
 enum Group {
-	ESTABLISHMENT,  ## pede um estabelecimento (pode ser a 1ª ligação principal)
-	PERSON,         ## pede uma pessoa com nome parecido na lista (pode ser a 2ª principal)
-	EXTRA,          ## só aparece como ligação extra
+	ESTABLISHMENT,  ## pede um estabelecimento (pode ser a ligação do tutorial)
+	PERSON,         ## pede uma pessoa com nome parecido na lista
+	EXTRA,          ## outros pedidos
 }
 
 @export var group := Group.ESTABLISHMENT

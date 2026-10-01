@@ -25,6 +25,10 @@ window/size/viewport_width=1280
 window/size/viewport_height=720
 window/stretch/mode="canvas_items"
 
+[editor]
+
+export/convert_text_resources_to_binary=false
+
 [gui]
 
 theme/custom="res://themes/main_theme.tres"
@@ -48,4 +52,5 @@ locale/fallback="pt_BR"
 textures/canvas_textures/default_texture_filter=0
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
 environment/defaults/default_clear_color=Color(0.02, 0.024, 0.027, 1)

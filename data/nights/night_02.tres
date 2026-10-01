@@ -1,0 +1,95 @@
+[gd_resource type="Resource" script_class="Night" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
+[ext_resource type="Script" path="res://scripts/data/story_call.gd" id="3_story"]
+[ext_resource type="Resource" path="res://data/calls/story_02_seu_ernesto_radio_serena_am.tres" id="4_ernesto"]
+
+[sub_resource type="Resource" id="Story_01"]
+script = ExtResource("3_story")
+at = 120.0
+call = ExtResource("4_ernesto")
+
+[sub_resource type="Resource" id="Step_01"]
+script = ExtResource("2_step")
+kind = 2
+seconds = 3.0
+
+[sub_resource type="Resource" id="Step_02"]
+script = ExtResource("2_step")
+text = "...você ainda está aí?"
+seconds = 0.8
+
+[sub_resource type="Resource" id="Step_03"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Central telefônica. Quem fala?")
+
+[sub_resource type="Resource" id="Step_04"]
+script = ExtResource("2_step")
+kind = 2
+seconds = 2.0
+
+[sub_resource type="Resource" id="Step_05"]
+script = ExtResource("2_step")
+text = "Ontem você não me respondeu."
+seconds = 0.6
+
+[sub_resource type="Resource" id="Step_06"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Respondi o quê?")
+
+[sub_resource type="Resource" id="Step_07"]
+script = ExtResource("2_step")
+kind = 2
+seconds = 1.6
+
+[sub_resource type="Resource" id="Step_08"]
+script = ExtResource("2_step")
+text = "Se ela sempre fica acesa."
+seconds = 0.6
+
+[sub_resource type="Resource" id="Step_09"]
+script = ExtResource("2_step")
+kind = 4
+effect = "flick"
+
+[sub_resource type="Resource" id="Step_10"]
+script = ExtResource("2_step")
+kind = 2
+seconds = 1.0
+
+[sub_resource type="Resource" id="Step_11"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Fica. A noite toda.")
+
+[sub_resource type="Resource" id="Step_12"]
+script = ExtResource("2_step")
+kind = 2
+seconds = 2.4
+
+[sub_resource type="Resource" id="Step_13"]
+script = ExtResource("2_step")
+kind = 4
+effect = "static_loud"
+
+[sub_resource type="Resource" id="Step_14"]
+script = ExtResource("2_step")
+text = "Então é por isso que eu consigo te ver."
+seconds = 2.4
+
+[sub_resource type="Resource" id="Step_15"]
+script = ExtResource("2_step")
+text = "Não apaga, tá?"
+seconds = 0.5
+
+[resource]
+script = ExtResource("1_night")
+weekday = "Quarta-feira"
+note = "O supervisor deixou um recado: \"Ontem a linha ficou com chiado depois das dez. A companhia vai olhar. Se acontecer de novo, anote no caderno.\""
+call_gap = Vector2(11, 30)
+emergencies = Vector2i(2, 2)
+story = Array[ExtResource("3_story")]([SubResource("Story_01")])
+mystery = Array[ExtResource("2_step")]([SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09"), SubResource("Step_10"), SubResource("Step_11"), SubResource("Step_12"), SubResource("Step_13"), SubResource("Step_14"), SubResource("Step_15")])

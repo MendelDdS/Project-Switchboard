@@ -4,6 +4,7 @@ extends Resource
 ## Fica em res://data/content.tres; os roteiros de ligação são arquivos próprios em res://data/calls/.
 ## Para criar uma ligação nova: duplique um .tres em data/calls/, edite e arraste para a lista certa aqui.
 ## Moldes (data/templates/) são roteiros com lacunas em inglês, preenchidas na hora (veja GameData.fill).
+## Cada noite (data/nights/) tem a própria agenda e o roteiro fixo (veja Night).
 
 @export_group("Lista telefônica e cidade")
 ## Em ordem alfabética (é a ordem da lista telefônica).
@@ -13,10 +14,9 @@ extends Resource
 ## Tipos de ocorrência no despacho.
 @export var occurrences: PackedStringArray = []
 
-@export_group("Agenda")
-## Minutos depois do início do turno (18:00) em que tocam as 4 ligações principais
-## (transferência de estabelecimento, transferência de pessoa, emergência, trote).
-@export var main_call_at: PackedFloat32Array = [5, 38, 84, 170]
+@export_group("Noites")
+## Em ordem; cada uma com a agenda e o roteiro fixo dela (data/nights/).
+@export var nights: Array[Night] = []
 
 @export_group("Roteiros")
 @export var transfers: Array[TransferCall] = []

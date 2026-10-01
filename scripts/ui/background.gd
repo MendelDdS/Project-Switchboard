@@ -2,7 +2,7 @@ class_name Background
 extends Control
 ## Parede, janela (com o clima da noite), mesa de madeira e luminária — desenhados em 640x360 e ampliados 2x.
 ## `weather`: "rain" (gotas no vidro), "fog" (névoa passando, luzes difusas) ou "clear" (estrelas e lua).
-## `shadow`: a silhueta de alguém parado do lado de fora da janela (antes da ligação desconhecida).
+## `shadow`: a silhueta de alguém parado do lado de fora da janela (sai pouco antes da ligação desconhecida).
 
 const FLICK := [1.0, 0.2, 1.0, 1.0, 0.5, 1.0, 1.0, 0.1, 1.0, 1.0, 1.0, 0.4, 1.0, 1.0, 1.0, 1.0, 0.2, 1.0, 1.0, 0.6, 1.0, 1.0, 1.0]
 
@@ -88,10 +88,13 @@ func _draw() -> void:
 			draw_circle(p + Vector2(1, 1), 4.0, Color(0.85, 0.62, 0.3, 0.12))
 		_r(p.x, p.y, 2, 2, Color("b38a3c") if i == 2 else Color("d59a3d"))
 	if shadow:
-		# cabeça e ombros de alguém do lado de fora, colado ao vidro (a névoa e a chuva passam por cima)
-		var sc := Color(0.07, 0.09, 0.1, 0.92) if fog else Color("040608")
+		# cabeça e ombros de alguém do lado de fora, colado ao vidro, contra a luz de um poste da rua
+		# (a névoa e a chuva passam por cima)
+		var sc := Color.BLACK
 		var sx := wx + 74.0
 		var base := wy + wh
+		for k in 5:
+			draw_circle(Vector2(sx + 3, base - 8), 22.0 - k * 4.0, Color(0.85, 0.62, 0.3, 0.035))
 		draw_colored_polygon(PackedVector2Array([Vector2(sx - 13, base), Vector2(sx - 9, base - 11), Vector2(sx - 3, base - 14),
 			Vector2(sx + 3, base - 14), Vector2(sx + 9, base - 11), Vector2(sx + 13, base)]), sc)
 		_r(sx - 2, base - 17, 4, 4, sc)

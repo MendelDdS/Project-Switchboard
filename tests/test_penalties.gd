@@ -65,7 +65,6 @@ func _initialize() -> void:
 	# ---- 1. não atendeu: advertência média e a pessoa liga de novo, reclamando
 	var t: TransferCall = GameData.transfers(TransferCall.Group.EXTRA)[0]
 	var c1 := PhoneCall.from_transfer(t)
-	c1.filler = true
 	m.ring(c1)
 	ok(await wait_until(func(): return c1.ended, 10.0), "desistiu de esperar")
 	ok(_faults("missed") == 1, "advertência: não atendida")
@@ -265,5 +264,10 @@ func _initialize() -> void:
 	var text: String = view._body.get_parsed_text()
 	ok("ADVERTÊNCIAS" in text and "JORNAL DA MANHÃ" in text and e4.address in text and e5.address in text, "relatório com advertências e jornal")
 	ok(m.report.verdict() == 2 and view._verdict.text == C.verdicts[2], "parecer: turno ruim")
+	var sev: int = m.report.count(ShiftReport.Severity.SEVERE)
+	m.report.severe_before = ShiftReport.SEVERE_LIMIT - sev - 1
+	ok(not m.report.fired(), "ainda não foi demitido")
+	m.report.severe_before += 1
+	ok(m.report.fired(), "graves acumuladas entre as noites: demitido")
 	print("OK 9 relatório (%d advertências)" % m.report.faults.size())
 	finish("consequências e relatório")

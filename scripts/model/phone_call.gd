@@ -30,8 +30,7 @@ var kind := Kind.TRANSFER
 var data: Resource          ## roteiro (TransferCall, EmergencyCall ou PrankCall); nulo para informação e ligação desconhecida
 var voice := "m"
 var caller := ""
-var main := -1              ## 0–3 = ligação principal (0 é a do tutorial); -1 = extra ou ligação desconhecida
-var filler := false
+var story := false          ## ligação do roteiro da noite (horário fixo; aguenta mais tempo tocando)
 var at := 0.0               ## minuto previsto (depois do início do turno)
 var latest := INF           ## ligação desconhecida e retornos: a partir daqui toca mesmo com a mesa ocupada
 var retry := Retry.NONE
@@ -100,6 +99,15 @@ static func from_prank(p: PrankCall) -> PhoneCall:
 	c.voice = p.voice
 	c.caller = p.caller
 	return c
+
+
+## Ligação a partir de qualquer roteiro escrito (ligações do roteiro de uma noite).
+static func from_script(r: Resource) -> PhoneCall:
+	if r is EmergencyCall:
+		return from_emergency(r)
+	if r is PrankCall:
+		return from_prank(r)
+	return from_transfer(r)
 
 
 static func info(voice_id: String, who: String, question: String, spoken := "", number := "") -> PhoneCall:

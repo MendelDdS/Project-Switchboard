@@ -1,8 +1,7 @@
 class_name ShiftReport
 extends RefCounted
 ## O que o supervisor confere no fim do turno: as advertências do turno e como terminou cada emergência.
-## Pensado para as próximas noites: `night` e as listas podem ser salvas por noite, e `SEVERE_LIMIT`
-## advertências graves somadas entre as noites significam demissão.
+## `SEVERE_LIMIT` advertências graves somadas entre as noites (`severe_before` vem do Progress) significam demissão.
 
 enum Severity { LIGHT, MEDIUM, SEVERE }
 enum Outcome { OK, LATE, BAD }
@@ -27,6 +26,7 @@ const FAULTS := {
 }
 
 var night := 1
+var severe_before := 0               ## advertências graves das noites anteriores
 var faults: Array[Dictionary] = []   ## {"id", "time", "detail"}, em ordem
 var _incidents := {}                 ## EmergencyCall -> {"trouble": bool, "outcome": Outcome ou -1}
 
@@ -41,6 +41,14 @@ static func severity(id: String) -> Severity:
 
 func count(sev: Severity) -> int:
 	return faults.filter(func(f): return severity(f["id"]) == sev).size()
+
+
+func severe_total() -> int:
+	return severe_before + count(Severity.SEVERE)
+
+
+func fired() -> bool:
+	return severe_total() >= SEVERE_LIMIT
 
 
 ## Emergência que teve problema (não atendida, sem despacho, endereço errado): se for resolvida, foi com atraso.

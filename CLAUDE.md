@@ -13,12 +13,12 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `RedButton`, `InkButton`, `DarkButton`, `ChoiceButton`, `TabButton`, `PaperToggle`, `PaperInk`, `LetterButton`,
   `DarkPanel`, `PaperPanel`, `NotePanel`, `FormPanel`, `InkLabel`, `InkSoftLabel`, `DimLabel`, `AmberLabel`,
   `MonoLabel`, `InkMonoLabel`). Prefira variação de tema a override por nó.
-- **Conteúdo em Resources** (`data/content.tres` + um `.tres` por roteiro em `data/calls/`). Nada de falas no código,
-  exceto as do operador e as da ligação desconhecida (roteiro fixo em `conversation.gd`).
+- **Conteúdo em Resources** (`data/content.tres` + um `.tres` por roteiro em `data/calls/` + um por noite em
+  `data/nights/`). Nada de falas no código, exceto as do operador.
 - **Moldes** (`data/templates/`, listas `transfer_templates`/`emergency_templates` no content): `TransferCall`/
   `EmergencyCall` com lacunas **em inglês** (`{place}`, `{reason}`, `{street}`, `{house}`...), preenchidas por
   `GameData.template_transfer()`/`template_emergency()`. Motivos em `DirectoryEntry.reasons`. `TEMPLATE_CHANCE`
-  (main.gd) mistura moldes e roteiros escritos (híbrido: principais de transferência e trotes sempre escritos).
+  (main.gd) mistura moldes e roteiros escritos (híbrido: tutorial, trotes e roteiro da noite sempre escritos).
 - Todo o áudio é sintetizado no autoload `Sfx` (`scripts/sfx.gd`), inclusive as "vozes" por sílaba
   (`Sfx.speak_char`). Barramentos em `default_bus_layout.tres`: Ambience, Voices, Effects.
 - Clima (`Main.weather`: "rain", "fog", "clear", sorteado; `-- --weather=X` força): `Sfx.start_ambience(w)`/
@@ -42,12 +42,23 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     emergência sem despacho, espera longa, informação errada) e o relatório. Relógio parado; retornos tocados à mão.
   - `run.sh` começa com `--import`: **`class_name` novo só existe depois de reimportar** (sem isso, parse error).
   - `tests/test_shift.gd`: robô que joga o turno inteiro e imprime métricas (máx. simultâneas, % com 2+/3+,
-    % sem cabo livre, perdidas); `run.sh` roda com `--seed=1..3` e um turno `--clumsy` (deixa de atender 1 em 3).
+    % sem cabo livre, perdidas, maior silêncio); `run.sh` roda com `--seed=1..3`, um turno `--clumsy` (deixa de atender 1 em 3)
+    e a noite 2 (`--night=2`).
   - Nos testes, `Main`/`Switchboard` ficam **sem tipo** (dependem do autoload `Sfx`, que não existe na hora em que
     o Godot compila um script `-s`). `PhoneCall`, `Exchange` e os Resources podem ser tipados.
   - Rode depois de qualquer mudança em agenda, fim de ligação, mesa ou cabos.
 - Semente fixa: `Godot --path . -- --seed=123` repete a agenda do turno (sem `--seed`, é aleatória).
 - Captura de tela: rodar SEM `--headless` e salvar `root.get_texture().get_image()`.
+
+## Exportar (executáveis para testar fora do editor)
+- Presets em `export_presets.cfg`: Windows, macOS (universal, assinatura ad-hoc, sem notarização) e Linux; saída em
+  `build/` (fora do git). Templates do Godot 4.6.2 ficam em `~/Library/Application Support/Godot/export_templates/`.
+- `Godot --headless --path . --import` e depois `Godot --headless --path . --export-release "Windows" build/windows/CentralDeVilaSerena.exe`
+  (idem "macOS" → `build/macos/CentralDeVilaSerena.zip`, "Linux" → `build/linux/CentralDeVilaSerena.x86_64`).
+- **`editor/export/convert_text_resources_to_binary=false`**: a conversão para binário esvaziava todo `PackedStringArray`
+  do conteúdo (falas, motivos, quem liga) e o jogo exportado quebrava ao montar a agenda. Não religue sem testar.
+- Teste o exportado: `Godot --headless --path . --export-pack "macOS" x.pck` e `Godot --headless --main-pack x.pck --quit-after 600`
+  (zero `ERROR` no log). Os testes normais rodam pelo projeto e não pegam problema de exportação.
 
 ## Arquivos
 - `scenes/main.tscn` + `scripts/main.gd` (`Main`) — orquestra o turno: relógio, agenda, o que cada plug significa
@@ -103,11 +114,25 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - À meia-noite, `_start_ending` soma o que ficou sem registro e passa o relatório para `Ending.play(report)`, que mostra
   `ReportView` antes do título final.
 
-## Agenda e ritmo (constantes no topo de main.gd)
-- Principais em `GameContent.main_call_at` (4); ligação desconhecida (`MYSTERY`, entrada livre sorteada, guardada em `myst_line`) entre `MYST_FROM` e `MYST_TO` (22:00–23:30), só
+## Noites (roteiro fixo)
+- `GameContent.nights` (ordem) → `Night` (`scripts/data/night.gd`, `data/nights/night_NN.tres`): dia da semana, bilhete
+  da intro, clima fixo (vazio = sorteado), `tutorial` (só a 1ª), ritmo das sorteadas (`call_gap`, `emergencies`,
+  `pranks`), `story` (`StoryCall`: roteiro escrito + horário fixo) e `mystery` (passos `PrankStep`; vazio = sem
+  ligação desconhecida naquela noite). **Só `story` e `mystery` são fixos; não existem ligações "principais".**
+- `PrankStep` é o roteiro falado de trotes e da ligação desconhecida (`Conversation.play_steps`); `EFFECT` =
+  "static", "static_loud", "flick". `PhoneCall.from_script()` aceita Transfer/Emergency/PrankCall.
+- `Progress` (`scripts/model/progress.gd`, `user://progress.cfg`): próxima noite e graves acumuladas
+  (`ShiftReport.severe_before`/`severe_total()`/`fired()`). Main salva em `_start_ending` (última noite ou demissão
+  limpa o save). `-- --night=N` força uma noite **sem ler nem gravar** o save; `test_base.load_main` força a noite 1.
+
+## Agenda e ritmo (constantes no topo de main.gd; por noite em `Night`)
+- Ligação desconhecida (`MYSTERY`, entrada livre sorteada, guardada em `myst_line`) entre `Night.mystery_from` e `mystery_to` (22:00–23:30), só
   toca com a mesa em silêncio, por no máximo 30 min de jogo (`latest`).
-- Extras: `_fillers` (`FILLERS` 4–6 pelo turno todo, `FILLER_GAP` 25 min entre ligações; pico com `PEAK_CHANCE`).
-- `GIVE_UP_SEC`: extras desistem em 60 s, principais em 90 s; tutorial (`tut`) e desconhecida nunca desistem.
+- Sorteadas: `_random_calls` — intervalo `Night.call_gap` (12–32 min) entre uma e a próxima, `PEAK_CHANCE` de vir
+  logo em seguida, a `STORY_GAP` das fixas. Tipos: `Night.emergencies` (a `EMERGENCY_GAP` uma da outra; no laço, a
+  emergência espera a anterior acabar e `Dispatch.en_route()`), `Night.pranks`, resto transferência/informação.
+  Um destino (e `alt_target`) por noite: dois pedidos do mesmo número travavam um ao outro.
+- `GIVE_UP_SEC` 60 s (`story` 1,5x, retornos 0,75x); tutorial (`tut`) e desconhecida nunca desistem.
 - Conversas transferidas duram `TALK_LEN` (34–68 min de jogo ≈ 45–90 s reais).
 - Turno das 18:00 (`SHIFT_START_HOUR`) às 00:00 (`SHIFT_END` = 360 min); fim **depois** da ligação desconhecida ter caído (`_start_ending`).
 - Relógio: 0,75 min de jogo por segundo real (`GAME_MIN_PER_SEC`): 6 h de turno ≈ 8 min reais.
@@ -136,9 +161,14 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 12. Sons: campainha antiga (martelinho + ressonadores de metal) e "tuuuu" (o filtro de caixa oca foi testado e removido a pedido do usuário), chuva e grilos (chirps + trilos) refeitos. Clima sorteado por
     noite: chuva (só chuva), névoa (grilos e coruja), limpo (brisa, grilos e coruja); coruja intercalada.
 13. Rádio mais largo e alto (3 linhas); abas 24 px mais baixas (mapa se ajusta à altura). Silhueta na janela
-    `SHADOW_LEAD` (15 min) antes da ligação desconhecida (`Background.shadow`), some quando ela cai.
+    `SHADOW_LEAD` (15 min) antes da ligação desconhecida (`Background.shadow`), sai `SHADOW_LEAVE` (10 min) antes
+    (foi ligar); segue o horário sorteado (`myst_plan`), mesmo que a ligação atrase.
 14. Ligações demais ao mesmo tempo depois do turno de 6 h: relógio a 0,75 min/s (turno volta a ~8 min reais) e
     retornos esperam a mesa esvaziar (`RETRY_WAIT`). Medido com o robô desastrado (`--clumsy`).
+15. Várias noites com roteiro fixo por noite (`Night`), progresso salvo e demissão com 3 graves acumuladas.
+16. **Nada fixo além do roteiro**: as 4 "principais" com horário fixo foram removidas; tudo é sorteado com intervalo
+    máximo (`call_gap`), o que também acabou com silêncios de ~1 h. Silhueta sai 10 min antes de ligar, preta e
+    contra a luz de um poste.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

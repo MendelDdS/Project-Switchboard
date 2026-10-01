@@ -56,7 +56,7 @@ layout_mode = 2
 size_flags_horizontal = 4
 focus_mode = 0
 theme_type_variation = &"DarkButton"
-text = "Recomeçar turno"
+text = "Recomeçar da primeira noite"
 
 [node name="ReportView" parent="." instance=ExtResource("3_report")]
 unique_name_in_owner = true

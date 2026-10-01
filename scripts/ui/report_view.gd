@@ -31,7 +31,7 @@ func show_report(r: ShiftReport) -> void:
 			SEVERITY_COLORS[sev], tr(ShiftReport.SEVERITY_NAMES[sev])]
 	s += "\n%s: %d   ·   %s: %d   ·   %s: %d\n" % [tr("Graves"), r.count(ShiftReport.Severity.SEVERE),
 		tr("Médias"), r.count(ShiftReport.Severity.MEDIUM), tr("Leves"), r.count(ShiftReport.Severity.LIGHT)]
-	s += tr("Advertências graves acumuladas: %d de %d") % [r.count(ShiftReport.Severity.SEVERE), ShiftReport.SEVERE_LIMIT] + "\n"
+	s += tr("Advertências graves acumuladas: %d de %d") % [r.severe_total(), ShiftReport.SEVERE_LIMIT] + "\n"
 	s += "\n[b]%s[/b]\n" % tr("JORNAL DA MANHÃ")
 	var news := r.outcomes()
 	if news.is_empty():

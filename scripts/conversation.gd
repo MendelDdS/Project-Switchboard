@@ -289,63 +289,53 @@ func emergency_dispatched(c: PhoneCall) -> void:
 	main.end_call(c, PhoneCall.End.CALLER)
 
 
-# ---------------------------------------------------------------- trote
+# ---------------------------------------------------------------- roteiros falados (trote e ligação desconhecida)
+
+## Segue os passos até o fim ou até um END. Falso se a ligação terminar no meio.
+func play_steps(c: PhoneCall, steps: Array[PrankStep]) -> bool:
+	for st in steps:
+		match st.kind:
+			PrankStep.Kind.CALLER:
+				if not await say(c, st.text, st.seconds if st.seconds > 0.0 else 0.45):
+					return false
+			PrankStep.Kind.PAUSE:
+				if not await wait(c, st.seconds):
+					return false
+			PrankStep.Kind.OPERATOR:
+				var i := await choose(c, Array(st.options))
+				if i < 0 or not await op(c, st.options[i]):
+					return false
+			PrankStep.Kind.EFFECT:
+				match st.effect:
+					"static":
+						Sfx.static_burst()
+					"static_loud":
+						Sfx.static_burst(2.0)
+					"flick":
+						main.flick = true
+			PrankStep.Kind.END:
+				return true
+	return true
+
 
 func _prank(c: PhoneCall) -> void:
-	var p: PrankCall = c.data
 	if not await greet(c):
 		return
 	if not await wait(c, 0.6):
 		return
-	for st in p.steps:
-		match st.kind:
-			PrankStep.Kind.CALLER:
-				if not await say(c, st.text, 0.45):
-					return
-			PrankStep.Kind.PAUSE:
-				if not await wait(c, st.seconds):
-					return
-			PrankStep.Kind.OPERATOR:
-				var i := await choose(c, Array(st.options))
-				if i < 0 or not await op(c, st.options[i]):
-					return
-			PrankStep.Kind.END:
-				Sfx.play("cut")
-				c.sys(tr("(A ligação foi encerrada do outro lado.)"))
-				if not await wait(c, 0.5):
-					return
-				main.end_call(c, PhoneCall.End.CALLER)
+	if not await play_steps(c, (c.data as PrankCall).steps):
+		return
+	Sfx.play("cut")
+	c.sys(tr("(A ligação foi encerrada do outro lado.)"))
+	if not await wait(c, 0.5):
+		return
+	main.end_call(c, PhoneCall.End.CALLER)
 
 
-# ---------------------------------------------------------------- a ligação misteriosa
-
-func _op_line(c: PhoneCall, l: String) -> bool:
-	if await choose(c, [l]) < 0:
-		return false
-	return await op(c, l)
-
-
+## O roteiro muda a cada noite (Night.mystery).
 func _mystery(c: PhoneCall) -> void:
-	if not await greet(c): return
-	if not await wait(c, 2.6): return
-	if not await say(c, "...alô?", 0.7): return
-	if not await _op_line(c, "Central telefônica. Qual número você está tentando chamar?"): return
-	if not await wait(c, 2.2): return
-	if not await say(c, "Eu não sei."): return
-	if not await _op_line(c, "Qual é o seu nome?"): return
-	if not await wait(c, 1.5): return
-	if not await say(c, "Eu estou tentando descobrir."): return
-	Sfx.static_burst(2.0)
-	if not await _op_line(c, "Onde você está?"): return
-	if not await wait(c, 1.2): return
-	if not await say(c, "Eu não sei."): return
-	if not await _op_line(c, "Você consegue me dizer alguma rua?"): return
-	if not await wait(c, 3.4): return
-	if not await say(c, "Tem uma luz.", 0.6): return
-	if not await _op_line(c, "Que luz?"): return
-	if not await wait(c, 1.3): return
-	main.flick = true
-	if not await say(c, "A luz da sua mesa.", 2.6): return
-	Sfx.static_burst()
-	if not await say(c, "Ela sempre fica acesa?", 0.5): return
+	if not await greet(c):
+		return
+	if not await play_steps(c, main.night.mystery):
+		return
 	main.end_call(c, PhoneCall.End.MYSTERY)

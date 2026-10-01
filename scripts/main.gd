@@ -8,16 +8,15 @@ extends Control
 const GAME_MIN_PER_SEC := 0.75          # 360 minutos de turno ≈ 8 minutos reais
 const SHIFT_START_HOUR := 18            # o turno vai das 18:00...
 const SHIFT_END := 360.0                # ...até 00:00 (minutos depois do início)
-const FILLER_GAP := 25.0                # minutos de jogo entre uma ligação extra e qualquer outra
-const PEAK_CHANCE := 0.35               # chance de um pico (duas ou três linhas tocando juntas) no turno
-const MYST_FROM := 240.0                # a ligação desconhecida toca em algum momento entre 22:00...
-const MYST_TO := 330.0                  # ...e 23:30 (minutos após o início do turno)
-const FILLERS := Vector2i(4, 6)         # quantas ligações extras no turno
-const SHADOW_LEAD := 15.0              # minutos antes da ligação desconhecida em que a silhueta aparece na janela
+const PEAK_CHANCE := 0.05               # chance de a próxima ligação vir logo em seguida (2–6 min): duas linhas juntas
+const EMERGENCY_GAP := 60.0             # minutos de jogo entre duas emergências (o despacho cuida de uma por vez)
+const STORY_GAP := 8.0                  # as ligações sorteadas ficam a tantos minutos das do roteiro
+const SHADOW_LEAD := 15.0               # minutos antes da ligação desconhecida em que a silhueta aparece na janela...
+const SHADOW_LEAVE := 10.0              # ...e em que ela sai (para ir ligar)
 const WEATHERS := ["rain", "fog", "clear"]   # clima sorteado no começo do turno (`-- --weather=fog` força um)
 const TALK_LEN := Vector2(34.0, 68.0)   # duração (min de jogo) de uma conversa transferida (≈ 45–90 s reais)
-const TEMPLATE_CHANCE := 0.5            # chance de uma extra (ou a emergência) vir de um molde e não de um roteiro escrito
-const GIVE_UP_SEC := 60.0               # ligações extras desistem se ninguém atende (as principais aguentam 1,5x)
+const TEMPLATE_CHANCE := 0.5            # chance de uma transferência ou emergência vir de um molde e não de um roteiro escrito
+const GIVE_UP_SEC := 60.0               # quem liga desiste se ninguém atende (as do roteiro aguentam 1,5x; retornos, 0,75x)
 const HOLD_GIVE_UP := 120.0             # minutos de jogo que alguém aguenta em espera antes de desligar
 const RETRY_AFTER := Vector2(15.0, 30.0)  # quem teve problema liga de novo depois de tantos minutos de jogo...
 const RETRY_WAIT := 20.0                # ...esperando a mesa esvaziar por no máximo tantos minutos
@@ -30,6 +29,9 @@ const TYPE_OF := {
 var C: GameContent = GameData.CONTENT
 
 var exchange: Exchange
+var night_no := 0                  ## número da noite (1 = primeira); 0 = a salva (`-- --night=N` força uma, sem salvar)
+var night: Night                   ## agenda e roteiro fixo da noite
+var progress: Progress             ## progresso salvo; nulo quando a noite foi forçada (testes, `--night`)
 var weather := "rain"
 var report := ShiftReport.new()    ## advertências do turno, conferidas pelo supervisor no fim do turno
 var minutes := 0.0
@@ -40,6 +42,7 @@ var tut: PhoneCall                 ## primeira ligação: guia passo a passo
 var em_call: PhoneCall
 var myst_time := "02:13"
 var myst_line := 0                 ## entrada por onde veio a ligação desconhecida (sorteada)
+var myst_plan := INF               ## horário sorteado da ligação desconhecida (a silhueta segue este, mesmo se ela atrasar)
 var after := false                 ## a ligação desconhecida já tocou e caiu
 var ending := false
 var flick := false
@@ -48,6 +51,8 @@ var _dgen := {}                    ## número -> geração do toque (invalida to
 var _sent := {}                    ## último despacho: call, loc, units
 var _taught_done := false
 var _taught_multi := false
+var _taught_ring := false
+var _taught_list := false
 var _myst_lead := false
 var _calling_back := false
 var _tick_acc := 0.0
@@ -69,7 +74,8 @@ var _tick_acc := 0.0
 
 func _ready() -> void:
 	_apply_seed()
-	weather = WEATHERS.pick_random()
+	_load_night()
+	weather = night.weather if night.weather != "" else WEATHERS.pick_random()
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--weather=") and a.get_slice("=", 1) in WEATHERS:
 			weather = a.get_slice("=", 1)
@@ -96,7 +102,22 @@ func _ready() -> void:
 	dispatch.arrived.connect(_on_arrived)
 	notebook.registered.connect(_on_registered)
 	notebook.pending_changed.connect(func(has: bool): tools.set_dot("caderno", has))
+	_intro.setup(night_no, night, progress != null and progress.night > 1)
 	_refresh_panel()
+
+
+## Qual noite jogar: `-- --night=N`, a definida antes de entrar na árvore (testes) ou a salva.
+func _load_night() -> void:
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--night="):
+			night_no = int(a.get_slice("=", 1))
+	if night_no == 0:
+		progress = Progress.load_saved()
+		night_no = progress.night
+		report.severe_before = progress.severe
+	night_no = clampi(night_no, 1, C.nights.size())
+	night = C.nights[night_no - 1]
+	report.night = night_no
 
 
 ## `godot -- --seed=123` repete a mesma agenda de ligações (útil para reproduzir bugs).
@@ -345,7 +366,7 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 			c.sys(tr("(O solicitante desligou.)"))
 			end_call(c, PhoneCall.End.CALLER)
 		return
-	if await conversation.say(c, GameData.pick(C.wrong_destination)) and c.main in [0, 1]:
+	if await conversation.say(c, GameData.pick(C.wrong_destination)) and tut != null:
 		hint(tr("Tire a ponta do cabo desse destino. Confira o nome e o endereço na lista: há nomes parecidos."))
 
 
@@ -375,7 +396,7 @@ func _wrong_unattended(c: PhoneCall, d: int) -> void:
 	c.sys(tr("(Atendeu: %s. Foi engano, e os dois desligaram.)") % GameData.display_name(GameData.entry(str(d))))
 	end_call(c, PhoneCall.End.CALLER)
 	_call_again(c, PhoneCall.Retry.WRONG_NUMBER)
-	if c.main in [0, 1]:
+	if tut != null:
 		hint(tr("Sem o FONE na linha, uma conexão errada cai. A pessoa vai ligar de novo: confira o número na lista antes de transferir."))
 
 
@@ -463,62 +484,83 @@ func _update_call_ui() -> void:
 
 # ================================================================ agenda das ligações
 
+## Agenda da noite: as ligações do roteiro (horário fixo), a ligação desconhecida e as sorteadas.
 func _build_schedule() -> void:
-	var mains: Array[PhoneCall] = [
-		_main_call(PhoneCall.from_transfer(GameData.transfers(TransferCall.Group.ESTABLISHMENT).pick_random()), 0),
-		_main_call(PhoneCall.from_transfer(GameData.transfers(TransferCall.Group.PERSON).pick_random()), 1),
-		_main_call(PhoneCall.from_emergency(GameData.template_emergency() if randf() < TEMPLATE_CHANCE else C.emergencies.pick_random()), 2),
-		_main_call(PhoneCall.from_prank(C.pranks.pick_random()), 3),
-	]
-	tut = mains[0]
-	var myst := PhoneCall.mystery()
-	myst.at = randf_range(MYST_FROM, MYST_TO)
-	myst.latest = myst.at + 30.0   # não espera a mesa silenciar para sempre
-	sched = mains.duplicate()
-	sched.append(myst)
-	sched.append_array(_fillers(mains))
+	var fixed: Array[PhoneCall] = []
+	for st in night.story:
+		var c := PhoneCall.from_script(st.call)
+		c.at = st.at
+		c.story = true
+		fixed.append(c)
+	if night.mystery.is_empty():
+		after = true   # noite sem ligação desconhecida: o turno fecha à meia-noite
+	else:
+		var myst := PhoneCall.mystery()
+		myst.at = randf_range(night.mystery_from, night.mystery_to)
+		myst.latest = myst.at + 30.0   # não espera a mesa silenciar para sempre
+		myst_plan = myst.at
+		fixed.append(myst)
+	sched = fixed.duplicate()
+	sched.append_array(_random_calls(fixed))
 	sched.sort_custom(func(a: PhoneCall, b: PhoneCall): return a.at < b.at)
 
 
-func _main_call(c: PhoneCall, i: int) -> PhoneCall:
-	c.main = i
-	c.at = C.main_call_at[i]
-	return c
-
-
-## Ligações extras em horários aleatórios pelo turno todo, espaçadas das outras (FILLER_GAP) para a mesa
-## respirar. De vez em quando vem um pico: uma extra logo depois de uma principal (duas linhas juntas)
-## e, mais raro, outra em seguida (três).
-func _fillers(mains: Array[PhoneCall]) -> Array[PhoneCall]:
-	var used := mains.map(func(m: PhoneCall): return m.caller)
-	var pool := C.transfers.filter(func(t): return not t.caller in used)
-	pool.shuffle()
-	var targets := mains.map(func(m: PhoneCall): return m.target)
-	var taken := mains.map(func(m: PhoneCall): return m.at)
+## Ligações sorteadas pelo turno todo: entre uma e a próxima, `Night.call_gap` minutos (o máximo é o maior
+## silêncio possível); de vez em quando (PEAK_CHANCE) a próxima vem logo em seguida. O tipo também é sorteado:
+## `Night.emergencies` emergências (espaçadas por EMERGENCY_GAP), `Night.pranks` trotes, e o resto
+## transferências ou pedidos de informação. Na noite com tutorial, a primeira é uma transferência guiada.
+func _random_calls(fixed: Array[PhoneCall]) -> Array[PhoneCall]:
 	var ats := []
-	for i in randi_range(FILLERS.x, FILLERS.y):
-		for _try in 40:
-			var at := randf_range(12.0, SHIFT_END - 10.0)
-			if taken.all(func(x): return absf(at - x) >= FILLER_GAP):
-				ats.append(at)
-				taken.append(at)
-				break
-	if randf() < PEAK_CHANCE:
-		var base: float = C.main_call_at[randi_range(1, 3)]
-		ats.append(base + randf_range(2.0, 5.0))
-		if randf() < 0.4:
-			ats.append(base + randf_range(5.0, 9.0))
+	var t := randf_range(3.0, 10.0)
+	while t < SHIFT_END - 10.0:
+		if not fixed.any(func(f: PhoneCall): return absf(t - f.at) < STORY_GAP):
+			ats.append(t)
+		t += randf_range(2.0, 6.0) if randf() < PEAK_CHANCE else randf_range(night.call_gap.x, night.call_gap.y)
+	var kinds := []
+	kinds.resize(ats.size())
+	var free := range(1 if night.tutorial else 0, ats.size())
+	free.shuffle()
+	var em_ats := []
+	var em_count := randi_range(night.emergencies.x, night.emergencies.y)
+	for i in free.duplicate():
+		if em_ats.size() < em_count and em_ats.all(func(x): return absf(ats[i] - x) >= EMERGENCY_GAP):
+			kinds[i] = PhoneCall.Kind.EMERGENCY
+			em_ats.append(ats[i])
+			free.erase(i)
+	for i in free.slice(0, randi_range(night.pranks.x, night.pranks.y)):
+		kinds[i] = PhoneCall.Kind.PRANK
+	var used := fixed.map(func(f: PhoneCall): return f.caller)
+	var targets := fixed.map(func(f: PhoneCall): return f.target)
+	var transfers := C.transfers.filter(func(x): return not x.caller in used)
+	var emergencies := C.emergencies.duplicate()
+	var pranks := C.pranks.duplicate()
+	for pool in [transfers, emergencies, pranks]:
+		pool.shuffle()
 	var out: Array[PhoneCall] = []
-	for at in ats:
+	for i in ats.size():
 		var c: PhoneCall
-		if randf() < 0.65:
-			var t: TransferCall = pool.pop_back() if randf() >= TEMPLATE_CHANCE and not pool.is_empty() else GameData.template_transfer(targets)
-			c = PhoneCall.from_transfer(t)
-			targets.append(c.target)
+		if i == 0 and night.tutorial:
+			var first: TransferCall = GameData.transfers(TransferCall.Group.ESTABLISHMENT).pick_random()
+			transfers.erase(first)
+			c = PhoneCall.from_transfer(first)
+			targets.append(first.alt_target)
+			tut = c
+		elif kinds[i] == PhoneCall.Kind.EMERGENCY:
+			var written := randf() >= TEMPLATE_CHANCE and not emergencies.is_empty()
+			c = PhoneCall.from_emergency(emergencies.pop_back() if written else GameData.template_emergency())
+		elif kinds[i] == PhoneCall.Kind.PRANK and not pranks.is_empty():
+			c = PhoneCall.from_prank(pranks.pop_back())
+		elif randf() < 0.65:
+			# um número por noite: duas pessoas pedindo o mesmo destino ficariam esperando uma pela outra
+			var fresh := transfers.filter(func(x: TransferCall): return not x.target in targets and not x.alt_target in targets)
+			var tc: TransferCall = fresh.back() if randf() >= TEMPLATE_CHANCE and not fresh.is_empty() else GameData.template_transfer(targets)
+			transfers.erase(tc)
+			c = PhoneCall.from_transfer(tc)
+			targets.append(tc.alt_target)
 		else:
 			c = _info_call()
-		c.at = at
-		c.filler = true
+		targets.append(c.target)
+		c.at = ats[i]
 		out.append(c)
 	return out
 
@@ -547,8 +589,8 @@ func _run_schedule() -> void:
 			_myst_lead = true
 			Sfx.hush_nature(true, 20.0)
 			Sfx.fade(Sfx.hum, -34.0, 20.0)
-		if m.kind == PhoneCall.Kind.MYSTERY and minutes >= m.at - SHADOW_LEAD:
-			background.shadow = true
+	# alguém para do lado de fora da janela e sai antes de a ligação desconhecida tocar
+	background.shadow = minutes >= myst_plan - SHADOW_LEAD and minutes < myst_plan - SHADOW_LEAVE
 	var c := sched[0]
 	if minutes < c.at:
 		return
@@ -559,6 +601,9 @@ func _run_schedule() -> void:
 	# A ligação desconhecida e quem liga de novo só tocam com a mesa em silêncio (até `latest`), para não
 	# empilhar ligações sobre quem já está sobrecarregado; as outras esperam uma entrada livre.
 	var hush := (c.kind == PhoneCall.Kind.MYSTERY or c.retry != PhoneCall.Retry.NONE) and not live.is_empty() and minutes < c.latest
+	# o despacho cuida de uma emergência por vez: a próxima espera a anterior desligar e as unidades chegarem
+	if c.kind == PhoneCall.Kind.EMERGENCY and ((em_call != null and not em_call.ended) or dispatch.en_route()):
+		hush = true
 	if hush or _free_line() == -1:
 		c.at = minutes + 3.0
 		sched.sort_custom(func(a: PhoneCall, b: PhoneCall): return a.at < b.at)
@@ -609,14 +654,15 @@ func ring(c: PhoneCall) -> void:
 	elif busy and not _taught_multi:
 		_taught_multi = true
 		hint(tr("Outra entrada chamando! Leve o [b]FONE[/b] até ela: a ligação atual fica em espera. Para voltar, leve o FONE de volta à entrada dela."))
-	elif c.main == 1:
+	elif tut != null and tut.ended and not _taught_ring:
+		_taught_ring = true
 		hint(tr("Lembre: FONE na entrada que pisca, depois Atender."))
 	if c.kind == PhoneCall.Kind.MYSTERY:
 		await get_tree().create_timer(9.0).timeout
 		if c.ringing and not ending:
 			warn("O telefone está tocando.")
 	elif c != tut:
-		await get_tree().create_timer(GIVE_UP_SEC * (0.75 if c.retry != PhoneCall.Retry.NONE else 1.0 if c.filler else 1.5)).timeout
+		await get_tree().create_timer(GIVE_UP_SEC * (0.75 if c.retry != PhoneCall.Retry.NONE else 1.5 if c.story else 1.0)).timeout
 		if c.ringing:
 			end_call(c, PhoneCall.End.MISSED)
 
@@ -652,7 +698,8 @@ func on_transfer_waiting(c: PhoneCall) -> void:
 	tutorial_step()
 	if board.free_patches() == 0 and board.cord_at(c.line + 10) == -1:
 		hint(tr("Não há cabos de conexão livres. Desmonte uma conexão encerrada (lâmpadas vermelhas)."))
-	elif c.main == 1:
+	elif tut != null and c != tut and not _taught_list:
+		_taught_list = true
 		hint(tr("Consulte a lista. Confira o nome e o endereço."))
 
 
@@ -892,7 +939,6 @@ func _mystery_aftermath(c: PhoneCall) -> void:
 	flick = false
 	c.sys(tr("(A ligação caiu.)"))
 	after = true
-	background.shadow = false   # some junto com a ligação
 	get_tree().create_timer(1.8).timeout.connect(func(): Sfx.fade(Sfx.hum, -32.0, 3.0))
 	get_tree().create_timer(25.0).timeout.connect(Sfx.hush_nature.bind(false, 10.0))   # a noite volta aos poucos
 
@@ -910,5 +956,13 @@ func _start_ending() -> void:
 	for rec in left:
 		if not rec["tut"]:
 			report.add("register_missing", rec["time"], rec["who"])
+	var last := night_no >= C.nights.size()
+	if progress != null:
+		if report.fired() or last:
+			Progress.clear()
+		else:
+			progress.night = night_no + 1
+			progress.severe = report.severe_total()
+			progress.save()
 	await get_tree().create_timer(5.0).timeout
-	_ending.play(report)
+	_ending.play(report, not last)

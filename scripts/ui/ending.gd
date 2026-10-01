@@ -1,6 +1,7 @@
 class_name Ending
 extends ColorRect
-## Tela final: escurece a mesa, mostra o relatório do supervisor e pergunta se você atenderia novamente.
+## Fim do turno: escurece a mesa, mostra o relatório do supervisor e depois segue para a próxima noite,
+## ou, na última noite (ou com advertências graves demais), mostra o final e recomeça do início.
 
 @onready var _title: Label = %Title
 @onready var _question: Label = %Question
@@ -17,7 +18,16 @@ func _ready() -> void:
 	_restart.pressed.connect(func(): get_tree().reload_current_scene())
 
 
-func play(report: ShiftReport) -> void:
+## `more`: ainda há uma próxima noite (o progresso já foi salvo pelo Main).
+func play(report: ShiftReport, more: bool) -> void:
+	if report.fired():
+		_title.text = tr("Você foi demitido.")
+		_question.text = tr("A companhia telefônica agradece seus serviços.")
+		_restart.text = tr("Recomeçar da primeira noite")
+	elif more:
+		_title.text = tr("Fim da noite %d") % report.night
+		_question.text = tr("Amanhã, às 18:00, a central é sua de novo.")
+		_restart.text = tr("Próxima noite")
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	create_tween().tween_property(self, "color:a", 1.0, 3.0)
 	await get_tree().create_timer(3.4).timeout

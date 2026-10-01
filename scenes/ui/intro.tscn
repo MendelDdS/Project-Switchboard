@@ -40,6 +40,7 @@ text = "Central de Vila Serena"
 theme_override_font_sizes/font_size = 30
 
 [node name="Date" type="Label" parent="Center/Card/VBox"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Terça-feira · 18:00"
 theme_override_fonts/font = ExtResource("3_vt323_regula")
@@ -51,6 +52,7 @@ layout_mode = 2
 theme_type_variation = &"NotePanel"
 
 [node name="Text" type="Label" parent="Center/Card/VBox/Note"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Seu turno termina à meia-noite. Atenda as chamadas, conecte-as corretamente e registre todas as ocorrências."
 theme_type_variation = &"InkMonoLabel"
@@ -70,7 +72,11 @@ custom_minimum_size = Vector2(480, 0)
 custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 
-[node name="Start" type="Button" parent="Center/Card/VBox"]
+[node name="Buttons" type="HBoxContainer" parent="Center/Card/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Start" type="Button" parent="Center/Card/VBox/Buttons"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(180, 44)
 layout_mode = 2
@@ -78,3 +84,13 @@ size_flags_horizontal = 0
 theme_type_variation = &"AmberButton"
 theme_override_font_sizes/font_size = 17
 text = "Começar turno"
+
+[node name="Reset" type="Button" parent="Center/Card/VBox/Buttons"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+focus_mode = 0
+theme_type_variation = &"DarkButton"
+text = "Recomeçar da primeira noite"
