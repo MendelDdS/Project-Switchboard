@@ -29,7 +29,7 @@ extends Resource
 ## Enquanto ninguém despacha, a situação piora (barra abaixo da conversa; para durante pergunta e resposta).
 ## Segundos de cada estágio: inicial, agravando, agravada; depois disso está perdida. Situações perigosas
 ## (fogo, AVC) correm mais rápido.
-@export var stage_sec := Vector3(60.0, 30.0, 30.0)
+@export var stage_sec := Vector3(45.0, 22.0, 22.0)
 ## O que a pessoa conta quando a situação começa a piorar e as unidades que isso passa a exigir (somam às do caso).
 @export var worsening := ""
 @export var worsening_units: PackedStringArray = []

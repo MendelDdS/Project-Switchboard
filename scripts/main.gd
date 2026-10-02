@@ -202,12 +202,18 @@ func _nag() -> void:
 		conversation.say(f, GameData.pick(C.emergency_waiting))
 
 
-## A situação da emergência piora enquanto ninguém despacha, mesmo com ela em espera; a barra só para durante
-## pergunta e resposta (e na pausa do jogo). Cada estágio pode exigir unidades novas; o último (perdida) já
-## pune e piora o jornal, mas ainda dá para despachar. Quem liga de novo não tem barra.
+## A situação da emergência piora até o socorro completo sair para o lugar certo (despacho incompleto ou no
+## endereço errado não para a barra), mesmo com ela em espera ou já desligada; só para durante pergunta e resposta
+## (e na pausa do jogo). A luz de ocorrência do rádio mostra o estágio. Cada estágio pode exigir unidades novas; o
+## último (perdida) já pune e piora o jornal, mas ainda dá para despachar. Quem liga de novo não tem barra.
 func _worsen(delta: float) -> void:
 	var c := em_call
-	if c == null or not c.active or c.dispatched or c.asking or c.retry != PhoneCall.Retry.NONE or c.stage >= 3:
+	var away := ""   # fora da linha da emergência, o rádio inteiro avisa
+	if c != null and c.urgent() and not c.on_line:
+		var where := (c.data as EmergencyCall).address if c.ended else T.text(T.Key.STATUS_LINE) % c.line + " " + T.text(T.Key.STATUS_ON_HOLD)
+		away = "%s\n%s · %s" % [T.text(T.Key.RADIO_INCIDENT_ON), where, T.text(UrgencyBar.NAMES[c.stage])]
+	radio.alert(c.stage if c != null and c.urgent() else -1, away)
+	if c == null or not c.urgent() or c.asking:
 		return
 	var e: EmergencyCall = c.data
 	c.urgency += delta
@@ -218,7 +224,10 @@ func _worsen(delta: float) -> void:
 	if c.stage == 3:
 		_fault("emergency_lost", e.address)
 		report.failed(e)
-	conversation.emergency_worse(c, c.stage)
+	if c.ended:   # quem ligou já desligou: quem avisa é o rádio
+		radio.say(T.text(T.Key.RADIO_LOST if c.stage == 3 else T.Key.RADIO_WORSE) % e.address)
+	else:
+		conversation.emergency_worse(c, c.stage)
 
 
 ## Esc: primeiro devolve o plug que está na mão; sem plug na mão, pausa o turno.
@@ -652,7 +661,7 @@ func _run_schedule() -> void:
 	# empilhar ligações sobre quem já está sobrecarregado; as outras esperam uma entrada livre.
 	var hush := (c.kind == PhoneCall.Kind.MYSTERY or c.retry != PhoneCall.Retry.NONE) and not live.is_empty() and minutes < c.latest
 	# o despacho cuida de uma emergência por vez: a próxima espera a anterior desligar e as unidades chegarem
-	if c.kind == PhoneCall.Kind.EMERGENCY and ((em_call != null and not em_call.ended) or dispatch.en_route()):
+	if c.kind == PhoneCall.Kind.EMERGENCY and ((em_call != null and (not em_call.ended or em_call.urgent())) or dispatch.en_route()):
 		hush = true
 	# não sobrecarregar: com `Night.max_live` ligações pedindo atenção, a próxima espera (a desconhecida tem regra própria)
 	if c.kind != PhoneCall.Kind.MYSTERY and live.size() >= night.max_live:
@@ -875,14 +884,18 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> Dictionary:
 		"kind": c.kind, "missed": reason == PhoneCall.End.MISSED, "tut": c == tut}
 
 
-func _on_dispatched(loc: String, units_text: String) -> void:
+## `complete`: com este envio, tudo o que a emergência precisa agora está a caminho do lugar certo.
+func _on_dispatched(loc: String, units_text: String, complete: bool) -> void:
 	_sent = {"call": em_call, "loc": loc, "units": units_text}
 	if em_call == null:
 		return
-	# despachou com a situação já piorando: uma advertência pelo estágio (a perdida já foi dada na hora)
-	if em_call.active and not em_call.dispatched and em_call.retry == PhoneCall.Retry.NONE and em_call.stage in [1, 2]:
+	# o socorro completo saiu: a barra para; se a situação já piorava, uma advertência pelo estágio
+	# (a perdida já foi dada na hora)
+	if complete and em_call.urgent():
+		em_call.secured = true
 		var e: EmergencyCall = em_call.data
-		_fault("emergency_worse" if em_call.stage == 1 else "emergency_critical", e.address)
+		if em_call.stage > 0:
+			_fault("emergency_worse" if em_call.stage == 1 else "emergency_critical", e.address)
 		if em_call.stage == 2:
 			report.trouble(e)
 	if not em_call.record.is_empty():

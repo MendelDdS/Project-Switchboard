@@ -6,7 +6,8 @@ extends VBoxContainer
 ## depois do envio, tudo volta limpo para a próxima. Cuida da ida das viaturas, das mensagens de rádio e de
 ## avaliar se o local e as unidades batem com a emergência em andamento.
 
-signal sent(location: String, units_text: String)
+## `complete`: tudo o que a emergência precisa agora está a caminho do lugar certo (contando envios anteriores).
+signal sent(location: String, units_text: String, complete: bool)
 ## As unidades chegaram. `result`: "ok" (resolvido), "missing" (faltou unidade), "wrong_place" ou "idle"
 ## (não havia emergência em andamento). `e` é nulo em "idle". `occurrence` é o tipo marcado no despacho;
 ## `extra`, as unidades que foram ao local certo sem ser necessárias.
@@ -80,7 +81,7 @@ func set_occurrence(o: String) -> void:
 ## Uma emergência começou a tocar: guarda onde é e o que precisa (no estágio de agravamento `stage`), para
 ## avaliar o que for enviado.
 func set_incident(e: EmergencyCall, stage := 0) -> void:
-	_incident = {"call": e, "street": e.street, "block": e.block, "req": Array(e.required(stage)), "sent": [], "resolved": false, "addr": e.address}
+	_incident = {"call": e, "street": e.street, "block": e.block, "req": Array(e.required(stage)), "sent": [], "going": [], "resolved": false, "addr": e.address}
 
 
 ## A situação piorou antes do despacho: passa a precisar destas unidades.
@@ -150,7 +151,13 @@ func _send() -> void:
 	city.clear_selection()
 	set_occurrence("")
 	_refresh()
-	sent.emit(String(target["label"]), ", ".join(names))
+	var complete := false
+	if not _incident.is_empty() and _incident["street"] == target["street"] and _incident["block"] == target["block"]:
+		for u in us:
+			if not u in _incident["going"]:
+				_incident["going"].append(u)
+		complete = _incident["req"].all(func(r): return r in _incident["going"])
+	sent.emit(String(target["label"]), ", ".join(names), complete)
 	await get_tree().create_timer(1.8, false).timeout
 	radio.say(T.text([T.Key.RADIO_ON_WAY, T.Key.RADIO_COPY].pick_random()))
 	await get_tree().create_timer(5.6, false).timeout

@@ -168,6 +168,7 @@ func _initialize() -> void:
 	for u in e4.units:
 		(m.dispatch._unit_buttons[u] as Button).button_pressed = true
 	m.dispatch._send()
+	ok(not c4.secured and c4.urgent(), "endereço errado não para a barra de agravamento")
 	ok(await wait_until(func(): return c4.ended, 20.0), "agradeceu e desligou")
 	ok(await wait_until(func(): return _faults("dispatch_wrong_place") == 1, 20.0), "advertência grave: endereço errado")
 	ok(await wait_until(func(): return m.dispatch._units.values().all(func(s): return s == 0), 10.0), "unidades disponíveis")
@@ -289,14 +290,30 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return c10.transcript.any(func(l): return l["text"] == e10.worsening)), "contou o que piorou")
 	var w10 := _faults("emergency_worse")
 	await wait_until(func(): return m.dispatch._units.values().all(func(s): return s == 0), 30.0)
+	m._worsen(0.0)
+	ok(m.radio._alert == 1, "luz de ocorrência no rádio, na cor do estágio")
+	var need: Array = m.dispatch.required()
+	ok(need.size() >= 2, "o caso testado precisa de duas unidades")
+	# só uma unidade: a pessoa desliga, mas a barra continua (e o rádio segue com a luz acesa)
 	m.dispatch.set_location(e10.street, e10.block, e10.address)
 	m.dispatch.set_occurrence(e10.occurrence)
-	for u in m.dispatch.required():
+	(m.dispatch._unit_buttons[need[0]] as Button).button_pressed = true
+	m.dispatch._send()
+	var u_part := c10.urgency
+	m._worsen(1.0)
+	ok(c10.urgent() and c10.urgency > u_part and _faults("emergency_worse") == w10 and m.radio._alert == 1, "despacho incompleto não para a barra")
+	ok(await wait_until(func(): return c10.ended, 20.0), "desligou mesmo assim")
+	m._worsen(0.0)
+	ok(m.radio._away != "", "fora da linha da emergência, o rádio inteiro avisa")
+	m.dispatch.set_location(e10.street, e10.block, e10.address)
+	m.dispatch.set_occurrence(e10.occurrence)
+	for u in need.slice(1):
 		(m.dispatch._unit_buttons[u] as Button).button_pressed = true
 	m.dispatch._send()
+	m._worsen(0.0)
+	ok(c10.secured and not c10.urgent() and m.radio._alert == -1, "socorro completo: a barra para e a luz apaga")
 	ok(_faults("emergency_worse") == w10 + 1, "despachou agravando: advertência média")
 	ok(await wait_until(func(): return m.report.is_resolved(e10), 20.0) and m.report.outcomes()[e10] == ShiftReport.Outcome.OK, "resolvida; no jornal: a tempo")
-	ok(await wait_until(func(): return c10.ended, 20.0), "desligou")
 	await wait_until(func(): return m.dispatch._units.values().all(func(s): return s == 0), 30.0)
 	_clear_board()
 	# perdida: gravíssima na hora, jornal ruim, e ainda dá para despachar (sem outra advertência pela barra)

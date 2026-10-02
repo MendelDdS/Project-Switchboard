@@ -67,6 +67,7 @@ var wrong := 0              ## quantas vezes foi conectada ao número errado
 # emergência
 var asked: Array[int] = []
 var dispatched := false
+var secured := false        ## o socorro completo saiu para o lugar certo: a barra para de vez
 var stage := 0              ## barra de agravamento: 0 inicial, 1 agravando, 2 agravada, 3 perdida
 var urgency := 0.0          ## segundos que a barra já correu
 var asking := false         ## pergunta e resposta em andamento: a barra para
@@ -158,3 +159,9 @@ func set_options(list: Array[Dictionary]) -> void:
 func set_talking(v: bool) -> void:
 	talking = v
 	state_changed.emit()
+
+
+## A barra de agravamento está correndo: emergência atendida (ou já desligada depois de um despacho incompleto),
+## sem o socorro completo a caminho e ainda não perdida. Quem liga de novo não tem barra.
+func urgent() -> bool:
+	return kind == Kind.EMERGENCY and retry == Retry.NONE and (active or dispatched) and not secured and stage < 3

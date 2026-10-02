@@ -72,15 +72,21 @@ jogo volta para a primeira noite. Uma gravíssima conta como `CRITICAL_WEIGHT` (
 
 Na base da caixa da conversa, durante uma emergência, uma barra mostra a situação no local piorando: **inicial**
 (verde), **agravando** (âmbar), **agravada** (vermelho); quando acaba, a situação está **perdida** e a barra some.
-Ela corre desde que o operador atende, mesmo com a emergência em espera (aí mostra a linha), e **para enquanto o
-operador pergunta e a pessoa responde** (e na pausa do jogo); para de vez com o primeiro despacho. Vale uma
-advertência por emergência, pelo estágio em que o despacho saiu (veja a tabela); a perdida pune na hora.
+Ela corre desde que o operador atende e **para enquanto o operador pergunta e a pessoa responde** (e na pausa do
+jogo). Só para de vez quando **o socorro completo sai para o lugar certo**: despacho incompleto ou no endereço
+errado não para (chutar uma unidade e completar depois não adianta), nem a pessoa ter desligado; aí quem avisa que
+piorou é o rádio. A barra só aparece com o operador na linha da emergência; fora dela, **o rádio inteiro acende**: moldura pulsando
+na cor do estágio (mais rápido quanto pior) e, na tela, "OCORRÊNCIA EM ANDAMENTO · Linha 09 em espera · Situação
+agravando" (ou o endereço, se a pessoa já desligou) entre uma mensagem e outra. A luz **Ocorrência** do rádio fica
+acesa enquanto a barra corre (pisca ao mudar de estágio e no vermelho). Vale uma advertência por emergência, pelo estágio em
+que o socorro completo saiu (veja a tabela); a perdida pune na hora. Uma emergência nova espera a anterior.
 
 A cada estágio a pessoa conta o que mudou (`worsening`, `critical`, `lost` no `EmergencyCall`), e isso pode exigir
 unidades novas (`worsening_units`, `critical_units`, somadas às do caso): a fumaça fechou a rua → polícia; um vizinho
 desmaiou na fumaça → ambulância. Vale o que era preciso no momento do despacho. A duração de cada estágio é
-`stage_sec` (segundos reais): 60/30/30 nas ocorrências mais lentas, 55/30/30 nas médias e 50/25/25 em fogo e AVC.
-O robô em ritmo humano (5 s por ação, lendo cada resposta até o fim) despacha com ~40 s de barra corrida.
+`stage_sec` (segundos reais): 45/22/22 nas ocorrências mais lentas, 40/20/20 nas médias e 35/18/18 em fogo e AVC.
+O robô em ritmo humano (5 s por ação, lendo cada resposta até o fim, 15 s no protocolo e no mapa) despacha com
+~40 s de barra corrida: a tempo nas lentas e médias, já agravando em fogo e AVC.
 
 ## Moldes (conversas geradas)
 

@@ -187,13 +187,16 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   emergências (`trouble`/`resolved`/`failed` → OK, LATE, BAD) e `verdict()`. Gravidades: leve, média, grave,
   gravíssima (`CRITICAL`, pesa `CRITICAL_WEIGHT` graves). Entre noites só as graves somam
   (`severe_before`, salvas no `Progress`; `SEVERE_LIMIT` = demissão).
-- **Barra de agravamento** (`Main._worsen`, estado em `PhoneCall.stage`/`urgency`/`asking`, desenho em
-  `UrgencyBar`, dentro da caixa do chat): corre desde o atendimento, também em espera; para durante pergunta e
-  resposta (`Conversation._em_ask`), na pausa e no despacho. Estágios por `EmergencyCall.stage_sec`; cada um chama
-  `Conversation.emergency_worse` (fala `worsening`/`critical`/`lost`) e `Dispatch.require(e.required(stage))`.
-  Advertência pelo estágio no despacho (`_on_dispatched`: `emergency_worse` média, `emergency_critical` grave +
-  jornal LATE); perdida = `emergency_lost` gravíssima na hora + jornal BAD (sem `emergency_dropped` nem retorno).
-  Retornos não têm barra (herdam `stage` para as unidades).
+- **Barra de agravamento** (`Main._worsen`, estado em `PhoneCall.stage`/`urgency`/`asking`/`secured`, regra em
+  `PhoneCall.urgent()`, desenho em `UrgencyBar` dentro da caixa do chat, só com o operador na linha; fora dela, o rádio
+  inteiro acende: `Radio.alert(stage, away)`, moldura pulsando e aviso na tela; a luz "Ocorrência" acende sempre): corre desde o atendimento, também em espera e depois de a pessoa desligar; para durante
+  pergunta e resposta (`Conversation._em_ask`) e na pausa; para de vez só quando o socorro completo sai para o lugar
+  certo (`Dispatch.sent(..., complete)`, conta envios anteriores em `_incident["going"]`). Estágios por
+  `EmergencyCall.stage_sec`; cada um chama `Conversation.emergency_worse` (fala `worsening`/`critical`/`lost`; com a
+  pessoa já desligada, `RADIO_WORSE`/`RADIO_LOST`) e `Dispatch.require(e.required(stage))`. Advertência pelo estágio
+  quando o socorro completo sai (`_on_dispatched`: `emergency_worse` média, `emergency_critical` grave + jornal LATE);
+  perdida = `emergency_lost` gravíssima na hora + jornal BAD (sem `emergency_dropped` nem retorno). Retornos não têm
+  barra (herdam `stage` para as unidades). A próxima emergência espera a barra da anterior parar.
 - Main registra com `_fault()` onde a falha acontece; `_consequences()` (chamado em `end_call`) decide advertência e
   retorno; `_call_again()` agenda a mesma pessoa de novo (`PhoneCall.retry`; uma vez por motivo, `retried`;
   também no tutorial; nunca depois do fim do turno; `too_late` sorteado com
@@ -291,7 +294,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     o que mandar. Cartão do protocolo na aba, respostas decisivas sem ambiguidade, moldes e roteiros com casos sorteados.
 24. Barra de agravamento da emergência (abaixo do chat, dentro da caixa): inicial → agravando (média) → agravada
     (grave, jornal com atraso) → perdida (gravíssima, nova gravidade). Para enquanto o operador pergunta e a pessoa
-    responde; corre em espera. Cada estágio tem fala própria e pode exigir unidades novas.
+    responde; corre em espera. Cada estágio tem fala própria e pode exigir unidades novas. Depois: a barra só para
+    com o socorro completo no lugar certo (chutar e completar não adianta), ficou mais rápida (45/40/35 s no 1º
+    estágio) e some fora da linha; aí o rádio inteiro acende (moldura pulsando e aviso na tela) na cor do estágio.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.
