@@ -92,6 +92,13 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   - Rode depois de qualquer mudança em agenda, fim de ligação, mesa ou cabos. `run.sh` também joga um turno em
     `--lang=en` e outro em `--lang=es`; o teste de fluxo confere chaves, lacunas e cenas (`_check_translations`).
 - Semente fixa: `Godot --path . -- --seed=123` repete a agenda do turno (sem `--seed`, é aleatória).
+- **Painel de debug** (F1, ação `debug`; `DebugPanel`, `scenes/ui/debug_panel.tscn`, nó `%Debug` do Main, z 5): só em
+  build de debug (editor ou export de debug; no release ele se apaga). Toca ligações na hora (qualquer tipo; emergência
+  escolhida, com o caso sorteado), pula estágio ou congela a barra (`Main.debug_freeze`), mostra o que a emergência
+  exige (contado e real), velocidade 1–8×, pula o relógio, encerra o turno, libera viaturas (`Dispatch.reset`; `_gen` cancela
+  as viagens em andamento), registra pendências, limpa advertências e apaga o progresso. Cada seção tem "Limpar" e o
+  topo tem "Restaurar tudo" (`_drop` tira uma ligação sem caderno, advertência nem retorno; a mesa é zerada antes de
+  tirar os cabos para nada contar como conversa cortada; `Notebook.reset`). Textos fixos em português (ferramenta, não interface).
 - Captura de tela: rodar SEM `--headless` e salvar `root.get_texture().get_image()`.
 
 ## Exportar (executáveis para testar fora do editor)

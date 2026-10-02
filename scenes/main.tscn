@@ -13,6 +13,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/intro.tscn" id="11_intro"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ending.tscn" id="12_ending"]
 [ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="20_pause"]
+[ext_resource type="PackedScene" path="res://scenes/ui/debug_panel.tscn" id="21_debug"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
 bg_color = Color(0.07059, 0.05098, 0.02745, 1)
@@ -245,3 +246,6 @@ layout_mode = 1
 [node name="PauseMenu" parent="." instance=ExtResource("20_pause")]
 unique_name_in_owner = true
 z_index = 4
+
+[node name="Debug" parent="." instance=ExtResource("21_debug")]
+unique_name_in_owner = true

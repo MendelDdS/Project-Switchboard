@@ -509,6 +509,38 @@ func _initialize() -> void:
 	ok(d._location.is_empty() and d._occ_group.get_pressed_button() == null and d.city.sel.is_empty(), "depois de enviar, local e tipo limpos")
 	ok(d._unit_buttons["amb"].disabled, "ambulância a caminho fica indisponível")
 	print("OK 13 mapa e despacho")
+
+	# ---- 14. painel de debug (F1): toca uma emergência, pula estágio, registra as pendências
+	var dbg = m.get_node("%Debug")
+	_key(KEY_F1)
+	await frames(2)
+	ok(dbg.visible, "F1 abre o painel de debug")
+	dbg._emergency.select(0)
+	dbg._ring_emergency()
+	var de: PhoneCall = m.em_call
+	ok(de != null and de.ringing and de.data.street == C.emergencies[0].street, "painel toca a emergência escolhida")
+	_move(0, de.line)
+	m.answer()
+	await frames(2)
+	dbg._next_stage()
+	await frames(2)
+	ok(de.stage == 1, "painel pula para o próximo estágio")
+	dbg._ring_transfer(false)
+	ok(m.live.size() == 2, "painel toca uma transferência junto")
+	m.notebook.add({"time": "18:00", "who": "x", "where": "—", "unit": "—", "obs": "", "kind": PhoneCall.Kind.TRANSFER, "missed": false, "tut": false})
+	dbg._restore_all()
+	await frames(2)
+	ok(m.live.is_empty() and m.em_call == null and not de.urgent() and m.radio._alert == -1, "restaurar: ligações e emergência somem")
+	ok(range(1, Exchange.LINES + 1).all(func(n): return m.exchange.line(n) == Exchange.Line.FREE), "restaurar: linhas livres")
+	ok(await wait_until(func(): return m.board.ends.all(func(e): return e == -1), 10.0), "restaurar: cabos na base")
+	ok(m.dispatch._units.values().all(func(s): return s == 0) and m.dispatch.required().is_empty(), "restaurar: despacho livre")
+	ok(not m.notebook.has_pending() and m.report.faults.is_empty() and Engine.time_scale == 1.0, "restaurar: caderno, relatório e tempo zerados")
+	ok(not m.sched.any(func(c): return c.retry != PhoneCall.Retry.NONE), "restaurar: ninguém liga de novo")
+	Engine.time_scale = 8.0
+	_key(KEY_F1)
+	await frames(2)
+	ok(not dbg.visible, "F1 fecha o painel")
+	print("OK 14 painel de debug")
 	finish("fluxo da central")
 
 

@@ -25,6 +25,7 @@ var _location := {}          ## {"street", "block", "label"} marcado no mapa
 var _units := {"pol": Unit.AVAILABLE, "bomb": Unit.AVAILABLE, "amb": Unit.AVAILABLE}
 var _occ_group := ButtonGroup.new()
 var _incident := {}          ## emergência em andamento: call, street, block, req, sent, resolved, addr
+var _gen := 0                ## sobe no `reset`: viagens de antes dele não chegam nem voltam mais
 
 @onready var city: CityMap = %City
 @onready var _occurrences: HBoxContainer = %Occurrences
@@ -88,6 +89,21 @@ func set_incident(e: EmergencyCall, stage := 0) -> void:
 func require(units: PackedStringArray) -> void:
 	if not _incident.is_empty():
 		_incident["req"] = Array(units)
+
+
+## Debug: todas as viaturas livres na hora (as que estavam a caminho não chegam mais) e nada marcado no despacho.
+## `forget` também esquece a emergência em andamento.
+func reset(forget := false) -> void:
+	_gen += 1
+	for u in UNIT_IDS:
+		_units[u] = Unit.AVAILABLE
+	city.remove_units(UNIT_IDS)
+	_location = {}
+	city.clear_selection()
+	set_occurrence("")
+	if forget:
+		_incident = {}
+	_refresh()
 
 
 ## Unidades que a emergência em andamento precisa agora.
@@ -157,10 +173,14 @@ func _send() -> void:
 				_incident["going"].append(u)
 		complete = _incident["req"].all(func(r): return r in _incident["going"])
 	sent.emit(String(target["label"]), ", ".join(names), complete)
+	var gen := _gen
 	await get_tree().create_timer(1.8, false).timeout
+	if gen != _gen:
+		return
 	radio.say(T.text([T.Key.RADIO_ON_WAY, T.Key.RADIO_COPY].pick_random()))
 	await get_tree().create_timer(5.6, false).timeout
-	_arrive(us, target)
+	if gen == _gen:
+		_arrive(us, target)
 
 
 func _arrive(us: Array, target: Dictionary) -> void:
@@ -207,12 +227,17 @@ func _arrive(us: Array, target: Dictionary) -> void:
 func _return(us: Array, stay: float, back: float) -> void:
 	if us.is_empty():
 		return
+	var gen := _gen
 	await get_tree().create_timer(stay, false).timeout
+	if gen != _gen:
+		return
 	for u in us:
 		if _units[u] == Unit.ON_SITE:
 			_units[u] = Unit.RETURNING
 	_refresh()
 	await get_tree().create_timer(back, false).timeout
+	if gen != _gen:
+		return
 	for u in us:
 		if _units[u] == Unit.RETURNING:
 			_units[u] = Unit.AVAILABLE

@@ -212,7 +212,21 @@ também devolve o plug à base. Cada tipo de plug só encaixa nas tomadas compat
 acende em amarelo se aceita, em vermelho se não.
 
 Atalhos do telefone: **Espaço** atende, **Tab** transfere, **X** desliga (a tecla aparece no canto de cada botão).
-Com um campo de texto em foco, as teclas vão para o campo.
+Com um campo de texto em foco, as teclas vão para o campo. **1**, **2** e **3** abrem a lista, o despacho e o caderno.
+
+**F1** abre o painel de debug (só rodando pelo editor ou num export de debug; não existe no jogo final):
+
+| Seção | O que faz | Limpar |
+|---|---|---|
+| Ligações e mesa | toca transferência (roteiro ou molde), informação, trote, ligação desconhecida e qualquer emergência (escritas e moldes, com o caso sorteado) | encerra todas as ligações, zera a mesa (cabos na base) e tira os retornos da agenda |
+| Barra de agravamento | mostra estágio, tempo e as unidades exigidas (o que já foi contado e o real); pula para o próximo estágio; encerra a emergência; congela a barra | descongela e encerra a emergência |
+| Tempo | velocidade 1×, 2×, 4×, 8×; +30 min; ir para 23:50; encerrar o turno (relatório e final) | volta a 1× |
+| Viaturas e caderno | viaturas livres na hora (as que estavam a caminho não chegam mais); registra as pendências com o tipo certo; limpa as advertências; apaga o progresso salvo | viaturas livres, caderno em branco, relatório zerado |
+
+**Restaurar tudo**, no topo, faz todas as limpezas (o relógio fica onde está). Limpar nunca gera advertência nem retorno.
+
+Para começar num ponto específico, combine com as opções de linha de comando: `-- --night=2`, `--seed=123`,
+`--weather=fog`, `--flags=a,b`, `--lang=en`.
 
 ## A mesa
 

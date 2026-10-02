@@ -92,6 +92,16 @@ func register(type: T.Key) -> void:
 	registered.emit(rec, type)
 
 
+## Debug: caderno em branco.
+func reset() -> void:
+	entries.clear()
+	queue.clear()
+	pending = {}
+	_render_ledger()
+	_fill()
+	pending_changed.emit(0)
+
+
 func _fill() -> void:
 	_form.visible = has_pending()
 	if not has_pending():

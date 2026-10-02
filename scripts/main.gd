@@ -46,6 +46,7 @@ var sched: Array[PhoneCall] = []   ## ligações ainda por tocar, em ordem de ho
 var live: Array[PhoneCall] = []    ## tocando ou em andamento (podem ser várias ao mesmo tempo)
 var tut: PhoneCall                 ## primeira ligação: guia passo a passo
 var em_call: PhoneCall
+var debug_freeze := false          ## painel de debug: a barra de agravamento não anda
 var myst_time := "02:13"
 var myst_line := 0                 ## entrada por onde veio a ligação desconhecida (sorteada)
 var myst_plan := INF               ## horário sorteado da ligação desconhecida (a silhueta segue este, mesmo se ela atrasar)
@@ -220,7 +221,8 @@ func _worsen(delta: float) -> void:
 	if c == null or not c.urgent() or c.asking:
 		return
 	var e: EmergencyCall = c.data
-	c.urgency += delta
+	if not debug_freeze:
+		c.urgency += delta
 	if c.urgency < [e.stage_sec.x, e.stage_sec.x + e.stage_sec.y, e.stage_sec.x + e.stage_sec.y + e.stage_sec.z][c.stage]:
 		return
 	c.stage += 1
@@ -250,11 +252,14 @@ func emergency_told(c: PhoneCall, stage: int) -> void:
 
 
 ## Esc: primeiro devolve o plug que está na mão; sem plug na mão, pausa o turno. 1, 2 e 3 abrem as abas (só durante
-## o turno; na pausa a árvore está parada).
+## o turno; na pausa a árvore está parada). F1 abre o painel de debug (só em build de debug).
 func _unhandled_input(e: InputEvent) -> void:
 	if e.is_action_pressed("cancel_plug") and board.held != -1:
 		board.go_home(board.held)
 		get_viewport().set_input_as_handled()
+	elif e.is_action_pressed("debug") and OS.is_debug_build():
+		get_viewport().set_input_as_handled()
+		%Debug.visible = not %Debug.visible
 	elif e.is_action_pressed("pause") and running and not ending:
 		get_viewport().set_input_as_handled()
 		pause()

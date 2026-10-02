@@ -65,9 +65,9 @@ static func template_transfer(exclude: Array = []) -> TransferCall:
 	return t
 
 
-## Emergência montada a partir de um molde, numa rua e número sorteados.
-static func template_emergency() -> EmergencyCall:
-	var tpl := with_case(CONTENT.emergency_templates.pick_random())
+## Emergência montada a partir de um molde (`from`, ou um sorteado), numa rua e número sorteados.
+static func template_emergency(from: EmergencyCall = null) -> EmergencyCall:
+	var tpl := with_case(from if from != null else CONTENT.emergency_templates.pick_random())
 	var st: Street = CONTENT.streets.pick_random()
 	var house := randi_range(1, 299)
 	var vars := {"street": st.name, "house": house, "address": "%s, %d" % [st.name, house]}
