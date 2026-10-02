@@ -1483,7 +1483,7 @@ msgid "Não! Tá todo mundo em volta, querendo ajudar!"
 msgstr ""
 
 #: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
-msgid "Tá vazando gasolina do carro! Tá escorrendo pela rua!"
+msgid "Tá vazando gasolina e começou a sair fumaça do capô!"
 msgstr ""
 
 #: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres

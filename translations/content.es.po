@@ -1484,8 +1484,8 @@ msgid "Não! Tá todo mundo em volta, querendo ajudar!"
 msgstr "¡No! ¡Están todos alrededor, queriendo ayudar!"
 
 #: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
-msgid "Tá vazando gasolina do carro! Tá escorrendo pela rua!"
-msgstr "¡Está perdiendo nafta el auto! ¡Está corriendo por la calle!"
+msgid "Tá vazando gasolina e começou a sair fumaça do capô!"
+msgstr "¡Está perdiendo nafta y empezó a salir humo del capó!"
 
 #: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
 msgid "Tem alguém perto da gasolina?"
