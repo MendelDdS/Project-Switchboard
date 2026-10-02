@@ -17,7 +17,8 @@ const TALK_LEN := Vector2(34.0, 68.0)   # duração (min de jogo) de uma convers
 const TEMPLATE_CHANCE := 0.5            # chance de uma transferência ou emergência vir de um molde e não de um roteiro escrito
 const GIVE_UP_SEC := 60.0               # quem liga desiste se ninguém atende (as do roteiro aguentam 1,5x; retornos, 0,75x)
 const SMALLTALK_AFTER := 10.0           # segundos de silêncio esperando a transferência até puxar conversa fiada...
-const SMALLTALK_CHANCE := 0.6           # ...às vezes (uma vez por ligação); senão, e depois dela, reclama da demora:
+const SMALLTALK_CHANCE := 0.6           # ...às vezes; o operador pode responder (ganha tempo) e ela puxa outra,
+const SMALLTALK_MAX := 3                # até tantas por ligação; sem resposta, e depois delas, reclama da demora:
 const NAG_AFTER := 22.0                 # segundos de silêncio até reclamar da demora (emergência: EMERGENCY_NAG_AFTER)
 const EMERGENCY_NAG_AFTER := 26.0
 const HOLD_GIVE_UP := 120.0             # minutos de jogo que alguém aguenta em espera antes de desligar
@@ -196,9 +197,11 @@ func _nag() -> void:
 			f.chatted = true
 			if randf() < SMALLTALK_CHANCE:
 				f.last_talk = talk_clock
-				conversation.say(f, GameData.pick(smalltalk()), 0.45)
+				conversation.smalltalk(f)
 		elif quiet > NAG_AFTER:
 			f.last_talk = talk_clock
+			f.chat = null   # a deixa da conversa passou
+			conversation.transfer_choices(f)
 			conversation.say(f, GameData.pick(C.waiting))
 	# só no estágio inicial: depois, a fala de cada estágio já cobra a demora
 	elif f.kind == PhoneCall.Kind.EMERGENCY and not f.dispatched and f.stage == 0 and quiet > EMERGENCY_NAG_AFTER:
@@ -948,9 +951,9 @@ func _fault(id: String, detail := "") -> void:
 	report.add(id, fmt(minutes), detail)
 
 
-## Conversa fiada: as falas gerais e as do clima da noite.
-func smalltalk() -> PackedStringArray:
-	return C.smalltalk + (C.get("smalltalk_" + weather) as PackedStringArray)
+## Conversa fiada: os assuntos gerais e os do clima da noite (`ChatTopic`).
+func smalltalk() -> Array:
+	return C.smalltalk.filter(func(t: ChatTopic): return t.weather in ["", weather])
 
 
 ## O que o supervisor vai anotar e quem vai ligar de novo por causa de como a ligação terminou.

@@ -33,8 +33,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   ganham o dedo sozinhos (`node_added`); quem quer outra forma define `mouse_default_cursor_shape` (a mesa troca a
   dela a cada quadro). Passe `Image`, não textura, ao `Input` (textura vaza ao fechar).
 - Clima (`Main.weather`: "rain", "fog", "clear", sorteado; `-- --weather=X` força): `Sfx.start_ambience(w)`/
-  `set_weather`/`hush_nature`/`stop_ambience`, `Background.weather` desenha a janela, `Main.smalltalk()` junta as
-  falas gerais com as do clima.
+  `set_weather`/`hush_nature`/`stop_ambience`, `Background.weather` desenha a janela, `Main.smalltalk()` junta os
+  assuntos gerais com os do clima (`ChatTopic.weather`).
 - Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`). **Fontes de pixel**: importadas sem
   suavização nem sub-pixel e usadas só nos tamanhos em que ficam nítidas: `Pal.ui` (Pixelify Sans) 14, 16, 18, 22
   (piso de 14; 12 só onde não cabe: teclas dos botões, selo da aba, estado das linhas e numeração do mapa); `Pal.mono` (VT323, números) 20, 21, 25, 30, 35 (abaixo de 20 fica fina). Texto em desenho com escala (mapa)
@@ -248,7 +248,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - `GIVE_UP_SEC` 60 s (`story` 1,5x, retornos 0,75x); tutorial (`tut`) e desconhecida nunca desistem.
 - Espera na linha (`Main._nag`, silêncio medido em `talk_clock`, que para na pausa): transferência pedida e o
   operador parado → depois de `SMALLTALK_AFTER` (10 s), com `SMALLTALK_CHANCE` (60%, uma vez por ligação), conversa
-  fiada do cotidiano (`smalltalk` + a do clima); com `NAG_AFTER` (22 s) sem falar, reclama (`waiting`). Emergência:
+  fiada do cotidiano (`Conversation.smalltalk`). **Cada assunto é um `ChatTopic`** (`scripts/data/chat_topic.gd`,
+  `GameContent.smalltalk`): `line`, `weather` (vazio = qualquer), `replies` do operador e `follow` pareadas pelo índice,
+  para nenhuma resposta cair fora do assunto. O operador pode responder (as `replies` viram as últimas opções,
+  `PhoneCall.chat`; ele escolhe uma): ela diz a `follow` dela, o silêncio recomeça e ela pode puxar outro assunto (sem repetir,
+  `PhoneCall.chats`, até `SMALLTALK_MAX`); com `NAG_AFTER` (22 s) sem falar, reclama (`waiting`) e a resposta some. Emergência:
   `EMERGENCY_NAG_AFTER`, só no estágio inicial da barra (depois, a fala de cada estágio já cobra a demora). A conversa fiada não vem mais logo depois do pedido. Conversa fiada só do cotidiano (nada
   que lembre o mistério: luzes piscando, carros parados, chiado na linha).
 - Conversas transferidas duram `TALK_LEN` (34–68 min de jogo ≈ 45–90 s reais).

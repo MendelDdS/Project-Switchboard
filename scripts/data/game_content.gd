@@ -37,12 +37,8 @@ extends Resource
 @export_group("Falas avulsas")
 ## Como o operador atende.
 @export var greetings: PackedStringArray = []
-## Conversa fiada que às vezes vem depois do pedido (serve para qualquer clima).
-@export var smalltalk: PackedStringArray = []
-## Conversa fiada que só faz sentido no clima da noite.
-@export var smalltalk_rain: PackedStringArray = []
-@export var smalltalk_fog: PackedStringArray = []
-@export var smalltalk_clear: PackedStringArray = []
+## Conversa fiada de quem espera a transferência: cada assunto com as respostas do operador (`ChatTopic`).
+@export var smalltalk: Array[ChatTopic] = []
 ## Solicitante esperando a transferência.
 @export var waiting: PackedStringArray = []
 ## Solicitante de emergência esperando o despacho.

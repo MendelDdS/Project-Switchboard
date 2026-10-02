@@ -127,9 +127,12 @@ func _initialize() -> void:
 	# clima: cada um tem falas próprias, e a chuva só é comentada quando chove
 	for w in m.WEATHERS:
 		m.weather = w
-		var talk: PackedStringArray = m.smalltalk()
-		ok(not (C.get("smalltalk_" + w) as PackedStringArray).is_empty(), "falas do clima: " + w)
-		ok(w == "rain" or not Array(talk).any(func(l): return "chuva" in l), "sem chuva na conversa: " + w)
+		var talk: Array = m.smalltalk()
+		ok(talk.any(func(t): return t.weather == w), "assuntos do clima: " + w)
+		ok(w == "rain" or not talk.any(func(t): return "chuva" in t.line), "sem chuva na conversa: " + w)
+	# conversa fiada: cada assunto traz as próprias respostas, cada uma com a continuação
+	ok(C.smalltalk.all(func(t: ChatTopic): return t.line != "" and not t.replies.is_empty() and t.replies.size() == t.follow.size()),
+		"assuntos com respostas e continuações pareadas")
 	# moldes: nenhuma lacuna sobra sem preencher
 	var holes := func(texts: Array) -> bool: return texts.any(func(x): return "{" in x or "}" in x)
 	for i in 300:
@@ -454,12 +457,38 @@ func _initialize() -> void:
 		ok(await wait_until(func(): return wc.transcript.size() > n and not wc.talking, 60.0), "falou enquanto esperava")
 		said_at.append([m.talk_clock - t0, String(wc.transcript.back()["text"])])
 	var waiting: Array = Array(C.waiting)
-	var chat: Array = Array(m.smalltalk())
+	var chat: Array = m.smalltalk().map(func(t): return t.line)
 	ok(said_at[0][0] >= m.SMALLTALK_AFTER and (said_at[0][1] in chat or said_at[0][1] in waiting), "primeira fala só depois de um tempo: " + said_at[0][1])
 	ok(said_at[1][1] in waiting, "depois reclama da demora: " + said_at[1][1])
 	ok(asked > 0 and not wc.transcript.slice(0, asked).any(func(l): return String(l["text"]) in chat), "sem conversa fiada logo depois do pedido")
 	m.end_call(wc, PhoneCall.End.OPERATOR)
 	print("OK 11 conversa fiada e reclamação na espera")
+
+	# ---- 11b. responder a conversa fiada: ela continua o assunto e a reclamação da demora fica para depois
+	var cc := _extra(GameData.transfers(TransferCall.Group.EXTRA)[3])
+	m.ring(cc)
+	_move(0, cc.line)
+	m.answer()
+	ok(await wait_until(_awaiting(cc)), "pedido feito")
+	m.conversation.smalltalk(cc)
+	ok(await wait_until(func(): return cc.chat != null and not cc.talking), "conversa fiada pede resposta")
+	var topic: ChatTopic = cc.chat
+	var k := topic.replies.size() - 1   # a última resposta: a escolha decide a continuação
+	var reply := topic.replies[k]
+	var follow := topic.follow[k]
+	ok(String(cc.transcript.back()["text"]) == topic.line, "puxou o assunto")
+	var labels: Array = cc.options.slice(-topic.replies.size()).map(func(o): return String(o["label"]))
+	ok(labels == Array(topic.replies), "as respostas do assunto viram opções (por último)")
+	cc.options.back()["fn"].call()
+	ok(cc.chat == null and cc.chats == [topic] and not cc.chatted, "respondida: pode puxar outro assunto")
+	ok(await wait_until(func(): return not cc.talking and String(cc.transcript.back()["text"]) == follow), "ela continua o mesmo assunto")
+	ok(cc.transcript.any(func(l): return l["cls"] == "op" and l["text"] == reply), "operador respondeu")
+	var t_reply: float = m.talk_clock
+	var n_reply := cc.transcript.size()
+	ok(await wait_until(func(): return cc.transcript.size() > n_reply and not cc.talking, 60.0), "volta a falar depois")
+	ok(m.talk_clock - t_reply >= m.SMALLTALK_AFTER, "o silêncio recomeçou com a resposta")
+	m.end_call(cc, PhoneCall.End.OPERATOR)
+	print("OK 11b responder a conversa fiada")
 
 	# ---- 12. atalhos do telefone (teclas de verdade): Espaço atende, Tab transfere, X desliga
 	var kc := _extra(GameData.transfers(TransferCall.Group.EXTRA)[4])
@@ -525,8 +554,9 @@ func _initialize() -> void:
 	dbg._next_stage()
 	await frames(2)
 	ok(de.stage == 1, "painel pula para o próximo estágio")
+	var live_before: int = m.live.size()   # um retorno de cenário anterior pode estar tocando
 	dbg._ring_transfer(false)
-	ok(m.live.size() == 2, "painel toca uma transferência junto")
+	ok(m.live.size() == live_before + 1, "painel toca uma transferência junto")
 	m.notebook.add({"time": "18:00", "who": "x", "where": "—", "unit": "—", "obs": "", "kind": PhoneCall.Kind.TRANSFER, "missed": false, "tut": false})
 	dbg._restore_all()
 	await frames(2)
