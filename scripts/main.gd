@@ -8,6 +8,8 @@ extends Control
 const GAME_MIN_PER_SEC := 0.75          # 360 minutos de turno ≈ 8 minutos reais
 const SHIFT_START_HOUR := 18            # o turno vai das 18:00...
 const SHIFT_END := 360.0                # ...até 00:00 (minutos depois do início)
+const LAST_CALL := 340.0                # 23:40: nada novo toca depois (a desconhecida tem regra própria) e aparece
+										# o botão Encerrar turno; quem está na linha à meia-noite é atendido até o fim
 const SHADOW_LEAD := 15.0               # minutos antes da ligação desconhecida em que a silhueta aparece na janela...
 const SHADOW_LEAVE := 10.0              # ...e em que ela sai (para ir ligar)
 const WEATHERS := ["rain", "fog", "clear"]   # clima sorteado no começo do turno (`-- --weather=fog` força um)
@@ -51,10 +53,13 @@ var _taught_list := false
 var _myst_lead := false
 var _calling_back := false
 var _tick_acc := 0.0
+var _taught_midnight := false
 var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o silêncio na linha (PhoneCall.last_talk)
 
 @onready var background: Background = %Background
 @onready var clock: Label = %Clock
+@onready var _end_shift: Button = %EndShift
+@onready var _shift_hours: Label = %ShiftHours
 @onready var board: Switchboard = %Board
 @onready var phone: PhonePanel = %Phone
 @onready var radio: Radio = %Radio
@@ -80,7 +85,7 @@ func _ready() -> void:
 	background.weather = weather
 	exchange = Exchange.new(GameData.board_numbers())
 	board.setup(exchange, phone.fone_socket)
-	var plan := Schedule.build(night, SHIFT_END)
+	var plan := Schedule.build(night, LAST_CALL)
 	sched = plan.calls
 	tut = plan.tut
 	myst_plan = plan.mystery_at
@@ -91,6 +96,7 @@ func _ready() -> void:
 	phone.answer_pressed.connect(answer)
 	phone.transfer_pressed.connect(transfer)
 	phone.hangup_pressed.connect(hangup)
+	_end_shift.pressed.connect(end_shift)
 	_intro.start_pressed.connect(_start_shift)
 	_intro.settings_pressed.connect(_pause.open_settings)
 	_pause.resumed.connect(_update_bell)
@@ -159,16 +165,25 @@ func _start_shift() -> void:
 func _process(delta: float) -> void:
 	talk_clock += delta
 	if running:
-		minutes = minf(SHIFT_END, minutes + delta * GAME_MIN_PER_SEC)
+		# à meia-noite o relógio para, a não ser que ainda haja alguém na linha (o turno se estende até resolver)
+		if minutes < SHIFT_END or not live.is_empty():
+			minutes += delta * GAME_MIN_PER_SEC
 		_tick_acc += delta
 		if _tick_acc > 1.0:
 			_tick_acc = 0.0
 			Sfx.play("tick", -3.0)
 		_run_schedule()
 		_update_line_timers()
-		# o turno só fecha depois da ligação desconhecida ter tocado e caído
-		if minutes >= SHIFT_END and after:
-			_start_ending()
+		# o turno fecha depois da meia-noite, da ligação desconhecida, da última ligação e do último registro
+		# (com registro pendente, espera o operador registrar ou encerrar pelo botão)
+		if minutes >= SHIFT_END and after and live.is_empty():
+			if not _unregistered():
+				_start_ending()
+			elif not _taught_midnight:
+				_taught_midnight = true
+				hint(T.text(T.Key.HINT_MIDNIGHT))
+		_end_shift.visible = after and minutes >= LAST_CALL and not ending
+		_shift_hours.visible = not _end_shift.visible
 		clock.text = fmt(minutes)
 		_nag()
 		supervisor.check_hold()
@@ -588,6 +603,10 @@ func _run_schedule() -> void:
 	var c := sched[0]
 	if minutes < c.at:
 		return
+	# depois da última ligação (LAST_CALL) não toca mais nada, nem retorno nem quem estava esperando a vez
+	if minutes >= LAST_CALL and c.kind != PhoneCall.Kind.MYSTERY:
+		sched.pop_front()
+		return
 	# ligação do roteiro cuja condição não bate (os marcadores podem ter mudado durante a noite)
 	if not flags.allows(c.requires):
 		sched.pop_front()
@@ -812,6 +831,8 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> Dictionary:
 			obs = T.text(T.Key.OBS_NOT_ANSWERED)
 		PhoneCall.End.GAVE_UP:
 			obs = T.text(T.Key.OBS_GAVE_UP)
+		PhoneCall.End.SHIFT_OVER:
+			obs = T.text(T.Key.OBS_SHIFT_ENDED)
 		_:
 			if c.kind == PhoneCall.Kind.TRANSFER and not c.connected:
 				obs = T.text(T.Key.OBS_WRONG_NUMBER) if c.wrong > 0 else T.text(T.Key.OBS_NOT_CONNECTED)
@@ -820,7 +841,7 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> Dictionary:
 	var unknown := c.kind == PhoneCall.Kind.MYSTERY or reason == PhoneCall.End.MISSED
 	var who := T.text(T.Key.UNKNOWN_CALLER) if unknown else tr(c.caller)
 	return {"time": c.time, "who": "%s (%s)" % [who, T.text(T.Key.LINE_N) % c.line], "where": where, "unit": unit, "obs": obs,
-		"kind": c.kind, "missed": reason == PhoneCall.End.MISSED, "tut": c == tut}
+		"kind": c.kind, "missed": reason == PhoneCall.End.MISSED, "tut": c == tut, "shift": reason == PhoneCall.End.SHIFT_OVER}
 
 
 ## `complete`: com este envio, tudo o que a emergência precisa agora está a caminho do lugar certo.
@@ -849,6 +870,20 @@ func _mystery_aftermath(c: PhoneCall) -> void:
 	after = true
 	get_tree().create_timer(1.8, false).timeout.connect(func(): Sfx.fade(Sfx.hum, -32.0, 3.0))
 	get_tree().create_timer(25.0, false).timeout.connect(Sfx.hush_nature.bind(false, 10.0))   # a noite volta aos poucos
+
+
+func _unregistered() -> bool:
+	return notebook.has_pending() or not notebook.queue.is_empty()
+
+
+## Botão Encerrar turno (a partir de LAST_CALL): quem ainda está na linha ou tocando fica sem resposta, como se o
+## operador desligasse (advertência, `Supervisor.call_ended`); o que falta registrar conta como sem registro.
+func end_shift() -> void:
+	if ending:
+		return
+	for c in live.duplicate():
+		end_call(c, PhoneCall.End.SHIFT_OVER)
+	_start_ending()
 
 
 func _start_ending() -> void:

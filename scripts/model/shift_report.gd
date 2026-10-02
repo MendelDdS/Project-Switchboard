@@ -16,6 +16,7 @@ const FAULTS := {
 	"hold": [Severity.MEDIUM, T.Key.FAULT_HOLD],
 	"wrong_number": [Severity.MEDIUM, T.Key.FAULT_WRONG_NUMBER],
 	"cut_call": [Severity.MEDIUM, T.Key.FAULT_CUT_CALL],
+	"shift_hung_up": [Severity.MEDIUM, T.Key.FAULT_SHIFT_HUNG_UP],
 	"wrong_info": [Severity.LIGHT, T.Key.FAULT_WRONG_INFO],
 	"register_wrong": [Severity.LIGHT, T.Key.FAULT_REGISTER_WRONG],
 	"register_missing": [Severity.LIGHT, T.Key.FAULT_REGISTER_MISSING],

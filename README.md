@@ -51,6 +51,7 @@ ligação desconhecida não contam.
 | Deixar em espera mais de `HOLD_GIVE_UP` (120 min de jogo) | média | a pessoa desliga e liga de novo depois |
 | Conectar o número errado | média | com o FONE na linha: quem atende reclama e o solicitante pede o certo (na segunda vez, desiste); com o FONE fora: foi engano, os dois desligam e o solicitante liga de novo pedindo o número certo |
 | Cortar uma conversa em andamento | média | — |
+| Encerrar o turno com alguém na linha ou tocando | média | — (emergência sem despacho conta como emergência sem despacho) |
 | Dar a informação errada | leve | a pessoa liga de novo reclamando |
 | Registrar com o tipo errado / deixar sem registro no fim do turno | leve | — |
 | Despachar no endereço errado | grave | o rádio avisa que não há nada no local e as unidades voltam; a pessoa agradece, mas liga de novo dizendo que piorou |
@@ -171,7 +172,11 @@ Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
   movimentados, às vezes é preciso esperar uma conversa acabar (ou cortá-la) para ter um cabo livre.
 - O caderno guarda as ocorrências numa fila: dá para registrar depois, sem travar o turno. A aba mostra quantas
   faltam; registrar é um clique no tipo (ligação comum, emergência ou trote), o resto o caderno já anotou.
-- O turno termina à meia-noite (depois de a ligação desconhecida ter tocado e caído) e vem a tela final.
+- A última ligação nova toca às 23:40 (`LAST_CALL`); a partir daí aparece o botão **Encerrar turno** ao lado do relógio
+  (depois da ligação desconhecida). Encerrar com alguém na linha conta como desligar na cara dela (advertência média).
+- À meia-noite ninguém é cortado: quem está na linha é atendido até o fim (o relógio continua). O turno termina quando a
+  mesa esvazia e não falta nada no caderno (ou pelo botão), depois de a ligação desconhecida ter tocado e caído, e vem
+  a tela final.
 
 ## Clima e sons
 

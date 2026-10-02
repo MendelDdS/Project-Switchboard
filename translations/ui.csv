@@ -252,3 +252,10 @@ SPEED_SLOW,Lenta,Slow,Lenta
 SPEED_NORMAL,Normal,Normal,Normal
 SPEED_FAST,Rápida,Fast,Rápida
 APPLY,Aplicar,Apply,Aplicar
+END_SHIFT,"Encerrar
+turno","End
+shift","Terminar
+turno"
+FAULT_SHIFT_HUNG_UP,Encerrou o turno com alguém na linha,Ended the shift with someone on the line,Terminó el turno con alguien en la línea
+OBS_SHIFT_ENDED,Turno encerrado durante a ligação.,Shift ended during the call.,Turno terminado durante la llamada.
+HINT_MIDNIGHT,"Meia-noite. Registre o que falta no caderno ou encerre o turno.","Midnight. Log what's left in the logbook or end the shift.","Medianoche. Registre lo que falta en el cuaderno o termine el turno."

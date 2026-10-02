@@ -8,14 +8,17 @@ const EMERGENCY_GAP := 60.0     # minutos de jogo entre duas emergências (o des
 const STORY_GAP := 8.0          # as ligações sorteadas ficam a tantos minutos das do roteiro
 const TEMPLATE_CHANCE := 0.5    # chance de uma transferência ou emergência vir de um molde e não de um roteiro escrito
 const TRANSFER_SHARE := 0.65    # das ligações comuns, quantas são transferências (o resto, pedidos de informação)
+const MYSTERY_WAIT := 30.0      # a ligação desconhecida espera a mesa silenciar por no máximo tantos minutos...
+const MYSTERY_MARGIN := 10.0    # ...e toca no máximo tantos minutos antes da última ligação, para acabar antes do
+                                # botão Encerrar turno (que só aparece depois dela)
 
 var calls: Array[PhoneCall] = []   ## em ordem de horário
 var tut: PhoneCall                 ## primeira ligação da noite com tutorial (guiada passo a passo)
 var mystery_at := INF              ## horário sorteado da ligação desconhecida (INF = não toca nesta noite)
 
 
-## Agenda da noite `night` para um turno de `shift_end` minutos.
-static func build(night: Night, shift_end: float) -> Schedule:
+## Agenda da noite `night`; as ligações sorteadas vão até o minuto `last_call`.
+static func build(night: Night, last_call: float) -> Schedule:
 	var s := Schedule.new()
 	var fixed: Array[PhoneCall] = []
 	for st in night.story:
@@ -27,11 +30,11 @@ static func build(night: Night, shift_end: float) -> Schedule:
 	if not night.mystery.is_empty():
 		var myst := PhoneCall.mystery()
 		myst.at = randf_range(night.mystery_from, night.mystery_to)
-		myst.latest = myst.at + 30.0   # não espera a mesa silenciar para sempre
+		myst.latest = minf(myst.at + MYSTERY_WAIT, last_call - MYSTERY_MARGIN)
 		s.mystery_at = myst.at
 		fixed.append(myst)
 	s.calls = fixed.duplicate()
-	s.calls.append_array(s._random_calls(night, shift_end, fixed))
+	s.calls.append_array(s._random_calls(night, last_call, fixed))
 	s.calls.sort_custom(func(a: PhoneCall, b: PhoneCall): return a.at < b.at)
 	return s
 
@@ -40,11 +43,11 @@ static func build(night: Night, shift_end: float) -> Schedule:
 ## silêncio possível); de vez em quando (`Night.peak_chance`) a próxima vem logo em seguida. O tipo também é sorteado:
 ## `Night.emergencies` emergências (espaçadas por EMERGENCY_GAP), `Night.pranks` trotes, e o resto
 ## transferências ou pedidos de informação. Na noite com tutorial, a primeira é uma transferência guiada.
-func _random_calls(night: Night, shift_end: float, fixed: Array[PhoneCall]) -> Array[PhoneCall]:
+func _random_calls(night: Night, last_call: float, fixed: Array[PhoneCall]) -> Array[PhoneCall]:
 	var C := GameData.CONTENT
 	var ats := []
 	var t := randf_range(3.0, 10.0)
-	while t < shift_end - 10.0:
+	while t < last_call:
 		if not fixed.any(func(f: PhoneCall): return absf(t - f.at) < STORY_GAP):
 			ats.append(t)
 		t += randf_range(2.0, 6.0) if randf() < night.peak_chance else randf_range(night.call_gap.x, night.call_gap.y)

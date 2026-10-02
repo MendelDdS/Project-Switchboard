@@ -39,13 +39,16 @@ func call_ended(c: PhoneCall, reason: PhoneCall.End) -> void:
 		fault("emergency_dropped", who(c))
 		main.report.trouble(e)
 		call_again(c, PhoneCall.Retry.WORSE)
+	elif reason == PhoneCall.End.SHIFT_OVER and not c.closing:   # já resolvida e se despedindo não conta
+		fault("shift_hung_up", who(c))
 	elif c.kind == PhoneCall.Kind.INFO and c.info_ok == 0:
 		fault("wrong_info", who(c))
 		call_again(c, PhoneCall.Retry.WRONG_INFO)
 
 
 ## A mesma pessoa liga de novo mais tarde, irritada e com menos paciência (no máximo uma vez por motivo).
-## Vale também para a ligação do tutorial (que só não gera advertência). Nunca fica para depois do fim do turno.
+## Vale também para a ligação do tutorial (que só não gera advertência). Nunca depois da última ligação
+## (`Main.LAST_CALL`): se não couber, o Main a descarta.
 func call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
 	if why in c.retried:
 		return
@@ -66,7 +69,7 @@ func call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
 	n.retried = c.retried.duplicate()
 	n.retried.append(why)
 	var now := main.minutes
-	n.at = minf(now + randf_range(RETRY_AFTER.x, RETRY_AFTER.y), maxf(now + 2.0, Main.SHIFT_END - 4.0))
+	n.at = minf(now + randf_range(RETRY_AFTER.x, RETRY_AFTER.y), maxf(now + 2.0, Main.LAST_CALL - 4.0))
 	n.latest = n.at + RETRY_WAIT
 	main.sched.append(n)
 	main.sched.sort_custom(func(a: PhoneCall, b: PhoneCall): return a.at < b.at)
@@ -132,5 +135,5 @@ func shift_over() -> void:
 	if main.notebook.has_pending():
 		left.append(main.notebook.pending)
 	for rec in left:
-		if not rec["tut"]:
+		if not rec["tut"] and not rec.get("shift", false):   # cortada pelo fim do turno já teve a advertência
 			main.report.add("register_missing", rec["time"], rec["who"])

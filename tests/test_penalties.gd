@@ -361,4 +361,44 @@ func _initialize() -> void:
 	ok(m.report.outcomes()[e11] == ShiftReport.Outcome.BAD, "no jornal: ruim")
 	ok(m.report.severe_total() >= m.report.count(ShiftReport.Severity.SEVERE) + ShiftReport.CRITICAL_WEIGHT, "gravíssima pesa mais na demissão")
 	print("OK 10 barra de agravamento")
+
+	# ---- 11. fim do turno: última ligação às 23:40, meia-noite que espera quem está na linha, botão Encerrar
+	_clear_board()
+	m.sched.clear()
+	m.notebook.reset()
+	var awaiting := func(c: PhoneCall): return c.phase == PhoneCall.Phase.AWAIT and not c.talking
+	m.after = true
+	m.minutes = m.LAST_CALL - 1.0
+	m.running = true
+	await frames(2)
+	ok(not m._end_shift.visible, "antes das 23:40: sem o botão Encerrar")
+	var late := PhoneCall.from_transfer(GameData.transfers(TransferCall.Group.EXTRA)[2])
+	late.at = m.LAST_CALL + 0.5
+	m.sched.append(late)
+	ok(await wait_until(func(): return m.minutes > m.LAST_CALL + 1.0), "relógio andou")
+	ok(m._end_shift.visible and not late in m.live and not late in m.sched, "23:40: o botão aparece e nada novo toca")
+	var lc := PhoneCall.from_transfer(GameData.transfers(TransferCall.Group.EXTRA)[2])
+	m.ring(lc)
+	_answer(lc)
+	ok(await wait_until(awaiting.bind(lc)), "pedido feito")
+	m.minutes = m.SHIFT_END - 0.5
+	ok(await wait_until(func(): return m.minutes > m.SHIFT_END + 1.0), "com alguém na linha, o relógio passa da meia-noite")
+	ok(not m.ending, "o turno espera a ligação acabar")
+	m.hangup()
+	ok(await wait_until(func(): return m.live.is_empty()), "desligou")
+	await frames(10)
+	var stopped: float = m.minutes
+	await frames(30)
+	ok(not m.ending and m._unregistered() and m.minutes == stopped, "mesa vazia com registro pendente: o relógio para e o turno espera")
+	# encerrar com alguém na linha: advertência por ela (sem "sem registro"); a de antes conta como sem registro
+	var sc := PhoneCall.from_transfer(GameData.transfers(TransferCall.Group.EXTRA)[3])
+	m.ring(sc)
+	_answer(sc)
+	ok(await wait_until(awaiting.bind(sc)), "pedido feito")
+	var hung := _faults("shift_hung_up")
+	var unreg := _faults("register_missing")
+	m._end_shift.pressed.emit()
+	ok(m.ending and sc.ended and _faults("shift_hung_up") == hung + 1, "encerrou com alguém na linha: advertência")
+	ok(_faults("register_missing") == unreg + 1, "sem registro só a que já tinha acabado")
+	print("OK 11 fim do turno")
 	finish("consequências e relatório")

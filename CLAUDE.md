@@ -115,7 +115,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - `scenes/main.tscn` + `scripts/main.gd` (`Main`) — orquestra o turno: relógio, quando cada ligação da agenda toca
   (`_run_schedule`), o que cada plug significa para as ligações, fim de ligação, ligação desconhecida e final.
   Constantes de ritmo no topo.
-- `scripts/schedule.gd` (`Schedule`, RefCounted, sem cena) — monta a agenda da noite (`Schedule.build(night, SHIFT_END)`:
+- `scripts/schedule.gd` (`Schedule`, RefCounted, sem cena) — monta a agenda da noite (`Schedule.build(night, LAST_CALL)`:
   roteiro, desconhecida e sorteadas; `info_call()`); o teste de fluxo confere a montagem sem jogar o turno.
 - `scripts/supervisor.gd` (`Supervisor`, nó filho de Main) — consequências: advertências no `Main.report`, retornos,
   desistência em espera, conferência do despacho e do caderno. O Main só avisa o que aconteceu.
@@ -222,7 +222,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `REDISPATCH_CHANCE`). `check_hold()` encerra quem passou de `HOLD_GIVE_UP` em espera (`End.GAVE_UP`).
 - Tutorial (`tut`), trotes e ligação desconhecida não geram advertência. Falas de retorno, manchetes e pareceres
   ficam no content (grupo "Supervisor e consequências").
-- À meia-noite, `_start_ending` soma o que ficou sem registro e passa o relatório para `Ending.play(report)`, que mostra
+- À meia-noite, `_start_ending` (`Supervisor.shift_over`) soma o que ficou sem registro e passa o relatório para `Ending.play(report)`, que mostra
   `ReportView` antes do título final.
 
 ## Noites (roteiro fixo)
@@ -245,7 +245,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 
 ## Agenda e ritmo (constantes no topo de main.gd e schedule.gd; por noite em `Night`)
 - Ligação desconhecida (`MYSTERY`, entrada livre sorteada, guardada em `myst_line`) entre `Night.mystery_from` e `mystery_to` (22:00–23:30), só
-  toca com a mesa em silêncio, por no máximo 30 min de jogo (`latest`).
+  toca com a mesa em silêncio, por no máximo 30 min de jogo (`latest`, `Schedule.MYSTERY_WAIT`), e nunca depois de
+  `LAST_CALL - MYSTERY_MARGIN` (23:30): o botão Encerrar turno só aparece depois dela.
 - Sorteadas: `Schedule._random_calls` — intervalo `Night.call_gap` (noite 1: 45–60; noite 2: 34–46; medido com `--human`) entre uma e a
   próxima, `Night.peak_chance` de vir logo em seguida, no máximo `Night.max_live` pedindo atenção (`_run_schedule`), a `STORY_GAP` das fixas. Tipos: `Night.emergencies` (a `EMERGENCY_GAP` uma da outra; no laço, a
   emergência espera a anterior acabar e `Dispatch.en_route()`), `Night.pranks`, resto transferência/informação.
@@ -269,6 +270,13 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   que lembre o mistério: luzes piscando, carros parados, chiado na linha).
 - Conversas transferidas duram `TALK_LEN` (34–68 min de jogo ≈ 45–90 s reais).
 - Turno das 18:00 (`SHIFT_START_HOUR`) às 00:00 (`SHIFT_END` = 360 min); fim **depois** da ligação desconhecida ter caído (`_start_ending`).
+- **Fim do turno**: nada novo toca depois de `LAST_CALL` (23:40; sorteadas param ali e `_run_schedule` descarta
+  retornos e atrasadas; a desconhecida tem regra própria). A partir daí, com a desconhecida já passada, o botão
+  **Encerrar turno** (`%EndShift`, no lugar do texto do turno ao lado do relógio) fecha a noite: quem está na linha ou
+  tocando termina com `End.SHIFT_OVER` (advertência média `shift_hung_up`; emergência sem despacho vira
+  `emergency_dropped`; já resolvida, `closing`, não conta; o registro dela não conta como sem registro). À meia-noite
+  ninguém é cortado: com alguém na linha o relógio continua até ela acabar; com a mesa vazia ele para, e o turno fecha
+  sozinho quando não falta registrar nada (senão, `HINT_MIDNIGHT` e espera registrar ou o botão).
 - Relógio: 0,75 min de jogo por segundo real (`GAME_MIN_PER_SEC`): 6 h de turno ≈ 8 min reais.
 
 ## Histórico das decisões de design (o que o usuário pediu, em ordem)

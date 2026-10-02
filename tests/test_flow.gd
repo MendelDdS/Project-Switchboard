@@ -142,13 +142,17 @@ func _initialize() -> void:
 		"assunto só na voz que combina")
 	# agenda: montada sem a cena (noite → ligações em ordem, espaçadas das do roteiro e entre emergências)
 	for n in C.nights:
-		var plan := Schedule.build(n, m.SHIFT_END)
+		var plan := Schedule.build(n, m.LAST_CALL)
 		var ats: Array = plan.calls.map(func(c: PhoneCall): return c.at)
 		var in_order := ats.duplicate()
 		in_order.sort()
 		ok(ats == in_order and ats.all(func(a): return a >= 0.0 and a < m.SHIFT_END), "agenda em ordem: " + n.resource_path)
+		ok(plan.calls.all(func(c: PhoneCall): return c.story or c.kind == PhoneCall.Kind.MYSTERY or c.at < m.LAST_CALL),
+			"sorteadas antes da última ligação: " + n.resource_path)
 		ok((plan.tut != null) == n.tutorial and (plan.tut == null or plan.tut == plan.calls[0]), "tutorial é a primeira: " + n.resource_path)
 		ok((plan.mystery_at == INF) == n.mystery.is_empty(), "ligação desconhecida conforme a noite: " + n.resource_path)
+		ok(plan.calls.all(func(c: PhoneCall): return c.kind != PhoneCall.Kind.MYSTERY or c.latest <= m.LAST_CALL - Schedule.MYSTERY_MARGIN),
+			"desconhecida toca antes da última ligação: " + n.resource_path)
 		var fixed := plan.calls.filter(func(c: PhoneCall): return c.story or c.kind == PhoneCall.Kind.MYSTERY)
 		ok(fixed.size() == n.story.size() + (0 if n.mystery.is_empty() else 1), "roteiro inteiro na agenda: " + n.resource_path)
 		ok(plan.calls.all(func(c: PhoneCall): return c in fixed or fixed.all(func(f): return absf(c.at - f.at) >= Schedule.STORY_GAP)),

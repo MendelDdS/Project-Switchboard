@@ -16,6 +16,7 @@ enum End {
 	GAVE_UP,    ## ficou em espera tempo demais e desligou
 	CONNECTED,  ## transferência completa; segue conectada sem o operador
 	MYSTERY,    ## a ligação desconhecida caiu
+	SHIFT_OVER, ## o operador encerrou o turno com ela na linha ou tocando
 }
 ## Por que a pessoa está ligando de novo (liga de novo no máximo uma vez por motivo).
 enum Retry {
