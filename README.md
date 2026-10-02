@@ -129,7 +129,8 @@ Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
 - Conexões completadas duram 34–68 minutos de jogo, cerca de 45–90 s reais (`TALK_LEN` em `main.gd`); depois as lâmpadas ficam vermelhas
   até o operador desmontar. Conversas mais longas prendem os cabos de conexão por mais tempo: em turnos
   movimentados, às vezes é preciso esperar uma conversa acabar (ou cortá-la) para ter um cabo livre.
-- O caderno guarda as ocorrências numa fila: dá para registrar depois, sem travar o turno.
+- O caderno guarda as ocorrências numa fila: dá para registrar depois, sem travar o turno. A aba mostra quantas
+  faltam; registrar é um clique no tipo (ligação comum, emergência ou trote), o resto o caderno já anotou.
 - O turno termina à meia-noite (depois de a ligação desconhecida ter tocado e caído) e vem a tela final.
 
 ## Clima e sons
@@ -173,7 +174,7 @@ também devolve o plug à base. Cada tipo de plug só encaixa nas tomadas compat
 acende em amarelo se aceita, em vermelho se não.
 
 Atalhos do telefone: **Espaço** atende, **Tab** transfere, **X** desliga (a tecla aparece no canto de cada botão).
-Digitando num campo do caderno, as teclas vão para o campo (Tab passa ao próximo campo).
+Com um campo de texto em foco, as teclas vão para o campo.
 
 ## A mesa
 

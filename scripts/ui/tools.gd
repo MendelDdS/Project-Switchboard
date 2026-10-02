@@ -41,6 +41,13 @@ func has_dot(id: String) -> bool:
 	return (get_node(TABS[id]).get_node("Dot") as CanvasItem).visible
 
 
+## Selo com um número na aba (0 some): quantas coisas esperam ali. Só abas que têm o selo (`Count`).
+func set_count(id: String, n: int) -> void:
+	var c: Label = get_node(TABS[id]).get_node("Count")
+	c.text = str(n)
+	c.visible = n > 0
+
+
 func _apply() -> void:
 	for id in TABS:
 		var b: Button = get_node(TABS[id])

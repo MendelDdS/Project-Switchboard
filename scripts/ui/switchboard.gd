@@ -622,7 +622,7 @@ func _draw() -> void:
 	draw_rect(Rect2(3, h - 6, w - 6, 3), Pal.PANEL_LO)
 	draw_rect(Rect2(w - 6, 3, 3, h - 6), Pal.PANEL_LO)
 	draw_string(Pal.mono, Vector2(17, 28), T.text(T.Key.BOARD_TITLE), HORIZONTAL_ALIGNMENT_LEFT, -1, 21, Pal.BRASS)
-	draw_string(Pal.ui, Vector2(17, 26), T.text(T.Key.BOARD_LEGEND), HORIZONTAL_ALIGNMENT_RIGHT, w - 34, 11, Pal.DIM)
+	draw_string(Pal.ui, Vector2(17, 26), T.text(T.Key.BOARD_LEGEND), HORIZONTAL_ALIGNMENT_RIGHT, w - 34, 14, Pal.DIM)
 	if exchange == null:
 		return
 
@@ -641,12 +641,14 @@ func _draw() -> void:
 			sc = Pal.AMBER
 		elif st == Exchange.Line.DONE:
 			sc = Pal.RED
-		draw_string(Pal.ui, Vector2(cx - 28, 110), exchange.line_label(n), HORIZONTAL_ALIGNMENT_CENTER, 56, 11, sc)
+		draw_string(Pal.ui, Vector2(cx - 28, 110), exchange.line_label(n), HORIZONTAL_ALIGNMENT_CENTER, 56, 12, sc)
 		_draw_jack(jack_rect(n + 10), Color("7a6230"))
 
 	# destinos
 	draw_rect(Rect2(12, 142, w - 24, 2), Pal.PANEL_LO)
-	draw_string(Pal.ui, Vector2(17, 154), T.text(T.Key.BOARD_DESTS), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
+	var dests := T.text(T.Key.BOARD_DESTS)   # o título fica sobre a linha divisória, como rótulo da seção
+	draw_rect(Rect2(14, 135, Pal.ui.get_string_size(dests, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x + 8, 15), Pal.PANEL)
+	draw_string(Pal.ui, Vector2(18, 147), dests, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Pal.DIM)
 	for d in dest_nums:
 		var jr := jack_rect(d)
 		var cx := jr.get_center().x
@@ -670,10 +672,10 @@ func _draw() -> void:
 	# legenda
 	var leg := [[Pal.AMBER, T.Key.LEGEND_RING], [Pal.GREEN, T.Key.LEGEND_CONN], [Pal.RED, T.Key.LEGEND_DONE], [Color("2a2016"), T.Key.LEGEND_FREE]]
 	for k in leg.size():
-		var y := 268 + k * 16
-		draw_rect(Rect2(452, y - 9, 9, 9), Color.BLACK)
-		draw_rect(Rect2(453, y - 8, 7, 7), leg[k][0])
-		draw_string(Pal.ui, Vector2(467, y), T.text(leg[k][1]), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
+		var y := 266 + k * 18
+		draw_rect(Rect2(408, y - 10, 10, 10), Color.BLACK)
+		draw_rect(Rect2(409, y - 9, 8, 8), leg[k][0])
+		draw_string(Pal.ui, Vector2(424, y), T.text(leg[k][1]), HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Pal.DIM)
 
 	# destaque da tomada sob o plug
 	if held != -1:

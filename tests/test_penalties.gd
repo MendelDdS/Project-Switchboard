@@ -144,18 +144,15 @@ func _initialize() -> void:
 	# ---- 3. registro com tipo errado
 	var nb = m.notebook
 	while nb.has_pending():
-		nb._type.select(1)
-		nb.register()
+		nb.register(T.Key.TYPE_COMMON)
 	var before := _faults("register_wrong")
 	var prank := {"time": "23:00", "who": "Garoto (linha 01)", "where": "—", "unit": "—", "obs": "",
 		"kind": PhoneCall.Kind.PRANK, "missed": false, "tut": false}
 	nb.add(prank.duplicate())
-	nb._type.select(1)   # Ligação comum
-	nb.register()
+	nb.register(T.Key.TYPE_COMMON)
 	ok(_faults("register_wrong") == before + 1, "trote registrado como ligação comum")
 	nb.add(prank.duplicate())
-	nb._type.select(3)   # Trote
-	nb.register()
+	nb.register(T.Key.TYPE_PRANK)
 	ok(_faults("register_wrong") == before + 1, "tipo certo não gera advertência")
 	print("OK 3 registro errado")
 

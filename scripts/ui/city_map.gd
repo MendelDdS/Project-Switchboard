@@ -144,7 +144,7 @@ func _draw() -> void:
 				draw_rect(Rect2(c.x - 12, c.y - 10, 24, 20), Color("e6dab8"))
 				draw_rect(Rect2(c.x - 2, c.y - 24, 4, 14), LINE)
 				draw_rect(Rect2(c.x - 6, c.y - 20, 12, 4), LINE)
-				_t(Vector2(c.x, y1 - 6), T.text(T.Key.MAP_SQUARE), 12)
+				_t(Vector2(c.x, y1 - 6), T.text(T.Key.MAP_SQUARE), 14)
 			elif lm != -1:
 				draw_rect(r, LINE)
 				draw_rect(r.grow(-2), Color("b7a67b"))
@@ -152,7 +152,7 @@ func _draw() -> void:
 				if r.size.x < 60:
 					var c2 := r.get_center()
 					_use(xf * Transform2D(-PI / 2.0, Vector2(c2.x + 5, c2.y)))
-					_t(Vector2.ZERO, T.text(lm), 11)
+					_t(Vector2.ZERO, T.text(lm), 12)
 					_use(xf)
 				else:
 					_t(r.get_center() + Vector2(0, 6), T.text(lm), 14)
@@ -180,18 +180,20 @@ func _draw() -> void:
 	for s in GameData.CONTENT.streets:
 		if s.horizontal:
 			var nx := 124.0
-			var w := Pal.ui.get_string_size(s.name, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x / _k
-			draw_rect(Rect2(nx - 2, s.pos - 7, w + 4, 14), ROAD)
-			_t(Vector2(nx, s.pos + 4), s.name, 12, LINE, false)
+			var w := Pal.ui.get_string_size(s.name, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x / _k
+			draw_rect(Rect2(nx - 2, s.pos - 8, w + 4, 16), ROAD)
+			_t(Vector2(nx, s.pos + 5), s.name, 14, LINE, false)
 		else:
-			_t(Vector2(s.pos, 27), s.name, 12)
+			_t(Vector2(s.pos, 27), s.name, 14)
 		for b in [1, 2]:
 			var g := seg_geom(s, b)
 			var p0: Vector2 = g[0]
 			if s.horizontal:
-				_t(p0 + Vector2(3, 22), str(b * 100), 11, Pal.INK_SOFT, false)
-			else:
-				_t(p0 + Vector2(10, 4), str(b * 100), 11, Pal.INK_SOFT, false)
+				_t(p0 + Vector2(3, 22), str(b * 100), 12, Pal.INK_SOFT, false)
+			else:   # em pé, dentro da rua: ao lado, batia no nome do lugar
+				_use(xf * Transform2D(-PI / 2.0, p0 + Vector2(5, 30)))
+				_t(Vector2.ZERO, str(b * 100), 12, Pal.INK_SOFT, false)
+				_use(xf)
 	# realce e seleção
 	if not hover.is_empty():
 		var g := seg_geom(GameData.street(hover["street"]), hover["block"])

@@ -220,9 +220,19 @@ func _initialize() -> void:
 	var nb = m.notebook
 	ok(nb.queue.size() >= 1, "ocorrências em fila")
 	var before: int = nb.queue.size()
-	nb._type.select(1)
-	nb.register()
+	nb.register(T.Key.TYPE_COMMON)
 	ok(nb.queue.size() == before - 1 and nb.has_pending(), "registrou uma, a próxima veio da fila")
+	ok(m.tools.find_child("Count", true, false).text == str(nb.pending_count()), "a aba do caderno mostra quantas faltam")
+	ok(nb.entries.back()["type"] == T.Key.TYPE_COMMON, "registrada com o tipo do clique")
+	# as ocorrências chegaram com a aba fechada: aberta, a página do livro ocupa toda a área (com e sem a ficha)
+	m.tools.set_tab("caderno")
+	await frames(3)
+	ok(nb._page.size.y >= nb._scroll.size.y - 1, "página do caderno preenche a área (com ficha)")
+	while nb.has_pending():
+		nb.register(T.Key.TYPE_COMMON)
+	await frames(3)
+	ok(not nb._form.visible and nb._page.size.y >= nb._scroll.size.y - 1 and nb._scroll.size.y > 300, "sem ficha, a página cresce até embaixo")
+	m.tools.set_tab("lista")
 	print("OK 3 desistência / fila do caderno")
 
 	# ---- 4. lugar fechado à noite e sugestão do operador
@@ -447,14 +457,14 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return not kc.ringing, 5.0), "Espaço atende (mesmo com um botão em foco)")
 	tab.release_focus()
 	ok(await wait_until(_awaiting(kc)), "pedido feito")
-	m.find_child("TabCaderno", true, false).pressed.emit()
-	var field: LineEdit = m.find_children("*", "LineEdit", true, false).filter(func(l): return l.is_visible_in_tree())[0]
+	var field := LineEdit.new()   # um campo de texto qualquer com foco fica com as teclas
+	m.add_child(field)
 	field.grab_focus()
 	var typed := field.text
 	_key(KEY_X)
 	await frames(3)
 	ok(kc.active and field.text.length() == typed.length() + 1, "digitando no caderno, o X vai para o campo (não desliga)")
-	field.release_focus()
+	field.queue_free()
 	_move(1, kc.line + 10)
 	_move(2, int(kc.target))
 	_key(KEY_TAB)

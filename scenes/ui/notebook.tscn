@@ -1,7 +1,6 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/notebook.gd" id="1_notebook"]
-[ext_resource type="FontFile" path="res://fonts/VT323-Regular.ttf" id="2_vt323_regula"]
 
 [node name="Notebook" type="Control"]
 custom_minimum_size = Vector2(576, 462)
@@ -14,7 +13,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 layout_mode = 1
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
 
 [node name="Header" type="HBoxContainer" parent="Content"]
 custom_minimum_size = Vector2(0, 26)
@@ -33,15 +32,50 @@ text = "NOTEBOOK_DATE"
 theme_type_variation = &"InkSoftLabel"
 theme_override_font_sizes/font_size = 14
 
-[node name="Ledger" type="RichTextLabel" parent="Content"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 152)
+[node name="Columns" type="HBoxContainer" parent="Content"]
 layout_mode = 2
-bbcode_enabled = true
-scroll_following = true
-theme_override_colors/default_color = Color(0.1647, 0.1373, 0.09804, 1)
-theme_override_fonts/normal_font = ExtResource("2_vt323_regula")
-theme_override_font_sizes/normal_font_size = 20
+theme_override_constants/separation = 0
+
+[node name="Time" type="Label" parent="Content/Columns"]
+custom_minimum_size = Vector2(62, 0)
+layout_mode = 2
+text = "COL_TIME"
+theme_type_variation = &"InkSoftLabel"
+theme_override_font_sizes/font_size = 14
+
+[node name="Caller" type="Label" parent="Content/Columns"]
+custom_minimum_size = Vector2(206, 0)
+layout_mode = 2
+text = "COL_CALLER"
+theme_type_variation = &"InkSoftLabel"
+theme_override_font_sizes/font_size = 14
+
+[node name="Place" type="Label" parent="Content/Columns"]
+custom_minimum_size = Vector2(170, 0)
+layout_mode = 2
+text = "COL_PLACE"
+theme_type_variation = &"InkSoftLabel"
+theme_override_font_sizes/font_size = 14
+
+[node name="Type" type="Label" parent="Content/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "COL_TYPE"
+theme_type_variation = &"InkSoftLabel"
+theme_override_font_sizes/font_size = 14
+
+[node name="Scroll" type="ScrollContainer" parent="Content"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Page" type="Control" parent="Content/Scroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
 
 [node name="Form" type="PanelContainer" parent="Content"]
 unique_name_in_owner = true
@@ -51,113 +85,76 @@ theme_type_variation = &"FormPanel"
 
 [node name="VBox" type="VBoxContainer" parent="Content/Form"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 4
 
-[node name="Time" type="Label" parent="Content/Form/VBox"]
+[node name="Top" type="HBoxContainer" parent="Content/Form/VBox"]
 layout_mode = 2
-text = ""
+
+[node name="Time" type="Label" parent="Content/Form/VBox/Top"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
 theme_type_variation = &"InkLabel"
 theme_override_font_sizes/font_size = 16
+
+[node name="Queue" type="Label" parent="Content/Form/VBox/Top"]
 unique_name_in_owner = true
-
-[node name="Grid" type="GridContainer" parent="Content/Form/VBox"]
 layout_mode = 2
-theme_override_constants/h_separation = 16
-theme_override_constants/v_separation = 6
-columns = 2
-
-[node name="WhoField" type="VBoxContainer" parent="Content/Form/VBox/Grid"]
-custom_minimum_size = Vector2(265, 0)
-layout_mode = 2
-theme_override_constants/separation = 2
-
-[node name="Caption" type="Label" parent="Content/Form/VBox/Grid/WhoField"]
-layout_mode = 2
-text = "COL_CALLER"
 theme_type_variation = &"InkSoftLabel"
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 14
 
-[node name="Who" type="LineEdit" parent="Content/Form/VBox/Grid/WhoField"]
+[node name="Who" type="Label" parent="Content/Form/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"InkMonoLabel"
+theme_override_font_sizes/font_size = 20
+text_overrun_behavior = 3
 
-[node name="WhereField" type="VBoxContainer" parent="Content/Form/VBox/Grid"]
-custom_minimum_size = Vector2(265, 0)
+[node name="Where" type="Label" parent="Content/Form/VBox"]
+unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 2
+theme_type_variation = &"InkMonoLabel"
+theme_override_font_sizes/font_size = 20
+text_overrun_behavior = 3
 
-[node name="Caption" type="Label" parent="Content/Form/VBox/Grid/WhereField"]
+[node name="Obs" type="Label" parent="Content/Form/VBox"]
+unique_name_in_owner = true
 layout_mode = 2
-text = "COL_PLACE"
 theme_type_variation = &"InkSoftLabel"
-theme_override_font_sizes/font_size = 12
-
-[node name="Where" type="LineEdit" parent="Content/Form/VBox/Grid/WhereField"]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="TypeField" type="VBoxContainer" parent="Content/Form/VBox/Grid"]
-custom_minimum_size = Vector2(265, 0)
-layout_mode = 2
-theme_override_constants/separation = 2
-
-[node name="Caption" type="Label" parent="Content/Form/VBox/Grid/TypeField"]
-layout_mode = 2
-text = "COL_TYPE"
-theme_type_variation = &"InkSoftLabel"
-theme_override_font_sizes/font_size = 12
-
-[node name="Type" type="OptionButton" parent="Content/Form/VBox/Grid/TypeField"]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="UnitField" type="VBoxContainer" parent="Content/Form/VBox/Grid"]
-custom_minimum_size = Vector2(265, 0)
-layout_mode = 2
-theme_override_constants/separation = 2
-
-[node name="Caption" type="Label" parent="Content/Form/VBox/Grid/UnitField"]
-layout_mode = 2
-text = "FIELD_UNIT_SENT"
-theme_type_variation = &"InkSoftLabel"
-theme_override_font_sizes/font_size = 12
-
-[node name="Unit" type="LineEdit" parent="Content/Form/VBox/Grid/UnitField"]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="ObsField" type="VBoxContainer" parent="Content/Form/VBox"]
-custom_minimum_size = Vector2(546, 0)
-layout_mode = 2
-theme_override_constants/separation = 2
-
-[node name="Caption" type="Label" parent="Content/Form/VBox/ObsField"]
-layout_mode = 2
-text = "FIELD_NOTES"
-theme_type_variation = &"InkSoftLabel"
-theme_override_font_sizes/font_size = 12
-
-[node name="Obs" type="LineEdit" parent="Content/Form/VBox/ObsField"]
-unique_name_in_owner = true
-layout_mode = 2
-placeholder_text = "NOTES_PLACEHOLDER"
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 3
 
 [node name="Actions" type="HBoxContainer" parent="Content/Form/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
 
-[node name="Register" type="Button" parent="Content/Form/VBox/Actions"]
+[node name="Caption" type="Label" parent="Content/Form/VBox/Actions"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "NOTEBOOK_REGISTER_AS"
+theme_type_variation = &"InkSoftLabel"
+theme_override_font_sizes/font_size = 14
+
+[node name="Common" type="Button" parent="Content/Form/VBox/Actions"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(190, 34)
+custom_minimum_size = Vector2(128, 32)
 layout_mode = 2
 focus_mode = 0
 theme_type_variation = &"InkButton"
-text = "REGISTER_ENTRY"
+text = "TYPE_COMMON"
 
-[node name="Message" type="Label" parent="Content/Form/VBox/Actions"]
-layout_mode = 2
-text = ""
-theme_override_colors/font_color = Color(0.4314, 0.102, 0.07059, 1)
-theme_override_font_sizes/font_size = 12
+[node name="Emergency" type="Button" parent="Content/Form/VBox/Actions"]
 unique_name_in_owner = true
-size_flags_vertical = 4
+custom_minimum_size = Vector2(112, 32)
+layout_mode = 2
+focus_mode = 0
+theme_type_variation = &"InkButton"
+text = "TYPE_EMERGENCY"
+
+[node name="Prank" type="Button" parent="Content/Form/VBox/Actions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 32)
+layout_mode = 2
+focus_mode = 0
+theme_type_variation = &"InkButton"
+text = "TYPE_PRANK"

@@ -110,7 +110,7 @@ func _ready() -> void:
 	dispatch.sent.connect(_on_dispatched)
 	dispatch.arrived.connect(_on_arrived)
 	notebook.registered.connect(_on_registered)
-	notebook.pending_changed.connect(func(has: bool): tools.set_dot("caderno", has))
+	notebook.pending_changed.connect(func(n: int): tools.set_count("caderno", n))
 	_intro.setup(night_no, night, progress != null and progress.night > 1)
 	_refresh_panel()
 
@@ -812,8 +812,7 @@ func end_call(c: PhoneCall, reason: PhoneCall.End) -> void:
 	await get_tree().create_timer(1.5, false).timeout
 	if ending:
 		return
-	if live.is_empty():
-		tools.set_tab("caderno")
+	if live.is_empty():   # a aba mostra quantas faltam; o jogador abre o caderno quando quiser
 		hint(T.text(T.Key.HINT_REGISTER))
 	else:
 		hint(T.text(T.Key.HINT_REGISTER_LATER))
@@ -971,8 +970,6 @@ func _on_registered(rec: Dictionary, type: T.Key) -> void:
 func _on_tab_changed(id: String) -> void:
 	if id == "despacho":
 		tools.set_dot("despacho", false)
-	if id == "caderno" and not notebook.has_pending():
-		tools.set_dot("caderno", false)
 
 
 # ================================================================ ligação desconhecida e final

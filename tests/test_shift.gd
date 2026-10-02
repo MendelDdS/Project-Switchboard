@@ -116,8 +116,7 @@ func _initialize() -> void:
 			f = m._focus()
 		if f == null or not f.active or f.talking:
 			if m.notebook.has_pending() and frames_left % 120 == 0:
-				m.notebook._type.select(1)
-				m.notebook.register()
+				m.notebook.register(T.Key.TYPE_COMMON)
 				_acted()
 			continue
 		match f.kind:

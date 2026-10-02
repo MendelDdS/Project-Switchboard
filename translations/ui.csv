@@ -134,23 +134,17 @@ NOTEBOOK_TITLE,Caderno de ocorrências,Call logbook,Cuaderno de llamadas
 NOTEBOOK_DATE,Noite de 14 para 15,Night of the 14th to the 15th,Noche del 14 al 15
 NOTEBOOK_NEW,Nova ocorrência · %s,New entry · %s,Nueva entrada · %s
 NOTEBOOK_QUEUE,(+%d na fila),(+%d in queue),(+%d en cola)
+NOTEBOOK_REGISTER_AS,Registrar como:,Log as:,Registrar como:
 NOTEBOOK_EMPTY,Nenhuma ocorrência registrada neste turno.,No entries logged this shift.,Ninguna entrada registrada en este turno.
 COL_TIME,Horário,Time,Hora
 COL_CALLER,Solicitante,Caller,Solicitante
 COL_PLACE,Local / destino,Place / destination,Lugar / destino
 COL_TYPE,Tipo,Type,Tipo
 COL_UNIT,Unidade,Unit,Unidad
-COL_OBS,Obs.,Notes,Obs.
-FIELD_UNIT_SENT,Unidade enviada,Unit sent,Unidad enviada
-FIELD_NOTES,Observações,Notes,Observaciones
-NOTES_PLACEHOLDER,ex.: solicitante realizou chamada falsa,e.g.: caller made a prank call,ej.: la persona hizo una llamada falsa
-REGISTER_ENTRY,Registrar ocorrência,Log entry,Registrar entrada
 CHOOSE_TYPE,Escolha o tipo da ocorrência.,Choose the type.,Elija el tipo.
-TYPE_CHOOSE,Escolha…,Choose…,Elija…
 TYPE_COMMON,Ligação comum,Regular call,Llamada común
 TYPE_EMERGENCY,Emergência,Emergency,Emergencia
 TYPE_PRANK,Trote,Prank call,Broma
-TYPE_OTHER,Outro,Other,Otro
 OBS_WRONG_NUMBER,Conectada ao número errado.,Connected to the wrong number.,Conectada al número equivocado.
 OBS_ASKED_NUMBER,Pediu o número %s.,Asked for the number %s.,Pidió el número %s.
 OBS_WRONG_INFO,Informação errada.,Wrong information.,Información equivocada.
