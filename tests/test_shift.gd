@@ -39,6 +39,7 @@ func _acted(steps := 1.0) -> void:
 var seen := {}
 var last_ring := 0.0
 var kinds := {}           ## tipo -> quantas tocaram
+var stages := []          ## estágio da barra de agravamento em cada despacho (e quanto ela correu)
 var max_quiet := 0.0      ## maior intervalo (min de jogo) sem nenhuma ligação nova tocando
 
 
@@ -93,9 +94,12 @@ func _initialize() -> void:
 		for d in ex.dest_numbers():
 			if ex.dest(d) == Exchange.Dest.DONE and b.cord_at(d) != -1:
 				_home(b, b.cord_at(d))
+		var f: PhoneCall = m._focus()
+		# a pessoa lê a resposta da emergência até o fim antes de pensar no próximo passo
+		if human and f != null and f.kind == PhoneCall.Kind.EMERGENCY and f.talking:
+			next_act = maxf(next_act, _now() + HUMAN_STEP)
 		if _now() < next_act:
 			continue
-		var f: PhoneCall = m._focus()
 		if f == null or not f.active:
 			for c in m.live:
 				var key: String = c.time + str(c.line)
@@ -149,13 +153,18 @@ func _initialize() -> void:
 						_acted()
 			_:
 				if f.kind == PhoneCall.Kind.EMERGENCY and not f.options.is_empty() and String(f.options[0]["label"]) == T.text(T.Key.OP_HOLD_EMERGENCY) and not f.dispatched:
+					if human and not f.has_meta("planned"):
+						f.set_meta("planned", true)   # consultar o protocolo, marcar no mapa, o tipo e as unidades
+						_acted(3.0)
+						continue
 					var e: EmergencyCall = f.data
 					m.dispatch.set_location(e.street, e.block, e.address)
 					m.dispatch.set_occurrence(e.occurrence)
-					for u in e.units:
+					for u in m.dispatch.required():   # o que a situação pede agora (pode ter piorado)
 						(m.dispatch._unit_buttons[u] as Button).button_pressed = true
+					stages.append("%d(%.0fs)" % [f.stage, f.urgency] if f.retry == PhoneCall.Retry.NONE else "retorno")
 					m.dispatch._send()
-					_acted(4.0)   # mapa, tipo, unidades e enviar
+					_acted()
 				elif not f.options.is_empty():
 					f.options[0]["fn"].call()
 					_acted()
@@ -170,6 +179,7 @@ func _initialize() -> void:
 		myst_at, post, m.fmt(m.minutes), max_live, 100 * f2 / maxi(fall, 1), 100 * f3 / maxi(fall, 1),
 		100 * starved / maxi(fall, 1), lost, recs.size(), int(kinds.get(PhoneCall.Kind.EMERGENCY, 0)),
 		int(kinds.get(PhoneCall.Kind.PRANK, 0)), max_quiet])
+	print("despachos (estágio e barra corrida): ", ", ".join(stages))
 	ok(myst_at != "", "a ligação desconhecida tocou")
 	ok(m.ending and m.minutes >= m.SHIFT_END, "o turno terminou no horário")
 	finish("turno completo")

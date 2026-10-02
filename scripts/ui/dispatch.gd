@@ -77,9 +77,21 @@ func set_occurrence(o: String) -> void:
 		b.button_pressed = b.text == o
 
 
-## Uma emergência começou a tocar: guarda onde é e o que precisa, para avaliar o que for enviado.
-func set_incident(e: EmergencyCall) -> void:
-	_incident = {"call": e, "street": e.street, "block": e.block, "req": Array(e.units), "sent": [], "resolved": false, "addr": e.address}
+## Uma emergência começou a tocar: guarda onde é e o que precisa (no estágio de agravamento `stage`), para
+## avaliar o que for enviado.
+func set_incident(e: EmergencyCall, stage := 0) -> void:
+	_incident = {"call": e, "street": e.street, "block": e.block, "req": Array(e.required(stage)), "sent": [], "resolved": false, "addr": e.address}
+
+
+## A situação piorou antes do despacho: passa a precisar destas unidades.
+func require(units: PackedStringArray) -> void:
+	if not _incident.is_empty():
+		_incident["req"] = Array(units)
+
+
+## Unidades que a emergência em andamento precisa agora.
+func required() -> Array:
+	return _incident.get("req", [])
 
 
 ## Há unidades a caminho (a chegada ainda vai ser avaliada contra a emergência atual).

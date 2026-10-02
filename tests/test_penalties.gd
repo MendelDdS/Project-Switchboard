@@ -269,4 +269,55 @@ func _initialize() -> void:
 	m.report.severe_before += 1
 	ok(m.report.fired(), "graves acumuladas entre as noites: demitido")
 	print("OK 9 relatório (%d advertências)" % m.report.faults.size())
+
+	# ---- 10. barra de agravamento (o relógio está parado: a barra anda por _worsen chamado à mão)
+	var e10: EmergencyCall = C.emergencies.filter(func(x): return not x in [e4, e5, e8] and not x.worsening_units.is_empty() and not x.critical_units.is_empty())[0]
+	var c10 := PhoneCall.from_emergency(e10)
+	m.ring(c10)
+	_answer(c10)
+	m._worsen(1.0)
+	ok(c10.urgency > 0.0 and c10.stage == 0, "a barra corre desde que atendeu")
+	ok(await wait_until(func(): return c10.phase == PhoneCall.Phase.EMERGENCY and not c10.talking), "emergência 4")
+	c10.options[0]["fn"].call()   # uma pergunta: a barra para até a resposta terminar
+	await frames(2)
+	var u10 := c10.urgency
+	m._worsen(5.0)
+	ok(c10.asking and c10.urgency == u10, "pausada durante pergunta e resposta")
+	ok(await wait_until(func(): return not c10.asking), "respondeu")
+	m._worsen(e10.stage_sec.x)
+	ok(c10.stage == 1 and Array(m.dispatch.required()) == Array(e10.required(1)), "agravando: passa a exigir mais unidades")
+	ok(await wait_until(func(): return c10.transcript.any(func(l): return l["text"] == e10.worsening)), "contou o que piorou")
+	var w10 := _faults("emergency_worse")
+	await wait_until(func(): return m.dispatch._units.values().all(func(s): return s == 0), 30.0)
+	m.dispatch.set_location(e10.street, e10.block, e10.address)
+	m.dispatch.set_occurrence(e10.occurrence)
+	for u in m.dispatch.required():
+		(m.dispatch._unit_buttons[u] as Button).button_pressed = true
+	m.dispatch._send()
+	ok(_faults("emergency_worse") == w10 + 1, "despachou agravando: advertência média")
+	ok(await wait_until(func(): return m.report.is_resolved(e10), 20.0) and m.report.outcomes()[e10] == ShiftReport.Outcome.OK, "resolvida; no jornal: a tempo")
+	ok(await wait_until(func(): return c10.ended, 20.0), "desligou")
+	await wait_until(func(): return m.dispatch._units.values().all(func(s): return s == 0), 30.0)
+	_clear_board()
+	# perdida: gravíssima na hora, jornal ruim, e ainda dá para despachar (sem outra advertência pela barra)
+	var e11: EmergencyCall = C.emergencies.filter(func(x): return x != e10 and x != e4 and x != e5 and x != e8 and x.lost != "")[0]
+	var c11 := PhoneCall.from_emergency(e11)
+	m.ring(c11)
+	_answer(c11)
+	ok(await wait_until(func(): return c11.phase == PhoneCall.Phase.EMERGENCY and not c11.talking), "emergência 5")
+	var crit: int = m.report.count(ShiftReport.Severity.CRITICAL)
+	for i in 3:
+		m._worsen(e11.stage_sec[i])
+	ok(c11.stage == 3 and m.report.count(ShiftReport.Severity.CRITICAL) == crit + 1, "perdida: advertência gravíssima")
+	ok(await wait_until(func(): return c11.transcript.any(func(l): return l["text"] == e11.lost)), "reclamou")
+	var faults11: int = m.report.faults.size()
+	m.dispatch.set_location(e11.street, e11.block, e11.address)
+	m.dispatch.set_occurrence(e11.occurrence)
+	for u in m.dispatch.required():
+		(m.dispatch._unit_buttons[u] as Button).button_pressed = true
+	m.dispatch._send()
+	ok(await wait_until(func(): return c11.ended, 20.0) and m.report.faults.size() == faults11, "despachou depois: nenhuma advertência a mais")
+	ok(m.report.outcomes()[e11] == ShiftReport.Outcome.BAD, "no jornal: ruim")
+	ok(m.report.severe_total() >= m.report.count(ShiftReport.Severity.SEVERE) + ShiftReport.CRITICAL_WEIGHT, "gravíssima pesa mais na demissão")
+	print("OK 10 barra de agravamento")
 	finish("consequências e relatório")

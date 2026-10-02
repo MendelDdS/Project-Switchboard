@@ -113,7 +113,7 @@ SYS_TIRED_WAITING,(Cansou de esperar e desligou.),(Got tired of waiting and hung
 SYS_CALL_DROPPED,(A ligação caiu.),(The call dropped.),(La llamada se cortó.)
 HINT_WAIT_CALLS,"Aguarde as chamadas. A lista, o mapa, o despacho e o caderno ficam nas abas acima.","Wait for calls. The directory, the map, dispatch and the logbook are in the tabs above.","Espere las llamadas. La guía, el mapa, el despacho y el cuaderno están en las pestañas de arriba."
 HINT_INFO,Pedido de informação: confira a lista telefônica antes de responder.,Information request: check the phone directory before answering.,Pedido de información: revise la guía telefónica antes de responder.
-HINT_EMERGENCY,"Pergunte: as respostas dizem quais unidades mandar (protocolo no despacho). Marque o local no mapa, escolha o tipo e envie.","Ask: the answers tell you which units to send (protocol in dispatch). Mark the location on the map, choose the type and send.","Pregunte: las respuestas dicen qué unidades enviar (protocolo en el despacho). Marque el lugar en el mapa, elija el tipo y envíe."
+HINT_EMERGENCY,"A barra mostra a situação piorando (para enquanto você pergunta). As respostas dizem quais unidades mandar: veja o protocolo no despacho.","The bar shows the situation getting worse (it stops while you ask). The answers tell you which units to send: see the protocol in dispatch.","La barra muestra la situación empeorando (se detiene mientras pregunta). Las respuestas dicen qué unidades enviar: vea el protocolo en el despacho."
 HINT_WRONG_DEST,Tire a ponta do cabo desse destino. Confira o nome e o endereço na lista: há nomes parecidos.,Pull the cord out of that destination. Check the name and address in the directory: some names are similar.,Quite el cable de ese destino. Revise el nombre y la dirección en la guía: hay nombres parecidos.
 HINT_WRONG_UNATTENDED,"Sem o FONE na linha, uma conexão errada cai. A pessoa vai ligar de novo: confira o número na lista antes de transferir.","Without the HEADSET on the line, a wrong connection drops. The caller will call back: check the number in the directory before transferring.","Sin el AURICULAR en la línea, una conexión equivocada se cae. La persona volverá a llamar: revise el número en la guía antes de transferir."
 HINT_RED_LAMPS,Lâmpadas vermelhas: a conversa terminou. Tire as duas pontas do cabo de conexão para liberar a linha e o cabo.,Red lamps: the conversation is over. Pull both ends of the patch cord to free the line and the cord.,Lámparas rojas: la conversación terminó. Quite las dos puntas del cable de conexión para liberar la línea y el cable.
@@ -198,16 +198,18 @@ REPORT_SIGN,Assinar e sair,Sign and leave,Firmar y salir
 REPORT_NIGHT,Noite %d · turno das %s às %s,Night %d · shift from %s to %s,Noche %d · turno de %s a %s
 REPORT_WARNINGS,ADVERTÊNCIAS,WARNINGS,ADVERTENCIAS
 REPORT_NONE,Nenhuma.,None.,Ninguna.
+REPORT_CRITICAL,Gravíssimas,Critical,Gravísimas
 REPORT_SEVERE,Graves,Severe,Graves
 REPORT_MEDIUM,Médias,Moderate,Medias
 REPORT_LIGHT,Leves,Minor,Leves
-REPORT_ACCUMULATED,Advertências graves acumuladas: %d de %d,Accumulated severe warnings: %d of %d,Advertencias graves acumuladas: %d de %d
+REPORT_ACCUMULATED,"Advertências graves acumuladas (gravíssima conta 2): %d de %d","Accumulated severe warnings (critical counts as 2): %d of %d","Advertencias graves acumuladas (gravísima cuenta 2): %d de %d"
 REPORT_NEWS,JORNAL DA MANHÃ,MORNING PAPER,DIARIO DE LA MAÑANA
 REPORT_QUIET,Noite tranquila em São Sotero.,A quiet night in São Sotero.,Noche tranquila en São Sotero.
 REPORT_INCIDENT,Ocorrência,Incident,Incidente
 SEV_LIGHT,leve,minor,leve
 SEV_MEDIUM,média,moderate,media
 SEV_SEVERE,grave,severe,grave
+SEV_CRITICAL,gravíssima,critical,gravísima
 FAULT_DETAIL_CLASSIFIED,classificada como %s; era %s,classified as %s; it was %s,clasificada como %s; era %s
 FAULT_MISSED,Ligação não atendida,Call not answered,Llamada no contestada
 FAULT_HOLD,Solicitante desistiu na espera,Caller gave up on hold,La persona desistió en espera
@@ -221,6 +223,12 @@ FAULT_DISPATCH_MISSING,Faltaram unidades no despacho,Not enough units dispatched
 FAULT_DISPATCH_IDLE,Unidades enviadas sem ocorrência,Units sent with no emergency,Unidades enviadas sin emergencia
 FAULT_DISPATCH_EXTRA,Unidade enviada sem necessidade,Unit sent unnecessarily,Unidad enviada sin necesidad
 FAULT_DISPATCH_TYPE,Ocorrência classificada errado,Incident misclassified,Incidente mal clasificado
+FAULT_EMERGENCY_WORSE,A emergência se agravou antes do despacho,The emergency got worse before dispatch,La emergencia empeoró antes del despacho
+FAULT_EMERGENCY_CRITICAL,A emergência ficou crítica antes do despacho,The emergency turned critical before dispatch,La emergencia se volvió crítica antes del despacho
+FAULT_EMERGENCY_LOST,"Emergência perdida: o despacho demorou demais","Emergency lost: dispatch took too long","Emergencia perdida: el despacho tardó demasiado"
+URGENCY_0,Situação inicial,Initial situation,Situación inicial
+URGENCY_1,Situação agravando,Getting worse,Empeorando
+URGENCY_2,Situação agravada,Critical,Crítica
 FAULT_EMERGENCY_DROPPED,Emergência encerrada sem despacho,Emergency ended without dispatch,Emergencia terminada sin despacho
 PAUSE_TITLE,Pausa,Paused,Pausa
 RESUME,Continuar,Resume,Continuar

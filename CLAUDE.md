@@ -184,8 +184,16 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 
 ## Consequências (relatório do supervisor)
 - `ShiftReport` (`scripts/model/shift_report.gd`): `FAULTS` (id → gravidade, descrição), `add()`, desfecho das
-  emergências (`trouble`/`resolved`/`failed` → OK, LATE, BAD) e `verdict()`. Entre noites só as graves somam
+  emergências (`trouble`/`resolved`/`failed` → OK, LATE, BAD) e `verdict()`. Gravidades: leve, média, grave,
+  gravíssima (`CRITICAL`, pesa `CRITICAL_WEIGHT` graves). Entre noites só as graves somam
   (`severe_before`, salvas no `Progress`; `SEVERE_LIMIT` = demissão).
+- **Barra de agravamento** (`Main._worsen`, estado em `PhoneCall.stage`/`urgency`/`asking`, desenho em
+  `UrgencyBar`, dentro da caixa do chat): corre desde o atendimento, também em espera; para durante pergunta e
+  resposta (`Conversation._em_ask`), na pausa e no despacho. Estágios por `EmergencyCall.stage_sec`; cada um chama
+  `Conversation.emergency_worse` (fala `worsening`/`critical`/`lost`) e `Dispatch.require(e.required(stage))`.
+  Advertência pelo estágio no despacho (`_on_dispatched`: `emergency_worse` média, `emergency_critical` grave +
+  jornal LATE); perdida = `emergency_lost` gravíssima na hora + jornal BAD (sem `emergency_dropped` nem retorno).
+  Retornos não têm barra (herdam `stage` para as unidades).
 - Main registra com `_fault()` onde a falha acontece; `_consequences()` (chamado em `end_call`) decide advertência e
   retorno; `_call_again()` agenda a mesma pessoa de novo (`PhoneCall.retry`; uma vez por motivo, `retried`;
   também no tutorial; nunca depois do fim do turno; `too_late` sorteado com
@@ -281,6 +289,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     O tipo da ocorrência deixou de marcar unidades: a conversa revela os fatos e o protocolo (polícia: crime, briga,
     arma, rua bloqueada; bombeiros: fogo, fumaça, fio/gás, alguém preso; ambulância: ferido, passando mal ou preso) diz
     o que mandar. Cartão do protocolo na aba, respostas decisivas sem ambiguidade, moldes e roteiros com casos sorteados.
+24. Barra de agravamento da emergência (abaixo do chat, dentro da caixa): inicial → agravando (média) → agravada
+    (grave, jornal com atraso) → perdida (gravíssima, nova gravidade). Para enquanto o operador pergunta e a pessoa
+    responde; corre em espera. Cada estágio tem fala própria e pode exigir unidades novas.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

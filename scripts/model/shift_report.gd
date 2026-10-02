@@ -1,13 +1,15 @@
 class_name ShiftReport
 extends RefCounted
 ## O que o supervisor confere no fim do turno: as advertências do turno e como terminou cada emergência.
-## `SEVERE_LIMIT` advertências graves somadas entre as noites (`severe_before` vem do Progress) significam demissão.
+## `SEVERE_LIMIT` advertências graves somadas entre as noites (`severe_before` vem do Progress) significam demissão;
+## uma gravíssima conta como `CRITICAL_WEIGHT` graves.
 
-enum Severity { LIGHT, MEDIUM, SEVERE }
+enum Severity { LIGHT, MEDIUM, SEVERE, CRITICAL }
 enum Outcome { OK, LATE, BAD }
 
 const SEVERE_LIMIT := 3
-const SEVERITY_NAMES := [T.Key.SEV_LIGHT, T.Key.SEV_MEDIUM, T.Key.SEV_SEVERE]
+const CRITICAL_WEIGHT := 2
+const SEVERITY_NAMES := [T.Key.SEV_LIGHT, T.Key.SEV_MEDIUM, T.Key.SEV_SEVERE, T.Key.SEV_CRITICAL]
 ## id -> [gravidade, descrição (T.Key)]
 const FAULTS := {
 	"missed": [Severity.MEDIUM, T.Key.FAULT_MISSED],
@@ -23,6 +25,10 @@ const FAULTS := {
 	"dispatch_extra": [Severity.LIGHT, T.Key.FAULT_DISPATCH_EXTRA],
 	"dispatch_type": [Severity.LIGHT, T.Key.FAULT_DISPATCH_TYPE],
 	"emergency_dropped": [Severity.SEVERE, T.Key.FAULT_EMERGENCY_DROPPED],
+	# barra de agravamento: uma por emergência, pelo estágio em que o despacho saiu (a perdida, na hora)
+	"emergency_worse": [Severity.MEDIUM, T.Key.FAULT_EMERGENCY_WORSE],
+	"emergency_critical": [Severity.SEVERE, T.Key.FAULT_EMERGENCY_CRITICAL],
+	"emergency_lost": [Severity.CRITICAL, T.Key.FAULT_EMERGENCY_LOST],
 }
 
 var night := 1
@@ -44,7 +50,7 @@ func count(sev: Severity) -> int:
 
 
 func severe_total() -> int:
-	return severe_before + count(Severity.SEVERE)
+	return severe_before + count(Severity.SEVERE) + CRITICAL_WEIGHT * count(Severity.CRITICAL)
 
 
 func fired() -> bool:
@@ -81,7 +87,7 @@ func outcomes() -> Dictionary:
 
 ## 0 = bom turno, 1 = atenção, 2 = turno ruim.
 func verdict() -> int:
-	if count(Severity.SEVERE) > 0:
+	if count(Severity.SEVERE) + count(Severity.CRITICAL) > 0:
 		return 2
 	return 1 if count(Severity.MEDIUM) >= 3 or count(Severity.LIGHT) >= 5 else 0
 

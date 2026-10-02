@@ -176,6 +176,7 @@ func _process(delta: float) -> void:
 		clock.text = fmt(minutes)
 		_nag()
 		_check_hold()
+		_worsen(delta)
 	background.flick = flick
 	_glow.modulate.a = background.lamp_level
 
@@ -199,6 +200,25 @@ func _nag() -> void:
 	elif f.kind == PhoneCall.Kind.EMERGENCY and not f.dispatched and quiet > EMERGENCY_NAG_AFTER:
 		f.last_talk = talk_clock
 		conversation.say(f, GameData.pick(C.emergency_waiting))
+
+
+## A situação da emergência piora enquanto ninguém despacha, mesmo com ela em espera; a barra só para durante
+## pergunta e resposta (e na pausa do jogo). Cada estágio pode exigir unidades novas; o último (perdida) já
+## pune e piora o jornal, mas ainda dá para despachar. Quem liga de novo não tem barra.
+func _worsen(delta: float) -> void:
+	var c := em_call
+	if c == null or not c.active or c.dispatched or c.asking or c.retry != PhoneCall.Retry.NONE or c.stage >= 3:
+		return
+	var e: EmergencyCall = c.data
+	c.urgency += delta
+	if c.urgency < [e.stage_sec.x, e.stage_sec.x + e.stage_sec.y, e.stage_sec.x + e.stage_sec.y + e.stage_sec.z][c.stage]:
+		return
+	c.stage += 1
+	dispatch.require(e.required(c.stage))
+	if c.stage == 3:
+		_fault("emergency_lost", e.address)
+		report.failed(e)
+	conversation.emergency_worse(c, c.stage)
 
 
 ## Esc: primeiro devolve o plug que está na mão; sem plug na mão, pausa o turno.
@@ -683,7 +703,8 @@ func ring(c: PhoneCall) -> void:
 		myst_line = c.line
 	if c.kind == PhoneCall.Kind.EMERGENCY:
 		em_call = c
-		dispatch.set_incident(c.data)
+		dispatch.set_incident(c.data, c.stage)
+		phone.urgency.call = c
 	_update_bell()
 	_refresh_panel()
 	if c == tut:
@@ -858,6 +879,12 @@ func _on_dispatched(loc: String, units_text: String) -> void:
 	_sent = {"call": em_call, "loc": loc, "units": units_text}
 	if em_call == null:
 		return
+	# despachou com a situação já piorando: uma advertência pelo estágio (a perdida já foi dada na hora)
+	if em_call.active and not em_call.dispatched and em_call.retry == PhoneCall.Retry.NONE and em_call.stage in [1, 2]:
+		var e: EmergencyCall = em_call.data
+		_fault("emergency_worse" if em_call.stage == 1 else "emergency_critical", e.address)
+		if em_call.stage == 2:
+			report.trouble(e)
 	if not em_call.record.is_empty():
 		em_call.record["where"] = loc
 		em_call.record["unit"] = units_text
@@ -891,7 +918,7 @@ func _consequences(c: PhoneCall, reason: PhoneCall.End) -> void:
 		if e != null:
 			report.trouble(e)
 		_call_again(c, PhoneCall.Retry.MISSED)
-	elif e != null and not c.dispatched and not c.too_late:
+	elif e != null and not c.dispatched and not c.too_late and c.stage < 3:   # perdida já teve a advertência
 		_fault("emergency_dropped", _who(c))
 		report.trouble(e)
 		_call_again(c, PhoneCall.Retry.WORSE)
@@ -911,6 +938,7 @@ func _call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
 			n = PhoneCall.from_transfer(c.data)
 		PhoneCall.Kind.EMERGENCY:
 			n = PhoneCall.from_emergency(c.data)
+			n.stage = c.stage   # a situação não melhora: valem as unidades de quando a ligação caiu
 			n.too_late = why == PhoneCall.Retry.WORSE and randf() >= REDISPATCH_CHANCE
 		PhoneCall.Kind.INFO:
 			n = PhoneCall.info(c.voice, c.caller, c.ask, c.about, c.answer)

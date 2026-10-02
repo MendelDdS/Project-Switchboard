@@ -14,3 +14,7 @@ address = "Rua do Comércio, 150"
 occurrence = "Mal súbito"
 units = PackedStringArray("amb")
 after = "Eu vou descer e esperar na porta."
+stage_sec = Vector3(50, 25, 25)
+worsening = "Agora ela não consegue falar mais nada!"
+critical = "Ela desmaiou! Não acorda!"
+lost = "Ela... ela não acorda mais. Ninguém veio."

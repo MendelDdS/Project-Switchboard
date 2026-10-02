@@ -1410,6 +1410,18 @@ msgstr ""
 msgid "Estão vindo? Graças a Deus... obrigada."
 msgstr ""
 
+#: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
+msgid "Tá juntando gente em volta, os carros não conseguem mais passar!"
+msgstr ""
+
+#: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
+msgid "Tá vazando gasolina do carro! Tá escorrendo pela rua!"
+msgstr ""
+
+#: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
+msgid "Pegou fogo! O carro pegou fogo! Por que demorou tanto?!"
+msgstr ""
+
 #: data/calls/emergency_02_incendio_rua_do_moinho_40.tres
 msgid "Central, tem fogo! Tem fogo no galpão da Rua do Moinho!"
 msgstr ""
@@ -1450,6 +1462,18 @@ msgstr ""
 msgid "Tá bom. Tá bom. Eu vou tirar o carro daqui."
 msgstr ""
 
+#: data/calls/emergency_02_incendio_rua_do_moinho_40.tres
+msgid "A fumaça tá tomando a rua toda, os carros tão parando no meio!"
+msgstr ""
+
+#: data/calls/emergency_02_incendio_rua_do_moinho_40.tres
+msgid "Um vizinho tentou ajudar e caiu! Tá desacordado na fumaça!"
+msgstr ""
+
+#: data/calls/emergency_02_incendio_rua_do_moinho_40.tres
+msgid "O telhado caiu! Caiu tudo! Ninguém veio..."
+msgstr ""
+
 #: data/calls/emergency_03_mal_subito_rua_do_sol_230.tres
 msgid "Central, meu pai caiu no banheiro e não acorda!"
 msgstr ""
@@ -1484,6 +1508,18 @@ msgstr ""
 
 #: data/calls/emergency_03_mal_subito_rua_do_sol_230.tres
 msgid "Obrigada. Eu vou deixar a porta aberta."
+msgstr ""
+
+#: data/calls/emergency_03_mal_subito_rua_do_sol_230.tres
+msgid "Ele tá ficando roxo... a respiração tá cada vez mais fraca!"
+msgstr ""
+
+#: data/calls/emergency_03_mal_subito_rua_do_sol_230.tres
+msgid "Ele não responde mais nada! Não sei se tá respirando!"
+msgstr ""
+
+#: data/calls/emergency_03_mal_subito_rua_do_sol_230.tres
+msgid "Ele... ele não tá mais respirando. Vocês demoraram demais."
 msgstr ""
 
 #: data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres
@@ -1522,6 +1558,18 @@ msgstr ""
 msgid "Tá. Vou ficar quieto aqui dentro."
 msgstr ""
 
+#: data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres
+msgid "Eles entraram! Tão carregando as coisas pra rua!"
+msgstr ""
+
+#: data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres
+msgid "Eles me viram na janela! Um deles tá vindo pra cá com um pé de cabra!"
+msgstr ""
+
+#: data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres
+msgid "Eles fugiram de carro. Levaram tudo... e ninguém apareceu."
+msgstr ""
+
 #: data/calls/emergency_05_outro_rua_da_estacao_140.tres
 msgid "Homem nervoso"
 msgstr ""
@@ -1558,6 +1606,18 @@ msgstr ""
 msgid "Tão vindo? Tá, eu seguro o pessoal aqui."
 msgstr ""
 
+#: data/calls/emergency_05_outro_rua_da_estacao_140.tres
+msgid "Agora tão quebrando as cadeiras! Tá todo mundo brigando!"
+msgstr ""
+
+#: data/calls/emergency_05_outro_rua_da_estacao_140.tres
+msgid "Furaram um rapaz na barriga! Tá sangrando muito!"
+msgstr ""
+
+#: data/calls/emergency_05_outro_rua_da_estacao_140.tres
+msgid "O rapaz desmaiou... tem sangue pra todo lado. Por que ninguém veio?"
+msgstr ""
+
 #: data/calls/emergency_06_outro_rua_do_comercio_71.tres
 msgid "Central, caiu um fio do poste aqui na frente e está soltando faísca!"
 msgstr ""
@@ -1588,6 +1648,18 @@ msgstr ""
 
 #: data/calls/emergency_06_outro_rua_do_comercio_71.tres
 msgid "Tá bom. Vou manter as crianças dentro de casa."
+msgstr ""
+
+#: data/calls/emergency_06_outro_rua_do_comercio_71.tres
+msgid "Tá todo mundo parando pra olhar, a rua tá trancada de carro!"
+msgstr ""
+
+#: data/calls/emergency_06_outro_rua_do_comercio_71.tres
+msgid "O fogo passou pro telhado da barbearia! O barbeiro mora em cima e não consegue descer!"
+msgstr ""
+
+#: data/calls/emergency_06_outro_rua_do_comercio_71.tres
+msgid "A barbearia tá toda em chamas... e ninguém veio."
 msgstr ""
 
 #: data/calls/emergency_07_incendio_rua_das_flores_45.tres
@@ -1626,6 +1698,18 @@ msgstr ""
 msgid "Tá bom. Eu vou chamar os outros vizinhos."
 msgstr ""
 
+#: data/calls/emergency_07_incendio_rua_das_flores_45.tres
+msgid "Agora tá saindo fogo pelo telhado!"
+msgstr ""
+
+#: data/calls/emergency_07_incendio_rua_das_flores_45.tres
+msgid "O fogo tá passando pra casa do lado! A senhora de lá usa cadeira de rodas e não consegue sair!"
+msgstr ""
+
+#: data/calls/emergency_07_incendio_rua_das_flores_45.tres
+msgid "A casa desabou... Vocês demoraram demais!"
+msgstr ""
+
 #: data/calls/emergency_08_acidente_avenida_brasil_60.tres
 msgid "Central, um carro bateu no poste aqui na avenida!"
 msgstr ""
@@ -1662,6 +1746,18 @@ msgstr ""
 msgid "Tá. Ninguém chega perto dos fios, pode deixar."
 msgstr ""
 
+#: data/calls/emergency_08_acidente_avenida_brasil_60.tres
+msgid "Tá formando fila de carro dos dois lados da avenida!"
+msgstr ""
+
+#: data/calls/emergency_08_acidente_avenida_brasil_60.tres
+msgid "Começou a sair fumaça do capô do carro!"
+msgstr ""
+
+#: data/calls/emergency_08_acidente_avenida_brasil_60.tres
+msgid "O carro pegou fogo! Por que ninguém veio?!"
+msgstr ""
+
 #: data/calls/emergency_09_mal_subito_rua_do_comercio_150.tres
 msgid "Filha"
 msgstr ""
@@ -1694,6 +1790,18 @@ msgstr ""
 msgid "Eu vou descer e esperar na porta."
 msgstr ""
 
+#: data/calls/emergency_09_mal_subito_rua_do_comercio_150.tres
+msgid "Agora ela não consegue falar mais nada!"
+msgstr ""
+
+#: data/calls/emergency_09_mal_subito_rua_do_comercio_150.tres
+msgid "Ela desmaiou! Não acorda!"
+msgstr ""
+
+#: data/calls/emergency_09_mal_subito_rua_do_comercio_150.tres
+msgid "Ela... ela não acorda mais. Ninguém veio."
+msgstr ""
+
 #: data/calls/emergency_10_invasao_rua_do_moinho_260.tres
 msgid "(sussurrando) Central... tem alguém dentro da minha casa."
 msgstr ""
@@ -1724,6 +1832,18 @@ msgstr ""
 
 #: data/calls/emergency_10_invasao_rua_do_moinho_260.tres
 msgid "Tá. Eu vou ficar quieto aqui."
+msgstr ""
+
+#: data/calls/emergency_10_invasao_rua_do_moinho_260.tres
+msgid "(sussurrando) Tão mexendo nas gavetas da sala..."
+msgstr ""
+
+#: data/calls/emergency_10_invasao_rua_do_moinho_260.tres
+msgid "(sussurrando) Tão tentando abrir a porta do quarto!"
+msgstr ""
+
+#: data/calls/emergency_10_invasao_rua_do_moinho_260.tres
+msgid "(chorando) Eles foram embora... levaram tudo. Ninguém veio."
 msgstr ""
 
 #: data/calls/prank_01_crianca.tres
@@ -2074,6 +2194,18 @@ msgstr ""
 msgid "Tá bom. A gente vai se afastar."
 msgstr ""
 
+#: data/templates/emergency_incendio.tres
+msgid "O fogo tá passando pra casa do vizinho!"
+msgstr ""
+
+#: data/templates/emergency_incendio.tres
+msgid "O vizinho de idade não saiu! Tá na janela pedindo ajuda!"
+msgstr ""
+
+#: data/templates/emergency_incendio.tres
+msgid "O telhado caiu... Vocês demoraram demais!"
+msgstr ""
+
 #: data/templates/emergency_mal_subito.tres
 msgid "Central, o meu vizinho desmaiou!"
 msgstr ""
@@ -2100,6 +2232,18 @@ msgstr ""
 
 #: data/templates/emergency_mal_subito.tres
 msgid "Tá. Eu espero aqui na porta."
+msgstr ""
+
+#: data/templates/emergency_mal_subito.tres
+msgid "A respiração dele tá ficando mais fraca!"
+msgstr ""
+
+#: data/templates/emergency_mal_subito.tres
+msgid "Ele começou a tremer todo!"
+msgstr ""
+
+#: data/templates/emergency_mal_subito.tres
+msgid "Ele... parou de respirar. Vocês demoraram demais."
 msgstr ""
 
 #: data/templates/emergency_acidente.tres
@@ -2142,6 +2286,18 @@ msgstr ""
 msgid "Tá bom. Eu fico aqui esperando."
 msgstr ""
 
+#: data/templates/emergency_acidente.tres
+msgid "Tá juntando gente em volta, os carros não passam mais!"
+msgstr ""
+
+#: data/templates/emergency_acidente.tres
+msgid "Tá saindo fumaça do motor do carro!"
+msgstr ""
+
+#: data/templates/emergency_acidente.tres
+msgid "O carro pegou fogo! Por que demorou tanto?!"
+msgstr ""
+
 #: data/templates/emergency_invasao.tres
 msgid "(baixinho) Central, tem alguém tentando abrir a porta dos fundos."
 msgstr ""
@@ -2170,6 +2326,18 @@ msgstr ""
 msgid "Tá. Não vou fazer barulho."
 msgstr ""
 
+#: data/templates/emergency_invasao.tres
+msgid "(baixinho) Ele conseguiu abrir... tá dentro de casa."
+msgstr ""
+
+#: data/templates/emergency_invasao.tres
+msgid "(baixinho) Ele tá subindo a escada..."
+msgstr ""
+
+#: data/templates/emergency_invasao.tres
+msgid "(chorando) Ele levou tudo e foi embora. Ninguém veio."
+msgstr ""
+
 #: data/templates/emergency_briga.tres
 msgid "Central, tem uma briga feia no meio da {street}!"
 msgstr ""
@@ -2196,6 +2364,18 @@ msgstr ""
 
 #: data/templates/emergency_briga.tres
 msgid "Tá. Vou entrar e trancar a porta."
+msgstr ""
+
+#: data/templates/emergency_briga.tres
+msgid "Chegou mais gente! Agora são uns dez!"
+msgstr ""
+
+#: data/templates/emergency_briga.tres
+msgid "Derrubaram um no chão e tão chutando! Ele não se mexe!"
+msgstr ""
+
+#: data/templates/emergency_briga.tres
+msgid "Fugiram todos... e o rapaz continua no chão. Ninguém veio."
 msgstr ""
 
 #: data/content.tres

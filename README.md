@@ -39,7 +39,7 @@ Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
 ## Consequências e relatório do supervisor
 
 À meia-noite, antes da tela final, o supervisor confere o turno (`ShiftReport` em `scripts/model/shift_report.gd`,
-tela em `scenes/ui/report_view.tscn`): lista as advertências (leve, média, grave), traz o **jornal da manhã** com o
+tela em `scenes/ui/report_view.tscn`): lista as advertências (leve, média, grave, gravíssima), traz o **jornal da manhã** com o
 desfecho de cada emergência e dá um parecer (`verdicts` no content). A ligação do tutorial, os trotes e a
 ligação desconhecida não contam.
 
@@ -53,6 +53,9 @@ ligação desconhecida não contam.
 | Registrar com o tipo errado / deixar sem registro no fim do turno | leve | — |
 | Despachar no endereço errado | grave | o rádio avisa que não há nada no local e as unidades voltam; a pessoa agradece, mas liga de novo dizendo que piorou |
 | Encerrar uma emergência sem despachar | grave | a pessoa liga de novo dizendo que piorou |
+| Despachar com a situação agravando (2º estágio da barra) | média | — |
+| Despachar com a situação agravada (3º estágio) | grave | no jornal: "com atraso" |
+| Deixar a barra acabar (situação perdida) | gravíssima | a pessoa reclama; ainda dá para despachar, mas no jornal sai "ninguém foi atender" |
 | Faltar unidade no despacho | média | o rádio pede a unidade que falta |
 | Enviar unidades sem emergência | média | — |
 | Enviar unidade a mais (no local certo) | leve | o rádio diz que ela não era necessária, e ela volta logo |
@@ -63,7 +66,21 @@ sobre quem já está sobrecarregado. Quando a emergência liga de novo, em `REDI
 atraso"); nos outros, já é tarde (no jornal: "ninguém foi atender"). Cada pessoa liga de novo no máximo uma vez por motivo, sempre antes do fim do turno (vale também para a
 ligação do tutorial, que só não gera advertência).
 As advertências graves se somam entre as noites: `ShiftReport.SEVERE_LIMIT` (3) graves acumuladas é demissão, e o
-jogo volta para a primeira noite.
+jogo volta para a primeira noite. Uma gravíssima conta como `CRITICAL_WEIGHT` (2) graves.
+
+### Barra de agravamento da emergência
+
+Na base da caixa da conversa, durante uma emergência, uma barra mostra a situação no local piorando: **inicial**
+(verde), **agravando** (âmbar), **agravada** (vermelho); quando acaba, a situação está **perdida** e a barra some.
+Ela corre desde que o operador atende, mesmo com a emergência em espera (aí mostra a linha), e **para enquanto o
+operador pergunta e a pessoa responde** (e na pausa do jogo); para de vez com o primeiro despacho. Vale uma
+advertência por emergência, pelo estágio em que o despacho saiu (veja a tabela); a perdida pune na hora.
+
+A cada estágio a pessoa conta o que mudou (`worsening`, `critical`, `lost` no `EmergencyCall`), e isso pode exigir
+unidades novas (`worsening_units`, `critical_units`, somadas às do caso): a fumaça fechou a rua → polícia; um vizinho
+desmaiou na fumaça → ambulância. Vale o que era preciso no momento do despacho. A duração de cada estágio é
+`stage_sec` (segundos reais): 60/30/30 nas ocorrências mais lentas, 55/30/30 nas médias e 50/25/25 em fogo e AVC.
+O robô em ritmo humano (5 s por ação, lendo cada resposta até o fim) despacha com ~40 s de barra corrida.
 
 ## Moldes (conversas geradas)
 

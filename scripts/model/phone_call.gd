@@ -67,6 +67,9 @@ var wrong := 0              ## quantas vezes foi conectada ao número errado
 # emergência
 var asked: Array[int] = []
 var dispatched := false
+var stage := 0              ## barra de agravamento: 0 inicial, 1 agravando, 2 agravada, 3 perdida
+var urgency := 0.0          ## segundos que a barra já correu
+var asking := false         ## pergunta e resposta em andamento: a barra para
 # pedido de informação
 var ask := ""
 var about := ""             ## de quem pediu o número: "o Hotel Estrela"

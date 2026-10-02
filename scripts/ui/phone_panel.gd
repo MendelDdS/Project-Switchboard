@@ -8,6 +8,7 @@ signal transfer_pressed
 signal hangup_pressed
 
 @onready var fone_socket: FoneSocket = %FoneSocket
+@onready var urgency: UrgencyBar = %Urgency
 @onready var _display: Label = %Display
 @onready var _line: Label = %CallLine
 @onready var _state: Label = %CallState

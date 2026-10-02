@@ -32,6 +32,8 @@ const DIGITS := ["zero", "um", "dois", "três", "quatro", "cinco", "seis", "sete
 
 ## Traduz o molde, preenche as lacunas {x} e põe a primeira letra em maiúscula.
 static func fill(template: String, vars: Dictionary) -> String:
+	if template == "":
+		return ""   # traduzir "" devolve o cabeçalho do .po
 	var s := String(TranslationServer.translate(template)).format(vars)
 	return s.left(1).to_upper() + s.substr(1)
 
@@ -83,6 +85,12 @@ static func template_emergency() -> EmergencyCall:
 	e.occurrence = tpl.occurrence
 	e.units = tpl.units
 	e.after = fill(tpl.after, vars)
+	e.stage_sec = tpl.stage_sec
+	e.worsening = fill(tpl.worsening, vars)
+	e.worsening_units = tpl.worsening_units
+	e.critical = fill(tpl.critical, vars)
+	e.critical_units = tpl.critical_units
+	e.lost = fill(tpl.lost, vars)
 	return e
 
 

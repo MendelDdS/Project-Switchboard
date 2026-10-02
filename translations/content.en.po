@@ -1411,6 +1411,18 @@ msgstr "A car hit the pole. It stopped up on the sidewalk."
 msgid "Estão vindo? Graças a Deus... obrigada."
 msgstr "They're coming? Thank God... thank you."
 
+#: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
+msgid "Tá juntando gente em volta, os carros não conseguem mais passar!"
+msgstr "A crowd is gathering, the cars can't get through anymore!"
+
+#: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
+msgid "Tá vazando gasolina do carro! Tá escorrendo pela rua!"
+msgstr "Gas is leaking from the car! It's running down the street!"
+
+#: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
+msgid "Pegou fogo! O carro pegou fogo! Por que demorou tanto?!"
+msgstr "It caught fire! The car caught fire! Why did it take so long?!"
+
 #: data/calls/emergency_02_incendio_rua_do_moinho_40.tres
 msgid "Central, tem fogo! Tem fogo no galpão da Rua do Moinho!"
 msgstr "Operator, there's a fire! There's a fire in the shed on Rua do Moinho!"
@@ -1451,6 +1463,18 @@ msgstr "The night watchman got out, but his face is burned!"
 msgid "Tá bom. Tá bom. Eu vou tirar o carro daqui."
 msgstr "Okay. Okay. I'm moving the car out of here."
 
+#: data/calls/emergency_02_incendio_rua_do_moinho_40.tres
+msgid "A fumaça tá tomando a rua toda, os carros tão parando no meio!"
+msgstr "The smoke is covering the whole street, cars are stopping in the middle!"
+
+#: data/calls/emergency_02_incendio_rua_do_moinho_40.tres
+msgid "Um vizinho tentou ajudar e caiu! Tá desacordado na fumaça!"
+msgstr "A neighbor tried to help and collapsed! He's out cold in the smoke!"
+
+#: data/calls/emergency_02_incendio_rua_do_moinho_40.tres
+msgid "O telhado caiu! Caiu tudo! Ninguém veio..."
+msgstr "The roof came down! Everything came down! Nobody came..."
+
 #: data/calls/emergency_03_mal_subito_rua_do_sol_230.tres
 msgid "Central, meu pai caiu no banheiro e não acorda!"
 msgstr "Operator, my father fell in the bathroom and won't wake up!"
@@ -1486,6 +1510,18 @@ msgstr "Yes, I can hear him breathing. But the door is locked from inside and he
 #: data/calls/emergency_03_mal_subito_rua_do_sol_230.tres
 msgid "Obrigada. Eu vou deixar a porta aberta."
 msgstr "Thank you. I'll leave the door open."
+
+#: data/calls/emergency_03_mal_subito_rua_do_sol_230.tres
+msgid "Ele tá ficando roxo... a respiração tá cada vez mais fraca!"
+msgstr "He's turning blue... his breathing keeps getting weaker!"
+
+#: data/calls/emergency_03_mal_subito_rua_do_sol_230.tres
+msgid "Ele não responde mais nada! Não sei se tá respirando!"
+msgstr "He's not responding at all! I don't know if he's breathing!"
+
+#: data/calls/emergency_03_mal_subito_rua_do_sol_230.tres
+msgid "Ele... ele não tá mais respirando. Vocês demoraram demais."
+msgstr "He... he's not breathing anymore. You took too long."
 
 #: data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres
 msgid "Homem (sussurrando)"
@@ -1523,6 +1559,18 @@ msgstr "The neighbor came home right then and got hit on the head! He's lying in
 msgid "Tá. Vou ficar quieto aqui dentro."
 msgstr "Okay. I'll keep quiet in here."
 
+#: data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres
+msgid "Eles entraram! Tão carregando as coisas pra rua!"
+msgstr "They got in! They're carrying things out to the street!"
+
+#: data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres
+msgid "Eles me viram na janela! Um deles tá vindo pra cá com um pé de cabra!"
+msgstr "They saw me at the window! One of them is coming over here with a crowbar!"
+
+#: data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres
+msgid "Eles fugiram de carro. Levaram tudo... e ninguém apareceu."
+msgstr "They drove off. They took everything... and nobody showed up."
+
 #: data/calls/emergency_05_outro_rua_da_estacao_140.tres
 msgid "Homem nervoso"
 msgstr "Nervous man"
@@ -1559,6 +1607,18 @@ msgstr "Not yet! Zé is trying to break it up!"
 msgid "Tão vindo? Tá, eu seguro o pessoal aqui."
 msgstr "They're coming? Okay, I'll keep everyone back."
 
+#: data/calls/emergency_05_outro_rua_da_estacao_140.tres
+msgid "Agora tão quebrando as cadeiras! Tá todo mundo brigando!"
+msgstr "Now they're breaking chairs! Everybody's fighting!"
+
+#: data/calls/emergency_05_outro_rua_da_estacao_140.tres
+msgid "Furaram um rapaz na barriga! Tá sangrando muito!"
+msgstr "They stabbed a guy in the stomach! He's bleeding a lot!"
+
+#: data/calls/emergency_05_outro_rua_da_estacao_140.tres
+msgid "O rapaz desmaiou... tem sangue pra todo lado. Por que ninguém veio?"
+msgstr "The guy passed out... there's blood everywhere. Why didn't anyone come?"
+
 #: data/calls/emergency_06_outro_rua_do_comercio_71.tres
 msgid "Central, caiu um fio do poste aqui na frente e está soltando faísca!"
 msgstr "Operator, a wire fell off the pole out front and it's sparking!"
@@ -1590,6 +1650,18 @@ msgstr "The boy from the bakery touched it! He's down and not moving!"
 #: data/calls/emergency_06_outro_rua_do_comercio_71.tres
 msgid "Tá bom. Vou manter as crianças dentro de casa."
 msgstr "Okay. I'll keep the kids inside."
+
+#: data/calls/emergency_06_outro_rua_do_comercio_71.tres
+msgid "Tá todo mundo parando pra olhar, a rua tá trancada de carro!"
+msgstr "Everybody's stopping to look, the street is jammed with cars!"
+
+#: data/calls/emergency_06_outro_rua_do_comercio_71.tres
+msgid "O fogo passou pro telhado da barbearia! O barbeiro mora em cima e não consegue descer!"
+msgstr "The fire spread to the barbershop roof! The barber lives upstairs and can't get down!"
+
+#: data/calls/emergency_06_outro_rua_do_comercio_71.tres
+msgid "A barbearia tá toda em chamas... e ninguém veio."
+msgstr "The barbershop is all in flames... and nobody came."
 
 #: data/calls/emergency_07_incendio_rua_das_flores_45.tres
 msgid "Central! Tá saindo fumaça da casa do vizinho!"
@@ -1627,6 +1699,18 @@ msgstr "Yes! He lives alone and didn't come out! The door is locked!"
 msgid "Tá bom. Eu vou chamar os outros vizinhos."
 msgstr "Okay. I'll go get the other neighbors."
 
+#: data/calls/emergency_07_incendio_rua_das_flores_45.tres
+msgid "Agora tá saindo fogo pelo telhado!"
+msgstr "Now there's fire coming out of the roof!"
+
+#: data/calls/emergency_07_incendio_rua_das_flores_45.tres
+msgid "O fogo tá passando pra casa do lado! A senhora de lá usa cadeira de rodas e não consegue sair!"
+msgstr "The fire is spreading to the house next door! The lady there uses a wheelchair and can't get out!"
+
+#: data/calls/emergency_07_incendio_rua_das_flores_45.tres
+msgid "A casa desabou... Vocês demoraram demais!"
+msgstr "The house collapsed... You took too long!"
+
 #: data/calls/emergency_08_acidente_avenida_brasil_60.tres
 msgid "Central, um carro bateu no poste aqui na avenida!"
 msgstr "Operator, a car hit a light pole here on the avenue!"
@@ -1663,6 +1747,18 @@ msgstr "It's leaning, but still standing. The car ended up on the sidewalk."
 msgid "Tá. Ninguém chega perto dos fios, pode deixar."
 msgstr "Okay. Nobody's going near the wires, don't worry."
 
+#: data/calls/emergency_08_acidente_avenida_brasil_60.tres
+msgid "Tá formando fila de carro dos dois lados da avenida!"
+msgstr "There's a line of cars building up on both sides of the avenue!"
+
+#: data/calls/emergency_08_acidente_avenida_brasil_60.tres
+msgid "Começou a sair fumaça do capô do carro!"
+msgstr "Smoke started coming out of the car's hood!"
+
+#: data/calls/emergency_08_acidente_avenida_brasil_60.tres
+msgid "O carro pegou fogo! Por que ninguém veio?!"
+msgstr "The car caught fire! Why didn't anyone come?!"
+
 #: data/calls/emergency_09_mal_subito_rua_do_comercio_150.tres
 msgid "Filha"
 msgstr "Daughter"
@@ -1695,6 +1791,18 @@ msgstr "Seventy-eight."
 msgid "Eu vou descer e esperar na porta."
 msgstr "I'll go down and wait at the door."
 
+#: data/calls/emergency_09_mal_subito_rua_do_comercio_150.tres
+msgid "Agora ela não consegue falar mais nada!"
+msgstr "Now she can't say anything at all!"
+
+#: data/calls/emergency_09_mal_subito_rua_do_comercio_150.tres
+msgid "Ela desmaiou! Não acorda!"
+msgstr "She fainted! She won't wake up!"
+
+#: data/calls/emergency_09_mal_subito_rua_do_comercio_150.tres
+msgid "Ela... ela não acorda mais. Ninguém veio."
+msgstr "She... she's not waking up. Nobody came."
+
 #: data/calls/emergency_10_invasao_rua_do_moinho_260.tres
 msgid "(sussurrando) Central... tem alguém dentro da minha casa."
 msgstr "(whispering) Operator... there's someone inside my house."
@@ -1726,6 +1834,18 @@ msgstr "I'm locked in the bedroom. But I cut my hand badly on the glass when I r
 #: data/calls/emergency_10_invasao_rua_do_moinho_260.tres
 msgid "Tá. Eu vou ficar quieto aqui."
 msgstr "Okay. I'll stay quiet in here."
+
+#: data/calls/emergency_10_invasao_rua_do_moinho_260.tres
+msgid "(sussurrando) Tão mexendo nas gavetas da sala..."
+msgstr "(whispering) They're going through the drawers in the living room..."
+
+#: data/calls/emergency_10_invasao_rua_do_moinho_260.tres
+msgid "(sussurrando) Tão tentando abrir a porta do quarto!"
+msgstr "(whispering) They're trying to open the bedroom door!"
+
+#: data/calls/emergency_10_invasao_rua_do_moinho_260.tres
+msgid "(chorando) Eles foram embora... levaram tudo. Ninguém veio."
+msgstr "(crying) They're gone... they took everything. Nobody came."
 
 #: data/calls/prank_01_crianca.tres
 msgid "Criança"
@@ -2075,6 +2195,18 @@ msgstr "The lady of the house burned her hands trying to put it out!"
 msgid "Tá bom. A gente vai se afastar."
 msgstr "Okay. We'll move back."
 
+#: data/templates/emergency_incendio.tres
+msgid "O fogo tá passando pra casa do vizinho!"
+msgstr "The fire is spreading to the neighbor's house!"
+
+#: data/templates/emergency_incendio.tres
+msgid "O vizinho de idade não saiu! Tá na janela pedindo ajuda!"
+msgstr "The old man next door didn't get out! He's at the window calling for help!"
+
+#: data/templates/emergency_incendio.tres
+msgid "O telhado caiu... Vocês demoraram demais!"
+msgstr "The roof came down... You took too long!"
+
 #: data/templates/emergency_mal_subito.tres
 msgid "Central, o meu vizinho desmaiou!"
 msgstr "Operator, my neighbor passed out!"
@@ -2102,6 +2234,18 @@ msgstr "In his kitchen. And there's a strong smell of gas in there!"
 #: data/templates/emergency_mal_subito.tres
 msgid "Tá. Eu espero aqui na porta."
 msgstr "Okay. I'll wait here at the door."
+
+#: data/templates/emergency_mal_subito.tres
+msgid "A respiração dele tá ficando mais fraca!"
+msgstr "His breathing is getting weaker!"
+
+#: data/templates/emergency_mal_subito.tres
+msgid "Ele começou a tremer todo!"
+msgstr "He started shaking all over!"
+
+#: data/templates/emergency_mal_subito.tres
+msgid "Ele... parou de respirar. Vocês demoraram demais."
+msgstr "He... stopped breathing. You took too long."
 
 #: data/templates/emergency_acidente.tres
 msgid "Central, teve uma batida feia aqui na {street}!"
@@ -2143,6 +2287,18 @@ msgstr "No, they already pushed everything onto the sidewalk."
 msgid "Tá bom. Eu fico aqui esperando."
 msgstr "Alright. I'll stay here and wait."
 
+#: data/templates/emergency_acidente.tres
+msgid "Tá juntando gente em volta, os carros não passam mais!"
+msgstr "A crowd is gathering, cars can't get by anymore!"
+
+#: data/templates/emergency_acidente.tres
+msgid "Tá saindo fumaça do motor do carro!"
+msgstr "Smoke is coming out of the car's engine!"
+
+#: data/templates/emergency_acidente.tres
+msgid "O carro pegou fogo! Por que demorou tanto?!"
+msgstr "The car caught fire! Why did it take so long?!"
+
 #: data/templates/emergency_invasao.tres
 msgid "(baixinho) Central, tem alguém tentando abrir a porta dos fundos."
 msgstr "(quietly) Operator, someone's trying to open the back door."
@@ -2171,6 +2327,18 @@ msgstr "Just a shadow through the window."
 msgid "Tá. Não vou fazer barulho."
 msgstr "Okay. I won't make a sound."
 
+#: data/templates/emergency_invasao.tres
+msgid "(baixinho) Ele conseguiu abrir... tá dentro de casa."
+msgstr "(quietly) He got it open... he's inside the house."
+
+#: data/templates/emergency_invasao.tres
+msgid "(baixinho) Ele tá subindo a escada..."
+msgstr "(quietly) He's coming up the stairs..."
+
+#: data/templates/emergency_invasao.tres
+msgid "(chorando) Ele levou tudo e foi embora. Ninguém veio."
+msgstr "(crying) He took everything and left. Nobody came."
+
 #: data/templates/emergency_briga.tres
 msgid "Central, tem uma briga feia no meio da {street}!"
 msgstr "Operator, there's a nasty fight in the middle of {street}!"
@@ -2198,6 +2366,18 @@ msgstr "One fell and hit his head on the curb! He's bleeding!"
 #: data/templates/emergency_briga.tres
 msgid "Tá. Vou entrar e trancar a porta."
 msgstr "Okay. I'll go in and lock the door."
+
+#: data/templates/emergency_briga.tres
+msgid "Chegou mais gente! Agora são uns dez!"
+msgstr "More people showed up! Now there's like ten of them!"
+
+#: data/templates/emergency_briga.tres
+msgid "Derrubaram um no chão e tão chutando! Ele não se mexe!"
+msgstr "They knocked one down and they're kicking him! He's not moving!"
+
+#: data/templates/emergency_briga.tres
+msgid "Fugiram todos... e o rapaz continua no chão. Ninguém veio."
+msgstr "They all ran off... and the guy is still on the ground. Nobody came."
 
 #: data/content.tres
 msgid "Central telefônica, pois não?"

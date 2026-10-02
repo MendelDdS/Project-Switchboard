@@ -10,3 +10,7 @@ answers = PackedStringArray("{address}. Rápido, por favor.", "Não, só eu.", "
 occurrence = "Invasão / roubo"
 units = PackedStringArray("pol")
 after = "Tá. Não vou fazer barulho."
+stage_sec = Vector3(60, 30, 30)
+worsening = "(baixinho) Ele conseguiu abrir... tá dentro de casa."
+critical = "(baixinho) Ele tá subindo a escada..."
+lost = "(chorando) Ele levou tudo e foi embora. Ninguém veio."

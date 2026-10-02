@@ -259,9 +259,11 @@ func _em_ask(c: PhoneCall, k: int) -> void:
 		return
 	c.asked.append(k)
 	emergency_choices(c)
-	if not await op(c, e.questions[k]):
-		return
-	await say(c, e.answers[k])
+	# a barra de agravamento para enquanto o operador pergunta e a pessoa responde
+	c.asking = true
+	if await op(c, e.questions[k]):
+		await say(c, e.answers[k])
+	c.asking = false
 
 
 func _em_hold(c: PhoneCall) -> void:
@@ -270,6 +272,20 @@ func _em_hold(c: PhoneCall) -> void:
 	if not await op(c, T.text(T.Key.OP_HOLD_EMERGENCY)):
 		return
 	await say(c, T.text([T.Key.CALLER_HURRY, T.Key.CALLER_OKAY].pick_random()))
+
+
+## A situação piorou (Main._worsen): a pessoa conta o que mudou assim que o operador estiver na linha e ela puder
+## falar. Depois do despacho, o que ficou por dizer não importa mais.
+func emergency_worse(c: PhoneCall, stage: int) -> void:
+	var e: EmergencyCall = c.data
+	var text: String = [e.worsening, e.critical, e.lost][stage - 1]
+	if text == "":
+		return
+	while not c.on_line or c.talking or c.asking:
+		if c.ended or c.dispatched:
+			return
+		await get_tree().process_frame
+	await say(c, text)
 
 
 ## As unidades saíram: o operador avisa e a pessoa desliga.

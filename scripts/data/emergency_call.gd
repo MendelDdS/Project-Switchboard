@@ -24,3 +24,26 @@ extends Resource
 @export var cases: Array[EmergencyCase] = []
 ## O que a pessoa diz quando as unidades são enviadas.
 @export var after := ""
+
+@export_group("Agravamento")
+## Enquanto ninguém despacha, a situação piora (barra abaixo da conversa; para durante pergunta e resposta).
+## Segundos de cada estágio: inicial, agravando, agravada; depois disso está perdida. Situações perigosas
+## (fogo, AVC) correm mais rápido.
+@export var stage_sec := Vector3(60.0, 30.0, 30.0)
+## O que a pessoa conta quando a situação começa a piorar e as unidades que isso passa a exigir (somam às do caso).
+@export var worsening := ""
+@export var worsening_units: PackedStringArray = []
+## O que ela conta quando fica crítica, e as unidades a mais.
+@export var critical := ""
+@export var critical_units: PackedStringArray = []
+## A reclamação quando o pior acontece (dá para despachar ainda, mas a emergência está perdida).
+@export var lost := ""
+
+
+## Unidades necessárias no estágio `stage` (0 inicial, 1 agravando, 2 agravada ou depois).
+func required(stage: int) -> PackedStringArray:
+	var out := units.duplicate()
+	for u in (worsening_units if stage >= 1 else PackedStringArray()) + (critical_units if stage >= 2 else PackedStringArray()):
+		if not u in out:
+			out.append(u)
+	return out
