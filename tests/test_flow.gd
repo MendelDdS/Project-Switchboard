@@ -387,6 +387,8 @@ func _initialize() -> void:
 	m._run_schedule()
 	ok(not sc in m.live and not sc in m.sched, "condição não bate: a ligação do roteiro não toca")
 	sc.requires = PackedStringArray(["disse_sim"])
+	m.night = m.night.duplicate()
+	m.night.max_live = 10   # a agenda de verdade pode já ter ligações tocando; aqui só importa o marcador
 	m.sched.push_front(sc)
 	m._run_schedule()
 	ok(sc in m.live, "condição bate: toca")
