@@ -19,7 +19,7 @@ const VOICE := {
 const VOWEL := {"a": Vector2(780, 1250), "e": Vector2(480, 1850), "i": Vector2(310, 2250), "o": Vector2(500, 880), "u": Vector2(350, 720)}
 const VOL := {
 	"click": -14.0, "sw": -10.0, "plug_in": -3.0, "plug_out": -9.0, "key": -13.0, "page": -11.0,
-	"tick": -24.0, "pencil": -13.0, "ring": -5.0, "pulse": -10.0, "ringback": -13.0, "sit": -13.0,
+	"tick": -24.0, "pencil": -13.0, "ring": -9.0, "pulse": -10.0, "ringback": -13.0, "sit": -13.0,
 	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "rub": -13.0, "cord_stop": -16.0, "cord_tap": -17.0, "unroll": -8.0,
 }
 ## Volume (dB) dos sons de ambiente em cada clima; o que não aparece fica mudo.
@@ -28,10 +28,9 @@ const WEATHER_MIX := {
 	"fog": {"crickets": -31.0},
 	"clear": {"breeze": -24.0, "crickets": -28.0},
 }
-# Modos de vibração de uma campânula de metal: (razão da frequência, amplitude, decaimento em s).
-const BELL_MODES := [Vector3(1.0, 1.0, 0.22), Vector3(1.52, 0.7, 0.16), Vector3(2.38, 0.6, 0.12),
-	Vector3(3.06, 0.45, 0.1), Vector3(4.0, 0.3, 0.08)]
-const GONGS := [1150.0, 1370.0]   # as duas campânulas, levemente dissonantes (daí o "trrrim" áspero)
+## Toque da mesa: "bi-bip" suave (a campainha de metal antiga incomodava). Frequência (Hz), duração e intervalo
+## de cada bipe (s), quantos bipes.
+const BEEP := {"f": 740.0, "dur": 0.13, "gap": 0.09, "count": 2}
 
 ## Atrito do fio no buraco (`cord_rub`): abaixo de RUB_MIN px/s, silêncio; em RUB_FULL, volume e tom no máximo.
 const RUB_MIN := 25.0
@@ -756,35 +755,19 @@ func _build_rub() -> void:
 		_end(id, false, true, 0.8 * own / mix)
 
 
-## Campainha antiga, "trrrim-trrrim": o martelinho bate 20 vezes por segundo em cada campânula, alternando.
-## Cada batida realimenta os modos de vibração do metal (ressonadores afinados), então o som vai se somando
-## e fica áspero.
+## Toque da mesa: bipes curtos de seno (com um pouco do 2º e 3º harmônicos, para não soar eletrônico demais),
+## ataque e saída suaves (sem estalo) e um passa-baixa que tira o agudo.
 func _build_ring() -> void:
-	_begin(1.8)
-	var n := _w.size()
-	var hits := [PackedFloat32Array(), PackedFloat32Array()]
-	for h: PackedFloat32Array in hits:
-		h.resize(n)
-		h.fill(0.0)
-	for burst in [0.0, 0.6]:
-		var k := 0
-		while k * 0.025 < 0.4:
-			var i := int((burst + k * 0.025 + randf() * 0.002) * RATE)
-			hits[k % 2][i] = randf_range(0.8, 1.0)
-			k += 1
-	for g in 2:
-		for m: Vector3 in BELL_MODES:
-			var y := _resonator(hits[g], GONGS[g] * m.x, m.z)
-			for i in n:
-				_w[i] += y[i] * m.y
-	# o estalo do martelinho no metal
-	var click := PackedFloat32Array()
-	click.resize(n)
-	for i in n:
-		click[i] = (hits[0][i] + hits[1][i]) * randf_range(-1.0, 1.0)
-	click = _biquad(click, "hp", 3000.0, 0.7)
-	for i in n:
-		_w[i] += click[i] * 0.05
+	var step: float = BEEP.dur + BEEP.gap
+	_begin(step * BEEP.count)
+	for b in BEEP.count:
+		var s0 := int(b * step * RATE)
+		for i in int(BEEP.dur * RATE):
+			var t := float(i) / RATE
+			var env := minf(1.0, minf(t / 0.012, (BEEP.dur - t) / 0.05))
+			var f: float = BEEP.f
+			_w[s0 + i] = (sin(TAU * f * t) + 0.2 * sin(TAU * 2.0 * f * t) + 0.08 * sin(TAU * 3.0 * f * t)) * env
+	_w = _biquad(_w, "lp", 2400.0, 0.7)
 	_end("ring")
 
 

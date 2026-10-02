@@ -541,6 +541,9 @@ func _update_call_ui() -> void:
 	var f := _focus()
 	var s := phone.shown()
 	var can_transfer := f != null and f.active and f.kind == PhoneCall.Kind.TRANSFER and f.phase == PhoneCall.Phase.AWAIT
+	if can_transfer:   # já transferida: o destino na ponta do cabo está tocando ou atendeu
+		var d := board.dest_of_output(f.line)
+		can_transfer = d == -1 or exchange.dest(d) == Exchange.Dest.FREE
 	phone.set_buttons(f != null and f.ringing, can_transfer, f != null and f.active)
 	var line := T.text(T.Key.STATUS_NO_CALL)
 	var st := ""
