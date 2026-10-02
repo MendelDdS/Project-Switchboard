@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" path="res://scripts/ui/tools.gd" id="1_tools"]
 [ext_resource type="PackedScene" path="res://scenes/ui/phone_book.tscn" id="2_phone_book"]
-[ext_resource type="PackedScene" path="res://scenes/ui/map_view.tscn" id="3_map_view"]
 [ext_resource type="PackedScene" path="res://scenes/ui/dispatch.tscn" id="4_dispatch"]
 [ext_resource type="PackedScene" path="res://scenes/ui/notebook.tscn" id="5_notebook"]
 
@@ -26,44 +25,6 @@ theme_type_variation = &"TabButton"
 toggle_mode = true
 text = "TAB_DIRECTORY"
 
-[node name="Dot" type="ColorRect" parent="TabBar/TabLista"]
-visible = false
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -6.0
-offset_top = -5.0
-offset_right = 4.0
-offset_bottom = 5.0
-grow_horizontal = 0
-mouse_filter = 2
-color = Color(0.9529, 0.6588, 0.2353, 1)
-
-[node name="TabMapa" type="Button" parent="TabBar"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(70, 34)
-layout_mode = 2
-size_flags_vertical = 8
-focus_mode = 0
-theme_type_variation = &"TabButton"
-toggle_mode = true
-text = "TAB_MAP"
-
-[node name="Dot" type="ColorRect" parent="TabBar/TabMapa"]
-visible = false
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -6.0
-offset_top = -5.0
-offset_right = 4.0
-offset_bottom = 5.0
-grow_horizontal = 0
-mouse_filter = 2
-color = Color(0.9529, 0.6588, 0.2353, 1)
-
 [node name="TabDespacho" type="Button" parent="TabBar"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(104, 34)
@@ -73,20 +34,6 @@ focus_mode = 0
 theme_type_variation = &"TabButton"
 toggle_mode = true
 text = "TAB_DISPATCH"
-
-[node name="Dot" type="ColorRect" parent="TabBar/TabDespacho"]
-visible = false
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -6.0
-offset_top = -5.0
-offset_right = 4.0
-offset_bottom = 5.0
-grow_horizontal = 0
-mouse_filter = 2
-color = Color(0.9529, 0.6588, 0.2353, 1)
 
 [node name="TabCaderno" type="Button" parent="TabBar"]
 unique_name_in_owner = true
@@ -128,10 +75,6 @@ theme_override_constants/margin_right = 22
 theme_override_constants/margin_bottom = 18
 
 [node name="PhoneBook" parent="Paper/Margin" instance=ExtResource("2_phone_book")]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="MapView" parent="Paper/Margin" instance=ExtResource("3_map_view")]
 unique_name_in_owner = true
 layout_mode = 2
 

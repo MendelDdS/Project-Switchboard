@@ -5,7 +5,7 @@ Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
 ## Estrutura
 
 - `scenes/main.tscn` — cena principal (layout em containers); `scenes/ui/` — telefone, rádio, abas de ferramentas
-  (lista, mapa, despacho, caderno), tela inicial e final. Edite a interface no editor do Godot.
+  (lista telefônica, mapa e despacho, caderno), tela inicial e final. Edite a interface no editor do Godot.
 - `themes/main_theme.tres` — tema global (cores, fontes e variações de botão/painel/rótulo).
 - `data/content.tres` — **todo o conteúdo**: lista telefônica (nomes como se fala, "Rosa Lima", "Corpo de
   Bombeiros"; a lista se ordena sozinha), ruas, falas avulsas, pedidos de informação e as
@@ -56,7 +56,7 @@ ligação desconhecida não contam.
 | Faltar unidade no despacho | média | o rádio pede a unidade que falta |
 | Enviar unidades sem emergência | média | — |
 | Enviar unidade a mais (no local certo) | leve | o rádio diz que ela não era necessária, e ela volta logo |
-| Marcar o tipo de ocorrência errado no despacho | leve | — (o tipo é obrigatório para enviar) |
+| Marcar o tipo de ocorrência errado no despacho | leve | — (Enviar só acende com local, tipo e unidade) |
 
 Quem liga de novo espera a mesa esvaziar (no máximo `RETRY_WAIT`, 20 min de jogo), para não empilhar ligações
 sobre quem já está sobrecarregado. Quando a emergência liga de novo, em `REDISPATCH_CHANCE` (60%) dos casos ainda dá para despachar (no jornal: "com
@@ -198,6 +198,11 @@ o botão **Desligar** encerra a ligação, e a linha fica "desligou" até o FONE
 "Outras linhas" no telefone lista quem está tocando ou em espera.
 
 Depois da ligação desconhecida, FONE na entrada por onde ela veio tenta ligar de volta.
+
+**Emergência:** na aba **Mapa e despacho**, clique no trecho da rua (passar o mouse mostra a faixa de números, ex.:
+"Rua do Sol, 1–99"), escolha o tipo (ele já marca as unidades de costume, `occurrence_units` no `content.tres`;
+dá para mudar) e **Enviar**, que só acende com local, tipo e unidade marcados. Depois do envio o despacho fica limpo
+para a próxima.
 
 ## Cabos
 

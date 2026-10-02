@@ -20,7 +20,7 @@ const VOWEL := {"a": Vector2(780, 1250), "e": Vector2(480, 1850), "i": Vector2(3
 const VOL := {
 	"click": -14.0, "sw": -10.0, "plug_in": -3.0, "plug_out": -9.0, "key": -13.0, "page": -11.0,
 	"tick": -24.0, "pencil": -13.0, "ring": -5.0, "pulse": -10.0, "ringback": -13.0, "sit": -13.0,
-	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "rub": -13.0, "cord_stop": -16.0, "cord_tap": -17.0,
+	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "rub": -13.0, "cord_stop": -16.0, "cord_tap": -17.0, "unroll": -8.0,
 }
 ## Volume (dB) dos sons de ambiente em cada clima; o que não aparece fica mudo.
 const WEATHER_MIX := {
@@ -524,6 +524,7 @@ func _build_all() -> void:
 	# plug solto batendo na mesa
 	_begin(0.14); _noise(0, 0.05, "lp", 1800, 0.7, 1.0); _tone(0, 150, 0.1, "sine", 0.6); _tone(0.005, 2100, 0.015, "square", 0.06); _end("drop")
 	_build_rub()
+	_build_unroll()
 	_begin(0.55)
 	for k in 12:
 		if randf() < 0.7:
@@ -657,6 +658,27 @@ func _cricket_syllable(at: float, f: float, dur: float, g: float) -> void:
 		ph += f * (1.01 - 0.02 * k) / RATE
 		var env := minf(1.0, t / 0.003) * pow(1.0 - k, 0.8)
 		_w[s0 + i] += sin(TAU * ph) * env * g
+
+
+## Mapa de papel desenrolando (ao abrir a aba do mapa): estalinhos do papel se soltando, cada vez mais espaçados,
+## sobre um "fffff" de folha deslizando, e a folha assentando na mesa no fim.
+func _build_unroll() -> void:
+	_begin(0.8)
+	var t := 0.0
+	while t < 0.55:
+		_noise(t, randf_range(0.004, 0.012), "bp", randf_range(2500.0, 5500.0), 2.0, randf_range(0.25, 0.8) * (1.0 - t / 0.7))
+		t += randf_range(0.006, 0.012) + t * 0.05
+	var slide := PackedFloat32Array()   # deslizar: ruído que cresce e some
+	slide.resize(int(0.55 * RATE))
+	for i in slide.size():
+		var k := float(i) / slide.size()
+		slide[i] = randf_range(-1.0, 1.0) * 0.35 * sin(PI * k)
+	slide = _biquad(slide, "bp", 1800.0, 0.7)
+	for i in slide.size():
+		_w[i] += slide[i]
+	_noise(0.56, 0.1, "lp", 800, 0.7, 0.8)   # a folha assenta
+	_tone(0.56, 120, 0.08, "sine", 0.35)
+	_end("unroll")
 
 
 ## Atrito do fio na borda do buraco: dois loops que tocam juntos (`cord_rub` controla o volume de cada um).

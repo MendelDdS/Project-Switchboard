@@ -99,13 +99,6 @@ func _ready() -> void:
 	_intro.start_pressed.connect(_start_shift)
 	_intro.settings_pressed.connect(_pause.open_settings)
 	_pause.resumed.connect(_update_bell)
-	tools.tab_changed.connect(_on_tab_changed)
-	tools.map_view.location_selected.connect(func(s: String, b: int, l: String):
-		dispatch.set_location(s, b, l)
-		tools.set_dot("despacho", true))
-	tools.map_view.use_pressed.connect(tools.set_tab.bind("despacho"))
-	dispatch.open_map_pressed.connect(tools.set_tab.bind("mapa"))
-	dispatch.city = tools.map_view.city
 	dispatch.radio = radio
 	dispatch.sent.connect(_on_dispatched)
 	dispatch.arrived.connect(_on_arrived)
@@ -965,11 +958,6 @@ func _on_registered(rec: Dictionary, type: T.Key) -> void:
 		return
 	if type != TYPE_OF[rec["kind"]]:
 		report.add("register_wrong", rec["time"], rec["who"])
-
-
-func _on_tab_changed(id: String) -> void:
-	if id == "despacho":
-		tools.set_dot("despacho", false)
 
 
 # ================================================================ ligação desconhecida e final

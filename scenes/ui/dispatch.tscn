@@ -1,168 +1,101 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/dispatch.gd" id="1_dispatch"]
+[ext_resource type="Script" path="res://scripts/ui/city_map.gd" id="2_city_map"]
 
 [node name="Dispatch" type="VBoxContainer"]
-theme_override_constants/separation = 6
+theme_override_constants/separation = 5
 script = ExtResource("1_dispatch")
 
-[node name="Title" type="Label" parent="."]
-layout_mode = 2
-text = "DISPATCH_TITLE"
-theme_type_variation = &"InkMonoLabel"
-theme_override_font_sizes/font_size = 30
-
-[node name="LocCaption" type="Label" parent="."]
-layout_mode = 2
-text = "DISPATCH_LOCATION"
-theme_type_variation = &"InkMonoLabel"
-theme_override_colors/font_color = Color(0.3529, 0.302, 0.2275, 1)
-theme_override_font_sizes/font_size = 20
-
-[node name="LocRow" type="HBoxContainer" parent="."]
-layout_mode = 2
-theme_override_constants/separation = 14
-
-[node name="Location" type="Label" parent="LocRow"]
-layout_mode = 2
-text = "DISPATCH_MARK_MAP"
-theme_type_variation = &"InkMonoLabel"
-theme_override_font_sizes/font_size = 25
+[node name="City" type="Control" parent="."]
 unique_name_in_owner = true
-size_flags_vertical = 4
+custom_minimum_size = Vector2(576, 300)
+layout_mode = 2
+size_flags_vertical = 3
+script = ExtResource("2_city_map")
 
-[node name="OpenMap" type="Button" parent="LocRow"]
+[node name="Occurrences" type="HBoxContainer" parent="."]
 unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="UnitsRow" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="UnitPol" type="Button" parent="UnitsRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(104, 32)
 layout_mode = 2
 focus_mode = 0
-theme_type_variation = &"PaperToggle"
-theme_override_font_sizes/font_size = 20
-text = "DISPATCH_OPEN_MAP"
-
-[node name="Gap1" type="Control" parent="."]
-custom_minimum_size = Vector2(0, 4)
-layout_mode = 2
-
-[node name="OccCaption" type="Label" parent="."]
-layout_mode = 2
-text = "DISPATCH_INCIDENT"
-theme_type_variation = &"InkMonoLabel"
-theme_override_colors/font_color = Color(0.3529, 0.302, 0.2275, 1)
-theme_override_font_sizes/font_size = 20
-
-[node name="Occurrences" type="HFlowContainer" parent="."]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/h_separation = 8
-theme_override_constants/v_separation = 8
-
-[node name="Gap2" type="Control" parent="."]
-custom_minimum_size = Vector2(0, 4)
-layout_mode = 2
-
-[node name="UnitsCaption" type="Label" parent="."]
-layout_mode = 2
-text = "DISPATCH_UNITS"
-theme_type_variation = &"InkMonoLabel"
-theme_override_colors/font_color = Color(0.3529, 0.302, 0.2275, 1)
-theme_override_font_sizes/font_size = 20
-
-[node name="RowPol" type="HBoxContainer" parent="."]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="UnitPol" type="Button" parent="RowPol"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 0)
-layout_mode = 2
-focus_mode = 0
-theme_type_variation = &"PaperToggle"
-theme_override_font_sizes/font_size = 21
+theme_type_variation = &"PaperChip"
 toggle_mode = true
-text = ""
-alignment = 0
+auto_translate_mode = 2
 
-[node name="StatusPol" type="Label" parent="RowPol"]
-layout_mode = 2
-text = "UNIT_AVAILABLE"
-theme_type_variation = &"InkMonoLabel"
-theme_override_font_sizes/font_size = 21
+[node name="UnitBomb" type="Button" parent="UnitsRow"]
 unique_name_in_owner = true
-size_flags_vertical = 4
-
-[node name="RowBomb" type="HBoxContainer" parent="."]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="UnitBomb" type="Button" parent="RowBomb"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(104, 32)
 layout_mode = 2
 focus_mode = 0
-theme_type_variation = &"PaperToggle"
-theme_override_font_sizes/font_size = 21
+theme_type_variation = &"PaperChip"
 toggle_mode = true
-text = ""
-alignment = 0
+auto_translate_mode = 2
 
-[node name="StatusBomb" type="Label" parent="RowBomb"]
-layout_mode = 2
-text = "UNIT_AVAILABLE"
-theme_type_variation = &"InkMonoLabel"
-theme_override_font_sizes/font_size = 21
+[node name="UnitAmb" type="Button" parent="UnitsRow"]
 unique_name_in_owner = true
-size_flags_vertical = 4
-
-[node name="RowAmb" type="HBoxContainer" parent="."]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="UnitAmb" type="Button" parent="RowAmb"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(104, 32)
 layout_mode = 2
 focus_mode = 0
-theme_type_variation = &"PaperToggle"
-theme_override_font_sizes/font_size = 21
+theme_type_variation = &"PaperChip"
 toggle_mode = true
-text = ""
-alignment = 0
+auto_translate_mode = 2
 
-[node name="StatusAmb" type="Label" parent="RowAmb"]
+[node name="Gap" type="Control" parent="UnitsRow"]
 layout_mode = 2
-text = "UNIT_AVAILABLE"
-theme_type_variation = &"InkMonoLabel"
-theme_override_font_sizes/font_size = 21
+size_flags_horizontal = 3
+
+[node name="Send" type="Button" parent="UnitsRow"]
 unique_name_in_owner = true
-size_flags_vertical = 4
-
-[node name="Gap3" type="Control" parent="."]
-custom_minimum_size = Vector2(0, 4)
-layout_mode = 2
-
-[node name="SendRow" type="HBoxContainer" parent="."]
-layout_mode = 2
-theme_override_constants/separation = 14
-
-[node name="Send" type="Button" parent="SendRow"]
-unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 32)
 layout_mode = 2
 focus_mode = 0
 theme_type_variation = &"PaperInk"
+theme_override_font_sizes/font_size = 21
+disabled = true
 text = "DISPATCH_SEND"
 
-[node name="Message" type="Label" parent="SendRow"]
+[node name="Check" type="HBoxContainer" parent="."]
 layout_mode = 2
-text = ""
-theme_override_colors/font_color = Color(0.4314, 0.102, 0.07059, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_constants/separation = 16
+
+[node name="CheckPlace" type="Label" parent="Check"]
 unique_name_in_owner = true
-size_flags_vertical = 4
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"InkLabel"
+theme_override_font_sizes/font_size = 14
+text_overrun_behavior = 3
+auto_translate_mode = 2
+
+[node name="CheckType" type="Label" parent="Check"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"InkLabel"
+theme_override_font_sizes/font_size = 14
+auto_translate_mode = 2
+
+[node name="CheckUnits" type="Label" parent="Check"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"InkLabel"
+theme_override_font_sizes/font_size = 14
+auto_translate_mode = 2
 
 [node name="Report" type="Label" parent="."]
-layout_mode = 2
-text = ""
-theme_type_variation = &"InkMonoLabel"
-theme_override_font_sizes/font_size = 21
 unique_name_in_owner = true
 visible = false
+layout_mode = 2
+theme_type_variation = &"InkSoftLabel"
+theme_override_font_sizes/font_size = 14
+text_overrun_behavior = 3
+auto_translate_mode = 2

@@ -154,8 +154,9 @@ func _draw() -> void:
 					_use(xf * Transform2D(-PI / 2.0, Vector2(c2.x + 5, c2.y)))
 					_t(Vector2.ZERO, T.text(lm), 12)
 					_use(xf)
-				else:
-					_t(r.get_center() + Vector2(0, 6), T.text(lm), 14)
+				else:   # nome que não cabe no quarteirão (mapa menor) desce para 12
+					var fits := Pal.ui.get_string_size(T.text(lm), HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x <= r.size.x * _k - 6
+					_t(r.get_center() + Vector2(0, 6), T.text(lm), 14 if fits else 12)
 			else:
 				draw_rect(r, Color("8f7f5b"))
 				draw_rect(r.grow(-1), Color("c3b48b"))
@@ -184,7 +185,7 @@ func _draw() -> void:
 			draw_rect(Rect2(nx - 2, s.pos - 8, w + 4, 16), ROAD)
 			_t(Vector2(nx, s.pos + 5), s.name, 14, LINE, false)
 		else:
-			_t(Vector2(s.pos, 27), s.name, 14)
+			_t(Vector2(s.pos, 27), s.name, 14 if _k >= 0.9 else 12)   # no mapa menor, os nomes do topo se encostariam
 		for b in [1, 2]:
 			var g := seg_geom(s, b)
 			var p0: Vector2 = g[0]
@@ -234,9 +235,33 @@ func _draw() -> void:
 	draw_rect(Rect2(548, 384, 36, 30), Color("cfc199"))
 	_t(Vector2(566, 400), "N", 14)
 	draw_colored_polygon(PackedVector2Array([Vector2(566, 402), Vector2(560, 411), Vector2(572, 411)]), LINE)
+	if not hover.is_empty():
+		_tag(seg_geom(GameData.street(hover["street"]), hover["block"])[2], hover["label"])
 
 
-## O idioma mudou nas configurações: redesenha os textos.
+## Etiqueta de papel com o nome e a faixa de números do trecho sob o mouse ("Rua do Sol, 1–99"): mostra onde fica
+## o número que a pessoa disse antes de clicar. Em tamanho de tela, acima do trecho, sem sair do mapa.
+func _tag(p: Vector2, txt: String) -> void:
+	var w := Pal.ui.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
+	var at := (_tf * p).round() + Vector2(-roundf(w / 2.0) - 5, -34)
+	at = Vector2(clampf(at.x, 2, size.x - w - 12), maxf(at.y, 2))
+	draw_set_transform(Vector2.ZERO)
+	draw_rect(Rect2(at, Vector2(w + 10, 20)), LINE)
+	draw_rect(Rect2(at + Vector2.ONE, Vector2(w + 8, 18)), Color("f4ecd2"))
+	draw_string(Pal.ui, at + Vector2(5, 15), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, LINE)
+	draw_set_transform_matrix(_tf)
+
+
+## Tira a marcação do trecho (o despacho limpa depois de enviar).
+func clear_selection() -> void:
+	sel = {}
+	queue_redraw()
+
+
+## O idioma mudou nas configurações: redesenha os textos. O mouse saiu do mapa: some o realce e a etiqueta.
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_TRANSLATION_CHANGED:
+		queue_redraw()
+	elif what == NOTIFICATION_MOUSE_EXIT and not hover.is_empty():
+		hover = {}
 		queue_redraw()

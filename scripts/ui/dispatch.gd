@@ -1,10 +1,12 @@
 class_name Dispatch
 extends VBoxContainer
-## Aba do despacho: local (marcado no mapa), tipo de ocorrência e unidades. Cuida da ida das viaturas,
-## das mensagens de rádio e de avaliar se o local e as unidades batem com a emergência em andamento.
+## Aba do mapa e despacho: o mapa da cidade em cima (clicar na rua marca o local) e, embaixo, o tipo de ocorrência,
+## as unidades e Enviar. O tipo já marca as unidades de costume (`GameContent.occurrence_units`; dá para mudar), a
+## conferência (local, tipo, unidades) fica sempre à vista e Enviar só acende com as três; depois do envio, tudo
+## volta limpo para a próxima. Cuida da ida das viaturas, das mensagens de rádio e de avaliar se o local e as
+## unidades batem com a emergência em andamento.
 
 signal sent(location: String, units_text: String)
-signal open_map_pressed
 ## As unidades chegaram. `result`: "ok" (resolvido), "missing" (faltou unidade), "wrong_place" ou "idle"
 ## (não havia emergência em andamento). `e` é nulo em "idle". `occurrence` é o tipo marcado no despacho;
 ## `extra`, as unidades que foram ao local certo sem ser necessárias.
@@ -14,8 +16,8 @@ enum Unit { AVAILABLE, EN_ROUTE, ON_SITE, RETURNING }
 const UNIT_IDS := ["pol", "bomb", "amb"]
 const UNIT_NAMES := {"pol": T.Key.UNIT_POLICE, "bomb": T.Key.UNIT_FIRE, "amb": T.Key.UNIT_AMBULANCE}
 const UNIT_STATUS := [T.Key.UNIT_AVAILABLE, T.Key.UNIT_EN_ROUTE, T.Key.UNIT_ON_SITE, T.Key.UNIT_RETURNING]
+const MISSING := Color("8a3a14")   # item da conferência que ainda falta
 
-var city: CityMap
 var radio: Radio
 
 var _location := {}          ## {"street", "block", "label"} marcado no mapa
@@ -23,30 +25,32 @@ var _units := {"pol": Unit.AVAILABLE, "bomb": Unit.AVAILABLE, "amb": Unit.AVAILA
 var _occ_group := ButtonGroup.new()
 var _incident := {}          ## emergência em andamento: call, street, block, req, sent, resolved, addr
 
-@onready var _loc_label: Label = %Location
-@onready var _occurrences: HFlowContainer = %Occurrences
-@onready var _message: Label = %Message
+@onready var city: CityMap = %City
+@onready var _occurrences: HBoxContainer = %Occurrences
+@onready var _send_button: Button = %Send
 @onready var _report: Label = %Report
 @onready var _unit_buttons := {"pol": %UnitPol as Button, "bomb": %UnitBomb as Button, "amb": %UnitAmb as Button}
-@onready var _unit_status := {"pol": %StatusPol as Label, "bomb": %StatusBomb as Label, "amb": %StatusAmb as Label}
 
 
 func _ready() -> void:
-	%OpenMap.pressed.connect(open_map_pressed.emit)
-	%Send.pressed.connect(_send)
+	city.segment_selected.connect(set_location)
+	_send_button.pressed.connect(_send)
 	_occ_group.allow_unpress = true
 	for o in GameData.CONTENT.occurrences:
 		var b := Button.new()
 		b.text = o
 		b.toggle_mode = true
 		b.button_group = _occ_group
-		b.theme_type_variation = &"PaperToggle"
+		b.theme_type_variation = &"PaperChip"
 		b.focus_mode = Control.FOCUS_NONE
-		b.add_theme_font_size_override("font_size", 20)
+		b.custom_minimum_size.y = 32
 		b.pressed.connect(Sfx.play.bind("click"))
+		b.toggled.connect(_on_occurrence.bind(o))
 		_occurrences.add_child(b)
 	for u in UNIT_IDS:
-		(_unit_buttons[u] as Button).toggled.connect(func(_on): Sfx.play("sw"))
+		var ub: Button = _unit_buttons[u]
+		ub.pressed.connect(Sfx.play.bind("sw"))
+		ub.toggled.connect(_refresh.unbind(1))
 	_texts()
 
 
@@ -58,7 +62,7 @@ func _notification(what: int) -> void:
 
 func _texts() -> void:
 	for u in UNIT_IDS:
-		(_unit_buttons[u] as Button).text = "[ %s ]" % T.text(UNIT_NAMES[u]).to_upper()
+		(_unit_buttons[u] as Button).text = T.text(UNIT_NAMES[u])
 	_refresh()
 
 
@@ -67,10 +71,22 @@ func set_location(street: String, block: int, label: String) -> void:
 	_refresh()
 
 
-## Marca o tipo de ocorrência (como clicar no botão).
+## Marca o tipo de ocorrência (como clicar no botão; "" desmarca).
 func set_occurrence(o: String) -> void:
 	for b: Button in _occurrences.get_children():
 		b.button_pressed = b.text == o
+
+
+## Escolher o tipo marca as unidades de costume dele (só as livres) e desmarca as outras; "Outro" não tem
+## costume e deixa tudo desmarcado. Desmarcar o tipo não mexe nas unidades.
+func _on_occurrence(on: bool, o: String) -> void:
+	if on:
+		var want: PackedStringArray = GameData.CONTENT.occurrence_units.get(o, PackedStringArray())
+		for u in UNIT_IDS:
+			var b: Button = _unit_buttons[u]
+			if not b.disabled:
+				b.set_pressed_no_signal(u in want)
+	_refresh()
 
 
 ## Uma emergência começou a tocar: guarda onde é e o que precisa, para avaliar o que for enviado.
@@ -83,27 +99,33 @@ func en_route() -> bool:
 	return _units.values().has(Unit.EN_ROUTE)
 
 
+## Local, tipo e ao menos uma unidade marcados.
+func can_send() -> bool:
+	return not _location.is_empty() and _occ_group.get_pressed_button() != null and not _selected_units().is_empty()
+
+
 func _refresh() -> void:
-	var has_loc := not _location.is_empty()
-	_loc_label.text = _location["label"] if has_loc else T.text(T.Key.DISPATCH_MARK_MAP)
-	_loc_label.add_theme_color_override("font_color", Pal.INK if has_loc else Pal.INK_SOFT)
+	if not is_node_ready():
+		return
 	for u in UNIT_IDS:
-		var free: bool = _units[u] == Unit.AVAILABLE
 		var b: Button = _unit_buttons[u]
-		b.disabled = not free
-		if not free:
+		b.disabled = _units[u] != Unit.AVAILABLE
+		if b.disabled:
 			b.set_pressed_no_signal(false)
-		var st: Label = _unit_status[u]
-		st.text = T.text(UNIT_STATUS[_units[u]])
-		st.add_theme_color_override("font_color", Pal.INK if free else Color("8a3a14"))
+	var place := T.text(T.Key.DISPATCH_CHECK_PLACE) + ": " + (String(_location["label"]) if not _location.is_empty() else T.text(T.Key.DISPATCH_CLICK_STREET))
+	_check(%CheckPlace, not _location.is_empty(), place)
+	_check(%CheckType, _occ_group.get_pressed_button() != null, T.text(T.Key.DISPATCH_CHECK_TYPE))
+	_check(%CheckUnits, not _selected_units().is_empty(), T.text(T.Key.DISPATCH_CHECK_UNITS))
+	_send_button.disabled = not can_send()
 	var busy := UNIT_IDS.filter(func(u): return _units[u] != Unit.AVAILABLE)
 	_report.visible = not busy.is_empty()
-	_report.text = ""
-	if not busy.is_empty():
-		var lines := PackedStringArray([T.text(T.Key.DISPATCH_UNITS_STATUS)])
-		for u in busy:
-			lines.append("%-12s %s" % [T.text(UNIT_NAMES[u]), T.text(UNIT_STATUS[_units[u]])])
-		_report.text = "\n".join(lines)
+	_report.text = "  ·  ".join(PackedStringArray(busy.map(func(u): return "%s: %s" % [T.text(UNIT_NAMES[u]), T.text(UNIT_STATUS[_units[u]])])))
+
+
+## Item da conferência: "[x]" e tinta quando pronto; "[ ]" e vermelho enquanto falta.
+func _check(l: Label, done: bool, text: String) -> void:
+	l.text = ("[x] " if done else "[ ] ") + text
+	l.add_theme_color_override("font_color", Pal.INK if done else MISSING)
 
 
 func _selected_units() -> Array:
@@ -111,20 +133,11 @@ func _selected_units() -> Array:
 
 
 func _send() -> void:
+	if not can_send():
+		return
 	var us := _selected_units()
-	if _location.is_empty():
-		_message.text = T.text(T.Key.DISPATCH_MARK_FIRST)
-		return
-	var occ := _occ_group.get_pressed_button()
-	if occ == null:
-		_message.text = T.text(T.Key.CHOOSE_TYPE)
-		return
-	if us.is_empty():
-		_message.text = T.text(T.Key.DISPATCH_SELECT_UNIT)
-		return
-	_message.text = ""
 	var target := _location.duplicate()
-	target["occurrence"] = occ.text
+	target["occurrence"] = _occ_group.get_pressed_button().text
 	Sfx.play("sw")
 	Sfx.static_burst()
 	var names := PackedStringArray()
@@ -132,6 +145,10 @@ func _send() -> void:
 		_units[u] = Unit.EN_ROUTE
 		city.trip(u, target)
 		names.append(T.text(UNIT_NAMES[u]))
+	# limpo para a próxima emergência (local e tipo não ficam de uma para outra)
+	_location = {}
+	city.clear_selection()
+	set_occurrence("")
 	_refresh()
 	sent.emit(String(target["label"]), ", ".join(names))
 	await get_tree().create_timer(1.8, false).timeout

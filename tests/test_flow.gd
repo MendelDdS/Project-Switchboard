@@ -450,7 +450,7 @@ func _initialize() -> void:
 	m.ring(kc)
 	_move(0, kc.line)
 	await frames(2)
-	var tab: Button = m.find_child("TabMapa", true, false)
+	var tab: Button = m.find_child("TabDespacho", true, false)
 	tab.focus_mode = Control.FOCUS_ALL
 	tab.grab_focus()   # Espaço não pode apertar o botão em foco no lugar de atender
 	_key(KEY_SPACE)
@@ -475,6 +475,21 @@ func _initialize() -> void:
 	_move(1, -1)
 	_move(2, -1)
 	print("OK 12 atalhos do telefone")
+
+	# ---- 13. mapa e despacho numa tela: o tipo marca as unidades de costume, Enviar só com tudo, e depois limpa
+	var d = m.dispatch
+	d.set_occurrence("")
+	ok(not d.can_send() and d._send_button.disabled, "despacho vazio não envia")
+	d.set_location("sol", 0, "Rua do Sol, 1–99")
+	d.set_occurrence("Incêndio")
+	ok(d._selected_units() == ["bomb"] and d.can_send() and not d._send_button.disabled, "incêndio marca bombeiros; Enviar acende")
+	d.set_occurrence("Outro")
+	ok(d._selected_units().is_empty() and not d.can_send(), "outro não marca unidade")
+	d.set_occurrence("Mal súbito")
+	d._send()
+	ok(d._location.is_empty() and d._occ_group.get_pressed_button() == null and d.city.sel.is_empty(), "depois de enviar, local e tipo limpos")
+	ok(d._unit_buttons["amb"].disabled, "ambulância a caminho fica indisponível")
+	print("OK 13 mapa e despacho")
 	finish("fluxo da central")
 
 

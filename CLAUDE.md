@@ -112,7 +112,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - `scripts/data/*.gd` — classes de Resource do conteúdo; `scripts/game_data.gd` (`GameData`) — acesso ao
   `content.tres` (`CONTENT`, `entry()`, `street()`, `transfers()`, `pick()`...).
 - `scenes/ui/*.tscn` + `scripts/ui/*.gd` — telefone (`PhonePanel`, `FoneSocket`), rádio, abas (`Tools`) com lista
-  (`PhoneBook`), mapa (`MapView` + `CityMap`), despacho (`Dispatch`, dono das unidades e da ocorrência) e caderno
+  (`PhoneBook`), mapa e despacho (`Dispatch` + `CityMap`, dono das unidades e da ocorrência) e caderno
   (`Notebook`, fila de ocorrências); `Intro`, `Ending`; widgets desenhados (`Switchboard`,
   `Background`, `Bevel`, scanlines).
 
@@ -168,8 +168,16 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   vem do `record`), mostra a pendente numa ficha só de leitura e desenha o livro como página pautada (`_draw_page`,
   carimbo colorido por tipo, `STAMPS`). A aba mostra quantas faltam (`pending_changed(count)` → `Tools.set_count`,
   selo `BadgeLabel`); o jogo não troca de aba sozinho.
-- Despacho: `Dispatch.set_incident()` quando a emergência toca; `Dispatch.sent` → `Main._on_dispatched` →
-  `Conversation.emergency_dispatched`. O tipo de ocorrência é obrigatório para enviar. Na chegada,
+- Despacho: **mapa e despacho numa aba só** (`Dispatch`, `scenes/ui/dispatch.tscn`; não existe mais aba Mapa nem
+  `MapView`): o `CityMap` (`%City`) em cima, clicar no trecho já marca o local (`segment_selected` → `set_location`);
+  passar o mouse mostra uma etiqueta com a faixa de números do trecho (`CityMap._tag`, "Rua do Sol, 1–99").
+  Embaixo, uma faixa compacta (botões `PaperChip`): tipos, unidades e Enviar, e a conferência
+  "[x] Local · [x] Tipo · [x] Unidades" (`_check`); Enviar só acende com as três (`can_send`). Escolher o tipo marca as
+  unidades de costume (`GameContent.occurrence_units`, editável no inspetor; "Outro" não tem e desmarca tudo).
+  Depois de enviar, local, tipo e unidades voltam limpos (`city.clear_selection`). Abrir a aba toca o papel
+  desenrolando (`unroll`). O mapa encolhe para caber (`_k` ≈ 0,83): nomes do topo e de lugares que não cabem descem
+  para 12. `Dispatch.set_incident()` quando a emergência toca; `Dispatch.sent` → `Main._on_dispatched` →
+  `Conversation.emergency_dispatched`. Na chegada,
   `Dispatch.arrived(e, result, occurrence, extra)` ("ok", "missing", "wrong_place", "idle"; tipo marcado; unidades
   que não eram necessárias) → `Main._on_arrived`.
 
@@ -264,6 +272,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     por último por cima e fios parados sem simulação. Plug com ponta de metal maior, que entra na tomada; sombras.
 21. Caderno: registro com um clique no tipo ("Outro" e os campos editáveis saíram), contador na aba no lugar do
     ponto e da troca automática de aba, livro redesenhado como página pautada com carimbos.
+22. Menos burocracia no despacho: mapa e despacho numa aba só (sem "Abrir mapa"/"Usar no despacho"), o tipo marca as
+    unidades de costume, conferência sempre à vista com Enviar só quando pronto, limpa depois de enviar, etiqueta com
+    a faixa de números ao passar o mouse, som de papel desenrolando ao abrir. Marcar o mapa sozinho pelo endereço
+    dito na ligação ficou de fora de propósito (tira o desafio; no máximo, um modo fácil).
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

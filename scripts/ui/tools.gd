@@ -1,16 +1,13 @@
 class_name Tools
 extends VBoxContainer
-## Abas de ferramentas à direita da mesa: lista telefônica, mapa, despacho e caderno.
+## Abas de ferramentas à direita da mesa: lista telefônica, mapa e despacho (uma aba só), e caderno.
 
-signal tab_changed(id: String)
-
-const TABS := {"lista": "%TabLista", "mapa": "%TabMapa", "despacho": "%TabDespacho", "caderno": "%TabCaderno"}
+const TABS := {"lista": "%TabLista", "despacho": "%TabDespacho", "caderno": "%TabCaderno"}
 
 @onready var book: PhoneBook = %PhoneBook
-@onready var map_view: MapView = %MapView
 @onready var dispatch: Dispatch = %Dispatch
 @onready var notebook: Notebook = %Notebook
-@onready var _views := {"lista": book, "mapa": map_view, "despacho": dispatch, "caderno": notebook}
+@onready var _views := {"lista": book, "despacho": dispatch, "caderno": notebook}
 
 var tab := "lista"
 
@@ -27,18 +24,8 @@ func set_tab(id: String) -> void:
 		_apply()
 		return
 	tab = id
-	Sfx.play("page")
+	Sfx.play("unroll" if id == "despacho" else "page")   # o mapa é uma folha grande desenrolada
 	_apply()
-	tab_changed.emit(id)
-
-
-## Bolinha âmbar na aba: tem algo novo ali.
-func set_dot(id: String, on: bool) -> void:
-	(get_node(TABS[id]).get_node("Dot") as CanvasItem).visible = on
-
-
-func has_dot(id: String) -> bool:
-	return (get_node(TABS[id]).get_node("Dot") as CanvasItem).visible
 
 
 ## Selo com um número na aba (0 some): quantas coisas esperam ali. Só abas que têm o selo (`Count`).

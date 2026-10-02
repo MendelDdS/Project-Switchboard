@@ -141,7 +141,6 @@ COL_CALLER,Solicitante,Caller,Solicitante
 COL_PLACE,Local / destino,Place / destination,Lugar / destino
 COL_TYPE,Tipo,Type,Tipo
 COL_UNIT,Unidade,Unit,Unidad
-CHOOSE_TYPE,Escolha o tipo da ocorrência.,Choose the type.,Elija el tipo.
 TYPE_COMMON,Ligação comum,Regular call,Llamada común
 TYPE_EMERGENCY,Emergência,Emergency,Emergencia
 TYPE_PRANK,Trote,Prank call,Broma
@@ -154,16 +153,12 @@ OBS_GAVE_UP,Desistiu na espera.,Gave up on hold.,Desistió en espera.
 OBS_NOT_CONNECTED,Não conectada.,Not connected.,No conectada.
 OBS_CALL_DROPPED,A ligação caiu.,The call dropped.,La llamada se cortó.
 TAB_DIRECTORY,Lista telefônica,Phone directory,Guía telefónica
-TAB_MAP,Mapa,Map,Mapa
-TAB_DISPATCH,Despacho,Dispatch,Despacho
+TAB_DISPATCH,Mapa e despacho,Map & dispatch,Mapa y despacho
 TAB_LOGBOOK,Caderno,Logbook,Cuaderno
 BOOK_BACK,◀ Voltar,◀ Back,◀ Atrás
 BOOK_TURN,Virar ▶,Turn ▶,Pasar ▶
 BOOK_NOTES,Anotações,Notes,Notas
 BOOK_NOTE_TEXT,Emergências não se transferem: marque o local no mapa e use o despacho.\n\nFarmácia de plantão nesta semana: Santa Rita.\n\nLinhas 01 a 10 são da mesa 1.,Emergencies are not transferred: mark the location on the map and use dispatch.\n\nPharmacy on duty this week: Santa Rita.\n\nLines 01 to 10 belong to desk 1.,Las emergencias no se transfieren: marque el lugar en el mapa y use el despacho.\n\nFarmacia de turno esta semana: Santa Rita.\n\nLas líneas 01 a 10 son de la mesa 1.
-MAP_MARKED,Local marcado:,Marked location:,Lugar marcado:
-MAP_NONE,nenhum,none,ninguno
-MAP_USE,Usar no despacho,Use in dispatch,Usar en el despacho
 MAP_SQUARE,Praça da Matriz,Praça da Matriz,Praça da Matriz
 MAP_CLINIC,Clínica,Clinic,Clínica
 MAP_HOSPITAL,Hospital,Hospital,Hospital
@@ -176,16 +171,11 @@ MAP_POLICE,Delegacia,Police station,Comisaría
 MAP_FIRE_STATION,Bombeiros,Fire station,Bomberos
 MAP_GROCERY,Mercearia,Grocery,Almacén
 MAP_FUNERAL,Funerária,Funeral home,Funeraria
-DISPATCH_TITLE,DESPACHO,DISPATCH,DESPACHO
-DISPATCH_LOCATION,LOCAL:,LOCATION:,LUGAR:
-DISPATCH_MARK_MAP,Marque o local no mapa,Mark the location on the map,Marque el lugar en el mapa
-DISPATCH_OPEN_MAP,Abrir mapa,Open map,Abrir mapa
-DISPATCH_INCIDENT,OCORRÊNCIA:,INCIDENT:,INCIDENTE:
-DISPATCH_UNITS,UNIDADES:,UNITS:,UNIDADES:
 DISPATCH_SEND,[ ENVIAR ],[ SEND ],[ ENVIAR ]
-DISPATCH_UNITS_STATUS,SITUAÇÃO DAS UNIDADES,UNIT STATUS,ESTADO DE LAS UNIDADES
-DISPATCH_MARK_FIRST,Marque o local no mapa antes de enviar.,Mark the location on the map before sending.,Marque el lugar en el mapa antes de enviar.
-DISPATCH_SELECT_UNIT,Selecione ao menos uma unidade.,Select at least one unit.,Seleccione al menos una unidad.
+DISPATCH_CHECK_PLACE,Local,Location,Lugar
+DISPATCH_CHECK_TYPE,Tipo,Type,Tipo
+DISPATCH_CHECK_UNITS,Unidades,Units,Unidades
+DISPATCH_CLICK_STREET,clique na rua no mapa,click the street on the map,haga clic en la calle del mapa
 UNIT_POLICE,Polícia,Police,Policía
 UNIT_FIRE,Bombeiros,Fire department,Bomberos
 UNIT_AMBULANCE,Ambulância,Ambulance,Ambulancia

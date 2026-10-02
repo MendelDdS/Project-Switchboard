@@ -243,9 +243,11 @@ func _initialize() -> void:
 	for u in ["amb", "bomb"]:
 		(m.dispatch._unit_buttons[u] as Button).button_pressed = true
 	m.dispatch._send()
-	ok(not c8.dispatched and m.dispatch._message.text != "", "sem tipo de ocorrência não envia")
+	ok(not c8.dispatched and not m.dispatch.can_send() and m.dispatch._send_button.disabled, "sem tipo de ocorrência não envia (Enviar apagado)")
 	var wrong_type: String = "Incêndio" if e8.occurrence != "Incêndio" else "Outro"
-	m.dispatch.set_occurrence(wrong_type)
+	m.dispatch.set_occurrence(wrong_type)   # o tipo troca as unidades pelas de costume; o jogador ajusta
+	for u in ["amb", "bomb"]:
+		(m.dispatch._unit_buttons[u] as Button).button_pressed = true
 	m.dispatch._send()
 	ok(await wait_until(func(): return m.report.is_resolved(e8), 20.0), "resolvida mesmo com unidade a mais")
 	ok(_faults("dispatch_extra") == 1 and _faults("dispatch_type") == 1, "advertências: unidade a mais e tipo errado")
