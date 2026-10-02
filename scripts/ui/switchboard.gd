@@ -220,13 +220,13 @@ func place(e: int, j: int) -> bool:
 	var why := refuse(e, j)
 	if why != "":
 		warned.emit(why)
-		Sfx.play("click")
+		_sfx("click", jack_rect(j).get_center())
 		return false
 	ends[e] = j
 	held = -1
 	_loose.erase(e)
 	_raise(e)
-	Sfx.play("plug_in")
+	_sfx("plug_in", jack_rect(j).get_center())
 	end_changed.emit(e, j, -1)
 	return true
 
@@ -238,11 +238,11 @@ func _raise(e: int) -> void:
 
 
 func pick_up(e: int) -> void:
+	_sfx("plug_out", _plug_base(e))
 	var prev: int = ends[e]
 	ends[e] = -1
 	held = e
 	_raise(e)
-	Sfx.play("plug_out")
 	if prev != -1:
 		end_changed.emit(e, -1, prev)
 
@@ -268,7 +268,7 @@ func go_home(e: int) -> void:
 		else:
 			r["old"][ROPE_N - 1] = from - fling * STEP
 	else:
-		Sfx.play("thump", -14.0)
+		_sfx("thump", from, -14.0)
 	if prev != -1:
 		end_changed.emit(e, -1, prev)
 
@@ -432,13 +432,23 @@ func _new_rope(e: int, to: Vector2) -> void:
 	ropes[e] = {"pts": init, "old": init.duplicate(), "len": a.distance_to(to)}
 
 
+## Onde fica o ponto p da mesa na tela, de 0 (borda esquerda) a 1 (direita): os sons vêm daquele lado.
+func screen_x(p: Vector2) -> float:
+	return (get_global_transform_with_canvas() * p).x / get_viewport_rect().size.x
+
+
+## Som da mesa vindo do ponto p.
+func _sfx(id: String, p: Vector2, db: float = 0.0) -> void:
+	Sfx.play_at(id, screen_x(p), db)
+
+
 ## `d` px do fio da ponta e passaram pelo buraco (positivo: saindo; negativo: entrando), para o som de atrito.
 func _count_rub(e: int, d: float) -> void:
 	if d > 0.0:
 		_rub_out += d
 	else:
 		_rub_in -= d
-	_rub_x += absf(d) * (get_global_transform_with_canvas() * hole(e)).x / get_viewport_rect().size.x
+	_rub_x += absf(d) * screen_x(hole(e))
 	if e == 0:
 		_rub_fone += absf(d)
 
@@ -469,7 +479,7 @@ func _step_rope(e: int, dt: float) -> void:
 		if an["seat"] >= 1.0:
 			_loose.erase(e)
 			ropes.erase(e)
-			Sfx.play("thump", -14.0)
+			_sfx("thump", a, -14.0)
 			return
 		length = a.distance_to(_plug_base(e))
 	else:
@@ -486,7 +496,8 @@ func _step_rope(e: int, dt: float) -> void:
 	var seg := length / last
 	# inércia + gravidade
 	var moving := last + 1 if free else last
-	var tap := 0.0   # a batida mais forte de um ponto do fio na mesa, neste passo (px/passo)
+	var tap := 0.0   # a batida mais forte de um ponto do fio na mesa, neste passo (px/passo), e onde
+	var tap_at := Vector2.ZERO
 	var direct: bool = free and an["direct"]
 	for i in range(1, moving):
 		var v := (pts[i] - old[i]) * DAMPING
@@ -498,9 +509,10 @@ func _step_rope(e: int, dt: float) -> void:
 		if pts[i].y > FLOOR_Y:
 			if i == last:
 				if v.y > DROP_SPEED * dt:
-					Sfx.play("drop")   # o plug solto bate na mesa
-			else:
-				tap = maxf(tap, v.y)
+					_sfx("drop", pts[i])   # o plug solto bate na mesa
+			elif v.y > tap:
+				tap = v.y
+				tap_at = pts[i]
 		# passar o mouse por cima do fio empurra o fio
 		if held != e and mv.length_squared() > 0.5 and pts[i].distance_to(mouse) < 16.0:
 			pts[i] += mv * 0.35
@@ -533,7 +545,7 @@ func _step_rope(e: int, dt: float) -> void:
 	r["tap"] = maxf(float(r.get("tap", 0.0)) - dt, 0.0)
 	if tap > TAP_SPEED.x * dt and r["tap"] == 0.0:   # o fio caiu ou chicoteou na mesa
 		var k := clampf((tap / dt - TAP_SPEED.x) / (TAP_SPEED.y - TAP_SPEED.x), 0.0, 1.0)
-		Sfx.play("cord_tap", lerpf(-12.0, 0.0, k))
+		_sfx("cord_tap", tap_at, lerpf(-12.0, 0.0, k))
 		r["tap"] = TAP_GAP
 	r["len"] = length
 	var moved := 0.0
@@ -546,7 +558,7 @@ func _step_rope(e: int, dt: float) -> void:
 			box = box.expand(q)
 		r["sleep"] = box.grow(16.0)   # área onde o mouse acorda o fio
 	if free and length <= SEAT_LEN:
-		Sfx.play("cord_stop")   # o fio terminou de entrar
+		_sfx("cord_stop", a)   # o fio terminou de entrar
 		an["seat"] = 0.0
 		an["from"] = pts[last]
 		an["ang"] = _cord_angle(e)

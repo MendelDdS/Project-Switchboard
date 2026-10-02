@@ -1,4 +1,22 @@
-[gd_resource type="AudioBusLayout" load_steps=3 format=3]
+[gd_resource type="AudioBusLayout" load_steps=5 format=3]
+
+[sub_resource type="AudioEffectCompressor" id="AudioEffectCompressor_duck"]
+resource_name = "Compressor"
+threshold = -24.0
+ratio = 2.5
+attack_us = 500.0
+release_ms = 400.0
+sidechain = &"Voices"
+
+[sub_resource type="AudioEffectReverb" id="AudioEffectReverb_room"]
+resource_name = "Reverb"
+predelay_msec = 20.0
+room_size = 0.25
+damping = 0.6
+spread = 0.5
+hipass = 0.2
+dry = 1.0
+wet = 0.12
 
 [sub_resource type="AudioEffectLowPassFilter" id="AudioEffectLowPassFilter_rub"]
 resource_name = "LowPassFilter"
@@ -14,6 +32,8 @@ bus/1/mute = false
 bus/1/bypass_fx = false
 bus/1/volume_db = 0.0
 bus/1/send = &"Master"
+bus/1/effect/0/effect = SubResource("AudioEffectCompressor_duck")
+bus/1/effect/0/enabled = true
 bus/2/name = &"Voices"
 bus/2/solo = false
 bus/2/mute = false
@@ -26,6 +46,8 @@ bus/3/mute = false
 bus/3/bypass_fx = false
 bus/3/volume_db = 0.0
 bus/3/send = &"Master"
+bus/3/effect/0/effect = SubResource("AudioEffectReverb_room")
+bus/3/effect/0/enabled = true
 bus/4/name = &"Rub"
 bus/4/solo = false
 bus/4/mute = false

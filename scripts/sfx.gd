@@ -50,7 +50,10 @@ const RUB_IN := {"pitch": 0.9, "lp": 0.7, "hi_db": -6.0}
 ## O fio do FONE (sai do telefone) é mais macio e grave que os cabos de conexão (saem da base de latão). A diferença
 ## diminui com a velocidade: puxado rápido, sobra só `fast` dela (o puxão forte soa forte em qualquer fio).
 const RUB_FONE := {"pitch": 0.85, "lp": 0.6, "hi_db": -4.0, "fast": 0.25}
-const RUB_PAN := 0.7   # quanto o atrito vai para o lado do buraco (1 = só um lado do fone)
+const PAN := 0.7   # quanto os sons posicionados (`play_at`, atrito) vão para o seu lado (1 = só um lado do fone)
+## Cada linha tem a campainha num tom levemente diferente (é o mesmo equipamento: só uma nuance), 01 a mais grave,
+## 10 a mais aguda; passo relativo entre linhas vizinhas (0,006 = ±2,7% nas pontas, cerca de meio semitom).
+const BELL_STEP := 0.006
 
 ## Sons mecânicos que se repetem muito (plugs, fios): cada vez sai com o tom e o volume levemente diferentes
 ## (± VARY_PITCH, ± VARY_DB), para a mesa cheia não soar como uma máquina.
@@ -62,6 +65,7 @@ const VMAP := {"a": "a", "á": "a", "à": "a", "â": "a", "ã": "a", "e": "e", "
 
 var streams: Dictionary = {}
 var pool: Array[AudioStreamPlayer] = []
+var pool_2d: Array[AudioStreamPlayer2D] = []   # para `play_at` (som que vem de um lugar da tela)
 var rain: AudioStreamPlayer
 var breeze: AudioStreamPlayer
 var crickets: AudioStreamPlayer
@@ -79,7 +83,9 @@ var weather := "rain"
 var _hushed := false
 var _ring_on := false
 var _ring_timer: Timer
-var _ring_player: AudioStreamPlayer
+var _ring_player: AudioStreamPlayer2D
+var _bells := {}       # linhas chamando -> lugar da tomada na tela (0..1)
+var _ring_turn := 0
 var _w := PackedFloat32Array()
 
 
@@ -90,6 +96,13 @@ func _ready() -> void:
 		var p := AudioStreamPlayer.new()
 		add_child(p)
 		pool.append(p)
+	for i in 16:
+		var p := AudioStreamPlayer2D.new()
+		p.attenuation = 0.0          # sem perda com a distância: só o lado muda
+		p.max_distance = 100000.0
+		p.panning_strength = PAN
+		add_child(p)
+		pool_2d.append(p)
 	rain = _make_loop("rain")
 	breeze = _make_loop("breeze")
 	crickets = _make_loop("crickets")
@@ -113,13 +126,32 @@ func _ready() -> void:
 func play(id: String, db: float = 0.0, pitch: float = 1.0) -> AudioStreamPlayer:
 	if not streams.has(id):
 		return null
-	var p: AudioStreamPlayer = null
-	for q in pool:
+	var p: AudioStreamPlayer = _free(pool)
+	_start(p, id, db, pitch)
+	return p
+
+
+## Como `play`, mas o som vem do lugar `screen_x` (0 = borda esquerda da tela, 1 = direita).
+func play_at(id: String, screen_x: float, db: float = 0.0, pitch: float = 1.0) -> AudioStreamPlayer2D:
+	if not streams.has(id):
+		return null
+	var p: AudioStreamPlayer2D = _free(pool_2d)
+	var screen := get_viewport().get_visible_rect().size
+	p.position = Vector2(screen_x * screen.x, screen.y / 2.0)
+	_start(p, id, db, pitch)
+	return p
+
+
+## Um player parado (ou, todos ocupados, o primeiro).
+func _free(players: Array) -> Node:
+	for q in players:
 		if not q.playing:
-			p = q
-			break
-	if p == null:
-		p = pool[0]
+			return q
+	return players[0]
+
+
+## `p`: AudioStreamPlayer ou AudioStreamPlayer2D.
+func _start(p: Node, id: String, db: float, pitch: float) -> void:
 	p.stream = streams[id]
 	p.bus = &"Voices" if id.begins_with("s_") or id == "crackle" else &"Effects"
 	if id in VARIED:
@@ -128,7 +160,6 @@ func play(id: String, db: float = 0.0, pitch: float = 1.0) -> AudioStreamPlayer:
 	p.volume_db = VOL.get(id, -10.0) + db
 	p.pitch_scale = pitch
 	p.play()
-	return p
 
 
 func later(t: float, id: String, db: float = 0.0) -> void:
@@ -203,7 +234,7 @@ func _process(delta: float) -> void:
 	var open := clampf((_rub_v - RUB_HI_FROM) / (RUB_HI_NORMAL - RUB_HI_FROM), 0.0, 1.0)
 	# o corte abre em escala de oitavas, como o ouvido
 	_rub_lp.cutoff_hz = RUB_LP.x * pow(RUB_LP.y / RUB_LP.x, open) * _blend("lp", smooth, soft)
-	_rub_pan.pan = (_rub_mood.x * 2.0 - 1.0) * RUB_PAN
+	_rub_pan.pan = (_rub_mood.x * 2.0 - 1.0) * PAN
 
 
 ## Multiplicador de `key` ("pitch", "lp") para o fio recolhendo (`smooth`) e o do FONE (`soft`), ambos 0..1.
@@ -223,7 +254,10 @@ func fade(p: AudioStreamPlayer, db: float, t: float) -> void:
 	tw.tween_property(p, "volume_db", db, t)
 
 
-func ring_start() -> void:
+## Toca a campainha das linhas em `bells` (linha -> lugar da tomada na tela, 0..1), revezando entre elas a cada
+## toque; cada linha no seu tom (`BELL_STEP`) e do seu lado. Chamar de novo atualiza as linhas.
+func ring_start(bells: Dictionary) -> void:
+	_bells = bells
 	if _ring_on:
 		return
 	_ring_on = true
@@ -240,8 +274,13 @@ func ring_stop() -> void:
 
 
 func _ring_burst() -> void:
-	if _ring_on:
-		_ring_player = play("ring")
+	if not _ring_on or _bells.is_empty():
+		return
+	var lines := _bells.keys()
+	lines.sort()
+	_ring_turn = (_ring_turn + 1) % lines.size()
+	var n: int = lines[_ring_turn]
+	_ring_player = play_at("ring", _bells[n], 0.0, 1.0 + (n - 5.5) * BELL_STEP)
 
 
 ## Discagem por pulsos. Retorna a duração em segundos.

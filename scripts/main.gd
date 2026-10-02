@@ -666,10 +666,14 @@ func _update_line_timers() -> void:
 
 
 func _update_bell() -> void:
-	if live.any(func(c: PhoneCall): return c.ringing):
-		Sfx.ring_start()
-	else:
+	var bells := {}   # cada linha chamando toca do lugar da sua tomada
+	for c: PhoneCall in live:
+		if c.ringing:
+			bells[c.line] = board.screen_x(board.jack_rect(c.line).get_center())
+	if bells.is_empty():
 		Sfx.ring_stop()
+	else:
+		Sfx.ring_start(bells)
 
 
 func ring(c: PhoneCall) -> void:
