@@ -20,6 +20,7 @@ var hover: Dictionary = {}
 var trips: Array = []
 var _k := 0.96
 var _off := Vector2.ZERO   ## deslocamento do mapa desenhado (centralizado quando sobra largura)
+var _tf := Transform2D.IDENTITY   ## transformação em uso no desenho (os textos a seguem só na posição)
 
 
 func _ready() -> void:
@@ -99,17 +100,26 @@ func _process(_d: float) -> void:
 		queue_redraw()
 
 
+## Texto no ponto p do mapa (linha de base), em `sz` px de tela: o mapa é desenhado em escala (`_k`), mas fonte de
+## pixel escalada borra, então o texto acompanha só a posição (e a rotação) e sai num tamanho nítido de `Pal.ui`.
 func _t(p: Vector2, txt: String, sz: int, col: Color = LINE, center: bool = true) -> void:
-	var w := Pal.mono.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, sz).x
-	var x := p.x - w / 2.0 if center else p.x
-	draw_string(Pal.mono, Vector2(x, p.y), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, sz, col)
+	var w := Pal.ui.get_string_size(txt, HORIZONTAL_ALIGNMENT_LEFT, -1, sz).x
+	draw_set_transform((_tf * p).round(), _tf.get_rotation())
+	draw_string(Pal.ui, Vector2(-roundf(w / 2.0) if center else 0.0, 0), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, sz, col)
+	draw_set_transform_matrix(_tf)
+
+
+## Muda a transformação do desenho (e a que os textos seguem).
+func _use(xf: Transform2D) -> void:
+	_tf = xf
+	draw_set_transform_matrix(xf)
 
 
 func _draw() -> void:
 	_k = minf(size.x / 600.0, size.y / 440.0)
 	_off = Vector2((size.x - 600.0 * _k) / 2.0, 0.0)
 	var xf := Transform2D(0.0, Vector2(_k, _k), 0.0, _off)
-	draw_set_transform_matrix(xf)
+	_use(xf)
 	draw_rect(Rect2(0, 0, 600, 440), Pal.INK_SOFT)
 	draw_rect(Rect2(2, 2, 596, 436), Color("cfc199"))
 	# quarteirões
@@ -134,18 +144,18 @@ func _draw() -> void:
 				draw_rect(Rect2(c.x - 12, c.y - 10, 24, 20), Color("e6dab8"))
 				draw_rect(Rect2(c.x - 2, c.y - 24, 4, 14), LINE)
 				draw_rect(Rect2(c.x - 6, c.y - 20, 12, 4), LINE)
-				_t(Vector2(c.x, y1 - 6), T.text(T.Key.MAP_SQUARE), 16)
+				_t(Vector2(c.x, y1 - 6), T.text(T.Key.MAP_SQUARE), 12)
 			elif lm != -1:
 				draw_rect(r, LINE)
 				draw_rect(r.grow(-2), Color("b7a67b"))
 				draw_rect(Rect2(x0 + 4, y0 + 4, r.size.x - 8, minf(14.0, r.size.y - 8)), Color("a39166"))
 				if r.size.x < 60:
 					var c2 := r.get_center()
-					draw_set_transform_matrix(xf * Transform2D(-PI / 2.0, Vector2(c2.x + 5, c2.y)))
-					_t(Vector2.ZERO, T.text(lm), 15)
-					draw_set_transform_matrix(xf)
+					_use(xf * Transform2D(-PI / 2.0, Vector2(c2.x + 5, c2.y)))
+					_t(Vector2.ZERO, T.text(lm), 11)
+					_use(xf)
 				else:
-					_t(r.get_center() + Vector2(0, 8), T.text(lm), 18)
+					_t(r.get_center() + Vector2(0, 6), T.text(lm), 14)
 			else:
 				draw_rect(r, Color("8f7f5b"))
 				draw_rect(r.grow(-1), Color("c3b48b"))
@@ -170,18 +180,18 @@ func _draw() -> void:
 	for s in GameData.CONTENT.streets:
 		if s.horizontal:
 			var nx := 124.0
-			var w := Pal.mono.get_string_size(s.name, HORIZONTAL_ALIGNMENT_LEFT, -1, 16).x
+			var w := Pal.ui.get_string_size(s.name, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x / _k
 			draw_rect(Rect2(nx - 2, s.pos - 7, w + 4, 14), ROAD)
-			_t(Vector2(nx, s.pos + 5), s.name, 16, LINE, false)
+			_t(Vector2(nx, s.pos + 4), s.name, 12, LINE, false)
 		else:
-			_t(Vector2(s.pos, 27), s.name, 15)
+			_t(Vector2(s.pos, 27), s.name, 12)
 		for b in [1, 2]:
 			var g := seg_geom(s, b)
 			var p0: Vector2 = g[0]
 			if s.horizontal:
-				_t(p0 + Vector2(3, 22), str(b * 100), 13, Pal.INK_SOFT, false)
+				_t(p0 + Vector2(3, 22), str(b * 100), 11, Pal.INK_SOFT, false)
 			else:
-				_t(p0 + Vector2(10, 4), str(b * 100), 13, Pal.INK_SOFT, false)
+				_t(p0 + Vector2(10, 4), str(b * 100), 11, Pal.INK_SOFT, false)
 	# realce e seleção
 	if not hover.is_empty():
 		var g := seg_geom(GameData.street(hover["street"]), hover["block"])
@@ -220,7 +230,7 @@ func _draw() -> void:
 	# rosa dos ventos
 	draw_rect(Rect2(546, 382, 40, 34), LINE)
 	draw_rect(Rect2(548, 384, 36, 30), Color("cfc199"))
-	_t(Vector2(566, 400), "N", 16)
+	_t(Vector2(566, 400), "N", 14)
 	draw_colored_polygon(PackedVector2Array([Vector2(566, 402), Vector2(560, 411), Vector2(572, 411)]), LINE)
 
 

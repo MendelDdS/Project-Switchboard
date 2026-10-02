@@ -42,7 +42,7 @@ func _ready() -> void:
 		b.button_group = _occ_group
 		b.theme_type_variation = &"PaperToggle"
 		b.focus_mode = Control.FOCUS_NONE
-		b.add_theme_font_size_override("font_size", 19)
+		b.add_theme_font_size_override("font_size", 20)
 		b.pressed.connect(Sfx.play.bind("click"))
 		_occurrences.add_child(b)
 	for u in UNIT_IDS:

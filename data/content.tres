@@ -80,7 +80,7 @@
 
 [sub_resource type="Resource" id="Resource_ssh4q"]
 script = ExtResource("1_6g7xa")
-name = "Almeida, Dr. Augusto"
+name = "Dr. Augusto Almeida"
 note = "Clínica São Lucas"
 address = "Rua das Flores, 12"
 number = "214"
@@ -88,7 +88,7 @@ reasons = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_7bth5"]
 script = ExtResource("1_6g7xa")
-name = "Almeida, Otávio"
+name = "Otávio Almeida"
 note = "residência"
 address = "Rua da Estação, 9"
 number = "251"
@@ -121,7 +121,7 @@ reasons = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_em5wb"]
 script = ExtResource("1_6g7xa")
-name = "Bombeiros, Corpo de"
+name = "Corpo de Bombeiros"
 note = "use o despacho"
 address = "Avenida Brasil, 210"
 number = "193"
@@ -163,7 +163,7 @@ reasons = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_xawj0"]
 script = ExtResource("1_6g7xa")
-name = "Costa, Marta"
+name = "Marta Costa"
 address = "Rua do Sol, 54"
 number = "223"
 spoken = "a Dona Marta Costa"
@@ -206,7 +206,7 @@ reasons = PackedStringArray("Meu neto está com febre.", "Preciso de um remédio
 
 [sub_resource type="Resource" id="Resource_wgbdt"]
 script = ExtResource("1_6g7xa")
-name = "Ferreira, Joaquim"
+name = "Joaquim Ferreira"
 note = "residência"
 address = "Rua da Estação, 60"
 number = "291"
@@ -248,7 +248,7 @@ reasons = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_pli3n"]
 script = ExtResource("1_6g7xa")
-name = "Lima, Rosa"
+name = "Rosa Lima"
 address = "Rua das Acácias, 77"
 number = "296"
 spoken = "a Dona Rosa Lima"
@@ -264,7 +264,7 @@ reasons = PackedStringArray("Acabou a vela aqui em casa e faltou luz.", "Quero d
 
 [sub_resource type="Resource" id="Resource_bws1x"]
 script = ExtResource("1_6g7xa")
-name = "Nogueira, Paulo"
+name = "Paulo Nogueira"
 address = "Rua do Moinho, 18"
 number = "312"
 spoken = "o seu Paulo Nogueira"
@@ -288,7 +288,7 @@ reasons = PackedStringArray("Quero encomendar pão pra amanhã cedo.", "Esqueci 
 
 [sub_resource type="Resource" id="Resource_3vj4f"]
 script = ExtResource("1_6g7xa")
-name = "Pereira, Lúcia"
+name = "Lúcia Pereira"
 address = "Rua das Flores, 90"
 number = "336"
 spoken = "a Lúcia Pereira"
@@ -320,7 +320,7 @@ reasons = PackedStringArray("Quero pedir uma música.", "Quero mandar um recado 
 
 [sub_resource type="Resource" id="Resource_dr0p2"]
 script = ExtResource("1_6g7xa")
-name = "Ramos, Alberto"
+name = "Alberto Ramos"
 address = "Avenida Brasil, 180"
 number = "352"
 spoken = "o seu Alberto Ramos"
@@ -328,14 +328,14 @@ reasons = PackedStringArray("Somos sócios. É sobre a loja.", "Preciso confirma
 
 [sub_resource type="Resource" id="Resource_tnurf"]
 script = ExtResource("1_6g7xa")
-name = "Rocha, Célia"
+name = "Célia Rocha"
 address = "Rua do Sol, 88"
 number = "367"
 reasons = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_6dq54"]
 script = ExtResource("1_6g7xa")
-name = "Rocha, Célia"
+name = "Célia Rocha"
 address = "Avenida Brasil, 240"
 number = "373"
 reasons = PackedStringArray()
@@ -351,7 +351,7 @@ reasons = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_7llgn"]
 script = ExtResource("1_6g7xa")
-name = "Souza, Benedito"
+name = "Benedito Souza"
 address = "Rua do Sol, 230"
 number = "271"
 spoken = "o seu Benedito Souza"
@@ -359,7 +359,7 @@ reasons = PackedStringArray("A luz da casa dele tá acesa e ele não atende a po
 
 [sub_resource type="Resource" id="Resource_hmatr"]
 script = ExtResource("1_6g7xa")
-name = "Táxi, Ponto da Rodoviária"
+name = "Ponto de Táxi da Rodoviária"
 address = "Rua da Estação, 110"
 number = "176"
 spoken = "o ponto de táxi da rodoviária"
@@ -367,7 +367,7 @@ reasons = PackedStringArray("Preciso de um carro até a rodoviária.", "O últim
 
 [sub_resource type="Resource" id="Resource_uhirb"]
 script = ExtResource("1_6g7xa")
-name = "Teixeira, Ivo"
+name = "Ivo Teixeira"
 address = "Rua das Flores, 33"
 number = "379"
 spoken = "o seu Ivo Teixeira"
@@ -375,7 +375,7 @@ reasons = PackedStringArray("Ele ficou de me devolver a furadeira.", "É sobre a
 
 [sub_resource type="Resource" id="Resource_5fdhg"]
 script = ExtResource("1_6g7xa")
-name = "Vieira, Sônia"
+name = "Sônia Vieira"
 address = "Rua do Comércio, 120"
 number = "384"
 spoken = "a Dona Sônia Vieira"

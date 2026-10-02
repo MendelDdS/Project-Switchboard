@@ -58,7 +58,7 @@ static func template_transfer(exclude: Array = []) -> TransferCall:
 		t.opening.append(fill(l, vars))
 	t.repeat = fill(tpl.repeat, vars)
 	t.target = e.number
-	t.destination = display_name(e)
+	t.destination = e.name
 	t.thanks = pick(CONTENT.transfer_thanks)
 	return t
 
@@ -84,11 +84,6 @@ static func template_emergency() -> EmergencyCall:
 	e.units = tpl.units
 	e.after = fill(tpl.after, vars)
 	return e
-
-
-## Nome como se fala: "Lima, Rosa" -> "Rosa Lima".
-static func display_name(e: DirectoryEntry) -> String:
-	return " ".join([e.name.get_slice(", ", 1), e.name.get_slice(", ", 0)]) if ", " in e.name else e.name
 
 
 static func transfers(group: int) -> Array:

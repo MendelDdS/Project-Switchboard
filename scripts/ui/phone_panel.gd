@@ -102,7 +102,7 @@ func _render_transcript() -> void:
 			var text := String(l["text"]).replace("[", "(")
 			match l["cls"]:
 				"sys":
-					s += "[color=#9a917a][font_size=13]%s[/font_size][/color]\n" % text
+					s += "[color=#9a917a][font_size=14]%s[/font_size][/color]\n" % text
 				"op":
 					s += "[color=#8dbb6c]%s[/color]  %s\n" % [T.text(T.Key.YOU), text]
 				"ghost":

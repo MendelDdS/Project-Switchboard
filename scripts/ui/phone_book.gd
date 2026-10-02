@@ -3,7 +3,7 @@ extends Control
 ## Lista telefônica em páginas duplas. Clique num contato para marcá-lo com o dedo.
 ## Os contatos vêm de GameData.CONTENT.directory; a barra de navegação fica na cena (phone_book.tscn).
 
-const PER := 6
+const PER := 5
 const BOOK := Rect2(0, 0, 576, 406)
 
 var pages: Array = []
@@ -11,6 +11,7 @@ var spread := 0
 var marked := -1
 var hover := -1
 var _hits: Array = []
+var _entries: Array = []   ## contatos em ordem alfabética do nome (como aparece: "Nome Sobrenome")
 
 @onready var _prev: Button = %Prev
 @onready var _next: Button = %Next
@@ -18,7 +19,9 @@ var _hits: Array = []
 
 
 func _ready() -> void:
-	var d := GameData.CONTENT.directory
+	_entries = GameData.CONTENT.directory.duplicate()
+	_entries.sort_custom(func(a, b): return a.name.naturalnocasecmp_to(b.name) < 0)
+	var d := _entries
 	for i in range(0, d.size(), PER):
 		pages.append(d.slice(i, i + PER))
 	if pages.size() % 2 == 1:
@@ -27,7 +30,7 @@ func _ready() -> void:
 	_next.pressed.connect(turn.bind(1))
 	var letters: Array = []
 	for e in d:
-		var l := e.name.substr(0, 1)
+		var l: String = e.name.substr(0, 1)
 		if not l in letters:
 			letters.append(l)
 	for l in letters:
@@ -51,7 +54,7 @@ func turn(dir: int) -> void:
 
 
 func jump(letter: String) -> void:
-	var d := GameData.CONTENT.directory
+	var d := _entries
 	for i in d.size():
 		if d[i].name.begins_with(letter):
 			var sp := int(i / PER) / 2
@@ -104,16 +107,16 @@ func _draw() -> void:
 		var wdt := 260.0
 		var pg = pages[pi] if pi < pages.size() else null
 		if pg == null:
-			draw_string(mono, Vector2(x0, 26), T.text(T.Key.BOOK_NOTES), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Pal.INK_SOFT)
-			draw_string(mono, Vector2(x0, 26), str(pi + 1), HORIZONTAL_ALIGNMENT_RIGHT, wdt, 18, Pal.INK_SOFT)
+			draw_string(mono, Vector2(x0, 26), T.text(T.Key.BOOK_NOTES), HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Pal.INK_SOFT)
+			draw_string(mono, Vector2(x0, 26), str(pi + 1), HORIZONTAL_ALIGNMENT_RIGHT, wdt, 20, Pal.INK_SOFT)
 			draw_rect(Rect2(x0, 31, wdt, 2), Pal.INK_SOFT)
 			var note := T.text(T.Key.BOOK_NOTE_TEXT)
 			draw_multiline_string(Pal.ui, Vector2(x0, 58), note, HORIZONTAL_ALIGNMENT_LEFT, wdt, 14, -1, Pal.INK_SOFT)
 			continue
 		var first: String = pg[0].name.substr(0, 1)
 		var last: String = pg[pg.size() - 1].name.substr(0, 1)
-		draw_string(mono, Vector2(x0, 26), first + ("–" + last if first != last else ""), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Pal.INK_SOFT)
-		draw_string(mono, Vector2(x0, 26), str(pi + 1), HORIZONTAL_ALIGNMENT_RIGHT, wdt, 18, Pal.INK_SOFT)
+		draw_string(mono, Vector2(x0, 26), first + ("–" + last if first != last else ""), HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Pal.INK_SOFT)
+		draw_string(mono, Vector2(x0, 26), str(pi + 1), HORIZONTAL_ALIGNMENT_RIGHT, wdt, 20, Pal.INK_SOFT)
 		draw_rect(Rect2(x0, 31, wdt, 2), Pal.INK_SOFT)
 		var ey := 40.0
 		for e in pg:
@@ -122,7 +125,7 @@ func _draw() -> void:
 			var sub: String = tr(e.note) if e.note != "" else ""
 			var addr: String = (sub + " · " if sub != "" else "") + e.address
 			var nh := mono.get_multiline_string_size(name_s, HORIZONTAL_ALIGNMENT_LEFT, 200, 21).y
-			var ah := mono.get_multiline_string_size(addr, HORIZONTAL_ALIGNMENT_LEFT, wdt, 17).y
+			var ah := mono.get_multiline_string_size(addr, HORIZONTAL_ALIGNMENT_LEFT, wdt, 20).y
 			var eh := nh + ah + 12
 			var r := Rect2(x0 - 6, ey, wdt + 12, eh)
 			_hits.append([r, idx])
@@ -131,8 +134,8 @@ func _draw() -> void:
 			elif idx == hover:
 				draw_rect(r, Color(Pal.AMBER, 0.16))
 			draw_multiline_string(mono, Vector2(x0, ey + 4 + mono.get_ascent(21)), name_s, HORIZONTAL_ALIGNMENT_LEFT, 200, 21, -1, Color.BLACK)
-			draw_string(mono, Vector2(x0, ey + 4 + mono.get_ascent(23)), e.number, HORIZONTAL_ALIGNMENT_RIGHT, wdt, 23, Color.BLACK)
-			draw_multiline_string(mono, Vector2(x0, ey + 6 + nh + mono.get_ascent(17)), addr, HORIZONTAL_ALIGNMENT_LEFT, wdt, 17, -1, Pal.INK_SOFT)
+			draw_string(mono, Vector2(x0, ey + 4 + mono.get_ascent(25)), e.number, HORIZONTAL_ALIGNMENT_RIGHT, wdt, 25, Color.BLACK)
+			draw_multiline_string(mono, Vector2(x0, ey + 6 + nh + mono.get_ascent(20)), addr, HORIZONTAL_ALIGNMENT_LEFT, wdt, 20, -1, Pal.INK_SOFT)
 			var dy := ey + eh - 1
 			var dx := x0 - 4
 			while dx < x0 + wdt + 4:

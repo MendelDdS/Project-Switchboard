@@ -668,8 +668,8 @@ msgid "O ponto de táxi. Da rodoviária."
 msgstr "La parada de taxis. De la terminal."
 
 #: data/calls/transfer_03_rapaz_taxi_ponto_da_rodoviaria.tres data/calls/transfer_27_moca_taxi_ponto_da_rodoviaria.tres
-msgid "Táxi, Ponto da Rodoviária"
-msgstr "Táxi, Ponto da Rodoviária"
+msgid "Ponto de Táxi da Rodoviária"
+msgstr "Ponto de Táxi da Rodoviária"
 
 #: data/calls/transfer_03_rapaz_taxi_ponto_da_rodoviaria.tres data/calls/transfer_29_rapaz_cine_odeon.tres data/content.tres
 msgid "Valeu, central."

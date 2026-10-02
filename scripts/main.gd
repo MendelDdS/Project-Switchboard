@@ -378,7 +378,7 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 	exchange.set_dest(d, Exchange.Dest.CONN)
 	Sfx.play("sw")
 	phone.flash(T.text(T.Key.DISPLAY_CONNECTED) % d, 3000)
-	var who := GameData.display_name(GameData.entry(str(d)))
+	var who := GameData.entry(str(d)).name
 	tutorial_step()
 	_update_call_ui()
 	if not right and c != tut:
@@ -426,7 +426,7 @@ func _try_complete(c: PhoneCall) -> bool:
 ## também desliga. Mais tarde ele liga de novo reclamando e pedindo o número certo.
 func _wrong_unattended(c: PhoneCall, d: int) -> void:
 	exchange.set_dest(d, Exchange.Dest.DONE)
-	c.sys(T.text(T.Key.SYS_WRONG_BOTH_HUNG) % GameData.display_name(GameData.entry(str(d))))
+	c.sys(T.text(T.Key.SYS_WRONG_BOTH_HUNG) % GameData.entry(str(d)).name)
 	end_call(c, PhoneCall.End.CALLER)
 	_call_again(c, PhoneCall.Retry.WRONG_NUMBER)
 	if tut != null:

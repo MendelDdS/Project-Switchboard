@@ -114,7 +114,7 @@ func _render_ledger() -> void:
 	for h in [T.Key.COL_TIME, T.Key.COL_CALLER, T.Key.COL_PLACE, T.Key.COL_TYPE, T.Key.COL_UNIT, T.Key.COL_OBS]:
 		s += "[cell padding=2,0,8,4][font=res://fonts/PixelifySans.ttf][font_size=12][color=#5a4d3a]%s[/color][/font_size][/font][/cell]" % T.text(h)
 	if entries.is_empty():
-		s += "[/table]\n[font=res://fonts/PixelifySans.ttf][font_size=13][color=#5a4d3a]%s[/color][/font_size][/font]" % T.text(T.Key.NOTEBOOK_EMPTY)
+		s += "[/table]\n[font=res://fonts/PixelifySans.ttf][font_size=14][color=#5a4d3a]%s[/color][/font_size][/font]" % T.text(T.Key.NOTEBOOK_EMPTY)
 	else:
 		for r in entries:
 			for k in ["time", "who", "where", "type", "unit", "obs"]:

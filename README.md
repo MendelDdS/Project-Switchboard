@@ -7,7 +7,8 @@ Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
 - `scenes/main.tscn` — cena principal (layout em containers); `scenes/ui/` — telefone, rádio, abas de ferramentas
   (lista, mapa, despacho, caderno), tela inicial e final. Edite a interface no editor do Godot.
 - `themes/main_theme.tres` — tema global (cores, fontes e variações de botão/painel/rótulo).
-- `data/content.tres` — **todo o conteúdo**: lista telefônica, ruas, falas avulsas, pedidos de informação e as
+- `data/content.tres` — **todo o conteúdo**: lista telefônica (nomes como se fala, "Rosa Lima", "Corpo de
+  Bombeiros"; a lista se ordena sozinha), ruas, falas avulsas, pedidos de informação e as
   listas de roteiros. Cada roteiro de ligação é um arquivo em `data/calls/` (transferências, emergências, trotes).
   Para criar uma ligação nova: duplique um `.tres` em `data/calls/`, edite no inspetor e arraste para a lista certa
   no `content.tres`.
@@ -170,6 +171,9 @@ base, um por ponta, e cada clique devolve uma ponta.
 Arrastar um plug encaixado para outra tomada o move. Soltar fora de uma tomada, apertar Esc ou o botão direito (ação `cancel_plug` no Input Map)
 também devolve o plug à base. Cada tipo de plug só encaixa nas tomadas compatíveis: a tomada sob o plug
 acende em amarelo se aceita, em vermelho se não.
+
+Atalhos do telefone: **1** atende, **2** transfere, **3** desliga (também no teclado numérico; a tecla aparece no
+canto de cada botão). Digitando num campo do caderno, os números vão para o campo.
 
 ## A mesa
 

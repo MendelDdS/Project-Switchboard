@@ -14,12 +14,14 @@ func _draw() -> void:
 	draw_rect(Rect2(Vector2(2, 2), size - Vector2(4, 4)), Color("1b1812"))
 	draw_rect(Rect2(10, 26, 16, 12), Color("050403"))
 	# no editor (@tool) as fontes de Pal ainda não foram carregadas
-	var f: Font = Pal.mono if Pal.mono != null else get_theme_default_font()
-	# a palavra muda com o idioma (FONE, HEADSET, AURICULAR): a fonte diminui até caber
+	var f: Font = Pal.ui if Pal.ui != null else get_theme_default_font()
+	# a palavra muda com o idioma (FONE, HEADSET, AURICULAR): o maior tamanho em que a fonte fica nítida e cabe
 	var label := T.text(T.Key.FONE_LABEL)
-	var fs := 16
-	while fs > 9 and f.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x > size.x - 38:
-		fs -= 1
+	var fs := 11
+	for s in [16, 14, 12]:
+		if f.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, s).x <= size.x - 38:
+			fs = s
+			break
 	draw_string(f, Vector2(34, 28), label, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Pal.BRASS)
 
 

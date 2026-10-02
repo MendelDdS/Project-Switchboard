@@ -434,4 +434,37 @@ func _initialize() -> void:
 	ok(asked > 0 and not wc.transcript.slice(0, asked).any(func(l): return String(l["text"]) in chat), "sem conversa fiada logo depois do pedido")
 	m.end_call(wc, PhoneCall.End.OPERATOR)
 	print("OK 11 conversa fiada e reclamação na espera")
+
+	# ---- 12. atalhos do telefone (teclas de verdade): 1 atende, 3 desliga
+	var kc := _extra(GameData.transfers(TransferCall.Group.EXTRA)[4])
+	m.ring(kc)
+	_move(0, kc.line)
+	await frames(2)
+	_key(KEY_1)
+	ok(await wait_until(func(): return not kc.ringing, 5.0), "a tecla 1 atende")
+	ok(await wait_until(_awaiting(kc)), "pedido feito")
+	m.find_child("TabCaderno", true, false).pressed.emit()
+	var field: LineEdit = m.find_children("*", "LineEdit", true, false).filter(func(l): return l.is_visible_in_tree())[0]
+	field.grab_focus()
+	var typed := field.text
+	_key(KEY_3)
+	await frames(3)
+	ok(kc.active and field.text.length() == typed.length() + 1 and "3" in field.text, "digitando no caderno, o número vai para o campo (não desliga)")
+	field.release_focus()
+	_key(KEY_3)
+	ok(await wait_until(func(): return not kc.active, 5.0), "a tecla 3 desliga")
+	print("OK 12 atalhos do telefone")
 	finish("fluxo da central")
+
+
+## Aperta e solta uma tecla, como o jogador.
+func _key(k: Key) -> void:
+	var e := InputEventKey.new()
+	e.physical_keycode = k
+	e.keycode = k
+	e.unicode = k if k < 128 else 0
+	e.pressed = true
+	Input.parse_input_event(e)
+	var up: InputEventKey = e.duplicate()
+	up.pressed = false
+	Input.parse_input_event(up)

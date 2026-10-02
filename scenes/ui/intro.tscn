@@ -45,7 +45,7 @@ layout_mode = 2
 text = ""
 theme_override_fonts/font = ExtResource("3_vt323_regula")
 theme_override_colors/font_color = Color(0.9529, 0.6588, 0.2353, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 25
 
 [node name="Note" type="PanelContainer" parent="Center/Card/VBox"]
 layout_mode = 2
@@ -56,7 +56,7 @@ unique_name_in_owner = true
 layout_mode = 2
 text = ""
 theme_type_variation = &"InkMonoLabel"
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 25
 autowrap_mode = 3
 custom_minimum_size = Vector2(448, 0)
 
@@ -82,7 +82,7 @@ custom_minimum_size = Vector2(180, 44)
 layout_mode = 2
 size_flags_horizontal = 0
 theme_type_variation = &"AmberButton"
-theme_override_font_sizes/font_size = 17
+theme_override_font_sizes/font_size = 18
 text = "START_SHIFT"
 
 [node name="Settings" type="Button" parent="Center/Card/VBox/Buttons"]

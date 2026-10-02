@@ -9,5 +9,5 @@ caller = "Rapaz"
 opening = PackedStringArray("Boa noite.", "Preciso de um táxi. Me conecta com o ponto da rodoviária?")
 repeat = "O ponto de táxi. Da rodoviária."
 target = "176"
-destination = "Táxi, Ponto da Rodoviária"
+destination = "Ponto de Táxi da Rodoviária"
 thanks = "Valeu, central."

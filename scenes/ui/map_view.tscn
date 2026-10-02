@@ -21,14 +21,14 @@ theme_override_constants/separation = 8
 layout_mode = 2
 text = "MAP_MARKED"
 theme_type_variation = &"InkLabel"
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 16
 size_flags_vertical = 4
 
 [node name="Selected" type="Label" parent="Row"]
 layout_mode = 2
 text = "MAP_NONE"
 theme_type_variation = &"InkMonoLabel"
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 25
 unique_name_in_owner = true
 size_flags_horizontal = 3
 clip_text = true

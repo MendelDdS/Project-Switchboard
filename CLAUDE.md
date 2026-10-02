@@ -13,6 +13,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `RedButton`, `InkButton`, `DarkButton`, `ChoiceButton`, `TabButton`, `PaperToggle`, `PaperInk`, `LetterButton`,
   `DarkPanel`, `PaperPanel`, `NotePanel`, `FormPanel`, `InkLabel`, `InkSoftLabel`, `DimLabel`, `AmberLabel`,
   `MonoLabel`, `InkMonoLabel`). Prefira variação de tema a override por nó.
+- Nomes de pessoas e lugares na ordem natural, "Nome Sobrenome" (nunca "Sobrenome, Nome"); a lista telefônica
+  ordena pelo nome como aparece (`PhoneBook._entries`).
 - **Conteúdo em Resources** (`data/content.tres` + um `.tres` por roteiro em `data/calls/` + um por noite em
   `data/nights/`). Nada de falas no código, exceto as do operador.
 - **Moldes** (`data/templates/`, listas `transfer_templates`/`emergency_templates` no content): `TransferCall`/
@@ -32,7 +34,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Clima (`Main.weather`: "rain", "fog", "clear", sorteado; `-- --weather=X` força): `Sfx.start_ambience(w)`/
   `set_weather`/`hush_nature`/`stop_ambience`, `Background.weather` desenha a janela, `Main.smalltalk()` junta as
   falas gerais com as do clima.
-- Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`).
+- Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`). **Fontes de pixel**: importadas sem
+  suavização nem sub-pixel e usadas só nos tamanhos em que ficam nítidas: `Pal.ui` (Pixelify Sans) 11, 12, 14, 16, 18,
+  22; `Pal.mono` (VT323, números) 20, 21, 25, 30, 35 (abaixo de 20 fica fina). Texto em desenho com escala (mapa)
+  sai fora da escala (`CityMap._t`). O 2 e o 5 da Pixelify foram redesenhados (pareciam S e Z) e ela foi fixada no peso
+  Regular (era variável); se trocar o arquivo da fonte, refaça isso.
 - **Idiomas** pt_BR (padrão), en, es. Interface/código: **enum `T.Key`** (`scripts/t.gd`, GERADO) +
   `translations/ui.csv` (`chave,pt_BR,en,es`); use `T.text(T.Key.X)` (com valores: `T.text(T.Key.X) % n`), nunca
   `tr("texto")` com literal. Cenas: o `text` do Label/Button é a chave (auto-tradução do Godot). Falas dos roteiros
@@ -43,7 +49,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   Lacunas dos moldes também se traduzem: `tr(spoken)`, `tr("d" + spoken)`, `tr("pr" + spoken)` têm entradas próprias
   no .po. Texto que já chega traduzido num Button/Label dinâmico: `auto_translate_mode = DISABLED`.
 - Entrada: ação `cancel_plug` no Input Map (Esc e botão direito) devolve o plug que está na mão; ação `pause` (Esc, P)
-  pausa o turno quando não há plug na mão (`Main._unhandled_input`).
+  pausa o turno quando não há plug na mão (`Main._unhandled_input`). Atalhos do telefone: ações `answer_call`,
+  `transfer_call`, `hang_up` (teclas 1, 2, 3 e o teclado numérico, na ordem dos botões; iguais em todos os idiomas)
+  no `shortcut` dos botões em `phone_panel.tscn` (respeitam botão desativado e pausa; campo de texto com foco fica
+  com a tecla); a tecla aparece no canto do botão (Label `Key`).
 - **Pausa e configurações**: `PauseMenu` (`scenes/ui/pause_menu.tscn`, z 4, `process_mode` ALWAYS) usa
   `get_tree().paused`. **Todo `create_timer` do jogo leva `false` no 2º argumento** (senão continua contando na pausa);
   o `Sfx` roda sempre (ambiente segue, `Main.pause()` cala a campainha e `_update_bell` a devolve). Configurações no

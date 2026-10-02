@@ -31,7 +31,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 text = "NOTEBOOK_DATE"
 theme_type_variation = &"InkSoftLabel"
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 14
 
 [node name="Ledger" type="RichTextLabel" parent="Content"]
 unique_name_in_owner = true
@@ -41,7 +41,7 @@ bbcode_enabled = true
 scroll_following = true
 theme_override_colors/default_color = Color(0.1647, 0.1373, 0.09804, 1)
 theme_override_fonts/normal_font = ExtResource("2_vt323_regula")
-theme_override_font_sizes/normal_font_size = 16
+theme_override_font_sizes/normal_font_size = 20
 
 [node name="Form" type="PanelContainer" parent="Content"]
 unique_name_in_owner = true
@@ -57,7 +57,7 @@ theme_override_constants/separation = 8
 layout_mode = 2
 text = ""
 theme_type_variation = &"InkLabel"
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 16
 unique_name_in_owner = true
 
 [node name="Grid" type="GridContainer" parent="Content/Form/VBox"]

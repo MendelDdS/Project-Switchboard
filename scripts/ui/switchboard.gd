@@ -621,7 +621,7 @@ func _draw() -> void:
 	draw_rect(Rect2(3, 3, 3, h - 6), Pal.PANEL_HI)
 	draw_rect(Rect2(3, h - 6, w - 6, 3), Pal.PANEL_LO)
 	draw_rect(Rect2(w - 6, 3, 3, h - 6), Pal.PANEL_LO)
-	draw_string(Pal.mono, Vector2(17, 28), T.text(T.Key.BOARD_TITLE), HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Pal.BRASS)
+	draw_string(Pal.mono, Vector2(17, 28), T.text(T.Key.BOARD_TITLE), HORIZONTAL_ALIGNMENT_LEFT, -1, 21, Pal.BRASS)
 	draw_string(Pal.ui, Vector2(17, 26), T.text(T.Key.BOARD_LEGEND), HORIZONTAL_ALIGNMENT_RIGHT, w - 34, 11, Pal.DIM)
 	if exchange == null:
 		return
@@ -633,7 +633,7 @@ func _draw() -> void:
 		var cx := col_x(i)
 		draw_rect(Rect2(cx - 17, 36, 34, 20), Color.BLACK)
 		draw_rect(Rect2(cx - 15, 38, 30, 16), Color("1a1711"))
-		draw_string(Pal.mono, Vector2(cx - 15, 52), "%02d" % n, HORIZONTAL_ALIGNMENT_CENTER, 30, 19, Color("d8c9a2"))
+		draw_string(Pal.mono, Vector2(cx - 15, 52), "%02d" % n, HORIZONTAL_ALIGNMENT_CENTER, 30, 20, Color("d8c9a2"))
 		_draw_lamp(Rect2(cx - 7, 60, 14, 9), _lamp(st, ms, fone_line() == n))
 		_draw_jack(jack_rect(n))
 		var sc := Pal.DIM
@@ -641,7 +641,7 @@ func _draw() -> void:
 			sc = Pal.AMBER
 		elif st == Exchange.Line.DONE:
 			sc = Pal.RED
-		draw_string(Pal.ui, Vector2(cx - 28, 110), exchange.line_label(n), HORIZONTAL_ALIGNMENT_CENTER, 56, 10, sc)
+		draw_string(Pal.ui, Vector2(cx - 28, 110), exchange.line_label(n), HORIZONTAL_ALIGNMENT_CENTER, 56, 11, sc)
 		_draw_jack(jack_rect(n + 10), Color("7a6230"))
 
 	# destinos
@@ -651,7 +651,7 @@ func _draw() -> void:
 		var jr := jack_rect(d)
 		var cx := jr.get_center().x
 		var st := exchange.dest(d)
-		draw_string(Pal.mono, Vector2(cx - 16, jr.position.y - 5), str(d), HORIZONTAL_ALIGNMENT_CENTER, 32, 17, Color("d8c9a2") if st == Exchange.Dest.FREE else Pal.TEXT)
+		draw_string(Pal.mono, Vector2(cx - 16, jr.position.y - 5), str(d), HORIZONTAL_ALIGNMENT_CENTER, 32, 20, Color("d8c9a2") if st == Exchange.Dest.FREE else Pal.TEXT)
 		var lc := _dest_lamp(st, ms)
 		if lc.a > 0.0:
 			draw_rect(jr.grow(3), lc)   # o aro da tomada acende
@@ -666,7 +666,7 @@ func _draw() -> void:
 		for e in [1 + k * 2, 2 + k * 2]:   # os dois buracos de onde saem os fios
 			var hp := hole(e)
 			draw_rect(Rect2(hp.x - 7, hp.y - 4, 14, 8), Color("050403"))
-		draw_string(Pal.mono, Vector2(cx - 30, 322), T.text(T.Key.BOARD_CORD) % (k + 1), HORIZONTAL_ALIGNMENT_CENTER, 60, 14, Pal.BRASS)
+		draw_string(Pal.mono, Vector2(cx - 30, 322), T.text(T.Key.BOARD_CORD) % (k + 1), HORIZONTAL_ALIGNMENT_CENTER, 60, 20, Pal.BRASS)
 	# legenda
 	var leg := [[Pal.AMBER, T.Key.LEGEND_RING], [Pal.GREEN, T.Key.LEGEND_CONN], [Pal.RED, T.Key.LEGEND_DONE], [Color("2a2016"), T.Key.LEGEND_FREE]]
 	for k in leg.size():

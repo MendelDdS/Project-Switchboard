@@ -1,4 +1,4 @@
-[gd_resource type="AudioBusLayout" load_steps=5 format=3]
+[gd_resource type="AudioBusLayout" format=3 uid="uid://uvobqg8stgd5"]
 
 [sub_resource type="AudioEffectCompressor" id="AudioEffectCompressor_duck"]
 resource_name = "Compressor"
@@ -15,7 +15,6 @@ room_size = 0.25
 damping = 0.6
 spread = 0.5
 hipass = 0.2
-dry = 1.0
 wet = 0.12
 
 [sub_resource type="AudioEffectLowPassFilter" id="AudioEffectLowPassFilter_rub"]

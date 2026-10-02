@@ -4,6 +4,24 @@
 [ext_resource type="Script" path="res://scripts/ui/fone_socket.gd" id="2_fone_socket"]
 [ext_resource type="FontFile" path="res://fonts/VT323-Regular.ttf" id="3_vt323_regula"]
 
+[sub_resource type="InputEventAction" id="InputEventAction_answer"]
+action = &"answer_call"
+
+[sub_resource type="Shortcut" id="Shortcut_answer"]
+events = [SubResource("InputEventAction_answer")]
+
+[sub_resource type="InputEventAction" id="InputEventAction_transfer"]
+action = &"transfer_call"
+
+[sub_resource type="Shortcut" id="Shortcut_transfer"]
+events = [SubResource("InputEventAction_transfer")]
+
+[sub_resource type="InputEventAction" id="InputEventAction_hangup"]
+action = &"hang_up"
+
+[sub_resource type="Shortcut" id="Shortcut_hangup"]
+events = [SubResource("InputEventAction_hangup")]
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
 bg_color = Color(0.07059, 0.05098, 0.02745, 1)
 
@@ -45,7 +63,7 @@ layout_mode = 2
 text = ""
 theme_override_fonts/font = ExtResource("3_vt323_regula")
 theme_override_colors/font_color = Color(0.9529, 0.6588, 0.2353, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_font_sizes/font_size = 21
 unique_name_in_owner = true
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -65,7 +83,7 @@ mouse_filter = 2
 layout_mode = 2
 text = "STATUS_NO_CALL"
 theme_type_variation = &"DimLabel"
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 14
 unique_name_in_owner = true
 size_flags_horizontal = 3
 
@@ -73,7 +91,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 text = ""
 theme_type_variation = &"DimLabel"
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 14
 unique_name_in_owner = true
 horizontal_alignment = 2
 
@@ -128,7 +146,24 @@ size_flags_vertical = 4
 focus_mode = 0
 theme_type_variation = &"GreenButton"
 disabled = true
+shortcut = SubResource("Shortcut_answer")
 text = "ANSWER"
+
+[node name="Key" type="Label" parent="VBox/Bottom/Answer"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -14.0
+offset_top = 2.0
+offset_right = -4.0
+offset_bottom = 16.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.05, 0.04, 0.03, 0.6)
+theme_override_font_sizes/font_size = 11
+text = "1"
+horizontal_alignment = 2
 
 [node name="Transfer" type="Button" parent="VBox/Bottom"]
 unique_name_in_owner = true
@@ -138,7 +173,24 @@ size_flags_vertical = 4
 focus_mode = 0
 theme_type_variation = &"AmberButton"
 disabled = true
+shortcut = SubResource("Shortcut_transfer")
 text = "TRANSFER"
+
+[node name="Key" type="Label" parent="VBox/Bottom/Transfer"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -14.0
+offset_top = 2.0
+offset_right = -4.0
+offset_bottom = 16.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.05, 0.04, 0.03, 0.6)
+theme_override_font_sizes/font_size = 11
+text = "2"
+horizontal_alignment = 2
 
 [node name="Hangup" type="Button" parent="VBox/Bottom"]
 unique_name_in_owner = true
@@ -148,4 +200,21 @@ size_flags_vertical = 4
 focus_mode = 0
 theme_type_variation = &"RedButton"
 disabled = true
+shortcut = SubResource("Shortcut_hangup")
 text = "HANG_UP"
+
+[node name="Key" type="Label" parent="VBox/Bottom/Hangup"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -14.0
+offset_top = 2.0
+offset_right = -4.0
+offset_bottom = 16.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.05, 0.04, 0.03, 0.6)
+theme_override_font_sizes/font_size = 11
+text = "3"
+horizontal_alignment = 2
