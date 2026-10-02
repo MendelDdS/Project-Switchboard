@@ -9,7 +9,7 @@
 bg_color = Color(0.07059, 0.05098, 0.02745, 1)
 
 [node name="Phone" type="MarginContainer"]
-custom_minimum_size = Vector2(588, 262)
+custom_minimum_size = Vector2(588, 0)
 mouse_filter = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 12
@@ -87,8 +87,9 @@ unique_name_in_owner = true
 clip_text = true
 
 [node name="TranscriptBox" type="PanelContainer" parent="VBox"]
-custom_minimum_size = Vector2(0, 104)
+custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
+size_flags_vertical = 3
 theme_type_variation = &"DarkPanel"
 
 [node name="Chat" type="VBoxContainer" parent="VBox/TranscriptBox"]

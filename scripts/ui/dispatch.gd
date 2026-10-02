@@ -139,7 +139,7 @@ func _send() -> void:
 	var target := _location.duplicate()
 	target["occurrence"] = _occ_group.get_pressed_button().text
 	Sfx.play("sw")
-	Sfx.static_burst()
+	Sfx.static_burst(0.0, radio.screen_x())
 	var names := PackedStringArray()
 	for u in us:
 		_units[u] = Unit.EN_ROUTE

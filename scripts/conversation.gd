@@ -301,7 +301,7 @@ func emergency_worse(c: PhoneCall, stage: int) -> void:
 			return
 		await get_tree().process_frame
 	if await say(c, text):
-		c.told = maxi(c.told, stage)
+		main.emergency_told(c, stage)
 		emergency_choices(c)
 
 

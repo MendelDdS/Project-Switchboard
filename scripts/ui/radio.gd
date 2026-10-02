@@ -38,6 +38,17 @@ func alert(stage: int, away := "") -> void:
 	_away = away if stage >= 0 else ""
 
 
+## Aviso sonoro de que a emergência mudou de estágio (`stage` 1–3): chiado curto e bipes vindos do rádio, mais
+## agudos quanto pior. Avisa quem está olhando o mapa ou outra ligação.
+func chirp(stage: int) -> void:
+	Sfx.play_at("radio_alert", screen_x(), -2.0, [1.0, 1.0, 1.12, 1.25][stage])
+
+
+## Onde o rádio fica na tela (0 = esquerda, 1 = direita): a voz, o chiado e os bipes vêm de lá.
+func screen_x() -> float:
+	return get_global_rect().get_center().x / get_viewport_rect().size.x
+
+
 func _process(delta: float) -> void:
 	_t += delta
 	_blink = maxf(0.0, _blink - delta)
@@ -84,15 +95,15 @@ func _next() -> void:
 	_screen.add_theme_color_override("font_color", _screen_color)
 	var t: String = _queue.pop_front()
 	_led.color = Pal.RED
-	Sfx.static_burst()
+	Sfx.static_burst(0.0, screen_x())
 	await get_tree().create_timer(0.45, false).timeout
 	_screen.text = ""
 	var rv := false
 	for i in t.length():
 		_screen.text += t[i]
-		rv = Sfx.speak_char("r", t, i, rv)
+		rv = Sfx.speak_char("r", t, i, rv, false, screen_x())
 		await get_tree().create_timer(0.032 * Settings.char_delay(), false).timeout
-	Sfx.static_burst(-2.0)
+	Sfx.static_burst(-2.0, screen_x())
 	await get_tree().create_timer(1.6, false).timeout
 	_led.color = LED_OFF
 	await get_tree().create_timer(0.4, false).timeout

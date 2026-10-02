@@ -490,7 +490,11 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return not kc.active, 5.0), "X desliga")
 	_move(1, -1)
 	_move(2, -1)
-	print("OK 12 atalhos do telefone")
+	for pair in [[KEY_2, "despacho"], [KEY_3, "caderno"], [KEY_1, "lista"]]:
+		_key(pair[0])
+		await frames(2)
+		ok(m.tools.tab == pair[1], "tecla abre a aba " + pair[1])
+	print("OK 12 atalhos do telefone e das abas")
 
 	# ---- 13. mapa e despacho numa tela: o tipo não marca unidades (a conversa decide), Enviar só com tudo, e depois limpa
 	var d = m.dispatch

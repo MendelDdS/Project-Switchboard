@@ -25,7 +25,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`Sfx.speak_char`). Barramentos em `default_bus_layout.tres`: Ambience, Voices, Effects (e Rub, que envia para Effects).
   Ambience tem um compressor com sidechain em Voices (o ambiente baixa enquanto alguém fala); Effects, uma
   reverberação leve de sala. `Sfx.play_at(id, screen_x)` toca um som vindo de um lugar da tela (pool de
-  `AudioStreamPlayer2D`, `PAN`); a mesa usa para os sons dela (`Switchboard._sfx`, `screen_x`). A campainha
+  `AudioStreamPlayer2D`, `PAN`); a mesa usa para os sons dela (`Switchboard._sfx`, `screen_x`) e o rádio para a voz,
+  o chiado e os bipes (`Radio.screen_x()`; `speak_char`, `syllable` e `static_burst` aceitam `at`). A campainha
   (`ring_start(bells)`: linha -> lugar da tomada) reveza entre as linhas chamando, cada uma no seu tom (`BELL_STEP`).
 - Cursores próprios no autoload `Cursors` (`scripts/cursors.gd`): pixel art 16×16 em texto (×`SCALE`), uma por forma
   `Control.CURSOR_*` (seta, dedo, mão aberta = `MOVE`, mão fechada = `DRAG`, proibido, I-beam). Botões e sliders
@@ -53,7 +54,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (Espaço), `transfer_call` (Tab), `hang_up` (X), tratadas em `PhonePanel._input` **antes da interface** (Espaço e
   Tab também apertam o botão em foco e passam o foco; por isso não dá para usar `Button.shortcut`). Só com o botão
   ativo; na pausa não valem; com um campo de texto em foco a tecla fica com ele. A tecla aparece no canto do botão
-  (Label `Key`; "Espaço" traduzido, `KEY_SPACE`).
+  (Label `Key`; "Espaço" traduzido, `KEY_SPACE`). Abas: ações `tab_directory`/`tab_dispatch`/`tab_logbook` (1, 2, 3),
+  tratadas em `Main._unhandled_input` só durante o turno (`Main.TAB_KEYS`); o número fica no canto da aba.
 - **Pausa e configurações**: `PauseMenu` (`scenes/ui/pause_menu.tscn`, z 4, `process_mode` ALWAYS) usa
   `get_tree().paused`. **Todo `create_timer` do jogo leva `false` no 2º argumento** (senão continua contando na pausa);
   o `Sfx` roda sempre (ambiente segue, `Main.pause()` cala a campainha e `_update_bell` a devolve). Configurações no
@@ -190,15 +192,18 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`severe_before`, salvas no `Progress`; `SEVERE_LIMIT` = demissão).
 - **Barra de agravamento** (`Main._worsen`, estado em `PhoneCall.stage`/`urgency`/`asking`/`secured`, regra em
   `PhoneCall.urgent()`, desenho em `UrgencyBar` dentro da caixa do chat, só com o operador na linha; fora dela, o rádio
-  inteiro acende: `Radio.alert(stage, away)`, moldura pulsando e aviso na tela; a luz "Ocorrência" acende sempre): corre desde o atendimento, também em espera e depois de a pessoa desligar; para durante
+  inteiro acende: `Radio.alert(stage, away)`, moldura pulsando e aviso na tela; a luz "Ocorrência" acende sempre;
+  a cada troca de estágio, `Radio.chirp` toca `radio_alert` vindo do rádio, mais agudo quanto pior): corre desde o atendimento, também em espera e depois de a pessoa desligar; para durante
   pergunta e resposta (`Conversation._em_ask`) e na pausa; para de vez só quando o socorro completo sai para o lugar
   certo (`Dispatch.sent(..., complete)`, conta envios anteriores em `_incident["going"]`). Estágios por
   `EmergencyCall.stage_sec`; cada um chama `Conversation.emergency_worse` (fala `worsening`/`critical`/`lost`; com a
-  pessoa já desligada, `RADIO_WORSE`/`RADIO_LOST`; depois de dita, `PhoneCall.told` libera a pergunta do estágio:
-  `Conversation._qa`, índices depois das do roteiro; perdida = só o endereço e `OP_ANYONE_HURT` → `lost_answer`) e `Dispatch.require(e.required(stage))`. Advertência pelo estágio
+  pessoa já desligada, `RADIO_WORSE`/`RADIO_LOST`; depois de dita, `Main.emergency_told` atualiza `PhoneCall.told`, e só então `Dispatch.require(e.required(told))`
+  passa a exigir as unidades do estágio; com a pessoa já desligada ou se despedindo, o rádio diz também o que mandar,
+  `RADIO_SEND_MORE`. `told` também libera a pergunta do estágio:
+  `Conversation._qa`, índices depois das do roteiro; perdida = só o endereço e `OP_ANYONE_HURT` → `lost_answer`). Advertência pelo estágio
   quando o socorro completo sai (`_on_dispatched`: `emergency_worse` média, `emergency_critical` grave + jornal LATE);
   perdida = `emergency_lost` gravíssima na hora + jornal BAD (sem `emergency_dropped` nem retorno). Retornos não têm
-  barra (herdam `stage` para as unidades). A próxima emergência espera a barra da anterior parar.
+  barra (herdam `stage` e `told`: as unidades e as perguntas de quando a ligação caiu). A próxima emergência espera a barra da anterior parar.
 - Main registra com `_fault()` onde a falha acontece; `_consequences()` (chamado em `end_call`) decide advertência e
   retorno; `_call_again()` agenda a mesma pessoa de novo (`PhoneCall.retry`; uma vez por motivo, `retried`;
   também no tutorial; nunca depois do fim do turno; `too_late` sorteado com
@@ -237,7 +242,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Espera na linha (`Main._nag`, silêncio medido em `talk_clock`, que para na pausa): transferência pedida e o
   operador parado → depois de `SMALLTALK_AFTER` (10 s), com `SMALLTALK_CHANCE` (60%, uma vez por ligação), conversa
   fiada do cotidiano (`smalltalk` + a do clima); com `NAG_AFTER` (22 s) sem falar, reclama (`waiting`). Emergência:
-  `EMERGENCY_NAG_AFTER`. A conversa fiada não vem mais logo depois do pedido. Conversa fiada só do cotidiano (nada
+  `EMERGENCY_NAG_AFTER`, só no estágio inicial da barra (depois, a fala de cada estágio já cobra a demora). A conversa fiada não vem mais logo depois do pedido. Conversa fiada só do cotidiano (nada
   que lembre o mistério: luzes piscando, carros parados, chiado na linha).
 - Conversas transferidas duram `TALK_LEN` (34–68 min de jogo ≈ 45–90 s reais).
 - Turno das 18:00 (`SHIFT_START_HOUR`) às 00:00 (`SHIFT_END` = 360 min); fim **depois** da ligação desconhecida ter caído (`_start_ending`).
@@ -299,7 +304,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     responde; corre em espera. Cada estágio tem fala própria e pode exigir unidades novas. Depois: a barra só para
     com o socorro completo no lugar certo (chutar e completar não adianta), ficou mais rápida (45/40/35 s no 1º
     estágio) e some fora da linha; aí o rádio inteiro acende (moldura pulsando e aviso na tela) na cor do estágio.
-    Cada estágio libera uma pergunta sobre o que mudou; na perdida, só "Tem alguém ferido?" (e o endereço).
+    Cada estágio libera uma pergunta sobre o que mudou; na perdida, só "Tem alguém ferido?" (e o endereço). A unidade
+    nova só conta depois de alguém contar (a pessoa ou o rádio). O telefone passou a ocupar o que sobra da tela e o
+    chat encolhe quando as opções ganham fileiras (antes, o painel passava até 13 px da tela e cortava os botões).
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

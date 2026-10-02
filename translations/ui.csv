@@ -228,6 +228,7 @@ FAULT_EMERGENCY_WORSE,A emergência se agravou antes do despacho,The emergency g
 FAULT_EMERGENCY_CRITICAL,A emergência ficou crítica antes do despacho,The emergency turned critical before dispatch,La emergencia se volvió crítica antes del despacho
 FAULT_EMERGENCY_LOST,"Emergência perdida: o despacho demorou demais","Emergency lost: dispatch took too long","Emergencia perdida: el despacho tardó demasiado"
 RADIO_WORSE,"Central, a situação está piorando na %s.","Dispatch, the situation is getting worse at %s.","Central, la situación está empeorando en %s."
+RADIO_SEND_MORE,Mandem %s.,Send %s.,Manden %s.
 RADIO_LOST,"Central, chegamos tarde na %s.","Dispatch, we're too late at %s.","Central, llegamos tarde a %s."
 RADIO_INCIDENT,Ocorrência,Incident,Incidente
 RADIO_INCIDENT_ON,OCORRÊNCIA EM ANDAMENTO,EMERGENCY IN PROGRESS,EMERGENCIA EN CURSO

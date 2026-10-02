@@ -74,7 +74,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 16
+theme_override_constants/margin_top = 14
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 5
 
@@ -156,6 +156,7 @@ script = ExtResource("5_switchboard")
 [node name="Phone" parent="Layout/Columns/Left" unique_id=577996644 instance=ExtResource("6_phone_panel")]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_vertical = 3
 
 [node name="Right" type="VBoxContainer" parent="Layout/Columns" unique_id=1679355778]
 layout_mode = 2

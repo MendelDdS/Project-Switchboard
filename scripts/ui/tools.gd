@@ -1,6 +1,7 @@
 class_name Tools
 extends VBoxContainer
 ## Abas de ferramentas à direita da mesa: lista telefônica, mapa e despacho (uma aba só), e caderno.
+## Teclas 1, 2 e 3 abrem cada uma (Main.TAB_KEYS); o número fica no canto da aba.
 
 const TABS := {"lista": "%TabLista", "despacho": "%TabDespacho", "caderno": "%TabCaderno"}
 
@@ -40,4 +41,6 @@ func _apply() -> void:
 		var b: Button = get_node(TABS[id])
 		b.set_pressed_no_signal(id == tab)
 		b.custom_minimum_size.y = 40.0 if id == tab else 34.0   # a aba ativa fica mais alta
+		# a tecla do atalho no canto: tinta no papel da aba ativa, apagada nas outras
+		(b.get_node("Key") as Label).add_theme_color_override("font_color", Pal.INK_SOFT if id == tab else Pal.DIM)
 		_views[id].visible = id == tab

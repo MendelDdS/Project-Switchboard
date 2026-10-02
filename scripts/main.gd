@@ -24,6 +24,8 @@ const HOLD_GIVE_UP := 120.0             # minutos de jogo que alguém aguenta em
 const RETRY_AFTER := Vector2(15.0, 30.0)  # quem teve problema liga de novo depois de tantos minutos de jogo...
 const RETRY_WAIT := 20.0                # ...esperando a mesa esvaziar por no máximo tantos minutos
 const REDISPATCH_CHANCE := 0.6          # emergência sem socorro que liga de novo: chance de ainda dar para despachar
+## Atalhos das abas (Input Map): aba -> ação.
+const TAB_KEYS := {"lista": "tab_directory", "despacho": "tab_dispatch", "caderno": "tab_logbook"}
 ## Tipo que o supervisor espera ver no caderno para cada ligação.
 const TYPE_OF := {
 	PhoneCall.Kind.TRANSFER: T.Key.TYPE_COMMON, PhoneCall.Kind.INFO: T.Key.TYPE_COMMON,
@@ -182,7 +184,7 @@ func _process(delta: float) -> void:
 
 
 ## Quem está na linha esperando o operador: na transferência, às vezes puxa conversa fiada depois de um tempo e,
-## se a demora continuar, reclama; na emergência, pede pressa.
+## se a demora continuar, reclama; na emergência, pede pressa (só antes de a situação piorar).
 func _nag() -> void:
 	var f := _focus()
 	if f == null or not f.active or f.talking or f.closing:
@@ -197,15 +199,17 @@ func _nag() -> void:
 		elif quiet > NAG_AFTER:
 			f.last_talk = talk_clock
 			conversation.say(f, GameData.pick(C.waiting))
-	elif f.kind == PhoneCall.Kind.EMERGENCY and not f.dispatched and quiet > EMERGENCY_NAG_AFTER:
+	# só no estágio inicial: depois, a fala de cada estágio já cobra a demora
+	elif f.kind == PhoneCall.Kind.EMERGENCY and not f.dispatched and f.stage == 0 and quiet > EMERGENCY_NAG_AFTER:
 		f.last_talk = talk_clock
 		conversation.say(f, GameData.pick(C.emergency_waiting))
 
 
 ## A situação da emergência piora até o socorro completo sair para o lugar certo (despacho incompleto ou no
 ## endereço errado não para a barra), mesmo com ela em espera ou já desligada; só para durante pergunta e resposta
-## (e na pausa do jogo). A luz de ocorrência do rádio mostra o estágio. Cada estágio pode exigir unidades novas; o
-## último (perdida) já pune e piora o jornal, mas ainda dá para despachar. Quem liga de novo não tem barra.
+## (e na pausa do jogo). A luz de ocorrência do rádio mostra o estágio. Cada estágio pode exigir unidades novas, mas
+## só depois de alguém contar o que mudou (`emergency_told`); o último (perdida) já pune e piora o jornal, mas ainda
+## dá para despachar. Quem liga de novo não tem barra.
 func _worsen(delta: float) -> void:
 	var c := em_call
 	var away := ""   # fora da linha da emergência, o rádio inteiro avisa
@@ -220,17 +224,33 @@ func _worsen(delta: float) -> void:
 	if c.urgency < [e.stage_sec.x, e.stage_sec.x + e.stage_sec.y, e.stage_sec.x + e.stage_sec.y + e.stage_sec.z][c.stage]:
 		return
 	c.stage += 1
-	dispatch.require(e.required(c.stage))
+	radio.chirp(c.stage)
 	if c.stage == 3:
 		_fault("emergency_lost", e.address)
 		report.failed(e)
-	if c.ended:   # quem ligou já desligou: quem avisa é o rádio
-		radio.say(T.text(T.Key.RADIO_LOST if c.stage == 3 else T.Key.RADIO_WORSE) % e.address)
-	else:
+	if not c.dispatched:
 		conversation.emergency_worse(c, c.stage)
+		return
+	# quem ligou já desligou (ou está se despedindo): quem avisa é o rádio, com o que passou a precisar
+	var more := Array(e.required(c.stage)).filter(func(u): return not u in e.required(c.told))
+	var msg := T.text(T.Key.RADIO_LOST if c.stage == 3 else T.Key.RADIO_WORSE) % e.address
+	if not more.is_empty():
+		var names := PackedStringArray(more.map(func(u): return T.text(Dispatch.UNIT_NAMES[u]).to_lower()))
+		msg += " " + T.text(T.Key.RADIO_SEND_MORE) % (" %s " % T.text(T.Key.AND)).join(names)
+	radio.say(msg)
+	emergency_told(c, c.stage)
 
 
-## Esc: primeiro devolve o plug que está na mão; sem plug na mão, pausa o turno.
+## Alguém contou o que mudou até o estágio `stage` (a pessoa na linha ou o rádio): só agora o despacho passa a
+## exigir as unidades dele; ninguém é cobrado pelo que não tinha como saber.
+func emergency_told(c: PhoneCall, stage: int) -> void:
+	c.told = maxi(c.told, stage)
+	if c == em_call:
+		dispatch.require((c.data as EmergencyCall).required(c.told))
+
+
+## Esc: primeiro devolve o plug que está na mão; sem plug na mão, pausa o turno. 1, 2 e 3 abrem as abas (só durante
+## o turno; na pausa a árvore está parada).
 func _unhandled_input(e: InputEvent) -> void:
 	if e.is_action_pressed("cancel_plug") and board.held != -1:
 		board.go_home(board.held)
@@ -238,6 +258,11 @@ func _unhandled_input(e: InputEvent) -> void:
 	elif e.is_action_pressed("pause") and running and not ending:
 		get_viewport().set_input_as_handled()
 		pause()
+	elif running and not ending:
+		for id in TAB_KEYS:
+			if e.is_action_pressed(TAB_KEYS[id]):
+				get_viewport().set_input_as_handled()
+				tools.set_tab(id)
 
 
 func pause() -> void:
@@ -712,7 +737,7 @@ func ring(c: PhoneCall) -> void:
 		myst_line = c.line
 	if c.kind == PhoneCall.Kind.EMERGENCY:
 		em_call = c
-		dispatch.set_incident(c.data, c.stage)
+		dispatch.set_incident(c.data, c.told)
 		phone.urgency.call = c
 	_update_bell()
 	_refresh_panel()

@@ -78,12 +78,17 @@ errado não para (chutar uma unidade e completar depois não adianta), nem a pes
 piorou é o rádio. A barra só aparece com o operador na linha da emergência; fora dela, **o rádio inteiro acende**: moldura pulsando
 na cor do estágio (mais rápido quanto pior) e, na tela, "OCORRÊNCIA EM ANDAMENTO · Linha 09 em espera · Situação
 agravando" (ou o endereço, se a pessoa já desligou) entre uma mensagem e outra. A luz **Ocorrência** do rádio fica
-acesa enquanto a barra corre (pisca ao mudar de estágio e no vermelho). Vale uma advertência por emergência, pelo estágio em
+acesa enquanto a barra corre (pisca ao mudar de estágio e no vermelho). A cada troca de estágio o rádio dá um chiado
+curto e dois bipes (mais agudos quanto pior), para quem está olhando o mapa ou outra ligação. A reclamação genérica
+de demora ("Vão mandar alguém?") só vem no estágio inicial; depois, a fala de cada estágio já cobra. Vale uma advertência por emergência, pelo estágio em
 que o socorro completo saiu (veja a tabela); a perdida pune na hora. Uma emergência nova espera a anterior.
 
 A cada estágio a pessoa conta o que mudou (`worsening`, `critical`, `lost` no `EmergencyCall`), e isso pode exigir
 unidades novas (`worsening_units`, `critical_units`, somadas às do caso): a fumaça fechou a rua → polícia; um vizinho
-desmaiou na fumaça → ambulância. Vale o que era preciso no momento do despacho. Depois de contar, a pessoa pode
+desmaiou na fumaça → ambulância. A unidade nova só passa a contar **depois que alguém conta o que mudou**: a pessoa,
+quando o operador volta à linha, ou o rádio, se ela já desligou ("Central, a situação está piorando na Rua do Moinho,
+40. Mandem ambulância."). Ninguém é cobrado pelo que não tinha como saber. Vale o que era preciso no momento do
+despacho. Depois de contar, a pessoa pode
 ser perguntada sobre o que mudou (`worsening_question`/`critical_question` e as respostas). Na situação perdida,
 as perguntas que sobraram saem (menos o endereço) e fica "Tem alguém ferido?": `lost_answer` diz o estado agora e
 `lost_units` o que isso passa a exigir (quase sempre ambulância). A duração de cada estágio é

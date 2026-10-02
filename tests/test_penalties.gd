@@ -272,7 +272,9 @@ func _initialize() -> void:
 	print("OK 9 relatório (%d advertências)" % m.report.faults.size())
 
 	# ---- 10. barra de agravamento (o relógio está parado: a barra anda por _worsen chamado à mão)
-	var e10: EmergencyCall = C.emergencies.filter(func(x): return not x in [e4, e5, e8] and not x.worsening_units.is_empty() and not x.critical_units.is_empty())[0]
+	# um caso em que cada estágio pede uma unidade nova (para ver quando ela passa a contar)
+	var fresh := func(x: EmergencyCall): return not x in [e4, e5, e8] and x.required(1).size() > x.units.size() and x.required(2).size() > x.required(1).size()
+	var e10: EmergencyCall = C.emergencies.filter(fresh)[0]
 	var c10 := PhoneCall.from_emergency(e10)
 	m.ring(c10)
 	_answer(c10)
@@ -286,10 +288,17 @@ func _initialize() -> void:
 	ok(c10.asking and c10.urgency == u10, "pausada durante pergunta e resposta")
 	ok(await wait_until(func(): return not c10.asking), "respondeu")
 	m._worsen(e10.stage_sec.x)
-	ok(c10.stage == 1 and Array(m.dispatch.required()) == Array(e10.required(1)), "agravando: passa a exigir mais unidades")
+	var sfx = root.get_node("Sfx")
+	ok(sfx.pool_2d.any(func(p): return p.playing and p.stream == sfx.streams["radio_alert"]), "mudou de estágio: o rádio apita")
+	ok(c10.stage == 1 and Array(m.dispatch.required()) == Array(e10.required(0)), "agravando: ainda não exige o que ninguém contou")
 	ok(await wait_until(func(): return c10.transcript.any(func(l): return l["text"] == e10.worsening)), "contou o que piorou")
+	ok(await wait_until(func(): return Array(m.dispatch.required()) == Array(e10.required(1))), "depois de contar, passa a exigir mais unidades")
 	ok(await wait_until(func(): return c10.options.any(func(o): return o["label"] == e10.worsening_question)), "pergunta nova sobre o que mudou")
-	var w10 := _faults("emergency_worse")
+	c10.last_talk = m.talk_clock - 100.0
+	m._nag()
+	await frames(10)
+	ok(not _said(c10, C.emergency_waiting), "depois de piorar, nada de reclamação genérica")
+	var w10 := _faults("emergency_critical")
 	await wait_until(func(): return m.dispatch._units.values().all(func(s): return s == 0), 30.0)
 	m._worsen(0.0)
 	ok(m.radio._alert == 1, "luz de ocorrência no rádio, na cor do estágio")
@@ -302,19 +311,27 @@ func _initialize() -> void:
 	m.dispatch._send()
 	var u_part := c10.urgency
 	m._worsen(1.0)
-	ok(c10.urgent() and c10.urgency > u_part and _faults("emergency_worse") == w10 and m.radio._alert == 1, "despacho incompleto não para a barra")
+	ok(c10.urgent() and c10.urgency > u_part and _faults("emergency_critical") == w10 and m.radio._alert == 1, "despacho incompleto não para a barra")
 	ok(await wait_until(func(): return c10.ended, 20.0), "desligou mesmo assim")
 	m._worsen(0.0)
 	ok(m.radio._away != "", "fora da linha da emergência, o rádio inteiro avisa")
+	# piora com a pessoa já desligada: o rádio conta o que passou a precisar
+	m._worsen(e10.stage_sec.y)
+	var more := Array(e10.required(2)).filter(func(u): return not u in e10.required(1))
+	var said := T.text(T.Key.RADIO_WORSE) % e10.address + " " + T.text(T.Key.RADIO_SEND_MORE) % " e ".join(more.map(func(u): return T.text({"pol": T.Key.UNIT_POLICE, "bomb": T.Key.UNIT_FIRE, "amb": T.Key.UNIT_AMBULANCE}[u]).to_lower()))
+	ok(c10.stage == 2 and Array(m.dispatch.required()) == Array(e10.required(2)), "agravada: exige o que o rádio contou")
+	ok(await wait_until(func(): return m.radio._screen.text == said, 30.0), "o rádio avisa: " + said)
+	await wait_until(func(): return m.dispatch.required().all(func(u): return u == need[0] or m.dispatch._units[u] == 0), 30.0)
 	m.dispatch.set_location(e10.street, e10.block, e10.address)
 	m.dispatch.set_occurrence(e10.occurrence)
-	for u in need.slice(1):
-		(m.dispatch._unit_buttons[u] as Button).button_pressed = true
+	for u in m.dispatch.required():
+		if u != need[0]:
+			(m.dispatch._unit_buttons[u] as Button).button_pressed = true
 	m.dispatch._send()
 	m._worsen(0.0)
 	ok(c10.secured and not c10.urgent() and m.radio._alert == -1, "socorro completo: a barra para e a luz apaga")
-	ok(_faults("emergency_worse") == w10 + 1, "despachou agravando: advertência média")
-	ok(await wait_until(func(): return m.report.is_resolved(e10), 20.0) and m.report.outcomes()[e10] == ShiftReport.Outcome.OK, "resolvida; no jornal: a tempo")
+	ok(_faults("emergency_critical") == w10 + 1, "despachou com a situação agravada: advertência grave")
+	ok(await wait_until(func(): return m.report.is_resolved(e10), 20.0) and m.report.outcomes()[e10] == ShiftReport.Outcome.LATE, "resolvida; no jornal: com atraso")
 	await wait_until(func(): return m.dispatch._units.values().all(func(s): return s == 0), 30.0)
 	_clear_board()
 	# perdida: gravíssima na hora, jornal ruim, e ainda dá para despachar (sem outra advertência pela barra)

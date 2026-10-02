@@ -303,29 +303,38 @@ func ringback(times: int) -> float:
 
 ## Fala o caractere i de `text`: cada grupo de vogais dispara uma sílaba abafada (ritmo de fala,
 ## estilo Papers, Please). Devolve se o caractere é vogal (passe de volta em `prev_vowel`).
-func speak_char(voice: String, text: String, i: int, prev_vowel: bool, laugh: bool = false) -> bool:
+## `at`: de que lugar da tela vem a voz (como em `play_at`; -1 = do centro, como o fone).
+func speak_char(voice: String, text: String, i: int, prev_vowel: bool, laugh: bool = false, at := -1.0) -> bool:
 	var lc := text[i].to_lower()
 	if not VMAP.has(lc):
 		return false
 	if not prev_vowel:
 		var rise := laugh or (text.strip_edges().ends_with("?") and i > text.length() - 9)
-		syllable(voice, VMAP[lc], rise)
+		syllable(voice, VMAP[lc], rise, at)
 	return true
 
 
 ## Toca uma sílaba abafada. `rise` sobe a entonação (perguntas, risadas).
-func syllable(v: String, vowel: String, rise: bool = false) -> void:
+func syllable(v: String, vowel: String, rise: bool = false, at := -1.0) -> void:
 	if not VOICE.has(v):
 		v = "m"
 	var id := "s_%s_%s_%d" % [v, vowel, randi() % 3]
 	var pitch := randf_range(0.95, 1.05) * (1.13 if rise else 1.0)
-	play(id, float(VOICE[v]["db"]) + 10.0, pitch)
+	_sound(id, at, float(VOICE[v]["db"]) + 10.0, pitch)
 	if v == "g" and randf() < 0.3:
-		play("crackle", -4.0)
+		_sound("crackle", at, -4.0)
 
 
-func static_burst(strength: float = 0.0) -> void:
-	play("static", strength, randf_range(0.9, 1.1))
+func static_burst(strength: float = 0.0, at := -1.0) -> void:
+	_sound("static", at, strength, randf_range(0.9, 1.1))
+
+
+## `play` (do centro) ou, com `at` >= 0, `play_at` (daquele lugar da tela).
+func _sound(id: String, at: float, db := 0.0, pitch := 1.0) -> void:
+	if at >= 0.0:
+		play_at(id, at, db, pitch)
+	else:
+		play(id, db, pitch)
 
 
 # ------------------------------------------------------------------ síntese
@@ -530,6 +539,11 @@ func _build_all() -> void:
 		if randf() < 0.7:
 			_noise(k * 0.04, 0.05, "bp", randf_range(1500, 4000), 0.8, randf())
 	_end("static")
+	# a situação da emergência mudou de estágio: chiado curto e dois bipes de rádio
+	_begin(0.42)
+	_noise(0, 0.13, "bp", 2400, 0.7, 0.9)
+	_tone(0.15, 1150, 0.08, "square", 0.5); _tone(0.28, 1150, 0.1, "square", 0.5)
+	_end("radio_alert", true)
 	_begin(0.08); _noise(0, 0.06, "bp", 2600, 1, 1.0); _end("crackle")
 	# 3 variações de entonação por vogal: descendo, reta, subindo.
 	for v in VOICE:
