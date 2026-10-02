@@ -31,6 +31,21 @@ func _ready() -> void:
 	set_buttons(false, false, false)
 
 
+## Atalhos (Input Map): tratados aqui, antes da interface, porque Espaço e Tab também servem para apertar o botão
+## em foco e passar o foco adiante; com um campo de texto em foco, a tecla fica com ele (digitar no caderno).
+## Só valem com o botão ativo; na pausa o painel não recebe nada.
+func _input(e: InputEvent) -> void:
+	var focus := get_viewport().gui_get_focus_owner()
+	if focus is LineEdit or focus is TextEdit:
+		return
+	for pair in [["answer_call", _answer], ["transfer_call", _transfer], ["hang_up", _hangup]]:
+		var b: Button = pair[1]
+		if e.is_action_pressed(pair[0]) and not b.disabled and b.is_visible_in_tree():
+			get_viewport().set_input_as_handled()
+			b.pressed.emit()
+			return
+
+
 func _process(_delta: float) -> void:
 	if _disp_until > 0 and Time.get_ticks_msec() > _disp_until:
 		_disp_until = 0

@@ -435,24 +435,35 @@ func _initialize() -> void:
 	m.end_call(wc, PhoneCall.End.OPERATOR)
 	print("OK 11 conversa fiada e reclamação na espera")
 
-	# ---- 12. atalhos do telefone (teclas de verdade): 1 atende, 3 desliga
+	# ---- 12. atalhos do telefone (teclas de verdade): Espaço atende, Tab transfere, X desliga
 	var kc := _extra(GameData.transfers(TransferCall.Group.EXTRA)[4])
 	m.ring(kc)
 	_move(0, kc.line)
 	await frames(2)
-	_key(KEY_1)
-	ok(await wait_until(func(): return not kc.ringing, 5.0), "a tecla 1 atende")
+	var tab: Button = m.find_child("TabMapa", true, false)
+	tab.focus_mode = Control.FOCUS_ALL
+	tab.grab_focus()   # Espaço não pode apertar o botão em foco no lugar de atender
+	_key(KEY_SPACE)
+	ok(await wait_until(func(): return not kc.ringing, 5.0), "Espaço atende (mesmo com um botão em foco)")
+	tab.release_focus()
 	ok(await wait_until(_awaiting(kc)), "pedido feito")
 	m.find_child("TabCaderno", true, false).pressed.emit()
 	var field: LineEdit = m.find_children("*", "LineEdit", true, false).filter(func(l): return l.is_visible_in_tree())[0]
 	field.grab_focus()
 	var typed := field.text
-	_key(KEY_3)
+	_key(KEY_X)
 	await frames(3)
-	ok(kc.active and field.text.length() == typed.length() + 1 and "3" in field.text, "digitando no caderno, o número vai para o campo (não desliga)")
+	ok(kc.active and field.text.length() == typed.length() + 1, "digitando no caderno, o X vai para o campo (não desliga)")
 	field.release_focus()
-	_key(KEY_3)
-	ok(await wait_until(func(): return not kc.active, 5.0), "a tecla 3 desliga")
+	_move(1, kc.line + 10)
+	_move(2, int(kc.target))
+	_key(KEY_TAB)
+	await frames(2)
+	ok(m.exchange.dest(int(kc.target)) == Exchange.Dest.RING, "Tab transfere (o destino toca)")
+	_key(KEY_X)
+	ok(await wait_until(func(): return not kc.active, 5.0), "X desliga")
+	_move(1, -1)
+	_move(2, -1)
 	print("OK 12 atalhos do telefone")
 	finish("fluxo da central")
 

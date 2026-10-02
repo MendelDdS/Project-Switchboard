@@ -67,6 +67,7 @@ INFO_FONE_CONNECTED,FONE CONECTADO,HEADSET CONNECTED,AURICULAR CONECTADO
 ANSWER,Atender,Answer,Contestar
 TRANSFER,Transferir,Transfer,Transferir
 HANG_UP,Desligar,Hang up,Colgar
+KEY_SPACE,Espaço,Space,Espacio
 STATUS_NO_CALL,Nenhuma chamada,No call,Ninguna llamada
 STATUS_LINE,Linha %02d,Line %02d,Línea %02d
 STATUS_ENDED,encerrada,ended,terminada

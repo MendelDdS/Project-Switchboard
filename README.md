@@ -172,8 +172,8 @@ Arrastar um plug encaixado para outra tomada o move. Soltar fora de uma tomada, 
 também devolve o plug à base. Cada tipo de plug só encaixa nas tomadas compatíveis: a tomada sob o plug
 acende em amarelo se aceita, em vermelho se não.
 
-Atalhos do telefone: **1** atende, **2** transfere, **3** desliga (também no teclado numérico; a tecla aparece no
-canto de cada botão). Digitando num campo do caderno, os números vão para o campo.
+Atalhos do telefone: **Espaço** atende, **Tab** transfere, **X** desliga (a tecla aparece no canto de cada botão).
+Digitando num campo do caderno, as teclas vão para o campo (Tab passa ao próximo campo).
 
 ## A mesa
 
