@@ -209,8 +209,8 @@ func _initialize() -> void:
 	_answer(c6)
 	_move(0, -1)
 	ok(ex.line(c6.line) == Exchange.Line.HOLD, "em espera")
-	c6.hold_since = m.minutes - m.HOLD_GIVE_UP - 1.0
-	m._check_hold()
+	c6.hold_since = m.minutes - m.supervisor.HOLD_GIVE_UP - 1.0
+	m.supervisor.check_hold()
 	ok(c6.ended and _faults("hold") == 1, "desistiu na espera")
 	ok(m.sched.any(func(r): return r.retry == PhoneCall.Retry.MISSED and r.caller == c6.caller), "vai ligar de novo")
 	_clear_board()

@@ -127,14 +127,34 @@ func _initialize() -> void:
 	# clima: cada um tem falas próprias, e a chuva só é comentada quando chove
 	for w in m.WEATHERS:
 		m.weather = w
-		var talk: Array = m.smalltalk()
+		var talk: Array = m.conversation.topics()
 		ok(talk.any(func(t): return t.weather == w), "assuntos do clima: " + w)
 		ok(w == "rain" or not talk.any(func(t): return "chuva" in t.line), "sem chuva na conversa: " + w)
-	# conversa fiada: cada assunto traz as próprias respostas, cada uma com a continuação
-	ok(C.smalltalk.all(func(t: ChatTopic): return t.line != "" and not t.replies.is_empty() and t.replies.size() == t.follow.size()),
-		"assuntos com respostas e continuações pareadas")
-	ok(not m.smalltalk("m").any(func(t): return "Meu marido" in t.line) and not m.smalltalk("f").any(func(t): return "Minha mulher" in t.line),
+	# conversa fiada: cada assunto traz as próprias respostas (uma simpática e uma seca), cada uma com a continuação
+	var topics: Array[ChatTopic] = C.smalltalk.duplicate()
+	for n in C.nights:
+		topics.append_array(n.smalltalk)
+	for t in topics:
+		ok(t.line != "" and t.replies.all(func(r: ChatReply): return r.text != "" and r.follow != "")
+			and t.replies.any(func(r): return r.tone == ChatReply.Tone.WARM) and t.replies.any(func(r): return r.tone == ChatReply.Tone.CURT),
+			"assunto com resposta simpática e seca: " + t.line)
+	ok(not m.conversation.topics("m").any(func(t): return "Meu marido" in t.line) and not m.conversation.topics("f").any(func(t): return "Minha mulher" in t.line),
 		"assunto só na voz que combina")
+	# agenda: montada sem a cena (noite → ligações em ordem, espaçadas das do roteiro e entre emergências)
+	for n in C.nights:
+		var plan := Schedule.build(n, m.SHIFT_END)
+		var ats: Array = plan.calls.map(func(c: PhoneCall): return c.at)
+		var in_order := ats.duplicate()
+		in_order.sort()
+		ok(ats == in_order and ats.all(func(a): return a >= 0.0 and a < m.SHIFT_END), "agenda em ordem: " + n.resource_path)
+		ok((plan.tut != null) == n.tutorial and (plan.tut == null or plan.tut == plan.calls[0]), "tutorial é a primeira: " + n.resource_path)
+		ok((plan.mystery_at == INF) == n.mystery.is_empty(), "ligação desconhecida conforme a noite: " + n.resource_path)
+		var fixed := plan.calls.filter(func(c: PhoneCall): return c.story or c.kind == PhoneCall.Kind.MYSTERY)
+		ok(fixed.size() == n.story.size() + (0 if n.mystery.is_empty() else 1), "roteiro inteiro na agenda: " + n.resource_path)
+		ok(plan.calls.all(func(c: PhoneCall): return c in fixed or fixed.all(func(f): return absf(c.at - f.at) >= Schedule.STORY_GAP)),
+			"sorteadas longe das do roteiro: " + n.resource_path)
+		var ems: Array = plan.calls.filter(func(c: PhoneCall): return c.kind == PhoneCall.Kind.EMERGENCY).map(func(c): return c.at)
+		ok(range(1, ems.size()).all(func(i): return ems[i] - ems[i - 1] >= Schedule.EMERGENCY_GAP), "emergências espaçadas: " + n.resource_path)
 	# moldes: nenhuma lacuna sobra sem preencher
 	var holes := func(texts: Array) -> bool: return texts.any(func(x): return "{" in x or "}" in x)
 	for i in 300:
@@ -198,7 +218,7 @@ func _initialize() -> void:
 
 	# ---- 2. três ligações ao mesmo tempo, com espera
 	var t1 := _extra(GameData.transfers(TransferCall.Group.ESTABLISHMENT)[1])
-	var info: PhoneCall = m._info_call()
+	var info: PhoneCall = Schedule.info_call()
 	var t3 := _extra(GameData.transfers(TransferCall.Group.EXTRA)[0])
 	m.ring(t1)
 	_move(0, t1.line)
@@ -459,7 +479,7 @@ func _initialize() -> void:
 		ok(await wait_until(func(): return wc.transcript.size() > n and not wc.talking, 60.0), "falou enquanto esperava")
 		said_at.append([m.talk_clock - t0, String(wc.transcript.back()["text"])])
 	var waiting: Array = Array(C.waiting)
-	var chat: Array = m.smalltalk().map(func(t): return t.line)
+	var chat: Array = (C.smalltalk + m.night.smalltalk).map(func(t): return t.line)
 	ok(said_at[0][0] >= m.SMALLTALK_AFTER and (said_at[0][1] in chat or said_at[0][1] in waiting), "primeira fala só depois de um tempo: " + said_at[0][1])
 	ok(said_at[1][1] in waiting, "depois reclama da demora: " + said_at[1][1])
 	ok(asked > 0 and not wc.transcript.slice(0, asked).any(func(l): return String(l["text"]) in chat), "sem conversa fiada logo depois do pedido")
@@ -472,27 +492,34 @@ func _initialize() -> void:
 	_move(0, cc.line)
 	m.answer()
 	ok(await wait_until(_awaiting(cc)), "pedido feito")
+	var reply_with := func(tone: ChatReply.Tone) -> ChatReply:   # clica na resposta do tom pedido
+		var r: ChatReply = cc.chat.replies.filter(func(x): return x.tone == tone)[0]
+		cc.options.filter(func(o): return String(o["label"]) == r.text)[0]["fn"].call()
+		return r
+	m.conversation.heard.clear()
+	m.flags.apply("!prometeu_quermesse")
 	m.conversation.smalltalk(cc)
 	ok(await wait_until(func(): return cc.chat != null and not cc.talking), "conversa fiada pede resposta")
 	var topic: ChatTopic = cc.chat
-	var k := topic.replies.size() - 1   # a última resposta: a escolha decide a continuação
-	var reply := topic.replies[k]
-	var follow := topic.follow[k]
+	ok(topic == m.night.smalltalk[0] and topic in m.conversation.heard and not topic in m.conversation.topics(), "novidade da noite vem primeiro, uma vez só")
 	ok(String(cc.transcript.back()["text"]) == topic.line, "puxou o assunto")
 	var labels: Array = cc.options.slice(-topic.replies.size()).map(func(o): return String(o["label"]))
-	ok(labels == Array(topic.replies), "as respostas do assunto viram opções (por último)")
-	cc.options.back()["fn"].call()
+	ok(labels == topic.replies.map(func(r): return r.text), "as respostas do assunto viram opções (por último)")
+	var warm: ChatReply = reply_with.call(ChatReply.Tone.WARM)
 	ok(cc.chat == null and cc.chats == [topic] and not cc.chatted, "respondida: pode puxar outro assunto")
-	ok(await wait_until(func(): return not cc.talking and String(cc.transcript.back()["text"]) == follow), "ela continua o mesmo assunto")
-	ok(cc.transcript.any(func(l): return l["cls"] == "op" and l["text"] == reply), "operador respondeu")
+	ok(m.flags.has("prometeu_quermesse"), "a resposta liga o marcador")
+	ok(C.nights[1].smalltalk.filter(func(t): return m.flags.allows(t.requires)).map(func(t): return t.line)
+		== [C.nights[1].smalltalk[0].line], "na noite seguinte, a cidade lembra da promessa")
+	ok(await wait_until(func(): return not cc.talking and String(cc.transcript.back()["text"]) == warm.follow), "ela continua o mesmo assunto")
+	ok(cc.transcript.any(func(l): return l["cls"] == "op" and l["text"] == warm.text), "operador respondeu")
 	var t_reply: float = m.talk_clock
 	var n_reply := cc.transcript.size()
 	ok(await wait_until(func(): return cc.transcript.size() > n_reply and not cc.talking, 60.0), "volta a falar depois")
-	ok(m.talk_clock - t_reply >= m.SMALLTALK_AFTER, "o silêncio recomeçou com a resposta")
-	# o operador também puxa assunto; a opção some enquanto o assunto corre e volta depois da resposta
+	ok(m.talk_clock - t_reply >= m.SMALLTALK_AFTER + m.conversation.CHAT_WARM_PATIENCE, "simpática: ela espera mais antes de falar de novo")
+	# o operador também puxa assunto (uma vez); resposta seca: ela não puxa mais
 	var ask_opt := func(): return cc.options.filter(func(o): return String(o["label"]) == T.text(T.Key.OP_SMALLTALK))
 	if cc.chat != null:   # ela pode ter puxado outro assunto sozinha
-		cc.options.back()["fn"].call()
+		reply_with.call(ChatReply.Tone.WARM)
 	ok(await wait_until(func(): return not cc.talking and not cc.chatting), "assunto encerrado")
 	var pulled := cc.chats.size()
 	ok(ask_opt.call().size() == 1, "operador pode puxar assunto")
@@ -500,8 +527,10 @@ func _initialize() -> void:
 	ok(ask_opt.call().is_empty(), "a opção some no clique")
 	ok(await wait_until(func(): return cc.chat != null and not cc.talking), "ela conta alguma coisa")
 	ok(cc.chats.size() == pulled + 1 and String(cc.transcript.back()["text"]) == cc.chat.line, "outro assunto")
-	cc.options.back()["fn"].call()
-	ok(await wait_until(func(): return not cc.talking and not cc.chatting), "respondeu")
+	ok(String(cc.transcript[-2]["text"]) in Array(C.chat_bridge) and not cc.chat.unprompted_only, "responde à pergunta antes de puxar assunto")
+	var curt: ChatReply = reply_with.call(ChatReply.Tone.CURT)
+	ok(cc.chatted, "seca: ela não puxa mais assunto")
+	ok(await wait_until(func(): return not cc.talking and String(cc.transcript.back()["text"]) == curt.follow), "respondeu")
 	ok(ask_opt.call().is_empty(), "só puxa conversa uma vez por ligação")
 	m.end_call(cc, PhoneCall.End.OPERATOR)
 	print("OK 11b responder e puxar conversa fiada")

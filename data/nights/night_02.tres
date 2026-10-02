@@ -1,6 +1,8 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
 [ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
 [ext_resource type="Script" path="res://scripts/data/story_call.gd" id="3_story"]
 [ext_resource type="Resource" path="res://data/calls/story_02_seu_ernesto_radio_serena_am.tres" id="4_ernesto"]
@@ -85,6 +87,42 @@ script = ExtResource("2_step")
 text = "Não apaga, tá?"
 seconds = 0.5
 
+[sub_resource type="Resource" id="ChatReply_00_0"]
+script = ExtResource("9_reply")
+text = "Acabei dormindo, desculpe."
+follow = "Tá perdoado. Mas a pamonha acabou, viu?"
+tone = 1
+
+[sub_resource type="Resource" id="ChatReply_00_1"]
+script = ExtResource("9_reply")
+text = "Não deu."
+follow = "Hum. Tá bom."
+tone = 2
+
+[sub_resource type="Resource" id="ChatTopic_00"]
+script = ExtResource("8_chat")
+requires = PackedStringArray("prometeu_quermesse")
+line = "Disseram que o senhor ia na quermesse hoje à tarde e não apareceu, hein!"
+replies = Array[ExtResource("9_reply")]([SubResource("ChatReply_00_0"), SubResource("ChatReply_00_1")])
+
+[sub_resource type="Resource" id="ChatReply_01_0"]
+script = ExtResource("9_reply")
+text = "Que pena! Como foi?"
+follow = "Teve até sanfoneiro da capital!"
+tone = 1
+
+[sub_resource type="Resource" id="ChatReply_01_1"]
+script = ExtResource("9_reply")
+text = "Imagino."
+follow = "...Pois é."
+tone = 2
+
+[sub_resource type="Resource" id="ChatTopic_01"]
+script = ExtResource("8_chat")
+requires = PackedStringArray("!prometeu_quermesse")
+line = "A quermesse hoje à tarde foi uma beleza, o senhor perdeu."
+replies = Array[ExtResource("9_reply")]([SubResource("ChatReply_01_0"), SubResource("ChatReply_01_1")])
+
 [resource]
 script = ExtResource("1_night")
 weekday = "Quarta-feira"
@@ -94,3 +132,4 @@ peak_chance = 0.03
 max_live = 2
 story = Array[ExtResource("3_story")]([SubResource("Story_01")])
 mystery = Array[ExtResource("2_step")]([SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09"), SubResource("Step_10"), SubResource("Step_11"), SubResource("Step_12"), SubResource("Step_13"), SubResource("Step_14"), SubResource("Step_15")])
+smalltalk = Array[ExtResource("8_chat")]([SubResource("ChatTopic_00"), SubResource("ChatTopic_01")])

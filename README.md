@@ -26,7 +26,9 @@ Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
     `desligou_desconhecida_N` (desligou na cara dela).
   - Para testar um ramo: `godot --path . -- --night=2 --flags=respondeu_a_luz`.
 - `data/templates/` — **moldes**: roteiros com lacunas em inglês, preenchidas na hora (veja abaixo).
-- `scripts/main.gd` — conduz o turno (relógio, agenda, mesa, fim de ligação, final).
+- `scripts/main.gd` — conduz o turno (relógio, quando cada ligação toca, mesa, fim de ligação, final).
+- `scripts/schedule.gd` — monta a agenda da noite (quem liga e quando).
+- `scripts/supervisor.gd` — consequências: advertências, quem liga de novo, quem desiste de esperar.
 - `scripts/conversation.gd` — como cada tipo de ligação se desenrola (falas, escolhas do operador).
 - `scripts/model/` — `PhoneCall` (uma ligação) e `Exchange` (estado das linhas e destinos).
 - `scripts/data/` — classes dos Resources de conteúdo.
@@ -98,7 +100,7 @@ O robô em ritmo humano (5 s por ação, lendo cada resposta até o fim, 15 s no
 
 ## Moldes (conversas geradas)
 
-Metade das transferências e das emergências do turno (`TEMPLATE_CHANCE` em `main.gd`) vem de um molde; a outra metade,
+Metade das transferências e das emergências do turno (`TEMPLATE_CHANCE` em `schedule.gd`) vem de um molde; a outra metade,
 dos roteiros escritos em `data/calls/`. Os trotes, o tutorial, as ligações do roteiro da noite e a ligação
 desconhecida são sempre escritos à mão.
 
@@ -145,7 +147,7 @@ Esc, ou na tela inicial), junto com o volume de ambiente, vozes e efeitos e a ve
 O relógio nunca para: 0,75 minuto de jogo por segundo real (18:00 → 00:00 em cerca de 8 minutos).
 Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
 
-- **Nada é fixo, exceto o roteiro da noite** (`story` e `mystery` em `data/nights/`). O resto é sorteado (`_random_calls`):
+- **Nada é fixo, exceto o roteiro da noite** (`story` e `mystery` em `data/nights/`). O resto é sorteado (`Schedule._random_calls`):
   entre uma ligação e a próxima passam `call_gap` minutos de jogo (o máximo é o maior silêncio possível). Em
   `peak_chance` dos intervalos a próxima vem logo em seguida (2–6 min) e duas linhas tocam juntas; com `max_live`
   ligações pedindo atenção (tocando ou ainda não conectadas), a próxima espera. **A primeira noite é calma e o ritmo
@@ -183,10 +185,18 @@ Cada turno sorteia o clima (`WEATHERS` em `main.gd`; para forçar: `godot --path
 
 A conversa fiada aparece quando o operador demora para transferir: depois de uns 10 s em silêncio, às vezes a pessoa
 puxa assunto; se a demora continuar, ela reclama (`waiting`). Cada assunto é um `ChatTopic` na lista `smalltalk` do
-content: a fala (`line`), o clima em que faz sentido (`weather`, vazio = qualquer), as vozes que podem dizê-la
-(`voices`, vazio = qualquer; use quando a fala tem gênero, como "Meu marido..." → `f`), as respostas do operador
-(`replies`) e, na mesma ordem, como a pessoa continua depois de cada uma (`follow`). O operador pode responder (as respostas
-aparecem como opções e ele escolhe uma) para ganhar tempo, e também puxar conversa ("E aí, como vai a noite?"); escreva respostas que caibam naquele assunto. Escreva só assuntos do cotidiano da cidade; o que lembra
+content: a fala (`line`), o clima em que faz sentido (`weather`, vazio = qualquer), se ela só serve quando a pessoa puxa conversa sozinha (`unprompted_only`: não cabe como resposta a "E aí, como vai
+a noite?", como "Desculpe ligar tão tarde."), as vozes que podem dizê-la
+(`voices`, vazio = qualquer; use quando a fala tem gênero, como "Meu marido..." → `f`), os marcadores que
+precisam bater (`requires`) e as respostas do operador (`replies`, cada uma um `ChatReply`): o texto (`text`), como a pessoa
+continua (`follow`), o tom (`tone`) e os marcadores que ela altera (`sets`). O operador pode responder (as respostas
+aparecem como opções e ele escolhe uma) para ganhar tempo, e também puxar conversa ("E aí, como vai a noite?": a pessoa responde primeiro com uma das falas de `chat_bridge`,
+como "Vai indo, moço.", e depois puxa o assunto); escreva
+respostas que caibam naquele assunto. Todo assunto tem uma resposta **simpática** (`WARM`: a pessoa espera mais antes de
+reclamar e pode puxar outro assunto) e uma **seca** (`CURT`: ela entende o recado e para de puxar conversa).
+As novidades de uma noite ficam em `smalltalk` no arquivo da noite (`data/nights/`) e vêm antes dos assuntos gerais,
+uma vez por noite; o mesmo vale para assuntos com `requires`. Exemplo: na noite 1, prometer ir à quermesse liga
+`prometeu_quermesse`, e na noite 2 alguém cobra a visita (sem a promessa, outra pessoa só conta como foi). Escreva só assuntos do cotidiano da cidade; o que lembra
 o mistério (luzes, barulhos na linha, vultos) fica para as falas do roteiro.
 
 Volumes de cada

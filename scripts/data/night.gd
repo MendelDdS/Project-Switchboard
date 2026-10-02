@@ -25,6 +25,8 @@ extends Resource
 @export var pranks := Vector2i(0, 2)
 ## Ligações do roteiro: sempre as mesmas, no horário marcado.
 @export var story: Array[StoryCall] = []
+## Novidades da cidade nesta noite (conversa fiada): contadas antes dos assuntos gerais, uma vez por noite.
+@export var smalltalk: Array[ChatTopic] = []
 
 @export_group("Ligação desconhecida")
 ## O que se diz na ligação desconhecida (vazio = ela não toca nesta noite). Passos EFFECT: "static",

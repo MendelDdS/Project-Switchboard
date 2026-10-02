@@ -37,8 +37,9 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   espera) e `GIVE_UP_SEC` para as principais. Achado pelo robô, não pelo teste dirigido.
 - **Robô que joga o turno inteiro acha bugs que cenários não acham.** Rode alguns turnos completos depois de
   mexer na agenda, no fim de ligação ou nos cabos.
-- **Ligações são `Dictionary`: compare com `is_same()`.** `==` compara conteúdo, e `Array.erase` usa `==`;
-  remova de `live` por índice com `is_same`.
+- **Registros do caderno são `Dictionary`: compare com `is_same()`.** `==` compara conteúdo, e `Array.erase` usa
+  `==` (dois registros iguais se confundem). As ligações eram `Dictionary` no protótipo; hoje são `PhoneCall` (objeto),
+  então `==` e `live.erase(c)` comparam a referência e são seguros.
 - **Ao iterar `live` e poder encerrar ligações no meio**, itere sobre `live.duplicate()` (`end_call` remove da lista).
 
 ## GDScript / Godot 4.6
@@ -68,7 +69,8 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
 - **`PackedStringArray` não tem `map()`, `filter()` nem `pick_random()`**: converta com `Array(...)` ou use
   `GameData.pick()`.
 - **Array tipado + literal = Array sem tipo**: `typed + [x]` não pode ser atribuído a `Array[T]`; use `append`/
-  `append_array`. Pelo mesmo motivo, nos testes use `m.sched.clear()` em vez de `m.sched = []`.
+  `append_array`. `filter()`/`map()` também devolvem `Array` sem tipo: função com `-> Array[T]` que retorna um
+  `filter()` falha; declare `-> Array`. Pelo mesmo motivo, nos testes use `m.sched.clear()` em vez de `m.sched = []`.
 - **`ResourceSaver.save` com sub-resources sem caminho embute tudo no arquivo pai.** Para o pai referenciar
   arquivos próprios, salve o filho e use a instância recarregada (`load(caminho)`), que tem `resource_path`.
 - **Autoloads não existem quando o Godot compila um script `-s`.** Um teste que declara tipos (`var m: Main`) cujos
@@ -108,5 +110,8 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   capturas antes/depois, salve com nomes novos (ou em pasta nova) a cada rodada.
 - **Heredoc sem aspas (`<<EOF`) executa crases e `$(...)`**: um comentário com `` `-- --seed=N` `` virou comando.
   Use `<<'EOF'` quando o texto tiver crases.
+- **Teste que conta ligações em `live` precisa medir a diferença, não o total.** Retornos de cenários anteriores
+  tocam no meio do teste (eles esperam a mesa esvaziar): `live.size() == 2` falhava às vezes e passou a falhar sempre
+  quando outro cenário deixou o teste mais longo. Guarde o tamanho antes e confira `antes + 1`.
 - **Um assert errado no teste parece bug do jogo.** Antes de mexer no código, confira se a expectativa do teste
   está certa (ex.: contar linhas da transcrição depois de a linha "(Em espera.)" já ter entrado).

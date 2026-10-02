@@ -6,7 +6,11 @@ extends Node
 ## aparecer na transcrição (o operador não está ouvindo).
 ## Os roteiros vêm dos Resources em data/calls/; aqui fica só como cada tipo de ligação se desenrola.
 
+const SMALLTALK_MAX := 3            ## assuntos de conversa fiada por ligação (puxados por ela ou pelo operador)
+const CHAT_WARM_PATIENCE := 10.0    ## resposta simpática: segundos a mais de silêncio antes de ela reclamar
+
 var C: GameContent = GameData.CONTENT
+var heard: Array[ChatTopic] = []    ## novidades da conversa fiada já contadas nesta noite (não se repetem)
 
 var _taught_info := false
 
@@ -151,23 +155,44 @@ func transfer_choices(c: PhoneCall) -> void:
 	if c.no_answer and t.alt_target != "" and not c.alt_done:
 		list.append({"label": tr(t.alt_ask), "fn": _transfer_alt.bind(c)})
 	if c.chat != null:
-		for i in c.chat.replies.size():
-			list.append({"label": tr(c.chat.replies[i]), "fn": _chat.bind(c, i)})
-	elif not c.chat_asked and not c.chatting and c.chats.size() < main.SMALLTALK_MAX:
+		for r in c.chat.replies:
+			list.append({"label": tr(r.text), "fn": _chat.bind(c, r)})
+	elif not c.chat_asked and not c.chatting and c.chats.size() < SMALLTALK_MAX:
 		list.append({"label": T.text(T.Key.OP_SMALLTALK), "fn": _ask_chat.bind(c)})
 	c.set_options(list)
 
 
+## Conversa fiada que pode sair agora (`ChatTopic`): os assuntos gerais e as novidades da noite, no clima da noite,
+## com os marcadores batendo e sem as novidades já contadas; com `voice`, só os que essa voz pode dizer.
+func topics(voice := "") -> Array:
+	return (C.smalltalk + main.night.smalltalk).filter(func(t: ChatTopic): return t.weather in ["", main.weather] \
+		and (voice == "" or t.voices.is_empty() or voice in t.voices) and main.flags.allows(t.requires) and not t in heard)
+
+
+## Novidade: assunto da noite ou que depende de marcador. Vem antes dos outros e só uma vez por noite.
+func is_news(t: ChatTopic) -> bool:
+	return t in main.night.smalltalk or not t.requires.is_empty()
+
+
 ## Quem espera a transferência puxa um assunto (`ChatTopic`); o operador pode responder (as respostas do próprio
-## assunto viram opções) enquanto procura na lista.
-func smalltalk(c: PhoneCall) -> void:
-	var pool := main.smalltalk(c.voice).filter(func(t): return not t in c.chats)
+## assunto viram opções) enquanto procura na lista. `asked`: o operador perguntou como vai a noite; ela responde
+## primeiro (`GameContent.chat_bridge`) e só puxa assunto que caiba como resposta (sem `unprompted_only`).
+func smalltalk(c: PhoneCall, asked := false) -> void:
+	var pool := topics(c.voice).filter(func(t): return not t in c.chats and not (asked and t.unprompted_only))
+	var news := pool.filter(is_news)
+	if not news.is_empty():
+		pool = news
 	if pool.is_empty() or c.chatting:
 		return
 	var topic: ChatTopic = pool.pick_random()
+	if is_news(topic):
+		heard.append(topic)
 	c.chats.append(topic)
 	c.chatting = true
 	transfer_choices(c)
+	if asked and not await say(c, GameData.pick(C.chat_bridge), 0.35):
+		c.chatting = false
+		return
 	if not await say(c, topic.line, 0.45) or c.options.is_empty():
 		c.chatting = false   # sem opções: a transferência já saiu
 		return
@@ -182,21 +207,24 @@ func _ask_chat(c: PhoneCall) -> void:
 	c.chat_asked = true   # some a opção já no clique
 	transfer_choices(c)
 	if await op(c, T.text(T.Key.OP_SMALLTALK)):
-		await smalltalk(c)
+		await smalltalk(c, true)
 
 
 ## Responder a conversa fiada: ela continua o assunto (a `follow` da resposta) e o silêncio recomeça (adia a
-## reclamação da demora); depois de um tempo, pode puxar outro assunto (`Main.SMALLTALK_MAX`).
-func _chat(c: PhoneCall, i: int) -> void:
+## reclamação da demora). Pelo tom: simpática, ela espera mais um pouco antes de reclamar e depois pode puxar outro
+## assunto (`SMALLTALK_MAX`); seca, não puxa mais. A resposta também pode alterar marcadores (`sets`).
+func _chat(c: PhoneCall, r: ChatReply) -> void:
 	if c.talking or c.chat == null:
 		return
-	var topic := c.chat
 	c.chat = null
 	c.chatting = false
-	c.chatted = c.chats.size() >= main.SMALLTALK_MAX
+	for s in r.sets:
+		main.flags.apply(s)
+	c.chatted = r.tone == ChatReply.Tone.CURT or c.chats.size() >= SMALLTALK_MAX
+	c.chat_asked = c.chat_asked or r.tone == ChatReply.Tone.CURT
 	transfer_choices(c)
-	if await op(c, topic.replies[i]):
-		await say(c, topic.follow[i])
+	if await op(c, r.text) and await say(c, r.follow) and r.tone == ChatReply.Tone.WARM:
+		c.last_talk += CHAT_WARM_PATIENCE
 
 
 func _transfer_wait(c: PhoneCall) -> void:

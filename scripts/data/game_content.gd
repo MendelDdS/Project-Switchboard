@@ -39,6 +39,8 @@ extends Resource
 @export var greetings: PackedStringArray = []
 ## Conversa fiada de quem espera a transferência: cada assunto com as respostas do operador (`ChatTopic`).
 @export var smalltalk: Array[ChatTopic] = []
+## Primeira resposta a "E aí, como vai a noite?", antes de puxar o assunto.
+@export var chat_bridge: PackedStringArray = []
 ## Solicitante esperando a transferência.
 @export var waiting: PackedStringArray = []
 ## Solicitante de emergência esperando o despacho.

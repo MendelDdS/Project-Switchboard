@@ -500,6 +500,26 @@ msgid "Seu turno termina à meia-noite. Atenda as chamadas, conecte-as corretame
 msgstr "Your shift ends at midnight. Answer the calls, connect them correctly and log every one."
 
 #: data/nights/night_01.tres
+msgid "Amanhã tem quermesse na praça, o senhor vai?"
+msgstr "There's a church fair on the square tomorrow, are you going?"
+
+#: data/nights/night_01.tres
+msgid "Se der tempo, eu vou."
+msgstr "If I have time, I'll go."
+
+#: data/nights/night_01.tres
+msgid "Vá, sim! A pamonha de lá é imperdível."
+msgstr "Do go! The corn cakes there are a must."
+
+#: data/nights/night_01.tres
+msgid "Não vou, não."
+msgstr "I won't be going."
+
+#: data/nights/night_01.tres
+msgid "Ah... tá bom, então."
+msgstr "Oh... all right, then."
+
+#: data/nights/night_01.tres
 msgid "...alô?"
 msgstr "...hello?"
 
@@ -574,6 +594,46 @@ msgstr "Rádio Serena AM"
 #: data/calls/story_02_seu_ernesto_radio_serena_am.tres
 msgid "Alô, é da rádio? Escuta só o que aconteceu ontem..."
 msgstr "Hello, is this the radio station? Listen to what happened last night..."
+
+#: data/nights/night_02.tres
+msgid "Disseram que o senhor ia na quermesse hoje à tarde e não apareceu, hein!"
+msgstr "They said you were going to the church fair this afternoon and you never showed up!"
+
+#: data/nights/night_02.tres
+msgid "Acabei dormindo, desculpe."
+msgstr "I ended up sleeping, sorry."
+
+#: data/nights/night_02.tres
+msgid "Tá perdoado. Mas a pamonha acabou, viu?"
+msgstr "You're forgiven. But the corn cakes are gone, you know."
+
+#: data/nights/night_02.tres
+msgid "Não deu."
+msgstr "Couldn't make it."
+
+#: data/nights/night_02.tres
+msgid "Hum. Tá bom."
+msgstr "Hm. All right."
+
+#: data/nights/night_02.tres
+msgid "A quermesse hoje à tarde foi uma beleza, o senhor perdeu."
+msgstr "The church fair this afternoon was lovely, you missed it."
+
+#: data/nights/night_02.tres
+msgid "Que pena! Como foi?"
+msgstr "What a shame! How was it?"
+
+#: data/nights/night_02.tres
+msgid "Teve até sanfoneiro da capital!"
+msgstr "They even had an accordion player from the capital!"
+
+#: data/nights/night_02.tres
+msgid "Imagino."
+msgstr "I bet."
+
+#: data/nights/night_02.tres data/content.tres
+msgid "...Pois é."
+msgstr "...Yeah."
 
 #: data/nights/night_02.tres
 msgid "...você ainda está aí?"
@@ -2704,36 +2764,36 @@ msgid "Imagina, é pra isso que a central existe."
 msgstr "Not at all, that's what the exchange is for."
 
 #: data/content.tres
-msgid "Sem problema nenhum."
-msgstr "No trouble at all."
-
-#: data/content.tres
 msgid "Ah, que bom. Eu fico sem jeito, sabe?"
 msgstr "Oh, good. I always feel awkward, you know?"
 
 #: data/content.tres
-msgid "O senhor é muito gentil."
-msgstr "You're very kind."
+msgid "Tudo bem."
+msgstr "That's fine."
+
+#: data/content.tres
+msgid "Ah... tá. Desculpe de novo."
+msgstr "Oh... right. Sorry again."
 
 #: data/content.tres
 msgid "O senhor passa a noite inteira aí sozinho?"
 msgstr "Do you spend the whole night there alone?"
 
 #: data/content.tres
-msgid "Até a meia-noite, sim."
-msgstr "Until midnight, yes."
-
-#: data/content.tres
 msgid "Eu e os cabos."
 msgstr "Just me and the cords."
 
 #: data/content.tres
-msgid "Nossa, deve ser cansativo. Eu não aguentaria."
-msgstr "Goodness, that must be tiring. I couldn't do it."
-
-#: data/content.tres
 msgid "Hehe, pelo menos eles não reclamam, né?"
 msgstr "Heh, at least they don't complain, right?"
+
+#: data/content.tres
+msgid "Passo, sim."
+msgstr "I do."
+
+#: data/content.tres
+msgid "Ah... tá. Não vou atrapalhar, então."
+msgstr "Oh... right. I won't bother you, then."
 
 #: data/content.tres
 msgid "Minha mulher disse que não era pra incomodar a central a essa hora."
@@ -2744,16 +2804,16 @@ msgid "Não incomoda, não."
 msgstr "You're no bother."
 
 #: data/content.tres
-msgid "Diga a ela que está tudo bem."
-msgstr "Tell her it's all right."
-
-#: data/content.tres
 msgid "Vou contar pra ela que o senhor disse isso."
 msgstr "I'll tell her you said so."
 
 #: data/content.tres
-msgid "Ela não vai acreditar, mas eu digo."
-msgstr "She won't believe it, but I'll tell her."
+msgid "Ela tem razão."
+msgstr "She's right."
+
+#: data/content.tres
+msgid "Ah... tá certo. Desculpe."
+msgstr "Oh... fair enough. Sorry."
 
 #: data/content.tres
 msgid "Meu marido já dormiu, mas eu não consigo pegar no sono."
@@ -2764,36 +2824,32 @@ msgid "Um chá de camomila ajuda."
 msgstr "Chamomile tea helps."
 
 #: data/content.tres
-msgid "A noite é longa mesmo."
-msgstr "The night sure is long."
-
-#: data/content.tres
 msgid "Já tomei dois, moço. Nem fez cócegas."
 msgstr "I've had two already. Didn't do a thing."
 
 #: data/content.tres
-msgid "Nem me fale. Fico olhando pro teto."
-msgstr "Tell me about it. I just stare at the ceiling."
+msgid "Hum."
+msgstr "Hm."
+
+#: data/content.tres
+msgid "Ah... tá. Eu espero aqui."
+msgstr "Oh... right. I'll wait here."
 
 #: data/content.tres
 msgid "Faltou luz lá na Rua do Sol ontem, sabia?"
 msgstr "The power went out on Rua do Sol last night, did you know?"
 
 #: data/content.tres
-msgid "Não sabia, não."
-msgstr "I didn't know."
+msgid "Ouvi falar. Ficou muito tempo sem?"
+msgstr "I heard. Was it out long?"
 
 #: data/content.tres
-msgid "Ouvi falar."
-msgstr "I heard about it."
+msgid "A noite toda! A gente jantou à luz de vela."
+msgstr "All night! We had dinner by candlelight."
 
 #: data/content.tres
-msgid "Pois é, a gente jantou à luz de vela."
-msgstr "Yes, we had dinner by candlelight."
-
-#: data/content.tres
-msgid "A cidade inteira comentou, né?"
-msgstr "The whole town was talking, right?"
+msgid "Sei."
+msgstr "I see."
 
 #: data/content.tres
 msgid "Essa central nunca dorme, né?"
@@ -2804,36 +2860,36 @@ msgid "Nunca. Alguém tem que ficar acordado."
 msgstr "Never. Someone has to stay awake."
 
 #: data/content.tres
-msgid "Pelo menos até a meia-noite."
-msgstr "Not until midnight, at least."
-
-#: data/content.tres
 msgid "Ainda bem, viu? A gente se sente mais seguro."
 msgstr "Good thing, too. Makes us feel safer."
 
 #: data/content.tres
-msgid "Ah, então ainda dá tempo de prosear."
-msgstr "Oh, then there's still time for a chat."
+msgid "Pois é."
+msgstr "Yep."
+
+#: data/content.tres
+msgid "É... bom, eu espero."
+msgstr "Yeah... well, I'll wait."
 
 #: data/content.tres
 msgid "Que frio, meu Deus."
 msgstr "Lord, it's cold."
 
 #: data/content.tres
-msgid "Não esquentou nada hoje, né?"
-msgstr "Didn't warm up at all today, did it?"
-
-#: data/content.tres
 msgid "Pega um casaco."
 msgstr "Put on a coat."
 
 #: data/content.tres
-msgid "Nada. Tô debaixo do cobertor aqui."
-msgstr "Not a bit. I'm under the blanket here."
-
-#: data/content.tres
 msgid "Já tô com dois, moço!"
 msgstr "I've got two on already!"
+
+#: data/content.tres
+msgid "Aham."
+msgstr "Mm-hm."
+
+#: data/content.tres
+msgid "...Bom, deixa pra lá."
+msgstr "...Well, never mind."
 
 #: data/content.tres
 msgid "Amanhã é dia de feira, né?"
@@ -2844,96 +2900,76 @@ msgid "É sim, amanhã cedo."
 msgstr "It is, first thing tomorrow."
 
 #: data/content.tres
-msgid "Acho que sim."
-msgstr "I think so."
-
-#: data/content.tres
 msgid "Vou ver se ainda tem aquele queijo da serra."
 msgstr "I'll see if they still have that mountain cheese."
 
 #: data/content.tres
-msgid "Tem que chegar cedo, senão acaba a banana."
-msgstr "You have to get there early or the bananas run out."
+msgid "Não sei."
+msgstr "Don't know."
+
+#: data/content.tres
+msgid "Ah... tá. Eu vejo amanhã, então."
+msgstr "Oh... right. I'll find out tomorrow, then."
 
 #: data/content.tres
 msgid "Meu relógio adiantou de novo."
 msgstr "My clock's running fast again."
 
 #: data/content.tres
-msgid "Leva no relojoeiro."
-msgstr "Take it to the watchmaker."
-
-#: data/content.tres
 msgid "O meu atrasa."
 msgstr "Mine runs slow."
-
-#: data/content.tres
-msgid "Já levei três vezes. Acho que é teimosia dele."
-msgstr "I've taken it three times. I think it's just stubborn."
 
 #: data/content.tres
 msgid "Hehe, então a gente se completa."
 msgstr "Heh, then we make a good pair."
 
 #: data/content.tres
-msgid "Desculpa, é que eu não consigo dormir."
-msgstr "Sorry, I just can't sleep."
+msgid "Leva no relojoeiro."
+msgstr "Take it to the watchmaker."
 
 #: data/content.tres
-msgid "Fique à vontade."
-msgstr "Make yourself at home."
+msgid "Tá, tá. Vou levar."
+msgstr "Yes, yes. I will."
+
+#: data/content.tres
+msgid "Desculpa, é que eu não consigo dormir."
+msgstr "Sorry, I just can't sleep."
 
 #: data/content.tres
 msgid "Nem eu, e olha que é meu trabalho."
 msgstr "Neither can I, and it's my job."
 
 #: data/content.tres
-msgid "Que bom. É bom ouvir uma voz a essa hora."
-msgstr "Good. It's nice to hear a voice at this hour."
-
-#: data/content.tres
 msgid "Hehe, o senhor tem desculpa, eu não."
 msgstr "Heh, you have an excuse, I don't."
+
+#: data/content.tres
+msgid "Entendi."
+msgstr "I see."
+
+#: data/content.tres
+msgid "...Desculpa, tá? Eu espero."
+msgstr "...Sorry, okay? I'll wait."
 
 #: data/content.tres
 msgid "Faz tempo que eu não ligo pra central."
 msgstr "It's been a while since I called the exchange."
 
 #: data/content.tres
-msgid "Seja bem-vindo de volta."
-msgstr "Welcome back."
-
-#: data/content.tres
 msgid "Eu lembro da sua voz."
 msgstr "I remember your voice."
-
-#: data/content.tres
-msgid "Hehe, e a central continua igualzinha."
-msgstr "Heh, and the exchange hasn't changed a bit."
 
 #: data/content.tres
 msgid "Lembra? Que memória, hein!"
 msgstr "You do? What a memory!"
 
 #: data/content.tres
-msgid "Amanhã tem quermesse na praça, o senhor vai?"
-msgstr "There's a church fair on the square tomorrow, are you going?"
+msgid "Ah, é?"
+msgstr "Oh, yeah?"
 
 #: data/content.tres
-msgid "Se der tempo, eu vou."
-msgstr "If I have time, I'll go."
-
-#: data/content.tres
-msgid "Durmo de dia, não vai dar."
-msgstr "I sleep during the day, I can't."
-
-#: data/content.tres
-msgid "Vá, sim! A pamonha de lá é imperdível."
-msgstr "Do go! The corn cakes there are a must."
-
-#: data/content.tres
-msgid "Que pena. Guardo um pedaço de bolo pro senhor."
-msgstr "Pity. I'll save you a slice of cake."
+msgid "É... faz tempo mesmo."
+msgstr "Yeah... it's been a while."
 
 #: data/content.tres
 msgid "O padre mudou o horário da missa de domingo, viu?"
@@ -2944,16 +2980,16 @@ msgid "Pra que horas?"
 msgstr "To what time?"
 
 #: data/content.tres
-msgid "Não sabia."
-msgstr "I didn't know."
-
-#: data/content.tres
 msgid "Agora é às sete. Cedo demais pra mim."
 msgstr "Seven now. Too early for me."
 
 #: data/content.tres
-msgid "Mudou sem avisar ninguém, acredita?"
-msgstr "He changed it without telling anyone, can you believe it?"
+msgid "Não vou à missa."
+msgstr "I don't go to Mass."
+
+#: data/content.tres
+msgid "Ah... cada um com sua fé, né?"
+msgstr "Oh... to each their own, right?"
 
 #: data/content.tres
 msgid "O ônibus da capital atrasou de novo hoje."
@@ -2964,16 +3000,16 @@ msgid "De novo?"
 msgstr "Again?"
 
 #: data/content.tres
-msgid "Aquela estrada não ajuda."
-msgstr "That road doesn't help."
-
-#: data/content.tres
 msgid "Duas horas! Minha irmã chegou morta de cansaço."
 msgstr "Two hours! My sister got here dead tired."
 
 #: data/content.tres
-msgid "É buraco atrás de buraco, moço."
-msgstr "It's one pothole after another."
+msgid "É sempre assim."
+msgstr "It's always like that."
+
+#: data/content.tres
+msgid "É... pois é."
+msgstr "Yeah... I guess so."
 
 #: data/content.tres
 msgid "Meu neto passou no vestibular, sabia?"
@@ -2984,76 +3020,76 @@ msgid "Que beleza! Parabéns!"
 msgstr "Wonderful! Congratulations!"
 
 #: data/content.tres
-msgid "Pra qual curso?"
-msgstr "What will he study?"
-
-#: data/content.tres
 msgid "Ah, que orgulho! Vai ser o primeiro doutor da família."
 msgstr "Oh, I'm so proud! He'll be the first doctor in the family."
 
 #: data/content.tres
-msgid "Medicina! Vai estudar lá na capital."
-msgstr "Medicine! He's going to study in the capital."
+msgid "Hum, que bom."
+msgstr "Hm, good."
+
+#: data/content.tres
+msgid "...É. Ele se esforçou, viu?"
+msgstr "...Yes. He worked hard, you know."
 
 #: data/content.tres
 msgid "O preço do pão subiu de novo."
 msgstr "The price of bread went up again."
 
 #: data/content.tres
-msgid "Tá tudo caro."
-msgstr "Everything's expensive."
-
-#: data/content.tres
 msgid "De novo? Não acredito."
 msgstr "Again? I can't believe it."
-
-#: data/content.tres
-msgid "Daqui a pouco é pão só no domingo."
-msgstr "Soon it'll be bread on Sundays only."
 
 #: data/content.tres
 msgid "Vou ter que voltar a fazer pão em casa."
 msgstr "I'll have to start baking bread at home again."
 
 #: data/content.tres
-msgid "Minha horta tá dando tomate que é uma beleza."
-msgstr "My vegetable garden is giving lovely tomatoes."
+msgid "Normal."
+msgstr "That's normal."
 
 #: data/content.tres
-msgid "Que inveja!"
-msgstr "I'm jealous!"
+msgid "Normal pro senhor, né..."
+msgstr "Normal for you, maybe..."
+
+#: data/content.tres
+msgid "Minha horta tá dando tomate que é uma beleza."
+msgstr "My vegetable garden is giving lovely tomatoes."
 
 #: data/content.tres
 msgid "Qual é o segredo?"
 msgstr "What's the secret?"
 
 #: data/content.tres
-msgid "Passa aqui que eu separo uns pro senhor."
-msgstr "Drop by and I'll set some aside for you."
-
-#: data/content.tres
 msgid "Esterco e conversa. Planta gosta de prosa."
 msgstr "Manure and conversation. Plants like a good chat."
+
+#: data/content.tres
+msgid "Ah, legal."
+msgstr "Oh, nice."
+
+#: data/content.tres
+msgid "...É. Bom, deixa eu esperar aqui."
+msgstr "...Yeah. Well, I'll wait here."
 
 #: data/content.tres
 msgid "Que chuva, hein? Não parou desde a tarde."
 msgstr "Some rain, huh? It hasn't stopped since this afternoon."
 
 #: data/content.tres
-msgid "Não deu trégua."
-msgstr "It hasn't let up."
-
-#: data/content.tres
 msgid "Daqui eu ouço no telhado."
 msgstr "I can hear it on the roof here."
 
 #: data/content.tres
-msgid "Minhas plantas agradecem, pelo menos."
-msgstr "My plants are grateful, at least."
-
-#: data/content.tres
 msgid "Aqui pinga até na cozinha."
 msgstr "Here it's dripping in the kitchen."
+
+#: data/content.tres
+msgid "É chuva."
+msgstr "It's rain."
+
+#: data/content.tres
+msgid "...É, né."
+msgstr "...Sure is."
 
 #: data/content.tres
 msgid "Ouvi dizer que o rio vai encher de novo."
@@ -3064,16 +3100,16 @@ msgid "Tomara que não."
 msgstr "Let's hope not."
 
 #: data/content.tres
-msgid "Quem disse?"
-msgstr "Who said so?"
-
-#: data/content.tres
 msgid "Da última vez a água chegou na praça."
 msgstr "Last time the water reached the square."
 
 #: data/content.tres
-msgid "O compadre que mora na beira do rio."
-msgstr "My old friend who lives by the river."
+msgid "Boato."
+msgstr "Just a rumor."
+
+#: data/content.tres
+msgid "Tomara que seja, moço."
+msgstr "Hope you're right."
 
 #: data/content.tres
 msgid "O rio subiu bastante com essa chuva."
@@ -3084,16 +3120,12 @@ msgid "Cuidado por aí."
 msgstr "Be careful out there."
 
 #: data/content.tres
-msgid "A ponte aguenta?"
-msgstr "Will the bridge hold?"
-
-#: data/content.tres
 msgid "Pode deixar, moço. Aqui é alto."
 msgstr "Don't worry. We're up high here."
 
 #: data/content.tres
-msgid "Aguenta, já aguentou coisa pior."
-msgstr "It'll hold, it's held worse."
+msgid "...Bom, aqui é alto, pelo menos."
+msgstr "...Well, we're up high here, at least."
 
 #: data/content.tres
 msgid "Tá caindo um toró aqui, a rua virou rio."
@@ -3104,16 +3136,16 @@ msgid "Não sai de casa, hein."
 msgstr "Don't go out, now."
 
 #: data/content.tres
-msgid "Aqui também tá forte."
-msgstr "It's heavy here too."
-
-#: data/content.tres
 msgid "Nem pensar, moço. Daqui não saio."
 msgstr "Not a chance. I'm not leaving the house."
 
 #: data/content.tres
-msgid "Então a cidade toda tá debaixo d'água."
-msgstr "Then the whole town's under water."
+msgid "Aqui também."
+msgstr "Here too."
+
+#: data/content.tres
+msgid "Ah... tá."
+msgstr "Oh... right."
 
 #: data/content.tres
 msgid "Com essa chuva ninguém sai de casa, né?"
@@ -3124,12 +3156,12 @@ msgid "Só quem precisa."
 msgstr "Only those who have to."
 
 #: data/content.tres
-msgid "Melhor assim."
-msgstr "Better that way."
-
-#: data/content.tres
 msgid "É, coitado de quem tá na estrada."
 msgstr "Yes, pity anyone out on the road."
+
+#: data/content.tres
+msgid "Melhor assim."
+msgstr "Better that way."
 
 #: data/content.tres
 msgid "É, noite de ficar debaixo das cobertas."
@@ -3144,12 +3176,12 @@ msgid "Daqui também não vejo nada."
 msgstr "I can't see a thing from here either."
 
 #: data/content.tres
-msgid "Fique em casa hoje."
-msgstr "Stay home tonight."
-
-#: data/content.tres
 msgid "Parece algodão na janela."
 msgstr "It's like cotton on the window."
+
+#: data/content.tres
+msgid "Fique em casa hoje."
+msgstr "Stay home tonight."
 
 #: data/content.tres
 msgid "Pode deixar, não ponho o pé lá fora."
@@ -3164,12 +3196,12 @@ msgid "Verdade, é perigoso."
 msgstr "True, it's dangerous."
 
 #: data/content.tres
-msgid "Tomara que ninguém precise."
-msgstr "Hopefully nobody has to."
-
-#: data/content.tres
 msgid "Meu cunhado quase errou a entrada da cidade uma vez."
 msgstr "My brother-in-law nearly missed the turn into town once."
+
+#: data/content.tres
+msgid "Tomara que ninguém precise."
+msgstr "Hopefully nobody has to."
 
 #: data/content.tres
 msgid "Deus queira."
@@ -3180,20 +3212,20 @@ msgid "Parece que a cidade sumiu na névoa hoje."
 msgstr "Feels like the town vanished into the fog tonight."
 
 #: data/content.tres
-msgid "Daqui não vejo nem a praça."
-msgstr "I can't even see the square from here."
-
-#: data/content.tres
 msgid "Amanhã ela volta."
 msgstr "It'll be back tomorrow."
 
 #: data/content.tres
-msgid "Pois é, ficou tudo branco."
-msgstr "Yes, it's all gone white."
-
-#: data/content.tres
 msgid "Hehe, tomara. Com a padaria e tudo."
 msgstr "Heh, I hope so. Bakery and all."
+
+#: data/content.tres
+msgid "Exagero."
+msgstr "You're exaggerating."
+
+#: data/content.tres
+msgid "Hehe... é, talvez."
+msgstr "Heh... maybe."
 
 #: data/content.tres
 msgid "Que noite bonita, hein? Dá pra ver todas as estrelas."
@@ -3204,12 +3236,12 @@ msgid "Tá bonita mesmo."
 msgstr "It really is lovely."
 
 #: data/content.tres
-msgid "Daqui eu só vejo a mesa."
-msgstr "All I can see from here is the switchboard."
-
-#: data/content.tres
 msgid "Fiquei um tempão na varanda olhando."
 msgstr "I spent ages on the porch looking up."
+
+#: data/content.tres
+msgid "Daqui eu só vejo a mesa."
+msgstr "All I can see from here is the switchboard."
 
 #: data/content.tres
 msgid "Ah, coitado. Depois dá uma espiada na janela."
@@ -3224,16 +3256,16 @@ msgid "Lua cheia?"
 msgstr "Full moon?"
 
 #: data/content.tres
-msgid "Vi pela janela."
-msgstr "I saw it through the window."
-
-#: data/content.tres
 msgid "Quase. Amanhã fica redondinha."
 msgstr "Almost. Tomorrow it'll be perfectly round."
 
 #: data/content.tres
-msgid "Bonita, né? Parece que tá mais perto."
-msgstr "Pretty, isn't it? It looks closer."
+msgid "Não reparei."
+msgstr "Hadn't noticed."
+
+#: data/content.tres
+msgid "Ah... depois dá uma olhada."
+msgstr "Oh... take a look later."
 
 #: data/content.tres
 msgid "Noite fresquinha, né? Até dá gosto de ficar na janela."
@@ -3244,16 +3276,40 @@ msgid "Depois do calor de ontem..."
 msgstr "After yesterday's heat..."
 
 #: data/content.tres
-msgid "Aproveite."
-msgstr "Enjoy it."
-
-#: data/content.tres
 msgid "Nem me fale, ontem não dava nem pra dormir."
 msgstr "Tell me about it, I couldn't even sleep last night."
 
 #: data/content.tres
+msgid "Aproveite."
+msgstr "Enjoy it."
+
+#: data/content.tres
 msgid "Tô aproveitando, com um cafezinho."
 msgstr "I am, with a little coffee."
+
+#: data/content.tres
+msgid "Vai indo, moço."
+msgstr "Getting by."
+
+#: data/content.tres
+msgid "Ah, vai bem, graças a Deus."
+msgstr "Oh, it's going fine, thank God."
+
+#: data/content.tres
+msgid "Tranquila, tranquila."
+msgstr "Quiet, quiet."
+
+#: data/content.tres
+msgid "Ih, devagar..."
+msgstr "Oh, slow..."
+
+#: data/content.tres
+msgid "Vai indo, do jeito que dá."
+msgstr "Getting by, as best I can."
+
+#: data/content.tres
+msgid "Ah, aqui tá tudo calmo."
+msgstr "Oh, it's all calm here."
 
 #: data/content.tres
 msgid "Alô? Central?"

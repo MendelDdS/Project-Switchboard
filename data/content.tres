@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_6g7xa"]
 [ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="99_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="98_reply"]
 [ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="2_l0sn3"]
 [ext_resource type="Resource" path="res://data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres" id="3_v72nw"]
 [ext_resource type="Resource" path="res://data/calls/emergency_02_incendio_rua_do_moinho_40.tres" id="4_brh46"]
@@ -428,186 +429,479 @@ name = "Rua do Moinho"
 horizontal = false
 pos = 530.0
 
-[sub_resource type="Resource" id="ChatTopic_00"]
-script = ExtResource("99_chat")
-line = "Desculpe ligar tão tarde."
-replies = PackedStringArray("Imagina, é pra isso que a central existe.", "Sem problema nenhum.")
-follow = PackedStringArray("Ah, que bom. Eu fico sem jeito, sabe?", "O senhor é muito gentil.")
+[sub_resource type="Resource" id="Reply_00_0"]
+script = ExtResource("98_reply")
+text = "Imagina, é pra isso que a central existe."
+follow = "Ah, que bom. Eu fico sem jeito, sabe?"
+tone = 1
 
-[sub_resource type="Resource" id="ChatTopic_01"]
+[sub_resource type="Resource" id="Reply_00_1"]
+script = ExtResource("98_reply")
+text = "Tudo bem."
+follow = "Ah... tá. Desculpe de novo."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_00"]
+script = ExtResource("99_chat")
+unprompted_only = true
+line = "Desculpe ligar tão tarde."
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_00_0"), SubResource("Reply_00_1")])
+
+[sub_resource type="Resource" id="Reply_01_0"]
+script = ExtResource("98_reply")
+text = "Eu e os cabos."
+follow = "Hehe, pelo menos eles não reclamam, né?"
+tone = 1
+
+[sub_resource type="Resource" id="Reply_01_1"]
+script = ExtResource("98_reply")
+text = "Passo, sim."
+follow = "Ah... tá. Não vou atrapalhar, então."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_01"]
 script = ExtResource("99_chat")
 line = "O senhor passa a noite inteira aí sozinho?"
-replies = PackedStringArray("Até a meia-noite, sim.", "Eu e os cabos.")
-follow = PackedStringArray("Nossa, deve ser cansativo. Eu não aguentaria.", "Hehe, pelo menos eles não reclamam, né?")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_01_0"), SubResource("Reply_01_1")])
 
-[sub_resource type="Resource" id="ChatTopic_02"]
+[sub_resource type="Resource" id="Reply_02_0"]
+script = ExtResource("98_reply")
+text = "Não incomoda, não."
+follow = "Vou contar pra ela que o senhor disse isso."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_02_1"]
+script = ExtResource("98_reply")
+text = "Ela tem razão."
+follow = "Ah... tá certo. Desculpe."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_02"]
 script = ExtResource("99_chat")
 voices = PackedStringArray("m", "w")
 line = "Minha mulher disse que não era pra incomodar a central a essa hora."
-replies = PackedStringArray("Não incomoda, não.", "Diga a ela que está tudo bem.")
-follow = PackedStringArray("Vou contar pra ela que o senhor disse isso.", "Ela não vai acreditar, mas eu digo.")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_02_0"), SubResource("Reply_02_1")])
 
-[sub_resource type="Resource" id="ChatTopic_03"]
+[sub_resource type="Resource" id="Reply_03_0"]
+script = ExtResource("98_reply")
+text = "Um chá de camomila ajuda."
+follow = "Já tomei dois, moço. Nem fez cócegas."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_03_1"]
+script = ExtResource("98_reply")
+text = "Hum."
+follow = "Ah... tá. Eu espero aqui."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_03"]
 script = ExtResource("99_chat")
 voices = PackedStringArray("f")
 line = "Meu marido já dormiu, mas eu não consigo pegar no sono."
-replies = PackedStringArray("Um chá de camomila ajuda.", "A noite é longa mesmo.")
-follow = PackedStringArray("Já tomei dois, moço. Nem fez cócegas.", "Nem me fale. Fico olhando pro teto.")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_03_0"), SubResource("Reply_03_1")])
 
-[sub_resource type="Resource" id="ChatTopic_04"]
+[sub_resource type="Resource" id="Reply_04_0"]
+script = ExtResource("98_reply")
+text = "Ouvi falar. Ficou muito tempo sem?"
+follow = "A noite toda! A gente jantou à luz de vela."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_04_1"]
+script = ExtResource("98_reply")
+text = "Sei."
+follow = "...Pois é."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_04"]
 script = ExtResource("99_chat")
 line = "Faltou luz lá na Rua do Sol ontem, sabia?"
-replies = PackedStringArray("Não sabia, não.", "Ouvi falar.")
-follow = PackedStringArray("Pois é, a gente jantou à luz de vela.", "A cidade inteira comentou, né?")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_04_0"), SubResource("Reply_04_1")])
 
-[sub_resource type="Resource" id="ChatTopic_05"]
+[sub_resource type="Resource" id="Reply_05_0"]
+script = ExtResource("98_reply")
+text = "Nunca. Alguém tem que ficar acordado."
+follow = "Ainda bem, viu? A gente se sente mais seguro."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_05_1"]
+script = ExtResource("98_reply")
+text = "Pois é."
+follow = "É... bom, eu espero."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_05"]
 script = ExtResource("99_chat")
 line = "Essa central nunca dorme, né?"
-replies = PackedStringArray("Nunca. Alguém tem que ficar acordado.", "Pelo menos até a meia-noite.")
-follow = PackedStringArray("Ainda bem, viu? A gente se sente mais seguro.", "Ah, então ainda dá tempo de prosear.")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_05_0"), SubResource("Reply_05_1")])
 
-[sub_resource type="Resource" id="ChatTopic_06"]
+[sub_resource type="Resource" id="Reply_06_0"]
+script = ExtResource("98_reply")
+text = "Pega um casaco."
+follow = "Já tô com dois, moço!"
+tone = 1
+
+[sub_resource type="Resource" id="Reply_06_1"]
+script = ExtResource("98_reply")
+text = "Aham."
+follow = "...Bom, deixa pra lá."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_06"]
 script = ExtResource("99_chat")
 line = "Que frio, meu Deus."
-replies = PackedStringArray("Não esquentou nada hoje, né?", "Pega um casaco.")
-follow = PackedStringArray("Nada. Tô debaixo do cobertor aqui.", "Já tô com dois, moço!")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_06_0"), SubResource("Reply_06_1")])
 
-[sub_resource type="Resource" id="ChatTopic_07"]
+[sub_resource type="Resource" id="Reply_07_0"]
+script = ExtResource("98_reply")
+text = "É sim, amanhã cedo."
+follow = "Vou ver se ainda tem aquele queijo da serra."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_07_1"]
+script = ExtResource("98_reply")
+text = "Não sei."
+follow = "Ah... tá. Eu vejo amanhã, então."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_07"]
 script = ExtResource("99_chat")
 line = "Amanhã é dia de feira, né?"
-replies = PackedStringArray("É sim, amanhã cedo.", "Acho que sim.")
-follow = PackedStringArray("Vou ver se ainda tem aquele queijo da serra.", "Tem que chegar cedo, senão acaba a banana.")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_07_0"), SubResource("Reply_07_1")])
 
-[sub_resource type="Resource" id="ChatTopic_08"]
+[sub_resource type="Resource" id="Reply_08_0"]
+script = ExtResource("98_reply")
+text = "O meu atrasa."
+follow = "Hehe, então a gente se completa."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_08_1"]
+script = ExtResource("98_reply")
+text = "Leva no relojoeiro."
+follow = "Tá, tá. Vou levar."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_08"]
 script = ExtResource("99_chat")
 line = "Meu relógio adiantou de novo."
-replies = PackedStringArray("Leva no relojoeiro.", "O meu atrasa.")
-follow = PackedStringArray("Já levei três vezes. Acho que é teimosia dele.", "Hehe, então a gente se completa.")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_08_0"), SubResource("Reply_08_1")])
 
-[sub_resource type="Resource" id="ChatTopic_09"]
+[sub_resource type="Resource" id="Reply_09_0"]
+script = ExtResource("98_reply")
+text = "Nem eu, e olha que é meu trabalho."
+follow = "Hehe, o senhor tem desculpa, eu não."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_09_1"]
+script = ExtResource("98_reply")
+text = "Entendi."
+follow = "...Desculpa, tá? Eu espero."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_09"]
 script = ExtResource("99_chat")
+unprompted_only = true
 line = "Desculpa, é que eu não consigo dormir."
-replies = PackedStringArray("Fique à vontade.", "Nem eu, e olha que é meu trabalho.")
-follow = PackedStringArray("Que bom. É bom ouvir uma voz a essa hora.", "Hehe, o senhor tem desculpa, eu não.")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_09_0"), SubResource("Reply_09_1")])
 
-[sub_resource type="Resource" id="ChatTopic_10"]
+[sub_resource type="Resource" id="Reply_10_0"]
+script = ExtResource("98_reply")
+text = "Eu lembro da sua voz."
+follow = "Lembra? Que memória, hein!"
+tone = 1
+
+[sub_resource type="Resource" id="Reply_10_1"]
+script = ExtResource("98_reply")
+text = "Ah, é?"
+follow = "É... faz tempo mesmo."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_10"]
 script = ExtResource("99_chat")
 line = "Faz tempo que eu não ligo pra central."
-replies = PackedStringArray("Seja bem-vindo de volta.", "Eu lembro da sua voz.")
-follow = PackedStringArray("Hehe, e a central continua igualzinha.", "Lembra? Que memória, hein!")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_10_0"), SubResource("Reply_10_1")])
 
-[sub_resource type="Resource" id="ChatTopic_11"]
-script = ExtResource("99_chat")
-line = "Amanhã tem quermesse na praça, o senhor vai?"
-replies = PackedStringArray("Se der tempo, eu vou.", "Durmo de dia, não vai dar.")
-follow = PackedStringArray("Vá, sim! A pamonha de lá é imperdível.", "Que pena. Guardo um pedaço de bolo pro senhor.")
+[sub_resource type="Resource" id="Reply_11_0"]
+script = ExtResource("98_reply")
+text = "Pra que horas?"
+follow = "Agora é às sete. Cedo demais pra mim."
+tone = 1
 
-[sub_resource type="Resource" id="ChatTopic_12"]
+[sub_resource type="Resource" id="Reply_11_1"]
+script = ExtResource("98_reply")
+text = "Não vou à missa."
+follow = "Ah... cada um com sua fé, né?"
+tone = 2
+
+[sub_resource type="Resource" id="Topic_11"]
 script = ExtResource("99_chat")
 line = "O padre mudou o horário da missa de domingo, viu?"
-replies = PackedStringArray("Pra que horas?", "Não sabia.")
-follow = PackedStringArray("Agora é às sete. Cedo demais pra mim.", "Mudou sem avisar ninguém, acredita?")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_11_0"), SubResource("Reply_11_1")])
 
-[sub_resource type="Resource" id="ChatTopic_13"]
+[sub_resource type="Resource" id="Reply_12_0"]
+script = ExtResource("98_reply")
+text = "De novo?"
+follow = "Duas horas! Minha irmã chegou morta de cansaço."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_12_1"]
+script = ExtResource("98_reply")
+text = "É sempre assim."
+follow = "É... pois é."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_12"]
 script = ExtResource("99_chat")
 line = "O ônibus da capital atrasou de novo hoje."
-replies = PackedStringArray("De novo?", "Aquela estrada não ajuda.")
-follow = PackedStringArray("Duas horas! Minha irmã chegou morta de cansaço.", "É buraco atrás de buraco, moço.")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_12_0"), SubResource("Reply_12_1")])
 
-[sub_resource type="Resource" id="ChatTopic_14"]
+[sub_resource type="Resource" id="Reply_13_0"]
+script = ExtResource("98_reply")
+text = "Que beleza! Parabéns!"
+follow = "Ah, que orgulho! Vai ser o primeiro doutor da família."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_13_1"]
+script = ExtResource("98_reply")
+text = "Hum, que bom."
+follow = "...É. Ele se esforçou, viu?"
+tone = 2
+
+[sub_resource type="Resource" id="Topic_13"]
 script = ExtResource("99_chat")
 line = "Meu neto passou no vestibular, sabia?"
-replies = PackedStringArray("Que beleza! Parabéns!", "Pra qual curso?")
-follow = PackedStringArray("Ah, que orgulho! Vai ser o primeiro doutor da família.", "Medicina! Vai estudar lá na capital.")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_13_0"), SubResource("Reply_13_1")])
 
-[sub_resource type="Resource" id="ChatTopic_15"]
+[sub_resource type="Resource" id="Reply_14_0"]
+script = ExtResource("98_reply")
+text = "De novo? Não acredito."
+follow = "Vou ter que voltar a fazer pão em casa."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_14_1"]
+script = ExtResource("98_reply")
+text = "Normal."
+follow = "Normal pro senhor, né..."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_14"]
 script = ExtResource("99_chat")
 line = "O preço do pão subiu de novo."
-replies = PackedStringArray("Tá tudo caro.", "De novo? Não acredito.")
-follow = PackedStringArray("Daqui a pouco é pão só no domingo.", "Vou ter que voltar a fazer pão em casa.")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_14_0"), SubResource("Reply_14_1")])
 
-[sub_resource type="Resource" id="ChatTopic_16"]
+[sub_resource type="Resource" id="Reply_15_0"]
+script = ExtResource("98_reply")
+text = "Qual é o segredo?"
+follow = "Esterco e conversa. Planta gosta de prosa."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_15_1"]
+script = ExtResource("98_reply")
+text = "Ah, legal."
+follow = "...É. Bom, deixa eu esperar aqui."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_15"]
 script = ExtResource("99_chat")
 line = "Minha horta tá dando tomate que é uma beleza."
-replies = PackedStringArray("Que inveja!", "Qual é o segredo?")
-follow = PackedStringArray("Passa aqui que eu separo uns pro senhor.", "Esterco e conversa. Planta gosta de prosa.")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_15_0"), SubResource("Reply_15_1")])
 
-[sub_resource type="Resource" id="ChatTopic_17"]
+[sub_resource type="Resource" id="Reply_16_0"]
+script = ExtResource("98_reply")
+text = "Daqui eu ouço no telhado."
+follow = "Aqui pinga até na cozinha."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_16_1"]
+script = ExtResource("98_reply")
+text = "É chuva."
+follow = "...É, né."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_16"]
 script = ExtResource("99_chat")
 weather = "rain"
 line = "Que chuva, hein? Não parou desde a tarde."
-replies = PackedStringArray("Não deu trégua.", "Daqui eu ouço no telhado.")
-follow = PackedStringArray("Minhas plantas agradecem, pelo menos.", "Aqui pinga até na cozinha.")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_16_0"), SubResource("Reply_16_1")])
 
-[sub_resource type="Resource" id="ChatTopic_18"]
+[sub_resource type="Resource" id="Reply_17_0"]
+script = ExtResource("98_reply")
+text = "Tomara que não."
+follow = "Da última vez a água chegou na praça."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_17_1"]
+script = ExtResource("98_reply")
+text = "Boato."
+follow = "Tomara que seja, moço."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_17"]
 script = ExtResource("99_chat")
 weather = "rain"
 line = "Ouvi dizer que o rio vai encher de novo."
-replies = PackedStringArray("Tomara que não.", "Quem disse?")
-follow = PackedStringArray("Da última vez a água chegou na praça.", "O compadre que mora na beira do rio.")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_17_0"), SubResource("Reply_17_1")])
 
-[sub_resource type="Resource" id="ChatTopic_19"]
+[sub_resource type="Resource" id="Reply_18_0"]
+script = ExtResource("98_reply")
+text = "Cuidado por aí."
+follow = "Pode deixar, moço. Aqui é alto."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_18_1"]
+script = ExtResource("98_reply")
+text = "Hum."
+follow = "...Bom, aqui é alto, pelo menos."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_18"]
 script = ExtResource("99_chat")
 weather = "rain"
 line = "O rio subiu bastante com essa chuva."
-replies = PackedStringArray("Cuidado por aí.", "A ponte aguenta?")
-follow = PackedStringArray("Pode deixar, moço. Aqui é alto.", "Aguenta, já aguentou coisa pior.")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_18_0"), SubResource("Reply_18_1")])
 
-[sub_resource type="Resource" id="ChatTopic_20"]
+[sub_resource type="Resource" id="Reply_19_0"]
+script = ExtResource("98_reply")
+text = "Não sai de casa, hein."
+follow = "Nem pensar, moço. Daqui não saio."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_19_1"]
+script = ExtResource("98_reply")
+text = "Aqui também."
+follow = "Ah... tá."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_19"]
 script = ExtResource("99_chat")
 weather = "rain"
 line = "Tá caindo um toró aqui, a rua virou rio."
-replies = PackedStringArray("Não sai de casa, hein.", "Aqui também tá forte.")
-follow = PackedStringArray("Nem pensar, moço. Daqui não saio.", "Então a cidade toda tá debaixo d'água.")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_19_0"), SubResource("Reply_19_1")])
 
-[sub_resource type="Resource" id="ChatTopic_21"]
+[sub_resource type="Resource" id="Reply_20_0"]
+script = ExtResource("98_reply")
+text = "Só quem precisa."
+follow = "É, coitado de quem tá na estrada."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_20_1"]
+script = ExtResource("98_reply")
+text = "Melhor assim."
+follow = "É, noite de ficar debaixo das cobertas."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_20"]
 script = ExtResource("99_chat")
 weather = "rain"
 line = "Com essa chuva ninguém sai de casa, né?"
-replies = PackedStringArray("Só quem precisa.", "Melhor assim.")
-follow = PackedStringArray("É, coitado de quem tá na estrada.", "É, noite de ficar debaixo das cobertas.")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_20_0"), SubResource("Reply_20_1")])
 
-[sub_resource type="Resource" id="ChatTopic_22"]
+[sub_resource type="Resource" id="Reply_21_0"]
+script = ExtResource("98_reply")
+text = "Daqui também não vejo nada."
+follow = "Parece algodão na janela."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_21_1"]
+script = ExtResource("98_reply")
+text = "Fique em casa hoje."
+follow = "Pode deixar, não ponho o pé lá fora."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_21"]
 script = ExtResource("99_chat")
 weather = "fog"
 line = "Que neblina, hein? Não dá pra ver o outro lado da rua."
-replies = PackedStringArray("Daqui também não vejo nada.", "Fique em casa hoje.")
-follow = PackedStringArray("Parece algodão na janela.", "Pode deixar, não ponho o pé lá fora.")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_21_0"), SubResource("Reply_21_1")])
 
-[sub_resource type="Resource" id="ChatTopic_23"]
+[sub_resource type="Resource" id="Reply_22_0"]
+script = ExtResource("98_reply")
+text = "Verdade, é perigoso."
+follow = "Meu cunhado quase errou a entrada da cidade uma vez."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_22_1"]
+script = ExtResource("98_reply")
+text = "Tomara que ninguém precise."
+follow = "Deus queira."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_22"]
 script = ExtResource("99_chat")
 weather = "fog"
 line = "Com essa cerração, é melhor ninguém pegar a estrada."
-replies = PackedStringArray("Verdade, é perigoso.", "Tomara que ninguém precise.")
-follow = PackedStringArray("Meu cunhado quase errou a entrada da cidade uma vez.", "Deus queira.")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_22_0"), SubResource("Reply_22_1")])
 
-[sub_resource type="Resource" id="ChatTopic_24"]
+[sub_resource type="Resource" id="Reply_23_0"]
+script = ExtResource("98_reply")
+text = "Amanhã ela volta."
+follow = "Hehe, tomara. Com a padaria e tudo."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_23_1"]
+script = ExtResource("98_reply")
+text = "Exagero."
+follow = "Hehe... é, talvez."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_23"]
 script = ExtResource("99_chat")
 weather = "fog"
 line = "Parece que a cidade sumiu na névoa hoje."
-replies = PackedStringArray("Daqui não vejo nem a praça.", "Amanhã ela volta.")
-follow = PackedStringArray("Pois é, ficou tudo branco.", "Hehe, tomara. Com a padaria e tudo.")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_23_0"), SubResource("Reply_23_1")])
 
-[sub_resource type="Resource" id="ChatTopic_25"]
+[sub_resource type="Resource" id="Reply_24_0"]
+script = ExtResource("98_reply")
+text = "Tá bonita mesmo."
+follow = "Fiquei um tempão na varanda olhando."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_24_1"]
+script = ExtResource("98_reply")
+text = "Daqui eu só vejo a mesa."
+follow = "Ah, coitado. Depois dá uma espiada na janela."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_24"]
 script = ExtResource("99_chat")
 weather = "clear"
 line = "Que noite bonita, hein? Dá pra ver todas as estrelas."
-replies = PackedStringArray("Tá bonita mesmo.", "Daqui eu só vejo a mesa.")
-follow = PackedStringArray("Fiquei um tempão na varanda olhando.", "Ah, coitado. Depois dá uma espiada na janela.")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_24_0"), SubResource("Reply_24_1")])
 
-[sub_resource type="Resource" id="ChatTopic_26"]
+[sub_resource type="Resource" id="Reply_25_0"]
+script = ExtResource("98_reply")
+text = "Lua cheia?"
+follow = "Quase. Amanhã fica redondinha."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_25_1"]
+script = ExtResource("98_reply")
+text = "Não reparei."
+follow = "Ah... depois dá uma olhada."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_25"]
 script = ExtResource("99_chat")
 weather = "clear"
 line = "Tá uma lua bonita hoje."
-replies = PackedStringArray("Lua cheia?", "Vi pela janela.")
-follow = PackedStringArray("Quase. Amanhã fica redondinha.", "Bonita, né? Parece que tá mais perto.")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_25_0"), SubResource("Reply_25_1")])
 
-[sub_resource type="Resource" id="ChatTopic_27"]
+[sub_resource type="Resource" id="Reply_26_0"]
+script = ExtResource("98_reply")
+text = "Depois do calor de ontem..."
+follow = "Nem me fale, ontem não dava nem pra dormir."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_26_1"]
+script = ExtResource("98_reply")
+text = "Aproveite."
+follow = "Tô aproveitando, com um cafezinho."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_26"]
 script = ExtResource("99_chat")
 weather = "clear"
 line = "Noite fresquinha, né? Até dá gosto de ficar na janela."
-replies = PackedStringArray("Depois do calor de ontem...", "Aproveite.")
-follow = PackedStringArray("Nem me fale, ontem não dava nem pra dormir.", "Tô aproveitando, com um cafezinho.")
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_26_0"), SubResource("Reply_26_1")])
 
 [resource]
 script = ExtResource("15_65xm7")
@@ -623,7 +917,8 @@ transfer_templates = Array[ExtResource("17_q4d2e")]([ExtResource("31_11ieg"), Ex
 transfer_thanks = PackedStringArray("Deus lhe pague.", "Valeu, central.", "Agradeço. Boa noite.", "Ótimo. Boa noite.", "Isso. Boa noite pro senhor.")
 emergency_templates = Array[ExtResource("2_l0sn3")]([ExtResource("13_hps07"), ExtResource("14_2ubng"), ExtResource("15_35dgx"), ExtResource("16_8shhh"), ExtResource("17_ko1bc")])
 greetings = PackedStringArray("Central, boa noite.", "Central telefônica, pois não?", "Central, boa noite. Em que posso ajudar?", "Central, pois não?", "Central.", "Central telefônica, boa noite.", "Central de São Sotero, pois não?")
-smalltalk = Array[ExtResource("99_chat")]([SubResource("ChatTopic_00"), SubResource("ChatTopic_01"), SubResource("ChatTopic_02"), SubResource("ChatTopic_03"), SubResource("ChatTopic_04"), SubResource("ChatTopic_05"), SubResource("ChatTopic_06"), SubResource("ChatTopic_07"), SubResource("ChatTopic_08"), SubResource("ChatTopic_09"), SubResource("ChatTopic_10"), SubResource("ChatTopic_11"), SubResource("ChatTopic_12"), SubResource("ChatTopic_13"), SubResource("ChatTopic_14"), SubResource("ChatTopic_15"), SubResource("ChatTopic_16"), SubResource("ChatTopic_17"), SubResource("ChatTopic_18"), SubResource("ChatTopic_19"), SubResource("ChatTopic_20"), SubResource("ChatTopic_21"), SubResource("ChatTopic_22"), SubResource("ChatTopic_23"), SubResource("ChatTopic_24"), SubResource("ChatTopic_25"), SubResource("ChatTopic_26"), SubResource("ChatTopic_27")])
+smalltalk = Array[ExtResource("99_chat")]([SubResource("Topic_00"), SubResource("Topic_01"), SubResource("Topic_02"), SubResource("Topic_03"), SubResource("Topic_04"), SubResource("Topic_05"), SubResource("Topic_06"), SubResource("Topic_07"), SubResource("Topic_08"), SubResource("Topic_09"), SubResource("Topic_10"), SubResource("Topic_11"), SubResource("Topic_12"), SubResource("Topic_13"), SubResource("Topic_14"), SubResource("Topic_15"), SubResource("Topic_16"), SubResource("Topic_17"), SubResource("Topic_18"), SubResource("Topic_19"), SubResource("Topic_20"), SubResource("Topic_21"), SubResource("Topic_22"), SubResource("Topic_23"), SubResource("Topic_24"), SubResource("Topic_25"), SubResource("Topic_26")])
+chat_bridge = PackedStringArray("Vai indo, moço.", "Ah, vai bem, graças a Deus.", "Tranquila, tranquila.", "Ih, devagar...", "Vai indo, do jeito que dá.", "Ah, aqui tá tudo calmo.")
 waiting = PackedStringArray("Alô? Central?", "Ainda está aí?", "Alô? Conseguiu?", "Moço? A ligação caiu?", "Alô? Tô esperando...", "Demora muito?", "Central? Tá me ouvindo?", "Ainda tô aqui, viu?", "Alô? Caiu?")
 emergency_waiting = PackedStringArray("Alô?! Vocês vão mandar alguém?", "Por favor, rápido!", "Central?!", "Alô! Tá demorando!", "Central, ainda tá aí?", "Manda alguém, pelo amor de Deus!")
 hold_ok = PackedStringArray("Tá bom, eu espero.", "Obrigado, aguardo.", "Certo.", "Pode ser, eu fico na linha.", "Tá, mas rapidinho, tá?", "Tá, fico esperando.", "Sem pressa, moço.", "Tá bem, obrigada.")

@@ -1,6 +1,8 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
 [ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
 
 [sub_resource type="Resource" id="Step_01"]
@@ -108,6 +110,24 @@ script = ExtResource("2_step")
 text = "Ela sempre fica acesa?"
 seconds = 0.5
 
+[sub_resource type="Resource" id="ChatReply_00_0"]
+script = ExtResource("9_reply")
+text = "Se der tempo, eu vou."
+follow = "Vá, sim! A pamonha de lá é imperdível."
+tone = 1
+sets = PackedStringArray("prometeu_quermesse")
+
+[sub_resource type="Resource" id="ChatReply_00_1"]
+script = ExtResource("9_reply")
+text = "Não vou, não."
+follow = "Ah... tá bom, então."
+tone = 2
+
+[sub_resource type="Resource" id="ChatTopic_00"]
+script = ExtResource("8_chat")
+line = "Amanhã tem quermesse na praça, o senhor vai?"
+replies = Array[ExtResource("9_reply")]([SubResource("ChatReply_00_0"), SubResource("ChatReply_00_1")])
+
 [resource]
 script = ExtResource("1_night")
 weekday = "Terça-feira"
@@ -119,3 +139,4 @@ max_live = 2
 emergencies = Vector2i(1, 1)
 pranks = Vector2i(0, 1)
 mystery = Array[ExtResource("2_step")]([SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09"), SubResource("Step_10"), SubResource("Step_11"), SubResource("Step_12"), SubResource("Step_13"), SubResource("Step_14"), SubResource("Step_15"), SubResource("Step_16"), SubResource("Step_17"), SubResource("Step_18"), SubResource("Step_19"), SubResource("Step_20"), SubResource("Step_21")])
+smalltalk = Array[ExtResource("8_chat")]([SubResource("ChatTopic_00")])

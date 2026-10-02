@@ -27,7 +27,7 @@ func _ready() -> void:
 	_status = _label("")
 	_row([["Restaurar tudo", _restore_all]])
 	_section("Ligações e mesa", _clear_calls)
-	_row([["Transferência", _ring_transfer.bind(false)], ["Molde", _ring_transfer.bind(true)], ["Informação", func(): _ring(main._info_call())]])
+	_row([["Transferência", _ring_transfer.bind(false)], ["Molde", _ring_transfer.bind(true)], ["Informação", func(): _ring(Schedule.info_call())]])
 	_row([["Trote", func(): _ring(PhoneCall.from_prank(C.pranks.pick_random()))], ["Desconhecida", func(): _ring(PhoneCall.mystery())]])
 	_emergency = OptionButton.new()
 	_emergency.focus_mode = Control.FOCUS_NONE
@@ -181,7 +181,7 @@ func _drop(c: PhoneCall) -> void:
 ## Registra todas as pendências do caderno com o tipo certo (sem advertência).
 func _register_all() -> void:
 	while main.notebook.has_pending():
-		main.notebook.register(Main.TYPE_OF.get(main.notebook.pending["kind"], T.Key.TYPE_COMMON))
+		main.notebook.register(Supervisor.TYPE_OF.get(main.notebook.pending["kind"], T.Key.TYPE_COMMON))
 
 
 func _units(us: Array) -> String:
