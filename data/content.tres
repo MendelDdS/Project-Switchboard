@@ -442,12 +442,14 @@ follow = PackedStringArray("Nossa, deve ser cansativo. Eu não aguentaria.", "He
 
 [sub_resource type="Resource" id="ChatTopic_02"]
 script = ExtResource("99_chat")
+voices = PackedStringArray("m", "w")
 line = "Minha mulher disse que não era pra incomodar a central a essa hora."
 replies = PackedStringArray("Não incomoda, não.", "Diga a ela que está tudo bem.")
 follow = PackedStringArray("Vou contar pra ela que o senhor disse isso.", "Ela não vai acreditar, mas eu digo.")
 
 [sub_resource type="Resource" id="ChatTopic_03"]
 script = ExtResource("99_chat")
+voices = PackedStringArray("f")
 line = "Meu marido já dormiu, mas eu não consigo pegar no sono."
 replies = PackedStringArray("Um chá de camomila ajuda.", "A noite é longa mesmo.")
 follow = PackedStringArray("Já tomei dois, moço. Nem fez cócegas.", "Nem me fale. Fico olhando pro teto.")

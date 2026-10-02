@@ -183,9 +183,10 @@ Cada turno sorteia o clima (`WEATHERS` em `main.gd`; para forçar: `godot --path
 
 A conversa fiada aparece quando o operador demora para transferir: depois de uns 10 s em silêncio, às vezes a pessoa
 puxa assunto; se a demora continuar, ela reclama (`waiting`). Cada assunto é um `ChatTopic` na lista `smalltalk` do
-content: a fala (`line`), o clima em que faz sentido (`weather`, vazio = qualquer), as respostas do operador
+content: a fala (`line`), o clima em que faz sentido (`weather`, vazio = qualquer), as vozes que podem dizê-la
+(`voices`, vazio = qualquer; use quando a fala tem gênero, como "Meu marido..." → `f`), as respostas do operador
 (`replies`) e, na mesma ordem, como a pessoa continua depois de cada uma (`follow`). O operador pode responder (as respostas
-aparecem como opções e ele escolhe uma) para ganhar tempo; escreva respostas que caibam naquele assunto. Escreva só assuntos do cotidiano da cidade; o que lembra
+aparecem como opções e ele escolhe uma) para ganhar tempo, e também puxar conversa ("E aí, como vai a noite?"); escreva respostas que caibam naquele assunto. Escreva só assuntos do cotidiano da cidade; o que lembra
 o mistério (luzes, barulhos na linha, vultos) fica para as falas do roteiro.
 
 Volumes de cada

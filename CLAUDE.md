@@ -249,10 +249,12 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Espera na linha (`Main._nag`, silêncio medido em `talk_clock`, que para na pausa): transferência pedida e o
   operador parado → depois de `SMALLTALK_AFTER` (10 s), com `SMALLTALK_CHANCE` (60%, uma vez por ligação), conversa
   fiada do cotidiano (`Conversation.smalltalk`). **Cada assunto é um `ChatTopic`** (`scripts/data/chat_topic.gd`,
-  `GameContent.smalltalk`): `line`, `weather` (vazio = qualquer), `replies` do operador e `follow` pareadas pelo índice,
+  `GameContent.smalltalk`): `line`, `weather` (vazio = qualquer), `voices` (quem pode dizer: "Meu marido..." só em voz
+  de mulher; `Main.smalltalk(voice)`), `replies` do operador e `follow` pareadas pelo índice,
   para nenhuma resposta cair fora do assunto. O operador pode responder (as `replies` viram as últimas opções,
   `PhoneCall.chat`; ele escolhe uma): ela diz a `follow` dela, o silêncio recomeça e ela pode puxar outro assunto (sem repetir,
-  `PhoneCall.chats`, até `SMALLTALK_MAX`); com `NAG_AFTER` (22 s) sem falar, reclama (`waiting`) e a resposta some. Emergência:
+  `PhoneCall.chats`, até `SMALLTALK_MAX`). O operador também puxa assunto, uma vez por ligação (`OP_SMALLTALK`,
+  `Conversation._ask_chat`, `PhoneCall.chat_asked`; escondida enquanto um assunto corre, `PhoneCall.chatting`); com `NAG_AFTER` (22 s) sem falar, reclama (`waiting`) e a resposta some. Emergência:
   `EMERGENCY_NAG_AFTER`, só no estágio inicial da barra (depois, a fala de cada estágio já cobra a demora). A conversa fiada não vem mais logo depois do pedido. Conversa fiada só do cotidiano (nada
   que lembre o mistério: luzes piscando, carros parados, chiado na linha).
 - Conversas transferidas duram `TALK_LEN` (34–68 min de jogo ≈ 45–90 s reais).

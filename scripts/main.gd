@@ -201,6 +201,7 @@ func _nag() -> void:
 		elif quiet > NAG_AFTER:
 			f.last_talk = talk_clock
 			f.chat = null   # a deixa da conversa passou
+			f.chatting = false
 			conversation.transfer_choices(f)
 			conversation.say(f, GameData.pick(C.waiting))
 	# só no estágio inicial: depois, a fala de cada estágio já cobra a demora
@@ -951,9 +952,9 @@ func _fault(id: String, detail := "") -> void:
 	report.add(id, fmt(minutes), detail)
 
 
-## Conversa fiada: os assuntos gerais e os do clima da noite (`ChatTopic`).
-func smalltalk() -> Array:
-	return C.smalltalk.filter(func(t: ChatTopic): return t.weather in ["", weather])
+## Conversa fiada: os assuntos gerais e os do clima da noite (`ChatTopic`); com `voice`, só os que essa voz pode dizer.
+func smalltalk(voice := "") -> Array:
+	return C.smalltalk.filter(func(t: ChatTopic): return t.weather in ["", weather] and (voice == "" or t.voices.is_empty() or voice in t.voices))
 
 
 ## O que o supervisor vai anotar e quem vai ligar de novo por causa de como a ligação terminou.

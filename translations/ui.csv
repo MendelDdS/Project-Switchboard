@@ -91,6 +91,7 @@ WARN_PHONE_RINGING,O telefone está tocando.,The phone is ringing.,El teléfono 
 WARN_FONE_TO_BLINK,Leve o FONE até a entrada que está piscando.,Bring the HEADSET to the blinking input.,Lleve el AURICULAR a la entrada que parpadea.
 OP_CONNECT_WAIT,"Um momento, vou conectar.","One moment, I'll put you through.","Un momento, lo comunico."
 OP_REPEAT,"Pode repetir, por favor?","Could you repeat that, please?","¿Puede repetir, por favor?"
+OP_SMALLTALK,"E aí, como vai a noite?","So, how's your night going?","¿Y qué tal la noche?"
 OP_ANYONE_HURT,Tem alguém ferido?,Is anyone hurt?,¿Hay alguien herido?
 OP_HOLD_EMERGENCY,"Fique na linha, vou enviar ajuda.","Stay on the line, I'm sending help.","No cuelgue, voy a enviar ayuda."
 OP_UNITS_ON_WAY,As unidades estão a caminho.,Units are on the way.,Las unidades van en camino.

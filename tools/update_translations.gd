@@ -14,7 +14,7 @@ const ENUM_SCRIPT := "res://scripts/t.gd"
 const POT := "res://translations/content.pot"
 const LANGS := ["en", "es"]
 ## Campos que não se traduzem: nomes próprios (contatos, ruas, endereços) e dados internos.
-const SKIP := ["name", "address", "number", "target", "alt_target", "street", "id", "voice", "effect", "weather",
+const SKIP := ["name", "address", "number", "target", "alt_target", "street", "id", "voice", "voices", "effect", "weather",
 	"fake_address", "block_labels", "units", "worsening_units", "critical_units", "lost_units", "requires", "sets", "resource_name", "resource_path", "resource_scene_unique_id"]
 
 var _ids := {}   ## msgid -> Array de arquivos onde aparece (em ordem de descoberta)

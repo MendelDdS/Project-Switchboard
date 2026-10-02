@@ -153,21 +153,36 @@ func transfer_choices(c: PhoneCall) -> void:
 	if c.chat != null:
 		for i in c.chat.replies.size():
 			list.append({"label": tr(c.chat.replies[i]), "fn": _chat.bind(c, i)})
+	elif not c.chat_asked and not c.chatting and c.chats.size() < main.SMALLTALK_MAX:
+		list.append({"label": T.text(T.Key.OP_SMALLTALK), "fn": _ask_chat.bind(c)})
 	c.set_options(list)
 
 
 ## Quem espera a transferência puxa um assunto (`ChatTopic`); o operador pode responder (as respostas do próprio
 ## assunto viram opções) enquanto procura na lista.
 func smalltalk(c: PhoneCall) -> void:
-	var pool := main.smalltalk().filter(func(t): return not t in c.chats)
-	if pool.is_empty():
+	var pool := main.smalltalk(c.voice).filter(func(t): return not t in c.chats)
+	if pool.is_empty() or c.chatting:
 		return
 	var topic: ChatTopic = pool.pick_random()
 	c.chats.append(topic)
+	c.chatting = true
+	transfer_choices(c)
 	if not await say(c, topic.line, 0.45) or c.options.is_empty():
-		return   # sem opções: a transferência já saiu
+		c.chatting = false   # sem opções: a transferência já saiu
+		return
 	c.chat = topic
 	transfer_choices(c)
+
+
+## O operador puxa assunto, uma vez por ligação (para ganhar tempo procurando na lista); quem espera conta alguma coisa.
+func _ask_chat(c: PhoneCall) -> void:
+	if c.talking or c.chat_asked:
+		return
+	c.chat_asked = true   # some a opção já no clique
+	transfer_choices(c)
+	if await op(c, T.text(T.Key.OP_SMALLTALK)):
+		await smalltalk(c)
 
 
 ## Responder a conversa fiada: ela continua o assunto (a `follow` da resposta) e o silêncio recomeça (adia a
@@ -177,6 +192,7 @@ func _chat(c: PhoneCall, i: int) -> void:
 		return
 	var topic := c.chat
 	c.chat = null
+	c.chatting = false
 	c.chatted = c.chats.size() >= main.SMALLTALK_MAX
 	transfer_choices(c)
 	if await op(c, topic.replies[i]):

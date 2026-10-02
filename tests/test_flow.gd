@@ -133,6 +133,8 @@ func _initialize() -> void:
 	# conversa fiada: cada assunto traz as próprias respostas, cada uma com a continuação
 	ok(C.smalltalk.all(func(t: ChatTopic): return t.line != "" and not t.replies.is_empty() and t.replies.size() == t.follow.size()),
 		"assuntos com respostas e continuações pareadas")
+	ok(not m.smalltalk("m").any(func(t): return "Meu marido" in t.line) and not m.smalltalk("f").any(func(t): return "Minha mulher" in t.line),
+		"assunto só na voz que combina")
 	# moldes: nenhuma lacuna sobra sem preencher
 	var holes := func(texts: Array) -> bool: return texts.any(func(x): return "{" in x or "}" in x)
 	for i in 300:
@@ -487,8 +489,22 @@ func _initialize() -> void:
 	var n_reply := cc.transcript.size()
 	ok(await wait_until(func(): return cc.transcript.size() > n_reply and not cc.talking, 60.0), "volta a falar depois")
 	ok(m.talk_clock - t_reply >= m.SMALLTALK_AFTER, "o silêncio recomeçou com a resposta")
+	# o operador também puxa assunto; a opção some enquanto o assunto corre e volta depois da resposta
+	var ask_opt := func(): return cc.options.filter(func(o): return String(o["label"]) == T.text(T.Key.OP_SMALLTALK))
+	if cc.chat != null:   # ela pode ter puxado outro assunto sozinha
+		cc.options.back()["fn"].call()
+	ok(await wait_until(func(): return not cc.talking and not cc.chatting), "assunto encerrado")
+	var pulled := cc.chats.size()
+	ok(ask_opt.call().size() == 1, "operador pode puxar assunto")
+	ask_opt.call()[0]["fn"].call()
+	ok(ask_opt.call().is_empty(), "a opção some no clique")
+	ok(await wait_until(func(): return cc.chat != null and not cc.talking), "ela conta alguma coisa")
+	ok(cc.chats.size() == pulled + 1 and String(cc.transcript.back()["text"]) == cc.chat.line, "outro assunto")
+	cc.options.back()["fn"].call()
+	ok(await wait_until(func(): return not cc.talking and not cc.chatting), "respondeu")
+	ok(ask_opt.call().is_empty(), "só puxa conversa uma vez por ligação")
 	m.end_call(cc, PhoneCall.End.OPERATOR)
-	print("OK 11b responder a conversa fiada")
+	print("OK 11b responder e puxar conversa fiada")
 
 	# ---- 12. atalhos do telefone (teclas de verdade): Espaço atende, Tab transfere, X desliga
 	var kc := _extra(GameData.transfers(TransferCall.Group.EXTRA)[4])
