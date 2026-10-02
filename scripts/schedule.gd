@@ -17,8 +17,8 @@ var tut: PhoneCall                 ## primeira ligação da noite com tutorial (
 var mystery_at := INF              ## horário sorteado da ligação desconhecida (INF = não toca nesta noite)
 
 
-## Agenda da noite `night`; as ligações sorteadas vão até o minuto `last_call`.
-static func build(night: Night, last_call: float) -> Schedule:
+## Agenda da noite `night` no ritmo `pace`; as ligações sorteadas vão até o minuto `last_call`.
+static func build(night: Night, pace: Pace, last_call: float) -> Schedule:
 	var s := Schedule.new()
 	var fixed: Array[PhoneCall] = []
 	for st in night.story:
@@ -34,35 +34,35 @@ static func build(night: Night, last_call: float) -> Schedule:
 		s.mystery_at = myst.at
 		fixed.append(myst)
 	s.calls = fixed.duplicate()
-	s.calls.append_array(s._random_calls(night, last_call, fixed))
+	s.calls.append_array(s._random_calls(night, pace, last_call, fixed))
 	s.calls.sort_custom(func(a: PhoneCall, b: PhoneCall): return a.at < b.at)
 	return s
 
 
-## Ligações sorteadas pelo turno todo: entre uma e a próxima, `Night.call_gap` minutos (o máximo é o maior
-## silêncio possível); de vez em quando (`Night.peak_chance`) a próxima vem logo em seguida. O tipo também é sorteado:
-## `Night.emergencies` emergências (espaçadas por EMERGENCY_GAP), `Night.pranks` trotes, e o resto
+## Ligações sorteadas pelo turno todo: entre uma e a próxima, `Pace.call_gap` minutos (o máximo é o maior
+## silêncio possível); de vez em quando (`Pace.peak_chance`) a próxima vem logo em seguida. O tipo também é sorteado:
+## `Pace.emergencies` emergências (espaçadas por EMERGENCY_GAP), `Pace.pranks` trotes, e o resto
 ## transferências ou pedidos de informação. Na noite com tutorial, a primeira é uma transferência guiada.
-func _random_calls(night: Night, last_call: float, fixed: Array[PhoneCall]) -> Array[PhoneCall]:
+func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[PhoneCall]) -> Array[PhoneCall]:
 	var C := GameData.CONTENT
 	var ats := []
 	var t := randf_range(3.0, 10.0)
 	while t < last_call:
 		if not fixed.any(func(f: PhoneCall): return absf(t - f.at) < STORY_GAP):
 			ats.append(t)
-		t += randf_range(2.0, 6.0) if randf() < night.peak_chance else randf_range(night.call_gap.x, night.call_gap.y)
+		t += randf_range(2.0, 6.0) if randf() < pace.peak_chance else randf_range(pace.call_gap.x, pace.call_gap.y)
 	var kinds := []
 	kinds.resize(ats.size())
 	var free := range(1 if night.tutorial else 0, ats.size())
 	free.shuffle()
 	var em_ats := []
-	var em_count := randi_range(night.emergencies.x, night.emergencies.y)
+	var em_count := randi_range(pace.emergencies.x, pace.emergencies.y)
 	for i in free.duplicate():
 		if em_ats.size() < em_count and em_ats.all(func(x): return absf(ats[i] - x) >= EMERGENCY_GAP):
 			kinds[i] = PhoneCall.Kind.EMERGENCY
 			em_ats.append(ats[i])
 			free.erase(i)
-	for i in free.slice(0, randi_range(night.pranks.x, night.pranks.y)):
+	for i in free.slice(0, randi_range(pace.pranks.x, pace.pranks.y)):
 		kinds[i] = PhoneCall.Kind.PRANK
 	var used := fixed.map(func(f: PhoneCall): return f.caller)
 	var targets := fixed.map(func(f: PhoneCall): return f.target)

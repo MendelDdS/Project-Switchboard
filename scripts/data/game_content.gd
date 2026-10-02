@@ -4,7 +4,7 @@ extends Resource
 ## Fica em res://data/content.tres; os roteiros de ligação são arquivos próprios em res://data/calls/.
 ## Para criar uma ligação nova: duplique um .tres em data/calls/, edite e arraste para a lista certa aqui.
 ## Moldes (data/templates/) são roteiros com lacunas em inglês, preenchidas na hora (veja GameData.fill).
-## Cada noite (data/nights/) tem a própria agenda e o roteiro fixo (veja Night).
+## Cada noite (data/nights/) tem o próprio roteiro fixo (veja Night); o ritmo vem dos níveis (`paces`).
 
 @export_group("Lista telefônica e cidade")
 ## Em ordem alfabética (é a ordem da lista telefônica).
@@ -15,8 +15,11 @@ extends Resource
 @export var occurrences: PackedStringArray = []
 
 @export_group("Noites")
-## Em ordem; cada uma com a agenda e o roteiro fixo dela (data/nights/).
+## Em ordem; cada uma com o bilhete e o roteiro fixo dela (data/nights/).
 @export var nights: Array[Night] = []
+## Níveis de ritmo das ligações sorteadas, do mais calmo ao limite (veja Pace): o 1 é o da primeira noite e o último
+## vale para todas as noites depois de chegar nele.
+@export var paces: Array[Pace] = []
 
 @export_group("Roteiros")
 @export var transfers: Array[TransferCall] = []

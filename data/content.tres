@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_6g7xa"]
 [ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="99_chat"]
 [ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="98_reply"]
+[ext_resource type="Script" path="res://scripts/data/pace.gd" id="97_pace"]
 [ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="2_l0sn3"]
 [ext_resource type="Resource" path="res://data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres" id="3_v72nw"]
 [ext_resource type="Resource" path="res://data/calls/emergency_02_incendio_rua_do_moinho_40.tres" id="4_brh46"]
@@ -903,6 +904,46 @@ weather = "clear"
 line = "Noite fresquinha, né? Até dá gosto de ficar na janela."
 replies = Array[ExtResource("98_reply")]([SubResource("Reply_26_0"), SubResource("Reply_26_1")])
 
+[sub_resource type="Resource" id="Pace_1"]
+script = ExtResource("97_pace")
+call_gap = Vector2(45, 60)
+peak_chance = 0.0
+max_live = 2
+emergencies = Vector2i(1, 1)
+pranks = Vector2i(0, 1)
+
+[sub_resource type="Resource" id="Pace_2"]
+script = ExtResource("97_pace")
+call_gap = Vector2(34, 46)
+peak_chance = 0.03
+max_live = 2
+emergencies = Vector2i(1, 1)
+pranks = Vector2i(0, 2)
+
+[sub_resource type="Resource" id="Pace_3"]
+script = ExtResource("97_pace")
+call_gap = Vector2(32, 42)
+peak_chance = 0.03
+max_live = 2
+emergencies = Vector2i(1, 2)
+pranks = Vector2i(0, 2)
+
+[sub_resource type="Resource" id="Pace_4"]
+script = ExtResource("97_pace")
+call_gap = Vector2(30, 40)
+peak_chance = 0.04
+max_live = 3
+emergencies = Vector2i(1, 2)
+pranks = Vector2i(1, 2)
+
+[sub_resource type="Resource" id="Pace_5"]
+script = ExtResource("97_pace")
+call_gap = Vector2(28, 38)
+peak_chance = 0.05
+max_live = 3
+emergencies = Vector2i(2, 2)
+pranks = Vector2i(1, 2)
+
 [resource]
 script = ExtResource("15_65xm7")
 directory = Array[ExtResource("1_6g7xa")]([SubResource("Resource_ssh4q"), SubResource("Resource_7bth5"), SubResource("Resource_4thi7"), SubResource("Resource_ufmoj"), SubResource("Resource_yijt6"), SubResource("Resource_em5wb"), SubResource("Resource_yceab"), SubResource("Resource_dmgf0"), SubResource("Resource_s63jb"), SubResource("Resource_d8b43"), SubResource("Resource_xawj0"), SubResource("Resource_tew1k"), SubResource("Resource_i4sgx"), SubResource("Resource_2cdgd"), SubResource("Resource_k2mqa"), SubResource("Resource_wgbdt"), SubResource("Resource_dldyi"), SubResource("Resource_e0jml"), SubResource("Resource_vcut8"), SubResource("Resource_wcyhl"), SubResource("Resource_pli3n"), SubResource("Resource_kofd3"), SubResource("Resource_bws1x"), SubResource("Resource_52df0"), SubResource("Resource_8y4og"), SubResource("Resource_3vj4f"), SubResource("Resource_osrdx"), SubResource("Resource_yi6mb"), SubResource("Resource_drsc6"), SubResource("Resource_dr0p2"), SubResource("Resource_tnurf"), SubResource("Resource_6dq54"), SubResource("Resource_6y7ie"), SubResource("Resource_7llgn"), SubResource("Resource_hmatr"), SubResource("Resource_uhirb"), SubResource("Resource_5fdhg")])
@@ -910,6 +951,7 @@ streets = Array[ExtResource("16_5siro")]([SubResource("Resource_ecmv4"), SubReso
 block_labels = PackedStringArray("1–99", "100–199", "200–299")
 occurrences = PackedStringArray("Acidente de trânsito", "Incêndio", "Mal súbito", "Invasão / roubo", "Outro")
 nights = Array[ExtResource("90_night")]([ExtResource("91_night1"), ExtResource("92_night2")])
+paces = Array[ExtResource("97_pace")]([SubResource("Pace_1"), SubResource("Pace_2"), SubResource("Pace_3"), SubResource("Pace_4"), SubResource("Pace_5")])
 transfers = Array[ExtResource("17_q4d2e")]([ExtResource("18_g0ddb"), ExtResource("19_y6u46"), ExtResource("20_5hhcc"), ExtResource("21_r4mvx"), ExtResource("22_nagbo"), ExtResource("23_7ad0u"), ExtResource("24_76ki8"), ExtResource("25_q3bf4"), ExtResource("26_61w3p"), ExtResource("27_grq3w"), ExtResource("28_otrev"), ExtResource("29_flf23"), ExtResource("30_amupc"), ExtResource("31_xeepj"), ExtResource("32_nyi6e"), ExtResource("33_xdh2c"), ExtResource("34_hps07"), ExtResource("35_2ubng"), ExtResource("36_35dgx"), ExtResource("37_8shhh"), ExtResource("38_ko1bc"), ExtResource("39_11ieg"), ExtResource("40_grptk"), ExtResource("41_e6ja0"), ExtResource("50_amupc"), ExtResource("51_xeepj"), ExtResource("52_nyi6e"), ExtResource("53_xdh2c"), ExtResource("54_hps07"), ExtResource("55_2ubng"), ExtResource("56_35dgx"), ExtResource("57_8shhh"), ExtResource("58_ko1bc"), ExtResource("59_11ieg"), ExtResource("60_grptk"), ExtResource("61_e6ja0"), ExtResource("62_ssh4q")])
 emergencies = Array[ExtResource("2_l0sn3")]([ExtResource("3_v72nw"), ExtResource("4_brh46"), ExtResource("5_t6c0w"), ExtResource("6_cbrcj"), ExtResource("7_ks6ko"), ExtResource("8_ec5ew"), ExtResource("9_nagbo"), ExtResource("10_7ad0u"), ExtResource("11_76ki8"), ExtResource("12_q3bf4")])
 pranks = Array[ExtResource("9_ev121")]([ExtResource("10_wfk0g"), ExtResource("11_pg478"), ExtResource("12_3mr8u"), ExtResource("13_4b6fe"), ExtResource("14_3w1w1"), ExtResource("19_61w3p"), ExtResource("20_grq3w"), ExtResource("21_otrev"), ExtResource("22_flf23")])

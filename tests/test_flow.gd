@@ -140,9 +140,15 @@ func _initialize() -> void:
 			"assunto com resposta simpática e seca: " + t.line)
 	ok(not m.conversation.topics("m").any(func(t): return "Meu marido" in t.line) and not m.conversation.topics("f").any(func(t): return "Minha mulher" in t.line),
 		"assunto só na voz que combina")
+	# ritmo: nas primeiras noites só sobe se a anterior não foi ruim; depois sobe sempre, até o limite
+	var top: int = C.paces.size()
+	ok(Pace.next(1, 1, 0) == 2 and Pace.next(1, 1, 2) == 1 and Pace.next(2, 2, 2) == 2, "noite ruim no começo: repete o ritmo")
+	ok(Pace.next(3, 3, 2) == 4 and Pace.next(2, 5, 2) == 3, "da noite 4 em diante: sobe mesmo depois de noite ruim")
+	ok(Pace.next(top, 8, 0) == top and Pace.next(top - 1, 6, 0) == top, "o último nível é o limite")
+	ok(range(1, top).all(func(i): return C.paces[i].call_gap.x <= C.paces[i - 1].call_gap.x), "o ritmo só aperta de um nível para o outro")
 	# agenda: montada sem a cena (noite → ligações em ordem, espaçadas das do roteiro e entre emergências)
 	for n in C.nights:
-		var plan := Schedule.build(n, m.LAST_CALL)
+		var plan := Schedule.build(n, m.pace, m.LAST_CALL)
 		var ats: Array = plan.calls.map(func(c: PhoneCall): return c.at)
 		var in_order := ats.duplicate()
 		in_order.sort()
@@ -420,7 +426,7 @@ func _initialize() -> void:
 	ok(not sc in m.live and not sc in m.sched, "condição não bate: a ligação do roteiro não toca")
 	sc.requires = PackedStringArray(["disse_sim"])
 	m.night = m.night.duplicate()
-	m.night.max_live = 10   # a agenda de verdade pode já ter ligações tocando; aqui só importa o marcador
+	m.pace.max_live = 10   # a agenda de verdade pode já ter ligações tocando; aqui só importa o marcador
 	m.sched.push_front(sc)
 	m._run_schedule()
 	ok(sc in m.live, "condição bate: toca")

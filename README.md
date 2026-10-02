@@ -149,14 +149,24 @@ O relógio nunca para: 0,75 minuto de jogo por segundo real (18:00 → 00:00 em 
 Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
 
 - **Nada é fixo, exceto o roteiro da noite** (`story` e `mystery` em `data/nights/`). O resto é sorteado (`Schedule._random_calls`):
-  entre uma ligação e a próxima passam `call_gap` minutos de jogo (o máximo é o maior silêncio possível). Em
-  `peak_chance` dos intervalos a próxima vem logo em seguida (2–6 min) e duas linhas tocam juntas; com `max_live`
-  ligações pedindo atenção (tocando ou ainda não conectadas), a próxima espera. **A primeira noite é calma e o ritmo
-  sobe aos poucos**: noite 1 com 45–60 min, 1 emergência, 0–1 trote, sem picos e no máximo 2 (7–9 ligações); noite 2
-  com 34–46 min e 1–2 emergências (10–12). Os padrões do `Night` (28–42, 5%, 3) são o ritmo das noites mais cheias.
-  Ajuste medindo com o robô em ritmo humano: `tests/test_shift.gd -- --human`.
-- **Tipo sorteado**: `emergencies` emergências (1–2, a pelo menos `EMERGENCY_GAP` = 60 min uma da outra, porque o
-  despacho cuida de uma por vez), `pranks` trotes (0–2) e o resto transferências (65%) ou pedidos de informação
+  o ritmo vem de um **nível** (`paces` no content, um `Pace` cada), não da noite. Entre uma ligação e a próxima passam
+  `call_gap` minutos de jogo (o máximo é o maior silêncio possível); em `peak_chance` dos intervalos a próxima vem logo
+  em seguida (2–6 min); com `max_live` ligações pedindo atenção (tocando ou ainda não conectadas), a próxima espera.
+
+  | Nível | Intervalo | Picos | Máx. juntas | Emergências | Trotes |
+  |---|---|---|---|---|---|
+  | 1 | 45–60 | — | 2 | 1 | 0–1 |
+  | 2 | 34–46 | 3% | 2 | 1 | 0–2 |
+  | 3 | 32–42 | 3% | 2 | 1–2 | 0–2 |
+  | 4 | 30–40 | 4% | 3 | 1–2 | 1–2 |
+  | 5 (limite) | 28–38 | 5% | 3 | 2 | 1–2 |
+
+  A primeira noite usa o nível 1. **Nas 3 primeiras noites, o nível só sobe se a noite anterior não foi ruim** (parecer
+  do supervisor com alguma advertência grave: repete o ritmo, para não sobrecarregar quem ainda não pegou confiança).
+  Da noite 4 em diante sobe sempre, até o nível 5, que vale para todas as noites seguintes (um nível 6 já fazia o
+  robô em ritmo humano perder ligações toda noite). Para medir um nível: `tests/test_shift.gd -- --human --pace=N`.
+- **Tipo sorteado**: `emergencies` emergências (a pelo menos `EMERGENCY_GAP` = 60 min uma da outra, porque o
+  despacho cuida de uma por vez), `pranks` trotes e o resto transferências (65%) ou pedidos de informação
   (o número de alguém na lista). Um destino não se repete na mesma noite. Na primeira noite, a primeira
   ligação é uma transferência guiada (tutorial).
 - **Ligação desconhecida**: toca por uma entrada livre qualquer, num horário sorteado entre `mystery_from` e

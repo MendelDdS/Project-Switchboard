@@ -25,7 +25,9 @@ var C: GameContent = GameData.CONTENT
 
 var exchange: Exchange
 var night_no := 0                  ## número da noite (1 = primeira); 0 = a salva (`-- --night=N` força uma, sem salvar)
-var night: Night                   ## agenda e roteiro fixo da noite
+var night: Night                   ## roteiro fixo da noite
+var pace_level := 1                ## nível de ritmo desta noite (GameContent.paces)
+var pace: Pace                     ## ritmo das ligações sorteadas desta noite
 var progress: Progress             ## progresso salvo; nulo quando a noite foi forçada (testes, `--night`)
 var flags := StoryFlags.new()      ## marcadores do roteiro valendo agora: os salvos + os desta noite
 var weather := "rain"
@@ -85,7 +87,7 @@ func _ready() -> void:
 	background.weather = weather
 	exchange = Exchange.new(GameData.board_numbers())
 	board.setup(exchange, phone.fone_socket)
-	var plan := Schedule.build(night, LAST_CALL)
+	var plan := Schedule.build(night, pace, LAST_CALL)
 	sched = plan.calls
 	tut = plan.tut
 	myst_plan = plan.mystery_at
@@ -109,23 +111,31 @@ func _ready() -> void:
 	_refresh_panel()
 
 
-## Qual noite jogar: `-- --night=N`, a definida antes de entrar na árvore (testes) ou a salva.
+## Qual noite jogar: `-- --night=N`, a definida antes de entrar na árvore (testes) ou a salva, e em que ritmo: o
+## salvo; numa noite forçada, o nível com o número da noite. `-- --pace=N` força o nível (para medir com o robô).
 ## `-- --flags=a,b` liga marcadores para testar um ramo do roteiro numa noite forçada.
 func _load_night() -> void:
+	var forced_pace := 0
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--night="):
 			night_no = int(a.get_slice("=", 1))
+		elif a.begins_with("--pace="):
+			forced_pace = int(a.get_slice("=", 1))
 		elif a.begins_with("--flags="):
 			for f in a.get_slice("=", 1).split(",", false):
 				flags.apply(f)
+	pace_level = night_no
 	if night_no == 0:
 		progress = Progress.load_saved()
 		night_no = progress.night
+		pace_level = progress.pace
 		report.severe_before = progress.severe
 		for f in progress.flags:
 			flags.apply(f)
 	night_no = clampi(night_no, 1, C.nights.size())
 	night = C.nights[night_no - 1]
+	pace_level = clampi(forced_pace if forced_pace > 0 else pace_level, 1, C.paces.size())
+	pace = C.paces[pace_level - 1]
 	report.night = night_no
 
 
@@ -621,8 +631,8 @@ func _run_schedule() -> void:
 	# o despacho cuida de uma emergência por vez: a próxima espera a anterior desligar e as unidades chegarem
 	if c.kind == PhoneCall.Kind.EMERGENCY and ((em_call != null and (not em_call.ended or em_call.urgent())) or dispatch.en_route()):
 		hush = true
-	# não sobrecarregar: com `Night.max_live` ligações pedindo atenção, a próxima espera (a desconhecida tem regra própria)
-	if c.kind != PhoneCall.Kind.MYSTERY and live.size() >= night.max_live:
+	# não sobrecarregar: com `Pace.max_live` ligações pedindo atenção, a próxima espera (a desconhecida tem regra própria)
+	if c.kind != PhoneCall.Kind.MYSTERY and live.size() >= pace.max_live:
 		hush = true
 	if hush or _free_line() == -1:
 		c.at = minutes + 3.0
@@ -900,6 +910,7 @@ func _start_ending() -> void:
 			Progress.clear()
 		else:
 			progress.night = night_no + 1
+			progress.pace = Pace.next(pace_level, night_no, report.verdict())
 			progress.severe = report.severe_total()
 			progress.flags = flags.names()
 			progress.save()
