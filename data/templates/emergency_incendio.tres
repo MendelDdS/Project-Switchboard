@@ -1,12 +1,23 @@
 [gd_resource type="Resource" script_class="EmergencyCall" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_tr1dg"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("bomb")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "", "A dona da casa queimou as mãos tentando apagar!")
+units = PackedStringArray("bomb", "amb")
 
 [resource]
 script = ExtResource("1_tr1dg")
-opening = "Central! Tá pegando fogo numa casa aqui na {street}!"
-questions = PackedStringArray("Qual é o endereço?", "Tem alguém dentro da casa?", "O fogo está grande?")
-answers = PackedStringArray("{address}! Vem logo!", "Acho que não. Os vizinhos já saíram.", "Tá subindo pelo telhado!")
+opening = "Central! Tá pegando fogo numa casa aqui na {street}! Já tá subindo pelo telhado!"
+questions = PackedStringArray("Qual é o endereço?", "Tem alguém dentro da casa?", "Alguém se machucou?")
+answers = PackedStringArray("{address}! Vem logo!", "Não, todo mundo saiu.", "Não, foi só o susto.")
 occurrence = "Incêndio"
 units = PackedStringArray("bomb")
 after = "Tá bom. A gente vai se afastar."
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2")])

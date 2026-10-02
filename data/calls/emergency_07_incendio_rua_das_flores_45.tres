@@ -1,15 +1,31 @@
 [gd_resource type="Resource" script_class="EmergencyCall" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_vs0nu"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("bomb", "amb")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "Não, ele saiu antes. Tá aqui na rua comigo.", "")
+units = PackedStringArray("bomb")
+
+[sub_resource type="Resource" id="Case_3"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "Tem! Ele mora sozinho e não saiu! A porta tá trancada!", "")
+units = PackedStringArray("bomb", "amb")
 
 [resource]
 script = ExtResource("1_vs0nu")
 caller = "Senhora"
 opening = "Central! Tá saindo fumaça da casa do vizinho!"
 questions = PackedStringArray("Qual é o endereço?", "Tem alguém dentro da casa?", "Dá para ver o fogo?")
-answers = PackedStringArray("Rua das Flores, 45! Perto da clínica!", "Não sei! O carro dele tá aí na frente!", "Tem fogo na janela da cozinha!")
+answers = PackedStringArray("Rua das Flores, 45! Perto da clínica!", "Ele saiu, mas queimou o braço feio!", "Tem fogo na janela da cozinha!")
 street = "flores"
 address = "Rua das Flores, 45"
 occurrence = "Incêndio"
-units = PackedStringArray("bomb")
+units = PackedStringArray("bomb", "amb")
 after = "Tá bom. Eu vou chamar os outros vizinhos."
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2"), SubResource("Case_3")])

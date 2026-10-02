@@ -91,6 +91,13 @@ theme_type_variation = &"InkLabel"
 theme_override_font_sizes/font_size = 14
 auto_translate_mode = 2
 
+[node name="Protocol" type="Label" parent="."]
+layout_mode = 2
+theme_type_variation = &"InkSoftLabel"
+theme_override_font_sizes/font_size = 14
+text = "DISPATCH_PROTOCOL"
+autowrap_mode = 3
+
 [node name="Report" type="Label" parent="."]
 unique_name_in_owner = true
 visible = false

@@ -172,8 +172,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `MapView`): o `CityMap` (`%City`) em cima, clicar no trecho já marca o local (`segment_selected` → `set_location`);
   passar o mouse mostra uma etiqueta com a faixa de números do trecho (`CityMap._tag`, "Rua do Sol, 1–99").
   Embaixo, uma faixa compacta (botões `PaperChip`): tipos, unidades e Enviar, e a conferência
-  "[x] Local · [x] Tipo · [x] Unidades" (`_check`); Enviar só acende com as três (`can_send`). Escolher o tipo marca as
-  unidades de costume (`GameContent.occurrence_units`, editável no inspetor; "Outro" não tem e desmarca tudo).
+  "[x] Local · [x] Tipo · [x] Unidades" (`_check`); Enviar só acende com as três (`can_send`). O tipo **não** marca
+  unidades: a conversa decide, pelo protocolo (cartão `DISPATCH_PROTOCOL` na aba; regras em `EmergencyCall.units`).
+  `EmergencyCall.cases` (`EmergencyCase`): variações sorteadas por `GameData.with_case()` (respostas + unidades).
   Depois de enviar, local, tipo e unidades voltam limpos (`city.clear_selection`). Abrir a aba toca o papel
   desenrolando (`unroll`). O mapa encolhe para caber (`_k` ≈ 0,83): nomes do topo e de lugares que não cabem descem
   para 12. `Dispatch.set_incident()` quando a emergência toca; `Dispatch.sent` → `Main._on_dispatched` →
@@ -196,8 +197,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 
 ## Noites (roteiro fixo)
 - `GameContent.nights` (ordem) → `Night` (`scripts/data/night.gd`, `data/nights/night_NN.tres`): dia da semana, bilhete
-  da intro, clima fixo (vazio = sorteado), `tutorial` (só a 1ª), ritmo das sorteadas (`call_gap`, `emergencies`,
-  `pranks`), `story` (`StoryCall`: roteiro escrito + horário fixo) e `mystery` (passos `PrankStep`; vazio = sem
+  da intro, clima fixo (vazio = sorteado), `tutorial` (só a 1ª), ritmo das sorteadas (`call_gap`, `peak_chance`,
+  `max_live`, `emergencies`, `pranks`; a 1ª é calma e o ritmo sobe noite a noite), `story` (`StoryCall`: roteiro escrito + horário fixo) e `mystery` (passos `PrankStep`; vazio = sem
   ligação desconhecida naquela noite). **Só `story` e `mystery` são fixos; não existem ligações "principais".**
 - `PrankStep` é o roteiro falado de trotes e da ligação desconhecida (`Conversation.play_steps`); `EFFECT` =
   "static", "static_loud", "flick". `PhoneCall.from_script()` aceita Transfer/Emergency/PrankCall.
@@ -215,8 +216,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 ## Agenda e ritmo (constantes no topo de main.gd; por noite em `Night`)
 - Ligação desconhecida (`MYSTERY`, entrada livre sorteada, guardada em `myst_line`) entre `Night.mystery_from` e `mystery_to` (22:00–23:30), só
   toca com a mesa em silêncio, por no máximo 30 min de jogo (`latest`).
-- Sorteadas: `_random_calls` — intervalo `Night.call_gap` (28–42 min ≈ 37–56 s reais; medido com `--human`) entre uma e a próxima, `PEAK_CHANCE` de vir
-  logo em seguida, a `STORY_GAP` das fixas. Tipos: `Night.emergencies` (a `EMERGENCY_GAP` uma da outra; no laço, a
+- Sorteadas: `_random_calls` — intervalo `Night.call_gap` (noite 1: 45–60; noite 2: 34–46; medido com `--human`) entre uma e a
+  próxima, `Night.peak_chance` de vir logo em seguida, no máximo `Night.max_live` pedindo atenção (`_run_schedule`), a `STORY_GAP` das fixas. Tipos: `Night.emergencies` (a `EMERGENCY_GAP` uma da outra; no laço, a
   emergência espera a anterior acabar e `Dispatch.en_route()`), `Night.pranks`, resto transferência/informação.
   Um destino (e `alt_target`) por noite: dois pedidos do mesmo número travavam um ao outro.
 - `GIVE_UP_SEC` 60 s (`story` 1,5x, retornos 0,75x); tutorial (`tut`) e desconhecida nunca desistem.
@@ -276,6 +277,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     unidades de costume, conferência sempre à vista com Enviar só quando pronto, limpa depois de enviar, etiqueta com
     a faixa de números ao passar o mouse, som de papel desenrolando ao abrir. Marcar o mapa sozinho pelo endereço
     dito na ligação ficou de fora de propósito (tira o desafio; no máximo, um modo fácil).
+23. Turno caótico: noite 1 calma (7–9 ligações, máx. 2 pedindo atenção, sem picos) e ritmo subindo noite a noite.
+    O tipo da ocorrência deixou de marcar unidades: a conversa revela os fatos e o protocolo (polícia: crime, briga,
+    arma, rua bloqueada; bombeiros: fogo, fumaça, fio/gás, alguém preso; ambulância: ferido, passando mal ou preso) diz
+    o que mandar. Cartão do protocolo na aba, respostas decisivas sem ambiguidade, moldes e roteiros com casos sorteados.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

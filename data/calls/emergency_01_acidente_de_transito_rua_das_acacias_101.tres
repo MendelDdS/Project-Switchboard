@@ -1,16 +1,37 @@
 [gd_resource type="Resource" script_class="EmergencyCall" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_7fpkt"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("pol", "amb")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "", "Ninguém, graças a Deus. Mas o carro tá bloqueando tudo.")
+units = PackedStringArray("pol")
+
+[sub_resource type="Resource" id="Case_3"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "", "O motorista tá preso nas ferragens! Não consegue abrir a porta!")
+units = PackedStringArray("pol", "bomb", "amb")
+
+[sub_resource type="Resource" id="Case_4"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "Um carro bateu no poste. Parou em cima da calçada.", "")
+units = PackedStringArray("amb")
 
 [resource]
 script = ExtResource("1_7fpkt")
 caller = "Mulher"
 opening = "Central! Houve um acidente na Rua das Acácias! Precisamos de ajuda!"
 questions = PackedStringArray("Qual é o endereço exato?", "O que aconteceu?", "Quantas pessoas estão feridas?")
-answers = PackedStringArray("É perto do número 101! Na frente da mercearia!", "É um acidente de carro! Bateu no poste!", "Duas pessoas. Uma não está se mexendo!")
+answers = PackedStringArray("É perto do número 101! Na frente da mercearia!", "Um carro bateu no poste e ficou atravessado na rua!", "Duas pessoas. Uma não está se mexendo!")
 street = "acacias"
 block = 1
 address = "Rua das Acácias, 101"
 occurrence = "Acidente de trânsito"
 units = PackedStringArray("pol", "amb")
 after = "Estão vindo? Graças a Deus... obrigada."
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2"), SubResource("Case_3"), SubResource("Case_4")])

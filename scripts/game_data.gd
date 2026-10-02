@@ -65,7 +65,7 @@ static func template_transfer(exclude: Array = []) -> TransferCall:
 
 ## Emergência montada a partir de um molde, numa rua e número sorteados.
 static func template_emergency() -> EmergencyCall:
-	var tpl: EmergencyCall = CONTENT.emergency_templates.pick_random()
+	var tpl := with_case(CONTENT.emergency_templates.pick_random())
 	var st: Street = CONTENT.streets.pick_random()
 	var house := randi_range(1, 299)
 	var vars := {"street": st.name, "house": house, "address": "%s, %d" % [st.name, house]}
@@ -84,6 +84,23 @@ static func template_emergency() -> EmergencyCall:
 	e.units = tpl.units
 	e.after = fill(tpl.after, vars)
 	return e
+
+
+## Sorteia um dos casos da emergência (`cases`): as respostas do caso trocam as do roteiro e as unidades
+## passam a ser as dele. Sem casos, devolve a própria emergência.
+static func with_case(e: EmergencyCall) -> EmergencyCall:
+	if e.cases.is_empty():
+		return e
+	var k: EmergencyCase = e.cases.pick_random()
+	var out: EmergencyCall = e.duplicate()
+	var answers := e.answers.duplicate()
+	for i in k.answers.size():
+		if k.answers[i] != "":
+			answers[i] = k.answers[i]
+	out.answers = answers
+	out.units = k.units
+	out.cases = []
+	return out
 
 
 static func transfers(group: int) -> Array:

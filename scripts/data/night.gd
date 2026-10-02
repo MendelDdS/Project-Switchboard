@@ -14,7 +14,12 @@ extends Resource
 
 @export_group("Agenda")
 ## Minutos de jogo entre uma ligação sorteada e a próxima (o máximo é o maior silêncio possível).
+## A primeira noite é calma e o ritmo sobe aos poucos de uma noite para a outra (medir com o robô `--human`).
 @export var call_gap := Vector2(28.0, 42.0)
+## Chance de a próxima ligação vir logo em seguida (2–6 min): duas linhas juntas.
+@export_range(0.0, 1.0) var peak_chance := 0.05
+## Ligações tocando ou em andamento (ainda não conectadas) ao mesmo tempo; com tantas, a próxima espera.
+@export_range(1, 10) var max_live := 3
 ## Quantas emergências e quantos trotes entre as ligações sorteadas.
 @export var emergencies := Vector2i(1, 2)
 @export var pranks := Vector2i(0, 2)

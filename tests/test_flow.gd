@@ -104,7 +104,18 @@ func _initialize() -> void:
 		ok(not GameData.is_closed(int(t.target)) or t.alt_target != "", "lugar fechado tem alternativa: " + t.resource_path)
 	for e in C.emergencies:
 		ok(GameData.street(e.street) != null and e.questions.size() == e.answers.size() and e.occurrence in C.occurrences, "emergência válida: " + e.resource_path)
-		ok(not e.units.is_empty() and Array(e.units).all(func(u): return u in ["pol", "bomb", "amb"]), "unidades válidas: " + e.resource_path)
+	# unidades válidas, e cada caso troca no máximo as respostas que existem
+	var valid := func(us: PackedStringArray): return not us.is_empty() and Array(us).all(func(u): return u in ["pol", "bomb", "amb"])
+	for e in C.emergencies + C.emergency_templates:
+		ok(valid.call(e.units) and e.cases.all(func(k: EmergencyCase): return valid.call(k.units) and k.answers.size() <= e.questions.size()),
+			"unidades e casos válidos: " + e.resource_path)
+	var fire: EmergencyCall = C.emergency_templates.filter(func(x): return x.cases.size() > 1)[0]
+	var seen := {}
+	for i in 40:
+		var k := GameData.with_case(fire)
+		ok(k.answers.size() == fire.answers.size() and k.cases.is_empty(), "caso sorteado com todas as respostas")
+		seen[",".join(k.units)] = true
+	ok(seen.size() > 1, "o mesmo molde pede unidades diferentes conforme o caso")
 	for p in C.pranks:
 		ok(p.steps.back().kind == PrankStep.Kind.END, "trote termina: " + p.resource_path)
 	for n in C.nights:
@@ -476,16 +487,15 @@ func _initialize() -> void:
 	_move(2, -1)
 	print("OK 12 atalhos do telefone")
 
-	# ---- 13. mapa e despacho numa tela: o tipo marca as unidades de costume, Enviar só com tudo, e depois limpa
+	# ---- 13. mapa e despacho numa tela: o tipo não marca unidades (a conversa decide), Enviar só com tudo, e depois limpa
 	var d = m.dispatch
 	d.set_occurrence("")
 	ok(not d.can_send() and d._send_button.disabled, "despacho vazio não envia")
 	d.set_location("sol", 0, "Rua do Sol, 1–99")
 	d.set_occurrence("Incêndio")
-	ok(d._selected_units() == ["bomb"] and d.can_send() and not d._send_button.disabled, "incêndio marca bombeiros; Enviar acende")
-	d.set_occurrence("Outro")
-	ok(d._selected_units().is_empty() and not d.can_send(), "outro não marca unidade")
-	d.set_occurrence("Mal súbito")
+	ok(d._selected_units().is_empty() and not d.can_send(), "o tipo não marca unidade")
+	(d._unit_buttons["amb"] as Button).button_pressed = true
+	ok(d.can_send() and not d._send_button.disabled, "local, tipo e unidade: Enviar acende")
 	d._send()
 	ok(d._location.is_empty() and d._occ_group.get_pressed_button() == null and d.city.sel.is_empty(), "depois de enviar, local e tipo limpos")
 	ok(d._unit_buttons["amb"].disabled, "ambulância a caminho fica indisponível")

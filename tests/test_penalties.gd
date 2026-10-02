@@ -245,7 +245,7 @@ func _initialize() -> void:
 	m.dispatch._send()
 	ok(not c8.dispatched and not m.dispatch.can_send() and m.dispatch._send_button.disabled, "sem tipo de ocorrência não envia (Enviar apagado)")
 	var wrong_type: String = "Incêndio" if e8.occurrence != "Incêndio" else "Outro"
-	m.dispatch.set_occurrence(wrong_type)   # o tipo troca as unidades pelas de costume; o jogador ajusta
+	m.dispatch.set_occurrence(wrong_type)
 	for u in ["amb", "bomb"]:
 		(m.dispatch._unit_buttons[u] as Button).button_pressed = true
 	m.dispatch._send()

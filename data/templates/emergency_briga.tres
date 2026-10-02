@@ -1,12 +1,23 @@
 [gd_resource type="Resource" script_class="EmergencyCall" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_uweeg"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("pol")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "", "Um caiu e bateu a cabeça na guia! Tá sangrando!")
+units = PackedStringArray("pol", "amb")
 
 [resource]
 script = ExtResource("1_uweeg")
 opening = "Central, tem uma briga feia no meio da {street}!"
-questions = PackedStringArray("Qual é o endereço?", "Alguém está armado?", "Quantas pessoas?")
-answers = PackedStringArray("{address}! Bem na frente de casa!", "Um tá com um pedaço de pau!", "Uns quatro!")
+questions = PackedStringArray("Qual é o endereço?", "Alguém está armado?", "Alguém se machucou?")
+answers = PackedStringArray("{address}! Bem na frente de casa!", "Um tá com um pedaço de pau!", "Ainda não, mas vai acabar mal!")
 occurrence = "Outro"
 units = PackedStringArray("pol")
 after = "Tá. Vou entrar e trancar a porta."
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2")])

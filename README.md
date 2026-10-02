@@ -76,6 +76,9 @@ desconhecida são sempre escritos à mão.
   Lacunas: `{place}` "o Hotel Estrela", `{of_place}` "do Hotel Estrela", `{to_place}` "pro Hotel Estrela",
   `{street}` rua do contato, `{number}` "305", `{digits}` "três, zero, cinco", `{reason}` um dos motivos do contato.
 - **Emergência** (`emergency_templates`): o molde é um `EmergencyCall`; valem ocorrência, unidades e as falas.
+  `cases` (`EmergencyCase`, também nos roteiros escritos, que quase todos têm) são variações sorteadas: cada caso troca algumas
+  respostas ("" mantém a do roteiro) e diz as unidades dele. Assim o mesmo incêndio pede só bombeiros ou também
+  ambulância, e o jogador precisa perguntar.
   Rua e número são sorteados; o trecho do mapa sai do número. Lacunas: `{street}`, `{house}`, `{address}`.
 - **Para ter mais variedade:** acrescente motivos (`reasons`) aos contatos, ou um `spoken` + motivos a um contato
   novo. Um molde novo vale para todos os contatos. Escreva motivos que sirvam para quem liga, homem ou mulher.
@@ -112,8 +115,12 @@ O relógio nunca para: 0,75 minuto de jogo por segundo real (18:00 → 00:00 em 
 Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
 
 - **Nada é fixo, exceto o roteiro da noite** (`story` e `mystery` em `data/nights/`). O resto é sorteado (`_random_calls`):
-  entre uma ligação e a próxima passam `call_gap` minutos de jogo (28–42 na noite 1, cerca de 37–56 s reais; o máximo
-  é o maior silêncio possível). Ajuste medindo com o robô em ritmo humano: `tests/test_shift.gd -- --human`. Em `PEAK_CHANCE` (5%) dos intervalos a próxima vem logo em seguida (2–6 min) e duas linhas tocam juntas.
+  entre uma ligação e a próxima passam `call_gap` minutos de jogo (o máximo é o maior silêncio possível). Em
+  `peak_chance` dos intervalos a próxima vem logo em seguida (2–6 min) e duas linhas tocam juntas; com `max_live`
+  ligações pedindo atenção (tocando ou ainda não conectadas), a próxima espera. **A primeira noite é calma e o ritmo
+  sobe aos poucos**: noite 1 com 45–60 min, 1 emergência, 0–1 trote, sem picos e no máximo 2 (7–9 ligações); noite 2
+  com 34–46 min e 1–2 emergências (10–12). Os padrões do `Night` (28–42, 5%, 3) são o ritmo das noites mais cheias.
+  Ajuste medindo com o robô em ritmo humano: `tests/test_shift.gd -- --human`.
 - **Tipo sorteado**: `emergencies` emergências (1–2, a pelo menos `EMERGENCY_GAP` = 60 min uma da outra, porque o
   despacho cuida de uma por vez), `pranks` trotes (0–2) e o resto transferências (65%) ou pedidos de informação
   (o número de alguém na lista). Um destino não se repete na mesma noite. Na primeira noite, a primeira
@@ -200,8 +207,18 @@ o botão **Desligar** encerra a ligação, e a linha fica "desligou" até o FONE
 Depois da ligação desconhecida, FONE na entrada por onde ela veio tenta ligar de volta.
 
 **Emergência:** na aba **Mapa e despacho**, clique no trecho da rua (passar o mouse mostra a faixa de números, ex.:
-"Rua do Sol, 1–99"), escolha o tipo (ele já marca as unidades de costume, `occurrence_units` no `content.tres`;
-dá para mudar) e **Enviar**, que só acende com local, tipo e unidade marcados. Depois do envio o despacho fica limpo
+"Rua do Sol, 1–99"), escolha o tipo, marque as unidades e **Enviar**, que só acende com local, tipo e unidade marcados. O tipo
+não marca unidades: **quem decide é a conversa**, pelo protocolo (cartão na aba):
+
+| Unidade | Quando |
+|---|---|
+| Polícia | crime, briga, arma, rua bloqueada |
+| Bombeiros | fogo, fumaça, fio elétrico ou gás, alguém preso (ferragens, escombros) |
+| Ambulância | alguém ferido, passando mal ou preso (batida leve sem feridos, não) |
+
+Incêndio sem vítima é só bombeiro; com alguém queimado, bombeiros e ambulância; batida com gente presa nas ferragens
+e a rua fechada, os três; o vigilante preso no galpão em chamas, bombeiros e ambulância. Ao escrever uma emergência, as respostas precisam revelar cada unidade sem ambiguidade
+("acho que não" não serve). Unidade a mais é advertência leve; a que falta, o rádio pede. Depois do envio o despacho fica limpo
 para a próxima.
 
 ## Cabos

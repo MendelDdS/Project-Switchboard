@@ -1,12 +1,33 @@
 [gd_resource type="Resource" script_class="EmergencyCall" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_1y200"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("pol", "amb")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "Ninguém se machucou, graças a Deus. Foi só o susto.")
+units = PackedStringArray("pol")
+
+[sub_resource type="Resource" id="Case_3"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "O motorista do carro tá preso nas ferragens, com a perna sangrando!")
+units = PackedStringArray("pol", "amb", "bomb")
+
+[sub_resource type="Resource" id="Case_4"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "", "Não, já empurraram tudo pra calçada.")
+units = PackedStringArray("amb")
 
 [resource]
 script = ExtResource("1_1y200")
 opening = "Central, teve uma batida feia aqui na {street}!"
-questions = PackedStringArray("Qual é o endereço?", "Tem feridos?", "Quantos veículos?")
-answers = PackedStringArray("{address}, na esquina!", "O rapaz da moto. Tá no chão, mas mexe as pernas.", "Um carro e uma moto.")
+questions = PackedStringArray("Qual é o endereço?", "Tem feridos?", "A rua está bloqueada?")
+answers = PackedStringArray("{address}, na esquina!", "O rapaz da moto. Tá no chão, mas mexe as pernas.", "Tá. A moto e o carro tão no meio da rua.")
 occurrence = "Acidente de trânsito"
 units = PackedStringArray("pol", "amb")
-after = "Tá. Vou sinalizar pro pessoal não passar."
+after = "Tá bom. Eu fico aqui esperando."
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2"), SubResource("Case_3"), SubResource("Case_4")])

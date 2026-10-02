@@ -1,11 +1,21 @@
 [gd_resource type="Resource" script_class="EmergencyCall" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_nslod"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("bomb")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "O menino da padaria encostou! Tá caído e não se mexe!", "")
+units = PackedStringArray("bomb", "amb")
 
 [resource]
 script = ExtResource("1_nslod")
 caller = "Senhora"
-opening = "Central, caiu um fio do poste aqui na frente e está soltando faísca na calçada!"
+opening = "Central, caiu um fio do poste aqui na frente e está soltando faísca!"
 questions = PackedStringArray("Qual é o endereço?", "Alguém encostou no fio?", "Tem fogo?")
 answers = PackedStringArray("Rua do Comércio, 71! Na frente da barbearia!", "Não, não! Tá todo mundo longe.", "Tá começando a queimar a árvore!")
 street = "comercio"
@@ -13,3 +23,4 @@ address = "Rua do Comércio, 71"
 occurrence = "Outro"
 units = PackedStringArray("bomb")
 after = "Tá bom. Vou manter as crianças dentro de casa."
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2")])

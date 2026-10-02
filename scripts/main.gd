@@ -8,7 +8,6 @@ extends Control
 const GAME_MIN_PER_SEC := 0.75          # 360 minutos de turno ≈ 8 minutos reais
 const SHIFT_START_HOUR := 18            # o turno vai das 18:00...
 const SHIFT_END := 360.0                # ...até 00:00 (minutos depois do início)
-const PEAK_CHANCE := 0.05               # chance de a próxima ligação vir logo em seguida (2–6 min): duas linhas juntas
 const EMERGENCY_GAP := 60.0             # minutos de jogo entre duas emergências (o despacho cuida de uma por vez)
 const STORY_GAP := 8.0                  # as ligações sorteadas ficam a tantos minutos das do roteiro
 const SHADOW_LEAD := 15.0               # minutos antes da ligação desconhecida em que a silhueta aparece na janela...
@@ -535,7 +534,7 @@ func _build_schedule() -> void:
 
 
 ## Ligações sorteadas pelo turno todo: entre uma e a próxima, `Night.call_gap` minutos (o máximo é o maior
-## silêncio possível); de vez em quando (PEAK_CHANCE) a próxima vem logo em seguida. O tipo também é sorteado:
+## silêncio possível); de vez em quando (`Night.peak_chance`) a próxima vem logo em seguida. O tipo também é sorteado:
 ## `Night.emergencies` emergências (espaçadas por EMERGENCY_GAP), `Night.pranks` trotes, e o resto
 ## transferências ou pedidos de informação. Na noite com tutorial, a primeira é uma transferência guiada.
 func _random_calls(fixed: Array[PhoneCall]) -> Array[PhoneCall]:
@@ -544,7 +543,7 @@ func _random_calls(fixed: Array[PhoneCall]) -> Array[PhoneCall]:
 	while t < SHIFT_END - 10.0:
 		if not fixed.any(func(f: PhoneCall): return absf(t - f.at) < STORY_GAP):
 			ats.append(t)
-		t += randf_range(2.0, 6.0) if randf() < PEAK_CHANCE else randf_range(night.call_gap.x, night.call_gap.y)
+		t += randf_range(2.0, 6.0) if randf() < night.peak_chance else randf_range(night.call_gap.x, night.call_gap.y)
 	var kinds := []
 	kinds.resize(ats.size())
 	var free := range(1 if night.tutorial else 0, ats.size())
@@ -576,7 +575,7 @@ func _random_calls(fixed: Array[PhoneCall]) -> Array[PhoneCall]:
 			tut = c
 		elif kinds[i] == PhoneCall.Kind.EMERGENCY:
 			var written := randf() >= TEMPLATE_CHANCE and not emergencies.is_empty()
-			c = PhoneCall.from_emergency(emergencies.pop_back() if written else GameData.template_emergency())
+			c = PhoneCall.from_emergency(GameData.with_case(emergencies.pop_back()) if written else GameData.template_emergency())
 		elif kinds[i] == PhoneCall.Kind.PRANK and not pranks.is_empty():
 			c = PhoneCall.from_prank(pranks.pop_back())
 		elif randf() < 0.65:
@@ -634,6 +633,9 @@ func _run_schedule() -> void:
 	var hush := (c.kind == PhoneCall.Kind.MYSTERY or c.retry != PhoneCall.Retry.NONE) and not live.is_empty() and minutes < c.latest
 	# o despacho cuida de uma emergência por vez: a próxima espera a anterior desligar e as unidades chegarem
 	if c.kind == PhoneCall.Kind.EMERGENCY and ((em_call != null and not em_call.ended) or dispatch.en_route()):
+		hush = true
+	# não sobrecarregar: com `Night.max_live` ligações pedindo atenção, a próxima espera (a desconhecida tem regra própria)
+	if c.kind != PhoneCall.Kind.MYSTERY and live.size() >= night.max_live:
 		hush = true
 	if hush or _free_line() == -1:
 		c.at = minutes + 3.0

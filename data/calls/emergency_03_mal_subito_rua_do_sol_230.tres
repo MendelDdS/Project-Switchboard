@@ -1,6 +1,16 @@
 [gd_resource type="Resource" script_class="EmergencyCall" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_bu2bh"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("amb")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "Tá, ouço ele respirando. Mas a porta tá trancada por dentro e ele caiu encostado nela!", "")
+units = PackedStringArray("amb", "bomb")
 
 [resource]
 script = ExtResource("1_bu2bh")
@@ -14,3 +24,4 @@ address = "Rua do Sol, 230"
 occurrence = "Mal súbito"
 units = PackedStringArray("amb")
 after = "Obrigada. Eu vou deixar a porta aberta."
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2")])

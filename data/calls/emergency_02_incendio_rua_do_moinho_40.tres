@@ -1,6 +1,21 @@
 [gd_resource type="Resource" script_class="EmergencyCall" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_qpeje"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("bomb")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "", "O vigilante não conseguiu sair! Tá gritando lá dentro!")
+units = PackedStringArray("bomb", "amb")
+
+[sub_resource type="Resource" id="Case_3"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "", "O vigilante saiu, mas tá com o rosto queimado!")
+units = PackedStringArray("bomb", "amb")
 
 [resource]
 script = ExtResource("1_qpeje")
@@ -8,9 +23,10 @@ voice = "m"
 caller = "Homem"
 opening = "Central, tem fogo! Tem fogo no galpão da Rua do Moinho!"
 questions = PackedStringArray("Qual é o número?", "O que está queimando?", "Tem alguém lá dentro?")
-answers = PackedStringArray("Quarenta! O galpão da serraria velha!", "O telhado inteiro! A fumaça está preta!", "Acho que não. Acho que não...")
+answers = PackedStringArray("Quarenta! O galpão da serraria velha!", "O telhado inteiro! A fumaça está preta!", "Não. A serraria fecha às seis, tá vazia.")
 street = "moinho"
 address = "Rua do Moinho, 40"
 occurrence = "Incêndio"
 units = PackedStringArray("bomb")
 after = "Tá bom. Tá bom. Eu vou tirar o carro daqui."
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2"), SubResource("Case_3")])

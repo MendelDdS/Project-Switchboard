@@ -1,6 +1,21 @@
 [gd_resource type="Resource" script_class="EmergencyCall" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_52sne"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("pol", "amb", "bomb")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "Não, ele saiu sozinho. Só tá assustado.", "")
+units = PackedStringArray("pol", "bomb")
+
+[sub_resource type="Resource" id="Case_3"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "", "Tá torto, mas de pé. O carro ficou em cima da calçada.")
+units = PackedStringArray("bomb", "amb")
 
 [resource]
 script = ExtResource("1_52sne")
@@ -8,9 +23,10 @@ voice = "m"
 caller = "Rapaz"
 opening = "Central, um carro bateu no poste aqui na avenida!"
 questions = PackedStringArray("Qual é o endereço?", "O motorista está ferido?", "O poste caiu?")
-answers = PackedStringArray("Avenida Brasil, 60! Na frente da loja de tecidos!", "Tá preso no carro, com a cabeça sangrando. Mas tá falando.", "Tá torto, e os fios tão soltando faísca!")
+answers = PackedStringArray("Avenida Brasil, 60! Na frente da loja de tecidos!", "Tá preso no carro, com a cabeça sangrando. Mas tá falando.", "Tá torto, e os fios tão soltando faísca no meio da avenida! Ninguém passa!")
 street = "brasil"
 address = "Avenida Brasil, 60"
 occurrence = "Acidente de trânsito"
 units = PackedStringArray("pol", "amb", "bomb")
 after = "Tá. Ninguém chega perto dos fios, pode deixar."
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2"), SubResource("Case_3")])

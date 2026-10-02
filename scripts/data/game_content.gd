@@ -13,9 +13,6 @@ extends Resource
 @export var block_labels: PackedStringArray = ["1–99", "100–199", "200–299"]
 ## Tipos de ocorrência no despacho.
 @export var occurrences: PackedStringArray = []
-## Unidades que o despacho já marca ao escolher cada tipo (o jogador pode mudar). Tipo sem entrada ("Outro") não
-## marca nada: as unidades variam caso a caso.
-@export var occurrence_units: Dictionary = {}
 
 @export_group("Noites")
 ## Em ordem; cada uma com a agenda e o roteiro fixo dela (data/nights/).

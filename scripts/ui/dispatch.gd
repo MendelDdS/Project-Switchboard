@@ -1,10 +1,10 @@
 class_name Dispatch
 extends VBoxContainer
 ## Aba do mapa e despacho: o mapa da cidade em cima (clicar na rua marca o local) e, embaixo, o tipo de ocorrência,
-## as unidades e Enviar. O tipo já marca as unidades de costume (`GameContent.occurrence_units`; dá para mudar), a
-## conferência (local, tipo, unidades) fica sempre à vista e Enviar só acende com as três; depois do envio, tudo
-## volta limpo para a próxima. Cuida da ida das viaturas, das mensagens de rádio e de avaliar se o local e as
-## unidades batem com a emergência em andamento.
+## as unidades e Enviar. O tipo não marca unidades: quem decide é a conversa, pelo protocolo (cartão na aba; veja
+## EmergencyCall.units). A conferência (local, tipo, unidades) fica sempre à vista e Enviar só acende com as três;
+## depois do envio, tudo volta limpo para a próxima. Cuida da ida das viaturas, das mensagens de rádio e de
+## avaliar se o local e as unidades batem com a emergência em andamento.
 
 signal sent(location: String, units_text: String)
 ## As unidades chegaram. `result`: "ok" (resolvido), "missing" (faltou unidade), "wrong_place" ou "idle"
@@ -45,7 +45,7 @@ func _ready() -> void:
 		b.focus_mode = Control.FOCUS_NONE
 		b.custom_minimum_size.y = 32
 		b.pressed.connect(Sfx.play.bind("click"))
-		b.toggled.connect(_on_occurrence.bind(o))
+		b.toggled.connect(_refresh.unbind(1))
 		_occurrences.add_child(b)
 	for u in UNIT_IDS:
 		var ub: Button = _unit_buttons[u]
@@ -75,18 +75,6 @@ func set_location(street: String, block: int, label: String) -> void:
 func set_occurrence(o: String) -> void:
 	for b: Button in _occurrences.get_children():
 		b.button_pressed = b.text == o
-
-
-## Escolher o tipo marca as unidades de costume dele (só as livres) e desmarca as outras; "Outro" não tem
-## costume e deixa tudo desmarcado. Desmarcar o tipo não mexe nas unidades.
-func _on_occurrence(on: bool, o: String) -> void:
-	if on:
-		var want: PackedStringArray = GameData.CONTENT.occurrence_units.get(o, PackedStringArray())
-		for u in UNIT_IDS:
-			var b: Button = _unit_buttons[u]
-			if not b.disabled:
-				b.set_pressed_no_signal(u in want)
-	_refresh()
 
 
 ## Uma emergência começou a tocar: guarda onde é e o que precisa, para avaliar o que for enviado.

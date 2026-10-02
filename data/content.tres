@@ -433,12 +433,6 @@ directory = Array[ExtResource("1_6g7xa")]([SubResource("Resource_ssh4q"), SubRes
 streets = Array[ExtResource("16_5siro")]([SubResource("Resource_ecmv4"), SubResource("Resource_1exdq"), SubResource("Resource_r56aq"), SubResource("Resource_8jahr"), SubResource("Resource_drklu"), SubResource("Resource_6vkdf"), SubResource("Resource_5w5ra")])
 block_labels = PackedStringArray("1–99", "100–199", "200–299")
 occurrences = PackedStringArray("Acidente de trânsito", "Incêndio", "Mal súbito", "Invasão / roubo", "Outro")
-occurrence_units = {
-"Acidente de trânsito": PackedStringArray("pol", "amb"),
-"Incêndio": PackedStringArray("bomb"),
-"Invasão / roubo": PackedStringArray("pol"),
-"Mal súbito": PackedStringArray("amb")
-}
 nights = Array[ExtResource("90_night")]([ExtResource("91_night1"), ExtResource("92_night2")])
 transfers = Array[ExtResource("17_q4d2e")]([ExtResource("18_g0ddb"), ExtResource("19_y6u46"), ExtResource("20_5hhcc"), ExtResource("21_r4mvx"), ExtResource("22_nagbo"), ExtResource("23_7ad0u"), ExtResource("24_76ki8"), ExtResource("25_q3bf4"), ExtResource("26_61w3p"), ExtResource("27_grq3w"), ExtResource("28_otrev"), ExtResource("29_flf23"), ExtResource("30_amupc"), ExtResource("31_xeepj"), ExtResource("32_nyi6e"), ExtResource("33_xdh2c"), ExtResource("34_hps07"), ExtResource("35_2ubng"), ExtResource("36_35dgx"), ExtResource("37_8shhh"), ExtResource("38_ko1bc"), ExtResource("39_11ieg"), ExtResource("40_grptk"), ExtResource("41_e6ja0"), ExtResource("50_amupc"), ExtResource("51_xeepj"), ExtResource("52_nyi6e"), ExtResource("53_xdh2c"), ExtResource("54_hps07"), ExtResource("55_2ubng"), ExtResource("56_35dgx"), ExtResource("57_8shhh"), ExtResource("58_ko1bc"), ExtResource("59_11ieg"), ExtResource("60_grptk"), ExtResource("61_e6ja0"), ExtResource("62_ssh4q")])
 emergencies = Array[ExtResource("2_l0sn3")]([ExtResource("3_v72nw"), ExtResource("4_brh46"), ExtResource("5_t6c0w"), ExtResource("6_cbrcj"), ExtResource("7_ks6ko"), ExtResource("8_ec5ew"), ExtResource("9_nagbo"), ExtResource("10_7ad0u"), ExtResource("11_76ki8"), ExtResource("12_q3bf4")])

@@ -1388,12 +1388,24 @@ msgid "É perto do número 101! Na frente da mercearia!"
 msgstr "It's near number 101! In front of the grocery!"
 
 #: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
-msgid "É um acidente de carro! Bateu no poste!"
-msgstr "It's a car accident! It hit the light pole!"
+msgid "Um carro bateu no poste e ficou atravessado na rua!"
+msgstr "A car hit a pole and ended up sideways across the street!"
 
 #: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
 msgid "Duas pessoas. Uma não está se mexendo!"
 msgstr "Two people. One isn't moving!"
+
+#: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
+msgid "Ninguém, graças a Deus. Mas o carro tá bloqueando tudo."
+msgstr "Nobody, thank God. But the car is blocking everything."
+
+#: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
+msgid "O motorista tá preso nas ferragens! Não consegue abrir a porta!"
+msgstr "The driver is trapped in the wreck! He can't open the door!"
+
+#: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
+msgid "Um carro bateu no poste. Parou em cima da calçada."
+msgstr "A car hit the pole. It stopped up on the sidewalk."
 
 #: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
 msgid "Estão vindo? Graças a Deus... obrigada."
@@ -1424,8 +1436,16 @@ msgid "O telhado inteiro! A fumaça está preta!"
 msgstr "The whole roof! The smoke is black!"
 
 #: data/calls/emergency_02_incendio_rua_do_moinho_40.tres
-msgid "Acho que não. Acho que não..."
-msgstr "I don't think so. I don't think so..."
+msgid "Não. A serraria fecha às seis, tá vazia."
+msgstr "No. The sawmill closes at six, it's empty."
+
+#: data/calls/emergency_02_incendio_rua_do_moinho_40.tres
+msgid "O vigilante não conseguiu sair! Tá gritando lá dentro!"
+msgstr "The night watchman couldn't get out! He's screaming in there!"
+
+#: data/calls/emergency_02_incendio_rua_do_moinho_40.tres
+msgid "O vigilante saiu, mas tá com o rosto queimado!"
+msgstr "The night watchman got out, but his face is burned!"
 
 #: data/calls/emergency_02_incendio_rua_do_moinho_40.tres
 msgid "Tá bom. Tá bom. Eu vou tirar o carro daqui."
@@ -1460,6 +1480,10 @@ msgid "Não, só ele. Por favor, rápido!"
 msgstr "No, just him. Please, hurry!"
 
 #: data/calls/emergency_03_mal_subito_rua_do_sol_230.tres
+msgid "Tá, ouço ele respirando. Mas a porta tá trancada por dentro e ele caiu encostado nela!"
+msgstr "Yes, I can hear him breathing. But the door is locked from inside and he fell against it!"
+
+#: data/calls/emergency_03_mal_subito_rua_do_sol_230.tres
 msgid "Obrigada. Eu vou deixar a porta aberta."
 msgstr "Thank you. I'll leave the door open."
 
@@ -1475,7 +1499,7 @@ msgstr "Operator... someone's trying to break into my neighbor's house."
 msgid "O que você está vendo?"
 msgstr "What do you see?"
 
-#: data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres data/templates/emergency_briga.tres
+#: data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres
 msgid "Quantas pessoas?"
 msgstr "How many people?"
 
@@ -1490,6 +1514,10 @@ msgstr "Forcing the back window. My neighbor's away."
 #: data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres
 msgid "Dois homens. Não vi arma, não."
 msgstr "Two men. I didn't see a gun."
+
+#: data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres
+msgid "O vizinho chegou bem na hora e levou uma pancada na cabeça! Tá caído no quintal!"
+msgstr "The neighbor came home right then and got hit on the head! He's lying in the yard!"
 
 #: data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres
 msgid "Tá. Vou ficar quieto aqui dentro."
@@ -1524,12 +1552,16 @@ msgid "Dois! Mas o bar tá cheio!"
 msgstr "Two! But the bar is packed!"
 
 #: data/calls/emergency_05_outro_rua_da_estacao_140.tres
+msgid "Ainda não! O Zé tá tentando separar!"
+msgstr "Not yet! Zé is trying to break it up!"
+
+#: data/calls/emergency_05_outro_rua_da_estacao_140.tres
 msgid "Tão vindo? Tá, eu seguro o pessoal aqui."
 msgstr "They're coming? Okay, I'll keep everyone back."
 
 #: data/calls/emergency_06_outro_rua_do_comercio_71.tres
-msgid "Central, caiu um fio do poste aqui na frente e está soltando faísca na calçada!"
-msgstr "Operator, a wire fell off the pole out front and it's sparking on the sidewalk!"
+msgid "Central, caiu um fio do poste aqui na frente e está soltando faísca!"
+msgstr "Operator, a wire fell off the pole out front and it's sparking!"
 
 #: data/calls/emergency_06_outro_rua_do_comercio_71.tres
 msgid "Alguém encostou no fio?"
@@ -1552,6 +1584,10 @@ msgid "Tá começando a queimar a árvore!"
 msgstr "The tree's starting to burn!"
 
 #: data/calls/emergency_06_outro_rua_do_comercio_71.tres
+msgid "O menino da padaria encostou! Tá caído e não se mexe!"
+msgstr "The boy from the bakery touched it! He's down and not moving!"
+
+#: data/calls/emergency_06_outro_rua_do_comercio_71.tres
 msgid "Tá bom. Vou manter as crianças dentro de casa."
 msgstr "Okay. I'll keep the kids inside."
 
@@ -1572,12 +1608,20 @@ msgid "Rua das Flores, 45! Perto da clínica!"
 msgstr "Rua das Flores, 45! Near the clinic!"
 
 #: data/calls/emergency_07_incendio_rua_das_flores_45.tres
-msgid "Não sei! O carro dele tá aí na frente!"
-msgstr "I don't know! His car's out front!"
+msgid "Ele saiu, mas queimou o braço feio!"
+msgstr "He got out, but his arm is badly burned!"
 
 #: data/calls/emergency_07_incendio_rua_das_flores_45.tres
 msgid "Tem fogo na janela da cozinha!"
 msgstr "There's fire in the kitchen window!"
+
+#: data/calls/emergency_07_incendio_rua_das_flores_45.tres
+msgid "Não, ele saiu antes. Tá aqui na rua comigo."
+msgstr "No, he got out before. He's here on the street with me."
+
+#: data/calls/emergency_07_incendio_rua_das_flores_45.tres
+msgid "Tem! Ele mora sozinho e não saiu! A porta tá trancada!"
+msgstr "Yes! He lives alone and didn't come out! The door is locked!"
 
 #: data/calls/emergency_07_incendio_rua_das_flores_45.tres
 msgid "Tá bom. Eu vou chamar os outros vizinhos."
@@ -1604,8 +1648,16 @@ msgid "Tá preso no carro, com a cabeça sangrando. Mas tá falando."
 msgstr "He's trapped in the car, his head's bleeding. But he's talking."
 
 #: data/calls/emergency_08_acidente_avenida_brasil_60.tres
-msgid "Tá torto, e os fios tão soltando faísca!"
-msgstr "It's leaning, and the wires are sparking!"
+msgid "Tá torto, e os fios tão soltando faísca no meio da avenida! Ninguém passa!"
+msgstr "It's leaning, and the wires are sparking in the middle of the avenue! Nobody can get through!"
+
+#: data/calls/emergency_08_acidente_avenida_brasil_60.tres
+msgid "Não, ele saiu sozinho. Só tá assustado."
+msgstr "No, he got out on his own. He's just shaken."
+
+#: data/calls/emergency_08_acidente_avenida_brasil_60.tres
+msgid "Tá torto, mas de pé. O carro ficou em cima da calçada."
+msgstr "It's leaning, but still standing. The car ended up on the sidewalk."
 
 #: data/calls/emergency_08_acidente_avenida_brasil_60.tres
 msgid "Tá. Ninguém chega perto dos fios, pode deixar."
@@ -1666,6 +1718,10 @@ msgstr "I'm locked in the bedroom. I heard them break the kitchen glass."
 #: data/calls/emergency_10_invasao_rua_do_moinho_260.tres
 msgid "Não sei. Não vi. Só ouço os passos."
 msgstr "I don't know. I didn't see. I can only hear footsteps."
+
+#: data/calls/emergency_10_invasao_rua_do_moinho_260.tres
+msgid "Tô no quarto, trancado. Mas cortei a mão feio no vidro quando fugi... tá sangrando muito."
+msgstr "I'm locked in the bedroom. But I cut my hand badly on the glass when I ran... it's bleeding a lot."
 
 #: data/calls/emergency_10_invasao_rua_do_moinho_260.tres
 msgid "Tá. Eu vou ficar quieto aqui."
@@ -1992,52 +2048,60 @@ msgid "Isso. Boa noite pro senhor."
 msgstr "That's it. Good night to you, sir."
 
 #: data/templates/emergency_incendio.tres
-msgid "Central! Tá pegando fogo numa casa aqui na {street}!"
-msgstr "Operator! A house is on fire here on {street}!"
+msgid "Central! Tá pegando fogo numa casa aqui na {street}! Já tá subindo pelo telhado!"
+msgstr "Operator! A house is on fire here on {street}! It's already going up the roof!"
 
-#: data/templates/emergency_incendio.tres
-msgid "O fogo está grande?"
-msgstr "Is it a big fire?"
+#: data/templates/emergency_incendio.tres data/templates/emergency_briga.tres
+msgid "Alguém se machucou?"
+msgstr "Is anyone hurt?"
 
 #: data/templates/emergency_incendio.tres
 msgid "{address}! Vem logo!"
 msgstr "{address}! Come quick!"
 
 #: data/templates/emergency_incendio.tres
-msgid "Acho que não. Os vizinhos já saíram."
-msgstr "I don't think so. The neighbors already got out."
+msgid "Não, todo mundo saiu."
+msgstr "No, everybody got out."
 
 #: data/templates/emergency_incendio.tres
-msgid "Tá subindo pelo telhado!"
-msgstr "It's climbing up the roof!"
+msgid "Não, foi só o susto."
+msgstr "No, just a scare."
+
+#: data/templates/emergency_incendio.tres
+msgid "A dona da casa queimou as mãos tentando apagar!"
+msgstr "The lady of the house burned her hands trying to put it out!"
 
 #: data/templates/emergency_incendio.tres
 msgid "Tá bom. A gente vai se afastar."
 msgstr "Okay. We'll move back."
 
 #: data/templates/emergency_mal_subito.tres
-msgid "Central, o meu vizinho desmaiou aqui na calçada!"
-msgstr "Operator, my neighbor passed out here on the sidewalk!"
+msgid "Central, o meu vizinho desmaiou!"
+msgstr "Operator, my neighbor passed out!"
 
 #: data/templates/emergency_mal_subito.tres
-msgid "Ele bateu a cabeça?"
-msgstr "Did he hit his head?"
+msgid "Onde ele está?"
+msgstr "Where is he?"
 
 #: data/templates/emergency_mal_subito.tres
-msgid "{address}. Na frente de casa."
-msgstr "{address}. In front of my house."
+msgid "{address}. Vem rápido!"
+msgstr "{address}. Come quick!"
 
 #: data/templates/emergency_mal_subito.tres
 msgid "Tá, mas bem fraquinho."
 msgstr "He is, but very faintly."
 
 #: data/templates/emergency_mal_subito.tres
-msgid "Acho que sim. Tem sangue no chão."
-msgstr "I think so. There's blood on the ground."
+msgid "Caído aqui na calçada, na frente de casa."
+msgstr "Lying here on the sidewalk, in front of my house."
 
 #: data/templates/emergency_mal_subito.tres
-msgid "Tá. Eu fico aqui com ele."
-msgstr "Okay. I'll stay here with him."
+msgid "Na cozinha da casa dele. E tá um cheiro forte de gás lá dentro!"
+msgstr "In his kitchen. And there's a strong smell of gas in there!"
+
+#: data/templates/emergency_mal_subito.tres
+msgid "Tá. Eu espero aqui na porta."
+msgstr "Okay. I'll wait here at the door."
 
 #: data/templates/emergency_acidente.tres
 msgid "Central, teve uma batida feia aqui na {street}!"
@@ -2048,8 +2112,8 @@ msgid "Tem feridos?"
 msgstr "Is anyone hurt?"
 
 #: data/templates/emergency_acidente.tres
-msgid "Quantos veículos?"
-msgstr "How many vehicles?"
+msgid "A rua está bloqueada?"
+msgstr "Is the street blocked?"
 
 #: data/templates/emergency_acidente.tres
 msgid "{address}, na esquina!"
@@ -2060,12 +2124,24 @@ msgid "O rapaz da moto. Tá no chão, mas mexe as pernas."
 msgstr "The guy on the motorcycle. He's on the ground, but he can move his legs."
 
 #: data/templates/emergency_acidente.tres
-msgid "Um carro e uma moto."
-msgstr "A car and a motorcycle."
+msgid "Tá. A moto e o carro tão no meio da rua."
+msgstr "Yes. The bike and the car are in the middle of the street."
 
 #: data/templates/emergency_acidente.tres
-msgid "Tá. Vou sinalizar pro pessoal não passar."
-msgstr "Okay. I'll wave people off so they don't drive through."
+msgid "Ninguém se machucou, graças a Deus. Foi só o susto."
+msgstr "Nobody got hurt, thank God. Just a scare."
+
+#: data/templates/emergency_acidente.tres
+msgid "O motorista do carro tá preso nas ferragens, com a perna sangrando!"
+msgstr "The car's driver is trapped in the wreck, his leg is bleeding!"
+
+#: data/templates/emergency_acidente.tres
+msgid "Não, já empurraram tudo pra calçada."
+msgstr "No, they already pushed everything onto the sidewalk."
+
+#: data/templates/emergency_acidente.tres
+msgid "Tá bom. Eu fico aqui esperando."
+msgstr "Alright. I'll stay here and wait."
 
 #: data/templates/emergency_invasao.tres
 msgid "(baixinho) Central, tem alguém tentando abrir a porta dos fundos."
@@ -2112,8 +2188,12 @@ msgid "Um tá com um pedaço de pau!"
 msgstr "One's got a stick!"
 
 #: data/templates/emergency_briga.tres
-msgid "Uns quatro!"
-msgstr "About four!"
+msgid "Ainda não, mas vai acabar mal!"
+msgstr "Not yet, but this is going to end badly!"
+
+#: data/templates/emergency_briga.tres
+msgid "Um caiu e bateu a cabeça na guia! Tá sangrando!"
+msgstr "One fell and hit his head on the curb! He's bleeding!"
 
 #: data/templates/emergency_briga.tres
 msgid "Tá. Vou entrar e trancar a porta."

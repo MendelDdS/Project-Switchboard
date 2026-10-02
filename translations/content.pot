@@ -1387,11 +1387,23 @@ msgid "É perto do número 101! Na frente da mercearia!"
 msgstr ""
 
 #: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
-msgid "É um acidente de carro! Bateu no poste!"
+msgid "Um carro bateu no poste e ficou atravessado na rua!"
 msgstr ""
 
 #: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
 msgid "Duas pessoas. Uma não está se mexendo!"
+msgstr ""
+
+#: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
+msgid "Ninguém, graças a Deus. Mas o carro tá bloqueando tudo."
+msgstr ""
+
+#: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
+msgid "O motorista tá preso nas ferragens! Não consegue abrir a porta!"
+msgstr ""
+
+#: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
+msgid "Um carro bateu no poste. Parou em cima da calçada."
 msgstr ""
 
 #: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
@@ -1423,7 +1435,15 @@ msgid "O telhado inteiro! A fumaça está preta!"
 msgstr ""
 
 #: data/calls/emergency_02_incendio_rua_do_moinho_40.tres
-msgid "Acho que não. Acho que não..."
+msgid "Não. A serraria fecha às seis, tá vazia."
+msgstr ""
+
+#: data/calls/emergency_02_incendio_rua_do_moinho_40.tres
+msgid "O vigilante não conseguiu sair! Tá gritando lá dentro!"
+msgstr ""
+
+#: data/calls/emergency_02_incendio_rua_do_moinho_40.tres
+msgid "O vigilante saiu, mas tá com o rosto queimado!"
 msgstr ""
 
 #: data/calls/emergency_02_incendio_rua_do_moinho_40.tres
@@ -1459,6 +1479,10 @@ msgid "Não, só ele. Por favor, rápido!"
 msgstr ""
 
 #: data/calls/emergency_03_mal_subito_rua_do_sol_230.tres
+msgid "Tá, ouço ele respirando. Mas a porta tá trancada por dentro e ele caiu encostado nela!"
+msgstr ""
+
+#: data/calls/emergency_03_mal_subito_rua_do_sol_230.tres
 msgid "Obrigada. Eu vou deixar a porta aberta."
 msgstr ""
 
@@ -1474,7 +1498,7 @@ msgstr ""
 msgid "O que você está vendo?"
 msgstr ""
 
-#: data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres data/templates/emergency_briga.tres
+#: data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres
 msgid "Quantas pessoas?"
 msgstr ""
 
@@ -1488,6 +1512,10 @@ msgstr ""
 
 #: data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres
 msgid "Dois homens. Não vi arma, não."
+msgstr ""
+
+#: data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres
+msgid "O vizinho chegou bem na hora e levou uma pancada na cabeça! Tá caído no quintal!"
 msgstr ""
 
 #: data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres
@@ -1523,11 +1551,15 @@ msgid "Dois! Mas o bar tá cheio!"
 msgstr ""
 
 #: data/calls/emergency_05_outro_rua_da_estacao_140.tres
+msgid "Ainda não! O Zé tá tentando separar!"
+msgstr ""
+
+#: data/calls/emergency_05_outro_rua_da_estacao_140.tres
 msgid "Tão vindo? Tá, eu seguro o pessoal aqui."
 msgstr ""
 
 #: data/calls/emergency_06_outro_rua_do_comercio_71.tres
-msgid "Central, caiu um fio do poste aqui na frente e está soltando faísca na calçada!"
+msgid "Central, caiu um fio do poste aqui na frente e está soltando faísca!"
 msgstr ""
 
 #: data/calls/emergency_06_outro_rua_do_comercio_71.tres
@@ -1551,6 +1583,10 @@ msgid "Tá começando a queimar a árvore!"
 msgstr ""
 
 #: data/calls/emergency_06_outro_rua_do_comercio_71.tres
+msgid "O menino da padaria encostou! Tá caído e não se mexe!"
+msgstr ""
+
+#: data/calls/emergency_06_outro_rua_do_comercio_71.tres
 msgid "Tá bom. Vou manter as crianças dentro de casa."
 msgstr ""
 
@@ -1571,11 +1607,19 @@ msgid "Rua das Flores, 45! Perto da clínica!"
 msgstr ""
 
 #: data/calls/emergency_07_incendio_rua_das_flores_45.tres
-msgid "Não sei! O carro dele tá aí na frente!"
+msgid "Ele saiu, mas queimou o braço feio!"
 msgstr ""
 
 #: data/calls/emergency_07_incendio_rua_das_flores_45.tres
 msgid "Tem fogo na janela da cozinha!"
+msgstr ""
+
+#: data/calls/emergency_07_incendio_rua_das_flores_45.tres
+msgid "Não, ele saiu antes. Tá aqui na rua comigo."
+msgstr ""
+
+#: data/calls/emergency_07_incendio_rua_das_flores_45.tres
+msgid "Tem! Ele mora sozinho e não saiu! A porta tá trancada!"
 msgstr ""
 
 #: data/calls/emergency_07_incendio_rua_das_flores_45.tres
@@ -1603,7 +1647,15 @@ msgid "Tá preso no carro, com a cabeça sangrando. Mas tá falando."
 msgstr ""
 
 #: data/calls/emergency_08_acidente_avenida_brasil_60.tres
-msgid "Tá torto, e os fios tão soltando faísca!"
+msgid "Tá torto, e os fios tão soltando faísca no meio da avenida! Ninguém passa!"
+msgstr ""
+
+#: data/calls/emergency_08_acidente_avenida_brasil_60.tres
+msgid "Não, ele saiu sozinho. Só tá assustado."
+msgstr ""
+
+#: data/calls/emergency_08_acidente_avenida_brasil_60.tres
+msgid "Tá torto, mas de pé. O carro ficou em cima da calçada."
 msgstr ""
 
 #: data/calls/emergency_08_acidente_avenida_brasil_60.tres
@@ -1664,6 +1716,10 @@ msgstr ""
 
 #: data/calls/emergency_10_invasao_rua_do_moinho_260.tres
 msgid "Não sei. Não vi. Só ouço os passos."
+msgstr ""
+
+#: data/calls/emergency_10_invasao_rua_do_moinho_260.tres
+msgid "Tô no quarto, trancado. Mas cortei a mão feio no vidro quando fugi... tá sangrando muito."
 msgstr ""
 
 #: data/calls/emergency_10_invasao_rua_do_moinho_260.tres
@@ -1991,11 +2047,11 @@ msgid "Isso. Boa noite pro senhor."
 msgstr ""
 
 #: data/templates/emergency_incendio.tres
-msgid "Central! Tá pegando fogo numa casa aqui na {street}!"
+msgid "Central! Tá pegando fogo numa casa aqui na {street}! Já tá subindo pelo telhado!"
 msgstr ""
 
-#: data/templates/emergency_incendio.tres
-msgid "O fogo está grande?"
+#: data/templates/emergency_incendio.tres data/templates/emergency_briga.tres
+msgid "Alguém se machucou?"
 msgstr ""
 
 #: data/templates/emergency_incendio.tres
@@ -2003,11 +2059,15 @@ msgid "{address}! Vem logo!"
 msgstr ""
 
 #: data/templates/emergency_incendio.tres
-msgid "Acho que não. Os vizinhos já saíram."
+msgid "Não, todo mundo saiu."
 msgstr ""
 
 #: data/templates/emergency_incendio.tres
-msgid "Tá subindo pelo telhado!"
+msgid "Não, foi só o susto."
+msgstr ""
+
+#: data/templates/emergency_incendio.tres
+msgid "A dona da casa queimou as mãos tentando apagar!"
 msgstr ""
 
 #: data/templates/emergency_incendio.tres
@@ -2015,15 +2075,15 @@ msgid "Tá bom. A gente vai se afastar."
 msgstr ""
 
 #: data/templates/emergency_mal_subito.tres
-msgid "Central, o meu vizinho desmaiou aqui na calçada!"
+msgid "Central, o meu vizinho desmaiou!"
 msgstr ""
 
 #: data/templates/emergency_mal_subito.tres
-msgid "Ele bateu a cabeça?"
+msgid "Onde ele está?"
 msgstr ""
 
 #: data/templates/emergency_mal_subito.tres
-msgid "{address}. Na frente de casa."
+msgid "{address}. Vem rápido!"
 msgstr ""
 
 #: data/templates/emergency_mal_subito.tres
@@ -2031,11 +2091,15 @@ msgid "Tá, mas bem fraquinho."
 msgstr ""
 
 #: data/templates/emergency_mal_subito.tres
-msgid "Acho que sim. Tem sangue no chão."
+msgid "Caído aqui na calçada, na frente de casa."
 msgstr ""
 
 #: data/templates/emergency_mal_subito.tres
-msgid "Tá. Eu fico aqui com ele."
+msgid "Na cozinha da casa dele. E tá um cheiro forte de gás lá dentro!"
+msgstr ""
+
+#: data/templates/emergency_mal_subito.tres
+msgid "Tá. Eu espero aqui na porta."
 msgstr ""
 
 #: data/templates/emergency_acidente.tres
@@ -2047,7 +2111,7 @@ msgid "Tem feridos?"
 msgstr ""
 
 #: data/templates/emergency_acidente.tres
-msgid "Quantos veículos?"
+msgid "A rua está bloqueada?"
 msgstr ""
 
 #: data/templates/emergency_acidente.tres
@@ -2059,11 +2123,23 @@ msgid "O rapaz da moto. Tá no chão, mas mexe as pernas."
 msgstr ""
 
 #: data/templates/emergency_acidente.tres
-msgid "Um carro e uma moto."
+msgid "Tá. A moto e o carro tão no meio da rua."
 msgstr ""
 
 #: data/templates/emergency_acidente.tres
-msgid "Tá. Vou sinalizar pro pessoal não passar."
+msgid "Ninguém se machucou, graças a Deus. Foi só o susto."
+msgstr ""
+
+#: data/templates/emergency_acidente.tres
+msgid "O motorista do carro tá preso nas ferragens, com a perna sangrando!"
+msgstr ""
+
+#: data/templates/emergency_acidente.tres
+msgid "Não, já empurraram tudo pra calçada."
+msgstr ""
+
+#: data/templates/emergency_acidente.tres
+msgid "Tá bom. Eu fico aqui esperando."
 msgstr ""
 
 #: data/templates/emergency_invasao.tres
@@ -2111,7 +2187,11 @@ msgid "Um tá com um pedaço de pau!"
 msgstr ""
 
 #: data/templates/emergency_briga.tres
-msgid "Uns quatro!"
+msgid "Ainda não, mas vai acabar mal!"
+msgstr ""
+
+#: data/templates/emergency_briga.tres
+msgid "Um caiu e bateu a cabeça na guia! Tá sangrando!"
 msgstr ""
 
 #: data/templates/emergency_briga.tres
