@@ -951,7 +951,8 @@ func _call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
 			n = PhoneCall.from_transfer(c.data)
 		PhoneCall.Kind.EMERGENCY:
 			n = PhoneCall.from_emergency(c.data)
-			n.stage = c.stage   # a situação não melhora: valem as unidades de quando a ligação caiu
+			n.stage = c.stage   # a situação não melhora: valem as unidades (e as perguntas) de quando a ligação caiu
+			n.told = c.told
 			n.too_late = why == PhoneCall.Retry.WORSE and randf() >= REDISPATCH_CHANCE
 		PhoneCall.Kind.INFO:
 			n = PhoneCall.info(c.voice, c.caller, c.ask, c.about, c.answer)

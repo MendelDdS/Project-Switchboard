@@ -91,6 +91,12 @@ static func template_emergency() -> EmergencyCall:
 	e.critical = fill(tpl.critical, vars)
 	e.critical_units = tpl.critical_units
 	e.lost = fill(tpl.lost, vars)
+	e.worsening_question = tpl.worsening_question
+	e.worsening_answer = fill(tpl.worsening_answer, vars)
+	e.critical_question = tpl.critical_question
+	e.critical_answer = fill(tpl.critical_answer, vars)
+	e.lost_answer = fill(tpl.lost_answer, vars)
+	e.lost_units = tpl.lost_units
 	return e
 
 

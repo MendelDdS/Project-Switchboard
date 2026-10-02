@@ -242,12 +242,17 @@ func _emergency(c: PhoneCall) -> void:
 	emergency_choices(c)
 
 
+## Perguntas que o operador pode fazer: as do roteiro e uma sobre cada estágio que a pessoa já contou (índices
+## depois das do roteiro). Perdida: só o endereço (a primeira) e "Tem alguém ferido?".
 func emergency_choices(c: PhoneCall) -> void:
 	var e: EmergencyCall = c.data
+	var n := e.questions.size()
+	var ks: Array = [0, n + 2] if c.told >= 3 else range(n + c.told)
 	var list: Array[Dictionary] = []
-	for i in e.questions.size():
-		if not i in c.asked:
-			list.append({"label": tr(e.questions[i]), "fn": _em_ask.bind(c, i)})
+	for k in ks:
+		var qa := _qa(e, k)
+		if not k in c.asked and qa[0] != "":
+			list.append({"label": tr(qa[0]), "fn": _em_ask.bind(c, k)})
 	if not c.dispatched:
 		list.append({"label": T.text(T.Key.OP_HOLD_EMERGENCY), "fn": _em_hold.bind(c)})
 	c.set_options(list)
@@ -260,10 +265,20 @@ func _em_ask(c: PhoneCall, k: int) -> void:
 	c.asked.append(k)
 	emergency_choices(c)
 	# a barra de agravamento para enquanto o operador pergunta e a pessoa responde
+	var qa := _qa(e, k)
 	c.asking = true
-	if await op(c, e.questions[k]):
-		await say(c, e.answers[k])
+	if await op(c, qa[0]):
+		await say(c, qa[1])
 	c.asking = false
+
+
+## Pergunta e resposta `k`: as do roteiro e, depois delas, as dos estágios (agravando, agravada, perdida).
+func _qa(e: EmergencyCall, k: int) -> Array:
+	var n := e.questions.size()
+	if k < n:
+		return [e.questions[k], e.answers[k]]
+	return [[e.worsening_question, e.worsening_answer], [e.critical_question, e.critical_answer],
+		[T.text(T.Key.OP_ANYONE_HURT), e.lost_answer]][k - n]
 
 
 func _em_hold(c: PhoneCall) -> void:
@@ -285,7 +300,9 @@ func emergency_worse(c: PhoneCall, stage: int) -> void:
 		if c.ended or c.dispatched:
 			return
 		await get_tree().process_frame
-	await say(c, text)
+	if await say(c, text):
+		c.told = maxi(c.told, stage)
+		emergency_choices(c)
 
 
 ## As unidades saíram: o operador avisa e a pessoa desliga.

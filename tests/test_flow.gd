@@ -110,7 +110,8 @@ func _initialize() -> void:
 		ok(valid.call(e.units) and e.cases.all(func(k: EmergencyCase): return valid.call(k.units) and k.answers.size() <= e.questions.size()),
 			"unidades e casos válidos: " + e.resource_path)
 		ok(Array(e.worsening_units + e.critical_units).all(func(u): return u in ["pol", "bomb", "amb"]) and e.worsening != ""
-			and e.critical != "" and e.lost != "" and e.stage_sec.x > 0.0, "agravamento completo: " + e.resource_path)
+			and e.critical != "" and e.lost != "" and e.stage_sec.x > 0.0 and e.worsening_question != "" and e.worsening_answer != ""
+			and e.critical_question != "" and e.critical_answer != "" and e.lost_answer != "", "agravamento completo: " + e.resource_path)
 	var fire: EmergencyCall = C.emergency_templates.filter(func(x): return x.cases.size() > 1)[0]
 	var seen := {}
 	for i in 40:

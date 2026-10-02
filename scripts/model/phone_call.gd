@@ -69,6 +69,7 @@ var asked: Array[int] = []
 var dispatched := false
 var secured := false        ## o socorro completo saiu para o lugar certo: a barra para de vez
 var stage := 0              ## barra de agravamento: 0 inicial, 1 agravando, 2 agravada, 3 perdida
+var told := 0               ## até que estágio a pessoa já contou o que mudou (libera as perguntas daquele estágio)
 var urgency := 0.0          ## segundos que a barra já correu
 var asking := false         ## pergunta e resposta em andamento: a barra para
 # pedido de informação

@@ -175,7 +175,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   "[x] Local · [x] Tipo · [x] Unidades" (`_check`); Enviar só acende com as três (`can_send`). O tipo **não** marca
   unidades: a conversa decide, pelo protocolo (cartão `DISPATCH_PROTOCOL` na aba; regras em `EmergencyCall.units`).
   `EmergencyCall.cases` (`EmergencyCase`): variações sorteadas por `GameData.with_case()` (respostas + unidades).
-  Depois de enviar, local, tipo e unidades voltam limpos (`city.clear_selection`). Abrir a aba toca o papel
+  Depois de enviar, local, tipo e unidades voltam limpos (`city.clear_selection`). O mapa tem tamanho fixo: a linha
+  de estado das unidades (`%Report`) e o protocolo sempre ocupam o espaço deles. Abrir a aba toca o papel
   desenrolando (`unroll`). O mapa encolhe para caber (`_k` ≈ 0,83): nomes do topo e de lugares que não cabem descem
   para 12. `Dispatch.set_incident()` quando a emergência toca; `Dispatch.sent` → `Main._on_dispatched` →
   `Conversation.emergency_dispatched`. Na chegada,
@@ -193,7 +194,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   pergunta e resposta (`Conversation._em_ask`) e na pausa; para de vez só quando o socorro completo sai para o lugar
   certo (`Dispatch.sent(..., complete)`, conta envios anteriores em `_incident["going"]`). Estágios por
   `EmergencyCall.stage_sec`; cada um chama `Conversation.emergency_worse` (fala `worsening`/`critical`/`lost`; com a
-  pessoa já desligada, `RADIO_WORSE`/`RADIO_LOST`) e `Dispatch.require(e.required(stage))`. Advertência pelo estágio
+  pessoa já desligada, `RADIO_WORSE`/`RADIO_LOST`; depois de dita, `PhoneCall.told` libera a pergunta do estágio:
+  `Conversation._qa`, índices depois das do roteiro; perdida = só o endereço e `OP_ANYONE_HURT` → `lost_answer`) e `Dispatch.require(e.required(stage))`. Advertência pelo estágio
   quando o socorro completo sai (`_on_dispatched`: `emergency_worse` média, `emergency_critical` grave + jornal LATE);
   perdida = `emergency_lost` gravíssima na hora + jornal BAD (sem `emergency_dropped` nem retorno). Retornos não têm
   barra (herdam `stage` para as unidades). A próxima emergência espera a barra da anterior parar.
@@ -297,6 +299,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     responde; corre em espera. Cada estágio tem fala própria e pode exigir unidades novas. Depois: a barra só para
     com o socorro completo no lugar certo (chutar e completar não adianta), ficou mais rápida (45/40/35 s no 1º
     estágio) e some fora da linha; aí o rádio inteiro acende (moldura pulsando e aviso na tela) na cor do estágio.
+    Cada estágio libera uma pergunta sobre o que mudou; na perdida, só "Tem alguém ferido?" (e o endereço).
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

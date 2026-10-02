@@ -83,7 +83,10 @@ que o socorro completo saiu (veja a tabela); a perdida pune na hora. Uma emergê
 
 A cada estágio a pessoa conta o que mudou (`worsening`, `critical`, `lost` no `EmergencyCall`), e isso pode exigir
 unidades novas (`worsening_units`, `critical_units`, somadas às do caso): a fumaça fechou a rua → polícia; um vizinho
-desmaiou na fumaça → ambulância. Vale o que era preciso no momento do despacho. A duração de cada estágio é
+desmaiou na fumaça → ambulância. Vale o que era preciso no momento do despacho. Depois de contar, a pessoa pode
+ser perguntada sobre o que mudou (`worsening_question`/`critical_question` e as respostas). Na situação perdida,
+as perguntas que sobraram saem (menos o endereço) e fica "Tem alguém ferido?": `lost_answer` diz o estado agora e
+`lost_units` o que isso passa a exigir (quase sempre ambulância). A duração de cada estágio é
 `stage_sec` (segundos reais): 45/22/22 nas ocorrências mais lentas, 40/20/20 nas médias e 35/18/18 em fogo e AVC.
 O robô em ritmo humano (5 s por ação, lendo cada resposta até o fim, 15 s no protocolo e no mapa) despacha com
 ~40 s de barra corrida: a tempo nas lentas e médias, já agravando em fogo e AVC.

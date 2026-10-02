@@ -31,19 +31,32 @@ extends Resource
 ## (fogo, AVC) correm mais rápido.
 @export var stage_sec := Vector3(45.0, 22.0, 22.0)
 ## O que a pessoa conta quando a situação começa a piorar e as unidades que isso passa a exigir (somam às do caso).
+## Depois de contar, o operador ganha uma pergunta sobre o que mudou (`worsening_question` e a resposta).
 @export var worsening := ""
 @export var worsening_units: PackedStringArray = []
-## O que ela conta quando fica crítica, e as unidades a mais.
+@export var worsening_question := ""
+@export var worsening_answer := ""
+## O que ela conta quando fica crítica, as unidades a mais e a pergunta sobre isso.
 @export var critical := ""
 @export var critical_units: PackedStringArray = []
-## A reclamação quando o pior acontece (dá para despachar ainda, mas a emergência está perdida).
+@export var critical_question := ""
+@export var critical_answer := ""
+## A reclamação quando o pior acontece (dá para despachar ainda, mas a emergência está perdida). As perguntas que
+## sobraram saem (menos o endereço, a primeira) e fica "Tem alguém ferido?": `lost_answer` diz o estado agora, e
+## `lost_units` o que isso passa a exigir.
 @export var lost := ""
+@export var lost_answer := ""
+@export var lost_units: PackedStringArray = []
 
 
-## Unidades necessárias no estágio `stage` (0 inicial, 1 agravando, 2 agravada ou depois).
+## Unidades necessárias no estágio `stage` (0 inicial, 1 agravando, 2 agravada, 3 perdida).
 func required(stage: int) -> PackedStringArray:
 	var out := units.duplicate()
-	for u in (worsening_units if stage >= 1 else PackedStringArray()) + (critical_units if stage >= 2 else PackedStringArray()):
+	var more := PackedStringArray()
+	for s in [[1, worsening_units], [2, critical_units], [3, lost_units]]:
+		if stage >= s[0]:
+			more += s[1]
+	for u in more:
 		if not u in out:
 			out.append(u)
 	return out

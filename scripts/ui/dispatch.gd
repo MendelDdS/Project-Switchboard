@@ -119,7 +119,6 @@ func _refresh() -> void:
 	_check(%CheckUnits, not _selected_units().is_empty(), T.text(T.Key.DISPATCH_CHECK_UNITS))
 	_send_button.disabled = not can_send()
 	var busy := UNIT_IDS.filter(func(u): return _units[u] != Unit.AVAILABLE)
-	_report.visible = not busy.is_empty()
 	_report.text = "  ·  ".join(PackedStringArray(busy.map(func(u): return "%s: %s" % [T.text(UNIT_NAMES[u]), T.text(UNIT_STATUS[_units[u]])])))
 
 

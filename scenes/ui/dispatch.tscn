@@ -100,7 +100,7 @@ autowrap_mode = 3
 
 [node name="Report" type="Label" parent="."]
 unique_name_in_owner = true
-visible = false
+custom_minimum_size = Vector2(0, 17)
 layout_mode = 2
 theme_type_variation = &"InkSoftLabel"
 theme_override_font_sizes/font_size = 14
