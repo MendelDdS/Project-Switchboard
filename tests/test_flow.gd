@@ -670,9 +670,17 @@ func _initialize() -> void:
 
 	# ---- 13. mapa e despacho numa tela: o tipo não marca unidades (a conversa decide), Enviar só com tudo, e depois limpa
 	var d = m.dispatch
+	m.tools.set_tab("despacho")
+	d.open_slip(false)
+	await frames(2)
+	ok(not d._slip.visible and d.get_node("%Open").visible and d.city.cover == 0.0, "ficha recolhida: o mapa na aba toda")
 	d.set_occurrence("")
 	ok(not d.can_send() and d._send_button.disabled, "despacho vazio não envia")
+	var spot: Vector2 = d.city._off + Vector2(300, 220) * d.city._k   # um ponto do mapa, na tela
 	d.set_location("sol", 0, "Rua do Sol, 1–99")
+	await frames(2)
+	ok(d._slip.visible and d.city.cover > 200.0, "marcar o local abre a ficha por cima do mapa")
+	ok((d.city._off + Vector2(300, 220) * d.city._k).distance_to(spot) < 1.0, "o mapa não pula quando a ficha abre")
 	d.set_occurrence("Incêndio")
 	ok(d._selected_units().is_empty() and not d.can_send(), "o tipo não marca unidade")
 	(d._unit_buttons["amb"] as Button).button_pressed = true
@@ -680,6 +688,10 @@ func _initialize() -> void:
 	d._send()
 	ok(d._location.is_empty() and d._occ_group.get_pressed_button() == null and d.city.sel.is_empty(), "depois de enviar, local e tipo limpos")
 	ok(d._unit_buttons["amb"].disabled, "ambulância a caminho fica indisponível")
+	ok(not d._slip.visible and d.city.cover == 0.0, "depois de enviar, a ficha se recolhe")
+	await frames(2)
+	ok(d.get_node("%Fleet").visible and d.get_node("%Report").text.contains(T.text(T.Key.UNIT_AMBULANCE)), "a faixa das viaturas mostra quem saiu")
+	m.tools.set_tab("lista")
 	print("OK 13 mapa e despacho")
 
 	# ---- 14. painel de debug (F1): toca uma emergência, pula estágio, registra as pendências

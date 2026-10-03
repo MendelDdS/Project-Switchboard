@@ -11,7 +11,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - **Interface em cenas** (`scenes/`), com Containers; scripts de interface em `scripts/ui/`. Lógica em `scripts/`.
   Estilo visual no tema global `themes/main_theme.tres` (variações de tipo: `GreenButton`, `AmberButton`,
   `RedButton`, `InkButton`, `DarkButton`, `ChoiceButton`, `TabButton`, `PaperToggle`, `PaperInk`, `LetterButton`,
-  `DarkPanel`, `PaperPanel`, `NotePanel`, `FormPanel`, `InkLabel`, `InkSoftLabel`, `DimLabel`, `AmberLabel`,
+  `DarkPanel`, `PaperPanel`, `NotePanel`, `FormPanel`, `SlipPanel`, `InkLabel`, `InkSoftLabel`, `DimLabel`, `AmberLabel`,
   `MonoLabel`, `InkMonoLabel`). Prefira variação de tema a override por nó.
 - Nomes de pessoas e lugares na ordem natural, "Nome Sobrenome" (nunca "Sobrenome, Nome"); a lista telefônica
   ordena pelo nome como aparece, sem acento (`PhoneBook._entries`, `_plain`). **Uma letra por página dupla**: a aba de
@@ -192,14 +192,19 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   carimbo colorido por tipo, `STAMPS`). A aba mostra quantas faltam (`pending_changed(count)` → `Tools.set_count`,
   selo `BadgeLabel`); o jogo não troca de aba sozinho.
 - Despacho: **mapa e despacho numa aba só** (`Dispatch`, `scenes/ui/dispatch.tscn`; não existe mais aba Mapa nem
-  `MapView`): o `CityMap` (`%City`) em cima, clicar no trecho já marca o local (`segment_selected` → `set_location`);
-  passar o mouse mostra uma etiqueta com a faixa de números do trecho (`CityMap._tag`, "Rua do Sol, 1–99").
-  Embaixo, uma faixa compacta (botões `PaperChip`): tipos, unidades e Enviar, e a conferência
-  "[x] Local · [x] Tipo · [x] Unidades" (`_check`); Enviar só acende com as três (`can_send`). O tipo **não** marca
-  unidades: a conversa decide, pelo protocolo (cartão `DISPATCH_PROTOCOL` na aba; regras em `EmergencyCall.units`).
+  `MapView`): o `CityMap` (`%City`) ocupa a aba inteira (passa por baixo da margem do papel); clicar no trecho já marca
+  o local (`segment_selected` → `set_location`); passar o mouse mostra uma etiqueta com a faixa de números do trecho
+  (`CityMap._tag`, "Rua do Sol, 1–99"). Por cima, à direita, a **ficha de despacho** (`%Slip`, `SlipPanel`), na ordem
+  da decisão: local, ocorrência (lista), unidades (cada uma com o que a justifica embaixo, `DISPATCH_WHY_*`: o protocolo
+  fica junto do botão) e Enviar. Cada parte mostra "[ ]"/"[x]" no título (`_check`); Enviar só acende com as três
+  (`can_send`). A ficha abre ao marcar um local ou quando chega uma emergência (`open_slip`), se recolhe depois do envio
+  e o × a fecha; fechada, o botão `%Open` a reabre. O mapa não encolhe: `CityMap.cover` diz quantos px da direita a
+  ficha cobre; a escala é a da aba toda, mas centro, nomes e rosa dos ventos ficam na parte à vista (`_seen`), o pedaço
+  coberto se alcança arrastando e abrir a ficha não mexe no que está na tela. `CityMap.blocked`: onde há botões por cima
+  (abrir ficha, `%Fleet`), sem nomes de rua. `%Fleet` (canto de baixo, só com viatura fora) mostra o estado delas
+  (`%Report`). O tipo **não** marca unidades: a conversa decide, pelo protocolo (regras em `EmergencyCall.units`).
   `EmergencyCall.cases` (`EmergencyCase`): variações sorteadas por `GameData.with_case()` (respostas + unidades).
-  Depois de enviar, local, tipo e unidades voltam limpos (`city.clear_selection`). O mapa tem tamanho fixo: a linha
-  de estado das unidades (`%Report`) e o protocolo sempre ocupam o espaço deles. Abrir a aba toca o papel
+  Depois de enviar, local, tipo e unidades voltam limpos (`city.clear_selection`). Abrir a aba toca o papel
   desenrolando (`unroll`). **Cidade em folhas** (`CityMap.SHEETS`, 600×440 cada: Vila Serena (setor 3) | Centro (1)
   em cima, Alto da Serra (2) | zona rural (do 2) embaixo), todas com a mesma grade. **Rua que continua tem o mesmo nome
   e a numeração seguindo** (`Street.continues`: trechos 0–2 na folha dela, 3–5 na vizinha, `block_sector(b)`,
@@ -389,6 +394,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     ligação (`Conversation.say` espera a anterior; o assunto não atropela mais o "Obrigado, Central") e nada de conversa
     fiada com o destino tocando. Fontes trocadas por IBM Plex e, a pedido do usuário, por Departure
     Mono em tudo (nítida em 1280×720; o texto de 11 px borra em janela bem menor).
+28. Aba do despacho refeita: mapa na aba inteira e a ficha de despacho por cima, à direita (abre ao marcar o local
+    ou com emergência, recolhe depois do envio), com o protocolo junto de cada unidade; viaturas num canto do mapa.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

@@ -49,6 +49,16 @@ var _k := 0.96
 var _off := Vector2.ZERO   ## mapa -> tela: tela = mapa * _k + _off
 var _tf := Transform2D.IDENTITY   ## transformação em uso no desenho (os textos a seguem só na posição)
 var _zoom := 1.0           ## 1 = enquadra os setores atendidos
+## Quantos px da direita estão cobertos (a ficha de despacho por cima): a escala continua a da área toda, mas o centro,
+## os nomes e a rosa dos ventos ficam na parte à vista, e dá para arrastar o pedaço coberto para ela.
+var cover := 0.0:
+	set(v):
+		if _center != Vector2.INF:   # o mapa não pula: o que está na tela fica onde está
+			_center.x -= (v - cover) / (2.0 * _k)
+		cover = v
+		queue_redraw()
+## Retângulos (em px de tela) com botões por cima do mapa: nenhum nome é desenhado ali.
+var blocked: Array[Rect2] = []
 var _center := Vector2.INF ## ponto do mapa no centro da vista (INF = o centro do enquadramento)
 var _press := Vector2.INF  ## onde o botão foi apertado (para separar clique de arrasto)
 var _dragging := false
@@ -116,9 +126,15 @@ func _view() -> void:
 	_k = _fit_k() * _zoom
 	if _center == Vector2.INF:
 		_center = f.get_center()
-	var half := size / (2.0 * _k)
+	var seen := _seen().size
+	var half := seen / (2.0 * _k)
 	_center = Vector2(_axis(_center.x, f.position.x, f.end.x, half.x), _axis(_center.y, f.position.y, f.end.y, half.y))
-	_off = size / 2.0 - _center * _k
+	_off = seen / 2.0 - _center * _k
+
+
+## A parte do mapa à vista (sem o pedaço coberto pela ficha).
+func _seen() -> Rect2:
+	return Rect2(0, 0, maxf(1.0, size.x - cover), size.y)
 
 
 ## Centro da vista num eixo: aproximado, anda só dentro do enquadramento; com sobra, fica no meio dele.
@@ -251,7 +267,7 @@ func _label(p: Vector2, txt: String, sz: int, col: Color = LINE, bg := Color.TRA
 	var w := _width(txt, sz)
 	var at := (_tf * p).round()
 	var box := Rect2(at.x - sz * 0.8, at.y - w / 2.0 - 1, sz + 2, w + 2) if up else Rect2(at.x - w / 2.0 - 1, at.y - sz * 0.8, w + 2, sz + 2)
-	if not Rect2(Vector2.ZERO, size).encloses(box) or _boxes.any(func(b: Rect2): return b.intersects(box)):
+	if not _seen().encloses(box) or _boxes.any(func(b: Rect2): return b.intersects(box)):
 		return false
 	_boxes.append(box)
 	draw_set_transform(Vector2.ZERO)
@@ -271,7 +287,7 @@ func _use(xf: Transform2D) -> void:
 
 func _draw() -> void:
 	_view()
-	_boxes.clear()
+	_boxes = blocked.duplicate()
 	_places.clear()
 	var xf := Transform2D(0.0, Vector2(_k, _k), 0.0, _off)
 	draw_rect(Rect2(Vector2.ZERO, size), Pal.INK_SOFT)
@@ -322,7 +338,7 @@ func _draw() -> void:
 				draw_rect(Rect2(SHEETS[s], SHEET), Color(Pal.INK_SOFT, 1.0 - smoothstep(0.0, 1.0, _reveal)))
 	# rosa dos ventos, no canto da vista
 	_use(Transform2D.IDENTITY)
-	var cp := size - Vector2(46, 40)
+	var cp := _seen().end - Vector2(46, 40)
 	draw_rect(Rect2(cp, Vector2(40, 34)), LINE)
 	draw_rect(Rect2(cp + Vector2(2, 2), Vector2(36, 30)), PAPER)
 	_t(cp + Vector2(20, 18), "N", 11)
@@ -489,7 +505,7 @@ func _draw_units() -> void:
 func _tag(p: Vector2, txt: String) -> void:
 	var w := _width(txt, 11)
 	var at := (_tf * p).round() + Vector2(-roundf(w / 2.0) - 5, -34)
-	at = Vector2(clampf(at.x, 2, size.x - w - 12), maxf(at.y, 2))
+	at = Vector2(clampf(at.x, 2, _seen().end.x - w - 12), maxf(at.y, 2))
 	draw_set_transform(Vector2.ZERO)
 	draw_rect(Rect2(at, Vector2(w + 10, 20)), LINE)
 	draw_rect(Rect2(at + Vector2.ONE, Vector2(w + 8, 18)), Color("f4ecd2"))

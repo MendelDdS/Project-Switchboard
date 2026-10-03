@@ -190,9 +190,12 @@ MAP_DISTRICT_3,Vila Serena,Vila Serena,Vila Serena
 HINT_NEW_BANK,"Os números que começam com %d ficam no banco %s, aberto hoje.","Numbers starting with %d are on bank %s, opened tonight.","Los números que empiezan con %d están en el banco %s, abierto hoy."
 DISPATCH_SEND,[ ENVIAR ],[ SEND ],[ ENVIAR ]
 DISPATCH_CHECK_PLACE,Local,Location,Lugar
-DISPATCH_CHECK_TYPE,Tipo,Type,Tipo
+DISPATCH_CHECK_TYPE,Ocorrência,Incident,Incidente
 DISPATCH_CHECK_UNITS,Unidades,Units,Unidades
-DISPATCH_PROTOCOL,"Protocolo — Polícia: crime, briga, arma, rua bloqueada · Bombeiros: fogo, fumaça, fio ou gás, alguém preso · Ambulância: alguém ferido, passando mal ou preso","Protocol — Police: crime, fight, weapon, blocked road · Fire: fire, smoke, wires or gas, someone trapped · Ambulance: someone hurt, ill or trapped","Protocolo — Policía: delito, pelea, arma, calle bloqueada · Bomberos: fuego, humo, cables o gas, alguien atrapado · Ambulancia: alguien herido, enfermo o atrapado"
+DISPATCH_OPEN,Abrir ficha,Open slip,Abrir ficha
+DISPATCH_WHY_POL,"crime, briga, arma, rua bloqueada","crime, fight, weapon, blocked road","delito, pelea, arma, calle bloqueada"
+DISPATCH_WHY_BOMB,"fogo, fumaça, fio ou gás, alguém preso","fire, smoke, wires or gas, someone trapped","fuego, humo, cables o gas, alguien atrapado"
+DISPATCH_WHY_AMB,"alguém ferido, passando mal ou preso","someone hurt, ill or trapped","alguien herido, enfermo o atrapado"
 DISPATCH_CLICK_STREET,clique na rua no mapa,click the street on the map,haga clic en la calle del mapa
 UNIT_POLICE,Polícia,Police,Policía
 UNIT_FIRE,Bombeiros,Fire department,Bomberos
