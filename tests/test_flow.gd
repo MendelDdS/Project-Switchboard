@@ -187,7 +187,7 @@ func _initialize() -> void:
 		var shown_entries: Array = pg[0] + pg[1]
 		var of_letter: Array = book._entries.filter(func(e): return book.initial(e) == l)
 		var right_h: float = book.TOP + pg[1].reduce(func(acc, e): return acc + book.entry_height(e), 0.0)
-		ok(book.current_letter() == l and shown_entries == of_letter and right_h <= book.BOTTOM, "aba %s: só a letra, inteira" % l)
+		ok(book.current_letter() == l and shown_entries == of_letter and right_h <= book.bottom, "aba %s: só a letra, inteira" % l)
 	book.jump(book._index[0])
 	var walked := 0
 	while not book._next.disabled:

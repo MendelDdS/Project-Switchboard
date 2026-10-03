@@ -7,10 +7,8 @@ extends Control
 ## dedo. Os contatos vêm de GameData.CONTENT.directory (só os setores atendidos e o despacho).
 
 const TAB_W := 26.0           # largura das abas de índice, na borda direita
-const BOOK := Rect2(0, 0, 576 - TAB_W, 406)
+const NAV_H := 56.0           # altura da barra de Voltar/Virar, embaixo do livro
 const TOP := 40.0             # onde começam os contatos da página (abaixo do cabeçalho)
-const BOTTOM := 400.0         # até onde vão
-const PAGE_W := 247.0         # largura do texto de cada página
 const PAPER := Color("e3d6b2")
 const PLAIN := {"á": "a", "à": "a", "â": "a", "ã": "a", "é": "e", "ê": "e", "í": "i", "ó": "o", "ô": "o", "õ": "o", "ú": "u", "ç": "c"}
 
@@ -21,6 +19,9 @@ var _entries: Array = []      ## contatos em ordem alfabética do nome
 var _index: Array = []        ## letras que têm contato (uma aba cada)
 var _letter := 0              ## letra aberta (índice em `_index`); `_index.size()` = página de anotações
 var _hover_tab := -1
+var book := Rect2()           ## o livro acompanha o tamanho da aba (`NOTIFICATION_RESIZED`)
+var bottom := 0.0             ## até onde vão os contatos
+var page_w := 0.0             ## largura do texto de cada página
 
 @onready var _prev: Button = %Prev
 @onready var _next: Button = %Next
@@ -60,7 +61,7 @@ func pages() -> Array:
 	var all := _entries.filter(func(e): return initial(e) == current_letter())
 	var h := TOP
 	var n := 0
-	while n < all.size() and h + entry_height(all[n]) <= BOTTOM:
+	while n < all.size() and h + entry_height(all[n]) <= bottom:
 		h += entry_height(all[n])
 		n += 1
 	return [all.slice(0, n), all.slice(n)]
@@ -90,8 +91,8 @@ func _update_nav() -> void:
 
 ## Aba de índice da letra `i`, na borda direita (a da letra aberta sai mais para fora).
 func _tab_rect(i: int, out := false) -> Rect2:
-	var h := minf(26.0, (BOOK.size.y - 12.0) / _index.size())
-	return Rect2(BOOK.end.x - 4, 6 + i * h, TAB_W + (0.0 if out else -3.0), h - 2)
+	var h := minf(26.0, (book.size.y - 12.0) / _index.size())
+	return Rect2(book.end.x - 4, 6 + i * h, TAB_W + (0.0 if out else -3.0), h - 2)
 
 
 func _tab_at(p: Vector2) -> int:
@@ -132,18 +133,18 @@ func _hit(pos: Vector2) -> int:
 func _draw() -> void:
 	_hits.clear()
 	_draw_tabs()
-	draw_rect(BOOK, Pal.INK_SOFT)
-	draw_rect(BOOK.grow(-2), PAPER)
-	var mid := BOOK.size.x / 2.0
+	draw_rect(book, Pal.INK_SOFT)
+	draw_rect(book.grow(-2), PAPER)
+	var mid := book.size.x / 2.0
 	var y := 6.0
-	while y < BOOK.size.y - 4:
+	while y < book.size.y - 4:
 		draw_rect(Rect2(mid - 1, y, 2, 5), Pal.PAPER_LINE)
 		y += 9
 	var left := 14.0
 	var right := 14.0 + mid
 	if current_letter() == "":   # depois da última letra: anotações
 		_page_head(left, T.text(T.Key.BOOK_NOTES))
-		draw_multiline_string(Pal.ui, Vector2(left, 58), T.text(T.Key.BOOK_NOTE_TEXT), HORIZONTAL_ALIGNMENT_LEFT, PAGE_W, 11, -1, Pal.INK_SOFT)
+		draw_multiline_string(Pal.ui, Vector2(left, 58), T.text(T.Key.BOOK_NOTE_TEXT), HORIZONTAL_ALIGNMENT_LEFT, page_w, 11, -1, Pal.INK_SOFT)
 		_ruled(right)
 		return
 	var pg := pages()
@@ -176,22 +177,22 @@ func _draw_tabs() -> void:
 ## Cabeçalho da página: um título e o fio embaixo.
 func _page_head(x0: float, txt: String) -> void:
 	draw_string(Pal.mono, Vector2(x0, 26), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.INK_SOFT)
-	draw_rect(Rect2(x0, 31, PAGE_W, 2), Pal.INK_SOFT)
+	draw_rect(Rect2(x0, 31, page_w, 2), Pal.INK_SOFT)
 
 
 ## Cabeçalho da página de uma letra: a letra num quadrado de tinta e o fio até a margem.
 func _page_letter(x0: float, letter: String) -> void:
 	draw_rect(Rect2(x0, 6, 24, 24), Pal.INK_SOFT)
 	draw_string(Pal.mono, Vector2(x0, 6 + Pal.mono.get_ascent(22)), letter, HORIZONTAL_ALIGNMENT_CENTER, 24, 22, PAPER)
-	draw_rect(Rect2(x0 + 30, 29, PAGE_W - 30, 2), Pal.INK_SOFT)
+	draw_rect(Rect2(x0 + 30, 29, page_w - 30, 2), Pal.INK_SOFT)
 
 
 ## Página sem contatos: só a pauta.
 func _ruled(x0: float) -> void:
 	var y := TOP + 24.0
-	while y < BOTTOM:
+	while y < bottom:
 		var lx := x0 - 4
-		while lx < x0 + PAGE_W + 4:
+		while lx < x0 + page_w + 4:
 			draw_rect(Rect2(lx, y, 2, 1), Pal.PAPER_LINE)
 			lx += 4
 		y += 32.0
@@ -202,26 +203,26 @@ func _draw_entry(x0: float, ey: float, e: DirectoryEntry) -> void:
 	var mono := Pal.mono
 	var idx := GameData.CONTENT.directory.find(e)
 	var eh := entry_height(e)
-	var r := Rect2(x0 - 6, ey, PAGE_W + 12, eh)
+	var r := Rect2(x0 - 6, ey, page_w + 12, eh)
 	_hits.append([r, idx])
 	if idx == marked:
 		draw_rect(r, Color(Pal.AMBER, 0.38))
 	elif idx == hover:
 		draw_rect(r, Color(Pal.AMBER, 0.16))
 	var base := ey + 4 + mono.get_ascent(11)
-	draw_multiline_string(mono, Vector2(x0, base), e.name, HORIZONTAL_ALIGNMENT_LEFT, 190, 11, -1, Color.BLACK)
-	draw_string(mono, Vector2(x0, ey + 4 + mono.get_ascent(22)), e.number, HORIZONTAL_ALIGNMENT_RIGHT, PAGE_W, 22, Color.BLACK)
-	var nh := mono.get_multiline_string_size(e.name, HORIZONTAL_ALIGNMENT_LEFT, 190, 11).y
+	draw_multiline_string(mono, Vector2(x0, base), e.name, HORIZONTAL_ALIGNMENT_LEFT, page_w - 57, 11, -1, Color.BLACK)
+	draw_string(mono, Vector2(x0, base), e.number, HORIZONTAL_ALIGNMENT_RIGHT, page_w, 11, Color.BLACK)
+	var nh := mono.get_multiline_string_size(e.name, HORIZONTAL_ALIGNMENT_LEFT, page_w - 57, 11).y
 	if nh <= 24.0:   # nome numa linha: pontilhado até o número
 		var dx := x0 + mono.get_string_size(e.name, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 6
-		var nx := x0 + PAGE_W - mono.get_string_size(e.number, HORIZONTAL_ALIGNMENT_LEFT, -1, 22).x - 6
+		var nx := x0 + page_w - mono.get_string_size(e.number, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x - 6
 		while dx < nx:
 			draw_rect(Rect2(dx, base - 2, 2, 2), Pal.INK_SOFT)
 			dx += 6
-	draw_multiline_string(mono, Vector2(x0, ey + 6 + nh + mono.get_ascent(11)), _addr(e), HORIZONTAL_ALIGNMENT_LEFT, PAGE_W, 11, -1, Pal.INK_SOFT)
+	draw_multiline_string(mono, Vector2(x0, ey + 6 + nh + mono.get_ascent(11)), _addr(e), HORIZONTAL_ALIGNMENT_LEFT, page_w, 11, -1, Pal.INK_SOFT)
 	var dy := ey + eh - 1
 	var lx := x0 - 4
-	while lx < x0 + PAGE_W + 4:
+	while lx < x0 + page_w + 4:
 		draw_rect(Rect2(lx, dy, 2, 1), Pal.PAPER_LINE)
 		lx += 4
 
@@ -238,13 +239,18 @@ func _addr(e: DirectoryEntry) -> String:
 
 ## Altura do contato na página (nome e endereço podem quebrar linha).
 func entry_height(e: DirectoryEntry) -> float:
-	var nh := Pal.mono.get_multiline_string_size(e.name, HORIZONTAL_ALIGNMENT_LEFT, 190, 11).y
-	return nh + Pal.mono.get_multiline_string_size(_addr(e), HORIZONTAL_ALIGNMENT_LEFT, PAGE_W, 11).y + 12
+	var nh := Pal.mono.get_multiline_string_size(e.name, HORIZONTAL_ALIGNMENT_LEFT, page_w - 57, 11).y
+	return nh + Pal.mono.get_multiline_string_size(_addr(e), HORIZONTAL_ALIGNMENT_LEFT, page_w, 11).y + 12
 
 
 ## O idioma mudou nas configurações: redesenha os textos. O mouse saiu: some o realce.
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_TRANSLATION_CHANGED:
+		queue_redraw()
+	elif what == NOTIFICATION_RESIZED:
+		book = Rect2(0, 0, size.x - TAB_W, size.y - NAV_H)
+		bottom = book.size.y - 6
+		page_w = book.size.x / 2.0 - 28
 		queue_redraw()
 	elif what == NOTIFICATION_MOUSE_EXIT and (hover != -1 or _hover_tab != -1):
 		hover = -1

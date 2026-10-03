@@ -169,7 +169,6 @@ script = ExtResource("5_switchboard")
 [node name="Phone" parent="Layout/Columns/Left" unique_id=577996644 instance=ExtResource("6_phone_panel")]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_vertical = 3
 
 [node name="Right" type="VBoxContainer" parent="Layout/Columns" unique_id=1679355778]
 layout_mode = 2
@@ -191,6 +190,7 @@ size_flags_vertical = 0
 [node name="Tools" parent="Layout/Columns/Right" unique_id=343385558 instance=ExtResource("8_tools")]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_vertical = 3
 
 [node name="Hint" type="RichTextLabel" parent="Layout/Columns/Right" unique_id=932627705]
 unique_name_in_owner = true
@@ -208,11 +208,12 @@ z_index = 2
 texture_filter = 2
 material = SubResource("CanvasItemMaterial_4")
 layout_mode = 1
-anchors_preset = 15
+anchors_preset = 1
+anchor_left = 1.0
 anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+offset_left = -1280.0
+offset_bottom = 720.0
+grow_horizontal = 0
 mouse_filter = 2
 texture = SubResource("GradientTexture2D_3")
 expand_mode = 1

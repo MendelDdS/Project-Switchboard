@@ -1,6 +1,7 @@
 class_name Background
 extends Control
-## Parede, janela (com o clima da noite), mesa de madeira e luminária — desenhados em 640x360 e ampliados 2x.
+## Parede, janela (com o clima da noite), mesa de madeira e luminária — desenhados em pixels de 2x2 e esticados até
+## a borda da tela (a janela segue a coluna da esquerda, de largura fixa; a luminária, a borda direita).
 ## `weather`: "rain" (gotas no vidro), "fog" (névoa passando, luzes difusas) ou "clear" (estrelas e lua).
 ## `shadow`: a silhueta de alguém parado do lado de fora da janela (sai pouco antes da ligação desconhecida).
 
@@ -51,15 +52,17 @@ func _r(x: float, y: float, w: float, h: float, c: Color) -> void:
 
 func _draw() -> void:
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
-	_r(0, 0, 640, 360, Color("172023"))
-	for x in range(0, 640, 22):
+	var w := ceilf(size.x / 2.0)
+	var h := ceilf(size.y / 2.0)
+	_r(0, 0, w, h, Color("172023"))
+	for x in range(0, w, 22):
 		_r(x, 0, 2, 48, Color("141c1f"))
-	_r(0, 47, 640, 2, Color("1e282b"))
-	_r(0, 49, 640, 311, Color("211811"))
-	for y in range(56, 360, 9):
-		_r(0, y, 640, 1, Color("1b130d"))
-	for i in 40:
-		_r((i * 97) % 640, 52 + ((i * 53) % 300), 18 + (i % 5) * 6, 1, Color("2a1f16"))
+	_r(0, 47, w, 2, Color("1e282b"))
+	_r(0, 49, w, h - 49, Color("211811"))
+	for y in range(56, h, 9):
+		_r(0, y, w, 1, Color("1b130d"))
+	for i in int(40 * w * h / (640 * 360)):
+		_r((i * 97) % int(w), 52 + ((i * 53) % int(h - 60)), 18 + (i % 5) * 6, 1, Color("2a1f16"))
 	# janela
 	var wx := 276.0
 	var wy := 5.0
@@ -115,7 +118,7 @@ func _draw() -> void:
 	_r(wx + ww / 2 - 1, wy, 2, wh, Color("2c2a24"))
 	_r(wx, wy + wh / 2 - 1, ww, 2, Color("2c2a24"))
 	# luminária
-	var lx := 500.0
+	var lx := w - 140.0
 	_r(lx, 0, 2, 8, Color("111111"))
 	draw_colored_polygon(PackedVector2Array([Vector2(lx - 8, 8), Vector2(lx + 10, 8), Vector2(lx + 22, 22), Vector2(lx - 20, 22)]), Color("34422e"))
 	_r(lx - 6, 9, 4, 3, Color("50623f"))

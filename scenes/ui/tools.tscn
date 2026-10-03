@@ -98,6 +98,7 @@ auto_translate_mode = 2
 [node name="Paper" type="PanelContainer" parent="."]
 custom_minimum_size = Vector2(0, 498)
 layout_mode = 2
+size_flags_vertical = 3
 theme_type_variation = &"PaperPanel"
 
 [node name="Margin" type="MarginContainer" parent="Paper"]

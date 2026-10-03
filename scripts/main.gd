@@ -19,6 +19,7 @@ const SMALLTALK_AFTER := 10.0           # segundos de silêncio esperando a tran
 const SMALLTALK_CHANCE := 0.6           # ...às vezes (respostas e limites: Conversation); sem resposta, reclama da demora:
 const NAG_AFTER := 22.0                 # segundos de silêncio até reclamar da demora (emergência: EMERGENCY_NAG_AFTER)
 const EMERGENCY_NAG_AFTER := 26.0
+const PHONE_MAX_H := 400.0              # px: em tela alta o telefone para de crescer (a sobra fica para a mesa de madeira)
 ## Atalhos das abas (Input Map): aba -> ação.
 const TAB_KEYS := {"lista": "tab_directory", "despacho": "tab_dispatch", "caderno": "tab_logbook"}
 var C: GameContent = GameData.CONTENT
@@ -93,6 +94,10 @@ func _ready() -> void:
 	background.weather = weather
 	exchange = Exchange.new(GameData.board_numbers())
 	board.setup(exchange, phone.fone_socket)
+	var left := phone.get_parent() as Control   # o telefone ocupa o resto da coluna, até PHONE_MAX_H
+	left.resized.connect(func():
+		var above := left.get_combined_minimum_size().y - phone.get_combined_minimum_size().y
+		phone.custom_minimum_size.y = minf(left.size.y - above, PHONE_MAX_H))
 	var plan := Schedule.build(night, pace, LAST_CALL)
 	sched = plan.calls
 	tut = plan.tut
