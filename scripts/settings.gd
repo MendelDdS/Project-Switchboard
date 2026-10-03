@@ -24,7 +24,8 @@ var _persist := true
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	var args := OS.get_cmdline_args()
-	_persist = not ("-s" in args or "--script" in args)
+	# testes (`tests/runner.tscn -- --test=x`, ou um script com -s) não leem nem gravam o arquivo do jogador
+	_persist = not ("-s" in args or "--script" in args or Array(OS.get_cmdline_user_args()).any(func(a: String): return a.begins_with("--test=")))
 	if _persist:
 		_load()
 	for a in OS.get_cmdline_user_args():

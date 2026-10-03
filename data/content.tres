@@ -255,8 +255,9 @@ script = ExtResource("1_6g7xa")
 name = "Hotel Estrela"
 address = "Avenida Brasil, 30"
 number = "305"
+category = "hospedagem"
 spoken = "o Hotel Estrela"
-reasons = PackedStringArray("Meu irmão chegou hoje e está hospedado lá.", "Quero saber se ainda tem quarto vago pra amanhã.")
+reasons = PackedStringArray("Preciso de um quarto pra esta noite.", "Quero saber se ainda tem quarto vago pra amanhã.")
 
 [sub_resource type="Resource" id="Resource_wcyhl"]
 script = ExtResource("1_6g7xa")
@@ -298,6 +299,7 @@ script = ExtResource("1_6g7xa")
 name = "Oficina do Tião"
 address = "Rua do Moinho, 44"
 number = "318"
+category = "oficina"
 spoken = "a Oficina do Tião"
 reasons = PackedStringArray("Meu carro atolou na estrada do moinho.", "O caminhão não quer pegar de jeito nenhum.")
 
@@ -328,7 +330,7 @@ reasons = PackedStringArray("Tô quase sem gasolina.", "Quero saber se o posto a
 [sub_resource type="Resource" id="Resource_yi6mb"]
 script = ExtResource("1_6g7xa")
 name = "Gazeta de São Sotero"
-address = "Rua Sete de Setembro, 150"
+address = "Rua Sete de Setembro, 50"
 number = "101"
 spoken = "a Gazeta"
 reasons = PackedStringArray("Quero pôr um anúncio no jornal de amanhã.", "Saiu meu nome errado na edição de hoje.")
@@ -366,7 +368,7 @@ reasons = PackedStringArray()
 [sub_resource type="Resource" id="Resource_6y7ie"]
 script = ExtResource("1_6g7xa")
 name = "Bilhar do Tonho"
-address = "Rua do Comércio, 160"
+address = "Rua do Comércio, 260"
 number = "355"
 spoken = "o Bilhar do Tonho"
 reasons = PackedStringArray("Meu pai está aí jogando e não volta pra casa.", "Quero deixar um recado pro meu irmão, que joga aí toda noite.")
@@ -1023,9 +1025,27 @@ name = "Rua do Cruzeiro"
 sector = 2
 pos = 360.0
 
+[sub_resource type="Resource" id="Resource_pens1"]
+script = ExtResource("1_6g7xa")
+name = "Pensão Dona Cota"
+address = "Rua da Estação, 40"
+number = "312"
+category = "hospedagem"
+spoken = "a Pensão Dona Cota"
+reasons = PackedStringArray("Preciso de um quarto barato pra esta noite.", "Quero saber se tem vaga pra dois pernoitarem.")
+
+[sub_resource type="Resource" id="Resource_borr1"]
+script = ExtResource("1_6g7xa")
+name = "Borracharia do Neno"
+address = "Rua das Acácias, 270"
+number = "336"
+category = "oficina"
+spoken = "a Borracharia do Neno"
+reasons = PackedStringArray("Furou o pneu do carro aqui na estrada.", "O carro morreu no meio da rua e não pega.")
+
 [resource]
 script = ExtResource("15_65xm7")
-directory = Array[ExtResource("1_6g7xa")]([SubResource("Resource_ssh4q"), SubResource("Resource_7bth5"), SubResource("Resource_4thi7"), SubResource("Resource_ufmoj"), SubResource("Resource_yijt6"), SubResource("Resource_em5wb"), SubResource("Resource_yceab"), SubResource("Resource_dmgf0"), SubResource("Resource_s63jb"), SubResource("Resource_d8b43"), SubResource("Resource_xawj0"), SubResource("Resource_tew1k"), SubResource("Resource_i4sgx"), SubResource("Resource_2cdgd"), SubResource("Resource_k2mqa"), SubResource("Resource_wgbdt"), SubResource("Resource_dldyi"), SubResource("Resource_e0jml"), SubResource("Resource_vcut8"), SubResource("Resource_wcyhl"), SubResource("Resource_pli3n"), SubResource("Resource_kofd3"), SubResource("Resource_bws1x"), SubResource("Resource_52df0"), SubResource("Resource_8y4og"), SubResource("Resource_3vj4f"), SubResource("Resource_osrdx"), SubResource("Resource_yi6mb"), SubResource("Resource_drsc6"), SubResource("Resource_dr0p2"), SubResource("Resource_tnurf"), SubResource("Resource_6dq54"), SubResource("Resource_6y7ie"), SubResource("Resource_7llgn"), SubResource("Resource_hmatr"), SubResource("Resource_uhirb"), SubResource("Resource_5fdhg")])
+directory = Array[ExtResource("1_6g7xa")]([SubResource("Resource_ssh4q"), SubResource("Resource_7bth5"), SubResource("Resource_4thi7"), SubResource("Resource_ufmoj"), SubResource("Resource_yijt6"), SubResource("Resource_em5wb"), SubResource("Resource_yceab"), SubResource("Resource_dmgf0"), SubResource("Resource_s63jb"), SubResource("Resource_d8b43"), SubResource("Resource_xawj0"), SubResource("Resource_tew1k"), SubResource("Resource_i4sgx"), SubResource("Resource_2cdgd"), SubResource("Resource_k2mqa"), SubResource("Resource_wgbdt"), SubResource("Resource_dldyi"), SubResource("Resource_e0jml"), SubResource("Resource_vcut8"), SubResource("Resource_wcyhl"), SubResource("Resource_pli3n"), SubResource("Resource_kofd3"), SubResource("Resource_bws1x"), SubResource("Resource_52df0"), SubResource("Resource_8y4og"), SubResource("Resource_3vj4f"), SubResource("Resource_osrdx"), SubResource("Resource_yi6mb"), SubResource("Resource_drsc6"), SubResource("Resource_dr0p2"), SubResource("Resource_tnurf"), SubResource("Resource_6dq54"), SubResource("Resource_6y7ie"), SubResource("Resource_7llgn"), SubResource("Resource_hmatr"), SubResource("Resource_uhirb"), SubResource("Resource_5fdhg"), SubResource("Resource_pens1"), SubResource("Resource_borr1")])
 streets = Array[ExtResource("16_5siro")]([SubResource("Resource_ecmv4"), SubResource("Resource_1exdq"), SubResource("Resource_r56aq"), SubResource("Resource_8jahr"), SubResource("Resource_drklu"), SubResource("Resource_6vkdf"), SubResource("Resource_5w5ra"), SubResource("Street_matriz"), SubResource("Street_sete"), SubResource("Street_tiradentes"), SubResource("Street_mercado"), SubResource("Street_palmeiras"), SubResource("Street_belavista"), SubResource("Street_cruzeiro")])
 occurrences = PackedStringArray("Acidente de trânsito", "Incêndio", "Mal súbito", "Invasão / roubo", "Outro")
 nights = Array[ExtResource("90_night")]([ExtResource("91_night1"), ExtResource("92_night2"), ExtResource("93_night3"), ExtResource("94_night4"), ExtResource("95_night5"), ExtResource("96_night6"), ExtResource("97_night7"), ExtResource("98_night8"), ExtResource("99_night9"), ExtResource("100_night10"), ExtResource("101_night11"), ExtResource("102_night12"), ExtResource("103_night13"), ExtResource("104_night14"), ExtResource("105_night15")])
@@ -1042,6 +1062,7 @@ chat_bridge = PackedStringArray("Vai indo, moço.", "Ah, vai bem, graças a Deus
 waiting = PackedStringArray("Alô? Central?", "Ainda está aí?", "Alô? Conseguiu?", "Moço? A ligação caiu?", "Alô? Tô esperando...", "Demora muito?", "Central? Tá me ouvindo?", "Ainda tô aqui, viu?", "Alô? Caiu?")
 emergency_waiting = PackedStringArray("Alô?! Vocês vão mandar alguém?", "Por favor, rápido!", "Central?!", "Alô! Tá demorando!", "Central, ainda tá aí?", "Manda alguém, pelo amor de Deus!")
 alt_accepted = PackedStringArray("Pode ser. Obrigado.", "Serve, sim. Pode ligar.", "Tanto faz, contanto que atendam.", "Ah, pode ser essa mesmo.")
+address_landmark = PackedStringArray("{street}, perto {landmark}", "na frente {landmark}, na {street}")
 hold_ok = PackedStringArray("Tá bom, eu espero.", "Obrigado, aguardo.", "Certo.", "Pode ser, eu fico na linha.", "Tá, mas rapidinho, tá?", "Tá, fico esperando.", "Sem pressa, moço.", "Tá bem, obrigada.")
 wrong_destination = PackedStringArray("Não, moço, não é aí.", "Hã? Não é com essa pessoa que eu quero falar.", "Esse não é quem eu pedi!", "Opa, acho que o senhor ligou errado.", "Ih, quem atendeu não foi quem eu pedi.", "Moço, essa voz eu não conheço.", "Não é esse número, não.")
 callers = PackedStringArray("f:Moradora", "m:Morador", "w:Senhor", "f:Senhora", "m:Rapaz", "f:Moça", "w:Seu Jair", "f:Dona Cida", "m:Seu Valdir", "f:Dona Olga")

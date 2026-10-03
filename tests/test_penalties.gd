@@ -3,10 +3,9 @@ extends "res://tests/test_base.gd"
 ## registro errado, despacho no endereço errado (retorno e novo despacho), emergência sem despacho (tarde demais),
 ## espera longa, informação errada e o relatório das 06:00.
 ## O relógio fica parado (`running = false`): os retornos agendados são tocados à mão.
-## `m` e `b` ficam sem tipo: Main e Switchboard usam o autoload Sfx (veja test_flow.gd).
 
-var m   # Main
-var b   # Switchboard
+var m: Main
+var b: Switchboard
 var ex: Exchange
 var C: GameContent = GameData.CONTENT
 
@@ -166,12 +165,12 @@ func _initialize() -> void:
 	m.dispatch.set_location(wrong_street, 0, "Endereço errado")
 	m.dispatch.set_occurrence(e4.occurrence)
 	for u in e4.units:
-		(m.dispatch._unit_buttons[u] as Button).button_pressed = true
+		m.dispatch.punch_unit(u)
 	m.dispatch._send()
 	ok(not c4.secured and c4.urgent(), "endereço errado não para a barra de agravamento")
 	ok(await wait_until(func(): return c4.ended, 20.0), "agradeceu e desligou")
 	ok(await wait_until(func(): return _faults("dispatch_wrong_place") == 1, 20.0), "advertência grave: endereço errado")
-	ok(await wait_until(func(): return m.dispatch._units.values().all(func(s): return s == 0), 10.0), "unidades disponíveis")
+	ok(await wait_until(func(): return m.dispatch.fleet.units.values().all(func(s): return s == 0), 10.0), "unidades disponíveis")
 	var r4 := _ring_retry(PhoneCall.Retry.WORSE)
 	r4.too_late = false
 	_answer(r4)
@@ -180,7 +179,7 @@ func _initialize() -> void:
 	m.dispatch.set_location(e4.street, e4.block, e4.address)
 	m.dispatch.set_occurrence(e4.occurrence)
 	for u in e4.units:
-		(m.dispatch._unit_buttons[u] as Button).button_pressed = true
+		m.dispatch.punch_unit(u)
 	m.dispatch._send()
 	ok(await wait_until(func(): return m.report.is_resolved(e4), 20.0), "resolvida no segundo despacho")
 	ok(m.report.outcomes()[e4] == ShiftReport.Outcome.LATE, "no jornal: com atraso")
@@ -232,31 +231,31 @@ func _initialize() -> void:
 	_clear_board()
 	print("OK 7 informação errada")
 
-	# ---- 8. despacho no lugar certo, mas com unidade a mais e tipo de ocorrência errado; sem tipo não envia
+	# ---- 8. cartão em branco (ninguém sai); depois, no lugar certo, com unidade a mais e sem o tipo perfurado
 	var e8: EmergencyCall = C.emergencies.filter(func(x): return Array(x.units) == ["amb"])[0]
 	var c8 := PhoneCall.from_emergency(e8)
 	m.ring(c8)
 	_answer(c8)
 	ok(await wait_until(func(): return c8.phase == PhoneCall.Phase.EMERGENCY and not c8.talking), "emergência 3")
-	await wait_until(func(): return m.dispatch._units.values().all(func(s): return s == 0), 30.0)
+	await wait_until(func(): return m.dispatch.fleet.units.values().all(func(s): return s == 0), 30.0)
 	m.dispatch.set_location(e8.street, e8.block, e8.address)
-	m.dispatch.set_occurrence("")
-	for u in ["amb", "bomb"]:
-		(m.dispatch._unit_buttons[u] as Button).button_pressed = true
 	m.dispatch._send()
-	ok(not c8.dispatched and not m.dispatch.can_send() and m.dispatch._send_button.disabled, "sem tipo de ocorrência não envia (Enviar apagado)")
-	var wrong_type: String = "Incêndio" if e8.occurrence != "Incêndio" else "Outro"
-	m.dispatch.set_occurrence(wrong_type)
+	ok(not c8.dispatched and _faults("dispatch_blank") == 1 and m.dispatch.fleet.units.values().all(func(s): return s == 0),
+		"cartão em branco: ninguém sai e o supervisor anota")
+	m.dispatch.set_location(e8.street, e8.block, e8.address)
 	for u in ["amb", "bomb"]:
-		(m.dispatch._unit_buttons[u] as Button).button_pressed = true
+		m.dispatch.punch_unit(u)
 	m.dispatch._send()
-	ok(await wait_until(func(): return m.report.is_resolved(e8), 20.0), "resolvida mesmo com unidade a mais")
-	ok(_faults("dispatch_extra") == 1 and _faults("dispatch_type") == 1, "advertências: unidade a mais e tipo errado")
+	ok(m._record(c8, PhoneCall.End.CALLER)["card"] == m.dispatch.machines.serial() and m.dispatch.machines.serial() > 0, "o registro leva o número do cartão enviado")
+	ok(await wait_until(func(): return m.report.is_resolved(e8), 20.0), "resolvida mesmo com unidade a mais e sem tipo")
+	ok(_faults("dispatch_extra") == 1 and _faults("dispatch_type") == 1, "advertências: unidade a mais e sem tipo")
+	ok(m.report.faults.any(func(f): return f["id"] == "dispatch_type" and f["detail"] == T.text(T.Key.FAULT_DETAIL_UNCLASSIFIED) % tr(e8.occurrence)),
+		"a advertência diz que faltou o tipo")
 	ok(m.report.outcomes()[e8] == ShiftReport.Outcome.OK, "no jornal: a tempo")
-	ok(await wait_until(func(): return m.dispatch._units["bomb"] == 0, 10.0) and m.dispatch._units["amb"] != 0,
+	ok(await wait_until(func(): return m.dispatch.fleet.units["bomb"] == 0, 30.0) and m.dispatch.fleet.units["amb"] != 0,
 		"bombeiros liberados antes da ambulância")
 	_clear_board()
-	print("OK 8 unidade a mais / tipo errado")
+	print("OK 8 cartão em branco / unidade a mais / sem tipo")
 
 	# ---- 9. relatório do supervisor
 	var view = m._ending._report
@@ -271,68 +270,67 @@ func _initialize() -> void:
 	ok(m.report.fired(), "graves acumuladas entre as noites: demitido")
 	print("OK 9 relatório (%d advertências)" % m.report.faults.size())
 
-	# ---- 10. barra de agravamento (o relógio está parado: a barra anda por _worsen chamado à mão)
+	# ---- 10. barra de agravamento (o relógio está parado: a barra anda por Urgency.tick chamado à mão)
 	# um caso em que cada estágio pede uma unidade nova (para ver quando ela passa a contar)
 	var fresh := func(x: EmergencyCall): return not x in [e4, e5, e8] and x.required(1).size() > x.units.size() and x.required(2).size() > x.required(1).size()
 	var e10: EmergencyCall = C.emergencies.filter(fresh)[0]
 	var c10 := PhoneCall.from_emergency(e10)
 	m.ring(c10)
 	_answer(c10)
-	m._worsen(1.0)
+	m.urgency.tick(1.0)
 	ok(c10.urgency > 0.0 and c10.stage == 0, "a barra corre desde que atendeu")
 	ok(await wait_until(func(): return c10.phase == PhoneCall.Phase.EMERGENCY and not c10.talking), "emergência 4")
 	c10.options[0]["fn"].call()   # uma pergunta: a barra para até a resposta terminar
 	await frames(2)
 	var u10 := c10.urgency
-	m._worsen(5.0)
+	m.urgency.tick(5.0)
 	ok(c10.asking and c10.urgency == u10, "pausada durante pergunta e resposta")
 	ok(await wait_until(func(): return not c10.asking), "respondeu")
-	m._worsen(e10.stage_sec.x)
-	var sfx = root.get_node("Sfx")
-	ok(sfx.pool_2d.any(func(p): return p.playing and p.stream == sfx.streams["radio_alert"]), "mudou de estágio: o rádio apita")
-	ok(c10.stage == 1 and Array(m.dispatch.required()) == Array(e10.required(0)), "agravando: ainda não exige o que ninguém contou")
+	m.urgency.tick(e10.stage_sec.x)
+	ok(Sfx.pool_2d.any(func(p): return p.playing and p.stream == Sfx.streams["radio_alert"]), "mudou de estágio: o rádio apita")
+	ok(c10.stage == 1 and Array(m.dispatch.fleet.required()) == Array(e10.required(0)), "agravando: ainda não exige o que ninguém contou")
 	ok(await wait_until(func(): return c10.transcript.any(func(l): return l["text"] == e10.worsening)), "contou o que piorou")
-	ok(await wait_until(func(): return Array(m.dispatch.required()) == Array(e10.required(1))), "depois de contar, passa a exigir mais unidades")
+	ok(await wait_until(func(): return Array(m.dispatch.fleet.required()) == Array(e10.required(1))), "depois de contar, passa a exigir mais unidades")
 	ok(await wait_until(func(): return c10.options.any(func(o): return o["label"] == e10.worsening_question)), "pergunta nova sobre o que mudou")
 	c10.last_talk = m.talk_clock - 100.0
 	m._nag()
 	await frames(10)
 	ok(not _said(c10, C.emergency_waiting), "depois de piorar, nada de reclamação genérica")
 	var w10 := _faults("emergency_critical")
-	await wait_until(func(): return m.dispatch._units.values().all(func(s): return s == 0), 30.0)
-	m._worsen(0.0)
+	await wait_until(func(): return m.dispatch.fleet.units.values().all(func(s): return s == 0), 30.0)
+	m.urgency.tick(0.0)
 	ok(m.radio._alert == 1, "luz de ocorrência no rádio, na cor do estágio")
-	var need: Array = m.dispatch.required()
+	var need: Array = m.dispatch.fleet.required()
 	ok(need.size() >= 2, "o caso testado precisa de duas unidades")
 	# só uma unidade: a pessoa desliga, mas a barra continua (e o rádio segue com a luz acesa)
 	m.dispatch.set_location(e10.street, e10.block, e10.address)
 	m.dispatch.set_occurrence(e10.occurrence)
-	(m.dispatch._unit_buttons[need[0]] as Button).button_pressed = true
+	m.dispatch.punch_unit(need[0])
 	m.dispatch._send()
 	var u_part := c10.urgency
-	m._worsen(1.0)
+	m.urgency.tick(1.0)
 	ok(c10.urgent() and c10.urgency > u_part and _faults("emergency_critical") == w10 and m.radio._alert == 1, "despacho incompleto não para a barra")
 	ok(await wait_until(func(): return c10.ended, 20.0), "desligou mesmo assim")
-	m._worsen(0.0)
+	m.urgency.tick(0.0)
 	ok(m.radio._away != "", "fora da linha da emergência, o rádio inteiro avisa")
 	# piora com a pessoa já desligada: o rádio conta o que passou a precisar
-	m._worsen(e10.stage_sec.y)
+	m.urgency.tick(e10.stage_sec.y)
 	var more := Array(e10.required(2)).filter(func(u): return not u in e10.required(1))
 	var said := T.text(T.Key.RADIO_WORSE) % e10.address + " " + T.text(T.Key.RADIO_SEND_MORE) % " e ".join(more.map(func(u): return T.text({"pol": T.Key.UNIT_POLICE, "bomb": T.Key.UNIT_FIRE, "amb": T.Key.UNIT_AMBULANCE}[u]).to_lower()))
-	ok(c10.stage == 2 and Array(m.dispatch.required()) == Array(e10.required(2)), "agravada: exige o que o rádio contou")
+	ok(c10.stage == 2 and Array(m.dispatch.fleet.required()) == Array(e10.required(2)), "agravada: exige o que o rádio contou")
 	ok(await wait_until(func(): return m.radio._screen.text == said, 30.0), "o rádio avisa: " + said)
-	await wait_until(func(): return m.dispatch.required().all(func(u): return u == need[0] or m.dispatch._units[u] == 0), 30.0)
+	await wait_until(func(): return m.dispatch.fleet.required().all(func(u): return u == need[0] or m.dispatch.fleet.units[u] == 0), 30.0)
 	m.dispatch.set_location(e10.street, e10.block, e10.address)
 	m.dispatch.set_occurrence(e10.occurrence)
-	for u in m.dispatch.required():
+	for u in m.dispatch.fleet.required():
 		if u != need[0]:
-			(m.dispatch._unit_buttons[u] as Button).button_pressed = true
+			m.dispatch.punch_unit(u)
 	m.dispatch._send()
-	m._worsen(0.0)
+	m.urgency.tick(0.0)
 	ok(c10.secured and not c10.urgent() and m.radio._alert == -1, "socorro completo: a barra para e a luz apaga")
 	ok(_faults("emergency_critical") == w10 + 1, "despachou com a situação agravada: advertência grave")
 	ok(await wait_until(func(): return m.report.is_resolved(e10), 20.0) and m.report.outcomes()[e10] == ShiftReport.Outcome.LATE, "resolvida; no jornal: com atraso")
-	await wait_until(func(): return m.dispatch._units.values().all(func(s): return s == 0), 30.0)
+	await wait_until(func(): return m.dispatch.fleet.units.values().all(func(s): return s == 0), 30.0)
 	_clear_board()
 	# perdida: gravíssima na hora, jornal ruim, e ainda dá para despachar (sem outra advertência pela barra)
 	var e11: EmergencyCall = C.emergencies.filter(func(x): return x != e10 and x != e4 and x != e5 and x != e8 and x.lost != "")[0]
@@ -342,7 +340,7 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return c11.phase == PhoneCall.Phase.EMERGENCY and not c11.talking), "emergência 5")
 	var crit: int = m.report.count(ShiftReport.Severity.CRITICAL)
 	for i in 3:
-		m._worsen(e11.stage_sec[i])
+		m.urgency.tick(e11.stage_sec[i])
 	ok(c11.stage == 3 and m.report.count(ShiftReport.Severity.CRITICAL) == crit + 1, "perdida: advertência gravíssima")
 	ok(await wait_until(func(): return c11.transcript.any(func(l): return l["text"] == e11.lost)), "reclamou")
 	var hurt := T.text(T.Key.OP_ANYONE_HURT)
@@ -350,12 +348,12 @@ func _initialize() -> void:
 		"perdida: só o endereço e \"Tem alguém ferido?\"")
 	c11.options[1]["fn"].call()
 	ok(await wait_until(func(): return c11.transcript.any(func(l): return l["text"] == e11.lost_answer) and not c11.asking), "contou quem se feriu")
-	ok(Array(e11.lost_units).all(func(u): return u in m.dispatch.required()), "o ferido passa a exigir unidade")
+	ok(Array(e11.lost_units).all(func(u): return u in m.dispatch.fleet.required()), "o ferido passa a exigir unidade")
 	var faults11: int = m.report.faults.size()
 	m.dispatch.set_location(e11.street, e11.block, e11.address)
 	m.dispatch.set_occurrence(e11.occurrence)
-	for u in m.dispatch.required():
-		(m.dispatch._unit_buttons[u] as Button).button_pressed = true
+	for u in m.dispatch.fleet.required():
+		m.dispatch.punch_unit(u)
 	m.dispatch._send()
 	ok(await wait_until(func(): return c11.ended, 20.0) and m.report.faults.size() == faults11, "despachou depois: nenhuma advertência a mais")
 	ok(m.report.outcomes()[e11] == ShiftReport.Outcome.BAD, "no jornal: ruim")

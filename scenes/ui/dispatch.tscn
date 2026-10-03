@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/ui/dispatch.gd" id="1_dispatch"]
 [ext_resource type="Script" path="res://scripts/ui/city_map.gd" id="2_city_map"]
+[ext_resource type="Script" path="res://scripts/ui/card_machines.gd" id="3_card_machines"]
 
 [node name="Dispatch" type="Control"]
 layout_mode = 3
@@ -30,11 +31,6 @@ script = ExtResource("2_city_map")
 unique_name_in_owner = true
 visible = false
 layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_top = -26.0
-grow_vertical = 0
 mouse_filter = 2
 theme_type_variation = &"SlipPanel"
 
@@ -60,142 +56,32 @@ theme_type_variation = &"PaperInk"
 theme_override_font_sizes/font_size = 11
 text = "DISPATCH_OPEN"
 
-[node name="Slip" type="PanelContainer" parent="."]
+[node name="Slip" type="Control" parent="."]
 unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 11
-anchor_left = 1.0
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -232.0
-offset_top = -12.0
-offset_right = 14.0
-offset_bottom = 12.0
-grow_horizontal = 0
+offset_left = -18.0
+offset_top = -14.0
+offset_right = 18.0
+offset_bottom = 14.0
+grow_horizontal = 2
 grow_vertical = 2
-theme_type_variation = &"SlipPanel"
+script = ExtResource("3_card_machines")
 
-[node name="VBox" type="VBoxContainer" parent="Slip"]
-layout_mode = 2
-theme_override_constants/separation = 3
-
-[node name="Head" type="HBoxContainer" parent="Slip/VBox"]
-layout_mode = 2
-
-[node name="PlaceHead" type="Label" parent="Slip/VBox/Head"]
+[node name="Close" type="Button" parent="Slip"]
 unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_type_variation = &"InkLabel"
-theme_override_font_sizes/font_size = 11
-auto_translate_mode = 2
-
-[node name="Close" type="Button" parent="Slip/VBox/Head"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(22, 20)
-layout_mode = 2
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -37.0
+offset_top = 7.0
+offset_right = -15.0
+offset_bottom = 27.0
+grow_horizontal = 0
 focus_mode = 0
-theme_type_variation = &"PaperChip"
+theme_type_variation = &"DarkButton"
 text = "×"
 auto_translate_mode = 2
-
-[node name="Place" type="Label" parent="Slip/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 28)
-layout_mode = 2
-theme_type_variation = &"InkSoftLabel"
-theme_override_font_sizes/font_size = 11
-autowrap_mode = 3
-auto_translate_mode = 2
-
-[node name="SpaceTypeHead" type="Control" parent="Slip/VBox"]
-custom_minimum_size = Vector2(0, 3)
-layout_mode = 2
-
-[node name="TypeHead" type="Label" parent="Slip/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_type_variation = &"InkLabel"
-theme_override_font_sizes/font_size = 11
-auto_translate_mode = 2
-
-[node name="Occurrences" type="VBoxContainer" parent="Slip/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_constants/separation = 2
-
-[node name="SpaceUnitsHead" type="Control" parent="Slip/VBox"]
-custom_minimum_size = Vector2(0, 3)
-layout_mode = 2
-
-[node name="UnitsHead" type="Label" parent="Slip/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_type_variation = &"InkLabel"
-theme_override_font_sizes/font_size = 11
-auto_translate_mode = 2
-
-[node name="UnitPol" type="Button" parent="Slip/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 22)
-layout_mode = 2
-focus_mode = 0
-theme_type_variation = &"PaperChip"
-toggle_mode = true
-alignment = 0
-auto_translate_mode = 2
-
-[node name="WhyPol" type="Label" parent="Slip/VBox"]
-layout_mode = 2
-theme_type_variation = &"InkSoftLabel"
-theme_override_font_sizes/font_size = 11
-text = "DISPATCH_WHY_POL"
-autowrap_mode = 3
-
-[node name="UnitBomb" type="Button" parent="Slip/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 22)
-layout_mode = 2
-focus_mode = 0
-theme_type_variation = &"PaperChip"
-toggle_mode = true
-alignment = 0
-auto_translate_mode = 2
-
-[node name="WhyBomb" type="Label" parent="Slip/VBox"]
-layout_mode = 2
-theme_type_variation = &"InkSoftLabel"
-theme_override_font_sizes/font_size = 11
-text = "DISPATCH_WHY_BOMB"
-autowrap_mode = 3
-
-[node name="UnitAmb" type="Button" parent="Slip/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 22)
-layout_mode = 2
-focus_mode = 0
-theme_type_variation = &"PaperChip"
-toggle_mode = true
-alignment = 0
-auto_translate_mode = 2
-
-[node name="WhyAmb" type="Label" parent="Slip/VBox"]
-layout_mode = 2
-theme_type_variation = &"InkSoftLabel"
-theme_override_font_sizes/font_size = 11
-text = "DISPATCH_WHY_AMB"
-autowrap_mode = 3
-
-[node name="Gap" type="Control" parent="Slip/VBox"]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="Send" type="Button" parent="Slip/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 28)
-layout_mode = 2
-focus_mode = 0
-theme_type_variation = &"PaperInk"
-theme_override_font_sizes/font_size = 11
-disabled = true
-text = "DISPATCH_SEND"

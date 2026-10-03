@@ -25,6 +25,7 @@ const FAULTS := {
 	"dispatch_idle": [Severity.MEDIUM, T.Key.FAULT_DISPATCH_IDLE],
 	"dispatch_extra": [Severity.LIGHT, T.Key.FAULT_DISPATCH_EXTRA],
 	"dispatch_type": [Severity.LIGHT, T.Key.FAULT_DISPATCH_TYPE],
+	"dispatch_blank": [Severity.MEDIUM, T.Key.FAULT_DISPATCH_BLANK],
 	"emergency_dropped": [Severity.SEVERE, T.Key.FAULT_EMERGENCY_DROPPED],
 	# barra de agravamento: uma por emergência, pelo estágio em que o despacho saiu (a perdida, na hora)
 	"emergency_worse": [Severity.MEDIUM, T.Key.FAULT_EMERGENCY_WORSE],
@@ -91,6 +92,14 @@ func verdict() -> int:
 	if count(Severity.SEVERE) + count(Severity.CRITICAL) > 0:
 		return 2
 	return 1 if count(Severity.MEDIUM) >= 3 or count(Severity.LIGHT) >= 5 else 0
+
+
+## Debug: esquece a emergência `e` (ou todas, sem `e`), como se não tivesse acontecido.
+func forget(e: EmergencyCall = null) -> void:
+	if e == null:
+		_incidents.clear()
+	else:
+		_incidents.erase(e)
 
 
 func _incident(e: EmergencyCall) -> Dictionary:

@@ -2,11 +2,9 @@ extends "res://tests/test_base.gd"
 ## Cenários dirigidos: transferência, várias ligações, desistência, caderno, lugar fechado,
 ## cortar conversa, ligar de volta para o número desconhecido, clique/arraste dos plugs.
 ## FONE = ponta 0; cabos de conexão = pontas 1..6 (da SAÍDA ao destino).
-## `m` e `b` ficam sem tipo: Main e Switchboard usam o autoload Sfx, que ainda não existe quando o Godot
-## compila um script passado com -s.
 
-var m   # Main
-var b   # Switchboard
+var m: Main
+var b: Switchboard
 var ex: Exchange
 
 
@@ -70,6 +68,22 @@ func _check_translations() -> void:
 
 func _extra(t: TransferCall) -> PhoneCall:
 	return PhoneCall.from_transfer(t)
+
+
+## Mouse sobre o nó `n` (coordenadas dele): `pressed` 1 aperta, 0 solta, -1 só move.
+func _mouse(n: Control, p: Vector2, pressed := -1) -> void:
+	var e: InputEventMouse = InputEventMouseMotion.new() if pressed == -1 else InputEventMouseButton.new()
+	if e is InputEventMouseButton:
+		e.button_index = MOUSE_BUTTON_LEFT
+		e.pressed = pressed == 1
+	e.position = p
+	n._gui_input(e)
+
+
+## Clique (aperta e solta no mesmo lugar) sobre o nó `n`.
+func _click(n: Control, p: Vector2) -> void:
+	_mouse(n, p, 1)
+	_mouse(n, p, 0)
 
 
 func _move(e: int, j: int) -> void:
@@ -152,9 +166,9 @@ func _initialize() -> void:
 	for e in C.directory:
 		if not e.dispatch_only:
 			per_sector[e.number.left(1)] = int(per_sector.get(e.number.left(1), 0)) + 1
-	ok(per_sector == {"3": 10, "1": 12, "2": 12}, "lista: 10 números no setor 3 e 12 em cada um dos outros: %s" % per_sector)
+	ok(per_sector == {"3": 12, "1": 12, "2": 12}, "lista: 12 números em cada setor: %s" % per_sector)
 	GameData.sectors = [3]
-	ok(GameData.board_numbers().size() == 10 and GameData.board_numbers().all(func(n): return str(n).begins_with("3")), "noite 1: mesa só com o setor 3")
+	ok(GameData.board_numbers().size() == 12 and GameData.board_numbers().all(func(n): return str(n).begins_with("3")), "noite 1: mesa só com o setor 3")
 	ok(not GameData.transfers(TransferCall.Group.ESTABLISHMENT).is_empty(), "setor 3 tem estabelecimento para o tutorial")
 	var used: Array = []
 	var tpl := GameData.template_transfer(used)
@@ -173,7 +187,7 @@ func _initialize() -> void:
 	for s in 5:
 		ok(em_streets.call().all(func(x): return x == 3), "emergências só nas ruas do setor 3")
 	# mapa: setor sombreado não responde; a viagem do Centro é mais longa quanto mais longe
-	var city = m.dispatch.city
+	var city := m.dispatch.city
 	var on_street := func(id: String, b: int): return city.seg_geom(GameData.street(id), b)[2]
 	ok(city._find_seg(on_street.call("brasil", 1)).get("block") == 1 and city._find_seg(on_street.call("brasil", 4)).is_empty(),
 		"mapa: a Avenida Brasil só nos trechos do setor atendido")
@@ -181,11 +195,41 @@ func _initialize() -> void:
 	var trip_c: float = city.trip("pol", {"street": "brasil", "block": 4})
 	var trip_3: float = city.trip("pol", {"street": "comercio", "block": 2})
 	var trip_2: float = city.trip("pol", {"street": "cruzeiro", "block": 0})
+	var going: Dictionary = city.trips[0]
+	await wait_until(func(): return going["t"] >= going["dur"], 15.0)
+	var site: Vector2 = going["pts"][-1]
+	ok(is_equal_approx(city.go_home("pol"), trip_2) and going["back"] and going["t"] == 0.0 and going["pts"][-1] == city.STATION["pol"]["p"]
+		and going["pts"][0] == site, "a viatura volta do local para a base pelo mesmo caminho, no mesmo tempo")
 	city.remove_units(["pol"])
 	ok(trip_c < trip_3 and trip_3 < trip_2, "viagem do Centro: %.1f s no Centro, %.1f s no setor 3, %.1f s no setor 2" % [trip_c, trip_3, trip_2])
+	# viaturas e emergência (`Fleet`, sem tela nem tempo): completo só com tudo a caminho do lugar certo; a chegada diz
+	# o que faltou, o que sobrou e quem pode voltar logo
+	var frota := Fleet.new()
+	var em: EmergencyCall = GameData.CONTENT.emergencies.filter(func(x: EmergencyCall): return Array(x.required(0)) == ["amb"])[0]
+	var fl_here := {"street": em.street, "block": em.block}
+	var fl_away := {"street": em.street, "block": em.block + 1}
+	ok(not frota.send(["pol"], fl_here) and frota.arrive(["pol"], fl_here)["result"] == Fleet.Result.IDLE and frota.leave(["pol"]) == ["pol"],
+		"frota: sem emergência, a chegada não encontra nada")
+	frota.home(["pol"])
+	frota.set_incident(em)
+	ok(not frota.send(["pol"], fl_here) and frota.available(["pol", "amb"]) == ["amb"] and frota.en_route(), "frota: polícia a caminho, incompleto")
+	var fl_got := frota.arrive(["pol"], fl_here)
+	ok(fl_got["result"] == Fleet.Result.MISSING and fl_got["missing"] == ["amb"] and fl_got["extra"] == ["pol"] and fl_got["unneeded"] == ["pol"],
+		"frota: faltou a ambulância e a polícia sobrou")
+	frota.send(["amb"], fl_away)
+	fl_got = frota.arrive(["amb"], fl_away)
+	ok(fl_got["result"] == Fleet.Result.WRONG_PLACE and fl_got["unneeded"] == ["amb"], "frota: endereço errado")
+	ok(frota.leave(["pol", "amb"]) == ["pol", "amb"] and frota.busy() == ["pol", "amb"], "frota: as duas voltando")
+	frota.home(["pol", "amb"])
+	ok(frota.busy().is_empty() and frota.send(["amb"], fl_here), "frota: a ambulância no lugar certo completa o socorro")
+	ok(frota.arrive(["amb"], fl_here)["result"] == Fleet.Result.OK and frota.arrive([], fl_here)["result"] == Fleet.Result.IDLE,
+		"frota: resolvida, e depois não há mais nada lá")
+	var fl_gen := frota.gen
+	frota.reset(true)
+	ok(frota.gen == fl_gen + 1 and frota.busy().is_empty() and frota.required().is_empty(), "frota: reset libera tudo e esquece a emergência")
 	# lista telefônica: cada aba abre só a sua letra, com todos os contatos dela nas duas páginas; Virar passa de letra
 	# em letra até as anotações, Voltar volta até a primeira
-	var book = m.tools.find_child("PhoneBook", true, false)
+	var book: PhoneBook = m.tools.find_child("PhoneBook", true, false)
 	for l in book._index:
 		book.jump(l)
 		var pg: Array = book.pages()
@@ -251,6 +295,14 @@ func _initialize() -> void:
 			"sorteadas longe das do roteiro: " + n.resource_path)
 		var ems: Array = plan.calls.filter(func(c: PhoneCall): return c.kind == PhoneCall.Kind.EMERGENCY).map(func(c): return c.at)
 		ok(range(1, ems.size()).all(func(i): return ems[i] - ems[i - 1] >= Schedule.EMERGENCY_GAP), "emergências espaçadas: " + n.resource_path)
+	# lugares do mapa: todos com a forma de quem liga ("do posto"); os que encostam em dois trechos de cada rua vizinha
+	# não entram nas falas (não daria para saber qual trecho clicar)
+	var spots: Array = MapGrid.landmark_spots()
+	for sheet in MapGrid.LM:
+		for key in MapGrid.LM[sheet]:
+			ok(T.Key.has(T.Key.find_key(MapGrid.LM[sheet][key]) + "_OF"), "lugar do mapa sem a fala: " + T.Key.find_key(MapGrid.LM[sheet][key]))
+	ok(spots.size() > 30, "lugares do mapa ao lado de um trecho: %d" % spots.size())
+	var landmarks := 0
 	# moldes: nenhuma lacuna sobra sem preencher
 	var holes := func(texts: Array) -> bool: return texts.any(func(x): return "{" in x or "}" in x)
 	for i in 300:
@@ -262,8 +314,14 @@ func _initialize() -> void:
 		ok(not holes.call(Array(t.opening) + [t.repeat, t.thanks]) and t.caller != "", "molde de transferência preenchido: " + " / ".join(t.opening))
 		var e := GameData.template_emergency()
 		var house := int(e.address.get_slice(", ", 1))
-		ok(GameData.street(e.street) != null and e.block == floori(house / 100.0) and house >= 1, "molde: trecho bate com o número " + e.address)
+		if house > 0:
+			ok(GameData.street(e.street) != null and e.block == floori(house / 100.0), "molde: trecho bate com o número " + e.address)
+		else:   # pela rua e um lugar do mapa: o trecho é o que fica ao lado do lugar
+			landmarks += 1
+			ok(spots.any(func(sp): return sp["street"].id == e.street and sp["block"] == e.block)
+				and e.address.begins_with(GameData.street(e.street).name), "molde: lugar do mapa ao lado do trecho " + e.address)
 		ok(not holes.call(Array(e.answers) + [e.opening, e.after]), "molde de emergência preenchido: " + e.opening)
+	ok(landmarks > 60 and landmarks < 180, "às vezes quem liga diz um lugar do mapa: %d de 300" % landmarks)
 	_check_translations()
 	for c in m.find_children("*", "Control", true, false):
 		if c is BaseButton or c is Slider:
@@ -285,8 +343,7 @@ func _initialize() -> void:
 	ok(m._focus() == a, "FONE na entrada dá foco à ligação")
 	m.answer()
 	ok(a.active, "atendeu")
-	var sfx = m.get_node("/root/Sfx")
-	ok(not sfx.pool.any(func(p): return p.playing and p.stream == sfx.streams["ring"]), "atender corta o toque na hora")
+	ok(not Sfx.pool.any(func(p): return p.playing and p.stream == Sfx.streams["ring"]), "atender corta o toque na hora")
 	ok(await wait_until(_awaiting(a)), "pedido de transferência")
 	var tgt := int(a.target)
 	_move(1, ln + 10)
@@ -532,39 +589,38 @@ func _initialize() -> void:
 	_move(1, 11)
 	b.pick_up(1)
 	m._unhandled_input(esc)
-	ok(not paused and b.ends[1] == -1, "com plug na mão, o Esc só devolve o plug")
+	ok(not get_tree().paused and b.ends[1] == -1, "com plug na mão, o Esc só devolve o plug")
 	await frames(2)
 	var rc := _extra(GameData.transfers(TransferCall.Group.EXTRA)[2])
 	m.ring(rc)
 	m._unhandled_input(esc)
-	ok(paused and m._pause.visible, "Esc pausa o turno")
+	ok(get_tree().paused and m._pause.visible, "Esc pausa o turno")
 	var frozen: float = m.minutes
 	await frames(int(m.GIVE_UP_SEC * 60.0 / Engine.time_scale) + 60)
 	ok(m.minutes == frozen and rc.ringing, "na pausa o relógio para e ninguém desiste")
 	m._pause._unhandled_input(esc)
-	ok(not paused and not m._pause.visible, "Esc no menu continua")
+	ok(not get_tree().paused and not m._pause.visible, "Esc no menu continua")
 	m.end_call(rc, PhoneCall.End.OPERATOR)
-	var st = root.get_node("Settings")
 	m._pause.open_settings()
-	st.set_volume("Effects", 0.3)
+	Settings.set_volume("Effects", 0.3)
 	ok(not m._pause.get_node("%Apply").disabled, "Aplicar acende com mudança")
 	m._pause._back()
-	ok(st.volumes["Effects"] == 1.0 and not m._pause.visible, "Voltar descarta")
+	ok(Settings.volumes["Effects"] == 1.0 and not m._pause.visible, "Voltar descarta")
 	m._pause.open_settings()
 	ok(m._pause.get_node("%Apply").disabled, "sem mudança, Aplicar apagado")
-	st.set_volume("Effects", 0.3)
+	Settings.set_volume("Effects", 0.3)
 	m._pause._apply_settings()
-	ok(st.volumes["Effects"] == 0.3 and not m._pause.visible, "Aplicar mantém")
-	st.set_volume("Effects", 1.0)
-	st.set_locale("en")
-	ok(T.text(T.Key.RESUME) == "Resume" and st.locale == "en", "idioma muda na hora")
-	st.set_locale("pt_BR")
-	st.set_volume("Effects", 0.5)
+	ok(Settings.volumes["Effects"] == 0.3 and not m._pause.visible, "Aplicar mantém")
+	Settings.set_volume("Effects", 1.0)
+	Settings.set_locale("en")
+	ok(T.text(T.Key.RESUME) == "Resume" and Settings.locale == "en", "idioma muda na hora")
+	Settings.set_locale("pt_BR")
+	Settings.set_volume("Effects", 0.5)
 	ok(absf(AudioServer.get_bus_volume_db(AudioServer.get_bus_index("Effects")) - linear_to_db(0.5)) < 0.01, "volume do barramento")
-	st.set_volume("Effects", 1.0)
-	st.set_text_speed(2)
-	ok(st.char_delay() < 1.0, "texto mais rápido")
-	st.set_text_speed(1)
+	Settings.set_volume("Effects", 1.0)
+	Settings.set_text_speed(2)
+	ok(Settings.char_delay() < 1.0, "texto mais rápido")
+	Settings.set_text_speed(1)
 	print("OK 10 pausa e configurações")
 
 	# ---- 11. esperando a transferência: às vezes conversa fiada depois de um tempo; se demorar mais, reclama
@@ -678,27 +734,82 @@ func _initialize() -> void:
 		ok(m.tools.tab == pair[1], "tecla abre a aba " + pair[1])
 	print("OK 12 atalhos do telefone e das abas")
 
-	# ---- 13. mapa e despacho numa tela: o tipo não marca unidades (a conversa decide), Enviar só com tudo, e depois limpa
-	var d = m.dispatch
+	# ---- 13. mapa e despacho numa tela: marcar o local imprime o cartão; perfura-se o tipo (um só) e as unidades (o
+	#          tipo não marca unidades: a conversa decide); o cartão anda livre pelo mapa e fica onde é solto; no cartucho,
+	#          envia (em branco também: ninguém sai e o supervisor anota) e tudo limpa; a ficha não mexe no mapa
+	var d := m.dispatch
+	var card := d.machines
 	m.tools.set_tab("despacho")
 	d.open_slip(false)
 	await frames(2)
-	ok(not d._slip.visible and d.get_node("%Open").visible and d.city.cover == 0.0, "ficha recolhida: o mapa na aba toda")
+	ok(not d._slip.visible and d.get_node("%Open").visible, "ficha recolhida")
 	d.set_occurrence("")
-	ok(not d.can_send() and d._send_button.disabled, "despacho vazio não envia")
+	ok(not d.can_send(), "despacho vazio não envia")
 	var spot: Vector2 = d.city._off + Vector2(300, 220) * d.city._k   # um ponto do mapa, na tela
 	d.set_location("sol", 0, "Rua do Sol, 1–99")
 	await frames(2)
-	ok(d._slip.visible and d.city.cover > 200.0, "marcar o local abre a ficha por cima do mapa")
+	ok(d._slip.visible, "marcar o local abre a ficha por cima do mapa")
 	ok((d.city._off + Vector2(300, 220) * d.city._k).distance_to(spot) < 1.0, "o mapa não pula quando a ficha abre")
-	d.set_occurrence("Incêndio")
-	ok(d._selected_units().is_empty() and not d.can_send(), "o tipo não marca unidade")
-	(d._unit_buttons["amb"] as Button).button_pressed = true
-	ok(d.can_send() and not d._send_button.disabled, "local, tipo e unidade: Enviar acende")
-	d._send()
-	ok(d._location.is_empty() and d._occ_group.get_pressed_button() == null and d.city.sel.is_empty(), "depois de enviar, local e tipo limpos")
-	ok(d._unit_buttons["amb"].disabled, "ambulância a caminho fica indisponível")
-	ok(not d._slip.visible and d.city.cover == 0.0, "depois de enviar, a ficha se recolhe")
+	ok(card.state == card.State.TYPING and card.card.sector == 3, "marcar o local datilografa o cartão, com o setor")
+	ok(await wait_until(func(): return card.state == card.State.READY, 5.0) and card._pos == card._rest(), "o cartão sai impresso, pendurado na fenda")
+	ok(not d.get_node("%Close").visible, "com cartão na mesa, a ficha não fecha (sem ×)")
+	var cell := func(id: String) -> Vector2:
+		for c in card.card.cells:
+			if c["id"] == id:
+				return card._pos + (c["box"] as Rect2).get_center()
+		return Vector2.ZERO
+	var drag := func(to: Vector2) -> void:   # pega o cartão pelo cabeçalho e solta com o canto dele em `to`
+		var at: Vector2 = card._pos + Vector2(card.CARD_W - 20.0, 30.0)
+		_mouse(card, at, 1)
+		_mouse(card, at + to - card._pos)
+		_mouse(card, at + to - card._pos, 0)
+	var slot := func(machine: CardMachines.Machine) -> Vector2:   # o canto do cartão com a borda de baixo na fenda da máquina
+		await wait_until(func(): return card._up >= 1.0, 2.0)   # as máquinas terminam de subir
+		return Vector2(card._machine(machine).get_center().x - card.CARD_W / 2.0, card._slot(machine) - card.card.size.y + 8.0)
+	drag.call(await slot.call(card.Machine.SEND))
+	ok(card.state == card.State.FEEDING, "cartão em branco também entra no cartucho")
+	ok(await wait_until(func(): return d._location.is_empty(), 3.0) and d.fleet.units.values().all(func(u): return u == 0)
+		and m.report.faults.any(func(f): return f["id"] == "dispatch_blank"), "em branco: ninguém sai e o supervisor anota")
+	d.set_location("sol", 0, "Rua do Sol, 1–99")
+	ok(await wait_until(func(): return card.state == card.State.READY, 5.0), "outro cartão")
+	d.set_location("comercio", 0, "Rua do Comércio, 1–99")
+	ok(card._refused >= 0.0 and card.serial() == 2 and d._location["label"] == "Rua do Sol, 1–99" and d.city.sel["label"] == "Rua do Sol, 1–99",
+		"com um cartão na mesa, a impressora recusa outro e o mapa volta ao local dele")
+	var table: Vector2 = card._pos + Vector2(-300, 40)
+	drag.call(table)
+	ok(card.state == card.State.READY and card._pos == table, "solto na mesa, o cartão fica onde está")
+	drag.call(Vector2(-500, 9000))
+	ok(card._pos.x == 0.0 and card._pos.y + card.card.size.y <= card.size.y, "o cartão não sai do mapa")
+	_click(card, cell.call("Outro"))
+	var faults: int = m.report.faults.size()
+	drag.call(await slot.call(card.Machine.SHRED))
+	ok(card.state == card.State.FEEDING and card._into == card.Machine.SHRED, "solto na trituradora, ela puxa o cartão")
+	ok(await wait_until(func(): return card.state == card.State.IDLE, 3.0) and d._location.is_empty() and d.occurrence() == ""
+		and d._slip.visible and m.report.faults.size() == faults, "triturado: nada sai, sem advertência, a impressora espera outro local")
+	await frames(1)
+	ok(d.get_node("%Close").visible, "sem cartão, o × volta")
+	d.set_location("sol", 0, "Rua do Sol, 1–99")
+	ok(await wait_until(func(): return card.state == card.State.READY, 5.0), "mais um cartão")
+	_click(card, cell.call("Incêndio"))
+	_click(card, cell.call("Mal súbito"))
+	ok(d.occurrence() == "Incêndio", "um tipo só: o primeiro furo vale")
+	ok(d.fleet.available(d.picked()).is_empty() and not d.can_send(), "o tipo não marca unidade")
+	var row: Vector2 = cell.call("amb") + Vector2(120, 20)   # no protocolo, longe do quadradinho
+	var held: Vector2 = card._pos
+	_mouse(card, row, 1)   # apertar na linha e arrastar move o cartão sem perfurar
+	_mouse(card, row + Vector2(-40, 30))
+	_mouse(card, row + Vector2(-40, 30), 0)
+	ok(d.picked().is_empty() and card._pos == held + Vector2(-40, 30), "arrastar pela linha move o cartão, sem perfurar")
+	row += Vector2(-40, 30)
+	_click(card, row)
+	ok(d.can_send() and d.picked() == ["amb"], "local, tipo e unidade perfurados (clicando em qualquer ponto da linha)")
+	drag.call(await slot.call(card.Machine.SEND))
+	ok(card.state == card.State.FEEDING and card._into == card.Machine.SEND, "o transmissor puxa o cartão completo")
+	ok(await wait_until(func(): return d._location.is_empty(), 3.0), "o cartão no cartucho envia")
+	ok(d.occurrence() == "" and d.picked().is_empty() and d.city.sel.is_empty() and card.state == card.State.IDLE, "depois de enviar, local e tipo limpos")
+	ok(not d.fleet.is_free("amb"), "ambulância a caminho fica indisponível")
+	ok(d._slip.visible and card._up < 1.0, "depois de enviar, as máquinas se recolhem animadas...")
+	ok(await wait_until(func(): return not d._slip.visible, 3.0) and d.get_node("%Open").visible, "...e a ficha some")
 	await frames(2)
 	ok(d.get_node("%Fleet").visible and d.get_node("%Report").text.contains(T.text(T.Key.UNIT_AMBULANCE)), "a faixa das viaturas mostra quem saiu")
 	m.tools.set_tab("lista")
@@ -728,7 +839,7 @@ func _initialize() -> void:
 	ok(m.live.is_empty() and m.em_call == null and not de.urgent() and m.radio._alert == -1, "restaurar: ligações e emergência somem")
 	ok(range(1, Exchange.LINES + 1).all(func(n): return m.exchange.line(n) == Exchange.Line.FREE), "restaurar: linhas livres")
 	ok(await wait_until(func(): return m.board.ends.all(func(e): return e == -1), 10.0), "restaurar: cabos na base")
-	ok(m.dispatch._units.values().all(func(s): return s == 0) and m.dispatch.required().is_empty(), "restaurar: despacho livre")
+	ok(m.dispatch.fleet.units.values().all(func(s): return s == 0) and m.dispatch.fleet.required().is_empty(), "restaurar: despacho livre")
 	ok(not m.notebook.has_pending() and m.report.faults.is_empty() and Engine.time_scale == 1.0, "restaurar: caderno, relatório e tempo zerados")
 	ok(not m.sched.any(func(c): return c.retry != PhoneCall.Retry.NONE), "restaurar: ninguém liga de novo")
 	Engine.time_scale = 8.0

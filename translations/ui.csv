@@ -184,15 +184,57 @@ MAP_POST_OFFICE,Correios,Post office,Correos
 MAP_BAKERY,Padaria,Bakery,Panadería
 MAP_WAREHOUSE,Armazém,General store,Depósito
 MAP_BARBER,Barbearia,Barbershop,Barbería
+MAP_NEWSPAPER,Gazeta,Gazeta,Gazeta
+MAP_POOL_HALL,Bilhar,Pool hall,Billar
+MAP_FARM,Sítio,Farm,Granja
+MAP_INN,Pensão,Inn,Pensión
+MAP_TIRE_SHOP,Borracharia,Tire shop,Gomería
+MAP_SQUARE_OF,da Praça da Matriz,Praça da Matriz,de la Praça da Matriz
+MAP_CLINIC_OF,da clínica,the clinic,de la clínica
+MAP_HOSPITAL_OF,do hospital,the hospital,del hospital
+MAP_SCHOOL_OF,da escola,the school,de la escuela
+MAP_SAWMILL_OF,da serraria,the sawmill,del aserradero
+MAP_BUS_STATION_OF,da rodoviária,the bus station,de la terminal
+MAP_PHARMACY_OF,da farmácia,the pharmacy,de la farmacia
+MAP_CINEMA_OF,do Cine Odeon,the Cine Odeon,del Cine Odeon
+MAP_POLICE_OF,da delegacia,the police station,de la comisaría
+MAP_FIRE_STATION_OF,dos bombeiros,the fire station,de los bomberos
+MAP_GROCERY_OF,da mercearia,the grocery,del almacén
+MAP_FUNERAL_OF,da funerária,the funeral home,de la funeraria
+MAP_HOTEL_OF,do Hotel Estrela,the Hotel Estrela,del Hotel Estrela
+MAP_GAS_STATION_OF,do posto,the gas station,de la gasolinera
+MAP_RADIO_OF,da Rádio Serena,Rádio Serena,de Rádio Serena
+MAP_GARAGE_OF,da oficina,the garage,del taller
+MAP_BAR_OF,do Bar do Zé,the Bar do Zé,del Bar do Zé
+MAP_CITY_HALL_OF,da prefeitura,city hall,de la municipalidad
+MAP_POST_OFFICE_OF,dos Correios,the post office,de Correos
+MAP_BAKERY_OF,da padaria,the bakery,de la panadería
+MAP_WAREHOUSE_OF,do armazém,the general store,del depósito
+MAP_BARBER_OF,da barbearia,the barbershop,de la barbería
+MAP_NEWSPAPER_OF,da Gazeta,the Gazeta,de la Gazeta
+MAP_POOL_HALL_OF,do bilhar,the pool hall,del billar
+MAP_FARM_OF,do sítio,the farm,de la granja
+MAP_INN_OF,da pensão,the inn,de la pensión
+MAP_TIRE_SHOP_OF,da borracharia,the tire shop,de la gomería
 MAP_RURAL,Zona rural,Countryside,Zona rural
 MAP_DISTRICT_1,Centro,Downtown,Centro
 MAP_DISTRICT_2,Alto da Serra,Alto da Serra,Alto da Serra
 MAP_DISTRICT_3,Vila Serena,Vila Serena,Vila Serena
 HINT_NEW_BANK,"Os números que começam com %d ficam no banco %s, aberto hoje.","Numbers starting with %d are on bank %s, opened tonight.","Los números que empiezan con %d están en el banco %s, abierto hoy."
-DISPATCH_SEND,[ ENVIAR ],[ SEND ],[ ENVIAR ]
-DISPATCH_CHECK_PLACE,Local,Location,Lugar
 DISPATCH_CHECK_TYPE,Ocorrência,Incident,Incidente
 DISPATCH_CHECK_UNITS,Unidades,Units,Unidades
+CARD_PRINTER,DESPACHO,DISPATCH,DESPACHO
+CARD_TITLE,FICHA DE DESPACHO,DISPATCH CARD,FICHA DE DESPACHO
+CARD_SERIAL,Nº %04d,No. %04d,N.º %04d
+CARD_PLACE,LOCAL,LOCATION,LUGAR
+CARD_DISTRICT,BAIRRO,DISTRICT,BARRIO
+CARD_SECTOR,SETOR,SECTOR,SECTOR
+CARD_SENDER,TRANSMISSOR,TRANSMITTER,TRANSMISOR
+CARD_SENDING,TRANSMITINDO...,SENDING...,TRANSMITIENDO...
+CARD_SHREDDER,TRITURADOR,SHREDDER,TRITURADORA
+CARD_ONE_AT_A_TIME,UM CARTÃO POR VEZ,ONE CARD AT A TIME,UNA TARJETA A LA VEZ
+NOTEBOOK_CARD,Ficha nº %04d,Card no. %04d,Ficha n.º %04d
+CARD_INSERT,INSIRA O CARTÃO,INSERT THE CARD,INSERTE LA TARJETA
 DISPATCH_OPEN,Abrir ficha,Open slip,Abrir ficha
 DISPATCH_WHY_POL,"crime, briga, arma, rua bloqueada","crime, fight, weapon, blocked road","delito, pelea, arma, calle bloqueada"
 DISPATCH_WHY_BOMB,"fogo, fumaça, fio ou gás, alguém preso","fire, smoke, wires or gas, someone trapped","fuego, humo, cables o gas, alguien atrapado"
@@ -209,6 +251,7 @@ RADIO_TITLE,Rádio de despacho,Dispatch radio,Radio de despacho
 RADIO_PATROL,"Central, viatura 2 em ronda. Tudo tranquilo.","Dispatch, car 2 on patrol. All quiet.","Central, patrulla 2 en ronda. Todo tranquilo."
 RADIO_ON_WAY,"Central, unidade a caminho.","Dispatch, unit on the way.","Central, unidad en camino."
 RADIO_COPY,"Central, recebido. Deslocando.","Dispatch, copy that. Moving out.","Central, recibido. Saliendo."
+RADIO_BLANK_CARD,"Central, a ficha chegou sem unidade marcada. Ninguém saiu.","Dispatch, the card came in with no unit punched. Nobody's rolling.","Central, la ficha llegó sin unidad marcada. Nadie salió."
 RADIO_NOTHING,"Central, estamos no local. Nada a relatar. Retornando.","Dispatch, we're on site. Nothing to report. Returning.","Central, estamos en el lugar. Nada que informar. Regresando."
 RADIO_WRONG_PLACE,"Central, estamos na %s e não há nada aqui. Retornando.","Dispatch, we're on %s and there's nothing here. Returning.","Central, estamos en %s y no hay nada aquí. Regresando."
 RADIO_NEED,"Central, precisamos de %s aqui na %s.","Dispatch, we need %s here on %s.","Central, necesitamos %s aquí en %s."
@@ -231,6 +274,7 @@ SEV_LIGHT,leve,minor,leve
 SEV_MEDIUM,média,moderate,media
 SEV_SEVERE,grave,severe,grave
 SEV_CRITICAL,gravíssima,critical,gravísima
+FAULT_DETAIL_UNCLASSIFIED,sem tipo perfurado; era %s,no type punched; it was %s,sin tipo perforado; era %s
 FAULT_DETAIL_CLASSIFIED,classificada como %s; era %s,classified as %s; it was %s,clasificada como %s; era %s
 FAULT_MISSED,Ligação não atendida,Call not answered,Llamada no contestada
 FAULT_HOLD,Solicitante desistiu na espera,Caller gave up on hold,La persona desistió en espera
@@ -243,6 +287,7 @@ FAULT_DISPATCH_WRONG_PLACE,Unidades enviadas ao endereço errado,Units sent to t
 FAULT_DISPATCH_MISSING,Faltaram unidades no despacho,Not enough units dispatched,Faltaron unidades en el despacho
 FAULT_DISPATCH_IDLE,Unidades enviadas sem ocorrência,Units sent with no emergency,Unidades enviadas sin emergencia
 FAULT_DISPATCH_EXTRA,Unidade enviada sem necessidade,Unit sent unnecessarily,Unidad enviada sin necesidad
+FAULT_DISPATCH_BLANK,Ficha de despacho enviada sem unidades,Dispatch card sent with no units,Ficha de despacho enviada sin unidades
 FAULT_DISPATCH_TYPE,Ocorrência classificada errado,Incident misclassified,Incidente mal clasificado
 FAULT_EMERGENCY_WORSE,A emergência se agravou antes do despacho,The emergency got worse before dispatch,La emergencia empeoró antes del despacho
 FAULT_EMERGENCY_CRITICAL,A emergência ficou crítica antes do despacho,The emergency turned critical before dispatch,La emergencia se volvió crítica antes del despacho

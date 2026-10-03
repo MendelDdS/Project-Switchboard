@@ -11,21 +11,12 @@ signal segment_selected(street: String, block: int, label: String)
 
 const SHEET := Vector2(600, 440)
 ## Canto de cada folha no mapa: setor -> posição (0 = zona rural, só paisagem, que faz parte do setor 2).
-const SHEETS := {3: Vector2(0, 0), 1: Vector2(600, 0), 2: Vector2(0, 440), 0: Vector2(600, 440)}
-const SHEET_SECTOR := {0: 2, 1: 1, 2: 2, 3: 3}
-const XS := [20.0, 110.0, 250.0, 390.0, 530.0, 580.0]   # grade de cada folha (as ruas ficam nos valores do meio)
-const YS := [34.0, 90.0, 225.0, 360.0, 420.0]
-## Lugares de cada folha, no quarteirão "coluna,linha" da grade (perto do endereço deles na lista).
-const LM := {
-	1: {"2,1": T.Key.MAP_SQUARE, "1,1": T.Key.MAP_CITY_HALL, "3,1": T.Key.MAP_POST_OFFICE, "2,0": T.Key.MAP_HOSPITAL,
-		"1,2": T.Key.MAP_POLICE, "3,2": T.Key.MAP_FIRE_STATION, "4,1": T.Key.MAP_PHARMACY, "4,2": T.Key.MAP_BUS_STATION,
-		"2,3": T.Key.MAP_BAKERY},
-	2: {"1,0": T.Key.MAP_CLINIC, "3,0": T.Key.MAP_SCHOOL, "2,1": T.Key.MAP_BARBER, "1,2": T.Key.MAP_GROCERY,
-		"3,2": T.Key.MAP_WAREHOUSE},
-	3: {"4,0": T.Key.MAP_SAWMILL, "3,0": T.Key.MAP_GARAGE, "0,1": T.Key.MAP_HOTEL, "2,1": T.Key.MAP_BAR,
-		"3,1": T.Key.MAP_RADIO, "0,2": T.Key.MAP_CINEMA, "2,3": T.Key.MAP_GAS_STATION, "3,3": T.Key.MAP_FUNERAL},
-}
 ## Delegacia, bombeiros e hospital ficam no Centro (setor 1), em frente ao quarteirão de cada um.
+const SHEETS := MapGrid.SHEETS
+const SHEET_SECTOR := MapGrid.SHEET_SECTOR
+const XS := MapGrid.XS
+const YS := MapGrid.YS
+const LM := MapGrid.LM
 const STATION := {
 	"pol": {"p": Vector2(780, 225), "c": Color("2d4f8a"), "l": Color("4e86e0")},
 	"bomb": {"p": Vector2(1060, 225), "c": Color("b8321f"), "l": Color("e04e3a")},
@@ -49,14 +40,6 @@ var _k := 0.96
 var _off := Vector2.ZERO   ## mapa -> tela: tela = mapa * _k + _off
 var _tf := Transform2D.IDENTITY   ## transformação em uso no desenho (os textos a seguem só na posição)
 var _zoom := 1.0           ## 1 = enquadra os setores atendidos
-## Quantos px da direita estão cobertos (a ficha de despacho por cima): a escala continua a da área toda, mas o centro,
-## os nomes e a rosa dos ventos ficam na parte à vista, e dá para arrastar o pedaço coberto para ela.
-var cover := 0.0:
-	set(v):
-		if _center != Vector2.INF:   # o mapa não pula: o que está na tela fica onde está
-			_center.x -= (v - cover) / (2.0 * _k)
-		cover = v
-		queue_redraw()
 ## Retângulos (em px de tela) com botões por cima do mapa: nenhum nome é desenhado ali.
 var blocked: Array[Rect2] = []
 var _center := Vector2.INF ## ponto do mapa no centro da vista (INF = o centro do enquadramento)
@@ -132,9 +115,9 @@ func _view() -> void:
 	_off = seen / 2.0 - _center * _k
 
 
-## A parte do mapa à vista (sem o pedaço coberto pela ficha).
+## A parte do mapa à vista (a ficha de despacho fica por cima sem mexer no mapa).
 func _seen() -> Rect2:
-	return Rect2(0, 0, maxf(1.0, size.x - cover), size.y)
+	return Rect2(Vector2.ZERO, size)
 
 
 ## Centro da vista num eixo: aproximado, anda só dentro do enquadramento; com sobra, fica no meio dele.
@@ -229,8 +212,19 @@ func trip(u: String, target: Dictionary) -> float:
 		dist += pts[i].distance_to(pts[i - 1])
 	var sec := maxf(MIN_TRIP, dist / UNIT_SPEED)
 	trips = trips.filter(func(t): return t["u"] != u)
-	trips.append({"u": u, "pts": pts, "t0": Time.get_ticks_msec(), "dur": sec * 1000.0})
+	trips.append({"u": u, "pts": pts, "t": 0.0, "dur": sec, "back": false})
 	return sec
+
+
+## A unidade volta do lugar onde está para a base, pelo mesmo caminho e sem a luz; devolve quantos segundos leva.
+func go_home(u: String) -> float:
+	for tr in trips:
+		if tr["u"] == u:
+			var pts: PackedVector2Array = tr["pts"].duplicate()
+			pts.reverse()
+			tr.merge({"pts": pts, "t": 0.0, "back": true}, true)
+			return tr["dur"]
+	return 0.0
 
 
 func remove_units(us: Array) -> void:
@@ -245,8 +239,10 @@ func _process(d: float) -> void:
 		if _reveal >= 1.0:
 			_reveal = -1.0
 		queue_redraw()
-	elif not trips.is_empty() and is_visible_in_tree():
+	elif trips.any(func(tr): return tr["t"] < tr["dur"]) and is_visible_in_tree():
 		queue_redraw()
+	for tr in trips:   # no tempo do jogo: para na pausa e acompanha a velocidade
+		tr["t"] = minf(tr["t"] + d, tr["dur"])
 
 
 func _width(txt: String, sz: int) -> float:
@@ -488,10 +484,9 @@ func _draw_rural() -> void:
 
 
 func _draw_units() -> void:
-	var now := Time.get_ticks_msec()
 	for tr in trips:
 		var pts: PackedVector2Array = tr["pts"]
-		var k := minf(1.0, (now - int(tr["t0"])) / float(tr["dur"]))
+		var k: float = tr["t"] / tr["dur"]
 		var tot := 0.0
 		for i in range(1, pts.size()):
 			tot += pts[i].distance_to(pts[i - 1])
@@ -509,7 +504,7 @@ func _draw_units() -> void:
 		var r := 7.0 / minf(_k, 1.0)   # do mesmo tamanho na tela, mesmo com o mapa afastado
 		draw_rect(Rect2(p.x - r, p.y - r, 2 * r, 2 * r), Color.BLACK)
 		draw_rect(Rect2(p.x - r * 5 / 7, p.y - r * 5 / 7, r * 10 / 7, r * 10 / 7), st["c"])
-		if k < 1.0 and (now / 300) % 2 == 0:
+		if k < 1.0 and not tr["back"] and fmod(tr["t"], 0.6) < 0.3:
 			draw_rect(Rect2(p.x - r * 2 / 7, p.y - r * 11 / 7, r * 4 / 7, r * 4 / 7), st["l"])
 
 

@@ -47,6 +47,7 @@ static func entry(number: String) -> DirectoryEntry:
 	return null
 
 
+const LANDMARK_CHANCE := 0.4   # emergência de molde em que quem liga diz a rua e um lugar do mapa em vez do número
 const DIGITS := ["zero", "um", "dois", "três", "quatro", "cinco", "seis", "sete", "oito", "nove"]
 
 
@@ -103,7 +104,8 @@ static func alternative(e: DirectoryEntry, exclude: Array = []) -> DirectoryEntr
 	return same.pick_random() if not same.is_empty() else null
 
 
-## Emergência montada a partir de um molde (`from`, ou um sorteado), numa rua (dos setores atendidos) e número sorteados.
+## Emergência montada a partir de um molde (`from`, ou um sorteado), numa rua (dos setores atendidos) e número sorteados;
+## às vezes (`LANDMARK_CHANCE`) quem liga diz a rua e um lugar do mapa em vez do número (`MapGrid.landmark_spots`).
 static func template_emergency(from: EmergencyCall = null) -> EmergencyCall:
 	var tpl := with_case(from if from != null else CONTENT.emergency_templates.pick_random())
 	var spots := []   # [rua, trecho] dos setores atendidos
@@ -115,14 +117,24 @@ static func template_emergency(from: EmergencyCall = null) -> EmergencyCall:
 	var st: Street = spot[0]
 	var house := int(spot[1]) * 100 + randi_range(1 if spot[1] == 0 else 0, 99)
 	var vars := {"street": st.name, "house": house, "address": "%s, %d" % [st.name, house]}
+	var near := MapGrid.landmark_spots()
+	if not near.is_empty() and randf() < LANDMARK_CHANCE:
+		var spot_lm: Dictionary = near.pick_random()
+		st = spot_lm["street"]
+		house = int(spot_lm["block"]) * 100 + 50   # só o trecho conta
+		var lm := {"street": st.name, "landmark": T.text(T.Key[T.Key.find_key(spot_lm["lm"]) + "_OF"])}
+		var said: Array = Array(CONTENT.address_landmark).map(func(f: String):   # quem liga começa a fala pelo endereço
+			var t := String(TranslationServer.translate(f)).format(lm)
+			return t.left(1).to_upper() + t.substr(1))
+		vars = {"street": st.name, "house": house, "address": said[0], "said": said.pick_random()}
 	var who := pick(CONTENT.callers).split(":")
 	var e := EmergencyCall.new()
 	e.voice = who[0]
 	e.caller = who[1]
 	e.opening = fill(tpl.opening, vars)
 	e.questions = tpl.questions
-	for a in tpl.answers:
-		e.answers.append(fill(a, vars))
+	for a in tpl.answers:   # quem liga diz o endereço do jeito sorteado; rádio e caderno ficam com a forma "perto"
+		e.answers.append(fill(a, vars.merged({"address": vars.get("said", vars["address"])}, true)))
 	e.street = st.id
 	e.block = floori(house / 100.0)
 	e.address = vars["address"]

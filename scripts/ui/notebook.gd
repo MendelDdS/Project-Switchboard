@@ -65,8 +65,8 @@ func pending_count() -> int:
 ## escolher: ninguém falou com a pessoa).
 func add(rec: Dictionary) -> void:
 	if rec["missed"]:
-		entries.append({"time": rec["time"], "who": rec["who"], "where": rec["where"], "unit": rec["unit"], "obs": "",
-			"type": T.Key.TYPE_MISSED})
+		entries.append({"time": rec["time"], "who": rec["who"], "where": rec["where"], "unit": rec["unit"],
+			"card": rec.get("card", 0), "obs": "", "type": T.Key.TYPE_MISSED})
 		_render_ledger()
 		return
 	if pending.is_empty():
@@ -90,7 +90,7 @@ func register(type: T.Key) -> void:
 		return
 	var rec := pending
 	entries.append({"time": rec["time"], "who": rec["who"], "where": rec["where"], "unit": rec["unit"],
-		"obs": rec["obs"], "type": type})
+		"card": rec.get("card", 0), "obs": rec["obs"], "type": type})
 	pending = queue.pop_front() if not queue.is_empty() else {}
 	Sfx.play("pencil")
 	_render_ledger()
@@ -116,6 +116,8 @@ func _fill() -> void:
 	_update_title()
 	_who.text = pending["who"]
 	var where := String(pending["where"])
+	if int(pending.get("card", 0)) > 0:
+		where += "  ·  " + T.text(T.Key.NOTEBOOK_CARD) % int(pending["card"])
 	if String(pending["unit"]) != "—":
 		where += "  ·  " + String(pending["unit"])
 	_where.text = where
@@ -160,6 +162,8 @@ func _draw_page() -> void:
 		_page.draw_string(Pal.mono, Vector2(X_PLACE, y + 22), _fit(Pal.mono, r["where"], 11, X_STAMP - X_PLACE - 10), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, ink)
 		_stamp(r["type"], Rect2(X_STAMP, y + 5, w - X_STAMP - 4, 22))
 		var notes := PackedStringArray()
+		if int(r.get("card", 0)) > 0:   # o número do cartão de despacho enviado
+			notes.append(T.text(T.Key.NOTEBOOK_CARD) % int(r["card"]))
 		if String(r["unit"]) != "—":
 			notes.append(T.text(T.Key.COL_UNIT) + ": " + String(r["unit"]))
 		if String(r["obs"]) != "":

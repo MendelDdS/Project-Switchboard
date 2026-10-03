@@ -35,6 +35,9 @@ extends Resource
 ## Emergências com lacunas: {street} "Rua do Sol", {house} "145", {address} "Rua do Sol, 145" (rua e número sorteados).
 ## Rua, trecho e endereço do molde são ignorados; ocorrência e unidades valem.
 @export var emergency_templates: Array[EmergencyCall] = []
+## Às vezes (`GameData.LANDMARK_CHANCE`) quem liga não diz o número, mas a rua e um lugar do mapa: {street} "Rua do Sol",
+## {landmark} "do posto" (`MAP_*_OF`). A primeira forma também vai para o rádio e o caderno ("Rua do Sol, perto do posto").
+@export var address_landmark: PackedStringArray = []
 
 @export_group("Falas avulsas")
 ## Como o operador atende.

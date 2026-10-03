@@ -28,7 +28,7 @@ const CORD_COLORS := [
 ## duas fileiras. A mesa saiu de fábrica assim; a faixa coincide com o setor da cidade (o primeiro dígito), e o banco
 ## de um setor que ainda não é do operador fica tampado por uma chapa com a letra dele (`GameData.sectors`).
 const SECTOR_ORDER := [1, 2, 3]
-const DEST_PITCH := 31.0     # px entre duas tomadas de destino vizinhas
+const DEST_PITCH := 30.0     # px entre duas tomadas de destino vizinhas
 const BLOCK_GAP := 14.0      # px entre dois blocos
 const DEST_TOP := 172.0      # topo das tomadas da primeira fileira (a segunda fica 50 px abaixo)
 const SIZE := Vector2(588, 330)

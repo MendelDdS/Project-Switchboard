@@ -251,7 +251,7 @@ msgid "o Hotel Estrela"
 msgstr ""
 
 #: data/content.tres
-msgid "Meu irmão chegou hoje e está hospedado lá."
+msgid "Preciso de um quarto pra esta noite."
 msgstr ""
 
 #: data/content.tres
@@ -588,6 +588,46 @@ msgstr ""
 
 #: data/content.tres
 msgid "pra Dona Sônia Vieira"
+msgstr ""
+
+#: data/content.tres
+msgid "a Pensão Dona Cota"
+msgstr ""
+
+#: data/content.tres
+msgid "Preciso de um quarto barato pra esta noite."
+msgstr ""
+
+#: data/content.tres
+msgid "Quero saber se tem vaga pra dois pernoitarem."
+msgstr ""
+
+#: data/content.tres
+msgid "da Pensão Dona Cota"
+msgstr ""
+
+#: data/content.tres
+msgid "pra Pensão Dona Cota"
+msgstr ""
+
+#: data/content.tres
+msgid "a Borracharia do Neno"
+msgstr ""
+
+#: data/content.tres
+msgid "Furou o pneu do carro aqui na estrada."
+msgstr ""
+
+#: data/content.tres
+msgid "O carro morreu no meio da rua e não pega."
+msgstr ""
+
+#: data/content.tres
+msgid "da Borracharia do Neno"
+msgstr ""
+
+#: data/content.tres
+msgid "pra Borracharia do Neno"
 msgstr ""
 
 #: data/content.tres data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres data/calls/emergency_08_acidente_avenida_brasil_60.tres
@@ -3175,7 +3215,7 @@ msgid "Central, tem uma briga feia no meio da {street}!"
 msgstr ""
 
 #: data/templates/emergency_briga.tres
-msgid "{address}! Bem na frente de casa!"
+msgid "{address}! Dá pra ver daqui de casa!"
 msgstr ""
 
 #: data/templates/emergency_briga.tres
@@ -3220,6 +3260,14 @@ msgstr ""
 
 #: data/templates/emergency_briga.tres
 msgid "O rapaz continua no chão, sangrando muito pela cabeça!"
+msgstr ""
+
+#: data/content.tres
+msgid "{street}, perto {landmark}"
+msgstr ""
+
+#: data/content.tres
+msgid "na frente {landmark}, na {street}"
 msgstr ""
 
 #: data/content.tres
