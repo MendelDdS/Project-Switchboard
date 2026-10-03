@@ -96,10 +96,17 @@ func _ready() -> void:
 	clock.set_meta("bloom", 0.35)
 	exchange = Exchange.new(GameData.board_numbers())
 	board.setup(exchange, phone.fone_socket)
-	var left := phone.get_parent() as Control   # o telefone ocupa o resto da coluna, até PHONE_MAX_H
-	left.resized.connect(func():
+	# o telefone ocupa o resto da coluna, até PHONE_MAX_H. Mede pela altura da tela (o Main não cresce com o
+	# conteúdo), não pela coluna: um aviso que quebra linha fazia a coluna transbordar, e medida por ela o telefone
+	# ficava esticado até a tela sair do lugar (o relógio subia, os botões saíam por baixo)
+	var left := phone.get_parent() as Control
+	var layout := left.get_parent().get_parent() as MarginContainer
+	var fit := func():
+		var room := size.y - layout.get_theme_constant("margin_top") - layout.get_theme_constant("margin_bottom")
 		var above := left.get_combined_minimum_size().y - phone.get_combined_minimum_size().y
-		phone.custom_minimum_size.y = minf(left.size.y - above, PHONE_MAX_H))
+		phone.custom_minimum_size.y = minf(room - above, PHONE_MAX_H)
+	left.resized.connect(fit)
+	resized.connect(fit)
 	var plan := Schedule.build(night, pace, LAST_CALL)
 	sched = plan.calls
 	tut = plan.tut

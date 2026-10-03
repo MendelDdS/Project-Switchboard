@@ -164,7 +164,7 @@ text = "OPERATOR_DESK"
 [node name="Board" type="Control" parent="Layout/Columns/Left" unique_id=995017339]
 unique_name_in_owner = true
 z_index = 1
-custom_minimum_size = Vector2(588, 330)
+custom_minimum_size = Vector2(588, 334)
 layout_mode = 2
 script = ExtResource("5_switchboard")
 

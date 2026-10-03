@@ -51,7 +51,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - **Resolução**: a base é 1280×720 (`canvas_items`, `aspect="expand"`); o Godot amplia para a tela, e a proporção
   diferente de 16:9 vira espaço a mais, não tarja. Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
   O layout absorve o espaço a mais: a coluna da esquerda (mesa e telefone) tem largura fixa e a da direita cresce;
-  o telefone ocupa o resto da altura até `Main.PHONE_MAX_H`; o brilho da luminária (`%Glow`) tem 1280×720, preso à direita;
+  o telefone ocupa o resto da altura até `Main.PHONE_MAX_H` (medido pela altura do Main, não da coluna: medido pela coluna,
+  um aviso que quebrava linha a fazia transbordar e o telefone ficava esticado, empurrando a tela para fora); o brilho da luminária (`%Glow`) tem 1280×720, preso à direita;
   as abas crescem na altura; a lista telefônica, o mapa e o caderno acompanham o tamanho da aba (`PhoneBook.book`,
   `NOTIFICATION_RESIZED`); o `Background` estica parede e mesa até a borda (luminária presa à direita).
 - **Bloom das luzes** (`Bloom`, `scripts/ui/bloom.gd`, nó `Bloom` do Main, z 2: acima da mesa e dos painéis, abaixo dos
@@ -66,7 +67,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   Label no grupo "bloom" brilham na cor deles (luzes do rádio; o relógio, só halo, atenuado pela meta "bloom"). Luz
   sem miolo tem o halo fraco por dentro (`HOLLOW`); luz de quem recorta o conteúdo (`clip_contents`) é recortada também.
 - Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`). **Uma fonte só, de pixel: Departure Mono**
-  (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11**: 11 (texto, números da lista), 22
+  (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11** (exceção: o estado de cada linha na mesa, `Switchboard.STATE_FONT` = 8, porque "conectada" em 11
+  não cabe na coluna; a letra fica um pouco irregular): 11 (texto, números da lista), 22
   (títulos, visor, bilhete), 33 (títulos de tela), 44 (relógio). Importada com suavização (a janela
   menor que 1280×720 não apaga os traços, mas o texto de 11 fica borrado), sem hinting e sem sub-pixel. Texto em
   desenho com escala (mapa) sai fora da escala (`CityMap._t`).
@@ -207,8 +209,18 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (mão aberta, mão fechada segurando, proibido sobre tomada que recusa, dedo em tomada/plaqueta que informa).
   Desenho na ordem `_order`: a ponta pega ou encaixada por último (`_raise`) fica por cima (e é a primeira no clique);
   cada ponta desenha fio e plug juntos, para o fio mais recente passar por cima dos plugs das outras.
-- Plug (`_draw_plug`): corpo na cor do cabo, anel de latão e ponta de metal; encaixado (`PLUG_SEAT`), a ponta some
-  dentro da tomada e o anel assenta no buraco. `_plug_rect(seated)` é o contorno (clique, destaque e sombra).
+- Layout da mesa (`SIZE` 588×334, também em `main.tscn`): coluna de cada linha em `ROW_Y` (plaquinha de metal com o número
+  gravado, `_draw_number_plate`; estado; lâmpada; entrada; saída), todos os encaixes com `JACK` px, bancos de destino em
+  `DEST_TOP`/`DEST_ROW`, cabos e legenda embaixo. Mexendo na altura, confira com uma ligação atendida e duas fileiras de
+  opções que a coluna da esquerda ainda cabe em 720.
+- Encaixes redondos como os originais (`_draw_jack`: bucha de metal com aba chanfrada, parede de dentro rebaixada e o
+  furo); lâmpadas redondas com aro niquelado (`_draw_lamp`, `BEZEL`) que acendem rápido e apagam devagar, como
+  filamento (`_lamp`/`_dest_lamp` dizem cor e nível desejado, `_fade` chega lá em `LAMP_ON_SEC`/`LAMP_OFF_SEC`, estado em
+  `_lit`; a linha tocando pulsa). A luz acesa tinge o aro dela e a aba do encaixe logo abaixo (`_reflect`).
+- Plug (`_draw_plug`, desenho em `_draw_plug_body`): cabo de baquelite na cor do cabo (sombreado de cilindro, sulcos de
+  pegada, ponteira de onde sai o fio), colar niquelado (`BEZEL`) e, solto, a ponta de três partes dos plugues de mesa
+  (bico e anel niquelados, luva de latão, isolantes pretos); encaixado (`PLUG_SEAT`), a ponta some e uma aba redonda
+  niquelada assenta sobre o encaixe. `_plug_rect(seated)` é o contorno (clique, destaque e sombra).
   Sombras (`SHADOW`): fios deslocados `ROPE_SHADOW`; plug mais longe quanto mais sai do painel (solto, na mão).
 
 ## Modelo das ligações

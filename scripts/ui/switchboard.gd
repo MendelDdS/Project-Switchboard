@@ -28,12 +28,14 @@ const CORD_COLORS := [
 ## duas fileiras. A mesa saiu de fábrica assim; a faixa coincide com o setor da cidade (o primeiro dígito), e o banco
 ## de um setor que ainda não é do operador fica tampado por uma chapa com a letra dele (`GameData.sectors`).
 const SECTOR_ORDER := [1, 2, 3]
-const DEST_PITCH := 30.0     # px entre duas tomadas de destino vizinhas
-const BLOCK_GAP := 14.0      # px entre dois blocos
-const DEST_TOP := 172.0      # topo das tomadas da primeira fileira (a segunda fica 50 px abaixo)
-const SIZE := Vector2(588, 330)
+const DEST_PITCH := 29.0     # px entre duas tomadas de destino vizinhas
+const BLOCK_GAP := 12.0      # px entre dois blocos
+const DEST_TOP := 182.0      # topo das tomadas da primeira fileira (a segunda fica DEST_ROW px abaixo)
+const DEST_ROW := 44.0
+const SIZE := Vector2(588, 334)
 const FONE_HOME := Vector2(18, 24)   # posição do plug do FONE dentro do encaixe
 
+var _lit := {}   ## lâmpada ("l3" linha, "d312" destino) -> [cor, quanto está acesa 0..1]; a cor fica enquanto apaga
 var exchange: Exchange
 var fone_socket: Control       # encaixe do FONE no painel do telefone
 var dest_nums: Array = []      # destinos em serviço (dos setores atendidos)
@@ -65,7 +67,15 @@ const PLUG_SEAT := Vector2(0, 26)
 const SHADOW := Color(0, 0, 0, 0.35)
 const PLATE := Color("4d483d")   # chapa sobre o banco que ainda não está em uso
 const LAMP_R := 4.5         # raio do vidro da lâmpada de cada linha (o aro de metal fica em volta)
+const JACK := 22.0          # diâmetro de todos os encaixes (entradas, saídas e destinos)
+## A coluna de cada linha, de cima para baixo: plaquinha com o número (topo e altura), estado (linha de base do texto),
+## lâmpada, entrada e saída (centros). O estado fica acima da lâmpada: embaixo da entrada, o plug encaixado o cobria.
+const ROW_Y := {"plate": 34.0, "plate_h": 17.0, "state": 62.0, "lamp": 76.0, "in": 101.0, "out": 131.0}
+const STATE_FONT := 8       # o estado da linha ("conectada" em 11 não cabe na coluna): exceção à regra dos múltiplos de 11
 const BEZEL := [Color("d6d1c3"), Color("8e897c"), Color("45413a")]   # aro niquelado: luz, meio, sombra
+const LAMP_OFF := Color("2a2016")   # o vidro da lâmpada apagada
+const LAMP_ON_SEC := 0.06    # a lâmpada (de filamento) acende quase na hora...
+const LAMP_OFF_SEC := 0.18   # ...e apaga mais devagar, o filamento esfriando: a linha tocando pulsa em vez de piscar seco
 const ROPE_SHADOW := Vector2(3, 4)  # deslocamento da sombra dos fios; a do plug cresce quando ele sai do painel
 var _jacks: Array = []
 
@@ -76,7 +86,7 @@ const DAMPING := 0.985             # 1 = sem atrito com o ar
 const STIFF_ITER := 14             # iterações de restrição (maior = cabo menos elástico)
 const SLACK := 70.0                # folga extra além da distância reta (fio do FONE)
 const CORD_SLACK := 14.0           # idem, fios dos cabos de conexão
-const FLOOR_Y := 348.0             # o cabo repousa sobre a mesa abaixo do painel
+const FLOOR_Y := 354.0             # o cabo repousa sobre a mesa abaixo do painel
 const STEP := 1.0 / 90.0
 var ropes := {}                    # ponta -> corda (só enquanto o fio está para fora do buraco)
 const SLEEP_STEPS := 30            # passos quase parado até o fio "dormir" (deixa de ser simulado até algo mexer nele)
@@ -125,8 +135,8 @@ func _layout_dests() -> void:
 		var nums: Array = by_sector.get(s, [])
 		nums.sort()
 		for i in nums.size():
-			_slots[nums[i]] = Vector2(x + (i % cols[k]) * DEST_PITCH + DEST_PITCH / 2.0, DEST_TOP + 11.0 + int(i / cols[k]) * 50.0)
-		_blocks[s] = Rect2(x - 3, DEST_TOP - 21, cols[k] * DEST_PITCH + 6, 95)
+			_slots[nums[i]] = Vector2(x + (i % cols[k]) * DEST_PITCH + DEST_PITCH / 2.0, DEST_TOP + 11.0 + int(i / cols[k]) * DEST_ROW)
+		_blocks[s] = Rect2(x - 3, DEST_TOP - 21, cols[k] * DEST_PITCH + 6, DEST_ROW + 43)
 		x += cols[k] * DEST_PITCH + BLOCK_GAP
 
 
@@ -149,12 +159,14 @@ func col_x(i: int) -> float:
 
 
 func jack_rect(j: int) -> Rect2:
+	var c: Vector2
 	if j <= 10:
-		return Rect2(col_x(j - 1) - 12, 74, 24, 24)
-	if j <= 20:
-		return Rect2(col_x(j - 11) - 10, 116, 20, 20)
-	var c: Vector2 = _slots.get(j, Vector2.ZERO)
-	return Rect2(c.x - 11, c.y - 11, 22, 22)
+		c = Vector2(col_x(j - 1), ROW_Y["in"])
+	elif j <= 20:
+		c = Vector2(col_x(j - 11), ROW_Y["out"])
+	else:
+		c = _slots.get(j, Vector2.ZERO)
+	return Rect2(c - Vector2(JACK, JACK) / 2.0, Vector2(JACK, JACK))
 
 
 func jack_at(pos: Vector2) -> int:
@@ -175,7 +187,7 @@ func patch_x(k: int) -> float:
 func home_pos(e: int) -> Vector2:
 	if e == 0:
 		return socket_rect().position + FONE_HOME
-	return Vector2(patch_x((e - 1) / 2) + (-14.0 if e % 2 == 1 else 14.0), 280)
+	return Vector2(patch_x((e - 1) / 2) + (-14.0 if e % 2 == 1 else 14.0), 284)
 
 
 ## Buraco de onde sai o fio da ponta e (o do FONE sai do alto do encaixe, como sempre).
@@ -189,7 +201,7 @@ func home_rect(e: int) -> Rect2:
 	if e == 0:
 		return socket_rect()
 	var h := home_pos(e)
-	return Rect2(h.x - 12, 258, 24, 50)
+	return Rect2(h.x - 12, 262, 24, 50)
 
 
 ## A outra ponta do mesmo cabo de conexão (-1 para o FONE).
@@ -407,6 +419,12 @@ func _process(delta: float) -> void:
 	_rub_in = 0.0
 	_rub_x = 0.0
 	_rub_fone = 0.0
+	if exchange != null:
+		var ms := Time.get_ticks_msec()
+		for n in range(1, 11):
+			_fade("l%d" % n, _lamp(exchange.line(n), ms, fone_line() == n), delta)
+		for d in dest_nums:
+			_fade("d%d" % d, _dest_lamp(exchange.dest(d), ms), delta)
 	queue_redraw()
 
 
@@ -600,56 +618,81 @@ func _step_rope(e: int, dt: float) -> void:
 
 # ------------------------------------------------------------------ desenho
 
-## Cor da lâmpada para um estado de linha (Exchange.Line); alpha 0 = apagada.
-func _lamp(st: int, ms: int, steady: bool) -> Color:
+## Cor da lâmpada de uma linha (Exchange.Line) e quanto ela quer estar acesa (0..1); `_fade` chega lá aos poucos.
+func _lamp(st: int, ms: int, steady: bool) -> Array:
 	match st:
 		Exchange.Line.RING:
-			if steady or (ms / 250) % 2 == 0:
-				return Pal.AMBER
+			return [Pal.AMBER, 1.0 if steady or (ms / 250) % 2 == 0 else 0.0]
 		Exchange.Line.TALK:
-			return Pal.AMBER
+			return [Pal.AMBER, 1.0]
 		Exchange.Line.HOLD:
-			return Pal.AMBER if (ms / 800) % 2 == 0 else Pal.AMBER.darkened(0.45)
+			return [Pal.AMBER, 1.0 if (ms / 800) % 2 == 0 else 0.45]
 		Exchange.Line.CONN:
-			return Pal.GREEN
+			return [Pal.GREEN, 1.0]
 		Exchange.Line.DONE:
-			return Pal.RED
-	return Color(0, 0, 0, 0)
+			return [Pal.RED, 1.0]
+	return [LAMP_OFF, 0.0]
 
 
 ## Os estados de destino (Exchange.Dest) acendem como os de linha equivalentes.
-func _dest_lamp(st: int, ms: int) -> Color:
+func _dest_lamp(st: int, ms: int) -> Array:
 	match st:
 		Exchange.Dest.RING:
 			return _lamp(Exchange.Line.RING, ms, false)
 		Exchange.Dest.CONN:
-			return Pal.GREEN
+			return [Pal.GREEN, 1.0]
 		Exchange.Dest.DONE:
-			return Pal.RED
-	return Color(0, 0, 0, 0)
+			return [Pal.RED, 1.0]
+	return [LAMP_OFF, 0.0]
 
 
-## Lâmpada redonda com aro de metal (luz no alto à esquerda, sombra embaixo à direita), assento preto e o vidro na cor
-## da linha; apagada, o vidro fica escuro, só com um reflexo fraco. Acesa, brilha (`Bloom`).
-func _draw_lamp(c: Vector2, col: Color) -> void:
+## A lâmpada `key` vai para `want` ([cor, nível]): acende em `LAMP_ON_SEC`, apaga em `LAMP_OFF_SEC`, mantendo a cor.
+func _fade(key: String, want: Array, delta: float) -> void:
+	var cur: Array = _lit.get(key, [want[0], 0.0])
+	if want[1] > 0.0:
+		cur[0] = want[0]
+	var lv: float = cur[1]
+	cur[1] = move_toward(lv, want[1], delta / (LAMP_ON_SEC if want[1] > lv else LAMP_OFF_SEC))
+	_lit[key] = cur
+
+
+## Lâmpada redonda com aro de metal (luz no alto à esquerda, sombra embaixo à direita; acesa, o aro pega a cor dela),
+## assento preto e o vidro, que vai do escuro à cor da linha conforme `level`. Acesa, brilha (`Bloom`); apagada, só
+## um reflexo fraco no vidro.
+func _draw_lamp(c: Vector2, col: Color, level: float) -> void:
 	draw_circle(c, LAMP_R + 3.5, Color.BLACK)
 	draw_circle(c, LAMP_R + 2.5, BEZEL[2])
 	draw_circle(c - Vector2(0.6, 0.6), LAMP_R + 1.9, BEZEL[0])
 	draw_circle(c, LAMP_R + 1.5, BEZEL[1])
+	draw_circle(c, LAMP_R + 1.5, Color(col, 0.3 * level))   # a luz batendo no metal
 	draw_circle(c, LAMP_R + 0.5, Color.BLACK)   # o assento do vidro
-	if col.a > 0.0:
-		draw_circle(c, LAMP_R, col)
-		Bloom.light(self, Rect2(c - Vector2(LAMP_R, LAMP_R), Vector2(LAMP_R, LAMP_R) * 2.0), col, 1.0, true, true)
-	else:
-		draw_circle(c, LAMP_R, Color("2a2016"))
-		draw_circle(c - Vector2(LAMP_R, LAMP_R) * 0.45, 1.0, Color(1, 1, 1, 0.15))
+	draw_circle(c, LAMP_R, LAMP_OFF.lerp(col, level))
+	if level > 0.02:
+		Bloom.light(self, Rect2(c - Vector2(LAMP_R, LAMP_R), Vector2(LAMP_R, LAMP_R) * 2.0), Color(col, level), 1.0, true, true)
+	if level < 0.5:
+		draw_circle(c - Vector2(LAMP_R, LAMP_R) * 0.45, 1.0, Color(1, 1, 1, 0.15 * (1.0 - level)))
 
 
+## Encaixe redondo como os das mesas antigas: bucha de metal com a aba chanfrada (luz no alto à esquerda, sombra embaixo
+## à direita), a parede de dentro rebaixada (côncava: a sombra no alto, a luz embaixo) e o furo escuro no meio.
 func _draw_jack(jr: Rect2, rim: Color = Pal.BRASS) -> void:
-	draw_rect(jr, Color.BLACK)
-	draw_rect(jr.grow(-2), rim)
-	var hole := jr.size.x * 0.45
-	draw_rect(Rect2(jr.get_center() - Vector2(hole, hole) / 2.0 + Vector2(0, 2), Vector2(hole, hole)), Color("050403"))
+	var c := jr.get_center()
+	var r := jr.size.x / 2.0
+	draw_circle(c + Vector2(1, 1.5), r, Color(0, 0, 0, 0.35))   # sombra no painel
+	draw_circle(c, r, Color.BLACK)
+	draw_circle(c, r - 1.0, rim.darkened(0.45))
+	draw_circle(c - Vector2(0.8, 0.8), r - 1.8, rim.lightened(0.3))
+	draw_circle(c, r - 2.2, rim)
+	var wall := r * 0.62
+	draw_circle(c, wall, rim.lightened(0.15))
+	draw_circle(c - Vector2(0.8, 0.8), wall - 0.7, rim.darkened(0.4))
+	draw_circle(c, r * 0.4, Color("050403"))   # o furo
+
+
+## A luz de uma lâmpada batendo na aba do encaixe logo abaixo dela (o lado de cima, virado para a luz).
+func _reflect(jr: Rect2, col: Color, level: float) -> void:
+	if level > 0.02:
+		draw_arc(jr.get_center(), jr.size.x / 2.0 - 1.6, PI * 1.15, PI * 1.85, 12, Color(col, 0.55 * level), 1.5)
 
 
 func _draw() -> void:
@@ -673,57 +716,57 @@ func _draw() -> void:
 		var n := i + 1
 		var st := exchange.line(n)
 		var cx := col_x(i)
-		draw_rect(Rect2(cx - 17, 36, 34, 20), Color.BLACK)
-		draw_rect(Rect2(cx - 15, 38, 30, 16), Color("1a1711"))
-		draw_string(Pal.mono, Vector2(cx - 15, 52), "%02d" % n, HORIZONTAL_ALIGNMENT_CENTER, 30, 11, Color("d8c9a2"))
-		_draw_lamp(Vector2(cx, 65), _lamp(st, ms, fone_line() == n))
+		_draw_number_plate(Rect2(cx - 18, ROW_Y["plate"], 36, ROW_Y["plate_h"]), "%02d" % n)
+		var lt: Array = _lit.get("l%d" % n, [LAMP_OFF, 0.0])
+		_draw_lamp(Vector2(cx, ROW_Y["lamp"]), lt[0], lt[1])
 		_draw_jack(jack_rect(n))
+		_reflect(jack_rect(n), lt[0], lt[1])
 		var sc := Pal.DIM
 		if st in [Exchange.Line.RING, Exchange.Line.TALK, Exchange.Line.HOLD]:
 			sc = Pal.AMBER
 		elif st == Exchange.Line.DONE:
 			sc = Pal.RED
-		draw_string(Pal.ui, Vector2(cx - 28, 110), exchange.line_label(n), HORIZONTAL_ALIGNMENT_CENTER, 56, 11, sc)
+		draw_string(Pal.ui, Vector2(cx - 28, ROW_Y["state"]), exchange.line_label(n), HORIZONTAL_ALIGNMENT_CENTER, 56, STATE_FONT, sc)
 		_draw_jack(jack_rect(n + 10), Color("7a6230"))
 
 	# destinos: a faixa de numeração do banco fica sobre a linha divisória, como rótulo da seção
-	draw_rect(Rect2(12, 142, w - 24, 2), Pal.PANEL_LO)
+	draw_rect(Rect2(12, 151, w - 24, 2), Pal.PANEL_LO)
 	for s in _blocks:
 		var br: Rect2 = _blocks[s]
 		var cap := "%d–%d" % [s * 100, s * 100 + 99]
-		draw_rect(Rect2(br.position.x, 135, Pal.ui.get_string_size(cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 8, 15), Pal.PANEL)
-		draw_string(Pal.ui, Vector2(br.position.x + 4, 147), cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
+		draw_rect(Rect2(br.position.x, 144, Pal.ui.get_string_size(cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 8, 15), Pal.PANEL)
+		draw_string(Pal.ui, Vector2(br.position.x + 4, 156), cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
 		draw_rect(br, Pal.PANEL_LO, false, 1.0)
 	for d in dest_nums:
 		var jr := jack_rect(d)
 		var cx := jr.get_center().x
 		var st := exchange.dest(d)
 		draw_string(Pal.mono, Vector2(cx - 16, jr.position.y - 5), str(d), HORIZONTAL_ALIGNMENT_CENTER, 32, 11, Color("d8c9a2") if st == Exchange.Dest.FREE else Pal.TEXT)
-		var lc := _dest_lamp(st, ms)
-		if lc.a > 0.0:
-			draw_rect(jr.grow(3), lc)   # o aro da tomada acende
-			Bloom.light(self, jr.grow(3), lc, 1.0, false)
+		var dl: Array = _lit.get("d%d" % d, [LAMP_OFF, 0.0])
+		if dl[1] > 0.02:   # o aro em volta da tomada acende
+			draw_circle(jr.get_center(), jr.size.x / 2.0 + 3.0, Color(dl[0], dl[1]))
+			Bloom.light(self, jr.grow(3), Color(dl[0], dl[1]), 1.0, false, true)
 		_draw_jack(jr)
 	for s in _blocks:
 		if not s in GameData.sectors:
 			_draw_plate(_blocks[s], "ABC"[SECTOR_ORDER.find(s)])
 
 	# base dos cabos de conexão
-	draw_rect(Rect2(12, 250, w - 24, 2), Pal.PANEL_LO)
+	draw_rect(Rect2(12, 254, w - 24, 2), Pal.PANEL_LO)
 	for k in PATCHES:
 		var cx := patch_x(k)
-		draw_rect(Rect2(cx - 30, 298, 60, 14), Color.BLACK)
-		draw_rect(Rect2(cx - 28, 300, 56, 10), Color("1b1812"))
+		draw_rect(Rect2(cx - 30, 302, 60, 14), Color.BLACK)
+		draw_rect(Rect2(cx - 28, 304, 56, 10), Color("1b1812"))
 		for e in [1 + k * 2, 2 + k * 2]:   # os dois buracos de onde saem os fios
 			var hp := hole(e)
 			draw_rect(Rect2(hp.x - 7, hp.y - 4, 14, 8), Color("050403"))
-		draw_string(Pal.mono, Vector2(cx - 30, 322), T.text(T.Key.BOARD_CORD) % (k + 1), HORIZONTAL_ALIGNMENT_CENTER, 60, 11, Pal.BRASS)
+		draw_string(Pal.mono, Vector2(cx - 30, 326), T.text(T.Key.BOARD_CORD) % (k + 1), HORIZONTAL_ALIGNMENT_CENTER, 60, 11, Pal.BRASS)
 	# legenda
-	var leg := [[Pal.AMBER, T.Key.LEGEND_RING], [Pal.GREEN, T.Key.LEGEND_CONN], [Pal.RED, T.Key.LEGEND_DONE], [Color("2a2016"), T.Key.LEGEND_FREE]]
+	var leg := [[Pal.AMBER, T.Key.LEGEND_RING], [Pal.GREEN, T.Key.LEGEND_CONN], [Pal.RED, T.Key.LEGEND_DONE], [LAMP_OFF, T.Key.LEGEND_FREE]]
 	for k in leg.size():
-		var y := 266 + k * 18
-		draw_rect(Rect2(408, y - 10, 10, 10), Color.BLACK)
-		draw_rect(Rect2(409, y - 9, 8, 8), leg[k][0])
+		var y := 270 + k * 18
+		draw_circle(Vector2(413, y - 5), 5.5, Color.BLACK)   # lâmpadas redondas, como as da mesa
+		draw_circle(Vector2(413, y - 5), 4.0, leg[k][0])
 		draw_string(Pal.ui, Vector2(424, y), T.text(leg[k][1]), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
 
 	# destaque da tomada sob o plug
@@ -731,8 +774,8 @@ func _draw() -> void:
 		var hj := jack_at(get_local_mouse_position())
 		if hj != -1:
 			var ok := refuse(held, hj) == ""
-			var hr := jack_rect(hj).grow(4)
-			draw_rect(hr, Pal.GLOW if ok else Pal.RED, false, 2.0)
+			var hr := jack_rect(hj)
+			draw_arc(hr.get_center(), hr.size.x / 2.0 + 4.0, 0.0, TAU, 32, Pal.GLOW if ok else Pal.RED, 2.0)
 			if ok:
 				var gc := Pal.GLOW
 				gc.a = 0.2
@@ -759,6 +802,24 @@ func _draw() -> void:
 		draw_rect(Rect2(bx + 2, by + 2, bw - 4, bh - 4), Color("0e0c08"))
 		for k in info_lines.size():
 			draw_string(Pal.mono, Vector2(bx + 10, by + 22 + k * 19), info_lines[k], HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.GHOST if info_ghost else Pal.TEXT)
+
+
+## Plaquinha de metal niquelado com o número da linha gravado (escuro, com o brilho embaixo de quem foi rebaixado),
+## chanfro claro em cima e escuro embaixo, e um rebite de cada lado. O número fica centrado pela medida da fonte.
+func _draw_number_plate(r: Rect2, text: String) -> void:
+	draw_rect(r.grow(1), Color.BLACK)
+	draw_rect(r, BEZEL[1])
+	draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), BEZEL[0])
+	draw_rect(Rect2(r.position, Vector2(1, r.size.y)), BEZEL[0].darkened(0.1))
+	draw_rect(Rect2(r.position.x, r.end.y - 1, r.size.x, 1), BEZEL[2])
+	draw_rect(Rect2(r.end.x - 1, r.position.y, 1, r.size.y), BEZEL[2].lightened(0.1))
+	for x in [r.position.x + 3.5, r.end.x - 3.5]:   # rebites
+		draw_circle(Vector2(x, r.get_center().y), 1.5, BEZEL[2])
+		draw_circle(Vector2(x - 0.4, r.get_center().y - 0.4), 0.8, BEZEL[0])
+	var size := Pal.mono.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11)
+	var at := Vector2(roundf(r.get_center().x - size.x / 2.0), roundf(r.get_center().y + (Pal.mono.get_ascent(11) - Pal.mono.get_descent(11)) / 2.0))
+	draw_string(Pal.mono, at + Vector2(0, 1), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, BEZEL[0])   # o brilho do rebaixo
+	draw_string(Pal.mono, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color("1d1a14"))
 
 
 ## Chapa parafusada sobre um banco que ainda não está em uso, com a letra dele (A, B, C).
@@ -810,20 +871,56 @@ func _draw_plug(e: int, shadow: bool) -> void:
 	if shadow:
 		draw_rect(_plug_rect(seated), SHADOW)
 	else:
-		var col: Array = _cable_col(e)
 		if e == _hover:   # contorno claro: dá para pegar
 			draw_rect(_plug_rect(seated).grow(2.0), Pal.GLOW)
-		draw_rect(Rect2(-7, -22, 14, 22), Color.BLACK)
-		draw_rect(Rect2(-5, -20, 10, 18), col[0])
-		draw_rect(Rect2(-5, -20, 3, 18), col[1])
-		draw_rect(Rect2(-6, -27, 12, 5), Color.BLACK)   # anel
-		draw_rect(Rect2(-5, -26, 10, 3), Color("8a6a32"))
-		if not seated:
-			draw_rect(Rect2(-4, -42, 8, 15), Color.BLACK)   # ponta de metal
-			draw_rect(Rect2(-3, -41, 6, 14), Color("d9b56a"))
-			draw_rect(Rect2(-3, -41, 2, 14), Color("f0d79a"))
-			draw_rect(Rect2(-3, -34, 6, 1), Color("5a4520"))
+		_draw_plug_body(_cable_col(e), seated)
 	draw_set_transform(Vector2.ZERO)
+
+
+## O plug, de pé, com o fio saindo de baixo (y = 0): cabo de baquelite na cor do cabo (sombreado de cilindro, dois sulcos
+## de pegada e a ponteira de onde sai o fio), colar niquelado e, solto, a ponta de três partes dos plugues de mesa
+## (bico e anel niquelados, luva de latão, faixas isolantes pretas entre elas). Encaixado, a ponta some no furo e uma
+## aba redonda niquelada assenta sobre o encaixe. Luz no alto à esquerda, como no resto da mesa.
+func _draw_plug_body(col: Array, seated: bool) -> void:
+	var base: Color = col[0]
+	var hi: Color = col[1]
+	var dark := base.darkened(0.4)
+	if seated:   # a aba sobre o furo (o centro do encaixe fica em y = -PLUG_SEAT.y)
+		var c := Vector2(0, -PLUG_SEAT.y)
+		draw_circle(c, 7.5, Color.BLACK)
+		draw_circle(c, 6.5, BEZEL[2])
+		draw_circle(c - Vector2(0.6, 0.6), 5.8, BEZEL[0])
+		draw_circle(c, 5.3, BEZEL[1])
+	else:
+		draw_rect(Rect2(-4, -42, 8, 15), Color.BLACK)   # contorno da ponta
+		draw_circle(Vector2(0, -38.5), 3.5, Color.BLACK)
+		draw_rect(Rect2(-3, -33, 6, 6), Color("b8924e"))   # luva de latão
+		draw_rect(Rect2(-3, -33, 2, 6), Color("e0c07a"))
+		draw_rect(Rect2(2, -33, 1, 6), Color("7a5a24"))
+		draw_rect(Rect2(-3, -34, 6, 1), Color("141210"))   # isolante
+		draw_rect(Rect2(-3, -37, 6, 3), BEZEL[1])   # anel
+		draw_rect(Rect2(-3, -37, 2, 3), BEZEL[0])
+		draw_rect(Rect2(-3, -38, 6, 1), Color("141210"))   # isolante
+		draw_circle(Vector2(0, -38.5), 2.6, BEZEL[1])   # bico
+		draw_rect(Rect2(-2.5, -40, 1.5, 2), BEZEL[0])
+	# colar niquelado
+	draw_rect(Rect2(-7, -27, 14, 6), Color.BLACK)
+	draw_rect(Rect2(-6, -26, 12, 4), BEZEL[1])
+	draw_rect(Rect2(-6, -26, 12, 1), BEZEL[0])
+	draw_rect(Rect2(-6, -23, 12, 1), BEZEL[2])
+	# cabo de baquelite, arredondado nas pontas
+	draw_rect(Rect2(-7, -21, 14, 18), Color.BLACK)
+	draw_rect(Rect2(-6, -21, 12, 17), base)
+	draw_rect(Rect2(-6, -21, 3, 17), hi)
+	draw_rect(Rect2(2, -21, 4, 17), dark)
+	draw_rect(Rect2(-6, -21, 12, 1), hi.lightened(0.2))
+	for y in [-16, -11]:   # sulcos de pegada
+		draw_rect(Rect2(-6, y, 12, 1), dark.darkened(0.3))
+		draw_rect(Rect2(-6, y + 1, 12, 1), Color(hi, 0.5))
+	# ponteira de onde sai o fio
+	draw_rect(Rect2(-5, -4, 10, 4), Color.BLACK)
+	draw_rect(Rect2(-4, -4, 8, 3), dark)
+	draw_rect(Rect2(-4, -4, 2, 3), base)
 
 
 ## O idioma mudou nas configurações: redesenha os textos.

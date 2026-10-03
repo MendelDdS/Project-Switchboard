@@ -21,6 +21,7 @@ const MIN_VALUE := 0.45   # cor mais escura que isto (canal mais forte) é luz a
 const INTENSITY := 1.2    # a luz nítida: o canal mais forte vezes isto (o tom não muda)...
 const HOT := 0.85         # ...e o centro dela indo para o branco (luz forte demais "estoura")
 const HOLLOW := 0.2       # dentro de uma luz sem miolo (o aro da tomada, o relógio), o halo é só isto
+const GLASS_SHADE := 0.3  # a borda de baixo do vidro, mais escura
 const HOT_TINT := 0.35    # quanto da cor da luz fica no branco do centro (âmbar → amarelo-claro, verde → menta)
 const BAYER := [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5]   # pontilhado ordenado 4×4
 
@@ -127,7 +128,7 @@ func _halo_for(size: Vector2, round: bool, hollow: bool) -> ImageTexture:
 
 
 ## A luz nítida e intensa: a cor dela (mais forte) nas bordas e, em degraus, o centro indo para um branco tingido por
-## ela; as redondas ganham o reflexo do vidro no alto, à esquerda.
+## ela. O vidro: a borda de baixo um pouco mais escura (a tampa é curva) e, nas redondas, o reflexo no alto, à esquerda.
 func _draw_cores() -> void:
 	for l in _shown:
 		var r: Rect2 = l[0]
@@ -139,12 +140,15 @@ func _draw_cores() -> void:
 		if l[2]:
 			var c := r.get_center()
 			var rad := minf(r.size.x, r.size.y) / 2.0
-			_cores.draw_circle(c, rad, base)
+			_cores.draw_circle(c, rad, Color(base.darkened(GLASS_SHADE), base.a))   # sobra uma meia-lua embaixo
+			_cores.draw_circle(c - Vector2(0, 0.8), rad - 0.6, base)
 			_cores.draw_circle(c, rad * 0.65, Color(hot, HOT * 0.55 * col.a))
 			_cores.draw_circle(c, rad * 0.35, Color(hot, HOT * col.a))
 			_cores.draw_circle(c - Vector2(rad, rad) * 0.45, maxf(1.0, rad * 0.22), Color(1, 1, 1, 0.8 * col.a))
 		else:
 			_cores.draw_rect(r, base)
+			if r.size.y >= 4.0:
+				_cores.draw_rect(Rect2(r.position.x, r.end.y - 1.0, r.size.x, 1.0), Color(base.darkened(GLASS_SHADE), base.a))
 			var m := minf(r.size.x, r.size.y)
 			for ring in [[0.22, 0.55], [0.38, 1.0]]:   # degraus para dentro: [quanto encolhe, força]
 				var inner := r.grow(-m * float(ring[0]))
