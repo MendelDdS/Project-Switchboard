@@ -168,9 +168,9 @@ func _initialize() -> void:
 	for e in C.directory:
 		if not e.dispatch_only:
 			per_sector[e.number.left(1)] = int(per_sector.get(e.number.left(1), 0)) + 1
-	ok(per_sector == {"3": 10, "1": 12, "2": 12}, "lista: 10 números no setor 3 e 12 em cada um dos outros: %s" % per_sector)
+	ok(per_sector == {"3": 12, "1": 12, "2": 12}, "lista: 12 números em cada setor: %s" % per_sector)
 	GameData.sectors = [3]
-	ok(GameData.board_numbers().size() == 10 and GameData.board_numbers().all(func(n): return str(n).begins_with("3")), "noite 1: mesa só com o setor 3")
+	ok(GameData.board_numbers().size() == 12 and GameData.board_numbers().all(func(n): return str(n).begins_with("3")), "noite 1: mesa só com o setor 3")
 	ok(not GameData.transfers(TransferCall.Group.ESTABLISHMENT).is_empty(), "setor 3 tem estabelecimento para o tutorial")
 	var used: Array = []
 	var tpl := GameData.template_transfer(used)
@@ -267,6 +267,14 @@ func _initialize() -> void:
 			"sorteadas longe das do roteiro: " + n.resource_path)
 		var ems: Array = plan.calls.filter(func(c: PhoneCall): return c.kind == PhoneCall.Kind.EMERGENCY).map(func(c): return c.at)
 		ok(range(1, ems.size()).all(func(i): return ems[i] - ems[i - 1] >= Schedule.EMERGENCY_GAP), "emergências espaçadas: " + n.resource_path)
+	# lugares do mapa: todos com a forma de quem liga ("do posto"); os que encostam em dois trechos de cada rua vizinha
+	# não entram nas falas (não daria para saber qual trecho clicar)
+	var spots: Array = MapGrid.landmark_spots()
+	for sheet in MapGrid.LM:
+		for key in MapGrid.LM[sheet]:
+			ok(T.Key.has(T.Key.find_key(MapGrid.LM[sheet][key]) + "_OF"), "lugar do mapa sem a fala: " + T.Key.find_key(MapGrid.LM[sheet][key]))
+	ok(spots.size() > 30, "lugares do mapa ao lado de um trecho: %d" % spots.size())
+	var landmarks := 0
 	# moldes: nenhuma lacuna sobra sem preencher
 	var holes := func(texts: Array) -> bool: return texts.any(func(x): return "{" in x or "}" in x)
 	for i in 300:
@@ -278,8 +286,14 @@ func _initialize() -> void:
 		ok(not holes.call(Array(t.opening) + [t.repeat, t.thanks]) and t.caller != "", "molde de transferência preenchido: " + " / ".join(t.opening))
 		var e := GameData.template_emergency()
 		var house := int(e.address.get_slice(", ", 1))
-		ok(GameData.street(e.street) != null and e.block == floori(house / 100.0) and house >= 1, "molde: trecho bate com o número " + e.address)
+		if house > 0:
+			ok(GameData.street(e.street) != null and e.block == floori(house / 100.0), "molde: trecho bate com o número " + e.address)
+		else:   # pela rua e um lugar do mapa: o trecho é o que fica ao lado do lugar
+			landmarks += 1
+			ok(spots.any(func(sp): return sp["street"].id == e.street and sp["block"] == e.block)
+				and e.address.begins_with(GameData.street(e.street).name), "molde: lugar do mapa ao lado do trecho " + e.address)
 		ok(not holes.call(Array(e.answers) + [e.opening, e.after]), "molde de emergência preenchido: " + e.opening)
+	ok(landmarks > 60 and landmarks < 180, "às vezes quem liga diz um lugar do mapa: %d de 300" % landmarks)
 	_check_translations()
 	for c in m.find_children("*", "Control", true, false):
 		if c is BaseButton or c is Slider:

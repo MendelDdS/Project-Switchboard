@@ -11,21 +11,12 @@ signal segment_selected(street: String, block: int, label: String)
 
 const SHEET := Vector2(600, 440)
 ## Canto de cada folha no mapa: setor -> posição (0 = zona rural, só paisagem, que faz parte do setor 2).
-const SHEETS := {3: Vector2(0, 0), 1: Vector2(600, 0), 2: Vector2(0, 440), 0: Vector2(600, 440)}
-const SHEET_SECTOR := {0: 2, 1: 1, 2: 2, 3: 3}
-const XS := [20.0, 110.0, 250.0, 390.0, 530.0, 580.0]   # grade de cada folha (as ruas ficam nos valores do meio)
-const YS := [34.0, 90.0, 225.0, 360.0, 420.0]
-## Lugares de cada folha, no quarteirão "coluna,linha" da grade (perto do endereço deles na lista).
-const LM := {
-	1: {"2,1": T.Key.MAP_SQUARE, "1,1": T.Key.MAP_CITY_HALL, "3,1": T.Key.MAP_POST_OFFICE, "2,0": T.Key.MAP_HOSPITAL,
-		"1,2": T.Key.MAP_POLICE, "3,2": T.Key.MAP_FIRE_STATION, "4,1": T.Key.MAP_PHARMACY, "4,2": T.Key.MAP_BUS_STATION,
-		"2,3": T.Key.MAP_BAKERY},
-	2: {"1,0": T.Key.MAP_CLINIC, "3,0": T.Key.MAP_SCHOOL, "2,1": T.Key.MAP_BARBER, "1,2": T.Key.MAP_GROCERY,
-		"3,2": T.Key.MAP_WAREHOUSE},
-	3: {"4,0": T.Key.MAP_SAWMILL, "3,0": T.Key.MAP_GARAGE, "0,1": T.Key.MAP_HOTEL, "2,1": T.Key.MAP_BAR,
-		"3,1": T.Key.MAP_RADIO, "0,2": T.Key.MAP_CINEMA, "2,3": T.Key.MAP_GAS_STATION, "3,3": T.Key.MAP_FUNERAL},
-}
 ## Delegacia, bombeiros e hospital ficam no Centro (setor 1), em frente ao quarteirão de cada um.
+const SHEETS := MapGrid.SHEETS
+const SHEET_SECTOR := MapGrid.SHEET_SECTOR
+const XS := MapGrid.XS
+const YS := MapGrid.YS
+const LM := MapGrid.LM
 const STATION := {
 	"pol": {"p": Vector2(780, 225), "c": Color("2d4f8a"), "l": Color("4e86e0")},
 	"bomb": {"p": Vector2(1060, 225), "c": Color("b8321f"), "l": Color("e04e3a")},

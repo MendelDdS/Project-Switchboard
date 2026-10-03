@@ -23,6 +23,12 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   "residência". Todo número da lista serve para alguma coisa: não existe lugar sempre fechado.
 - **Conteúdo em Resources** (`data/content.tres` + um `.tres` por roteiro em `data/calls/` + um por noite em
   `data/nights/`). Nada de falas no código, exceto as do operador.
+- **Endereço por lugar do mapa**: em `GameData.LANDMARK_CHANCE` das emergências de molde, quem liga diz a rua e um lugar
+  do mapa em vez do número ("Rua do Sol, perto do posto" / "na frente da escola, na Rua do Sol";
+  `GameContent.address_landmark`, lacunas {street} e {landmark} = `MAP_*_OF`). Só lugares cujo quarteirão encosta num
+  único trecho daquela rua (`MapGrid.landmark_spots`), para haver um trecho certo; rádio e caderno usam a forma "perto".
+  `MapGrid` (`scripts/map_grid.gd`) guarda a grade e os lugares (`LM`) sem depender da interface (o `CityMap` usa e
+  desenha); lugar novo no mapa precisa de `MAP_X` e `MAP_X_OF` e fica num quarteirão que bata com o endereço da lista.
 - **Moldes** (`data/templates/`, listas `transfer_templates`/`emergency_templates` no content): `TransferCall`/
   `EmergencyCall` com lacunas **em inglês** (`{place}`, `{reason}`, `{street}`, `{house}`...), preenchidas por
   `GameData.template_transfer()`/`template_emergency()`. Motivos em `DirectoryEntry.reasons`. `TEMPLATE_CHANCE`
@@ -194,7 +200,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Destino que não atende: pedido com alternativa (`TransferCall.alt_target`) sorteia ao ser criado se o lugar pedido
   atende (`PhoneCall.away`, `AWAY_CHANCE`; nunca no tutorial); se não, toca sem resposta e o operador pode sugerir a
   alternativa (`alt_ask`, `Conversation._transfer_alt`), que sempre atende. **A alternativa é do mesmo ramo**
-  (`DirectoryEntry.category`: farmácia, igreja, mercearia; o teste confere): os moldes a escolhem sozinhos
+  (`DirectoryEntry.category`: farmácia, igreja, mercearia, hospedagem, oficina; o teste confere; a
+  Vila Serena tem hospedagem e oficina, então a mecânica aparece desde a noite 1): os moldes a escolhem sozinhos
   (`GameData.alternative`, fala `OP_TRY_OTHER`, resposta em `alt_accepted`); os roteiros escritos têm a deles. Só
   ganha ramo quem pode ser trocado por outro para qualquer motivo dos `reasons` (bar não: "recado pro amigo que tá lá").
 - Transferência: FONE na entrada → Atender → pedido → cabo de conexão saída→destino → **Transferir** (`transfer()`)
@@ -292,7 +299,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `ReportView` antes do título final.
 
 ## Setores (a cidade em três partes)
-- O setor de um número é o primeiro dígito (3xx, 1xx, 2xx; 10 + 12 + 12 = 34 na mesa). O operador começa com o setor 3
+- O setor de um número é o primeiro dígito (3xx, 1xx, 2xx; 12 em cada, 36 na mesa). O operador começa com o setor 3
   e recebe o 1 na noite 5 e o 2 na noite 9 (`GameData.SECTOR_NIGHTS`; o bilhete das noites 5 e 9 avisa).
   `GameData.sectors` (definido em `Main._load_night`, chamado no `_enter_tree` para valer antes do `_ready` dos filhos)
   filtra a mesa (`board_numbers`), a lista (`PhoneBook`), as transferências (`serves`, `transfers`, `template_transfer`,

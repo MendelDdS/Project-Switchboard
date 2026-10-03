@@ -252,8 +252,8 @@ msgid "o Hotel Estrela"
 msgstr "el Hotel Estrela"
 
 #: data/content.tres
-msgid "Meu irmão chegou hoje e está hospedado lá."
-msgstr "Mi hermano llegó hoy y se está quedando ahí."
+msgid "Preciso de um quarto pra esta noite."
+msgstr "Necesito una habitación para esta noche."
 
 #: data/content.tres
 msgid "Quero saber se ainda tem quarto vago pra amanhã."
@@ -590,6 +590,46 @@ msgstr "de Dona Sônia Vieira"
 #: data/content.tres
 msgid "pra Dona Sônia Vieira"
 msgstr "con Dona Sônia Vieira"
+
+#: data/content.tres
+msgid "a Pensão Dona Cota"
+msgstr "la Pensão Dona Cota"
+
+#: data/content.tres
+msgid "Preciso de um quarto barato pra esta noite."
+msgstr "Necesito una habitación barata para esta noche."
+
+#: data/content.tres
+msgid "Quero saber se tem vaga pra dois pernoitarem."
+msgstr "Quiero saber si hay lugar para que dos pasen la noche."
+
+#: data/content.tres
+msgid "da Pensão Dona Cota"
+msgstr "de la Pensão Dona Cota"
+
+#: data/content.tres
+msgid "pra Pensão Dona Cota"
+msgstr "con la Pensão Dona Cota"
+
+#: data/content.tres
+msgid "a Borracharia do Neno"
+msgstr "la Borracharia do Neno"
+
+#: data/content.tres
+msgid "Furou o pneu do carro aqui na estrada."
+msgstr "Se pinchó la rueda del auto aquí en el camino."
+
+#: data/content.tres
+msgid "O carro morreu no meio da rua e não pega."
+msgstr "El auto se paró en medio de la calle y no arranca."
+
+#: data/content.tres
+msgid "da Borracharia do Neno"
+msgstr "de la Borracharia do Neno"
+
+#: data/content.tres
+msgid "pra Borracharia do Neno"
+msgstr "con la Borracharia do Neno"
 
 #: data/content.tres data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres data/calls/emergency_08_acidente_avenida_brasil_60.tres
 msgid "Acidente de trânsito"
@@ -3176,8 +3216,8 @@ msgid "Central, tem uma briga feia no meio da {street}!"
 msgstr "¡Central, hay una pelea fea en medio de la {street}!"
 
 #: data/templates/emergency_briga.tres
-msgid "{address}! Bem na frente de casa!"
-msgstr "¡{address}! ¡Justo frente a mi casa!"
+msgid "{address}! Dá pra ver daqui de casa!"
+msgstr "¡{address}! ¡Se ve desde mi casa!"
 
 #: data/templates/emergency_briga.tres
 msgid "Um tá com um pedaço de pau!"
@@ -3222,6 +3262,14 @@ msgstr "Se escaparon todos... y el muchacho sigue en el piso. No vino nadie."
 #: data/templates/emergency_briga.tres
 msgid "O rapaz continua no chão, sangrando muito pela cabeça!"
 msgstr "¡El muchacho sigue en el piso, sangrando mucho de la cabeza!"
+
+#: data/content.tres
+msgid "{street}, perto {landmark}"
+msgstr "{street}, cerca {landmark}"
+
+#: data/content.tres
+msgid "na frente {landmark}, na {street}"
+msgstr "enfrente {landmark}, en la {street}"
 
 #: data/content.tres
 msgid "Central telefônica, pois não?"

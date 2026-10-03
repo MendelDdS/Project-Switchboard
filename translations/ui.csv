@@ -184,6 +184,38 @@ MAP_POST_OFFICE,Correios,Post office,Correos
 MAP_BAKERY,Padaria,Bakery,Panadería
 MAP_WAREHOUSE,Armazém,General store,Depósito
 MAP_BARBER,Barbearia,Barbershop,Barbería
+MAP_NEWSPAPER,Gazeta,Gazeta,Gazeta
+MAP_POOL_HALL,Bilhar,Pool hall,Billar
+MAP_FARM,Sítio,Farm,Granja
+MAP_INN,Pensão,Inn,Pensión
+MAP_TIRE_SHOP,Borracharia,Tire shop,Gomería
+MAP_SQUARE_OF,da Praça da Matriz,Praça da Matriz,de la Praça da Matriz
+MAP_CLINIC_OF,da clínica,the clinic,de la clínica
+MAP_HOSPITAL_OF,do hospital,the hospital,del hospital
+MAP_SCHOOL_OF,da escola,the school,de la escuela
+MAP_SAWMILL_OF,da serraria,the sawmill,del aserradero
+MAP_BUS_STATION_OF,da rodoviária,the bus station,de la terminal
+MAP_PHARMACY_OF,da farmácia,the pharmacy,de la farmacia
+MAP_CINEMA_OF,do Cine Odeon,the Cine Odeon,del Cine Odeon
+MAP_POLICE_OF,da delegacia,the police station,de la comisaría
+MAP_FIRE_STATION_OF,dos bombeiros,the fire station,de los bomberos
+MAP_GROCERY_OF,da mercearia,the grocery,del almacén
+MAP_FUNERAL_OF,da funerária,the funeral home,de la funeraria
+MAP_HOTEL_OF,do Hotel Estrela,the Hotel Estrela,del Hotel Estrela
+MAP_GAS_STATION_OF,do posto,the gas station,de la gasolinera
+MAP_RADIO_OF,da Rádio Serena,Rádio Serena,de Rádio Serena
+MAP_GARAGE_OF,da oficina,the garage,del taller
+MAP_BAR_OF,do Bar do Zé,the Bar do Zé,del Bar do Zé
+MAP_CITY_HALL_OF,da prefeitura,city hall,de la municipalidad
+MAP_POST_OFFICE_OF,dos Correios,the post office,de Correos
+MAP_BAKERY_OF,da padaria,the bakery,de la panadería
+MAP_WAREHOUSE_OF,do armazém,the general store,del depósito
+MAP_BARBER_OF,da barbearia,the barbershop,de la barbería
+MAP_NEWSPAPER_OF,da Gazeta,the Gazeta,de la Gazeta
+MAP_POOL_HALL_OF,do bilhar,the pool hall,del billar
+MAP_FARM_OF,do sítio,the farm,de la granja
+MAP_INN_OF,da pensão,the inn,de la pensión
+MAP_TIRE_SHOP_OF,da borracharia,the tire shop,de la gomería
 MAP_RURAL,Zona rural,Countryside,Zona rural
 MAP_DISTRICT_1,Centro,Downtown,Centro
 MAP_DISTRICT_2,Alto da Serra,Alto da Serra,Alto da Serra
