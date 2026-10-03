@@ -55,7 +55,7 @@ func _clear_board() -> void:
 
 func _initialize() -> void:
 	Engine.time_scale = 8.0
-	m = await load_main()
+	m = await load_main([1, 2, 3])
 	m.sched.clear()
 	m._intro.visible = false
 	m.running = false

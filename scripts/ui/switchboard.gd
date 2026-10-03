@@ -24,13 +24,21 @@ const CORD_COLORS := [
 	[Color("2a4a7c"), Color("4f7bb6")],
 	[Color("b48c1c"), Color("e6c24c")],
 ]
-const DEST_COLS := 17
+## Destinos em três bancos de tomadas, A, B e C, cada um com uma faixa de numeração (100–199, 200–299, 300–399), em
+## duas fileiras. A mesa saiu de fábrica assim; a faixa coincide com o setor da cidade (o primeiro dígito), e o banco
+## de um setor que ainda não é do operador fica tampado por uma chapa com a letra dele (`GameData.sectors`).
+const SECTOR_ORDER := [1, 2, 3]
+const DEST_PITCH := 31.0     # px entre duas tomadas de destino vizinhas
+const BLOCK_GAP := 14.0      # px entre dois blocos
+const DEST_TOP := 172.0      # topo das tomadas da primeira fileira (a segunda fica 50 px abaixo)
 const SIZE := Vector2(588, 330)
 const FONE_HOME := Vector2(18, 24)   # posição do plug do FONE dentro do encaixe
 
 var exchange: Exchange
 var fone_socket: Control       # encaixe do FONE no painel do telefone
-var dest_nums: Array = []
+var dest_nums: Array = []      # destinos em serviço (dos setores atendidos)
+var _slots := {}               # número -> centro da tomada (de todos os setores, atendidos ou não)
+var _blocks := {}              # setor -> retângulo do bloco
 var ends: Array = []           # tomada de cada ponta (-1 = na base). 0 = FONE; 1..2*PATCHES = pontas dos cabos de conexão
 var held := -1
 var cursor := Vector2.ZERO
@@ -55,6 +63,7 @@ const PLUG_BASE := Vector2(0, 20)   # do ponto de referência do plug (topo do c
 ## Encaixado, de onde fica a tomada até onde o fio entra: a ponta de metal some dentro dela e o anel assenta no buraco.
 const PLUG_SEAT := Vector2(0, 26)
 const SHADOW := Color(0, 0, 0, 0.35)
+const PLATE := Color("4d483d")   # chapa sobre o banco que ainda não está em uso
 const ROPE_SHADOW := Vector2(3, 4)  # deslocamento da sombra dos fios; a do plug cresce quando ele sai do painel
 var _jacks: Array = []
 
@@ -94,6 +103,29 @@ func setup(ex: Exchange, socket: Control) -> void:
 	fone_socket = socket
 	dest_nums = ex.dest_numbers()
 	_jacks = range(1, 21) + dest_nums
+	_layout_dests()
+
+
+## Posição de cada tomada de destino: blocos lado a lado, centralizados na mesa.
+func _layout_dests() -> void:
+	var by_sector := {}
+	for e in GameData.CONTENT.directory:
+		if not e.dispatch_only:
+			var s := int(e.number.left(1))
+			if not by_sector.has(s):
+				by_sector[s] = []
+			by_sector[s].append(int(e.number))
+	var cols := SECTOR_ORDER.map(func(s): return ceili(by_sector.get(s, []).size() / 2.0))
+	var total: float = cols.reduce(func(a, c): return a + c, 0) * DEST_PITCH + BLOCK_GAP * (SECTOR_ORDER.size() - 1)
+	var x := (SIZE.x - total) / 2.0
+	for k in SECTOR_ORDER.size():
+		var s: int = SECTOR_ORDER[k]
+		var nums: Array = by_sector.get(s, [])
+		nums.sort()
+		for i in nums.size():
+			_slots[nums[i]] = Vector2(x + (i % cols[k]) * DEST_PITCH + DEST_PITCH / 2.0, DEST_TOP + 11.0 + int(i / cols[k]) * 50.0)
+		_blocks[s] = Rect2(x - 3, DEST_TOP - 21, cols[k] * DEST_PITCH + 6, 95)
+		x += cols[k] * DEST_PITCH + BLOCK_GAP
 
 
 ## Encaixe do FONE em coordenadas da mesa (ele fica no painel do telefone, fora do retângulo dela).
@@ -119,8 +151,8 @@ func jack_rect(j: int) -> Rect2:
 		return Rect2(col_x(j - 1) - 12, 74, 24, 24)
 	if j <= 20:
 		return Rect2(col_x(j - 11) - 10, 116, 20, 20)
-	var k := dest_nums.find(j)
-	return Rect2(38.0 + (k % DEST_COLS) * 32.0 - 11, 172 + int(k / DEST_COLS) * 50, 22, 22)
+	var c: Vector2 = _slots.get(j, Vector2.ZERO)
+	return Rect2(c.x - 11, c.y - 11, 22, 22)
 
 
 func jack_at(pos: Vector2) -> int:
@@ -644,11 +676,14 @@ func _draw() -> void:
 		draw_string(Pal.ui, Vector2(cx - 28, 110), exchange.line_label(n), HORIZONTAL_ALIGNMENT_CENTER, 56, 12, sc)
 		_draw_jack(jack_rect(n + 10), Color("7a6230"))
 
-	# destinos
+	# destinos: a faixa de numeração do banco fica sobre a linha divisória, como rótulo da seção
 	draw_rect(Rect2(12, 142, w - 24, 2), Pal.PANEL_LO)
-	var dests := T.text(T.Key.BOARD_DESTS)   # o título fica sobre a linha divisória, como rótulo da seção
-	draw_rect(Rect2(14, 135, Pal.ui.get_string_size(dests, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x + 8, 15), Pal.PANEL)
-	draw_string(Pal.ui, Vector2(18, 147), dests, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Pal.DIM)
+	for s in _blocks:
+		var br: Rect2 = _blocks[s]
+		var cap := "%d–%d" % [s * 100, s * 100 + 99]
+		draw_rect(Rect2(br.position.x, 135, Pal.ui.get_string_size(cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x + 8, 15), Pal.PANEL)
+		draw_string(Pal.ui, Vector2(br.position.x + 4, 147), cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Pal.DIM)
+		draw_rect(br, Pal.PANEL_LO, false, 1.0)
 	for d in dest_nums:
 		var jr := jack_rect(d)
 		var cx := jr.get_center().x
@@ -658,6 +693,9 @@ func _draw() -> void:
 		if lc.a > 0.0:
 			draw_rect(jr.grow(3), lc)   # o aro da tomada acende
 		_draw_jack(jr)
+	for s in _blocks:
+		if not s in GameData.sectors:
+			_draw_plate(_blocks[s], "ABC"[SECTOR_ORDER.find(s)])
 
 	# base dos cabos de conexão
 	draw_rect(Rect2(12, 250, w - 24, 2), Pal.PANEL_LO)
@@ -710,6 +748,19 @@ func _draw() -> void:
 		draw_rect(Rect2(bx + 2, by + 2, bw - 4, bh - 4), Color("0e0c08"))
 		for k in info_lines.size():
 			draw_string(Pal.mono, Vector2(bx + 10, by + 22 + k * 19), info_lines[k], HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Pal.GHOST if info_ghost else Pal.TEXT)
+
+
+## Chapa parafusada sobre um banco que ainda não está em uso, com a letra dele (A, B, C).
+func _draw_plate(r: Rect2, letter: String) -> void:
+	draw_rect(r.grow(1), Color.BLACK)
+	draw_rect(r, PLATE)
+	draw_rect(Rect2(r.position, Vector2(r.size.x, 2)), PLATE.lightened(0.18))
+	draw_rect(Rect2(r.position.x, r.end.y - 2, r.size.x, 2), PLATE.darkened(0.35))
+	for c in [r.position + Vector2(7, 7), Vector2(r.end.x - 7, r.position.y + 7), Vector2(r.position.x + 7, r.end.y - 7), r.end - Vector2(7, 7)]:
+		draw_circle(c, 3.5, PLATE.darkened(0.45))
+		draw_circle(c, 2.5, PLATE.lightened(0.25))
+		draw_line(c - Vector2(2, 0), c + Vector2(2, 0), PLATE.darkened(0.45), 1.0)   # fenda do parafuso
+	draw_string(Pal.mono, Vector2(r.position.x, r.get_center().y + 10), letter, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 35, PLATE.lightened(0.35))
 
 
 ## [cor, brilho] do cabo da ponta e.

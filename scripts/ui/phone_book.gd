@@ -19,7 +19,7 @@ var _entries: Array = []   ## contatos em ordem alfabética do nome (como aparec
 
 
 func _ready() -> void:
-	_entries = GameData.CONTENT.directory.duplicate()
+	_entries = GameData.CONTENT.directory.filter(func(e): return e.dispatch_only or GameData.in_service(e.number))
 	_entries.sort_custom(func(a, b): return a.name.naturalnocasecmp_to(b.name) < 0)
 	var d := _entries
 	for i in range(0, d.size(), PER):

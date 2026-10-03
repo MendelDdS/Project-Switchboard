@@ -272,7 +272,7 @@ func _info(c: PhoneCall) -> void:
 	var right := T.text(T.Key.OP_IT_IS) % c.answer
 	var opts := [right]
 	while opts.size() < 3:
-		var o := T.text(T.Key.OP_IT_IS) % C.directory.pick_random().number
+		var o := T.text(T.Key.OP_IT_IS) % str(GameData.board_numbers().pick_random())
 		if not o in opts:
 			opts.append(o)
 	opts.shuffle()

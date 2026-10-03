@@ -34,7 +34,6 @@ SHIFT_HOURS,"Turno
 OPERATOR_DESK,Operador noturno · mesa 1,Night operator · desk 1,Operador nocturno · mesa 1
 BOARD_TITLE,MESA COMUTADORA,SWITCHBOARD,CONMUTADOR
 BOARD_LEGEND,ENTRADA (fone)  ·  SAÍDA (cabo de conexão),INPUT (headset)  ·  OUTPUT (patch cord),ENTRADA (auricular)  ·  SALIDA (cable de conexión)
-BOARD_DESTS,DESTINOS,DESTINATIONS,DESTINOS
 BOARD_CORD,CABO %d,CORD %d,CABLE %d
 LEGEND_RING,chamando / em linha,ringing / on the line,llamando / en línea
 LEGEND_CONN,conectada,connected,conectada
@@ -173,6 +172,21 @@ MAP_POLICE,Delegacia,Police station,Comisaría
 MAP_FIRE_STATION,Bombeiros,Fire station,Bomberos
 MAP_GROCERY,Mercearia,Grocery,Almacén
 MAP_FUNERAL,Funerária,Funeral home,Funeraria
+MAP_HOTEL,Hotel Estrela,Hotel Estrela,Hotel Estrela
+MAP_GAS_STATION,Posto,Gas station,Gasolinera
+MAP_RADIO,Rádio Serena,Rádio Serena,Rádio Serena
+MAP_GARAGE,Oficina,Garage,Taller
+MAP_BAR,Bar do Zé,Bar do Zé,Bar do Zé
+MAP_CITY_HALL,Prefeitura,City hall,Municipalidad
+MAP_POST_OFFICE,Correios,Post office,Correos
+MAP_BAKERY,Padaria,Bakery,Panadería
+MAP_WAREHOUSE,Armazém,General store,Depósito
+MAP_BARBER,Barbearia,Barbershop,Barbería
+MAP_RURAL,Zona rural,Countryside,Zona rural
+MAP_DISTRICT_1,Centro,Downtown,Centro
+MAP_DISTRICT_2,Alto da Serra,Alto da Serra,Alto da Serra
+MAP_DISTRICT_3,Vila Serena,Vila Serena,Vila Serena
+HINT_NEW_BANK,"Os números que começam com %d ficam no banco %s, aberto hoje.","Numbers starting with %d are on bank %s, opened tonight.","Los números que empiezan con %d están en el banco %s, abierto hoy."
 DISPATCH_SEND,[ ENVIAR ],[ SEND ],[ ENVIAR ]
 DISPATCH_CHECK_PLACE,Local,Location,Lugar
 DISPATCH_CHECK_TYPE,Tipo,Type,Tipo

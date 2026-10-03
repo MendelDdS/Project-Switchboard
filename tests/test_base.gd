@@ -30,9 +30,11 @@ func frames(n: int) -> void:
 		await process_frame
 
 
-func load_main() -> Node:
+## `sectors`: setores atendidos (vazio = os da noite); os cenários usam números da lista inteira.
+func load_main(sectors: Array = []) -> Node:
 	var m: Node = load("res://scenes/main.tscn").instantiate()
 	m.night_no = 1   # não lê nem grava o progresso salvo (`-- --night=N` escolhe outra noite)
+	m.force_sectors = sectors
 	root.add_child(m)
 	current_scene = m
 	await process_frame

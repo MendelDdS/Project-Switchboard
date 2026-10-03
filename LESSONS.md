@@ -30,6 +30,11 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
 - **Quando mudar algo que o usuário não pediu** (ex.: mover o final para 06:00, manter o botão Atender),
   diga explicitamente na resposta.
 
+- **Mapa que cresce: decida a numeração antes da disposição.** As ruas novas dos bairros vizinhos ganharam outro
+  nome onde continuavam a mesma linha ("a Avenida Brasil vira XV de Novembro"), e o usuário estranhou com razão. Rua
+  que continua mantém o nome e a numeração segue; por isso o bairro novo fica do lado para onde os números crescem
+  (leste e sul da Vila Serena), sem renumerar o que já existia.
+
 ## Lógica
 
 - **Toda espera na agenda precisa de limite.** A linha 07 só tocava com a mesa em silêncio e as ligações principais
@@ -75,13 +80,18 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   arquivos próprios, salve o filho e use a instância recarregada (`load(caminho)`), que tem `resource_path`.
 - **Autoloads não existem quando o Godot compila um script `-s`.** Um teste que declara tipos (`var m: Main`) cujos
   scripts usam o autoload `Sfx` falha com "Identifier not found: Sfx" e o Godot fica parado até o limite de tempo.
-  Nos testes, deixe sem tipo o que depende de autoload.
+  Nos testes, deixe sem tipo o que depende de autoload, e não chame nem função estática dessas classes pelo nome
+  (`CityMap.seg_geom`): chame pela instância sem tipo (`city.seg_geom`). Sem compilar, o teste fica parado.
 - **Um StyleBox com margem interna muda o tamanho mínimo do container.** O painel de papel com `content_margin` 6
   fez a coluna direita pedir 12 px a mais; o nó raiz (anchors com grow nos dois lados) cresceu e deslocou tudo 6 px.
   Ao migrar para containers, confira `get_combined_minimum_size()` dos nós principais.
 - **Containers com `mouse_filter` PASS bloqueiam cliques em irmãos atrás deles.** O encaixe do FONE fica dentro do
   telefone, mas quem trata o clique é a mesa: o telefone e os containers acima do encaixe precisam de IGNORE.
   O mesmo vale para overlays de tela cheia (`Ending`) que ficam visíveis com alfa 0.
+
+- **O `_ready` dos filhos roda antes do `_ready` do pai.** A lista telefônica montava as páginas com os setores
+  ainda não definidos pelo Main. O que os filhos precisam no `_ready` deles (noite, setores) o Main carrega no
+  `_enter_tree`.
 
 - **Os players do `Sfx` são reaproveitados (pool).** Para cortar um som, guarde o player e confira se o `stream`
   ainda é o dele antes de `stop()`; logo depois do corte, outro som pode ocupar o mesmo player.

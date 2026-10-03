@@ -12,8 +12,8 @@ extends Resource
 @export_group("Local e resposta")
 ## `id` da rua em GameContent.streets.
 @export var street := ""
-## Trecho da rua: 0 = 1–99, 1 = 100–199, 2 = 200–299.
-@export_range(0, 2) var block := 0
+## Trecho da rua: 0 = 1–99, 1 = 100–199, ... (de 3 em diante, onde a rua continua na folha vizinha; Street).
+@export_range(0, 5) var block := 0
 @export var address := ""
 @export var occurrence := ""
 ## Unidades necessárias ("pol", "bomb", "amb"), pelo protocolo: polícia para crime, briga, arma ou rua

@@ -6,6 +6,26 @@ extends RefCounted
 # static var (e não const + preload): assim o analisador usa os tipos declarados em GameContent.
 static var CONTENT: GameContent = load("res://data/content.tres")
 
+## A cidade tem três setores; o de um número é o primeiro dígito (3xx, 1xx, 2xx). O operador começa com o setor 3 e
+## recebe os outros em noites fixas: setor -> noite da entrega.
+const SECTOR_NIGHTS := {3: 1, 1: 5, 2: 9}
+## Setores atendidos no turno atual (Main define ao carregar a noite); a mesa, a lista e as ligações só usam os
+## números deles. Polícia, bombeiros e hospital (despacho) valem para a cidade toda.
+static var sectors: Array = [1, 2, 3]
+
+
+static func sectors_for(night: int) -> Array:
+	return SECTOR_NIGHTS.keys().filter(func(s): return night >= SECTOR_NIGHTS[s])
+
+
+static func in_service(number: String) -> bool:
+	return number != "" and int(number.left(1)) in sectors
+
+
+## A transferência pede só números dos setores atendidos (o pedido e a alternativa).
+static func serves(t: TransferCall) -> bool:
+	return in_service(t.target) and (t.alt_target == "" or in_service(t.alt_target))
+
 
 ## Um item ao acaso (PackedStringArray não tem pick_random).
 static func pick(list: PackedStringArray) -> String:
@@ -38,12 +58,15 @@ static func fill(template: String, vars: Dictionary) -> String:
 	return s.left(1).to_upper() + s.substr(1)
 
 
-## Transferência montada a partir de um molde, para um contato fora de `exclude` (números já usados no turno).
+## Transferência montada a partir de um molde, para um contato dos setores atendidos fora de `exclude` (números já
+## usados no turno). Nulo se não sobrar nenhum.
 static func template_transfer(exclude: Array = []) -> TransferCall:
 	var places := CONTENT.directory.filter(func(d: DirectoryEntry):
-		return d.spoken != "" and not d.reasons.is_empty() and not d.closed_at_night and not d.dispatch_only)
+		return d.spoken != "" and not d.reasons.is_empty() and not d.closed_at_night and not d.dispatch_only and in_service(d.number))
 	var fresh := places.filter(func(d: DirectoryEntry): return not d.number in exclude)
-	var e: DirectoryEntry = (fresh if not fresh.is_empty() else places).pick_random()
+	if fresh.is_empty():
+		return null   # todos os lugares já foram pedidos nesta noite
+	var e: DirectoryEntry = fresh.pick_random()
 	var vars := {
 		"place": e.spoken, "of_place": "d" + e.spoken, "to_place": "pr" + e.spoken,
 		"street": e.address.get_slice(",", 0), "number": e.number,
@@ -65,11 +88,17 @@ static func template_transfer(exclude: Array = []) -> TransferCall:
 	return t
 
 
-## Emergência montada a partir de um molde (`from`, ou um sorteado), numa rua e número sorteados.
+## Emergência montada a partir de um molde (`from`, ou um sorteado), numa rua (dos setores atendidos) e número sorteados.
 static func template_emergency(from: EmergencyCall = null) -> EmergencyCall:
 	var tpl := with_case(from if from != null else CONTENT.emergency_templates.pick_random())
-	var st: Street = CONTENT.streets.pick_random()
-	var house := randi_range(1, 299)
+	var spots := []   # [rua, trecho] dos setores atendidos
+	for s: Street in CONTENT.streets:
+		for b in s.blocks():
+			if s.block_sector(b) in sectors:
+				spots.append([s, b])
+	var spot: Array = spots.pick_random()
+	var st: Street = spot[0]
+	var house := int(spot[1]) * 100 + randi_range(1 if spot[1] == 0 else 0, 99)
 	var vars := {"street": st.name, "house": house, "address": "%s, %d" % [st.name, house]}
 	var who := pick(CONTENT.callers).split(":")
 	var e := EmergencyCall.new()
@@ -118,12 +147,12 @@ static func with_case(e: EmergencyCall) -> EmergencyCall:
 
 
 static func transfers(group: int) -> Array:
-	return CONTENT.transfers.filter(func(t): return t.group == group)
+	return CONTENT.transfers.filter(func(t): return t.group == group and serves(t))
 
 
 ## Números com tomada na mesa (polícia, bombeiros e hospital vão pelo despacho).
 static func board_numbers() -> Array:
-	return CONTENT.directory.filter(func(e): return not e.dispatch_only).map(func(e): return int(e.number))
+	return CONTENT.directory.filter(func(e): return not e.dispatch_only and in_service(e.number)).map(func(e): return int(e.number))
 
 
 static func is_closed(number: int) -> bool:

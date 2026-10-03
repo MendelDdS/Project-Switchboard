@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_emerg"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("pol")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "O vizinho foi ver e levou uma pancada! Tá caído no terreiro!", "")
+units = PackedStringArray("pol", "amb")
+
+[resource]
+script = ExtResource("1_emerg")
+voice = "w"
+caller = "Senhor (baixinho)"
+opening = "(baixinho) Central... tem gente roubando o galinheiro do vizinho."
+questions = PackedStringArray("Qual é o endereço?", "O que você está vendo?", "Eles estão armados?")
+answers = PackedStringArray("Rua do Cruzeiro, 290. O sítio no fim da rua.", "Dois homens com lanterna, enchendo uns sacos.", "Não vi arma, não.")
+street = "cruzeiro"
+block = 2
+address = "Rua do Cruzeiro, 290"
+occurrence = "Invasão / roubo"
+units = PackedStringArray("pol")
+after = "(baixinho) Tá bom. Eu fico quieto aqui dentro."
+stage_sec = Vector3(45, 22, 22)
+worsening = "(baixinho) Eles tão levando as galinhas pra uma caminhonete..."
+worsening_question = "Você consegue ver a placa?"
+worsening_answer = "(baixinho) Não, tá sem luz. É uma caminhonete clara."
+worsening_units = PackedStringArray()
+critical = "(baixinho) Eles viram a minha lanterna! Um tá vindo pra cá com um facão!"
+critical_units = PackedStringArray()
+critical_question = "Você consegue se trancar?"
+critical_answer = "(baixinho) Tô trancando a porta da cozinha... ele tá batendo!"
+lost = "(chorando) Eles foram embora... levaram tudo. Ninguém veio."
+lost_answer = "(chorando) Ele quebrou a janela e me acertou o braço... tá sangrando."
+lost_units = PackedStringArray("amb")
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2")])

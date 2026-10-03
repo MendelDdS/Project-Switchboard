@@ -157,9 +157,10 @@ func _send() -> void:
 	Sfx.play("sw")
 	Sfx.static_burst(0.0, radio.screen_x())
 	var names := PackedStringArray()
+	var travel := 0.0   # quem vem de mais longe (o Centro fica num canto da cidade) chega por último
 	for u in us:
 		_units[u] = Unit.EN_ROUTE
-		city.trip(u, target)
+		travel = maxf(travel, city.trip(u, target))
 		names.append(T.text(UNIT_NAMES[u]))
 	# limpo para a próxima emergência (local e tipo não ficam de uma para outra)
 	_location = {}
@@ -178,7 +179,7 @@ func _send() -> void:
 	if gen != _gen:
 		return
 	radio.say(T.text([T.Key.RADIO_ON_WAY, T.Key.RADIO_COPY].pick_random()))
-	await get_tree().create_timer(5.6, false).timeout
+	await get_tree().create_timer(maxf(travel - 1.8, 0.5), false).timeout
 	if gen == _gen:
 		_arrive(us, target)
 

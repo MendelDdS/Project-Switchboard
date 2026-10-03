@@ -27,6 +27,7 @@ var exchange: Exchange
 var night_no := 0                  ## número da noite (1 = primeira); 0 = a salva (`-- --night=N` força uma, sem salvar)
 var night: Night                   ## roteiro fixo da noite
 var pace_level := 1                ## nível de ritmo desta noite (GameContent.paces)
+var force_sectors: Array = []      ## testes: setores atendidos (vazio = os da noite, GameData.SECTOR_NIGHTS)
 var pace: Pace                     ## ritmo das ligações sorteadas desta noite
 var progress: Progress             ## progresso salvo; nulo quando a noite foi forçada (testes, `--night`)
 var flags := StoryFlags.new()      ## marcadores do roteiro valendo agora: os salvos + os desta noite
@@ -56,6 +57,7 @@ var _myst_lead := false
 var _calling_back := false
 var _tick_acc := 0.0
 var _taught_midnight := false
+var _taught_bank := false
 var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o silêncio na linha (PhoneCall.last_talk)
 
 @onready var background: Background = %Background
@@ -77,9 +79,13 @@ var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o
 @onready var _pause: PauseMenu = %PauseMenu
 
 
+## A noite (e os setores dela) vem antes dos filhos ficarem prontos: a lista telefônica monta as páginas no `_ready`.
+func _enter_tree() -> void:
+	_load_night()
+
+
 func _ready() -> void:
 	_apply_seed()
-	_load_night()
 	weather = night.weather if night.weather != "" else WEATHERS.pick_random()
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--weather=") and a.get_slice("=", 1) in WEATHERS:
@@ -108,6 +114,10 @@ func _ready() -> void:
 	notebook.registered.connect(supervisor.on_registered)
 	notebook.pending_changed.connect(func(n: int): tools.set_count("caderno", n))
 	_intro.setup(night_no, night, progress != null and progress.night > 1)
+	# noite de entrega de um setor: o mapa se abre para o bairro novo na primeira vez que aparece
+	var before := GameData.sectors_for(night_no - 1)
+	if force_sectors.is_empty() and night_no > 1 and before.size() < GameData.sectors.size():
+		dispatch.city.pending_reveal = before
 	_refresh_panel()
 
 
@@ -134,6 +144,7 @@ func _load_night() -> void:
 			flags.apply(f)
 	night_no = clampi(night_no, 1, C.nights.size())
 	night = C.nights[night_no - 1]
+	GameData.sectors = GameData.sectors_for(night_no) if force_sectors.is_empty() else force_sectors
 	pace_level = clampi(forced_pace if forced_pace > 0 else pace_level, 1, C.paces.size())
 	pace = C.paces[pace_level - 1]
 	report.night = night_no
@@ -733,9 +744,19 @@ func on_transfer_waiting(c: PhoneCall) -> void:
 	tutorial_step()
 	if board.free_patches() == 0 and board.cord_at(c.line + 10) == -1:
 		hint(T.text(T.Key.HINT_NO_CORDS))
+	elif not _taught_bank and _new_sector(c.target):
+		_taught_bank = true
+		var s := int(c.target.left(1))
+		hint(T.text(T.Key.HINT_NEW_BANK) % [s, "ABC"[Switchboard.SECTOR_ORDER.find(s)]])
 	elif tut != null and c != tut and not _taught_list:
 		_taught_list = true
 		hint(T.text(T.Key.HINT_CHECK_LIST))
+
+
+## O número é de um setor entregue nesta noite (o 3, da primeira noite, o tutorial já apresenta)?
+func _new_sector(number: String) -> bool:
+	var s := int(number.left(1)) if number != "" else 0
+	return s != 3 and GameData.SECTOR_NIGHTS.get(s, 0) == night_no
 
 
 func answer() -> void:
