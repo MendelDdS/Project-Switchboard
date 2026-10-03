@@ -3,14 +3,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Language: es\n"
 
-#: data/content.tres data/calls/transfer_18_dona_rute_clinica_sao_lucas.tres
-msgid "Clínica São Lucas"
-msgstr "Clínica São Lucas"
-
-#: data/content.tres
-msgid "residência"
-msgstr "residencia"
-
 #: data/content.tres
 msgid "Joaquim Ferreira"
 msgstr "Joaquim Ferreira"
@@ -58,6 +50,26 @@ msgstr "del Bar do Zé"
 #: data/content.tres
 msgid "pro Bar do Zé"
 msgstr "con el Bar do Zé"
+
+#: data/content.tres
+msgid "o Sítio Boa Esperança"
+msgstr "el Sítio Boa Esperança"
+
+#: data/content.tres
+msgid "Quero encomendar leite e queijo pra amanhã."
+msgstr "Quiero encargar leche y queso para mañana."
+
+#: data/content.tres
+msgid "Meu filho trabalha lá e ainda não voltou pra casa."
+msgstr "Mi hijo trabaja allí y todavía no volvió a casa."
+
+#: data/content.tres
+msgid "do Sítio Boa Esperança"
+msgstr "del Sítio Boa Esperança"
+
+#: data/content.tres
+msgid "pro Sítio Boa Esperança"
+msgstr "con el Sítio Boa Esperança"
 
 #: data/content.tres
 msgid "use o despacho"
@@ -112,6 +124,26 @@ msgid "recepção"
 msgstr "recepción"
 
 #: data/content.tres
+msgid "o seu Geraldo Martins"
+msgstr "Seu Geraldo Martins"
+
+#: data/content.tres
+msgid "Ele é meu cunhado. É assunto de família."
+msgstr "Es mi cuñado. Es asunto de familia."
+
+#: data/content.tres
+msgid "Ele ficou de me emprestar o carro amanhã cedo."
+msgstr "Quedó en prestarme el auto mañana temprano."
+
+#: data/content.tres
+msgid "do seu Geraldo Martins"
+msgstr "de Seu Geraldo Martins"
+
+#: data/content.tres
+msgid "pro seu Geraldo Martins"
+msgstr "con Seu Geraldo Martins"
+
+#: data/content.tres
 msgid "a Dona Marta Costa"
 msgstr "Dona Marta Costa"
 
@@ -132,12 +164,44 @@ msgid "pra Dona Marta Costa"
 msgstr "con Dona Marta Costa"
 
 #: data/content.tres
-msgid "fecha às 18h"
-msgstr "cierra a las 18:00"
+msgid "a Dona Laudelina Prado"
+msgstr "Dona Laudelina Prado"
 
 #: data/content.tres
-msgid "plantão 24 horas"
-msgstr "de turno 24 horas"
+msgid "Ela está costurando o vestido de noiva da minha filha."
+msgstr "Ella está cosiendo el vestido de novia de mi hija."
+
+#: data/content.tres
+msgid "Ela pediu pra eu ligar quando chegasse."
+msgstr "Me pidió que la llamara cuando llegara."
+
+#: data/content.tres
+msgid "da Dona Laudelina Prado"
+msgstr "de Dona Laudelina Prado"
+
+#: data/content.tres
+msgid "pra Dona Laudelina Prado"
+msgstr "con Dona Laudelina Prado"
+
+#: data/content.tres
+msgid "a Farmácia Central"
+msgstr "la Farmácia Central"
+
+#: data/content.tres
+msgid "Quero saber se o remédio do meu pai já chegou."
+msgstr "Quiero saber si ya llegó el remedio de mi padre."
+
+#: data/content.tres data/calls/transfer_22_seu_anibal_farmacia_central.tres
+msgid "Preciso de um remédio pra pressão."
+msgstr "Necesito un remedio para la presión."
+
+#: data/content.tres
+msgid "da Farmácia Central"
+msgstr "de la Farmácia Central"
+
+#: data/content.tres
+msgid "pra Farmácia Central"
+msgstr "con la Farmácia Central"
 
 #: data/content.tres
 msgid "a Farmácia Santa Rita"
@@ -204,8 +268,28 @@ msgid "pro Hotel Estrela"
 msgstr "con el Hotel Estrela"
 
 #: data/content.tres
-msgid "secretaria, horário comercial"
-msgstr "secretaría, horario comercial"
+msgid "secretaria"
+msgstr "secretaría"
+
+#: data/content.tres
+msgid "a Igreja Matriz"
+msgstr "la Igreja Matriz"
+
+#: data/content.tres
+msgid "Quero saber o horário da missa de domingo."
+msgstr "Quiero saber el horario de la misa del domingo."
+
+#: data/content.tres
+msgid "Quero marcar o batizado do meu neto."
+msgstr "Quiero programar el bautizo de mi nieto."
+
+#: data/content.tres
+msgid "da Igreja Matriz"
+msgstr "de la Igreja Matriz"
+
+#: data/content.tres
+msgid "pra Igreja Matriz"
+msgstr "con la Igreja Matriz"
 
 #: data/content.tres
 msgid "a Dona Rosa Lima"
@@ -348,6 +432,26 @@ msgid "pro Posto São Cristóvão"
 msgstr "con el Posto São Cristóvão"
 
 #: data/content.tres
+msgid "a Gazeta"
+msgstr "la Gazeta"
+
+#: data/content.tres
+msgid "Quero pôr um anúncio no jornal de amanhã."
+msgstr "Quiero poner un anuncio en el diario de mañana."
+
+#: data/content.tres
+msgid "Saiu meu nome errado na edição de hoje."
+msgstr "Salió mal mi nombre en la edición de hoy."
+
+#: data/content.tres
+msgid "da Gazeta"
+msgstr "de la Gazeta"
+
+#: data/content.tres
+msgid "pra Gazeta"
+msgstr "con la Gazeta"
+
+#: data/content.tres
 msgid "a Rádio Serena"
 msgstr "Rádio Serena"
 
@@ -388,8 +492,24 @@ msgid "pro seu Alberto Ramos"
 msgstr "con Seu Alberto Ramos"
 
 #: data/content.tres
-msgid "desativada"
-msgstr "desactivada"
+msgid "o Bilhar do Tonho"
+msgstr "el Bilhar do Tonho"
+
+#: data/content.tres
+msgid "Meu pai está aí jogando e não volta pra casa."
+msgstr "Mi padre está ahí jugando y no vuelve a casa."
+
+#: data/content.tres
+msgid "Quero deixar um recado pro meu irmão, que joga aí toda noite."
+msgstr "Quiero dejarle un recado a mi hermano, que juega ahí todas las noches."
+
+#: data/content.tres
+msgid "do Bilhar do Tonho"
+msgstr "del Bilhar do Tonho"
+
+#: data/content.tres
+msgid "pro Bilhar do Tonho"
+msgstr "con el Bilhar do Tonho"
 
 #: data/content.tres
 msgid "o seu Benedito Souza"
@@ -1147,6 +1267,10 @@ msgstr "No es para hablar con el doctor, es para pedir un turno."
 msgid "A recepção da Clínica São Lucas."
 msgstr "La recepción de la Clínica São Lucas."
 
+#: data/calls/transfer_18_dona_rute_clinica_sao_lucas.tres
+msgid "Clínica São Lucas"
+msgstr "Clínica São Lucas"
+
 #: data/calls/transfer_19_homem_bar_do_ze.tres data/calls/emergency_02_incendio_rua_do_moinho_40.tres
 msgid "Homem"
 msgstr "Hombre"
@@ -1212,10 +1336,6 @@ msgid "Boa noite. Me liga com a Farmácia Central, a da praça?"
 msgstr "Buenas noches. ¿Me comunica con la Farmácia Central, la de la plaza?"
 
 #: data/calls/transfer_22_seu_anibal_farmacia_central.tres
-msgid "Preciso de um remédio pra pressão."
-msgstr "Necesito un remedio para la presión."
-
-#: data/calls/transfer_22_seu_anibal_farmacia_central.tres
 msgid "A Farmácia Central. Na Praça da Matriz."
 msgstr "La Farmácia Central. En la Praça da Matriz."
 
@@ -1232,8 +1352,8 @@ msgid "Ninguém atende. Quer que eu tente a Santa Rita, de plantão?"
 msgstr "Nadie contesta. ¿Quiere que pruebe con la Santa Rita, la de turno?"
 
 #: data/calls/transfer_22_seu_anibal_farmacia_central.tres
-msgid "Ah, é mesmo, a Central fecha cedo. Pode ser, obrigado."
-msgstr "Ah, es cierto, la Central cierra temprano. Está bien, gracias."
+msgid "Pode ser. A Santa Rita serve, obrigado."
+msgstr "Puede ser. La Santa Rita sirve, gracias."
 
 #: data/calls/transfer_23_dona_aurora_igreja_matriz.tres
 msgid "Dona Aurora"

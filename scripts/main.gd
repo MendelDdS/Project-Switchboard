@@ -444,7 +444,7 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 	_dgen[d] = int(_dgen.get(d, 0)) + 1
 	var g: int = _dgen[d]
 	var right := str(d) == c.target
-	var closed := GameData.is_closed(d)
+	var closed := right and c.away   # ninguém atende: o operador pode sugerir a alternativa
 	exchange.set_dest(d, Exchange.Dest.RING)
 	c.set_options([])   # a conversa agora é com o destino; as opções voltam se a transferência for desfeita
 	phone.flash(T.text(T.Key.DISPLAY_RINGING) % d, 60000)
@@ -459,9 +459,8 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 		exchange.set_dest(d, Exchange.Dest.FREE)
 		phone.flash(T.text(T.Key.DISPLAY_NO_ANSWER) % d, 3000)
 		c.sys(T.text(T.Key.SYS_NOBODY_ANSWERS) % d)
-		if right:
-			c.no_answer = true
-			conversation.transfer_choices(c)
+		c.no_answer = true
+		conversation.transfer_choices(c)
 		_update_call_ui()
 		return
 	exchange.set_dest(d, Exchange.Dest.CONN)

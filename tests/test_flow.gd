@@ -101,7 +101,6 @@ func _initialize() -> void:
 	var nums := GameData.board_numbers()
 	for t in C.transfers:
 		ok(int(t.target) in nums and (t.alt_target == "" or int(t.alt_target) in nums), "destino existe: " + t.resource_path)
-		ok(not GameData.is_closed(int(t.target)) or t.alt_target != "", "lugar fechado tem alternativa: " + t.resource_path)
 	for e in C.emergencies:
 		ok(GameData.street(e.street) != null and e.questions.size() == e.answers.size() and e.occurrence in C.occurrences, "emergência válida: " + e.resource_path)
 	# unidades válidas, e cada caso troca no máximo as respostas que existem
@@ -250,7 +249,7 @@ func _initialize() -> void:
 	var holes := func(texts: Array) -> bool: return texts.any(func(x): return "{" in x or "}" in x)
 	for i in 300:
 		var t := GameData.template_transfer()
-		ok(int(t.target) in nums and not GameData.is_closed(int(t.target)), "molde: destino atende")
+		ok(int(t.target) in nums, "molde: destino existe")
 		ok(not holes.call(Array(t.opening) + [t.repeat, t.thanks]) and t.caller != "", "molde de transferência preenchido: " + " / ".join(t.opening))
 		var e := GameData.template_emergency()
 		var house := int(e.address.get_slice(", ", 1))
@@ -366,12 +365,13 @@ func _initialize() -> void:
 	m.tools.set_tab("lista")
 	print("OK 3 desistência / fila do caderno")
 
-	# ---- 4. lugar fechado à noite e sugestão do operador
+	# ---- 4. o lugar pedido não atende (sorteado) e o operador sugere a alternativa
 	m.hangup()
 	ok(ex.line(t1.line) == Exchange.Line.DONE, "desligar deixa a linha em desligou")
 	_move(0, -1)
 	ok(ex.line(t1.line) == Exchange.Line.FREE, "tirar o FONE libera")
 	var fa := _extra(GameData.transfers(TransferCall.Group.EXTRA)[3])   # Farmácia Central -> Santa Rita
+	fa.away = true
 	m.ring(fa)
 	var fl := fa.line
 	_move(0, fl)
@@ -390,7 +390,7 @@ func _initialize() -> void:
 	ok(ex.line(fl) == Exchange.Line.HOLD and not fa.ended, "em espera durante o toque")
 	ok(await wait_until(func(): return fa.connected), "completa sozinha quando o destino atende")
 	ok(fa.record["where"] == "Farmácia Santa Rita" and fa.record["obs"] == "", "registro com o destino novo")
-	print("OK 4 lugar fechado / alternativa / FONE fora durante o toque")
+	print("OK 4 não atende / alternativa / FONE fora durante o toque")
 
 	# ---- 5. cortar uma conversa em andamento puxando a SAÍDA
 	_move(3, -1)

@@ -249,12 +249,13 @@ func _transfer_repeat(c: PhoneCall) -> void:
 	await say(c, c.repeat)
 
 
-## O lugar pedido não atende à noite: o operador sugere outro.
+## O lugar pedido não atendeu: o operador sugere outro (que atende).
 func _transfer_alt(c: PhoneCall) -> void:
 	var t: TransferCall = c.data
 	if c.talking:
 		return
 	c.alt_done = true
+	c.away = false
 	c.target = t.alt_target
 	c.destination = t.alt_destination
 	c.repeat = t.alt_destination + "."

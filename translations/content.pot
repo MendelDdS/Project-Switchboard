@@ -2,14 +2,6 @@ msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 
-#: data/content.tres data/calls/transfer_18_dona_rute_clinica_sao_lucas.tres
-msgid "Clínica São Lucas"
-msgstr ""
-
-#: data/content.tres
-msgid "residência"
-msgstr ""
-
 #: data/content.tres
 msgid "Joaquim Ferreira"
 msgstr ""
@@ -56,6 +48,26 @@ msgstr ""
 
 #: data/content.tres
 msgid "pro Bar do Zé"
+msgstr ""
+
+#: data/content.tres
+msgid "o Sítio Boa Esperança"
+msgstr ""
+
+#: data/content.tres
+msgid "Quero encomendar leite e queijo pra amanhã."
+msgstr ""
+
+#: data/content.tres
+msgid "Meu filho trabalha lá e ainda não voltou pra casa."
+msgstr ""
+
+#: data/content.tres
+msgid "do Sítio Boa Esperança"
+msgstr ""
+
+#: data/content.tres
+msgid "pro Sítio Boa Esperança"
 msgstr ""
 
 #: data/content.tres
@@ -111,6 +123,26 @@ msgid "recepção"
 msgstr ""
 
 #: data/content.tres
+msgid "o seu Geraldo Martins"
+msgstr ""
+
+#: data/content.tres
+msgid "Ele é meu cunhado. É assunto de família."
+msgstr ""
+
+#: data/content.tres
+msgid "Ele ficou de me emprestar o carro amanhã cedo."
+msgstr ""
+
+#: data/content.tres
+msgid "do seu Geraldo Martins"
+msgstr ""
+
+#: data/content.tres
+msgid "pro seu Geraldo Martins"
+msgstr ""
+
+#: data/content.tres
 msgid "a Dona Marta Costa"
 msgstr ""
 
@@ -131,11 +163,43 @@ msgid "pra Dona Marta Costa"
 msgstr ""
 
 #: data/content.tres
-msgid "fecha às 18h"
+msgid "a Dona Laudelina Prado"
 msgstr ""
 
 #: data/content.tres
-msgid "plantão 24 horas"
+msgid "Ela está costurando o vestido de noiva da minha filha."
+msgstr ""
+
+#: data/content.tres
+msgid "Ela pediu pra eu ligar quando chegasse."
+msgstr ""
+
+#: data/content.tres
+msgid "da Dona Laudelina Prado"
+msgstr ""
+
+#: data/content.tres
+msgid "pra Dona Laudelina Prado"
+msgstr ""
+
+#: data/content.tres
+msgid "a Farmácia Central"
+msgstr ""
+
+#: data/content.tres
+msgid "Quero saber se o remédio do meu pai já chegou."
+msgstr ""
+
+#: data/content.tres data/calls/transfer_22_seu_anibal_farmacia_central.tres
+msgid "Preciso de um remédio pra pressão."
+msgstr ""
+
+#: data/content.tres
+msgid "da Farmácia Central"
+msgstr ""
+
+#: data/content.tres
+msgid "pra Farmácia Central"
 msgstr ""
 
 #: data/content.tres
@@ -203,7 +267,27 @@ msgid "pro Hotel Estrela"
 msgstr ""
 
 #: data/content.tres
-msgid "secretaria, horário comercial"
+msgid "secretaria"
+msgstr ""
+
+#: data/content.tres
+msgid "a Igreja Matriz"
+msgstr ""
+
+#: data/content.tres
+msgid "Quero saber o horário da missa de domingo."
+msgstr ""
+
+#: data/content.tres
+msgid "Quero marcar o batizado do meu neto."
+msgstr ""
+
+#: data/content.tres
+msgid "da Igreja Matriz"
+msgstr ""
+
+#: data/content.tres
+msgid "pra Igreja Matriz"
 msgstr ""
 
 #: data/content.tres
@@ -347,6 +431,26 @@ msgid "pro Posto São Cristóvão"
 msgstr ""
 
 #: data/content.tres
+msgid "a Gazeta"
+msgstr ""
+
+#: data/content.tres
+msgid "Quero pôr um anúncio no jornal de amanhã."
+msgstr ""
+
+#: data/content.tres
+msgid "Saiu meu nome errado na edição de hoje."
+msgstr ""
+
+#: data/content.tres
+msgid "da Gazeta"
+msgstr ""
+
+#: data/content.tres
+msgid "pra Gazeta"
+msgstr ""
+
+#: data/content.tres
 msgid "a Rádio Serena"
 msgstr ""
 
@@ -387,7 +491,23 @@ msgid "pro seu Alberto Ramos"
 msgstr ""
 
 #: data/content.tres
-msgid "desativada"
+msgid "o Bilhar do Tonho"
+msgstr ""
+
+#: data/content.tres
+msgid "Meu pai está aí jogando e não volta pra casa."
+msgstr ""
+
+#: data/content.tres
+msgid "Quero deixar um recado pro meu irmão, que joga aí toda noite."
+msgstr ""
+
+#: data/content.tres
+msgid "do Bilhar do Tonho"
+msgstr ""
+
+#: data/content.tres
+msgid "pro Bilhar do Tonho"
 msgstr ""
 
 #: data/content.tres
@@ -1146,6 +1266,10 @@ msgstr ""
 msgid "A recepção da Clínica São Lucas."
 msgstr ""
 
+#: data/calls/transfer_18_dona_rute_clinica_sao_lucas.tres
+msgid "Clínica São Lucas"
+msgstr ""
+
 #: data/calls/transfer_19_homem_bar_do_ze.tres data/calls/emergency_02_incendio_rua_do_moinho_40.tres
 msgid "Homem"
 msgstr ""
@@ -1211,10 +1335,6 @@ msgid "Boa noite. Me liga com a Farmácia Central, a da praça?"
 msgstr ""
 
 #: data/calls/transfer_22_seu_anibal_farmacia_central.tres
-msgid "Preciso de um remédio pra pressão."
-msgstr ""
-
-#: data/calls/transfer_22_seu_anibal_farmacia_central.tres
 msgid "A Farmácia Central. Na Praça da Matriz."
 msgstr ""
 
@@ -1231,7 +1351,7 @@ msgid "Ninguém atende. Quer que eu tente a Santa Rita, de plantão?"
 msgstr ""
 
 #: data/calls/transfer_22_seu_anibal_farmacia_central.tres
-msgid "Ah, é mesmo, a Central fecha cedo. Pode ser, obrigado."
+msgid "Pode ser. A Santa Rita serve, obrigado."
 msgstr ""
 
 #: data/calls/transfer_23_dona_aurora_igreja_matriz.tres

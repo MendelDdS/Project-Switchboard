@@ -62,7 +62,7 @@ static func fill(template: String, vars: Dictionary) -> String:
 ## usados no turno). Nulo se não sobrar nenhum.
 static func template_transfer(exclude: Array = []) -> TransferCall:
 	var places := CONTENT.directory.filter(func(d: DirectoryEntry):
-		return d.spoken != "" and not d.reasons.is_empty() and not d.closed_at_night and not d.dispatch_only and in_service(d.number))
+		return d.spoken != "" and not d.reasons.is_empty() and not d.dispatch_only and in_service(d.number))
 	var fresh := places.filter(func(d: DirectoryEntry): return not d.number in exclude)
 	if fresh.is_empty():
 		return null   # todos os lugares já foram pedidos nesta noite
@@ -153,8 +153,3 @@ static func transfers(group: int) -> Array:
 ## Números com tomada na mesa (polícia, bombeiros e hospital vão pelo despacho).
 static func board_numbers() -> Array:
 	return CONTENT.directory.filter(func(e): return not e.dispatch_only and in_service(e.number)).map(func(e): return int(e.number))
-
-
-static func is_closed(number: int) -> bool:
-	var e := entry(str(number))
-	return e != null and e.closed_at_night

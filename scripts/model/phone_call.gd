@@ -27,6 +27,8 @@ enum Retry {
 	WORSE,       ## emergência sem socorro: a situação piorou
 }
 
+const AWAY_CHANCE := 0.5    ## pedido com alternativa: chance de o destino pedido não atender
+
 var kind := Kind.TRANSFER
 var data: Resource          ## roteiro (TransferCall, EmergencyCall ou PrankCall); nulo para informação e ligação desconhecida
 var voice := "m"
@@ -64,6 +66,7 @@ var target := ""
 var destination := ""
 var repeat := ""
 var said_wait := false
+var away := false           ## o destino pedido não vai atender (sorteado, só quando há alternativa)
 var no_answer := false
 var alt_done := false
 var connected := false
@@ -93,6 +96,7 @@ static func from_transfer(t: TransferCall) -> PhoneCall:
 	c.target = t.target
 	c.destination = t.destination
 	c.repeat = t.repeat
+	c.away = t.alt_target != "" and randf() < AWAY_CHANCE
 	return c
 
 
