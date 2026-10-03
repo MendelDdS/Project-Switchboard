@@ -217,10 +217,14 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   furo); lâmpadas redondas com aro niquelado (`_draw_lamp`, `BEZEL`) que acendem rápido e apagam devagar, como
   filamento (`_lamp`/`_dest_lamp` dizem cor e nível desejado, `_fade` chega lá em `LAMP_ON_SEC`/`LAMP_OFF_SEC`, estado em
   `_lit`; a linha tocando pulsa). A luz acesa tinge o aro dela e a aba do encaixe logo abaixo (`_reflect`).
-- Plug (`_draw_plug`, desenho em `_draw_plug_body`): cabo de baquelite na cor do cabo (sombreado de cilindro, sulcos de
-  pegada, ponteira de onde sai o fio), colar niquelado (`BEZEL`) e, solto, a ponta de três partes dos plugues de mesa
-  (bico e anel niquelados, luva de latão, isolantes pretos); encaixado (`PLUG_SEAT`), a ponta some e uma aba redonda
-  niquelada assenta sobre o encaixe. `_plug_rect(seated)` é o contorno (clique, destaque e sombra).
+- Plug (`_draw_plug`): de pé (solto, na mão, na base; `_draw_plug_body`) é cabo de baquelite na cor do cabo
+  (sombreado de cilindro, sulcos de pegada, ponteira de onde sai o fio), colar niquelado (`BEZEL`) e a ponta de três
+  partes dos plugues de mesa (bico e anel niquelados, luva de latão, isolantes pretos); gira com o fio em passos de
+  `ROT_STEP` (15°: pixel art girado torto serrilha). Encaixado, é visto de frente como nas mesas de verdade
+  (`_draw_plug_face`: aro niquelado e o tampo do cabo, `PLUG_FACE_R`), com o fio saindo do meio do encaixe, por cima
+  (`_plug_base` = centro do encaixe; o plug encaixado é desenhado antes do fio); ao encaixar, o tampo encolhe `PUSH_PX`
+  e volta em `PUSH_SEC` (`_pushed`, `_push`). Destaque e sombra seguem a silhueta (`_plug_outline`: as partes unidas
+  num polígono, guardado; o destaque é ele alargado); `_plug_rect(seated)` é o retângulo do clique.
   Sombras (`SHADOW`): fios deslocados `ROPE_SHADOW`; plug mais longe quanto mais sai do painel (solto, na mão).
 
 ## Modelo das ligações

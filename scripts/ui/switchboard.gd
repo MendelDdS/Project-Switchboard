@@ -35,6 +35,8 @@ const DEST_ROW := 44.0
 const SIZE := Vector2(588, 334)
 const FONE_HOME := Vector2(18, 24)   # posição do plug do FONE dentro do encaixe
 
+var _pushed := {}   ## ponta -> segundos desde que encaixou (a assentada, `PUSH_SEC`)
+var _silhouette := {}   ## encaixado (bool) -> polígono do contorno do plug (destaque e sombra)
 var _lit := {}   ## lâmpada ("l3" linha, "d312" destino) -> [cor, quanto está acesa 0..1]; a cor fica enquanto apaga
 var exchange: Exchange
 var fone_socket: Control       # encaixe do FONE no painel do telefone
@@ -63,7 +65,10 @@ const TAP_SPEED := Vector2(150.0, 600.0)   # px/s: o fio batendo na mesa faz "ta
 const TAP_GAP := 0.12          # s: intervalo mínimo entre dois "taps" do mesmo fio
 const PLUG_BASE := Vector2(0, 20)   # do ponto de referência do plug (topo do corpo) até onde o fio entra nele
 ## Encaixado, de onde fica a tomada até onde o fio entra: a ponta de metal some dentro dela e o anel assenta no buraco.
-const PLUG_SEAT := Vector2(0, 26)
+const PLUG_FACE_R := 8.0   # encaixado, o plug é visto de frente: o raio do aro dele, sobre o encaixe
+const PUSH_PX := 1.5     # ao encaixar, o plug afunda (o tampo encolhe tanto, px) e volta...
+const ROT_STEP := deg_to_rad(15.0)   # solto ou na mão, o plug gira em passos assim (pixel art girado torto serrilha)
+const PUSH_SEC := 0.14   # ...nesse tempo, como se fosse empurrado para dentro
 const SHADOW := Color(0, 0, 0, 0.35)
 const PLATE := Color("4d483d")   # chapa sobre o banco que ainda não está em uso
 const LAMP_R := 4.5         # raio do vidro da lâmpada de cada linha (o aro de metal fica em volta)
@@ -272,6 +277,7 @@ func place(e: int, j: int) -> bool:
 	held = -1
 	_loose.erase(e)
 	_raise(e)
+	_pushed[e] = 0.0
 	_sfx("plug_in", jack_rect(j).get_center())
 	end_changed.emit(e, j, -1)
 	return true
@@ -397,6 +403,10 @@ func _release(pos: Vector2) -> void:
 
 
 func _process(delta: float) -> void:
+	for e in _pushed.keys():   # a assentada anda antes dos fios: a ponta deles acompanha o plug no mesmo quadro
+		_pushed[e] += delta
+		if _pushed[e] >= PUSH_SEC:
+			_pushed.erase(e)
 	var mouse := get_local_mouse_position()
 	if held != -1:
 		cursor = mouse
@@ -433,7 +443,7 @@ func _plug_base(e: int) -> Vector2:
 	if held == e:
 		return cursor + PLUG_BASE
 	if ends[e] != -1:
-		return jack_rect(int(ends[e])).get_center() + PLUG_SEAT
+		return jack_rect(int(ends[e])).get_center()   # visto de frente: o fio sai do meio do encaixe
 	if _loose.has(e):
 		var an: Dictionary = _loose[e]
 		if an["seat"] >= 0.0:
@@ -450,9 +460,14 @@ func _plug_hit(e: int, p: Vector2) -> bool:
 	return _plug_rect(ends[e] != -1).grow(2.0).has_point(q)
 
 
-## Contorno do plug a partir de onde o fio entra nele (em pé); encaixado, sem a ponta de metal.
+## Contorno do plug a partir de onde o fio entra nele: em pé (solto, na mão, na base) ou, encaixado, visto de frente.
 func _plug_rect(seated: bool) -> Rect2:
-	return Rect2(-7, -27, 14, 27) if seated else Rect2(-7, -42, 14, 42)
+	return Rect2(-9, -9, 18, 18) if seated else Rect2(-7, -42, 14, 42)
+
+
+## Quanto o plug recém-encaixado está afundado (px, a assentada).
+func _push(e: int) -> float:
+	return PUSH_PX * sin(PI * minf(float(_pushed[e]) / PUSH_SEC, 1.0)) if _pushed.has(e) else 0.0
 
 
 ## Onde o fio entra no plug guardado.
@@ -466,8 +481,8 @@ func _plug_angle(e: int) -> float:
 		return 0.0
 	var an: Dictionary = _loose[e]
 	if an["seat"] >= 0.0:
-		return lerp_angle(an["ang"], 0.0, an["seat"])
-	return _cord_angle(e)
+		return snappedf(lerp_angle(an["ang"], 0.0, an["seat"]), ROT_STEP)
+	return snappedf(_cord_angle(e), ROT_STEP)
 
 
 func _cord_angle(e: int) -> float:
@@ -787,8 +802,12 @@ func _draw() -> void:
 		_draw_rope(e, true)
 		_draw_plug(e, true)
 	for e in _order:
-		_draw_rope(e, false)
-		_draw_plug(e, false)
+		if ends[e] != -1:   # encaixado, visto de frente: o fio sai do meio dele, por cima
+			_draw_plug(e, false)
+			_draw_rope(e, false)
+		else:
+			_draw_rope(e, false)
+			_draw_plug(e, false)
 
 	# balão de informação
 	if ms < info_until and info_line > 0:
@@ -869,40 +888,75 @@ func _draw_plug(e: int, shadow: bool) -> void:
 		at += Vector2(8, 10) if held == e else (Vector2(4, 5) if _loose.has(e) else Vector2(2, 2))
 	draw_set_transform(at.round(), _plug_angle(e))
 	if shadow:
-		draw_rect(_plug_rect(seated), SHADOW)
+		draw_colored_polygon(_plug_outline(seated, 0.0), SHADOW)
 	else:
-		if e == _hover:   # contorno claro: dá para pegar
-			draw_rect(_plug_rect(seated).grow(2.0), Pal.GLOW)
-		_draw_plug_body(_cable_col(e), seated)
+		if e == _hover:   # contorno claro, na forma do plug: dá para pegar
+			draw_colored_polygon(_plug_outline(seated, 2.0), Pal.GLOW)
+		if seated:
+			_draw_plug_face(_cable_col(e), _push(e))
+		else:
+			_draw_plug_body(_cable_col(e))
 	draw_set_transform(Vector2.ZERO)
 
 
-## O plug, de pé, com o fio saindo de baixo (y = 0): cabo de baquelite na cor do cabo (sombreado de cilindro, dois sulcos
-## de pegada e a ponteira de onde sai o fio), colar niquelado e, solto, a ponta de três partes dos plugues de mesa
-## (bico e anel niquelados, luva de latão, faixas isolantes pretas entre elas). Encaixado, a ponta some no furo e uma
-## aba redonda niquelada assenta sobre o encaixe. Luz no alto à esquerda, como no resto da mesa.
-func _draw_plug_body(col: Array, seated: bool) -> void:
+## A silhueta do plug (as mesmas partes de `_draw_plug_body`, juntas num polígono só: a sombra não escurece duas
+## vezes onde elas se sobrepõem), alargada `grow` px para o destaque.
+func _plug_outline(seated: bool, grow: float) -> PackedVector2Array:
+	if not _silhouette.has(seated):
+		var circle := func(c: Vector2, r: float) -> PackedVector2Array:
+			var pts := PackedVector2Array()
+			for i in 16:
+				pts.append(c + Vector2.from_angle(TAU * i / 16.0) * r)
+			return pts
+		var box := func(r: Rect2) -> PackedVector2Array:
+			return PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)])
+		var parts := [circle.call(Vector2.ZERO, PLUG_FACE_R + 1.0)] if seated else [box.call(Rect2(-7, -27, 14, 6)),
+			box.call(Rect2(-7, -22, 14, 19)), box.call(Rect2(-5, -4, 10, 4)), box.call(Rect2(-4, -39, 8, 13)),
+			circle.call(Vector2(0, -38.5), 3.5)]
+		var shape: PackedVector2Array = parts[0]
+		for part in parts.slice(1):
+			shape = Geometry2D.merge_polygons(shape, part)[0]
+		_silhouette[seated] = shape
+	if grow == 0.0:
+		return _silhouette[seated]
+	return Geometry2D.offset_polygon(_silhouette[seated], grow, Geometry2D.JOIN_ROUND)[0]
+
+
+## O plug encaixado, visto de frente, como nas mesas de verdade: o aro niquelado em volta e o tampo redondo do cabo na
+## cor dele (brilho no alto à esquerda); o fio sai do meio, por cima (desenhado depois). `push`: a assentada, o tampo
+## encolhe como se afundasse.
+func _draw_plug_face(col: Array, push: float) -> void:
+	var base: Color = col[0]
+	var hi: Color = col[1]
+	var r := PLUG_FACE_R - push
+	draw_circle(Vector2.ZERO, r + 1.0, Color.BLACK)
+	draw_circle(Vector2.ZERO, r, BEZEL[2])   # o aro: sombra embaixo à direita...
+	draw_circle(Vector2(-0.6, -0.6), r - 0.7, BEZEL[0])   # ...luz no alto à esquerda
+	draw_circle(Vector2.ZERO, r - 1.2, BEZEL[1])
+	draw_circle(Vector2.ZERO, r - 2.4, Color.BLACK)
+	draw_circle(Vector2.ZERO, r - 3.0, base.darkened(0.35))   # o tampo do cabo, abaulado
+	draw_circle(Vector2(-0.7, -0.7), r - 3.6, base)
+	draw_circle(Vector2(-1.6, -1.6), maxf(1.0, r - 6.2), hi)
+
+
+## O plug de pé, com o fio saindo de baixo (y = 0): cabo de baquelite na cor do cabo (sombreado de cilindro, dois sulcos
+## de pegada e a ponteira de onde sai o fio), colar niquelado e a ponta de três partes dos plugues de mesa (bico e anel
+## niquelados, luva de latão, faixas isolantes pretas entre elas). Luz no alto à esquerda, como no resto da mesa.
+func _draw_plug_body(col: Array) -> void:
 	var base: Color = col[0]
 	var hi: Color = col[1]
 	var dark := base.darkened(0.4)
-	if seated:   # a aba sobre o furo (o centro do encaixe fica em y = -PLUG_SEAT.y)
-		var c := Vector2(0, -PLUG_SEAT.y)
-		draw_circle(c, 7.5, Color.BLACK)
-		draw_circle(c, 6.5, BEZEL[2])
-		draw_circle(c - Vector2(0.6, 0.6), 5.8, BEZEL[0])
-		draw_circle(c, 5.3, BEZEL[1])
-	else:
-		draw_rect(Rect2(-4, -42, 8, 15), Color.BLACK)   # contorno da ponta
-		draw_circle(Vector2(0, -38.5), 3.5, Color.BLACK)
-		draw_rect(Rect2(-3, -33, 6, 6), Color("b8924e"))   # luva de latão
-		draw_rect(Rect2(-3, -33, 2, 6), Color("e0c07a"))
-		draw_rect(Rect2(2, -33, 1, 6), Color("7a5a24"))
-		draw_rect(Rect2(-3, -34, 6, 1), Color("141210"))   # isolante
-		draw_rect(Rect2(-3, -37, 6, 3), BEZEL[1])   # anel
-		draw_rect(Rect2(-3, -37, 2, 3), BEZEL[0])
-		draw_rect(Rect2(-3, -38, 6, 1), Color("141210"))   # isolante
-		draw_circle(Vector2(0, -38.5), 2.6, BEZEL[1])   # bico
-		draw_rect(Rect2(-2.5, -40, 1.5, 2), BEZEL[0])
+	draw_rect(Rect2(-4, -42, 8, 15), Color.BLACK)   # contorno da ponta
+	draw_circle(Vector2(0, -38.5), 3.5, Color.BLACK)
+	draw_rect(Rect2(-3, -33, 6, 6), Color("b8924e"))   # luva de latão
+	draw_rect(Rect2(-3, -33, 2, 6), Color("e0c07a"))
+	draw_rect(Rect2(2, -33, 1, 6), Color("7a5a24"))
+	draw_rect(Rect2(-3, -34, 6, 1), Color("141210"))   # isolante
+	draw_rect(Rect2(-3, -37, 6, 3), BEZEL[1])   # anel
+	draw_rect(Rect2(-3, -37, 2, 3), BEZEL[0])
+	draw_rect(Rect2(-3, -38, 6, 1), Color("141210"))   # isolante
+	draw_circle(Vector2(0, -38.5), 2.6, BEZEL[1])   # bico
+	draw_rect(Rect2(-2.5, -40, 1.5, 2), BEZEL[0])
 	# colar niquelado
 	draw_rect(Rect2(-7, -27, 14, 6), Color.BLACK)
 	draw_rect(Rect2(-6, -26, 12, 4), BEZEL[1])
