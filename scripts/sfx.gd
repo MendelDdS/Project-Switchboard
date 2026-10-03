@@ -21,7 +21,7 @@ const VOL := {
 	"click": -14.0, "sw": -10.0, "plug_in": -3.0, "plug_out": -9.0, "key": -13.0, "page": -11.0,
 	"tick": -24.0, "pencil": -13.0, "ring": -9.0, "pulse": -10.0, "ringback": -13.0, "sit": -13.0,
 	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "rub": -13.0, "cord_stop": -16.0, "cord_tap": -17.0, "unroll": -8.0,
-	"typing": -13.0, "printer": -14.0, "punch": -8.0, "feed": -11.0, "shred": -10.0,
+	"typing": -13.0, "printer": -14.0, "punch": -8.0, "feed": -11.0, "read": -14.0, "shred": -10.0,
 }
 ## Volume (dB) dos sons de ambiente em cada clima; o que não aparece fica mudo.
 const WEATHER_MIX := {
@@ -698,7 +698,8 @@ func _build_unroll() -> void:
 
 ## Ficha de despacho (`PunchCard`): a impressora datilografa o local ("typing"), imprime o cartão numa impressora de
 ## agulhas ("printer": linhas de zumbido áspero e o avanço do papel entre elas), o furador ("punch"), o cartucho
-## puxando o cartão ("feed": motor subindo e o papel raspando) e a trituradora ("shred": motor grave roncando e o
+## puxando o cartão ("feed": motor subindo e o papel raspando), o leitor do transmissor lendo os furos coluna a coluna
+## enquanto o cartão entra ("read": "tec tec" seco e regular, e dois no fim) e a trituradora ("shred": motor grave roncando e o
 ## papel rasgando aos trancos).
 func _build_card() -> void:
 	_begin(0.95)
@@ -737,6 +738,14 @@ func _build_card() -> void:
 	_w = _biquad(_w, "lp", 1800.0, 0.7)
 	_noise(0.7, 0.05, "bp", 1200.0, 1.0, 0.8); _tone(0.7, 130.0, 0.06, "sine", 0.5)   # o cartão assenta
 	_end("feed")
+	_begin(1.1)
+	t = 0.05
+	while t < 0.8:
+		_noise(t, 0.01, "bp", 3200.0, 2.0, 0.8); _tone(t, 900.0, 0.012, "square", 0.25)
+		t += 0.065
+	for k in 2:
+		_noise(0.92 + k * 0.08, 0.012, "bp", 2600.0, 2.0, 1.0); _tone(0.92 + k * 0.08, 600.0, 0.02, "square", 0.35)
+	_end("read")
 	_begin(1.4)
 	ph = 0.0
 	for i in int(1.3 * RATE):

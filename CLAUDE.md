@@ -213,17 +213,20 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   transparente: o clique fora da máquina e do cartão vai para o mapa, `_has_point`; abrir ou fechar não mexe no mapa):
   três máquinas de metal (`_box`: sombra, parafusos, saídas de ar): a impressora (canto de cima, à direita;
   desce quando a ficha abre e sobe quando fecha, com o × junto), a
-  trituradora (embaixo dela, na borda de baixo; entra pela direita quando a ficha abre e sai por ela quando fecha) e o
-  transmissor (canto de baixo à esquerda; sobe quando o cartão sai impresso e desce quando não há cartão). Fechar a
+  trituradora (embaixo dela, na borda de baixo) e o transmissor (canto de baixo à esquerda); as duas de baixo sobem
+  quando o cartão sai impresso e descem quando não há cartão. Fechar a
   ficha espera as máquinas se recolherem (`set_open`, `closed` → `Dispatch._hide_slip`). Marcar o local faz a impressora datilografar (`typing`, o local aparece na tira de papel) e imprimir
   (`printer`, aos solavancos) um **cartão perfurado** com local, bairro e setor, que sai pela fenda. O cartão é um formulário: impresso na tinta
   vermelha das emergências (`FORM`, a do carimbo do caderno: faixa com o número, rótulos, posições de furo, fio duplo,
   rodapé com o nome da central, marcas de coluna na borda) com os dados datilografados em preto sobre linhas
   pontilhadas, pauta como a do caderno, fibras no papel e sombra na mesa (maior na mão, como o plug). O jogador perfura
   o tipo de ocorrência (um só) e as unidades (protocolo impresso embaixo de cada uma, `DISPATCH_WHY_*`; ocupada sai
-  riscada) em posições fixas (`punch`, picote caindo). Furo não se desfaz: marcar o local de novo imprime um cartão
-  novo, em branco. O cartão anda livre dentro do mapa e fica onde é solto; solto na fenda do transmissor, é puxado e
-  enviado (`feed`, `inserted` → `Dispatch._send`); na da trituradora, é destruído sem enviar nem punir (`shred`, a
+  riscada) em posições fixas (`punch`, picote caindo; clicar em qualquer ponto da linha perfura o quadradinho dela, e a
+  linha sob o mouse fica realçada se der para perfurar). Furo não se desfaz: marcar o local de novo imprime um cartão
+  novo, em branco. O cartão anda livre dentro do mapa e fica onde é solto (arrasta-se de qualquer ponto dele:
+  apertar e andar `DRAG_START` px é arraste e não perfura; soltar antes disso é clique e perfura a linha); solto na fenda do transmissor, é puxado (`feed`
+  e o leitor, `read`, "tec tec"), fica `READ_SEC` sendo lido já dentro e só então é enviado (`inserted` →
+  `Dispatch._send`); na da trituradora, é destruído sem enviar nem punir (`shred`, a
   máquina treme, `discarded` → `Dispatch._discard`; a ficha fica aberta esperando outro local). O transmissor aceita
   cartão **incompleto**: sem
   unidade ninguém sai (`blank_card`, advertência média `dispatch_blank`, rádio `RADIO_BLANK_CARD`); sem tipo, as

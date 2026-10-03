@@ -2,9 +2,8 @@ class_name PunchCard
 extends Control
 ## A ficha de despacho como objeto, por cima do mapa (este nó cobre a aba; fora das máquinas e do cartão o clique vai
 ## para o mapa, `_has_point`). Três máquinas: a impressora (canto de cima, à direita; desce quando a ficha abre e
-## sobe quando fecha, com o × junto), a trituradora (embaixo dela,
-## na borda de baixo; entra pela direita quando a ficha abre e sai por ela quando fecha) e o transmissor (canto de
-## baixo, à esquerda; sobe quando o cartão sai impresso e desce quando não há cartão). Fechar a ficha (`set_open`)
+## sobe quando fecha, com o × junto), a trituradora (embaixo dela, na borda de baixo) e o transmissor (canto de baixo,
+## à esquerda); as duas de baixo sobem quando o cartão sai impresso e descem quando não há cartão. Fechar a ficha (`set_open`)
 ## espera as máquinas se recolherem (`closed`).
 ## Marcar o local faz a impressora datilografar o local (`typing`) e imprimir um cartão perfurado (`printer`), que sai
 ## pela fenda já com o local, o bairro e o setor. O jogador perfura o tipo de ocorrência (um só) e as unidades, cada um
@@ -27,14 +26,15 @@ const PRINTER_H := 30.0
 const SENDER := Vector2(272, 74)
 const SHREDDER_H := 58.0
 const SLOT := 12.0          # a fenda de entrada, a partir do topo da máquina
+const DRAG_START := 5.0     # px que o mouse anda com o botão apertado até virar arraste (antes disso, é clique)
 const NEAR_SLOT := 24.0     # solto com a borda de baixo até esta distância da fenda (e por cima dela), entra
 const TYPE_SEC := 0.9       # datilografando o local
 const PRINT_SEC := 1.3      # o cartão saindo da impressora...
 const PRINT_STEPS := 12     # ...aos solavancos, uma linha de cada vez
-const SENDER_SEC := 0.45    # o transmissor subindo ou descendo
-const SHREDDER_SEC := 0.45  # a trituradora entrando ou saindo pela direita
+const LOWER_SEC := 0.45     # o transmissor e a trituradora subindo ou descendo
 const PRINTER_SEC := 0.45   # a impressora descendo ou subindo
-const FEED_SEC := 0.8       # o transmissor puxando o cartão
+const FEED_SEC := 0.8       # o transmissor puxando o cartão...
+const READ_SEC := 0.35      # ...e ainda lendo os furos, com ele já dentro, antes de enviar
 const SHRED_SEC := 1.2      # a trituradora engolindo o cartão
 const CHAD_SEC := 0.45      # o picote caindo
 const ROW := 19.0
@@ -55,8 +55,7 @@ const HAZARD := Color("d9a521")
 var dispatch: Dispatch
 var state := State.IDLE
 var _t := 0.0               ## segundos no estado atual
-var _up := 0.0              ## 0..1: o transmissor à vista (sobe de baixo)
-var _in := 0.0              ## 0..1: a trituradora à vista (vem da direita)
+var _up := 0.0              ## 0..1: o transmissor e a trituradora à vista (sobem de baixo)
 var _down := 0.0            ## 0..1: a impressora à vista (desce de cima)
 var _open := false          ## a ficha aberta (as máquinas à vista)
 var _closing := false       ## fechando: avisa `closed` quando as máquinas se recolherem
@@ -64,11 +63,13 @@ var _pos := Vector2.ZERO    ## canto do cartão (coordenadas deste nó)
 var _from := 0.0            ## altura de onde o cartão começa a entrar na máquina
 var _into := ""             ## a máquina em que ele está entrando: "send" ou "shred"
 var _grab := Vector2.ZERO   ## onde o mouse pegou o cartão
+var _press := Vector2.INF   ## onde o botão foi apertado no cartão (INF = solto): ainda não se sabe se é clique ou arraste
 var _shake := Vector2.ZERO  ## a trituradora tremendo (um sorteio por quadro)
 var _serial := 0
 var _place := ""            ## o local impresso ("Rua do Sol, 1–99")
 var _sector := 0
-var _cells: Array = []      ## [Rect2 no cartão, "type" | "unit", id]
+var _cells: Array = []      ## [quadradinho no cartão, "type" | "unit", id, a linha inteira (clicável)]
+var _hover: Array = []      ## a posição sob o mouse (a linha dela fica realçada se der para perfurar)
 var _heads := {}            ## "type" / "unit" -> y do título da parte
 var _card_h := 0.0
 var _rules: Array[float] = []   ## pauta entre as linhas
@@ -143,15 +144,14 @@ func _card_rect() -> Rect2:
 	return Rect2(_pos, Vector2(CARD_W, _card_h))
 
 
-## "send": o transmissor, no canto de baixo à esquerda (escondido embaixo da borda enquanto não sobe). "shred": a
-## trituradora, embaixo da impressora (escondida à direita enquanto não entra; treme enquanto tritura).
+## "send": o transmissor, no canto de baixo à esquerda. "shred": a trituradora, embaixo da impressora (treme enquanto
+## tritura). As duas ficam escondidas embaixo da borda enquanto não sobem.
 func _machine(m: String) -> Rect2:
+	var k := 1.0 - smoothstep(0.0, 1.0, _up)
 	if m == "send":
-		var down := roundf((1.0 - smoothstep(0.0, 1.0, _up)) * (SENDER.y + 10.0))
-		return Rect2(6.0, size.y - SENDER.y - 4.0 + down, SENDER.x, SENDER.y)
-	var x := _printer().position.x
-	var away := roundf((1.0 - smoothstep(0.0, 1.0, _in)) * (size.x - x + 10.0))
-	return Rect2(Vector2(x + away, size.y - SHREDDER_H - 4.0) + _shake, Vector2(_printer().size.x, SHREDDER_H))
+		return Rect2(6.0, size.y - SENDER.y - 4.0 + roundf(k * (SENDER.y + 10.0)), SENDER.x, SENDER.y)
+	var y := size.y - SHREDDER_H - 4.0 + roundf(k * (SHREDDER_H + 10.0))
+	return Rect2(Vector2(_printer().position.x, y) + _shake, Vector2(_printer().size.x, SHREDDER_H))
 
 
 func _slot(m: String) -> float:
@@ -166,15 +166,16 @@ func _layout() -> void:
 	_heads["type"] = y
 	y += 20.0
 	for o in GameData.CONTENT.occurrences:
-		_cells.append([Rect2(Vector2(10, y), CELL), "type", o])
+		_cells.append([Rect2(Vector2(10, y), CELL), "type", o, Rect2(4, y - 3.0, CARD_W - 8.0, ROW)])
 		y += ROW
 		_rules.append(y - 3.0)
 	y += 6.0
 	_heads["unit"] = y
 	y += 20.0
 	for u in Dispatch.UNIT_IDS:
-		_cells.append([Rect2(Vector2(10, y), CELL), "unit", u])
+		var top := y
 		y += 16.0 + Pal.ui.get_multiline_string_size(_why(u), HORIZONTAL_ALIGNMENT_LEFT, CARD_W - 36.0, 11).y + 4.0
+		_cells.append([Rect2(Vector2(10, top), CELL), "unit", u, Rect2(4, top - 3.0, CARD_W - 8.0, y - top)])
 		_rules.append(y - 3.0)
 	_card_h = y + FOOT
 	_sheet.size = Vector2(CARD_W, _card_h)
@@ -189,9 +190,10 @@ func _why(u: String) -> String:
 	return T.text({"pol": T.Key.DISPATCH_WHY_POL, "bomb": T.Key.DISPATCH_WHY_BOMB, "amb": T.Key.DISPATCH_WHY_AMB}[u])
 
 
+## A posição de perfuração da linha sob `p` (clicar em qualquer ponto da linha perfura o quadradinho dela).
 func _cell_at(p: Vector2) -> Array:
 	for c in _cells:
-		if (c[0] as Rect2).grow(4.0).has_point(p - _pos):
+		if (c[3] as Rect2).has_point(p - _pos):
 			return c
 	return []
 
@@ -226,29 +228,28 @@ func _process(delta: float) -> void:
 			if k >= 1.0:
 				_go(State.READY)
 		State.FEEDING:
-			var k := minf(_t / (FEED_SEC if _into == "send" else SHRED_SEC), 1.0)
-			_pos.y = lerpf(_from, _slot(_into), ease(k, 1.6))
-			if k >= 1.0:
+			var sec := FEED_SEC if _into == "send" else SHRED_SEC
+			_pos.y = lerpf(_from, _slot(_into), ease(minf(_t / sec, 1.0), 1.6))
+			if _t >= sec + (READ_SEC if _into == "send" else 0.0):
 				_go(State.IDLE)
 				(inserted if _into == "send" else discarded).emit()
 	var shredding := state == State.FEEDING and _into == "shred"
 	_shake = Vector2(randi_range(-1, 1), randi_range(-1, 1)) if shredding else Vector2.ZERO
-	var shown := _open and (state in [State.READY, State.DRAGGING] or state == State.FEEDING and _into == "send")
-	var was := Vector3(_up, _in, _down)
-	_up = move_toward(_up, 1.0 if shown else 0.0, delta / SENDER_SEC)
-	_in = move_toward(_in, 1.0 if _open else 0.0, delta / SHREDDER_SEC)
+	var shown := _open and state in [State.READY, State.DRAGGING, State.FEEDING]
+	var was := Vector2(_up, _down)
+	_up = move_toward(_up, 1.0 if shown else 0.0, delta / LOWER_SEC)
 	_down = move_toward(_down, 1.0 if _open else 0.0, delta / PRINTER_SEC)
 	var close := get_node_or_null("Close") as Control   # o × fica na impressora
 	if close != null:
 		close.position.y = _printer().position.y + 5.0
-	if _closing and _up == 0.0 and _in == 0.0 and _down == 0.0:
+	if _closing and _up == 0.0 and _down == 0.0:
 		_closing = false
 		closed.emit()
 	for ch in _chads:
 		ch[1] += delta
 	_chads = _chads.filter(func(ch): return ch[1] < CHAD_SEC)
 	_place_sheet()
-	if state != State.IDLE or _up > 0.0 or was != Vector3(_up, _in, _down):
+	if state != State.IDLE or _up > 0.0 or was != Vector2(_up, _down):
 		queue_redraw()
 
 
@@ -268,7 +269,9 @@ func _place_sheet() -> void:
 
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_RESIZED and state in [State.READY, State.DRAGGING]:
+	if what == NOTIFICATION_MOUSE_EXIT:
+		_hover = []
+	elif what == NOTIFICATION_RESIZED and state in [State.READY, State.DRAGGING]:
 		_pos = _clamp(_pos)
 	elif what == NOTIFICATION_TRANSLATION_CHANGED and is_node_ready() and not _cells.is_empty():
 		_layout()   # o protocolo muda de tamanho com o idioma
@@ -278,29 +281,40 @@ func _notification(what: int) -> void:
 # ------------------------------------------------------------------ mouse
 
 func _has_point(p: Vector2) -> bool:
-	if _down > 0.0 and _printer().has_point(p) or _in > 0.0 and _machine("shred").has_point(p) or state == State.DRAGGING:
+	if _down > 0.0 and _printer().has_point(p) or state == State.DRAGGING:
 		return true
 	if state in [State.READY, State.FEEDING] and _card_rect().has_point(p):
 		return true
-	return _up > 0.0 and _machine("send").has_point(p)
+	return _up > 0.0 and (_machine("send").has_point(p) or _machine("shred").has_point(p))
 
 
+## Apertar no cartão não faz nada ainda: andar `DRAG_START` px com o botão apertado o arrasta (de qualquer ponto,
+## sem perfurar); soltar antes disso é clique, e perfura a linha.
 func _gui_input(e: InputEvent) -> void:
 	if e is InputEventMouseMotion:
+		if _press != Vector2.INF and state == State.READY and e.position.distance_to(_press) > DRAG_START:
+			_grab = _press - _pos
+			_press = Vector2.INF
+			_go(State.DRAGGING)
 		if state == State.DRAGGING:
 			_pos = _clamp(e.position - _grab)
+		var h := _cell_at(e.position) if state == State.READY and _card_rect().has_point(e.position) else []
+		if h != _hover:
+			_hover = h
+			_sheet.queue_redraw()
 		mouse_default_cursor_shape = _cursor(e.position)
 	elif e is InputEventMouseButton and e.button_index == MOUSE_BUTTON_LEFT:
 		if e.pressed and state == State.READY and _card_rect().has_point(e.position):
-			var c := _cell_at(e.position)
-			if not c.is_empty():
-				_punch(c)
-			else:
-				_grab = e.position - _pos
-				_go(State.DRAGGING)
+			_press = e.position
 			accept_event()
-		elif not e.pressed and state == State.DRAGGING:
-			_drop()
+		elif not e.pressed:
+			if state == State.DRAGGING:
+				_drop()
+			elif _press != Vector2.INF and state == State.READY:
+				var c := _cell_at(_press)
+				if not c.is_empty():
+					_punch(c)
+			_press = Vector2.INF
 			mouse_default_cursor_shape = _cursor(e.position)
 			accept_event()
 
@@ -336,13 +350,14 @@ func _drop() -> void:
 	for m in ["send", "shred"]:
 		var r := _machine(m)
 		var centered := absf(_pos.x + CARD_W / 2.0 - r.get_center().x) < CARD_W / 3.0
-		var there := _up > 0.5 if m == "send" else _in > 0.5
-		if there and centered and bottom >= _slot(m) - NEAR_SLOT and bottom <= r.end.y:
+		if _up > 0.5 and centered and bottom >= _slot(m) - NEAR_SLOT and bottom <= r.end.y:
 			_pos.x = r.get_center().x - CARD_W / 2.0
 			_from = _pos.y
 			_into = m
 			_go(State.FEEDING)
 			Sfx.play("feed" if m == "send" else "shred")
+			if m == "send":
+				Sfx.play("read")   # o leitor lendo os furos enquanto o cartão entra
 			return
 	_go(State.READY)
 
@@ -357,7 +372,6 @@ func _text(ci: CanvasItem, p: Vector2, s: String, col: Color, width := -1.0, ali
 func _draw() -> void:
 	if _up > 0.0:
 		_draw_sender()
-	if _in > 0.0:
 		_draw_shredder()
 	if _down > 0.0:
 		_draw_printer()
@@ -508,6 +522,8 @@ func _draw_card() -> void:
 		if heads[kind][0]:
 			_text(ci, Vector2(check.position.x, check.position.y + 10.0), "X", Pal.INK, check.size.x, HORIZONTAL_ALIGNMENT_CENTER)
 		ci.draw_rect(Rect2(10, y + 15.0, CARD_W - 20.0, 1), Color(FORM, 0.5))
+	if not _hover.is_empty() and state == State.READY and _can_punch(_hover[1], _hover[2]):
+		ci.draw_rect(_hover[3], Color(Pal.AMBER, 0.16))   # a linha que vai ser perfurada
 	for y in _rules:
 		ci.draw_rect(Rect2(28, y, CARD_W - 38.0, 1), RULE)
 	var count := {"type": 0, "unit": 0}   # cada parte numera as suas posições: 1, 2, 3...

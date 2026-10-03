@@ -82,6 +82,12 @@ func _mouse(n: Control, p: Vector2, pressed := -1) -> void:
 	n._gui_input(e)
 
 
+## Clique (aperta e solta no mesmo lugar) sobre o nó `n`.
+func _click(n: Control, p: Vector2) -> void:
+	_mouse(n, p, 1)
+	_mouse(n, p, 0)
+
+
 func _move(e: int, j: int) -> void:
 	if b.ends[e] != -1:
 		b.pick_up(e)
@@ -717,7 +723,7 @@ func _initialize() -> void:
 		_mouse(card, at + to - card._pos)
 		_mouse(card, at + to - card._pos, 0)
 	var slot := func(machine: String) -> Vector2:   # o canto do cartão com a borda de baixo na fenda da máquina
-		await wait_until(func(): return card._up >= 1.0 and card._in >= 1.0, 2.0)   # as máquinas terminam de entrar
+		await wait_until(func(): return card._up >= 1.0, 2.0)   # as máquinas terminam de subir
 		return Vector2(card._machine(machine).get_center().x - card.CARD_W / 2.0, card._slot(machine) - card._card_h + 8.0)
 	drag.call(await slot.call("send"))
 	ok(card.state == card.State.FEEDING, "cartão em branco também entra no cartucho")
@@ -730,7 +736,7 @@ func _initialize() -> void:
 	ok(card.state == card.State.READY and card._pos == table, "solto na mesa, o cartão fica onde está")
 	drag.call(Vector2(-500, 9000))
 	ok(card._pos.x == 0.0 and card._pos.y + card._card_h <= card.size.y, "o cartão não sai do mapa")
-	_mouse(card, cell.call("Outro"), 1)
+	_click(card, cell.call("Outro"))
 	var faults: int = m.report.faults.size()
 	drag.call(await slot.call("shred"))
 	ok(card.state == card.State.FEEDING and card._into == "shred", "solto na trituradora, ela puxa o cartão")
@@ -738,12 +744,19 @@ func _initialize() -> void:
 		and d._slip.visible and m.report.faults.size() == faults, "triturado: nada sai, sem advertência, a impressora espera outro local")
 	d.set_location("sol", 0, "Rua do Sol, 1–99")
 	ok(await wait_until(func(): return card.state == card.State.READY, 5.0), "mais um cartão")
-	_mouse(card, cell.call("Incêndio"), 1)
-	_mouse(card, cell.call("Mal súbito"), 1)
+	_click(card, cell.call("Incêndio"))
+	_click(card, cell.call("Mal súbito"))
 	ok(d.occurrence() == "Incêndio", "um tipo só: o primeiro furo vale")
 	ok(d._selected_units().is_empty() and not d.can_send(), "o tipo não marca unidade")
-	_mouse(card, cell.call("amb"), 1)
-	ok(d.can_send() and d.picked() == ["amb"], "local, tipo e unidade perfurados")
+	var row: Vector2 = cell.call("amb") + Vector2(120, 20)   # no protocolo, longe do quadradinho
+	var held: Vector2 = card._pos
+	_mouse(card, row, 1)   # apertar na linha e arrastar move o cartão sem perfurar
+	_mouse(card, row + Vector2(-40, 30))
+	_mouse(card, row + Vector2(-40, 30), 0)
+	ok(d.picked().is_empty() and card._pos == held + Vector2(-40, 30), "arrastar pela linha move o cartão, sem perfurar")
+	row += Vector2(-40, 30)
+	_click(card, row)
+	ok(d.can_send() and d.picked() == ["amb"], "local, tipo e unidade perfurados (clicando em qualquer ponto da linha)")
 	drag.call(await slot.call("send"))
 	ok(card.state == card.State.FEEDING and card._into == "send", "o transmissor puxa o cartão completo")
 	ok(await wait_until(func(): return d._location.is_empty(), 3.0), "o cartão no cartucho envia")
