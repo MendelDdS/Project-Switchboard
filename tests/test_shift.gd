@@ -73,7 +73,7 @@ func _card_step(f: PhoneCall, e: EmergencyCall) -> bool:
 		for u in d.fleet.required():   # o que a situação pede agora (pode ter piorado)
 			d.punch_unit(u)
 		return true
-	card._pos = Vector2(card._machine("send").get_center().x - card.CARD_W / 2.0, card._slot("send") - card.card.size.y + 8.0)
+	card._pos = Vector2(card._machine(card.Machine.SEND).get_center().x - card.CARD_W / 2.0, card._slot(card.Machine.SEND) - card.card.size.y + 8.0)
 	card._drop()
 	return true
 

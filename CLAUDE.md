@@ -33,7 +33,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `EmergencyCall` com lacunas **em inglês** (`{place}`, `{reason}`, `{street}`, `{house}`...), preenchidas por
   `GameData.template_transfer()`/`template_emergency()`. Motivos em `DirectoryEntry.reasons`. `TEMPLATE_CHANCE`
   (`Schedule`) mistura moldes e roteiros escritos (híbrido: tutorial, trotes e roteiro da noite sempre escritos).
-- Todo o áudio é sintetizado no autoload `Sfx` (`scripts/sfx.gd`), inclusive as "vozes" por sílaba
+- Todo o áudio é sintetizado ao iniciar por `SfxSynth.build()` (`scripts/sfx_synth.gd`: as receitas, ~0,6 s num Mac
+  recente, 125 sons, 2,4 MB; sem cache) e tocado pelo autoload `Sfx` (`scripts/sfx.gd`: tocar, mixar, ambiente), inclusive as "vozes" por sílaba
   (`Sfx.speak_char`). Barramentos em `default_bus_layout.tres`: Ambience, Voices, Effects (e Rub, que envia para Effects).
   Ambience tem um compressor com sidechain em Voices (o ambiente baixa enquanto alguém fala); Effects, uma
   reverberação leve de sala. `Sfx.play_at(id, screen_x)` toca um som vindo de um lugar da tela (pool de
@@ -116,14 +117,15 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Semente fixa: `Godot --path . -- --seed=123` repete a agenda do turno (sem `--seed`, é aleatória).
 - **Painel de debug** (F1, ação `debug`; `DebugPanel`, `scenes/ui/debug_panel.tscn`, nó `%Debug` do Main, z 5): só em
   build de debug (editor ou export de debug; no release ele se apaga). Toca ligações na hora (qualquer tipo; emergência
-  escolhida, com o caso sorteado), pula estágio ou congela a barra (`Main.debug_freeze`), mostra o que a emergência
+  escolhida, com o caso sorteado), pula estágio ou congela a barra (`Urgency.frozen`), mostra o que a emergência
   exige (contado e real), velocidade 1–8×, pula o relógio, encerra o turno, troca de noite (`_go_night`: recarrega a cena na noite anterior/seguinte, sem ler nem
   gravar o progresso, para testar a entrega dos setores), libera viaturas (`Dispatch.reset`; `_gen` cancela
   as viagens em andamento), registra pendências, limpa advertências e apaga o progresso. Mesa de som: toca cada som de `Sfx.VOL` com
   um controle de volume que vale na hora (`Sfx.vol`, a cópia em uso) e "Copiar VOL" põe a constante ajustada na área de
   transferência, para colar em `sfx.gd`. Cada seção tem "Limpar" e o
-  topo tem "Restaurar tudo" (`_drop` tira uma ligação sem caderno, advertência nem retorno; a mesa é zerada antes de
-  tirar os cabos para nada contar como conversa cortada; `Notebook.reset`). Textos fixos em português (ferramenta, não interface).
+  topo tem "Restaurar tudo" (`Main.drop` tira uma ligação sem caderno, advertência nem retorno; a mesa é zerada antes de
+  tirar os cabos para nada contar como conversa cortada; `Notebook.reset`). Textos fixos em português (ferramenta, não interface). Ele só usa funções públicas do Main (`free_line`,
+  `start_ending`, `cancel_dest_ring`, `drop`) e do relatório (`ShiftReport.forget`), para não quebrar quando o Main mudar.
 - Captura de tela: rodar SEM `--headless` e salvar `root.get_texture().get_image()`.
 
 ## Exportar (executáveis para testar fora do editor)
@@ -142,6 +144,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   Constantes de ritmo no topo.
 - `scripts/schedule.gd` (`Schedule`, RefCounted, sem cena) — monta a agenda da noite (`Schedule.build(night, LAST_CALL)`:
   roteiro, desconhecida e sorteadas; `info_call()`); o teste de fluxo confere a montagem sem jogar o turno.
+- `scripts/urgency.gd` (`Urgency`, nó filho de Main) — a barra de agravamento da emergência em andamento (`tick`, `told`).
 - `scripts/supervisor.gd` (`Supervisor`, nó filho de Main) — consequências: advertências no `Main.report`, retornos,
   desistência em espera, conferência do despacho e do caderno. O Main só avisa o que aconteceu.
 - `scripts/conversation.gd` (`Conversation`, nó filho de Main) — como cada tipo de ligação se desenrola:
@@ -250,10 +253,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   unidade ninguém sai (`blank_card`, advertência média `dispatch_blank`, rádio `RADIO_BLANK_CARD`); sem tipo, as
   unidades vão e a chegada dá `dispatch_type` ("sem tipo perfurado"). Parado, o cartão não se redesenha: só o que anima redesenha a cada quadro, e quem muda o que ele mostra chama
   `CardMachines.refresh()` (o `Dispatch._refresh` chama). **Cartão e máquinas separados**: o cartão é o `PunchCard`
-  (`scripts/ui/punch_card.gd`: formulário, posições de furo, `fill`, desenho), nó filho das máquinas (`card`), que só
+  (`scripts/ui/punch_card.gd`: formulário, posições de furo em `cells` como {box, part (`PunchCard.Part`), id, row}, `fill`, desenho), nó filho das máquinas (`card`), que só
   usam dele `size`, `held`, `click(p)` (perfura; o som `punch` é das máquinas), `point(p)` (realce) e `cursor(p)`: um
   segundo tipo de cartão responde o mesmo. Ele fica numa janela
-  que recorta (`_window`): saindo, só aparece abaixo da fenda da impressora; entrando, só acima da fenda da máquina (`_into`). Os
+  que recorta (`_window`): saindo, só aparece abaixo da fenda da impressora; entrando, só acima da fenda da máquina (`_into`, `CardMachines.Machine`). Os
   furos são a vista dos dados do `Dispatch` (`_location`, `_occurrence`, `_picked`; `set_occurrence`, `punch_unit`),
   que os testes e o robô usam direto. A ficha abre ao marcar um local ou quando chega uma emergência (`open_slip`), se
   recolhe depois do envio e o × a fecha; fechada, o botão `%Open` a reabre. `CityMap.blocked`: onde há botões por cima
@@ -294,14 +297,14 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   emergências (`trouble`/`resolved`/`failed` → OK, LATE, BAD) e `verdict()`. Gravidades: leve, média, grave,
   gravíssima (`CRITICAL`, pesa `CRITICAL_WEIGHT` graves). Entre noites só as graves somam
   (`severe_before`, salvas no `Progress`; `SEVERE_LIMIT` = demissão).
-- **Barra de agravamento** (`Main._worsen`, estado em `PhoneCall.stage`/`urgency`/`asking`/`secured`, regra em
+- **Barra de agravamento** (nó `Urgency`, `scripts/urgency.gd`: `tick` a cada quadro do turno; estado em `PhoneCall.stage`/`urgency`/`asking`/`secured`, regra em
   `PhoneCall.urgent()`, desenho em `UrgencyBar` dentro da caixa do chat, só com o operador na linha; fora dela, o rádio
   inteiro acende: `Radio.alert(stage, away)`, moldura pulsando e aviso na tela; a luz "Ocorrência" acende sempre;
   a cada troca de estágio, `Radio.chirp` toca `radio_alert` vindo do rádio, mais agudo quanto pior): corre desde o atendimento, também em espera e depois de a pessoa desligar; para durante
   pergunta e resposta (`Conversation._em_ask`) e na pausa; para de vez só quando o socorro completo sai para o lugar
   certo (`Dispatch.sent(..., complete)`, conta envios anteriores em `Fleet.incident["going"]`). Estágios por
   `EmergencyCall.stage_sec`; cada um chama `Conversation.emergency_worse` (fala `worsening`/`critical`/`lost`; com a
-  pessoa já desligada, `RADIO_WORSE`/`RADIO_LOST`; depois de dita, `Main.emergency_told` atualiza `PhoneCall.told`, e só então `Fleet.require(e.required(told))`
+  pessoa já desligada, `RADIO_WORSE`/`RADIO_LOST`; depois de dita, `Urgency.told` atualiza `PhoneCall.told`, e só então `Fleet.require(e.required(told))`
   passa a exigir as unidades do estágio; com a pessoa já desligada ou se despedindo, o rádio diz também o que mandar,
   `RADIO_SEND_MORE`. `told` também libera a pergunta do estágio:
   `Conversation._qa`, índices depois das do roteiro; perdida = só o endereço e `OP_ANYONE_HURT` → `lost_answer`). Advertência pelo estágio
@@ -314,7 +317,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `REDISPATCH_CHANCE`). `check_hold()` encerra quem passou de `HOLD_GIVE_UP` em espera (`End.GAVE_UP`).
 - Tutorial (`tut`), trotes e ligação desconhecida não geram advertência. Falas de retorno, manchetes e pareceres
   ficam no content (grupo "Supervisor e consequências").
-- À meia-noite, `_start_ending` (`Supervisor.shift_over`) soma o que ficou sem registro e passa o relatório para `Ending.play(report)`, que mostra
+- À meia-noite, `start_ending` (`Supervisor.shift_over`) soma o que ficou sem registro e passa o relatório para `Ending.play(report)`, que mostra
   `ReportView` antes do título final.
 
 ## Setores (a cidade em três partes)
@@ -351,7 +354,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   Para um recurso novo usar marcadores: exporte `requires`/`sets` e chame `allows`/`apply`. Testar um ramo:
   `-- --night=2 --flags=a,b`.
 - `Progress` (`scripts/model/progress.gd`, `user://progress.cfg`): próxima noite e graves acumuladas
-  (`ShiftReport.severe_before`/`severe_total()`/`fired()`) e marcadores. Main salva em `_start_ending` (última
+  (`ShiftReport.severe_before`/`severe_total()`/`fired()`) e marcadores. Main salva em `start_ending` (última
   noite ou demissão limpa o save). `-- --night=N` força uma noite **sem ler nem gravar** o save; `test_base.load_main` força a noite 1.
 
 ## Agenda e ritmo (constantes no topo de main.gd e schedule.gd; por noite em `Night`)
@@ -380,7 +383,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `EMERGENCY_NAG_AFTER`, só no estágio inicial da barra (depois, a fala de cada estágio já cobra a demora). A conversa fiada não vem mais logo depois do pedido. Conversa fiada só do cotidiano (nada
   que lembre o mistério: luzes piscando, carros parados, chiado na linha).
 - Conversas transferidas duram `TALK_LEN` (34–68 min de jogo ≈ 45–90 s reais).
-- Turno das 18:00 (`SHIFT_START_HOUR`) às 00:00 (`SHIFT_END` = 360 min); fim **depois** da ligação desconhecida ter caído (`_start_ending`).
+- Turno das 18:00 (`SHIFT_START_HOUR`) às 00:00 (`SHIFT_END` = 360 min); fim **depois** da ligação desconhecida ter caído (`start_ending`).
 - **Fim do turno**: nada novo toca depois de `LAST_CALL` (23:40; sorteadas param ali e `_run_schedule` descarta
   retornos e atrasadas; a desconhecida tem regra própria). A partir daí, com a desconhecida já passada, o botão
   **Encerrar turno** (`%EndShift`, no lugar do texto do turno ao lado do relógio) fecha a noite: quem está na linha ou

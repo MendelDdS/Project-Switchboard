@@ -40,7 +40,6 @@ var sched: Array[PhoneCall] = []   ## ligações ainda por tocar, em ordem de ho
 var live: Array[PhoneCall] = []    ## tocando ou em andamento (podem ser várias ao mesmo tempo)
 var tut: PhoneCall                 ## primeira ligação: guia passo a passo
 var em_call: PhoneCall
-var debug_freeze := false          ## painel de debug: a barra de agravamento não anda
 var myst_time := "02:13"
 var myst_line := 0                 ## entrada por onde veio a ligação desconhecida (sorteada)
 var myst_plan := INF               ## horário sorteado da ligação desconhecida (a silhueta segue este, mesmo se ela atrasar)
@@ -73,6 +72,7 @@ var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o
 @onready var dispatch: Dispatch = tools.dispatch
 @onready var conversation: Conversation = %Conversation
 @onready var supervisor: Supervisor = %Supervisor
+@onready var urgency: Urgency = %Urgency
 @onready var _hint: RichTextLabel = %Hint
 @onready var _glow: CanvasItem = %Glow
 @onready var _intro: Intro = %Intro
@@ -205,7 +205,7 @@ func _process(delta: float) -> void:
 		# (com registro pendente, espera o operador registrar ou encerrar pelo botão)
 		if minutes >= SHIFT_END and after and live.is_empty():
 			if not _unregistered():
-				_start_ending()
+				start_ending()
 			elif not _taught_midnight:
 				_taught_midnight = true
 				hint(T.text(T.Key.HINT_MIDNIGHT))
@@ -214,7 +214,6 @@ func _process(delta: float) -> void:
 		clock.text = fmt(minutes)
 		_nag()
 		supervisor.check_hold()
-		_worsen(delta)
 	background.flick = flick
 	_glow.modulate.a = background.lamp_level
 
@@ -244,50 +243,6 @@ func _nag() -> void:
 	elif f.kind == PhoneCall.Kind.EMERGENCY and not f.dispatched and f.stage == 0 and quiet > EMERGENCY_NAG_AFTER:
 		f.last_talk = talk_clock
 		conversation.say(f, GameData.pick(C.emergency_waiting))
-
-
-## A situação da emergência piora até o socorro completo sair para o lugar certo (despacho incompleto ou no
-## endereço errado não para a barra), mesmo com ela em espera ou já desligada; só para durante pergunta e resposta
-## (e na pausa do jogo). A luz de ocorrência do rádio mostra o estágio. Cada estágio pode exigir unidades novas, mas
-## só depois de alguém contar o que mudou (`emergency_told`); o último (perdida) já pune e piora o jornal, mas ainda
-## dá para despachar. Quem liga de novo não tem barra.
-func _worsen(delta: float) -> void:
-	var c := em_call
-	var away := ""   # fora da linha da emergência, o rádio inteiro avisa
-	if c != null and c.urgent() and not c.on_line:
-		var where := (c.data as EmergencyCall).address if c.ended else T.text(T.Key.STATUS_LINE) % c.line + " " + T.text(T.Key.STATUS_ON_HOLD)
-		away = "%s\n%s · %s" % [T.text(T.Key.RADIO_INCIDENT_ON), where, T.text(UrgencyBar.NAMES[c.stage])]
-	radio.alert(c.stage if c != null and c.urgent() else -1, away)
-	if c == null or not c.urgent() or c.asking:
-		return
-	var e: EmergencyCall = c.data
-	if not debug_freeze:
-		c.urgency += delta
-	if c.urgency < [e.stage_sec.x, e.stage_sec.x + e.stage_sec.y, e.stage_sec.x + e.stage_sec.y + e.stage_sec.z][c.stage]:
-		return
-	c.stage += 1
-	radio.chirp(c.stage)
-	if c.stage == 3:
-		supervisor.lost(c)
-	if not c.dispatched:
-		conversation.emergency_worse(c, c.stage)
-		return
-	# quem ligou já desligou (ou está se despedindo): quem avisa é o rádio, com o que passou a precisar
-	var more := Array(e.required(c.stage)).filter(func(u): return not u in e.required(c.told))
-	var msg := T.text(T.Key.RADIO_LOST if c.stage == 3 else T.Key.RADIO_WORSE) % e.address
-	if not more.is_empty():
-		var names := PackedStringArray(more.map(func(u): return T.text(Fleet.NAMES[u]).to_lower()))
-		msg += " " + T.text(T.Key.RADIO_SEND_MORE) % (" %s " % T.text(T.Key.AND)).join(names)
-	radio.say(msg)
-	emergency_told(c, c.stage)
-
-
-## Alguém contou o que mudou até o estágio `stage` (a pessoa na linha ou o rádio): só agora o despacho passa a
-## exigir as unidades dele; ninguém é cobrado pelo que não tinha como saber.
-func emergency_told(c: PhoneCall, stage: int) -> void:
-	c.told = maxi(c.told, stage)
-	if c == em_call:
-		dispatch.fleet.require((c.data as EmergencyCall).required(c.told))
 
 
 ## Esc: primeiro devolve o plug que está na mão; sem plug na mão, pausa o turno. 1, 2 e 3 abrem as abas (só durante
@@ -381,7 +336,7 @@ func _vacated(j: int, e: int) -> void:
 	# saiu do destino j
 	var st := exchange.dest(j)
 	exchange.set_dest(j, Exchange.Dest.FREE)
-	_dgen[j] = int(_dgen.get(j, 0)) + 1
+	cancel_dest_ring(j)
 	if st == Exchange.Dest.FREE:
 		return
 	Sfx.play("sw")
@@ -401,7 +356,7 @@ func _vacated(j: int, e: int) -> void:
 func _cut_dest(c: PhoneCall, d: int) -> void:
 	if exchange.dest(d) == Exchange.Dest.RING:
 		exchange.set_dest(d, Exchange.Dest.FREE)
-		_dgen[d] = int(_dgen.get(d, 0)) + 1
+		cancel_dest_ring(d)
 		c.sys(T.text(T.Key.SYS_CALL_TO_CANCELLED) % d)
 	elif exchange.dest(d) == Exchange.Dest.CONN:
 		exchange.set_dest(d, Exchange.Dest.DONE)
@@ -442,8 +397,7 @@ func transfer() -> void:
 
 ## O destino toca; se o cabo sair da tomada ou a chamada cair, para de tocar.
 func _ring_dest(c: PhoneCall, d: int) -> void:
-	_dgen[d] = int(_dgen.get(d, 0)) + 1
-	var g: int = _dgen[d]
+	var g := cancel_dest_ring(d)
 	var right := str(d) == c.target
 	var closed := right and c.away   # ninguém atende: o operador pode sugerir a alternativa
 	exchange.set_dest(d, Exchange.Dest.RING)
@@ -616,7 +570,7 @@ func _update_call_ui() -> void:
 
 # ================================================================ agenda das ligações
 
-func _free_line() -> int:
+func free_line() -> int:
 	var free := []
 	for n in range(1, Exchange.LINES + 1):
 		if exchange.line(n) == Exchange.Line.FREE and board.cord_at(n) == -1 and board.cord_at(n + 10) == -1:
@@ -658,7 +612,7 @@ func _run_schedule() -> void:
 	# não sobrecarregar: com `Pace.max_live` ligações pedindo atenção, a próxima espera (a desconhecida tem regra própria)
 	if c.kind != PhoneCall.Kind.MYSTERY and live.size() >= pace.max_live:
 		hush = true
-	if hush or _free_line() == -1:
+	if hush or free_line() == -1:
 		c.at = minutes + 3.0
 		sched.sort_custom(func(a: PhoneCall, b: PhoneCall): return a.at < b.at)
 		return
@@ -694,7 +648,7 @@ func _update_bell() -> void:
 
 func ring(c: PhoneCall) -> void:
 	var busy := not live.is_empty()
-	c.line = _free_line()
+	c.line = free_line()
 	exchange.set_line(c.line, Exchange.Line.RING)
 	c.ringing = true
 	c.time = fmt(minutes)
@@ -819,7 +773,7 @@ func end_call(c: PhoneCall, reason: PhoneCall.End) -> void:
 		var d := board.dest_of_output(c.line)
 		if d != -1 and exchange.dest(d) == Exchange.Dest.RING:
 			exchange.set_dest(d, Exchange.Dest.FREE)
-			_dgen[d] = int(_dgen.get(d, 0)) + 1
+			cancel_dest_ring(d)
 		elif d != -1 and exchange.dest(d) == Exchange.Dest.CONN:
 			exchange.set_dest(d, Exchange.Dest.DONE)
 		if exchange.line(c.line) in [Exchange.Line.TALK, Exchange.Line.HOLD, Exchange.Line.RING]:
@@ -907,6 +861,27 @@ func _on_dispatched(loc: String, units_text: String, complete: bool, card: int) 
 	conversation.emergency_dispatched(em_call)
 
 
+## Invalida os toques pendentes do destino `d` (o cabo saiu, ou o debug limpou a mesa); devolve a geração nova.
+func cancel_dest_ring(d: int) -> int:
+	_dgen[d] = int(_dgen.get(d, 0)) + 1
+	return _dgen[d]
+
+
+## Debug: tira a ligação do turno como se ela nunca tivesse existido (sem caderno, advertência nem retorno).
+func drop(c: PhoneCall) -> void:
+	c.ended = true   # as falas em andamento param sozinhas
+	c.active = false
+	c.ringing = false
+	c.on_line = false
+	c.set_talking(false)
+	c.set_options([])
+	live.erase(c)
+	if c.kind == PhoneCall.Kind.MYSTERY:
+		_mystery_aftermath(c)   # o turno pode terminar e a noite volta ao normal
+	_update_bell()
+	_refresh_panel()
+
+
 # ================================================================ ligação desconhecida e final
 
 func _mystery_aftermath(c: PhoneCall) -> void:
@@ -930,10 +905,10 @@ func end_shift() -> void:
 		return
 	for c in live.duplicate():
 		end_call(c, PhoneCall.End.SHIFT_OVER)
-	_start_ending()
+	start_ending()
 
 
-func _start_ending() -> void:
+func start_ending() -> void:
 	if ending:
 		return
 	ending = true

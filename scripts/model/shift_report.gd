@@ -94,6 +94,14 @@ func verdict() -> int:
 	return 1 if count(Severity.MEDIUM) >= 3 or count(Severity.LIGHT) >= 5 else 0
 
 
+## Debug: esquece a emergência `e` (ou todas, sem `e`), como se não tivesse acontecido.
+func forget(e: EmergencyCall = null) -> void:
+	if e == null:
+		_incidents.clear()
+	else:
+		_incidents.erase(e)
+
+
 func _incident(e: EmergencyCall) -> Dictionary:
 	if not _incidents.has(e):
 		_incidents[e] = {"trouble": false, "outcome": -1}

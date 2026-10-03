@@ -11,6 +11,7 @@
 [ext_resource type="Script" uid="uid://dks1uhf5c0yvr" path="res://scripts/ui/scanlines.gd" id="9_scanlines"]
 [ext_resource type="Script" uid="uid://dpp8fwpgwjrfm" path="res://scripts/conversation.gd" id="10_conversation"]
 [ext_resource type="Script" path="res://scripts/supervisor.gd" id="22_supervisor"]
+[ext_resource type="Script" path="res://scripts/urgency.gd" id="23_urgency"]
 [ext_resource type="PackedScene" path="res://scenes/ui/intro.tscn" id="11_intro"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ending.tscn" id="12_ending"]
 [ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="20_pause"]
@@ -249,6 +250,10 @@ script = ExtResource("10_conversation")
 [node name="Supervisor" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("22_supervisor")
+
+[node name="Urgency" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("23_urgency")
 
 [node name="Intro" parent="." unique_id=2147120183 instance=ExtResource("11_intro")]
 unique_name_in_owner = true

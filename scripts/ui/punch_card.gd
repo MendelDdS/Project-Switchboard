@@ -8,6 +8,9 @@ extends Control
 ## O que as máquinas usam de um cartão (um tipo novo de cartão responde o mesmo): `size`, `held`, `click(p)`,
 ## `point(p)` e `cursor(p)`, com `p` nas coordenadas do cartão.
 
+## As partes do formulário: o tipo de ocorrência (um só) e as unidades.
+enum Part { TYPE, UNIT }
+
 const W := 216.0
 const ROW := 19.0
 const CELL := Vector2(10, 14)
@@ -33,9 +36,9 @@ var held := false:
 	set(v):
 		held = v
 		queue_redraw()
-var cells: Array = []       ## [quadradinho no cartão, "type" | "unit", id, a linha inteira (clicável)]
-var _hover: Array = []      ## a posição sob o mouse (a linha dela fica realçada se der para perfurar)
-var _heads := {}            ## "type" / "unit" -> y do título da parte
+var cells: Array[Dictionary] = []   ## posições de furo: {box (o quadradinho), part, id, row (a linha inteira, clicável)}
+var _hover := {}            ## a posição sob o mouse (a linha dela fica realçada se der para perfurar)
+var _heads := {}            ## Part -> y do título da parte
 var _rules: Array[float] = []   ## pauta entre as linhas
 var _specks: Array[Vector2] = []   ## fibras do papel (cada cartão as suas)
 var _chads: Array = []      ## picotes caindo: [posição no cartão, segundos]
@@ -51,7 +54,7 @@ func fill(n: int, at: String, sec: int) -> void:
 	serial = n
 	place = at
 	sector = sec
-	_hover = []
+	_hover = {}
 	_chads.clear()
 	_layout()
 
@@ -59,20 +62,20 @@ func fill(n: int, at: String, sec: int) -> void:
 ## Clique em `p`: perfura a linha sob ele, se der. Devolve se perfurou.
 func click(p: Vector2) -> bool:
 	var c := _cell_at(p)
-	if c.is_empty() or not _can_punch(c[1], c[2]):
+	if c.is_empty() or not _can_punch(c):
 		return false
-	if c[1] == "type":
-		dispatch.set_occurrence(c[2])
+	if c["part"] == Part.TYPE:
+		dispatch.set_occurrence(c["id"])
 	else:
-		dispatch.punch_unit(c[2])
-	_chads.append([(c[0] as Rect2).get_center(), 0.0])
+		dispatch.punch_unit(c["id"])
+	_chads.append([(c["box"] as Rect2).get_center(), 0.0])
 	set_process(true)
 	return true
 
 
 ## O mouse em `p` (`Vector2.INF`: fora do cartão, ou ele não está para perfurar): realça a linha que dá para perfurar.
 func point(p: Vector2) -> void:
-	var h := [] if p == Vector2.INF else _cell_at(p)
+	var h := {} if p == Vector2.INF else _cell_at(p)
 	if h != _hover:
 		_hover = h
 		queue_redraw()
@@ -82,9 +85,9 @@ func cursor(p: Vector2) -> int:
 	var c := _cell_at(p)
 	if c.is_empty():
 		return Control.CURSOR_MOVE
-	if _can_punch(c[1], c[2]):
+	if _can_punch(c):
 		return Control.CURSOR_POINTING_HAND
-	return Control.CURSOR_ARROW if _punched(c[1], c[2]) else Control.CURSOR_FORBIDDEN
+	return Control.CURSOR_ARROW if _punched(c) else Control.CURSOR_FORBIDDEN
 
 
 ## Texto datilografado (Departure Mono 11), também para as máquinas.
@@ -111,19 +114,19 @@ func _layout() -> void:
 	cells.clear()
 	_rules.clear()
 	var y := TOP
-	_heads["type"] = y
+	_heads[Part.TYPE] = y
 	y += 20.0
 	for o in GameData.CONTENT.occurrences:
-		cells.append([Rect2(Vector2(10, y), CELL), "type", o, Rect2(4, y - 3.0, W - 8.0, ROW)])
+		cells.append({"box": Rect2(Vector2(10, y), CELL), "part": Part.TYPE, "id": o, "row": Rect2(4, y - 3.0, W - 8.0, ROW)})
 		y += ROW
 		_rules.append(y - 3.0)
 	y += 6.0
-	_heads["unit"] = y
+	_heads[Part.UNIT] = y
 	y += 20.0
 	for u in Fleet.IDS:
 		var top := y
 		y += 16.0 + Pal.ui.get_multiline_string_size(_why(u), HORIZONTAL_ALIGNMENT_LEFT, W - 36.0, 11).y + 4.0
-		cells.append([Rect2(Vector2(10, top), CELL), "unit", u, Rect2(4, top - 3.0, W - 8.0, y - top)])
+		cells.append({"box": Rect2(Vector2(10, top), CELL), "part": Part.UNIT, "id": u, "row": Rect2(4, top - 3.0, W - 8.0, y - top)})
 		_rules.append(y - 3.0)
 	size = Vector2(W, y + FOOT)
 	queue_redraw()
@@ -139,21 +142,21 @@ func _why(u: String) -> String:
 
 
 ## A posição de perfuração da linha sob `p` (clicar em qualquer ponto da linha perfura o quadradinho dela).
-func _cell_at(p: Vector2) -> Array:
+func _cell_at(p: Vector2) -> Dictionary:
 	for c in cells:
-		if (c[3] as Rect2).has_point(p):
+		if (c["row"] as Rect2).has_point(p):
 			return c
-	return []
+	return {}
 
 
-func _punched(kind: String, id: String) -> bool:
-	return dispatch.occurrence() == id if kind == "type" else id in dispatch.picked()
+func _punched(c: Dictionary) -> bool:
+	return dispatch.occurrence() == c["id"] if c["part"] == Part.TYPE else c["id"] in dispatch.picked()
 
 
-func _can_punch(kind: String, id: String) -> bool:
-	if kind == "type":
+func _can_punch(c: Dictionary) -> bool:
+	if c["part"] == Part.TYPE:
 		return dispatch.occurrence() == ""   # um tipo só
-	return dispatch.fleet.is_free(id) and not id in dispatch.picked()
+	return dispatch.fleet.is_free(c["id"]) and not c["id"] in dispatch.picked()
 
 
 func _draw() -> void:
@@ -185,23 +188,23 @@ func _draw() -> void:
 	draw_rect(Rect2(6, TOP - 7.0, W - 12.0, 1), FORM)   # fio duplo
 	draw_rect(Rect2(6, TOP - 5.0, W - 12.0, 1), FORM)
 	# as partes: título com a caixinha (um X datilografado quando perfurada) e a pauta entre as linhas
-	var heads := {"type": [dispatch.occurrence() != "", T.Key.DISPATCH_CHECK_TYPE], "unit": [not dispatch.picked().is_empty(), T.Key.DISPATCH_CHECK_UNITS]}
-	for kind in heads:
-		var y: float = _heads[kind]
-		write(self, Vector2(10, y + 11.0), T.text(heads[kind][1]).to_upper(), FORM)
+	var heads := {Part.TYPE: [dispatch.occurrence() != "", T.Key.DISPATCH_CHECK_TYPE], Part.UNIT: [not dispatch.picked().is_empty(), T.Key.DISPATCH_CHECK_UNITS]}
+	for part in heads:
+		var y: float = _heads[part]
+		write(self, Vector2(10, y + 11.0), T.text(heads[part][1]).to_upper(), FORM)
 		var check := Rect2(W - 21.0, y + 1.0, 11, 11)
 		draw_rect(check, FORM, false, 1.0)
-		if heads[kind][0]:
+		if heads[part][0]:
 			write(self, Vector2(check.position.x, check.position.y + 10.0), "X", Pal.INK, check.size.x, HORIZONTAL_ALIGNMENT_CENTER)
 		draw_rect(Rect2(10, y + 15.0, W - 20.0, 1), Color(FORM, 0.5))
-	if not _hover.is_empty() and _can_punch(_hover[1], _hover[2]):
-		draw_rect(_hover[3], Color(Pal.AMBER, 0.16))   # a linha que vai ser perfurada
+	if not _hover.is_empty() and _can_punch(_hover):
+		draw_rect(_hover["row"], Color(Pal.AMBER, 0.16))   # a linha que vai ser perfurada
 	for y in _rules:
 		draw_rect(Rect2(28, y, W - 38.0, 1), RULE)
-	var count := {"type": 0, "unit": 0}   # cada parte numera as suas posições: 1, 2, 3...
+	var count := {Part.TYPE: 0, Part.UNIT: 0}   # cada parte numera as suas posições: 1, 2, 3...
 	for c in cells:
-		count[c[1]] += 1
-		_draw_cell(c[0], c[1], c[2], count[c[1]])
+		count[c["part"]] += 1
+		_draw_cell(c, count[c["part"]])
 	# rodapé: o fio, o nome da central e as marcas de coluna na borda, como nos cartões perfurados
 	var foot := size.y - FOOT + 4.0
 	draw_rect(Rect2(6, foot, W - 12.0, 1), FORM)
@@ -224,18 +227,20 @@ func _field(x: float, y: float) -> void:
 
 
 ## Uma posição de perfuração (impressa em vermelho, com o número) e o que ela quer dizer.
-func _draw_cell(r: Rect2, kind: String, id: String, n: int) -> void:
-	var busy := kind == "unit" and not dispatch.fleet.is_free(id)
-	if _punched(kind, id):
+func _draw_cell(c: Dictionary, n: int) -> void:
+	var r: Rect2 = c["box"]
+	var id: String = c["id"]
+	var busy: bool = c["part"] == Part.UNIT and not dispatch.fleet.is_free(id)
+	if _punched(c):
 		draw_rect(r, HOLE)
 		draw_rect(Rect2(r.position.x, r.end.y - 1.0, r.size.x, 1), Color(1, 1, 1, 0.18))   # a luz passando pelo furo
 	else:
 		draw_rect(r, Color(FORM, 0.08))
 		draw_rect(r, FORM, false, 1.0)
-		write(self, Vector2(r.position.x, r.position.y + 11.0), str(n), Color(FORM, 1.0 if _can_punch(kind, id) else 0.3),
+		write(self, Vector2(r.position.x, r.position.y + 11.0), str(n), Color(FORM, 1.0 if _can_punch(c) else 0.3),
 			r.size.x, HORIZONTAL_ALIGNMENT_CENTER)
 	var at := Vector2(r.end.x + 8.0, r.position.y + 11.0)
-	if kind == "type":
+	if c["part"] == Part.TYPE:
 		write(self, at, tr(id), Pal.INK, W - 36.0)
 		return
 	write(self, at, T.text(Fleet.NAMES[id]), MISSING if busy else Pal.INK, W - 36.0)

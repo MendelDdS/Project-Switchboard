@@ -20,6 +20,8 @@ signal discarded
 signal closed
 
 enum State { IDLE, TYPING, PRINTING, READY, DRAGGING, FEEDING }
+## As máquinas que puxam o cartão: o transmissor (envia) e a trituradora (descarta).
+enum Machine { SEND, SHRED }
 
 const COL_W := 246.0        # a coluna da impressora e da trituradora, no canto direito
 const CARD_W := PunchCard.W
@@ -51,7 +53,7 @@ var _open := false          ## a ficha aberta (as máquinas à vista)
 var _closing := false       ## fechando: avisa `closed` quando as máquinas se recolherem
 var _pos := Vector2.ZERO    ## canto do cartão (coordenadas deste nó)
 var _from := 0.0            ## altura de onde o cartão começa a entrar na máquina
-var _into := ""             ## a máquina em que ele está entrando: "send" ou "shred"
+var _into := Machine.SEND   ## a máquina em que ele está entrando (em FEEDING)
 var _grab := Vector2.ZERO   ## onde o mouse pegou o cartão
 var _press := Vector2.INF   ## onde o botão foi apertado no cartão (INF = solto): ainda não se sabe se é clique ou arraste
 var _shake := Vector2.ZERO  ## a trituradora tremendo (um sorteio por quadro)
@@ -148,17 +150,17 @@ func _card_rect() -> Rect2:
 	return Rect2(_pos, Vector2(CARD_W, card.size.y))
 
 
-## "send": o transmissor, no canto de baixo à esquerda. "shred": a trituradora, embaixo da impressora (treme enquanto
+## SEND: o transmissor, no canto de baixo à esquerda. SHRED: a trituradora, embaixo da impressora (treme enquanto
 ## tritura). As duas ficam escondidas embaixo da borda enquanto não sobem.
-func _machine(m: String) -> Rect2:
+func _machine(m: Machine) -> Rect2:
 	var k := 1.0 - smoothstep(0.0, 1.0, _up)
-	if m == "send":
+	if m == Machine.SEND:
 		return Rect2(6.0, size.y - SENDER.y - 4.0 + roundf(k * (SENDER.y + 10.0)), SENDER.x, SENDER.y)
 	var y := size.y - SHREDDER_H - 4.0 + roundf(k * (SHREDDER_H + 10.0))
 	return Rect2(Vector2(_printer().position.x, y) + _shake, Vector2(_printer().size.x, SHREDDER_H))
 
 
-func _slot(m: String) -> float:
+func _slot(m: Machine) -> float:
 	return _machine(m).position.y + SLOT
 
 
@@ -187,12 +189,12 @@ func _process(delta: float) -> void:
 			if k >= 1.0:
 				_go(State.READY)
 		State.FEEDING:
-			var sec := FEED_SEC if _into == "send" else SHRED_SEC
+			var sec := FEED_SEC if _into == Machine.SEND else SHRED_SEC
 			_pos.y = lerpf(_from, _slot(_into), ease(minf(_t / sec, 1.0), 1.6))
-			if _t >= sec + (READ_SEC if _into == "send" else 0.0):
+			if _t >= sec + (READ_SEC if _into == Machine.SEND else 0.0):
 				_go(State.IDLE)
-				(inserted if _into == "send" else discarded).emit()
-	var shredding := state == State.FEEDING and _into == "shred"
+				(inserted if _into == Machine.SEND else discarded).emit()
+	var shredding := state == State.FEEDING and _into == Machine.SHRED
 	_shake = Vector2(randi_range(-1, 1), randi_range(-1, 1)) if shredding else Vector2.ZERO
 	var shown := _open and state in [State.READY, State.DRAGGING, State.FEEDING]
 	var was := Vector2(_up, _down)
@@ -241,7 +243,7 @@ func _has_point(p: Vector2) -> bool:
 		return true
 	if state in [State.READY, State.FEEDING] and _card_rect().has_point(p):
 		return true
-	return _up > 0.0 and (_machine("send").has_point(p) or _machine("shred").has_point(p))
+	return _up > 0.0 and (_machine(Machine.SEND).has_point(p) or _machine(Machine.SHRED).has_point(p))
 
 
 ## Apertar no cartão não faz nada ainda: andar `DRAG_START` px com o botão apertado o arrasta (de qualquer ponto,
@@ -282,7 +284,7 @@ func _cursor(p: Vector2) -> int:
 ## incompleto); em qualquer outro lugar, fica.
 func _drop() -> void:
 	var bottom := _pos.y + card.size.y
-	for m in ["send", "shred"]:
+	for m: Machine in [Machine.SEND, Machine.SHRED]:
 		var r := _machine(m)
 		var centered := absf(_pos.x + CARD_W / 2.0 - r.get_center().x) < CARD_W / 3.0
 		if _up > 0.5 and centered and bottom >= _slot(m) - NEAR_SLOT and bottom <= r.end.y:
@@ -290,8 +292,8 @@ func _drop() -> void:
 			_from = _pos.y
 			_into = m
 			_go(State.FEEDING)
-			Sfx.play("feed" if m == "send" else "shred")
-			if m == "send":
+			Sfx.play("feed" if m == Machine.SEND else "shred")
+			if m == Machine.SEND:
 				Sfx.play("read")   # o leitor lendo os furos enquanto o cartão entra
 			return
 	_go(State.READY)
@@ -372,7 +374,7 @@ func _draw_tongue() -> void:
 
 ## O transmissor: fenda em cima com setas, placa com o nome, luz de pronto e o aviso, saída de ar e pés.
 func _draw_sender() -> void:
-	var r := _machine("send")
+	var r := _machine(Machine.SEND)
 	var a := 1.0
 	for x in [r.position.x + 14.0, r.end.x - 34.0]:
 		draw_rect(Rect2(x, r.end.y, 20, 3), Color(Pal.EDGE, a))   # os pés
@@ -386,7 +388,7 @@ func _draw_sender() -> void:
 	draw_rect(plate, Color(Pal.BRASS, a))
 	draw_rect(plate.grow(-1.0), Color(Pal.BRASS.darkened(0.25), a))
 	PunchCard.write(self, Vector2(plate.position.x, plate.position.y + 13.0), T.text(T.Key.CARD_SENDER), Color(Pal.INK, a), plate.size.x, HORIZONTAL_ALIGNMENT_CENTER)
-	var feeding := state == State.FEEDING and _into == "send"
+	var feeding := state == State.FEEDING and _into == Machine.SEND
 	var ready := dispatch.can_send()
 	_led(Vector2(r.position.x + 12.0, r.position.y + 52.0), feeding and fmod(_t, 0.2) < 0.1 or not feeding and ready, Pal.AMBER if feeding else Pal.GREEN, a)
 	var msg := T.text(T.Key.CARD_SENDING) if feeding else T.text(T.Key.CARD_INSERT)
@@ -396,7 +398,7 @@ func _draw_sender() -> void:
 
 ## A trituradora: fenda com as lâminas, faixa de perigo, nome e saída de ar; treme enquanto tritura.
 func _draw_shredder() -> void:
-	var r := _machine("shred")
+	var r := _machine(Machine.SHRED)
 	_box(r)
 	var x0 := r.position.x + 8.0
 	var y := r.position.y + SLOT
@@ -410,7 +412,7 @@ func _draw_shredder() -> void:
 		var clipped := Geometry2D.intersect_polygons(poly, PackedVector2Array([band.position, Vector2(band.end.x, band.position.y), band.end, Vector2(band.position.x, band.end.y)]))
 		for c in clipped:
 			draw_colored_polygon(c, HAZARD)
-	var busy := state == State.FEEDING and _into == "shred"
+	var busy := state == State.FEEDING and _into == Machine.SHRED
 	_led(r.position + Vector2(10, 38), busy, Pal.RED)
 	PunchCard.write(self, Vector2(r.position.x + 22.0, r.position.y + 46.0), T.text(T.Key.CARD_SHREDDER), Pal.DIM)
 	_vent(Vector2(r.end.x - 60.0, r.position.y + 37.0), 3, 46.0)

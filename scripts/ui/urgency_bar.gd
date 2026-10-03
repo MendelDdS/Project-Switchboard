@@ -3,7 +3,7 @@ extends Control
 ## Barra de agravamento da emergência, na base da caixa da conversa (aparece ocupando uma linha dela, sem mexer no
 ## resto do painel): o tempo até a situação piorar. Esvazia da direita para a esquerda pelos três estágios
 ## (inicial, agravando, agravada) e pisca quando muda de estágio. Só aparece com o operador na linha da emergência;
-## fora dela continua correndo (a luz de ocorrência do rádio mostra). O estado fica na PhoneCall (Main._worsen).
+## fora dela continua correndo (a luz de ocorrência do rádio mostra). O estado fica na PhoneCall (`Urgency`).
 
 const COLORS := [Pal.GREEN, Pal.AMBER, Pal.RED]
 const NAMES := [T.Key.URGENCY_0, T.Key.URGENCY_1, T.Key.URGENCY_2]

@@ -368,7 +368,7 @@ func _em_hold(c: PhoneCall) -> void:
 	await say(c, T.text([T.Key.CALLER_HURRY, T.Key.CALLER_OKAY].pick_random()))
 
 
-## A situação piorou (Main._worsen): a pessoa conta o que mudou assim que o operador estiver na linha e ela puder
+## A situação piorou (Urgency.tick): a pessoa conta o que mudou assim que o operador estiver na linha e ela puder
 ## falar. Depois do despacho, o que ficou por dizer não importa mais.
 func emergency_worse(c: PhoneCall, stage: int) -> void:
 	var e: EmergencyCall = c.data
@@ -380,7 +380,7 @@ func emergency_worse(c: PhoneCall, stage: int) -> void:
 			return
 		await get_tree().process_frame
 	if await say(c, text):
-		main.emergency_told(c, stage)
+		main.urgency.told(c, stage)
 		emergency_choices(c)
 
 

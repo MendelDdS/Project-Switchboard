@@ -50,7 +50,7 @@ func _ready() -> void:
 	_freeze = CheckButton.new()
 	_freeze.text = "Congelar a barra"
 	_freeze.focus_mode = Control.FOCUS_NONE
-	_freeze.toggled.connect(func(on: bool): main.debug_freeze = on)
+	_freeze.toggled.connect(func(on: bool): main.urgency.frozen = on)
 	_box.add_child(_freeze)
 	_section("Tempo", func(): Engine.time_scale = 1.0)
 	var speeds := []
@@ -58,7 +58,7 @@ func _ready() -> void:
 		speeds.append(["%d×" % s, func(): Engine.time_scale = s])
 	_row(speeds)
 	_row([["+30 min", func(): main.minutes = minf(main.minutes + 30.0, Main.SHIFT_END - 1.0)],
-		["Ir para 23:50", func(): main.minutes = maxf(main.minutes, Main.SHIFT_END - 10.0)], ["Encerrar turno", func(): main._start_ending()]])
+		["Ir para 23:50", func(): main.minutes = maxf(main.minutes, Main.SHIFT_END - 10.0)], ["Encerrar turno", func(): main.start_ending()]])
 	_section("Noites", func(): _go_night(1))
 	_row([["◀ Noite anterior", func(): _go_night(main.night_no - 1)], ["Próxima noite ▶", func(): _go_night(main.night_no + 1)]])
 	_section("Viaturas e caderno", _clear_units_notebook)
@@ -101,13 +101,13 @@ func _process(_delta: float) -> void:
 	var total := e.stage_sec.x + e.stage_sec.y + e.stage_sec.z
 	_bar.text = "%s · estágio %d (contado: %d)%s\nbarra: %.0f de %.0f s%s\nexige agora: %s\nreal (sem ouvir): %s" % [
 		e.address, c.stage, c.told, " · socorro completo" if c.secured else "", c.urgency, total,
-		" · congelada" if main.debug_freeze else "", _units(main.dispatch.fleet.required()), _units(e.required(c.stage))]
+		" · congelada" if main.urgency.frozen else "", _units(main.dispatch.fleet.required()), _units(e.required(c.stage))]
 
 
 func _ring(c: PhoneCall) -> void:
 	if not main.running:
 		main.warn("Debug: comece o turno primeiro.")
-	elif main._free_line() == -1:
+	elif main.free_line() == -1:
 		main.warn("Debug: nenhuma entrada livre.")
 	else:
 		main.ring(c)
@@ -122,7 +122,7 @@ func _ring_emergency() -> void:
 	_ring(PhoneCall.from_emergency(GameData.template_emergency(e) if e in C.emergency_templates else GameData.with_case(e)))
 
 
-## Pula para o fim do estágio atual (Main._worsen muda de estágio no próximo quadro, mesmo com a barra congelada).
+## Pula para o fim do estágio atual (Urgency.tick muda de estágio no próximo quadro, mesmo com a barra congelada).
 func _next_stage() -> void:
 	var c: PhoneCall = main.em_call
 	if c == null or not c.urgent():
@@ -145,7 +145,7 @@ func _restore_all() -> void:
 func _clear_calls() -> void:
 	_clear_emergency()
 	for c in main.live.duplicate():
-		_drop(c)
+		main.drop(c)
 	for c in main.sched.duplicate():
 		if c.retry != PhoneCall.Retry.NONE:
 			main.sched.erase(c)
@@ -153,7 +153,7 @@ func _clear_calls() -> void:
 		main.exchange.set_line(n, Exchange.Line.FREE)
 	for d in GameData.board_numbers():
 		main.exchange.set_dest(d, Exchange.Dest.FREE)
-		main._dgen[d] = int(main._dgen.get(d, 0)) + 1   # toques de destino pendentes não valem mais
+		main.cancel_dest_ring(d)   # toques de destino pendentes não valem mais
 	for e in main.board.ends.size():
 		if main.board.ends[e] != -1:
 			main.board.pick_up(e)
@@ -167,14 +167,14 @@ func _clear_emergency() -> void:
 	if c == null:
 		return
 	if c in main.live:
-		_drop(c)
+		main.drop(c)
 		main.exchange.set_line(c.line, Exchange.Line.FREE)
 	for r in main.sched.duplicate():
 		if r.data == c.data:
 			main.sched.erase(r)
 	main.em_call = null
 	main.dispatch.reset(true)
-	main.report._incidents.erase(c.data)
+	main.report.forget(c.data)
 
 
 func _clear_bar() -> void:
@@ -186,22 +186,7 @@ func _clear_units_notebook() -> void:
 	main.dispatch.reset()
 	main.notebook.reset()
 	main.report.faults.clear()
-	main.report._incidents.clear()
-
-
-## Tira a ligação do turno como se ela nunca tivesse existido (sem caderno, advertência nem retorno).
-func _drop(c: PhoneCall) -> void:
-	c.ended = true   # as falas em andamento param sozinhas
-	c.active = false
-	c.ringing = false
-	c.on_line = false
-	c.set_talking(false)
-	c.set_options([])
-	main.live.erase(c)
-	if c.kind == PhoneCall.Kind.MYSTERY:
-		main._mystery_aftermath(c)   # o turno pode terminar e a noite volta ao normal
-	main._update_bell()
-	main._refresh_panel()
+	main.report.forget()
 
 
 ## Registra todas as pendências do caderno com o tipo certo (sem advertência).
