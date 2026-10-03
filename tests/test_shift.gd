@@ -61,7 +61,7 @@ func _fone_to(b, j: int) -> void:
 ## impressora ou o transmissor não conta.
 func _card_step(f: PhoneCall, e: EmergencyCall) -> bool:
 	var d = m.dispatch
-	var card = d.card
+	var card = d.machines
 	if not f.has_meta("planned"):
 		f.set_meta("planned", true)   # consultar o protocolo
 		return true
@@ -75,7 +75,7 @@ func _card_step(f: PhoneCall, e: EmergencyCall) -> bool:
 		for u in d.required():   # o que a situação pede agora (pode ter piorado)
 			d.punch_unit(u)
 		return true
-	card._pos = Vector2(card._machine("send").get_center().x - card.CARD_W / 2.0, card._slot("send") - card._card_h + 8.0)
+	card._pos = Vector2(card._machine("send").get_center().x - card.CARD_W / 2.0, card._slot("send") - card.card.size.y + 8.0)
 	card._drop()
 	return true
 

@@ -219,10 +219,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Despacho: **mapa e despacho numa aba só** (`Dispatch`, `scenes/ui/dispatch.tscn`; não existe mais aba Mapa nem
   `MapView`): o `CityMap` (`%City`) ocupa a aba inteira (passa por baixo da margem do papel); clicar no trecho já marca
   o local (`segment_selected` → `set_location`); passar o mouse mostra uma etiqueta com a faixa de números do trecho
-  (`CityMap._tag`, "Rua do Sol, 1–99"). Por cima, a **ficha de despacho** como objeto (`%Slip`, `PunchCard`, cobre o mapa com fundo
+  (`CityMap._tag`, "Rua do Sol, 1–99"). Por cima, a **ficha de despacho** como objeto (`%Slip`, `CardMachines`, `Dispatch.machines`, cobre o mapa com fundo
   transparente: o clique fora da máquina e do cartão vai para o mapa, `_has_point`; abrir ou fechar não mexe no mapa):
   três máquinas de metal (`_box`: sombra, parafusos, saídas de ar): a impressora (canto de cima, à direita;
-  desce quando a ficha abre e sobe quando fecha, com o × junto), a
+  desce quando a ficha abre e sobe quando fecha, com o × junto; o × só aparece sem cartão: com um, a ficha sai
+  enviando ou triturando), a
   trituradora (embaixo dela, na borda de baixo) e o transmissor (canto de baixo à esquerda); as duas de baixo sobem
   quando o cartão sai impresso e descem quando não há cartão. Fechar a
   ficha espera as máquinas se recolherem (`set_open`, `closed` → `Dispatch._hide_slip`). Marcar o local faz a impressora datilografar (`typing`, o local aparece na tira de papel) e imprimir
@@ -233,9 +234,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   o tipo de ocorrência (um só) e as unidades (protocolo impresso embaixo de cada uma, `DISPATCH_WHY_*`; ocupada sai
   riscada) em posições fixas (`punch`, picote caindo; clicar em qualquer ponto da linha perfura o quadradinho dela, e a
   linha sob o mouse fica realçada se der para perfurar). Furo não se desfaz. **Um cartão por vez, de qualquer tipo**
-  (`PunchCard.can_print`, regra genérica para tipos de cartão futuros): com um cartão na mesa, marcar outro local faz
+  (`CardMachines.can_print`, regra genérica para tipos de cartão futuros): com um cartão na mesa, marcar outro local faz
   a impressora recusar (luz vermelha, `CARD_ONE_AT_A_TIME`, som `deny`) e o mapa volta a marcar o local do cartão;
-  é preciso enviar ou triturar antes. O número do cartão enviado (`PunchCard.serial`, no sinal `Dispatch.sent`) vai
+  é preciso enviar ou triturar antes. O número do cartão enviado (`CardMachines.serial`, no sinal `Dispatch.sent`) vai
   para o registro da emergência (`record["card"]`) e aparece no caderno ("Ficha nº 0003"). O cartão anda livre dentro do mapa e fica onde é solto (arrasta-se de qualquer ponto dele:
   apertar e andar `DRAG_START` px é arraste e não perfura; soltar antes disso é clique e perfura a linha); solto na fenda do transmissor, é puxado (`feed`
   e o leitor, `read`, "tec tec"), fica `READ_SEC` sendo lido já dentro e só então é enviado (`inserted` →
@@ -244,7 +245,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   cartão **incompleto**: sem
   unidade ninguém sai (`blank_card`, advertência média `dispatch_blank`, rádio `RADIO_BLANK_CARD`); sem tipo, as
   unidades vão e a chegada dá `dispatch_type` ("sem tipo perfurado"). Parado, o cartão não se redesenha: só o que anima redesenha a cada quadro, e quem muda o que ele mostra chama
-  `PunchCard.refresh()` (o `Dispatch._refresh` chama). O cartão é um nó filho (`_sheet`) numa janela
+  `CardMachines.refresh()` (o `Dispatch._refresh` chama). **Cartão e máquinas separados**: o cartão é o `PunchCard`
+  (`scripts/ui/punch_card.gd`: formulário, posições de furo, `fill`, desenho), nó filho das máquinas (`card`), que só
+  usam dele `size`, `held`, `click(p)` (perfura; o som `punch` é das máquinas), `point(p)` (realce) e `cursor(p)`: um
+  segundo tipo de cartão responde o mesmo. Ele fica numa janela
   que recorta (`_window`): saindo, só aparece abaixo da fenda da impressora; entrando, só acima da fenda da máquina (`_into`). Os
   furos são a vista dos dados do `Dispatch` (`_location`, `_occurrence`, `_picked`; `set_occurrence`, `punch_unit`),
   que os testes e o robô usam direto. A ficha abre ao marcar um local ou quando chega uma emergência (`open_slip`), se
@@ -267,8 +271,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   passar do cruzamento);
   a numeração delas fica na beira da quadra, fora da rua. Abaixo
   de `NAMES_K`, só os bairros, no meio da folha. Delegacia, bombeiros e hospital
-  no Centro (`STATION`); a viagem dura pela distância (`trip` devolve os segundos, `UNIT_SPEED`, `MIN_TRIP`) e o
-  despacho espera a mais demorada. Emergências escritas e moldes só nas ruas dos setores atendidos. `Dispatch.set_incident()` quando a emergência toca; `Dispatch.sent` → `Main._on_dispatched` →
+  no Centro (`STATION`); a viagem dura pela distância (`trip` devolve os segundos, `UNIT_SPEED`, `MIN_TRIP`; anda no tempo do jogo,
+  `trips[i]["t"]`, parando na pausa) e o despacho espera a mais demorada. Depois de um tempo no local (`Dispatch._return`,
+  `STAY`), a viatura volta para a base pelo mesmo caminho, sem a luz (`CityMap.go_home`), e só fica disponível quando chega.
+  Quem não era necessária (a mais, endereço errado ou nada lá) volta logo depois de o rádio dizer isso (`Radio.said`,
+  `QUICK_STAY`), ou no máximo `QUICK_WAIT` s depois de chegar se o rádio ainda estiver ocupado. Emergências escritas e moldes só nas ruas dos setores atendidos. `Dispatch.set_incident()` quando a emergência toca; `Dispatch.sent` → `Main._on_dispatched` →
   `Conversation.emergency_dispatched`. Na chegada,
   `Dispatch.arrived(e, result, occurrence, extra)` ("ok", "missing", "wrong_place", "idle"; tipo marcado; unidades
   que não eram necessárias) → `Supervisor.on_arrived`.

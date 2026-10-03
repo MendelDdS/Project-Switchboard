@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/ui/dispatch.gd" id="1_dispatch"]
 [ext_resource type="Script" path="res://scripts/ui/city_map.gd" id="2_city_map"]
-[ext_resource type="Script" path="res://scripts/ui/punch_card.gd" id="3_punch_card"]
+[ext_resource type="Script" path="res://scripts/ui/card_machines.gd" id="3_card_machines"]
 
 [node name="Dispatch" type="Control"]
 layout_mode = 3
@@ -68,7 +68,7 @@ offset_right = 18.0
 offset_bottom = 14.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("3_punch_card")
+script = ExtResource("3_card_machines")
 
 [node name="Close" type="Button" parent="Slip"]
 unique_name_in_owner = true

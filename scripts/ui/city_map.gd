@@ -212,8 +212,19 @@ func trip(u: String, target: Dictionary) -> float:
 		dist += pts[i].distance_to(pts[i - 1])
 	var sec := maxf(MIN_TRIP, dist / UNIT_SPEED)
 	trips = trips.filter(func(t): return t["u"] != u)
-	trips.append({"u": u, "pts": pts, "t0": Time.get_ticks_msec(), "dur": sec * 1000.0})
+	trips.append({"u": u, "pts": pts, "t": 0.0, "dur": sec, "back": false})
 	return sec
+
+
+## A unidade volta do lugar onde está para a base, pelo mesmo caminho e sem a luz; devolve quantos segundos leva.
+func go_home(u: String) -> float:
+	for tr in trips:
+		if tr["u"] == u:
+			var pts: PackedVector2Array = tr["pts"].duplicate()
+			pts.reverse()
+			tr.merge({"pts": pts, "t": 0.0, "back": true}, true)
+			return tr["dur"]
+	return 0.0
 
 
 func remove_units(us: Array) -> void:
@@ -228,8 +239,10 @@ func _process(d: float) -> void:
 		if _reveal >= 1.0:
 			_reveal = -1.0
 		queue_redraw()
-	elif not trips.is_empty() and is_visible_in_tree():
+	elif trips.any(func(tr): return tr["t"] < tr["dur"]) and is_visible_in_tree():
 		queue_redraw()
+	for tr in trips:   # no tempo do jogo: para na pausa e acompanha a velocidade
+		tr["t"] = minf(tr["t"] + d, tr["dur"])
 
 
 func _width(txt: String, sz: int) -> float:
@@ -471,10 +484,9 @@ func _draw_rural() -> void:
 
 
 func _draw_units() -> void:
-	var now := Time.get_ticks_msec()
 	for tr in trips:
 		var pts: PackedVector2Array = tr["pts"]
-		var k := minf(1.0, (now - int(tr["t0"])) / float(tr["dur"]))
+		var k: float = tr["t"] / tr["dur"]
 		var tot := 0.0
 		for i in range(1, pts.size()):
 			tot += pts[i].distance_to(pts[i - 1])
@@ -492,7 +504,7 @@ func _draw_units() -> void:
 		var r := 7.0 / minf(_k, 1.0)   # do mesmo tamanho na tela, mesmo com o mapa afastado
 		draw_rect(Rect2(p.x - r, p.y - r, 2 * r, 2 * r), Color.BLACK)
 		draw_rect(Rect2(p.x - r * 5 / 7, p.y - r * 5 / 7, r * 10 / 7, r * 10 / 7), st["c"])
-		if k < 1.0 and (now / 300) % 2 == 0:
+		if k < 1.0 and not tr["back"] and fmod(tr["t"], 0.6) < 0.3:
 			draw_rect(Rect2(p.x - r * 2 / 7, p.y - r * 11 / 7, r * 4 / 7, r * 4 / 7), st["l"])
 
 

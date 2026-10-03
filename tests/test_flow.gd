@@ -197,6 +197,11 @@ func _initialize() -> void:
 	var trip_c: float = city.trip("pol", {"street": "brasil", "block": 4})
 	var trip_3: float = city.trip("pol", {"street": "comercio", "block": 2})
 	var trip_2: float = city.trip("pol", {"street": "cruzeiro", "block": 0})
+	var going: Dictionary = city.trips[0]
+	await wait_until(func(): return going["t"] >= going["dur"], 15.0)
+	var site: Vector2 = going["pts"][-1]
+	ok(is_equal_approx(city.go_home("pol"), trip_2) and going["back"] and going["t"] == 0.0 and going["pts"][-1] == city.STATION["pol"]["p"]
+		and going["pts"][0] == site, "a viatura volta do local para a base pelo mesmo caminho, no mesmo tempo")
 	city.remove_units(["pol"])
 	ok(trip_c < trip_3 and trip_3 < trip_2, "viagem do Centro: %.1f s no Centro, %.1f s no setor 3, %.1f s no setor 2" % [trip_c, trip_3, trip_2])
 	# lista telefônica: cada aba abre só a sua letra, com todos os contatos dela nas duas páginas; Virar passa de letra
@@ -712,7 +717,7 @@ func _initialize() -> void:
 	#          tipo não marca unidades: a conversa decide); o cartão anda livre pelo mapa e fica onde é solto; no cartucho,
 	#          envia (em branco também: ninguém sai e o supervisor anota) e tudo limpa; a ficha não mexe no mapa
 	var d = m.dispatch
-	var card = d.card   # sem tipo: PunchCard depende do autoload Sfx
+	var card = d.machines   # sem tipo: CardMachines depende do autoload Sfx
 	m.tools.set_tab("despacho")
 	d.open_slip(false)
 	await frames(2)
@@ -724,10 +729,11 @@ func _initialize() -> void:
 	await frames(2)
 	ok(d._slip.visible, "marcar o local abre a ficha por cima do mapa")
 	ok((d.city._off + Vector2(300, 220) * d.city._k).distance_to(spot) < 1.0, "o mapa não pula quando a ficha abre")
-	ok(card.state == card.State.TYPING and card._sector == 3, "marcar o local datilografa o cartão, com o setor")
+	ok(card.state == card.State.TYPING and card.card.sector == 3, "marcar o local datilografa o cartão, com o setor")
 	ok(await wait_until(func(): return card.state == card.State.READY, 5.0) and card._pos == card._rest(), "o cartão sai impresso, pendurado na fenda")
+	ok(not d.get_node("%Close").visible, "com cartão na mesa, a ficha não fecha (sem ×)")
 	var cell := func(id: String) -> Vector2:
-		for c in card._cells:
+		for c in card.card.cells:
 			if c[2] == id:
 				return card._pos + (c[0] as Rect2).get_center()
 		return Vector2.ZERO
@@ -738,7 +744,7 @@ func _initialize() -> void:
 		_mouse(card, at + to - card._pos, 0)
 	var slot := func(machine: String) -> Vector2:   # o canto do cartão com a borda de baixo na fenda da máquina
 		await wait_until(func(): return card._up >= 1.0, 2.0)   # as máquinas terminam de subir
-		return Vector2(card._machine(machine).get_center().x - card.CARD_W / 2.0, card._slot(machine) - card._card_h + 8.0)
+		return Vector2(card._machine(machine).get_center().x - card.CARD_W / 2.0, card._slot(machine) - card.card.size.y + 8.0)
 	drag.call(await slot.call("send"))
 	ok(card.state == card.State.FEEDING, "cartão em branco também entra no cartucho")
 	ok(await wait_until(func(): return d._location.is_empty(), 3.0) and d._units.values().all(func(u): return u == 0)
@@ -746,19 +752,21 @@ func _initialize() -> void:
 	d.set_location("sol", 0, "Rua do Sol, 1–99")
 	ok(await wait_until(func(): return card.state == card.State.READY, 5.0), "outro cartão")
 	d.set_location("comercio", 0, "Rua do Comércio, 1–99")
-	ok(card._refused >= 0.0 and card._serial == 2 and d._location["label"] == "Rua do Sol, 1–99" and d.city.sel["label"] == "Rua do Sol, 1–99",
+	ok(card._refused >= 0.0 and card.serial() == 2 and d._location["label"] == "Rua do Sol, 1–99" and d.city.sel["label"] == "Rua do Sol, 1–99",
 		"com um cartão na mesa, a impressora recusa outro e o mapa volta ao local dele")
 	var table: Vector2 = card._pos + Vector2(-300, 40)
 	drag.call(table)
 	ok(card.state == card.State.READY and card._pos == table, "solto na mesa, o cartão fica onde está")
 	drag.call(Vector2(-500, 9000))
-	ok(card._pos.x == 0.0 and card._pos.y + card._card_h <= card.size.y, "o cartão não sai do mapa")
+	ok(card._pos.x == 0.0 and card._pos.y + card.card.size.y <= card.size.y, "o cartão não sai do mapa")
 	_click(card, cell.call("Outro"))
 	var faults: int = m.report.faults.size()
 	drag.call(await slot.call("shred"))
 	ok(card.state == card.State.FEEDING and card._into == "shred", "solto na trituradora, ela puxa o cartão")
 	ok(await wait_until(func(): return card.state == card.State.IDLE, 3.0) and d._location.is_empty() and d.occurrence() == ""
 		and d._slip.visible and m.report.faults.size() == faults, "triturado: nada sai, sem advertência, a impressora espera outro local")
+	await frames(1)
+	ok(d.get_node("%Close").visible, "sem cartão, o × volta")
 	d.set_location("sol", 0, "Rua do Sol, 1–99")
 	ok(await wait_until(func(): return card.state == card.State.READY, 5.0), "mais um cartão")
 	_click(card, cell.call("Incêndio"))

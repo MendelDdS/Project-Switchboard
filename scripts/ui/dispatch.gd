@@ -24,6 +24,9 @@ enum Unit { AVAILABLE, EN_ROUTE, ON_SITE, RETURNING }
 const UNIT_IDS := ["pol", "bomb", "amb"]
 const UNIT_NAMES := {"pol": T.Key.UNIT_POLICE, "bomb": T.Key.UNIT_FIRE, "amb": T.Key.UNIT_AMBULANCE}
 const UNIT_STATUS := [T.Key.UNIT_AVAILABLE, T.Key.UNIT_EN_ROUTE, T.Key.UNIT_ON_SITE, T.Key.UNIT_RETURNING]
+const STAY := 12.0          # s no local atendendo, antes de voltar para a base
+const QUICK_STAY := 0.8     # s até virar e voltar, depois de o rádio dizer que ela não era necessária...
+const QUICK_WAIT := 3.0     # ...ou, com o rádio ainda ocupado com outras mensagens, depois de chegar
 
 var radio: Radio
 
@@ -36,17 +39,17 @@ var _gen := 0                ## sobe no `reset`: viagens de antes dele não cheg
 var _open := false           ## a ficha aberta (fechando, ela some só quando as máquinas se recolhem)
 
 @onready var city: CityMap = %City
-@onready var card: PunchCard = %Slip
+@onready var machines: CardMachines = %Slip
 @onready var _slip: Control = %Slip
 @onready var _report: Label = %Report
 
 
 func _ready() -> void:
 	city.segment_selected.connect(set_location)
-	card.dispatch = self
-	card.inserted.connect(_send)
-	card.discarded.connect(_discard)
-	card.closed.connect(_hide_slip)
+	machines.dispatch = self
+	machines.inserted.connect(_send)
+	machines.discarded.connect(_discard)
+	machines.closed.connect(_hide_slip)
 	%Open.pressed.connect(open_slip.bind(true))
 	%Close.pressed.connect(open_slip.bind(false))
 	resized.connect(_block)
@@ -65,7 +68,7 @@ func _notification(what: int) -> void:
 ## a impressora recusa e o mapa volta a marcar o local do cartão que está lá.
 func set_location(street: String, block: int, label: String) -> void:
 	open_slip(true)
-	if not card.print_card(label, GameData.street(street).block_sector(block) if GameData.street(street) != null else 0):
+	if not machines.print_card(label, GameData.street(street).block_sector(block) if GameData.street(street) != null else 0):
 		city.sel = _location.duplicate()
 		city.queue_redraw()
 		return
@@ -83,7 +86,7 @@ func open_slip(on: bool) -> void:
 	if on:
 		_slip.visible = true
 		%Open.visible = false
-	card.set_open(on)
+	machines.set_open(on)
 	Sfx.play("page")
 	_block()
 
@@ -159,7 +162,7 @@ func reset(forget := false) -> void:
 	_occurrence = ""
 	_picked.clear()
 	city.clear_selection()
-	card.clear()
+	machines.clear()
 	if forget:
 		_incident = {}
 	_refresh()
@@ -183,7 +186,7 @@ func can_send() -> bool:
 func _refresh() -> void:
 	if not is_node_ready():
 		return
-	card.refresh()
+	machines.refresh()
 	var busy := UNIT_IDS.filter(func(u): return _units[u] != Unit.AVAILABLE)
 	_report.text = "  ·  ".join(PackedStringArray(busy.map(func(u): return "%s: %s" % [T.text(UNIT_NAMES[u]), T.text(UNIT_STATUS[_units[u]])])))
 	if %Fleet.visible != not busy.is_empty():
@@ -222,7 +225,7 @@ func _send() -> void:
 			if not u in _incident["going"]:
 				_incident["going"].append(u)
 		complete = _incident["req"].all(func(r): return r in _incident["going"])
-	sent.emit(String(target["label"]), ", ".join(names), complete, card.serial())
+	sent.emit(String(target["label"]), ", ".join(names), complete, machines.serial())
 	var gen := _gen
 	await get_tree().create_timer(1.8, false).timeout
 	if gen != _gen:
@@ -248,7 +251,7 @@ func _clean() -> void:
 	_occurrence = ""
 	_picked.clear()
 	city.clear_selection()
-	card.clear()
+	machines.clear()
 	_refresh()
 	open_slip(false)
 
@@ -284,26 +287,41 @@ func _arrive(us: Array, target: Dictionary) -> void:
 			msg = T.text(T.Key.RADIO_UNDER_CONTROL)
 			_incident["resolved"] = true
 	radio.say(msg)
+	var useless := result in ["wrong_place", "idle"]   # ninguém ali precisava delas
+	var complaint := msg if useless else ""
 	if not extra.is_empty():
 		var names := PackedStringArray(extra.map(func(u): return T.text(UNIT_NAMES[u]).to_lower()))
-		radio.say(T.text(T.Key.RADIO_NOT_NEEDED) % (" %s " % T.text(T.Key.AND)).join(names))
+		complaint = T.text(T.Key.RADIO_NOT_NEEDED) % (" %s " % T.text(T.Key.AND)).join(names)
+		radio.say(complaint)
 	arrived.emit(null if result == "idle" else _incident["call"], result, target["occurrence"], extra)
-	# no endereço errado, e quem não era necessário, voltam logo a ficar disponíveis
-	var quick: Array = us if result == "wrong_place" else extra
-	_return(quick, 3.0, 1.0)
-	_return(us.filter(func(u): return not u in quick), 12.0, 7.0)
+	# quem não era necessário volta assim que o rádio termina de dizer isso
+	var quick: Array = us if useless else extra
+	_return(quick, QUICK_STAY, complaint)
+	_return(us.filter(func(u): return not u in quick), STAY)
 
 
-func _return(us: Array, stay: float, back: float) -> void:
+## Depois de `stay` s no local, as unidades voltam para a base pelo mapa e só então ficam disponíveis. Com `after`, os
+## `stay` s contam de quando o rádio termina de dizer isso (no máximo `QUICK_WAIT` s depois de chegar).
+func _return(us: Array, stay: float, after := "") -> void:
 	if us.is_empty():
 		return
 	var gen := _gen
+	if after != "":
+		var heard := [false]   # lista: a função abaixo não altera uma variável daqui
+		var hear := func(t: String): heard[0] = heard[0] or t == after
+		radio.said.connect(hear)
+		var cap := get_tree().create_timer(QUICK_WAIT, false)
+		while not heard[0] and cap.time_left > 0.0:
+			await get_tree().process_frame
+		radio.said.disconnect(hear)
 	await get_tree().create_timer(stay, false).timeout
 	if gen != _gen:
 		return
+	var back := 0.0
 	for u in us:
 		if _units[u] == Unit.ON_SITE:
 			_units[u] = Unit.RETURNING
+			back = maxf(back, city.go_home(u))
 	_refresh()
 	await get_tree().create_timer(back, false).timeout
 	if gen != _gen:

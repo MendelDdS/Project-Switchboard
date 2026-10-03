@@ -8,6 +8,9 @@ extends Bevel
 @onready var _alert_lamp: ColorRect = %Alert
 @onready var _alert_label: Label = %AlertLabel
 
+## Terminou de dizer `text` (o mesmo texto passado a `say`).
+signal said(text: String)
+
 const LED_OFF := Color("3a1a12")
 const ALERT_OFF := Color("1a1712")
 const ALERT_COLORS := [Pal.GREEN, Pal.AMBER, Pal.RED]   # estágios da barra de agravamento
@@ -104,6 +107,7 @@ func _next() -> void:
 		rv = Sfx.speak_char("r", t, i, rv, false, screen_x())
 		await get_tree().create_timer(0.032 * Settings.char_delay(), false).timeout
 	Sfx.static_burst(-2.0, screen_x())
+	said.emit(t)
 	await get_tree().create_timer(1.6, false).timeout
 	_led.color = LED_OFF
 	await get_tree().create_timer(0.4, false).timeout

@@ -247,13 +247,13 @@ func _initialize() -> void:
 	for u in ["amb", "bomb"]:
 		m.dispatch.punch_unit(u)
 	m.dispatch._send()
-	ok(m._record(c8, PhoneCall.End.CALLER)["card"] == m.dispatch.card.serial() and m.dispatch.card.serial() > 0, "o registro leva o número do cartão enviado")
+	ok(m._record(c8, PhoneCall.End.CALLER)["card"] == m.dispatch.machines.serial() and m.dispatch.machines.serial() > 0, "o registro leva o número do cartão enviado")
 	ok(await wait_until(func(): return m.report.is_resolved(e8), 20.0), "resolvida mesmo com unidade a mais e sem tipo")
 	ok(_faults("dispatch_extra") == 1 and _faults("dispatch_type") == 1, "advertências: unidade a mais e sem tipo")
 	ok(m.report.faults.any(func(f): return f["id"] == "dispatch_type" and f["detail"] == T.text(T.Key.FAULT_DETAIL_UNCLASSIFIED) % tr(e8.occurrence)),
 		"a advertência diz que faltou o tipo")
 	ok(m.report.outcomes()[e8] == ShiftReport.Outcome.OK, "no jornal: a tempo")
-	ok(await wait_until(func(): return m.dispatch._units["bomb"] == 0, 10.0) and m.dispatch._units["amb"] != 0,
+	ok(await wait_until(func(): return m.dispatch._units["bomb"] == 0, 30.0) and m.dispatch._units["amb"] != 0,
 		"bombeiros liberados antes da ambulância")
 	_clear_board()
 	print("OK 8 cartão em branco / unidade a mais / sem tipo")

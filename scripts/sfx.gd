@@ -700,7 +700,7 @@ func _build_unroll() -> void:
 	_end("unroll")
 
 
-## Ficha de despacho (`PunchCard`): a impressora datilografa o local ("typing"), imprime o cartão numa impressora de
+## Ficha de despacho (`CardMachines`): a impressora datilografa o local ("typing"), imprime o cartão numa impressora de
 ## agulhas ("printer": linhas de zumbido áspero e o avanço do papel entre elas), o furador ("punch"), o cartucho
 ## puxando o cartão ("feed": motor subindo e o papel raspando), o leitor do transmissor lendo os furos coluna a coluna
 ## enquanto o cartão entra ("read": "tec tec" seco e regular, e dois no fim), a impressora recusando outro cartão
