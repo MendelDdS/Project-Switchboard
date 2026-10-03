@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://dyd15jajt0b05" path="res://scripts/main.gd" id="1_main"]
 [ext_resource type="Script" uid="uid://23exvygvq27c" path="res://scripts/ui/background.gd" id="2_background"]
 [ext_resource type="Script" uid="uid://c3hot4aevrqd3" path="res://scripts/ui/bevel.gd" id="3_bevel"]
-[ext_resource type="FontFile" uid="uid://svbtmgwny6f7" path="res://fonts/IBMPlexMono-Regular.ttf" id="4_vt323_regula"]
+[ext_resource type="FontFile" uid="uid://bixnphjx77akg" path="res://fonts/DepartureMono-Regular.otf" id="4_vt323_regula"]
 [ext_resource type="Script" uid="uid://c4782kn03vt5j" path="res://scripts/ui/switchboard.gd" id="5_switchboard"]
 [ext_resource type="PackedScene" path="res://scenes/ui/phone_panel.tscn" id="6_phone_panel"]
 [ext_resource type="PackedScene" path="res://scenes/ui/radio.tscn" id="7_radio"]
@@ -121,7 +121,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9529, 0.6588, 0.2353, 1)
 theme_override_fonts/font = ExtResource("4_vt323_regula")
-theme_override_font_sizes/font_size = 42
+theme_override_font_sizes/font_size = 44
 text = "18:00"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -130,7 +130,7 @@ vertical_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"DimLabel"
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 11
 text = "SHIFT_HOURS"
 
 [node name="EndShift" type="Button" parent="Layout/Columns/Left/TopLeft/ClockPanel/HBox"]
@@ -140,7 +140,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
 theme_type_variation = &"AmberButton"
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 11
 text = "END_SHIFT"
 
 [node name="Title" type="VBoxContainer" parent="Layout/Columns/Left/TopLeft" unique_id=1713309677]
@@ -150,13 +150,13 @@ theme_override_constants/separation = 6
 
 [node name="Name" type="Label" parent="Layout/Columns/Left/TopLeft/Title" unique_id=630892992]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 11
 text = "GAME_TITLE"
 
 [node name="Desk" type="Label" parent="Layout/Columns/Left/TopLeft/Title" unique_id=605254917]
 layout_mode = 2
 theme_type_variation = &"DimLabel"
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 11
 text = "OPERATOR_DESK"
 
 [node name="Board" type="Control" parent="Layout/Columns/Left" unique_id=995017339]
@@ -198,7 +198,7 @@ custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 mouse_filter = 2
 theme_override_colors/default_color = Color(0.851, 0.8118, 0.6824, 1)
-theme_override_font_sizes/normal_font_size = 14
+theme_override_font_sizes/normal_font_size = 11
 bbcode_enabled = true
 scroll_active = false
 

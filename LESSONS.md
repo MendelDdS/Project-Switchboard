@@ -99,10 +99,11 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
 - **`class_name` novo não existe até reimportar.** Rodando só pela linha de comando, o cache de classes globais
   (`.godot/global_script_class_cache.cfg`) não é atualizado: todo script que usa a classe nova dá parse error, e os
   testes travam até o limite de tempo. `tests/run.sh` agora começa com `--import`.
-- **Fonte de pixel sem suavização some com a janela pequena**: com `stretch/mode = canvas_items`, o texto é
-  rasterizado no tamanho real da tela; abaixo de 1280×720 os traços de 1 px da Pixelify/VT323 sumiam. Trocadas por
-  IBM Plex (vetorial, suavizada). Ao trocar de fonte, compare larguras: a VT323 era ~1,5× mais estreita que a Plex
-  Mono, e os tamanhos da mono caíram na mesma proporção (20→14, 25→18, 35→24).
+- **Fonte de pixel só fica nítida nos múltiplos do tamanho de desenho** (Departure Mono: 11, 22, 33, 44) e, com
+  `stretch/mode = canvas_items`, é rasterizada no tamanho real da tela: abaixo de 1280×720 o texto de 11 px borra
+  (sem suavização, os traços de 1 px somem de vez, como acontecia com Pixelify/VT323). Importe com suavização, sem
+  hinting e sem sub-pixel. Ao trocar tamanhos por regex, filtre só os argumentos de tamanho: uma troca cega mudou
+  `cx - 15` (posição) e a largura de uma caixa.
 
 - **Na exportação, a conversão de `.tres` para binário esvaziou todos os `PackedStringArray`** do `content.tres`
   (listas de objetos e textos soltos sobreviveram). O jogo exportado quebrava em `pick_random()` de lista vazia, e

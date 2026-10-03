@@ -143,7 +143,7 @@ func _draw() -> void:
 	var right := 14.0 + mid
 	if current_letter() == "":   # depois da última letra: anotações
 		_page_head(left, T.text(T.Key.BOOK_NOTES))
-		draw_multiline_string(Pal.ui, Vector2(left, 58), T.text(T.Key.BOOK_NOTE_TEXT), HORIZONTAL_ALIGNMENT_LEFT, PAGE_W, 14, -1, Pal.INK_SOFT)
+		draw_multiline_string(Pal.ui, Vector2(left, 58), T.text(T.Key.BOOK_NOTE_TEXT), HORIZONTAL_ALIGNMENT_LEFT, PAGE_W, 11, -1, Pal.INK_SOFT)
 		_ruled(right)
 		return
 	var pg := pages()
@@ -169,20 +169,20 @@ func _draw_tabs() -> void:
 		var r := _tab_rect(i, on or i == _hover_tab)
 		draw_rect(r, Pal.INK_SOFT)
 		draw_rect(r.grow(-1), Pal.INK_SOFT if on else (PAPER.darkened(0.06) if i == _hover_tab else PAPER.darkened(0.12)))
-		draw_string(Pal.mono, Vector2(r.position.x + 4, r.position.y + (r.size.y + Pal.mono.get_ascent(14)) / 2.0 - 2),
+		draw_string(Pal.mono, Vector2(r.position.x + 4, r.position.y + (r.size.y + Pal.mono.get_ascent(11)) / 2.0 - 2),
 			_index[i], HORIZONTAL_ALIGNMENT_CENTER, r.size.x - 4, 20, PAPER if on else Pal.INK_SOFT)
 
 
 ## Cabeçalho da página: um título e o fio embaixo.
 func _page_head(x0: float, txt: String) -> void:
-	draw_string(Pal.mono, Vector2(x0, 26), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Pal.INK_SOFT)
+	draw_string(Pal.mono, Vector2(x0, 26), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.INK_SOFT)
 	draw_rect(Rect2(x0, 31, PAGE_W, 2), Pal.INK_SOFT)
 
 
 ## Cabeçalho da página de uma letra: a letra num quadrado de tinta e o fio até a margem.
 func _page_letter(x0: float, letter: String) -> void:
 	draw_rect(Rect2(x0, 6, 24, 24), Pal.INK_SOFT)
-	draw_string(Pal.mono, Vector2(x0, 6 + Pal.mono.get_ascent(18)), letter, HORIZONTAL_ALIGNMENT_CENTER, 24, 18, PAPER)
+	draw_string(Pal.mono, Vector2(x0, 6 + Pal.mono.get_ascent(22)), letter, HORIZONTAL_ALIGNMENT_CENTER, 24, 22, PAPER)
 	draw_rect(Rect2(x0 + 30, 29, PAGE_W - 30, 2), Pal.INK_SOFT)
 
 
@@ -208,17 +208,17 @@ func _draw_entry(x0: float, ey: float, e: DirectoryEntry) -> void:
 		draw_rect(r, Color(Pal.AMBER, 0.38))
 	elif idx == hover:
 		draw_rect(r, Color(Pal.AMBER, 0.16))
-	var base := ey + 4 + mono.get_ascent(15)
-	draw_multiline_string(mono, Vector2(x0, base), e.name, HORIZONTAL_ALIGNMENT_LEFT, 190, 15, -1, Color.BLACK)
-	draw_string(mono, Vector2(x0, ey + 4 + mono.get_ascent(18)), e.number, HORIZONTAL_ALIGNMENT_RIGHT, PAGE_W, 18, Color.BLACK)
-	var nh := mono.get_multiline_string_size(e.name, HORIZONTAL_ALIGNMENT_LEFT, 190, 15).y
+	var base := ey + 4 + mono.get_ascent(11)
+	draw_multiline_string(mono, Vector2(x0, base), e.name, HORIZONTAL_ALIGNMENT_LEFT, 190, 11, -1, Color.BLACK)
+	draw_string(mono, Vector2(x0, ey + 4 + mono.get_ascent(22)), e.number, HORIZONTAL_ALIGNMENT_RIGHT, PAGE_W, 22, Color.BLACK)
+	var nh := mono.get_multiline_string_size(e.name, HORIZONTAL_ALIGNMENT_LEFT, 190, 11).y
 	if nh <= 24.0:   # nome numa linha: pontilhado até o número
-		var dx := x0 + mono.get_string_size(e.name, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x + 6
-		var nx := x0 + PAGE_W - mono.get_string_size(e.number, HORIZONTAL_ALIGNMENT_LEFT, -1, 18).x - 6
+		var dx := x0 + mono.get_string_size(e.name, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 6
+		var nx := x0 + PAGE_W - mono.get_string_size(e.number, HORIZONTAL_ALIGNMENT_LEFT, -1, 22).x - 6
 		while dx < nx:
 			draw_rect(Rect2(dx, base - 2, 2, 2), Pal.INK_SOFT)
 			dx += 6
-	draw_multiline_string(mono, Vector2(x0, ey + 6 + nh + mono.get_ascent(14)), _addr(e), HORIZONTAL_ALIGNMENT_LEFT, PAGE_W, 14, -1, Pal.INK_SOFT)
+	draw_multiline_string(mono, Vector2(x0, ey + 6 + nh + mono.get_ascent(11)), _addr(e), HORIZONTAL_ALIGNMENT_LEFT, PAGE_W, 11, -1, Pal.INK_SOFT)
 	var dy := ey + eh - 1
 	var lx := x0 - 4
 	while lx < x0 + PAGE_W + 4:
@@ -238,8 +238,8 @@ func _addr(e: DirectoryEntry) -> String:
 
 ## Altura do contato na página (nome e endereço podem quebrar linha).
 func entry_height(e: DirectoryEntry) -> float:
-	var nh := Pal.mono.get_multiline_string_size(e.name, HORIZONTAL_ALIGNMENT_LEFT, 190, 15).y
-	return nh + Pal.mono.get_multiline_string_size(_addr(e), HORIZONTAL_ALIGNMENT_LEFT, PAGE_W, 14).y + 12
+	var nh := Pal.mono.get_multiline_string_size(e.name, HORIZONTAL_ALIGNMENT_LEFT, 190, 11).y
+	return nh + Pal.mono.get_multiline_string_size(_addr(e), HORIZONTAL_ALIGNMENT_LEFT, PAGE_W, 11).y + 12
 
 
 ## O idioma mudou nas configurações: redesenha os textos. O mouse saiu: some o realce.

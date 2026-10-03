@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://dqfvnl2101vsw"
-path="res://.godot/imported/IBMPlexSansCondensed-Regular.ttf-8002e8a057a1c40717a42ccb451a00e0.fontdata"
+uid="uid://bixnphjx77akg"
+path="res://.godot/imported/DepartureMono-Regular.otf-1fc5ab462a84f789e73b3e351336e143.fontdata"
 
 [deps]
 
-source_file="res://fonts/IBMPlexSansCondensed-Regular.ttf"
-dest_files=["res://.godot/imported/IBMPlexSansCondensed-Regular.ttf-8002e8a057a1c40717a42ccb451a00e0.fontdata"]
+source_file="res://fonts/DepartureMono-Regular.otf"
+dest_files=["res://.godot/imported/DepartureMono-Regular.otf-1fc5ab462a84f789e73b3e351336e143.fontdata"]
 
 [params]
 
@@ -22,8 +22,8 @@ msdf_size=48
 allow_system_fallback=true
 force_autohinter=false
 modulate_color_glyphs=false
-hinting=1
-subpixel_positioning=4
+hinting=0
+subpixel_positioning=0
 keep_rounding_remainders=true
 oversampling=0.0
 Fallbacks=null

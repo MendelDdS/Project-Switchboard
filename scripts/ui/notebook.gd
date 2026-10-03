@@ -149,22 +149,22 @@ func _draw_page() -> void:
 		_page.draw_rect(Rect2(0, (k + 1) * ROW_H - 1, w, 1), RULE)
 	_page.draw_rect(Rect2(X_CALLER - 8, 0, 1, _page.size.y), MARGIN)
 	if entries.is_empty():
-		_page.draw_string(Pal.ui, Vector2(X_CALLER, 28), T.text(T.Key.NOTEBOOK_EMPTY), HORIZONTAL_ALIGNMENT_LEFT, w - X_CALLER, 14, Pal.INK_SOFT)
+		_page.draw_string(Pal.ui, Vector2(X_CALLER, 28), T.text(T.Key.NOTEBOOK_EMPTY), HORIZONTAL_ALIGNMENT_LEFT, w - X_CALLER, 11, Pal.INK_SOFT)
 		return
 	for i in entries.size():
 		var r: Dictionary = entries[i]
 		var y := i * ROW_H
 		var ink := Pal.INK
-		_page.draw_string(Pal.mono, Vector2(4, y + 22), r["time"], HORIZONTAL_ALIGNMENT_LEFT, -1, 14, ink)
-		_page.draw_string(Pal.mono, Vector2(X_CALLER, y + 22), _fit(Pal.mono, r["who"], 14, X_PLACE - X_CALLER - 10), HORIZONTAL_ALIGNMENT_LEFT, -1, 14, ink)
-		_page.draw_string(Pal.mono, Vector2(X_PLACE, y + 22), _fit(Pal.mono, r["where"], 14, X_STAMP - X_PLACE - 10), HORIZONTAL_ALIGNMENT_LEFT, -1, 14, ink)
+		_page.draw_string(Pal.mono, Vector2(4, y + 22), r["time"], HORIZONTAL_ALIGNMENT_LEFT, -1, 11, ink)
+		_page.draw_string(Pal.mono, Vector2(X_CALLER, y + 22), _fit(Pal.mono, r["who"], 11, X_PLACE - X_CALLER - 10), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, ink)
+		_page.draw_string(Pal.mono, Vector2(X_PLACE, y + 22), _fit(Pal.mono, r["where"], 11, X_STAMP - X_PLACE - 10), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, ink)
 		_stamp(r["type"], Rect2(X_STAMP, y + 5, w - X_STAMP - 4, 22))
 		var notes := PackedStringArray()
 		if String(r["unit"]) != "—":
 			notes.append(T.text(T.Key.COL_UNIT) + ": " + String(r["unit"]))
 		if String(r["obs"]) != "":
 			notes.append(r["obs"])
-		_page.draw_string(Pal.ui, Vector2(X_CALLER, y + 41), _fit(Pal.ui, "  ·  ".join(notes), 14, w - X_CALLER - 4), HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Pal.INK_SOFT)
+		_page.draw_string(Pal.ui, Vector2(X_CALLER, y + 41), _fit(Pal.ui, "  ·  ".join(notes), 11, w - X_CALLER - 4), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.INK_SOFT)
 
 
 ## Carimbo do tipo: moldura e texto na cor dele, sobre um fundo levemente tingido.
@@ -172,8 +172,8 @@ func _stamp(type: T.Key, r: Rect2) -> void:
 	var col: Color = STAMPS[type]
 	_page.draw_rect(r, Color(col, 0.1))
 	_page.draw_rect(r, col, false, 2.0)
-	var txt := _fit(Pal.ui, T.text(type).to_upper(), 14, r.size.x - 8)
-	_page.draw_string(Pal.ui, Vector2(r.position.x, r.position.y + 16), txt, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 14, col)
+	var txt := _fit(Pal.ui, T.text(type).to_upper(), 11, r.size.x - 8)
+	_page.draw_string(Pal.ui, Vector2(r.position.x, r.position.y + 16), txt, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 11, col)
 
 
 ## O texto, cortado com reticências se não couber em `w` px.

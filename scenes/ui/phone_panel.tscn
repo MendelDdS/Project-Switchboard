@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/ui/phone_panel.gd" id="1_phone_panel"]
 [ext_resource type="Script" path="res://scripts/ui/fone_socket.gd" id="2_fone_socket"]
-[ext_resource type="FontFile" uid="uid://svbtmgwny6f7" path="res://fonts/IBMPlexMono-Regular.ttf" id="3_vt323_regula"]
+[ext_resource type="FontFile" uid="uid://bixnphjx77akg" path="res://fonts/DepartureMono-Regular.otf" id="3_vt323_regula"]
 [ext_resource type="Script" path="res://scripts/ui/urgency_bar.gd" id="9_urgency"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
@@ -46,7 +46,7 @@ layout_mode = 2
 text = ""
 theme_override_fonts/font = ExtResource("3_vt323_regula")
 theme_override_colors/font_color = Color(0.9529, 0.6588, 0.2353, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 11
 unique_name_in_owner = true
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -66,7 +66,7 @@ mouse_filter = 2
 layout_mode = 2
 text = "STATUS_NO_CALL"
 theme_type_variation = &"DimLabel"
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 11
 unique_name_in_owner = true
 size_flags_horizontal = 3
 
@@ -74,7 +74,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 text = ""
 theme_type_variation = &"DimLabel"
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 11
 unique_name_in_owner = true
 horizontal_alignment = 2
 
@@ -82,7 +82,7 @@ horizontal_alignment = 2
 layout_mode = 2
 text = ""
 theme_type_variation = &"AmberLabel"
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 11
 unique_name_in_owner = true
 clip_text = true
 
@@ -103,7 +103,7 @@ size_flags_vertical = 3
 bbcode_enabled = true
 scroll_following = true
 theme_override_colors/default_color = Color(0.902, 0.8588, 0.7412, 1)
-theme_override_font_sizes/normal_font_size = 14
+theme_override_font_sizes/normal_font_size = 11
 theme_override_constants/line_separation = 2
 
 [node name="Urgency" type="Control" parent="VBox/TranscriptBox/Chat"]
@@ -129,7 +129,7 @@ theme_override_constants/separation = 6
 layout_mode = 2
 text = ""
 theme_type_variation = &"AmberLabel"
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 11
 unique_name_in_owner = true
 custom_minimum_size = Vector2(176, 0)
 size_flags_horizontal = 3
@@ -157,7 +157,7 @@ offset_bottom = 14.0
 grow_horizontal = 0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.05, 0.04, 0.03, 0.6)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 11
 text = "KEY_SPACE"
 horizontal_alignment = 2
 
@@ -183,7 +183,7 @@ offset_bottom = 14.0
 grow_horizontal = 0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.05, 0.04, 0.03, 0.6)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 11
 text = "Tab"
 auto_translate_mode = 2
 horizontal_alignment = 2
@@ -210,7 +210,7 @@ offset_bottom = 14.0
 grow_horizontal = 0
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.05, 0.04, 0.03, 0.6)
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 11
 text = "X"
 auto_translate_mode = 2
 horizontal_alignment = 2

@@ -23,8 +23,8 @@ const TEXT := Color("e6dbbd")
 const DIM := Color("9a917a")
 const GLOW := Color("ffd183")
 
-## Fontes vetoriais com suavização (IBM Plex, SIL OFL): ficam legíveis em qualquer tamanho de janela (as de pixel, sem
-## suavização, perdiam os traços de 1 px com a janela menor que 1280×720). `ui` (Plex Sans Condensed) em 14 ou mais (12 só
-## onde não cabe); `mono` (Plex Mono, números e papel) em 14 ou mais.
-static var ui: Font = preload("res://fonts/IBMPlexSansCondensed-Regular.ttf")
-static var mono: Font = preload("res://fonts/IBMPlexMono-Regular.ttf")
+## Uma fonte só, de pixel: Departure Mono (SIL OFL). Fica nítida só em múltiplos de 11 (11, 22, 33, 44); fora deles os
+## pixels saem desiguais. Importada com suavização (para a janela menor que 1280×720 não apagar os traços), sem
+## hinting e sem sub-pixel (para os pixels caírem inteiros na tela). `ui` e `mono` continuam separadas pelo papel.
+static var ui: Font = preload("res://fonts/DepartureMono-Regular.otf")
+static var mono: Font = ui

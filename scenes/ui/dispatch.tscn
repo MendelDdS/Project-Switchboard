@@ -60,7 +60,7 @@ custom_minimum_size = Vector2(120, 32)
 layout_mode = 2
 focus_mode = 0
 theme_type_variation = &"PaperInk"
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 11
 disabled = true
 text = "DISPATCH_SEND"
 
@@ -73,7 +73,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"InkLabel"
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 11
 text_overrun_behavior = 3
 auto_translate_mode = 2
 
@@ -81,20 +81,20 @@ auto_translate_mode = 2
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"InkLabel"
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 11
 auto_translate_mode = 2
 
 [node name="CheckUnits" type="Label" parent="Check"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"InkLabel"
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 11
 auto_translate_mode = 2
 
 [node name="Protocol" type="Label" parent="."]
 layout_mode = 2
 theme_type_variation = &"InkSoftLabel"
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 11
 text = "DISPATCH_PROTOCOL"
 autowrap_mode = 3
 
@@ -103,6 +103,6 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 17)
 layout_mode = 2
 theme_type_variation = &"InkSoftLabel"
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 11
 text_overrun_behavior = 3
 auto_translate_mode = 2

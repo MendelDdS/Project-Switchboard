@@ -39,10 +39,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Clima (`Main.weather`: "rain", "fog", "clear", sorteado; `-- --weather=X` força): `Sfx.start_ambience(w)`/
   `set_weather`/`hush_nature`/`stop_ambience`, `Background.weather` desenha a janela, `Conversation.topics()` junta os
   assuntos gerais com os do clima (`ChatTopic.weather`).
-- Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`). **Fontes vetoriais com suavização**
-  (IBM Plex; as de pixel sumiam com a janela menor que 1280×720): `Pal.ui` (Plex Sans Condensed, tema) 14 ou mais (12 só
-  onde não cabe: teclas dos botões, selo da aba, estado das linhas e numeração do mapa); `Pal.mono` (Plex Mono: números,
-  lista, caderno, rádio, relógio) 14 ou mais. Texto em desenho com escala (mapa) sai fora da escala (`CityMap._t`).
+- Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`). **Uma fonte só, de pixel: Departure Mono**
+  (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11**: 11 (texto), 22
+  (títulos, números da lista, visor, bilhete), 33 (títulos de tela), 44 (relógio). Importada com suavização (a janela
+  menor que 1280×720 não apaga os traços, mas o texto de 11 fica borrado), sem hinting e sem sub-pixel. Texto em
+  desenho com escala (mapa) sai fora da escala (`CityMap._t`).
 - **Idiomas** pt_BR (padrão), en, es. Interface/código: **enum `T.Key`** (`scripts/t.gd`, GERADO) +
   `translations/ui.csv` (`chave,pt_BR,en,es`); use `T.text(T.Key.X)` (com valores: `T.text(T.Key.X) % n`), nunca
   `tr("texto")` com literal. Cenas: o `text` do Label/Button é a chave (auto-tradução do Godot). Falas dos roteiros
@@ -386,7 +387,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     índice na borda em vez da barra de letras, ordem sem acento e bairro no endereço.
 27. Ligação não atendida entra sozinha no caderno (carimbo "Não atendida", sem escolher tipo). Uma fala por vez em cada
     ligação (`Conversation.say` espera a anterior; o assunto não atropela mais o "Obrigado, Central") e nada de conversa
-    fiada com o destino tocando. Fontes de pixel trocadas por IBM Plex (legível em resolução baixa).
+    fiada com o destino tocando. Fontes trocadas por IBM Plex e, a pedido do usuário, por Departure
+    Mono em tudo (nítida em 1280×720; o texto de 11 px borra em janela bem menor).
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

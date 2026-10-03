@@ -213,7 +213,7 @@ func _section(title: String, clear: Callable) -> void:
 	l.text = title
 	l.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	l.theme_type_variation = &"AmberLabel"
-	l.add_theme_font_size_override("font_size", 14)
+	l.add_theme_font_size_override("font_size", 11)
 	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(l)
 	row.move_child(l, 0)
@@ -225,7 +225,7 @@ func _label(text: String) -> Label:
 	l.text = text
 	l.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	l.add_theme_font_size_override("font_size", 14)
+	l.add_theme_font_size_override("font_size", 11)
 	_box.add_child(l)
 	return l
 
@@ -241,7 +241,7 @@ func _row(items: Array) -> void:
 		b.focus_mode = Control.FOCUS_NONE
 		b.theme_type_variation = &"DarkButton"
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		b.add_theme_font_size_override("font_size", 14)
+		b.add_theme_font_size_override("font_size", 11)
 		b.pressed.connect(it[1])
 		row.add_child(b)
 	_box.add_child(row)

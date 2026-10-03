@@ -325,7 +325,7 @@ func _draw() -> void:
 	var cp := size - Vector2(46, 40)
 	draw_rect(Rect2(cp, Vector2(40, 34)), LINE)
 	draw_rect(Rect2(cp + Vector2(2, 2), Vector2(36, 30)), PAPER)
-	_t(cp + Vector2(20, 18), "N", 14)
+	_t(cp + Vector2(20, 18), "N", 11)
 	draw_colored_polygon(PackedVector2Array([cp + Vector2(20, 20), cp + Vector2(14, 29), cp + Vector2(26, 29)]), LINE)
 	_use(xf)
 	if not hover.is_empty():
@@ -343,20 +343,18 @@ func _draw_names(names: bool) -> void:
 	for s in SHEETS:
 		if s != 0 and shown(s):
 			var at: Vector2 = SHEETS[s] + (Vector2(300, 433) if names else Vector2(300, 226))
-			_label(at, T.text(DISTRICT[s]).to_upper(), 14 if names else 16, Pal.INK_SOFT, PAPER)
+			_label(at, T.text(DISTRICT[s]).to_upper(), 11, Pal.INK_SOFT, PAPER)
 	if not names:
 		return
 	if shown(0):
-		_label(SHEETS[0] + Vector2(320, 300), T.text(T.Key.MAP_RURAL), 14, Pal.INK_SOFT)
+		_label(SHEETS[0] + Vector2(320, 300), T.text(T.Key.MAP_RURAL), 11, Pal.INK_SOFT)
 	for st in GameData.CONTENT.streets:
 		for sheet in _sheets_of(st):
 			var o: Vector2 = SHEETS[sheet]
 			if st.horizontal:
-				_label(o + Vector2(180, st.pos + 5), st.name, 14, LINE, ROAD)
-			else:   # no topo da folha, abreviadas como num mapa de papel ("R. do Sol"); sem espaço, em 12
-				var short := st.name.replace("Rua ", "R. ").replace("Avenida ", "Av. ")
-				if not _label(o + Vector2(st.pos, 28.0), short, 14, LINE, PAPER):
-					_label(o + Vector2(st.pos, 28.0), short, 12, LINE, PAPER)
+				_label(o + Vector2(180, st.pos + 5), st.name, 11, LINE, ROAD)
+			else:   # no topo da folha, abreviadas como num mapa de papel ("R. do Sol")
+				_label(o + Vector2(st.pos, 28.0), st.name.replace("Rua ", "R. ").replace("Avenida ", "Av. "), 11, LINE, PAPER)
 	for pl in _places:
 		_place_name(pl[0], pl[1], pl[2])
 	if _k < NUMBERS_K:
@@ -367,9 +365,9 @@ func _draw_names(names: bool) -> void:
 				continue
 			var p0: Vector2 = seg_geom(st, b)[0]
 			if st.horizontal:
-				_label(p0 + Vector2(16, 22), str(b * 100), 12, Pal.INK_SOFT)
+				_label(p0 + Vector2(16, 22), str(b * 100), 11, Pal.INK_SOFT)
 			else:
-				_label(p0 + Vector2(-2, 26), str(b * 100), 12, Pal.INK_SOFT, Color.TRANSPARENT, true)
+				_label(p0 + Vector2(-2, 26), str(b * 100), 11, Pal.INK_SOFT, Color.TRANSPARENT, true)
 
 
 ## Nome do lugar no quarteirão `r` (coordenadas do mapa): numa linha, em duas ("Hotel / Estrela") ou em pé no
@@ -377,12 +375,12 @@ func _draw_names(names: bool) -> void:
 func _place_name(r: Rect2, txt: String, up: bool) -> void:
 	var c := r.get_center()
 	if up:
-		if _width(txt, 14) <= r.size.y * _k - 6:
-			_label(c + Vector2(5, 0), txt, 14, LINE, Color.TRANSPARENT, true)
+		if _width(txt, 11) <= r.size.y * _k - 6:
+			_label(c + Vector2(5, 0), txt, 11, LINE, Color.TRANSPARENT, true)
 		return
 	var room := r.size.x * _k - 6
-	if _width(txt, 14) <= room:
-		_label(c + Vector2(0, 6), txt, 14)
+	if _width(txt, 11) <= room:
+		_label(c + Vector2(0, 6), txt, 11)
 		return
 	var half := txt.length() / 2
 	var cut := txt.find(" ", half)
@@ -393,9 +391,9 @@ func _place_name(r: Rect2, txt: String, up: bool) -> void:
 		return
 	var a := txt.left(cut)
 	var b := txt.substr(cut + 1)
-	if maxf(_width(a, 14), _width(b, 14)) <= room and 40.0 <= r.size.y * _k:
-		if _label(c + Vector2(0, -3 / _k), a, 14):
-			_label(c + Vector2(0, 17 / _k), b, 14)
+	if maxf(_width(a, 11), _width(b, 11)) <= room and 40.0 <= r.size.y * _k:
+		if _label(c + Vector2(0, -3 / _k), a, 11):
+			_label(c + Vector2(0, 17 / _k), b, 11)
 
 
 ## Quarteirões de uma folha (coordenadas da folha): lugares (`LM`) e casas. Os nomes dos lugares ficam para depois
@@ -489,13 +487,13 @@ func _draw_units() -> void:
 ## Etiqueta de papel com o nome e a faixa de números do trecho sob o mouse ("Rua do Sol, 1–99"): mostra onde fica
 ## o número que a pessoa disse antes de clicar. Em tamanho de tela, acima do trecho, sem sair do mapa.
 func _tag(p: Vector2, txt: String) -> void:
-	var w := _width(txt, 14)
+	var w := _width(txt, 11)
 	var at := (_tf * p).round() + Vector2(-roundf(w / 2.0) - 5, -34)
 	at = Vector2(clampf(at.x, 2, size.x - w - 12), maxf(at.y, 2))
 	draw_set_transform(Vector2.ZERO)
 	draw_rect(Rect2(at, Vector2(w + 10, 20)), LINE)
 	draw_rect(Rect2(at + Vector2.ONE, Vector2(w + 8, 18)), Color("f4ecd2"))
-	draw_string(Pal.ui, at + Vector2(5, 15), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, LINE)
+	draw_string(Pal.ui, at + Vector2(5, 15), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, LINE)
 	draw_set_transform_matrix(_tf)
 
 
