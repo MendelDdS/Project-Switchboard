@@ -4,8 +4,12 @@ extends PanelContainer
 ## se apaga): toca ligações na hora, mexe na barra de agravamento, no relógio, nas viaturas e no caderno. Cada seção
 ## tem um "Limpar" que desfaz o que ela mexe, e "Restaurar tudo" faz todos (o relógio fica onde está).
 ## Limpar não gera advertência nem retorno. Ferramenta de desenvolvimento: textos fixos em português, sem tradução.
+## A mesa de som toca cada som do `Sfx.VOL` e ajusta o volume dele na hora (`Sfx.vol`); "Copiar VOL" põe na área de
+## transferência a constante pronta para colar em `sfx.gd`.
 
 const SPEEDS := [1.0, 2.0, 4.0, 8.0]
+const MIX_DB := Vector2(-40.0, 0.0)   ## faixa do controle de volume da mesa de som
+const LOOP_PREVIEW := 1.5             ## segundos que um som em loop (o atrito do fio) toca na mesa de som
 const KIND_NAMES := ["transferência", "emergência", "trote", "informação", "desconhecida"]   # PhoneCall.Kind
 
 var C: GameContent = GameData.CONTENT
@@ -15,6 +19,7 @@ var _bar: Label
 var _emergency: OptionButton
 var _emergencies: Array[EmergencyCall] = []   ## na ordem do seletor: as escritas e depois os moldes
 var _freeze: CheckButton
+var _mix := {}   ## id do som -> [controle, rótulo do volume]
 
 @onready var main: Main = get_parent()
 @onready var _box: VBoxContainer = %Box
@@ -59,6 +64,10 @@ func _ready() -> void:
 	_section("Viaturas e caderno", _clear_units_notebook)
 	_row([["Viaturas livres", func(): main.dispatch.reset()], ["Registrar pendências", _register_all]])
 	_row([["Limpar advertências", func(): main.report.faults.clear()], ["Apagar progresso", Progress.clear]])
+	_section("Mesa de som", _reset_mix)
+	_row([["Copiar VOL", _copy_mix]])
+	for id: String in Sfx.VOL:
+		_mixer(id)
 
 
 ## Recomeça o jogo na noite `n` (setores, ritmo e roteiro dela), sem ler nem gravar o progresso salvo (como
@@ -203,6 +212,62 @@ func _register_all() -> void:
 
 func _units(us: Array) -> String:
 	return ", ".join(us.map(func(u): return T.text(Dispatch.UNIT_NAMES[u]).to_lower())) if not us.is_empty() else "—"
+
+
+# ---------------------------------------------------------------- mesa de som
+
+## Uma linha: botão que toca o som, controle de volume e o valor (âmbar quando difere do padrão).
+func _mixer(id: String) -> void:
+	_row([["▶ " + id, _preview.bind(id)]])
+	var row: HBoxContainer = _box.get_child(-1)
+	var s := HSlider.new()
+	s.min_value = MIX_DB.x
+	s.max_value = MIX_DB.y
+	s.step = 1.0
+	s.value = Sfx.vol[id]
+	s.focus_mode = Control.FOCUS_NONE
+	s.custom_minimum_size.x = 110.0
+	s.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(s)
+	var l := Label.new()
+	l.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	l.add_theme_font_size_override("font_size", 11)
+	l.custom_minimum_size.x = 33.0
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	row.add_child(l)
+	_mix[id] = [s, l]
+	s.value_changed.connect(func(db: float):
+		Sfx.vol[id] = db
+		_show_db(id))
+	s.drag_ended.connect(func(_changed: bool): _preview(id))
+	_show_db(id)
+
+
+func _show_db(id: String) -> void:
+	var l: Label = _mix[id][1]
+	l.text = "%d" % Sfx.vol[id]
+	l.theme_type_variation = &"AmberLabel" if Sfx.vol[id] != Sfx.VOL[id] else &""
+
+
+## Toca o som como o jogo toca; um loop para sozinho depois de `LOOP_PREVIEW`.
+func _preview(id: String) -> void:
+	var p := Sfx.play(id)
+	if p != null and p.stream is AudioStreamWAV and p.stream.loop_mode != AudioStreamWAV.LOOP_DISABLED:
+		get_tree().create_timer(LOOP_PREVIEW, false).timeout.connect(func(): if p.stream == Sfx.streams[id]: p.stop())
+
+
+func _reset_mix() -> void:
+	for id in _mix:
+		(_mix[id][0] as HSlider).value = Sfx.VOL[id]
+
+
+## A constante `VOL` com os volumes atuais, pronta para colar em `sfx.gd`.
+func _copy_mix() -> void:
+	var items := PackedStringArray()
+	for id: String in Sfx.vol:
+		items.append('"%s": %.1f' % [id, Sfx.vol[id]])
+	DisplayServer.clipboard_set("const VOL := {\n\t" + ", ".join(items) + ",\n}")
+	main.warn("Debug: VOL copiado.")
 
 
 ## Título da seção e, à direita, o botão que desfaz o que ela mexe.

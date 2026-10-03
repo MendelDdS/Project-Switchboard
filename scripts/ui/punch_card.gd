@@ -30,8 +30,7 @@ const SLOT := 12.0          # a fenda de entrada, a partir do topo da máquina
 const DRAG_START := 5.0     # px que o mouse anda com o botão apertado até virar arraste (antes disso, é clique)
 const NEAR_SLOT := 24.0     # solto com a borda de baixo até esta distância da fenda (e por cima dela), entra
 const TYPE_SEC := 0.9       # datilografando o local
-const PRINT_SEC := 1.3      # o cartão saindo da impressora...
-const PRINT_STEPS := 12     # ...aos solavancos, uma linha de cada vez
+const PRINT_SEC := 1.3      # o cartão saindo da impressora, sem parar
 const LOWER_SEC := 0.45     # o transmissor e a trituradora subindo ou descendo
 const PRINTER_SEC := 0.45   # a impressora descendo ou subindo
 const FEED_SEC := 0.8       # o transmissor puxando o cartão...
@@ -142,7 +141,14 @@ func _go(s: State) -> void:
 	_t = 0.0
 	if s == State.PRINTING:
 		_pos = _rest() - Vector2(0, _card_h)   # ainda todo dentro da impressora
+	refresh()
+
+
+## Redesenha máquinas e cartão. Parado, nada se redesenha sozinho: quem muda o que eles mostram (furos, viaturas)
+## chama isto.
+func refresh() -> void:
 	queue_redraw()
+	_sheet.queue_redraw()
 
 
 # ------------------------------------------------------------------ lugar das coisas
@@ -251,7 +257,7 @@ func _process(delta: float) -> void:
 				Sfx.play("printer")
 		State.PRINTING:
 			var k := minf(_t / PRINT_SEC, 1.0)
-			_pos = _rest() - Vector2(0, _card_h * (1.0 - floorf(k * PRINT_STEPS) / PRINT_STEPS))
+			_pos = _rest() - Vector2(0, _card_h * (1.0 - k))
 			if k >= 1.0:
 				_go(State.READY)
 		State.FEEDING:
@@ -272,11 +278,14 @@ func _process(delta: float) -> void:
 	if _closing and _up == 0.0 and _down == 0.0:
 		_closing = false
 		closed.emit()
-	for ch in _chads:
-		ch[1] += delta
-	_chads = _chads.filter(func(ch): return ch[1] < CHAD_SEC)
+	if not _chads.is_empty():
+		for ch in _chads:
+			ch[1] += delta
+		_chads = _chads.filter(func(ch): return ch[1] < CHAD_SEC)
+		_sheet.queue_redraw()
 	_place_sheet()
-	if state != State.IDLE or _up > 0.0 or was != Vector2(_up, _down):
+	# só o que anima: luzes piscando, impressora, cartão entrando e máquinas subindo ou descendo
+	if state in [State.TYPING, State.PRINTING, State.FEEDING] or _refused >= 0.0 or was != Vector2(_up, _down):
 		queue_redraw()
 
 
@@ -292,17 +301,18 @@ func _place_sheet() -> void:
 	_window.size = win.size
 	_sheet.visible = state not in [State.IDLE, State.TYPING]
 	_sheet.position = _pos - win.position
-	_sheet.queue_redraw()
 
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_MOUSE_EXIT:
 		_hover = []
-	elif what == NOTIFICATION_RESIZED and state in [State.READY, State.DRAGGING]:
-		_pos = _clamp(_pos)
+	elif what == NOTIFICATION_RESIZED:
+		if state in [State.READY, State.DRAGGING]:
+			_pos = _clamp(_pos)
+		queue_redraw()   # as máquinas ficam presas às bordas
 	elif what == NOTIFICATION_TRANSLATION_CHANGED and is_node_ready() and not _cells.is_empty():
 		_layout()   # o protocolo muda de tamanho com o idioma
-		queue_redraw()
+		refresh()
 
 
 # ------------------------------------------------------------------ mouse

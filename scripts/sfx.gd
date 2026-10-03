@@ -64,6 +64,7 @@ const VARY_DB := 1.5
 const VMAP := {"a": "a", "á": "a", "à": "a", "â": "a", "ã": "a", "e": "e", "é": "e", "ê": "e", "i": "i", "í": "i", "o": "o", "ó": "o", "ô": "o", "õ": "o", "u": "u", "ú": "u"}
 
 var streams: Dictionary = {}
+var vol := VOL.duplicate()   ## o volume em uso; a mesa de som do debug mexe nele (o `VOL` é o padrão)
 var pool: Array[AudioStreamPlayer] = []
 var pool_2d: Array[AudioStreamPlayer2D] = []   # para `play_at` (som que vem de um lugar da tela)
 var rain: AudioStreamPlayer
@@ -157,7 +158,7 @@ func _start(p: Node, id: String, db: float, pitch: float) -> void:
 	if id in VARIED:
 		db += randf_range(-VARY_DB, VARY_DB)
 		pitch *= 1.0 + randf_range(-VARY_PITCH, VARY_PITCH)
-	p.volume_db = VOL.get(id, -10.0) + db
+	p.volume_db = vol.get(id, -10.0) + db
 	p.pitch_scale = pitch
 	p.play()
 
@@ -227,7 +228,7 @@ func _process(delta: float) -> void:
 		rub_hi.play(randf() * rub_hi.stream.get_length())
 	var smooth := 1.0 - _rub_mood.y   # parte recolhendo
 	var soft := _rub_mood.z * lerpf(1.0, RUB_FONE["fast"], level)
-	rub.volume_db = VOL["rub"] + linear_to_db(level)
+	rub.volume_db = vol["rub"] + linear_to_db(level)
 	rub_hi.volume_db = rub.volume_db + _rub_hi_db(_rub_v) + RUB_IN["hi_db"] * smooth + RUB_FONE["hi_db"] * soft
 	rub.pitch_scale = lerpf(RUB_PITCH.x, RUB_PITCH.y, level) * _blend("pitch", smooth, soft)
 	rub_hi.pitch_scale = rub.pitch_scale
@@ -713,18 +714,19 @@ func _build_card() -> void:
 	_begin(1.35)
 	var pins := PackedFloat32Array()
 	pins.resize(_w.size())
-	for line in 6:
-		var a := int(line * 0.22 * RATE)
-		for i in int(0.16 * RATE):   # as agulhas batendo: pulsos rápidos e irregulares
-			var ts := float(i) / RATE
-			if fmod(ts * 1150.0, 1.0) < 0.2 and randf() < 0.75:
-				pins[a + i] = randf_range(-1.0, 1.0)
-		_tone(line * 0.22, 95.0, 0.16, "saw", 0.08, 0.02)   # o motor da cabeça
-		_noise(line * 0.22 + 0.17, 0.03, "lp", 900.0, 0.7, 0.5)   # avanço de linha
-		_tone(line * 0.22 + 0.17, 75.0, 0.04, "sine", 0.5)
+	for i in int(1.25 * RATE):   # as agulhas batendo sem parar: pulsos rápidos e irregulares
+		var ts := float(i) / RATE
+		if fmod(ts * 1150.0, 1.0) < 0.2 and randf() < 0.75:
+			pins[i] = randf_range(-1.0, 1.0) * minf(ts / 0.03, 1.0) * minf((1.25 - ts) / 0.08, 1.0)
 	pins = _biquad(pins, "bp", 2400.0, 0.6)
+	var body := PackedFloat32Array()   # o motor da cabeça e o papel correndo pelo rolo, contínuos
+	body.resize(_w.size())
+	for i in int(1.25 * RATE):
+		var ts := float(i) / RATE
+		body[i] = (_wave("saw", 95.0 * ts) * 0.08 + randf_range(-1.0, 1.0) * 0.12) * minf(ts / 0.05, 1.0) * minf((1.25 - ts) / 0.08, 1.0)
+	body = _biquad(body, "lp", 900.0, 0.7)
 	for i in pins.size():
-		_w[i] += pins[i] * 0.9
+		_w[i] += pins[i] * 0.9 + body[i]
 	_end("printer")
 	_begin(0.12)
 	_noise(0, 0.012, "hp", 2500.0, 0.7, 1.0); _tone(0, 150.0, 0.07, "sine", 0.8); _tone(0.002, 2600.0, 0.01, "square", 0.15)

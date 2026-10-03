@@ -183,7 +183,7 @@ func can_send() -> bool:
 func _refresh() -> void:
 	if not is_node_ready():
 		return
-	card.queue_redraw()
+	card.refresh()
 	var busy := UNIT_IDS.filter(func(u): return _units[u] != Unit.AVAILABLE)
 	_report.text = "  ·  ".join(PackedStringArray(busy.map(func(u): return "%s: %s" % [T.text(UNIT_NAMES[u]), T.text(UNIT_STATUS[_units[u]])])))
 	if %Fleet.visible != not busy.is_empty():
