@@ -72,6 +72,16 @@ func _extra(t: TransferCall) -> PhoneCall:
 	return PhoneCall.from_transfer(t)
 
 
+## Mouse sobre o nó `n` (coordenadas dele): `pressed` 1 aperta, 0 solta, -1 só move.
+func _mouse(n: Control, p: Vector2, pressed := -1) -> void:
+	var e: InputEventMouse = InputEventMouseMotion.new() if pressed == -1 else InputEventMouseButton.new()
+	if e is InputEventMouseButton:
+		e.button_index = MOUSE_BUTTON_LEFT
+		e.pressed = pressed == 1
+	e.position = p
+	n._gui_input(e)
+
+
 func _move(e: int, j: int) -> void:
 	if b.ends[e] != -1:
 		b.pick_up(e)
@@ -678,27 +688,68 @@ func _initialize() -> void:
 		ok(m.tools.tab == pair[1], "tecla abre a aba " + pair[1])
 	print("OK 12 atalhos do telefone e das abas")
 
-	# ---- 13. mapa e despacho numa tela: o tipo não marca unidades (a conversa decide), Enviar só com tudo, e depois limpa
+	# ---- 13. mapa e despacho numa tela: marcar o local imprime o cartão; perfura-se o tipo (um só) e as unidades (o
+	#          tipo não marca unidades: a conversa decide); o cartão anda livre pelo mapa e fica onde é solto; no cartucho,
+	#          envia (em branco também: ninguém sai e o supervisor anota) e tudo limpa; a ficha não mexe no mapa
 	var d = m.dispatch
+	var card = d.card   # sem tipo: PunchCard depende do autoload Sfx
 	m.tools.set_tab("despacho")
 	d.open_slip(false)
 	await frames(2)
-	ok(not d._slip.visible and d.get_node("%Open").visible and d.city.cover == 0.0, "ficha recolhida: o mapa na aba toda")
+	ok(not d._slip.visible and d.get_node("%Open").visible, "ficha recolhida")
 	d.set_occurrence("")
-	ok(not d.can_send() and d._send_button.disabled, "despacho vazio não envia")
+	ok(not d.can_send(), "despacho vazio não envia")
 	var spot: Vector2 = d.city._off + Vector2(300, 220) * d.city._k   # um ponto do mapa, na tela
 	d.set_location("sol", 0, "Rua do Sol, 1–99")
 	await frames(2)
-	ok(d._slip.visible and d.city.cover > 200.0, "marcar o local abre a ficha por cima do mapa")
+	ok(d._slip.visible, "marcar o local abre a ficha por cima do mapa")
 	ok((d.city._off + Vector2(300, 220) * d.city._k).distance_to(spot) < 1.0, "o mapa não pula quando a ficha abre")
-	d.set_occurrence("Incêndio")
+	ok(card.state == card.State.TYPING and card._sector == 3, "marcar o local datilografa o cartão, com o setor")
+	ok(await wait_until(func(): return card.state == card.State.READY, 5.0) and card._pos == card._rest(), "o cartão sai impresso, pendurado na fenda")
+	var cell := func(id: String) -> Vector2:
+		for c in card._cells:
+			if c[2] == id:
+				return card._pos + (c[0] as Rect2).get_center()
+		return Vector2.ZERO
+	var drag := func(to: Vector2) -> void:   # pega o cartão pelo cabeçalho e solta com o canto dele em `to`
+		var at: Vector2 = card._pos + Vector2(card.CARD_W - 20.0, 30.0)
+		_mouse(card, at, 1)
+		_mouse(card, at + to - card._pos)
+		_mouse(card, at + to - card._pos, 0)
+	var slot := func(machine: String) -> Vector2:   # o canto do cartão com a borda de baixo na fenda da máquina
+		await wait_until(func(): return card._up >= 1.0, 2.0)   # o transmissor termina de subir
+		return Vector2(card._machine(machine).get_center().x - card.CARD_W / 2.0, card._slot(machine) - card._card_h + 8.0)
+	drag.call(await slot.call("send"))
+	ok(card.state == card.State.FEEDING, "cartão em branco também entra no cartucho")
+	ok(await wait_until(func(): return d._location.is_empty(), 3.0) and d._units.values().all(func(u): return u == 0)
+		and m.report.faults.any(func(f): return f["id"] == "dispatch_blank"), "em branco: ninguém sai e o supervisor anota")
+	d.set_location("sol", 0, "Rua do Sol, 1–99")
+	ok(await wait_until(func(): return card.state == card.State.READY, 5.0), "outro cartão")
+	var table: Vector2 = card._pos + Vector2(-300, 40)
+	drag.call(table)
+	ok(card.state == card.State.READY and card._pos == table, "solto na mesa, o cartão fica onde está")
+	drag.call(Vector2(-500, 9000))
+	ok(card._pos.x == 0.0 and card._pos.y + card._card_h <= card.size.y, "o cartão não sai do mapa")
+	_mouse(card, cell.call("Outro"), 1)
+	var faults: int = m.report.faults.size()
+	drag.call(await slot.call("shred"))
+	ok(card.state == card.State.FEEDING and card._into == "shred", "solto na trituradora, ela puxa o cartão")
+	ok(await wait_until(func(): return card.state == card.State.IDLE, 3.0) and d._location.is_empty() and d.occurrence() == ""
+		and d._slip.visible and m.report.faults.size() == faults, "triturado: nada sai, sem advertência, a impressora espera outro local")
+	d.set_location("sol", 0, "Rua do Sol, 1–99")
+	ok(await wait_until(func(): return card.state == card.State.READY, 5.0), "mais um cartão")
+	_mouse(card, cell.call("Incêndio"), 1)
+	_mouse(card, cell.call("Mal súbito"), 1)
+	ok(d.occurrence() == "Incêndio", "um tipo só: o primeiro furo vale")
 	ok(d._selected_units().is_empty() and not d.can_send(), "o tipo não marca unidade")
-	(d._unit_buttons["amb"] as Button).button_pressed = true
-	ok(d.can_send() and not d._send_button.disabled, "local, tipo e unidade: Enviar acende")
-	d._send()
-	ok(d._location.is_empty() and d._occ_group.get_pressed_button() == null and d.city.sel.is_empty(), "depois de enviar, local e tipo limpos")
-	ok(d._unit_buttons["amb"].disabled, "ambulância a caminho fica indisponível")
-	ok(not d._slip.visible and d.city.cover == 0.0, "depois de enviar, a ficha se recolhe")
+	_mouse(card, cell.call("amb"), 1)
+	ok(d.can_send() and d.picked() == ["amb"], "local, tipo e unidade perfurados")
+	drag.call(await slot.call("send"))
+	ok(card.state == card.State.FEEDING and card._into == "send", "o transmissor puxa o cartão completo")
+	ok(await wait_until(func(): return d._location.is_empty(), 3.0), "o cartão no cartucho envia")
+	ok(d.occurrence() == "" and d.picked().is_empty() and d.city.sel.is_empty() and card.state == card.State.IDLE, "depois de enviar, local e tipo limpos")
+	ok(not d.unit_free("amb"), "ambulância a caminho fica indisponível")
+	ok(not d._slip.visible, "depois de enviar, a ficha se recolhe")
 	await frames(2)
 	ok(d.get_node("%Fleet").visible and d.get_node("%Report").text.contains(T.text(T.Key.UNIT_AMBULANCE)), "a faixa das viaturas mostra quem saiu")
 	m.tools.set_tab("lista")

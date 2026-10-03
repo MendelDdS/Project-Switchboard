@@ -116,6 +116,7 @@ func _ready() -> void:
 	dispatch.radio = radio
 	dispatch.sent.connect(_on_dispatched)
 	dispatch.arrived.connect(supervisor.on_arrived)
+	dispatch.blank_card.connect(func(loc: String): supervisor.fault("dispatch_blank", loc))
 	notebook.registered.connect(supervisor.on_registered)
 	notebook.pending_changed.connect(func(n: int): tools.set_count("caderno", n))
 	_intro.setup(night_no, night, progress != null and progress.night > 1)

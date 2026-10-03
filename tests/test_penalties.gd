@@ -166,7 +166,7 @@ func _initialize() -> void:
 	m.dispatch.set_location(wrong_street, 0, "Endereço errado")
 	m.dispatch.set_occurrence(e4.occurrence)
 	for u in e4.units:
-		(m.dispatch._unit_buttons[u] as Button).button_pressed = true
+		m.dispatch.punch_unit(u)
 	m.dispatch._send()
 	ok(not c4.secured and c4.urgent(), "endereço errado não para a barra de agravamento")
 	ok(await wait_until(func(): return c4.ended, 20.0), "agradeceu e desligou")
@@ -180,7 +180,7 @@ func _initialize() -> void:
 	m.dispatch.set_location(e4.street, e4.block, e4.address)
 	m.dispatch.set_occurrence(e4.occurrence)
 	for u in e4.units:
-		(m.dispatch._unit_buttons[u] as Button).button_pressed = true
+		m.dispatch.punch_unit(u)
 	m.dispatch._send()
 	ok(await wait_until(func(): return m.report.is_resolved(e4), 20.0), "resolvida no segundo despacho")
 	ok(m.report.outcomes()[e4] == ShiftReport.Outcome.LATE, "no jornal: com atraso")
@@ -232,7 +232,7 @@ func _initialize() -> void:
 	_clear_board()
 	print("OK 7 informação errada")
 
-	# ---- 8. despacho no lugar certo, mas com unidade a mais e tipo de ocorrência errado; sem tipo não envia
+	# ---- 8. cartão em branco (ninguém sai); depois, no lugar certo, com unidade a mais e sem o tipo perfurado
 	var e8: EmergencyCall = C.emergencies.filter(func(x): return Array(x.units) == ["amb"])[0]
 	var c8 := PhoneCall.from_emergency(e8)
 	m.ring(c8)
@@ -240,23 +240,22 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return c8.phase == PhoneCall.Phase.EMERGENCY and not c8.talking), "emergência 3")
 	await wait_until(func(): return m.dispatch._units.values().all(func(s): return s == 0), 30.0)
 	m.dispatch.set_location(e8.street, e8.block, e8.address)
-	m.dispatch.set_occurrence("")
-	for u in ["amb", "bomb"]:
-		(m.dispatch._unit_buttons[u] as Button).button_pressed = true
 	m.dispatch._send()
-	ok(not c8.dispatched and not m.dispatch.can_send() and m.dispatch._send_button.disabled, "sem tipo de ocorrência não envia (Enviar apagado)")
-	var wrong_type: String = "Incêndio" if e8.occurrence != "Incêndio" else "Outro"
-	m.dispatch.set_occurrence(wrong_type)
+	ok(not c8.dispatched and _faults("dispatch_blank") == 1 and m.dispatch._units.values().all(func(s): return s == 0),
+		"cartão em branco: ninguém sai e o supervisor anota")
+	m.dispatch.set_location(e8.street, e8.block, e8.address)
 	for u in ["amb", "bomb"]:
-		(m.dispatch._unit_buttons[u] as Button).button_pressed = true
+		m.dispatch.punch_unit(u)
 	m.dispatch._send()
-	ok(await wait_until(func(): return m.report.is_resolved(e8), 20.0), "resolvida mesmo com unidade a mais")
-	ok(_faults("dispatch_extra") == 1 and _faults("dispatch_type") == 1, "advertências: unidade a mais e tipo errado")
+	ok(await wait_until(func(): return m.report.is_resolved(e8), 20.0), "resolvida mesmo com unidade a mais e sem tipo")
+	ok(_faults("dispatch_extra") == 1 and _faults("dispatch_type") == 1, "advertências: unidade a mais e sem tipo")
+	ok(m.report.faults.any(func(f): return f["id"] == "dispatch_type" and f["detail"] == T.text(T.Key.FAULT_DETAIL_UNCLASSIFIED) % tr(e8.occurrence)),
+		"a advertência diz que faltou o tipo")
 	ok(m.report.outcomes()[e8] == ShiftReport.Outcome.OK, "no jornal: a tempo")
 	ok(await wait_until(func(): return m.dispatch._units["bomb"] == 0, 10.0) and m.dispatch._units["amb"] != 0,
 		"bombeiros liberados antes da ambulância")
 	_clear_board()
-	print("OK 8 unidade a mais / tipo errado")
+	print("OK 8 cartão em branco / unidade a mais / sem tipo")
 
 	# ---- 9. relatório do supervisor
 	var view = m._ending._report
@@ -307,7 +306,7 @@ func _initialize() -> void:
 	# só uma unidade: a pessoa desliga, mas a barra continua (e o rádio segue com a luz acesa)
 	m.dispatch.set_location(e10.street, e10.block, e10.address)
 	m.dispatch.set_occurrence(e10.occurrence)
-	(m.dispatch._unit_buttons[need[0]] as Button).button_pressed = true
+	m.dispatch.punch_unit(need[0])
 	m.dispatch._send()
 	var u_part := c10.urgency
 	m._worsen(1.0)
@@ -326,7 +325,7 @@ func _initialize() -> void:
 	m.dispatch.set_occurrence(e10.occurrence)
 	for u in m.dispatch.required():
 		if u != need[0]:
-			(m.dispatch._unit_buttons[u] as Button).button_pressed = true
+			m.dispatch.punch_unit(u)
 	m.dispatch._send()
 	m._worsen(0.0)
 	ok(c10.secured and not c10.urgent() and m.radio._alert == -1, "socorro completo: a barra para e a luz apaga")
@@ -355,7 +354,7 @@ func _initialize() -> void:
 	m.dispatch.set_location(e11.street, e11.block, e11.address)
 	m.dispatch.set_occurrence(e11.occurrence)
 	for u in m.dispatch.required():
-		(m.dispatch._unit_buttons[u] as Button).button_pressed = true
+		m.dispatch.punch_unit(u)
 	m.dispatch._send()
 	ok(await wait_until(func(): return c11.ended, 20.0) and m.report.faults.size() == faults11, "despachou depois: nenhuma advertência a mais")
 	ok(m.report.outcomes()[e11] == ShiftReport.Outcome.BAD, "no jornal: ruim")

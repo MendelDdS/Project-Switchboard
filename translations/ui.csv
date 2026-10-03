@@ -189,10 +189,16 @@ MAP_DISTRICT_1,Centro,Downtown,Centro
 MAP_DISTRICT_2,Alto da Serra,Alto da Serra,Alto da Serra
 MAP_DISTRICT_3,Vila Serena,Vila Serena,Vila Serena
 HINT_NEW_BANK,"Os números que começam com %d ficam no banco %s, aberto hoje.","Numbers starting with %d are on bank %s, opened tonight.","Los números que empiezan con %d están en el banco %s, abierto hoy."
-DISPATCH_SEND,[ ENVIAR ],[ SEND ],[ ENVIAR ]
-DISPATCH_CHECK_PLACE,Local,Location,Lugar
 DISPATCH_CHECK_TYPE,Ocorrência,Incident,Incidente
 DISPATCH_CHECK_UNITS,Unidades,Units,Unidades
+CARD_PRINTER,DESPACHO,DISPATCH,DESPACHO
+CARD_TITLE,FICHA DE DESPACHO,DISPATCH CARD,FICHA DE DESPACHO
+CARD_SERIAL,Nº %04d,No. %04d,N.º %04d
+CARD_SECTOR,SETOR %d,SECTOR %d,SECTOR %d
+CARD_SENDER,TRANSMISSOR,TRANSMITTER,TRANSMISOR
+CARD_SENDING,TRANSMITINDO...,SENDING...,TRANSMITIENDO...
+CARD_SHREDDER,TRITURADOR,SHREDDER,TRITURADORA
+CARD_INSERT,INSIRA O CARTÃO,INSERT THE CARD,INSERTE LA TARJETA
 DISPATCH_OPEN,Abrir ficha,Open slip,Abrir ficha
 DISPATCH_WHY_POL,"crime, briga, arma, rua bloqueada","crime, fight, weapon, blocked road","delito, pelea, arma, calle bloqueada"
 DISPATCH_WHY_BOMB,"fogo, fumaça, fio ou gás, alguém preso","fire, smoke, wires or gas, someone trapped","fuego, humo, cables o gas, alguien atrapado"
@@ -209,6 +215,7 @@ RADIO_TITLE,Rádio de despacho,Dispatch radio,Radio de despacho
 RADIO_PATROL,"Central, viatura 2 em ronda. Tudo tranquilo.","Dispatch, car 2 on patrol. All quiet.","Central, patrulla 2 en ronda. Todo tranquilo."
 RADIO_ON_WAY,"Central, unidade a caminho.","Dispatch, unit on the way.","Central, unidad en camino."
 RADIO_COPY,"Central, recebido. Deslocando.","Dispatch, copy that. Moving out.","Central, recibido. Saliendo."
+RADIO_BLANK_CARD,"Central, a ficha chegou sem unidade marcada. Ninguém saiu.","Dispatch, the card came in with no unit punched. Nobody's rolling.","Central, la ficha llegó sin unidad marcada. Nadie salió."
 RADIO_NOTHING,"Central, estamos no local. Nada a relatar. Retornando.","Dispatch, we're on site. Nothing to report. Returning.","Central, estamos en el lugar. Nada que informar. Regresando."
 RADIO_WRONG_PLACE,"Central, estamos na %s e não há nada aqui. Retornando.","Dispatch, we're on %s and there's nothing here. Returning.","Central, estamos en %s y no hay nada aquí. Regresando."
 RADIO_NEED,"Central, precisamos de %s aqui na %s.","Dispatch, we need %s here on %s.","Central, necesitamos %s aquí en %s."
@@ -231,6 +238,7 @@ SEV_LIGHT,leve,minor,leve
 SEV_MEDIUM,média,moderate,media
 SEV_SEVERE,grave,severe,grave
 SEV_CRITICAL,gravíssima,critical,gravísima
+FAULT_DETAIL_UNCLASSIFIED,sem tipo perfurado; era %s,no type punched; it was %s,sin tipo perforado; era %s
 FAULT_DETAIL_CLASSIFIED,classificada como %s; era %s,classified as %s; it was %s,clasificada como %s; era %s
 FAULT_MISSED,Ligação não atendida,Call not answered,Llamada no contestada
 FAULT_HOLD,Solicitante desistiu na espera,Caller gave up on hold,La persona desistió en espera
@@ -243,6 +251,7 @@ FAULT_DISPATCH_WRONG_PLACE,Unidades enviadas ao endereço errado,Units sent to t
 FAULT_DISPATCH_MISSING,Faltaram unidades no despacho,Not enough units dispatched,Faltaron unidades en el despacho
 FAULT_DISPATCH_IDLE,Unidades enviadas sem ocorrência,Units sent with no emergency,Unidades enviadas sin emergencia
 FAULT_DISPATCH_EXTRA,Unidade enviada sem necessidade,Unit sent unnecessarily,Unidad enviada sin necesidad
+FAULT_DISPATCH_BLANK,Ficha de despacho enviada sem unidades,Dispatch card sent with no units,Ficha de despacho enviada sin unidades
 FAULT_DISPATCH_TYPE,Ocorrência classificada errado,Incident misclassified,Incidente mal clasificado
 FAULT_EMERGENCY_WORSE,A emergência se agravou antes do despacho,The emergency got worse before dispatch,La emergencia empeoró antes del despacho
 FAULT_EMERGENCY_CRITICAL,A emergência ficou crítica antes do despacho,The emergency turned critical before dispatch,La emergencia se volvió crítica antes del despacho

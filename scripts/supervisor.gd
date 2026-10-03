@@ -102,7 +102,9 @@ func lost(c: PhoneCall) -> void:
 
 ## As unidades chegaram ao local marcado no despacho.
 func on_arrived(e: EmergencyCall, result: String, occurrence: String, extra: Array) -> void:
-	if e != null and occurrence != e.occurrence:
+	if e != null and occurrence == "":   # cartão sem o tipo perfurado
+		fault("dispatch_type", T.text(T.Key.FAULT_DETAIL_UNCLASSIFIED) % tr(e.occurrence))
+	elif e != null and occurrence != e.occurrence:
 		fault("dispatch_type", T.text(T.Key.FAULT_DETAIL_CLASSIFIED) % [tr(occurrence), tr(e.occurrence)])
 	if not extra.is_empty():
 		fault("dispatch_extra", ", ".join(extra.map(func(u): return T.text(Dispatch.UNIT_NAMES[u]))))

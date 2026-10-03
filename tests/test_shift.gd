@@ -163,7 +163,7 @@ func _initialize() -> void:
 					m.dispatch.set_location(e.street, e.block, e.address)
 					m.dispatch.set_occurrence(e.occurrence)
 					for u in m.dispatch.required():   # o que a situação pede agora (pode ter piorado)
-						(m.dispatch._unit_buttons[u] as Button).button_pressed = true
+						m.dispatch.punch_unit(u)
 					stages.append("%d(%.0fs)" % [f.stage, f.urgency] if f.retry == PhoneCall.Retry.NONE else "retorno")
 					m.dispatch._send()
 					_acted()

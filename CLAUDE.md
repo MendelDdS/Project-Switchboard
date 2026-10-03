@@ -209,13 +209,24 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Despacho: **mapa e despacho numa aba só** (`Dispatch`, `scenes/ui/dispatch.tscn`; não existe mais aba Mapa nem
   `MapView`): o `CityMap` (`%City`) ocupa a aba inteira (passa por baixo da margem do papel); clicar no trecho já marca
   o local (`segment_selected` → `set_location`); passar o mouse mostra uma etiqueta com a faixa de números do trecho
-  (`CityMap._tag`, "Rua do Sol, 1–99"). Por cima, à direita, a **ficha de despacho** (`%Slip`, `SlipPanel`), na ordem
-  da decisão: local, ocorrência (lista), unidades (cada uma com o que a justifica embaixo, `DISPATCH_WHY_*`: o protocolo
-  fica junto do botão) e Enviar. Cada parte mostra "[ ]"/"[x]" no título (`_check`); Enviar só acende com as três
-  (`can_send`). A ficha abre ao marcar um local ou quando chega uma emergência (`open_slip`), se recolhe depois do envio
-  e o × a fecha; fechada, o botão `%Open` a reabre. O mapa não encolhe: `CityMap.cover` diz quantos px da direita a
-  ficha cobre; a escala é a da aba toda, mas centro, nomes e rosa dos ventos ficam na parte à vista (`_seen`), o pedaço
-  coberto se alcança arrastando e abrir a ficha não mexe no que está na tela. `CityMap.blocked`: onde há botões por cima
+  (`CityMap._tag`, "Rua do Sol, 1–99"). Por cima, a **ficha de despacho** como objeto (`%Slip`, `PunchCard`, cobre o mapa com fundo
+  transparente: o clique fora da máquina e do cartão vai para o mapa, `_has_point`; abrir ou fechar não mexe no mapa):
+  três máquinas de metal (`_box`: sombra, parafusos, saídas de ar): a impressora (canto de cima, à direita), a
+  trituradora (embaixo dela, na borda de baixo) e o transmissor (no meio da borda de baixo, sobe quando o cartão sai
+  impresso). Marcar o local faz a impressora datilografar (`typing`, o local aparece na tira de papel) e imprimir
+  (`printer`, aos solavancos) um **cartão perfurado** com local, bairro e setor, que sai pela fenda. O jogador perfura
+  o tipo de ocorrência (um só) e as unidades (protocolo impresso embaixo de cada uma, `DISPATCH_WHY_*`; ocupada sai
+  riscada) em posições fixas (`punch`, picote caindo). Furo não se desfaz: marcar o local de novo imprime um cartão
+  novo, em branco. O cartão anda livre dentro do mapa e fica onde é solto; solto na fenda do transmissor, é puxado e
+  enviado (`feed`, `inserted` → `Dispatch._send`); na da trituradora, é destruído sem enviar nem punir (`shred`, a
+  máquina treme, `discarded` → `Dispatch._discard`; a ficha fica aberta esperando outro local). O transmissor aceita
+  cartão **incompleto**: sem
+  unidade ninguém sai (`blank_card`, advertência média `dispatch_blank`, rádio `RADIO_BLANK_CARD`); sem tipo, as
+  unidades vão e a chegada dá `dispatch_type` ("sem tipo perfurado"). O cartão é um nó filho (`_sheet`) numa janela
+  que recorta (`_window`): saindo, só aparece abaixo da fenda da impressora; entrando, só acima da fenda da máquina (`_into`). Os
+  furos são a vista dos dados do `Dispatch` (`_location`, `_occurrence`, `_picked`; `set_occurrence`, `punch_unit`),
+  que os testes e o robô usam direto. A ficha abre ao marcar um local ou quando chega uma emergência (`open_slip`), se
+  recolhe depois do envio e o × a fecha; fechada, o botão `%Open` a reabre. `CityMap.blocked`: onde há botões por cima
   (abrir ficha, `%Fleet`), sem nomes de rua. `%Fleet` (canto de baixo, só com viatura fora) mostra o estado delas
   (`%Report`). O tipo **não** marca unidades: a conversa decide, pelo protocolo (regras em `EmergencyCall.units`).
   `EmergencyCall.cases` (`EmergencyCase`): variações sorteadas por `GameData.with_case()` (respostas + unidades).
@@ -414,6 +425,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     Mono em tudo (nítida em 1280×720; o texto de 11 px borra em janela bem menor).
 28. Aba do despacho refeita: mapa na aba inteira e a ficha de despacho por cima, à direita (abre ao marcar o local
     ou com emergência, recolhe depois do envio), com o protocolo junto de cada unidade; viaturas num canto do mapa.
+29. Ficha de despacho como cartão perfurado: marcar o local imprime o cartão (digitação e impressora antiga), o
+    jogador perfura tipo e unidades em posições fixas e leva o cartão ao transmissor (no meio, embaixo), que o puxa e
+    envia, mesmo incompleto (o supervisor pune); a trituradora, embaixo da impressora, descarta o cartão.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

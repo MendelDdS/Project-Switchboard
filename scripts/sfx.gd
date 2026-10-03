@@ -21,6 +21,7 @@ const VOL := {
 	"click": -14.0, "sw": -10.0, "plug_in": -3.0, "plug_out": -9.0, "key": -13.0, "page": -11.0,
 	"tick": -24.0, "pencil": -13.0, "ring": -9.0, "pulse": -10.0, "ringback": -13.0, "sit": -13.0,
 	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "rub": -13.0, "cord_stop": -16.0, "cord_tap": -17.0, "unroll": -8.0,
+	"typing": -13.0, "printer": -14.0, "punch": -8.0, "feed": -11.0, "shred": -10.0,
 }
 ## Volume (dB) dos sons de ambiente em cada clima; o que não aparece fica mudo.
 const WEATHER_MIX := {
@@ -56,7 +57,7 @@ const BELL_STEP := 0.006
 
 ## Sons mecânicos que se repetem muito (plugs, fios): cada vez sai com o tom e o volume levemente diferentes
 ## (± VARY_PITCH, ± VARY_DB), para a mesa cheia não soar como uma máquina.
-const VARIED := ["plug_in", "plug_out", "thump", "drop", "cord_stop", "cord_tap", "click"]
+const VARIED := ["plug_in", "plug_out", "thump", "drop", "cord_stop", "cord_tap", "click", "punch"]
 const VARY_PITCH := 0.06
 const VARY_DB := 1.5
 
@@ -533,6 +534,7 @@ func _build_all() -> void:
 	_begin(0.14); _noise(0, 0.05, "lp", 1800, 0.7, 1.0); _tone(0, 150, 0.1, "sine", 0.6); _tone(0.005, 2100, 0.015, "square", 0.06); _end("drop")
 	_build_rub()
 	_build_unroll()
+	_build_card()
 	_begin(0.55)
 	for k in 12:
 		if randf() < 0.7:
@@ -692,6 +694,62 @@ func _build_unroll() -> void:
 	_noise(0.56, 0.1, "lp", 800, 0.7, 0.8)   # a folha assenta
 	_tone(0.56, 120, 0.08, "sine", 0.35)
 	_end("unroll")
+
+
+## Ficha de despacho (`PunchCard`): a impressora datilografa o local ("typing"), imprime o cartão numa impressora de
+## agulhas ("printer": linhas de zumbido áspero e o avanço do papel entre elas), o furador ("punch"), o cartucho
+## puxando o cartão ("feed": motor subindo e o papel raspando) e a trituradora ("shred": motor grave roncando e o
+## papel rasgando aos trancos).
+func _build_card() -> void:
+	_begin(0.95)
+	var t := 0.0
+	while t < 0.85:
+		_noise(t, 0.012, "bp", randf_range(2600.0, 3600.0), 1.5, randf_range(0.6, 1.0))
+		_tone(t, randf_range(160.0, 210.0), 0.035, "sine", 0.45)
+		t += randf_range(0.055, 0.1)
+	_end("typing")
+	_begin(1.35)
+	var pins := PackedFloat32Array()
+	pins.resize(_w.size())
+	for line in 6:
+		var a := int(line * 0.22 * RATE)
+		for i in int(0.16 * RATE):   # as agulhas batendo: pulsos rápidos e irregulares
+			var ts := float(i) / RATE
+			if fmod(ts * 1150.0, 1.0) < 0.2 and randf() < 0.75:
+				pins[a + i] = randf_range(-1.0, 1.0)
+		_tone(line * 0.22, 95.0, 0.16, "saw", 0.08, 0.02)   # o motor da cabeça
+		_noise(line * 0.22 + 0.17, 0.03, "lp", 900.0, 0.7, 0.5)   # avanço de linha
+		_tone(line * 0.22 + 0.17, 75.0, 0.04, "sine", 0.5)
+	pins = _biquad(pins, "bp", 2400.0, 0.6)
+	for i in pins.size():
+		_w[i] += pins[i] * 0.9
+	_end("printer")
+	_begin(0.12)
+	_noise(0, 0.012, "hp", 2500.0, 0.7, 1.0); _tone(0, 150.0, 0.07, "sine", 0.8); _tone(0.002, 2600.0, 0.01, "square", 0.15)
+	_end("punch")
+	_begin(0.85)
+	var ph := 0.0
+	for i in int(0.7 * RATE):
+		var ts := float(i) / RATE
+		ph += (110.0 + 90.0 * minf(ts / 0.15, 1.0)) / RATE
+		var env := minf(ts / 0.05, 1.0) * minf((0.7 - ts) / 0.1, 1.0)
+		_w[i] = (_wave("saw", ph) * 0.25 + randf_range(-1.0, 1.0) * 0.35) * env
+	_w = _biquad(_w, "lp", 1800.0, 0.7)
+	_noise(0.7, 0.05, "bp", 1200.0, 1.0, 0.8); _tone(0.7, 130.0, 0.06, "sine", 0.5)   # o cartão assenta
+	_end("feed")
+	_begin(1.4)
+	ph = 0.0
+	for i in int(1.3 * RATE):
+		var ts := float(i) / RATE
+		ph += (62.0 + 6.0 * sin(ts * 23.0)) / RATE   # o motor roncando, com as lâminas pegando
+		var env := minf(ts / 0.08, 1.0) * minf((1.3 - ts) / 0.15, 1.0)
+		_w[i] = (_wave("saw", ph) * 0.5 + _wave("square", ph * 2.0) * 0.15) * env
+	_w = _biquad(_w, "lp", 700.0, 0.7)
+	t = 0.08
+	while t < 1.1:   # o papel rasgando aos trancos
+		_noise(t, randf_range(0.03, 0.07), "bp", randf_range(1800.0, 4200.0), 0.9, randf_range(0.4, 0.9))
+		t += randf_range(0.03, 0.08)
+	_end("shred")
 
 
 ## Atrito do fio na borda do buraco: dois loops que tocam juntos (`cord_rub` controla o volume de cada um).

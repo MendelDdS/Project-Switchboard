@@ -49,14 +49,6 @@ var _k := 0.96
 var _off := Vector2.ZERO   ## mapa -> tela: tela = mapa * _k + _off
 var _tf := Transform2D.IDENTITY   ## transformação em uso no desenho (os textos a seguem só na posição)
 var _zoom := 1.0           ## 1 = enquadra os setores atendidos
-## Quantos px da direita estão cobertos (a ficha de despacho por cima): a escala continua a da área toda, mas o centro,
-## os nomes e a rosa dos ventos ficam na parte à vista, e dá para arrastar o pedaço coberto para ela.
-var cover := 0.0:
-	set(v):
-		if _center != Vector2.INF:   # o mapa não pula: o que está na tela fica onde está
-			_center.x -= (v - cover) / (2.0 * _k)
-		cover = v
-		queue_redraw()
 ## Retângulos (em px de tela) com botões por cima do mapa: nenhum nome é desenhado ali.
 var blocked: Array[Rect2] = []
 var _center := Vector2.INF ## ponto do mapa no centro da vista (INF = o centro do enquadramento)
@@ -132,9 +124,9 @@ func _view() -> void:
 	_off = seen / 2.0 - _center * _k
 
 
-## A parte do mapa à vista (sem o pedaço coberto pela ficha).
+## A parte do mapa à vista (a ficha de despacho fica por cima sem mexer no mapa).
 func _seen() -> Rect2:
-	return Rect2(0, 0, maxf(1.0, size.x - cover), size.y)
+	return Rect2(Vector2.ZERO, size)
 
 
 ## Centro da vista num eixo: aproximado, anda só dentro do enquadramento; com sobra, fica no meio dele.

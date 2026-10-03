@@ -25,6 +25,7 @@ const FAULTS := {
 	"dispatch_idle": [Severity.MEDIUM, T.Key.FAULT_DISPATCH_IDLE],
 	"dispatch_extra": [Severity.LIGHT, T.Key.FAULT_DISPATCH_EXTRA],
 	"dispatch_type": [Severity.LIGHT, T.Key.FAULT_DISPATCH_TYPE],
+	"dispatch_blank": [Severity.MEDIUM, T.Key.FAULT_DISPATCH_BLANK],
 	"emergency_dropped": [Severity.SEVERE, T.Key.FAULT_EMERGENCY_DROPPED],
 	# barra de agravamento: uma por emergência, pelo estágio em que o despacho saiu (a perdida, na hora)
 	"emergency_worse": [Severity.MEDIUM, T.Key.FAULT_EMERGENCY_WORSE],
