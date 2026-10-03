@@ -39,11 +39,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Clima (`Main.weather`: "rain", "fog", "clear", sorteado; `-- --weather=X` força): `Sfx.start_ambience(w)`/
   `set_weather`/`hush_nature`/`stop_ambience`, `Background.weather` desenha a janela, `Conversation.topics()` junta os
   assuntos gerais com os do clima (`ChatTopic.weather`).
-- Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`). **Fontes de pixel**: importadas sem
-  suavização nem sub-pixel e usadas só nos tamanhos em que ficam nítidas: `Pal.ui` (Pixelify Sans) 14, 16, 18, 22
-  (piso de 14; 12 só onde não cabe: teclas dos botões, selo da aba, estado das linhas e numeração do mapa); `Pal.mono` (VT323, números) 20, 21, 25, 30, 35 (abaixo de 20 fica fina). Texto em desenho com escala (mapa)
-  sai fora da escala (`CityMap._t`). O 2 e o 5 da Pixelify foram redesenhados (pareciam S e Z) e ela foi fixada no peso
-  Regular (era variável); se trocar o arquivo da fonte, refaça isso.
+- Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`). **Fontes vetoriais com suavização**
+  (IBM Plex; as de pixel sumiam com a janela menor que 1280×720): `Pal.ui` (Plex Sans Condensed, tema) 14 ou mais (12 só
+  onde não cabe: teclas dos botões, selo da aba, estado das linhas e numeração do mapa); `Pal.mono` (Plex Mono: números,
+  lista, caderno, rádio, relógio) 14 ou mais. Texto em desenho com escala (mapa) sai fora da escala (`CityMap._t`).
 - **Idiomas** pt_BR (padrão), en, es. Interface/código: **enum `T.Key`** (`scripts/t.gd`, GERADO) +
   `translations/ui.csv` (`chave,pt_BR,en,es`); use `T.text(T.Key.X)` (com valores: `T.text(T.Key.X) % n`), nunca
   `tr("texto")` com literal. Cenas: o `text` do Label/Button é a chave (auto-tradução do Godot). Falas dos roteiros
@@ -185,7 +184,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Transferência: FONE na entrada → Atender → pedido → cabo de conexão saída→destino → **Transferir** (`transfer()`)
   → `_ring_dest` → destino atende → tirar o FONE → `_try_complete` → linha e destino CONN por `TALK_LEN`
   → DONE (vermelho) até o jogador tirar as pontas. `_dgen` invalida toques de destino quando o cabo sai.
-- Fim de ligação: `end_call(c, PhoneCall.End.*)` gera `c.record` e manda para `Notebook.add()` (fila; não trava o turno).
+- Fim de ligação: `end_call(c, PhoneCall.End.*)` gera `c.record` e manda para `Notebook.add()` (fila; não trava o turno; não atendida vai
+  direto para o livro com o carimbo `TYPE_MISSED`, sem escolher tipo).
   O caderno registra com **um clique no tipo** (`register(T.Key.TYPE_*)`: Comum, Emergência, Trote; o resto da linha
   vem do `record`), mostra a pendente numa ficha só de leitura e desenha o livro como página pautada (`_draw_page`,
   carimbo colorido por tipo, `STAMPS`). A aba mostra quantas faltam (`pending_changed(count)` → `Tools.set_count`,
@@ -384,6 +384,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     que continuam com o mesmo nome e a numeração seguindo, nomes sem sobreposição; revelação do bairro novo no mapa,
     dica do banco novo e ritmo que não sobe na noite da entrega. Lista telefônica refeita: uma letra por página dupla, abas de
     índice na borda em vez da barra de letras, ordem sem acento e bairro no endereço.
+27. Ligação não atendida entra sozinha no caderno (carimbo "Não atendida", sem escolher tipo). Uma fala por vez em cada
+    ligação (`Conversation.say` espera a anterior; o assunto não atropela mais o "Obrigado, Central") e nada de conversa
+    fiada com o destino tocando. Fontes de pixel trocadas por IBM Plex (legível em resolução baixa).
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

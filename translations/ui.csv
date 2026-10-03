@@ -145,6 +145,7 @@ COL_UNIT,Unidade,Unit,Unidad
 TYPE_COMMON,Ligação comum,Regular call,Llamada común
 TYPE_EMERGENCY,Emergência,Emergency,Emergencia
 TYPE_PRANK,Trote,Prank call,Broma
+TYPE_MISSED,Não atendida,Missed,No contestada
 OBS_WRONG_NUMBER,Conectada ao número errado.,Connected to the wrong number.,Conectada al número equivocado.
 OBS_ASKED_NUMBER,Pediu o número %s.,Asked for the number %s.,Pidió el número %s.
 OBS_WRONG_INFO,Informação errada.,Wrong information.,Información equivocada.

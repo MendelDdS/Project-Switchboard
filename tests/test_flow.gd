@@ -348,6 +348,7 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return t3.ended, 10.0), "t3 desistiu")
 	ok(t3.record["obs"] == T.text(T.Key.OBS_NOT_ANSWERED), "registro de não atendida")
 	var nb = m.notebook
+	ok(nb.entries.back()["type"] == T.Key.TYPE_MISSED and not nb.queue.any(func(r): return r["missed"]), "não atendida registrada sozinha")
 	ok(nb.queue.size() >= 1, "ocorrências em fila")
 	var before: int = nb.queue.size()
 	nb.register(T.Key.TYPE_COMMON)
@@ -623,6 +624,12 @@ func _initialize() -> void:
 	ok(cc.chatted, "seca: ela não puxa mais assunto")
 	ok(await wait_until(func(): return not cc.talking and String(cc.transcript.back()["text"]) == curt.follow), "respondeu")
 	ok(ask_opt.call().is_empty(), "só puxa conversa uma vez por ligação")
+	# duas falas ao mesmo tempo (assunto e agradecimento): a segunda espera a primeira terminar
+	var n_two := cc.transcript.size()
+	m.conversation.say(cc, "Primeira fala.")
+	m.conversation.say(cc, "Segunda fala.")
+	ok(await wait_until(func(): return cc.transcript.size() == n_two + 2), "as duas falas saíram")
+	ok(cc.transcript[n_two]["text"] == "Primeira fala.", "a segunda só começa com a primeira inteira")
 	m.end_call(cc, PhoneCall.End.OPERATOR)
 	print("OK 11b responder e puxar conversa fiada")
 

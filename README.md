@@ -36,7 +36,7 @@ Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
 - `scripts/sfx.gd` — autoload `Sfx`: todos os sons, sintetizados ao iniciar, nos barramentos Ambience, Voices e
   Effects (`default_bus_layout.tres`). Troque as entradas de `streams` por arquivos reais quando tiver áudio gravado.
 - `tests/` — testes automatizados (`tests/run.sh`).
-- `fonts/` — Pixelify Sans e VT323 (SIL Open Font License).
+- `fonts/` — IBM Plex Sans Condensed e IBM Plex Mono (SIL Open Font License, `OFL-IBMPlex.txt`).
 
 ## Consequências e relatório do supervisor
 

@@ -221,6 +221,8 @@ func _nag() -> void:
 		return
 	var quiet := talk_clock - f.last_talk
 	if f.kind == PhoneCall.Kind.TRANSFER and f.phase == PhoneCall.Phase.AWAIT:
+		if _transferred(f):   # o destino está tocando ou atendeu: ela espera quieta
+			return
 		if not f.chatted and quiet > SMALLTALK_AFTER:
 			f.chatted = true
 			if randf() < SMALLTALK_CHANCE:
@@ -568,13 +570,17 @@ func _refresh_panel() -> void:
 	_update_call_ui()
 
 
+## Já transferida: o destino na ponta do cabo da saída está tocando ou atendeu.
+func _transferred(c: PhoneCall) -> bool:
+	var d := board.dest_of_output(c.line)
+	return d != -1 and exchange.dest(d) != Exchange.Dest.FREE
+
+
 func _update_call_ui() -> void:
 	var f := _focus()
 	var s := phone.shown()
 	var can_transfer := f != null and f.active and f.kind == PhoneCall.Kind.TRANSFER and f.phase == PhoneCall.Phase.AWAIT
-	if can_transfer:   # já transferida: o destino na ponta do cabo está tocando ou atendeu
-		var d := board.dest_of_output(f.line)
-		can_transfer = d == -1 or exchange.dest(d) == Exchange.Dest.FREE
+	can_transfer = can_transfer and not _transferred(f)
 	phone.set_buttons(f != null and f.ringing, can_transfer, f != null and f.active)
 	var line := T.text(T.Key.STATUS_NO_CALL)
 	var st := ""
@@ -824,7 +830,7 @@ func end_call(c: PhoneCall, reason: PhoneCall.End) -> void:
 	notebook.add(c.record)
 	supervisor.call_ended(c, reason)
 	await get_tree().create_timer(1.5, false).timeout
-	if ending:
+	if ending or reason == PhoneCall.End.MISSED:   # não atendida já entra registrada
 		return
 	if live.is_empty():   # a aba mostra quantas faltam; o jogador abre o caderno quando quiser
 		hint(T.text(T.Key.HINT_REGISTER))

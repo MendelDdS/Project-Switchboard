@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/radio.gd" id="1_radio"]
-[ext_resource type="FontFile" path="res://fonts/VT323-Regular.ttf" id="2_vt323_regula"]
+[ext_resource type="FontFile" uid="uid://svbtmgwny6f7" path="res://fonts/IBMPlexMono-Regular.ttf" id="2_vt323_regula"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
 bg_color = Color(0.04706, 0.06667, 0.04706, 1)
@@ -142,7 +142,7 @@ layout_mode = 2
 text = "…"
 theme_override_fonts/font = ExtResource("2_vt323_regula")
 theme_override_colors/font_color = Color(0.7176, 0.7882, 0.6588, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 14
 unique_name_in_owner = true
 clip_text = true
 autowrap_mode = 3

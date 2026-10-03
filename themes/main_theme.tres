@@ -1,7 +1,7 @@
 [gd_resource type="Theme" format=3 uid="uid://y3atgoqdrdyj"]
 
-[ext_resource type="FontFile" uid="uid://bd85aasd7l867" path="res://fonts/VT323-Regular.ttf" id="1_vu6l5"]
-[ext_resource type="FontFile" uid="uid://60aqbf3talnj" path="res://fonts/PixelifySans.ttf" id="2_ydht1"]
+[ext_resource type="FontFile" uid="uid://svbtmgwny6f7" path="res://fonts/IBMPlexMono-Regular.ttf" id="1_vu6l5"]
+[ext_resource type="FontFile" uid="uid://dqfvnl2101vsw" path="res://fonts/IBMPlexSansCondensed-Regular.ttf" id="2_ydht1"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vu6l5"]
 content_margin_left = 6.0
@@ -658,7 +658,7 @@ LetterButton/colors/font_color = Color(0.16470589, 0.13725491, 0.09803922, 1)
 LetterButton/colors/font_focus_color = Color(0.16470589, 0.13725491, 0.09803922, 1)
 LetterButton/colors/font_hover_color = Color(0.16470589, 0.13725491, 0.09803922, 1)
 LetterButton/colors/font_pressed_color = Color(0.16470589, 0.13725491, 0.09803922, 1)
-LetterButton/font_sizes/font_size = 20
+LetterButton/font_sizes/font_size = 14
 LetterButton/fonts/font = ExtResource("1_vu6l5")
 LetterButton/styles/hover = SubResource("StyleBoxFlat_bmtpa")
 LetterButton/styles/normal = SubResource("StyleBoxFlat_f5lmb")
@@ -666,7 +666,7 @@ LetterButton/styles/pressed = SubResource("StyleBoxFlat_bmtpa")
 LineEdit/colors/caret_color = Color(0.16470589, 0.13725491, 0.09803922, 1)
 LineEdit/colors/font_color = Color(0.16470589, 0.13725491, 0.09803922, 1)
 LineEdit/colors/font_placeholder_color = Color(0.3529412, 0.3019608, 0.22745098, 0.7)
-LineEdit/font_sizes/font_size = 20
+LineEdit/font_sizes/font_size = 14
 LineEdit/fonts/font = ExtResource("1_vu6l5")
 LineEdit/styles/focus = SubResource("StyleBoxFlat_qtlom")
 LineEdit/styles/normal = SubResource("StyleBoxFlat_t2i82")
@@ -678,7 +678,7 @@ OptionButton/colors/font_color = Color(0.16470589, 0.13725491, 0.09803922, 1)
 OptionButton/colors/font_focus_color = Color(0.16470589, 0.13725491, 0.09803922, 1)
 OptionButton/colors/font_hover_color = Color(0.16470589, 0.13725491, 0.09803922, 1)
 OptionButton/colors/font_pressed_color = Color(0.16470589, 0.13725491, 0.09803922, 1)
-OptionButton/font_sizes/font_size = 20
+OptionButton/font_sizes/font_size = 14
 OptionButton/fonts/font = ExtResource("1_vu6l5")
 OptionButton/styles/focus = SubResource("StyleBoxFlat_uisqs")
 OptionButton/styles/hover = SubResource("StyleBoxFlat_dinf2")
@@ -689,7 +689,7 @@ PaperInk/colors/font_color = Color(0.84705883, 0.7921569, 0.6392157, 1)
 PaperInk/colors/font_focus_color = Color(0.84705883, 0.7921569, 0.6392157, 1)
 PaperInk/colors/font_hover_color = Color(0.84705883, 0.7921569, 0.6392157, 1)
 PaperInk/colors/font_pressed_color = Color(0.84705883, 0.7921569, 0.6392157, 1)
-PaperInk/font_sizes/font_size = 25
+PaperInk/font_sizes/font_size = 18
 PaperInk/fonts/font = ExtResource("1_vu6l5")
 PaperInk/styles/focus = SubResource("StyleBoxEmpty_wl3gy")
 PaperInk/styles/hover = SubResource("StyleBoxFlat_vputg")
@@ -719,7 +719,7 @@ PaperToggle/colors/font_focus_color = Color(0.16470589, 0.13725491, 0.09803922, 
 PaperToggle/colors/font_hover_color = Color(0.16470589, 0.13725491, 0.09803922, 1)
 PaperToggle/colors/font_hover_pressed_color = Color(0.84705883, 0.7921569, 0.6392157, 1)
 PaperToggle/colors/font_pressed_color = Color(0.84705883, 0.7921569, 0.6392157, 1)
-PaperToggle/font_sizes/font_size = 20
+PaperToggle/font_sizes/font_size = 14
 PaperToggle/fonts/font = ExtResource("1_vu6l5")
 PaperToggle/styles/disabled = SubResource("StyleBoxFlat_k3nwn")
 PaperToggle/styles/focus = SubResource("StyleBoxEmpty_axpob")

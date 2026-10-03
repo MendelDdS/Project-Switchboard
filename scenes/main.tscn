@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://dyd15jajt0b05" path="res://scripts/main.gd" id="1_main"]
 [ext_resource type="Script" uid="uid://23exvygvq27c" path="res://scripts/ui/background.gd" id="2_background"]
 [ext_resource type="Script" uid="uid://c3hot4aevrqd3" path="res://scripts/ui/bevel.gd" id="3_bevel"]
-[ext_resource type="FontFile" uid="uid://bd85aasd7l867" path="res://fonts/VT323-Regular.ttf" id="4_vt323_regula"]
+[ext_resource type="FontFile" uid="uid://svbtmgwny6f7" path="res://fonts/IBMPlexMono-Regular.ttf" id="4_vt323_regula"]
 [ext_resource type="Script" uid="uid://c4782kn03vt5j" path="res://scripts/ui/switchboard.gd" id="5_switchboard"]
 [ext_resource type="PackedScene" path="res://scenes/ui/phone_panel.tscn" id="6_phone_panel"]
 [ext_resource type="PackedScene" path="res://scenes/ui/radio.tscn" id="7_radio"]
@@ -121,7 +121,7 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9529, 0.6588, 0.2353, 1)
 theme_override_fonts/font = ExtResource("4_vt323_regula")
-theme_override_font_sizes/font_size = 60
+theme_override_font_sizes/font_size = 42
 text = "18:00"
 horizontal_alignment = 1
 vertical_alignment = 1

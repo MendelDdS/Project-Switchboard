@@ -653,7 +653,7 @@ func _draw() -> void:
 	draw_rect(Rect2(3, 3, 3, h - 6), Pal.PANEL_HI)
 	draw_rect(Rect2(3, h - 6, w - 6, 3), Pal.PANEL_LO)
 	draw_rect(Rect2(w - 6, 3, 3, h - 6), Pal.PANEL_LO)
-	draw_string(Pal.mono, Vector2(17, 28), T.text(T.Key.BOARD_TITLE), HORIZONTAL_ALIGNMENT_LEFT, -1, 21, Pal.BRASS)
+	draw_string(Pal.mono, Vector2(17, 28), T.text(T.Key.BOARD_TITLE), HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Pal.BRASS)
 	draw_string(Pal.ui, Vector2(17, 26), T.text(T.Key.BOARD_LEGEND), HORIZONTAL_ALIGNMENT_RIGHT, w - 34, 14, Pal.DIM)
 	if exchange == null:
 		return
@@ -665,7 +665,7 @@ func _draw() -> void:
 		var cx := col_x(i)
 		draw_rect(Rect2(cx - 17, 36, 34, 20), Color.BLACK)
 		draw_rect(Rect2(cx - 15, 38, 30, 16), Color("1a1711"))
-		draw_string(Pal.mono, Vector2(cx - 15, 52), "%02d" % n, HORIZONTAL_ALIGNMENT_CENTER, 30, 20, Color("d8c9a2"))
+		draw_string(Pal.mono, Vector2(cx - 15, 52), "%02d" % n, HORIZONTAL_ALIGNMENT_CENTER, 30, 14, Color("d8c9a2"))
 		_draw_lamp(Rect2(cx - 7, 60, 14, 9), _lamp(st, ms, fone_line() == n))
 		_draw_jack(jack_rect(n))
 		var sc := Pal.DIM
@@ -688,7 +688,7 @@ func _draw() -> void:
 		var jr := jack_rect(d)
 		var cx := jr.get_center().x
 		var st := exchange.dest(d)
-		draw_string(Pal.mono, Vector2(cx - 16, jr.position.y - 5), str(d), HORIZONTAL_ALIGNMENT_CENTER, 32, 20, Color("d8c9a2") if st == Exchange.Dest.FREE else Pal.TEXT)
+		draw_string(Pal.mono, Vector2(cx - 16, jr.position.y - 5), str(d), HORIZONTAL_ALIGNMENT_CENTER, 32, 14, Color("d8c9a2") if st == Exchange.Dest.FREE else Pal.TEXT)
 		var lc := _dest_lamp(st, ms)
 		if lc.a > 0.0:
 			draw_rect(jr.grow(3), lc)   # o aro da tomada acende
@@ -706,7 +706,7 @@ func _draw() -> void:
 		for e in [1 + k * 2, 2 + k * 2]:   # os dois buracos de onde saem os fios
 			var hp := hole(e)
 			draw_rect(Rect2(hp.x - 7, hp.y - 4, 14, 8), Color("050403"))
-		draw_string(Pal.mono, Vector2(cx - 30, 322), T.text(T.Key.BOARD_CORD) % (k + 1), HORIZONTAL_ALIGNMENT_CENTER, 60, 20, Pal.BRASS)
+		draw_string(Pal.mono, Vector2(cx - 30, 322), T.text(T.Key.BOARD_CORD) % (k + 1), HORIZONTAL_ALIGNMENT_CENTER, 60, 14, Pal.BRASS)
 	# legenda
 	var leg := [[Pal.AMBER, T.Key.LEGEND_RING], [Pal.GREEN, T.Key.LEGEND_CONN], [Pal.RED, T.Key.LEGEND_DONE], [Color("2a2016"), T.Key.LEGEND_FREE]]
 	for k in leg.size():
@@ -747,7 +747,7 @@ func _draw() -> void:
 		draw_rect(Rect2(bx, by, bw, bh), bc)
 		draw_rect(Rect2(bx + 2, by + 2, bw - 4, bh - 4), Color("0e0c08"))
 		for k in info_lines.size():
-			draw_string(Pal.mono, Vector2(bx + 10, by + 22 + k * 19), info_lines[k], HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Pal.GHOST if info_ghost else Pal.TEXT)
+			draw_string(Pal.mono, Vector2(bx + 10, by + 22 + k * 19), info_lines[k], HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Pal.GHOST if info_ghost else Pal.TEXT)
 
 
 ## Chapa parafusada sobre um banco que ainda não está em uso, com a letra dele (A, B, C).
@@ -760,7 +760,7 @@ func _draw_plate(r: Rect2, letter: String) -> void:
 		draw_circle(c, 3.5, PLATE.darkened(0.45))
 		draw_circle(c, 2.5, PLATE.lightened(0.25))
 		draw_line(c - Vector2(2, 0), c + Vector2(2, 0), PLATE.darkened(0.45), 1.0)   # fenda do parafuso
-	draw_string(Pal.mono, Vector2(r.position.x, r.get_center().y + 10), letter, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 35, PLATE.lightened(0.35))
+	draw_string(Pal.mono, Vector2(r.position.x, r.get_center().y + 10), letter, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 24, PLATE.lightened(0.35))
 
 
 ## [cor, brilho] do cabo da ponta e.

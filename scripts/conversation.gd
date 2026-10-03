@@ -46,6 +46,10 @@ func _until_on_line(c: PhoneCall) -> bool:
 func say(c: PhoneCall, text: String, pause: float = 0.55, who := "", voice := "") -> bool:
 	if c.ended or not c.closing and not await _until_on_line(c):
 		return false
+	while c.talking:   # uma fala por vez: a nova espera a anterior terminar (ex.: o agradecimento depois do assunto)
+		await get_tree().process_frame
+		if c.ended:
+			return false
 	text = tr(text)
 	var ghost := c.kind == PhoneCall.Kind.MYSTERY
 	var li := -1   # a linha da transcrição só aparece enquanto o operador está ouvindo

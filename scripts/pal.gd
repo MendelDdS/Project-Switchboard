@@ -23,9 +23,8 @@ const TEXT := Color("e6dbbd")
 const DIM := Color("9a917a")
 const GLOW := Color("ffd183")
 
-## Fontes de pixel: importadas sem suavização e sem sub-pixel, e só ficam nítidas em alguns tamanhos (fora deles os
-## traços ficam finos ou tortos). Use: `ui` (Pixelify Sans) em 14, 16, 18, 22 (12 só onde não cabe mais; 11 e 12 ficam pequenos demais para ler); `mono` (VT323, números)
-## em 20, 21, 25, 30, 35 (abaixo de 20 ela fica fina demais). O 2 e o 5 da Pixelify foram redesenhados (pareciam S e Z) e a
-## fonte, fixada no peso Regular (era variável).
-static var ui: Font = preload("res://fonts/PixelifySans.ttf")
-static var mono: Font = preload("res://fonts/VT323-Regular.ttf")
+## Fontes vetoriais com suavização (IBM Plex, SIL OFL): ficam legíveis em qualquer tamanho de janela (as de pixel, sem
+## suavização, perdiam os traços de 1 px com a janela menor que 1280×720). `ui` (Plex Sans Condensed) em 14 ou mais (12 só
+## onde não cabe); `mono` (Plex Mono, números e papel) em 14 ou mais.
+static var ui: Font = preload("res://fonts/IBMPlexSansCondensed-Regular.ttf")
+static var mono: Font = preload("res://fonts/IBMPlexMono-Regular.ttf")

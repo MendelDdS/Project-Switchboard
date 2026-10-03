@@ -4,8 +4,13 @@ extends Control
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	get_viewport().size_changed.connect(queue_redraw)
 
 
+## Em pixels reais da tela (com a janela menor que 1280×720, linhas a cada 3 px do jogo cortavam as letras).
 func _draw() -> void:
-	for y in range(0, int(size.y), 3):
-		draw_rect(Rect2(0, y, size.x, 1), Color(0, 0, 0, 0.08))
+	var px := 1.0 / maxf(0.01, get_viewport().get_final_transform().get_scale().y)
+	var y := 0.0
+	while y < size.y:
+		draw_rect(Rect2(0, y, size.x, px), Color(0, 0, 0, 0.08))
+		y += 3.0 * px

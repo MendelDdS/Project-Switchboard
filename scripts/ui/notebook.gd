@@ -13,6 +13,7 @@ const STAMPS := {
 	T.Key.TYPE_COMMON: Color("3a4f7a"),      # tinta azul
 	T.Key.TYPE_EMERGENCY: Color("8a2a1c"),   # vermelho
 	T.Key.TYPE_PRANK: Color("7a5214"),       # sépia
+	T.Key.TYPE_MISSED: Color("5c5a55"),      # grafite: registrada sozinha
 }
 const ROW_H := 50.0                # cada ocorrência: linha principal e, abaixo, unidade e observação
 const X_CALLER := 62.0             # colunas do livro (as legendas acima seguem as mesmas larguras)
@@ -60,8 +61,14 @@ func pending_count() -> int:
 	return queue.size() + (1 if has_pending() else 0)
 
 
-## Nova ocorrência. Se já há uma na ficha, entra na fila.
+## Nova ocorrência. Se já há uma na ficha, entra na fila. Não atendida vai direto para o livro (não há tipo a
+## escolher: ninguém falou com a pessoa).
 func add(rec: Dictionary) -> void:
+	if rec["missed"]:
+		entries.append({"time": rec["time"], "who": rec["who"], "where": rec["where"], "unit": rec["unit"], "obs": "",
+			"type": T.Key.TYPE_MISSED})
+		_render_ledger()
+		return
 	if pending.is_empty():
 		pending = rec
 		_fill()
@@ -148,9 +155,9 @@ func _draw_page() -> void:
 		var r: Dictionary = entries[i]
 		var y := i * ROW_H
 		var ink := Pal.INK
-		_page.draw_string(Pal.mono, Vector2(4, y + 22), r["time"], HORIZONTAL_ALIGNMENT_LEFT, -1, 20, ink)
-		_page.draw_string(Pal.mono, Vector2(X_CALLER, y + 22), _fit(Pal.mono, r["who"], 20, X_PLACE - X_CALLER - 10), HORIZONTAL_ALIGNMENT_LEFT, -1, 20, ink)
-		_page.draw_string(Pal.mono, Vector2(X_PLACE, y + 22), _fit(Pal.mono, r["where"], 20, X_STAMP - X_PLACE - 10), HORIZONTAL_ALIGNMENT_LEFT, -1, 20, ink)
+		_page.draw_string(Pal.mono, Vector2(4, y + 22), r["time"], HORIZONTAL_ALIGNMENT_LEFT, -1, 14, ink)
+		_page.draw_string(Pal.mono, Vector2(X_CALLER, y + 22), _fit(Pal.mono, r["who"], 14, X_PLACE - X_CALLER - 10), HORIZONTAL_ALIGNMENT_LEFT, -1, 14, ink)
+		_page.draw_string(Pal.mono, Vector2(X_PLACE, y + 22), _fit(Pal.mono, r["where"], 14, X_STAMP - X_PLACE - 10), HORIZONTAL_ALIGNMENT_LEFT, -1, 14, ink)
 		_stamp(r["type"], Rect2(X_STAMP, y + 5, w - X_STAMP - 4, 22))
 		var notes := PackedStringArray()
 		if String(r["unit"]) != "—":

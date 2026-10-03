@@ -171,7 +171,7 @@ func _initialize() -> void:
 					f.options[0]["fn"].call()
 					_acted()
 	var recs: Array = m.notebook.entries + m.notebook.queue + ([m.notebook.pending] if m.notebook.has_pending() else [])
-	var lost := recs.filter(func(e): return e["obs"] == T.text(T.Key.OBS_NOT_ANSWERED)).size()
+	var lost := recs.filter(func(e): return e.get("type") == T.Key.TYPE_MISSED).size()
 	if human:
 		print("humano: %.0f s por ação" % HUMAN_STEP)
 	if clumsy:
