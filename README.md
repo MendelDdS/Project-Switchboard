@@ -173,6 +173,7 @@ Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
 
   A primeira noite usa o nível 1. **Nas 3 primeiras noites, o nível só sobe se a noite anterior não foi ruim** (parecer
   do supervisor com alguma advertência grave: repete o ritmo, para não sobrecarregar quem ainda não pegou confiança).
+  Na noite em que um bairro novo é entregue (5 e 9), o nível não sobe, para o operador aprender o bairro antes.
   Da noite 4 em diante sobe sempre, até o nível 5, que vale para todas as noites seguintes (um nível 6 já fazia o
   robô em ritmo humano perder ligações toda noite). Para medir um nível: `tests/test_shift.gd -- --human --pace=N`.
 - **Tipo sorteado**: `emergencies` emergências (a pelo menos `EMERGENCY_GAP` = 60 min uma da outra, porque o

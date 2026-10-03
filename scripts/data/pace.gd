@@ -7,7 +7,8 @@ extends Resource
 ## 1 perdida; nível 5 (o limite), 2 perdidas e até 50% com 2+; um nível 6 (26–36 min, 2 emergências) perdeu 8.
 
 ## Nas noites até esta, o ritmo só sobe se a noite anterior não foi ruim (`ShiftReport.verdict` 2: alguma
-## advertência grave); depois dela, sobe sempre, até o limite.
+## advertência grave); depois dela, sobe sempre, até o limite. Na noite em que um setor é entregue
+## (`GameData.SECTOR_NIGHTS`), ele não sobe: o operador aprende o bairro novo antes de as ligações apertarem.
 const CONFIDENCE_NIGHTS := 3
 
 ## Minutos de jogo entre uma ligação sorteada e a próxima (o máximo é o maior silêncio possível).
@@ -24,4 +25,13 @@ const CONFIDENCE_NIGHTS := 3
 ## Nível da noite `night + 1`, depois de jogar a noite `night` no nível `level` com o parecer `verdict`.
 static func next(level: int, night: int, verdict: int) -> int:
 	var hold := night + 1 <= CONFIDENCE_NIGHTS and verdict == 2   # ainda sem confiança: repete o ritmo
+	hold = hold or night + 1 > 1 and night + 1 in GameData.SECTOR_NIGHTS.values()   # noite de bairro novo
 	return clampi(level + (0 if hold else 1), 1, GameData.CONTENT.paces.size())
+
+
+## Nível da noite `night` para quem não tropeçou (noite forçada com `--night=N`, sem progresso salvo).
+static func expected(night: int) -> int:
+	var level := 1
+	for n in range(1, night):
+		level = next(level, n, 0)
+	return level

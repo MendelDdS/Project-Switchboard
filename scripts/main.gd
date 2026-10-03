@@ -122,7 +122,7 @@ func _ready() -> void:
 
 
 ## Qual noite jogar: `-- --night=N`, a definida antes de entrar na árvore (testes) ou a salva, e em que ritmo: o
-## salvo; numa noite forçada, o nível com o número da noite. `-- --pace=N` força o nível (para medir com o robô).
+## salvo; numa noite forçada, o de quem não tropeçou (`Pace.expected`). `-- --pace=N` força o nível (para medir com o robô).
 ## `-- --flags=a,b` liga marcadores para testar um ramo do roteiro numa noite forçada.
 func _load_night() -> void:
 	var forced_pace := 0
@@ -134,7 +134,7 @@ func _load_night() -> void:
 		elif a.begins_with("--flags="):
 			for f in a.get_slice("=", 1).split(",", false):
 				flags.apply(f)
-	pace_level = night_no
+	pace_level = Pace.expected(night_no)
 	if night_no == 0:
 		progress = Progress.load_saved()
 		night_no = progress.night

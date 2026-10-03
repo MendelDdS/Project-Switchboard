@@ -178,6 +178,27 @@ func _initialize() -> void:
 	var trip_2: float = city.trip("pol", {"street": "cruzeiro", "block": 0})
 	city.remove_units(["pol"])
 	ok(trip_c < trip_3 and trip_3 < trip_2, "viagem do Centro: %.1f s no Centro, %.1f s no setor 3, %.1f s no setor 2" % [trip_c, trip_3, trip_2])
+	# lista telefônica: cada aba abre só a sua letra, com todos os contatos dela nas duas páginas; Virar passa de letra
+	# em letra até as anotações, Voltar volta até a primeira
+	var book = m.tools.find_child("PhoneBook", true, false)
+	for l in book._index:
+		book.jump(l)
+		var pg: Array = book.pages()
+		var shown_entries: Array = pg[0] + pg[1]
+		var of_letter: Array = book._entries.filter(func(e): return book.initial(e) == l)
+		var right_h: float = book.TOP + pg[1].reduce(func(acc, e): return acc + book.entry_height(e), 0.0)
+		ok(book.current_letter() == l and shown_entries == of_letter and right_h <= book.BOTTOM, "aba %s: só a letra, inteira" % l)
+	book.jump(book._index[0])
+	var walked := 0
+	while not book._next.disabled:
+		book.turn(1)
+		walked += 1
+	ok(walked == book._index.size() and book.current_letter() == "", "Virar passa letra a letra até as anotações")
+	var names: Array = book._entries.map(func(e): return e.name)
+	ok(names.find("Célia Rocha") < names.find("Cine Odeon"), "ordem da lista ignora acento")
+	for i in walked:
+		book.turn(-1)
+	ok(book.current_letter() == book._index[0] and book._prev.disabled, "Voltar chega à primeira letra")
 	# emergências escritas: o endereço bate com a rua e o trecho do mapa (o trecho sai do número)
 	for e: EmergencyCall in C.emergencies:
 		var st := GameData.street(e.street)
@@ -203,6 +224,8 @@ func _initialize() -> void:
 	ok(Pace.next(1, 1, 0) == 2 and Pace.next(1, 1, 2) == 1 and Pace.next(2, 2, 2) == 2, "noite ruim no começo: repete o ritmo")
 	ok(Pace.next(3, 3, 2) == 4 and Pace.next(2, 5, 2) == 3, "da noite 4 em diante: sobe mesmo depois de noite ruim")
 	ok(Pace.next(top, 8, 0) == top and Pace.next(top - 1, 6, 0) == top, "o último nível é o limite")
+	ok(Pace.next(4, 4, 0) == 4 and Pace.next(4, 5, 0) == 5 and Pace.expected(5) == 4 and Pace.expected(6) == 5,
+		"noite de bairro novo (5): o ritmo não sobe")
 	ok(range(1, top).all(func(i): return C.paces[i].call_gap.x <= C.paces[i - 1].call_gap.x), "o ritmo só aperta de um nível para o outro")
 	# agenda: montada sem a cena (noite → ligações em ordem, espaçadas das do roteiro e entre emergências)
 	for n in C.nights:
