@@ -120,8 +120,9 @@ name = "Armazém Ferreira"
 note = "Joaquim Ferreira"
 address = "Rua Bela Vista, 230"
 number = "288"
+category = "mercearia"
 spoken = "o Armazém Ferreira"
-reasons = PackedStringArray("Esqueci minhas compras no balcão hoje.", "Quero saber se amanhã chega querosene.")
+reasons = PackedStringArray("Quero comprar fósforo e querosene ainda hoje.", "Quero saber se amanhã chega querosene.")
 
 [sub_resource type="Resource" id="Resource_ufmoj"]
 script = ExtResource("1_6g7xa")
@@ -154,6 +155,7 @@ name = "Casa Paroquial"
 note = "Pe. Anselmo"
 address = "Praça da Matriz, 1"
 number = "120"
+category = "igreja"
 spoken = "a Casa Paroquial"
 reasons = PackedStringArray("Preciso marcar uma missa de sétimo dia.", "Quero pedir uma visita do padre pra minha mãe, que está de cama.")
 
@@ -211,14 +213,16 @@ script = ExtResource("1_6g7xa")
 name = "Farmácia Central"
 address = "Praça da Matriz, 3"
 number = "118"
+category = "farmácia"
 spoken = "a Farmácia Central"
-reasons = PackedStringArray("Quero saber se o remédio do meu pai já chegou.", "Preciso de um remédio pra pressão.")
+reasons = PackedStringArray("Quero saber se tem remédio pra enjoo.", "Preciso de um remédio pra pressão.")
 
 [sub_resource type="Resource" id="Resource_k2mqa"]
 script = ExtResource("1_6g7xa")
 name = "Farmácia Santa Rita"
 address = "Rua do Mercado, 90"
 number = "162"
+category = "farmácia"
 spoken = "a Farmácia Santa Rita"
 reasons = PackedStringArray("Meu neto está com febre.", "Preciso de um remédio pra dor de dente.", "Quero saber se tem xarope pra tosse.")
 
@@ -260,6 +264,7 @@ name = "Igreja Matriz"
 note = "secretaria"
 address = "Praça da Matriz, 1"
 number = "124"
+category = "igreja"
 spoken = "a Igreja Matriz"
 reasons = PackedStringArray("Quero saber o horário da missa de domingo.", "Quero marcar o batizado do meu neto.")
 
@@ -276,6 +281,7 @@ script = ExtResource("1_6g7xa")
 name = "Mercearia Silva"
 address = "Rua do Cruzeiro, 85"
 number = "262"
+category = "mercearia"
 spoken = "a Mercearia Silva"
 reasons = PackedStringArray("Acabou a vela aqui em casa e faltou luz.", "Quero deixar uma encomenda pra amanhã cedo.")
 
@@ -1035,6 +1041,7 @@ smalltalk = Array[ExtResource("99_chat")]([SubResource("Topic_00"), SubResource(
 chat_bridge = PackedStringArray("Vai indo, moço.", "Ah, vai bem, graças a Deus.", "Tranquila, tranquila.", "Ih, devagar...", "Vai indo, do jeito que dá.", "Ah, aqui tá tudo calmo.")
 waiting = PackedStringArray("Alô? Central?", "Ainda está aí?", "Alô? Conseguiu?", "Moço? A ligação caiu?", "Alô? Tô esperando...", "Demora muito?", "Central? Tá me ouvindo?", "Ainda tô aqui, viu?", "Alô? Caiu?")
 emergency_waiting = PackedStringArray("Alô?! Vocês vão mandar alguém?", "Por favor, rápido!", "Central?!", "Alô! Tá demorando!", "Central, ainda tá aí?", "Manda alguém, pelo amor de Deus!")
+alt_accepted = PackedStringArray("Pode ser. Obrigado.", "Serve, sim. Pode ligar.", "Tanto faz, contanto que atendam.", "Ah, pode ser essa mesmo.")
 hold_ok = PackedStringArray("Tá bom, eu espero.", "Obrigado, aguardo.", "Certo.", "Pode ser, eu fico na linha.", "Tá, mas rapidinho, tá?", "Tá, fico esperando.", "Sem pressa, moço.", "Tá bem, obrigada.")
 wrong_destination = PackedStringArray("Não, moço, não é aí.", "Hã? Não é com essa pessoa que eu quero falar.", "Esse não é quem eu pedi!", "Opa, acho que o senhor ligou errado.", "Ih, quem atendeu não foi quem eu pedi.", "Moço, essa voz eu não conheço.", "Não é esse número, não.")
 callers = PackedStringArray("f:Moradora", "m:Morador", "w:Senhor", "f:Senhora", "m:Rapaz", "f:Moça", "w:Seu Jair", "f:Dona Cida", "m:Seu Valdir", "f:Dona Olga")

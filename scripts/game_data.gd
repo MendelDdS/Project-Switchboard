@@ -85,7 +85,22 @@ static func template_transfer(exclude: Array = []) -> TransferCall:
 	t.target = e.number
 	t.destination = e.name
 	t.thanks = pick(CONTENT.transfer_thanks)
+	var alt := alternative(e, exclude)
+	if alt != null:   # às vezes não atende (`PhoneCall.away`): o operador oferece outro do mesmo ramo
+		t.alt_target = alt.number
+		t.alt_destination = alt.name
+		t.alt_ask = T.text(T.Key.OP_TRY_OTHER) % TranslationServer.translate(alt.spoken)
+		t.alt_yes = pick(CONTENT.alt_accepted)
 	return t
+
+
+## Outro estabelecimento do mesmo ramo, nos setores atendidos e fora de `exclude`. Nulo se não houver.
+static func alternative(e: DirectoryEntry, exclude: Array = []) -> DirectoryEntry:
+	if e.category == "":
+		return null
+	var same := CONTENT.directory.filter(func(d: DirectoryEntry):
+		return d != e and d.category == e.category and d.spoken != "" and in_service(d.number) and not d.number in exclude)
+	return same.pick_random() if not same.is_empty() else null
 
 
 ## Emergência montada a partir de um molde (`from`, ou um sorteado), numa rua (dos setores atendidos) e número sorteados.

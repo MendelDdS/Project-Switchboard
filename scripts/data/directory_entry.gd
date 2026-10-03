@@ -7,6 +7,10 @@ extends Resource
 @export var note := ""
 @export var address := ""
 @export var number := ""
+## Ramo do estabelecimento (ex.: "farmácia"). Quando ele não atende, o operador pode oferecer outro do mesmo ramo
+## (`GameData.alternative`); por isso só ganha ramo quem pode ser trocado por outro para qualquer um dos `reasons`.
+## Vazio = sempre atende.
+@export var category := ""
 ## Polícia, bombeiros e hospital: não têm tomada na mesa; vão pelo despacho.
 @export var dispatch_only := false
 ## Como as pessoas se referem ao lugar ao pedir o número (ex.: "o Hotel Estrela"). Vazio = ninguém pede.

@@ -78,6 +78,7 @@ func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[Phon
 			var first: TransferCall = GameData.transfers(TransferCall.Group.ESTABLISHMENT).pick_random()
 			transfers.erase(first)
 			c = PhoneCall.from_transfer(first)
+			c.away = false   # no tutorial o destino sempre atende
 			targets.append(first.alt_target)
 			tut = c
 		elif kinds[i] == PhoneCall.Kind.EMERGENCY:

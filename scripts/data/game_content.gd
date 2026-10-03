@@ -49,6 +49,8 @@ extends Resource
 @export var emergency_waiting: PackedStringArray = []
 ## Resposta a "Um momento, vou conectar.".
 @export var hold_ok: PackedStringArray = []
+## Quem aceita o outro estabelecimento que o operador sugeriu (moldes; os roteiros escritos têm `alt_yes`).
+@export var alt_accepted: PackedStringArray = []
 ## Quando o destino errado atende.
 @export var wrong_destination: PackedStringArray = []
 

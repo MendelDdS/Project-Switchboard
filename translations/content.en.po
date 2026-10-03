@@ -12,8 +12,8 @@ msgid "o Armazém Ferreira"
 msgstr "the Armazém Ferreira"
 
 #: data/content.tres
-msgid "Esqueci minhas compras no balcão hoje."
-msgstr "I left my groceries on the counter today."
+msgid "Quero comprar fósforo e querosene ainda hoje."
+msgstr "I want to buy matches and kerosene tonight."
 
 #: data/content.tres
 msgid "Quero saber se amanhã chega querosene."
@@ -188,8 +188,8 @@ msgid "a Farmácia Central"
 msgstr "the Farmácia Central"
 
 #: data/content.tres
-msgid "Quero saber se o remédio do meu pai já chegou."
-msgstr "I want to know if my father's medicine has come in."
+msgid "Quero saber se tem remédio pra enjoo."
+msgstr "I want to know if you have something for nausea."
 
 #: data/content.tres data/calls/transfer_22_seu_anibal_farmacia_central.tres
 msgid "Preciso de um remédio pra pressão."
@@ -3894,6 +3894,22 @@ msgstr "No rush, young man."
 #: data/content.tres
 msgid "Tá bem, obrigada."
 msgstr "All right, thank you."
+
+#: data/content.tres
+msgid "Pode ser. Obrigado."
+msgstr "That's fine. Thank you."
+
+#: data/content.tres
+msgid "Serve, sim. Pode ligar."
+msgstr "That'll do. Go ahead and call."
+
+#: data/content.tres
+msgid "Tanto faz, contanto que atendam."
+msgstr "Doesn't matter, as long as someone answers."
+
+#: data/content.tres
+msgid "Ah, pode ser essa mesmo."
+msgstr "Oh, that one's fine."
 
 #: data/content.tres
 msgid "Não, moço, não é aí."

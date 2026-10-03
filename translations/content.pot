@@ -11,7 +11,7 @@ msgid "o Armazém Ferreira"
 msgstr ""
 
 #: data/content.tres
-msgid "Esqueci minhas compras no balcão hoje."
+msgid "Quero comprar fósforo e querosene ainda hoje."
 msgstr ""
 
 #: data/content.tres
@@ -187,7 +187,7 @@ msgid "a Farmácia Central"
 msgstr ""
 
 #: data/content.tres
-msgid "Quero saber se o remédio do meu pai já chegou."
+msgid "Quero saber se tem remédio pra enjoo."
 msgstr ""
 
 #: data/content.tres data/calls/transfer_22_seu_anibal_farmacia_central.tres
@@ -3892,6 +3892,22 @@ msgstr ""
 
 #: data/content.tres
 msgid "Tá bem, obrigada."
+msgstr ""
+
+#: data/content.tres
+msgid "Pode ser. Obrigado."
+msgstr ""
+
+#: data/content.tres
+msgid "Serve, sim. Pode ligar."
+msgstr ""
+
+#: data/content.tres
+msgid "Tanto faz, contanto que atendam."
+msgstr ""
+
+#: data/content.tres
+msgid "Ah, pode ser essa mesmo."
 msgstr ""
 
 #: data/content.tres

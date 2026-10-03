@@ -191,8 +191,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`c.closing`: informação respondida, emergência despachada) não entra em espera; a pessoa termina de falar sozinha
   e desliga, sem som e sem texto na transcrição (só o que for dito com o FONE na linha aparece).
 - Destino que não atende: pedido com alternativa (`TransferCall.alt_target`) sorteia ao ser criado se o lugar pedido
-  atende (`PhoneCall.away`, `AWAY_CHANCE`); se não, toca sem resposta e o operador pode sugerir a alternativa
-  (`alt_ask`, `Conversation._transfer_alt`), que sempre atende.
+  atende (`PhoneCall.away`, `AWAY_CHANCE`; nunca no tutorial); se não, toca sem resposta e o operador pode sugerir a
+  alternativa (`alt_ask`, `Conversation._transfer_alt`), que sempre atende. **A alternativa é do mesmo ramo**
+  (`DirectoryEntry.category`: farmácia, igreja, mercearia; o teste confere): os moldes a escolhem sozinhos
+  (`GameData.alternative`, fala `OP_TRY_OTHER`, resposta em `alt_accepted`); os roteiros escritos têm a deles. Só
+  ganha ramo quem pode ser trocado por outro para qualquer motivo dos `reasons` (bar não: "recado pro amigo que tá lá").
 - Transferência: FONE na entrada → Atender → pedido → cabo de conexão saída→destino → **Transferir** (`transfer()`)
   → `_ring_dest` → destino atende (com o FONE na linha, quem ligou agradece) → `_try_complete` na hora, com ou sem o
   FONE na entrada (o operador não ouve a conversa dos dois) → linha e destino CONN por `TALK_LEN`

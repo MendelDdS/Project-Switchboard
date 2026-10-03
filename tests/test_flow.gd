@@ -101,6 +101,12 @@ func _initialize() -> void:
 	var nums := GameData.board_numbers()
 	for t in C.transfers:
 		ok(int(t.target) in nums and (t.alt_target == "" or int(t.alt_target) in nums), "destino existe: " + t.resource_path)
+		ok(t.alt_target == "" or GameData.entry(t.target).category != "" and GameData.entry(t.alt_target).category == GameData.entry(t.target).category,
+			"alternativa do mesmo ramo: " + t.resource_path)
+	# todo ramo tem pelo menos dois estabelecimentos no mesmo setor (a alternativa existe desde a entrega do setor)
+	for d in C.directory.filter(func(d: DirectoryEntry): return d.category != ""):
+		ok(C.directory.any(func(o: DirectoryEntry): return o != d and o.category == d.category and o.number.left(1) == d.number.left(1)),
+			"ramo sem alternativa no setor: " + d.name)
 	for e in C.emergencies:
 		ok(GameData.street(e.street) != null and e.questions.size() == e.answers.size() and e.occurrence in C.occurrences, "emergência válida: " + e.resource_path)
 	# unidades válidas, e cada caso troca no máximo as respostas que existem
@@ -250,6 +256,9 @@ func _initialize() -> void:
 	for i in 300:
 		var t := GameData.template_transfer()
 		ok(int(t.target) in nums, "molde: destino existe")
+		ok(t.alt_target == "" or GameData.entry(t.alt_target).category == GameData.entry(t.target).category and not "%" in t.alt_ask,
+			"molde: alternativa do mesmo ramo")
+		ok(GameData.entry(t.target).category == "" or t.alt_target != "", "molde: estabelecimento com ramo tem alternativa")
 		ok(not holes.call(Array(t.opening) + [t.repeat, t.thanks]) and t.caller != "", "molde de transferência preenchido: " + " / ".join(t.opening))
 		var e := GameData.template_emergency()
 		var house := int(e.address.get_slice(", ", 1))
