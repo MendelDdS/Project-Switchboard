@@ -32,6 +32,7 @@ var _picked: Array = []      ## unidades perfuradas no cartão
 var _units := {"pol": Unit.AVAILABLE, "bomb": Unit.AVAILABLE, "amb": Unit.AVAILABLE}
 var _incident := {}          ## emergência em andamento: call, street, block, req, sent, resolved, addr
 var _gen := 0                ## sobe no `reset`: viagens de antes dele não chegam nem voltam mais
+var _open := false           ## a ficha aberta (fechando, ela some só quando as máquinas se recolhem)
 
 @onready var city: CityMap = %City
 @onready var card: PunchCard = %Slip
@@ -44,6 +45,7 @@ func _ready() -> void:
 	card.dispatch = self
 	card.inserted.connect(_send)
 	card.discarded.connect(_discard)
+	card.closed.connect(_hide_slip)
 	%Open.pressed.connect(open_slip.bind(true))
 	%Close.pressed.connect(open_slip.bind(false))
 	resized.connect(_block)
@@ -68,14 +70,24 @@ func set_location(street: String, block: int, label: String) -> void:
 	_refresh()
 
 
-## Abre ou recolhe a ficha de despacho (o mapa ganha a aba toda).
+## Abre ou recolhe a ficha de despacho: as máquinas entram (ou saem) animadas, e ela some depois (`_hide_slip`).
 func open_slip(on: bool) -> void:
-	if _slip.visible == on:
+	if _open == on:
 		return
-	_slip.visible = on
-	%Open.visible = not on
+	_open = on
+	if on:
+		_slip.visible = true
+		%Open.visible = false
+	card.set_open(on)
 	Sfx.play("page")
 	_block()
+
+
+func _hide_slip() -> void:
+	if not _open:
+		_slip.visible = false
+		%Open.visible = true
+		_block()
 
 
 ## Onde há botões por cima do mapa (nenhum nome de rua ali).

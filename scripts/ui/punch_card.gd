@@ -1,8 +1,11 @@
 class_name PunchCard
 extends Control
 ## A ficha de despacho como objeto, por cima do mapa (este nó cobre a aba; fora das máquinas e do cartão o clique vai
-## para o mapa, `_has_point`). Três máquinas: a impressora (canto de cima, à direita), a trituradora (embaixo dela,
-## na borda de baixo) e o transmissor (no meio, embaixo, sobe quando o cartão sai impresso).
+## para o mapa, `_has_point`). Três máquinas: a impressora (canto de cima, à direita; desce quando a ficha abre e
+## sobe quando fecha, com o × junto), a trituradora (embaixo dela,
+## na borda de baixo; entra pela direita quando a ficha abre e sai por ela quando fecha) e o transmissor (canto de
+## baixo, à esquerda; sobe quando o cartão sai impresso e desce quando não há cartão). Fechar a ficha (`set_open`)
+## espera as máquinas se recolherem (`closed`).
 ## Marcar o local faz a impressora datilografar o local (`typing`) e imprimir um cartão perfurado (`printer`), que sai
 ## pela fenda já com o local, o bairro e o setor. O jogador perfura o tipo de ocorrência (um só) e as unidades, cada um
 ## na sua posição; furo não se desfaz. O cartão vai para onde for arrastado, dentro do mapa, e fica onde for solto;
@@ -13,6 +16,8 @@ extends Control
 
 signal inserted
 signal discarded
+## As máquinas terminaram de se recolher depois de `set_open(false)`: a ficha pode sumir.
+signal closed
 
 enum State { IDLE, TYPING, PRINTING, READY, DRAGGING, FEEDING }
 
@@ -26,7 +31,9 @@ const NEAR_SLOT := 24.0     # solto com a borda de baixo até esta distância da
 const TYPE_SEC := 0.9       # datilografando o local
 const PRINT_SEC := 1.3      # o cartão saindo da impressora...
 const PRINT_STEPS := 12     # ...aos solavancos, uma linha de cada vez
-const SENDER_SEC := 0.35    # o transmissor aparecendo
+const SENDER_SEC := 0.45    # o transmissor subindo ou descendo
+const SHREDDER_SEC := 0.45  # a trituradora entrando ou saindo pela direita
+const PRINTER_SEC := 0.45   # a impressora descendo ou subindo
 const FEED_SEC := 0.8       # o transmissor puxando o cartão
 const SHRED_SEC := 1.2      # a trituradora engolindo o cartão
 const CHAD_SEC := 0.45      # o picote caindo
@@ -34,14 +41,25 @@ const ROW := 19.0
 const CELL := Vector2(10, 14)
 const CARD := Color("e9dcb4")
 const CARD_EDGE := Color("a8966b")
+const FORM := Color("8a2a1c")          # o formulário vem impresso na tinta vermelha das emergências (o carimbo do caderno)
+const RULE := Color(0.35, 0.43, 0.55, 0.3)   # a pauta, como a do caderno
 const HOLE := Color("17110b")
 const MISSING := Color("8a3a14")
+const SHADOW := Color(0, 0, 0, 0.35)
+const SHADOW_REST := Vector2(3, 4)     # sombra do cartão na mesa...
+const SHADOW_HELD := Vector2(9, 12)    # ...e erguido, na mão (como o plug da mesa)
+const TOP := 82.0                      # o cabeçalho: faixa, local, bairro e setor, fio duplo
+const FOOT := 22.0                     # o rodapé: fio e o nome da central
 const HAZARD := Color("d9a521")
 
 var dispatch: Dispatch
 var state := State.IDLE
 var _t := 0.0               ## segundos no estado atual
-var _up := 0.0              ## 0..1: o transmissor à vista
+var _up := 0.0              ## 0..1: o transmissor à vista (sobe de baixo)
+var _in := 0.0              ## 0..1: a trituradora à vista (vem da direita)
+var _down := 0.0            ## 0..1: a impressora à vista (desce de cima)
+var _open := false          ## a ficha aberta (as máquinas à vista)
+var _closing := false       ## fechando: avisa `closed` quando as máquinas se recolherem
 var _pos := Vector2.ZERO    ## canto do cartão (coordenadas deste nó)
 var _from := 0.0            ## altura de onde o cartão começa a entrar na máquina
 var _into := ""             ## a máquina em que ele está entrando: "send" ou "shred"
@@ -53,6 +71,8 @@ var _sector := 0
 var _cells: Array = []      ## [Rect2 no cartão, "type" | "unit", id]
 var _heads := {}            ## "type" / "unit" -> y do título da parte
 var _card_h := 0.0
+var _rules: Array[float] = []   ## pauta entre as linhas
+var _specks: Array[Vector2] = []   ## fibras do papel (cada cartão as suas)
 var _chads: Array = []      ## picotes caindo: [posição no cartão, segundos]
 var _window := Control.new()
 var _sheet := Control.new()
@@ -60,6 +80,7 @@ var _sheet := Control.new()
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	clip_contents = true   # as máquinas saem pelas bordas
 	_window.clip_contents = true
 	_window.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_sheet.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -80,6 +101,13 @@ func print_card(place: String, sector: int) -> void:
 	Sfx.play("typing")
 
 
+## Abre (as máquinas entram) ou fecha (saem; depois, `closed`).
+func set_open(on: bool) -> void:
+	_open = on
+	_closing = not on
+	queue_redraw()
+
+
 ## Sem cartão (enviado, descartado, ou o despacho foi limpo).
 func clear() -> void:
 	if state != State.IDLE:
@@ -96,8 +124,10 @@ func _go(s: State) -> void:
 
 # ------------------------------------------------------------------ lugar das coisas
 
+## A impressora, escondida acima da borda (com a tira de papel) enquanto não desce.
 func _printer() -> Rect2:
-	return Rect2(size.x - 4.0 - COL_W + (COL_W - CARD_W) / 2.0 - 8.0, 2.0, CARD_W + 16.0, PRINTER_H)
+	var up := roundf((1.0 - smoothstep(0.0, 1.0, _down)) * (PRINTER_H + 32.0))
+	return Rect2(size.x - 4.0 - COL_W + (COL_W - CARD_W) / 2.0 - 8.0, 2.0 - up, CARD_W + 16.0, PRINTER_H)
 
 
 func _printer_slot() -> float:
@@ -113,12 +143,15 @@ func _card_rect() -> Rect2:
 	return Rect2(_pos, Vector2(CARD_W, _card_h))
 
 
-## "send": o transmissor, no meio da borda de baixo (sobe um pouco enquanto aparece). "shred": a trituradora, embaixo
-## da impressora (treme enquanto tritura).
+## "send": o transmissor, no canto de baixo à esquerda (escondido embaixo da borda enquanto não sobe). "shred": a
+## trituradora, embaixo da impressora (escondida à direita enquanto não entra; treme enquanto tritura).
 func _machine(m: String) -> Rect2:
 	if m == "send":
-		return Rect2(roundf((size.x - SENDER.x) / 2.0), size.y - SENDER.y - 4.0 + roundf((1.0 - _up) * 20.0), SENDER.x, SENDER.y)
-	return Rect2(Vector2(_printer().position.x, size.y - SHREDDER_H - 4.0) + _shake, Vector2(_printer().size.x, SHREDDER_H))
+		var down := roundf((1.0 - smoothstep(0.0, 1.0, _up)) * (SENDER.y + 10.0))
+		return Rect2(6.0, size.y - SENDER.y - 4.0 + down, SENDER.x, SENDER.y)
+	var x := _printer().position.x
+	var away := roundf((1.0 - smoothstep(0.0, 1.0, _in)) * (size.x - x + 10.0))
+	return Rect2(Vector2(x + away, size.y - SHREDDER_H - 4.0) + _shake, Vector2(_printer().size.x, SHREDDER_H))
 
 
 func _slot(m: String) -> float:
@@ -128,20 +161,28 @@ func _slot(m: String) -> float:
 ## Posições de perfuração (o tipo de ocorrência, depois as unidades, cada uma com o protocolo embaixo).
 func _layout() -> void:
 	_cells.clear()
-	var y := 58.0
+	_rules.clear()
+	var y := TOP
 	_heads["type"] = y
-	y += 16.0
+	y += 20.0
 	for o in GameData.CONTENT.occurrences:
 		_cells.append([Rect2(Vector2(10, y), CELL), "type", o])
 		y += ROW
+		_rules.append(y - 3.0)
 	y += 6.0
 	_heads["unit"] = y
-	y += 16.0
+	y += 20.0
 	for u in Dispatch.UNIT_IDS:
 		_cells.append([Rect2(Vector2(10, y), CELL), "unit", u])
 		y += 16.0 + Pal.ui.get_multiline_string_size(_why(u), HORIZONTAL_ALIGNMENT_LEFT, CARD_W - 36.0, 11).y + 4.0
-	_card_h = y + 4.0
+		_rules.append(y - 3.0)
+	_card_h = y + FOOT
 	_sheet.size = Vector2(CARD_W, _card_h)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = _serial
+	_specks.clear()
+	for i in 46:
+		_specks.append(Vector2(rng.randi_range(3, int(CARD_W) - 5), rng.randi_range(22, int(_card_h) - 6)))
 
 
 func _why(u: String) -> String:
@@ -192,13 +233,22 @@ func _process(delta: float) -> void:
 				(inserted if _into == "send" else discarded).emit()
 	var shredding := state == State.FEEDING and _into == "shred"
 	_shake = Vector2(randi_range(-1, 1), randi_range(-1, 1)) if shredding else Vector2.ZERO
-	var shown := state in [State.READY, State.DRAGGING] or state == State.FEEDING and _into == "send"
+	var shown := _open and (state in [State.READY, State.DRAGGING] or state == State.FEEDING and _into == "send")
+	var was := Vector3(_up, _in, _down)
 	_up = move_toward(_up, 1.0 if shown else 0.0, delta / SENDER_SEC)
+	_in = move_toward(_in, 1.0 if _open else 0.0, delta / SHREDDER_SEC)
+	_down = move_toward(_down, 1.0 if _open else 0.0, delta / PRINTER_SEC)
+	var close := get_node_or_null("Close") as Control   # o × fica na impressora
+	if close != null:
+		close.position.y = _printer().position.y + 5.0
+	if _closing and _up == 0.0 and _in == 0.0 and _down == 0.0:
+		_closing = false
+		closed.emit()
 	for ch in _chads:
 		ch[1] += delta
 	_chads = _chads.filter(func(ch): return ch[1] < CHAD_SEC)
 	_place_sheet()
-	if state != State.IDLE or _up > 0.0:
+	if state != State.IDLE or _up > 0.0 or was != Vector3(_up, _in, _down):
 		queue_redraw()
 
 
@@ -228,7 +278,7 @@ func _notification(what: int) -> void:
 # ------------------------------------------------------------------ mouse
 
 func _has_point(p: Vector2) -> bool:
-	if _printer().has_point(p) or _machine("shred").has_point(p) or state == State.DRAGGING:
+	if _down > 0.0 and _printer().has_point(p) or _in > 0.0 and _machine("shred").has_point(p) or state == State.DRAGGING:
 		return true
 	if state in [State.READY, State.FEEDING] and _card_rect().has_point(p):
 		return true
@@ -286,7 +336,8 @@ func _drop() -> void:
 	for m in ["send", "shred"]:
 		var r := _machine(m)
 		var centered := absf(_pos.x + CARD_W / 2.0 - r.get_center().x) < CARD_W / 3.0
-		if centered and bottom >= _slot(m) - NEAR_SLOT and bottom <= r.end.y and (m == "shred" or _up > 0.5):
+		var there := _up > 0.5 if m == "send" else _in > 0.5
+		if there and centered and bottom >= _slot(m) - NEAR_SLOT and bottom <= r.end.y:
 			_pos.x = r.get_center().x - CARD_W / 2.0
 			_from = _pos.y
 			_into = m
@@ -306,10 +357,12 @@ func _text(ci: CanvasItem, p: Vector2, s: String, col: Color, width := -1.0, ali
 func _draw() -> void:
 	if _up > 0.0:
 		_draw_sender()
-	_draw_shredder()
-	_draw_printer()
-	if state == State.IDLE or state == State.TYPING:
-		_draw_tongue()
+	if _in > 0.0:
+		_draw_shredder()
+	if _down > 0.0:
+		_draw_printer()
+		if state == State.IDLE or state == State.TYPING:
+			_draw_tongue()
 
 
 ## Caixa de metal: sombra na mesa, borda, luz em cima e à esquerda, sombra embaixo e à direita, parafusos nos cantos.
@@ -371,7 +424,7 @@ func _draw_tongue() -> void:
 ## O transmissor: fenda em cima com setas, placa com o nome, luz de pronto e o aviso, saída de ar e pés.
 func _draw_sender() -> void:
 	var r := _machine("send")
-	var a := _up
+	var a := 1.0
 	for x in [r.position.x + 14.0, r.end.x - 34.0]:
 		draw_rect(Rect2(x, r.end.y, 20, 3), Color(Pal.EDGE, a))   # os pés
 	_box(r, a)
@@ -414,40 +467,84 @@ func _draw_shredder() -> void:
 	_vent(Vector2(r.end.x - 60.0, r.position.y + 37.0), 3, 46.0)
 
 
-## O cartão, nas coordenadas dele (`_sheet`).
+## O cartão, nas coordenadas dele (`_sheet`): formulário impresso em vermelho (faixa, rótulos, posições de furo,
+## pauta e rodapé) e os dados datilografados em preto, com sombra na mesa (maior com ele na mão).
 func _draw_card() -> void:
 	var ci := _sheet
 	var shape := PackedVector2Array([Vector2(10, 0), Vector2(CARD_W, 0), Vector2(CARD_W, _card_h), Vector2(0, _card_h), Vector2(0, 10)])
+	var lift := SHADOW_HELD if state == State.DRAGGING else SHADOW_REST
+	var shadow := PackedVector2Array()
+	for q in shape:
+		shadow.append(q + lift)
+	ci.draw_colored_polygon(shadow, SHADOW)
 	ci.draw_colored_polygon(shape, CARD)   # o canto cortado dos cartões perfurados
-	shape.append(shape[0])
-	ci.draw_polyline(shape, CARD_EDGE, 1.0)
-	_text(ci, Vector2(14, 16), T.text(T.Key.CARD_TITLE), Pal.INK_SOFT)
-	_text(ci, Vector2(14, 16), T.text(T.Key.CARD_SERIAL) % _serial, Pal.INK_SOFT, CARD_W - 22.0, HORIZONTAL_ALIGNMENT_RIGHT)
-	_text(ci, Vector2(14, 32), _place, Pal.INK)
-	_text(ci, Vector2(14, 46), "%s · %s" % [T.text(CityMap.DISTRICT[_sector]).to_upper(), T.text(T.Key.CARD_SECTOR) % _sector], Pal.INK_SOFT)
-	for x in range(8, int(CARD_W) - 8, 4):
-		ci.draw_rect(Rect2(x, 52, 2, 1), CARD_EDGE)
+	for sp in _specks:   # fibras do papel
+		ci.draw_rect(Rect2(sp, Vector2(2 if int(sp.x) % 3 == 0 else 1, 1)), CARD.darkened(0.1))
+	# cabeçalho: a faixa impressa, o local e o bairro datilografados em linhas de preencher
+	ci.draw_colored_polygon(PackedVector2Array([Vector2(10, 0), Vector2(CARD_W, 0), Vector2(CARD_W, 18), Vector2(0, 18), Vector2(0, 10)]), FORM)
+	_text(ci, Vector2(14, 13), T.text(T.Key.CARD_TITLE), CARD)
+	_text(ci, Vector2(14, 13), T.text(T.Key.CARD_SERIAL) % _serial, CARD, CARD_W - 22.0, HORIZONTAL_ALIGNMENT_RIGHT)
+	_text(ci, Vector2(10, 32), T.text(T.Key.CARD_PLACE), FORM)
+	var box := Rect2(CARD_W - 21.0, 22.0, 11, 12)   # o setor, datilografado numa caixinha à direita
+	ci.draw_rect(box, FORM, false, 1.0)
+	_text(ci, Vector2(box.position.x, 32), str(_sector), Pal.INK, box.size.x, HORIZONTAL_ALIGNMENT_CENTER)
+	_text(ci, Vector2(10, 32), T.text(T.Key.CARD_SECTOR), FORM, box.position.x - 15.0, HORIZONTAL_ALIGNMENT_RIGHT)
+	_text(ci, Vector2(10, 47), _place, Pal.INK)
+	_field(ci, 10.0, 50.0)
+	var label := T.text(T.Key.CARD_DISTRICT)
+	var at := 16.0 + Pal.ui.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
+	_text(ci, Vector2(10, 66), label, FORM)
+	_text(ci, Vector2(at, 66), T.text(CityMap.DISTRICT[_sector]).to_upper(), Pal.INK)
+	_field(ci, at, 69.0)
+	ci.draw_rect(Rect2(6, TOP - 7.0, CARD_W - 12.0, 1), FORM)   # fio duplo
+	ci.draw_rect(Rect2(6, TOP - 5.0, CARD_W - 12.0, 1), FORM)
+	# as partes: título com a caixinha (um X datilografado quando perfurada) e a pauta entre as linhas
 	var heads := {"type": [dispatch.occurrence() != "", T.Key.DISPATCH_CHECK_TYPE], "unit": [not dispatch.picked().is_empty(), T.Key.DISPATCH_CHECK_UNITS]}
 	for kind in heads:
-		var done: bool = heads[kind][0]
-		_text(ci, Vector2(10, _heads[kind] + 10.0), ("[x] " if done else "[ ] ") + T.text(heads[kind][1]).to_upper(), Pal.INK if done else MISSING)
+		var y: float = _heads[kind]
+		_text(ci, Vector2(10, y + 11.0), T.text(heads[kind][1]).to_upper(), FORM)
+		var check := Rect2(CARD_W - 21.0, y + 1.0, 11, 11)
+		ci.draw_rect(check, FORM, false, 1.0)
+		if heads[kind][0]:
+			_text(ci, Vector2(check.position.x, check.position.y + 10.0), "X", Pal.INK, check.size.x, HORIZONTAL_ALIGNMENT_CENTER)
+		ci.draw_rect(Rect2(10, y + 15.0, CARD_W - 20.0, 1), Color(FORM, 0.5))
+	for y in _rules:
+		ci.draw_rect(Rect2(28, y, CARD_W - 38.0, 1), RULE)
 	var count := {"type": 0, "unit": 0}   # cada parte numera as suas posições: 1, 2, 3...
 	for c in _cells:
 		count[c[1]] += 1
 		_draw_cell(ci, c[0], c[1], c[2], count[c[1]])
+	# rodapé: o fio, o nome da central e as marcas de coluna na borda, como nos cartões perfurados
+	var foot := _card_h - FOOT + 4.0
+	ci.draw_rect(Rect2(6, foot, CARD_W - 12.0, 1), FORM)
+	_text(ci, Vector2(0, foot + 12.0), T.text(T.Key.GAME_TITLE).to_upper(), Color(FORM, 0.8), CARD_W, HORIZONTAL_ALIGNMENT_CENTER)
+	for x in range(6, int(CARD_W) - 4, 6):
+		ci.draw_rect(Rect2(x, _card_h - 3.0, 1, 2), Color(FORM, 0.35))
+	shape.append(shape[0])
+	ci.draw_polyline(shape, CARD_EDGE, 1.0)
+	ci.draw_rect(Rect2(1, _card_h - 1.0, CARD_W - 1.0, 1), CARD_EDGE.darkened(0.25))   # a espessura do cartão
+	ci.draw_rect(Rect2(CARD_W - 1.0, 1, 1, _card_h - 1.0), CARD_EDGE.darkened(0.25))
 	for ch in _chads:   # o picote do furo caindo
 		var k: float = ch[1] / CHAD_SEC
 		ci.draw_rect(Rect2(ch[0] + Vector2(-3, -5 + 60.0 * k * k), Vector2(6, 9)), Color(CARD, 1.0 - k))
 
 
-## Uma posição de perfuração e o que ela quer dizer.
+## Linha de preencher (pontilhado vermelho) embaixo de um dado datilografado.
+func _field(ci: CanvasItem, x: float, y: float) -> void:
+	for fx in range(int(x), int(CARD_W) - 10, 3):
+		ci.draw_rect(Rect2(fx, y, 1, 1), Color(FORM, 0.6))
+
+
+## Uma posição de perfuração (impressa em vermelho, com o número) e o que ela quer dizer.
 func _draw_cell(ci: CanvasItem, r: Rect2, kind: String, id: String, n: int) -> void:
 	var busy := kind == "unit" and not dispatch.unit_free(id)
 	if _punched(kind, id):
 		ci.draw_rect(r, HOLE)
+		ci.draw_rect(Rect2(r.position.x, r.end.y - 1.0, r.size.x, 1), Color(1, 1, 1, 0.18))   # a luz passando pelo furo
 	else:
-		ci.draw_rect(r, Pal.INK_SOFT, false, 1.0)
-		_text(ci, Vector2(r.position.x, r.position.y + 11.0), str(n), Color(Pal.INK_SOFT, 1.0 if _can_punch(kind, id) else 0.35),
+		ci.draw_rect(r, Color(FORM, 0.08))
+		ci.draw_rect(r, FORM, false, 1.0)
+		_text(ci, Vector2(r.position.x, r.position.y + 11.0), str(n), Color(FORM, 1.0 if _can_punch(kind, id) else 0.3),
 			r.size.x, HORIZONTAL_ALIGNMENT_CENTER)
 	var at := Vector2(r.end.x + 8.0, r.position.y + 11.0)
 	if kind == "type":
@@ -455,8 +552,8 @@ func _draw_cell(ci: CanvasItem, r: Rect2, kind: String, id: String, n: int) -> v
 		return
 	_text(ci, at, T.text(Dispatch.UNIT_NAMES[id]), MISSING if busy else Pal.INK, CARD_W - 36.0)
 	if busy:   # ocupada: riscada, e o estado no lugar do protocolo
-		ci.draw_line(r.position, r.end, MISSING, 1.0)
-		ci.draw_line(Vector2(r.position.x, r.end.y), Vector2(r.end.x, r.position.y), MISSING, 1.0)
+		ci.draw_line(r.position, r.end, Pal.INK, 1.0)
+		ci.draw_line(Vector2(r.position.x, r.end.y), Vector2(r.end.x, r.position.y), Pal.INK, 1.0)
 		_text(ci, at + Vector2(0, 14), T.text(Dispatch.UNIT_STATUS[dispatch.unit_state(id)]), MISSING, CARD_W - 36.0)
 		return
 	ci.draw_multiline_string(Pal.mono, (at + Vector2(0, 14)).round(), _why(id), HORIZONTAL_ALIGNMENT_LEFT, CARD_W - 36.0, 11, -1, Pal.INK_SOFT)

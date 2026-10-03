@@ -717,7 +717,7 @@ func _initialize() -> void:
 		_mouse(card, at + to - card._pos)
 		_mouse(card, at + to - card._pos, 0)
 	var slot := func(machine: String) -> Vector2:   # o canto do cartão com a borda de baixo na fenda da máquina
-		await wait_until(func(): return card._up >= 1.0, 2.0)   # o transmissor termina de subir
+		await wait_until(func(): return card._up >= 1.0 and card._in >= 1.0, 2.0)   # as máquinas terminam de entrar
 		return Vector2(card._machine(machine).get_center().x - card.CARD_W / 2.0, card._slot(machine) - card._card_h + 8.0)
 	drag.call(await slot.call("send"))
 	ok(card.state == card.State.FEEDING, "cartão em branco também entra no cartucho")
@@ -749,7 +749,8 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return d._location.is_empty(), 3.0), "o cartão no cartucho envia")
 	ok(d.occurrence() == "" and d.picked().is_empty() and d.city.sel.is_empty() and card.state == card.State.IDLE, "depois de enviar, local e tipo limpos")
 	ok(not d.unit_free("amb"), "ambulância a caminho fica indisponível")
-	ok(not d._slip.visible, "depois de enviar, a ficha se recolhe")
+	ok(d._slip.visible and card._up < 1.0, "depois de enviar, as máquinas se recolhem animadas...")
+	ok(await wait_until(func(): return not d._slip.visible, 3.0) and d.get_node("%Open").visible, "...e a ficha some")
 	await frames(2)
 	ok(d.get_node("%Fleet").visible and d.get_node("%Report").text.contains(T.text(T.Key.UNIT_AMBULANCE)), "a faixa das viaturas mostra quem saiu")
 	m.tools.set_tab("lista")
