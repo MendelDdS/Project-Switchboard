@@ -138,8 +138,15 @@ func _ready() -> void:
 
 ## Tudo que se clica para escolher (botões, listas, controles deslizantes) mostra a mão com o dedo.
 func _on_node_added(n: Node) -> void:
-	if (n is BaseButton or n is Slider) and n.mouse_default_cursor_shape == Control.CURSOR_ARROW:
-		n.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	if n is BaseButton or n is Slider:
+		_point.call_deferred(n)
+
+
+## Depois do quadro: trocar o cursor faz o Viewport olhar o que está sob o mouse, e no meio de uma cena entrando na
+## árvore isso esbarra em nós que ainda não entraram (erro `!is_inside_tree()` no log).
+func _point(c: Control) -> void:
+	if is_instance_valid(c) and c.mouse_default_cursor_shape == Control.CURSOR_ARROW:
+		c.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 
 
 ## Uma Image (e não textura): o Input a guarda até o fim, e textura sobrevivendo ao servidor de renderização vaza.

@@ -366,11 +366,7 @@ func _draw_names(names: bool) -> void:
 		_label(SHEETS[0] + Vector2(320, 300), T.text(T.Key.MAP_RURAL), 11, Pal.INK_SOFT)
 	for st in GameData.CONTENT.streets:
 		for sheet in _sheets_of(st):
-			var o: Vector2 = SHEETS[sheet]
-			if st.horizontal:
-				_label(o + Vector2(180, st.pos + 5), st.name, 11, LINE, ROAD)
-			else:
-				_vertical_name(o, st)
+			_street_name(SHEETS[sheet], st)
 	for pl in _places:
 		_place_name(pl[0], pl[1], pl[2])
 	if _k < NUMBERS_K:
@@ -386,17 +382,20 @@ func _draw_names(names: bool) -> void:
 				_label(p0 + Vector2(-13, 26), str(b * 100), 11, Pal.INK_SOFT, Color.TRANSPARENT, true)   # na beira da quadra
 
 
-## Rua vertical: o nome em pé ao longo dela (como nos aplicativos de mapa), no meio de um trecho entre dois
-## cruzamentos, primeiro os compridos; abreviado ("R. do Sol") se o inteiro não couber no trecho; com o mapa afastado,
-## o abreviado pode passar por um cruzamento. Sem lugar (encostaria noutro nome), fica para a etiqueta do mouse.
-func _vertical_name(o: Vector2, st: Street) -> void:
+## Nome da rua ao longo dela (as verticais em pé, como nos aplicativos de mapa), no meio de um trecho entre dois
+## cruzamentos: o primeiro trecho à vista em que caiba inteiro (os compridos primeiro), senão abreviado ("R. do Sol",
+## "Av. Brasil"); com o mapa afastado, o abreviado pode passar por um cruzamento. Sem lugar (fora da vista ou
+## encostando noutro nome), fica para a etiqueta do mouse.
+func _street_name(o: Vector2, st: Street) -> void:
 	var short := st.name.replace("Rua ", "R. ").replace("Avenida ", "Av. ")
+	var cuts: Array = XS if st.horizontal else YS   # onde as ruas do outro sentido a cruzam
 	for opt in [[st.name, true], [short, true], [short, false]]:
-		for i in [1, 2, 0, 3]:
-			var y0: float = YS[i]
-			var y1: float = YS[i + 1]
-			var fits: bool = _width(opt[0], 11) + 12.0 <= (y1 - y0) * _k
-			if (fits or not opt[1]) and _label(o + Vector2(st.pos + 5, (y0 + y1) / 2.0), opt[0], 11, LINE, ROAD, true):
+		for i in ([1, 2, 3, 0, 4] if st.horizontal else [1, 2, 0, 3]):
+			var a: float = cuts[i]
+			var b: float = cuts[i + 1]
+			var mid := Vector2((a + b) / 2.0, st.pos + 5) if st.horizontal else Vector2(st.pos + 5, (a + b) / 2.0)
+			var fits: bool = _width(opt[0], 11) + 12.0 <= (b - a) * _k
+			if (fits or not opt[1]) and _label(o + mid, opt[0], 11, LINE, ROAD, not st.horizontal):
 				return
 
 
