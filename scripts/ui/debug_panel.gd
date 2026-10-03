@@ -101,7 +101,7 @@ func _process(_delta: float) -> void:
 	var total := e.stage_sec.x + e.stage_sec.y + e.stage_sec.z
 	_bar.text = "%s · estágio %d (contado: %d)%s\nbarra: %.0f de %.0f s%s\nexige agora: %s\nreal (sem ouvir): %s" % [
 		e.address, c.stage, c.told, " · socorro completo" if c.secured else "", c.urgency, total,
-		" · congelada" if main.debug_freeze else "", _units(main.dispatch.required()), _units(e.required(c.stage))]
+		" · congelada" if main.debug_freeze else "", _units(main.dispatch.fleet.required()), _units(e.required(c.stage))]
 
 
 func _ring(c: PhoneCall) -> void:
@@ -211,7 +211,7 @@ func _register_all() -> void:
 
 
 func _units(us: Array) -> String:
-	return ", ".join(us.map(func(u): return T.text(Dispatch.UNIT_NAMES[u]).to_lower())) if not us.is_empty() else "—"
+	return ", ".join(us.map(func(u): return T.text(Fleet.NAMES[u]).to_lower())) if not us.is_empty() else "—"
 
 
 # ---------------------------------------------------------------- mesa de som

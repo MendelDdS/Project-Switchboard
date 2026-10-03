@@ -7,35 +7,28 @@ extends Control
 ## (`_location`, `_occurrence`, `_picked`). A ficha abre ao marcar um local ou quando chega uma emergência e se
 ## recolhe depois do envio (`Open` a reabre); abrir ou fechar não mexe no mapa. O transmissor aceita cartão incompleto:
 ## sem unidade, ninguém sai (`blank_card`, o supervisor pune); sem tipo, as unidades vão e a chegada é avaliada com o
-## tipo vazio. Depois do envio, tudo volta limpo para a próxima. Cuida da ida das viaturas, das mensagens de rádio e
-## de avaliar se o local e as unidades batem com a emergência em andamento.
+## tipo vazio. Depois do envio, tudo volta limpo para a próxima. As regras das viaturas e da emergência em andamento
+## ficam no `Fleet` (`fleet`); aqui ficam a tela, o rádio e o tempo das viagens.
 
 ## `complete`: tudo o que a emergência precisa agora está a caminho do lugar certo (contando envios anteriores).
 ## `card`: o número do cartão enviado (vai para o caderno).
 signal sent(location: String, units_text: String, complete: bool, card: int)
-## As unidades chegaram. `result`: "ok" (resolvido), "missing" (faltou unidade), "wrong_place" ou "idle"
-## (não havia emergência em andamento). `e` é nulo em "idle". `occurrence` é o tipo marcado no despacho;
+## As unidades chegaram (`Fleet.arrive`). `e` é nulo em `IDLE`. `occurrence` é o tipo marcado no despacho;
 ## `extra`, as unidades que foram ao local certo sem ser necessárias.
-signal arrived(e: EmergencyCall, result: String, occurrence: String, extra: Array)
+signal arrived(e: EmergencyCall, result: Fleet.Result, occurrence: String, extra: Array)
 ## Um cartão entrou no transmissor sem nenhuma unidade perfurada: ninguém saiu.
 signal blank_card(location: String)
 
-enum Unit { AVAILABLE, EN_ROUTE, ON_SITE, RETURNING }
-const UNIT_IDS := ["pol", "bomb", "amb"]
-const UNIT_NAMES := {"pol": T.Key.UNIT_POLICE, "bomb": T.Key.UNIT_FIRE, "amb": T.Key.UNIT_AMBULANCE}
-const UNIT_STATUS := [T.Key.UNIT_AVAILABLE, T.Key.UNIT_EN_ROUTE, T.Key.UNIT_ON_SITE, T.Key.UNIT_RETURNING]
 const STAY := 12.0          # s no local atendendo, antes de voltar para a base
 const QUICK_STAY := 0.8     # s até virar e voltar, depois de o rádio dizer que ela não era necessária...
 const QUICK_WAIT := 3.0     # ...ou, com o rádio ainda ocupado com outras mensagens, depois de chegar
 
 var radio: Radio
+var fleet := Fleet.new()
 
 var _location := {}          ## {"street", "block", "label"} marcado no mapa
 var _occurrence := ""        ## tipo perfurado no cartão ("" = nenhum)
 var _picked: Array = []      ## unidades perfuradas no cartão
-var _units := {"pol": Unit.AVAILABLE, "bomb": Unit.AVAILABLE, "amb": Unit.AVAILABLE}
-var _incident := {}          ## emergência em andamento: call, street, block, req, sent, resolved, addr
-var _gen := 0                ## sobe no `reset`: viagens de antes dele não chegam nem voltam mais
 var _open := false           ## a ficha aberta (fechando, ela some só quando as máquinas se recolhem)
 
 @onready var city: CityMap = %City
@@ -117,7 +110,7 @@ func set_occurrence(o: String) -> void:
 
 ## Perfura a unidade no cartão (se estiver disponível).
 func punch_unit(u: String) -> void:
-	if unit_free(u) and not u in _picked:
+	if fleet.is_free(u) and not u in _picked:
 		_picked.append(u)
 		_refresh()
 
@@ -130,79 +123,46 @@ func picked() -> Array:
 	return _picked
 
 
-func unit_free(u: String) -> bool:
-	return _units[u] == Unit.AVAILABLE
-
-
-func unit_state(u: String) -> Unit:
-	return _units[u]
-
-
-## Uma emergência começou a tocar: guarda onde é e o que precisa (no estágio de agravamento `stage`), para
-## avaliar o que for enviado.
+## Uma emergência começou a tocar (`Fleet.set_incident`): a ficha abre.
 func set_incident(e: EmergencyCall, stage := 0) -> void:
-	_incident = {"call": e, "street": e.street, "block": e.block, "req": Array(e.required(stage)), "sent": [], "going": [], "resolved": false, "addr": e.address}
+	fleet.set_incident(e, stage)
 	open_slip(true)
-
-
-## A situação piorou antes do despacho: passa a precisar destas unidades.
-func require(units: PackedStringArray) -> void:
-	if not _incident.is_empty():
-		_incident["req"] = Array(units)
 
 
 ## Debug: todas as viaturas livres na hora (as que estavam a caminho não chegam mais) e nada marcado no despacho.
 ## `forget` também esquece a emergência em andamento.
 func reset(forget := false) -> void:
-	_gen += 1
-	for u in UNIT_IDS:
-		_units[u] = Unit.AVAILABLE
-	city.remove_units(UNIT_IDS)
+	fleet.reset(forget)
+	city.remove_units(Fleet.IDS)
 	_location = {}
 	_occurrence = ""
 	_picked.clear()
 	city.clear_selection()
 	machines.clear()
-	if forget:
-		_incident = {}
 	_refresh()
-
-
-## Unidades que a emergência em andamento precisa agora.
-func required() -> Array:
-	return _incident.get("req", [])
-
-
-## Há unidades a caminho (a chegada ainda vai ser avaliada contra a emergência atual).
-func en_route() -> bool:
-	return _units.values().has(Unit.EN_ROUTE)
 
 
 ## Local, tipo e ao menos uma unidade marcados (a luz verde do transmissor; incompleto também entra).
 func can_send() -> bool:
-	return not _location.is_empty() and _occurrence != "" and not _selected_units().is_empty()
+	return not _location.is_empty() and _occurrence != "" and not fleet.available(_picked).is_empty()
 
 
 func _refresh() -> void:
 	if not is_node_ready():
 		return
 	machines.refresh()
-	var busy := UNIT_IDS.filter(func(u): return _units[u] != Unit.AVAILABLE)
-	_report.text = "  ·  ".join(PackedStringArray(busy.map(func(u): return "%s: %s" % [T.text(UNIT_NAMES[u]), T.text(UNIT_STATUS[_units[u]])])))
+	var busy := fleet.busy()
+	_report.text = "  ·  ".join(PackedStringArray(busy.map(func(u): return "%s: %s" % [T.text(Fleet.NAMES[u]), T.text(Fleet.STATUS[fleet.units[u]])])))
 	if %Fleet.visible != not busy.is_empty():
 		%Fleet.visible = not busy.is_empty()
 		_block.call_deferred()   # a faixa muda de tamanho só no quadro seguinte
-
-
-func _selected_units() -> Array:
-	return UNIT_IDS.filter(func(u): return u in _picked and _units[u] == Unit.AVAILABLE)
 
 
 ## O cartão entrou no transmissor.
 func _send() -> void:
 	if _location.is_empty():
 		return
-	var us := _selected_units()
+	var us := fleet.available(_picked)
 	var target := _location.duplicate()
 	target["occurrence"] = _occurrence
 	Sfx.static_burst(0.0, radio.screen_x())
@@ -215,24 +175,18 @@ func _send() -> void:
 	var names := PackedStringArray()
 	var travel := 0.0   # quem vem de mais longe (o Centro fica num canto da cidade) chega por último
 	for u in us:
-		_units[u] = Unit.EN_ROUTE
 		travel = maxf(travel, city.trip(u, target))
-		names.append(T.text(UNIT_NAMES[u]))
+		names.append(T.text(Fleet.NAMES[u]))
+	var complete := fleet.send(us, target)
 	_clean()
-	var complete := false
-	if not _incident.is_empty() and _incident["street"] == target["street"] and _incident["block"] == target["block"]:
-		for u in us:
-			if not u in _incident["going"]:
-				_incident["going"].append(u)
-		complete = _incident["req"].all(func(r): return r in _incident["going"])
 	sent.emit(String(target["label"]), ", ".join(names), complete, machines.serial())
-	var gen := _gen
+	var gen := fleet.gen
 	await get_tree().create_timer(1.8, false).timeout
-	if gen != _gen:
+	if gen != fleet.gen:
 		return
 	radio.say(T.text([T.Key.RADIO_ON_WAY, T.Key.RADIO_COPY].pick_random()))
 	await get_tree().create_timer(maxf(travel - 1.8, 0.5), false).timeout
-	if gen == _gen:
+	if gen == fleet.gen:
 		_arrive(us, target)
 
 
@@ -256,48 +210,32 @@ func _clean() -> void:
 	open_slip(false)
 
 
+## Na chegada, o rádio diz o que encontraram; quem não era necessário volta logo, o resto depois de `STAY`.
 func _arrive(us: Array, target: Dictionary) -> void:
-	for u in us:
-		_units[u] = Unit.ON_SITE
+	var got := fleet.arrive(us, target)
 	_refresh()
-	var msg := ""
-	var result := "ok"
-	var extra := []
-	if _incident.is_empty() or _incident["resolved"]:
-		msg = T.text(T.Key.RADIO_NOTHING)
-		result = "idle"
-	elif _incident["street"] != target["street"] or _incident["block"] != target["block"]:
-		# endereço errado: não há nada a fazer lá, e as unidades voltam a ficar disponíveis
-		msg = T.text(T.Key.RADIO_WRONG_PLACE) % String(target["label"]).split(",")[0]
-		result = "wrong_place"
-	else:
-		for u in us:
-			if not u in _incident["sent"]:
-				_incident["sent"].append(u)
-			if not u in _incident["req"]:
-				extra.append(u)
-		var miss := []
-		for r in _incident["req"]:
-			if not r in _incident["sent"]:
-				miss.append(T.text(UNIT_NAMES[r]).to_lower())
-		if not miss.is_empty():
-			msg = T.text(T.Key.RADIO_NEED) % [(" %s " % T.text(T.Key.AND)).join(PackedStringArray(miss)), _incident["addr"]]
-			result = "missing"
-		else:
+	var and_ := " %s " % T.text(T.Key.AND)
+	var lower := func(list: Array) -> String: return and_.join(PackedStringArray(list.map(func(u): return T.text(Fleet.NAMES[u]).to_lower())))
+	var msg: String
+	match got["result"]:
+		Fleet.Result.IDLE:
+			msg = T.text(T.Key.RADIO_NOTHING)
+		Fleet.Result.WRONG_PLACE:
+			msg = T.text(T.Key.RADIO_WRONG_PLACE) % String(target["label"]).split(",")[0]
+		Fleet.Result.MISSING:
+			msg = T.text(T.Key.RADIO_NEED) % [lower.call(got["missing"]), fleet.incident["addr"]]
+		_:
 			msg = T.text(T.Key.RADIO_UNDER_CONTROL)
-			_incident["resolved"] = true
 	radio.say(msg)
-	var useless := result in ["wrong_place", "idle"]   # ninguém ali precisava delas
-	var complaint := msg if useless else ""
-	if not extra.is_empty():
-		var names := PackedStringArray(extra.map(func(u): return T.text(UNIT_NAMES[u]).to_lower()))
-		complaint = T.text(T.Key.RADIO_NOT_NEEDED) % (" %s " % T.text(T.Key.AND)).join(names)
+	var complaint := msg if got["result"] in [Fleet.Result.IDLE, Fleet.Result.WRONG_PLACE] else ""
+	if not got["extra"].is_empty():
+		complaint = T.text(T.Key.RADIO_NOT_NEEDED) % lower.call(got["extra"])
 		radio.say(complaint)
-	arrived.emit(null if result == "idle" else _incident["call"], result, target["occurrence"], extra)
+	var e: EmergencyCall = null if got["result"] == Fleet.Result.IDLE else fleet.incident["call"]
+	arrived.emit(e, got["result"], target["occurrence"], got["extra"])
 	# quem não era necessário volta assim que o rádio termina de dizer isso
-	var quick: Array = us if useless else extra
-	_return(quick, QUICK_STAY, complaint)
-	_return(us.filter(func(u): return not u in quick), STAY)
+	_return(got["unneeded"], QUICK_STAY, complaint)
+	_return(us.filter(func(u): return not u in got["unneeded"]), STAY)
 
 
 ## Depois de `stay` s no local, as unidades voltam para a base pelo mapa e só então ficam disponíveis. Com `after`, os
@@ -305,7 +243,7 @@ func _arrive(us: Array, target: Dictionary) -> void:
 func _return(us: Array, stay: float, after := "") -> void:
 	if us.is_empty():
 		return
-	var gen := _gen
+	var gen := fleet.gen
 	if after != "":
 		var heard := [false]   # lista: a função abaixo não altera uma variável daqui
 		var hear := func(t: String): heard[0] = heard[0] or t == after
@@ -315,19 +253,15 @@ func _return(us: Array, stay: float, after := "") -> void:
 			await get_tree().process_frame
 		radio.said.disconnect(hear)
 	await get_tree().create_timer(stay, false).timeout
-	if gen != _gen:
+	if gen != fleet.gen:
 		return
 	var back := 0.0
-	for u in us:
-		if _units[u] == Unit.ON_SITE:
-			_units[u] = Unit.RETURNING
-			back = maxf(back, city.go_home(u))
+	for u in fleet.leave(us):
+		back = maxf(back, city.go_home(u))
 	_refresh()
 	await get_tree().create_timer(back, false).timeout
-	if gen != _gen:
+	if gen != fleet.gen:
 		return
-	for u in us:
-		if _units[u] == Unit.RETURNING:
-			_units[u] = Unit.AVAILABLE
+	fleet.home(us)
 	city.remove_units(us)
 	_refresh()

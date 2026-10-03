@@ -276,7 +276,7 @@ func _worsen(delta: float) -> void:
 	var more := Array(e.required(c.stage)).filter(func(u): return not u in e.required(c.told))
 	var msg := T.text(T.Key.RADIO_LOST if c.stage == 3 else T.Key.RADIO_WORSE) % e.address
 	if not more.is_empty():
-		var names := PackedStringArray(more.map(func(u): return T.text(Dispatch.UNIT_NAMES[u]).to_lower()))
+		var names := PackedStringArray(more.map(func(u): return T.text(Fleet.NAMES[u]).to_lower()))
 		msg += " " + T.text(T.Key.RADIO_SEND_MORE) % (" %s " % T.text(T.Key.AND)).join(names)
 	radio.say(msg)
 	emergency_told(c, c.stage)
@@ -287,7 +287,7 @@ func _worsen(delta: float) -> void:
 func emergency_told(c: PhoneCall, stage: int) -> void:
 	c.told = maxi(c.told, stage)
 	if c == em_call:
-		dispatch.require((c.data as EmergencyCall).required(c.told))
+		dispatch.fleet.require((c.data as EmergencyCall).required(c.told))
 
 
 ## Esc: primeiro devolve o plug que está na mão; sem plug na mão, pausa o turno. 1, 2 e 3 abrem as abas (só durante
@@ -653,7 +653,7 @@ func _run_schedule() -> void:
 	# empilhar ligações sobre quem já está sobrecarregado; as outras esperam uma entrada livre.
 	var hush := (c.kind == PhoneCall.Kind.MYSTERY or c.retry != PhoneCall.Retry.NONE) and not live.is_empty() and minutes < c.latest
 	# o despacho cuida de uma emergência por vez: a próxima espera a anterior desligar e as unidades chegarem
-	if c.kind == PhoneCall.Kind.EMERGENCY and ((em_call != null and (not em_call.ended or em_call.urgent())) or dispatch.en_route()):
+	if c.kind == PhoneCall.Kind.EMERGENCY and ((em_call != null and (not em_call.ended or em_call.urgent())) or dispatch.fleet.en_route()):
 		hush = true
 	# não sobrecarregar: com `Pace.max_live` ligações pedindo atenção, a próxima espera (a desconhecida tem regra própria)
 	if c.kind != PhoneCall.Kind.MYSTERY and live.size() >= pace.max_live:

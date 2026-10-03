@@ -2,11 +2,9 @@ extends "res://tests/test_base.gd"
 ## Cenários dirigidos: transferência, várias ligações, desistência, caderno, lugar fechado,
 ## cortar conversa, ligar de volta para o número desconhecido, clique/arraste dos plugs.
 ## FONE = ponta 0; cabos de conexão = pontas 1..6 (da SAÍDA ao destino).
-## `m` e `b` ficam sem tipo: Main e Switchboard usam o autoload Sfx, que ainda não existe quando o Godot
-## compila um script passado com -s.
 
-var m   # Main
-var b   # Switchboard
+var m: Main
+var b: Switchboard
 var ex: Exchange
 
 
@@ -189,7 +187,7 @@ func _initialize() -> void:
 	for s in 5:
 		ok(em_streets.call().all(func(x): return x == 3), "emergências só nas ruas do setor 3")
 	# mapa: setor sombreado não responde; a viagem do Centro é mais longa quanto mais longe
-	var city = m.dispatch.city
+	var city := m.dispatch.city
 	var on_street := func(id: String, b: int): return city.seg_geom(GameData.street(id), b)[2]
 	ok(city._find_seg(on_street.call("brasil", 1)).get("block") == 1 and city._find_seg(on_street.call("brasil", 4)).is_empty(),
 		"mapa: a Avenida Brasil só nos trechos do setor atendido")
@@ -204,9 +202,34 @@ func _initialize() -> void:
 		and going["pts"][0] == site, "a viatura volta do local para a base pelo mesmo caminho, no mesmo tempo")
 	city.remove_units(["pol"])
 	ok(trip_c < trip_3 and trip_3 < trip_2, "viagem do Centro: %.1f s no Centro, %.1f s no setor 3, %.1f s no setor 2" % [trip_c, trip_3, trip_2])
+	# viaturas e emergência (`Fleet`, sem tela nem tempo): completo só com tudo a caminho do lugar certo; a chegada diz
+	# o que faltou, o que sobrou e quem pode voltar logo
+	var frota := Fleet.new()
+	var em: EmergencyCall = GameData.CONTENT.emergencies.filter(func(x: EmergencyCall): return Array(x.required(0)) == ["amb"])[0]
+	var fl_here := {"street": em.street, "block": em.block}
+	var fl_away := {"street": em.street, "block": em.block + 1}
+	ok(not frota.send(["pol"], fl_here) and frota.arrive(["pol"], fl_here)["result"] == Fleet.Result.IDLE and frota.leave(["pol"]) == ["pol"],
+		"frota: sem emergência, a chegada não encontra nada")
+	frota.home(["pol"])
+	frota.set_incident(em)
+	ok(not frota.send(["pol"], fl_here) and frota.available(["pol", "amb"]) == ["amb"] and frota.en_route(), "frota: polícia a caminho, incompleto")
+	var fl_got := frota.arrive(["pol"], fl_here)
+	ok(fl_got["result"] == Fleet.Result.MISSING and fl_got["missing"] == ["amb"] and fl_got["extra"] == ["pol"] and fl_got["unneeded"] == ["pol"],
+		"frota: faltou a ambulância e a polícia sobrou")
+	frota.send(["amb"], fl_away)
+	fl_got = frota.arrive(["amb"], fl_away)
+	ok(fl_got["result"] == Fleet.Result.WRONG_PLACE and fl_got["unneeded"] == ["amb"], "frota: endereço errado")
+	ok(frota.leave(["pol", "amb"]) == ["pol", "amb"] and frota.busy() == ["pol", "amb"], "frota: as duas voltando")
+	frota.home(["pol", "amb"])
+	ok(frota.busy().is_empty() and frota.send(["amb"], fl_here), "frota: a ambulância no lugar certo completa o socorro")
+	ok(frota.arrive(["amb"], fl_here)["result"] == Fleet.Result.OK and frota.arrive([], fl_here)["result"] == Fleet.Result.IDLE,
+		"frota: resolvida, e depois não há mais nada lá")
+	var fl_gen := frota.gen
+	frota.reset(true)
+	ok(frota.gen == fl_gen + 1 and frota.busy().is_empty() and frota.required().is_empty(), "frota: reset libera tudo e esquece a emergência")
 	# lista telefônica: cada aba abre só a sua letra, com todos os contatos dela nas duas páginas; Virar passa de letra
 	# em letra até as anotações, Voltar volta até a primeira
-	var book = m.tools.find_child("PhoneBook", true, false)
+	var book: PhoneBook = m.tools.find_child("PhoneBook", true, false)
 	for l in book._index:
 		book.jump(l)
 		var pg: Array = book.pages()
@@ -320,8 +343,7 @@ func _initialize() -> void:
 	ok(m._focus() == a, "FONE na entrada dá foco à ligação")
 	m.answer()
 	ok(a.active, "atendeu")
-	var sfx = m.get_node("/root/Sfx")
-	ok(not sfx.pool.any(func(p): return p.playing and p.stream == sfx.streams["ring"]), "atender corta o toque na hora")
+	ok(not Sfx.pool.any(func(p): return p.playing and p.stream == Sfx.streams["ring"]), "atender corta o toque na hora")
 	ok(await wait_until(_awaiting(a)), "pedido de transferência")
 	var tgt := int(a.target)
 	_move(1, ln + 10)
@@ -567,39 +589,38 @@ func _initialize() -> void:
 	_move(1, 11)
 	b.pick_up(1)
 	m._unhandled_input(esc)
-	ok(not paused and b.ends[1] == -1, "com plug na mão, o Esc só devolve o plug")
+	ok(not get_tree().paused and b.ends[1] == -1, "com plug na mão, o Esc só devolve o plug")
 	await frames(2)
 	var rc := _extra(GameData.transfers(TransferCall.Group.EXTRA)[2])
 	m.ring(rc)
 	m._unhandled_input(esc)
-	ok(paused and m._pause.visible, "Esc pausa o turno")
+	ok(get_tree().paused and m._pause.visible, "Esc pausa o turno")
 	var frozen: float = m.minutes
 	await frames(int(m.GIVE_UP_SEC * 60.0 / Engine.time_scale) + 60)
 	ok(m.minutes == frozen and rc.ringing, "na pausa o relógio para e ninguém desiste")
 	m._pause._unhandled_input(esc)
-	ok(not paused and not m._pause.visible, "Esc no menu continua")
+	ok(not get_tree().paused and not m._pause.visible, "Esc no menu continua")
 	m.end_call(rc, PhoneCall.End.OPERATOR)
-	var st = root.get_node("Settings")
 	m._pause.open_settings()
-	st.set_volume("Effects", 0.3)
+	Settings.set_volume("Effects", 0.3)
 	ok(not m._pause.get_node("%Apply").disabled, "Aplicar acende com mudança")
 	m._pause._back()
-	ok(st.volumes["Effects"] == 1.0 and not m._pause.visible, "Voltar descarta")
+	ok(Settings.volumes["Effects"] == 1.0 and not m._pause.visible, "Voltar descarta")
 	m._pause.open_settings()
 	ok(m._pause.get_node("%Apply").disabled, "sem mudança, Aplicar apagado")
-	st.set_volume("Effects", 0.3)
+	Settings.set_volume("Effects", 0.3)
 	m._pause._apply_settings()
-	ok(st.volumes["Effects"] == 0.3 and not m._pause.visible, "Aplicar mantém")
-	st.set_volume("Effects", 1.0)
-	st.set_locale("en")
-	ok(T.text(T.Key.RESUME) == "Resume" and st.locale == "en", "idioma muda na hora")
-	st.set_locale("pt_BR")
-	st.set_volume("Effects", 0.5)
+	ok(Settings.volumes["Effects"] == 0.3 and not m._pause.visible, "Aplicar mantém")
+	Settings.set_volume("Effects", 1.0)
+	Settings.set_locale("en")
+	ok(T.text(T.Key.RESUME) == "Resume" and Settings.locale == "en", "idioma muda na hora")
+	Settings.set_locale("pt_BR")
+	Settings.set_volume("Effects", 0.5)
 	ok(absf(AudioServer.get_bus_volume_db(AudioServer.get_bus_index("Effects")) - linear_to_db(0.5)) < 0.01, "volume do barramento")
-	st.set_volume("Effects", 1.0)
-	st.set_text_speed(2)
-	ok(st.char_delay() < 1.0, "texto mais rápido")
-	st.set_text_speed(1)
+	Settings.set_volume("Effects", 1.0)
+	Settings.set_text_speed(2)
+	ok(Settings.char_delay() < 1.0, "texto mais rápido")
+	Settings.set_text_speed(1)
 	print("OK 10 pausa e configurações")
 
 	# ---- 11. esperando a transferência: às vezes conversa fiada depois de um tempo; se demorar mais, reclama
@@ -716,8 +737,8 @@ func _initialize() -> void:
 	# ---- 13. mapa e despacho numa tela: marcar o local imprime o cartão; perfura-se o tipo (um só) e as unidades (o
 	#          tipo não marca unidades: a conversa decide); o cartão anda livre pelo mapa e fica onde é solto; no cartucho,
 	#          envia (em branco também: ninguém sai e o supervisor anota) e tudo limpa; a ficha não mexe no mapa
-	var d = m.dispatch
-	var card = d.machines   # sem tipo: CardMachines depende do autoload Sfx
+	var d := m.dispatch
+	var card := d.machines
 	m.tools.set_tab("despacho")
 	d.open_slip(false)
 	await frames(2)
@@ -747,7 +768,7 @@ func _initialize() -> void:
 		return Vector2(card._machine(machine).get_center().x - card.CARD_W / 2.0, card._slot(machine) - card.card.size.y + 8.0)
 	drag.call(await slot.call("send"))
 	ok(card.state == card.State.FEEDING, "cartão em branco também entra no cartucho")
-	ok(await wait_until(func(): return d._location.is_empty(), 3.0) and d._units.values().all(func(u): return u == 0)
+	ok(await wait_until(func(): return d._location.is_empty(), 3.0) and d.fleet.units.values().all(func(u): return u == 0)
 		and m.report.faults.any(func(f): return f["id"] == "dispatch_blank"), "em branco: ninguém sai e o supervisor anota")
 	d.set_location("sol", 0, "Rua do Sol, 1–99")
 	ok(await wait_until(func(): return card.state == card.State.READY, 5.0), "outro cartão")
@@ -772,7 +793,7 @@ func _initialize() -> void:
 	_click(card, cell.call("Incêndio"))
 	_click(card, cell.call("Mal súbito"))
 	ok(d.occurrence() == "Incêndio", "um tipo só: o primeiro furo vale")
-	ok(d._selected_units().is_empty() and not d.can_send(), "o tipo não marca unidade")
+	ok(d.fleet.available(d.picked()).is_empty() and not d.can_send(), "o tipo não marca unidade")
 	var row: Vector2 = cell.call("amb") + Vector2(120, 20)   # no protocolo, longe do quadradinho
 	var held: Vector2 = card._pos
 	_mouse(card, row, 1)   # apertar na linha e arrastar move o cartão sem perfurar
@@ -786,7 +807,7 @@ func _initialize() -> void:
 	ok(card.state == card.State.FEEDING and card._into == "send", "o transmissor puxa o cartão completo")
 	ok(await wait_until(func(): return d._location.is_empty(), 3.0), "o cartão no cartucho envia")
 	ok(d.occurrence() == "" and d.picked().is_empty() and d.city.sel.is_empty() and card.state == card.State.IDLE, "depois de enviar, local e tipo limpos")
-	ok(not d.unit_free("amb"), "ambulância a caminho fica indisponível")
+	ok(not d.fleet.is_free("amb"), "ambulância a caminho fica indisponível")
 	ok(d._slip.visible and card._up < 1.0, "depois de enviar, as máquinas se recolhem animadas...")
 	ok(await wait_until(func(): return not d._slip.visible, 3.0) and d.get_node("%Open").visible, "...e a ficha some")
 	await frames(2)
@@ -818,7 +839,7 @@ func _initialize() -> void:
 	ok(m.live.is_empty() and m.em_call == null and not de.urgent() and m.radio._alert == -1, "restaurar: ligações e emergência somem")
 	ok(range(1, Exchange.LINES + 1).all(func(n): return m.exchange.line(n) == Exchange.Line.FREE), "restaurar: linhas livres")
 	ok(await wait_until(func(): return m.board.ends.all(func(e): return e == -1), 10.0), "restaurar: cabos na base")
-	ok(m.dispatch._units.values().all(func(s): return s == 0) and m.dispatch.required().is_empty(), "restaurar: despacho livre")
+	ok(m.dispatch.fleet.units.values().all(func(s): return s == 0) and m.dispatch.fleet.required().is_empty(), "restaurar: despacho livre")
 	ok(not m.notebook.has_pending() and m.report.faults.is_empty() and Engine.time_scale == 1.0, "restaurar: caderno, relatório e tempo zerados")
 	ok(not m.sched.any(func(c): return c.retry != PhoneCall.Retry.NONE), "restaurar: ninguém liga de novo")
 	Engine.time_scale = 8.0

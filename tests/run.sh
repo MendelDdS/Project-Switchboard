@@ -1,18 +1,35 @@
 #!/bin/sh
 # Roda todos os testes em modo headless e falha se algum falhar, travar ou gerar SCRIPT ERROR.
-# Uso: tests/run.sh            (Godot em /Applications; ou defina GODOT=/caminho/do/godot)
+# Uso: tests/run.sh [teste...]  (Godot em /Applications; ou defina GODOT=/caminho/do/godot)
 GODOT="${GODOT:-/Applications/Godot.app/Contents/MacOS/Godot}"
-LIMIT=120   # segundos por teste
+LIMIT=${LIMIT:-120}   # segundos por teste (um turno do robô leva ~6 s)
 cd "$(dirname "$0")/.." || exit 1
 log=$(mktemp)
 fails=0
 
-run() {   # run <script> [argumentos do jogo]
-	script=$1; shift
-	printf '%s %s ... ' "$script" "$*"
+run() {   # run <teste> [argumentos do jogo]: roda tests/test_<teste>.gd pela cena tests/runner.tscn (com os autoloads)
+	test=$1; shift
+	printf 'tests/test_%s.gd %s ... ' "$test" "$*"
 	# --fixed-fps: cada quadro avança 1/60 s de jogo e o motor roda o mais rápido que a CPU deixa (sem esperar o
 	# relógio real). Simulação determinística e muito mais rápida; o tempo real só aparece em efeitos visuais.
-	perl -e 'alarm shift; exec @ARGV' "$LIMIT" "$GODOT" --headless --fixed-fps 60 --path . -s "$script" -- "$@" >"$log" 2>&1
+	"$GODOT" --headless --fixed-fps 60 --path . tests/runner.tscn -- --test="$test" "$@" >"$log" 2>&1 &
+	pid=$!
+	# SCRIPT ERROR não encerra o Godot (o jogo segue com o erro): sem isto, um teste quebrado só morria no LIMIT
+	ticks=0
+	while kill -0 $pid 2>/dev/null; do
+		if grep -q "SCRIPT ERROR" "$log"; then
+			kill $pid 2>/dev/null
+			break
+		fi
+		if [ $ticks -ge $((LIMIT * 5)) ]; then
+			kill $pid 2>/dev/null
+			echo "FALHOU: passou de ${LIMIT} s" >>"$log"
+			break
+		fi
+		sleep 0.2
+		ticks=$((ticks + 1))
+	done
+	wait $pid 2>/dev/null
 	code=$?
 	if [ $code -eq 0 ] && ! grep -q "SCRIPT ERROR" "$log"; then
 		grep -E "^(PASSOU|fim|OK)" "$log" | tail -1
@@ -31,18 +48,26 @@ if grep -q "SCRIPT ERROR" "$log"; then
 	exit 1
 fi
 
-run tests/test_flow.gd
-run tests/test_penalties.gd
+if [ $# -gt 0 ]; then   # tests/run.sh flow penalties: só esses (sem argumentos do jogo)
+	for t in "$@"; do
+		run "$t"
+	done
+	rm -f "$log"
+	[ $fails -eq 0 ] && echo "Todos os testes passaram." || echo "$fails teste(s) falharam."
+	exit $fails
+fi
+run flow
+run penalties
 for s in 1 2 3; do
-	run tests/test_shift.gd --seed=$s
+	run shift --seed=$s
 done
-run tests/test_shift.gd --seed=3 --clumsy
-run tests/test_shift.gd --seed=2 --night=2
-run tests/test_shift.gd --seed=1 --night=5
-run tests/test_shift.gd --seed=2 --night=9
-run tests/test_shift.gd --seed=1 --human
-run tests/test_shift.gd --seed=2 --lang=en
-run tests/test_shift.gd --seed=3 --lang=es
+run shift --seed=3 --clumsy
+run shift --seed=2 --night=2
+run shift --seed=1 --night=5
+run shift --seed=2 --night=9
+run shift --seed=1 --human
+run shift --seed=2 --lang=en
+run shift --seed=3 --lang=es
 
 rm -f "$log"
 [ $fails -eq 0 ] && echo "Todos os testes passaram." || echo "$fails teste(s) falharam."

@@ -101,22 +101,22 @@ func lost(c: PhoneCall) -> void:
 
 
 ## As unidades chegaram ao local marcado no despacho.
-func on_arrived(e: EmergencyCall, result: String, occurrence: String, extra: Array) -> void:
+func on_arrived(e: EmergencyCall, result: Fleet.Result, occurrence: String, extra: Array) -> void:
 	if e != null and occurrence == "":   # cartão sem o tipo perfurado
 		fault("dispatch_type", T.text(T.Key.FAULT_DETAIL_UNCLASSIFIED) % tr(e.occurrence))
 	elif e != null and occurrence != e.occurrence:
 		fault("dispatch_type", T.text(T.Key.FAULT_DETAIL_CLASSIFIED) % [tr(occurrence), tr(e.occurrence)])
 	if not extra.is_empty():
-		fault("dispatch_extra", ", ".join(extra.map(func(u): return T.text(Dispatch.UNIT_NAMES[u]))))
+		fault("dispatch_extra", ", ".join(extra.map(func(u): return T.text(Fleet.NAMES[u]))))
 	match result:
-		"ok":
+		Fleet.Result.OK:
 			main.report.resolved(e)
-		"missing":
+		Fleet.Result.MISSING:
 			if not main.report.faults.any(func(f): return f["id"] == "dispatch_missing" and f["detail"] == e.address):
 				fault("dispatch_missing", e.address)
-		"idle":
+		Fleet.Result.IDLE:
 			fault("dispatch_idle")
-		"wrong_place":
+		Fleet.Result.WRONG_PLACE:
 			fault("dispatch_wrong_place", e.address)
 			main.report.trouble(e)
 			if main.em_call != null and main.em_call.data == e:

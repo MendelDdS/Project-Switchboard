@@ -79,7 +79,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   o `Sfx` roda sempre (ambiente segue, `Main.pause()` cala a campainha e `_update_bell` a devolve). Configurações no
   autoload `Settings` (`user://settings.cfg`): `locale`, `volumes` por barramento, `text_speed` (`char_delay()`
   multiplica o tempo por letra na conversa e no rádio); sinal `changed`. `set_*` vale na hora (prévia) mas só
-  `save()` grava (botão Aplicar); Voltar/Esc faz `restore(snapshot)` do estado de quando a tela abriu. Testes (`-s`) não leem nem gravam o arquivo.
+  `save()` grava (botão Aplicar); Voltar/Esc faz `restore(snapshot)` do estado de quando a tela abriu. Testes (`-- --test=x` ou `-s`) não leem nem gravam o arquivo.
   Textos montados uma vez (botões do despacho, itens do caderno, telas desenhadas) se refazem em
   `NOTIFICATION_TRANSLATION_CHANGED`.
 - Git: branch principal `development`; commits no padrão `tipo(#0000): descrição`. `.godot/` fica fora do git.
@@ -89,10 +89,15 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 ## Rodar e testar
 - Godot: `/Applications/Godot.app/Contents/MacOS/Godot` (não está no PATH). Cena principal: `scenes/main.tscn`.
 - Checar se tudo compila: `Godot --headless --path . --quit-after 60`.
-- **Testes: `tests/run.sh`** (roda tudo em headless, com limite de tempo, e falha em `SCRIPT ERROR`; ~1 min no total).
+- **Testes: `tests/run.sh`** (roda tudo em headless; ~1 min no total; `tests/run.sh flow penalties` roda só esses). Um
+  `SCRIPT ERROR` não encerra o Godot: o `run.sh` lê o log enquanto o teste roda e o encerra no primeiro erro (sem isso,
+  cada teste quebrado ficava parado até o `LIMIT` de 120 s e a bateria passava de 10 min).
   Roda com **`--fixed-fps 60`**: cada quadro avança 1/60 s de jogo e o motor não espera o relógio real (simulação
   determinística, turno do robô em ~6 s). Para rodar um teste à mão, use a mesma opção:
-  `Godot --headless --fixed-fps 60 --path . -s tests/test_x.gd -- --seed=1`. Com `--fixed-fps`, tempo de teste se mede em
+  `Godot --headless --fixed-fps 60 --path . tests/runner.tscn -- --test=x --seed=1`. **Os testes rodam como cena**
+  (`tests/runner.tscn`/`runner.gd` carrega `tests/test_<x>.gd`, que estende `test_base.gd`, um `Node`, e começa em
+  `_initialize`): os autoloads já existem, então `Main`, `Switchboard`, `CardMachines` têm tipo nos testes; o `SceneTree`
+  é `get_tree()`. Com `--fixed-fps`, tempo de teste se mede em
   quadros/delta, nunca em `Time.get_ticks_msec()` (o robô soma `get_process_delta_time()` em `sim`).
   `Engine.time_scale`: 8 nos cenários, 2 no robô (acima disso as falas, letra a letra, ficam presas ao quadro e
   alongam as conversas; a 48× as métricas mudavam muito).
@@ -106,8 +111,6 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     a noite 2 (`--night=2`) e um turno `--human` (5 s de jogo por ação, como uma pessoa: **é este que mede se o ritmo
     cabe**; o robô normal é rápido demais). No `--human` o despacho passa pelo cartão (`_card_step`: pensar, marcar,
     esperar imprimir, perfurar, levar ao transmissor e esperar a leitura), e o estágio anotado é o da hora do envio.
-  - Nos testes, `Main`/`Switchboard` ficam **sem tipo** (dependem do autoload `Sfx`, que não existe na hora em que
-    o Godot compila um script `-s`). `PhoneCall`, `Exchange` e os Resources podem ser tipados.
   - Rode depois de qualquer mudança em agenda, fim de ligação, mesa ou cabos. `run.sh` também joga um turno em
     `--lang=en` e outro em `--lang=es`; o teste de fluxo confere chaves, lacunas e cenas (`_check_translations`).
 - Semente fixa: `Godot --path . -- --seed=123` repete a agenda do turno (sem `--seed`, é aleatória).
@@ -143,6 +146,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   desistência em espera, conferência do despacho e do caderno. O Main só avisa o que aconteceu.
 - `scripts/conversation.gd` (`Conversation`, nó filho de Main) — como cada tipo de ligação se desenrola:
   `say`/`op`/`choose`/`wait` e os roteiros de transferência, informação, emergência, trote e ligação desconhecida.
+- `scripts/model/fleet.gd` (`Fleet`) — viaturas e emergência em andamento (regras do despacho, sem tela).
 - `scripts/model/phone_call.gd` (`PhoneCall`) — uma ligação: roteiro (`data`) + estado; emite sinais que o telefone
   escuta. `scripts/model/exchange.gd` (`Exchange`) — **dono único** do estado das linhas e destinos (enums `Line`, `Dest`).
 - `scripts/data/*.gd` — classes de Resource do conteúdo; `scripts/game_data.gd` (`GameData`) — acesso ao
@@ -275,9 +279,14 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `trips[i]["t"]`, parando na pausa) e o despacho espera a mais demorada. Depois de um tempo no local (`Dispatch._return`,
   `STAY`), a viatura volta para a base pelo mesmo caminho, sem a luz (`CityMap.go_home`), e só fica disponível quando chega.
   Quem não era necessária (a mais, endereço errado ou nada lá) volta logo depois de o rádio dizer isso (`Radio.said`,
-  `QUICK_STAY`), ou no máximo `QUICK_WAIT` s depois de chegar se o rádio ainda estiver ocupado. Emergências escritas e moldes só nas ruas dos setores atendidos. `Dispatch.set_incident()` quando a emergência toca; `Dispatch.sent` → `Main._on_dispatched` →
+  `QUICK_STAY`), ou no máximo `QUICK_WAIT` s depois de chegar se o rádio ainda estiver ocupado. Emergências escritas e moldes só nas ruas dos setores atendidos.
+  **Regras das viaturas no `Fleet`** (`scripts/model/fleet.gd`, `Dispatch.fleet`; sem tela nem tempo, testado direto no
+  teste de fluxo): estado de cada uma (`Fleet.Unit`, `IDS`, `NAMES`, `STATUS`), a emergência em andamento (`incident`,
+  `required`, `require`) e a ordem `send` (devolve se o socorro ficou completo) → `arrive` (`Fleet.Result` OK, MISSING,
+  WRONG_PLACE, IDLE; o que falta, o que sobrou, quem volta logo) → `leave` → `home`; `gen` invalida viagens depois do
+  `reset`. O `Dispatch` fica com cartão, ficha, mapa, rádio e a espera entre os passos. `Dispatch.set_incident()` quando a emergência toca; `Dispatch.sent` → `Main._on_dispatched` →
   `Conversation.emergency_dispatched`. Na chegada,
-  `Dispatch.arrived(e, result, occurrence, extra)` ("ok", "missing", "wrong_place", "idle"; tipo marcado; unidades
+  `Dispatch.arrived(e, result, occurrence, extra)` (`Fleet.Result`; tipo marcado; unidades
   que não eram necessárias) → `Supervisor.on_arrived`.
 
 ## Consequências (relatório do supervisor)
@@ -290,9 +299,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   inteiro acende: `Radio.alert(stage, away)`, moldura pulsando e aviso na tela; a luz "Ocorrência" acende sempre;
   a cada troca de estágio, `Radio.chirp` toca `radio_alert` vindo do rádio, mais agudo quanto pior): corre desde o atendimento, também em espera e depois de a pessoa desligar; para durante
   pergunta e resposta (`Conversation._em_ask`) e na pausa; para de vez só quando o socorro completo sai para o lugar
-  certo (`Dispatch.sent(..., complete)`, conta envios anteriores em `_incident["going"]`). Estágios por
+  certo (`Dispatch.sent(..., complete)`, conta envios anteriores em `Fleet.incident["going"]`). Estágios por
   `EmergencyCall.stage_sec`; cada um chama `Conversation.emergency_worse` (fala `worsening`/`critical`/`lost`; com a
-  pessoa já desligada, `RADIO_WORSE`/`RADIO_LOST`; depois de dita, `Main.emergency_told` atualiza `PhoneCall.told`, e só então `Dispatch.require(e.required(told))`
+  pessoa já desligada, `RADIO_WORSE`/`RADIO_LOST`; depois de dita, `Main.emergency_told` atualiza `PhoneCall.told`, e só então `Fleet.require(e.required(told))`
   passa a exigir as unidades do estágio; com a pessoa já desligada ou se despedindo, o rádio diz também o que mandar,
   `RADIO_SEND_MORE`. `told` também libera a pergunta do estágio:
   `Conversation._qa`, índices depois das do roteiro; perdida = só o endereço e `OP_ANYONE_HURT` → `lost_answer`). Advertência pelo estágio
@@ -351,7 +360,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `LAST_CALL - MYSTERY_MARGIN` (23:30): o botão Encerrar turno só aparece depois dela.
 - Sorteadas: `Schedule._random_calls` — intervalo `Pace.call_gap` (nível 1: 45–60 … nível 5: 28–38; medido com `--human`) entre uma e a
   próxima, `Pace.peak_chance` de vir logo em seguida, no máximo `Pace.max_live` pedindo atenção (`_run_schedule`), a `STORY_GAP` das fixas. Tipos: `Pace.emergencies` (a `EMERGENCY_GAP` uma da outra; no laço, a
-  emergência espera a anterior acabar e `Dispatch.en_route()`), `Pace.pranks`, resto transferência/informação.
+  emergência espera a anterior acabar e `Fleet.en_route()`), `Pace.pranks`, resto transferência/informação.
   Um destino (e `alt_target`) por noite: dois pedidos do mesmo número travavam um ao outro.
 - `GIVE_UP_SEC` 60 s (`story` 1,5x, retornos 0,75x); tutorial (`tut`) e desconhecida nunca desistem.
 - Espera na linha (`Main._nag`, silêncio medido em `talk_clock`, que para na pausa): transferência pedida e o

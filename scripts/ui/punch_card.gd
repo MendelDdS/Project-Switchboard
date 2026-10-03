@@ -120,7 +120,7 @@ func _layout() -> void:
 	y += 6.0
 	_heads["unit"] = y
 	y += 20.0
-	for u in Dispatch.UNIT_IDS:
+	for u in Fleet.IDS:
 		var top := y
 		y += 16.0 + Pal.ui.get_multiline_string_size(_why(u), HORIZONTAL_ALIGNMENT_LEFT, W - 36.0, 11).y + 4.0
 		cells.append([Rect2(Vector2(10, top), CELL), "unit", u, Rect2(4, top - 3.0, W - 8.0, y - top)])
@@ -153,7 +153,7 @@ func _punched(kind: String, id: String) -> bool:
 func _can_punch(kind: String, id: String) -> bool:
 	if kind == "type":
 		return dispatch.occurrence() == ""   # um tipo só
-	return dispatch.unit_free(id) and not id in dispatch.picked()
+	return dispatch.fleet.is_free(id) and not id in dispatch.picked()
 
 
 func _draw() -> void:
@@ -225,7 +225,7 @@ func _field(x: float, y: float) -> void:
 
 ## Uma posição de perfuração (impressa em vermelho, com o número) e o que ela quer dizer.
 func _draw_cell(r: Rect2, kind: String, id: String, n: int) -> void:
-	var busy := kind == "unit" and not dispatch.unit_free(id)
+	var busy := kind == "unit" and not dispatch.fleet.is_free(id)
 	if _punched(kind, id):
 		draw_rect(r, HOLE)
 		draw_rect(Rect2(r.position.x, r.end.y - 1.0, r.size.x, 1), Color(1, 1, 1, 0.18))   # a luz passando pelo furo
@@ -238,10 +238,10 @@ func _draw_cell(r: Rect2, kind: String, id: String, n: int) -> void:
 	if kind == "type":
 		write(self, at, tr(id), Pal.INK, W - 36.0)
 		return
-	write(self, at, T.text(Dispatch.UNIT_NAMES[id]), MISSING if busy else Pal.INK, W - 36.0)
+	write(self, at, T.text(Fleet.NAMES[id]), MISSING if busy else Pal.INK, W - 36.0)
 	if busy:   # ocupada: riscada, e o estado no lugar do protocolo
 		draw_line(r.position, r.end, Pal.INK, 1.0)
 		draw_line(Vector2(r.position.x, r.end.y), Vector2(r.end.x, r.position.y), Pal.INK, 1.0)
-		write(self, at + Vector2(0, 14), T.text(Dispatch.UNIT_STATUS[dispatch.unit_state(id)]), MISSING, W - 36.0)
+		write(self, at + Vector2(0, 14), T.text(Fleet.STATUS[dispatch.fleet.units[id]]), MISSING, W - 36.0)
 		return
 	draw_multiline_string(Pal.mono, (at + Vector2(0, 14)).round(), _why(id), HORIZONTAL_ALIGNMENT_LEFT, W - 36.0, 11, -1, Pal.INK_SOFT)

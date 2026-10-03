@@ -5,10 +5,8 @@ extends "res://tests/test_base.gd"
 ## Com `-- --clumsy` ele deixa de atender 1 em cada 3 ligações (como alguém sobrecarregado): mede a bola de neve
 ## dos retornos (quem liga de novo).
 ## Falha se houver travamento: o turno precisa chegar ao final (00:00) depois da ligação desconhecida.
-## `m` e `b` ficam sem tipo: Main e Switchboard usam o autoload Sfx, que ainda não existe quando o Godot
-## compila um script passado com -s.
 
-var m   # Main
+var m: Main
 var max_live := 0
 var f2 := 0
 var f3 := 0
@@ -60,8 +58,8 @@ func _fone_to(b, j: int) -> void:
 ## Um passo do despacho pelo cartão (modo --human). Devolve se fez alguma ação (que conta tempo); esperar a
 ## impressora ou o transmissor não conta.
 func _card_step(f: PhoneCall, e: EmergencyCall) -> bool:
-	var d = m.dispatch
-	var card = d.machines
+	var d := m.dispatch
+	var card := d.machines
 	if not f.has_meta("planned"):
 		f.set_meta("planned", true)   # consultar o protocolo
 		return true
@@ -72,7 +70,7 @@ func _card_step(f: PhoneCall, e: EmergencyCall) -> bool:
 		return false   # imprimindo, entrando, ou as máquinas subindo
 	if d.occurrence() == "":
 		d.set_occurrence(e.occurrence)
-		for u in d.required():   # o que a situação pede agora (pode ter piorado)
+		for u in d.fleet.required():   # o que a situação pede agora (pode ter piorado)
 			d.punch_unit(u)
 		return true
 	card._pos = Vector2(card._machine("send").get_center().x - card.CARD_W / 2.0, card._slot("send") - card.card.size.y + 8.0)
@@ -90,14 +88,14 @@ func _initialize() -> void:
 				stages.append("%d(%.0fs)" % [f.stage, f.urgency] if f.retry == PhoneCall.Retry.NONE else "retorno"))
 	m._intro.visible = false
 	m._start_shift()
-	var b = m.board
+	var b := m.board
 	for n in b._slots:   # setor ainda coberto pela chapa: a tomada não responde
 		ok((b.jack_at(b._slots[n]) == n) == GameData.in_service(str(n)), "tomada %d conforme o setor" % n)
 	var ex: Exchange = m.exchange
 	var frames_left := 0   # só para espaçar os registros no caderno
 	var deadline := Time.get_ticks_msec() + 90000   # limite de segurança em tempo real (um turno leva ~6 s com --fixed-fps)
 	while not m.ending and Time.get_ticks_msec() < deadline and not failed:
-		await process_frame
+		await get_tree().process_frame
 		sim += m.get_process_delta_time()
 		frames_left += 1
 		max_live = maxi(max_live, m.live.size())
@@ -190,7 +188,7 @@ func _initialize() -> void:
 					else:
 						m.dispatch.set_location(e.street, e.block, e.address)
 						m.dispatch.set_occurrence(e.occurrence)
-						for u in m.dispatch.required():   # o que a situação pede agora (pode ter piorado)
+						for u in m.dispatch.fleet.required():   # o que a situação pede agora (pode ter piorado)
 							m.dispatch.punch_unit(u)
 						stages.append("%d(%.0fs)" % [f.stage, f.urgency] if f.retry == PhoneCall.Retry.NONE else "retorno")
 						m.dispatch._send()
