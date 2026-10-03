@@ -731,6 +731,9 @@ func _initialize() -> void:
 		and m.report.faults.any(func(f): return f["id"] == "dispatch_blank"), "em branco: ninguém sai e o supervisor anota")
 	d.set_location("sol", 0, "Rua do Sol, 1–99")
 	ok(await wait_until(func(): return card.state == card.State.READY, 5.0), "outro cartão")
+	d.set_location("comercio", 0, "Rua do Comércio, 1–99")
+	ok(card._refused >= 0.0 and card._serial == 2 and d._location["label"] == "Rua do Sol, 1–99" and d.city.sel["label"] == "Rua do Sol, 1–99",
+		"com um cartão na mesa, a impressora recusa outro e o mapa volta ao local dele")
 	var table: Vector2 = card._pos + Vector2(-300, 40)
 	drag.call(table)
 	ok(card.state == card.State.READY and card._pos == table, "solto na mesa, o cartão fica onde está")

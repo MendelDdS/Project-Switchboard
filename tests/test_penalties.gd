@@ -247,6 +247,7 @@ func _initialize() -> void:
 	for u in ["amb", "bomb"]:
 		m.dispatch.punch_unit(u)
 	m.dispatch._send()
+	ok(m._record(c8, PhoneCall.End.CALLER)["card"] == m.dispatch.card.serial() and m.dispatch.card.serial() > 0, "o registro leva o número do cartão enviado")
 	ok(await wait_until(func(): return m.report.is_resolved(e8), 20.0), "resolvida mesmo com unidade a mais e sem tipo")
 	ok(_faults("dispatch_extra") == 1 and _faults("dispatch_type") == 1, "advertências: unidade a mais e sem tipo")
 	ok(m.report.faults.any(func(f): return f["id"] == "dispatch_type" and f["detail"] == T.text(T.Key.FAULT_DETAIL_UNCLASSIFIED) % tr(e8.occurrence)),

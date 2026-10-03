@@ -98,7 +98,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   - `tests/test_shift.gd`: robô que joga o turno inteiro e imprime métricas (máx. simultâneas, % com 2+/3+,
     % sem cabo livre, perdidas, maior silêncio); `run.sh` roda com `--seed=1..3`, um turno `--clumsy` (deixa de atender 1 em 3),
     a noite 2 (`--night=2`) e um turno `--human` (5 s de jogo por ação, como uma pessoa: **é este que mede se o ritmo
-    cabe**; o robô normal é rápido demais).
+    cabe**; o robô normal é rápido demais). No `--human` o despacho passa pelo cartão (`_card_step`: pensar, marcar,
+    esperar imprimir, perfurar, levar ao transmissor e esperar a leitura), e o estágio anotado é o da hora do envio.
   - Nos testes, `Main`/`Switchboard` ficam **sem tipo** (dependem do autoload `Sfx`, que não existe na hora em que
     o Godot compila um script `-s`). `PhoneCall`, `Exchange` e os Resources podem ser tipados.
   - Rode depois de qualquer mudança em agenda, fim de ligação, mesa ou cabos. `run.sh` também joga um turno em
@@ -222,8 +223,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   pontilhadas, pauta como a do caderno, fibras no papel e sombra na mesa (maior na mão, como o plug). O jogador perfura
   o tipo de ocorrência (um só) e as unidades (protocolo impresso embaixo de cada uma, `DISPATCH_WHY_*`; ocupada sai
   riscada) em posições fixas (`punch`, picote caindo; clicar em qualquer ponto da linha perfura o quadradinho dela, e a
-  linha sob o mouse fica realçada se der para perfurar). Furo não se desfaz: marcar o local de novo imprime um cartão
-  novo, em branco. O cartão anda livre dentro do mapa e fica onde é solto (arrasta-se de qualquer ponto dele:
+  linha sob o mouse fica realçada se der para perfurar). Furo não se desfaz. **Um cartão por vez, de qualquer tipo**
+  (`PunchCard.can_print`, regra genérica para tipos de cartão futuros): com um cartão na mesa, marcar outro local faz
+  a impressora recusar (luz vermelha, `CARD_ONE_AT_A_TIME`, som `deny`) e o mapa volta a marcar o local do cartão;
+  é preciso enviar ou triturar antes. O número do cartão enviado (`PunchCard.serial`, no sinal `Dispatch.sent`) vai
+  para o registro da emergência (`record["card"]`) e aparece no caderno ("Ficha nº 0003"). O cartão anda livre dentro do mapa e fica onde é solto (arrasta-se de qualquer ponto dele:
   apertar e andar `DRAG_START` px é arraste e não perfura; soltar antes disso é clique e perfura a linha); solto na fenda do transmissor, é puxado (`feed`
   e o leitor, `read`, "tec tec"), fica `READ_SEC` sendo lido já dentro e só então é enviado (`inserted` →
   `Dispatch._send`); na da trituradora, é destruído sem enviar nem punir (`shred`, a

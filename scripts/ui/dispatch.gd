@@ -11,7 +11,8 @@ extends Control
 ## de avaliar se o local e as unidades batem com a emergência em andamento.
 
 ## `complete`: tudo o que a emergência precisa agora está a caminho do lugar certo (contando envios anteriores).
-signal sent(location: String, units_text: String, complete: bool)
+## `card`: o número do cartão enviado (vai para o caderno).
+signal sent(location: String, units_text: String, complete: bool, card: int)
 ## As unidades chegaram. `result`: "ok" (resolvido), "missing" (faltou unidade), "wrong_place" ou "idle"
 ## (não havia emergência em andamento). `e` é nulo em "idle". `occurrence` é o tipo marcado no despacho;
 ## `extra`, as unidades que foram ao local certo sem ser necessárias.
@@ -60,13 +61,17 @@ func _notification(what: int) -> void:
 		_refresh()
 
 
-## Marca o local: sai um cartão novo, em branco (o que estava perfurado fica para trás).
+## Marca o local: sai um cartão novo, em branco. Com um cartão ainda na mesa (é preciso enviar ou triturar antes),
+## a impressora recusa e o mapa volta a marcar o local do cartão que está lá.
 func set_location(street: String, block: int, label: String) -> void:
+	open_slip(true)
+	if not card.print_card(label, GameData.street(street).block_sector(block) if GameData.street(street) != null else 0):
+		city.sel = _location.duplicate()
+		city.queue_redraw()
+		return
 	_location = {"street": street, "block": block, "label": label}
 	_occurrence = ""
 	_picked.clear()
-	open_slip(true)
-	card.print_card(label, GameData.street(street).block_sector(block) if GameData.street(street) != null else 0)
 	_refresh()
 
 
@@ -217,7 +222,7 @@ func _send() -> void:
 			if not u in _incident["going"]:
 				_incident["going"].append(u)
 		complete = _incident["req"].all(func(r): return r in _incident["going"])
-	sent.emit(String(target["label"]), ", ".join(names), complete)
+	sent.emit(String(target["label"]), ", ".join(names), complete, card.serial())
 	var gen := _gen
 	await get_tree().create_timer(1.8, false).timeout
 	if gen != _gen:

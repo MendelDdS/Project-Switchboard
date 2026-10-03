@@ -9,7 +9,8 @@ extends Control
 ## pela fenda já com o local, o bairro e o setor. O jogador perfura o tipo de ocorrência (um só) e as unidades, cada um
 ## na sua posição; furo não se desfaz. O cartão vai para onde for arrastado, dentro do mapa, e fica onde for solto;
 ## solto na fenda do transmissor, é puxado e enviado (`inserted`), mesmo incompleto (o supervisor é quem pune); na da
-## trituradora, é destruído (`discarded`). Os furos são só a vista do que o `Dispatch` guarda.
+## trituradora, é destruído (`discarded`). A mesa comporta um cartão por vez, de qualquer tipo (`can_print`): enquanto
+## houver um, a impressora recusa imprimir outro. Os furos são só a vista do que o `Dispatch` guarda.
 ## O cartão é um nó filho (`_sheet`) dentro de uma janela que recorta (`_window`): saindo da impressora, só aparece o
 ## que passou da fenda; entrando numa máquina, só o que ainda não entrou.
 
@@ -37,6 +38,7 @@ const FEED_SEC := 0.8       # o transmissor puxando o cartão...
 const READ_SEC := 0.35      # ...e ainda lendo os furos, com ele já dentro, antes de enviar
 const SHRED_SEC := 1.2      # a trituradora engolindo o cartão
 const CHAD_SEC := 0.45      # o picote caindo
+const REFUSE_SEC := 1.6     # a impressora avisando que já há um cartão na mesa
 const ROW := 19.0
 const CELL := Vector2(10, 14)
 const CARD := Color("e9dcb4")
@@ -66,6 +68,7 @@ var _grab := Vector2.ZERO   ## onde o mouse pegou o cartão
 var _press := Vector2.INF   ## onde o botão foi apertado no cartão (INF = solto): ainda não se sabe se é clique ou arraste
 var _shake := Vector2.ZERO  ## a trituradora tremendo (um sorteio por quadro)
 var _serial := 0
+var _refused := -1.0        ## segundos desde que a impressora recusou um cartão (-1 = sem aviso)
 var _place := ""            ## o local impresso ("Rua do Sol, 1–99")
 var _sector := 0
 var _cells: Array = []      ## [quadradinho no cartão, "type" | "unit", id, a linha inteira (clicável)]
@@ -93,13 +96,32 @@ func _ready() -> void:
 
 
 ## Imprime um cartão novo (o que estava na mesa vai embora).
-func print_card(place: String, sector: int) -> void:
+## O número do último cartão impresso (o que está na mesa, ou o que acabou de entrar numa máquina).
+func serial() -> int:
+	return _serial
+
+
+## A mesa comporta um cartão por vez, de qualquer tipo: enquanto houver um (imprimindo, na mesa ou entrando numa
+## máquina), não sai outro; ele precisa ser enviado ou triturado antes. Todo cartão novo passa por `print_card`.
+func can_print() -> bool:
+	return state == State.IDLE
+
+
+## Imprime um cartão novo e devolve verdadeiro; com um cartão na mesa, recusa (luz vermelha, aviso e `deny`).
+func print_card(place: String, sector: int) -> bool:
+	if not can_print():
+		_refused = 0.0
+		Sfx.play("deny")
+		queue_redraw()
+		return false
+	_refused = -1.0
 	_serial += 1
 	_place = place
 	_sector = sector
 	_layout()
 	_go(State.TYPING)
 	Sfx.play("typing")
+	return true
 
 
 ## Abre (as máquinas entram) ou fecha (saem; depois, `closed`).
@@ -217,6 +239,11 @@ func _clamp(p: Vector2) -> Vector2:
 
 func _process(delta: float) -> void:
 	_t += delta
+	if _refused >= 0.0:
+		_refused += delta
+		if _refused > REFUSE_SEC:
+			_refused = -1.0
+		queue_redraw()
 	match state:
 		State.TYPING:
 			if _t >= TYPE_SEC:
@@ -419,8 +446,12 @@ func _draw_printer() -> void:
 	_box(r)
 	_mouth(r.position.x + 8.0, _printer_slot(), CARD_W)
 	var busy := state in [State.TYPING, State.PRINTING]
-	_led(r.position + Vector2(10, 8), busy and fmod(_t, 0.24) < 0.12, Pal.AMBER)
-	_text(self, Vector2(r.position.x + 22.0, r.position.y + 16.0), T.text(T.Key.CARD_PRINTER), Pal.DIM)
+	if _refused >= 0.0:   # recusou: luz vermelha piscando e o aviso no lugar do nome
+		_led(r.position + Vector2(10, 8), fmod(_refused, 0.3) < 0.15, Pal.RED)
+		_text(self, Vector2(r.position.x + 22.0, r.position.y + 16.0), T.text(T.Key.CARD_ONE_AT_A_TIME), Pal.RED)
+	else:
+		_led(r.position + Vector2(10, 8), busy and fmod(_t, 0.24) < 0.12, Pal.AMBER)
+		_text(self, Vector2(r.position.x + 22.0, r.position.y + 16.0), T.text(T.Key.CARD_PRINTER), Pal.DIM)
 	_vent(Vector2(r.end.x - 74.0, r.position.y + 6.0), 3, 28.0)
 
 

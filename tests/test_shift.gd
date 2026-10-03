@@ -57,9 +57,37 @@ func _fone_to(b, j: int) -> void:
 	b.place(0, j)
 
 
+## Um passo do despacho pelo cartão (modo --human). Devolve se fez alguma ação (que conta tempo); esperar a
+## impressora ou o transmissor não conta.
+func _card_step(f: PhoneCall, e: EmergencyCall) -> bool:
+	var d = m.dispatch
+	var card = d.card
+	if not f.has_meta("planned"):
+		f.set_meta("planned", true)   # consultar o protocolo
+		return true
+	if card.state == card.State.IDLE and d._location.is_empty():
+		d.set_location(e.street, e.block, e.address)
+		return true
+	if card.state != card.State.READY or card._up < 1.0:
+		return false   # imprimindo, entrando, ou as máquinas subindo
+	if d.occurrence() == "":
+		d.set_occurrence(e.occurrence)
+		for u in d.required():   # o que a situação pede agora (pode ter piorado)
+			d.punch_unit(u)
+		return true
+	card._pos = Vector2(card._machine("send").get_center().x - card.CARD_W / 2.0, card._slot("send") - card._card_h + 8.0)
+	card._drop()
+	return true
+
+
 func _initialize() -> void:
 	Engine.time_scale = 2.0
 	m = await load_main()
+	if human:   # pelo cartão, o despacho sai só depois da leitura no transmissor: o estágio é o daquela hora
+		m.dispatch.sent.connect(func(_l, _u, _c, _n):
+			var f: PhoneCall = m.em_call
+			if f != null:
+				stages.append("%d(%.0fs)" % [f.stage, f.urgency] if f.retry == PhoneCall.Retry.NONE else "retorno"))
 	m._intro.visible = false
 	m._start_shift()
 	var b = m.board
@@ -155,17 +183,17 @@ func _initialize() -> void:
 						_acted()
 			_:
 				if f.kind == PhoneCall.Kind.EMERGENCY and not f.options.is_empty() and String(f.options[0]["label"]) == T.text(T.Key.OP_HOLD_EMERGENCY) and not f.dispatched:
-					if human and not f.has_meta("planned"):
-						f.set_meta("planned", true)   # consultar o protocolo, marcar no mapa, o tipo e as unidades
-						_acted(3.0)
-						continue
 					var e: EmergencyCall = f.data
-					m.dispatch.set_location(e.street, e.block, e.address)
-					m.dispatch.set_occurrence(e.occurrence)
-					for u in m.dispatch.required():   # o que a situação pede agora (pode ter piorado)
-						m.dispatch.punch_unit(u)
-					stages.append("%d(%.0fs)" % [f.stage, f.urgency] if f.retry == PhoneCall.Retry.NONE else "retorno")
-					m.dispatch._send()
+					if human:   # como uma pessoa, pelo cartão: pensar, marcar no mapa, esperar imprimir, perfurar, levar
+						if not _card_step(f, e):
+							continue
+					else:
+						m.dispatch.set_location(e.street, e.block, e.address)
+						m.dispatch.set_occurrence(e.occurrence)
+						for u in m.dispatch.required():   # o que a situação pede agora (pode ter piorado)
+							m.dispatch.punch_unit(u)
+						stages.append("%d(%.0fs)" % [f.stage, f.urgency] if f.retry == PhoneCall.Retry.NONE else "retorno")
+						m.dispatch._send()
 					_acted()
 				elif not f.options.is_empty():
 					f.options[0]["fn"].call()

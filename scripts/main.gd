@@ -850,6 +850,7 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> Dictionary:
 	var where := "—"
 	var unit := "—"
 	var obs := ""
+	var card := 0   # o cartão de despacho enviado (emergência)
 	match c.kind:
 		PhoneCall.Kind.TRANSFER:
 			if c.connected:
@@ -866,6 +867,7 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> Dictionary:
 			var same: bool = not _sent.is_empty() and _sent["call"] == c
 			where = String(_sent["loc"]) if same else (c.data as EmergencyCall).address
 			unit = String(_sent["units"]) if same else "—"
+			card = int(_sent["card"]) if same else 0
 		PhoneCall.Kind.PRANK:
 			where = (c.data as PrankCall).fake_address
 	match reason:
@@ -884,13 +886,13 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> Dictionary:
 				obs = T.text(T.Key.OBS_CALL_DROPPED)
 	var unknown := c.kind == PhoneCall.Kind.MYSTERY or reason == PhoneCall.End.MISSED
 	var who := T.text(T.Key.UNKNOWN_CALLER) if unknown else tr(c.caller)
-	return {"time": c.time, "who": "%s (%s)" % [who, T.text(T.Key.LINE_N) % c.line], "where": where, "unit": unit, "obs": obs,
+	return {"time": c.time, "who": "%s (%s)" % [who, T.text(T.Key.LINE_N) % c.line], "where": where, "unit": unit, "card": card, "obs": obs,
 		"kind": c.kind, "missed": reason == PhoneCall.End.MISSED, "tut": c == tut, "shift": reason == PhoneCall.End.SHIFT_OVER}
 
 
 ## `complete`: com este envio, tudo o que a emergência precisa agora está a caminho do lugar certo.
-func _on_dispatched(loc: String, units_text: String, complete: bool) -> void:
-	_sent = {"call": em_call, "loc": loc, "units": units_text}
+func _on_dispatched(loc: String, units_text: String, complete: bool, card: int) -> void:
+	_sent = {"call": em_call, "loc": loc, "units": units_text, "card": card}
 	if em_call == null:
 		return
 	# o socorro completo saiu: a barra para (e o supervisor vê se demorou)
@@ -900,6 +902,7 @@ func _on_dispatched(loc: String, units_text: String, complete: bool) -> void:
 	if not em_call.record.is_empty():
 		em_call.record["where"] = loc
 		em_call.record["unit"] = units_text
+		em_call.record["card"] = card
 		notebook.refresh_record(em_call.record)
 	conversation.emergency_dispatched(em_call)
 
