@@ -92,6 +92,8 @@ func _ready() -> void:
 		if a.begins_with("--weather=") and a.get_slice("=", 1) in WEATHERS:
 			weather = a.get_slice("=", 1)
 	background.weather = weather
+	clock.add_to_group("bloom")   # o visor do relógio brilha, de leve
+	clock.set_meta("bloom", 0.35)
 	exchange = Exchange.new(GameData.board_numbers())
 	board.setup(exchange, phone.fone_socket)
 	var left := phone.get_parent() as Control   # o telefone ocupa o resto da coluna, até PHONE_MAX_H

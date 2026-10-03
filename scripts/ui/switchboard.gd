@@ -64,6 +64,8 @@ const PLUG_BASE := Vector2(0, 20)   # do ponto de referência do plug (topo do c
 const PLUG_SEAT := Vector2(0, 26)
 const SHADOW := Color(0, 0, 0, 0.35)
 const PLATE := Color("4d483d")   # chapa sobre o banco que ainda não está em uso
+const LAMP_R := 4.5         # raio do vidro da lâmpada de cada linha (o aro de metal fica em volta)
+const BEZEL := [Color("d6d1c3"), Color("8e897c"), Color("45413a")]   # aro niquelado: luz, meio, sombra
 const ROPE_SHADOW := Vector2(3, 4)  # deslocamento da sombra dos fios; a do plug cresce quando ele sai do painel
 var _jacks: Array = []
 
@@ -627,13 +629,20 @@ func _dest_lamp(st: int, ms: int) -> Color:
 	return Color(0, 0, 0, 0)
 
 
-func _draw_lamp(r: Rect2, col: Color) -> void:
+## Lâmpada redonda com aro de metal (luz no alto à esquerda, sombra embaixo à direita), assento preto e o vidro na cor
+## da linha; apagada, o vidro fica escuro, só com um reflexo fraco. Acesa, brilha (`Bloom`).
+func _draw_lamp(c: Vector2, col: Color) -> void:
+	draw_circle(c, LAMP_R + 3.5, Color.BLACK)
+	draw_circle(c, LAMP_R + 2.5, BEZEL[2])
+	draw_circle(c - Vector2(0.6, 0.6), LAMP_R + 1.9, BEZEL[0])
+	draw_circle(c, LAMP_R + 1.5, BEZEL[1])
+	draw_circle(c, LAMP_R + 0.5, Color.BLACK)   # o assento do vidro
 	if col.a > 0.0:
-		var gc := col
-		gc.a = 0.25
-		draw_rect(r.grow(4), gc)
-	draw_rect(r.grow(2), Color.BLACK)
-	draw_rect(r, col if col.a > 0.0 else Color("2a2016"))
+		draw_circle(c, LAMP_R, col)
+		Bloom.light(self, Rect2(c - Vector2(LAMP_R, LAMP_R), Vector2(LAMP_R, LAMP_R) * 2.0), col, 1.0, true, true)
+	else:
+		draw_circle(c, LAMP_R, Color("2a2016"))
+		draw_circle(c - Vector2(LAMP_R, LAMP_R) * 0.45, 1.0, Color(1, 1, 1, 0.15))
 
 
 func _draw_jack(jr: Rect2, rim: Color = Pal.BRASS) -> void:
@@ -644,6 +653,7 @@ func _draw_jack(jr: Rect2, rim: Color = Pal.BRASS) -> void:
 
 
 func _draw() -> void:
+	Bloom.clear(self)
 	var w := size.x
 	var h := size.y
 	var ms := Time.get_ticks_msec()
@@ -666,7 +676,7 @@ func _draw() -> void:
 		draw_rect(Rect2(cx - 17, 36, 34, 20), Color.BLACK)
 		draw_rect(Rect2(cx - 15, 38, 30, 16), Color("1a1711"))
 		draw_string(Pal.mono, Vector2(cx - 15, 52), "%02d" % n, HORIZONTAL_ALIGNMENT_CENTER, 30, 11, Color("d8c9a2"))
-		_draw_lamp(Rect2(cx - 7, 60, 14, 9), _lamp(st, ms, fone_line() == n))
+		_draw_lamp(Vector2(cx, 65), _lamp(st, ms, fone_line() == n))
 		_draw_jack(jack_rect(n))
 		var sc := Pal.DIM
 		if st in [Exchange.Line.RING, Exchange.Line.TALK, Exchange.Line.HOLD]:
@@ -692,6 +702,7 @@ func _draw() -> void:
 		var lc := _dest_lamp(st, ms)
 		if lc.a > 0.0:
 			draw_rect(jr.grow(3), lc)   # o aro da tomada acende
+			Bloom.light(self, jr.grow(3), lc, 1.0, false)
 		_draw_jack(jr)
 	for s in _blocks:
 		if not s in GameData.sectors:

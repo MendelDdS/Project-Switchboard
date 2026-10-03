@@ -51,6 +51,7 @@ func _r(x: float, y: float, w: float, h: float, c: Color) -> void:
 
 
 func _draw() -> void:
+	Bloom.clear(self)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 	var w := ceilf(size.x / 2.0)
 	var h := ceilf(size.y / 2.0)
@@ -89,7 +90,9 @@ func _draw() -> void:
 		var p: Vector2 = lit[i]
 		if fog:
 			draw_circle(p + Vector2(1, 1), 4.0, Color(0.85, 0.62, 0.3, 0.12))
-		_r(p.x, p.y, 2, 2, Color("b38a3c") if i == 2 else Color("d59a3d"))
+		var window_light := Color("b38a3c") if i == 2 else Color("d59a3d")
+		_r(p.x, p.y, 2, 2, window_light)
+		Bloom.light(self, Rect2(p * 2.0, Vector2(4, 4)), window_light, 0.5)   # janela acesa lá fora (o desenho é em 2×)
 	if shadow:
 		# cabeça e ombros de alguém do lado de fora, colado ao vidro, contra a luz de um poste da rua
 		# (a névoa e a chuva passam por cima)

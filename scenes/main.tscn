@@ -12,6 +12,7 @@
 [ext_resource type="Script" uid="uid://dpp8fwpgwjrfm" path="res://scripts/conversation.gd" id="10_conversation"]
 [ext_resource type="Script" path="res://scripts/supervisor.gd" id="22_supervisor"]
 [ext_resource type="Script" path="res://scripts/urgency.gd" id="23_urgency"]
+[ext_resource type="Script" path="res://scripts/ui/bloom.gd" id="24_bloom"]
 [ext_resource type="PackedScene" path="res://scenes/ui/intro.tscn" id="11_intro"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ending.tscn" id="12_ending"]
 [ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="20_pause"]
@@ -231,6 +232,16 @@ grow_vertical = 2
 mouse_filter = 2
 texture = SubResource("GradientTexture2D_6")
 expand_mode = 1
+
+[node name="Bloom" type="Control" parent="."]
+z_index = 2
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("24_bloom")
 
 [node name="Scanlines" type="Control" parent="." unique_id=1284388564]
 z_index = 2

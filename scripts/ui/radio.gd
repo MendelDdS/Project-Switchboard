@@ -29,6 +29,8 @@ var _screen_color: Color
 
 func _ready() -> void:
 	_screen_color = _screen.get_theme_color("font_color")
+	for lamp in [_led, _alert_lamp]:
+		lamp.add_to_group("bloom")
 
 
 ## Luz de ocorrência: acesa na cor do estágio da barra de agravamento enquanto uma emergência atendida não tem o

@@ -31,6 +31,7 @@ func _active() -> bool:
 
 
 func _draw() -> void:
+	Bloom.clear(self)
 	if fmod(_blink, 0.3) > 0.15:
 		return
 	var e: EmergencyCall = call.data
@@ -49,3 +50,4 @@ func _draw() -> void:
 		x -= w
 	var left := floorf(r.size.x * clampf(1.0 - call.urgency / total, 0.0, 1.0))
 	draw_rect(Rect2(r.position, Vector2(left, r.size.y)), col)
+	Bloom.light(self, Rect2(r.position, Vector2(left, r.size.y)), col, 0.6)

@@ -54,6 +54,17 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   o telefone ocupa o resto da altura até `Main.PHONE_MAX_H`; o brilho da luminária (`%Glow`) tem 1280×720, preso à direita;
   as abas crescem na altura; a lista telefônica, o mapa e o caderno acompanham o tamanho da aba (`PhoneBook.book`,
   `NOTIFICATION_RESIZED`); o `Background` estica parede e mesa até a borda (luminária presa à direita).
+- **Bloom das luzes** (`Bloom`, `scripts/ui/bloom.gd`, nó `Bloom` do Main, z 2: acima da mesa e dos painéis, abaixo dos
+  menus), no estilo do glow de cinema e em pixel art: halo somado à tela (blend ADD) em duas camadas (curta e forte,
+  longa e fraca), desenhado em blocos de `BLOCK` px com poucos degraus e pontilhado ordenado (`_halo_for`, guardado por
+  tamanho); por cima, a própria luz nítida com o centro indo, em degraus, para um branco tingido pela cor dela (`HOT`,
+  `HOT_TINT`; sem isso o halo parecia uma fumaça). Só brilha o que se declara luz, porque pela cor não dá (o plug
+  vermelho tem o tom da lâmpada vermelha; um bloom de tela por cor foi testado e descartado): quem desenha luzes chama
+  `Bloom.clear(self)` no começo do `_draw` e `Bloom.light(self, rect, cor, halo, core, round)` por luz acesa (lâmpadas
+  redondas da mesa, `Switchboard._draw_lamp`, com aro niquelado, `BEZEL`; aro da tomada de destino, sem miolo;
+  luzes das máquinas do cartão; barra de agravamento; janelas acesas do `Background`, que desenha em 2×). ColorRect e
+  Label no grupo "bloom" brilham na cor deles (luzes do rádio; o relógio, só halo, atenuado pela meta "bloom"). Luz
+  sem miolo tem o halo fraco por dentro (`HOLLOW`); luz de quem recorta o conteúdo (`clip_contents`) é recortada também.
 - Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`). **Uma fonte só, de pixel: Departure Mono**
   (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11**: 11 (texto, números da lista), 22
   (títulos, visor, bilhete), 33 (títulos de tela), 44 (relógio). Importada com suavização (a janela
