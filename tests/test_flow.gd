@@ -294,9 +294,10 @@ func _initialize() -> void:
 	_move(2, tgt)
 	m.transfer()
 	ok(await wait_until(func(): return ex.dest(tgt) == Exchange.Dest.CONN), "destino atendeu")
-	ok(not a.ended, "com o FONE na entrada o operador segue na linha")
+	ok(await wait_until(func(): return a.connected), "conecta assim que o destino atende, mesmo com o FONE na entrada")
+	ok(a.ended and ex.line(ln) == Exchange.Line.CONN and ex.dest(tgt) == Exchange.Dest.CONN, "conectada com o FONE na entrada")
 	_move(0, -1)
-	ok(a.ended and a.connected and ex.line(ln) == Exchange.Line.CONN and ex.dest(tgt) == Exchange.Dest.CONN, "tirar o FONE não derruba")
+	ok(ex.line(ln) == Exchange.Line.CONN and ex.dest(tgt) == Exchange.Dest.CONN, "tirar o FONE não derruba")
 	m.minutes = ex.line_until(ln) + 1.0
 	await frames(1)
 	ok(ex.line(ln) == Exchange.Line.DONE and ex.dest(tgt) == Exchange.Dest.DONE, "conversa terminou")

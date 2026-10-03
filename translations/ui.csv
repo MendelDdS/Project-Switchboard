@@ -106,7 +106,7 @@ SYS_DISCONNECTED,(%d desconectado.),(%d disconnected.),(%d desconectado.)
 SYS_NOBODY_ANSWERS,(Ninguém atende no %d.),(Nobody answers at %d.),(Nadie contesta en el %d.)
 SYS_ANSWERED,(%s atendeu.),(%s answered.),(%s contestó.)
 SYS_WRONG_PERSON,(Atendeu: %s. Não é quem o solicitante pediu.),(Answered: %s. Not who the caller asked for.),(Contestó: %s. No es a quien pidió la persona.)
-SYS_FONE_OFF_CONNECTED,(Você tirou o fone. %02d e %d seguem conectados.),(You unplugged the headset. %02d and %d stay connected.),(Quitó el auricular. %02d y %d siguen conectados.)
+SYS_LINES_CONNECTED,(%02d e %d conectados.),(%02d and %d connected.),(%02d y %d conectados.)
 SYS_WRONG_BOTH_HUNG,"(Atendeu: %s. Foi engano, e os dois desligaram.)","(Answered: %s. Wrong number, and both hung up.)","(Contestó: %s. Era equivocado, y los dos colgaron.)"
 SYS_YOU_ENDED,(Você encerrou a ligação.),(You ended the call.),(Usted terminó la llamada.)
 SYS_NOBODY_ANSWERED,(Ninguém atendeu. A pessoa desistiu.),(Nobody answered. The caller gave up.),(Nadie contestó. La persona desistió.)
@@ -126,7 +126,7 @@ HINT_TUT_FIND,"Procure [b]%s[/b] na lista. Pegue um [b]cabo de conexão[/b] na b
 HINT_TUT_OTHER_END,"Leve a outra ponta desse cabo até o número de [b]%s[/b], na fileira de destinos.","Take the other end of that cord to the number for [b]%s[/b], in the destination row.","Lleve la otra punta de ese cable al número de [b]%s[/b], en la fila de destinos."
 HINT_TUT_TRANSFER,Clique em [b]Transferir[/b] para chamar o destino.,Click [b]Transfer[/b] to ring the destination.,Haga clic en [b]Transferir[/b] para llamar al destino.
 HINT_TUT_DEST_RINGING,O destino está tocando. Aguarde atender.,The destination is ringing. Wait for an answer.,El destino está sonando. Espere a que contesten.
-HINT_TUT_UNPLUG,O destino atendeu. Tire o [b]FONE[/b] da entrada (devolva ao telefone): a ligação continua pelo cabo de conexão.,The destination answered. Pull the [b]HEADSET[/b] out of the input (return it to the phone): the call continues through the patch cord.,El destino contestó. Quite el [b]AURICULAR[/b] de la entrada (devuélvalo al teléfono): la llamada sigue por el cable de conexión.
+HINT_TUT_CONNECTED,O destino atendeu e a ligação já segue pelo cabo de conexão. Tire o [b]FONE[/b] da entrada quando quiser (devolva ao telefone).,The destination answered and the call already goes through the patch cord. Pull the [b]HEADSET[/b] out of the input whenever you like (return it to the phone).,El destino contestó y la llamada ya sigue por el cable de conexión. Quite el [b]AURICULAR[/b] de la entrada cuando quiera (devuélvalo al teléfono).
 HINT_NO_CORDS,Não há cabos de conexão livres. Desmonte uma conexão encerrada (lâmpadas vermelhas).,No free patch cords. Take down a finished connection (red lamps).,No hay cables de conexión libres. Desarme una conexión terminada (lámparas rojas).
 HINT_CHECK_LIST,Consulte a lista. Confira o nome e o endereço.,Check the directory. Confirm the name and address.,Consulte la guía. Revise el nombre y la dirección.
 HINT_REGISTER,Registre a ocorrência no caderno.,Log the call in the logbook.,Registre la llamada en el cuaderno.

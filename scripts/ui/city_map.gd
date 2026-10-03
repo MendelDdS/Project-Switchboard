@@ -369,8 +369,8 @@ func _draw_names(names: bool) -> void:
 			var o: Vector2 = SHEETS[sheet]
 			if st.horizontal:
 				_label(o + Vector2(180, st.pos + 5), st.name, 11, LINE, ROAD)
-			else:   # no topo da folha, abreviadas como num mapa de papel ("R. do Sol")
-				_label(o + Vector2(st.pos, 28.0), st.name.replace("Rua ", "R. ").replace("Avenida ", "Av. "), 11, LINE, PAPER)
+			else:
+				_vertical_name(o, st)
 	for pl in _places:
 		_place_name(pl[0], pl[1], pl[2])
 	if _k < NUMBERS_K:
@@ -383,7 +383,21 @@ func _draw_names(names: bool) -> void:
 			if st.horizontal:
 				_label(p0 + Vector2(16, 22), str(b * 100), 11, Pal.INK_SOFT)
 			else:
-				_label(p0 + Vector2(-2, 26), str(b * 100), 11, Pal.INK_SOFT, Color.TRANSPARENT, true)
+				_label(p0 + Vector2(-13, 26), str(b * 100), 11, Pal.INK_SOFT, Color.TRANSPARENT, true)   # na beira da quadra
+
+
+## Rua vertical: o nome em pé ao longo dela (como nos aplicativos de mapa), no meio de um trecho entre dois
+## cruzamentos, primeiro os compridos; abreviado ("R. do Sol") se o inteiro não couber no trecho; com o mapa afastado,
+## o abreviado pode passar por um cruzamento. Sem lugar (encostaria noutro nome), fica para a etiqueta do mouse.
+func _vertical_name(o: Vector2, st: Street) -> void:
+	var short := st.name.replace("Rua ", "R. ").replace("Avenida ", "Av. ")
+	for opt in [[st.name, true], [short, true], [short, false]]:
+		for i in [1, 2, 0, 3]:
+			var y0: float = YS[i]
+			var y1: float = YS[i + 1]
+			var fits: bool = _width(opt[0], 11) + 12.0 <= (y1 - y0) * _k
+			if (fits or not opt[1]) and _label(o + Vector2(st.pos + 5, (y0 + y1) / 2.0), opt[0], 11, LINE, ROAD, true):
+				return
 
 
 ## Nome do lugar no quarteirão `r` (coordenadas do mapa): numa linha, em duas ("Hotel / Estrela") ou em pé no

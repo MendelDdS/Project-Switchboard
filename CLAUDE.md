@@ -194,7 +194,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   atende (`PhoneCall.away`, `AWAY_CHANCE`); se não, toca sem resposta e o operador pode sugerir a alternativa
   (`alt_ask`, `Conversation._transfer_alt`), que sempre atende.
 - Transferência: FONE na entrada → Atender → pedido → cabo de conexão saída→destino → **Transferir** (`transfer()`)
-  → `_ring_dest` → destino atende → tirar o FONE → `_try_complete` → linha e destino CONN por `TALK_LEN`
+  → `_ring_dest` → destino atende (com o FONE na linha, quem ligou agradece) → `_try_complete` na hora, com ou sem o
+  FONE na entrada (o operador não ouve a conversa dos dois) → linha e destino CONN por `TALK_LEN`
   → DONE (vermelho) até o jogador tirar as pontas. `_dgen` invalida toques de destino quando o cabo sai.
 - Fim de ligação: `end_call(c, PhoneCall.End.*)` gera `c.record` e manda para `Notebook.add()` (fila; não trava o turno; não atendida vai
   direto para o livro com o carimbo `TYPE_MISSED`, sem escolher tipo).
@@ -225,7 +226,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   setores atendidos (`shown`), e o mapa as enquadra (`_frame`); roda do mouse aproxima (até `MAX_K`), arrastar move,
   clique sem arrastar marca o trecho. **Nomes sem sobreposição** (`_label`, `_boxes`): só desenha o que cabe inteiro
   na vista e não encosta em outro, na ordem bairro (rodapé da folha) > rua > lugar (`_places`, em uma ou duas linhas)
-  > numeração (só com `NUMBERS_K`); ruas verticais no topo, abreviadas ("R. do Sol"), em 12 se 14 não couber. Abaixo
+  > numeração (só com `NUMBERS_K`); ruas verticais com o nome em pé ao longo delas, no meio de um trecho entre cruzamentos
+  (`_vertical_name`: inteiro, abreviado "R. do Sol" se não couber, e afastado o abreviado pode passar do cruzamento);
+  a numeração delas fica na beira da quadra, fora da rua. Abaixo
   de `NAMES_K`, só os bairros, no meio da folha. Delegacia, bombeiros e hospital
   no Centro (`STATION`); a viagem dura pela distância (`trip` devolve os segundos, `UNIT_SPEED`, `MIN_TRIP`) e o
   despacho espera a mais demorada. Emergências escritas e moldes só nas ruas dos setores atendidos. `Dispatch.set_incident()` quando a emergência toca; `Dispatch.sent` → `Main._on_dispatched` →

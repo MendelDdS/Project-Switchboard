@@ -350,8 +350,8 @@ func _filled(j: int, e: int) -> void:
 ## Um plug saiu da tomada j.
 func _vacated(j: int, e: int) -> void:
 	if e == 0:
-		# FONE saiu: se o destino já atendeu, a ligação segue pelo cabo de conexão; se já foi resolvida, a pessoa
-		# termina de falar e desliga; senão fica em espera.
+		# FONE saiu: se o destino já atendeu, a ligação segue pelo cabo de conexão (o agradecimento ficou pela
+		# metade); se já foi resolvida, a pessoa termina de falar e desliga; senão fica em espera.
 		var c := _call_on_line(j)
 		if c != null and c.active and not c.closing:
 			if not _try_complete(c):
@@ -472,11 +472,10 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 	if not right and c != tut:
 		supervisor.fault("wrong_number", supervisor.who(c))
 		c.wrong += 1
-	if _try_complete(c):
-		return
-	if right:
+	if right and c.on_line:   # o operador ouve o agradecimento; a conversa entre os dois ele já não ouve
 		c.sys(T.text(T.Key.SYS_ANSWERED) % who)
 		await conversation.say(c, (c.data as TransferCall).thanks, 0.4)
+	if _try_complete(c) or right:
 		return
 	# número errado: quem atendeu reclama de ter sido acordado, e o solicitante também
 	c.sys(T.text(T.Key.SYS_WRONG_PERSON) % who)
@@ -491,20 +490,23 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 		hint(T.text(T.Key.HINT_WRONG_DEST))
 
 
-## Destino atendeu e o FONE saiu da entrada: os dois lados seguem conectados pelo cabo de conexão.
+## Destino atendeu: os dois lados seguem conectados pelo cabo de conexão, com ou sem o FONE na entrada.
+## Número errado com o FONE na entrada não completa: o operador ouve o engano (`_ring_dest`).
 func _try_complete(c: PhoneCall) -> bool:
-	if c.ended or c.kind != PhoneCall.Kind.TRANSFER or not c.active or board.fone_line() == c.line:
+	if c.ended or c.kind != PhoneCall.Kind.TRANSFER or not c.active:
 		return false
 	var d := board.dest_of_output(c.line)
 	if d == -1 or exchange.dest(d) != Exchange.Dest.CONN:
 		return false
 	if str(d) != c.target:
+		if board.fone_line() == c.line:
+			return false
 		_wrong_unattended(c, d)
 		return true
 	exchange.set_line(c.line, Exchange.Line.CONN, minutes + randf_range(TALK_LEN.x, TALK_LEN.y))
 	c.connected = true
 	c.dest_num = d
-	c.sys(T.text(T.Key.SYS_FONE_OFF_CONNECTED) % [c.line, d])
+	c.sys(T.text(T.Key.SYS_LINES_CONNECTED) % [c.line, d])
 	phone.flash("%02d - %d" % [c.line, d], 2600)
 	end_call(c, PhoneCall.End.CONNECTED)
 	return true
@@ -745,7 +747,7 @@ func tutorial_step() -> void:
 	elif exchange.dest(d) == Exchange.Dest.RING:
 		hint(T.text(T.Key.HINT_TUT_DEST_RINGING))
 	else:
-		hint(T.text(T.Key.HINT_TUT_UNPLUG))
+		hint(T.text(T.Key.HINT_TUT_CONNECTED))
 
 
 ## Chamado pela conversa quando o solicitante termina o pedido de transferência.
