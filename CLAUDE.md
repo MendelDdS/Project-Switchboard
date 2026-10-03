@@ -213,6 +213,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   gravado, `_draw_number_plate`; estado; lâmpada; entrada; saída), todos os encaixes com `JACK` px, bancos de destino em
   `DEST_TOP`/`DEST_ROW`, cabos e legenda embaixo. Mexendo na altura, confira com uma ligação atendida e duas fileiras de
   opções que a coluna da esquerda ainda cabe em 720.
+- Chapas de metal niquelado (`_draw_metal`: chanfro e rebites) nas plaquinhas dos números e na base dos cabos, cujos
+  furos são buchas redondas (`_draw_jack` pequeno); o encaixe do FONE (`FoneSocket`) é uma chapa com berço de latão.
 - Encaixes redondos como os originais (`_draw_jack`: bucha de metal com aba chanfrada, parede de dentro rebaixada e o
   furo); lâmpadas redondas com aro niquelado (`_draw_lamp`, `BEZEL`) que acendem rápido e apagam devagar, como
   filamento (`_lamp`/`_dest_lamp` dizem cor e nível desejado, `_fade` chega lá em `LAMP_ON_SEC`/`LAMP_OFF_SEC`, estado em
@@ -222,7 +224,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   partes dos plugues de mesa (bico e anel niquelados, luva de latão, isolantes pretos); gira com o fio em passos de
   `ROT_STEP` (15°: pixel art girado torto serrilha). Encaixado, é visto de frente como nas mesas de verdade
   (`_draw_plug_face`: aro niquelado e o tampo do cabo, `PLUG_FACE_R`), com o fio saindo do meio do encaixe, por cima
-  (`_plug_base` = centro do encaixe; o plug encaixado é desenhado antes do fio); ao encaixar, o tampo encolhe `PUSH_PX`
+  (`_plug_base` = centro do encaixe; o plug encaixado é desenhado antes do fio, que passa por cima do tampo e chega à
+  ponteira no centro, `_draw_plug_cap`, desenhada depois). O aro pega a luz da lâmpada (`_plug_reflect`: na entrada, a
+  da linha, no alto do aro; no destino, a do aro aceso, em volta). Ao encaixar, o corpo em pé entra no encaixe enquanto a
+  vista de frente cresce, e ao sair a vista de frente some no encaixe (`MORPH_SEC`, `_pulled`, `_unseat`); ao encaixar, o tampo encolhe `PUSH_PX`
   e volta em `PUSH_SEC` (`_pushed`, `_push`). Destaque e sombra seguem a silhueta (`_plug_outline`: as partes unidas
   num polígono, guardado; o destaque é ele alargado); `_plug_rect(seated)` é o retângulo do clique.
   Sombras (`SHADOW`): fios deslocados `ROPE_SHADOW`; plug mais longe quanto mais sai do painel (solto, na mão).

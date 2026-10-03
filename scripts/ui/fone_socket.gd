@@ -10,9 +10,23 @@ func _ready() -> void:
 
 
 func _draw() -> void:
+	# chapa com chanfro (luz em cima à esquerda), como a mesa
 	draw_rect(Rect2(Vector2.ZERO, size), Color.BLACK)
-	draw_rect(Rect2(Vector2(2, 2), size - Vector2(4, 4)), Color("1b1812"))
-	draw_rect(Rect2(10, 26, 16, 12), Color("050403"))
+	draw_rect(Rect2(Vector2.ONE, size - Vector2(2, 2)), Pal.PANEL)
+	draw_rect(Rect2(1, 1, size.x - 2, 1), Pal.PANEL_HI)
+	draw_rect(Rect2(1, 1, 1, size.y - 2), Pal.PANEL_HI)
+	draw_rect(Rect2(1, size.y - 2, size.x - 2, 1), Pal.PANEL_LO)
+	draw_rect(Rect2(size.x - 2, 1, 1, size.y - 2), Pal.PANEL_LO)
+	# o berço onde o plug fica em pé: rebaixo escuro com a borda de latão, sombra no alto (é fundo)
+	var cradle := Rect2(10, 3, 16, size.y - 6)
+	draw_rect(cradle.grow(1), Color("7a6230"))
+	draw_rect(Rect2(cradle.position - Vector2.ONE, Vector2(cradle.size.x + 2, 1)), Color("c4a35a"))
+	draw_rect(cradle, Color("050403"))
+	draw_rect(Rect2(cradle.position, Vector2(cradle.size.x, 2)), Pal.PANEL_LO)
+	for c in [Vector2(size.x - 6, 6), Vector2(size.x - 6, size.y - 6)]:   # parafusos
+		draw_circle(c, 2.5, Pal.PANEL_LO)
+		draw_circle(c - Vector2(0.4, 0.4), 1.6, Color("8e897c"))
+		draw_line(c - Vector2(1.2, 0), c + Vector2(1.2, 0), Pal.PANEL_LO, 1.0)
 	# no editor (@tool) as fontes de Pal ainda não foram carregadas
 	var f: Font = Pal.ui if Pal.ui != null else get_theme_default_font()
 	# a palavra muda com o idioma (FONE, HEADSET, AURICULAR): o maior tamanho em que a fonte fica nítida e cabe
