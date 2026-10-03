@@ -10,7 +10,6 @@ extends Resource
 ## Em ordem alfabética (é a ordem da lista telefônica).
 @export var directory: Array[DirectoryEntry] = []
 @export var streets: Array[Street] = []
-@export var block_labels: PackedStringArray = ["1–99", "100–199", "200–299"]
 ## Tipos de ocorrência no despacho.
 @export var occurrences: PackedStringArray = []
 

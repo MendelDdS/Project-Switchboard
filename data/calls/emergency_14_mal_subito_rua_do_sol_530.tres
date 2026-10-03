@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_emerg"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("amb")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "Tá, ouço ele gemendo... mas ele caiu dentro do poço do quintal! Não dá pra descer!", "")
+units = PackedStringArray("amb", "bomb")
+
+[resource]
+script = ExtResource("1_emerg")
+voice = "f"
+caller = "Filha"
+opening = "Central, meu pai caiu no quintal e não acorda!"
+questions = PackedStringArray("Qual é o endereço?", "Ele está respirando?", "Tem mais alguém ferido?")
+answers = PackedStringArray("Rua do Sol, 530! A casa do seu Benedito Souza!", "Tá, mas bem devagar. Bateu a cabeça numa pedra.", "Não, só ele. Por favor, rápido!")
+street = "sol"
+block = 5
+address = "Rua do Sol, 530"
+occurrence = "Mal súbito"
+units = PackedStringArray("amb")
+after = "Tá bom... Pai, aguenta firme, eles tão vindo."
+stage_sec = Vector3(40, 20, 20)
+worsening = "A respiração dele tá ficando mais fraca!"
+worsening_question = "Ele está consciente?"
+worsening_answer = "Não... eu chamo e ele não abre o olho."
+worsening_units = PackedStringArray()
+critical = "Ele começou a tremer todo!"
+critical_units = PackedStringArray()
+critical_question = "Ele está sangrando?"
+critical_answer = "Tá! A cabeça tá sangrando muito!"
+lost = "Ele parou de respirar... vocês demoraram demais."
+lost_answer = "Ele não respira... o vizinho tá fazendo massagem no peito dele."
+lost_units = PackedStringArray("amb")
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2")])

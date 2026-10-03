@@ -54,9 +54,26 @@ func _ready() -> void:
 	_row(speeds)
 	_row([["+30 min", func(): main.minutes = minf(main.minutes + 30.0, Main.SHIFT_END - 1.0)],
 		["Ir para 23:50", func(): main.minutes = maxf(main.minutes, Main.SHIFT_END - 10.0)], ["Encerrar turno", func(): main._start_ending()]])
+	_section("Noites", func(): _go_night(1))
+	_row([["◀ Noite anterior", func(): _go_night(main.night_no - 1)], ["Próxima noite ▶", func(): _go_night(main.night_no + 1)]])
 	_section("Viaturas e caderno", _clear_units_notebook)
 	_row([["Viaturas livres", func(): main.dispatch.reset()], ["Registrar pendências", _register_all]])
 	_row([["Limpar advertências", func(): main.report.faults.clear()], ["Apagar progresso", Progress.clear]])
+
+
+## Recomeça o jogo na noite `n` (setores, ritmo e roteiro dela), sem ler nem gravar o progresso salvo (como
+## `-- --night=N`). "Limpar" volta para a noite 1.
+func _go_night(n: int) -> void:
+	var tree := get_tree()
+	tree.paused = false
+	Sfx.ring_stop()
+	Sfx.stop_ambience(0.0)
+	var next: Node = load("res://scenes/main.tscn").instantiate()
+	next.night_no = clampi(n, 1, C.nights.size())
+	var old := tree.current_scene
+	tree.root.add_child(next)
+	tree.current_scene = next
+	old.queue_free()
 
 
 func _process(_delta: float) -> void:
@@ -88,7 +105,7 @@ func _ring(c: PhoneCall) -> void:
 
 
 func _ring_transfer(template: bool) -> void:
-	_ring(PhoneCall.from_transfer(GameData.template_transfer() if template else C.transfers.pick_random()))
+	_ring(PhoneCall.from_transfer(GameData.template_transfer() if template else C.transfers.filter(GameData.serves).pick_random()))
 
 
 func _ring_emergency() -> void:
@@ -196,7 +213,7 @@ func _section(title: String, clear: Callable) -> void:
 	l.text = title
 	l.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	l.theme_type_variation = &"AmberLabel"
-	l.add_theme_font_size_override("font_size", 14)
+	l.add_theme_font_size_override("font_size", 11)
 	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(l)
 	row.move_child(l, 0)
@@ -208,7 +225,7 @@ func _label(text: String) -> Label:
 	l.text = text
 	l.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	l.add_theme_font_size_override("font_size", 14)
+	l.add_theme_font_size_override("font_size", 11)
 	_box.add_child(l)
 	return l
 
@@ -224,7 +241,7 @@ func _row(items: Array) -> void:
 		b.focus_mode = Control.FOCUS_NONE
 		b.theme_type_variation = &"DarkButton"
 		b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		b.add_theme_font_size_override("font_size", 14)
+		b.add_theme_font_size_override("font_size", 11)
 		b.pressed.connect(it[1])
 		row.add_child(b)
 	_box.add_child(row)

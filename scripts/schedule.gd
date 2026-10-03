@@ -66,8 +66,8 @@ func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[Phon
 		kinds[i] = PhoneCall.Kind.PRANK
 	var used := fixed.map(func(f: PhoneCall): return f.caller)
 	var targets := fixed.map(func(f: PhoneCall): return f.target)
-	var transfers := C.transfers.filter(func(x): return not x.caller in used)
-	var emergencies := C.emergencies.duplicate()
+	var transfers := C.transfers.filter(func(x): return not x.caller in used and GameData.serves(x))
+	var emergencies := C.emergencies.filter(func(e: EmergencyCall): return GameData.street(e.street).block_sector(e.block) in GameData.sectors)
 	var pranks := C.pranks.duplicate()
 	for pool in [transfers, emergencies, pranks]:
 		pool.shuffle()
@@ -89,10 +89,13 @@ func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[Phon
 			# um número por noite: duas pessoas pedindo o mesmo destino ficariam esperando uma pela outra
 			var fresh := transfers.filter(func(x: TransferCall): return not x.target in targets and not x.alt_target in targets)
 			var tc: TransferCall = fresh.back() if randf() >= TEMPLATE_CHANCE and not fresh.is_empty() else GameData.template_transfer(targets)
-			transfers.erase(tc)
-			c = PhoneCall.from_transfer(tc)
-			targets.append(tc.alt_target)
-		else:
+			if tc == null and not fresh.is_empty():
+				tc = fresh.back()
+			if tc != null:
+				transfers.erase(tc)
+				c = PhoneCall.from_transfer(tc)
+				targets.append(tc.alt_target)
+		if c == null:   # pedido de informação (ou nenhum número livre para transferir nesta noite)
 			c = info_call()
 		targets.append(c.target)
 		c.at = ats[i]
@@ -100,9 +103,9 @@ func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[Phon
 	return out
 
 
-## Pedido de informação: alguém quer o número de um lugar da lista.
+## Pedido de informação: alguém quer o número de um lugar da lista (dos setores atendidos).
 static func info_call() -> PhoneCall:
 	var C := GameData.CONTENT
 	var who := GameData.pick(C.callers).split(":")
-	var e: DirectoryEntry = C.directory.filter(func(d): return d.spoken != "").pick_random()
+	var e: DirectoryEntry = C.directory.filter(func(d): return d.spoken != "" and GameData.in_service(d.number)).pick_random()
 	return PhoneCall.info(who[0], who[1], String(TranslationServer.translate(GameData.pick(C.ask_number))) % TranslationServer.translate("d" + e.spoken), e.spoken, e.number)

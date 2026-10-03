@@ -11,10 +11,16 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - **Interface em cenas** (`scenes/`), com Containers; scripts de interface em `scripts/ui/`. Lógica em `scripts/`.
   Estilo visual no tema global `themes/main_theme.tres` (variações de tipo: `GreenButton`, `AmberButton`,
   `RedButton`, `InkButton`, `DarkButton`, `ChoiceButton`, `TabButton`, `PaperToggle`, `PaperInk`, `LetterButton`,
-  `DarkPanel`, `PaperPanel`, `NotePanel`, `FormPanel`, `InkLabel`, `InkSoftLabel`, `DimLabel`, `AmberLabel`,
+  `DarkPanel`, `PaperPanel`, `NotePanel`, `FormPanel`, `SlipPanel`, `InkLabel`, `InkSoftLabel`, `DimLabel`, `AmberLabel`,
   `MonoLabel`, `InkMonoLabel`). Prefira variação de tema a override por nó.
 - Nomes de pessoas e lugares na ordem natural, "Nome Sobrenome" (nunca "Sobrenome, Nome"); a lista telefônica
-  ordena pelo nome como aparece (`PhoneBook._entries`).
+  ordena pelo nome como aparece, sem acento (`PhoneBook._entries`, `_plain`). **Uma letra por página dupla**: a aba de
+  índice na borda direita (`_index`, `_tab_rect`; a da letra aberta fica destacada) abre só os contatos daquela letra
+  (`pages()`: começam na esquerda e seguem na direita); Voltar e Virar passam de letra em letra e, depois da última,
+  vem a página de anotações. Contato: nome, pontilhado até o número e, embaixo, observação · endereço · bairro
+  (`_addr`, espaços que não quebram no bairro e em "rua, número"). A observação (`DirectoryEntry.note`) só diz **quem
+  atende quando o nome não diz** ("Pe. Anselmo", "recepção", "secretaria", "use o despacho"); nada de horário ou
+  "residência". Todo número da lista serve para alguma coisa: não existe lugar sempre fechado.
 - **Conteúdo em Resources** (`data/content.tres` + um `.tres` por roteiro em `data/calls/` + um por noite em
   `data/nights/`). Nada de falas no código, exceto as do operador.
 - **Moldes** (`data/templates/`, listas `transfer_templates`/`emergency_templates` no content): `TransferCall`/
@@ -35,11 +41,17 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Clima (`Main.weather`: "rain", "fog", "clear", sorteado; `-- --weather=X` força): `Sfx.start_ambience(w)`/
   `set_weather`/`hush_nature`/`stop_ambience`, `Background.weather` desenha a janela, `Conversation.topics()` junta os
   assuntos gerais com os do clima (`ChatTopic.weather`).
-- Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`). **Fontes de pixel**: importadas sem
-  suavização nem sub-pixel e usadas só nos tamanhos em que ficam nítidas: `Pal.ui` (Pixelify Sans) 14, 16, 18, 22
-  (piso de 14; 12 só onde não cabe: teclas dos botões, selo da aba, estado das linhas e numeração do mapa); `Pal.mono` (VT323, números) 20, 21, 25, 30, 35 (abaixo de 20 fica fina). Texto em desenho com escala (mapa)
-  sai fora da escala (`CityMap._t`). O 2 e o 5 da Pixelify foram redesenhados (pareciam S e Z) e ela foi fixada no peso
-  Regular (era variável); se trocar o arquivo da fonte, refaça isso.
+- **Resolução**: a base é 1280×720 (`canvas_items`, `aspect="expand"`); o Godot amplia para a tela, e a proporção
+  diferente de 16:9 vira espaço a mais, não tarja. Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
+  O layout absorve o espaço a mais: a coluna da esquerda (mesa e telefone) tem largura fixa e a da direita cresce;
+  o telefone ocupa o resto da altura até `Main.PHONE_MAX_H`; o brilho da luminária (`%Glow`) tem 1280×720, preso à direita;
+  as abas crescem na altura; a lista telefônica, o mapa e o caderno acompanham o tamanho da aba (`PhoneBook.book`,
+  `NOTIFICATION_RESIZED`); o `Background` estica parede e mesa até a borda (luminária presa à direita).
+- Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`). **Uma fonte só, de pixel: Departure Mono**
+  (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11**: 11 (texto, números da lista), 22
+  (títulos, visor, bilhete), 33 (títulos de tela), 44 (relógio). Importada com suavização (a janela
+  menor que 1280×720 não apaga os traços, mas o texto de 11 fica borrado), sem hinting e sem sub-pixel. Texto em
+  desenho com escala (mapa) sai fora da escala (`CityMap._t`).
 - **Idiomas** pt_BR (padrão), en, es. Interface/código: **enum `T.Key`** (`scripts/t.gd`, GERADO) +
   `translations/ui.csv` (`chave,pt_BR,en,es`); use `T.text(T.Key.X)` (com valores: `T.text(T.Key.X) % n`), nunca
   `tr("texto")` com literal. Cenas: o `text` do Label/Button é a chave (auto-tradução do Godot). Falas dos roteiros
@@ -79,7 +91,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `Engine.time_scale`: 8 nos cenários, 2 no robô (acima disso as falas, letra a letra, ficam presas ao quadro e
   alongam as conversas; a 48× as métricas mudavam muito).
   - `tests/test_base.gd`: base (`ok()` em vez de `assert`, que trava o headless; `wait_until`, `load_main`, `finish`).
-  - `tests/test_flow.gd`: cenários dirigidos (transferência, espera, desistência, caderno, lugar fechado, ligar de volta ao desconhecido, cliques).
+  - `tests/test_flow.gd`: cenários dirigidos (transferência, espera, desistência, caderno, destino que não atende, ligar de volta ao desconhecido, cliques).
   - `tests/test_penalties.gd`: consequências (perdida e retorno, número errado, registro, despacho errado,
     emergência sem despacho, espera longa, informação errada) e o relatório. Relógio parado; retornos tocados à mão.
   - `run.sh` começa com `--import`: **`class_name` novo só existe depois de reimportar** (sem isso, parse error).
@@ -95,7 +107,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - **Painel de debug** (F1, ação `debug`; `DebugPanel`, `scenes/ui/debug_panel.tscn`, nó `%Debug` do Main, z 5): só em
   build de debug (editor ou export de debug; no release ele se apaga). Toca ligações na hora (qualquer tipo; emergência
   escolhida, com o caso sorteado), pula estágio ou congela a barra (`Main.debug_freeze`), mostra o que a emergência
-  exige (contado e real), velocidade 1–8×, pula o relógio, encerra o turno, libera viaturas (`Dispatch.reset`; `_gen` cancela
+  exige (contado e real), velocidade 1–8×, pula o relógio, encerra o turno, troca de noite (`_go_night`: recarrega a cena na noite anterior/seguinte, sem ler nem
+  gravar o progresso, para testar a entrega dos setores), libera viaturas (`Dispatch.reset`; `_gen` cancela
   as viagens em andamento), registra pendências, limpa advertências e apaga o progresso. Cada seção tem "Limpar" e o
   topo tem "Restaurar tudo" (`_drop` tira uma ligação sem caderno, advertência nem retorno; a mesa é zerada antes de
   tirar os cabos para nada contar como conversa cortada; `Notebook.reset`). Textos fixos em português (ferramenta, não interface).
@@ -132,7 +145,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 
 ## Modelo da mesa (scripts/ui/switchboard.gd)
 - Tomadas por id inteiro: **1–10 entradas**, **11–20 saídas** (linha + 10), **destinos = o próprio número** (101–399,
-  exceto 190/192/193, que vão pelo despacho).
+  exceto 190/192/193, que vão pelo despacho). Destinos em três bancos de fábrica, A | B | C, rotulados pela faixa de
+  numeração (100–199 | 200–299 | 300–399, `SECTOR_ORDER`, duas fileiras cada, `_layout_dests`/`_slots`; a mesa não
+  fala em setor). O banco de um setor que ainda não é do operador fica sob uma chapa com a letra dele (`_draw_plate`:
+  A e B; o C, do setor 3, nunca é tampado) e as tomadas dele não existem para o clique.
 - `ends[]`: tomada de cada ponta (-1 = na base). **Ponta 0 = FONE** (cabo verde, encaixe `FoneSocket` no painel
   do telefone, só entra em entradas). **Pontas 1..2*PATCHES = cabos de conexão** (vermelho, azul, amarelo em `CORD_COLORS`; independentes; `mate(e)`
   dá a outra ponta; uma ponta na saída, a outra no destino). `PATCHES = 3`.
@@ -174,25 +190,48 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   foco fica "em espera" e **não fala**: `say()`/`op()` aguardam `_until_on_line(c)`. Exceção: ligação já resolvida
   (`c.closing`: informação respondida, emergência despachada) não entra em espera; a pessoa termina de falar sozinha
   e desliga, sem som e sem texto na transcrição (só o que for dito com o FONE na linha aparece).
+- Destino que não atende: pedido com alternativa (`TransferCall.alt_target`) sorteia ao ser criado se o lugar pedido
+  atende (`PhoneCall.away`, `AWAY_CHANCE`); se não, toca sem resposta e o operador pode sugerir a alternativa
+  (`alt_ask`, `Conversation._transfer_alt`), que sempre atende.
 - Transferência: FONE na entrada → Atender → pedido → cabo de conexão saída→destino → **Transferir** (`transfer()`)
-  → `_ring_dest` → destino atende → tirar o FONE → `_try_complete` → linha e destino CONN por `TALK_LEN`
+  → `_ring_dest` → destino atende (com o FONE na linha, quem ligou agradece) → `_try_complete` na hora, com ou sem o
+  FONE na entrada (o operador não ouve a conversa dos dois) → linha e destino CONN por `TALK_LEN`
   → DONE (vermelho) até o jogador tirar as pontas. `_dgen` invalida toques de destino quando o cabo sai.
-- Fim de ligação: `end_call(c, PhoneCall.End.*)` gera `c.record` e manda para `Notebook.add()` (fila; não trava o turno).
+- Fim de ligação: `end_call(c, PhoneCall.End.*)` gera `c.record` e manda para `Notebook.add()` (fila; não trava o turno; não atendida vai
+  direto para o livro com o carimbo `TYPE_MISSED`, sem escolher tipo).
   O caderno registra com **um clique no tipo** (`register(T.Key.TYPE_*)`: Comum, Emergência, Trote; o resto da linha
   vem do `record`), mostra a pendente numa ficha só de leitura e desenha o livro como página pautada (`_draw_page`,
   carimbo colorido por tipo, `STAMPS`). A aba mostra quantas faltam (`pending_changed(count)` → `Tools.set_count`,
   selo `BadgeLabel`); o jogo não troca de aba sozinho.
 - Despacho: **mapa e despacho numa aba só** (`Dispatch`, `scenes/ui/dispatch.tscn`; não existe mais aba Mapa nem
-  `MapView`): o `CityMap` (`%City`) em cima, clicar no trecho já marca o local (`segment_selected` → `set_location`);
-  passar o mouse mostra uma etiqueta com a faixa de números do trecho (`CityMap._tag`, "Rua do Sol, 1–99").
-  Embaixo, uma faixa compacta (botões `PaperChip`): tipos, unidades e Enviar, e a conferência
-  "[x] Local · [x] Tipo · [x] Unidades" (`_check`); Enviar só acende com as três (`can_send`). O tipo **não** marca
-  unidades: a conversa decide, pelo protocolo (cartão `DISPATCH_PROTOCOL` na aba; regras em `EmergencyCall.units`).
+  `MapView`): o `CityMap` (`%City`) ocupa a aba inteira (passa por baixo da margem do papel); clicar no trecho já marca
+  o local (`segment_selected` → `set_location`); passar o mouse mostra uma etiqueta com a faixa de números do trecho
+  (`CityMap._tag`, "Rua do Sol, 1–99"). Por cima, à direita, a **ficha de despacho** (`%Slip`, `SlipPanel`), na ordem
+  da decisão: local, ocorrência (lista), unidades (cada uma com o que a justifica embaixo, `DISPATCH_WHY_*`: o protocolo
+  fica junto do botão) e Enviar. Cada parte mostra "[ ]"/"[x]" no título (`_check`); Enviar só acende com as três
+  (`can_send`). A ficha abre ao marcar um local ou quando chega uma emergência (`open_slip`), se recolhe depois do envio
+  e o × a fecha; fechada, o botão `%Open` a reabre. O mapa não encolhe: `CityMap.cover` diz quantos px da direita a
+  ficha cobre; a escala é a da aba toda, mas centro, nomes e rosa dos ventos ficam na parte à vista (`_seen`), o pedaço
+  coberto se alcança arrastando e abrir a ficha não mexe no que está na tela. `CityMap.blocked`: onde há botões por cima
+  (abrir ficha, `%Fleet`), sem nomes de rua. `%Fleet` (canto de baixo, só com viatura fora) mostra o estado delas
+  (`%Report`). O tipo **não** marca unidades: a conversa decide, pelo protocolo (regras em `EmergencyCall.units`).
   `EmergencyCall.cases` (`EmergencyCase`): variações sorteadas por `GameData.with_case()` (respostas + unidades).
-  Depois de enviar, local, tipo e unidades voltam limpos (`city.clear_selection`). O mapa tem tamanho fixo: a linha
-  de estado das unidades (`%Report`) e o protocolo sempre ocupam o espaço deles. Abrir a aba toca o papel
-  desenrolando (`unroll`). O mapa encolhe para caber (`_k` ≈ 0,83): nomes do topo e de lugares que não cabem descem
-  para 12. `Dispatch.set_incident()` quando a emergência toca; `Dispatch.sent` → `Main._on_dispatched` →
+  Depois de enviar, local, tipo e unidades voltam limpos (`city.clear_selection`). Abrir a aba toca o papel
+  desenrolando (`unroll`). **Cidade em folhas** (`CityMap.SHEETS`, 600×440 cada: Vila Serena (setor 3) | Centro (1)
+  em cima, Alto da Serra (2) | zona rural (do 2) embaixo), todas com a mesma grade. **Rua que continua tem o mesmo nome
+  e a numeração seguindo** (`Street.continues`: trechos 0–2 na folha dela, 3–5 na vizinha, `block_sector(b)`,
+  `Street.block_label`): Flores, Brasil e Acácias seguem no Centro (300–599); Comércio, Estação, Sol e Moinho, no Alto
+  da Serra. O Centro só tem as verticais próprias (Matriz, Sete de Setembro, Tiradentes, Mercado) e o Alto da Serra as
+  horizontais (Palmeiras, Bela Vista, Cruzeiro); elas viram estradas de terra na zona rural. Só aparecem as folhas dos
+  setores atendidos (`shown`), e o mapa as enquadra (`_frame`); roda do mouse aproxima (até `MAX_K`), arrastar move,
+  clique sem arrastar marca o trecho. **Nomes sem sobreposição** (`_label`, `_boxes`): só desenha o que cabe inteiro
+  na vista e não encosta em outro, na ordem bairro (rodapé da folha) > rua > lugar (`_places`, em uma ou duas linhas)
+  > numeração (só com `NUMBERS_K`); ruas verticais com o nome em pé ao longo delas, no meio de um trecho entre cruzamentos
+  (`_vertical_name`: inteiro, abreviado "R. do Sol" se não couber, e afastado o abreviado pode passar do cruzamento);
+  a numeração delas fica na beira da quadra, fora da rua. Abaixo
+  de `NAMES_K`, só os bairros, no meio da folha. Delegacia, bombeiros e hospital
+  no Centro (`STATION`); a viagem dura pela distância (`trip` devolve os segundos, `UNIT_SPEED`, `MIN_TRIP`) e o
+  despacho espera a mais demorada. Emergências escritas e moldes só nas ruas dos setores atendidos. `Dispatch.set_incident()` quando a emergência toca; `Dispatch.sent` → `Main._on_dispatched` →
   `Conversation.emergency_dispatched`. Na chegada,
   `Dispatch.arrived(e, result, occurrence, extra)` ("ok", "missing", "wrong_place", "idle"; tipo marcado; unidades
   que não eram necessárias) → `Supervisor.on_arrived`.
@@ -225,15 +264,30 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - À meia-noite, `_start_ending` (`Supervisor.shift_over`) soma o que ficou sem registro e passa o relatório para `Ending.play(report)`, que mostra
   `ReportView` antes do título final.
 
+## Setores (a cidade em três partes)
+- O setor de um número é o primeiro dígito (3xx, 1xx, 2xx; 10 + 12 + 12 = 34 na mesa). O operador começa com o setor 3
+  e recebe o 1 na noite 5 e o 2 na noite 9 (`GameData.SECTOR_NIGHTS`; o bilhete das noites 5 e 9 avisa).
+  `GameData.sectors` (definido em `Main._load_night`, chamado no `_enter_tree` para valer antes do `_ready` dos filhos)
+  filtra a mesa (`board_numbers`), a lista (`PhoneBook`), as transferências (`serves`, `transfers`, `template_transfer`,
+  que devolve nulo quando acabam os lugares e a agenda troca por pedido de informação) e os pedidos de informação.
+  Polícia, bombeiros e hospital (despacho) valem para a cidade toda. Testes de cenário usam `load_main([1, 2, 3])`.
+- Bairros: setor 1 **Centro**, setor 2 **Alto da Serra** (com a zona rural), setor 3 **Vila Serena** (`MAP_DISTRICT_*`,
+  nome no rodapé de cada folha do mapa). Cada um tem emergências escritas (Centro: 11–13; Alto da Serra: 14–16, a 14
+  na casa do Benedito Souza, endereço dele na lista). Na noite da entrega: a primeira transferência para o banco novo
+  mostra `HINT_NEW_BANK` (`Main._new_sector`), e na primeira vez que o mapa aparece ele sai do enquadramento antigo e
+  se abre para o bairro novo (`CityMap.pending_reveal`, `REVEAL_SEC`; o bairro novo aparece aos poucos).
+
 ## Noites (roteiro fixo)
+- 15 noites; as 3–15 ainda são genéricas (dia da semana e bilhete, sem roteiro nem ligação desconhecida).
 - `GameContent.nights` (ordem) → `Night` (`scripts/data/night.gd`, `data/nights/night_NN.tres`): dia da semana, bilhete
   da intro, clima fixo (vazio = sorteado), `tutorial` (só a 1ª), `story` (`StoryCall`: roteiro escrito + horário fixo) e `mystery` (passos `PrankStep`; vazio = sem
   ligação desconhecida naquela noite). **Só `story` e `mystery` são fixos; não existem ligações "principais".**
 - **Ritmo por nível, não por noite** (`Pace`, `scripts/data/pace.gd`; `GameContent.paces`, 5 níveis; `Main.pace`):
   `call_gap`, `peak_chance`, `max_live`, `emergencies`, `pranks`. Noite 1 = nível 1; `Pace.next` decide o da próxima
   (salvo em `Progress.pace`): até a noite `CONFIDENCE_NIGHTS` (3) só sobe se a noite anterior não foi ruim
-  (`verdict()` 2); depois sobe sempre, até o último nível, que é o limite para todas as noites seguintes (o 6 que foi
-  medido perdia ~1,3 ligação por noite com `--human`). Noite forçada (`--night=N`) usa o nível N; `--pace=N` força.
+  (`verdict()` 2); na noite de entrega de um setor (5, 9) não sobe; depois sobe sempre, até o último nível, que é o limite para todas as noites seguintes (o 6 que foi
+  medido perdia ~1,3 ligação por noite com `--human`). Noite forçada (`--night=N`) usa `Pace.expected(N)` (sem
+  tropeços); `--pace=N` força.
 - `PrankStep` é o roteiro falado de trotes e da ligação desconhecida (`Conversation.play_steps`); `EFFECT` =
   "static", "static_loud", "flick". `PhoneCall.from_script()` aceita Transfer/Emergency/PrankCall.
 - **Marcadores** (`StoryFlags`, `scripts/model/story_flags.gd`; `Main.flags`): nomes ligados por escolhas ou pelo jogo,
@@ -345,6 +399,17 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 25. Ritmo separado das noites (`Pace`, níveis 1–5): segunda emergência só a partir do nível 3; nas 3 primeiras noites o
     ritmo só sobe se a noite anterior não foi ruim; depois sobe sempre, até o nível 5 (limite medido com `--human`).
     Última ligação às 23:40 e botão Encerrar turno; à meia-noite ninguém é cortado.
+26. Setores: a cidade em três bairros (Vila Serena, Centro, Alto da Serra), entregues nas noites 5 e 9 (15 noites).
+    Mesa com bancos A/B/C (faixas 100–199…), tampados por chapa até a entrega; mapa só com os bairros atendidos, ruas
+    que continuam com o mesmo nome e a numeração seguindo, nomes sem sobreposição; revelação do bairro novo no mapa,
+    dica do banco novo e ritmo que não sobe na noite da entrega. Lista telefônica refeita: uma letra por página dupla, abas de
+    índice na borda em vez da barra de letras, ordem sem acento e bairro no endereço.
+27. Ligação não atendida entra sozinha no caderno (carimbo "Não atendida", sem escolher tipo). Uma fala por vez em cada
+    ligação (`Conversation.say` espera a anterior; o assunto não atropela mais o "Obrigado, Central") e nada de conversa
+    fiada com o destino tocando. Fontes trocadas por IBM Plex e, a pedido do usuário, por Departure
+    Mono em tudo (nítida em 1280×720; o texto de 11 px borra em janela bem menor).
+28. Aba do despacho refeita: mapa na aba inteira e a ficha de despacho por cima, à direita (abre ao marcar o local
+    ou com emergência, recolhe depois do envio), com o protocolo junto de cada unidade; viaturas num canto do mapa.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

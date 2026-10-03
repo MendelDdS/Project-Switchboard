@@ -63,6 +63,8 @@ func _initialize() -> void:
 	m._intro.visible = false
 	m._start_shift()
 	var b = m.board
+	for n in b._slots:   # setor ainda coberto pela chapa: a tomada não responde
+		ok((b.jack_at(b._slots[n]) == n) == GameData.in_service(str(n)), "tomada %d conforme o setor" % n)
 	var ex: Exchange = m.exchange
 	var frames_left := 0   # só para espaçar os registros no caderno
 	var deadline := Time.get_ticks_msec() + 90000   # limite de segurança em tempo real (um turno leva ~6 s com --fixed-fps)
@@ -77,7 +79,7 @@ func _initialize() -> void:
 				kinds[c.kind] = int(kinds.get(c.kind, 0)) + 1
 				max_quiet = maxf(max_quiet, m.minutes - last_ring)
 				last_ring = m.minutes
-		if not m.after:
+		if not m.after or m.night.mystery.is_empty():   # antes da desconhecida (sem ela, o turno todo)
 			fall += 1
 			if m.live.size() >= 2: f2 += 1
 			if m.live.size() >= 3: f3 += 1
@@ -169,7 +171,7 @@ func _initialize() -> void:
 					f.options[0]["fn"].call()
 					_acted()
 	var recs: Array = m.notebook.entries + m.notebook.queue + ([m.notebook.pending] if m.notebook.has_pending() else [])
-	var lost := recs.filter(func(e): return e["obs"] == T.text(T.Key.OBS_NOT_ANSWERED)).size()
+	var lost := recs.filter(func(e): return e.get("type") == T.Key.TYPE_MISSED).size()
 	if human:
 		print("humano: %.0f s por ação" % HUMAN_STEP)
 	if clumsy:
@@ -180,6 +182,6 @@ func _initialize() -> void:
 		100 * starved / maxi(fall, 1), lost, recs.size(), int(kinds.get(PhoneCall.Kind.EMERGENCY, 0)),
 		int(kinds.get(PhoneCall.Kind.PRANK, 0)), max_quiet])
 	print("despachos (estágio e barra corrida): ", ", ".join(stages))
-	ok(myst_at != "", "a ligação desconhecida tocou")
+	ok(myst_at != "" or m.night.mystery.is_empty(), "a ligação desconhecida tocou")
 	ok(m.ending and m.minutes >= m.SHIFT_END, "o turno terminou no horário")
 	finish("turno completo")

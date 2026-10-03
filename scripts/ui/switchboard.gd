@@ -24,13 +24,21 @@ const CORD_COLORS := [
 	[Color("2a4a7c"), Color("4f7bb6")],
 	[Color("b48c1c"), Color("e6c24c")],
 ]
-const DEST_COLS := 17
+## Destinos em três bancos de tomadas, A, B e C, cada um com uma faixa de numeração (100–199, 200–299, 300–399), em
+## duas fileiras. A mesa saiu de fábrica assim; a faixa coincide com o setor da cidade (o primeiro dígito), e o banco
+## de um setor que ainda não é do operador fica tampado por uma chapa com a letra dele (`GameData.sectors`).
+const SECTOR_ORDER := [1, 2, 3]
+const DEST_PITCH := 31.0     # px entre duas tomadas de destino vizinhas
+const BLOCK_GAP := 14.0      # px entre dois blocos
+const DEST_TOP := 172.0      # topo das tomadas da primeira fileira (a segunda fica 50 px abaixo)
 const SIZE := Vector2(588, 330)
 const FONE_HOME := Vector2(18, 24)   # posição do plug do FONE dentro do encaixe
 
 var exchange: Exchange
 var fone_socket: Control       # encaixe do FONE no painel do telefone
-var dest_nums: Array = []
+var dest_nums: Array = []      # destinos em serviço (dos setores atendidos)
+var _slots := {}               # número -> centro da tomada (de todos os setores, atendidos ou não)
+var _blocks := {}              # setor -> retângulo do bloco
 var ends: Array = []           # tomada de cada ponta (-1 = na base). 0 = FONE; 1..2*PATCHES = pontas dos cabos de conexão
 var held := -1
 var cursor := Vector2.ZERO
@@ -55,6 +63,7 @@ const PLUG_BASE := Vector2(0, 20)   # do ponto de referência do plug (topo do c
 ## Encaixado, de onde fica a tomada até onde o fio entra: a ponta de metal some dentro dela e o anel assenta no buraco.
 const PLUG_SEAT := Vector2(0, 26)
 const SHADOW := Color(0, 0, 0, 0.35)
+const PLATE := Color("4d483d")   # chapa sobre o banco que ainda não está em uso
 const ROPE_SHADOW := Vector2(3, 4)  # deslocamento da sombra dos fios; a do plug cresce quando ele sai do painel
 var _jacks: Array = []
 
@@ -94,6 +103,29 @@ func setup(ex: Exchange, socket: Control) -> void:
 	fone_socket = socket
 	dest_nums = ex.dest_numbers()
 	_jacks = range(1, 21) + dest_nums
+	_layout_dests()
+
+
+## Posição de cada tomada de destino: blocos lado a lado, centralizados na mesa.
+func _layout_dests() -> void:
+	var by_sector := {}
+	for e in GameData.CONTENT.directory:
+		if not e.dispatch_only:
+			var s := int(e.number.left(1))
+			if not by_sector.has(s):
+				by_sector[s] = []
+			by_sector[s].append(int(e.number))
+	var cols := SECTOR_ORDER.map(func(s): return ceili(by_sector.get(s, []).size() / 2.0))
+	var total: float = cols.reduce(func(a, c): return a + c, 0) * DEST_PITCH + BLOCK_GAP * (SECTOR_ORDER.size() - 1)
+	var x := (SIZE.x - total) / 2.0
+	for k in SECTOR_ORDER.size():
+		var s: int = SECTOR_ORDER[k]
+		var nums: Array = by_sector.get(s, [])
+		nums.sort()
+		for i in nums.size():
+			_slots[nums[i]] = Vector2(x + (i % cols[k]) * DEST_PITCH + DEST_PITCH / 2.0, DEST_TOP + 11.0 + int(i / cols[k]) * 50.0)
+		_blocks[s] = Rect2(x - 3, DEST_TOP - 21, cols[k] * DEST_PITCH + 6, 95)
+		x += cols[k] * DEST_PITCH + BLOCK_GAP
 
 
 ## Encaixe do FONE em coordenadas da mesa (ele fica no painel do telefone, fora do retângulo dela).
@@ -119,8 +151,8 @@ func jack_rect(j: int) -> Rect2:
 		return Rect2(col_x(j - 1) - 12, 74, 24, 24)
 	if j <= 20:
 		return Rect2(col_x(j - 11) - 10, 116, 20, 20)
-	var k := dest_nums.find(j)
-	return Rect2(38.0 + (k % DEST_COLS) * 32.0 - 11, 172 + int(k / DEST_COLS) * 50, 22, 22)
+	var c: Vector2 = _slots.get(j, Vector2.ZERO)
+	return Rect2(c.x - 11, c.y - 11, 22, 22)
 
 
 func jack_at(pos: Vector2) -> int:
@@ -621,8 +653,8 @@ func _draw() -> void:
 	draw_rect(Rect2(3, 3, 3, h - 6), Pal.PANEL_HI)
 	draw_rect(Rect2(3, h - 6, w - 6, 3), Pal.PANEL_LO)
 	draw_rect(Rect2(w - 6, 3, 3, h - 6), Pal.PANEL_LO)
-	draw_string(Pal.mono, Vector2(17, 28), T.text(T.Key.BOARD_TITLE), HORIZONTAL_ALIGNMENT_LEFT, -1, 21, Pal.BRASS)
-	draw_string(Pal.ui, Vector2(17, 26), T.text(T.Key.BOARD_LEGEND), HORIZONTAL_ALIGNMENT_RIGHT, w - 34, 14, Pal.DIM)
+	draw_string(Pal.mono, Vector2(17, 28), T.text(T.Key.BOARD_TITLE), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.BRASS)
+	draw_string(Pal.ui, Vector2(17, 26), T.text(T.Key.BOARD_LEGEND), HORIZONTAL_ALIGNMENT_RIGHT, w - 34, 11, Pal.DIM)
 	if exchange == null:
 		return
 
@@ -633,7 +665,7 @@ func _draw() -> void:
 		var cx := col_x(i)
 		draw_rect(Rect2(cx - 17, 36, 34, 20), Color.BLACK)
 		draw_rect(Rect2(cx - 15, 38, 30, 16), Color("1a1711"))
-		draw_string(Pal.mono, Vector2(cx - 15, 52), "%02d" % n, HORIZONTAL_ALIGNMENT_CENTER, 30, 20, Color("d8c9a2"))
+		draw_string(Pal.mono, Vector2(cx - 15, 52), "%02d" % n, HORIZONTAL_ALIGNMENT_CENTER, 30, 11, Color("d8c9a2"))
 		_draw_lamp(Rect2(cx - 7, 60, 14, 9), _lamp(st, ms, fone_line() == n))
 		_draw_jack(jack_rect(n))
 		var sc := Pal.DIM
@@ -641,23 +673,29 @@ func _draw() -> void:
 			sc = Pal.AMBER
 		elif st == Exchange.Line.DONE:
 			sc = Pal.RED
-		draw_string(Pal.ui, Vector2(cx - 28, 110), exchange.line_label(n), HORIZONTAL_ALIGNMENT_CENTER, 56, 12, sc)
+		draw_string(Pal.ui, Vector2(cx - 28, 110), exchange.line_label(n), HORIZONTAL_ALIGNMENT_CENTER, 56, 11, sc)
 		_draw_jack(jack_rect(n + 10), Color("7a6230"))
 
-	# destinos
+	# destinos: a faixa de numeração do banco fica sobre a linha divisória, como rótulo da seção
 	draw_rect(Rect2(12, 142, w - 24, 2), Pal.PANEL_LO)
-	var dests := T.text(T.Key.BOARD_DESTS)   # o título fica sobre a linha divisória, como rótulo da seção
-	draw_rect(Rect2(14, 135, Pal.ui.get_string_size(dests, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x + 8, 15), Pal.PANEL)
-	draw_string(Pal.ui, Vector2(18, 147), dests, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Pal.DIM)
+	for s in _blocks:
+		var br: Rect2 = _blocks[s]
+		var cap := "%d–%d" % [s * 100, s * 100 + 99]
+		draw_rect(Rect2(br.position.x, 135, Pal.ui.get_string_size(cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 8, 15), Pal.PANEL)
+		draw_string(Pal.ui, Vector2(br.position.x + 4, 147), cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
+		draw_rect(br, Pal.PANEL_LO, false, 1.0)
 	for d in dest_nums:
 		var jr := jack_rect(d)
 		var cx := jr.get_center().x
 		var st := exchange.dest(d)
-		draw_string(Pal.mono, Vector2(cx - 16, jr.position.y - 5), str(d), HORIZONTAL_ALIGNMENT_CENTER, 32, 20, Color("d8c9a2") if st == Exchange.Dest.FREE else Pal.TEXT)
+		draw_string(Pal.mono, Vector2(cx - 16, jr.position.y - 5), str(d), HORIZONTAL_ALIGNMENT_CENTER, 32, 11, Color("d8c9a2") if st == Exchange.Dest.FREE else Pal.TEXT)
 		var lc := _dest_lamp(st, ms)
 		if lc.a > 0.0:
 			draw_rect(jr.grow(3), lc)   # o aro da tomada acende
 		_draw_jack(jr)
+	for s in _blocks:
+		if not s in GameData.sectors:
+			_draw_plate(_blocks[s], "ABC"[SECTOR_ORDER.find(s)])
 
 	# base dos cabos de conexão
 	draw_rect(Rect2(12, 250, w - 24, 2), Pal.PANEL_LO)
@@ -668,14 +706,14 @@ func _draw() -> void:
 		for e in [1 + k * 2, 2 + k * 2]:   # os dois buracos de onde saem os fios
 			var hp := hole(e)
 			draw_rect(Rect2(hp.x - 7, hp.y - 4, 14, 8), Color("050403"))
-		draw_string(Pal.mono, Vector2(cx - 30, 322), T.text(T.Key.BOARD_CORD) % (k + 1), HORIZONTAL_ALIGNMENT_CENTER, 60, 20, Pal.BRASS)
+		draw_string(Pal.mono, Vector2(cx - 30, 322), T.text(T.Key.BOARD_CORD) % (k + 1), HORIZONTAL_ALIGNMENT_CENTER, 60, 11, Pal.BRASS)
 	# legenda
 	var leg := [[Pal.AMBER, T.Key.LEGEND_RING], [Pal.GREEN, T.Key.LEGEND_CONN], [Pal.RED, T.Key.LEGEND_DONE], [Color("2a2016"), T.Key.LEGEND_FREE]]
 	for k in leg.size():
 		var y := 266 + k * 18
 		draw_rect(Rect2(408, y - 10, 10, 10), Color.BLACK)
 		draw_rect(Rect2(409, y - 9, 8, 8), leg[k][0])
-		draw_string(Pal.ui, Vector2(424, y), T.text(leg[k][1]), HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Pal.DIM)
+		draw_string(Pal.ui, Vector2(424, y), T.text(leg[k][1]), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
 
 	# destaque da tomada sob o plug
 	if held != -1:
@@ -709,7 +747,20 @@ func _draw() -> void:
 		draw_rect(Rect2(bx, by, bw, bh), bc)
 		draw_rect(Rect2(bx + 2, by + 2, bw - 4, bh - 4), Color("0e0c08"))
 		for k in info_lines.size():
-			draw_string(Pal.mono, Vector2(bx + 10, by + 22 + k * 19), info_lines[k], HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Pal.GHOST if info_ghost else Pal.TEXT)
+			draw_string(Pal.mono, Vector2(bx + 10, by + 22 + k * 19), info_lines[k], HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.GHOST if info_ghost else Pal.TEXT)
+
+
+## Chapa parafusada sobre um banco que ainda não está em uso, com a letra dele (A, B, C).
+func _draw_plate(r: Rect2, letter: String) -> void:
+	draw_rect(r.grow(1), Color.BLACK)
+	draw_rect(r, PLATE)
+	draw_rect(Rect2(r.position, Vector2(r.size.x, 2)), PLATE.lightened(0.18))
+	draw_rect(Rect2(r.position.x, r.end.y - 2, r.size.x, 2), PLATE.darkened(0.35))
+	for c in [r.position + Vector2(7, 7), Vector2(r.end.x - 7, r.position.y + 7), Vector2(r.position.x + 7, r.end.y - 7), r.end - Vector2(7, 7)]:
+		draw_circle(c, 3.5, PLATE.darkened(0.45))
+		draw_circle(c, 2.5, PLATE.lightened(0.25))
+		draw_line(c - Vector2(2, 0), c + Vector2(2, 0), PLATE.darkened(0.45), 1.0)   # fenda do parafuso
+	draw_string(Pal.mono, Vector2(r.position.x, r.get_center().y + 10), letter, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 22, PLATE.lightened(0.35))
 
 
 ## [cor, brilho] do cabo da ponta e.

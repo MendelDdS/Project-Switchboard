@@ -9,6 +9,6 @@ voice = "m"
 caller = "Seu Benedito"
 opening = PackedStringArray("Central, é o Benedito.", "Me liga com o Ivo Teixeira? Ele ficou de me devolver a escada.")
 repeat = "O Ivo. Ivo Teixeira, da Rua das Flores."
-target = "379"
+target = "184"
 destination = "Ivo Teixeira"
 thanks = "Obrigado. Agora ele não escapa."

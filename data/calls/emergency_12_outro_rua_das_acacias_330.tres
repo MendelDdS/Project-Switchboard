@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_emerg"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("pol")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "", "Um levou uma garrafada na cabeça! Tá sangrando no chão!")
+units = PackedStringArray("pol", "amb")
+
+[resource]
+script = ExtResource("1_emerg")
+voice = "m"
+caller = "Rapaz"
+opening = "Central, tem uma briga feia na saída do baile, na Rua das Acácias!"
+questions = PackedStringArray("Qual é o número?", "Alguém está armado?", "Alguém se machucou?")
+answers = PackedStringArray("Trezentos e trinta! Na porta do clube!", "Um quebrou uma garrafa e tá ameaçando todo mundo!", "Ainda não, mas tá cada vez pior!")
+street = "acacias"
+block = 3
+address = "Rua das Acácias, 330"
+occurrence = "Outro"
+units = PackedStringArray("pol")
+after = "Tá bom! Vou mandar o pessoal entrar de volta no clube."
+stage_sec = Vector3(40, 20, 20)
+worsening = "Agora tão quebrando os carros estacionados na rua!"
+worsening_question = "Quantas pessoas estão brigando?"
+worsening_answer = "Uns oito! Virou bagunça geral!"
+worsening_units = PackedStringArray()
+critical = "Esfaquearam um rapaz! Ele tá caído na calçada!"
+critical_units = PackedStringArray("amb")
+critical_question = "Onde ele foi ferido?"
+critical_answer = "Na barriga! Tão apertando com a camisa, mas não para de sangrar!"
+lost = "O rapaz desmaiou... e todo mundo fugiu. Por que demorou tanto?"
+lost_answer = "O rapaz da facada desmaiou, e tem outro com o braço quebrado!"
+lost_units = PackedStringArray("amb")
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2")])

@@ -46,6 +46,10 @@ func _until_on_line(c: PhoneCall) -> bool:
 func say(c: PhoneCall, text: String, pause: float = 0.55, who := "", voice := "") -> bool:
 	if c.ended or not c.closing and not await _until_on_line(c):
 		return false
+	while c.talking:   # uma fala por vez: a nova espera a anterior terminar (ex.: o agradecimento depois do assunto)
+		await get_tree().process_frame
+		if c.ended:
+			return false
 	text = tr(text)
 	var ghost := c.kind == PhoneCall.Kind.MYSTERY
 	var li := -1   # a linha da transcrição só aparece enquanto o operador está ouvindo
@@ -245,12 +249,13 @@ func _transfer_repeat(c: PhoneCall) -> void:
 	await say(c, c.repeat)
 
 
-## O lugar pedido não atende à noite: o operador sugere outro.
+## O lugar pedido não atendeu: o operador sugere outro (que atende).
 func _transfer_alt(c: PhoneCall) -> void:
 	var t: TransferCall = c.data
 	if c.talking:
 		return
 	c.alt_done = true
+	c.away = false
 	c.target = t.alt_target
 	c.destination = t.alt_destination
 	c.repeat = t.alt_destination + "."
@@ -272,7 +277,7 @@ func _info(c: PhoneCall) -> void:
 	var right := T.text(T.Key.OP_IT_IS) % c.answer
 	var opts := [right]
 	while opts.size() < 3:
-		var o := T.text(T.Key.OP_IT_IS) % C.directory.pick_random().number
+		var o := T.text(T.Key.OP_IT_IS) % str(GameData.board_numbers().pick_random())
 		if not o in opts:
 			opts.append(o)
 	opts.shuffle()

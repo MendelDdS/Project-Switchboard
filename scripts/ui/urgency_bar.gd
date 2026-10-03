@@ -36,7 +36,7 @@ func _draw() -> void:
 	var e: EmergencyCall = call.data
 	var col: Color = COLORS[call.stage]
 	var label := T.text(NAMES[call.stage])
-	draw_string(Pal.ui, Vector2(0, size.y - 2), label, HORIZONTAL_ALIGNMENT_LEFT, BAR_X - 8, 14, col)
+	draw_string(Pal.ui, Vector2(0, size.y - 2), label, HORIZONTAL_ALIGNMENT_LEFT, BAR_X - 8, 11, col)
 	var r := Rect2(BAR_X, 4, size.x - BAR_X - 2, size.y - 8)
 	draw_rect(r.grow(2), Pal.EDGE)
 	var total := e.stage_sec.x + e.stage_sec.y + e.stage_sec.z

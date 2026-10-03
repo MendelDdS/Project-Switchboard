@@ -38,7 +38,7 @@ theme_override_constants/separation = 12
 
 [node name="Title" type="Label" parent="Center/Card/Main"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 33
 text = "PAUSE_TITLE"
 
 [node name="Gap" type="Control" parent="Center/Card/Main"]
@@ -50,7 +50,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 theme_type_variation = &"AmberButton"
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 22
 text = "RESUME"
 
 [node name="OpenSettings" type="Button" parent="Center/Card/Main"]
@@ -82,7 +82,7 @@ theme_override_constants/separation = 12
 
 [node name="Title" type="Label" parent="Center/Card/Settings"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 33
 text = "SETTINGS"
 
 [node name="Grid" type="GridContainer" parent="Center/Card/Settings"]

@@ -17,7 +17,7 @@ static func load_saved() -> Progress:
 	var f := ConfigFile.new()
 	if f.load(PATH) == OK:
 		p.night = f.get_value("progress", "night", 1)
-		p.pace = f.get_value("progress", "pace", p.night)
+		p.pace = f.get_value("progress", "pace", Pace.expected(p.night))
 		p.severe = f.get_value("progress", "severe", 0)
 		p.flags = f.get_value("progress", "flags", PackedStringArray())
 	return p

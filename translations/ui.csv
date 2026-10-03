@@ -34,7 +34,6 @@ SHIFT_HOURS,"Turno
 OPERATOR_DESK,Operador noturno · mesa 1,Night operator · desk 1,Operador nocturno · mesa 1
 BOARD_TITLE,MESA COMUTADORA,SWITCHBOARD,CONMUTADOR
 BOARD_LEGEND,ENTRADA (fone)  ·  SAÍDA (cabo de conexão),INPUT (headset)  ·  OUTPUT (patch cord),ENTRADA (auricular)  ·  SALIDA (cable de conexión)
-BOARD_DESTS,DESTINOS,DESTINATIONS,DESTINOS
 BOARD_CORD,CABO %d,CORD %d,CABLE %d
 LEGEND_RING,chamando / em linha,ringing / on the line,llamando / en línea
 LEGEND_CONN,conectada,connected,conectada
@@ -107,7 +106,7 @@ SYS_DISCONNECTED,(%d desconectado.),(%d disconnected.),(%d desconectado.)
 SYS_NOBODY_ANSWERS,(Ninguém atende no %d.),(Nobody answers at %d.),(Nadie contesta en el %d.)
 SYS_ANSWERED,(%s atendeu.),(%s answered.),(%s contestó.)
 SYS_WRONG_PERSON,(Atendeu: %s. Não é quem o solicitante pediu.),(Answered: %s. Not who the caller asked for.),(Contestó: %s. No es a quien pidió la persona.)
-SYS_FONE_OFF_CONNECTED,(Você tirou o fone. %02d e %d seguem conectados.),(You unplugged the headset. %02d and %d stay connected.),(Quitó el auricular. %02d y %d siguen conectados.)
+SYS_LINES_CONNECTED,(%02d e %d conectados.),(%02d and %d connected.),(%02d y %d conectados.)
 SYS_WRONG_BOTH_HUNG,"(Atendeu: %s. Foi engano, e os dois desligaram.)","(Answered: %s. Wrong number, and both hung up.)","(Contestó: %s. Era equivocado, y los dos colgaron.)"
 SYS_YOU_ENDED,(Você encerrou a ligação.),(You ended the call.),(Usted terminó la llamada.)
 SYS_NOBODY_ANSWERED,(Ninguém atendeu. A pessoa desistiu.),(Nobody answered. The caller gave up.),(Nadie contestó. La persona desistió.)
@@ -127,7 +126,7 @@ HINT_TUT_FIND,"Procure [b]%s[/b] na lista. Pegue um [b]cabo de conexão[/b] na b
 HINT_TUT_OTHER_END,"Leve a outra ponta desse cabo até o número de [b]%s[/b], na fileira de destinos.","Take the other end of that cord to the number for [b]%s[/b], in the destination row.","Lleve la otra punta de ese cable al número de [b]%s[/b], en la fila de destinos."
 HINT_TUT_TRANSFER,Clique em [b]Transferir[/b] para chamar o destino.,Click [b]Transfer[/b] to ring the destination.,Haga clic en [b]Transferir[/b] para llamar al destino.
 HINT_TUT_DEST_RINGING,O destino está tocando. Aguarde atender.,The destination is ringing. Wait for an answer.,El destino está sonando. Espere a que contesten.
-HINT_TUT_UNPLUG,O destino atendeu. Tire o [b]FONE[/b] da entrada (devolva ao telefone): a ligação continua pelo cabo de conexão.,The destination answered. Pull the [b]HEADSET[/b] out of the input (return it to the phone): the call continues through the patch cord.,El destino contestó. Quite el [b]AURICULAR[/b] de la entrada (devuélvalo al teléfono): la llamada sigue por el cable de conexión.
+HINT_TUT_CONNECTED,O destino atendeu e a ligação já segue pelo cabo de conexão. Tire o [b]FONE[/b] da entrada quando quiser (devolva ao telefone).,The destination answered and the call already goes through the patch cord. Pull the [b]HEADSET[/b] out of the input whenever you like (return it to the phone).,El destino contestó y la llamada ya sigue por el cable de conexión. Quite el [b]AURICULAR[/b] de la entrada cuando quiera (devuélvalo al teléfono).
 HINT_NO_CORDS,Não há cabos de conexão livres. Desmonte uma conexão encerrada (lâmpadas vermelhas).,No free patch cords. Take down a finished connection (red lamps).,No hay cables de conexión libres. Desarme una conexión terminada (lámparas rojas).
 HINT_CHECK_LIST,Consulte a lista. Confira o nome e o endereço.,Check the directory. Confirm the name and address.,Consulte la guía. Revise el nombre y la dirección.
 HINT_REGISTER,Registre a ocorrência no caderno.,Log the call in the logbook.,Registre la llamada en el cuaderno.
@@ -146,6 +145,7 @@ COL_UNIT,Unidade,Unit,Unidad
 TYPE_COMMON,Ligação comum,Regular call,Llamada común
 TYPE_EMERGENCY,Emergência,Emergency,Emergencia
 TYPE_PRANK,Trote,Prank call,Broma
+TYPE_MISSED,Não atendida,Missed,No contestada
 OBS_WRONG_NUMBER,Conectada ao número errado.,Connected to the wrong number.,Conectada al número equivocado.
 OBS_ASKED_NUMBER,Pediu o número %s.,Asked for the number %s.,Pidió el número %s.
 OBS_WRONG_INFO,Informação errada.,Wrong information.,Información equivocada.
@@ -173,11 +173,29 @@ MAP_POLICE,Delegacia,Police station,Comisaría
 MAP_FIRE_STATION,Bombeiros,Fire station,Bomberos
 MAP_GROCERY,Mercearia,Grocery,Almacén
 MAP_FUNERAL,Funerária,Funeral home,Funeraria
+MAP_HOTEL,Hotel Estrela,Hotel Estrela,Hotel Estrela
+MAP_GAS_STATION,Posto,Gas station,Gasolinera
+MAP_RADIO,Rádio Serena,Rádio Serena,Rádio Serena
+MAP_GARAGE,Oficina,Garage,Taller
+MAP_BAR,Bar do Zé,Bar do Zé,Bar do Zé
+MAP_CITY_HALL,Prefeitura,City hall,Municipalidad
+MAP_POST_OFFICE,Correios,Post office,Correos
+MAP_BAKERY,Padaria,Bakery,Panadería
+MAP_WAREHOUSE,Armazém,General store,Depósito
+MAP_BARBER,Barbearia,Barbershop,Barbería
+MAP_RURAL,Zona rural,Countryside,Zona rural
+MAP_DISTRICT_1,Centro,Downtown,Centro
+MAP_DISTRICT_2,Alto da Serra,Alto da Serra,Alto da Serra
+MAP_DISTRICT_3,Vila Serena,Vila Serena,Vila Serena
+HINT_NEW_BANK,"Os números que começam com %d ficam no banco %s, aberto hoje.","Numbers starting with %d are on bank %s, opened tonight.","Los números que empiezan con %d están en el banco %s, abierto hoy."
 DISPATCH_SEND,[ ENVIAR ],[ SEND ],[ ENVIAR ]
 DISPATCH_CHECK_PLACE,Local,Location,Lugar
-DISPATCH_CHECK_TYPE,Tipo,Type,Tipo
+DISPATCH_CHECK_TYPE,Ocorrência,Incident,Incidente
 DISPATCH_CHECK_UNITS,Unidades,Units,Unidades
-DISPATCH_PROTOCOL,"Protocolo — Polícia: crime, briga, arma, rua bloqueada · Bombeiros: fogo, fumaça, fio ou gás, alguém preso · Ambulância: alguém ferido, passando mal ou preso","Protocol — Police: crime, fight, weapon, blocked road · Fire: fire, smoke, wires or gas, someone trapped · Ambulance: someone hurt, ill or trapped","Protocolo — Policía: delito, pelea, arma, calle bloqueada · Bomberos: fuego, humo, cables o gas, alguien atrapado · Ambulancia: alguien herido, enfermo o atrapado"
+DISPATCH_OPEN,Abrir ficha,Open slip,Abrir ficha
+DISPATCH_WHY_POL,"crime, briga, arma, rua bloqueada","crime, fight, weapon, blocked road","delito, pelea, arma, calle bloqueada"
+DISPATCH_WHY_BOMB,"fogo, fumaça, fio ou gás, alguém preso","fire, smoke, wires or gas, someone trapped","fuego, humo, cables o gas, alguien atrapado"
+DISPATCH_WHY_AMB,"alguém ferido, passando mal ou preso","someone hurt, ill or trapped","alguien herido, enfermo o atrapado"
 DISPATCH_CLICK_STREET,clique na rua no mapa,click the street on the map,haga clic en la calle del mapa
 UNIT_POLICE,Polícia,Police,Policía
 UNIT_FIRE,Bombeiros,Fire department,Bomberos

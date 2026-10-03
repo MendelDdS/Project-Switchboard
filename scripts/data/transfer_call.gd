@@ -21,7 +21,7 @@ enum Group {
 @export var thanks := ""
 
 @export_group("Se ninguém atender")
-## Número que o operador pode sugerir quando `target` não atende à noite.
+## Outro estabelecimento que o operador pode sugerir quando `target` não atende (sorteado: `PhoneCall.away`).
 @export var alt_target := ""
 @export var alt_destination := ""
 @export var alt_ask := ""

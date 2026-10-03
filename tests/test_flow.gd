@@ -89,7 +89,7 @@ func _awaiting(c: PhoneCall) -> Callable:
 
 func _initialize() -> void:
 	Engine.time_scale = 8.0
-	m = await load_main()
+	m = await load_main([1, 2, 3])
 	m.sched.clear()
 	m._intro.visible = false
 	m.running = true
@@ -101,7 +101,6 @@ func _initialize() -> void:
 	var nums := GameData.board_numbers()
 	for t in C.transfers:
 		ok(int(t.target) in nums and (t.alt_target == "" or int(t.alt_target) in nums), "destino existe: " + t.resource_path)
-		ok(not GameData.is_closed(int(t.target)) or t.alt_target != "", "lugar fechado tem alternativa: " + t.resource_path)
 	for e in C.emergencies:
 		ok(GameData.street(e.street) != null and e.questions.size() == e.answers.size() and e.occurrence in C.occurrences, "emergência válida: " + e.resource_path)
 	# unidades válidas, e cada caso troca no máximo as respostas que existem
@@ -140,11 +139,92 @@ func _initialize() -> void:
 			"assunto com resposta simpática e seca: " + t.line)
 	ok(not m.conversation.topics("m").any(func(t): return "Meu marido" in t.line) and not m.conversation.topics("f").any(func(t): return "Minha mulher" in t.line),
 		"assunto só na voz que combina")
+	# setores: o 3 desde a noite 1, o 1 na noite 5 e o 2 na noite 9; mesa, lista e ligações só com os atendidos
+	ok(GameData.sectors_for(1) == [3] and GameData.sectors_for(4) == [3] and GameData.sectors_for(5).size() == 2
+		and GameData.sectors_for(9).size() == 3, "setores entregues nas noites 1, 5 e 9")
+	var per_sector := {}
+	for e in C.directory:
+		if not e.dispatch_only:
+			per_sector[e.number.left(1)] = int(per_sector.get(e.number.left(1), 0)) + 1
+	ok(per_sector == {"3": 10, "1": 12, "2": 12}, "lista: 10 números no setor 3 e 12 em cada um dos outros: %s" % per_sector)
+	GameData.sectors = [3]
+	ok(GameData.board_numbers().size() == 10 and GameData.board_numbers().all(func(n): return str(n).begins_with("3")), "noite 1: mesa só com o setor 3")
+	ok(not GameData.transfers(TransferCall.Group.ESTABLISHMENT).is_empty(), "setor 3 tem estabelecimento para o tutorial")
+	var used: Array = []
+	var tpl := GameData.template_transfer(used)
+	while tpl != null:
+		ok(tpl.target.begins_with("3"), "molde só com número do setor 3")
+		used.append(tpl.target)
+		tpl = GameData.template_transfer(used)
+	ok(not used.is_empty(), "moldes até acabarem os lugares, sem repetir")
+	var sector3 := func(c: PhoneCall) -> bool:
+		if c.kind == PhoneCall.Kind.TRANSFER:
+			return c.target.begins_with("3")
+		return c.kind != PhoneCall.Kind.INFO or c.answer.begins_with("3")
+	for s in 5:
+		ok(Schedule.build(C.nights[0], C.paces[0], m.LAST_CALL).calls.all(sector3), "agenda da noite 1 só pede números do setor 3")
+	var em_streets := func(): return Schedule.build(C.nights[0], C.paces[4], m.LAST_CALL).calls.filter(func(c: PhoneCall): return c.kind == PhoneCall.Kind.EMERGENCY).map(func(c: PhoneCall): return GameData.street(c.data.street).block_sector(c.data.block))
+	for s in 5:
+		ok(em_streets.call().all(func(x): return x == 3), "emergências só nas ruas do setor 3")
+	# mapa: setor sombreado não responde; a viagem do Centro é mais longa quanto mais longe
+	var city = m.dispatch.city
+	var on_street := func(id: String, b: int): return city.seg_geom(GameData.street(id), b)[2]
+	ok(city._find_seg(on_street.call("brasil", 1)).get("block") == 1 and city._find_seg(on_street.call("brasil", 4)).is_empty(),
+		"mapa: a Avenida Brasil só nos trechos do setor atendido")
+	GameData.sectors = [1, 2, 3]
+	var trip_c: float = city.trip("pol", {"street": "brasil", "block": 4})
+	var trip_3: float = city.trip("pol", {"street": "comercio", "block": 2})
+	var trip_2: float = city.trip("pol", {"street": "cruzeiro", "block": 0})
+	city.remove_units(["pol"])
+	ok(trip_c < trip_3 and trip_3 < trip_2, "viagem do Centro: %.1f s no Centro, %.1f s no setor 3, %.1f s no setor 2" % [trip_c, trip_3, trip_2])
+	# lista telefônica: cada aba abre só a sua letra, com todos os contatos dela nas duas páginas; Virar passa de letra
+	# em letra até as anotações, Voltar volta até a primeira
+	var book = m.tools.find_child("PhoneBook", true, false)
+	for l in book._index:
+		book.jump(l)
+		var pg: Array = book.pages()
+		var shown_entries: Array = pg[0] + pg[1]
+		var of_letter: Array = book._entries.filter(func(e): return book.initial(e) == l)
+		var right_h: float = book.TOP + pg[1].reduce(func(acc, e): return acc + book.entry_height(e), 0.0)
+		ok(book.current_letter() == l and shown_entries == of_letter and right_h <= book.bottom, "aba %s: só a letra, inteira" % l)
+	book.jump(book._index[0])
+	var walked := 0
+	while not book._next.disabled:
+		book.turn(1)
+		walked += 1
+	ok(walked == book._index.size() and book.current_letter() == "", "Virar passa letra a letra até as anotações")
+	var names: Array = book._entries.map(func(e): return e.name)
+	ok(names.find("Célia Rocha") < names.find("Cine Odeon"), "ordem da lista ignora acento")
+	for i in walked:
+		book.turn(-1)
+	ok(book.current_letter() == book._index[0] and book._prev.disabled, "Voltar chega à primeira letra")
+	# emergências escritas: o endereço bate com a rua e o trecho do mapa (o trecho sai do número)
+	for e: EmergencyCall in C.emergencies:
+		var st := GameData.street(e.street)
+		ok(st != null and e.address.get_slice(",", 0) == st.name and int(e.address.get_slice(",", 1)) / 100 == e.block,
+			"emergência no trecho certo: " + e.address)
+	ok([1, 2].all(func(sec): return C.emergencies.any(func(e): return GameData.street(e.street).block_sector(e.block) == sec)), "Centro e Alto da Serra têm emergências escritas")
+	# dica do banco novo: só para o setor entregue na noite (o 3 o tutorial apresenta)
+	m.night_no = 5
+	ok(m._new_sector("142") and not m._new_sector("305") and not m._new_sector("237") and not m._new_sector(""), "banco novo na noite 5: o A")
+	m.night_no = 1
+	# revelação: o mapa sai do enquadramento de antes e chega no de agora
+	ok(city._frame_of([3]).size == Vector2(600, 440) and city._frame_of([3, 1]).size == Vector2(1200, 440) and city._frame_of([1, 2, 3]).size == Vector2(1200, 880), "enquadramento por setores")
+	# endereços: cada número fica numa rua do bairro dele (o Centro também tem a Praça da Matriz)
+	for e in C.directory:
+		var st: String = e.address.get_slice(",", 0)
+		var sec := 1 if e.dispatch_only else int(e.number.left(1))
+		var here := C.streets.filter(func(s: Street): return s.name == st)
+		var block := int(e.address.get_slice(",", 1)) / 100
+		ok((not here.is_empty() and block < here[0].blocks() and here[0].block_sector(block) == sec) or (sec == 1 and st == "Praça da Matriz"),
+			"endereço no bairro do número: %s (%s)" % [e.name, e.address])
 	# ritmo: nas primeiras noites só sobe se a anterior não foi ruim; depois sobe sempre, até o limite
 	var top: int = C.paces.size()
 	ok(Pace.next(1, 1, 0) == 2 and Pace.next(1, 1, 2) == 1 and Pace.next(2, 2, 2) == 2, "noite ruim no começo: repete o ritmo")
 	ok(Pace.next(3, 3, 2) == 4 and Pace.next(2, 5, 2) == 3, "da noite 4 em diante: sobe mesmo depois de noite ruim")
 	ok(Pace.next(top, 8, 0) == top and Pace.next(top - 1, 6, 0) == top, "o último nível é o limite")
+	ok(Pace.next(4, 4, 0) == 4 and Pace.next(4, 5, 0) == 5 and Pace.expected(5) == 4 and Pace.expected(6) == 5,
+		"noite de bairro novo (5): o ritmo não sobe")
 	ok(range(1, top).all(func(i): return C.paces[i].call_gap.x <= C.paces[i - 1].call_gap.x), "o ritmo só aperta de um nível para o outro")
 	# agenda: montada sem a cena (noite → ligações em ordem, espaçadas das do roteiro e entre emergências)
 	for n in C.nights:
@@ -169,7 +249,7 @@ func _initialize() -> void:
 	var holes := func(texts: Array) -> bool: return texts.any(func(x): return "{" in x or "}" in x)
 	for i in 300:
 		var t := GameData.template_transfer()
-		ok(int(t.target) in nums and not GameData.is_closed(int(t.target)), "molde: destino atende")
+		ok(int(t.target) in nums, "molde: destino existe")
 		ok(not holes.call(Array(t.opening) + [t.repeat, t.thanks]) and t.caller != "", "molde de transferência preenchido: " + " / ".join(t.opening))
 		var e := GameData.template_emergency()
 		var house := int(e.address.get_slice(", ", 1))
@@ -214,9 +294,10 @@ func _initialize() -> void:
 	_move(2, tgt)
 	m.transfer()
 	ok(await wait_until(func(): return ex.dest(tgt) == Exchange.Dest.CONN), "destino atendeu")
-	ok(not a.ended, "com o FONE na entrada o operador segue na linha")
+	ok(await wait_until(func(): return a.connected), "conecta assim que o destino atende, mesmo com o FONE na entrada")
+	ok(a.ended and ex.line(ln) == Exchange.Line.CONN and ex.dest(tgt) == Exchange.Dest.CONN, "conectada com o FONE na entrada")
 	_move(0, -1)
-	ok(a.ended and a.connected and ex.line(ln) == Exchange.Line.CONN and ex.dest(tgt) == Exchange.Dest.CONN, "tirar o FONE não derruba")
+	ok(ex.line(ln) == Exchange.Line.CONN and ex.dest(tgt) == Exchange.Dest.CONN, "tirar o FONE não derruba")
 	m.minutes = ex.line_until(ln) + 1.0
 	await frames(1)
 	ok(ex.line(ln) == Exchange.Line.DONE and ex.dest(tgt) == Exchange.Dest.DONE, "conversa terminou")
@@ -267,6 +348,7 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return t3.ended, 10.0), "t3 desistiu")
 	ok(t3.record["obs"] == T.text(T.Key.OBS_NOT_ANSWERED), "registro de não atendida")
 	var nb = m.notebook
+	ok(nb.entries.back()["type"] == T.Key.TYPE_MISSED and not nb.queue.any(func(r): return r["missed"]), "não atendida registrada sozinha")
 	ok(nb.queue.size() >= 1, "ocorrências em fila")
 	var before: int = nb.queue.size()
 	nb.register(T.Key.TYPE_COMMON)
@@ -284,12 +366,13 @@ func _initialize() -> void:
 	m.tools.set_tab("lista")
 	print("OK 3 desistência / fila do caderno")
 
-	# ---- 4. lugar fechado à noite e sugestão do operador
+	# ---- 4. o lugar pedido não atende (sorteado) e o operador sugere a alternativa
 	m.hangup()
 	ok(ex.line(t1.line) == Exchange.Line.DONE, "desligar deixa a linha em desligou")
 	_move(0, -1)
 	ok(ex.line(t1.line) == Exchange.Line.FREE, "tirar o FONE libera")
 	var fa := _extra(GameData.transfers(TransferCall.Group.EXTRA)[3])   # Farmácia Central -> Santa Rita
+	fa.away = true
 	m.ring(fa)
 	var fl := fa.line
 	_move(0, fl)
@@ -308,7 +391,7 @@ func _initialize() -> void:
 	ok(ex.line(fl) == Exchange.Line.HOLD and not fa.ended, "em espera durante o toque")
 	ok(await wait_until(func(): return fa.connected), "completa sozinha quando o destino atende")
 	ok(fa.record["where"] == "Farmácia Santa Rita" and fa.record["obs"] == "", "registro com o destino novo")
-	print("OK 4 lugar fechado / alternativa / FONE fora durante o toque")
+	print("OK 4 não atende / alternativa / FONE fora durante o toque")
 
 	# ---- 5. cortar uma conversa em andamento puxando a SAÍDA
 	_move(3, -1)
@@ -542,6 +625,12 @@ func _initialize() -> void:
 	ok(cc.chatted, "seca: ela não puxa mais assunto")
 	ok(await wait_until(func(): return not cc.talking and String(cc.transcript.back()["text"]) == curt.follow), "respondeu")
 	ok(ask_opt.call().is_empty(), "só puxa conversa uma vez por ligação")
+	# duas falas ao mesmo tempo (assunto e agradecimento): a segunda espera a primeira terminar
+	var n_two := cc.transcript.size()
+	m.conversation.say(cc, "Primeira fala.")
+	m.conversation.say(cc, "Segunda fala.")
+	ok(await wait_until(func(): return cc.transcript.size() == n_two + 2), "as duas falas saíram")
+	ok(cc.transcript[n_two]["text"] == "Primeira fala.", "a segunda só começa com a primeira inteira")
 	m.end_call(cc, PhoneCall.End.OPERATOR)
 	print("OK 11b responder e puxar conversa fiada")
 
@@ -582,9 +671,17 @@ func _initialize() -> void:
 
 	# ---- 13. mapa e despacho numa tela: o tipo não marca unidades (a conversa decide), Enviar só com tudo, e depois limpa
 	var d = m.dispatch
+	m.tools.set_tab("despacho")
+	d.open_slip(false)
+	await frames(2)
+	ok(not d._slip.visible and d.get_node("%Open").visible and d.city.cover == 0.0, "ficha recolhida: o mapa na aba toda")
 	d.set_occurrence("")
 	ok(not d.can_send() and d._send_button.disabled, "despacho vazio não envia")
+	var spot: Vector2 = d.city._off + Vector2(300, 220) * d.city._k   # um ponto do mapa, na tela
 	d.set_location("sol", 0, "Rua do Sol, 1–99")
+	await frames(2)
+	ok(d._slip.visible and d.city.cover > 200.0, "marcar o local abre a ficha por cima do mapa")
+	ok((d.city._off + Vector2(300, 220) * d.city._k).distance_to(spot) < 1.0, "o mapa não pula quando a ficha abre")
 	d.set_occurrence("Incêndio")
 	ok(d._selected_units().is_empty() and not d.can_send(), "o tipo não marca unidade")
 	(d._unit_buttons["amb"] as Button).button_pressed = true
@@ -592,6 +689,10 @@ func _initialize() -> void:
 	d._send()
 	ok(d._location.is_empty() and d._occ_group.get_pressed_button() == null and d.city.sel.is_empty(), "depois de enviar, local e tipo limpos")
 	ok(d._unit_buttons["amb"].disabled, "ambulância a caminho fica indisponível")
+	ok(not d._slip.visible and d.city.cover == 0.0, "depois de enviar, a ficha se recolhe")
+	await frames(2)
+	ok(d.get_node("%Fleet").visible and d.get_node("%Report").text.contains(T.text(T.Key.UNIT_AMBULANCE)), "a faixa das viaturas mostra quem saiu")
+	m.tools.set_tab("lista")
 	print("OK 13 mapa e despacho")
 
 	# ---- 14. painel de debug (F1): toca uma emergência, pula estágio, registra as pendências

@@ -23,9 +23,8 @@ const TEXT := Color("e6dbbd")
 const DIM := Color("9a917a")
 const GLOW := Color("ffd183")
 
-## Fontes de pixel: importadas sem suavização e sem sub-pixel, e só ficam nítidas em alguns tamanhos (fora deles os
-## traços ficam finos ou tortos). Use: `ui` (Pixelify Sans) em 14, 16, 18, 22 (12 só onde não cabe mais; 11 e 12 ficam pequenos demais para ler); `mono` (VT323, números)
-## em 20, 21, 25, 30, 35 (abaixo de 20 ela fica fina demais). O 2 e o 5 da Pixelify foram redesenhados (pareciam S e Z) e a
-## fonte, fixada no peso Regular (era variável).
-static var ui: Font = preload("res://fonts/PixelifySans.ttf")
-static var mono: Font = preload("res://fonts/VT323-Regular.ttf")
+## Uma fonte só, de pixel: Departure Mono (SIL OFL). Fica nítida só em múltiplos de 11 (11, 22, 33, 44); fora deles os
+## pixels saem desiguais. Importada com suavização (para a janela menor que 1280×720 não apagar os traços), sem
+## hinting e sem sub-pixel (para os pixels caírem inteiros na tela). `ui` e `mono` continuam separadas pelo papel.
+static var ui: Font = preload("res://fonts/DepartureMono-Regular.otf")
+static var mono: Font = ui

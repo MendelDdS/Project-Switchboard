@@ -36,7 +36,7 @@ Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
 - `scripts/sfx.gd` — autoload `Sfx`: todos os sons, sintetizados ao iniciar, nos barramentos Ambience, Voices e
   Effects (`default_bus_layout.tres`). Troque as entradas de `streams` por arquivos reais quando tiver áudio gravado.
 - `tests/` — testes automatizados (`tests/run.sh`).
-- `fonts/` — Pixelify Sans e VT323 (SIL Open Font License).
+- `fonts/` — Departure Mono (SIL Open Font License, `OFL-DepartureMono.txt`).
 
 ## Consequências e relatório do supervisor
 
@@ -148,6 +148,16 @@ Esc, ou na tela inicial), junto com o volume de ambiente, vozes e efeitos e a ve
 O relógio nunca para: 0,75 minuto de jogo por segundo real (18:00 → 00:00 em cerca de 8 minutos).
 Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
 
+- **Setores**: a cidade tem três setores (bairros), e o de um número é o primeiro dígito: 1 Centro (praça,
+  delegacia, bombeiros, hospital), 2 Alto da Serra (escola, clínica e a zona rural) e 3 Vila Serena (o bairro do
+  começo). No mapa, cada setor é uma folha com a mesma grade de ruas e o nome no rodapé; as ruas da Vila Serena continuam,
+  com o mesmo nome e a numeração seguindo (300–599), no Centro (a leste) e no Alto da Serra (ao sul); o mapa mostra só os setores
+  do operador e, na noite em que um setor é entregue, se abre para ele na primeira vez que aparece. A primeira
+  ligação para o banco novo da mesa vem com uma dica de onde ele fica. Roda do
+  mouse aproxima, arrastar move. As viaturas saem do Centro e demoram pela distância. O operador começa só com o setor 3
+  (10 números na mesa e na lista), recebe o setor 1 (o Centro, +12) na noite 5 e o setor 2 (+12) na noite 9
+  (`SECTOR_NIGHTS` em `game_data.gd`). As ligações só pedem números dos setores dele. O jogo tem 15 noites; da 3 em
+  diante, por enquanto, são genéricas (só o dia e o bilhete).
 - **Nada é fixo, exceto o roteiro da noite** (`story` e `mystery` em `data/nights/`). O resto é sorteado (`Schedule._random_calls`):
   o ritmo vem de um **nível** (`paces` no content, um `Pace` cada), não da noite. Entre uma ligação e a próxima passam
   `call_gap` minutos de jogo (o máximo é o maior silêncio possível); em `peak_chance` dos intervalos a próxima vem logo
@@ -163,6 +173,7 @@ Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
 
   A primeira noite usa o nível 1. **Nas 3 primeiras noites, o nível só sobe se a noite anterior não foi ruim** (parecer
   do supervisor com alguma advertência grave: repete o ritmo, para não sobrecarregar quem ainda não pegou confiança).
+  Na noite em que um bairro novo é entregue (5 e 9), o nível não sobe, para o operador aprender o bairro antes.
   Da noite 4 em diante sobe sempre, até o nível 5, que vale para todas as noites seguintes (um nível 6 já fazia o
   robô em ritmo humano perder ligações toda noite). Para medir um nível: `tests/test_shift.gd -- --human --pace=N`.
 - **Tipo sorteado**: `emergencies` emergências (a pelo menos `EMERGENCY_GAP` = 60 min uma da outra, porque o

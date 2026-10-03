@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="Night" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
+
+[resource]
+script = ExtResource("1_night")
+weekday = "Sábado"
+note = "O supervisor deixou um recado: \"A partir de hoje, o setor 1, o Centro, também é seu: a central de lá não tem mais turno da noite. Os números que começam com 1 agora passam pela sua mesa. A lista já foi atualizada.\""

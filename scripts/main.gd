@@ -19,6 +19,7 @@ const SMALLTALK_AFTER := 10.0           # segundos de silêncio esperando a tran
 const SMALLTALK_CHANCE := 0.6           # ...às vezes (respostas e limites: Conversation); sem resposta, reclama da demora:
 const NAG_AFTER := 22.0                 # segundos de silêncio até reclamar da demora (emergência: EMERGENCY_NAG_AFTER)
 const EMERGENCY_NAG_AFTER := 26.0
+const PHONE_MAX_H := 400.0              # px: em tela alta o telefone para de crescer (a sobra fica para a mesa de madeira)
 ## Atalhos das abas (Input Map): aba -> ação.
 const TAB_KEYS := {"lista": "tab_directory", "despacho": "tab_dispatch", "caderno": "tab_logbook"}
 var C: GameContent = GameData.CONTENT
@@ -27,6 +28,7 @@ var exchange: Exchange
 var night_no := 0                  ## número da noite (1 = primeira); 0 = a salva (`-- --night=N` força uma, sem salvar)
 var night: Night                   ## roteiro fixo da noite
 var pace_level := 1                ## nível de ritmo desta noite (GameContent.paces)
+var force_sectors: Array = []      ## testes: setores atendidos (vazio = os da noite, GameData.SECTOR_NIGHTS)
 var pace: Pace                     ## ritmo das ligações sorteadas desta noite
 var progress: Progress             ## progresso salvo; nulo quando a noite foi forçada (testes, `--night`)
 var flags := StoryFlags.new()      ## marcadores do roteiro valendo agora: os salvos + os desta noite
@@ -56,6 +58,7 @@ var _myst_lead := false
 var _calling_back := false
 var _tick_acc := 0.0
 var _taught_midnight := false
+var _taught_bank := false
 var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o silêncio na linha (PhoneCall.last_talk)
 
 @onready var background: Background = %Background
@@ -77,9 +80,13 @@ var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o
 @onready var _pause: PauseMenu = %PauseMenu
 
 
+## A noite (e os setores dela) vem antes dos filhos ficarem prontos: a lista telefônica monta as páginas no `_ready`.
+func _enter_tree() -> void:
+	_load_night()
+
+
 func _ready() -> void:
 	_apply_seed()
-	_load_night()
 	weather = night.weather if night.weather != "" else WEATHERS.pick_random()
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--weather=") and a.get_slice("=", 1) in WEATHERS:
@@ -87,6 +94,10 @@ func _ready() -> void:
 	background.weather = weather
 	exchange = Exchange.new(GameData.board_numbers())
 	board.setup(exchange, phone.fone_socket)
+	var left := phone.get_parent() as Control   # o telefone ocupa o resto da coluna, até PHONE_MAX_H
+	left.resized.connect(func():
+		var above := left.get_combined_minimum_size().y - phone.get_combined_minimum_size().y
+		phone.custom_minimum_size.y = minf(left.size.y - above, PHONE_MAX_H))
 	var plan := Schedule.build(night, pace, LAST_CALL)
 	sched = plan.calls
 	tut = plan.tut
@@ -108,11 +119,15 @@ func _ready() -> void:
 	notebook.registered.connect(supervisor.on_registered)
 	notebook.pending_changed.connect(func(n: int): tools.set_count("caderno", n))
 	_intro.setup(night_no, night, progress != null and progress.night > 1)
+	# noite de entrega de um setor: o mapa se abre para o bairro novo na primeira vez que aparece
+	var before := GameData.sectors_for(night_no - 1)
+	if force_sectors.is_empty() and night_no > 1 and before.size() < GameData.sectors.size():
+		dispatch.city.pending_reveal = before
 	_refresh_panel()
 
 
 ## Qual noite jogar: `-- --night=N`, a definida antes de entrar na árvore (testes) ou a salva, e em que ritmo: o
-## salvo; numa noite forçada, o nível com o número da noite. `-- --pace=N` força o nível (para medir com o robô).
+## salvo; numa noite forçada, o de quem não tropeçou (`Pace.expected`). `-- --pace=N` força o nível (para medir com o robô).
 ## `-- --flags=a,b` liga marcadores para testar um ramo do roteiro numa noite forçada.
 func _load_night() -> void:
 	var forced_pace := 0
@@ -124,7 +139,7 @@ func _load_night() -> void:
 		elif a.begins_with("--flags="):
 			for f in a.get_slice("=", 1).split(",", false):
 				flags.apply(f)
-	pace_level = night_no
+	pace_level = Pace.expected(night_no)
 	if night_no == 0:
 		progress = Progress.load_saved()
 		night_no = progress.night
@@ -134,6 +149,7 @@ func _load_night() -> void:
 			flags.apply(f)
 	night_no = clampi(night_no, 1, C.nights.size())
 	night = C.nights[night_no - 1]
+	GameData.sectors = GameData.sectors_for(night_no) if force_sectors.is_empty() else force_sectors
 	pace_level = clampi(forced_pace if forced_pace > 0 else pace_level, 1, C.paces.size())
 	pace = C.paces[pace_level - 1]
 	report.night = night_no
@@ -210,6 +226,8 @@ func _nag() -> void:
 		return
 	var quiet := talk_clock - f.last_talk
 	if f.kind == PhoneCall.Kind.TRANSFER and f.phase == PhoneCall.Phase.AWAIT:
+		if _transferred(f):   # o destino está tocando ou atendeu: ela espera quieta
+			return
 		if not f.chatted and quiet > SMALLTALK_AFTER:
 			f.chatted = true
 			if randf() < SMALLTALK_CHANCE:
@@ -332,8 +350,8 @@ func _filled(j: int, e: int) -> void:
 ## Um plug saiu da tomada j.
 func _vacated(j: int, e: int) -> void:
 	if e == 0:
-		# FONE saiu: se o destino já atendeu, a ligação segue pelo cabo de conexão; se já foi resolvida, a pessoa
-		# termina de falar e desliga; senão fica em espera.
+		# FONE saiu: se o destino já atendeu, a ligação segue pelo cabo de conexão (o agradecimento ficou pela
+		# metade); se já foi resolvida, a pessoa termina de falar e desliga; senão fica em espera.
 		var c := _call_on_line(j)
 		if c != null and c.active and not c.closing:
 			if not _try_complete(c):
@@ -426,7 +444,7 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 	_dgen[d] = int(_dgen.get(d, 0)) + 1
 	var g: int = _dgen[d]
 	var right := str(d) == c.target
-	var closed := GameData.is_closed(d)
+	var closed := right and c.away   # ninguém atende: o operador pode sugerir a alternativa
 	exchange.set_dest(d, Exchange.Dest.RING)
 	c.set_options([])   # a conversa agora é com o destino; as opções voltam se a transferência for desfeita
 	phone.flash(T.text(T.Key.DISPLAY_RINGING) % d, 60000)
@@ -441,9 +459,8 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 		exchange.set_dest(d, Exchange.Dest.FREE)
 		phone.flash(T.text(T.Key.DISPLAY_NO_ANSWER) % d, 3000)
 		c.sys(T.text(T.Key.SYS_NOBODY_ANSWERS) % d)
-		if right:
-			c.no_answer = true
-			conversation.transfer_choices(c)
+		c.no_answer = true
+		conversation.transfer_choices(c)
 		_update_call_ui()
 		return
 	exchange.set_dest(d, Exchange.Dest.CONN)
@@ -455,11 +472,10 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 	if not right and c != tut:
 		supervisor.fault("wrong_number", supervisor.who(c))
 		c.wrong += 1
-	if _try_complete(c):
-		return
-	if right:
+	if right and c.on_line:   # o operador ouve o agradecimento; a conversa entre os dois ele já não ouve
 		c.sys(T.text(T.Key.SYS_ANSWERED) % who)
 		await conversation.say(c, (c.data as TransferCall).thanks, 0.4)
+	if _try_complete(c) or right:
 		return
 	# número errado: quem atendeu reclama de ter sido acordado, e o solicitante também
 	c.sys(T.text(T.Key.SYS_WRONG_PERSON) % who)
@@ -474,20 +490,23 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 		hint(T.text(T.Key.HINT_WRONG_DEST))
 
 
-## Destino atendeu e o FONE saiu da entrada: os dois lados seguem conectados pelo cabo de conexão.
+## Destino atendeu: os dois lados seguem conectados pelo cabo de conexão, com ou sem o FONE na entrada.
+## Número errado com o FONE na entrada não completa: o operador ouve o engano (`_ring_dest`).
 func _try_complete(c: PhoneCall) -> bool:
-	if c.ended or c.kind != PhoneCall.Kind.TRANSFER or not c.active or board.fone_line() == c.line:
+	if c.ended or c.kind != PhoneCall.Kind.TRANSFER or not c.active:
 		return false
 	var d := board.dest_of_output(c.line)
 	if d == -1 or exchange.dest(d) != Exchange.Dest.CONN:
 		return false
 	if str(d) != c.target:
+		if board.fone_line() == c.line:
+			return false
 		_wrong_unattended(c, d)
 		return true
 	exchange.set_line(c.line, Exchange.Line.CONN, minutes + randf_range(TALK_LEN.x, TALK_LEN.y))
 	c.connected = true
 	c.dest_num = d
-	c.sys(T.text(T.Key.SYS_FONE_OFF_CONNECTED) % [c.line, d])
+	c.sys(T.text(T.Key.SYS_LINES_CONNECTED) % [c.line, d])
 	phone.flash("%02d - %d" % [c.line, d], 2600)
 	end_call(c, PhoneCall.End.CONNECTED)
 	return true
@@ -557,13 +576,17 @@ func _refresh_panel() -> void:
 	_update_call_ui()
 
 
+## Já transferida: o destino na ponta do cabo da saída está tocando ou atendeu.
+func _transferred(c: PhoneCall) -> bool:
+	var d := board.dest_of_output(c.line)
+	return d != -1 and exchange.dest(d) != Exchange.Dest.FREE
+
+
 func _update_call_ui() -> void:
 	var f := _focus()
 	var s := phone.shown()
 	var can_transfer := f != null and f.active and f.kind == PhoneCall.Kind.TRANSFER and f.phase == PhoneCall.Phase.AWAIT
-	if can_transfer:   # já transferida: o destino na ponta do cabo está tocando ou atendeu
-		var d := board.dest_of_output(f.line)
-		can_transfer = d == -1 or exchange.dest(d) == Exchange.Dest.FREE
+	can_transfer = can_transfer and not _transferred(f)
 	phone.set_buttons(f != null and f.ringing, can_transfer, f != null and f.active)
 	var line := T.text(T.Key.STATUS_NO_CALL)
 	var st := ""
@@ -724,7 +747,7 @@ func tutorial_step() -> void:
 	elif exchange.dest(d) == Exchange.Dest.RING:
 		hint(T.text(T.Key.HINT_TUT_DEST_RINGING))
 	else:
-		hint(T.text(T.Key.HINT_TUT_UNPLUG))
+		hint(T.text(T.Key.HINT_TUT_CONNECTED))
 
 
 ## Chamado pela conversa quando o solicitante termina o pedido de transferência.
@@ -733,9 +756,19 @@ func on_transfer_waiting(c: PhoneCall) -> void:
 	tutorial_step()
 	if board.free_patches() == 0 and board.cord_at(c.line + 10) == -1:
 		hint(T.text(T.Key.HINT_NO_CORDS))
+	elif not _taught_bank and _new_sector(c.target):
+		_taught_bank = true
+		var s := int(c.target.left(1))
+		hint(T.text(T.Key.HINT_NEW_BANK) % [s, "ABC"[Switchboard.SECTOR_ORDER.find(s)]])
 	elif tut != null and c != tut and not _taught_list:
 		_taught_list = true
 		hint(T.text(T.Key.HINT_CHECK_LIST))
+
+
+## O número é de um setor entregue nesta noite (o 3, da primeira noite, o tutorial já apresenta)?
+func _new_sector(number: String) -> bool:
+	var s := int(number.left(1)) if number != "" else 0
+	return s != 3 and GameData.SECTOR_NIGHTS.get(s, 0) == night_no
 
 
 func answer() -> void:
@@ -803,7 +836,7 @@ func end_call(c: PhoneCall, reason: PhoneCall.End) -> void:
 	notebook.add(c.record)
 	supervisor.call_ended(c, reason)
 	await get_tree().create_timer(1.5, false).timeout
-	if ending:
+	if ending or reason == PhoneCall.End.MISSED:   # não atendida já entra registrada
 		return
 	if live.is_empty():   # a aba mostra quantas faltam; o jogador abre o caderno quando quiser
 		hint(T.text(T.Key.HINT_REGISTER))

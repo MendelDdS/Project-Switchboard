@@ -1,9 +1,11 @@
 class_name Dispatch
-extends VBoxContainer
-## Aba do mapa e despacho: o mapa da cidade em cima (clicar na rua marca o local) e, embaixo, o tipo de ocorrência,
-## as unidades e Enviar. O tipo não marca unidades: quem decide é a conversa, pelo protocolo (cartão na aba; veja
-## EmergencyCall.units). A conferência (local, tipo, unidades) fica sempre à vista e Enviar só acende com as três;
-## depois do envio, tudo volta limpo para a próxima. Cuida da ida das viaturas, das mensagens de rádio e de
+extends Control
+## Aba do mapa e despacho: o mapa da cidade ocupa a aba inteira (clicar na rua marca o local) e a ficha de despacho
+## fica por cima, à direita, na ordem da decisão: local, ocorrência, unidades (cada uma com o que a justifica, pelo
+## protocolo; veja EmergencyCall.units) e Enviar. O tipo não marca unidades: quem decide é a conversa. Cada parte da
+## ficha mostra "[ ]" até ser preenchida e Enviar só acende com as três. A ficha abre ao marcar um local ou quando
+## chega uma emergência e se recolhe depois do envio (o mapa fica livre; `Open` a reabre); o pedaço do mapa que ela
+## cobre continua alcançável arrastando (`CityMap.cover`). Depois do envio, tudo volta limpo para a próxima. Cuida da ida das viaturas, das mensagens de rádio e de
 ## avaliar se o local e as unidades batem com a emergência em andamento.
 
 ## `complete`: tudo o que a emergência precisa agora está a caminho do lugar certo (contando envios anteriores).
@@ -28,7 +30,8 @@ var _incident := {}          ## emergência em andamento: call, street, block, r
 var _gen := 0                ## sobe no `reset`: viagens de antes dele não chegam nem voltam mais
 
 @onready var city: CityMap = %City
-@onready var _occurrences: HBoxContainer = %Occurrences
+@onready var _slip: Control = %Slip
+@onready var _occurrences: VBoxContainer = %Occurrences
 @onready var _send_button: Button = %Send
 @onready var _report: Label = %Report
 @onready var _unit_buttons := {"pol": %UnitPol as Button, "bomb": %UnitBomb as Button, "amb": %UnitAmb as Button}
@@ -37,6 +40,11 @@ var _gen := 0                ## sobe no `reset`: viagens de antes dele não cheg
 func _ready() -> void:
 	city.segment_selected.connect(set_location)
 	_send_button.pressed.connect(_send)
+	%Open.pressed.connect(open_slip.bind(true))
+	%Close.pressed.connect(open_slip.bind(false))
+	resized.connect(_cover)
+	_slip.visible = false   # começa recolhida: o mapa livre até a primeira ocorrência
+	%Open.visible = true
 	_occ_group.allow_unpress = true
 	for o in GameData.CONTENT.occurrences:
 		var b := Button.new()
@@ -45,7 +53,8 @@ func _ready() -> void:
 		b.button_group = _occ_group
 		b.theme_type_variation = &"PaperChip"
 		b.focus_mode = Control.FOCUS_NONE
-		b.custom_minimum_size.y = 32
+		b.custom_minimum_size.y = 22
+		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.pressed.connect(Sfx.play.bind("click"))
 		b.toggled.connect(_refresh.unbind(1))
 		_occurrences.add_child(b)
@@ -70,7 +79,30 @@ func _texts() -> void:
 
 func set_location(street: String, block: int, label: String) -> void:
 	_location = {"street": street, "block": block, "label": label}
+	open_slip(true)
 	_refresh()
+
+
+## Abre ou recolhe a ficha de despacho (o mapa ganha a aba toda).
+func open_slip(on: bool) -> void:
+	if _slip.visible == on:
+		return
+	_slip.visible = on
+	%Open.visible = not on
+	Sfx.play("page")
+	_cover()
+
+
+## Quanto do mapa a ficha cobre (ele deixa arrastar esse pedaço para a vista) e onde há botões por cima dele.
+func _cover() -> void:
+	if not is_node_ready():
+		return
+	city.cover = city.get_global_rect().end.x - _slip.get_global_rect().position.x + 8.0 if _slip.visible else 0.0
+	var over: Array[Rect2] = []
+	for c: Control in [%Open, %Fleet]:
+		if c.visible:
+			over.append(Rect2(c.get_global_rect().position - city.get_global_rect().position, c.size).grow(4.0))
+	city.blocked = over
 
 
 ## Marca o tipo de ocorrência (como clicar no botão; "" desmarca).
@@ -83,6 +115,7 @@ func set_occurrence(o: String) -> void:
 ## avaliar o que for enviado.
 func set_incident(e: EmergencyCall, stage := 0) -> void:
 	_incident = {"call": e, "street": e.street, "block": e.block, "req": Array(e.required(stage)), "sent": [], "going": [], "resolved": false, "addr": e.address}
+	open_slip(true)
 
 
 ## A situação piorou antes do despacho: passa a precisar destas unidades.
@@ -129,18 +162,21 @@ func _refresh() -> void:
 		b.disabled = _units[u] != Unit.AVAILABLE
 		if b.disabled:
 			b.set_pressed_no_signal(false)
-	var place := T.text(T.Key.DISPATCH_CHECK_PLACE) + ": " + (String(_location["label"]) if not _location.is_empty() else T.text(T.Key.DISPATCH_CLICK_STREET))
-	_check(%CheckPlace, not _location.is_empty(), place)
-	_check(%CheckType, _occ_group.get_pressed_button() != null, T.text(T.Key.DISPATCH_CHECK_TYPE))
-	_check(%CheckUnits, not _selected_units().is_empty(), T.text(T.Key.DISPATCH_CHECK_UNITS))
+	%Place.text = String(_location["label"]) if not _location.is_empty() else T.text(T.Key.DISPATCH_CLICK_STREET)
+	_check(%PlaceHead, not _location.is_empty(), T.text(T.Key.DISPATCH_CHECK_PLACE))
+	_check(%TypeHead, _occ_group.get_pressed_button() != null, T.text(T.Key.DISPATCH_CHECK_TYPE))
+	_check(%UnitsHead, not _selected_units().is_empty(), T.text(T.Key.DISPATCH_CHECK_UNITS))
 	_send_button.disabled = not can_send()
 	var busy := UNIT_IDS.filter(func(u): return _units[u] != Unit.AVAILABLE)
 	_report.text = "  ·  ".join(PackedStringArray(busy.map(func(u): return "%s: %s" % [T.text(UNIT_NAMES[u]), T.text(UNIT_STATUS[_units[u]])])))
+	if %Fleet.visible != not busy.is_empty():
+		%Fleet.visible = not busy.is_empty()
+		_cover.call_deferred()   # a faixa muda de tamanho só no quadro seguinte
 
 
-## Item da conferência: "[x]" e tinta quando pronto; "[ ]" e vermelho enquanto falta.
+## Título de uma parte da ficha: "[x]" e tinta quando pronta; "[ ]" e vermelho enquanto falta.
 func _check(l: Label, done: bool, text: String) -> void:
-	l.text = ("[x] " if done else "[ ] ") + text
+	l.text = ("[x] " if done else "[ ] ") + text.to_upper()
 	l.add_theme_color_override("font_color", Pal.INK if done else MISSING)
 
 
@@ -157,15 +193,17 @@ func _send() -> void:
 	Sfx.play("sw")
 	Sfx.static_burst(0.0, radio.screen_x())
 	var names := PackedStringArray()
+	var travel := 0.0   # quem vem de mais longe (o Centro fica num canto da cidade) chega por último
 	for u in us:
 		_units[u] = Unit.EN_ROUTE
-		city.trip(u, target)
+		travel = maxf(travel, city.trip(u, target))
 		names.append(T.text(UNIT_NAMES[u]))
-	# limpo para a próxima emergência (local e tipo não ficam de uma para outra)
+	# limpo para a próxima emergência (local e tipo não ficam de uma para outra); a ficha se recolhe
 	_location = {}
 	city.clear_selection()
 	set_occurrence("")
 	_refresh()
+	open_slip(false)
 	var complete := false
 	if not _incident.is_empty() and _incident["street"] == target["street"] and _incident["block"] == target["block"]:
 		for u in us:
@@ -178,7 +216,7 @@ func _send() -> void:
 	if gen != _gen:
 		return
 	radio.say(T.text([T.Key.RADIO_ON_WAY, T.Key.RADIO_COPY].pick_random()))
-	await get_tree().create_timer(5.6, false).timeout
+	await get_tree().create_timer(maxf(travel - 1.8, 0.5), false).timeout
 	if gen == _gen:
 		_arrive(us, target)
 

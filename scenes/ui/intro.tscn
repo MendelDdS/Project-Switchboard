@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/ui/intro.gd" id="1_intro"]
 [ext_resource type="Script" path="res://scripts/ui/bevel.gd" id="2_bevel"]
-[ext_resource type="FontFile" path="res://fonts/VT323-Regular.ttf" id="3_vt323_regula"]
+[ext_resource type="FontFile" uid="uid://bixnphjx77akg" path="res://fonts/DepartureMono-Regular.otf" id="3_vt323_regula"]
 
 [node name="Intro" type="ColorRect"]
 anchors_preset = 15
@@ -37,7 +37,7 @@ theme_override_constants/separation = 14
 [node name="Title" type="Label" parent="Center/Card/VBox"]
 layout_mode = 2
 text = "GAME_TITLE"
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 33
 
 [node name="Date" type="Label" parent="Center/Card/VBox"]
 unique_name_in_owner = true
@@ -45,7 +45,7 @@ layout_mode = 2
 text = ""
 theme_override_fonts/font = ExtResource("3_vt323_regula")
 theme_override_colors/font_color = Color(0.9529, 0.6588, 0.2353, 1)
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 22
 
 [node name="Note" type="PanelContainer" parent="Center/Card/VBox"]
 layout_mode = 2
@@ -56,7 +56,7 @@ unique_name_in_owner = true
 layout_mode = 2
 text = ""
 theme_type_variation = &"InkMonoLabel"
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 22
 autowrap_mode = 3
 custom_minimum_size = Vector2(448, 0)
 
@@ -64,7 +64,7 @@ custom_minimum_size = Vector2(448, 0)
 layout_mode = 2
 text = "INTRO_INFO"
 theme_type_variation = &"DimLabel"
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 11
 autowrap_mode = 3
 custom_minimum_size = Vector2(480, 0)
 
@@ -82,7 +82,7 @@ custom_minimum_size = Vector2(180, 44)
 layout_mode = 2
 size_flags_horizontal = 0
 theme_type_variation = &"AmberButton"
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 22
 text = "START_SHIFT"
 
 [node name="Settings" type="Button" parent="Center/Card/VBox/Buttons"]

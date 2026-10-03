@@ -1,0 +1,50 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_emerg"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("pol", "amb")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "", "Ninguém se machucou, graças a Deus. Foi só o susto.")
+units = PackedStringArray("pol")
+
+[sub_resource type="Resource" id="Case_3"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "", "O motorista do carro tá preso nas ferragens! A porta não abre!")
+units = PackedStringArray("pol", "bomb", "amb")
+
+[sub_resource type="Resource" id="Case_4"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "Não, o motorista do ônibus já encostou tudo na calçada.", "")
+units = PackedStringArray("amb")
+
+[resource]
+script = ExtResource("1_emerg")
+voice = "f"
+caller = "Moça"
+opening = "Central! Um carro bateu no ônibus da capital, aqui na frente da rodoviária!"
+questions = PackedStringArray("Qual é o endereço?", "A rua está bloqueada?", "Tem feridos?")
+answers = PackedStringArray("Avenida Brasil, 580! Na frente da rodoviária!", "Tá! O carro ficou atravessado e o ônibus parou no meio da rua!", "O motorista do carro tá com a testa sangrando, mas tá falando.")
+street = "brasil"
+block = 5
+address = "Avenida Brasil, 580"
+occurrence = "Acidente de trânsito"
+units = PackedStringArray("pol", "amb")
+after = "Tá bom. Vou ficar aqui com ele até chegarem."
+stage_sec = Vector3(45, 22, 22)
+worsening = "Tá juntando gente do ônibus em volta do carro, ninguém consegue passar!"
+worsening_question = "Alguém está orientando o trânsito?"
+worsening_answer = "Não, tá todo mundo parado olhando!"
+worsening_units = PackedStringArray("pol")
+critical = "Tá saindo fumaça do motor do carro!"
+critical_units = PackedStringArray("bomb")
+critical_question = "Tem gente perto do carro?"
+critical_answer = "Tem! Uns passageiros tão tentando abrir a porta!"
+lost = "O carro pegou fogo! Por que ninguém veio?!"
+lost_answer = "Um passageiro que tentava abrir a porta queimou as mãos!"
+lost_units = PackedStringArray("amb")
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2"), SubResource("Case_3"), SubResource("Case_4")])
