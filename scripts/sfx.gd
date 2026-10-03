@@ -54,6 +54,9 @@ const PAN := 0.7   # quanto os sons posicionados (`play_at`, atrito) vão para o
 ## Cada linha tem a campainha num tom levemente diferente (é o mesmo equipamento: só uma nuance), 01 a mais grave,
 ## 10 a mais aguda; passo relativo entre linhas vizinhas (0,006 = ±2,7% nas pontas, cerca de meio semitom).
 const BELL_STEP := 0.006
+## Impressora do cartão: colunas de agulhas por segundo (o "zzrt" com tom) e passos por segundo do motor do papel.
+const PRINTER_COLS := 1150.0
+const PRINTER_STEPS := 230.0
 
 ## Sons mecânicos que se repetem muito (plugs, fios): cada vez sai com o tom e o volume levemente diferentes
 ## (± VARY_PITCH, ± VARY_DB), para a mesa cheia não soar como uma máquina.
@@ -711,22 +714,37 @@ func _build_card() -> void:
 		_tone(t, randf_range(160.0, 210.0), 0.035, "sine", 0.45)
 		t += randf_range(0.055, 0.1)
 	_end("typing")
-	_begin(1.35)
-	var pins := PackedFloat32Array()
-	pins.resize(_w.size())
-	for i in int(1.25 * RATE):   # as agulhas batendo sem parar: pulsos rápidos e irregulares
+	# impressora matricial: cada batida de agulha é um impulso que faz soar o metal da agulha e o rolo; o motor de
+	# passo puxa o papel aos "tk" regulares; tudo ressoa na carcaça
+	_begin(1.4)
+	var hits := PackedFloat32Array()
+	hits.resize(_w.size())
+	t = 0.03
+	var word := randi_range(2, 7)
+	while t < 1.22:
+		for col in 7:   # um caractere: colunas de agulhas (algumas das 9 em cada), a última vazia
+			var i := int((t + randf_range(0.0, 0.00015)) * RATE)
+			hits[i] += (randi_range(1, 7) if col < 6 and randf() < 0.85 else 0) / 9.0
+			t += 1.0 / PRINTER_COLS
+		word -= 1
+		if word == 0:   # espaço entre palavras: a cabeça anda sem bater
+			t += randi_range(1, 2) * 7.0 / PRINTER_COLS
+			word = randi_range(2, 7)
+	var steps := PackedFloat32Array()
+	steps.resize(_w.size())
+	t = 0.0
+	while t < 1.27:
+		steps[int(t * RATE)] = 1.0
+		t += 1.0 / (PRINTER_STEPS * minf(0.4 + t / 0.12, 1.0))   # o motor embala no começo
+	steps[int(1.29 * RATE)] = 2.0   # o rolo solta o cartão
+	var x := _modes(hits, [[3100.0, 0.0015, 0.5], [4700.0, 0.001, 0.3], [190.0, 0.006, 0.6]])
+	var feed := _modes(steps, [[850.0, 0.004, 0.5], [140.0, 0.012, 0.7]])
+	for i in x.size():
+		x[i] += feed[i] * 0.45
+	var box := _modes(x, [[1.0, 0.0, 1.0], [320.0, 0.025, 0.3], [1200.0, 0.012, 0.2]])   # a carcaça
+	for i in box.size():
 		var ts := float(i) / RATE
-		if fmod(ts * 1150.0, 1.0) < 0.2 and randf() < 0.75:
-			pins[i] = randf_range(-1.0, 1.0) * minf(ts / 0.03, 1.0) * minf((1.25 - ts) / 0.08, 1.0)
-	pins = _biquad(pins, "bp", 2400.0, 0.6)
-	var body := PackedFloat32Array()   # o motor da cabeça e o papel correndo pelo rolo, contínuos
-	body.resize(_w.size())
-	for i in int(1.25 * RATE):
-		var ts := float(i) / RATE
-		body[i] = (_wave("saw", 95.0 * ts) * 0.08 + randf_range(-1.0, 1.0) * 0.12) * minf(ts / 0.05, 1.0) * minf((1.25 - ts) / 0.08, 1.0)
-	body = _biquad(body, "lp", 900.0, 0.7)
-	for i in pins.size():
-		_w[i] += pins[i] * 0.9 + body[i]
+		_w[i] = box[i] * minf(ts / 0.02, 1.0) * clampf((1.38 - ts) / 0.06, 0.0, 1.0)
 	_end("printer")
 	_begin(0.12)
 	_noise(0, 0.012, "hp", 2500.0, 0.7, 1.0); _tone(0, 150.0, 0.07, "sine", 0.8); _tone(0.002, 2600.0, 0.01, "square", 0.15)
@@ -846,6 +864,21 @@ func _build_ring() -> void:
 
 
 ## Ressonador de dois polos: `x` excita um modo de frequência `f` que decai em `tau` segundos.
+## Soma de modos de vibração excitados por `x`: cada um [frequência, decaimento (s), ganho], normalizado pelo pico
+## (frequência 1 com decaimento 0 = o próprio `x`).
+func _modes(x: PackedFloat32Array, modes: Array) -> PackedFloat32Array:
+	var y := PackedFloat32Array()
+	y.resize(x.size())
+	for m in modes:
+		var r := x if m[1] == 0.0 else _resonator(x, m[0], m[1])
+		var top := 0.0001
+		for v in r:
+			top = maxf(top, absf(v))
+		for i in r.size():
+			y[i] += r[i] * m[2] / top
+	return y
+
+
 func _resonator(x: PackedFloat32Array, f: float, tau: float) -> PackedFloat32Array:
 	var r := exp(-1.0 / (tau * RATE))
 	var c := 2.0 * r * cos(TAU * f / RATE)
