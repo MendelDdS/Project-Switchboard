@@ -37,7 +37,7 @@ const FONE_HOME := Vector2(18, 24)   # posição do plug do FONE dentro do encai
 
 var _pushed := {}   ## ponta -> segundos desde que encaixou (a assentada, `PUSH_SEC`, e a passagem para de frente)
 var _pulled := {}   ## ponta -> [segundos desde que saiu do encaixe, onde ele estava]: o plug de frente sumindo
-var _silhouette := {}   ## encaixado (bool) -> polígono do contorno do plug (destaque e sombra)
+var _silhouette := {}   ## inclinação do plug encaixado (em pé: false) -> polígono do contorno (destaque e sombra)
 var _lit := {}   ## lâmpada ("l3" linha, "d312" destino) -> [cor, quanto está acesa 0..1]; a cor fica enquanto apaga
 var exchange: Exchange
 var fone_socket: Control       # encaixe do FONE no painel do telefone
@@ -66,7 +66,14 @@ const TAP_SPEED := Vector2(150.0, 600.0)   # px/s: o fio batendo na mesa faz "ta
 const TAP_GAP := 0.12          # s: intervalo mínimo entre dois "taps" do mesmo fio
 const PLUG_BASE := Vector2(0, 20)   # do ponto de referência do plug (topo do corpo) até onde o fio entra nele
 ## Encaixado, de onde fica a tomada até onde o fio entra: a ponta de metal some dentro dela e o anel assenta no buraco.
-const PLUG_FACE_R := 9.0   # encaixado, o plug é visto de frente: o raio do aro dele, sobre o encaixe
+const PLUG_FACE_R := 7.0   # encaixado: o raio do colar e do cabo (14 px de largura com o contorno, como em pé)
+## Encaixado, o plug sai do painel na direção da câmera: visto de cima e da esquerda, a ponta dele fica deslocada do
+## encaixe para baixo e para a direita, e mais quanto mais longe do ponto que a câmera olha reto (paralaxe, `_tilt`).
+const PLUG_EYE := Vector2(-300, -600)   # o ponto da mesa que a câmera olha reto (fora dela, no alto à esquerda)
+const PLUG_DEPTH := 0.012   # px de deslocamento da ponta por px de distância do encaixe até PLUG_EYE
+## As peças do plug encaixado, como frações do comprimento, a partir do painel: as mesmas de em pé (colar de 6 px,
+## cabo de 17, ponteira de 4).
+const PLUG_PARTS := [6.0 / 27.0, 23.0 / 27.0]
 const MORPH_SEC := 0.08   # encaixando ou saindo, o plug passa de em pé para de frente (e volta) nesse tempo
 const PUSH_PX := 1.5     # ao encaixar, o plug afunda (o tampo encolhe tanto, px) e volta...
 const ROT_STEP := deg_to_rad(15.0)   # solto ou na mão, o plug gira em passos assim (pixel art girado torto serrilha)
@@ -305,7 +312,7 @@ func pick_up(e: int) -> void:
 ## O plug encaixado vai sair: a vista de frente some aos poucos no encaixe (`_pulled`).
 func _unseat(e: int) -> void:
 	if ends[e] != -1:
-		_pulled[e] = [0.0, jack_rect(int(ends[e])).get_center()]
+		_pulled[e] = [0.0, jack_rect(int(ends[e])).get_center(), _tilt(int(ends[e]))]
 	_pushed.erase(e)
 
 
@@ -458,7 +465,7 @@ func _plug_base(e: int) -> Vector2:
 	if held == e:
 		return cursor + PLUG_BASE
 	if ends[e] != -1:
-		return jack_rect(int(ends[e])).get_center()   # visto de frente: o fio sai do meio do encaixe
+		return jack_rect(int(ends[e])).get_center() + _tilt(int(ends[e]))   # encaixado: o fio sai da ponteira
 	if _loose.has(e):
 		var an: Dictionary = _loose[e]
 		if an["seat"] >= 0.0:
@@ -472,12 +479,15 @@ func _plug_hit(e: int, p: Vector2) -> bool:
 	if ends[e] == -1 and not _loose.has(e):
 		return home_rect(e).has_point(p)
 	var q := (p - _plug_base(e)).rotated(-_plug_angle(e))
-	return _plug_rect(ends[e] != -1).grow(2.0).has_point(q)
+	return _plug_rect(e).grow(2.0).has_point(q)
 
 
 ## Contorno do plug a partir de onde o fio entra nele: em pé (solto, na mão, na base) ou, encaixado, visto de frente.
-func _plug_rect(seated: bool) -> Rect2:
-	return Rect2(-9, -9, 18, 18) if seated else Rect2(-7, -42, 14, 42)
+func _plug_rect(e: int) -> Rect2:
+	if ends[e] != -1:   # do encaixe (atrás) até a ponteira (aqui)
+		var r := PLUG_FACE_R + 1.0
+		return Rect2(-_tilt(int(ends[e])) - Vector2(r, r), Vector2(r, r) * 2.0).merge(Rect2(-r, -r, r * 2.0, r * 2.0))
+	return Rect2(-7, -42, 14, 42)
 
 
 ## Quanto o plug recém-encaixado está afundado (px, a assentada).
@@ -817,7 +827,7 @@ func _draw() -> void:
 	for e in _pulled:   # plugs que acabaram de sair: a vista de frente sumindo no encaixe
 		var k: float = _pulled[e][0] / MORPH_SEC
 		draw_set_transform(_pulled[e][1], 0.0, Vector2.ONE * lerpf(1.0, 0.4, k))
-		_draw_plug_face(_cable_col(e), 0.0, 1.0 - k)
+		_draw_plug_face(_cable_col(e), _pulled[e][2], 0.0, 1.0 - k)
 		draw_set_transform(Vector2.ZERO)
 	for e in _order:
 		if ends[e] != -1:   # encaixado, visto de frente: o fio sai do meio dele (da ponteira), por cima do tampo
@@ -907,21 +917,22 @@ func _draw_rope(e: int, shadow: bool) -> void:
 ## Girado quando solto. A sombra é o contorno, mais longe quanto mais o plug sai do painel (na mão, mais).
 func _draw_plug(e: int, shadow: bool) -> void:
 	var seated: bool = ends[e] != -1
-	var at := _plug_base(e)
+	var tilt := _tilt(int(ends[e])) if seated else Vector2.ZERO
+	var at := _plug_base(e) - tilt   # encaixado, desenha a partir do encaixe
 	if shadow:
 		at += Vector2(8, 10) if held == e else (Vector2(4, 5) if _loose.has(e) else Vector2(2, 2))
 	draw_set_transform(at.round(), _plug_angle(e))
 	if shadow:
-		draw_colored_polygon(_plug_outline(seated, 0.0), SHADOW)
+		draw_colored_polygon(_plug_outline(e, 0.0), SHADOW)
 	else:
 		if e == _hover:   # contorno claro, na forma do plug: dá para pegar
-			draw_colored_polygon(_plug_outline(seated, 2.0), Pal.GLOW)
+			draw_colored_polygon(_plug_outline(e, 2.0), Pal.GLOW)
 		if seated:
 			var k := minf(float(_pushed.get(e, MORPH_SEC)) / MORPH_SEC, 1.0)
 			if k < 1.0:   # acabou de encaixar: a vista de frente cresce enquanto o corpo em pé entra no encaixe
 				draw_set_transform(at.round(), 0.0, Vector2.ONE * lerpf(0.4, 1.0, k))
-			_draw_plug_face(_cable_col(e), _push(e), 1.0)
-			_plug_reflect(int(ends[e]), Vector2.ZERO, PLUG_FACE_R - _push(e))
+			_draw_plug_face(_cable_col(e), tilt, _push(e), 1.0)
+			_plug_reflect(int(ends[e]), Vector2.ZERO, PLUG_FACE_R)
 			if k < 1.0:
 				draw_set_transform_matrix(Transform2D(0.0, Vector2(1.0, 1.0 - k), 0.0, at.round()) * Transform2D(0.0, Vector2(0, 26)))
 				_draw_plug_body(_cable_col(e))
@@ -932,8 +943,10 @@ func _draw_plug(e: int, shadow: bool) -> void:
 
 ## A silhueta do plug (as mesmas partes de `_draw_plug_body`, juntas num polígono só: a sombra não escurece duas
 ## vezes onde elas se sobrepõem), alargada `grow` px para o destaque.
-func _plug_outline(seated: bool, grow: float) -> PackedVector2Array:
-	if not _silhouette.has(seated):
+func _plug_outline(e: int, grow: float) -> PackedVector2Array:
+	var seated: bool = ends[e] != -1
+	var key: Variant = _tilt(int(ends[e])) if seated else false
+	if not _silhouette.has(key):
 		var circle := func(c: Vector2, r: float) -> PackedVector2Array:
 			var pts := PackedVector2Array()
 			for i in 16:
@@ -941,33 +954,70 @@ func _plug_outline(seated: bool, grow: float) -> PackedVector2Array:
 			return pts
 		var box := func(r: Rect2) -> PackedVector2Array:
 			return PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)])
-		var parts := [circle.call(Vector2.ZERO, PLUG_FACE_R + 1.0)] if seated else [box.call(Rect2(-7, -27, 14, 6)),
+		var parts := [Geometry2D.convex_hull(circle.call(Vector2.ZERO, PLUG_FACE_R + 1.0) + circle.call(key, PLUG_FACE_R + 1.0))] if seated else [box.call(Rect2(-7, -27, 14, 6)),
 			box.call(Rect2(-7, -22, 14, 19)), box.call(Rect2(-5, -4, 10, 4)), box.call(Rect2(-4, -39, 8, 13)),
 			circle.call(Vector2(0, -38.5), 3.5)]
 		var shape: PackedVector2Array = parts[0]
 		for part in parts.slice(1):
 			shape = Geometry2D.merge_polygons(shape, part)[0]
-		_silhouette[seated] = shape
+		_silhouette[key] = shape
 	if grow == 0.0:
-		return _silhouette[seated]
-	return Geometry2D.offset_polygon(_silhouette[seated], grow, Geometry2D.JOIN_ROUND)[0]
+		return _silhouette[key]
+	return Geometry2D.offset_polygon(_silhouette[key], grow, Geometry2D.JOIN_ROUND)[0]
 
 
-## O plug encaixado, visto de frente, como nas mesas de verdade: o aro niquelado em volta e o tampo redondo do cabo na
-## cor dele (brilho no alto à esquerda); o fio sai do meio, por cima (desenhado depois). `push`: a assentada, o tampo
-## encolhe como se afundasse.
-func _draw_plug_face(col: Array, push: float, alpha: float) -> void:
-	var base: Color = col[0]
-	var hi: Color = col[1]
-	var r := PLUG_FACE_R - push
-	draw_circle(Vector2.ZERO, r + 1.0, Color(Color.BLACK, alpha))
-	draw_circle(Vector2.ZERO, r, Color(BEZEL[2], alpha))   # o aro: sombra embaixo à direita...
-	draw_circle(Vector2(-0.6, -0.6), r - 0.7, Color(BEZEL[0], alpha))   # ...luz no alto à esquerda
-	draw_circle(Vector2.ZERO, r - 1.2, Color(BEZEL[1], alpha))
-	draw_circle(Vector2.ZERO, r - 2.4, Color(Color.BLACK, alpha))
-	draw_circle(Vector2.ZERO, r - 3.0, Color(base.darkened(0.35), alpha))   # o tampo do cabo, abaulado
-	draw_circle(Vector2(-0.7, -0.7), r - 3.6, Color(base, alpha))
-	draw_circle(Vector2(-1.6, -1.6), maxf(1.0, r - 6.2), Color(hi, alpha))
+## Quanto a ponta do plug encaixado em `j` fica deslocada do encaixe: ele sai do painel na direção da câmera, que o
+## vê mais de lado quanto mais longe do ponto que ela olha reto (`PLUG_EYE`).
+func _tilt(j: int) -> Vector2:
+	return ((jack_rect(j).get_center() - PLUG_EYE) * PLUG_DEPTH).round()
+
+
+## O plug encaixado, a partir do encaixe, saindo do painel até `tilt`: as peças do plug em pé (colar niquelado, cabo de
+## baquelite com dois sulcos de pegada, ponteira mais escura), vistas na ponta e de lado (o lado virado para longe de
+## `tilt`), com a luz no alto à esquerda; o fio sai do meio da ponteira, por cima (desenhado depois). `push`: a
+## assentada, o plug afunda tantos px.
+func _draw_plug_face(col: Array, tilt: Vector2, push: float, alpha: float) -> void:
+	var base := Color(col[0], alpha)
+	var hi := Color(col[1], alpha)
+	var dark := base.darkened(0.4)
+	var ink := Color(Color.BLACK, alpha)
+	var t := tilt - tilt.normalized() * push
+	var c: Vector2 = t * PLUG_PARTS[0]   # o colar vai do painel até aqui...
+	var h: Vector2 = t * PLUG_PARTS[1]   # ...o cabo até aqui, e a ponteira até t
+	var r := PLUG_FACE_R
+	var lit := Vector2(t.y, -t.x).normalized()   # o lado virado para a luz (alto à esquerda)
+	if lit.dot(Vector2(-1, -1)) < 0.0:
+		lit = -lit
+	var back := (-t).angle()   # o meio do lado à mostra
+	# colar niquelado
+	_draw_capsule(Vector2.ZERO, c, r + 1.0, ink)
+	_draw_capsule(Vector2.ZERO, c, r, Color(BEZEL[2], alpha))
+	_draw_capsule(lit * 1.5, c + lit * 1.5, r - 1.5, Color(BEZEL[1], alpha))
+	draw_line(lit * (r - 1.0), c + lit * (r - 1.0), Color(BEZEL[0], alpha), 1.5)
+	# cabo de baquelite: escuro do lado da sombra, claro na beira virada para a luz, e os sulcos de pegada
+	_draw_capsule(c, h, r + 1.0, ink)
+	_draw_capsule(c, h, r, dark)
+	_draw_capsule(c + lit * 2.0, h + lit * 2.0, r - 2.0, base)
+	draw_line(c + lit * (r - 1.0), h + lit * (r - 1.0), hi, 2.0)
+	for f in [5.0 / 17.0, 10.0 / 17.0]:
+		var g := c.lerp(h, f)
+		draw_arc(g, r, back - PI / 2.0, back + PI / 2.0, 12, dark.darkened(0.3), 1.0)
+		draw_arc(g + t.normalized(), r, back - PI / 2.0, back + PI / 2.0, 12, Color(hi, 0.5 * alpha), 1.0)
+	# a ponta do cabo, abaulada, com o brilho no alto à esquerda
+	draw_circle(h, r, base)
+	draw_arc(h, r - 2.0, PI * 1.05, PI * 1.6, 8, hi, 2.0)
+	# ponteira de onde sai o fio
+	_draw_capsule(h, t, 5.0, ink)
+	_draw_capsule(h, t, 4.0, dark)
+	draw_circle(t, 4.0, dark)
+	draw_arc(t, 2.8, PI * 1.05, PI * 1.6, 6, base, 1.5)
+
+
+## Um cilindro visto de lado: dois círculos de raio `r` ligados por uma faixa da mesma largura.
+func _draw_capsule(a: Vector2, b: Vector2, r: float, col: Color) -> void:
+	draw_circle(a, r, col)
+	draw_circle(b, r, col)
+	draw_line(a, b, col, r * 2.0)
 
 
 ## Por cima do fio, no meio do plug encaixado: a ponteira de onde o fio sai. O fio passa por cima do tampo e chega
