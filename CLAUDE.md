@@ -223,7 +223,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (sombreado de cilindro, sulcos de pegada, ponteira de onde sai o fio), colar niquelado (`BEZEL`) e a ponta de três
   partes dos plugues de mesa (bico e anel niquelados, luva de latão, isolantes pretos); gira com o fio em passos de
   `ROT_STEP` (15°: pixel art girado torto serrilha). Encaixado, sai do painel em direção à câmera, vista de cima e da
-  esquerda (`_draw_plug_face`: as mesmas peças de em pé, colar, cabo com sulcos e ponteira, `PLUG_PARTS`, de lado e na
+  direita (`_draw_plug_face`: as mesmas peças de em pé, colar, cabo com sulcos e ponteira, `PLUG_PARTS`, de lado e na
   ponta, `PLUG_FACE_R`); com paralaxe: a ponta se desloca do encaixe mais quanto mais longe de `PLUG_EYE` (`_tilt(j)`,
   `PLUG_DEPTH`). O fio sai da ponteira (`_plug_base` = encaixe + `_tilt`; o plug encaixado é desenhado antes do fio,
   e o miolo da ponteira, `_draw_plug_cap`, depois). O aro pega a luz da lâmpada (`_plug_reflect`: na entrada, a

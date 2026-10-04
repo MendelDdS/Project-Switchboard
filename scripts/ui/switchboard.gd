@@ -67,9 +67,9 @@ const TAP_GAP := 0.12          # s: intervalo mínimo entre dois "taps" do mesmo
 const PLUG_BASE := Vector2(0, 20)   # do ponto de referência do plug (topo do corpo) até onde o fio entra nele
 ## Encaixado, de onde fica a tomada até onde o fio entra: a ponta de metal some dentro dela e o anel assenta no buraco.
 const PLUG_FACE_R := 7.0   # encaixado: o raio do colar e do cabo (14 px de largura com o contorno, como em pé)
-## Encaixado, o plug sai do painel na direção da câmera: visto de cima e da esquerda, a ponta dele fica deslocada do
-## encaixe para baixo e para a direita, e mais quanto mais longe do ponto que a câmera olha reto (paralaxe, `_tilt`).
-const PLUG_EYE := Vector2(-300, -600)   # o ponto da mesa que a câmera olha reto (fora dela, no alto à esquerda)
+## Encaixado, o plug sai do painel na direção da câmera: visto de cima e da direita, a ponta dele fica deslocada do
+## encaixe para baixo e para a esquerda, e mais quanto mais longe do ponto que a câmera olha reto (paralaxe, `_tilt`).
+const PLUG_EYE := Vector2(SIZE.x + 300, -600)   # o ponto da mesa que a câmera olha reto (fora dela, no alto à direita)
 const PLUG_DEPTH := 0.012   # px de deslocamento da ponta por px de distância do encaixe até PLUG_EYE
 ## As peças do plug encaixado, como frações do comprimento, a partir do painel: as mesmas de em pé (colar de 6 px,
 ## cabo de 17, ponteira de 4).
