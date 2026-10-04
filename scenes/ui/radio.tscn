@@ -12,18 +12,18 @@ content_margin_bottom = 6
 
 [node name="Radio" type="MarginContainer"]
 custom_minimum_size = Vector2(480, 98)
-theme_override_constants/margin_left = 12
+theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 12
+theme_override_constants/margin_right = 10
 theme_override_constants/margin_bottom = 8
 script = ExtResource("1_radio")
 
 [node name="HBox" type="HBoxContainer" parent="."]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
 
 [node name="Grill" type="ColorRect" parent="HBox"]
-custom_minimum_size = Vector2(54, 50)
+custom_minimum_size = Vector2(38, 50)
 layout_mode = 2
 size_flags_vertical = 4
 color = Color(0.05098, 0.04706, 0.03529, 1)
@@ -32,7 +32,7 @@ color = Color(0.05098, 0.04706, 0.03529, 1)
 layout_mode = 0
 offset_left = 2
 offset_top = 3
-offset_right = 52
+offset_right = 36
 offset_bottom = 6
 color = Color(0.2353, 0.2078, 0.1529, 1)
 
@@ -40,7 +40,7 @@ color = Color(0.2353, 0.2078, 0.1529, 1)
 layout_mode = 0
 offset_left = 2
 offset_top = 9
-offset_right = 52
+offset_right = 36
 offset_bottom = 12
 color = Color(0.2353, 0.2078, 0.1529, 1)
 
@@ -48,7 +48,7 @@ color = Color(0.2353, 0.2078, 0.1529, 1)
 layout_mode = 0
 offset_left = 2
 offset_top = 15
-offset_right = 52
+offset_right = 36
 offset_bottom = 18
 color = Color(0.2353, 0.2078, 0.1529, 1)
 
@@ -56,7 +56,7 @@ color = Color(0.2353, 0.2078, 0.1529, 1)
 layout_mode = 0
 offset_left = 2
 offset_top = 21
-offset_right = 52
+offset_right = 36
 offset_bottom = 24
 color = Color(0.2353, 0.2078, 0.1529, 1)
 
@@ -64,7 +64,7 @@ color = Color(0.2353, 0.2078, 0.1529, 1)
 layout_mode = 0
 offset_left = 2
 offset_top = 27
-offset_right = 52
+offset_right = 36
 offset_bottom = 30
 color = Color(0.2353, 0.2078, 0.1529, 1)
 
@@ -72,7 +72,7 @@ color = Color(0.2353, 0.2078, 0.1529, 1)
 layout_mode = 0
 offset_left = 2
 offset_top = 33
-offset_right = 52
+offset_right = 36
 offset_bottom = 36
 color = Color(0.2353, 0.2078, 0.1529, 1)
 
@@ -80,7 +80,7 @@ color = Color(0.2353, 0.2078, 0.1529, 1)
 layout_mode = 0
 offset_left = 2
 offset_top = 39
-offset_right = 52
+offset_right = 36
 offset_bottom = 42
 color = Color(0.2353, 0.2078, 0.1529, 1)
 
@@ -88,7 +88,7 @@ color = Color(0.2353, 0.2078, 0.1529, 1)
 layout_mode = 0
 offset_left = 2
 offset_top = 45
-offset_right = 52
+offset_right = 36
 offset_bottom = 48
 color = Color(0.2353, 0.2078, 0.1529, 1)
 
@@ -133,8 +133,8 @@ theme_type_variation = &"DimLabel"
 theme_override_font_sizes/font_size = 11
 
 [node name="ScreenBox" type="PanelContainer" parent="HBox/Side"]
-custom_minimum_size = Vector2(0, 66)
 layout_mode = 2
+size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_1")
 
 [node name="Screen" type="Label" parent="HBox/Side/ScreenBox"]
@@ -147,4 +147,4 @@ unique_name_in_owner = true
 clip_text = true
 autowrap_mode = 3
 theme_override_constants/line_spacing = -4
-custom_minimum_size = Vector2(0, 54)
+custom_minimum_size = Vector2(0, 40)

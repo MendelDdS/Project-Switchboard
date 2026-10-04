@@ -58,7 +58,7 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_main")
 
-[node name="Background" type="Control" parent="." unique_id=1017745606]
+[node name="Background" type="Control" parent="." unique_id=1017745606 node_paths=PackedStringArray("window")]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -68,6 +68,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("2_background")
+window = NodePath("../Layout/Columns/Right/TopRight/Window")
 
 [node name="Layout" type="MarginContainer" parent="." unique_id=206193978]
 layout_mode = 1
@@ -94,10 +95,9 @@ mouse_filter = 2
 theme_override_constants/separation = 12
 
 [node name="TopLeft" type="HBoxContainer" parent="Layout/Columns/Left" unique_id=1593524455]
-custom_minimum_size = Vector2(0, 76)
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 18
+theme_override_constants/separation = 12
 
 [node name="ClockPanel" type="MarginContainer" parent="Layout/Columns/Left/TopLeft" unique_id=1772237867]
 custom_minimum_size = Vector2(262, 74)
@@ -145,21 +145,11 @@ theme_type_variation = &"AmberButton"
 theme_override_font_sizes/font_size = 11
 text = "END_SHIFT"
 
-[node name="Title" type="VBoxContainer" parent="Layout/Columns/Left/TopLeft" unique_id=1713309677]
+[node name="Radio" parent="Layout/Columns/Left/TopLeft" unique_id=1787396286 instance=ExtResource("7_radio")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 86)
 layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 6
-
-[node name="Name" type="Label" parent="Layout/Columns/Left/TopLeft/Title" unique_id=630892992]
-layout_mode = 2
-theme_override_font_sizes/font_size = 11
-text = "GAME_TITLE"
-
-[node name="Desk" type="Label" parent="Layout/Columns/Left/TopLeft/Title" unique_id=605254917]
-layout_mode = 2
-theme_type_variation = &"DimLabel"
-theme_override_font_sizes/font_size = 11
-text = "OPERATOR_DESK"
+size_flags_horizontal = 3
 
 [node name="Board" type="Control" parent="Layout/Columns/Left" unique_id=995017339]
 unique_name_in_owner = true
@@ -179,15 +169,14 @@ mouse_filter = 2
 theme_override_constants/separation = 10
 
 [node name="TopRight" type="HBoxContainer" parent="Layout/Columns/Right" unique_id=1182082589]
-custom_minimum_size = Vector2(0, 100)
+custom_minimum_size = Vector2(0, 130)
 layout_mode = 2
 mouse_filter = 2
-alignment = 2
 
-[node name="Radio" parent="Layout/Columns/Right/TopRight" unique_id=1787396286 instance=ExtResource("7_radio")]
-unique_name_in_owner = true
+[node name="Window" type="Control" parent="Layout/Columns/Right/TopRight"]
 layout_mode = 2
-size_flags_vertical = 0
+size_flags_horizontal = 3
+mouse_filter = 2
 
 [node name="Tools" parent="Layout/Columns/Right" unique_id=343385558 instance=ExtResource("8_tools")]
 unique_name_in_owner = true

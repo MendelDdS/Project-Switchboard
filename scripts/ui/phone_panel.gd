@@ -1,7 +1,12 @@
 class_name PhonePanel
-extends Bevel
-## Telefone do operador: visor, transcrição da ligação em foco, opções de fala e os botões.
-## Mostra uma PhoneCall por vez (`show_call`) e se redesenha pelos sinais dela.
+extends MarginContainer
+## Telefone do operador, um console em cunha visto de cima e de frente: na carcaça de trás, o encaixe do FONE e a tela
+## (visor, transcrição da ligação em foco, avisos e opções de fala) e, logo abaixo dela, a fenda da barra de
+## agravamento; no deck da frente, mais baixo, o alto-falante e as teclas (`KeyCapStyle`). Mostra uma PhoneCall por vez (`show_call`) e se
+## redesenha pelos sinais dela.
+
+const INSET := 10.0     ## a carcaça abre para baixo: no alto, ela fica tanto mais estreita de cada lado
+const TOP_FACE := 9.0   ## o tampo da carcaça, visto de cima
 
 signal answer_pressed
 signal transfer_pressed
@@ -19,6 +24,9 @@ signal hangup_pressed
 @onready var _answer: Button = %Answer
 @onready var _transfer: Button = %Transfer
 @onready var _hangup: Button = %Hangup
+@onready var _screen: Control = %Screen
+@onready var _strip: Control = %Strip
+@onready var _deck: Control = %DeckBox
 
 var _call: PhoneCall
 var _disp_until := 0
@@ -30,6 +38,8 @@ func _ready() -> void:
 	_transfer.pressed.connect(transfer_pressed.emit)
 	_hangup.pressed.connect(hangup_pressed.emit)
 	set_buttons(false, false, false)
+	resized.connect(queue_redraw)
+	_deck.resized.connect(queue_redraw)
 
 
 ## Atalhos (Input Map): tratados aqui, antes da interface, porque Espaço e Tab também servem para apertar o botão
@@ -102,13 +112,16 @@ func display_text() -> String:
 	return _display.text
 
 
+## Aviso numa linha da tela, por 4 s (enquanto isso a transcrição encolhe).
 func warn(text: String) -> void:
 	_warn.text = text
+	_warn.visible = text != ""
 	_warn_gen += 1
 	var g := _warn_gen
 	await get_tree().create_timer(4.0, false).timeout
 	if g == _warn_gen:
 		_warn.text = ""
+		_warn.visible = false
 
 
 func _render_transcript() -> void:
@@ -149,3 +162,51 @@ func _sync_choices() -> void:
 	for b in _choices.get_children():
 		if b is Button and not b.is_queued_for_deletion():
 			b.disabled = _call.talking
+
+
+## A carcaça: silhueta que abre para baixo (perspectiva), tampo visto de cima, frente com a tela embutida (moldura mais
+## grossa embaixo) e a fenda da barra; a carcaça faz sombra no deck, que termina na beira da frente. Luz no alto à
+## esquerda, como no resto da mesa.
+func _draw() -> void:
+	var w := size.x
+	var h := size.y
+	var side := func(y: float) -> float: return INSET * (1.0 - y / h)   # quanto a silhueta recua de cada lado em y
+	var band := func(y0: float, y1: float, pad: float) -> PackedVector2Array:
+		return PackedVector2Array([Vector2(side.call(y0) + pad, y0), Vector2(w - side.call(y0) - pad, y0),
+			Vector2(w - side.call(y1) - pad, y1), Vector2(side.call(y1) + pad, y1)])
+	var deck_y := _box(_deck).position.y
+	draw_colored_polygon(band.call(0.0, h, 0.0), Pal.EDGE)
+	# o deck, mais baixo, e a beira da frente dele
+	draw_colored_polygon(band.call(deck_y, h - 6.0, 2.0), Pal.PANEL_LO.lightened(0.06))
+	draw_colored_polygon(band.call(h - 6.0, h - 2.0, 2.0), Pal.PANEL_LO)
+	draw_colored_polygon(band.call(h - 6.0, h - 5.0, 2.0), Pal.PANEL.lightened(0.05))
+	# a carcaça da tela: frente e tampo
+	draw_colored_polygon(band.call(2.0, deck_y, 2.0), Pal.PANEL)
+	draw_colored_polygon(band.call(2.0, TOP_FACE, 2.0), Pal.PANEL_HI)
+	draw_colored_polygon(band.call(TOP_FACE, TOP_FACE + 1.0, 2.0), Pal.PANEL_HI.lightened(0.12))   # a aresta pega a luz
+	draw_colored_polygon(band.call(deck_y - 2.0, deck_y, 2.0), Pal.PANEL_LO)   # a base da carcaça, na sombra
+	# a tela embutida: moldura (mais grossa embaixo) e o rebaixo
+	var scr := _box(_screen)
+	draw_rect(scr.grow_individual(6, 5, 6, 9), Color("221e17"))
+	draw_rect(Rect2(scr.position.x - 6, scr.end.y + 8, scr.size.x + 12, 1), Pal.PANEL_HI)   # luz na beira de baixo
+	draw_rect(scr.grow(2), Color.BLACK)
+	draw_rect(Rect2(scr.position - Vector2(2, 2), Vector2(scr.size.x + 4, 1)), Pal.PANEL_LO)
+	# a fenda da barra de agravamento
+	var slot := _box(_strip).grow_individual(-8, -4, -8, -2)
+	draw_rect(slot, Color.BLACK)
+	draw_rect(slot.grow(-1), Color("0c0b08"))
+	draw_rect(Rect2(slot.position.x, slot.end.y, slot.size.x, 1), Pal.PANEL_HI)
+	# o alto-falante, à esquerda das teclas: grade de frestas no deck
+	var grill := Rect2(_box(_deck).position + Vector2(12, 16), Vector2(96, 30))
+	draw_rect(grill.grow(1), Pal.PANEL_LO)
+	for i in 6:
+		draw_rect(Rect2(grill.position.x + 2, grill.position.y + 2 + i * 5, grill.size.x - 4, 2), Color("050403"))
+		draw_rect(Rect2(grill.position.x + 2, grill.position.y + 4 + i * 5, grill.size.x - 4, 1), Pal.PANEL.lightened(0.08))
+	# a sombra da carcaça no deck
+	for i in 4:
+		draw_colored_polygon(band.call(deck_y + i * 2.0, deck_y + i * 2.0 + 2.0, 2.0), Color(0, 0, 0, 0.32 - i * 0.08))
+
+
+## O retângulo de um nó de dentro, nas coordenadas do painel.
+func _box(n: Control) -> Rect2:
+	return Rect2(n.global_position - global_position, n.size)

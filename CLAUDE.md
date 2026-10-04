@@ -10,7 +10,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Tudo em português: textos da interface, falas, comentários (`##` para doc de função) e mensagens ao usuário.
 - **Interface em cenas** (`scenes/`), com Containers; scripts de interface em `scripts/ui/`. Lógica em `scripts/`.
   Estilo visual no tema global `themes/main_theme.tres` (variações de tipo: `GreenButton`, `AmberButton`,
-  `RedButton`, `InkButton`, `DarkButton`, `ChoiceButton`, `TabButton`, `PaperToggle`, `PaperInk`, `LetterButton`,
+  `RedButton`, `InkButton`, `DarkButton`, `ChoiceButton`, `GreenKey`, `AmberKey`, `RedKey` (teclas do console:
+  `KeyCapStyle`, um StyleBox em script, `scripts/ui/key_cap_style.gd`), `TabButton`, `PaperToggle`, `PaperInk`, `LetterButton`,
   `DarkPanel`, `PaperPanel`, `NotePanel`, `FormPanel`, `SlipPanel`, `InkLabel`, `InkSoftLabel`, `DimLabel`, `AmberLabel`,
   `MonoLabel`, `InkMonoLabel`). Prefira variação de tema a override por nó.
 - Nomes de pessoas e lugares na ordem natural, "Nome Sobrenome" (nunca "Sobrenome, Nome"); a lista telefônica
@@ -55,6 +56,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   um aviso que quebrava linha a fazia transbordar e o telefone ficava esticado, empurrando a tela para fora); o brilho da luminária (`%Glow`) tem 1280×720, preso à direita;
   as abas crescem na altura; a lista telefônica, o mapa e o caderno acompanham o tamanho da aba (`PhoneBook.book`,
   `NOTIFICATION_RESIZED`); o `Background` estica parede e mesa até a borda (luminária presa à direita).
+  No alto da esquerda, o relógio e o rádio (`TopLeft`, 86 px; o rádio tem só 314 de largura, então o cabeçalho e a
+  grade dele não podem crescer). No alto da direita só a janela (`TopRight`, 130 px; `Window`, um Control vazio que
+  cresce com a largura, e `Background.window` desenha a janela nele, com as medidas relativas ao vidro). As duas colunas
+  têm 701 px na base: a da direita pede 650 (abas com mínimo 420; lista e caderno, 384) e a da esquerda pede até 694
+  (com 3 fileiras de opções e um aviso no telefone). Passando de 701, a tela inteira sobe e o relógio sai por cima.
 - **Bloom das luzes** (`Bloom`, `scripts/ui/bloom.gd`, nó `Bloom` do Main, z 2: acima da mesa e dos painéis, abaixo dos
   menus), no estilo do glow de cinema e em pixel art: halo somado à tela (blend ADD) em duas camadas (curta e forte,
   longa e fraca), desenhado em blocos de `BLOCK` px com poucos degraus e pontilhado ordenado (`_halo_for`, guardado por
@@ -86,7 +92,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (Espaço), `transfer_call` (Tab), `hang_up` (X), tratadas em `PhonePanel._input` **antes da interface** (Espaço e
   Tab também apertam o botão em foco e passam o foco; por isso não dá para usar `Button.shortcut`). Só com o botão
   ativo; na pausa não valem; com um campo de texto em foco a tecla fica com ele. A tecla aparece no canto do botão
-  (Label `Key`; "Espaço" traduzido, `KEY_SPACE`). Abas: ações `tab_directory`/`tab_dispatch`/`tab_logbook` (1, 2, 3),
+  (Label `Key`; "Espaço" traduzido, `KEY_SPACE`; o nome do botão fica à esquerda para não encostar nela). Abas: ações `tab_directory`/`tab_dispatch`/`tab_logbook` (1, 2, 3),
   tratadas em `Main._unhandled_input` só durante o turno (`Main.TAB_KEYS`); o número fica no canto da aba.
 - **Pausa e configurações**: `PauseMenu` (`scenes/ui/pause_menu.tscn`, z 4, `process_mode` ALWAYS) usa
   `get_tree().paused`. **Todo `create_timer` do jogo leva `false` no 2º argumento** (senão continua contando na pausa);
@@ -167,7 +173,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   escuta. `scripts/model/exchange.gd` (`Exchange`) — **dono único** do estado das linhas e destinos (enums `Line`, `Dest`).
 - `scripts/data/*.gd` — classes de Resource do conteúdo; `scripts/game_data.gd` (`GameData`) — acesso ao
   `content.tres` (`CONTENT`, `entry()`, `street()`, `transfers()`, `pick()`...).
-- `scenes/ui/*.tscn` + `scripts/ui/*.gd` — telefone (`PhonePanel`, `FoneSocket`), rádio, abas (`Tools`) com lista
+- `scenes/ui/*.tscn` + `scripts/ui/*.gd` — telefone (`PhonePanel`: console em cunha desenhado no `_draw`, com o encaixe
+  do FONE e a tela na carcaça, a fenda da barra e, no deck da frente, o alto-falante e as teclas; avisos numa linha da
+  tela, `%Warn`; `FoneSocket`), rádio, abas (`Tools`) com lista
   (`PhoneBook`), mapa e despacho (`Dispatch` + `CityMap`, dono das unidades e da ocorrência) e caderno
   (`Notebook`, fila de ocorrências); `Intro`, `Ending`; widgets desenhados (`Switchboard`,
   `Background`, `Bevel`, scanlines).
@@ -211,8 +219,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   cada ponta desenha fio e plug juntos, para o fio mais recente passar por cima dos plugs das outras.
 - Layout da mesa (`SIZE` 588×334, também em `main.tscn`): coluna de cada linha em `ROW_Y` (plaquinha de metal com o número
   gravado, `_draw_number_plate`; estado; lâmpada; entrada; saída), todos os encaixes com `JACK` px, bancos de destino em
-  `DEST_TOP`/`DEST_ROW`, cabos e legenda embaixo. Mexendo na altura, confira com uma ligação atendida e duas fileiras de
-  opções que a coluna da esquerda ainda cabe em 720.
+  `DEST_TOP`/`DEST_ROW`, cabos e legenda embaixo. Mexendo na altura, confira com uma emergência atendida, três fileiras de
+  opções e um aviso que a coluna da esquerda ainda cabe em 701.
 - Chapas de metal niquelado (`_draw_metal`: chanfro e rebites) nas plaquinhas dos números e na base dos cabos, cujos
   furos são buchas redondas (`_draw_jack` pequeno); o encaixe do FONE (`FoneSocket`) é uma chapa com berço de latão.
 - Encaixes redondos como os originais (`_draw_jack`: bucha de metal com aba chanfrada, parede de dentro rebaixada e o
@@ -337,7 +345,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   gravíssima (`CRITICAL`, pesa `CRITICAL_WEIGHT` graves). Entre noites só as graves somam
   (`severe_before`, salvas no `Progress`; `SEVERE_LIMIT` = demissão).
 - **Barra de agravamento** (nó `Urgency`, `scripts/urgency.gd`: `tick` a cada quadro do turno; estado em `PhoneCall.stage`/`urgency`/`asking`/`secured`, regra em
-  `PhoneCall.urgent()`, desenho em `UrgencyBar` dentro da caixa do chat, só com o operador na linha; fora dela, o rádio
+  `PhoneCall.urgent()`, desenho em `UrgencyBar` na fenda do console do telefone, embaixo da tela (`%Strip`), só com o operador na linha; fora dela, o rádio
   inteiro acende: `Radio.alert(stage, away)`, moldura pulsando e aviso na tela; a luz "Ocorrência" acende sempre;
   a cada troca de estágio, `Radio.chirp` toca `radio_alert` vindo do rádio, mais agudo quanto pior): corre desde o atendimento, também em espera e depois de a pessoa desligar; para durante
   pergunta e resposta (`Conversation._em_ask`) e na pausa; para de vez só quando o socorro completo sai para o lugar
@@ -508,6 +516,12 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 29. Ficha de despacho como cartão perfurado: marcar o local imprime o cartão (digitação e impressora antiga), o
     jogador perfura tipo e unidades em posições fixas e leva o cartão ao transmissor (canto de baixo à esquerda), que o puxa e
     envia, mesmo incompleto (o supervisor pune); a trituradora, embaixo da impressora, descarta o cartão.
+30. Plug encaixado em perspectiva (visto de cima e da direita, com paralaxe por encaixe), com as peças do plug em pé,
+    sombra pela profundidade, fio saindo no eixo e furos vazios com a mesma paralaxe. Janela maior, ao lado do rádio,
+    no alto da direita (abas mais baixas), preparando mais detalhes na janela e na mesa.
+31. Telefone como console em cunha (tela embutida na carcaça, fenda da barra de agravamento, teclas de verdade no deck)
+    e rádio ao lado do relógio; a janela ocupa todo o alto da direita e as abas (o mapa) ficaram mais altas. O título
+    "Central de São Sotero · Operador noturno" saiu da tela (a introdução da noite já mostra).
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

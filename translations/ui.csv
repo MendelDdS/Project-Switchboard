@@ -31,7 +31,6 @@ SHIFT_HOURS,"Turno
 18:00–00:00","Shift
 18:00–00:00","Turno
 18:00–00:00"
-OPERATOR_DESK,Operador noturno · mesa 1,Night operator · desk 1,Operador nocturno · mesa 1
 BOARD_TITLE,MESA COMUTADORA,SWITCHBOARD,CONMUTADOR
 BOARD_LEGEND,ENTRADA (fone)  ·  SAÍDA (cabo de conexão),INPUT (headset)  ·  OUTPUT (patch cord),ENTRADA (auricular)  ·  SALIDA (cable de conexión)
 BOARD_CORD,CABO %d,CORD %d,CABLE %d
