@@ -20,6 +20,10 @@ extends Resource
 ## vale para todas as noites depois de chegar nele.
 @export var paces: Array[Pace] = []
 
+@export_group("Sala")
+## O que muda na sala do operador ao longo das noites, pelos marcadores do roteiro.
+@export var room: Array[RoomChange] = []
+
 @export_group("Roteiros")
 @export var transfers: Array[TransferCall] = []
 @export var emergencies: Array[EmergencyCall] = []

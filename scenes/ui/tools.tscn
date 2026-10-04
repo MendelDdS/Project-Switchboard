@@ -5,6 +5,8 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/dispatch.tscn" id="4_dispatch"]
 [ext_resource type="PackedScene" path="res://scenes/ui/notebook.tscn" id="5_notebook"]
 [ext_resource type="Script" path="res://scripts/ui/call_log.gd" id="6_call_log"]
+[ext_resource type="Script" path="res://scripts/ui/news_view.gd" id="7_news"]
+[ext_resource type="Script" path="res://scripts/ui/paper_deco.gd" id="8_deco"]
 
 [node name="Tools" type="VBoxContainer"]
 custom_minimum_size = Vector2(620, 0)
@@ -166,3 +168,43 @@ theme_override_colors/default_color = Color(0.1647, 0.1373, 0.098, 1)
 theme_override_font_sizes/normal_font_size = 11
 theme_override_constants/line_separation = 3
 script = ExtResource("6_call_log")
+
+[node name="News" type="VBoxContainer" parent="Body/Paper/Margin"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 6
+script = ExtResource("7_news")
+
+[node name="Masthead" type="Label" parent="Body/Paper/Margin/News"]
+layout_mode = 2
+theme_type_variation = &"InkLabel"
+theme_override_font_sizes/font_size = 44
+text = "NEWS_MASTHEAD"
+horizontal_alignment = 1
+
+[node name="Edition" type="Label" parent="Body/Paper/Margin/News"]
+layout_mode = 2
+theme_type_variation = &"InkSoftLabel"
+theme_override_font_sizes/font_size = 11
+horizontal_alignment = 1
+auto_translate_mode = 2
+
+[node name="Rule" type="ColorRect" parent="Body/Paper/Margin/News"]
+custom_minimum_size = Vector2(0, 3)
+layout_mode = 2
+color = Color(0.1647, 0.1373, 0.098, 1)
+
+[node name="Headlines" type="RichTextLabel" parent="Body/Paper/Margin/News"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+theme_override_colors/default_color = Color(0.1647, 0.1373, 0.098, 1)
+theme_override_font_sizes/normal_font_size = 11
+theme_override_constants/line_separation = 3
+
+[node name="Deco" type="Control" parent="Body/Paper"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("8_deco")

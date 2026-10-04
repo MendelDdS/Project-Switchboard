@@ -2,8 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dyd15jajt0b05" path="res://scripts/main.gd" id="1_main"]
 [ext_resource type="Script" uid="uid://23exvygvq27c" path="res://scripts/ui/background.gd" id="2_background"]
-[ext_resource type="Script" uid="uid://c3hot4aevrqd3" path="res://scripts/ui/bevel.gd" id="3_bevel"]
-[ext_resource type="FontFile" uid="uid://bixnphjx77akg" path="res://fonts/DepartureMono-Regular.otf" id="4_vt323_regula"]
+[ext_resource type="Script" path="res://scripts/ui/wall_clock.gd" id="40_wall_clock"]
 [ext_resource type="Script" uid="uid://c4782kn03vt5j" path="res://scripts/ui/switchboard.gd" id="5_switchboard"]
 [ext_resource type="PackedScene" path="res://scenes/ui/phone_panel.tscn" id="6_phone_panel"]
 [ext_resource type="PackedScene" path="res://scenes/ui/radio.tscn" id="7_radio"]
@@ -18,9 +17,6 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/ending.tscn" id="12_ending"]
 [ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="20_pause"]
 [ext_resource type="PackedScene" path="res://scenes/ui/debug_panel.tscn" id="21_debug"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
-bg_color = Color(0.07059, 0.05098, 0.02745, 1)
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_4"]
 blend_mode = 1
@@ -108,47 +104,33 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 12
 
-[node name="ClockPanel" type="MarginContainer" parent="Layout/Rows/Columns/Left/TopLeft" unique_id=1772237867]
-custom_minimum_size = Vector2(262, 52)
+[node name="WallClock" type="Control" parent="Layout/Rows/Columns/Left/TopLeft"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(52, 52)
 layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 5
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 5
-script = ExtResource("3_bevel")
+mouse_filter = 2
+script = ExtResource("40_wall_clock")
 
-[node name="HBox" type="HBoxContainer" parent="Layout/Rows/Columns/Left/TopLeft/ClockPanel" unique_id=983769548]
+[node name="ShiftPlate" type="PanelContainer" parent="Layout/Rows/Columns/Left/TopLeft"]
 layout_mode = 2
-theme_override_constants/separation = 12
+size_flags_vertical = 4
+theme_type_variation = &"BrassPanel"
 
-[node name="Face" type="PanelContainer" parent="Layout/Rows/Columns/Left/TopLeft/ClockPanel/HBox" unique_id=1453626566]
-custom_minimum_size = Vector2(118, 42)
+[node name="HBox" type="HBoxContainer" parent="Layout/Rows/Columns/Left/TopLeft/ShiftPlate"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_1")
+theme_override_constants/separation = 10
 
-[node name="Clock" type="Label" parent="Layout/Rows/Columns/Left/TopLeft/ClockPanel/HBox/Face" unique_id=810197929]
+[node name="ShiftHours" type="Label" parent="Layout/Rows/Columns/Left/TopLeft/ShiftPlate/HBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9529, 0.6588, 0.2353, 1)
-theme_override_fonts/font = ExtResource("4_vt323_regula")
-theme_override_font_sizes/font_size = 33
-text = "18:00"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="ShiftHours" type="Label" parent="Layout/Rows/Columns/Left/TopLeft/ClockPanel/HBox" unique_id=1473044362]
-unique_name_in_owner = true
-layout_mode = 2
-theme_type_variation = &"DimLabel"
+theme_type_variation = &"InkLabel"
 theme_override_font_sizes/font_size = 11
 text = "SHIFT_HOURS"
 
-[node name="EndShift" type="Button" parent="Layout/Rows/Columns/Left/TopLeft/ClockPanel/HBox"]
+[node name="EndShift" type="Button" parent="Layout/Rows/Columns/Left/TopLeft/ShiftPlate/HBox"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-size_flags_horizontal = 3
 size_flags_vertical = 4
 theme_type_variation = &"AmberButton"
 theme_override_font_sizes/font_size = 11

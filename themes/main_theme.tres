@@ -714,17 +714,32 @@ pressed = false
 hover = false
 off = true
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_brass"]
+content_margin_left = 10.0
+content_margin_top = 5.0
+content_margin_right = 10.0
+content_margin_bottom = 5.0
+bg_color = Color(0.62, 0.5, 0.27, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 2
+border_color = Color(0.16, 0.12, 0.06, 1)
+shadow_color = Color(0, 0, 0, 0.35)
+shadow_size = 1
+shadow_offset = Vector2(2, 2)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hud"]
 content_margin_left = 10.0
 content_margin_top = 7.0
 content_margin_right = 10.0
 content_margin_bottom = 7.0
-bg_color = Color(0.043, 0.047, 0.05, 0.94)
+bg_color = Color(0.043, 0.047, 0.05, 1)
 border_width_left = 2
-border_width_top = 2
+border_width_top = 3
 border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.2, 0.2, 0.19, 1)
+border_width_bottom = 1
+border_color = Color(0.1, 0.07, 0.045, 1)
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
@@ -953,5 +968,7 @@ RedKey/styles/hover = SubResource("KeyCap_Red_hover")
 RedKey/styles/hover_pressed = SubResource("KeyCap_Red_pressed")
 RedKey/styles/normal = SubResource("KeyCap_Red_normal")
 RedKey/styles/pressed = SubResource("KeyCap_Red_pressed")
+BrassPanel/base_type = &"PanelContainer"
+BrassPanel/styles/panel = SubResource("StyleBoxFlat_brass")
 HudPanel/base_type = &"PanelContainer"
 HudPanel/styles/panel = SubResource("StyleBoxFlat_hud")

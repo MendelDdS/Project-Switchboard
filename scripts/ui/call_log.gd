@@ -3,8 +3,12 @@ extends RichTextLabel
 ## Registro das conversas da noite, para consulta: tudo o que foi dito com o FONE na linha, ligação por ligação, na
 ## ordem em que tocaram (o telefone mostra só as últimas falas da ligação em foco). Lê as transcrições das próprias
 ## ligações (`track`) e se refaz quando alguma muda, no máximo uma vez por quadro e só aberto: as falas chegam letra a
-## letra.
+## letra. Conversa que terminou com ele guardado fica "não lida" (`filed`, `unread_changed`: a folha nova na prancheta
+## da mesa) até abri-lo.
 
+signal unread_changed(on: bool)
+
+var unread := false
 var _calls: Array[PhoneCall] = []
 var _dirty := false
 
@@ -23,9 +27,23 @@ func _notification(what: int) -> void:
 
 
 func _process(_delta: float) -> void:
-	if _dirty and is_visible_in_tree():
-		_dirty = false
-		_render()
+	if is_visible_in_tree():
+		_set_unread(false)
+		if _dirty:
+			_dirty = false
+			_render()
+
+
+## A ligação `c` terminou (o Main avisa): a conversa dela vai para o registro como folha nova, se houve conversa.
+func filed(c: PhoneCall) -> void:
+	if c in _calls and not c.transcript.is_empty() and not is_visible_in_tree():
+		_set_unread(true)
+
+
+func _set_unread(on: bool) -> void:
+	if on != unread:
+		unread = on
+		unread_changed.emit(on)
 
 
 func _render() -> void:

@@ -157,6 +157,9 @@ TAB_DIRECTORY,Lista telefônica,Phone directory,Guía telefónica
 TAB_DISPATCH,Mapa e despacho,Map & dispatch,Mapa y despacho
 TAB_LOGBOOK,Caderno,Logbook,Cuaderno
 TAB_CALL_LOG,Registro,Call log,Registro
+TAB_NEWS,Jornal da manhã,Morning paper,Diario de la mañana
+NEWS_MASTHEAD,Gazeta de São Sotero,Gazeta de São Sotero,Gazeta de São Sotero
+NEWS_EDITION,Edição da manhã · %s,Morning edition · %s,Edición de la mañana · %s
 BOOK_BACK,◀ Voltar,◀ Back,◀ Atrás
 BOOK_TURN,Virar ▶,Turn ▶,Pasar ▶
 BOOK_NOTES,Anotações,Notes,Notas

@@ -3,9 +3,12 @@ extends MarginContainer
 ## Painel de baixo, do operador: a ligação em foco (linha, situação, visor e a barra de agravamento), a conversa (só as
 ## últimas `LINES` falas; o registro inteiro fica na ferramenta Registro, `CallLog`), avisos e opções de fala, as teclas
 ## (`KeyCapStyle`), o destino ligado à saída da linha e as outras linhas. Mostra uma PhoneCall por vez (`show_call`) e
-## se redesenha pelos sinais dela.
+## se redesenha pelos sinais dela. É um console embutido na frente da mesa (`_draw`: a madeira de borda a borda, logo
+## abaixo da borda do tampo); os blocos são telas e chapas encaixadas nela, e a tela da conversa apaga sem ligação
+## (`ScreenGlass`).
 
 const LINES := 3   ## falas da ligação em foco no painel
+const WOOD := [Color("6b4529"), Color("4a2f1c"), Color("2a1a0f"), Color("3a2616")]   ## luz, meio, sombra, a frente da mesa
 
 signal answer_pressed
 signal transfer_pressed
@@ -24,6 +27,7 @@ signal hangup_pressed
 @onready var _hangup: Button = %Hangup
 @onready var _dest: Label = %Dest
 @onready var _dest_state: Label = %DestState
+@onready var _glass: ScreenGlass = %Glass
 
 var _call: PhoneCall
 var _disp_until := 0
@@ -72,8 +76,29 @@ func show_call(c: PhoneCall) -> void:
 		c.transcript_changed.connect(_render_transcript)
 		c.options_changed.connect(_render_choices)
 		c.state_changed.connect(_sync_choices)
+	_glass.off = c == null
 	_render_transcript()
 	_render_choices()
+
+
+## O corpo do console: a frente de madeira da mesa, de uma borda da tela à outra, com o veio na horizontal, a quina do
+## tampo pegando a luz no alto e os parafusos de latão que prendem o painel.
+func _draw() -> void:
+	var r := Rect2(Vector2(-global_position.x, -8), Vector2(get_viewport_rect().size.x, size.y + 40))
+	draw_rect(r, WOOD[3])
+	for i in int(r.size.y / 5.0):   # o veio
+		var y := r.position.y + 6 + i * 5
+		var x := r.position.x + fmod(i * 173.0, 90.0)
+		while x < r.end.x:
+			draw_rect(Rect2(x, y + (int(x) / 7) % 2, 40 + int(x * 0.37) % 70, 1), WOOD[2] if (i + int(x)) % 3 else WOOD[1])
+			x += 150 + int(x * 0.13) % 60
+	draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), WOOD[0])   # a quina do tampo
+	draw_rect(Rect2(r.position + Vector2(0, 1), Vector2(r.size.x, 2)), WOOD[1])
+	draw_rect(Rect2(r.position + Vector2(0, 3), Vector2(r.size.x, 1)), WOOD[2])
+	for p in [Vector2(-12, 6), Vector2(size.x + 12, 6), Vector2(-12, size.y - 6), Vector2(size.x + 12, size.y - 6)]:
+		draw_circle(p, 3.0, Color("1a120c"))
+		draw_circle(p, 2.0, Color("b49a5a"))
+		draw_line(p - Vector2(1.5, 0), p + Vector2(1.5, 0), Color("5a4a2a"), 1.0)
 
 
 func shown() -> PhoneCall:

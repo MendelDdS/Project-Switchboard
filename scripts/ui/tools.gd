@@ -2,24 +2,29 @@ class_name Tools
 extends VBoxContainer
 ## Ferramentas à direita da mesa: lista telefônica, mapa e despacho (uma aba só), caderno e o registro das conversas.
 ## Ficam guardadas e a janela aparece no lugar delas; os objetos da mesa (`Background.prop_clicked`) ou as teclas 1 a 4
-## (Main.TAB_KEYS; o número fica no canto da aba) abrem a ferramenta, que desliza sobre a janela como um papel posto
-## na mesa, com as abas de papel para trocar de uma para outra (guardadas, as abas somem: os objetos já dizem o mesmo).
-## A tecla da aberta ou Esc guardam.
+## (Main.TAB_KEYS; o número fica no canto da aba) abrem a ferramenta: o papel sai do objeto dela na mesa (`origin`) e
+## vem para a frente do operador, com a forma do objeto (`PaperDeco`), e volta para ele ao guardar; com uma aberta, as
+## abas de papel trocam de uma para outra (guardadas, as abas somem: os objetos já dizem o mesmo).
+## A tecla da aberta ou Esc guardam. O jornal da manhã (`news`) também abre aqui, só pelo objeto da mesa: não tem aba.
 
 const TABS := {"lista": "%TabLista", "despacho": "%TabDespacho", "caderno": "%TabCaderno", "registro": "%TabRegistro"}
-const SLIDE_SEC := 0.16
+const SLIDE_SEC := 0.2
+const PAPER_TINT := {"jornal": Color("d6d3cc")}   ## papel de outra cor (o do jornal é acinzentado)
 
 @onready var book: PhoneBook = %PhoneBook
 @onready var dispatch: Dispatch = %Dispatch
 @onready var notebook: Notebook = %Notebook
 @onready var call_log: CallLog = %CallLog
+@onready var news: NewsView = %News
 @onready var body: Control = %Body   ## onde a ferramenta aberta fica (e, guardada, a janela aparece)
 @onready var _paper: Control = %Paper
 @onready var _bar: Control = $TabBar
-@onready var _views := {"lista": book, "despacho": dispatch, "caderno": notebook, "registro": call_log}
+@onready var _deco: PaperDeco = %Deco
+@onready var _views := {"lista": book, "despacho": dispatch, "caderno": notebook, "registro": call_log, "jornal": news}
 
 var tab := "lista"   ## a última aberta
 var open := false
+var origin: Callable   ## id -> Rect2 global do objeto da mesa daquela ferramenta (o Main liga; vazio: desliza da direita)
 var _slide: Tween
 
 
@@ -39,7 +44,9 @@ func set_tab(id: String) -> void:
 	tab = id
 	if not open:
 		open = true
-		_slide_to(0.0)
+		_apply()
+		_move(true)
+		return
 	_apply()
 
 
@@ -56,7 +63,7 @@ func close() -> void:
 		return
 	open = false
 	Sfx.play("page")
-	_slide_to(body.size.x)
+	_move(false)
 	_apply()
 
 
@@ -67,18 +74,33 @@ func set_count(id: String, n: int) -> void:
 	c.visible = n > 0
 
 
-## O papel desliza da direita (x = largura da área) até o lugar (x = 0), ou volta; guardado, some.
-func _slide_to(x: float) -> void:
+## O papel sai do objeto da ferramenta na mesa (pequeno, em cima dele) e vem para o lugar, ou volta para ele e some.
+## Sem objeto (`origin` vazio ou sem lugar), desliza da direita.
+func _move(opening: bool) -> void:
 	if _slide:
 		_slide.kill()
+	var from: Rect2 = origin.call(tab) if origin.is_valid() else Rect2()
+	var away_pos := Vector2(body.size.x, 0)
+	var away_scale := Vector2.ONE
+	if from.has_area():
+		var s := clampf(from.size.x / maxf(1.0, body.size.x), 0.05, 1.0)
+		away_scale = Vector2(s, s)
+		away_pos = from.get_center() - body.global_position - body.size * s / 2.0
 	_paper.visible = true
-	if x == 0.0 and _paper.position.x == 0.0:
-		_paper.position.x = body.size.x
-	_slide = create_tween()
-	_slide.tween_property(_paper, "position:x", x, SLIDE_SEC).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	_slide.parallel().tween_property(_bar, "modulate:a", 1.0 if x == 0.0 else 0.0, SLIDE_SEC)
-	if x != 0.0:
-		_slide.tween_callback(func(): _paper.visible = false)
+	if opening:
+		_paper.position = away_pos
+		_paper.scale = away_scale
+		_paper.modulate.a = 0.4
+	_slide = create_tween().set_parallel().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT if opening else Tween.EASE_IN)
+	_slide.tween_property(_paper, "position", Vector2.ZERO if opening else away_pos, SLIDE_SEC)
+	_slide.tween_property(_paper, "scale", Vector2.ONE if opening else away_scale, SLIDE_SEC)
+	_slide.tween_property(_paper, "modulate:a", 1.0 if opening else 0.4, SLIDE_SEC)
+	_slide.tween_property(_bar, "modulate:a", 1.0 if opening else 0.0, SLIDE_SEC)
+	if not opening:
+		_slide.chain().tween_callback(func():
+			_paper.visible = false
+			_paper.scale = Vector2.ONE
+			_paper.position = Vector2.ZERO)
 
 
 func _apply() -> void:
@@ -92,4 +114,7 @@ func _apply() -> void:
 		b.custom_minimum_size.y = 40.0 if on else 34.0   # a aba aberta fica mais alta
 		# a tecla do atalho no canto: tinta no papel da aba aberta, apagada nas outras
 		(b.get_node("Key") as Label).add_theme_color_override("font_color", Pal.INK_SOFT if on else Pal.DIM)
+	for id in _views:
 		_views[id].visible = id == tab
+	_deco.kind = tab
+	_paper.self_modulate = PAPER_TINT.get(tab, Color.WHITE)

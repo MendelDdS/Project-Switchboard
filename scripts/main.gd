@@ -30,7 +30,10 @@ var pace_level := 1                ## nível de ritmo desta noite (GameContent.p
 var force_sectors: Array = []      ## testes: setores atendidos (vazio = os da noite, GameData.SECTOR_NIGHTS)
 var pace: Pace                     ## ritmo das ligações sorteadas desta noite
 var progress: Progress             ## progresso salvo; nulo quando a noite foi forçada (testes, `--night`)
-var flags := StoryFlags.new()      ## marcadores do roteiro valendo agora: os salvos + os desta noite
+var flags: StoryFlags:             ## marcadores do roteiro valendo agora: os salvos + os desta noite (mudam a sala)
+	set(v):
+		flags = v
+		flags.changed.connect(func(_n: String, _on: bool): _update_room())
 var weather := "rain"
 var report := ShiftReport.new()    ## advertências do turno, conferidas pelo supervisor no fim do turno
 var minutes := 0.0
@@ -60,7 +63,7 @@ var _taught_bank := false
 var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o silêncio na linha (PhoneCall.last_talk)
 
 @onready var background: Background = %Background
-@onready var clock: Label = %Clock
+@onready var _wall_clock: WallClock = %WallClock
 @onready var _end_shift: Button = %EndShift
 @onready var _shift_hours: Label = %ShiftHours
 @onready var board: Switchboard = %Board
@@ -79,6 +82,10 @@ var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o
 @onready var _pause: PauseMenu = %PauseMenu
 
 
+func _init() -> void:
+	flags = StoryFlags.new()
+
+
 ## A noite (e os setores dela) vem antes dos filhos ficarem prontos: a lista telefônica monta as páginas no `_ready`.
 func _enter_tree() -> void:
 	_load_night()
@@ -91,8 +98,8 @@ func _ready() -> void:
 		if a.begins_with("--weather=") and a.get_slice("=", 1) in WEATHERS:
 			weather = a.get_slice("=", 1)
 	background.weather = weather
-	clock.add_to_group("bloom")   # o visor do relógio brilha, de leve
-	clock.set_meta("bloom", 0.35)
+	background.night = night_no
+	_update_room()
 	exchange = Exchange.new(GameData.board_numbers())
 	board.setup(exchange, %FoneSocket, %CordTray)
 	var plan := Schedule.build(night, pace, LAST_CALL)
@@ -116,8 +123,12 @@ func _ready() -> void:
 	dispatch.blank_card.connect(func(loc: String): supervisor.fault("dispatch_blank", loc))
 	notebook.registered.connect(supervisor.on_registered)
 	notebook.pending_changed.connect(func(n: int): tools.set_count("caderno", n); background.pending = n)
+	tools.call_log.unread_changed.connect(func(on: bool): background.unread = on)
+	tools.origin = background.prop_rect   # o papel de cada ferramenta sai do objeto dela na mesa
 	background.prop_clicked.connect(func(id: String): if running and not ending: tools.set_tab(id))   # objetos da cena
 	_intro.setup(night_no, night, progress != null and progress.night > 1)
+	if progress != null and night_no > 1:   # o jornal da manhã, com o que aconteceu na noite anterior
+		set_news(progress.news)
 	# noite de entrega de um setor: o mapa se abre para o bairro novo na primeira vez que aparece
 	var before := GameData.sectors_for(night_no - 1)
 	if force_sectors.is_empty() and night_no > 1 and before.size() < GameData.sectors.size():
@@ -209,11 +220,11 @@ func _process(delta: float) -> void:
 				hint(T.text(T.Key.HINT_MIDNIGHT))
 		_end_shift.visible = after and minutes >= LAST_CALL and not ending
 		_shift_hours.visible = not _end_shift.visible
-		clock.text = fmt(minutes)
+		_wall_clock.minutes = SHIFT_START_HOUR * 60 + minutes
 		_nag()
 		supervisor.check_hold()
 	background.flick = flick
-	background.clock_min = SHIFT_START_HOUR * 60 + minutes
+	background.alert = em_call.stage if em_call != null and em_call.urgent() else -1
 	_glow.modulate.a = background.lamp_level
 
 
@@ -763,12 +774,30 @@ func hangup() -> void:
 	end_call(c, PhoneCall.End.OPERATOR)
 
 
+## A sala do operador nesta noite: os detalhes do cenário cujos marcadores batem (`GameContent.room`).
+func _update_room() -> void:
+	if not is_node_ready():   # os marcadores salvos entram antes do cenário existir; o `_ready` chama de novo
+		return
+	var on := PackedStringArray()
+	for r in C.room:
+		if night_no >= r.from_night and flags.allows(r.requires):
+			on.append(r.detail)
+	background.details = on
+
+
+## Põe na mesa o jornal da manhã com as manchetes `news` (`ShiftReport.news` da noite anterior).
+func set_news(news: Array) -> void:
+	tools.news.show_news(news, night.weekday)
+	background.news = true
+
+
 # ================================================================ fim de ligação
 
 func end_call(c: PhoneCall, reason: PhoneCall.End) -> void:
 	if c.ended:
 		return
 	c.ended = true
+	tools.call_log.filed(c)
 	c.active = false
 	c.ringing = false
 	c.on_line = false
@@ -935,6 +964,7 @@ func start_ending() -> void:
 			progress.pace = Pace.next(pace_level, night_no, report.verdict())
 			progress.severe = report.severe_total()
 			progress.flags = flags.names()
+			progress.news = report.news()
 			progress.save()
 	await get_tree().create_timer(5.0, false).timeout
 	_ending.play(report, not last)

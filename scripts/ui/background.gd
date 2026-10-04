@@ -1,10 +1,10 @@
 class_name Background
 extends Control
 ## O cenário atrás da interface, em pixels de 2x2 e esticado até a borda da tela: o canto de uma sala vista por quem
-## está sentado à mesa. Uma câmera só, em perspectiva de um ponto (`_vp`, no meio da tela e na altura dos olhos,
-## `EYE` acima do fundo do tampo; `_proj`/`_p3` levam um ponto da sala para a tela): a parede do fundo, com o relógio
-## (hora do jogo) e um armário de aço de chão atrás da mesa (a base fica escondida por ela); a parede da direita,
-## entrando para o fundo a partir da quina (`CORNER`), com a janela vista de lado; a mesa de madeira, afastada da
+## está sentado à mesa. Uma câmera só, em perspectiva de um ponto (`_vp`, perto dos objetos da mesa e na altura dos
+## olhos, `EYE` acima do fundo do tampo; `_proj`/`_p3` levam um ponto da sala para a tela): a parede do fundo, com um
+## armário de aço de chão atrás da mesa (a base fica escondida por ela; o relógio da sala é o `WallClock`, na parede
+## acima da mesa comutadora, sempre à vista); a parede da direita, entrando para o fundo a partir da quina (`CORNER`), com a janela vista de lado; a mesa de madeira, afastada da
 ## parede (`DESK_T`), que termina na parede da direita; e a luminária pendurada sobre a mesa comutadora.
 ## A vista da janela (a cidade com o clima da noite) é desenhada de frente num vidro fora da tela (`_vport`): ela está
 ## longe e não entorta com a janela; só o batente, o caixilho e a persiana ficam na perspectiva da parede e a recortam.
@@ -25,7 +25,9 @@ signal prop_clicked(id: String)
 const FLICK := [1.0, 0.2, 1.0, 1.0, 0.5, 1.0, 1.0, 0.1, 1.0, 1.0, 1.0, 0.4, 1.0, 1.0, 1.0, 1.0, 0.2, 1.0, 1.0, 0.6, 1.0, 1.0, 1.0]
 const WOOD := [Color("6b4529"), Color("4a2f1c"), Color("2a1a0f")]   ## madeira (luz, meio, sombra), a mesma do móvel
 const LIT := [Color("d59a3d"), Color("b38a3c"), Color("e2b25a")]   ## janelas acesas da cidade
-const PROPS := {"lista": T.Key.TAB_DIRECTORY, "despacho": T.Key.TAB_DISPATCH, "caderno": T.Key.TAB_LOGBOOK, "registro": T.Key.TAB_CALL_LOG}
+const PROPS := {"lista": T.Key.TAB_DIRECTORY, "despacho": T.Key.TAB_DISPATCH, "caderno": T.Key.TAB_LOGBOOK, "registro": T.Key.TAB_CALL_LOG,
+	"jornal": T.Key.TAB_NEWS}
+const DETAILS := ["cartaz_quermesse", "numero_anotado", "armario_entreaberto"]   ## o que `RoomChange.detail` pode pedir
 const SKY := {"rain": Color("0b141c"), "fog": Color("1b252b"), "clear": Color("0a1422")}
 const BOARD_SINK := 30.0   ## quanto da mesa comutadora (px da tela) desce sobre o tampo: o fundo dele fica atrás dela
 const LAMP_Y := 24.0       ## a boca da luminária (px de 2x2): de onde sai a luz e saem as sombras na parede
@@ -37,6 +39,15 @@ const EYE := 130.0      ## a altura dos olhos acima do fundo do tampo, na tela (
 const Z0 := 330.0       ## a distância dos olhos à parede do fundo
 const DESK_T := 1.25    ## o fundo do tampo, Z0/DESK_T: a mesa fica afastada da parede (o armário cabe atrás)
 const CORNER := 0.64    ## a quina das paredes, na largura da área das ferramentas
+const PLANKS := 6       ## as tábuas do tampo, todas da mesma largura (a câmera as espaça)
+const POOL_R := 150.0   ## o raio da poça de luz da luminária no tampo
+## As peças da faixa de mesa (filhas de `desk`, pelo nome): a frente é a própria interface; o cenário desenha o
+## tampo, o lado virado para o ponto de fuga e a sombra. Fundo (z) e as cores do tampo e do lado.
+const DESK_BOXES := {
+	"FoneSocket": [22.0, Color("4b4332"), Color("18150f")],
+	"Radio": [26.0, Color("4b4332"), Color("18150f")],
+	"CordTray": [30.0, Color("6b4529"), Color("2a1a0f")],
+}
 const CAB_X := Vector2(-53, 57)  ## o armário de aço: de onde a onde (x), encostado na parede
 const CAB_TOP := -40.0           ## o alto dele (y, acima dos olhos): ~1,6 m do chão
 const CAB_T := 1.15              ## a frente dele (escala): ~35 cm de fundo
@@ -56,11 +67,15 @@ var flick := false
 var lamp_level := 1.0
 var weather := "rain"
 var shadow := false
-var clock_min := 18 * 60.0   ## a hora do jogo, em minutos do dia (o Main atualiza): o relógio de parede
-var pending := 0:   ## registros esperando no caderno (o Main atualiza): o selo no caderno da mesa
-	set(v):
-		pending = v
-		queue_redraw()
+# O estado do jogo nos objetos da mesa, para ler de relance sem abrir nada (o Main atualiza):
+var pending := 0     ## registros esperando no caderno: uma tira de papel saindo dele por registro
+var alert := -1      ## estágio da emergência em andamento (-1 = nenhuma): o alfinete do mapa pisca, mais rápido se piora
+var unread := false  ## o registro das conversas tem fala nova: uma folha nova presa na prancheta
+var news := false    ## o jornal da manhã está na mesa (da segunda noite em diante; `Main.set_news`)
+# A sala muda ao longo das noites (o Main atualiza): os detalhes valendo (`RoomChange.detail`) e a noite (o calendário
+# do armário risca um dia por noite).
+var details := PackedStringArray()
+var night := 1
 var _drops: Array = []
 var _stars: Array[Vector2] = []
 var _city: Array = []          # prédios da vista: {x, w, h, roof, lit: [Vector2...]} (em frações e px do vidro)
@@ -78,6 +93,7 @@ var _t2 := 1.6         # onde a janela termina na parede da direita (escala)
 var _ci: CanvasItem    # onde a vista da janela é desenhada: aqui, ou no vidro fora da tela
 var _view: Control     # desenha a vista da janela no `_vport`
 var _vport: SubViewport
+var _paint_xf := Transform2D()   # a perspectiva do objeto chato sendo desenhado (`_flat`): luzes dele na tela
 var _cover := Rect2()   # onde está o papel da ferramenta aberta (px da tela, não de 2x2): luz embaixo dele não brilha
 
 
@@ -121,12 +137,18 @@ func _process(delta: float) -> void:
 	_view.queue_redraw()
 
 
-## Onde está o papel da ferramenta aberta ou deslizando (px da tela; vazio com tudo guardado).
+## Onde está o papel da ferramenta aberta ou vindo do objeto (px da tela; vazio com tudo guardado).
 func _paper() -> Rect2:
 	for n in window.get_children() if window else []:
 		if n is Control and n.visible:
-			return Rect2(n.global_position - global_position, n.size)
+			return (n as Control).get_global_transform() * Rect2(Vector2.ZERO, n.size)
 	return Rect2()
+
+
+## Onde fica na tela (global) o objeto da mesa que abre a ferramenta `id` (vazio se ele não está na mesa): de onde o
+## papel dela sai (`Tools.origin`).
+func prop_rect(id: String) -> Rect2:
+	return Rect2(global_position + (_props[id] as Rect2).position, (_props[id] as Rect2).size) if _props.has(id) else Rect2()
 
 
 ## Uma luz do cenário (`r` em px da tela) que brilha, a não ser que o papel de uma ferramenta esteja por cima dela.
@@ -165,7 +187,8 @@ func _draw() -> void:
 	if board:   # a mesa comutadora, de pé na frente da parede, faz sombra nela (o tampo cobre a parte de baixo)
 		_cast(b, 1.1)
 	var cab := _draw_steel_cabinet()
-	_draw_wall_clock(Vector2(floorf((cab.end.x + _cx) / 2.0), 40))
+	if "cartaz_quermesse" in details:
+		_draw_poster(Rect2(floorf((cab.end.x + _cx) / 2.0) - 15, 34, 30, 38))
 	_draw_desk(Rect2(0, top, w, h - top), front)
 	if board:   # a sombra de contato da mesa comutadora no tampo
 		_r(b.position.x - 2, b.end.y - 3, b.size.x + 4, 5, Color(0, 0, 0, 0.45))
@@ -173,6 +196,10 @@ func _draw() -> void:
 	_draw_side_wall(top, front, w)
 	_draw_desk_props()
 	_draw_lamp(_lamp_x)
+	if _cover.has_area():   # uma ferramenta na frente do operador: o cenário atrás escurece e o papel faz sombra nele
+		draw_set_transform(Vector2.ZERO)
+		draw_rect(Rect2(_cover.position + Vector2(10, 12), _cover.size), Color(0, 0, 0, 0.35))
+		draw_rect(Rect2(Vector2.ZERO, size), Color(0, 0, 0, 0.28))
 	if _hot != "" and _props.has(_hot):   # o objeto sob o mouse: contorno e o nome da ferramenta que ele abre
 		var hr: Rect2 = _props[_hot]
 		draw_set_transform(Vector2.ZERO)
@@ -279,32 +306,16 @@ func _cast(r: Rect2, s: float) -> void:
 		_r(p.x, p.y, roundf(r.size.x * f), roundf(r.size.y * f), Color(0, 0, 0, 0.14))
 
 
-## Relógio de parede redondo, de moldura de madeira, com os ponteiros na hora do jogo.
-func _draw_wall_clock(c: Vector2) -> void:
-	var l := Vector2(_lamp_x, LAMP_Y)
-	draw_circle((l + (c - l) * 1.03).round(), 11.0, Color(0, 0, 0, 0.4))
-	draw_circle(c, 11.0, WOOD[2])
-	draw_circle(c, 10.0, WOOD[1])
-	draw_circle(c - Vector2(0.5, 0.5), 8.5, Color("e3d6b2"))
-	draw_circle(c, 8.0, Color("d8caa3"))
-	for i in 12:   # marcas das horas
-		var a := TAU * i / 12.0
-		_r(roundf(c.x + sin(a) * 6.5), roundf(c.y - cos(a) * 6.5), 1, 1, Color("5a4d3a"))
-	var hr := fmod(clock_min / 60.0, 12.0) / 12.0 * TAU
-	var mn := fmod(clock_min, 60.0) / 60.0 * TAU
-	draw_line(c, c + Vector2(sin(hr), -cos(hr)) * 4.0, Color("2a2319"), 1.5)
-	draw_line(c, c + Vector2(sin(mn), -cos(mn)) * 6.5, Color("2a2319"), 1.0)
-	draw_circle(c, 1.0, Color("6e1a12"))
-
-
 ## Calendário de folhinha: cabeçalho vermelho e a grade dos dias, um deles riscado.
 func _draw_calendar(r: Rect2) -> void:
 	_cast(r, 1.01)
 	_r(r.position.x, r.position.y, r.size.x, r.size.y, Color("e3d6b2"))
 	_r(r.position.x, r.position.y, r.size.x, 6, Color("8e2a22"))
-	for k in 20:
-		_r(r.position.x + 2 + (k % 5) * 4, r.position.y + 9 + (k / 5) * 4, 2, 2, Color("8a7d62"))
-	_r(r.position.x + 10, r.position.y + 13, 4, 1, Color("8e2a22"))
+	for k in 20:   # os dias; os que já passaram (uma noite cada) ficam riscados de vermelho
+		var d := Vector2(r.position.x + 2 + (k % 5) * 4, r.position.y + 9 + (k / 5) * 4)
+		_r(d.x, d.y, 2, 2, Color("8a7d62"))
+		if k < night - 1:
+			_r(d.x - 1, d.y + 1, 4, 1, Color("b03a2e"))
 	_r(r.get_center().x - 1, r.position.y - 1, 2, 2, Color("3a3a3a"))   # o prego
 
 
@@ -440,7 +451,7 @@ func _draw_steel_cabinet() -> Rect2:
 	_r(f.position.x - 1, f.position.y - 1, f.size.x + 2, f.size.y + 2, Color.BLACK)
 	_r(f.position.x, f.position.y, f.size.x, f.size.y, steel)
 	for i in 3:   # a luz da luminária, mais forte do lado dela
-		_r(f.position.x + i * 6, f.position.y, 6, f.size.y, Color(1.0, 0.85, 0.6, 0.03 * (3 - i)))
+		_r(f.position.x + i * 6, f.position.y, 6, f.size.y, Color(1.0, 0.85, 0.6, 0.03 * (3 - i) * lamp_level))
 	_r(f.position.x - 2, f.position.y - 1, f.size.x + 4, 5, steel.darkened(0.15))   # a cornija
 	_r(f.position.x - 2, f.position.y - 1, f.size.x + 4, 1, steel.lightened(0.3))
 	_r(f.position.x - 2, f.position.y + 4, f.size.x + 4, 1, Color("23281f"))
@@ -469,8 +480,52 @@ func _draw_steel_cabinet() -> Rect2:
 	for y in [doors + 4, doors + 70]:   # as dobradiças
 		_r(f.position.x - 1, y, 2, 7, Color("8e897c"))
 		_r(f.end.x - 1, y, 2, 7, Color("8e897c"))
-	_draw_calendar(Rect2(mid + 14, doors + 46, 24, 26))   # preso com ímã
+	if "armario_entreaberto" in details:   # a porta da direita aberta: as prateleiras com as pastas, a porta de lado
+		var inside := Rect2(mid + 1, doors, f.end.x - mid - 1, f.size.y)
+		_r(inside.position.x, inside.position.y, inside.size.x, inside.size.y, Color("101410"))
+		for k in 3:   # prateleiras com pastas e caixas de arquivo
+			var sy := doors + 22 + k * 30
+			_r(inside.position.x, sy, inside.size.x, 2, Color("2e342b"))
+			var px := inside.position.x + 3
+			while px < inside.end.x - 6:
+				var pw := 3.0 + int(px * 7 + k * 3) % 4
+				var ph := 14.0 + int(px * 5 + k) % 8
+				_r(px, sy - ph, pw, ph, [Color("6e5a3a"), Color("8a7a5a"), Color("4a5a6a"), Color("7a3a2a")][int(px + k) % 4])
+				px += pw + 1
+		draw_colored_polygon(PackedVector2Array([Vector2(f.end.x, doors - 1), Vector2(f.end.x + 16, doors - 6),
+			Vector2(f.end.x + 16, f.end.y + 8), Vector2(f.end.x, f.end.y)]), steel.darkened(0.1))   # a porta, de lado
+		draw_line(Vector2(f.end.x + 16, doors - 6), Vector2(f.end.x + 16, f.end.y + 8), steel.lightened(0.2), 1.0)
+	else:
+		_draw_calendar(Rect2(mid + 14, doors + 46, 24, 26))   # preso com ímã
+	if "numero_anotado" in details:   # o número de quem ligou, anotado num bilhete e colado com fita
+		var n := Rect2(f.position.x + 10, doors + 52, 26, 14)
+		_cast(n, 1.01)
+		_r(n.position.x, n.position.y, n.size.x, n.size.y, Color("efe6cc"))
+		for k in 5:   # os algarismos, à mão
+			_r(n.position.x + 3 + k * 4, n.position.y + 4 + (k % 2), 3, 4, Color("2a2a3a"))
+		_r(n.position.x + 3, n.position.y + 10, n.size.x - 6, 1, Color("b03a2e"))   # sublinhado
+		_r(n.position.x - 2, n.position.y - 1, 6, 3, Color(1, 1, 1, 0.35))   # a fita
+		_r(n.end.x - 4, n.position.y - 1, 6, 3, Color(1, 1, 1, 0.35))
 	return f
+
+
+## O cartaz da quermesse preso na parede (a pessoa prometeu ir): papel creme com bandeirinhas coloridas em zigue-zague,
+## a fogueira e as linhas do convite.
+func _draw_poster(r: Rect2) -> void:
+	_cast(r, 1.01)
+	_r(r.position.x, r.position.y, r.size.x, r.size.y, Color("e8dcc0"))
+	var cols := [Color("b03a2e"), Color("e0b040"), Color("3a6aa0"), Color("4a8a4a")]
+	for k in int(r.size.x / 5.0):   # as bandeirinhas
+		var x := r.position.x + 1 + k * 5
+		draw_colored_polygon(PackedVector2Array([Vector2(x, r.position.y + 3), Vector2(x + 4, r.position.y + 3), Vector2(x + 2, r.position.y + 7)]), cols[k % 4])
+	_r(r.position.x + 1, r.position.y + 2, r.size.x - 2, 1, Color("5a4d3a"))   # o barbante
+	var c := Vector2(r.get_center().x, r.position.y + 21)   # a fogueira
+	draw_colored_polygon(PackedVector2Array([c + Vector2(-6, 5), c + Vector2(0, -7), c + Vector2(6, 5)]), Color("e07a2a"))
+	draw_colored_polygon(PackedVector2Array([c + Vector2(-3, 5), c + Vector2(0, -2), c + Vector2(3, 5)]), Color("f0c040"))
+	_r(c.x - 7, c.y + 5, 14, 2, Color("6b4529"))
+	for k in 3:   # o convite
+		_r(r.position.x + 4, r.position.y + 30 + k * 2, r.size.x - 8 - k * 4, 1, Color("5a4d3a"))
+	_r(r.get_center().x - 1, r.position.y - 1, 2, 2, Color("b03a2e"))   # a tachinha
 
 
 ## A vista: céu do clima, morros ao fundo, casas e a igreja com o relógio aceso, a rua com o poste (a silhueta do
@@ -614,10 +669,12 @@ func _draw_desk(r: Rect2, front: float) -> void:
 		draw_texture_rect(desk_art, Rect2(r.position, Vector2(r.size.x, depth)), true)
 	else:
 		_r(r.position.x, r.position.y, r.size.x, depth, Color("241a12"))
-		var seams := [0.0, 0.1, 0.22, 0.37, 0.55, 0.76, 1.0]   # as emendas, cada vez mais espaçadas para a frente
-		for k in seams.size() - 1:
-			var y0: float = r.position.y + depth * seams[k]
-			var y1: float = r.position.y + depth * seams[k + 1]
+		# as emendas: tábuas da mesma largura, espaçadas pela câmera (mais juntas no fundo)
+		var zb := Z0 / DESK_T
+		var zf := Z0 * _yd / (front - _vp.y)
+		for k in PLANKS:
+			var y0 := _proj(0, _yd, lerpf(zb, zf, float(k) / PLANKS)).y
+			var y1 := _proj(0, _yd, lerpf(zb, zf, float(k + 1) / PLANKS)).y
 			_r(r.position.x, floorf(y1) - 1, r.size.x, 1, Color("1a120c"))
 			_r(r.position.x, floorf(y0), r.size.x, 1, Color("2b2016"))   # a beira de cada tábua pega luz
 			for i in int(r.size.x / 40.0):   # veios, mais compridos na frente (mais perto)
@@ -625,15 +682,18 @@ func _draw_desk(r: Rect2, front: float) -> void:
 				_r(gx, floorf(y0 + (y1 - y0) * (0.3 + 0.4 * ((i + k) % 3) / 2.0)), 10 + (i % 4) * 6 + k * 6, 1, Color("2e2219"))
 		for k in 2:   # o fundo escurece de leve (sem linha na quina: com ela parecia o rodapé de um chão)
 			_r(r.position.x, r.position.y, r.size.x, depth * (0.16 - k * 0.08), Color(0, 0, 0, 0.04))
-	# a luz da luminária: elipses em degraus, mais forte embaixo dela
+	# a luz da luminária: um círculo no tampo, embaixo dela (que fica um pouco à frente do fundo da mesa), em degraus,
+	# mais forte no meio; o que passaria do fundo do tampo fica na parede (o arco de `_draw_wall_light`)
+	var zb2 := Z0 / DESK_T
+	var zl := zb2 * 0.85
+	var lx := (_lamp_x - _vp.x) * zl / Z0
 	for k in 4:
-		var rx := 210.0 - k * 45.0
-		var ry := depth * (0.95 - k * 0.18)
+		var rr := POOL_R * (1.0 - k * 0.22)
 		var pts := PackedVector2Array()
-		for i in 24:
-			var a := TAU * i / 24.0
-			pts.append(Vector2(_lamp_x + cos(a) * rx, r.position.y + depth * 0.45 + sin(a) * ry))
-		draw_colored_polygon(pts, Color(1.0, 0.78, 0.48, 0.035))
+		for i in 32:
+			var a := TAU * i / 32.0
+			pts.append(_proj(lx + cos(a) * rr, _yd, clampf(zl + sin(a) * rr * 0.5, 40.0, zb2)))
+		draw_colored_polygon(pts, Color(1.0, 0.78, 0.48, 0.035 * lamp_level))
 	# a borda da frente: o canto arredondado do tampo pega a luz, a espessura dele e, embaixo, o escuro sob a mesa
 	_r(r.position.x, front - 1, r.size.x, 1, Color("5a4030"))
 	_r(r.position.x, front, r.size.x, 1, Color("6b4529"))
@@ -647,20 +707,46 @@ func _draw_desk(r: Rect2, front: float) -> void:
 ## fica num lugar da sala (x a partir dos olhos, z a distância; ver `Z0`) e é desenhado em px da tela (1x1).
 func _draw_desk_props() -> void:
 	draw_set_transform(Vector2.ZERO)
+	_draw_desk_boxes()
 	_draw_books(-21, 205, 30, 34)
-	var nb := _flat("caderno", 21, 205, 46, 30, 2, Color("3a2414"), _draw_open_notebook)
+	_flat("caderno", 21, 205, 46, 30, 2, Color("3a2414"), _draw_open_notebook)
+	if news:
+		_flat("jornal", 72, 214, 34, 22, 2, Color("b8b0a0"), _draw_newspaper)
 	_draw_mug(123, 205, 6, 14)
 	_flat("registro", 81, 172, 26, 34, 2, Color("4a3018"), _draw_clipboard)
 	_flat("despacho", -9, 172, 36, 22, 1, Color("a89a76"), _draw_folded_map)
-	if pending > 0:   # quantos registros esperam: o selo âmbar no canto do caderno, como o da aba
-		var t := str(pending)
-		var sw := maxf(16.0, Pal.ui.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 6.0)
-		var sr := Rect2(nb[1] + Vector2(-sw / 2.0, -10), Vector2(sw, 16)).abs()
-		sr.position = sr.position.round()
-		draw_rect(sr.grow(1), Color.BLACK)
-		draw_rect(sr, Pal.AMBER)
-		draw_string(Pal.ui, sr.position + Vector2(0, 12), t, HORIZONTAL_ALIGNMENT_CENTER, sw, 11, Color("2a2319"))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+
+
+## As peças da faixa de mesa como caixas em pé no tampo (`DESK_BOXES`): a frente é a própria interface, na borda da
+## frente da mesa; aqui ficam a sombra, o lado virado para o ponto de fuga e o tampo, que foge para ele.
+func _draw_desk_boxes() -> void:
+	var vp := _vp * 2.0
+	for n in desk.get_children() if desk else []:
+		if not (n is Control and n.visible and DESK_BOXES.has(String(n.name))):
+			continue
+		var spec: Array = DESK_BOXES[String(n.name)]
+		var f := Rect2((n as Control).global_position - global_position, (n as Control).size)
+		var zf := Z0 * _yd / maxf(1.0, f.end.y / 2.0 - _vp.y)   # a frente, pela altura em que pousa no tampo
+		var k := zf / (zf + float(spec[0]))   # o fundo, visto do ponto de fuga
+		var back := func(p: Vector2) -> Vector2: return vp + (p - vp) * k
+		var tl := f.position
+		var tr := Vector2(f.end.x, f.position.y)
+		var bl := Vector2(f.position.x, f.end.y)
+		_desk_shadow(PackedVector2Array([bl, f.end, back.call(f.end), back.call(bl)]))
+		var sx := tr if f.end.x < vp.x else tl
+		var sb := f.end if f.end.x < vp.x else bl
+		if f.end.x < vp.x or f.position.x > vp.x:   # o lado virado para o ponto de fuga
+			_poly(PackedVector2Array([sx, sb, back.call(sb), back.call(sx)]), spec[2])
+		var top := PackedVector2Array([tl, tr, back.call(tr), back.call(tl)])
+		_poly(top, spec[1])
+		draw_line(tl + Vector2(1, -1), tr + Vector2(-1, -1), (spec[1] as Color).lightened(0.2), 1.0)   # a quina da frente pega luz
+		if n.name == &"CordTray":   # a bandeja é aberta: por cima, o fundo forrado entre as bordas
+			var c := (top[0] + top[1] + top[2] + top[3]) / 4.0
+			var bed := PackedVector2Array()
+			for p in top:
+				bed.append(p.lerp(c, 0.12).round())
+			draw_colored_polygon(bed, Color("1a1410"))
 
 
 ## Os cantos de uma caixa deitada na mesa (px da tela): de `x0` a `x0 + wx`, de `zf` (frente) a `zf + dz` (fundo), do
@@ -717,6 +803,7 @@ func _flat(id: String, x0: float, zf: float, wx: float, dz: float, h: float, edg
 		_poly(bx["side"], edge.darkened(0.35))
 	_poly(PackedVector2Array([bx["top"][3], bx["top"][2], foot[2], foot[3]]), edge)
 	var xf: Array = _top_xf(bx["top"])
+	_paint_xf = xf[0]
 	draw_set_transform_matrix(xf[0])
 	paint.call(Rect2(Vector2.ZERO, xf[1]))
 	draw_set_transform(Vector2.ZERO)
@@ -816,13 +903,24 @@ func _draw_folded_map(r: Rect2) -> void:
 		draw_rect(Rect2(r.position.x + k * pw, r.position.y, 1, r.size.y), Color(1, 1, 1, 0.25))
 	var pin := r.position + Vector2(r.size.x * 0.7, r.size.y * 0.42)   # o alfinete no local marcado
 	draw_circle(pin + Vector2(2, 2), 2.5, Color(0, 0, 0, 0.35))
-	draw_circle(pin, 2.5, Color("b03a2e"))
-	draw_circle(pin - Vector2(0.8, 0.8), 1.0, Color("e07060"))
+	# com uma emergência em andamento, ele pisca (mais rápido a cada estágio) e brilha
+	var lit := alert >= 0 and int(Time.get_ticks_msec() / (420.0 - alert * 90.0)) % 2 == 0
+	draw_circle(pin, 2.5, Color("ff5a3c") if lit else Color("b03a2e"))
+	draw_circle(pin - Vector2(0.8, 0.8), 1.0, Color("ffc0a0") if lit else Color("e07060"))
+	if lit:
+		var sp := _paint_xf * pin
+		_light(Rect2(sp - Vector2(3, 3), Vector2(6, 6)), Color("ff5a3c"), 0.9, true)
 
 
 ## O caderno de ocorrências aberto: capa de couro em volta, duas páginas pautadas com margem vermelha e anotações à
 ## mão, a sombra da lombada no meio e o lápis apoiado na página da direita.
 func _draw_open_notebook(r: Rect2) -> void:
+	for i in mini(pending, 6):   # um registro pendente = uma tira de papel marcando a página, saindo pelo fundo
+		var sx := r.position.x + 8 + i * floorf((r.size.x - 22) / 6.0)
+		var up := 7.0 + (i * 5) % 4
+		draw_rect(Rect2(sx - 1, r.position.y - up - 1, 9, up + 3), Color.BLACK)
+		draw_rect(Rect2(sx, r.position.y - up, 7, up + 2), Color("f0dc9a") if i % 2 == 0 else Color("e8d8c0"))
+		draw_rect(Rect2(sx + 1, r.position.y - up + 2, 5, 1), Color("b03a2e"))
 	draw_rect(r.grow(1), Color.BLACK)
 	draw_rect(r, Color("4a2f1c"))   # a capa
 	draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), Color("6b4529"))
@@ -872,6 +970,14 @@ func _draw_clipboard(r: Rect2) -> void:
 	for y in range(11, int(paper.size.y) - 2, 3):   # as linhas datilografadas
 		var w := paper.size.x - 8 - (y * 7) % 13
 		draw_rect(Rect2(paper.position.x + 4, paper.position.y + y, w, 1), Color("4a4438"))
+	if unread:   # fala nova no registro: uma folha nova, mais branca, presa por cima e meio torta, com poucas linhas
+		var sheet := Rect2(paper.position + Vector2(4, -2), paper.size - Vector2(2, 6))
+		draw_rect(Rect2(sheet.position + Vector2(1, 2), sheet.size), Color(0, 0, 0, 0.3))
+		draw_rect(sheet.grow(1), Color("8a7d62"))
+		draw_rect(sheet, Color("f8f2e0"))
+		draw_rect(Rect2(sheet.position.x + 3, sheet.position.y + 8, sheet.size.x - 6, 2), Color("8e2a22"))
+		for y in range(13, 22, 3):
+			draw_rect(Rect2(sheet.position.x + 4, sheet.position.y + y, sheet.size.x - 10 - (y * 5) % 9, 1), Color("4a4438"))
 	# o prendedor
 	var cx := r.get_center().x
 	draw_rect(Rect2(cx - 12, r.position.y - 1, 24, 9), Color.BLACK)
@@ -881,6 +987,26 @@ func _draw_clipboard(r: Rect2) -> void:
 	draw_rect(Rect2(cx - 5, r.position.y + 2, 10, 3), Color("45413a"))   # a fenda da mola
 	for rx in [cx - 8, cx + 7]:   # rebites
 		draw_circle(Vector2(rx, r.position.y + 4), 1.3, Color("d6d1c3"))
+
+
+## O jornal da manhã dobrado ao meio: papel-jornal acinzentado, o nome no alto numa faixa preta, a manchete grossa,
+## as colunas de texto miúdo, uma foto e o vinco da dobra.
+func _draw_newspaper(r: Rect2) -> void:
+	draw_rect(r.grow(1), Color("4a4438"))
+	draw_rect(r, Color("dcd5c2"))
+	draw_rect(Rect2(r.position.x + 3, r.position.y + 2, r.size.x - 6, 4), Color("1d1a14"))   # o nome do jornal
+	draw_rect(Rect2(r.position.x + 3, r.position.y + 7, r.size.x - 6, 1), Color("4a4438"))
+	draw_rect(Rect2(r.position.x + 3, r.position.y + 10, r.size.x * 0.7, 3), Color("2a2319"))   # a manchete
+	var photo := Rect2(r.end.x - r.size.x * 0.32 - 3, r.position.y + 15, r.size.x * 0.32, r.size.y * 0.4)
+	draw_rect(photo, Color("8a8478"))
+	draw_rect(Rect2(photo.position.x + 2, photo.end.y - 4, photo.size.x - 4, 2), Color("5a554a"))
+	for y in range(16, int(r.size.y) - 2, 2):   # as colunas
+		for col in 2:
+			var cx := r.position.x + 3 + col * (r.size.x * 0.3)
+			if Rect2(cx, r.position.y + y, r.size.x * 0.26, 1).intersects(photo):
+				continue
+			draw_rect(Rect2(cx, r.position.y + y, r.size.x * 0.26 - (y * 3) % 5, 1), Color("8a8478"))
+	draw_rect(Rect2(r.position.x, r.get_center().y, r.size.x, 1), Color(0, 0, 0, 0.18))   # o vinco
 
 
 # ---------------------------------------------------------------- luminária

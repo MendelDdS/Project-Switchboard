@@ -22,7 +22,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`_addr`, espaços que não quebram no bairro e em "rua, número"). A observação (`DirectoryEntry.note`) só diz **quem
   atende quando o nome não diz** ("Pe. Anselmo", "recepção", "secretaria", "use o despacho"); nada de horário ou
   "residência". Todo número da lista serve para alguma coisa: não existe lugar sempre fechado.
-- **Conteúdo em Resources** (`data/content.tres` + um `.tres` por roteiro em `data/calls/` + um por noite em
+- **Conteúdo em Resources** (`data/content.tres` + um `.tres` por roteiro em `data/calls/`, um por mudança da sala em `data/room/` + um por noite em
   `data/nights/`). Nada de falas no código, exceto as do operador.
 - **Endereço por lugar do mapa**: em `GameData.LANDMARK_CHANCE` das emergências de molde, quem liga diz a rua e um lugar
   do mapa em vez do número ("Rua do Sol, perto do posto" / "na frente da escola, na Rua do Sol";
@@ -51,21 +51,28 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   assuntos gerais com os do clima (`ChatTopic.weather`).
 - **Resolução**: a base é 1280×720 (`canvas_items`, `aspect="expand"`); o Godot amplia para a tela, e a proporção
   diferente de 16:9 vira espaço a mais, não tarja. Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
-  **Disposição (cena + painel)**: a tela é uma mesa de trabalho. No alto da esquerda o relógio (`ClockPanel`, 52 px); embaixo
+  **Disposição (cena + painel)**: a tela é uma mesa de trabalho. No alto da esquerda, na parede, o relógio da sala
+  (`WallClock`, analógico, 52 px: o único da tela, onde o papel das ferramentas não o cobre) e a plaqueta de latão do
+  turno (`ShiftPlate`, variação `BrassPanel`, com o horário e o botão Encerrar turno); embaixo
   dele a mesa comutadora (588×362) e, depois de uma folga de 16 px, a faixa de mesa (`%Desk`: o encaixe do FONE,
   `%FoneSocket`, o rádio e a bandeja dos cabos, `%CordTray`; os fios repousam no fundo dela, `Switchboard._floor`). O
   rádio tem `z_index` 1 e vem depois da mesa na árvore: fica na frente dos fios, como uma caixa em pé na mesa (um plug
   arrastado por cima dele passa por trás). A coluna da
   direita (cresce com a largura) tem a dica do manual no alto (`%Hint`, como um aviso na parede; no pé, ela ficava em
-  cima dos objetos da mesa) e as ferramentas (`Tools`: abas em cima e, no `%Body`, o papel da ferramenta aberta, que
-  desliza sobre a janela e a mesa; guardadas, a janela aparece). Embaixo de tudo, na
-  largura toda, o painel do operador (`PhonePanel`, 150 px). A altura útil é 700 px: as colunas pedem 540 (a da esquerda, exata) e o
+  cima dos objetos da mesa) e as ferramentas (`Tools`: abas em cima e, no `%Body`, o papel da ferramenta aberta; guardadas, a
+  janela aparece). O papel sai do objeto da ferramenta na mesa (`Tools.origin` = `Background.prop_rect`: pequeno, em
+  cima dele, e cresce até o lugar; ao guardar, volta), tem a forma do objeto (`PaperDeco`: capa de livro na lista,
+  vincos no mapa, encadernação e cantoneiras no caderno, a tábua e o prendedor da prancheta no registro, o vinco do
+  jornal; `PAPER_TINT`) e, aberto, o cenário atrás escurece e ganha a sombra dele (a mesa comutadora e o painel não). Embaixo de tudo, na
+  largura toda, o painel do operador (`PhonePanel`, 150 px), um console embutido na frente da mesa (a madeira de borda a borda logo abaixo
+  do tampo, `PhonePanel._draw`; os blocos `HudPanel` são telas e chapas encaixadas; a tela da conversa tem vidro e
+  apaga sem ligação, `ScreenGlass`). A altura útil é 700 px: as colunas pedem 540 (a da esquerda, exata) e o
   painel 150; passando, a tela inteira sobe e o relógio sai por cima. O `Background` (cenário em camadas, pixels de 2x2) estica
   parede e mesa até a borda, como o canto de uma sala visto de quem está sentado à mesa. **Uma câmera só**, em
   perspectiva de um ponto: o ponto de fuga (`_vp`) fica em `VP_X` da largura (perto dos objetos da mesa: a inclinação
   deles cresce com a distância a ele) e `EYE` acima do fundo do tampo; `_proj`/`_p3` levam um ponto da sala (x, y a
   partir dos olhos, z a distância; a parede do fundo a `Z0`) para a tela. Na sala: a parede do fundo (sem rodapé nem
-  linha escura embaixo: com elas parecia um chão), com o relógio de parede (hora do jogo, `clock_min`) e um armário
+  linha escura embaixo: com elas parecia um chão), com um armário
   de aço de chão (`_draw_steel_cabinet`, `CAB_*`; a mesa esconde a base); a parede da direita, entrando para o fundo
   a partir da quina (`CORNER` da área das ferramentas, `Background.window`), mais clara (virada para a luminária),
   com a janela vista de lado (`_draw_side_wall`, `_side_pt`: batente, o lado de dentro do vão, caixilho e persiana
@@ -82,8 +89,23 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   tamanho, escorço e o lado que aparece saem da conta; `_box` dá os cantos, `_flat` põe o desenho de frente de um
   objeto chato no tampo dele com uma transformação, `_top_xf`), desenhados em pixels de 1x1 com o detalhe da mesa
   comutadora (contorno, `_poly`; sombra apontando para longe da luminária, `_desk_shadow`), do fundo para a frente; o
-  resto do cenário é em 2x2. O tampo (`_draw_desk`): tábuas com as emendas mais espaçadas para a frente, sem juntas
-  (com juntas parecia assoalho), a borda da frente com a espessura dele e a poça de luz quente da luminária. Sob o
+  resto do cenário é em 2x2. As peças da faixa de mesa (FONE, rádio, bandeja; `DESK_BOXES`, pelo nome do nó) também
+  são caixas na câmera: a interface é a frente delas e o cenário desenha o tampo, o lado virado para o ponto de fuga
+  e a sombra (`_draw_desk_boxes`; a bandeja é aberta, com o fundo forrado). O tampo (`_draw_desk`): `PLANKS` tábuas
+  da mesma largura espaçadas pela câmera, sem juntas (com juntas parecia assoalho), a borda da frente com a
+  espessura dele e a poça de luz da luminária, um círculo de `POOL_R` no tampo embaixo dela que treme com ela
+  (`lamp_level`, como o arco na parede e a luz no armário). **O estado do jogo nos objetos**, para ler de relance: uma
+  tira de papel saindo do caderno por registro pendente (`pending`), o alfinete do mapa piscando e brilhando com uma
+  emergência em andamento, mais rápido a cada estágio (`alert`, o Main passa `em_call.stage`), e uma folha nova na
+  prancheta quando uma conversa termina com o registro guardado (`unread`; `CallLog.filed`/`unread_changed`, o Main
+  chama `filed` em `end_call`). **Jornal da manhã** (da segunda noite em diante): o jornal dobrado na mesa (`news`,
+  `Main.set_news`) abre a primeira página na área das ferramentas (`NewsView`, `Tools.news`, id "jornal", sem aba) com
+  as manchetes da noite anterior; `ShiftReport.news()` sorteia a manchete de cada emergência uma vez (o relatório do
+  fim da noite e o jornal dizem a mesma; `headline` traduz na hora) e o `Progress` a guarda (`news`). **A sala muda ao
+  longo das noites**: `GameContent.room` (`RoomChange`, `data/room/`: `detail`, `requires`, `from_night`) liga
+  detalhes do cenário (`Background.details`, `DETAILS`: cartaz da quermesse, número anotado colado no armário, armário
+  entreaberto com as pastas) pelos marcadores do roteiro, já no meio da noite (`Main._update_room`, refeito a cada
+  `flags.changed`; o setter de `Main.flags` religa); o calendário do armário risca um dia por noite (`night`). Sob o
   mouse: contorno, o nome da ferramenta e o dedo. O cenário é sempre desenhado: o papel da ferramenta o cobre por
   estar na frente, e só o brilho das luzes (que fica acima de tudo) é cortado onde o papel está, quadro a quadro
   (`_paper`, `_light`; as da vista, onde aparecem no vidro). Lá fora (`_draw_city`): céu do clima, morros, casas
@@ -103,7 +125,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `Bloom.clear(self)` no começo do `_draw` e `Bloom.light(self, rect, cor, halo, core, round)` por luz acesa (lâmpadas
   redondas da mesa, `Switchboard._draw_lamp`, com aro niquelado, `BEZEL`; aro da tomada de destino, sem miolo;
   luzes das máquinas do cartão; barra de agravamento; janelas acesas do `Background`, que desenha em 2×). ColorRect e
-  Label no grupo "bloom" brilham na cor deles (luzes do rádio; o relógio, só halo, atenuado pela meta "bloom"). Luz
+  Label no grupo "bloom" brilham na cor deles (luzes do rádio). Luz
   sem miolo tem o halo fraco por dentro (`HOLLOW`); luz de quem recorta o conteúdo (`clip_contents`) é recortada também.
 - Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`). **Uma fonte só, de pixel: Departure Mono**
   (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11** (exceção: o estado de cada linha na mesa, `Switchboard.STATE_FONT` = 8, porque "conectada" em 11
@@ -582,6 +604,14 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     pelo vidro: entortada com a janela parecia um quadro), e no lugar dela, na parede do fundo, um armário de aço de
     chão atrás da mesa. Uma câmera só para a sala inteira, com os objetos da mesa postos nela em 3D (antes misturavam
     vista de frente e de cima, sem escorço) e o ponto de fuga perto deles.
+40. Rádio, encaixe do FONE e bandeja dos cabos como caixas na câmera (tampo, lado e sombra); tábuas e poça de luz
+    calculadas pela câmera, e a luz da luminária na mesa e no armário tremendo com ela.
+41. Game design na mesa: os objetos mostram o estado do jogo (tiras no caderno, alfinete piscando, folha nova na
+    prancheta); o jornal da manhã com as consequências da noite anterior fica na mesa; a sala muda pelos marcadores
+    do roteiro (o mistério e as escolhas também moram no cenário).
+42. Ferramentas como objetos (o papel sai do objeto na mesa, com a forma dele, e o cenário escurece atrás); um relógio
+    só, analógico, na parede acima da mesa comutadora (o painel digital destoava e repetia a hora do relógio de
+    parede), com o turno numa plaqueta de latão; o painel do operador virou um console embutido na frente da mesa.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.
