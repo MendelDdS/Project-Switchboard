@@ -35,7 +35,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `GameData.template_transfer()`/`template_emergency()`. Motivos em `DirectoryEntry.reasons`. `TEMPLATE_CHANCE`
   (`Schedule`) mistura moldes e roteiros escritos (híbrido: tutorial, trotes e roteiro da noite sempre escritos).
 - Todo o áudio é sintetizado ao iniciar por `SfxSynth.build()` (`scripts/sfx_synth.gd`: as receitas, ~0,6 s num Mac
-  recente, 125 sons, 2,4 MB; sem cache) e tocado pelo autoload `Sfx` (`scripts/sfx.gd`: tocar, mixar, ambiente), inclusive as "vozes" por sílaba
+  recente, 127 sons, 2,4 MB; sem cache) e tocado pelo autoload `Sfx` (`scripts/sfx.gd`: tocar, mixar, ambiente), inclusive as "vozes" por sílaba
   (`Sfx.speak_char`). Barramentos em `default_bus_layout.tres`: Ambience, Voices, Effects (e Rub, que envia para Effects).
   Ambience tem um compressor com sidechain em Voices (o ambiente baixa enquanto alguém fala); Effects, uma
   reverberação leve de sala. `Sfx.play_at(id, screen_x)` toca um som vindo de um lugar da tela (pool de
@@ -53,7 +53,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   diferente de 16:9 vira espaço a mais, não tarja. Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
   **Disposição (cena + painel)**: a tela é uma mesa de trabalho. No alto da esquerda, na parede, o relógio da sala
   (`WallClock`, analógico, 52 px: o único da tela, onde o papel das ferramentas não o cobre) e a plaqueta de latão do
-  turno (`ShiftPlate`, variação `BrassPanel`, com o horário e o botão Encerrar turno); embaixo
+  turno (`ShiftPlate`, variação `BrassPanel`, com o horário e o botão Encerrar turno). Sem números na tela, o
+  ouvido marca o tempo: a badalada de gongo a cada hora cheia (`chime`, `Main._hour`) e a campainha de latão quando
+  o turno pode ser encerrado (`shift_bell`), vindas do lado do relógio; embaixo
   dele a mesa comutadora (588×362) e, depois de uma folga de 16 px, a faixa de mesa (`%Desk`: o encaixe do FONE,
   `%FoneSocket`, o rádio e a bandeja dos cabos, `%CordTray`; os fios repousam no fundo dela, `Switchboard._floor`). O
   rádio tem `z_index` 1 e vem depois da mesa na árvore: fica na frente dos fios, como uma caixa em pé na mesa (um plug
@@ -105,8 +107,14 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   longo das noites**: `GameContent.room` (`RoomChange`, `data/room/`: `detail`, `requires`, `from_night`) liga
   detalhes do cenário (`Background.details`, `DETAILS`: cartaz da quermesse, número anotado colado no armário, armário
   entreaberto com as pastas) pelos marcadores do roteiro, já no meio da noite (`Main._update_room`, refeito a cada
-  `flags.changed`; o setter de `Main.flags` religa); o calendário do armário risca um dia por noite (`night`). Sob o
-  mouse: contorno, o nome da ferramenta e o dedo. O cenário é sempre desenhado: o papel da ferramenta o cobre por
+  `flags.changed`; o setter de `Main.flags` religa); o calendário do armário risca um dia por noite (`night`). Na
+  primeira vez que cada sinal da mesa aparece (tiras, alfinete, folha nova), uma dica do manual explica, uma vez no
+  jogo todo (`Main._teach`: o "já viu" fica nos marcadores salvos; espera o tutorial acabar). A mesa comutadora também
+  entra na câmera: o cenário desenha a lateral do móvel virada para o ponto de fuga (`_draw_board_side`, `BOARD_D`). Sob o
+  mouse: contorno, o nome da ferramenta e o dedo. O cenário só se redesenha quando algo que ele mostra muda
+  (`Background._state`: o lugar das peças da interface, o papel, a luminária, o alfinete, o estado nos objetos; parado,
+  fica o desenho guardado), e a vista da janela anda a 30 quadros por segundo no vidro (`_vport`, `UPDATE_ONCE` a cada
+  quadro dela) sem redesenhar a sala; quem acrescentar ao desenho algo que muda precisa pôr isso no `_state`. Ele é sempre desenhado: o papel da ferramenta o cobre por
   estar na frente, e só o brilho das luzes (que fica acima de tudo) é cortado onde o papel está, quadro a quadro
   (`_paper`, `_light`; as da vista, onde aparecem no vidro). Lá fora (`_draw_city`): céu do clima, morros, casas
   sorteadas sempre iguais (`_build_city`, semente fixa),
@@ -612,6 +620,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 42. Ferramentas como objetos (o papel sai do objeto na mesa, com a forma dele, e o cenário escurece atrás); um relógio
     só, analógico, na parede acima da mesa comutadora (o painel digital destoava e repetia a hora do relógio de
     parede), com o turno numa plaqueta de latão; o painel do operador virou um console embutido na frente da mesa.
+43. Dicas da primeira vez para os sinais da mesa; a lateral da mesa comutadora na câmera; o relógio bate as horas e
+    uma campainha avisa quando o turno pode ser encerrado.
+44. Desempenho do cenário: ele só se redesenha quando algo que mostra muda; a vista da janela anda sozinha no vidro.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

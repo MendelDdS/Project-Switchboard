@@ -60,6 +60,7 @@ var _calling_back := false
 var _tick_acc := 0.0
 var _taught_midnight := false
 var _taught_bank := false
+var _hour := 0   ## a última hora cheia em que o relógio bateu (horas desde o começo do turno)
 var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o silêncio na linha (PhoneCall.last_talk)
 
 @onready var background: Background = %Background
@@ -122,8 +123,15 @@ func _ready() -> void:
 	dispatch.arrived.connect(supervisor.on_arrived)
 	dispatch.blank_card.connect(func(loc: String): supervisor.fault("dispatch_blank", loc))
 	notebook.registered.connect(supervisor.on_registered)
-	notebook.pending_changed.connect(func(n: int): tools.set_count("caderno", n); background.pending = n)
-	tools.call_log.unread_changed.connect(func(on: bool): background.unread = on)
+	notebook.pending_changed.connect(func(n: int):
+		tools.set_count("caderno", n)
+		background.pending = n
+		if n > 0:
+			_teach("viu_tiras_caderno", T.Key.HINT_DESK_SLIPS))
+	tools.call_log.unread_changed.connect(func(on: bool):
+		background.unread = on
+		if on:
+			_teach("viu_folha_registro", T.Key.HINT_DESK_SHEET))
 	tools.origin = background.prop_rect   # o papel de cada ferramenta sai do objeto dela na mesa
 	background.prop_clicked.connect(func(id: String): if running and not ending: tools.set_tab(id))   # objetos da cena
 	_intro.setup(night_no, night, progress != null and progress.night > 1)
@@ -185,6 +193,15 @@ func hint(t: String) -> void:
 	_hint.text = "" if t == "" else "[bgcolor=#b8924e][color=#1a150d] %s [/color][/bgcolor]  %s" % [T.text(T.Key.HINT_BADGE), t]
 
 
+## Dica da primeira vez que um sinal da mesa aparece, uma vez no jogo todo: o "já viu" (`flag`) fica nos marcadores,
+## salvos entre as noites. Durante o tutorial espera (a dica dele não pode ser atropelada).
+func _teach(flag: String, key: T.Key) -> void:
+	if flags.has(flag) or (tut != null and not tut.ended):
+		return
+	flags.apply(flag)
+	hint(T.text(key))
+
+
 func warn(t: String) -> void:
 	phone.warn(t)
 
@@ -218,13 +235,22 @@ func _process(delta: float) -> void:
 			elif not _taught_midnight:
 				_taught_midnight = true
 				hint(T.text(T.Key.HINT_MIDNIGHT))
-		_end_shift.visible = after and minutes >= LAST_CALL and not ending
+		var can_end := after and minutes >= LAST_CALL and not ending
+		if can_end and not _end_shift.visible:   # a campainha da plaqueta: o turno já pode ser encerrado
+			Sfx.play_at("shift_bell", _wall_clock.get_global_rect().get_center().x)
+		_end_shift.visible = can_end
 		_shift_hours.visible = not _end_shift.visible
+		var hour := floori(minutes / 60.0)
+		if hour > _hour:   # a badalada do relógio a cada hora cheia (sem números na tela, o ouvido marca o tempo)
+			Sfx.play_at("chime", _wall_clock.get_global_rect().get_center().x)
+		_hour = hour
 		_wall_clock.minutes = SHIFT_START_HOUR * 60 + minutes
 		_nag()
 		supervisor.check_hold()
 	background.flick = flick
 	background.alert = em_call.stage if em_call != null and em_call.urgent() else -1
+	if background.alert >= 0:
+		_teach("viu_alfinete_mapa", T.Key.HINT_DESK_PIN)
 	_glow.modulate.a = background.lamp_level
 
 

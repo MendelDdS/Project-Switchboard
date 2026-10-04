@@ -39,6 +39,7 @@ const EYE := 130.0      ## a altura dos olhos acima do fundo do tampo, na tela (
 const Z0 := 330.0       ## a distância dos olhos à parede do fundo
 const DESK_T := 1.25    ## o fundo do tampo, Z0/DESK_T: a mesa fica afastada da parede (o armário cabe atrás)
 const CORNER := 0.64    ## a quina das paredes, na largura da área das ferramentas
+const BOARD_D := 46.0   ## o fundo do móvel da mesa comutadora (z): a lateral dele aparece, fugindo para o ponto de fuga
 const PLANKS := 6       ## as tábuas do tampo, todas da mesma largura (a câmera as espaça)
 const POOL_R := 150.0   ## o raio da poça de luz da luminária no tampo
 ## As peças da faixa de mesa (filhas de `desk`, pelo nome): a frente é a própria interface; o cenário desenha o
@@ -95,6 +96,7 @@ var _view: Control     # desenha a vista da janela no `_vport`
 var _vport: SubViewport
 var _paint_xf := Transform2D()   # a perspectiva do objeto chato sendo desenhado (`_flat`): luzes dele na tela
 var _cover := Rect2()   # onde está o papel da ferramenta aberta (px da tela, não de 2x2): luz embaixo dele não brilha
+var _drawn := []        # o `_state` do último desenho da sala
 
 
 func _ready() -> void:
@@ -102,7 +104,7 @@ func _ready() -> void:
 	_ci = self
 	_vport = SubViewport.new()
 	_vport.size = Vector2i(64, 64)
-	_vport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	_vport.render_target_update_mode = SubViewport.UPDATE_ONCE   # a cada quadro da vista (`_process`)
 	_view = Control.new()
 	_view.draw.connect(_draw_view)
 	_vport.add_child(_view)
@@ -113,8 +115,12 @@ func _ready() -> void:
 		_stars.append(Vector2(randf() * 0.95 + 0.02, randf() * 0.45 + 0.03))
 
 
+## A sala só se redesenha quando algo que ela mostra muda (`_state`): parada, ela custa só o desenho já guardado. A
+## vista da janela (chuva, névoa, estrelas) anda a 30 quadros por segundo no vidro fora da tela, sem redesenhar a sala.
 func _process(delta: float) -> void:
-	if _paper() != _cover:   # o papel se mexeu: o corte do brilho acompanha já neste quadro
+	var st := _state()
+	if st != _drawn:   # (o papel deslizando entra aqui: o corte do brilho acompanha já neste quadro)
+		_drawn = st
 		queue_redraw()
 	_acc += delta
 	if _acc < 1.0 / 30.0:
@@ -133,8 +139,21 @@ func _process(delta: float) -> void:
 		lamp_level = FLICK[int(Time.get_ticks_msec() / 90.0) % FLICK.size()]
 	else:
 		lamp_level = 1.0
-	queue_redraw()
 	_view.queue_redraw()
+	_vport.render_target_update_mode = SubViewport.UPDATE_ONCE
+
+
+## Tudo de que o desenho da sala depende (fora o mouse, que redesenha sozinho): onde a interface pôs as coisas, o
+## papel da ferramenta, a luminária, o alfinete e o estado do jogo nos objetos.
+func _state() -> Array:
+	return [size, board.get_global_rect() if board else Rect2(), desk.get_global_rect() if desk else Rect2(),
+		window.get_global_rect() if window else Rect2(), _paper(), lamp_level, _pin_lit(), pending, unread, news,
+		details, night, weather]
+
+
+## O alfinete do mapa aceso: com uma emergência em andamento ele pisca, mais rápido a cada estágio.
+func _pin_lit() -> bool:
+	return alert >= 0 and int(Time.get_ticks_msec() / (420.0 - alert * 90.0)) % 2 == 0
 
 
 ## Onde está o papel da ferramenta aberta ou vindo do objeto (px da tela; vazio com tudo guardado).
@@ -190,9 +209,10 @@ func _draw() -> void:
 	if "cartaz_quermesse" in details:
 		_draw_poster(Rect2(floorf((cab.end.x + _cx) / 2.0) - 15, 34, 30, 38))
 	_draw_desk(Rect2(0, top, w, h - top), front)
-	if board:   # a sombra de contato da mesa comutadora no tampo
+	if board:   # a sombra de contato da mesa comutadora no tampo e a lateral do móvel
 		_r(b.position.x - 2, b.end.y - 3, b.size.x + 4, 5, Color(0, 0, 0, 0.45))
 		_r(b.position.x + 2, b.end.y + 2, b.size.x + 2, 2, Color(0, 0, 0, 0.25))
+		_draw_board_side(b)
 	_draw_side_wall(top, front, w)
 	_draw_desk_props()
 	_draw_lamp(_lamp_x)
@@ -344,6 +364,29 @@ func _draw_view() -> void:
 		_draw_city(g)
 	_draw_glass_weather(g)
 	_ci = self
+
+
+## A lateral do móvel da mesa comutadora (`b`, a frente, px de 2x2), a que fica virada para o ponto de fuga: madeira
+## com o veio correndo para o fundo, a quina da frente pegando a luz e a sombra dela no tampo. A frente é a própria
+## interface (`Switchboard._draw_cabinet`).
+func _draw_board_side(b: Rect2) -> void:
+	var zf := Z0 * _yd / maxf(1.0, b.end.y - _vp.y)   # a frente, pela altura em que pousa no tampo
+	var k := zf / (zf + BOARD_D)
+	var sx := b.end.x if b.end.x < _vp.x else b.position.x
+	if absf(sx - _vp.x) < 2.0:
+		return
+	var back := func(p: Vector2) -> Vector2: return _vp + (p - _vp) * k
+	var a := Vector2(sx, b.position.y)
+	var c := Vector2(sx, b.end.y)
+	var face := PackedVector2Array([a, c, back.call(c), back.call(a)])
+	var shade := PackedVector2Array([c, c + Vector2(6, 2), back.call(c) + Vector2(6, 2), back.call(c)])
+	draw_colored_polygon(shade, Color(0, 0, 0, 0.3))   # a sombra no tampo
+	draw_colored_polygon(face, WOOD[2])
+	for i in range(1, 6):   # o veio, no rumo do ponto de fuga
+		var y := b.position.y + b.size.y * i / 6.0 + (i % 2) * 3.0
+		draw_line(Vector2(sx, y), back.call(Vector2(sx, y)), WOOD[1], 1.0)
+	draw_line(a, c, WOOD[0], 1.0)   # a quina da frente
+	draw_line(a, back.call(a), WOOD[1], 1.0)
 
 
 ## A parede da direita, entrando para o fundo a partir da quina (`_cx`): cobre o que fica atrás dela (a mesa termina
@@ -903,8 +946,7 @@ func _draw_folded_map(r: Rect2) -> void:
 		draw_rect(Rect2(r.position.x + k * pw, r.position.y, 1, r.size.y), Color(1, 1, 1, 0.25))
 	var pin := r.position + Vector2(r.size.x * 0.7, r.size.y * 0.42)   # o alfinete no local marcado
 	draw_circle(pin + Vector2(2, 2), 2.5, Color(0, 0, 0, 0.35))
-	# com uma emergência em andamento, ele pisca (mais rápido a cada estágio) e brilha
-	var lit := alert >= 0 and int(Time.get_ticks_msec() / (420.0 - alert * 90.0)) % 2 == 0
+	var lit := _pin_lit()   # com uma emergência em andamento, ele pisca e brilha
 	draw_circle(pin, 2.5, Color("ff5a3c") if lit else Color("b03a2e"))
 	draw_circle(pin - Vector2(0.8, 0.8), 1.0, Color("ffc0a0") if lit else Color("e07060"))
 	if lit:

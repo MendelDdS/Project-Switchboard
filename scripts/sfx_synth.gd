@@ -197,6 +197,7 @@ func _build_all() -> void:
 		_noise(i * 0.07 + randf() * 0.03, 0.05, "bp", 5200 + randf() * 1500, 3, 0.8)
 	_end("pencil")
 	_build_ring()
+	_build_clock()
 	_begin(0.03); _tone(0, 1300, 0.012, "square", 0.3); _noise(0, 0.012, "bp", 2500, 1, 0.6); _end("pulse", true)
 	# chamando: "tuuuu" contínuo de 425 Hz, pela linha
 	_begin(1.3)
@@ -544,6 +545,26 @@ func _build_ring() -> void:
 			_w[s0 + i] = (sin(TAU * f * t) + 0.2 * sin(TAU * 2.0 * f * t) + 0.08 * sin(TAU * 3.0 * f * t)) * env
 	_w = _biquad(_w, "lp", 2400.0, 0.7)
 	_end("ring")
+
+
+## O relógio da sala: a badalada de gongo de mola a cada hora cheia ("chime": a batida do martelo excita os modos
+## inarmônicos do arame enrolado, que soam longos) e a campainha de latão quando o turno pode ser encerrado
+## ("shift_bell": duas batidas rápidas, agudas e curtas).
+func _build_clock() -> void:
+	_begin(2.6)
+	var hit := PackedFloat32Array()
+	hit.resize(_w.size())
+	hit[0] = 1.0
+	_w = _modes(hit, [[247.0, 1.5, 1.0], [662.0, 0.7, 0.4], [1270.0, 0.35, 0.18], [2080.0, 0.12, 0.08]])
+	_noise(0, 0.012, "bp", 3000, 1, 0.3)   # o martelo
+	_end("chime")
+	_begin(1.3)
+	var hits := PackedFloat32Array()
+	hits.resize(_w.size())
+	hits[0] = 1.0
+	hits[int(0.17 * RATE)] = 0.8
+	_w = _modes(hits, [[1480.0, 0.5, 1.0], [3720.0, 0.15, 0.35], [6150.0, 0.05, 0.12]])
+	_end("shift_bell")
 
 
 ## Soma de modos de vibração excitados por `x`: cada um [frequência, decaimento (s), ganho], normalizado pelo pico
