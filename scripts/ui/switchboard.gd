@@ -94,7 +94,7 @@ const BEZEL := [Color("d6d1c3"), Color("8e897c"), Color("45413a")]   # aro nique
 const LAMP_OFF := Color("2a2016")   # o vidro da lâmpada apagada
 const LAMP_ON_SEC := 0.06    # a lâmpada (de filamento) acende quase na hora...
 const LAMP_OFF_SEC := 0.18   # ...e apaga mais devagar, o filamento esfriando: a linha tocando pulsa em vez de piscar seco
-const ROPE_SHADOW := Vector2(3, 4)  # deslocamento da sombra dos fios; a do plug cresce quando ele sai do painel
+const ROPE_SHADOW := Vector2(3, 4)  # deslocamento da sombra dos fios junto ao buraco; até o plug, cresce como a dele (`_lift`)
 var _jacks: Array = []
 
 # ---- física dos cabos (corda de Verlet) ----
@@ -915,9 +915,11 @@ func _draw_rope(e: int, shadow: bool) -> void:
 		return
 	var pts: PackedVector2Array = ropes[e]["pts"]
 	if shadow:
-		var sh := PackedVector2Array()
-		for q in pts:
-			sh.append(q + ROPE_SHADOW)
+		var sh := PackedVector2Array()   # o fio desce do plug até o buraco: a sombra vai da do plug até a de rente ao painel
+		var lift := _lift(e)
+		for i in pts.size():
+			var k := float(i) / (pts.size() - 1)
+			sh.append(pts[i] + ROPE_SHADOW.lerp(lift, k * k))
 		draw_polyline(sh, SHADOW, 7.0)
 		return
 	var col: Array = _cable_col(e)
@@ -937,7 +939,7 @@ func _draw_plug(e: int, shadow: bool) -> void:
 	var tilt := _tilt(int(ends[e])) if seated else Vector2.ZERO
 	var at := _plug_base(e) - tilt   # encaixado, desenha a partir do encaixe
 	if shadow and not seated:
-		at += Vector2(8, 10) if held == e else Vector2(4, 5) if _loose.has(e) else Vector2(2, 2)
+		at += _lift(e)
 	draw_set_transform(at.round(), _plug_angle(e))
 	if shadow and seated:   # do encaixe até onde a luz joga a ponta, no painel
 		draw_colored_polygon(Geometry2D.convex_hull(_circle(Vector2.ZERO, PLUG_FACE_R + 1.0) + _circle(PLUG_SHADE, PLUG_FACE_R)), SHADOW)
@@ -952,7 +954,7 @@ func _draw_plug(e: int, shadow: bool) -> void:
 			if k < 1.0:   # acabou de encaixar: a vista de frente cresce enquanto o corpo em pé entra no encaixe
 				draw_set_transform(at.round(), 0.0, Vector2.ONE * lerpf(0.4, 1.0, k))
 			_draw_plug_face(_cable_col(e), tilt, _push(e), 1.0)
-			_plug_reflect(int(ends[e]), Vector2.ZERO, PLUG_FACE_R)
+			_plug_reflect(int(ends[e]), tilt)
 			if k < 1.0:   # o corpo em pé gira para o eixo do encaixado e encurta até o tamanho dele, entrando no encaixe
 				var axis := Transform2D(lerpf(0.0, tilt.angle() - PI / 2.0, k), Vector2(1.0, lerpf(1.0, tilt.length() / 26.0, k)), 0.0, at.round())
 				draw_set_transform_matrix(axis * Transform2D(0.0, Vector2(0, 26)))
@@ -960,6 +962,14 @@ func _draw_plug(e: int, shadow: bool) -> void:
 		else:
 			_draw_plug_body(_cable_col(e))
 	draw_set_transform(Vector2.ZERO)
+
+
+## Quanto a sombra se desloca de onde o fio entra no plug: mais quanto mais o plug sai do painel (na mão, mais).
+## Encaixado, a sombra da ponteira fica no fim da do plug (`PLUG_SHADE`, contada do encaixe).
+func _lift(e: int) -> Vector2:
+	if ends[e] != -1:
+		return PLUG_SHADE - _tilt(int(ends[e]))
+	return Vector2(8, 10) if held == e else Vector2(4, 5) if _loose.has(e) else Vector2(2, 2)
 
 
 ## A silhueta do plug (as mesmas partes de `_draw_plug_body`, juntas num polígono só: a sombra não escurece duas
@@ -1059,17 +1069,27 @@ func _draw_plug_cap(e: int) -> void:
 	draw_circle(c - Vector2(0.7, 0.7), 0.9, col[1])
 
 
-## A luz de uma lâmpada batendo no aro do plug encaixado em `j`: na entrada, a lâmpada da linha fica logo acima (o alto
-## do aro); no destino, a luz é o aro aceso em volta da tomada (o aro inteiro, mais fraco). A saída não tem lâmpada.
-func _plug_reflect(j: int, c: Vector2, r: float) -> void:
+## A luz de uma lâmpada batendo no plug encaixado em `j` (que sai do painel até `tilt`): na entrada, a lâmpada da linha
+## fica logo acima e acende o alto do colar, a beira de cima do cabo e o alto da ponta dele; no destino, a luz é o aro
+## aceso em volta da tomada (o colar inteiro, mais fraco). A saída não tem lâmpada.
+func _plug_reflect(j: int, tilt: Vector2) -> void:
+	var r := PLUG_FACE_R
 	if j <= 10:
 		var lt: Array = _lit.get("l%d" % j, [LAMP_OFF, 0.0])
 		if lt[1] > 0.02:
-			draw_arc(c, r - 0.6, PI * 1.15, PI * 1.85, 12, Color(lt[0], 0.6 * lt[1]), 1.5)
+			var col := Color(lt[0], 0.6 * lt[1])
+			draw_arc(Vector2.ZERO, r - 0.6, PI * 1.15, PI * 1.85, 12, col, 1.5)
+			var up := Vector2(tilt.y, -tilt.x).normalized()   # a beira do cabo virada para a lâmpada
+			if up.y > 0.0:
+				up = -up
+			var c: Vector2 = tilt * PLUG_PARTS[0]
+			var h: Vector2 = tilt * PLUG_PARTS[1]
+			draw_line(c + up * (r - 1.0), h + up * (r - 1.0), col, 2.0)
+			draw_arc(h, r - 1.0, up.angle() - 0.6, up.angle() + 0.6, 8, Color(lt[0], 0.45 * lt[1]), 1.5)
 	elif j > 20:
 		var dl: Array = _lit.get("d%d" % j, [LAMP_OFF, 0.0])
 		if dl[1] > 0.02:
-			draw_arc(c, r - 0.6, 0.0, TAU, 24, Color(dl[0], 0.35 * dl[1]), 1.5)
+			draw_arc(Vector2.ZERO, r - 0.6, 0.0, TAU, 24, Color(dl[0], 0.35 * dl[1]), 1.5)
 
 
 ## O plug de pé, com o fio saindo de baixo (y = 0): cabo de baquelite na cor do cabo (sombreado de cilindro, dois sulcos

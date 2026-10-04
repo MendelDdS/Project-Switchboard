@@ -229,7 +229,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   e o miolo da ponteira, `_draw_plug_cap`, depois). Encaixado, o fio sai no eixo do plug por `CORD_STUB` px e faz a curva
   aos poucos (o penúltimo ponto da corda fica preso, `pin` em `_step_rope`; os seguintes tendem a continuar a direção,
   `CORD_BEND`, uma vez por passo: por iteração endurecia o fio), a sombra vai do encaixe até `PLUG_SHADE` com uma
-  sombra de contato em volta do colar, o corpo em pé entra girando para o eixo do encaixado, sem a ponta de metal
+  sombra de contato em volta do colar (a do fio sai do fim da do plug e chega a `ROPE_SHADOW` no buraco, `_lift`), a
+  lâmpada da linha acende também a beira de cima do cabo (`_plug_reflect(j, tilt)`), o corpo em pé entra girando para o eixo do encaixado, sem a ponta de metal
   (`_draw_plug_body(col, false)`), e o furo dos
   encaixes vazios mostra a parede de dentro pela mesma paralaxe (`_tilt_at`, `HOLE_DEPTH`). O aro pega a luz da lâmpada (`_plug_reflect`: na entrada, a
   da linha, no alto do aro; no destino, a do aro aceso, em volta). Ao encaixar, o corpo em pé entra no encaixe enquanto a
