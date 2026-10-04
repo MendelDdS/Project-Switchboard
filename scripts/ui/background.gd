@@ -352,7 +352,8 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	var a := _vp + Vector2(xc, _yd) * maxf(SIDE_T, DESK_T)
 	var c := _vp + Vector2(xc, _yd) * minf(_t2, te)
 	var cool: float = {"clear": 0.06, "rain": 0.04, "fog": 0.025}.get(weather, 0.04)
-	draw_colored_polygon(PackedVector2Array([a, c, Vector2(c.x - 70, front), Vector2(a.x - 110, front)]), Color(0.6, 0.72, 0.9, cool))
+	if c.x > a.x + 4.0:   # (com a tela mudando de tamanho, a janela pode ainda não chegar à mesa)
+		draw_colored_polygon(PackedVector2Array([a, c, Vector2(c.x - 70, front), Vector2(a.x - 110, front)]), Color(0.6, 0.72, 0.9, cool))
 	var wall := Color("202d30")   # virada para a luminária: mais clara que a do fundo (é o que mostra a quina)
 	draw_colored_polygon(PackedVector2Array([Vector2(_cx, 0), Vector2(w, 0), j, d, Vector2(_cx, top)]), wall)
 	var k := 1
