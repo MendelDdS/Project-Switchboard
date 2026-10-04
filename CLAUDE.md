@@ -226,7 +226,12 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   direita (`_draw_plug_face`: as mesmas peças de em pé, colar, cabo com sulcos e ponteira, `PLUG_PARTS`, de lado e na
   ponta, `PLUG_FACE_R`); com paralaxe: a ponta se desloca do encaixe mais quanto mais longe de `PLUG_EYE` (`_tilt(j)`,
   `PLUG_DEPTH`). O fio sai da ponteira (`_plug_base` = encaixe + `_tilt`; o plug encaixado é desenhado antes do fio,
-  e o miolo da ponteira, `_draw_plug_cap`, depois). O aro pega a luz da lâmpada (`_plug_reflect`: na entrada, a
+  e o miolo da ponteira, `_draw_plug_cap`, depois). Encaixado, o fio sai no eixo do plug por `CORD_STUB` px e faz a curva
+  aos poucos (o penúltimo ponto da corda fica preso, `pin` em `_step_rope`; os seguintes tendem a continuar a direção,
+  `CORD_BEND`, uma vez por passo: por iteração endurecia o fio), a sombra vai do encaixe até `PLUG_SHADE` com uma
+  sombra de contato em volta do colar, o corpo em pé entra girando para o eixo do encaixado, sem a ponta de metal
+  (`_draw_plug_body(col, false)`), e o furo dos
+  encaixes vazios mostra a parede de dentro pela mesma paralaxe (`_tilt_at`, `HOLE_DEPTH`). O aro pega a luz da lâmpada (`_plug_reflect`: na entrada, a
   da linha, no alto do aro; no destino, a do aro aceso, em volta). Ao encaixar, o corpo em pé entra no encaixe enquanto a
   vista de frente cresce, e ao sair a vista de frente some no encaixe (`MORPH_SEC`, `_pulled`, `_unseat`); ao encaixar, o tampo encolhe `PUSH_PX`
   e volta em `PUSH_SEC` (`_pushed`, `_push`). Destaque e sombra seguem a silhueta (`_plug_outline`: as partes unidas
