@@ -5,11 +5,13 @@ extends Control
 ## - SAÍDAS: uma tomada logo abaixo de cada entrada. Uma ponta do cabo de conexão entra aqui...
 ## - DESTINOS: ...e a outra ponta no número pedido.
 ## Os cabos de conexão são poucos (PATCHES): desmontar as conexões encerradas libera cabos.
-## Cada ponta tem o próprio fio, que sai de um buraco (dois por cabo de conexão na base; o do FONE no encaixe).
+## Cada ponta tem o próprio fio, que sai de um buraco (dois por cabo de conexão na bandeja, na mesa à frente do painel;
+## o do FONE no encaixe).
 ## Arraste o plug até a tomada (clicar e segurar). Clicar num plug encaixado (sem arrastar),
 ## ou soltá-lo fora de uma tomada, solta o plug: ele cai e o fio o recolhe para o buraco.
 ## A mesa não conhece ligações: lê as lâmpadas de `exchange` e avisa por `end_changed` quando um plug muda.
-## Desenha por cima dos vizinhos (z_index na cena), porque o FONE mora num encaixe do painel do telefone.
+## Desenha por cima dos vizinhos (z_index na cena), porque o encaixe do FONE e a bandeja dos cabos ficam na mesa, fora
+## do retângulo do painel (lugares reservados na cena, `setup`).
 
 signal end_changed(end: int, jack: int, prev: int)
 signal info_requested(jack: int)
@@ -30,9 +32,14 @@ const CORD_COLORS := [
 const SECTOR_ORDER := [1, 2, 3]
 const DEST_PITCH := 29.0     # px entre duas tomadas de destino vizinhas
 const BLOCK_GAP := 12.0      # px entre dois blocos
-const DEST_TOP := 182.0      # topo das tomadas da primeira fileira (a segunda fica DEST_ROW px abaixo)
-const DEST_ROW := 44.0
-const SIZE := Vector2(588, 334)
+const DEST_TOP := 217.0      # topo das tomadas da primeira fileira (a segunda fica DEST_ROW px abaixo)
+const DEST_ROW := 46.0
+const SIZE := Vector2(588, 362)
+const FRAME := 7.0           # a moldura de madeira do móvel, em volta do painel
+## Faixas gravadas no painel que separam as seções (altura da linha; o nome fica sobre ela, à esquerda).
+const RULES := {"in": 22.0, "out": 131.0, "dest": 187.0}
+const LEGEND_Y := 330.0      # a legenda das lâmpadas, numa linha, no pé do painel
+const WOOD := [Color("6b4529"), Color("4a2f1c"), Color("2a1a0f")]   # madeira do móvel e da bandeja: luz, meio, sombra
 const FONE_HOME := Vector2(18, 24)   # posição do plug do FONE dentro do encaixe
 
 var _pushed := {}   ## ponta -> segundos desde que encaixou (a assentada, `PUSH_SEC`, e a passagem para de frente)
@@ -40,7 +47,8 @@ var _pulled := {}   ## ponta -> [segundos desde que saiu do encaixe, onde ele es
 var _silhouette := {}   ## inclinação do plug encaixado (em pé: false) -> polígono do contorno (destaque e sombra)
 var _lit := {}   ## lâmpada ("l3" linha, "d312" destino) -> [cor, quanto está acesa 0..1]; a cor fica enquanto apaga
 var exchange: Exchange
-var fone_socket: Control       # encaixe do FONE no painel do telefone
+var fone_socket: Control       # encaixe do FONE, na mesa à frente do painel
+var tray: Control              # bandeja dos cabos de conexão, na mesa à frente do painel
 var dest_nums: Array = []      # destinos em serviço (dos setores atendidos)
 var _slots := {}               # número -> centro da tomada (de todos os setores, atendidos ou não)
 var _blocks := {}              # setor -> retângulo do bloco
@@ -88,7 +96,7 @@ const LAMP_R := 4.5         # raio do vidro da lâmpada de cada linha (o aro de 
 const JACK := 22.0          # diâmetro de todos os encaixes (entradas, saídas e destinos)
 ## A coluna de cada linha, de cima para baixo: plaquinha com o número (topo e altura), estado (linha de base do texto),
 ## lâmpada, entrada e saída (centros). O estado fica acima da lâmpada: embaixo da entrada, o plug encaixado o cobria.
-const ROW_Y := {"plate": 34.0, "plate_h": 17.0, "state": 62.0, "lamp": 76.0, "in": 101.0, "out": 131.0}
+const ROW_Y := {"plate": 32.0, "plate_h": 17.0, "state": 61.0, "lamp": 76.0, "in": 104.0, "out": 156.0}
 const STATE_FONT := 8       # o estado da linha ("conectada" em 11 não cabe na coluna): exceção à regra dos múltiplos de 11
 const BEZEL := [Color("d6d1c3"), Color("8e897c"), Color("45413a")]   # aro niquelado: luz, meio, sombra
 const LAMP_OFF := Color("2a2016")   # o vidro da lâmpada apagada
@@ -104,7 +112,6 @@ const DAMPING := 0.985             # 1 = sem atrito com o ar
 const STIFF_ITER := 14             # iterações de restrição (maior = cabo menos elástico)
 const SLACK := 70.0                # folga extra além da distância reta (fio do FONE)
 const CORD_SLACK := 14.0           # idem, fios dos cabos de conexão
-const FLOOR_Y := 354.0             # o cabo repousa sobre a mesa abaixo do painel
 const STEP := 1.0 / 90.0
 var ropes := {}                    # ponta -> corda (só enquanto o fio está para fora do buraco)
 const SLEEP_STEPS := 30            # passos quase parado até o fio "dormir" (deixa de ser simulado até algo mexer nele)
@@ -128,9 +135,10 @@ func _ready() -> void:
 		_order.append(i)
 
 
-func setup(ex: Exchange, socket: Control) -> void:
+func setup(ex: Exchange, socket: Control, cord_tray: Control) -> void:
 	exchange = ex
 	fone_socket = socket
+	tray = cord_tray
 	dest_nums = ex.dest_numbers()
 	_jacks = range(1, 21) + dest_nums
 	_layout_dests()
@@ -165,8 +173,20 @@ func socket_rect() -> Rect2:
 	return Rect2(fone_socket.global_position - global_position, fone_socket.size)
 
 
+## A bandeja dos cabos em coordenadas da mesa (também fora do retângulo dela).
+func tray_rect() -> Rect2:
+	if tray == null:
+		return Rect2(388, 394, 200, 86)
+	return Rect2(tray.global_position - global_position, tray.size)
+
+
+## Os fios repousam no fundo da faixa de mesa (o da bandeja e o do encaixe do FONE).
+func _floor() -> float:
+	return tray_rect().end.y
+
+
 func _has_point(p: Vector2) -> bool:
-	return Rect2(Vector2.ZERO, size).has_point(p) or socket_rect().has_point(p)
+	return Rect2(Vector2.ZERO, size).has_point(p) or socket_rect().has_point(p) or tray_rect().has_point(p)
 
 
 # ------------------------------------------------------------------ geometria
@@ -195,17 +215,20 @@ func jack_at(pos: Vector2) -> int:
 
 
 func top_rect(i: int) -> Rect2:
-	return Rect2(col_x(i) - 20, 36, 40, 36)
+	return Rect2(col_x(i) - 20, ROW_Y["plate"] - 2, 40, ROW_Y["lamp"] - ROW_Y["plate"] + 8)
 
 
+## Centro do lugar do cabo de conexão k na bandeja (as duas pontas ficam lado a lado).
 func patch_x(k: int) -> float:
-	return 80.0 + k * 125.0
+	var t := tray_rect()
+	return t.position.x + t.size.x * (k + 0.5) / PATCHES
 
 
+## Onde fica o plug guardado, de pé (o FONE no encaixe; os de conexão na bandeja, o fio entrando no buraco embaixo).
 func home_pos(e: int) -> Vector2:
 	if e == 0:
 		return socket_rect().position + FONE_HOME
-	return Vector2(patch_x((e - 1) / 2) + (-14.0 if e % 2 == 1 else 14.0), 284)
+	return Vector2(patch_x((e - 1) / 2) + (-12.0 if e % 2 == 1 else 12.0), tray_rect().position.y + 38.0)
 
 
 ## Buraco de onde sai o fio da ponta e (o do FONE sai do alto do encaixe, como sempre).
@@ -219,7 +242,7 @@ func home_rect(e: int) -> Rect2:
 	if e == 0:
 		return socket_rect()
 	var h := home_pos(e)
-	return Rect2(h.x - 12, 262, 24, 50)
+	return Rect2(h.x - 11, h.y - 22, 22, 50)
 
 
 ## A outra ponta do mesmo cabo de conexão (-1 para o FONE).
@@ -590,6 +613,7 @@ func _step_rope(e: int, dt: float) -> void:
 			return
 		r.erase("sleep")
 	var seg := length / last
+	var floor_y := _floor()
 	# inércia + gravidade
 	var moving := last + 1 if free else last
 	var tap := 0.0   # a batida mais forte de um ponto do fio na mesa, neste passo (px/passo), e onde
@@ -602,7 +626,7 @@ func _step_rope(e: int, dt: float) -> void:
 			pts[i] += v * 0.5   # puxado direto: fio esticado, sem gravidade e quase sem embalo (o plug não pendula)
 			continue
 		pts[i] += v + GRAVITY * dt * dt
-		if pts[i].y > FLOOR_Y:
+		if pts[i].y > floor_y:
 			if i == last:
 				if v.y > DROP_SPEED * dt:
 					_sfx("drop", pts[i])   # o plug solto bate na mesa
@@ -642,8 +666,8 @@ func _step_rope(e: int, dt: float) -> void:
 				pts[i] += corr * 0.5
 				pts[i + 1] -= corr * 0.5
 		for i in range(1, moving):
-			if pts[i].y > FLOOR_Y:   # o fio do FONE também repousa na fresta entre a mesa e o telefone
-				pts[i].y = FLOOR_Y
+			if pts[i].y > floor_y:   # repousa na mesa, à frente do painel
+				pts[i].y = floor_y
 				old[i].x = lerpf(old[i].x, pts[i].x, 0.3)   # atrito com a mesa
 	r["pts"] = pts
 	r["old"] = old
@@ -757,14 +781,11 @@ func _draw() -> void:
 	var w := size.x
 	var h := size.y
 	var ms := Time.get_ticks_msec()
-	draw_rect(Rect2(Vector2.ZERO, size), Pal.EDGE)
-	draw_rect(Rect2(3, 3, w - 6, h - 6), Pal.PANEL)
-	draw_rect(Rect2(3, 3, w - 6, 3), Pal.PANEL_HI)
-	draw_rect(Rect2(3, 3, 3, h - 6), Pal.PANEL_HI)
-	draw_rect(Rect2(3, h - 6, w - 6, 3), Pal.PANEL_LO)
-	draw_rect(Rect2(w - 6, 3, 3, h - 6), Pal.PANEL_LO)
-	draw_string(Pal.mono, Vector2(17, 28), T.text(T.Key.BOARD_TITLE), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.BRASS)
-	draw_string(Pal.ui, Vector2(17, 26), T.text(T.Key.BOARD_LEGEND), HORIZONTAL_ALIGNMENT_RIGHT, w - 34, 11, Pal.DIM)
+	_draw_cabinet(Rect2(Vector2.ZERO, size))
+	_draw_tray(tray_rect())
+	_draw_rule(RULES["in"], T.text(T.Key.BOARD_INPUTS))
+	_draw_rule(RULES["out"], T.text(T.Key.BOARD_OUTPUTS))
+	_draw_rule(RULES["dest"], "")
 	if exchange == null:
 		return
 
@@ -786,13 +807,12 @@ func _draw() -> void:
 		draw_string(Pal.ui, Vector2(cx - 28, ROW_Y["state"]), exchange.line_label(n), HORIZONTAL_ALIGNMENT_CENTER, 56, STATE_FONT, sc)
 		_draw_jack(jack_rect(n + 10), Color("7a6230"))
 
-	# destinos: a faixa de numeração do banco fica sobre a linha divisória, como rótulo da seção
-	draw_rect(Rect2(12, 151, w - 24, 2), Pal.PANEL_LO)
+	# destinos: a faixa de numeração de cada banco fica sobre a faixa gravada, como rótulo da seção
 	for s in _blocks:
 		var br: Rect2 = _blocks[s]
 		var cap := "%d–%d" % [s * 100, s * 100 + 99]
-		draw_rect(Rect2(br.position.x, 144, Pal.ui.get_string_size(cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 8, 15), Pal.PANEL)
-		draw_string(Pal.ui, Vector2(br.position.x + 4, 156), cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
+		draw_rect(Rect2(br.position.x, RULES["dest"] - 7, Pal.ui.get_string_size(cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 8, 15), Pal.PANEL)
+		draw_string(Pal.ui, Vector2(br.position.x + 4, RULES["dest"] + 5), cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
 		draw_rect(br, Pal.PANEL_LO, false, 1.0)
 	for d in dest_nums:
 		var jr := jack_rect(d)
@@ -808,21 +828,16 @@ func _draw() -> void:
 		if not s in GameData.sectors:
 			_draw_plate(_blocks[s], "ABC"[SECTOR_ORDER.find(s)])
 
-	# base dos cabos de conexão
-	draw_rect(Rect2(12, 254, w - 24, 2), Pal.PANEL_LO)
-	for k in PATCHES:
-		var cx := patch_x(k)
-		_draw_metal(Rect2(cx - 30, 299, 60, 15))
-		for e in [1 + k * 2, 2 + k * 2]:   # os dois buracos de onde saem os fios: buchas, como encaixes pequenos
-			_draw_jack(Rect2(hole(e) - Vector2(5.5, 5.5), Vector2(11, 11)), Color("7a6230"))
-		draw_string(Pal.mono, Vector2(cx - 30, 326), T.text(T.Key.BOARD_CORD) % (k + 1), HORIZONTAL_ALIGNMENT_CENTER, 60, 11, Pal.BRASS)
-	# legenda
+	# legenda das lâmpadas, numa linha no pé do painel
+	draw_rect(Rect2(FRAME + 6, LEGEND_Y - 18, w - FRAME * 2 - 12, 1), Pal.PANEL_LO)
 	var leg := [[Pal.AMBER, T.Key.LEGEND_RING], [Pal.GREEN, T.Key.LEGEND_CONN], [Pal.RED, T.Key.LEGEND_DONE], [LAMP_OFF, T.Key.LEGEND_FREE]]
+	var lx := FRAME + 14.0
 	for k in leg.size():
-		var y := 270 + k * 18
-		draw_circle(Vector2(413, y - 5), 5.5, Color.BLACK)   # lâmpadas redondas, como as da mesa
-		draw_circle(Vector2(413, y - 5), 4.0, leg[k][0])
-		draw_string(Pal.ui, Vector2(424, y), T.text(leg[k][1]), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
+		draw_circle(Vector2(lx + 5, LEGEND_Y - 4), 5.5, Color.BLACK)   # lâmpadas redondas, como as da mesa
+		draw_circle(Vector2(lx + 5, LEGEND_Y - 4), 4.0, leg[k][0])
+		var t := T.text(leg[k][1])
+		draw_string(Pal.ui, Vector2(lx + 15, LEGEND_Y), t, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
+		lx += 15.0 + Pal.ui.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 22.0
 
 	# destaque da tomada sob o plug
 	if held != -1:
@@ -867,6 +882,55 @@ func _draw() -> void:
 		draw_rect(Rect2(bx + 2, by + 2, bw - 4, bh - 4), Color("0e0c08"))
 		for k in info_lines.size():
 			draw_string(Pal.mono, Vector2(bx + 10, by + 22 + k * 19), info_lines[k], HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.GHOST if info_ghost else Pal.TEXT)
+
+
+## O móvel da mesa: moldura de madeira (luz em cima à esquerda, cantos chanfrados) e o painel de metal escuro dentro,
+## rebaixado.
+func _draw_cabinet(r: Rect2) -> void:
+	draw_rect(r, Color.BLACK)
+	draw_rect(r.grow(-1), WOOD[1])
+	draw_rect(Rect2(r.position + Vector2(1, 1), Vector2(r.size.x - 2, 2)), WOOD[0])
+	draw_rect(Rect2(r.position + Vector2(1, 1), Vector2(2, r.size.y - 2)), WOOD[0])
+	draw_rect(Rect2(r.position.x + 1, r.end.y - 3, r.size.x - 2, 2), WOOD[2])
+	draw_rect(Rect2(r.end.x - 3, r.position.y + 1, 2, r.size.y - 2), WOOD[2])
+	for y in range(int(r.position.y) + 5, int(r.end.y) - 4, 7):   # veios da madeira, nas laterais
+		draw_rect(Rect2(r.position.x + 3, y, FRAME - 4, 1), WOOD[2].lightened(0.1))
+		draw_rect(Rect2(r.end.x - FRAME + 1, y + 3, FRAME - 4, 1), WOOD[2].lightened(0.1))
+	var p := r.grow(-FRAME)
+	draw_rect(p.grow(1), Color.BLACK)
+	draw_rect(p, Pal.PANEL)
+	draw_rect(Rect2(p.position, Vector2(p.size.x, 2)), Pal.PANEL_LO)   # rebaixado: a sombra fica em cima à esquerda
+	draw_rect(Rect2(p.position, Vector2(2, p.size.y)), Pal.PANEL_LO)
+	draw_rect(Rect2(p.position.x, p.end.y - 1, p.size.x, 1), Pal.PANEL_HI)
+
+
+## Faixa gravada que separa as seções do painel, com o nome dela em cima, à esquerda (sem nome, só a faixa).
+func _draw_rule(y: float, caption: String) -> void:
+	draw_rect(Rect2(FRAME + 6, y, size.x - FRAME * 2 - 12, 1), Pal.PANEL_LO)
+	draw_rect(Rect2(FRAME + 6, y + 1, size.x - FRAME * 2 - 12, 1), Pal.PANEL_HI)
+	if caption != "":
+		var cw := Pal.ui.get_string_size(caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
+		draw_rect(Rect2(FRAME + 14, y - 7, cw + 8, 15), Pal.PANEL)
+		draw_string(Pal.ui, Vector2(FRAME + 18, y + 5), caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.BRASS)
+
+
+## A bandeja de madeira na mesa, à frente do painel, onde os cabos de conexão ficam guardados de pé: fundo forrado, os
+## buracos de onde saem os fios (buchas, como encaixes pequenos) e a plaquinha com o número de cada cabo.
+func _draw_tray(r: Rect2) -> void:
+	draw_rect(Rect2(r.position + Vector2(3, 4), r.size), SHADOW)   # sombra na mesa
+	draw_rect(r, Color.BLACK)
+	draw_rect(r.grow(-1), WOOD[1])
+	draw_rect(Rect2(r.position + Vector2(1, 1), Vector2(r.size.x - 2, 2)), WOOD[0])
+	draw_rect(Rect2(r.position.x + 1, r.end.y - 3, r.size.x - 2, 2), WOOD[2])
+	var bed := r.grow_individual(-5, -5, -5, -24)
+	draw_rect(bed, Color("1a1410"))   # o fundo forrado
+	draw_rect(Rect2(bed.position, Vector2(bed.size.x, 3)), Color(0, 0, 0, 0.5))   # a borda da bandeja faz sombra nele
+	for k in PATCHES:
+		for e in [1 + k * 2, 2 + k * 2]:
+			_draw_jack(Rect2(hole(e) - Vector2(5.5, 5.5), Vector2(11, 11)), Color("7a6230"))
+		var cx := patch_x(k)
+		_draw_metal(Rect2(cx - 26, r.end.y - 19, 52, 14))
+		draw_string(Pal.mono, Vector2(cx - 26, r.end.y - 8), T.text(T.Key.BOARD_CORD) % (k + 1), HORIZONTAL_ALIGNMENT_CENTER, 52, 11, Color("1d1a14"))
 
 
 ## Chapa de metal niquelado: chanfro claro em cima e escuro embaixo, e um rebite em cada ponta.

@@ -19,9 +19,8 @@ const SMALLTALK_AFTER := 10.0           # segundos de silêncio esperando a tran
 const SMALLTALK_CHANCE := 0.6           # ...às vezes (respostas e limites: Conversation); sem resposta, reclama da demora:
 const NAG_AFTER := 22.0                 # segundos de silêncio até reclamar da demora (emergência: EMERGENCY_NAG_AFTER)
 const EMERGENCY_NAG_AFTER := 26.0
-const PHONE_MAX_H := 400.0              # px: em tela alta o telefone para de crescer (a sobra fica para a mesa de madeira)
-## Atalhos das abas (Input Map): aba -> ação.
-const TAB_KEYS := {"lista": "tab_directory", "despacho": "tab_dispatch", "caderno": "tab_logbook"}
+## Atalhos das ferramentas (Input Map): aba -> ação.
+const TAB_KEYS := {"lista": "tab_directory", "despacho": "tab_dispatch", "caderno": "tab_logbook", "registro": "tab_call_log"}
 var C: GameContent = GameData.CONTENT
 
 var exchange: Exchange
@@ -95,18 +94,7 @@ func _ready() -> void:
 	clock.add_to_group("bloom")   # o visor do relógio brilha, de leve
 	clock.set_meta("bloom", 0.35)
 	exchange = Exchange.new(GameData.board_numbers())
-	board.setup(exchange, phone.fone_socket)
-	# o telefone ocupa o resto da coluna, até PHONE_MAX_H. Mede pela altura da tela (o Main não cresce com o
-	# conteúdo), não pela coluna: um aviso que quebra linha fazia a coluna transbordar, e medida por ela o telefone
-	# ficava esticado até a tela sair do lugar (o relógio subia, os botões saíam por baixo)
-	var left := phone.get_parent() as Control
-	var layout := left.get_parent().get_parent() as MarginContainer
-	var fit := func():
-		var room := size.y - layout.get_theme_constant("margin_top") - layout.get_theme_constant("margin_bottom")
-		var above := left.get_combined_minimum_size().y - phone.get_combined_minimum_size().y
-		phone.custom_minimum_size.y = minf(room - above, PHONE_MAX_H)
-	left.resized.connect(fit)
-	resized.connect(fit)
+	board.setup(exchange, %FoneSocket, %CordTray)
 	var plan := Schedule.build(night, pace, LAST_CALL)
 	sched = plan.calls
 	tut = plan.tut
@@ -127,7 +115,8 @@ func _ready() -> void:
 	dispatch.arrived.connect(supervisor.on_arrived)
 	dispatch.blank_card.connect(func(loc: String): supervisor.fault("dispatch_blank", loc))
 	notebook.registered.connect(supervisor.on_registered)
-	notebook.pending_changed.connect(func(n: int): tools.set_count("caderno", n))
+	notebook.pending_changed.connect(func(n: int): tools.set_count("caderno", n); background.pending = n)
+	background.prop_clicked.connect(func(id: String): if running and not ending: tools.set_tab(id))   # objetos da cena
 	_intro.setup(night_no, night, progress != null and progress.night > 1)
 	# noite de entrega de um setor: o mapa se abre para o bairro novo na primeira vez que aparece
 	var before := GameData.sectors_for(night_no - 1)
@@ -224,6 +213,7 @@ func _process(delta: float) -> void:
 		_nag()
 		supervisor.check_hold()
 	background.flick = flick
+	background.clock_min = SHIFT_START_HOUR * 60 + minutes
 	_glow.modulate.a = background.lamp_level
 
 
@@ -254,8 +244,9 @@ func _nag() -> void:
 		conversation.say(f, GameData.pick(C.emergency_waiting))
 
 
-## Esc: primeiro devolve o plug que está na mão; sem plug na mão, pausa o turno. 1, 2 e 3 abrem as abas (só durante
-## o turno; na pausa a árvore está parada). F1 abre o painel de debug (só em build de debug).
+## Esc: primeiro devolve o plug que está na mão; depois guarda a ferramenta aberta; sem nada disso, pausa o turno.
+## 1 a 4 abrem e guardam as ferramentas (só durante o turno; na pausa a árvore está parada). F1 abre o painel de
+## debug (só em build de debug).
 func _unhandled_input(e: InputEvent) -> void:
 	if e.is_action_pressed("cancel_plug") and board.held != -1:
 		board.go_home(board.held)
@@ -263,6 +254,9 @@ func _unhandled_input(e: InputEvent) -> void:
 	elif e.is_action_pressed("debug") and OS.is_debug_build():
 		get_viewport().set_input_as_handled()
 		%Debug.visible = not %Debug.visible
+	elif e.is_action_pressed("pause") and running and not ending and tools.open and e is InputEventKey and e.keycode == KEY_ESCAPE:
+		get_viewport().set_input_as_handled()
+		tools.close()
 	elif e.is_action_pressed("pause") and running and not ending:
 		get_viewport().set_input_as_handled()
 		pause()
@@ -270,7 +264,7 @@ func _unhandled_input(e: InputEvent) -> void:
 		for id in TAB_KEYS:
 			if e.is_action_pressed(TAB_KEYS[id]):
 				get_viewport().set_input_as_handled()
-				tools.set_tab(id)
+				tools.toggle(id)
 
 
 func pause() -> void:
@@ -573,8 +567,14 @@ func _update_call_ui() -> void:
 	var others := PackedStringArray()
 	for c in live:
 		if c != s:
-			others.append("%02d %s" % [c.line, T.text(T.Key.STATUS_RINGING) if c.ringing else T.text(T.Key.STATUS_ON_HOLD)])
-	phone.set_status(line, st, "" if others.is_empty() else T.text(T.Key.STATUS_OTHER_LINES) % ", ".join(others))
+			others.append("%02d · %s" % [c.line, T.text(T.Key.STATUS_RINGING) if c.ringing else T.text(T.Key.STATUS_ON_HOLD)])
+	phone.set_status(line, st, "—" if others.is_empty() else "\n".join(others))
+	# o destino: o que está na outra ponta do cabo da saída da linha em foco
+	var dest := board.dest_of_output(s.line) if s != null else -1
+	var dest_state := T.text(T.Key.HUD_DEST_NONE)
+	if dest != -1:
+		dest_state = T.text([T.Key.LEGEND_FREE, T.Key.STATUS_RINGING, T.Key.HUD_DEST_TALK, T.Key.LEGEND_DONE][exchange.dest(dest)])
+	phone.set_dest(dest, dest_state)
 
 
 # ================================================================ agenda das ligações
@@ -662,6 +662,7 @@ func ring(c: PhoneCall) -> void:
 	c.ringing = true
 	c.time = fmt(minutes)
 	live.append(c)
+	tools.call_log.track(c)
 	if c.kind == PhoneCall.Kind.MYSTERY:
 		myst_time = c.time
 		myst_line = c.line

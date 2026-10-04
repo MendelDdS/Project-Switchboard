@@ -1,127 +1,92 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/phone_panel.gd" id="1_phone_panel"]
-[ext_resource type="Script" path="res://scripts/ui/fone_socket.gd" id="2_fone_socket"]
 [ext_resource type="FontFile" uid="uid://bixnphjx77akg" path="res://fonts/DepartureMono-Regular.otf" id="3_vt323_regula"]
 [ext_resource type="Script" path="res://scripts/ui/urgency_bar.gd" id="9_urgency"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
 bg_color = Color(0.016, 0.024, 0.02, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_screen"]
-content_margin_left = 8.0
-content_margin_top = 6.0
-content_margin_right = 8.0
-content_margin_bottom = 6.0
-bg_color = Color(0.031, 0.047, 0.035, 1)
-
 [node name="Phone" type="MarginContainer"]
-custom_minimum_size = Vector2(588, 0)
+custom_minimum_size = Vector2(0, 150)
 mouse_filter = 2
-theme_override_constants/margin_left = 22
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 22
-theme_override_constants/margin_bottom = 8
 script = ExtResource("1_phone_panel")
 
-[node name="VBox" type="VBoxContainer" parent="."]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 0
-
-[node name="Face" type="HBoxContainer" parent="VBox"]
-layout_mode = 2
-size_flags_vertical = 3
-mouse_filter = 2
-theme_override_constants/separation = 14
-
-[node name="FoneSocket" type="Control" parent="VBox/Face"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(76, 44)
-layout_mode = 2
-size_flags_vertical = 0
-mouse_filter = 2
-script = ExtResource("2_fone_socket")
-
-[node name="Screen" type="PanelContainer" parent="VBox/Face"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_screen")
-
-[node name="ScreenV" type="VBoxContainer" parent="VBox/Face/Screen"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="Top" type="HBoxContainer" parent="VBox/Face/Screen/ScreenV"]
+[node name="Bar" type="HBoxContainer" parent="."]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 10
 
-[node name="DisplayBox" type="PanelContainer" parent="VBox/Face/Screen/ScreenV/Top"]
-custom_minimum_size = Vector2(150, 24)
+[node name="CallBox" type="PanelContainer" parent="Bar"]
+custom_minimum_size = Vector2(240, 0)
 layout_mode = 2
-size_flags_vertical = 4
+mouse_filter = 2
+theme_type_variation = &"HudPanel"
+
+[node name="CallV" type="VBoxContainer" parent="Bar/CallBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Row" type="HBoxContainer" parent="Bar/CallBox/CallV"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="CallLine" type="Label" parent="Bar/CallBox/CallV/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 11
+text = "STATUS_NO_CALL"
+
+[node name="CallState" type="Label" parent="Bar/CallBox/CallV/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"AmberLabel"
+theme_override_font_sizes/font_size = 11
+text = ""
+horizontal_alignment = 2
+
+[node name="DisplayBox" type="PanelContainer" parent="Bar/CallBox/CallV"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_1")
 
-[node name="Display" type="Label" parent="VBox/Face/Screen/ScreenV/Top/DisplayBox"]
-layout_mode = 2
-text = ""
-theme_override_fonts/font = ExtResource("3_vt323_regula")
-theme_override_colors/font_color = Color(0.9529, 0.6588, 0.2353, 1)
-theme_override_font_sizes/font_size = 11
+[node name="Display" type="Label" parent="Bar/CallBox/CallV/DisplayBox"]
 unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9529, 0.6588, 0.2353, 1)
+theme_override_fonts/font = ExtResource("3_vt323_regula")
+theme_override_font_sizes/font_size = 11
+text = ""
 horizontal_alignment = 1
 vertical_alignment = 1
 clip_text = true
 
-[node name="Info" type="VBoxContainer" parent="VBox/Face/Screen/ScreenV/Top"]
-layout_mode = 2
-size_flags_horizontal = 3
-mouse_filter = 2
-theme_override_constants/separation = 0
-
-[node name="Row" type="HBoxContainer" parent="VBox/Face/Screen/ScreenV/Top/Info"]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="CallLine" type="Label" parent="VBox/Face/Screen/ScreenV/Top/Info/Row"]
-layout_mode = 2
-text = "STATUS_NO_CALL"
-theme_type_variation = &"DimLabel"
-theme_override_font_sizes/font_size = 11
-unique_name_in_owner = true
-size_flags_horizontal = 3
-
-[node name="CallState" type="Label" parent="VBox/Face/Screen/ScreenV/Top/Info/Row"]
-layout_mode = 2
-text = ""
-theme_type_variation = &"DimLabel"
-theme_override_font_sizes/font_size = 11
-unique_name_in_owner = true
-horizontal_alignment = 2
-
-[node name="Others" type="Label" parent="VBox/Face/Screen/ScreenV/Top/Info"]
-layout_mode = 2
-text = ""
-theme_type_variation = &"AmberLabel"
-theme_override_font_sizes/font_size = 11
-unique_name_in_owner = true
-clip_text = true
-
-[node name="Transcript" type="RichTextLabel" parent="VBox/Face/Screen/ScreenV"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 28)
+[node name="Gap" type="Control" parent="Bar/CallBox/CallV"]
 layout_mode = 2
 size_flags_vertical = 3
-bbcode_enabled = true
-scroll_following = true
-theme_override_colors/default_color = Color(0.902, 0.8588, 0.7412, 1)
-theme_override_font_sizes/normal_font_size = 11
-theme_override_constants/line_separation = 2
+mouse_filter = 2
 
-[node name="Warn" type="Label" parent="VBox/Face/Screen/ScreenV"]
+[node name="Urgency" type="Control" parent="Bar/CallBox/CallV"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("9_urgency")
+
+[node name="ConvBox" type="PanelContainer" parent="Bar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"HudPanel"
+
+[node name="ConvV" type="VBoxContainer" parent="Bar/ConvBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Warn" type="Label" parent="Bar/ConvBox/ConvV"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
@@ -129,61 +94,39 @@ theme_type_variation = &"AmberLabel"
 theme_override_font_sizes/font_size = 11
 autowrap_mode = 3
 
-[node name="Choices" type="HFlowContainer" parent="VBox/Face/Screen/ScreenV"]
+[node name="Transcript" type="RichTextLabel" parent="Bar/ConvBox/ConvV"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+scroll_active = false
+scroll_following = true
+theme_override_colors/default_color = Color(0.902, 0.8588, 0.7412, 1)
+theme_override_font_sizes/normal_font_size = 11
+theme_override_constants/line_separation = 2
+
+[node name="Choices" type="HFlowContainer" parent="Bar/ConvBox/ConvV"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 6
 theme_override_constants/v_separation = 4
 
-[node name="Strip" type="MarginContainer" parent="VBox"]
+[node name="Keys" type="HBoxContainer" parent="Bar"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Answer" type="Button" parent="Bar/Keys"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 24)
+custom_minimum_size = Vector2(96, 0)
 layout_mode = 2
-mouse_filter = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 5
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 3
-
-[node name="Urgency" type="Control" parent="VBox/Strip"]
-unique_name_in_owner = true
-visible = false
-custom_minimum_size = Vector2(0, 16)
-layout_mode = 2
-mouse_filter = 2
-script = ExtResource("9_urgency")
-
-[node name="DeckBox" type="MarginContainer" parent="VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
-
-[node name="Deck" type="HBoxContainer" parent="VBox/DeckBox"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 10
-
-[node name="Gap" type="Control" parent="VBox/DeckBox/Deck"]
-layout_mode = 2
-size_flags_horizontal = 3
-mouse_filter = 2
-
-[node name="Answer" type="Button" parent="VBox/DeckBox/Deck"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(112, 36)
-layout_mode = 2
-size_flags_vertical = 4
 focus_mode = 0
 theme_type_variation = &"GreenKey"
-alignment = 0
 disabled = true
 text = "ANSWER"
 
-[node name="Key" type="Label" parent="VBox/DeckBox/Deck/Answer"]
+[node name="Key" type="Label" parent="Bar/Keys/Answer"]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -199,18 +142,16 @@ theme_override_font_sizes/font_size = 11
 text = "KEY_SPACE"
 horizontal_alignment = 2
 
-[node name="Transfer" type="Button" parent="VBox/DeckBox/Deck"]
+[node name="Transfer" type="Button" parent="Bar/Keys"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(112, 36)
+custom_minimum_size = Vector2(96, 0)
 layout_mode = 2
-size_flags_vertical = 4
 focus_mode = 0
 theme_type_variation = &"AmberKey"
-alignment = 0
 disabled = true
 text = "TRANSFER"
 
-[node name="Key" type="Label" parent="VBox/DeckBox/Deck/Transfer"]
+[node name="Key" type="Label" parent="Bar/Keys/Transfer"]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -227,18 +168,16 @@ text = "Tab"
 auto_translate_mode = 2
 horizontal_alignment = 2
 
-[node name="Hangup" type="Button" parent="VBox/DeckBox/Deck"]
+[node name="Hangup" type="Button" parent="Bar/Keys"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(112, 36)
+custom_minimum_size = Vector2(96, 0)
 layout_mode = 2
-size_flags_vertical = 4
 focus_mode = 0
 theme_type_variation = &"RedKey"
-alignment = 0
 disabled = true
 text = "HANG_UP"
 
-[node name="Key" type="Label" parent="VBox/DeckBox/Deck/Hangup"]
+[node name="Key" type="Label" parent="Bar/Keys/Hangup"]
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -254,3 +193,63 @@ theme_override_font_sizes/font_size = 11
 text = "X"
 auto_translate_mode = 2
 horizontal_alignment = 2
+
+[node name="InfoBox" type="PanelContainer" parent="Bar"]
+custom_minimum_size = Vector2(180, 0)
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"HudPanel"
+
+[node name="InfoV" type="VBoxContainer" parent="Bar/InfoBox"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="DestTitle" type="Label" parent="Bar/InfoBox/InfoV"]
+layout_mode = 2
+theme_type_variation = &"DimLabel"
+theme_override_font_sizes/font_size = 11
+text = "HUD_DEST"
+
+[node name="DestRow" type="HBoxContainer" parent="Bar/InfoBox/InfoV"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="Dest" type="Label" parent="Bar/InfoBox/InfoV/DestRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.902, 0.8588, 0.7412, 1)
+theme_override_font_sizes/font_size = 22
+text = "—"
+auto_translate_mode = 2
+
+[node name="DestState" type="Label" parent="Bar/InfoBox/InfoV/DestRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"DimLabel"
+theme_override_font_sizes/font_size = 11
+text = ""
+auto_translate_mode = 2
+
+[node name="Gap" type="Control" parent="Bar/InfoBox/InfoV"]
+custom_minimum_size = Vector2(0, 6)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="OthersTitle" type="Label" parent="Bar/InfoBox/InfoV"]
+layout_mode = 2
+theme_type_variation = &"DimLabel"
+theme_override_font_sizes/font_size = 11
+text = "HUD_OTHERS"
+
+[node name="Others" type="Label" parent="Bar/InfoBox/InfoV"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"AmberLabel"
+theme_override_font_sizes/font_size = 11
+text = "—"
+auto_translate_mode = 2
+clip_text = true

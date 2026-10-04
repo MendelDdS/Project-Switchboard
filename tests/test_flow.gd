@@ -732,6 +732,24 @@ func _initialize() -> void:
 		_key(pair[0])
 		await frames(2)
 		ok(m.tools.tab == pair[1], "tecla abre a aba " + pair[1])
+	_key(KEY_4)
+	await frames(2)
+	ok(m.tools.tab == "registro" and m.tools.open, "tecla 4 abre o registro das conversas")
+	ok(kc in m.tools.call_log._calls and m.tools.call_log.text.contains(kc.transcript[0]["text"].left(12)), "o registro tem a conversa")
+	_key(KEY_4)
+	await frames(2)
+	ok(not m.tools.open, "a mesma tecla guarda a ferramenta (a janela aparece)")
+	await frames(2)   # o cenário se redesenha e guarda onde ficou cada objeto
+	for id in ["lista", "despacho", "caderno", "registro"]:   # objetos da cena abrem as ferramentas
+		m.tools.close()
+		await frames(12)
+		var pe := InputEventMouseButton.new()
+		pe.button_index = MOUSE_BUTTON_LEFT
+		pe.pressed = true
+		pe.position = (m.background._props[id] as Rect2).get_center()
+		m.background._gui_input(pe)
+		ok(m.tools.open and m.tools.tab == id, "o objeto da cena abre " + id)
+	m.tools.close()
 	print("OK 12 atalhos do telefone e das abas")
 
 	# ---- 13. mapa e despacho numa tela: marcar o local imprime o cartão; perfura-se o tipo (um só) e as unidades (o

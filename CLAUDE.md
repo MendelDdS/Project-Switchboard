@@ -10,7 +10,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Tudo em português: textos da interface, falas, comentários (`##` para doc de função) e mensagens ao usuário.
 - **Interface em cenas** (`scenes/`), com Containers; scripts de interface em `scripts/ui/`. Lógica em `scripts/`.
   Estilo visual no tema global `themes/main_theme.tres` (variações de tipo: `GreenButton`, `AmberButton`,
-  `RedButton`, `InkButton`, `DarkButton`, `ChoiceButton`, `GreenKey`, `AmberKey`, `RedKey` (teclas do console:
+  `RedButton`, `InkButton`, `DarkButton`, `ChoiceButton`, `HudPanel`, `GreenKey`, `AmberKey`, `RedKey` (teclas do console:
   `KeyCapStyle`, um StyleBox em script, `scripts/ui/key_cap_style.gd`), `TabButton`, `PaperToggle`, `PaperInk`, `LetterButton`,
   `DarkPanel`, `PaperPanel`, `NotePanel`, `FormPanel`, `SlipPanel`, `InkLabel`, `InkSoftLabel`, `DimLabel`, `AmberLabel`,
   `MonoLabel`, `InkMonoLabel`). Prefira variação de tema a override por nó.
@@ -51,16 +51,49 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   assuntos gerais com os do clima (`ChatTopic.weather`).
 - **Resolução**: a base é 1280×720 (`canvas_items`, `aspect="expand"`); o Godot amplia para a tela, e a proporção
   diferente de 16:9 vira espaço a mais, não tarja. Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
-  O layout absorve o espaço a mais: a coluna da esquerda (mesa e telefone) tem largura fixa e a da direita cresce;
-  o telefone ocupa o resto da altura até `Main.PHONE_MAX_H` (medido pela altura do Main, não da coluna: medido pela coluna,
-  um aviso que quebrava linha a fazia transbordar e o telefone ficava esticado, empurrando a tela para fora); o brilho da luminária (`%Glow`) tem 1280×720, preso à direita;
-  as abas crescem na altura; a lista telefônica, o mapa e o caderno acompanham o tamanho da aba (`PhoneBook.book`,
-  `NOTIFICATION_RESIZED`); o `Background` estica parede e mesa até a borda (luminária presa à direita).
-  No alto da esquerda, o relógio e o rádio (`TopLeft`, 86 px; o rádio tem só 314 de largura, então o cabeçalho e a
-  grade dele não podem crescer). No alto da direita só a janela (`TopRight`, 130 px; `Window`, um Control vazio que
-  cresce com a largura, e `Background.window` desenha a janela nele, com as medidas relativas ao vidro). As duas colunas
-  têm 701 px na base: a da direita pede 650 (abas com mínimo 420; lista e caderno, 384) e a da esquerda pede até 694
-  (com 3 fileiras de opções e um aviso no telefone). Passando de 701, a tela inteira sobe e o relógio sai por cima.
+  **Disposição (cena + painel)**: a tela é uma mesa de trabalho. No alto da esquerda o relógio (`ClockPanel`, 52 px); embaixo
+  dele a mesa comutadora (588×362) e, depois de uma folga de 16 px, a faixa de mesa (`%Desk`: o encaixe do FONE,
+  `%FoneSocket`, o rádio e a bandeja dos cabos, `%CordTray`; os fios repousam no fundo dela, `Switchboard._floor`). O
+  rádio tem `z_index` 1 e vem depois da mesa na árvore: fica na frente dos fios, como uma caixa em pé na mesa (um plug
+  arrastado por cima dele passa por trás). A coluna da
+  direita (cresce com a largura) tem a dica do manual no alto (`%Hint`, como um aviso na parede; no pé, ela ficava em
+  cima dos objetos da mesa) e as ferramentas (`Tools`: abas em cima e, no `%Body`, o papel da ferramenta aberta, que
+  desliza sobre a janela e a mesa; guardadas, a janela aparece). Embaixo de tudo, na
+  largura toda, o painel do operador (`PhonePanel`, 150 px). A altura útil é 700 px: as colunas pedem 540 (a da esquerda, exata) e o
+  painel 150; passando, a tela inteira sobe e o relógio sai por cima. O `Background` (cenário em camadas, pixels de 2x2) estica
+  parede e mesa até a borda, como o canto de uma sala visto de quem está sentado à mesa. **Uma câmera só**, em
+  perspectiva de um ponto: o ponto de fuga (`_vp`) fica em `VP_X` da largura (perto dos objetos da mesa: a inclinação
+  deles cresce com a distância a ele) e `EYE` acima do fundo do tampo; `_proj`/`_p3` levam um ponto da sala (x, y a
+  partir dos olhos, z a distância; a parede do fundo a `Z0`) para a tela. Na sala: a parede do fundo (sem rodapé nem
+  linha escura embaixo: com elas parecia um chão), com o relógio de parede (hora do jogo, `clock_min`) e um armário
+  de aço de chão (`_draw_steel_cabinet`, `CAB_*`; a mesa esconde a base); a parede da direita, entrando para o fundo
+  a partir da quina (`CORNER` da área das ferramentas, `Background.window`), mais clara (virada para a luminária),
+  com a janela vista de lado (`_draw_side_wall`, `_side_pt`: batente, o lado de dentro do vão, caixilho e persiana
+  na perspectiva da parede; a vista da cidade é desenhada de frente num vidro fora da tela, `_vport`, e só recortada
+  pelo vidro: está longe e não entorta com a janela; o horizonte dela fica na altura dos olhos); a mesa, afastada da
+  parede (`DESK_T`), com o fundo do tampo atrás da mesa comutadora (`Background.board`, `BOARD_SINK`, sombra de
+  contato), a borda da frente logo abaixo da faixa de mesa (`Background.desk`) e a ponta na parede da direita, numa
+  linha que foge para o ponto de fuga. A luz da luminária dobra na quina: na parede é o arco do cone
+  (`_draw_wall_light`, `LAMP_Y`, `WALL_GAP`), na mesa a poça; o que está na frente da parede faz sombra nela, ampliada
+  a partir da luminária (`_cast`); a luz da rua entra pela janela e cai na mesa na diagonal. Na mesa, ao alcance do
+  operador, os objetos que abrem as ferramentas (`prop_clicked(id)` → `Tools.set_tab`; `_props`, `_has_point`: o
+  clique só vale sobre eles e não com papel por cima): listas telefônicas (1), mapa dobrado (2), caderno aberto (3) e
+  prancheta do registro (4), mais a caneca. **Cada um fica num lugar da sala e passa pela câmera** (`_draw_desk_props`:
+  tamanho, escorço e o lado que aparece saem da conta; `_box` dá os cantos, `_flat` põe o desenho de frente de um
+  objeto chato no tampo dele com uma transformação, `_top_xf`), desenhados em pixels de 1x1 com o detalhe da mesa
+  comutadora (contorno, `_poly`; sombra apontando para longe da luminária, `_desk_shadow`), do fundo para a frente; o
+  resto do cenário é em 2x2. O tampo (`_draw_desk`): tábuas com as emendas mais espaçadas para a frente, sem juntas
+  (com juntas parecia assoalho), a borda da frente com a espessura dele e a poça de luz quente da luminária. Sob o
+  mouse: contorno, o nome da ferramenta e o dedo. O cenário é sempre desenhado: o papel da ferramenta o cobre por
+  estar na frente, e só o brilho das luzes (que fica acima de tudo) é cortado onde o papel está, quadro a quadro
+  (`_paper`, `_light`; as da vista, onde aparecem no vidro). Lá fora (`_draw_city`): céu do clima, morros, casas
+  sorteadas sempre iguais (`_build_city`, semente fixa),
+  a igreja com o relógio aceso, a rua com o poste (a silhueta do mistério fica contra a luz dele) e o chão molhado na
+  chuva. A luminária fica pendurada sobre a mesa comutadora; o brilho dela (`%Glow`, 1280×720, preso à esquerda)
+  acompanha. **Para trocar por PNG**: `wall_art`, `window_art` e `desk_art` entram no lugar do desenho daquela camada
+  (o clima continua por cima da janela). Guardadas, as abas das ferramentas somem (os objetos da mesa já dizem o
+  mesmo; o espaço delas fica, para nada pular); com uma aberta, as abas de papel (`TabButton`) aparecem junto com o
+  papel, para trocar de ferramenta. O caderno da mesa mostra o selo dos registros pendentes (`Background.pending`).
 - **Bloom das luzes** (`Bloom`, `scripts/ui/bloom.gd`, nó `Bloom` do Main, z 2: acima da mesa e dos painéis, abaixo dos
   menus), no estilo do glow de cinema e em pixel art: halo somado à tela (blend ADD) em duas camadas (curta e forte,
   longa e fraca), desenhado em blocos de `BLOCK` px com poucos degraus e pontilhado ordenado (`_halo_for`, guardado por
@@ -92,8 +125,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (Espaço), `transfer_call` (Tab), `hang_up` (X), tratadas em `PhonePanel._input` **antes da interface** (Espaço e
   Tab também apertam o botão em foco e passam o foco; por isso não dá para usar `Button.shortcut`). Só com o botão
   ativo; na pausa não valem; com um campo de texto em foco a tecla fica com ele. A tecla aparece no canto do botão
-  (Label `Key`; "Espaço" traduzido, `KEY_SPACE`; o nome do botão fica à esquerda para não encostar nela). Abas: ações `tab_directory`/`tab_dispatch`/`tab_logbook` (1, 2, 3),
-  tratadas em `Main._unhandled_input` só durante o turno (`Main.TAB_KEYS`); o número fica no canto da aba.
+  (Label `Key`; "Espaço" traduzido, `KEY_SPACE`; o nome do botão fica à esquerda para não encostar nela). Ferramentas: ações `tab_directory`/`tab_dispatch`/`tab_logbook`/`tab_call_log` (1 a 4),
+  tratadas em `Main._unhandled_input` só durante o turno (`Main.TAB_KEYS`, `Tools.toggle`: a tecla da ferramenta aberta a
+  guarda; Esc também guarda, antes de pausar); o número fica no canto da aba. No código, `Tools.set_tab(id)` abre.
 - **Pausa e configurações**: `PauseMenu` (`scenes/ui/pause_menu.tscn`, z 4, `process_mode` ALWAYS) usa
   `get_tree().paused`. **Todo `create_timer` do jogo leva `false` no 2º argumento** (senão continua contando na pausa);
   o `Sfx` roda sempre (ambiente segue, `Main.pause()` cala a campainha e `_update_bell` a devolve). Configurações no
@@ -173,9 +207,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   escuta. `scripts/model/exchange.gd` (`Exchange`) — **dono único** do estado das linhas e destinos (enums `Line`, `Dest`).
 - `scripts/data/*.gd` — classes de Resource do conteúdo; `scripts/game_data.gd` (`GameData`) — acesso ao
   `content.tres` (`CONTENT`, `entry()`, `street()`, `transfers()`, `pick()`...).
-- `scenes/ui/*.tscn` + `scripts/ui/*.gd` — telefone (`PhonePanel`: console em cunha desenhado no `_draw`, com o encaixe
-  do FONE e a tela na carcaça, a fenda da barra e, no deck da frente, o alto-falante e as teclas; avisos numa linha da
-  tela, `%Warn`; `FoneSocket`), rádio, abas (`Tools`) com lista
+- `scenes/ui/*.tscn` + `scripts/ui/*.gd` — painel do operador (`PhonePanel`, blocos `HudPanel`: a ligação em foco com o
+  visor e a barra de agravamento; a conversa, só as últimas `LINES` falas, com o aviso, `%Warn`, e as opções; as
+  teclas; o destino ligado à saída da linha, `set_dest`, e as outras linhas), `FoneSocket`, registro das conversas
+  (`CallLog`, ferramenta 4: tudo o que foi dito com o FONE na linha, por ligação; o Main chama `track` quando ela toca), rádio, abas (`Tools`) com lista
   (`PhoneBook`), mapa e despacho (`Dispatch` + `CityMap`, dono das unidades e da ocorrência) e caderno
   (`Notebook`, fila de ocorrências); `Intro`, `Ending`; widgets desenhados (`Switchboard`,
   `Background`, `Bevel`, scanlines).
@@ -186,10 +221,12 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   numeração (100–199 | 200–299 | 300–399, `SECTOR_ORDER`, duas fileiras cada, `_layout_dests`/`_slots`; a mesa não
   fala em setor). O banco de um setor que ainda não é do operador fica sob uma chapa com a letra dele (`_draw_plate`:
   A e B; o C, do setor 3, nunca é tampado) e as tomadas dele não existem para o clique.
-- `ends[]`: tomada de cada ponta (-1 = na base). **Ponta 0 = FONE** (cabo verde, encaixe `FoneSocket` no painel
+- `ends[]`: tomada de cada ponta (-1 = na base). **Ponta 0 = FONE** (cabo verde, encaixe `FoneSocket` na faixa de mesa
   do telefone, só entra em entradas). **Pontas 1..2*PATCHES = cabos de conexão** (vermelho, azul, amarelo em `CORD_COLORS`; independentes; `mate(e)`
   dá a outra ponta; uma ponta na saída, a outra no destino). `PATCHES = 3`.
-- `setup(exchange, socket)` liga a mesa ao estado e ao encaixe. `dest_of_output(n)` segue o cabo da saída n.
+- `setup(exchange, socket, tray)` liga a mesa ao estado, ao encaixe do FONE e à bandeja (lugares reservados na faixa
+  de mesa, fora do retângulo dela: `socket_rect`, `tray_rect`; o clique vale neles, `_has_point`, e a mesa desenha a
+  bandeja, `_draw_tray`, com os plugs guardados de pé, `home_pos`, sobre os buracos). `dest_of_output(n)` segue o cabo da saída n.
 - `refuse(e, j)` decide compatibilidade (e o destaque amarelo/vermelho). `_has_point` estende o clique ao encaixe
   do FONE; por isso o telefone e seus containers acima do encaixe têm `mouse_filter = IGNORE`, e a mesa tem
   `z_index = 1` (desenha plug e fio por cima do telefone). Overlays têm z 2, intro/final z 3.
@@ -210,24 +247,24 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   sorteados. Plug só se move arrastando
   (clicar e segurar); clique sem arrastar só serve para desplugar.
 - Fios são cordas de Verlet (`_step_rope`), **uma por ponta**, presas no buraco (`hole(e)`: o do FONE no alto do
-  encaixe, dois por cabo de conexão na base) e na traseira do plug (`_plug_base`); só existem com o fio para fora.
+  encaixe, dois por cabo de conexão na bandeja) e na traseira do plug (`_plug_base`); só existem com o fio para fora.
   Folga: `SLACK` (FONE), `CORD_SLACK` (conexão). Fio parado por `SLEEP_STEPS` passos "dorme" (`ropes[e]["sleep"]` =
   área onde o mouse o acorda) e deixa de ser simulado até a ponta, o buraco ou o mouse mexerem nele.
 - Sob o mouse: `_plug_under` (plug que dá para pegar → `_hover`, desenhado com contorno claro) e `_cursor_shape`
   (mão aberta, mão fechada segurando, proibido sobre tomada que recusa, dedo em tomada/plaqueta que informa).
   Desenho na ordem `_order`: a ponta pega ou encaixada por último (`_raise`) fica por cima (e é a primeira no clique);
   cada ponta desenha fio e plug juntos, para o fio mais recente passar por cima dos plugs das outras.
-- Layout da mesa (`SIZE` 588×334, também em `main.tscn`): coluna de cada linha em `ROW_Y` (plaquinha de metal com o número
+- Layout da mesa (`SIZE` 588×362, também em `main.tscn`): móvel com moldura de madeira (`_draw_cabinet`, `FRAME`,
+  `WOOD`) e faixas gravadas com o nome de cada seção (`_draw_rule`, `RULES`: entradas, saídas, destinos); coluna de cada linha em `ROW_Y` (plaquinha de metal com o número
   gravado, `_draw_number_plate`; estado; lâmpada; entrada; saída), todos os encaixes com `JACK` px, bancos de destino em
-  `DEST_TOP`/`DEST_ROW`, cabos e legenda embaixo. Mexendo na altura, confira com uma emergência atendida, três fileiras de
-  opções e um aviso que a coluna da esquerda ainda cabe em 701.
-- Chapas de metal niquelado (`_draw_metal`: chanfro e rebites) nas plaquinhas dos números e na base dos cabos, cujos
+  `DEST_TOP`/`DEST_ROW` e a legenda das lâmpadas numa linha no pé (`LEGEND_Y`). Mexendo na altura, confira que a coluna da esquerda ainda cabe (até 540).
+- Chapas de metal niquelado (`_draw_metal`: chanfro e rebites) nas plaquinhas dos números e nas da bandeja dos cabos, cujos
   furos são buchas redondas (`_draw_jack` pequeno); o encaixe do FONE (`FoneSocket`) é uma chapa com berço de latão.
 - Encaixes redondos como os originais (`_draw_jack`: bucha de metal com aba chanfrada, parede de dentro rebaixada e o
   furo); lâmpadas redondas com aro niquelado (`_draw_lamp`, `BEZEL`) que acendem rápido e apagam devagar, como
   filamento (`_lamp`/`_dest_lamp` dizem cor e nível desejado, `_fade` chega lá em `LAMP_ON_SEC`/`LAMP_OFF_SEC`, estado em
   `_lit`; a linha tocando pulsa). A luz acesa tinge o aro dela e a aba do encaixe logo abaixo (`_reflect`).
-- Plug (`_draw_plug`): de pé (solto, na mão, na base; `_draw_plug_body`) é cabo de baquelite na cor do cabo
+- Plug (`_draw_plug`): de pé (solto, na mão, na bandeja; `_draw_plug_body`) é cabo de baquelite na cor do cabo
   (sombreado de cilindro, sulcos de pegada, ponteira de onde sai o fio), colar niquelado (`BEZEL`) e a ponta de três
   partes dos plugues de mesa (bico e anel niquelados, luva de latão, isolantes pretos); gira com o fio em passos de
   `ROT_STEP` (15°: pixel art girado torto serrilha). Encaixado, sai do painel em direção à câmera, vista de cima e da
@@ -345,7 +382,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   gravíssima (`CRITICAL`, pesa `CRITICAL_WEIGHT` graves). Entre noites só as graves somam
   (`severe_before`, salvas no `Progress`; `SEVERE_LIMIT` = demissão).
 - **Barra de agravamento** (nó `Urgency`, `scripts/urgency.gd`: `tick` a cada quadro do turno; estado em `PhoneCall.stage`/`urgency`/`asking`/`secured`, regra em
-  `PhoneCall.urgent()`, desenho em `UrgencyBar` na fenda do console do telefone, embaixo da tela (`%Strip`), só com o operador na linha; fora dela, o rádio
+  `PhoneCall.urgent()`, desenho em `UrgencyBar` no bloco da ligação do painel de baixo, só com o operador na linha; fora dela, o rádio
   inteiro acende: `Radio.alert(stage, away)`, moldura pulsando e aviso na tela; a luz "Ocorrência" acende sempre;
   a cada troca de estágio, `Radio.chirp` toca `radio_alert` vindo do rádio, mais agudo quanto pior): corre desde o atendimento, também em espera e depois de a pessoa desligar; para durante
   pergunta e resposta (`Conversation._em_ask`) e na pausa; para de vez só quando o socorro completo sai para o lugar
@@ -522,6 +559,29 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 31. Telefone como console em cunha (tela embutida na carcaça, fenda da barra de agravamento, teclas de verdade no deck)
     e rádio ao lado do relógio; a janela ocupa todo o alto da direita e as abas (o mapa) ficaram mais altas. O título
     "Central de São Sotero · Operador noturno" saiu da tela (a introdução da noite já mostra).
+32. A tela vira uma mesa de trabalho (referência visual do usuário): mesa comutadora à esquerda, de pé sobre a mesa,
+    com o FONE e o rádio na frente dela; ferramentas guardadas, que deslizam sobre a janela quando abertas (como um
+    papel posto na mesa); painel do operador embaixo, na largura toda, com só as últimas 3 falas, e o registro inteiro
+    das conversas numa quarta ferramenta. O cenário segue desenhado em código, mas pode virar PNG por camada depois.
+33. Mesa comutadora refeita: móvel de madeira, seções com faixas gravadas, mais espaço entre as fileiras e legenda no
+    pé; a base dos cabos virou uma bandeja na mesa, à frente do painel, de onde os fios sobem; relógio mais compacto.
+34. Cenário: a janela deixou de ocupar a área das ferramentas inteira (parecia uma aba a mais) e virou um objeto na
+    parede, com persiana, peitoril, vaso e a cidade lá fora (igreja com relógio, casas, poste, chão molhado); relógio de
+    parede com a hora do jogo, papéis presos, tábuas na mesa, listas e caneca. Cada camada aceita um PNG depois.
+35. Objetos da cena abrem as ferramentas: ficam na mesa, ao alcance do operador (na parede só ficaria o que parecesse
+    perto dele), desenhados no mesmo detalhe da mesa comutadora. A legenda do rádio ficou de fora: o rádio já tem tela.
+36. Mesa de madeira: a dica do manual subiu para o alto da direita (liberou a mesa), objetos maiores e em fileiras,
+    tábuas em perspectiva com a borda da frente, luz da luminária e da janela na mesa e sombras saindo da luminária.
+37. A mesa parecia o piso: a mesa comutadora passou a ficar de pé no tampo (o fundo dele atrás dela), sem rodapé na
+    parede nem juntas de assoalho nas tábuas, com a borda da frente mais grossa. As abas das ferramentas somem quando
+    estão guardadas (eram informação duplicada dos objetos da mesa); o selo do caderno foi para o caderno da mesa.
+38. Ainda parecia chão (as duas linhas escuras da quina): perspectiva de um ponto, com o ponto de fuga na altura dos
+    olhos; luz da luminária dobrando na quina (arco na parede, poça na mesa), sombras projetadas na parede, janela
+    embutida com a espessura da parede e objetos da mesa com lado e espessura no rumo do ponto de fuga.
+39. Canto da sala: a janela foi para a parede da direita, vista de lado (a vista da cidade fica reta, só recortada
+    pelo vidro: entortada com a janela parecia um quadro), e no lugar dela, na parede do fundo, um armário de aço de
+    chão atrás da mesa. Uma câmera só para a sala inteira, com os objetos da mesa postos nela em 3D (antes misturavam
+    vista de frente e de cima, sem escorço) e o ponto de fuga perto deles.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

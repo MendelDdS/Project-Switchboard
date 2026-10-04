@@ -4,9 +4,11 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/phone_book.tscn" id="2_phone_book"]
 [ext_resource type="PackedScene" path="res://scenes/ui/dispatch.tscn" id="4_dispatch"]
 [ext_resource type="PackedScene" path="res://scenes/ui/notebook.tscn" id="5_notebook"]
+[ext_resource type="Script" path="res://scripts/ui/call_log.gd" id="6_call_log"]
 
 [node name="Tools" type="VBoxContainer"]
 custom_minimum_size = Vector2(620, 0)
+mouse_filter = 2
 theme_override_constants/separation = 0
 script = ExtResource("1_tools")
 
@@ -14,6 +16,7 @@ script = ExtResource("1_tools")
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_override_constants/separation = 8
+mouse_filter = 2
 
 [node name="TabLista" type="Button" parent="TabBar"]
 unique_name_in_owner = true
@@ -95,27 +98,71 @@ horizontal_alignment = 1
 vertical_alignment = 1
 auto_translate_mode = 2
 
-[node name="Paper" type="PanelContainer" parent="."]
+[node name="TabRegistro" type="Button" parent="TabBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 34)
+layout_mode = 2
+size_flags_vertical = 8
+focus_mode = 0
+theme_type_variation = &"TabButton"
+toggle_mode = true
+text = "TAB_CALL_LOG"
+
+[node name="Key" type="Label" parent="TabBar/TabRegistro"]
+layout_mode = 1
+offset_left = 3.0
+offset_top = 0.0
+offset_right = 13.0
+offset_bottom = 13.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 11
+text = "4"
+auto_translate_mode = 2
+
+[node name="Body" type="Control" parent="."]
+unique_name_in_owner = true
+clip_contents = true
 custom_minimum_size = Vector2(0, 420)
 layout_mode = 2
 size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="Paper" type="PanelContainer" parent="Body"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_type_variation = &"PaperPanel"
 
-[node name="Margin" type="MarginContainer" parent="Paper"]
+[node name="Margin" type="MarginContainer" parent="Body/Paper"]
 layout_mode = 2
 theme_override_constants/margin_left = 22
 theme_override_constants/margin_top = 18
 theme_override_constants/margin_right = 22
 theme_override_constants/margin_bottom = 18
 
-[node name="PhoneBook" parent="Paper/Margin" instance=ExtResource("2_phone_book")]
+[node name="PhoneBook" parent="Body/Paper/Margin" instance=ExtResource("2_phone_book")]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="Dispatch" parent="Paper/Margin" instance=ExtResource("4_dispatch")]
+[node name="Dispatch" parent="Body/Paper/Margin" instance=ExtResource("4_dispatch")]
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="Notebook" parent="Paper/Margin" instance=ExtResource("5_notebook")]
+[node name="Notebook" parent="Body/Paper/Margin" instance=ExtResource("5_notebook")]
 unique_name_in_owner = true
 layout_mode = 2
+
+[node name="CallLog" type="RichTextLabel" parent="Body/Paper/Margin"]
+unique_name_in_owner = true
+layout_mode = 2
+bbcode_enabled = true
+scroll_following = true
+theme_override_colors/default_color = Color(0.1647, 0.1373, 0.098, 1)
+theme_override_font_sizes/normal_font_size = 11
+theme_override_constants/line_separation = 3
+script = ExtResource("6_call_log")
