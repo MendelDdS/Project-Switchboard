@@ -379,7 +379,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`Background._ellipse`: a boca da caneca; o corpo dela é desenhado coluna a coluna e a alça é `MUG_HANDLE`, pelo
   `Switchboard.art`); o painel do operador nos parafusos e o `Bloom` no miolo das luzes redondas. Beira das peças e do
   móvel em `EDGE_DARK` (marrom quase preto), não preto. Os plugs também são pixel art, no acabamento do relógio
-  da mesa (abaixo). **O encaixe é um mapa de pixels** (`JACK_ART`, 20×20, um pouco menor que o `JACK`: com 24, passava das linhas do banco; `art`: um caractere por pixel e a
+  da mesa (abaixo). **O encaixe é um mapa de pixels** (`JACK_ART`, 16×16, menor que o `JACK`, com o furo preto de 8 px, a largura da luva do plug: com 20, a tomada ficava grande demais para a ponta de metal; com 24, passava das linhas do banco; `art`: um caractere por pixel e a
   paleta, `_jack_pal`; o mesmo da branch 2×2, pela referência do usuário, com mais tons): aro niquelado fino (2 a 3
   pixels; mais grosso, destoava da referência; os raios dão as larguras de linha de um círculo de pixel art, senão
   saía octogonal) com a beira
@@ -398,14 +398,15 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   cima, serrilhado em listras finas e anel no meio, a aba dourada e a ponta de metal dourado (luva, isolante preto,
   anel, outro isolante e o bico em ponta com a bolinha); comprido e fino como o P10 e **na escala das tomadas** (18 ×
   93 px, `PLUG_H`, `PLUG_LEN` até a aba: o corpo enche o buraco da prateleira, `HOLE_ART` 28 × 14, e a luva de 8 entra
-  no furo de 11 da tomada; o encaixado, `PLUG_FACE_R`, 13 px de corpo com a beira); para o plug não ficar maior que o
+  no furo de 8 da tomada; o encaixado na mesma proporção, `PLUG_FACE_R`, 18 px de corpo com a beira, cobrindo a tomada); para o plug não ficar maior que o
   relógio e o caderno (um P10 tem uns 10 cm), **os objetos da mesa crescem na mesma proporção** (`Background.PROP_K` =
   93/66, a caneca na frente do relógio para caberem em 1280); a área de clique do plug guardado sai da altura dele
   (`home_rect`); gira com o fio em passos de
   `ROT_STEP` (15°: pixel art girado torto serrilha). Encaixado, sai do painel em direção à câmera, vista de cima e da
-  direita (`_draw_plug_face`: as mesmas peças de em pé, aba dourada, corpo com o anel e capa em gomos, `PLUG_PARTS`, de lado e na
-  ponta, `PLUG_FACE_R`, montadas com discos de pixel art, `disc`, um por pixel ao longo do eixo: primeiro a beira de
-  todos, depois o miolo sombreado; um sulco é um disco mais escuro; com cápsulas e círculos, saía embolotado); com paralaxe: a ponta se desloca do encaixe mais quanto mais longe de `PLUG_EYE` (`_tilt(j)`,
+  direita (`_draw_plug_face`: o próprio `PLUG_ART` visto de frente, com os mesmos detalhes: aba dourada, anel e friso claro em cima,
+  serrilhado, `_knurled`, anel do meio e capa em gomos afinando até o fio; montado com discos de pixel art, `disc`, um
+  por pixel ao longo do eixo, cada um com a largura e os tons da linha do plug em pé que cai ali, `_face_row`: dela vale
+  a que mais se destaca, senão os detalhes sumiam no escorço; primeiro a beira de todos, depois o miolo sombreado; com cápsulas e círculos, saía embolotado); com paralaxe: a ponta se desloca do encaixe mais quanto mais longe de `PLUG_EYE` (`_tilt(j)`,
   `PLUG_DEPTH`). O fio sai da ponteira (`_plug_base` = encaixe + `_tilt`; o plug encaixado é desenhado antes do fio,
   e o miolo da ponteira, `_draw_plug_cap`, depois). Encaixado, o fio sai no eixo do plug por `CORD_STUB` px e faz a curva
   aos poucos (o penúltimo ponto da corda fica preso, `pin` em `_step_rope`; os seguintes tendem a continuar a direção,
@@ -458,7 +459,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`printer`, saindo sem parar) um **cartão perfurado** com local, bairro e setor, que sai pela fenda. O cartão é um formulário: impresso na tinta
   vermelha das emergências (`FORM`, a do carimbo do caderno: faixa com o número, rótulos, posições de furo, fio duplo,
   rodapé com o nome da central, marcas de coluna na borda) com os dados datilografados em preto sobre linhas
-  pontilhadas, pauta como a do caderno, fibras no papel e sombra na mesa (maior na mão, como o plug). O jogador perfura
+  pontilhadas, pauta como a do caderno, fibras no papel e sombra na mesa (na mão ele sobe: cresce `HELD_SCALE` em volta de onde foi pego e a sombra se afasta; solto, cai acelerando, `DROP_SEC`; parado, escala 1 exata para o texto ficar nítido). O jogador perfura
   o tipo de ocorrência (um só) e as unidades (protocolo impresso embaixo de cada uma, `DISPATCH_WHY_*`; ocupada sai
   riscada) em posições fixas (`punch`, picote caindo; clicar em qualquer ponto da linha perfura o quadradinho dela, e a
   linha sob o mouse fica realçada se der para perfurar). Furo não se desfaz. **Um cartão por vez, de qualquer tipo**

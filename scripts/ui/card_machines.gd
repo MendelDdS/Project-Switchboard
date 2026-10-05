@@ -252,6 +252,7 @@ func _gui_input(e: InputEvent) -> void:
 	if e is InputEventMouseMotion:
 		if _press != Vector2.INF and state == State.READY and e.position.distance_to(_press) > DRAG_START:
 			_grab = _press - _pos
+			card.pivot_offset = _grab   # chega perto e se afasta em volta de onde a mão pegou
 			_press = Vector2.INF
 			_go(State.DRAGGING)
 		if state == State.DRAGGING:
