@@ -52,7 +52,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - **Resolução**: a base é 1280×720 (`canvas_items`, `aspect="expand"`); o Godot amplia para a tela, e a proporção
   diferente de 16:9 vira espaço a mais, não tarja. Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
   **Disposição (cena + painel)**: a tela é uma mesa de trabalho. No alto da esquerda, na parede, o relógio da sala
-  (`WallClock`, analógico, 52 px: o único da tela, onde o papel das ferramentas não o cobre) e a plaqueta de latão do
+  (`WallClock`, analógico, 52 px: o único da tela, onde o papel das ferramentas não o cobre; mostrador claro,
+  ponteiro das horas curto e preto, o dos minutos comprido e vermelho, `HAND`, e o 12 em marca dupla) e a plaqueta de latão do
   turno (`ShiftPlate`, variação `BrassPanel`, com o horário e o botão Encerrar turno). Sem números na tela, o
   ouvido marca o tempo: a badalada de gongo a cada hora cheia (`chime`, `Main._hour`) e a campainha de latão quando
   o turno pode ser encerrado (`shift_bell`), vindas do lado do relógio; embaixo
@@ -78,26 +79,31 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   distância ao ponto na horizontal dividida pela distância na vertical, e só depende da tela); `_proj`/`_p3` levam um ponto da sala (x, y a
   partir dos olhos, z a distância; a parede do fundo a `Z0`) para a tela. Na sala: a parede do fundo (sem rodapé nem
   linha escura embaixo: com elas parecia um chão), com um armário
-  de aço de chão (`_draw_steel_cabinet`, `CAB_*`; a mesa esconde a base; o alto fica abaixo dos olhos e o tampo aparece); a parede da direita, entrando para o fundo
+  de aço de chão (`_draw_steel_cabinet`, `CAB_*`; a mesa esconde a base; o alto fica abaixo dos olhos e o tampo aparece;
+  entreaberto, o vão tem fundo, a parede de dentro virada para quem olha, prateleiras com o tampo à vista e pastas
+  em pé, e a porta aberta mostra o painel de dentro e a espessura); a parede da direita, entrando para o fundo
   a partir da quina (`CORNER` da área das ferramentas, `Background.window`), mais clara (virada para a luminária),
   com a janela vista de lado (`_draw_side_wall`, `_side_pt`: batente, o lado de dentro do vão, caixilho e persiana
   na perspectiva da parede; a vista da cidade é desenhada de frente num vidro fora da tela, `_vport`, e só recortada
   pelo vidro: está longe e não entorta com a janela; o horizonte dela fica na altura dos olhos); a mesa, afastada da
   parede (`DESK_T`), com o fundo do tampo atrás da mesa comutadora (`BOARD_SINK`), a borda da frente logo abaixo da
   faixa de mesa (`Background.desk`) e a ponta na parede da direita, numa
-  linha que foge para o ponto de fuga. A luz da luminária dobra na quina: na parede é o arco do cone
-  (`_draw_wall_light`, `LAMP_Y`, `WALL_GAP`), na mesa a poça; o que está na frente da parede faz sombra nela, ampliada
+  linha que foge para o ponto de fuga. A luz vem de cima, do meio da tela, de uma luminária que não aparece (o
+  desenho dela foi tirado a pedido do usuário: `_lamp_x` no meio, `LAMP_Y` acima da tela); ela dobra na quina: na
+  parede é o arco do cone (`_draw_wall_light`, `WALL_GAP`), na mesa a poça; o que está na frente da parede faz sombra nela, ampliada
   a partir da luminária (`_cast`); a luz da rua entra pela janela e cai na mesa na diagonal. Na mesa, ao alcance do
   operador, os objetos que abrem as ferramentas (`prop_clicked(id)` → `Tools.set_tab`; `_props`, `_has_point`: o
   clique só vale sobre eles e não com papel por cima): listas telefônicas (1), mapa dobrado (2), caderno aberto (3) e
   prancheta do registro (4), mais a caneca, postos por fração da profundidade do tampo (`_at`, `_deep`: ficam no
-  tampo seja qual for a câmera). **Cada um fica num lugar da sala e passa pela câmera** (`_draw_desk_props`:
+  tampo seja qual for a câmera) e, na largura, a partir da lateral da mesa comutadora (`_side_x`), em duas fileiras
+  com folga entre eles; a caneca fica junto da parede da direita (numa tela mais larga, a folga sobra perto da janela). **Cada um fica num lugar da sala e passa pela câmera** (`_draw_desk_props`:
   tamanho, escorço e o lado que aparece saem da conta; `_box` dá os cantos, `_flat` põe o desenho de frente de um
   objeto chato no tampo dele com uma transformação, `_top_xf`), desenhados em pixels de 1x1 com o detalhe da mesa
   comutadora (contorno, `_poly`; sombra apontando para longe da luminária, `_desk_shadow`), do fundo para a frente; o
   resto do cenário é em 2x2. **A mesa comutadora é um móvel só** (`_draw_switchboard`,
   como uma mesa telefônica de verdade): embaixo, o console, cuja frente é a faixa do rádio (o rádio embutido, a
-  madeira dele em volta) e cujo alto é a prateleira, com o FONE e os cabos em pé nos buracos (a mesa desenha); no fundo dela, num rodapé e com a sombra
+  madeira dele em volta, com a plaqueta de latão de um lado, os botões de volume e sintonia do outro e os parafusos;
+  a prateleira tem veios e o friso de latão na beira) e cujo alto é a prateleira, com o FONE e os cabos em pé nos buracos (a mesa desenha); no fundo dela, num rodapé e com a sombra
   de contato, o painel (`Background.board`). Painel e console têm a mesma largura na sala, então o console, mais
   perto, sai mais largo na tela (a esquerda passa da borda): é o que os alinha na câmera. A lateral em L (o console
   até o fundo do móvel e o painel em cima, raso como nas mesas de verdade, `BOARD_D`: fundo, ele mostrava uma lateral
@@ -128,8 +134,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`_paper`, `_light`; as da vista, onde aparecem no vidro). Lá fora (`_draw_city`): céu do clima, morros, casas
   sorteadas sempre iguais (`_build_city`, semente fixa),
   a igreja com o relógio aceso, a rua com o poste (a silhueta do mistério fica contra a luz dele) e o chão molhado na
-  chuva. A luminária fica pendurada sobre a mesa comutadora; o brilho dela (`%Glow`, 1280×720, preso à esquerda)
-  acompanha. **Para trocar por PNG**: `wall_art`, `window_art` e `desk_art` entram no lugar do desenho daquela camada
+  chuva. O brilho da luz de cima (`%Glow`, na tela inteira, centrado no alto) acompanha o tremor dela. **Para trocar por PNG**: `wall_art`, `window_art` e `desk_art` entram no lugar do desenho daquela camada
   (o clima continua por cima da janela). Guardadas, as abas das ferramentas somem (os objetos da mesa já dizem o
   mesmo; o espaço delas fica, para nada pular); com uma aberta, as abas de papel (`TabButton`) aparecem junto com o
   papel, para trocar de ferramenta. O caderno da mesa mostra o selo dos registros pendentes (`Background.pending`).
@@ -639,6 +644,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     mesa embutida na frente dele) e os olhos subiram (ponto de fuga logo acima da tela), entortando bem menos.
 46. O FONE e os cabos foram para a prateleira, na frente do painel e acima do rádio, como numa mesa telefônica de
     verdade: os plugs ficam em pé em buracos no tampo e os fios sobem deles até as tomadas; nomes gravados na madeira.
+47. Acabamentos: os objetos da mesa reorganizados a partir da mesa comutadora (sem encostar uns nos outros), o
+    interior do armário com profundidade, detalhes no console, relógio mais legível e, a pedido do usuário, a
+    luminária saiu da tela: só a luz, vinda de cima e do meio.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.
