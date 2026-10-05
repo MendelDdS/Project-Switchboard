@@ -74,7 +74,17 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   de baixo, lisos e acompanhando a luminária. A vista passa da borda de cima da tela e só aparece do horizonte (58%
   dela) para baixo: o que for desenhado nela tem que ficar ali. **Traços dos objetos em pixel art** (`_pixel_line`:
   um pixel por passo, com a espessura empilhada em cores, desenhado na tela e não na perspectiva torta do tampo): o
-  lápis do caderno, o rio do mapa, as fendas do relógio e os filetes das listas. Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
+  lápis do caderno, o rio do mapa, as fendas do relógio e os filetes das listas. **Poeira no feixe da luminária**
+  (`_motes`, `DUST`; desenhada a 30 quadros por segundo sem redesenhar a sala): grãos de um pixel em toda a área que a
+  luminária ilumina (a do brilho `%Glow`, um círculo largo a partir do alto do meio da tela, que passa por cima da
+  mesa comutadora; o arco na parede é estreito no alto e deixava sem poeira a parede acima dela), mais claros perto
+  dela. Ficam na camada `%Dust` do Main (`Background.dust`, z 1, depois do
+  `Layout`): acima da mesa comutadora (no cenário, ela cobria a poeira que passa na frente dela), fora do papel das
+  ferramentas e nunca abaixo do fundo do tampo (o painel de baixo fica fora da sala). **Gotas no vidro** na chuva (`_beads`, `BEADS`): paradas, de vez
+  em quando pesam e escorrem com um rastro; o brilho delas é quente perto do poste. Só na parte do vidro que aparece
+  (`_glass_from`: abaixo da persiana e da borda de cima da tela). **O painel de baixo fica fora da luz da sala**: é um
+  menu, não parte do cenário; a vinheta (`Vignette`) termina onde ele começa (`offset_bottom`), e o brilho da luz de
+  teto já fica só na tela do cenário. Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
   **Disposição (cena + painel)**: a tela é uma mesa de trabalho. No alto da esquerda, a plaqueta de latão do
   turno (`ShiftPlate`, variação `BrassPanel`, com o horário e o botão Encerrar turno; a faixa dela, `TopLeft`, tem
   52 px fixos). O relógio da sala é um **relógio de flip na mesa** (`Background._draw_flip_clock`, o único da tela):
@@ -140,10 +150,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   clique só vale sobre eles e não com papel por cima): listas telefônicas (1), mapa dobrado (2), caderno aberto (3) e
   prancheta do registro (4), mais a caneca, postos por fração da profundidade do tampo (`_at`, `_deep`: ficam no
   tampo seja qual for a câmera) e, na largura, a partir da lateral da mesa comutadora (`_side_x`), em duas fileiras
-  com folga entre eles: atrás, listas, caderno, o relógio de flip e a caneca (o relógio logo atrás dela); na frente,
+  com folga entre eles: atrás, listas, caderno e o relógio de flip com a caneca na frente dele; na frente,
   mapa, prancheta e jornal (numa tela mais larga, a folga sobra perto da janela). **Cada um fica num lugar da sala e passa pela câmera** (`_draw_desk_props`:
   tamanho, escorço e o lado que aparece saem da conta; `_box` dá os cantos, `_flat` põe o desenho de frente de um
-  objeto chato no tampo dele com uma transformação, `_top_xf`), desenhados em 1x1 (sem contorno preto: torto pela perspectiva, serrilhava; as faces se separam pela luz, `_poly`; sombra apontando para longe da luminária, em degraus: penumbra, sombra e o contato escuro colado na base, `_desk_shadow`; e cada um escurece em degraus quanto mais longe da poça de luz, `_shade`, `_pool`, `SHADE_MAX`, `SHADE_STEP`, também quando a luminária pisca), do fundo para a frente; a legenda sob o mouse é do `SceneView`, na resolução da interface. **A mesa comutadora é um móvel só** (`_draw_switchboard`,
+  objeto chato no tampo dele com uma transformação, `_top_xf`), desenhados em 1x1 (sem contorno preto: torto pela perspectiva, serrilhava; as faces se separam pela luz, `_poly`; sombra apontando para longe da luminária, em degraus: penumbra, sombra e o contato escuro colado na base, `_desk_shadow`; e cada um escurece ponto a ponto quanto mais longe da poça de luz, liso dentro do próprio objeto (os cantos de cada face pela distância deles, `_shade`, `_dim`, `_shaded`, `_pool`, `SHADE_MAX`; com um tom só por objeto, a troca entre eles era brusca), também quando a luminária pisca), do fundo para a frente; a legenda sob o mouse é do `SceneView`, na resolução da interface. **A mesa comutadora é um móvel só** (`_draw_switchboard`,
   como uma mesa telefônica de verdade): embaixo, o console, cuja frente é a faixa do rádio (o rádio embutido, a
   madeira dele em volta, com a plaqueta de latão de um lado, os botões de volume e sintonia do outro e os parafusos;
   a prateleira tem veios e o friso de latão na beira) e cujo alto é a prateleira, com o FONE e os cabos em pé nos buracos (a mesa desenha); no fundo dela, num rodapé e com a sombra
@@ -198,8 +208,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   O que fica na frente das luzes de quem desenha (os plugs encaixados da mesa) entra com `Bloom.occlude(self, polígono)`:
   os blocos do halo cobertos por ele somem (`_cut`, guardado; plug parado não refaz).
 - Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`). **Uma fonte só, de pixel: Departure Mono**
-  (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11** (exceção: o estado de cada linha na mesa, `Switchboard.STATE_FONT` = 8, porque "conectada" em 11
-  não cabe na coluna; a letra fica um pouco irregular): 11 (texto, números da lista), 22
+  (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11** (o estado de cada linha na mesa não usa
+  ela: em 11, "conectada" não cabe na coluna, e em 8, fora da grade, borrava; é uma fonte de pixel própria, maiúsculas
+  de 3×5 gravadas no painel, `Switchboard.TINY`/`TINY_ACCENTS`/`tiny`, com os acentos dos três idiomas): 11 (texto, números da lista), 22
   (títulos, visor, bilhete), 33 (títulos de tela), 44 (relógio). Importada com suavização (a janela
   menor que 1280×720 não apaga os traços; sem ela, a 1,5× as letras saíam irregulares), sem hinting e sem sub-pixel. Texto em
   desenho com escala (mapa) sai fora da escala (`CityMap._t`).
@@ -321,8 +332,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - `setup(exchange, socket, tray)` liga a mesa ao estado, ao encaixe do FONE e à faixa dos buracos dos cabos (lugares
   na prateleira, fora do retângulo dela: `socket_rect`, `tray_rect`; o clique vale neles, `_has_point`). Os buracos
   ficam no alto da prateleira (`hole`, `SHELF_HOLE_Y`, `FONE_HOLE_X`; aro de latão achatado pela perspectiva,
-  em pixel art, `HOLE_ART`, `draw_grommet`; dois por cabo, a 30 px um do outro), os plugs guardados em pé neles (`home_pos`) e o nome gravado na madeira embaixo de cada um
-  (`engrave`; `_draw_tray`, `FoneSocket`); o buraco é mais largo que o plug, que entra nele (`PLUG_SINK`: abaixo
+  em pixel art, `HOLE_ART`, `draw_grommet`; dois por cabo, a 30 px um do outro), os plugs guardados em pé neles (`home_pos`) e, só embaixo do encaixe do FONE, o nome
+  gravado na madeira (`engrave`, `FoneSocket`; os "CABO 1/2/3" saíram a pedido: a cor diz qual é o cabo); o buraco é mais largo que o plug, que entra nele (`PLUG_SINK`: abaixo
   de `HOLE_LIP` o plug não é desenhado, `_cut`/`_pr`, e a beira da frente do buraco passa por cima dele e dos fios
   que saem dali, `draw_lip`), sem contorno preto; fio e plug escurecem em degraus ao entrar nele (`HOLE_SHADE`,
   `_along`), senão pareciam flutuar. As pontas dos plugs em pé passam na frente do pé do painel, logo abaixo da
@@ -358,7 +369,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Layout da mesa (`SIZE` 588×362, também em `main.tscn`): móvel com moldura de madeira (`_draw_cabinet`, `FRAME`,
   `WOOD`) e faixas gravadas com o nome de cada seção (`_draw_rule`, `RULES`: entradas, saídas, destinos); coluna de cada linha em `ROW_Y` (plaquinha de metal com o número
   gravado, `_draw_number_plate`; estado; lâmpada; entrada; saída), todos os encaixes com `JACK` px, bancos de destino em
-  `DEST_TOP`/`DEST_ROW` (cada banco com o mesmo vão, 8 px, entre a moldura e os números e entre as tomadas de baixo e a moldura, `_blocks`) e a legenda das lâmpadas numa linha no pé (`LEGEND_Y`). Mexendo na altura, confira que a coluna da esquerda ainda cabe (até 540).
+  `DEST_TOP`/`DEST_ROW` (cada banco com o mesmo vão, 8 px, entre a moldura e os números e entre as tomadas de baixo e a moldura, `_blocks`) e a legenda das lâmpadas na faixa das entradas, à direita, na fonte gravada do painel (`_draw_legend`, `tiny`; no pé do painel, os plugs guardados passavam na frente dela). Mexendo na altura, confira que a coluna da esquerda ainda cabe (até 540).
 - Chapas de metal niquelado (`_draw_metal`: chanfro e rebites) nas plaquinhas dos números.
 - **Peças redondas pixel a pixel** (`Switchboard.disc`, público: imagem guardada por diâmetro e camadas, com luz, meio-tom e sombra vindos de
   `LIGHT`, alto à esquerda, e camadas côncavas; `_sprite` desenha presa aos pixels; desenhadas como círculo saíam
@@ -367,8 +378,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   rádio, parafusos do console, alfinete do mapa, emblemas, rebites, tachinha, fechadura) e elipses pixel a pixel
   (`Background._ellipse`: a boca da caneca; o corpo dela é desenhado coluna a coluna e a alça é `MUG_HANDLE`, pelo
   `Switchboard.art`); o painel do operador nos parafusos e o `Bloom` no miolo das luzes redondas. Beira das peças e do
-  móvel em `EDGE_DARK` (marrom quase preto), não preto. O plug encaixado continua desenhado com cápsulas (o
-  usuário o preferiu assim). **O encaixe é um mapa de pixels** (`JACK_ART`, 20×20, um pouco menor que o `JACK`: com 24, passava das linhas do banco; `art`: um caractere por pixel e a
+  móvel em `EDGE_DARK` (marrom quase preto), não preto. Os plugs também são pixel art, no acabamento do relógio
+  da mesa (abaixo). **O encaixe é um mapa de pixels** (`JACK_ART`, 20×20, um pouco menor que o `JACK`: com 24, passava das linhas do banco; `art`: um caractere por pixel e a
   paleta, `_jack_pal`; o mesmo da branch 2×2, pela referência do usuário, com mais tons): aro niquelado fino (2 a 3
   pixels; mais grosso, destoava da referência; os raios dão as larguras de linha de um círculo de pixel art, senão
   saía octogonal) com a beira
@@ -379,13 +390,22 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Encaixes redondos (`_draw_jack`: o aro niquelado e o furo, com a sombra no painel); lâmpadas redondas com aro niquelado (`_draw_lamp`, `BEZEL`) que acendem rápido e apagam devagar, como
   filamento (`_lamp`/`_dest_lamp` dizem cor e nível desejado, `_fade` chega lá em `LAMP_ON_SEC`/`LAMP_OFF_SEC`, estado em
   `_lit`; a linha tocando pulsa). A luz acesa tinge o aro dela e o alto do aro do encaixe logo abaixo (`_reflect`).
-- Plug (`_draw_plug`): de pé (comprido, `PLUG_LEN` do fio ao colar e a ponta de metal longa; a legenda das lâmpadas
-  fica acima das pontas dos plugs guardados) (solto, na mão, na bandeja; `_draw_plug_body`) é cabo de baquelite na cor do cabo
-  (sombreado de cilindro, sulcos de pegada, ponteira de onde sai o fio), colar niquelado (`BEZEL`) e a ponta de três
-  partes dos plugues de mesa (bico e anel niquelados, luva de latão, isolantes pretos); gira com o fio em passos de
+- Plug (`_draw_plug`): de pé (comprido, `PLUG_LEN` do fio à aba; guardado, afunda `PLUG_SINK` = 22 px no buraco: a capa
+  de borracha some nele e o corpo fica à mostra, sem esconder metade do plug) (solto, na mão, na bandeja; `_draw_plug_body`) é um mapa de pixels (`PLUG_ART`, 20×93, cores
+  por cabo em `_plug_pal`; sombreado de cilindro com o brilho numa coluna só e a beira escura à direita, cantos
+  arredondados; contido como o relógio: brilho largo e colar claro destoavam), no jeito de um plugue P10 (referência
+  do usuário): a capa de borracha em gomos afinando até o fio, o corpo na cor do cabo (identifica o cabo) com anel em
+  cima, serrilhado em listras finas e anel no meio, a aba dourada e a ponta de metal dourado (luva, isolante preto,
+  anel, outro isolante e o bico em ponta com a bolinha); comprido e fino como o P10 e **na escala das tomadas** (18 ×
+  93 px, `PLUG_H`, `PLUG_LEN` até a aba: o corpo enche o buraco da prateleira, `HOLE_ART` 28 × 14, e a luva de 8 entra
+  no furo de 11 da tomada; o encaixado, `PLUG_FACE_R`, 13 px de corpo com a beira); para o plug não ficar maior que o
+  relógio e o caderno (um P10 tem uns 10 cm), **os objetos da mesa crescem na mesma proporção** (`Background.PROP_K` =
+  93/66, a caneca na frente do relógio para caberem em 1280); a área de clique do plug guardado sai da altura dele
+  (`home_rect`); gira com o fio em passos de
   `ROT_STEP` (15°: pixel art girado torto serrilha). Encaixado, sai do painel em direção à câmera, vista de cima e da
-  direita (`_draw_plug_face`: as mesmas peças de em pé, colar, cabo com sulcos e ponteira, `PLUG_PARTS`, de lado e na
-  ponta, `PLUG_FACE_R`); com paralaxe: a ponta se desloca do encaixe mais quanto mais longe de `PLUG_EYE` (`_tilt(j)`,
+  direita (`_draw_plug_face`: as mesmas peças de em pé, aba dourada, corpo com o anel e capa em gomos, `PLUG_PARTS`, de lado e na
+  ponta, `PLUG_FACE_R`, montadas com discos de pixel art, `disc`, um por pixel ao longo do eixo: primeiro a beira de
+  todos, depois o miolo sombreado; um sulco é um disco mais escuro; com cápsulas e círculos, saía embolotado); com paralaxe: a ponta se desloca do encaixe mais quanto mais longe de `PLUG_EYE` (`_tilt(j)`,
   `PLUG_DEPTH`). O fio sai da ponteira (`_plug_base` = encaixe + `_tilt`; o plug encaixado é desenhado antes do fio,
   e o miolo da ponteira, `_draw_plug_cap`, depois). Encaixado, o fio sai no eixo do plug por `CORD_STUB` px e faz a curva
   aos poucos (o penúltimo ponto da corda fica preso, `pin` em `_step_rope`; os seguintes tendem a continuar a direção,

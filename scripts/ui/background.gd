@@ -57,8 +57,9 @@ const CORNER := 0.64    ## a quina das paredes, na largura da área das ferramen
 const BOARD_D := 14.0   ## o fundo do painel da mesa comutadora (z), atrás da prateleira: raso, como o das mesas de verdade (o corpo do móvel é o console); a lateral dele foge para o ponto de fuga
 const PLANKS := 6       ## as tábuas do tampo, todas da mesma largura (a câmera as espaça)
 const POOL_R := 150.0   ## o raio da poça de luz da luminária no tampo
+const DUST := 240        ## grãos de poeira na luz da luminária
+const BEADS := 50        ## gotas paradas no vidro, na chuva
 const SHADE_MAX := 0.3   ## o mais escuro que um objeto da mesa fica, longe da poça de luz (`_shade`)
-const SHADE_STEP := 0.06 ## os degraus desse escuro
 const CAB_W := 110.0             ## a largura do armário de aço, encostado na parede (px de 2x2 lá)
 const POSTER_W := 30.0           ## a largura do cartaz da quermesse (px de 2x2)
 const WALL_PAD := 10.0           ## a folga dos objetos da mesa até a parede da direita (x da sala)
@@ -70,7 +71,8 @@ const WIN_TOP := -8.0       ## o alto do vão (y, a partir dos olhos): logo acim
 const WIN_SILL := 26.0      ## quanto o peitoril fica acima do tampo (y)
 const X2 := Transform2D(Vector2(2, 0), Vector2(0, 2), Vector2.ZERO)   ## a escala dos px de 2x2 (`_sprite` volta a ela)
 const MUG_HANDLE := ["hhhh..", "HHHHh.", "...hHh", "....Hs", "....Hs", "....Hs", "....Hs", "...hHs", "HHHHs.", "ssss.."]   ## a alça da caneca (as duas colunas da esquerda ficam atrás dela)
-const CLOCK := Vector3(24, 12.5, 14)   ## o relógio de flip da mesa: largura, altura e fundo (na escala da sala; ~15 × 8 × 9 cm, como as listas de 21 cm)
+const PROP_K := 93.0 / 66.0   ## a escala dos objetos da mesa: a mesma dos plugs, que cresceram até o tamanho das tomadas (antes, o plug ficava maior que o relógio e o caderno)
+const CLOCK := Vector3(24, 12.5, 14) * PROP_K   ## o relógio de flip da mesa: largura, altura e fundo (na escala da sala; ~15 × 8 × 9 cm, como as listas de 21 cm)
 const CLOCK_TURN := 0.5     ## quanto ele está virado para os olhos do operador (1 = de frente para eles; 0 = para a parede)
 const FLIP_SEC := 0.24      ## quanto a plaqueta leva para virar
 const DIGITS := [   ## os algarismos das plaquetas, 9×19 px, desenhados à mão (estreitos, cantos redondos, traço de 2 px), lado a lado
@@ -98,6 +100,7 @@ const DIGITS := [   ## os algarismos das plaquetas, 9×19 px, desenhados à mão
 @export var window: Control   ## a área das ferramentas: a quina e a janela ficam na parede dela
 @export var desk: Control     ## a faixa do rádio, a frente do console da mesa comutadora: a borda da frente do tampo fica logo abaixo dela
 @export var board: Control    ## o painel da mesa comutadora: pousa na prateleira do console; o fundo do tampo fica `BOARD_SINK` px acima da base dele
+@export var dust: Control     ## onde a poeira do feixe é desenhada: acima da mesa comutadora (que fica no ar, na frente dela) e abaixo do painel e dos menus
 @export var wall_art: Texture2D     ## imagem da parede (repetida), no lugar do desenho
 @export var window_art: Texture2D   ## imagem da vista da janela (esticada, de frente), no lugar da cidade desenhada
 @export var desk_art: Texture2D     ## imagem da madeira da mesa (repetida), no lugar do desenho
@@ -126,6 +129,11 @@ var _yaw := 0.0   # quanto o relógio da mesa está girado (rad; `_draw_flip_clo
 var _flip_from := -1   # o minuto que a plaqueta mostrava antes de virar
 var _flip_at := -100000   # quando ela começou a virar (ms)
 var _drops: Array = []
+var _dust: Control       # a poeira no feixe da luminária (`dust`): desenhada à parte, a 30 quadros por segundo, sem redesenhar a sala
+var _motes: Array = []   # os grãos: Vector3(x de -1 a 1 na largura da luz, y de 0 a 1 do alto da tela ao fundo do tampo, fase do brilho)
+var _beads: Array = []   # gotas paradas no vidro: Vector4(x, y em frações do vidro à vista, tamanho, velocidade; 0 = parada)
+var _glass_from := 0.6   # de que fração da altura da vista o vidro aparece (acima: fora da tela ou atrás da persiana)
+var _top := 200.0        # o fundo do tampo (px de 2x2), do último desenho: onde o feixe da luminária acaba
 var _stars: Array[Vector2] = []
 var _city: Array = []          # prédios da vista: {x, w, h, roof, lit: [Vector2...]} (em frações e px do vidro)
 var _city_for := Vector2.ZERO  # tamanho do vidro para o qual `_city` foi montada
@@ -163,6 +171,16 @@ func _ready() -> void:
 		_drops.append(Vector3(randf(), randf(), 0.6 + randf() * 0.7))
 	for i in 30:
 		_stars.append(Vector2(randf() * 0.95 + 0.02, randf() * 0.45 + 0.03))
+	_dust = dust
+	if _dust == null:   # (sem a camada da cena: aqui mesmo, atrás da interface)
+		_dust = Control.new()
+		_dust.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_dust)
+	_dust.draw.connect(_draw_dust)
+	for i in DUST:
+		_motes.append(Vector3(randf() * 2.0 - 1.0, randf(), randf() * TAU))
+	for i in BEADS:
+		_beads.append(Vector4(randf(), randf(), 1 + randi() % 2, 0.0))
 
 
 ## A sala só se redesenha quando algo que ela mostra muda (`_state`): parada, ela custa só o desenho já guardado. A
@@ -185,6 +203,27 @@ func _process(delta: float) -> void:
 			d.y = -0.05
 			d.x = randf() * 1.1
 		_drops[i] = d
+	for i in _motes.size():   # a poeira: sobe e desce devagar, ao sabor do ar
+		var m: Vector3 = _motes[i]
+		m.x += sin(m.z * 0.7) * 0.0014
+		m.y += sin(m.z * 1.3) * 0.001 - 0.0003
+		m.z += 0.014
+		if m.y < 0.0 or m.y > 1.0 or absf(m.x) > 1.0:
+			m = Vector3(randf() * 2.0 - 1.0, randf(), randf() * TAU)
+		_motes[i] = m
+	_dust.queue_redraw()
+	if weather == "rain":
+		for i in _beads.size():   # as gotas no vidro: paradas, até pesarem e escorrerem
+			var b: Vector4 = _beads[i]
+			if b.w == 0.0:
+				if randf() < 0.002:
+					b.w = 0.006 + randf() * 0.008
+			else:
+				b.y += b.w
+				b.x += (randf() - 0.5) * 0.003   # serpenteia um pouco
+				if b.y > 1.0:
+					b = Vector4(randf(), randf() * 0.8, 1 + randi() % 2, 0.0)
+			_beads[i] = b
 	if flick:
 		lamp_level = FLICK[int(Time.get_ticks_msec() / 90.0) % FLICK.size()]
 	else:
@@ -288,6 +327,7 @@ func _draw() -> void:
 	# o ponto de fuga fica na mesma fração do espaço da mesa (da mesa comutadora à quina) em qualquer largura: preso
 	# à largura da tela, numa janela larga ele fugia dos objetos e os da ponta apareciam bem de lado
 	_vp = Vector2(floorf(lerpf(b.end.x, _cx, VP_AT)), top - EYE)
+	_top = top
 	_draw_wall(Rect2(0, 0, w, top))
 	_draw_wall_light(top)
 	if board:   # a mesa comutadora, de pé na frente da parede, faz sombra nela (o tampo cobre a parte de baixo)
@@ -653,6 +693,8 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	var low := _side_pt(Vector2(0, gh)).y
 	var vh := (low - _vp.y) / 0.42
 	var view := Rect2(floorf(box.position.x), floorf(low - vh), ceilf(box.size.x) + 1, ceilf(vh))
+	# o vidro que aparece começa abaixo da persiana (e da borda de cima da tela): as gotas ficam dali para baixo
+	_glass_from = clampf((maxf(0.0, _side_pt(Vector2(gw * 0.5, floorf(gh * 0.3))).y) - view.position.y) / view.size.y, 0.0, 0.95)
 	if _vport.size != Vector2i(view.size * 2.0):   # o vidro em px da tela: a vista também é desenhada em 1x1
 		_vport.size = Vector2i(view.size * 2.0)
 	var uv := PackedVector2Array()
@@ -973,7 +1015,23 @@ func _draw_church(base: Vector2, col: Color) -> void:
 	_r(base.x - 2, base.y - 10, 4, 10, Color(LIT[1], 0.8))   # a porta, com luz dentro
 
 
-## O clima no vidro: gotas escorrendo (chuva), faixas de névoa passando (névoa) e um reflexo na diagonal.
+## A poeira na luz da luminária: grãos de um pixel em toda a área que ela ilumina (a do brilho da luz de teto,
+## `%Glow`: um círculo largo a partir do alto do meio da tela, que passa por cima da mesa comutadora), mais claros
+## perto da luminária e brilhando devagar ao virarem na luz. Fica na camada `dust`, acima da mesa comutadora (a
+## poeira que passa na frente dela); o papel de uma ferramenta fica na frente, e ela não desce abaixo do fundo do tampo.
+func _draw_dust() -> void:
+	var k := lamp_level * (0.5 if _cover.has_area() else 1.0)
+	var c := Vector2(_lamp_x * 2.0, 0.0)   # px da tela
+	var reach := size.x * 0.5
+	for m in _motes:
+		var p := Vector2(c.x + m.x * reach, m.y * _top * 2.0)
+		var a := (1.0 - minf(1.0, p.distance_to(c) / reach)) * (0.5 + 0.5 * sin(m.z)) * 0.6 * k
+		if a > 0.02 and not _cover.has_point(p):
+			_dust.draw_rect(Rect2(p.floor(), Vector2.ONE), Color(1.0, 0.9, 0.7, a))
+
+
+## O clima no vidro: a chuva passando e as gotas paradas no vidro, que às vezes escorrem (chuva), faixas de névoa
+## passando (névoa) e um reflexo na diagonal.
 func _draw_glass_weather(g: Rect2) -> void:
 	if weather == "rain":
 		for d in _drops:
@@ -981,6 +1039,17 @@ func _draw_glass_weather(g: Rect2) -> void:
 				var dp := Vector2(g.position.x + floorf(d.x * g.size.x * 2.0) * PX, g.position.y + floorf(d.y * (g.size.y - 3)))
 				_r(dp.x, dp.y, PX, 2, Color("3a5563"))   # a gota escorrendo, com o brilho na ponta
 				_r(dp.x, dp.y + 2, PX, PX, Color("6a8593"))
+		# as gotas no vidro, só na parte dele que aparece: escuras, com um brilho, quente perto do poste (`_draw_city`)
+		var top := g.position.y + g.size.y * _glass_from
+		var post := g.position + Vector2(floorf(g.size.x * 0.8), g.size.y - 36.0)
+		for b in _beads:
+			var p := Vector2(g.position.x + floorf(b.x * g.size.x * 2.0) * PX, top + floorf(b.y * (g.end.y - top) * 2.0) * PX)
+			if b.w > 0.0:   # escorrendo: o rastro molhado acima dela
+				for k in 4:
+					_r(p.x, p.y - (k + 1) * PX, PX, PX, Color(0.55, 0.66, 0.74, 0.2 - k * 0.045))
+			_r(p.x, p.y, b.z * PX, b.z * PX, Color("1c2a32"))
+			var warm := clampf(1.0 - p.distance_to(post) / 30.0, 0.0, 1.0) if lamp_level > 0.5 else 0.0
+			_r(p.x, p.y, PX, PX, Color("7f98a8").lerp(Color("ffd88a"), warm))
 	elif weather == "fog":
 		for k in int(g.size.y / 9.0):
 			var x := g.position.x - 60.0 + fmod(_mist * (0.6 + (k % 4) * 0.25) + k * 47.0, g.size.x + 60.0)
@@ -1048,19 +1117,23 @@ func _draw_desk_props() -> void:
 	# em duas fileiras, distribuídas de ponta a ponta entre a lateral da mesa comutadora e a parede da direita (a
 	# mesma folga entre eles, em qualquer largura de janela: presos a uma ponta só, sobrava mesa vazia na outra, e
 	# presos a pontas diferentes, eles se trombavam). Atrás: listas, caderno e o relógio com a caneca na frente dele;
-	# na frente: mapa, prancheta e o lugar do jornal (guardado mesmo sem ele, para nada mudar de lugar entre as noites)
+	# na frente: mapa, prancheta e o lugar do jornal (guardado mesmo sem ele, para nada mudar de lugar entre as noites).
+	# Todos em `PROP_K`, a escala dos plugs da mesa comutadora (que seguem as tomadas)
 	var l := _side_x + 8.0
 	var r := _cx - _vp.x - WALL_PAD   # a parede da direita é o plano x = quina (na escala da parede do fundo)
-	var back := _row(l, r, [33.0, 51.0, 42.0])
-	var near := _row(l + 4.0, r, [40.0, 29.0, 37.0])
-	_draw_books(back[0], _at(0.5), 33, _deep(0.32))
-	_flat("caderno", back[1], _at(0.52), 51, _deep(0.28), 2, Color("3a2414"), _draw_open_notebook)
-	_draw_flip_clock(back[2] + 13.0, _at(0.62))   # logo atrás da caneca (desenhado antes dela)
-	_draw_mug(back[2] + 35.4, _at(0.42), 6.6, 15)
-	_flat("despacho", near[0], _at(0.08), 40, _deep(0.21), 1, Color("a89a76"), _draw_folded_map)
-	_flat("registro", near[1], _at(0.06), 29, _deep(0.32), 2, Color("4a3018"), _draw_clipboard)
+	var k := PROP_K
+	var cw := CLOCK.x + 2.0   # o relógio, meio virado, ocupa um pouco mais que a largura dele
+	var mr := 6.6 * k         # a caneca, na frente do relógio, encostada na ponta direita dele
+	var back := _row(l, r, [33.0 * k, 51.0 * k, cw + mr])
+	var near := _row(l + 4.0, r, [40.0 * k, 29.0 * k, 37.0 * k])
+	_draw_books(back[0], _at(0.5), 33 * k, _deep(0.32 * k))
+	_flat("caderno", back[1], _at(0.52), 51 * k, _deep(0.28 * k), 2 * k, Color("3a2414"), _draw_open_notebook)
+	_draw_flip_clock(back[2] + cw / 2.0, _at(0.72))   # logo atrás da caneca (desenhado antes dela)
+	_draw_mug(back[2] + cw, _at(0.46), mr, 15 * k)
+	_flat("despacho", near[0], _at(0.04), 40 * k, _deep(0.21 * k), 1 * k, Color("a89a76"), _draw_folded_map)
+	_flat("registro", near[1], _at(0.03), 29 * k, _deep(0.32 * k), 2 * k, Color("4a3018"), _draw_clipboard)
 	if news:
-		_flat("jornal", near[2], _at(0.1), 37, _deep(0.21), 2, Color("b8b0a0"), _draw_newspaper)
+		_flat("jornal", near[2], _at(0.05), 37 * k, _deep(0.21 * k), 2 * k, Color("b8b0a0"), _draw_newspaper)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
@@ -1072,13 +1145,13 @@ func _draw_flip_clock(xc: float, zc: float) -> void:
 	_yaw = -CLOCK_TURN * atan2(xc, zc)   # a frente gira para os olhos (que estão na origem)
 	var hw := CLOCK.x / 2.0
 	var hd := CLOCK.z / 2.0
-	var bh := 1.5   # a base, um pouco maior que a caixa, que a levanta da mesa
+	var bh := 1.5 * PROP_K   # a base, um pouco maior que a caixa, que a levanta da mesa
 	_desk_shadow(PackedVector2Array([_clock_pt(xc, zc, -hw - 1, hd + 1, _yd), _clock_pt(xc, zc, hw + 1, hd + 1, _yd),
 		_clock_pt(xc, zc, hw + 1, -hd - 1, _yd), _clock_pt(xc, zc, -hw - 1, -hd - 1, _yd)]))
 	var dark := _shade(xc, zc)
 	var lit := Color.WHITE.darkened(dark)   # longe da luz
-	_clock_box(xc, zc, hw + 0.8, hd + 0.8, _yd, bh, Color("4e3a28").darkened(dark), Color("2a1d13").darkened(dark), Color("3a2a1c").darkened(dark))
-	var box := _clock_box(xc, zc, hw, hd, _yd - bh, CLOCK.y, Color("dccfa8").darkened(dark), Color("998a66").darkened(dark), Color.TRANSPARENT)
+	_clock_box(xc, zc, hw + 0.8, hd + 0.8, _yd, bh, Color("4e3a28"), Color("2a1d13"), Color("3a2a1c"))
+	var box := _clock_box(xc, zc, hw, hd, _yd - bh, CLOCK.y, Color("dccfa8"), Color("998a66"), Color.TRANSPARENT)
 	var y1 := _yd - bh - CLOCK.y
 	clock_x = global_position.x + _bounds(box["top"]).get_center().x
 	for i in 4:   # as fendas do alarme, no fundo do tampo
@@ -1110,11 +1183,12 @@ func _draw_flip_clock(xc: float, zc: float) -> void:
 	for i in w:
 		var t := ((x0 + i + 0.5) / 2.0 - _vp.x) / Z0   # o rumo do raio: x/z
 		var a := clampf((t * l.y - l.x) / ((r.x - l.x) - t * (r.y - l.y)), 0.0, 0.999)
-		var z := lerpf(l.y, r.y, a)
-		var y0 := roundf(_p3(0, y1, z).y)
-		var y2 := roundf(_p3(0, y1 + CLOCK.y, z).y)
-		draw_texture_rect_region(face, Rect2(x0 + i, y0, 1, y2 - y0), Rect2(floorf(a * w), 0, 1, h), lit)
-		draw_rect(Rect2(x0 + i, y0 - 1, 1, 1), Color("dccfa8").darkened(dark))   # a quina com o tampo (sem ela, sobravam furos)
+		var p := l.lerp(r, a)
+		var y0 := roundf(_p3(0, y1, p.y).y)
+		var y2 := roundf(_p3(0, y1 + CLOCK.y, p.y).y)
+		var sh := _shade(p.x, p.y)   # longe da luz, coluna a coluna
+		draw_texture_rect_region(face, Rect2(x0 + i, y0, 1, y2 - y0), Rect2(floorf(a * w), 0, 1, h), Color.WHITE.darkened(sh))
+		draw_rect(Rect2(x0 + i, y0 - 1, 1, 1), Color("dccfa8").darkened(sh))   # a quina com o tampo (sem ela, sobravam furos)
 
 
 ## Onde fica na sala (x, z) o ponto do relógio a `u` na largura e `v` no fundo, a partir do centro (`xc`, `zc`), girado
@@ -1131,7 +1205,8 @@ func _clock_pt(xc: float, zc: float, u: float, v: float, y: float) -> Vector2:
 
 ## Uma caixa do relógio, girada como ele (meia largura `hw`, meio fundo `hd`, de `y0` até `h` acima): só as faces
 ## viradas para os olhos, as de pé em `side` (a da frente em `front`; transparente, quem chama a desenha) e o tampo em
-## `top`. Devolve as faces que apareceram ("front", "right", "back", "left", "top").
+## `top`, escurecendo ponto a ponto longe da luz (`_shade`). Devolve as faces que apareceram ("front", "right", "back",
+## "left", "top").
 func _clock_box(xc: float, zc: float, hw: float, hd: float, y0: float, h: float, top: Color, side: Color, front: Color) -> Dictionary:
 	var cs := cos(_yaw)
 	var sn := sin(_yaw)
@@ -1151,14 +1226,24 @@ func _clock_box(xc: float, zc: float, hw: float, hd: float, y0: float, h: float,
 		out[f[0]] = q
 		var col: Color = front if f[0] == "front" else side
 		if col.a > 0.0:
-			_poly(q, col)
+			var a := _clock_xz(xc, zc, f[2].x, f[2].y)
+			var b := _clock_xz(xc, zc, f[3].x, f[3].y)
+			_shaded(q, [a, b, b, a], col)
 			if f[0] == "left":   # a quina com a frente pega a luz
-				draw_line(q[1], q[2], col.lightened(0.15), 1.0)
+				draw_line(q[1], q[2], col.lightened(0.15).darkened(_shade(b.x, b.y)), 1.0)
 			elif f[0] == "right":
-				draw_line(q[0], q[3], col.lightened(0.15), 1.0)
+				draw_line(q[0], q[3], col.lightened(0.15).darkened(_shade(a.x, a.y)), 1.0)
 	out["top"] = PackedVector2Array([_clock_pt(xc, zc, -hw, hd, y1), _clock_pt(xc, zc, hw, hd, y1), _clock_pt(xc, zc, hw, -hd, y1), _clock_pt(xc, zc, -hw, -hd, y1)])
-	_poly(out["top"], top)
+	_shaded(out["top"], [_clock_xz(xc, zc, -hw, hd), _clock_xz(xc, zc, hw, hd), _clock_xz(xc, zc, hw, -hd), _clock_xz(xc, zc, -hw, -hd)], top)
 	return out
+
+
+## Uma face na cor `col`, escurecendo ponto a ponto longe da luz (`xz`: os pontos dela na sala).
+func _shaded(pts: PackedVector2Array, xz: Array, col: Color) -> void:
+	var cols := PackedColorArray()
+	for p in xz:
+		cols.append(col.darkened(_shade(p.x, p.y)))
+	draw_polygon(pts, cols)
 
 
 ## A frente do relógio, de frente, em `sz` px: a caixa creme, a janela preta de aro niquelado com as duas plaquetas
@@ -1318,13 +1403,22 @@ func _pool() -> Vector2:
 	return Vector2((_lamp_x - _vp.x) * zl / Z0, zl)
 
 
-## Quanto um objeto da mesa em (`x`, `z`) fica no escuro: nada embaixo da luminária, mais longe da poça de luz, até
-## `SHADE_MAX`, em degraus (`SHADE_STEP`); a luminária piscando escurece tudo junto (os objetos tinham a mesma cor em
-## qualquer lugar da mesa e pareciam soltos da luz da sala).
+## Quanto o ponto (`x`, `z`) da mesa fica no escuro: nada embaixo da luminária e mais longe da poça de luz, até
+## `SHADE_MAX`; a luminária piscando escurece tudo junto (os objetos tinham a mesma cor em qualquer lugar da mesa e
+## pareciam soltos da luz da sala). Contínuo: cada objeto escurece ponto a ponto (`_dim`), não de um tom só.
 func _shade(x: float, z: float) -> float:
 	var p := _pool()
 	var d := Vector2((x - p.x) / POOL_R, (z - p.y) / (POOL_R * 0.5)).length()
-	return snappedf(clampf((d - 0.35) * 0.5, 0.0, SHADE_MAX) + (1.0 - lamp_level) * 0.3, SHADE_STEP)
+	return clampf((d - 0.35) * 0.5, 0.0, SHADE_MAX) + (1.0 - lamp_level) * 0.3
+
+
+## Escurece o polígono `pts` (px da tela) longe da luz, ponto a ponto: `xz` são os mesmos pontos na sala (x, z), e o
+## escuro de cada um (`_shade`) varia liso entre eles.
+func _dim(pts: PackedVector2Array, xz: Array) -> void:
+	var cols := PackedColorArray()
+	for p in xz:
+		cols.append(Color(0, 0, 0, _shade(p.x, p.y)))
+	draw_polygon(pts, cols)
 
 
 ## Um objeto chato que abre a ferramenta `id`: a sombra, a espessura (`h`, na cor `edge`: a frente e o lado virado para
@@ -1342,8 +1436,11 @@ func _flat(id: String, x0: float, zf: float, wx: float, dz: float, h: float, edg
 	_paint_xf = xf[0]
 	draw_set_transform_matrix(xf[0])
 	paint.call(Rect2(Vector2.ZERO, xf[1]))
-	draw_rect(Rect2(Vector2.ZERO, xf[1]), Color(0, 0, 0, dark))   # longe da luz
 	draw_set_transform(Vector2.ZERO)
+	var t: Transform2D = xf[0]   # longe da luz, ponto a ponto
+	var s: Vector2 = xf[1]
+	_dim(PackedVector2Array([t * Vector2.ZERO, t * Vector2(s.x, 0), t * s, t * Vector2(0, s.y)]),
+		[Vector2(x0, zf + dz), Vector2(x0 + wx, zf + dz), Vector2(x0 + wx, zf), Vector2(x0, zf)])
 	_props[id] = _bounds(foot + (bx["top"] as PackedVector2Array))
 	return bx["top"]
 
@@ -1353,11 +1450,10 @@ func _flat(id: String, x0: float, zf: float, wx: float, dz: float, h: float, edg
 ## cima, o tampo com a faixa do título e o emblema da central.
 func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 	var cols := [Color("8e2a22"), Color("2a4a7c"), Color("b48c1c")]
-	var offs := [Vector2(1, 0), Vector2(3, 2), Vector2(0, 1)]   # meio tortos: x e z de cada volume
-	var bh := 5.5
+	var offs := [Vector2(1, 0) * PROP_K, Vector2(3, 2) * PROP_K, Vector2(0, 1) * PROP_K]   # meio tortos: x e z de cada volume
+	var bh := 5.5 * PROP_K
 	var all := PackedVector2Array()
 	_desk_shadow(_box(x0, zf, wx, dz, _yd, 0.0)["top"])
-	var dark := _shade(x0 + wx / 2.0, zf + dz / 2.0)
 	for b in 3:
 		var c: Color = cols[b]
 		var bx := _box(x0 + offs[b].x, zf + offs[b].y, wx, dz, _yd - b * bh, bh)
@@ -1385,10 +1481,15 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 			draw_rect(Rect2(0, 0, s.x, 1), c.lightened(0.25))
 			draw_rect(Rect2(6, s.y * 0.35, s.x - 22, maxf(2.0, s.y * 0.25)), c.darkened(0.3))
 			_sprite(Switchboard.disc(6, [[1.8, Color("f0d8a0"), Color("e0c07a"), Color("b8924e")], [3.0, c.darkened(0.35)]]), (xf[0] as Transform2D) * Vector2(s.x - 8, s.y * 0.5))
-		if dark > 0.0:   # longe da luz: cada volume logo depois de desenhado (os de cima cobrem os de baixo)
-			for q in [side, top, PackedVector2Array([f.position, Vector2(f.end.x, f.position.y), f.end, Vector2(f.position.x, f.end.y)])]:
-				if not (q as PackedVector2Array).is_empty():
-					draw_colored_polygon(q, Color(0, 0, 0, dark))
+		# longe da luz, ponto a ponto: cada volume logo depois de desenhado (os de cima cobrem os de baixo)
+		var x: float = x0 + offs[b].x
+		var z: float = zf + offs[b].y
+		var sx: float = x if x > 0.0 else x + wx
+		if not side.is_empty():
+			_dim(side, [Vector2(sx, z + dz), Vector2(sx, z), Vector2(sx, z), Vector2(sx, z + dz)])
+		_dim(top, [Vector2(x, z + dz), Vector2(x + wx, z + dz), Vector2(x + wx, z), Vector2(x, z)])
+		_dim(PackedVector2Array([f.position, Vector2(f.end.x, f.position.y), f.end, Vector2(f.position.x, f.end.y)]),
+			[Vector2(x, z), Vector2(x + wx, z), Vector2(x + wx, z), Vector2(x, z)])
 	_props["lista"] = _bounds(all)
 
 
@@ -1407,7 +1508,7 @@ func _draw_mug(xc: float, zc: float, rr: float, hh: float) -> void:
 	for x in int(body.size.x):   # o cilindro, coluna a coluna: a luz à esquerda, a sombra à direita, o fundo redondo
 		var nx := (x + 0.5) / body.size.x * 2.0 - 1.0
 		var col := Color("ece2c6") if nx < -0.55 else (Color("d8caa3") if nx < 0.35 else (Color("c2b288") if nx < 0.75 else Color("a89a76")))
-		draw_rect(Rect2(body.position.x + x, body.position.y, 1, body.size.y - ry + roundf(sqrt(1.0 - nx * nx) * ry)), col.darkened(dark))
+		draw_rect(Rect2(body.position.x + x, body.position.y, 1, body.size.y - ry + roundf(sqrt(1.0 - nx * nx) * ry)), col.darkened(_shade(xc + nx * rr, zc)))
 	var top := Vector2(body.get_center().x, body.position.y)
 	_ellipse(top, rx + 1, ry + 1, Color("a89a76").darkened(dark))   # a boca, com a beira no tom da sombra da caneca
 	_ellipse(top, rx, ry, Color("e3d6b2").darkened(dark))

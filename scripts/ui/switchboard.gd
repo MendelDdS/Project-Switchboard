@@ -38,7 +38,6 @@ const SIZE := Vector2(588, 362)
 const FRAME := 7.0           # a moldura de madeira do móvel, em volta do painel
 ## Faixas gravadas no painel que separam as seções (altura da linha; o nome fica sobre ela, à esquerda).
 const RULES := {"in": 22.0, "out": 131.0, "dest": 181.0}
-const LEGEND_Y := 310.0      # a legenda das lâmpadas, numa linha, no pé do painel (acima da ponta dos plugs em pé)
 const WOOD := [Color("6b4529"), Color("4a2f1c"), Color("2a1a0f")]   # madeira do móvel e da bandeja: luz, meio, sombra
 const FONE_HOLE_X := 50.0   # o buraco do FONE, a partir da esquerda do encaixe (no meio dele)
 const SHELF_HOLE_Y := 3.0   # os buracos da prateleira, no alto da faixa dela (o nome fica gravado embaixo)
@@ -62,7 +61,7 @@ const HOLE_ART := [
 	".........FFFFFFFFFF.........",
 ]
 const HOLE_PAL := {"b": Color("7a6230"), "f": Color("c4a35a"), "F": Color("e6cf8e"), "w": Color("3a2a12"), "h": Color("140d06")}
-const PLUG_SINK := 9.0   # guardado, o plug entra tanto no buraco (px abaixo dele)...
+const PLUG_SINK := 22.0  # guardado, o plug entra tanto no buraco (px abaixo dele: a capa de borracha some nele, o corpo fica à mostra)...
 const HOLE_LIP := 3.0    # ...e some abaixo disto (px abaixo do buraco), atrás da beira da frente dele
 const HOLE_SHADE := [[0.0, 5.0, 0.65], [5.0, 10.0, 0.4], [10.0, 16.0, 0.2]]   # o fio entrando no buraco escurece: [de, até (px a partir do buraco), escuro]
 
@@ -97,10 +96,10 @@ const MAX_FLING := 1800.0      # px/s: o plug solto em movimento sai com o embal
 const DROP_SPEED := 120.0      # px/s: batendo na mesa mais rápido que isso, faz barulho
 const TAP_SPEED := Vector2(150.0, 600.0)   # px/s: o fio batendo na mesa faz "tap" a partir de x; em y, no volume máximo
 const TAP_GAP := 0.12          # s: intervalo mínimo entre dois "taps" do mesmo fio
-const PLUG_BASE := Vector2(0, 24)   # do ponto de referência do plug (topo do corpo) até onde o fio entra nele
-const PLUG_LEN := 38.0   # em pé: do fio até o alto do colar (a ponta de metal passa disso)
+const PLUG_BASE := Vector2(0, 36)   # do ponto de referência do plug (topo do corpo) até onde o fio entra nele
+const PLUG_LEN := 59.0   # em pé: do fio até o alto da aba (a ponta de metal passa disso)
 ## Encaixado, de onde fica a tomada até onde o fio entra: a ponta de metal some dentro dela e o anel assenta no buraco.
-const PLUG_FACE_R := 5.5   # encaixado: o raio do colar e do cabo (13 px com a beira: a aba da bucha fica à vista em volta)
+const PLUG_FACE_R := 5.5   # encaixado: o raio do corpo (13 px com a beira, na proporção do em pé; a aba da bucha fica à vista em volta)
 const EDGE := 0.65          # a beira do plug e do fio: a cor da peça escurecida assim (contorno preto destoava do cenário)
 ## Encaixado, o plug sai do painel na direção da câmera: visto de cima e da direita, a ponta dele fica deslocada do
 ## encaixe para baixo e para a esquerda, e mais quanto mais longe do ponto que a câmera olha reto (paralaxe, `_tilt`).
@@ -141,9 +140,105 @@ const JACK_ART := [
 const JACK_PX := 20   # o lado do `JACK_ART`, em pixels
 const LIGHT := Vector2(-0.7071, -0.7071)   # de onde vem a luz das peças redondas (alto à esquerda)
 const EDGE_DARK := Color("1c130b")   # a beira das peças: marrom quase preto, não preto puro
-## As peças do plug encaixado, como frações do comprimento, a partir do painel: as mesmas de em pé (colar de 6 px,
-## cabo de 17, ponteira de 4).
-const PLUG_PARTS := [6.0 / 27.0, 23.0 / 27.0]
+const PLUG_ART := [   ## o plug em pé, de 20 × 93 px (y de -93 a -1; o fio sai de y = 0): `_plug_pal` dá as cores
+	".........bE.........",
+	"........yYbE........",
+	".......yYbbBE.......",
+	".......yYbbBE.......",
+	".......byBBCE.......",
+	"........BbCE........",
+	"........BbCE........",
+	"......KKKkkkkk......",
+	"......KKKkkkkk......",
+	"......KKKkkkkk......",
+	"......yYybbBBE......",
+	"......yYybbBBE......",
+	"......yYybbBBE......",
+	"......yYybbBBE......",
+	"......yYybbBBE......",
+	"......yYybbBBE......",
+	"......KKKkkkkk......",
+	"......KKKkkkkk......",
+	"......KKKkkkkk......",
+	"......yYybbBBE......",
+	"......yYybbBBE......",
+	"......yYybbBBE......",
+	"......yYybbBBE......",
+	"......yYybbBBE......",
+	"......yYybbBBE......",
+	"......yYybbBBE......",
+	"......yYybbBBE......",
+	"......yYybbBBE......",
+	"......yYybbBBE......",
+	"......yYybbBBE......",
+	"......yYybbBBE......",
+	"......yYybbBBE......",
+	"......yYybbBBE......",
+	"......yYybbBBE......",
+	"....YYYYYyyybbBE....",
+	"....bybbbBBBCCCE....",
+	"....bybbbBBBCCCE....",
+	"..3233334444555556..",
+	".212222233333444556.",
+	".434444455555555556.",
+	".212222233333444556.",
+	".212222233333444556.",
+	".222323243434454556.",
+	".222323243434454556.",
+	".222323243434454556.",
+	".222323243434454556.",
+	".222323243434454556.",
+	".222323243434454556.",
+	".222323243434454556.",
+	".222323243434454556.",
+	".222323243434454556.",
+	".222323243434454556.",
+	".222323243434454556.",
+	".222323243434454556.",
+	".222323243434454556.",
+	".212222233333444556.",
+	".212222233333444556.",
+	".434444455555555556.",
+	".434444455555555556.",
+	".111111122222333446.",
+	".212222233333444556.",
+	".212222233333444556.",
+	".212222233333444556.",
+	".212222233333444556.",
+	".212222233333444556.",
+	".212222233333444556.",
+	".212222233333444556.",
+	".212222233333444556.",
+	".212222233333444556.",
+	".212222233333444556.",
+	".212222233333444556.",
+	"..3233334444555556..",
+	"...32333344455556...",
+	"...32333344455556...",
+	"...32333344455556...",
+	"....545555555556....",
+	"....323334445556....",
+	"....323334445556....",
+	".....5455555556.....",
+	"....323334445556....",
+	"....323334445556....",
+	"......54555556......",
+	".....3233445556.....",
+	".....3233445556.....",
+	"......54555556......",
+	"......32344556......",
+	"......32344556......",
+	".......545556.......",
+	"......32344556......",
+	"......32344556......",
+	"........5456........",
+	".......324456.......",
+	".......324456.......",
+]
+const PLUG_H := 93.0   # a altura do `PLUG_ART`: do bico até onde sai o fio
+## As peças do plug encaixado, como frações do comprimento, a partir do painel: as mesmas de em pé (a aba dourada,
+## curta; o corpo; a capa de borracha em gomos).
+const PLUG_PARTS := [3.0 / 27.0, 19.0 / 27.0]
 const MORPH_SEC := 0.08   # encaixando ou saindo, o plug passa de em pé para de frente (e volta) nesse tempo
 const PUSH_PX := 1.5     # ao encaixar, o plug afunda (o tampo encolhe tanto, px) e volta...
 const ROT_STEP := deg_to_rad(15.0)   # solto ou na mão, o plug gira em passos assim (pixel art girado torto serrilha)
@@ -155,7 +250,23 @@ const JACK := 22.0          # diâmetro de todos os encaixes (entradas, saídas 
 ## A coluna de cada linha, de cima para baixo: plaquinha com o número (topo e altura), estado (linha de base do texto),
 ## lâmpada, entrada e saída (centros). O estado fica acima da lâmpada: embaixo da entrada, o plug encaixado o cobria.
 const ROW_Y := {"plate": 32.0, "plate_h": 17.0, "state": 61.0, "lamp": 76.0, "in": 104.0, "out": 156.0}
-const STATE_FONT := 8       # o estado da linha ("conectada" em 11 não cabe na coluna): exceção à regra dos múltiplos de 11
+## A fonte do estado de cada linha, como letras gravadas no painel: maiúsculas de 3 × 5 px, desenhadas pixel a pixel
+## (`tiny`). Na fonte da tela, em 11, "conectada" não cabe na coluna; em 8, fora da grade dela, a letra borrava.
+const TINY := {"A": "###/#.#/###/#.#/#.#", "B": "##./#.#/##./#.#/##.", "C": ".##/#../#../#../.##", "D": "##./#.#/#.#/#.#/##.",
+	"E": "###/#../##./#../###", "F": "###/#../##./#../#..", "G": ".##/#../#.#/#.#/.##", "H": "#.#/#.#/###/#.#/#.#",
+	"I": "###/.#./.#./.#./###", "J": "..#/..#/..#/#.#/.#.", "K": "#.#/#.#/##./#.#/#.#", "L": "#../#../#../#../###",
+	"M": "#.#/###/###/#.#/#.#", "N": "##./#.#/#.#/#.#/#.#", "O": ".#./#.#/#.#/#.#/.#.", "P": "##./#.#/##./#../#..",
+	"Q": ".#./#.#/#.#/##./.##", "R": "##./#.#/##./#.#/#.#", "S": ".##/#../.#./..#/##.", "T": "###/.#./.#./.#./.#.",
+	"U": "#.#/#.#/#.#/#.#/###", "V": "#.#/#.#/#.#/#.#/.#.", "W": "#.#/#.#/###/###/#.#", "X": "#.#/#.#/.#./#.#/#.#",
+	"Y": "#.#/#.#/.#./.#./.#.", "Z": "###/..#/.#./#../###", "0": "###/#.#/#.#/#.#/###", "1": ".#./##./.#./.#./###",
+	"2": "##./..#/.#./#../###", "3": "##./..#/.#./..#/##.", "4": "#.#/#.#/###/..#/..#", "5": "###/#../##./..#/##.",
+	"6": ".##/#../###/#.#/###", "7": "###/..#/.#./.#./.#.", "8": "###/#.#/###/#.#/###", "9": "###/#.#/###/..#/##.",
+	".": ".../.../.../.../.#.", "-": ".../.../###/.../...", ":": ".../.#./.../.#./...", "/": "..#/..#/.#./#../#..",
+	"(": ".#./#../#../#../.#.", ")": ".#./..#/..#/..#/.#."}
+const TINY_MARKS := {"´": "..#/.#.", "`": "#../.#.", "^": ".#./#.#", "~": ".##/##.", "¨": "#.#/...", ",": ".#./##."}   ## acentos (2 linhas acima da letra; a cedilha, abaixo)
+const TINY_ACCENTS := {"Á": "A´", "À": "A`", "Â": "A^", "Ã": "A~", "Ä": "A¨", "É": "E´", "È": "E`", "Ê": "E^", "Ë": "E¨",
+	"Í": "I´", "Ì": "I`", "Î": "I^", "Ï": "I¨", "Ó": "O´", "Ò": "O`", "Ô": "O^", "Õ": "O~", "Ö": "O¨", "Ú": "U´", "Ù": "U`",
+	"Û": "U^", "Ü": "U¨", "Ñ": "N~", "Ç": "C,"}
 const BEZEL := [Color("d6d1c3"), Color("8e897c"), Color("45413a")]   # aro niquelado: luz, meio, sombra
 const LAMP_OFF := Color("2a2016")   # o vidro da lâmpada apagada
 const LAMP_ON_SEC := 0.06    # a lâmpada (de filamento) acende quase na hora...
@@ -298,7 +409,7 @@ func hole(e: int) -> Vector2:
 
 func home_rect(e: int) -> Rect2:
 	var h := home_pos(e)
-	return Rect2(h.x - 12, h.y - 38, 24, 60)
+	return Rect2(h.x - 12, h.y + PLUG_BASE.y - PLUG_H, 24, PLUG_H - 2.0)   # do bico até a beira do buraco
 
 
 ## A outra ponta do mesmo cabo de conexão (-1 para o FONE).
@@ -570,7 +681,7 @@ func _plug_rect(e: int) -> Rect2:
 	if ends[e] != -1:   # do encaixe (atrás) até a ponteira (aqui)
 		var r := PLUG_FACE_R + 1.0
 		return Rect2(-_tilt(int(ends[e])) - Vector2(r, r), Vector2(r, r) * 2.0).merge(Rect2(-r, -r, r * 2.0, r * 2.0))
-	return Rect2(-10, -62, 20, 62)
+	return Rect2(-10, -PLUG_H, 20, PLUG_H)
 
 
 ## Quanto o plug recém-encaixado está afundado (px, a assentada).
@@ -865,7 +976,8 @@ func _draw() -> void:
 			sc = Pal.AMBER
 		elif st == Exchange.Line.DONE:
 			sc = Pal.RED
-		draw_string(Pal.ui, Vector2(cx - 28, ROW_Y["state"]), exchange.line_label(n), HORIZONTAL_ALIGNMENT_CENTER, 56, STATE_FONT, sc)
+		var label := tiny(exchange.line_label(n))   # as letras vão de 3 a 7 na imagem: o pé delas logo acima de ROW_Y
+		draw_texture(label, Vector2(roundf(cx - label.get_width() / 2.0), ROW_Y["state"] - 8.0), sc)
 		_draw_jack(jack_rect(n + 10), 0.25)
 
 	# destinos: a faixa de numeração de cada banco fica sobre a faixa gravada, como rótulo da seção
@@ -890,16 +1002,7 @@ func _draw() -> void:
 			_draw_plate(_blocks[s], "ABC"[SECTOR_ORDER.find(s)])
 
 	# legenda das lâmpadas, numa linha no pé do painel
-	draw_rect(Rect2(FRAME + 6, LEGEND_Y - 18, w - FRAME * 2 - 12, 1), Pal.PANEL_LO)
-	var leg := [[Pal.AMBER, T.Key.LEGEND_RING], [Pal.GREEN, T.Key.LEGEND_CONN], [Pal.RED, T.Key.LEGEND_DONE], [LAMP_OFF, T.Key.LEGEND_FREE]]
-	var lx := FRAME + 14.0
-	for k in leg.size():
-		var lc := Vector2(lx + 5, LEGEND_Y - 4)   # lâmpadas redondas, como as da mesa
-		_sprite(disc(11, [[4.0, Color.WHITE], [5.5, EDGE_DARK]]), lc, leg[k][0])
-		_sprite(disc(11, [[4.0, Color.TRANSPARENT], [5.5, EDGE_DARK]]), lc)
-		var t := T.text(leg[k][1])
-		draw_string(Pal.ui, Vector2(lx + 15, LEGEND_Y), t, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
-		lx += 15.0 + Pal.ui.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 22.0
+	_draw_legend()
 
 	# destaque da tomada sob o plug
 	if held != -1:
@@ -970,6 +1073,26 @@ func _draw_cabinet(r: Rect2) -> void:
 
 
 ## Faixa gravada que separa as seções do painel, com o nome dela em cima, à esquerda (sem nome, só a faixa).
+## A legenda das lâmpadas, na faixa das entradas, alinhada à direita e logo acima das lâmpadas que ela explica, na
+## fonte gravada do painel (`tiny`; em 11 não cabia ali). No pé do painel, os plugs guardados passavam na frente dela.
+func _draw_legend() -> void:
+	var leg := [[Pal.AMBER, T.Key.LEGEND_RING], [Pal.GREEN, T.Key.LEGEND_CONN], [Pal.RED, T.Key.LEGEND_DONE], [LAMP_OFF, T.Key.LEGEND_FREE]]
+	var texts := []
+	var width := -10.0
+	for item in leg:
+		var t := tiny(T.text(item[1]))
+		texts.append(t)
+		width += 9.0 + 4.0 + t.get_width() + 10.0
+	var y := RULES["in"] + 1.0
+	var x := floorf(size.x - FRAME - 18.0 - width)
+	draw_rect(Rect2(x - 5, y - 8, width + 10, 15), Pal.PANEL)   # tampa a faixa, como o nome dela
+	for k in leg.size():
+		_sprite(disc(9, [[3.0, Color.WHITE], [4.5, EDGE_DARK]]), Vector2(x + 4.5, y), leg[k][0])   # lâmpadas redondas, como as da mesa
+		_sprite(disc(9, [[3.0, Color.TRANSPARENT], [4.5, EDGE_DARK]]), Vector2(x + 4.5, y))
+		draw_texture(texts[k], Vector2(x + 13.0, y - 5.0), Pal.DIM)
+		x += 9.0 + 4.0 + (texts[k] as Texture2D).get_width() + 10.0
+
+
 func _draw_rule(y: float, caption: String) -> void:
 	draw_rect(Rect2(FRAME + 6, y, size.x - FRAME * 2 - 12, 1), Pal.PANEL_LO)
 	draw_rect(Rect2(FRAME + 6, y + 1, size.x - FRAME * 2 - 12, 1), Pal.PANEL_HI)
@@ -979,13 +1102,12 @@ func _draw_rule(y: float, caption: String) -> void:
 		draw_string(Pal.ui, Vector2(FRAME + 18, y + 5), caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.BRASS)
 
 
-## A bandeja de madeira na mesa, à frente do painel, onde os cabos de conexão ficam guardados de pé: fundo forrado, os
-## buracos de onde saem os fios (buchas, como encaixes pequenos) e a plaquinha com o número de cada cabo.
-func _draw_tray(r: Rect2) -> void:
+## A prateleira à frente do painel, onde os cabos de conexão ficam guardados de pé: os buracos de onde saem os fios
+## (a cor de cada cabo já diz qual é; o nome gravado embaixo saiu, a pedido).
+func _draw_tray(_r: Rect2) -> void:
 	for k in PATCHES:
 		for e in [1 + k * 2, 2 + k * 2]:
 			draw_grommet(self, hole(e))
-		engrave(self, Vector2(patch_x(k), r.end.y), T.text(T.Key.BOARD_CORD) % (k + 1))
 
 
 ## Um nome gravado na madeira da prateleira, centrado em `at.x` com a base em `at.y`: o sulco escuro e o latão.
@@ -1110,7 +1232,7 @@ func _draw_plug(e: int, shadow: bool) -> void:
 	_cut = hole(e).y + HOLE_LIP - at.round().y if _in_hole(e) else INF
 	if shadow and seated:   # do encaixe até onde a luz joga a ponta, no painel
 		draw_colored_polygon(Geometry2D.convex_hull(_circle(Vector2.ZERO, PLUG_FACE_R + 1.0) + _circle(PLUG_SHADE, PLUG_FACE_R)), SHADOW)
-		draw_circle(Vector2.ZERO, PLUG_FACE_R + 2.5, SHADOW)   # sombra de contato: o colar preso no encaixe
+		_sprite(disc(16, [[8.0, Color.WHITE]]), Vector2.ZERO, SHADOW)   # sombra de contato: o colar preso no encaixe
 	elif shadow:
 		_draw_cut(_plug_outline(e, 0.0), SHADOW)
 	else:
@@ -1171,8 +1293,9 @@ func _plug_outline(e: int, grow: float) -> PackedVector2Array:
 	if not _silhouette.has(key):
 		var box := func(r: Rect2) -> PackedVector2Array:
 			return PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)])
-		var parts := [Geometry2D.convex_hull(_circle(Vector2.ZERO, PLUG_FACE_R + 1.0) + _circle(key, PLUG_FACE_R + 1.0))] if seated else [box.call(Rect2(-10, -38, 20, 32)),
-			box.call(Rect2(-6, -6, 12, 6)), box.call(Rect2(-6, -60, 12, 22)), box.call(Rect2(-4, -62, 8, 2))]
+		var parts := [Geometry2D.convex_hull(_circle(Vector2.ZERO, PLUG_FACE_R + 1.0) + _circle(key, PLUG_FACE_R + 1.0))] if seated else [box.call(Rect2(-9, -56, 18, 36)),
+			box.call(Rect2(-8, -20, 16, 20)), box.call(Rect2(-6, -59, 12, 3)), box.call(Rect2(-4, -86, 8, 27)), box.call(Rect2(-3, -91, 6, 5)),
+			box.call(Rect2(-1, -93, 2, 2))]
 		var shape: PackedVector2Array = parts[0]
 		for part in parts.slice(1):
 			shape = Geometry2D.merge_polygons(shape, part)[0]
@@ -1200,54 +1323,39 @@ func _tilt_at(p: Vector2) -> Vector2:
 	return (p - PLUG_EYE) * PLUG_DEPTH
 
 
-## O plug encaixado, a partir do encaixe, saindo do painel até `tilt`: as peças do plug em pé (colar niquelado, cabo de
-## baquelite com dois sulcos de pegada, ponteira mais escura), vistas na ponta e de lado (o lado virado para longe de
-## `tilt`), com a luz no alto à esquerda; o fio sai do meio da ponteira, por cima (desenhado depois). `push`: a
-## assentada, o plug afunda tantos px. `j`: o encaixe, para a luz da lâmpada no colar (antes do cabo, que passa na frente).
+## O plug encaixado, a partir do encaixe, saindo do painel até `tilt`: as peças do plug em pé (a aba dourada no
+## painel, o corpo na cor do cabo com o anel no meio, a capa de borracha em gomos), em pixel art como as peças redondas: discos (`disc`)
+## enfileirados ao longo do eixo, um por pixel, do painel para a frente. Primeiro a beira de todos (só o contorno fica
+## à mostra) e depois o miolo sombreado (luz no alto à esquerda): o lado do cilindro e, na frente, a ponta; um sulco é
+## um disco mais escuro, que aparece como um anel. (Antes eram cápsulas e círculos vetoriais: embolotados.) O fio sai do
+## meio da capa, por cima (desenhado depois). `push`: a assentada, o plug afunda tantos px. `j`: o encaixe, para a
+## luz da lâmpada no colar (antes do cabo, que passa na frente).
 func _draw_plug_face(col: Array, tilt: Vector2, push: float, alpha: float, j := -1) -> void:
-	var base := Color(col[0], alpha)
-	var hi := Color(col[1], alpha)
-	var dark := base.darkened(0.4)
-	var metal_edge := Color(BEZEL[2].darkened(EDGE), alpha)
-	var edge := base.darkened(EDGE)
+	var pal := _plug_pal(col)
 	var t := tilt - tilt.normalized() * push
-	var c: Vector2 = t * PLUG_PARTS[0]   # o colar vai do painel até aqui...
-	var h: Vector2 = t * PLUG_PARTS[1]   # ...o cabo até aqui, e a ponteira até t
-	var r := PLUG_FACE_R
-	var lit := Vector2(t.y, -t.x).normalized()   # o lado virado para a luz (alto à esquerda)
-	if lit.dot(Vector2(-1, -1)) < 0.0:
-		lit = -lit
-	var back := (-t).angle()   # o meio do lado à mostra
-	# colar niquelado
-	_draw_capsule(Vector2.ZERO, c, r + 1.0, metal_edge)
-	_draw_capsule(Vector2.ZERO, c, r, Color(BEZEL[2], alpha))
-	_draw_capsule(lit * 1.5, c + lit * 1.5, r - 1.5, Color(BEZEL[1], alpha))
-	draw_line(lit * (r - 1.0), c + lit * (r - 1.0), Color(BEZEL[0], alpha), 1.5)
-	_collar_reflect(j)
-	# cabo de baquelite: escuro do lado da sombra, claro na beira virada para a luz, e os sulcos de pegada
-	_draw_capsule(c, h, r + 1.0, edge)
-	_draw_capsule(c, h, r, dark)
-	_draw_capsule(c + lit * 2.0, h + lit * 2.0, r - 2.0, base)
-	draw_line(c + lit * (r - 1.0), h + lit * (r - 1.0), hi, 2.0)
-	for f in [5.0 / 17.0, 10.0 / 17.0]:
-		var g := c.lerp(h, f)
-		draw_arc(g, r, back - PI / 2.0, back + PI / 2.0, 12, dark.darkened(0.3), 1.0)
-		draw_arc(g + t.normalized(), r, back - PI / 2.0, back + PI / 2.0, 12, Color(hi, 0.5 * alpha), 1.0)
-	# a ponta do cabo, abaulada, com o brilho no alto à esquerda
-	draw_circle(h, r, base)
-	draw_arc(h, r - 2.0, PI * 1.05, PI * 1.6, 8, hi, 2.0)
-	# ponteira de onde sai o fio
-	_draw_capsule(h, t, r - 1.0, edge)
-	_draw_capsule(h, t, r - 2.0, dark)
-	draw_circle(t, r - 2.0, dark)
-	draw_arc(t, r - 3.2, PI * 1.05, PI * 1.6, 6, base, 1.5)
-
-
-## Um cilindro visto de lado: dois círculos de raio `r` ligados por uma faixa da mesma largura.
-func _draw_capsule(a: Vector2, b: Vector2, r: float, col: Color) -> void:
-	draw_circle(a, r, col)
-	draw_circle(b, r, col)
-	draw_line(a, b, col, r * 2.0)
+	var n := maxi(1, ceili(t.length()))
+	var mod := Color(1, 1, 1, alpha)
+	var part := func(f: float) -> int:   # 0 = colar, 1 = cabo, 2 = ponteira
+		return 0 if f <= PLUG_PARTS[0] else (1 if f <= PLUG_PARTS[1] else 2)
+	var sizes := [9, 13, 11]   # os diâmetros, com a beira: a aba, o corpo e a capa
+	var edges := [pal["E"], pal["6"], pal["6"]]
+	for k in n + 1:
+		var f := float(k) / n
+		var d: int = sizes[part.call(f)]
+		_sprite(disc(d, [[d / 2.0, edges[part.call(f)]]]), t * f, mod)
+	var ring := lerpf(PLUG_PARTS[0], PLUG_PARTS[1], 0.5)   # o anel no meio do corpo
+	for k in n + 1:
+		var f := float(k) / n
+		var i: int = part.call(f)
+		var d: int = sizes[i] - 2
+		var tones: Array = [pal["y"], pal["b"], pal["B"]]   # a aba dourada
+		if i == 1:
+			tones = [pal["4"], pal["5"], pal["6"]] if absf(f - ring) * n < 0.5 else [pal["2"], pal["3"], pal["5"]]
+		elif i == 2:   # a capa em gomos: um anel escuro sim, outro não
+			tones = [pal["3"], pal["4"], pal["5"]] if k % 2 == 0 else [pal["4"], pal["5"], pal["6"]]
+		_sprite(disc(d, [[d / 2.0, tones[0], tones[1], tones[2]]]), t * f, mod)
+		if i == 0 and (k == n or part.call(float(k + 1) / n) != 0):
+			_collar_reflect(j)
 
 
 ## Por cima do fio, no meio do plug encaixado: a ponteira de onde o fio sai. O fio passa por cima do tampo e chega
@@ -1256,94 +1364,86 @@ func _draw_plug_cap(e: int) -> void:
 	if float(_pushed.get(e, MORPH_SEC)) < MORPH_SEC:
 		return   # ainda entrando: o corpo em pé está por cima
 	var col: Array = _cable_col(e)
-	var c := _plug_base(e).round()
-	draw_circle(c, 2.5, col[0])   # na cor e na largura do fio, sem contorno: o fio continua nela
-	draw_circle(c - Vector2(0.7, 0.7), 0.9, col[1])
+	_sprite(disc(5, [[1.0, col[1]], [2.5, col[0]]]), _plug_base(e).round())   # na cor e na largura do fio, sem contorno: o fio continua nela
 
 
 ## A luz de uma lâmpada batendo no plug encaixado em `j` (que sai do painel até `tilt`): na entrada, a lâmpada da linha
 ## fica logo acima e acende o alto do colar, a beira de cima do cabo e o alto da ponta dele; no destino, a luz é o aro
 ## aceso em volta da tomada (o colar inteiro, mais fraco). A saída não tem lâmpada.
 func _plug_reflect(j: int, tilt: Vector2) -> void:
-	var r := PLUG_FACE_R
 	if j <= 10:
 		var lt: Array = _lit.get("l%d" % j, [LAMP_OFF, 0.0])
-		if lt[1] > 0.02:
-			var col := Color(lt[0], 0.6 * lt[1])
-			var up := Vector2(tilt.y, -tilt.x).normalized()   # a beira do cabo virada para a lâmpada
-			if up.y > 0.0:
-				up = -up
-			var c: Vector2 = tilt * PLUG_PARTS[0]
-			var h: Vector2 = tilt * PLUG_PARTS[1]
-			draw_line(c + up * (r - 1.0), h + up * (r - 1.0), col, 2.0)
-			draw_arc(h, r - 1.0, up.angle() - 0.6, up.angle() + 0.6, 8, Color(lt[0], 0.45 * lt[1]), 1.5)
+		if lt[1] > 0.02:   # a beira de cima da frente do cabo, pixel a pixel como ele
+			_sprite(disc(11, [[4.5, Color.TRANSPARENT], [5.5, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), tilt * PLUG_PARTS[1], Color(lt[0], 0.6 * lt[1]))
 
 
 ## A parte da luz que bate no colar do plug encaixado em `j` (desenhada antes do cabo, que fica na frente dele).
 func _collar_reflect(j: int) -> void:
-	var r := PLUG_FACE_R
 	if j >= 1 and j <= 10:
 		var lt: Array = _lit.get("l%d" % j, [LAMP_OFF, 0.0])
-		if lt[1] > 0.02:
-			draw_arc(Vector2.ZERO, r - 0.6, PI * 1.15, PI * 1.85, 12, Color(lt[0], 0.6 * lt[1]), 1.5)
+		if lt[1] > 0.02:   # o alto do colar, pixel a pixel como ele
+			_sprite(disc(11, [[4.5, Color.TRANSPARENT], [5.5, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), Vector2.ZERO, Color(lt[0], 0.6 * lt[1]))
 	elif j > 20:
 		var dl: Array = _lit.get("d%d" % j, [LAMP_OFF, 0.0])
-		if dl[1] > 0.02:
-			draw_arc(Vector2.ZERO, r - 0.6, 0.0, TAU, 24, Color(dl[0], 0.35 * dl[1]), 1.5)
+		if dl[1] > 0.02:   # o aro aceso em volta: o colar inteiro, mais fraco
+			_sprite(disc(11, [[4.5, Color.TRANSPARENT], [5.5, Color.WHITE]]), Vector2.ZERO, Color(dl[0], 0.35 * dl[1]))
 
 
-## O plug de pé, com o fio saindo de baixo (y = 0), na escala do encaixe (20 px de largura, quase o aro; a ponta de
-## metal, 12, a largura do furo; menor, parecia desproporcional): cabo de baquelite na cor do cabo (sombreado de
-## cilindro, três sulcos de pegada e a ponteira de onde sai o fio), colar niquelado e a ponta de três partes dos plugues
-## de mesa (bico e anel niquelados, luva de latão, faixas isolantes pretas entre elas). Luz no alto à esquerda.
+## O plug de pé, com o fio saindo de baixo (y = 0), no formato de um P10 e na escala das tomadas (18 × 93 px: o corpo
+## enche o buraco da prateleira e a luva de 8 entra no furo de 11 da tomada; os objetos da mesa crescem na mesma
+## proporção, `Background.PROP_K`, para o plug não ficar maior que eles), em pixel art (`PLUG_ART`, no acabamento do relógio da mesa: sombreado de cilindro com o brilho
+## numa coluna só e a beira escura à direita, cantos arredondados), no jeito de um plugue P10 (a referência do
+## usuário): a capa de borracha em gomos, afinando até o fio; o corpo na cor do cabo (é o que identifica o cabo), com
+## um anel em cima, o serrilhado em listras finas e um anel no meio; a aba dourada; a ponta de metal dourado, com a luva,
+## um isolante preto, o anel, outro isolante e o bico em ponta com a bolinha. `tip`
+## falso: sem a ponta (entrando no encaixe, ela já está dentro). Entrando no buraco, só até `_cut`, escurecendo liso.
 func _draw_plug_body(col: Array, tip: bool = true) -> void:
-	var base: Color = col[0]
-	var hi: Color = col[1]
-	var dark := base.darkened(0.4)
-	if tip:
-		_draw_plug_tip()
-	# colar niquelado
-	var edge := base.darkened(EDGE)
-	_pr(Rect2(-10, -38, 20, 8), BEZEL[2].darkened(EDGE))
-	_pr(Rect2(-9, -37, 18, 6), BEZEL[1])
-	_pr(Rect2(-9, -37, 18, 2), BEZEL[0])
-	_pr(Rect2(-9, -33, 18, 2), BEZEL[2])
-	# cabo de baquelite
-	_pr(Rect2(-10, -30, 20, 24), edge)
-	_pr(Rect2(-9, -30, 18, 24), base)
-	_pr(Rect2(-9, -30, 4, 24), hi)
-	_pr(Rect2(3, -30, 6, 24), dark)
-	_pr(Rect2(-9, -30, 18, 1), hi.lightened(0.2))
-	for y in [-24, -18, -12]:   # sulcos de pegada
-		_pr(Rect2(-9, y, 18, 1), dark.darkened(0.3))
-		_pr(Rect2(-9, y + 1, 18, 1), Color(hi, 0.5))
-	# ponteira de onde sai o fio, com os cantos de baixo arredondados
-	_pr(Rect2(-6, -6, 12, 5), edge)
-	_pr(Rect2(-5, -1, 10, 1), edge)
-	_pr(Rect2(-5, -6, 10, 5), dark)
-	_pr(Rect2(-5, -6, 3, 5), base)
-	if _cut < INF:   # entrando no buraco, o plug também escurece, em degraus
-		for k in 3:
-			_pr(Rect2(-10, _cut - 2.0 * (k + 1), 20, 2), Color(0, 0, 0, 0.6 - 0.2 * k))
+	var top := -PLUG_H if tip else -PLUG_LEN
+	var bottom := minf(0.0, _cut)
+	if bottom > top:
+		draw_texture_rect_region(art(PLUG_ART, _plug_pal(col)), Rect2(-10, top, 20, bottom - top), Rect2(0, top + PLUG_H, 20, bottom - top))
+	if _cut < INF:   # entrando no buraco, o plug escurece até a beira dele
+		var none := Color(0, 0, 0, 0)
+		var deep := Color(0, 0, 0, 0.6)
+		draw_polygon(PackedVector2Array([Vector2(-10, _cut - 6.0), Vector2(10, _cut - 6.0), Vector2(10, _cut), Vector2(-10, _cut)]),
+			PackedColorArray([none, none, deep, deep]))
 
 
-## A ponta de metal do plug em pé (acima do colar, da largura do furo do encaixe); entrando no encaixe, ela já está
-## dentro e não aparece. De cima para baixo: o bico arredondado, um isolante, o anel, outro isolante e a luva de latão.
-func _draw_plug_tip() -> void:
-	var n := BEZEL[2].darkened(EDGE)
-	draw_rect(Rect2(-6, -60, 12, 22), n)   # a beira da ponta
-	draw_rect(Rect2(-5, -61, 10, 1), n)
-	draw_rect(Rect2(-4, -62, 8, 1), n)
-	draw_rect(Rect2(-4, -61, 8, 1), BEZEL[0])   # bico
-	for part in [[-60, 4], [-54, 4]]:   # bico e anel: luz à esquerda, sombra à direita
-		draw_rect(Rect2(-5, part[0], 10, part[1]), BEZEL[1])
-		draw_rect(Rect2(-5, part[0], 3, part[1]), BEZEL[0])
-		draw_rect(Rect2(2, part[0], 3, part[1]), BEZEL[2])
-	draw_rect(Rect2(-5, -56, 10, 2), Color("141210"))   # isolantes
-	draw_rect(Rect2(-5, -50, 10, 2), Color("141210"))
-	draw_rect(Rect2(-5, -48, 10, 10), Color("b8924e"))   # luva de latão
-	draw_rect(Rect2(-5, -48, 3, 10), Color("e0c07a"))
-	draw_rect(Rect2(2, -48, 3, 10), Color("7a5a24"))
+## As cores do plug do cabo `col` ([cor, brilho]), pelos caracteres de `PLUG_ART`: o cabo de baquelite na cor dele
+## (do brilho à beira), o metal dourado e os isolantes, cada um do brilho à beira escura. Guardadas por cabo.
+static var _plug_pals := {}
+func _plug_pal(col: Array) -> Dictionary:
+	var c: Color = col[0]
+	if not _plug_pals.has(c):
+		var h: Color = col[1]
+		_plug_pals[c] = {"1": h.lightened(0.15), "2": h, "3": c, "4": c.darkened(0.25), "5": c.darkened(0.45), "6": c.darkened(EDGE),
+			"Y": Color("ecd29a"), "y": Color("e0c07a"), "b": Color("b8924e"), "B": Color("7a5a24"), "C": Color("5a4218"), "E": Color("3a2810"),
+			"K": Color("2a2622"), "k": Color("141210")}
+	return _plug_pals[c]
+
+
+## O texto `text` na fonte do painel (`TINY`), em maiúsculas, branco (a cor vem na hora de desenhar): 4 px por letra
+## e 10 de altura (os acentos nas linhas 0 e 1, as letras de 3 a 7, a cedilha em 8 e 9). Guardado.
+static var _tinies := {}
+static func tiny(text: String) -> ImageTexture:
+	text = text.to_upper()
+	if not _tinies.has(text):
+		var img := Image.create(maxi(1, text.length() * 4 - 1), 10, false, Image.FORMAT_LA8)
+		for i in text.length():
+			var ch: String = TINY_ACCENTS.get(text[i], text[i])
+			_tiny_glyph(img, TINY.get(ch[0], ""), i * 4, 3)
+			if ch.length() > 1:
+				_tiny_glyph(img, TINY_MARKS[ch[1]], i * 4, 8 if ch[1] == "," else 0)
+		_tinies[text] = ImageTexture.create_from_image(img)
+	return _tinies[text]
+
+
+static func _tiny_glyph(img: Image, glyph: String, x: int, y: int) -> void:
+	var rows := glyph.split("/")
+	for r in rows.size():
+		for c in rows[r].length():
+			if rows[r][c] == "#":
+				img.set_pixel(x + c, y + r, Color.WHITE)
 
 
 ## Pixel art de um mapa de texto (`rows`, um caractere por pixel; "." é vazio), nas cores de `pal` (caractere -> cor;
