@@ -7,7 +7,8 @@ extends Control
 ## cima da luz como uma fumaça). Fica acima da mesa e dos painéis e abaixo dos menus.
 ## Só brilha o que se declara luz: pela cor não dá (o plug vermelho e a lâmpada vermelha têm o mesmo tom). Quem desenha
 ## luzes chama `Bloom.clear(self)` no começo do `_draw` e `Bloom.light(self, rect, cor)` para cada luz acesa
-## (coordenadas do próprio nó). ColorRect e Label no grupo "bloom" brilham na cor deles (a do texto, no Label) quando
+## (coordenadas do próprio nó); o que fica na frente das próprias luzes (um plug encaixado) entra com
+## `Bloom.occlude(self, polígono)` e o halo não passa por cima dele. ColorRect e Label no grupo "bloom" brilham na cor deles (a do texto, no Label) quando
 ## acesos; a meta "bloom" (0..1) atenua o halo deles; o Label só ganha o halo.
 
 const BLOCK := 2.0        # px do jogo por bloco do halo
@@ -26,15 +27,27 @@ const HOT_TINT := 0.35    # quanto da cor da luz fica no branco do centro (âmba
 const BAYER := [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5]   # pontilhado ordenado 4×4
 
 static var _lights := {}  # instance_id de quem desenha -> [[Rect2 nas coordenadas dele, Color, halo, core, round], ...]
+static var _masks := {}   # instance_id de quem desenha -> [PackedVector2Array nas coordenadas dele]: o que fica na frente das luzes dele
 
 var _cores := Control.new()   ## as luzes nítidas, por cima dos halos (sem o blend ADD)
 var _shown: Array = []        ## [Rect2 aqui, Color, round] das luzes deste quadro, para `_cores`
 var _halos := {}              ## "l×a×redonda" -> ImageTexture do halo (branco; a cor vem na hora de desenhar)
+var _cuts := {}               ## hash(halo, lugar, máscaras) -> o halo sem o que fica na frente dele
 
 
 ## Esquece as luzes de `owner` (no começo do `_draw` dele).
 static func clear(owner: CanvasItem) -> void:
 	_lights.erase(owner.get_instance_id())
+	_masks.erase(owner.get_instance_id())
+
+
+## Algo de `owner` na frente das luzes dele (`shape` nas coordenadas dele; um plug encaixado): o halo delas não passa
+## por cima.
+static func occlude(owner: CanvasItem, shape: PackedVector2Array) -> void:
+	var id := owner.get_instance_id()
+	if not _masks.has(id):
+		_masks[id] = []
+	_masks[id].append(shape)
 
 
 ## Uma luz acesa de `owner`: `r` nas coordenadas dele, na cor `col` (o alpha também vale para a luz nítida);
@@ -72,12 +85,15 @@ func _draw() -> void:
 			_lights.erase(id)
 		elif o.is_visible_in_tree():
 			var xf := to_me * o.get_global_transform_with_canvas()
+			var masks: Array = []
+			for m in _masks.get(id, []):
+				masks.append(xf * (m as PackedVector2Array))
 			for l in _lights[id]:
 				var r: Rect2 = l[0]
 				if o is Control and (o as Control).clip_contents:   # quem recorta o que desenha recorta a luz também
 					r = r.intersection(Rect2(Vector2.ZERO, (o as Control).size))
 				if r.has_area():
-					_glow(xf * r, l[1], l[2], l[3], l[4])
+					_glow(xf * r, l[1], l[2], l[3], l[4], masks)
 	for n in get_tree().get_nodes_in_group("bloom"):
 		var c: Control = n
 		var col: Color = (c as ColorRect).color if c is ColorRect else c.get_theme_color("font_color")
@@ -86,13 +102,45 @@ func _draw() -> void:
 				float(c.get_meta("bloom", 1.0)), c is ColorRect, false)
 
 
-func _glow(r: Rect2, col: Color, halo: float, core: bool, round: bool) -> void:
+func _glow(r: Rect2, col: Color, halo: float, core: bool, round: bool, masks := []) -> void:
 	var tex := _halo_for(r.size, round, not core)
 	var at := ((r.position - Vector2(SPREAD, SPREAD)) / BLOCK).floor() * BLOCK   # na grade dos pixels do cenário
+	var area := Rect2(at, Vector2(tex.get_size()) * BLOCK)
+	var hit := masks.filter(func(m: PackedVector2Array) -> bool: return area.intersects(_bounds(m)))
+	if not hit.is_empty():
+		tex = _cut(tex, at, hit)
 	draw_texture_rect(tex, Rect2(at, Vector2(tex.get_size()) * BLOCK), false,
 		Color(col.r, col.g, col.b, STRENGTH * col.a * halo))
 	if core:
 		_shown.append([r, col, round])
+
+
+## O halo `tex`, posto em `at`, sem os blocos cobertos por `masks` (guardado: o que cobre, como um plug encaixado,
+## fica parado).
+func _cut(tex: ImageTexture, at: Vector2, masks: Array) -> ImageTexture:
+	var key := hash([tex.get_rid().get_id(), at, masks])
+	if _cuts.has(key):
+		return _cuts[key]
+	if _cuts.size() > 128:
+		_cuts.clear()
+	var img := tex.get_image()
+	for y in img.get_height():
+		for x in img.get_width():
+			var p := at + (Vector2(x, y) + Vector2(0.5, 0.5)) * BLOCK
+			for m in masks:
+				if Geometry2D.is_point_in_polygon(p, m):
+					img.set_pixel(x, y, Color(1, 1, 1, 0))
+					break
+	var cut := ImageTexture.create_from_image(img)
+	_cuts[key] = cut
+	return cut
+
+
+func _bounds(m: PackedVector2Array) -> Rect2:
+	var b := Rect2(m[0], Vector2.ZERO)
+	for p in m:
+		b = b.expand(p)
+	return b
 
 
 ## O halo de uma luz do tamanho `size` (guardado por tamanho): branco, em blocos, das duas camadas. `hollow`: fraco

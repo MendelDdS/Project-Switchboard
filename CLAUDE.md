@@ -157,6 +157,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   luzes das máquinas do cartão; barra de agravamento; janelas acesas do `Background`, que desenha em 2×). ColorRect e
   Label no grupo "bloom" brilham na cor deles (luzes do rádio). Luz
   sem miolo tem o halo fraco por dentro (`HOLLOW`); luz de quem recorta o conteúdo (`clip_contents`) é recortada também.
+  O que fica na frente das luzes de quem desenha (os plugs encaixados da mesa) entra com `Bloom.occlude(self, polígono)`:
+  os blocos do halo cobertos por ele somem (`_cut`, guardado; plug parado não refaz).
 - Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`). **Uma fonte só, de pixel: Departure Mono**
   (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11** (exceção: o estado de cada linha na mesa, `Switchboard.STATE_FONT` = 8, porque "conectada" em 11
   não cabe na coluna; a letra fica um pouco irregular): 11 (texto, números da lista), 22
@@ -280,7 +282,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   na prateleira, fora do retângulo dela: `socket_rect`, `tray_rect`; o clique vale neles, `_has_point`). Os buracos
   ficam no alto da prateleira (`hole`, `SHELF_HOLE_Y`, `FONE_HOLE_X`; aro de latão achatado pela perspectiva,
   `draw_grommet`), os plugs guardados em pé neles (`home_pos`) e o nome gravado na madeira embaixo de cada um
-  (`engrave`; `_draw_tray`, `FoneSocket`). As pontas dos plugs em pé passam na frente do pé do painel, logo abaixo da
+  (`engrave`; `_draw_tray`, `FoneSocket`); o buraco é mais largo que o plug, que entra nele (`PLUG_SINK`: abaixo
+  de `HOLE_LIP` o plug não é desenhado, `_cut`/`_pr`, e a beira da frente do buraco passa por cima, `draw_lip`), sem
+  contorno preto. As pontas dos plugs em pé passam na frente do pé do painel, logo abaixo da
   legenda. `dest_of_output(n)` segue o cabo da saída n.
 - `refuse(e, j)` decide compatibilidade (e o destaque amarelo/vermelho). `_has_point` estende o clique ao encaixe
   do FONE; por isso o telefone e seus containers acima do encaixe têm `mouse_filter = IGNORE`, e a mesa tem
@@ -318,7 +322,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   furo); lâmpadas redondas com aro niquelado (`_draw_lamp`, `BEZEL`) que acendem rápido e apagam devagar, como
   filamento (`_lamp`/`_dest_lamp` dizem cor e nível desejado, `_fade` chega lá em `LAMP_ON_SEC`/`LAMP_OFF_SEC`, estado em
   `_lit`; a linha tocando pulsa). A luz acesa tinge o aro dela e a aba do encaixe logo abaixo (`_reflect`).
-- Plug (`_draw_plug`): de pé (solto, na mão, na bandeja; `_draw_plug_body`) é cabo de baquelite na cor do cabo
+- Plug (`_draw_plug`): de pé (comprido, `PLUG_LEN` do fio ao colar e a ponta de metal longa; a legenda das lâmpadas
+  fica acima das pontas dos plugs guardados) (solto, na mão, na bandeja; `_draw_plug_body`) é cabo de baquelite na cor do cabo
   (sombreado de cilindro, sulcos de pegada, ponteira de onde sai o fio), colar niquelado (`BEZEL`) e a ponta de três
   partes dos plugues de mesa (bico e anel niquelados, luva de latão, isolantes pretos); gira com o fio em passos de
   `ROT_STEP` (15°: pixel art girado torto serrilha). Encaixado, sai do painel em direção à câmera, vista de cima e da
@@ -667,6 +672,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     (`SceneView`), que dá pixels quadrados e inteiros nas telas comuns. O filtro de 2x2 saiu.
 51. Os objetos da mesa todos na grade de 2 px (listas, mapa, jornal e caneca redesenhados em blocos), o brilho da luz
     só na sala (antes passava em anéis por cima da mesa comutadora e dos textos) e os halos do bloom na mesma grade.
+52. O brilho das lâmpadas e dos aros não passa mais por cima do plug encaixado; plug em pé mais comprido, com a ponta
+    de metal mais longa; buracos da prateleira maiores, sem contorno preto, com o plug guardado entrando neles (antes
+    parecia equilibrado em cima do buraco).
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.
