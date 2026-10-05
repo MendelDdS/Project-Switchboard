@@ -49,14 +49,23 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Clima (`Main.weather`: "rain", "fog", "clear", sorteado; `-- --weather=X` força): `Sfx.start_ambience(w)`/
   `set_weather`/`hush_nature`/`stop_ambience`, `Background.weather` desenha a janela, `Conversation.topics()` junta os
   assuntos gerais com os do clima (`ChatTopic.weather`).
-- **Resolução**: a base é 1280×720 (`canvas_items`, `aspect="expand"`); o Godot amplia para a tela, e a proporção
-  diferente de 16:9 vira espaço a mais, não tarja. **Tudo em 1x1**: a interface (textos, mesa comutadora, papéis, painel) e o
-  cenário têm o pixel de 1 unidade e são desenhados na resolução da tela; o cenário numa tela própria (`SceneView`,
-  `scripts/ui/scene_view.gd`: um `TextureRect` com o `SubViewport` `View` do tamanho dele em pixels da janela,
-  `size_2d_override` nas coordenadas da interface). (Testados e descartados: o cenário em 2x2 numa tela de metade da
-  resolução; o jogo todo em 2x2 com a fonte Tiny5, branch `improve/0000-pixel-2x`; o jogo todo ampliado como imagem,
-  `viewport`, que deixava o texto feio a 1,5×; e um filtro de 2x2 por cima do cenário, com média, que borrava.) Nada de gradiente liso por
-  cima de tudo: sem linhas de varredura, e vinheta e brilho em degraus (`interpolation_mode` constante, "nearest"). Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
+- **Resolução: tudo em 1x1 sobre 1280×720, ampliado para qualquer tela sem quebrar os pixels.** A cena principal é
+  `scenes/app.tscn` (`GameView`, `scripts/ui/game_view.gd`): o `main.tscn` dentro de um `SubViewport` de 1280×720 (o
+  `View`, "nearest"; o padrão do `SubViewport` é linear e não herda o do projeto), ampliado para a janela pelo `Box`
+  (`SubViewportContainer`) com o filtro de pixel art (`SHARP`, "sharp bilinear"): cada pixel do jogo vira um bloco do
+  mesmo tamanho e só a divisa entre dois blocos, um pixel da tela, mistura as cores. Ampliação inteira (1× em 720p, 2×
+  em 1440p, 3× em 4K) sai perfeita; quebrada (1,5× em 1080p, 1,25× em 1600×900), uniforme e um pouco mais macia. Antes,
+  com o `canvas_items` direto, 1,5× fazia um pixel virar ora 1, ora 2 da tela: linhas, letras e círculos desiguais.
+  Janela mais larga que 16:9 dá largura ao jogo (até `MAX_W`, 21:9), nunca altura; o que sobra é borda escura. O
+  projeto continua em `canvas_items` 1280×720 para o `main.tscn` sozinho e os testes; o `GameView` desliga isso na janela
+  (`content_scale_mode`) e abre em tela cheia (falta a opção em Configurações). Na pausa, o `Box` continua processando
+  (`process_mode` ALWAYS; o `View` é PAUSABLE): parado, ele não repassava as teclas e o Esc não despausava
+  (`tests/test_keys.gd`). O cenário tem a tela própria dele (`SceneView`, `scripts/ui/scene_view.gd`: um `TextureRect`
+  com o `SubViewport` `View` na resolução da tela onde ele está: a janela, com o `main.tscn` sozinho, ou 1:1 dentro do
+  `GameView`). (Testados e descartados: o cenário em 2x2 numa tela de metade da resolução; o jogo todo em 2x2 com a fonte
+  Tiny5, branch `improve/0000-pixel-2x`; o jogo todo ampliado como imagem com "nearest", que deixava o texto feio a 1,5×;
+  e um filtro de 2x2 por cima do cenário, com média, que borrava.) Nada de gradiente liso por cima de tudo: sem linhas de
+  varredura, e vinheta e brilho em degraus (`interpolation_mode` constante, "nearest"). Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
   **Disposição (cena + painel)**: a tela é uma mesa de trabalho. No alto da esquerda, na parede, o relógio da sala
   (`WallClock`, analógico, 52 px: o único da tela, onde o papel das ferramentas não o cobre; mostrador claro,
   ponteiro das horas curto e preto, o dos minutos comprido e vermelho, `HAND`, e o 12 em marca dupla) e a plaqueta de latão do
@@ -193,7 +202,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Comentário `ponytail:` marca um atalho deliberado; mantenha o código enxuto e no estilo do arquivo.
 
 ## Rodar e testar
-- Godot: `/Applications/Godot.app/Contents/MacOS/Godot` (não está no PATH). Cena principal: `scenes/main.tscn`.
+- Godot: `/Applications/Godot.app/Contents/MacOS/Godot` (não está no PATH). Cena principal: `scenes/app.tscn` (o `GameView` com o `main.tscn` dentro).
 - Checar se tudo compila: `Godot --headless --path . --quit-after 60`.
 - **Testes: `tests/run.sh`** (roda tudo em headless; ~1 min no total; `tests/run.sh flow penalties` roda só esses). Um
   `SCRIPT ERROR` não encerra o Godot: o `run.sh` lê o log enquanto o teste roda e o encerra no primeiro erro (sem isso,
@@ -209,6 +218,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   alongam as conversas; a 48× as métricas mudavam muito).
   - `tests/test_base.gd`: base (`ok()` em vez de `assert`, que trava o headless; `wait_until`, `load_main`, `finish`).
   - `tests/test_flow.gd`: cenários dirigidos (transferência, espera, desistência, caderno, destino que não atende, ligar de volta ao desconhecido, cliques).
+  - `tests/test_keys.gd`: as teclas (1, Espaço, Tab, X, Esc e despausar) entrando pela janela, pelo `GameView`.
   - `tests/test_penalties.gd`: consequências (perdida e retorno, número errado, registro, despacho errado,
     emergência sem despacho, espera longa, informação errada) e o relatório. Relógio parado; retornos tocados à mão.
   - `run.sh` começa com `--import`: **`class_name` novo só existe depois de reimportar** (sem isso, parse error).
@@ -696,6 +706,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     (lâmpadas com aro, vidro e centro aceso). Os encaixes e o plug encaixado ficaram como estavam (o usuário os preferia).
 55. O encaixe redesenhado pela referência do usuário (a mesma da branch 2×2), em 1x1: aro niquelado fino e furo preto
     largo, em pixel art.
+56. Em telas maiores que 1280×720 os pixels "quebravam" (1,5× em 1080p): o jogo passou a ser desenhado sempre em
+    1280×720 e ampliado com um filtro de pixel art (`GameView`, "sharp bilinear"), que deixa todos os pixels do mesmo
+    tamanho em qualquer resolução (perfeitos nas ampliações inteiras).
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

@@ -58,6 +58,7 @@ if [ $# -gt 0 ]; then   # tests/run.sh flow penalties: só esses (sem argumentos
 fi
 run flow
 run penalties
+run keys
 for s in 1 2 3; do
 	run shift --seed=$s
 done
