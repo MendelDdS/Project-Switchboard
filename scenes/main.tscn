@@ -220,12 +220,11 @@ size_flags_vertical = 3
 unique_name_in_owner = true
 layout_mode = 2
 
-[node name="Glow" type="TextureRect" parent="." unique_id=1338745255]
+[node name="Glow" type="TextureRect" parent="Scene/View" unique_id=1338745255]
 unique_name_in_owner = true
-z_index = 2
 texture_filter = 1
 material = SubResource("CanvasItemMaterial_4")
-layout_mode = 1
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0

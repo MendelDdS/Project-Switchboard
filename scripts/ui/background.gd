@@ -880,9 +880,9 @@ func _draw_desk_props() -> void:
 	_draw_books(l, _at(0.5), 33, _deep(0.32))
 	_flat("caderno", l + 44, _at(0.52), 51, _deep(0.28), 2, Color("3a2414"), _draw_open_notebook, true)
 	if news:
-		_flat("jornal", l + 106, _at(0.56), 37, _deep(0.21), 2, Color("b8b0a0"), _draw_newspaper)
+		_flat("jornal", l + 106, _at(0.56), 37, _deep(0.21), 2, Color("b8b0a0"), _draw_newspaper, true)
 	_draw_mug(_cx - _vp.x - 28.0, _at(0.42), 6.6, 15)
-	_flat("despacho", l + 4, _at(0.08), 40, _deep(0.21), 1, Color("a89a76"), _draw_folded_map)
+	_flat("despacho", l + 4, _at(0.08), 40, _deep(0.21), 1, Color("a89a76"), _draw_folded_map, true)
 	_flat("registro", l + 74, _at(0.06), 29, _deep(0.32), 2, Color("4a3018"), _draw_clipboard, true)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
@@ -896,6 +896,11 @@ func _at(t: float) -> float:
 ## Uma profundidade (z) que é a fração `t` do tampo.
 func _deep(t: float) -> float:
 	return t * (_zd.y - _zd.x)
+
+
+## Um ponto (px da tela) preso à grade de 2 px do cenário.
+func _even(p: Vector2) -> Vector2:
+	return (p / 2.0).floor() * 2.0
 
 
 ## Os cantos de uma caixa deitada na mesa (px da tela): de `x0` a `x0 + wx`, de `zf` (frente) a `zf + dz` (fundo), do
@@ -980,29 +985,30 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 		var bx := _box(x0 + offs[b].x, zf + offs[b].y, wx, dz, _yd - b * bh, bh)
 		var side: PackedVector2Array = bx["side"]
 		if not side.is_empty():
-			_poly(side, c.darkened(0.2))   # a lombada
-			draw_line(side[0].lerp(side[3], 0.3), side[1].lerp(side[2], 0.3), Color("e0c07a"), 1.0)
-			draw_line(side[0].lerp(side[3], 0.7), side[1].lerp(side[2], 0.7), Color("e0c07a"), 1.0)
+			_poly(side, c.darkened(0.2))   # a lombada, com os filetes dourados
+			draw_line(side[0].lerp(side[3], 0.3), side[1].lerp(side[2], 0.3), Color("e0c07a"), 2.0)
+			draw_line(side[0].lerp(side[3], 0.7), side[1].lerp(side[2], 0.7), Color("e0c07a"), 2.0)
 		var top: PackedVector2Array = bx["top"]
 		_poly(top, c)
 		var f: Rect2 = bx["front"]
+		f = Rect2(_even(f.position), _even(f.end) - _even(f.position))   # (na grade de 2 px)
 		draw_rect(f, Color("e3d6b2"))   # o miolo
-		for k in range(2, int(f.size.y) - 1, 2):   # as folhas
-			draw_rect(Rect2(f.position.x + 2, f.position.y + k, f.size.x - 4, 1), Color("c2b288"))
+		for k in range(4, int(f.size.y) - 3, 4):   # as folhas
+			draw_rect(Rect2(f.position.x + 2, f.position.y + k, f.size.x - 4, 2), Color("c2b288"))
 		draw_rect(Rect2(f.position, Vector2(f.size.x, 2)), c.lightened(0.15))   # a capa de cima e a de baixo
 		draw_rect(Rect2(f.position.x, f.end.y - 2, f.size.x, 2), c.darkened(0.3))
 		all.append_array(top)
 		all.append_array(side)
 		all.append(f.position)
 		all.append(f.end)
-		if b == 2:   # o tampo do volume de cima: a faixa do título e o emblema da central
-			var xf: Array = _top_xf(top)
+		if b == 2:   # o tampo do volume de cima: a faixa do título e o emblema da central (em blocos de 2 px)
+			var xf: Array = _top_xf(top, 2.0)
 			var s: Vector2 = xf[1]
 			draw_set_transform_matrix(xf[0])
 			draw_rect(Rect2(0, 0, s.x, 1), c.lightened(0.25))
-			draw_rect(Rect2(6, s.y * 0.35, s.x - 22, maxf(2.0, s.y * 0.25)), c.darkened(0.3))
-			draw_circle(Vector2(s.x - 8, s.y * 0.5), 3.0, c.darkened(0.35))
-			draw_circle(Vector2(s.x - 8.5, s.y * 0.5 - 0.5), 1.6, Color("e0c07a"))
+			draw_rect(Rect2(3, floorf(s.y * 0.35), s.x - 11, maxf(1.0, floorf(s.y * 0.3))), c.darkened(0.3))
+			draw_rect(Rect2(s.x - 6, floorf(s.y * 0.5) - 1, 3, 2), c.darkened(0.35))
+			draw_rect(Rect2(s.x - 5, floorf(s.y * 0.5) - 1, 1, 1), Color("e0c07a"))
 			draw_set_transform(Vector2.ZERO)
 	_props["lista"] = _bounds(all)
 
@@ -1010,23 +1016,24 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 ## A caneca de café em pé na mesa (centro `xc`, `zc`; raio `rr`, altura `hh`): cerâmica creme com o sombreado do
 ## cilindro, a boca em elipse com o café, a alça e o emblema da central.
 func _draw_mug(xc: float, zc: float, rr: float, hh: float) -> void:
-	var a := _p3(xc - rr, _yd - hh, zc).round()
-	var body := Rect2(a, _p3(xc + rr, _yd, zc).round() - a)
+	var a := _even(_p3(xc - rr, _yd - hh, zc))
+	var body := Rect2(a, _even(_p3(xc + rr, _yd, zc)) - a)   # (na grade de 2 px)
 	var ry := maxf(2.0, roundf((_p3(xc, _yd - hh, zc - rr).y - _p3(xc, _yd - hh, zc + rr).y) / 2.0))
 	var rx := body.size.x / 2.0
 	_desk_shadow(PackedVector2Array([body.position + Vector2(0, body.size.y - ry), body.end - Vector2(0, ry), body.end, Vector2(body.position.x, body.end.y)]))
 	var hx := body.end.x
-	draw_rect(Rect2(hx, body.position.y + 5, 6, 11), Color("c2b288"))
-	draw_rect(Rect2(hx, body.position.y + 8, 3, 5), Color("211811"))
+	draw_rect(Rect2(hx, body.position.y + 4, 6, 12), Color("c2b288"))   # a alça, com o vão
+	draw_rect(Rect2(hx, body.position.y + 8, 2, 4), Color("211811"))
 	draw_rect(body, Color("d8caa3"))
 	draw_rect(Rect2(body.position, Vector2(4, body.size.y)), Color("ece2c6"))   # a luz
-	draw_rect(Rect2(body.end.x - 5, body.position.y, 5, body.size.y), Color("a89a76"))   # a sombra
+	draw_rect(Rect2(body.end.x - 4, body.position.y, 4, body.size.y), Color("a89a76"))   # a sombra
 	var top := Vector2(body.get_center().x, body.position.y)
 	_ellipse(top, rx + 1, ry + 1, Color("a89a76"))   # a boca, com a beira no tom da sombra da caneca
 	_ellipse(top, rx, ry, Color("e3d6b2"))
 	_ellipse(top + Vector2(0, 1), rx - 2, ry - 1, Color("3a2414"))   # o café
-	draw_circle(body.get_center() + Vector2(-1, 3), 4.0, Color("8e2a22"))   # o emblema
-	draw_circle(body.get_center() + Vector2(-1.5, 2.5), 1.8, Color("e0c07a"))
+	var em := _even(body.get_center() + Vector2(-3, 0))   # o emblema
+	draw_rect(Rect2(em, Vector2(6, 6)), Color("8e2a22"))
+	draw_rect(Rect2(em + Vector2(2, 2), Vector2(2, 2)), Color("e0c07a"))
 
 
 func _ellipse(c: Vector2, rx: float, ry: float, col: Color) -> void:
@@ -1039,26 +1046,25 @@ func _ellipse(c: Vector2, rx: float, ry: float, col: Color) -> void:
 ## O mapa da cidade dobrado em três, meio aberto na mesa: os painéis alternam luz e sombra nas dobras, com quadras,
 ## ruas, o rio e um local marcado com alfinete.
 func _draw_folded_map(r: Rect2) -> void:
-	var pw := r.size.x / 3.0
-	for k in 3:
-		var pr := Rect2(r.position.x + k * pw, r.position.y, pw, r.size.y)
-		draw_rect(pr, Color("e3d6b2") if k != 1 else Color("cdbf98"))   # o painel do meio fica na sombra da dobra
-	for x in range(4, int(r.size.x) - 4, 10):   # quadras
-		for y in range(4, int(r.size.y) - 4, 8):
-			draw_rect(Rect2(r.position.x + x, r.position.y + y, 7, 5), Color(0.62, 0.55, 0.4, 0.55))
-	draw_polyline(PackedVector2Array([r.position + Vector2(2, r.size.y - 6), r.position + Vector2(30, r.size.y - 12),
-		r.position + Vector2(58, r.size.y - 9), r.position + Vector2(r.size.x - 2, 6)]), Color("4f7bb6"), 2.0)   # o rio
-	draw_rect(Rect2(r.position.x + 2, r.position.y + 2, r.size.x - 4, 2), Color(0.5, 0.42, 0.3, 0.6))   # a avenida
+	var pw := floorf(r.size.x / 3.0)
+	for k in 3:   # (em blocos de 2 px) o painel do meio fica na sombra da dobra
+		var pr := Rect2(r.position.x + k * pw, r.position.y, pw if k < 2 else r.size.x - pw * 2, r.size.y)
+		draw_rect(pr, Color("e3d6b2") if k != 1 else Color("cdbf98"))
+	for x in range(2, int(r.size.x) - 3, 5):   # quadras
+		for y in range(3, int(r.size.y) - 2, 4):
+			draw_rect(Rect2(r.position.x + x, r.position.y + y, 3, 2), Color("bcae8a"))
+	draw_rect(Rect2(r.position.x + 1, r.position.y + 1, r.size.x - 2, 1), Color("a8986e"))   # a avenida
+	draw_polyline(PackedVector2Array([r.position + Vector2(1, r.size.y - 3), r.position + Vector2(r.size.x * 0.3, r.size.y - 6),
+		r.position + Vector2(r.size.x * 0.55, r.size.y - 4), r.position + Vector2(r.size.x - 1, 3)]), Color("4f7bb6"), 1.0)   # o rio
 	for k in [1, 2]:   # as dobras
-		draw_rect(Rect2(r.position.x + k * pw - 1, r.position.y, 1, r.size.y), Color(0, 0, 0, 0.25))
-		draw_rect(Rect2(r.position.x + k * pw, r.position.y, 1, r.size.y), Color(1, 1, 1, 0.25))
-	var pin := r.position + Vector2(r.size.x * 0.7, r.size.y * 0.42)   # o alfinete no local marcado
-	draw_circle(pin + Vector2(2, 2), 2.5, Color(0, 0, 0, 0.35))
+		draw_rect(Rect2(r.position.x + k * pw - 1, r.position.y, 1, r.size.y), Color(0, 0, 0, 0.2))
+	var pin := (r.position + Vector2(r.size.x * 0.7, r.size.y * 0.42)).floor()   # o alfinete no local marcado
+	draw_rect(Rect2(pin + Vector2(1, 1), Vector2(2, 2)), Color(0, 0, 0, 0.35))
 	var lit := _pin_lit()   # com uma emergência em andamento, ele pisca e brilha
-	draw_circle(pin, 2.5, Color("ff5a3c") if lit else Color("b03a2e"))
-	draw_circle(pin - Vector2(0.8, 0.8), 1.0, Color("ffc0a0") if lit else Color("e07060"))
+	draw_rect(Rect2(pin, Vector2(2, 2)), Color("ff5a3c") if lit else Color("b03a2e"))
+	draw_rect(Rect2(pin, Vector2(1, 1)), Color("ffc0a0") if lit else Color("e07060"))
 	if lit:
-		var sp := _paint_xf * pin
+		var sp := _paint_xf * (pin + Vector2(1, 1))
 		_light(Rect2(sp - Vector2(3, 3), Vector2(6, 6)), Color("ff5a3c"), 0.9, true)
 
 
@@ -1127,17 +1133,17 @@ func _draw_clipboard(r: Rect2) -> void:
 ## O jornal da manhã dobrado ao meio: papel-jornal acinzentado, o nome no alto numa faixa preta, a manchete grossa,
 ## as colunas de texto miúdo, uma foto e o vinco da dobra.
 func _draw_newspaper(r: Rect2) -> void:
-	draw_rect(r, Color("dcd5c2"))
-	draw_rect(Rect2(r.position.x + 3, r.position.y + 2, r.size.x - 6, 4), Color("1d1a14"))   # o nome do jornal
-	draw_rect(Rect2(r.position.x + 3, r.position.y + 7, r.size.x - 6, 1), Color("4a4438"))
-	draw_rect(Rect2(r.position.x + 3, r.position.y + 10, r.size.x * 0.7, 3), Color("2a2319"))   # a manchete
-	var photo := Rect2(r.end.x - r.size.x * 0.32 - 3, r.position.y + 15, r.size.x * 0.32, r.size.y * 0.4)
+	draw_rect(r, Color("dcd5c2"))   # (em blocos de 2 px)
+	draw_rect(Rect2(r.position.x + 2, r.position.y + 1, r.size.x - 4, 2), Color("1d1a14"))   # o nome do jornal
+	draw_rect(Rect2(r.position.x + 2, r.position.y + 4, r.size.x - 4, 1), Color("6a6250"))
+	draw_rect(Rect2(r.position.x + 2, r.position.y + 6, floorf(r.size.x * 0.6), 1), Color("2a2319"))   # a manchete
+	var photo := Rect2(r.end.x - floorf(r.size.x * 0.3) - 2, r.position.y + 6, floorf(r.size.x * 0.3), maxf(2.0, r.size.y - 8))
 	draw_rect(photo, Color("8a8478"))
-	draw_rect(Rect2(photo.position.x + 2, photo.end.y - 4, photo.size.x - 4, 2), Color("5a554a"))
-	for y in range(16, int(r.size.y) - 2, 2):   # as colunas
+	draw_rect(Rect2(photo.position.x, photo.end.y - 1, photo.size.x, 1), Color("5a554a"))
+	for y in range(8, int(r.size.y) - 1, 2):   # as colunas
 		for col in 2:
-			var cx := r.position.x + 3 + col * (r.size.x * 0.3)
-			if Rect2(cx, r.position.y + y, r.size.x * 0.26, 1).intersects(photo):
-				continue
-			draw_rect(Rect2(cx, r.position.y + y, r.size.x * 0.26 - (y * 3) % 5, 1), Color("8a8478"))
-	draw_rect(Rect2(r.position.x, r.get_center().y, r.size.x, 1), Color(0, 0, 0, 0.18))   # o vinco
+			var cx := r.position.x + 2 + col * floorf(r.size.x * 0.3)
+			var line := Rect2(cx, r.position.y + y, floorf(r.size.x * 0.26) - (y * 3) % 3, 1)
+			if not line.intersects(photo):
+				draw_rect(line, Color("9a9488"))
+	draw_rect(Rect2(r.position.x, r.position.y + floorf(r.size.y / 2.0), r.size.x, 1), Color(0, 0, 0, 0.15))   # o vinco

@@ -88,7 +88,8 @@ func _draw() -> void:
 
 func _glow(r: Rect2, col: Color, halo: float, core: bool, round: bool) -> void:
 	var tex := _halo_for(r.size, round, not core)
-	draw_texture_rect(tex, Rect2(r.position - Vector2(SPREAD, SPREAD), Vector2(tex.get_size()) * BLOCK), false,
+	var at := ((r.position - Vector2(SPREAD, SPREAD)) / BLOCK).floor() * BLOCK   # na grade dos pixels do cenário
+	draw_texture_rect(tex, Rect2(at, Vector2(tex.get_size()) * BLOCK), false,
 		Color(col.r, col.g, col.b, STRENGTH * col.a * halo))
 	if core:
 		_shown.append([r, col, round])

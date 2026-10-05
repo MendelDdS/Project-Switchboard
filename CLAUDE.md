@@ -49,11 +49,14 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Clima (`Main.weather`: "rain", "fog", "clear", sorteado; `-- --weather=X` força): `Sfx.start_ambience(w)`/
   `set_weather`/`hush_nature`/`stop_ambience`, `Background.weather` desenha a janela, `Conversation.topics()` junta os
   assuntos gerais com os do clima (`ChatTopic.weather`).
-- **Resolução**: a base é 1280×720 (`viewport`, `aspect="expand"`): o jogo é desenhado nela e ampliado como uma
-  imagem, com "nearest" (em `canvas_items` ele era redesenhado na resolução da tela e, com fator fracionário, as bordas
-  dos pixels borravam); a proporção diferente de 16:9 vira espaço a mais, não tarja. Em 1080p o fator é 1,5×: nítido,
-  mas os pixels saem com 1 ou 2 px de tela (escala inteira exigiria outra base). Nada de gradiente liso por cima de
-  tudo (as linhas de varredura saíram; vinheta e brilho são em degraus, `interpolation_mode` constante e "nearest"). Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
+- **Resolução**: a base é 1280×720 (`canvas_items`, `aspect="expand"`); o Godot amplia para a tela, e a proporção
+  diferente de 16:9 vira espaço a mais, não tarja. **Híbrido**: a interface (textos, mesa comutadora, papéis, painel) é
+  desenhada na resolução da tela, como sempre; o cenário, numa tela própria com metade da resolução (`SceneView`,
+  `scripts/ui/scene_view.gd`: um `TextureRect` com o `SubViewport` `View`, `size_2d_override` nas coordenadas da
+  interface) ampliada com "nearest" — 640×360 cabe inteiro 2× em 720p, 3× em 1080p, 4× em 1440p e 6× em 4K, então os
+  pixels dele são quadrados exatos, sem borrar. (Testado e descartado: o jogo todo ampliado como imagem, `viewport`,
+  deixava o texto feio a 1,5×; e um filtro de 2x2 por cima do cenário, com média, borrava.) Nada de gradiente liso por
+  cima de tudo: sem linhas de varredura, e vinheta e brilho em degraus (`interpolation_mode` constante, "nearest"). Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
   **Disposição (cena + painel)**: a tela é uma mesa de trabalho. No alto da esquerda, na parede, o relógio da sala
   (`WallClock`, analógico, 52 px: o único da tela, onde o papel das ferramentas não o cobre; mostrador claro,
   ponteiro das horas curto e preto, o dos minutos comprido e vermelho, `HAND`, e o 12 em marca dupla) e a plaqueta de latão do
@@ -74,7 +77,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   largura toda, o painel do operador (`PhonePanel`, 150 px), um console embutido na frente da mesa (a madeira de borda a borda logo abaixo
   do tampo, `PhonePanel._draw`; os blocos `HudPanel` são telas e chapas encaixadas; a tela da conversa tem vidro e
   apaga sem ligação, `ScreenGlass`). A altura útil é 700 px: as colunas pedem 540 (a da esquerda, exata) e o
-  painel 150; passando, a tela inteira sobe e o relógio sai por cima. O `Background` (cenário em camadas, em pixels de 2x2: as contas e a arte em unidades de 2 px; o que ele desenha em px da tela, como os objetos da mesa e o móvel da mesa comutadora, cai na mesma grade pelo filtro `pixel_2x.gdshader`, `CHUNKY`, que pega um pixel por bloco, sem média; a interface fica em 1x1, na frente) estica
+  painel 150; passando, a tela inteira sobe e o relógio sai por cima. O `Background` (cenário em camadas, em pixels de 2x2: as contas e a arte em unidades de 2 px, desenhado no `SceneView`, que repassa o mouse a ele, `pointer`/`prop_at`/`leave`, e desenha por cima o contorno e o nome do objeto sob o mouse, `draw_hover`, nítidos; o que ele desenha em px da tela, como os objetos da mesa e o móvel da mesa comutadora, cai na mesma grade por ser desenhado em metade da resolução) estica
   parede e mesa até a borda, como o canto de uma sala visto de quem está sentado à mesa. **Uma câmera só**, em
   perspectiva de um ponto: o ponto de fuga (`_vp`) fica em `VP_X` da largura (perto dos objetos da mesa: a inclinação
   deles cresce com a distância a ele) e `EYE` acima do fundo do tampo, logo acima da tela (quem está sentado perto
@@ -102,8 +105,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   com folga entre eles; a caneca fica junto da parede da direita (numa tela mais larga, a folga sobra perto da janela). **Cada um fica num lugar da sala e passa pela câmera** (`_draw_desk_props`:
   tamanho, escorço e o lado que aparece saem da conta; `_box` dá os cantos, `_flat` põe o desenho de frente de um
   objeto chato no tampo dele com uma transformação, `_top_xf`), desenhados na grade de 2 px (o desenho de frente dos
-  objetos chatos em blocos, `_flat` com `coarse`, preso à grade da tela em `_top_xf`: sem isso as linhas escorregavam
-  entre os pixels lidos pelo filtro; por enquanto só caderno e prancheta, os outros ainda em 1x1) (sem contorno preto: torto pela perspectiva, serrilhava; as faces se separam pela luz, `_poly`; sombra apontando para longe da luminária, `_desk_shadow`), do fundo para a frente; a legenda sob o mouse fica numa camada acima do filtro (`_over`). **A mesa comutadora é um móvel só** (`_draw_switchboard`,
+  objetos chatos em blocos, `_flat` com `coarse`, preso à grade em `_top_xf`: sem isso as linhas escorregavam entre os
+  pixels e umas sumiam; o que não é chato, como o miolo das listas e a caneca, fica preso a pixels pares, `_even`) (sem contorno preto: torto pela perspectiva, serrilhava; as faces se separam pela luz, `_poly`; sombra apontando para longe da luminária, `_desk_shadow`), do fundo para a frente; a legenda sob o mouse é do `SceneView`, na resolução da interface. **A mesa comutadora é um móvel só** (`_draw_switchboard`,
   como uma mesa telefônica de verdade): embaixo, o console, cuja frente é a faixa do rádio (o rádio embutido, a
   madeira dele em volta, com a plaqueta de latão de um lado, os botões de volume e sintonia do outro e os parafusos;
   a prateleira tem veios e o friso de latão na beira) e cujo alto é a prateleira, com o FONE e os cabos em pé nos buracos (a mesa desenha); no fundo dela, num rodapé e com a sombra
@@ -137,13 +140,15 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`_paper`, `_light`; as da vista, onde aparecem no vidro). Lá fora (`_draw_city`): céu do clima, morros, casas
   sorteadas sempre iguais (`_build_city`, semente fixa),
   a igreja com o relógio aceso, a rua com o poste (a silhueta do mistério fica contra a luz dele) e o chão molhado na
-  chuva. O brilho da luz de cima (`%Glow`, na tela inteira, centrado no alto) acompanha o tremor dela. **Para trocar por PNG**: `wall_art`, `window_art` e `desk_art` entram no lugar do desenho daquela camada
+  chuva. O brilho da luz de cima (`%Glow`, centrado no alto, em degraus) fica dentro da tela do cenário, logo depois do
+  `Background`: ilumina a sala, não a interface; acompanha o tremor dela. **Para trocar por PNG**: `wall_art`, `window_art` e `desk_art` entram no lugar do desenho daquela camada
   (o clima continua por cima da janela). Guardadas, as abas das ferramentas somem (os objetos da mesa já dizem o
   mesmo; o espaço delas fica, para nada pular); com uma aberta, as abas de papel (`TabButton`) aparecem junto com o
-  papel, para trocar de ferramenta. O caderno da mesa mostra o selo dos registros pendentes (`Background.pending`).
+  papel, para trocar de ferramenta. O caderno da mesa mostra o selo dos registros pendentes (`Background.pending`). Nos testes, o clique num objeto da
+  mesa é `background.pointer(evento)`.
 - **Bloom das luzes** (`Bloom`, `scripts/ui/bloom.gd`, nó `Bloom` do Main, z 2: acima da mesa e dos painéis, abaixo dos
   menus), no estilo do glow de cinema e em pixel art: halo somado à tela (blend ADD) em duas camadas (curta e forte,
-  longa e fraca), desenhado em blocos de `BLOCK` px com poucos degraus e pontilhado ordenado (`_halo_for`, guardado por
+  longa e fraca), desenhado em blocos de `BLOCK` px (2, presos à grade dos pixels do cenário) com poucos degraus e pontilhado ordenado (`_halo_for`, guardado por
   tamanho); por cima, a própria luz nítida com o centro indo, em degraus, para um branco tingido pela cor dela (`HOT`,
   `HOT_TINT`; sem isso o halo parecia uma fumaça). Só brilha o que se declara luz, porque pela cor não dá (o plug
   vermelho tem o tom da lâmpada vermelha; um bloom de tela por cor foi testado e descartado): quem desenha luzes chama
@@ -155,8 +160,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`). **Uma fonte só, de pixel: Departure Mono**
   (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11** (exceção: o estado de cada linha na mesa, `Switchboard.STATE_FONT` = 8, porque "conectada" em 11
   não cabe na coluna; a letra fica um pouco irregular): 11 (texto, números da lista), 22
-  (títulos, visor, bilhete), 33 (títulos de tela), 44 (relógio). Importada sem suavização (com
-  ela, as bordas das letras borravam), sem hinting e sem sub-pixel. Texto em
+  (títulos, visor, bilhete), 33 (títulos de tela), 44 (relógio). Importada com suavização (a janela
+  menor que 1280×720 não apaga os traços; sem ela, a 1,5× as letras saíam irregulares), sem hinting e sem sub-pixel. Texto em
   desenho com escala (mapa) sai fora da escala (`CityMap._t`).
 - **Idiomas** pt_BR (padrão), en, es. Interface/código: **enum `T.Key`** (`scripts/t.gd`, GERADO) +
   `translations/ui.csv` (`chave,pt_BR,en,es`); use `T.text(T.Key.X)` (com valores: `T.text(T.Key.X) % n`), nunca
@@ -657,6 +662,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     prancheta redesenhados; listas, mapa, jornal e caneca não). Para acabar com os borrões, como no Papers, Please: o
     jogo é ampliado como imagem (`viewport`, "nearest"), a fonte sem suavização, sem linhas de varredura e com vinheta
     e brilho em degraus.
+50. O jogo todo ampliado como imagem deixou o texto feio a 1,5× (1080p): híbrido. A interface volta a ser desenhada na
+    resolução da tela, com a fonte suavizada; só o cenário vai numa tela de metade da resolução ampliada com "nearest"
+    (`SceneView`), que dá pixels quadrados e inteiros nas telas comuns. O filtro de 2x2 saiu.
+51. Os objetos da mesa todos na grade de 2 px (listas, mapa, jornal e caneca redesenhados em blocos), o brilho da luz
+    só na sala (antes passava em anéis por cima da mesa comutadora e dos textos) e os halos do bloom na mesma grade.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.
