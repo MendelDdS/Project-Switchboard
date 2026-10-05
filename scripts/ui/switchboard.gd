@@ -91,6 +91,8 @@ const PLUG_SHADE := Vector2(7, 9)   # encaixado, a sombra vai do encaixe até aq
 const CORD_STUB := 6.0   # encaixado, o fio sai da ponteira no eixo do plug por esses px antes de cair...
 const CORD_BEND := [0.15, 0.06]   # ...e os pontos seguintes tendem a continuar a direção dos anteriores (curva suave)
 const HOLE_DEPTH := 0.18   # o fundo do furo vazio fica deslocado assim (fração de `_tilt_at`) para o lado da câmera
+const LIGHT := Vector2(-0.7071, -0.7071)   # de onde vem a luz das peças redondas (alto à esquerda)
+const EDGE_DARK := Color("1c130b")   # a beira das peças: marrom quase preto, não preto puro
 ## As peças do plug encaixado, como frações do comprimento, a partir do painel: as mesmas de em pé (colar de 6 px,
 ## cabo de 17, ponteira de 4).
 const PLUG_PARTS := [6.0 / 27.0, 23.0 / 27.0]
@@ -745,17 +747,15 @@ func _fade(key: String, want: Array, delta: float) -> void:
 ## assento preto e o vidro, que vai do escuro à cor da linha conforme `level`. Acesa, brilha (`Bloom`); apagada, só
 ## um reflexo fraco no vidro.
 func _draw_lamp(c: Vector2, col: Color, level: float) -> void:
-	draw_circle(c, LAMP_R + 3.5, Color.BLACK)
-	draw_circle(c, LAMP_R + 2.5, BEZEL[2])
-	draw_circle(c - Vector2(0.6, 0.6), LAMP_R + 1.9, BEZEL[0])
-	draw_circle(c, LAMP_R + 1.5, BEZEL[1])
-	draw_circle(c, LAMP_R + 1.5, Color(col, 0.3 * level))   # a luz batendo no metal
-	draw_circle(c, LAMP_R + 0.5, Color.BLACK)   # o assento do vidro
-	draw_circle(c, LAMP_R, LAMP_OFF.lerp(col, level))
+	_sprite(_disc(16, [[5.0, Color.BLACK], [7.0, BEZEL[0], BEZEL[1], BEZEL[2]], [8.0, EDGE_DARK]]), c)   # aro e assento
 	if level > 0.02:
-		Bloom.light(self, Rect2(c - Vector2(LAMP_R, LAMP_R), Vector2(LAMP_R, LAMP_R) * 2.0), Color(col, level), 1.0, true, true)
-	if level < 0.5:
-		draw_circle(c - Vector2(LAMP_R, LAMP_R) * 0.45, 1.0, Color(1, 1, 1, 0.15 * (1.0 - level)))
+		_sprite(_disc(16, [[5.0, Color.TRANSPARENT], [7.0, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), c, Color(col, 0.35 * level))   # a luz no aro
+	_sprite(_disc(10, [[4.6, Color.WHITE]]), c, LAMP_OFF.lerp(col, level))   # o vidro
+	if level > 0.02:   # acesa: o centro estoura para o branco (o halo é do Bloom; o miolo nítido, daqui)
+		_sprite(_disc(6, [[2.8, Color.WHITE]]), c, Color(Color.WHITE.lerp(col, Bloom.HOT_TINT), level))
+		Bloom.light(self, Rect2(c - Vector2(LAMP_R, LAMP_R), Vector2(LAMP_R, LAMP_R) * 2.0), Color(col, level), 1.0, false, true)
+	else:
+		_sprite(_disc(10, [[4.6, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), c, Color(1, 1, 1, 0.12))   # o reflexo no vidro
 
 
 ## Encaixe redondo como os das mesas antigas: bucha de metal com a aba chanfrada (luz no alto à esquerda, sombra embaixo
@@ -828,7 +828,7 @@ func _draw() -> void:
 		draw_string(Pal.mono, Vector2(cx - 16, jr.position.y - 5), str(d), HORIZONTAL_ALIGNMENT_CENTER, 32, 11, Color("d8c9a2") if st == Exchange.Dest.FREE else Pal.TEXT)
 		var dl: Array = _lit.get("d%d" % d, [LAMP_OFF, 0.0])
 		if dl[1] > 0.02:   # o aro em volta da tomada acende
-			draw_circle(jr.get_center(), jr.size.x / 2.0 + 3.0, Color(dl[0], dl[1]))
+			_sprite(_disc(28, [[14.0, Color.WHITE]]), jr.get_center(), Color(dl[0], dl[1]))
 			Bloom.light(self, jr.grow(3), Color(dl[0], dl[1]), 1.0, false, true)
 		_draw_jack(jr)
 	for s in _blocks:
@@ -840,8 +840,9 @@ func _draw() -> void:
 	var leg := [[Pal.AMBER, T.Key.LEGEND_RING], [Pal.GREEN, T.Key.LEGEND_CONN], [Pal.RED, T.Key.LEGEND_DONE], [LAMP_OFF, T.Key.LEGEND_FREE]]
 	var lx := FRAME + 14.0
 	for k in leg.size():
-		draw_circle(Vector2(lx + 5, LEGEND_Y - 4), 5.5, Color.BLACK)   # lâmpadas redondas, como as da mesa
-		draw_circle(Vector2(lx + 5, LEGEND_Y - 4), 4.0, leg[k][0])
+		var lc := Vector2(lx + 5, LEGEND_Y - 4)   # lâmpadas redondas, como as da mesa
+		_sprite(_disc(11, [[4.0, Color.WHITE], [5.5, EDGE_DARK]]), lc, leg[k][0])
+		_sprite(_disc(11, [[4.0, Color.TRANSPARENT], [5.5, EDGE_DARK]]), lc)
 		var t := T.text(leg[k][1])
 		draw_string(Pal.ui, Vector2(lx + 15, LEGEND_Y), t, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
 		lx += 15.0 + Pal.ui.get_string_size(t, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 22.0
@@ -897,7 +898,7 @@ func _draw() -> void:
 ## O móvel da mesa: moldura de madeira (luz em cima à esquerda, cantos chanfrados) e o painel de metal escuro dentro,
 ## rebaixado.
 func _draw_cabinet(r: Rect2) -> void:
-	draw_rect(r, Color.BLACK)
+	draw_rect(r, EDGE_DARK)
 	draw_rect(r.grow(-1), WOOD[1])
 	draw_rect(Rect2(r.position + Vector2(1, 1), Vector2(r.size.x - 2, 2)), WOOD[0])
 	draw_rect(Rect2(r.position + Vector2(1, 1), Vector2(2, r.size.y - 2)), WOOD[0])
@@ -907,7 +908,7 @@ func _draw_cabinet(r: Rect2) -> void:
 		draw_rect(Rect2(r.position.x + 3, y, FRAME - 4, 1), WOOD[2].lightened(0.1))
 		draw_rect(Rect2(r.end.x - FRAME + 1, y + 3, FRAME - 4, 1), WOOD[2].lightened(0.1))
 	var p := r.grow(-FRAME)
-	draw_rect(p.grow(1), Color.BLACK)
+	draw_rect(p.grow(1), EDGE_DARK)
 	draw_rect(p, Pal.PANEL)
 	draw_rect(Rect2(p.position, Vector2(p.size.x, 2)), Pal.PANEL_LO)   # rebaixado: a sombra fica em cima à esquerda
 	draw_rect(Rect2(p.position, Vector2(2, p.size.y)), Pal.PANEL_LO)
@@ -963,15 +964,16 @@ static func draw_lip(ci: CanvasItem, c: Vector2) -> void:
 
 ## Chapa de metal niquelado: chanfro claro em cima e escuro embaixo, e um rebite em cada ponta.
 func _draw_metal(r: Rect2) -> void:
-	draw_rect(r.grow(1), Color.BLACK)
+	draw_rect(r.grow(1), EDGE_DARK)
 	draw_rect(r, BEZEL[1])
 	draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), BEZEL[0])
 	draw_rect(Rect2(r.position, Vector2(1, r.size.y)), BEZEL[0].darkened(0.1))
 	draw_rect(Rect2(r.position.x, r.end.y - 1, r.size.x, 1), BEZEL[2])
 	draw_rect(Rect2(r.end.x - 1, r.position.y, 1, r.size.y), BEZEL[2].lightened(0.1))
-	for x in [r.position.x + 3.5, r.end.x - 3.5]:   # rebites
-		draw_circle(Vector2(x, r.get_center().y), 1.5, BEZEL[2])
-		draw_circle(Vector2(x - 0.4, r.get_center().y - 0.4), 0.8, BEZEL[0])
+	for x in [r.position.x + 2.0, r.end.x - 5.0]:   # rebites: um pixel claro no alto de um escuro
+		var rv := Vector2(x, floorf(r.get_center().y - 1.5))
+		draw_rect(Rect2(rv, Vector2(3, 3)), BEZEL[2])
+		draw_rect(Rect2(rv, Vector2(1, 1)), BEZEL[0])
 
 
 ## Plaquinha de metal com o número da linha gravado (escuro, com o brilho embaixo de quem foi rebaixado), centrado
@@ -986,14 +988,13 @@ func _draw_number_plate(r: Rect2, text: String) -> void:
 
 ## Chapa parafusada sobre um banco que ainda não está em uso, com a letra dele (A, B, C).
 func _draw_plate(r: Rect2, letter: String) -> void:
-	draw_rect(r.grow(1), Color.BLACK)
+	draw_rect(r.grow(1), EDGE_DARK)
 	draw_rect(r, PLATE)
 	draw_rect(Rect2(r.position, Vector2(r.size.x, 2)), PLATE.lightened(0.18))
 	draw_rect(Rect2(r.position.x, r.end.y - 2, r.size.x, 2), PLATE.darkened(0.35))
 	for c in [r.position + Vector2(7, 7), Vector2(r.end.x - 7, r.position.y + 7), Vector2(r.position.x + 7, r.end.y - 7), r.end - Vector2(7, 7)]:
-		draw_circle(c, 3.5, PLATE.darkened(0.45))
-		draw_circle(c, 2.5, PLATE.lightened(0.25))
-		draw_line(c - Vector2(2, 0), c + Vector2(2, 0), PLATE.darkened(0.45), 1.0)   # fenda do parafuso
+		_sprite(_disc(7, [[2.5, PLATE.lightened(0.35), PLATE.lightened(0.15), PLATE.darkened(0.2)], [3.5, PLATE.darkened(0.5)]]), c)
+		draw_rect(Rect2((c - Vector2(2, 1)).floor(), Vector2(3, 1)), PLATE.darkened(0.5))   # fenda do parafuso
 	draw_string(Pal.mono, Vector2(r.position.x, r.get_center().y + 10), letter, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 22, PLATE.lightened(0.35))
 
 
@@ -1286,6 +1287,40 @@ func _draw_plug_tip() -> void:
 	draw_rect(Rect2(-3, -48, 6, 1), Color("141210"))   # isolante
 	draw_circle(Vector2(0, -49.5), 2.6, BEZEL[1])   # bico
 	draw_rect(Rect2(-2.5, -51, 1.5, 2), BEZEL[0])
+
+
+## Peça redonda em pixel art, pixel a pixel (desenhada como círculo, saía embolotada): `d` pixels de diâmetro;
+## `layers` de dentro para fora, [raio em pixels, cor] ou [raio, luz, meio, sombra] (a luz vem de `LIGHT`) ou
+## [raio, luz, meio, sombra, true] (côncava: a luz bate do lado oposto, como no fundo de um furo). Guardada.
+static var _discs := {}
+static func _disc(d: int, layers: Array) -> ImageTexture:
+	var key := str(d, layers)
+	if _discs.has(key):
+		return _discs[key]
+	var img := Image.create(d, d, false, Image.FORMAT_RGBA8)
+	var mid := Vector2(d, d) / 2.0
+	for y in d:
+		for x in d:
+			var o := Vector2(x + 0.5, y + 0.5) - mid
+			for l in layers:
+				if o.length() <= l[0]:
+					var col: Color = l[1]
+					if l.size() >= 4:
+						var t := o.normalized().dot(LIGHT) if o.length() > 0.01 else 0.0
+						if l.size() >= 5 and l[4]:
+							t = -t
+						col = l[1] if t > 0.38 else (l[3] if t < -0.38 else l[2])
+					img.set_pixel(x, y, col)
+					break
+	var tex := ImageTexture.create_from_image(img)
+	_discs[key] = tex
+	return tex
+
+
+## Desenha a peça `tex` centrada em `c`, presa aos pixels.
+func _sprite(tex: Texture2D, c: Vector2, mod := Color.WHITE) -> void:
+	var sz := Vector2(tex.get_size())
+	draw_texture_rect(tex, Rect2((c - sz / 2.0).floor(), sz), false, mod)
 
 
 ## O idioma mudou nas configurações: redesenha os textos.

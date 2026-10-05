@@ -11,7 +11,7 @@ extends Control
 ## `Bloom.occlude(self, polígono)` e o halo não passa por cima dele. ColorRect e Label no grupo "bloom" brilham na cor deles (a do texto, no Label) quando
 ## acesos; a meta "bloom" (0..1) atenua o halo deles; o Label só ganha o halo.
 
-const BLOCK := 2.0        # px do jogo por bloco do halo
+const BLOCK := 1.0        # px do jogo por bloco do halo (1x1, como o resto)
 const SPREAD := 18.0      # px do jogo que o halo passa da luz
 const INNER := 0.6        # a camada curta, colada na luz...
 const INNER_FALL := 7.0   # ...e quão depressa ela cai

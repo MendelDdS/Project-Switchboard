@@ -50,12 +50,12 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `set_weather`/`hush_nature`/`stop_ambience`, `Background.weather` desenha a janela, `Conversation.topics()` junta os
   assuntos gerais com os do clima (`ChatTopic.weather`).
 - **Resolução**: a base é 1280×720 (`canvas_items`, `aspect="expand"`); o Godot amplia para a tela, e a proporção
-  diferente de 16:9 vira espaço a mais, não tarja. **Híbrido**: a interface (textos, mesa comutadora, papéis, painel) é
-  desenhada na resolução da tela, como sempre; o cenário, numa tela própria com metade da resolução (`SceneView`,
-  `scripts/ui/scene_view.gd`: um `TextureRect` com o `SubViewport` `View`, `size_2d_override` nas coordenadas da
-  interface) ampliada com "nearest" — 640×360 cabe inteiro 2× em 720p, 3× em 1080p, 4× em 1440p e 6× em 4K, então os
-  pixels dele são quadrados exatos, sem borrar. (Testado e descartado: o jogo todo ampliado como imagem, `viewport`,
-  deixava o texto feio a 1,5×; e um filtro de 2x2 por cima do cenário, com média, borrava.) Nada de gradiente liso por
+  diferente de 16:9 vira espaço a mais, não tarja. **Tudo em 1x1**: a interface (textos, mesa comutadora, papéis, painel) e o
+  cenário têm o pixel de 1 unidade e são desenhados na resolução da tela; o cenário numa tela própria (`SceneView`,
+  `scripts/ui/scene_view.gd`: um `TextureRect` com o `SubViewport` `View` do tamanho dele em pixels da janela,
+  `size_2d_override` nas coordenadas da interface). (Testados e descartados: o cenário em 2x2 numa tela de metade da
+  resolução; o jogo todo em 2x2 com a fonte Tiny5, branch `improve/0000-pixel-2x`; o jogo todo ampliado como imagem,
+  `viewport`, que deixava o texto feio a 1,5×; e um filtro de 2x2 por cima do cenário, com média, que borrava.) Nada de gradiente liso por
   cima de tudo: sem linhas de varredura, e vinheta e brilho em degraus (`interpolation_mode` constante, "nearest"). Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
   **Disposição (cena + painel)**: a tela é uma mesa de trabalho. No alto da esquerda, na parede, o relógio da sala
   (`WallClock`, analógico, 52 px: o único da tela, onde o papel das ferramentas não o cobre; mostrador claro,
@@ -77,7 +77,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   largura toda, o painel do operador (`PhonePanel`, 150 px), um console embutido na frente da mesa (a madeira de borda a borda logo abaixo
   do tampo, `PhonePanel._draw`; os blocos `HudPanel` são telas e chapas encaixadas; a tela da conversa tem vidro e
   apaga sem ligação, `ScreenGlass`). A altura útil é 700 px: as colunas pedem 540 (a da esquerda, exata) e o
-  painel 150; passando, a tela inteira sobe e o relógio sai por cima. O `Background` (cenário em camadas, em pixels de 2x2: as contas e a arte em unidades de 2 px, desenhado no `SceneView`, que repassa o mouse a ele, `pointer`/`prop_at`/`leave`, e desenha por cima o contorno e o nome do objeto sob o mouse, `draw_hover`, nítidos; o que ele desenha em px da tela, como os objetos da mesa e o móvel da mesa comutadora, cai na mesma grade por ser desenhado em metade da resolução) estica
+  painel 150; passando, a tela inteira sobe e o relógio sai por cima. O `Background` (cenário em camadas, em pixels de 1x1 como a interface: as contas em unidades de 2 px e os detalhes finos em `PX`/`_p`; desenhado no `SceneView`, uma tela própria na resolução da janela, que repassa o mouse a ele, `pointer`/`prop_at`/`leave`, e desenha por cima o contorno e o nome do objeto sob o mouse, `draw_hover`) estica
   parede e mesa até a borda, como o canto de uma sala visto de quem está sentado à mesa. **Uma câmera só**, em
   perspectiva de um ponto: o ponto de fuga (`_vp`) fica em `VP_X` da largura (perto dos objetos da mesa: a inclinação
   deles cresce com a distância a ele) e `EYE` acima do fundo do tampo, logo acima da tela (quem está sentado perto
@@ -104,9 +104,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   tampo seja qual for a câmera) e, na largura, a partir da lateral da mesa comutadora (`_side_x`), em duas fileiras
   com folga entre eles; a caneca fica junto da parede da direita (numa tela mais larga, a folga sobra perto da janela). **Cada um fica num lugar da sala e passa pela câmera** (`_draw_desk_props`:
   tamanho, escorço e o lado que aparece saem da conta; `_box` dá os cantos, `_flat` põe o desenho de frente de um
-  objeto chato no tampo dele com uma transformação, `_top_xf`), desenhados na grade de 2 px (o desenho de frente dos
-  objetos chatos em blocos, `_flat` com `coarse`, preso à grade em `_top_xf`: sem isso as linhas escorregavam entre os
-  pixels e umas sumiam; o que não é chato, como o miolo das listas e a caneca, fica preso a pixels pares, `_even`) (sem contorno preto: torto pela perspectiva, serrilhava; as faces se separam pela luz, `_poly`; sombra apontando para longe da luminária, `_desk_shadow`), do fundo para a frente; a legenda sob o mouse é do `SceneView`, na resolução da interface. **A mesa comutadora é um móvel só** (`_draw_switchboard`,
+  objeto chato no tampo dele com uma transformação, `_top_xf`), desenhados em 1x1 (sem contorno preto: torto pela perspectiva, serrilhava; as faces se separam pela luz, `_poly`; sombra apontando para longe da luminária, `_desk_shadow`), do fundo para a frente; a legenda sob o mouse é do `SceneView`, na resolução da interface. **A mesa comutadora é um móvel só** (`_draw_switchboard`,
   como uma mesa telefônica de verdade): embaixo, o console, cuja frente é a faixa do rádio (o rádio embutido, a
   madeira dele em volta, com a plaqueta de latão de um lado, os botões de volume e sintonia do outro e os parafusos;
   a prateleira tem veios e o friso de latão na beira) e cujo alto é a prateleira, com o FONE e os cabos em pé nos buracos (a mesa desenha); no fundo dela, num rodapé e com a sombra
@@ -148,7 +146,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   mesa é `background.pointer(evento)`.
 - **Bloom das luzes** (`Bloom`, `scripts/ui/bloom.gd`, nó `Bloom` do Main, z 2: acima da mesa e dos painéis, abaixo dos
   menus), no estilo do glow de cinema e em pixel art: halo somado à tela (blend ADD) em duas camadas (curta e forte,
-  longa e fraca), desenhado em blocos de `BLOCK` px (2, presos à grade dos pixels do cenário) com poucos degraus e pontilhado ordenado (`_halo_for`, guardado por
+  longa e fraca), desenhado em blocos de `BLOCK` px (1, como o resto) com poucos degraus e pontilhado ordenado (`_halo_for`, guardado por
   tamanho); por cima, a própria luz nítida com o centro indo, em degraus, para um branco tingido pela cor dela (`HOT`,
   `HOT_TINT`; sem isso o halo parecia uma fumaça). Só brilha o que se declara luz, porque pela cor não dá (o plug
   vermelho tem o tom da lâmpada vermelha; um bloom de tela por cor foi testado e descartado): quem desenha luzes chama
@@ -320,6 +318,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   gravado, `_draw_number_plate`; estado; lâmpada; entrada; saída), todos os encaixes com `JACK` px, bancos de destino em
   `DEST_TOP`/`DEST_ROW` e a legenda das lâmpadas numa linha no pé (`LEGEND_Y`). Mexendo na altura, confira que a coluna da esquerda ainda cabe (até 540).
 - Chapas de metal niquelado (`_draw_metal`: chanfro e rebites) nas plaquinhas dos números.
+- **Peças redondas pixel a pixel** (`_disc`: imagem guardada por diâmetro e camadas, com luz, meio-tom e sombra vindos de
+  `LIGHT`, alto à esquerda, e camadas côncavas; `_sprite` desenha presa aos pixels; desenhadas como círculo saíam
+  embolotadas): lâmpadas, aro aceso do destino, lâmpadas da legenda e parafusos das chapas. Beira das peças e do
+  móvel em `EDGE_DARK` (marrom quase preto), não preto. Os encaixes e o plug encaixado continuam desenhados com
+  círculos e cápsulas (o usuário os preferiu assim; em pixels o furo ficou maior e feio).
 - Encaixes redondos como os originais (`_draw_jack`: bucha de metal com aba chanfrada, parede de dentro rebaixada e o
   furo); lâmpadas redondas com aro niquelado (`_draw_lamp`, `BEZEL`) que acendem rápido e apagam devagar, como
   filamento (`_lamp`/`_dest_lamp` dizem cor e nível desejado, `_fade` chega lá em `LAMP_ON_SEC`/`LAMP_OFF_SEC`, estado em
@@ -682,6 +685,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     prateleira. Perto do buraco, fio e plug escurecem (a sombra de dentro dele).
 53. Plugs e fios sem contorno preto (a beira na cor da peça, mais escura), como o cenário; o plug encaixado mais fino,
     deixando a aba da tomada à vista (dá para ver que entrou nela).
+54. Prova de tudo em 2x2 com a fonte Tiny5 (branch `improve/0000-pixel-2x`, em espera): o texto ficava pior. A pedido
+    do usuário, o jogo todo ficou em 1x1: o cenário voltou aos detalhes de 1 px (da história 48), numa tela na
+    resolução da janela, o bloom em blocos de 1 px, e da prova vieram as peças redondas da mesa comutadora pixel a pixel
+    (lâmpadas com aro, vidro e centro aceso). Os encaixes e o plug encaixado ficaram como estavam (o usuário os preferia).
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.
