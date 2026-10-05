@@ -523,6 +523,10 @@ func _initialize() -> void:
 	b._press(hp)
 	b._release(hp)
 	ok(b.held == -1 and b.ends[3] == -1, "clique sem arrastar não pega o plug da base")
+	var reach := true   # o plug guardado inteiro aceita o clique (o vão entre o painel e a prateleira também)
+	for y in range(int(b._rest(3).y - 52.0), int(b.hole(3).y + b.HOLE_LIP)):
+		reach = reach and b._has_point(Vector2(b._rest(3).x, y)) and b._plug_under(Vector2(b._rest(3).x, y)) == 3
+	ok(reach, "o plug guardado aceita o clique em toda a altura")
 	print("OK 7 clique desconecta / arrastar move")
 
 	# ---- 8. silhueta na janela: aparece 15 min antes da ligação desconhecida e sai 10 min antes (vai ligar)

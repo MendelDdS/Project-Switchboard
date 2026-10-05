@@ -284,7 +284,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `draw_grommet`), os plugs guardados em pé neles (`home_pos`) e o nome gravado na madeira embaixo de cada um
   (`engrave`; `_draw_tray`, `FoneSocket`); o buraco é mais largo que o plug, que entra nele (`PLUG_SINK`: abaixo
   de `HOLE_LIP` o plug não é desenhado, `_cut`/`_pr`, e a beira da frente do buraco passa por cima dele e dos fios
-  que saem dali, `draw_lip`), sem contorno preto. As pontas dos plugs em pé passam na frente do pé do painel, logo abaixo da
+  que saem dali, `draw_lip`), sem contorno preto; fio e plug escurecem em degraus ao entrar nele (`HOLE_SHADE`,
+  `_along`), senão pareciam flutuar. As pontas dos plugs em pé passam na frente do pé do painel, logo abaixo da
   legenda. `dest_of_output(n)` segue o cabo da saída n.
 - `refuse(e, j)` decide compatibilidade (e o destaque amarelo/vermelho). `_has_point` estende o clique ao encaixe
   do FONE; por isso o telefone e seus containers acima do encaixe têm `mouse_filter = IGNORE`, e a mesa tem
@@ -676,7 +677,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 52. O brilho das lâmpadas e dos aros não passa mais por cima do plug encaixado; plug em pé mais comprido, com a ponta
     de metal mais longa; buracos da prateleira maiores, sem contorno preto, com o plug guardado entrando neles (antes
     parecia equilibrado em cima do buraco); os fios também saem de dentro do buraco, e o do FONE não deita mais na
-    prateleira.
+    prateleira. Perto do buraco, fio e plug escurecem (a sombra de dentro dele).
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

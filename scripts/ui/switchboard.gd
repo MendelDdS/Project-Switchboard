@@ -45,6 +45,7 @@ const SHELF_HOLE_Y := 3.0   # os buracos da prateleira, no alto da faixa dela (o
 const HOLE_R := Vector2(10.0, 7.5)   # o buraco da prateleira: o aro de latão e o vão (mais largo que o plug, que entra nele)
 const PLUG_SINK := 9.0   # guardado, o plug entra tanto no buraco (px abaixo dele)...
 const HOLE_LIP := 3.0    # ...e some abaixo disto (px abaixo do buraco), atrás da beira da frente dele
+const HOLE_SHADE := [[0.0, 5.0, 0.65], [5.0, 10.0, 0.4], [10.0, 16.0, 0.2]]   # o fio entrando no buraco escurece: [de, até (px a partir do buraco), escuro]
 
 var _pushed := {}   ## ponta -> segundos desde que encaixou (a assentada, `PUSH_SEC`, e a passagem para de frente)
 var _pulled := {}   ## ponta -> [segundos desde que saiu do encaixe, onde ele estava]: o plug de frente sumindo
@@ -192,8 +193,8 @@ func _floor() -> float:
 	return tray_rect().position.y + SHELF_HOLE_Y
 
 
-func _has_point(p: Vector2) -> bool:
-	return Rect2(Vector2.ZERO, size).has_point(p) or socket_rect().has_point(p) or tray_rect().has_point(p)
+func _has_point(p: Vector2) -> bool:   # o painel até a prateleira, com o vão entre eles (os plugs guardados passam por ele)
+	return Rect2(Vector2.ZERO, size).merge(socket_rect()).merge(tray_rect()).has_point(p)
 
 
 # ------------------------------------------------------------------ geometria
@@ -1019,6 +1020,27 @@ func _draw_rope(e: int, shadow: bool) -> void:
 	for q in pts:
 		pts2.append(q + Vector2(-1, -1))
 	draw_polyline(pts2, col[1], 1.5)
+	for band in HOLE_SHADE:   # perto do buraco, a sombra de dentro dele, em degraus
+		var part := _along(pts, band[0], band[1])
+		if part.size() >= 2:
+			draw_polyline(part, Color(0, 0, 0, band[2]), 5.0)
+
+
+## O trecho da linha `pts` entre `from` e `to` px a partir do começo dela.
+func _along(pts: PackedVector2Array, from: float, to: float) -> PackedVector2Array:
+	var out := PackedVector2Array()
+	var run := 0.0
+	for i in pts.size() - 1:
+		var d := pts[i].distance_to(pts[i + 1])
+		if d > 0.0 and run + d > from:
+			out.append(pts[i].lerp(pts[i + 1], clampf((maxf(from, run) - run) / d, 0.0, 1.0)))
+			if run + d >= to:
+				out.append(pts[i].lerp(pts[i + 1], (to - run) / d))
+				return out
+		run += d
+	if not out.is_empty():
+		out.append(pts[pts.size() - 1])
+	return out
 
 
 ## Plug em pé, a partir de onde o fio entra nele: corpo na cor do cabo, anel de latão e ponta de metal (com o
@@ -1243,6 +1265,9 @@ func _draw_plug_body(col: Array, tip: bool = true) -> void:
 	_pr(Rect2(-5, -4, 10, 4), Color.BLACK)
 	_pr(Rect2(-4, -4, 8, 3), dark)
 	_pr(Rect2(-4, -4, 2, 3), base)
+	if _cut < INF:   # entrando no buraco, o plug também escurece, em degraus
+		for k in 3:
+			_pr(Rect2(-7, _cut - 2.0 * (k + 1), 14, 2), Color(0, 0, 0, 0.6 - 0.2 * k))
 
 
 ## A ponta de metal do plug em pé (acima do colar); entrando no encaixe, ela já está dentro e não aparece.
