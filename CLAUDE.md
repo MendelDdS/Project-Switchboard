@@ -49,8 +49,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Clima (`Main.weather`: "rain", "fog", "clear", sorteado; `-- --weather=X` força): `Sfx.start_ambience(w)`/
   `set_weather`/`hush_nature`/`stop_ambience`, `Background.weather` desenha a janela, `Conversation.topics()` junta os
   assuntos gerais com os do clima (`ChatTopic.weather`).
-- **Resolução**: a base é 1280×720 (`canvas_items`, `aspect="expand"`); o Godot amplia para a tela, e a proporção
-  diferente de 16:9 vira espaço a mais, não tarja. Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
+- **Resolução**: a base é 1280×720 (`viewport`, `aspect="expand"`): o jogo é desenhado nela e ampliado como uma
+  imagem, com "nearest" (em `canvas_items` ele era redesenhado na resolução da tela e, com fator fracionário, as bordas
+  dos pixels borravam); a proporção diferente de 16:9 vira espaço a mais, não tarja. Em 1080p o fator é 1,5×: nítido,
+  mas os pixels saem com 1 ou 2 px de tela (escala inteira exigiria outra base). Nada de gradiente liso por cima de
+  tudo (as linhas de varredura saíram; vinheta e brilho são em degraus, `interpolation_mode` constante e "nearest"). Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
   **Disposição (cena + painel)**: a tela é uma mesa de trabalho. No alto da esquerda, na parede, o relógio da sala
   (`WallClock`, analógico, 52 px: o único da tela, onde o papel das ferramentas não o cobre; mostrador claro,
   ponteiro das horas curto e preto, o dos minutos comprido e vermelho, `HAND`, e o 12 em marca dupla) e a plaqueta de latão do
@@ -71,7 +74,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   largura toda, o painel do operador (`PhonePanel`, 150 px), um console embutido na frente da mesa (a madeira de borda a borda logo abaixo
   do tampo, `PhonePanel._draw`; os blocos `HudPanel` são telas e chapas encaixadas; a tela da conversa tem vidro e
   apaga sem ligação, `ScreenGlass`). A altura útil é 700 px: as colunas pedem 540 (a da esquerda, exata) e o
-  painel 150; passando, a tela inteira sobe e o relógio sai por cima. O `Background` (cenário em camadas; as contas em unidades de 2 px, os detalhes em pixels de 1x1, `PX`/`_p`, na mesma densidade da interface: misturar 2x2 e 1x1 incomodava) estica
+  painel 150; passando, a tela inteira sobe e o relógio sai por cima. O `Background` (cenário em camadas, em pixels de 2x2: as contas e a arte em unidades de 2 px; o que ele desenha em px da tela, como os objetos da mesa e o móvel da mesa comutadora, cai na mesma grade pelo filtro `pixel_2x.gdshader`, `CHUNKY`, que pega um pixel por bloco, sem média; a interface fica em 1x1, na frente) estica
   parede e mesa até a borda, como o canto de uma sala visto de quem está sentado à mesa. **Uma câmera só**, em
   perspectiva de um ponto: o ponto de fuga (`_vp`) fica em `VP_X` da largura (perto dos objetos da mesa: a inclinação
   deles cresce com a distância a ele) e `EYE` acima do fundo do tampo, logo acima da tela (quem está sentado perto
@@ -98,9 +101,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   tampo seja qual for a câmera) e, na largura, a partir da lateral da mesa comutadora (`_side_x`), em duas fileiras
   com folga entre eles; a caneca fica junto da parede da direita (numa tela mais larga, a folga sobra perto da janela). **Cada um fica num lugar da sala e passa pela câmera** (`_draw_desk_props`:
   tamanho, escorço e o lado que aparece saem da conta; `_box` dá os cantos, `_flat` põe o desenho de frente de um
-  objeto chato no tampo dele com uma transformação, `_top_xf`), desenhados em pixels de 1x1 com o detalhe da mesa
-  comutadora (sem contorno preto: torto pela perspectiva, serrilhava; as faces se separam pela luz, `_poly`; sombra apontando para longe da luminária, `_desk_shadow`), do fundo para a frente; o
-  resto do cenário também (a vista da janela é desenhada no vidro em px da tela). **A mesa comutadora é um móvel só** (`_draw_switchboard`,
+  objeto chato no tampo dele com uma transformação, `_top_xf`), desenhados na grade de 2 px (o desenho de frente dos
+  objetos chatos em blocos, `_flat` com `coarse`, preso à grade da tela em `_top_xf`: sem isso as linhas escorregavam
+  entre os pixels lidos pelo filtro; por enquanto só caderno e prancheta, os outros ainda em 1x1) (sem contorno preto: torto pela perspectiva, serrilhava; as faces se separam pela luz, `_poly`; sombra apontando para longe da luminária, `_desk_shadow`), do fundo para a frente; a legenda sob o mouse fica numa camada acima do filtro (`_over`). **A mesa comutadora é um móvel só** (`_draw_switchboard`,
   como uma mesa telefônica de verdade): embaixo, o console, cuja frente é a faixa do rádio (o rádio embutido, a
   madeira dele em volta, com a plaqueta de latão de um lado, os botões de volume e sintonia do outro e os parafusos;
   a prateleira tem veios e o friso de latão na beira) e cujo alto é a prateleira, com o FONE e os cabos em pé nos buracos (a mesa desenha); no fundo dela, num rodapé e com a sombra
@@ -152,8 +155,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`). **Uma fonte só, de pixel: Departure Mono**
   (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11** (exceção: o estado de cada linha na mesa, `Switchboard.STATE_FONT` = 8, porque "conectada" em 11
   não cabe na coluna; a letra fica um pouco irregular): 11 (texto, números da lista), 22
-  (títulos, visor, bilhete), 33 (títulos de tela), 44 (relógio). Importada com suavização (a janela
-  menor que 1280×720 não apaga os traços, mas o texto de 11 fica borrado), sem hinting e sem sub-pixel. Texto em
+  (títulos, visor, bilhete), 33 (títulos de tela), 44 (relógio). Importada sem suavização (com
+  ela, as bordas das letras borravam), sem hinting e sem sub-pixel. Texto em
   desenho com escala (mapa) sai fora da escala (`CityMap._t`).
 - **Idiomas** pt_BR (padrão), en, es. Interface/código: **enum `T.Key`** (`scripts/t.gd`, GERADO) +
   `translations/ui.csv` (`chave,pt_BR,en,es`); use `T.text(T.Key.X)` (com valores: `T.text(T.Key.X) % n`), nunca
@@ -257,7 +260,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`CallLog`, ferramenta 4: tudo o que foi dito com o FONE na linha, por ligação; o Main chama `track` quando ela toca), rádio, abas (`Tools`) com lista
   (`PhoneBook`), mapa e despacho (`Dispatch` + `CityMap`, dono das unidades e da ocorrência) e caderno
   (`Notebook`, fila de ocorrências); `Intro`, `Ending`; widgets desenhados (`Switchboard`,
-  `Background`, `Bevel`, scanlines).
+  `Background`, `Bevel`).
 
 ## Modelo da mesa (scripts/ui/switchboard.gd)
 - Tomadas por id inteiro: **1–10 entradas**, **11–20 saídas** (linha + 10), **destinos = o próprio número** (101–399,
@@ -649,6 +652,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     luminária saiu da tela: só a luz, vinda de cima e do meio.
 48. Uma densidade de pixel só: o cenário passou a ter os detalhes em 1x1, como a interface (a mistura com 2x2
     incomodava; as contas da câmera seguem em unidades de 2 px), e os objetos perderam o contorno preto (serrilhava).
+49. O 1x1 ficou "pixels pequenos e definidos demais", e um filtro de 2x2 com média borrou tudo: o cenário inteiro
+    passou a 2x2 de verdade (arte na grade de 2 px e filtro que pega um pixel por bloco), ainda em prova (caderno e
+    prancheta redesenhados; listas, mapa, jornal e caneca não). Para acabar com os borrões, como no Papers, Please: o
+    jogo é ampliado como imagem (`viewport`, "nearest"), a fonte sem suavização, sem linhas de varredura e com vinheta
+    e brilho em degraus.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

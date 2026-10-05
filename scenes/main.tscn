@@ -7,7 +7,6 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/phone_panel.tscn" id="6_phone_panel"]
 [ext_resource type="PackedScene" path="res://scenes/ui/radio.tscn" id="7_radio"]
 [ext_resource type="PackedScene" path="res://scenes/ui/tools.tscn" id="8_tools"]
-[ext_resource type="Script" uid="uid://dks1uhf5c0yvr" path="res://scripts/ui/scanlines.gd" id="9_scanlines"]
 [ext_resource type="Script" uid="uid://dpp8fwpgwjrfm" path="res://scripts/conversation.gd" id="10_conversation"]
 [ext_resource type="Script" path="res://scripts/supervisor.gd" id="22_supervisor"]
 [ext_resource type="Script" path="res://scripts/ui/fone_socket.gd" id="25_fone_socket"]
@@ -17,13 +16,15 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/ending.tscn" id="12_ending"]
 [ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="20_pause"]
 [ext_resource type="PackedScene" path="res://scenes/ui/debug_panel.tscn" id="21_debug"]
+[ext_resource type="Script" path="res://scripts/ui/scene_view.gd" id="41_scene_view"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_4"]
 blend_mode = 1
 
 [sub_resource type="Gradient" id="Gradient_2"]
-offsets = PackedFloat32Array(0, 0.45, 1)
-colors = PackedColorArray(1, 0.77, 0.43, 0.22, 1, 0.67, 0.31, 0.06, 1, 0.6, 0.3, 0)
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.18, 0.36, 0.54, 0.72, 0.9)
+colors = PackedColorArray(1, 0.77, 0.43, 0.2, 1, 0.72, 0.38, 0.15, 1, 0.68, 0.34, 0.11, 1, 0.65, 0.32, 0.07, 1, 0.62, 0.3, 0.04, 1, 0.6, 0.3, 0)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_3"]
 gradient = SubResource("Gradient_2")
@@ -34,8 +35,9 @@ fill_from = Vector2(0.5, 0)
 fill_to = Vector2(1.05, 0)
 
 [sub_resource type="Gradient" id="Gradient_5"]
-offsets = PackedFloat32Array(0, 0.55, 1)
-colors = PackedColorArray(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.6)
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.6, 0.72, 0.82, 0.92)
+colors = PackedColorArray(0, 0, 0, 0, 0, 0, 0, 0.12, 0, 0, 0, 0.24, 0, 0, 0, 0.38, 0, 0, 0, 0.55)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_6"]
 gradient = SubResource("Gradient_5")
@@ -55,9 +57,28 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_main")
 
-[node name="Background" type="Control" parent="." unique_id=1017745606 node_paths=PackedStringArray("window", "desk", "board")]
-unique_name_in_owner = true
+[node name="Scene" type="TextureRect" parent="."]
+texture_filter = 1
 layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+script = ExtResource("41_scene_view")
+
+[node name="View" type="SubViewport" parent="Scene"]
+disable_3d = true
+handle_input_locally = false
+size = Vector2i(640, 360)
+size_2d_override = Vector2i(1280, 720)
+size_2d_override_stretch = true
+render_target_update_mode = 4
+
+[node name="Background" type="Control" parent="Scene/View" unique_id=1017745606 node_paths=PackedStringArray("window", "desk", "board")]
+unique_name_in_owner = true
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -65,9 +86,9 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("2_background")
-window = NodePath("../Layout/Rows/Columns/Right/Tools/Body")
-desk = NodePath("../Layout/Rows/Columns/Left/Desk")
-board = NodePath("../Layout/Rows/Columns/Left/Board")
+window = NodePath("../../../Layout/Rows/Columns/Right/Tools/Body")
+desk = NodePath("../../../Layout/Rows/Columns/Left/Desk")
+board = NodePath("../../../Layout/Rows/Columns/Left/Board")
 
 [node name="Layout" type="MarginContainer" parent="." unique_id=206193978]
 layout_mode = 1
@@ -202,7 +223,7 @@ layout_mode = 2
 [node name="Glow" type="TextureRect" parent="." unique_id=1338745255]
 unique_name_in_owner = true
 z_index = 2
-texture_filter = 2
+texture_filter = 1
 material = SubResource("CanvasItemMaterial_4")
 layout_mode = 1
 anchors_preset = 15
@@ -216,7 +237,7 @@ expand_mode = 1
 
 [node name="Vignette" type="TextureRect" parent="." unique_id=1058735391]
 z_index = 2
-texture_filter = 2
+texture_filter = 1
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -236,17 +257,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("24_bloom")
-
-[node name="Scanlines" type="Control" parent="." unique_id=1284388564]
-z_index = 2
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-script = ExtResource("9_scanlines")
 
 [node name="Conversation" type="Node" parent="." unique_id=1871039847]
 unique_name_in_owner = true

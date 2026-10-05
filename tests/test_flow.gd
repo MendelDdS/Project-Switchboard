@@ -749,7 +749,7 @@ func _initialize() -> void:
 		pe.button_index = MOUSE_BUTTON_LEFT
 		pe.pressed = true
 		pe.position = (m.background._props[id] as Rect2).get_center()
-		m.background._gui_input(pe)
+		m.background.pointer(pe)
 		ok(m.tools.open and m.tools.tab == id, "o objeto da cena abre " + id)
 	m.tools.close()
 	# o jornal da manhã na mesa (da segunda noite em diante), com as manchetes da noite anterior
@@ -759,7 +759,7 @@ func _initialize() -> void:
 	pj.button_index = MOUSE_BUTTON_LEFT
 	pj.pressed = true
 	pj.position = (m.background._props["jornal"] as Rect2).get_center()
-	m.background._gui_input(pj)
+	m.background.pointer(pj)
 	ok(m.tools.open and m.tools.tab == "jornal", "o jornal na mesa abre")
 	ok(m.tools.news.get_node("Headlines").text.contains("Rua do Sol"), "o jornal traz as manchetes da noite anterior")
 	m.tools.close()
