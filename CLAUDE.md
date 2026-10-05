@@ -283,8 +283,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   ficam no alto da prateleira (`hole`, `SHELF_HOLE_Y`, `FONE_HOLE_X`; aro de latão achatado pela perspectiva,
   `draw_grommet`), os plugs guardados em pé neles (`home_pos`) e o nome gravado na madeira embaixo de cada um
   (`engrave`; `_draw_tray`, `FoneSocket`); o buraco é mais largo que o plug, que entra nele (`PLUG_SINK`: abaixo
-  de `HOLE_LIP` o plug não é desenhado, `_cut`/`_pr`, e a beira da frente do buraco passa por cima, `draw_lip`), sem
-  contorno preto. As pontas dos plugs em pé passam na frente do pé do painel, logo abaixo da
+  de `HOLE_LIP` o plug não é desenhado, `_cut`/`_pr`, e a beira da frente do buraco passa por cima dele e dos fios
+  que saem dali, `draw_lip`), sem contorno preto. As pontas dos plugs em pé passam na frente do pé do painel, logo abaixo da
   legenda. `dest_of_output(n)` segue o cabo da saída n.
 - `refuse(e, j)` decide compatibilidade (e o destaque amarelo/vermelho). `_has_point` estende o clique ao encaixe
   do FONE; por isso o telefone e seus containers acima do encaixe têm `mouse_filter = IGNORE`, e a mesa tem
@@ -307,7 +307,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (clicar e segurar); clique sem arrastar só serve para desplugar.
 - Fios são cordas de Verlet (`_step_rope`), **uma por ponta**, presas no buraco (`hole(e)`: o do FONE no encaixe, dois
   por cabo de conexão) e na traseira do plug (`_plug_base`); só existem com o fio para fora.
-  Folga: `SLACK` (FONE), `CORD_SLACK` (conexão). Fio parado por `SLEEP_STEPS` passos "dorme" (`ropes[e]["sleep"]` =
+  Folga: `CORD_SLACK` (conexão); a do FONE cresce com a distância na horizontal (`SLACK_PER_PX`, até `SLACK`: fixa, o
+  fio de uma entrada logo acima do buraco deitava na prateleira e fazia um "Z"). Fio parado por `SLEEP_STEPS` passos "dorme" (`ropes[e]["sleep"]` =
   área onde o mouse o acorda) e deixa de ser simulado até a ponta, o buraco ou o mouse mexerem nele.
 - Sob o mouse: `_plug_under` (plug que dá para pegar → `_hover`, desenhado com contorno claro) e `_cursor_shape`
   (mão aberta, mão fechada segurando, proibido sobre tomada que recusa, dedo em tomada/plaqueta que informa).
@@ -674,7 +675,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     só na sala (antes passava em anéis por cima da mesa comutadora e dos textos) e os halos do bloom na mesma grade.
 52. O brilho das lâmpadas e dos aros não passa mais por cima do plug encaixado; plug em pé mais comprido, com a ponta
     de metal mais longa; buracos da prateleira maiores, sem contorno preto, com o plug guardado entrando neles (antes
-    parecia equilibrado em cima do buraco).
+    parecia equilibrado em cima do buraco); os fios também saem de dentro do buraco, e o do FONE não deita mais na
+    prateleira.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

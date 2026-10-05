@@ -116,7 +116,8 @@ const ROPE_N := 22                 # pontos por cabo
 const GRAVITY := Vector2(0, 1600)  # px/s²
 const DAMPING := 0.985             # 1 = sem atrito com o ar
 const STIFF_ITER := 14             # iterações de restrição (maior = cabo menos elástico)
-const SLACK := 70.0                # folga extra além da distância reta (fio do FONE)
+const SLACK := 70.0                # folga extra além da distância reta (fio do FONE), no máximo...
+const SLACK_PER_PX := 0.15         # ...e esta por px de distância na horizontal (logo acima do buraco, sobrava fio deitado na prateleira)
 const CORD_SLACK := 14.0           # idem, fios dos cabos de conexão
 const STEP := 1.0 / 90.0
 var ropes := {}                    # ponta -> corda (só enquanto o fio está para fora do buraco)
@@ -604,7 +605,9 @@ func _step_rope(e: int, dt: float) -> void:
 			return
 		length = a.distance_to(_plug_base(e))
 	else:
-		length = lerpf(length, a.distance_to(_plug_base(e)) + (SLACK if e == 0 else CORD_SLACK), 0.08)
+		var b := _plug_base(e)
+		var slack := clampf(absf(b.x - a.x) * SLACK_PER_PX, CORD_SLACK, SLACK) if e == 0 else CORD_SLACK
+		length = lerpf(length, a.distance_to(b) + slack, 0.08)
 	var mouse := get_local_mouse_position()
 	var mv := mouse - _last_mouse
 	var settled := held != e and an.is_empty()
@@ -872,6 +875,8 @@ func _draw() -> void:
 		else:
 			_draw_rope(e, false)
 			_draw_plug(e, false)
+		if ropes.has(e) and not _in_hole(e):   # o fio sai de dentro do buraco: a beira da frente passa por cima dele
+			draw_lip(self, hole(e))
 
 	# balão de informação
 	if ms < info_until and info_line > 0:
