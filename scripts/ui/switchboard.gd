@@ -81,7 +81,8 @@ const TAP_GAP := 0.12          # s: intervalo mínimo entre dois "taps" do mesmo
 const PLUG_BASE := Vector2(0, 24)   # do ponto de referência do plug (topo do corpo) até onde o fio entra nele
 const PLUG_LEN := 33.0   # em pé: do fio até o alto do colar (a ponta de metal passa disso)
 ## Encaixado, de onde fica a tomada até onde o fio entra: a ponta de metal some dentro dela e o anel assenta no buraco.
-const PLUG_FACE_R := 7.0   # encaixado: o raio do colar e do cabo (14 px de largura com o contorno, como em pé)
+const PLUG_FACE_R := 5.5   # encaixado: o raio do colar e do cabo (13 px com a beira: a aba da bucha fica à vista em volta)
+const EDGE := 0.65          # a beira do plug e do fio: a cor da peça escurecida assim (contorno preto destoava do cenário)
 ## Encaixado, o plug sai do painel na direção da câmera: visto de cima e da direita, a ponta dele fica deslocada do
 ## encaixe para baixo e para a esquerda, e mais quanto mais longe do ponto que a câmera olha reto (paralaxe, `_tilt`).
 const PLUG_EYE := Vector2(SIZE.x + 300, -600)   # o ponto da mesa que a câmera olha reto (fora dela, no alto à direita)
@@ -1014,7 +1015,7 @@ func _draw_rope(e: int, shadow: bool) -> void:
 		draw_polyline(sh, SHADOW, 7.0)
 		return
 	var col: Array = _cable_col(e)
-	draw_polyline(pts, Color.BLACK, 8.0)
+	draw_polyline(pts, (col[0] as Color).darkened(EDGE), 8.0)
 	draw_polyline(pts, col[0], 5.0)
 	var pts2 := PackedVector2Array()
 	for q in pts:
@@ -1155,7 +1156,8 @@ func _draw_plug_face(col: Array, tilt: Vector2, push: float, alpha: float, j := 
 	var base := Color(col[0], alpha)
 	var hi := Color(col[1], alpha)
 	var dark := base.darkened(0.4)
-	var ink := Color(Color.BLACK, alpha)
+	var metal_edge := Color(BEZEL[2].darkened(EDGE), alpha)
+	var edge := base.darkened(EDGE)
 	var t := tilt - tilt.normalized() * push
 	var c: Vector2 = t * PLUG_PARTS[0]   # o colar vai do painel até aqui...
 	var h: Vector2 = t * PLUG_PARTS[1]   # ...o cabo até aqui, e a ponteira até t
@@ -1165,13 +1167,13 @@ func _draw_plug_face(col: Array, tilt: Vector2, push: float, alpha: float, j := 
 		lit = -lit
 	var back := (-t).angle()   # o meio do lado à mostra
 	# colar niquelado
-	_draw_capsule(Vector2.ZERO, c, r + 1.0, ink)
+	_draw_capsule(Vector2.ZERO, c, r + 1.0, metal_edge)
 	_draw_capsule(Vector2.ZERO, c, r, Color(BEZEL[2], alpha))
 	_draw_capsule(lit * 1.5, c + lit * 1.5, r - 1.5, Color(BEZEL[1], alpha))
 	draw_line(lit * (r - 1.0), c + lit * (r - 1.0), Color(BEZEL[0], alpha), 1.5)
 	_collar_reflect(j)
 	# cabo de baquelite: escuro do lado da sombra, claro na beira virada para a luz, e os sulcos de pegada
-	_draw_capsule(c, h, r + 1.0, ink)
+	_draw_capsule(c, h, r + 1.0, edge)
 	_draw_capsule(c, h, r, dark)
 	_draw_capsule(c + lit * 2.0, h + lit * 2.0, r - 2.0, base)
 	draw_line(c + lit * (r - 1.0), h + lit * (r - 1.0), hi, 2.0)
@@ -1183,10 +1185,10 @@ func _draw_plug_face(col: Array, tilt: Vector2, push: float, alpha: float, j := 
 	draw_circle(h, r, base)
 	draw_arc(h, r - 2.0, PI * 1.05, PI * 1.6, 8, hi, 2.0)
 	# ponteira de onde sai o fio
-	_draw_capsule(h, t, 5.0, ink)
-	_draw_capsule(h, t, 4.0, dark)
-	draw_circle(t, 4.0, dark)
-	draw_arc(t, 2.8, PI * 1.05, PI * 1.6, 6, base, 1.5)
+	_draw_capsule(h, t, r - 1.0, edge)
+	_draw_capsule(h, t, r - 2.0, dark)
+	draw_circle(t, r - 2.0, dark)
+	draw_arc(t, r - 3.2, PI * 1.05, PI * 1.6, 6, base, 1.5)
 
 
 ## Um cilindro visto de lado: dois círculos de raio `r` ligados por uma faixa da mesma largura.
@@ -1248,12 +1250,13 @@ func _draw_plug_body(col: Array, tip: bool = true) -> void:
 	if tip:
 		_draw_plug_tip()
 	# colar niquelado
-	_pr(Rect2(-7, -33, 14, 6), Color.BLACK)
+	var edge := base.darkened(EDGE)
+	_pr(Rect2(-7, -33, 14, 6), BEZEL[2].darkened(EDGE))
 	_pr(Rect2(-6, -32, 12, 4), BEZEL[1])
 	_pr(Rect2(-6, -32, 12, 1), BEZEL[0])
 	_pr(Rect2(-6, -29, 12, 1), BEZEL[2])
 	# cabo de baquelite, arredondado nas pontas
-	_pr(Rect2(-7, -27, 14, 24), Color.BLACK)
+	_pr(Rect2(-7, -27, 14, 24), edge)
 	_pr(Rect2(-6, -27, 12, 23), base)
 	_pr(Rect2(-6, -27, 3, 23), hi)
 	_pr(Rect2(2, -27, 4, 23), dark)
@@ -1262,7 +1265,7 @@ func _draw_plug_body(col: Array, tip: bool = true) -> void:
 		_pr(Rect2(-6, y, 12, 1), dark.darkened(0.3))
 		_pr(Rect2(-6, y + 1, 12, 1), Color(hi, 0.5))
 	# ponteira de onde sai o fio
-	_pr(Rect2(-5, -4, 10, 4), Color.BLACK)
+	_pr(Rect2(-5, -4, 10, 4), edge)
 	_pr(Rect2(-4, -4, 8, 3), dark)
 	_pr(Rect2(-4, -4, 2, 3), base)
 	if _cut < INF:   # entrando no buraco, o plug também escurece, em degraus
@@ -1272,8 +1275,8 @@ func _draw_plug_body(col: Array, tip: bool = true) -> void:
 
 ## A ponta de metal do plug em pé (acima do colar); entrando no encaixe, ela já está dentro e não aparece.
 func _draw_plug_tip() -> void:
-	draw_rect(Rect2(-4, -53, 8, 20), Color.BLACK)   # contorno da ponta
-	draw_circle(Vector2(0, -49.5), 3.5, Color.BLACK)
+	draw_rect(Rect2(-4, -53, 8, 20), BEZEL[2].darkened(EDGE))   # a beira da ponta
+	draw_circle(Vector2(0, -49.5), 3.5, BEZEL[2].darkened(EDGE))
 	draw_rect(Rect2(-3, -42, 6, 9), Color("b8924e"))   # luva de latão
 	draw_rect(Rect2(-3, -42, 2, 9), Color("e0c07a"))
 	draw_rect(Rect2(2, -42, 1, 9), Color("7a5a24"))

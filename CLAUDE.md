@@ -344,6 +344,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   e volta em `PUSH_SEC` (`_pushed`, `_push`). Destaque e sombra seguem a silhueta (`_plug_outline`: as partes unidas
   num polígono, guardado; o destaque é ele alargado); `_plug_rect(seated)` é o retângulo do clique.
   Sombras (`SHADOW`): fios deslocados `ROPE_SHADOW`; plug mais longe quanto mais sai do painel (solto, na mão).
+  Sem contorno preto em plug e fio: a beira é a cor da própria peça escurecida (`EDGE`; o metal, `BEZEL[2]`), como no
+  cenário. Encaixado, o colar (`PLUG_FACE_R`) é menor que a bucha: a aba de latão fica à vista em volta.
 
 ## Modelo das ligações
 - `live`: ligações tocando ou em andamento (várias ao mesmo tempo). O painel mostra `phone.shown()`.
@@ -678,6 +680,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     de metal mais longa; buracos da prateleira maiores, sem contorno preto, com o plug guardado entrando neles (antes
     parecia equilibrado em cima do buraco); os fios também saem de dentro do buraco, e o do FONE não deita mais na
     prateleira. Perto do buraco, fio e plug escurecem (a sombra de dentro dele).
+53. Plugs e fios sem contorno preto (a beira na cor da peça, mais escura), como o cenário; o plug encaixado mais fino,
+    deixando a aba da tomada à vista (dá para ver que entrou nela).
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.
