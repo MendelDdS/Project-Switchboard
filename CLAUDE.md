@@ -71,7 +71,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   largura toda, o painel do operador (`PhonePanel`, 150 px), um console embutido na frente da mesa (a madeira de borda a borda logo abaixo
   do tampo, `PhonePanel._draw`; os blocos `HudPanel` são telas e chapas encaixadas; a tela da conversa tem vidro e
   apaga sem ligação, `ScreenGlass`). A altura útil é 700 px: as colunas pedem 540 (a da esquerda, exata) e o
-  painel 150; passando, a tela inteira sobe e o relógio sai por cima. O `Background` (cenário em camadas, pixels de 2x2) estica
+  painel 150; passando, a tela inteira sobe e o relógio sai por cima. O `Background` (cenário em camadas; as contas em unidades de 2 px, os detalhes em pixels de 1x1, `PX`/`_p`, na mesma densidade da interface: misturar 2x2 e 1x1 incomodava) estica
   parede e mesa até a borda, como o canto de uma sala visto de quem está sentado à mesa. **Uma câmera só**, em
   perspectiva de um ponto: o ponto de fuga (`_vp`) fica em `VP_X` da largura (perto dos objetos da mesa: a inclinação
   deles cresce com a distância a ele) e `EYE` acima do fundo do tampo, logo acima da tela (quem está sentado perto
@@ -99,8 +99,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   com folga entre eles; a caneca fica junto da parede da direita (numa tela mais larga, a folga sobra perto da janela). **Cada um fica num lugar da sala e passa pela câmera** (`_draw_desk_props`:
   tamanho, escorço e o lado que aparece saem da conta; `_box` dá os cantos, `_flat` põe o desenho de frente de um
   objeto chato no tampo dele com uma transformação, `_top_xf`), desenhados em pixels de 1x1 com o detalhe da mesa
-  comutadora (contorno, `_poly`; sombra apontando para longe da luminária, `_desk_shadow`), do fundo para a frente; o
-  resto do cenário é em 2x2. **A mesa comutadora é um móvel só** (`_draw_switchboard`,
+  comutadora (sem contorno preto: torto pela perspectiva, serrilhava; as faces se separam pela luz, `_poly`; sombra apontando para longe da luminária, `_desk_shadow`), do fundo para a frente; o
+  resto do cenário também (a vista da janela é desenhada no vidro em px da tela). **A mesa comutadora é um móvel só** (`_draw_switchboard`,
   como uma mesa telefônica de verdade): embaixo, o console, cuja frente é a faixa do rádio (o rádio embutido, a
   madeira dele em volta, com a plaqueta de latão de um lado, os botões de volume e sintonia do outro e os parafusos;
   a prateleira tem veios e o friso de latão na beira) e cujo alto é a prateleira, com o FONE e os cabos em pé nos buracos (a mesa desenha); no fundo dela, num rodapé e com a sombra
@@ -647,6 +647,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 47. Acabamentos: os objetos da mesa reorganizados a partir da mesa comutadora (sem encostar uns nos outros), o
     interior do armário com profundidade, detalhes no console, relógio mais legível e, a pedido do usuário, a
     luminária saiu da tela: só a luz, vinda de cima e do meio.
+48. Uma densidade de pixel só: o cenário passou a ter os detalhes em 1x1, como a interface (a mistura com 2x2
+    incomodava; as contas da câmera seguem em unidades de 2 px), e os objetos perderam o contorno preto (serrilhava).
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.
