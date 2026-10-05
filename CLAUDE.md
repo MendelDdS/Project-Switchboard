@@ -56,10 +56,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   turno (`ShiftPlate`, variação `BrassPanel`, com o horário e o botão Encerrar turno). Sem números na tela, o
   ouvido marca o tempo: a badalada de gongo a cada hora cheia (`chime`, `Main._hour`) e a campainha de latão quando
   o turno pode ser encerrado (`shift_bell`), vindas do lado do relógio; embaixo
-  dele a mesa comutadora (588×362) e, depois de uma folga de 16 px, a faixa de mesa (`%Desk`: o encaixe do FONE,
-  `%FoneSocket`, o rádio e a bandeja dos cabos, `%CordTray`; os fios repousam no fundo dela, `Switchboard._floor`). O
-  rádio tem `z_index` 1 e vem depois da mesa na árvore: fica na frente dos fios, como uma caixa em pé na mesa (um plug
-  arrastado por cima dele passa por trás). A coluna da
+  dele a mesa comutadora (588×362), a faixa da prateleira (`Shelf`, 16 px: o encaixe do FONE, `%FoneSocket`, e os
+  buracos dos cabos, `%CordTray`, com os plugs guardados em pé neles, na frente do painel, como numa mesa telefônica
+  de verdade; os fios repousam na linha dos buracos, `Switchboard._floor`) e a faixa do rádio (`%Desk`, a frente do
+  console, com o rádio no meio). O rádio tem `z_index` 1 e vem depois da mesa na árvore (um plug arrastado por cima
+  dele passa por trás). A coluna da
   direita (cresce com a largura) tem a dica do manual no alto (`%Hint`, como um aviso na parede; no pé, ela ficava em
   cima dos objetos da mesa) e as ferramentas (`Tools`: abas em cima e, no `%Body`, o papel da ferramenta aberta; guardadas, a
   janela aparece). O papel sai do objeto da ferramenta na mesa (`Tools.origin` = `Background.prop_rect`: pequeno, em
@@ -72,28 +73,37 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   painel 150; passando, a tela inteira sobe e o relógio sai por cima. O `Background` (cenário em camadas, pixels de 2x2) estica
   parede e mesa até a borda, como o canto de uma sala visto de quem está sentado à mesa. **Uma câmera só**, em
   perspectiva de um ponto: o ponto de fuga (`_vp`) fica em `VP_X` da largura (perto dos objetos da mesa: a inclinação
-  deles cresce com a distância a ele) e `EYE` acima do fundo do tampo; `_proj`/`_p3` levam um ponto da sala (x, y a
+  deles cresce com a distância a ele) e `EYE` acima do fundo do tampo, logo acima da tela (quem está sentado perto
+  olha a mesa de cima; mais baixo, o que fica longe dele entortava demais: a inclinação de um lado que foge é a
+  distância ao ponto na horizontal dividida pela distância na vertical, e só depende da tela); `_proj`/`_p3` levam um ponto da sala (x, y a
   partir dos olhos, z a distância; a parede do fundo a `Z0`) para a tela. Na sala: a parede do fundo (sem rodapé nem
   linha escura embaixo: com elas parecia um chão), com um armário
-  de aço de chão (`_draw_steel_cabinet`, `CAB_*`; a mesa esconde a base); a parede da direita, entrando para o fundo
+  de aço de chão (`_draw_steel_cabinet`, `CAB_*`; a mesa esconde a base; o alto fica abaixo dos olhos e o tampo aparece); a parede da direita, entrando para o fundo
   a partir da quina (`CORNER` da área das ferramentas, `Background.window`), mais clara (virada para a luminária),
   com a janela vista de lado (`_draw_side_wall`, `_side_pt`: batente, o lado de dentro do vão, caixilho e persiana
   na perspectiva da parede; a vista da cidade é desenhada de frente num vidro fora da tela, `_vport`, e só recortada
   pelo vidro: está longe e não entorta com a janela; o horizonte dela fica na altura dos olhos); a mesa, afastada da
-  parede (`DESK_T`), com o fundo do tampo atrás da mesa comutadora (`Background.board`, `BOARD_SINK`, sombra de
-  contato), a borda da frente logo abaixo da faixa de mesa (`Background.desk`) e a ponta na parede da direita, numa
+  parede (`DESK_T`), com o fundo do tampo atrás da mesa comutadora (`BOARD_SINK`), a borda da frente logo abaixo da
+  faixa de mesa (`Background.desk`) e a ponta na parede da direita, numa
   linha que foge para o ponto de fuga. A luz da luminária dobra na quina: na parede é o arco do cone
   (`_draw_wall_light`, `LAMP_Y`, `WALL_GAP`), na mesa a poça; o que está na frente da parede faz sombra nela, ampliada
   a partir da luminária (`_cast`); a luz da rua entra pela janela e cai na mesa na diagonal. Na mesa, ao alcance do
   operador, os objetos que abrem as ferramentas (`prop_clicked(id)` → `Tools.set_tab`; `_props`, `_has_point`: o
   clique só vale sobre eles e não com papel por cima): listas telefônicas (1), mapa dobrado (2), caderno aberto (3) e
-  prancheta do registro (4), mais a caneca. **Cada um fica num lugar da sala e passa pela câmera** (`_draw_desk_props`:
+  prancheta do registro (4), mais a caneca, postos por fração da profundidade do tampo (`_at`, `_deep`: ficam no
+  tampo seja qual for a câmera). **Cada um fica num lugar da sala e passa pela câmera** (`_draw_desk_props`:
   tamanho, escorço e o lado que aparece saem da conta; `_box` dá os cantos, `_flat` põe o desenho de frente de um
   objeto chato no tampo dele com uma transformação, `_top_xf`), desenhados em pixels de 1x1 com o detalhe da mesa
   comutadora (contorno, `_poly`; sombra apontando para longe da luminária, `_desk_shadow`), do fundo para a frente; o
-  resto do cenário é em 2x2. As peças da faixa de mesa (FONE, rádio, bandeja; `DESK_BOXES`, pelo nome do nó) também
-  são caixas na câmera: a interface é a frente delas e o cenário desenha o tampo, o lado virado para o ponto de fuga
-  e a sombra (`_draw_desk_boxes`; a bandeja é aberta, com o fundo forrado). O tampo (`_draw_desk`): `PLANKS` tábuas
+  resto do cenário é em 2x2. **A mesa comutadora é um móvel só** (`_draw_switchboard`,
+  como uma mesa telefônica de verdade): embaixo, o console, cuja frente é a faixa do rádio (o rádio embutido, a
+  madeira dele em volta) e cujo alto é a prateleira, com o FONE e os cabos em pé nos buracos (a mesa desenha); no fundo dela, num rodapé e com a sombra
+  de contato, o painel (`Background.board`). Painel e console têm a mesma largura na sala, então o console, mais
+  perto, sai mais largo na tela (a esquerda passa da borda): é o que os alinha na câmera. A lateral em L (o console
+  até o fundo do móvel e o painel em cima, raso como nas mesas de verdade, `BOARD_D`: fundo, ele mostrava uma lateral
+  e um tampo grandes demais para quem senta logo na frente) foge para o ponto de fuga; com os olhos acima do painel, o
+  tampo dele aparece. (Antes eram caixas soltas na frente do painel, com
+  tampos enormes que cobriam o pé dele: parecia fora da mesa e desalinhado.) O tampo (`_draw_desk`): `PLANKS` tábuas
   da mesma largura espaçadas pela câmera, sem juntas (com juntas parecia assoalho), a borda da frente com a
   espessura dele e a poça de luz da luminária, um círculo de `POOL_R` no tampo embaixo dela que treme com ela
   (`lamp_level`, como o arco na parede e a luz no armário). **O estado do jogo nos objetos**, para ler de relance: uma
@@ -109,8 +119,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   entreaberto com as pastas) pelos marcadores do roteiro, já no meio da noite (`Main._update_room`, refeito a cada
   `flags.changed`; o setter de `Main.flags` religa); o calendário do armário risca um dia por noite (`night`). Na
   primeira vez que cada sinal da mesa aparece (tiras, alfinete, folha nova), uma dica do manual explica, uma vez no
-  jogo todo (`Main._teach`: o "já viu" fica nos marcadores salvos; espera o tutorial acabar). A mesa comutadora também
-  entra na câmera: o cenário desenha a lateral do móvel virada para o ponto de fuga (`_draw_board_side`, `BOARD_D`). Sob o
+  jogo todo (`Main._teach`: o "já viu" fica nos marcadores salvos; espera o tutorial acabar). Sob o
   mouse: contorno, o nome da ferramenta e o dedo. O cenário só se redesenha quando algo que ele mostra muda
   (`Background._state`: o lugar das peças da interface, o papel, a luminária, o alfinete, o estado nos objetos; parado,
   fica o desenho guardado), e a vista da janela anda a 30 quadros por segundo no vidro (`_vport`, `UPDATE_ONCE` a cada
@@ -251,12 +260,15 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   numeração (100–199 | 200–299 | 300–399, `SECTOR_ORDER`, duas fileiras cada, `_layout_dests`/`_slots`; a mesa não
   fala em setor). O banco de um setor que ainda não é do operador fica sob uma chapa com a letra dele (`_draw_plate`:
   A e B; o C, do setor 3, nunca é tampado) e as tomadas dele não existem para o clique.
-- `ends[]`: tomada de cada ponta (-1 = na base). **Ponta 0 = FONE** (cabo verde, encaixe `FoneSocket` na faixa de mesa
-  do telefone, só entra em entradas). **Pontas 1..2*PATCHES = cabos de conexão** (vermelho, azul, amarelo em `CORD_COLORS`; independentes; `mate(e)`
+- `ends[]`: tomada de cada ponta (-1 = na base). **Ponta 0 = FONE** (cabo verde, encaixe `FoneSocket` na prateleira, só
+  entra em entradas). **Pontas 1..2*PATCHES = cabos de conexão** (vermelho, azul, amarelo em `CORD_COLORS`; independentes; `mate(e)`
   dá a outra ponta; uma ponta na saída, a outra no destino). `PATCHES = 3`.
-- `setup(exchange, socket, tray)` liga a mesa ao estado, ao encaixe do FONE e à bandeja (lugares reservados na faixa
-  de mesa, fora do retângulo dela: `socket_rect`, `tray_rect`; o clique vale neles, `_has_point`, e a mesa desenha a
-  bandeja, `_draw_tray`, com os plugs guardados de pé, `home_pos`, sobre os buracos). `dest_of_output(n)` segue o cabo da saída n.
+- `setup(exchange, socket, tray)` liga a mesa ao estado, ao encaixe do FONE e à faixa dos buracos dos cabos (lugares
+  na prateleira, fora do retângulo dela: `socket_rect`, `tray_rect`; o clique vale neles, `_has_point`). Os buracos
+  ficam no alto da prateleira (`hole`, `SHELF_HOLE_Y`, `FONE_HOLE_X`; aro de latão achatado pela perspectiva,
+  `draw_grommet`), os plugs guardados em pé neles (`home_pos`) e o nome gravado na madeira embaixo de cada um
+  (`engrave`; `_draw_tray`, `FoneSocket`). As pontas dos plugs em pé passam na frente do pé do painel, logo abaixo da
+  legenda. `dest_of_output(n)` segue o cabo da saída n.
 - `refuse(e, j)` decide compatibilidade (e o destaque amarelo/vermelho). `_has_point` estende o clique ao encaixe
   do FONE; por isso o telefone e seus containers acima do encaixe têm `mouse_filter = IGNORE`, e a mesa tem
   `z_index = 1` (desenha plug e fio por cima do telefone). Overlays têm z 2, intro/final z 3.
@@ -276,8 +288,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   no máximo um a cada `TAP_GAP` por fio). Sons mecânicos repetidos (`Sfx.VARIED`) saem com tom e volume levemente
   sorteados. Plug só se move arrastando
   (clicar e segurar); clique sem arrastar só serve para desplugar.
-- Fios são cordas de Verlet (`_step_rope`), **uma por ponta**, presas no buraco (`hole(e)`: o do FONE no alto do
-  encaixe, dois por cabo de conexão na bandeja) e na traseira do plug (`_plug_base`); só existem com o fio para fora.
+- Fios são cordas de Verlet (`_step_rope`), **uma por ponta**, presas no buraco (`hole(e)`: o do FONE no encaixe, dois
+  por cabo de conexão) e na traseira do plug (`_plug_base`); só existem com o fio para fora.
   Folga: `SLACK` (FONE), `CORD_SLACK` (conexão). Fio parado por `SLEEP_STEPS` passos "dorme" (`ropes[e]["sleep"]` =
   área onde o mouse o acorda) e deixa de ser simulado até a ponta, o buraco ou o mouse mexerem nele.
 - Sob o mouse: `_plug_under` (plug que dá para pegar → `_hover`, desenhado com contorno claro) e `_cursor_shape`
@@ -288,8 +300,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `WOOD`) e faixas gravadas com o nome de cada seção (`_draw_rule`, `RULES`: entradas, saídas, destinos); coluna de cada linha em `ROW_Y` (plaquinha de metal com o número
   gravado, `_draw_number_plate`; estado; lâmpada; entrada; saída), todos os encaixes com `JACK` px, bancos de destino em
   `DEST_TOP`/`DEST_ROW` e a legenda das lâmpadas numa linha no pé (`LEGEND_Y`). Mexendo na altura, confira que a coluna da esquerda ainda cabe (até 540).
-- Chapas de metal niquelado (`_draw_metal`: chanfro e rebites) nas plaquinhas dos números e nas da bandeja dos cabos, cujos
-  furos são buchas redondas (`_draw_jack` pequeno); o encaixe do FONE (`FoneSocket`) é uma chapa com berço de latão.
+- Chapas de metal niquelado (`_draw_metal`: chanfro e rebites) nas plaquinhas dos números.
 - Encaixes redondos como os originais (`_draw_jack`: bucha de metal com aba chanfrada, parede de dentro rebaixada e o
   furo); lâmpadas redondas com aro niquelado (`_draw_lamp`, `BEZEL`) que acendem rápido e apagam devagar, como
   filamento (`_lamp`/`_dest_lamp` dizem cor e nível desejado, `_fade` chega lá em `LAMP_ON_SEC`/`LAMP_OFF_SEC`, estado em
@@ -623,6 +634,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 43. Dicas da primeira vez para os sinais da mesa; a lateral da mesa comutadora na câmera; o relógio bate as horas e
     uma campainha avisa quando o turno pode ser encerrado.
 44. Desempenho do cenário: ele só se redesenha quando algo que mostra muda; a vista da janela anda sozinha no vidro.
+45. A mesa comutadora parecia fora da mesa e desalinhada com as peças de baixo, e a perspectiva estava exagerada para
+    quem senta perto da mesa: a mesa comutadora virou um móvel só (painel na prateleira de um console, com a faixa de
+    mesa embutida na frente dele) e os olhos subiram (ponto de fuga logo acima da tela), entortando bem menos.
+46. O FONE e os cabos foram para a prateleira, na frente do painel e acima do rádio, como numa mesa telefônica de
+    verdade: os plugs ficam em pé em buracos no tampo e os fios sobem deles até as tomadas; nomes gravados na madeira.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

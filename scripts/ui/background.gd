@@ -5,7 +5,8 @@ extends Control
 ## olhos, `EYE` acima do fundo do tampo; `_proj`/`_p3` levam um ponto da sala para a tela): a parede do fundo, com um
 ## armário de aço de chão atrás da mesa (a base fica escondida por ela; o relógio da sala é o `WallClock`, na parede
 ## acima da mesa comutadora, sempre à vista); a parede da direita, entrando para o fundo a partir da quina (`CORNER`), com a janela vista de lado; a mesa de madeira, afastada da
-## parede (`DESK_T`), que termina na parede da direita; e a luminária pendurada sobre a mesa comutadora.
+## parede (`DESK_T`), que termina na parede da direita, com a mesa comutadora em pé nela (um móvel só: o console, cuja
+## frente é a faixa de mesa, e o painel na prateleira dele, `_draw_switchboard`); e a luminária pendurada sobre ela.
 ## A vista da janela (a cidade com o clima da noite) é desenhada de frente num vidro fora da tela (`_vport`): ela está
 ## longe e não entorta com a janela; só o batente, o caixilho e a persiana ficam na perspectiva da parede e a recortam.
 ## A interface diz onde fica cada coisa: a área das ferramentas (`window`; com uma aberta por cima, o papel cobre o
@@ -29,37 +30,31 @@ const PROPS := {"lista": T.Key.TAB_DIRECTORY, "despacho": T.Key.TAB_DISPATCH, "c
 	"jornal": T.Key.TAB_NEWS}
 const DETAILS := ["cartaz_quermesse", "numero_anotado", "armario_entreaberto"]   ## o que `RoomChange.detail` pode pedir
 const SKY := {"rain": Color("0b141c"), "fog": Color("1b252b"), "clear": Color("0a1422")}
-const BOARD_SINK := 30.0   ## quanto da mesa comutadora (px da tela) desce sobre o tampo: o fundo dele fica atrás dela
+const BOARD_SINK := 30.0   ## o fundo do tampo, em px da tela acima da base do painel: fica atrás da mesa comutadora
 const LAMP_Y := 24.0       ## a boca da luminária (px de 2x2): de onde sai a luz e saem as sombras na parede
 const WALL_GAP := 40.0     ## quanto a luminária fica à frente da parede (px de 2x2): abre o arco de luz nela
 # A câmera. Medidas da sala na escala da parede do fundo (px de 2x2 lá; ~0,56 cm): x para a direita e y para baixo a
 # partir dos olhos, z a distância deles (a parede fica a `Z0`; mais perto, tudo cresce Z0/z vezes).
 const VP_X := 0.55      ## o ponto de fuga na largura da tela: perto dos objetos da mesa (longe dele, eles entortam)
-const EYE := 130.0      ## a altura dos olhos acima do fundo do tampo, na tela (px de 2x2): o ponto de fuga
+const EYE := 210.0      ## a altura dos olhos acima do fundo do tampo, na tela (px de 2x2): o ponto de fuga, logo acima da
+                        ## tela (olhando a mesa de cima, de perto: com ele mais baixo, o que fica longe dele entortava demais)
 const Z0 := 330.0       ## a distância dos olhos à parede do fundo
 const DESK_T := 1.25    ## o fundo do tampo, Z0/DESK_T: a mesa fica afastada da parede (o armário cabe atrás)
 const CORNER := 0.64    ## a quina das paredes, na largura da área das ferramentas
-const BOARD_D := 46.0   ## o fundo do móvel da mesa comutadora (z): a lateral dele aparece, fugindo para o ponto de fuga
+const BOARD_D := 14.0   ## o fundo do painel da mesa comutadora (z), atrás da prateleira: raso, como o das mesas de verdade (o corpo do móvel é o console); a lateral dele foge para o ponto de fuga
 const PLANKS := 6       ## as tábuas do tampo, todas da mesma largura (a câmera as espaça)
 const POOL_R := 150.0   ## o raio da poça de luz da luminária no tampo
-## As peças da faixa de mesa (filhas de `desk`, pelo nome): a frente é a própria interface; o cenário desenha o
-## tampo, o lado virado para o ponto de fuga e a sombra. Fundo (z) e as cores do tampo e do lado.
-const DESK_BOXES := {
-	"FoneSocket": [22.0, Color("4b4332"), Color("18150f")],
-	"Radio": [26.0, Color("4b4332"), Color("18150f")],
-	"CordTray": [30.0, Color("6b4529"), Color("2a1a0f")],
-}
 const CAB_X := Vector2(-53, 57)  ## o armário de aço: de onde a onde (x), encostado na parede
-const CAB_TOP := -40.0           ## o alto dele (y, acima dos olhos): ~1,6 m do chão
+const CAB_TOP := 29.0            ## o alto dele (y, a partir dos olhos): um pouco abaixo deles, o tampo aparece
 const CAB_T := 1.15              ## a frente dele (escala): ~35 cm de fundo
 const SIDE_T := 1.06        ## onde a janela começa na parede da direita (escala); termina perto da borda da tela
 const SIDE_W := 150.0       ## a largura do vão, de frente (só a resolução da projeção)
-const WIN_TOP := -70.0      ## o alto do vão (y, acima dos olhos): passa da borda de cima, como uma janela de verdade
+const WIN_TOP := -8.0       ## o alto do vão (y, a partir dos olhos): logo acima deles, passando da borda de cima
 const WIN_SILL := 26.0      ## quanto o peitoril fica acima do tampo (y)
 
 @export var window: Control   ## a área das ferramentas: a quina e a janela ficam na parede dela
-@export var desk: Control     ## a faixa de mesa da coluna da esquerda: a borda da frente do tampo fica logo abaixo dela
-@export var board: Control    ## a mesa comutadora: fica de pé no tampo, com a base `BOARD_SINK` px à frente do fundo dele
+@export var desk: Control     ## a faixa do rádio, a frente do console da mesa comutadora: a borda da frente do tampo fica logo abaixo dela
+@export var board: Control    ## o painel da mesa comutadora: pousa na prateleira do console; o fundo do tampo fica `BOARD_SINK` px acima da base dele
 @export var wall_art: Texture2D     ## imagem da parede (repetida), no lugar do desenho
 @export var window_art: Texture2D   ## imagem da vista da janela (esticada, de frente), no lugar da cidade desenhada
 @export var desk_art: Texture2D     ## imagem da madeira da mesa (repetida), no lugar do desenho
@@ -89,6 +84,7 @@ var _hot := ""         # objeto sob o mouse
 var _lamp_x := 0.0     # onde está a luminária (px de 2x2): a luz na mesa e a sombra dos objetos dependem dela
 var _vp := Vector2.ZERO   # o ponto de fuga (px de 2x2)
 var _yd := 0.0         # a altura do tampo (y da sala, abaixo dos olhos)
+var _zd := Vector2.ZERO   # a frente e o fundo do tampo (z)
 var _cx := 0.0         # a quina das paredes (px de 2x2, na tela)
 var _t2 := 1.6         # onde a janela termina na parede da direita (escala)
 var _ci: CanvasItem    # onde a vista da janela é desenhada: aqui, ou no vidro fora da tela
@@ -208,11 +204,9 @@ func _draw() -> void:
 	var cab := _draw_steel_cabinet()
 	if "cartaz_quermesse" in details:
 		_draw_poster(Rect2(floorf((cab.end.x + _cx) / 2.0) - 15, 34, 30, 38))
+	_zd = Vector2(Z0 * _yd / (front - _vp.y), Z0 / DESK_T)
 	_draw_desk(Rect2(0, top, w, h - top), front)
-	if board:   # a sombra de contato da mesa comutadora no tampo e a lateral do móvel
-		_r(b.position.x - 2, b.end.y - 3, b.size.x + 4, 5, Color(0, 0, 0, 0.45))
-		_r(b.position.x + 2, b.end.y + 2, b.size.x + 2, 2, Color(0, 0, 0, 0.25))
-		_draw_board_side(b)
+	_draw_switchboard(front)
 	_draw_side_wall(top, front, w)
 	_draw_desk_props()
 	_draw_lamp(_lamp_x)
@@ -366,27 +360,57 @@ func _draw_view() -> void:
 	_ci = self
 
 
-## A lateral do móvel da mesa comutadora (`b`, a frente, px de 2x2), a que fica virada para o ponto de fuga: madeira
-## com o veio correndo para o fundo, a quina da frente pegando a luz e a sombra dela no tampo. A frente é a própria
-## interface (`Switchboard._draw_cabinet`).
-func _draw_board_side(b: Rect2) -> void:
-	var zf := Z0 * _yd / maxf(1.0, b.end.y - _vp.y)   # a frente, pela altura em que pousa no tampo
-	var k := zf / (zf + BOARD_D)
-	var sx := b.end.x if b.end.x < _vp.x else b.position.x
-	if absf(sx - _vp.x) < 2.0:
+## A mesa comutadora é um móvel só, em pé no tampo: embaixo, o console, cuja frente é a faixa de mesa (`desk`, com o
+## rádio embutido) e cujo alto é a prateleira, onde ficam o encaixe do FONE e os buracos dos cabos com os plugs em pé
+## (a mesa desenha); no fundo da prateleira, o painel (`board`). A interface é a frente do painel e do rádio; aqui
+## ficam a frente do console em volta dele, a prateleira com o rodapé e a sombra do painel, a lateral em L virada para o ponto de fuga (o console até o fundo do móvel,
+## `BOARD_D`, e o painel em cima dele) e, com os olhos acima dele, o tampo do painel. Painel e console têm a mesma
+## largura na sala: o console, mais perto, sai mais largo na tela (a esquerda passa da borda). Em px da tela (1x1).
+func _draw_switchboard(front: float) -> void:
+	if not (board and desk):
 		return
-	var back := func(p: Vector2) -> Vector2: return _vp + (p - _vp) * k
-	var a := Vector2(sx, b.position.y)
-	var c := Vector2(sx, b.end.y)
-	var face := PackedVector2Array([a, c, back.call(c), back.call(a)])
-	var shade := PackedVector2Array([c, c + Vector2(6, 2), back.call(c) + Vector2(6, 2), back.call(c)])
-	draw_colored_polygon(shade, Color(0, 0, 0, 0.3))   # a sombra no tampo
-	draw_colored_polygon(face, WOOD[2])
-	for i in range(1, 6):   # o veio, no rumo do ponto de fuga
-		var y := b.position.y + b.size.y * i / 6.0 + (i % 2) * 3.0
-		draw_line(Vector2(sx, y), back.call(Vector2(sx, y)), WOOD[1], 1.0)
-	draw_line(a, c, WOOD[0], 1.0)   # a quina da frente
-	draw_line(a, back.call(a), WOOD[1], 1.0)
+	draw_set_transform(Vector2.ZERO)
+	var vp := _vp * 2.0
+	var b := Rect2(board.global_position - global_position, board.size)
+	var sy := desk.global_position.y - global_position.y   # a prateleira, no alto da faixa de mesa
+	var fy := front * 2.0                                  # o pé do console, na borda da frente do tampo
+	var k := (b.end.y - vp.y) / maxf(1.0, sy - vp.y)       # quanto o painel encolhe visto da frente do console
+	var zp := _zd.x / k                                    # o painel (z): o console começa na frente do tampo
+	var kb := zp / (zp + BOARD_D)
+	var near := func(p: Vector2) -> Vector2: return vp + (p - vp) / k    # da linha do painel para a frente
+	var back := func(p: Vector2) -> Vector2: return vp + (p - vp) * kb   # da linha do painel para o fundo
+	var fx0: float = near.call(Vector2(b.position.x, b.end.y)).x
+	var fx1: float = near.call(b.end).x
+	var low := Vector2(fx1, fy)   # o canto de baixo da frente, do lado do ponto de fuga
+	var deep := func(p: Vector2) -> Vector2: return vp + (p - vp) * k * kb   # da frente do console para o fundo
+	var low_back: Vector2 = deep.call(low)
+	_desk_shadow(PackedVector2Array([Vector2(fx0, fy), low, low_back, deep.call(Vector2(fx0, fy))]))
+	if b.end.x < vp.x - 2.0:   # a lateral em L: o console e, em cima dele, o painel
+		var side := WOOD[2] as Color
+		_poly(PackedVector2Array([Vector2(fx1, sy), low, low_back, back.call(b.end)]), side)
+		_poly(PackedVector2Array([Vector2(b.end.x, b.position.y), b.end, back.call(b.end), back.call(Vector2(b.end.x, b.position.y))]), side)
+		for i in range(1, 7):   # o veio, no rumo do ponto de fuga
+			var p := Vector2(b.end.x, b.position.y + b.size.y * i / 7.0 + (i % 2) * 5.0)
+			draw_line(p, back.call(p), WOOD[1], 1.0)
+		for y in [sy + (fy - sy) * 0.4, sy + (fy - sy) * 0.75]:
+			draw_line(Vector2(fx1, y), deep.call(Vector2(fx1, y)), WOOD[1], 1.0)
+		draw_line(Vector2(b.end.x, b.position.y), b.end, WOOD[0], 1.0)   # as quinas da frente pegam a luz
+		draw_line(Vector2(fx1, sy), low, WOOD[0], 1.0)
+	# a frente do console (aparece entre as peças embutidas), com a beira de cima e o rodapé
+	_r(fx0, sy, fx1 - fx0, fy - sy, WOOD[1])
+	_r(fx0, sy, fx1 - fx0, 2, WOOD[0])
+	_r(fx0, fy - 3, fx1 - fx0, 3, WOOD[2])
+	# a prateleira: o painel pousa no fundo dela, num rodapé, com a sombra de contato na frente
+	_poly(PackedVector2Array([Vector2(fx0, sy), Vector2(fx1, sy), b.end, Vector2(b.position.x, b.end.y)]), Color("5a3a22"))
+	_r(fx0, sy, fx1 - fx0, 1, (WOOD[0] as Color).lightened(0.25))   # a quina da frente pega a luz
+	draw_rect(Rect2(b.position.x, b.end.y, b.size.x, 3), WOOD[2])
+	draw_colored_polygon(PackedVector2Array([Vector2(b.position.x, b.end.y + 3), Vector2(b.end.x, b.end.y + 3),
+		Vector2(b.end.x + 2, b.end.y + 7), Vector2(b.position.x - 3, b.end.y + 7)]), Color(0, 0, 0, 0.3))
+	if b.position.y > vp.y + 1.0:   # os olhos estão acima do painel: o tampo dele aparece
+		var tl := b.position
+		var tr := Vector2(b.end.x, b.position.y)
+		_poly(PackedVector2Array([tl, tr, back.call(tr), back.call(tl)]), WOOD[0])
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
 ## A parede da direita, entrando para o fundo a partir da quina (`_cx`): cobre o que fica atrás dela (a mesa termina
@@ -491,6 +515,9 @@ func _draw_steel_cabinet() -> Rect2:
 	elif back.end.x > f.end.x:   # à esquerda: o lado direito
 		draw_colored_polygon(PackedVector2Array([Vector2(f.end.x, f.position.y), Vector2(back.end.x, back.position.y), back.end, f.end]),
 			steel.darkened(0.3))
+	if CAB_TOP > 0.0:   # os olhos acima dele: o tampo aparece, fugindo para a parede
+		draw_colored_polygon(PackedVector2Array([back.position + Vector2(-2, 0), Vector2(back.end.x + 2, back.position.y),
+			Vector2(f.end.x + 2, f.position.y - 1), Vector2(f.position.x - 2, f.position.y - 1)]), steel.darkened(0.2))
 	_r(f.position.x - 1, f.position.y - 1, f.size.x + 2, f.size.y + 2, Color.BLACK)
 	_r(f.position.x, f.position.y, f.size.x, f.size.y, steel)
 	for i in 3:   # a luz da luminária, mais forte do lado dela
@@ -515,7 +542,7 @@ func _draw_steel_cabinet() -> Rect2:
 	_r(lab.position.x + 3, lab.position.y + 4, lab.size.x - 6, 1, Color("4a4438"))
 	_r(lab.position.x + 3, lab.position.y + 7, lab.size.x - 11, 1, Color("4a4438"))
 	# o puxador e a fechadura, junto da fresta, na altura da mão
-	var hy := _vp.y + 30.0 * CAB_T
+	var hy := doors + 40.0
 	_r(mid + 4, hy, 3, 16, Color.BLACK)
 	_r(mid + 4, hy, 2, 15, Color("d6d1c3"))
 	draw_circle(Vector2(mid + 5.5, hy - 5), 2.0, Color("8e897c"))
@@ -750,46 +777,25 @@ func _draw_desk(r: Rect2, front: float) -> void:
 ## fica num lugar da sala (x a partir dos olhos, z a distância; ver `Z0`) e é desenhado em px da tela (1x1).
 func _draw_desk_props() -> void:
 	draw_set_transform(Vector2.ZERO)
-	_draw_desk_boxes()
-	_draw_books(-21, 205, 30, 34)
-	_flat("caderno", 21, 205, 46, 30, 2, Color("3a2414"), _draw_open_notebook)
+	_draw_books(-23, _at(0.45), 33, _deep(0.32))
+	_flat("caderno", 23, _at(0.45), 51, _deep(0.28), 2, Color("3a2414"), _draw_open_notebook)
 	if news:
-		_flat("jornal", 72, 214, 34, 22, 2, Color("b8b0a0"), _draw_newspaper)
-	_draw_mug(123, 205, 6, 14)
-	_flat("registro", 81, 172, 26, 34, 2, Color("4a3018"), _draw_clipboard)
-	_flat("despacho", -9, 172, 36, 22, 1, Color("a89a76"), _draw_folded_map)
+		_flat("jornal", 80, _at(0.53), 37, _deep(0.21), 2, Color("b8b0a0"), _draw_newspaper)
+	_draw_mug(136, _at(0.5), 6.6, 15)
+	_flat("registro", 90, _at(0.12), 29, _deep(0.32), 2, Color("4a3018"), _draw_clipboard)
+	_flat("despacho", -10, _at(0.12), 40, _deep(0.21), 1, Color("a89a76"), _draw_folded_map)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
-## As peças da faixa de mesa como caixas em pé no tampo (`DESK_BOXES`): a frente é a própria interface, na borda da
-## frente da mesa; aqui ficam a sombra, o lado virado para o ponto de fuga e o tampo, que foge para ele.
-func _draw_desk_boxes() -> void:
-	var vp := _vp * 2.0
-	for n in desk.get_children() if desk else []:
-		if not (n is Control and n.visible and DESK_BOXES.has(String(n.name))):
-			continue
-		var spec: Array = DESK_BOXES[String(n.name)]
-		var f := Rect2((n as Control).global_position - global_position, (n as Control).size)
-		var zf := Z0 * _yd / maxf(1.0, f.end.y / 2.0 - _vp.y)   # a frente, pela altura em que pousa no tampo
-		var k := zf / (zf + float(spec[0]))   # o fundo, visto do ponto de fuga
-		var back := func(p: Vector2) -> Vector2: return vp + (p - vp) * k
-		var tl := f.position
-		var tr := Vector2(f.end.x, f.position.y)
-		var bl := Vector2(f.position.x, f.end.y)
-		_desk_shadow(PackedVector2Array([bl, f.end, back.call(f.end), back.call(bl)]))
-		var sx := tr if f.end.x < vp.x else tl
-		var sb := f.end if f.end.x < vp.x else bl
-		if f.end.x < vp.x or f.position.x > vp.x:   # o lado virado para o ponto de fuga
-			_poly(PackedVector2Array([sx, sb, back.call(sb), back.call(sx)]), spec[2])
-		var top := PackedVector2Array([tl, tr, back.call(tr), back.call(tl)])
-		_poly(top, spec[1])
-		draw_line(tl + Vector2(1, -1), tr + Vector2(-1, -1), (spec[1] as Color).lightened(0.2), 1.0)   # a quina da frente pega luz
-		if n.name == &"CordTray":   # a bandeja é aberta: por cima, o fundo forrado entre as bordas
-			var c := (top[0] + top[1] + top[2] + top[3]) / 4.0
-			var bed := PackedVector2Array()
-			for p in top:
-				bed.append(p.lerp(c, 0.12).round())
-			draw_colored_polygon(bed, Color("1a1410"))
+## Onde fica no tampo (z) o que está a `t` da frente dele (0 = a borda da frente, 1 = o fundo): os objetos da mesa
+## ficam no tampo seja qual for a câmera.
+func _at(t: float) -> float:
+	return lerpf(_zd.x, _zd.y, t)
+
+
+## Uma profundidade (z) que é a fração `t` do tampo.
+func _deep(t: float) -> float:
+	return t * (_zd.y - _zd.x)
 
 
 ## Os cantos de uma caixa deitada na mesa (px da tela): de `x0` a `x0 + wx`, de `zf` (frente) a `zf + dz` (fundo), do

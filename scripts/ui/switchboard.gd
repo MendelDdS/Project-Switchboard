@@ -38,17 +38,18 @@ const SIZE := Vector2(588, 362)
 const FRAME := 7.0           # a moldura de madeira do móvel, em volta do painel
 ## Faixas gravadas no painel que separam as seções (altura da linha; o nome fica sobre ela, à esquerda).
 const RULES := {"in": 22.0, "out": 131.0, "dest": 187.0}
-const LEGEND_Y := 330.0      # a legenda das lâmpadas, numa linha, no pé do painel
+const LEGEND_Y := 322.0      # a legenda das lâmpadas, numa linha, no pé do painel (acima da ponta dos plugs em pé)
 const WOOD := [Color("6b4529"), Color("4a2f1c"), Color("2a1a0f")]   # madeira do móvel e da bandeja: luz, meio, sombra
-const FONE_HOME := Vector2(18, 24)   # posição do plug do FONE dentro do encaixe
+const FONE_HOLE_X := 50.0   # o buraco do FONE, a partir da esquerda do encaixe (no meio dele)
+const SHELF_HOLE_Y := 3.0   # os buracos da prateleira, no alto da faixa dela (o nome fica gravado embaixo)
 
 var _pushed := {}   ## ponta -> segundos desde que encaixou (a assentada, `PUSH_SEC`, e a passagem para de frente)
 var _pulled := {}   ## ponta -> [segundos desde que saiu do encaixe, onde ele estava]: o plug de frente sumindo
 var _silhouette := {}   ## inclinação do plug encaixado (em pé: false) -> polígono do contorno (destaque e sombra)
 var _lit := {}   ## lâmpada ("l3" linha, "d312" destino) -> [cor, quanto está acesa 0..1]; a cor fica enquanto apaga
 var exchange: Exchange
-var fone_socket: Control       # encaixe do FONE, na mesa à frente do painel
-var tray: Control              # bandeja dos cabos de conexão, na mesa à frente do painel
+var fone_socket: Control       # encaixe do FONE, na prateleira à frente do painel
+var tray: Control              # os buracos dos cabos de conexão, na prateleira à frente do painel
 var dest_nums: Array = []      # destinos em serviço (dos setores atendidos)
 var _slots := {}               # número -> centro da tomada (de todos os setores, atendidos ou não)
 var _blocks := {}              # setor -> retângulo do bloco
@@ -166,23 +167,23 @@ func _layout_dests() -> void:
 		x += cols[k] * DEST_PITCH + BLOCK_GAP
 
 
-## Encaixe do FONE em coordenadas da mesa (ele fica no painel do telefone, fora do retângulo dela).
+## Encaixe do FONE em coordenadas da mesa (na prateleira à frente do painel, fora do retângulo dela).
 func socket_rect() -> Rect2:
 	if fone_socket == null:
-		return Rect2(16, 350, 76, 44)
+		return Rect2(0, 370, 100, 16)
 	return Rect2(fone_socket.global_position - global_position, fone_socket.size)
 
 
-## A bandeja dos cabos em coordenadas da mesa (também fora do retângulo dela).
+## A faixa dos buracos dos cabos na prateleira, em coordenadas da mesa (também fora do retângulo dela).
 func tray_rect() -> Rect2:
 	if tray == null:
-		return Rect2(388, 394, 200, 86)
+		return Rect2(112, 370, 476, 16)
 	return Rect2(tray.global_position - global_position, tray.size)
 
 
-## Os fios repousam no fundo da faixa de mesa (o da bandeja e o do encaixe do FONE).
+## Os fios repousam na prateleira, na linha dos buracos (os nomes gravados ficam na frente, livres).
 func _floor() -> float:
-	return tray_rect().end.y
+	return tray_rect().position.y + SHELF_HOLE_Y
 
 
 func _has_point(p: Vector2) -> bool:
@@ -218,29 +219,25 @@ func top_rect(i: int) -> Rect2:
 	return Rect2(col_x(i) - 20, ROW_Y["plate"] - 2, 40, ROW_Y["lamp"] - ROW_Y["plate"] + 8)
 
 
-## Centro do lugar do cabo de conexão k na bandeja (as duas pontas ficam lado a lado).
+## Centro do lugar do cabo de conexão k na prateleira (as duas pontas ficam lado a lado).
 func patch_x(k: int) -> float:
 	var t := tray_rect()
 	return t.position.x + t.size.x * (k + 0.5) / PATCHES
 
 
-## Onde fica o plug guardado, de pé (o FONE no encaixe; os de conexão na bandeja, o fio entrando no buraco embaixo).
+## Onde fica o plug guardado, de pé no buraco dele na prateleira, como nas mesas de verdade (o fio desce por ele).
 func home_pos(e: int) -> Vector2:
-	if e == 0:
-		return socket_rect().position + FONE_HOME
-	return Vector2(patch_x((e - 1) / 2) + (-12.0 if e % 2 == 1 else 12.0), tray_rect().position.y + 38.0)
+	return hole(e) - PLUG_BASE - Vector2(0, 2)
 
 
-## Buraco de onde sai o fio da ponta e (o do FONE sai do alto do encaixe, como sempre).
+## Buraco de onde sai o fio da ponta e, na prateleira (o do FONE no encaixe dele; os de conexão aos pares).
 func hole(e: int) -> Vector2:
 	if e == 0:
-		return Vector2(home_pos(0).x, socket_rect().position.y)
-	return home_pos(e) + PLUG_BASE + Vector2(0, 2)
+		return socket_rect().position + Vector2(FONE_HOLE_X, SHELF_HOLE_Y)
+	return Vector2(patch_x((e - 1) / 2) + (-12.0 if e % 2 == 1 else 12.0), tray_rect().position.y + SHELF_HOLE_Y)
 
 
 func home_rect(e: int) -> Rect2:
-	if e == 0:
-		return socket_rect()
 	var h := home_pos(e)
 	return Rect2(h.x - 11, h.y - 22, 22, 50)
 
@@ -917,20 +914,29 @@ func _draw_rule(y: float, caption: String) -> void:
 ## A bandeja de madeira na mesa, à frente do painel, onde os cabos de conexão ficam guardados de pé: fundo forrado, os
 ## buracos de onde saem os fios (buchas, como encaixes pequenos) e a plaquinha com o número de cada cabo.
 func _draw_tray(r: Rect2) -> void:
-	draw_rect(Rect2(r.position + Vector2(3, 4), r.size), SHADOW)   # sombra na mesa
-	draw_rect(r, Color.BLACK)
-	draw_rect(r.grow(-1), WOOD[1])
-	draw_rect(Rect2(r.position + Vector2(1, 1), Vector2(r.size.x - 2, 2)), WOOD[0])
-	draw_rect(Rect2(r.position.x + 1, r.end.y - 3, r.size.x - 2, 2), WOOD[2])
-	var bed := r.grow_individual(-5, -5, -5, -24)
-	draw_rect(bed, Color("1a1410"))   # o fundo forrado
-	draw_rect(Rect2(bed.position, Vector2(bed.size.x, 3)), Color(0, 0, 0, 0.5))   # a borda da bandeja faz sombra nele
 	for k in PATCHES:
 		for e in [1 + k * 2, 2 + k * 2]:
-			_draw_jack(Rect2(hole(e) - Vector2(5.5, 5.5), Vector2(11, 11)), Color("7a6230"))
-		var cx := patch_x(k)
-		_draw_metal(Rect2(cx - 26, r.end.y - 19, 52, 14))
-		draw_string(Pal.mono, Vector2(cx - 26, r.end.y - 8), T.text(T.Key.BOARD_CORD) % (k + 1), HORIZONTAL_ALIGNMENT_CENTER, 52, 11, Color("1d1a14"))
+			draw_grommet(self, hole(e))
+		engrave(self, Vector2(patch_x(k), r.end.y), T.text(T.Key.BOARD_CORD) % (k + 1))
+
+
+## Um nome gravado na madeira da prateleira, centrado em `at.x` com a base em `at.y`: o sulco escuro e o latão.
+static func engrave(ci: CanvasItem, at: Vector2, text: String) -> void:
+	var f: Font = Pal.mono if Pal.mono != null else ThemeDB.fallback_font
+	var w := f.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
+	var p := Vector2(roundf(at.x - w / 2.0), at.y)
+	ci.draw_string(f, p + Vector2(0, 1), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(0, 0, 0, 0.6))
+	ci.draw_string(f, p, text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.BRASS)
+
+
+## Buraco da prateleira visto de cima (achatado pela perspectiva): aro de latão, o lado de dentro e o fundo escuro.
+static func draw_grommet(ci: CanvasItem, c: Vector2) -> void:
+	ci.draw_set_transform(c, 0.0, Vector2(1.0, 0.5))
+	ci.draw_circle(Vector2.ZERO, 7.5, Color.BLACK)
+	ci.draw_circle(Vector2.ZERO, 6.5, Color("7a6230"))
+	ci.draw_circle(Vector2(0, -0.8), 5.5, Color("c4a35a"))
+	ci.draw_circle(Vector2.ZERO, 4.5, Color("050403"))
+	ci.draw_set_transform(Vector2.ZERO)
 
 
 ## Chapa de metal niquelado: chanfro claro em cima e escuro embaixo, e um rebite em cada ponta.
