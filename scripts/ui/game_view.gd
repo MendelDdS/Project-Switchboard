@@ -6,6 +6,7 @@ extends Control
 ## por um filtro de pixel art ("sharp bilinear", `SHARP`): cada pixel do jogo vira um bloco do mesmo tamanho, e só a
 ## divisa entre dois blocos, um pixel da tela, mistura as duas cores. Nas ampliações inteiras ele não muda nada.
 ## Numa janela mais larga que 16:9, o jogo ganha largura (até `MAX_W`), não pixels maiores; o que sobra é borda escura.
+## A sala se arruma na largura que tiver (`Background`: armário e objetos da mesa distribuídos no espaço livre).
 ## Em Configurações (`Settings`): tela cheia ou janela, e "pixels perfeitos", que só amplia por número inteiro (sem o
 ## filtro; numa tela de 1080p, o jogo fica em 1× com borda em volta).
 

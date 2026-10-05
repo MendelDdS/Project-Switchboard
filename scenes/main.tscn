@@ -21,7 +21,6 @@
 blend_mode = 1
 
 [sub_resource type="Gradient" id="Gradient_2"]
-interpolation_mode = 1
 offsets = PackedFloat32Array(0, 0.18, 0.36, 0.54, 0.72, 0.9)
 colors = PackedColorArray(1, 0.77, 0.43, 0.2, 1, 0.72, 0.38, 0.15, 1, 0.68, 0.34, 0.11, 1, 0.65, 0.32, 0.07, 1, 0.62, 0.3, 0.04, 1, 0.6, 0.3, 0)
 
@@ -34,7 +33,6 @@ fill_from = Vector2(0.5, 0)
 fill_to = Vector2(1.05, 0)
 
 [sub_resource type="Gradient" id="Gradient_5"]
-interpolation_mode = 1
 offsets = PackedFloat32Array(0, 0.6, 0.72, 0.82, 0.92)
 colors = PackedColorArray(0, 0, 0, 0, 0, 0, 0, 0.12, 0, 0, 0, 0.24, 0, 0, 0, 0.38, 0, 0, 0, 0.55)
 
@@ -215,7 +213,7 @@ layout_mode = 2
 
 [node name="Glow" type="TextureRect" parent="Scene/View" unique_id=1338745255]
 unique_name_in_owner = true
-texture_filter = 1
+texture_filter = 2
 material = SubResource("CanvasItemMaterial_4")
 layout_mode = 3
 anchors_preset = 15
@@ -229,7 +227,7 @@ expand_mode = 1
 
 [node name="Vignette" type="TextureRect" parent="." unique_id=1058735391]
 z_index = 2
-texture_filter = 1
+texture_filter = 2
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

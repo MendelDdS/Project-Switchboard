@@ -57,7 +57,11 @@ const CORNER := 0.64    ## a quina das paredes, na largura da área das ferramen
 const BOARD_D := 14.0   ## o fundo do painel da mesa comutadora (z), atrás da prateleira: raso, como o das mesas de verdade (o corpo do móvel é o console); a lateral dele foge para o ponto de fuga
 const PLANKS := 6       ## as tábuas do tampo, todas da mesma largura (a câmera as espaça)
 const POOL_R := 150.0   ## o raio da poça de luz da luminária no tampo
-const CAB_X := Vector2(-53, 57)  ## o armário de aço: de onde a onde (x), encostado na parede
+const SHADE_MAX := 0.3   ## o mais escuro que um objeto da mesa fica, longe da poça de luz (`_shade`)
+const SHADE_STEP := 0.06 ## os degraus desse escuro
+const CAB_W := 110.0             ## a largura do armário de aço, encostado na parede (px de 2x2 lá)
+const POSTER_W := 30.0           ## a largura do cartaz da quermesse (px de 2x2)
+const WALL_PAD := 10.0           ## a folga dos objetos da mesa até a parede da direita (x da sala)
 const CAB_TOP := 29.0            ## o alto dele (y, a partir dos olhos): um pouco abaixo deles, o tampo aparece
 const CAB_T := 1.15              ## a frente dele (escala): ~35 cm de fundo
 const SIDE_T := 1.06        ## onde a janela começa na parede da direita (escala); termina perto da borda da tela
@@ -270,9 +274,12 @@ func _draw() -> void:
 	var b := Rect2((board.global_position - global_position) / 2.0, board.size / 2.0) if board else Rect2()
 	if board:   # a mesa comutadora, de pé na frente da parede, faz sombra nela (o tampo cobre a parte de baixo)
 		_cast(b, 1.1)
-	var cab := _draw_steel_cabinet()
+	# na parede, entre a mesa comutadora e a quina, com a mesma folga entre eles em qualquer largura de janela: o
+	# armário e o lugar do cartaz (guardado mesmo sem ele, para o armário não mudar de lugar de uma noite para outra)
+	var gap := (_cx - b.end.x - CAB_W * CAB_T - POSTER_W) / 3.0
+	var cab := _draw_steel_cabinet((b.end.x + gap - _vp.x) / CAB_T)
 	if "cartaz_quermesse" in details:
-		_draw_poster(Rect2(floorf((cab.end.x + _cx) / 2.0) - 15, 34, 30, 38))
+		_draw_poster(Rect2(floorf(cab.end.x + gap), 34, POSTER_W, 38))
 	_zd = Vector2(Z0 * _yd / (front - _vp.y), Z0 / DESK_T)
 	_draw_desk(Rect2(0, top, w, h - top), front)
 	_draw_switchboard(front)
@@ -380,16 +387,27 @@ func _draw_wall(r: Rect2) -> void:
 
 ## A luz da luminária na parede, atrás dela: o cone que desce da boca corta a parede num arco (alto no meio, descendo
 ## para os lados) e acaba no tampo, onde vira a poça de `_draw_desk`; a dobra na quina mostra que são dois planos.
-## Em degraus, do arco largo e fraco ao miolo.
+## Lisa: mais forte embaixo da luminária, na quina com o tampo, e sumindo até o arco (`_light_fan`).
 func _draw_wall_light(top: float) -> void:
-	for k in 3:
-		var m := 0.75 + k * 0.2   # mais fechado, mais forte
-		var w := sqrt(pow((top - LAMP_Y) / m, 2.0) - WALL_GAP * WALL_GAP)
-		var pts := PackedVector2Array()
-		for i in 25:
-			var x := _lamp_x - w + w * 2.0 * i / 24.0
-			pts.append(Vector2(x, minf(top, LAMP_Y + sqrt(pow(x - _lamp_x, 2.0) + WALL_GAP * WALL_GAP) * m)))
-		draw_colored_polygon(pts, Color(1.0, 0.8, 0.52, 0.03 * lamp_level))
+	var m := 0.75
+	var w := sqrt(pow((top - LAMP_Y) / m, 2.0) - WALL_GAP * WALL_GAP)
+	var pts := PackedVector2Array()
+	for i in 25:
+		var x := _lamp_x - w + w * 2.0 * i / 24.0
+		pts.append(Vector2(x, minf(top, LAMP_Y + sqrt(pow(x - _lamp_x, 2.0) + WALL_GAP * WALL_GAP) * m)))
+	_light_fan(Vector2(_lamp_x, top), pts, Color(1.0, 0.8, 0.52, 0.09 * lamp_level))
+
+
+## Uma luz lisa, sem camadas: a cor `col` no ponto `c`, sumindo até a borda `rim` (fechada, vista de `c`), com a cor
+## variando ponto a ponto (forte perto de `c` e caindo depressa, como a luz; em camadas, parecia artificial).
+func _light_fan(c: Vector2, rim: PackedVector2Array, col: Color) -> void:
+	var mid := Color(col, col.a * 0.35)
+	var out := Color(col, 0.0)
+	for i in rim.size():
+		var a := rim[i]
+		var b := rim[(i + 1) % rim.size()]
+		draw_primitive(PackedVector2Array([c, c.lerp(a, 0.5), c.lerp(b, 0.5)]), PackedColorArray([col, mid, mid]), PackedVector2Array())
+		draw_polygon(PackedVector2Array([c.lerp(a, 0.5), a, b, c.lerp(b, 0.5)]), PackedColorArray([mid, out, out, mid]))
 
 
 ## Sombra na parede de um objeto à frente dela (`r` em px de 2x2): a silhueta ampliada a partir da luminária, `s` vezes
@@ -629,13 +647,13 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	_p(pp.x + 7, pp.y - 20, 1, 6, Color("2c4224"))   # o caule
 
 
-## Armário de aço antigo, de chão, encostado na parede do fundo atrás da mesa (`CAB_X`, `CAB_TOP`, `CAB_T`; a mesa,
+## Armário de aço antigo, de chão, encostado na parede do fundo atrás da mesa (`x0` a partir do ponto de fuga, `CAB_W`, `CAB_TOP`, `CAB_T`; a mesa,
 ## desenhada depois, esconde a base): cornija no alto, duas portas verde-acinzentadas com venezianas, o porta-etiqueta
 ## niquelado, o puxador com a fechadura, as dobradiças e um calendário preso com ímã. Devolve a frente (px de 2x2).
-func _draw_steel_cabinet() -> Rect2:
-	var back := Rect2(_vp + Vector2(CAB_X.x, CAB_TOP), Vector2(CAB_X.y - CAB_X.x, 400))
+func _draw_steel_cabinet(x0: float) -> Rect2:
+	var back := Rect2(_vp + Vector2(x0, CAB_TOP), Vector2(CAB_W, 400))
 	_cast(back, 1.05)
-	var f := Rect2((_vp + Vector2(CAB_X.x, CAB_TOP) * CAB_T).round(), (Vector2(CAB_X.y - CAB_X.x, 400) * CAB_T).round())
+	var f := Rect2((_vp + Vector2(x0, CAB_TOP) * CAB_T).round(), (Vector2(CAB_W, 400) * CAB_T).round())
 	var steel := Color("566052")
 	if back.position.x < f.position.x:   # à direita do ponto de fuga: aparece o lado esquerdo, fugindo para a parede
 		draw_colored_polygon(PackedVector2Array([back.position, f.position, Vector2(f.position.x, f.end.y), Vector2(back.position.x, back.end.y)]),
@@ -647,8 +665,8 @@ func _draw_steel_cabinet() -> Rect2:
 		draw_colored_polygon(PackedVector2Array([back.position + Vector2(-2, 0), Vector2(back.end.x + 2, back.position.y),
 			Vector2(f.end.x + 2, f.position.y - 1), Vector2(f.position.x - 2, f.position.y - 1)]), steel.darkened(0.2))
 	_r(f.position.x, f.position.y, f.size.x, f.size.y, steel)
-	for i in 3:   # a luz da luminária, mais forte do lado dela
-		_r(f.position.x + i * 6, f.position.y, 6, f.size.y, Color(1.0, 0.85, 0.6, 0.03 * (3 - i) * lamp_level))
+	for i in 36:   # a luz da luminária, mais forte do lado dela, caindo pixel a pixel (em faixas largas, pareciam camadas)
+		_r(f.position.x + i * PX, f.position.y, PX, f.size.y, Color(1.0, 0.85, 0.6, 0.09 * (1.0 - i / 36.0) * lamp_level))
 	_r(f.position.x - 2, f.position.y - 1, f.size.x + 4, 5, steel.darkened(0.15))   # a cornija, com o friso
 	_r(f.position.x - 2, f.position.y - 1, f.size.x + 4, PX, steel.lightened(0.3))
 	_r(f.position.x - 2, f.position.y + 1.5, f.size.x + 4, PX, steel.darkened(0.3))
@@ -946,18 +964,14 @@ func _draw_desk(r: Rect2, front: float) -> void:
 				_p(gx + gl * 0.3, gy + 1, gl * 0.5, 1, Color("20170f"))
 		for k in 2:   # o fundo escurece de leve (sem linha na quina: com ela parecia o rodapé de um chão)
 			_r(r.position.x, r.position.y, r.size.x, depth * (0.16 - k * 0.08), Color(0, 0, 0, 0.04))
-	# a luz da luminária: um círculo no tampo, embaixo dela (que fica um pouco à frente do fundo da mesa), em degraus,
-	# mais forte no meio; o que passaria do fundo do tampo fica na parede (o arco de `_draw_wall_light`)
-	var zb2 := Z0 / DESK_T
-	var zl := zb2 * 0.85
-	var lx := (_lamp_x - _vp.x) * zl / Z0
-	for k in 4:
-		var rr := POOL_R * (1.0 - k * 0.22)
-		var pts := PackedVector2Array()
-		for i in 32:
-			var a := TAU * i / 32.0
-			pts.append(_proj(lx + cos(a) * rr, _yd, clampf(zl + sin(a) * rr * 0.5, 40.0, zb2)))
-		draw_colored_polygon(pts, Color(1.0, 0.78, 0.48, 0.035 * lamp_level))
+	# a luz da luminária: um círculo no tampo, embaixo dela (que fica um pouco à frente do fundo da mesa), liso e mais
+	# forte no meio; o que passaria do fundo do tampo fica na parede (o arco de `_draw_wall_light`)
+	var pool := _pool()
+	var pts := PackedVector2Array()
+	for i in 32:
+		var a := TAU * i / 32.0
+		pts.append(_proj(pool.x + cos(a) * POOL_R, _yd, clampf(pool.y + sin(a) * POOL_R * 0.5, 40.0, Z0 / DESK_T)))
+	_light_fan(_proj(pool.x, _yd, pool.y), pts, Color(1.0, 0.78, 0.48, 0.14 * lamp_level))
 	# a borda da frente: o canto arredondado do tampo pega a luz, a espessura dele e, embaixo, o escuro sob a mesa
 	var f := front * 2.0
 	_p(0, f - 2, w2, 1, Color("5a4030"))
@@ -974,18 +988,22 @@ func _draw_desk(r: Rect2, front: float) -> void:
 ## fica num lugar da sala (x a partir dos olhos, z a distância; ver `Z0`) e é desenhado em px da tela (1x1).
 func _draw_desk_props() -> void:
 	draw_set_transform(Vector2.ZERO)
-	# em duas fileiras, a partir da lateral da mesa comutadora (numa tela mais larga, a folga sobra perto da janela),
-	# com a caneca junto da parede da direita
+	# em duas fileiras, distribuídas de ponta a ponta entre a lateral da mesa comutadora e a parede da direita (a
+	# mesma folga entre eles, em qualquer largura de janela: presos a uma ponta só, sobrava mesa vazia na outra, e
+	# presos a pontas diferentes, eles se trombavam). Atrás: listas, caderno e o relógio com a caneca na frente dele;
+	# na frente: mapa, prancheta e o lugar do jornal (guardado mesmo sem ele, para nada mudar de lugar entre as noites)
 	var l := _side_x + 8.0
-	_draw_books(l, _at(0.5), 33, _deep(0.32))
-	_flat("caderno", l + 44, _at(0.52), 51, _deep(0.28), 2, Color("3a2414"), _draw_open_notebook)
+	var r := _cx - _vp.x - WALL_PAD   # a parede da direita é o plano x = quina (na escala da parede do fundo)
+	var back := _row(l, r, [33.0, 51.0, 42.0])
+	var near := _row(l + 4.0, r, [40.0, 29.0, 37.0])
+	_draw_books(back[0], _at(0.5), 33, _deep(0.32))
+	_flat("caderno", back[1], _at(0.52), 51, _deep(0.28), 2, Color("3a2414"), _draw_open_notebook)
+	_draw_flip_clock(back[2] + 13.0, _at(0.62))   # logo atrás da caneca (desenhado antes dela)
+	_draw_mug(back[2] + 35.4, _at(0.42), 6.6, 15)
+	_flat("despacho", near[0], _at(0.08), 40, _deep(0.21), 1, Color("a89a76"), _draw_folded_map)
+	_flat("registro", near[1], _at(0.06), 29, _deep(0.32), 2, Color("4a3018"), _draw_clipboard)
 	if news:
-		_flat("jornal", l + 106, _at(0.56), 37, _deep(0.21), 2, Color("b8b0a0"), _draw_newspaper)
-	var mug := _cx - _vp.x - 28.0
-	_draw_flip_clock(mug - 15.0, _at(0.62))   # mais para o fundo, logo atrás da caneca (desenhado antes dela; mais à esquerda, encostava no jornal)
-	_draw_mug(mug, _at(0.42), 6.6, 15)
-	_flat("despacho", l + 4, _at(0.08), 40, _deep(0.21), 1, Color("a89a76"), _draw_folded_map)
-	_flat("registro", l + 74, _at(0.06), 29, _deep(0.32), 2, Color("4a3018"), _draw_clipboard)
+		_flat("jornal", near[2], _at(0.1), 37, _deep(0.21), 2, Color("b8b0a0"), _draw_newspaper)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
@@ -1000,22 +1018,24 @@ func _draw_flip_clock(xc: float, zc: float) -> void:
 	var bh := 1.5   # a base, um pouco maior que a caixa, que a levanta da mesa
 	_desk_shadow(PackedVector2Array([_clock_pt(xc, zc, -hw - 1, hd + 1, _yd), _clock_pt(xc, zc, hw + 1, hd + 1, _yd),
 		_clock_pt(xc, zc, hw + 1, -hd - 1, _yd), _clock_pt(xc, zc, -hw - 1, -hd - 1, _yd)]))
-	_clock_box(xc, zc, hw + 0.8, hd + 0.8, _yd, bh, Color("4e3a28"), Color("2a1d13"), Color("3a2a1c"))
-	var box := _clock_box(xc, zc, hw, hd, _yd - bh, CLOCK.y, Color("dccfa8"), Color("998a66"), Color.TRANSPARENT)
+	var dark := _shade(xc, zc)
+	var lit := Color.WHITE.darkened(dark)   # longe da luz
+	_clock_box(xc, zc, hw + 0.8, hd + 0.8, _yd, bh, Color("4e3a28").darkened(dark), Color("2a1d13").darkened(dark), Color("3a2a1c").darkened(dark))
+	var box := _clock_box(xc, zc, hw, hd, _yd - bh, CLOCK.y, Color("dccfa8").darkened(dark), Color("998a66").darkened(dark), Color.TRANSPARENT)
 	var y1 := _yd - bh - CLOCK.y
 	clock_x = global_position.x + _bounds(box["top"]).get_center().x
 	for i in 4:   # as fendas do alarme, no fundo do tampo
 		var v := hd - 1.6 - i * 1.1
-		draw_line(_clock_pt(xc, zc, -hw * 0.75, v, y1).round(), _clock_pt(xc, zc, 0.0, v, y1).round(), Color("a89a76"), 1.0)
+		draw_line(_clock_pt(xc, zc, -hw * 0.75, v, y1).round(), _clock_pt(xc, zc, 0.0, v, y1).round(), Color("a89a76").darkened(dark), 1.0)
 	var bt := _clock_pt(xc, zc, hw * 0.55, hd * 0.3, y1)   # o botão niquelado do alarme
 	_sprite(Switchboard.disc(7, [[3.5, Color(0, 0, 0, 0.3)]]), bt + Vector2(1, 0))
-	_sprite(Switchboard.disc(6, [[1.2, Color("f4f0e6")], [3.0, Color("d6d1c3"), Color("8e897c"), Color("45413a")]]), bt - Vector2(0, 2))
+	_sprite(Switchboard.disc(6, [[1.2, Color("f4f0e6")], [3.0, Color("d6d1c3"), Color("8e897c"), Color("45413a")]]), bt - Vector2(0, 2), lit)
 	if box.has("left"):   # a rodinha serrilhada de acertar a hora, saindo do lado
 		var a := _clock_pt(xc, zc, -hw - 0.8, hd * 0.3, y1 + CLOCK.y * 0.5 - 2.4).round()
 		var b := _clock_pt(xc, zc, -hw - 0.8, hd * 0.3, y1 + CLOCK.y * 0.5 + 2.4).round()
 		draw_rect(Rect2(a.x + 2, a.y + 1, 1, b.y - a.y), Color(0, 0, 0, 0.35))   # a sombra no lado
 		for y in range(int(a.y), int(b.y)):
-			draw_rect(Rect2(a.x - 1, y, 3, 1), Color("b8b2a2") if int(y - a.y) % 2 == 0 else Color("5a574e"))
+			draw_rect(Rect2(a.x - 1, y, 3, 1), (Color("b8b2a2") if int(y - a.y) % 2 == 0 else Color("5a574e")).darkened(dark))
 	if not box.has("front"):
 		return
 	# a frente: montada reta, pixel a pixel (`_clock_face`), e posta coluna a coluna na perspectiva (como imagem torta
@@ -1036,8 +1056,8 @@ func _draw_flip_clock(xc: float, zc: float) -> void:
 		var z := lerpf(l.y, r.y, a)
 		var y0 := roundf(_p3(0, y1, z).y)
 		var y2 := roundf(_p3(0, y1 + CLOCK.y, z).y)
-		draw_texture_rect_region(face, Rect2(x0 + i, y0, 1, y2 - y0), Rect2(floorf(a * w), 0, 1, h))
-		draw_rect(Rect2(x0 + i, y0 - 1, 1, 1), Color("dccfa8"))   # a quina com o tampo (sem ela, sobravam furos)
+		draw_texture_rect_region(face, Rect2(x0 + i, y0, 1, y2 - y0), Rect2(floorf(a * w), 0, 1, h), lit)
+		draw_rect(Rect2(x0 + i, y0 - 1, 1, 1), Color("dccfa8").darkened(dark))   # a quina com o tampo (sem ela, sobravam furos)
 
 
 ## Onde fica na sala (x, z) o ponto do relógio a `u` na largura e `v` no fundo, a partir do centro (`xc`, `zc`), girado
@@ -1163,6 +1183,20 @@ func _card(text: String, sz: Vector2i) -> Image:
 	return img
 
 
+## Uma fileira de objetos das larguras `ws` de `a` a `b` (x da sala), com a mesma folga entre eles (nunca negativa:
+## numa tela estreita demais, eles se encostam e passam de `b`). Devolve onde cada um começa.
+func _row(a: float, b: float, ws: Array) -> Array:
+	var total := 0.0
+	for w in ws:
+		total += w
+	var gap := maxf(0.0, (b - a - total) / maxf(1.0, ws.size() - 1.0))
+	var out := []
+	for w in ws:
+		out.append(a)
+		a += w + gap
+	return out
+
+
 ## Onde fica no tampo (z) o que está a `t` da frente dele (0 = a borda da frente, 1 = o fundo): os objetos da mesa
 ## ficam no tampo seja qual for a câmera.
 func _at(t: float) -> float:
@@ -1206,13 +1240,34 @@ func _top_xf(q: PackedVector2Array) -> Array:
 	return [Transform2D(u / s.x, v / s.y, c - u / 2.0 - v / 2.0), s]
 
 
-## Sombra de um objeto na mesa (`foot`, a marca dele no tampo), apontando para longe da luminária.
+## Sombra de um objeto na mesa (`foot`, a marca dele no tampo), apontando para longe da luminária, em degraus: a
+## penumbra em volta, a sombra e, colado na base, o escuro de onde ele encosta na mesa (sem ele, os objetos pareciam
+## pousados por cima do tampo).
 func _desk_shadow(foot: PackedVector2Array) -> void:
 	var off := Vector2(clampf((_bounds(foot).get_center().x - _lamp_x * 2.0) / 60.0, -6.0, 8.0), 4.0).round()
 	var pts := PackedVector2Array()
 	for p in foot:
 		pts.append(p + off)
-	draw_colored_polygon(pts, Color(0, 0, 0, 0.35))
+	for g in Geometry2D.offset_polygon(pts, 1.5, Geometry2D.JOIN_MITER):
+		draw_colored_polygon(g, Color(0, 0, 0, 0.15))
+	draw_colored_polygon(pts, Color(0, 0, 0, 0.3))
+	for g in Geometry2D.offset_polygon(foot, 1.0, Geometry2D.JOIN_MITER):
+		draw_colored_polygon(g, Color(0, 0, 0, 0.45))
+
+
+## Onde fica a poça de luz da luminária no tampo (x, z da sala): embaixo dela, um pouco à frente do fundo da mesa.
+func _pool() -> Vector2:
+	var zl := Z0 / DESK_T * 0.85
+	return Vector2((_lamp_x - _vp.x) * zl / Z0, zl)
+
+
+## Quanto um objeto da mesa em (`x`, `z`) fica no escuro: nada embaixo da luminária, mais longe da poça de luz, até
+## `SHADE_MAX`, em degraus (`SHADE_STEP`); a luminária piscando escurece tudo junto (os objetos tinham a mesma cor em
+## qualquer lugar da mesa e pareciam soltos da luz da sala).
+func _shade(x: float, z: float) -> float:
+	var p := _pool()
+	var d := Vector2((x - p.x) / POOL_R, (z - p.y) / (POOL_R * 0.5)).length()
+	return snappedf(clampf((d - 0.35) * 0.5, 0.0, SHADE_MAX) + (1.0 - lamp_level) * 0.3, SHADE_STEP)
 
 
 ## Um objeto chato que abre a ferramenta `id`: a sombra, a espessura (`h`, na cor `edge`: a frente e o lado virado para
@@ -1221,14 +1276,16 @@ func _desk_shadow(foot: PackedVector2Array) -> void:
 func _flat(id: String, x0: float, zf: float, wx: float, dz: float, h: float, edge: Color, paint: Callable) -> PackedVector2Array:
 	var foot := _box(x0, zf, wx, dz, _yd, 0.0)["top"] as PackedVector2Array
 	_desk_shadow(foot)
+	var dark := _shade(x0 + wx / 2.0, zf + dz / 2.0)
 	var bx := _box(x0, zf, wx, dz, _yd, h)
 	if not (bx["side"] as PackedVector2Array).is_empty():
-		_poly(bx["side"], edge.darkened(0.35))
-	_poly(PackedVector2Array([bx["top"][3], bx["top"][2], foot[2], foot[3]]), edge)
+		_poly(bx["side"], edge.darkened(0.35).darkened(dark))
+	_poly(PackedVector2Array([bx["top"][3], bx["top"][2], foot[2], foot[3]]), edge.darkened(dark))
 	var xf: Array = _top_xf(bx["top"])
 	_paint_xf = xf[0]
 	draw_set_transform_matrix(xf[0])
 	paint.call(Rect2(Vector2.ZERO, xf[1]))
+	draw_rect(Rect2(Vector2.ZERO, xf[1]), Color(0, 0, 0, dark))   # longe da luz
 	draw_set_transform(Vector2.ZERO)
 	_props[id] = _bounds(foot + (bx["top"] as PackedVector2Array))
 	return bx["top"]
@@ -1243,6 +1300,7 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 	var bh := 5.5
 	var all := PackedVector2Array()
 	_desk_shadow(_box(x0, zf, wx, dz, _yd, 0.0)["top"])
+	var dark := _shade(x0 + wx / 2.0, zf + dz / 2.0)
 	for b in 3:
 		var c: Color = cols[b]
 		var bx := _box(x0 + offs[b].x, zf + offs[b].y, wx, dz, _yd - b * bh, bh)
@@ -1270,6 +1328,10 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 			draw_rect(Rect2(0, 0, s.x, 1), c.lightened(0.25))
 			draw_rect(Rect2(6, s.y * 0.35, s.x - 22, maxf(2.0, s.y * 0.25)), c.darkened(0.3))
 			_sprite(Switchboard.disc(6, [[1.8, Color("f0d8a0"), Color("e0c07a"), Color("b8924e")], [3.0, c.darkened(0.35)]]), (xf[0] as Transform2D) * Vector2(s.x - 8, s.y * 0.5))
+		if dark > 0.0:   # longe da luz: cada volume logo depois de desenhado (os de cima cobrem os de baixo)
+			for q in [side, top, PackedVector2Array([f.position, Vector2(f.end.x, f.position.y), f.end, Vector2(f.position.x, f.end.y)])]:
+				if not (q as PackedVector2Array).is_empty():
+					draw_colored_polygon(q, Color(0, 0, 0, dark))
 	_props["lista"] = _bounds(all)
 
 
@@ -1281,17 +1343,19 @@ func _draw_mug(xc: float, zc: float, rr: float, hh: float) -> void:
 	var ry := maxf(2.0, roundf((_p3(xc, _yd - hh, zc - rr).y - _p3(xc, _yd - hh, zc + rr).y) / 2.0))
 	var rx := body.size.x / 2.0
 	_desk_shadow(PackedVector2Array([body.position + Vector2(0, body.size.y - ry), body.end - Vector2(0, ry), body.end, Vector2(body.position.x, body.end.y)]))
+	var dark := _shade(xc, zc)
+	var lit := Color.WHITE.darkened(dark)   # longe da luz
 	draw_texture_rect(Switchboard.art(MUG_HANDLE, {"h": Color("d8caa3"), "H": Color("b8aa86"), "s": Color("8a7c5a")}),
-		Rect2(body.end.x - 2, body.position.y + 4, 6, 10), false)
+		Rect2(body.end.x - 2, body.position.y + 4, 6, 10), false, lit)
 	for x in int(body.size.x):   # o cilindro, coluna a coluna: a luz à esquerda, a sombra à direita, o fundo redondo
 		var nx := (x + 0.5) / body.size.x * 2.0 - 1.0
 		var col := Color("ece2c6") if nx < -0.55 else (Color("d8caa3") if nx < 0.35 else (Color("c2b288") if nx < 0.75 else Color("a89a76")))
-		draw_rect(Rect2(body.position.x + x, body.position.y, 1, body.size.y - ry + roundf(sqrt(1.0 - nx * nx) * ry)), col)
+		draw_rect(Rect2(body.position.x + x, body.position.y, 1, body.size.y - ry + roundf(sqrt(1.0 - nx * nx) * ry)), col.darkened(dark))
 	var top := Vector2(body.get_center().x, body.position.y)
-	_ellipse(top, rx + 1, ry + 1, Color("a89a76"))   # a boca, com a beira no tom da sombra da caneca
-	_ellipse(top, rx, ry, Color("e3d6b2"))
-	_ellipse(top + Vector2(0, 1), rx - 2, ry - 1, Color("3a2414"))   # o café
-	_sprite(Switchboard.disc(8, [[1.8, Color("f0d8a0"), Color("e0c07a"), Color("b8924e")], [4.0, Color("8e2a22")]]), body.get_center() + Vector2(-1, 3))   # o emblema
+	_ellipse(top, rx + 1, ry + 1, Color("a89a76").darkened(dark))   # a boca, com a beira no tom da sombra da caneca
+	_ellipse(top, rx, ry, Color("e3d6b2").darkened(dark))
+	_ellipse(top + Vector2(0, 1), rx - 2, ry - 1, Color("3a2414").darkened(dark))   # o café
+	_sprite(Switchboard.disc(8, [[1.8, Color("f0d8a0"), Color("e0c07a"), Color("b8924e")], [4.0, Color("8e2a22")]]), body.get_center() + Vector2(-1, 3), lit)   # o emblema
 
 
 ## Uma elipse cheia em pixel art (como polígono, saía embolotada), centrada em `c`. Guardada por tamanho.

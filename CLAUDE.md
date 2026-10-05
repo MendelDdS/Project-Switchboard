@@ -56,7 +56,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   mesmo tamanho e só a divisa entre dois blocos, um pixel da tela, mistura as cores. Ampliação inteira (1× em 720p, 2×
   em 1440p, 3× em 4K) sai perfeita; quebrada (1,5× em 1080p, 1,25× em 1600×900), uniforme e um pouco mais macia. Antes,
   com o `canvas_items` direto, 1,5× fazia um pixel virar ora 1, ora 2 da tela: linhas, letras e círculos desiguais.
-  Janela mais larga que 16:9 dá largura ao jogo (até `MAX_W`, 21:9), nunca altura; o que sobra é borda escura. O
+  Janela mais larga que 16:9 dá largura ao jogo (até `MAX_W`, 21:9), nunca altura; o que sobra é borda escura (a barra de título do Mac já deixa a janela um pouco mais larga). A sala se arruma na largura que tiver (abaixo). O
   projeto continua em `canvas_items` 1280×720 para o `main.tscn` sozinho e os testes; o `GameView` desliga isso na janela
   (`content_scale_mode`) e aplica a tela das Configurações (`Settings.fullscreen`: cheia ou janela;
   `Settings.pixel_perfect`: só ampliação inteira, com borda, sem o filtro; padrão: tela cheia e suave). Na pausa, o `Box` continua processando
@@ -65,8 +65,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   com o `SubViewport` `View` na resolução da tela onde ele está: a janela, com o `main.tscn` sozinho, ou 1:1 dentro do
   `GameView`). (Testados e descartados: o cenário em 2x2 numa tela de metade da resolução; o jogo todo em 2x2 com a fonte
   Tiny5, branch `improve/0000-pixel-2x`; o jogo todo ampliado como imagem com "nearest", que deixava o texto feio a 1,5×;
-  e um filtro de 2x2 por cima do cenário, com média, que borrava.) Nada de gradiente liso por cima de tudo: sem linhas de
-  varredura, e vinheta e brilho em degraus (`interpolation_mode` constante, "nearest"). Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
+  e um filtro de 2x2 por cima do cenário, com média, que borrava.) Sem linhas de
+  varredura. **Luz e vinheta lisas, sem camadas** (em degraus pareciam artificiais, a pedido do usuário): o brilho
+  (`%Glow`) e a vinheta são degradês contínuos com filtro linear; o arco na parede e a poça na mesa são desenhados com
+  a cor variando ponto a ponto (`Background._light_fan`), não em polígonos empilhados. Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
   **Disposição (cena + painel)**: a tela é uma mesa de trabalho. No alto da esquerda, a plaqueta de latão do
   turno (`ShiftPlate`, variação `BrassPanel`, com o horário e o botão Encerrar turno; a faixa dela, `TopLeft`, tem
   52 px fixos). O relógio da sala é um **relógio de flip na mesa** (`Background._draw_flip_clock`, o único da tela):
@@ -97,7 +99,12 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   painel 150; passando, a tela inteira sobe e a plaqueta sai por cima. O `Background` (cenário em camadas, em pixels de 1x1 como a interface: as contas em unidades de 2 px e os detalhes finos em `PX`/`_p`; desenhado no `SceneView`, uma tela própria na resolução da janela, que repassa o mouse a ele, `pointer`/`prop_at`/`leave`, e desenha por cima o contorno e o nome do objeto sob o mouse, `draw_hover`) estica
   parede e mesa até a borda, como o canto de uma sala visto de quem está sentado à mesa. **Uma câmera só**, em
   perspectiva de um ponto: o ponto de fuga (`_vp`) fica em `VP_X` da largura (perto dos objetos da mesa: a inclinação
-  deles cresce com a distância a ele) e `EYE` acima do fundo do tampo, logo acima da tela (quem está sentado perto
+  deles cresce com a distância a ele). **A sala se distribui na largura que tiver**: entre a mesa comutadora e a
+  quina, o armário (`CAB_W`) e o lugar do cartaz (`POSTER_W`) com a mesma folga entre eles; os objetos da mesa em duas
+  fileiras de ponta a ponta entre a lateral da mesa comutadora e a parede da direita (`_row`, `WALL_PAD`), com a mesma
+  folga entre eles. Os lugares do cartaz e do jornal ficam guardados mesmo sem eles, para nada mudar entre as noites.
+  (Presos a uma ponta só, sobrava mesa vazia numa janela larga; presos a pontas diferentes, o relógio caía em cima do
+  jornal em 1280 e o armário entrava atrás da mesa comutadora.) e `EYE` acima do fundo do tampo, logo acima da tela (quem está sentado perto
   olha a mesa de cima; mais baixo, o que fica longe dele entortava demais: a inclinação de um lado que foge é a
   distância ao ponto na horizontal dividida pela distância na vertical, e só depende da tela); `_proj`/`_p3` levam um ponto da sala (x, y a
   partir dos olhos, z a distância; a parede do fundo a `Z0`) para a tela. **A câmera são os olhos do operador
@@ -125,9 +132,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   clique só vale sobre eles e não com papel por cima): listas telefônicas (1), mapa dobrado (2), caderno aberto (3) e
   prancheta do registro (4), mais a caneca, postos por fração da profundidade do tampo (`_at`, `_deep`: ficam no
   tampo seja qual for a câmera) e, na largura, a partir da lateral da mesa comutadora (`_side_x`), em duas fileiras
-  com folga entre eles; a caneca fica junto da parede da direita (numa tela mais larga, a folga sobra perto da janela), com o relógio de flip no fundo, logo atrás dela. **Cada um fica num lugar da sala e passa pela câmera** (`_draw_desk_props`:
+  com folga entre eles: atrás, listas, caderno, o relógio de flip e a caneca (o relógio logo atrás dela); na frente,
+  mapa, prancheta e jornal (numa tela mais larga, a folga sobra perto da janela). **Cada um fica num lugar da sala e passa pela câmera** (`_draw_desk_props`:
   tamanho, escorço e o lado que aparece saem da conta; `_box` dá os cantos, `_flat` põe o desenho de frente de um
-  objeto chato no tampo dele com uma transformação, `_top_xf`), desenhados em 1x1 (sem contorno preto: torto pela perspectiva, serrilhava; as faces se separam pela luz, `_poly`; sombra apontando para longe da luminária, `_desk_shadow`), do fundo para a frente; a legenda sob o mouse é do `SceneView`, na resolução da interface. **A mesa comutadora é um móvel só** (`_draw_switchboard`,
+  objeto chato no tampo dele com uma transformação, `_top_xf`), desenhados em 1x1 (sem contorno preto: torto pela perspectiva, serrilhava; as faces se separam pela luz, `_poly`; sombra apontando para longe da luminária, em degraus: penumbra, sombra e o contato escuro colado na base, `_desk_shadow`; e cada um escurece em degraus quanto mais longe da poça de luz, `_shade`, `_pool`, `SHADE_MAX`, `SHADE_STEP`, também quando a luminária pisca), do fundo para a frente; a legenda sob o mouse é do `SceneView`, na resolução da interface. **A mesa comutadora é um móvel só** (`_draw_switchboard`,
   como uma mesa telefônica de verdade): embaixo, o console, cuja frente é a faixa do rádio (o rádio embutido, a
   madeira dele em volta, com a plaqueta de latão de um lado, os botões de volume e sintonia do outro e os parafusos;
   a prateleira tem veios e o friso de latão na beira) e cujo alto é a prateleira, com o FONE e os cabos em pé nos buracos (a mesa desenha); no fundo dela, num rodapé e com a sombra
@@ -161,7 +169,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`_paper`, `_light`; as da vista, onde aparecem no vidro). Lá fora (`_draw_city`): céu do clima, morros, casas
   sorteadas sempre iguais (`_build_city`, semente fixa),
   a igreja com o relógio aceso, a rua com o poste (a silhueta do mistério fica contra a luz dele) e o chão molhado na
-  chuva. O brilho da luz de cima (`%Glow`, centrado no alto, em degraus) fica dentro da tela do cenário, logo depois do
+  chuva. O brilho da luz de cima (`%Glow`, centrado no alto, liso) fica dentro da tela do cenário, logo depois do
   `Background`: ilumina a sala, não a interface; acompanha o tremor dela. **Para trocar por PNG**: `wall_art`, `window_art` e `desk_art` entram no lugar do desenho daquela camada
   (o clima continua por cima da janela). Guardadas, as abas das ferramentas somem (os objetos da mesa já dizem o
   mesmo; o espaço delas fica, para nada pular); com uma aberta, as abas de papel (`TabButton`) aparecem junto com o
