@@ -99,7 +99,7 @@ const TAP_GAP := 0.12          # s: intervalo mínimo entre dois "taps" do mesmo
 const PLUG_BASE := Vector2(0, 36)   # do ponto de referência do plug (topo do corpo) até onde o fio entra nele
 const PLUG_LEN := 59.0   # em pé: do fio até o alto da aba (a ponta de metal passa disso)
 ## Encaixado, de onde fica a tomada até onde o fio entra: a ponta de metal some dentro dela e o anel assenta no buraco.
-const PLUG_FACE_R := 5.5   # encaixado: o raio do corpo (13 px com a beira, na proporção do em pé; a aba da bucha fica à vista em volta)
+const PLUG_FACE_R := 8.0   # encaixado: o raio do corpo (18 px com a beira, como o em pé; ele cobre a tomada, e a aba aparece de lado)
 const EDGE := 0.65          # a beira do plug e do fio: a cor da peça escurecida assim (contorno preto destoava do cenário)
 ## Encaixado, o plug sai do painel na direção da câmera: visto de cima e da direita, a ponta dele fica deslocada do
 ## encaixe para baixo e para a esquerda, e mais quanto mais longe do ponto que a câmera olha reto (paralaxe, `_tilt`).
@@ -108,36 +108,32 @@ const PLUG_DEPTH := 0.012   # px de deslocamento da ponta por px de distância d
 const PLUG_SHADE := Vector2(7, 9)   # encaixado, a sombra vai do encaixe até aqui (luz no alto à esquerda)
 const CORD_STUB := 6.0   # encaixado, o fio sai da ponteira no eixo do plug por esses px antes de cair...
 const CORD_BEND := [0.15, 0.06]   # ...e os pontos seguintes tendem a continuar a direção dos anteriores (curva suave)
-## O encaixe, pixel a pixel (20×20, um pouco menor que o `JACK`: maior, passava das linhas do banco; par, para o meio
-## dele cair entre dois pixels, como o das plaquinhas e das lâmpadas): um aro niquelado fino (2 a 3 pixels) com a beira
-## escura por fora, em volta do furo preto e largo. A luz (alto à esquerda) bate na face do aro desse lado, com um fio
-## de brilho no meio dele, e, por dentro, na parede do furo do lado oposto (embaixo à direita), que também reflete um
-## pouco no fundo. Os dois círculos (20 e 12 pixels) têm as larguras de linha das circunferências de pixel art (6, 10,
-## 12, 14...): com outros raios saíam com lados retos, como um octógono; a beira e o chanfro têm sempre 1 pixel. As
-## cores vêm de `_jack_pal`.
+## O encaixe, pixel a pixel (16×16, menor que o `JACK`; par, para o meio dele cair entre dois pixels, como o das
+## plaquinhas e das lâmpadas), na medida da ponta do plug: o furo preto tem 8 px, a largura da luva (com 20, a tomada
+## ficava grande demais para ela). Um aro niquelado fino (2 a 3 pixels) com a beira escura por fora, em volta do furo.
+## A luz (alto à esquerda) bate na face do aro desse lado, com um fio de brilho no meio dele, e, por dentro, na parede
+## do furo do lado oposto (embaixo à direita). Os dois círculos (16 e 10 pixels) têm as larguras de linha das
+## circunferências de pixel art (6, 10, 12, 14...): com outros raios saíam com lados retos, como um octógono; a beira e
+## o chanfro têm sempre 1 pixel. As cores vêm de `_jack_pal`.
 const JACK_ART := [
-	".......eeeeee.......",
-	".....eeLLLMMDee.....",
-	"....eLLlllLLMDDe....",
-	"...eLlllddddMMMDe...",
-	"..eLllddhhhhDDMMDe..",
-	".eLlldhhhhhhhhDMMDe.",
-	".eLldhhhhhhhhhhDMDe.",
-	"eLlldhhhhhhhhhhDDDDe",
-	"eLldhhhhhhhhhhhkDDDe",
-	"eLldhhhhhhhhhhhkWDDe",
-	"eMLdhhhhhhhhhhhkWDDe",
-	"eMLdhhhhhhhhhhhkWDDe",
-	"eDMMDhhhhhhhhhkWddde",
-	".eDMDhhhhhhhhhkWdde.",
-	".eDMMDhhhhhhkkWddde.",
-	"..eDMMDDkkkkWWddde..",
-	"...eDMMDDWWWdddde...",
-	"....eDDDDDDDddde....",
-	".....eeDDDDDdee.....",
-	".......eeeeee.......",
+	".....eeeeee.....",
+	"...eeLLLMMMee...",
+	"..eLlllLLMMDDe..",
+	".eLllLddddMMDDe.",
+	".eLlldhhhhkMDDe.",
+	"eLlldhhhhhhkMDDe",
+	"eLldhhhhhhhhkMDe",
+	"eLldhhhhhhhhWMDe",
+	"eMLdhhhhhhhhWDDe",
+	"eMLkhhhhhhhkWDDe",
+	"eMMDkhhhhhkWDDde",
+	".eDMDkkkkWWdDde.",
+	".eDMMDdkWWdddde.",
+	"..eDDDDDDdddde..",
+	"...eeDDDDddee...",
+	".....eeeeee.....",
 ]
-const JACK_PX := 20   # o lado do `JACK_ART`, em pixels
+const JACK_PX := 16   # o lado do `JACK_ART`, em pixels
 const LIGHT := Vector2(-0.7071, -0.7071)   # de onde vem a luz das peças redondas (alto à esquerda)
 const EDGE_DARK := Color("1c130b")   # a beira das peças: marrom quase preto, não preto puro
 const PLUG_ART := [   ## o plug em pé, de 20 × 93 px (y de -93 a -1; o fio sai de y = 0): `_plug_pal` dá as cores
@@ -236,9 +232,10 @@ const PLUG_ART := [   ## o plug em pé, de 20 × 93 px (y de -93 a -1; o fio sai
 	".......324456.......",
 ]
 const PLUG_H := 93.0   # a altura do `PLUG_ART`: do bico até onde sai o fio
-## As peças do plug encaixado, como frações do comprimento, a partir do painel: as mesmas de em pé (a aba dourada,
-## curta; o corpo; a capa de borracha em gomos).
-const PLUG_PARTS := [3.0 / 27.0, 19.0 / 27.0]
+## As peças do plug encaixado, como frações do comprimento, a partir do painel: as mesmas de em pé e na mesma medida
+## (das `PLUG_LEN` linhas do `PLUG_ART` da aba até o fio, 3 de aba e 37 de corpo; o resto é a capa em gomos).
+const PLUG_PARTS := [3.0 / 59.0, 40.0 / 59.0]
+const PLUG_FACE_D := [12, 18, 16, 8]   # encaixado, os diâmetros com a beira, como os do em pé: a aba, o corpo e a capa (do corpo ao fio)
 const MORPH_SEC := 0.08   # encaixando ou saindo, o plug passa de em pé para de frente (e volta) nesse tempo
 const PUSH_PX := 1.5     # ao encaixar, o plug afunda (o tampo encolhe tanto, px) e volta...
 const ROT_STEP := deg_to_rad(15.0)   # solto ou na mão, o plug gira em passos assim (pixel art girado torto serrilha)
@@ -994,8 +991,8 @@ func _draw() -> void:
 		draw_string(Pal.mono, Vector2(cx - 16, jr.position.y - 5), str(d), HORIZONTAL_ALIGNMENT_CENTER, 32, 11, Color("d8c9a2") if st == Exchange.Dest.FREE else Pal.TEXT)
 		var dl: Array = _lit.get("d%d" % d, [LAMP_OFF, 0.0])
 		if dl[1] > 0.02:   # o aro em volta da tomada acende
-			_sprite(disc(28, [[14.0, Color.WHITE]]), jr.get_center(), Color(dl[0], dl[1]))
-			Bloom.light(self, jr.grow(3), Color(dl[0], dl[1]), 1.0, false, true)
+			_sprite(disc(JACK_PX + 8, [[JACK_PX / 2.0 + 4.0, Color.WHITE]]), jr.get_center(), Color(dl[0], dl[1]))
+			Bloom.light(self, jr.grow((JACK_PX - JACK) / 2.0 + 3.0), Color(dl[0], dl[1]), 1.0, false, true)
 		_draw_jack(jr)
 	for s in _blocks:
 		if not s in GameData.sectors:
@@ -1232,7 +1229,7 @@ func _draw_plug(e: int, shadow: bool) -> void:
 	_cut = hole(e).y + HOLE_LIP - at.round().y if _in_hole(e) else INF
 	if shadow and seated:   # do encaixe até onde a luz joga a ponta, no painel
 		draw_colored_polygon(Geometry2D.convex_hull(_circle(Vector2.ZERO, PLUG_FACE_R + 1.0) + _circle(PLUG_SHADE, PLUG_FACE_R)), SHADOW)
-		_sprite(disc(16, [[8.0, Color.WHITE]]), Vector2.ZERO, SHADOW)   # sombra de contato: o colar preso no encaixe
+		_sprite(disc(PLUG_FACE_D[0] + 2, [[PLUG_FACE_D[0] / 2.0 + 1.0, Color.WHITE]]), Vector2.ZERO, SHADOW)   # sombra de contato: a aba presa no encaixe
 	elif shadow:
 		_draw_cut(_plug_outline(e, 0.0), SHADOW)
 	else:
@@ -1337,17 +1334,21 @@ func _draw_plug_face(col: Array, tilt: Vector2, push: float, alpha: float, j := 
 	var mod := Color(1, 1, 1, alpha)
 	var part := func(f: float) -> int:   # 0 = colar, 1 = cabo, 2 = ponteira
 		return 0 if f <= PLUG_PARTS[0] else (1 if f <= PLUG_PARTS[1] else 2)
-	var sizes := [9, 13, 11]   # os diâmetros, com a beira: a aba, o corpo e a capa
+	var size := func(f: float) -> int:   # o diâmetro com a beira; a capa afina até o fio (par: o meio não pula meio pixel)
+		var i: int = part.call(f)
+		if i < 2:
+			return PLUG_FACE_D[i]
+		return 2 * roundi(lerpf(PLUG_FACE_D[2], PLUG_FACE_D[3], (f - PLUG_PARTS[1]) / (1.0 - PLUG_PARTS[1])) / 2.0)
 	var edges := [pal["E"], pal["6"], pal["6"]]
 	for k in n + 1:
 		var f := float(k) / n
-		var d: int = sizes[part.call(f)]
+		var d: int = size.call(f)
 		_sprite(disc(d, [[d / 2.0, edges[part.call(f)]]]), t * f, mod)
 	var ring := lerpf(PLUG_PARTS[0], PLUG_PARTS[1], 0.5)   # o anel no meio do corpo
 	for k in n + 1:
 		var f := float(k) / n
 		var i: int = part.call(f)
-		var d: int = sizes[i] - 2
+		var d: int = size.call(f) - 2
 		var tones: Array = [pal["y"], pal["b"], pal["B"]]   # a aba dourada
 		if i == 1:
 			tones = [pal["4"], pal["5"], pal["6"]] if absf(f - ring) * n < 0.5 else [pal["2"], pal["3"], pal["5"]]
@@ -1374,7 +1375,8 @@ func _plug_reflect(j: int, tilt: Vector2) -> void:
 	if j <= 10:
 		var lt: Array = _lit.get("l%d" % j, [LAMP_OFF, 0.0])
 		if lt[1] > 0.02:   # a beira de cima da frente do cabo, pixel a pixel como ele
-			_sprite(disc(11, [[4.5, Color.TRANSPARENT], [5.5, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), tilt * PLUG_PARTS[1], Color(lt[0], 0.6 * lt[1]))
+			var d: int = PLUG_FACE_D[1] - 2
+			_sprite(disc(d, [[d / 2.0 - 1.0, Color.TRANSPARENT], [d / 2.0, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), tilt * PLUG_PARTS[1], Color(lt[0], 0.6 * lt[1]))
 
 
 ## A parte da luz que bate no colar do plug encaixado em `j` (desenhada antes do cabo, que fica na frente dele).
@@ -1382,11 +1384,11 @@ func _collar_reflect(j: int) -> void:
 	if j >= 1 and j <= 10:
 		var lt: Array = _lit.get("l%d" % j, [LAMP_OFF, 0.0])
 		if lt[1] > 0.02:   # o alto do colar, pixel a pixel como ele
-			_sprite(disc(11, [[4.5, Color.TRANSPARENT], [5.5, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), Vector2.ZERO, Color(lt[0], 0.6 * lt[1]))
+			_sprite(disc(PLUG_FACE_D[0], [[PLUG_FACE_D[0] / 2.0 - 1.0, Color.TRANSPARENT], [PLUG_FACE_D[0] / 2.0, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), Vector2.ZERO, Color(lt[0], 0.6 * lt[1]))
 	elif j > 20:
 		var dl: Array = _lit.get("d%d" % j, [LAMP_OFF, 0.0])
 		if dl[1] > 0.02:   # o aro aceso em volta: o colar inteiro, mais fraco
-			_sprite(disc(11, [[4.5, Color.TRANSPARENT], [5.5, Color.WHITE]]), Vector2.ZERO, Color(dl[0], 0.35 * dl[1]))
+			_sprite(disc(PLUG_FACE_D[0], [[PLUG_FACE_D[0] / 2.0 - 1.0, Color.TRANSPARENT], [PLUG_FACE_D[0] / 2.0, Color.WHITE]]), Vector2.ZERO, Color(dl[0], 0.35 * dl[1]))
 
 
 ## O plug de pé, com o fio saindo de baixo (y = 0), no formato de um P10 e na escala das tomadas (18 × 93 px: o corpo
