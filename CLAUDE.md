@@ -68,7 +68,13 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   e um filtro de 2x2 por cima do cenário, com média, que borrava.) Sem linhas de
   varredura. **Luz e vinheta lisas, sem camadas** (em degraus pareciam artificiais, a pedido do usuário): o brilho
   (`%Glow`) e a vinheta são degradês contínuos com filtro linear; o arco na parede e a poça na mesa são desenhados com
-  a cor variando ponto a ponto (`Background._light_fan`), não em polígonos empilhados. Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
+  a cor variando ponto a ponto (`Background._light_fan`), não em polígonos empilhados; o céu da vista clareia liso
+  para o horizonte e a luz do poste atrás da silhueta também é lisa. **O vidro da janela reflete a sala**
+  (`_draw_reflection`, por cima da cidade e da silhueta, antes da chuva): a luz da luminária, o armário e a luz quente
+  de baixo, lisos e acompanhando a luminária. A vista passa da borda de cima da tela e só aparece do horizonte (58%
+  dela) para baixo: o que for desenhado nela tem que ficar ali. **Traços dos objetos em pixel art** (`_pixel_line`:
+  um pixel por passo, com a espessura empilhada em cores, desenhado na tela e não na perspectiva torta do tampo): o
+  lápis do caderno, o rio do mapa, as fendas do relógio e os filetes das listas. Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
   **Disposição (cena + painel)**: a tela é uma mesa de trabalho. No alto da esquerda, a plaqueta de latão do
   turno (`ShiftPlate`, variação `BrassPanel`, com o horário e o botão Encerrar turno; a faixa dela, `TopLeft`, tem
   52 px fixos). O relógio da sala é um **relógio de flip na mesa** (`Background._draw_flip_clock`, o único da tela):
@@ -98,8 +104,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   apaga sem ligação, `ScreenGlass`). A altura útil é 700 px: as colunas pedem 540 (a da esquerda, exata) e o
   painel 150; passando, a tela inteira sobe e a plaqueta sai por cima. O `Background` (cenário em camadas, em pixels de 1x1 como a interface: as contas em unidades de 2 px e os detalhes finos em `PX`/`_p`; desenhado no `SceneView`, uma tela própria na resolução da janela, que repassa o mouse a ele, `pointer`/`prop_at`/`leave`, e desenha por cima o contorno e o nome do objeto sob o mouse, `draw_hover`) estica
   parede e mesa até a borda, como o canto de uma sala visto de quem está sentado à mesa. **Uma câmera só**, em
-  perspectiva de um ponto: o ponto de fuga (`_vp`) fica em `VP_X` da largura (perto dos objetos da mesa: a inclinação
-  deles cresce com a distância a ele). **A sala se distribui na largura que tiver**: entre a mesa comutadora e a
+  perspectiva de um ponto: o ponto de fuga (`_vp`) fica em `VP_AT` do espaço da mesa, da mesa comutadora à
+  quina (perto dos objetos: a inclinação deles cresce com a distância a ele; preso à largura da tela, numa janela
+  larga ele fugia dos objetos e as listas apareciam bem de lado; no meio exato das fileiras, a parede da janela
+  entrava pela mesa e espremia os objetos). **A sala se distribui na largura que tiver**: entre a mesa comutadora e a
   quina, o armário (`CAB_W`) e o lugar do cartaz (`POSTER_W`) com a mesma folga entre eles; os objetos da mesa em duas
   fileiras de ponta a ponta entre a lateral da mesa comutadora e a parede da direita (`_row`, `WALL_PAD`), com a mesma
   folga entre eles. Os lugares do cartaz e do jornal ficam guardados mesmo sem eles, para nada mudar entre as noites.
