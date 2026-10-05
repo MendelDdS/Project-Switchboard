@@ -325,7 +325,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   exceto 190/192/193, que vão pelo despacho). Destinos em três bancos de fábrica, A | B | C, rotulados pela faixa de
   numeração (100–199 | 200–299 | 300–399, `SECTOR_ORDER`, duas fileiras cada, `_layout_dests`/`_slots`; a mesa não
   fala em setor). O banco de um setor que ainda não é do operador fica sob uma chapa com a letra dele (`_draw_plate`:
-  A e B; o C, do setor 3, nunca é tampado) e as tomadas dele não existem para o clique.
+  A e B; o C, do setor 3, nunca é tampado; chapa lisa (o escovado saiu a pedido), a letra estampada em relevo, o aviso `BOARD_PLATE_NOTICE`
+  pintado com estêncil e riscos de chave de fenda em volta dos parafusos) e as tomadas dele não existem para o clique.
 - `ends[]`: tomada de cada ponta (-1 = na base). **Ponta 0 = FONE** (cabo verde, encaixe `FoneSocket` na prateleira, só
   entra em entradas). **Pontas 1..2*PATCHES = cabos de conexão** (vermelho, azul, amarelo em `CORD_COLORS`; independentes; `mate(e)`
   dá a outra ponta; uma ponta na saída, a outra no destino). `PATCHES = 3`.
@@ -358,7 +359,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   sorteados. Plug só se move arrastando
   (clicar e segurar); clique sem arrastar só serve para desplugar.
 - Fios são cordas de Verlet (`_step_rope`), **uma por ponta**, presas no buraco (`hole(e)`: o do FONE no encaixe, dois
-  por cabo de conexão) e na traseira do plug (`_plug_base`); só existem com o fio para fora.
+  por cabo de conexão) e na traseira do plug (`_plug_base`); só existem com o fio para fora. No desenho, o fio de pano
+  velho guarda dobras (`_kinked`, `KINK`: cada ponto da corda um pouco para um lado, sempre o mesmo, nada nas pontas; a
+  física segue lisa) e o brilho vem em pedaços, como trançado (`BRAID`).
   Folga: `CORD_SLACK` (conexão); a do FONE cresce com a distância na horizontal (`SLACK_PER_PX`, até `SLACK`: fixa, o
   fio de uma entrada logo acima do buraco deitava na prateleira e fazia um "Z"). Fio parado por `SLEEP_STEPS` passos "dorme" (`ropes[e]["sleep"]` =
   área onde o mouse o acorda) e deixa de ser simulado até a ponta, o buraco ou o mouse mexerem nele.
@@ -371,6 +374,12 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   gravado, `_draw_number_plate`; estado; lâmpada; entrada; saída), todos os encaixes com `JACK` px, bancos de destino em
   `DEST_TOP`/`DEST_ROW` (cada banco com o mesmo vão, 8 px, entre a moldura e os números e entre as tomadas de baixo e a moldura, `_blocks`) e a legenda das lâmpadas na faixa das entradas, à direita, na fonte gravada do painel (`_draw_legend`, `tiny`; no pé do painel, os plugs guardados passavam na frente dela). Mexendo na altura, confira que a coluna da esquerda ainda cabe (até 540).
 - Chapas de metal niquelado (`_draw_metal`: chanfro e rebites) nas plaquinhas dos números.
+- Cada linha tem uma faixa rebaixada e discreta da plaquinha à saída (`_draw_strips`, `STRIP_W`; sem ela a saída
+  parecia solta); as faixas gravadas passam por baixo e o nome delas por cima (`_draw_rule(y, nome, false)`).
+- Uso de anos (`_draw_wear`, sempre o mesmo): o painel clareado em volta das tomadas (`WEAR`, pelo quanto cada uma é
+  usada, `_use`: entradas mais, das primeiras linhas para as últimas) e riscos finos de plug que errou o furo.
+- Plaqueta de latão do fabricante no pé do painel, no vão entre os dois primeiros pares de buracos da prateleira (ali
+  nenhum plug guardado fica na frente; `_draw_maker_plate`: `BOARD_MAKER` na fonte gravada e "SÃO SOTERO").
 - **Peças redondas pixel a pixel** (`Switchboard.disc`, público: imagem guardada por diâmetro e camadas, com luz, meio-tom e sombra vindos de
   `LIGHT`, alto à esquerda, e camadas côncavas; `_sprite` desenha presa aos pixels; desenhadas como círculo saíam
   embolotadas): lâmpadas, aro aceso do destino, lâmpadas da legenda e parafusos das chapas. **Nenhuma peça redonda
@@ -387,7 +396,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   furo embaixo à direita; as saídas no níquel mais escuro (`dim`). Largura par e o meio num pixel inteiro (`jack_rect`
   arredonda o dos destinos), para ficar no eixo da plaquinha e da lâmpada. (Uma versão em `_disc` com a bucha de latão
   saiu com o furo maior e foi rejeitada.)
-- Encaixes redondos (`_draw_jack`: o aro niquelado e o furo, com a sombra no painel); lâmpadas redondas com aro niquelado (`_draw_lamp`, `BEZEL`) que acendem rápido e apagam devagar, como
+- Encaixes redondos (`_draw_jack`: o aro niquelado e o furo, com a sombra no painel); lâmpadas de vidro leitoso abaulado num aro
+  fino de níquel, sem furo (`_draw_lamp`, `BEZEL`, `LAMP_OFF`: com o assento preto pareciam mais uma tomada) que acendem rápido e apagam devagar, como
   filamento (`_lamp`/`_dest_lamp` dizem cor e nível desejado, `_fade` chega lá em `LAMP_ON_SEC`/`LAMP_OFF_SEC`, estado em
   `_lit`; a linha tocando pulsa). A luz acesa tinge o aro dela e o alto do aro do encaixe logo abaixo (`_reflect`).
 - Plug (`_draw_plug`): de pé (comprido, `PLUG_LEN` do fio à aba; guardado, afunda `PLUG_SINK` = 22 px no buraco: a capa
@@ -776,6 +786,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 59. A perspectiva estava errada (o relógio torto): a câmera passou a sair de um operador sentado (altura dos olhos e
     distância ao tampo dão a distância focal), o relógio gira para os olhos por um cálculo e a frente dele é projetada
     de verdade.
+60. Tomadas menores, com o furo da largura da ponta do plug, e o plug encaixado na proporção do em pé, com os mesmos
+    detalhes. Mesa comutadora: lâmpadas de vidro leitoso (não pareciam mais tomadas), faixa ligando a coluna de cada
+    linha, plaqueta de latão do fabricante no pé do painel, desgaste em volta das tomadas, chapas A/B com a letra
+    estampada e o aviso pintado, fios de pano com dobras e trançado. O cartão de despacho sobe na mão e cai
+    ao soltar.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

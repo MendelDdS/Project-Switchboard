@@ -265,7 +265,11 @@ const TINY_ACCENTS := {"Á": "A´", "À": "A`", "Â": "A^", "Ã": "A~", "Ä": "A
 	"Í": "I´", "Ì": "I`", "Î": "I^", "Ï": "I¨", "Ó": "O´", "Ò": "O`", "Ô": "O^", "Õ": "O~", "Ö": "O¨", "Ú": "U´", "Ù": "U`",
 	"Û": "U^", "Ü": "U¨", "Ñ": "N~", "Ç": "C,"}
 const BEZEL := [Color("d6d1c3"), Color("8e897c"), Color("45413a")]   # aro niquelado: luz, meio, sombra
-const LAMP_OFF := Color("2a2016")   # o vidro da lâmpada apagada
+const LAMP_OFF := Color("6b6556")   # o vidro leitoso da lâmpada apagada (escuro, parecia o furo de uma tomada)
+const STRIP_W := 30.0   # a faixa rebaixada de cada linha, da plaquinha à saída
+const WEAR := [0.5, 0.3, 0.15]   # o painel gasto em volta das tomadas: do perto ao longe (o quanto clareia)
+const KINK := 1.5   # px: as dobras que o fio de pano guarda, no máximo
+const BRAID := 6.0   # px: o trançado do fio (o brilho dele vem em pedaços desse comprimento)
 const LAMP_ON_SEC := 0.06    # a lâmpada (de filamento) acende quase na hora...
 const LAMP_OFF_SEC := 0.18   # ...e apaga mais devagar, o filamento esfriando: a linha tocando pulsa em vez de piscar seco
 const ROPE_SHADOW := Vector2(3, 4)  # deslocamento da sombra dos fios junto ao buraco; até o plug, cresce como a dele (`_lift`)
@@ -900,20 +904,20 @@ func _fade(key: String, want: Array, delta: float) -> void:
 	_lit[key] = cur
 
 
-## Lâmpada redonda com aro de metal (luz no alto à esquerda, sombra embaixo à direita; acesa, o aro pega a cor dela),
-## assento preto e o vidro, que vai do escuro à cor da linha conforme `level`. Acesa, brilha (`Bloom`); apagada, só
-## um reflexo fraco no vidro.
+## Lâmpada de mesa antiga: uma tampa de vidro leitoso, abaulada, num aro fino de níquel, sem furo (com o assento
+## preto, ela parecia mais uma tomada). Apagada, o vidro fica leitoso (`LAMP_OFF`); acesa, toma a cor da linha, o aro
+## pega a cor dela e o centro estoura para o branco (o halo é do `Bloom`). A luz da sala brilha no alto do vidro.
 func _draw_lamp(c: Vector2, col: Color, level: float) -> void:
-	_sprite(disc(16, [[5.0, Color.BLACK], [7.0, BEZEL[0], BEZEL[1], BEZEL[2]], [8.0, EDGE_DARK]]), c)   # aro e assento
+	_sprite(disc(16, [[7.0, BEZEL[0], BEZEL[1], BEZEL[2]], [8.0, EDGE_DARK]]), c)   # o aro
 	if level > 0.02:
-		_sprite(disc(16, [[5.0, Color.TRANSPARENT], [7.0, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), c, Color(col, 0.35 * level))   # a luz no aro
-	# o vidro, do tamanho do assento (menor, sobravam pixels pretos soltos entre ele e o aro)
-	_sprite(disc(10, [[5.0, Color.WHITE]]), c, LAMP_OFF.lerp(col, level))
+		_sprite(disc(16, [[6.0, Color.TRANSPARENT], [7.0, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), c, Color(col, 0.35 * level))   # a luz no aro
+	var glass := LAMP_OFF.lerp(col, level)
+	_sprite(disc(12, [[6.0, glass.lightened(0.3), glass, glass.darkened(0.4)]]), c)   # o vidro abaulado: luz no alto à esquerda
 	if level > 0.02:   # acesa: o centro estoura para o branco (o halo é do Bloom; o miolo nítido, daqui)
 		_sprite(disc(6, [[2.8, Color.WHITE]]), c, Color(Color.WHITE.lerp(col, Bloom.HOT_TINT), level))
 		Bloom.light(self, Rect2(c - Vector2(LAMP_R, LAMP_R), Vector2(LAMP_R, LAMP_R) * 2.0), Color(col, level), 1.0, false, true)
-	else:
-		_sprite(disc(10, [[5.0, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), c, Color(1, 1, 1, 0.12))   # o reflexo no vidro
+	draw_rect(Rect2(c + Vector2(-3, -4), Vector2(2, 1)), Color(1, 1, 1, 0.5))   # o brilho da sala no vidro
+	draw_rect(Rect2(c + Vector2(-4, -3), Vector2(1, 1)), Color(1, 1, 1, 0.25))
 
 
 ## Encaixe redondo como os das mesas antigas, pixel a pixel (`JACK_ART`), com a sombra no painel. `dim`: o metal mais
@@ -952,11 +956,15 @@ func _draw() -> void:
 	var ms := Time.get_ticks_msec()
 	_draw_cabinet(Rect2(Vector2.ZERO, size))
 	_draw_tray(tray_rect())
-	_draw_rule(RULES["in"], T.text(T.Key.BOARD_INPUTS))
-	_draw_rule(RULES["out"], T.text(T.Key.BOARD_OUTPUTS))
-	_draw_rule(RULES["dest"], "")
+	for y in RULES.values():
+		_draw_rule(y, "")
 	if exchange == null:
 		return
+	_draw_strips()
+	_draw_rule(RULES["in"], T.text(T.Key.BOARD_INPUTS), false)   # os nomes por cima das faixas
+	_draw_rule(RULES["out"], T.text(T.Key.BOARD_OUTPUTS), false)
+	_draw_wear()
+	_draw_maker_plate()
 
 	# entradas e saídas
 	for i in 10:
@@ -1069,7 +1077,76 @@ func _draw_cabinet(r: Rect2) -> void:
 	draw_rect(Rect2(p.position.x, p.end.y - 1, p.size.x, 1), Pal.PANEL_HI)
 
 
-## Faixa gravada que separa as seções do painel, com o nome dela em cima, à esquerda (sem nome, só a faixa).
+## A faixa de cada linha: um rebaixo estreito do painel que liga a plaquinha, a lâmpada, a entrada e a saída da mesma
+## coluna (sem ela, a saída parecia solta). As faixas gravadas passam por baixo; o nome delas, por cima.
+func _draw_strips() -> void:
+	for i in 10:
+		var r := Rect2(col_x(i) - STRIP_W / 2.0, ROW_Y["plate"] + 4.0, STRIP_W, ROW_Y["out"] + 11.0 - ROW_Y["plate"])
+		draw_rect(r, Pal.PANEL.darkened(0.05))
+		draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), Color(Pal.PANEL_LO, 0.6))   # rebaixada: a sombra em cima e à esquerda
+		draw_rect(Rect2(r.position, Vector2(1, r.size.y)), Color(Pal.PANEL_LO, 0.6))
+		draw_rect(Rect2(r.position.x, r.end.y - 1, r.size.x, 1), Color(Pal.PANEL_HI, 0.5))
+		draw_rect(Rect2(r.end.x - 1, r.position.y, 1, r.size.y), Color(Pal.PANEL_HI, 0.5))
+
+
+## O uso de anos: o painel gasto em volta das tomadas (claro liso, mais nas entradas, onde o FONE entra a noite toda,
+## e nas primeiras linhas) e riscos finos onde a ponta do plug escorregou errando o furo. Sempre os mesmos.
+func _draw_wear() -> void:
+	for j in _jacks:
+		var use := _use(j)
+		_sprite(disc(28, [[10.0, Color(Pal.PANEL_HI, WEAR[0])], [12.0, Color(Pal.PANEL_HI, WEAR[1])], [14.0, Color(Pal.PANEL_HI, WEAR[2])]]),
+			jack_rect(j).get_center(), Color(1, 1, 1, use))
+		var rng := RandomNumberGenerator.new()
+		rng.seed = j
+		for k in roundi(use * 2.0):
+			var a := rng.randf() * TAU
+			var from := jack_rect(j).get_center() + Vector2.from_angle(a) * rng.randf_range(9.0, 11.0)
+			var to := from + Vector2.from_angle(a + rng.randf_range(-0.6, 0.6)) * rng.randf_range(3.0, 6.0)
+			draw_line(from.round() + Vector2(0.5, 0.5), to.round() + Vector2(0.5, 0.5), Color(Pal.PANEL_HI, 0.45), 1.0)
+
+
+## O quanto a tomada `j` é usada (0..1): as entradas mais, das primeiras linhas para as últimas; depois as saídas; os
+## destinos, menos.
+func _use(j: int) -> float:
+	if j <= 10:
+		return 1.0 - (j - 1) * 0.05
+	if j <= 20:
+		return 0.6 - (j - 11) * 0.03
+	return 0.35
+
+
+## A plaqueta de latão do fabricante, no pé do painel (ali ficava vazio), no vão entre os dois primeiros pares de
+## buracos da prateleira, onde nenhum plug guardado fica na frente: o nome da central gravado (escuro, com o brilho
+## embaixo) e um parafuso em cada ponta.
+func _draw_maker_plate() -> void:
+	var cx := roundf((hole(2).x + hole(3).x) / 2.0)
+	var bottom := DEST_TOP - 21.0 + DEST_ROW + 50.0   # o pé dos bancos de destino
+	var r := Rect2(cx - 48.0, roundf((bottom + SIZE.y - FRAME) / 2.0 - 13.0), 96.0, 26.0)
+	var pal := HOLE_PAL
+	draw_rect(Rect2(r.position + Vector2(1, 2), r.size), SHADOW)
+	draw_rect(r.grow(1), EDGE_DARK)
+	draw_rect(r, Color("b0904c"))
+	draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), pal["F"])
+	draw_rect(Rect2(r.position, Vector2(1, r.size.y)), pal["f"])
+	draw_rect(Rect2(r.position.x, r.end.y - 1, r.size.x, 1), pal["b"])
+	draw_rect(Rect2(r.end.x - 1, r.position.y, 1, r.size.y), pal["b"])
+	draw_rect(r.grow(-3), pal["b"], false, 1.0)   # o friso gravado em volta
+	for x in [r.position.x + 7.0, r.end.x - 7.0]:
+		_sprite(disc(5, [[1.5, pal["F"], pal["f"], pal["b"]], [2.5, pal["w"]]]), Vector2(x, r.get_center().y))
+		draw_rect(Rect2(x - 1.0, r.get_center().y, 3, 1), pal["w"])   # a fenda
+	var maker := tiny(T.text(T.Key.BOARD_MAKER))
+	var at := Vector2(roundf(cx - maker.get_width() / 2.0), r.position.y + 2.0)
+	draw_texture(maker, at + Vector2(0, 1), pal["F"])
+	draw_texture(maker, at, pal["w"])
+	var town := "SÃO SOTERO"
+	var nw := Pal.mono.get_string_size(town, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
+	var np := Vector2(roundf(cx - nw / 2.0), r.end.y - 6.0)
+	draw_string(Pal.mono, np + Vector2(0, 1), town, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, pal["F"])
+	draw_string(Pal.mono, np, town, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, pal["w"])
+
+
+## Faixa gravada que separa as seções do painel, com o nome dela em cima, à esquerda (sem nome, só a faixa; sem
+## `line`, só o nome).
 ## A legenda das lâmpadas, na faixa das entradas, alinhada à direita e logo acima das lâmpadas que ela explica, na
 ## fonte gravada do painel (`tiny`; em 11 não cabia ali). No pé do painel, os plugs guardados passavam na frente dela.
 func _draw_legend() -> void:
@@ -1090,9 +1167,10 @@ func _draw_legend() -> void:
 		x += 9.0 + 4.0 + (texts[k] as Texture2D).get_width() + 10.0
 
 
-func _draw_rule(y: float, caption: String) -> void:
-	draw_rect(Rect2(FRAME + 6, y, size.x - FRAME * 2 - 12, 1), Pal.PANEL_LO)
-	draw_rect(Rect2(FRAME + 6, y + 1, size.x - FRAME * 2 - 12, 1), Pal.PANEL_HI)
+func _draw_rule(y: float, caption: String, line := true) -> void:
+	if line:
+		draw_rect(Rect2(FRAME + 6, y, size.x - FRAME * 2 - 12, 1), Pal.PANEL_LO)
+		draw_rect(Rect2(FRAME + 6, y + 1, size.x - FRAME * 2 - 12, 1), Pal.PANEL_HI)
 	if caption != "":
 		var cw := Pal.ui.get_string_size(caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
 		draw_rect(Rect2(FRAME + 14, y - 7, cw + 8, 15), Pal.PANEL)
@@ -1157,16 +1235,30 @@ func _draw_number_plate(r: Rect2, text: String) -> void:
 	draw_string(Pal.mono, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color("1d1a14"))
 
 
-## Chapa parafusada sobre um banco que ainda não está em uso, com a letra dele (A, B, C).
+## Chapa de metal parafusada sobre um banco que ainda não está em uso (lisa: o escovado saiu, a pedido): a letra do
+## banco estampada em relevo (luz em cima à esquerda, sombra embaixo à direita), o aviso
+## pintado com estêncil embaixo e, em volta dos parafusos, os riscos da chave de fenda que escorregou. Sempre os mesmos.
 func _draw_plate(r: Rect2, letter: String) -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(letter)
 	draw_rect(r.grow(1), EDGE_DARK)
 	draw_rect(r, PLATE)
 	draw_rect(Rect2(r.position, Vector2(r.size.x, 2)), PLATE.lightened(0.18))
 	draw_rect(Rect2(r.position.x, r.end.y - 2, r.size.x, 2), PLATE.darkened(0.35))
 	for c in [r.position + Vector2(7, 7), Vector2(r.end.x - 7, r.position.y + 7), Vector2(r.position.x + 7, r.end.y - 7), r.end - Vector2(7, 7)]:
+		for k in 2:   # a chave de fenda escorregou, sempre para dentro da chapa (para fora, o risco passava da borda)
+			var a: float = (r.get_center() - c).angle() + rng.randf_range(-0.6, 0.6)
+			var from: Vector2 = c + Vector2.from_angle(a) * 4.0
+			var to := from + Vector2.from_angle(a + rng.randf_range(-0.3, 0.3)) * rng.randf_range(2.0, 5.0)
+			draw_line(from.round() + Vector2(0.5, 0.5), to.round() + Vector2(0.5, 0.5), PLATE.lightened(0.3), 1.0)
 		_sprite(disc(7, [[2.5, PLATE.lightened(0.35), PLATE.lightened(0.15), PLATE.darkened(0.2)], [3.5, PLATE.darkened(0.5)]]), c)
 		draw_rect(Rect2((c - Vector2(2, 1)).floor(), Vector2(3, 1)), PLATE.darkened(0.5))   # fenda do parafuso
-	draw_string(Pal.mono, Vector2(r.position.x, r.get_center().y + 10), letter, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 22, PLATE.lightened(0.35))
+	var at := Vector2(r.position.x, r.get_center().y + 8.0)   # a letra estampada
+	draw_string(Pal.mono, at + Vector2(1, 1), letter, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 33, PLATE.darkened(0.45))
+	draw_string(Pal.mono, at - Vector2(0, 1), letter, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 33, PLATE.lightened(0.35))
+	draw_string(Pal.mono, at, letter, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 33, PLATE.lightened(0.15))
+	var notice := tiny(T.text(T.Key.BOARD_PLATE_NOTICE))   # pintado com estêncil, já gasto
+	draw_texture(notice, Vector2(roundf(r.get_center().x - notice.get_width() / 2.0), r.get_center().y + 13.0), Color("c9b98f", 0.6))
 
 
 ## [cor, brilho] do cabo da ponta e.
@@ -1187,16 +1279,36 @@ func _draw_rope(e: int, shadow: bool) -> void:
 		draw_polyline(sh, SHADOW, 7.0)
 		return
 	var col: Array = _cable_col(e)
+	pts = _kinked(e, pts)
 	draw_polyline(pts, (col[0] as Color).darkened(EDGE), 8.0)
 	draw_polyline(pts, col[0], 5.0)
 	var pts2 := PackedVector2Array()
-	for q in pts:
-		pts2.append(q + Vector2(-1, -1))
-	draw_polyline(pts2, col[1], 1.5)
+	var length := 0.0
+	for i in pts.size():
+		pts2.append(pts[i] + Vector2(-1, -1))
+		if i > 0:
+			length += pts[i].distance_to(pts[i - 1])
+	var at := 0.0
+	while at < length:   # o trançado do pano: o brilho em pedaços
+		var part := _along(pts2, at, minf(at + BRAID - 2.0, length))
+		if part.size() >= 2:
+			draw_polyline(part, col[1], 1.5)
+		at += BRAID
 	for band in HOLE_SHADE:   # perto do buraco, a sombra de dentro dele, em degraus
 		var part := _along(pts, band[0], band[1])
 		if part.size() >= 2:
 			draw_polyline(part, Color(0, 0, 0, band[2]), 5.0)
+
+
+## As dobras que um fio de pano velho guarda: cada ponto da corda sai um pouco para um lado, sempre o mesmo para cada
+## ponto (a dobra anda com o fio), menos perto das pontas. Só no desenho: a física continua com a corda lisa.
+func _kinked(e: int, pts: PackedVector2Array) -> PackedVector2Array:
+	var out := pts.duplicate()
+	var n := pts.size()
+	for i in range(1, n - 1):
+		var side := fposmod(sin(i * 12.9898 + e * 78.233) * 43758.5453, 1.0) * 2.0 - 1.0
+		out[i] += (pts[i + 1] - pts[i - 1]).normalized().orthogonal() * KINK * side * sin(PI * i / (n - 1))
+	return out
 
 
 ## O trecho da linha `pts` entre `from` e `to` px a partir do começo dela.
