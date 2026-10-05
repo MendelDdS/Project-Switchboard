@@ -32,12 +32,12 @@ const CORD_COLORS := [
 const SECTOR_ORDER := [1, 2, 3]
 const DEST_PITCH := 29.0     # px entre duas tomadas de destino vizinhas
 const BLOCK_GAP := 12.0      # px entre dois blocos
-const DEST_TOP := 217.0      # topo das tomadas da primeira fileira (a segunda fica DEST_ROW px abaixo)
+const DEST_TOP := 211.0      # topo das tomadas da primeira fileira (a segunda fica DEST_ROW px abaixo)
 const DEST_ROW := 46.0
 const SIZE := Vector2(588, 362)
 const FRAME := 7.0           # a moldura de madeira do móvel, em volta do painel
 ## Faixas gravadas no painel que separam as seções (altura da linha; o nome fica sobre ela, à esquerda).
-const RULES := {"in": 22.0, "out": 131.0, "dest": 187.0}
+const RULES := {"in": 22.0, "out": 131.0, "dest": 181.0}
 const LEGEND_Y := 310.0      # a legenda das lâmpadas, numa linha, no pé do painel (acima da ponta dos plugs em pé)
 const WOOD := [Color("6b4529"), Color("4a2f1c"), Color("2a1a0f")]   # madeira do móvel e da bandeja: luz, meio, sombra
 const FONE_HOLE_X := 50.0   # o buraco do FONE, a partir da esquerda do encaixe (no meio dele)
@@ -90,7 +90,36 @@ const PLUG_DEPTH := 0.012   # px de deslocamento da ponta por px de distância d
 const PLUG_SHADE := Vector2(7, 9)   # encaixado, a sombra vai do encaixe até aqui (luz no alto à esquerda)
 const CORD_STUB := 6.0   # encaixado, o fio sai da ponteira no eixo do plug por esses px antes de cair...
 const CORD_BEND := [0.15, 0.06]   # ...e os pontos seguintes tendem a continuar a direção dos anteriores (curva suave)
-const HOLE_DEPTH := 0.18   # o fundo do furo vazio fica deslocado assim (fração de `_tilt_at`) para o lado da câmera
+## O encaixe, pixel a pixel (20×20, um pouco menor que o `JACK`: maior, passava das linhas do banco; par, para o meio
+## dele cair entre dois pixels, como o das plaquinhas e das lâmpadas): um aro niquelado fino (2 a 3 pixels) com a beira
+## escura por fora, em volta do furo preto e largo. A luz (alto à esquerda) bate na face do aro desse lado, com um fio
+## de brilho no meio dele, e, por dentro, na parede do furo do lado oposto (embaixo à direita), que também reflete um
+## pouco no fundo. Os dois círculos (20 e 12 pixels) têm as larguras de linha das circunferências de pixel art (6, 10,
+## 12, 14...): com outros raios saíam com lados retos, como um octógono; a beira e o chanfro têm sempre 1 pixel. As
+## cores vêm de `_jack_pal`.
+const JACK_ART := [
+	".......eeeeee.......",
+	".....eeLLLMMDee.....",
+	"....eLLlllLLMDDe....",
+	"...eLlllddddMMMDe...",
+	"..eLllddhhhhDDMMDe..",
+	".eLlldhhhhhhhhDMMDe.",
+	".eLldhhhhhhhhhhDMDe.",
+	"eLlldhhhhhhhhhhDDDDe",
+	"eLldhhhhhhhhhhhkDDDe",
+	"eLldhhhhhhhhhhhkWDDe",
+	"eMLdhhhhhhhhhhhkWDDe",
+	"eMLdhhhhhhhhhhhkWDDe",
+	"eDMMDhhhhhhhhhkWddde",
+	".eDMDhhhhhhhhhkWdde.",
+	".eDMMDhhhhhhkkWddde.",
+	"..eDMMDDkkkkWWddde..",
+	"...eDMMDDWWWdddde...",
+	"....eDDDDDDDddde....",
+	".....eeDDDDDdee.....",
+	".......eeeeee.......",
+]
+const JACK_PX := 20   # o lado do `JACK_ART`, em pixels
 const LIGHT := Vector2(-0.7071, -0.7071)   # de onde vem a luz das peças redondas (alto à esquerda)
 const EDGE_DARK := Color("1c130b")   # a beira das peças: marrom quase preto, não preto puro
 ## As peças do plug encaixado, como frações do comprimento, a partir do painel: as mesmas de em pé (colar de 6 px,
@@ -173,7 +202,8 @@ func _layout_dests() -> void:
 		nums.sort()
 		for i in nums.size():
 			_slots[nums[i]] = Vector2(x + (i % cols[k]) * DEST_PITCH + DEST_PITCH / 2.0, DEST_TOP + 11.0 + int(i / cols[k]) * DEST_ROW)
-		_blocks[s] = Rect2(x - 3, DEST_TOP - 21, cols[k] * DEST_PITCH + 6, DEST_ROW + 43)
+		# o mesmo vão (8 px) entre a moldura e os números, em cima, e entre a moldura e as tomadas de baixo
+		_blocks[s] = Rect2(x - 3, DEST_TOP - 21, cols[k] * DEST_PITCH + 6, DEST_ROW + 50)
 		x += cols[k] * DEST_PITCH + BLOCK_GAP
 
 
@@ -214,7 +244,7 @@ func jack_rect(j: int) -> Rect2:
 	elif j <= 20:
 		c = Vector2(col_x(j - 11), ROW_Y["out"])
 	else:
-		c = _slots.get(j, Vector2.ZERO)
+		c = _slots.get(j, Vector2.ZERO).round()   # num pixel inteiro: o desenho do encaixe é pixel a pixel
 	return Rect2(c - Vector2(JACK, JACK) / 2.0, Vector2(JACK, JACK))
 
 
@@ -750,37 +780,42 @@ func _draw_lamp(c: Vector2, col: Color, level: float) -> void:
 	_sprite(_disc(16, [[5.0, Color.BLACK], [7.0, BEZEL[0], BEZEL[1], BEZEL[2]], [8.0, EDGE_DARK]]), c)   # aro e assento
 	if level > 0.02:
 		_sprite(_disc(16, [[5.0, Color.TRANSPARENT], [7.0, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), c, Color(col, 0.35 * level))   # a luz no aro
-	_sprite(_disc(10, [[4.6, Color.WHITE]]), c, LAMP_OFF.lerp(col, level))   # o vidro
+	# o vidro, do tamanho do assento (menor, sobravam pixels pretos soltos entre ele e o aro)
+	_sprite(_disc(10, [[5.0, Color.WHITE]]), c, LAMP_OFF.lerp(col, level))
 	if level > 0.02:   # acesa: o centro estoura para o branco (o halo é do Bloom; o miolo nítido, daqui)
 		_sprite(_disc(6, [[2.8, Color.WHITE]]), c, Color(Color.WHITE.lerp(col, Bloom.HOT_TINT), level))
 		Bloom.light(self, Rect2(c - Vector2(LAMP_R, LAMP_R), Vector2(LAMP_R, LAMP_R) * 2.0), Color(col, level), 1.0, false, true)
 	else:
-		_sprite(_disc(10, [[4.6, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), c, Color(1, 1, 1, 0.12))   # o reflexo no vidro
+		_sprite(_disc(10, [[5.0, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), c, Color(1, 1, 1, 0.12))   # o reflexo no vidro
 
 
-## Encaixe redondo como os das mesas antigas: bucha de metal com a aba chanfrada (luz no alto à esquerda, sombra embaixo
-## à direita), a parede de dentro rebaixada (côncava: a sombra no alto, a luz embaixo) e o furo escuro no meio.
-func _draw_jack(jr: Rect2, rim: Color = Pal.BRASS) -> void:
-	var c := jr.get_center()
-	var r := jr.size.x / 2.0
-	draw_circle(c + Vector2(1, 1.5), r, Color(0, 0, 0, 0.35))   # sombra no painel
-	draw_circle(c, r, Color.BLACK)
-	draw_circle(c, r - 1.0, rim.darkened(0.45))
-	draw_circle(c - Vector2(0.8, 0.8), r - 1.8, rim.lightened(0.3))
-	draw_circle(c, r - 2.2, rim)
-	var wall := r * 0.62
-	draw_circle(c, wall, rim.lightened(0.15))
-	draw_circle(c - Vector2(0.8, 0.8), wall - 0.7, rim.darkened(0.4))
-	# o furo, visto de lado: a parede de dentro aparece do lado oposto à câmera e o fundo escuro vai para o lado dela
-	var off := -_tilt_at(c) * HOLE_DEPTH * r / (JACK / 2.0)   # furo menor, fundo menos deslocado
-	draw_circle(c, r * 0.4, rim.darkened(0.6))
-	draw_circle(c + off, r * 0.4 - off.length(), Color("050403"))
+## Encaixe redondo como os das mesas antigas, pixel a pixel (`JACK_ART`), com a sombra no painel. `dim`: o metal mais
+## escuro (`_jack_pal`).
+func _draw_jack(jr: Rect2, dim := 0.0) -> void:
+	var r := _jack_px(jr)
+	draw_texture_rect(_art(JACK_ART, {"*": Color(0, 0, 0, 0.35)}), Rect2(r.position + Vector2(1, 2), r.size), false)
+	draw_texture_rect(_art(JACK_ART, _jack_pal(dim)), r, false)
 
 
-## A luz de uma lâmpada batendo na aba do encaixe logo abaixo dela (o lado de cima, virado para a luz).
+## Onde o desenho do encaixe `jr` fica (`JACK_PX` em volta do meio dele).
+func _jack_px(jr: Rect2) -> Rect2:
+	return Rect2(jr.get_center() - Vector2(JACK_PX, JACK_PX) / 2.0, Vector2(JACK_PX, JACK_PX))
+
+
+## As cores do encaixe: níquel (`dim` escurece o metal: as saídas, para não se confundirem com as entradas).
+func _jack_pal(dim: float) -> Dictionary:
+	var pal := {"l": Color("f3eee0"), "L": Color("cfc3a9"), "M": Color("8e8272"), "D": Color("4f4840"),
+		"d": Color("35302a"), "W": Color("e0d6c0")}
+	for k in pal:
+		pal[k] = (pal[k] as Color).darkened(dim)
+	pal.merge({"e": Color("0b0907"), "h": Color("050403"), "k": Color("1e1b17")})
+	return pal
+
+
+## A luz de uma lâmpada batendo no aro do encaixe logo abaixo dela (o lado de cima, virado para a luz).
 func _reflect(jr: Rect2, col: Color, level: float) -> void:
 	if level > 0.02:
-		draw_arc(jr.get_center(), jr.size.x / 2.0 - 1.6, PI * 1.15, PI * 1.85, 12, Color(col, 0.55 * level), 1.5)
+		draw_texture_rect(_art(JACK_ART, {"l": Color.WHITE, "L": Color.WHITE}), _jack_px(jr), false, Color(col, 0.55 * level))
 
 
 func _draw() -> void:
@@ -812,7 +847,7 @@ func _draw() -> void:
 		elif st == Exchange.Line.DONE:
 			sc = Pal.RED
 		draw_string(Pal.ui, Vector2(cx - 28, ROW_Y["state"]), exchange.line_label(n), HORIZONTAL_ALIGNMENT_CENTER, 56, STATE_FONT, sc)
-		_draw_jack(jack_rect(n + 10), Color("7a6230"))
+		_draw_jack(jack_rect(n + 10), 0.25)
 
 	# destinos: a faixa de numeração de cada banco fica sobre a faixa gravada, como rótulo da seção
 	for s in _blocks:
@@ -1287,6 +1322,24 @@ func _draw_plug_tip() -> void:
 	draw_rect(Rect2(-3, -48, 6, 1), Color("141210"))   # isolante
 	draw_circle(Vector2(0, -49.5), 2.6, BEZEL[1])   # bico
 	draw_rect(Rect2(-2.5, -51, 1.5, 2), BEZEL[0])
+
+
+## Pixel art de um mapa de texto (`rows`, um caractere por pixel; "." é vazio), nas cores de `pal` (caractere -> cor;
+## "*" vale para os que faltam; sem cor, vazio). Guardada.
+static var _arts := {}
+static func _art(rows: Array, pal: Dictionary) -> ImageTexture:
+	var key := hash([rows, pal])
+	if _arts.has(key):
+		return _arts[key]
+	var img := Image.create((rows[0] as String).length(), rows.size(), false, Image.FORMAT_RGBA8)
+	for y in rows.size():
+		for x in (rows[y] as String).length():
+			var ch: String = rows[y][x]
+			if ch != "." and (pal.has(ch) or pal.has("*")):
+				img.set_pixel(x, y, pal.get(ch, pal.get("*")))
+	var tex := ImageTexture.create_from_image(img)
+	_arts[key] = tex
+	return tex
 
 
 ## Peça redonda em pixel art, pixel a pixel (desenhada como círculo, saía embolotada): `d` pixels de diâmetro;

@@ -316,17 +316,23 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Layout da mesa (`SIZE` 588×362, também em `main.tscn`): móvel com moldura de madeira (`_draw_cabinet`, `FRAME`,
   `WOOD`) e faixas gravadas com o nome de cada seção (`_draw_rule`, `RULES`: entradas, saídas, destinos); coluna de cada linha em `ROW_Y` (plaquinha de metal com o número
   gravado, `_draw_number_plate`; estado; lâmpada; entrada; saída), todos os encaixes com `JACK` px, bancos de destino em
-  `DEST_TOP`/`DEST_ROW` e a legenda das lâmpadas numa linha no pé (`LEGEND_Y`). Mexendo na altura, confira que a coluna da esquerda ainda cabe (até 540).
+  `DEST_TOP`/`DEST_ROW` (cada banco com o mesmo vão, 8 px, entre a moldura e os números e entre as tomadas de baixo e a moldura, `_blocks`) e a legenda das lâmpadas numa linha no pé (`LEGEND_Y`). Mexendo na altura, confira que a coluna da esquerda ainda cabe (até 540).
 - Chapas de metal niquelado (`_draw_metal`: chanfro e rebites) nas plaquinhas dos números.
 - **Peças redondas pixel a pixel** (`_disc`: imagem guardada por diâmetro e camadas, com luz, meio-tom e sombra vindos de
   `LIGHT`, alto à esquerda, e camadas côncavas; `_sprite` desenha presa aos pixels; desenhadas como círculo saíam
   embolotadas): lâmpadas, aro aceso do destino, lâmpadas da legenda e parafusos das chapas. Beira das peças e do
-  móvel em `EDGE_DARK` (marrom quase preto), não preto. Os encaixes e o plug encaixado continuam desenhados com
-  círculos e cápsulas (o usuário os preferiu assim; em pixels o furo ficou maior e feio).
-- Encaixes redondos como os originais (`_draw_jack`: bucha de metal com aba chanfrada, parede de dentro rebaixada e o
-  furo); lâmpadas redondas com aro niquelado (`_draw_lamp`, `BEZEL`) que acendem rápido e apagam devagar, como
+  móvel em `EDGE_DARK` (marrom quase preto), não preto. O plug encaixado continua desenhado com cápsulas (o
+  usuário o preferiu assim). **O encaixe é um mapa de pixels** (`JACK_ART`, 20×20, um pouco menor que o `JACK`: com 24, passava das linhas do banco; `_art`: um caractere por pixel e a
+  paleta, `_jack_pal`; o mesmo da branch 2×2, pela referência do usuário, com mais tons): aro niquelado fino (2 a 3
+  pixels; mais grosso, destoava da referência; os raios dão as larguras de linha de um círculo de pixel art, senão
+  saía octogonal) com a beira
+  escura em volta do furo preto e largo, a luz na face do aro no alto à esquerda (com um fio de brilho) e na parede do
+  furo embaixo à direita; as saídas no níquel mais escuro (`dim`). Largura par e o meio num pixel inteiro (`jack_rect`
+  arredonda o dos destinos), para ficar no eixo da plaquinha e da lâmpada. (Uma versão em `_disc` com a bucha de latão
+  saiu com o furo maior e foi rejeitada.)
+- Encaixes redondos (`_draw_jack`: o aro niquelado e o furo, com a sombra no painel); lâmpadas redondas com aro niquelado (`_draw_lamp`, `BEZEL`) que acendem rápido e apagam devagar, como
   filamento (`_lamp`/`_dest_lamp` dizem cor e nível desejado, `_fade` chega lá em `LAMP_ON_SEC`/`LAMP_OFF_SEC`, estado em
-  `_lit`; a linha tocando pulsa). A luz acesa tinge o aro dela e a aba do encaixe logo abaixo (`_reflect`).
+  `_lit`; a linha tocando pulsa). A luz acesa tinge o aro dela e o alto do aro do encaixe logo abaixo (`_reflect`).
 - Plug (`_draw_plug`): de pé (comprido, `PLUG_LEN` do fio ao colar e a ponta de metal longa; a legenda das lâmpadas
   fica acima das pontas dos plugs guardados) (solto, na mão, na bandeja; `_draw_plug_body`) é cabo de baquelite na cor do cabo
   (sombreado de cilindro, sulcos de pegada, ponteira de onde sai o fio), colar niquelado (`BEZEL`) e a ponta de três
@@ -340,8 +346,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `CORD_BEND`, uma vez por passo: por iteração endurecia o fio), a sombra vai do encaixe até `PLUG_SHADE` com uma
   sombra de contato em volta do colar (a do fio sai do fim da do plug e chega a `ROPE_SHADOW` no buraco, `_lift`), a
   lâmpada da linha acende também a beira de cima do cabo (`_plug_reflect(j, tilt)`), o corpo em pé entra girando para o eixo do encaixado, sem a ponta de metal
-  (`_draw_plug_body(col, false)`), e o furo dos
-  encaixes vazios mostra a parede de dentro pela mesma paralaxe (`_tilt_at`, `HOLE_DEPTH`). O aro pega a luz da lâmpada (`_plug_reflect`: na entrada, a
+  (`_draw_plug_body(col, false)`). O aro pega a luz da lâmpada (`_plug_reflect`: na entrada, a
   da linha, no alto do aro; no destino, a do aro aceso, em volta). Ao encaixar, o corpo em pé entra no encaixe enquanto a
   vista de frente cresce, e ao sair a vista de frente some no encaixe (`MORPH_SEC`, `_pulled`, `_unseat`); ao encaixar, o tampo encolhe `PUSH_PX`
   e volta em `PUSH_SEC` (`_pushed`, `_push`). Destaque e sombra seguem a silhueta (`_plug_outline`: as partes unidas
@@ -689,6 +694,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     do usuário, o jogo todo ficou em 1x1: o cenário voltou aos detalhes de 1 px (da história 48), numa tela na
     resolução da janela, o bloom em blocos de 1 px, e da prova vieram as peças redondas da mesa comutadora pixel a pixel
     (lâmpadas com aro, vidro e centro aceso). Os encaixes e o plug encaixado ficaram como estavam (o usuário os preferia).
+55. O encaixe redesenhado pela referência do usuário (a mesma da branch 2×2), em 1x1: aro niquelado fino e furo preto
+    largo, em pixel art.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.
