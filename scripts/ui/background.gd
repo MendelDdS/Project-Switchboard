@@ -5,8 +5,7 @@ extends Control
 ## o canto de uma sala vista por quem
 ## está sentado à mesa. Uma câmera só, em perspectiva de um ponto (`_vp`, perto dos objetos da mesa e na altura dos
 ## olhos, `EYE` acima do fundo do tampo; `_proj`/`_p3` levam um ponto da sala para a tela): a parede do fundo, com um
-## armário de aço de chão atrás da mesa (a base fica escondida por ela; o relógio da sala é o `WallClock`, na parede
-## acima da mesa comutadora, sempre à vista); a parede da direita, entrando para o fundo a partir da quina (`CORNER`), com a janela vista de lado; a mesa de madeira, afastada da
+## armário de aço de chão atrás da mesa (a base fica escondida por ela); a parede da direita, entrando para o fundo a partir da quina (`CORNER`), com a janela vista de lado; a mesa de madeira, afastada da
 ## parede (`DESK_T`), que termina na parede da direita, com a mesa comutadora em pé nela (um móvel só: o console, cuja
 ## frente é a faixa de mesa, e o painel na prateleira dele, `_draw_switchboard`). A luz vem de cima, do meio da tela, de
 ## uma luminária que não aparece (o desenho dela tirava a atenção): o arco na parede, a poça na mesa e as sombras.
@@ -19,7 +18,8 @@ extends Control
 ## `weather`: "rain" (gotas no vidro, chão molhado), "fog" (névoa passando, luzes difusas) ou "clear" (estrelas e lua).
 ## `shadow`: a silhueta de alguém parado do lado de fora da janela (sai pouco antes da ligação desconhecida).
 ## Objetos na mesa, ao alcance do operador, abrem as ferramentas (`prop_clicked`, o id da aba em `Tools.TABS`): as
-## listas telefônicas, o mapa dobrado, o caderno aberto e a prancheta do registro. Ficam na sala, em centímetros da
+## listas telefônicas, o mapa dobrado, o caderno aberto e a prancheta do registro (o relógio de flip e a caneca só
+## enfeitam). Ficam na sala, em centímetros da
 ## mesa, e passam pela mesma câmera (tamanho, escorço e o lado que aparece saem da conta), desenhados em pixels de 1x1
 ## com o detalhe da mesa comutadora; o resto do cenário também tem o detalhe em 1x1 (`PX`). Sob o mouse, ganham contorno, o nome da ferramenta e
 ## o cursor de dedo (o `SceneView` repassa o mouse, `pointer`, e desenha o contorno, `draw_hover`); o clique só vale
@@ -43,7 +43,15 @@ const WALL_GAP := 40.0     ## quanto a luminária fica à frente da parede (px d
 const VP_X := 0.55      ## o ponto de fuga na largura da tela: perto dos objetos da mesa (longe dele, eles entortam)
 const EYE := 210.0      ## a altura dos olhos acima do fundo do tampo, na tela (px de 2x2): o ponto de fuga, logo acima da
                         ## tela (olhando a mesa de cima, de perto: com ele mais baixo, o que fica longe dele entortava demais)
-const Z0 := 330.0       ## a distância dos olhos à parede do fundo
+# O operador está sentado à mesa e a câmera são os olhos dele: `SEAT_EYE` cm acima do tampo, com o fundo do tampo a
+# `SEAT_BACK` cm (a parte da frente do tampo fica sob o console do painel; a tela mostra a de trás). A tela fixa onde
+# ficam o ponto de fuga e o fundo do tampo (`EYE` px abaixo dele); o que resta é a distância focal, que sai da
+# conta: a altura dos olhos sobre a distância ao fundo do tampo é a mesma na sala e na tela (`EYE` / `Z0` × `DESK_T`).
+# Com uma distância focal menor (era 330), a mesa era vista de cima como por alguém em pé (a ~38° em vez de ~22–29°
+# para baixo) e as profundidades saíam exageradas: a prancheta mais larga que funda, o relógio torto.
+const SEAT_EYE := 45.0    ## a altura dos olhos acima do tampo (cm), sentado
+const SEAT_BACK := 110.0  ## dos olhos ao fundo do tampo (cm), na horizontal
+const Z0 := EYE * SEAT_BACK / SEAT_EYE   ## a distância dos olhos à parede do fundo (e a distância focal, em px de 2x2)
 const DESK_T := 1.25    ## o fundo do tampo, Z0/DESK_T: a mesa fica afastada da parede (o armário cabe atrás)
 const CORNER := 0.64    ## a quina das paredes, na largura da área das ferramentas
 const BOARD_D := 14.0   ## o fundo do painel da mesa comutadora (z), atrás da prateleira: raso, como o das mesas de verdade (o corpo do móvel é o console); a lateral dele foge para o ponto de fuga
@@ -56,6 +64,32 @@ const SIDE_T := 1.06        ## onde a janela começa na parede da direita (escal
 const SIDE_W := 150.0       ## a largura do vão, de frente (só a resolução da projeção)
 const WIN_TOP := -8.0       ## o alto do vão (y, a partir dos olhos): logo acima deles, passando da borda de cima
 const WIN_SILL := 26.0      ## quanto o peitoril fica acima do tampo (y)
+const X2 := Transform2D(Vector2(2, 0), Vector2(0, 2), Vector2.ZERO)   ## a escala dos px de 2x2 (`_sprite` volta a ela)
+const MUG_HANDLE := ["hhhh..", "HHHHh.", "...hHh", "....Hs", "....Hs", "....Hs", "....Hs", "...hHs", "HHHHs.", "ssss.."]   ## a alça da caneca (as duas colunas da esquerda ficam atrás dela)
+const CLOCK := Vector3(24, 12.5, 14)   ## o relógio de flip da mesa: largura, altura e fundo (na escala da sala; ~15 × 8 × 9 cm, como as listas de 21 cm)
+const CLOCK_TURN := 0.5     ## quanto ele está virado para os olhos do operador (1 = de frente para eles; 0 = para a parede)
+const FLIP_SEC := 0.24      ## quanto a plaqueta leva para virar
+const DIGITS := [   ## os algarismos das plaquetas, 9×19 px, desenhados à mão (estreitos, cantos redondos, traço de 2 px), lado a lado
+	"..#####.. ....##... ..#####.. ..#####.. ##...##.. ######### ..#####.. ######### ..#####.. ..#####..",
+	".#######. ...###... .#######. .#######. ##...##.. ######### .#######. ######### .#######. .#######.",
+	"##.....## ..####... ##.....## ##.....## ##...##.. ##....... ##.....## .......## ##.....## ##.....##",
+	"##.....## .##.##... .......## .......## ##...##.. ##....... ##....... .......## ##.....## ##.....##",
+	"##.....## ....##... .......## .......## ##...##.. ##....... ##....... ......##. ##.....## ##.....##",
+	"##.....## ....##... .......## .......## ##...##.. ##....... ##....... ......##. ##.....## ##.....##",
+	"##.....## ....##... .......## .......## ##...##.. ##....... ##....... ......##. ##.....## ##.....##",
+	"##.....## ....##... ......##. .......## ##...##.. #######.. ##....... .....##.. .#######. ##.....##",
+	"##.....## ....##... .....##.. ...#####. ##...##.. ########. ##.####.. .....##.. .#######. .########",
+	"##.....## ....##... ....##... ...#####. ##...##.. .......## ########. .....##.. ##.....## ..####.##",
+	"##.....## ....##... ...##.... .......## ##...##.. .......## ##.....## ....##... ##.....## .......##",
+	"##.....## ....##... ..##..... .......## ######### .......## ##.....## ....##... ##.....## .......##",
+	"##.....## ....##... .##...... .......## ######### .......## ##.....## ....##... ##.....## .......##",
+	"##.....## ....##... ##....... .......## .....##.. .......## ##.....## ...##.... ##.....## .......##",
+	"##.....## ....##... ##....... .......## .....##.. .......## ##.....## ...##.... ##.....## .......##",
+	"##.....## ....##... ##....... .......## .....##.. .......## ##.....## ...##.... ##.....## .......##",
+	"##.....## ....##... ##....... ##.....## .....##.. ##.....## ##.....## ...##.... ##.....## ##.....##",
+	".#######. ....##... ######### .#######. .....##.. .#######. .#######. ...##.... .#######. .#######.",
+	"..#####.. ....##... ######### ..#####.. .....##.. ..#####.. ..#####.. ...##.... ..#####.. ..#####..",
+]
 
 @export var window: Control   ## a área das ferramentas: a quina e a janela ficam na parede dela
 @export var desk: Control     ## a faixa do rádio, a frente do console da mesa comutadora: a borda da frente do tampo fica logo abaixo dela
@@ -77,6 +111,16 @@ var news := false    ## o jornal da manhã está na mesa (da segunda noite em di
 # do armário risca um dia por noite).
 var details := PackedStringArray()
 var night := 1
+var minutes := 18 * 60.0:   ## a hora do jogo (minutos do dia; o Main atualiza): o relógio de flip da mesa
+	set(v):
+		if int(v) != int(minutes):   # a plaqueta vira
+			_flip_from = int(minutes)
+			_flip_at = Time.get_ticks_msec()
+		minutes = v
+var clock_x := 0.0   ## onde o relógio está na tela (x global): de lá vêm a badalada das horas e a campainha do turno
+var _yaw := 0.0   # quanto o relógio da mesa está girado (rad; `_draw_flip_clock`)
+var _flip_from := -1   # o minuto que a plaqueta mostrava antes de virar
+var _flip_at := -100000   # quando ela começou a virar (ms)
 var _drops: Array = []
 var _stars: Array[Vector2] = []
 var _city: Array = []          # prédios da vista: {x, w, h, roof, lit: [Vector2...]} (em frações e px do vidro)
@@ -150,7 +194,12 @@ func _process(delta: float) -> void:
 func _state() -> Array:
 	return [size, board.get_global_rect() if board else Rect2(), desk.get_global_rect() if desk else Rect2(),
 		window.get_global_rect() if window else Rect2(), _paper(), lamp_level, _pin_lit(), pending, unread, news,
-		details, night, weather]
+		details, night, weather, int(minutes), _flip_step()]
+
+
+## Em que passo da virada está a plaqueta do relógio (0 a 2; 3 = parada).
+func _flip_step() -> int:
+	return mini(3, int((Time.get_ticks_msec() - _flip_at) / (FLIP_SEC * 1000.0 / 3.0)))
 
 
 ## O alfinete do mapa aceso: com uma emergência em andamento ele pisca, mais rápido a cada estágio.
@@ -187,6 +236,15 @@ func _r(x: float, y: float, w: float, h: float, c: Color) -> void:
 ## Um retângulo em px da tela (1x1) dentro do desenho em escala 2: os detalhes finos, na mesma densidade da interface.
 func _p(x: float, y: float, w: float, h: float, c: Color) -> void:
 	_ci.draw_rect(Rect2(x * PX, y * PX, w * PX, h * PX), c)
+
+
+## Uma peça redonda em pixel art (`Switchboard.disc`; como círculo, saía embolotada) centrada em `c` (px da tela),
+## presa aos pixels, fora da escala e da perspectiva; depois volta a valer `back` (a transformação de quem chamou).
+func _sprite(tex: Texture2D, c: Vector2, mod := Color.WHITE, back := Transform2D.IDENTITY) -> void:
+	draw_set_transform(Vector2.ZERO)
+	var sz := Vector2(tex.get_size())
+	draw_texture_rect(tex, Rect2((c - sz / 2.0).floor(), sz), false, mod)
+	draw_set_transform_matrix(back)
 
 
 func _draw() -> void:
@@ -449,17 +507,18 @@ func _draw_switchboard(front: float) -> void:
 		draw_rect(Rect2(plate.position, Vector2(plate.size.x, 1)), Color("c4a35a"))
 		for i in 2:   # o nome gravado (as letras não se leem dessa distância)
 			draw_rect(Rect2(plate.position.x + 8, plate.position.y + 5 + i * 5, plate.size.x - 16 - i * 12, 1), Color("4a3a18"))
-		for i in 2:
+		for i in 2:   # baquelite: a borda em volta do tampo, os dois com a luz no alto à esquerda
 			var c := Vector2(rr.end.x + 24 + i * 30, my)
-			draw_circle(c + Vector2(1, 2), 9.0, Color(0, 0, 0, 0.35))
-			draw_circle(c, 8.0, Color("2a2420"))
-			draw_arc(c, 6.0, PI * 1.05, PI * 1.6, 8, Color("4a4038"), 1.5)   # a luz na borda
+			_sprite(Switchboard.disc(19, [[9.0, Color(0, 0, 0, 0.35)]]), c + Vector2(1, 2))
+			_sprite(Switchboard.disc(17, [[5.5, Color("5a5048"), Color("3a332c"), Color("2a2420")],
+				[7.5, Color("4a4038"), Color("2a2420"), Color("1a1612")], [8.5, Color("120e0a")]]), c)
 			var a := -PI * 0.75 + i * 1.1
-			draw_line(c, c + Vector2(cos(a), sin(a)) * 6.0, Color("d6d1c3"), 1.5)   # o risco de posição
+			for j in range(2, 7):   # o risco de posição, pixel a pixel
+				draw_rect(Rect2((c + Vector2(cos(a), sin(a)) * j).floor(), Vector2.ONE), Color("d6d1c3"))
 	for p in [Vector2(fx1 - 8, sy + 8), Vector2(fx1 - 8, fy - 10), Vector2(8, sy + 8), Vector2(8, fy - 10)]:   # os parafusos
 		if p.x > fx0 + 4:
-			draw_circle(p, 2.0, Color("2a1a0f"))
-			draw_line(p - Vector2(1, 0), p + Vector2(1, 0), Color("8e7a5a"), 1.0)
+			_sprite(Switchboard.disc(5, [[2.5, Color("4a3a24"), Color("2a1a0f"), Color("1a0f08")]]), p)
+			draw_rect(Rect2(p.floor() - Vector2(1, 0), Vector2(3, 1)), Color("8e7a5a"))   # a fenda
 	draw_rect(Rect2(b.position.x, b.end.y, b.size.x, 3), WOOD[2])
 	draw_colored_polygon(PackedVector2Array([Vector2(b.position.x, b.end.y + 3), Vector2(b.end.x, b.end.y + 3),
 		Vector2(b.end.x + 2, b.end.y + 7), Vector2(b.position.x - 3, b.end.y + 7)]), Color(0, 0, 0, 0.3))
@@ -617,8 +676,7 @@ func _draw_steel_cabinet() -> Rect2:
 	_r(mid + 4, hy, 2.5, 16, Color("3a3d33"))
 	_r(mid + 4, hy, 2, 15.5, Color("b8b2a2"))
 	_r(mid + 4, hy, PX, 15.5, Color("ece7da"))
-	draw_circle(Vector2(mid + 5.25, hy - 5), 2.0, Color.BLACK)
-	draw_circle(Vector2(mid + 5.25, hy - 5), 1.5, Color("8e897c"))
+	_sprite(Switchboard.disc(8, [[3.0, Color("b8b2a2"), Color("8e897c"), Color("5a574e")], [4.0, Color.BLACK]]), Vector2(mid + 5.25, hy - 5) * 2.0, Color.WHITE, X2)
 	_r(mid + 5, hy - 6, PX, 1.5, Color("23281f"))
 	for y in [doors + 4, doors + 70]:   # as dobradiças
 		for x in [f.position.x - 1, f.end.x - 1]:
@@ -716,8 +774,7 @@ func _draw_poster(r: Rect2) -> void:
 	_r(c.x - 7, c.y + 5, 14, PX, Color("8a5a36"))
 	for k in 4:   # o convite
 		_r(r.position.x + 4, r.position.y + 29 + k * 1.5, r.size.x - 8 - (k % 2) * 4, PX, Color("5a4d3a"))
-	draw_circle(Vector2(r.get_center().x, r.position.y), 1.25, Color("b03a2e"))   # a tachinha
-	draw_circle(Vector2(r.get_center().x - PX, r.position.y - PX), PX, Color("e07060"))
+	_sprite(Switchboard.disc(5, [[2.5, Color("e07060"), Color("b03a2e"), Color("7a2418")]]), Vector2(r.get_center().x, r.position.y) * 2.0, Color.WHITE, X2)   # a tachinha
 
 
 ## A vista: céu do clima, morros ao fundo, casas e a igreja com o relógio aceso, a rua com o poste (a silhueta do
@@ -924,10 +981,186 @@ func _draw_desk_props() -> void:
 	_flat("caderno", l + 44, _at(0.52), 51, _deep(0.28), 2, Color("3a2414"), _draw_open_notebook)
 	if news:
 		_flat("jornal", l + 106, _at(0.56), 37, _deep(0.21), 2, Color("b8b0a0"), _draw_newspaper)
-	_draw_mug(_cx - _vp.x - 28.0, _at(0.42), 6.6, 15)
+	var mug := _cx - _vp.x - 28.0
+	_draw_flip_clock(mug - 15.0, _at(0.62))   # mais para o fundo, logo atrás da caneca (desenhado antes dela; mais à esquerda, encostava no jornal)
+	_draw_mug(mug, _at(0.42), 6.6, 15)
 	_flat("despacho", l + 4, _at(0.08), 40, _deep(0.21), 1, Color("a89a76"), _draw_folded_map)
 	_flat("registro", l + 74, _at(0.06), 29, _deep(0.32), 2, Color("4a3018"), _draw_clipboard)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+
+
+## O relógio da sala: um relógio de flip na mesa (centro `xc`, `zc`; medidas em `CLOCK`), meio virado para o operador
+## (`CLOCK_TURN` do ângulo até os olhos, `_yaw`): caixa de baquelite creme numa base escura e, na janela, as duas plaquetas (horas e minutos), que viram
+## quando a hora muda (`minutes`, `_flip_step`); no tampo, as fendas e o botão do alarme; no lado, a rodinha de
+## acertar a hora. É o único relógio da tela.
+func _draw_flip_clock(xc: float, zc: float) -> void:
+	_yaw = -CLOCK_TURN * atan2(xc, zc)   # a frente gira para os olhos (que estão na origem)
+	var hw := CLOCK.x / 2.0
+	var hd := CLOCK.z / 2.0
+	var bh := 1.5   # a base, um pouco maior que a caixa, que a levanta da mesa
+	_desk_shadow(PackedVector2Array([_clock_pt(xc, zc, -hw - 1, hd + 1, _yd), _clock_pt(xc, zc, hw + 1, hd + 1, _yd),
+		_clock_pt(xc, zc, hw + 1, -hd - 1, _yd), _clock_pt(xc, zc, -hw - 1, -hd - 1, _yd)]))
+	_clock_box(xc, zc, hw + 0.8, hd + 0.8, _yd, bh, Color("4e3a28"), Color("2a1d13"), Color("3a2a1c"))
+	var box := _clock_box(xc, zc, hw, hd, _yd - bh, CLOCK.y, Color("dccfa8"), Color("998a66"), Color.TRANSPARENT)
+	var y1 := _yd - bh - CLOCK.y
+	clock_x = global_position.x + _bounds(box["top"]).get_center().x
+	for i in 4:   # as fendas do alarme, no fundo do tampo
+		var v := hd - 1.6 - i * 1.1
+		draw_line(_clock_pt(xc, zc, -hw * 0.75, v, y1).round(), _clock_pt(xc, zc, 0.0, v, y1).round(), Color("a89a76"), 1.0)
+	var bt := _clock_pt(xc, zc, hw * 0.55, hd * 0.3, y1)   # o botão niquelado do alarme
+	_sprite(Switchboard.disc(7, [[3.5, Color(0, 0, 0, 0.3)]]), bt + Vector2(1, 0))
+	_sprite(Switchboard.disc(6, [[1.2, Color("f4f0e6")], [3.0, Color("d6d1c3"), Color("8e897c"), Color("45413a")]]), bt - Vector2(0, 2))
+	if box.has("left"):   # a rodinha serrilhada de acertar a hora, saindo do lado
+		var a := _clock_pt(xc, zc, -hw - 0.8, hd * 0.3, y1 + CLOCK.y * 0.5 - 2.4).round()
+		var b := _clock_pt(xc, zc, -hw - 0.8, hd * 0.3, y1 + CLOCK.y * 0.5 + 2.4).round()
+		draw_rect(Rect2(a.x + 2, a.y + 1, 1, b.y - a.y), Color(0, 0, 0, 0.35))   # a sombra no lado
+		for y in range(int(a.y), int(b.y)):
+			draw_rect(Rect2(a.x - 1, y, 3, 1), Color("b8b2a2") if int(y - a.y) % 2 == 0 else Color("5a574e"))
+	if not box.has("front"):
+		return
+	# a frente: montada reta, pixel a pixel (`_clock_face`), e posta coluna a coluna na perspectiva (como imagem torta
+	# por uma transformação, os algarismos quebravam): cada coluna da tela é um raio dos olhos, que acerta a frente num
+	# ponto dela (`a`, de 0 a 1 na largura) a uma distância `z`; de pé, a coluna vai da altura de cima à de baixo nela
+	var front: PackedVector2Array = box["front"]
+	var l := _clock_xz(xc, zc, -hw, -hd)
+	var r := _clock_xz(xc, zc, hw, -hd)
+	var x0 := roundi(front[0].x)
+	var w := roundi(front[1].x) - x0
+	var h := roundi(((front[3].y - front[0].y) + (front[2].y - front[1].y)) / 2.0)
+	if w < 8 or h < 8:
+		return
+	var face := _clock_face(Vector2i(w, h))
+	for i in w:
+		var t := ((x0 + i + 0.5) / 2.0 - _vp.x) / Z0   # o rumo do raio: x/z
+		var a := clampf((t * l.y - l.x) / ((r.x - l.x) - t * (r.y - l.y)), 0.0, 0.999)
+		var z := lerpf(l.y, r.y, a)
+		var y0 := roundf(_p3(0, y1, z).y)
+		var y2 := roundf(_p3(0, y1 + CLOCK.y, z).y)
+		draw_texture_rect_region(face, Rect2(x0 + i, y0, 1, y2 - y0), Rect2(floorf(a * w), 0, 1, h))
+		draw_rect(Rect2(x0 + i, y0 - 1, 1, 1), Color("dccfa8"))   # a quina com o tampo (sem ela, sobravam furos)
+
+
+## Onde fica na sala (x, z) o ponto do relógio a `u` na largura e `v` no fundo, a partir do centro (`xc`, `zc`), girado
+## por `_yaw`.
+func _clock_xz(xc: float, zc: float, u: float, v: float) -> Vector2:
+	return Vector2(xc + u * cos(_yaw) - v * sin(_yaw), zc + u * sin(_yaw) + v * cos(_yaw))
+
+
+## Um ponto do relógio da mesa na tela (`_clock_xz`); `y`, a altura.
+func _clock_pt(xc: float, zc: float, u: float, v: float, y: float) -> Vector2:
+	var p := _clock_xz(xc, zc, u, v)
+	return _p3(p.x, y, p.y)
+
+
+## Uma caixa do relógio, girada como ele (meia largura `hw`, meio fundo `hd`, de `y0` até `h` acima): só as faces
+## viradas para os olhos, as de pé em `side` (a da frente em `front`; transparente, quem chama a desenha) e o tampo em
+## `top`. Devolve as faces que apareceram ("front", "right", "back", "left", "top").
+func _clock_box(xc: float, zc: float, hw: float, hd: float, y0: float, h: float, top: Color, side: Color, front: Color) -> Dictionary:
+	var cs := cos(_yaw)
+	var sn := sin(_yaw)
+	var y1 := y0 - h
+	var out := {}
+	# [nome, normal (u, v), de onde a onde (u, v), da esquerda para a direita de quem olha de fora]
+	for f in [["front", Vector2(0, -1), Vector2(-hw, -hd), Vector2(hw, -hd)], ["right", Vector2(1, 0), Vector2(hw, -hd), Vector2(hw, hd)],
+			["back", Vector2(0, 1), Vector2(hw, hd), Vector2(-hw, hd)], ["left", Vector2(-1, 0), Vector2(-hw, hd), Vector2(-hw, -hd)]]:
+		var n: Vector2 = f[1]
+		var m: Vector2 = (f[2] + f[3]) / 2.0
+		if Vector2(n.x * cs - n.y * sn, n.x * sn + n.y * cs).dot(-Vector2(xc + m.x * cs - m.y * sn, zc + m.x * sn + m.y * cs)) <= 0.0:
+			continue
+		var q := PackedVector2Array([_clock_pt(xc, zc, f[2].x, f[2].y, y1), _clock_pt(xc, zc, f[3].x, f[3].y, y1),
+			_clock_pt(xc, zc, f[3].x, f[3].y, y0), _clock_pt(xc, zc, f[2].x, f[2].y, y0)])
+		if _bounds(q).size.x < 1.0:   # quase de perfil, não aparece (e o polígono nem fecha)
+			continue
+		out[f[0]] = q
+		var col: Color = front if f[0] == "front" else side
+		if col.a > 0.0:
+			_poly(q, col)
+			if f[0] == "left":   # a quina com a frente pega a luz
+				draw_line(q[1], q[2], col.lightened(0.15), 1.0)
+			elif f[0] == "right":
+				draw_line(q[0], q[3], col.lightened(0.15), 1.0)
+	out["top"] = PackedVector2Array([_clock_pt(xc, zc, -hw, hd, y1), _clock_pt(xc, zc, hw, hd, y1), _clock_pt(xc, zc, hw, -hd, y1), _clock_pt(xc, zc, -hw, -hd, y1)])
+	_poly(out["top"], top)
+	return out
+
+
+## A frente do relógio, de frente, em `sz` px: a caixa creme, a janela preta de aro niquelado com as duas plaquetas
+## (horas e minutos) e a plaquinha de latão da marca embaixo. Guardada até a hora ou a virada mudar.
+var _face_key := []
+var _face: ImageTexture
+func _clock_face(sz: Vector2i) -> ImageTexture:
+	var m := int(minutes) % 1440
+	var was := (_flip_from + 1440) % 1440
+	var step := _flip_step()
+	var key := [sz, m, was, step]
+	if key == _face_key:
+		return _face
+	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
+	img.fill(Color("c9bb92"))   # um creme envelhecido: mais claro, puxava o olho mais que os outros objetos
+	img.fill_rect(Rect2i(0, 0, sz.x, 1), Color("e4d8b4"))
+	img.fill_rect(Rect2i(0, sz.y - 1, sz.x, 1), Color("998a66"))
+	var win := Rect2i(3, 3, sz.x - 6, sz.y - 8)
+	img.fill_rect(win.grow(1), Color("998a66"))   # o rebaixo em volta do aro
+	img.fill_rect(win, Color("b8b2a2"))   # o aro niquelado: claro em cima, escuro embaixo
+	img.fill_rect(Rect2i(win.position.x, win.end.y - 1, win.size.x, 1), Color("5a574e"))
+	img.fill_rect(win.grow(-1), Color("0e0c0a"))
+	img.fill_rect(Rect2i(sz.x / 2 - 6, sz.y - 4, 12, 2), Color("8a6a2e"))   # a plaquinha da marca, embaixo da janela
+	img.fill_rect(Rect2i(sz.x / 2 - 6, sz.y - 4, 12, 1), Color("c4a35a"))
+	var card := Vector2i((win.size.x - 5) / 2, win.size.y - 4)
+	_flip_card(img, Vector2i(win.position.x + 2, win.position.y + 2), card, "%02d" % (was / 60), "%02d" % (m / 60), step)
+	_flip_card(img, Vector2i(win.end.x - 2 - card.x, win.position.y + 2), card, "%02d" % (was % 60), "%02d" % (m % 60), step)
+	_face_key = key
+	_face = ImageTexture.create_from_image(img)
+	return _face
+
+
+## Uma plaqueta do relógio em `img`, em `at` e do tamanho `sz`, virando de `a` para `b` no passo `step` (0: a metade
+## de cima de `a` caindo; 1: ela de lado; 2: a metade de baixo de `b` descendo; 3: parada em `b`). Atrás da que cai,
+## em cima já está `b` e embaixo ainda `a`.
+func _flip_card(img: Image, at: Vector2i, sz: Vector2i, a: String, b: String, step: int) -> void:
+	var cb := _card(b, sz)
+	if step >= 3 or a == b:
+		img.blit_rect(cb, Rect2i(Vector2i.ZERO, sz), at)
+		return
+	var ca := _card(a, sz)
+	var h := sz.y / 2
+	img.blit_rect(cb, Rect2i(0, 0, sz.x, h), at)
+	img.blit_rect(ca, Rect2i(0, h, sz.x, sz.y - h), at + Vector2i(0, h))
+	if step == 1:   # de lado: só a espessura dela
+		img.fill_rect(Rect2i(at.x, at.y + h - 1, sz.x, 2), Color("3a352e"))
+		return
+	var flap := (ca if step == 0 else cb).get_region(Rect2i(0, 0, sz.x, h) if step == 0 else Rect2i(0, h, sz.x, sz.y - h))
+	flap.resize(sz.x, maxi(1, flap.get_height() / 2), Image.INTERPOLATE_NEAREST)   # inclinada, encurta
+	flap.adjust_bcs(0.8, 1.0, 1.0)   # e pega menos luz
+	img.blit_rect(flap, Rect2i(Vector2i.ZERO, flap.get_size()), at + Vector2i(0, h - flap.get_height() if step == 0 else h))
+
+
+## A plaqueta com os dois algarismos `text` (`DIGITS`; reduzidos se a plaqueta for menor), do tamanho `sz`: preta,
+## com a beira de cima clara e a divisa no meio, onde ela dobra. Guardada.
+static var _cards := {}
+func _card(text: String, sz: Vector2i) -> Image:
+	var key := text + str(sz)
+	if _cards.has(key):
+		return _cards[key]
+	if _cards.size() > 200:   # a tela mudou de tamanho: o relógio também
+		_cards.clear()
+	var img := Image.create(maxi(1, sz.x), maxi(1, sz.y), false, Image.FORMAT_RGBA8)
+	img.fill(Color("1e1b17"))
+	img.fill_rect(Rect2i(0, 0, sz.x, 1), Color("3a352e"))
+	img.fill_rect(Rect2i(0, sz.y / 2, sz.x, 1), Color("060505"))   # a divisa (por baixo dos algarismos: cortados, não se liam)
+	var ink := Image.create(21, 19, false, Image.FORMAT_RGBA8)   # os dois algarismos, com 3 px entre eles
+	for i in 2:
+		for r in 19:
+			var row: String = DIGITS[r].substr(int(text[i]) * 10, 9)
+			for c in 9:
+				if row[c] == "#":
+					ink.set_pixel(i * 12 + c, r, Color("efe4c4"))
+	var fit := minf(1.0, minf((sz.x - 2) / 21.0, (sz.y - 4) / 19.0))
+	if fit < 1.0:
+		ink.resize(maxi(1, int(21 * fit)), maxi(1, int(19 * fit)), Image.INTERPOLATE_NEAREST)
+	img.blend_rect(ink, Rect2i(Vector2i.ZERO, ink.get_size()), (sz - ink.get_size() + Vector2i(0, 1)) / 2)
+	_cards[key] = img
+	return img
 
 
 ## Onde fica no tampo (z) o que está a `t` da frente dele (0 = a borda da frente, 1 = o fundo): os objetos da mesa
@@ -1036,9 +1269,7 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 			draw_set_transform_matrix(xf[0])
 			draw_rect(Rect2(0, 0, s.x, 1), c.lightened(0.25))
 			draw_rect(Rect2(6, s.y * 0.35, s.x - 22, maxf(2.0, s.y * 0.25)), c.darkened(0.3))
-			draw_circle(Vector2(s.x - 8, s.y * 0.5), 3.0, c.darkened(0.35))
-			draw_circle(Vector2(s.x - 8.5, s.y * 0.5 - 0.5), 1.6, Color("e0c07a"))
-			draw_set_transform(Vector2.ZERO)
+			_sprite(Switchboard.disc(6, [[1.8, Color("f0d8a0"), Color("e0c07a"), Color("b8924e")], [3.0, c.darkened(0.35)]]), (xf[0] as Transform2D) * Vector2(s.x - 8, s.y * 0.5))
 	_props["lista"] = _bounds(all)
 
 
@@ -1050,25 +1281,32 @@ func _draw_mug(xc: float, zc: float, rr: float, hh: float) -> void:
 	var ry := maxf(2.0, roundf((_p3(xc, _yd - hh, zc - rr).y - _p3(xc, _yd - hh, zc + rr).y) / 2.0))
 	var rx := body.size.x / 2.0
 	_desk_shadow(PackedVector2Array([body.position + Vector2(0, body.size.y - ry), body.end - Vector2(0, ry), body.end, Vector2(body.position.x, body.end.y)]))
-	var hx := body.end.x
-	draw_rect(Rect2(hx, body.position.y + 5, 6, 11), Color("c2b288"))
-	draw_rect(Rect2(hx, body.position.y + 8, 3, 5), Color("211811"))
-	draw_rect(body, Color("d8caa3"))
-	draw_rect(Rect2(body.position, Vector2(4, body.size.y)), Color("ece2c6"))   # a luz
-	draw_rect(Rect2(body.end.x - 5, body.position.y, 5, body.size.y), Color("a89a76"))   # a sombra
+	draw_texture_rect(Switchboard.art(MUG_HANDLE, {"h": Color("d8caa3"), "H": Color("b8aa86"), "s": Color("8a7c5a")}),
+		Rect2(body.end.x - 2, body.position.y + 4, 6, 10), false)
+	for x in int(body.size.x):   # o cilindro, coluna a coluna: a luz à esquerda, a sombra à direita, o fundo redondo
+		var nx := (x + 0.5) / body.size.x * 2.0 - 1.0
+		var col := Color("ece2c6") if nx < -0.55 else (Color("d8caa3") if nx < 0.35 else (Color("c2b288") if nx < 0.75 else Color("a89a76")))
+		draw_rect(Rect2(body.position.x + x, body.position.y, 1, body.size.y - ry + roundf(sqrt(1.0 - nx * nx) * ry)), col)
 	var top := Vector2(body.get_center().x, body.position.y)
 	_ellipse(top, rx + 1, ry + 1, Color("a89a76"))   # a boca, com a beira no tom da sombra da caneca
 	_ellipse(top, rx, ry, Color("e3d6b2"))
 	_ellipse(top + Vector2(0, 1), rx - 2, ry - 1, Color("3a2414"))   # o café
-	draw_circle(body.get_center() + Vector2(-1, 3), 4.0, Color("8e2a22"))   # o emblema
-	draw_circle(body.get_center() + Vector2(-1.5, 2.5), 1.8, Color("e0c07a"))
+	_sprite(Switchboard.disc(8, [[1.8, Color("f0d8a0"), Color("e0c07a"), Color("b8924e")], [4.0, Color("8e2a22")]]), body.get_center() + Vector2(-1, 3))   # o emblema
 
 
+## Uma elipse cheia em pixel art (como polígono, saía embolotada), centrada em `c`. Guardada por tamanho.
+static var _ovals := {}
 func _ellipse(c: Vector2, rx: float, ry: float, col: Color) -> void:
-	var pts := PackedVector2Array()
-	for i in 16:
-		pts.append(c + Vector2(cos(TAU * i / 16.0) * rx, sin(TAU * i / 16.0) * ry))
-	draw_colored_polygon(pts, col)
+	var sz := Vector2i(maxi(1, roundi(rx * 2.0)), maxi(1, roundi(ry * 2.0)))
+	if not _ovals.has(sz):
+		var img := Image.create(sz.x, sz.y, false, Image.FORMAT_LA8)
+		var h := Vector2(sz) / 2.0
+		for y in sz.y:
+			for x in sz.x:
+				if ((Vector2(x, y) + Vector2(0.5, 0.5) - h) / h).length_squared() <= 1.0:
+					img.set_pixel(x, y, Color.WHITE)
+		_ovals[sz] = ImageTexture.create_from_image(img)
+	draw_texture_rect(_ovals[sz], Rect2((c - Vector2(sz) / 2.0).floor(), Vector2(sz)), false, col)
 
 
 ## O mapa da cidade dobrado em três, meio aberto na mesa: os painéis alternam luz e sombra nas dobras, com quadras,
@@ -1087,13 +1325,13 @@ func _draw_folded_map(r: Rect2) -> void:
 	for k in [1, 2]:   # as dobras
 		draw_rect(Rect2(r.position.x + k * pw - 1, r.position.y, 1, r.size.y), Color(0, 0, 0, 0.25))
 		draw_rect(Rect2(r.position.x + k * pw, r.position.y, 1, r.size.y), Color(1, 1, 1, 0.25))
-	var pin := r.position + Vector2(r.size.x * 0.7, r.size.y * 0.42)   # o alfinete no local marcado
-	draw_circle(pin + Vector2(2, 2), 2.5, Color(0, 0, 0, 0.35))
+	# o alfinete no local marcado: a cabeça redonda vista de cima, fora da perspectiva do mapa (torta, serrilhava)
+	var sp := _paint_xf * (r.position + Vector2(r.size.x * 0.7, r.size.y * 0.42))
 	var lit := _pin_lit()   # com uma emergência em andamento, ele pisca e brilha
-	draw_circle(pin, 2.5, Color("ff5a3c") if lit else Color("b03a2e"))
-	draw_circle(pin - Vector2(0.8, 0.8), 1.0, Color("ffc0a0") if lit else Color("e07060"))
+	_sprite(Switchboard.disc(6, [[3.0, Color(0, 0, 0, 0.35)]]), sp + Vector2(2, 2), Color.WHITE, _paint_xf)
+	_sprite(Switchboard.disc(6, [[1.2, Color("ffe0c8") if lit else Color("f0a090")],
+		[3.0, Color("ff8a6c") if lit else Color("e07060"), Color("ff5a3c") if lit else Color("b03a2e"), Color("c03a22") if lit else Color("7a2418")]]), sp, Color.WHITE, _paint_xf)
 	if lit:
-		var sp := _paint_xf * pin
 		_light(Rect2(sp - Vector2(3, 3), Vector2(6, 6)), Color("ff5a3c"), 0.9, true)
 
 
@@ -1166,7 +1404,7 @@ func _draw_clipboard(r: Rect2) -> void:
 	draw_rect(Rect2(cx - 11, r.position.y + 6, 22, 1), Color("45413a"))
 	draw_rect(Rect2(cx - 5, r.position.y + 2, 10, 3), Color("45413a"))   # a fenda da mola
 	for rx in [cx - 8, cx + 7]:   # rebites
-		draw_circle(Vector2(rx, r.position.y + 4), 1.3, Color("d6d1c3"))
+		_sprite(Switchboard.disc(3, [[1.5, Color("ece7da"), Color("d6d1c3"), Color("8e897c")]]), _paint_xf * Vector2(rx, r.position.y + 4), Color.WHITE, _paint_xf)
 
 
 ## O jornal da manhã dobrado ao meio: papel-jornal acinzentado, o nome no alto numa faixa preta, a manchete grossa,

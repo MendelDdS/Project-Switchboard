@@ -146,6 +146,24 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
+[node name="DisplayLabel" type="Label" parent="Center/Card/Settings/Grid"]
+layout_mode = 2
+text = "SETTINGS_DISPLAY"
+
+[node name="Display" type="OptionButton" parent="Center/Card/Settings/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ScalingLabel" type="Label" parent="Center/Card/Settings/Grid"]
+layout_mode = 2
+text = "SETTINGS_SCALING"
+
+[node name="Scaling" type="OptionButton" parent="Center/Card/Settings/Grid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
 [node name="Gap" type="Control" parent="Center/Card/Settings"]
 custom_minimum_size = Vector2(0, 8)
 layout_mode = 2

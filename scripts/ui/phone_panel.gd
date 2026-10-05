@@ -96,9 +96,8 @@ func _draw() -> void:
 	draw_rect(Rect2(r.position + Vector2(0, 1), Vector2(r.size.x, 2)), WOOD[1])
 	draw_rect(Rect2(r.position + Vector2(0, 3), Vector2(r.size.x, 1)), WOOD[2])
 	for p in [Vector2(-12, 6), Vector2(size.x + 12, 6), Vector2(-12, size.y - 6), Vector2(size.x + 12, size.y - 6)]:
-		draw_circle(p, 3.0, Color("1a120c"))
-		draw_circle(p, 2.0, Color("b49a5a"))
-		draw_line(p - Vector2(1.5, 0), p + Vector2(1.5, 0), Color("5a4a2a"), 1.0)
+		draw_texture_rect(Switchboard.disc(6, [[2.0, Color("d8bc78"), Color("b49a5a"), Color("7a6438")], [3.0, Color("1a120c")]]), Rect2(p - Vector2(3, 3), Vector2(6, 6)), false)
+		draw_rect(Rect2(p - Vector2(1, 0.5), Vector2(3, 1)), Color("5a4a2a"))   # a fenda
 
 
 func shown() -> PhoneCall:

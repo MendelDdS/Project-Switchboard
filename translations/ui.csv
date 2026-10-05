@@ -320,6 +320,12 @@ SETTINGS_TEXT_SPEED,Velocidade do texto,Text speed,Velocidad del texto
 SPEED_SLOW,Lenta,Slow,Lenta
 SPEED_NORMAL,Normal,Normal,Normal
 SPEED_FAST,Rápida,Fast,Rápida
+SETTINGS_DISPLAY,Tela,Display,Pantalla
+DISPLAY_FULLSCREEN,Tela cheia,Fullscreen,Pantalla completa
+DISPLAY_WINDOW,Janela,Windowed,Ventana
+SETTINGS_SCALING,Ampliação,Scaling,Escalado
+SCALING_SMOOTH,"Suave (tela toda)","Smooth (fill screen)","Suave (pantalla completa)"
+SCALING_PIXEL,"Pixels perfeitos (com borda)","Pixel perfect (with border)","Píxeles perfectos (con borde)"
 APPLY,Aplicar,Apply,Aplicar
 END_SHIFT,"Encerrar
 turno","End

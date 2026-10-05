@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" uid="uid://dyd15jajt0b05" path="res://scripts/main.gd" id="1_main"]
 [ext_resource type="Script" uid="uid://23exvygvq27c" path="res://scripts/ui/background.gd" id="2_background"]
-[ext_resource type="Script" path="res://scripts/ui/wall_clock.gd" id="40_wall_clock"]
 [ext_resource type="Script" uid="uid://c4782kn03vt5j" path="res://scripts/ui/switchboard.gd" id="5_switchboard"]
 [ext_resource type="PackedScene" path="res://scenes/ui/phone_panel.tscn" id="6_phone_panel"]
 [ext_resource type="PackedScene" path="res://scenes/ui/radio.tscn" id="7_radio"]
@@ -121,16 +120,10 @@ mouse_filter = 2
 theme_override_constants/separation = 8
 
 [node name="TopLeft" type="HBoxContainer" parent="Layout/Rows/Columns/Left" unique_id=1593524455]
+custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 12
-
-[node name="WallClock" type="Control" parent="Layout/Rows/Columns/Left/TopLeft"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(52, 52)
-layout_mode = 2
-mouse_filter = 2
-script = ExtResource("40_wall_clock")
 
 [node name="ShiftPlate" type="PanelContainer" parent="Layout/Rows/Columns/Left/TopLeft"]
 layout_mode = 2

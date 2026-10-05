@@ -64,7 +64,6 @@ var _hour := 0   ## a última hora cheia em que o relógio bateu (horas desde o 
 var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o silêncio na linha (PhoneCall.last_talk)
 
 @onready var background: Background = %Background
-@onready var _wall_clock: WallClock = %WallClock
 @onready var _end_shift: Button = %EndShift
 @onready var _shift_hours: Label = %ShiftHours
 @onready var board: Switchboard = %Board
@@ -237,14 +236,14 @@ func _process(delta: float) -> void:
 				hint(T.text(T.Key.HINT_MIDNIGHT))
 		var can_end := after and minutes >= LAST_CALL and not ending
 		if can_end and not _end_shift.visible:   # a campainha da plaqueta: o turno já pode ser encerrado
-			Sfx.play_at("shift_bell", _wall_clock.get_global_rect().get_center().x)
+			Sfx.play_at("shift_bell", _shift_hours.get_global_rect().get_center().x)
 		_end_shift.visible = can_end
 		_shift_hours.visible = not _end_shift.visible
 		var hour := floori(minutes / 60.0)
-		if hour > _hour:   # a badalada do relógio a cada hora cheia (sem números na tela, o ouvido marca o tempo)
-			Sfx.play_at("chime", _wall_clock.get_global_rect().get_center().x)
+		if hour > _hour:   # a badalada do relógio a cada hora cheia (vem do relógio de flip da mesa)
+			Sfx.play_at("chime", background.clock_x)
 		_hour = hour
-		_wall_clock.minutes = SHIFT_START_HOUR * 60 + minutes
+		background.minutes = SHIFT_START_HOUR * 60 + minutes
 		_nag()
 		supervisor.check_hold()
 	background.flick = flick

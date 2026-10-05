@@ -2,7 +2,7 @@ class_name Bloom
 extends Control
 ## Bloom das luzes, no estilo do glow de cinema e em pixel art: em volta de cada luz acesa, um halo somado à tela
 ## (`CanvasItemMaterial` ADD) em duas camadas (uma curta e forte colada na luz, outra longa e fraca), desenhado em
-## blocos de `BLOCK` px com poucos degraus e pontilhado ordenado, como o resto do jogo; por cima, a própria luz nítida,
+## blocos de `BLOCK` px com poucos degraus lisos (`DITHER` liga o pontilhado ordenado entre eles), como o resto do jogo; por cima, a própria luz nítida,
 ## com o centro "estourando" para um branco tingido pela cor dela (`_cores`, mistura normal; sem isso o halo passa por
 ## cima da luz como uma fumaça). Fica acima da mesa e dos painéis e abaixo dos menus.
 ## Só brilha o que se declara luz: pela cor não dá (o plug vermelho e a lâmpada vermelha têm o mesmo tom). Quem desenha
@@ -16,12 +16,13 @@ const SPREAD := 18.0      # px do jogo que o halo passa da luz
 const INNER := 0.6        # a camada curta, colada na luz...
 const INNER_FALL := 7.0   # ...e quão depressa ela cai
 const OUTER := 0.4        # a camada longa e fraca
-const LEVELS := 6.0       # degraus de intensidade do halo (entre eles, pontilhado)
+const LEVELS := 6.0       # degraus de intensidade do halo
+const DITHER := false     # pontilhado entre os degraus (com ele, pontos escuros salpicavam o halo em volta das lâmpadas)
 const STRENGTH := 0.55    # quanto do halo soma onde ele é mais forte
 const MIN_VALUE := 0.45   # cor mais escura que isto (canal mais forte) é luz apagada
 const INTENSITY := 1.2    # a luz nítida: o canal mais forte vezes isto (o tom não muda)...
 const HOT := 0.85         # ...e o centro dela indo para o branco (luz forte demais "estoura")
-const HOLLOW := 0.2       # dentro de uma luz sem miolo (o aro da tomada, o relógio), o halo é só isto
+const HOLLOW := 0.2       # dentro de uma luz sem miolo (o aro da tomada), o halo é só isto
 const GLASS_SHADE := 0.3  # a borda de baixo do vidro, mais escura
 const HOT_TINT := 0.35    # quanto da cor da luz fica no branco do centro (âmbar → amarelo-claro, verde → menta)
 const BAYER := [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5]   # pontilhado ordenado 4×4
@@ -169,7 +170,7 @@ func _halo_for(size: Vector2, round: bool, hollow: bool) -> ImageTexture:
 			if hollow and d == 0.0:
 				v *= HOLLOW
 			# abaixo de meio degrau, nada: pontos soltos no fim do halo pareciam ruído
-			var step := 0.0 if v * LEVELS < 0.5 else floorf(v * LEVELS + BAYER[(y % 4) * 4 + x % 4] / 16.0) / LEVELS
+			var step := 0.0 if v * LEVELS < 0.5 else floorf(v * LEVELS + (BAYER[(y % 4) * 4 + x % 4] / 16.0 if DITHER else 0.5)) / LEVELS
 			img.set_pixel(x, y, Color(1, 1, 1, clampf(step, 0.0, 1.0)))
 	var tex := ImageTexture.create_from_image(img)
 	_halos[key] = tex
@@ -186,14 +187,11 @@ func _draw_cores() -> void:
 		var k := minf(1.0, top * INTENSITY) / maxf(top, 0.001)
 		var base := Color(col.r * k, col.g * k, col.b * k, col.a)
 		var hot := Color.WHITE.lerp(Color(col.r / top, col.g / top, col.b / top), HOT_TINT)
-		if l[2]:
-			var c := r.get_center()
-			var rad := minf(r.size.x, r.size.y) / 2.0
-			_cores.draw_circle(c, rad, Color(base.darkened(GLASS_SHADE), base.a))   # sobra uma meia-lua embaixo
-			_cores.draw_circle(c - Vector2(0, 0.8), rad - 0.6, base)
-			_cores.draw_circle(c, rad * 0.65, Color(hot, HOT * 0.55 * col.a))
-			_cores.draw_circle(c, rad * 0.35, Color(hot, HOT * col.a))
-			_cores.draw_circle(c - Vector2(rad, rad) * 0.45, maxf(1.0, rad * 0.22), Color(1, 1, 1, 0.8 * col.a))
+		if l[2]:   # redonda, em pixel art como as lâmpadas da mesa: a sombra do vidro embaixo à direita
+			var d := maxi(2, roundi(minf(r.size.x, r.size.y)))
+			var o := Color(base, 1.0)
+			_cores.draw_texture_rect(Switchboard.disc(d, [[d * 0.18, o.lerp(hot, HOT)], [d * 0.33, o.lerp(hot, HOT * 0.55)],
+				[d / 2.0, o, o, o.darkened(GLASS_SHADE)]]), Rect2((r.get_center() - Vector2(d, d) / 2.0).floor(), Vector2(d, d)), false, Color(1, 1, 1, col.a))
 		else:
 			_cores.draw_rect(r, base)
 			if r.size.y >= 4.0:

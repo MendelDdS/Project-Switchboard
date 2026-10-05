@@ -58,7 +58,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   com o `canvas_items` direto, 1,5× fazia um pixel virar ora 1, ora 2 da tela: linhas, letras e círculos desiguais.
   Janela mais larga que 16:9 dá largura ao jogo (até `MAX_W`, 21:9), nunca altura; o que sobra é borda escura. O
   projeto continua em `canvas_items` 1280×720 para o `main.tscn` sozinho e os testes; o `GameView` desliga isso na janela
-  (`content_scale_mode`) e abre em tela cheia (falta a opção em Configurações). Na pausa, o `Box` continua processando
+  (`content_scale_mode`) e aplica a tela das Configurações (`Settings.fullscreen`: cheia ou janela;
+  `Settings.pixel_perfect`: só ampliação inteira, com borda, sem o filtro; padrão: tela cheia e suave). Na pausa, o `Box` continua processando
   (`process_mode` ALWAYS; o `View` é PAUSABLE): parado, ele não repassava as teclas e o Esc não despausava
   (`tests/test_keys.gd`). O cenário tem a tela própria dele (`SceneView`, `scripts/ui/scene_view.gd`: um `TextureRect`
   com o `SubViewport` `View` na resolução da tela onde ele está: a janela, com o `main.tscn` sozinho, ou 1:1 dentro do
@@ -66,13 +67,20 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   Tiny5, branch `improve/0000-pixel-2x`; o jogo todo ampliado como imagem com "nearest", que deixava o texto feio a 1,5×;
   e um filtro de 2x2 por cima do cenário, com média, que borrava.) Nada de gradiente liso por cima de tudo: sem linhas de
   varredura, e vinheta e brilho em degraus (`interpolation_mode` constante, "nearest"). Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
-  **Disposição (cena + painel)**: a tela é uma mesa de trabalho. No alto da esquerda, na parede, o relógio da sala
-  (`WallClock`, analógico, 52 px: o único da tela, onde o papel das ferramentas não o cobre; mostrador claro,
-  ponteiro das horas curto e preto, o dos minutos comprido e vermelho, `HAND`, e o 12 em marca dupla) e a plaqueta de latão do
-  turno (`ShiftPlate`, variação `BrassPanel`, com o horário e o botão Encerrar turno). Sem números na tela, o
-  ouvido marca o tempo: a badalada de gongo a cada hora cheia (`chime`, `Main._hour`) e a campainha de latão quando
-  o turno pode ser encerrado (`shift_bell`), vindas do lado do relógio; embaixo
-  dele a mesa comutadora (588×362), a faixa da prateleira (`Shelf`, 16 px: o encaixe do FONE, `%FoneSocket`, e os
+  **Disposição (cena + painel)**: a tela é uma mesa de trabalho. No alto da esquerda, a plaqueta de latão do
+  turno (`ShiftPlate`, variação `BrassPanel`, com o horário e o botão Encerrar turno; a faixa dela, `TopLeft`, tem
+  52 px fixos). O relógio da sala é um **relógio de flip na mesa** (`Background._draw_flip_clock`, o único da tela):
+  caixa de baquelite creme numa base escura, meio virada para o operador (`CLOCK`; o giro é `CLOCK_TURN` do
+  ângulo até os olhos, `_yaw`, e não um número fixo; `_clock_box` desenha as faces viradas para os olhos, `_clock_xz`/
+  `_clock_pt` giram os pontos), com fendas e botão niquelado do alarme no tampo, a
+  rodinha de acertar no lado e duas plaquetas (horas e minutos, algarismos de 9×19 desenhados à mão numa folha de
+  fonte, `DIGITS`) que viram quando a hora muda
+  (`Background.minutes`, o Main atualiza; `_flip_step`, `FLIP_SEC`, no `_state`). A frente é montada reta numa imagem
+  (`_clock_face`, `_flip_card`, `_card`) e posta coluna a coluna na perspectiva exata: cada coluna da tela é um raio
+  dos olhos que acerta a frente num ponto e numa distância, e a coluna vai da altura de cima à de baixo ali (torta por
+  transformação, os algarismos quebravam; um paralelogramo não batia com a caixa). Ao ouvido: a badalada de gongo a cada hora cheia (`chime`, `Main._hour`) vem do relógio
+  (`Background.clock_x`) e a campainha de latão quando o turno pode ser encerrado (`shift_bell`), da plaqueta; embaixo
+  dela a mesa comutadora (588×362), a faixa da prateleira (`Shelf`, 16 px: o encaixe do FONE, `%FoneSocket`, e os
   buracos dos cabos, `%CordTray`, com os plugs guardados em pé neles, na frente do painel, como numa mesa telefônica
   de verdade; os fios repousam na linha dos buracos, `Switchboard._floor`) e a faixa do rádio (`%Desk`, a frente do
   console, com o rádio no meio). O rádio tem `z_index` 1 e vem depois da mesa na árvore (um plug arrastado por cima
@@ -86,13 +94,19 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   largura toda, o painel do operador (`PhonePanel`, 150 px), um console embutido na frente da mesa (a madeira de borda a borda logo abaixo
   do tampo, `PhonePanel._draw`; os blocos `HudPanel` são telas e chapas encaixadas; a tela da conversa tem vidro e
   apaga sem ligação, `ScreenGlass`). A altura útil é 700 px: as colunas pedem 540 (a da esquerda, exata) e o
-  painel 150; passando, a tela inteira sobe e o relógio sai por cima. O `Background` (cenário em camadas, em pixels de 1x1 como a interface: as contas em unidades de 2 px e os detalhes finos em `PX`/`_p`; desenhado no `SceneView`, uma tela própria na resolução da janela, que repassa o mouse a ele, `pointer`/`prop_at`/`leave`, e desenha por cima o contorno e o nome do objeto sob o mouse, `draw_hover`) estica
+  painel 150; passando, a tela inteira sobe e a plaqueta sai por cima. O `Background` (cenário em camadas, em pixels de 1x1 como a interface: as contas em unidades de 2 px e os detalhes finos em `PX`/`_p`; desenhado no `SceneView`, uma tela própria na resolução da janela, que repassa o mouse a ele, `pointer`/`prop_at`/`leave`, e desenha por cima o contorno e o nome do objeto sob o mouse, `draw_hover`) estica
   parede e mesa até a borda, como o canto de uma sala visto de quem está sentado à mesa. **Uma câmera só**, em
   perspectiva de um ponto: o ponto de fuga (`_vp`) fica em `VP_X` da largura (perto dos objetos da mesa: a inclinação
   deles cresce com a distância a ele) e `EYE` acima do fundo do tampo, logo acima da tela (quem está sentado perto
   olha a mesa de cima; mais baixo, o que fica longe dele entortava demais: a inclinação de um lado que foge é a
   distância ao ponto na horizontal dividida pela distância na vertical, e só depende da tela); `_proj`/`_p3` levam um ponto da sala (x, y a
-  partir dos olhos, z a distância; a parede do fundo a `Z0`) para a tela. Na sala: a parede do fundo (sem rodapé nem
+  partir dos olhos, z a distância; a parede do fundo a `Z0`) para a tela. **A câmera são os olhos do operador
+  sentado**: `SEAT_EYE` (45 cm acima do tampo) e `SEAT_BACK` (110 cm até o fundo do tampo; a frente do tampo fica sob o
+  console) dão a distância focal, `Z0 = EYE × SEAT_BACK / SEAT_EYE` (a tela já fixa o ponto de fuga e o fundo do tampo;
+  só a focal estava livre). Com o antigo 330 a mesa era vista de cima como por alguém em pé (~38° para baixo; sentado,
+  ~22–29°), e toda profundidade absoluta saía exagerada (o relógio torto, a lateral da mesa comutadora larga). Os
+  objetos chatos têm a profundidade em fração do tampo (`_deep`) e não mudam na tela; com a focal certa, as medidas
+  deles na sala ficaram as de verdade (a prancheta mais funda que larga). Na sala: a parede do fundo (sem rodapé nem
   linha escura embaixo: com elas parecia um chão), com um armário
   de aço de chão (`_draw_steel_cabinet`, `CAB_*`; a mesa esconde a base; o alto fica abaixo dos olhos e o tampo aparece;
   entreaberto, o vão tem fundo, a parede de dentro virada para quem olha, prateleiras com o tampo à vista e pastas
@@ -111,7 +125,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   clique só vale sobre eles e não com papel por cima): listas telefônicas (1), mapa dobrado (2), caderno aberto (3) e
   prancheta do registro (4), mais a caneca, postos por fração da profundidade do tampo (`_at`, `_deep`: ficam no
   tampo seja qual for a câmera) e, na largura, a partir da lateral da mesa comutadora (`_side_x`), em duas fileiras
-  com folga entre eles; a caneca fica junto da parede da direita (numa tela mais larga, a folga sobra perto da janela). **Cada um fica num lugar da sala e passa pela câmera** (`_draw_desk_props`:
+  com folga entre eles; a caneca fica junto da parede da direita (numa tela mais larga, a folga sobra perto da janela), com o relógio de flip no fundo, logo atrás dela. **Cada um fica num lugar da sala e passa pela câmera** (`_draw_desk_props`:
   tamanho, escorço e o lado que aparece saem da conta; `_box` dá os cantos, `_flat` põe o desenho de frente de um
   objeto chato no tampo dele com uma transformação, `_top_xf`), desenhados em 1x1 (sem contorno preto: torto pela perspectiva, serrilhava; as faces se separam pela luz, `_poly`; sombra apontando para longe da luminária, `_desk_shadow`), do fundo para a frente; a legenda sob o mouse é do `SceneView`, na resolução da interface. **A mesa comutadora é um móvel só** (`_draw_switchboard`,
   como uma mesa telefônica de verdade): embaixo, o console, cuja frente é a faixa do rádio (o rádio embutido, a
@@ -155,7 +169,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   mesa é `background.pointer(evento)`.
 - **Bloom das luzes** (`Bloom`, `scripts/ui/bloom.gd`, nó `Bloom` do Main, z 2: acima da mesa e dos painéis, abaixo dos
   menus), no estilo do glow de cinema e em pixel art: halo somado à tela (blend ADD) em duas camadas (curta e forte,
-  longa e fraca), desenhado em blocos de `BLOCK` px (1, como o resto) com poucos degraus e pontilhado ordenado (`_halo_for`, guardado por
+  longa e fraca), desenhado em blocos de `BLOCK` px (1, como o resto) com poucos degraus lisos (`DITHER` liga o pontilhado ordenado entre eles; desligado, a pedido, porque salpicava
+  pontos escuros em volta das lâmpadas) (`_halo_for`, guardado por
   tamanho); por cima, a própria luz nítida com o centro indo, em degraus, para um branco tingido pela cor dela (`HOT`,
   `HOT_TINT`; sem isso o halo parecia uma fumaça). Só brilha o que se declara luz, porque pela cor não dá (o plug
   vermelho tem o tom da lâmpada vermelha; um bloom de tela por cor foi testado e descartado): quem desenha luzes chama
@@ -192,7 +207,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - **Pausa e configurações**: `PauseMenu` (`scenes/ui/pause_menu.tscn`, z 4, `process_mode` ALWAYS) usa
   `get_tree().paused`. **Todo `create_timer` do jogo leva `false` no 2º argumento** (senão continua contando na pausa);
   o `Sfx` roda sempre (ambiente segue, `Main.pause()` cala a campainha e `_update_bell` a devolve). Configurações no
-  autoload `Settings` (`user://settings.cfg`): `locale`, `volumes` por barramento, `text_speed` (`char_delay()`
+  autoload `Settings` (`user://settings.cfg`): `locale`, `volumes` por barramento, `fullscreen` e `pixel_perfect` (a
+  tela, que o `GameView` aplica), `text_speed` (`char_delay()`
   multiplica o tempo por letra na conversa e no rádio); sinal `changed`. `set_*` vale na hora (prévia) mas só
   `save()` grava (botão Aplicar); Voltar/Esc faz `restore(snapshot)` do estado de quando a tela abriu. Testes (`-- --test=x` ou `-s`) não leem nem gravam o arquivo.
   Textos montados uma vez (botões do despacho, itens do caderno, telas desenhadas) se refazem em
@@ -289,7 +305,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - `setup(exchange, socket, tray)` liga a mesa ao estado, ao encaixe do FONE e à faixa dos buracos dos cabos (lugares
   na prateleira, fora do retângulo dela: `socket_rect`, `tray_rect`; o clique vale neles, `_has_point`). Os buracos
   ficam no alto da prateleira (`hole`, `SHELF_HOLE_Y`, `FONE_HOLE_X`; aro de latão achatado pela perspectiva,
-  `draw_grommet`), os plugs guardados em pé neles (`home_pos`) e o nome gravado na madeira embaixo de cada um
+  em pixel art, `HOLE_ART`, `draw_grommet`; dois por cabo, a 30 px um do outro), os plugs guardados em pé neles (`home_pos`) e o nome gravado na madeira embaixo de cada um
   (`engrave`; `_draw_tray`, `FoneSocket`); o buraco é mais largo que o plug, que entra nele (`PLUG_SINK`: abaixo
   de `HOLE_LIP` o plug não é desenhado, `_cut`/`_pr`, e a beira da frente do buraco passa por cima dele e dos fios
   que saem dali, `draw_lip`), sem contorno preto; fio e plug escurecem em degraus ao entrar nele (`HOLE_SHADE`,
@@ -328,11 +344,15 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   gravado, `_draw_number_plate`; estado; lâmpada; entrada; saída), todos os encaixes com `JACK` px, bancos de destino em
   `DEST_TOP`/`DEST_ROW` (cada banco com o mesmo vão, 8 px, entre a moldura e os números e entre as tomadas de baixo e a moldura, `_blocks`) e a legenda das lâmpadas numa linha no pé (`LEGEND_Y`). Mexendo na altura, confira que a coluna da esquerda ainda cabe (até 540).
 - Chapas de metal niquelado (`_draw_metal`: chanfro e rebites) nas plaquinhas dos números.
-- **Peças redondas pixel a pixel** (`_disc`: imagem guardada por diâmetro e camadas, com luz, meio-tom e sombra vindos de
+- **Peças redondas pixel a pixel** (`Switchboard.disc`, público: imagem guardada por diâmetro e camadas, com luz, meio-tom e sombra vindos de
   `LIGHT`, alto à esquerda, e camadas côncavas; `_sprite` desenha presa aos pixels; desenhadas como círculo saíam
-  embolotadas): lâmpadas, aro aceso do destino, lâmpadas da legenda e parafusos das chapas. Beira das peças e do
+  embolotadas): lâmpadas, aro aceso do destino, lâmpadas da legenda e parafusos das chapas. **Nenhuma peça redonda
+  com `draw_circle`**: o cenário usa o mesmo `disc` (`Background._sprite`, fora da escala e da perspectiva: botões do
+  rádio, parafusos do console, alfinete do mapa, emblemas, rebites, tachinha, fechadura) e elipses pixel a pixel
+  (`Background._ellipse`: a boca da caneca; o corpo dela é desenhado coluna a coluna e a alça é `MUG_HANDLE`, pelo
+  `Switchboard.art`); o painel do operador nos parafusos e o `Bloom` no miolo das luzes redondas. Beira das peças e do
   móvel em `EDGE_DARK` (marrom quase preto), não preto. O plug encaixado continua desenhado com cápsulas (o
-  usuário o preferiu assim). **O encaixe é um mapa de pixels** (`JACK_ART`, 20×20, um pouco menor que o `JACK`: com 24, passava das linhas do banco; `_art`: um caractere por pixel e a
+  usuário o preferiu assim). **O encaixe é um mapa de pixels** (`JACK_ART`, 20×20, um pouco menor que o `JACK`: com 24, passava das linhas do banco; `art`: um caractere por pixel e a
   paleta, `_jack_pal`; o mesmo da branch 2×2, pela referência do usuário, com mais tons): aro niquelado fino (2 a 3
   pixels; mais grosso, destoava da referência; os raios dão as larguras de linha de um círculo de pixel art, senão
   saía octogonal) com a beira
@@ -709,6 +729,16 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 56. Em telas maiores que 1280×720 os pixels "quebravam" (1,5× em 1080p): o jogo passou a ser desenhado sempre em
     1280×720 e ampliado com um filtro de pixel art (`GameView`, "sharp bilinear"), que deixa todos os pixels do mesmo
     tamanho em qualquer resolução (perfeitos nas ampliações inteiras).
+57. Os plugs em pé na escala das tomadas novas (a ponta de metal da largura do furo, o cabo quase do tamanho do aro),
+    os buracos da prateleira em pixel art (elipse com a beira de trás na sombra, a da frente na luz e a parede de
+    dentro) e a tela em Configurações (cheia ou janela; ampliação suave ou pixels perfeitos com borda).
+58. O relógio de parede analógico virou um relógio de flip na mesa, meio virado para o operador (depois com
+    algarismos grandes desenhados à mão, base, rodinha, alarme e um creme menos claro); as outras peças
+    redondas (botões do rádio, caneca, alfinete, parafusos) em pixel art como as tomadas; halo das luzes em degraus
+    lisos, sem o pontilhado.
+59. A perspectiva estava errada (o relógio torto): a câmera passou a sair de um operador sentado (altura dos olhos e
+    distância ao tampo dão a distância focal), o relógio gira para os olhos por um cálculo e a frente dele é projetada
+    de verdade.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.
