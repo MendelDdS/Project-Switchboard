@@ -84,8 +84,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   vermelho fraco na parede perto da janela (`SIGN_GLOW`). Os três entram no `_state`. O painel da mesa comutadora escurece frio nos cantos
   (`ROOM_DARK`); interface, papéis e painel de baixo não escurecem (precisam ser lidos); o céu da vista clareia liso
   para o horizonte e a luz do poste atrás da silhueta também é lisa. **O vidro da janela reflete a sala**
-  (`_draw_reflection`, por cima da cidade e da silhueta, antes da chuva): a luz da luminária, o armário e a luz quente
-  de baixo, lisos e acompanhando a luminária. A vista passa da borda de cima da tela e só aparece do horizonte (58%
+  (`_draw_reflection`, por cima da cidade e da silhueta, antes da chuva): a sala espelhada no plano do vidro e vista
+  pela mesma câmera (`_proj` com x espelhado); de lado como ele está, só aparecem o canto da parede do fundo perto da
+  quina, com o fim do arco de luz, e o armário se cair ali (`_cab_x0`); a luminária e a mesa ficam fora. Liso e
+  acompanhando a luminária. A vista passa da borda de cima da tela e só aparece do horizonte (58%
   dela) para baixo: o que for desenhado nela tem que ficar ali. **Traços dos objetos em pixel art** (`_pixel_line`:
   um pixel por passo, com a espessura empilhada em cores, desenhado na tela e não na perspectiva torta do tampo): o
   lápis do caderno, o rio do mapa, as fendas do relógio e os filetes das listas. **Poeira no feixe da luminária**
@@ -152,9 +154,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   ~22–29°), e toda profundidade absoluta saía exagerada (o relógio torto, a lateral da mesa comutadora larga). Os
   objetos chatos têm a profundidade em fração do tampo (`_deep`) e não mudam na tela; com a focal certa, as medidas
   deles na sala ficaram as de verdade (a prancheta mais funda que larga). Na sala: a parede do fundo (sem rodapé nem
-  linha escura embaixo: com elas parecia um chão), com um armário
+  linha escura embaixo: com elas parecia um chão), com um conduíte de ferro levando os fios do alto do painel da mesa comutadora
+  para o teto, com a caixa de passagem (`_draw_conduit`, no vão entre ela e o armário), e um armário
   de aço de chão (`_draw_steel_cabinet`, `CAB_*`; a mesa esconde a base; ~1,5 m, o alto acima dos olhos, então o tampo
-  não aparece; entreaberto, o vão tem fundo, a parede de dentro virada para quem olha, prateleiras até a mesa, as de
+  não aparece; venezianas em cima e embaixo, o puxador no meio da altura, um amassado e riscos perto do pé; entreaberto, o vão tem fundo, a parede de dentro virada para quem olha, prateleiras até a mesa, as de
   cima mostrando o lado de baixo e as de baixo o tampo, e pastas em pé, e a porta aberta mostra o painel de dentro e a espessura); a parede da direita, entrando para o fundo
   a partir da quina (`CORNER` da área das ferramentas, `Background.window`), mais clara (virada para a luminária),
   com a janela vista de lado (`_draw_side_wall`, `_side_pt`: guarnição, caixilho e persiana na perspectiva da parede;
@@ -223,10 +226,12 @@ saindo deles diziam para que lado a nossa parede vai, contra a sala (a parede pa
 sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x, z, h)`: `x` ao longo da rua, `z` a distância dos
   olhos, `h` a altura; `_patch` um retângulo no chão). De perto para longe (`STREET`): o
   asfalto (manchas, desgaste dos pneus, grão, poças espelhando o céu e a faixa tracejada), o meio-fio de lá (com a face virada para nós), a calçada de lá com os postes (`FAR_LAMPS`, a luz deles
-  no chão) e o homem embaixo do da esquina (`MAN_X`, `_draw_stranger`: 1,8 m, chapéu e casaco), os prédios de frente
-  (`_houses`, `_draw_far_house`: o de tijolos na esquina, à direita do cruzamento, `CROSSING`; o hotel com o letreiro,
-  `HOTEL_X`, do outro lado), a rua do cruzamento indo embora entre paredes (`_canyon`, `_draw_canyon_wall`, com os
-  postes dela diminuindo) até a igreja no fim (`_church_pos`, `CHURCH_K`) e, bem longe, a cidade em duas fileiras na
+  no chão) e o homem embaixo do da esquina (`MAN_X`, `_draw_stranger`: 1,8 m, chapéu e casaco), em silhueta contra a
+  vitrine acesa de um bar (`_draw_shopfront`), os prédios de frente
+  (`_houses`, `_draw_far_house`: o de tijolos na esquina, à direita do cruzamento, `CROSSING`; o hotel com o letreiro e a marquise acesa
+  sobre a porta, `HOTEL_X`, `_draw_marquee`, do outro lado; janelas fundas, com a sombra da verga e o peitoril, e a
+  luz dos postes lavando as fachadas), a rua do cruzamento indo embora entre paredes (`_canyon`, `_draw_canyon_wall`, com os
+  postes dela diminuindo e a névoa clareando para o fundo) até a igreja no fim (`_church_pos`, `CHURCH_K`) e, bem longe, a cidade em duas fileiras na
   névoa. Na chuva, o asfalto molhado espelha as luzes em riscos verticais (`_draw_wet`). O carro (`_draw_car`, um só)
   passa pela mão de lá (`CAR_Z`, `_car_x`), apoiado no asfalto: sombra de contato, facho dos faróis no chão, lado,
   teto e capô vistos um pouco de cima, a frente ou a traseira virada para nós. O brilho da luz de cima (`%Glow`, centrado no alto, liso) fica dentro da tela do cenário, logo depois do
@@ -883,6 +888,11 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
     o peitoril descendo pouco e a parede dela mais longe da cabeça. A vista da janela passou a usar o horizonte da sala
     (uma câmera só para o cenário inteiro). Em janela larga, os objetos da ponta entortam mais. Depois os olhos desceram
     mais (a janela e a vista juntas) e o armário cresceu para ~1,5 m, com prateleiras até a mesa.
+69. Acabamentos da câmera nova: o ponto de fuga foi para o meio dos objetos da mesa (entortavam), o armário alto ganhou
+    venezianas embaixo, puxador no meio e desgaste, um conduíte com a caixa de passagem leva os fios da mesa comutadora
+    para o teto, o reflexo no vidro passou a ser a sala espelhada pela câmera e a vista ficou mais noir (asfalto escuro
+    com as poças de luz dos postes, a vitrine do bar atrás do homem, a marquise do hotel, janelas fundas e névoa no
+    fundo). O aquecedor embaixo da janela ficou de fora: com o peitoril a 24 cm do tampo, ele ficaria atrás da mesa.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

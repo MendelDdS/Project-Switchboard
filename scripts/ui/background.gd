@@ -45,7 +45,7 @@ const LAMP_Y := -30.0      ## a boca da luminária, acima da tela (px de 2x2): d
 const WALL_GAP := 40.0     ## quanto a luminária fica à frente da parede (px de 2x2): abre o arco de luz nela
 # A câmera. Medidas da sala na escala da parede do fundo (px de 2x2 lá; ~0,56 cm): x para a direita e y para baixo a
 # partir dos olhos, z a distância deles (a parede fica a `Z0`; mais perto, tudo cresce Z0/z vezes).
-const VP_AT := 0.22     ## o ponto de fuga no espaço da mesa, da mesa comutadora (0) à quina (1): perto dos objetos (longe dele, eles entortam)
+const VP_AT := 0.32     ## o ponto de fuga no espaço da mesa, da mesa comutadora (0) à quina (1): perto dos objetos (longe dele, eles entortam; com os olhos baixos, mais)
 ## A altura dos olhos acima do fundo do tampo, na tela (px de 2x2): o ponto de fuga, dentro da tela, na altura da
 ## janela. Era 210 (logo acima da tela): a mesa vista mais de cima, mas a parede da janela ficava a 44 cm da cabeça e a
 ## janela, bem abaixo dos olhos, descia uns 40°. Mais baixo, o que fica longe do ponto de fuga entorta mais.
@@ -181,6 +181,7 @@ var _dust: Control       # a poeira no feixe da luminária (`dust`): desenhada �
 var _motes: Array = []   # os grãos: Vector3(x de -1 a 1 na largura da luz, y de 0 a 1 do alto da tela ao fundo do tampo, fase do brilho)
 var _beads: Array = []   # gotas paradas no vidro: Vector4(x, y em frações do vidro à vista, tamanho, velocidade; 0 = parada)
 var _glass_from := 0.6   # de que fração da altura da vista o vidro aparece (acima: fora da tela ou atrás da persiana)
+var _cab_x0 := 0.0       # o armário na parede do fundo (x a partir do ponto de fuga, px de 2x2): o reflexo no vidro o espelha
 var _top := 200.0        # o fundo do tampo (px de 2x2), do último desenho: onde o feixe da luminária acaba
 var _stars: Array[Vector2] = []
 var _houses: Array = []        # os prédios do outro lado da rua, de frente: {x0, x1, h, col, brick, wins: [Vector3(x, andar, hora de apagar)]} (m)
@@ -437,6 +438,7 @@ func _draw() -> void:
 	# na parede, entre a mesa comutadora e a quina, com a mesma folga entre eles em qualquer largura de janela: o
 	# armário e o lugar do cartaz (guardado mesmo sem ele, para o armário não mudar de lugar de uma noite para outra)
 	var gap := (_cx - b.end.x - CAB_W * CAB_T - POSTER_W) / 3.0
+	_draw_conduit(b, b.end.x + gap * 0.5)
 	var cab := _draw_steel_cabinet((b.end.x + gap - _vp.x) / CAB_T)
 	if "cartaz_quermesse" in details:
 		_draw_poster(Rect2(floorf(cab.end.x + gap), 34, POSTER_W, 38))
@@ -723,26 +725,26 @@ func _draw_view() -> void:
 ## camadas, e acompanhando a luminária quando ela pisca. A vista passa da borda de cima da tela: só aparece do
 ## horizonte (58% da altura dela) para baixo, e é ali que o reflexo fica.
 func _draw_reflection(g: Rect2) -> void:
-	var lamp := Color(1.0, 0.85, 0.6, 0.28 * lamp_level)
-	var c := g.position + g.size * Vector2(0.3, 0.7)
-	var rim := PackedVector2Array()
-	for i in 24:
-		rim.append(c + Vector2(cos(TAU * i / 24.0) * g.size.x * 0.32, sin(TAU * i / 24.0) * g.size.y * 0.1))
-	_light_fan(c, rim, lamp)
-	# o armário, espelhado: claro embaixo, no meio dele, e sumindo para os lados e para cima (sem bordas: uma caixa
-	# clara parecia uma camada por cima da vista)
-	var cab := Rect2(g.position + g.size * Vector2(0.58, 0.62), g.size * Vector2(0.18, 0.38))
+	# o vidro é um espelho fraco: o que ele reflete é a sala espelhada no plano dele (fora da parede, `WALL_D`), vista
+	# pela mesma câmera. De lado como ele está, só aparece o canto da parede do fundo perto da quina, com o resto do
+	# arco de luz da luminária, e o armário, se ele cair ali; a luminária e a mesa ficam fora
+	var xg := _cx - _vp.x + WALL_D
+	var m := func(x: float, y: float, z: float) -> Vector2: return _proj(2.0 * xg - x, y, z) - _view_at
+	var lamp := Color(1.0, 0.82, 0.55, 0.1 * lamp_level)
+	var none := Color(lamp, 0.0)
+	var lx := _lamp_x - _vp.x
+	var xc := _cx - _vp.x
+	var y0 := LAMP_Y - _vp.y
+	var y1 := _top - _vp.y
+	_ci.draw_polygon(PackedVector2Array([m.call(lx, y0, Z0), m.call(xc, y0, Z0), m.call(xc, y1, Z0), m.call(lx, y1, Z0)]),
+		PackedColorArray([lamp, Color(lamp, lamp.a * 0.3), none, Color(lamp, lamp.a * 0.4)]))
+	var zf := Z0 / CAB_T   # a frente do armário: clara no meio (a luz da luminária), sumindo para baixo
 	var steel := Color(0.75, 0.8, 0.65, 0.07 * lamp_level)
-	var none := Color(steel, 0.0)
-	var mt := Vector2(cab.get_center().x, cab.position.y)
-	var mb := Vector2(cab.get_center().x, cab.end.y)
-	_ci.draw_polygon(PackedVector2Array([cab.position, mt, mb, Vector2(cab.position.x, cab.end.y)]), PackedColorArray([none, none, steel, none]))
-	_ci.draw_polygon(PackedVector2Array([mt, Vector2(cab.end.x, cab.position.y), cab.end, mb]), PackedColorArray([none, none, none, steel]))
-	var room := Color(1.0, 0.78, 0.5, 0.0)
-	var low := Color(room, 0.08 * lamp_level)
-	var y := g.position.y + g.size.y * 0.8
-	_ci.draw_polygon(PackedVector2Array([Vector2(g.position.x, y), Vector2(g.end.x, y), g.end, Vector2(g.position.x, g.end.y)]),
-		PackedColorArray([room, room, low, low]))
+	var ct := _cm(CAB_TOP)
+	var cx0 := _cab_x0
+	var cx1 := _cab_x0 + CAB_W
+	_ci.draw_polygon(PackedVector2Array([m.call(cx0, ct, zf), m.call(cx1, ct, zf), m.call(cx1, y1, zf), m.call(cx0, y1, zf)]),
+		PackedColorArray([steel, Color(steel, steel.a * 0.5), Color(steel, 0.0), Color(steel, 0.0)]))
 
 
 ## A mesa comutadora é um móvel só, em pé no tampo: embaixo, o console, cuja frente é a faixa de mesa (`desk`, com o
@@ -971,10 +973,46 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	_p(pp.x + 7, pp.y - 20, 1, 6, Color("2c4224"))   # o caule
 
 
+## Os fios da mesa comutadora indo para a cidade: um feixe de cabos de pano sai do alto do painel (`b`, px de 2x2)
+## e entra numa caixa de passagem na parede, de onde um conduíte de ferro sobe até o teto (em `x`, no vão entre a mesa
+## comutadora e o armário), preso por braçadeiras. A mesa esconde o pé dele.
+func _draw_conduit(b: Rect2, x: float) -> void:
+	var pipe := Color("4a5256")
+	_r(x - 2, 0, 4, _top, pipe)
+	_r(x - 2, 0, 1, _top, pipe.lightened(0.3))   # a luz da luminária do lado de cá
+	_r(x + 2 - PX, 0, PX, _top, pipe.darkened(0.45))
+	_r(x + 2, 0, 1.5, _top, Color(0, 0, 0, 0.25))   # a sombra na parede
+	var y := 6.0
+	while y < _top:   # as braçadeiras
+		_r(x - 3, y, 6, 1.5, pipe.lightened(0.15))
+		_r(x - 3, y + 1.5, 6, PX, pipe.darkened(0.35))
+		y += 36.0
+	var box := Rect2(x - 6, b.position.y - 34, 12, 14)   # a caixa de passagem, com a tampa parafusada
+	_r(box.position.x + 1, box.position.y + 1, box.size.x, box.size.y, Color(0, 0, 0, 0.25))
+	_r(box.position.x, box.position.y, box.size.x, box.size.y, Color("4a5256"))
+	_r(box.position.x, box.position.y, box.size.x, PX, Color("6e777b"))
+	_r(box.position.x + 1, box.position.y + 1, box.size.x - 2, box.size.y - 2, Color("545c60"))
+	for c in [Vector2(1.5, 1.5), Vector2(box.size.x - 2.5, 1.5), Vector2(1.5, box.size.y - 2.5), Vector2(box.size.x - 2.5, box.size.y - 2.5)]:
+		_r(box.position.x + c.x, box.position.y + c.y, 1, 1, Color("7a8286"))
+	# os cabos: da boca de baixo da caixa até o alto do painel, um pouco caídos, cada um num pano velho
+	var cloth := [Color("4a3a2c"), Color("5a3428"), Color("37403f"), Color("524430")]
+	for i in cloth.size():
+		var a := Vector2(box.position.x + 2.5 + i * 2.0, box.end.y)
+		var e := Vector2(b.end.x - 12 - i * 6.0, b.position.y + 2)
+		var pts := PackedVector2Array()
+		for k in 13:
+			var t := k / 12.0
+			pts.append(a.lerp(e, t) + Vector2(0, sin(PI * t) * (4.0 + i * 1.5)))
+		draw_polyline(pts, (cloth[i] as Color).darkened(0.4), 1.5)
+		draw_polyline(pts, cloth[i], 1.0)
+		draw_polyline(pts, (cloth[i] as Color).lightened(0.25), PX)
+
+
 ## Armário de aço antigo, de chão, encostado na parede do fundo atrás da mesa (`x0` a partir do ponto de fuga, `CAB_W`, `CAB_TOP`, `CAB_T`; a mesa,
 ## desenhada depois, esconde a base): cornija no alto, duas portas verde-acinzentadas com venezianas, o porta-etiqueta
 ## niquelado, o puxador com a fechadura, as dobradiças e um calendário preso com ímã. Devolve a frente (px de 2x2).
 func _draw_steel_cabinet(x0: float) -> Rect2:
+	_cab_x0 = x0
 	var back := Rect2(_vp + Vector2(x0, _cm(CAB_TOP)), Vector2(CAB_W, 400))
 	_cast(back, 1.05)
 	var f := Rect2((_vp + Vector2(x0, _cm(CAB_TOP)) * CAB_T).round(), (Vector2(CAB_W, 400) * CAB_T).round())
@@ -1001,11 +1039,20 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 	var doors := f.position.y + 8
 	_r(mid - PX, doors, PX, f.size.y, Color("23281f"))   # a fresta entre as portas
 	_r(mid, doors, PX, f.size.y, steel.lightened(0.12))
+	var low := _top - 30.0   # a parte de baixo que aparece, logo acima da mesa (ela esconde o pé)
 	for door in [Rect2(f.position.x + 3, doors, mid - f.position.x - 5, 60), Rect2(mid + 2, doors, f.end.x - mid - 5, 60)]:
-		for i in 6:   # as venezianas, no alto de cada porta: a fenda e a aba que pega a luz
-			_r(door.position.x + 6, door.position.y + 4 + i * 4, door.size.x - 12, 1.5, Color("2e342b"))
-			_r(door.position.x + 6, door.position.y + 5.5 + i * 4, door.size.x - 12, PX, steel.lightened(0.25))
-			_r(door.position.x + 6, door.position.y + 4 + i * 4, PX, 2, steel.darkened(0.2))
+		for y0 in [door.position.y + 4, low]:   # as venezianas, no alto e embaixo de cada porta: a fenda e a aba que pega a luz
+			for i in 6:
+				_r(door.position.x + 6, y0 + i * 4, door.size.x - 12, 1.5, Color("2e342b"))
+				_r(door.position.x + 6, y0 + 1.5 + i * 4, door.size.x - 12, PX, steel.lightened(0.25))
+				_r(door.position.x + 6, y0 + i * 4, PX, 2, steel.darkened(0.2))
+	# um amassado antigo na porta da esquerda, perto de baixo: a sombra em cima e a luz embaixo
+	var dent := Vector2(f.position.x + 30, low - 16)
+	_r(dent.x, dent.y, 9, PX, steel.darkened(0.3))
+	_r(dent.x + 1, dent.y + PX, 7, PX, steel.darkened(0.18))
+	_r(dent.x + 1, dent.y + 2, 7, PX, steel.lightened(0.15))
+	for i in 5:   # riscos de chave e de sapato na beira de baixo
+		_r(f.position.x + 8 + i * 13.0 + (i * 7) % 5, low - 4 - (i % 3), 3 + i % 2, PX, steel.lightened(0.22))
 	# o porta-etiqueta na porta da esquerda, com o cartão datilografado
 	var lab := Rect2(f.position.x + 12, doors + 34, 24, 11)
 	_r(lab.position.x - PX, lab.position.y - PX, lab.size.x + 1, lab.size.y + 1, Color("8e897c"))
@@ -1014,13 +1061,13 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 	for i in 3:
 		_r(lab.position.x + 2.5, lab.position.y + 2.5 + i * 2.5, lab.size.x - 5 - i * 4, PX, Color("4a4438"))
 	# o puxador e a fechadura, junto da fresta, na altura da mão
-	var hy := doors + 40.0
+	var hy := floorf((doors + low) / 2.0)   # na altura da mão: no meio da porta
 	_r(mid + 4, hy, 2.5, 16, Color("3a3d33"))
 	_r(mid + 4, hy, 2, 15.5, Color("b8b2a2"))
 	_r(mid + 4, hy, PX, 15.5, Color("ece7da"))
 	_sprite(Switchboard.disc(8, [[3.0, Color("b8b2a2"), Color("8e897c"), Color("5a574e")], [4.0, Color.BLACK]]), Vector2(mid + 5.25, hy - 5) * 2.0, Color.WHITE, X2)
 	_r(mid + 5, hy - 6, PX, 1.5, Color("23281f"))
-	for y in [doors + 4, doors + 70]:   # as dobradiças
+	for y in [doors + 4, floorf((doors + low) / 2.0) + 10.0, low]:   # as dobradiças
 		for x in [f.position.x - 1, f.end.x - 1]:
 			_r(x, y, 1.5, 7, Color("8e897c"))
 			_r(x, y, PX, 7, Color("c9c4b5"))
@@ -1173,8 +1220,22 @@ func _draw_city(g: Rect2) -> void:
 	# o outro lado: as paredes da rua do cruzamento (de longe para perto) e as fachadas de frente, apoiadas na calçada
 	for i in range(_canyon.size() - 1, -1, -1):
 		_draw_canyon_wall(g, _canyon[i], hz)
+	# a névoa da noite na rua do cruzamento, clareando lisa para o fundo (a igreja aparece nela)
+	var ff: float = STREET["far"]
+	var mouth := PackedVector2Array([_o(g, CROSSING.x, ff), _o(g, CROSSING.y, ff), _o(g, CROSSING.y, ff, 16.0), _o(g, CROSSING.x, ff, 16.0)])
+	_light_fan(Vector2(_o(g, (CROSSING.x + CROSSING.y) / 2.0, 200.0).x, _hz(g)), mouth, Color(hz.lightened(0.15), 0.5 if fog else 0.3))
 	for b in _houses:
 		_draw_far_house(g, b, hz)
+	_draw_shopfront(g)
+	_draw_marquee(g)
+	if lamp_level > 0.5:   # a luz dos postes lavando as fachadas atrás deles, lisa
+		for x: float in FAR_LAMPS:
+			var c := _o(g, x, ff, 4.2)
+			var rim := PackedVector2Array()
+			for i in 20:
+				var an := TAU * i / 20.0
+				rim.append(_o(g, x + cos(an) * 3.2, ff, 4.2 + sin(an) * 3.4))
+			_light_fan(c, rim, Color(1.0, 0.8, 0.5, 0.1))
 	_draw_hotel_sign(_hotel_pos(g))
 	for x: float in FAR_LAMPS:
 		_draw_lamp_post(g, x, STREET["far_curb"] + 0.4)
@@ -1236,7 +1297,7 @@ func _car_x() -> float:
 ## que vão para longe.
 func _draw_street(g: Rect2, hz: Color) -> void:
 	var fog := weather == "fog"
-	var asphalt := Color("0d1217") if not fog else Color("161d22")
+	var asphalt := Color("090c10") if not fog else Color("141a1f")
 	var walk := Color("1b2227") if not fog else Color("232b31")
 	var cu: float = STREET["curb"]
 	var fc: float = STREET["far_curb"]
@@ -1314,7 +1375,7 @@ func _draw_street(g: Rect2, hz: Color) -> void:
 			for i in 24:
 				var a := TAU * i / 24.0
 				rim.append(_o(g, x + cos(a) * 4.5, fc - 0.2 + sin(a) * 3.0))
-			_light_fan(c, rim, Color(1.0, 0.85, 0.55, 0.16))
+			_light_fan(c, rim, Color(1.0, 0.85, 0.55, 0.28))
 
 
 ## A chuva no chão: o asfalto molhado espelha as luzes em riscos verticais, quebrados, embaixo de cada uma (os postes,
@@ -1390,11 +1451,59 @@ func _draw_far_house(g: Rect2, b: Dictionary, hz: Color) -> void:
 			_r(p.x, p.y, w, h, lc)
 			_r(p.x, p.y + h * 0.45, w, PX, lc.darkened(0.45))   # a travessa
 			_r(p.x, p.y, w * 0.3, h, lc.darkened(0.25))   # a cortina
+			_r(p.x, p.y, w, maxf(PX, 0.15 * k), lc.darkened(0.5))   # a sombra da verga: a janela é funda
 		else:
 			_r(p.x, p.y, w, h, Color("080b0e"))
 			_r(p.x, p.y, w, PX, Color(hz, 0.5))   # o reflexo da rua no vidro
 		if not ground:
-			_r(p.x - PX, p.y + h, w + PX * 2.0, PX, col.lightened(0.2))   # o peitoril
+			_r(p.x - PX * 2.0, p.y + h, w + PX * 4.0, PX, col.lightened(0.25))   # o peitoril, saindo da parede, e a sombra dele
+			_r(p.x - PX, p.y + h + PX, w + PX * 2.0, PX, col.darkened(0.35))
+			_r(p.x - PX * 2.0, p.y - PX * 2.0, w + PX * 4.0, PX, col.darkened(0.3))   # a verga
+
+
+## A vitrine acesa de um bar no térreo do prédio de tijolos, logo atrás do homem (`MAN_X`): ele fica em silhueta contra
+## ela. Vidro quente com o caixilho e o letreiro pintado, e a luz dela saindo pela calçada.
+func _draw_shopfront(g: Rect2) -> void:
+	var ff: float = STREET["far"]
+	var x0 := MAN_X - 1.6
+	var x1 := MAN_X + 1.4
+	var a := _o(g, x0, ff, 2.5)
+	var e := _o(g, x1, ff, 0.4)
+	_r(a.x - PX, a.y - PX, e.x - a.x + 1, e.y - a.y + 1, Color("1a0f0a"))
+	_ci.draw_polygon(PackedVector2Array([a, Vector2(e.x, a.y), e, Vector2(a.x, e.y)]),
+		PackedColorArray([Color("c98a3e"), Color("c98a3e"), Color("f0c070"), Color("f0c070")]))
+	for t in [0.33, 0.66]:   # o caixilho
+		_r(lerpf(a.x, e.x, t), a.y, PX, e.y - a.y, Color("3a2414"))
+	_r(a.x, lerpf(a.y, e.y, 0.3), e.x - a.x, PX, Color("3a2414"))
+	_r(lerpf(a.x, e.x, 0.12), lerpf(a.y, e.y, 0.12), (e.x - a.x) * 0.5, PX, Color("7a3a1a"))   # o letreiro pintado no vidro
+	var c := _o(g, MAN_X, STREET["far_curb"] + 0.3)   # a luz dela na calçada e no meio-fio
+	var rim := PackedVector2Array()
+	for i in 20:
+		var an := TAU * i / 20.0
+		rim.append(_o(g, MAN_X + cos(an) * 2.6, ff - 1.2 + sin(an) * 1.6))
+	_light_fan(c, rim, Color(1.0, 0.75, 0.4, 0.2))
+
+
+## A marquise do hotel sobre a porta (embaixo do letreiro): saindo 1,2 m da fachada, o alto visto de cima (os olhos
+## ficam acima), a beira da frente e a luz quente embaixo dela, na porta e na calçada.
+func _draw_marquee(g: Rect2) -> void:
+	var ff: float = STREET["far"]
+	var x0 := HOTEL_X - 1.8
+	var x1 := HOTEL_X + 1.8
+	var door := _o(g, HOTEL_X - 0.6, ff, 2.3)
+	var de := _o(g, HOTEL_X + 0.6, ff)
+	_ci.draw_polygon(PackedVector2Array([door, Vector2(de.x, door.y), de, Vector2(door.x, de.y)]),
+		PackedColorArray([Color("8a5a2a"), Color("8a5a2a"), Color("e0a858"), Color("e0a858")]))   # a porta aberta, com a luz do saguão
+	var c := _o(g, HOTEL_X, ff - 0.6)
+	var rim := PackedVector2Array()
+	for i in 20:
+		var an := TAU * i / 20.0
+		rim.append(_o(g, HOTEL_X + cos(an) * 2.8, ff - 0.8 + sin(an) * 1.4))
+	_light_fan(c, rim, Color(1.0, 0.78, 0.45, 0.22))
+	var top := PackedVector2Array([_o(g, x0, ff, 3.0), _o(g, x1, ff, 3.0), _o(g, x1, ff - 1.2, 3.0), _o(g, x0, ff - 1.2, 3.0)])
+	_ci.draw_colored_polygon(top, Color("2a1c16"))
+	_ci.draw_colored_polygon(PackedVector2Array([top[3], top[2], _o(g, x1, ff - 1.2, 2.75), _o(g, x0, ff - 1.2, 2.75)]), Color("6a1e18"))   # a beira, vermelha
+	_ci.draw_line(_o(g, x0, ff - 1.2, 2.75), _o(g, x1, ff - 1.2, 2.75), Color(1.0, 0.8, 0.5, 0.6), PX)   # a luz embaixo dela
 
 
 ## Um poste da calçada de lá (em `x`, `z`), com 5 m: o tubo, o braço virado para a rua e a cabeça acesa.
