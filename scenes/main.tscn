@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://23exvygvq27c" path="res://scripts/ui/background.gd" id="2_background"]
 [ext_resource type="Script" uid="uid://c4782kn03vt5j" path="res://scripts/ui/switchboard.gd" id="5_switchboard"]
 [ext_resource type="PackedScene" path="res://scenes/ui/phone_panel.tscn" id="6_phone_panel"]
-[ext_resource type="PackedScene" path="res://scenes/ui/radio.tscn" id="7_radio"]
+[ext_resource type="Script" path="res://scripts/ui/console_mini.gd" id="22_mini"]
 [ext_resource type="PackedScene" path="res://scenes/ui/tools.tscn" id="8_tools"]
 [ext_resource type="Script" uid="uid://dpp8fwpgwjrfm" path="res://scripts/conversation.gd" id="10_conversation"]
 [ext_resource type="Script" path="res://scripts/supervisor.gd" id="22_supervisor"]
@@ -181,11 +181,13 @@ layout_mode = 2
 mouse_filter = 2
 alignment = 1
 
-[node name="Radio" parent="Layout/Rows/Columns/Left/Desk" unique_id=1787396286 instance=ExtResource("7_radio")]
+[node name="Mini" type="Control" parent="Layout/Rows/Columns/Left/Desk"]
 unique_name_in_owner = true
 z_index = 1
 custom_minimum_size = Vector2(300, 86)
 layout_mode = 2
+mouse_filter = 2
+script = ExtResource("22_mini")
 
 [node name="Right" type="VBoxContainer" parent="Layout/Rows/Columns" unique_id=1679355778]
 layout_mode = 2

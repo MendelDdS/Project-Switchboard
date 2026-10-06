@@ -79,10 +79,12 @@ func _go_night(n: int) -> void:
 	Sfx.stop_ambience(0.0)
 	var next: Node = load("res://scenes/main.tscn").instantiate()
 	next.night_no = clampi(n, 1, C.nights.size())
-	var old := tree.current_scene
-	tree.root.add_child(next)
-	tree.current_scene = next
-	old.queue_free()
+	# no lugar do Main de agora, no mesmo pai: no jogo ele fica dentro da tela do `GameView` (posto na raiz, saía fora
+	# dela, na resolução da janela, e quebrava o layout); sozinho, ele é a cena atual
+	main.get_parent().add_child(next)
+	if tree.current_scene == main:
+		tree.current_scene = next
+	main.queue_free()
 
 
 func _process(_delta: float) -> void:

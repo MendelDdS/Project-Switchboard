@@ -1,12 +1,9 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/phone_panel.gd" id="1_phone_panel"]
-[ext_resource type="FontFile" uid="uid://bixnphjx77akg" path="res://fonts/DepartureMono-Regular.otf" id="3_vt323_regula"]
 [ext_resource type="Script" path="res://scripts/ui/urgency_bar.gd" id="9_urgency"]
 [ext_resource type="Script" path="res://scripts/ui/screen_glass.gd" id="10_glass"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
-bg_color = Color(0.016, 0.024, 0.02, 1)
+[ext_resource type="PackedScene" path="res://scenes/ui/radio.tscn" id="11_radio"]
 
 [node name="Phone" type="MarginContainer"]
 custom_minimum_size = Vector2(0, 150)
@@ -18,67 +15,8 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 10
 
-[node name="CallBox" type="PanelContainer" parent="Bar"]
-custom_minimum_size = Vector2(240, 0)
-layout_mode = 2
-mouse_filter = 2
-theme_type_variation = &"HudPanel"
-
-[node name="CallV" type="VBoxContainer" parent="Bar/CallBox"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 6
-
-[node name="Row" type="HBoxContainer" parent="Bar/CallBox/CallV"]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="CallLine" type="Label" parent="Bar/CallBox/CallV/Row"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 11
-text = "STATUS_NO_CALL"
-
-[node name="CallState" type="Label" parent="Bar/CallBox/CallV/Row"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_type_variation = &"AmberLabel"
-theme_override_font_sizes/font_size = 11
-text = ""
-horizontal_alignment = 2
-
-[node name="DisplayBox" type="PanelContainer" parent="Bar/CallBox/CallV"]
-custom_minimum_size = Vector2(0, 24)
-layout_mode = 2
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_1")
-
-[node name="Display" type="Label" parent="Bar/CallBox/CallV/DisplayBox"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9529, 0.6588, 0.2353, 1)
-theme_override_fonts/font = ExtResource("3_vt323_regula")
-theme_override_font_sizes/font_size = 11
-text = ""
-horizontal_alignment = 1
-vertical_alignment = 1
-clip_text = true
-
-[node name="Gap" type="Control" parent="Bar/CallBox/CallV"]
-layout_mode = 2
-size_flags_vertical = 3
-mouse_filter = 2
-
-[node name="Urgency" type="Control" parent="Bar/CallBox/CallV"]
-unique_name_in_owner = true
-visible = false
-custom_minimum_size = Vector2(0, 30)
-layout_mode = 2
-mouse_filter = 2
-script = ExtResource("9_urgency")
-
 [node name="ConvBox" type="PanelContainer" parent="Bar"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_type_variation = &"HudPanel"
@@ -112,6 +50,14 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 6
 theme_override_constants/v_separation = 4
+
+[node name="Urgency" type="Control" parent="Bar/ConvBox/ConvV"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("9_urgency")
 
 [node name="Glass" type="Control" parent="Bar/ConvBox"]
 unique_name_in_owner = true
@@ -201,62 +147,6 @@ text = "X"
 auto_translate_mode = 2
 horizontal_alignment = 2
 
-[node name="InfoBox" type="PanelContainer" parent="Bar"]
-custom_minimum_size = Vector2(180, 0)
-layout_mode = 2
-mouse_filter = 2
-theme_type_variation = &"HudPanel"
-
-[node name="InfoV" type="VBoxContainer" parent="Bar/InfoBox"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 2
-
-[node name="DestTitle" type="Label" parent="Bar/InfoBox/InfoV"]
-layout_mode = 2
-theme_type_variation = &"DimLabel"
-theme_override_font_sizes/font_size = 11
-text = "HUD_DEST"
-
-[node name="DestRow" type="HBoxContainer" parent="Bar/InfoBox/InfoV"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 8
-
-[node name="Dest" type="Label" parent="Bar/InfoBox/InfoV/DestRow"]
+[node name="Radio" parent="Bar" instance=ExtResource("11_radio")]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.902, 0.8588, 0.7412, 1)
-theme_override_font_sizes/font_size = 22
-text = "—"
-auto_translate_mode = 2
-
-[node name="DestState" type="Label" parent="Bar/InfoBox/InfoV/DestRow"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 4
-theme_type_variation = &"DimLabel"
-theme_override_font_sizes/font_size = 11
-text = ""
-auto_translate_mode = 2
-
-[node name="Gap" type="Control" parent="Bar/InfoBox/InfoV"]
-custom_minimum_size = Vector2(0, 6)
-layout_mode = 2
-mouse_filter = 2
-
-[node name="OthersTitle" type="Label" parent="Bar/InfoBox/InfoV"]
-layout_mode = 2
-theme_type_variation = &"DimLabel"
-theme_override_font_sizes/font_size = 11
-text = "HUD_OTHERS"
-
-[node name="Others" type="Label" parent="Bar/InfoBox/InfoV"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 3
-theme_type_variation = &"AmberLabel"
-theme_override_font_sizes/font_size = 11
-text = "—"
-auto_translate_mode = 2
-clip_text = true

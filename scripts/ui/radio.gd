@@ -1,7 +1,9 @@
 class_name Radio
-extends Bevel
-## Rádio de despacho: mostra as mensagens das viaturas uma por vez, com voz de rádio. A luz de ocorrência mostra
-## a emergência em andamento; com o operador fora da linha dela, o rádio inteiro acende (`alert`).
+extends PanelContainer
+## Rádio de despacho, o último bloco do painel de baixo (uma tela do console, `HudPanel`, com o alto-falante e o
+## vidro): mostra as mensagens das viaturas uma por vez, com voz de rádio. A luz de ocorrência mostra a emergência em
+## andamento; com o operador fora da linha dela, o rádio inteiro acende (`alert`). A miniatura da mesa comutadora
+## copia as luzes e a tela (`lamps`, `screen_text`).
 
 @onready var _led: ColorRect = %Led
 @onready var _screen: Label = %Screen
@@ -28,6 +30,7 @@ var _screen_color: Color
 
 
 func _ready() -> void:
+	(%Glass as ScreenGlass).off = false
 	_screen_color = _screen.get_theme_color("font_color")
 	for lamp in [_led, _alert_lamp]:
 		lamp.add_to_group("bloom")
@@ -72,8 +75,16 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 
+## As luzes de transmissão e de ocorrência, como estão agora.
+func lamps() -> Array[Color]:
+	return [_led.color, _alert_lamp.color]
+
+
+func screen_text() -> String:
+	return _screen.text
+
+
 func _draw() -> void:
-	super()
 	if _away == "":
 		return
 	# o rádio inteiro acende: moldura grossa pulsando na cor do estágio

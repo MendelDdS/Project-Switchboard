@@ -1057,18 +1057,16 @@ func _draw() -> void:
 			draw_string(Pal.mono, Vector2(bx + 10, by + 22 + k * 19), info_lines[k], HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.GHOST if info_ghost else Pal.TEXT)
 
 
-## O móvel da mesa: moldura de madeira (luz em cima à esquerda, cantos chanfrados) e o painel de metal escuro dentro,
-## rebaixado.
+## O móvel da mesa: a moldura de madeira (`_wood_frame`), com o brilho da luminária do teto na quina de cima, mais
+## forte do lado dela (no meio da tela, à direita da mesa), e o painel de metal escuro dentro, rebaixado.
 func _draw_cabinet(r: Rect2) -> void:
-	draw_rect(r, EDGE_DARK)
-	draw_rect(r.grow(-1), WOOD[1])
-	draw_rect(Rect2(r.position + Vector2(1, 1), Vector2(r.size.x - 2, 2)), WOOD[0])
-	draw_rect(Rect2(r.position + Vector2(1, 1), Vector2(2, r.size.y - 2)), WOOD[0])
-	draw_rect(Rect2(r.position.x + 1, r.end.y - 3, r.size.x - 2, 2), WOOD[2])
-	draw_rect(Rect2(r.end.x - 3, r.position.y + 1, 2, r.size.y - 2), WOOD[2])
-	for y in range(int(r.position.y) + 5, int(r.end.y) - 4, 7):   # veios da madeira, nas laterais
-		draw_rect(Rect2(r.position.x + 3, y, FRAME - 4, 1), WOOD[2].lightened(0.1))
-		draw_rect(Rect2(r.end.x - FRAME + 1, y + 3, FRAME - 4, 1), WOOD[2].lightened(0.1))
+	draw_texture(_wood_frame(r.size), r.position)
+	var lamp := get_viewport_rect().size.x / 2.0 - global_position.x
+	var glint := func(x: float) -> Color:
+		return Color(WOOD[0].lightened(0.45), 0.6 * clampf(1.0 - absf(x - lamp) / 700.0, 0.0, 1.0))
+	var top := r.position.y + 1.0
+	draw_polygon(PackedVector2Array([Vector2(r.position.x + 1, top), Vector2(r.end.x - 1, top), Vector2(r.end.x - 1, top + 1), Vector2(r.position.x + 1, top + 1)]),
+		PackedColorArray([glint.call(r.position.x), glint.call(r.end.x), glint.call(r.end.x), glint.call(r.position.x)]))
 	var p := r.grow(-FRAME)
 	draw_rect(p.grow(1), EDGE_DARK)
 	draw_rect(p, Pal.PANEL)
@@ -1143,6 +1141,48 @@ func _draw_maker_plate() -> void:
 	var np := Vector2(roundf(cx - nw / 2.0), r.end.y - 6.0)
 	draw_string(Pal.mono, np + Vector2(0, 1), town, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, pal["F"])
 	draw_string(Pal.mono, np, town, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, pal["w"])
+
+
+## A moldura de madeira do móvel, pixel a pixel e guardada: quatro trilhos com os cantos em meia-esquadria (uma
+## emenda escura na diagonal), cada um com os veios ao longo dele, ondulando (os de cima e de baixo deitados, os dos
+## lados em pé); a beira escura por fora, a luz em cima e à esquerda, a sombra embaixo e à direita, e as quinas gastas,
+## mais claras, de anos de mãos.
+static var _woods := {}
+func _wood_frame(sz: Vector2) -> ImageTexture:
+	if not _woods.has(sz):
+		var w := int(sz.x)
+		var h := int(sz.y)
+		var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
+		var f := int(FRAME)
+		for y in h:
+			for x in w:
+				var ex := mini(x, w - 1 - x)   # distância à beira de fora, na horizontal e na vertical
+				var ey := mini(y, h - 1 - y)
+				if ex >= f and ey >= f:
+					continue   # o painel
+				var upright := ex < ey   # nos cantos, a emenda em diagonal decide o trilho
+				var rail := (0 if x < w / 2 else 1) if upright else (2 if y < h / 2 else 3)
+				var along := float(y if upright else x)
+				var across := float(ex if upright else ey)
+				var g := fposmod(across + 1.4 * sin(along * 0.035 + rail * 2.1) + 0.7 * sin(along * 0.11 + rail * 4.3), 3.0)
+				var c: Color = WOOD[1]
+				if g < 0.55:
+					c = WOOD[2].lightened(0.12)   # o veio escuro
+				elif g > 1.6 and g < 1.9:
+					c = WOOD[1].lightened(0.08)   # o claro entre os veios
+				if ex == ey and ex < f:
+					c = WOOD[2]   # a emenda do canto
+				var corner := Vector2(mini(x, w - 1 - x), mini(y, h - 1 - y)).length()
+				c = c.lerp(WOOD[0].lightened(0.15), 0.45 * clampf(1.0 - corner / 10.0, 0.0, 1.0))   # quina gasta
+				if ex == 0 or ey == 0:
+					c = EDGE_DARK
+				elif (x == 1 or y == 1) and x < w - 2 and y < h - 2:
+					c = WOOD[0]   # a luz em cima e à esquerda
+				elif x == w - 2 or y == h - 2:
+					c = WOOD[2]
+				img.set_pixel(x, y, c)
+		_woods[sz] = ImageTexture.create_from_image(img)
+	return _woods[sz]
 
 
 ## Faixa gravada que separa as seções do painel, com o nome dela em cima, à esquerda (sem nome, só a faixa; sem

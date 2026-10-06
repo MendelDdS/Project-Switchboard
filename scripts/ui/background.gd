@@ -98,7 +98,7 @@ const DIGITS := [   ## os algarismos das plaquetas, 9×19 px, desenhados à mão
 ]
 
 @export var window: Control   ## a área das ferramentas: a quina e a janela ficam na parede dela
-@export var desk: Control     ## a faixa do rádio, a frente do console da mesa comutadora: a borda da frente do tampo fica logo abaixo dela
+@export var desk: Control     ## a faixa da miniatura do painel (`ConsoleMini`), a frente do console da mesa comutadora: a borda da frente do tampo fica logo abaixo dela
 @export var board: Control    ## o painel da mesa comutadora: pousa na prateleira do console; o fundo do tampo fica `BOARD_SINK` px acima da base dele
 @export var dust: Control     ## onde a poeira do feixe é desenhada: acima da mesa comutadora (que fica no ar, na frente dela) e abaixo do painel e dos menus
 @export var wall_art: Texture2D     ## imagem da parede (repetida), no lugar do desenho
@@ -601,8 +601,8 @@ func _draw_switchboard(front: float) -> void:
 		_r(lerpf(fx0, b.position.x, t), y, lerpf(fx1, b.end.x, t) - lerpf(fx0, b.position.x, t), 1, Color("4e321d"))
 	_r(fx0, sy - 1, fx1 - fx0, 2, Color("8a6a2e"))   # o friso de latão na beira
 	_r(fx0, sy - 1, fx1 - fx0, 1, Color("c4a35a"))
-	var radio := desk.get_node_or_null("Radio") as Control
-	if radio and radio.visible:   # na frente do console, em volta do rádio: a plaqueta e os botões dele
+	var radio := desk.get_node_or_null("Mini") as Control
+	if radio and radio.visible:   # na frente do console, em volta da miniatura do painel: a plaqueta e os botões dele
 		var rr := Rect2(radio.global_position - global_position, radio.size)
 		var my := roundf((sy + fy) / 2.0)
 		var plate := Rect2(rr.position.x - 74, my - 8, 56, 16)

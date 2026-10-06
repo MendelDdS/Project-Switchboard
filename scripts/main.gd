@@ -68,7 +68,7 @@ var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o
 @onready var _shift_hours: Label = %ShiftHours
 @onready var board: Switchboard = %Board
 @onready var phone: PhonePanel = %Phone
-@onready var radio: Radio = %Radio
+@onready var radio: Radio = phone.radio
 @onready var tools: Tools = %Tools
 @onready var notebook: Notebook = tools.notebook
 @onready var dispatch: Dispatch = tools.dispatch
@@ -118,6 +118,7 @@ func _ready() -> void:
 	_intro.settings_pressed.connect(_pause.open_settings)
 	_pause.resumed.connect(_update_bell)
 	dispatch.radio = radio
+	(%Mini as ConsoleMini).phone = phone
 	dispatch.sent.connect(_on_dispatched)
 	dispatch.arrived.connect(supervisor.on_arrived)
 	dispatch.blank_card.connect(func(loc: String): supervisor.fault("dispatch_blank", loc))
@@ -578,39 +579,9 @@ func _transferred(c: PhoneCall) -> bool:
 
 func _update_call_ui() -> void:
 	var f := _focus()
-	var s := phone.shown()
 	var can_transfer := f != null and f.active and f.kind == PhoneCall.Kind.TRANSFER and f.phase == PhoneCall.Phase.AWAIT
 	can_transfer = can_transfer and not _transferred(f)
 	phone.set_buttons(f != null and f.ringing, can_transfer, f != null and f.active)
-	var line := T.text(T.Key.STATUS_NO_CALL)
-	var st := ""
-	if s != null:
-		line = T.text(T.Key.STATUS_LINE) % s.line
-		if s.ended:
-			st = T.text(T.Key.STATUS_ENDED)
-		elif s != f:
-			st = T.text(T.Key.STATUS_RINGING) if s.ringing else T.text(T.Key.STATUS_ON_HOLD)
-		elif s.ringing:
-			st = T.text(T.Key.STATUS_RINGING)
-		else:
-			st = T.text(T.Key.STATUS_ON_LINE)
-			var d := board.dest_of_output(s.line)
-			if s.kind == PhoneCall.Kind.TRANSFER and d != -1:
-				if exchange.dest(d) == Exchange.Dest.RING:
-					st = T.text(T.Key.STATUS_CALLING) % d
-				elif exchange.dest(d) == Exchange.Dest.CONN:
-					st = T.text(T.Key.STATUS_ANSWERED) % d
-	var others := PackedStringArray()
-	for c in live:
-		if c != s:
-			others.append("%02d · %s" % [c.line, T.text(T.Key.STATUS_RINGING) if c.ringing else T.text(T.Key.STATUS_ON_HOLD)])
-	phone.set_status(line, st, "—" if others.is_empty() else "\n".join(others))
-	# o destino: o que está na outra ponta do cabo da saída da linha em foco
-	var dest := board.dest_of_output(s.line) if s != null else -1
-	var dest_state := T.text(T.Key.HUD_DEST_NONE)
-	if dest != -1:
-		dest_state = T.text([T.Key.LEGEND_FREE, T.Key.STATUS_RINGING, T.Key.HUD_DEST_TALK, T.Key.LEGEND_DONE][exchange.dest(dest)])
-	phone.set_dest(dest, dest_state)
 
 
 # ================================================================ agenda das ligações

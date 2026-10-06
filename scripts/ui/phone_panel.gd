@@ -1,13 +1,14 @@
 class_name PhonePanel
 extends MarginContainer
-## Painel de baixo, do operador: a ligação em foco (linha, situação, visor e a barra de agravamento), a conversa (só as
-## últimas `LINES` falas; o registro inteiro fica na ferramenta Registro, `CallLog`), avisos e opções de fala, as teclas
-## (`KeyCapStyle`), o destino ligado à saída da linha e as outras linhas. Mostra uma PhoneCall por vez (`show_call`) e
-## se redesenha pelos sinais dela. É um console embutido na frente da mesa (`_draw`: a madeira de borda a borda, logo
-## abaixo da borda do tampo); os blocos são telas e chapas encaixadas nela, e a tela da conversa apaga sem ligação
-## (`ScreenGlass`).
+## Painel de baixo, do operador, em três blocos: a tela da conversa (as últimas falas que couberem, `_fit`; o registro inteiro
+## fica na ferramenta Registro, `CallLog`), com os avisos (`flash`/`warn`), as opções de fala e a barra de agravamento;
+## as teclas (`KeyCapStyle`); e o rádio de despacho (`radio`). A mesa comutadora tem uma miniatura dele
+## (`ConsoleMini`): este painel é a vista de perto daquela. Mostra uma PhoneCall por vez (`show_call`) e se redesenha
+## pelos sinais dela. É um console embutido na frente da mesa (`_draw`: a madeira de borda a borda, logo abaixo da
+## borda do tampo); os blocos são telas e chapas encaixadas nela, e a tela da conversa apaga sem ligação
+## (`ScreenGlass`). (A ligação em foco com o visor e o bloco do destino e das outras linhas saíram: a mesa já mostra.)
 
-const LINES := 3   ## falas da ligação em foco no painel
+const LINES := 20   ## falas da ligação em foco consideradas; a tela mostra as últimas que couberem (`_fit`)
 const WOOD := [Color("6b4529"), Color("4a2f1c"), Color("2a1a0f"), Color("3a2616")]   ## luz, meio, sombra, a frente da mesa
 
 signal answer_pressed
@@ -15,23 +16,20 @@ signal transfer_pressed
 signal hangup_pressed
 
 @onready var urgency: UrgencyBar = %Urgency
-@onready var _display: Label = %Display
-@onready var _line: Label = %CallLine
-@onready var _state: Label = %CallState
-@onready var _others: Label = %Others
+@onready var radio: Radio = %Radio
+@onready var screen: Control = %ConvBox   ## a tela da conversa (a miniatura copia o lugar dela)
 @onready var _transcript: RichTextLabel = %Transcript
 @onready var _choices: HFlowContainer = %Choices
 @onready var _warn: Label = %Warn
 @onready var _answer: Button = %Answer
 @onready var _transfer: Button = %Transfer
 @onready var _hangup: Button = %Hangup
-@onready var _dest: Label = %Dest
-@onready var _dest_state: Label = %DestState
 @onready var _glass: ScreenGlass = %Glass
 
 var _call: PhoneCall
-var _disp_until := 0
 var _warn_gen := 0
+var _lines := PackedStringArray()   # as falas prontas para a tela, da mais antiga à mais nova
+var shown_lines := 0   ## quantas falas cabem e aparecem agora (a miniatura mostra as mesmas)
 
 
 func _ready() -> void:
@@ -39,6 +37,7 @@ func _ready() -> void:
 	_transfer.pressed.connect(transfer_pressed.emit)
 	_hangup.pressed.connect(hangup_pressed.emit)
 	set_buttons(false, false, false)
+	_transcript.resized.connect(_fit)   # as opções e os avisos ganham ou perdem fileiras: cabe mais ou menos conversa
 
 
 ## Atalhos (Input Map): tratados aqui, antes da interface, porque Espaço e Tab também servem para apertar o botão
@@ -54,12 +53,6 @@ func _input(e: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			b.pressed.emit()
 			return
-
-
-func _process(_delta: float) -> void:
-	if _disp_until > 0 and Time.get_ticks_msec() > _disp_until:
-		_disp_until = 0
-		_display.text = ""
 
 
 ## Passa a exibir a ligação c (a transcrição e as opções acompanham os sinais dela).
@@ -104,66 +97,70 @@ func shown() -> PhoneCall:
 	return _call
 
 
-func set_status(line_text: String, state_text: String, others_text: String) -> void:
-	_line.text = line_text
-	_state.text = state_text
-	_others.text = others_text
-
-
-## O destino ligado à saída da linha em foco (-1 = nenhum cabo) e a situação dele, já traduzida.
-func set_dest(number: int, state: String) -> void:
-	_dest.text = "—" if number == -1 else str(number)
-	_dest_state.text = state
-
-
 func set_buttons(can_answer: bool, can_transfer: bool, can_hang: bool) -> void:
 	_answer.disabled = not can_answer
 	_transfer.disabled = not can_transfer
 	_hangup.disabled = not can_hang
 
 
-## Mensagem no visor por `ms` milissegundos.
+## As três teclas, na ordem do painel (a miniatura acende as que estão ativas).
+func keys() -> Array[Button]:
+	return [_answer, _transfer, _hangup]
+
+
+## Aviso numa linha da tela da conversa por `ms` milissegundos (enquanto isso a transcrição encolhe): o que acontece
+## na linha ("Chamando 305...", "número não existe") e os avisos do jogo (`warn`).
 func flash(text: String, ms: int = 2600) -> void:
-	_display.text = text
-	_disp_until = Time.get_ticks_msec() + ms
-
-
-func clear_flash() -> void:
-	_disp_until = 0
-	_display.text = ""
-
-
-func display_text() -> String:
-	return _display.text
-
-
-## Aviso numa linha da tela, por 4 s (enquanto isso a transcrição encolhe).
-func warn(text: String) -> void:
 	_warn.text = text
 	_warn.visible = text != ""
 	_warn_gen += 1
 	var g := _warn_gen
-	await get_tree().create_timer(4.0, false).timeout
+	await get_tree().create_timer(ms / 1000.0, false).timeout
 	if g == _warn_gen:
-		_warn.text = ""
-		_warn.visible = false
+		clear_flash()
+
+
+func clear_flash() -> void:
+	_warn_gen += 1
+	_warn.text = ""
+	_warn.visible = false
+
+
+func display_text() -> String:
+	return _warn.text
+
+
+func warn(text: String) -> void:
+	flash(text, 4000)
 
 
 func _render_transcript() -> void:
-	var s := ""
+	_lines.clear()
 	if _call != null:
 		for l in _call.transcript.slice(-LINES):
 			var text := String(l["text"]).replace("[", "(")
 			match l["cls"]:
 				"sys":
-					s += "[color=#9a917a][font_size=11]%s[/font_size][/color]\n" % text
+					_lines.append("[color=#9a917a][font_size=11]%s[/font_size][/color]\n" % text)
 				"op":
-					s += "[color=#8dbb6c]%s[/color]  %s\n" % [T.text(T.Key.YOU), text]
+					_lines.append("[color=#8dbb6c]%s[/color]  %s\n" % [T.text(T.Key.YOU), text])
 				"ghost":
-					s += "[color=#f3a83c]—[/color]  [color=#c6d3c4]%s[/color]\n" % text
+					_lines.append("[color=#f3a83c]—[/color]  [color=#c6d3c4]%s[/color]\n" % text)
 				_:
-					s += "[color=#f3a83c]%s[/color]  %s\n" % [tr(l["who"]), text]
-	_transcript.text = s
+					_lines.append("[color=#f3a83c]%s[/color]  %s\n" % [tr(l["who"]), text])
+	_fit()
+
+
+## Mostra as últimas falas que cabem inteiras na tela (o que sobra dela depois dos avisos, das opções e da barra de
+## agravamento; fala longa quebra em mais de uma linha), sempre pelo menos a mais nova.
+func _fit() -> void:
+	var n := _lines.size()
+	while true:
+		_transcript.text = "".join(_lines.slice(-n))
+		if n <= 1 or _transcript.get_content_height() <= _transcript.size.y:
+			break
+		n -= 1
+	shown_lines = n
 
 
 ## Só a ligação em que o operador está mostra as opções de fala.

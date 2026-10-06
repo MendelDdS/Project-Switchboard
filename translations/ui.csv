@@ -67,14 +67,8 @@ ANSWER,Atender,Answer,Contestar
 TRANSFER,Transferir,Transfer,Transferir
 HANG_UP,Desligar,Hang up,Colgar
 KEY_SPACE,Espaço,Space,Espacio
-STATUS_NO_CALL,Nenhuma chamada,No call,Ninguna llamada
 STATUS_LINE,Linha %02d,Line %02d,Línea %02d
-STATUS_ENDED,encerrada,ended,terminada
-STATUS_RINGING,tocando,ringing,sonando
 STATUS_ON_HOLD,em espera,on hold,en espera
-STATUS_ON_LINE,em linha,on the line,en línea
-STATUS_CALLING,chamando %d,calling %d,llamando al %d
-STATUS_ANSWERED,%d atendeu,%d answered,%d contestó
 DISPLAY_RINGING,%d TOCANDO,%d RINGING,%d SONANDO
 DISPLAY_NO_ANSWER,%d SEM RESPOSTA,%d NO ANSWER,%d SIN RESPUESTA
 DISPLAY_CONNECTED,%d CONECTADO,%d CONNECTED,%d CONECTADO
@@ -337,7 +331,3 @@ OBS_SHIFT_ENDED,Turno encerrado durante a ligação.,Shift ended during the call
 HINT_MIDNIGHT,"Meia-noite. Registre o que falta no caderno ou encerre o turno.","Midnight. Log what's left in the logbook or end the shift.","Medianoche. Registre lo que falta en el cuaderno o termine el turno."
 
 CALL_LOG_EMPTY,Nenhuma conversa ainda. Tudo o que for dito com o FONE na linha fica registrado aqui.,No conversations yet. Everything said with the HEADSET on the line is logged here.,Ninguna conversación todavía. Todo lo que se diga con el AURICULAR en la línea queda registrado aquí.
-HUD_DEST,DESTINO,DESTINATION,DESTINO
-HUD_DEST_NONE,sem cabo na saída,no cord on the output,sin cable en la salida
-HUD_DEST_TALK,em conversa,talking,en conversación
-HUD_OTHERS,OUTRAS LINHAS,OTHER LINES,OTRAS LÍNEAS
