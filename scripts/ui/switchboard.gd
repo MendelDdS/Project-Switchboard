@@ -296,6 +296,7 @@ var _rub_out := 0.0
 var _rub_in := 0.0
 var _rub_x := 0.0
 var _rub_fone := 0.0
+var _drawn := []   # o que estava à mostra no último desenho (`_look`)
 
 
 func _ready() -> void:
@@ -652,7 +653,29 @@ func _process(delta: float) -> void:
 			_fade("l%d" % n, _lamp(exchange.line(n), ms, fone_line() == n), delta)
 		for d in dest_nums:
 			_fade("d%d" % d, _dest_lamp(exchange.dest(d), ms), delta)
-	queue_redraw()
+	var moving := held != -1 or not (_loose.is_empty() and _pushed.is_empty() and _pulled.is_empty())
+	for e in ropes:
+		moving = moving or not ropes[e].has("sleep")
+	var now := _look()
+	if moving or now != _drawn:
+		_drawn = now
+		queue_redraw()
+
+
+## O que a mesa mostra parada: muda, ela se redesenha (com algo se mexendo, a cada quadro). Parada, fica o desenho
+## guardado (as luzes do `Bloom` também ficam: ele guarda as de quem desenha até a próxima vez).
+func _look() -> Array:
+	var levels := PackedFloat32Array()
+	for key in _lit:
+		var lt: Array = _lit[key]
+		levels.append_array([lt[1], (lt[0] as Color).r, (lt[0] as Color).g])
+	var states := PackedInt32Array()
+	if exchange != null:
+		for n in range(1, 11):
+			states.append(exchange.line(n))
+		for d in dest_nums:
+			states.append(exchange.dest(d))
+	return [size, ends.duplicate(), _hover, levels, states, Time.get_ticks_msec() < info_until, info_line, GameData.sectors.duplicate()]
 
 
 ## Onde o fio entra no plug.

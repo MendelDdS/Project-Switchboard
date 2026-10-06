@@ -10,7 +10,6 @@ const SCREEN := Color(0.043, 0.047, 0.05)   # o fundo das telas (`HudPanel`)
 const BORDER := Color(0.1, 0.07, 0.045)
 const INK := {"op": Color("8dbb6c"), "sys": Color("9a917a"), "ghost": Color("c6d3c4")}   # a cor de quem fala, como na tela
 const TEXT := Color("e6dbbd")
-const RADIO_TEXT := Color(0.7176, 0.7882, 0.6588)
 
 var phone: PhonePanel
 
@@ -37,7 +36,7 @@ func _draw() -> void:
 	_screen(at.call(phone.screen))
 	for b in phone.keys():
 		_key(at.call(b), b)
-	_radio(at.call(phone.radio))
+	_radio(at)
 
 
 ## A tela da conversa: apagada sem ligação; com uma, as últimas falas viram traços (o nome na cor de quem fala e a fala
@@ -59,6 +58,8 @@ func _screen(r: Rect2) -> void:
 			draw_rect(Rect2(inner.position.x + name_w + 2.0, y, roundf(w), 1), INK["sys"] if l["cls"] == "sys" else TEXT)
 	else:
 		draw_rect(inner, Color(0, 0, 0, 0.45))
+		if fmod(Time.get_ticks_msec() / 1000.0, ScreenGlass.BLINK * 2.0) < ScreenGlass.BLINK:   # o cursor esperando
+			draw_rect(Rect2(inner.position + Vector2(2, 2), Vector2(1, 2)), ScreenGlass.IDLE_INK)
 	var x := inner.position.x + inner.size.x * 0.62   # o reflexo do vidro
 	draw_colored_polygon(PackedVector2Array([Vector2(x, inner.position.y), Vector2(x + 4, inner.position.y),
 		Vector2(x + 1, inner.end.y), Vector2(x - 3, inner.end.y)]), Color(1, 1, 1, 0.05))
@@ -76,22 +77,65 @@ func _key(r: Rect2, b: Button) -> void:
 	draw_rect(Rect2(r.position + Vector2(1, 1), Vector2(r.size.x - 2, 1)), col.lightened(0.3))
 
 
-## O rádio: o alto-falante em fendas, as duas luzes como estão e a tela, com traços enquanto ele fala.
-func _radio(r: Rect2) -> void:
-	_block(r)
-	var inner := r.grow(-2)
-	for y in range(int(inner.position.y) + 1, int(inner.end.y) - 1, 2):   # o alto-falante
-		draw_rect(Rect2(inner.position.x + 1, y, 6, 1), Color(0.2353, 0.2078, 0.1529))
-	var lamps := phone.radio.lamps()
-	draw_rect(Rect2(inner.position.x + 9, inner.position.y + 1, 2, 2), lamps[0])
-	draw_rect(Rect2(inner.end.x - 3, inner.position.y + 1, 2, 2), lamps[1])
-	var scr := Rect2(inner.position.x + 9, inner.position.y + 5, inner.size.x - 10, inner.size.y - 6)
-	draw_rect(scr, Color(0.03, 0.045, 0.035))
-	var text := phone.radio.screen_text()
-	if text.length() > 1:
-		for i in mini(3, ceili(text.length() / 30.0)):
-			var w := minf(scr.size.x - 2.0, (text.length() - i * 30) * 0.4)
-			draw_rect(Rect2(scr.position.x + 1, scr.position.y + 1 + i * 3, roundf(w), 1), RADIO_TEXT)
+## O rádio, peça por peça no lugar de cada uma no rádio de verdade (`Radio.parts`): o alto-falante em fendas, as
+## duas luzes como estão, as legendas em traços apagados e a tela com as mesmas linhas, quebradas na largura dela como
+## lá (`_wrap`): as mensagens anteriores, apagadas, em cima, e a de agora embaixo.
+func _radio(at: Callable) -> void:
+	var radio := phone.radio
+	var p := radio.parts()
+	_block(at.call(radio))
+	var grill: Rect2 = at.call(p["grill"])
+	for y in range(int(grill.position.y), int(grill.end.y), 2):
+		draw_rect(Rect2(grill.position.x, y, grill.size.x, 1), Color(0.2353, 0.2078, 0.1529))
+	var lamps := radio.lamps()
+	for i in 2:
+		var lr: Rect2 = at.call(p[["led", "alert"][i]])
+		draw_rect(Rect2(lr.position, lr.size.max(Vector2(2, 2))), lamps[i])
+	for key in ["caption", "alert_label"]:
+		var label: Label = p[key]
+		var lr: Rect2 = at.call(label)
+		draw_rect(Rect2(lr.position.x, roundf(lr.get_center().y), lr.size.x, 1), Color(Pal.DIM, 0.6) * label.modulate)   # o rótulo tem a largura do texto
+	draw_rect(at.call(p["box"]), Color(0.03, 0.045, 0.035))
+	var k: float = (at.call(radio) as Rect2).size.x / maxf(1.0, radio.size.x)
+	var lines := radio.lines()
+	var now: Array = lines.pop_back()
+	var hr: Rect2 = at.call(p["history"])
+	var rows := []   # [comprimento em caracteres, cor], de cima para baixo
+	for l in lines:
+		for n in _wrap(l[0], (p["history"] as Control).size.x):
+			rows.append([n, l[1]])
+	var pitch := maxf(2.0, roundf(13.0 * k))
+	var y := hr.end.y - rows.size() * pitch
+	for row in rows:
+		if y >= hr.position.y:
+			draw_rect(Rect2(hr.position.x, y, roundf(row[0] * _char_w() * k), 1), row[1])
+		y += pitch
+	var sr: Rect2 = at.call(p["screen"])
+	y = sr.position.y
+	for n in _wrap(now[0], (p["screen"] as Control).size.x):
+		draw_rect(Rect2(sr.position.x, y, maxf(1.0, roundf(n * _char_w() * k)), 1), now[1])
+		y += pitch
+
+
+## Os comprimentos (em caracteres) das linhas de `text` quebrado por palavra numa largura de `width` px, como a tela faz.
+func _wrap(text: String, width: float) -> PackedInt32Array:
+	var per := maxi(1, floori(width / _char_w()))
+	var out := PackedInt32Array()
+	var cur := 0
+	for word in text.split(" ", false):
+		var add := word.length() if cur == 0 else cur + 1 + word.length()
+		if cur > 0 and add > per:
+			out.append(cur)
+			cur = word.length()
+		else:
+			cur = add
+	if cur > 0:
+		out.append(cur)
+	return out
+
+
+func _char_w() -> float:
+	return Pal.mono.get_string_size("M", HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
 
 
 ## Um bloco do console: a tela escura com a borda dele.

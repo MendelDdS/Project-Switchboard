@@ -37,6 +37,8 @@ func _ready() -> void:
 	_transfer.pressed.connect(transfer_pressed.emit)
 	_hangup.pressed.connect(hangup_pressed.emit)
 	set_buttons(false, false, false)
+	_glass.idle = T.Key.CONSOLE_IDLE   # sem ligação, a tela espera com o cursor piscando
+	_glass.off = true
 	_transcript.resized.connect(_fit)   # as opções e os avisos ganham ou perdem fileiras: cabe mais ou menos conversa
 
 
