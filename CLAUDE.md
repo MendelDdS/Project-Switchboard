@@ -384,7 +384,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   baixo dos plugs e fios.
 - **A mesa só se redesenha quando algo que ela mostra muda** (`_look`: lâmpadas, estados das linhas e destinos,
   pontas, plug sob o mouse, balão, setores) ou com algo se mexendo (plug na mão, solto, encaixando ou saindo, fio
-  acordado); parada, fica o desenho guardado (o `Bloom` guarda as luzes de quem desenha). Quem acrescentar ao desenho
+  acordado), e mais uma vez no quadro em que tudo para (o lugar final; sem isso, o plug que assentava ficava desenhado torto, meio fora do buraco); parada, fica o desenho guardado (o `Bloom` guarda as luzes de quem desenha). Quem acrescentar ao desenho
   algo que muda precisa pôr isso no `_look`.
 - Layout da mesa (`SIZE` 588×362, também em `main.tscn`): móvel com moldura de madeira (`_draw_cabinet`, `FRAME`,
   `WOOD`) e faixas gravadas com o nome de cada seção (`_draw_rule`, `RULES`: entradas, saídas, destinos); coluna de cada linha em `ROW_Y` (plaquinha de metal com o número

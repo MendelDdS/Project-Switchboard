@@ -661,6 +661,7 @@ func _process(delta: float) -> void:
 	for e in ropes:
 		moving = moving or not ropes[e].has("sleep")
 	var now := _look()
+	now.append(moving)   # no quadro em que tudo para, mais um desenho: o do lugar final (sem ele, o plug ficava torto, meio fora do buraco)
 	if moving or now != _drawn:
 		_drawn = now
 		queue_redraw()
