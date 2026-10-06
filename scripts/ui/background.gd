@@ -83,7 +83,7 @@ const THUNDER_AFTER := Vector2(1.2, 3.5)   ## o trovão vem depois (s, sorteado:
 ## vertical. Não é a perspectiva da janela (a diagonal dela é só do primeiro plano). Tudo em metros (`_o`: `x` ao longo
 ## da rua, `z` a distância dos olhos, `h` a altura), no tamanho de verdade.
 const OUT_EYE := 4.5      ## os olhos acima da rua (m)
-const OUT_HZ := 61.0      ## o horizonte acima do peitoril de longe (px de 2x2)
+const OUT_HZ := 52.0      ## o horizonte acima do peitoril de longe (px de 2x2)
 const OUT_F := 60.0       ## a distância focal (px de 2x2 de um metro a um metro)
 ## A rua, de perto para longe (z, m): a nossa fachada, a nossa calçada até o meio-fio, as duas mãos (a faixa no meio),
 ## o meio-fio de lá, a calçada de lá e as fachadas do outro lado, apoiadas nela.
@@ -109,7 +109,13 @@ const CAB_T := 1.15              ## a frente dele (escala): ~35 cm de fundo
 const SIDE_T := 1.06        ## onde a janela começa na parede da direita (escala); termina perto da borda da tela
 const SIDE_W := 150.0       ## a largura do vão, de frente (só a resolução da projeção)
 const WIN_TOP := -8.0       ## o alto do vão (y, a partir dos olhos): logo acima deles, passando da borda de cima
-const WIN_SILL := 26.0      ## quanto o peitoril fica acima do tampo (y)
+## Quanto o peitoril fica acima do tampo (y): uns 16 cm, 29 cm abaixo dos olhos. Com 7 cm (38 cm abaixo dos olhos, com
+## a parede a 44 cm da cabeça) a janela descia uns 40° e parecia vista de cima; com 20 cm abaixo deles, como numa sala de
+## verdade, quase todo o vidro passava da borda de cima da tela (os olhos ficam logo acima dela).
+const WIN_SILL := 60.0
+const WALL_D := 16.0        ## a espessura da parede (para fora, nas unidades da parede do fundo): o vidro fica do lado de fora
+const SILL_D := 12.0        ## quanto o peitoril de dentro sai da parede para a sala
+const BLIND := 0.1         ## até onde a persiana desce (fração da altura do vão)
 const X2 := Transform2D(Vector2(2, 0), Vector2(0, 2), Vector2.ZERO)   ## a escala dos px de 2x2 (`_sprite` volta a ela)
 const MUG_HANDLE := ["hhhh..", "HHHHh.", "...hHh", "....Hs", "....Hs", "....Hs", "....Hs", "...hHs", "HHHHs.", "ssss.."]   ## a alça da caneca (as duas colunas da esquerda ficam atrás dela)
 const PROP_K := 93.0 / 66.0   ## a escala dos objetos da mesa: a mesma dos plugs, que cresceram até o tamanho das tomadas (antes, o plug ficava maior que o relógio e o caderno)
@@ -677,14 +683,16 @@ func _draw_calendar(r: Rect2) -> void:
 
 ## Um ponto do vão da janela (`p`: ao longo da parede, de 0 a `SIDE_W`, e a altura a partir do alto do vão; pode
 ## passar da borda) na tela (px de 2x2). A distância ao longo da parede é linear em 1/t: a perspectiva certa.
-func _side_pt(p: Vector2) -> Vector2:
+## `out`: para fora da parede (negativo: para dentro da sala), na mesma profundidade.
+func _side_pt(p: Vector2, out := 0.0) -> Vector2:
 	var t := 1.0 / lerpf(1.0 / SIDE_T, 1.0 / _t2, p.x / SIDE_W)
-	return _vp + Vector2(_cx - _vp.x, WIN_TOP + p.y) * t
+	return _vp + Vector2(_cx - _vp.x + out, WIN_TOP + p.y) * t
 
 
 ## Um retângulo do vão da janela projetado na parede.
-func _side_quad(r: Rect2) -> PackedVector2Array:
-	return PackedVector2Array([_side_pt(r.position), _side_pt(Vector2(r.end.x, r.position.y)), _side_pt(r.end), _side_pt(Vector2(r.position.x, r.end.y))])
+func _side_quad(r: Rect2, out := 0.0) -> PackedVector2Array:
+	return PackedVector2Array([_side_pt(r.position, out), _side_pt(Vector2(r.end.x, r.position.y), out), _side_pt(r.end, out),
+		_side_pt(Vector2(r.position.x, r.end.y), out)])
 
 
 ## A vista da janela, de frente, no vidro fora da tela (`_vport`, do tamanho da janela na tela, em px da tela; a
@@ -857,15 +865,23 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 		draw_line(Vector2(_cx, fy), Vector2(w, _vp.y + (fy - _vp.y) * te), Color("26353a"), PX)
 	for i in 3:   # a quina: a parede da direita escurece de leve perto dela
 		_r(_cx, 0, 6 - i * 2, top, Color(0, 0, 0, 0.06))
-	# o batente
+	# o vão tem a espessura da parede (`WALL_D`): a guarnição fica na parede, o vidro do lado de fora. Sair da parede é
+	# andar na horizontal da tela (a mesma profundidade, mais longe de lado): aparecem o lado de dentro do batente de
+	# longe (perto da quina) e o fundo do vão embaixo, e o batente de perto esconde uma tira do vidro
 	var gw := SIDE_W
 	var gh := _yd - WIN_SILL - WIN_TOP
-	draw_colored_polygon(_side_quad(Rect2(-5, -5, gw + 10, gh + 10)), WOOD[2])
+	var blind := floorf(gh * BLIND)
+	var inner := _side_quad(Rect2(0, 0, gw, gh))
+	var outer := _side_quad(Rect2(0, 0, gw, gh), WALL_D)
+	var cut := Geometry2D.intersect_polygons(inner, outer)
+	if cut.is_empty():
+		return
+	var q: PackedVector2Array = cut[0]   # o vidro que aparece pelo vão
+	draw_colored_polygon(_side_quad(Rect2(-5, -5, gw + 10, gh + 10)), WOOD[2])   # a guarnição, na parede
 	draw_colored_polygon(_side_quad(Rect2(-4, -4, gw + 8, gh + 8)), WOOD[1])
 	draw_colored_polygon(_side_quad(Rect2(-4, -4, gw + 8, 1)), WOOD[0])
 	# a vista, reta, recortada pelo vidro: o horizonte dela na altura dos olhos
-	var q := _side_quad(Rect2(0, 0, gw, gh))
-	var box := _bounds(q)
+	var box := _bounds(outer)
 	box = box.intersection(Rect2(0, 0, w, box.end.y))
 	# a cidade põe o horizonte a 58% da altura: na altura dos olhos, com a rua logo acima do peitoril de longe
 	var low := _side_pt(Vector2(0, gh)).y
@@ -874,7 +890,7 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	var view := Rect2(floorf(box.position.x), floorf(low - vh), ceilf(box.size.x) + 1, ceilf(vh) + _near)
 	_view_at = view.position
 	# o vidro que aparece começa abaixo da persiana (e da borda de cima da tela): as gotas ficam dali para baixo
-	_glass_from = clampf((maxf(0.0, _side_pt(Vector2(gw * 0.5, floorf(gh * 0.3))).y) - view.position.y) / view.size.y, 0.0, 0.95)
+	_glass_from = clampf((maxf(0.0, _side_pt(Vector2(gw * 0.5, blind)).y) - view.position.y) / view.size.y, 0.0, 0.95)
 	if _vport.size != Vector2i(view.size * 2.0):   # o vidro em px da tela: a vista também é desenhada em 1x1
 		_vport.size = Vector2i(view.size * 2.0)
 	var uv := PackedVector2Array()
@@ -893,28 +909,48 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	for lamp: Vector2 in _lamp_heads(cg):   # os postes de lá
 		if lamp_level > 0.5 and Geometry2D.is_point_in_polygon(lamp, q):
 			_light(Rect2((lamp + Vector2(-1.5, 0)) * 2.0, Vector2(6, 3)), Color("ffd88a"), 0.8)
-	# o caixilho em cruz e a persiana meio baixada, na parede
-	draw_colored_polygon(_side_quad(Rect2(gw / 2.0 - 1, 0, 2, gh)), WOOD[1])
-	draw_colored_polygon(_side_quad(Rect2(0, floorf(gh * 0.55) - 1, gw, 2)), WOOD[1])
-	var blind := floorf(gh * 0.3)
+	# o caixilho em cruz, no vidro: a frente dele e, por estar abaixo e ao lado dos olhos, o alto da travessa e o lado
+	# de perto do montante; o que passa do vão fica atrás do batente
+	var bar := func(poly: PackedVector2Array, col: Color) -> void:
+		for part in Geometry2D.intersect_polygons(poly, inner):
+			draw_colored_polygon(part, col)
+	var mx := gw / 2.0
+	var ty := floorf(gh * 0.55) - 1
+	var f := WALL_D - 3.0
+	bar.call(PackedVector2Array([_side_pt(Vector2(0, ty), f), _side_pt(Vector2(gw, ty), f), _side_pt(Vector2(gw, ty), WALL_D),
+		_side_pt(Vector2(0, ty), WALL_D)]), WOOD[0])
+	bar.call(_side_quad(Rect2(0, ty, gw, 2), f), WOOD[1])
+	bar.call(PackedVector2Array([_side_pt(Vector2(mx + 1, 0), f), _side_pt(Vector2(mx + 1, 0), WALL_D), _side_pt(Vector2(mx + 1, gh), WALL_D),
+		_side_pt(Vector2(mx + 1, gh), f)]), WOOD[2])
+	bar.call(_side_quad(Rect2(mx - 1, 0, 2, gh), f), WOOD[1])
+	# as faces do vão: frias de fora (a rua) para dentro; o alto dele (a verga) passa da borda de cima da tela
+	var lit := Color("3a5263")
+	var dim := Color("223033")
+	draw_polygon(PackedVector2Array([inner[0], outer[0], outer[3], inner[3]]), PackedColorArray([dim, lit, lit, dim]))   # o batente de longe
+	draw_polygon(PackedVector2Array([inner[3], inner[2], outer[2], outer[3]]), PackedColorArray([dim.lightened(0.1), dim.lightened(0.1), lit, lit]))   # o fundo do vão
+	draw_line(outer[3], outer[2], Color(0, 0, 0, 0.35), PX)   # o vidro encosta no fundo do vão
+	draw_colored_polygon(PackedVector2Array([inner[0], inner[1], outer[1], outer[0]]), Color("0d1315"))
+	# a persiana meio baixada, presa no lado de dentro do vão
 	_glass = PackedVector2Array()
-	for p in _side_quad(Rect2(0, blind, gw, gh - blind)):
-		_glass.append(p * 2.0)
+	var below := Geometry2D.intersect_polygons(_side_quad(Rect2(0, blind, gw, gh - blind)), _side_quad(Rect2(0, blind, gw, gh - blind), WALL_D))
+	if not below.is_empty():
+		for p in below[0]:
+			_glass.append(p * 2.0)
 	for y in range(0, int(blind), 2):   # as lâminas: a face clara, o fio de luz na beira e a sombra embaixo
 		draw_colored_polygon(_side_quad(Rect2(0, y, gw, 1.5)), Color("8a8070"))
 		draw_colored_polygon(_side_quad(Rect2(0, y, gw, PX)), Color("a89e8a"))
 		draw_colored_polygon(_side_quad(Rect2(0, y + 1.5, gw, PX)), Color("3a352c"))
 	draw_line(_side_pt(Vector2(gw * 0.8, blind)), _side_pt(Vector2(gw * 0.8, blind + 8)), Color("8a8070"), PX)   # o cordão
 	draw_colored_polygon(_side_quad(Rect2(gw * 0.8 - 1, blind + 8, 2, 2)), Color("6b5f4c"))   # o puxador dele
-	# o vão: perto da quina aparece o lado de dentro do batente (virado para quem olha), o peitoril e a verga
-	draw_colored_polygon(_side_quad(Rect2(0, 0, 10, gh)), Color("223033"))
-	draw_line(_side_pt(Vector2(10, 0)), _side_pt(Vector2(10, gh)), Color(0, 0, 0, 0.4), PX)
-	draw_colored_polygon(_side_quad(Rect2(0, gh - 3, gw, 3)), Color("2c3a3c"))
-	draw_colored_polygon(_side_quad(Rect2(0, 0, gw, 2)), Color("0d1315"))
-	# o peitoril de fora e o vaso
-	draw_colored_polygon(_side_quad(Rect2(-8, gh + 4, gw + 16, 3)), WOOD[0])
-	draw_colored_polygon(_side_quad(Rect2(-8, gh + 7, gw + 16, 2)), WOOD[2])
-	var pp := (_side_pt(Vector2(gw * 0.82, gh + 4)) * 2.0).round()   # (px da tela)
+	# o peitoril de dentro: uma tábua saindo da parede para a sala (`SILL_D`), com o tampo à vista (fica abaixo dos
+	# olhos), a beira da frente e a sombra dela na parede; o vaso em cima
+	var s0 := Vector2(-8, gh)
+	var s1 := Vector2(gw + 8, gh)
+	draw_colored_polygon(_side_quad(Rect2(-8, gh + 3, gw + 16, 6)), Color(0, 0, 0, 0.25))
+	draw_colored_polygon(PackedVector2Array([_side_pt(s0), _side_pt(s1), _side_pt(s1, -SILL_D), _side_pt(s0, -SILL_D)]), WOOD[1])
+	draw_colored_polygon(_side_quad(Rect2(-8, gh, gw + 16, 3), -SILL_D), WOOD[2])
+	draw_line(_side_pt(s0, -SILL_D), _side_pt(s1, -SILL_D), WOOD[0], PX)
+	var pp := (_side_pt(Vector2(gw * 0.82, gh), -SILL_D * 0.5) * 2.0).round()   # (px da tela)
 	_p(pp.x + 1, pp.y - 13, 16, 13, Color("8a4a2a"))   # o vaso de barro, mais estreito embaixo
 	_p(pp.x, pp.y - 15, 18, 3, Color("9a542f"))
 	_p(pp.x, pp.y - 15, 18, 1, Color("b8683c"))
@@ -1460,7 +1496,7 @@ func _draw_shrub() -> void:
 		var r := SHRUB.y * sqrt(maxf(0.0, 1.0 - pow(hgt / SHRUB.z, 2.0)))   # a copa: redonda, mais larga embaixo
 		var dx := rng.randf_range(-r, r)
 		var w := Vector2((SHRUB.x + dx) * gw, gh * (1.0 - hgt) + rng.randf_range(-1.0, 1.0))
-		var p := (_side_pt(w) - _view_at) * 2.0
+		var p := (_side_pt(w, WALL_D + 8.0) - _view_at) * 2.0   # do lado de fora, atrás do vidro
 		var k := clampf(_side_pt(w + Vector2(0, 1)).y - _side_pt(w).y, 0.8, 1.6)   # a escala da parede ali
 		var sway := roundf(sin(t * 1.4 + i * 0.7) * wind * hgt / SHRUB.z * 1.5)
 		var lit := clampf(hgt / SHRUB.z * 0.7 + (dx / maxf(0.01, r)) * 0.15 + rng.randf_range(-0.25, 0.2), 0.0, 0.99)

@@ -156,8 +156,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   entreaberto, o vão tem fundo, a parede de dentro virada para quem olha, prateleiras com o tampo à vista e pastas
   em pé, e a porta aberta mostra o painel de dentro e a espessura); a parede da direita, entrando para o fundo
   a partir da quina (`CORNER` da área das ferramentas, `Background.window`), mais clara (virada para a luminária),
-  com a janela vista de lado (`_draw_side_wall`, `_side_pt`: batente, o lado de dentro do vão, caixilho e persiana
-  na perspectiva da parede; a vista da cidade é desenhada de frente num vidro fora da tela, `_vport`, e só recortada
+  com a janela vista de lado (`_draw_side_wall`, `_side_pt`: guarnição, caixilho e persiana na perspectiva da parede;
+  o vão tem a espessura dela, `WALL_D`: sair da parede é andar na horizontal da tela, então aparecem o lado de dentro
+  do batente de longe e o fundo do vão, o vidro fica do lado de fora e o batente de perto esconde uma tira dele; o
+  peitoril de dentro é uma tábua saindo para a sala, `SILL_D`, com o vaso em cima; o peitoril fica em `WIN_SILL`, perto
+  dos olhos: mais baixo, a janela descia uns 40° e parecia vista de cima; a vista da cidade é desenhada de frente num vidro fora da tela, `_vport`, e só recortada
   pelo vidro: está longe e não entorta com a janela; o horizonte dela fica na altura dos olhos); a mesa, afastada da
   parede (`DESK_T`), com o fundo do tampo atrás da mesa comutadora (`BOARD_SINK`), a borda da frente logo abaixo da
   faixa de mesa (`Background.desk`) e a ponta na parede da direita, numa
@@ -870,6 +873,10 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
     ponto de fuga com a igreja no fim, o homem embaixo do poste da esquina, um carro passando e o arbusto plantado na
     nossa calçada. A mureta saiu. Depois, a nossa calçada, o nosso meio-fio e a faixa de pedestres saíram da vista (diziam
     que a nossa parede ia de frente, contra a diagonal da sala) e o arbusto passou para o primeiro plano, com a janela.
+67. A janela parecia vista de cima: pela câmera, a parede dela fica a uns 44 cm da cabeça do operador, e o peitoril
+    estava 38 cm abaixo dos olhos. O peitoril subiu (menos inclinado, a persiana subiu junto) e o vão ganhou a espessura
+    da parede (o lado de dentro do batente, o fundo do vão, o vidro recuado com o caixilho de verdade) e um peitoril de
+    dentro com o vaso.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

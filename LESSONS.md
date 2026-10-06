@@ -34,6 +34,12 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   nome onde continuavam a mesma linha ("a Avenida Brasil vira XV de Novembro"), e o usuário estranhou com razão. Rua
   que continua mantém o nome e a numeração segue; por isso o bairro novo fica do lado para onde os números crescem
   (leste e sul da Vila Serena), sem renumerar o que já existia.
+- **A perspectiva do cenário inteiro sai do mesmo ponto central da câmera** (os olhos do operador, `_vp`, `EYE`,
+  `Z0`), pedido do usuário. Antes de desenhar qualquer peça, ponha-a na sala em medidas de verdade e projete pela
+  câmera; nunca acerte a inclinação peça por peça na tela. Confira as medidas que a câmera dá: a janela parecia vista
+  de cima porque a parede dela estava a 44 cm da cabeça e o peitoril 38 cm abaixo dos olhos, e cada desenho feito
+  "no olho" (a espessura do vão pintada na parede, a vista de frente com a nossa calçada) contradizia a sala. O que é
+  de fora e só aparece pelo vidro pode ter a câmera própria, mas nada nela pode encostar no que a sala já mostra.
 
 ## Lógica
 
