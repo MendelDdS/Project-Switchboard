@@ -22,7 +22,7 @@ blend_mode = 1
 
 [sub_resource type="Gradient" id="Gradient_2"]
 offsets = PackedFloat32Array(0, 0.18, 0.36, 0.54, 0.72, 0.9)
-colors = PackedColorArray(1, 0.77, 0.43, 0.2, 1, 0.72, 0.38, 0.15, 1, 0.68, 0.34, 0.11, 1, 0.65, 0.32, 0.07, 1, 0.62, 0.3, 0.04, 1, 0.6, 0.3, 0)
+colors = PackedColorArray(1, 0.77, 0.43, 0.26, 1, 0.72, 0.38, 0.19, 1, 0.68, 0.34, 0.12, 1, 0.65, 0.32, 0.06, 1, 0.62, 0.3, 0.02, 1, 0.6, 0.3, 0)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_3"]
 gradient = SubResource("Gradient_2")
@@ -30,7 +30,7 @@ width = 640
 height = 360
 fill = 1
 fill_from = Vector2(0.5, 0)
-fill_to = Vector2(1.05, 0)
+fill_to = Vector2(0.95, 0)
 
 [sub_resource type="Gradient" id="Gradient_5"]
 offsets = PackedFloat32Array(0, 0.6, 0.72, 0.82, 0.92)
@@ -197,6 +197,7 @@ theme_override_constants/separation = 6
 
 [node name="Hint" type="RichTextLabel" parent="Layout/Rows/Columns/Right" unique_id=932627705]
 unique_name_in_owner = true
+self_modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 mouse_filter = 2

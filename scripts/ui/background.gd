@@ -64,6 +64,11 @@ const PLANKS := 6       ## as tábuas do tampo, todas da mesma largura (a câmer
 const POOL_R := 150.0   ## o raio da poça de luz da luminária no tampo
 const DUST := 240        ## grãos de poeira na luz da luminária
 const BEADS := 50        ## gotas paradas no vidro, na chuva
+const NOIR := Color(0.012, 0.022, 0.045, 0.72)   ## o escuro frio da sala fora da luz da luminária (`_draw_gloom`)
+const GLOOM_R := Vector2(820, 330)   ## até onde vai a luz da luminária antes do escuro todo (px da tela, elipse em volta da poça na mesa: larga, a mesa toda na luz)
+const GLOOM_IN := 0.25   ## dentro dessa fração do raio, nada de escuro: dali para fora ele cresce liso
+const WINDOW_GLOW := Color(0.45, 0.62, 1.0, 0.08)   ## o brilho azul da noite entrando pela janela (`_draw_window_glow`)
+const WINDOW_GLOW_R := 420.0   ## até onde ele chega (px da tela, a partir do meio do vidro)
 const SHADE_MAX := 0.3   ## o mais escuro que um objeto da mesa fica, longe da poça de luz (`_shade`)
 const CAB_W := 110.0             ## a largura do armário de aço, encostado na parede (px de 2x2 lá)
 const POSTER_W := 30.0           ## a largura do cartaz da quermesse (px de 2x2)
@@ -160,6 +165,7 @@ var _vport: SubViewport
 var _paint_xf := Transform2D()   # a perspectiva do objeto chato sendo desenhado (`_flat`): luzes dele na tela
 var _cover := Rect2()   # onde está o papel da ferramenta aberta (px da tela, não de 2x2): luz embaixo dele não brilha
 var _drawn := []        # o `_state` do último desenho da sala
+var _glass := PackedVector2Array()   # o vidro da janela abaixo da persiana (px da tela): o escuro da sala não passa nele
 
 
 func _ready() -> void:
@@ -349,10 +355,52 @@ func _draw() -> void:
 	_draw_switchboard(front)
 	_draw_side_wall(top, front, w)
 	_draw_desk_props()
+	_draw_gloom()
+	_draw_window_glow()
 	if _cover.has_area():   # uma ferramenta na frente do operador: o cenário atrás escurece e o papel faz sombra nele
 		draw_set_transform(Vector2.ZERO)
 		draw_rect(Rect2(_cover.position + Vector2(10, 12), _cover.size), Color(0, 0, 0, 0.35))
 		draw_rect(Rect2(Vector2.ZERO, size), Color(0, 0, 0, 0.28))
+
+
+## O escuro da sala (noir): tudo o que a luz da luminária não alcança fica frio e escuro (`NOIR`), liso, crescendo da
+## luz para fora (`GLOOM_IN`, `GLOOM_R`; com uma borda marcada, parecia um recorte). O vidro da janela fica de fora: a
+## rua tem a luz dela. A luminária piscando escurece tudo junto.
+func _draw_gloom() -> void:
+	draw_set_transform(Vector2.ZERO)
+	var pool := _pool()
+	var c := _proj(pool.x, _yd, pool.y) * 2.0
+	var dark := func(p: Vector2) -> Color:
+		var k := smoothstep(GLOOM_IN, 1.0, ((p - c) / GLOOM_R).length())
+		return Color(NOIR, clampf(NOIR.a * k + (1.0 - lamp_level) * 0.3, 0.0, 0.9))
+	var glass := _bounds(_glass) if _glass.size() > 2 else Rect2()
+	var n := Vector2i(40, 24)
+	var cell := size / Vector2(n)
+	for j in n.y:
+		for i in n.x:
+			var a := cell * Vector2(i, j)
+			var quad := PackedVector2Array([a, a + Vector2(cell.x, 0), a + cell, a + Vector2(0, cell.y)])
+			var parts: Array = Geometry2D.clip_polygons(quad, _glass) if glass.intersects(Rect2(a, cell)) else [quad]
+			for poly: PackedVector2Array in parts:
+				var cols := PackedColorArray()
+				for p in poly:
+					cols.append(dark.call(p))
+				draw_polygon(poly, cols)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+
+
+## Um brilho azul bem fraco vindo da janela (a noite lá fora), por cima do escuro da sala: liso, sumindo em volta dela.
+func _draw_window_glow() -> void:
+	if _glass.size() < 3:
+		return
+	draw_set_transform(Vector2.ZERO)
+	var c := _bounds(_glass).get_center()
+	var rim := PackedVector2Array()
+	for i in 32:
+		rim.append(c + Vector2.from_angle(TAU * i / 32.0) * WINDOW_GLOW_R)
+	var strength: float = WINDOW_GLOW.a * {"clear": 1.0, "rain": 0.8, "fog": 1.2}.get(weather, 1.0)
+	_light_fan(c, rim, Color(WINDOW_GLOW, strength))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
 ## A placa esmaltada da companhia telefônica, na parede acima da mesa comutadora (`b`, em px da tela), à direita do
@@ -478,7 +526,7 @@ func _draw_wall_light(top: float) -> void:
 	for i in 25:
 		var x := _lamp_x - w + w * 2.0 * i / 24.0
 		pts.append(Vector2(x, minf(top, LAMP_Y + sqrt(pow(x - _lamp_x, 2.0) + WALL_GAP * WALL_GAP) * m)))
-	_light_fan(Vector2(_lamp_x, top), pts, Color(1.0, 0.8, 0.52, 0.09 * lamp_level))
+	_light_fan(Vector2(_lamp_x, top), pts, Color(1.0, 0.8, 0.52, 0.15 * lamp_level))
 
 
 ## Uma luz lisa, sem camadas: a cor `col` no ponto `c`, sumindo até a borda `rim` (fechada, vista de `c`), com a cor
@@ -738,6 +786,9 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	draw_colored_polygon(_side_quad(Rect2(gw / 2.0 - 1, 0, 2, gh)), WOOD[1])
 	draw_colored_polygon(_side_quad(Rect2(0, floorf(gh * 0.55) - 1, gw, 2)), WOOD[1])
 	var blind := floorf(gh * 0.3)
+	_glass = PackedVector2Array()
+	for p in _side_quad(Rect2(0, blind, gw, gh - blind)):
+		_glass.append(p * 2.0)
 	for y in range(0, int(blind), 2):   # as lâminas: a face clara, o fio de luz na beira e a sombra embaixo
 		draw_colored_polygon(_side_quad(Rect2(0, y, gw, 1.5)), Color("8a8070"))
 		draw_colored_polygon(_side_quad(Rect2(0, y, gw, PX)), Color("a89e8a"))
@@ -1130,7 +1181,7 @@ func _draw_desk(r: Rect2, front: float) -> void:
 	for i in 32:
 		var a := TAU * i / 32.0
 		pts.append(_proj(pool.x + cos(a) * POOL_R, _yd, clampf(pool.y + sin(a) * POOL_R * 0.5, 40.0, Z0 / DESK_T)))
-	_light_fan(_proj(pool.x, _yd, pool.y), pts, Color(1.0, 0.78, 0.48, 0.14 * lamp_level))
+	_light_fan(_proj(pool.x, _yd, pool.y), pts, Color(1.0, 0.78, 0.48, 0.22 * lamp_level))
 	# a borda da frente: o canto arredondado do tampo pega a luz, a espessura dele e, embaixo, o escuro sob a mesa
 	var f := front * 2.0
 	_p(0, f - 2, w2, 1, Color("5a4030"))
