@@ -2915,6 +2915,18 @@ msgstr "(tratando de no reírse) Silbe, por favor..."
 msgid "Tchau!"
 msgstr "¡Chau!"
 
+#: data/calls/prank_10_rapaz.tres
+msgid "Alô? Gostaria de falar com a Paula!"
+msgstr "¿Aló? ¡Quisiera hablar con Aitor!"
+
+#: data/calls/prank_10_rapaz.tres
+msgid "Que Paula, por favor?"
+msgstr "¿Qué Aitor, por favor?"
+
+#: data/calls/prank_10_rapaz.tres
+msgid "Paula Tejano!"
+msgstr "¡Aitor Tilla!"
+
 #: data/templates/transfer_01.tres
 msgid "Me liga com {place}, por favor? {reason}"
 msgstr "¿Me comunica con {place}, por favor? {reason}"

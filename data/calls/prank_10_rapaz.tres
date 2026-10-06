@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_pt10a"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_pt10b"]
+
+[sub_resource type="Resource" id="Resource_pt10c"]
+script = ExtResource("2_pt10b")
+text = "Alô? Gostaria de falar com a Paula!"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_pt10d"]
+script = ExtResource("2_pt10b")
+kind = 1
+options = PackedStringArray("Que Paula, por favor?")
+
+[sub_resource type="Resource" id="Resource_pt10e"]
+script = ExtResource("2_pt10b")
+kind = 2
+options = PackedStringArray()
+seconds = 0.6
+
+[sub_resource type="Resource" id="Resource_pt10f"]
+script = ExtResource("2_pt10b")
+text = "Paula Tejano!"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_pt10g"]
+script = ExtResource("2_pt10b")
+text = "(risadas)"
+options = PackedStringArray()
+
+[sub_resource type="Resource" id="Resource_pt10h"]
+script = ExtResource("2_pt10b")
+kind = 3
+options = PackedStringArray()
+
+[resource]
+script = ExtResource("1_pt10a")
+voice = "m"
+caller = "Rapaz"
+steps = Array[ExtResource("2_pt10b")]([SubResource("Resource_pt10c"), SubResource("Resource_pt10d"), SubResource("Resource_pt10e"), SubResource("Resource_pt10f"), SubResource("Resource_pt10g"), SubResource("Resource_pt10h")])
