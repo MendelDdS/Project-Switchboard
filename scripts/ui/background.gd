@@ -46,8 +46,10 @@ const WALL_GAP := 40.0     ## quanto a luminária fica à frente da parede (px d
 # A câmera. Medidas da sala na escala da parede do fundo (px de 2x2 lá; ~0,56 cm): x para a direita e y para baixo a
 # partir dos olhos, z a distância deles (a parede fica a `Z0`; mais perto, tudo cresce Z0/z vezes).
 const VP_AT := 0.22     ## o ponto de fuga no espaço da mesa, da mesa comutadora (0) à quina (1): perto dos objetos (longe dele, eles entortam)
-const EYE := 210.0      ## a altura dos olhos acima do fundo do tampo, na tela (px de 2x2): o ponto de fuga, logo acima da
-                        ## tela (olhando a mesa de cima, de perto: com ele mais baixo, o que fica longe dele entortava demais)
+## A altura dos olhos acima do fundo do tampo, na tela (px de 2x2): o ponto de fuga, dentro da tela, na altura da
+## janela. Era 210 (logo acima da tela): a mesa vista mais de cima, mas a parede da janela ficava a 44 cm da cabeça e a
+## janela, bem abaixo dos olhos, descia uns 40°. Mais baixo, o que fica longe do ponto de fuga entorta mais.
+const EYE := 120.0
 # O operador está sentado à mesa e a câmera são os olhos dele: `SEAT_EYE` cm acima do tampo, com o fundo do tampo a
 # `SEAT_BACK` cm (a parte da frente do tampo fica sob o console do painel; a tela mostra a de trás). A tela fixa onde
 # ficam o ponto de fuga e o fundo do tampo (`EYE` px abaixo dele); o que resta é a distância focal, que sai da
@@ -78,12 +80,11 @@ const THUNDER_AFTER := Vector2(1.2, 3.5)   ## o trovão vem depois (s, sorteado:
 ## A vista é uma cena 3D simples projetada para o vidro (pensada antes, não elemento por elemento): uma câmera dentro
 ## do prédio, na altura de quem está na janela (`OUT_EYE` m acima da rua: o horizonte passa ali), olhando para fora,
 ## de frente para uma rua que passa ao lado do prédio e continua para os dois lados. Um ponto de fuga só, no meio do
-## horizonte (`OUT_HZ` acima do peitoril de longe): para ele fogem só as linhas que vão para longe (a rua do cruzamento,
+## horizonte, que é o da sala (a altura dos olhos, `_vp`: uma câmera só para o cenário inteiro): para ele fogem só as linhas que vão para longe (a rua do cruzamento,
 ## as laterais dos prédios); a rua, os meios-fios e as fachadas de frente ficam na horizontal, e as paredes na
 ## vertical. Não é a perspectiva da janela (a diagonal dela é só do primeiro plano). Tudo em metros (`_o`: `x` ao longo
 ## da rua, `z` a distância dos olhos, `h` a altura), no tamanho de verdade.
 const OUT_EYE := 4.5      ## os olhos acima da rua (m)
-const OUT_HZ := 52.0      ## o horizonte acima do peitoril de longe (px de 2x2)
 const OUT_F := 60.0       ## a distância focal (px de 2x2 de um metro a um metro)
 ## A rua, de perto para longe (z, m): a nossa fachada, a nossa calçada até o meio-fio, as duas mãos (a faixa no meio),
 ## o meio-fio de lá, a calçada de lá e as fachadas do outro lado, apoiadas nela.
@@ -104,18 +105,18 @@ const SHADE_MAX := 0.3   ## o mais escuro que um objeto da mesa fica, longe da p
 const CAB_W := 110.0             ## a largura do armário de aço, encostado na parede (px de 2x2 lá)
 const POSTER_W := 30.0           ## a largura do cartaz da quermesse (px de 2x2)
 const WALL_PAD := 10.0           ## a folga dos objetos da mesa até a parede da direita (x da sala)
-const CAB_TOP := 29.0            ## o alto dele (y, a partir dos olhos): um pouco abaixo deles, o tampo aparece
+const CAB_TOP := -26.0           ## o alto dele (cm a partir dos olhos, para baixo): acima deles, ~1,5 m do chão (o tampo não aparece)
 const CAB_T := 1.15              ## a frente dele (escala): ~35 cm de fundo
 const SIDE_T := 1.06        ## onde a janela começa na parede da direita (escala); termina perto da borda da tela
 const SIDE_W := 150.0       ## a largura do vão, de frente (só a resolução da projeção)
-const WIN_TOP := -8.0       ## o alto do vão (y, a partir dos olhos): logo acima deles, passando da borda de cima
-## Quanto o peitoril fica acima do tampo (y): uns 16 cm, 29 cm abaixo dos olhos. Com 7 cm (38 cm abaixo dos olhos, com
-## a parede a 44 cm da cabeça) a janela descia uns 40° e parecia vista de cima; com 20 cm abaixo deles, como numa sala de
-## verdade, quase todo o vidro passava da borda de cima da tela (os olhos ficam logo acima dela).
-const WIN_SILL := 60.0
+const WIN_TOP := -28.0      ## o alto do vão (cm a partir dos olhos, para baixo): acima deles
+## O peitoril (cm abaixo dos olhos): uns 24 cm acima do tampo, como numa sala de verdade (desce pouco: a parede fica a
+## uns 70 cm da cabeça). Com os olhos acima da tela e o peitoril 38 cm abaixo deles, a janela descia uns 40° e parecia
+## vista de cima.
+const WIN_SILL := 21.0
 const WALL_D := 16.0        ## a espessura da parede (para fora, nas unidades da parede do fundo): o vidro fica do lado de fora
 const SILL_D := 12.0        ## quanto o peitoril de dentro sai da parede para a sala
-const BLIND := 0.1         ## até onde a persiana desce (fração da altura do vão)
+const BLIND := 0.3         ## até onde a persiana desce (fração da altura do vão)
 const X2 := Transform2D(Vector2(2, 0), Vector2(0, 2), Vector2.ZERO)   ## a escala dos px de 2x2 (`_sprite` volta a ela)
 const MUG_HANDLE := ["hhhh..", "HHHHh.", "...hHh", "....Hs", "....Hs", "....Hs", "....Hs", "...hHs", "HHHHs.", "ssss.."]   ## a alça da caneca (as duas colunas da esquerda ficam atrás dela)
 const PROP_K := 93.0 / 66.0   ## a escala dos objetos da mesa: a mesma dos plugs, que cresceram até o tamanho das tomadas (antes, o plug ficava maior que o relógio e o caderno)
@@ -681,12 +682,17 @@ func _draw_calendar(r: Rect2) -> void:
 
 # ---------------------------------------------------------------- parede da direita e janela
 
+## `v` cm da sala nas unidades da parede do fundo (px de 2x2 lá): a altura dos olhos acima do tampo é `SEAT_EYE`.
+func _cm(v: float) -> float:
+	return v * _yd / SEAT_EYE
+
+
 ## Um ponto do vão da janela (`p`: ao longo da parede, de 0 a `SIDE_W`, e a altura a partir do alto do vão; pode
 ## passar da borda) na tela (px de 2x2). A distância ao longo da parede é linear em 1/t: a perspectiva certa.
 ## `out`: para fora da parede (negativo: para dentro da sala), na mesma profundidade.
 func _side_pt(p: Vector2, out := 0.0) -> Vector2:
 	var t := 1.0 / lerpf(1.0 / SIDE_T, 1.0 / _t2, p.x / SIDE_W)
-	return _vp + Vector2(_cx - _vp.x + out, WIN_TOP + p.y) * t
+	return _vp + Vector2(_cx - _vp.x + out, _cm(WIN_TOP) + p.y) * t
 
 
 ## Um retângulo do vão da janela projetado na parede.
@@ -869,7 +875,7 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	# andar na horizontal da tela (a mesma profundidade, mais longe de lado): aparecem o lado de dentro do batente de
 	# longe (perto da quina) e o fundo do vão embaixo, e o batente de perto esconde uma tira do vidro
 	var gw := SIDE_W
-	var gh := _yd - WIN_SILL - WIN_TOP
+	var gh := _cm(WIN_SILL - WIN_TOP)
 	var blind := floorf(gh * BLIND)
 	var inner := _side_quad(Rect2(0, 0, gw, gh))
 	var outer := _side_quad(Rect2(0, 0, gw, gh), WALL_D)
@@ -969,9 +975,9 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 ## desenhada depois, esconde a base): cornija no alto, duas portas verde-acinzentadas com venezianas, o porta-etiqueta
 ## niquelado, o puxador com a fechadura, as dobradiças e um calendário preso com ímã. Devolve a frente (px de 2x2).
 func _draw_steel_cabinet(x0: float) -> Rect2:
-	var back := Rect2(_vp + Vector2(x0, CAB_TOP), Vector2(CAB_W, 400))
+	var back := Rect2(_vp + Vector2(x0, _cm(CAB_TOP)), Vector2(CAB_W, 400))
 	_cast(back, 1.05)
-	var f := Rect2((_vp + Vector2(x0, CAB_TOP) * CAB_T).round(), (Vector2(CAB_W, 400) * CAB_T).round())
+	var f := Rect2((_vp + Vector2(x0, _cm(CAB_TOP)) * CAB_T).round(), (Vector2(CAB_W, 400) * CAB_T).round())
 	var steel := Color("566052")
 	if back.position.x < f.position.x:   # à direita do ponto de fuga: aparece o lado esquerdo, fugindo para a parede
 		draw_colored_polygon(PackedVector2Array([back.position, f.position, Vector2(f.position.x, f.end.y), Vector2(back.position.x, back.end.y)]),
@@ -1030,16 +1036,17 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 		# a parede de dentro virada para quem olha (o vão fica à direita do ponto de fuga)
 		draw_colored_polygon(PackedVector2Array([tr, bk.call(tr), bk.call(inside.end), inside.end]), Color("1d241c"))
 		_r(inside.position.x, inside.position.y, inside.size.x, 3, Color(0, 0, 0, 0.5))   # a sombra do alto
-		for k in 3:   # as prateleiras (os olhos acima delas: o tampo aparece) com pastas e caixas de arquivo
+		for k in int((_top - doors - 24.0) / 30.0) + 1:   # as prateleiras até a mesa (abaixo dos olhos o tampo aparece; acima, o lado de baixo, mais escuro) com pastas
 			var sy := doors + 24.0 + k * 30.0
 			var a := Vector2(inside.position.x, sy)
 			var c := Vector2(inside.end.x, sy)
-			draw_colored_polygon(PackedVector2Array([a, c, bk.call(c), bk.call(a)]), Color("3a4236"))
+			if absf(sy - _vp.y) > 2.0:   # (na altura dos olhos a prateleira é só a beira)
+				draw_colored_polygon(PackedVector2Array([a, c, bk.call(c), bk.call(a)]), Color("3a4236") if sy > _vp.y else Color("1c211b"))
 			_r(a.x, sy, inside.size.x, 1.5, steel.darkened(0.2))   # a beira da prateleira
 			_r(a.x, sy, inside.size.x, PX, steel.lightened(0.1))
 			var px := inside.position.x + 3
 			var n := k * 3   # a próxima pasta (a cor e o tamanho variam por ela)
-			var base: float = sy - 1.0 + ((bk.call(a) as Vector2).y - sy) * 0.4   # em pé um pouco para dentro
+			var base: float = sy - 1.0 + minf(0.0, (bk.call(a) as Vector2).y - sy) * 0.4   # em pé um pouco para dentro (acima dos olhos, o tampo não aparece)
 			while px < inside.end.x - 6:
 				var pw := 3.0 + (n * 7) % 4
 				var ph := 14.0 + (n * 5) % 8
@@ -1179,7 +1186,7 @@ func _draw_city(g: Rect2) -> void:
 
 ## O horizonte da vista `g` (a altura dos olhos).
 func _hz(g: Rect2) -> float:
-	return g.end.y - OUT_HZ
+	return g.position.y + _vp.y - _view_at.y
 
 
 ## Um ponto lá fora na vista `g`: `x` m ao longo da rua (a partir da frente da janela), a `z` m dos olhos e `h` m acima
@@ -1490,7 +1497,7 @@ func _draw_shrub() -> void:
 	var f := _flash()
 	_ci.draw_set_transform(Vector2.ZERO)   # as folhas em px da tela
 	var gw := SIDE_W
-	var gh := _yd - WIN_SILL - WIN_TOP
+	var gh := _cm(WIN_SILL - WIN_TOP)
 	for i in 360:
 		var hgt := pow(rng.randf(), 0.7) * SHRUB.z
 		var r := SHRUB.y * sqrt(maxf(0.0, 1.0 - pow(hgt / SHRUB.z, 2.0)))   # a copa: redonda, mais larga embaixo
@@ -1968,7 +1975,8 @@ func _box(x0: float, zf: float, wx: float, dz: float, y0: float, h: float) -> Di
 ## Uma face de objeto (sem contorno: um fio preto torto pela perspectiva serrilhava e parecia desenho mal feito; as
 ## faces se separam pela luz, o tampo mais claro e os lados mais escuros).
 func _poly(pts: PackedVector2Array, col: Color) -> void:
-	draw_colored_polygon(pts, col)
+	if not Geometry2D.triangulate_polygon(pts).is_empty():   # (uma face vista de quina não tem área)
+		draw_colored_polygon(pts, col)
 
 
 ## Um paralelogramo da tela (o tampo `q` de uma caixa) como transformação de um retângulo de px (0, 0)–`size`: o
@@ -2203,6 +2211,8 @@ func _draw_open_notebook(r: Rect2) -> void:
 ## A prancheta do registro: tábua de duratex com os cantos cortados, a folha datilografada com o cabeçalho e o
 ## prendedor niquelado com os rebites.
 func _draw_clipboard(r: Rect2) -> void:
+	if r.size.x < 8.0 or r.size.y < 8.0:   # (a tela ainda se arrumando)
+		return
 	var board := PackedVector2Array([r.position + Vector2(3, 0), Vector2(r.end.x - 3, r.position.y), Vector2(r.end.x, r.position.y + 3),
 		r.end - Vector2(0, 3), r.end - Vector2(3, 0), Vector2(r.position.x + 3, r.end.y), Vector2(r.position.x, r.end.y - 3), r.position + Vector2(0, 3)])
 	draw_colored_polygon(board, Color("7a5230"))

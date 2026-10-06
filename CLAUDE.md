@@ -141,9 +141,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   fileiras de ponta a ponta entre a lateral da mesa comutadora e a parede da direita (`_row`, `WALL_PAD`), com a mesma
   folga entre eles. Os lugares do cartaz e do jornal ficam guardados mesmo sem eles, para nada mudar entre as noites.
   (Presos a uma ponta só, sobrava mesa vazia numa janela larga; presos a pontas diferentes, o relógio caía em cima do
-  jornal em 1280 e o armário entrava atrás da mesa comutadora.) e `EYE` acima do fundo do tampo, logo acima da tela (quem está sentado perto
-  olha a mesa de cima; mais baixo, o que fica longe dele entortava demais: a inclinação de um lado que foge é a
-  distância ao ponto na horizontal dividida pela distância na vertical, e só depende da tela); `_proj`/`_p3` levam um ponto da sala (x, y a
+  jornal em 1280 e o armário entrava atrás da mesa comutadora.) e `EYE` acima do fundo do tampo, dentro da tela, na altura da janela (era logo acima
+  da tela: a mesa vista mais de cima, mas a parede da janela ficava a 44 cm da cabeça e a janela descia uns 40°; com
+  os olhos mais baixos, o que fica longe do ponto entorta mais: a inclinação de um lado que foge é a distância ao
+  ponto na horizontal dividida pela distância na vertical, e só depende da tela); `_proj`/`_p3` levam um ponto da sala (x, y a
   partir dos olhos, z a distância; a parede do fundo a `Z0`) para a tela. **A câmera são os olhos do operador
   sentado**: `SEAT_EYE` (45 cm acima do tampo) e `SEAT_BACK` (110 cm até o fundo do tampo; a frente do tampo fica sob o
   console) dão a distância focal, `Z0 = EYE × SEAT_BACK / SEAT_EYE` (a tela já fixa o ponto de fuga e o fundo do tampo;
@@ -152,15 +153,16 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   objetos chatos têm a profundidade em fração do tampo (`_deep`) e não mudam na tela; com a focal certa, as medidas
   deles na sala ficaram as de verdade (a prancheta mais funda que larga). Na sala: a parede do fundo (sem rodapé nem
   linha escura embaixo: com elas parecia um chão), com um armário
-  de aço de chão (`_draw_steel_cabinet`, `CAB_*`; a mesa esconde a base; o alto fica abaixo dos olhos e o tampo aparece;
-  entreaberto, o vão tem fundo, a parede de dentro virada para quem olha, prateleiras com o tampo à vista e pastas
-  em pé, e a porta aberta mostra o painel de dentro e a espessura); a parede da direita, entrando para o fundo
+  de aço de chão (`_draw_steel_cabinet`, `CAB_*`; a mesa esconde a base; ~1,5 m, o alto acima dos olhos, então o tampo
+  não aparece; entreaberto, o vão tem fundo, a parede de dentro virada para quem olha, prateleiras até a mesa, as de
+  cima mostrando o lado de baixo e as de baixo o tampo, e pastas em pé, e a porta aberta mostra o painel de dentro e a espessura); a parede da direita, entrando para o fundo
   a partir da quina (`CORNER` da área das ferramentas, `Background.window`), mais clara (virada para a luminária),
   com a janela vista de lado (`_draw_side_wall`, `_side_pt`: guarnição, caixilho e persiana na perspectiva da parede;
   o vão tem a espessura dela, `WALL_D`: sair da parede é andar na horizontal da tela, então aparecem o lado de dentro
   do batente de longe e o fundo do vão, o vidro fica do lado de fora e o batente de perto esconde uma tira dele; o
-  peitoril de dentro é uma tábua saindo para a sala, `SILL_D`, com o vaso em cima; o peitoril fica em `WIN_SILL`, perto
-  dos olhos: mais baixo, a janela descia uns 40° e parecia vista de cima; a vista da cidade é desenhada de frente num vidro fora da tela, `_vport`, e só recortada
+  peitoril de dentro é uma tábua saindo para a sala, `SILL_D`, com o vaso em cima; o peitoril fica `WIN_SILL` cm abaixo dos
+  olhos e o alto `WIN_TOP` acima deles, e a travessa do caixilho quase na altura deles; a janela e o armário são medidos
+  em cm a partir dos olhos, `_cm`, e acompanham a câmera quando ela muda; a vista da cidade é desenhada de frente num vidro fora da tela, `_vport`, e só recortada
   pelo vidro: está longe e não entorta com a janela; o horizonte dela fica na altura dos olhos); a mesa, afastada da
   parede (`DESK_T`), com o fundo do tampo atrás da mesa comutadora (`BOARD_SINK`), a borda da frente logo abaixo da
   faixa de mesa (`Background.desk`) e a ponta na parede da direita, numa
@@ -877,6 +879,10 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
     estava 38 cm abaixo dos olhos. O peitoril subiu (menos inclinado, a persiana subiu junto) e o vão ganhou a espessura
     da parede (o lado de dentro do batente, o fundo do vão, o vidro recuado com o caixilho de verdade) e um peitoril de
     dentro com o vaso.
+68. Os olhos desceram para dentro da tela (`EYE`), na altura da janela: ela ficou reta, com a travessa no horizonte,
+    o peitoril descendo pouco e a parede dela mais longe da cabeça. A vista da janela passou a usar o horizonte da sala
+    (uma câmera só para o cenário inteiro). Em janela larga, os objetos da ponta entortam mais. Depois os olhos desceram
+    mais (a janela e a vista juntas) e o armário cresceu para ~1,5 m, com prateleiras até a mesa.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.
