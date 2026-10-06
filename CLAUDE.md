@@ -206,22 +206,25 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`_paper`, `_light`; as da vista, onde aparecem no vidro). Lá fora (`_draw_city`): céu do clima, morros, casas
   sorteadas sempre iguais (`_build_city`, semente fixa),
   a igreja com o relógio aceso, a rua com o poste (a silhueta do mistério fica contra a luz dele) e o chão molhado na
-  chuva. **A vista por uma câmera de verdade** (`OUT_*`): a sala fica no segundo andar da
-  telefonia, os olhos a `OUT_EYE` m da rua dela, o horizonte `OUT_HZ` acima do peitoril de longe; cada coisa lá fora
-  fica a uma distância em metros (`OUT_D`) e tem o tamanho de verdade (`_gy` a altura na vista, `_gk` px por metro,
-  `_out` o ponto; antes as faixas eram postas à mão e rua, pedras, homem e carro não batiam). De longe para perto: a
-  cidade lá embaixo (`OUT_DROP` m abaixo, o morro) em fileiras (`CITY_ROWS`: cada uma na escala da distância, mais
-  clara e azulada, com névoa no pé), a igreja (`CHURCH_K`), o hotel e a avenida (continuação da rua que dobra,
-  sumindo atrás da segunda fileira, `_draw_avenue`); a mureta de tijolos (`WALL_H`, `_draw_wall_segment`: tampa vista
-  de cima, pilar na ponta) da borda até a esquina (`STREET_CORNER`, à direita para o hotel e a igreja ficarem à
-  vista), onde a rua dobra e desce (`CROSS_W`, `_cross`); depois, os prédios de perto (`_houses`, `_draw_houses`:
-  quatro andares de 3,2 m, janelas de 1,2 × 1,5 m acesas até a hora delas, porta, a lateral do da esquina fugindo com
-  a rua); a calçada de lá com o poste (`_post`) e a silhueta do mistério (`_draw_stranger`: 1,8 m, de chapéu e
-  casaco, à direita do poste); a rua da telefonia em paralelepípedos de 25 cm (`_draw_road`, fileiras e juntas na
-  perspectiva), onde passam os carros (`_draw_car`: 4,6 m, visto de cima como de um segundo andar: capô, teto,
-  vidros, frisos, rodas, farol e o facho dele no chão); e a calçada de cá, de lajotas, com o bueiro. A vista cobre o
-  vidro todo (`_near`: a parte de perto da janela, mais alta na tela, mostra a calçada de cá). O chão de perto
-  escurece longe do poste (`_ground_dark`) e tem a poça de luz dele, e o homem e o carro fazem sombra para longe dele. O brilho da luz de cima (`%Glow`, centrado no alto, liso) fica dentro da tela do cenário, logo depois do
+  chuva. **A vista: uma cena 3D simples projetada no vidro** (pedido do usuário: pensar a cena antes,
+  nunca a perspectiva elemento por elemento; `OUT_*`): uma câmera dentro do prédio, na altura de quem está na janela
+  (`OUT_EYE` m acima da rua; o horizonte passa ali; não é vista aérea), olhando de frente para uma rua que passa ao
+  lado do prédio e continua para os dois lados. Um ponto de fuga só, no meio do horizonte: para ele fogem só as linhas
+  que vão para longe (a rua do cruzamento e as paredes dela); a rua, os meios-fios e as fachadas de frente ficam na
+  horizontal e as paredes na vertical, com a base apoiada na calçada. A diagonal da janela é só do primeiro plano (o arbusto plantado junto da nossa parede também: a copa sobe do
+  peitoril posta pela parede da sala, `_side_pt`, não pela câmera da vista, `SHRUB`, `_draw_shrub`) e não
+  entra na conta, e nada da vista encosta no nosso prédio: a nossa calçada, o nosso meio-fio e uma faixa de pedestres
+saindo deles diziam para que lado a nossa parede vai, contra a sala (a parede parecia torta); perto, a rua some na
+sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x, z, h)`: `x` ao longo da rua, `z` a distância dos
+  olhos, `h` a altura; `_patch` um retângulo no chão). De perto para longe (`STREET`): o
+  asfalto (manchas, desgaste dos pneus, grão, poças espelhando o céu e a faixa tracejada), o meio-fio de lá (com a face virada para nós), a calçada de lá com os postes (`FAR_LAMPS`, a luz deles
+  no chão) e o homem embaixo do da esquina (`MAN_X`, `_draw_stranger`: 1,8 m, chapéu e casaco), os prédios de frente
+  (`_houses`, `_draw_far_house`: o de tijolos na esquina, à direita do cruzamento, `CROSSING`; o hotel com o letreiro,
+  `HOTEL_X`, do outro lado), a rua do cruzamento indo embora entre paredes (`_canyon`, `_draw_canyon_wall`, com os
+  postes dela diminuindo) até a igreja no fim (`_church_pos`, `CHURCH_K`) e, bem longe, a cidade em duas fileiras na
+  névoa. Na chuva, o asfalto molhado espelha as luzes em riscos verticais (`_draw_wet`). O carro (`_draw_car`, um só)
+  passa pela mão de lá (`CAR_Z`, `_car_x`), apoiado no asfalto: sombra de contato, facho dos faróis no chão, lado,
+  teto e capô vistos um pouco de cima, a frente ou a traseira virada para nós. O brilho da luz de cima (`%Glow`, centrado no alto, liso) fica dentro da tela do cenário, logo depois do
   `Background`: ilumina a sala, não a interface; acompanha o tremor dela. **Para trocar por PNG**: `wall_art`, `window_art` e `desk_art` entram no lugar do desenho daquela camada
   (o clima continua por cima da janela). Guardadas, as abas das ferramentas somem (os objetos da mesa já dizem o
   mesmo; o espaço delas fica, para nada pular); com uma aberta, as abas de papel (`TabButton`) aparecem junto com o
@@ -860,6 +863,13 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     esquina foi para a direita e, no lugar da escada, prédios de perto com o poste e o homem na frente; volume e
     escala nas coisas de perto; o homem e o carro na proporção da porta e dos andares dos prédios. Por fim, a vista
     passou a ter uma câmera de verdade (a sala no segundo andar, tudo em metros e na distância), e o carro é visto de cima.
+66. A vista virou uma rua de verdade passando ao lado do prédio (referência do usuário). Primeiro com a câmera de lado
+    e o ponto de fuga à esquerda (a rua parecia uma rampa vista de cima e os prédios, tortos); depois, a pedido, como
+    uma cena 3D pensada antes: câmera na altura de quem está na janela, de frente para a rua, que passa na horizontal e
+    continua para os dois lados, prédios verticais apoiados na calçada de lá, o cruzamento indo embora para o único
+    ponto de fuga com a igreja no fim, o homem embaixo do poste da esquina, um carro passando e o arbusto plantado na
+    nossa calçada. A mureta saiu. Depois, a nossa calçada, o nosso meio-fio e a faixa de pedestres saíram da vista (diziam
+    que a nossa parede ia de frente, contra a diagonal da sala) e o arbusto passou para o primeiro plano, com a janela.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.
