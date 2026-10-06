@@ -35,7 +35,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `GameData.template_transfer()`/`template_emergency()`. Motivos em `DirectoryEntry.reasons`. `TEMPLATE_CHANCE`
   (`Schedule`) mistura moldes e roteiros escritos (híbrido: tutorial, trotes e roteiro da noite sempre escritos).
 - Todo o áudio é sintetizado ao iniciar por `SfxSynth.build()` (`scripts/sfx_synth.gd`: as receitas, ~0,6 s num Mac
-  recente, 127 sons, 2,4 MB; sem cache) e tocado pelo autoload `Sfx` (`scripts/sfx.gd`: tocar, mixar, ambiente), inclusive as "vozes" por sílaba
+  recente, 129 sons, 2,4 MB; sem cache) e tocado pelo autoload `Sfx` (`scripts/sfx.gd`: tocar, mixar, ambiente), inclusive as "vozes" por sílaba
   (`Sfx.speak_char`). Barramentos em `default_bus_layout.tres`: Ambience, Voices, Effects (e Rub, que envia para Effects).
   Ambience tem um compressor com sidechain em Voices (o ambiente baixa enquanto alguém fala); Effects, uma
   reverberação leve de sala. `Sfx.play_at(id, screen_x)` toca um som vindo de um lugar da tela (pool de
@@ -75,7 +75,13 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `GLOOM_R`, sem borda marcada, a pedido: a mesa toda, com o relógio, fica na luz e a parede do fundo mais escura; o
   vidro da janela abaixo da persiana fica de fora, `_glass`), a luminária é mais forte no centro (arco, poça e `%Glow`) e
   da janela vem um brilho azul bem fraco (`_draw_window_glow`, `WINDOW_GLOW`; as faixas de luz da persiana na parede
-  foram testadas e saíram a pedido). O painel da mesa comutadora escurece frio nos cantos
+  foram testadas e saíram a pedido). **Lá fora acontece coisa** (`Background._events`, tempos sorteados, sons vindo
+  da janela): um carro passa na rua da vista com os faróis, e a luz deles atravessa a sala (`CAR_*`, som `car`); na
+  chuva, o relâmpago clareia o céu, a vista e a sala em pulsos (`BOLT_*`, `_flash`) e o trovão vem depois
+  (`THUNDER_AFTER`, mais fraco quanto mais longe, som `thunder`); e um letreiro de neon HOTEL (a palavra é a mesma nos
+  três idiomas) na vista, na fonte gravada da mesa, que falha de vez em quando (`_sign_on`; o T falha sozinho), com o
+  halo sem miolo para as letras aparecerem (`_light(..., core = false)`), o reflexo na rua molhada e um reflexo
+  vermelho fraco na parede perto da janela (`SIGN_GLOW`). Os três entram no `_state`. O painel da mesa comutadora escurece frio nos cantos
   (`ROOM_DARK`); interface, papéis e painel de baixo não escurecem (precisam ser lidos); o céu da vista clareia liso
   para o horizonte e a luz do poste atrás da silhueta também é lisa. **O vidro da janela reflete a sala**
   (`_draw_reflection`, por cima da cidade e da silhueta, antes da chuva): a luz da luminária, o armário e a luz quente
@@ -200,7 +206,22 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`_paper`, `_light`; as da vista, onde aparecem no vidro). Lá fora (`_draw_city`): céu do clima, morros, casas
   sorteadas sempre iguais (`_build_city`, semente fixa),
   a igreja com o relógio aceso, a rua com o poste (a silhueta do mistério fica contra a luz dele) e o chão molhado na
-  chuva. O brilho da luz de cima (`%Glow`, centrado no alto, liso) fica dentro da tela do cenário, logo depois do
+  chuva. **A vista por uma câmera de verdade** (`OUT_*`): a sala fica no segundo andar da
+  telefonia, os olhos a `OUT_EYE` m da rua dela, o horizonte `OUT_HZ` acima do peitoril de longe; cada coisa lá fora
+  fica a uma distância em metros (`OUT_D`) e tem o tamanho de verdade (`_gy` a altura na vista, `_gk` px por metro,
+  `_out` o ponto; antes as faixas eram postas à mão e rua, pedras, homem e carro não batiam). De longe para perto: a
+  cidade lá embaixo (`OUT_DROP` m abaixo, o morro) em fileiras (`CITY_ROWS`: cada uma na escala da distância, mais
+  clara e azulada, com névoa no pé), a igreja (`CHURCH_K`), o hotel e a avenida (continuação da rua que dobra,
+  sumindo atrás da segunda fileira, `_draw_avenue`); a mureta de tijolos (`WALL_H`, `_draw_wall_segment`: tampa vista
+  de cima, pilar na ponta) da borda até a esquina (`STREET_CORNER`, à direita para o hotel e a igreja ficarem à
+  vista), onde a rua dobra e desce (`CROSS_W`, `_cross`); depois, os prédios de perto (`_houses`, `_draw_houses`:
+  quatro andares de 3,2 m, janelas de 1,2 × 1,5 m acesas até a hora delas, porta, a lateral do da esquina fugindo com
+  a rua); a calçada de lá com o poste (`_post`) e a silhueta do mistério (`_draw_stranger`: 1,8 m, de chapéu e
+  casaco, à direita do poste); a rua da telefonia em paralelepípedos de 25 cm (`_draw_road`, fileiras e juntas na
+  perspectiva), onde passam os carros (`_draw_car`: 4,6 m, visto de cima como de um segundo andar: capô, teto,
+  vidros, frisos, rodas, farol e o facho dele no chão); e a calçada de cá, de lajotas, com o bueiro. A vista cobre o
+  vidro todo (`_near`: a parte de perto da janela, mais alta na tela, mostra a calçada de cá). O chão de perto
+  escurece longe do poste (`_ground_dark`) e tem a poça de luz dele, e o homem e o carro fazem sombra para longe dele. O brilho da luz de cima (`%Glow`, centrado no alto, liso) fica dentro da tela do cenário, logo depois do
   `Background`: ilumina a sala, não a interface; acompanha o tremor dela. **Para trocar por PNG**: `wall_art`, `window_art` e `desk_art` entram no lugar do desenho daquela camada
   (o clima continua por cima da janela). Guardadas, as abas das ferramentas somem (os objetos da mesa já dizem o
   mesmo; o espaço delas fica, para nada pular); com uma aberta, as abas de papel (`TabButton`) aparecem junto com o
@@ -831,6 +852,14 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     placa esmaltada da companhia telefônica) e o rádio ganhou um alto-falante perfurado na altura toda.
 63. Clima noir: a sala fria e escura fora da luz da luminária (borda lisa, sem recorte), a luz dela mais forte e
     concentrada na mesa (o relógio ficava no escuro) e um brilho azul fraco vindo da janela (as faixas da persiana saíram).
+64. A noite lá fora: carros passando com a luz dos faróis atravessando a sala, relâmpago e trovão na chuva e um
+    letreiro de neon de hotel falhando, com o reflexo vermelho na parede.
+65. A vista da janela pela referência do usuário: a telefonia no alto do morro, a rua dela com os carros passando e a
+    esquina, a calçada, a mureta de tijolos com a escada descendo para a rua da cidade (no lugar do arbusto). Depois,
+    profundidade: a cidade em camadas na névoa, a avenida fugindo para o horizonte e a luz e as sombras no chão; a
+    esquina foi para a direita e, no lugar da escada, prédios de perto com o poste e o homem na frente; volume e
+    escala nas coisas de perto; o homem e o carro na proporção da porta e dos andares dos prédios. Por fim, a vista
+    passou a ter uma câmera de verdade (a sala no segundo andar, tudo em metros e na distância), e o carro é visto de cima.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

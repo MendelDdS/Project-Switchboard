@@ -239,6 +239,8 @@ func _build_all() -> void:
 		for vw in VOWEL:
 			for k in 3:
 				_syllable(v, vw, [-0.12, 0.0, 0.10][k], k == 0)
+	_build_car()
+	_build_thunder()
 	# ambientes em loop
 	_build_rain()
 	_build_breeze()
@@ -256,6 +258,43 @@ func _build_all() -> void:
 
 
 # ------------------------------------------------------------------ ambientes e campainhas
+
+## Um carro passando lá fora: o motor grave caindo de tom ao passar (efeito Doppler) e o chiado dos pneus no asfalto,
+## crescendo e sumindo.
+func _build_car() -> void:
+	var L := 3.2
+	_begin(L)
+	var n := _w.size()
+	var tires := PackedFloat32Array()
+	tires.resize(n)
+	var ph := 0.0
+	for i in n:
+		var t := float(i) / RATE
+		ph += 52.0 * (1.08 - 0.16 * t / L) / RATE
+		_w[i] = _wave("saw", ph) * 0.6 + sin(TAU * ph * 2.0) * 0.3
+		tires[i] = randf_range(-1.0, 1.0)
+	_w = _biquad(_w, "lp", 380.0, 0.7)
+	tires = _biquad(_biquad(tires, "lp", 1400.0, 0.7), "hp", 200.0, 0.7)
+	for i in n:
+		var env := pow(sin(PI * float(i) / n), 2.0)
+		_w[i] = (_w[i] * 0.7 + tires[i] * 0.9) * env
+	_end("car")
+
+
+## Trovão de longe: um estalo abafado e o ronco grave rolando, em ondas, até sumir.
+func _build_thunder() -> void:
+	var L := 6.0
+	_begin(L)
+	var b := 0.0
+	for i in _w.size():
+		var t := float(i) / RATE
+		b = b * 0.985 + randf_range(-1.0, 1.0) * 0.06
+		var roll := 0.65 + 0.35 * sin(TAU * t * 0.9 + sin(TAU * t * 0.37) * 2.0)
+		_w[i] = b * (1.0 - exp(-t / 0.12)) * exp(-t / 2.0) * roll
+	_w = _biquad(_biquad(_w, "lp", 220.0, 0.7), "hp", 25.0, 0.7)
+	_noise(0.02, 0.5, "lp", 1100.0, 0.7, 0.25)
+	_end("thunder", false, false, 0.9)
+
 
 ## Fecha o loop sem estalo: os últimos `sec` segundos se misturam com o começo e são cortados.
 func _loopify(sec: float) -> void:
