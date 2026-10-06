@@ -429,9 +429,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   aos poucos (o penúltimo ponto da corda fica preso, `pin` em `_step_rope`; os seguintes tendem a continuar a direção,
   `CORD_BEND`, uma vez por passo: por iteração endurecia o fio), a sombra vai do encaixe até `PLUG_SHADE` com uma
   sombra de contato em volta do colar (a do fio sai do fim da do plug e chega a `ROPE_SHADOW` no buraco, `_lift`), a
-  lâmpada da linha acende também a beira de cima do cabo (`_plug_reflect(j, tilt)`), o corpo em pé entra girando para o eixo do encaixado, sem a ponta de metal
-  (`_draw_plug_body(col, false)`). O aro pega a luz da lâmpada (`_plug_reflect`: na entrada, a
-  da linha, no alto do aro; no destino, a do aro aceso, em volta). Ao encaixar, o corpo em pé entra no encaixe enquanto a
+  luz bate no contorno do plug encaixado (`_plug_light`, `_face_rim`: a silhueta dos discos juntos; na entrada, a
+  lâmpada da linha acende só a beira de cima; no destino, o aro aceso acende a beira toda; clareada na cor da luz. Um
+  anel solto por cima flutuava sobre a capa, e uma beira por disco listrava o plug), o corpo em pé entra girando para o
+  eixo do encaixado, sem a ponta de metal (`_draw_plug_body(col, false)`). Ao encaixar, o corpo em pé entra no encaixe enquanto a
   vista de frente cresce, e ao sair a vista de frente some no encaixe (`MORPH_SEC`, `_pulled`, `_unseat`); ao encaixar, o tampo encolhe `PUSH_PX`
   e volta em `PUSH_SEC` (`_pushed`, `_push`). Destaque e sombra seguem a silhueta (`_plug_outline`: as partes unidas
   num polígono, guardado; o destaque é ele alargado); `_plug_rect(seated)` é o retângulo do clique.

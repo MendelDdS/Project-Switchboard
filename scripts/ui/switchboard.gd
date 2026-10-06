@@ -1392,7 +1392,6 @@ func _draw_plug(e: int, shadow: bool) -> void:
 			if k < 1.0:   # acabou de encaixar: a vista de frente cresce enquanto o corpo em pé entra no encaixe
 				draw_set_transform(at.round(), 0.0, Vector2.ONE * lerpf(0.4, 1.0, k))
 			_draw_plug_face(_cable_col(e), tilt, _push(e), 1.0, int(ends[e]))
-			_plug_reflect(int(ends[e]), tilt)
 			if k < 1.0:   # o corpo em pé gira para o eixo do encaixado e encurta até o tamanho dele, entrando no encaixe
 				var axis := Transform2D(lerpf(0.0, tilt.angle() - PI / 2.0, k), Vector2(1.0, lerpf(1.0, tilt.length() / PLUG_LEN, k)), 0.0, at.round())
 				draw_set_transform_matrix(axis * Transform2D(0.0, Vector2(0, PLUG_LEN)))
@@ -1479,12 +1478,15 @@ func _tilt_at(p: Vector2) -> Vector2:
 ## anel do meio, e a capa de borracha em gomos afinando até o fio. Primeiro a beira de todos (só o contorno fica à
 ## mostra) e depois o miolo sombreado (luz no alto à esquerda). (Antes eram cápsulas e círculos vetoriais: embolotados.)
 ## O fio sai do meio da capa, por cima (desenhado depois). `push`: a assentada, o plug afunda tantos px. `j`: o
-## encaixe, para a luz da lâmpada no colar (antes do cabo, que passa na frente).
+## encaixe, para a luz que bate no plug (`_plug_light`): no fim, o contorno do plug inteiro acende (`_face_rim`), só
+## em cima (a lâmpada logo acima) ou em volta toda (o aro aceso do destino). (Um anel solto por cima, antes, flutuava
+## sobre a capa e a luz vinha do lado; uma beira acesa por disco listrava o plug todo.)
 func _draw_plug_face(col: Array, tilt: Vector2, push: float, alpha: float, j := -1) -> void:
 	var pal := _plug_pal(col)
 	var t := tilt - tilt.normalized() * push
 	var n := maxi(1, ceili(t.length()))
 	var mod := Color(1, 1, 1, alpha)
+	var light := _plug_light(j)
 	for k in n + 1:
 		var r := _face_row(n, k)
 		_sprite(disc(r[0], [[r[0] / 2.0, pal[r[1]]]]), t * float(k) / n, mod)
@@ -1493,8 +1495,9 @@ func _draw_plug_face(col: Array, tilt: Vector2, push: float, alpha: float, j := 
 		var d: int = r[0] - 2
 		var tones := [pal[r[2]], pal[r[3]], pal[r[4]]]
 		_sprite(_knurled(d, tones) if r[5] else disc(d, [[d / 2.0, tones[0], tones[1], tones[2]]]), t * float(k) / n, mod)
-		if r[1] == "E" and (k == n or _face_row(n, k + 1)[1] != "E"):
-			_collar_reflect(j)
+	if light[1] > 0.02:
+		var rim: Array = _face_rim(t, n, light[2])
+		draw_texture(rim[0], rim[1], Color((light[0] as Color).lightened(0.35), light[1] * 0.8 * alpha))
 
 
 ## A linha do `PLUG_ART` que aparece no passo `k` de `n` do plug encaixado, como [diâmetro com a beira, beira, luz,
@@ -1553,27 +1556,60 @@ func _draw_plug_cap(e: int) -> void:
 	_sprite(disc(5, [[1.0, col[1]], [2.5, col[0]]]), _plug_base(e).round())   # na cor e na largura do fio, sem contorno: o fio continua nela
 
 
-## A luz de uma lâmpada batendo no plug encaixado em `j` (que sai do painel até `tilt`): na entrada, a lâmpada da linha
-## fica logo acima e acende o alto do colar, a beira de cima do cabo e o alto da ponta dele; no destino, a luz é o aro
-## aceso em volta da tomada (o colar inteiro, mais fraco). A saída não tem lâmpada.
-func _plug_reflect(j: int, tilt: Vector2) -> void:
-	if j <= 10:
-		var lt: Array = _lit.get("l%d" % j, [LAMP_OFF, 0.0])
-		if lt[1] > 0.02:   # a beira de cima da frente do cabo, pixel a pixel como ele
-			var d := int(PLUG_FACE_R * 2.0)
-			_sprite(disc(d, [[d / 2.0 - 1.0, Color.TRANSPARENT], [d / 2.0, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), tilt * PLUG_BODY_END, Color(lt[0], 0.6 * lt[1]))
-
-
-## A parte da luz que bate no colar do plug encaixado em `j` (desenhada antes do cabo, que fica na frente dele).
-func _collar_reflect(j: int) -> void:
+## A luz que bate no plug encaixado em `j`, como [cor, nível, de todos os lados]: na entrada, a lâmpada da linha,
+## logo acima (acende a beira de cima); no destino, o aro aceso em volta da tomada (a beira toda, mais fraco). A saída
+## não tem lâmpada.
+func _plug_light(j: int) -> Array:
 	if j >= 1 and j <= 10:
 		var lt: Array = _lit.get("l%d" % j, [LAMP_OFF, 0.0])
-		if lt[1] > 0.02:   # o alto do colar, pixel a pixel como ele
-			_sprite(disc(PLUG_ABA_D, [[PLUG_ABA_D / 2.0 - 1.0, Color.TRANSPARENT], [PLUG_ABA_D / 2.0, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), Vector2.ZERO, Color(lt[0], 0.6 * lt[1]))
-	elif j > 20:
+		return [lt[0], lt[1], false]
+	if j > 20:
 		var dl: Array = _lit.get("d%d" % j, [LAMP_OFF, 0.0])
-		if dl[1] > 0.02:   # o aro aceso em volta: o colar inteiro, mais fraco
-			_sprite(disc(PLUG_ABA_D, [[PLUG_ABA_D / 2.0 - 1.0, Color.TRANSPARENT], [PLUG_ABA_D / 2.0, Color.WHITE]]), Vector2.ZERO, Color(dl[0], 0.35 * dl[1]))
+		return [dl[0], 0.6 * dl[1], true]
+	return [LAMP_OFF, 0.0, false]
+
+
+## O contorno aceso do plug encaixado que sai até `t` em `n` passos: a silhueta dos discos juntos (os mesmos lugares
+## de `_sprite`), e dela só os pixels da beira de cima, com o de baixo deles mais fraco, ou a beira toda (`around`).
+## Devolve [textura, onde desenhar]. Guardado.
+static var _face_rims := {}
+func _face_rim(t: Vector2, n: int, around: bool) -> Array:
+	var key := [t, around]
+	if not _face_rims.has(key):
+		var spots := []   # [posição do canto, máscara]
+		var lo := Vector2(INF, INF)
+		var hi := -lo
+		for k in n + 1:
+			var d: int = _face_row(n, k)[0]
+			var p := (t * float(k) / n - Vector2(d, d) / 2.0).floor()
+			spots.append([p, disc(d, [[d / 2.0, Color.WHITE]]).get_image()])
+			lo = lo.min(p)
+			hi = hi.max(p + Vector2(d, d))
+		var size := Vector2i(hi - lo) + Vector2i(2, 2)
+		var mask := Image.create(size.x, size.y, false, Image.FORMAT_LA8)
+		for sp in spots:
+			var src: Image = sp[1]
+			var at := Vector2i((sp[0] as Vector2) - lo) + Vector2i.ONE
+			for y in src.get_height():
+				for x in src.get_width():
+					if src.get_pixel(x, y).a > 0.5:
+						mask.set_pixel(at.x + x, at.y + y, Color.WHITE)
+		var inside := func(x: int, y: int) -> bool:
+			return x >= 0 and y >= 0 and x < size.x and y < size.y and mask.get_pixel(x, y).a > 0.5
+		var img := Image.create(size.x, size.y, false, Image.FORMAT_RGBA8)
+		for y in size.y:
+			for x in size.x:
+				if not inside.call(x, y):
+					continue
+				if around:
+					if not (inside.call(x - 1, y) and inside.call(x + 1, y) and inside.call(x, y - 1) and inside.call(x, y + 1)):
+						img.set_pixel(x, y, Color.WHITE)
+				elif not inside.call(x, y - 1):
+					img.set_pixel(x, y, Color.WHITE)
+				elif not inside.call(x, y - 2):
+					img.set_pixel(x, y, Color(1, 1, 1, 0.35))
+		_face_rims[key] = [ImageTexture.create_from_image(img), lo - Vector2.ONE]
+	return _face_rims[key]
 
 
 ## O plug de pé, com o fio saindo de baixo (y = 0), no formato de um P10 e na escala das tomadas (18 × 93 px: o corpo
