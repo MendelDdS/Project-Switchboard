@@ -190,7 +190,8 @@ static func fmt(m: float) -> String:
 
 
 func hint(t: String) -> void:
-	_hint.text = "" if t == "" else "[bgcolor=#b8924e][color=#1a150d] %s [/color][/bgcolor]  %s" % [T.text(T.Key.HINT_BADGE), t]
+	_hint.text = "" if t == "" else "[color=#8a2a1c]%s[/color]  %s" % [T.text(T.Key.HINT_BADGE), t]   # carimbado em vermelho, como o caderno
+	_hint.self_modulate.a = 0.0 if t == "" else 1.0   # sem dica, o papel some (o lugar dele fica: nada pula)
 
 
 ## Dica da primeira vez que um sinal da mesa aparece, uma vez no jogo todo: o "já viu" (`flag`) fica nos marcadores,

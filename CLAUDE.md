@@ -13,7 +13,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `RedButton`, `InkButton`, `DarkButton`, `ChoiceButton`, `HudPanel`, `GreenKey`, `AmberKey`, `RedKey` (teclas do console:
   `KeyCapStyle`, um StyleBox em script, `scripts/ui/key_cap_style.gd`), `TabButton`, `PaperToggle`, `PaperInk`, `LetterButton`,
   `DarkPanel`, `PaperPanel`, `NotePanel`, `FormPanel`, `SlipPanel`, `InkLabel`, `InkSoftLabel`, `DimLabel`, `AmberLabel`,
-  `MonoLabel`, `InkMonoLabel`). Prefira variação de tema a override por nó.
+  `MonoLabel`, `InkMonoLabel`, `TapedNote`/`TapedLabel`: papel preso com fita, `TapedPaperStyle`). Prefira variação de tema a override por nó.
 - Nomes de pessoas e lugares na ordem natural, "Nome Sobrenome" (nunca "Sobrenome, Nome"); a lista telefônica
   ordena pelo nome como aparece, sem acento (`PhoneBook._entries`, `_plain`). **Uma letra por página dupla**: a aba de
   índice na borda direita (`_index`, `_tab_rect`; a da letra aberta fica destacada) abre só os contatos daquela letra
@@ -66,7 +66,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `GameView`). (Testados e descartados: o cenário em 2x2 numa tela de metade da resolução; o jogo todo em 2x2 com a fonte
   Tiny5, branch `improve/0000-pixel-2x`; o jogo todo ampliado como imagem com "nearest", que deixava o texto feio a 1,5×;
   e um filtro de 2x2 por cima do cenário, com média, que borrava.) Sem linhas de
-  varredura. **Luz e vinheta lisas, sem camadas** (em degraus pareciam artificiais, a pedido do usuário): o brilho
+  varredura. A vista da janela muda com a noite: cada janela acesa da cidade apaga numa hora sorteada,
+  sempre a mesma (`SLEEP`; algumas ficam acesas), e a porta da igreja apaga às 22h (`CHURCH_DARK`; o relógio da torre
+  fica aceso). **Luz e vinheta lisas, sem camadas** (em degraus pareciam artificiais, a pedido do usuário): o brilho
   (`%Glow`) e a vinheta são degradês contínuos com filtro linear; o arco na parede e a poça na mesa são desenhados com
   a cor variando ponto a ponto (`Background._light_fan`), não em polígonos empilhados; o céu da vista clareia liso
   para o horizonte e a luz do poste atrás da silhueta também é lisa. **O vidro da janela reflete a sala**
@@ -85,9 +87,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`_glass_from`: abaixo da persiana e da borda de cima da tela). **O painel de baixo fica fora da luz da sala**: é um
   menu, não parte do cenário; a vinheta (`Vignette`) termina onde ele começa (`offset_bottom`), e o brilho da luz de
   teto já fica só na tela do cenário. Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
-  **Disposição (cena + painel)**: a tela é uma mesa de trabalho. No alto da esquerda, a plaqueta de latão do
-  turno (`ShiftPlate`, variação `BrassPanel`, com o horário e o botão Encerrar turno; a faixa dela, `TopLeft`, tem
-  52 px fixos). O relógio da sala é um **relógio de flip na mesa** (`Background._draw_flip_clock`, o único da tela):
+  **Disposição (cena + painel)**: a tela é uma mesa de trabalho. No alto da esquerda, o horário do turno num
+  papel colado com fita na parede (`ShiftPlate`, variação `TapedNote`, com o horário e o botão Encerrar turno; era uma
+  plaqueta de latão; a faixa dele, `TopLeft`, tem 52 px fixos) e, à direita dele, na parede acima da mesa
+  comutadora, a placa esmaltada da companhia telefônica (`Background._draw_company_sign`, `SIGN_COMPANY`). O relógio da sala é um **relógio de flip na mesa** (`Background._draw_flip_clock`, o único da tela):
   caixa de baquelite creme numa base escura, meio virada para o operador (`CLOCK`; o giro é `CLOCK_TURN` do
   ângulo até os olhos, `_yaw`, e não um número fixo; `_clock_box` desenha as faces viradas para os olhos, `_clock_xz`/
   `_clock_pt` giram os pontos), com fendas e botão niquelado do alarme no tampo, a
@@ -105,7 +108,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   disposição e proporção de verdade dos blocos do `PhonePanel`, copiando o estado: tela acesa com as falas em traços,
   teclas ativas acesas; o rádio peça por peça no lugar das do rádio de verdade, `Radio.parts`, com as mesmas linhas da tela quebradas na largura dela, o histórico apagado em cima e a mensagem de agora embaixo, `Radio.lines`, `_wrap`; o painel de baixo é a vista de perto dela). Ela tem `z_index` 1 e
   vem depois da mesa na árvore (um plug arrastado por cima dela passa por trás). A coluna da
-  direita (cresce com a largura) tem a dica do manual no alto (`%Hint`, como um aviso na parede; no pé, ela ficava em
+  direita (cresce com a largura) tem a dica do manual no alto (`%Hint`, um papel datilografado colado com fita na parede, `TapedLabel`, com "MANUAL" carimbado em vermelho; sem dica, o papel some mas o lugar fica; no pé, ela ficava em
   cima dos objetos da mesa) e as ferramentas (`Tools`: abas em cima e, no `%Body`, o papel da ferramenta aberta; guardadas, a
   janela aparece). O papel sai do objeto da ferramenta na mesa (`Tools.origin` = `Background.prop_rect`: pequeno, em
   cima dele, e cresce até o lugar; ao guardar, volta), tem a forma do objeto (`PaperDeco`: capa de livro na lista,
@@ -231,8 +234,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   pausa o turno quando não há plug na mão (`Main._unhandled_input`). Atalhos do telefone: ações `answer_call`
   (Espaço), `transfer_call` (Tab), `hang_up` (X), tratadas em `PhonePanel._input` **antes da interface** (Espaço e
   Tab também apertam o botão em foco e passam o foco; por isso não dá para usar `Button.shortcut`). Só com o botão
-  ativo; na pausa não valem; com um campo de texto em foco a tecla fica com ele. A tecla aparece no canto do botão
-  (Label `Key`; "Espaço" traduzido, `KEY_SPACE`; o nome do botão fica à esquerda para não encostar nela). Ferramentas: ações `tab_directory`/`tab_dispatch`/`tab_logbook`/`tab_call_log` (1 a 4),
+  ativo; na pausa não valem; com um campo de texto em foco a tecla fica com ele. Cada tecla é uma chapa de metal
+  parafusada com a etiqueta de latão no alto, onde fica o atalho (Label `Key`; "Espaço" traduzido, `KEY_SPACE`), e a
+  tecla baixa, em relevo, num poço no meio do espaço embaixo dela (`KeyCapStyle`, `WELL_H`; as margens de conteúdo põem
+  o nome no tampo). Ferramentas: ações `tab_directory`/`tab_dispatch`/`tab_logbook`/`tab_call_log` (1 a 4),
   tratadas em `Main._unhandled_input` só durante o turno (`Main.TAB_KEYS`, `Tools.toggle`: a tecla da ferramenta aberta a
   guarda; Esc também guarda, antes de pausar); o número fica no canto da aba. No código, `Tools.set_tab(id)` abre.
 - **Pausa e configurações**: `PauseMenu` (`scenes/ui/pause_menu.tscn`, z 4, `process_mode` ALWAYS) usa
@@ -374,6 +379,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (mão aberta, mão fechada segurando, proibido sobre tomada que recusa, dedo em tomada/plaqueta que informa).
   Desenho na ordem `_order`: a ponta pega ou encaixada por último (`_raise`) fica por cima (e é a primeira no clique);
   cada ponta desenha fio e plug juntos, para o fio mais recente passar por cima dos plugs das outras.
+- A luz da luminária do teto também cai no painel (`_draw_room_light`, `ROOM_LIT`/`ROOM_DARK`, `LAMP_ABOVE`): liso,
+  mais claro e quente no alto à direita, mais escuro nos cantos de baixo; por cima de tudo que é do painel e por
+  baixo dos plugs e fios.
 - **A mesa só se redesenha quando algo que ela mostra muda** (`_look`: lâmpadas, estados das linhas e destinos,
   pontas, plug sob o mouse, balão, setores) ou com algo se mexendo (plug na mão, solto, encaixando ou saindo, fio
   acordado); parada, fica o desenho guardado (o `Bloom` guarda as luzes de quem desenha). Quem acrescentar ao desenho
@@ -811,6 +819,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     painel: o de baixo é a vista de perto dela. A conversa mostra as últimas falas que couberem, não só 3. O rádio
     guarda as mensagens anteriores na tela, a tela da conversa espera com o cursor piscando e a mesa comutadora só se
     redesenha quando algo muda.
+62. A sala viva: a cidade vai apagando as luzes com a noite, a luz da luminária cai no painel da mesa comutadora, as
+    teclas do console viraram teclas de verdade (chapa de metal, etiqueta de latão com o atalho, tecla baixa em
+    relevo), a dica do manual e o horário do turno são papéis colados com fita (a plaqueta do turno saiu; na parede, a
+    placa esmaltada da companhia telefônica) e o rádio ganhou um alto-falante perfurado na altura toda.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

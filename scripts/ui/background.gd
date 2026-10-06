@@ -30,6 +30,11 @@ signal prop_clicked(id: String)
 const FLICK := [1.0, 0.2, 1.0, 1.0, 0.5, 1.0, 1.0, 0.1, 1.0, 1.0, 1.0, 0.4, 1.0, 1.0, 1.0, 1.0, 0.2, 1.0, 1.0, 0.6, 1.0, 1.0, 1.0]
 const WOOD := [Color("6b4529"), Color("4a2f1c"), Color("2a1a0f")]   ## madeira (luz, meio, sombra), a mesma do móvel
 const LIT := [Color("d59a3d"), Color("b38a3c"), Color("e2b25a")]   ## janelas acesas da cidade
+const SLEEP := Vector3(19 * 60, 23 * 60 + 50, 0.15)   ## as janelas apagam entre x e y (minutos do dia); z: as que ficam acesas
+const CHURCH_DARK := 22 * 60   ## a porta da igreja apaga
+const SIGN_ENAMEL := Color("1f3b35")   ## a placa da companhia telefônica: o esmalte verde-escuro...
+const SIGN_INK := Color("d8cfae")   ## ...e o creme das letras e do filete
+const SIGN_AT := 0.62   ## onde fica o meio dela, na largura da mesa comutadora (à direita do horário do turno)
 const PROPS := {"lista": T.Key.TAB_DIRECTORY, "despacho": T.Key.TAB_DISPATCH, "caderno": T.Key.TAB_LOGBOOK, "registro": T.Key.TAB_CALL_LOG,
 	"jornal": T.Key.TAB_NEWS}
 const DETAILS := ["cartaz_quermesse", "numero_anotado", "armario_entreaberto"]   ## o que `RoomChange.detail` pode pedir
@@ -135,7 +140,7 @@ var _beads: Array = []   # gotas paradas no vidro: Vector4(x, y em frações do 
 var _glass_from := 0.6   # de que fração da altura da vista o vidro aparece (acima: fora da tela ou atrás da persiana)
 var _top := 200.0        # o fundo do tampo (px de 2x2), do último desenho: onde o feixe da luminária acaba
 var _stars: Array[Vector2] = []
-var _city: Array = []          # prédios da vista: {x, w, h, roof, lit: [Vector2...]} (em frações e px do vidro)
+var _city: Array = []          # prédios da vista: {x, w, h, roof, lit: [Vector3...]} (px do vidro; z: o minuto em que a janela apaga)
 var _city_for := Vector2.ZERO  # tamanho do vidro para o qual `_city` foi montada
 var _mist := 0.0
 var _win := Vector2(104, 38)   # a vista da janela, em pixels de 2x2 (do último desenho)
@@ -237,7 +242,7 @@ func _process(delta: float) -> void:
 func _state() -> Array:
 	return [size, board.get_global_rect() if board else Rect2(), desk.get_global_rect() if desk else Rect2(),
 		window.get_global_rect() if window else Rect2(), _paper(), lamp_level, _pin_lit(), pending, unread, news,
-		details, night, weather, int(minutes), _flip_step()]
+		details, night, weather, int(minutes), _flip_step(), TranslationServer.get_locale()]
 
 
 ## Em que passo da virada está a plaqueta do relógio (0 a 2; 3 = parada).
@@ -332,6 +337,7 @@ func _draw() -> void:
 	_draw_wall_light(top)
 	if board:   # a mesa comutadora, de pé na frente da parede, faz sombra nela (o tampo cobre a parte de baixo)
 		_cast(b, 1.1)
+		_draw_company_sign(Rect2(b.position * 2.0, b.size * 2.0))
 	# na parede, entre a mesa comutadora e a quina, com a mesma folga entre eles em qualquer largura de janela: o
 	# armário e o lugar do cartaz (guardado mesmo sem ele, para o armário não mudar de lugar de uma noite para outra)
 	var gap := (_cx - b.end.x - CAB_W * CAB_T - POSTER_W) / 3.0
@@ -347,6 +353,25 @@ func _draw() -> void:
 		draw_set_transform(Vector2.ZERO)
 		draw_rect(Rect2(_cover.position + Vector2(10, 12), _cover.size), Color(0, 0, 0, 0.35))
 		draw_rect(Rect2(Vector2.ZERO, size), Color(0, 0, 0, 0.28))
+
+
+## A placa esmaltada da companhia telefônica, na parede acima da mesa comutadora (`b`, em px da tela), à direita do
+## horário do turno colado ali: fundo verde-escuro, filete creme, o nome em creme (`SIGN_COMPANY`), um parafuso de
+## latão em cada ponta e a sombra na parede. Em px da tela (1x1: o texto fica nítido).
+func _draw_company_sign(b: Rect2) -> void:
+	draw_set_transform(Vector2.ZERO)
+	var company := T.text(T.Key.SIGN_COMPANY)
+	var tw := Pal.mono.get_string_size(company, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
+	var r := Rect2(roundf(b.position.x + b.size.x * SIGN_AT - (tw + 44.0) / 2.0), b.position.y - 36.0, roundf(tw + 44.0), 24.0)
+	draw_rect(Rect2(r.position + Vector2(2, 3), r.size), Color(0, 0, 0, 0.35))
+	draw_rect(r.grow(1), Switchboard.EDGE_DARK)
+	draw_rect(r, SIGN_ENAMEL)
+	draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), SIGN_ENAMEL.lightened(0.25))   # a luz na beira de cima
+	draw_rect(r.grow(-3), SIGN_INK, false, 1.0)   # o filete
+	for x in [r.position.x + 9.0, r.end.x - 9.0]:
+		_sprite(Switchboard.disc(5, [[1.5, Color("e6cf8e"), Color("c4a35a"), Color("7a6230")], [2.5, Color("3a2a12")]]), Vector2(x, r.get_center().y))
+	draw_string(Pal.mono, Vector2(roundf(r.get_center().x - tw / 2.0), r.position.y + 16.0), company, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, SIGN_INK)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
 ## O objeto sob o mouse: contorno e o nome da ferramenta que ele abre, desenhados em `ci` (o `SceneView`, por cima do
@@ -931,7 +956,9 @@ func _draw_city(g: Rect2) -> void:
 		_r(bx, by, b["w"], b["h"], house)
 		if b["roof"]:
 			_ci.draw_colored_polygon(PackedVector2Array([Vector2(bx - 1, by), Vector2(bx + b["w"] / 2.0, by - 5), Vector2(bx + b["w"] + 1, by)]), house)
-		for p in b["lit"]:   # as janelas acesas, com a travessa no meio
+		for p in b["lit"]:   # as janelas acesas, com a travessa no meio; a cidade vai dormindo
+			if minutes >= p.z:
+				continue
 			flicked += 1
 			if flick and flicked % 3 == 0:
 				continue
@@ -955,8 +982,9 @@ func _draw_city(g: Rect2) -> void:
 		_light(Rect2((lamp + Vector2(-2, 1)) * 2.0, Vector2(6, 2)), Color("ffd88a"), 0.8)
 	if weather == "rain":   # o chão molhado reflete as luzes
 		for b in _city:
-			if not b["lit"].is_empty():
-				var p: Vector2 = b["lit"][0]
+			var on_now: Array = b["lit"].filter(func(w: Vector3): return minutes < w.z)
+			if not on_now.is_empty():
+				var p: Vector3 = on_now[0]
 				for k in 4:   # o reflexo, quebrado pelas poças
 					_r(wx + b["x"] + p.x, street + 1.5 + k * 1.5, 1.5, PX, Color(LIT[0], 0.3 - k * 0.06))
 		if on:
@@ -977,27 +1005,31 @@ func _draw_city(g: Rect2) -> void:
 
 
 ## As casas da vista, sorteadas sempre do mesmo jeito para cada tamanho de vidro (a cidade não muda de uma noite para
-## outra): largura, altura, telhado e quais janelas estão acesas.
+## outra): largura, altura, telhado e quais janelas estão acesas, cada uma com a hora em que apaga (`SLEEP`; algumas
+## ficam acesas a noite toda): com o turno, a cidade vai dormindo.
 func _build_city(gs: Vector2) -> void:
 	_city.clear()
 	_city_for = gs
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 1957
+	var sleep := RandomNumberGenerator.new()   # à parte: as casas continuam as mesmas
+	sleep.seed = 1958
 	var x := 1.0
 	while x < gs.x - 4.0:
 		var bw := minf(float(rng.randi_range(10, 20)), gs.x - x)   # a última casa termina na borda do vidro
 		var church := absf(x + bw / 2.0 - gs.x * 0.36) < 12.0
 		var bh := float(rng.randi_range(10, 26)) * (0.6 if church else 1.0)
-		var lit: Array[Vector2] = []
+		var lit: Array[Vector3] = []
 		for yy in range(4, int(bh) - 3, 5):
 			for xx in range(3, int(bw) - 3, 5):
 				if rng.randf() < 0.22:
-					lit.append(Vector2(xx, yy))
+					var off := INF if sleep.randf() < SLEEP.z else sleep.randf_range(SLEEP.x, SLEEP.y)
+					lit.append(Vector3(xx, yy, off))
 		_city.append({"x": x, "w": bw, "h": bh, "roof": rng.randf() < 0.55 and x + bw < gs.x - 1.0, "lit": lit})
 		x += bw + float(rng.randi_range(1, 4))
 
 
-## A igreja da praça: nave, torre com a ponta e o relógio aceso no alto.
+## A igreja da praça: nave, torre com a ponta e o relógio aceso no alto; a porta acesa até `CHURCH_DARK`.
 func _draw_church(base: Vector2, col: Color) -> void:
 	_r(base.x - 12, base.y - 18, 24, 18, col)
 	_ci.draw_colored_polygon(PackedVector2Array([base + Vector2(-13, -18), base + Vector2(0, -26), base + Vector2(13, -18)]), col)
@@ -1012,7 +1044,8 @@ func _draw_church(base: Vector2, col: Color) -> void:
 	for k in 3:   # as janelinhas da torre e a da nave
 		_r(base.x - PX, base.y - 32 + k * 6, PX, 2, Color("1a2028"))
 	_light(Rect2((face - Vector2(2.5, 2.5)) * 2.0, Vector2(10, 10)), Color("e2b25a"), 0.6, true)
-	_r(base.x - 2, base.y - 10, 4, 10, Color(LIT[1], 0.8))   # a porta, com luz dentro
+	if minutes < CHURCH_DARK:
+		_r(base.x - 2, base.y - 10, 4, 10, Color(LIT[1], 0.8))   # a porta, com luz dentro (o relógio fica aceso)
 
 
 ## A poeira na luz da luminária: grãos de um pixel em toda a área que ela ilumina (a do brilho da luz de teto,

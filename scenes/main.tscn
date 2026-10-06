@@ -127,7 +127,7 @@ theme_override_constants/separation = 12
 [node name="ShiftPlate" type="PanelContainer" parent="Layout/Rows/Columns/Left/TopLeft"]
 layout_mode = 2
 size_flags_vertical = 4
-theme_type_variation = &"BrassPanel"
+theme_type_variation = &"TapedNote"
 
 [node name="HBox" type="HBoxContainer" parent="Layout/Rows/Columns/Left/TopLeft/ShiftPlate"]
 layout_mode = 2
@@ -200,7 +200,7 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 mouse_filter = 2
-theme_override_colors/default_color = Color(0.851, 0.8118, 0.6824, 1)
+theme_type_variation = &"TapedLabel"
 theme_override_font_sizes/normal_font_size = 11
 bbcode_enabled = true
 scroll_active = false

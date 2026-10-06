@@ -266,6 +266,10 @@ const TINY_ACCENTS := {"Á": "A´", "À": "A`", "Â": "A^", "Ã": "A~", "Ä": "A
 	"Û": "U^", "Ü": "U¨", "Ñ": "N~", "Ç": "C,"}
 const BEZEL := [Color("d6d1c3"), Color("8e897c"), Color("45413a")]   # aro niquelado: luz, meio, sombra
 const LAMP_OFF := Color("6b6556")   # o vidro leitoso da lâmpada apagada (escuro, parecia o furo de uma tomada)
+const LAMP_ABOVE := 120.0   # px acima da tela: a luminária do teto, que não aparece
+const ROOM_LIGHT_R := 900.0   # px: até onde a luz dela chega no painel
+const ROOM_LIT := Color(1.0, 0.88, 0.66, 0.07)   # perto dela, o painel clareia quente...
+const ROOM_DARK := Color(0, 0, 0, 0.28)   # ...e longe, escurece
 const STRIP_W := 30.0   # a faixa rebaixada de cada linha, da plaquinha à saída
 const WEAR := [0.5, 0.3, 0.15]   # o painel gasto em volta das tomadas: do perto ao longe (o quanto clareia)
 const KINK := 1.5   # px: as dobras que o fio de pano guarda, no máximo
@@ -1031,6 +1035,7 @@ func _draw() -> void:
 
 	# legenda das lâmpadas, numa linha no pé do painel
 	_draw_legend()
+	_draw_room_light(Rect2(Vector2.ZERO, size).grow(-FRAME), Vector2(get_viewport_rect().size.x / 2.0 - global_position.x, -global_position.y - LAMP_ABOVE))
 
 	# destaque da tomada sob o plug
 	if held != -1:
@@ -1096,6 +1101,26 @@ func _draw_cabinet(r: Rect2) -> void:
 	draw_rect(Rect2(p.position, Vector2(p.size.x, 2)), Pal.PANEL_LO)   # rebaixado: a sombra fica em cima à esquerda
 	draw_rect(Rect2(p.position, Vector2(2, p.size.y)), Pal.PANEL_LO)
 	draw_rect(Rect2(p.position.x, p.end.y - 1, p.size.x, 1), Pal.PANEL_HI)
+
+
+## A luz da luminária do teto no painel (`lamp`, nas coordenadas da mesa: no meio da tela, acima dela): lisa, ponto a
+## ponto numa grade com a cor nos cantos de cada quadrado, mais clara e quente perto dela (no alto, à direita) e mais
+## escura nos cantos de baixo, longe; sem ela, o painel tinha a mesma luz em toda parte e parecia fora da sala. Por
+## cima de tudo que é do painel e por baixo dos plugs e fios (que saem dele, na frente).
+func _draw_room_light(p: Rect2, lamp: Vector2) -> void:
+	var tone := func(q: Vector2) -> Color:
+		var k := clampf(1.0 - q.distance_to(lamp) / ROOM_LIGHT_R, 0.0, 1.0)
+		return ROOM_DARK.lerp(ROOM_LIT, k * k)
+	var n := Vector2i(12, 8)
+	for j in n.y:
+		for i in n.x:
+			var a := p.position + p.size * Vector2(i, j) / Vector2(n)
+			var b := p.position + p.size * Vector2(i + 1, j + 1) / Vector2(n)
+			var quad := PackedVector2Array([a, Vector2(b.x, a.y), b, Vector2(a.x, b.y)])
+			var cols := PackedColorArray()
+			for q in quad:
+				cols.append(tone.call(q))
+			draw_polygon(quad, cols)
 
 
 ## A faixa de cada linha: um rebaixo estreito do painel que liga a plaquinha, a lâmpada, a entrada e a saída da mesma

@@ -65,16 +65,22 @@ func _screen(r: Rect2) -> void:
 		Vector2(x + 1, inner.end.y), Vector2(x - 3, inner.end.y)]), Color(1, 1, 1, 0.05))
 
 
-## Uma tecla: o tampo na cor dela (apagada, escura) e a frente mais escura embaixo.
+## Uma tecla como a do painel (`KeyCapStyle`): a chapa de metal, a etiqueta de latão no alto e, no meio do espaço
+## embaixo dela, a tecla na cor dela (apagada, escura) com a frente mais escura.
 func _key(r: Rect2, b: Button) -> void:
 	var cap := b.get_theme_stylebox("normal") as KeyCapStyle
 	var col: Color = cap.color if cap else Pal.AMBER
 	if b.disabled:
 		col = col.darkened(0.55)
 	draw_rect(r, Color.BLACK)
-	draw_rect(r.grow(-1), col.darkened(0.5))
-	draw_rect(Rect2(r.position + Vector2(1, 1), Vector2(r.size.x - 2, r.size.y - 4)), col)
-	draw_rect(Rect2(r.position + Vector2(1, 1), Vector2(r.size.x - 2, 1)), col.lightened(0.3))
+	draw_rect(r.grow(-1), KeyCapStyle.METAL[1].darkened(0.5))
+	draw_rect(Rect2(r.position.x + 2, r.position.y + 2, r.size.x - 4, 2), KeyCapStyle.BRASS[1])
+	var room := Rect2(r.position.x, r.position.y + 5, r.size.x, r.size.y - 6)
+	var kh := minf(room.size.y, roundf(KeyCapStyle.WELL_H * r.size.y / maxf(1.0, b.size.y)))
+	var key := Rect2(r.position.x + 2, roundf(room.get_center().y - kh / 2.0), r.size.x - 4, kh)
+	draw_rect(key, Color.BLACK)
+	draw_rect(Rect2(key.position + Vector2(1, 1), key.size - Vector2(2, 3)), col)
+	draw_rect(Rect2(key.position + Vector2(1, 1), Vector2(key.size.x - 2, 1)), col.lightened(0.3))
 
 
 ## O rádio, peça por peça no lugar de cada uma no rádio de verdade (`Radio.parts`): o alto-falante em fendas, as
@@ -85,8 +91,10 @@ func _radio(at: Callable) -> void:
 	var p := radio.parts()
 	_block(at.call(radio))
 	var grill: Rect2 = at.call(p["grill"])
-	for y in range(int(grill.position.y), int(grill.end.y), 2):
-		draw_rect(Rect2(grill.position.x, y, grill.size.x, 1), Color(0.2353, 0.2078, 0.1529))
+	draw_rect(grill, SpeakerGrill.PLATE)   # a chapa perfurada: os furos em fileiras desencontradas
+	for y in range(int(grill.position.y) + 1, int(grill.end.y) - 1, 2):
+		for x in range(int(grill.position.x) + 1 + (y % 4) / 2, int(grill.end.x) - 1, 2):
+			draw_rect(Rect2(x, y, 1, 1), SpeakerGrill.HOLE)
 	var lamps := radio.lamps()
 	for i in 2:
 		var lr: Rect2 = at.call(p[["led", "alert"][i]])
