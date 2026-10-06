@@ -35,7 +35,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `GameData.template_transfer()`/`template_emergency()`. Motivos em `DirectoryEntry.reasons`. `TEMPLATE_CHANCE`
   (`Schedule`) mistura moldes e roteiros escritos (híbrido: tutorial, trotes e roteiro da noite sempre escritos).
 - Todo o áudio é sintetizado ao iniciar por `SfxSynth.build()` (`scripts/sfx_synth.gd`: as receitas, ~0,6 s num Mac
-  recente, 129 sons, 2,4 MB; sem cache) e tocado pelo autoload `Sfx` (`scripts/sfx.gd`: tocar, mixar, ambiente), inclusive as "vozes" por sílaba
+  recente, 131 sons, 2,4 MB; sem cache) e tocado pelo autoload `Sfx` (`scripts/sfx.gd`: tocar, mixar, ambiente), inclusive as "vozes" por sílaba
   (`Sfx.speak_char`). Barramentos em `default_bus_layout.tres`: Ambience, Voices, Effects (e Rub, que envia para Effects).
   Ambience tem um compressor com sidechain em Voices (o ambiente baixa enquanto alguém fala); Effects, uma
   reverberação leve de sala. `Sfx.play_at(id, screen_x)` toca um som vindo de um lugar da tela (pool de
@@ -76,10 +76,14 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   vidro da janela abaixo da persiana fica de fora, `_glass`), a luminária é mais forte no centro (arco, poça e `%Glow`) e
   da janela vem um brilho azul bem fraco (`_draw_window_glow`, `WINDOW_GLOW`; as faixas de luz da persiana na parede
   foram testadas e saíram a pedido). **Lá fora acontece coisa** (`Background._events`, tempos sorteados, sons vindo
-  da janela): um carro passa na rua da vista com os faróis, e a luz deles atravessa a sala (`CAR_*`, som `car`); na
+  da janela): um carro passa na rua da vista com os faróis (`CAR_*`, som `car`; a luz deles varrendo a sala
+  saiu a pedido, não parecia luz; na
+  chuva, `car_wet`, com o chiado da água); alguém passa a pé pela calçada de lá, de guarda-chuva na chuva e de chapéu
+  sem ela, em silhueta contra as luzes (`WALK_*`, `_draw_walker`); na
   chuva, o relâmpago clareia o céu, a vista e a sala em pulsos (`BOLT_*`, `_flash`) e o trovão vem depois
   (`THUNDER_AFTER`, mais fraco quanto mais longe, som `thunder`); e um letreiro de neon HOTEL (a palavra é a mesma nos
-  três idiomas) na vista, na fonte gravada da mesa, que falha de vez em quando (`_sign_on`; o T falha sozinho), com o
+  três idiomas) na vista, na fonte gravada da mesa, que falha de vez em quando (`_sign_on`; o T falha sozinho; ao falhar, estala baixinho, som `neon`, abafado pela
+  distância e com o eco das fachadas), com o
   halo sem miolo para as letras aparecerem (`_light(..., core = false)`), o reflexo na rua molhada e um reflexo
   vermelho fraco na parede perto da janela (`SIGN_GLOW`). Os três entram no `_state`. O painel da mesa comutadora escurece frio nos cantos
   (`ROOM_DARK`); interface, papéis e painel de baixo não escurecem (precisam ser lidos); o céu da vista clareia liso
@@ -162,7 +166,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   a partir da quina (`CORNER` da área das ferramentas, `Background.window`), mais clara (virada para a luminária),
   com a janela vista de lado (`_draw_side_wall`, `_side_pt`: guarnição, caixilho e persiana na perspectiva da parede;
   o vão tem a espessura dela, `WALL_D`: sair da parede é andar na horizontal da tela, então aparecem o lado de dentro
-  do batente de longe e o fundo do vão, o vidro fica do lado de fora e o batente de perto esconde uma tira dele; o
+  do batente de longe e o fundo do vão (a tábua do peitoril indo até o trilho de baixo do caixilho; escuro, parecia
+  um buraco; o que passa do batente de perto é cortado; fora do vidro, o escuro da sala deixava o peitoril e a
+  guarnição de perto quase pretos, então a luz de fora os clareia por cima do escuro, `_sill_lit`; a ponta de perto da
+  tábua tem a face dela; o vaso é desenhado depois dessa luz, `_draw_vase`, `VASE_DIM`), o vidro fica do lado de fora e o batente de perto esconde uma tira dele; o
   peitoril de dentro é uma tábua saindo para a sala, `SILL_D`, com o vaso em cima; o peitoril fica `WIN_SILL` cm abaixo dos
   olhos e o alto `WIN_TOP` acima deles, e a travessa do caixilho quase na altura deles; a janela e o armário são medidos
   em cm a partir dos olhos, `_cm`, e acompanham a câmera quando ela muda; a vista da cidade é desenhada de frente num vidro fora da tela, `_vport`, e só recortada
@@ -172,7 +179,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   linha que foge para o ponto de fuga. A luz vem de cima, do meio da tela, de uma luminária que não aparece (o
   desenho dela foi tirado a pedido do usuário: `_lamp_x` no meio, `LAMP_Y` acima da tela); ela dobra na quina: na
   parede é o arco do cone (`_draw_wall_light`, `WALL_GAP`), na mesa a poça; o que está na frente da parede faz sombra nela, ampliada
-  a partir da luminária (`_cast`); a luz da rua entra pela janela e cai na mesa na diagonal. Na mesa, ao alcance do
+  a partir da luminária (`_cast`); a luz da rua entra pela janela e cai na mesa (`_draw_street_light`): o vão abaixo da
+  persiana projetado no tampo, descendo para dentro da sala (`STREET_LIGHT`), um pouco longe da parede (o peitoril faz
+  sombra) e só onde há mesa; bem lisa e espalhada, e por cima dos objetos (eles ficam na luz também). Na mesa, ao alcance do
   operador, os objetos que abrem as ferramentas (`prop_clicked(id)` → `Tools.set_tab`; `_props`, `_has_point`: o
   clique só vale sobre eles e não com papel por cima): listas telefônicas (1), mapa dobrado (2), caderno aberto (3) e
   prancheta do registro (4), mais a caneca, postos por fração da profundidade do tampo (`_at`, `_deep`: ficam no
@@ -893,6 +902,10 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
     para o teto, o reflexo no vidro passou a ser a sala espelhada pela câmera e a vista ficou mais noir (asfalto escuro
     com as poças de luz dos postes, a vitrine do bar atrás do homem, a marquise do hotel, janelas fundas e névoa no
     fundo). O aquecedor embaixo da janela ficou de fora: com o peitoril a 24 cm do tampo, ele ficaria atrás da mesa.
+70. A luz da rua na mesa passou a sair da janela de verdade (o vão projetado no tampo); um pedestre passa de vez em
+    quando pela calçada de lá; o carro na chuva chia na água e o neon do hotel estala quando falha (abafado, de longe).
+    A luz dos faróis varrendo a sala saiu; o peitoril e a guarnição de perto, que pareciam um buraco escuro, ficaram na
+    luz de fora; a vitrine do bar ficou com duas divisões, longe da porta.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

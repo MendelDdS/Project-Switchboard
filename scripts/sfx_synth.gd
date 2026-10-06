@@ -240,7 +240,9 @@ func _build_all() -> void:
 			for k in 3:
 				_syllable(v, vw, [-0.12, 0.0, 0.10][k], k == 0)
 	_build_car()
+	_build_car(true)
 	_build_thunder()
+	_build_neon()
 	# ambientes em loop
 	_build_rain()
 	_build_breeze()
@@ -260,8 +262,8 @@ func _build_all() -> void:
 # ------------------------------------------------------------------ ambientes e campainhas
 
 ## Um carro passando lá fora: o motor grave caindo de tom ao passar (efeito Doppler) e o chiado dos pneus no asfalto,
-## crescendo e sumindo.
-func _build_car() -> void:
+## crescendo e sumindo. `wet`: na chuva, os pneus jogam água, um chiado agudo que ondula por cima de tudo.
+func _build_car(wet := false) -> void:
 	var L := 3.2
 	_begin(L)
 	var n := _w.size()
@@ -275,10 +277,38 @@ func _build_car() -> void:
 		tires[i] = randf_range(-1.0, 1.0)
 	_w = _biquad(_w, "lp", 380.0, 0.7)
 	tires = _biquad(_biquad(tires, "lp", 1400.0, 0.7), "hp", 200.0, 0.7)
+	var water := PackedFloat32Array()
+	if wet:
+		water.resize(n)
+		for i in n:
+			water[i] = randf_range(-1.0, 1.0)
+		water = _biquad(_biquad(water, "hp", 1800.0, 0.7), "lp", 7000.0, 0.7)
 	for i in n:
 		var env := pow(sin(PI * float(i) / n), 2.0)
 		_w[i] = (_w[i] * 0.7 + tires[i] * 0.9) * env
-	_end("car")
+		if wet:
+			var t := float(i) / RATE
+			_w[i] = _w[i] * 0.7 + water[i] * 1.1 * pow(sin(PI * float(i) / n), 1.5) * (0.7 + 0.3 * sin(TAU * 6.0 * t + sin(TAU * 1.3 * t)))
+	_end("car_wet" if wet else "car")
+
+
+## O neon do hotel falhando, do outro lado da rua: o estalo do reator e o zumbido de 120 Hz, abafados pela distância
+## (sem os agudos, com o ataque macio) e com o eco curto das fachadas da rua chegando depois.
+func _build_neon() -> void:
+	_begin(0.4)
+	var n := _w.size()
+	var dry := PackedFloat32Array()
+	dry.resize(n)
+	dry.fill(0.0)
+	for i in int(0.16 * RATE):
+		var t := float(i) / RATE
+		var env := (1.0 - exp(-t / 0.008)) * exp(-t / 0.05)
+		dry[i] = (randf_range(-1.0, 1.0) * 0.6 + _wave("saw", 120.0 * t) * 0.5) * env
+	dry = _biquad(_biquad(dry, "lp", 900.0, 0.7), "lp", 900.0, 0.7)
+	var echo := int(0.085 * RATE)   # o eco nas fachadas (~15 m de ida e volta)
+	for i in n:
+		_w[i] = dry[i] + (dry[i - echo] * 0.35 if i >= echo else 0.0) + (dry[i - echo * 2] * 0.12 if i >= echo * 2 else 0.0)
+	_end("neon")
 
 
 ## Trovão de longe: um estalo abafado e o ronco grave rolando, em ondas, até sumir.
