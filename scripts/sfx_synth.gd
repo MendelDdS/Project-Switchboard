@@ -243,6 +243,9 @@ func _build_all() -> void:
 	_build_car(true)
 	_build_thunder()
 	_build_neon()
+	_build_bell()
+	_build_outside()
+	_build_lamp()
 	# ambientes em loop
 	_build_rain()
 	_build_breeze()
@@ -309,6 +312,93 @@ func _build_neon() -> void:
 	for i in n:
 		_w[i] = dry[i] + (dry[i - echo] * 0.35 if i >= echo else 0.0) + (dry[i - echo * 2] * 0.12 if i >= echo * 2 else 0.0)
 	_end("neon")
+
+
+## O sino da igreja, no fim da rua: os parciais de um sino de bronze (o "hum" uma oitava abaixo, o principal, a terça
+## menor, a quinta, o nominal e os agudos, cada um sumindo no seu tempo) com a pancada do badalo, abafados pela
+## distância e com o eco da rua.
+func _build_bell() -> void:
+	_begin(4.5)
+	var f := 392.0
+	var parts := [Vector3(0.5, 0.5, 3.6), Vector3(1.0, 0.8, 2.6), Vector3(1.19, 0.55, 2.1), Vector3(1.5, 0.3, 1.6),
+		Vector3(2.0, 0.6, 1.3), Vector3(2.52, 0.25, 0.8), Vector3(3.0, 0.15, 0.5)]   # (relação, força, quanto dura)
+	var amp := PackedFloat32Array()
+	var fall := PackedFloat32Array()
+	var step := PackedFloat32Array()
+	for p: Vector3 in parts:
+		amp.append(p.y)
+		fall.append(exp(-1.0 / (p.z * RATE)))   # o decaimento por amostra (sem `exp` a cada uma)
+		step.append(TAU * f * p.x / RATE)
+	for i in _w.size():
+		var v := 0.0
+		for k in parts.size():
+			v += sin(step[k] * i) * amp[k]
+			amp[k] *= fall[k]
+		_w[i] = v * minf(1.0, i / (0.004 * RATE))
+	_noise(0.0, 0.05, "bp", 2400.0, 1.0, 0.6)   # o badalo
+	_w = _biquad(_biquad(_w, "lp", 1700.0, 0.7), "lp", 2200.0, 0.7)
+	var echo := int(0.14 * RATE)
+	for i in range(_w.size() - 1, echo - 1, -1):
+		_w[i] += _w[i - echo] * 0.28
+	_end("bell", false, false, 0.85)
+
+
+## A chuva e a rua de perto da janela: o pingo da calha no peitoril de fora, as gotas batendo no vidro (em loop), o
+## vidro e a persiana chocalhando no trovão perto, e os passos de quem passa na calçada de lá, seco ou molhado (de
+## longe: sem os agudos).
+func _build_outside() -> void:
+	_begin(0.16)   # o pingo: um "plic" que cai de tom depressa
+	var ph := 0.0
+	for i in _w.size():
+		var t := float(i) / RATE
+		ph += (900.0 + 700.0 * exp(-t / 0.012)) / RATE
+		_w[i] = sin(TAU * ph) * exp(-t / 0.035)
+	_noise(0.0, 0.01, "hp", 3000.0, 0.7, 0.3)
+	_end("drip")
+	_begin(4.4)   # as gotas no vidro: batidinhas agudas e espalhadas
+	var n := _w.size()
+	var taps := PackedFloat32Array()
+	taps.resize(n)
+	taps.fill(0.0)
+	for k in int(4.4 * 38):
+		taps[randi() % n] += (1.0 if randf() < 0.5 else -1.0) * randf_range(0.2, 1.0)
+	var hi := _biquad(taps, "bp", 4200.0, 1.6)
+	var lo := _biquad(taps, "bp", 1900.0, 3.0)
+	for i in n:
+		_w[i] = hi[i] * 1.2 + lo[i] * 0.8 + randf_range(-1.0, 1.0) * 0.02
+	_loopify(0.3)
+	_end("rain_glass", false, true, 0.6)
+	_begin(0.9)   # o chocalho: estalinhos rápidos, crescendo e sumindo com o ronco
+	var t0 := 0.0
+	while t0 < 0.8:
+		var g := sin(PI * t0 / 0.8) * randf_range(0.5, 1.0)
+		_noise(t0, 0.012, "bp", randf_range(2200.0, 3400.0), 2.0, g)
+		_noise(t0, 0.02, "bp", 900.0, 4.0, g * 0.4)
+		t0 += randf_range(0.015, 0.04)
+	_end("rattle")
+	for wet in [false, true]:   # os passos
+		_begin(0.2)
+		_noise(0.0, 0.06, "lp", 280.0, 0.7, 1.0)
+		_noise(0.0, 0.03, "bp", 1500.0, 1.0, 0.35)
+		if wet:
+			_noise(0.01, 0.12, "hp", 2200.0, 0.7, 0.45)
+		_w = _biquad(_w, "lp", 2600.0, 0.7)
+		_end("step_wet" if wet else "step")
+
+
+## A luminária: o zumbido elétrico bem baixo da lâmpada acesa (120 Hz e harmônicos, em loop) e o estalo de quando ela
+## pisca.
+func _build_lamp() -> void:
+	_begin(1.0)   # 120 ciclos inteiros: o loop fecha sem emenda
+	for i in _w.size():
+		var t := float(i) / RATE
+		_w[i] = _wave("saw", 120.0 * t) * 0.5 + sin(TAU * 240.0 * t) * 0.3 + sin(TAU * 360.0 * t) * 0.1
+	_w = _biquad(_w, "lp", 1400.0, 0.7)
+	_end("lamp_buzz", false, true, 0.5)
+	_begin(0.06)
+	_noise(0.0, 0.02, "hp", 2500.0, 0.7, 0.8)
+	_tone(0.0, 60.0, 0.04, "sine", 0.4)
+	_end("lamp_tick")
 
 
 ## Trovão de longe: um estalo abafado e o ronco grave rolando, em ondas, até sumir.

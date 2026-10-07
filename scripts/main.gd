@@ -242,8 +242,9 @@ func _process(delta: float) -> void:
 		_end_shift.visible = can_end
 		_shift_hours.visible = not _end_shift.visible
 		var hour := floori(minutes / 60.0)
-		if hour > _hour:   # a badalada do relógio a cada hora cheia (vem do relógio de flip da mesa)
+		if hour > _hour:   # a badalada do relógio a cada hora cheia (vem do relógio de flip da mesa) e o sino da igreja
 			Sfx.play_at("chime", background.clock_x)
+			background.toll((SHIFT_START_HOUR + hour - 1) % 12 + 1)
 		_hour = hour
 		background.minutes = SHIFT_START_HOUR * 60 + minutes
 		_nag()

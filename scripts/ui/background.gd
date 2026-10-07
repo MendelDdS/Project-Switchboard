@@ -75,7 +75,15 @@ const STREET_LIGHT := 1.6   ## a luz da rua entrando pela janela: quanto ela des
 const CAR_EVERY := Vector2(35, 80)   ## de quanto em quanto tempo passa um carro lá fora (s, sorteado)
 const CAR_SEC := 3.2      ## quanto ele leva passando na rua (a ~40 km/h), com os faróis na rua da vista
 const WALK_EVERY := Vector2(40, 100)   ## de quanto em quanto tempo alguém passa pela calçada de lá (s, sorteado)
-const WALK_SEC := 18.0    ## quanto leva atravessando a vista (~1,6 m/s, de 16 m a 16 m)
+const WALK_SEC := 18.0    ## quanto leva atravessando a vista (~1,8 m/s, de 16 m a 16 m)
+const WALK_STEPS := 2.2   ## passos por segundo (as pernas alternam e os passos soam no mesmo ritmo)
+const LATE_FROM := 22.0 * 60.0   ## a partir de que hora (min do dia) a cidade começa a se calar: menos carros e pedestres
+const LATE_TO := 24.0 * 60.0     ## até quando (aí, os intervalos entre eles chegam a `LATE_EVERY` vezes)
+const LATE_EVERY := 3.0
+const BELL_AFTER := 1.6   ## o sino da igreja começa a bater a hora depois do gongo da mesa (s), uma badalada a cada `BELL_GAP`
+const BELL_GAP := 2.3
+const DRIP_EVERY := Vector2(0.8, 2.6)   ## o pingo da calha no peitoril de fora, na chuva (s entre um e outro, sorteado)
+const RATTLE_NEAR := 2.0  ## trovão que vem até esse tempo depois do clarão (s) é perto: o vidro e a persiana chocalham
 const BOLT_EVERY := Vector2(45, 110)   ## de quanto em quanto tempo cai um relâmpago, na chuva (s, sorteado)
 const BOLT_PULSES := [Vector2(0.0, 1.0), Vector2(0.14, 0.55), Vector2(0.42, 0.8)]   ## os clarões dele: quando (s) e a força
 const THUNDER_AFTER := Vector2(1.2, 3.5)   ## o trovão vem depois (s, sorteado: longe ou perto)
@@ -220,6 +228,12 @@ var _car_in := 20.0      # quanto falta para o próximo (s)
 var _walk := -1.0        # alguém passando na calçada de lá: de 0 a 1 (-1 = ninguém)
 var _walk_in := 25.0     # quanto falta para o próximo (s)
 var _walk_dir := 1.0     # para que lado ele vai (1: para a direita)
+var _walk_step := -1     # o último passo que soou
+var _tolls := 0          # badaladas do sino que faltam bater
+var _toll_in := 0.0      # quanto falta para a próxima (s)
+var _drip_in := 1.0      # quanto falta para o próximo pingo (s)
+var _late_sent := -1.0   # o quanto da noite avançada já foi passado ao `Sfx`
+var _lamp_dim := false   # a luminária estava baixa no quadro anterior (ao piscar, estala)
 var _sign_was := true    # o letreiro estava aceso no quadro anterior (ao falhar, estala)
 var _bolt := -1.0        # há quanto tempo caiu o relâmpago (s; -1 = nenhum)
 var _bolt_in := 30.0     # quanto falta para o próximo (s)
@@ -298,6 +312,11 @@ func _process(delta: float) -> void:
 		lamp_level = FLICK[int(Time.get_ticks_msec() / 90.0) % FLICK.size()]
 	else:
 		lamp_level = 1.0
+	var dim := lamp_level < 0.75
+	if dim != _lamp_dim:   # a luminária piscando estala
+		_lamp_dim = dim
+		Sfx.play("lamp_tick")
+	Sfx.lamp(lamp_level)
 	_view.queue_redraw()
 	_vport.render_target_update_mode = SubViewport.UPDATE_ONCE
 
@@ -311,10 +330,29 @@ func _state() -> Array:
 
 
 ## Os acontecimentos lá fora, cada um na hora sorteada: um carro passando (`CAR_*`; na chuva, com o chiado da água),
-## alguém andando pela calçada de lá (`WALK_*`) e, na chuva, o relâmpago com o trovão depois (`BOLT_*`,
-## `THUNDER_AFTER`); e o neon do hotel estala quando falha. Os sons vêm da janela.
+## alguém andando pela calçada de lá, com os passos (`WALK_*`), e, na chuva, a calha pingando (`DRIP_EVERY`) e o
+## relâmpago com o trovão depois (`BOLT_*`, `THUNDER_AFTER`; perto, a janela chocalha, `RATTLE_NEAR`); o neon do
+## hotel estala quando falha e o sino da igreja bate as horas (`toll`). Das 22h à meia-noite a cidade se cala: carros e
+## pedestres cada vez mais raros (`LATE_*`) e os grilos mais presentes (`Sfx.set_late`). Os sons vêm da janela.
 func _events(delta: float) -> void:
 	var x := _bounds(_glass).get_center().x / maxf(1.0, size.x) if _glass.size() > 2 else 0.9
+	Sfx.window_x = x
+	var late := snappedf(clampf((minutes - LATE_FROM) / (LATE_TO - LATE_FROM), 0.0, 1.0), 0.1)
+	if late != _late_sent:   # a cidade se calando: grilos mais presentes, menos gente e carro
+		_late_sent = late
+		Sfx.set_late(late)
+	var rare := lerpf(1.0, LATE_EVERY, late)
+	if _tolls > 0:   # o sino da igreja batendo a hora
+		_toll_in -= delta
+		if _toll_in <= 0.0:
+			Sfx.play_at("bell", x)
+			_tolls -= 1
+			_toll_in = BELL_GAP
+	if weather == "rain":   # a calha pingando no peitoril de fora, sem ritmo certo
+		_drip_in -= delta
+		if _drip_in <= 0.0:
+			Sfx.play_at("drip", x, randf_range(-5.0, 0.0))
+			_drip_in = randf_range(DRIP_EVERY.x, DRIP_EVERY.y) * (0.25 if randf() < 0.2 else 1.0)
 	_car_in -= delta
 	if _car < 0.0 and _car_in <= 0.0:
 		_car = 0.0
@@ -323,7 +361,7 @@ func _events(delta: float) -> void:
 		_car += delta / CAR_SEC
 		if _car >= 1.0:
 			_car = -1.0
-			_car_in = randf_range(CAR_EVERY.x, CAR_EVERY.y)
+			_car_in = randf_range(CAR_EVERY.x, CAR_EVERY.y) * rare
 	_walk_in -= delta
 	if _walk < 0.0 and _walk_in <= 0.0:
 		_walk = 0.0
@@ -332,7 +370,12 @@ func _events(delta: float) -> void:
 		_walk += delta / WALK_SEC
 		if _walk >= 1.0:
 			_walk = -1.0
-			_walk_in = randf_range(WALK_EVERY.x, WALK_EVERY.y)
+			_walk_in = randf_range(WALK_EVERY.x, WALK_EVERY.y) * rare
+	if _walk >= 0.0:   # os passos dele, de longe
+		var st := int(_walk * WALK_SEC * WALK_STEPS)
+		if st != _walk_step:
+			_walk_step = st
+			Sfx.play_at("step_wet" if weather == "rain" else "step", x)
 	var lit := _sign_on()
 	if _sign_was and not lit and _sign_px != Vector2.ZERO:
 		Sfx.play_at("neon", x)
@@ -346,8 +389,16 @@ func _events(delta: float) -> void:
 		_bolt += delta
 		if before < _thunder_at and _bolt >= _thunder_at:
 			Sfx.play_at("thunder", x, -6.0 * (_thunder_at - THUNDER_AFTER.x) / (THUNDER_AFTER.y - THUNDER_AFTER.x))   # longe, mais fraco
+			if _thunder_at < RATTLE_NEAR:   # perto: o vidro e a persiana chocalham
+				Sfx.play_at("rattle", x, -6.0 * (_thunder_at - THUNDER_AFTER.x) / (RATTLE_NEAR - THUNDER_AFTER.x))
 			_bolt = -1.0
 			_bolt_in = randf_range(BOLT_EVERY.x, BOLT_EVERY.y)
+
+
+## O sino da igreja bate a hora (`count` badaladas), começando um pouco depois do gongo da mesa.
+func toll(count: int) -> void:
+	_tolls = count
+	_toll_in = BELL_AFTER
 
 
 ## A força do clarão do relâmpago agora (0 a 1): os pulsos dele, cada um sumindo depressa.
@@ -1630,7 +1681,7 @@ func _draw_stranger(g: Rect2) -> void:
 func _draw_walker(g: Rect2) -> void:
 	var z: float = STREET["far"] - 0.9
 	var x := lerpf(-16.0, 16.0, _walk) * _walk_dir
-	var steps := int(_walk * WALK_SEC * 3.6)
+	var steps := int(_walk * WALK_SEC * WALK_STEPS)
 	var foot := (_o(g, x, z) * 2.0).floor() - Vector2(0, steps % 2)
 	var k := OUT_F / z * 2.0   # px da tela por metro
 	var dark := Color("07090c")

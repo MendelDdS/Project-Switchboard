@@ -34,8 +34,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `EmergencyCall` com lacunas **em inglês** (`{place}`, `{reason}`, `{street}`, `{house}`...), preenchidas por
   `GameData.template_transfer()`/`template_emergency()`. Motivos em `DirectoryEntry.reasons`. `TEMPLATE_CHANCE`
   (`Schedule`) mistura moldes e roteiros escritos (híbrido: tutorial, trotes e roteiro da noite sempre escritos).
-- Todo o áudio é sintetizado ao iniciar por `SfxSynth.build()` (`scripts/sfx_synth.gd`: as receitas, ~0,6 s num Mac
-  recente, 131 sons, 2,4 MB; sem cache) e tocado pelo autoload `Sfx` (`scripts/sfx.gd`: tocar, mixar, ambiente), inclusive as "vozes" por sílaba
+- Todo o áudio é sintetizado ao iniciar por `SfxSynth.build()` (`scripts/sfx_synth.gd`: as receitas, ~0,6–0,9 s num Mac
+  recente, 139 sons, 2,5 MB; sem cache) e tocado pelo autoload `Sfx` (`scripts/sfx.gd`: tocar, mixar, ambiente), inclusive as "vozes" por sílaba
   (`Sfx.speak_char`). Barramentos em `default_bus_layout.tres`: Ambience, Voices, Effects (e Rub, que envia para Effects).
   Ambience tem um compressor com sidechain em Voices (o ambiente baixa enquanto alguém fala); Effects, uma
   reverberação leve de sala. `Sfx.play_at(id, screen_x)` toca um som vindo de um lugar da tela (pool de
@@ -47,7 +47,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   ganham o dedo sozinhos (`node_added`, troca adiada em `_point` para não esbarrar em nó fora da árvore); quem quer outra forma define `mouse_default_cursor_shape` (a mesa troca a
   dela a cada quadro). Passe `Image`, não textura, ao `Input` (textura vaza ao fechar).
 - Clima (`Main.weather`: "rain", "fog", "clear", sorteado; `-- --weather=X` força): `Sfx.start_ambience(w)`/
-  `set_weather`/`hush_nature`/`stop_ambience`, `Background.weather` desenha a janela, `Conversation.topics()` junta os
+  `set_weather`/`hush_nature`/`stop_ambience`; a chuva cresce e diminui em ondas lentas (`RAIN_WAVES`, sobre `_rain_db`)
+  e tem por cima as gotas batendo no vidro, vindo da janela (`rain_glass`, `Sfx.glass`, `window_x`, `RAIN_GLASS`); das
+  22h à meia-noite os grilos sobem e a brisa baixa (`Sfx.set_late`, `LATE_*`); a luminária zumbe bem baixo, seguindo a
+  luz dela (`lamp_buzz`, `Sfx.lamp`, `LAMP_BUZZ`), e estala quando pisca (`lamp_tick`); `Background.weather` desenha a janela, `Conversation.topics()` junta os
   assuntos gerais com os do clima (`ChatTopic.weather`).
 - **Resolução: tudo em 1x1 sobre 1280×720, ampliado para qualquer tela sem quebrar os pixels.** A cena principal é
   `scenes/app.tscn` (`GameView`, `scripts/ui/game_view.gd`): o `main.tscn` dentro de um `SubViewport` de 1280×720 (o
@@ -79,9 +82,13 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   da janela): um carro passa na rua da vista com os faróis (`CAR_*`, som `car`; a luz deles varrendo a sala
   saiu a pedido, não parecia luz; na
   chuva, `car_wet`, com o chiado da água); alguém passa a pé pela calçada de lá, de guarda-chuva na chuva e de chapéu
-  sem ela, em silhueta contra as luzes (`WALK_*`, `_draw_walker`); na
+  sem ela, em silhueta contra as luzes, com os passos soando de longe (`WALK_*`, `WALK_STEPS`, `_draw_walker`, sons
+  `step`/`step_wet`); das 22h à meia-noite carros e pedestres ficam cada vez mais raros (`LATE_FROM`/`LATE_TO`,
+  `LATE_EVERY`); na chuva, a calha pinga no peitoril de fora sem ritmo certo (`DRIP_EVERY`, som `drip`); o sino da
+  igreja bate as horas de longe, logo depois do gongo da mesa (`toll`, `BELL_AFTER`, `BELL_GAP`, som `bell`); na
   chuva, o relâmpago clareia o céu, a vista e a sala em pulsos (`BOLT_*`, `_flash`) e o trovão vem depois
-  (`THUNDER_AFTER`, mais fraco quanto mais longe, som `thunder`); e um letreiro de neon HOTEL (a palavra é a mesma nos
+  (`THUNDER_AFTER`, mais fraco quanto mais longe, som `thunder`; perto, o vidro e a persiana chocalham, `RATTLE_NEAR`,
+  som `rattle`); e um letreiro de neon HOTEL (a palavra é a mesma nos
   três idiomas) na vista, na fonte gravada da mesa, que falha de vez em quando (`_sign_on`; o T falha sozinho; ao falhar, estala baixinho, som `neon`, abafado pela
   distância e com o eco das fachadas), com o
   halo sem miolo para as letras aparecerem (`_light(..., core = false)`), o reflexo na rua molhada e um reflexo
@@ -906,6 +913,9 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
     quando pela calçada de lá; o carro na chuva chia na água e o neon do hotel estala quando falha (abafado, de longe).
     A luz dos faróis varrendo a sala saiu; o peitoril e a guarnição de perto, que pareciam um buraco escuro, ficaram na
     luz de fora; a vitrine do bar ficou com duas divisões, longe da porta.
+71. Sons da noite: o sino da igreja bate as horas de longe, a chuva cresce e diminui em ondas com as gotas no vidro e
+    a calha pingando, a cidade se cala depois das 22h (menos carros e pedestres, grilos mais presentes), a luminária
+    zumbe e estala quando pisca, a janela chocalha no trovão perto e os passos de quem passa soam de longe.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.
