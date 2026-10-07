@@ -190,13 +190,20 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   persiana projetado no tampo, descendo para dentro da sala (`STREET_LIGHT`), um pouco longe da parede (o peitoril faz
   sombra) e só onde há mesa; bem lisa e espalhada, e por cima dos objetos (eles ficam na luz também). Na mesa, ao alcance do
   operador, os objetos que abrem as ferramentas (`prop_clicked(id)` → `Tools.set_tab`; `_props`, `_has_point`: o
-  clique só vale sobre eles e não com papel por cima): listas telefônicas (1), mapa dobrado (2), caderno aberto (3) e
+  clique só vale sobre eles e não com papel por cima): listas telefônicas (1), mapa dobrado em sanfona (2: quarteirões desiguais, cada bairro num tom, praças, rio, trem,
+  selo do título e as dobras em luz e sombra, `_draw_folded_map`; com quadrados iguais, lia como papel quadriculado), caderno aberto (3) e
   prancheta do registro (4), mais a caneca, postos por fração da profundidade do tampo (`_at`, `_deep`: ficam no
   tampo seja qual for a câmera) e, na largura, a partir da lateral da mesa comutadora (`_side_x`), em duas fileiras
   com folga entre eles: atrás, listas, caderno e o relógio de flip com a caneca na frente dele; na frente,
   mapa, prancheta e jornal (numa tela mais larga, a folga sobra perto da janela). **Cada um fica num lugar da sala e passa pela câmera** (`_draw_desk_props`:
-  tamanho, escorço e o lado que aparece saem da conta; `_box` dá os cantos, `_flat` põe o desenho de frente de um
-  objeto chato no tampo dele com uma transformação, `_top_xf`), desenhados em 1x1 (sem contorno preto: torto pela perspectiva, serrilhava; as faces se separam pela luz, `_poly`; sombra apontando para longe da luminária, em degraus: penumbra, sombra e o contato escuro colado na base, `_desk_shadow`; e cada um escurece ponto a ponto quanto mais longe da poça de luz, liso dentro do próprio objeto (os cantos de cada face pela distância deles, `_shade`, `_dim`, `_shaded`, `_pool`, `SHADE_MAX`; com um tom só por objeto, a troca entre eles era brusca), também quando a luminária pisca), do fundo para a frente; a legenda sob o mouse é do `SceneView`, na resolução da interface. **A mesa comutadora é um móvel só** (`_draw_switchboard`,
+  tamanho, escorço e o lado que aparece saem da conta; `_box` dá os cantos; nos objetos chatos (caderno, mapa,
+  prancheta, jornal e a capa da lista de cima), `_flat` desenha o tampo de frente numa imagem do tamanho que ele tem na
+  tela, `_top_xf`, e `_project` o põe na perspectiva pixel a pixel pela homografia, `_homography`, como a frente do
+  relógio, guardado até o desenho mudar; torto por transformação, o desenho esticava e entortava os pixels, uma linha
+  de 1 px virava 0 ou 2, e destoava do resto do jogo; o que não pode entortar, como o lápis, o alfinete e as tiras do
+  caderno, vai por cima já na tela, `_tex_pt`; os desenhos são `_art_*`), **cada um girado uns graus, como largado na mesa**
+  (`_turned` gira os cantos em volta do meio, `_faces` dá as faces de pé viradas para os olhos; o `yaw` de cada um em
+  `_flat` e nas listas, cada volume para um lado: todos retos e em fileira, a mesa parecia montada), desenhados em 1x1 (sem contorno preto: torto pela perspectiva, serrilhava; as faces se separam pela luz, `_poly`; sombra apontando para longe da luminária, em degraus: penumbra, sombra e o contato escuro colado na base, `_desk_shadow`; e cada um escurece ponto a ponto quanto mais longe da poça de luz, liso dentro do próprio objeto (os cantos de cada face pela distância deles, `_shade`, `_dim`, `_shaded`, `_pool`, `SHADE_MAX`; com um tom só por objeto, a troca entre eles era brusca), também quando a luminária pisca), do fundo para a frente; a legenda sob o mouse é do `SceneView`, na resolução da interface. **A mesa comutadora é um móvel só** (`_draw_switchboard`,
   como uma mesa telefônica de verdade): embaixo, o console, cuja frente é a faixa da miniatura do painel (a
   madeira em volta dela, com a plaqueta de latão de um lado, os botões de volume e sintonia do outro e os parafusos;
   a prateleira tem veios e o friso de latão na beira) e cujo alto é a prateleira, com o FONE e os cabos em pé nos buracos (a mesa desenha); no fundo dela, num rodapé e com a sombra
@@ -312,11 +319,11 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
 ## Rodar e testar
 - Godot: `/Applications/Godot.app/Contents/MacOS/Godot` (não está no PATH). Cena principal: `scenes/app.tscn` (o `GameView` com o `main.tscn` dentro).
 - Checar se tudo compila: `Godot --headless --path . --quit-after 60`.
-- **Testes: `tests/run.sh`** (roda tudo em headless; ~1 min no total; `tests/run.sh flow penalties` roda só esses). Um
+- **Testes: `tests/run.sh`** (roda tudo em headless; ~2 min no total; `tests/run.sh flow penalties` roda só esses). Um
   `SCRIPT ERROR` não encerra o Godot: o `run.sh` lê o log enquanto o teste roda e o encerra no primeiro erro (sem isso,
   cada teste quebrado ficava parado até o `LIMIT` de 120 s e a bateria passava de 10 min).
   Roda com **`--fixed-fps 60`**: cada quadro avança 1/60 s de jogo e o motor não espera o relógio real (simulação
-  determinística, turno do robô em ~6 s). Para rodar um teste à mão, use a mesma opção:
+  determinística, turno do robô em ~9 s). Para rodar um teste à mão, use a mesma opção:
   `Godot --headless --fixed-fps 60 --path . tests/runner.tscn -- --test=x --seed=1`. **Os testes rodam como cena**
   (`tests/runner.tscn`/`runner.gd` carrega `tests/test_<x>.gd`, que estende `test_base.gd`, um `Node`, e começa em
   `_initialize`): os autoloads já existem, então `Main`, `Switchboard`, `CardMachines` têm tipo nos testes; o `SceneTree`
@@ -350,6 +357,9 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   tirar os cabos para nada contar como conversa cortada; `Notebook.reset`). Textos fixos em português (ferramenta, não interface). Ele só usa funções públicas do Main (`free_line`,
   `start_ending`, `cancel_dest_ring`, `drop`) e do relatório (`ShiftReport.forget`), para não quebrar quando o Main mudar.
 - Captura de tela: rodar SEM `--headless` e salvar `root.get_texture().get_image()`.
+- **Sem tela, a vista da janela não é desenhada** (`Background._headless`): com `--fixed-fps` e o tempo acelerado,
+  ela era redesenhada a cada quadro e virou 2/3 do tempo de um turno do robô (27 s em vez de 9). Quem acrescentar
+  desenho pesado que roda a cada quadro, meça um turno (`--test=shift --seed=1`).
 
 ## Exportar (executáveis para testar fora do editor)
 - Presets em `export_presets.cfg`: Windows, macOS (universal, assinatura ad-hoc, sem notarização) e Linux; saída em
@@ -916,6 +926,13 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
 71. Sons da noite: o sino da igreja bate as horas de longe, a chuva cresce e diminui em ondas com as gotas no vidro e
     a calha pingando, a cidade se cala depois das 22h (menos carros e pedestres, grilos mais presentes), a luminária
     zumbe e estala quando pisca, a janela chocalha no trovão perto e os passos de quem passa soam de longe.
+72. Os objetos da mesa girados uns graus, como largados (a pilha de listas desencontrada) em vez de retos e em
+    fileira, e o mapa redesenhado como mapa de verdade (lia como papel quadriculado com um gráfico).
+73. Os objetos da mesa redesenhados na identidade do jogo: o tampo dos objetos chatos posto pixel a pixel na
+    perspectiva (torto por transformação, os pixels esticavam), cores de papel envelhecido em vez de branco, menos
+    ruído (letra de mão espaçada, miolo das listas liso), a capa da lista com o título em baixo-relevo; menores, menos
+    girados e com mais folga (estavam apertados e se encostando). Os testes voltaram ao tempo de antes (a vista da
+    janela não é mais desenhada sem tela).
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

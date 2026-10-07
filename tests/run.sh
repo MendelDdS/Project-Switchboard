@@ -2,7 +2,7 @@
 # Roda todos os testes em modo headless e falha se algum falhar, travar ou gerar SCRIPT ERROR.
 # Uso: tests/run.sh [teste...]  (Godot em /Applications; ou defina GODOT=/caminho/do/godot)
 GODOT="${GODOT:-/Applications/Godot.app/Contents/MacOS/Godot}"
-LIMIT=${LIMIT:-120}   # segundos por teste (um turno do robô leva ~6 s)
+LIMIT=${LIMIT:-120}   # segundos por teste (um turno do robô leva ~9 s)
 cd "$(dirname "$0")/.." || exit 1
 log=$(mktemp)
 fails=0
