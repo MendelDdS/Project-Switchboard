@@ -352,8 +352,7 @@ func _build_bell() -> void:
 	_end("bell", false, false, 0.85)
 
 
-## A rua de perto da janela: o vidro e a persiana chocalhando no trovão perto e os passos de quem passa na calçada de
-## lá, seco ou molhado (de longe: sem os agudos).
+## A janela: o vidro e a persiana chocalhando no trovão perto.
 func _build_outside() -> void:
 	_begin(0.9)   # o chocalho: estalinhos rápidos, crescendo e sumindo com o ronco
 	var t0 := 0.0
@@ -363,14 +362,6 @@ func _build_outside() -> void:
 		_noise(t0, 0.02, "bp", 900.0, 4.0, g * 0.4)
 		t0 += randf_range(0.015, 0.04)
 	_end("rattle")
-	for wet in [false, true]:   # os passos
-		_begin(0.2)
-		_noise(0.0, 0.06, "lp", 280.0, 0.7, 1.0)
-		_noise(0.0, 0.03, "bp", 1500.0, 1.0, 0.35)
-		if wet:
-			_noise(0.01, 0.12, "hp", 2200.0, 0.7, 0.45)
-		_w = _biquad(_w, "lp", 2600.0, 0.7)
-		_end("step_wet" if wet else "step")
 
 
 ## A luminária: o zumbido elétrico bem baixo da lâmpada acesa (120 Hz e harmônicos, em loop) e o estalo de quando ela

@@ -10,8 +10,8 @@ const SHIFT_START_HOUR := 18            # o turno vai das 18:00...
 const SHIFT_END := 360.0                # ...até 00:00 (minutos depois do início)
 const LAST_CALL := 340.0                # 23:40: nada novo toca depois (a desconhecida tem regra própria) e aparece
 										# o botão Encerrar turno; quem está na linha à meia-noite é atendido até o fim
-const SHADOW_LEAD := 15.0               # minutos antes da ligação desconhecida em que a silhueta aparece na janela...
-const SHADOW_LEAVE := 10.0              # ...e em que ela sai (para ir ligar)
+const SHADOW_LEAD := 25.0               # minutos antes da ligação desconhecida em que o homem para embaixo do poste (chega andando)...
+const SHADOW_LEAVE := 10.0              # ...e em que vai embora andando (para ir ligar): fica 15 minutos
 const WEATHERS := ["rain", "fog", "clear"]   # clima sorteado no começo do turno (`-- --weather=fog` força um)
 const TALK_LEN := Vector2(34.0, 68.0)   # duração (min de jogo) de uma conversa transferida (≈ 45–90 s reais)
 const GIVE_UP_SEC := 60.0               # quem liga desiste se ninguém atende (as do roteiro aguentam 1,5x; retornos, 0,75x)
@@ -609,8 +609,8 @@ func _run_schedule() -> void:
 			_myst_lead = true
 			Sfx.hush_nature(true, 20.0)
 			Sfx.fade(Sfx.hum, -34.0, 20.0)
-	# alguém para do lado de fora da janela e sai antes de a ligação desconhecida tocar
-	background.shadow = minutes >= myst_plan - SHADOW_LEAD and minutes < myst_plan - SHADOW_LEAVE
+	# o homem chega andando, para embaixo do poste lá fora e vai embora antes de a ligação desconhecida tocar
+	background.stranger = Vector2(myst_plan - SHADOW_LEAD, myst_plan - SHADOW_LEAVE) + Vector2.ONE * SHIFT_START_HOUR * 60.0   # (na hora do dia)
 	var c := sched[0]
 	if minutes < c.at:
 		return

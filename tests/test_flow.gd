@@ -529,21 +529,29 @@ func _initialize() -> void:
 	ok(reach, "o plug guardado aceita o clique em toda a altura")
 	print("OK 7 clique desconecta / arrastar move")
 
-	# ---- 8. silhueta na janela: aparece 15 min antes da ligação desconhecida e sai 10 min antes (vai ligar)
+	# ---- 8. o homem na janela: chega andando, fica embaixo do poste de 25 a 10 min antes da ligação desconhecida e
+	# volta andando (vai ligar)
 	var myst := PhoneCall.mystery()
-	myst.at = m.minutes + 30.0   # na agenda, mas sem tocar durante o teste
+	myst.at = m.minutes + 60.0   # na agenda, mas sem tocar durante o teste
 	m.myst_plan = myst.at
 	m.sched.append(myst)
 	await frames(1)
-	ok(not m.background.shadow, "ainda não aparece")
-	m.myst_plan = m.minutes + 14.0
+	var bg := m.background
+	ok(is_nan(bg._man_x()), "ainda não aparece")
+	m.myst_plan = m.minutes + Main.SHADOW_LEAD + Background.MAN_WALK / 2.0
 	await frames(1)
-	ok(m.background.shadow, "silhueta na janela")
-	m.myst_plan = m.minutes + 9.0
+	ok(bg._man_x() > Background.MAN_X and bg._man_x() < Background.MAN_FROM, "chegando andando: %.1f m" % bg._man_x())
+	m.myst_plan = m.minutes + 20.0
 	await frames(1)
-	ok(not m.background.shadow, "saiu antes de ligar")
+	ok(bg._man_x() == Background.MAN_X, "parado embaixo do poste")
+	m.myst_plan = m.minutes + Main.SHADOW_LEAVE - Background.MAN_WALK / 2.0
+	await frames(1)
+	ok(bg._man_x() > Background.MAN_X and bg._man_x() < Background.MAN_FROM, "indo embora andando: %.1f m" % bg._man_x())
+	m.myst_plan = m.minutes + 1.0
+	await frames(1)
+	ok(is_nan(bg._man_x()), "foi ligar")
 	m.sched.erase(myst)
-	print("OK 8 silhueta")
+	print("OK 8 o homem na janela")
 
 	# ---- 9. marcadores do roteiro: condição, escolha que muda a conversa e ligação do roteiro conferida na hora
 	var sf := StoryFlags.new(PackedStringArray(["a"]))
@@ -903,6 +911,15 @@ func _initialize() -> void:
 	ok(Sfx._rain_db <= -79.0 and Sfx.crickets.volume_db > -40.0, "noite limpa: chuva %.0f dB, grilos %.0f dB" % [Sfx._rain_db, Sfx.crickets.volume_db])
 	Sfx.stop_ambience(0.0)
 	print("OK 15 clima do som")
+
+	# ---- 16. gente na calçada de lá: cada vez menos até as 22h, e daí ninguém (só o homem do mistério)
+	m.minutes = Background.WALK_FROM - Main.SHIFT_START_HOUR * 60.0
+	ok(await wait_until(func(): return not bg._walkers.is_empty(), 30.0), "às 18h passa gente")
+	m.minutes = Background.WALK_UNTIL - Main.SHIFT_START_HOUR * 60.0 + 1.0
+	ok(await wait_until(func(): return bg._walkers.is_empty(), 60.0), "quem estava passando termina de passar")
+	await frames(int(60.0 * 60.0 / Engine.time_scale))
+	ok(bg._walkers.is_empty(), "depois das 22h ninguém passa")
+	print("OK 16 pedestres")
 	finish("fluxo da central")
 
 

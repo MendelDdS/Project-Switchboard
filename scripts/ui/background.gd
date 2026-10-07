@@ -16,7 +16,7 @@ extends Control
 ## de pé no tampo). Cada camada pode virar imagem (PNG): com `wall_art`, `window_art` ou `desk_art`, a imagem entra
 ## no lugar do desenho daquela camada (o clima continua por cima da vista).
 ## `weather`: "rain" (gotas no vidro, chão molhado), "fog" (névoa passando, luzes difusas) ou "clear" (estrelas e lua).
-## `shadow`: a silhueta de alguém parado do lado de fora da janela (sai pouco antes da ligação desconhecida).
+## `stranger`: quando o homem do mistério para embaixo do poste e quando vai embora (chega e sai andando, `_man_x`).
 ## Objetos na mesa, ao alcance do operador, abrem as ferramentas (`prop_clicked`, o id da aba em `Tools.TABS`): as
 ## listas telefônicas, o mapa dobrado, o caderno aberto e a prancheta do registro (o relógio de flip e a caneca só
 ## enfeitam). Ficam na sala, em centímetros da
@@ -78,9 +78,12 @@ const WINDOW_GLOW_R := 420.0   ## até onde ele chega (px da tela, a partir do m
 const STREET_LIGHT := 1.6   ## a luz da rua entrando pela janela: quanto ela desce para cada unidade que entra na sala
 const CAR_EVERY := Vector2(35, 80)   ## de quanto em quanto tempo passa um carro lá fora (s, sorteado)
 const CAR_SEC := 3.2      ## quanto ele leva passando na rua (a ~40 km/h), com os faróis na rua da vista
-const WALK_EVERY := Vector2(40, 100)   ## de quanto em quanto tempo alguém passa pela calçada de lá (s, sorteado)
-const WALK_SEC := 18.0    ## quanto leva atravessando a vista (~1,8 m/s, de 16 m a 16 m)
-const WALK_STEPS := 2.2   ## passos por segundo (as pernas alternam e os passos soam no mesmo ritmo)
+const WALK_EVERY := Vector2(2, 5)    ## de quanto em quanto tempo alguém passa pela calçada de lá às 18h (s, sorteado)...
+const WALK_FROM := 18.0 * 60.0   ## ...e daí (min do dia) o intervalo cresce, cada vez menos gente...
+const WALK_UNTIL := 22.0 * 60.0  ## ...até ninguém mais passar (só o homem do mistério)
+const WALK_PAIR := 0.2    ## a chance de virem dois juntos
+const WALK_SEC := 18.0    ## quanto leva atravessando a vista (~1,8 m/s, de 16 m a 16 m; cada um ±20%)
+const WALK_STEPS := 2.2   ## passos por segundo (as pernas alternam nesse ritmo)
 const LATE_FROM := 22.0 * 60.0   ## a partir de que hora (min do dia) a cidade começa a se calar: menos carros e pedestres
 const LATE_TO := 24.0 * 60.0     ## até quando (aí, os intervalos entre eles chegam a `LATE_EVERY` vezes)
 const LATE_EVERY := 3.0
@@ -105,6 +108,9 @@ const STREET := {"curb": 3.2, "lane": 7.2, "far_curb": 11.2, "far": 14.0}
 const CROSSING := Vector2(-6.0, 2.0)   ## a rua do cruzamento, indo embora entre os prédios de lá (x, m)
 const FAR_LAMPS := [2.6, -17.0, 19.0]  ## os postes da calçada de lá (x, m): o primeiro na esquina do prédio de tijolos, com o homem
 const MAN_X := 3.4        ## onde o homem fica, embaixo do poste da esquina
+const MAN_FROM := 16.0    ## de onde ele vem pela calçada (x, m; fora da vista) e para onde volta
+const MAN_WALK := 6.0     ## quanto ele leva andando de lá até o poste (min de jogo: ~8 s, ~1,6 m/s)
+const MAN_STRIDE := 0.75  ## o passo dele (m)
 const HOTEL_X := -9.5     ## o letreiro do hotel, no prédio do outro lado da esquina
 const CAR_Z := 9.2        ## o carro passa pela mão de lá (o meio dele, m)
 ## O arbusto plantado junto da nossa parede, embaixo da janela: é do primeiro plano, como a janela, e fica no plano da
@@ -177,7 +183,7 @@ const DIGITS := [   ## os algarismos das plaquetas, 9×19 px, desenhados à mão
 var flick := false
 var lamp_level := 1.0
 var weather := "rain"
-var shadow := false
+var stranger := Vector2(INF, INF)   ## quando o homem do mistério para embaixo do poste e quando vai embora (min do dia; o Main atualiza)
 # O estado do jogo nos objetos da mesa, para ler de relance sem abrir nada (o Main atualiza):
 var pending := 0     ## registros esperando no caderno: uma tira de papel saindo dele por registro
 var unread := false  ## o registro das conversas tem fala nova: uma folha nova presa na prancheta
@@ -237,10 +243,8 @@ var _near := 0.0         # a vista passa do peitoril de longe para baixo (px de 
 var _sign_px := Vector2.ZERO   # onde o letreiro aparece no vidro (px da tela; zero = fora do vidro)
 var _car := -1.0         # o carro passando lá fora: de 0 a 1 (-1 = nenhum)
 var _car_in := 20.0      # quanto falta para o próximo (s)
-var _walk := -1.0        # alguém passando na calçada de lá: de 0 a 1 (-1 = ninguém)
-var _walk_in := 25.0     # quanto falta para o próximo (s)
-var _walk_dir := 1.0     # para que lado ele vai (1: para a direita)
-var _walk_step := -1     # o último passo que soou
+var _walkers: Array = []   # quem está passando na calçada de lá (`_walker`), na ordem do desenho: os de mais longe primeiro
+var _walk_in := 3.0      # quanto falta para o próximo (s)
 var _tolls := 0          # badaladas do sino que faltam bater
 var _toll_in := 0.0      # quanto falta para a próxima (s)
 var _late_sent := -1.0   # o quanto da noite avançada já foi passado ao `Sfx`
@@ -345,10 +349,11 @@ func _state() -> Array:
 
 
 ## Os acontecimentos lá fora, cada um na hora sorteada: um carro passando (`CAR_*`; na chuva, com o chiado da água),
-## alguém andando pela calçada de lá, com os passos (`WALK_*`), e, na chuva, o
+## gente andando pela calçada de lá, cada vez menos até as 22h (`WALK_*`; sem som: os passos, de dentro do prédio, não
+## se ouviriam), o homem do mistério chegando e indo embora (`_man_x`), e, na chuva, o
 ## relâmpago com o trovão depois (`BOLT_*`, `THUNDER_AFTER`; perto, a janela chocalha, `RATTLE_NEAR`); o neon do
-## hotel estala quando falha e o sino da igreja bate as horas (`toll`). Das 22h à meia-noite a cidade se cala: carros e
-## pedestres cada vez mais raros (`LATE_*`) e os grilos mais presentes (`Sfx.set_late`). Os sons vêm da janela.
+## hotel estala quando falha e o sino da igreja bate as horas (`toll`). Das 22h à meia-noite a cidade se cala: carros
+## cada vez mais raros (`LATE_*`) e os grilos mais presentes (`Sfx.set_late`). Os sons vêm da janela.
 func _events(delta: float) -> void:
 	var x := _bounds(_glass).get_center().x / maxf(1.0, size.x) if _glass.size() > 2 else 0.9
 	var late := snappedf(clampf((minutes - LATE_FROM) / (LATE_TO - LATE_FROM), 0.0, 1.0), 0.1)
@@ -371,20 +376,21 @@ func _events(delta: float) -> void:
 		if _car >= 1.0:
 			_car = -1.0
 			_car_in = randf_range(CAR_EVERY.x, CAR_EVERY.y) * rare
+	var crowd := 1.0 - clampf((minutes - WALK_FROM) / (WALK_UNTIL - WALK_FROM), 0.0, 1.0)
 	_walk_in -= delta
-	if _walk < 0.0 and _walk_in <= 0.0:
-		_walk = 0.0
-		_walk_dir = 1.0 if randf() < 0.5 else -1.0
-	if _walk >= 0.0:
-		_walk += delta / WALK_SEC
-		if _walk >= 1.0:
-			_walk = -1.0
-			_walk_in = randf_range(WALK_EVERY.x, WALK_EVERY.y) * rare
-	if _walk >= 0.0:   # os passos dele, de longe
-		var st := int(_walk * WALK_SEC * WALK_STEPS)
-		if st != _walk_step:
-			_walk_step = st
-			Sfx.play_at("step_wet" if weather == "rain" else "step", x)
+	if _walk_in <= 0.0 and crowd > 0.0:
+		_walk_in = randf_range(WALK_EVERY.x, WALK_EVERY.y) / maxf(crowd, 0.05)
+		var w := _walker()
+		_add_walker(w)
+		if randf() < WALK_PAIR:   # dois juntos: lado a lado, o de trás um passo atrás
+			var w2 := _walker()
+			w2.merge({"t": -1.0 / 32.0, "dir": w["dir"], "sec": w["sec"], "z": w["z"] + (0.5 if w["z"] < 13.0 else -0.5)}, true)
+			_add_walker(w2)
+	for i in range(_walkers.size() - 1, -1, -1):
+		var w: Dictionary = _walkers[i]
+		w["t"] += delta / w["sec"]
+		if w["t"] >= 1.0:
+			_walkers.remove_at(i)
 	var lit := _sign_on()
 	if _sign_was and not lit and _sign_px != Vector2.ZERO:
 		Sfx.play_at("neon", x)
@@ -1348,12 +1354,13 @@ func _draw_city(g: Rect2) -> void:
 				rim.append(_o(g, x + cos(an) * 3.2, ff, 4.2 + sin(an) * 3.4))
 			_light_fan(c, rim, Color(1.0, 0.8, 0.5, 0.1))
 	_draw_hotel_sign(_hotel_pos(g))
-	if _walk >= 0.0:   # passa atrás dos postes e do homem
-		_draw_walker(g)
+	for w: Dictionary in _walkers:   # passam atrás dos postes e do homem
+		_draw_walker(g, w)
 	for x: float in FAR_LAMPS:
 		_draw_lamp_post(g, x, STREET["far_curb"] + 0.4)
-	if shadow:
-		_draw_stranger(g)
+	var mx := _man_x()
+	if not is_nan(mx):
+		_draw_stranger(g, mx)
 	if _car >= 0.0:
 		_draw_car(g, _car_x())
 	if fog:
@@ -1684,44 +1691,78 @@ func _draw_lamp_post(g: Rect2, x: float, z: float) -> void:
 			Vector2(head.x + 1.6 * k, foot.y), Vector2(head.x - 1.6 * k, foot.y)]), Color(1.0, 0.85, 0.55, 0.05))
 
 
-## Alguém parado na calçada de lá, embaixo do poste da esquina (`MAN_X`), de chapéu e casaco comprido, com 1,8 m,
-## contra a luz dele, com a sombra no chão para longe dela. Em px da tela; a névoa e a chuva passam por cima.
-func _draw_stranger(g: Rect2) -> void:
+## Onde está o homem do mistério na calçada de lá (x, m), ou NAN sem ele: vem andando de `MAN_FROM`, fica parado
+## embaixo do poste da esquina (`MAN_X`) de `stranger.x` a `stranger.y` e volta por onde veio (`MAN_WALK` min para cada
+## lado). Sai da hora do jogo: pausa e pulo do relógio valem para ele também.
+func _man_x() -> float:
+	if minutes < stranger.x - MAN_WALK or minutes >= stranger.y + MAN_WALK:
+		return NAN
+	if minutes < stranger.x:
+		return lerpf(MAN_FROM, MAN_X, (minutes - stranger.x + MAN_WALK) / MAN_WALK)
+	if minutes < stranger.y:
+		return MAN_X
+	return lerpf(MAN_X, MAN_FROM, (minutes - stranger.y) / MAN_WALK)
+
+
+## O homem do mistério na calçada de lá, em `x` (`_man_x`), de chapéu e casaco comprido, com 1,8 m: andando, as pernas
+## alternam a cada passo; parado embaixo do poste da esquina, fica contra a luz dele, com a sombra no chão para longe
+## dela. Em px da tela; a névoa e a chuva passam por cima.
+func _draw_stranger(g: Rect2, x: float) -> void:
 	var z: float = STREET["far_curb"] + 1.1
-	var foot := (_o(g, MAN_X, z) * 2.0).floor()
+	var walking := x != MAN_X
+	var steps := int(absf(x - MAN_FROM) / MAN_STRIDE)
+	var foot := (_o(g, x, z) * 2.0).floor() - Vector2(0, steps % 2 if walking else 0)
 	var k := OUT_F / z * 2.0   # px da tela por metro
-	var hc := _o(g, MAN_X, z, 1.0)
+	var hc := _o(g, x, z, 1.0)
 	var halo := PackedVector2Array()   # a luz do poste atrás dele, lisa
 	for i in 24:
 		halo.append(hc + Vector2.from_angle(TAU * i / 24.0) * k * 0.45)
-	_light_fan(hc, halo, Color(0.85, 0.62, 0.3, 0.16))
-	var dir := signf(MAN_X - (FAR_LAMPS[0] as float))
-	_ci.draw_colored_polygon(PackedVector2Array([_o(g, MAN_X - 0.2, z), _o(g, MAN_X + 0.2, z), _o(g, MAN_X + dir * 2.4, z + 0.6), _o(g, MAN_X + dir * 2.0, z + 0.6)]),
+	_light_fan(hc, halo, Color(0.85, 0.62, 0.3, 0.16 * clampf(1.0 - absf(x - MAN_X) / 2.0, 0.0, 1.0)))
+	var dir := 1.0 if x >= (FAR_LAMPS[0] as float) else -1.0
+	_ci.draw_colored_polygon(PackedVector2Array([_o(g, x - 0.2, z), _o(g, x + 0.2, z), _o(g, x + dir * 2.4, z + 0.6), _o(g, x + dir * 2.0, z + 0.6)]),
 		Color(0, 0, 0, 0.5))
 	# (x de um lado a outro, altura de baixo para cima), em metros: pernas, casaco, ombros, cabeça, aba e copa do chapéu
-	for part: Rect2 in [Rect2(-0.17, 0.0, 0.13, 0.8), Rect2(0.04, 0.0, 0.13, 0.8), Rect2(-0.24, 0.55, 0.48, 0.8),
+	var legs: Array[Rect2] = [Rect2(-0.17, 0.0, 0.13, 0.8), Rect2(0.04, 0.0, 0.13, 0.8)]
+	if walking and steps % 2 == 0:
+		legs = [Rect2(-0.22, 0.0, 0.13, 0.8), Rect2(0.09, 0.0, 0.13, 0.8)]
+	elif walking:
+		legs = [Rect2(-0.07, 0.0, 0.14, 0.8)]
+	for part: Rect2 in legs + [Rect2(-0.24, 0.55, 0.48, 0.8),
 			Rect2(-0.27, 1.25, 0.54, 0.2), Rect2(-0.1, 1.45, 0.2, 0.22), Rect2(-0.2, 1.66, 0.4, 0.05), Rect2(-0.11, 1.7, 0.22, 0.13)]:
 		var a := Vector2(roundf(part.position.x * k), -roundf((part.position.y + part.size.y) * k))
 		var b := Vector2(roundf(part.end.x * k), -roundf(part.position.y * k))
 		_p(foot.x + a.x, foot.y + a.y, maxf(1.0, b.x - a.x), maxf(1.0, b.y - a.y), Color.BLACK)
 
 
-## Alguém passando pela calçada de lá, junto das fachadas (`_walk`, `_walk_dir`): silhueta escura de 1,7 m contra as
-## luzes, as pernas alternando a cada passo, com um balanço leve, e de guarda-chuva aberto na chuva (de chapéu, sem
-## ela). Em px da tela, como o homem.
-func _draw_walker(g: Rect2) -> void:
-	var z: float = STREET["far"] - 0.9
-	var x := lerpf(-16.0, 16.0, _walk) * _walk_dir
-	var steps := int(_walk * WALK_SEC * WALK_STEPS)
-	var foot := (_o(g, x, z) * 2.0).floor() - Vector2(0, steps % 2)
-	var k := OUT_F / z * 2.0   # px da tela por metro
+## Alguém novo na calçada de lá, indo de um lado ao outro: cada um com o seu passo, a sua altura, a sua distância das
+## fachadas e, sem chuva, de chapéu ou não. `t` vai de 0 a 1 (negativo: ainda não entrou na rua).
+func _walker() -> Dictionary:
+	return {"t": 0.0, "dir": 1.0 if randf() < 0.5 else -1.0, "sec": WALK_SEC * randf_range(0.8, 1.2), "z": randf_range(12.4, 13.6),
+		"h": randf_range(0.92, 1.06), "hat": randf() < 0.5}
+
+
+## Põe `w` na calçada, na ordem do desenho (os de mais longe primeiro).
+func _add_walker(w: Dictionary) -> void:
+	_walkers.insert(_walkers.bsearch_custom(w, func(a: Dictionary, b: Dictionary) -> bool: return a["z"] > b["z"]), w)
+
+
+## Alguém passando pela calçada de lá (`w`, de `_walker`; fora da vista, não desenha): silhueta escura de 1,7 m contra as luzes, as pernas
+## alternando a cada passo, com um balanço leve, e de guarda-chuva aberto na chuva. Em px da tela, como o homem.
+func _draw_walker(g: Rect2, w: Dictionary) -> void:
+	var z: float = w["z"]
+	var x: float = lerpf(-16.0, 16.0, w["t"]) * w["dir"]
+	if absf(x) > g.size.x * 0.5 * z / OUT_F + 1.0:
+		return
+	var steps := int(w["t"] * w["sec"] * WALK_STEPS)
+	var foot := (_o(g, x, z) * 2.0).floor() - Vector2(0, posmod(steps, 2))
+	var k: float = OUT_F / z * 2.0 * w["h"]   # px da tela por metro (na altura dele)
 	var dark := Color("07090c")
 	_ci.draw_colored_polygon(PackedVector2Array([_o(g, x - 0.3, z), _o(g, x + 0.3, z), _o(g, x + 0.3, z + 0.2), _o(g, x - 0.3, z + 0.2)]), Color(0, 0, 0, 0.35))
 	var parts: Array[Rect2] = [Rect2(-0.2, 0.75, 0.4, 0.68), Rect2(-0.1, 1.43, 0.2, 0.22)]   # o casaco e a cabeça
-	parts.append_array([Rect2(-0.22, 0.0, 0.13, 0.8), Rect2(0.09, 0.0, 0.13, 0.8)] if steps % 2 == 0 else [Rect2(-0.07, 0.0, 0.14, 0.8)])
+	parts.append_array([Rect2(-0.22, 0.0, 0.13, 0.8), Rect2(0.09, 0.0, 0.13, 0.8)] if posmod(steps, 2) == 0 else [Rect2(-0.07, 0.0, 0.14, 0.8)])
 	if weather == "rain":   # o guarda-chuva: a cúpula, a beira e o cabo
 		parts.append_array([Rect2(-0.55, 1.74, 1.1, 0.1), Rect2(-0.42, 1.84, 0.84, 0.1), Rect2(-0.2, 1.94, 0.4, 0.05), Rect2(-0.02, 1.4, 0.04, 0.36)])
-	else:
+	elif w["hat"]:
 		parts.append_array([Rect2(-0.18, 1.63, 0.36, 0.04), Rect2(-0.1, 1.66, 0.2, 0.1)])
 	for part in parts:
 		var a := Vector2(roundf(part.position.x * k), -roundf((part.position.y + part.size.y) * k))
