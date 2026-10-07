@@ -138,7 +138,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   cima dos objetos da mesa) e as ferramentas (`Tools`: abas em cima e, no `%Body`, o papel da ferramenta aberta; guardadas, a
   janela aparece). O papel sai do objeto da ferramenta na mesa (`Tools.origin` = `Background.prop_rect`: pequeno, em
   cima dele, e cresce até o lugar; ao guardar, volta), tem a forma do objeto (`PaperDeco`: capa de livro na lista,
-  vincos no mapa, encadernação e cantoneiras no caderno, a tábua e o prendedor da prancheta no registro, o vinco do
+  vincos no mapa (estes do próprio `CityMap`, para ficarem abaixo da ficha de despacho), encadernação e cantoneiras no caderno, a tábua e o prendedor da prancheta no registro, o vinco do
   jornal; `PAPER_TINT`) e, aberto, o cenário atrás escurece e ganha a sombra dele (a mesa comutadora e o painel não). Embaixo de tudo, na
   largura toda, o painel do operador (`PhonePanel`, 150 px: a tela da conversa, as teclas e o rádio, nessa ordem), um console embutido na frente da mesa (a madeira de borda a borda logo abaixo
   do tampo, `PhonePanel._draw`; os blocos `HudPanel` são telas e chapas encaixadas; a tela da conversa tem vidro e

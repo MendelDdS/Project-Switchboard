@@ -332,8 +332,13 @@ func _draw() -> void:
 		for s in SHEETS:
 			if shown(s) and not SHEET_SECTOR[s] in _before:
 				draw_rect(Rect2(SHEETS[s], SHEET), Color(Pal.INK_SOFT, 1.0 - smoothstep(0.0, 1.0, _reveal)))
-	# rosa dos ventos, no canto da vista
 	_use(Transform2D.IDENTITY)
+	# os vincos do mapa dobrado, no papel e não nas folhas (aqui, e não no `PaperDeco`, que fica por cima de tudo, para
+	# a ficha de despacho e o cartão ficarem por cima deles)
+	for k in [1, 2]:
+		PaperDeco.crease(self, Vector2(size.x * k / 3.0, 0), Vector2(size.x * k / 3.0, size.y))
+	PaperDeco.crease(self, Vector2(0, size.y / 2.0), Vector2(size.x, size.y / 2.0))
+	# rosa dos ventos, no canto da vista
 	var cp := _seen().end - Vector2(46, 40)
 	draw_rect(Rect2(cp, Vector2(40, 34)), LINE)
 	draw_rect(Rect2(cp + Vector2(2, 2), Vector2(36, 30)), PAPER)
