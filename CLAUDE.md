@@ -213,8 +213,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   clique só vale sobre eles e não com papel por cima): listas telefônicas (1: três volumes desencontrados, a lombada com os filetes dourados e a etiqueta do volume,
   o miolo com as folhas em linhas finas, posto pixel a pixel como a capa, `_art_pages`, mais sujo junto das capas, e tiras
   de papel marcando páginas; a capa de cima com o título dourado em
-  baixo-relevo, o fone da companhia, a etiqueta com o ano, a marca de uma caneca e a ponta dobrada, `_art_book_cover`), mapa dobrado em sanfona (2: quarteirões desiguais, cada bairro num tom, praças, rio, trem,
-  selo do título e as dobras em luz e sombra, `_draw_folded_map`; com quadrados iguais, lia como papel quadriculado), caderno aberto (3) e
+  baixo-relevo, o fone da companhia, a etiqueta com o ano, a marca de uma caneca e a ponta dobrada, `_art_book_cover`), mapa dobrado em sanfona (2: o mapa aberto em miniatura, `_art_map`, com as mesmas
+  folhas, as dos bairros atendidos, e o papel na proporção delas: quarteirões no tom do bairro, casas e árvores, lugares
+  de telhado de barro, praça, zona rural, divisas, o selo e as dobras em luz e sombra; sem nomes, que nesse tamanho
+  seriam ruído), caderno aberto (3) e
   prancheta do registro (4), mais a caneca, postos por fração da profundidade do tampo (`_at`, `_deep`: ficam no
   tampo seja qual for a câmera) e, na largura, a partir da lateral da mesa comutadora (`_side_x`), em duas fileiras
   com folga entre eles: atrás, listas, caderno e o relógio de flip com a caneca na frente dele; na frente,
@@ -636,6 +638,8 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   frente para as ruas e com o telhado de duas águas, e os quintais com árvores no meio (`_houses`, `_tree`), os lugares
   num prédio de telhado de barro (`Pal.MAP_LANDMARK`), a praça verde com caminhos, árvores e o coreto (`_draw_square`), a
   sanfona em quatro painéis com os vincos e o selo vermelho com a rosa dos ventos e o nome da cidade (`CITY`, `Pal.SEAL`).
+  O mapa da mesa (`Background._art_map`) é este em miniatura e usa as mesmas peças (`frame_of`, `block_rect`, `lots`,
+  `square_paths`/`square_trees`, `field_rect`, `RIVER`, `ROADS_*`, `BORDERS` e as cores `Pal.MAP_*`): mudou uma, mudam as duas.
   **Cidade em folhas** (`CityMap.SHEETS`, 600×440 cada: Vila Serena (setor 3) | Centro (1)
   em cima, Alto da Serra (2) | zona rural (do 2) embaixo), todas com a mesma grade. **Rua que continua tem o mesmo nome
   e a numeração seguindo** (`Street.continues`: trechos 0–2 na folha dela, 3–5 na vizinha, `block_sector(b)`,
@@ -1014,7 +1018,10 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
     com as tiras dos pendentes, o registro na tábua com o prendedor niquelado e o cabeçalho com o fio vermelho, o jornal
     no papel-jornal com a foto e as colunas (e aberto para ter arte e textos por noite) e a luz da luminária no papel.
     O mapa aberto deixou de parecer um diagrama: ruas de papel, bairros nos tons do mapa da mesa, casas e quintais,
-    lugares de telhado de barro, a praça, a sanfona e o selo (a miniatura dele na mesa vem depois).
+    lugares de telhado de barro, a praça, a sanfona e o selo.
+83. O mapa da mesa virou a miniatura fiel do mapa aberto (as mesmas folhas, quarteirões, casas, lugares, praça, zona
+    rural e selo; o papel na proporção dos bairros atendidos). Antes, era uma cidade inventada, com rio e trem que o
+    mapa aberto não tem.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

@@ -31,8 +31,17 @@ const NAMES_K := 0.42       # abaixo desta escala, só os nomes dos bairros (a e
 const NUMBERS_K := 0.8      # a numeração dos trechos só com o mapa perto
 const PAPER := Pal.MAP_PAPER   # o papel, e as ruas são ele à mostra (como no mapa dobrado da mesa)
 const ROAD := Pal.MAP_PAPER
-const LINE := Color("3a3226")
+const LINE := Pal.MAP_INK
 const CITY := "SÃO SOTERO"     # o nome no selo do mapa (nome próprio: o mesmo nos três idiomas)
+## As divisas entre bairros vizinhos, quando os dois aparecem: [folha, folha, de, até] (a zona rural é do Alto da Serra).
+const BORDERS := [[3, 1, Vector2(600, 0), Vector2(600, 440)], [3, 2, Vector2(0, 440), Vector2(600, 440)],
+	[1, 0, Vector2(600, 440), Vector2(1200, 440)]]
+## O que há num quarteirão (`lots`): casa com a cumeeira deitada, casa com ela em pé (dos lados) e árvore.
+enum Lot { HOUSE, HOUSE_ACROSS, TREE }
+## A zona rural: o rio e as estradas de terra (que continuam as ruas vizinhas).
+const RIVER := [Vector2(60, 440), Vector2(120, 380), Vector2(260, 350), Vector2(330, 250), Vector2(470, 210), Vector2(600, 160)]
+const ROADS_V := [110.0, 250.0, 390.0, 530.0]
+const ROADS_H := [90.0, 225.0, 360.0]
 
 var sel: Dictionary = {}
 var hover: Dictionary = {}
@@ -81,15 +90,15 @@ static func shown(sheet: int) -> bool:
 
 ## As folhas dos setores atendidos (durante a revelação, a caminho delas a partir das de antes).
 func _frame() -> Rect2:
-	var to := _frame_of(GameData.sectors)
+	var to := frame_of(GameData.sectors)
 	if _reveal < 0.0:
 		return to
-	var from := _frame_of(_before)
+	var from := frame_of(_before)
 	var e := smoothstep(0.0, 1.0, _reveal)
 	return Rect2(from.position.lerp(to.position, e), from.size.lerp(to.size, e))
 
 
-static func _frame_of(sectors: Array) -> Rect2:
+static func frame_of(sectors: Array) -> Rect2:
 	var r := Rect2()
 	for s in SHEETS:
 		if SHEET_SECTOR[s] in sectors:
@@ -298,8 +307,7 @@ func _draw() -> void:
 		else:
 			_draw_blocks(s)
 	_use(xf)   # (as ruas são o papel entre os quarteirões: continuam de uma folha para a outra sozinhas)
-	# divisas entre bairros vizinhos que aparecem (a zona rural é do Alto da Serra)
-	for seg in [[3, 1, Vector2(600, 0), Vector2(600, 440)], [3, 2, Vector2(0, 440), Vector2(600, 440)], [1, 0, Vector2(600, 440), Vector2(1200, 440)]]:
+	for seg in BORDERS:
 		if not (shown(seg[0]) and shown(seg[1])):
 			continue
 		var n := int(seg[2].distance_to(seg[3]) / 24.0)
@@ -428,23 +436,19 @@ func _place_name(r: Rect2, txt: String, up: bool) -> void:
 ## Quarteirões de uma folha (coordenadas da folha), no tom do bairro (`Pal.MAP_TINTS`, os do mapa dobrado da mesa),
 ## com a beira mais escura (as ruas são o papel entre eles): as casas em volta, de frente para as ruas (`_houses`), os
 ## lugares (`LM`) num prédio só, de telhado de barro, e a praça verde, com os caminhos, as árvores e o coreto. Os nomes
-## dos lugares ficam para depois das ruas (`_places`).
+## dos lugares ficam para depois das ruas (`_places`). O mapa da mesa (`Background._art_map`) é este em miniatura.
 func _draw_blocks(sector: int) -> void:
 	var o: Vector2 = SHEETS[sector]
 	var tint: Color = Pal.MAP_TINTS[SHEET_SECTOR[sector]]
 	for ci in 5:
 		for ri in 4:
-			var x0: float = XS[ci] + (11.0 if ci > 0 else 4.0)
-			var x1: float = XS[ci + 1] - (11.0 if ci < 4 else 4.0)
-			var y0: float = 40.0 if ri == 0 else YS[ri] + 11.0
-			var y1: float = YS[ri + 1] - (11.0 if ri < 3 else 4.0)
-			var r := Rect2(x0, y0, x1 - x0, y1 - y0)
+			var r := block_rect(ci, ri)
 			var lm: int = LM.get(sector, {}).get("%d,%d" % [ci, ri], -1)
 			draw_rect(r, tint.darkened(0.3))
 			draw_rect(r.grow(-2), Pal.MAP_PLAZA if lm == T.Key.MAP_SQUARE else tint)
 			if lm == T.Key.MAP_SQUARE:
 				_draw_square(r.grow(-2))
-				_places.append([Rect2(o.x + x0, o.y + y1 - 30, r.size.x, 30), T.text(lm), false])
+				_places.append([Rect2(o.x + r.position.x, o.y + r.end.y - 30, r.size.x, 30), T.text(lm), false])
 			elif lm != -1:   # o lugar: um prédio só, de duas águas como as casas, com o terreno em volta
 				var b := r.grow(-8)
 				draw_rect(b, LINE)
@@ -456,18 +460,35 @@ func _draw_blocks(sector: int) -> void:
 				_houses(r.grow(-4), sector * 31 + ci * 7 + ri * 3, tint)
 
 
-## As casas de um quarteirão (`r`, dentro da beira): em volta dele, de frente para as ruas, cada uma de uma largura
-## (sempre a mesma por `seed`), com um terreno vazio de vez em quando; o telhado de duas águas, a metade de cima (ou da
-## esquerda) na luz; no meio, os quintais, com uma árvore ou outra.
+## O quarteirão da coluna `ci` e da linha `ri` da grade de uma folha (coordenadas da folha), sem a calçada.
+static func block_rect(ci: int, ri: int) -> Rect2:
+	var x0: float = XS[ci] + (11.0 if ci > 0 else 4.0)
+	var x1: float = XS[ci + 1] - (11.0 if ci < 4 else 4.0)
+	var y0: float = 40.0 if ri == 0 else YS[ri] + 11.0
+	var y1: float = YS[ri + 1] - (11.0 if ri < 3 else 4.0)
+	return Rect2(x0, y0, x1 - x0, y1 - y0)
+
+
+## As casas de um quarteirão (`r`, dentro da beira), no telhado de duas águas, a metade de cima (ou da esquerda) na
+## luz; as árvores dos quintais com `_tree`.
 func _houses(r: Rect2, seed: int, tint: Color) -> void:
 	var roof := tint.darkened(0.22)
-	var d := minf(14.0, floorf((r.size.y - 4.0) / 2.0))
-	var house := func(h: Rect2, across: bool) -> void:
+	for lot: Array in lots(r, seed):
+		var h: Rect2 = lot[0]
+		if lot[1] == Lot.TREE:
+			_tree(h.position)
+			continue
 		draw_rect(h, roof)
-		if across:   # a cumeeira na vertical
-			draw_rect(Rect2(h.position, Vector2(floorf(h.size.x / 2.0), h.size.y)), roof.lightened(0.1))
-		else:
-			draw_rect(Rect2(h.position, Vector2(h.size.x, floorf(h.size.y / 2.0))), roof.lightened(0.1))
+		var half := Vector2(floorf(h.size.x / 2.0), h.size.y) if lot[1] == Lot.HOUSE_ACROSS else Vector2(h.size.x, floorf(h.size.y / 2.0))
+		draw_rect(Rect2(h.position, half), roof.lightened(0.1))
+
+
+## O que há num quarteirão (`r`, dentro da beira), sempre o mesmo por `seed`: [retângulo, `Lot`]. Em volta dele, as
+## casas de frente para as ruas, cada uma de uma largura, com um terreno vazio de vez em quando; no meio, os quintais,
+## com uma árvore (8 de lado) ou outra. O mapa aberto e o da mesa desenham as mesmas.
+static func lots(r: Rect2, seed: int) -> Array:
+	var out := []
+	var d := minf(14.0, floorf((r.size.y - 4.0) / 2.0))
 	for side in 2:   # em cima e embaixo
 		var y := r.position.y if side == 0 else r.end.y - d
 		var x := r.position.x
@@ -475,7 +496,7 @@ func _houses(r: Rect2, seed: int, tint: Color) -> void:
 		while x < r.end.x - 4.0:
 			var w := minf(10.0 + float((seed * 31 + side * 17 + i * 13) % 13), r.end.x - x)
 			if (seed + i * 7 + side) % 9 != 0:
-				house.call(Rect2(x, y, w, d), false)
+				out.append([Rect2(x, y, w, d), Lot.HOUSE])
 			x += w + 2.0
 			i += 1
 	if r.size.x > d * 2.0 + 8.0 and r.size.y > d * 2.0 + 14.0:   # dos lados, entre as de cima e as de baixo
@@ -486,14 +507,15 @@ func _houses(r: Rect2, seed: int, tint: Color) -> void:
 			while y < r.end.y - d - 6.0:
 				var h := minf(10.0 + float((seed * 13 + side * 29 + i * 11) % 11), r.end.y - d - 2.0 - y)
 				if (seed + i * 5 + side) % 7 != 0:
-					house.call(Rect2(x, y, d, h), true)
+					out.append([Rect2(x, y, d, h), Lot.HOUSE_ACROSS])
 				y += h + 2.0
 				i += 1
 	var yard := r.grow(-d - 4.0)
 	if yard.size.x > 16.0 and yard.size.y > 16.0:   # as árvores dos quintais
 		for t in 1 + seed % 3:
 			var p := yard.position + Vector2(float((seed * 17 + t * 41) % int(yard.size.x - 8.0)), float((seed * 23 + t * 29) % int(yard.size.y - 8.0)))
-			_tree(p)
+			out.append([Rect2(p, Vector2(8, 8)), Lot.TREE])
+	return out
 
 
 ## Uma árvore vista de cima (8 de lado): a copa escura com a luz no alto à esquerda.
@@ -502,44 +524,62 @@ func _tree(p: Vector2) -> void:
 	draw_rect(Rect2(p, Vector2(4, 4)), Pal.MAP_TREE.lightened(0.25))
 
 
-## A praça (`r`, dentro da beira): os caminhos no papel, em cruz e nas diagonais, as árvores entre eles e o coreto no
-## meio.
+## A praça (`r`, dentro da beira): os caminhos no papel, em cruz e nas diagonais (`square_paths`), as árvores entre
+## eles (`square_trees`) e o coreto no meio.
 func _draw_square(r: Rect2) -> void:
 	var c := r.get_center()
-	for seg in [[r.position, r.end], [Vector2(r.end.x, r.position.y), Vector2(r.position.x, r.end.y)],
-			[Vector2(c.x, r.position.y), Vector2(c.x, r.end.y)], [Vector2(r.position.x, c.y), Vector2(r.end.x, c.y)]]:
+	for seg: Array in square_paths(r):
 		draw_line(seg[0], seg[1], PAPER, 4.0)
-	for q in 4:   # duas árvores em cada canto, longe dos caminhos
+	for p: Vector2 in square_trees(r):
+		_tree(p)
+	draw_rect(Rect2(c.x - 14, c.y - 12, 28, 24), LINE)   # o coreto
+	draw_rect(Rect2(c.x - 12, c.y - 10, 24, 20), Pal.MAP_BANDSTAND)
+	draw_rect(Rect2(c.x - 2, c.y - 24, 4, 14), LINE)
+	draw_rect(Rect2(c.x - 6, c.y - 20, 12, 4), LINE)
+
+
+## Os caminhos da praça `r`: [de, até], em cruz e nas diagonais.
+static func square_paths(r: Rect2) -> Array:
+	var c := r.get_center()
+	return [[r.position, r.end], [Vector2(r.end.x, r.position.y), Vector2(r.position.x, r.end.y)],
+		[Vector2(c.x, r.position.y), Vector2(c.x, r.end.y)], [Vector2(r.position.x, c.y), Vector2(r.end.x, c.y)]]
+
+
+## As árvores da praça `r` (o canto de cima à esquerda de cada uma): duas em cada canto, longe dos caminhos.
+static func square_trees(r: Rect2) -> Array:
+	var c := r.get_center()
+	var out := []
+	for q in 4:
 		var corner := Vector2(r.position.x if q % 2 == 0 else r.end.x, r.position.y if q < 2 else r.end.y)
 		var into := (c - corner).sign()
 		for t in 2:
 			var off := Vector2(r.size.x * (0.3 if t == 0 else 0.12), r.size.y * (0.12 if t == 0 else 0.3))
-			_tree(corner + into * off - Vector2(4, 4))
-	draw_rect(Rect2(c.x - 14, c.y - 12, 28, 24), LINE)   # o coreto
-	draw_rect(Rect2(c.x - 12, c.y - 10, 24, 20), Color("e6dab8"))
-	draw_rect(Rect2(c.x - 2, c.y - 24, 4, 14), LINE)
-	draw_rect(Rect2(c.x - 6, c.y - 20, 12, 4), LINE)
+			out.append(corner + into * off - Vector2(4, 4))
+	return out
 
 
 ## Zona rural (folha sem setor): roças entre as estradas de terra (que continuam as ruas vizinhas) e um rio.
 func _draw_rural() -> void:
 	for ci in 5:
 		for ri in 4:
-			var x0: float = XS[ci] + 8.0
-			var x1: float = XS[ci + 1] - 8.0
-			var y0: float = (YS[ri] if ri > 0 else 0.0) + 8.0
-			var y1: float = YS[ri + 1] - 8.0
-			var green := (ci + ri) % 2 == 0
-			draw_rect(Rect2(x0, y0, x1 - x0, y1 - y0), Color("a9b37d") if green else Color("bfae7c"))
-			var yy := y0 + 6
-			while yy < y1 - 4:
-				draw_line(Vector2(x0 + 4, yy), Vector2(x1 - 4, yy), Color("8f9a63") if green else Color("a8956a"), 2.0)
+			var f := field_rect(ci, ri)
+			var k := (ci + ri) % 2
+			draw_rect(f, Pal.MAP_FIELDS[k])
+			var yy := f.position.y + 6
+			while yy < f.end.y - 4:
+				draw_line(Vector2(f.position.x + 4, yy), Vector2(f.end.x - 4, yy), Pal.MAP_FURROWS[k], 2.0)
 				yy += 10
-	draw_polyline(PackedVector2Array([Vector2(60, 440), Vector2(120, 380), Vector2(260, 350), Vector2(330, 250), Vector2(470, 210), Vector2(600, 160)]), Color("6f8fa0"), 12.0)
-	for v in [110.0, 250.0, 390.0, 530.0]:
-		draw_line(Vector2(v, 0), Vector2(v, 440), Color("b49d72"), 10.0)
-	for h in [90.0, 225.0, 360.0]:
-		draw_line(Vector2(0, h), Vector2(600, h), Color("b49d72"), 10.0)
+	draw_polyline(PackedVector2Array(RIVER), Pal.MAP_RIVER, 12.0)
+	for v in ROADS_V:
+		draw_line(Vector2(v, 0), Vector2(v, 440), Pal.MAP_DIRT, 10.0)
+	for h in ROADS_H:
+		draw_line(Vector2(0, h), Vector2(600, h), Pal.MAP_DIRT, 10.0)
+
+
+## A roça da coluna `ci` e da linha `ri` da zona rural (coordenadas da folha).
+static func field_rect(ci: int, ri: int) -> Rect2:
+	var p := Vector2(XS[ci] + 8.0, (YS[ri] if ri > 0 else 0.0) + 8.0)
+	return Rect2(p, Vector2(XS[ci + 1] - 8.0, YS[ri + 1] - 8.0) - p)
 
 
 func _draw_units() -> void:

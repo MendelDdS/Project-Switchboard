@@ -2109,7 +2109,9 @@ func _draw_desk_props() -> void:
 	_draw_flip_clock(back[2] + cw / 2.0, _at(0.72))   # logo atrás da caneca (desenhado antes dela)
 	_draw_mug(back[2] + cw, _at(0.46), mr, 13 * k)   # mais larga que alta, como as esmaltadas
 	# papel tem 1 px de beira, e a prancheta, uns 2 (mais grossos, pareciam tábuas)
-	_flat("despacho", near[0], _at(0.06), 35 * k, _deep(0.19 * k), 0.5, Color("a89a76"), _art_map, [], deg_to_rad(3.0), _map_pin)
+	var city := CityMap.frame_of(GameData.sectors)   # o mapa tem a proporção das folhas dos bairros atendidos
+	_flat("despacho", near[0], _at(0.06), 35 * k, 35 * k * city.size.y / city.size.x, 0.5, Color("a89a76"), _art_map,
+		[GameData.sectors.duplicate()], deg_to_rad(3.0), _map_pin)
 	_flat("registro", near[1], _at(0.05), 26 * k, _deep(0.26 * k), 1.0, Color("4a3018"), _art_clipboard, [unread], deg_to_rad(-4.0),
 		_clipboard_print)
 	if news:
@@ -2782,56 +2784,93 @@ func _art_book_cover(sz: Vector2i, c: Color) -> Image:
 	return img
 
 
-## O mapa da cidade dobrado em sanfona, meio aberto na mesa: papel creme com os quarteirões de tamanhos desiguais,
-## cada bairro num tom (Vila Serena, Centro, Alto da Serra), as ruas claras entre eles e duas avenidas mais largas,
-## uma praça verde, o rio azul com a margem, a linha do trem, o selo do título num canto e as dobras alternando luz e
-## sombra (com quadrados iguais, lia como papel quadriculado).
+## O mapa da cidade dobrado em sanfona, aberto na mesa: o mapa aberto (`CityMap`) em miniatura, com as mesmas folhas
+## (as dos bairros atendidos, enquadradas como ele abre; o papel tem a proporção delas, `_draw_desk_props`), os
+## quarteirões no tom de cada bairro com as casas em volta e as árvores dos quintais (`CityMap.lots`), os lugares de
+## telhado de barro, a praça com os caminhos e o coreto, a zona rural, as divisas, o selo vermelho e as dobras da
+## sanfona alternando luz e sombra. Os nomes ficam de fora: nesse tamanho, seriam só ruído.
 func _art_map(sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	img.fill(Color("ddd1ad"))   # o papel, e as ruas são ele à mostra
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 2207   # sempre o mesmo mapa
-	var tints := [Color("c9b88a"), Color("c2ab8c"), Color("b6b38c")]   # os bairros: ocre, sépia e oliva desbotados
-	var xs := [1]
-	while xs[-1] < sz.x - 8:
-		xs.append(xs[-1] + rng.randi_range(6, 10))
-	xs.append(sz.x - 1)
-	var ys := [1]
-	while ys[-1] < sz.y - 6:
-		ys.append(ys[-1] + rng.randi_range(4, 6))
-	ys.append(sz.y - 1)
-	var ave_x := xs.size() / 2   # as avenidas: uma rua de cada direção, mais larga
-	var ave_y := ys.size() / 2
-	for i in xs.size() - 1:
-		for j in ys.size() - 1:
-			var x0: int = xs[i] + (2 if i == ave_x else 1)
-			var y0: int = ys[j] + (2 if j == ave_y else 1)
-			var w: int = xs[i + 1] - x0
-			var h: int = ys[j + 1] - y0
-			if w < 2 or h < 2:
-				continue
-			var col: Color = tints[clampi(x0 * 3 / sz.x, 0, 2)]
-			if rng.randf() < 0.07:
-				col = Color("8a9168")   # uma praça
-			_fr(img, x0, y0, w, h, col)
-			_fr(img, x0, y0 + h - 1, w, 1, col.darkened(0.12))   # a quadra tem a beira de baixo na sombra
-	var river := [Vector2(0, sz.y * 0.82), Vector2(sz.x * 0.3, sz.y * 0.62), Vector2(sz.x * 0.56, sz.y * 0.74), Vector2(sz.x, sz.y * 0.36)]
-	for i in river.size() - 1:   # o rio, com a margem clara em cima
-		_fl(img, river[i] - Vector2(0, 1), river[i + 1] - Vector2(0, 1), Color("a3b3b0"))
-		_fl(img, river[i], river[i + 1], Color("55779a"))   # no azul dos cabos da mesa, desbotado no papel
-		_fl(img, river[i] + Vector2(0, 1), river[i + 1] + Vector2(0, 1), Color("43627f"))
-	for x in range(1, sz.x - 2, 4):   # a linha do trem, tracejada, perto do alto
-		_fr(img, x, int(sz.y * 0.18), 2, 1, Color("4a4038"))
-	var seal := Rect2i(sz.x - 14, sz.y - 8, 11, 6)   # o selo do título, com a borda vermelha
-	_fr(img, seal.position.x, seal.position.y, seal.size.x, seal.size.y, Color("8e2a22"))
-	_fr(img, seal.position.x + 1, seal.position.y + 1, seal.size.x - 2, seal.size.y - 2, Color("e6dcbc"))
-	_fr(img, seal.position.x + 2, seal.position.y + 2, seal.size.x - 4, 1, Color("4a4038"))
-	_fr(img, seal.position.x + 2, seal.position.y + 3, seal.size.x - 7, 1, Color("4a4038"))
-	var pw := sz.x / 4   # as dobras: quatro painéis em sanfona, um virado para a luz e o outro não
+	img.fill(Pal.MAP_PAPER)   # o papel, e as ruas são ele à mostra
+	var fr := CityMap.frame_of(GameData.sectors)
+	var s := Vector2(sz) / fr.size   # px do mapa -> px do desenho (o tampo como é visto: bem mais baixo que largo)
+	var pt := func(p: Vector2) -> Vector2: return ((p - fr.position) * s).round()
+	var put := func(r: Rect2, c: Color) -> Rect2:   # um retângulo do mapa no desenho, em px inteiros (ao menos 1)
+		var a: Vector2 = pt.call(r.position)
+		var b := Rect2(a, (pt.call(r.end) - a).max(Vector2.ONE))
+		_fr(img, b.position.x, b.position.y, b.size.x, b.size.y, c)
+		return b
+	for sheet in MapGrid.SHEETS:
+		if not CityMap.shown(sheet):
+			continue
+		var o: Vector2 = MapGrid.SHEETS[sheet]
+		if sheet == 0:   # a zona rural: as roças, as estradas de terra e o rio
+			for ci in 5:
+				for ri in 4:
+					var f := CityMap.field_rect(ci, ri)
+					put.call(Rect2(o + f.position, f.size), Pal.MAP_FIELDS[(ci + ri) % 2])
+			for v in CityMap.ROADS_V:
+				put.call(Rect2(o + Vector2(v - 5.0, 0), Vector2(10, 440)), Pal.MAP_DIRT)
+			for h in CityMap.ROADS_H:
+				put.call(Rect2(o + Vector2(0, h - 5.0), Vector2(600, 10)), Pal.MAP_DIRT)
+			for i in CityMap.RIVER.size() - 1:
+				for d in [Vector2.ZERO, Vector2(1, 0)]:
+					_fl(img, pt.call(o + CityMap.RIVER[i]) + d, pt.call(o + CityMap.RIVER[i + 1]) + d, Pal.MAP_RIVER)
+			continue
+		var tint: Color = Pal.MAP_TINTS[MapGrid.SHEET_SECTOR[sheet]]
+		var roof := tint.darkened(0.22)
+		for ci in 5:
+			for ri in 4:
+				var r := CityMap.block_rect(ci, ri)
+				r.position += o
+				var lm: int = MapGrid.LM.get(sheet, {}).get("%d,%d" % [ci, ri], -1)
+				var b: Rect2 = put.call(r, tint.darkened(0.3))   # a beira da quadra, de 1 px
+				_fr(img, b.position.x + 1, b.position.y + 1, b.size.x - 2, b.size.y - 2, Pal.MAP_PLAZA if lm == T.Key.MAP_SQUARE else tint)
+				if lm == T.Key.MAP_SQUARE:
+					var q := r.grow(-2)
+					for seg: Array in CityMap.square_paths(q):
+						_fl(img, pt.call(seg[0]), pt.call(seg[1]), Pal.MAP_PAPER)
+					for p: Vector2 in CityMap.square_trees(q):
+						put.call(Rect2(p, Vector2(8, 8)), Pal.MAP_TREE)
+					var c: Rect2 = put.call(Rect2(q.get_center() - Vector2(14, 12), Vector2(28, 24)), CityMap.LINE)   # o coreto
+					_fr(img, c.position.x + 1, c.position.y + 1, c.size.x - 2, c.size.y - 2, Pal.MAP_BANDSTAND)
+				elif lm != -1:   # o lugar: um prédio só, com a metade de cima (ou da esquerda) do telhado na luz; a beira
+					var mb := r.grow(-8)   # no barro escuro (no traço do mapa, 1 px aqui é um muro de 10 lá)
+					var lb: Rect2 = put.call(mb, Pal.MAP_LANDMARK.darkened(0.5))
+					var inner := lb.grow(-1)
+					_fr(img, inner.position.x, inner.position.y, inner.size.x, inner.size.y, Pal.MAP_LANDMARK)
+					var lit := inner.size * (Vector2(1, 0.5) if mb.size.x >= mb.size.y else Vector2(0.5, 1))
+					_fr(img, inner.position.x, inner.position.y, lit.x, lit.y, Pal.MAP_LANDMARK.lightened(0.12))
+				else:
+					for lot: Array in CityMap.lots(r.grow(-4), sheet * 31 + ci * 7 + ri * 3):
+						var lr: Rect2 = lot[0]
+						if lot[1] == CityMap.Lot.TREE:
+							put.call(lr, Pal.MAP_TREE)
+							continue
+						var h: Rect2 = put.call(lr, roof)
+						var half := Vector2(floorf(h.size.x / 2.0), h.size.y) if lot[1] == CityMap.Lot.HOUSE_ACROSS else Vector2(h.size.x, floorf(h.size.y / 2.0))
+						_fr(img, h.position.x, h.position.y, half.x, half.y, roof.lightened(0.1))
+	for seg: Array in CityMap.BORDERS:   # as divisas entre os bairros, tracejadas
+		if CityMap.shown(seg[0]) and CityMap.shown(seg[1]):
+			var n := int((seg[2] as Vector2).distance_to(seg[3]) / 24.0)
+			for i in n:
+				var a: Vector2 = (seg[2] as Vector2).lerp(seg[3], float(i) / n)
+				var e: Vector2 = (seg[2] as Vector2).lerp(seg[3], (i + 0.5) / n)
+				put.call(Rect2(a, e - a).abs().grow(1.5), Pal.MAP_PAPER.lerp(CityMap.LINE, 0.5))
+	var sw := maxi(12, roundi(sz.x * 0.19))   # o selo no canto, como no mapa aberto: a moldura vermelha, a seta do
+	var sh := maxi(5, roundi(sz.y * 0.08))    # norte e o nome da cidade
+	var sp := Vector2i(sz.x - sw - maxi(2, sz.x / 100), sz.y - sh - 2)
+	_fr(img, sp.x, sp.y, sw, sh, Pal.SEAL)
+	_fr(img, sp.x + 1, sp.y + 1, sw - 2, sh - 2, Pal.MAP_PAPER)
+	_fr(img, sp.x + 3, sp.y + 2, 1, sh - 4, CityMap.LINE)
+	_fr(img, sp.x + roundi(sw * 0.35), sp.y + sh / 2, roundi(sw * 0.55), 1, CityMap.LINE)
+	var pw := sz.x / 4   # as dobras: quatro painéis em sanfona, um virado para a luz e o outro não, e o vinco do meio
 	for k in [1, 3]:
 		for y in sz.y:
 			for x in range(k * pw, mini(sz.x, (k + 1) * pw)):
 				img.set_pixel(x, y, img.get_pixel(x, y).darkened(0.14))
+	for x in sz.x:
+		img.set_pixel(x, sz.y / 2, img.get_pixel(x, sz.y / 2).darkened(0.08))
 	for k in [1, 2, 3]:
 		_fr(img, k * pw - (1 if k != 2 else 0), 0, 1, sz.y, Color("f0e6c8") if k == 2 else Color("8a7c5a"))
 	_fr(img, 0, sz.y - 1, sz.x, 1, Color("8a7c5a"))   # a beira de baixo do papel

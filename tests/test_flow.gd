@@ -259,7 +259,7 @@ func _initialize() -> void:
 	ok(m._new_sector("142") and not m._new_sector("305") and not m._new_sector("237") and not m._new_sector(""), "banco novo na noite 5: o A")
 	m.night_no = 1
 	# revelação: o mapa sai do enquadramento de antes e chega no de agora
-	ok(city._frame_of([3]).size == Vector2(600, 440) and city._frame_of([3, 1]).size == Vector2(1200, 440) and city._frame_of([1, 2, 3]).size == Vector2(1200, 880), "enquadramento por setores")
+	ok(city.frame_of([3]).size == Vector2(600, 440) and city.frame_of([3, 1]).size == Vector2(1200, 440) and city.frame_of([1, 2, 3]).size == Vector2(1200, 880), "enquadramento por setores")
 	# endereços: cada número fica numa rua do bairro dele (o Centro também tem a Praça da Matriz)
 	for e in C.directory:
 		var st: String = e.address.get_slice(",", 0)
