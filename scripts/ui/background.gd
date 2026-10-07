@@ -227,12 +227,18 @@ var _side_x := 0.0     # a lateral da mesa comutadora na sala (x): os objetos da
 var _cx := 0.0         # a quina das paredes (px de 2x2, na tela)
 var _t2 := 1.6         # onde a janela termina na parede da direita (escala)
 var _ci: CanvasItem    # onde a vista da janela é desenhada: aqui, ou no vidro fora da tela
-var _view: Control     # desenha a vista da janela no `_vport`
+var _view: Control     # desenha a vista da janela no `_vport`: a frente dela, a cada quadro da vista
+var _back: Control     # a parte de trás da vista, embaixo da `_view`: só se redesenha quando muda (`_back_state`)
+var _back_drawn := []
 var _vport: SubViewport
 var _hom := Basis()          # a perspectiva do objeto chato sendo desenhado (`_flat`, `_homography`): o que vai por cima dele, na tela
 var _hom_sz := Vector2.ONE   # o tamanho do desenho de frente dele (px)
 var _cover := Rect2()   # onde está o papel da ferramenta aberta (px da tela, não de 2x2): luz embaixo dele não brilha
 var _drawn := []        # o `_state` do último desenho da sala
+var _over: Control      # por cima da sala, o que muda sozinho sem mexer nela (`_draw_over`)
+var _over_drawn := []   # o estado do último desenho dela
+var _glows: Array = []  # as luzes da sala para o brilho (`_light`): [retângulo, cor, halo, miolo, redonda]
+var _sign_glow := Rect2()   # o halo do letreiro no vidro (vazio = fora do vidro); brilha só aceso
 var _mug_mouth := Vector2.ZERO   # o meio do café na caneca (px da tela), de onde sobe o vapor
 var _mug_w := 0.0               # a largura da caneca na tela (px; 0 = ainda não desenhada)
 var _headless := false   # sem tela (os testes): a vista da janela não é desenhada
@@ -262,10 +268,19 @@ func _ready() -> void:
 	_vport = SubViewport.new()
 	_vport.size = Vector2i(64, 64)
 	_vport.render_target_update_mode = SubViewport.UPDATE_ONCE   # a cada quadro da vista (`_process`)
+	_back = Control.new()
+	_back.draw.connect(_draw_view_back)
+	_vport.add_child(_back)
 	_view = Control.new()
 	_view.draw.connect(_draw_view)
 	_vport.add_child(_view)
 	add_child(_vport)
+	_over = Control.new()
+	_over.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_over.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_over.draw.connect(_draw_over)
+	add_child(_over)
+	_show()
 	for i in RAIN:   # pingos e estrelas em frações do vidro: a janela muda de tamanho com a tela
 		_drops.append(Vector3(randf() * 1.2, randf(), randf()))
 	for i in 30:
@@ -282,14 +297,28 @@ func _ready() -> void:
 		_beads.append(Vector4(randf(), randf(), 1 + randi() % 2, 0.0))
 
 
-## A sala só se redesenha quando algo que ela mostra muda (`_state`): parada, ela custa só o desenho já guardado. A
-## vista da janela (chuva, névoa, estrelas) anda a 30 quadros por segundo no vidro fora da tela, sem redesenhar a sala.
+## A sala só se redesenha quando algo que ela mostra muda (`_state`): parada, ela custa só o desenho já guardado. O
+## que muda sozinho fica fora dela: a camada de cima (`_over`, o escuro, o relâmpago, o neon e o papel deslizando) e a
+## frente do relógio, uma textura trocada no lugar (`_clock_face`). A vista da janela (chuva, névoa, estrelas) anda a 30
+## quadros por segundo no vidro fora da tela, sem redesenhar a sala.
 func _process(delta: float) -> void:
 	_events(delta)
 	var st := _state()
-	if st != _drawn:   # (o papel deslizando entra aqui: o corte do brilho acompanha já neste quadro)
+	if st != _drawn:
 		_drawn = st
 		queue_redraw()
+		_over.queue_redraw()   # (depois da sala: usa o vidro e a poça de luz que ela acabou de medir)
+		_show()
+	var ov := [size, _paper(), lamp_level, snappedf(_flash(), 0.02), _sign_on()]
+	if ov != _over_drawn:   # (o papel deslizando entra aqui: o corte do brilho acompanha já neste quadro)
+		_over_drawn = ov
+		_over.queue_redraw()
+		_show()
+	if _face:   # a hora mudou ou a plaqueta está virando: só a frente do relógio muda
+		var was := _face_key
+		_clock_face(_face_key[0])
+		if _face_key != was:
+			_show()
 	_acc += delta
 	if _acc < 1.0 / 30.0:
 		return
@@ -336,16 +365,30 @@ func _process(delta: float) -> void:
 	Sfx.lamp(lamp_level)
 	if _headless:   # sem tela (testes) ninguém vê a vista: redesenhada a cada quadro, ela era 2/3 do tempo de um turno do robô
 		return
+	var bs := _back_state()
+	if bs != _back_drawn:
+		_back_drawn = bs
+		_back.queue_redraw()
 	_view.queue_redraw()
 	_vport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	_show()
 
 
-## Tudo de que o desenho da sala depende (fora o mouse, que redesenha sozinho): onde a interface pôs as coisas, o
-## papel da ferramenta, a luminária, o alfinete e o estado do jogo nos objetos.
+## A tela do cenário (o `View` do `SceneView`) mostra um quadro novo: ela só é desenhada quando algo nela muda (a sala,
+## a camada de cima, o relógio, a vista da janela a 30 quadros por segundo) ou de tamanho (`SceneView._fit`); a cada
+## quadro, as ~1000 chamadas de desenho da sala parada iam para a placa de vídeo à toa.
+func _show() -> void:
+	var vp := get_viewport() as SubViewport
+	if vp:
+		vp.render_target_update_mode = SubViewport.UPDATE_ONCE
+
+
+## Tudo de que o desenho da sala depende (fora o mouse, que redesenha sozinho): onde a interface pôs as coisas, a
+## luminária e o estado do jogo nos objetos.
 func _state() -> Array:
 	return [size, board.get_global_rect() if board else Rect2(), desk.get_global_rect() if desk else Rect2(),
-		window.get_global_rect() if window else Rect2(), _paper(), lamp_level, pending, unread, news,
-		details, night, weather, int(minutes), _flip_step(), TranslationServer.get_locale(), snappedf(_flash(), 0.02), _sign_on()]
+		window.get_global_rect() if window else Rect2(), lamp_level, pending, unread, news, details, night, weather,
+		TranslationServer.get_locale()]
 
 
 ## Os acontecimentos lá fora, cada um na hora sorteada: um carro passando (`CAR_*`; na chuva, com o chiado da água),
@@ -452,10 +495,8 @@ func prop_rect(id: String) -> Rect2:
 
 ## Uma luz do cenário (`r` em px da tela) que brilha, a não ser que o papel de uma ferramenta esteja por cima dela.
 func _light(r: Rect2, col: Color, halo: float, round := false, core := true) -> void:
-	if _ci != self:   # a vista da janela: as luzes dela vêm de `_draw_side_wall`, que sabe onde o vidro está
-		return
-	if not _cover.intersects(r):
-		Bloom.light(self, r, col, halo, core, round)
+	if _ci == self:   # a vista da janela: as luzes dela vêm de `_draw_side_wall`, que sabe onde o vidro está
+		_glows.append([r, col, halo, core, round])   # a camada de cima as acende, cortadas onde o papel está
 
 
 func _r(x: float, y: float, w: float, h: float, c: Color) -> void:
@@ -492,7 +533,7 @@ func _sprite(tex: Texture2D, c: Vector2, mod := Color.WHITE, back := Transform2D
 
 
 func _draw() -> void:
-	Bloom.clear(self)
+	_glows.clear()
 	_props.clear()
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 	var w := ceilf(size.x / 2.0)
@@ -503,9 +544,6 @@ func _draw() -> void:
 	var front := floorf((desk.global_position.y - global_position.y + desk.size.y) / 2.0) + 1.0 if desk else h - 20.0
 	_lamp_x = floorf(w / 2.0)
 	var area := Rect2((window.global_position - global_position) / 2.0, window.size / 2.0) if window else Rect2(320, 26, 300, 180)
-	# o papel da ferramenta aberta (ou deslizando) cobre o cenário por estar na frente; só o brilho das luzes, que fica
-	# por cima de tudo, precisa ser cortado onde ele está
-	_cover = _paper()
 	_yd = EYE / DESK_T
 	_cx = floorf(area.position.x + area.size.x * CORNER)
 	var b := Rect2((board.global_position - global_position) / 2.0, board.size / 2.0) if board else Rect2()
@@ -531,19 +569,35 @@ func _draw() -> void:
 	_draw_side_wall(top, front, w)
 	_draw_desk_props()
 	_draw_street_light(w)
+
+
+## A camada por cima da sala (`_over`), com o que muda sozinho sem mexer nela: o escuro (`_draw_gloom`, que segue a
+## luminária), o que entra pela janela (o relâmpago e o neon, `_draw_window_glow`), o escuro e a sombra atrás do papel
+## de uma ferramenta aberta e as luzes da sala no brilho (`Bloom`), cortadas onde o papel está. (Tudo na sala, ela se
+## redesenhava 3 a 4 vezes por segundo parada e a cada quadro do relâmpago e do papel deslizando, ~20 ms cada vez.)
+func _draw_over() -> void:
+	_ci = _over
+	_cover = _paper()   # o papel da ferramenta aberta (ou deslizando) cobre o cenário por estar na frente
+	Bloom.clear(_over)
+	for l: Array in _glows:
+		if not _cover.intersects(l[0]):
+			Bloom.light(_over, l[0], l[1], l[2], l[3], l[4])
+	if _sign_glow.has_area() and _sign_on() and not _cover.intersects(_sign_glow):   # só o halo: as letras ficam à vista
+		Bloom.light(_over, _sign_glow, SIGN_RED, 0.5, false, false)
 	_draw_gloom()
 	_draw_window_glow()
 	if _cover.has_area():   # uma ferramenta na frente do operador: o cenário atrás escurece e o papel faz sombra nele
-		draw_set_transform(Vector2.ZERO)
-		draw_rect(Rect2(_cover.position + Vector2(10, 12), _cover.size), Color(0, 0, 0, 0.35))
-		draw_rect(Rect2(Vector2.ZERO, size), Color(0, 0, 0, 0.28))
+		_ci.draw_set_transform(Vector2.ZERO)
+		_ci.draw_rect(Rect2(_cover.position + Vector2(10, 12), _cover.size), Color(0, 0, 0, 0.35))
+		_ci.draw_rect(Rect2(Vector2.ZERO, size), Color(0, 0, 0, 0.28))
+	_ci = self
 
 
 ## O escuro da sala (noir): tudo o que a luz da luminária não alcança fica frio e escuro (`NOIR`), liso, crescendo da
 ## luz para fora (`GLOOM_IN`, `GLOOM_R`; com uma borda marcada, parecia um recorte). O vidro da janela fica de fora: a
 ## rua tem a luz dela. A luminária piscando escurece tudo junto.
 func _draw_gloom() -> void:
-	draw_set_transform(Vector2.ZERO)
+	_ci.draw_set_transform(Vector2.ZERO)
 	var pool := _pool()
 	var c := _proj(pool.x, _yd, pool.y) * 2.0
 	var dark := func(p: Vector2) -> Color:
@@ -552,17 +606,24 @@ func _draw_gloom() -> void:
 	var glass := _bounds(_glass) if _glass.size() > 2 else Rect2()
 	var n := Vector2i(40, 24)
 	var cell := size / Vector2(n)
+	var at := PackedColorArray()   # a cor em cada vértice da grade (cada um é de quatro células)
+	for j in n.y + 1:
+		for i in n.x + 1:
+			at.append(dark.call(cell * Vector2(i, j)))
 	for j in n.y:
 		for i in n.x:
 			var a := cell * Vector2(i, j)
 			var quad := PackedVector2Array([a, a + Vector2(cell.x, 0), a + cell, a + Vector2(0, cell.y)])
-			var parts: Array = Geometry2D.clip_polygons(quad, _glass) if glass.intersects(Rect2(a, cell)) else [quad]
-			for poly: PackedVector2Array in parts:
+			if not glass.intersects(Rect2(a, cell)):
+				var k := j * (n.x + 1) + i
+				_fill(quad, PackedColorArray([at[k], at[k + 1], at[k + n.x + 2], at[k + n.x + 1]]))
+				continue
+			for poly: PackedVector2Array in Geometry2D.clip_polygons(quad, _glass):
 				var cols := PackedColorArray()
 				for p in poly:
 					cols.append(dark.call(p))
-				draw_polygon(poly, cols)
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+				_fill(poly, cols)
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
 ## O que entra pela janela, por cima do escuro da sala: um brilho azul bem fraco (a noite lá fora; liso, sumindo em
@@ -571,7 +632,7 @@ func _draw_gloom() -> void:
 func _draw_window_glow() -> void:
 	if _glass.size() < 3:
 		return
-	draw_set_transform(Vector2.ZERO)
+	_ci.draw_set_transform(Vector2.ZERO)
 	var c := _bounds(_glass).get_center()
 	var strength: float = WINDOW_GLOW.a * {"clear": 1.0, "rain": 0.8, "fog": 1.2}.get(weather, 1.0)
 	_light_fan(c, _ring(c, WINDOW_GLOW_R), Color(WINDOW_GLOW, strength * (1.0 + _flash() * 4.0)))
@@ -582,11 +643,11 @@ func _draw_window_glow() -> void:
 		var cols := PackedColorArray()
 		for k: Color in part[1]:
 			cols.append(Color(sill, k.a * (0.35 + _flash() * 0.5)))
-		draw_polygon(part[0], cols)
+		_fill(part[0], cols)
 	var f := _flash()
 	if f > 0.0:
-		draw_rect(Rect2(Vector2.ZERO, size), Color(0.62, 0.72, 1.0, 0.2 * f))
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+		_ci.draw_rect(Rect2(Vector2.ZERO, size), Color(0.62, 0.72, 1.0, 0.2 * f))
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
 ## Um círculo de raio `r` em volta de `c` (a borda de uma luz lisa, `_light_fan`).
@@ -732,7 +793,7 @@ func _light_fan(c: Vector2, rim: PackedVector2Array, col: Color) -> void:
 		var a := rim[i]
 		var b := rim[(i + 1) % rim.size()]
 		_ci.draw_primitive(PackedVector2Array([c, c.lerp(a, 0.5), c.lerp(b, 0.5)]), PackedColorArray([col, mid, mid]), PackedVector2Array())
-		_ci.draw_polygon(PackedVector2Array([c.lerp(a, 0.5), a, b, c.lerp(b, 0.5)]), PackedColorArray([mid, out, out, mid]))
+		_fill(PackedVector2Array([c.lerp(a, 0.5), a, b, c.lerp(b, 0.5)]), PackedColorArray([mid, out, out, mid]))
 
 
 ## Sombra na parede de um objeto à frente dela (`r` em px de 2x2): a silhueta ampliada a partir da luminária, `s` vezes
@@ -791,14 +852,39 @@ func _draw_view() -> void:
 	_view.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 	var g := Rect2(Vector2.ZERO, Vector2(_vport.size) / 2.0)
 	_win = g.size
-	if window_art:
-		_view.draw_texture_rect(window_art, g, false)
-	else:
-		_draw_city(Rect2(g.position, g.size - Vector2(0, _near)))   # a cidade até o peitoril de longe; embaixo, a rua de perto
+	if not window_art:
+		_draw_city_front(Rect2(g.position, g.size - Vector2(0, _near)))
 		_draw_shrub()
 	_draw_reflection(g)
 	_draw_glass_weather(g)
 	_ci = self
+
+
+## A parte de trás da vista (`_back`), embaixo da frente: o céu, a cidade, a rua e as fachadas, que só mudam quando
+## uma janela apaga, o neon falha, a luminária pisca, cai um relâmpago ou uma estrela pisca (`_back_state`).
+## Redesenhada a cada quadro da vista com o resto, ela era dois terços do custo dela.
+func _draw_view_back() -> void:
+	_ci = _back
+	_back.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	var g := Rect2(Vector2.ZERO, Vector2(_vport.size) / 2.0)
+	_win = g.size
+	if window_art:
+		_back.draw_texture_rect(window_art, g, false)
+	else:
+		_draw_city(Rect2(g.position, g.size - Vector2(0, _near)))   # a cidade até o peitoril de longe; embaixo, a rua de perto
+	_ci = self
+
+
+## Tudo de que a parte de trás da vista depende.
+func _back_state() -> Array:
+	var stars := 0   # as estrelas acesas agora (elas piscam)
+	if weather == "clear":
+		var tw := Time.get_ticks_msec() / 700.0
+		for i in _stars.size():
+			if sin(tw + i * 1.7) > -0.6:
+				stars |= 1 << i
+	return [_vport.size, _near, weather, window_art, int(minutes), flick, lamp_level > 0.5, snappedf(_flash(), 0.02),
+		_sign_on(), stars]
 
 
 ## À noite, com a sala acesa, o vidro reflete um pouco dela, por cima da cidade (e da silhueta, que fica atrás do
@@ -817,14 +903,14 @@ func _draw_reflection(g: Rect2) -> void:
 	var xc := _cx - _vp.x
 	var y0 := LAMP_Y - _vp.y
 	var y1 := _top - _vp.y
-	_ci.draw_polygon(PackedVector2Array([m.call(lx, y0, Z0), m.call(xc, y0, Z0), m.call(xc, y1, Z0), m.call(lx, y1, Z0)]),
+	_fill(PackedVector2Array([m.call(lx, y0, Z0), m.call(xc, y0, Z0), m.call(xc, y1, Z0), m.call(lx, y1, Z0)]),
 		PackedColorArray([lamp, Color(lamp, lamp.a * 0.3), none, Color(lamp, lamp.a * 0.4)]))
 	var zf := Z0 / CAB_T   # a frente do armário: clara no meio (a luz da luminária), sumindo para baixo
 	var steel := Color(0.75, 0.8, 0.65, 0.07 * lamp_level)
 	var ct := _cm(CAB_TOP)
 	var cx0 := _cab_x0
 	var cx1 := _cab_x0 + CAB_W
-	_ci.draw_polygon(PackedVector2Array([m.call(cx0, ct, zf), m.call(cx1, ct, zf), m.call(cx1, y1, zf), m.call(cx0, y1, zf)]),
+	_fill(PackedVector2Array([m.call(cx0, ct, zf), m.call(cx1, ct, zf), m.call(cx1, y1, zf), m.call(cx0, y1, zf)]),
 		PackedColorArray([steel, Color(steel, steel.a * 0.5), Color(steel, 0.0), Color(steel, 0.0)]))
 
 
@@ -899,7 +985,7 @@ func _draw_switchboard(front: float) -> void:
 			_sprite(PixelArt.disc(5, [[2.5, Color("4a3a24"), Color("2a1a0f"), Color("1a0f08")]]), p)
 			draw_rect(Rect2(p.floor() - Vector2(1, 0), Vector2(3, 1)), Color("8e7a5a"))   # a fenda
 	draw_rect(Rect2(b.position.x, b.end.y, b.size.x, 3), WOOD[2])
-	draw_colored_polygon(PackedVector2Array([Vector2(b.position.x, b.end.y + 3), Vector2(b.end.x, b.end.y + 3),
+	_poly(PackedVector2Array([Vector2(b.position.x, b.end.y + 3), Vector2(b.end.x, b.end.y + 3),
 		Vector2(b.end.x + 2, b.end.y + 7), Vector2(b.position.x - 3, b.end.y + 7)]), Color(0, 0, 0, 0.3))
 	if b.position.y > vp.y + 1.0:   # os olhos estão acima do painel: o tampo dele aparece
 		var tl := b.position
@@ -922,7 +1008,7 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	var d := _vp + Vector2(xc, _yd) * DESK_T
 	_t2 = (w - 14.0 - _vp.x) / xc
 	var wall := Color("202d30")   # virada para a luminária: mais clara que a do fundo (é o que mostra a quina)
-	draw_colored_polygon(PackedVector2Array([Vector2(_cx, 0), Vector2(w, 0), j, d, Vector2(_cx, top)]), wall)
+	_poly(PackedVector2Array([Vector2(_cx, 0), Vector2(w, 0), j, d, Vector2(_cx, top)]), wall)
 	var k := 1
 	while true:   # as listras: passos iguais na parede são passos iguais em 1/t
 		var inv := 1.0 - k * 0.04
@@ -953,9 +1039,9 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	if cut.is_empty():
 		return
 	var q: PackedVector2Array = cut[0]   # o vidro que aparece pelo vão
-	draw_colored_polygon(_side_quad(Rect2(-5, -5, gw + 10, gh + 10)), WOOD[2])   # a guarnição, na parede
-	draw_colored_polygon(_side_quad(Rect2(-4, -4, gw + 8, gh + 8)), WOOD[1])
-	draw_colored_polygon(_side_quad(Rect2(-4, -4, gw + 8, 1)), WOOD[0])
+	_poly(_side_quad(Rect2(-5, -5, gw + 10, gh + 10)), WOOD[2])   # a guarnição, na parede
+	_poly(_side_quad(Rect2(-4, -4, gw + 8, gh + 8)), WOOD[1])
+	_poly(_side_quad(Rect2(-4, -4, gw + 8, 1)), WOOD[0])
 	# a vista, reta, recortada pelo vidro: o horizonte dela na altura dos olhos
 	var box := _bounds(outer)
 	box = box.intersection(Rect2(0, 0, w, box.end.y))
@@ -969,6 +1055,9 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	_glass_from = clampf((maxf(0.0, _side_pt(Vector2(gw * 0.5, blind)).y) - view.position.y) / view.size.y, 0.0, 0.95)
 	if _vport.size != Vector2i(view.size * 2.0):   # o vidro em px da tela: a vista também é desenhada em 1x1
 		_vport.size = Vector2i(view.size * 2.0)
+		_back.queue_redraw()   # já, e não no próximo quadro dela: na pausa (a janela mudando de tamanho), ficava vazia
+		_view.queue_redraw()
+		_vport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	var uv := PackedVector2Array()
 	for p in q:
 		uv.append((p - view.position) / view.size)
@@ -980,8 +1069,7 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 		_light(Rect2(face * 2.0 - Vector2(2.6, 2.6), Vector2(5.2, 5.2)), Color("e2b25a"), 0.5, true)
 	var sign := _hotel_pos(cg) + Vector2(2, 8)
 	_sign_px = sign * 2.0 if Geometry2D.is_point_in_polygon(sign, q) else Vector2.ZERO
-	if _sign_px != Vector2.ZERO and _sign_on():
-		_light(Rect2(_sign_px - Vector2(4, 16), Vector2(8, 32)), SIGN_RED, 0.5, false, false)   # só o halo: as letras ficam à vista
+	_sign_glow = Rect2(_sign_px - Vector2(4, 16), Vector2(8, 32)) if _sign_px != Vector2.ZERO else Rect2()
 	for lamp: Vector2 in _lamp_heads(cg):   # os postes de lá
 		if lamp_level > 0.5 and Geometry2D.is_point_in_polygon(lamp, q):
 			_light(Rect2((lamp + Vector2(-1.5, 0)) * 2.0, Vector2(6, 3)), Color("ffd88a"), 0.8)
@@ -989,7 +1077,7 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	# de perto do montante; o que passa do vão fica atrás do batente
 	var bar := func(poly: PackedVector2Array, col: Color) -> void:
 		for part in Geometry2D.intersect_polygons(poly, inner):
-			draw_colored_polygon(part, col)
+			_poly(part, col)
 	var mx := gw / 2.0
 	var ty := floorf(gh * 0.55) - 1
 	var f := WALL_D - 3.0
@@ -1002,17 +1090,17 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	# as faces do vão: frias de fora (a rua) para dentro; o alto dele (a verga) passa da borda de cima da tela
 	var lit := Color("3a5263")
 	var dim := Color("223033")
-	draw_polygon(PackedVector2Array([inner[0], outer[0], outer[3], inner[3]]), PackedColorArray([dim, lit, lit, dim]))   # o batente de longe
+	_fill(PackedVector2Array([inner[0], outer[0], outer[3], inner[3]]), PackedColorArray([dim, lit, lit, dim]))   # o batente de longe
 	# o fundo do vão: a tábua do peitoril vai da sala até o caixilho, na mesma madeira (escura, parecia um buraco), com
 	# o trilho de baixo do caixilho no pé do vidro; o que passa do batente de perto fica atrás da parede
 	for part in Geometry2D.intersect_polygons(PackedVector2Array([inner[3], inner[2], outer[2], outer[3]]), inner):
-		draw_colored_polygon(part, WOOD[1])
+		_poly(part, WOOD[1])
 	for part in Geometry2D.intersect_polygons(_side_quad(Rect2(0, gh - 2.5, gw, 2.5), WALL_D - 1.0), inner):
-		draw_colored_polygon(part, WOOD[2])
+		_poly(part, WOOD[2])
 	for part in Geometry2D.intersect_polyline_with_polygon(PackedVector2Array([_side_pt(Vector2(0, gh - 2.5), WALL_D - 1.0),
 			_side_pt(Vector2(gw, gh - 2.5), WALL_D - 1.0)]), inner):
 		draw_polyline(part, WOOD[0], PX)
-	draw_colored_polygon(PackedVector2Array([inner[0], inner[1], outer[1], outer[0]]), Color("0d1315"))
+	_poly(PackedVector2Array([inner[0], inner[1], outer[1], outer[0]]), Color("0d1315"))
 	# a persiana meio baixada, presa no lado de dentro do vão
 	_glass = PackedVector2Array()
 	var below := Geometry2D.intersect_polygons(_side_quad(Rect2(0, blind, gw, gh - blind)), _side_quad(Rect2(0, blind, gw, gh - blind), WALL_D))
@@ -1020,21 +1108,21 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 		for p in below[0]:
 			_glass.append(p * 2.0)
 	for y in range(0, int(blind), 2):   # as lâminas: a face clara, o fio de luz na beira e a sombra embaixo
-		draw_colored_polygon(_side_quad(Rect2(0, y, gw, 1.5)), Color("8a8070"))
-		draw_colored_polygon(_side_quad(Rect2(0, y, gw, PX)), Color("a89e8a"))
-		draw_colored_polygon(_side_quad(Rect2(0, y + 1.5, gw, PX)), Color("3a352c"))
+		_poly(_side_quad(Rect2(0, y, gw, 1.5)), Color("8a8070"))
+		_poly(_side_quad(Rect2(0, y, gw, PX)), Color("a89e8a"))
+		_poly(_side_quad(Rect2(0, y + 1.5, gw, PX)), Color("3a352c"))
 	draw_line(_side_pt(Vector2(gw * 0.8, blind)), _side_pt(Vector2(gw * 0.8, blind + 8)), Color("8a8070"), PX)   # o cordão
-	draw_colored_polygon(_side_quad(Rect2(gw * 0.8 - 1, blind + 8, 2, 2)), Color("6b5f4c"))   # o puxador dele
+	_poly(_side_quad(Rect2(gw * 0.8 - 1, blind + 8, 2, 2)), Color("6b5f4c"))   # o puxador dele
 	# o peitoril de dentro: uma tábua saindo da parede para a sala (`SILL_D`), com o tampo à vista (fica abaixo dos
 	# olhos), a beira da frente e a sombra dela na parede
 	var s0 := Vector2(-5, gh)   # do tamanho da guarnição (passando dela, saía da janela)
 	var s1 := Vector2(gw + 5, gh)
-	draw_colored_polygon(_side_quad(Rect2(-5, gh + 3, gw + 10, 6)), Color(0, 0, 0, 0.25))
-	draw_colored_polygon(PackedVector2Array([_side_pt(s0), _side_pt(s1), _side_pt(s1, -SILL_D), _side_pt(s0, -SILL_D)]), WOOD[1])
-	draw_colored_polygon(_side_quad(Rect2(-5, gh, gw + 10, 3), -SILL_D), WOOD[2])
+	_poly(_side_quad(Rect2(-5, gh + 3, gw + 10, 6)), Color(0, 0, 0, 0.25))
+	_poly(PackedVector2Array([_side_pt(s0), _side_pt(s1), _side_pt(s1, -SILL_D), _side_pt(s0, -SILL_D)]), WOOD[1])
+	_poly(_side_quad(Rect2(-5, gh, gw + 10, 3), -SILL_D), WOOD[2])
 	draw_line(_side_pt(s0, -SILL_D), _side_pt(s1, -SILL_D), WOOD[0], PX)
 	# a ponta de perto da tábua, virada para quem olha: fecha a lateral dela
-	draw_colored_polygon(PackedVector2Array([_side_pt(s1), _side_pt(s1, -SILL_D), _side_pt(s1 + Vector2(0, 3), -SILL_D),
+	_poly(PackedVector2Array([_side_pt(s1), _side_pt(s1, -SILL_D), _side_pt(s1 + Vector2(0, 3), -SILL_D),
 		_side_pt(s1 + Vector2(0, 3))]), WOOD[1])
 	# a luz de fora no peitoril: ele fica fora do vidro, e o escuro da sala o deixava quase preto (parecia um buraco);
 	# mais clara junto do vidro, sumindo para a sala
@@ -1121,7 +1209,7 @@ func _draw_street_light(w: float) -> void:
 			var u1 := lerpf(-0.1, 1.4, (i + 1) / 10.0)
 			var v0 := k / 10.0
 			var v1 := (k + 1) / 10.0
-			draw_polygon(PackedVector2Array([on_desk.call(u0, v0), on_desk.call(u0, v1), on_desk.call(u1, v1), on_desk.call(u1, v0)]),
+			_fill(PackedVector2Array([on_desk.call(u0, v0), on_desk.call(u0, v1), on_desk.call(u1, v1), on_desk.call(u1, v0)]),
 				PackedColorArray([glow.call(u0, v0), glow.call(u0, v1), glow.call(u1, v1), glow.call(u1, v0)]))
 
 
@@ -1135,13 +1223,13 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 	var f := Rect2((_vp + Vector2(x0, _cm(CAB_TOP)) * CAB_T).round(), (Vector2(CAB_W, 400) * CAB_T).round())
 	var steel := Color("566052")
 	if back.position.x < f.position.x:   # à direita do ponto de fuga: aparece o lado esquerdo, fugindo para a parede
-		draw_colored_polygon(PackedVector2Array([back.position, f.position, Vector2(f.position.x, f.end.y), Vector2(back.position.x, back.end.y)]),
+		_poly(PackedVector2Array([back.position, f.position, Vector2(f.position.x, f.end.y), Vector2(back.position.x, back.end.y)]),
 			steel.darkened(0.45))
 	elif back.end.x > f.end.x:   # à esquerda: o lado direito
-		draw_colored_polygon(PackedVector2Array([Vector2(f.end.x, f.position.y), Vector2(back.end.x, back.position.y), back.end, f.end]),
+		_poly(PackedVector2Array([Vector2(f.end.x, f.position.y), Vector2(back.end.x, back.position.y), back.end, f.end]),
 			steel.darkened(0.3))
 	if CAB_TOP > 0.0:   # os olhos acima dele: o tampo aparece, fugindo para a parede
-		draw_colored_polygon(PackedVector2Array([back.position + Vector2(-2, 0), Vector2(back.end.x + 2, back.position.y),
+		_poly(PackedVector2Array([back.position + Vector2(-2, 0), Vector2(back.end.x + 2, back.position.y),
 			Vector2(f.end.x + 2, f.position.y - 1), Vector2(f.position.x - 2, f.position.y - 1)]), steel.darkened(0.2))
 	_r(f.position.x, f.position.y, f.size.x, f.size.y, steel)
 	for i in 36:   # a luz da luminária, mais forte do lado dela, caindo pixel a pixel (em faixas largas, pareciam camadas)
@@ -1196,16 +1284,16 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 		var tr := Vector2(inside.end.x, inside.position.y)
 		var bl := Vector2(inside.position.x, inside.end.y)
 		_r(inside.position.x, inside.position.y, inside.size.x, inside.size.y, Color("0d110d"))
-		draw_colored_polygon(PackedVector2Array([bk.call(tl), bk.call(tr), bk.call(inside.end), bk.call(bl)]), Color("151a14"))   # o fundo
+		_poly(PackedVector2Array([bk.call(tl), bk.call(tr), bk.call(inside.end), bk.call(bl)]), Color("151a14"))   # o fundo
 		# a parede de dentro virada para quem olha (o vão fica à direita do ponto de fuga)
-		draw_colored_polygon(PackedVector2Array([tr, bk.call(tr), bk.call(inside.end), inside.end]), Color("1d241c"))
+		_poly(PackedVector2Array([tr, bk.call(tr), bk.call(inside.end), inside.end]), Color("1d241c"))
 		_r(inside.position.x, inside.position.y, inside.size.x, 3, Color(0, 0, 0, 0.5))   # a sombra do alto
 		for k in int((_top - doors - 24.0) / 30.0) + 1:   # as prateleiras até a mesa (abaixo dos olhos o tampo aparece; acima, o lado de baixo, mais escuro) com pastas
 			var sy := doors + 24.0 + k * 30.0
 			var a := Vector2(inside.position.x, sy)
 			var c := Vector2(inside.end.x, sy)
 			if absf(sy - _vp.y) > 2.0:   # (na altura dos olhos a prateleira é só a beira)
-				draw_colored_polygon(PackedVector2Array([a, c, bk.call(c), bk.call(a)]), Color("3a4236") if sy > _vp.y else Color("1c211b"))
+				_poly(PackedVector2Array([a, c, bk.call(c), bk.call(a)]), Color("3a4236") if sy > _vp.y else Color("1c211b"))
 			_r(a.x, sy, inside.size.x, 1.5, steel.darkened(0.2))   # a beira da prateleira
 			_r(a.x, sy, inside.size.x, PX, steel.lightened(0.1))
 			var px := inside.position.x + 3
@@ -1226,8 +1314,8 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 		var d1 := Vector2(f.end.x + 16, doors - 6)
 		var d2 := Vector2(f.end.x + 16, f.end.y + 8)
 		var d3 := Vector2(f.end.x, f.end.y)
-		draw_colored_polygon(PackedVector2Array([d0, d1, d2, d3]), steel.darkened(0.1))
-		draw_colored_polygon(PackedVector2Array([d0.lerp(d1, 0.25) + Vector2(0, 8), d1.lerp(d0, 0.25) + Vector2(0, 8),
+		_poly(PackedVector2Array([d0, d1, d2, d3]), steel.darkened(0.1))
+		_poly(PackedVector2Array([d0.lerp(d1, 0.25) + Vector2(0, 8), d1.lerp(d0, 0.25) + Vector2(0, 8),
 			d2.lerp(d3, 0.25) - Vector2(0, 10), d3.lerp(d2, 0.25) - Vector2(0, 10)]), steel.darkened(0.25))
 		draw_line(d1, d2, steel.lightened(0.25), PX)
 		draw_line(d1 + Vector2(PX, 0), d2 + Vector2(PX, 0), steel.lightened(0.05), PX)
@@ -1271,11 +1359,11 @@ func _draw_poster(r: Rect2) -> void:
 	var cols := [Color("b03a2e"), Color("e0b040"), Color("3a6aa0"), Color("4a8a4a")]
 	for k in int(r.size.x / 5.0):   # as bandeirinhas
 		var x := r.position.x + 1 + k * 5
-		draw_colored_polygon(PackedVector2Array([Vector2(x, r.position.y + 3), Vector2(x + 4, r.position.y + 3), Vector2(x + 2, r.position.y + 7)]), cols[k % 4])
+		_poly(PackedVector2Array([Vector2(x, r.position.y + 3), Vector2(x + 4, r.position.y + 3), Vector2(x + 2, r.position.y + 7)]), cols[k % 4])
 	_r(r.position.x + 1, r.position.y + 2.5, r.size.x - 2, PX, Color("5a4d3a"))   # o barbante
 	var c := Vector2(r.get_center().x, r.position.y + 21)   # a fogueira
-	draw_colored_polygon(PackedVector2Array([c + Vector2(-6, 5), c + Vector2(0, -7), c + Vector2(6, 5)]), Color("e07a2a"))
-	draw_colored_polygon(PackedVector2Array([c + Vector2(-3, 5), c + Vector2(0, -2), c + Vector2(3, 5)]), Color("f0c040"))
+	_poly(PackedVector2Array([c + Vector2(-6, 5), c + Vector2(0, -7), c + Vector2(6, 5)]), Color("e07a2a"))
+	_poly(PackedVector2Array([c + Vector2(-3, 5), c + Vector2(0, -2), c + Vector2(3, 5)]), Color("f0c040"))
 	_r(c.x - 7, c.y + 5, 14, 1, Color("6b4529"))   # as toras, cruzadas
 	_r(c.x - 6, c.y + 6, 12, 1, Color("4a2f1c"))
 	_r(c.x - 7, c.y + 5, 14, PX, Color("8a5a36"))
@@ -1296,7 +1384,7 @@ func _draw_city(g: Rect2) -> void:
 	var sky: Color = (SKY.get(weather, SKY["rain"]) as Color).lerp(Color("7088ac"), _flash())   # o relâmpago clareia o céu
 	_r(wx, wy, ww, wh, sky)
 	var hz := sky.lightened(0.12)   # o céu clareia perto do horizonte, liso (em faixas, pareciam camadas)
-	_ci.draw_polygon(PackedVector2Array([Vector2(wx, hzy - 50), Vector2(wx + ww, hzy - 50), Vector2(wx + ww, hzy), Vector2(wx, hzy)]),
+	_fill(PackedVector2Array([Vector2(wx, hzy - 50), Vector2(wx + ww, hzy - 50), Vector2(wx + ww, hzy), Vector2(wx, hzy)]),
 		PackedColorArray([sky, sky, hz, hz]))
 	if weather == "clear":
 		var tw := Time.get_ticks_msec() / 700.0
@@ -1353,6 +1441,13 @@ func _draw_city(g: Rect2) -> void:
 				var an := TAU * i / 20.0
 				rim.append(_o(g, x + cos(an) * 3.2, ff, 4.2 + sin(an) * 3.4))
 			_light_fan(c, rim, Color(1.0, 0.8, 0.5, 0.1))
+
+
+## A frente da vista, por cima da de trás (`_draw_city`) e redesenhada a cada quadro dela: o letreiro (o T falha
+## sozinho), quem passa, os postes, o homem, o carro (na chuva, com o farol espelhado na rua) e a névoa.
+func _draw_city_front(g: Rect2) -> void:
+	if _hz(g) - g.position.y < 40.0:   # (a tela ainda não se arrumou: o vidro ainda não tem o tamanho dele)
+		return
 	_draw_hotel_sign(_hotel_pos(g))
 	for w: Dictionary in _walkers:   # passam atrás dos postes e do homem
 		_draw_walker(g, w)
@@ -1362,8 +1457,10 @@ func _draw_city(g: Rect2) -> void:
 	if not is_nan(mx):
 		_draw_stranger(g, mx)
 	if _car >= 0.0:
+		if weather == "rain":
+			_draw_wet(g, true)
 		_draw_car(g, _car_x())
-	if fog:
+	if weather == "fog":
 		_draw_fog(g)
 
 
@@ -1378,9 +1475,9 @@ func _draw_fog(g: Rect2) -> void:
 	var x1 := g.end.x
 	var y1 := g.end.y + _near   # até o pé do vidro: a rua de perto também
 	_r(x0, g.position.y, g.size.x, y1 - g.position.y, Color(FOG, FOG_VEIL))
-	_ci.draw_polygon(PackedVector2Array([Vector2(x0, high), Vector2(x1, high), Vector2(x1, base), Vector2(x0, base)]),
+	_fill(PackedVector2Array([Vector2(x0, high), Vector2(x1, high), Vector2(x1, base), Vector2(x0, base)]),
 		PackedColorArray([Color(FOG, 0.0), Color(FOG, 0.0), Color(FOG, FOG_GROUND), Color(FOG, FOG_GROUND)]))
-	_ci.draw_polygon(PackedVector2Array([Vector2(x0, base), Vector2(x1, base), Vector2(x1, y1), Vector2(x0, y1)]),
+	_fill(PackedVector2Array([Vector2(x0, base), Vector2(x1, base), Vector2(x1, y1), Vector2(x0, y1)]),
 		PackedColorArray([Color(FOG, FOG_GROUND), Color(FOG, FOG_GROUND), Color(FOG, FOG_GROUND * 0.4), Color(FOG, FOG_GROUND * 0.4)]))
 	for k in FOG_WISPS:   # cada um na sua distância, altura, tamanho e velocidade, sempre os mesmos
 		var z := lerpf(STREET["curb"] + 1.0, ff, fmod(k * 0.37, 1.0))
@@ -1401,8 +1498,8 @@ func _draw_fog(g: Rect2) -> void:
 			var foot := _o(g, x, z)
 			var w := Vector2(1, 0)
 			# o cone: claro no meio, sumindo para os lados (com a borda reta, parecia um triângulo recortado)
-			_ci.draw_polygon(PackedVector2Array([h - w, h, foot, _o(g, x - 3.5, z)]), PackedColorArray([Color(lit, 0.0), lit, Color(lit, lit.a * 0.4), Color(lit, 0.0)]))
-			_ci.draw_polygon(PackedVector2Array([h, h + w, _o(g, x + 3.5, z), foot]), PackedColorArray([lit, Color(lit, 0.0), Color(lit, 0.0), Color(lit, lit.a * 0.4)]))
+			_fill(PackedVector2Array([h - w, h, foot, _o(g, x - 3.5, z)]), PackedColorArray([Color(lit, 0.0), lit, Color(lit, lit.a * 0.4), Color(lit, 0.0)]))
+			_fill(PackedVector2Array([h, h + w, _o(g, x + 3.5, z), foot]), PackedColorArray([lit, Color(lit, 0.0), Color(lit, 0.0), Color(lit, lit.a * 0.4)]))
 			var halo := PackedVector2Array()
 			for k in 20:
 				halo.append(h + Vector2(cos(TAU * k / 20.0), sin(TAU * k / 20.0)) * OUT_F * 2.2 / z)
@@ -1475,13 +1572,13 @@ func _draw_street(g: Rect2, hz: Color) -> void:
 	var cx0 := CROSSING.x
 	var cx1 := CROSSING.y
 	var wide := 80.0
-	_ci.draw_colored_polygon(PackedVector2Array([Vector2(g.position.x, _hz(g)), Vector2(g.end.x, _hz(g)), Vector2(g.end.x, g.end.y + _near),
+	_poly(PackedVector2Array([Vector2(g.position.x, _hz(g)), Vector2(g.end.x, _hz(g)), Vector2(g.end.x, g.end.y + _near),
 		Vector2(g.position.x, g.end.y + _near)]), asphalt)
 	# a rua do cruzamento, indo embora até a praça da igreja, com as calçadas dela
 	var far := asphalt.lerp(hz, 0.35)
-	_ci.draw_polygon(_patch(g, cx0 + 1.8, cx1 - 1.8, fc, 130.0), PackedColorArray([asphalt, asphalt, far, far]))
+	_fill(_patch(g, cx0 + 1.8, cx1 - 1.8, fc, 130.0), PackedColorArray([asphalt, asphalt, far, far]))
 	for side: Vector2 in [Vector2(cx0, cx0 + 1.8), Vector2(cx1 - 1.8, cx1)]:
-		_ci.draw_polygon(_patch(g, side.x, side.y, ff, 130.0), PackedColorArray([walk, walk, walk.lerp(hz, 0.35), walk.lerp(hz, 0.35)]))
+		_fill(_patch(g, side.x, side.y, ff, 130.0), PackedColorArray([walk, walk, walk.lerp(hz, 0.35), walk.lerp(hz, 0.35)]))
 		var curb_x := side.y if side.x == cx0 else side.x
 		_ci.draw_line(_o(g, curb_x, ff, 0.15), _o(g, curb_x, 130.0, 0.15), Color(hz, 0.6), PX)
 	for i in 6:   # os postes dela, menores e mais juntos com a distância
@@ -1496,8 +1593,8 @@ func _draw_street(g: Rect2, hz: Color) -> void:
 				_r(foot.x - 2.0 * near, foot.y - PX, 4.0 * near + PX, PX, Color(1.0, 0.85, 0.55, 0.2 * near))
 	# a calçada de lá, dos dois lados da boca do cruzamento (a nossa não aparece: o que encosta no nosso prédio diria
 	# para que lado a nossa parede vai, e a sala já diz outra coisa)
-	_ci.draw_colored_polygon(_patch(g, -wide, cx0, fc, ff), walk)
-	_ci.draw_colored_polygon(_patch(g, cx1, wide, fc, ff), walk)
+	_poly(_patch(g, -wide, cx0, fc, ff), walk)
+	_poly(_patch(g, cx1, wide, fc, ff), walk)
 	# o asfalto não é liso: manchas e remendos, o desgaste dos pneus em cada mão, poças e o grão perto
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 707
@@ -1505,22 +1602,22 @@ func _draw_street(g: Rect2, hz: Color) -> void:
 		var x := rng.randf_range(-20.0, 20.0)
 		var z := rng.randf_range(cu + 0.3, fc - 0.5)
 		var tone := Color(1, 1, 1, rng.randf_range(0.015, 0.035)) if rng.randf() < 0.5 else Color(0, 0, 0, rng.randf_range(0.1, 0.22))
-		_ci.draw_colored_polygon(_patch(g, x, x + rng.randf_range(1.0, 5.0), z, z + rng.randf_range(0.3, 1.2)), tone)
+		_poly(_patch(g, x, x + rng.randf_range(1.0, 5.0), z, z + rng.randf_range(0.3, 1.2)), tone)
 	for lane: float in [cu + 1.3, cu + 2.7, fc - 2.7, fc - 1.3]:
-		_ci.draw_colored_polygon(_patch(g, -wide, wide, lane - 0.3, lane + 0.3), Color(0.6, 0.7, 0.8, 0.035))
+		_poly(_patch(g, -wide, wide, lane - 0.3, lane + 0.3), Color(0.6, 0.7, 0.8, 0.035))
 	var wet := 2.0 if weather == "rain" else 1.0
 	for i in 12:   # as poças: espelham o céu (na chuva, mais)
 		var x := rng.randf_range(-14.0, 14.0)
 		var z := rng.randf_range(cu + 0.4, fc - 0.8)
 		var puddle := _patch(g, x, x + rng.randf_range(1.0, 2.6), z, z + rng.randf_range(0.4, 0.9))
-		_ci.draw_colored_polygon(puddle, Color(0.45, 0.55, 0.7, 0.05 * wet))
+		_poly(puddle, Color(0.45, 0.55, 0.7, 0.05 * wet))
 		_ci.draw_line(puddle[2], puddle[3], Color(0.6, 0.7, 0.85, 0.08 * wet), PX)
 	for i in 240:
 		var gp := _o(g, rng.randf_range(-8.0, 8.0), rng.randf_range(cu + 0.5, 6.5))
 		_r(floorf(gp.x * 2.0) * PX, floorf(gp.y * 2.0) * PX, PX, PX, Color(1, 1, 1, 0.04) if i % 2 else Color(0, 0, 0, 0.2))
 	var x0 := -wide   # a faixa tracejada no meio
 	while x0 < wide:
-		_ci.draw_colored_polygon(_patch(g, x0, x0 + 3.0, STREET["lane"] - 0.08, STREET["lane"] + 0.08), Color(0.75, 0.72, 0.6, 0.3))
+		_poly(_patch(g, x0, x0 + 3.0, STREET["lane"] - 0.08, STREET["lane"] + 0.08), Color(0.75, 0.72, 0.6, 0.3))
 		x0 += 9.0
 	# as juntas das lajotas de lá: ao longo da rua (na horizontal) e para longe (para o ponto de fuga)
 	var joint := Color(0, 0, 0, 0.35)
@@ -1533,10 +1630,10 @@ func _draw_street(g: Rect2, hz: Color) -> void:
 		xj += 1.5
 	# perto, embaixo da janela, a rua some na sombra do nosso prédio, lisa e sem nenhuma linha
 	var dark := Color(0, 0, 0, 0.6)
-	_ci.draw_polygon(_patch(g, -wide, wide, 0.3, cu + 1.5), PackedColorArray([dark, dark, Color(dark, 0.0), Color(dark, 0.0)]))
+	_fill(_patch(g, -wide, wide, 0.3, cu + 1.5), PackedColorArray([dark, dark, Color(dark, 0.0), Color(dark, 0.0)]))
 	# o meio-fio de lá, com a face virada para nós e a quina
 	for seg: Vector2 in [Vector2(-wide, cx0), Vector2(cx1, wide)]:
-		_ci.draw_colored_polygon(PackedVector2Array([_o(g, seg.x, fc), _o(g, seg.y, fc), _o(g, seg.y, fc, 0.15), _o(g, seg.x, fc, 0.15)]), Color("2a3237"))
+		_poly(PackedVector2Array([_o(g, seg.x, fc), _o(g, seg.y, fc), _o(g, seg.y, fc, 0.15), _o(g, seg.x, fc, 0.15)]), Color("2a3237"))
 		_ci.draw_line(_o(g, seg.x, fc, 0.15), _o(g, seg.y, fc, 0.15), Color("4a555c"), PX)
 	if lamp_level > 0.5:   # a luz de cada poste de lá no chão, em volta do pé dele
 		for x: float in FAR_LAMPS:
@@ -1548,17 +1645,18 @@ func _draw_street(g: Rect2, hz: Color) -> void:
 			_light_fan(c, rim, Color(1.0, 0.85, 0.55, 0.28))
 
 
-## A chuva no chão: o asfalto molhado espelha as luzes em riscos verticais, quebrados, embaixo de cada uma (os postes,
-## o letreiro, o farol do carro), mais fracos para baixo.
-func _draw_wet(g: Rect2) -> void:
+## A chuva no chão: o asfalto molhado espelha as luzes em riscos verticais, quebrados, embaixo de cada uma (os postes
+## e o letreiro; com `car`, só o farol do carro, que anda: vai na frente da vista), mais fracos para baixo.
+func _draw_wet(g: Rect2, car := false) -> void:
 	var lights := []   # [cabeça, pé, cor]
-	if lamp_level > 0.5:
-		for i in FAR_LAMPS.size():
-			lights.append([_lamp_heads(g)[i], _o(g, FAR_LAMPS[i], STREET["far_curb"] - 0.5), Color(1.0, 0.85, 0.55)])
-	if _sign_on():
-		lights.append([_hotel_pos(g), _o(g, HOTEL_X, STREET["far_curb"] - 0.5), SIGN_RED])
-	if _car >= 0.0:
+	if car:
 		lights.append([_o(g, _car_x(), CAR_Z - 0.9, 0.7), _o(g, _car_x(), CAR_Z - 1.2), Color("fff1c8")])
+	else:
+		if lamp_level > 0.5:
+			for i in FAR_LAMPS.size():
+				lights.append([_lamp_heads(g)[i], _o(g, FAR_LAMPS[i], STREET["far_curb"] - 0.5), Color(1.0, 0.85, 0.55)])
+		if _sign_on():
+			lights.append([_hotel_pos(g), _o(g, HOTEL_X, STREET["far_curb"] - 0.5), SIGN_RED])
 	for l: Array in lights:
 		var head: Vector2 = l[0]
 		var foot: Vector2 = l[1]
@@ -1578,7 +1676,7 @@ func _draw_canyon_wall(g: Rect2, w: Dictionary, hz: Color) -> void:
 	var z1: float = w["z1"]
 	var ht: float = w["h"]
 	var col: Color = (w["col"] as Color).lerp(hz, clampf((z0 - 14.0) / 160.0, 0.0, 0.5))
-	_ci.draw_colored_polygon(PackedVector2Array([_o(g, x, z0), _o(g, x, z1), _o(g, x, z1, ht), _o(g, x, z0, ht)]), col)
+	_poly(PackedVector2Array([_o(g, x, z0), _o(g, x, z1), _o(g, x, z1, ht), _o(g, x, z0, ht)]), col)
 	_ci.draw_line(_o(g, x, z0), _o(g, x, z0, ht), col.darkened(0.4), PX)   # a quina
 	for wv: Vector3 in w["wins"]:   # (z, altura, hora de apagar)
 		if wv.z > minutes:
@@ -1640,7 +1738,7 @@ func _draw_shopfront(g: Rect2) -> void:
 	var a := _o(g, x0, ff, 2.5)
 	var e := _o(g, x1, ff, 0.4)
 	_r(a.x - PX, a.y - PX, e.x - a.x + 1, e.y - a.y + 1, Color("1a0f0a"))
-	_ci.draw_polygon(PackedVector2Array([a, Vector2(e.x, a.y), e, Vector2(a.x, e.y)]),
+	_fill(PackedVector2Array([a, Vector2(e.x, a.y), e, Vector2(a.x, e.y)]),
 		PackedColorArray([Color("c98a3e"), Color("c98a3e"), Color("f0c070"), Color("f0c070")]))
 	_r(lerpf(a.x, e.x, 0.5), a.y, PX, e.y - a.y, Color("3a2414"))   # o caixilho
 	_r(a.x, lerpf(a.y, e.y, 0.3), e.x - a.x, PX, Color("3a2414"))
@@ -1661,7 +1759,7 @@ func _draw_marquee(g: Rect2) -> void:
 	var x1 := HOTEL_X + 1.8
 	var door := _o(g, HOTEL_X - 0.6, ff, 2.3)
 	var de := _o(g, HOTEL_X + 0.6, ff)
-	_ci.draw_polygon(PackedVector2Array([door, Vector2(de.x, door.y), de, Vector2(door.x, de.y)]),
+	_fill(PackedVector2Array([door, Vector2(de.x, door.y), de, Vector2(door.x, de.y)]),
 		PackedColorArray([Color("8a5a2a"), Color("8a5a2a"), Color("e0a858"), Color("e0a858")]))   # a porta aberta, com a luz do saguão
 	var c := _o(g, HOTEL_X, ff - 0.6)
 	var rim := PackedVector2Array()
@@ -1670,8 +1768,8 @@ func _draw_marquee(g: Rect2) -> void:
 		rim.append(_o(g, HOTEL_X + cos(an) * 2.8, ff - 0.8 + sin(an) * 1.4))
 	_light_fan(c, rim, Color(1.0, 0.78, 0.45, 0.22))
 	var top := PackedVector2Array([_o(g, x0, ff, 3.0), _o(g, x1, ff, 3.0), _o(g, x1, ff - 1.2, 3.0), _o(g, x0, ff - 1.2, 3.0)])
-	_ci.draw_colored_polygon(top, Color("2a1c16"))
-	_ci.draw_colored_polygon(PackedVector2Array([top[3], top[2], _o(g, x1, ff - 1.2, 2.75), _o(g, x0, ff - 1.2, 2.75)]), Color("6a1e18"))   # a beira, vermelha
+	_poly(top, Color("2a1c16"))
+	_poly(PackedVector2Array([top[3], top[2], _o(g, x1, ff - 1.2, 2.75), _o(g, x0, ff - 1.2, 2.75)]), Color("6a1e18"))   # a beira, vermelha
 	_ci.draw_line(_o(g, x0, ff - 1.2, 2.75), _o(g, x1, ff - 1.2, 2.75), Color(1.0, 0.8, 0.5, 0.6), PX)   # a luz embaixo dela
 
 
@@ -1687,7 +1785,7 @@ func _draw_lamp_post(g: Rect2, x: float, z: float) -> void:
 	_r(head.x - 0.3 * k, head.y, 0.6 * k, maxf(PX, 0.15 * k), pole)
 	if lamp_level > 0.5:
 		_r(head.x - 0.25 * k, head.y + 0.15 * k, 0.5 * k, maxf(PX, 0.12 * k), Color("ffd88a"))
-		_ci.draw_colored_polygon(PackedVector2Array([head + Vector2(-0.25 * k, 0.2 * k), head + Vector2(0.25 * k, 0.2 * k),
+		_poly(PackedVector2Array([head + Vector2(-0.25 * k, 0.2 * k), head + Vector2(0.25 * k, 0.2 * k),
 			Vector2(head.x + 1.6 * k, foot.y), Vector2(head.x - 1.6 * k, foot.y)]), Color(1.0, 0.85, 0.55, 0.05))
 
 
@@ -1719,7 +1817,7 @@ func _draw_stranger(g: Rect2, x: float) -> void:
 		halo.append(hc + Vector2.from_angle(TAU * i / 24.0) * k * 0.45)
 	_light_fan(hc, halo, Color(0.85, 0.62, 0.3, 0.16 * clampf(1.0 - absf(x - MAN_X) / 2.0, 0.0, 1.0)))
 	var dir := 1.0 if x >= (FAR_LAMPS[0] as float) else -1.0
-	_ci.draw_colored_polygon(PackedVector2Array([_o(g, x - 0.2, z), _o(g, x + 0.2, z), _o(g, x + dir * 2.4, z + 0.6), _o(g, x + dir * 2.0, z + 0.6)]),
+	_poly(PackedVector2Array([_o(g, x - 0.2, z), _o(g, x + 0.2, z), _o(g, x + dir * 2.4, z + 0.6), _o(g, x + dir * 2.0, z + 0.6)]),
 		Color(0, 0, 0, 0.5))
 	# (x de um lado a outro, altura de baixo para cima), em metros: pernas, casaco, ombros, cabeça, aba e copa do chapéu
 	var legs: Array[Rect2] = [Rect2(-0.17, 0.0, 0.13, 0.8), Rect2(0.04, 0.0, 0.13, 0.8)]
@@ -1757,7 +1855,7 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 	var foot := (_o(g, x, z) * 2.0).floor() - Vector2(0, posmod(steps, 2))
 	var k: float = OUT_F / z * 2.0 * w["h"]   # px da tela por metro (na altura dele)
 	var dark := Color("07090c")
-	_ci.draw_colored_polygon(PackedVector2Array([_o(g, x - 0.3, z), _o(g, x + 0.3, z), _o(g, x + 0.3, z + 0.2), _o(g, x - 0.3, z + 0.2)]), Color(0, 0, 0, 0.35))
+	_poly(PackedVector2Array([_o(g, x - 0.3, z), _o(g, x + 0.3, z), _o(g, x + 0.3, z + 0.2), _o(g, x - 0.3, z + 0.2)]), Color(0, 0, 0, 0.35))
 	var parts: Array[Rect2] = [Rect2(-0.2, 0.75, 0.4, 0.68), Rect2(-0.1, 1.43, 0.2, 0.22)]   # o casaco e a cabeça
 	parts.append_array([Rect2(-0.22, 0.0, 0.13, 0.8), Rect2(0.09, 0.0, 0.13, 0.8)] if posmod(steps, 2) == 0 else [Rect2(-0.07, 0.0, 0.14, 0.8)])
 	if weather == "rain":   # o guarda-chuva: a cúpula, a beira e o cabo
@@ -1781,27 +1879,27 @@ func _draw_car(g: Rect2, x: float) -> void:
 	var top := Color("2e3a46")
 	var glass := Color("0b1218")
 	var chrome := Color("5a6670")
-	_ci.draw_colored_polygon(_patch(g, x - 0.2, x + 4.7, z0 - 0.15, z1 + 0.15), Color(0, 0, 0, 0.55))   # o contato com o asfalto
-	_ci.draw_colored_polygon(PackedVector2Array([_o(g, x, z0 + 0.2), _o(g, x, z1 - 0.2), _o(g, x - 8.0, z1 + 0.6), _o(g, x - 8.0, z0 - 0.6)]),
+	_poly(_patch(g, x - 0.2, x + 4.7, z0 - 0.15, z1 + 0.15), Color(0, 0, 0, 0.55))   # o contato com o asfalto
+	_poly(PackedVector2Array([_o(g, x, z0 + 0.2), _o(g, x, z1 - 0.2), _o(g, x - 8.0, z1 + 0.6), _o(g, x - 8.0, z0 - 0.6)]),
 		Color(1.0, 0.95, 0.8, 0.12))   # o facho dos faróis
-	_ci.draw_colored_polygon(_patch(g, x + 3.6, x + 4.5, z0, z1, 0.95), top)   # o porta-malas
-	_ci.draw_colored_polygon(_patch(g, x + 1.6, x + 3.2, z0 + 0.15, z1 - 0.15, 1.45), top.lightened(0.08))   # o teto
-	_ci.draw_colored_polygon(PackedVector2Array([_o(g, x + 1.1, z0 + 0.1, 0.95), _o(g, x + 1.6, z0 + 0.15, 1.45), _o(g, x + 1.6, z1 - 0.15, 1.45),
+	_poly(_patch(g, x + 3.6, x + 4.5, z0, z1, 0.95), top)   # o porta-malas
+	_poly(_patch(g, x + 1.6, x + 3.2, z0 + 0.15, z1 - 0.15, 1.45), top.lightened(0.08))   # o teto
+	_poly(PackedVector2Array([_o(g, x + 1.1, z0 + 0.1, 0.95), _o(g, x + 1.6, z0 + 0.15, 1.45), _o(g, x + 1.6, z1 - 0.15, 1.45),
 		_o(g, x + 1.1, z1 - 0.1, 0.95)]), glass)   # o para-brisa
-	_ci.draw_colored_polygon(_patch(g, x, x + 1.1, z0, z1, 0.95), top)   # o capô
+	_poly(_patch(g, x, x + 1.1, z0, z1, 0.95), top)   # o capô
 	if x > 0.0:   # a frente, virada para nós enquanto ele está à direita
-		_ci.draw_colored_polygon(PackedVector2Array([_o(g, x, z0, 0.3), _o(g, x, z1, 0.3), _o(g, x, z1, 0.95), _o(g, x, z0, 0.95)]), body.darkened(0.2))
+		_poly(PackedVector2Array([_o(g, x, z0, 0.3), _o(g, x, z1, 0.3), _o(g, x, z1, 0.95), _o(g, x, z0, 0.95)]), body.darkened(0.2))
 	elif x + 4.5 < 0.0:   # a traseira, quando ele já passou
-		_ci.draw_colored_polygon(PackedVector2Array([_o(g, x + 4.5, z0, 0.3), _o(g, x + 4.5, z1, 0.3), _o(g, x + 4.5, z1, 0.95), _o(g, x + 4.5, z0, 0.95)]),
+		_poly(PackedVector2Array([_o(g, x + 4.5, z0, 0.3), _o(g, x + 4.5, z1, 0.3), _o(g, x + 4.5, z1, 0.95), _o(g, x + 4.5, z0, 0.95)]),
 			body.darkened(0.2))
 	var side := PackedVector2Array()   # o lado de cá
 	for p: Vector2 in [Vector2(0.0, 0.3), Vector2(0.0, 0.8), Vector2(0.1, 0.95), Vector2(4.4, 0.95), Vector2(4.5, 0.8), Vector2(4.5, 0.3)]:
 		side.append(_o(g, x + p.x, z0, p.y))
-	_ci.draw_colored_polygon(side, body)
+	_poly(side, body)
 	var win := PackedVector2Array()
 	for p: Vector2 in [Vector2(1.1, 0.97), Vector2(1.6, 1.43), Vector2(3.2, 1.43), Vector2(3.6, 0.97)]:
 		win.append(_o(g, x + p.x, z0 + 0.05, p.y))
-	_ci.draw_colored_polygon(win, glass)
+	_poly(win, glass)
 	_ci.draw_line(_o(g, x + 2.35, z0, 0.97), _o(g, x + 2.35, z0, 1.43), body, PX)   # a coluna do meio
 	_ci.draw_line(_o(g, x + 1.5, z0, 1.2), _o(g, x + 1.9, z0, 1.38), Color("3a4a58"), PX)   # o reflexo
 	_ci.draw_line(_o(g, x, z0, 0.95), _o(g, x + 4.5, z0, 0.95), chrome, PX)   # os frisos
@@ -1944,9 +2042,9 @@ func _build_city(gs: Vector2) -> void:
 func _draw_church(base: Vector2, col: Color) -> void:
 	var k := CHURCH_K
 	_r(base.x - 12 * k, base.y - 18 * k, 24 * k, 18 * k, col)
-	_ci.draw_colored_polygon(PackedVector2Array([base + Vector2(-13, -18) * k, base + Vector2(0, -26) * k, base + Vector2(13, -18) * k]), col)
+	_poly(PackedVector2Array([base + Vector2(-13, -18) * k, base + Vector2(0, -26) * k, base + Vector2(13, -18) * k]), col)
 	_r(base.x - 4 * k, base.y - 48 * k, 8 * k, 30 * k, col)
-	_ci.draw_colored_polygon(PackedVector2Array([base + Vector2(-5, -48) * k, base + Vector2(0, -60) * k, base + Vector2(5, -48) * k]), col)
+	_poly(PackedVector2Array([base + Vector2(-5, -48) * k, base + Vector2(0, -60) * k, base + Vector2(5, -48) * k]), col)
 	_r(base.x - PX, base.y - 64 * k, PX, 4 * k, col)   # a cruz
 	_r(base.x - 1, base.y - 63 * k, 2, PX, col)
 	var face := base + Vector2(0, -40 * k)
@@ -2034,7 +2132,7 @@ func _draw_glass_weather(g: Rect2) -> void:
 			_r(p.x, p.y, b.z * PX, b.z * PX, Color("1c2a32"))
 			var warm := clampf(1.0 - p.distance_to(post) / 30.0, 0.0, 1.0) if lamp_level > 0.5 else 0.0
 			_r(p.x, p.y, PX, PX, Color("7f98a8").lerp(Color("ffd88a"), warm))
-	_ci.draw_colored_polygon(PackedVector2Array([g.position + Vector2(g.size.x * 0.12, 0), g.position + Vector2(g.size.x * 0.22, 0),
+	_poly(PackedVector2Array([g.position + Vector2(g.size.x * 0.12, 0), g.position + Vector2(g.size.x * 0.22, 0),
 		g.position + Vector2(g.size.x * 0.02, g.size.y * 0.5), g.position + Vector2(0, g.size.y * 0.5)]), Color(1, 1, 1, 0.03))
 
 
@@ -2226,11 +2324,13 @@ func _shaded(pts: PackedVector2Array, xz: Array, col: Color) -> void:
 	var cols := PackedColorArray()
 	for p in xz:
 		cols.append(col.darkened(_shade(p.x, p.y)))
-	draw_polygon(pts, cols)
+	_fill(pts, cols)
 
 
 ## A frente do relógio, de frente, em `sz` px: a caixa creme, a janela preta de aro niquelado com as duas plaquetas
-## (horas e minutos) e a plaquinha de latão da marca embaixo. Guardada até a hora ou a virada mudar.
+## (horas e minutos) e a plaquinha de latão da marca embaixo. Guardada até a hora ou a virada mudar; aí a mesma
+## textura é refeita (o `_process` pergunta a cada quadro): a sala, já desenhada com ela, mostra a hora nova sem se
+## redesenhar.
 var _face_key := []
 var _face: ImageTexture
 func _clock_face(sz: Vector2i) -> ImageTexture:
@@ -2255,7 +2355,10 @@ func _clock_face(sz: Vector2i) -> ImageTexture:
 	_flip_card(img, Vector2i(win.position.x + 2, win.position.y + 2), card, "%02d" % (was / 60), "%02d" % (m / 60), step)
 	_flip_card(img, Vector2i(win.end.x - 2 - card.x, win.position.y + 2), card, "%02d" % (was % 60), "%02d" % (m % 60), step)
 	_face_key = key
-	_face = ImageTexture.create_from_image(img)
+	if _face and _face.get_size() == Vector2(sz):
+		_face.update(img)
+	else:
+		_face = ImageTexture.create_from_image(img)
 	return _face
 
 
@@ -2352,8 +2455,21 @@ func _box(x0: float, zf: float, wx: float, dz: float, y0: float, h: float) -> Di
 ## Uma face de objeto (sem contorno: um fio preto torto pela perspectiva serrilhava e parecia desenho mal feito; as
 ## faces se separam pela luz, o tampo mais claro e os lados mais escuros).
 func _poly(pts: PackedVector2Array, col: Color) -> void:
-	if not Geometry2D.triangulate_polygon(pts).is_empty():   # (uma face vista de quina não tem área)
-		draw_colored_polygon(pts, col)
+	_fill(pts, PackedColorArray([col]))
+
+
+## Um polígono cheio em `_ci` com a cor de cada ponto (`cols`, ou uma só para tudo), em primitivos: o Godot junta os
+## `draw_primitive` seguidos numa chamada de desenho só, e cada `draw_polygon` era uma (a sala passava de 2000 por
+## quadro, 6 ms de renderização parada, e cada redesenho criava mil polígonos). O quadrilátero vai inteiro (os da sala
+## são convexos); o resto, em triângulos. Sem área (uma face vista de quina), não aparece nada.
+func _fill(pts: PackedVector2Array, cols: PackedColorArray) -> void:
+	if pts.size() <= 4:
+		_ci.draw_primitive(pts, cols, PackedVector2Array())
+		return
+	var tri := Geometry2D.triangulate_polygon(pts)
+	for i in range(0, tri.size(), 3):
+		var c := cols if cols.size() == 1 else PackedColorArray([cols[tri[i]], cols[tri[i + 1]], cols[tri[i + 2]]])
+		_ci.draw_primitive(PackedVector2Array([pts[tri[i]], pts[tri[i + 1]], pts[tri[i + 2]]]), c, PackedVector2Array())
 
 
 ## Um paralelogramo da tela (o tampo `q` de uma caixa) como transformação de um retângulo de px (0, 0)–`size`: o
@@ -2375,10 +2491,10 @@ func _desk_shadow(foot: PackedVector2Array) -> void:
 	for p in foot:
 		pts.append(p + off)
 	for g in Geometry2D.offset_polygon(pts, 1.5, Geometry2D.JOIN_MITER):
-		draw_colored_polygon(g, Color(0, 0, 0, 0.15))
-	draw_colored_polygon(pts, Color(0, 0, 0, 0.3))
+		_poly(g, Color(0, 0, 0, 0.15))
+	_poly(pts, Color(0, 0, 0, 0.3))
 	for g in Geometry2D.offset_polygon(foot, 1.0, Geometry2D.JOIN_MITER):
-		draw_colored_polygon(g, Color(0, 0, 0, 0.45))
+		_poly(g, Color(0, 0, 0, 0.45))
 
 
 ## Onde fica a poça de luz da luminária no tampo (x, z da sala): embaixo dela, um pouco à frente do fundo da mesa.
@@ -2402,7 +2518,7 @@ func _dim(pts: PackedVector2Array, xz: Array) -> void:
 	var cols := PackedColorArray()
 	for p in xz:
 		cols.append(Color(0, 0, 0, _shade(p.x, p.y)))
-	draw_polygon(pts, cols)
+	_fill(pts, cols)
 
 
 ## Os cantos no tampo (x, z da sala) de um objeto de `wx` por `dz` com o meio em (`cx`, `cz`), girado `yaw` (rad):

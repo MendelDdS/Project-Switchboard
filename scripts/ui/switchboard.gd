@@ -1078,8 +1078,8 @@ func _draw_cabinet(r: Rect2) -> void:
 	var glint := func(x: float) -> Color:
 		return Color(WOOD[0].lightened(0.45), 0.6 * clampf(1.0 - absf(x - lamp) / 700.0, 0.0, 1.0))
 	var top := r.position.y + 1.0
-	draw_polygon(PackedVector2Array([Vector2(r.position.x + 1, top), Vector2(r.end.x - 1, top), Vector2(r.end.x - 1, top + 1), Vector2(r.position.x + 1, top + 1)]),
-		PackedColorArray([glint.call(r.position.x), glint.call(r.end.x), glint.call(r.end.x), glint.call(r.position.x)]))
+	draw_primitive(PackedVector2Array([Vector2(r.position.x + 1, top), Vector2(r.end.x - 1, top), Vector2(r.end.x - 1, top + 1), Vector2(r.position.x + 1, top + 1)]),
+		PackedColorArray([glint.call(r.position.x), glint.call(r.end.x), glint.call(r.end.x), glint.call(r.position.x)]), PackedVector2Array())
 	var p := r.grow(-FRAME)
 	draw_rect(p.grow(1), EDGE_DARK)
 	draw_rect(p, Pal.PANEL)
@@ -1105,7 +1105,7 @@ func _draw_room_light(p: Rect2, lamp: Vector2) -> void:
 			var cols := PackedColorArray()
 			for q in quad:
 				cols.append(tone.call(q))
-			draw_polygon(quad, cols)
+			draw_primitive(quad, cols, PackedVector2Array())   # (primitivos seguidos são uma chamada de desenho só; polígonos, uma cada)
 
 
 ## A faixa de cada linha: um rebaixo estreito do painel que liga a plaquinha, a lâmpada, a entrada e a saída da mesma
@@ -1663,8 +1663,8 @@ func _draw_plug_body(col: Array, tip: bool = true) -> void:
 	if _cut < INF:   # entrando no buraco, o plug escurece até a beira dele
 		var none := Color(0, 0, 0, 0)
 		var deep := Color(0, 0, 0, 0.6)
-		draw_polygon(PackedVector2Array([Vector2(-10, _cut - 6.0), Vector2(10, _cut - 6.0), Vector2(10, _cut), Vector2(-10, _cut)]),
-			PackedColorArray([none, none, deep, deep]))
+		draw_primitive(PackedVector2Array([Vector2(-10, _cut - 6.0), Vector2(10, _cut - 6.0), Vector2(10, _cut), Vector2(-10, _cut)]),
+			PackedColorArray([none, none, deep, deep]), PackedVector2Array())
 
 
 ## As cores do plug do cabo `col` ([cor, brilho]), pelos caracteres de `PLUG_ART`: o cabo de baquelite na cor dele

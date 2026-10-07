@@ -34,8 +34,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `EmergencyCall` com lacunas **em inglês** (`{place}`, `{reason}`, `{street}`, `{house}`...), preenchidas por
   `GameData.template_transfer()`/`template_emergency()`. Motivos em `DirectoryEntry.reasons`. `TEMPLATE_CHANCE`
   (`Schedule`) mistura moldes e roteiros escritos (híbrido: tutorial, trotes e roteiro da noite sempre escritos).
-- Todo o áudio é sintetizado ao iniciar por `SfxSynth.build()` (`scripts/sfx_synth.gd`: as receitas, ~1 s num Mac
-  recente, 135 sons, 3,7 MB; sem cache) e tocado pelo autoload `Sfx` (`scripts/sfx.gd`: tocar, mixar, ambiente), inclusive as "vozes" por sílaba
+- Todo o áudio é sintetizado ao iniciar por `SfxSynth.build()` (`scripts/sfx_synth.gd`: as receitas, 135 sons, 3,7 MB;
+  sem cache; em pedaços, `PARTS` e uma voz por pedaço, montados ao mesmo tempo nos núcleos, `WorkerThreadPool` em alta
+  prioridade (a de baixa usa só ~30% deles): ~0,35 s num Mac recente pelo editor, ~0,9 s um depois do outro; cada
+  pedaço numa instância com o seu sorteio, `_rng`, porque o `randf` global não é seguro entre linhas de execução) e tocado pelo autoload `Sfx` (`scripts/sfx.gd`: tocar, mixar, ambiente), inclusive as "vozes" por sílaba
   (`Sfx.speak_char`). Barramentos em `default_bus_layout.tres`: Ambience, Voices, Effects (e Rub, que envia para Effects).
   Ambience tem um compressor com sidechain em Voices (o ambiente baixa enquanto alguém fala); Effects, uma
   reverberação leve de sala. `Sfx.play_at(id, screen_x)` toca um som vindo de um lugar da tela (pool de
@@ -136,7 +138,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `_clock_pt` giram os pontos), com fendas e botão niquelado do alarme no tampo, a
   rodinha de acertar no lado e duas plaquetas (horas e minutos, algarismos de 9×19 desenhados à mão numa folha de
   fonte, `DIGITS`) que viram quando a hora muda
-  (`Background.minutes`, o Main atualiza; `_flip_step`, `FLIP_SEC`, no `_state`). A frente é montada reta numa imagem
+  (`Background.minutes`, o Main atualiza; `_flip_step`, `FLIP_SEC`). A frente é montada reta numa imagem
   (`_clock_face`, `_flip_card`, `_card`) e posta coluna a coluna na perspectiva exata: cada coluna da tela é um raio
   dos olhos que acerta a frente num ponto e numa distância, e a coluna vai da altura de cima à de baixo ali (torta por
   transformação, os algarismos quebravam; um paralelogramo não batia com a caixa). Ao ouvido: a badalada de gongo a cada hora cheia (`chime`, `Main._hour`) vem do relógio
@@ -261,12 +263,20 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `flags.changed`; o setter de `Main.flags` religa); o calendário do armário risca um dia por noite (`night`). Na
   primeira vez que cada sinal da mesa aparece (tiras, folha nova), uma dica do manual explica, uma vez no
   jogo todo (`Main._teach`: o "já viu" fica nos marcadores salvos; espera o tutorial acabar). Sob o
-  mouse: contorno, o nome da ferramenta e o dedo. O cenário só se redesenha quando algo que ele mostra muda
-  (`Background._state`: o lugar das peças da interface, o papel, a luminária, o alfinete, o estado nos objetos; parado,
-  fica o desenho guardado), e a vista da janela anda a 30 quadros por segundo no vidro (`_vport`, `UPDATE_ONCE` a cada
-  quadro dela) sem redesenhar a sala; quem acrescentar ao desenho algo que muda precisa pôr isso no `_state`. Ele é sempre desenhado: o papel da ferramenta o cobre por
-  estar na frente, e só o brilho das luzes (que fica acima de tudo) é cortado onde o papel está, quadro a quadro
-  (`_paper`, `_light`; as da vista, onde aparecem no vidro). Lá fora (`_draw_city`): céu do clima, morros, casas
+  mouse: contorno, o nome da ferramenta e o dedo. **O cenário só se redesenha quando algo que ele mostra
+  muda**, e o que muda sozinho fica fora do desenho da sala (redesenhá-la custava ~20 ms e ela se redesenhava 3 a 4
+  vezes por segundo parada; ver a história 84): a sala (`Background._state`: o lugar das peças da interface, a
+  luminária, o estado nos objetos, o clima; parado, fica o desenho guardado); por cima dela, a camada `_over`
+  (`_draw_over`, com o estado dela no `_process`: o escuro da sala, o que entra pela janela, o relâmpago, o neon, o
+  escuro e a sombra atrás do papel e as luzes da sala no `Bloom`, que a sala junta em `_glows` e a camada acende
+  cortadas onde o papel está, quadro a quadro, `_paper`, `_light`); a frente do relógio, uma textura trocada no lugar
+  (`_clock_face`: a sala desenhada com ela mostra a hora nova sem se redesenhar); e a vista da janela, a 30 quadros por
+  segundo no vidro (`_vport`, `UPDATE_ONCE` a cada quadro dela), em duas camadas: a de trás (`_back`,
+  `_draw_view_back`: céu, cidade, rua, fachadas) só quando muda (`_back_state`: a hora, a luminária, o neon, o
+  relâmpago, as estrelas piscando) e a da frente (`_draw_city_front`: o letreiro, quem passa, os postes, o homem, o
+  carro, a névoa; depois o arbusto, o reflexo e a chuva) a cada quadro. A tela do cenário (o `View` do `SceneView`) só
+  é desenhada quando algo nela muda (`Background._show`) ou de tamanho (`SceneView._fit`). Quem acrescentar ao desenho
+  algo que muda precisa pôr isso no estado da camada certa (e, na sala, no `_state`). Lá fora (`_draw_city`): céu do clima, morros, casas
   sorteadas sempre iguais (`_build_city`, semente fixa),
   a igreja com o relógio aceso, a rua com o poste (a silhueta do mistério fica contra a luz dele) e o chão molhado na
   chuva. **A vista: uma cena 3D simples projetada no vidro** (pedido do usuário: pensar a cena antes,
@@ -312,7 +322,10 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   sem miolo tem o halo fraco por dentro (`HOLLOW`); luz de quem recorta o conteúdo (`clip_contents`) é recortada também.
   O que fica na frente das luzes de quem desenha (os plugs encaixados da mesa) entra com `Bloom.occlude(self, polígono)`:
   os blocos do halo cobertos por ele somem (`_cut`, guardado; plug parado não refaz).
-- Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`). **Os materiais dos objetos da mesa** (capa da lista,
+- Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`). **Área cheia em `draw_primitive`, não em
+  `draw_polygon`**: cada `draw_polygon`/`draw_colored_polygon` é uma chamada de desenho (e cria um polígono a cada
+  redesenho); `draw_primitive` (até 4 pontos) seguidos viram uma só. O cenário tem `Background._fill`/`_poly` (o
+  quadrilátero inteiro; o resto, em triângulos); a sala passava de 2000 chamadas por quadro. **Os materiais dos objetos da mesa** (capa da lista,
   couro do caderno, tábua e folhas da prancheta, papel-jornal, papel e tons do mapa, níquel, o vermelho do formulário) são
   constantes do `Pal`, usadas pelo objeto (`Background._art_*`) e pelo papel aberto dele: o que muda numa ponta muda na outra. **Uma fonte só, de pixel: Departure Mono**
   (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11** (o estado de cada linha na mesa não usa
@@ -1022,6 +1035,12 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
 83. O mapa da mesa virou a miniatura fiel do mapa aberto (as mesmas folhas, quarteirões, casas, lugares, praça, zona
     rural e selo; o papel na proporção dos bairros atendidos). Antes, era uma cidade inventada, com rio e trem que o
     mapa aberto não tem.
+84. Desempenho (medido com tela e sem vsync): a sala parada engasgava 3 a 4 vezes por segundo (o relógio virando e o
+    neon a redesenhavam inteira, ~20 ms cada vez), e a cada quadro com a luminária piscando, no relâmpago e com o papel
+    de uma ferramenta deslizando; eram ~2200 chamadas de desenho por quadro, mil delas do escuro da sala. Polígonos
+    viraram primitivos, o que muda sozinho saiu da sala (a camada de cima, a textura do relógio, as duas camadas da
+    vista), a tela do cenário só se desenha quando muda e os sons são sintetizados nos núcleos todos: na chuva, de 7,6
+    para 2,0 ms por quadro, sem nenhum acima de 8 ms, e a abertura 0,6 s mais rápida.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

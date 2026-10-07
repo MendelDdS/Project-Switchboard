@@ -96,7 +96,7 @@ func _draw_light() -> void:
 			var cols := PackedColorArray()
 			for v in q:
 				cols.append(tint.call(v))
-			draw_polygon(q, cols)
+			draw_primitive(q, cols, PackedVector2Array())   # (primitivos seguidos são uma chamada de desenho só; polígonos, uma cada)
 
 
 ## A capa (ou a tábua, ou o prendedor) pixel a pixel, guardada por tamanho.
