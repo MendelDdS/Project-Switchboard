@@ -365,6 +365,12 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
 - Git: branch principal `development`; commits no padrão `tipo(#0000): descrição`. `.godot/` fica fora do git.
   Só faça commit quando o usuário pedir (na reestruturação ele autorizou um commit por etapa em `refactor/definitive`).
 - Comentário `ponytail:` marca um atalho deliberado; mantenha o código enxuto e no estilo do arquivo.
+- **Quando o usuário pedir commit, rode antes a skill `revisar-mudancas`** (`.claude/skills/revisar-mudancas/`; só
+  então, não depois de cada mudança): uma passada rápida de boas práticas e desempenho só no código alterado.
+  - O `check.sh` acha o óbvio nas linhas acrescentadas do `git diff`.
+  - O resto é a lista de revisão dela, tirada deste arquivo e do `LESSONS.md`.
+  - Mexeu em desenho ou em algo por quadro: o `medir.gd` compara com os números de referência.
+  - Convenção nova que der para conferir por padrão no texto entra no `check.sh`.
 
 ## Rodar e testar
 - Godot: `/Applications/Godot.app/Contents/MacOS/Godot` (não está no PATH). Cena principal: `scenes/app.tscn` (o `GameView` com o `main.tscn` dentro).
