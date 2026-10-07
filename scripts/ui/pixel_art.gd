@@ -1,10 +1,14 @@
 class_name PixelArt
 ## Pixel art feita em código, guardada em texturas: mapas de texto (`art`), peças redondas (`disc`) e a fonte gravada
 ## do painel (`tiny`). Mesa comutadora, cenário, painel do operador e bloom desenham com elas. Cada textura fica
-## guardada pela chave (o mapa e as cores; o diâmetro e as camadas; o texto) e o cache não esvazia: cor que muda a cada
-## quadro vai no `modulate` do desenho, nunca nas cores daqui. `tools/sprite_sheet.gd` mostra tudo ampliado.
+## guardada pela chave (o mapa e as cores; o diâmetro e as camadas; o texto), sem esvaziar (só passando de
+## `CACHE_MAX`): cor que muda a cada quadro vai no `modulate` do desenho, nunca nas cores daqui.
+## `tools/sprite_sheet.gd` mostra tudo ampliado.
 
 const LIGHT := Vector2(-0.7071, -0.7071)   # de onde vem a luz das peças redondas (alto à esquerda)
+## Rede de segurança: um cache que passa disto foi usado com cor de cada quadro (contra a regra acima) e é esvaziado. No uso
+## certo o jogo fica bem abaixo (umas 40 peças redondas numa noite); esvaziar só custa remontar o que estiver na tela.
+const CACHE_MAX := 512
 ## A fonte gravada no painel da mesa comutadora (o estado de cada linha, a legenda, as chapas; também o letreiro do
 ## hotel): maiúsculas de 3 × 5 px, desenhadas pixel a pixel (`tiny`). Na fonte da tela, em 11, "conectada" não cabe na
 ## coluna da linha; em 8, fora da grade dela, a letra borrava.
@@ -31,6 +35,8 @@ static var _tinies := {}
 static func tiny(text: String) -> ImageTexture:
 	text = text.to_upper()
 	if not _tinies.has(text):
+		if _tinies.size() > CACHE_MAX:
+			_tinies.clear()
 		var img := Image.create(maxi(1, text.length() * 4 - 1), 10, false, Image.FORMAT_LA8)
 		for i in text.length():
 			var ch: String = TINY_ACCENTS.get(text[i], text[i])
@@ -56,6 +62,8 @@ static func art(rows: Array, pal: Dictionary) -> ImageTexture:
 	var key := hash([rows, pal])
 	if _arts.has(key):
 		return _arts[key]
+	if _arts.size() > CACHE_MAX:
+		_arts.clear()
 	var img := Image.create((rows[0] as String).length(), rows.size(), false, Image.FORMAT_RGBA8)
 	for y in rows.size():
 		for x in (rows[y] as String).length():
@@ -76,6 +84,8 @@ static func disc(d: int, layers: Array) -> ImageTexture:
 	var key := str(d, layers)
 	if _discs.has(key):
 		return _discs[key]
+	if _discs.size() > CACHE_MAX:
+		_discs.clear()
 	var img := Image.create(d, d, false, Image.FORMAT_RGBA8)
 	var mid := Vector2(d, d) / 2.0
 	for y in d:

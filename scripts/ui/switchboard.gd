@@ -1603,12 +1603,14 @@ func _plug_light(j: int) -> Array:
 
 
 ## O contorno aceso do plug encaixado que sai até `t` em `n` passos: a silhueta dos discos juntos (os mesmos lugares
-## de `_sprite`), e dela só os pixels da beira de cima, com o de baixo deles mais fraco, ou a beira toda (`around`).
-## Devolve [textura, onde desenhar]. Guardado.
+## de `PixelArt.sprite`), e dela só os pixels da beira de cima, com o de baixo deles mais fraco, ou a beira toda
+## (`around`). Devolve [textura, onde desenhar]. Guardado (enquanto o plug assenta, `t` muda a cada quadro: limitado).
 static var _face_rims := {}
 func _face_rim(t: Vector2, n: int, around: bool) -> Array:
 	var key := [t, around]
 	if not _face_rims.has(key):
+		if _face_rims.size() > 32:
+			_face_rims.clear()
 		var spots := []   # [posição do canto, máscara]
 		var lo := Vector2(INF, INF)
 		var hi := -lo
