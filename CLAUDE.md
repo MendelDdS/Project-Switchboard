@@ -284,7 +284,7 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
 - Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`). **Uma fonte só, de pixel: Departure Mono**
   (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11** (o estado de cada linha na mesa não usa
   ela: em 11, "conectada" não cabe na coluna, e em 8, fora da grade, borrava; é uma fonte de pixel própria, maiúsculas
-  de 3×5 gravadas no painel, `Switchboard.TINY`/`TINY_ACCENTS`/`tiny`, com os acentos dos três idiomas): 11 (texto, números da lista), 22
+  de 3×5 gravadas no painel, `PixelArt.TINY`/`TINY_ACCENTS`/`tiny`, com os acentos dos três idiomas): 11 (texto, números da lista), 22
   (títulos, visor, bilhete), 33 (títulos de tela), 44 (relógio). Importada com suavização (a janela
   menor que 1280×720 não apaga os traços; sem ela, a 1,5× as letras saíam irregulares), sem hinting e sem sub-pixel. Texto em
   desenho com escala (mapa) sai fora da escala (`CityMap._t`).
@@ -323,6 +323,9 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
 ## Rodar e testar
 - Godot: `/Applications/Godot.app/Contents/MacOS/Godot` (não está no PATH). Cena principal: `scenes/app.tscn` (o `GameView` com o `main.tscn` dentro).
 - Checar se tudo compila: `Godot --headless --path . --quit-after 60`.
+- **Com o editor aberto, nada de `--import`** (o `run.sh` pula sozinho): os dois gravam `.godot/uid_cache.bin` e o
+  corrompem (entradas depois da contagem do cabeçalho; o jogo diz "Unrecognized UID" e perde o layout dos barramentos
+  de áudio). Para consertar: fechar o editor, apagar o `uid_cache.bin` e reimportar (ou abrir o editor).
 - **Testes: `tests/run.sh`** (roda tudo em headless; ~2 min no total; `tests/run.sh flow penalties` roda só esses). Um
   `SCRIPT ERROR` não encerra o Godot: o `run.sh` lê o log enquanto o teste roda e o encerra no primeiro erro (sem isso,
   cada teste quebrado ficava parado até o `LIMIT` de 120 s e a bateria passava de 10 min).
@@ -471,12 +474,19 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   usada, `_use`: entradas mais, das primeiras linhas para as últimas) e riscos finos de plug que errou o furo.
 - Plaqueta de latão do fabricante no pé do painel, no vão entre os dois primeiros pares de buracos da prateleira (ali
   nenhum plug guardado fica na frente; `_draw_maker_plate`: `BOARD_MAKER` na fonte gravada e "SÃO SOTERO").
-- **Peças redondas pixel a pixel** (`Switchboard.disc`, público: imagem guardada por diâmetro e camadas, com luz, meio-tom e sombra vindos de
-  `LIGHT`, alto à esquerda, e camadas côncavas; `_sprite` desenha presa aos pixels; desenhadas como círculo saíam
-  embolotadas): lâmpadas, aro aceso do destino, lâmpadas da legenda e parafusos das chapas. **Nenhuma peça redonda
+- **Pixel art em código, sem arquivos de imagem** (decisão do usuário): `PixelArt` (`scripts/ui/pixel_art.gd`, só
+  funções estáticas, usadas pela mesa, pelo cenário, pelo painel e pelo bloom) monta e guarda as texturas: mapas de
+  texto (`art`), peças redondas (`disc`), a fonte gravada do painel (`tiny`) e `sprite`, que desenha uma delas centrada
+  e presa aos pixels. **Folha de prévia**: `Godot --headless --path . -s tools/sprite_sheet.gd` grava
+  `build/sprites.png` com tudo ampliado 8× (os mapas com nome; depois o que a mesa e o cenário montaram na noite 1).
+- **Peças redondas pixel a pixel** (`PixelArt.disc`: imagem guardada por diâmetro e camadas, com luz, meio-tom e sombra vindos de
+  `LIGHT`, alto à esquerda, e camadas côncavas; `PixelArt.sprite` desenha presa aos pixels; desenhadas como círculo saíam
+  embolotadas): lâmpadas, aro aceso do destino, lâmpadas da legenda e parafusos das chapas. **Cor que muda a cada
+  quadro vai no `modulate` do desenho, nunca nas cores de um `disc`/`art`** (o cache guarda uma textura por cor e não
+  esvazia: o vidro da lâmpada pulsando com a cor no `disc` criava ~38 texturas por segundo; a lâmpada desenha o vidro
+  apagado e o aceso por cima com `level` na transparência). **Nenhuma peça redonda
   com `draw_circle`**: o cenário usa o mesmo `disc` (`Background._sprite`, fora da escala e da perspectiva: botões do
-  rádio, parafusos do console, alfinete do mapa, emblemas, rebites, tachinha, fechadura) e elipses pixel a pixel
-  (`Background._ellipse`); a caneca é uma caneca esmaltada montada pixel a pixel numa imagem (`_mug_art`: o
+  rádio, parafusos do console, alfinete do mapa, emblemas, rebites, tachinha, fechadura); a caneca é uma caneca esmaltada montada pixel a pixel numa imagem (`_mug_art`: o
   cilindro em tons fixos pela luz do alto à esquerda, a borda azul-marinho, a boca e o pé em elipses pela câmera, o
   café com a luz refletida, a alça em C do lado da sombra e lascas no esmalte), com o vapor subindo na camada da poeira
   (`_draw_steam`), que some com as horas porque o café esfria (`STEAM_FOR`); o painel do operador nos parafusos e o `Bloom` no miolo das luzes redondas. Beira das peças e do

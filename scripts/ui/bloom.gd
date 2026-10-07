@@ -190,7 +190,7 @@ func _draw_cores() -> void:
 		if l[2]:   # redonda, em pixel art como as lâmpadas da mesa: a sombra do vidro embaixo à direita
 			var d := maxi(2, roundi(minf(r.size.x, r.size.y)))
 			var o := Color(base, 1.0)
-			_cores.draw_texture_rect(Switchboard.disc(d, [[d * 0.18, o.lerp(hot, HOT)], [d * 0.33, o.lerp(hot, HOT * 0.55)],
+			_cores.draw_texture_rect(PixelArt.disc(d, [[d * 0.18, o.lerp(hot, HOT)], [d * 0.33, o.lerp(hot, HOT * 0.55)],
 				[d / 2.0, o, o, o.darkened(GLASS_SHADE)]]), Rect2((r.get_center() - Vector2(d, d) / 2.0).floor(), Vector2(d, d)), false, Color(1, 1, 1, col.a))
 		else:
 			_cores.draw_rect(r, base)

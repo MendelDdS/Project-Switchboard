@@ -40,8 +40,14 @@ run() {   # run <teste> [argumentos do jogo]: roda tests/test_<teste>.gd pela ce
 	fi
 }
 
-# Reimporta: registra `class_name` novos (sem isso, scripts que usam a classe nova não compilam).
-"$GODOT" --headless --path . --import >"$log" 2>&1
+# Reimporta: registra `class_name` novos (sem isso, scripts que usam a classe nova não compilam). Com o editor aberto,
+# não: ele reimporta sozinho, e dois Godot gravando .godot/uid_cache.bin ao mesmo tempo o corrompem (o jogo deixa de
+# achar recursos por UID, como o layout dos barramentos de áudio).
+if pgrep -f -- "--path $PWD (-e|--editor)( |$)" >/dev/null; then
+	echo "Editor aberto: sem --import (dê foco a ele para registrar classes novas)."
+else
+	"$GODOT" --headless --path . --import >"$log" 2>&1
+fi
 if grep -q "SCRIPT ERROR" "$log"; then
 	grep -E "SCRIPT ERROR|at: " "$log" | head -8
 	echo "O projeto não compila."

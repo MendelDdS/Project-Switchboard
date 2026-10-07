@@ -476,12 +476,11 @@ func _pixel_line(a: Vector2, b: Vector2, cols: Array, back := Transform2D.IDENTI
 	draw_set_transform_matrix(back)
 
 
-## Uma peça redonda em pixel art (`Switchboard.disc`; como círculo, saía embolotada) centrada em `c` (px da tela),
+## Uma peça redonda em pixel art (`PixelArt.disc`; como círculo, saía embolotada) centrada em `c` (px da tela),
 ## presa aos pixels, fora da escala e da perspectiva; depois volta a valer `back` (a transformação de quem chamou).
 func _sprite(tex: Texture2D, c: Vector2, mod := Color.WHITE, back := Transform2D.IDENTITY) -> void:
 	draw_set_transform(Vector2.ZERO)
-	var sz := Vector2(tex.get_size())
-	draw_texture_rect(tex, Rect2((c - sz / 2.0).floor(), sz), false, mod)
+	PixelArt.sprite(self, tex, c, mod)
 	draw_set_transform_matrix(back)
 
 
@@ -605,7 +604,7 @@ func _draw_company_sign(b: Rect2) -> void:
 	draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), SIGN_ENAMEL.lightened(0.25))   # a luz na beira de cima
 	draw_rect(r.grow(-3), SIGN_INK, false, 1.0)   # o filete
 	for x in [r.position.x + 9.0, r.end.x - 9.0]:
-		_sprite(Switchboard.disc(5, [[1.5, Color("e6cf8e"), Color("c4a35a"), Color("7a6230")], [2.5, Color("3a2a12")]]), Vector2(x, r.get_center().y))
+		_sprite(PixelArt.disc(5, [[1.5, Color("e6cf8e"), Color("c4a35a"), Color("7a6230")], [2.5, Color("3a2a12")]]), Vector2(x, r.get_center().y))
 	draw_string(Pal.mono, Vector2(roundf(r.get_center().x - tw / 2.0), r.position.y + 16.0), company, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, SIGN_INK)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
@@ -882,15 +881,15 @@ func _draw_switchboard(front: float) -> void:
 			draw_rect(Rect2(plate.position.x + 8, plate.position.y + 5 + i * 5, plate.size.x - 16 - i * 12, 1), Color("4a3a18"))
 		for i in 2:   # baquelite: a borda em volta do tampo, os dois com a luz no alto à esquerda
 			var c := Vector2(rr.end.x + 24 + i * 30, my)
-			_sprite(Switchboard.disc(19, [[9.0, Color(0, 0, 0, 0.35)]]), c + Vector2(1, 2))
-			_sprite(Switchboard.disc(17, [[5.5, Color("5a5048"), Color("3a332c"), Color("2a2420")],
+			_sprite(PixelArt.disc(19, [[9.0, Color(0, 0, 0, 0.35)]]), c + Vector2(1, 2))
+			_sprite(PixelArt.disc(17, [[5.5, Color("5a5048"), Color("3a332c"), Color("2a2420")],
 				[7.5, Color("4a4038"), Color("2a2420"), Color("1a1612")], [8.5, Color("120e0a")]]), c)
 			var a := -PI * 0.75 + i * 1.1
 			for j in range(2, 7):   # o risco de posição, pixel a pixel
 				draw_rect(Rect2((c + Vector2(cos(a), sin(a)) * j).floor(), Vector2.ONE), Color("d6d1c3"))
 	for p in [Vector2(fx1 - 8, sy + 8), Vector2(fx1 - 8, fy - 10), Vector2(8, sy + 8), Vector2(8, fy - 10)]:   # os parafusos
 		if p.x > fx0 + 4:
-			_sprite(Switchboard.disc(5, [[2.5, Color("4a3a24"), Color("2a1a0f"), Color("1a0f08")]]), p)
+			_sprite(PixelArt.disc(5, [[2.5, Color("4a3a24"), Color("2a1a0f"), Color("1a0f08")]]), p)
 			draw_rect(Rect2(p.floor() - Vector2(1, 0), Vector2(3, 1)), Color("8e7a5a"))   # a fenda
 	draw_rect(Rect2(b.position.x, b.end.y, b.size.x, 3), WOOD[2])
 	draw_colored_polygon(PackedVector2Array([Vector2(b.position.x, b.end.y + 3), Vector2(b.end.x, b.end.y + 3),
@@ -1176,7 +1175,7 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 	_r(mid + 4, hy, 2.5, 16, Color("3a3d33"))
 	_r(mid + 4, hy, 2, 15.5, Color("b8b2a2"))
 	_r(mid + 4, hy, PX, 15.5, Color("ece7da"))
-	_sprite(Switchboard.disc(8, [[3.0, Color("b8b2a2"), Color("8e897c"), Color("5a574e")], [4.0, Color.BLACK]]), Vector2(mid + 5.25, hy - 5) * 2.0, Color.WHITE, X2)
+	_sprite(PixelArt.disc(8, [[3.0, Color("b8b2a2"), Color("8e897c"), Color("5a574e")], [4.0, Color.BLACK]]), Vector2(mid + 5.25, hy - 5) * 2.0, Color.WHITE, X2)
 	_r(mid + 5, hy - 6, PX, 1.5, Color("23281f"))
 	for y in [doors + 4, floorf((doors + low) / 2.0) + 10.0, low]:   # as dobradiças
 		for x in [f.position.x - 1, f.end.x - 1]:
@@ -1275,7 +1274,7 @@ func _draw_poster(r: Rect2) -> void:
 	_r(c.x - 7, c.y + 5, 14, PX, Color("8a5a36"))
 	for k in 4:   # o convite
 		_r(r.position.x + 4, r.position.y + 29 + k * 1.5, r.size.x - 8 - (k % 2) * 4, PX, Color("5a4d3a"))
-	_sprite(Switchboard.disc(5, [[2.5, Color("e07060"), Color("b03a2e"), Color("7a2418")]]), Vector2(r.get_center().x, r.position.y) * 2.0, Color.WHITE, X2)   # a tachinha
+	_sprite(PixelArt.disc(5, [[2.5, Color("e07060"), Color("b03a2e"), Color("7a2418")]]), Vector2(r.get_center().x, r.position.y) * 2.0, Color.WHITE, X2)   # a tachinha
 
 
 ## A vista: céu do clima, morros ao fundo, casas e a igreja com o relógio aceso, a rua com o poste (a silhueta do
@@ -1762,7 +1761,7 @@ func _draw_shrub() -> void:
 
 
 ## O letreiro de neon do hotel, preso na fachada do outro lado (`o`: o alto dele): HOTEL de cima para baixo, na fonte
-## gravada da mesa comutadora (`Switchboard.tiny`). Aceso quase sempre (`_sign_on`); o T falha sozinho.
+## gravada da mesa comutadora (`PixelArt.tiny`). Aceso quase sempre (`_sign_on`); o T falha sozinho.
 func _draw_hotel_sign(o: Vector2) -> void:
 	_r(o.x + 5, o.y + 2, 1.5, PX, Color("1d262c"))   # o braço
 	_r(o.x, o.y, 5, 31 * PX, Color("0a0d10"))   # a caixa
@@ -1771,7 +1770,7 @@ func _draw_hotel_sign(o: Vector2) -> void:
 	_ci.draw_set_transform(Vector2.ZERO)
 	for i in 5:
 		var lit := buzz if i == 2 else on
-		var tex := Switchboard.tiny("HOTEL"[i])
+		var tex := PixelArt.tiny("HOTEL"[i])
 		_ci.draw_texture(tex, (o * 2.0 + Vector2(3, i * 6 - 2)).floor(), SIGN_RED if lit else Color("3a1512"))
 	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
@@ -2040,8 +2039,8 @@ func _draw_flip_clock(xc: float, zc: float) -> void:
 		var v := hd - 1.6 - i * 1.1
 		_pixel_line(_clock_pt(xc, zc, -hw * 0.75, v, y1), _clock_pt(xc, zc, 0.0, v, y1), [Color("a89a76").darkened(dark)])
 	var bt := _clock_pt(xc, zc, hw * 0.55, hd * 0.3, y1)   # o botão niquelado do alarme
-	_sprite(Switchboard.disc(7, [[3.5, Color(0, 0, 0, 0.3)]]), bt + Vector2(1, 0))
-	_sprite(Switchboard.disc(6, [[1.2, Color("f4f0e6")], [3.0, Color("d6d1c3"), Color("8e897c"), Color("45413a")]]), bt - Vector2(0, 2), lit)
+	_sprite(PixelArt.disc(7, [[3.5, Color(0, 0, 0, 0.3)]]), bt + Vector2(1, 0))
+	_sprite(PixelArt.disc(6, [[1.2, Color("f4f0e6")], [3.0, Color("d6d1c3"), Color("8e897c"), Color("45413a")]]), bt - Vector2(0, 2), lit)
 	if box.has("left"):   # a rodinha serrilhada de acertar a hora, saindo do lado
 		var a := _clock_pt(xc, zc, -hw - 0.8, hd * 0.3, y1 + CLOCK.y * 0.5 - 2.4).round()
 		var b := _clock_pt(xc, zc, -hw - 0.8, hd * 0.3, y1 + CLOCK.y * 0.5 + 2.4).round()
@@ -2573,21 +2572,6 @@ func _mug_art(w: int, h: int, ry: int, rb: int) -> ImageTexture:
 	return tex
 
 
-## Uma elipse cheia em pixel art (como polígono, saía embolotada), centrada em `c`. Guardada por tamanho.
-static var _ovals := {}
-func _ellipse(c: Vector2, rx: float, ry: float, col: Color) -> void:
-	var sz := Vector2i(maxi(1, roundi(rx * 2.0)), maxi(1, roundi(ry * 2.0)))
-	if not _ovals.has(sz):
-		var img := Image.create(sz.x, sz.y, false, Image.FORMAT_LA8)
-		var h := Vector2(sz) / 2.0
-		for y in sz.y:
-			for x in sz.x:
-				if ((Vector2(x, y) + Vector2(0.5, 0.5) - h) / h).length_squared() <= 1.0:
-					img.set_pixel(x, y, Color.WHITE)
-		_ovals[sz] = ImageTexture.create_from_image(img)
-	draw_texture_rect(_ovals[sz], Rect2((c - Vector2(sz) / 2.0).floor(), Vector2(sz)), false, col)
-
-
 ## O miolo de uma lista telefônica visto de lado (`sz`), entre as capas na cor `c`: as folhas em linhas finas, de 2
 ## em 2 px, umas mais escuras que as outras, mais sujas junto das capas; `dk` escurece o lado que não está de frente.
 func _art_pages(sz: Vector2i, c: Color, dk: float) -> Image:
@@ -2717,8 +2701,8 @@ func _art_map(sz: Vector2i) -> Image:
 ## Parado: piscando e brilhando com uma emergência em andamento, não fazia sentido (um alfinete não acende).
 func _map_pin(sz: Vector2i) -> void:
 	var sp := _tex_pt(Vector2(sz.x * 0.7, sz.y * 0.42)).round()
-	_sprite(Switchboard.disc(6, [[3.0, Color(0, 0, 0, 0.35)]]), sp + Vector2(2, 2))
-	_sprite(Switchboard.disc(6, [[1.2, Color("f0a090")], [3.0, Color("e07060"), Color("b03a2e"), Color("7a2418")]]), sp)
+	_sprite(PixelArt.disc(6, [[3.0, Color(0, 0, 0, 0.35)]]), sp + Vector2(2, 2))
+	_sprite(PixelArt.disc(6, [[1.2, Color("f0a090")], [3.0, Color("e07060"), Color("b03a2e"), Color("7a2418")]]), sp)
 
 
 ## O caderno de ocorrências aberto: a capa de couro com a beira gasta, duas páginas creme (não brancas: chamavam mais o

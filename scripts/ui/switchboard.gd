@@ -134,7 +134,6 @@ const JACK_ART := [
 	".....eeeeee.....",
 ]
 const JACK_PX := 16   # o lado do `JACK_ART`, em pixels
-const LIGHT := Vector2(-0.7071, -0.7071)   # de onde vem a luz das peças redondas (alto à esquerda)
 const EDGE_DARK := Color("1c130b")   # a beira das peças: marrom quase preto, não preto puro
 const PLUG_ART := [   ## o plug em pé, de 20 × 93 px (y de -93 a -1; o fio sai de y = 0): `_plug_pal` dá as cores
 	".........bE.........",
@@ -247,23 +246,6 @@ const JACK := 22.0          # diâmetro de todos os encaixes (entradas, saídas 
 ## A coluna de cada linha, de cima para baixo: plaquinha com o número (topo e altura), estado (linha de base do texto),
 ## lâmpada, entrada e saída (centros). O estado fica acima da lâmpada: embaixo da entrada, o plug encaixado o cobria.
 const ROW_Y := {"plate": 32.0, "plate_h": 17.0, "state": 61.0, "lamp": 76.0, "in": 104.0, "out": 156.0}
-## A fonte do estado de cada linha, como letras gravadas no painel: maiúsculas de 3 × 5 px, desenhadas pixel a pixel
-## (`tiny`). Na fonte da tela, em 11, "conectada" não cabe na coluna; em 8, fora da grade dela, a letra borrava.
-const TINY := {"A": "###/#.#/###/#.#/#.#", "B": "##./#.#/##./#.#/##.", "C": ".##/#../#../#../.##", "D": "##./#.#/#.#/#.#/##.",
-	"E": "###/#../##./#../###", "F": "###/#../##./#../#..", "G": ".##/#../#.#/#.#/.##", "H": "#.#/#.#/###/#.#/#.#",
-	"I": "###/.#./.#./.#./###", "J": "..#/..#/..#/#.#/.#.", "K": "#.#/#.#/##./#.#/#.#", "L": "#../#../#../#../###",
-	"M": "#.#/###/###/#.#/#.#", "N": "##./#.#/#.#/#.#/#.#", "O": ".#./#.#/#.#/#.#/.#.", "P": "##./#.#/##./#../#..",
-	"Q": ".#./#.#/#.#/##./.##", "R": "##./#.#/##./#.#/#.#", "S": ".##/#../.#./..#/##.", "T": "###/.#./.#./.#./.#.",
-	"U": "#.#/#.#/#.#/#.#/###", "V": "#.#/#.#/#.#/#.#/.#.", "W": "#.#/#.#/###/###/#.#", "X": "#.#/#.#/.#./#.#/#.#",
-	"Y": "#.#/#.#/.#./.#./.#.", "Z": "###/..#/.#./#../###", "0": "###/#.#/#.#/#.#/###", "1": ".#./##./.#./.#./###",
-	"2": "##./..#/.#./#../###", "3": "##./..#/.#./..#/##.", "4": "#.#/#.#/###/..#/..#", "5": "###/#../##./..#/##.",
-	"6": ".##/#../###/#.#/###", "7": "###/..#/.#./.#./.#.", "8": "###/#.#/###/#.#/###", "9": "###/#.#/###/..#/##.",
-	".": ".../.../.../.../.#.", "-": ".../.../###/.../...", ":": ".../.#./.../.#./...", "/": "..#/..#/.#./#../#..",
-	"(": ".#./#../#../#../.#.", ")": ".#./..#/..#/..#/.#."}
-const TINY_MARKS := {"´": "..#/.#.", "`": "#../.#.", "^": ".#./#.#", "~": ".##/##.", "¨": "#.#/...", ",": ".#./##."}   ## acentos (2 linhas acima da letra; a cedilha, abaixo)
-const TINY_ACCENTS := {"Á": "A´", "À": "A`", "Â": "A^", "Ã": "A~", "Ä": "A¨", "É": "E´", "È": "E`", "Ê": "E^", "Ë": "E¨",
-	"Í": "I´", "Ì": "I`", "Î": "I^", "Ï": "I¨", "Ó": "O´", "Ò": "O`", "Ô": "O^", "Õ": "O~", "Ö": "O¨", "Ú": "U´", "Ù": "U`",
-	"Û": "U^", "Ü": "U¨", "Ñ": "N~", "Ç": "C,"}
 const BEZEL := [Color("d6d1c3"), Color("8e897c"), Color("45413a")]   # aro niquelado: luz, meio, sombra
 const LAMP_OFF := Color("6b6556")   # o vidro leitoso da lâmpada apagada (escuro, parecia o furo de uma tomada)
 const LAMP_ABOVE := 120.0   # px acima da tela: a luminária do teto, que não aparece
@@ -936,13 +918,15 @@ func _fade(key: String, want: Array, delta: float) -> void:
 ## preto, ela parecia mais uma tomada). Apagada, o vidro fica leitoso (`LAMP_OFF`); acesa, toma a cor da linha, o aro
 ## pega a cor dela e o centro estoura para o branco (o halo é do `Bloom`). A luz da sala brilha no alto do vidro.
 func _draw_lamp(c: Vector2, col: Color, level: float) -> void:
-	_sprite(disc(16, [[7.0, BEZEL[0], BEZEL[1], BEZEL[2]], [8.0, EDGE_DARK]]), c)   # o aro
+	PixelArt.sprite(self, PixelArt.disc(16, [[7.0, BEZEL[0], BEZEL[1], BEZEL[2]], [8.0, EDGE_DARK]]), c)   # o aro
 	if level > 0.02:
-		_sprite(disc(16, [[6.0, Color.TRANSPARENT], [7.0, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), c, Color(col, 0.35 * level))   # a luz no aro
-	var glass := LAMP_OFF.lerp(col, level)
-	_sprite(disc(12, [[6.0, glass.lightened(0.3), glass, glass.darkened(0.4)]]), c)   # o vidro abaulado: luz no alto à esquerda
+		PixelArt.sprite(self, PixelArt.disc(16, [[6.0, Color.TRANSPARENT], [7.0, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), c, Color(col, 0.35 * level))   # a luz no aro
+	# o vidro abaulado (luz no alto à esquerda): o aceso por cima do apagado, com `level` no modulate (uma cor por quadro
+	# na chave do `disc` guardava uma textura nova a cada quadro da lâmpada pulsando)
+	PixelArt.sprite(self, PixelArt.disc(12, [[6.0, LAMP_OFF.lightened(0.3), LAMP_OFF, LAMP_OFF.darkened(0.4)]]), c)
 	if level > 0.02:   # acesa: o centro estoura para o branco (o halo é do Bloom; o miolo nítido, daqui)
-		_sprite(disc(6, [[2.8, Color.WHITE]]), c, Color(Color.WHITE.lerp(col, Bloom.HOT_TINT), level))
+		PixelArt.sprite(self, PixelArt.disc(12, [[6.0, col.lightened(0.3), col, col.darkened(0.4)]]), c, Color(1, 1, 1, level))
+		PixelArt.sprite(self, PixelArt.disc(6, [[2.8, Color.WHITE]]), c, Color(Color.WHITE.lerp(col, Bloom.HOT_TINT), level))
 		Bloom.light(self, Rect2(c - Vector2(LAMP_R, LAMP_R), Vector2(LAMP_R, LAMP_R) * 2.0), Color(col, level), 1.0, false, true)
 	draw_rect(Rect2(c + Vector2(-3, -4), Vector2(2, 1)), Color(1, 1, 1, 0.5))   # o brilho da sala no vidro
 	draw_rect(Rect2(c + Vector2(-4, -3), Vector2(1, 1)), Color(1, 1, 1, 0.25))
@@ -952,8 +936,8 @@ func _draw_lamp(c: Vector2, col: Color, level: float) -> void:
 ## escuro (`_jack_pal`).
 func _draw_jack(jr: Rect2, dim := 0.0) -> void:
 	var r := _jack_px(jr)
-	draw_texture_rect(art(JACK_ART, {"*": Color(0, 0, 0, 0.35)}), Rect2(r.position + Vector2(1, 2), r.size), false)
-	draw_texture_rect(art(JACK_ART, _jack_pal(dim)), r, false)
+	draw_texture_rect(PixelArt.art(JACK_ART, {"*": Color(0, 0, 0, 0.35)}), Rect2(r.position + Vector2(1, 2), r.size), false)
+	draw_texture_rect(PixelArt.art(JACK_ART, _jack_pal(dim)), r, false)
 
 
 ## Onde o desenho do encaixe `jr` fica (`JACK_PX` em volta do meio dele).
@@ -974,7 +958,7 @@ func _jack_pal(dim: float) -> Dictionary:
 ## A luz de uma lâmpada batendo no aro do encaixe logo abaixo dela (o lado de cima, virado para a luz).
 func _reflect(jr: Rect2, col: Color, level: float) -> void:
 	if level > 0.02:
-		draw_texture_rect(art(JACK_ART, {"l": Color.WHITE, "L": Color.WHITE}), _jack_px(jr), false, Color(col, 0.55 * level))
+		draw_texture_rect(PixelArt.art(JACK_ART, {"l": Color.WHITE, "L": Color.WHITE}), _jack_px(jr), false, Color(col, 0.55 * level))
 
 
 func _draw() -> void:
@@ -1009,7 +993,7 @@ func _draw() -> void:
 			sc = Pal.AMBER
 		elif st == Exchange.Line.DONE:
 			sc = Pal.RED
-		var label := tiny(exchange.line_label(n))   # as letras vão de 3 a 7 na imagem: o pé delas logo acima de ROW_Y
+		var label := PixelArt.tiny(exchange.line_label(n))   # as letras vão de 3 a 7 na imagem: o pé delas logo acima de ROW_Y
 		draw_texture(label, Vector2(roundf(cx - label.get_width() / 2.0), ROW_Y["state"] - 8.0), sc)
 		_draw_jack(jack_rect(n + 10), 0.25)
 
@@ -1027,7 +1011,7 @@ func _draw() -> void:
 		draw_string(Pal.mono, Vector2(cx - 16, jr.position.y - 5), str(d), HORIZONTAL_ALIGNMENT_CENTER, 32, 11, Color("d8c9a2") if st == Exchange.Dest.FREE else Pal.TEXT)
 		var dl: Array = _lit.get("d%d" % d, [LAMP_OFF, 0.0])
 		if dl[1] > 0.02:   # o aro em volta da tomada acende
-			_sprite(disc(JACK_PX + 8, [[JACK_PX / 2.0 + 4.0, Color.WHITE]]), jr.get_center(), Color(dl[0], dl[1]))
+			PixelArt.sprite(self, PixelArt.disc(JACK_PX + 8, [[JACK_PX / 2.0 + 4.0, Color.WHITE]]), jr.get_center(), Color(dl[0], dl[1]))
 			Bloom.light(self, jr.grow((JACK_PX - JACK) / 2.0 + 3.0), Color(dl[0], dl[1]), 1.0, false, true)
 		_draw_jack(jr)
 	for s in _blocks:
@@ -1141,7 +1125,7 @@ func _draw_strips() -> void:
 func _draw_wear() -> void:
 	for j in _jacks:
 		var use := _use(j)
-		_sprite(disc(28, [[10.0, Color(Pal.PANEL_HI, WEAR[0])], [12.0, Color(Pal.PANEL_HI, WEAR[1])], [14.0, Color(Pal.PANEL_HI, WEAR[2])]]),
+		PixelArt.sprite(self, PixelArt.disc(28, [[10.0, Color(Pal.PANEL_HI, WEAR[0])], [12.0, Color(Pal.PANEL_HI, WEAR[1])], [14.0, Color(Pal.PANEL_HI, WEAR[2])]]),
 			jack_rect(j).get_center(), Color(1, 1, 1, use))
 		var rng := RandomNumberGenerator.new()
 		rng.seed = j
@@ -1179,9 +1163,9 @@ func _draw_maker_plate() -> void:
 	draw_rect(Rect2(r.end.x - 1, r.position.y, 1, r.size.y), pal["b"])
 	draw_rect(r.grow(-3), pal["b"], false, 1.0)   # o friso gravado em volta
 	for x in [r.position.x + 7.0, r.end.x - 7.0]:
-		_sprite(disc(5, [[1.5, pal["F"], pal["f"], pal["b"]], [2.5, pal["w"]]]), Vector2(x, r.get_center().y))
+		PixelArt.sprite(self, PixelArt.disc(5, [[1.5, pal["F"], pal["f"], pal["b"]], [2.5, pal["w"]]]), Vector2(x, r.get_center().y))
 		draw_rect(Rect2(x - 1.0, r.get_center().y, 3, 1), pal["w"])   # a fenda
-	var maker := tiny(T.text(T.Key.BOARD_MAKER))
+	var maker := PixelArt.tiny(T.text(T.Key.BOARD_MAKER))
 	var at := Vector2(roundf(cx - maker.get_width() / 2.0), r.position.y + 2.0)
 	draw_texture(maker, at + Vector2(0, 1), pal["F"])
 	draw_texture(maker, at, pal["w"])
@@ -1243,15 +1227,15 @@ func _draw_legend() -> void:
 	var texts := []
 	var width := -10.0
 	for item in leg:
-		var t := tiny(T.text(item[1]))
+		var t := PixelArt.tiny(T.text(item[1]))
 		texts.append(t)
 		width += 9.0 + 4.0 + t.get_width() + 10.0
 	var y := RULES["in"] + 1.0
 	var x := floorf(size.x - FRAME - 18.0 - width)
 	draw_rect(Rect2(x - 5, y - 8, width + 10, 15), Pal.PANEL)   # tampa a faixa, como o nome dela
 	for k in leg.size():
-		_sprite(disc(9, [[3.0, Color.WHITE], [4.5, EDGE_DARK]]), Vector2(x + 4.5, y), leg[k][0])   # lâmpadas redondas, como as da mesa
-		_sprite(disc(9, [[3.0, Color.TRANSPARENT], [4.5, EDGE_DARK]]), Vector2(x + 4.5, y))
+		PixelArt.sprite(self, PixelArt.disc(9, [[3.0, Color.WHITE], [4.5, EDGE_DARK]]), Vector2(x + 4.5, y), leg[k][0])   # lâmpadas redondas, como as da mesa
+		PixelArt.sprite(self, PixelArt.disc(9, [[3.0, Color.TRANSPARENT], [4.5, EDGE_DARK]]), Vector2(x + 4.5, y))
 		draw_texture(texts[k], Vector2(x + 13.0, y - 5.0), Pal.DIM)
 		x += 9.0 + 4.0 + (texts[k] as Texture2D).get_width() + 10.0
 
@@ -1287,12 +1271,12 @@ static func engrave(ci: CanvasItem, at: Vector2, text: String) -> void:
 ## beira de trás na sombra e a da frente pegando a luz, a parede de dentro do lado de trás (olhando de cima, é a que
 ## aparece) e o vão escuro. Sem contorno preto (destoava do cenário).
 static func draw_grommet(ci: CanvasItem, c: Vector2) -> void:
-	ci.draw_texture_rect(art(HOLE_ART, HOLE_PAL), _hole_px(c), false)
+	ci.draw_texture_rect(PixelArt.art(HOLE_ART, HOLE_PAL), _hole_px(c), false)
 
 
 ## A beira da frente do buraco (`draw_grommet`), por cima do plug guardado nele: o plug entra no buraco.
 static func draw_lip(ci: CanvasItem, c: Vector2) -> void:
-	ci.draw_texture_rect(art(HOLE_ART, {"f": HOLE_PAL["f"], "F": HOLE_PAL["F"]}), _hole_px(c), false)
+	ci.draw_texture_rect(PixelArt.art(HOLE_ART, {"f": HOLE_PAL["f"], "F": HOLE_PAL["F"]}), _hole_px(c), false)
 
 
 static func _hole_px(c: Vector2) -> Rect2:
@@ -1340,13 +1324,13 @@ func _draw_plate(r: Rect2, letter: String) -> void:
 			var from: Vector2 = c + Vector2.from_angle(a) * 4.0
 			var to := from + Vector2.from_angle(a + rng.randf_range(-0.3, 0.3)) * rng.randf_range(2.0, 5.0)
 			draw_line(from.round() + Vector2(0.5, 0.5), to.round() + Vector2(0.5, 0.5), PLATE.lightened(0.3), 1.0)
-		_sprite(disc(7, [[2.5, PLATE.lightened(0.35), PLATE.lightened(0.15), PLATE.darkened(0.2)], [3.5, PLATE.darkened(0.5)]]), c)
+		PixelArt.sprite(self, PixelArt.disc(7, [[2.5, PLATE.lightened(0.35), PLATE.lightened(0.15), PLATE.darkened(0.2)], [3.5, PLATE.darkened(0.5)]]), c)
 		draw_rect(Rect2((c - Vector2(2, 1)).floor(), Vector2(3, 1)), PLATE.darkened(0.5))   # fenda do parafuso
 	var at := Vector2(r.position.x, r.get_center().y + 8.0)   # a letra estampada
 	draw_string(Pal.mono, at + Vector2(1, 1), letter, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 33, PLATE.darkened(0.45))
 	draw_string(Pal.mono, at - Vector2(0, 1), letter, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 33, PLATE.lightened(0.35))
 	draw_string(Pal.mono, at, letter, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 33, PLATE.lightened(0.15))
-	var notice := tiny(T.text(T.Key.BOARD_PLATE_NOTICE))   # pintado com estêncil, já gasto
+	var notice := PixelArt.tiny(T.text(T.Key.BOARD_PLATE_NOTICE))   # pintado com estêncil, já gasto
 	draw_texture(notice, Vector2(roundf(r.get_center().x - notice.get_width() / 2.0), r.get_center().y + 13.0), Color("c9b98f", 0.6))
 
 
@@ -1430,7 +1414,7 @@ func _draw_plug(e: int, shadow: bool) -> void:
 	_cut = hole(e).y + HOLE_LIP - at.round().y if _in_hole(e) else INF
 	if shadow and seated:   # do encaixe até onde a luz joga a ponta, no painel
 		draw_colored_polygon(Geometry2D.convex_hull(_circle(Vector2.ZERO, PLUG_FACE_R + 1.0) + _circle(PLUG_SHADE, PLUG_FACE_R)), SHADOW)
-		_sprite(disc(PLUG_ABA_D + 2, [[PLUG_ABA_D / 2.0 + 1.0, Color.WHITE]]), Vector2.ZERO, SHADOW)   # sombra de contato: a aba presa no encaixe
+		PixelArt.sprite(self, PixelArt.disc(PLUG_ABA_D + 2, [[PLUG_ABA_D / 2.0 + 1.0, Color.WHITE]]), Vector2.ZERO, SHADOW)   # sombra de contato: a aba presa no encaixe
 	elif shadow:
 		_draw_cut(_plug_outline(e, 0.0), SHADOW)
 	else:
@@ -1538,12 +1522,12 @@ func _draw_plug_face(col: Array, tilt: Vector2, push: float, alpha: float, j := 
 	var light := _plug_light(j)
 	for k in n + 1:
 		var r := _face_row(n, k)
-		_sprite(disc(r[0], [[r[0] / 2.0, pal[r[1]]]]), t * float(k) / n, mod)
+		PixelArt.sprite(self, PixelArt.disc(r[0], [[r[0] / 2.0, pal[r[1]]]]), t * float(k) / n, mod)
 	for k in n + 1:
 		var r := _face_row(n, k)
 		var d: int = r[0] - 2
 		var tones := [pal[r[2]], pal[r[3]], pal[r[4]]]
-		_sprite(_knurled(d, tones) if r[5] else disc(d, [[d / 2.0, tones[0], tones[1], tones[2]]]), t * float(k) / n, mod)
+		PixelArt.sprite(self, _knurled(d, tones) if r[5] else PixelArt.disc(d, [[d / 2.0, tones[0], tones[1], tones[2]]]), t * float(k) / n, mod)
 	if light[1] > 0.02:
 		var rim: Array = _face_rim(t, n, light[2])
 		draw_texture(rim[0], rim[1], Color((light[0] as Color).lightened(0.35), light[1] * 0.8 * alpha))
@@ -1586,7 +1570,7 @@ static var _knurls := {}
 func _knurled(d: int, tones: Array) -> ImageTexture:
 	var key := str(d, tones)
 	if not _knurls.has(key):
-		var img := disc(d, [[d / 2.0, tones[0], tones[1], tones[2]]]).get_image()
+		var img := PixelArt.disc(d, [[d / 2.0, tones[0], tones[1], tones[2]]]).get_image()
 		for y in d:
 			for x in d:
 				var c := img.get_pixel(x, y)
@@ -1602,7 +1586,7 @@ func _draw_plug_cap(e: int) -> void:
 	if float(_pushed.get(e, MORPH_SEC)) < MORPH_SEC:
 		return   # ainda entrando: o corpo em pé está por cima
 	var col: Array = _cable_col(e)
-	_sprite(disc(5, [[1.0, col[1]], [2.5, col[0]]]), _plug_base(e).round())   # na cor e na largura do fio, sem contorno: o fio continua nela
+	PixelArt.sprite(self, PixelArt.disc(5, [[1.0, col[1]], [2.5, col[0]]]), _plug_base(e).round())   # na cor e na largura do fio, sem contorno: o fio continua nela
 
 
 ## A luz que bate no plug encaixado em `j`, como [cor, nível, de todos os lados]: na entrada, a lâmpada da linha,
@@ -1631,7 +1615,7 @@ func _face_rim(t: Vector2, n: int, around: bool) -> Array:
 		for k in n + 1:
 			var d: int = _face_row(n, k)[0]
 			var p := (t * float(k) / n - Vector2(d, d) / 2.0).floor()
-			spots.append([p, disc(d, [[d / 2.0, Color.WHITE]]).get_image()])
+			spots.append([p, PixelArt.disc(d, [[d / 2.0, Color.WHITE]]).get_image()])
 			lo = lo.min(p)
 			hi = hi.max(p + Vector2(d, d))
 		var size := Vector2i(hi - lo) + Vector2i(2, 2)
@@ -1673,7 +1657,7 @@ func _draw_plug_body(col: Array, tip: bool = true) -> void:
 	var top := -PLUG_H if tip else -PLUG_LEN
 	var bottom := minf(0.0, _cut)
 	if bottom > top:
-		draw_texture_rect_region(art(PLUG_ART, _plug_pal(col)), Rect2(-10, top, 20, bottom - top), Rect2(0, top + PLUG_H, 20, bottom - top))
+		draw_texture_rect_region(PixelArt.art(PLUG_ART, _plug_pal(col)), Rect2(-10, top, 20, bottom - top), Rect2(0, top + PLUG_H, 20, bottom - top))
 	if _cut < INF:   # entrando no buraco, o plug escurece até a beira dele
 		var none := Color(0, 0, 0, 0)
 		var deep := Color(0, 0, 0, 0.6)
@@ -1692,83 +1676,6 @@ func _plug_pal(col: Array) -> Dictionary:
 			"Y": Color("ecd29a"), "y": Color("e0c07a"), "b": Color("b8924e"), "B": Color("7a5a24"), "C": Color("5a4218"), "E": Color("3a2810"),
 			"K": Color("2a2622"), "k": Color("141210")}
 	return _plug_pals[c]
-
-
-## O texto `text` na fonte do painel (`TINY`), em maiúsculas, branco (a cor vem na hora de desenhar): 4 px por letra
-## e 10 de altura (os acentos nas linhas 0 e 1, as letras de 3 a 7, a cedilha em 8 e 9). Guardado.
-static var _tinies := {}
-static func tiny(text: String) -> ImageTexture:
-	text = text.to_upper()
-	if not _tinies.has(text):
-		var img := Image.create(maxi(1, text.length() * 4 - 1), 10, false, Image.FORMAT_LA8)
-		for i in text.length():
-			var ch: String = TINY_ACCENTS.get(text[i], text[i])
-			_tiny_glyph(img, TINY.get(ch[0], ""), i * 4, 3)
-			if ch.length() > 1:
-				_tiny_glyph(img, TINY_MARKS[ch[1]], i * 4, 8 if ch[1] == "," else 0)
-		_tinies[text] = ImageTexture.create_from_image(img)
-	return _tinies[text]
-
-
-static func _tiny_glyph(img: Image, glyph: String, x: int, y: int) -> void:
-	var rows := glyph.split("/")
-	for r in rows.size():
-		for c in rows[r].length():
-			if rows[r][c] == "#":
-				img.set_pixel(x + c, y + r, Color.WHITE)
-
-
-## Pixel art de um mapa de texto (`rows`, um caractere por pixel; "." é vazio), nas cores de `pal` (caractere -> cor;
-## "*" vale para os que faltam; sem cor, vazio). Guardada.
-static var _arts := {}
-static func art(rows: Array, pal: Dictionary) -> ImageTexture:
-	var key := hash([rows, pal])
-	if _arts.has(key):
-		return _arts[key]
-	var img := Image.create((rows[0] as String).length(), rows.size(), false, Image.FORMAT_RGBA8)
-	for y in rows.size():
-		for x in (rows[y] as String).length():
-			var ch: String = rows[y][x]
-			if ch != "." and (pal.has(ch) or pal.has("*")):
-				img.set_pixel(x, y, pal.get(ch, pal.get("*")))
-	var tex := ImageTexture.create_from_image(img)
-	_arts[key] = tex
-	return tex
-
-
-## Peça redonda em pixel art, pixel a pixel (desenhada como círculo, saía embolotada): `d` pixels de diâmetro;
-## `layers` de dentro para fora, [raio em pixels, cor] ou [raio, luz, meio, sombra] (a luz vem de `LIGHT`) ou
-## [raio, luz, meio, sombra, true] (côncava: a luz bate do lado oposto, como no fundo de um furo). Guardada. O cenário,
-## o painel e o bloom usam também (o mesmo acabamento em toda peça redonda).
-static var _discs := {}
-static func disc(d: int, layers: Array) -> ImageTexture:
-	var key := str(d, layers)
-	if _discs.has(key):
-		return _discs[key]
-	var img := Image.create(d, d, false, Image.FORMAT_RGBA8)
-	var mid := Vector2(d, d) / 2.0
-	for y in d:
-		for x in d:
-			var o := Vector2(x + 0.5, y + 0.5) - mid
-			for l in layers:
-				if o.length() <= l[0]:
-					var col: Color = l[1]
-					if l.size() >= 4:
-						var t := o.normalized().dot(LIGHT) if o.length() > 0.01 else 0.0
-						if l.size() >= 5 and l[4]:
-							t = -t
-						col = l[1] if t > 0.38 else (l[3] if t < -0.38 else l[2])
-					img.set_pixel(x, y, col)
-					break
-	var tex := ImageTexture.create_from_image(img)
-	_discs[key] = tex
-	return tex
-
-
-## Desenha a peça `tex` centrada em `c`, presa aos pixels.
-func _sprite(tex: Texture2D, c: Vector2, mod := Color.WHITE) -> void:
-	var sz := Vector2(tex.get_size())
-	draw_texture_rect(tex, Rect2((c - sz / 2.0).floor(), sz), false, mod)
 
 
 ## O idioma mudou nas configurações: redesenha os textos.
