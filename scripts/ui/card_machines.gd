@@ -252,6 +252,7 @@ func _gui_input(e: InputEvent) -> void:
 	if e is InputEventMouseMotion:
 		if _press != Vector2.INF and state == State.READY and e.position.distance_to(_press) > DRAG_START:
 			_grab = _press - _pos
+			card.pivot_offset = _grab   # chega perto e se afasta em volta de onde a mão pegou
 			_press = Vector2.INF
 			_go(State.DRAGGING)
 		if state == State.DRAGGING:
@@ -303,6 +304,7 @@ func _drop() -> void:
 
 ## As máquinas (o cartão é o `card`, desenhado por cima).
 func _draw() -> void:
+	Bloom.clear(self)
 	if _up > 0.0:
 		_draw_sender()
 		_draw_shredder()
@@ -345,6 +347,7 @@ func _led(at: Vector2, on: bool, col: Color, a := 1.0) -> void:
 	draw_rect(Rect2(at, Vector2(5, 5)), Color(col if on else Pal.PANEL_LO, a))
 	if on:
 		draw_rect(Rect2(at + Vector2(1, 1), Vector2(1, 1)), Color(1, 1, 1, 0.6 * a))   # o brilho da lâmpada
+		Bloom.light(self, Rect2(at, Vector2(5, 5)), Color(col, a))
 
 
 func _draw_printer() -> void:

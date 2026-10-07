@@ -19,9 +19,8 @@ const SMALLTALK_AFTER := 10.0           # segundos de silêncio esperando a tran
 const SMALLTALK_CHANCE := 0.6           # ...às vezes (respostas e limites: Conversation); sem resposta, reclama da demora:
 const NAG_AFTER := 22.0                 # segundos de silêncio até reclamar da demora (emergência: EMERGENCY_NAG_AFTER)
 const EMERGENCY_NAG_AFTER := 26.0
-const PHONE_MAX_H := 400.0              # px: em tela alta o telefone para de crescer (a sobra fica para a mesa de madeira)
-## Atalhos das abas (Input Map): aba -> ação.
-const TAB_KEYS := {"lista": "tab_directory", "despacho": "tab_dispatch", "caderno": "tab_logbook"}
+## Atalhos das ferramentas (Input Map): aba -> ação.
+const TAB_KEYS := {"lista": "tab_directory", "despacho": "tab_dispatch", "caderno": "tab_logbook", "registro": "tab_call_log"}
 var C: GameContent = GameData.CONTENT
 
 var exchange: Exchange
@@ -31,7 +30,10 @@ var pace_level := 1                ## nível de ritmo desta noite (GameContent.p
 var force_sectors: Array = []      ## testes: setores atendidos (vazio = os da noite, GameData.SECTOR_NIGHTS)
 var pace: Pace                     ## ritmo das ligações sorteadas desta noite
 var progress: Progress             ## progresso salvo; nulo quando a noite foi forçada (testes, `--night`)
-var flags := StoryFlags.new()      ## marcadores do roteiro valendo agora: os salvos + os desta noite
+var flags: StoryFlags:             ## marcadores do roteiro valendo agora: os salvos + os desta noite (mudam a sala)
+	set(v):
+		flags = v
+		flags.changed.connect(func(_n: String, _on: bool): _update_room())
 var weather := "rain"
 var report := ShiftReport.new()    ## advertências do turno, conferidas pelo supervisor no fim do turno
 var minutes := 0.0
@@ -58,15 +60,15 @@ var _calling_back := false
 var _tick_acc := 0.0
 var _taught_midnight := false
 var _taught_bank := false
+var _hour := 0   ## a última hora cheia em que o relógio bateu (horas desde o começo do turno)
 var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o silêncio na linha (PhoneCall.last_talk)
 
 @onready var background: Background = %Background
-@onready var clock: Label = %Clock
 @onready var _end_shift: Button = %EndShift
 @onready var _shift_hours: Label = %ShiftHours
 @onready var board: Switchboard = %Board
 @onready var phone: PhonePanel = %Phone
-@onready var radio: Radio = %Radio
+@onready var radio: Radio = phone.radio
 @onready var tools: Tools = %Tools
 @onready var notebook: Notebook = tools.notebook
 @onready var dispatch: Dispatch = tools.dispatch
@@ -78,6 +80,10 @@ var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o
 @onready var _intro: Intro = %Intro
 @onready var _ending: Ending = %Ending
 @onready var _pause: PauseMenu = %PauseMenu
+
+
+func _init() -> void:
+	flags = StoryFlags.new()
 
 
 ## A noite (e os setores dela) vem antes dos filhos ficarem prontos: a lista telefônica monta as páginas no `_ready`.
@@ -92,12 +98,10 @@ func _ready() -> void:
 		if a.begins_with("--weather=") and a.get_slice("=", 1) in WEATHERS:
 			weather = a.get_slice("=", 1)
 	background.weather = weather
+	background.night = night_no
+	_update_room()
 	exchange = Exchange.new(GameData.board_numbers())
-	board.setup(exchange, phone.fone_socket)
-	var left := phone.get_parent() as Control   # o telefone ocupa o resto da coluna, até PHONE_MAX_H
-	left.resized.connect(func():
-		var above := left.get_combined_minimum_size().y - phone.get_combined_minimum_size().y
-		phone.custom_minimum_size.y = minf(left.size.y - above, PHONE_MAX_H))
+	board.setup(exchange, %FoneSocket, %CordTray)
 	var plan := Schedule.build(night, pace, LAST_CALL)
 	sched = plan.calls
 	tut = plan.tut
@@ -114,12 +118,25 @@ func _ready() -> void:
 	_intro.settings_pressed.connect(_pause.open_settings)
 	_pause.resumed.connect(_update_bell)
 	dispatch.radio = radio
+	(%Mini as ConsoleMini).phone = phone
 	dispatch.sent.connect(_on_dispatched)
 	dispatch.arrived.connect(supervisor.on_arrived)
 	dispatch.blank_card.connect(func(loc: String): supervisor.fault("dispatch_blank", loc))
 	notebook.registered.connect(supervisor.on_registered)
-	notebook.pending_changed.connect(func(n: int): tools.set_count("caderno", n))
+	notebook.pending_changed.connect(func(n: int):
+		tools.set_count("caderno", n)
+		background.pending = n
+		if n > 0:
+			_teach("viu_tiras_caderno", T.Key.HINT_DESK_SLIPS))
+	tools.call_log.unread_changed.connect(func(on: bool):
+		background.unread = on
+		if on:
+			_teach("viu_folha_registro", T.Key.HINT_DESK_SHEET))
+	tools.origin = background.prop_rect   # o papel de cada ferramenta sai do objeto dela na mesa
+	background.prop_clicked.connect(func(id: String): if running and not ending: tools.set_tab(id))   # objetos da cena
 	_intro.setup(night_no, night, progress != null and progress.night > 1)
+	if progress != null and night_no > 1:   # o jornal da manhã, com o que aconteceu na noite anterior
+		set_news(progress.news)
 	# noite de entrega de um setor: o mapa se abre para o bairro novo na primeira vez que aparece
 	var before := GameData.sectors_for(night_no - 1)
 	if force_sectors.is_empty() and night_no > 1 and before.size() < GameData.sectors.size():
@@ -173,7 +190,17 @@ static func fmt(m: float) -> String:
 
 
 func hint(t: String) -> void:
-	_hint.text = "" if t == "" else "[bgcolor=#b8924e][color=#1a150d] %s [/color][/bgcolor]  %s" % [T.text(T.Key.HINT_BADGE), t]
+	_hint.text = "" if t == "" else "[color=#8a2a1c]%s[/color]  %s" % [T.text(T.Key.HINT_BADGE), t]   # carimbado em vermelho, como o caderno
+	_hint.self_modulate.a = 0.0 if t == "" else 1.0   # sem dica, o papel some (o lugar dele fica: nada pula)
+
+
+## Dica da primeira vez que um sinal da mesa aparece, uma vez no jogo todo: o "já viu" (`flag`) fica nos marcadores,
+## salvos entre as noites. Durante o tutorial espera (a dica dele não pode ser atropelada).
+func _teach(flag: String, key: T.Key) -> void:
+	if flags.has(flag) or (tut != null and not tut.ended):
+		return
+	flags.apply(flag)
+	hint(T.text(key))
 
 
 func warn(t: String) -> void:
@@ -209,9 +236,17 @@ func _process(delta: float) -> void:
 			elif not _taught_midnight:
 				_taught_midnight = true
 				hint(T.text(T.Key.HINT_MIDNIGHT))
-		_end_shift.visible = after and minutes >= LAST_CALL and not ending
+		var can_end := after and minutes >= LAST_CALL and not ending
+		if can_end and not _end_shift.visible:   # a campainha da plaqueta: o turno já pode ser encerrado
+			Sfx.play_at("shift_bell", _shift_hours.get_global_rect().get_center().x)
+		_end_shift.visible = can_end
 		_shift_hours.visible = not _end_shift.visible
-		clock.text = fmt(minutes)
+		var hour := floori(minutes / 60.0)
+		if hour > _hour:   # a badalada do relógio a cada hora cheia (vem do relógio de flip da mesa) e o sino da igreja
+			Sfx.play_at("chime", background.clock_x)
+			background.toll((SHIFT_START_HOUR + hour - 1) % 12 + 1)
+		_hour = hour
+		background.minutes = SHIFT_START_HOUR * 60 + minutes
 		_nag()
 		supervisor.check_hold()
 	background.flick = flick
@@ -245,8 +280,9 @@ func _nag() -> void:
 		conversation.say(f, GameData.pick(C.emergency_waiting))
 
 
-## Esc: primeiro devolve o plug que está na mão; sem plug na mão, pausa o turno. 1, 2 e 3 abrem as abas (só durante
-## o turno; na pausa a árvore está parada). F1 abre o painel de debug (só em build de debug).
+## Esc: primeiro devolve o plug que está na mão; depois guarda a ferramenta aberta; sem nada disso, pausa o turno.
+## 1 a 4 abrem e guardam as ferramentas (só durante o turno; na pausa a árvore está parada). F1 abre o painel de
+## debug (só em build de debug).
 func _unhandled_input(e: InputEvent) -> void:
 	if e.is_action_pressed("cancel_plug") and board.held != -1:
 		board.go_home(board.held)
@@ -254,6 +290,9 @@ func _unhandled_input(e: InputEvent) -> void:
 	elif e.is_action_pressed("debug") and OS.is_debug_build():
 		get_viewport().set_input_as_handled()
 		%Debug.visible = not %Debug.visible
+	elif e.is_action_pressed("pause") and running and not ending and tools.open and e is InputEventKey and e.keycode == KEY_ESCAPE:
+		get_viewport().set_input_as_handled()
+		tools.close()
 	elif e.is_action_pressed("pause") and running and not ending:
 		get_viewport().set_input_as_handled()
 		pause()
@@ -261,7 +300,7 @@ func _unhandled_input(e: InputEvent) -> void:
 		for id in TAB_KEYS:
 			if e.is_action_pressed(TAB_KEYS[id]):
 				get_viewport().set_input_as_handled()
-				tools.set_tab(id)
+				tools.toggle(id)
 
 
 func pause() -> void:
@@ -539,33 +578,9 @@ func _transferred(c: PhoneCall) -> bool:
 
 func _update_call_ui() -> void:
 	var f := _focus()
-	var s := phone.shown()
 	var can_transfer := f != null and f.active and f.kind == PhoneCall.Kind.TRANSFER and f.phase == PhoneCall.Phase.AWAIT
 	can_transfer = can_transfer and not _transferred(f)
 	phone.set_buttons(f != null and f.ringing, can_transfer, f != null and f.active)
-	var line := T.text(T.Key.STATUS_NO_CALL)
-	var st := ""
-	if s != null:
-		line = T.text(T.Key.STATUS_LINE) % s.line
-		if s.ended:
-			st = T.text(T.Key.STATUS_ENDED)
-		elif s != f:
-			st = T.text(T.Key.STATUS_RINGING) if s.ringing else T.text(T.Key.STATUS_ON_HOLD)
-		elif s.ringing:
-			st = T.text(T.Key.STATUS_RINGING)
-		else:
-			st = T.text(T.Key.STATUS_ON_LINE)
-			var d := board.dest_of_output(s.line)
-			if s.kind == PhoneCall.Kind.TRANSFER and d != -1:
-				if exchange.dest(d) == Exchange.Dest.RING:
-					st = T.text(T.Key.STATUS_CALLING) % d
-				elif exchange.dest(d) == Exchange.Dest.CONN:
-					st = T.text(T.Key.STATUS_ANSWERED) % d
-	var others := PackedStringArray()
-	for c in live:
-		if c != s:
-			others.append("%02d %s" % [c.line, T.text(T.Key.STATUS_RINGING) if c.ringing else T.text(T.Key.STATUS_ON_HOLD)])
-	phone.set_status(line, st, "" if others.is_empty() else T.text(T.Key.STATUS_OTHER_LINES) % ", ".join(others))
 
 
 # ================================================================ agenda das ligações
@@ -653,6 +668,7 @@ func ring(c: PhoneCall) -> void:
 	c.ringing = true
 	c.time = fmt(minutes)
 	live.append(c)
+	tools.call_log.track(c)
 	if c.kind == PhoneCall.Kind.MYSTERY:
 		myst_time = c.time
 		myst_line = c.line
@@ -753,12 +769,30 @@ func hangup() -> void:
 	end_call(c, PhoneCall.End.OPERATOR)
 
 
+## A sala do operador nesta noite: os detalhes do cenário cujos marcadores batem (`GameContent.room`).
+func _update_room() -> void:
+	if not is_node_ready():   # os marcadores salvos entram antes do cenário existir; o `_ready` chama de novo
+		return
+	var on := PackedStringArray()
+	for r in C.room:
+		if night_no >= r.from_night and flags.allows(r.requires):
+			on.append(r.detail)
+	background.details = on
+
+
+## Põe na mesa o jornal da manhã com as manchetes `news` (`ShiftReport.news` da noite anterior).
+func set_news(news: Array) -> void:
+	tools.news.show_news(news, night.weekday)
+	background.news = true
+
+
 # ================================================================ fim de ligação
 
 func end_call(c: PhoneCall, reason: PhoneCall.End) -> void:
 	if c.ended:
 		return
 	c.ended = true
+	tools.call_log.filed(c)
 	c.active = false
 	c.ringing = false
 	c.on_line = false
@@ -925,6 +959,7 @@ func start_ending() -> void:
 			progress.pace = Pace.next(pace_level, night_no, report.verdict())
 			progress.severe = report.severe_total()
 			progress.flags = flags.names()
+			progress.news = report.news()
 			progress.save()
 	await get_tree().create_timer(5.0, false).timeout
 	_ending.play(report, not last)

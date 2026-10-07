@@ -10,6 +10,8 @@ const VOL := {
 	"tick": -24.0, "pencil": -13.0, "ring": -9.0, "pulse": -10.0, "ringback": -13.0, "sit": -13.0,
 	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "rub": -13.0, "cord_stop": -16.0, "cord_tap": -17.0, "unroll": -8.0,
 	"typing": -13.0, "printer": -14.0, "punch": -8.0, "feed": -11.0, "read": -14.0, "shred": -10.0, "deny": -14.0,
+	"chime": -11.0, "shift_bell": -13.0, "car": -15.0, "car_wet": -14.0, "neon": -29.0, "thunder": -8.0,
+	"bell": -15.0, "drip": -22.0, "rattle": -17.0, "step": -29.0, "step_wet": -27.0, "lamp_tick": -27.0,
 }
 ## Volume (dB) dos sons de ambiente em cada clima; o que não aparece fica mudo.
 const WEATHER_MIX := {
@@ -42,7 +44,16 @@ const BELL_STEP := 0.006
 
 ## Sons mecânicos que se repetem muito (plugs, fios): cada vez sai com o tom e o volume levemente diferentes
 ## (± VARY_PITCH, ± VARY_DB), para a mesa cheia não soar como uma máquina.
-const VARIED := ["plug_in", "plug_out", "thump", "drop", "cord_stop", "cord_tap", "click", "punch"]
+const VARIED := ["plug_in", "plug_out", "thump", "drop", "cord_stop", "cord_tap", "click", "punch", "neon", "drip", "step",
+	"step_wet", "lamp_tick"]
+## As gotas batendo no vidro, em relação à chuva (dB), e o zumbido da luminária acesa (dB).
+const RAIN_GLASS := -7.0
+const LAMP_BUZZ := -40.0
+## A chuva cresce e diminui em ondas lentas (dB de cada onda, período em s), em vez de um chiado constante.
+const RAIN_WAVES := [Vector2(2.5, 37.0), Vector2(1.5, 11.0)]
+## Com a noite avançando a cidade se cala: os grilos sobem e a brisa baixa (dB, com `set_late` em 1).
+const LATE_CRICKETS := 4.0
+const LATE_BREEZE := -3.0
 const VARY_PITCH := 0.06
 const VARY_DB := 1.5
 
@@ -57,6 +68,13 @@ var breeze: AudioStreamPlayer
 var crickets: AudioStreamPlayer
 var hum: AudioStreamPlayer
 var hiss: AudioStreamPlayer
+var glass: AudioStreamPlayer2D   # as gotas no vidro, vindo da janela (`window_x`)
+var lamp_buzz: AudioStreamPlayer  # o zumbido da luminária, que acompanha a luz dela (`lamp`)
+var window_x := 0.9               ## onde fica a janela na tela (0..1); o cenário atualiza
+var _rain_db := -80.0             # o volume da chuva pedido pelo clima, antes das ondas
+var _lamp_on := false            # o ambiente da sala está tocando (o zumbido segue a luminária)
+var _late := 0.0                  # quanto a noite já avançou (0..1): a cidade se calando
+var _t := 0.0
 var rub: AudioStreamPlayer        # atrito do fio no buraco, em loop: o fio (agarra e solta, corpo)
 var rub_hi: AudioStreamPlayer     # e o agudo (fibras, rangido), com volume próprio
 var _rub_speed := 0.0             # px/s pedidos desde o último quadro (zera a cada quadro: sem pedido, cala)
@@ -93,6 +111,15 @@ func _ready() -> void:
 	crickets = _make_loop("crickets")
 	hum = _make_loop("hum")
 	hiss = _make_loop("hiss")
+	lamp_buzz = _make_loop("lamp_buzz")
+	glass = AudioStreamPlayer2D.new()
+	glass.stream = streams["rain_glass"]
+	glass.volume_db = -80.0
+	glass.bus = &"Ambience"
+	glass.attenuation = 0.0
+	glass.max_distance = 100000.0
+	glass.panning_strength = PAN
+	add_child(glass)
 	rub = _make_loop("rub")
 	rub_hi = _make_loop("rub_hi")
 	for p in [rub, rub_hi]:
@@ -155,15 +182,18 @@ func later(t: float, id: String, db: float = 0.0) -> void:
 
 
 func start_ambience(w: String) -> void:
-	for p in [rain, breeze, crickets, hum, hiss]:
+	for p in [rain, breeze, crickets, hum, hiss, lamp_buzz, glass]:
 		p.play()
 	fade(hum, -29.0, 2.0)
+	_lamp_on = true
 	set_weather(w, 2.0)
 
 
 func stop_ambience(sec: float) -> void:
-	for p in [rain, breeze, crickets, hum]:
+	_lamp_on = false
+	for p in [breeze, crickets, hum, lamp_buzz]:
 		fade(p, -80.0, sec)
+	create_tween().tween_property(self, "_rain_db", -80.0, sec)
 	fade(hiss, -80.0, minf(sec, 1.0))
 
 
@@ -171,6 +201,18 @@ func stop_ambience(sec: float) -> void:
 func set_weather(w: String, sec: float = 4.0) -> void:
 	weather = w
 	_apply_mix(sec)
+
+
+## Quanto a noite já avançou (0..1, das 22h à meia-noite): os grilos sobem e a brisa baixa aos poucos.
+func set_late(k: float) -> void:
+	_late = k
+	_apply_mix(8.0)
+
+
+## A luz da luminária (0..1): o zumbido acompanha, e some com ela apagada.
+func lamp(level: float) -> void:
+	if _lamp_on:
+		lamp_buzz.volume_db = LAMP_BUZZ + linear_to_db(maxf(level, 0.01))
 
 
 ## Antes da ligação desconhecida a noite se cala: grilos param, chuva e brisa baixam.
@@ -183,9 +225,14 @@ func _apply_mix(sec: float) -> void:
 	var mix: Dictionary = WEATHER_MIX[weather]
 	for id in ["rain", "breeze", "crickets"]:
 		var db: float = mix.get(id, -80.0)
+		if db > -80.0:
+			db += {"crickets": LATE_CRICKETS, "breeze": LATE_BREEZE}.get(id, 0.0) * _late
 		if _hushed:
 			db = -80.0 if id == "crickets" else db - 10.0
-		fade(get(id), db, sec)
+		if id == "rain":   # a chuva tem as ondas por cima (`_process`)
+			create_tween().tween_property(self, "_rain_db", db, sec)
+		else:
+			fade(get(id), db, sec)
 
 
 ## O fio está passando pelo buraco a `speed` px/s: o atrito acompanha, mais alto e mais agudo quanto mais rápido.
@@ -199,6 +246,13 @@ func cord_rub(speed: float, screen_x := 0.5, out_share := 1.0, fone_share := 0.0
 
 
 func _process(delta: float) -> void:
+	_t += delta
+	var wave := 0.0
+	for w: Vector2 in RAIN_WAVES:
+		wave += w.x * sin(TAU * _t / w.y)
+	rain.volume_db = _rain_db + wave
+	glass.volume_db = _rain_db + RAIN_GLASS + wave * 1.3
+	glass.position = Vector2(window_x * get_viewport().get_visible_rect().size.x, get_viewport().get_visible_rect().size.y / 2.0)
 	_rub_v = lerpf(_rub_v, _rub_speed, minf(1.0, delta * 18.0))
 	_rub_mood = _rub_mood.lerp(_rub_want, minf(1.0, delta * 10.0))
 	_rub_speed = 0.0

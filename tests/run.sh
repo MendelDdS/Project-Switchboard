@@ -2,7 +2,7 @@
 # Roda todos os testes em modo headless e falha se algum falhar, travar ou gerar SCRIPT ERROR.
 # Uso: tests/run.sh [teste...]  (Godot em /Applications; ou defina GODOT=/caminho/do/godot)
 GODOT="${GODOT:-/Applications/Godot.app/Contents/MacOS/Godot}"
-LIMIT=${LIMIT:-120}   # segundos por teste (um turno do robô leva ~6 s)
+LIMIT=${LIMIT:-120}   # segundos por teste (um turno do robô leva ~9 s)
 cd "$(dirname "$0")/.." || exit 1
 log=$(mktemp)
 fails=0
@@ -40,8 +40,14 @@ run() {   # run <teste> [argumentos do jogo]: roda tests/test_<teste>.gd pela ce
 	fi
 }
 
-# Reimporta: registra `class_name` novos (sem isso, scripts que usam a classe nova não compilam).
-"$GODOT" --headless --path . --import >"$log" 2>&1
+# Reimporta: registra `class_name` novos (sem isso, scripts que usam a classe nova não compilam). Com o editor aberto,
+# não: ele reimporta sozinho, e dois Godot gravando .godot/uid_cache.bin ao mesmo tempo o corrompem (o jogo deixa de
+# achar recursos por UID, como o layout dos barramentos de áudio).
+if pgrep -f -- "--path $PWD (-e|--editor)( |$)" >/dev/null; then
+	echo "Editor aberto: sem --import (dê foco a ele para registrar classes novas)."
+else
+	"$GODOT" --headless --path . --import >"$log" 2>&1
+fi
 if grep -q "SCRIPT ERROR" "$log"; then
 	grep -E "SCRIPT ERROR|at: " "$log" | head -8
 	echo "O projeto não compila."
@@ -58,6 +64,7 @@ if [ $# -gt 0 ]; then   # tests/run.sh flow penalties: só esses (sem argumentos
 fi
 run flow
 run penalties
+run keys
 for s in 1 2 3; do
 	run shift --seed=$s
 done

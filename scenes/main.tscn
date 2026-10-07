@@ -2,42 +2,39 @@
 
 [ext_resource type="Script" uid="uid://dyd15jajt0b05" path="res://scripts/main.gd" id="1_main"]
 [ext_resource type="Script" uid="uid://23exvygvq27c" path="res://scripts/ui/background.gd" id="2_background"]
-[ext_resource type="Script" uid="uid://c3hot4aevrqd3" path="res://scripts/ui/bevel.gd" id="3_bevel"]
-[ext_resource type="FontFile" uid="uid://bixnphjx77akg" path="res://fonts/DepartureMono-Regular.otf" id="4_vt323_regula"]
 [ext_resource type="Script" uid="uid://c4782kn03vt5j" path="res://scripts/ui/switchboard.gd" id="5_switchboard"]
 [ext_resource type="PackedScene" path="res://scenes/ui/phone_panel.tscn" id="6_phone_panel"]
-[ext_resource type="PackedScene" path="res://scenes/ui/radio.tscn" id="7_radio"]
+[ext_resource type="Script" path="res://scripts/ui/console_mini.gd" id="22_mini"]
 [ext_resource type="PackedScene" path="res://scenes/ui/tools.tscn" id="8_tools"]
-[ext_resource type="Script" uid="uid://dks1uhf5c0yvr" path="res://scripts/ui/scanlines.gd" id="9_scanlines"]
 [ext_resource type="Script" uid="uid://dpp8fwpgwjrfm" path="res://scripts/conversation.gd" id="10_conversation"]
 [ext_resource type="Script" path="res://scripts/supervisor.gd" id="22_supervisor"]
+[ext_resource type="Script" path="res://scripts/ui/fone_socket.gd" id="25_fone_socket"]
 [ext_resource type="Script" path="res://scripts/urgency.gd" id="23_urgency"]
+[ext_resource type="Script" path="res://scripts/ui/bloom.gd" id="24_bloom"]
 [ext_resource type="PackedScene" path="res://scenes/ui/intro.tscn" id="11_intro"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ending.tscn" id="12_ending"]
 [ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="20_pause"]
 [ext_resource type="PackedScene" path="res://scenes/ui/debug_panel.tscn" id="21_debug"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
-bg_color = Color(0.07059, 0.05098, 0.02745, 1)
+[ext_resource type="Script" path="res://scripts/ui/scene_view.gd" id="41_scene_view"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_4"]
 blend_mode = 1
 
 [sub_resource type="Gradient" id="Gradient_2"]
-offsets = PackedFloat32Array(0, 0.45, 1)
-colors = PackedColorArray(1, 0.77, 0.43, 0.22, 1, 0.67, 0.31, 0.06, 1, 0.6, 0.3, 0)
+offsets = PackedFloat32Array(0, 0.18, 0.36, 0.54, 0.72, 0.9)
+colors = PackedColorArray(1, 0.77, 0.43, 0.26, 1, 0.72, 0.38, 0.19, 1, 0.68, 0.34, 0.12, 1, 0.65, 0.32, 0.06, 1, 0.62, 0.3, 0.02, 1, 0.6, 0.3, 0)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_3"]
 gradient = SubResource("Gradient_2")
 width = 640
 height = 360
 fill = 1
-fill_from = Vector2(0.78, 0.04)
-fill_to = Vector2(1.37, 0.04)
+fill_from = Vector2(0.5, 0)
+fill_to = Vector2(0.95, 0)
 
 [sub_resource type="Gradient" id="Gradient_5"]
-offsets = PackedFloat32Array(0, 0.55, 1)
-colors = PackedColorArray(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.6)
+offsets = PackedFloat32Array(0, 0.6, 0.72, 0.82, 0.92)
+colors = PackedColorArray(0, 0, 0, 0, 0, 0, 0, 0.12, 0, 0, 0, 0.24, 0, 0, 0, 0.38, 0, 0, 0, 0.55)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_6"]
 gradient = SubResource("Gradient_5")
@@ -57,9 +54,28 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_main")
 
-[node name="Background" type="Control" parent="." unique_id=1017745606]
-unique_name_in_owner = true
+[node name="Scene" type="TextureRect" parent="."]
+texture_filter = 1
 layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+script = ExtResource("41_scene_view")
+
+[node name="View" type="SubViewport" parent="Scene"]
+disable_3d = true
+handle_input_locally = false
+size = Vector2i(640, 360)
+size_2d_override = Vector2i(1280, 720)
+size_2d_override_stretch = true
+render_target_update_mode = 4
+
+[node name="Background" type="Control" parent="Scene/View" unique_id=1017745606 node_paths=PackedStringArray("window", "desk", "board", "dust")]
+unique_name_in_owner = true
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -67,6 +83,10 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("2_background")
+window = NodePath("../../../Layout/Rows/Columns/Right/Tools/Body")
+desk = NodePath("../../../Layout/Rows/Columns/Left/Desk")
+board = NodePath("../../../Layout/Rows/Columns/Left/Board")
+dust = NodePath("../../../Dust")
 
 [node name="Layout" type="MarginContainer" parent="." unique_id=206193978]
 layout_mode = 1
@@ -77,171 +97,171 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 14
+theme_override_constants/margin_top = 12
 theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 5
+theme_override_constants/margin_bottom = 8
 
-[node name="Columns" type="HBoxContainer" parent="Layout" unique_id=1923831319]
+[node name="Rows" type="VBoxContainer" parent="Layout"]
 layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="Columns" type="HBoxContainer" parent="Layout/Rows" unique_id=1923831319]
+layout_mode = 2
+size_flags_vertical = 3
 mouse_filter = 2
 theme_override_constants/separation = 24
 
-[node name="Left" type="VBoxContainer" parent="Layout/Columns" unique_id=2075594968]
+[node name="Left" type="VBoxContainer" parent="Layout/Rows/Columns" unique_id=2075594968]
 custom_minimum_size = Vector2(588, 0)
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
 
-[node name="TopLeft" type="HBoxContainer" parent="Layout/Columns/Left" unique_id=1593524455]
-custom_minimum_size = Vector2(0, 76)
+[node name="TopLeft" type="HBoxContainer" parent="Layout/Rows/Columns/Left" unique_id=1593524455]
+custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 18
-
-[node name="ClockPanel" type="MarginContainer" parent="Layout/Columns/Left/TopLeft" unique_id=1772237867]
-custom_minimum_size = Vector2(262, 74)
-layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 7
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 7
-script = ExtResource("3_bevel")
-
-[node name="HBox" type="HBoxContainer" parent="Layout/Columns/Left/TopLeft/ClockPanel" unique_id=983769548]
-layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Face" type="PanelContainer" parent="Layout/Columns/Left/TopLeft/ClockPanel/HBox" unique_id=1453626566]
-custom_minimum_size = Vector2(132, 52)
+[node name="ShiftPlate" type="PanelContainer" parent="Layout/Rows/Columns/Left/TopLeft"]
 layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_1")
+size_flags_vertical = 4
+theme_type_variation = &"TapedNote"
 
-[node name="Clock" type="Label" parent="Layout/Columns/Left/TopLeft/ClockPanel/HBox/Face" unique_id=810197929]
+[node name="HBox" type="HBoxContainer" parent="Layout/Rows/Columns/Left/TopLeft/ShiftPlate"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ShiftHours" type="Label" parent="Layout/Rows/Columns/Left/TopLeft/ShiftPlate/HBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9529, 0.6588, 0.2353, 1)
-theme_override_fonts/font = ExtResource("4_vt323_regula")
-theme_override_font_sizes/font_size = 44
-text = "18:00"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="ShiftHours" type="Label" parent="Layout/Columns/Left/TopLeft/ClockPanel/HBox" unique_id=1473044362]
-unique_name_in_owner = true
-layout_mode = 2
-theme_type_variation = &"DimLabel"
+theme_type_variation = &"InkLabel"
 theme_override_font_sizes/font_size = 11
 text = "SHIFT_HOURS"
 
-[node name="EndShift" type="Button" parent="Layout/Columns/Left/TopLeft/ClockPanel/HBox"]
+[node name="EndShift" type="Button" parent="Layout/Rows/Columns/Left/TopLeft/ShiftPlate/HBox"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-size_flags_horizontal = 3
 size_flags_vertical = 4
 theme_type_variation = &"AmberButton"
 theme_override_font_sizes/font_size = 11
 text = "END_SHIFT"
 
-[node name="Title" type="VBoxContainer" parent="Layout/Columns/Left/TopLeft" unique_id=1713309677]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 6
-
-[node name="Name" type="Label" parent="Layout/Columns/Left/TopLeft/Title" unique_id=630892992]
-layout_mode = 2
-theme_override_font_sizes/font_size = 11
-text = "GAME_TITLE"
-
-[node name="Desk" type="Label" parent="Layout/Columns/Left/TopLeft/Title" unique_id=605254917]
-layout_mode = 2
-theme_type_variation = &"DimLabel"
-theme_override_font_sizes/font_size = 11
-text = "OPERATOR_DESK"
-
-[node name="Board" type="Control" parent="Layout/Columns/Left" unique_id=995017339]
+[node name="Board" type="Control" parent="Layout/Rows/Columns/Left" unique_id=995017339]
 unique_name_in_owner = true
 z_index = 1
-custom_minimum_size = Vector2(588, 330)
+custom_minimum_size = Vector2(588, 362)
 layout_mode = 2
 script = ExtResource("5_switchboard")
 
-[node name="Phone" parent="Layout/Columns/Left" unique_id=577996644 instance=ExtResource("6_phone_panel")]
-unique_name_in_owner = true
+[node name="Shelf" type="HBoxContainer" parent="Layout/Rows/Columns/Left"]
+custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
 
-[node name="Right" type="VBoxContainer" parent="Layout/Columns" unique_id=1679355778]
+[node name="FoneSocket" type="Control" parent="Layout/Rows/Columns/Left/Shelf"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 16)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("25_fone_socket")
+
+[node name="CordTray" type="Control" parent="Layout/Rows/Columns/Left/Shelf"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
-theme_override_constants/separation = 10
 
-[node name="TopRight" type="HBoxContainer" parent="Layout/Columns/Right" unique_id=1182082589]
-custom_minimum_size = Vector2(0, 100)
+[node name="Desk" type="HBoxContainer" parent="Layout/Rows/Columns/Left"]
+unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
-alignment = 2
+alignment = 1
 
-[node name="Radio" parent="Layout/Columns/Right/TopRight" unique_id=1787396286 instance=ExtResource("7_radio")]
+[node name="Mini" type="Control" parent="Layout/Rows/Columns/Left/Desk"]
 unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 0
-
-[node name="Tools" parent="Layout/Columns/Right" unique_id=343385558 instance=ExtResource("8_tools")]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="Hint" type="RichTextLabel" parent="Layout/Columns/Right" unique_id=932627705]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 40)
+z_index = 1
+custom_minimum_size = Vector2(300, 86)
 layout_mode = 2
 mouse_filter = 2
-theme_override_colors/default_color = Color(0.851, 0.8118, 0.6824, 1)
+script = ExtResource("22_mini")
+
+[node name="Right" type="VBoxContainer" parent="Layout/Rows/Columns" unique_id=1679355778]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Hint" type="RichTextLabel" parent="Layout/Rows/Columns/Right" unique_id=932627705]
+unique_name_in_owner = true
+self_modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"TapedLabel"
 theme_override_font_sizes/normal_font_size = 11
 bbcode_enabled = true
 scroll_active = false
 
-[node name="Glow" type="TextureRect" parent="." unique_id=1338745255]
+[node name="Tools" parent="Layout/Rows/Columns/Right" unique_id=343385558 instance=ExtResource("8_tools")]
 unique_name_in_owner = true
-z_index = 2
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Phone" parent="Layout/Rows" unique_id=577996644 instance=ExtResource("6_phone_panel")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Glow" type="TextureRect" parent="Scene/View" unique_id=1338745255]
+unique_name_in_owner = true
 texture_filter = 2
 material = SubResource("CanvasItemMaterial_4")
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
+layout_mode = 3
+anchors_preset = 15
 anchor_right = 1.0
-offset_left = -1280.0
-offset_bottom = 720.0
-grow_horizontal = 0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 2
 texture = SubResource("GradientTexture2D_3")
 expand_mode = 1
+
+[node name="Dust" type="Control" parent="."]
+z_index = 1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [node name="Vignette" type="TextureRect" parent="." unique_id=1058735391]
 z_index = 2
 texture_filter = 2
 layout_mode = 1
-anchors_preset = 15
+anchors_preset = -1
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_bottom = -166.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 texture = SubResource("GradientTexture2D_6")
 expand_mode = 1
 
-[node name="Scanlines" type="Control" parent="." unique_id=1284388564]
+[node name="Bloom" type="Control" parent="."]
 z_index = 2
-layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-script = ExtResource("9_scanlines")
+script = ExtResource("24_bloom")
 
 [node name="Conversation" type="Node" parent="." unique_id=1871039847]
 unique_name_in_owner = true

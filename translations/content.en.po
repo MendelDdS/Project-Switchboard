@@ -2915,6 +2915,18 @@ msgstr "(trying not to laugh) Whistle, please..."
 msgid "Tchau!"
 msgstr "Bye!"
 
+#: data/calls/prank_10_rapaz.tres
+msgid "Alô? Gostaria de falar com a Paula!"
+msgstr "Hello? I'd like to speak to Hugh!"
+
+#: data/calls/prank_10_rapaz.tres
+msgid "Que Paula, por favor?"
+msgstr "Hugh who, please?"
+
+#: data/calls/prank_10_rapaz.tres
+msgid "Paula Tejano!"
+msgstr "Hugh Jass!"
+
 #: data/templates/transfer_01.tres
 msgid "Me liga com {place}, por favor? {reason}"
 msgstr "Can you put me through to {place}, please? {reason}"

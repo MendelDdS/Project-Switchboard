@@ -34,16 +34,10 @@ func show_report(r: ShiftReport) -> void:
 		T.text(T.Key.REPORT_MEDIUM), r.count(ShiftReport.Severity.MEDIUM), T.text(T.Key.REPORT_LIGHT), r.count(ShiftReport.Severity.LIGHT)]
 	s += T.text(T.Key.REPORT_ACCUMULATED) % [r.severe_total(), ShiftReport.SEVERE_LIMIT] + "\n"
 	s += "\n[b]%s[/b]\n" % T.text(T.Key.REPORT_NEWS)
-	var news := r.outcomes()
+	var news := r.news()
 	if news.is_empty():
 		s += T.text(T.Key.REPORT_QUIET) + "\n"
-	for e: EmergencyCall in news:
-		var pool: PackedStringArray = [C.news_ok, C.news_late, C.news_bad][news[e]]
-		s += "• %s\n" % GameData.fill(GameData.pick(pool), {"occurrence": _occurrence(e.occurrence), "address": e.address})
+	for d in news:
+		s += "• %s\n" % ShiftReport.headline(d)
 	_body.text = s
 	_verdict.text = tr(C.verdicts[r.verdict()]) if r.verdict() < C.verdicts.size() else ""
-
-
-## "Invasão / roubo" -> "Invasão"; "Outro" -> "Ocorrência".
-func _occurrence(o: String) -> String:
-	return T.text(T.Key.REPORT_INCIDENT) if o == "Outro" else tr(o).get_slice(" /", 0)

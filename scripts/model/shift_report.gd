@@ -37,6 +37,7 @@ var night := 1
 var severe_before := 0               ## advertências graves das noites anteriores
 var faults: Array[Dictionary] = []   ## {"id", "time", "detail"}, em ordem
 var _incidents := {}                 ## EmergencyCall -> {"trouble": bool, "outcome": Outcome ou -1}
+var _picked := {}                    ## EmergencyCall -> [Outcome, molde da manchete]: sorteada uma vez só
 
 
 func add(id: String, time: String, detail := "") -> void:
@@ -85,6 +86,31 @@ func outcomes() -> Dictionary:
 		var o: int = _incidents[e]["outcome"]
 		out[e] = Outcome.BAD if o == -1 else o
 	return out
+
+
+## O jornal da manhã: uma manchete por emergência do turno, {"outcome", "template", "occurrence", "address"} (molde e
+## ocorrência no original; `headline` traduz na hora de mostrar). O relatório e o jornal da noite seguinte, na mesa,
+## dizem a mesma: o molde é sorteado uma vez por desfecho.
+func news() -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	var all := outcomes()
+	for e: EmergencyCall in all:
+		var o: int = all[e]
+		if not _picked.has(e) or _picked[e][0] != o:
+			var c := GameData.CONTENT
+			_picked[e] = [o, GameData.pick([c.news_ok, c.news_late, c.news_bad][o])]
+		out.append({"outcome": o, "template": _picked[e][1], "occurrence": e.occurrence, "address": e.address})
+	return out
+
+
+## Uma manchete de `news()`, no idioma atual.
+static func headline(d: Dictionary) -> String:
+	return GameData.fill(d["template"], {"occurrence": occurrence_name(d["occurrence"]), "address": d["address"]})
+
+
+## "Invasão / roubo" -> "Invasão"; "Outro" -> "Ocorrência".
+static func occurrence_name(o: String) -> String:
+	return T.text(T.Key.REPORT_INCIDENT) if o == "Outro" else String(TranslationServer.translate(o)).get_slice(" /", 0)
 
 
 ## 0 = bom turno, 1 = atenção, 2 = turno ruim.

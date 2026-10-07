@@ -31,10 +31,12 @@ SHIFT_HOURS,"Turno
 18:00–00:00","Shift
 18:00–00:00","Turno
 18:00–00:00"
-OPERATOR_DESK,Operador noturno · mesa 1,Night operator · desk 1,Operador nocturno · mesa 1
-BOARD_TITLE,MESA COMUTADORA,SWITCHBOARD,CONMUTADOR
-BOARD_LEGEND,ENTRADA (fone)  ·  SAÍDA (cabo de conexão),INPUT (headset)  ·  OUTPUT (patch cord),ENTRADA (auricular)  ·  SALIDA (cable de conexión)
-BOARD_CORD,CABO %d,CORD %d,CABLE %d
+BOARD_INPUTS,ENTRADAS · FONE,INPUTS · HEADSET,ENTRADAS · AURICULAR
+BOARD_OUTPUTS,SAÍDAS · CABO DE CONEXÃO,OUTPUTS · PATCH CORD,SALIDAS · CABLE DE CONEXIÓN
+CONSOLE_IDLE,Aguardando chamada,Waiting for a call,Esperando llamada
+SIGN_COMPANY,COMPANHIA TELEFÔNICA DE SÃO SOTERO,SÃO SOTERO TELEPHONE COMPANY,COMPAÑÍA TELEFÓNICA DE SÃO SOTERO
+BOARD_MAKER,CENTRAL TELEFÔNICA,TELEPHONE EXCHANGE,CENTRAL TELEFÓNICA
+BOARD_PLATE_NOTICE,SETOR NÃO ATENDIDO,SECTOR NOT IN SERVICE,SECTOR SIN SERVICIO
 LEGEND_RING,chamando / em linha,ringing / on the line,llamando / en línea
 LEGEND_CONN,conectada,connected,conectada
 LEGEND_DONE,desligou: desmonte,hung up: take down,colgó: desarme
@@ -67,15 +69,8 @@ ANSWER,Atender,Answer,Contestar
 TRANSFER,Transferir,Transfer,Transferir
 HANG_UP,Desligar,Hang up,Colgar
 KEY_SPACE,Espaço,Space,Espacio
-STATUS_NO_CALL,Nenhuma chamada,No call,Ninguna llamada
 STATUS_LINE,Linha %02d,Line %02d,Línea %02d
-STATUS_ENDED,encerrada,ended,terminada
-STATUS_RINGING,tocando,ringing,sonando
 STATUS_ON_HOLD,em espera,on hold,en espera
-STATUS_ON_LINE,em linha,on the line,en línea
-STATUS_CALLING,chamando %d,calling %d,llamando al %d
-STATUS_ANSWERED,%d atendeu,%d answered,%d contestó
-STATUS_OTHER_LINES,Outras linhas: %s,Other lines: %s,Otras líneas: %s
 DISPLAY_RINGING,%d TOCANDO,%d RINGING,%d SONANDO
 DISPLAY_NO_ANSWER,%d SEM RESPOSTA,%d NO ANSWER,%d SIN RESPUESTA
 DISPLAY_CONNECTED,%d CONECTADO,%d CONNECTED,%d CONECTADO
@@ -112,7 +107,7 @@ SYS_YOU_ENDED,(Você encerrou a ligação.),(You ended the call.),(Usted termin�
 SYS_NOBODY_ANSWERED,(Ninguém atendeu. A pessoa desistiu.),(Nobody answered. The caller gave up.),(Nadie contestó. La persona desistió.)
 SYS_TIRED_WAITING,(Cansou de esperar e desligou.),(Got tired of waiting and hung up.),(Se cansó de esperar y colgó.)
 SYS_CALL_DROPPED,(A ligação caiu.),(The call dropped.),(La llamada se cortó.)
-HINT_WAIT_CALLS,"Aguarde as chamadas. A lista, o mapa, o despacho e o caderno ficam nas abas acima.","Wait for calls. The directory, the map, dispatch and the logbook are in the tabs above.","Espere las llamadas. La guía, el mapa, el despacho y el cuaderno están en las pestañas de arriba."
+HINT_WAIT_CALLS,"Aguarde as chamadas. A lista, o mapa e despacho, o caderno e o registro das conversas abrem pelos objetos na mesa (ou teclas 1 a 4).","Wait for calls. The directory, map & dispatch, the logbook and the call log open from the objects on the desk (or keys 1 to 4).","Espere las llamadas. La guía, el mapa y despacho, el cuaderno y el registro de conversaciones se abren con los objetos de la mesa (o teclas 1 a 4)."
 HINT_INFO,Pedido de informação: confira a lista telefônica antes de responder.,Information request: check the phone directory before answering.,Pedido de información: revise la guía telefónica antes de responder.
 HINT_EMERGENCY,"A barra mostra a situação piorando e só para com o socorro completo a caminho (fora da linha, o rádio avisa). Mande o que as respostas pedirem: protocolo no despacho.","The bar shows the situation getting worse and only stops once full help is on the way (off the line, the radio warns you). Send what the answers call for: protocol in dispatch.","La barra muestra la situación empeorando y solo se detiene con toda la ayuda en camino (fuera de la línea, la radio avisa). Envíe lo que pidan las respuestas: protocolo en el despacho."
 HINT_WRONG_DEST,Tire a ponta do cabo desse destino. Confira o nome e o endereço na lista: há nomes parecidos.,Pull the cord out of that destination. Check the name and address in the directory: some names are similar.,Quite el cable de ese destino. Revise el nombre y la dirección en la guía: hay nombres parecidos.
@@ -129,6 +124,8 @@ HINT_TUT_DEST_RINGING,O destino está tocando. Aguarde atender.,The destination 
 OP_TRY_OTHER,Ninguém atende. Quer que eu tente %s?,Nobody's answering. Want me to try %s?,Nadie contesta. ¿Quiere que intente con %s?
 HINT_TUT_CONNECTED,O destino atendeu e a ligação já segue pelo cabo de conexão. Tire o [b]FONE[/b] da entrada quando quiser (devolva ao telefone).,The destination answered and the call already goes through the patch cord. Pull the [b]HEADSET[/b] out of the input whenever you like (return it to the phone).,El destino contestó y la llamada ya sigue por el cable de conexión. Quite el [b]AURICULAR[/b] de la entrada cuando quiera (devuélvalo al teléfono).
 HINT_NO_CORDS,Não há cabos de conexão livres. Desmonte uma conexão encerrada (lâmpadas vermelhas).,No free patch cords. Take down a finished connection (red lamps).,No hay cables de conexión libres. Desarme una conexión terminada (lámparas rojas).
+HINT_DESK_SLIPS,"Cada tira saindo do caderno, na mesa, é uma ocorrência esperando registro (tecla 3).","Each slip sticking out of the logbook on the desk is a call waiting to be logged (key 3).","Cada tira que sale del cuaderno, en la mesa, es una llamada esperando registro (tecla 3)."
+HINT_DESK_SHEET,Folha nova na prancheta: uma conversa terminou e foi para o registro (tecla 4).,New sheet on the clipboard: a conversation ended and went to the call log (key 4).,Hoja nueva en la tablilla: una conversación terminó y pasó al registro (tecla 4).
 HINT_CHECK_LIST,Consulte a lista. Confira o nome e o endereço.,Check the directory. Confirm the name and address.,Consulte la guía. Revise el nombre y la dirección.
 HINT_REGISTER,Registre a ocorrência no caderno.,Log the call in the logbook.,Registre la llamada en el cuaderno.
 HINT_REGISTER_LATER,Há ocorrências para registrar no caderno quando der tempo.,There are calls to log in the logbook when you have time.,Hay llamadas para registrar en el cuaderno cuando tenga tiempo.
@@ -158,6 +155,10 @@ OBS_CALL_DROPPED,A ligação caiu.,The call dropped.,La llamada se cortó.
 TAB_DIRECTORY,Lista telefônica,Phone directory,Guía telefónica
 TAB_DISPATCH,Mapa e despacho,Map & dispatch,Mapa y despacho
 TAB_LOGBOOK,Caderno,Logbook,Cuaderno
+TAB_CALL_LOG,Registro,Call log,Registro
+TAB_NEWS,Jornal da manhã,Morning paper,Diario de la mañana
+NEWS_MASTHEAD,Gazeta de São Sotero,Gazeta de São Sotero,Gazeta de São Sotero
+NEWS_EDITION,Edição da manhã · %s,Morning edition · %s,Edición de la mañana · %s
 BOOK_BACK,◀ Voltar,◀ Back,◀ Atrás
 BOOK_TURN,Virar ▶,Turn ▶,Pasar ▶
 BOOK_NOTES,Anotações,Notes,Notas
@@ -315,6 +316,12 @@ SETTINGS_TEXT_SPEED,Velocidade do texto,Text speed,Velocidad del texto
 SPEED_SLOW,Lenta,Slow,Lenta
 SPEED_NORMAL,Normal,Normal,Normal
 SPEED_FAST,Rápida,Fast,Rápida
+SETTINGS_DISPLAY,Tela,Display,Pantalla
+DISPLAY_FULLSCREEN,Tela cheia,Fullscreen,Pantalla completa
+DISPLAY_WINDOW,Janela,Windowed,Ventana
+SETTINGS_SCALING,Ampliação,Scaling,Escalado
+SCALING_SMOOTH,"Suave (tela toda)","Smooth (fill screen)","Suave (pantalla completa)"
+SCALING_PIXEL,"Pixels perfeitos (com borda)","Pixel perfect (with border)","Píxeles perfectos (con borde)"
 APPLY,Aplicar,Apply,Aplicar
 END_SHIFT,"Encerrar
 turno","End
@@ -323,3 +330,5 @@ turno"
 FAULT_SHIFT_HUNG_UP,Encerrou o turno com alguém na linha,Ended the shift with someone on the line,Terminó el turno con alguien en la línea
 OBS_SHIFT_ENDED,Turno encerrado durante a ligação.,Shift ended during the call.,Turno terminado durante la llamada.
 HINT_MIDNIGHT,"Meia-noite. Registre o que falta no caderno ou encerre o turno.","Midnight. Log what's left in the logbook or end the shift.","Medianoche. Registre lo que falta en el cuaderno o termine el turno."
+
+CALL_LOG_EMPTY,Nenhuma conversa ainda. Tudo o que for dito com o FONE na linha fica registrado aqui.,No conversations yet. Everything said with the HEADSET on the line is logged here.,Ninguna conversación todavía. Todo lo que se diga con el AURICULAR en la línea queda registrado aquí.

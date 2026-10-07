@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/ui/notebook.gd" id="1_notebook"]
 
 [node name="Notebook" type="Control"]
-custom_minimum_size = Vector2(576, 462)
+custom_minimum_size = Vector2(576, 384)
 script = ExtResource("1_notebook")
 
 [node name="Content" type="VBoxContainer" parent="."]

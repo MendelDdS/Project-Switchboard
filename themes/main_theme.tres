@@ -1,6 +1,8 @@
 [gd_resource type="Theme" format=3 uid="uid://y3atgoqdrdyj"]
 
 [ext_resource type="FontFile" uid="uid://bixnphjx77akg" path="res://fonts/DepartureMono-Regular.otf" id="1_vu6l5"]
+[ext_resource type="Script" path="res://scripts/ui/key_cap_style.gd" id="2_keycap"]
+[ext_resource type="Script" path="res://scripts/ui/taped_paper_style.gd" id="3_taped"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vu6l5"]
 content_margin_left = 6.0
@@ -108,9 +110,9 @@ border_color = Color(0, 0, 0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0x86e"]
 content_margin_left = 8.0
-content_margin_top = 4.0
+content_margin_top = 2.0
 content_margin_right = 8.0
-content_margin_bottom = 4.0
+content_margin_bottom = 2.0
 bg_color = Color(0.08627451, 0.10980392, 0.078431375, 1)
 border_width_left = 2
 border_width_top = 2
@@ -120,9 +122,9 @@ border_color = Color(0, 0, 0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_f5ubn"]
 content_margin_left = 8.0
-content_margin_top = 4.0
+content_margin_top = 2.0
 content_margin_right = 8.0
-content_margin_bottom = 4.0
+content_margin_bottom = 2.0
 bg_color = Color(0.16470589, 0.22745098, 0.14509805, 1)
 border_width_left = 2
 border_width_top = 2
@@ -132,9 +134,9 @@ border_color = Color(0, 0, 0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7qy2x"]
 content_margin_left = 8.0
-content_margin_top = 4.0
+content_margin_top = 2.0
 content_margin_right = 8.0
-content_margin_bottom = 4.0
+content_margin_bottom = 2.0
 bg_color = Color(0.12156863, 0.16470589, 0.10980392, 1)
 border_width_left = 2
 border_width_top = 2
@@ -581,6 +583,168 @@ shadow_color = Color(0, 0, 0, 0.3)
 shadow_size = 1
 shadow_offset = Vector2(-4, 4)
 
+[sub_resource type="StyleBox" id="KeyCap_Green_normal"]
+script = ExtResource("2_keycap")
+content_margin_left = 6.0
+content_margin_top = 29.0
+content_margin_right = 6.0
+content_margin_bottom = 15.0
+color = Color(0.5529412, 0.73333335, 0.42352942, 1)
+pressed = false
+hover = false
+off = false
+
+[sub_resource type="StyleBox" id="KeyCap_Green_hover"]
+script = ExtResource("2_keycap")
+content_margin_left = 6.0
+content_margin_top = 29.0
+content_margin_right = 6.0
+content_margin_bottom = 15.0
+color = Color(0.5529412, 0.73333335, 0.42352942, 1)
+pressed = false
+hover = true
+off = false
+
+[sub_resource type="StyleBox" id="KeyCap_Green_pressed"]
+script = ExtResource("2_keycap")
+content_margin_left = 6.0
+content_margin_top = 33.0
+content_margin_right = 6.0
+content_margin_bottom = 11.0
+color = Color(0.5529412, 0.73333335, 0.42352942, 1)
+pressed = true
+hover = false
+off = false
+
+[sub_resource type="StyleBox" id="KeyCap_Green_disabled"]
+script = ExtResource("2_keycap")
+content_margin_left = 6.0
+content_margin_top = 29.0
+content_margin_right = 6.0
+content_margin_bottom = 15.0
+color = Color(0.5529412, 0.73333335, 0.42352942, 1)
+pressed = false
+hover = false
+off = true
+
+[sub_resource type="StyleBox" id="KeyCap_Amber_normal"]
+script = ExtResource("2_keycap")
+content_margin_left = 6.0
+content_margin_top = 29.0
+content_margin_right = 6.0
+content_margin_bottom = 15.0
+color = Color(0.9529412, 0.65882355, 0.23529412, 1)
+pressed = false
+hover = false
+off = false
+
+[sub_resource type="StyleBox" id="KeyCap_Amber_hover"]
+script = ExtResource("2_keycap")
+content_margin_left = 6.0
+content_margin_top = 29.0
+content_margin_right = 6.0
+content_margin_bottom = 15.0
+color = Color(0.9529412, 0.65882355, 0.23529412, 1)
+pressed = false
+hover = true
+off = false
+
+[sub_resource type="StyleBox" id="KeyCap_Amber_pressed"]
+script = ExtResource("2_keycap")
+content_margin_left = 6.0
+content_margin_top = 33.0
+content_margin_right = 6.0
+content_margin_bottom = 11.0
+color = Color(0.9529412, 0.65882355, 0.23529412, 1)
+pressed = true
+hover = false
+off = false
+
+[sub_resource type="StyleBox" id="KeyCap_Amber_disabled"]
+script = ExtResource("2_keycap")
+content_margin_left = 6.0
+content_margin_top = 29.0
+content_margin_right = 6.0
+content_margin_bottom = 15.0
+color = Color(0.9529412, 0.65882355, 0.23529412, 1)
+pressed = false
+hover = false
+off = true
+
+[sub_resource type="StyleBox" id="KeyCap_Red_normal"]
+script = ExtResource("2_keycap")
+content_margin_left = 6.0
+content_margin_top = 29.0
+content_margin_right = 6.0
+content_margin_bottom = 15.0
+color = Color(0.83137256, 0.33333334, 0.24705882, 1)
+pressed = false
+hover = false
+off = false
+
+[sub_resource type="StyleBox" id="KeyCap_Red_hover"]
+script = ExtResource("2_keycap")
+content_margin_left = 6.0
+content_margin_top = 29.0
+content_margin_right = 6.0
+content_margin_bottom = 15.0
+color = Color(0.83137256, 0.33333334, 0.24705882, 1)
+pressed = false
+hover = true
+off = false
+
+[sub_resource type="StyleBox" id="KeyCap_Red_pressed"]
+script = ExtResource("2_keycap")
+content_margin_left = 6.0
+content_margin_top = 33.0
+content_margin_right = 6.0
+content_margin_bottom = 11.0
+color = Color(0.83137256, 0.33333334, 0.24705882, 1)
+pressed = true
+hover = false
+off = false
+
+[sub_resource type="StyleBox" id="KeyCap_Red_disabled"]
+script = ExtResource("2_keycap")
+content_margin_left = 6.0
+content_margin_top = 29.0
+content_margin_right = 6.0
+content_margin_bottom = 15.0
+color = Color(0.83137256, 0.33333334, 0.24705882, 1)
+pressed = false
+hover = false
+off = true
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hud"]
+content_margin_left = 10.0
+content_margin_top = 7.0
+content_margin_right = 10.0
+content_margin_bottom = 7.0
+bg_color = Color(0.043, 0.047, 0.05, 1)
+border_width_left = 2
+border_width_top = 3
+border_width_right = 2
+border_width_bottom = 1
+border_color = Color(0.1, 0.07, 0.045, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBox" id="Taped_note"]
+script = ExtResource("3_taped")
+content_margin_left = 10.0
+content_margin_top = 6.0
+content_margin_right = 10.0
+content_margin_bottom = 6.0
+
+[sub_resource type="StyleBox" id="Taped_strip"]
+script = ExtResource("3_taped")
+content_margin_left = 10.0
+content_margin_top = 4.0
+content_margin_right = 10.0
+content_margin_bottom = 2.0
+
 [resource]
 default_font = ExtResource("1_vu6l5")
 default_font_size = 11
@@ -765,3 +929,49 @@ TabButton/styles/hover = SubResource("StyleBoxFlat_oxgwg")
 TabButton/styles/hover_pressed = SubResource("StyleBoxFlat_r1nnu")
 TabButton/styles/normal = SubResource("StyleBoxFlat_oxgwg")
 TabButton/styles/pressed = SubResource("StyleBoxFlat_r1nnu")
+GreenKey/base_type = &"Button"
+GreenKey/colors/font_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+GreenKey/colors/font_disabled_color = Color(0.10980392, 0.08235294, 0.047058824, 0.5)
+GreenKey/colors/font_focus_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+GreenKey/colors/font_hover_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+GreenKey/colors/font_pressed_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+GreenKey/colors/font_hover_pressed_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+GreenKey/font_sizes/font_size = 11
+GreenKey/styles/disabled = SubResource("KeyCap_Green_disabled")
+GreenKey/styles/hover = SubResource("KeyCap_Green_hover")
+GreenKey/styles/hover_pressed = SubResource("KeyCap_Green_pressed")
+GreenKey/styles/normal = SubResource("KeyCap_Green_normal")
+GreenKey/styles/pressed = SubResource("KeyCap_Green_pressed")
+AmberKey/base_type = &"Button"
+AmberKey/colors/font_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+AmberKey/colors/font_disabled_color = Color(0.10980392, 0.08235294, 0.047058824, 0.5)
+AmberKey/colors/font_focus_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+AmberKey/colors/font_hover_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+AmberKey/colors/font_pressed_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+AmberKey/colors/font_hover_pressed_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+AmberKey/font_sizes/font_size = 11
+AmberKey/styles/disabled = SubResource("KeyCap_Amber_disabled")
+AmberKey/styles/hover = SubResource("KeyCap_Amber_hover")
+AmberKey/styles/hover_pressed = SubResource("KeyCap_Amber_pressed")
+AmberKey/styles/normal = SubResource("KeyCap_Amber_normal")
+AmberKey/styles/pressed = SubResource("KeyCap_Amber_pressed")
+RedKey/base_type = &"Button"
+RedKey/colors/font_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+RedKey/colors/font_disabled_color = Color(0.10980392, 0.08235294, 0.047058824, 0.5)
+RedKey/colors/font_focus_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+RedKey/colors/font_hover_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+RedKey/colors/font_pressed_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+RedKey/colors/font_hover_pressed_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+RedKey/font_sizes/font_size = 11
+RedKey/styles/disabled = SubResource("KeyCap_Red_disabled")
+RedKey/styles/hover = SubResource("KeyCap_Red_hover")
+RedKey/styles/hover_pressed = SubResource("KeyCap_Red_pressed")
+RedKey/styles/normal = SubResource("KeyCap_Red_normal")
+RedKey/styles/pressed = SubResource("KeyCap_Red_pressed")
+HudPanel/base_type = &"PanelContainer"
+HudPanel/styles/panel = SubResource("StyleBoxFlat_hud")
+TapedLabel/base_type = &"RichTextLabel"
+TapedLabel/colors/default_color = Color(0.16470589, 0.13725491, 0.09803922, 1)
+TapedLabel/styles/normal = SubResource("Taped_strip")
+TapedNote/base_type = &"PanelContainer"
+TapedNote/styles/panel = SubResource("Taped_note")

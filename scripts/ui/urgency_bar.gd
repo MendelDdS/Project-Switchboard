@@ -1,13 +1,12 @@
 class_name UrgencyBar
 extends Control
-## Barra de agravamento da emergência, na base da caixa da conversa (aparece ocupando uma linha dela, sem mexer no
-## resto do painel): o tempo até a situação piorar. Esvazia da direita para a esquerda pelos três estágios
+## Barra de agravamento da emergência, no bloco da ligação do painel de baixo (o estágio escrito em cima, a barra
+## embaixo): o tempo até a situação piorar. Esvazia da direita para a esquerda pelos três estágios
 ## (inicial, agravando, agravada) e pisca quando muda de estágio. Só aparece com o operador na linha da emergência;
 ## fora dela continua correndo (a luz de ocorrência do rádio mostra). O estado fica na PhoneCall (`Urgency`).
 
 const COLORS := [Pal.GREEN, Pal.AMBER, Pal.RED]
 const NAMES := [T.Key.URGENCY_0, T.Key.URGENCY_1, T.Key.URGENCY_2]
-const BAR_X := 236.0     ## onde a barra começa (antes dela, o estágio)
 const BLINK_SEC := 1.4   ## quanto tempo pisca ao mudar de estágio
 
 var call: PhoneCall      ## emergência em andamento (Main põe quando ela toca)
@@ -31,13 +30,14 @@ func _active() -> bool:
 
 
 func _draw() -> void:
+	Bloom.clear(self)
 	if fmod(_blink, 0.3) > 0.15:
 		return
 	var e: EmergencyCall = call.data
 	var col: Color = COLORS[call.stage]
 	var label := T.text(NAMES[call.stage])
-	draw_string(Pal.ui, Vector2(0, size.y - 2), label, HORIZONTAL_ALIGNMENT_LEFT, BAR_X - 8, 11, col)
-	var r := Rect2(BAR_X, 4, size.x - BAR_X - 2, size.y - 8)
+	draw_string(Pal.ui, Vector2(0, 11), label, HORIZONTAL_ALIGNMENT_LEFT, size.x, 11, col)
+	var r := Rect2(2, 18, size.x - 4, size.y - 20)
 	draw_rect(r.grow(2), Pal.EDGE)
 	var total := e.stage_sec.x + e.stage_sec.y + e.stage_sec.z
 	var x := r.end.x
@@ -49,3 +49,4 @@ func _draw() -> void:
 		x -= w
 	var left := floorf(r.size.x * clampf(1.0 - call.urgency / total, 0.0, 1.0))
 	draw_rect(Rect2(r.position, Vector2(left, r.size.y)), col)
+	Bloom.light(self, Rect2(r.position, Vector2(left, r.size.y)), col, 0.6)

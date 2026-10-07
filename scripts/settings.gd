@@ -1,6 +1,6 @@
 extends Node
-## Configurações do jogador (autoload `Settings`), salvas em user://settings.cfg: idioma, volume de cada barramento
-## e velocidade do texto. Os `set_*` valem na hora (prévia) mas só ficam salvos com `save()`; `snapshot()`/`restore()`
+## Configurações do jogador (autoload `Settings`), salvas em user://settings.cfg: idioma, volume de cada barramento,
+## velocidade do texto e a tela (cheia ou janela; ampliação suave ou só por inteiro, que o `GameView` aplica). Os `set_*` valem na hora (prévia) mas só ficam salvos com `save()`; `snapshot()`/`restore()`
 ## permitem descartar. O menu de configurações (PauseMenu) usa os dois: Aplicar salva, Voltar restaura.
 ## `-- --lang=en` força um idioma nesta execução. Testes (`-s`) não leem nem gravam o arquivo do jogador.
 
@@ -18,6 +18,8 @@ const TEXT_SPEEDS := [1.6, 1.0, 0.55]
 var locale := DEFAULT_LOCALE
 var volumes := {"Ambience": 1.0, "Voices": 1.0, "Effects": 1.0}   ## 0..1, linear
 var text_speed := 1                                                 ## índice em TEXT_SPEEDS
+var fullscreen := true                                              ## tela cheia (falso: janela)
+var pixel_perfect := false                                          ## só ampliação inteira, com borda (falso: suave)
 var _persist := true
 
 
@@ -51,6 +53,16 @@ func set_text_speed(i: int) -> void:
 	_changed()
 
 
+func set_fullscreen(on: bool) -> void:
+	fullscreen = on
+	_changed()
+
+
+func set_pixel_perfect(on: bool) -> void:
+	pixel_perfect = on
+	_changed()
+
+
 ## Multiplicador do tempo de cada letra das falas (conversa e rádio).
 func char_delay() -> float:
 	return TEXT_SPEEDS[text_speed]
@@ -58,13 +70,16 @@ func char_delay() -> float:
 
 ## Estado atual, para comparar ou restaurar depois.
 func snapshot() -> Dictionary:
-	return {"locale": locale, "volumes": volumes.duplicate(), "text_speed": text_speed}
+	return {"locale": locale, "volumes": volumes.duplicate(), "text_speed": text_speed, "fullscreen": fullscreen,
+		"pixel_perfect": pixel_perfect}
 
 
 func restore(s: Dictionary) -> void:
 	locale = s["locale"]
 	volumes = s["volumes"].duplicate()
 	text_speed = s["text_speed"]
+	fullscreen = s["fullscreen"]
+	pixel_perfect = s["pixel_perfect"]
 	_changed()
 
 
@@ -74,6 +89,8 @@ func save() -> void:
 	var f := ConfigFile.new()
 	f.set_value("settings", "locale", locale)
 	f.set_value("settings", "text_speed", text_speed)
+	f.set_value("display", "fullscreen", fullscreen)
+	f.set_value("display", "pixel_perfect", pixel_perfect)
 	for bus in BUSES:
 		f.set_value("volume", bus, volumes[bus])
 	f.save(PATH)
@@ -99,6 +116,8 @@ func _load() -> void:
 		return
 	locale = f.get_value("settings", "locale", locale)
 	text_speed = f.get_value("settings", "text_speed", text_speed)
+	fullscreen = f.get_value("display", "fullscreen", fullscreen)
+	pixel_perfect = f.get_value("display", "pixel_perfect", pixel_perfect)
 	for bus in BUSES:
 		volumes[bus] = f.get_value("volume", bus, volumes[bus])
 

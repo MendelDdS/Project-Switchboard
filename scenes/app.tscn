@@ -1,0 +1,40 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/game_view.gd" id="1_game_view"]
+[ext_resource type="PackedScene" path="res://scenes/main.tscn" id="2_main"]
+
+[node name="App" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_game_view")
+
+[node name="Border" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.0196, 0.0235, 0.0275, 1)
+
+[node name="Box" type="SubViewportContainer" parent="."]
+process_mode = 3
+texture_filter = 2
+layout_mode = 0
+offset_right = 1280.0
+offset_bottom = 720.0
+
+[node name="View" type="SubViewport" parent="Box"]
+process_mode = 1
+canvas_item_default_texture_filter = 0
+disable_3d = true
+handle_input_locally = false
+size = Vector2i(1280, 720)
+render_target_update_mode = 4
+
+[node name="Main" parent="Box/View" instance=ExtResource("2_main")]

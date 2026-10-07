@@ -1,216 +1,152 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/phone_panel.gd" id="1_phone_panel"]
-[ext_resource type="Script" path="res://scripts/ui/fone_socket.gd" id="2_fone_socket"]
-[ext_resource type="FontFile" uid="uid://bixnphjx77akg" path="res://fonts/DepartureMono-Regular.otf" id="3_vt323_regula"]
 [ext_resource type="Script" path="res://scripts/ui/urgency_bar.gd" id="9_urgency"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
-bg_color = Color(0.07059, 0.05098, 0.02745, 1)
+[ext_resource type="Script" path="res://scripts/ui/screen_glass.gd" id="10_glass"]
+[ext_resource type="PackedScene" path="res://scenes/ui/radio.tscn" id="11_radio"]
 
 [node name="Phone" type="MarginContainer"]
-custom_minimum_size = Vector2(588, 0)
+custom_minimum_size = Vector2(0, 150)
 mouse_filter = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 8
 script = ExtResource("1_phone_panel")
 
-[node name="VBox" type="VBoxContainer" parent="."]
+[node name="Bar" type="HBoxContainer" parent="."]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 10
 
-[node name="Top" type="HBoxContainer" parent="VBox"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 8
-
-[node name="FoneSocket" type="Control" parent="VBox/Top"]
+[node name="ConvBox" type="PanelContainer" parent="Bar"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(76, 44)
-layout_mode = 2
-mouse_filter = 2
-script = ExtResource("2_fone_socket")
-
-[node name="DisplayBox" type="PanelContainer" parent="VBox/Top"]
-custom_minimum_size = Vector2(180, 36)
-layout_mode = 2
-size_flags_vertical = 4
-mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_1")
-
-[node name="Display" type="Label" parent="VBox/Top/DisplayBox"]
-layout_mode = 2
-text = ""
-theme_override_fonts/font = ExtResource("3_vt323_regula")
-theme_override_colors/font_color = Color(0.9529, 0.6588, 0.2353, 1)
-theme_override_font_sizes/font_size = 11
-unique_name_in_owner = true
-horizontal_alignment = 1
-vertical_alignment = 1
-clip_text = true
-
-[node name="Info" type="VBoxContainer" parent="VBox/Top"]
 layout_mode = 2
 size_flags_horizontal = 3
-mouse_filter = 2
-theme_override_constants/separation = 2
+theme_type_variation = &"HudPanel"
 
-[node name="Row" type="HBoxContainer" parent="VBox/Top/Info"]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="CallLine" type="Label" parent="VBox/Top/Info/Row"]
-layout_mode = 2
-text = "STATUS_NO_CALL"
-theme_type_variation = &"DimLabel"
-theme_override_font_sizes/font_size = 11
-unique_name_in_owner = true
-size_flags_horizontal = 3
-
-[node name="CallState" type="Label" parent="VBox/Top/Info/Row"]
-layout_mode = 2
-text = ""
-theme_type_variation = &"DimLabel"
-theme_override_font_sizes/font_size = 11
-unique_name_in_owner = true
-horizontal_alignment = 2
-
-[node name="Others" type="Label" parent="VBox/Top/Info"]
-layout_mode = 2
-text = ""
-theme_type_variation = &"AmberLabel"
-theme_override_font_sizes/font_size = 11
-unique_name_in_owner = true
-clip_text = true
-
-[node name="TranscriptBox" type="PanelContainer" parent="VBox"]
-custom_minimum_size = Vector2(0, 56)
-layout_mode = 2
-size_flags_vertical = 3
-theme_type_variation = &"DarkPanel"
-
-[node name="Chat" type="VBoxContainer" parent="VBox/TranscriptBox"]
+[node name="ConvV" type="VBoxContainer" parent="Bar/ConvBox"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="Transcript" type="RichTextLabel" parent="VBox/TranscriptBox/Chat"]
+[node name="Warn" type="Label" parent="Bar/ConvBox/ConvV"]
 unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_type_variation = &"AmberLabel"
+theme_override_font_sizes/font_size = 11
+autowrap_mode = 3
+
+[node name="Transcript" type="RichTextLabel" parent="Bar/ConvBox/ConvV"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 size_flags_vertical = 3
 bbcode_enabled = true
+scroll_active = false
 scroll_following = true
 theme_override_colors/default_color = Color(0.902, 0.8588, 0.7412, 1)
 theme_override_font_sizes/normal_font_size = 11
 theme_override_constants/line_separation = 2
 
-[node name="Urgency" type="Control" parent="VBox/TranscriptBox/Chat"]
+[node name="Choices" type="HFlowContainer" parent="Bar/ConvBox/ConvV"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 4
+
+[node name="Urgency" type="Control" parent="Bar/ConvBox/ConvV"]
 unique_name_in_owner = true
 visible = false
-custom_minimum_size = Vector2(0, 16)
+custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 mouse_filter = 2
 script = ExtResource("9_urgency")
 
-[node name="Choices" type="HFlowContainer" parent="VBox"]
+[node name="Glass" type="Control" parent="Bar/ConvBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-theme_override_constants/h_separation = 6
-theme_override_constants/v_separation = 6
+mouse_filter = 2
+script = ExtResource("10_glass")
 
-[node name="Bottom" type="HBoxContainer" parent="VBox"]
+[node name="Keys" type="HBoxContainer" parent="Bar"]
 layout_mode = 2
+mouse_filter = 2
 theme_override_constants/separation = 6
 
-[node name="Warn" type="Label" parent="VBox/Bottom"]
-layout_mode = 2
-text = ""
-theme_type_variation = &"AmberLabel"
-theme_override_font_sizes/font_size = 11
+[node name="Answer" type="Button" parent="Bar/Keys"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(176, 0)
-size_flags_horizontal = 3
-autowrap_mode = 3
-
-[node name="Answer" type="Button" parent="VBox/Bottom"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(118, 40)
+custom_minimum_size = Vector2(96, 0)
 layout_mode = 2
-size_flags_vertical = 4
 focus_mode = 0
-theme_type_variation = &"GreenButton"
+theme_type_variation = &"GreenKey"
 disabled = true
 text = "ANSWER"
 
-[node name="Key" type="Label" parent="VBox/Bottom/Answer"]
+[node name="Key" type="Label" parent="Bar/Keys/Answer"]
 layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
+anchors_preset = 10
 anchor_right = 1.0
-offset_left = -14.0
-offset_top = 1.0
-offset_right = -4.0
-offset_bottom = 14.0
-grow_horizontal = 0
+offset_left = 8.0
+offset_top = 6.0
+offset_right = -8.0
+offset_bottom = 20.0
+grow_horizontal = 2
 mouse_filter = 2
-theme_override_colors/font_color = Color(0.05, 0.04, 0.03, 0.6)
+theme_override_colors/font_color = Color(0.2275, 0.1647, 0.0706, 1)
 theme_override_font_sizes/font_size = 11
 text = "KEY_SPACE"
-horizontal_alignment = 2
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="Transfer" type="Button" parent="VBox/Bottom"]
+[node name="Transfer" type="Button" parent="Bar/Keys"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(118, 40)
+custom_minimum_size = Vector2(96, 0)
 layout_mode = 2
-size_flags_vertical = 4
 focus_mode = 0
-theme_type_variation = &"AmberButton"
+theme_type_variation = &"AmberKey"
 disabled = true
 text = "TRANSFER"
 
-[node name="Key" type="Label" parent="VBox/Bottom/Transfer"]
+[node name="Key" type="Label" parent="Bar/Keys/Transfer"]
 layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
+anchors_preset = 10
 anchor_right = 1.0
-offset_left = -14.0
-offset_top = 1.0
-offset_right = -4.0
-offset_bottom = 14.0
-grow_horizontal = 0
+offset_left = 8.0
+offset_top = 6.0
+offset_right = -8.0
+offset_bottom = 20.0
+grow_horizontal = 2
 mouse_filter = 2
-theme_override_colors/font_color = Color(0.05, 0.04, 0.03, 0.6)
+theme_override_colors/font_color = Color(0.2275, 0.1647, 0.0706, 1)
 theme_override_font_sizes/font_size = 11
 text = "Tab"
 auto_translate_mode = 2
-horizontal_alignment = 2
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="Hangup" type="Button" parent="VBox/Bottom"]
+[node name="Hangup" type="Button" parent="Bar/Keys"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(124, 40)
+custom_minimum_size = Vector2(96, 0)
 layout_mode = 2
-size_flags_vertical = 4
 focus_mode = 0
-theme_type_variation = &"RedButton"
+theme_type_variation = &"RedKey"
 disabled = true
 text = "HANG_UP"
 
-[node name="Key" type="Label" parent="VBox/Bottom/Hangup"]
+[node name="Key" type="Label" parent="Bar/Keys/Hangup"]
 layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
+anchors_preset = 10
 anchor_right = 1.0
-offset_left = -14.0
-offset_top = 1.0
-offset_right = -4.0
-offset_bottom = 14.0
-grow_horizontal = 0
+offset_left = 8.0
+offset_top = 6.0
+offset_right = -8.0
+offset_bottom = 20.0
+grow_horizontal = 2
 mouse_filter = 2
-theme_override_colors/font_color = Color(0.05, 0.04, 0.03, 0.6)
+theme_override_colors/font_color = Color(0.2275, 0.1647, 0.0706, 1)
 theme_override_font_sizes/font_size = 11
 text = "X"
 auto_translate_mode = 2
-horizontal_alignment = 2
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Radio" parent="Bar" instance=ExtResource("11_radio")]
+unique_name_in_owner = true
+layout_mode = 2

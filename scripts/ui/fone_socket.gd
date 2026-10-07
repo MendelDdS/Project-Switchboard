@@ -1,24 +1,18 @@
 @tool
 class_name FoneSocket
 extends Control
-## Encaixe do FONE no telefone. A mesa desenha o plug e o fio por cima e recebe os cliques aqui
-## (por isso este nó e os containers acima dele ignoram o mouse).
+## Encaixe do FONE na prateleira da mesa comutadora, à frente do painel: o buraco onde o plug fica em pé e, embaixo,
+## o nome gravado na madeira. A mesa desenha o plug e o fio por cima e recebe os cliques aqui (por isso este nó e os
+## containers acima dele ignoram o mouse).
 
 func _ready() -> void:
-	custom_minimum_size = Vector2(76, 44)
+	custom_minimum_size = Vector2(100, 16)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 
 func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), Color.BLACK)
-	draw_rect(Rect2(Vector2(2, 2), size - Vector2(4, 4)), Color("1b1812"))
-	draw_rect(Rect2(10, 26, 16, 12), Color("050403"))
-	# no editor (@tool) as fontes de Pal ainda não foram carregadas
-	var f: Font = Pal.ui if Pal.ui != null else get_theme_default_font()
-	# a palavra muda com o idioma (FONE, HEADSET, AURICULAR): o maior tamanho em que a fonte fica nítida e cabe
-	var label := T.text(T.Key.FONE_LABEL)
-	var fs := 22 if f.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 22).x <= size.x - 38 else 11
-	draw_string(f, Vector2(34, 28), label, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Pal.BRASS)
+	Switchboard.draw_grommet(self, Vector2(Switchboard.FONE_HOLE_X, Switchboard.SHELF_HOLE_Y))
+	Switchboard.engrave(self, Vector2(Switchboard.FONE_HOLE_X, size.y), T.text(T.Key.FONE_LABEL))
 
 
 ## O idioma mudou nas configurações: redesenha os textos.

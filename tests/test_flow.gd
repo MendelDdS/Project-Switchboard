@@ -523,6 +523,10 @@ func _initialize() -> void:
 	b._press(hp)
 	b._release(hp)
 	ok(b.held == -1 and b.ends[3] == -1, "clique sem arrastar não pega o plug da base")
+	var reach := true   # o plug guardado inteiro aceita o clique (o vão entre o painel e a prateleira também)
+	for y in range(int(b._rest(3).y - 52.0), int(b.hole(3).y + b.HOLE_LIP)):
+		reach = reach and b._has_point(Vector2(b._rest(3).x, y)) and b._plug_under(Vector2(b._rest(3).x, y)) == 3
+	ok(reach, "o plug guardado aceita o clique em toda a altura")
 	print("OK 7 clique desconecta / arrastar move")
 
 	# ---- 8. silhueta na janela: aparece 15 min antes da ligação desconhecida e sai 10 min antes (vai ligar)
@@ -732,6 +736,47 @@ func _initialize() -> void:
 		_key(pair[0])
 		await frames(2)
 		ok(m.tools.tab == pair[1], "tecla abre a aba " + pair[1])
+	ok(m.background.unread, "a conversa encerrada vira folha nova na prancheta da mesa")
+	_key(KEY_4)
+	await frames(2)
+	ok(m.tools.tab == "registro" and m.tools.open, "tecla 4 abre o registro das conversas")
+	ok(not m.background.unread, "aberto o registro, a folha deixa de ser nova")
+	ok(kc in m.tools.call_log._calls and m.tools.call_log.text.contains(kc.transcript[0]["text"].left(12)), "o registro tem a conversa")
+	_key(KEY_4)
+	await frames(2)
+	ok(not m.tools.open, "a mesma tecla guarda a ferramenta (a janela aparece)")
+	await frames(2)   # o cenário se redesenha e guarda onde ficou cada objeto
+	for id in ["lista", "despacho", "caderno", "registro"]:   # objetos da cena abrem as ferramentas
+		m.tools.close()
+		await frames(12)
+		var pe := InputEventMouseButton.new()
+		pe.button_index = MOUSE_BUTTON_LEFT
+		pe.pressed = true
+		pe.position = (m.background._props[id] as Rect2).get_center()
+		m.background.pointer(pe)
+		ok(m.tools.open and m.tools.tab == id, "o objeto da cena abre " + id)
+	m.tools.close()
+	# o jornal da manhã na mesa (da segunda noite em diante), com as manchetes da noite anterior
+	m.set_news([{"outcome": 0, "template": GameData.CONTENT.news_ok[0], "occurrence": "Outro", "address": "Rua do Sol, 10"}])
+	await frames(3)
+	var pj := InputEventMouseButton.new()
+	pj.button_index = MOUSE_BUTTON_LEFT
+	pj.pressed = true
+	pj.position = (m.background._props["jornal"] as Rect2).get_center()
+	m.background.pointer(pj)
+	ok(m.tools.open and m.tools.tab == "jornal", "o jornal na mesa abre")
+	ok(m.tools.news.get_node("Headlines").text.contains("Rua do Sol"), "o jornal traz as manchetes da noite anterior")
+	m.tools.close()
+	# a sala muda pelos marcadores do roteiro, a partir da noite de cada mudança
+	for r in GameData.CONTENT.room:
+		ok(r.detail in Background.DETAILS, "detalhe da sala conhecido: " + r.detail)
+	var night_was := m.night_no
+	m.night_no = 3
+	m.flags.apply("desligou_desconhecida_2")
+	ok("armario_entreaberto" in m.background.details, "um marcador ligado já muda a sala")
+	m.flags.apply("!desligou_desconhecida_2")
+	ok(not "armario_entreaberto" in m.background.details, "e desligado volta")
+	m.night_no = night_was
 	print("OK 12 atalhos do telefone e das abas")
 
 	# ---- 13. mapa e despacho numa tela: marcar o local imprime o cartão; perfura-se o tipo (um só) e as unidades (o

@@ -2,95 +2,30 @@
 
 [ext_resource type="Script" path="res://scripts/ui/radio.gd" id="1_radio"]
 [ext_resource type="FontFile" uid="uid://bixnphjx77akg" path="res://fonts/DepartureMono-Regular.otf" id="2_vt323_regula"]
+[ext_resource type="Script" path="res://scripts/ui/screen_glass.gd" id="3_glass"]
+[ext_resource type="Script" path="res://scripts/ui/speaker_grill.gd" id="4_grill"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
-bg_color = Color(0.04706, 0.06667, 0.04706, 1)
+bg_color = Color(0.03, 0.045, 0.035, 1)
 content_margin_left = 6
 content_margin_right = 6
-content_margin_top = 6
-content_margin_bottom = 6
+content_margin_top = 4
+content_margin_bottom = 4
 
-[node name="Radio" type="MarginContainer"]
-custom_minimum_size = Vector2(480, 98)
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 8
+[node name="Radio" type="PanelContainer"]
+custom_minimum_size = Vector2(340, 0)
+theme_type_variation = &"HudPanel"
 script = ExtResource("1_radio")
 
 [node name="HBox" type="HBoxContainer" parent="."]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
 
-[node name="Grill" type="ColorRect" parent="HBox"]
-custom_minimum_size = Vector2(54, 50)
+[node name="Grill" type="Control" parent="HBox"]
+custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
-size_flags_vertical = 4
-color = Color(0.05098, 0.04706, 0.03529, 1)
-
-[node name="Slat0" type="ColorRect" parent="HBox/Grill"]
-layout_mode = 0
-offset_left = 2
-offset_top = 3
-offset_right = 52
-offset_bottom = 6
-color = Color(0.2353, 0.2078, 0.1529, 1)
-
-[node name="Slat1" type="ColorRect" parent="HBox/Grill"]
-layout_mode = 0
-offset_left = 2
-offset_top = 9
-offset_right = 52
-offset_bottom = 12
-color = Color(0.2353, 0.2078, 0.1529, 1)
-
-[node name="Slat2" type="ColorRect" parent="HBox/Grill"]
-layout_mode = 0
-offset_left = 2
-offset_top = 15
-offset_right = 52
-offset_bottom = 18
-color = Color(0.2353, 0.2078, 0.1529, 1)
-
-[node name="Slat3" type="ColorRect" parent="HBox/Grill"]
-layout_mode = 0
-offset_left = 2
-offset_top = 21
-offset_right = 52
-offset_bottom = 24
-color = Color(0.2353, 0.2078, 0.1529, 1)
-
-[node name="Slat4" type="ColorRect" parent="HBox/Grill"]
-layout_mode = 0
-offset_left = 2
-offset_top = 27
-offset_right = 52
-offset_bottom = 30
-color = Color(0.2353, 0.2078, 0.1529, 1)
-
-[node name="Slat5" type="ColorRect" parent="HBox/Grill"]
-layout_mode = 0
-offset_left = 2
-offset_top = 33
-offset_right = 52
-offset_bottom = 36
-color = Color(0.2353, 0.2078, 0.1529, 1)
-
-[node name="Slat6" type="ColorRect" parent="HBox/Grill"]
-layout_mode = 0
-offset_left = 2
-offset_top = 39
-offset_right = 52
-offset_bottom = 42
-color = Color(0.2353, 0.2078, 0.1529, 1)
-
-[node name="Slat7" type="ColorRect" parent="HBox/Grill"]
-layout_mode = 0
-offset_left = 2
-offset_top = 45
-offset_right = 52
-offset_bottom = 48
-color = Color(0.2353, 0.2078, 0.1529, 1)
+mouse_filter = 2
+script = ExtResource("4_grill")
 
 [node name="Side" type="VBoxContainer" parent="HBox"]
 layout_mode = 2
@@ -99,7 +34,7 @@ theme_override_constants/separation = 4
 
 [node name="Head" type="HBoxContainer" parent="HBox/Side"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
 [node name="Led" type="ColorRect" parent="HBox/Side/Head"]
 unique_name_in_owner = true
@@ -133,18 +68,39 @@ theme_type_variation = &"DimLabel"
 theme_override_font_sizes/font_size = 11
 
 [node name="ScreenBox" type="PanelContainer" parent="HBox/Side"]
-custom_minimum_size = Vector2(0, 66)
 layout_mode = 2
+size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_1")
 
-[node name="Screen" type="Label" parent="HBox/Side/ScreenBox"]
+[node name="Lines" type="VBoxContainer" parent="HBox/Side/ScreenBox"]
 layout_mode = 2
-text = "…"
+theme_override_constants/separation = 2
+
+[node name="History" type="RichTextLabel" parent="HBox/Side/ScreenBox/Lines"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+bbcode_enabled = true
+scroll_active = false
+vertical_alignment = 2
+theme_override_fonts/normal_font = ExtResource("2_vt323_regula")
+theme_override_font_sizes/normal_font_size = 11
+theme_override_constants/line_separation = -2
+
+[node name="Screen" type="Label" parent="HBox/Side/ScreenBox/Lines"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 13)
+layout_mode = 2
 theme_override_fonts/font = ExtResource("2_vt323_regula")
 theme_override_colors/font_color = Color(0.7176, 0.7882, 0.6588, 1)
 theme_override_font_sizes/font_size = 11
-unique_name_in_owner = true
-clip_text = true
-autowrap_mode = 3
 theme_override_constants/line_spacing = -4
-custom_minimum_size = Vector2(0, 54)
+text = "…"
+autowrap_mode = 3
+
+[node name="Glass" type="Control" parent="HBox/Side/ScreenBox"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("3_glass")

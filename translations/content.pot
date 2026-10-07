@@ -2914,6 +2914,18 @@ msgstr ""
 msgid "Tchau!"
 msgstr ""
 
+#: data/calls/prank_10_rapaz.tres
+msgid "Alô? Gostaria de falar com a Paula!"
+msgstr ""
+
+#: data/calls/prank_10_rapaz.tres
+msgid "Que Paula, por favor?"
+msgstr ""
+
+#: data/calls/prank_10_rapaz.tres
+msgid "Paula Tejano!"
+msgstr ""
+
 #: data/templates/transfer_01.tres
 msgid "Me liga com {place}, por favor? {reason}"
 msgstr ""
