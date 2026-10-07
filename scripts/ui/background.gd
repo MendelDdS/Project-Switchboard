@@ -126,10 +126,11 @@ const WIN_TOP := -28.0      ## o alto do vão (cm a partir dos olhos, para baixo
 const WIN_SILL := 21.0
 const WALL_D := 16.0        ## a espessura da parede (para fora, nas unidades da parede do fundo): o vidro fica do lado de fora
 const SILL_D := 12.0        ## quanto o peitoril de dentro sai da parede para a sala
+const SHIFT_START := 18.0 * 60.0   ## o começo do turno (min do dia): o café da caneca está quente
+const STEAM_FOR := 210.0    ## em quantos minutos de jogo o café esfria e o vapor some (às 21h30)
 const VASE_DIM := 0.45      ## quanto o vaso escurece no canto (o escuro da sala não passa mais nele)
 const BLIND := 0.3         ## até onde a persiana desce (fração da altura do vão)
 const X2 := Transform2D(Vector2(2, 0), Vector2(0, 2), Vector2.ZERO)   ## a escala dos px de 2x2 (`_sprite` volta a ela)
-const MUG_HANDLE := ["hhhh..", "HHHHh.", "...hHh", "....Hs", "....Hs", "....Hs", "....Hs", "...hHs", "HHHHs.", "ssss.."]   ## a alça da caneca (as duas colunas da esquerda ficam atrás dela)
 const PROP_K := 93.0 / 66.0   ## a escala dos objetos da mesa: a mesma dos plugs, que cresceram até o tamanho das tomadas (antes, o plug ficava maior que o relógio e o caderno)
 const CLOCK := Vector3(24, 12.5, 14) * PROP_K   ## o relógio de flip da mesa: largura, altura e fundo (na escala da sala; ~15 × 8 × 9 cm, como as listas de 21 cm)
 ## Quanto ele está virado para os olhos do operador (1 = de frente para eles; 0 = reto, para a parede). Reto: virado
@@ -221,6 +222,8 @@ var _hom := Basis()          # a perspectiva do objeto chato sendo desenhado (`_
 var _hom_sz := Vector2.ONE   # o tamanho do desenho de frente dele (px)
 var _cover := Rect2()   # onde está o papel da ferramenta aberta (px da tela, não de 2x2): luz embaixo dele não brilha
 var _drawn := []        # o `_state` do último desenho da sala
+var _mug_mouth := Vector2.ZERO   # o meio do café na caneca (px da tela), de onde sobe o vapor
+var _mug_w := 0.0               # a largura da caneca na tela (px; 0 = ainda não desenhada)
 var _headless := false   # sem tela (os testes): a vista da janela não é desenhada
 var _vase_px := Vector2.ZERO   # o pé do vaso no peitoril (px da tela)
 var _sill_lit: Array = []   # o peitoril na luz de fora: [polígono (px da tela), cores], desenhado por cima do escuro da sala
@@ -1897,6 +1900,7 @@ func _draw_church(base: Vector2, col: Color) -> void:
 ## perto da luminária e brilhando devagar ao virarem na luz. Fica na camada `dust`, acima da mesa comutadora (a
 ## poeira que passa na frente dela); o papel de uma ferramenta fica na frente, e ela não desce abaixo do fundo do tampo.
 func _draw_dust() -> void:
+	_draw_steam()
 	var k := lamp_level * (0.5 if _cover.has_area() else 1.0)
 	var c := Vector2(_lamp_x * 2.0, 0.0)   # px da tela
 	var reach := size.x * 0.5
@@ -1905,6 +1909,36 @@ func _draw_dust() -> void:
 		var a := (1.0 - minf(1.0, p.distance_to(c) / reach)) * (0.5 + 0.5 * sin(m.z)) * 0.6 * k
 		if a > 0.02 and not _cover.has_point(p):
 			_dust.draw_rect(Rect2(p.floor(), Vector2.ONE), Color(1.0, 0.9, 0.7, a))
+
+
+## O vapor do café subindo da caneca, na camada da poeira (anda sem redesenhar a sala): dois fios grossos ondulando
+## e alargando para cima, com a beira mais fraca, em sopros que sobem e somem; o café esfria e o vapor some com as horas (`STEAM_FOR`), o
+## segundo fio primeiro. Mais visível na luz da luminária.
+func _draw_steam() -> void:
+	var heat := 1.0 - clampf((minutes - SHIFT_START) / STEAM_FOR, 0.0, 1.0)
+	if heat <= 0.0 or _mug_w <= 0.0:
+		return
+	var t := Time.get_ticks_msec() / 1000.0
+	var rise := _mug_w * 1.6
+	for wisp in 2:
+		var hot := heat if wisp == 0 else clampf(heat * 2.0 - 1.0, 0.0, 1.0)
+		if hot <= 0.0:
+			continue
+		var x0 := _mug_mouth.x + (wisp * 2 - 1) * _mug_w * 0.12
+		for s in int(rise):
+			var f := s / rise
+			var puff := 0.5 + 0.5 * sin(s * 0.22 - t * 2.6 + wisp * 1.9)   # os sopros, subindo
+			var a := hot * 0.4 * puff * pow(1.0 - f, 1.5) * smoothstep(0.0, 4.0, s) * lamp_level
+			if a < 0.02:
+				continue
+			var x := x0 + sin(s * 0.13 - t * 1.4 + wisp * 2.4) * (1.0 + s * 0.12)
+			var p := Vector2(x, _mug_mouth.y - s).floor()
+			if not _cover.has_point(p):   # grosso: o miolo e uma beira mais fraca de cada lado, alargando para cima
+				var wd := 2.0 + floorf(f * 4.0)
+				var col := Color(0.96, 0.93, 0.86, a)
+				_dust.draw_rect(Rect2(p - Vector2(floorf(wd / 2.0), 0), Vector2(wd, 1)), col)
+				_dust.draw_rect(Rect2(p - Vector2(floorf(wd / 2.0) + 1.0, 0), Vector2(1, 1)), Color(col, a * 0.45))
+				_dust.draw_rect(Rect2(p + Vector2(ceilf(wd / 2.0), 0), Vector2(1, 1)), Color(col, a * 0.45))
 
 
 ## O clima no vidro: a chuva passando e as gotas paradas no vidro, que às vezes escorrem (chuva), faixas de névoa
@@ -2007,7 +2041,7 @@ func _draw_desk_props() -> void:
 	_draw_books(back[0], _at(0.54), 31 * k, _deep(0.3 * k))
 	_flat("caderno", back[1], _at(0.56), 46 * k, _deep(0.26 * k), 2 * k, Color("3a2414"), _art_notebook, [], deg_to_rad(-2.0), _notebook_marks)
 	_draw_flip_clock(back[2] + cw / 2.0, _at(0.72))   # logo atrás da caneca (desenhado antes dela)
-	_draw_mug(back[2] + cw, _at(0.46), mr, 15 * k)
+	_draw_mug(back[2] + cw, _at(0.46), mr, 13 * k)   # mais larga que alta, como as esmaltadas
 	_flat("despacho", near[0], _at(0.06), 35 * k, _deep(0.19 * k), 1 * k, Color("a89a76"), _art_map, [], deg_to_rad(3.0), _map_pin)
 	_flat("registro", near[1], _at(0.05), 26 * k, _deep(0.26 * k), 2 * k, Color("4a3018"), _art_clipboard, [unread], deg_to_rad(-4.0))
 	if news:
@@ -2407,6 +2441,8 @@ func _project(key: Array, art: Callable, q: PackedVector2Array, sz: Vector2i) ->
 
 ## Um retângulo cheio na imagem `img`, cortado na borda dela.
 func _fr(img: Image, x: float, y: float, w: float, h: float, c: Color) -> void:
+	if w < 1.0 or h < 1.0:
+		return
 	var r := Rect2i(int(x), int(y), int(w), int(h)).intersection(Rect2i(Vector2i.ZERO, img.get_size()))
 	if r.has_area():
 		img.fill_rect(r, c)
@@ -2467,27 +2503,89 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 	_props["lista"] = _bounds(all)
 
 
-## A caneca de café em pé na mesa (centro `xc`, `zc`; raio `rr`, altura `hh`): cerâmica creme com o sombreado do
-## cilindro, a boca em elipse com o café, a alça e o emblema da central.
+## A caneca de café em pé na mesa (centro `xc`, `zc`; raio `rr`, altura `hh`): uma caneca esmaltada de época,
+## branco-gelo com a borda azul-marinho, montada pixel a pixel numa imagem do tamanho dela na tela (`_mug_art`) e
+## escurecida longe da luz. A boca e o pé saem da câmera (elipses mais ou menos abertas pela altura de cada um).
 func _draw_mug(xc: float, zc: float, rr: float, hh: float) -> void:
 	var a := _p3(xc - rr, _yd - hh, zc).round()
 	var body := Rect2(a, _p3(xc + rr, _yd, zc).round() - a)
-	var ry := maxf(2.0, roundf((_p3(xc, _yd - hh, zc - rr).y - _p3(xc, _yd - hh, zc + rr).y) / 2.0))
-	var rx := body.size.x / 2.0
-	_desk_shadow(PackedVector2Array([body.position + Vector2(0, body.size.y - ry), body.end - Vector2(0, ry), body.end, Vector2(body.position.x, body.end.y)]))
-	var dark := _shade(xc, zc)
-	var lit := Color.WHITE.darkened(dark)   # longe da luz
-	draw_texture_rect(Switchboard.art(MUG_HANDLE, {"h": Color("d8caa3"), "H": Color("b8aa86"), "s": Color("8a7c5a")}),
-		Rect2(body.end.x - 2, body.position.y + 4, 6, 10), false, lit)
-	for x in int(body.size.x):   # o cilindro, coluna a coluna: a luz à esquerda, a sombra à direita, o fundo redondo
-		var nx := (x + 0.5) / body.size.x * 2.0 - 1.0
-		var col := Color("ece2c6") if nx < -0.55 else (Color("d8caa3") if nx < 0.35 else (Color("c2b288") if nx < 0.75 else Color("a89a76")))
-		draw_rect(Rect2(body.position.x + x, body.position.y, 1, body.size.y - ry + roundf(sqrt(1.0 - nx * nx) * ry)), col.darkened(_shade(xc + nx * rr, zc)))
-	var top := Vector2(body.get_center().x, body.position.y)
-	_ellipse(top, rx + 1, ry + 1, Color("a89a76").darkened(dark))   # a boca, com a beira no tom da sombra da caneca
-	_ellipse(top, rx, ry, Color("e3d6b2").darkened(dark))
-	_ellipse(top + Vector2(0, 1), rx - 2, ry - 1, Color("3a2414").darkened(dark))   # o café
-	_sprite(Switchboard.disc(8, [[1.8, Color("f0d8a0"), Color("e0c07a"), Color("b8924e")], [4.0, Color("8e2a22")]]), body.get_center() + Vector2(-1, 3), lit)   # o emblema
+	var ry := maxf(2.0, roundf((_p3(xc, _yd - hh, zc - rr).y - _p3(xc, _yd - hh, zc + rr).y) / 2.0))   # a boca
+	var rb := maxf(2.0, roundf((_p3(xc, _yd, zc - rr).y - _p3(xc, _yd, zc + rr).y) / 2.0))   # o pé, mais aberto (mais abaixo dos olhos)
+	if body.size.x < 10.0 or body.size.y < 10.0:   # (a tela ainda se arrumando)
+		return
+	_mug_mouth = body.position + Vector2(body.size.x / 2.0, ry * 0.3)   # o vapor sai do café (`_draw_steam`)
+	_mug_w = body.size.x
+	_desk_shadow(PackedVector2Array([body.position + Vector2(0, body.size.y - rb), body.end - Vector2(0, rb), body.end + Vector2(0, rb),
+		Vector2(body.position.x, body.end.y + rb)]))
+	var img := _mug_art(int(body.size.x), int(body.size.y), int(ry), int(rb))
+	draw_texture(img, body.position - Vector2(0, ry), Color.WHITE.darkened(_shade(xc, zc)))
+
+
+## A caneca esmaltada de frente, com `w` de largura e `h` da boca ao pé (px), a boca e o pé em elipses de meia altura
+## `ry` e `rb`: o corpo sombreado como um cilindro pela luz da luminária (do alto à esquerda: o brilho numa coluna, a
+## sombra à direita, em tons fixos de pixel art), a borda azul-marinho em volta da boca e o filete dela no pé, o lado de
+## dentro com o café embaixo (a luz da luminária refletida nele), a alça em C do lado da sombra e duas lascas no esmalte
+## mostrando o ferro. Guardada por tamanho.
+static var _mugs := {}
+func _mug_art(w: int, h: int, ry: int, rb: int) -> ImageTexture:
+	var key := Vector4i(w, h, ry, rb)
+	if _mugs.has(key):
+		return _mugs[key]
+	var hw := 7   # a alça, para fora do lado direito
+	var img := Image.create(w + hw, h + ry + rb + 1, false, Image.FORMAT_RGBA8)
+	var ramp := [Color("f2ece0"), Color("e3dccb"), Color("cfc7b2"), Color("b6ad96"), Color("958c76"), Color("6e6656")]
+	var navy := [Color("4a608a"), Color("34486c"), Color("243452"), Color("18223a")]
+	var light := Vector2(-0.6, 0.8).normalized()   # (x de lado, z para os olhos): a luz vem do alto à esquerda
+	var top := float(ry)   # o centro da boca na imagem
+	for x in w:   # o corpo, coluna a coluna
+		var nx := (x + 0.5) / w * 2.0 - 1.0
+		var nz := sqrt(maxf(0.0, 1.0 - nx * nx))
+		var d := clampf(Vector2(nx, nz).dot(light), 0.0, 1.0)
+		var tone: Color = ramp[clampi(int((1.0 - d) * 5.99), 0, 5)]
+		var y0 := int(top + nz * ry)   # a beira da frente da boca
+		var y1 := int(top + h + nz * rb)   # a beira da frente do pé
+		_fr(img, x, y0, 1, y1 - y0, tone)
+		_fr(img, x, y0, 1, 2, navy[clampi(int((1.0 - d) * 3.99), 0, 3)])   # a borda
+		_fr(img, x, y1 - 1, 1, 1, navy[mini(3, clampi(int((1.0 - d) * 3.99), 0, 3) + 1)])   # o filete do pé
+	var gx := int(w * 0.28)   # o brilho do esmalte: uma coluna clara no alto do lado da luz
+	_fr(img, gx, int(top + ry) + 3, 1, int(h * 0.55), Color("fbf8f0"))
+	_fr(img, gx + 1, int(top + ry) + 4, 1, int(h * 0.3), Color("f6f2e8"))
+	# a boca: o aro azul, o lado de dentro esmaltado (a parede de trás aparece acima do café) e o café com a luz nele
+	for y in range(0, ry * 2 + 1):
+		for x in w:
+			var e := Vector2((x + 0.5 - w / 2.0) / (w / 2.0), (y + 0.5 - top) / maxf(1.0, ry))
+			var r2 := e.length_squared()
+			if r2 > 1.0:
+				continue
+			var c: Color = navy[1]
+			if r2 < 0.72:   # dentro do aro
+				c = Color("c9c1ab") if e.x < 0.3 else Color("aea690")   # a parede de dentro, mais escura do lado da sombra
+				var f := Vector2(e.x / 0.78, (e.y - 0.3) / 0.62)   # o café, mais baixo que a boca
+				if f.length_squared() < 1.0:
+					c = Color("2e1c10")
+					if f.y > -0.55 and f.y < -0.2 and f.x > -0.55 and f.x < -0.05:
+						c = Color("4a301c")   # a luz da luminária refletida no café: um risco do lado dela
+			elif e.y < -0.2:
+				c = navy[0]   # o aro, mais claro atrás (pega a luz por cima)
+			img.set_pixel(x, y, c)
+	var hy0 := top + ry + 2.0   # a alça em C, do lado da sombra: o anel com o furo, a beira de cima pegando a luz
+	var hy1 := top + ry + h * 0.66
+	var hc := Vector2(w - 2.0, (hy0 + hy1) / 2.0)
+	var ho := Vector2(hw + 1.0, (hy1 - hy0) / 2.0)   # o anel por fora e o furo
+	var hi := Vector2(hw - 1.5, ho.y - 2.2)
+	for y in range(int(hy0), int(hy1) + 1):
+		for x in range(w - 1, w + hw):
+			var q := Vector2(x + 0.5, y + 0.5) - hc
+			if (q / ho).length_squared() > 1.0 or (q / hi).length_squared() < 1.0:
+				continue
+			var up := q.y < -ho.y * 0.5
+			img.set_pixel(x, y, Color("cfc7b2") if up else (Color("958c76") if q.x < hw * 0.5 else Color("6e6656")))
+	for p in [Vector2i(int(w * 0.62), int(top + ry) + 1), Vector2i(int(w * 0.18), int(top + h) - 3)]:   # as lascas no esmalte
+		_fr(img, p.x, p.y, 2, 1, Color("2a2620"))
+		img.set_pixel(p.x, p.y + 1, Color("4a443c"))
+	var tex := ImageTexture.create_from_image(img)
+	_mugs[key] = tex
+	return tex
 
 
 ## Uma elipse cheia em pixel art (como polígono, saía embolotada), centrada em `c`. Guardada por tamanho.

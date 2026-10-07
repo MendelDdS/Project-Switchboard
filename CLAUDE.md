@@ -473,8 +473,10 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   embolotadas): lâmpadas, aro aceso do destino, lâmpadas da legenda e parafusos das chapas. **Nenhuma peça redonda
   com `draw_circle`**: o cenário usa o mesmo `disc` (`Background._sprite`, fora da escala e da perspectiva: botões do
   rádio, parafusos do console, alfinete do mapa, emblemas, rebites, tachinha, fechadura) e elipses pixel a pixel
-  (`Background._ellipse`: a boca da caneca; o corpo dela é desenhado coluna a coluna e a alça é `MUG_HANDLE`, pelo
-  `Switchboard.art`); o painel do operador nos parafusos e o `Bloom` no miolo das luzes redondas. Beira das peças e do
+  (`Background._ellipse`); a caneca é uma caneca esmaltada montada pixel a pixel numa imagem (`_mug_art`: o
+  cilindro em tons fixos pela luz do alto à esquerda, a borda azul-marinho, a boca e o pé em elipses pela câmera, o
+  café com a luz refletida, a alça em C do lado da sombra e lascas no esmalte), com o vapor subindo na camada da poeira
+  (`_draw_steam`), que some com as horas porque o café esfria (`STEAM_FOR`); o painel do operador nos parafusos e o `Bloom` no miolo das luzes redondas. Beira das peças e do
   móvel em `EDGE_DARK` (marrom quase preto), não preto. Os plugs também são pixel art, no acabamento do relógio
   da mesa (abaixo). **O encaixe é um mapa de pixels** (`JACK_ART`, 16×16, menor que o `JACK`, com o furo preto de 8 px, a largura da luva do plug: com 20, a tomada ficava grande demais para a ponta de metal; com 24, passava das linhas do banco; `art`: um caractere por pixel e a
   paleta, `_jack_pal`; o mesmo da branch 2×2, pela referência do usuário, com mais tons): aro niquelado fino (2 a 3
@@ -936,6 +938,8 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
     janela não é mais desenhada sem tela).
 74. O relógio de flip ficou reto: meio virado para o operador, estava certo na perspectiva, mas parecia inclinado
     numa mesa plana (a única caixa alta girada entre as horizontais da sala).
+75. A caneca redesenhada (parecia um balde): esmaltada de época, branco-gelo com a borda azul-marinho, alça em C e
+    lascas, e o vapor do café subindo, que some com as horas porque o café esfria.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.
