@@ -116,8 +116,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   papel colado com fita na parede (`ShiftPlate`, variação `TapedNote`, com o horário e o botão Encerrar turno; era uma
   plaqueta de latão; a faixa dele, `TopLeft`, tem 52 px fixos) e, à direita dele, na parede acima da mesa
   comutadora, a placa esmaltada da companhia telefônica (`Background._draw_company_sign`, `SIGN_COMPANY`). O relógio da sala é um **relógio de flip na mesa** (`Background._draw_flip_clock`, o único da tela):
-  caixa de baquelite creme numa base escura, meio virada para o operador (`CLOCK`; o giro é `CLOCK_TURN` do
-  ângulo até os olhos, `_yaw`, e não um número fixo; `_clock_box` desenha as faces viradas para os olhos, `_clock_xz`/
+  caixa de baquelite creme numa base escura, reta, com a frente paralela à tela (`CLOCK`; `CLOCK_TURN` gira para os
+  olhos uma fração do ângulo até eles, `_yaw`; foi 0,5: certo na conta, mas a frente descia uns 5° entre as horizontais
+  da sala e o lado sumia, e parecia um relógio inclinado numa mesa plana; `_clock_box` desenha as faces viradas para os olhos, `_clock_xz`/
   `_clock_pt` giram os pontos), com fendas e botão niquelado do alarme no tampo, a
   rodinha de acertar no lado e duas plaquetas (horas e minutos, algarismos de 9×19 desenhados à mão numa folha de
   fonte, `DIGITS`) que viram quando a hora muda
@@ -933,6 +934,8 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
     ruído (letra de mão espaçada, miolo das listas liso), a capa da lista com o título em baixo-relevo; menores, menos
     girados e com mais folga (estavam apertados e se encostando). Os testes voltaram ao tempo de antes (a vista da
     janela não é mais desenhada sem tela).
+74. O relógio de flip ficou reto: meio virado para o operador, estava certo na perspectiva, mas parecia inclinado
+    numa mesa plana (a única caixa alta girada entre as horizontais da sala).
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

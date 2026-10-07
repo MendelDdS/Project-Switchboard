@@ -132,7 +132,10 @@ const X2 := Transform2D(Vector2(2, 0), Vector2(0, 2), Vector2.ZERO)   ## a escal
 const MUG_HANDLE := ["hhhh..", "HHHHh.", "...hHh", "....Hs", "....Hs", "....Hs", "....Hs", "...hHs", "HHHHs.", "ssss.."]   ## a alça da caneca (as duas colunas da esquerda ficam atrás dela)
 const PROP_K := 93.0 / 66.0   ## a escala dos objetos da mesa: a mesma dos plugs, que cresceram até o tamanho das tomadas (antes, o plug ficava maior que o relógio e o caderno)
 const CLOCK := Vector3(24, 12.5, 14) * PROP_K   ## o relógio de flip da mesa: largura, altura e fundo (na escala da sala; ~15 × 8 × 9 cm, como as listas de 21 cm)
-const CLOCK_TURN := 0.5     ## quanto ele está virado para os olhos do operador (1 = de frente para eles; 0 = para a parede)
+## Quanto ele está virado para os olhos do operador (1 = de frente para eles; 0 = reto, para a parede). Reto: virado
+## pela metade (13°), a frente descia uns 5° entre as horizontais da sala e o lado, que mostra que é uma caixa, quase
+## sumia; certo na conta, mas parecia um relógio inclinado numa mesa plana.
+const CLOCK_TURN := 0.0
 const FLIP_SEC := 0.24      ## quanto a plaqueta leva para virar
 const DIGITS := [   ## os algarismos das plaquetas, 9×19 px, desenhados à mão (estreitos, cantos redondos, traço de 2 px), lado a lado
 	"..#####.. ....##... ..#####.. ..#####.. ##...##.. ######### ..#####.. ######### ..#####.. ..#####..",
