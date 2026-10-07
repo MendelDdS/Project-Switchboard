@@ -66,6 +66,10 @@ const PLANKS := 6       ## as tábuas do tampo, todas da mesma largura (a câmer
 const POOL_R := 150.0   ## o raio da poça de luz da luminária no tampo
 const DUST := 240        ## grãos de poeira na luz da luminária
 const BEADS := 50        ## gotas paradas no vidro, na chuva
+const RAIN := 320        ## pingos caindo lá fora, na chuva
+const RAIN_FALL := Vector2(9.0, 16.0)   ## quanto o pingo cai a cada quadro da vista (px de 2x2), do mais longe ao mais perto: cruza o vidro em meio segundo
+const RAIN_STREAK := Vector2(6.0, 14.0) ## o comprimento do risco (px da tela), do mais longe ao mais perto: o rastro do quadro
+const RAIN_SLANT := 0.18 ## o vento: quanto o pingo anda para a esquerda a cada px que cai
 const NOIR := Color(0.012, 0.022, 0.045, 0.72)   ## o escuro frio da sala fora da luz da luminária (`_draw_gloom`)
 const GLOOM_R := Vector2(820, 330)   ## até onde vai a luz da luminária antes do escuro todo (px da tela, elipse em volta da poça na mesa: larga, a mesa toda na luz)
 const GLOOM_IN := 0.25   ## dentro dessa fração do raio, nada de escuro: dali para fora ele cresce liso
@@ -82,7 +86,6 @@ const LATE_TO := 24.0 * 60.0     ## até quando (aí, os intervalos entre eles c
 const LATE_EVERY := 3.0
 const BELL_AFTER := 1.6   ## o sino da igreja começa a bater a hora depois do gongo da mesa (s), uma badalada a cada `BELL_GAP`
 const BELL_GAP := 2.3
-const DRIP_EVERY := Vector2(0.8, 2.6)   ## o pingo da calha no peitoril de fora, na chuva (s entre um e outro, sorteado)
 const RATTLE_NEAR := 2.0  ## trovão que vem até esse tempo depois do clarão (s) é perto: o vidro e a persiana chocalham
 const BOLT_EVERY := Vector2(45, 110)   ## de quanto em quanto tempo cai um relâmpago, na chuva (s, sorteado)
 const BOLT_PULSES := [Vector2(0.0, 1.0), Vector2(0.14, 0.55), Vector2(0.42, 0.8)]   ## os clarões dele: quando (s) e a força
@@ -189,7 +192,7 @@ var clock_x := 0.0   ## onde o relógio está na tela (x global): de lá vêm a 
 var _yaw := 0.0   # quanto o relógio da mesa está girado (rad; `_draw_flip_clock`)
 var _flip_from := -1   # o minuto que a plaqueta mostrava antes de virar
 var _flip_at := -100000   # quando ela começou a virar (ms)
-var _drops: Array = []
+var _drops: Array = []   # pingos caindo: Vector3(x, y em frações da vista, perto: 0 = longe, 1 = perto)
 var _dust: Control       # a poeira no feixe da luminária (`dust`): desenhada à parte, a 30 quadros por segundo, sem redesenhar a sala
 var _motes: Array = []   # os grãos: Vector3(x de -1 a 1 na largura da luz, y de 0 a 1 do alto da tela ao fundo do tampo, fase do brilho)
 var _beads: Array = []   # gotas paradas no vidro: Vector4(x, y em frações do vidro à vista, tamanho, velocidade; 0 = parada)
@@ -236,7 +239,6 @@ var _walk_dir := 1.0     # para que lado ele vai (1: para a direita)
 var _walk_step := -1     # o último passo que soou
 var _tolls := 0          # badaladas do sino que faltam bater
 var _toll_in := 0.0      # quanto falta para a próxima (s)
-var _drip_in := 1.0      # quanto falta para o próximo pingo (s)
 var _late_sent := -1.0   # o quanto da noite avançada já foi passado ao `Sfx`
 var _lamp_dim := false   # a luminária estava baixa no quadro anterior (ao piscar, estala)
 var _sign_was := true    # o letreiro estava aceso no quadro anterior (ao falhar, estala)
@@ -256,8 +258,8 @@ func _ready() -> void:
 	_view.draw.connect(_draw_view)
 	_vport.add_child(_view)
 	add_child(_vport)
-	for i in 120:   # gotas e estrelas em frações do vidro: a janela muda de tamanho com a tela
-		_drops.append(Vector3(randf(), randf(), 0.6 + randf() * 0.7))
+	for i in RAIN:   # pingos e estrelas em frações do vidro: a janela muda de tamanho com a tela
+		_drops.append(Vector3(randf() * 1.2, randf(), randf()))
 	for i in 30:
 		_stars.append(Vector2(randf() * 0.95 + 0.02, randf() * 0.45 + 0.03))
 	_dust = dust
@@ -287,11 +289,12 @@ func _process(delta: float) -> void:
 	_mist += 0.12
 	for i in _drops.size():
 		var d: Vector3 = _drops[i]
-		d.y += d.z / _win.y
-		d.x -= d.z * 0.25 / _win.x
-		if d.y > 1.0:
-			d.y = -0.05
-			d.x = randf() * 1.1
+		var fall := lerpf(RAIN_FALL.x, RAIN_FALL.y, d.z)
+		d.y += fall / _win.y
+		d.x -= fall * RAIN_SLANT / _win.x
+		if d.y > 1.05:   # volta para cima, de onde o vento o traz até ali
+			d.y -= 1.1
+			d.x = randf() * (1.0 + RAIN_SLANT * _win.y / _win.x)
 		_drops[i] = d
 	for i in _motes.size():   # a poeira: sobe e desce devagar, ao sabor do ar
 		var m: Vector3 = _motes[i]
@@ -338,13 +341,12 @@ func _state() -> Array:
 
 
 ## Os acontecimentos lá fora, cada um na hora sorteada: um carro passando (`CAR_*`; na chuva, com o chiado da água),
-## alguém andando pela calçada de lá, com os passos (`WALK_*`), e, na chuva, a calha pingando (`DRIP_EVERY`) e o
+## alguém andando pela calçada de lá, com os passos (`WALK_*`), e, na chuva, o
 ## relâmpago com o trovão depois (`BOLT_*`, `THUNDER_AFTER`; perto, a janela chocalha, `RATTLE_NEAR`); o neon do
 ## hotel estala quando falha e o sino da igreja bate as horas (`toll`). Das 22h à meia-noite a cidade se cala: carros e
 ## pedestres cada vez mais raros (`LATE_*`) e os grilos mais presentes (`Sfx.set_late`). Os sons vêm da janela.
 func _events(delta: float) -> void:
 	var x := _bounds(_glass).get_center().x / maxf(1.0, size.x) if _glass.size() > 2 else 0.9
-	Sfx.window_x = x
 	var late := snappedf(clampf((minutes - LATE_FROM) / (LATE_TO - LATE_FROM), 0.0, 1.0), 0.1)
 	if late != _late_sent:   # a cidade se calando: grilos mais presentes, menos gente e carro
 		_late_sent = late
@@ -356,11 +358,6 @@ func _events(delta: float) -> void:
 			Sfx.play_at("bell", x)
 			_tolls -= 1
 			_toll_in = BELL_GAP
-	if weather == "rain":   # a calha pingando no peitoril de fora, sem ritmo certo
-		_drip_in -= delta
-		if _drip_in <= 0.0:
-			Sfx.play_at("drip", x, randf_range(-5.0, 0.0))
-			_drip_in = randf_range(DRIP_EVERY.x, DRIP_EVERY.y) * (0.25 if randf() < 0.2 else 1.0)
 	_car_in -= delta
 	if _car < 0.0 and _car_in <= 0.0:
 		_car = 0.0
@@ -1914,11 +1911,23 @@ func _draw_steam() -> void:
 ## passando (névoa) e um reflexo na diagonal.
 func _draw_glass_weather(g: Rect2) -> void:
 	if weather == "rain":
+		# os pingos: riscos de 1 px inclinados pelo vento, mais longos e claros os de perto, e acesos perto dos postes
+		var heads := _lamp_heads(g)
 		for d in _drops:
-			if d.x >= 0.0 and d.x < 1.0 and d.y >= 0.0:
-				var dp := Vector2(g.position.x + floorf(d.x * g.size.x * 2.0) * PX, g.position.y + floorf(d.y * (g.size.y - 3)))
-				_r(dp.x, dp.y, PX, 2, Color("3a5563"))   # a gota escorrendo, com o brilho na ponta
-				_r(dp.x, dp.y + 2, PX, PX, Color("6a8593"))
+			if d.x < 0.0 or d.x >= 1.0 or d.y < 0.0:
+				continue
+			var hp := Vector2(g.position.x + floorf(d.x * g.size.x * 2.0) * PX, g.position.y + floorf(d.y * g.size.y * 2.0) * PX)
+			var lit := 0.0
+			for h: Vector2 in heads:
+				lit = maxf(lit, 1.0 - hp.distance_to(h) / 45.0)
+			var col := Color(0.62, 0.72, 0.8).lerp(Color("ffd88a"), lit * 0.7)
+			col.a = lerpf(0.14, 0.34, d.z) + lit * 0.3
+			var n := lerpf(RAIN_STREAK.x, RAIN_STREAK.y, d.z)
+			var cols := 1 + int(n * RAIN_SLANT)   # o rastro sobe para a direita, de onde ele veio, em degraus de 1 px
+			var seg := ceilf(n / cols)
+			for k in cols:
+				_r(hp.x + k * PX, hp.y - (k + 1) * seg * PX, PX, seg * PX, col)
+			_r(hp.x, hp.y, PX, PX, Color(col, minf(1.0, col.a * 1.6)))   # a ponta, mais clara
 		# as gotas no vidro, só na parte dele que aparece: escuras, com um brilho, quente perto do poste (`_draw_city`)
 		var top := g.position.y + g.size.y * _glass_from
 		var post := _post(Rect2(g.position, g.size - Vector2(0, _near)))
@@ -2011,10 +2020,13 @@ func _draw_desk_props() -> void:
 	_flat("caderno", back[1], _at(0.56), 46 * k, _deep(0.26 * k), 2 * k, Color("3a2414"), _art_notebook, [], deg_to_rad(-2.0), _notebook_marks)
 	_draw_flip_clock(back[2] + cw / 2.0, _at(0.72))   # logo atrás da caneca (desenhado antes dela)
 	_draw_mug(back[2] + cw, _at(0.46), mr, 13 * k)   # mais larga que alta, como as esmaltadas
-	_flat("despacho", near[0], _at(0.06), 35 * k, _deep(0.19 * k), 1 * k, Color("a89a76"), _art_map, [], deg_to_rad(3.0), _map_pin)
-	_flat("registro", near[1], _at(0.05), 26 * k, _deep(0.26 * k), 2 * k, Color("4a3018"), _art_clipboard, [unread], deg_to_rad(-4.0))
+	# papel tem 1 px de beira, e a prancheta, uns 2 (mais grossos, pareciam tábuas)
+	_flat("despacho", near[0], _at(0.06), 35 * k, _deep(0.19 * k), 0.5, Color("a89a76"), _art_map, [], deg_to_rad(3.0), _map_pin)
+	_flat("registro", near[1], _at(0.05), 26 * k, _deep(0.26 * k), 1.0, Color("4a3018"), _art_clipboard, [unread], deg_to_rad(-4.0),
+		_clipboard_print)
 	if news:
-		_flat("jornal", near[2], _at(0.07), 32 * k, _deep(0.19 * k), 2 * k, Color("a89c78"), _art_newspaper, [], deg_to_rad(6.0))
+		_flat("jornal", near[2], _at(0.07), 32 * k, _deep(0.19 * k), 0.5, Color("a89c78"), _art_newspaper, [], deg_to_rad(6.0),
+			_newspaper_print)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
@@ -2383,6 +2395,30 @@ func _tex_pt(p: Vector2) -> Vector2:
 	return Vector2(v.x / v.z, v.y / v.z)
 
 
+## As alturas (y do desenho de frente, px) de `y0` até `y1` que caem a cada `step` px da tela, no meio do objeto chato
+## sendo desenhado: o espaço entre as linhas de texto é o da tela, não o do papel. (No papel, linhas de 1 px a cada 2
+## viravam moiré e zigue-zague: a perspectiva aperta o fundo e estica a frente, e pulava ou dobrava linhas.)
+func _rows(y0: float, y1: float, step: float) -> Array:
+	var a := _tex_pt(Vector2(_hom_sz.x / 2.0, y0))
+	var b := _tex_pt(Vector2(_hom_sz.x / 2.0, y1))
+	var span := b.y - a.y
+	var out := []
+	if span < step:
+		return out
+	var inv := _hom.inverse()
+	for k in floori(span / step) + 1:
+		var p := a.lerp(b, k * step / span)
+		var r := inv * Vector3(p.x, p.y, 1.0)
+		out.append(r.y / r.z * _hom_sz.y)
+	return out
+
+
+## Um risco de tinta no objeto chato sendo desenhado, de `x0` a `x1` na altura `y` do desenho de frente, posto na
+## tela em pixel art (`cols`: a espessura, de cima para baixo), como o lápis do caderno.
+func _ink(x0: float, x1: float, y: float, cols: Array) -> void:
+	_pixel_line(_tex_pt(Vector2(x0, y)), _tex_pt(Vector2(x1, y)), cols)
+
+
 ## O desenho de frente de um objeto chato posto no quadrilátero `q` da tela pixel a pixel, como a frente do relógio:
 ## cada pixel da tela pega o texel que cai nele, pela homografia (torto por transformação, o desenho esticava e
 ## entortava os pixels: uma linha de 1 px virava 0 ou 2, e destoava do resto do jogo). Guardado por `key`.
@@ -2476,13 +2512,14 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 		var top := PackedVector2Array()
 		for p: Vector2 in xz:
 			top.append(_p3(p.x, y0 - bh, p.y))
-		_poly(top, c)
+		var cover := c.darkened(0.15)   # a capa, que pega a luz de cima de chapa, um tom abaixo da cor do cabo
+		_poly(top, cover)
 		all.append_array(top)
 		var sz := Vector2i(_top_xf(top)[1])
 		if b == 2 and sz.x >= 8 and sz.y >= 4:   # a capa do volume de cima, pixel a pixel como os objetos chatos
 			_hom = _homography(top)
 			_hom_sz = Vector2(sz)
-			_project(["lista", sz], _art_book_cover.bind(c), top, sz)
+			_project(["lista", sz], _art_book_cover.bind(cover), top, sz)
 		_dim(top, xz)   # longe da luz, ponto a ponto: cada volume logo depois de desenhado (os de cima cobrem os de baixo)
 	_props["lista"] = _bounds(all)
 
@@ -2515,9 +2552,9 @@ func _mug_art(w: int, h: int, ry: int, rb: int) -> ImageTexture:
 	var key := Vector4i(w, h, ry, rb)
 	if _mugs.has(key):
 		return _mugs[key]
-	var hw := 7   # a alça, para fora do lado direito
+	var hw := 9   # a alça, para fora do lado direito
 	var img := Image.create(w + hw, h + ry + rb + 1, false, Image.FORMAT_RGBA8)
-	var ramp := [Color("f2ece0"), Color("e3dccb"), Color("cfc7b2"), Color("b6ad96"), Color("958c76"), Color("6e6656")]
+	var ramp := [Color("e2dbca"), Color("d3cbb7"), Color("bfb69f"), Color("a49b83"), Color("857c66"), Color("5e5848")]
 	var navy := [Color("4a608a"), Color("34486c"), Color("243452"), Color("18223a")]
 	var light := Vector2(-0.6, 0.8).normalized()   # (x de lado, z para os olhos): a luz vem do alto à esquerda
 	var top := float(ry)   # o centro da boca na imagem
@@ -2532,8 +2569,8 @@ func _mug_art(w: int, h: int, ry: int, rb: int) -> ImageTexture:
 		_fr(img, x, y0, 1, 2, navy[clampi(int((1.0 - d) * 3.99), 0, 3)])   # a borda
 		_fr(img, x, y1 - 1, 1, 1, navy[mini(3, clampi(int((1.0 - d) * 3.99), 0, 3) + 1)])   # o filete do pé
 	var gx := int(w * 0.28)   # o brilho do esmalte: uma coluna clara no alto do lado da luz
-	_fr(img, gx, int(top + ry) + 3, 1, int(h * 0.55), Color("fbf8f0"))
-	_fr(img, gx + 1, int(top + ry) + 4, 1, int(h * 0.3), Color("f6f2e8"))
+	_fr(img, gx, int(top + ry) + 3, 1, int(h * 0.55), Color("eee8da"))
+	_fr(img, gx + 1, int(top + ry) + 4, 1, int(h * 0.3), Color("e8e2d2"))
 	# a boca: o aro azul, o lado de dentro esmaltado (a parede de trás aparece acima do café) e o café com a luz nele
 	for y in range(0, ry * 2 + 1):
 		for x in w:
@@ -2552,18 +2589,23 @@ func _mug_art(w: int, h: int, ry: int, rb: int) -> ImageTexture:
 			elif e.y < -0.2:
 				c = navy[0]   # o aro, mais claro atrás (pega a luz por cima)
 			img.set_pixel(x, y, c)
-	var hy0 := top + ry + 2.0   # a alça em C, do lado da sombra: o anel com o furo, a beira de cima pegando a luz
-	var hy1 := top + ry + h * 0.66
+	var hy0 := top + ry + 2.0   # a alça em C, do lado da sombra: um anel grosso com o furo (fina, parecia arame), a
+	var hy1 := top + ry + h * 0.66   # beira de cima pegando a luz e a volta de fora na sombra
 	var hc := Vector2(w - 2.0, (hy0 + hy1) / 2.0)
-	var ho := Vector2(hw + 1.0, (hy1 - hy0) / 2.0)   # o anel por fora e o furo
-	var hi := Vector2(hw - 1.5, ho.y - 2.2)
+	var ho := Vector2(hw + 0.5, (hy1 - hy0) / 2.0)   # o anel por fora e o furo
+	var hi := Vector2(hw - 5.0, maxf(1.0, ho.y - 4.5))
 	for y in range(int(hy0), int(hy1) + 1):
 		for x in range(w - 1, w + hw):
 			var q := Vector2(x + 0.5, y + 0.5) - hc
-			if (q / ho).length_squared() > 1.0 or (q / hi).length_squared() < 1.0:
+			var out := (q / ho).length_squared()
+			if out > 1.0 or (q / hi).length_squared() < 1.0:
 				continue
-			var up := q.y < -ho.y * 0.5
-			img.set_pixel(x, y, Color("cfc7b2") if up else (Color("958c76") if q.x < hw * 0.5 else Color("6e6656")))
+			var c := Color("bfb69f")
+			if q.y < -ho.y * 0.4:
+				c = Color("d3cbb7")   # o alto, na luz
+			elif out > 0.8 and (q.x > hw * 0.4 or q.y > 0.0):
+				c = Color("958c76")   # a volta de fora e o pé, na sombra (mais escura, sumia na parede escura)
+			img.set_pixel(x, y, c)
 	for p in [Vector2i(int(w * 0.62), int(top + ry) + 1), Vector2i(int(w * 0.18), int(top + h) - 3)]:   # as lascas no esmalte
 		_fr(img, p.x, p.y, 2, 1, Color("2a2620"))
 		img.set_pixel(p.x, p.y + 1, Color("4a443c"))
@@ -2576,10 +2618,10 @@ func _mug_art(w: int, h: int, ry: int, rb: int) -> ImageTexture:
 ## em 2 px, umas mais escuras que as outras, mais sujas junto das capas; `dk` escurece o lado que não está de frente.
 func _art_pages(sz: Vector2i, c: Color, dk: float) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	var paper := Color("d8cba6").darkened(dk)
+	var paper := Color("c6b994").darkened(dk)
 	img.fill(paper)
 	for y in range(2, sz.y - 2, 2):   # as folhas
-		var line := paper.darkened(0.07 if (y * 7) % 5 < 3 else 0.12)
+		var line := paper.darkened(0.05 if (y * 7) % 5 < 3 else 0.09)
 		var x := 0
 		while x < sz.x:   # cada linha com uma falha aqui e ali (folha mais curta)
 			var n := 6 + (x * 13 + y * 7) % 23
@@ -2599,6 +2641,17 @@ func _art_book_cover(sz: Vector2i, c: Color) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
 	var gold := Color("e0c07a")
 	img.fill(c)
+	for y in sz.y:   # o grão do papelão: pontos um pouco mais escuros ou claros, sempre os mesmos
+		for x in sz.x:
+			var g := (x * 73 + y * 151 + x * y * 7) % 97
+			if g < 6:
+				img.set_pixel(x, y, c.darkened(0.07))
+			elif g > 92:
+				img.set_pixel(x, y, c.lightened(0.05))
+	_fr(img, 2, 2, sz.x - 4, 1, c.darkened(0.16))   # o friso em volta, em baixo-relevo: a sombra em cima e à esquerda...
+	_fr(img, 2, 2, 1, sz.y - 4, c.darkened(0.16))
+	_fr(img, 2, sz.y - 3, sz.x - 4, 1, c.lightened(0.1))   # ...e a luz embaixo e à direita
+	_fr(img, sz.x - 3, 2, 1, sz.y - 4, c.lightened(0.1))
 	_fr(img, 0, 0, sz.x, 1, c.lightened(0.22))
 	_fr(img, 0, 0, 1, sz.y, c.lightened(0.1))
 	_fr(img, sz.x - 1, 0, 1, sz.y, c.darkened(0.25))
@@ -2650,7 +2703,7 @@ func _art_map(sz: Vector2i) -> Image:
 	img.fill(Color("ddd1ad"))   # o papel, e as ruas são ele à mostra
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 2207   # sempre o mesmo mapa
-	var tints := [Color("c9b88a"), Color("c9ad90"), Color("b9bc8c")]   # os bairros
+	var tints := [Color("c9b88a"), Color("c2ab8c"), Color("b6b38c")]   # os bairros: ocre, sépia e oliva desbotados
 	var xs := [1]
 	while xs[-1] < sz.x - 8:
 		xs.append(xs[-1] + rng.randi_range(6, 10))
@@ -2671,14 +2724,14 @@ func _art_map(sz: Vector2i) -> Image:
 				continue
 			var col: Color = tints[clampi(x0 * 3 / sz.x, 0, 2)]
 			if rng.randf() < 0.07:
-				col = Color("8f9f6a")   # uma praça
+				col = Color("8a9168")   # uma praça
 			_fr(img, x0, y0, w, h, col)
 			_fr(img, x0, y0 + h - 1, w, 1, col.darkened(0.12))   # a quadra tem a beira de baixo na sombra
 	var river := [Vector2(0, sz.y * 0.82), Vector2(sz.x * 0.3, sz.y * 0.62), Vector2(sz.x * 0.56, sz.y * 0.74), Vector2(sz.x, sz.y * 0.36)]
 	for i in river.size() - 1:   # o rio, com a margem clara em cima
-		_fl(img, river[i] - Vector2(0, 1), river[i + 1] - Vector2(0, 1), Color("a9bcc0"))
-		_fl(img, river[i], river[i + 1], Color("5f86b0"))
-		_fl(img, river[i] + Vector2(0, 1), river[i + 1] + Vector2(0, 1), Color("48709e"))
+		_fl(img, river[i] - Vector2(0, 1), river[i + 1] - Vector2(0, 1), Color("a3b3b0"))
+		_fl(img, river[i], river[i + 1], Color("55779a"))   # no azul dos cabos da mesa, desbotado no papel
+		_fl(img, river[i] + Vector2(0, 1), river[i + 1] + Vector2(0, 1), Color("43627f"))
 	for x in range(1, sz.x - 2, 4):   # a linha do trem, tracejada, perto do alto
 		_fr(img, x, int(sz.y * 0.18), 2, 1, Color("4a4038"))
 	var seal := Rect2i(sz.x - 14, sz.y - 8, 11, 6)   # o selo do título, com a borda vermelha
@@ -2706,8 +2759,8 @@ func _map_pin(sz: Vector2i) -> void:
 
 
 ## O caderno de ocorrências aberto: a capa de couro com a beira gasta, duas páginas creme (não brancas: chamavam mais o
-## olho que tudo) com a pauta discreta, a margem vermelha, a letra de mão em traços curtos e desiguais, a sombra da
-## dobra no meio e a espessura das folhas embaixo.
+## olho que tudo) com a margem vermelha, a sombra da dobra no meio e a espessura das folhas embaixo. A pauta e a letra
+## de mão vão por cima, na tela (`_notebook_marks`).
 func _art_notebook(sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
 	img.fill(Color("4a2f1c"))   # a capa
@@ -2720,49 +2773,74 @@ func _art_notebook(sz: Vector2i) -> Image:
 		_fr(img, x0, 1, x1 - x0, sz.y - 3, Color("d2c5a0"))
 		_fr(img, x0, sz.y - 3, x1 - x0, 1, Color("a89a74"))   # a espessura das folhas
 		_fr(img, x0, 1, x1 - x0, 1, Color("ddd2b0"))   # a beira de cima pega a luz
-		for y in range(4, sz.y - 3, 3):   # a pauta
-			_fr(img, x0, y, x1 - x0, 1, Color("bfb38e"))
-		_fr(img, x0 + 4, 1, 1, sz.y - 4, Color("b07060"))   # a margem
-		var row := 0
-		for y in range(3, sz.y - 4, 3):   # a letra de mão: umas palavras por linha, linha sim, linha não (cheia, era ruído)
-			row += 1
-			if (row + k) % 2 == 0 or (row * 7 + k * 3) % 5 == 0:
-				continue
-			var x := x0 + 6
-			var end := x0 + 6 + (x1 - x0 - 10) * (0.45 + 0.1 * ((row * 3 + k) % 5))
-			while x < end:
-				var n := 3 + (x * 3 + y * 5 + k) % 4
-				_fr(img, x, y, mini(n, int(end) - x), 1, Color("6a6474"))
-				x += n + 2
 	for i in 3:   # a sombra da dobra no meio, mais escura no fundo dela
 		_fr(img, half - 2 + i, 1, 1, sz.y - 3, Color("8a7a58").lerp(Color("b8ab86"), absf(i - 1.0)))
 	return img
 
 
-## Por cima do caderno, na tela: as tiras dos registros pendentes saindo do fundo dele (uma por registro, até seis) e o
-## lápis apoiado na página da direita, em pixel art na tela (torto pela perspectiva, serrilhava).
+## Por cima do caderno, na tela: a pauta e a letra de mão (umas palavras por linha, linha sim, linha não: cheia, era
+## ruído), a 3 px da tela uma linha da outra (`_rows`), as tiras dos registros pendentes saindo do fundo dele (uma por
+## registro, até seis) e o lápis apoiado na página da direita, em pixel art na tela (torto pela perspectiva, serrilhava).
 func _notebook_marks(sz: Vector2i) -> void:
+	var half := sz.x / 2
+	var rows := _rows(4.0, sz.y - 4.0, 3.0)
+	for k in 2:
+		var x0 := 2.0 if k == 0 else half + 3.0   # a pauta para antes da sombra da dobra
+		var x1 := half - 3.0 if k == 0 else sz.x - 3.0
+		for row in rows.size():
+			var y: float = rows[row]
+			_ink(x0, x1, y, [Color("bfb38e")])
+			if (row + k) % 2 == 0 or (row * 7 + k * 3) % 5 == 0:
+				continue
+			var a := _tex_pt(Vector2(x0 + 6, y)) - Vector2(0, 1)   # as palavras, logo acima da pauta
+			var b := _tex_pt(Vector2(x0 + 6 + (x1 - x0 - 10) * (0.45 + 0.1 * ((row * 3 + k) % 5)), y)) - Vector2(0, 1)
+			var t := 0.0
+			var span := a.distance_to(b)
+			while t < span:
+				var n := 3.0 + (int(t) * 3 + row * 5 + k) % 4
+				_pixel_line(a.lerp(b, t / span), a.lerp(b, minf(t + n - 1.0, span) / span), [Color("6a6474")])
+				t += n + 2.0
+		var mx := (2.0 if k == 0 else half + 1.0) + 4.0   # a margem vermelha, impressa por cima da pauta
+		_pixel_line(_tex_pt(Vector2(mx, 1)), _tex_pt(Vector2(mx, sz.y - 3)), [Color("b07060")])
 	for i in mini(pending, 6):
 		var p := _tex_pt(Vector2(8 + i * floorf((sz.x - 22) / 6.0), 0)).round()
 		var up := 6.0 + (i * 5) % 4
-		draw_rect(Rect2(p.x, p.y - up, 6, up + 2), Color("e0cc8a") if i % 2 == 0 else Color("d8c8ae"))
-		draw_rect(Rect2(p.x, p.y - up, 6, 1), Color("f0e0a8"))
-		draw_rect(Rect2(p.x + 1, p.y - up + 2, 4, 1), Color("a8564a"))
-	var half := sz.x / 2.0
+		var col := Color("d4c084") if i % 2 == 0 else Color("cdbda4")
+		draw_rect(Rect2(p.x, p.y - up, 6, up + 2), col)
+		draw_rect(Rect2(p.x + 5, p.y - up, 1, up + 2), col.darkened(0.2))   # o lado na sombra
+		draw_rect(Rect2(p.x, p.y - up, 5, 1), col.lightened(0.12))   # a beira de cima, na luz
+		draw_rect(Rect2(p.x + 1, p.y - up + 2, 3, 1), Color("a8564a"))
+		draw_rect(Rect2(p.x, p.y + 1, 6, 1), Color(0, 0, 0, 0.3))   # onde ela entra no caderno
 	var a := _tex_pt(Vector2(half + 10, sz.y - 5)).round()
 	var b := _tex_pt(Vector2(sz.x - 6, 4)).round()
 	var d := (b - a).normalized()
 	_pixel_line(a + Vector2(2, 2), b + d * 7 + Vector2(2, 2), [Color(0, 0, 0, 0.3), Color(0, 0, 0, 0.3)])
-	_pixel_line(a, b, [Color("d8b44a"), Color("a8841c"), Color("7a5e14")])
-	_pixel_line(a - d * 4, a, [Color("d8b88a"), Color("c8a87a"), Color("a8885a")])   # a madeira apontada
-	_pixel_line(a - d * 6, a - d * 4, [Color("2a2a2a")])   # o grafite
-	_pixel_line(b, b + d * 4, [Color("c6c1b3"), Color("8e897c"), Color("5a574e")])   # a ponteira de metal
-	_pixel_line(b + d * 4, b + d * 7, [Color("d89a9a"), Color("c87a7a"), Color("985050")])   # a borracha
+	_pixel_line(a, b, [Color("c4a042"), Color("957622"), Color("67521a")])   # o corpo, amarelo de lápis gasto
+	_pixel_line(a - d * 4, a, [Color("c8aa80"), Color("b0926a"), Color("8a7050")])   # a madeira apontada
+	_pixel_line(a - d * 6, a - d * 4, [Color("2a2620")])   # o grafite
+	_pixel_line(b, b + d * 4, [Color("d6d1c3"), Color("8e897c"), Color("45413a")])   # a ponteira, no níquel da mesa
+	_pixel_line(b + d * 4, b + d * 7, [Color("c08a80"), Color("a86a62"), Color("7a4a44")])   # a borracha
 
 
-## A prancheta do registro: tábua de duratex com os cantos cortados e a beira gasta, a folha datilografada com o
-## cabeçalho vermelho e as linhas em duas colunas (hora e o resto), e o prendedor niquelado com a mola e os rebites.
-## Com fala nova no registro (`unread`), uma folha nova, mais clara, presa por cima e meio deslocada.
+const CLIP_ART := [   ## o prendedor da prancheta, de pé na beira de cima (16 × 8): a alavanca em arco e o corpo com os rebites
+	"....eeeeeeee....",
+	"...eHLLLLLLMDe..",
+	"..eLM.......MDe.",
+	".eeeeeeeeeeeeee.",
+	"eHLLLLLLLLLLLLMe",
+	"eLoMMMMMMMMMMoDe",
+	"eMDDDDDDDDDDDDDe",
+	".eeeeeeeeeeeeee.",
+]
+## O níquel do prendedor: o mesmo do aro das lâmpadas da mesa comutadora (luz, meio, sombra), o brilho e os rebites.
+const CLIP_PAL := {"H": Color("f4f0e6"), "L": Color("d6d1c3"), "M": Color("8e897c"), "D": Color("45413a"), "o": Color("ece7da"),
+	"e": Color("2a2620")}
+const SHEET_TURN := 3.5   ## graus que a folha nova da prancheta fica girada (reta, lia como um risco no meio da de baixo)
+
+
+## A prancheta do registro: tábua de duratex com os cantos cortados e a beira gasta e a folha. Com fala nova no registro
+## (`unread`), uma folha nova, mais clara, presa por cima, girada (`SHEET_TURN`) e com a ponta dobrada. O datilografado
+## das folhas e o prendedor vão por cima, na tela (`_clipboard_print`).
 func _art_clipboard(sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
 	img.fill(Color("6e4a2c"))
@@ -2772,61 +2850,135 @@ func _art_clipboard(sz: Vector2i) -> Image:
 	_fr(img, 0, sz.y - 1, sz.x, 1, Color("4a3018"))
 	for c in [Vector2i(0, 0), Vector2i(sz.x - 2, 0), Vector2i(0, sz.y - 2), Vector2i(sz.x - 2, sz.y - 2)]:   # os cantos cortados
 		img.set_pixel(c.x + (0 if c.x == 0 else 1), c.y + (0 if c.y == 0 else 1), Color(0, 0, 0, 0))
-	var sheet := func(x0: int, y0: int, w: int, h: int, base: Color, lines: int) -> void:
-		_fr(img, x0 + 1, y0 + 1, w, h, Color("4a3018"))   # a sombra da folha na tábua
-		_fr(img, x0, y0, w, h, base)
-		_fr(img, x0, y0, w, 1, base.lightened(0.12))
-		_fr(img, x0 + 2, y0 + 3, w - 4, 1, Color("a8564a"))   # o cabeçalho
-		_fr(img, x0 + 2, y0 + 2, (w - 4) / 2, 1, Color("5a5448"))
-		var y := y0 + 6
-		var n := 0
-		while y < y0 + h - 1 and n < lines:
-			_fr(img, x0 + 2, y, 3, 1, Color("6a6458"))   # a hora
-			_fr(img, x0 + 7, y, w - 9 - (y * 7) % 9, 1, Color("6a6458"))
-			y += 3
-			n += 1
-	sheet.call(3, 4, sz.x - 6, sz.y - 6, Color("cdc09c"), 99)
-	if unread:   # a folha nova cobre só o alto da de baixo (inteira, a prancheta parecia vazia)
-		sheet.call(5, 3, sz.x - 10, int(sz.y * 0.55), Color("e0d5b4"), 3)
-	var cx := sz.x / 2   # o prendedor
-	_fr(img, cx - 7, 0, 14, 4, Color("a8a294"))
-	_fr(img, cx - 7, 0, 14, 1, Color("e4dfd2"))
-	_fr(img, cx - 7, 3, 14, 1, Color("5e5a52"))
-	_fr(img, cx - 3, 1, 6, 2, Color("4a463e"))   # a fenda da mola
-	for rx in [cx - 6, cx + 5]:   # os rebites
-		img.set_pixel(rx, 2, Color("ece7da"))
+	var sheets := _sheets(sz)
+	var r: Rect2i = sheets[0][0]
+	_fr(img, r.position.x + 1, r.position.y + 1, r.size.x, r.size.y, Color("4a3018"))   # a sombra da folha na tábua
+	_fr(img, r.position.x, r.position.y, r.size.x, r.size.y, sheets[0][1])
+	_fr(img, r.position.x, r.position.y, r.size.x, 1, (sheets[0][1] as Color).lightened(0.12))
+	if sheets.size() > 1:   # a folha nova, girada em volta do prendedor, com a sombra na de baixo e a ponta dobrada
+		var n: Rect2i = sheets[1][0]
+		var base: Color = sheets[1][1]
+		var box := n.grow(4)
+		for y in range(maxi(0, box.position.y), mini(sz.y, box.end.y)):
+			for x in range(maxi(0, box.position.x), mini(sz.x, box.end.x)):
+				var l := _unturn(Vector2(x + 0.5, y + 0.5), n)   # o pixel na folha reta
+				var u := l.x - (n.end.x - 5.0)   # a ponta de baixo à direita
+				var v := l.y - (n.end.y - 5.0)
+				var corner := u > 0.0 and v > 0.0 and u + v > 5.0
+				if Rect2(n).has_point(l) and not corner:
+					var c := base.lightened(0.12) if l.y < n.position.y + 1.0 else base
+					if u > 0.0 and v > 0.0 and u + v > 3.0:
+						c = base.darkened(0.14) if u + v < 4.5 else base.lightened(0.06)   # a aba virada, com a dobra
+					img.set_pixel(x, y, c)
+				elif Rect2(n).has_point(l - Vector2(1, 1)) and not corner:
+					img.set_pixel(x, y, (sheets[0][1] as Color).darkened(0.25))   # a sombra dela
 	return img
 
 
-## O jornal da manhã dobrado ao meio: papel-jornal amarelado, o nome no alto numa faixa preta com a linha da data, a
-## manchete grossa em duas linhas, uma foto em retícula e as colunas de texto miúdo, e o vinco da dobra.
+## O ponto `p` do desenho da prancheta na folha nova `n` antes de girar (o giro é em volta do meio do alto dela, onde
+## fica o prendedor).
+func _unturn(p: Vector2, n: Rect2i) -> Vector2:
+	var c := Vector2(n.get_center().x, n.position.y)
+	return (p - c).rotated(-deg_to_rad(SHEET_TURN)) + c
+
+
+## O ponto `p` da folha nova `n` reta, girado como ela fica na prancheta.
+func _turn(p: Vector2, n: Rect2i) -> Vector2:
+	var c := Vector2(n.get_center().x, n.position.y)
+	return (p - c).rotated(deg_to_rad(SHEET_TURN)) + c
+
+
+## As folhas da prancheta (`sz`, o desenho de frente): [retângulo, cor do papel, quantas linhas]; com fala nova no
+## registro, a folha nova por cima cobre só o alto da de baixo (inteira, a prancheta parecia vazia).
+func _sheets(sz: Vector2i) -> Array:
+	var out := [[Rect2i(3, 4, sz.x - 6, sz.y - 6), Color("cdc09c"), 99]]
+	if unread:
+		out.append([Rect2i(5, 3, sz.x - 10, int(sz.y * 0.55)), Color("e0d5b4"), 3])
+	return out
+
+
+## Por cima da prancheta, na tela: o datilografado de cada folha, o cabeçalho (o título e o fio vermelho) e as linhas
+## em duas colunas (a hora e o resto), a 3 px da tela uma da outra (`_rows`). Na de baixo, só o que a nova não cobre.
+func _clipboard_print(sz: Vector2i) -> void:
+	var sheets := _sheets(sz)
+	var cover := -1.0   # até onde a folha nova cobre a de baixo (y do desenho; girada, desce um pouco de um lado)
+	if sheets.size() > 1:
+		cover = (sheets[1][0] as Rect2i).end.y + 4.0
+	for i in sheets.size():
+		var r: Rect2i = sheets[i][0]
+		var rows := _rows(r.position.y + 2.0, r.end.y - 1.0, 1.0)
+		var x0 := float(r.position.x)
+		var w := float(r.size.x)
+		var n := 0
+		for k in rows.size():
+			var y: float = rows[k]
+			if i == 0 and y <= cover:
+				continue
+			var line := func(a: float, b: float, col: Color) -> void:   # na folha nova, girado com ela
+				var pa := Vector2(a, y)
+				var pb := Vector2(b, y)
+				if i == 1:
+					pa = _turn(pa, r)
+					pb = _turn(pb, r)
+				_pixel_line(_tex_pt(pa), _tex_pt(pb), [col])
+			if k == 0:
+				line.call(x0 + 2, x0 + 2 + (w - 4) / 2.0 - 1, Color("5a5448"))   # o título
+			elif k == 1:
+				line.call(x0 + 2, x0 + w - 3, Color("a8564a"))   # o fio vermelho do cabeçalho
+			elif k >= 4 and (k - 4) % 3 == 0 and n < sheets[i][2]:
+				line.call(x0 + 2, x0 + 4, Color("6a6458"))   # a hora
+				line.call(x0 + 7, x0 + w - 3 - (k * 7) % 9 - (6 if i == 1 else 0), Color("6a6458"))
+				n += 1
+	# o prendedor, de pé na beira de cima, com a sombra na folha (deitado no papel, era um borrão cinza)
+	var at := (_tex_pt(Vector2(sz.x / 2.0, 3.0)) - Vector2(8, 6)).round()
+	draw_texture(PixelArt.art(CLIP_ART, {"*": Color(0, 0, 0, 0.35)}), at + Vector2(1, 2))
+	draw_texture(PixelArt.art(CLIP_ART, CLIP_PAL), at)
+
+
+## O jornal da manhã dobrado ao meio: papel-jornal amarelado com a foto da primeira página (o céu claro em cima, o
+## escuro embaixo). O que é risco (o nome, a data, a manchete, as colunas e o vinco) vai por cima, na tela
+## (`_newspaper_print`); a foto era um xadrez em retícula, que a perspectiva virava moiré.
 func _art_newspaper(sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	img.fill(Color("c4b994"))
-	_fr(img, 0, 0, sz.x, 1, Color("d2c8a6"))
+	img.fill(Color("d3c69f"))   # papel-jornal amarelado (cinza, longe da luz, sumia no escuro)
+	_fr(img, 0, 0, sz.x, 1, Color("e2d6b2"))
 	_fr(img, sz.x - 1, 0, 1, sz.y, Color("a89c78"))
 	_fr(img, 0, sz.y - 1, sz.x, 1, Color("a89c78"))
-	_fr(img, 2, 1, sz.x - 4, 3, Color("2a2620"))   # o nome do jornal
-	_fr(img, 2, 5, sz.x - 4, 1, Color("8a8068"))   # a linha da data
-	_fr(img, 2, 7, int(sz.x * 0.72), 2, Color("3a3630"))   # a manchete
-	_fr(img, 2, 10, int(sz.x * 0.5), 2, Color("3a3630"))
-	var photo := Rect2i(sz.x - int(sz.x * 0.3) - 2, 13, int(sz.x * 0.3), int(sz.y * 0.45))
-	_fr(img, photo.position.x - 1, photo.position.y - 1, photo.size.x + 2, photo.size.y + 2, Color("4a4438"))
-	for y in photo.size.y:   # a foto, em retícula
-		for x in photo.size.x:
-			var dark := (x + y) % 2 == 0 and y > photo.size.y * 0.4
-			img.set_pixel(photo.position.x + x, photo.position.y + y, Color("6e6656") if dark else Color("8e8470"))
-	var cw := (photo.position.x - 6) / 2
-	for y in range(14, sz.y - 2, 2):   # as colunas de texto
+	var photo := _news_photo(sz)
+	_fr(img, photo.position.x - 1, photo.position.y - 1, photo.size.x + 2, photo.size.y + 2, Color("3e382e"))
+	_fr(img, photo.position.x, photo.position.y, photo.size.x, photo.size.y, Color("938767"))
+	_fr(img, photo.position.x, photo.position.y + photo.size.y * 0.45, photo.size.x, photo.size.y * 0.55 + 1, Color("675f4c"))
+	return img
+
+
+## Onde fica a foto do jornal no desenho de frente dele (`sz`).
+func _news_photo(sz: Vector2i) -> Rect2i:
+	return Rect2i(sz.x - int(sz.x * 0.3) - 2, 13, int(sz.x * 0.3), int(sz.y * 0.45))
+
+
+## Por cima do jornal, na tela: o nome numa faixa escura, a linha da data, a manchete grossa em duas linhas, as
+## colunas de texto miúdo (a da direita embaixo da foto) e o vinco da dobra, cada risco com 1 px da tela (`_rows`).
+func _newspaper_print(sz: Vector2i) -> void:
+	var rows := _rows(2.0, sz.y - 2.0, 1.0)   # a altura no papel de cada px da tela, a partir do nome
+	if rows.size() < 16:
+		return
+	var ink := Color("2a2620")
+	var head := Color("3a3630")
+	_ink(2, sz.x - 2, rows[2], [ink, ink, ink])   # o nome do jornal (afastado da beira: colado, ela saía picotada)
+	_ink(2, sz.x - 2, rows[5], [Color("8a8068")])   # a data
+	_ink(2, 2 + sz.x * 0.72, rows[8], [head, head])   # a manchete
+	_ink(2, 2 + sz.x * 0.5, rows[11], [head, head])
+	var photo := _news_photo(sz)
+	var cw := (photo.position.x - 6) / 2.0
+	for k in range(14, rows.size() - 1, 2):   # as colunas de texto
+		var y: float = rows[k]
 		for col in 3:
-			var x0 := 2 + col * (cw + 2)
-			var w := cw - (y * 3 + col) % 4
+			var x0 := 2.0 + col * (cw + 2.0)
+			var w := cw - (k * 3 + col) % 4
 			if col == 2:
 				if y < photo.end.y + 2:
 					continue
-				w = photo.size.x - (y * 3) % 4
 				x0 = photo.position.x
-			_fr(img, x0, y, w, 1, Color("948a6e"))
-	_fr(img, 0, sz.y / 2, sz.x, 1, Color("a89c78"))   # o vinco
-	_fr(img, 0, sz.y / 2 + 1, sz.x, 1, Color("d2c8a6"))
-	return img
+				w = photo.size.x - (k * 3) % 4
+			_ink(x0, x0 + w - 1.0, y, [Color("776c51")])
+	_ink(0, sz.x - 1, sz.y / 2.0, [Color("a89c78"), Color("dccfa8")])   # o vinco

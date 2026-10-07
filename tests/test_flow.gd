@@ -892,6 +892,17 @@ func _initialize() -> void:
 	await frames(2)
 	ok(not dbg.visible, "F1 fecha o painel")
 	print("OK 14 painel de debug")
+
+	# ---- 15. clima do som: o cenário avisa a hora desde a introdução (antes, mixava o clima padrão, chuva, em 8 s, e
+	# essa mistura terminava depois da da noite: numa noite limpa, os grilos sumiam e entrava a chuva)
+	Sfx.stop_ambience(0.0)
+	Sfx.weather = ""
+	Sfx.set_late(0.0)
+	Sfx.start_ambience("clear")
+	await frames(int(10.0 * 60.0 / Engine.time_scale))
+	ok(Sfx._rain_db <= -79.0 and Sfx.crickets.volume_db > -40.0, "noite limpa: chuva %.0f dB, grilos %.0f dB" % [Sfx._rain_db, Sfx.crickets.volume_db])
+	Sfx.stop_ambience(0.0)
+	print("OK 15 clima do som")
 	finish("fluxo da central")
 
 

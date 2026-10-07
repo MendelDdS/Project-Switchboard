@@ -23,6 +23,8 @@ const BEEP := {"f": 740.0, "dur": 0.13, "gap": 0.09, "count": 2}
 ## Impressora do cartão: colunas de agulhas por segundo (o "zzrt" com tom) e passos por segundo do motor do papel.
 const PRINTER_COLS := 1150.0
 const PRINTER_STEPS := 230.0
+## A chuva do lado esquerdo, em relação ao direito: a janela fica à direita da tela (0,4 = 8 dB mais baixo).
+const RAIN_LEFT := 0.4
 
 var streams := {}   ## id -> AudioStreamWAV
 var _w := PackedFloat32Array()   ## o som sendo montado (`_begin` ... `_end`)
@@ -121,21 +123,28 @@ func _biquad(x: PackedFloat32Array, ftype: String, f: float, q: float) -> Packed
 	return y
 
 
-func _end(id: String, tel: bool = false, loop: bool = false, peak: float = 0.8) -> void:
+## `right`: o lado direito, num som em estéreo (`_w` é o esquerdo).
+func _end(id: String, tel: bool = false, loop: bool = false, peak: float = 0.8, right := PackedFloat32Array()) -> void:
 	if tel:
 		_w = _biquad(_w, "bp", 1500.0, 0.75)
 	var m := 0.0001
 	for v in _w:
 		m = maxf(m, absf(v))
+	for v in right:
+		m = maxf(m, absf(v))
 	var k := peak / m
+	var st := not right.is_empty()
+	var step := 4 if st else 2
 	var bytes := PackedByteArray()
-	bytes.resize(_w.size() * 2)
+	bytes.resize(_w.size() * step)
 	for i in _w.size():
-		bytes.encode_s16(i * 2, int(clampf(_w[i] * k, -1.0, 1.0) * 32000.0))
+		bytes.encode_s16(i * step, int(clampf(_w[i] * k, -1.0, 1.0) * 32000.0))
+		if st:
+			bytes.encode_s16(i * step + 2, int(clampf(right[i] * k, -1.0, 1.0) * 32000.0))
 	var s := AudioStreamWAV.new()
 	s.format = AudioStreamWAV.FORMAT_16_BITS
 	s.mix_rate = RATE
-	s.stereo = false
+	s.stereo = st
 	s.data = bytes
 	if loop:
 		s.loop_mode = AudioStreamWAV.LOOP_FORWARD
@@ -343,31 +352,9 @@ func _build_bell() -> void:
 	_end("bell", false, false, 0.85)
 
 
-## A chuva e a rua de perto da janela: o pingo da calha no peitoril de fora, as gotas batendo no vidro (em loop), o
-## vidro e a persiana chocalhando no trovão perto, e os passos de quem passa na calçada de lá, seco ou molhado (de
-## longe: sem os agudos).
+## A rua de perto da janela: o vidro e a persiana chocalhando no trovão perto e os passos de quem passa na calçada de
+## lá, seco ou molhado (de longe: sem os agudos).
 func _build_outside() -> void:
-	_begin(0.16)   # o pingo: um "plic" que cai de tom depressa
-	var ph := 0.0
-	for i in _w.size():
-		var t := float(i) / RATE
-		ph += (900.0 + 700.0 * exp(-t / 0.012)) / RATE
-		_w[i] = sin(TAU * ph) * exp(-t / 0.035)
-	_noise(0.0, 0.01, "hp", 3000.0, 0.7, 0.3)
-	_end("drip")
-	_begin(4.4)   # as gotas no vidro: batidinhas agudas e espalhadas
-	var n := _w.size()
-	var taps := PackedFloat32Array()
-	taps.resize(n)
-	taps.fill(0.0)
-	for k in int(4.4 * 38):
-		taps[randi() % n] += (1.0 if randf() < 0.5 else -1.0) * randf_range(0.2, 1.0)
-	var hi := _biquad(taps, "bp", 4200.0, 1.6)
-	var lo := _biquad(taps, "bp", 1900.0, 3.0)
-	for i in n:
-		_w[i] = hi[i] * 1.2 + lo[i] * 0.8 + randf_range(-1.0, 1.0) * 0.02
-	_loopify(0.3)
-	_end("rain_glass", false, true, 0.6)
 	_begin(0.9)   # o chocalho: estalinhos rápidos, crescendo e sumindo com o ronco
 	var t0 := 0.0
 	while t0 < 0.8:
@@ -426,31 +413,43 @@ func _loopify(sec: float) -> void:
 	_w.resize(n)
 
 
-## Chuva: chiado de fundo, milhares de gotinhas finas (impulsos filtrados) e batidas mais graves na janela e no telhado.
+## Chuva ouvida de dentro, em estéreo (cada lado com o seu chiado; em mono era um chiado de rádio) e mais do lado da
+## janela, à direita (`RAIN_LEFT`): o ronco grave da água nos telhados e no asfalto, igual nos dois lados; o lençol de
+## gotas longe, sem os agudos (a janela fechada); e o grão miúdo das gotas, denso e por igual. Gotas soltas (batidas,
+## bolhas de poça, gotas no vidro) saíram a pedido: soavam como "tic".
 func _build_rain() -> void:
-	_begin(5.4)
+	var L := 7.0
+	_begin(L)
 	var n := _w.size()
-	var bed := PackedFloat32Array()
-	var fine := PackedFloat32Array()
-	var taps := PackedFloat32Array()
-	for a in [bed, fine, taps]:
-		a.resize(n)
-		a.fill(0.0)
+	var rumble := PackedFloat32Array()
+	rumble.resize(n)
 	for i in n:
-		bed[i] = randf_range(-1.0, 1.0)
-	for k in int(5.4 * 1400):
-		fine[randi() % n] += randf_range(-1.0, 1.0) * pow(randf(), 2.5)   # muitas fracas, poucas fortes
-	for k in int(5.4 * 40):
-		taps[randi() % n] += (1.0 if randf() < 0.5 else -1.0) * randf_range(0.3, 1.0)
-	bed = _biquad(_biquad(bed, "lp", 2400.0, 0.7), "hp", 500.0, 0.7)
-	var rumble := _biquad(_biquad(bed, "lp", 260.0, 0.7), "lp", 260.0, 0.7)
-	fine = _biquad(_biquad(fine, "bp", 3400.0, 0.8), "hp", 1200.0, 0.7)
-	taps = _biquad(taps, "bp", 1250.0, 4.0)
-	for i in n:
-		_w[i] = bed[i] * 0.22 + rumble[i] * 1.5 + fine[i] * 2.2 + taps[i] * 1.6
-	_w = _biquad(_w, "lp", 5500.0, 0.7)   # atrás da janela
-	_loopify(0.4)
-	_end("rain", false, true, 0.6)
+		rumble[i] = randf_range(-1.0, 1.0)
+	rumble = _biquad(_biquad(rumble, "lp", 320.0, 0.7), "hp", 40.0, 0.7)
+	var sides: Array[PackedFloat32Array] = []
+	for side in 2:
+		var bed := PackedFloat32Array()
+		var fine := PackedFloat32Array()
+		bed.resize(n)
+		fine.resize(n)
+		fine.fill(0.0)
+		for i in n:
+			bed[i] = randf_range(-1.0, 1.0)
+		for k in int(L * 3000):
+			fine[randi() % n] += randf_range(-1.0, 1.0)
+		bed = _biquad(bed, "bp", 700.0, 0.5)
+		fine = _biquad(fine, "bp", 2600.0, 0.7)
+		for i in n:
+			_w[i] = rumble[i] * 0.6 + bed[i] * 0.6 + fine[i] * 1.1
+		_w = _biquad(_w, "lp", 4500.0, 0.7)   # atrás da janela
+		_loopify(0.4)
+		if side == 0:
+			for i in _w.size():
+				_w[i] *= RAIN_LEFT
+		sides.append(_w)
+		_begin(L)
+	_w = sides[0]
+	_end("rain", false, true, 0.6, sides[1])
 
 
 ## Brisa leve: ruído grave em rajadas lentas (ciclos inteiros no loop de 8 s) e um assobio fraquinho.
