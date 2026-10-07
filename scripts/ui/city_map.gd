@@ -29,9 +29,10 @@ const REVEAL_SEC := 2.5     # s: o mapa se abrindo para o bairro entregue na noi
 const DISTRICT := {1: T.Key.MAP_DISTRICT_1, 2: T.Key.MAP_DISTRICT_2, 3: T.Key.MAP_DISTRICT_3}
 const NAMES_K := 0.42       # abaixo desta escala, só os nomes dos bairros (a etiqueta do mouse diz a rua)
 const NUMBERS_K := 0.8      # a numeração dos trechos só com o mapa perto
-const PAPER := Color("cfc199")
-const ROAD := Color("e8dcb9")
+const PAPER := Pal.MAP_PAPER   # o papel, e as ruas são ele à mostra (como no mapa dobrado da mesa)
+const ROAD := Pal.MAP_PAPER
 const LINE := Color("3a3226")
+const CITY := "SÃO SOTERO"     # o nome no selo do mapa (nome próprio: o mesmo nos três idiomas)
 
 var sel: Dictionary = {}
 var hover: Dictionary = {}
@@ -296,15 +297,7 @@ func _draw() -> void:
 			_draw_rural()
 		else:
 			_draw_blocks(s)
-	_use(xf)
-	# ruas: de borda a borda de cada folha por onde passam, para continuarem na vizinha
-	for pass_ in [[LINE, 18.0], [ROAD, 13.0]]:
-		for st in GameData.CONTENT.streets:
-			for sheet in _sheets_of(st):
-				var o: Vector2 = SHEETS[sheet]
-				var a := o + (Vector2(0, st.pos) if st.horizontal else Vector2(st.pos, 0))
-				var b := o + (Vector2(600, st.pos) if st.horizontal else Vector2(st.pos, 440))
-				draw_line(a, b, pass_[0], pass_[1])
+	_use(xf)   # (as ruas são o papel entre os quarteirões: continuam de uma folha para a outra sozinhas)
 	# divisas entre bairros vizinhos que aparecem (a zona rural é do Alto da Serra)
 	for seg in [[3, 1, Vector2(600, 0), Vector2(600, 440)], [3, 2, Vector2(0, 440), Vector2(600, 440)], [1, 0, Vector2(600, 440), Vector2(1200, 440)]]:
 		if not (shown(seg[0]) and shown(seg[1])):
@@ -333,17 +326,23 @@ func _draw() -> void:
 			if shown(s) and not SHEET_SECTOR[s] in _before:
 				draw_rect(Rect2(SHEETS[s], SHEET), Color(Pal.INK_SOFT, 1.0 - smoothstep(0.0, 1.0, _reveal)))
 	_use(Transform2D.IDENTITY)
-	# os vincos do mapa dobrado, no papel e não nas folhas (aqui, e não no `PaperDeco`, que fica por cima de tudo, para
-	# a ficha de despacho e o cartão ficarem por cima deles)
-	for k in [1, 2]:
-		PaperDeco.crease(self, Vector2(size.x * k / 3.0, 0), Vector2(size.x * k / 3.0, size.y))
+	# o mapa dobrado em sanfona, no papel e não nas folhas (aqui, e não no `PaperDeco`, que fica por cima de tudo, para
+	# a ficha de despacho e o cartão ficarem por cima): quatro painéis, os de número par um pouco na sombra, como no
+	# mapa da mesa, e os vincos
+	for k in [1, 3]:
+		draw_rect(Rect2(size.x * k / 4.0, 0, size.x / 4.0, size.y), Color(0, 0, 0, 0.035))
+	for k in [1, 2, 3]:
+		PaperDeco.crease(self, Vector2(size.x * k / 4.0, 0), Vector2(size.x * k / 4.0, size.y))
 	PaperDeco.crease(self, Vector2(0, size.y / 2.0), Vector2(size.x, size.y / 2.0))
-	# rosa dos ventos, no canto da vista
-	var cp := _seen().end - Vector2(46, 40)
-	draw_rect(Rect2(cp, Vector2(40, 34)), LINE)
-	draw_rect(Rect2(cp + Vector2(2, 2), Vector2(36, 30)), PAPER)
-	_t(cp + Vector2(20, 18), "N", 11)
-	draw_colored_polygon(PackedVector2Array([cp + Vector2(20, 20), cp + Vector2(14, 29), cp + Vector2(26, 29)]), LINE)
+	# o selo, no canto da vista (o mesmo do mapa da mesa): a moldura vermelha, a rosa dos ventos e o nome da cidade
+	var seal := Rect2(_seen().end - Vector2(124, 40), Vector2(118, 34))
+	draw_rect(seal, Pal.SEAL)
+	draw_rect(seal.grow(-2), PAPER)
+	draw_rect(seal.grow(-4), Pal.SEAL, false, 1.0)
+	var cp := seal.position + Vector2(18, 0)
+	_t(cp + Vector2(0, 16), "N", 11)
+	draw_colored_polygon(PackedVector2Array([cp + Vector2(0, 18), cp + Vector2(-6, 28), cp + Vector2(6, 28)]), LINE)
+	_t(seal.position + Vector2(72, 22), CITY, 11)
 	_use(xf)
 	if not hover.is_empty():
 		_tag(seg_geom(GameData.street(hover["street"]), hover["block"])[2], hover["label"])
@@ -378,9 +377,9 @@ func _draw_names(names: bool) -> void:
 				continue
 			var p0: Vector2 = seg_geom(st, b)[0]
 			if st.horizontal:
-				_label(p0 + Vector2(16, 22), str(b * 100), 11, Pal.INK_SOFT)
+				_label(p0 + Vector2(16, 22), str(b * 100), 11, Pal.INK_SOFT, PAPER)
 			else:
-				_label(p0 + Vector2(-13, 26), str(b * 100), 11, Pal.INK_SOFT, Color.TRANSPARENT, true)   # na beira da quadra
+				_label(p0 + Vector2(-13, 26), str(b * 100), 11, Pal.INK_SOFT, PAPER, true)   # na beira da quadra
 
 
 ## Nome da rua ao longo dela (as verticais em pé, como nos aplicativos de mapa), no meio de um trecho entre dois
@@ -426,10 +425,13 @@ func _place_name(r: Rect2, txt: String, up: bool) -> void:
 			_label(c + Vector2(0, 17 / _k), b, 11)
 
 
-## Quarteirões de uma folha (coordenadas da folha): lugares (`LM`) e casas. Os nomes dos lugares ficam para depois
-## das ruas (`_places`).
+## Quarteirões de uma folha (coordenadas da folha), no tom do bairro (`Pal.MAP_TINTS`, os do mapa dobrado da mesa),
+## com a beira mais escura (as ruas são o papel entre eles): as casas em volta, de frente para as ruas (`_houses`), os
+## lugares (`LM`) num prédio só, de telhado de barro, e a praça verde, com os caminhos, as árvores e o coreto. Os nomes
+## dos lugares ficam para depois das ruas (`_places`).
 func _draw_blocks(sector: int) -> void:
 	var o: Vector2 = SHEETS[sector]
+	var tint: Color = Pal.MAP_TINTS[SHEET_SECTOR[sector]]
 	for ci in 5:
 		for ri in 4:
 			var x0: float = XS[ci] + (11.0 if ci > 0 else 4.0)
@@ -438,33 +440,85 @@ func _draw_blocks(sector: int) -> void:
 			var y1: float = YS[ri + 1] - (11.0 if ri < 3 else 4.0)
 			var r := Rect2(x0, y0, x1 - x0, y1 - y0)
 			var lm: int = LM.get(sector, {}).get("%d,%d" % [ci, ri], -1)
+			draw_rect(r, tint.darkened(0.3))
+			draw_rect(r.grow(-2), Pal.MAP_PLAZA if lm == T.Key.MAP_SQUARE else tint)
 			if lm == T.Key.MAP_SQUARE:
-				draw_rect(r, LINE)
-				draw_rect(r.grow(-2), Color("9fae78"))
-				for t in 9:
-					draw_rect(Rect2(x0 + 8 + (t % 3) * (r.size.x - 24) / 2.0, y0 + 8 + int(t / 3) * (r.size.y - 24) / 2.0, 8, 8), Color("5f7445"))
-				var c := r.get_center()
-				draw_rect(Rect2(c.x - 14, c.y - 12, 28, 24), LINE)
-				draw_rect(Rect2(c.x - 12, c.y - 10, 24, 20), Color("e6dab8"))
-				draw_rect(Rect2(c.x - 2, c.y - 24, 4, 14), LINE)
-				draw_rect(Rect2(c.x - 6, c.y - 20, 12, 4), LINE)
+				_draw_square(r.grow(-2))
 				_places.append([Rect2(o.x + x0, o.y + y1 - 30, r.size.x, 30), T.text(lm), false])
-			elif lm != -1:
-				draw_rect(r, LINE)
-				draw_rect(r.grow(-2), Color("b7a67b"))
-				draw_rect(Rect2(x0 + 4, y0 + 4, r.size.x - 8, minf(14.0, r.size.y - 8)), Color("a39166"))
+			elif lm != -1:   # o lugar: um prédio só, de duas águas como as casas, com o terreno em volta
+				var b := r.grow(-8)
+				draw_rect(b, LINE)
+				draw_rect(b.grow(-2), Pal.MAP_LANDMARK)
+				var lit := Rect2(b.position + Vector2(2, 2), (b.size - Vector2(4, 4)) * (Vector2(1, 0.5) if b.size.x >= b.size.y else Vector2(0.5, 1)))
+				draw_rect(lit.abs(), Pal.MAP_LANDMARK.lightened(0.12))
 				_places.append([Rect2(o + r.position, r.size), T.text(lm), r.size.x < 60])
 			else:
-				draw_rect(r, Color("8f7f5b"))
-				draw_rect(r.grow(-1), Color("c3b48b"))
-				var yy := y0 + 6
-				while yy + 12 < y1:
-					var xx := x0 + 6
-					while xx + 12 < x1:
-						if int(xx * 7 + yy * 3 + sector * 11) % 5 != 0:
-							draw_rect(Rect2(xx, yy, 10, 10), Color("a8976c"))
-						xx += 18
-					yy += 18
+				_houses(r.grow(-4), sector * 31 + ci * 7 + ri * 3, tint)
+
+
+## As casas de um quarteirão (`r`, dentro da beira): em volta dele, de frente para as ruas, cada uma de uma largura
+## (sempre a mesma por `seed`), com um terreno vazio de vez em quando; o telhado de duas águas, a metade de cima (ou da
+## esquerda) na luz; no meio, os quintais, com uma árvore ou outra.
+func _houses(r: Rect2, seed: int, tint: Color) -> void:
+	var roof := tint.darkened(0.22)
+	var d := minf(14.0, floorf((r.size.y - 4.0) / 2.0))
+	var house := func(h: Rect2, across: bool) -> void:
+		draw_rect(h, roof)
+		if across:   # a cumeeira na vertical
+			draw_rect(Rect2(h.position, Vector2(floorf(h.size.x / 2.0), h.size.y)), roof.lightened(0.1))
+		else:
+			draw_rect(Rect2(h.position, Vector2(h.size.x, floorf(h.size.y / 2.0))), roof.lightened(0.1))
+	for side in 2:   # em cima e embaixo
+		var y := r.position.y if side == 0 else r.end.y - d
+		var x := r.position.x
+		var i := 0
+		while x < r.end.x - 4.0:
+			var w := minf(10.0 + float((seed * 31 + side * 17 + i * 13) % 13), r.end.x - x)
+			if (seed + i * 7 + side) % 9 != 0:
+				house.call(Rect2(x, y, w, d), false)
+			x += w + 2.0
+			i += 1
+	if r.size.x > d * 2.0 + 8.0 and r.size.y > d * 2.0 + 14.0:   # dos lados, entre as de cima e as de baixo
+		for side in 2:
+			var x := r.position.x if side == 0 else r.end.x - d
+			var y := r.position.y + d + 2.0
+			var i := 0
+			while y < r.end.y - d - 6.0:
+				var h := minf(10.0 + float((seed * 13 + side * 29 + i * 11) % 11), r.end.y - d - 2.0 - y)
+				if (seed + i * 5 + side) % 7 != 0:
+					house.call(Rect2(x, y, d, h), true)
+				y += h + 2.0
+				i += 1
+	var yard := r.grow(-d - 4.0)
+	if yard.size.x > 16.0 and yard.size.y > 16.0:   # as árvores dos quintais
+		for t in 1 + seed % 3:
+			var p := yard.position + Vector2(float((seed * 17 + t * 41) % int(yard.size.x - 8.0)), float((seed * 23 + t * 29) % int(yard.size.y - 8.0)))
+			_tree(p)
+
+
+## Uma árvore vista de cima (8 de lado): a copa escura com a luz no alto à esquerda.
+func _tree(p: Vector2) -> void:
+	draw_rect(Rect2(p, Vector2(8, 8)), Pal.MAP_TREE)
+	draw_rect(Rect2(p, Vector2(4, 4)), Pal.MAP_TREE.lightened(0.25))
+
+
+## A praça (`r`, dentro da beira): os caminhos no papel, em cruz e nas diagonais, as árvores entre eles e o coreto no
+## meio.
+func _draw_square(r: Rect2) -> void:
+	var c := r.get_center()
+	for seg in [[r.position, r.end], [Vector2(r.end.x, r.position.y), Vector2(r.position.x, r.end.y)],
+			[Vector2(c.x, r.position.y), Vector2(c.x, r.end.y)], [Vector2(r.position.x, c.y), Vector2(r.end.x, c.y)]]:
+		draw_line(seg[0], seg[1], PAPER, 4.0)
+	for q in 4:   # duas árvores em cada canto, longe dos caminhos
+		var corner := Vector2(r.position.x if q % 2 == 0 else r.end.x, r.position.y if q < 2 else r.end.y)
+		var into := (c - corner).sign()
+		for t in 2:
+			var off := Vector2(r.size.x * (0.3 if t == 0 else 0.12), r.size.y * (0.12 if t == 0 else 0.3))
+			_tree(corner + into * off - Vector2(4, 4))
+	draw_rect(Rect2(c.x - 14, c.y - 12, 28, 24), LINE)   # o coreto
+	draw_rect(Rect2(c.x - 12, c.y - 10, 24, 20), Color("e6dab8"))
+	draw_rect(Rect2(c.x - 2, c.y - 24, 4, 14), LINE)
+	draw_rect(Rect2(c.x - 6, c.y - 20, 12, 4), LINE)
 
 
 ## Zona rural (folha sem setor): roças entre as estradas de terra (que continuam as ruas vizinhas) e um rio.

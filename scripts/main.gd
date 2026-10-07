@@ -259,6 +259,7 @@ func _process(delta: float) -> void:
 		supervisor.check_hold()
 	background.flick = flick
 	_glow.modulate.a = background.lamp_level
+	tools.light = background.lamp_level
 
 
 ## Quem está na linha esperando o operador: na transferência, às vezes puxa conversa fiada depois de um tempo e,
@@ -790,7 +791,7 @@ func _update_room() -> void:
 
 ## Põe na mesa o jornal da manhã com as manchetes `news` (`ShiftReport.news` da noite anterior).
 func set_news(news: Array) -> void:
-	tools.news.show_news(news, night.weekday)
+	tools.news.show_news(news, night)
 	background.news = true
 
 

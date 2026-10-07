@@ -18,6 +18,17 @@ extends Resource
 ## Novidades da cidade nesta noite (conversa fiada): contadas antes dos assuntos gerais, uma vez por noite.
 @export var smalltalk: Array[ChatTopic] = []
 
+@export_group("Jornal da manhã")
+## A primeira página do jornal que está na mesa nesta noite (da segunda em diante), além das manchetes das emergências
+## da noite anterior (`ShiftReport.news`). Tudo opcional: vazio, sai como sempre.
+## A foto (vazio = a cidade de manhã, desenhada em retícula), ajustada à coluna dela sem deformar.
+@export var news_photo: Texture2D
+## A legenda embaixo da foto (vazio = só o traço da legenda).
+@export var news_caption := ""
+## As matérias, uma por coluna: as duas embaixo das manchetes e a de baixo da foto, nessa ordem (as que passarem de
+## três ficam de fora). A primeira linha de cada uma é o título; o que sobrar da coluna é letra miúda.
+@export_multiline var news_stories: PackedStringArray = []
+
 @export_group("Ligação desconhecida")
 ## O que se diz na ligação desconhecida (vazio = ela não toca nesta noite). Passos EFFECT: "static",
 ## "static_loud", "flick" (a lâmpada da mesa pisca).

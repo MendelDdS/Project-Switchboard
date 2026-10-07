@@ -163,15 +163,20 @@ func _draw() -> void:
 		ey += entry_height(e)
 
 
-## Cortes de índice na borda direita, por baixo da capa: a aba da letra aberta sai mais e fica escura.
+## As abas de índice na borda direita: tiras de papel saindo de entre as folhas, como as que marcam páginas nas listas
+## da mesa (`Pal.STRIP`; a da letra aberta, vermelha, sai mais), com a beira de cima na luz, o lado na sombra e a sombra
+## no papel embaixo.
 func _draw_tabs() -> void:
 	for i in _index.size():
 		var on := i == _letter
 		var r := _tab_rect(i, on or i == _hover_tab)
-		draw_rect(r, Pal.INK_SOFT)
-		draw_rect(r.grow(-1), Pal.INK_SOFT if on else (PAPER.darkened(0.06) if i == _hover_tab else PAPER.darkened(0.12)))
-		draw_string(Pal.mono, Vector2(r.position.x + 4, r.position.y + (r.size.y + Pal.mono.get_ascent(11)) / 2.0 - 2),
-			_index[i], HORIZONTAL_ALIGNMENT_CENTER, r.size.x - 4, 20, PAPER if on else Pal.INK_SOFT)
+		var col := Pal.FORM_RED if on else (Pal.STRIP.lightened(0.1) if i == _hover_tab else Pal.STRIP)
+		draw_rect(Rect2(r.position.x + 1, r.end.y, r.size.x - 1, 1), Color(0, 0, 0, 0.25))
+		draw_rect(r, col)
+		draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), col.lightened(0.15))
+		draw_rect(Rect2(r.end.x - 1, r.position.y, 1, r.size.y), col.darkened(0.2))
+		draw_string(Pal.mono, Vector2(r.position.x + 4, r.get_center().y + 7), _index[i], HORIZONTAL_ALIGNMENT_CENTER, r.size.x - 5,
+			22, Pal.STRIP if on else Pal.INK_SOFT)
 
 
 ## Cabeçalho da página: um título e o fio embaixo.

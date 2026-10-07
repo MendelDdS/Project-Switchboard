@@ -190,18 +190,35 @@ theme_override_font_sizes/font_size = 11
 horizontal_alignment = 1
 auto_translate_mode = 2
 
-[node name="Rule" type="ColorRect" parent="Body/Paper/Margin/News"]
-custom_minimum_size = Vector2(0, 3)
+[node name="Rule" type="Control" parent="Body/Paper/Margin/News"]
+custom_minimum_size = Vector2(0, 6)
 layout_mode = 2
-color = Color(0.1647, 0.1373, 0.098, 1)
 
-[node name="Headlines" type="RichTextLabel" parent="Body/Paper/Margin/News"]
+[node name="Page" type="HBoxContainer" parent="Body/Paper/Margin/News"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="Text" type="VBoxContainer" parent="Body/Paper/Margin/News/Page"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Headlines" type="RichTextLabel" parent="Body/Paper/Margin/News/Page/Text"]
+layout_mode = 2
 bbcode_enabled = true
+fit_content = true
 theme_override_colors/default_color = Color(0.1647, 0.1373, 0.098, 1)
 theme_override_font_sizes/normal_font_size = 11
 theme_override_constants/line_separation = 3
+
+[node name="Columns" type="Control" parent="Body/Paper/Margin/News/Page/Text"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Photo" type="Control" parent="Body/Paper/Margin/News/Page"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
 
 [node name="Deco" type="Control" parent="Body/Paper"]
 unique_name_in_owner = true

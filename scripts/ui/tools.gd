@@ -9,7 +9,8 @@ extends VBoxContainer
 
 const TABS := {"lista": "%TabLista", "despacho": "%TabDespacho", "caderno": "%TabCaderno", "registro": "%TabRegistro"}
 const SLIDE_SEC := 0.2
-const PAPER_TINT := {"jornal": Color("d6d3cc")}   ## papel de outra cor (o do jornal é acinzentado)
+## A cor do papel de cada ferramenta, a mesma do objeto dela na mesa (as outras, `Pal.PAPER`); a aba aberta acompanha.
+const PAPER := {"caderno": Pal.NOTE_PAGE, "registro": Pal.SHEET, "jornal": Pal.NEWSPRINT}
 
 @onready var book: PhoneBook = %PhoneBook
 @onready var dispatch: Dispatch = %Dispatch
@@ -25,13 +26,25 @@ const PAPER_TINT := {"jornal": Color("d6d3cc")}   ## papel de outra cor (o do jo
 var tab := "lista"   ## a última aberta
 var open := false
 var origin: Callable   ## id -> Rect2 global do objeto da mesa daquela ferramenta (o Main liga; vazio: desliza da direita)
+var light := 1.0:   ## a luz da luminária (o Main atualiza): cai também no papel aberto (`PaperDeco.light`)
+	set(v):
+		light = v
+		if is_node_ready():
+			_deco.light = v
 var _slide: Tween
+var _paper_box: StyleBoxFlat   # o fundo do papel e o da aba aberta, na cor da ferramenta (`PAPER`)
+var _tab_box: StyleBoxFlat
 
 
 func _ready() -> void:
+	_paper_box = _paper.get_theme_stylebox("panel").duplicate()
+	_paper.add_theme_stylebox_override("panel", _paper_box)
+	_tab_box = (get_node(TABS["lista"]) as Button).get_theme_stylebox("pressed").duplicate()
 	for id in TABS:
 		var b: Button = get_node(TABS[id])
 		b.pressed.connect(toggle.bind(id))
+		b.add_theme_stylebox_override("pressed", _tab_box)
+		b.add_theme_stylebox_override("hover_pressed", _tab_box)
 	_apply()
 
 
@@ -72,6 +85,8 @@ func set_count(id: String, n: int) -> void:
 	var c: Label = get_node(TABS[id]).get_node("Count")
 	c.text = str(n)
 	c.visible = n > 0
+	if id == "caderno":   # as tiras saindo do caderno aberto, como no da mesa
+		_deco.pending = n
 
 
 ## O papel sai do objeto da ferramenta na mesa (pequeno, em cima dele) e vem para o lugar, ou volta para ele e some.
@@ -117,4 +132,5 @@ func _apply() -> void:
 	for id in _views:
 		_views[id].visible = id == tab
 	_deco.kind = tab
-	_paper.self_modulate = PAPER_TINT.get(tab, Color.WHITE)
+	_paper_box.bg_color = PAPER.get(tab, Pal.PAPER)
+	_tab_box.bg_color = _paper_box.bg_color

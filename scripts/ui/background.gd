@@ -2554,7 +2554,7 @@ func _fl(img: Image, a: Vector2, b: Vector2, c: Color) -> void:
 ## ponto de fuga, com os filetes dourados; na frente, o miolo de papel com as folhas marcadas entre as capas; e, no de
 ## cima, o tampo com a faixa do título e o emblema da central.
 func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
-	var cols := [Color("8e2a22"), Color("2a4a7c"), Color("b48c1c")]
+	var cols := [Pal.SEAL, Color("2a4a7c"), Pal.BOOK]
 	var offs := [Vector2(1, 0) * PROP_K, Vector2(3, 2) * PROP_K, Vector2(0, 1) * PROP_K]   # meio tortos: x e z de cada volume
 	var yaws := [deg_to_rad(-3.0), deg_to_rad(3.5), deg_to_rad(-1.0)]   # e cada um girado para um lado
 	var bh := 5.5 * PROP_K
@@ -2575,10 +2575,10 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 			var at := func(u: float, v: float) -> Vector2: return q[0].lerp(q[1], u).lerp(q[3].lerp(q[2], u), v)   # um ponto da face
 			if i == spine:   # a lombada: os filetes dourados e, entre eles, a etiqueta escura do volume com o número
 				_poly(q, c.darkened(0.2))
-				_pixel_line(at.call(0.0, 0.2), at.call(1.0, 0.2), [Color("e0c07a")])
-				_pixel_line(at.call(0.0, 0.8), at.call(1.0, 0.8), [Color("e0c07a")])
+				_pixel_line(at.call(0.0, 0.2), at.call(1.0, 0.2), [Pal.GOLD])
+				_pixel_line(at.call(0.0, 0.8), at.call(1.0, 0.8), [Pal.GOLD])
 				_poly(PackedVector2Array([at.call(0.32, 0.34), at.call(0.68, 0.34), at.call(0.68, 0.66), at.call(0.32, 0.66)]), c.darkened(0.5))
-				_pixel_line(at.call(0.44, 0.5), at.call(0.56, 0.5), [Color("e0c07a")])
+				_pixel_line(at.call(0.44, 0.5), at.call(0.56, 0.5), [Pal.GOLD])
 			else:
 				# o miolo entre as capas, com as folhas em linhas finas: numa imagem posta pixel a pixel, como a capa (em
 				# linhas tortas desenhadas na tela, elas viravam degraus quebrados e faixas)
@@ -2591,7 +2591,7 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 				if i == 2:   # tiras de papel marcando páginas, saindo da frente (cada volume as dele)
 					for m: Vector2 in [[Vector2(0.72, 0.0)], [Vector2(0.3, 1.0), Vector2(0.82, 0.0)], [Vector2(0.55, 1.0)]][b]:
 						var p: Vector2 = (at.call(m.x, 0.55) as Vector2).round()   # deitada entre as folhas: uma aba fina, com a sombra embaixo
-						var col := Color("a8564a") if m.y == 0.0 else Color("e0d4b0")
+						var col := Pal.FORM_RED if m.y == 0.0 else Pal.STRIP
 						draw_rect(Rect2(p - Vector2(3, 0), Vector2(6, 2)), col)
 						draw_rect(Rect2(p - Vector2(3, 0), Vector2(6, 1)), col.lightened(0.15))
 						draw_rect(Rect2(p + Vector2(-3, 2), Vector2(6, 1)), Color(0, 0, 0, 0.35))
@@ -2727,7 +2727,7 @@ func _art_pages(sz: Vector2i, c: Color, dk: float) -> Image:
 ## colada com o ano, a marca de uma caneca que alguém pousou nela e a ponta da frente dobrada, mostrando a folha.
 func _art_book_cover(sz: Vector2i, c: Color) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	var gold := Color("e0c07a")
+	var gold := Pal.GOLD
 	img.fill(c)
 	for y in sz.y:   # o grão do papelão: pontos um pouco mais escuros ou claros, sempre os mesmos
 		for x in sz.x:
@@ -2851,14 +2851,14 @@ func _map_pin(sz: Vector2i) -> void:
 ## de mão vão por cima, na tela (`_notebook_marks`).
 func _art_notebook(sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	img.fill(Color("4a2f1c"))   # a capa
-	_fr(img, 0, 0, sz.x, 1, Color("6b4529"))
-	_fr(img, 0, sz.y - 1, sz.x, 1, Color("2e1c10"))
+	img.fill(Pal.LEATHER[1])   # a capa
+	_fr(img, 0, 0, sz.x, 1, Pal.LEATHER[0])
+	_fr(img, 0, sz.y - 1, sz.x, 1, Pal.LEATHER[2])
 	var half := sz.x / 2
 	for k in 2:
 		var x0 := 2 if k == 0 else half + 1
 		var x1 := half - 1 if k == 0 else sz.x - 2
-		_fr(img, x0, 1, x1 - x0, sz.y - 3, Color("d2c5a0"))
+		_fr(img, x0, 1, x1 - x0, sz.y - 3, Pal.NOTE_PAGE)
 		_fr(img, x0, sz.y - 3, x1 - x0, 1, Color("a89a74"))   # a espessura das folhas
 		_fr(img, x0, 1, x1 - x0, 1, Color("ddd2b0"))   # a beira de cima pega a luz
 	for i in 3:   # a sombra da dobra no meio, mais escura no fundo dela
@@ -2877,7 +2877,7 @@ func _notebook_marks(sz: Vector2i) -> void:
 		var x1 := half - 3.0 if k == 0 else sz.x - 3.0
 		for row in rows.size():
 			var y: float = rows[row]
-			_ink(x0, x1, y, [Color("bfb38e")])
+			_ink(x0, x1, y, [Pal.NOTE_RULE])
 			if (row + k) % 2 == 0 or (row * 7 + k * 3) % 5 == 0:
 				continue
 			var a := _tex_pt(Vector2(x0 + 6, y)) - Vector2(0, 1)   # as palavras, logo acima da pauta
@@ -2889,15 +2889,15 @@ func _notebook_marks(sz: Vector2i) -> void:
 				_pixel_line(a.lerp(b, t / span), a.lerp(b, minf(t + n - 1.0, span) / span), [Color("6a6474")])
 				t += n + 2.0
 		var mx := (2.0 if k == 0 else half + 1.0) + 4.0   # a margem vermelha, impressa por cima da pauta
-		_pixel_line(_tex_pt(Vector2(mx, 1)), _tex_pt(Vector2(mx, sz.y - 3)), [Color("b07060")])
+		_pixel_line(_tex_pt(Vector2(mx, 1)), _tex_pt(Vector2(mx, sz.y - 3)), [Pal.NOTE_MARGIN])
 	for i in mini(pending, 6):
 		var p := _tex_pt(Vector2(8 + i * floorf((sz.x - 22) / 6.0), 0)).round()
 		var up := 6.0 + (i * 5) % 4
-		var col := Color("d4c084") if i % 2 == 0 else Color("cdbda4")
+		var col := Pal.PENDING[i % 2]
 		draw_rect(Rect2(p.x, p.y - up, 6, up + 2), col)
 		draw_rect(Rect2(p.x + 5, p.y - up, 1, up + 2), col.darkened(0.2))   # o lado na sombra
 		draw_rect(Rect2(p.x, p.y - up, 5, 1), col.lightened(0.12))   # a beira de cima, na luz
-		draw_rect(Rect2(p.x + 1, p.y - up + 2, 3, 1), Color("a8564a"))
+		draw_rect(Rect2(p.x + 1, p.y - up + 2, 3, 1), Pal.FORM_RED)
 		draw_rect(Rect2(p.x, p.y + 1, 6, 1), Color(0, 0, 0, 0.3))   # onde ela entra no caderno
 	var a := _tex_pt(Vector2(half + 10, sz.y - 5)).round()
 	var b := _tex_pt(Vector2(sz.x - 6, 4)).round()
@@ -2906,7 +2906,7 @@ func _notebook_marks(sz: Vector2i) -> void:
 	_pixel_line(a, b, [Color("c4a042"), Color("957622"), Color("67521a")])   # o corpo, amarelo de lápis gasto
 	_pixel_line(a - d * 4, a, [Color("c8aa80"), Color("b0926a"), Color("8a7050")])   # a madeira apontada
 	_pixel_line(a - d * 6, a - d * 4, [Color("2a2620")])   # o grafite
-	_pixel_line(b, b + d * 4, [Color("d6d1c3"), Color("8e897c"), Color("45413a")])   # a ponteira, no níquel da mesa
+	_pixel_line(b, b + d * 4, Pal.NICKEL.slice(1))   # a ponteira, no níquel da mesa
 	_pixel_line(b + d * 4, b + d * 7, [Color("c08a80"), Color("a86a62"), Color("7a4a44")])   # a borracha
 
 
@@ -2921,7 +2921,7 @@ const CLIP_ART := [   ## o prendedor da prancheta, de pé na beira de cima (16 �
 	".eeeeeeeeeeeeee.",
 ]
 ## O níquel do prendedor: o mesmo do aro das lâmpadas da mesa comutadora (luz, meio, sombra), o brilho e os rebites.
-const CLIP_PAL := {"H": Color("f4f0e6"), "L": Color("d6d1c3"), "M": Color("8e897c"), "D": Color("45413a"), "o": Color("ece7da"),
+const CLIP_PAL := {"H": Pal.NICKEL[0], "L": Pal.NICKEL[1], "M": Pal.NICKEL[2], "D": Pal.NICKEL[3], "o": Color("ece7da"),
 	"e": Color("2a2620")}
 const SHEET_TURN := 3.5   ## graus que a folha nova da prancheta fica girada (reta, lia como um risco no meio da de baixo)
 
@@ -2931,16 +2931,16 @@ const SHEET_TURN := 3.5   ## graus que a folha nova da prancheta fica girada (re
 ## das folhas e o prendedor vão por cima, na tela (`_clipboard_print`).
 func _art_clipboard(sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	img.fill(Color("6e4a2c"))
-	_fr(img, 0, 0, sz.x, 1, Color("8a5e3a"))
+	img.fill(Pal.BOARD[1])
+	_fr(img, 0, 0, sz.x, 1, Pal.BOARD[0])
 	_fr(img, 0, 0, 1, sz.y, Color("7e5634"))
-	_fr(img, sz.x - 1, 0, 1, sz.y, Color("4a3018"))
-	_fr(img, 0, sz.y - 1, sz.x, 1, Color("4a3018"))
+	_fr(img, sz.x - 1, 0, 1, sz.y, Pal.BOARD[2])
+	_fr(img, 0, sz.y - 1, sz.x, 1, Pal.BOARD[2])
 	for c in [Vector2i(0, 0), Vector2i(sz.x - 2, 0), Vector2i(0, sz.y - 2), Vector2i(sz.x - 2, sz.y - 2)]:   # os cantos cortados
 		img.set_pixel(c.x + (0 if c.x == 0 else 1), c.y + (0 if c.y == 0 else 1), Color(0, 0, 0, 0))
 	var sheets := _sheets(sz)
 	var r: Rect2i = sheets[0][0]
-	_fr(img, r.position.x + 1, r.position.y + 1, r.size.x, r.size.y, Color("4a3018"))   # a sombra da folha na tábua
+	_fr(img, r.position.x + 1, r.position.y + 1, r.size.x, r.size.y, Pal.BOARD[2])   # a sombra da folha na tábua
 	_fr(img, r.position.x, r.position.y, r.size.x, r.size.y, sheets[0][1])
 	_fr(img, r.position.x, r.position.y, r.size.x, 1, (sheets[0][1] as Color).lightened(0.12))
 	if sheets.size() > 1:   # a folha nova, girada em volta do prendedor, com a sombra na de baixo e a ponta dobrada
@@ -2979,9 +2979,9 @@ func _turn(p: Vector2, n: Rect2i) -> Vector2:
 ## As folhas da prancheta (`sz`, o desenho de frente): [retângulo, cor do papel, quantas linhas]; com fala nova no
 ## registro, a folha nova por cima cobre só o alto da de baixo (inteira, a prancheta parecia vazia).
 func _sheets(sz: Vector2i) -> Array:
-	var out := [[Rect2i(3, 4, sz.x - 6, sz.y - 6), Color("cdc09c"), 99]]
+	var out := [[Rect2i(3, 4, sz.x - 6, sz.y - 6), Pal.SHEET, 99]]
 	if unread:
-		out.append([Rect2i(5, 3, sz.x - 10, int(sz.y * 0.55)), Color("e0d5b4"), 3])
+		out.append([Rect2i(5, 3, sz.x - 10, int(sz.y * 0.55)), Pal.SHEET_NEW, 3])
 	return out
 
 
@@ -3012,7 +3012,7 @@ func _clipboard_print(sz: Vector2i) -> void:
 			if k == 0:
 				line.call(x0 + 2, x0 + 2 + (w - 4) / 2.0 - 1, Color("5a5448"))   # o título
 			elif k == 1:
-				line.call(x0 + 2, x0 + w - 3, Color("a8564a"))   # o fio vermelho do cabeçalho
+				line.call(x0 + 2, x0 + w - 3, Pal.FORM_RED)   # o fio vermelho do cabeçalho
 			elif k >= 4 and (k - 4) % 3 == 0 and n < sheets[i][2]:
 				line.call(x0 + 2, x0 + 4, Color("6a6458"))   # a hora
 				line.call(x0 + 7, x0 + w - 3 - (k * 7) % 9 - (6 if i == 1 else 0), Color("6a6458"))
@@ -3028,7 +3028,7 @@ func _clipboard_print(sz: Vector2i) -> void:
 ## (`_newspaper_print`); a foto era um xadrez em retícula, que a perspectiva virava moiré.
 func _art_newspaper(sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	img.fill(Color("d3c69f"))   # papel-jornal amarelado (cinza, longe da luz, sumia no escuro)
+	img.fill(Pal.NEWSPRINT)   # papel-jornal amarelado (cinza, longe da luz, sumia no escuro)
 	_fr(img, 0, 0, sz.x, 1, Color("e2d6b2"))
 	_fr(img, sz.x - 1, 0, 1, sz.y, Color("a89c78"))
 	_fr(img, 0, sz.y - 1, sz.x, 1, Color("a89c78"))
@@ -3068,5 +3068,5 @@ func _newspaper_print(sz: Vector2i) -> void:
 					continue
 				x0 = photo.position.x
 				w = photo.size.x - (k * 3) % 4
-			_ink(x0, x0 + w - 1.0, y, [Color("776c51")])
+			_ink(x0, x0 + w - 1.0, y, [Pal.NEWS_INK])
 	_ink(0, sz.x - 1, sz.y / 2.0, [Color("a89c78"), Color("dccfa8")])   # o vinco
