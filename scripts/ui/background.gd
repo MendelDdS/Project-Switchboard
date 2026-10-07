@@ -114,6 +114,10 @@ const SHRUB := Vector3(0.62, 0.15, 0.11)
 const CHURCH_K := 0.45    ## a escala da igreja (desenhada em px de 2x2), no fim da rua do cruzamento
 const SIGN_RED := Color("ff4a3a")    ## o neon dele aceso (apagado, quase preto)
 const SIGN_GLOW := Color(1.0, 0.25, 0.18, 0.05)   ## o reflexo vermelho dele na parede, perto da janela
+const FOG := Color(0.55, 0.62, 0.66)   ## a cor da névoa (`_draw_fog`)
+const FOG_VEIL := 0.2    ## o véu dela por cima de tudo lá fora (o longe some nele)
+const FOG_GROUND := 0.2  ## o tanto a mais rente ao chão, sumindo até 3 m de altura
+const FOG_WISPS := 9     ## os fiapos passando pela rua
 const SHADE_MAX := 0.3   ## o mais escuro que um objeto da mesa fica, longe da poça de luz (`_shade`)
 const CAB_W := 110.0             ## a largura do armário de aço, encostado na parede (px de 2x2 lá)
 const POSTER_W := 30.0           ## a largura do cartaz da quermesse (px de 2x2)
@@ -1352,6 +1356,56 @@ func _draw_city(g: Rect2) -> void:
 		_draw_stranger(g)
 	if _car >= 0.0:
 		_draw_car(g, _car_x())
+	if fog:
+		_draw_fog(g)
+
+
+## A névoa, por cima da rua e do outro lado (o arbusto, perto, fica fora dela): um véu liso, mais grosso rente ao chão
+## (`FOG_VEIL`, `FOG_GROUND`), fiapos largos e lisos atravessando a rua devagar (`FOG_WISPS`, com o vento, `_mist`) e as
+## luzes espalhando nela: um halo e um cone embaixo de cada poste e o vermelho do neon em volta do letreiro.
+func _draw_fog(g: Rect2) -> void:
+	var ff: float = STREET["far"]
+	var base := _o(g, 0.0, ff).y   # o pé das fachadas de lá
+	var high := _o(g, 0.0, ff, 3.0).y
+	var x0 := g.position.x
+	var x1 := g.end.x
+	var y1 := g.end.y + _near   # até o pé do vidro: a rua de perto também
+	_r(x0, g.position.y, g.size.x, y1 - g.position.y, Color(FOG, FOG_VEIL))
+	_ci.draw_polygon(PackedVector2Array([Vector2(x0, high), Vector2(x1, high), Vector2(x1, base), Vector2(x0, base)]),
+		PackedColorArray([Color(FOG, 0.0), Color(FOG, 0.0), Color(FOG, FOG_GROUND), Color(FOG, FOG_GROUND)]))
+	_ci.draw_polygon(PackedVector2Array([Vector2(x0, base), Vector2(x1, base), Vector2(x1, y1), Vector2(x0, y1)]),
+		PackedColorArray([Color(FOG, FOG_GROUND), Color(FOG, FOG_GROUND), Color(FOG, FOG_GROUND * 0.4), Color(FOG, FOG_GROUND * 0.4)]))
+	for k in FOG_WISPS:   # cada um na sua distância, altura, tamanho e velocidade, sempre os mesmos
+		var z := lerpf(STREET["curb"] + 1.0, ff, fmod(k * 0.37, 1.0))
+		var c := _o(g, fposmod(k * 13.7 + _mist * (0.08 + (k % 3) * 0.03), 70.0) - 35.0, z, 0.3 + fmod(k * 0.53, 1.0) * 1.6)
+		var rx := OUT_F * (5.0 + (k % 4) * 1.5) / z
+		var ry := OUT_F * (0.5 + (k % 3) * 0.25) / z
+		var rim := PackedVector2Array()
+		for i in 16:
+			rim.append(c + Vector2(cos(TAU * i / 16.0) * rx, sin(TAU * i / 16.0) * ry))
+		_light_fan(c, rim, Color(FOG, 0.14))
+	if lamp_level > 0.5:
+		var heads := _lamp_heads(g)
+		var lit := Color(1.0, 0.85, 0.55, 0.14)
+		for i in FAR_LAMPS.size():
+			var x: float = FAR_LAMPS[i]
+			var z: float = STREET["far_curb"] - 0.2
+			var h: Vector2 = heads[i]
+			var foot := _o(g, x, z)
+			var w := Vector2(1, 0)
+			# o cone: claro no meio, sumindo para os lados (com a borda reta, parecia um triângulo recortado)
+			_ci.draw_polygon(PackedVector2Array([h - w, h, foot, _o(g, x - 3.5, z)]), PackedColorArray([Color(lit, 0.0), lit, Color(lit, lit.a * 0.4), Color(lit, 0.0)]))
+			_ci.draw_polygon(PackedVector2Array([h, h + w, _o(g, x + 3.5, z), foot]), PackedColorArray([lit, Color(lit, 0.0), Color(lit, 0.0), Color(lit, lit.a * 0.4)]))
+			var halo := PackedVector2Array()
+			for k in 20:
+				halo.append(h + Vector2(cos(TAU * k / 20.0), sin(TAU * k / 20.0)) * OUT_F * 2.2 / z)
+			_light_fan(h, halo, Color(lit, 0.22))
+	if _sign_on():
+		var sc := _hotel_pos(g) + Vector2(2, 8)
+		var glow := PackedVector2Array()
+		for k in 20:
+			glow.append(sc + Vector2(cos(TAU * k / 20.0) * 12.0, sin(TAU * k / 20.0) * 24.0))
+		_light_fan(sc, glow, Color(SIGN_RED, 0.12))
 
 
 ## O horizonte da vista `g` (a altura dos olhos).
@@ -1907,8 +1961,8 @@ func _draw_steam() -> void:
 				_dust.draw_rect(Rect2(p + Vector2(ceilf(wd / 2.0), 0), Vector2(1, 1)), Color(col, a * 0.45))
 
 
-## O clima no vidro: a chuva passando e as gotas paradas no vidro, que às vezes escorrem (chuva), faixas de névoa
-## passando (névoa) e um reflexo na diagonal.
+## O clima no vidro: a chuva passando e as gotas paradas no vidro, que às vezes escorrem (chuva), e um reflexo na
+## diagonal (a névoa fica na vista, `_draw_fog`).
 func _draw_glass_weather(g: Rect2) -> void:
 	if weather == "rain":
 		# os pingos: riscos de 1 px inclinados pelo vento, mais longos e claros os de perto, e acesos perto dos postes
@@ -1939,13 +1993,6 @@ func _draw_glass_weather(g: Rect2) -> void:
 			_r(p.x, p.y, b.z * PX, b.z * PX, Color("1c2a32"))
 			var warm := clampf(1.0 - p.distance_to(post) / 30.0, 0.0, 1.0) if lamp_level > 0.5 else 0.0
 			_r(p.x, p.y, PX, PX, Color("7f98a8").lerp(Color("ffd88a"), warm))
-	elif weather == "fog":
-		for k in int(g.size.y / 9.0):
-			var x := g.position.x - 60.0 + fmod(_mist * (0.6 + (k % 4) * 0.25) + k * 47.0, g.size.x + 60.0)
-			var band := Rect2(x, g.position.y + 4 + k * 8, 60, 7).intersection(g)
-			if band.has_area():
-				_ci.draw_rect(band, Color(0.62, 0.7, 0.74, 0.07))
-		_ci.draw_rect(g, Color(0.55, 0.62, 0.66, 0.06))
 	_ci.draw_colored_polygon(PackedVector2Array([g.position + Vector2(g.size.x * 0.12, 0), g.position + Vector2(g.size.x * 0.22, 0),
 		g.position + Vector2(g.size.x * 0.02, g.size.y * 0.5), g.position + Vector2(0, g.size.y * 0.5)]), Color(1, 1, 1, 0.03))
 

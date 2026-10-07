@@ -207,6 +207,14 @@ func warn(t: String) -> void:
 	phone.warn(t)
 
 
+## Troca o clima na hora (painel de debug): a janela, o ambiente (se a noite já começou) e a conversa fiada.
+func set_weather(w: String) -> void:
+	weather = w
+	background.weather = w
+	if running:
+		Sfx.set_weather(w, 2.0)
+
+
 # ================================================================ laço principal
 
 func _start_shift() -> void:
