@@ -250,9 +250,6 @@ func _process(delta: float) -> void:
 		_nag()
 		supervisor.check_hold()
 	background.flick = flick
-	background.alert = em_call.stage if em_call != null and em_call.urgent() else -1
-	if background.alert >= 0:
-		_teach("viu_alfinete_mapa", T.Key.HINT_DESK_PIN)
 	_glow.modulate.a = background.lamp_level
 
 

@@ -128,7 +128,6 @@ const WALL_D := 16.0        ## a espessura da parede (para fora, nas unidades da
 const SILL_D := 12.0        ## quanto o peitoril de dentro sai da parede para a sala
 const SHIFT_START := 18.0 * 60.0   ## o começo do turno (min do dia): o café da caneca está quente
 const STEAM_FOR := 210.0    ## em quantos minutos de jogo o café esfria e o vapor some (às 21h30)
-const VASE_DIM := 0.45      ## quanto o vaso escurece no canto (o escuro da sala não passa mais nele)
 const BLIND := 0.3         ## até onde a persiana desce (fração da altura do vão)
 const X2 := Transform2D(Vector2(2, 0), Vector2(0, 2), Vector2.ZERO)   ## a escala dos px de 2x2 (`_sprite` volta a ela)
 const PROP_K := 93.0 / 66.0   ## a escala dos objetos da mesa: a mesma dos plugs, que cresceram até o tamanho das tomadas (antes, o plug ficava maior que o relógio e o caderno)
@@ -174,7 +173,6 @@ var weather := "rain"
 var shadow := false
 # O estado do jogo nos objetos da mesa, para ler de relance sem abrir nada (o Main atualiza):
 var pending := 0     ## registros esperando no caderno: uma tira de papel saindo dele por registro
-var alert := -1      ## estágio da emergência em andamento (-1 = nenhuma): o alfinete do mapa pisca, mais rápido se piora
 var unread := false  ## o registro das conversas tem fala nova: uma folha nova presa na prancheta
 var news := false    ## o jornal da manhã está na mesa (da segunda noite em diante; `Main.set_news`)
 # A sala muda ao longo das noites (o Main atualiza): os detalhes valendo (`RoomChange.detail`) e a noite (o calendário
@@ -225,7 +223,6 @@ var _drawn := []        # o `_state` do último desenho da sala
 var _mug_mouth := Vector2.ZERO   # o meio do café na caneca (px da tela), de onde sobe o vapor
 var _mug_w := 0.0               # a largura da caneca na tela (px; 0 = ainda não desenhada)
 var _headless := false   # sem tela (os testes): a vista da janela não é desenhada
-var _vase_px := Vector2.ZERO   # o pé do vaso no peitoril (px da tela)
 var _sill_lit: Array = []   # o peitoril na luz de fora: [polígono (px da tela), cores], desenhado por cima do escuro da sala
 var _glass := PackedVector2Array()   # o vidro da janela abaixo da persiana (px da tela): o escuro da sala não passa nele
 var _view_at := Vector2.ZERO   # onde a vista começa na tela (px de 2x2): o arbusto é posto pela parede da sala
@@ -336,7 +333,7 @@ func _process(delta: float) -> void:
 ## papel da ferramenta, a luminária, o alfinete e o estado do jogo nos objetos.
 func _state() -> Array:
 	return [size, board.get_global_rect() if board else Rect2(), desk.get_global_rect() if desk else Rect2(),
-		window.get_global_rect() if window else Rect2(), _paper(), lamp_level, _pin_lit(), pending, unread, news,
+		window.get_global_rect() if window else Rect2(), _paper(), lamp_level, pending, unread, news,
 		details, night, weather, int(minutes), _flip_step(), TranslationServer.get_locale(), snappedf(_flash(), 0.02), _sign_on()]
 
 
@@ -430,11 +427,6 @@ func _sign_on() -> bool:
 ## Em que passo da virada está a plaqueta do relógio (0 a 2; 3 = parada).
 func _flip_step() -> int:
 	return mini(3, int((Time.get_ticks_msec() - _flip_at) / (FLIP_SEC * 1000.0 / 3.0)))
-
-
-## O alfinete do mapa aceso: com uma emergência em andamento ele pisca, mais rápido a cada estágio.
-func _pin_lit() -> bool:
-	return alert >= 0 and int(Time.get_ticks_msec() / (420.0 - alert * 90.0)) % 2 == 0
 
 
 ## Onde está o papel da ferramenta aberta ou vindo do objeto (px da tela; vazio com tudo guardado).
@@ -585,10 +577,6 @@ func _draw_window_glow() -> void:
 		for k: Color in part[1]:
 			cols.append(Color(sill, k.a * (0.35 + _flash() * 0.5)))
 		draw_polygon(part[0], cols)
-	if _vase_px != Vector2.ZERO:
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
-		_draw_vase(_vase_px)
-		draw_set_transform(Vector2.ZERO)
 	var f := _flash()
 	if f > 0.0:
 		draw_rect(Rect2(Vector2.ZERO, size), Color(0.62, 0.72, 1.0, 0.2 * f))
@@ -918,7 +906,7 @@ func _draw_switchboard(front: float) -> void:
 ## nela, numa linha que foge para o ponto de fuga; entre a quina e o fundo do tampo ela desce atrás da mesa), com as
 ## listras do papel de parede alargando para a frente, o friso subindo para fora da tela e a janela vista de lado:
 ## batente, o lado de dentro do vão perto da quina, a vista (reta: está longe) recortada pelo vidro, o caixilho e a
-## persiana na perspectiva da parede, e o peitoril com o vaso. A luz da rua entra por ela e cai na mesa, na diagonal.
+## persiana na perspectiva da parede, e o peitoril. A luz da rua entra por ela e cai na mesa, na diagonal.
 func _draw_side_wall(top: float, front: float, w: float) -> void:
 	var xc := _cx - _vp.x
 	if xc < 20.0:   # a tela ainda não se arrumou (primeiro quadro)
@@ -1032,7 +1020,7 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	draw_line(_side_pt(Vector2(gw * 0.8, blind)), _side_pt(Vector2(gw * 0.8, blind + 8)), Color("8a8070"), PX)   # o cordão
 	draw_colored_polygon(_side_quad(Rect2(gw * 0.8 - 1, blind + 8, 2, 2)), Color("6b5f4c"))   # o puxador dele
 	# o peitoril de dentro: uma tábua saindo da parede para a sala (`SILL_D`), com o tampo à vista (fica abaixo dos
-	# olhos), a beira da frente e a sombra dela na parede; o vaso em cima
+	# olhos), a beira da frente e a sombra dela na parede
 	var s0 := Vector2(-5, gh)   # do tamanho da guarnição (passando dela, saía da janela)
 	var s1 := Vector2(gw + 5, gh)
 	draw_colored_polygon(_side_quad(Rect2(-5, gh + 3, gw + 10, 6)), Color(0, 0, 0, 0.25))
@@ -1061,7 +1049,6 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	# junto do vidro
 	_sill_lit.append([x2.call(PackedVector2Array([_side_pt(Vector2(gw, -4)), _side_pt(Vector2(gw + 5, -4)), _side_pt(Vector2(gw + 5, gh)),
 		_side_pt(Vector2(gw, gh))])), PackedColorArray([Color(0, 0, 0, 0.45), Color(0, 0, 0, 0.1), Color(0, 0, 0, 0.1), Color(0, 0, 0, 0.45)])])
-	_vase_px = (_side_pt(Vector2(gw * 0.82, gh), -SILL_D * 0.5) * 2.0).round()   # o vaso: desenhado depois da luz de fora no peitoril
 
 
 ## Os fios da mesa comutadora indo para a cidade: um feixe de cabos de pano sai do alto do painel (`b`, px de 2x2)
@@ -1130,23 +1117,6 @@ func _draw_street_light(w: float) -> void:
 			var v1 := (k + 1) / 10.0
 			draw_polygon(PackedVector2Array([on_desk.call(u0, v0), on_desk.call(u0, v1), on_desk.call(u1, v1), on_desk.call(u1, v0)]),
 				PackedColorArray([glow.call(u0, v0), glow.call(u0, v1), glow.call(u1, v1), glow.call(u1, v0)]))
-
-
-## O vaso de barro no peitoril (`pp`: o pé dele, px da tela), com a planta. Desenhado depois do escuro da sala e da
-## luz de fora no peitoril (por cima dela, ele ficava meio transparente), escurecido na medida do canto (`VASE_DIM`).
-func _draw_vase(pp: Vector2) -> void:
-	_p(pp.x + 1, pp.y - 13, 16, 13, Color("8a4a2a").darkened(VASE_DIM))   # o vaso de barro, mais estreito embaixo
-	_p(pp.x, pp.y - 15, 18, 3, Color("9a542f").darkened(VASE_DIM))
-	_p(pp.x, pp.y - 15, 18, 1, Color("b8683c").darkened(VASE_DIM))
-	_p(pp.x + 1, pp.y - 12, 16, 1, Color("5e321c").darkened(VASE_DIM))
-	_p(pp.x + 2, pp.y - 11, 2, 10, Color("a05a34").darkened(VASE_DIM))
-	for leaf in [Vector2(-6, -24), Vector2(2, -30), Vector2(10, -26), Vector2(16, -21), Vector2(-2, -20), Vector2(6, -22)]:
-		var lp: Vector2 = pp + leaf
-		_p(lp.x + 1, lp.y, 5, 1, Color("4f7040").darkened(VASE_DIM))   # cada folha: miolo, borda escura e a nervura clara
-		_p(lp.x, lp.y + 1, 7, 3, Color("3d5a32").darkened(VASE_DIM))
-		_p(lp.x + 1, lp.y + 4, 5, 1, Color("2c4224").darkened(VASE_DIM))
-		_p(lp.x + 2, lp.y + 2, 3, 1, Color("6a8e54").darkened(VASE_DIM))
-	_p(pp.x + 7, pp.y - 20, 1, 6, Color("2c4224").darkened(VASE_DIM))   # o caule
 
 
 ## Armário de aço antigo, de chão, encostado na parede do fundo atrás da mesa (`x0` a partir do ponto de fuga, `CAB_W`, `CAB_TOP`, `CAB_T`; a mesa,
@@ -2479,14 +2449,29 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 		for f: Array in _faces(xz, y0, y0 - bh):
 			var q: PackedVector2Array = f[0]
 			var i: int = f[1]
-			if i == spine:
+			var at := func(u: float, v: float) -> Vector2: return q[0].lerp(q[1], u).lerp(q[3].lerp(q[2], u), v)   # um ponto da face
+			if i == spine:   # a lombada: os filetes dourados e, entre eles, a etiqueta escura do volume com o número
 				_poly(q, c.darkened(0.2))
-				_pixel_line(q[0].lerp(q[3], 0.3), q[1].lerp(q[2], 0.3), [Color("e0c07a")])
-				_pixel_line(q[0].lerp(q[3], 0.7), q[1].lerp(q[2], 0.7), [Color("e0c07a")])
+				_pixel_line(at.call(0.0, 0.2), at.call(1.0, 0.2), [Color("e0c07a")])
+				_pixel_line(at.call(0.0, 0.8), at.call(1.0, 0.8), [Color("e0c07a")])
+				_poly(PackedVector2Array([at.call(0.32, 0.34), at.call(0.68, 0.34), at.call(0.68, 0.66), at.call(0.32, 0.66)]), c.darkened(0.5))
+				_pixel_line(at.call(0.44, 0.5), at.call(0.56, 0.5), [Color("e0c07a")])
 			else:
-				_poly(q, Color("d8cba6").darkened(0.15 * absf((f[2] as Vector2).x)))   # o miolo, liso (as folhas em linhas
-				_pixel_line(q[0], q[1], [c.lightened(0.15), c.lightened(0.15)])   # tortas viravam degraus quebrados) entre as capas
-				_pixel_line(q[3] - Vector2(0, 1), q[2] - Vector2(0, 1), [c.darkened(0.3), c.darkened(0.3)])
+				# o miolo entre as capas, com as folhas em linhas finas: numa imagem posta pixel a pixel, como a capa (em
+				# linhas tortas desenhadas na tela, elas viravam degraus quebrados e faixas)
+				var fs := Vector2i(roundi(q[0].distance_to(q[1])), roundi(q[0].distance_to(q[3])))
+				if fs.x >= 4 and fs.y >= 3:
+					_hom = _homography(q)
+					_hom_sz = Vector2(fs)
+					var dk := 0.15 * absf((f[2] as Vector2).x)
+					_project(["folhas", b, i, fs], _art_pages.bind(c, dk), q, fs)
+				if i == 2:   # tiras de papel marcando páginas, saindo da frente (cada volume as dele)
+					for m: Vector2 in [[Vector2(0.72, 0.0)], [Vector2(0.3, 1.0), Vector2(0.82, 0.0)], [Vector2(0.55, 1.0)]][b]:
+						var p: Vector2 = (at.call(m.x, 0.55) as Vector2).round()   # deitada entre as folhas: uma aba fina, com a sombra embaixo
+						var col := Color("a8564a") if m.y == 0.0 else Color("e0d4b0")
+						draw_rect(Rect2(p - Vector2(3, 0), Vector2(6, 2)), col)
+						draw_rect(Rect2(p - Vector2(3, 0), Vector2(6, 1)), col.lightened(0.15))
+						draw_rect(Rect2(p + Vector2(-3, 2), Vector2(6, 1)), Color(0, 0, 0, 0.35))
 			_dim(q, [xz[i], xz[(i + 1) % 4], xz[(i + 1) % 4], xz[i]])
 			all.append_array(q)
 		var top := PackedVector2Array()
@@ -2603,26 +2588,72 @@ func _ellipse(c: Vector2, rx: float, ry: float, col: Color) -> void:
 	draw_texture_rect(_ovals[sz], Rect2((c - Vector2(sz) / 2.0).floor(), Vector2(sz)), false, col)
 
 
-## A capa da lista telefônica de cima, de frente: o pano na cor dela com a luz na beira de cima e da esquerda, os
-## cantos gastos mais claros, a faixa do título em baixo-relevo (a sombra em cima, a luz embaixo) e o emblema dourado
-## da central.
+## O miolo de uma lista telefônica visto de lado (`sz`), entre as capas na cor `c`: as folhas em linhas finas, de 2
+## em 2 px, umas mais escuras que as outras, mais sujas junto das capas; `dk` escurece o lado que não está de frente.
+func _art_pages(sz: Vector2i, c: Color, dk: float) -> Image:
+	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
+	var paper := Color("d8cba6").darkened(dk)
+	img.fill(paper)
+	for y in range(2, sz.y - 2, 2):   # as folhas
+		var line := paper.darkened(0.07 if (y * 7) % 5 < 3 else 0.12)
+		var x := 0
+		while x < sz.x:   # cada linha com uma falha aqui e ali (folha mais curta)
+			var n := 6 + (x * 13 + y * 7) % 23
+			_fr(img, x, y, mini(n, sz.x - x), 1, line)
+			x += n + (1 if (x + y) % 3 == 0 else 0)
+	_fr(img, 0, 1, sz.x, 1, paper.darkened(0.14))   # mais sujo junto das capas
+	_fr(img, 0, sz.y - 3, sz.x, 1, paper.darkened(0.14))
+	_fr(img, 0, 0, sz.x, 1, c.lightened(0.15).darkened(dk))   # a capa de cima e a de baixo
+	_fr(img, 0, sz.y - 2, sz.x, 2, c.darkened(0.3).darkened(dk))
+	return img
+
+
+## A capa da lista telefônica de cima, de frente: o pano na cor dela com a luz na beira de cima e da esquerda e os
+## cantos gastos, o título dourado numa faixa em baixo-relevo, o fone da companhia em dourado no meio, a etiqueta
+## colada com o ano, a marca de uma caneca que alguém pousou nela e a ponta da frente dobrada, mostrando a folha.
 func _art_book_cover(sz: Vector2i, c: Color) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
+	var gold := Color("e0c07a")
 	img.fill(c)
 	_fr(img, 0, 0, sz.x, 1, c.lightened(0.22))
 	_fr(img, 0, 0, 1, sz.y, c.lightened(0.1))
 	_fr(img, sz.x - 1, 0, 1, sz.y, c.darkened(0.25))
 	_fr(img, 0, sz.y - 1, sz.x, 1, c.darkened(0.25))
-	for p in [Vector2i(0, 0), Vector2i(sz.x - 2, 0), Vector2i(0, sz.y - 2), Vector2i(sz.x - 2, sz.y - 2)]:   # os cantos gastos
+	for p in [Vector2i(0, 0), Vector2i(sz.x - 2, 0), Vector2i(0, sz.y - 2)]:   # os cantos gastos
 		_fr(img, p.x, p.y, 2, 2, c.lightened(0.3))
-	var band := Rect2i(4, int(sz.y * 0.32), sz.x - 16, maxi(3, int(sz.y * 0.28)))
-	_fr(img, band.position.x, band.position.y, band.size.x, band.size.y, c.darkened(0.28))
+	var band := Rect2i(3, 2, sz.x - 6, maxi(3, int(sz.y * 0.26)))   # o título
+	_fr(img, band.position.x, band.position.y, band.size.x, band.size.y, c.darkened(0.3))
 	_fr(img, band.position.x, band.position.y, band.size.x, 1, c.darkened(0.45))
-	_fr(img, band.position.x, band.end.y, band.size.x, 1, c.lightened(0.15))
-	_fr(img, band.position.x + 2, band.position.y + band.size.y / 2, band.size.x / 2, 1, c.lightened(0.1))   # as letras do título, gastas
-	var e := Vector2i(sz.x - 7, band.position.y + band.size.y / 2)   # o emblema
-	_fr(img, e.x - 1, e.y - 1, 3, 3, Color("b8924e"))
-	img.set_pixel(e.x, e.y, Color("f0d8a0"))
+	_fr(img, band.position.x, band.end.y, band.size.x, 1, c.lightened(0.12))
+	var x := band.position.x + 3
+	var ty := band.position.y + band.size.y / 2
+	while x < band.end.x - 3:   # as letras, em dourado
+		var n := 2 + (x * 7) % 3
+		_fr(img, x, ty, n, 1, gold)
+		x += n + 1 + (2 if (x * 5) % 7 == 0 else 0)
+	var h := Vector2i(sz.x / 2, band.end.y + maxi(3, int(sz.y * 0.22)))   # o fone: o cabo com o fone de ouvido e o de boca
+	_fr(img, h.x - 4, h.y, 9, 1, gold)
+	_fr(img, h.x - 5, h.y + 1, 3, 2, gold)
+	_fr(img, h.x + 3, h.y + 1, 3, 2, gold)
+	_fr(img, h.x - 4, h.y + 1, 9, 1, gold.darkened(0.35))
+	var tag := Rect2i(4, sz.y - 7, 13, 5)   # a etiqueta colada com o ano
+	if tag.position.y > band.end.y + 1:
+		_fr(img, tag.position.x + 1, tag.position.y + 1, tag.size.x, tag.size.y, c.darkened(0.35))
+		_fr(img, tag.position.x, tag.position.y, tag.size.x, tag.size.y, Color("e2d7b6"))
+		_fr(img, tag.position.x + 2, tag.position.y + 2, tag.size.x - 4, 1, Color("4a4038"))
+	var ring := Vector2(sz.x * 0.72, sz.y * 0.68)   # a marca da caneca: um anel mais escuro, aberto de um lado
+	for k in 28:
+		var an := TAU * k / 28.0
+		if an > 0.6 and an < 1.6:
+			continue
+		var p := (ring + Vector2(cos(an) * 5.0, sin(an) * 2.5)).round()
+		if p.x >= 0 and p.y >= 0 and p.x < sz.x and p.y < sz.y:
+			img.set_pixel(int(p.x), int(p.y), c.darkened(0.22))
+	for y in 5:   # a ponta da frente dobrada: a folha à mostra e a aba virada por cima, com a dobra
+		for xx in 5 - y:
+			img.set_pixel(sz.x - 1 - xx, sz.y - 5 + y + xx, Color("d8cba6"))
+	for k in 5:
+		img.set_pixel(sz.x - 1 - k, sz.y - 5 + k - (1 if k > 0 else 0), c.lightened(0.25) if k < 4 else c.darkened(0.3))
 	return img
 
 
@@ -2683,15 +2714,11 @@ func _art_map(sz: Vector2i) -> Image:
 
 
 ## O alfinete do mapa no local marcado, por cima do mapa, na tela: a cabeça redonda vista de cima (torta, serrilhava).
-## Com uma emergência em andamento, ele pisca e brilha.
+## Parado: piscando e brilhando com uma emergência em andamento, não fazia sentido (um alfinete não acende).
 func _map_pin(sz: Vector2i) -> void:
 	var sp := _tex_pt(Vector2(sz.x * 0.7, sz.y * 0.42)).round()
-	var lit := _pin_lit()
 	_sprite(Switchboard.disc(6, [[3.0, Color(0, 0, 0, 0.35)]]), sp + Vector2(2, 2))
-	_sprite(Switchboard.disc(6, [[1.2, Color("ffe0c8") if lit else Color("f0a090")],
-		[3.0, Color("ff8a6c") if lit else Color("e07060"), Color("ff5a3c") if lit else Color("b03a2e"), Color("c03a22") if lit else Color("7a2418")]]), sp)
-	if lit:
-		_light(Rect2(sp - Vector2(3, 3), Vector2(6, 6)), Color("ff5a3c"), 0.9, true)
+	_sprite(Switchboard.disc(6, [[1.2, Color("f0a090")], [3.0, Color("e07060"), Color("b03a2e"), Color("7a2418")]]), sp)
 
 
 ## O caderno de ocorrências aberto: a capa de couro com a beira gasta, duas páginas creme (não brancas: chamavam mais o

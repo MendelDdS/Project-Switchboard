@@ -177,8 +177,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   do batente de longe e o fundo do vão (a tábua do peitoril indo até o trilho de baixo do caixilho; escuro, parecia
   um buraco; o que passa do batente de perto é cortado; fora do vidro, o escuro da sala deixava o peitoril e a
   guarnição de perto quase pretos, então a luz de fora os clareia por cima do escuro, `_sill_lit`; a ponta de perto da
-  tábua tem a face dela; o vaso é desenhado depois dessa luz, `_draw_vase`, `VASE_DIM`), o vidro fica do lado de fora e o batente de perto esconde uma tira dele; o
-  peitoril de dentro é uma tábua saindo para a sala, `SILL_D`, com o vaso em cima; o peitoril fica `WIN_SILL` cm abaixo dos
+  tábua tem a face dela; o vaso que ficava nela saiu, a pedido), o vidro fica do lado de fora e o batente de perto esconde uma tira dele; o
+  peitoril de dentro é uma tábua saindo para a sala, `SILL_D`; o peitoril fica `WIN_SILL` cm abaixo dos
   olhos e o alto `WIN_TOP` acima deles, e a travessa do caixilho quase na altura deles; a janela e o armário são medidos
   em cm a partir dos olhos, `_cm`, e acompanham a câmera quando ela muda; a vista da cidade é desenhada de frente num vidro fora da tela, `_vport`, e só recortada
   pelo vidro: está longe e não entorta com a janela; o horizonte dela fica na altura dos olhos); a mesa, afastada da
@@ -191,7 +191,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   persiana projetado no tampo, descendo para dentro da sala (`STREET_LIGHT`), um pouco longe da parede (o peitoril faz
   sombra) e só onde há mesa; bem lisa e espalhada, e por cima dos objetos (eles ficam na luz também). Na mesa, ao alcance do
   operador, os objetos que abrem as ferramentas (`prop_clicked(id)` → `Tools.set_tab`; `_props`, `_has_point`: o
-  clique só vale sobre eles e não com papel por cima): listas telefônicas (1), mapa dobrado em sanfona (2: quarteirões desiguais, cada bairro num tom, praças, rio, trem,
+  clique só vale sobre eles e não com papel por cima): listas telefônicas (1: três volumes desencontrados, a lombada com os filetes dourados e a etiqueta do volume,
+  o miolo com as folhas em linhas finas, posto pixel a pixel como a capa, `_art_pages`, mais sujo junto das capas, e tiras
+  de papel marcando páginas; a capa de cima com o título dourado em
+  baixo-relevo, o fone da companhia, a etiqueta com o ano, a marca de uma caneca e a ponta dobrada, `_art_book_cover`), mapa dobrado em sanfona (2: quarteirões desiguais, cada bairro num tom, praças, rio, trem,
   selo do título e as dobras em luz e sombra, `_draw_folded_map`; com quadrados iguais, lia como papel quadriculado), caderno aberto (3) e
   prancheta do registro (4), mais a caneca, postos por fração da profundidade do tampo (`_at`, `_deep`: ficam no
   tampo seja qual for a câmera) e, na largura, a partir da lateral da mesa comutadora (`_side_x`), em duas fileiras
@@ -217,10 +220,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   da mesma largura espaçadas pela câmera, sem juntas (com juntas parecia assoalho), a borda da frente com a
   espessura dele e a poça de luz da luminária, um círculo de `POOL_R` no tampo embaixo dela que treme com ela
   (`lamp_level`, como o arco na parede e a luz no armário). **O estado do jogo nos objetos**, para ler de relance: uma
-  tira de papel saindo do caderno por registro pendente (`pending`), o alfinete do mapa piscando e brilhando com uma
-  emergência em andamento, mais rápido a cada estágio (`alert`, o Main passa `em_call.stage`), e uma folha nova na
+  tira de papel saindo do caderno por registro pendente (`pending`) e uma folha nova na
   prancheta quando uma conversa termina com o registro guardado (`unread`; `CallLog.filed`/`unread_changed`, o Main
-  chama `filed` em `end_call`). **Jornal da manhã** (da segunda noite em diante): o jornal dobrado na mesa (`news`,
+  chama `filed` em `end_call`). (O alfinete do mapa piscava e brilhava com uma emergência em andamento; saiu a pedido:
+  um alfinete não acende. Ele fica parado no mapa, e a emergência é avisada pelo rádio.) **Jornal da manhã** (da segunda noite em diante): o jornal dobrado na mesa (`news`,
   `Main.set_news`) abre a primeira página na área das ferramentas (`NewsView`, `Tools.news`, id "jornal", sem aba) com
   as manchetes da noite anterior; `ShiftReport.news()` sorteia a manchete de cada emergência uma vez (o relatório do
   fim da noite e o jornal dizem a mesma; `headline` traduz na hora) e o `Progress` a guarda (`news`). **A sala muda ao
@@ -228,7 +231,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   detalhes do cenário (`Background.details`, `DETAILS`: cartaz da quermesse, número anotado colado no armário, armário
   entreaberto com as pastas) pelos marcadores do roteiro, já no meio da noite (`Main._update_room`, refeito a cada
   `flags.changed`; o setter de `Main.flags` religa); o calendário do armário risca um dia por noite (`night`). Na
-  primeira vez que cada sinal da mesa aparece (tiras, alfinete, folha nova), uma dica do manual explica, uma vez no
+  primeira vez que cada sinal da mesa aparece (tiras, folha nova), uma dica do manual explica, uma vez no
   jogo todo (`Main._teach`: o "já viu" fica nos marcadores salvos; espera o tutorial acabar). Sob o
   mouse: contorno, o nome da ferramenta e o dedo. O cenário só se redesenha quando algo que ele mostra muda
   (`Background._state`: o lugar das peças da interface, o papel, a luminária, o alfinete, o estado nos objetos; parado,
@@ -940,6 +943,12 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
     numa mesa plana (a única caixa alta girada entre as horizontais da sala).
 75. A caneca redesenhada (parecia um balde): esmaltada de época, branco-gelo com a borda azul-marinho, alça em C e
     lascas, e o vapor do café subindo, que some com as horas porque o café esfria.
+76. O alfinete do mapa parou de piscar e brilhar com emergência (um alfinete não acende; a dica dele saiu) e as listas
+    telefônicas ganharam detalhes: na capa, o título dourado, o fone, a etiqueta do ano, a marca de caneca e a ponta
+    dobrada; nas lombadas, a etiqueta do volume; no miolo, as folhas em linhas finas (numa imagem posta pixel a pixel:
+    desenhadas tortas na tela, viravam degraus e faixas), as beiras sujas e tiras marcando páginas.
+77. O vaso da janela foi refeito (um vaso de barro no tamanho dele na sala, posto pela câmera, com uma
+    espada-de-são-jorge) e depois saiu, a pedido, com a planta: o peitoril fica vazio.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.
