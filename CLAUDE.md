@@ -599,7 +599,20 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   do lado esquerdo, virado para a luz (`PixelArt.LIGHT`); girado a ponto de esse lado ficar de costas para ela, vale o
   mapa espelhado (`_plug_art`). Ao encaixar, a passagem para de frente gira a partir do ângulo que ele tinha na mão
   (`_pushed_ang`). O fio e os plugs em pé pegam a luz da sala do painel em `CORD_LIT` da força (`_lit_by`,
-  `_room_tone`: mais escuros e frios longe da luminária). Encaixado, sai do painel em direção à câmera, vista de cima e da
+  `_room_tone`: mais escuros e frios longe da luminária). **Todos os fios têm o mesmo comprimento**, `CORD_MAX` (660 px: o do FONE, puxado do
+  encaixe, chega ao meio das listas telefônicas da mesa em 1280 × 720; a tomada mais longe de um buraco fica a 564):
+  na mão, o plug para no fim do fio (`_reach`, com um tranco, `cord_snag`) e a mão segue; a velocidade usada no balanço
+  e no embalo é a do plug, não a do mouse. **A prateleira acaba** na lateral do console (`Switchboard.shelf` =
+  `Background.shelf`: o x do canto da frente do console e o y do tampo ao pé dele; sem cenário, nos testes, não acaba):
+  além dela o plug solto cai até o tampo (`_surface`) e quem vem de fora bate na lateral, sem subir na prateleira.
+  Recolhendo, pendurado ao lado do console, a quina é uma roldana (`_hang_step`): o fio vai reto do buraco à quina e
+  dela ao plug, que balança preso nela, sobe pendurado (ponta para baixo, `HANG_TURN`) e, na quina, volta para cima
+  da prateleira e para a corda de sempre (com a corda solta contra a quina, ele ficava preso, laçava ou era
+  arremessado). O ângulo do plug solto segue o do fio aos poucos (`LOOSE_TURN`). Esticado, o fio de pano alisa: pela distância do buraco à ponta
+  (no pendurado, o caminho pela quina) a partir de `TAUT_FROM` do `CORD_MAX`, as dobras somem aos poucos, o trançado se
+  espaça (`TAUT_BRAID`) e, da metade em diante, ele e a sombra afinam 1 px (`_tension`, `ropes[e]["taut"]`, suavizada
+  em `TAUT_EASE`); frouxo, volta com as dobras inteiras. (Pela folga não dava: os cabos de conexão têm sempre ~14 px
+  dela, perto ou longe.) Encaixado, sai do painel em direção à câmera, vista de cima e da
   direita (`_draw_plug_face`: o próprio `PLUG_ART` visto de frente, com os mesmos detalhes: aba dourada, anel e friso claro em cima,
   serrilhado, `_knurled`, anel do meio e capa em gomos afinando até o fio; montado com discos de pixel art, `disc`, um
   por pixel ao longo do eixo, cada um com a largura e os tons da linha do plug em pé que cai ali, `_face_row`: dela vale

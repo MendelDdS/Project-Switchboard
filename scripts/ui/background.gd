@@ -229,6 +229,7 @@ var _vp := Vector2.ZERO   # o ponto de fuga (px de 2x2)
 var _yd := 0.0         # a altura do tampo (y da sala, abaixo dos olhos)
 var _zd := Vector2.ZERO   # a frente e o fundo do tampo (z)
 var _side_x := 0.0     # a lateral da mesa comutadora na sala (x): os objetos da mesa ficam à direita dela
+var _shelf := Vector2(INF, INF)   # `shelf()`, em px do cenário
 var _cx := 0.0         # a quina das paredes (px de 2x2, na tela)
 var _t2 := 1.6         # onde a janela termina na parede da direita (escala)
 var _ci: CanvasItem    # onde a vista da janela é desenhada: aqui, ou no vidro fora da tela
@@ -517,6 +518,12 @@ func _paper() -> Rect2:
 
 ## Onde fica na tela (global) o objeto da mesa que abre a ferramenta `id` (vazio se ele não está na mesa): de onde o
 ## papel dela sai (`Tools.origin`).
+## A lateral da prateleira da mesa comutadora (x, o canto da frente do console) e o tampo ao pé dele (y), em px da
+## tela: além da lateral, o plug solto cai até o tampo (`Switchboard.shelf`). Antes do primeiro desenho, sem fim.
+func shelf() -> Vector2:
+	return _shelf + global_position if _shelf.x < INF else _shelf
+
+
 func prop_rect(id: String) -> Rect2:
 	return Rect2(global_position + (_props[id] as Rect2).position, (_props[id] as Rect2).size) if _props.has(id) else Rect2()
 
@@ -1081,6 +1088,7 @@ func _draw_switchboard(front: float) -> void:
 	var fx0: float = near.call(Vector2(b.position.x, b.end.y)).x
 	var fx1: float = near.call(b.end).x
 	var low := Vector2(fx1, fy)   # o canto de baixo da frente, do lado do ponto de fuga
+	_shelf = low
 	var deep := func(p: Vector2) -> Vector2: return vp + (p - vp) * k * kb   # da frente do console para o fundo
 	var low_back: Vector2 = deep.call(low)
 	_desk_shadow(PackedVector2Array([Vector2(fx0, fy), low, low_back, deep.call(Vector2(fx0, fy))]))

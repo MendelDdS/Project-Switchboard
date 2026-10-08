@@ -102,6 +102,7 @@ func _ready() -> void:
 	_update_room()
 	exchange = Exchange.new(GameData.board_numbers())
 	board.setup(exchange, %FoneSocket, %CordTray)
+	board.shelf = background.shelf   # onde a prateleira acaba: além dela, o plug solto cai até o tampo
 	var plan := Schedule.build(night, pace, LAST_CALL)
 	sched = plan.calls
 	tut = plan.tut
