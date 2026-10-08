@@ -504,6 +504,11 @@ func _initialize() -> void:
 	ok(b.ends[2] == -1 and b.ends[1] == l7 + 10, "só a ponta clicada volta")
 	ok(b.free_patches() < 3, "o cabo só volta à base com as duas pontas")
 	var js: Vector2 = b.jack_rect(l7 + 10).get_center()
+	# tirado da tomada e devolvido a ela no mesmo arraste: soltava perto de onde apertou, contava como clique e caía
+	_mouse(b, js, 1)
+	_mouse(b, js + Vector2(60, -40))
+	_mouse(b, js, 0)
+	ok(b.ends[1] == l7 + 10, "devolvido à mesma tomada no mesmo arraste, encaixa de novo")
 	b._press(js)
 	b._release(js)
 	ok(b.ends[1] == -1, "a outra ponta também voltou")
