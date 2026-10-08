@@ -10,6 +10,7 @@ var _night: Night
 
 
 func _ready() -> void:
+	$Version.text = Settings.version_text()
 	%Start.pressed.connect(func():
 		visible = false
 		start_pressed.emit())

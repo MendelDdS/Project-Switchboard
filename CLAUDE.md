@@ -453,6 +453,12 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   desenho pesado que roda a cada quadro, meça um turno (`--test=shift --seed=1`).
 
 ## Exportar (executáveis para testar fora do editor)
+- **Toda build nova incrementa a versão** (`0.MENOR.CORREÇÃO-fase`, regras no `VERSOES.md`): antes de exportar, sobe
+  `application/config/version` (e, ao mudar de fase, `application/config/stage`) no `project.godot`; depois, uma
+  entrada no fim do `VERSOES.md` (versão, data, commit, sistemas, Novidades e Correções) e a tag `v<versão>-<fase>` no
+  commit de onde a build saiu. A versão aparece no canto da tela inicial e da pausa (`Settings.version_text`). Os
+  campos de versão do preset do macOS ficam vazios (ele usa a do projeto); o `.exe` do Windows mostra a do motor
+  (`modify_resources=false`, sem o rcedit).
 - Presets em `export_presets.cfg`: Windows, macOS (universal, assinatura ad-hoc, sem notarização) e Linux; saída em
   `build/` (fora do git). Templates do Godot 4.6.2 ficam em `~/Library/Application Support/Godot/export_templates/`.
 - `Godot --headless --path . --import` e depois `Godot --headless --path . --export-release "Windows" build/windows/ProjectSwitchboard.exe`

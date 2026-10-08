@@ -66,6 +66,14 @@ func set_pixel_perfect(on: bool) -> void:
 
 
 ## Multiplicador do tempo de cada letra das falas (conversa e rádio).
+## A versão do jogo como ela aparece na tela inicial e na pausa ("v0.4.0 alpha"): o número do projeto
+## (`application/config/version`, que as exportações usam; veja VERSOES.md) e a fase (`application/config/stage`;
+## vazia na 1.0).
+static func version_text() -> String:
+	var stage := str(ProjectSettings.get_setting("application/config/stage", ""))
+	return ("v%s %s" % [ProjectSettings.get_setting("application/config/version", ""), stage]).strip_edges()
+
+
 func char_delay() -> float:
 	return TEXT_SPEEDS[text_speed]
 

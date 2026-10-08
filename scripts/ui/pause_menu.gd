@@ -13,6 +13,7 @@ var _saved := {}              ## configurações ao abrir a tela: Voltar volta p
 
 
 func _ready() -> void:
+	$Version.text = Settings.version_text()
 	%Resume.pressed.connect(resume)
 	%OpenSettings.pressed.connect(_show_settings.bind(true))
 	%RestartNight.pressed.connect(func():
