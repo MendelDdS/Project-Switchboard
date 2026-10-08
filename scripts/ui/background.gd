@@ -87,6 +87,10 @@ const WALK_STEPS := 2.2   ## passos por segundo (as pernas alternam nesse ritmo)
 const LATE_FROM := 22.0 * 60.0   ## a partir de que hora (min do dia) a cidade começa a se calar: menos carros e pedestres
 const LATE_TO := 24.0 * 60.0     ## até quando (aí, os intervalos entre eles chegam a `LATE_EVERY` vezes)
 const LATE_EVERY := 3.0
+const DOG_FROM := 21.0 * 60.0   ## a partir de que hora (min do dia) cachorros latem bem longe, de vez em quando
+const DOG_EVERY := Vector2(45, 120)   ## de quanto em quanto tempo (s, sorteado)
+const DOG_REPLY := 0.45   ## a chance de outro cachorro responder, mais longe, `DOG_REPLY_AFTER` s depois (sorteado)
+const DOG_REPLY_AFTER := Vector2(1.8, 3.5)
 const BELL_AFTER := 1.6   ## o sino da igreja começa a bater a hora depois do gongo da mesa (s), uma badalada a cada `BELL_GAP`
 const BELL_GAP := 2.3
 const RATTLE_NEAR := 2.0  ## trovão que vem até esse tempo depois do clarão (s) é perto: o vidro e a persiana chocalham
@@ -265,6 +269,8 @@ var _cars: Array[Dictionary] = []   # os carros passando lá fora: {"t": de 0 a 
 var _car_in := [20.0, 32.0]          # quanto falta para o próximo de cada mão (s)
 var _walkers: Array = []   # quem está passando na calçada de lá (`_walker`), na ordem do desenho: os de mais longe primeiro
 var _walk_in := 3.0      # quanto falta para o próximo (s)
+var _dog_in := randf_range(15.0, 50.0)   # quanto falta para o próximo latido, contado a partir de `DOG_FROM` (s)
+var _dog_reply := -1.0   # quanto falta para o cachorro que responde (-1 = nenhum)
 var _tolls := 0          # badaladas do sino que faltam bater
 var _toll_in := 0.0      # quanto falta para a próxima (s)
 var _late_sent := -1.0   # o quanto da noite avançada já foi passado ao `Sfx`
@@ -426,7 +432,8 @@ func _state() -> Array:
 ## gente andando pela calçada de lá, cada vez menos até as 22h (`WALK_*`; sem som: os passos, de dentro do prédio, não
 ## se ouviriam), o homem do mistério chegando e indo embora (`_man_x`), e, na chuva, o
 ## relâmpago com o trovão depois (`BOLT_*`, `THUNDER_AFTER`; perto, a janela chocalha, `RATTLE_NEAR`); o neon do
-## hotel estala quando falha e o sino da igreja bate as horas (`toll`). Das 22h à meia-noite a cidade se cala: carros
+## hotel estala quando falha, o sino da igreja bate as horas (`toll`) e, das 21h em diante, cachorros latem bem longe
+## (`DOG_*`; calados antes da ligação desconhecida, `Sfx.hushed`). Das 22h à meia-noite a cidade se cala: carros
 ## cada vez mais raros (`LATE_*`) e os grilos mais presentes (`Sfx.set_late`). Os sons vêm da janela.
 func _events(delta: float) -> void:
 	var x := _bounds(_glass).get_center().x / maxf(1.0, size.x) if _glass.size() > 2 else 0.9
@@ -441,6 +448,18 @@ func _events(delta: float) -> void:
 			Sfx.play_at("bell", x)
 			_tolls -= 1
 			_toll_in = BELL_GAP
+	if minutes >= DOG_FROM:   # um cachorro latindo longe e, às vezes, outro respondendo
+		_dog_in -= delta
+		if _dog_in <= 0.0:
+			_dog_in = randf_range(DOG_EVERY.x, DOG_EVERY.y)
+			if not Sfx.hushed():
+				Sfx.play_at("dog", x, 0.0, randf_range(0.92, 1.08))
+				if randf() < DOG_REPLY:
+					_dog_reply = randf_range(DOG_REPLY_AFTER.x, DOG_REPLY_AFTER.y)
+	if _dog_reply >= 0.0:
+		_dog_reply -= delta
+		if _dog_reply < 0.0 and not Sfx.hushed():
+			Sfx.play_at("dog_low", x, -3.0, randf_range(0.92, 1.05))
 	for lane in CAR_LANES.size():   # um carro por vez em cada mão, cada uma no seu tempo
 		_car_in[lane] -= delta
 		if _car_in[lane] <= 0.0:

@@ -11,7 +11,7 @@ const VOL := {
 	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "rub": -13.0, "cord_stop": -16.0, "cord_tap": -17.0, "cord_snag": -18.0, "cord_snap": -21.0, "unroll": -8.0,
 	"typing": -13.0, "printer": -14.0, "punch": -8.0, "feed": -11.0, "read": -14.0, "shred": -10.0, "deny": -14.0,
 	"chime": -11.0, "shift_bell": -13.0, "car": -15.0, "car_wet": -14.0, "neon": -29.0, "thunder": -8.0,
-	"bell": -15.0, "rattle": -17.0, "lamp_tick": -27.0,
+	"bell": -15.0, "rattle": -17.0, "dog": -27.0, "dog_low": -28.0, "lamp_tick": -27.0,
 }
 ## Volume (dB) dos sons de ambiente em cada clima; o que não aparece fica mudo.
 const WEATHER_MIX := {
@@ -223,6 +223,11 @@ func set_late(k: float) -> void:
 func lamp(level: float) -> void:
 	if _lamp_on:
 		lamp_buzz.volume_db = LAMP_BUZZ + linear_to_db(maxf(level, 0.01))
+
+
+## A noite está calada (antes da ligação desconhecida): nem os cachorros latem.
+func hushed() -> bool:
+	return _hushed
 
 
 ## Antes da ligação desconhecida a noite se cala: grilos param, chuva e brisa baixam.

@@ -17,6 +17,13 @@ spread = 0.5
 hipass = 0.2
 wet = 0.12
 
+[sub_resource type="AudioEffectLowPassFilter" id="AudioEffectLowPassFilter_rub"]
+resource_name = "LowPassFilter"
+cutoff_hz = 900.0
+
+[sub_resource type="AudioEffectPanner" id="AudioEffectPanner_rub"]
+resource_name = "Panner"
+
 [sub_resource type="AudioEffectReverb" id="AudioEffectReverb_rub"]
 resource_name = "Reverb"
 predelay_msec = 20.0
@@ -25,13 +32,6 @@ damping = 0.6
 spread = 0.5
 hipass = 0.2
 wet = 0.05
-
-[sub_resource type="AudioEffectLowPassFilter" id="AudioEffectLowPassFilter_rub"]
-resource_name = "LowPassFilter"
-cutoff_hz = 900.0
-
-[sub_resource type="AudioEffectPanner" id="AudioEffectPanner_rub"]
-resource_name = "Panner"
 
 [resource]
 bus/1/name = &"Ambience"

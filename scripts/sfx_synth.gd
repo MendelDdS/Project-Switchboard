@@ -31,7 +31,7 @@ const RAIN_LEFT := 0.4
 ## uma por pedaço); os mais pesados (a chuva, a brisa, o fio, os grilos, os carros, o sino) ficam em pedaços próprios
 ## para se dividirem entre os núcleos.
 const PARTS := [["_build_basic"], ["_build_ring"], ["_build_clock"], ["_build_rub"], ["_build_unroll"], ["_build_card"],
-	["_build_car"], ["_build_car", true], ["_build_thunder"], ["_build_neon"], ["_build_bell"], ["_build_outside"],
+	["_build_car"], ["_build_car", true], ["_build_thunder"], ["_build_neon"], ["_build_bell"], ["_build_dog"], ["_build_dog", true], ["_build_outside"],
 	["_build_lamp"], ["_build_rain"], ["_build_breeze"], ["_build_crickets"]]
 
 var streams := {}   ## id -> AudioStreamWAV
@@ -363,6 +363,34 @@ func _build_bell() -> void:
 	for i in range(_w.size() - 1, echo - 1, -1):
 		_w[i] += _w[i - echo] * 0.28
 	_end("bell", false, false, 0.85)
+
+
+## Um cachorro latindo bem longe, do outro lado da cidade: latidos curtos e roucos (o tom sobe e cai em cada um, com
+## sopro), espaçados, abafados pela distância (só o meio do espectro, sem graves nem agudos) e com o eco dos morros
+## chegando depois. `low`: outro cachorro, maior, que late menos e mais devagar (o que responde).
+func _build_dog(low := false) -> void:
+	_begin(3.6)
+	var f0 := 300.0 if low else 430.0
+	var at := 0.05
+	for k in (2 if low else 3):
+		var d := _rng.randf_range(0.13, 0.19) * (1.25 if low else 1.0)
+		var f := f0 * _rng.randf_range(0.94, 1.06)
+		var s0 := int(at * RATE)
+		var ph := 0.0
+		for i in int(d * RATE):
+			var t := float(i) / RATE
+			var u := t / d
+			ph += f * (1.0 + 0.3 * sin(PI * minf(u * 1.6, 1.0)) - 0.25 * u) / RATE   # sobe e cai
+			var env := minf(1.0, t / 0.006) * pow(1.0 - u, 1.4)
+			_w[s0 + i] += (_wave("saw", ph) * 0.7 + _rng.randf_range(-1.0, 1.0) * 0.35) * env
+		at += d + _rng.randf_range(0.5, 0.8) * (1.4 if low else 1.0)
+	_w = _biquad(_w, "bp", 750.0 if low else 900.0, 1.1)   # a garganta, e a distância comendo graves e agudos
+	_w = _biquad(_biquad(_w, "lp", 1100.0, 0.7), "hp", 220.0, 0.7)
+	for e: Vector2 in [Vector2(0.27, 0.3), Vector2(0.58, 0.17), Vector2(0.95, 0.08)]:   # o eco dos morros
+		var n := int(e.x * RATE)
+		for i in range(_w.size() - 1, n - 1, -1):
+			_w[i] += _w[i - n] * e.y
+	_end("dog_low" if low else "dog", false, false, 0.7)
 
 
 ## A janela: o vidro e a persiana chocalhando no trovão perto.
