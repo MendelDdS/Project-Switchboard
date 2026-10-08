@@ -253,7 +253,13 @@ const PLUG_ART := [   ## o plug em pé, de 20 × 93 px (y de -93 a -1; o fio sai
 	".212222233333444556.",
 	".212222233333444556.",
 	"..3233334444555556..",
+	"..3233334444555556..",
+	"..3233334444555556..",
+	"..3233334444555556..",
+	"...54555555555556...",
 	"...32333344455556...",
+	"...32333344455556...",
+	"....545555555556....",
 	"...32333344455556...",
 	"...32333344455556...",
 	"....545555555556....",
@@ -262,18 +268,12 @@ const PLUG_ART := [   ## o plug em pé, de 20 × 93 px (y de -93 a -1; o fio sai
 	".....5455555556.....",
 	"....323334445556....",
 	"....323334445556....",
-	"......54555556......",
+	".....5455555556.....",
 	".....3233445556.....",
 	".....3233445556.....",
 	"......54555556......",
-	"......32344556......",
-	"......32344556......",
-	".......545556.......",
-	"......32344556......",
-	"......32344556......",
-	"........5456........",
-	".......324456.......",
-	".......324456.......",
+	".....3233445556.....",
+	".....3233445556.....",
 ]
 const PLUG_H := 93.0   # a altura do `PLUG_ART`: do bico até onde sai o fio
 ## Onde o corpo do plug encaixado termina e a capa começa, como fração do comprimento a partir do painel (das
@@ -304,6 +304,8 @@ const CORD_MAX := 660.0
 const CORD_LIT := 0.6   # o fio e os plugs em pé pegam essa parte da luz da sala do painel (estão na frente dele)
 const STRIP_W := 30.0   # a faixa rebaixada de cada linha, da plaquinha à saída
 const WEAR := [0.5, 0.3, 0.15]   # o painel gasto em volta das tomadas: do perto ao longe (o quanto clareia)
+const TAIL_IN := 6.0   # px do fio que entram na traseira do plug em pé (`_draw_tail`)
+const ROPE_W := 9.0   # px: a largura do fio com a beira (o miolo tem 3 a menos; esticado, os dois afinam 1). Era 8.
 const KINK := 1.5   # px: as dobras que o fio de pano guarda, no máximo
 const BRAID := 6.0   # px: o trançado do fio (o brilho dele vem em pedaços desse comprimento)
 ## Esticado, o fio de pano alisa: a partir de TAUT_FROM do comprimento (`CORD_MAX`) entre o buraco e a ponta dele, as
@@ -339,6 +341,7 @@ var _hand_was := Vector2.ZERO     # onde o plug na mão (ou o mouse) estava no q
 ## Sem ela (testes sem cenário), a prateleira não tem fim, como antes.
 var shelf: Callable
 var _swing_v := 0.0
+var _lamp_at := Vector2.ZERO   # onde fica a luminária do teto, medida no começo de cada desenho (`_lamp_pos`)
 # fio que passou pelos buracos neste quadro, para o som de atrito (px): saindo, entrando, e somas pesadas por px
 # do lugar do buraco na tela (0..1) e do que era o fio do FONE
 var _rub_out := 0.0
@@ -1228,6 +1231,7 @@ func _reflect(jr: Rect2, col: Color, level: float) -> void:
 
 func _draw() -> void:
 	Bloom.clear(self)
+	_lamp_at = _lamp_pos()   # uma vez por desenho: a luz da sala no painel, nos fios e nos plugs sai dela
 	var w := size.x
 	var h := size.y
 	var ms := Time.get_ticks_msec()
@@ -1622,15 +1626,17 @@ func _draw_rope(e: int, shadow: bool) -> void:
 		for i in pts.size():
 			var k := float(i) / (pts.size() - 1)
 			sh.append(pts[i] + ROPE_SHADOW.lerp(lift, k * k))
-		draw_polyline(sh, SHADOW, 7.0 - thin)
+		draw_polyline(sh, SHADOW, ROPE_W - 1.0 - thin)
 		return
 	var col: Array = _cable_col(e)
 	pts = _kinked(e, pts, 1.0 - taut)
 	var lights := PackedColorArray()   # a luz da sala ao longo do fio
 	for q in pts:
 		lights.append(_lit_by(q))
-	draw_polyline_colors(pts, _tinted((col[0] as Color).darkened(EDGE), lights), 8.0 - thin)
-	draw_polyline_colors(pts, _tinted(col[0], lights), 5.0 - thin)
+	draw_polyline_colors(pts, _tinted((col[0] as Color).darkened(EDGE), lights), ROPE_W - thin)
+	draw_polyline_colors(pts, _tinted(col[0], lights), ROPE_W - 3.0 - thin)
+	if ends[e] == -1:   # em pé (na mão, solto ou guardado): o fio entra na traseira do plug
+		_draw_tail(e, pts[pts.size() - 1], col[0], lights[lights.size() - 1], thin)
 	var pts2 := PackedVector2Array()
 	var length := 0.0
 	for i in pts.size():
@@ -1647,7 +1653,18 @@ func _draw_rope(e: int, shadow: bool) -> void:
 	for band in HOLE_SHADE:   # perto do buraco, a sombra de dentro dele, em degraus
 		var part := _along(pts, band[0], band[1])
 		if part.size() >= 2:
-			draw_polyline(part, Color(0, 0, 0, band[2]), 5.0 - thin)
+			draw_polyline(part, Color(0, 0, 0, band[2]), ROPE_W - 3.0 - thin)
+
+
+## O fio entrando na traseira do plug em pé, em `at`: um trecho dele segue TAIL_IN px para dentro do plug, no eixo
+## dele (o plug, desenhado depois, o cobre), e uma junta redonda fecha a dobra. Sem isso, o fio chegando de lado
+## terminava num corte reto no meio da ponta do plug e deixava um vão do outro lado.
+func _draw_tail(e: int, at: Vector2, c: Color, light: Color, thin: float) -> void:
+	var inside := at + Vector2.UP.rotated(_plug_angle(e)) * TAIL_IN
+	draw_line(at, inside, c.darkened(EDGE) * light, ROPE_W - thin)
+	draw_line(at, inside, c * light, ROPE_W - 3.0 - thin)
+	var w := int(ROPE_W - thin)
+	PixelArt.sprite(self, PixelArt.disc(w, [[(w - 3) / 2.0, c], [w / 2.0, c.darkened(EDGE)]]), at, light)
 
 
 ## A cor `c` sob cada luz de `lights`.
@@ -1991,7 +2008,7 @@ func _lit_by(p: Vector2) -> Color:
 
 ## O tom da luz da sala no ponto p da mesa: a cor e, no alfa, quanto ela pesa.
 func _room_tone(p: Vector2) -> Color:
-	var k := clampf(1.0 - p.distance_to(_lamp_pos()) / ROOM_LIGHT_R, 0.0, 1.0)
+	var k := clampf(1.0 - p.distance_to(_lamp_at) / ROOM_LIGHT_R, 0.0, 1.0)
 	return ROOM_DARK.lerp(ROOM_LIT, k * k)
 
 

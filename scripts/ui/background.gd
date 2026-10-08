@@ -516,14 +516,14 @@ func _paper() -> Rect2:
 	return Rect2()
 
 
-## Onde fica na tela (global) o objeto da mesa que abre a ferramenta `id` (vazio se ele não está na mesa): de onde o
-## papel dela sai (`Tools.origin`).
 ## A lateral da prateleira da mesa comutadora (x, o canto da frente do console) e o tampo ao pé dele (y), em px da
 ## tela: além da lateral, o plug solto cai até o tampo (`Switchboard.shelf`). Antes do primeiro desenho, sem fim.
 func shelf() -> Vector2:
 	return _shelf + global_position if _shelf.x < INF else _shelf
 
 
+## Onde fica na tela (global) o objeto da mesa que abre a ferramenta `id` (vazio se ele não está na mesa): de onde o
+## papel dela sai (`Tools.origin`).
 func prop_rect(id: String) -> Rect2:
 	return Rect2(global_position + (_props[id] as Rect2).position, (_props[id] as Rect2).size) if _props.has(id) else Rect2()
 

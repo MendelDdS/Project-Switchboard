@@ -123,6 +123,8 @@ static func turned(rows: Array, angle: float, pivot: Vector2) -> Array:
 	var h := rows.size()
 	var big: PackedByteArray = _bigs.get(hash(rows), PackedByteArray())
 	if big.is_empty():
+		if _bigs.size() > CACHE_MAX:
+			_bigs.clear()
 		big = PackedByteArray()
 		for y in h:
 			big.append_array((rows[y] as String).to_ascii_buffer())

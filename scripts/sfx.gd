@@ -32,7 +32,7 @@ const RUB_PITCH := Vector2(1.0, 1.15)
 const RUB_HI_FROM := 120.0
 const RUB_HI_NORMAL := 300.0
 const RUB_HI_BOOST := 6.0
-## Os dois passam pelo barramento "Rub" (vai direto para o Master, com uma reverberação mais seca que a do Effects:
+## Os três passam pelo barramento "Rub" (vai direto para o Master, com uma reverberação mais seca que a do Effects:
 ## o fio está na mão; o volume segue o de Effects, `Settings.FOLLOWS`), com um passa-baixa que abre com a velocidade: fechado em
 ## RUB_LP.x Hz até RUB_HI_FROM (devagar, só o "shhh" grave do fio), aberto em RUB_LP.y a partir de RUB_HI_NORMAL.
 const RUB_LP := Vector2(900.0, 11000.0)
@@ -82,6 +82,7 @@ var _late := 0.0                  # quanto a noite já avançou (0..1): a cidade
 var _t := 0.0
 var rub: AudioStreamPlayer        # atrito do fio no buraco, em loop: o fio (agarra e solta, corpo), rápido
 var rub_slow: AudioStreamPlayer   # o mesmo devagar, com os estalos esparsos
+var _rub_loops: Array[AudioStreamPlayer] = []   # os três loops do atrito, juntos
 var rub_hi: AudioStreamPlayer     # e o agudo (fibras, rangido), com volume próprio
 var _rub_speed := 0.0             # px/s pedidos desde o último quadro (zera a cada quadro: sem pedido, cala)
 var _rub_v := 0.0                 # px/s, suavizado
@@ -124,7 +125,8 @@ func _ready() -> void:
 	rub = _make_loop("rub")
 	rub_slow = _make_loop("rub_slow")
 	rub_hi = _make_loop("rub_hi")
-	for p in [rub, rub_slow, rub_hi]:
+	_rub_loops = [rub, rub_slow, rub_hi]
+	for p in _rub_loops:
 		p.bus = &"Rub"
 	var bus := AudioServer.get_bus_index(&"Rub")
 	_rub_lp = AudioServer.get_bus_effect(bus, 0)
@@ -265,13 +267,12 @@ func _process(delta: float) -> void:
 	_rub_feel = _rub_feel.lerp(_rub_feel_want, minf(1.0, delta * 10.0))
 	_rub_speed = 0.0
 	var level := clampf((_rub_v - RUB_MIN) / (RUB_FULL - RUB_MIN), 0.0, 1.0)
-	var loops: Array[AudioStreamPlayer] = [rub, rub_slow, rub_hi]
 	if level < 0.01:
-		for p in loops:
+		for p in _rub_loops:
 			p.stop()
 		return
 	if not rub.playing:   # cada arrasto começa num trecho diferente do loop
-		for p in loops:
+		for p in _rub_loops:
 			p.play(randf() * p.stream.get_length())
 	var smooth := 1.0 - _rub_mood.y   # parte recolhendo
 	var soft := _rub_mood.z * lerpf(1.0, RUB_FONE["fast"], level)
