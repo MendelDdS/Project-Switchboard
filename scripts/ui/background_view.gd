@@ -50,6 +50,9 @@ const SHRUB := Vector3(0.62, 0.15, 0.11)
 ## As rajadas de vento no arbusto: as duas ondas lentas que as fazem (rad/s) e quanto elas empurram a copa para a
 ## esquerda (px da tela no alto dela).
 const GUST := Vector3(0.23, 0.071, 2.5)
+const MOON_BIG := 1.6     ## a lua no horizonte, maior (a ilusão da lua no horizonte); volta a 1 ao subir
+const MOON_SHRINK := 0.4  ## até onde da subida (`_moon_t`) ela ainda está encolhendo
+const MOON_LOW := Color("e0a868")   ## o tom dela perto do horizonte (o ar mais grosso avermelha)
 const CHURCH_K := 0.45    ## a escala da igreja (desenhada em px de 2x2), no fim da rua do cruzamento
 const SIGN_RED := Color("ff4a3a")    ## o neon dele aceso (apagado, quase preto)
 const FOG := Color(0.55, 0.62, 0.66)   ## a cor da névoa (`_draw_fog`)
@@ -68,6 +71,8 @@ var warm := 1.0   ## o quanto a luminária já esquentou (0..1, `warm_up`): o Ma
 var stranger := Vector2(INF, INF)   ## quando o homem do mistério para embaixo do poste e quando vai embora (min do dia; o Main atualiza)
 var _drops: Array = []   # pingos caindo: Vector3(x, y em frações da vista, perto: 0 = longe, 1 = perto)
 var _beads: Array = []   # gotas paradas no vidro: Vector4(x, y em frações do vidro à vista, tamanho, velocidade; 0 = parada)
+var _moon_tex := {}   # a lua na fase da noite (`_moon_art`), por tamanho, guardada pela idade (`_moon_for`)
+var _moon_for := -1.0
 var _glass_from := 0.6   # de que fração da altura da vista o vidro aparece (acima: fora da tela ou atrás da persiana)
 var _stars: Array[Vector2] = []
 var _houses: Array = []        # os prédios do outro lado da rua, de frente: {x0, x1, h, col, brick, wins: [Vector3(x, andar, hora de apagar)]} (m)
@@ -149,19 +154,25 @@ func _draw_city(g: Rect2) -> void:
 			_light_fan(c, rim, Color(1.0, 0.8, 0.5, 0.1))
 
 
-## A lua da noite limpa (`MOON`), na parte do céu que aparece abaixo da persiana, com o halo, e as nuvens passando
-## devagar por ela (`_clouds`): manchas lisas, um pouco mais claras que o céu (a cidade as ilumina por baixo), mais
-## claras na beira quando estão na frente da lua; coberta, a lua e o halo escurecem (`_moon_light`).
+## A lua da noite limpa subindo (`_moon_at`, `MOON_RISE`): nasce atrás da igreja, grande e alaranjada no horizonte
+## (a ilusão da lua no horizonte, `MOON_BIG`, e o ar mais grosso avermelhando), e diminui até o tamanho dela ao subir,
+## até sumir atrás da persiana. Com o halo e as nuvens passando devagar (`_clouds`): manchas lisas, um pouco mais
+## claras que o céu (a cidade as ilumina por baixo), mais claras na beira quando estão na frente da lua; coberta, a lua
+## e o halo escurecem (`_moon_light`). Desenhada antes da cidade, que a cobre no horizonte.
 func _draw_moon(g: Rect2, sky: Color, hzy: float) -> void:
 	var top := g.position.y + (g.size.y + _near) * _glass_from
 	var sh := hzy - top
 	var light := _moon_light()
-	var moon := Vector2(g.position.x + floorf(g.size.x * MOON.x), floorf(lerpf(top, hzy, MOON.y)))
-	_light_fan(moon, _ring(moon, 16.0), Color(0.75, 0.78, 0.7, 0.16 * light))
-	_ci.draw_set_transform(Vector2.ZERO)   # a lua em pixel art, em px da tela: o disco e o céu comendo um lado (crescente)
-	PixelArt.sprite(_ci, PixelArt.disc(14, [[7.0, Color.WHITE]]), moon * 2.0, Color("d8d0a8").lerp(sky, (1.0 - light) * 0.6))
-	PixelArt.sprite(_ci, PixelArt.disc(13, [[6.2, Color.WHITE]]), moon * 2.0 + Vector2(3, -1), sky)
-	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	_moon_x0 = (_church_pos(g).x - g.position.x) / g.size.x
+	var pos := _moon_at()
+	var moon := Vector2(g.position.x + g.size.x * pos.x, lerpf(top, hzy, pos.y))   # (sem prender à grade de 2x2: ela anda 1 px por vez)
+	var low := 1.0 - smoothstep(0.0, MOON_SHRINK, _moon_t())   # 1 no horizonte, 0 já no alto
+	var d := int(roundf(14.0 * lerpf(1.0, MOON_BIG, low)))   # o diâmetro (px da tela), encolhendo 1 px por vez
+	if moon.y * 2.0 + d / 2.0 > top * 2.0:   # (acima disso, já atrás da persiana)
+		_light_fan(moon, _ring(moon, 16.0 * d / 14.0), Color(Color(0.75, 0.78, 0.7).lerp(MOON_LOW, low), 0.16 * light * (0.3 + 0.7 * _moon_lit())))
+		_ci.draw_set_transform(Vector2.ZERO)   # a lua em pixel art, em px da tela, na fase da noite (`_moon_art`)
+		PixelArt.sprite(_ci, _moon_art(_moon_age(), d), (moon * 2.0).round(), Color("d8d0a8").lerp(MOON_LOW, low).lerp(sky, (1.0 - light) * 0.6))
+		_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 	for c in _clouds:
 		var at := Vector2(g.position.x + _cloud_x(c) * g.size.x, top + c.y * sh)
 		var r := Vector2(0.16 * c.z * g.size.x, 0.09 * c.z * sh)
@@ -173,6 +184,33 @@ func _draw_moon(g: Rect2, sky: Color, hzy: float) -> void:
 			for i in 12:
 				rim.append(o + Vector2(cos(TAU * i / 12.0) * r.x * (0.9 if k == 1 else 0.6), sin(TAU * i / 12.0) * r.y * (1.0 if k == 1 else 0.7)))
 			_light_fan(o, rim, Color(col, 0.85))
+
+
+## A lua na fase dela (`age`: dias desde a lua nova) e no diâmetro `size`, pixel a pixel e guardada: a parte acesa
+## vai até o terminador (a meia elipse que separa a luz da sombra), a beira um pouco mais escura e o lado apagado bem
+## fraco (a luz da Terra).
+## No hemisfério sul a crescente tem a luz à esquerda e a minguante à direita (o contrário do norte).
+func _moon_art(age: float, size: int) -> Texture2D:
+	var key := snappedf(age, 0.25)
+	if key != _moon_for:   # outra noite: os tamanhos guardados eram de outra fase
+		_moon_for = key
+		_moon_tex.clear()
+	if _moon_tex.has(size):
+		return _moon_tex[size]
+	var c := cos(TAU * key / SYNODIC)
+	var waxing := key < SYNODIC / 2.0
+	var img := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	for y in size:
+		for x in size:
+			var p := (Vector2(x, y) + Vector2(0.5, 0.5)) / (size / 2.0) - Vector2.ONE
+			if p.length() > 1.0:
+				continue
+			var s := sqrt(1.0 - p.y * p.y)
+			var u := -p.x   # (espelhado: hemisfério sul)
+			var on := u > s * c if waxing else u < -s * c
+			img.set_pixel(x, y, Color.WHITE.darkened(0.22 * p.length_squared()) if on else Color(1, 1, 1, 0.07))
+	_moon_tex[size] = ImageTexture.create_from_image(img)
+	return _moon_tex[size]
 
 
 ## A frente da vista, por cima da de trás (`_draw_city`) e redesenhada a cada quadro dela: o letreiro (o T falha
@@ -855,6 +893,8 @@ func _build_city(gs: Vector2) -> void:
 	for i in spans.size():
 		var sp: Vector2 = spans[i]
 		var floors := 4 if i == 0 else rng.randi_range(2, 4)
+		if sp.x <= HOTEL_X and HOTEL_X <= sp.y:   # o do hotel cobre o letreiro (alto a 10 m, `_hotel_pos`)
+			floors = 4
 		var wins: Array[Vector3] = []
 		for f in floors:
 			var wsx := sp.x + 1.5
@@ -881,6 +921,10 @@ func _build_city(gs: Vector2) -> void:
 		while z < 118.0:
 			var d := rng.randf_range(10.0, 22.0)
 			var ht := rng.randf_range(7.0, 16.0)
+			if z == STREET["far"]:   # a lateral do prédio da esquina: a altura da fachada dele
+				for b: Dictionary in _houses:
+					if is_equal_approx(b["x1"], side) or is_equal_approx(b["x0"], side):
+						ht = b["h"]
 			var wins: Array[Vector3] = []
 			for i in 6:
 				if rng.randf() < 0.4:

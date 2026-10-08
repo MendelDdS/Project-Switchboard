@@ -27,13 +27,23 @@ const RAIN_SPAN := Vector2(95.0, 37.0)
 const RAIN_STEP := 0.05
 const SOAK_MIN := 150.0
 const CLOUD_SPEED := 0.004
-const MOON := Vector2(0.4, 0.35)   ## onde fica a lua: x em fração do vidro, y em fração do céu à vista (de cima)
+## A lua sobe durante a noite (`_moon_at`): nasce atrás da igreja (`MOON_RISE.x`, minutos do dia), anda `MOON_DRIFT`
+## da largura do vidro (quase reta, pelo vão entre os prédios da esquina) e some atrás da persiana em `MOON_RISE.y`.
+## Em y, fração do céu à vista (0: o alto do vidro abaixo da persiana; 1: o horizonte), de `MOON_PATH.x` (o meio dela
+## no horizonte) a `MOON_PATH.y` (acima).
+const MOON_RISE := Vector2(18 * 60, 22 * 60 + 15)
+const MOON_PATH := Vector2(1.0, -0.35)
+const MOON_DRIFT := -0.04
+const SYNODIC := 29.530588853   ## o mês da lua, de uma lua nova à outra (dias)
+const NEW_MOON := 947182440     ## uma lua nova conhecida (6/1/2000, 18h14 UTC), de onde se conta a fase
 const BOLT_PULSES := [Vector2(0.0, 1.0), Vector2(0.14, 0.55), Vector2(0.42, 0.8)]   ## os clarões dele: quando (s) e a força
 const SIDE_T := 1.06        ## onde a janela começa na parede da direita (escala); termina perto da borda da tela
 const SIDE_W := 150.0       ## a largura do vão, de frente (só a resolução da projeção)
 const WIN_TOP := -28.0      ## o alto do vão (cm a partir dos olhos, para baixo): acima deles
 
 var weather := "rain"
+var _moon_x0 := 0.5   # onde a lua nasce: o x da igreja em fração do vidro (a vista atualiza ao desenhar)
+var night := 1   ## a noite do jogo (o Main atualiza): a data do calendário do armário e a fase da lua
 var minutes := 18 * 60.0:   ## a hora do jogo (minutos do dia; o Main atualiza): o relógio de flip da mesa
 	set(v):
 		if int(v) != int(minutes):   # a plaqueta vira
@@ -82,13 +92,43 @@ func _cloud_x(c: Vector3) -> float:
 	return fposmod(c.x + _mist / 3.6 * CLOUD_SPEED, 1.4) - 0.2
 
 
+## A idade da lua na noite do jogo (dias desde a lua nova), às 21h de Brasília (meia-noite UTC): a do calendário de
+## verdade (8 de outubro de 1973 é crescente quase cheia; a cheia vem no dia 11).
+func _moon_age() -> float:
+	var t := Time.get_unix_time_from_datetime_dict(GameData.date_of(night)) + 12 * 3600   # (`date_of` dá o meio-dia UTC)
+	return fposmod((t - NEW_MOON) / 86400.0, SYNODIC)
+
+
+## Quanto da lua está iluminado (0: nova, 1: cheia).
+func _moon_lit() -> float:
+	return (1.0 - cos(TAU * _moon_age() / SYNODIC)) / 2.0
+
+
+## Quanto a lua já subiu (0: nascendo atrás da igreja; 1: sumiu atrás da persiana).
+func _moon_t() -> float:
+	return clampf((minutes - MOON_RISE.x) / (MOON_RISE.y - MOON_RISE.x), 0.0, 1.0)
+
+
+## Onde a lua está agora: x em fração do vidro, y em fração do céu à vista (ver `MOON_RISE`).
+func _moon_at() -> Vector2:
+	var t := _moon_t()
+	return Vector2(_moon_x0 + MOON_DRIFT * t, lerpf(MOON_PATH.x, MOON_PATH.y, t))
+
+
+## A luz que a lua manda para a sala pela janela (0..1, em passos): a fase, as nuvens e se ela ainda está à vista.
+func _moon_glow() -> float:
+	if weather != "clear":
+		return 1.0
+	return snappedf(_moon_light() * _moon_lit() * smoothstep(MOON_PATH.y, MOON_PATH.y + 0.3, _moon_at().y), 0.05)
+
+
 ## A luz da lua agora (0..1): o quanto as nuvens a deixam aparecer, na noite limpa (as outras não têm lua).
 func _moon_light() -> float:
 	if weather != "clear":
 		return 1.0
 	var cover := 0.0
 	for c in _clouds:
-		var d := Vector2((_cloud_x(c) - MOON.x) / (0.16 * c.z), (c.y - MOON.y) / (0.09 * c.z)).length()
+		var d := ((Vector2(_cloud_x(c), c.y) - _moon_at()) / Vector2(0.16 * c.z, 0.09 * c.z)).length()
 		cover = maxf(cover, 1.0 - smoothstep(0.35, 1.0, d))
 	return snappedf(1.0 - cover * 0.85, 0.05)
 

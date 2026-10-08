@@ -102,7 +102,7 @@ const CAB_T := 1.15              ## a frente dele (escala): ~35 cm de fundo
 const SILL_D := 12.0        ## quanto o peitoril de dentro sai da parede para a sala
 const SHIFT_START := 18.0 * 60.0   ## o começo do turno (min do dia): o café da caneca está quente
 const STEAM_FOR := 210.0    ## em quantos minutos de jogo o café esfria e o vapor some (às 21h30)
-const BLIND := 0.3         ## até onde a persiana desce (fração da altura do vão)
+const BLIND := 0.12        ## até onde a persiana desce (fração da altura do vão)
 const X2 := Transform2D(Vector2(2, 0), Vector2(0, 2), Vector2.ZERO)   ## a escala dos px de 2x2 (`_sprite` volta a ela)
 
 @export var window: Control   ## a área das ferramentas: a quina e a janela ficam na parede dela
@@ -111,10 +111,8 @@ const X2 := Transform2D(Vector2(2, 0), Vector2(0, 2), Vector2.ZERO)   ## a escal
 @export var dust: Control     ## onde a poeira do feixe é desenhada: acima da mesa comutadora (que fica no ar, na frente dela) e abaixo do painel e dos menus
 @export var wall_art: Texture2D     ## imagem da parede (repetida), no lugar do desenho
 @export var window_art: Texture2D   ## imagem da vista da janela (esticada, de frente), no lugar da cidade desenhada
-# A sala muda ao longo das noites (o Main atualiza): os detalhes valendo (`RoomChange.detail`) e a noite (o calendário
-# do armário risca um dia por noite).
+# A sala muda ao longo das noites (o Main atualiza): os detalhes valendo (`RoomChange.detail`).
 var details := PackedStringArray()
-var night := 1
 var _dust: Control       # a poeira no feixe da luminária (`dust`): desenhada à parte, a 30 quadros por segundo, sem redesenhar a sala
 var _motes: Array = []   # os grãos: Vector3(x de -1 a 1 na largura da luz, y de 0 a 1 do alto da tela ao fundo do tampo, fase do brilho)
 var _cab_x0 := 0.0       # o armário na parede do fundo (x a partir do ponto de fuga, px de 2x2): o reflexo no vidro o espelha
@@ -224,7 +222,7 @@ func _process(delta: float) -> void:
 			_bolt_layer.queue_redraw()
 		_bolt_layer.visible = f > 0.0
 		_show()
-	var ov := [size, _paper(), lamp_level, _sign_on(), _moon_light(), _mist_force()]
+	var ov := [size, _paper(), lamp_level, _sign_on(), _moon_glow(), _mist_force()]
 	if ov != _over_drawn:   # (o papel deslizando entra aqui: o corte do brilho acompanha já neste quadro)
 		_over_drawn = ov
 		_over.queue_redraw()
@@ -654,7 +652,7 @@ func _draw_window_glow() -> void:
 		return
 	_ci.draw_set_transform(Vector2.ZERO)
 	var c := _bounds(_glass).get_center()
-	var strength: float = WINDOW_GLOW.a * {"clear": 1.0, "rain": 0.8, "fog": 1.2}.get(weather, 1.0) * lerpf(MOON_DIM, 1.0, _moon_light())
+	var strength: float = WINDOW_GLOW.a * {"clear": 1.0, "rain": 0.8, "fog": 1.2}.get(weather, 1.0) * lerpf(MOON_DIM, 1.0, _moon_glow())
 	_light_fan(c, _ring(c, WINDOW_GLOW_R), Color(WINDOW_GLOW, strength))
 	if _sign_px != Vector2.ZERO and _sign_on():
 		_light_fan(_sign_px, _ring(_sign_px, WINDOW_GLOW_R * 0.6), SIGN_GLOW)
@@ -896,7 +894,7 @@ func _back_state() -> Array:
 	if weather == "clear" and not _clouds.is_empty():
 		clouds = int(_cloud_x(_clouds[0]) * _vport.size.x)
 	return [_vport.size, _near, weather, window_art, int(minutes), flick, lamp_level > 0.5, snappedf(_flash(), 0.02),
-		_sign_on(), stars, clouds, _moon_light()]
+		_sign_on(), stars, clouds, _moon_light(), snappedf(minutes, 0.5) if weather == "clear" and _moon_t() < 1.0 else 0.0]   # (a lua subindo: meio minuto, ~0,6 px)
 
 
 ## À noite, com a sala acesa, o vidro reflete um pouco dela, por cima da cidade (e da silhueta, que fica atrás do
