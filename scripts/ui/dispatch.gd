@@ -1,11 +1,13 @@
 class_name Dispatch
 extends Control
-## Aba do mapa e despacho: o mapa da cidade ocupa a aba inteira (clicar na rua marca o local) e a ficha de despacho
-## fica por cima, à direita: marcar o local imprime um cartão perfurado (`PunchCard`), em que o jogador perfura o tipo
-## de ocorrência e as unidades (cada uma com o que a justifica, pelo protocolo; veja EmergencyCall.units), e o cartão
-## levado ao transmissor envia (ou à trituradora, descarta). O tipo não marca unidades: quem decide é a conversa. O cartão só mostra o que fica aqui
-## (`_location`, `_occurrence`, `_picked`). A ficha abre ao marcar um local ou quando chega uma emergência e se
-## recolhe depois do envio (`Open` a reabre); abrir ou fechar não mexe no mapa. O transmissor aceita cartão incompleto:
+## O mapa e despacho: a unidade de despacho da mesa vista de perto. Em cima, o mapa da cidade sob o vidro, na moldura
+## de metal (`PaperDeco`; clicar na rua marca o local); embaixo, a base com as três máquinas, sempre à vista
+## (`CardMachines`): marcar o local faz a impressora, no meio, soltar para cima um cartão perfurado (`PunchCard`), em que
+## o jogador perfura o tipo de ocorrência e as unidades (cada uma com o que a justifica, pelo protocolo; veja
+## EmergencyCall.units), e o cartão levado ao transmissor, à esquerda, envia (ou à trituradora, à direita, descarta). O
+## tipo não marca unidades: quem decide é a conversa. O cartão só mostra o que fica aqui (`_location`, `_occurrence`,
+## `_picked`). O mapa (`City`) fica no vidro: na cena, `CardMachines.BEZEL` dentro da beira do papel e acima da base
+## (`CardMachines.BASE_H`); as máquinas (`Slip`) cobrem o papel todo. O transmissor aceita cartão incompleto:
 ## sem unidade, ninguém sai (`blank_card`, o supervisor pune); sem tipo, as unidades vão e a chegada é avaliada com o
 ## tipo vazio. Depois do envio, tudo volta limpo para a próxima. As regras das viaturas e da emergência em andamento
 ## ficam no `Fleet` (`fleet`); aqui ficam a tela, o rádio e o tempo das viagens.
@@ -29,11 +31,9 @@ var fleet := Fleet.new()
 var _location := {}          ## {"street", "block", "label"} marcado no mapa
 var _occurrence := ""        ## tipo perfurado no cartão ("" = nenhum)
 var _picked: Array = []      ## unidades perfuradas no cartão
-var _open := false           ## a ficha aberta (fechando, ela some só quando as máquinas se recolhem)
 
 @onready var city: CityMap = %City
 @onready var machines: CardMachines = %Slip
-@onready var _slip: Control = %Slip
 @onready var _report: Label = %Report
 
 
@@ -42,12 +42,8 @@ func _ready() -> void:
 	machines.dispatch = self
 	machines.inserted.connect(_send)
 	machines.discarded.connect(_discard)
-	machines.closed.connect(_hide_slip)
-	%Open.pressed.connect(open_slip.bind(true))
-	%Close.pressed.connect(open_slip.bind(false))
+	city.bottom_inset = CardMachines.TONGUE_H + 4.0   # a tira de papel da impressora, subindo sobre o pé do mapa
 	resized.connect(_block)
-	_slip.visible = false   # começa recolhida: o mapa livre até a primeira ocorrência
-	%Open.visible = true
 	_refresh()
 
 
@@ -60,7 +56,6 @@ func _notification(what: int) -> void:
 ## Marca o local: sai um cartão novo, em branco. Com um cartão ainda na mesa (é preciso enviar ou triturar antes),
 ## a impressora recusa e o mapa volta a marcar o local do cartão que está lá.
 func set_location(street: String, block: int, label: String) -> void:
-	open_slip(true)
 	if not machines.print_card(label, GameData.street(street).block_sector(block) if GameData.street(street) != null else 0):
 		city.sel = _location.duplicate()
 		city.queue_redraw()
@@ -71,32 +66,12 @@ func set_location(street: String, block: int, label: String) -> void:
 	_refresh()
 
 
-## Abre ou recolhe a ficha de despacho: as máquinas entram (ou saem) animadas, e ela some depois (`_hide_slip`).
-func open_slip(on: bool) -> void:
-	if _open == on:
-		return
-	_open = on
-	if on:
-		_slip.visible = true
-		%Open.visible = false
-	machines.set_open(on)
-	Sfx.play("page")
-	_block()
-
-
-func _hide_slip() -> void:
-	if not _open:
-		_slip.visible = false
-		%Open.visible = true
-		_block()
-
-
-## Onde há botões por cima do mapa (nenhum nome de rua ali).
+## Onde há algo por cima do mapa (nenhum nome de rua ali): a faixa das viaturas.
 func _block() -> void:
 	if not is_node_ready():
 		return
 	var over: Array[Rect2] = []
-	for c: Control in [%Open, %Fleet]:
+	for c: Control in [%Fleet]:
 		if c.visible:
 			over.append(Rect2(c.get_global_rect().position - city.get_global_rect().position, c.size).grow(4.0))
 	city.blocked = over
@@ -123,10 +98,9 @@ func picked() -> Array:
 	return _picked
 
 
-## Uma emergência começou a tocar (`Fleet.set_incident`): a ficha abre.
+## Uma emergência começou a tocar (`Fleet.set_incident`).
 func set_incident(e: EmergencyCall, stage := 0) -> void:
 	fleet.set_incident(e, stage)
-	open_slip(true)
 
 
 ## Debug: todas as viaturas livres na hora (as que estavam a caminho não chegam mais) e nada marcado no despacho.
@@ -199,7 +173,7 @@ func _discard() -> void:
 	_refresh()
 
 
-## Limpo para a próxima emergência (local e tipo não ficam de uma para outra); a ficha se recolhe.
+## Limpo para a próxima emergência (local e tipo não ficam de uma para outra).
 func _clean() -> void:
 	_location = {}
 	_occurrence = ""
@@ -207,7 +181,6 @@ func _clean() -> void:
 	city.clear_selection()
 	machines.clear()
 	_refresh()
-	open_slip(false)
 
 
 ## Na chegada, o rádio diz o que encontraram; quem não era necessário volta logo, o resto depois de `STAY`.

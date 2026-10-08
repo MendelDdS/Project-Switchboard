@@ -126,7 +126,7 @@ func _ready() -> void:
 	dispatch.blank_card.connect(func(loc: String): supervisor.fault("dispatch_blank", loc))
 	notebook.registered.connect(supervisor.on_registered)
 	notebook.pending_changed.connect(func(n: int):
-		tools.set_count("caderno", n)
+		tools.set_pending(n)
 		background.pending = n
 		if n > 0:
 			_teach("viu_tiras_caderno", T.Key.HINT_DESK_SLIPS))
@@ -268,6 +268,8 @@ func _process(delta: float) -> void:
 		_nag()
 		supervisor.check_hold()
 	background.flick = flick
+	background.alert = not dispatch.fleet.incident.is_empty()   # o estado do despacho na unidade da mesa
+	background.card_out = not dispatch.machines.can_print()
 	var w := background.warm   # esquentando, o brilho é mais fraco e alaranjado (`Background.warm_up`)
 	_glow.modulate = Color(1.0, lerpf(WARM_TINT.g, 1.0, w), lerpf(WARM_TINT.b, 1.0, w), background.lamp_level * lerpf(WARM_TINT.a, 1.0, w))
 	tools.light = background.lamp_level

@@ -1,6 +1,6 @@
 class_name CityMap
 extends Control
-## Mapa em papel da cidade: uma folha por setor (bairro), todas com a mesma grade (3 ruas horizontais e 4 verticais).
+## Mapa em papel da cidade, aberto sob o vidro da unidade de despacho (sem dobras): uma folha por setor (bairro), todas com a mesma grade (3 ruas horizontais e 4 verticais).
 ## A Vila Serena (setor 3) fica no canto; as ruas dela continuam com o mesmo nome e a numeração seguindo no Centro (a
 ## leste) e no Alto da Serra (ao sul), e a zona rural (do setor 2) fecha o canto que sobra. Cada trecho de 100
 ## números é clicável. Só aparecem as folhas dos setores atendidos, e o mapa as enquadra. A roda do mouse aproxima e
@@ -18,15 +18,16 @@ const XS := MapGrid.XS
 const YS := MapGrid.YS
 const LM := MapGrid.LM
 const STATION := {
-	"pol": {"p": Vector2(780, 225), "c": Color("2d4f8a"), "l": Color("4e86e0")},
-	"bomb": {"p": Vector2(1060, 225), "c": Color("b8321f"), "l": Color("e04e3a")},
-	"amb": {"p": Vector2(920, 90), "c": Color("f4f0e4"), "l": Color("e04e3a")},
+	"pol": {"p": Vector2(780, 225)},
+	"bomb": {"p": Vector2(1060, 225)},
+	"amb": {"p": Vector2(920, 90)},
 }
 const UNIT_SPEED := 115.0   # px de mapa por segundo: do Centro à Vila Serena, cerca de 7 s
 const MIN_TRIP := 3.5       # s: a viagem mais curta
 const MAX_K := 1.2          # aproximação máxima (escala de desenho)
 const REVEAL_SEC := 2.5     # s: o mapa se abrindo para o bairro entregue na noite
 const DISTRICT := {1: T.Key.MAP_DISTRICT_1, 2: T.Key.MAP_DISTRICT_2, 3: T.Key.MAP_DISTRICT_3}
+var bottom_inset := 0.0   ## px no pé do mapa cobertos pelo que fica por cima dele (o `Dispatch` diz)
 const NAMES_K := 0.42       # abaixo desta escala, só os nomes dos bairros (a etiqueta do mouse diz a rua)
 const NUMBERS_K := 0.8      # a numeração dos trechos só com o mapa perto
 const PAPER := Pal.MAP_PAPER   # o papel, e as ruas são ele à mostra (como no mapa dobrado da mesa)
@@ -109,7 +110,8 @@ static func frame_of(sectors: Array) -> Rect2:
 
 func _fit_k() -> float:
 	var f := _frame()
-	return minf(size.x / f.size.x, size.y / f.size.y)
+	var seen := _seen().size
+	return minf(seen.x / f.size.x, seen.y / f.size.y)
 
 
 ## Escala e deslocamento da vista; o centro não sai do enquadramento.
@@ -125,9 +127,10 @@ func _view() -> void:
 	_off = seen / 2.0 - _center * _k
 
 
-## A parte do mapa à vista (a ficha de despacho fica por cima sem mexer no mapa).
+## A parte do mapa à vista: acima de `bottom_inset` (a tira de papel da impressora sobe por ali; o mapa enquadrado
+## inteiro acima dela, com o nome do bairro no pé da folha à vista).
 func _seen() -> Rect2:
-	return Rect2(Vector2.ZERO, size)
+	return Rect2(Vector2.ZERO, Vector2(size.x, maxf(1.0, size.y - bottom_inset)))
 
 
 ## Centro da vista num eixo: aproximado, anda só dentro do enquadramento; com sobra, fica no meio dele.
@@ -226,7 +229,8 @@ func trip(u: String, target: Dictionary) -> float:
 	return sec
 
 
-## A unidade volta do lugar onde está para a base, pelo mesmo caminho e sem a luz; devolve quantos segundos leva.
+## A unidade volta do lugar onde está para a base, pelo mesmo caminho; devolve quantos segundos leva. (As viaturas
+## não aparecem no mapa: de papel sob o vidro, ele não mostra nada andando; a viagem só conta o tempo.)
 func go_home(u: String) -> float:
 	for tr in trips:
 		if tr["u"] == u:
@@ -248,8 +252,6 @@ func _process(d: float) -> void:
 		_center = Vector2.INF   # acompanha o enquadramento enquanto ele abre
 		if _reveal >= 1.0:
 			_reveal = -1.0
-		queue_redraw()
-	elif trips.any(func(tr): return tr["t"] < tr["dur"]) and is_visible_in_tree():
 		queue_redraw()
 	for tr in trips:   # no tempo do jogo: para na pausa e acompanha a velocidade
 		tr["t"] = minf(tr["t"] + d, tr["dur"])
@@ -327,21 +329,12 @@ func _draw() -> void:
 		var m: Vector2 = g[2]
 		draw_rect(Rect2(m.x - 8, m.y - 8, 16, 16), Color.BLACK)
 		draw_rect(Rect2(m.x - 6, m.y - 6, 12, 12), Color("8e2a17"))
-	_draw_units()
 	_draw_names(_k >= NAMES_K)
 	if _reveal >= 0.0:   # o bairro entregue aparece aos poucos
 		for s in SHEETS:
 			if shown(s) and not SHEET_SECTOR[s] in _before:
 				draw_rect(Rect2(SHEETS[s], SHEET), Color(Pal.INK_SOFT, 1.0 - smoothstep(0.0, 1.0, _reveal)))
 	_use(Transform2D.IDENTITY)
-	# o mapa dobrado em sanfona, no papel e não nas folhas (aqui, e não no `PaperDeco`, que fica por cima de tudo, para
-	# a ficha de despacho e o cartão ficarem por cima): quatro painéis, os de número par um pouco na sombra, como no
-	# mapa da mesa, e os vincos
-	for k in [1, 3]:
-		draw_rect(Rect2(size.x * k / 4.0, 0, size.x / 4.0, size.y), Color(0, 0, 0, 0.035))
-	for k in [1, 2, 3]:
-		PaperDeco.crease(self, Vector2(size.x * k / 4.0, 0), Vector2(size.x * k / 4.0, size.y))
-	PaperDeco.crease(self, Vector2(0, size.y / 2.0), Vector2(size.x, size.y / 2.0))
 	# o selo, no canto da vista (o mesmo do mapa da mesa): a moldura vermelha, a rosa dos ventos e o nome da cidade
 	var seal := Rect2(_seen().end - Vector2(124, 40), Vector2(118, 34))
 	draw_rect(seal, Pal.SEAL)
@@ -580,31 +573,6 @@ func _draw_rural() -> void:
 static func field_rect(ci: int, ri: int) -> Rect2:
 	var p := Vector2(XS[ci] + 8.0, (YS[ri] if ri > 0 else 0.0) + 8.0)
 	return Rect2(p, Vector2(XS[ci + 1] - 8.0, YS[ri + 1] - 8.0) - p)
-
-
-func _draw_units() -> void:
-	for tr in trips:
-		var pts: PackedVector2Array = tr["pts"]
-		var k: float = tr["t"] / tr["dur"]
-		var tot := 0.0
-		for i in range(1, pts.size()):
-			tot += pts[i].distance_to(pts[i - 1])
-		var dist := k * tot
-		var p := pts[pts.size() - 1]
-		for i in range(1, pts.size()):
-			var sl := pts[i].distance_to(pts[i - 1])
-			if dist <= sl:
-				p = pts[i - 1].lerp(pts[i], dist / sl if sl > 0 else 0.0)
-				break
-			dist -= sl
-		if not SHEETS.keys().any(func(s): return shown(s) and Rect2(SHEETS[s], SHEET).has_point(p)):
-			continue   # ainda no Centro, que não aparece: entra pela borda do bairro
-		var st: Dictionary = STATION[tr["u"]]
-		var r := 7.0 / minf(_k, 1.0)   # do mesmo tamanho na tela, mesmo com o mapa afastado
-		draw_rect(Rect2(p.x - r, p.y - r, 2 * r, 2 * r), Color.BLACK)
-		draw_rect(Rect2(p.x - r * 5 / 7, p.y - r * 5 / 7, r * 10 / 7, r * 10 / 7), st["c"])
-		if k < 1.0 and not tr["back"] and fmod(tr["t"], 0.6) < 0.3:
-			draw_rect(Rect2(p.x - r * 2 / 7, p.y - r * 11 / 7, r * 4 / 7, r * 4 / 7), st["l"])
 
 
 ## Etiqueta de papel com o nome e a faixa de números do trecho sob o mouse ("Rua do Sol, 1–99"): mostra onde fica

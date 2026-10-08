@@ -194,6 +194,14 @@ const STEAM_FOR := 210.0    ## em quantos minutos de jogo o café esfria e o vap
 const BLIND := 0.3         ## até onde a persiana desce (fração da altura do vão)
 const X2 := Transform2D(Vector2(2, 0), Vector2(0, 2), Vector2.ZERO)   ## a escala dos px de 2x2 (`_sprite` volta a ela)
 const PROP_K := 93.0 / 66.0   ## a escala dos objetos da mesa: a mesma dos plugs, que cresceram até o tamanho das tomadas (antes, o plug ficava maior que o relógio e o caderno)
+## A unidade de despacho (`_draw_dispatch_unit`, na escala dos objetos, `PROP_K`): largura, altura da base e fundo da
+## base até o painel (fração do tampo); o painel: a altura acima da base, o quanto o alto dele recua (fração do tampo,
+## para ficar inclinado, de frente para os olhos) e o fundo do móvel todo (fração do tampo).
+const UNIT := Vector3(39, 6, 0.17)
+const BOOKS_SPAN := 40.0   ## o lugar das listas na fileira (na escala dos objetos): os 31 delas mais os volumes desencontrados e a lombada
+const UNIT_PANEL := 16.0
+const UNIT_TILT := 0.11
+const UNIT_D := 0.3
 const CLOCK := Vector3(24, 12.5, 14) * PROP_K   ## o relógio de flip da mesa: largura, altura e fundo (na escala da sala; ~15 × 8 × 9 cm, como as listas de 21 cm)
 ## Quanto ele está virado para os olhos do operador (1 = de frente para eles; 0 = reto, para a parede). Reto: virado
 ## pela metade (13°), a frente descia uns 5° entre as horizontais da sala e o lado, que mostra que é uma caixa, quase
@@ -238,6 +246,8 @@ var stranger := Vector2(INF, INF)   ## quando o homem do mistério para embaixo 
 # O estado do jogo nos objetos da mesa, para ler de relance sem abrir nada (o Main atualiza):
 var pending := 0     ## registros esperando no caderno: uma tira de papel saindo dele por registro
 var unread := false  ## o registro das conversas tem fala nova: uma folha nova presa na prancheta
+var alert := false     ## há uma emergência em andamento: a luz vermelha da unidade de despacho (o Main atualiza)
+var card_out := false  ## há um cartão perfurado na mesa: ele sai da fenda da impressora da unidade, com a luz âmbar
 var news := false    ## o jornal da manhã está na mesa (da segunda noite em diante; `Main.set_news`)
 # A sala muda ao longo das noites (o Main atualiza): os detalhes valendo (`RoomChange.detail`) e a noite (o calendário
 # do armário risca um dia por noite).
@@ -483,7 +493,7 @@ func _show() -> void:
 ## luminária e o estado do jogo nos objetos.
 func _state() -> Array:
 	return [size, board.get_global_rect() if board else Rect2(), desk.get_global_rect() if desk else Rect2(),
-		window.get_global_rect() if window else Rect2(), lamp_level, pending, unread, news, details, night, weather,
+		window.get_global_rect() if window else Rect2(), lamp_level, pending, unread, alert, card_out, news, details, night, weather,
 		TranslationServer.get_locale()]
 
 
@@ -2684,8 +2694,9 @@ func _draw_desk_props() -> void:
 	draw_set_transform(Vector2.ZERO)
 	# em duas fileiras, distribuídas de ponta a ponta entre a lateral da mesa comutadora e a parede da direita (a
 	# mesma folga entre eles, em qualquer largura de janela: presos a uma ponta só, sobrava mesa vazia na outra, e
-	# presos a pontas diferentes, eles se trombavam). Atrás: listas, caderno e o relógio com a caneca na frente dele;
-	# na frente: mapa, prancheta e o lugar do jornal (guardado mesmo sem ele, para nada mudar de lugar entre as noites).
+	# presos a pontas diferentes, eles se trombavam). Atrás, o que é alto: a unidade de despacho, o caderno e o relógio
+	# com a caneca na frente dele; na frente: prancheta, listas (fora da frente da unidade, para não tampar as fendas
+	# dela) e o lugar do jornal (guardado mesmo sem ele, para nada mudar de lugar entre as noites).
 	# Todos em `PROP_K`, a escala dos plugs da mesa comutadora (que seguem as tomadas)
 	var l := _side_x + 8.0
 	var r := _cx - _vp.x - WALL_PAD   # a parede da direita é o plano x = quina (na escala da parede do fundo)
@@ -2693,17 +2704,17 @@ func _draw_desk_props() -> void:
 	var cw := CLOCK.x + 2.0   # o relógio, meio virado, ocupa um pouco mais que a largura dele
 	var mr := 6.6 * k         # a caneca, na frente do relógio, encostada na ponta direita dele
 	# (maiores, e com a prancheta funda, eles se encostavam e a mesa parecia apertada)
-	var back := _row(l, r, [31.0 * k, 46.0 * k, cw + mr])
-	var near := _row(l + 6.0, r, [35.0 * k, 26.0 * k, 32.0 * k])
-	_draw_books(back[0], _at(0.54), 31 * k, _deep(0.3 * k))
-	_flat("caderno", back[1], _at(0.56), 46 * k, _deep(0.26 * k), 2 * k, Color("3a2414"), _art_notebook, [], deg_to_rad(-2.0), _notebook_marks)
+	# (a fileira de trás começa encostada na lateral da mesa comutadora; as listas ocupam mais que a largura delas,
+	# com os volumes desencontrados, `BOOKS_SPAN`: sem isso, o relógio encostava na pilha)
+	var back := _row(_side_x + 2.0, r, [UNIT.x * k, BOOKS_SPAN * k, cw + mr])
+	var near := _row(l + 6.0, r, [26.0 * k, 46.0 * k, 32.0 * k])
+	_draw_dispatch_unit(back[0], _at(0.5), UNIT.x * k)
+	_draw_books(back[1], _at(0.54), 31 * k, _deep(0.3 * k))
+	_flat("caderno", near[1], _at(0.08), 46 * k, _deep(0.26 * k), 2 * k, Color("3a2414"), _art_notebook, [], deg_to_rad(-2.0), _notebook_marks)
 	_draw_flip_clock(back[2] + cw / 2.0, _at(0.72))   # logo atrás da caneca (desenhado antes dela)
 	_draw_mug(back[2] + cw, _at(0.46), mr, 13 * k)   # mais larga que alta, como as esmaltadas
 	# papel tem 1 px de beira, e a prancheta, uns 2 (mais grossos, pareciam tábuas)
-	var city := CityMap.frame_of(GameData.sectors)   # o mapa tem a proporção das folhas dos bairros atendidos
-	_flat("despacho", near[0], _at(0.06), 35 * k, 35 * k * city.size.y / city.size.x, 0.5, Color("a89a76"), _art_map,
-		[GameData.sectors.duplicate()], deg_to_rad(3.0), _map_pin)
-	_flat("registro", near[1], _at(0.05), 26 * k, _deep(0.26 * k), 1.0, Color("4a3018"), _art_clipboard, [unread], deg_to_rad(-4.0),
+	_flat("registro", near[0], _at(0.05), 26 * k, _deep(0.26 * k), 1.0, Color("4a3018"), _art_clipboard, [unread], deg_to_rad(-4.0),
 		_clipboard_print)
 	if news:
 		_flat("jornal", near[2], _at(0.07), 32 * k, _deep(0.19 * k), 0.5, Color("a89c78"), _art_newspaper, [], deg_to_rad(6.0),
@@ -3411,11 +3422,11 @@ func _art_book_cover(sz: Vector2i, c: Color) -> Image:
 	return img
 
 
-## O mapa da cidade dobrado em sanfona, aberto na mesa: o mapa aberto (`CityMap`) em miniatura, com as mesmas folhas
-## (as dos bairros atendidos, enquadradas como ele abre; o papel tem a proporção delas, `_draw_desk_props`), os
-## quarteirões no tom de cada bairro com as casas em volta e as árvores dos quintais (`CityMap.lots`), os lugares de
-## telhado de barro, a praça com os caminhos e o coreto, a zona rural, as divisas, o selo vermelho e as dobras da
-## sanfona alternando luz e sombra. Os nomes ficam de fora: nesse tamanho, seriam só ruído.
+## O mapa da cidade sob o vidro da unidade de despacho (`_art_glass`): o mapa aberto (`CityMap`) em miniatura, com as
+## mesmas folhas (as dos bairros atendidos, enquadradas como ele abre; o papel tem a proporção delas), os quarteirões no
+## tom de cada bairro com as casas em volta e as árvores dos quintais (`CityMap.lots`), os lugares de telhado de barro,
+## a praça com os caminhos e o coreto, a zona rural, as divisas e o selo vermelho. Os nomes ficam de fora: nesse
+## tamanho, seriam só ruído.
 func _art_map(sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
 	img.fill(Pal.MAP_PAPER)   # o papel, e as ruas são ele à mostra
@@ -3491,25 +3502,150 @@ func _art_map(sz: Vector2i) -> Image:
 	_fr(img, sp.x + 1, sp.y + 1, sw - 2, sh - 2, Pal.MAP_PAPER)
 	_fr(img, sp.x + 3, sp.y + 2, 1, sh - 4, CityMap.LINE)
 	_fr(img, sp.x + roundi(sw * 0.35), sp.y + sh / 2, roundi(sw * 0.55), 1, CityMap.LINE)
-	var pw := sz.x / 4   # as dobras: quatro painéis em sanfona, um virado para a luz e o outro não, e o vinco do meio
-	for k in [1, 3]:
-		for y in sz.y:
-			for x in range(k * pw, mini(sz.x, (k + 1) * pw)):
-				img.set_pixel(x, y, img.get_pixel(x, y).darkened(0.14))
-	for x in sz.x:
-		img.set_pixel(x, sz.y / 2, img.get_pixel(x, sz.y / 2).darkened(0.08))
-	for k in [1, 2, 3]:
-		_fr(img, k * pw - (1 if k != 2 else 0), 0, 1, sz.y, Color("f0e6c8") if k == 2 else Color("8a7c5a"))
-	_fr(img, 0, sz.y - 1, sz.x, 1, Color("8a7c5a"))   # a beira de baixo do papel
 	return img
 
 
-## O alfinete do mapa no local marcado, por cima do mapa, na tela: a cabeça redonda vista de cima (torta, serrilhava).
-## Parado: piscando e brilhando com uma emergência em andamento, não fazia sentido (um alfinete não acende).
-func _map_pin(sz: Vector2i) -> void:
-	var sp := _tex_pt(Vector2(sz.x * 0.7, sz.y * 0.42)).round()
-	_sprite(PixelArt.disc(6, [[3.0, Color(0, 0, 0, 0.35)]]), sp + Vector2(2, 2))
-	_sprite(PixelArt.disc(6, [[1.2, Color("f0a090")], [3.0, Color("e07060"), Color("b03a2e"), Color("7a2418")]]), sp)
+## A unidade de despacho, que abre o despacho (`x0`, a frente em `zf`, `wx` de largura; medidas em `UNIT`): um móvel
+## de metal no material das máquinas da ficha (`Pal.PANEL`), como um terminal antigo. Embaixo, a base, com as três
+## máquinas embutidas no tampo, na mesma disposição do despacho aberto (`_art_deck`: o transmissor à esquerda, a
+## impressora no meio e o triturador à direita) e, na frente, a plaqueta de latão e as luzes; em
+## cima, atrás, o painel inclinado com o mapa de papel sob o vidro (`_art_glass`). O estado do
+## jogo nela: a luz vermelha com uma emergência em andamento (`alert`) e o cartão saindo da impressora enquanto há um
+## na mesa (`card_out`), com a luz âmbar.
+func _draw_dispatch_unit(x0: float, zf: float, wx: float) -> void:
+	var k := PROP_K
+	var x1 := x0 + wx
+	var dd := _deep(UNIT.z * k)   # o fundo da base até o painel
+	var zb := zf + dd
+	var zt := zb + _deep(UNIT_TILT * k)   # o alto do vidro, mais para trás
+	var ze := zf + _deep(UNIT_D * k)   # o fundo do móvel
+	var yd := _yd - UNIT.y * k   # o tampo da base
+	var yt := yd - UNIT_PANEL * k   # o alto do painel
+	_desk_shadow(PackedVector2Array([_p3(x0, _yd, ze), _p3(x1, _yd, ze), _p3(x1, _yd, zf), _p3(x0, _yd, zf)]))
+	var dark := _shade(x0 + wx / 2.0, (zf + ze) / 2.0)
+	var all := PackedVector2Array()
+	var sx := x0 if x0 > 0.0 else x1   # o lado virado para o ponto de fuga (atravessando-o, nenhum)
+	if x0 > 0.0 or x1 < 0.0:
+		var base := PackedVector2Array([_p3(sx, yd, ze), _p3(sx, yd, zf), _p3(sx, _yd, zf), _p3(sx, _yd, ze)])
+		_poly(base, Pal.PANEL_LO.darkened(dark))
+		var side := PackedVector2Array([_p3(sx, yt, zt), _p3(sx, yt, ze), _p3(sx, yd, ze), _p3(sx, yd, zb)])
+		_poly(side, Pal.PANEL_LO.lightened(0.04).darkened(dark))
+		all.append_array(base + side)
+	var top := PackedVector2Array([_p3(x0, yt, ze), _p3(x1, yt, ze), _p3(x1, yt, zt), _p3(x0, yt, zt)])   # o alto do painel
+	_poly(top, Pal.PANEL_HI.darkened(dark))
+	_dim(top, [Vector2(x0, ze), Vector2(x1, ze), Vector2(x1, zt), Vector2(x0, zt)])
+	var glass := PackedVector2Array([_p3(x0, yt, zt), _p3(x1, yt, zt), _p3(x1, yd, zb), _p3(x0, yd, zb)])
+	_flat_art("despacho_vidro", glass, _art_glass, [GameData.sectors.duplicate()], dark)
+	var deck := PackedVector2Array([_p3(x0, yd, zb), _p3(x1, yd, zb), _p3(x1, yd, zf), _p3(x0, yd, zf)])
+	_flat_art("despacho_base", deck, _art_deck, [], dark)
+	if card_out:   # o cartão saindo da fenda da impressora, no meio, para trás (para cima do vidro)
+		var sz := _hom_sz
+		var card := PackedVector2Array([_tex_pt(sz * Vector2(0.38, 0.0)), _tex_pt(sz * Vector2(0.62, 0.0)),
+			_tex_pt(sz * Vector2(0.62, 0.46)), _tex_pt(sz * Vector2(0.38, 0.46))])
+		_poly(card, PunchCard.CARD.darkened(dark))
+		_pixel_line(_tex_pt(sz * Vector2(0.39, 0.15)), _tex_pt(sz * Vector2(0.61, 0.15)), [Pal.FORM_RED.darkened(dark)])
+	var front := Rect2(_p3(x0, yd, zf).round(), Vector2.ZERO).expand(_p3(x1, _yd, zf).round())   # a frente da base
+	draw_rect(front, Pal.PANEL.darkened(dark))
+	draw_rect(Rect2(front.position, Vector2(front.size.x, 1)), Pal.PANEL_HI.darkened(dark))
+	draw_rect(Rect2(front.position.x, front.end.y - 1, front.size.x, 1), Pal.EDGE)
+	var mid := front.position.y + floorf(front.size.y / 2.0)
+	var plate := Rect2(front.position.x + roundf(front.size.x * 0.36), mid - 2, roundf(front.size.x * 0.28), 4)
+	draw_rect(plate, Pal.BRASS.darkened(0.25 + dark))   # a plaqueta do fabricante
+	draw_rect(plate.grow(-1), Pal.BRASS.darkened(dark))
+	for i in 3:   # a saída de ar, à direita
+		draw_rect(Rect2(front.end.x - roundf(front.size.x * 0.22), mid - 2 + i * 2, roundf(front.size.x * 0.16), 1), Pal.PANEL_LO)
+	for l: Array in [[0.06, alert, Pal.RED], [0.14, card_out, Pal.AMBER]]:   # as luzes: ocorrência e cartão na mesa
+		var lr := Rect2(front.position.x + roundf(front.size.x * l[0]), mid - 1, 3, 3)
+		draw_rect(lr.grow(1), Pal.EDGE)
+		draw_rect(lr, l[2] if l[1] else (l[2] as Color).darkened(0.75))
+		if l[1]:
+			_light(lr, l[2], 0.6, true)
+	all.append_array(top + glass + deck)
+	all.append_array(PackedVector2Array([front.position, front.end, Vector2(front.position.x, front.end.y)]))
+	_props["despacho"] = _bounds(all)
+	_occ.append(Geometry2D.convex_hull(all))
+
+
+## O desenho de frente `art` (com `key`) posto no quadrilátero `q` da tela pixel a pixel (`_project`), escurecido
+## `dark` longe da luz; deixa `_hom` dele para o que vai por cima (`_tex_pt`).
+func _flat_art(id: String, q: PackedVector2Array, art: Callable, key: Array, dark: float) -> void:
+	var sz := Vector2i(_top_xf(q)[1])
+	if sz.x < 8 or sz.y < 3:   # (a tela ainda se arrumando)
+		return
+	_hom = _homography(q)
+	_hom_sz = Vector2(sz)
+	_project([id, sz, key], art, q, sz)
+	if dark > 0.0:
+		_poly(q, Color(0, 0, 0, dark))
+
+
+## O tampo da base da unidade de despacho, de cima (o alto do desenho é o fundo): a chapa com a beira clara e as três
+## fendas lado a lado, como no despacho aberto (`CardMachines`): o transmissor à esquerda, com as marcas âmbar, a
+## impressora no meio e o triturador à direita, com as faixas de perigo.
+func _art_deck(sz: Vector2i) -> Image:
+	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
+	img.fill(Pal.PANEL)
+	_fr(img, 0, 0, sz.x, 1, Pal.PANEL_HI)
+	_fr(img, 0, sz.y - 1, sz.x, 1, Pal.PANEL_HI)
+	var slot := func(x: float, y: float, w: float) -> Vector2i:   # uma fenda: o lábio e o escuro de dentro
+		var a := Vector2i(roundi(x * sz.x), roundi(y * sz.y))
+		var n := roundi(w * sz.x)
+		_fr(img, a.x - 1, a.y - 1, n + 2, 3, Pal.PANEL_LO)
+		_fr(img, a.x, a.y, n, 1, Pal.EDGE)
+		_fr(img, a.x - 1, a.y + 2, n + 2, 1, Pal.PANEL_HI)
+		return a
+	var tx: Vector2i = slot.call(0.05, 0.45, 0.27)   # o transmissor
+	_fr(img, tx.x, tx.y + 3, 2, 1, Pal.AMBER)
+	_fr(img, tx.x + roundi(0.27 * sz.x) - 2, tx.y + 3, 2, 1, Pal.AMBER)
+	slot.call(0.365, 0.45, 0.27)   # a impressora
+	var sh: Vector2i = slot.call(0.68, 0.45, 0.27)   # o triturador
+	for i in range(0, roundi(0.27 * sz.x), 4):
+		_fr(img, sh.x + i, sh.y + 3, 2, 1, CardMachines.HAZARD)
+	return img
+
+
+## O painel da unidade de despacho, de frente: a moldura de metal e, sob o vidro, o mapa de papel (`_art_map`, na
+## proporção das folhas, com papel em volta; um pouco mais escuro perto da moldura), a sombra da moldura no alto e o
+## reflexo do vidro na diagonal. Papel sob a luz da sala, não uma tela acesa.
+func _art_glass(sz: Vector2i) -> Image:
+	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
+	img.fill(Pal.PANEL)
+	_fr(img, 0, 0, sz.x, 1, Pal.PANEL_HI)
+	_fr(img, 0, 0, 1, sz.y, Pal.PANEL_HI)
+	_fr(img, sz.x - 1, 0, 1, sz.y, Pal.PANEL_LO)
+	var inner := _glass_inner(sz)
+	if inner.size.x < 4 or inner.size.y < 4:
+		return img
+	var paper := Image.create(inner.size.x, inner.size.y, false, Image.FORMAT_RGBA8)
+	paper.fill(Pal.MAP_PAPER)
+	var at := _glass_map(sz)
+	paper.blit_rect(_art_map(at.size), Rect2i(Vector2i.ZERO, at.size), at.position - inner.position)
+	for y in inner.size.y:
+		for x in inner.size.x:
+			var d := Vector2((x + 0.5) / inner.size.x - 0.5, (y + 0.5) / inner.size.y - 0.5).length() * 2.0
+			var c := paper.get_pixel(x, y).darkened(0.12 + 0.2 * d * d)   # o papel atrás do vidro, mais escuro na moldura
+			if absf((x - inner.size.x * 0.25) - (inner.size.y - y) * 0.8) < inner.size.x * 0.06:   # o reflexo do vidro
+				c = c.lightened(0.08)
+			img.set_pixel(inner.position.x + x, inner.position.y + y, c)
+	for x in inner.size.x:   # a sombra da moldura no alto do vidro
+		var c := img.get_pixel(inner.position.x + x, inner.position.y)
+		img.set_pixel(inner.position.x + x, inner.position.y, c.darkened(0.35))
+	return img
+
+
+## O vidro dentro da moldura do painel da unidade de despacho (`_art_glass` de `sz` px).
+func _glass_inner(sz: Vector2i) -> Rect2i:
+	var m := maxi(2, roundi(sz.x * 0.05))
+	return Rect2i(m, m, sz.x - m * 2, sz.y - m * 2)
+
+
+## Onde fica o mapa no painel da unidade de despacho (px do desenho de `sz`): no meio do vidro, na proporção das folhas.
+func _glass_map(sz: Vector2i) -> Rect2i:
+	var inner := _glass_inner(sz)
+	var fr := CityMap.frame_of(GameData.sectors)
+	var fit := minf(float(inner.size.x) / fr.size.x, float(inner.size.y) / fr.size.y)
+	var msz := Vector2i(maxi(1, floori(fr.size.x * fit) - 2), maxi(1, floori(fr.size.y * fit) - 2))
+	return Rect2i(inner.position + (inner.size - msz) / 2, msz)
 
 
 ## O caderno de ocorrências aberto: a capa de couro com a beira gasta, duas páginas creme (não brancas: chamavam mais o

@@ -11,9 +11,12 @@ extends Control
 ## As partes do formulário: o tipo de ocorrência (um só) e as unidades.
 enum Part { TYPE, UNIT }
 
-const W := 216.0
-const ROW := 19.0
-const CELL := Vector2(10, 14)
+## Do tamanho para caber no vidro do despacho e na fenda das máquinas (`CardMachines`): o mais estreito em que cabem o
+## tipo mais longo ("Accidente de tránsito") e o protocolo em duas linhas.
+const W := 176.0
+const ROW := 16.0
+const CELL := Vector2(10, 12)
+const TEXT_X := 24.0                   # onde começa o texto de cada posição, à direita do quadradinho
 const CARD := Color("e9dcb4")
 const CARD_EDGE := Color("a8966b")
 const FORM := Color("8a2a1c")          # o formulário vem impresso na tinta vermelha das emergências (o carimbo do caderno)
@@ -26,8 +29,8 @@ const SHADOW_HELD := Vector2(9, 12)    # ...e erguido, na mão (como o plug da m
 const HELD_SCALE := 1.06               # na mão, o cartão chega perto dos olhos (maior)...
 const LIFT_SEC := 0.1                  # ...nesse tempo; solto, cai na mesa nesse outro, acelerando
 const DROP_SEC := 0.2
-const TOP := 82.0                      # o cabeçalho: faixa, local, bairro e setor, fio duplo
-const FOOT := 22.0                     # o rodapé: fio e o nome da central
+const TOP := 72.0                      # o cabeçalho: faixa, local, bairro e setor, fio duplo
+const FOOT := 18.0                     # o rodapé: fio e o nome da central
 const CHAD_SEC := 0.45                 # o picote caindo
 
 var dispatch: Dispatch
@@ -124,19 +127,19 @@ func _layout() -> void:
 	_rules.clear()
 	var y := TOP
 	_heads[Part.TYPE] = y
-	y += 20.0
+	y += 18.0
 	for o in GameData.CONTENT.occurrences:
-		cells.append({"box": Rect2(Vector2(10, y), CELL), "part": Part.TYPE, "id": o, "row": Rect2(4, y - 3.0, W - 8.0, ROW)})
+		cells.append({"box": Rect2(Vector2(8, y), CELL), "part": Part.TYPE, "id": o, "row": Rect2(4, y - 2.0, W - 8.0, ROW)})
 		y += ROW
 		_rules.append(y - 3.0)
-	y += 6.0
+	y += 4.0
 	_heads[Part.UNIT] = y
-	y += 20.0
+	y += 18.0
 	for u in Fleet.IDS:
 		var top := y
-		y += 16.0 + Pal.ui.get_multiline_string_size(_why(u), HORIZONTAL_ALIGNMENT_LEFT, W - 36.0, 11).y + 4.0
-		cells.append({"box": Rect2(Vector2(10, top), CELL), "part": Part.UNIT, "id": u, "row": Rect2(4, top - 3.0, W - 8.0, y - top)})
-		_rules.append(y - 3.0)
+		y += 14.0 + Pal.ui.get_multiline_string_size(_why(u), HORIZONTAL_ALIGNMENT_LEFT, W - TEXT_X - 4.0, 11).y + 2.0
+		cells.append({"box": Rect2(Vector2(8, top), CELL), "part": Part.UNIT, "id": u, "row": Rect2(4, top - 2.0, W - 8.0, y - top)})
+		_rules.append(y - 2.0)
 	size = Vector2(W, y + FOOT)
 	queue_redraw()
 	var rng := RandomNumberGenerator.new()
@@ -180,44 +183,44 @@ func _draw() -> void:
 		draw_rect(Rect2(sp, Vector2(2 if int(sp.x) % 3 == 0 else 1, 1)), CARD.darkened(0.1))
 	# cabeçalho: a faixa impressa, o local e o bairro datilografados em linhas de preencher
 	draw_colored_polygon(PackedVector2Array([Vector2(10, 0), Vector2(W, 0), Vector2(W, 18), Vector2(0, 18), Vector2(0, 10)]), FORM)
-	write(self, Vector2(14, 13), T.text(T.Key.CARD_TITLE), CARD)
-	write(self, Vector2(14, 13), T.text(T.Key.CARD_SERIAL) % serial, CARD, W - 22.0, HORIZONTAL_ALIGNMENT_RIGHT)
-	write(self, Vector2(10, 32), T.text(T.Key.CARD_PLACE), FORM)
-	var box := Rect2(W - 21.0, 22.0, 11, 12)   # o setor, datilografado numa caixinha à direita
+	write(self, Vector2(12, 13), T.text(T.Key.CARD_TITLE), CARD)
+	write(self, Vector2(12, 13), T.text(T.Key.CARD_SERIAL) % serial, CARD, W - 18.0, HORIZONTAL_ALIGNMENT_RIGHT)
+	write(self, Vector2(8, 30), T.text(T.Key.CARD_PLACE), FORM)
+	var box := Rect2(W - 19.0, 20.0, 11, 12)   # o setor, datilografado numa caixinha à direita
 	draw_rect(box, FORM, false, 1.0)
-	write(self, Vector2(box.position.x, 32), str(sector), Pal.INK, box.size.x, HORIZONTAL_ALIGNMENT_CENTER)
-	write(self, Vector2(10, 32), T.text(T.Key.CARD_SECTOR), FORM, box.position.x - 15.0, HORIZONTAL_ALIGNMENT_RIGHT)
-	write(self, Vector2(10, 47), place, Pal.INK)
-	_field(10.0, 50.0)
+	write(self, Vector2(box.position.x, 30), str(sector), Pal.INK, box.size.x, HORIZONTAL_ALIGNMENT_CENTER)
+	write(self, Vector2(8, 30), T.text(T.Key.CARD_SECTOR), FORM, box.position.x - 13.0, HORIZONTAL_ALIGNMENT_RIGHT)
+	write(self, Vector2(8, 43), place, Pal.INK)
+	_field(8.0, 46.0)
 	var label := T.text(T.Key.CARD_DISTRICT)
-	var at := 16.0 + Pal.ui.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
-	write(self, Vector2(10, 66), label, FORM)
-	write(self, Vector2(at, 66), T.text(CityMap.DISTRICT[sector]).to_upper(), Pal.INK)
-	_field(at, 69.0)
+	var at := 14.0 + Pal.ui.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
+	write(self, Vector2(8, 59), label, FORM)
+	write(self, Vector2(at, 59), T.text(CityMap.DISTRICT[sector]).to_upper(), Pal.INK)
+	_field(at, 62.0)
 	draw_rect(Rect2(6, TOP - 7.0, W - 12.0, 1), FORM)   # fio duplo
 	draw_rect(Rect2(6, TOP - 5.0, W - 12.0, 1), FORM)
 	# as partes: título com a caixinha (um X datilografado quando perfurada) e a pauta entre as linhas
 	var heads := {Part.TYPE: [dispatch.occurrence() != "", T.Key.DISPATCH_CHECK_TYPE], Part.UNIT: [not dispatch.picked().is_empty(), T.Key.DISPATCH_CHECK_UNITS]}
 	for part in heads:
 		var y: float = _heads[part]
-		write(self, Vector2(10, y + 11.0), T.text(heads[part][1]).to_upper(), FORM)
-		var check := Rect2(W - 21.0, y + 1.0, 11, 11)
+		write(self, Vector2(8, y + 11.0), T.text(heads[part][1]).to_upper(), FORM)
+		var check := Rect2(W - 19.0, y + 1.0, 11, 11)
 		draw_rect(check, FORM, false, 1.0)
 		if heads[part][0]:
 			write(self, Vector2(check.position.x, check.position.y + 10.0), "X", Pal.INK, check.size.x, HORIZONTAL_ALIGNMENT_CENTER)
-		draw_rect(Rect2(10, y + 15.0, W - 20.0, 1), Color(FORM, 0.5))
+		draw_rect(Rect2(8, y + 14.0, W - 16.0, 1), Color(FORM, 0.5))
 	if not _hover.is_empty() and _can_punch(_hover):
 		draw_rect(_hover["row"], Color(Pal.AMBER, 0.16))   # a linha que vai ser perfurada
 	for y in _rules:
-		draw_rect(Rect2(28, y, W - 38.0, 1), RULE)
+		draw_rect(Rect2(TEXT_X, y, W - TEXT_X - 8.0, 1), RULE)
 	var count := {Part.TYPE: 0, Part.UNIT: 0}   # cada parte numera as suas posições: 1, 2, 3...
 	for c in cells:
 		count[c["part"]] += 1
 		_draw_cell(c, count[c["part"]])
 	# rodapé: o fio, o nome da central e as marcas de coluna na borda, como nos cartões perfurados
-	var foot := size.y - FOOT + 4.0
+	var foot := size.y - FOOT + 3.0
 	draw_rect(Rect2(6, foot, W - 12.0, 1), FORM)
-	write(self, Vector2(0, foot + 12.0), T.text(T.Key.GAME_TITLE).to_upper(), Color(FORM, 0.8), W, HORIZONTAL_ALIGNMENT_CENTER)
+	write(self, Vector2(0, foot + 11.0), T.text(T.Key.GAME_TITLE).to_upper(), Color(FORM, 0.8), W, HORIZONTAL_ALIGNMENT_CENTER)
 	for x in range(6, int(W) - 4, 6):
 		draw_rect(Rect2(x, size.y - 3.0, 1, 2), Color(FORM, 0.35))
 	shape.append(shape[0])
@@ -246,16 +249,16 @@ func _draw_cell(c: Dictionary, n: int) -> void:
 	else:
 		draw_rect(r, Color(FORM, 0.08))
 		draw_rect(r, FORM, false, 1.0)
-		write(self, Vector2(r.position.x, r.position.y + 11.0), str(n), Color(FORM, 1.0 if _can_punch(c) else 0.3),
+		write(self, Vector2(r.position.x, r.position.y + 10.0), str(n), Color(FORM, 1.0 if _can_punch(c) else 0.3),
 			r.size.x, HORIZONTAL_ALIGNMENT_CENTER)
-	var at := Vector2(r.end.x + 8.0, r.position.y + 11.0)
+	var at := Vector2(TEXT_X, r.position.y + 10.0)
 	if c["part"] == Part.TYPE:
-		write(self, at, tr(id), Pal.INK, W - 36.0)
+		write(self, at, tr(id), Pal.INK, W - TEXT_X - 4.0)
 		return
-	write(self, at, T.text(Fleet.NAMES[id]), MISSING if busy else Pal.INK, W - 36.0)
+	write(self, at, T.text(Fleet.NAMES[id]), MISSING if busy else Pal.INK, W - TEXT_X - 4.0)
 	if busy:   # ocupada: riscada, e o estado no lugar do protocolo
 		draw_line(r.position, r.end, Pal.INK, 1.0)
 		draw_line(Vector2(r.position.x, r.end.y), Vector2(r.end.x, r.position.y), Pal.INK, 1.0)
-		write(self, at + Vector2(0, 14), T.text(Fleet.STATUS[dispatch.fleet.units[id]]), MISSING, W - 36.0)
+		write(self, at + Vector2(0, 13), T.text(Fleet.STATUS[dispatch.fleet.units[id]]), MISSING, W - TEXT_X - 4.0)
 		return
-	draw_multiline_string(Pal.mono, (at + Vector2(0, 14)).round(), _why(id), HORIZONTAL_ALIGNMENT_LEFT, W - 36.0, 11, -1, Pal.INK_SOFT)
+	draw_multiline_string(Pal.mono, (at + Vector2(0, 13)).round(), _why(id), HORIZONTAL_ALIGNMENT_LEFT, W - TEXT_X - 4.0, 11, -1, Pal.INK_SOFT)

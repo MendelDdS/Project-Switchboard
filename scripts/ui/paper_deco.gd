@@ -4,9 +4,9 @@ extends Control
 ## cima, na faixa da margem do papel e nos materiais do objeto (`Pal`): a lista é um livro (a capa de papelão mostarda
 ## com o grão e o friso, como a da mesa, e a sombra da lombada), o caderno é um livro-ata de capa de couro, com as tiras
 ## dos registros pendentes saindo de cima (`pending`), o registro fica preso na prancheta (a tábua, o prendedor
-## niquelado e o cabeçalho datilografado com o fio vermelho, como as folhas da mesa) e o jornal tem o vinco do meio. Os
-## vincos do mapa dobrado são do próprio `CityMap`: daqui, por cima de tudo, passavam por cima das máquinas e do cartão
-## da ficha de despacho. Por cima de tudo, a luz da luminária (`light`, `_draw_light`).
+## niquelado e o cabeçalho datilografado com o fio vermelho, como as folhas da mesa), o jornal tem o vinco do meio e o
+## despacho é a unidade de despacho de perto (a moldura do vidro e a base com as máquinas são do `CardMachines`, por baixo
+## do cartão, que pode passar por cima delas). Por cima de tudo, a luz da luminária (`light`, `_draw_light`).
 
 const COVER := 7     ## a largura da capa em volta do papel, na lista e no caderno (px)
 const BOARD_W := 10  ## a da tábua da prancheta

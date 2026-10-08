@@ -11,7 +11,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - **Interface em cenas** (`scenes/`), com Containers; scripts de interface em `scripts/ui/`. Lógica em `scripts/`.
   Estilo visual no tema global `themes/main_theme.tres` (variações de tipo: `GreenButton`, `AmberButton`,
   `RedButton`, `InkButton`, `DarkButton`, `ChoiceButton`, `HudPanel`, `GreenKey`, `AmberKey`, `RedKey` (teclas do console:
-  `KeyCapStyle`, um StyleBox em script, `scripts/ui/key_cap_style.gd`), `TabButton`, `PaperToggle`, `PaperInk`, `LetterButton`,
+  `KeyCapStyle`, um StyleBox em script, `scripts/ui/key_cap_style.gd`), `PaperToggle`, `PaperInk`, `LetterButton`,
   `DarkPanel`, `PaperPanel`, `NotePanel`, `FormPanel`, `SlipPanel`, `InkLabel`, `InkSoftLabel`, `DimLabel`, `AmberLabel`,
   `MonoLabel`, `InkMonoLabel`, `TapedNote`/`TapedLabel`: papel preso com fita, `TapedPaperStyle`). Prefira variação de tema a override por nó.
 - Nomes de pessoas e lugares na ordem natural, "Nome Sobrenome" (nunca "Sobrenome, Nome"); a lista telefônica
@@ -175,13 +175,13 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   próprio: a mesa (z 1) desenha o plug e o fio puxados para baixo por cima dela, como faz com o painel de baixo (com z
   1, eles passavam por trás da miniatura, a pedido saiu). A coluna da
   direita (cresce com a largura) tem a dica do manual no alto (`%Hint`, um papel datilografado colado com fita na parede, `TapedLabel`, com "MANUAL" carimbado em vermelho; sem dica, o papel some mas o lugar fica; no pé, ela ficava em
-  cima dos objetos da mesa) e as ferramentas (`Tools`: abas em cima e, no `%Body`, o papel da ferramenta aberta; guardadas, a
-  janela aparece). O papel sai do objeto da ferramenta na mesa (`Tools.origin` = `Background.prop_rect`: pequeno, em
+  cima dos objetos da mesa) e as ferramentas (`Tools`: no `%Body`, o papel da ferramenta aberta; guardadas, a
+  janela aparece; sem abas, a pedido: repetiam os objetos da mesa e tomavam 40 px de altura do papel). O papel sai do objeto da ferramenta na mesa (`Tools.origin` = `Background.prop_rect`: pequeno, em
   cima dele, e cresce até o lugar; ao guardar, volta), tem a forma e o material do objeto (`PaperDeco`, a moldura em pixel art guardada por
   tamanho, `_cover`: a capa de papelão mostarda da lista com o grão e o friso, como a da mesa; a capa de couro do caderno, com as
   tiras dos registros pendentes saindo de cima, `pending`; a tábua da prancheta com o prendedor niquelado, `_clip`, e o cabeçalho
-  datilografado com o fio vermelho, `HEAD_Y`/`CallLog.HEAD`; o vinco do jornal; a sanfona e os vincos do mapa são do próprio
-  `CityMap`, para ficarem abaixo da ficha de despacho), o papel na cor do objeto (`Tools.PAPER`, a aba aberta junto) e a luz
+  datilografado com o fio vermelho, `HEAD_Y`/`CallLog.HEAD`; o vinco do jornal; no despacho, nada: a moldura de metal da unidade em volta do vidro
+  do mapa e a base das máquinas são do `CardMachines`, por baixo do cartão), o papel na cor do objeto (`Tools.PAPER`) e a luz
   da luminária por cima, lisa, mais clara perto dela e escurecendo quando ela pisca (`PaperDeco.light`, `LIGHT_*`; o Main
   passa `Tools.light`); as abas de índice da lista são tiras de papel como as que marcam páginas nas listas da mesa
   (creme; a aberta, vermelha) e o caderno tem a pauta e a margem do caderno da mesa. Aberto, o cenário atrás escurece e ganha a sombra dele (a mesa comutadora e o painel não). Embaixo de tudo, na
@@ -240,15 +240,18 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   clique só vale sobre eles e não com papel por cima): listas telefônicas (1: três volumes desencontrados, a lombada com os filetes dourados e a etiqueta do volume,
   o miolo com as folhas em linhas finas, posto pixel a pixel como a capa, `_art_pages`, mais sujo junto das capas, e tiras
   de papel marcando páginas; a capa de cima com o título dourado em
-  baixo-relevo, o fone da companhia, a etiqueta com o ano, a marca de uma caneca e a ponta dobrada, `_art_book_cover`), mapa dobrado em sanfona (2: o mapa aberto em miniatura, `_art_map`, com as mesmas
-  folhas, as dos bairros atendidos, e o papel na proporção delas: quarteirões no tom do bairro, casas e árvores, lugares
-  de telhado de barro, praça, zona rural, divisas, o selo e as dobras em luz e sombra; sem nomes, que nesse tamanho
-  seriam ruído), caderno aberto (3) e
+  baixo-relevo, o fone da companhia, a etiqueta com o ano, a marca de uma caneca e a ponta dobrada, `_art_book_cover`), a unidade de despacho (2: `_draw_dispatch_unit`, `UNIT*`: um móvel de metal no
+  material das máquinas da ficha, como um terminal antigo; embaixo, a base com as três máquinas no tampo, na disposição
+  da ficha aberta, `_art_deck`, e na frente a plaqueta e as luzes; em cima, o painel inclinado com o mapa de papel sob
+  o vidro, `_art_glass`: o mapa aberto em miniatura, `_art_map`, com as mesmas folhas, as dos bairros atendidos, na
+  proporção delas: quarteirões no tom do bairro, casas e árvores, lugares de telhado de barro, praça, zona rural,
+  divisas e o selo; sem nomes, que nesse tamanho seriam ruído; papel sob a luz da sala, não tela acesa, a pedido),
+  caderno aberto (3) e
   prancheta do registro (4), mais a caneca, postos por fração da profundidade do tampo (`_at`, `_deep`: ficam no
   tampo seja qual for a câmera) e, na largura, a partir da lateral da mesa comutadora (`_side_x`), em duas fileiras
-  com folga entre eles: atrás, listas, caderno e o relógio de flip com a caneca na frente dele; na frente,
-  mapa, prancheta e jornal (numa tela mais larga, a folga sobra perto da janela). **Cada um fica num lugar da sala e passa pela câmera** (`_draw_desk_props`:
-  tamanho, escorço e o lado que aparece saem da conta; `_box` dá os cantos; nos objetos chatos (caderno, mapa,
+  com folga entre eles: atrás, o que é alto: a unidade de despacho, as listas e o relógio de flip com a caneca na
+  frente dele; na frente, o que é chato: prancheta, caderno e jornal (as listas na frente tampavam o caderno inteiro) (numa tela mais larga, a folga sobra perto da janela). **Cada um fica num lugar da sala e passa pela câmera** (`_draw_desk_props`:
+  tamanho, escorço e o lado que aparece saem da conta; `_box` dá os cantos; nos objetos chatos (caderno,
   prancheta, jornal e a capa da lista de cima), `_flat` desenha o tampo de frente numa imagem do tamanho que ele tem na
   tela, `_top_xf`, e `_project` o põe na perspectiva pixel a pixel pela homografia, `_homography`, como a frente do
   relógio, guardado até o desenho mudar; torto por transformação, o desenho esticava e entortava os pixels, uma linha
@@ -274,8 +277,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`lamp_level`, como o arco na parede e a luz no armário). **O estado do jogo nos objetos**, para ler de relance: uma
   tira de papel saindo do caderno por registro pendente (`pending`) e uma folha nova na
   prancheta quando uma conversa termina com o registro guardado (`unread`; `CallLog.filed`/`unread_changed`, o Main
-  chama `filed` em `end_call`). (O alfinete do mapa piscava e brilhava com uma emergência em andamento; saiu a pedido:
-  um alfinete não acende. Ele fica parado no mapa, e a emergência é avisada pelo rádio.) **Jornal da manhã** (da segunda noite em diante): o jornal dobrado na mesa (`news`,
+  chama `filed` em `end_call`); na unidade de despacho, a luz vermelha com uma emergência em andamento (`alert`) e,
+  com um cartão perfurado na mesa, a luz âmbar e o cartão saindo da fenda da impressora (`card_out`; o Main atualiza
+  os dois a cada quadro). (O alfinete do mapa dobrado, que piscava com emergência, saiu com ele.) **Jornal da manhã** (da segunda noite em diante): o jornal dobrado na mesa (`news`,
   `Main.set_news`) abre a primeira página na área das ferramentas (`NewsView`, `Tools.news`, id "jornal", sem aba) com
   as manchetes da noite anterior; `ShiftReport.news()` sorteia a manchete de cada emergência uma vez (o relatório do
   fim da noite e o jornal dizem a mesma; `headline` traduz na hora) e o `Progress` a guarda (`news`). A página é a do jornal da mesa de perto
@@ -333,9 +337,7 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   asfalto: sombra de contato, facho dos faróis no chão, lado,
   teto e capô vistos um pouco de cima, a frente ou a traseira virada para nós. O brilho da luz de cima (`%Glow`, centrado no alto, liso) fica dentro da tela do cenário, logo depois do
   `Background`: ilumina a sala, não a interface; acompanha o tremor dela. **Para trocar por PNG**: `wall_art`, `window_art` e `desk_art` entram no lugar do desenho daquela camada
-  (o clima continua por cima da janela). Guardadas, as abas das ferramentas somem (os objetos da mesa já dizem o
-  mesmo; o espaço delas fica, para nada pular); com uma aberta, as abas de papel (`TabButton`) aparecem junto com o
-  papel, para trocar de ferramenta. O caderno da mesa mostra o selo dos registros pendentes (`Background.pending`). Nos testes, o clique num objeto da
+  (o clima continua por cima da janela). As ferramentas não têm abas: abrem pelos objetos da mesa ou pelas teclas 1 a 4. O caderno da mesa mostra o selo dos registros pendentes (`Background.pending`). Nos testes, o clique num objeto da
   mesa é `background.pointer(evento)`.
 - **Bloom das luzes** (`Bloom`, `scripts/ui/bloom.gd`, nó `Bloom` do Main, z 2: acima da mesa e dos painéis, abaixo dos
   menus), no estilo do glow de cinema e em pixel art: halo somado à tela (blend ADD) em duas camadas (curta e forte,
@@ -381,7 +383,7 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   tecla baixa, em relevo, num poço no meio do espaço embaixo dela (`KeyCapStyle`, `WELL_H`; as margens de conteúdo põem
   o nome no tampo). Ferramentas: ações `tab_directory`/`tab_dispatch`/`tab_logbook`/`tab_call_log` (1 a 4),
   tratadas em `Main._unhandled_input` só durante o turno (`Main.TAB_KEYS`, `Tools.toggle`: a tecla da ferramenta aberta a
-  guarda; Esc também guarda, antes de pausar); o número fica no canto da aba. No código, `Tools.set_tab(id)` abre.
+  guarda; Esc também guarda, antes de pausar). No código, `Tools.set_tab(id)` abre.
 - **Pausa e configurações**: `PauseMenu` (`scenes/ui/pause_menu.tscn`, z 4, `process_mode` ALWAYS) usa
   `get_tree().paused`. **Todo `create_timer` do jogo leva `false` no 2º argumento** (senão continua contando na pausa);
   o `Sfx` roda sempre (ambiente segue, abafado: `Sfx.muffle`, um passa-baixa e um ganho no Master, `MUFFLE`; nas
@@ -688,20 +690,24 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   direto para o livro com o carimbo `TYPE_MISSED`, sem escolher tipo).
   O caderno registra com **um clique no tipo** (`register(T.Key.TYPE_*)`: Comum, Emergência, Trote; o resto da linha
   vem do `record`), mostra a pendente numa ficha só de leitura e desenha o livro como página pautada (`_draw_page`,
-  carimbo colorido por tipo, `STAMPS`). A aba mostra quantas faltam (`pending_changed(count)` → `Tools.set_count`,
-  selo `BadgeLabel`); o jogo não troca de aba sozinho.
-- Despacho: **mapa e despacho numa aba só** (`Dispatch`, `scenes/ui/dispatch.tscn`; não existe mais aba Mapa nem
-  `MapView`): o `CityMap` (`%City`) ocupa a aba inteira (passa por baixo da margem do papel); clicar no trecho já marca
+  carimbo colorido por tipo, `STAMPS`). As tiras do caderno (na mesa e no aberto) mostram quantas faltam
+  (`pending_changed(count)` → `Background.pending`, `Tools.set_pending`); o jogo não troca de ferramenta sozinho.
+- Despacho: **a unidade de despacho da mesa vista de perto** (`Dispatch`, `scenes/ui/dispatch.tscn`; mapa e despacho
+  numa ferramenta só): em cima, o `CityMap` (`%City`) sob o vidro, dentro da moldura de metal (`CardMachines._draw_bezel`;
+  na cena, `CardMachines.BEZEL` dentro da beira do papel e acima da base); clicar no trecho já marca
   o local (`segment_selected` → `set_location`); passar o mouse mostra uma etiqueta com a faixa de números do trecho
-  (`CityMap._tag`, "Rua do Sol, 1–99"). Por cima, a **ficha de despacho** como objeto (`%Slip`, `CardMachines`, `Dispatch.machines`, cobre o mapa com fundo
-  transparente: o clique fora da máquina e do cartão vai para o mapa, `_has_point`; abrir ou fechar não mexe no mapa):
-  três máquinas de metal (`_box`: sombra, parafusos, saídas de ar): a impressora (canto de cima, à direita;
-  desce quando a ficha abre e sobe quando fecha, com o × junto; o × só aparece sem cartão: com um, a ficha sai
-  enviando ou triturando), a
-  trituradora (embaixo dela, na borda de baixo) e o transmissor (canto de baixo à esquerda); as duas de baixo sobem
-  quando o cartão sai impresso e descem quando não há cartão. Fechar a
-  ficha espera as máquinas se recolherem (`set_open`, `closed` → `Dispatch._hide_slip`). Marcar o local faz a impressora datilografar (`typing`, o local aparece na tira de papel) e imprimir
-  (`printer`, saindo sem parar) um **cartão perfurado** com local, bairro e setor, que sai pela fenda. O cartão é um formulário: impresso na tinta
+  (`CityMap._tag`, "Rua do Sol, 1–99"). Embaixo, a **base com as três máquinas**, sempre à vista (`%Slip`, `CardMachines`,
+  `Dispatch.machines`, cobre o papel todo com fundo transparente: o clique fora da base e do cartão vai para o mapa,
+  `_has_point`; `BASE_H`), lado a lado como na base da miniatura (`Background._art_deck`), cada uma numa caixa de metal
+  (`_box`: sombra, parafusos, placa de latão, luz e saída de ar), com a fenda da largura do cartão (`_mouth_x`): o
+  transmissor à esquerda, a impressora no meio e a trituradora à direita, afastadas (com a impressora logo acima da
+  trituradora, o cartão solto ali mesmo era triturado; antes, a ficha abria e fechava por cima do mapa, com as máquinas
+  entrando pelas bordas, o × e o botão de reabrir: saíram com a base fixa). O cartão tem `PunchCard.W` = 176 px (o mais estreito em que cabem o tipo
+  mais longo e o protocolo em duas linhas; espaçamentos justos, `ROW`, `TOP`, `FOOT`, `TEXT_X`, e o número sem "Nº"
+  para caber ao lado do título) e as fendas são rasgos finos (`_mouth`). Marcar o local faz a impressora datilografar (`typing`, o local aparece na tira de papel saindo da fenda) e imprimir
+  (`printer`, saindo sem parar) um **cartão perfurado** com local, bairro e setor, que sobe pela fenda dela para cima do
+  vidro e fica em pé nela (`_rest`); ele anda livre pela unidade toda, por cima da moldura e das máquinas, até a
+  borda de baixo (`_clamp`). O cartão é um formulário: impresso na tinta
   vermelha das emergências (`FORM`, a do carimbo do caderno: faixa com o número, rótulos, posições de furo, fio duplo,
   rodapé com o nome da central, marcas de coluna na borda) com os dados datilografados em preto sobre linhas
   pontilhadas, pauta como a do caderno, fibras no papel e sombra na mesa (na mão ele sobe: cresce `HELD_SCALE` em volta de onde foi pego e a sombra se afasta; solto, cai acelerando, `DROP_SEC`; parado, escala 1 exata para o texto ficar nítido). O jogador perfura
@@ -723,20 +729,18 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   (`scripts/ui/punch_card.gd`: formulário, posições de furo em `cells` como {box, part (`PunchCard.Part`), id, row}, `fill`, desenho), nó filho das máquinas (`card`), que só
   usam dele `size`, `held`, `click(p)` (perfura; o som `punch` é das máquinas), `point(p)` (realce) e `cursor(p)`: um
   segundo tipo de cartão responde o mesmo. Ele fica numa janela
-  que recorta (`_window`): saindo, só aparece abaixo da fenda da impressora; entrando, só acima da fenda da máquina (`_into`, `CardMachines.Machine`). Os
+  que recorta (`_window`): saindo da impressora ou entrando numa máquina, só aparece acima da fenda (`_into`, `CardMachines.Machine`). Os
   furos são a vista dos dados do `Dispatch` (`_location`, `_occurrence`, `_picked`; `set_occurrence`, `punch_unit`),
-  que os testes e o robô usam direto. A ficha abre ao marcar um local ou quando chega uma emergência (`open_slip`), se
-  recolhe depois do envio e o × a fecha; fechada, o botão `%Open` a reabre. `CityMap.blocked`: onde há botões por cima
-  (abrir ficha, `%Fleet`), sem nomes de rua. `%Fleet` (canto de cima à esquerda, só com viatura fora) mostra o estado delas
+  que os testes e o robô usam direto. `CityMap.blocked`: onde há algo por cima
+  (`%Fleet`), sem nomes de rua. `%Fleet` (canto de cima à esquerda, só com viatura fora) mostra o estado delas
   (`%Report`). O tipo **não** marca unidades: a conversa decide, pelo protocolo (regras em `EmergencyCall.units`).
   `EmergencyCall.cases` (`EmergencyCase`): variações sorteadas por `GameData.with_case()` (respostas + unidades).
   Depois de enviar, local, tipo e unidades voltam limpos (`city.clear_selection`). Abrir a aba toca o papel
-  desenrolando (`unroll`). **O desenho do mapa** é o do mapa dobrado da mesa, de perto: as ruas são o papel entre os
+  desenrolando (`unroll`). **O desenho do mapa** é o do mapa sob o vidro da unidade de despacho, de perto: as ruas são o papel entre os
   quarteirões (`Pal.MAP_PAPER`; sem contorno), cada bairro no seu tom (`Pal.MAP_TINTS`), as casas em volta das quadras, de
   frente para as ruas e com o telhado de duas águas, e os quintais com árvores no meio (`_houses`, `_tree`), os lugares
-  num prédio de telhado de barro (`Pal.MAP_LANDMARK`), a praça verde com caminhos, árvores e o coreto (`_draw_square`), a
-  sanfona em quatro painéis com os vincos e o selo vermelho com a rosa dos ventos e o nome da cidade (`CITY`, `Pal.SEAL`).
-  O mapa da mesa (`Background._art_map`) é este em miniatura e usa as mesmas peças (`frame_of`, `block_rect`, `lots`,
+  num prédio de telhado de barro (`Pal.MAP_LANDMARK`), a praça verde com caminhos, árvores e o coreto (`_draw_square`) e o selo vermelho com a rosa dos ventos e o nome da cidade (`CITY`, `Pal.SEAL`).
+  O mapa da unidade de despacho (`Background._art_map`) é este em miniatura (os dois sem dobras: aberto sob o vidro) e usa as mesmas peças (`frame_of`, `block_rect`, `lots`,
   `square_paths`/`square_trees`, `field_rect`, `RIVER`, `ROADS_*`, `BORDERS` e as cores `Pal.MAP_*`): mudou uma, mudam as duas.
   **Cidade em folhas** (`CityMap.SHEETS`, 600×440 cada: Vila Serena (setor 3) | Centro (1)
   em cima, Alto da Serra (2) | zona rural (do 2) embaixo), todas com a mesma grade. **Rua que continua tem o mesmo nome
@@ -754,7 +758,9 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   de `NAMES_K`, só os bairros, no meio da folha. Delegacia, bombeiros e hospital
   no Centro (`STATION`); a viagem dura pela distância (`trip` devolve os segundos, `UNIT_SPEED`, `MIN_TRIP`; anda no tempo do jogo,
   `trips[i]["t"]`, parando na pausa) e o despacho espera a mais demorada. Depois de um tempo no local (`Dispatch._return`,
-  `STAY`), a viatura volta para a base pelo mesmo caminho, sem a luz (`CityMap.go_home`), e só fica disponível quando chega.
+  `STAY`), a viatura volta para a base pelo mesmo caminho (`CityMap.go_home`), e só fica disponível quando chega. As viaturas
+  não aparecem em nenhum dos mapas (testado e saiu, a pedido: num mapa de papel sob o vidro, um pontinho andando dava
+  impressão de monitor); a viagem só conta o tempo (`trips`), e quem está fora aparece na faixa `%Fleet`.
   Quem não era necessária (a mais, endereço errado ou nada lá) volta logo depois de o rádio dizer isso (`Radio.said`,
   `QUICK_STAY`), ou no máximo `QUICK_WAIT` s depois de chegar se o rádio ainda estiver ocupado. Emergências escritas e moldes só nas ruas dos setores atendidos.
   **Regras das viaturas no `Fleet`** (`scripts/model/fleet.gd`, `Dispatch.fleet`; sem tela nem tempo, testado direto no
@@ -1135,6 +1141,22 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
     lua, o arbusto balança em rajadas, o vidro embaça nos cantos e as
     gotas do vidro fazem manchinhas de sombra na luz da rua na mesa. O semáforo do cruzamento foi testado e saiu. Ficaram de fora a pedido: chaminés (raras no
     Brasil), o vento na fresta, o prédio estalando e o grão de filme; a sirene das viaturas fica para depois.
+87. As máquinas do despacho (impressora, triturador e transmissor) não apareciam em lugar nenhum da sala: o mapa
+    dobrado deu lugar a uma unidade de despacho na mesa, como um terminal antigo, com as três máquinas na base e o mapa
+    de papel aberto sob o vidro no painel (um monitor foi descartado: fora de época e o mapa é de papel). As listas
+    ficaram atrás, ao lado dela, e o caderno veio para a frente (as listas na frente o tampavam).
+88. O despacho aberto passou a ser a unidade de despacho de perto: o mapa sob o vidro na moldura de metal (sem a
+    sanfona) e, embaixo, a base fixa com as três máquinas lado a lado, como na miniatura: transmissor à esquerda,
+    impressora no meio (o cartão sobe dela para cima do vidro) e trituradora à direita. Antes o cartão saía da
+    impressora logo acima da trituradora e, solto ali, era triturado. A ficha deixou de abrir e fechar (o × e o botão de
+    reabrir saíram). As abas das ferramentas saíram, a pedido, para o papel ganhar altura: abrem pelos objetos da mesa
+    e pelas teclas 1 a 4. Ficaram de fora: a área de descanso do cartão, a fenda só pela mão, a confirmação no
+    triturador e o desfazer do arraste. Depois: o cartão menor (176 px) e as fendas finas, o cartão livre até a borda
+    de baixo (por cima das máquinas), a moldura do vidro sem o fio de baixo (riscava a tira da impressora) e, na mesa,
+    a unidade e as listas mais para a esquerda (o relógio encostava na pilha, `BOOKS_SPAN`; conferido pelos limites
+    na tela, não só pela captura). Por fim: as luzes de emergência e de cartão e a plaqueta numa faixa embaixo das
+    máquinas (`CardMachines._draw_strip`, `STRIP`, como na frente da miniatura) e o mapa enquadrado acima da tira da
+    impressora (`CityMap.bottom_inset`), com o nome do bairro à vista.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

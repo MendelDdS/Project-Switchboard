@@ -419,7 +419,7 @@ func _initialize() -> void:
 	var before: int = nb.queue.size()
 	nb.register(T.Key.TYPE_COMMON)
 	ok(nb.queue.size() == before - 1 and nb.has_pending(), "registrou uma, a próxima veio da fila")
-	ok(m.tools.find_child("Count", true, false).text == str(nb.pending_count()), "a aba do caderno mostra quantas faltam")
+	ok(m.background.pending == nb.pending_count(), "o caderno da mesa mostra quantas faltam")
 	ok(nb.entries.back()["type"] == T.Key.TYPE_COMMON, "registrada com o tipo do clique")
 	# as ocorrências chegaram com a aba fechada: aberta, a página do livro ocupa toda a área (com e sem a ficha)
 	m.tools.set_tab("caderno")
@@ -727,12 +727,12 @@ func _initialize() -> void:
 	m.ring(kc)
 	_move(0, kc.line)
 	await frames(2)
-	var tab: Button = m.find_child("TabDespacho", true, false)
-	tab.focus_mode = Control.FOCUS_ALL
-	tab.grab_focus()   # Espaço não pode apertar o botão em foco no lugar de atender
+	var other := Button.new()   # um botão qualquer da interface
+	m.add_child(other)
+	other.grab_focus()   # Espaço não pode apertar o botão em foco no lugar de atender
 	_key(KEY_SPACE)
 	ok(await wait_until(func(): return not kc.ringing, 5.0), "Espaço atende (mesmo com um botão em foco)")
-	tab.release_focus()
+	other.queue_free()
 	ok(await wait_until(_awaiting(kc)), "pedido feito")
 	var field := LineEdit.new()   # um campo de texto qualquer com foco fica com as teclas
 	m.add_child(field)
@@ -804,19 +804,17 @@ func _initialize() -> void:
 	var d := m.dispatch
 	var card := d.machines
 	m.tools.set_tab("despacho")
-	d.open_slip(false)
 	await frames(2)
-	ok(not d._slip.visible and d.get_node("%Open").visible, "ficha recolhida")
 	d.set_occurrence("")
 	ok(not d.can_send(), "despacho vazio não envia")
 	var spot: Vector2 = d.city._off + Vector2(300, 220) * d.city._k   # um ponto do mapa, na tela
 	d.set_location("sol", 0, "Rua do Sol, 1–99")
 	await frames(2)
-	ok(d._slip.visible, "marcar o local abre a ficha por cima do mapa")
-	ok((d.city._off + Vector2(300, 220) * d.city._k).distance_to(spot) < 1.0, "o mapa não pula quando a ficha abre")
+	ok((d.city._off + Vector2(300, 220) * d.city._k).distance_to(spot) < 1.0, "o mapa não pula quando o cartão sai")
 	ok(card.state == card.State.TYPING and card.card.sector == 3, "marcar o local datilografa o cartão, com o setor")
-	ok(await wait_until(func(): return card.state == card.State.READY, 5.0) and card._pos == card._rest(), "o cartão sai impresso, pendurado na fenda")
-	ok(not d.get_node("%Close").visible, "com cartão na mesa, a ficha não fecha (sem ×)")
+	ok(await wait_until(func(): return card.state == card.State.READY, 5.0) and card._pos == card._rest(), "o cartão sai impresso, em pé na fenda da impressora")
+	ok(card._rest().x > card._mouth_x(0) + card.CARD_W / 3.0 and card._rest().x < card._mouth_x(2) - card.CARD_W / 3.0,
+		"a impressora fica entre o transmissor e a trituradora, longe das duas fendas")
 	var cell := func(id: String) -> Vector2:
 		for c in card.card.cells:
 			if c["id"] == id:
@@ -828,7 +826,6 @@ func _initialize() -> void:
 		_mouse(card, at + to - card._pos)
 		_mouse(card, at + to - card._pos, 0)
 	var slot := func(machine: CardMachines.Machine) -> Vector2:   # o canto do cartão com a borda de baixo na fenda da máquina
-		await wait_until(func(): return card._up >= 1.0, 2.0)   # as máquinas terminam de subir
 		return Vector2(card._machine(machine).get_center().x - card.CARD_W / 2.0, card._slot(machine) - card.card.size.y + 8.0)
 	drag.call(await slot.call(card.Machine.SEND))
 	ok(card.state == card.State.FEEDING, "cartão em branco também entra no cartucho")
@@ -839,19 +836,21 @@ func _initialize() -> void:
 	d.set_location("comercio", 0, "Rua do Comércio, 1–99")
 	ok(card._refused >= 0.0 and card.serial() == 2 and d._location["label"] == "Rua do Sol, 1–99" and d.city.sel["label"] == "Rua do Sol, 1–99",
 		"com um cartão na mesa, a impressora recusa outro e o mapa volta ao local dele")
-	var table: Vector2 = card._pos + Vector2(-300, 40)
+	var table: Vector2 = card._pos + Vector2(-120, -2)
 	drag.call(table)
-	ok(card.state == card.State.READY and card._pos == table, "solto na mesa, o cartão fica onde está")
-	drag.call(Vector2(-500, 9000))
-	ok(card._pos.x == 0.0 and card._pos.y + card.card.size.y <= card.size.y, "o cartão não sai do mapa")
+	ok(card.state == card.State.READY and card._pos == table, "solto entre as máquinas, rente à base, o cartão fica onde está")
+	drag.call(Vector2(9000, -9000))
+	ok(card.state == card.State.READY and card._pos == Vector2(card.size.x - card.CARD_W, 0),
+		"o cartão não sai da unidade (e, longe da fenda, não entra na trituradora embaixo dele)")
+	drag.call(Vector2(card._mouth_x(1), 9000))
+	ok(card.state == card.State.READY and card._pos.y + card.card.size.y == card.size.y,
+		"o cartão vai até a borda de baixo, por cima das máquinas (na impressora, fica)")
 	_click(card, cell.call("Outro"))
 	var faults: int = m.report.faults.size()
 	drag.call(await slot.call(card.Machine.SHRED))
 	ok(card.state == card.State.FEEDING and card._into == card.Machine.SHRED, "solto na trituradora, ela puxa o cartão")
 	ok(await wait_until(func(): return card.state == card.State.IDLE, 3.0) and d._location.is_empty() and d.occurrence() == ""
-		and d._slip.visible and m.report.faults.size() == faults, "triturado: nada sai, sem advertência, a impressora espera outro local")
-	await frames(1)
-	ok(d.get_node("%Close").visible, "sem cartão, o × volta")
+		and m.report.faults.size() == faults, "triturado: nada sai, sem advertência, a impressora espera outro local")
 	d.set_location("sol", 0, "Rua do Sol, 1–99")
 	ok(await wait_until(func(): return card.state == card.State.READY, 5.0), "mais um cartão")
 	_click(card, cell.call("Incêndio"))
@@ -861,10 +860,10 @@ func _initialize() -> void:
 	var row: Vector2 = cell.call("amb") + Vector2(120, 20)   # no protocolo, longe do quadradinho
 	var held: Vector2 = card._pos
 	_mouse(card, row, 1)   # apertar na linha e arrastar move o cartão sem perfurar
-	_mouse(card, row + Vector2(-40, 30))
-	_mouse(card, row + Vector2(-40, 30), 0)
-	ok(d.picked().is_empty() and card._pos == held + Vector2(-40, 30), "arrastar pela linha move o cartão, sem perfurar")
-	row += Vector2(-40, 30)
+	_mouse(card, row + Vector2(-40, -2))
+	_mouse(card, row + Vector2(-40, -2), 0)
+	ok(d.picked().is_empty() and card._pos == held + Vector2(-40, -2), "arrastar pela linha move o cartão, sem perfurar")
+	row += Vector2(-40, -2)
 	_click(card, row)
 	ok(d.can_send() and d.picked() == ["amb"], "local, tipo e unidade perfurados (clicando em qualquer ponto da linha)")
 	drag.call(await slot.call(card.Machine.SEND))
@@ -872,8 +871,6 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return d._location.is_empty(), 3.0), "o cartão no cartucho envia")
 	ok(d.occurrence() == "" and d.picked().is_empty() and d.city.sel.is_empty() and card.state == card.State.IDLE, "depois de enviar, local e tipo limpos")
 	ok(not d.fleet.is_free("amb"), "ambulância a caminho fica indisponível")
-	ok(d._slip.visible and card._up < 1.0, "depois de enviar, as máquinas se recolhem animadas...")
-	ok(await wait_until(func(): return not d._slip.visible, 3.0) and d.get_node("%Open").visible, "...e a ficha some")
 	await frames(2)
 	ok(d.get_node("%Fleet").visible and d.get_node("%Report").text.contains(T.text(T.Key.UNIT_AMBULANCE)), "a faixa das viaturas mostra quem saiu")
 	m.tools.set_tab("lista")

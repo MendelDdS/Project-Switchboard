@@ -224,9 +224,9 @@ MAP_DISTRICT_3,Vila Serena,Vila Serena,Vila Serena
 HINT_NEW_BANK,"Os números que começam com %d ficam no banco %s, aberto hoje.","Numbers starting with %d are on bank %s, opened tonight.","Los números que empiezan con %d están en el banco %s, abierto hoy."
 DISPATCH_CHECK_TYPE,Ocorrência,Incident,Incidente
 DISPATCH_CHECK_UNITS,Unidades,Units,Unidades
-CARD_PRINTER,DESPACHO,DISPATCH,DESPACHO
+CARD_PRINTER,IMPRESSORA,PRINTER,IMPRESORA
 CARD_TITLE,FICHA DE DESPACHO,DISPATCH CARD,FICHA DE DESPACHO
-CARD_SERIAL,Nº %04d,No. %04d,N.º %04d
+CARD_SERIAL,%04d,%04d,%04d
 CARD_PLACE,LOCAL,LOCATION,LUGAR
 CARD_DISTRICT,BAIRRO,DISTRICT,BARRIO
 CARD_SECTOR,SETOR,SECTOR,SECTOR
