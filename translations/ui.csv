@@ -130,7 +130,16 @@ HINT_CHECK_LIST,Consulte a lista. Confira o nome e o endereço.,Check the direct
 HINT_REGISTER,Registre a ocorrência no caderno.,Log the call in the logbook.,Registre la llamada en el cuaderno.
 HINT_REGISTER_LATER,Há ocorrências para registrar no caderno quando der tempo.,There are calls to log in the logbook when you have time.,Hay llamadas para registrar en el cuaderno cuando tenga tiempo.
 NOTEBOOK_TITLE,Caderno de ocorrências,Call logbook,Cuaderno de llamadas
-NOTEBOOK_DATE,Noite de 14 para 15,Night of the 14th to the 15th,Noche del 14 al 15
+NOTEBOOK_DATE,Noite de %d para %d,Night of the %d–%d,Noche del %d al %d
+DATE_LONG,"%s, %d de outubro de %d","%s, October %d, %d","%s, %d de octubre de %d"
+CALENDAR_MONTH,OUT,OCT,OCT
+DAY_SUN,Domingo,Sunday,Domingo
+DAY_MON,Segunda-feira,Monday,Lunes
+DAY_TUE,Terça-feira,Tuesday,Martes
+DAY_WED,Quarta-feira,Wednesday,Miércoles
+DAY_THU,Quinta-feira,Thursday,Jueves
+DAY_FRI,Sexta-feira,Friday,Viernes
+DAY_SAT,Sábado,Saturday,Sábado
 NOTEBOOK_NEW,Nova ocorrência · %s,New entry · %s,Nueva entrada · %s
 NOTEBOOK_QUEUE,(+%d na fila),(+%d in queue),(+%d en cola)
 NOTEBOOK_REGISTER_AS,Registrar como:,Log as:,Registrar como:
@@ -330,5 +339,4 @@ turno"
 FAULT_SHIFT_HUNG_UP,Encerrou o turno com alguém na linha,Ended the shift with someone on the line,Terminó el turno con alguien en la línea
 OBS_SHIFT_ENDED,Turno encerrado durante a ligação.,Shift ended during the call.,Turno terminado durante la llamada.
 HINT_MIDNIGHT,"Meia-noite. Registre o que falta no caderno ou encerre o turno.","Midnight. Log what's left in the logbook or end the shift.","Medianoche. Registre lo que falta en el cuaderno o termine el turno."
-
 CALL_LOG_EMPTY,Nenhuma conversa ainda. Tudo o que for dito com o FONE na linha fica registrado aqui.,No conversations yet. Everything said with the HEADSET on the line is logged here.,Ninguna conversación todavía. Todo lo que se diga con el AURICULAR en la línea queda registrado aquí.

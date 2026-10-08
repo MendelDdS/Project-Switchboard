@@ -203,6 +203,7 @@ mouse_filter = 2
 theme_type_variation = &"TapedLabel"
 theme_override_font_sizes/normal_font_size = 11
 bbcode_enabled = true
+fit_content = true
 scroll_active = false
 
 [node name="Tools" parent="Layout/Rows/Columns/Right" unique_id=343385558 instance=ExtResource("8_tools")]

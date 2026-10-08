@@ -22,6 +22,11 @@ const X_STAMP := 438.0
 const RULE := Pal.NOTE_RULE       # a pauta e a margem, as do caderno da mesa
 const MARGIN := Pal.NOTE_MARGIN
 
+var night := 1:   ## a noite do turno (o Main põe): a data no alto do livro
+	set(v):
+		night = v
+		if is_node_ready():
+			_date()
 var entries: Array[PhoneCall.Record] = []   ## o livro: as registradas, com o carimbo
 var pending: PhoneCall.Record              ## a da ficha (nula: nenhuma)
 var queue: Array[PhoneCall.Record] = []
@@ -44,6 +49,7 @@ func _ready() -> void:
 	_page.resized.connect(_page.queue_redraw)
 	_render_ledger()
 	_fill()
+	_date()
 
 
 ## O idioma mudou nas configurações: carimbos e títulos se refazem.
@@ -51,6 +57,12 @@ func _notification(what: int) -> void:
 	if what == NOTIFICATION_TRANSLATION_CHANGED and is_node_ready():
 		_page.queue_redraw()
 		_fill()
+		_date()
+
+
+## A data da noite no alto do livro ("Noite de 8 para 9", `GameData.date_of`).
+func _date() -> void:
+	%Date.text = T.text(T.Key.NOTEBOOK_DATE) % [GameData.date_of(night).day, GameData.date_of(night + 1).day]
 
 
 func has_pending() -> bool:

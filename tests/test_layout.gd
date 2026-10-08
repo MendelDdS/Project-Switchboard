@@ -1,10 +1,10 @@
 extends "res://tests/test_base.gd"
-## A disposição dos objetos da mesa: em 16:9 e nas janelas mais largas (até 21:9, `GameView.MAX_W`), nenhum objeto
+## A disposição dos objetos da mesa: em 16:9 e nas janelas mais largas (o `main.tscn` sozinho), nenhum objeto
 ## fica por cima de outro na tela (o relógio por cima das listas passou duas vezes conferido só na captura). Mede o
 ## contorno de cada um como o cenário o desenhou (`Background._occ`, `occ_ids`). A caneca fica na frente do relógio
 ## de propósito.
 
-const WIDTHS := [1280, 1500, GameView.MAX_W]
+const WIDTHS := [1280, 1500, 1708]   # o jogo é sempre 1280 (`GameView`); as outras, o `main.tscn` sozinho numa janela larga
 const TOGETHER := [["relogio", "caneca"]]   # os que se encostam de propósito
 const WANT := [Tools.DIRECTORY, Tools.DISPATCH, Tools.LOGBOOK, Tools.CALL_LOG, Tools.NEWS, "relogio", "caneca"]
 

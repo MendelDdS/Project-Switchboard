@@ -651,10 +651,6 @@ msgstr "Break-in / robbery"
 msgid "Outro"
 msgstr "Other"
 
-#: data/nights/night_01.tres data/nights/night_08.tres data/nights/night_15.tres
-msgid "Terça-feira"
-msgstr "Tuesday"
-
 #: data/nights/night_01.tres
 msgid "Seu turno termina à meia-noite. Atenda as chamadas, conecte-as corretamente e registre todas as ocorrências."
 msgstr "Your shift ends at midnight. Answer the calls, connect them correctly and log every one."
@@ -722,10 +718,6 @@ msgstr "The light on your desk."
 #: data/nights/night_01.tres
 msgid "Ela sempre fica acesa?"
 msgstr "Is it always on?"
-
-#: data/nights/night_02.tres data/nights/night_09.tres
-msgid "Quarta-feira"
-msgstr "Wednesday"
 
 #: data/nights/night_02.tres
 msgid "O supervisor deixou um recado: \"Ontem a linha ficou com chiado depois das dez. A companhia vai olhar. Se acontecer de novo, anote no caderno.\""
@@ -827,45 +819,25 @@ msgstr "So that's why I can see you."
 msgid "Não apaga, tá?"
 msgstr "Don't turn it off, okay?"
 
-#: data/nights/night_03.tres data/nights/night_10.tres
-msgid "Quinta-feira"
-msgstr "Thursday"
-
 #: data/nights/night_03.tres
 msgid "O supervisor deixou um recado: \"Boa semana até aqui. Continue registrando tudo no caderno.\""
 msgstr "The supervisor left a note: \"Good week so far. Keep logging everything in the logbook.\""
 
-#: data/nights/night_04.tres data/nights/night_11.tres
-msgid "Sexta-feira"
-msgstr "Friday"
-
 #: data/nights/night_04.tres
-msgid "O supervisor deixou um recado: \"Sexta-feira o movimento costuma ser maior. Não deixe ninguém esperando.\""
-msgstr "The supervisor left a note: \"Fridays are usually busier. Don't keep anyone waiting.\""
-
-#: data/nights/night_05.tres data/nights/night_12.tres
-msgid "Sábado"
-msgstr "Saturday"
+msgid "O supervisor deixou um recado: \"O fim de semana vem aí e o movimento costuma crescer. Não deixe ninguém esperando.\""
+msgstr "The supervisor left a note: \"The weekend is coming and things usually get busier. Don't leave anyone waiting.\""
 
 #: data/nights/night_05.tres
 msgid "O supervisor deixou um recado: \"A partir de hoje, o setor 1, o Centro, também é seu: a central de lá não tem mais turno da noite. Os números que começam com 1 agora passam pela sua mesa. A lista já foi atualizada.\""
 msgstr "The supervisor left a note: \"Starting tonight, sector 1, Downtown, is yours too: the exchange there no longer has a night shift. Numbers starting with 1 now go through your board. The directory has been updated.\""
 
-#: data/nights/night_06.tres data/nights/night_13.tres
-msgid "Domingo"
-msgstr "Sunday"
-
 #: data/nights/night_06.tres
-msgid "O supervisor deixou um recado: \"Domingo é mais calmo, mas o Centro tem a igreja e a praça. Fique atento.\""
-msgstr "The supervisor left a note: \"Sundays are quieter, but Downtown has the church and the square. Stay alert.\""
-
-#: data/nights/night_07.tres data/nights/night_14.tres
-msgid "Segunda-feira"
-msgstr "Monday"
+msgid "O supervisor deixou um recado: \"Sábado o Centro tem baile e a praça cheia. Fique atento.\""
+msgstr "The supervisor left a note: \"On Saturdays Downtown has a dance and a crowded square. Stay alert.\""
 
 #: data/nights/night_07.tres
-msgid "O supervisor deixou um recado: \"Semana nova. Confira a lista antes de conectar: são mais números agora.\""
-msgstr "The supervisor left a note: \"New week. Check the directory before connecting: there are more numbers now.\""
+msgid "O supervisor deixou um recado: \"Domingo é mais calmo. Aproveite para conferir a lista antes de conectar: são mais números agora.\""
+msgstr "The supervisor left a note: \"Sundays are quieter. Use the time to check the directory before connecting: there are more numbers now.\""
 
 #: data/nights/night_08.tres
 msgid "O supervisor deixou um recado: \"O pessoal do Centro elogiou o atendimento. Continue assim.\""
@@ -880,8 +852,8 @@ msgid "O supervisor deixou um recado: \"Com os três setores, a noite fica mais 
 msgstr "The supervisor left a note: \"With all three sectors, the night gets busier. Emergencies come first.\""
 
 #: data/nights/night_11.tres
-msgid "O supervisor deixou um recado: \"Sexta-feira de novo. Paciência com quem liga.\""
-msgstr "The supervisor left a note: \"Friday again. Be patient with the callers.\""
+msgid "O supervisor deixou um recado: \"Quase fim de semana de novo. Paciência com quem liga.\""
+msgstr "The supervisor left a note: \"Almost the weekend again. Be patient with callers.\""
 
 #: data/nights/night_12.tres
 msgid "O supervisor deixou um recado: \"Não esqueça: tudo o que acontece vai para o caderno.\""

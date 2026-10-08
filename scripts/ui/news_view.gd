@@ -14,6 +14,7 @@ const BAYER := [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5]
 
 var _news: Array = []
 var _night: Night
+var _n := 0   # o número da noite: a data da edição
 
 static var _photos := {}   # tamanho -> a foto
 
@@ -24,9 +25,10 @@ func _ready() -> void:
 	$Page/Photo.draw.connect(_draw_photo)
 
 
-func show_news(news: Array, night: Night) -> void:
+func show_news(news: Array, night: Night, n: int) -> void:
 	_news = news
 	_night = night
+	_n = n
 	_render()
 
 
@@ -38,7 +40,7 @@ func _notification(what: int) -> void:
 func _render() -> void:
 	if _night == null:   # (ainda sem jornal: só da segunda noite em diante)
 		return
-	$Edition.text = T.text(T.Key.NEWS_EDITION) % tr(_night.weekday)
+	$Edition.text = T.text(T.Key.NEWS_EDITION) % GameData.date_text(_n)
 	var s := "[font_size=22]%s[/font_size]" % T.text(T.Key.REPORT_QUIET) if _news.is_empty() else ""
 	for i in _news.size():
 		var h := ShiftReport.headline(_news[i]).replace("[", "(")

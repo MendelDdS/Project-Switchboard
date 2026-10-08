@@ -650,10 +650,6 @@ msgstr ""
 msgid "Outro"
 msgstr ""
 
-#: data/nights/night_01.tres data/nights/night_08.tres data/nights/night_15.tres
-msgid "Terça-feira"
-msgstr ""
-
 #: data/nights/night_01.tres
 msgid "Seu turno termina à meia-noite. Atenda as chamadas, conecte-as corretamente e registre todas as ocorrências."
 msgstr ""
@@ -720,10 +716,6 @@ msgstr ""
 
 #: data/nights/night_01.tres
 msgid "Ela sempre fica acesa?"
-msgstr ""
-
-#: data/nights/night_02.tres data/nights/night_09.tres
-msgid "Quarta-feira"
 msgstr ""
 
 #: data/nights/night_02.tres
@@ -826,44 +818,24 @@ msgstr ""
 msgid "Não apaga, tá?"
 msgstr ""
 
-#: data/nights/night_03.tres data/nights/night_10.tres
-msgid "Quinta-feira"
-msgstr ""
-
 #: data/nights/night_03.tres
 msgid "O supervisor deixou um recado: \"Boa semana até aqui. Continue registrando tudo no caderno.\""
 msgstr ""
 
-#: data/nights/night_04.tres data/nights/night_11.tres
-msgid "Sexta-feira"
-msgstr ""
-
 #: data/nights/night_04.tres
-msgid "O supervisor deixou um recado: \"Sexta-feira o movimento costuma ser maior. Não deixe ninguém esperando.\""
-msgstr ""
-
-#: data/nights/night_05.tres data/nights/night_12.tres
-msgid "Sábado"
+msgid "O supervisor deixou um recado: \"O fim de semana vem aí e o movimento costuma crescer. Não deixe ninguém esperando.\""
 msgstr ""
 
 #: data/nights/night_05.tres
 msgid "O supervisor deixou um recado: \"A partir de hoje, o setor 1, o Centro, também é seu: a central de lá não tem mais turno da noite. Os números que começam com 1 agora passam pela sua mesa. A lista já foi atualizada.\""
 msgstr ""
 
-#: data/nights/night_06.tres data/nights/night_13.tres
-msgid "Domingo"
-msgstr ""
-
 #: data/nights/night_06.tres
-msgid "O supervisor deixou um recado: \"Domingo é mais calmo, mas o Centro tem a igreja e a praça. Fique atento.\""
-msgstr ""
-
-#: data/nights/night_07.tres data/nights/night_14.tres
-msgid "Segunda-feira"
+msgid "O supervisor deixou um recado: \"Sábado o Centro tem baile e a praça cheia. Fique atento.\""
 msgstr ""
 
 #: data/nights/night_07.tres
-msgid "O supervisor deixou um recado: \"Semana nova. Confira a lista antes de conectar: são mais números agora.\""
+msgid "O supervisor deixou um recado: \"Domingo é mais calmo. Aproveite para conferir a lista antes de conectar: são mais números agora.\""
 msgstr ""
 
 #: data/nights/night_08.tres
@@ -879,7 +851,7 @@ msgid "O supervisor deixou um recado: \"Com os três setores, a noite fica mais 
 msgstr ""
 
 #: data/nights/night_11.tres
-msgid "O supervisor deixou um recado: \"Sexta-feira de novo. Paciência com quem liga.\""
+msgid "O supervisor deixou um recado: \"Quase fim de semana de novo. Paciência com quem liga.\""
 msgstr ""
 
 #: data/nights/night_12.tres

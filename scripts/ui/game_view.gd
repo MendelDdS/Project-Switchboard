@@ -5,13 +5,12 @@ extends Control
 ## viraria ora 1, ora 2 pixels da tela, e linhas, letras e círculos ficavam desiguais. Por isso a tela do jogo passa
 ## por um filtro de pixel art ("sharp bilinear", `SHARP`): cada pixel do jogo vira um bloco do mesmo tamanho, e só a
 ## divisa entre dois blocos, um pixel da tela, mistura as duas cores. Nas ampliações inteiras ele não muda nada.
-## Numa janela mais larga que 16:9, o jogo ganha largura (até `MAX_W`), não pixels maiores; o que sobra é borda escura.
-## A sala se arruma na largura que tiver (`Background`: armário e objetos da mesa distribuídos no espaço livre).
+## Numa janela de outra proporção (um monitor largo), o jogo fica sempre em 1280×720, ampliado para a tela, e o
+## que sobra é borda escura (antes ganhava largura até 21:9 e a sala se esticava, com mesa vazia entre os objetos).
 ## Em Configurações (`Settings`): tela cheia ou janela, e "pixels perfeitos", que só amplia por número inteiro (sem o
 ## filtro; numa tela de 1080p, o jogo fica em 1× com borda em volta).
 
 const BASE := Vector2i(1280, 720)   ## a tela do jogo
-const MAX_W := 1708                 ## mais larga que isso (21:9), sobra borda dos lados
 const SHARP := """
 shader_type canvas_item;
 uniform float scale = 1.0;   // pixels da tela por pixel do jogo
@@ -54,7 +53,7 @@ func _fit() -> void:
 	var k := minf(win.x / BASE.x, win.y / BASE.y)
 	if Settings.pixel_perfect and k >= 1.0:
 		k = floorf(k)
-	_view.size = Vector2i(clampi(int(win.x / k), BASE.x, MAX_W), BASE.y)
+	_view.size = BASE
 	_box.size = Vector2(_view.size)
 	_box.scale = Vector2(k, k)
 	_box.position = ((win - _box.size * k) / 2.0).floor()

@@ -43,6 +43,7 @@ const SIGN_INK := Color("d8cfae")   ## ...e o creme das letras e do filete
 const SIGN_AT := 0.62   ## onde fica o meio dela, na largura da mesa comutadora (à direita do horário do turno)
 const PROPS := {Tools.DIRECTORY: T.Key.TAB_DIRECTORY, Tools.DISPATCH: T.Key.TAB_DISPATCH, Tools.LOGBOOK: T.Key.TAB_LOGBOOK, Tools.CALL_LOG: T.Key.TAB_CALL_LOG,
 	Tools.NEWS: T.Key.TAB_NEWS}
+const CALENDAR := "calendario"   ## a folhinha do armário: sob o mouse, a data da noite (não abre ferramenta)
 const DETAILS := ["cartaz_quermesse", "numero_anotado", "armario_entreaberto"]   ## o que `RoomChange.detail` pode pedir
 const SKY := {"rain": Color("0b141c"), "fog": Color("1b252b"), "clear": Color("0a1422")}
 const BOARD_SINK := 30.0   ## o fundo do tampo, em px da tela acima da base do painel: fica atrás da mesa comutadora
@@ -999,7 +1000,7 @@ func draw_hover(ci: CanvasItem) -> void:
 		return
 	var hr: Rect2 = _props[_hot]
 	ci.draw_rect(hr.grow(2), Color(Pal.GLOW, 0.8), false, 2.0)
-	var cap := T.text(PROPS[_hot])
+	var cap := GameData.date_text(night) if _hot == CALENDAR else T.text(PROPS[_hot])
 	var cw := Pal.ui.get_string_size(cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
 	var at := Vector2(clampf(hr.get_center().x - cw / 2.0 - 5, 4, size.x - cw - 14), hr.position.y - 22)
 	ci.draw_rect(Rect2(at, Vector2(cw + 10, 16)), Color(0, 0, 0, 0.8))
@@ -1026,7 +1027,7 @@ func pointer(e: InputEvent) -> bool:
 			queue_redraw()
 	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
 		var id := prop_at(e.position)
-		if id != "":
+		if id in PROPS:
 			prop_clicked.emit(id)
 			return true
 	return false
@@ -1121,21 +1122,38 @@ func _cast(r: Rect2, s: float) -> void:
 		_r(p.x, p.y, roundf(r.size.x * f), roundf(r.size.y * f), Color(0, 0, 0, 0.14))
 
 
-## Calendário de folhinha: cabeçalho vermelho e a grade dos dias, um deles riscado.
+## Calendário de folhinha: o mês da noite (`GameData.date_of`) com o cabeçalho vermelho e a semana começando na
+## segunda, os domingos em vermelho, os dias que já passaram riscados e o de hoje circulado. Sob o mouse, a data
+## por extenso (`CALENDAR`).
 func _draw_calendar(r: Rect2) -> void:
 	_cast(r, 1.01)
 	var o := r.position * 2.0
-	_p(o.x, o.y, r.size.x * 2.0, r.size.y * 2.0, Color("e3d6b2"))
-	_p(o.x, o.y, r.size.x * 2.0, 12, Color("8e2a22"))   # o cabeçalho com o mês
-	_p(o.x, o.y, r.size.x * 2.0, 1, Color("b04a3e"))
-	_p(o.x + 10, o.y + 5, r.size.x * 2.0 - 20, 2, Color("e3d6b2"))
-	for k in 20:   # os dias; os que já passaram (uma noite cada) ficam riscados de vermelho
-		var d := o + Vector2(5 + (k % 5) * 9, 17 + (k / 5) * 8)
-		_p(d.x, d.y, 1, 4, Color("6e6450"))
-		_p(d.x + 2, d.y, 2, 1, Color("6e6450"))
-		_p(d.x + 3, d.y + 1, 1, 3, Color("6e6450"))
-		if k < night - 1:
-			_ci.draw_line((d + Vector2(-1, 5)) * PX, (d + Vector2(6, -1)) * PX, Color("b03a2e"), PX)
+	var w := r.size.x * 2.0
+	_props[CALENDAR] = Rect2(o, r.size * 2.0)
+	_p(o.x, o.y, w, r.size.y * 2.0, Color("e3d6b2"))
+	_p(o.x, o.y, w, 12, Color("8e2a22"))   # o cabeçalho com o mês
+	_p(o.x, o.y, w, 1, Color("b04a3e"))
+	var today := GameData.date_of(night)
+	var first := (int(today.weekday) - int(today.day) + 7 * 6) % 7   # a coluna do dia 1 (0 = segunda)
+	var days: int = Time.get_datetime_dict_from_unix_time(Time.get_unix_time_from_datetime_dict({"year": today.year,
+		"month": today.month % 12 + 1, "day": 1, "hour": 12}) - 86400).day   # o último dia do mês
+	_ci.draw_set_transform(Vector2.ZERO)   # os algarismos na fonte gravada, em px da tela
+	var head := PixelArt.tiny("%s %d" % [T.text(T.Key.CALENDAR_MONTH), today.year])
+	_ci.draw_texture(head, (o + Vector2((w - head.get_width()) / 2.0, 0)).floor(), Color("e3d6b2"))
+	var cells := {}
+	for day in range(1, days + 1):
+		var k: int = first + day - 1
+		var c := o + Vector2(2 + (k % 7) * 9, 14 + (k / 7) * 8)
+		cells[day] = c
+		var tex := PixelArt.tiny(str(day))
+		_ci.draw_texture(tex, (c + Vector2(5 - tex.get_width() / 2.0, -2)).floor(), Color("a8382c") if k % 7 == 6 else Color("4e4636"))
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	for day: int in cells:
+		var c: Vector2 = cells[day]
+		if day < today.day:   # já passou: riscado de vermelho
+			_ci.draw_line((c + Vector2(1, 7)) * PX, (c + Vector2(9, 0)) * PX, Color("b03a2e", 0.85), PX)
+		elif day == today.day:   # hoje: circulado
+			_ci.draw_rect(Rect2((c + Vector2(0, -1)) * PX, Vector2(10, 9) * PX), Color("b03a2e"), false, PX)
 	_p(o.x + r.size.x - 1, o.y - 2, 2, 2, Color("3a3a3a"))   # o prego
 
 
@@ -1686,7 +1704,7 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 		var rod := d1.lerp(d0, 0.3)   # a haste da fechadura
 		draw_line(rod + Vector2(0, 30), rod + Vector2(0, 52), Color("8e897c"), PX)
 	else:
-		_draw_calendar(Rect2(mid + 14, doors + 46, 24, 26))   # preso com ímã
+		_draw_calendar(Rect2(mid + 11, doors + 44, 33, 28))   # preso com ímã
 	if "numero_anotado" in details:   # o número de quem ligou, anotado num bilhete e colado com fita
 		var n := Rect2(f.position.x + 10, doors + 52, 26, 14)
 		_cast(n, 1.01)

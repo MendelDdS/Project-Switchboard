@@ -36,5 +36,5 @@ func _notification(what: int) -> void:
 func _texts() -> void:
 	var night := _night
 	var n := _n
-	%Date.text = T.text(T.Key.INTRO_NIGHT) % [n, tr(night.weekday), Main.fmt(0.0)]
+	%Date.text = T.text(T.Key.INTRO_NIGHT) % [n, GameData.date_text(n), Main.fmt(0.0)]
 	%Text.text = tr(night.note)

@@ -4,7 +4,6 @@ extends Resource
 ## res://data/nights/, na ordem de GameContent.nights. Só o roteiro é fixo; o resto do turno (quem liga, quando, de que
 ## tipo) é sorteado no ritmo do nível em que o jogador está (`Pace`, que não depende da noite).
 
-@export var weekday := "Terça-feira"
 ## Bilhete do supervisor na tela inicial.
 @export_multiline var note := ""
 ## Clima fixo da noite; vazio ("Sorteado") = sorteado.

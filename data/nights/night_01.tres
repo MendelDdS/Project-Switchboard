@@ -130,7 +130,6 @@ replies = Array[ExtResource("9_reply")]([SubResource("ChatReply_00_0"), SubResou
 
 [resource]
 script = ExtResource("1_night")
-weekday = "Terça-feira"
 note = "Seu turno termina à meia-noite. Atenda as chamadas, conecte-as corretamente e registre todas as ocorrências."
 tutorial = true
 mystery = Array[ExtResource("2_step")]([SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09"), SubResource("Step_10"), SubResource("Step_11"), SubResource("Step_12"), SubResource("Step_13"), SubResource("Step_14"), SubResource("Step_15"), SubResource("Step_16"), SubResource("Step_17"), SubResource("Step_18"), SubResource("Step_19"), SubResource("Step_20"), SubResource("Step_21")])

@@ -100,6 +100,7 @@ func _ready() -> void:
 			weather = a.get_slice("=", 1)
 	background.weather = weather
 	background.night = night_no
+	notebook.night = night_no
 	_update_room()
 	exchange = Exchange.new(GameData.board_numbers())
 	board.setup(exchange, %FoneSocket, %CordTray)
@@ -805,7 +806,7 @@ func _update_room() -> void:
 
 ## Põe na mesa o jornal da manhã com as manchetes `news` (`ShiftReport.news` da noite anterior).
 func set_news(news: Array) -> void:
-	tools.news.show_news(news, night)
+	tools.news.show_news(news, night, night_no)
 	background.news = true
 
 

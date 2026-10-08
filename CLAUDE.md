@@ -70,7 +70,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   mesmo tamanho e só a divisa entre dois blocos, um pixel da tela, mistura as cores. Ampliação inteira (1× em 720p, 2×
   em 1440p, 3× em 4K) sai perfeita; quebrada (1,5× em 1080p, 1,25× em 1600×900), uniforme e um pouco mais macia. Antes,
   com o `canvas_items` direto, 1,5× fazia um pixel virar ora 1, ora 2 da tela: linhas, letras e círculos desiguais.
-  Janela mais larga que 16:9 dá largura ao jogo (até `MAX_W`, 21:9), nunca altura; o que sobra é borda escura (a barra de título do Mac já deixa a janela um pouco mais larga). A sala se arruma na largura que tiver (abaixo). O
+  O jogo é sempre 1280×720: numa janela de outra proporção (monitor largo), o que sobra é borda escura (antes ganhava
+  largura até 21:9 e a sala se esticava, a pedido saiu). A sala ainda se arruma na largura que tiver (abaixo), para o
+  `main.tscn` sozinho numa janela larga. O
   projeto continua em `canvas_items` 1280×720 para o `main.tscn` sozinho e os testes; o `GameView` desliga isso na janela
   (`content_scale_mode`) e aplica a tela das Configurações (`Settings.fullscreen`: cheia ou janela;
   `Settings.pixel_perfect`: só ampliação inteira, com borda, sem o filtro; padrão: tela cheia e suave). Na pausa, o `Box` continua processando
@@ -289,7 +291,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   longo das noites**: `GameContent.room` (`RoomChange`, `data/room/`: `detail`, `requires`, `from_night`) liga
   detalhes do cenário (`Background.details`, `DETAILS`: cartaz da quermesse, número anotado colado no armário, armário
   entreaberto com as pastas) pelos marcadores do roteiro, já no meio da noite (`Main._update_room`, refeito a cada
-  `flags.changed`; o setter de `Main.flags` religa); o calendário do armário risca um dia por noite (`night`). Na
+  `flags.changed`; o setter de `Main.flags` religa); o calendário do armário é a data do jogo (`GameData.date_of`/`date_text`: a noite 1 é segunda-feira, 8 de outubro de
+  1973, e cada noite um dia depois; o dia da semana sai da data, não da `Night`): a folhinha de outubro com a semana
+  começando na segunda, domingos em vermelho, os dias passados riscados e o de hoje circulado; sob o mouse, a data por
+  extenso (`Background.CALENDAR`, sem abrir ferramenta nem trocar o cursor). A mesma data vai na introdução, no jornal
+  (`NEWS_EDITION`) e no caderno ("Noite de 8 para 9", `Notebook.night`). Na
   primeira vez que cada sinal da mesa aparece (tiras, folha nova), uma dica do manual explica, uma vez no
   jogo todo (`Main._teach`: o "já viu" fica nos marcadores salvos; espera o tutorial acabar). Sob o
   mouse: contorno, o nome da ferramenta e o dedo. **O cenário só se redesenha quando algo que ele mostra
@@ -1188,6 +1194,9 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
     na tela, não só pela captura). Por fim: as luzes de emergência e de cartão e a plaqueta numa faixa embaixo das
     máquinas (`CardMachines._draw_strip`, `STRIP`, como na frente da miniatura) e o mapa enquadrado acima da tira da
     impressora (`CityMap.bottom_inset`), com o nome do bairro à vista.
+89. Revisão geral: a dica do manual cresce com o texto (cortava em 2 linhas), o jogo fica sempre em 1280×720 (o monitor
+    largo esticava a sala) e o jogo ganhou data: começa na segunda-feira, 8 de outubro de 1973, mostrada no
+    calendário do armário, na introdução, no jornal e no caderno (os bilhetes que citavam o dia da semana acompanharam).
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

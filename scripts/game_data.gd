@@ -14,6 +14,23 @@ const SECTOR_NIGHTS := {3: 1, 1: 5, 2: 9}
 static var sectors: Array = [1, 2, 3]
 
 
+## O primeiro dia do jogo: a noite 1 é a de segunda-feira, 8 de outubro de 1973; cada noite, um dia depois.
+const START := {"year": 1973, "month": 10, "day": 8, "hour": 12}
+const WEEKDAYS := [T.Key.DAY_SUN, T.Key.DAY_MON, T.Key.DAY_TUE, T.Key.DAY_WED, T.Key.DAY_THU, T.Key.DAY_FRI, T.Key.DAY_SAT]
+
+
+## A data da noite `night` (o dia em que o turno começa): year, month, day e weekday (0 = domingo).
+static func date_of(night: int) -> Dictionary:
+	return Time.get_datetime_dict_from_unix_time(Time.get_unix_time_from_datetime_dict(START) + (night - 1) * 86400)
+
+
+## A data por extenso ("Segunda-feira, 8 de outubro de 1973").
+## ponytail: o mês é o do texto (`DATE_LONG`): as 15 noites ficam em outubro (8 a 22).
+static func date_text(night: int) -> String:
+	var d := date_of(night)
+	return T.text(T.Key.DATE_LONG) % [T.text(WEEKDAYS[d.weekday]), d.day, d.year]
+
+
 static func sectors_for(night: int) -> Array:
 	return SECTOR_NIGHTS.keys().filter(func(s): return night >= SECTOR_NIGHTS[s])
 

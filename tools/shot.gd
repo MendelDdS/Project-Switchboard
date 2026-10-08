@@ -4,7 +4,7 @@ extends Node
 ##   Godot --path . tools/shot.tscn -- --hour=22:30 --weather=rain --tool=despacho --card --zoom=760,420,240,140
 ## Opções (depois do `--`):
 ##   --out=build/shot.png   onde gravar (o recorte vai em <nome>_zoom.png)
-##   --width=1280           a largura do jogo (720 de altura; até `GameView.MAX_W`, 21:9)
+##   --width=1280           a largura do `main.tscn` (720 de altura; o jogo, no `GameView`, é sempre 1280)
 ##   --hour=20:00           a hora do turno no relógio e lá fora
 ##   --tool=id              abre a ferramenta (os ids de `Tools`: lista, despacho, caderno, registro, jornal)
 ##   --card                 marca um local no mapa e espera o cartão sair impresso
