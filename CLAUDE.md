@@ -612,7 +612,11 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   (no pendurado, o caminho pela quina) a partir de `TAUT_FROM` do `CORD_MAX`, as dobras somem aos poucos, o trançado se
   espaça (`TAUT_BRAID`) e, da metade em diante, ele e a sombra afinam 1 px (`_tension`, `ropes[e]["taut"]`, suavizada
   em `TAUT_EASE`); frouxo, volta com as dobras inteiras. (Pela folga não dava: os cabos de conexão têm sempre ~14 px
-  dela, perto ou longe.) Encaixado, sai do painel em direção à câmera, vista de cima e da
+  dela, perto ou longe.) Esticado, o fio também fica reto no desenho (vai para a reta do buraco à ponta; a física
+  deixava uma barriga, porque a gravidade puxa o meio a cada passo; pendurado na quina, `ropes[e]["hang"]`, não). Puxando
+  além do fim do fio, o plug na mão se inclina para o lado do puxão, inteiro a `LEAN_PX` além (a mesma mola do
+  balanço), com a traseira virada para o buraco; o limite vale para a traseira girada (`_reach`). (Em pé, com o fio
+  chegando de lado, a junção dobrava e o fio passava por cima dele.) Encaixado, sai do painel em direção à câmera, vista de cima e da
   direita (`_draw_plug_face`: o próprio `PLUG_ART` visto de frente, com os mesmos detalhes: aba dourada, anel e friso claro em cima,
   serrilhado, `_knurled`, anel do meio e capa em gomos afinando até o fio; montado com discos de pixel art, `disc`, um
   por pixel ao longo do eixo, cada um com a largura e os tons da linha do plug em pé que cai ali, `_face_row`: dela vale
