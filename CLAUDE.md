@@ -618,8 +618,13 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   além do fim do fio, o plug na mão se inclina para o lado do puxão, inteiro a `LEAN_PX` além (a mesma mola do
   balanço), com a traseira virada para o buraco; o limite vale para a traseira girada (`_reach`). (Em pé, com o fio
   chegando de lado, a junção dobrava e o fio passava por cima dele.) Encaixado, sai do painel em direção à câmera, vista de cima e da
-  direita (`_draw_plug_face`: o próprio `PLUG_ART` visto de frente, com os mesmos detalhes: aba dourada, anel e friso claro em cima,
-  serrilhado, `_knurled`, anel do meio e capa em gomos afinando até o fio; montado com discos de pixel art, `disc`, um
+  direita (`_draw_plug_face`: o próprio `PLUG_ART` visto de frente, com os mesmos detalhes: anel e friso claro em cima,
+  serrilhado, `_knurled` (as listras verticais; tirado, o plug ficava pobre), anel do meio e capa em gomos afinando até
+  o fio (a aba dourada, mais estreita que o corpo, fica escondida atrás dele); o corpo sai com a beira de todos os
+  discos antes dos miolos (só o contorno), mas a capa, por cima, disco a disco com a beira de cada um
+  (`PLUG_CAPA_ROW`): a beira de cada gomo fica à mostra em volta do seguinte, menor, e os sulcos aparecem em anéis em
+  volta da saída do fio (antes, liso, o plug parecia uma bola); pega a luz da sala como o fio que sai
+  dele (`_lit_by`, também a ponteira, `_draw_plug_cap`, na largura do miolo do fio); montado com discos de pixel art, `disc`, um
   por pixel ao longo do eixo, cada um com a largura e os tons da linha do plug em pé que cai ali, `_face_row`: dela vale
   a que mais se destaca, senão os detalhes sumiam no escorço; primeiro a beira de todos, depois o miolo sombreado; com cápsulas e círculos, saía embolotado); com paralaxe: a ponta se desloca do encaixe mais quanto mais longe de `PLUG_EYE` (`_tilt(j)`,
   `PLUG_DEPTH`). O fio sai da ponteira (`_plug_base` = encaixe + `_tilt`; o plug encaixado é desenhado antes do fio,
@@ -639,7 +644,7 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   O fio tem `ROPE_W` (9 px com a beira; o miolo, 3 a menos; era 8, engrossou para o esticado, 1 px mais fino, se ler).
   Sombras (`SHADOW`): fios deslocados `ROPE_SHADOW`; plug mais longe quanto mais sai do painel (solto, na mão).
   Sem contorno preto em plug e fio: a beira é a cor da própria peça escurecida (`EDGE`; o metal, `BEZEL[2]`), como no
-  cenário. Encaixado, o colar (`PLUG_FACE_R`) é menor que a bucha: a aba de latão fica à vista em volta.
+  cenário. Encaixado, o corpo (`PLUG_FACE_R`) cobre a tomada e a aba de latão; a aba só aparece na sombra de contato.
 
 ## Modelo das ligações
 - `live`: ligações tocando ou em andamento (várias ao mesmo tempo). O painel mostra `phone.shown()`.
