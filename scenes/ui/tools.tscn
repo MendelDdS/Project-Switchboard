@@ -14,117 +14,10 @@ mouse_filter = 2
 theme_override_constants/separation = 0
 script = ExtResource("1_tools")
 
-[node name="TabBar" type="HBoxContainer" parent="."]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-theme_override_constants/separation = 8
-mouse_filter = 2
-
-[node name="TabLista" type="Button" parent="TabBar"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(150, 34)
-layout_mode = 2
-size_flags_vertical = 8
-focus_mode = 0
-theme_type_variation = &"TabButton"
-toggle_mode = true
-text = "TAB_DIRECTORY"
-
-[node name="Key" type="Label" parent="TabBar/TabLista"]
-layout_mode = 1
-offset_left = 3.0
-offset_top = 0.0
-offset_right = 13.0
-offset_bottom = 13.0
-mouse_filter = 2
-theme_override_font_sizes/font_size = 11
-text = "1"
-auto_translate_mode = 2
-
-[node name="TabDespacho" type="Button" parent="TabBar"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(150, 34)
-layout_mode = 2
-size_flags_vertical = 8
-focus_mode = 0
-theme_type_variation = &"TabButton"
-toggle_mode = true
-text = "TAB_DISPATCH"
-
-[node name="Key" type="Label" parent="TabBar/TabDespacho"]
-layout_mode = 1
-offset_left = 3.0
-offset_top = 0.0
-offset_right = 13.0
-offset_bottom = 13.0
-mouse_filter = 2
-theme_override_font_sizes/font_size = 11
-text = "2"
-auto_translate_mode = 2
-
-[node name="TabCaderno" type="Button" parent="TabBar"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(96, 34)
-layout_mode = 2
-size_flags_vertical = 8
-focus_mode = 0
-theme_type_variation = &"TabButton"
-toggle_mode = true
-text = "TAB_LOGBOOK"
-
-[node name="Key" type="Label" parent="TabBar/TabCaderno"]
-layout_mode = 1
-offset_left = 3.0
-offset_top = 0.0
-offset_right = 13.0
-offset_bottom = 13.0
-mouse_filter = 2
-theme_override_font_sizes/font_size = 11
-text = "3"
-auto_translate_mode = 2
-
-[node name="Count" type="Label" parent="TabBar/TabCaderno"]
-visible = false
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -10.0
-offset_top = -8.0
-offset_right = 6.0
-offset_bottom = 8.0
-grow_horizontal = 0
-mouse_filter = 2
-theme_type_variation = &"BadgeLabel"
-horizontal_alignment = 1
-vertical_alignment = 1
-auto_translate_mode = 2
-
-[node name="TabRegistro" type="Button" parent="TabBar"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(110, 34)
-layout_mode = 2
-size_flags_vertical = 8
-focus_mode = 0
-theme_type_variation = &"TabButton"
-toggle_mode = true
-text = "TAB_CALL_LOG"
-
-[node name="Key" type="Label" parent="TabBar/TabRegistro"]
-layout_mode = 1
-offset_left = 3.0
-offset_top = 0.0
-offset_right = 13.0
-offset_bottom = 13.0
-mouse_filter = 2
-theme_override_font_sizes/font_size = 11
-text = "4"
-auto_translate_mode = 2
-
 [node name="Body" type="Control" parent="."]
 unique_name_in_owner = true
 clip_contents = true
-custom_minimum_size = Vector2(0, 420)
+custom_minimum_size = Vector2(0, 460)
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
@@ -190,18 +83,35 @@ theme_override_font_sizes/font_size = 11
 horizontal_alignment = 1
 auto_translate_mode = 2
 
-[node name="Rule" type="ColorRect" parent="Body/Paper/Margin/News"]
-custom_minimum_size = Vector2(0, 3)
+[node name="Rule" type="Control" parent="Body/Paper/Margin/News"]
+custom_minimum_size = Vector2(0, 6)
 layout_mode = 2
-color = Color(0.1647, 0.1373, 0.098, 1)
 
-[node name="Headlines" type="RichTextLabel" parent="Body/Paper/Margin/News"]
+[node name="Page" type="HBoxContainer" parent="Body/Paper/Margin/News"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="Text" type="VBoxContainer" parent="Body/Paper/Margin/News/Page"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Headlines" type="RichTextLabel" parent="Body/Paper/Margin/News/Page/Text"]
+layout_mode = 2
 bbcode_enabled = true
+fit_content = true
 theme_override_colors/default_color = Color(0.1647, 0.1373, 0.098, 1)
 theme_override_font_sizes/normal_font_size = 11
 theme_override_constants/line_separation = 3
+
+[node name="Columns" type="Control" parent="Body/Paper/Margin/News/Page/Text"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Photo" type="Control" parent="Body/Paper/Margin/News/Page"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
 
 [node name="Deco" type="Control" parent="Body/Paper"]
 unique_name_in_owner = true

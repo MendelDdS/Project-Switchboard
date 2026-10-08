@@ -2,7 +2,8 @@ class_name SfxSynth
 extends RefCounted
 ## A síntese de todos os sons do jogo (`build`): receitas de ondas, ruído filtrado, ressonâncias e vozes por sílaba,
 ## convertidas em `AudioStreamWAV`. Quem toca, mixa e cuida do ambiente é o autoload `Sfx`, que chama `build` ao
-## iniciar (cerca de 0,6 s num Mac recente, uma vez).
+## iniciar, uma vez: as receitas em pedaços (`PARTS`), montados ao mesmo tempo nos núcleos do processador (~0,9 s num
+## Mac recente um depois do outro).
 
 const RATE := 22050
 # Vozes abafadas: cada vogal vira uma sílaba sintetizada (fonte glotal + formantes + filtro abafado).
@@ -23,16 +24,38 @@ const BEEP := {"f": 740.0, "dur": 0.13, "gap": 0.09, "count": 2}
 ## Impressora do cartão: colunas de agulhas por segundo (o "zzrt" com tom) e passos por segundo do motor do papel.
 const PRINTER_COLS := 1150.0
 const PRINTER_STEPS := 230.0
+## A chuva do lado esquerdo, em relação ao direito: a janela fica à direita da tela (0,4 = 8 dB mais baixo).
+const RAIN_LEFT := 0.4
+
+## Os pedaços das receitas ([função, argumentos...]), cada um montado sozinho numa instância (`build`; mais as vozes,
+## uma por pedaço); os mais pesados (a chuva, a brisa, o fio, os grilos, os carros, o sino) ficam em pedaços próprios
+## para se dividirem entre os núcleos.
+const PARTS := [["_build_basic"], ["_build_ring"], ["_build_clock"], ["_build_rub"], ["_build_unroll"], ["_build_card"],
+	["_build_car"], ["_build_car", true], ["_build_thunder"], ["_build_neon"], ["_build_bell"], ["_build_dog"], ["_build_dog", true], ["_build_outside"],
+	["_build_lamp"], ["_build_rain"], ["_build_breeze"], ["_build_crickets"]]
 
 var streams := {}   ## id -> AudioStreamWAV
 var _w := PackedFloat32Array()   ## o som sendo montado (`_begin` ... `_end`)
+var _rng := RandomNumberGenerator.new()   ## o sorteio desta instância (o global não é seguro entre linhas de execução)
 
 
-## Todos os sons, por id.
+## Todos os sons, por id. Cada pedaço (`PARTS`) numa instância própria, ao mesmo tempo (`WorkerThreadPool`); espera
+## todos.
 static func build() -> Dictionary:
-	var s := SfxSynth.new()
-	s._build_all()
-	return s.streams
+	var jobs := PARTS.duplicate()
+	for v in VOICE:
+		jobs.append(["_build_voice", v])
+	var parts: Array[SfxSynth] = []
+	for i in jobs.size():
+		parts.append(SfxSynth.new())
+		parts[i]._rng.seed = i + 1   # (cada pedaço com o seu ruído, sempre o mesmo)
+	var task := WorkerThreadPool.add_group_task(func(i: int) -> void: parts[i].callv(jobs[i][0], jobs[i].slice(1)), jobs.size(),
+		-1, true)   # (alta prioridade: as de baixa usam só parte dos núcleos)
+	WorkerThreadPool.wait_for_group_task_completion(task)
+	var out := {}
+	for p in parts:
+		out.merge(p.streams)
+	return out
 
 
 func _begin(sec: float) -> void:
@@ -73,7 +96,7 @@ func _noise(at: float, dur: float, ftype: String, f: float, q: float, g: float) 
 	x.resize(n)
 	for i in n:
 		var t := float(i) / RATE
-		x[i] = randf_range(-1.0, 1.0) * g * pow(0.0001, t / dur)
+		x[i] = _rng.randf_range(-1.0, 1.0) * g * pow(0.0001, t / dur)
 	if ftype != "":
 		x = _biquad(x, ftype, f, q)
 	var s0 := int(at * RATE)
@@ -121,21 +144,28 @@ func _biquad(x: PackedFloat32Array, ftype: String, f: float, q: float) -> Packed
 	return y
 
 
-func _end(id: String, tel: bool = false, loop: bool = false, peak: float = 0.8) -> void:
+## `right`: o lado direito, num som em estéreo (`_w` é o esquerdo).
+func _end(id: String, tel: bool = false, loop: bool = false, peak: float = 0.8, right := PackedFloat32Array()) -> void:
 	if tel:
 		_w = _biquad(_w, "bp", 1500.0, 0.75)
 	var m := 0.0001
 	for v in _w:
 		m = maxf(m, absf(v))
+	for v in right:
+		m = maxf(m, absf(v))
 	var k := peak / m
+	var st := not right.is_empty()
+	var step := 4 if st else 2
 	var bytes := PackedByteArray()
-	bytes.resize(_w.size() * 2)
+	bytes.resize(_w.size() * step)
 	for i in _w.size():
-		bytes.encode_s16(i * 2, int(clampf(_w[i] * k, -1.0, 1.0) * 32000.0))
+		bytes.encode_s16(i * step, int(clampf(_w[i] * k, -1.0, 1.0) * 32000.0))
+		if st:
+			bytes.encode_s16(i * step + 2, int(clampf(right[i] * k, -1.0, 1.0) * 32000.0))
 	var s := AudioStreamWAV.new()
 	s.format = AudioStreamWAV.FORMAT_16_BITS
 	s.mix_rate = RATE
-	s.stereo = false
+	s.stereo = st
 	s.data = bytes
 	if loop:
 		s.loop_mode = AudioStreamWAV.LOOP_FORWARD
@@ -153,7 +183,7 @@ func _syllable(v: String, vw: String, contour: float, consonant: bool) -> void:
 	var n := int(dur * RATE)
 	var src := PackedFloat32Array()
 	src.resize(n)
-	var ph := randf()
+	var ph := _rng.randf()
 	for i in n:
 		var t := float(i) / RATE
 		var k := t / dur
@@ -161,7 +191,7 @@ func _syllable(v: String, vw: String, contour: float, consonant: bool) -> void:
 		ph += f / RATE
 		var g := ph - floorf(ph)
 		var s := (1.0 - g) * (1.0 - g) * 2.0 - 1.0   # pulso glotal suave
-		s = s * (1.0 - breath) + randf_range(-1.0, 1.0) * breath
+		s = s * (1.0 - breath) + _rng.randf_range(-1.0, 1.0) * breath
 		var env := pow(sin(PI * k), 0.7)
 		src[i] = s * env
 	var a := _biquad(src, "bp", fm.x, 4.0)
@@ -184,7 +214,8 @@ func _syllable(v: String, vw: String, contour: float, consonant: bool) -> void:
 	_end("s_%s_%s_%d" % [v, vw, [-0.12, 0.0, 0.10].find(contour)], false, false, 0.8)
 
 
-func _build_all() -> void:
+## Os sons da interface e da mesa, o chiado e o zumbido da sala.
+func _build_basic() -> void:
 	_begin(0.05); _tone(0, 1900, 0.02, "square", 0.3); _noise(0, 0.02, "bp", 4000, 1, 0.8); _end("click")
 	_begin(0.06); _tone(0, 700, 0.03, "square", 0.3); _noise(0, 0.03, "bp", 2500, 1, 1.0); _end("sw")
 	_begin(0.16); _noise(0, 0.06, "lp", 1400, 0.7, 1.0); _tone(0, 85, 0.12, "sine", 0.8); _tone(0.03, 1600, 0.02, "square", 0.08); _end("plug_in")
@@ -194,10 +225,8 @@ func _build_all() -> void:
 	_begin(0.02); _tone(0, 3300, 0.008, "square", 0.3); _end("tick", false, false, 0.5)
 	_begin(1.1)
 	for i in 14:
-		_noise(i * 0.07 + randf() * 0.03, 0.05, "bp", 5200 + randf() * 1500, 3, 0.8)
+		_noise(i * 0.07 + _rng.randf() * 0.03, 0.05, "bp", 5200 + _rng.randf() * 1500, 3, 0.8)
 	_end("pencil")
-	_build_ring()
-	_build_clock()
 	_begin(0.03); _tone(0, 1300, 0.012, "square", 0.3); _noise(0, 0.012, "bp", 2500, 1, 0.6); _end("pulse", true)
 	# chamando: "tuuuu" contínuo de 425 Hz, pela linha
 	_begin(1.3)
@@ -205,7 +234,7 @@ func _build_all() -> void:
 	for i in int(on * RATE):
 		var t := float(i) / RATE
 		var env := minf(1.0, minf(t / 0.03, (on - t) / 0.06))
-		_w[i] = (sin(TAU * 425.0 * t) + 0.15 * sin(TAU * 850.0 * t) + randf_range(-0.02, 0.02)) * env
+		_w[i] = (sin(TAU * 425.0 * t) + 0.15 * sin(TAU * 850.0 * t) + _rng.randf_range(-0.02, 0.02)) * env
 	_w = _biquad(_biquad(_w, "hp", 300.0, 0.7), "lp", 3000.0, 0.7)
 	_end("ringback")
 	_begin(1.05)
@@ -216,17 +245,19 @@ func _build_all() -> void:
 	_begin(0.45); _tone(0, 60, 0.4, "sine", 0.9); _end("thump")
 	# o fio terminando de entrar no buraco: um "tec" seco
 	_begin(0.06); _noise(0, 0.015, "bp", 2200, 1.5, 1.0); _tone(0, 320, 0.03, "sine", 0.5); _end("cord_stop")
+	# o fio parado agarrado na borda do buraco e soltando de uma vez: tranco abafado de pano com dois grãos de atrito
+	_begin(0.08); _noise(0, 0.025, "bp", 900, 0.9, 1.0); _tone(0, 140, 0.04, "sine", 0.45)
+	_noise(0.012, 0.012, "bp", 2300, 1.2, 0.5); _noise(0.026, 0.01, "bp", 1900, 1.2, 0.35); _end("cord_snag")
+	# o puxão parando de repente: as fibras raspam um instante na borda, "tsk"
+	_begin(0.06); _noise(0, 0.025, "bp", 3200, 1.3, 1.0); _noise(0.004, 0.018, "bp", 1600, 1.0, 0.5); _end("cord_snap")
 	# o fio caindo na mesa: "tap" macio e abafado
 	_begin(0.09); _noise(0, 0.03, "lp", 700, 0.7, 1.0); _tone(0, 110, 0.05, "sine", 0.5); _end("cord_tap")
 	# plug solto batendo na mesa
 	_begin(0.14); _noise(0, 0.05, "lp", 1800, 0.7, 1.0); _tone(0, 150, 0.1, "sine", 0.6); _tone(0.005, 2100, 0.015, "square", 0.06); _end("drop")
-	_build_rub()
-	_build_unroll()
-	_build_card()
 	_begin(0.55)
 	for k in 12:
-		if randf() < 0.7:
-			_noise(k * 0.04, 0.05, "bp", randf_range(1500, 4000), 0.8, randf())
+		if _rng.randf() < 0.7:
+			_noise(k * 0.04, 0.05, "bp", _rng.randf_range(1500, 4000), 0.8, _rng.randf())
 	_end("static")
 	# a situação da emergência mudou de estágio: chiado curto e dois bipes de rádio
 	_begin(0.42)
@@ -234,22 +265,6 @@ func _build_all() -> void:
 	_tone(0.15, 1150, 0.08, "square", 0.5); _tone(0.28, 1150, 0.1, "square", 0.5)
 	_end("radio_alert", true)
 	_begin(0.08); _noise(0, 0.06, "bp", 2600, 1, 1.0); _end("crackle")
-	# 3 variações de entonação por vogal: descendo, reta, subindo.
-	for v in VOICE:
-		for vw in VOWEL:
-			for k in 3:
-				_syllable(v, vw, [-0.12, 0.0, 0.10][k], k == 0)
-	_build_car()
-	_build_car(true)
-	_build_thunder()
-	_build_neon()
-	_build_bell()
-	_build_outside()
-	_build_lamp()
-	# ambientes em loop
-	_build_rain()
-	_build_breeze()
-	_build_crickets()
 	_begin(1.0)
 	for i in _w.size():
 		var t := float(i) / RATE
@@ -257,9 +272,16 @@ func _build_all() -> void:
 	_end("hum", false, true, 0.6)
 	_begin(2.0)
 	for i in _w.size():
-		_w[i] = randf_range(-1.0, 1.0)
+		_w[i] = _rng.randf_range(-1.0, 1.0)
 	_w = _biquad(_w, "bp", 2000, 0.6)
 	_end("hiss", false, true, 0.6)
+
+
+## A voz `v` por sílaba: 3 variações de entonação por vogal (descendo, reta, subindo).
+func _build_voice(v: String) -> void:
+	for vw in VOWEL:
+		for k in 3:
+			_syllable(v, vw, [-0.12, 0.0, 0.10][k], k == 0)
 
 
 # ------------------------------------------------------------------ ambientes e campainhas
@@ -277,14 +299,14 @@ func _build_car(wet := false) -> void:
 		var t := float(i) / RATE
 		ph += 52.0 * (1.08 - 0.16 * t / L) / RATE
 		_w[i] = _wave("saw", ph) * 0.6 + sin(TAU * ph * 2.0) * 0.3
-		tires[i] = randf_range(-1.0, 1.0)
+		tires[i] = _rng.randf_range(-1.0, 1.0)
 	_w = _biquad(_w, "lp", 380.0, 0.7)
 	tires = _biquad(_biquad(tires, "lp", 1400.0, 0.7), "hp", 200.0, 0.7)
 	var water := PackedFloat32Array()
 	if wet:
 		water.resize(n)
 		for i in n:
-			water[i] = randf_range(-1.0, 1.0)
+			water[i] = _rng.randf_range(-1.0, 1.0)
 		water = _biquad(_biquad(water, "hp", 1800.0, 0.7), "lp", 7000.0, 0.7)
 	for i in n:
 		var env := pow(sin(PI * float(i) / n), 2.0)
@@ -306,7 +328,7 @@ func _build_neon() -> void:
 	for i in int(0.16 * RATE):
 		var t := float(i) / RATE
 		var env := (1.0 - exp(-t / 0.008)) * exp(-t / 0.05)
-		dry[i] = (randf_range(-1.0, 1.0) * 0.6 + _wave("saw", 120.0 * t) * 0.5) * env
+		dry[i] = (_rng.randf_range(-1.0, 1.0) * 0.6 + _wave("saw", 120.0 * t) * 0.5) * env
 	dry = _biquad(_biquad(dry, "lp", 900.0, 0.7), "lp", 900.0, 0.7)
 	var echo := int(0.085 * RATE)   # o eco nas fachadas (~15 m de ida e volta)
 	for i in n:
@@ -343,47 +365,44 @@ func _build_bell() -> void:
 	_end("bell", false, false, 0.85)
 
 
-## A chuva e a rua de perto da janela: o pingo da calha no peitoril de fora, as gotas batendo no vidro (em loop), o
-## vidro e a persiana chocalhando no trovão perto, e os passos de quem passa na calçada de lá, seco ou molhado (de
-## longe: sem os agudos).
+## Um cachorro latindo bem longe, do outro lado da cidade: latidos curtos e roucos (o tom sobe e cai em cada um, com
+## sopro), espaçados, abafados pela distância (só o meio do espectro, sem graves nem agudos) e com o eco dos morros
+## chegando depois. `low`: outro cachorro, maior, que late menos e mais devagar (o que responde).
+func _build_dog(low := false) -> void:
+	_begin(3.6)
+	var f0 := 300.0 if low else 430.0
+	var at := 0.05
+	for k in (2 if low else 3):
+		var d := _rng.randf_range(0.13, 0.19) * (1.25 if low else 1.0)
+		var f := f0 * _rng.randf_range(0.94, 1.06)
+		var s0 := int(at * RATE)
+		var ph := 0.0
+		for i in int(d * RATE):
+			var t := float(i) / RATE
+			var u := t / d
+			ph += f * (1.0 + 0.3 * sin(PI * minf(u * 1.6, 1.0)) - 0.25 * u) / RATE   # sobe e cai
+			var env := minf(1.0, t / 0.006) * pow(1.0 - u, 1.4)
+			_w[s0 + i] += (_wave("saw", ph) * 0.7 + _rng.randf_range(-1.0, 1.0) * 0.35) * env
+		at += d + _rng.randf_range(0.5, 0.8) * (1.4 if low else 1.0)
+	_w = _biquad(_w, "bp", 750.0 if low else 900.0, 1.1)   # a garganta, e a distância comendo graves e agudos
+	_w = _biquad(_biquad(_w, "lp", 1100.0, 0.7), "hp", 220.0, 0.7)
+	for e: Vector2 in [Vector2(0.27, 0.3), Vector2(0.58, 0.17), Vector2(0.95, 0.08)]:   # o eco dos morros
+		var n := int(e.x * RATE)
+		for i in range(_w.size() - 1, n - 1, -1):
+			_w[i] += _w[i - n] * e.y
+	_end("dog_low" if low else "dog", false, false, 0.7)
+
+
+## A janela: o vidro e a persiana chocalhando no trovão perto.
 func _build_outside() -> void:
-	_begin(0.16)   # o pingo: um "plic" que cai de tom depressa
-	var ph := 0.0
-	for i in _w.size():
-		var t := float(i) / RATE
-		ph += (900.0 + 700.0 * exp(-t / 0.012)) / RATE
-		_w[i] = sin(TAU * ph) * exp(-t / 0.035)
-	_noise(0.0, 0.01, "hp", 3000.0, 0.7, 0.3)
-	_end("drip")
-	_begin(4.4)   # as gotas no vidro: batidinhas agudas e espalhadas
-	var n := _w.size()
-	var taps := PackedFloat32Array()
-	taps.resize(n)
-	taps.fill(0.0)
-	for k in int(4.4 * 38):
-		taps[randi() % n] += (1.0 if randf() < 0.5 else -1.0) * randf_range(0.2, 1.0)
-	var hi := _biquad(taps, "bp", 4200.0, 1.6)
-	var lo := _biquad(taps, "bp", 1900.0, 3.0)
-	for i in n:
-		_w[i] = hi[i] * 1.2 + lo[i] * 0.8 + randf_range(-1.0, 1.0) * 0.02
-	_loopify(0.3)
-	_end("rain_glass", false, true, 0.6)
 	_begin(0.9)   # o chocalho: estalinhos rápidos, crescendo e sumindo com o ronco
 	var t0 := 0.0
 	while t0 < 0.8:
-		var g := sin(PI * t0 / 0.8) * randf_range(0.5, 1.0)
-		_noise(t0, 0.012, "bp", randf_range(2200.0, 3400.0), 2.0, g)
+		var g := sin(PI * t0 / 0.8) * _rng.randf_range(0.5, 1.0)
+		_noise(t0, 0.012, "bp", _rng.randf_range(2200.0, 3400.0), 2.0, g)
 		_noise(t0, 0.02, "bp", 900.0, 4.0, g * 0.4)
-		t0 += randf_range(0.015, 0.04)
+		t0 += _rng.randf_range(0.015, 0.04)
 	_end("rattle")
-	for wet in [false, true]:   # os passos
-		_begin(0.2)
-		_noise(0.0, 0.06, "lp", 280.0, 0.7, 1.0)
-		_noise(0.0, 0.03, "bp", 1500.0, 1.0, 0.35)
-		if wet:
-			_noise(0.01, 0.12, "hp", 2200.0, 0.7, 0.45)
-		_w = _biquad(_w, "lp", 2600.0, 0.7)
-		_end("step_wet" if wet else "step")
 
 
 ## A luminária: o zumbido elétrico bem baixo da lâmpada acesa (120 Hz e harmônicos, em loop) e o estalo de quando ela
@@ -408,7 +427,7 @@ func _build_thunder() -> void:
 	var b := 0.0
 	for i in _w.size():
 		var t := float(i) / RATE
-		b = b * 0.985 + randf_range(-1.0, 1.0) * 0.06
+		b = b * 0.985 + _rng.randf_range(-1.0, 1.0) * 0.06
 		var roll := 0.65 + 0.35 * sin(TAU * t * 0.9 + sin(TAU * t * 0.37) * 2.0)
 		_w[i] = b * (1.0 - exp(-t / 0.12)) * exp(-t / 2.0) * roll
 	_w = _biquad(_biquad(_w, "lp", 220.0, 0.7), "hp", 25.0, 0.7)
@@ -426,31 +445,43 @@ func _loopify(sec: float) -> void:
 	_w.resize(n)
 
 
-## Chuva: chiado de fundo, milhares de gotinhas finas (impulsos filtrados) e batidas mais graves na janela e no telhado.
+## Chuva ouvida de dentro, em estéreo (cada lado com o seu chiado; em mono era um chiado de rádio) e mais do lado da
+## janela, à direita (`RAIN_LEFT`): o ronco grave da água nos telhados e no asfalto, igual nos dois lados; o lençol de
+## gotas longe, sem os agudos (a janela fechada); e o grão miúdo das gotas, denso e por igual. Gotas soltas (batidas,
+## bolhas de poça, gotas no vidro) saíram a pedido: soavam como "tic".
 func _build_rain() -> void:
-	_begin(5.4)
+	var L := 7.0
+	_begin(L)
 	var n := _w.size()
-	var bed := PackedFloat32Array()
-	var fine := PackedFloat32Array()
-	var taps := PackedFloat32Array()
-	for a in [bed, fine, taps]:
-		a.resize(n)
-		a.fill(0.0)
+	var rumble := PackedFloat32Array()
+	rumble.resize(n)
 	for i in n:
-		bed[i] = randf_range(-1.0, 1.0)
-	for k in int(5.4 * 1400):
-		fine[randi() % n] += randf_range(-1.0, 1.0) * pow(randf(), 2.5)   # muitas fracas, poucas fortes
-	for k in int(5.4 * 40):
-		taps[randi() % n] += (1.0 if randf() < 0.5 else -1.0) * randf_range(0.3, 1.0)
-	bed = _biquad(_biquad(bed, "lp", 2400.0, 0.7), "hp", 500.0, 0.7)
-	var rumble := _biquad(_biquad(bed, "lp", 260.0, 0.7), "lp", 260.0, 0.7)
-	fine = _biquad(_biquad(fine, "bp", 3400.0, 0.8), "hp", 1200.0, 0.7)
-	taps = _biquad(taps, "bp", 1250.0, 4.0)
-	for i in n:
-		_w[i] = bed[i] * 0.22 + rumble[i] * 1.5 + fine[i] * 2.2 + taps[i] * 1.6
-	_w = _biquad(_w, "lp", 5500.0, 0.7)   # atrás da janela
-	_loopify(0.4)
-	_end("rain", false, true, 0.6)
+		rumble[i] = _rng.randf_range(-1.0, 1.0)
+	rumble = _biquad(_biquad(rumble, "lp", 320.0, 0.7), "hp", 40.0, 0.7)
+	var sides: Array[PackedFloat32Array] = []
+	for side in 2:
+		var bed := PackedFloat32Array()
+		var fine := PackedFloat32Array()
+		bed.resize(n)
+		fine.resize(n)
+		fine.fill(0.0)
+		for i in n:
+			bed[i] = _rng.randf_range(-1.0, 1.0)
+		for k in int(L * 3000):
+			fine[_rng.randi() % n] += _rng.randf_range(-1.0, 1.0)
+		bed = _biquad(bed, "bp", 700.0, 0.5)
+		fine = _biquad(fine, "bp", 2600.0, 0.7)
+		for i in n:
+			_w[i] = rumble[i] * 0.6 + bed[i] * 0.6 + fine[i] * 1.1
+		_w = _biquad(_w, "lp", 4500.0, 0.7)   # atrás da janela
+		_loopify(0.4)
+		if side == 0:
+			for i in _w.size():
+				_w[i] *= RAIN_LEFT
+		sides.append(_w)
+		_begin(L)
+	_w = sides[0]
+	_end("rain", false, true, 0.6, sides[1])
 
 
 ## Brisa leve: ruído grave em rajadas lentas (ciclos inteiros no loop de 8 s) e um assobio fraquinho.
@@ -459,13 +490,13 @@ func _build_breeze() -> void:
 	var n := _w.size()
 	var b := 0.0
 	for i in n:
-		b = b * 0.995 + randf_range(-1.0, 1.0) * 0.05
+		b = b * 0.995 + _rng.randf_range(-1.0, 1.0) * 0.05
 		_w[i] = b
 	_w = _biquad(_biquad(_w, "lp", 650.0, 0.7), "hp", 70.0, 0.7)
 	var hiss := PackedFloat32Array()
 	hiss.resize(n)
 	for i in n:
-		hiss[i] = randf_range(-1.0, 1.0)
+		hiss[i] = _rng.randf_range(-1.0, 1.0)
 	hiss = _biquad(hiss, "bp", 900.0, 3.0)
 	for i in n:
 		var t := float(i) / RATE
@@ -482,27 +513,27 @@ func _build_crickets() -> void:
 	_begin(L)
 	var amps := [1.0, 0.6, 0.4, 0.3, 0.2]
 	for c in amps.size():
-		var f := randf_range(3900.0, 5100.0)
-		var syl := randi_range(3, 5)
-		var gap := randf_range(0.028, 0.036)
-		var every := randf_range(0.38, 0.75)
-		var t := randf() * every
+		var f := _rng.randf_range(3900.0, 5100.0)
+		var syl := _rng.randi_range(3, 5)
+		var gap := _rng.randf_range(0.028, 0.036)
+		var every := _rng.randf_range(0.38, 0.75)
+		var t := _rng.randf() * every
 		while t < L - 0.3:
 			for s in syl:
-				_cricket_syllable(t + s * gap, f, 0.02, float(amps[c]) * randf_range(0.8, 1.0))
-			t += every * randf_range(0.9, 1.12)
+				_cricket_syllable(t + s * gap, f, 0.02, float(amps[c]) * _rng.randf_range(0.8, 1.0))
+			t += every * _rng.randf_range(0.9, 1.12)
 	# grilos de trilo: "criiiiii" de 1,5 a 4 s (pulsos rápidos, ~40 por segundo), pausa, e de novo
 	for tr in [[3800.0, 38.0, 0.55], [4400.0, 46.0, 0.35]]:
-		var t := randf() * 1.0
+		var t := _rng.randf() * 1.0
 		while t < L - 0.5:
-			var len := minf(randf_range(1.5, 4.0), L - 0.2 - t)
+			var len := minf(_rng.randf_range(1.5, 4.0), L - 0.2 - t)
 			var p := 1.0 / float(tr[1])
 			var k := 0.0
 			while k < len:
 				var fade := minf(1.0, minf(k / 0.3, (len - k) / 0.3))
 				_cricket_syllable(t + k, tr[0], p * 0.6, float(tr[2]) * fade)
 				k += p
-			t += len + randf_range(0.5, 2.0)
+			t += len + _rng.randf_range(0.5, 2.0)
 	_w = _biquad(_biquad(_w, "lp", 7000.0, 0.7), "hp", 2500.0, 0.7)
 	_loopify(0.4)
 	_end("crickets", false, true, 0.5)
@@ -511,7 +542,7 @@ func _build_crickets() -> void:
 ## Uma sílaba de grilo: ataque curto, tom caindo um pouco, final mais lento.
 func _cricket_syllable(at: float, f: float, dur: float, g: float) -> void:
 	var s0 := int(at * RATE)
-	var ph := randf()
+	var ph := _rng.randf()
 	for i in int(dur * RATE):
 		if s0 + i >= _w.size():
 			break
@@ -528,13 +559,13 @@ func _build_unroll() -> void:
 	_begin(0.8)
 	var t := 0.0
 	while t < 0.55:
-		_noise(t, randf_range(0.004, 0.012), "bp", randf_range(2500.0, 5500.0), 2.0, randf_range(0.25, 0.8) * (1.0 - t / 0.7))
-		t += randf_range(0.006, 0.012) + t * 0.05
+		_noise(t, _rng.randf_range(0.004, 0.012), "bp", _rng.randf_range(2500.0, 5500.0), 2.0, _rng.randf_range(0.25, 0.8) * (1.0 - t / 0.7))
+		t += _rng.randf_range(0.006, 0.012) + t * 0.05
 	var slide := PackedFloat32Array()   # deslizar: ruído que cresce e some
 	slide.resize(int(0.55 * RATE))
 	for i in slide.size():
 		var k := float(i) / slide.size()
-		slide[i] = randf_range(-1.0, 1.0) * 0.35 * sin(PI * k)
+		slide[i] = _rng.randf_range(-1.0, 1.0) * 0.35 * sin(PI * k)
 	slide = _biquad(slide, "bp", 1800.0, 0.7)
 	for i in slide.size():
 		_w[i] += slide[i]
@@ -553,9 +584,9 @@ func _build_card() -> void:
 	_begin(0.95)
 	var t := 0.0
 	while t < 0.85:
-		_noise(t, 0.012, "bp", randf_range(2600.0, 3600.0), 1.5, randf_range(0.6, 1.0))
-		_tone(t, randf_range(160.0, 210.0), 0.035, "sine", 0.45)
-		t += randf_range(0.055, 0.1)
+		_noise(t, 0.012, "bp", _rng.randf_range(2600.0, 3600.0), 1.5, _rng.randf_range(0.6, 1.0))
+		_tone(t, _rng.randf_range(160.0, 210.0), 0.035, "sine", 0.45)
+		t += _rng.randf_range(0.055, 0.1)
 	_end("typing")
 	# impressora matricial: cada batida de agulha é um impulso que faz soar o metal da agulha e o rolo; o motor de
 	# passo puxa o papel aos "tk" regulares; tudo ressoa na carcaça
@@ -563,16 +594,16 @@ func _build_card() -> void:
 	var hits := PackedFloat32Array()
 	hits.resize(_w.size())
 	t = 0.03
-	var word := randi_range(2, 7)
+	var word := _rng.randi_range(2, 7)
 	while t < 1.22:
 		for col in 7:   # um caractere: colunas de agulhas (algumas das 9 em cada), a última vazia
-			var i := int((t + randf_range(0.0, 0.00015)) * RATE)
-			hits[i] += (randi_range(1, 7) if col < 6 and randf() < 0.85 else 0) / 9.0
+			var i := int((t + _rng.randf_range(0.0, 0.00015)) * RATE)
+			hits[i] += (_rng.randi_range(1, 7) if col < 6 and _rng.randf() < 0.85 else 0) / 9.0
 			t += 1.0 / PRINTER_COLS
 		word -= 1
 		if word == 0:   # espaço entre palavras: a cabeça anda sem bater
-			t += randi_range(1, 2) * 7.0 / PRINTER_COLS
-			word = randi_range(2, 7)
+			t += _rng.randi_range(1, 2) * 7.0 / PRINTER_COLS
+			word = _rng.randi_range(2, 7)
 	var steps := PackedFloat32Array()
 	steps.resize(_w.size())
 	t = 0.0
@@ -598,7 +629,7 @@ func _build_card() -> void:
 		var ts := float(i) / RATE
 		ph += (110.0 + 90.0 * minf(ts / 0.15, 1.0)) / RATE
 		var env := minf(ts / 0.05, 1.0) * minf((0.7 - ts) / 0.1, 1.0)
-		_w[i] = (_wave("saw", ph) * 0.25 + randf_range(-1.0, 1.0) * 0.35) * env
+		_w[i] = (_wave("saw", ph) * 0.25 + _rng.randf_range(-1.0, 1.0) * 0.35) * env
 	_w = _biquad(_w, "lp", 1800.0, 0.7)
 	_noise(0.7, 0.05, "bp", 1200.0, 1.0, 0.8); _tone(0.7, 130.0, 0.06, "sine", 0.5)   # o cartão assenta
 	_end("feed")
@@ -624,37 +655,31 @@ func _build_card() -> void:
 	_w = _biquad(_w, "lp", 700.0, 0.7)
 	t = 0.08
 	while t < 1.1:   # o papel rasgando aos trancos
-		_noise(t, randf_range(0.03, 0.07), "bp", randf_range(1800.0, 4200.0), 0.9, randf_range(0.4, 0.9))
-		t += randf_range(0.03, 0.08)
+		_noise(t, _rng.randf_range(0.03, 0.07), "bp", _rng.randf_range(1800.0, 4200.0), 0.9, _rng.randf_range(0.4, 0.9))
+		t += _rng.randf_range(0.03, 0.08)
 	_end("shred")
 
 
-## Atrito do fio na borda do buraco: dois loops que tocam juntos (`cord_rub` controla o volume de cada um).
-## - "rub", o fio: prende e escorrega ("agarra e solta"), estalos médios bem juntos que viram um zumbido áspero,
-##   sobre um corpo grave contínuo.
+## A madeira do móvel por baixo do atrito do fio: o pico dela, em fração do pico dos estalos.
+const WOOD := 0.3
+
+
+## Atrito do fio na borda do buraco: três loops que tocam juntos (`cord_rub` controla o volume de cada um).
+## - "rub" e "rub_slow", o fio: prende e escorrega ("agarra e solta") sobre um corpo grave contínuo, com a madeira
+##   do móvel soando a cada estalo. No "rub" (rápido) os estalos são bem juntos e viram um zumbido áspero; no
+##   "rub_slow" (devagar) são esparsos, cada agarrão separado. `cord_rub` cruza um no outro pela velocidade.
 ## - "rub_hi", o agudo: brilho de fibras raspando e o rangido de corda esfregada (o agarra-e-solta em ritmo quase
 ##   regular faz a corda vibrar, como um arco). Some quando o fio passa devagar.
-## Os dois saem com o mesmo ganho, como se fossem um som só.
+## Saem com o mesmo ganho, como se fossem um som só.
 func _build_rub() -> void:
-	_begin(1.4)
-	var t := 0.0
-	while t < 1.39:   # agarra e solta
-		_noise(t, randf_range(0.008, 0.016), "bp", randf_range(1550.0, 2850.0), 1.2, randf_range(0.5, 1.0))
-		t += randf_range(0.005, 0.010)
-	var body := PackedFloat32Array()   # corpo
-	body.resize(_w.size())
-	for i in body.size():
-		body[i] = randf_range(-0.6, 0.6)
-	body = _biquad(body, "lp", 920.0, 0.8)
-	for i in _w.size():
-		_w[i] += body[i]
-	var cord := _w
+	var cord := _rub_cord(1.4, Vector2(0.005, 0.010), Vector2(0.008, 0.016), Vector2(1550.0, 2850.0))
+	var slow := _rub_cord(2.0, Vector2(0.022, 0.05), Vector2(0.01, 0.02), Vector2(1300.0, 2500.0))
 
 	_begin(1.4)
-	t = 0.0
+	var t := 0.0
 	while t < 1.39:   # fibras
-		_noise(t, 0.06, "bp", randf_range(1700.0, 5700.0), 2.0, randf_range(0.08, 0.25))
-		t += randf_range(0.003, 0.008)
+		_noise(t, 0.06, "bp", _rng.randf_range(1700.0, 5700.0), 2.0, _rng.randf_range(0.08, 0.25))
+		t += _rng.randf_range(0.003, 0.008)
 	# rangido: pulsos quase regulares (o ritmo e a força variam devagar, em trechos que vêm e vão) que fazem
 	# soar duas ressonâncias curtas
 	var creak := PackedFloat32Array()
@@ -663,18 +688,18 @@ func _build_rub() -> void:
 	var amp := 0.5
 	var i := 0
 	while i < creak.size():
-		creak[i] = amp * randf_range(0.7, 1.0)
-		rate = clampf(rate + randf_range(-20.0, 20.0), 170.0, 290.0)
-		amp = clampf(amp + randf_range(-0.04, 0.04), 0.1, 1.0)
-		i += int(RATE / rate * randf_range(0.92, 1.08))
+		creak[i] = amp * _rng.randf_range(0.7, 1.0)
+		rate = clampf(rate + _rng.randf_range(-20.0, 20.0), 170.0, 290.0)
+		amp = clampf(amp + _rng.randf_range(-0.04, 0.04), 0.1, 1.0)
+		i += int(RATE / rate * _rng.randf_range(0.92, 1.08))
 	var ring_a := _resonator(creak, 2500.0, 0.003)
 	var ring_b := _resonator(creak, 3700.0, 0.002)
 	for k in _w.size():
 		_w[k] += (ring_a[k] + ring_b[k] * 0.6) * 0.35
 	var hi := _w
 
-	# mesmo ganho nos dois: cada um sai com o pico que teria dentro da mistura
-	var layers := {"rub": cord, "rub_hi": hi}
+	# mesmo ganho em todos: cada um sai com o pico que teria dentro da mistura
+	var layers := {"rub": cord, "rub_slow": slow, "rub_hi": hi}
 	for id in layers:
 		_w = _biquad(layers[id], "lp", 8000.0, 0.7)
 		_loopify(0.2)
@@ -688,6 +713,37 @@ func _build_rub() -> void:
 		for v in _w:
 			own = maxf(own, absf(v))
 		_end(id, false, true, 0.8 * own / mix)
+
+
+## Um loop do fio, de `sec` s: estalos de agarra e solta a cada `gap` s (x..y), de `dur` s, na banda `band` Hz,
+## sobre o corpo grave e com a madeira do móvel soando a cada um.
+func _rub_cord(sec: float, gap: Vector2, dur: Vector2, band: Vector2) -> PackedFloat32Array:
+	_begin(sec)
+	var knock := PackedFloat32Array()   # cada agarra e solta bate na borda do buraco e faz soar o móvel
+	knock.resize(_w.size())
+	var t := 0.0
+	while t < sec - 0.01:   # agarra e solta
+		var g := _rng.randf_range(0.5, 1.0)
+		_noise(t, _rng.randf_range(dur.x, dur.y), "bp", _rng.randf_range(band.x, band.y), 1.2, g)
+		knock[int(t * RATE)] += g
+		t += _rng.randf_range(gap.x, gap.y)
+	var body := PackedFloat32Array()   # corpo
+	body.resize(_w.size())
+	for i in body.size():
+		body[i] = _rng.randf_range(-0.6, 0.6)
+	body = _biquad(body, "lp", 920.0, 0.8)
+	# a madeira: dois modos graves e bem amortecidos, um murmúrio oco por baixo do atrito, WOOD do pico dele
+	var wood := _resonator(knock, 210.0, 0.006)
+	var wood_b := _resonator(knock, 330.0, 0.004)
+	var peak := 0.0001
+	var wood_peak := 0.0001
+	for i in _w.size():
+		wood[i] += wood_b[i] * 0.6
+		peak = maxf(peak, absf(_w[i]))
+		wood_peak = maxf(wood_peak, absf(wood[i]))
+	for i in _w.size():
+		_w[i] += body[i] + wood[i] * WOOD * peak / wood_peak
+	return _w
 
 
 ## Toque da mesa: bipes curtos de seno (com um pouco do 2º e 3º harmônicos, para não soar eletrônico demais),

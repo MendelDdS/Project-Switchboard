@@ -2,7 +2,7 @@ class_name PauseMenu
 extends ColorRect
 ## Menu de pausa (Esc durante o turno) e configurações (também abertas pela tela inicial).
 ## Roda com o jogo pausado (process_mode ALWAYS): o relógio, as ligações e os timers param; o ambiente continua,
-## para dar para ajustar o volume ouvindo.
+## abafado (`Sfx.muffle`), e nas configurações volta ao normal, para dar para ajustar o volume ouvindo.
 
 signal resumed
 
@@ -13,9 +13,11 @@ var _saved := {}              ## configurações ao abrir a tela: Voltar volta p
 
 
 func _ready() -> void:
+	$Version.text = Settings.version_text()
 	%Resume.pressed.connect(resume)
 	%OpenSettings.pressed.connect(_show_settings.bind(true))
 	%RestartNight.pressed.connect(func():
+		Sfx.muffle(false)
 		get_tree().paused = false
 		get_tree().reload_current_scene())
 	%Quit.pressed.connect(func(): get_tree().quit())
@@ -62,6 +64,7 @@ func open_settings() -> void:
 
 
 func resume() -> void:
+	Sfx.muffle(false)
 	visible = false
 	get_tree().paused = false
 	resumed.emit()
@@ -97,6 +100,8 @@ func _show_settings(on: bool) -> void:
 	Sfx.play("click")
 	%Main.visible = not on
 	%Settings.visible = on
+	if not _settings_only:   # o jogo pausado fica abafado; nas configurações, não (o volume se ajusta ouvindo)
+		Sfx.muffle(not on)
 	if on:
 		_saved = Settings.snapshot()
 		_sync_apply()

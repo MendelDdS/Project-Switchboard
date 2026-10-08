@@ -1,7 +1,7 @@
 class_name DebugPanel
 extends PanelContainer
 ## Painel de debug (F1; só em build de debug, ou seja, no editor ou num export de debug; no export de release ele
-## se apaga): toca ligações na hora, mexe na barra de agravamento, no relógio, nas viaturas e no caderno. Cada seção
+## se apaga): toca ligações na hora, mexe na barra de agravamento, no relógio, no clima, nas viaturas e no caderno. Cada seção
 ## tem um "Limpar" que desfaz o que ela mexe, e "Restaurar tudo" faz todos (o relógio fica onde está).
 ## Limpar não gera advertência nem retorno. Ferramenta de desenvolvimento: textos fixos em português, sem tradução.
 ## A mesa de som toca cada som do `Sfx.VOL` e ajusta o volume dele na hora (`Sfx.vol`); "Copiar VOL" põe na área de
@@ -20,6 +20,7 @@ var _emergency: OptionButton
 var _emergencies: Array[EmergencyCall] = []   ## na ordem do seletor: as escritas e depois os moldes
 var _freeze: CheckButton
 var _mix := {}   ## id do som -> [controle, rótulo do volume]
+var _weather0 := ""   ## o clima sorteado da noite, antes de o painel trocar (o "Limpar" volta para ele)
 
 @onready var main: Main = get_parent()
 @onready var _box: VBoxContainer = %Box
@@ -59,6 +60,8 @@ func _ready() -> void:
 	_row(speeds)
 	_row([["+30 min", func(): main.minutes = minf(main.minutes + 30.0, Main.SHIFT_END - 1.0)],
 		["Ir para 23:50", func(): main.minutes = maxf(main.minutes, Main.SHIFT_END - 10.0)], ["Encerrar turno", func(): main.start_ending()]])
+	_section("Clima", func(): if _weather0 != "": main.set_weather(_weather0))
+	_row([["Chuva", _set_weather.bind("rain")], ["Névoa", _set_weather.bind("fog")], ["Limpo", _set_weather.bind("clear")]])
 	_section("Noites", func(): _go_night(1))
 	_row([["◀ Noite anterior", func(): _go_night(main.night_no - 1)], ["Próxima noite ▶", func(): _go_night(main.night_no + 1)]])
 	_section("Viaturas e caderno", _clear_units_notebook)
@@ -68,6 +71,12 @@ func _ready() -> void:
 	_row([["Copiar VOL", _copy_mix]])
 	for id: String in Sfx.VOL:
 		_mixer(id)
+
+
+func _set_weather(w: String) -> void:
+	if _weather0 == "":
+		_weather0 = main.weather
+	main.set_weather(w)
 
 
 ## Recomeça o jogo na noite `n` (setores, ritmo e roteiro dela), sem ler nem gravar o progresso salvo (como

@@ -11,6 +11,8 @@ config_version=5
 [application]
 
 config/name="Project Switchboard"
+config/version="0.4.0"
+config/stage="alpha"
 config/description="Protótipo: operador de central telefônica, turno da noite."
 run/main_scene="res://scenes/app.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")

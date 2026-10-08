@@ -16,7 +16,7 @@ extends Control
 ## de pé no tampo). Cada camada pode virar imagem (PNG): com `wall_art`, `window_art` ou `desk_art`, a imagem entra
 ## no lugar do desenho daquela camada (o clima continua por cima da vista).
 ## `weather`: "rain" (gotas no vidro, chão molhado), "fog" (névoa passando, luzes difusas) ou "clear" (estrelas e lua).
-## `shadow`: a silhueta de alguém parado do lado de fora da janela (sai pouco antes da ligação desconhecida).
+## `stranger`: quando o homem do mistério para embaixo do poste e quando vai embora (chega e sai andando, `_man_x`).
 ## Objetos na mesa, ao alcance do operador, abrem as ferramentas (`prop_clicked`, o id da aba em `Tools.TABS`): as
 ## listas telefônicas, o mapa dobrado, o caderno aberto e a prancheta do registro (o relógio de flip e a caneca só
 ## enfeitam). Ficam na sala, em centímetros da
@@ -27,6 +27,12 @@ extends Control
 
 signal prop_clicked(id: String)
 
+## A luminária esquentando no começo do turno (`warm_up`): acende a WARM.x da luz e chega a ela inteira em WARM.y s,
+## devagar no fim, como um filamento; em degraus de WARM_STEP (cada degrau redesenha a sala). Acima de 0,5, para não
+## apagar o que segue a luminária piscando (a luz dos postes lavando as fachadas).
+const WARM := Vector2(0.55, 4.0)
+const WARM_STEP := 0.05
+const WARM_DARK := 0.3   ## o escuro a mais na sala com a luminária ainda fria (`_draw_gloom`)
 const FLICK := [1.0, 0.2, 1.0, 1.0, 0.5, 1.0, 1.0, 0.1, 1.0, 1.0, 1.0, 0.4, 1.0, 1.0, 1.0, 1.0, 0.2, 1.0, 1.0, 0.6, 1.0, 1.0, 1.0]
 const WOOD := [Color("6b4529"), Color("4a2f1c"), Color("2a1a0f")]   ## madeira (luz, meio, sombra), a mesma do móvel
 const LIT := [Color("d59a3d"), Color("b38a3c"), Color("e2b25a")]   ## janelas acesas da cidade
@@ -66,27 +72,61 @@ const PLANKS := 6       ## as tábuas do tampo, todas da mesma largura (a câmer
 const POOL_R := 150.0   ## o raio da poça de luz da luminária no tampo
 const DUST := 240        ## grãos de poeira na luz da luminária
 const BEADS := 50        ## gotas paradas no vidro, na chuva
+const RAIN := 320        ## pingos caindo lá fora, na chuva
+const RAIN_FALL := Vector2(9.0, 16.0)   ## quanto o pingo cai a cada quadro da vista (px de 2x2), do mais longe ao mais perto: cruza o vidro em meio segundo
+const RAIN_STREAK := Vector2(6.0, 14.0) ## o comprimento do risco (px da tela), do mais longe ao mais perto: o rastro do quadro
+const RAIN_SLANT := 0.18 ## o vento: quanto o pingo anda para a esquerda a cada px que cai
+## A chuva muda de força durante a noite (`rain_level`: de garoa, `RAIN_LEVEL.x`, a forte, 1), em ondas lentas de
+## `RAIN_SPAN` min de jogo (duas, cada noite com as suas fases), em degraus de `RAIN_STEP`: o som (`Sfx.set_rain`), os
+## pingos no vidro, o vento no arbusto e os relâmpagos (só com ela acima de `BOLT_RAIN`) seguem. A rua vai ficando mais
+## molhada até `SOAK_MIN` min de chuva (as poças crescem).
+const RAIN_LEVEL := Vector2(0.15, 1.0)
+const RAIN_SPAN := Vector2(95.0, 37.0)
+const RAIN_STEP := 0.05
+const BOLT_RAIN := 0.55
+const SOAK_MIN := 150.0
+## Na noite limpa, nuvens passam pela lua (`CLOUDS`, devagar, `CLOUD_SPEED` da largura do vidro por segundo): coberta,
+## ela escurece, e o brilho azul da janela na sala junto (até `MOON_DIM` dele).
+const CLOUDS := 5
+const CLOUD_SPEED := 0.004
+const MOON := Vector2(0.4, 0.35)   ## onde fica a lua: x em fração do vidro, y em fração do céu à vista (de cima)
+const MOON_DIM := 0.45
+## O vidro embaçado nos cantos e no pé (`_draw_mist`), liso: a força em cada clima (na chuva, menos quanto mais forte).
+const MIST := {"fog": 0.38, "clear": 0.34, "rain": 0.26}
+const MIST_TINT := Color(0.66, 0.72, 0.78)
+const DROP_SHADOW := 1.8   ## a sombra das gotas do vidro na luz da rua na mesa (`_draw_drop_shadows`), em relação à força da luz ali
 const NOIR := Color(0.012, 0.022, 0.045, 0.72)   ## o escuro frio da sala fora da luz da luminária (`_draw_gloom`)
 const GLOOM_R := Vector2(820, 330)   ## até onde vai a luz da luminária antes do escuro todo (px da tela, elipse em volta da poça na mesa: larga, a mesa toda na luz)
 const GLOOM_IN := 0.25   ## dentro dessa fração do raio, nada de escuro: dali para fora ele cresce liso
 const WINDOW_GLOW := Color(0.45, 0.62, 1.0, 0.12)   ## o brilho azul da noite entrando pela janela (`_draw_window_glow`)
 const WINDOW_GLOW_R := 420.0   ## até onde ele chega (px da tela, a partir do meio do vidro)
-const STREET_LIGHT := 1.6   ## a luz da rua entrando pela janela: quanto ela desce para cada unidade que entra na sala
+const STREET_LIGHT := 1.15   ## a luz da rua entrando pela janela: quanto ela desce para cada unidade que entra na sala (com 1,6, caía perto da parede, um quadrado pequeno para a janela grande)
 const CAR_EVERY := Vector2(35, 80)   ## de quanto em quanto tempo passa um carro lá fora (s, sorteado)
 const CAR_SEC := 3.2      ## quanto ele leva passando na rua (a ~40 km/h), com os faróis na rua da vista
-const WALK_EVERY := Vector2(40, 100)   ## de quanto em quanto tempo alguém passa pela calçada de lá (s, sorteado)
-const WALK_SEC := 18.0    ## quanto leva atravessando a vista (~1,8 m/s, de 16 m a 16 m)
-const WALK_STEPS := 2.2   ## passos por segundo (as pernas alternam e os passos soam no mesmo ritmo)
+const WALK_EVERY := Vector2(2, 5)    ## de quanto em quanto tempo alguém passa pela calçada de lá às 18h (s, sorteado)...
+const WALK_FROM := 18.0 * 60.0   ## ...e daí (min do dia) o intervalo cresce, cada vez menos gente...
+const WALK_UNTIL := 22.0 * 60.0  ## ...até ninguém mais passar (só o homem do mistério)
+const WALK_PAIR := 0.2    ## a chance de virem dois juntos
+const WALK_SEC := 18.0    ## quanto leva atravessando a vista (~1,8 m/s, de 16 m a 16 m; cada um ±20%)
+const WALK_STEPS := 2.2   ## passos por segundo (as pernas alternam nesse ritmo)
 const LATE_FROM := 22.0 * 60.0   ## a partir de que hora (min do dia) a cidade começa a se calar: menos carros e pedestres
 const LATE_TO := 24.0 * 60.0     ## até quando (aí, os intervalos entre eles chegam a `LATE_EVERY` vezes)
 const LATE_EVERY := 3.0
+const DOG_FROM := 21.0 * 60.0   ## a partir de que hora (min do dia) cachorros latem bem longe, de vez em quando
+const DOG_EVERY := Vector2(45, 120)   ## de quanto em quanto tempo (s, sorteado)
+const DOG_REPLY := 0.45   ## a chance de outro cachorro responder, mais longe, `DOG_REPLY_AFTER` s depois (sorteado)
+const DOG_REPLY_AFTER := Vector2(1.8, 3.5)
 const BELL_AFTER := 1.6   ## o sino da igreja começa a bater a hora depois do gongo da mesa (s), uma badalada a cada `BELL_GAP`
 const BELL_GAP := 2.3
-const DRIP_EVERY := Vector2(0.8, 2.6)   ## o pingo da calha no peitoril de fora, na chuva (s entre um e outro, sorteado)
 const RATTLE_NEAR := 2.0  ## trovão que vem até esse tempo depois do clarão (s) é perto: o vidro e a persiana chocalham
 const BOLT_EVERY := Vector2(45, 110)   ## de quanto em quanto tempo cai um relâmpago, na chuva (s, sorteado)
 const BOLT_PULSES := [Vector2(0.0, 1.0), Vector2(0.14, 0.55), Vector2(0.42, 0.8)]   ## os clarões dele: quando (s) e a força
 const THUNDER_AFTER := Vector2(1.2, 3.5)   ## o trovão vem depois (s, sorteado: longe ou perto)
+## O clarão do relâmpago na sala (`_bolt_layer`, somado à luz, `_bolt_build`): quase branco (azulado e espalhado na sala
+## inteira, até na frente da mesa comutadora, parecia a noite clareando), só no que a janela alcança.
+const BOLT_LIGHT := Color(0.93, 0.96, 1.0)
+const BOLT_DIR := Vector2(-1.4, 0.45)   ## para onde a luz dele anda a cada unidade para o fundo (x, para a esquerda; y, para baixo): a sombra do armário na parede
+const BOLT_STEEP := 1.2   ## quanto ela desce para cada unidade que entra na sala, até a mesa (a janela desenhada no tampo)
 ## A vista é uma cena 3D simples projetada para o vidro (pensada antes, não elemento por elemento): uma câmera dentro
 ## do prédio, na altura de quem está na janela (`OUT_EYE` m acima da rua: o horizonte passa ali), olhando para fora,
 ## de frente para uma rua que passa ao lado do prédio e continua para os dois lados. Um ponto de fuga só, no meio do
@@ -102,15 +142,38 @@ const STREET := {"curb": 3.2, "lane": 7.2, "far_curb": 11.2, "far": 14.0}
 const CROSSING := Vector2(-6.0, 2.0)   ## a rua do cruzamento, indo embora entre os prédios de lá (x, m)
 const FAR_LAMPS := [2.6, -17.0, 19.0]  ## os postes da calçada de lá (x, m): o primeiro na esquina do prédio de tijolos, com o homem
 const MAN_X := 3.4        ## onde o homem fica, embaixo do poste da esquina
+const MAN_FROM := 16.0    ## de onde ele vem pela calçada (x, m; fora da vista) e para onde volta
+const MAN_WALK := 6.0     ## quanto ele leva andando de lá até o poste (min de jogo: ~8 s, ~1,6 m/s)
+const MAN_STRIDE := 0.75  ## o passo dele (m)
 const HOTEL_X := -9.5     ## o letreiro do hotel, no prédio do outro lado da esquina
-const CAR_Z := 9.2        ## o carro passa pela mão de lá (o meio dele, m)
+## O prédio de tijolos da esquina é de apartamentos: no 3º andar (de `floor` m), uma varanda de `x0` a `x1` (m ao longo
+## da rua), saindo `deep` m da fachada, com a porta (`door`, de x a y) e a janela da sala (`win`), onde a TV fica ligada.
+const APT := {"x0": 2.7, "x1": 7.6, "floor": 6.5, "deep": 1.0, "door": Vector2(3.2, 4.3), "win": Vector2(5.3, 6.9)}
+const APT_DARK := 21 * 60 + 40   ## a luz da sala do apartamento apaga: dali em diante, só a TV
+const TV_OFF := 23 * 60 + 35     ## e a TV também (alguém dormiu na frente dela)
+const TV_BLUE := Color(0.42, 0.58, 0.95)   ## a luz da TV no vidro
+## Janelas que acendem de madrugada (alguém levantou): `WAKE.x` delas, das janelas que já apagaram, acendem de novo
+## uma vez entre `WAKE_FROM` e a meia-noite, por `WAKE_FOR` min (sorteado, sempre o mesmo).
+const WAKE := 0.14
+const WAKE_FROM := 21 * 60 + 30
+const WAKE_FOR := Vector2(4, 14)
+## As duas mãos da rua: [o meio do carro (z, m), o sentido (-1: para a esquerda)]. Pela mão de lá, da direita para a
+## esquerda; pela de cá, entre o nosso meio-fio e a faixa do meio, voltando, da esquerda para a direita.
+const CAR_LANES := [Vector2(9.2, -1.0), Vector2(6.4, 1.0)]
 ## O arbusto plantado junto da nossa parede, embaixo da janela: é do primeiro plano, como a janela, e fica no plano da
 ## parede dela (não na vista). O meio e a meia largura (fração da largura do vão) e quanto a copa sobe acima do
 ## peitoril (fração da altura).
 const SHRUB := Vector3(0.62, 0.15, 0.11)
+## As rajadas de vento no arbusto: as duas ondas lentas que as fazem (rad/s) e quanto elas empurram a copa para a
+## esquerda (px da tela no alto dela).
+const GUST := Vector3(0.23, 0.071, 2.5)
 const CHURCH_K := 0.45    ## a escala da igreja (desenhada em px de 2x2), no fim da rua do cruzamento
 const SIGN_RED := Color("ff4a3a")    ## o neon dele aceso (apagado, quase preto)
 const SIGN_GLOW := Color(1.0, 0.25, 0.18, 0.05)   ## o reflexo vermelho dele na parede, perto da janela
+const FOG := Color(0.55, 0.62, 0.66)   ## a cor da névoa (`_draw_fog`)
+const FOG_VEIL := 0.2    ## o véu dela por cima de tudo lá fora (o longe some nele)
+const FOG_GROUND := 0.2  ## o tanto a mais rente ao chão, sumindo até 3 m de altura
+const FOG_WISPS := 9     ## os fiapos passando pela rua
 const SHADE_MAX := 0.3   ## o mais escuro que um objeto da mesa fica, longe da poça de luz (`_shade`)
 const CAB_W := 110.0             ## a largura do armário de aço, encostado na parede (px de 2x2 lá)
 const POSTER_W := 30.0           ## a largura do cartaz da quermesse (px de 2x2)
@@ -131,6 +194,14 @@ const STEAM_FOR := 210.0    ## em quantos minutos de jogo o café esfria e o vap
 const BLIND := 0.3         ## até onde a persiana desce (fração da altura do vão)
 const X2 := Transform2D(Vector2(2, 0), Vector2(0, 2), Vector2.ZERO)   ## a escala dos px de 2x2 (`_sprite` volta a ela)
 const PROP_K := 93.0 / 66.0   ## a escala dos objetos da mesa: a mesma dos plugs, que cresceram até o tamanho das tomadas (antes, o plug ficava maior que o relógio e o caderno)
+## A unidade de despacho (`_draw_dispatch_unit`, na escala dos objetos, `PROP_K`): largura, altura da base e fundo da
+## base até o painel (fração do tampo); o painel: a altura acima da base, o quanto o alto dele recua (fração do tampo,
+## para ficar inclinado, de frente para os olhos) e o fundo do móvel todo (fração do tampo).
+const UNIT := Vector3(39, 6, 0.17)
+const BOOKS_SPAN := 40.0   ## o lugar das listas na fileira (na escala dos objetos): os 31 delas mais os volumes desencontrados e a lombada
+const UNIT_PANEL := 16.0
+const UNIT_TILT := 0.11
+const UNIT_D := 0.3
 const CLOCK := Vector3(24, 12.5, 14) * PROP_K   ## o relógio de flip da mesa: largura, altura e fundo (na escala da sala; ~15 × 8 × 9 cm, como as listas de 21 cm)
 ## Quanto ele está virado para os olhos do operador (1 = de frente para eles; 0 = reto, para a parede). Reto: virado
 ## pela metade (13°), a frente descia uns 5° entre as horizontais da sala e o lado, que mostra que é uma caixa, quase
@@ -169,11 +240,14 @@ const DIGITS := [   ## os algarismos das plaquetas, 9×19 px, desenhados à mão
 
 var flick := false
 var lamp_level := 1.0
+var warm := 1.0   ## o quanto a luminária já esquentou (0..1, `warm_up`): o Main tinge o brilho dela de laranja até chegar a 1
 var weather := "rain"
-var shadow := false
+var stranger := Vector2(INF, INF)   ## quando o homem do mistério para embaixo do poste e quando vai embora (min do dia; o Main atualiza)
 # O estado do jogo nos objetos da mesa, para ler de relance sem abrir nada (o Main atualiza):
 var pending := 0     ## registros esperando no caderno: uma tira de papel saindo dele por registro
 var unread := false  ## o registro das conversas tem fala nova: uma folha nova presa na prancheta
+var alert := false     ## há uma emergência em andamento: a luz vermelha da unidade de despacho (o Main atualiza)
+var card_out := false  ## há um cartão perfurado na mesa: ele sai da fenda da impressora da unidade, com a luz âmbar
 var news := false    ## o jornal da manhã está na mesa (da segunda noite em diante; `Main.set_news`)
 # A sala muda ao longo das noites (o Main atualiza): os detalhes valendo (`RoomChange.detail`) e a noite (o calendário
 # do armário risca um dia por noite).
@@ -189,7 +263,7 @@ var clock_x := 0.0   ## onde o relógio está na tela (x global): de lá vêm a 
 var _yaw := 0.0   # quanto o relógio da mesa está girado (rad; `_draw_flip_clock`)
 var _flip_from := -1   # o minuto que a plaqueta mostrava antes de virar
 var _flip_at := -100000   # quando ela começou a virar (ms)
-var _drops: Array = []
+var _drops: Array = []   # pingos caindo: Vector3(x, y em frações da vista, perto: 0 = longe, 1 = perto)
 var _dust: Control       # a poeira no feixe da luminária (`dust`): desenhada à parte, a 30 quadros por segundo, sem redesenhar a sala
 var _motes: Array = []   # os grãos: Vector3(x de -1 a 1 na largura da luz, y de 0 a 1 do alto da tela ao fundo do tampo, fase do brilho)
 var _beads: Array = []   # gotas paradas no vidro: Vector4(x, y em frações do vidro à vista, tamanho, velocidade; 0 = parada)
@@ -211,15 +285,28 @@ var _vp := Vector2.ZERO   # o ponto de fuga (px de 2x2)
 var _yd := 0.0         # a altura do tampo (y da sala, abaixo dos olhos)
 var _zd := Vector2.ZERO   # a frente e o fundo do tampo (z)
 var _side_x := 0.0     # a lateral da mesa comutadora na sala (x): os objetos da mesa ficam à direita dela
+var _shelf := Vector2(INF, INF)   # `shelf()`, em px do cenário
 var _cx := 0.0         # a quina das paredes (px de 2x2, na tela)
 var _t2 := 1.6         # onde a janela termina na parede da direita (escala)
 var _ci: CanvasItem    # onde a vista da janela é desenhada: aqui, ou no vidro fora da tela
-var _view: Control     # desenha a vista da janela no `_vport`
+var _view: Control     # desenha a vista da janela no `_vport`: a frente dela, a cada quadro da vista
+var _back: Control     # a parte de trás da vista, embaixo da `_view`: só se redesenha quando muda (`_back_state`)
+var _back_drawn := []
 var _vport: SubViewport
 var _hom := Basis()          # a perspectiva do objeto chato sendo desenhado (`_flat`, `_homography`): o que vai por cima dele, na tela
 var _hom_sz := Vector2.ONE   # o tamanho do desenho de frente dele (px)
 var _cover := Rect2()   # onde está o papel da ferramenta aberta (px da tela, não de 2x2): luz embaixo dele não brilha
 var _drawn := []        # o `_state` do último desenho da sala
+var _over: Control      # por cima da sala, o que muda sozinho sem mexer nela (`_draw_over`)
+var _over_drawn := []   # o estado do último desenho dela
+var _glows: Array = []  # as luzes da sala para o brilho (`_light`): [retângulo, cor, halo, miolo, redonda]
+var _sign_glow := Rect2()   # o halo do letreiro no vidro (vazio = fora do vidro); brilha só aceso
+var _bolt_layer: Control   # o clarão do relâmpago, por cima de tudo e somado: só a força muda, no `modulate`
+var _bolt_lit: Array = []    # o que ele acende: [polígono (px da tela), cores], medido com a sala (`_bolt_build`)
+var _occ: Array = []         # os objetos da mesa (px da tela, convexos): o que fica na frente da parede e do armário
+var _occ_board := PackedVector2Array()   # a mesa comutadora inteira (px da tela)
+var _side_faces: Array = []  # a lateral da mesa comutadora (px da tela), virada para a janela
+var _cab := [Rect2(), Rect2()]   # o armário: o fundo dele (na parede) e a frente (px de 2x2)
 var _mug_mouth := Vector2.ZERO   # o meio do café na caneca (px da tela), de onde sobe o vapor
 var _mug_w := 0.0               # a largura da caneca na tela (px; 0 = ainda não desenhada)
 var _headless := false   # sem tela (os testes): a vista da janela não é desenhada
@@ -228,17 +315,21 @@ var _glass := PackedVector2Array()   # o vidro da janela abaixo da persiana (px 
 var _view_at := Vector2.ZERO   # onde a vista começa na tela (px de 2x2): o arbusto é posto pela parede da sala
 var _near := 0.0         # a vista passa do peitoril de longe para baixo (px de 2x2): a parte de perto da janela, mais alta na tela, mostra a calçada embaixo dela
 var _sign_px := Vector2.ZERO   # onde o letreiro aparece no vidro (px da tela; zero = fora do vidro)
-var _car := -1.0         # o carro passando lá fora: de 0 a 1 (-1 = nenhum)
-var _car_in := 20.0      # quanto falta para o próximo (s)
-var _walk := -1.0        # alguém passando na calçada de lá: de 0 a 1 (-1 = ninguém)
-var _walk_in := 25.0     # quanto falta para o próximo (s)
-var _walk_dir := 1.0     # para que lado ele vai (1: para a direita)
-var _walk_step := -1     # o último passo que soou
+var _cars: Array[Dictionary] = []   # os carros passando lá fora: {"t": de 0 a 1, "lane": em `CAR_LANES`}
+var _car_in := [20.0, 32.0]          # quanto falta para o próximo de cada mão (s)
+var _walkers: Array = []   # quem está passando na calçada de lá (`_walker`), na ordem do desenho: os de mais longe primeiro
+var _walk_in := 3.0      # quanto falta para o próximo (s)
+var _dog_in := randf_range(15.0, 50.0)   # quanto falta para o próximo latido, contado a partir de `DOG_FROM` (s)
+var _dog_reply := -1.0   # quanto falta para o cachorro que responde (-1 = nenhum)
 var _tolls := 0          # badaladas do sino que faltam bater
 var _toll_in := 0.0      # quanto falta para a próxima (s)
-var _drip_in := 1.0      # quanto falta para o próximo pingo (s)
 var _late_sent := -1.0   # o quanto da noite avançada já foi passado ao `Sfx`
+var _warm_t := -1.0   # s desde que a luminária acendeu (`warm_up`; -1 = já quente)
 var _lamp_dim := false   # a luminária estava baixa no quadro anterior (ao piscar, estala)
+var _rain_phase := Vector2(randf() * TAU, randf() * TAU)   # as fases das ondas da chuva nesta noite
+var _rain_sent := -1.0   # a força da chuva já passada ao `Sfx`
+var _clouds: Array[Vector3] = []   # as nuvens da noite limpa: x (fração do vidro, sem o vento), altura (fração do céu à vista), tamanho
+var _street_map := []   # a conta da luz da rua na mesa (`_draw_street_light`): [x da quina, alturas, fundos, força]
 var _sign_was := true    # o letreiro estava aceso no quadro anterior (ao falhar, estala)
 var _bolt := -1.0        # há quanto tempo caiu o relâmpago (s; -1 = nenhum)
 var _bolt_in := 30.0     # quanto falta para o próximo (s)
@@ -252,14 +343,34 @@ func _ready() -> void:
 	_vport = SubViewport.new()
 	_vport.size = Vector2i(64, 64)
 	_vport.render_target_update_mode = SubViewport.UPDATE_ONCE   # a cada quadro da vista (`_process`)
+	_back = Control.new()
+	_back.draw.connect(_draw_view_back)
+	_vport.add_child(_back)
 	_view = Control.new()
 	_view.draw.connect(_draw_view)
 	_vport.add_child(_view)
 	add_child(_vport)
-	for i in 120:   # gotas e estrelas em frações do vidro: a janela muda de tamanho com a tela
-		_drops.append(Vector3(randf(), randf(), 0.6 + randf() * 0.7))
+	_over = Control.new()
+	_over.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_over.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_over.draw.connect(_draw_over)
+	add_child(_over)
+	_bolt_layer = Control.new()
+	_bolt_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_bolt_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var add := CanvasItemMaterial.new()
+	add.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD   # luz: soma, não cobre
+	_bolt_layer.material = add
+	_bolt_layer.visible = false
+	_bolt_layer.draw.connect(_draw_bolt)
+	add_child(_bolt_layer)
+	_show()
+	for i in RAIN:   # pingos e estrelas em frações do vidro: a janela muda de tamanho com a tela
+		_drops.append(Vector3(randf() * 1.2, randf(), randf()))
 	for i in 30:
 		_stars.append(Vector2(randf() * 0.95 + 0.02, randf() * 0.45 + 0.03))
+	for i in CLOUDS:
+		_clouds.append(Vector3(randf() * 1.4, randf_range(0.1, 0.75), randf_range(0.7, 1.3)))
 	_dust = dust
 	if _dust == null:   # (sem a camada da cena: aqui mesmo, atrás da interface)
 		_dust = Control.new()
@@ -272,14 +383,36 @@ func _ready() -> void:
 		_beads.append(Vector4(randf(), randf(), 1 + randi() % 2, 0.0))
 
 
-## A sala só se redesenha quando algo que ela mostra muda (`_state`): parada, ela custa só o desenho já guardado. A
-## vista da janela (chuva, névoa, estrelas) anda a 30 quadros por segundo no vidro fora da tela, sem redesenhar a sala.
+## A sala só se redesenha quando algo que ela mostra muda (`_state`): parada, ela custa só o desenho já guardado. O
+## que muda sozinho fica fora dela: a camada de cima (`_over`, o escuro, o neon e o papel deslizando), a do relâmpago
+## (`_bolt_layer`, só a força muda) e a frente do relógio, uma textura trocada no lugar (`_clock_face`). A vista da janela (chuva, névoa, estrelas) anda a 30
+## quadros por segundo no vidro fora da tela, sem redesenhar a sala.
 func _process(delta: float) -> void:
 	_events(delta)
 	var st := _state()
-	if st != _drawn:   # (o papel deslizando entra aqui: o corte do brilho acompanha já neste quadro)
+	if st != _drawn:
 		_drawn = st
 		queue_redraw()
+		_over.queue_redraw()   # (depois da sala: usa o vidro e a poça de luz que ela acabou de medir)
+		_bolt_layer.queue_redraw()
+		_show()
+	var f := snappedf(_flash(), 0.02)
+	if f != _bolt_layer.modulate.a:   # o relâmpago: o desenho dele fica; só a força muda
+		_bolt_layer.modulate.a = f
+		if f > 0.0 and not _bolt_layer.visible:
+			_bolt_layer.queue_redraw()
+		_bolt_layer.visible = f > 0.0
+		_show()
+	var ov := [size, _paper(), lamp_level, _sign_on(), _moon_light(), _mist_force()]
+	if ov != _over_drawn:   # (o papel deslizando entra aqui: o corte do brilho acompanha já neste quadro)
+		_over_drawn = ov
+		_over.queue_redraw()
+		_show()
+	if _face:   # a hora mudou ou a plaqueta está virando: só a frente do relógio muda
+		var was := _face_key
+		_clock_face(_face_key[0])
+		if _face_key != was:
+			_show()
 	_acc += delta
 	if _acc < 1.0 / 30.0:
 		return
@@ -287,11 +420,12 @@ func _process(delta: float) -> void:
 	_mist += 0.12
 	for i in _drops.size():
 		var d: Vector3 = _drops[i]
-		d.y += d.z / _win.y
-		d.x -= d.z * 0.25 / _win.x
-		if d.y > 1.0:
-			d.y = -0.05
-			d.x = randf() * 1.1
+		var fall := lerpf(RAIN_FALL.x, RAIN_FALL.y, d.z)
+		d.y += fall / _win.y
+		d.x -= fall * RAIN_SLANT / _win.x
+		if d.y > 1.05:   # volta para cima, de onde o vento o traz até ali
+			d.y -= 1.1
+			d.x = randf() * (1.0 + RAIN_SLANT * _win.y / _win.x)
 		_drops[i] = d
 	for i in _motes.size():   # a poeira: sobe e desce devagar, ao sabor do ar
 		var m: Vector3 = _motes[i]
@@ -314,10 +448,16 @@ func _process(delta: float) -> void:
 				if b.y > 1.0:
 					b = Vector4(randf(), randf() * 0.8, 1 + randi() % 2, 0.0)
 			_beads[i] = b
+	if _warm_t >= 0.0:
+		_warm_t += 1.0 / 30.0
+		warm = snappedf(1.0 - pow(1.0 - minf(_warm_t / WARM.y, 1.0), 2.0), WARM_STEP)
+		if warm >= 1.0:
+			_warm_t = -1.0
+	var base := lerpf(WARM.x, 1.0, warm)
 	if flick:
-		lamp_level = FLICK[int(Time.get_ticks_msec() / 90.0) % FLICK.size()]
+		lamp_level = FLICK[int(Time.get_ticks_msec() / 90.0) % FLICK.size()] * base
 	else:
-		lamp_level = 1.0
+		lamp_level = base
 	var dim := lamp_level < 0.75
 	if dim != _lamp_dim:   # a luminária piscando estala
 		_lamp_dim = dim
@@ -325,26 +465,47 @@ func _process(delta: float) -> void:
 	Sfx.lamp(lamp_level)
 	if _headless:   # sem tela (testes) ninguém vê a vista: redesenhada a cada quadro, ela era 2/3 do tempo de um turno do robô
 		return
+	var bs := _back_state()
+	if bs != _back_drawn:
+		_back_drawn = bs
+		_back.queue_redraw()
 	_view.queue_redraw()
 	_vport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	_show()
 
 
-## Tudo de que o desenho da sala depende (fora o mouse, que redesenha sozinho): onde a interface pôs as coisas, o
-## papel da ferramenta, a luminária, o alfinete e o estado do jogo nos objetos.
+## A luminária acende agora (começo do turno): fraca e alaranjada, esquentando até a luz inteira (`WARM`).
+func warm_up() -> void:
+	_warm_t = 0.0
+	warm = 0.0
+
+
+## A tela do cenário (o `View` do `SceneView`) mostra um quadro novo: ela só é desenhada quando algo nela muda (a sala,
+## a camada de cima, o relógio, a vista da janela a 30 quadros por segundo) ou de tamanho (`SceneView._fit`); a cada
+## quadro, as ~1000 chamadas de desenho da sala parada iam para a placa de vídeo à toa.
+func _show() -> void:
+	var vp := get_viewport() as SubViewport
+	if vp:
+		vp.render_target_update_mode = SubViewport.UPDATE_ONCE
+
+
+## Tudo de que o desenho da sala depende (fora o mouse, que redesenha sozinho): onde a interface pôs as coisas, a
+## luminária e o estado do jogo nos objetos.
 func _state() -> Array:
 	return [size, board.get_global_rect() if board else Rect2(), desk.get_global_rect() if desk else Rect2(),
-		window.get_global_rect() if window else Rect2(), _paper(), lamp_level, pending, unread, news,
-		details, night, weather, int(minutes), _flip_step(), TranslationServer.get_locale(), snappedf(_flash(), 0.02), _sign_on()]
+		window.get_global_rect() if window else Rect2(), lamp_level, pending, unread, alert, card_out, news, details, night, weather,
+		TranslationServer.get_locale()]
 
 
 ## Os acontecimentos lá fora, cada um na hora sorteada: um carro passando (`CAR_*`; na chuva, com o chiado da água),
-## alguém andando pela calçada de lá, com os passos (`WALK_*`), e, na chuva, a calha pingando (`DRIP_EVERY`) e o
+## gente andando pela calçada de lá, cada vez menos até as 22h (`WALK_*`; sem som: os passos, de dentro do prédio, não
+## se ouviriam), o homem do mistério chegando e indo embora (`_man_x`), e, na chuva, o
 ## relâmpago com o trovão depois (`BOLT_*`, `THUNDER_AFTER`; perto, a janela chocalha, `RATTLE_NEAR`); o neon do
-## hotel estala quando falha e o sino da igreja bate as horas (`toll`). Das 22h à meia-noite a cidade se cala: carros e
-## pedestres cada vez mais raros (`LATE_*`) e os grilos mais presentes (`Sfx.set_late`). Os sons vêm da janela.
+## hotel estala quando falha, o sino da igreja bate as horas (`toll`) e, das 21h em diante, cachorros latem bem longe
+## (`DOG_*`; calados antes da ligação desconhecida, `Sfx.hushed`). Das 22h à meia-noite a cidade se cala: carros
+## cada vez mais raros (`LATE_*`) e os grilos mais presentes (`Sfx.set_late`). Os sons vêm da janela.
 func _events(delta: float) -> void:
 	var x := _bounds(_glass).get_center().x / maxf(1.0, size.x) if _glass.size() > 2 else 0.9
-	Sfx.window_x = x
 	var late := snappedf(clampf((minutes - LATE_FROM) / (LATE_TO - LATE_FROM), 0.0, 1.0), 0.1)
 	if late != _late_sent:   # a cidade se calando: grilos mais presentes, menos gente e carro
 		_late_sent = late
@@ -356,40 +517,54 @@ func _events(delta: float) -> void:
 			Sfx.play_at("bell", x)
 			_tolls -= 1
 			_toll_in = BELL_GAP
-	if weather == "rain":   # a calha pingando no peitoril de fora, sem ritmo certo
-		_drip_in -= delta
-		if _drip_in <= 0.0:
-			Sfx.play_at("drip", x, randf_range(-5.0, 0.0))
-			_drip_in = randf_range(DRIP_EVERY.x, DRIP_EVERY.y) * (0.25 if randf() < 0.2 else 1.0)
-	_car_in -= delta
-	if _car < 0.0 and _car_in <= 0.0:
-		_car = 0.0
-		Sfx.play_at("car_wet" if weather == "rain" else "car", x)
-	if _car >= 0.0:
-		_car += delta / CAR_SEC
-		if _car >= 1.0:
-			_car = -1.0
-			_car_in = randf_range(CAR_EVERY.x, CAR_EVERY.y) * rare
+	if minutes >= DOG_FROM:   # um cachorro latindo longe e, às vezes, outro respondendo
+		_dog_in -= delta
+		if _dog_in <= 0.0:
+			_dog_in = randf_range(DOG_EVERY.x, DOG_EVERY.y)
+			if not Sfx.hushed():
+				Sfx.play_at("dog", x, 0.0, randf_range(0.92, 1.08))
+				if randf() < DOG_REPLY:
+					_dog_reply = randf_range(DOG_REPLY_AFTER.x, DOG_REPLY_AFTER.y)
+	if _dog_reply >= 0.0:
+		_dog_reply -= delta
+		if _dog_reply < 0.0 and not Sfx.hushed():
+			Sfx.play_at("dog_low", x, -3.0, randf_range(0.92, 1.05))
+	for lane in CAR_LANES.size():   # um carro por vez em cada mão, cada uma no seu tempo
+		_car_in[lane] -= delta
+		if _car_in[lane] <= 0.0:
+			_cars.append({"t": 0.0, "lane": lane})
+			_car_in[lane] = INF   # o próximo desta mão é sorteado quando este sair
+			Sfx.play_at("car_wet" if weather == "rain" else "car", x, 2.0 if lane == 1 else 0.0)   # o de cá, mais perto
+	for i in range(_cars.size() - 1, -1, -1):
+		var c := _cars[i]
+		c["t"] += delta / CAR_SEC
+		if c["t"] >= 1.0:
+			_car_in[c["lane"]] = randf_range(CAR_EVERY.x, CAR_EVERY.y) * rare
+			_cars.remove_at(i)
+	var crowd := 1.0 - clampf((minutes - WALK_FROM) / (WALK_UNTIL - WALK_FROM), 0.0, 1.0)
 	_walk_in -= delta
-	if _walk < 0.0 and _walk_in <= 0.0:
-		_walk = 0.0
-		_walk_dir = 1.0 if randf() < 0.5 else -1.0
-	if _walk >= 0.0:
-		_walk += delta / WALK_SEC
-		if _walk >= 1.0:
-			_walk = -1.0
-			_walk_in = randf_range(WALK_EVERY.x, WALK_EVERY.y) * rare
-	if _walk >= 0.0:   # os passos dele, de longe
-		var st := int(_walk * WALK_SEC * WALK_STEPS)
-		if st != _walk_step:
-			_walk_step = st
-			Sfx.play_at("step_wet" if weather == "rain" else "step", x)
+	if _walk_in <= 0.0 and crowd > 0.0:
+		_walk_in = randf_range(WALK_EVERY.x, WALK_EVERY.y) / maxf(crowd, 0.05)
+		var w := _walker()
+		_add_walker(w)
+		if randf() < WALK_PAIR:   # dois juntos: lado a lado, o de trás um passo atrás
+			var w2 := _walker()
+			w2.merge({"t": -1.0 / 32.0, "dir": w["dir"], "sec": w["sec"], "z": w["z"] + (0.5 if w["z"] < 13.0 else -0.5)}, true)
+			_add_walker(w2)
+	for i in range(_walkers.size() - 1, -1, -1):
+		var w: Dictionary = _walkers[i]
+		w["t"] += delta / w["sec"]
+		if w["t"] >= 1.0:
+			_walkers.remove_at(i)
 	var lit := _sign_on()
 	if _sign_was and not lit and _sign_px != Vector2.ZERO:
 		Sfx.play_at("neon", x)
 	_sign_was = lit
 	_bolt_in -= delta
-	if _bolt < 0.0 and _bolt_in <= 0.0 and weather == "rain":
+	if weather == "rain" and rain_level() != _rain_sent:   # a chuva engrossa e afina: o som acompanha
+		_rain_sent = rain_level()
+		Sfx.set_rain(_rain_sent)
+	if _bolt < 0.0 and _bolt_in <= 0.0 and weather == "rain" and rain_level() > BOLT_RAIN:   # só na chuva forte
 		_bolt = 0.0
 		_thunder_at = randf_range(THUNDER_AFTER.x, THUNDER_AFTER.y)
 	if _bolt >= 0.0:
@@ -419,6 +594,33 @@ func _flash() -> float:
 	return f
 
 
+## A força da chuva agora (`RAIN_LEVEL.x` = garoa, 1 = forte), pela hora: duas ondas lentas com as fases da noite.
+func rain_level() -> float:
+	var k := 0.55 + 0.3 * sin(TAU * minutes / RAIN_SPAN.x + _rain_phase.x) + 0.2 * sin(TAU * minutes / RAIN_SPAN.y + _rain_phase.y)
+	return snappedf(clampf(k, RAIN_LEVEL.x, RAIN_LEVEL.y), RAIN_STEP)
+
+
+## O quanto a rua já está molhada (0..1): cresce com a noite de chuva, até `SOAK_MIN` min.
+func _soaked() -> float:
+	return clampf((minutes - 18 * 60.0) / SOAK_MIN, 0.0, 1.0) if weather == "rain" else 0.0
+
+
+## Onde está cada nuvem agora (x em fração do vidro, levada pelo vento devagar).
+func _cloud_x(c: Vector3) -> float:
+	return fposmod(c.x + _mist / 3.6 * CLOUD_SPEED, 1.4) - 0.2
+
+
+## A luz da lua agora (0..1): o quanto as nuvens a deixam aparecer, na noite limpa (as outras não têm lua).
+func _moon_light() -> float:
+	if weather != "clear":
+		return 1.0
+	var cover := 0.0
+	for c in _clouds:
+		var d := Vector2((_cloud_x(c) - MOON.x) / (0.16 * c.z), (c.y - MOON.y) / (0.09 * c.z)).length()
+		cover = maxf(cover, 1.0 - smoothstep(0.35, 1.0, d))
+	return snappedf(1.0 - cover * 0.85, 0.05)
+
+
 ## O letreiro aceso: quase sempre; de vez em quando apaga um instante, como neon velho.
 func _sign_on() -> bool:
 	return not (int(Time.get_ticks_msec() / 110.0) % 97 in [40, 42, 43, 71])
@@ -437,6 +639,12 @@ func _paper() -> Rect2:
 	return Rect2()
 
 
+## A lateral da prateleira da mesa comutadora (x, o canto da frente do console) e o tampo ao pé dele (y), em px da
+## tela: além da lateral, o plug solto cai até o tampo (`Switchboard.shelf`). Antes do primeiro desenho, sem fim.
+func shelf() -> Vector2:
+	return _shelf + global_position if _shelf.x < INF else _shelf
+
+
 ## Onde fica na tela (global) o objeto da mesa que abre a ferramenta `id` (vazio se ele não está na mesa): de onde o
 ## papel dela sai (`Tools.origin`).
 func prop_rect(id: String) -> Rect2:
@@ -445,10 +653,8 @@ func prop_rect(id: String) -> Rect2:
 
 ## Uma luz do cenário (`r` em px da tela) que brilha, a não ser que o papel de uma ferramenta esteja por cima dela.
 func _light(r: Rect2, col: Color, halo: float, round := false, core := true) -> void:
-	if _ci != self:   # a vista da janela: as luzes dela vêm de `_draw_side_wall`, que sabe onde o vidro está
-		return
-	if not _cover.intersects(r):
-		Bloom.light(self, r, col, halo, core, round)
+	if _ci == self:   # a vista da janela: as luzes dela vêm de `_draw_side_wall`, que sabe onde o vidro está
+		_glows.append([r, col, halo, core, round])   # a camada de cima as acende, cortadas onde o papel está
 
 
 func _r(x: float, y: float, w: float, h: float, c: Color) -> void:
@@ -485,8 +691,10 @@ func _sprite(tex: Texture2D, c: Vector2, mod := Color.WHITE, back := Transform2D
 
 
 func _draw() -> void:
-	Bloom.clear(self)
+	_glows.clear()
 	_props.clear()
+	_occ.clear()
+	_side_faces.clear()
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 	var w := ceilf(size.x / 2.0)
 	var h := ceilf(size.y / 2.0)
@@ -496,9 +704,6 @@ func _draw() -> void:
 	var front := floorf((desk.global_position.y - global_position.y + desk.size.y) / 2.0) + 1.0 if desk else h - 20.0
 	_lamp_x = floorf(w / 2.0)
 	var area := Rect2((window.global_position - global_position) / 2.0, window.size / 2.0) if window else Rect2(320, 26, 300, 180)
-	# o papel da ferramenta aberta (ou deslizando) cobre o cenário por estar na frente; só o brilho das luzes, que fica
-	# por cima de tudo, precisa ser cortado onde ele está
-	_cover = _paper()
 	_yd = EYE / DESK_T
 	_cx = floorf(area.position.x + area.size.x * CORNER)
 	var b := Rect2((board.global_position - global_position) / 2.0, board.size / 2.0) if board else Rect2()
@@ -524,62 +729,232 @@ func _draw() -> void:
 	_draw_side_wall(top, front, w)
 	_draw_desk_props()
 	_draw_street_light(w)
+	_bolt_build(top)
+
+
+## A camada por cima da sala (`_over`), com o que muda sozinho sem mexer nela: o escuro (`_draw_gloom`, que segue a
+## luminária), o que entra pela janela (o relâmpago e o neon, `_draw_window_glow`), o escuro e a sombra atrás do papel
+## de uma ferramenta aberta e as luzes da sala no brilho (`Bloom`), cortadas onde o papel está. (Tudo na sala, ela se
+## redesenhava 3 a 4 vezes por segundo parada e a cada quadro do relâmpago e do papel deslizando, ~20 ms cada vez.)
+## O relâmpago tem a camada dele (`_bolt_layer`).
+func _draw_over() -> void:
+	_ci = _over
+	_cover = _paper()   # o papel da ferramenta aberta (ou deslizando) cobre o cenário por estar na frente
+	Bloom.clear(_over)
+	for l: Array in _glows:
+		if not _cover.intersects(l[0]):
+			Bloom.light(_over, l[0], l[1], l[2], l[3], l[4])
+	if _sign_glow.has_area() and _sign_on() and not _cover.intersects(_sign_glow):   # só o halo: as letras ficam à vista
+		Bloom.light(_over, _sign_glow, SIGN_RED, 0.5, false, false)
 	_draw_gloom()
 	_draw_window_glow()
+	_draw_mist()
 	if _cover.has_area():   # uma ferramenta na frente do operador: o cenário atrás escurece e o papel faz sombra nele
-		draw_set_transform(Vector2.ZERO)
-		draw_rect(Rect2(_cover.position + Vector2(10, 12), _cover.size), Color(0, 0, 0, 0.35))
-		draw_rect(Rect2(Vector2.ZERO, size), Color(0, 0, 0, 0.28))
+		_ci.draw_set_transform(Vector2.ZERO)
+		_ci.draw_rect(Rect2(_cover.position + Vector2(10, 12), _cover.size), Color(0, 0, 0, 0.35))
+		_ci.draw_rect(Rect2(Vector2.ZERO, size), Color(0, 0, 0, 0.28))
+	_ci = self
+
+
+## O clarão do relâmpago (`_bolt_layer`, uma camada somada por cima de tudo: a força é o `modulate`, o desenho fica): o que
+## ele acende, medido com a sala (`_bolt_build`).
+func _draw_bolt() -> void:
+	_ci = _bolt_layer
+	for l: Array in _bolt_lit:
+		_fill(l[0], l[1])
+	_ci = self
+
+
+## O que o clarão do relâmpago acende (`_bolt_lit`, px da tela), só o que a janela alcança: a parede do fundo, mais
+## forte perto da quina, menos a sombra do armário (a caixa dele levada até a parede pela luz, `BOLT_DIR`); a frente do
+## armário (e o lado dele, se for o virado para a janela); a lateral da mesa comutadora; e, no tampo, a janela abaixo
+## da persiana com a cruz do caixilho, nítida, e um halo em volta (`BOLT_STEEP`). O que fica na frente da parede e do
+## armário (a mesa comutadora, os objetos da mesa, o tampo) sai do clarão; a frente da mesa comutadora fica no escuro.
+func _bolt_build(top: float) -> void:
+	_bolt_lit.clear()
+	var xc := _cx - _vp.x
+	if xc < 20.0 or _cab[1].size.x <= 0.0:
+		return
+	var wall := Rect2(0, 0, _cx * 2.0, top * 2.0)   # a parede do fundo à vista, acima do tampo
+	var lit := func(poly: PackedVector2Array, force: Callable, occ: Array) -> void:
+		for part: PackedVector2Array in _cut(poly, occ):
+			var cols := PackedColorArray()
+			for p in part:
+				cols.append(Color(BOLT_LIGHT, force.call(p)))
+			_bolt_lit.append([part, cols])
+	var quad := func(r: Rect2) -> PackedVector2Array:
+		return PackedVector2Array([r.position, Vector2(r.end.x, r.position.y), r.end, Vector2(r.position.x, r.end.y)])
+	var back: Rect2 = _cab[0]
+	var front: Rect2 = _cab[1]
+	var shadow := PackedVector2Array()   # a sombra do armário: o fundo dele e a frente levada até a parede pela luz
+	var cab := PackedVector2Array()
+	for c: Vector2 in quad.call(back):
+		shadow.append_array([c * 2.0, (c + BOLT_DIR * (Z0 - Z0 / CAB_T)) * 2.0])
+		cab.append(c * 2.0)
+	for c: Vector2 in quad.call(front):
+		cab.append(c * 2.0)
+	shadow = Geometry2D.convex_hull(shadow)
+	cab = Geometry2D.convex_hull(cab)
+	var n := 16   # em faixas, para o degradê ficar liso
+	for i in n:
+		lit.call(quad.call(Rect2(wall.size.x * i / n, 0, wall.size.x / n, wall.size.y)), func(p: Vector2) -> float:
+			return 0.3 * lerpf(0.3, 1.0, smoothstep(0.0, 1.0, p.x / wall.size.x)) * lerpf(0.75, 1.0, p.y / wall.size.y),
+			[shadow, cab, _occ_board] + _occ)
+	var f2 := Rect2(front.position * 2.0, front.size * 2.0).intersection(wall)   # a frente do armário: mais forte do lado da janela
+	for i in 6:
+		lit.call(quad.call(Rect2(f2.position.x + f2.size.x * i / 6.0, f2.position.y, f2.size.x / 6.0, f2.size.y)),
+			func(p: Vector2) -> float: return 0.3 * lerpf(0.55, 1.0, (p.x - f2.position.x) / f2.size.x), _occ)
+	if back.end.x > front.end.x:   # o lado dele que aparece é o da janela
+		lit.call(PackedVector2Array([Vector2(front.end.x, front.position.y) * 2.0, Vector2(back.end.x, back.position.y) * 2.0,
+			back.end * 2.0, front.end * 2.0]), func(_p: Vector2) -> float: return 0.42, _occ)
+	for face: PackedVector2Array in _side_faces:
+		lit.call(face, func(_p: Vector2) -> float: return 0.4, _occ)
+	# no tampo: a janela abaixo da persiana, entrando na sala e descendo (`BOLT_STEEP`), com a cruz do caixilho (a
+	# travessa e o montante, como em `_draw_side_wall`); ao longo da parede, z é linear (`_side_pt`); o que cairia atrás
+	# do fundo do tampo fica fora
+	var gh := _cm(WIN_SILL - WIN_TOP)
+	var y0 := _cm(WIN_TOP)
+	var ty := floorf(gh * 0.55) - 1.0
+	var zfar := Z0 / SIDE_T   # a janela ao longo da parede: do lado da quina...
+	var znear := Z0 / _t2     # ...ao de perto
+	var zb := Z0 / DESK_T
+	var zm := lerpf(zfar, znear, 0.5)
+	var e := (zfar - znear) / SIDE_W   # meia largura do montante
+	var land := func(y: float) -> float: return xc - (_yd - y) / BOLT_STEEP   # onde o raio que passa na altura `y` cai
+	var pane := Color(BOLT_LIGHT, 0.5)
+	for r: Vector2 in [Vector2(y0 + floorf(gh * BLIND), y0 + ty), Vector2(y0 + ty + 2.0, y0 + gh)]:
+		for c: Vector2 in [Vector2(minf(zfar, zb), zm + e), Vector2(minf(zm - e, zb), znear)]:
+			if c.x > c.y:
+				var a: float = land.call(r.x)
+				var b: float = land.call(r.y)
+				_bolt_lit.append([PackedVector2Array([_p3(a, _yd, c.x), _p3(b, _yd, c.x), _p3(b, _yd, c.y), _p3(a, _yd, c.y)]),
+					PackedColorArray([pane])])
+	var za := minf(zfar, zb)
+	if za > znear:   # o halo em volta, sumindo
+		var xa: float = land.call(y0 + floorf(gh * BLIND))
+		var xb: float = land.call(y0 + gh)
+		var m := 10.0
+		var inner := [_p3(xa, _yd, za), _p3(xb, _yd, za), _p3(xb, _yd, znear), _p3(xa, _yd, znear)]
+		var outer := [_p3(xa - m, _yd, minf(za + m, zb)), _p3(minf(xb + m, xc), _yd, minf(za + m, zb)),
+			_p3(minf(xb + m, xc), _yd, znear - m), _p3(xa - m, _yd, znear - m)]
+		var glow := Color(BOLT_LIGHT, 0.14)
+		for i in 4:
+			_bolt_lit.append([PackedVector2Array([inner[i], inner[(i + 1) % 4], outer[(i + 1) % 4], outer[i]]),
+				PackedColorArray([glow, glow, Color(glow, 0.0), Color(glow, 0.0)])])
+	for part: Array in _sill_lit:   # o peitoril e a guarnição, junto do vidro
+		var cols := PackedColorArray()
+		for k: Color in part[1]:
+			cols.append(Color(BOLT_LIGHT, k.a * 0.7))
+		_bolt_lit.append([part[0], cols])
+
+
+## `poly` sem o que fica na frente dele (`occ`, polígonos convexos): os pedaços que sobram. Antes de recortar, cada
+## pedaço que encosta num deles é partido ao meio dele, na vertical: assim ele nunca fica inteiro dentro de um pedaço
+## (o recorte viraria um buraco, que `_fill` pintaria cheio).
+func _cut(poly: PackedVector2Array, occ: Array) -> Array:
+	var parts := [poly]
+	for o: PackedVector2Array in occ:
+		if o.size() < 3:
+			continue
+		var ob := _bounds(o)
+		var mid := ob.get_center().x
+		var next := []
+		for p: PackedVector2Array in parts:
+			if not _bounds(p).intersects(ob):
+				next.append(p)
+				continue
+			for half: Rect2 in [Rect2(-1e5, -1e5, 1e5 + mid, 2e5), Rect2(mid, -1e5, 1e5, 2e5)]:
+				var hp := PackedVector2Array([half.position, Vector2(half.end.x, half.position.y), half.end, Vector2(half.position.x, half.end.y)])
+				for q: PackedVector2Array in Geometry2D.intersect_polygons(p, hp):
+					next.append_array(Geometry2D.clip_polygons(q, o))
+		parts = next
+	return parts
 
 
 ## O escuro da sala (noir): tudo o que a luz da luminária não alcança fica frio e escuro (`NOIR`), liso, crescendo da
 ## luz para fora (`GLOOM_IN`, `GLOOM_R`; com uma borda marcada, parecia um recorte). O vidro da janela fica de fora: a
-## rua tem a luz dela. A luminária piscando escurece tudo junto.
+## rua tem a luz dela. A luminária piscando ou ainda esquentando (`warm`) escurece tudo junto.
 func _draw_gloom() -> void:
-	draw_set_transform(Vector2.ZERO)
+	_ci.draw_set_transform(Vector2.ZERO)
 	var pool := _pool()
 	var c := _proj(pool.x, _yd, pool.y) * 2.0
 	var dark := func(p: Vector2) -> Color:
 		var k := smoothstep(GLOOM_IN, 1.0, ((p - c) / GLOOM_R).length())
-		return Color(NOIR, clampf(NOIR.a * k + (1.0 - lamp_level) * 0.3, 0.0, 0.9))
+		return Color(NOIR, clampf(NOIR.a * k + (1.0 - lamp_level) * 0.3 + (1.0 - warm) * WARM_DARK, 0.0, 0.9))
 	var glass := _bounds(_glass) if _glass.size() > 2 else Rect2()
 	var n := Vector2i(40, 24)
 	var cell := size / Vector2(n)
+	var at := PackedColorArray()   # a cor em cada vértice da grade (cada um é de quatro células)
+	for j in n.y + 1:
+		for i in n.x + 1:
+			at.append(dark.call(cell * Vector2(i, j)))
 	for j in n.y:
 		for i in n.x:
 			var a := cell * Vector2(i, j)
 			var quad := PackedVector2Array([a, a + Vector2(cell.x, 0), a + cell, a + Vector2(0, cell.y)])
-			var parts: Array = Geometry2D.clip_polygons(quad, _glass) if glass.intersects(Rect2(a, cell)) else [quad]
-			for poly: PackedVector2Array in parts:
+			if not glass.intersects(Rect2(a, cell)):
+				var k := j * (n.x + 1) + i
+				_fill(quad, PackedColorArray([at[k], at[k + 1], at[k + n.x + 2], at[k + n.x + 1]]))
+				continue
+			for poly: PackedVector2Array in Geometry2D.clip_polygons(quad, _glass):
 				var cols := PackedColorArray()
 				for p in poly:
 					cols.append(dark.call(p))
-				draw_polygon(poly, cols)
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+				_fill(poly, cols)
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
 ## O que entra pela janela, por cima do escuro da sala: um brilho azul bem fraco (a noite lá fora; liso, sumindo em
-## volta dela), o reflexo vermelho do letreiro e o clarão do relâmpago. (A luz dos faróis de um carro varrendo a sala
-## saiu a pedido: não parecia luz.)
+## volta dela) e o reflexo vermelho do letreiro. (A luz dos faróis de um carro varrendo a sala saiu a pedido: não
+## parecia luz. O relâmpago é a camada `_bolt_layer`.)
 func _draw_window_glow() -> void:
 	if _glass.size() < 3:
 		return
-	draw_set_transform(Vector2.ZERO)
+	_ci.draw_set_transform(Vector2.ZERO)
 	var c := _bounds(_glass).get_center()
-	var strength: float = WINDOW_GLOW.a * {"clear": 1.0, "rain": 0.8, "fog": 1.2}.get(weather, 1.0)
-	_light_fan(c, _ring(c, WINDOW_GLOW_R), Color(WINDOW_GLOW, strength * (1.0 + _flash() * 4.0)))
+	var strength: float = WINDOW_GLOW.a * {"clear": 1.0, "rain": 0.8, "fog": 1.2}.get(weather, 1.0) * lerpf(MOON_DIM, 1.0, _moon_light())
+	_light_fan(c, _ring(c, WINDOW_GLOW_R), Color(WINDOW_GLOW, strength))
 	if _sign_px != Vector2.ZERO and _sign_on():
 		_light_fan(_sign_px, _ring(_sign_px, WINDOW_GLOW_R * 0.6), SIGN_GLOW)
 	var sill := Color(0.42, 0.52, 0.66)
 	for part: Array in _sill_lit:   # o peitoril na luz de fora
 		var cols := PackedColorArray()
 		for k: Color in part[1]:
-			cols.append(Color(sill, k.a * (0.35 + _flash() * 0.5)))
-		draw_polygon(part[0], cols)
-	var f := _flash()
-	if f > 0.0:
-		draw_rect(Rect2(Vector2.ZERO, size), Color(0.62, 0.72, 1.0, 0.2 * f))
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+			cols.append(Color(sill, k.a * 0.35))
+		_fill(part[0], cols)
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+
+
+## O vidro embaçado do lado de dentro: liso, nos cantos e no pé dele (onde a água junta), só na parte que aparece
+## abaixo da persiana (`_glass`). A força é do clima (`_mist_force`).
+func _draw_mist() -> void:
+	var force := _mist_force()
+	if _glass.size() < 3 or force <= 0.0:
+		return
+	_ci.draw_set_transform(Vector2.ZERO)
+	var b := _bounds(_glass)
+	var fog := func(p: Vector2) -> Color:
+		var u := (p - b.position) / b.size
+		var e := pow(pow(absf(u.x * 2.0 - 1.0), 2.0) + pow(absf(u.y * 2.0 - 1.0), 2.0), 0.5)   # mais nos cantos
+		return Color(MIST_TINT, force * clampf(smoothstep(0.75, 1.4, e) + pow(clampf(u.y, 0.0, 1.0), 5.0) * 0.45, 0.0, 1.0))
+	var n := Vector2i(12, 10)
+	var cell := b.size / Vector2(n)
+	for j in n.y:
+		for i in n.x:
+			var a := b.position + cell * Vector2(i, j)
+			var quad := PackedVector2Array([a, a + Vector2(cell.x, 0), a + cell, a + Vector2(0, cell.y)])
+			for part: PackedVector2Array in Geometry2D.intersect_polygons(quad, _glass):
+				var cols := PackedColorArray()
+				for p in part:
+					cols.append(fog.call(p))
+				_fill(part, cols)
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+
+
+## A força do vidro embaçado agora (`MIST`): na chuva, mais fraco quanto mais forte ela está.
+func _mist_force() -> float:
+	var f: float = MIST.get(weather, 0.0)
+	return snappedf(f * (1.0 - 0.5 * rain_level()) if weather == "rain" else f, 0.02)
 
 
 ## Um círculo de raio `r` em volta de `c` (a borda de uma luz lisa, `_light_fan`).
@@ -725,7 +1100,7 @@ func _light_fan(c: Vector2, rim: PackedVector2Array, col: Color) -> void:
 		var a := rim[i]
 		var b := rim[(i + 1) % rim.size()]
 		_ci.draw_primitive(PackedVector2Array([c, c.lerp(a, 0.5), c.lerp(b, 0.5)]), PackedColorArray([col, mid, mid]), PackedVector2Array())
-		_ci.draw_polygon(PackedVector2Array([c.lerp(a, 0.5), a, b, c.lerp(b, 0.5)]), PackedColorArray([mid, out, out, mid]))
+		_fill(PackedVector2Array([c.lerp(a, 0.5), a, b, c.lerp(b, 0.5)]), PackedColorArray([mid, out, out, mid]))
 
 
 ## Sombra na parede de um objeto à frente dela (`r` em px de 2x2): a silhueta ampliada a partir da luminária, `s` vezes
@@ -784,14 +1159,42 @@ func _draw_view() -> void:
 	_view.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 	var g := Rect2(Vector2.ZERO, Vector2(_vport.size) / 2.0)
 	_win = g.size
-	if window_art:
-		_view.draw_texture_rect(window_art, g, false)
-	else:
-		_draw_city(Rect2(g.position, g.size - Vector2(0, _near)))   # a cidade até o peitoril de longe; embaixo, a rua de perto
+	if not window_art:
+		_draw_city_front(Rect2(g.position, g.size - Vector2(0, _near)))
 		_draw_shrub()
 	_draw_reflection(g)
 	_draw_glass_weather(g)
 	_ci = self
+
+
+## A parte de trás da vista (`_back`), embaixo da frente: o céu, a cidade, a rua e as fachadas, que só mudam quando
+## uma janela apaga, o neon falha, a luminária pisca, cai um relâmpago ou uma estrela pisca (`_back_state`).
+## Redesenhada a cada quadro da vista com o resto, ela era dois terços do custo dela.
+func _draw_view_back() -> void:
+	_ci = _back
+	_back.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	var g := Rect2(Vector2.ZERO, Vector2(_vport.size) / 2.0)
+	_win = g.size
+	if window_art:
+		_back.draw_texture_rect(window_art, g, false)
+	else:
+		_draw_city(Rect2(g.position, g.size - Vector2(0, _near)))   # a cidade até o peitoril de longe; embaixo, a rua de perto
+	_ci = self
+
+
+## Tudo de que a parte de trás da vista depende.
+func _back_state() -> Array:
+	var stars := 0   # as estrelas acesas agora (elas piscam)
+	if weather == "clear":
+		var tw := Time.get_ticks_msec() / 700.0
+		for i in _stars.size():
+			if sin(tw + i * 1.7) > -0.6:
+				stars |= 1 << i
+	var clouds := 0   # as nuvens andam um pixel
+	if weather == "clear" and not _clouds.is_empty():
+		clouds = int(_cloud_x(_clouds[0]) * _vport.size.x)
+	return [_vport.size, _near, weather, window_art, int(minutes), flick, lamp_level > 0.5, snappedf(_flash(), 0.02),
+		_sign_on(), stars, clouds, _moon_light()]
 
 
 ## À noite, com a sala acesa, o vidro reflete um pouco dela, por cima da cidade (e da silhueta, que fica atrás do
@@ -810,14 +1213,14 @@ func _draw_reflection(g: Rect2) -> void:
 	var xc := _cx - _vp.x
 	var y0 := LAMP_Y - _vp.y
 	var y1 := _top - _vp.y
-	_ci.draw_polygon(PackedVector2Array([m.call(lx, y0, Z0), m.call(xc, y0, Z0), m.call(xc, y1, Z0), m.call(lx, y1, Z0)]),
+	_fill(PackedVector2Array([m.call(lx, y0, Z0), m.call(xc, y0, Z0), m.call(xc, y1, Z0), m.call(lx, y1, Z0)]),
 		PackedColorArray([lamp, Color(lamp, lamp.a * 0.3), none, Color(lamp, lamp.a * 0.4)]))
 	var zf := Z0 / CAB_T   # a frente do armário: clara no meio (a luz da luminária), sumindo para baixo
 	var steel := Color(0.75, 0.8, 0.65, 0.07 * lamp_level)
 	var ct := _cm(CAB_TOP)
 	var cx0 := _cab_x0
 	var cx1 := _cab_x0 + CAB_W
-	_ci.draw_polygon(PackedVector2Array([m.call(cx0, ct, zf), m.call(cx1, ct, zf), m.call(cx1, y1, zf), m.call(cx0, y1, zf)]),
+	_fill(PackedVector2Array([m.call(cx0, ct, zf), m.call(cx1, ct, zf), m.call(cx1, y1, zf), m.call(cx0, y1, zf)]),
 		PackedColorArray([steel, Color(steel, steel.a * 0.5), Color(steel, 0.0), Color(steel, 0.0)]))
 
 
@@ -844,13 +1247,16 @@ func _draw_switchboard(front: float) -> void:
 	var fx0: float = near.call(Vector2(b.position.x, b.end.y)).x
 	var fx1: float = near.call(b.end).x
 	var low := Vector2(fx1, fy)   # o canto de baixo da frente, do lado do ponto de fuga
+	_shelf = low
 	var deep := func(p: Vector2) -> Vector2: return vp + (p - vp) * k * kb   # da frente do console para o fundo
 	var low_back: Vector2 = deep.call(low)
 	_desk_shadow(PackedVector2Array([Vector2(fx0, fy), low, low_back, deep.call(Vector2(fx0, fy))]))
 	if b.end.x < vp.x - 2.0:   # a lateral em L: o console e, em cima dele, o painel
 		var side := WOOD[2] as Color
-		_poly(PackedVector2Array([Vector2(fx1, sy), low, low_back, back.call(b.end)]), side)
-		_poly(PackedVector2Array([Vector2(b.end.x, b.position.y), b.end, back.call(b.end), back.call(Vector2(b.end.x, b.position.y))]), side)
+		_side_faces = [PackedVector2Array([Vector2(fx1, sy), low, low_back, back.call(b.end)]),
+			PackedVector2Array([Vector2(b.end.x, b.position.y), b.end, back.call(b.end), back.call(Vector2(b.end.x, b.position.y))])]
+		for q: PackedVector2Array in _side_faces:
+			_poly(q, side)
 		for i in range(1, 7):   # o veio, no rumo do ponto de fuga
 			var p := Vector2(b.end.x, b.position.y + b.size.y * i / 7.0 + (i % 2) * 5.0)
 			draw_line(p, back.call(p), WOOD[1], 1.0)
@@ -892,12 +1298,14 @@ func _draw_switchboard(front: float) -> void:
 			_sprite(PixelArt.disc(5, [[2.5, Color("4a3a24"), Color("2a1a0f"), Color("1a0f08")]]), p)
 			draw_rect(Rect2(p.floor() - Vector2(1, 0), Vector2(3, 1)), Color("8e7a5a"))   # a fenda
 	draw_rect(Rect2(b.position.x, b.end.y, b.size.x, 3), WOOD[2])
-	draw_colored_polygon(PackedVector2Array([Vector2(b.position.x, b.end.y + 3), Vector2(b.end.x, b.end.y + 3),
+	_poly(PackedVector2Array([Vector2(b.position.x, b.end.y + 3), Vector2(b.end.x, b.end.y + 3),
 		Vector2(b.end.x + 2, b.end.y + 7), Vector2(b.position.x - 3, b.end.y + 7)]), Color(0, 0, 0, 0.3))
 	if b.position.y > vp.y + 1.0:   # os olhos estão acima do painel: o tampo dele aparece
 		var tl := b.position
 		var tr := Vector2(b.end.x, b.position.y)
 		_poly(PackedVector2Array([tl, tr, back.call(tr), back.call(tl)]), WOOD[0])
+	_occ_board = Geometry2D.convex_hull(PackedVector2Array([b.position, Vector2(b.end.x, b.position.y), b.end, Vector2(b.position.x, b.end.y),
+		back.call(b.end), back.call(Vector2(b.end.x, b.position.y)), Vector2(fx1, sy), low, low_back, Vector2(fx0, fy), Vector2(fx0, sy)]))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
@@ -915,7 +1323,7 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	var d := _vp + Vector2(xc, _yd) * DESK_T
 	_t2 = (w - 14.0 - _vp.x) / xc
 	var wall := Color("202d30")   # virada para a luminária: mais clara que a do fundo (é o que mostra a quina)
-	draw_colored_polygon(PackedVector2Array([Vector2(_cx, 0), Vector2(w, 0), j, d, Vector2(_cx, top)]), wall)
+	_poly(PackedVector2Array([Vector2(_cx, 0), Vector2(w, 0), j, d, Vector2(_cx, top)]), wall)
 	var k := 1
 	while true:   # as listras: passos iguais na parede são passos iguais em 1/t
 		var inv := 1.0 - k * 0.04
@@ -946,9 +1354,9 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	if cut.is_empty():
 		return
 	var q: PackedVector2Array = cut[0]   # o vidro que aparece pelo vão
-	draw_colored_polygon(_side_quad(Rect2(-5, -5, gw + 10, gh + 10)), WOOD[2])   # a guarnição, na parede
-	draw_colored_polygon(_side_quad(Rect2(-4, -4, gw + 8, gh + 8)), WOOD[1])
-	draw_colored_polygon(_side_quad(Rect2(-4, -4, gw + 8, 1)), WOOD[0])
+	_poly(_side_quad(Rect2(-5, -5, gw + 10, gh + 10)), WOOD[2])   # a guarnição, na parede
+	_poly(_side_quad(Rect2(-4, -4, gw + 8, gh + 8)), WOOD[1])
+	_poly(_side_quad(Rect2(-4, -4, gw + 8, 1)), WOOD[0])
 	# a vista, reta, recortada pelo vidro: o horizonte dela na altura dos olhos
 	var box := _bounds(outer)
 	box = box.intersection(Rect2(0, 0, w, box.end.y))
@@ -962,6 +1370,9 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	_glass_from = clampf((maxf(0.0, _side_pt(Vector2(gw * 0.5, blind)).y) - view.position.y) / view.size.y, 0.0, 0.95)
 	if _vport.size != Vector2i(view.size * 2.0):   # o vidro em px da tela: a vista também é desenhada em 1x1
 		_vport.size = Vector2i(view.size * 2.0)
+		_back.queue_redraw()   # já, e não no próximo quadro dela: na pausa (a janela mudando de tamanho), ficava vazia
+		_view.queue_redraw()
+		_vport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	var uv := PackedVector2Array()
 	for p in q:
 		uv.append((p - view.position) / view.size)
@@ -973,8 +1384,7 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 		_light(Rect2(face * 2.0 - Vector2(2.6, 2.6), Vector2(5.2, 5.2)), Color("e2b25a"), 0.5, true)
 	var sign := _hotel_pos(cg) + Vector2(2, 8)
 	_sign_px = sign * 2.0 if Geometry2D.is_point_in_polygon(sign, q) else Vector2.ZERO
-	if _sign_px != Vector2.ZERO and _sign_on():
-		_light(Rect2(_sign_px - Vector2(4, 16), Vector2(8, 32)), SIGN_RED, 0.5, false, false)   # só o halo: as letras ficam à vista
+	_sign_glow = Rect2(_sign_px - Vector2(4, 16), Vector2(8, 32)) if _sign_px != Vector2.ZERO else Rect2()
 	for lamp: Vector2 in _lamp_heads(cg):   # os postes de lá
 		if lamp_level > 0.5 and Geometry2D.is_point_in_polygon(lamp, q):
 			_light(Rect2((lamp + Vector2(-1.5, 0)) * 2.0, Vector2(6, 3)), Color("ffd88a"), 0.8)
@@ -982,7 +1392,7 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	# de perto do montante; o que passa do vão fica atrás do batente
 	var bar := func(poly: PackedVector2Array, col: Color) -> void:
 		for part in Geometry2D.intersect_polygons(poly, inner):
-			draw_colored_polygon(part, col)
+			_poly(part, col)
 	var mx := gw / 2.0
 	var ty := floorf(gh * 0.55) - 1
 	var f := WALL_D - 3.0
@@ -995,17 +1405,17 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	# as faces do vão: frias de fora (a rua) para dentro; o alto dele (a verga) passa da borda de cima da tela
 	var lit := Color("3a5263")
 	var dim := Color("223033")
-	draw_polygon(PackedVector2Array([inner[0], outer[0], outer[3], inner[3]]), PackedColorArray([dim, lit, lit, dim]))   # o batente de longe
+	_fill(PackedVector2Array([inner[0], outer[0], outer[3], inner[3]]), PackedColorArray([dim, lit, lit, dim]))   # o batente de longe
 	# o fundo do vão: a tábua do peitoril vai da sala até o caixilho, na mesma madeira (escura, parecia um buraco), com
 	# o trilho de baixo do caixilho no pé do vidro; o que passa do batente de perto fica atrás da parede
 	for part in Geometry2D.intersect_polygons(PackedVector2Array([inner[3], inner[2], outer[2], outer[3]]), inner):
-		draw_colored_polygon(part, WOOD[1])
+		_poly(part, WOOD[1])
 	for part in Geometry2D.intersect_polygons(_side_quad(Rect2(0, gh - 2.5, gw, 2.5), WALL_D - 1.0), inner):
-		draw_colored_polygon(part, WOOD[2])
+		_poly(part, WOOD[2])
 	for part in Geometry2D.intersect_polyline_with_polygon(PackedVector2Array([_side_pt(Vector2(0, gh - 2.5), WALL_D - 1.0),
 			_side_pt(Vector2(gw, gh - 2.5), WALL_D - 1.0)]), inner):
 		draw_polyline(part, WOOD[0], PX)
-	draw_colored_polygon(PackedVector2Array([inner[0], inner[1], outer[1], outer[0]]), Color("0d1315"))
+	_poly(PackedVector2Array([inner[0], inner[1], outer[1], outer[0]]), Color("0d1315"))
 	# a persiana meio baixada, presa no lado de dentro do vão
 	_glass = PackedVector2Array()
 	var below := Geometry2D.intersect_polygons(_side_quad(Rect2(0, blind, gw, gh - blind)), _side_quad(Rect2(0, blind, gw, gh - blind), WALL_D))
@@ -1013,21 +1423,21 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 		for p in below[0]:
 			_glass.append(p * 2.0)
 	for y in range(0, int(blind), 2):   # as lâminas: a face clara, o fio de luz na beira e a sombra embaixo
-		draw_colored_polygon(_side_quad(Rect2(0, y, gw, 1.5)), Color("8a8070"))
-		draw_colored_polygon(_side_quad(Rect2(0, y, gw, PX)), Color("a89e8a"))
-		draw_colored_polygon(_side_quad(Rect2(0, y + 1.5, gw, PX)), Color("3a352c"))
+		_poly(_side_quad(Rect2(0, y, gw, 1.5)), Color("8a8070"))
+		_poly(_side_quad(Rect2(0, y, gw, PX)), Color("a89e8a"))
+		_poly(_side_quad(Rect2(0, y + 1.5, gw, PX)), Color("3a352c"))
 	draw_line(_side_pt(Vector2(gw * 0.8, blind)), _side_pt(Vector2(gw * 0.8, blind + 8)), Color("8a8070"), PX)   # o cordão
-	draw_colored_polygon(_side_quad(Rect2(gw * 0.8 - 1, blind + 8, 2, 2)), Color("6b5f4c"))   # o puxador dele
+	_poly(_side_quad(Rect2(gw * 0.8 - 1, blind + 8, 2, 2)), Color("6b5f4c"))   # o puxador dele
 	# o peitoril de dentro: uma tábua saindo da parede para a sala (`SILL_D`), com o tampo à vista (fica abaixo dos
 	# olhos), a beira da frente e a sombra dela na parede
 	var s0 := Vector2(-5, gh)   # do tamanho da guarnição (passando dela, saía da janela)
 	var s1 := Vector2(gw + 5, gh)
-	draw_colored_polygon(_side_quad(Rect2(-5, gh + 3, gw + 10, 6)), Color(0, 0, 0, 0.25))
-	draw_colored_polygon(PackedVector2Array([_side_pt(s0), _side_pt(s1), _side_pt(s1, -SILL_D), _side_pt(s0, -SILL_D)]), WOOD[1])
-	draw_colored_polygon(_side_quad(Rect2(-5, gh, gw + 10, 3), -SILL_D), WOOD[2])
+	_poly(_side_quad(Rect2(-5, gh + 3, gw + 10, 6)), Color(0, 0, 0, 0.25))
+	_poly(PackedVector2Array([_side_pt(s0), _side_pt(s1), _side_pt(s1, -SILL_D), _side_pt(s0, -SILL_D)]), WOOD[1])
+	_poly(_side_quad(Rect2(-5, gh, gw + 10, 3), -SILL_D), WOOD[2])
 	draw_line(_side_pt(s0, -SILL_D), _side_pt(s1, -SILL_D), WOOD[0], PX)
 	# a ponta de perto da tábua, virada para quem olha: fecha a lateral dela
-	draw_colored_polygon(PackedVector2Array([_side_pt(s1), _side_pt(s1, -SILL_D), _side_pt(s1 + Vector2(0, 3), -SILL_D),
+	_poly(PackedVector2Array([_side_pt(s1), _side_pt(s1, -SILL_D), _side_pt(s1 + Vector2(0, 3), -SILL_D),
 		_side_pt(s1 + Vector2(0, 3))]), WOOD[1])
 	# a luz de fora no peitoril: ele fica fora do vidro, e o escuro da sala o deixava quase preto (parecia um buraco);
 	# mais clara junto do vidro, sumindo para a sala
@@ -1086,10 +1496,10 @@ func _draw_conduit(b: Rect2, x: float) -> void:
 
 
 ## A luz da rua na mesa: a parte do vão abaixo da persiana projetada no tampo, descendo para dentro da sala
-## (`STREET_LIGHT`: tanto para dentro quanto para baixo). O peitoril faz sombra junto da parede, então ela começa um
-## pouco longe dela, e o vão que fica atrás do fundo do tampo cai fora da mesa. Desenhada depois dos objetos da mesa:
-## eles ficam na luz também. Bem lisa: sobe devagar do lado do peitoril, some devagar para longe e nas pontas, e se
-## espalha para além da conta (a luz da noite é difusa).
+## (`STREET_LIGHT`). O peitoril faz sombra junto da parede, então ela começa um pouco longe dela, e o que cairia atrás
+## do fundo do tampo fica fora da mesa. Desenhada depois dos objetos da mesa: eles ficam na luz também. Grande e bem
+## lisa: sobe devagar do lado do peitoril e do fundo do tampo, some devagar para longe e para a frente, espalhando-se
+## além da janela (a luz da noite é difusa).
 func _draw_street_light(w: float) -> void:
 	var xc := _cx - _vp.x
 	if xc < 20.0:
@@ -1101,21 +1511,60 @@ func _draw_street_light(w: float) -> void:
 	var ts: Array[float] = [maxf(SIDE_T, DESK_T), minf(_t2, te)]
 	if ts[1] < ts[0] + 0.02:   # (com a tela mudando de tamanho, a janela pode ainda não chegar à mesa)
 		return
+	_street_map = [xc, hs, ts, cool]
 	var street := Color(0.6, 0.72, 0.9)
-	var on_desk := func(u: float, v: float) -> Vector2:   # u: do peitoril (0) ao alto (1), e além; v: ao longo da parede
-		var drop := _yd - lerpf(hs[0], hs[1], u)
-		return _proj(xc - drop / STREET_LIGHT, _yd, Z0 / lerpf(ts[0], ts[1], clampf(v, 0.0, 1.0)))
+	var on_desk := _street_pt
 	var glow := func(u: float, v: float) -> Color:
-		var a := smoothstep(-0.1, 0.45, u) * smoothstep(1.4, 0.3, u) * smoothstep(0.0, 0.45, v) * smoothstep(1.0, 0.6, v)
-		return Color(street, cool * a * 5.0)
-	for i in 10:
-		for k in 10:
-			var u0 := lerpf(-0.1, 1.4, i / 10.0)
-			var u1 := lerpf(-0.1, 1.4, (i + 1) / 10.0)
-			var v0 := k / 10.0
-			var v1 := (k + 1) / 10.0
-			draw_polygon(PackedVector2Array([on_desk.call(u0, v0), on_desk.call(u0, v1), on_desk.call(u1, v1), on_desk.call(u1, v0)]),
+		return Color(street, _street_glow(u, v))
+	var n := 14
+	for i in n:
+		for k in n:
+			var u0 := lerpf(-0.35, 1.65, float(i) / n)
+			var u1 := lerpf(-0.35, 1.65, float(i + 1) / n)
+			var v0 := lerpf(0.0, 1.35, float(k) / n)
+			var v1 := lerpf(0.0, 1.35, float(k + 1) / n)
+			_fill(PackedVector2Array([on_desk.call(u0, v0), on_desk.call(u0, v1), on_desk.call(u1, v1), on_desk.call(u1, v0)]),
 				PackedColorArray([glow.call(u0, v0), glow.call(u0, v1), glow.call(u1, v1), glow.call(u1, v0)]))
+
+
+## Onde cai na mesa o ponto (`u`, `v`) do vão da janela (`u`: do peitoril, 0, ao pé da persiana, 1; `v`: ao longo da
+## parede), na luz da rua (`_draw_street_light`, que guarda a conta em `_street_map`); em px de 2x2.
+func _street_pt(u: float, v: float) -> Vector2:
+	var hs: Array[float] = _street_map[1]
+	var ts: Array[float] = _street_map[2]
+	var drop := _yd - lerpf(hs[0], hs[1], u)
+	return _proj(_street_map[0] - drop / STREET_LIGHT, _yd, Z0 / maxf(DESK_T, lerpf(ts[0], ts[1], v)))   # (nunca atrás do tampo)
+
+
+## A força da luz da rua na mesa no ponto (`u`, `v`) do vão: lisa, sumindo nas beiras.
+func _street_glow(u: float, v: float) -> float:
+	var a := smoothstep(-0.35, 0.45, u) * smoothstep(1.65, 0.6, u) * smoothstep(0.0, 0.45, v) * smoothstep(1.35, 0.55, v)
+	return _street_map[3] * a * 4.5
+
+
+## Na chuva, as gotas paradas e escorrendo no vidro (`_beads`) fazem sombra na luz da rua na mesa, levadas pela mesma
+## conta dela (`_street_pt`): a luz é fraca, então são só manchinhas sem borda (o miolo e um halo mais fraco em volta)
+## e, nas que escorrem, um rastro apagado; mais fortes onde a luz é mais forte. Na camada da poeira (anda a 30 quadros
+## por segundo sem redesenhar a sala).
+func _draw_drop_shadows() -> void:
+	if weather != "rain" or _street_map.is_empty() or lamp_level <= 0.5:
+		return
+	for b: Vector4 in _beads:
+		var u := 1.0 - b.y   # o vidro à vista, de cima para baixo; na mesa, do alto do vão (longe da parede) ao peitoril
+		var v := b.x
+		var a := _street_glow(u, v) * DROP_SHADOW
+		if a < 0.01:
+			continue
+		var p := (_street_pt(u, v) * 2.0).floor()
+		if _cover.has_point(p):
+			continue
+		var shade := Color(0.0, 0.01, 0.03, a * 0.4)
+		_dust.draw_rect(Rect2(p - Vector2(1, 1), Vector2(b.z + 3.0, b.z + 2.0)), shade)   # o halo, sem borda marcada
+		_dust.draw_rect(Rect2(p, Vector2(b.z + 1.0, b.z)), shade)   # e o miolo, por cima
+		if b.w > 0.0:   # escorrendo: o rastro molhado, apagado, para trás (para longe da parede)
+			var q := (_street_pt(minf(1.0, u + 0.06), v) * 2.0).floor()
+			for k in 5:
+				_dust.draw_rect(Rect2(p.lerp(q, (k + 1) / 5.0).floor(), Vector2(2, 1)), Color(shade, a * (0.25 - k * 0.04)))
 
 
 ## Armário de aço antigo, de chão, encostado na parede do fundo atrás da mesa (`x0` a partir do ponto de fuga, `CAB_W`, `CAB_TOP`, `CAB_T`; a mesa,
@@ -1126,15 +1575,16 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 	var back := Rect2(_vp + Vector2(x0, _cm(CAB_TOP)), Vector2(CAB_W, 400))
 	_cast(back, 1.05)
 	var f := Rect2((_vp + Vector2(x0, _cm(CAB_TOP)) * CAB_T).round(), (Vector2(CAB_W, 400) * CAB_T).round())
+	_cab = [back, f]
 	var steel := Color("566052")
 	if back.position.x < f.position.x:   # à direita do ponto de fuga: aparece o lado esquerdo, fugindo para a parede
-		draw_colored_polygon(PackedVector2Array([back.position, f.position, Vector2(f.position.x, f.end.y), Vector2(back.position.x, back.end.y)]),
+		_poly(PackedVector2Array([back.position, f.position, Vector2(f.position.x, f.end.y), Vector2(back.position.x, back.end.y)]),
 			steel.darkened(0.45))
 	elif back.end.x > f.end.x:   # à esquerda: o lado direito
-		draw_colored_polygon(PackedVector2Array([Vector2(f.end.x, f.position.y), Vector2(back.end.x, back.position.y), back.end, f.end]),
+		_poly(PackedVector2Array([Vector2(f.end.x, f.position.y), Vector2(back.end.x, back.position.y), back.end, f.end]),
 			steel.darkened(0.3))
 	if CAB_TOP > 0.0:   # os olhos acima dele: o tampo aparece, fugindo para a parede
-		draw_colored_polygon(PackedVector2Array([back.position + Vector2(-2, 0), Vector2(back.end.x + 2, back.position.y),
+		_poly(PackedVector2Array([back.position + Vector2(-2, 0), Vector2(back.end.x + 2, back.position.y),
 			Vector2(f.end.x + 2, f.position.y - 1), Vector2(f.position.x - 2, f.position.y - 1)]), steel.darkened(0.2))
 	_r(f.position.x, f.position.y, f.size.x, f.size.y, steel)
 	for i in 36:   # a luz da luminária, mais forte do lado dela, caindo pixel a pixel (em faixas largas, pareciam camadas)
@@ -1189,16 +1639,16 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 		var tr := Vector2(inside.end.x, inside.position.y)
 		var bl := Vector2(inside.position.x, inside.end.y)
 		_r(inside.position.x, inside.position.y, inside.size.x, inside.size.y, Color("0d110d"))
-		draw_colored_polygon(PackedVector2Array([bk.call(tl), bk.call(tr), bk.call(inside.end), bk.call(bl)]), Color("151a14"))   # o fundo
+		_poly(PackedVector2Array([bk.call(tl), bk.call(tr), bk.call(inside.end), bk.call(bl)]), Color("151a14"))   # o fundo
 		# a parede de dentro virada para quem olha (o vão fica à direita do ponto de fuga)
-		draw_colored_polygon(PackedVector2Array([tr, bk.call(tr), bk.call(inside.end), inside.end]), Color("1d241c"))
+		_poly(PackedVector2Array([tr, bk.call(tr), bk.call(inside.end), inside.end]), Color("1d241c"))
 		_r(inside.position.x, inside.position.y, inside.size.x, 3, Color(0, 0, 0, 0.5))   # a sombra do alto
 		for k in int((_top - doors - 24.0) / 30.0) + 1:   # as prateleiras até a mesa (abaixo dos olhos o tampo aparece; acima, o lado de baixo, mais escuro) com pastas
 			var sy := doors + 24.0 + k * 30.0
 			var a := Vector2(inside.position.x, sy)
 			var c := Vector2(inside.end.x, sy)
 			if absf(sy - _vp.y) > 2.0:   # (na altura dos olhos a prateleira é só a beira)
-				draw_colored_polygon(PackedVector2Array([a, c, bk.call(c), bk.call(a)]), Color("3a4236") if sy > _vp.y else Color("1c211b"))
+				_poly(PackedVector2Array([a, c, bk.call(c), bk.call(a)]), Color("3a4236") if sy > _vp.y else Color("1c211b"))
 			_r(a.x, sy, inside.size.x, 1.5, steel.darkened(0.2))   # a beira da prateleira
 			_r(a.x, sy, inside.size.x, PX, steel.lightened(0.1))
 			var px := inside.position.x + 3
@@ -1219,8 +1669,8 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 		var d1 := Vector2(f.end.x + 16, doors - 6)
 		var d2 := Vector2(f.end.x + 16, f.end.y + 8)
 		var d3 := Vector2(f.end.x, f.end.y)
-		draw_colored_polygon(PackedVector2Array([d0, d1, d2, d3]), steel.darkened(0.1))
-		draw_colored_polygon(PackedVector2Array([d0.lerp(d1, 0.25) + Vector2(0, 8), d1.lerp(d0, 0.25) + Vector2(0, 8),
+		_poly(PackedVector2Array([d0, d1, d2, d3]), steel.darkened(0.1))
+		_poly(PackedVector2Array([d0.lerp(d1, 0.25) + Vector2(0, 8), d1.lerp(d0, 0.25) + Vector2(0, 8),
 			d2.lerp(d3, 0.25) - Vector2(0, 10), d3.lerp(d2, 0.25) - Vector2(0, 10)]), steel.darkened(0.25))
 		draw_line(d1, d2, steel.lightened(0.25), PX)
 		draw_line(d1 + Vector2(PX, 0), d2 + Vector2(PX, 0), steel.lightened(0.05), PX)
@@ -1264,11 +1714,11 @@ func _draw_poster(r: Rect2) -> void:
 	var cols := [Color("b03a2e"), Color("e0b040"), Color("3a6aa0"), Color("4a8a4a")]
 	for k in int(r.size.x / 5.0):   # as bandeirinhas
 		var x := r.position.x + 1 + k * 5
-		draw_colored_polygon(PackedVector2Array([Vector2(x, r.position.y + 3), Vector2(x + 4, r.position.y + 3), Vector2(x + 2, r.position.y + 7)]), cols[k % 4])
+		_poly(PackedVector2Array([Vector2(x, r.position.y + 3), Vector2(x + 4, r.position.y + 3), Vector2(x + 2, r.position.y + 7)]), cols[k % 4])
 	_r(r.position.x + 1, r.position.y + 2.5, r.size.x - 2, PX, Color("5a4d3a"))   # o barbante
 	var c := Vector2(r.get_center().x, r.position.y + 21)   # a fogueira
-	draw_colored_polygon(PackedVector2Array([c + Vector2(-6, 5), c + Vector2(0, -7), c + Vector2(6, 5)]), Color("e07a2a"))
-	draw_colored_polygon(PackedVector2Array([c + Vector2(-3, 5), c + Vector2(0, -2), c + Vector2(3, 5)]), Color("f0c040"))
+	_poly(PackedVector2Array([c + Vector2(-6, 5), c + Vector2(0, -7), c + Vector2(6, 5)]), Color("e07a2a"))
+	_poly(PackedVector2Array([c + Vector2(-3, 5), c + Vector2(0, -2), c + Vector2(3, 5)]), Color("f0c040"))
 	_r(c.x - 7, c.y + 5, 14, 1, Color("6b4529"))   # as toras, cruzadas
 	_r(c.x - 6, c.y + 6, 12, 1, Color("4a2f1c"))
 	_r(c.x - 7, c.y + 5, 14, PX, Color("8a5a36"))
@@ -1286,19 +1736,17 @@ func _draw_city(g: Rect2) -> void:
 	var wh := g.size.y
 	var fog := weather == "fog"
 	var hzy := _hz(g)
-	var sky: Color = (SKY.get(weather, SKY["rain"]) as Color).lerp(Color("7088ac"), _flash())   # o relâmpago clareia o céu
+	var sky: Color = (SKY.get(weather, SKY["rain"]) as Color).lerp(Color("a2acbc"), _flash())   # o relâmpago clareia o céu
 	_r(wx, wy, ww, wh, sky)
 	var hz := sky.lightened(0.12)   # o céu clareia perto do horizonte, liso (em faixas, pareciam camadas)
-	_ci.draw_polygon(PackedVector2Array([Vector2(wx, hzy - 50), Vector2(wx + ww, hzy - 50), Vector2(wx + ww, hzy), Vector2(wx, hzy)]),
+	_fill(PackedVector2Array([Vector2(wx, hzy - 50), Vector2(wx + ww, hzy - 50), Vector2(wx + ww, hzy), Vector2(wx, hzy)]),
 		PackedColorArray([sky, sky, hz, hz]))
 	if weather == "clear":
 		var tw := Time.get_ticks_msec() / 700.0
 		for i in _stars.size():
 			var s: Vector2 = _stars[i]
 			_r(wx + floorf(s.x * ww), wy + floorf(s.y * (hzy - wy)), PX, PX, Color("c9d2dc") if sin(tw + i * 1.7) > -0.6 else Color("56606c"))
-		var moon := Vector2(wx + floorf(ww * 0.22), hzy - 40)
-		_ci.draw_circle(moon, 3.5, Color("d8d0a8"))
-		_ci.draw_circle(moon + Vector2(1.3, -0.7), 3.1, sky)
+		_draw_moon(g, sky, hzy)
 	if hzy - wy < 40.0:   # (a tela ainda não se arrumou: o vidro ainda não tem o tamanho dele)
 		return
 	if _city_for != g.size:
@@ -1346,15 +1794,103 @@ func _draw_city(g: Rect2) -> void:
 				var an := TAU * i / 20.0
 				rim.append(_o(g, x + cos(an) * 3.2, ff, 4.2 + sin(an) * 3.4))
 			_light_fan(c, rim, Color(1.0, 0.8, 0.5, 0.1))
+
+
+## A lua da noite limpa (`MOON`), na parte do céu que aparece abaixo da persiana, com o halo, e as nuvens passando
+## devagar por ela (`_clouds`): manchas lisas, um pouco mais claras que o céu (a cidade as ilumina por baixo), mais
+## claras na beira quando estão na frente da lua; coberta, a lua e o halo escurecem (`_moon_light`).
+func _draw_moon(g: Rect2, sky: Color, hzy: float) -> void:
+	var top := g.position.y + (g.size.y + _near) * _glass_from
+	var sh := hzy - top
+	var light := _moon_light()
+	var moon := Vector2(g.position.x + floorf(g.size.x * MOON.x), floorf(lerpf(top, hzy, MOON.y)))
+	_light_fan(moon, _ring(moon, 16.0), Color(0.75, 0.78, 0.7, 0.16 * light))
+	_ci.draw_set_transform(Vector2.ZERO)   # a lua em pixel art, em px da tela: o disco e o céu comendo um lado (crescente)
+	PixelArt.sprite(_ci, PixelArt.disc(14, [[7.0, Color.WHITE]]), moon * 2.0, Color("d8d0a8").lerp(sky, (1.0 - light) * 0.6))
+	PixelArt.sprite(_ci, PixelArt.disc(13, [[6.2, Color.WHITE]]), moon * 2.0 + Vector2(3, -1), sky)
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	for c in _clouds:
+		var at := Vector2(g.position.x + _cloud_x(c) * g.size.x, top + c.y * sh)
+		var r := Vector2(0.16 * c.z * g.size.x, 0.09 * c.z * sh)
+		var lit := 1.0 - smoothstep(0.0, 1.6, ((at - moon) / r).length())   # na frente da lua, a beira pega a luz dela
+		var col := sky.lightened(0.1).lerp(Color("8a8f8a"), 0.12 * lit * light)
+		for k in 3:   # três manchas juntas, a do meio maior
+			var o := at + Vector2((k - 1) * r.x * 0.55, (k % 2) * -r.y * 0.25)
+			var rim := PackedVector2Array()
+			for i in 12:
+				rim.append(o + Vector2(cos(TAU * i / 12.0) * r.x * (0.9 if k == 1 else 0.6), sin(TAU * i / 12.0) * r.y * (1.0 if k == 1 else 0.7)))
+			_light_fan(o, rim, Color(col, 0.85))
+
+
+## A frente da vista, por cima da de trás (`_draw_city`) e redesenhada a cada quadro dela: o letreiro (o T falha
+## sozinho), quem passa, os postes, o homem, o carro (na chuva, com o farol espelhado na rua) e a névoa.
+func _draw_city_front(g: Rect2) -> void:
+	if _hz(g) - g.position.y < 40.0:   # (a tela ainda não se arrumou: o vidro ainda não tem o tamanho dele)
+		return
 	_draw_hotel_sign(_hotel_pos(g))
-	if _walk >= 0.0:   # passa atrás dos postes e do homem
-		_draw_walker(g)
+	_draw_balcony_front(g)
+	for w: Dictionary in _walkers:   # passam atrás dos postes e do homem
+		_draw_walker(g, w)
 	for x: float in FAR_LAMPS:
 		_draw_lamp_post(g, x, STREET["far_curb"] + 0.4)
-	if shadow:
-		_draw_stranger(g)
-	if _car >= 0.0:
-		_draw_car(g, _car_x())
+	var mx := _man_x()
+	if not is_nan(mx):
+		_draw_stranger(g, mx)
+	_cars.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a["lane"] < b["lane"])   # o de lá primeiro
+	for c in _cars:
+		if weather == "rain":
+			_draw_wet(g, c)
+		_draw_car(g, c)
+	if weather == "fog":
+		_draw_fog(g)
+
+
+## A névoa, por cima da rua e do outro lado (o arbusto, perto, fica fora dela): um véu liso, mais grosso rente ao chão
+## (`FOG_VEIL`, `FOG_GROUND`), fiapos largos e lisos atravessando a rua devagar (`FOG_WISPS`, com o vento, `_mist`) e as
+## luzes espalhando nela: um halo e um cone embaixo de cada poste e o vermelho do neon em volta do letreiro.
+func _draw_fog(g: Rect2) -> void:
+	var ff: float = STREET["far"]
+	var base := _o(g, 0.0, ff).y   # o pé das fachadas de lá
+	var high := _o(g, 0.0, ff, 3.0).y
+	var x0 := g.position.x
+	var x1 := g.end.x
+	var y1 := g.end.y + _near   # até o pé do vidro: a rua de perto também
+	_r(x0, g.position.y, g.size.x, y1 - g.position.y, Color(FOG, FOG_VEIL))
+	_fill(PackedVector2Array([Vector2(x0, high), Vector2(x1, high), Vector2(x1, base), Vector2(x0, base)]),
+		PackedColorArray([Color(FOG, 0.0), Color(FOG, 0.0), Color(FOG, FOG_GROUND), Color(FOG, FOG_GROUND)]))
+	_fill(PackedVector2Array([Vector2(x0, base), Vector2(x1, base), Vector2(x1, y1), Vector2(x0, y1)]),
+		PackedColorArray([Color(FOG, FOG_GROUND), Color(FOG, FOG_GROUND), Color(FOG, FOG_GROUND * 0.4), Color(FOG, FOG_GROUND * 0.4)]))
+	for k in FOG_WISPS:   # cada um na sua distância, altura, tamanho e velocidade, sempre os mesmos
+		var z := lerpf(STREET["curb"] + 1.0, ff, fmod(k * 0.37, 1.0))
+		var c := _o(g, fposmod(k * 13.7 + _mist * (0.08 + (k % 3) * 0.03), 70.0) - 35.0, z, 0.3 + fmod(k * 0.53, 1.0) * 1.6)
+		var rx := OUT_F * (5.0 + (k % 4) * 1.5) / z
+		var ry := OUT_F * (0.5 + (k % 3) * 0.25) / z
+		var rim := PackedVector2Array()
+		for i in 16:
+			rim.append(c + Vector2(cos(TAU * i / 16.0) * rx, sin(TAU * i / 16.0) * ry))
+		_light_fan(c, rim, Color(FOG, 0.14))
+	if lamp_level > 0.5:
+		var heads := _lamp_heads(g)
+		var lit := Color(1.0, 0.85, 0.55, 0.14)
+		for i in FAR_LAMPS.size():
+			var x: float = FAR_LAMPS[i]
+			var z: float = STREET["far_curb"] - 0.2
+			var h: Vector2 = heads[i]
+			var foot := _o(g, x, z)
+			var w := Vector2(1, 0)
+			# o cone: claro no meio, sumindo para os lados (com a borda reta, parecia um triângulo recortado)
+			_fill(PackedVector2Array([h - w, h, foot, _o(g, x - 3.5, z)]), PackedColorArray([Color(lit, 0.0), lit, Color(lit, lit.a * 0.4), Color(lit, 0.0)]))
+			_fill(PackedVector2Array([h, h + w, _o(g, x + 3.5, z), foot]), PackedColorArray([lit, Color(lit, 0.0), Color(lit, 0.0), Color(lit, lit.a * 0.4)]))
+			var halo := PackedVector2Array()
+			for k in 20:
+				halo.append(h + Vector2(cos(TAU * k / 20.0), sin(TAU * k / 20.0)) * OUT_F * 2.2 / z)
+			_light_fan(h, halo, Color(lit, 0.22))
+	if _sign_on():
+		var sc := _hotel_pos(g) + Vector2(2, 8)
+		var glow := PackedVector2Array()
+		for k in 20:
+			glow.append(sc + Vector2(cos(TAU * k / 20.0) * 12.0, sin(TAU * k / 20.0) * 24.0))
+		_light_fan(sc, glow, Color(SIGN_RED, 0.12))
 
 
 ## O horizonte da vista `g` (a altura dos olhos).
@@ -1397,9 +1933,10 @@ func _post(g: Rect2) -> Vector2:
 	return _lamp_heads(g)[0]
 
 
-## Onde está a frente do carro (x, m): passa da direita para a esquerda pela mão de lá.
-func _car_x() -> float:
-	return lerpf(16.0, -21.0, _car)
+## Onde está a frente do carro `c` (x, m): entra por um lado da vista e sai pelo outro, no sentido da mão dele.
+func _car_x(c: Dictionary) -> float:
+	var d: float = CAR_LANES[c["lane"]].y
+	return lerpf(16.0, -21.0, c["t"]) * -d
 
 
 ## O chão: a rua do cruzamento indo embora (com as calçadas e os postes dela, menores com a distância), a nossa calçada
@@ -1417,13 +1954,13 @@ func _draw_street(g: Rect2, hz: Color) -> void:
 	var cx0 := CROSSING.x
 	var cx1 := CROSSING.y
 	var wide := 80.0
-	_ci.draw_colored_polygon(PackedVector2Array([Vector2(g.position.x, _hz(g)), Vector2(g.end.x, _hz(g)), Vector2(g.end.x, g.end.y + _near),
+	_poly(PackedVector2Array([Vector2(g.position.x, _hz(g)), Vector2(g.end.x, _hz(g)), Vector2(g.end.x, g.end.y + _near),
 		Vector2(g.position.x, g.end.y + _near)]), asphalt)
 	# a rua do cruzamento, indo embora até a praça da igreja, com as calçadas dela
 	var far := asphalt.lerp(hz, 0.35)
-	_ci.draw_polygon(_patch(g, cx0 + 1.8, cx1 - 1.8, fc, 130.0), PackedColorArray([asphalt, asphalt, far, far]))
+	_fill(_patch(g, cx0 + 1.8, cx1 - 1.8, fc, 130.0), PackedColorArray([asphalt, asphalt, far, far]))
 	for side: Vector2 in [Vector2(cx0, cx0 + 1.8), Vector2(cx1 - 1.8, cx1)]:
-		_ci.draw_polygon(_patch(g, side.x, side.y, ff, 130.0), PackedColorArray([walk, walk, walk.lerp(hz, 0.35), walk.lerp(hz, 0.35)]))
+		_fill(_patch(g, side.x, side.y, ff, 130.0), PackedColorArray([walk, walk, walk.lerp(hz, 0.35), walk.lerp(hz, 0.35)]))
 		var curb_x := side.y if side.x == cx0 else side.x
 		_ci.draw_line(_o(g, curb_x, ff, 0.15), _o(g, curb_x, 130.0, 0.15), Color(hz, 0.6), PX)
 	for i in 6:   # os postes dela, menores e mais juntos com a distância
@@ -1438,8 +1975,8 @@ func _draw_street(g: Rect2, hz: Color) -> void:
 				_r(foot.x - 2.0 * near, foot.y - PX, 4.0 * near + PX, PX, Color(1.0, 0.85, 0.55, 0.2 * near))
 	# a calçada de lá, dos dois lados da boca do cruzamento (a nossa não aparece: o que encosta no nosso prédio diria
 	# para que lado a nossa parede vai, e a sala já diz outra coisa)
-	_ci.draw_colored_polygon(_patch(g, -wide, cx0, fc, ff), walk)
-	_ci.draw_colored_polygon(_patch(g, cx1, wide, fc, ff), walk)
+	_poly(_patch(g, -wide, cx0, fc, ff), walk)
+	_poly(_patch(g, cx1, wide, fc, ff), walk)
 	# o asfalto não é liso: manchas e remendos, o desgaste dos pneus em cada mão, poças e o grão perto
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 707
@@ -1447,22 +1984,22 @@ func _draw_street(g: Rect2, hz: Color) -> void:
 		var x := rng.randf_range(-20.0, 20.0)
 		var z := rng.randf_range(cu + 0.3, fc - 0.5)
 		var tone := Color(1, 1, 1, rng.randf_range(0.015, 0.035)) if rng.randf() < 0.5 else Color(0, 0, 0, rng.randf_range(0.1, 0.22))
-		_ci.draw_colored_polygon(_patch(g, x, x + rng.randf_range(1.0, 5.0), z, z + rng.randf_range(0.3, 1.2)), tone)
+		_poly(_patch(g, x, x + rng.randf_range(1.0, 5.0), z, z + rng.randf_range(0.3, 1.2)), tone)
 	for lane: float in [cu + 1.3, cu + 2.7, fc - 2.7, fc - 1.3]:
-		_ci.draw_colored_polygon(_patch(g, -wide, wide, lane - 0.3, lane + 0.3), Color(0.6, 0.7, 0.8, 0.035))
-	var wet := 2.0 if weather == "rain" else 1.0
+		_poly(_patch(g, -wide, wide, lane - 0.3, lane + 0.3), Color(0.6, 0.7, 0.8, 0.035))
+	var wet := 1.0 + 1.6 * _soaked() if weather == "rain" else 1.0   # as poças crescem com a noite de chuva
 	for i in 12:   # as poças: espelham o céu (na chuva, mais)
 		var x := rng.randf_range(-14.0, 14.0)
 		var z := rng.randf_range(cu + 0.4, fc - 0.8)
 		var puddle := _patch(g, x, x + rng.randf_range(1.0, 2.6), z, z + rng.randf_range(0.4, 0.9))
-		_ci.draw_colored_polygon(puddle, Color(0.45, 0.55, 0.7, 0.05 * wet))
+		_poly(puddle, Color(0.45, 0.55, 0.7, 0.05 * wet))
 		_ci.draw_line(puddle[2], puddle[3], Color(0.6, 0.7, 0.85, 0.08 * wet), PX)
 	for i in 240:
 		var gp := _o(g, rng.randf_range(-8.0, 8.0), rng.randf_range(cu + 0.5, 6.5))
 		_r(floorf(gp.x * 2.0) * PX, floorf(gp.y * 2.0) * PX, PX, PX, Color(1, 1, 1, 0.04) if i % 2 else Color(0, 0, 0, 0.2))
 	var x0 := -wide   # a faixa tracejada no meio
 	while x0 < wide:
-		_ci.draw_colored_polygon(_patch(g, x0, x0 + 3.0, STREET["lane"] - 0.08, STREET["lane"] + 0.08), Color(0.75, 0.72, 0.6, 0.3))
+		_poly(_patch(g, x0, x0 + 3.0, STREET["lane"] - 0.08, STREET["lane"] + 0.08), Color(0.75, 0.72, 0.6, 0.3))
 		x0 += 9.0
 	# as juntas das lajotas de lá: ao longo da rua (na horizontal) e para longe (para o ponto de fuga)
 	var joint := Color(0, 0, 0, 0.35)
@@ -1475,10 +2012,10 @@ func _draw_street(g: Rect2, hz: Color) -> void:
 		xj += 1.5
 	# perto, embaixo da janela, a rua some na sombra do nosso prédio, lisa e sem nenhuma linha
 	var dark := Color(0, 0, 0, 0.6)
-	_ci.draw_polygon(_patch(g, -wide, wide, 0.3, cu + 1.5), PackedColorArray([dark, dark, Color(dark, 0.0), Color(dark, 0.0)]))
+	_fill(_patch(g, -wide, wide, 0.3, cu + 1.5), PackedColorArray([dark, dark, Color(dark, 0.0), Color(dark, 0.0)]))
 	# o meio-fio de lá, com a face virada para nós e a quina
 	for seg: Vector2 in [Vector2(-wide, cx0), Vector2(cx1, wide)]:
-		_ci.draw_colored_polygon(PackedVector2Array([_o(g, seg.x, fc), _o(g, seg.y, fc), _o(g, seg.y, fc, 0.15), _o(g, seg.x, fc, 0.15)]), Color("2a3237"))
+		_poly(PackedVector2Array([_o(g, seg.x, fc), _o(g, seg.y, fc), _o(g, seg.y, fc, 0.15), _o(g, seg.x, fc, 0.15)]), Color("2a3237"))
 		_ci.draw_line(_o(g, seg.x, fc, 0.15), _o(g, seg.y, fc, 0.15), Color("4a555c"), PX)
 	if lamp_level > 0.5:   # a luz de cada poste de lá no chão, em volta do pé dele
 		for x: float in FAR_LAMPS:
@@ -1490,26 +2027,31 @@ func _draw_street(g: Rect2, hz: Color) -> void:
 			_light_fan(c, rim, Color(1.0, 0.85, 0.55, 0.28))
 
 
-## A chuva no chão: o asfalto molhado espelha as luzes em riscos verticais, quebrados, embaixo de cada uma (os postes,
-## o letreiro, o farol do carro), mais fracos para baixo.
-func _draw_wet(g: Rect2) -> void:
+## A chuva no chão: o asfalto molhado espelha as luzes em riscos verticais, quebrados, embaixo de cada uma (os postes
+## e o letreiro; com `car`, só o farol daquele carro, que anda: vai na frente da vista), mais fracos para baixo.
+func _draw_wet(g: Rect2, car: Dictionary = {}) -> void:
 	var lights := []   # [cabeça, pé, cor]
-	if lamp_level > 0.5:
-		for i in FAR_LAMPS.size():
-			lights.append([_lamp_heads(g)[i], _o(g, FAR_LAMPS[i], STREET["far_curb"] - 0.5), Color(1.0, 0.85, 0.55)])
-	if _sign_on():
-		lights.append([_hotel_pos(g), _o(g, HOTEL_X, STREET["far_curb"] - 0.5), SIGN_RED])
-	if _car >= 0.0:
-		lights.append([_o(g, _car_x(), CAR_Z - 0.9, 0.7), _o(g, _car_x(), CAR_Z - 1.2), Color("fff1c8")])
+	if not car.is_empty():
+		var z: float = CAR_LANES[car["lane"]].x
+		lights.append([_o(g, _car_x(car), z - 0.9, 0.7), _o(g, _car_x(car), z - 1.2), Color("fff1c8")])
+	else:
+		if lamp_level > 0.5:
+			for i in FAR_LAMPS.size():
+				lights.append([_lamp_heads(g)[i], _o(g, FAR_LAMPS[i], STREET["far_curb"] - 0.5), Color(1.0, 0.85, 0.55)])
+		if _sign_on():
+			lights.append([_hotel_pos(g), _o(g, HOTEL_X, STREET["far_curb"] - 0.5), SIGN_RED])
 	for l: Array in lights:
-		var head: Vector2 = l[0]
-		var foot: Vector2 = l[1]
-		var length := (foot.y - head.y) * 0.9
-		var n := maxi(3, int(length / 1.5))
-		for k in n:
-			if k % 3 == 2:
-				continue   # quebrado pelas poças e pelos pingos
-			_r(foot.x - PX * (k % 2), foot.y + length * k / n, maxf(PX, 1.5 - k * 0.05), PX, Color(l[2], 0.32 * (1.0 - float(k) / n)))
+		_wet_streak(l[0], l[1], l[2])
+
+
+## O reflexo da luz `col` (que fica em `head`) no asfalto molhado, um risco vertical quebrado descendo de `foot`.
+func _wet_streak(head: Vector2, foot: Vector2, col: Color) -> void:
+	var length := (foot.y - head.y) * 0.9
+	var n := maxi(3, int(length / 1.5))
+	for k in n:
+		if k % 3 == 2:
+			continue   # quebrado pelas poças e pelos pingos
+		_r(foot.x - PX * (k % 2), foot.y + length * k / n, maxf(PX, 1.5 - k * 0.05), PX, Color(col, 0.32 * (1.0 - float(k) / n)))
 
 
 ## Uma parede da rua do cruzamento (`w`: o lado `x`, de `z0` a `z1`, `h` m), indo embora para o ponto de fuga, com
@@ -1520,7 +2062,7 @@ func _draw_canyon_wall(g: Rect2, w: Dictionary, hz: Color) -> void:
 	var z1: float = w["z1"]
 	var ht: float = w["h"]
 	var col: Color = (w["col"] as Color).lerp(hz, clampf((z0 - 14.0) / 160.0, 0.0, 0.5))
-	_ci.draw_colored_polygon(PackedVector2Array([_o(g, x, z0), _o(g, x, z1), _o(g, x, z1, ht), _o(g, x, z0, ht)]), col)
+	_poly(PackedVector2Array([_o(g, x, z0), _o(g, x, z1), _o(g, x, z1, ht), _o(g, x, z0, ht)]), col)
 	_ci.draw_line(_o(g, x, z0), _o(g, x, z0, ht), col.darkened(0.4), PX)   # a quina
 	for wv: Vector3 in w["wins"]:   # (z, altura, hora de apagar)
 		if wv.z > minutes:
@@ -1551,14 +2093,17 @@ func _draw_far_house(g: Rect2, b: Dictionary, hz: Color) -> void:
 	_r(a.x, _o(g, x0, ff, 3.4).y, e.x - a.x, PX, col.lightened(0.12))   # a faixa acima do térreo
 	_r(a.x, a.y, PX, e.y - a.y, col.darkened(0.4))   # a divisa com o vizinho
 	_r(a.x, e.y - PX, e.x - a.x, PX, Color(0, 0, 0, 0.45))   # o pé, na calçada
-	for wv: Vector3 in b["wins"]:   # (x do meio, andar, hora de apagar; -1: apagada)
+	var wake: Dictionary = b["wake"]
+	for j in b["wins"].size():   # (x do meio, andar, hora de apagar; -1: apagada)
+		var wv: Vector3 = b["wins"][j]
 		var ground := wv.y == 0.0
 		var w := (1.8 if ground else 1.2) * k
 		var top := _o(g, wv.x, ff, 2.6 if ground else wv.y * 3.2 + 2.5)
 		var h := (2.6 if ground else 1.5) * k
 		var p := Vector2(top.x - w / 2.0, top.y)
 		_r(p.x - PX, p.y - PX, w + PX * 2.0, h + PX, col.darkened(0.55))   # o vão
-		if wv.z > minutes:
+		var woke: Vector2 = wake.get(j, Vector2.ZERO)
+		if wv.z > minutes or (minutes >= woke.x and minutes < woke.y):
 			var lc: Color = LIT[int(wv.x + wv.y) % LIT.size()]
 			_r(p.x, p.y, w, h, lc)
 			_r(p.x, p.y + h * 0.45, w, PX, lc.darkened(0.45))   # a travessa
@@ -1571,6 +2116,8 @@ func _draw_far_house(g: Rect2, b: Dictionary, hz: Color) -> void:
 			_r(p.x - PX * 2.0, p.y + h, w + PX * 4.0, PX, col.lightened(0.25))   # o peitoril, saindo da parede, e a sombra dele
 			_r(p.x - PX, p.y + h + PX, w + PX * 2.0, PX, col.darkened(0.35))
 			_r(p.x - PX * 2.0, p.y - PX * 2.0, w + PX * 4.0, PX, col.darkened(0.3))   # a verga
+	if b["brick"]:
+		_draw_balcony_back(g, col)
 
 
 ## A vitrine acesa de um bar no térreo do prédio de tijolos, logo atrás do homem (`MAN_X`): ele fica em silhueta contra
@@ -1582,7 +2129,7 @@ func _draw_shopfront(g: Rect2) -> void:
 	var a := _o(g, x0, ff, 2.5)
 	var e := _o(g, x1, ff, 0.4)
 	_r(a.x - PX, a.y - PX, e.x - a.x + 1, e.y - a.y + 1, Color("1a0f0a"))
-	_ci.draw_polygon(PackedVector2Array([a, Vector2(e.x, a.y), e, Vector2(a.x, e.y)]),
+	_fill(PackedVector2Array([a, Vector2(e.x, a.y), e, Vector2(a.x, e.y)]),
 		PackedColorArray([Color("c98a3e"), Color("c98a3e"), Color("f0c070"), Color("f0c070")]))
 	_r(lerpf(a.x, e.x, 0.5), a.y, PX, e.y - a.y, Color("3a2414"))   # o caixilho
 	_r(a.x, lerpf(a.y, e.y, 0.3), e.x - a.x, PX, Color("3a2414"))
@@ -1603,7 +2150,7 @@ func _draw_marquee(g: Rect2) -> void:
 	var x1 := HOTEL_X + 1.8
 	var door := _o(g, HOTEL_X - 0.6, ff, 2.3)
 	var de := _o(g, HOTEL_X + 0.6, ff)
-	_ci.draw_polygon(PackedVector2Array([door, Vector2(de.x, door.y), de, Vector2(door.x, de.y)]),
+	_fill(PackedVector2Array([door, Vector2(de.x, door.y), de, Vector2(door.x, de.y)]),
 		PackedColorArray([Color("8a5a2a"), Color("8a5a2a"), Color("e0a858"), Color("e0a858")]))   # a porta aberta, com a luz do saguão
 	var c := _o(g, HOTEL_X, ff - 0.6)
 	var rim := PackedVector2Array()
@@ -1612,9 +2159,92 @@ func _draw_marquee(g: Rect2) -> void:
 		rim.append(_o(g, HOTEL_X + cos(an) * 2.8, ff - 0.8 + sin(an) * 1.4))
 	_light_fan(c, rim, Color(1.0, 0.78, 0.45, 0.22))
 	var top := PackedVector2Array([_o(g, x0, ff, 3.0), _o(g, x1, ff, 3.0), _o(g, x1, ff - 1.2, 3.0), _o(g, x0, ff - 1.2, 3.0)])
-	_ci.draw_colored_polygon(top, Color("2a1c16"))
-	_ci.draw_colored_polygon(PackedVector2Array([top[3], top[2], _o(g, x1, ff - 1.2, 2.75), _o(g, x0, ff - 1.2, 2.75)]), Color("6a1e18"))   # a beira, vermelha
+	_poly(top, Color("2a1c16"))
+	_poly(PackedVector2Array([top[3], top[2], _o(g, x1, ff - 1.2, 2.75), _o(g, x0, ff - 1.2, 2.75)]), Color("6a1e18"))   # a beira, vermelha
 	_ci.draw_line(_o(g, x0, ff - 1.2, 2.75), _o(g, x1, ff - 1.2, 2.75), Color(1.0, 0.8, 0.5, 0.6), PX)   # a luz embaixo dela
+
+
+## A parte parada da varanda do apartamento no prédio de tijolos (`APT`), na camada de trás: a porta (acesa, com a
+## cortina, até `APT_DARK`), o vão da janela da sala (o vidro com a TV é da frente, `_draw_balcony_front`), os vasos de
+## planta nos cantos e o lado de baixo da laje, visto de baixo (os olhos ficam abaixo dela).
+func _draw_balcony_back(g: Rect2, col: Color) -> void:
+	var ff: float = STREET["far"]
+	var fl: float = APT["floor"]
+	var dz: float = ff - APT["deep"]
+	var d: Vector2 = APT["door"]
+	var a := _o(g, d.x, ff, fl + 2.3)
+	var e := _o(g, d.y, ff, fl + 0.05)
+	_r(a.x - PX, a.y - PX, e.x - a.x + PX * 2.0, e.y - a.y + PX, col.darkened(0.55))
+	if minutes < APT_DARK:
+		var lc: Color = (LIT[1] as Color).darkened(0.15)
+		_r(a.x, a.y, e.x - a.x, e.y - a.y, lc)
+		_r(a.x, a.y, (e.x - a.x) * 0.6, e.y - a.y, lc.darkened(0.3))   # a cortina
+	else:
+		_r(a.x, a.y, e.x - a.x, e.y - a.y, Color("080b0e"))
+		_r(a.x, a.y, e.x - a.x, PX, Color(0.5, 0.55, 0.6, 0.3))
+	_r((a.x + e.x) / 2.0, a.y, PX, e.y - a.y, col.darkened(0.5))   # as duas folhas
+	var w: Vector2 = APT["win"]
+	var wa := _o(g, w.x, ff, fl + 2.4)
+	var we := _o(g, w.y, ff, fl + 0.9)
+	_r(wa.x - PX, wa.y - PX, we.x - wa.x + PX * 2.0, we.y - wa.y + PX, col.darkened(0.55))
+	_r(wa.x, wa.y, we.x - wa.x, we.y - wa.y, Color("080b0e"))
+	_r(wa.x - PX * 2.0, wa.y - PX * 2.0, we.x - wa.x + PX * 4.0, PX, col.darkened(0.3))   # a verga
+	for px: float in [APT["x0"] + 0.35, APT["x1"] - 0.4]:   # os vasos, atrás do gradil
+		var foot := _o(g, px, dz + 0.3, fl + 0.15)
+		var k := OUT_F / (dz + 0.3)
+		_r(foot.x - 0.18 * k, foot.y - 0.35 * k, 0.36 * k, 0.35 * k, Color("4a2a1c"))
+		for i in 7:
+			var lx := foot.x + (fposmod(i * 0.37, 1.0) - 0.5) * 0.6 * k
+			var ly := foot.y - (0.35 + 0.15 + fposmod(i * 0.61, 1.0) * 0.5) * k
+			_r(lx - PX, ly, PX * 3.0, PX * 2.0, Color("142219") if i % 2 else Color("1c2e22"))
+	var under := PackedVector2Array([_o(g, APT["x0"], ff, fl), _o(g, APT["x1"], ff, fl), _o(g, APT["x1"], dz, fl), _o(g, APT["x0"], dz, fl)])
+	_poly(under, col.darkened(0.65))
+
+
+## A parte da varanda que muda ou fica na frente, na camada da frente: o vidro da janela da sala com a luz da TV
+## piscando (as cenas trocando, `TV_BLUE`; com a luz da sala acesa, mistura com ela; até `TV_OFF`), a beira da laje e o
+## gradil de ferro na frente de tudo, que a TV tinge quando a sala está escura.
+func _draw_balcony_front(g: Rect2) -> void:
+	var ff: float = STREET["far"]
+	var fl: float = APT["floor"]
+	var dz: float = ff - APT["deep"]
+	var tv := Color(0, 0, 0, 0)
+	if minutes < TV_OFF:
+		var t := Time.get_ticks_msec() / 1000.0
+		var cut := floorf(t * 0.8 + sin(t * 0.31) * 0.7)   # cada cena, um brilho e um tom
+		var lv := 0.45 + 0.45 * fposmod(sin(cut * 12.9898) * 43758.5453, 1.0) + 0.05 * sin(t * 17.0)
+		var tint := TV_BLUE.lerp(Color(0.8, 0.88, 1.0), fposmod(sin(cut * 78.233) * 12345.6, 1.0) * 0.5)
+		var w: Vector2 = APT["win"]
+		var wa := _o(g, w.x, ff, fl + 2.4)
+		var we := _o(g, w.y, ff, fl + 0.9)
+		var glass: Color
+		if minutes < APT_DARK:
+			glass = (LIT[0] as Color).darkened(0.1).lerp(tint, 0.3 * lv)
+		else:
+			glass = Color("0b1018").lerp(tint, 0.2 + 0.55 * lv)
+			tv = Color(tint, lv)
+			var c := (wa + we) / 2.0
+			var rim := PackedVector2Array()
+			for i in 16:
+				rim.append(c + Vector2(cos(TAU * i / 16.0) * (we.x - wa.x) * 1.4, sin(TAU * i / 16.0) * (we.y - wa.y) * 1.3))
+			_light_fan(c, rim, Color(tint, 0.1 * lv))
+		_r(wa.x, wa.y, we.x - wa.x, we.y - wa.y, glass)
+		_r(we.x - (we.x - wa.x) * 0.25, wa.y, (we.x - wa.x) * 0.25, we.y - wa.y, glass.darkened(0.45))   # a cortina
+		_r(wa.x, wa.y, we.x - wa.x, maxf(PX, 0.15 * OUT_F / ff), glass.darkened(0.5))   # a sombra da verga
+	var iron := Color("15191c")
+	var x0: float = APT["x0"]
+	var x1: float = APT["x1"]
+	_poly(PackedVector2Array([_o(g, x0, dz, fl), _o(g, x1, dz, fl), _o(g, x1, dz, fl + 0.15), _o(g, x0, dz, fl + 0.15)]), Color("2a1a14"))
+	for h: float in [fl + 0.25, fl + 1.05]:   # o gradil: os corrimãos, o da frente e os dos lados até a fachada
+		_ci.draw_line(_o(g, x0, dz, h), _o(g, x1, dz, h), iron, PX)
+		_ci.draw_line(_o(g, x0, dz, h), _o(g, x0, ff, h), iron, PX)
+		_ci.draw_line(_o(g, x1, dz, h), _o(g, x1, ff, h), iron, PX)
+	var xb := x0
+	while xb <= x1 + 0.01:
+		var w: Vector2 = APT["win"]
+		var bar := iron.lerp(tv, 0.35 * tv.a) if xb > w.x - 0.6 and xb < w.y + 0.6 else iron
+		_r(_o(g, xb, dz).x, _o(g, xb, dz, fl + 1.05).y, PX, _o(g, xb, dz, fl + 0.15).y - _o(g, xb, dz, fl + 1.05).y, bar)
+		xb += 0.25
 
 
 ## Um poste da calçada de lá (em `x`, `z`), com 5 m: o tubo, o braço virado para a rua e a cabeça acesa.
@@ -1629,48 +2259,82 @@ func _draw_lamp_post(g: Rect2, x: float, z: float) -> void:
 	_r(head.x - 0.3 * k, head.y, 0.6 * k, maxf(PX, 0.15 * k), pole)
 	if lamp_level > 0.5:
 		_r(head.x - 0.25 * k, head.y + 0.15 * k, 0.5 * k, maxf(PX, 0.12 * k), Color("ffd88a"))
-		_ci.draw_colored_polygon(PackedVector2Array([head + Vector2(-0.25 * k, 0.2 * k), head + Vector2(0.25 * k, 0.2 * k),
+		_poly(PackedVector2Array([head + Vector2(-0.25 * k, 0.2 * k), head + Vector2(0.25 * k, 0.2 * k),
 			Vector2(head.x + 1.6 * k, foot.y), Vector2(head.x - 1.6 * k, foot.y)]), Color(1.0, 0.85, 0.55, 0.05))
 
 
-## Alguém parado na calçada de lá, embaixo do poste da esquina (`MAN_X`), de chapéu e casaco comprido, com 1,8 m,
-## contra a luz dele, com a sombra no chão para longe dela. Em px da tela; a névoa e a chuva passam por cima.
-func _draw_stranger(g: Rect2) -> void:
+## Onde está o homem do mistério na calçada de lá (x, m), ou NAN sem ele: vem andando de `MAN_FROM`, fica parado
+## embaixo do poste da esquina (`MAN_X`) de `stranger.x` a `stranger.y` e volta por onde veio (`MAN_WALK` min para cada
+## lado). Sai da hora do jogo: pausa e pulo do relógio valem para ele também.
+func _man_x() -> float:
+	if minutes < stranger.x - MAN_WALK or minutes >= stranger.y + MAN_WALK:
+		return NAN
+	if minutes < stranger.x:
+		return lerpf(MAN_FROM, MAN_X, (minutes - stranger.x + MAN_WALK) / MAN_WALK)
+	if minutes < stranger.y:
+		return MAN_X
+	return lerpf(MAN_X, MAN_FROM, (minutes - stranger.y) / MAN_WALK)
+
+
+## O homem do mistério na calçada de lá, em `x` (`_man_x`), de chapéu e casaco comprido, com 1,8 m: andando, as pernas
+## alternam a cada passo; parado embaixo do poste da esquina, fica contra a luz dele, com a sombra no chão para longe
+## dela. Em px da tela; a névoa e a chuva passam por cima.
+func _draw_stranger(g: Rect2, x: float) -> void:
 	var z: float = STREET["far_curb"] + 1.1
-	var foot := (_o(g, MAN_X, z) * 2.0).floor()
+	var walking := x != MAN_X
+	var steps := int(absf(x - MAN_FROM) / MAN_STRIDE)
+	var foot := (_o(g, x, z) * 2.0).floor() - Vector2(0, steps % 2 if walking else 0)
 	var k := OUT_F / z * 2.0   # px da tela por metro
-	var hc := _o(g, MAN_X, z, 1.0)
+	var hc := _o(g, x, z, 1.0)
 	var halo := PackedVector2Array()   # a luz do poste atrás dele, lisa
 	for i in 24:
 		halo.append(hc + Vector2.from_angle(TAU * i / 24.0) * k * 0.45)
-	_light_fan(hc, halo, Color(0.85, 0.62, 0.3, 0.16))
-	var dir := signf(MAN_X - (FAR_LAMPS[0] as float))
-	_ci.draw_colored_polygon(PackedVector2Array([_o(g, MAN_X - 0.2, z), _o(g, MAN_X + 0.2, z), _o(g, MAN_X + dir * 2.4, z + 0.6), _o(g, MAN_X + dir * 2.0, z + 0.6)]),
+	_light_fan(hc, halo, Color(0.85, 0.62, 0.3, 0.16 * clampf(1.0 - absf(x - MAN_X) / 2.0, 0.0, 1.0)))
+	var dir := 1.0 if x >= (FAR_LAMPS[0] as float) else -1.0
+	_poly(PackedVector2Array([_o(g, x - 0.2, z), _o(g, x + 0.2, z), _o(g, x + dir * 2.4, z + 0.6), _o(g, x + dir * 2.0, z + 0.6)]),
 		Color(0, 0, 0, 0.5))
 	# (x de um lado a outro, altura de baixo para cima), em metros: pernas, casaco, ombros, cabeça, aba e copa do chapéu
-	for part: Rect2 in [Rect2(-0.17, 0.0, 0.13, 0.8), Rect2(0.04, 0.0, 0.13, 0.8), Rect2(-0.24, 0.55, 0.48, 0.8),
+	var legs: Array[Rect2] = [Rect2(-0.17, 0.0, 0.13, 0.8), Rect2(0.04, 0.0, 0.13, 0.8)]
+	if walking and steps % 2 == 0:
+		legs = [Rect2(-0.22, 0.0, 0.13, 0.8), Rect2(0.09, 0.0, 0.13, 0.8)]
+	elif walking:
+		legs = [Rect2(-0.07, 0.0, 0.14, 0.8)]
+	for part: Rect2 in legs + [Rect2(-0.24, 0.55, 0.48, 0.8),
 			Rect2(-0.27, 1.25, 0.54, 0.2), Rect2(-0.1, 1.45, 0.2, 0.22), Rect2(-0.2, 1.66, 0.4, 0.05), Rect2(-0.11, 1.7, 0.22, 0.13)]:
 		var a := Vector2(roundf(part.position.x * k), -roundf((part.position.y + part.size.y) * k))
 		var b := Vector2(roundf(part.end.x * k), -roundf(part.position.y * k))
 		_p(foot.x + a.x, foot.y + a.y, maxf(1.0, b.x - a.x), maxf(1.0, b.y - a.y), Color.BLACK)
 
 
-## Alguém passando pela calçada de lá, junto das fachadas (`_walk`, `_walk_dir`): silhueta escura de 1,7 m contra as
-## luzes, as pernas alternando a cada passo, com um balanço leve, e de guarda-chuva aberto na chuva (de chapéu, sem
-## ela). Em px da tela, como o homem.
-func _draw_walker(g: Rect2) -> void:
-	var z: float = STREET["far"] - 0.9
-	var x := lerpf(-16.0, 16.0, _walk) * _walk_dir
-	var steps := int(_walk * WALK_SEC * WALK_STEPS)
-	var foot := (_o(g, x, z) * 2.0).floor() - Vector2(0, steps % 2)
-	var k := OUT_F / z * 2.0   # px da tela por metro
+## Alguém novo na calçada de lá, indo de um lado ao outro: cada um com o seu passo, a sua altura, a sua distância das
+## fachadas e, sem chuva, de chapéu ou não. `t` vai de 0 a 1 (negativo: ainda não entrou na rua).
+func _walker() -> Dictionary:
+	return {"t": 0.0, "dir": 1.0 if randf() < 0.5 else -1.0, "sec": WALK_SEC * randf_range(0.8, 1.2), "z": randf_range(12.4, 13.6),
+		"h": randf_range(0.92, 1.06), "hat": randf() < 0.5}
+
+
+## Põe `w` na calçada, na ordem do desenho (os de mais longe primeiro).
+func _add_walker(w: Dictionary) -> void:
+	_walkers.insert(_walkers.bsearch_custom(w, func(a: Dictionary, b: Dictionary) -> bool: return a["z"] > b["z"]), w)
+
+
+## Alguém passando pela calçada de lá (`w`, de `_walker`; fora da vista, não desenha): silhueta escura de 1,7 m contra as luzes, as pernas
+## alternando a cada passo, com um balanço leve, e de guarda-chuva aberto na chuva. Em px da tela, como o homem.
+func _draw_walker(g: Rect2, w: Dictionary) -> void:
+	var z: float = w["z"]
+	var x: float = lerpf(-16.0, 16.0, w["t"]) * w["dir"]
+	if absf(x) > g.size.x * 0.5 * z / OUT_F + 1.0:
+		return
+	var steps := int(w["t"] * w["sec"] * WALK_STEPS)
+	var foot := (_o(g, x, z) * 2.0).floor() - Vector2(0, posmod(steps, 2))
+	var k: float = OUT_F / z * 2.0 * w["h"]   # px da tela por metro (na altura dele)
 	var dark := Color("07090c")
-	_ci.draw_colored_polygon(PackedVector2Array([_o(g, x - 0.3, z), _o(g, x + 0.3, z), _o(g, x + 0.3, z + 0.2), _o(g, x - 0.3, z + 0.2)]), Color(0, 0, 0, 0.35))
+	_poly(PackedVector2Array([_o(g, x - 0.3, z), _o(g, x + 0.3, z), _o(g, x + 0.3, z + 0.2), _o(g, x - 0.3, z + 0.2)]), Color(0, 0, 0, 0.35))
 	var parts: Array[Rect2] = [Rect2(-0.2, 0.75, 0.4, 0.68), Rect2(-0.1, 1.43, 0.2, 0.22)]   # o casaco e a cabeça
-	parts.append_array([Rect2(-0.22, 0.0, 0.13, 0.8), Rect2(0.09, 0.0, 0.13, 0.8)] if steps % 2 == 0 else [Rect2(-0.07, 0.0, 0.14, 0.8)])
+	parts.append_array([Rect2(-0.22, 0.0, 0.13, 0.8), Rect2(0.09, 0.0, 0.13, 0.8)] if posmod(steps, 2) == 0 else [Rect2(-0.07, 0.0, 0.14, 0.8)])
 	if weather == "rain":   # o guarda-chuva: a cúpula, a beira e o cabo
 		parts.append_array([Rect2(-0.55, 1.74, 1.1, 0.1), Rect2(-0.42, 1.84, 0.84, 0.1), Rect2(-0.2, 1.94, 0.4, 0.05), Rect2(-0.02, 1.4, 0.04, 0.36)])
-	else:
+	elif w["hat"]:
 		parts.append_array([Rect2(-0.18, 1.63, 0.36, 0.04), Rect2(-0.1, 1.66, 0.2, 0.1)])
 	for part in parts:
 		var a := Vector2(roundf(part.position.x * k), -roundf((part.position.y + part.size.y) * k))
@@ -1678,54 +2342,67 @@ func _draw_walker(g: Rect2) -> void:
 		_p(foot.x + a.x, foot.y + a.y, maxf(1.0, b.x - a.x), maxf(1.0, b.y - a.y), dark)
 
 
-## O carro passando pela mão de lá, da direita para a esquerda (a frente em `x`), apoiado no asfalto: a sombra de
-## contato, o facho dos faróis no chão à frente, o lado de cá (vidros, coluna, frisos, rodas com calota), o capô, o
-## teto e o porta-malas vistos um pouco de cima (os olhos ficam acima dele) e a frente ou a traseira, a que estiver
-## virada para nós. 4,5 × 1,8 × 1,45 m.
-func _draw_car(g: Rect2, x: float) -> void:
-	var z0 := CAR_Z - 0.9   # o lado de cá
-	var z1 := CAR_Z + 0.9
+## O carro `c` passando pela mão dele (`CAR_LANES`), apoiado no asfalto: a sombra de contato, o facho dos faróis no
+## chão à frente, o lado de cá (vidros, coluna, frisos, rodas com calota), o capô, o teto e o porta-malas vistos um
+## pouco de cima (os olhos ficam acima dele) e a frente ou a traseira, a que estiver virada para nós. Posto a partir da
+## frente (`_car_x`), no sentido em que anda: o de lá vai para a esquerda, o de cá volta para a direita. 4,5 × 1,8 ×
+## 1,45 m.
+func _draw_car(g: Rect2, c: Dictionary) -> void:
+	var lane: Vector2 = CAR_LANES[c["lane"]]
+	var d := lane.y   # o sentido: a frente vai para lá
+	var x := _car_x(c)
+	var at := func(a: float) -> float: return x - d * a   # a metros da frente, para trás
+	var span := func(a: float, b: float) -> Vector2: return Vector2(minf(at.call(a), at.call(b)), maxf(at.call(a), at.call(b)))
+	var z0 := lane.x - 0.9   # o lado de cá
+	var z1 := lane.x + 0.9
 	var body := Color("1b2530")
 	var top := Color("2e3a46")
 	var glass := Color("0b1218")
 	var chrome := Color("5a6670")
-	_ci.draw_colored_polygon(_patch(g, x - 0.2, x + 4.7, z0 - 0.15, z1 + 0.15), Color(0, 0, 0, 0.55))   # o contato com o asfalto
-	_ci.draw_colored_polygon(PackedVector2Array([_o(g, x, z0 + 0.2), _o(g, x, z1 - 0.2), _o(g, x - 8.0, z1 + 0.6), _o(g, x - 8.0, z0 - 0.6)]),
+	var all: Vector2 = span.call(-0.2, 4.7)
+	_poly(_patch(g, all.x, all.y, z0 - 0.15, z1 + 0.15), Color(0, 0, 0, 0.55))   # o contato com o asfalto
+	_poly(PackedVector2Array([_o(g, x, z0 + 0.2), _o(g, x, z1 - 0.2), _o(g, x + d * 8.0, z1 + 0.6), _o(g, x + d * 8.0, z0 - 0.6)]),
 		Color(1.0, 0.95, 0.8, 0.12))   # o facho dos faróis
-	_ci.draw_colored_polygon(_patch(g, x + 3.6, x + 4.5, z0, z1, 0.95), top)   # o porta-malas
-	_ci.draw_colored_polygon(_patch(g, x + 1.6, x + 3.2, z0 + 0.15, z1 - 0.15, 1.45), top.lightened(0.08))   # o teto
-	_ci.draw_colored_polygon(PackedVector2Array([_o(g, x + 1.1, z0 + 0.1, 0.95), _o(g, x + 1.6, z0 + 0.15, 1.45), _o(g, x + 1.6, z1 - 0.15, 1.45),
-		_o(g, x + 1.1, z1 - 0.1, 0.95)]), glass)   # o para-brisa
-	_ci.draw_colored_polygon(_patch(g, x, x + 1.1, z0, z1, 0.95), top)   # o capô
-	if x > 0.0:   # a frente, virada para nós enquanto ele está à direita
-		_ci.draw_colored_polygon(PackedVector2Array([_o(g, x, z0, 0.3), _o(g, x, z1, 0.3), _o(g, x, z1, 0.95), _o(g, x, z0, 0.95)]), body.darkened(0.2))
-	elif x + 4.5 < 0.0:   # a traseira, quando ele já passou
-		_ci.draw_colored_polygon(PackedVector2Array([_o(g, x + 4.5, z0, 0.3), _o(g, x + 4.5, z1, 0.3), _o(g, x + 4.5, z1, 0.95), _o(g, x + 4.5, z0, 0.95)]),
+	var trunk: Vector2 = span.call(3.6, 4.5)
+	_poly(_patch(g, trunk.x, trunk.y, z0, z1, 0.95), top)   # o porta-malas
+	var roof: Vector2 = span.call(1.6, 3.2)
+	_poly(_patch(g, roof.x, roof.y, z0 + 0.15, z1 - 0.15, 1.45), top.lightened(0.08))   # o teto
+	_poly(PackedVector2Array([_o(g, at.call(1.1), z0 + 0.1, 0.95), _o(g, at.call(1.6), z0 + 0.15, 1.45),
+		_o(g, at.call(1.6), z1 - 0.15, 1.45), _o(g, at.call(1.1), z1 - 0.1, 0.95)]), glass)   # o para-brisa
+	var hood: Vector2 = span.call(0.0, 1.1)
+	_poly(_patch(g, hood.x, hood.y, z0, z1, 0.95), top)   # o capô
+	var rear: float = at.call(4.5)
+	if d * x < 0.0:   # a frente, virada para nós enquanto ele vem
+		_poly(PackedVector2Array([_o(g, x, z0, 0.3), _o(g, x, z1, 0.3), _o(g, x, z1, 0.95), _o(g, x, z0, 0.95)]), body.darkened(0.2))
+	elif d * rear > 0.0:   # a traseira, quando ele já passou
+		_poly(PackedVector2Array([_o(g, rear, z0, 0.3), _o(g, rear, z1, 0.3), _o(g, rear, z1, 0.95), _o(g, rear, z0, 0.95)]),
 			body.darkened(0.2))
 	var side := PackedVector2Array()   # o lado de cá
 	for p: Vector2 in [Vector2(0.0, 0.3), Vector2(0.0, 0.8), Vector2(0.1, 0.95), Vector2(4.4, 0.95), Vector2(4.5, 0.8), Vector2(4.5, 0.3)]:
-		side.append(_o(g, x + p.x, z0, p.y))
-	_ci.draw_colored_polygon(side, body)
+		side.append(_o(g, at.call(p.x), z0, p.y))
+	_poly(side, body)
 	var win := PackedVector2Array()
 	for p: Vector2 in [Vector2(1.1, 0.97), Vector2(1.6, 1.43), Vector2(3.2, 1.43), Vector2(3.6, 0.97)]:
-		win.append(_o(g, x + p.x, z0 + 0.05, p.y))
-	_ci.draw_colored_polygon(win, glass)
-	_ci.draw_line(_o(g, x + 2.35, z0, 0.97), _o(g, x + 2.35, z0, 1.43), body, PX)   # a coluna do meio
-	_ci.draw_line(_o(g, x + 1.5, z0, 1.2), _o(g, x + 1.9, z0, 1.38), Color("3a4a58"), PX)   # o reflexo
-	_ci.draw_line(_o(g, x, z0, 0.95), _o(g, x + 4.5, z0, 0.95), chrome, PX)   # os frisos
-	_ci.draw_line(_o(g, x, z0, 0.4), _o(g, x + 4.5, z0, 0.4), chrome, PX)
-	_ci.draw_line(_o(g, x + 2.3, z0, 0.4), _o(g, x + 2.3, z0, 0.95), Color(0, 0, 0, 0.5), PX)   # a porta
+		win.append(_o(g, at.call(p.x), z0 + 0.05, p.y))
+	_poly(win, glass)
+	_ci.draw_line(_o(g, at.call(2.35), z0, 0.97), _o(g, at.call(2.35), z0, 1.43), body, PX)   # a coluna do meio
+	_ci.draw_line(_o(g, at.call(1.5), z0, 1.2), _o(g, at.call(1.9), z0, 1.38), Color("3a4a58"), PX)   # o reflexo
+	_ci.draw_line(_o(g, x, z0, 0.95), _o(g, rear, z0, 0.95), chrome, PX)   # os frisos
+	_ci.draw_line(_o(g, x, z0, 0.4), _o(g, rear, z0, 0.4), chrome, PX)
+	_ci.draw_line(_o(g, at.call(2.3), z0, 0.4), _o(g, at.call(2.3), z0, 0.95), Color(0, 0, 0, 0.5), PX)   # a porta
 	for wx2 in [0.8, 3.6]:   # as rodas, com a calota
-		var a := _o(g, x + wx2 - 0.33, z0, 0.62)
-		var b := _o(g, x + wx2 + 0.33, z0, 0.0)
+		var a := _o(g, minf(at.call(wx2 - 0.33), at.call(wx2 + 0.33)), z0, 0.62)
+		var b := _o(g, maxf(at.call(wx2 - 0.33), at.call(wx2 + 0.33)), z0, 0.0)
 		_r(a.x, a.y, b.x - a.x, b.y - a.y, Color("030506"))
-		var c := (a + b) / 2.0
-		_r(c.x - (b.x - a.x) * 0.2, c.y - (b.y - a.y) * 0.2, (b.x - a.x) * 0.4, (b.y - a.y) * 0.4, Color("3a444b"))
+		var m := (a + b) / 2.0
+		_r(m.x - (b.x - a.x) * 0.2, m.y - (b.y - a.y) * 0.2, (b.x - a.x) * 0.4, (b.y - a.y) * 0.4, Color("3a444b"))
 	var k := OUT_F / z0
+	var w := maxf(1.0, 0.2 * k)
 	var hl := _o(g, x, z0, 0.7)
-	_r(hl.x - PX, hl.y - 0.08 * k, maxf(1.0, 0.2 * k), maxf(1.0, 0.16 * k), Color("fff1c8"))   # o farol
-	var tl := _o(g, x + 4.5, z0, 0.75)
-	_r(tl.x - maxf(PX, 0.15 * k), tl.y - 0.08 * k, maxf(PX, 0.15 * k), maxf(1.0, 0.16 * k), Color("8a1e14"))   # a lanterna
+	_r(hl.x - PX if d < 0.0 else hl.x - w + PX, hl.y - 0.08 * k, w, maxf(1.0, 0.16 * k), Color("fff1c8"))   # o farol
+	var tw := maxf(PX, 0.15 * k)
+	var tl := _o(g, rear, z0, 0.75)
+	_r(tl.x - tw if d < 0.0 else tl.x, tl.y - 0.08 * k, tw, maxf(1.0, 0.16 * k), Color("8a1e14"))   # a lanterna
 
 
 ## O arbusto plantado junto da nossa parede, embaixo da janela (`SHRUB`): só a copa aparece, subindo do peitoril
@@ -1735,7 +2412,9 @@ func _draw_shrub() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 4242
 	var t := Time.get_ticks_msec() / 1000.0
-	var wind := {"rain": 1.0, "clear": 0.6, "fog": 0.3}.get(weather, 0.6) as float
+	var wind := {"rain": 0.5 + rain_level(), "clear": 0.6, "fog": 0.3}.get(weather, 0.6) as float
+	# as rajadas: o vento cresce e some em ondas lentas e empurra a copa para um lado (`GUST`)
+	var gust := pow(maxf(0.0, sin(t * GUST.x) * sin(t * GUST.y + 1.3)), 0.6)
 	var tones := [Color("08120c"), Color("0f2016"), Color("193323"), Color("2a4a33")]
 	var f := _flash()
 	_ci.draw_set_transform(Vector2.ZERO)   # as folhas em px da tela
@@ -1748,7 +2427,7 @@ func _draw_shrub() -> void:
 		var w := Vector2((SHRUB.x + dx) * gw, gh * (1.0 - hgt) + rng.randf_range(-1.0, 1.0))
 		var p := (_side_pt(w, WALL_D + 8.0) - _view_at) * 2.0   # do lado de fora, atrás do vidro
 		var k := clampf(_side_pt(w + Vector2(0, 1)).y - _side_pt(w).y, 0.8, 1.6)   # a escala da parede ali
-		var sway := roundf(sin(t * 1.4 + i * 0.7) * wind * hgt / SHRUB.z * 1.5)
+		var sway := roundf((sin(t * (1.4 + gust) + i * 0.7) * (1.0 + gust) - gust * GUST.z) * wind * hgt / SHRUB.z * 1.5)
 		var lit := clampf(hgt / SHRUB.z * 0.7 + (dx / maxf(0.01, r)) * 0.15 + rng.randf_range(-0.25, 0.2), 0.0, 0.99)
 		var c: Color = (tones[int(lit * tones.size())] as Color).lerp(Color("5a7090"), f * 0.5)
 		var px := p.floor() + Vector2(sway, 0)
@@ -1786,6 +2465,8 @@ func _build_city(gs: Vector2) -> void:
 	rng.seed = 1957
 	var sleep := RandomNumberGenerator.new()   # à parte: as casas continuam as mesmas
 	sleep.seed = 1958
+	var up := RandomNumberGenerator.new()   # quem levanta de madrugada, também à parte
+	up.seed = 1959
 	var off := func() -> float:
 		return INF if sleep.randf() < SLEEP.z else sleep.randf_range(SLEEP.x, SLEEP.y)
 	for r in [0, 1]:
@@ -1825,13 +2506,22 @@ func _build_city(gs: Vector2) -> void:
 		for f in floors:
 			var wsx := sp.x + 1.5
 			while wsx < sp.y - 1.0:
+				if i == 0 and f == 2 and wsx < APT["x1"]:   # a varanda do apartamento (`_draw_balcony`)
+					wsx += 3.0
+					continue
 				var o := -1.0   # apagada
 				if rng.randf() < (0.35 if f > 0 else 0.25):
 					o = off.call()
 				wins.append(Vector3(wsx, f, o))
 				wsx += 3.0
+		var wake := {}   # janela -> quando ela acende de novo (min do dia, de x a y)
+		for j in wins.size():
+			var wv := wins[j]
+			if wv.y > 0.0 and wv.z < INF and up.randf() < WAKE:
+				var at := up.randf_range(maxf(wv.z, WAKE_FROM) + 10.0, 23 * 60 + 50)
+				wake[j] = Vector2(at, at + up.randf_range(WAKE_FOR.x, WAKE_FOR.y))
 		_houses.append({"x0": sp.x, "x1": sp.y, "h": floors * 3.2 + 0.8, "col": Color("3a2219") if i == 0 else tones[rng.randi_range(0, 3)],
-			"brick": i == 0, "wins": wins})
+			"brick": i == 0, "wins": wins, "wake": wake})
 	_canyon.clear()   # as paredes da rua do cruzamento: os fundos dos prédios da esquina e os que vêm depois, até a praça
 	for side: float in [CROSSING.x, CROSSING.y]:
 		var z := STREET["far"] as float
@@ -1852,9 +2542,9 @@ func _build_city(gs: Vector2) -> void:
 func _draw_church(base: Vector2, col: Color) -> void:
 	var k := CHURCH_K
 	_r(base.x - 12 * k, base.y - 18 * k, 24 * k, 18 * k, col)
-	_ci.draw_colored_polygon(PackedVector2Array([base + Vector2(-13, -18) * k, base + Vector2(0, -26) * k, base + Vector2(13, -18) * k]), col)
+	_poly(PackedVector2Array([base + Vector2(-13, -18) * k, base + Vector2(0, -26) * k, base + Vector2(13, -18) * k]), col)
 	_r(base.x - 4 * k, base.y - 48 * k, 8 * k, 30 * k, col)
-	_ci.draw_colored_polygon(PackedVector2Array([base + Vector2(-5, -48) * k, base + Vector2(0, -60) * k, base + Vector2(5, -48) * k]), col)
+	_poly(PackedVector2Array([base + Vector2(-5, -48) * k, base + Vector2(0, -60) * k, base + Vector2(5, -48) * k]), col)
 	_r(base.x - PX, base.y - 64 * k, PX, 4 * k, col)   # a cruz
 	_r(base.x - 1, base.y - 63 * k, 2, PX, col)
 	var face := base + Vector2(0, -40 * k)
@@ -1870,6 +2560,7 @@ func _draw_church(base: Vector2, col: Color) -> void:
 ## poeira que passa na frente dela); o papel de uma ferramenta fica na frente, e ela não desce abaixo do fundo do tampo.
 func _draw_dust() -> void:
 	_draw_steam()
+	_draw_drop_shadows()
 	var k := lamp_level * (0.5 if _cover.has_area() else 1.0)
 	var c := Vector2(_lamp_x * 2.0, 0.0)   # px da tela
 	var reach := size.x * 0.5
@@ -1910,15 +2601,29 @@ func _draw_steam() -> void:
 				_dust.draw_rect(Rect2(p + Vector2(ceilf(wd / 2.0), 0), Vector2(1, 1)), Color(col, a * 0.45))
 
 
-## O clima no vidro: a chuva passando e as gotas paradas no vidro, que às vezes escorrem (chuva), faixas de névoa
-## passando (névoa) e um reflexo na diagonal.
+## O clima no vidro: a chuva passando e as gotas paradas no vidro, que às vezes escorrem (chuva), e um reflexo na
+## diagonal (a névoa fica na vista, `_draw_fog`).
 func _draw_glass_weather(g: Rect2) -> void:
 	if weather == "rain":
-		for d in _drops:
-			if d.x >= 0.0 and d.x < 1.0 and d.y >= 0.0:
-				var dp := Vector2(g.position.x + floorf(d.x * g.size.x * 2.0) * PX, g.position.y + floorf(d.y * (g.size.y - 3)))
-				_r(dp.x, dp.y, PX, 2, Color("3a5563"))   # a gota escorrendo, com o brilho na ponta
-				_r(dp.x, dp.y + 2, PX, PX, Color("6a8593"))
+		# os pingos: riscos de 1 px inclinados pelo vento, mais longos e claros os de perto, e acesos perto dos postes
+		var heads := _lamp_heads(g)
+		var many := int(_drops.size() * rain_level())   # na garoa, poucos
+		for i in many:
+			var d: Vector3 = _drops[i]
+			if d.x < 0.0 or d.x >= 1.0 or d.y < 0.0:
+				continue
+			var hp := Vector2(g.position.x + floorf(d.x * g.size.x * 2.0) * PX, g.position.y + floorf(d.y * g.size.y * 2.0) * PX)
+			var lit := 0.0
+			for h: Vector2 in heads:
+				lit = maxf(lit, 1.0 - hp.distance_to(h) / 45.0)
+			var col := Color(0.62, 0.72, 0.8).lerp(Color("ffd88a"), lit * 0.7)
+			col.a = lerpf(0.14, 0.34, d.z) + lit * 0.3
+			var n := lerpf(RAIN_STREAK.x, RAIN_STREAK.y, d.z)
+			var cols := 1 + int(n * RAIN_SLANT)   # o rastro sobe para a direita, de onde ele veio, em degraus de 1 px
+			var seg := ceilf(n / cols)
+			for k in cols:
+				_r(hp.x + k * PX, hp.y - (k + 1) * seg * PX, PX, seg * PX, col)
+			_r(hp.x, hp.y, PX, PX, Color(col, minf(1.0, col.a * 1.6)))   # a ponta, mais clara
 		# as gotas no vidro, só na parte dele que aparece: escuras, com um brilho, quente perto do poste (`_draw_city`)
 		var top := g.position.y + g.size.y * _glass_from
 		var post := _post(Rect2(g.position, g.size - Vector2(0, _near)))
@@ -1930,14 +2635,7 @@ func _draw_glass_weather(g: Rect2) -> void:
 			_r(p.x, p.y, b.z * PX, b.z * PX, Color("1c2a32"))
 			var warm := clampf(1.0 - p.distance_to(post) / 30.0, 0.0, 1.0) if lamp_level > 0.5 else 0.0
 			_r(p.x, p.y, PX, PX, Color("7f98a8").lerp(Color("ffd88a"), warm))
-	elif weather == "fog":
-		for k in int(g.size.y / 9.0):
-			var x := g.position.x - 60.0 + fmod(_mist * (0.6 + (k % 4) * 0.25) + k * 47.0, g.size.x + 60.0)
-			var band := Rect2(x, g.position.y + 4 + k * 8, 60, 7).intersection(g)
-			if band.has_area():
-				_ci.draw_rect(band, Color(0.62, 0.7, 0.74, 0.07))
-		_ci.draw_rect(g, Color(0.55, 0.62, 0.66, 0.06))
-	_ci.draw_colored_polygon(PackedVector2Array([g.position + Vector2(g.size.x * 0.12, 0), g.position + Vector2(g.size.x * 0.22, 0),
+	_poly(PackedVector2Array([g.position + Vector2(g.size.x * 0.12, 0), g.position + Vector2(g.size.x * 0.22, 0),
 		g.position + Vector2(g.size.x * 0.02, g.size.y * 0.5), g.position + Vector2(0, g.size.y * 0.5)]), Color(1, 1, 1, 0.03))
 
 
@@ -1996,8 +2694,9 @@ func _draw_desk_props() -> void:
 	draw_set_transform(Vector2.ZERO)
 	# em duas fileiras, distribuídas de ponta a ponta entre a lateral da mesa comutadora e a parede da direita (a
 	# mesma folga entre eles, em qualquer largura de janela: presos a uma ponta só, sobrava mesa vazia na outra, e
-	# presos a pontas diferentes, eles se trombavam). Atrás: listas, caderno e o relógio com a caneca na frente dele;
-	# na frente: mapa, prancheta e o lugar do jornal (guardado mesmo sem ele, para nada mudar de lugar entre as noites).
+	# presos a pontas diferentes, eles se trombavam). Atrás, o que é alto: a unidade de despacho, o caderno e o relógio
+	# com a caneca na frente dele; na frente: prancheta, listas (fora da frente da unidade, para não tampar as fendas
+	# dela) e o lugar do jornal (guardado mesmo sem ele, para nada mudar de lugar entre as noites).
 	# Todos em `PROP_K`, a escala dos plugs da mesa comutadora (que seguem as tomadas)
 	var l := _side_x + 8.0
 	var r := _cx - _vp.x - WALL_PAD   # a parede da direita é o plano x = quina (na escala da parede do fundo)
@@ -2005,16 +2704,21 @@ func _draw_desk_props() -> void:
 	var cw := CLOCK.x + 2.0   # o relógio, meio virado, ocupa um pouco mais que a largura dele
 	var mr := 6.6 * k         # a caneca, na frente do relógio, encostada na ponta direita dele
 	# (maiores, e com a prancheta funda, eles se encostavam e a mesa parecia apertada)
-	var back := _row(l, r, [31.0 * k, 46.0 * k, cw + mr])
-	var near := _row(l + 6.0, r, [35.0 * k, 26.0 * k, 32.0 * k])
-	_draw_books(back[0], _at(0.54), 31 * k, _deep(0.3 * k))
-	_flat("caderno", back[1], _at(0.56), 46 * k, _deep(0.26 * k), 2 * k, Color("3a2414"), _art_notebook, [], deg_to_rad(-2.0), _notebook_marks)
+	# (a fileira de trás começa encostada na lateral da mesa comutadora; as listas ocupam mais que a largura delas,
+	# com os volumes desencontrados, `BOOKS_SPAN`: sem isso, o relógio encostava na pilha)
+	var back := _row(_side_x + 2.0, r, [UNIT.x * k, BOOKS_SPAN * k, cw + mr])
+	var near := _row(l + 6.0, r, [26.0 * k, 46.0 * k, 32.0 * k])
+	_draw_dispatch_unit(back[0], _at(0.5), UNIT.x * k)
+	_draw_books(back[1], _at(0.54), 31 * k, _deep(0.3 * k))
+	_flat("caderno", near[1], _at(0.08), 46 * k, _deep(0.26 * k), 2 * k, Color("3a2414"), _art_notebook, [], deg_to_rad(-2.0), _notebook_marks)
 	_draw_flip_clock(back[2] + cw / 2.0, _at(0.72))   # logo atrás da caneca (desenhado antes dela)
 	_draw_mug(back[2] + cw, _at(0.46), mr, 13 * k)   # mais larga que alta, como as esmaltadas
-	_flat("despacho", near[0], _at(0.06), 35 * k, _deep(0.19 * k), 1 * k, Color("a89a76"), _art_map, [], deg_to_rad(3.0), _map_pin)
-	_flat("registro", near[1], _at(0.05), 26 * k, _deep(0.26 * k), 2 * k, Color("4a3018"), _art_clipboard, [unread], deg_to_rad(-4.0))
+	# papel tem 1 px de beira, e a prancheta, uns 2 (mais grossos, pareciam tábuas)
+	_flat("registro", near[0], _at(0.05), 26 * k, _deep(0.26 * k), 1.0, Color("4a3018"), _art_clipboard, [unread], deg_to_rad(-4.0),
+		_clipboard_print)
 	if news:
-		_flat("jornal", near[2], _at(0.07), 32 * k, _deep(0.19 * k), 2 * k, Color("a89c78"), _art_newspaper, [], deg_to_rad(6.0))
+		_flat("jornal", near[2], _at(0.07), 32 * k, _deep(0.19 * k), 0.5, Color("a89c78"), _art_newspaper, [], deg_to_rad(6.0),
+			_newspaper_print)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
@@ -2031,8 +2735,13 @@ func _draw_flip_clock(xc: float, zc: float) -> void:
 		_clock_pt(xc, zc, hw + 1, -hd - 1, _yd), _clock_pt(xc, zc, -hw - 1, -hd - 1, _yd)]))
 	var dark := _shade(xc, zc)
 	var lit := Color.WHITE.darkened(dark)   # longe da luz
-	_clock_box(xc, zc, hw + 0.8, hd + 0.8, _yd, bh, Color("4e3a28"), Color("2a1d13"), Color("3a2a1c"))
+	var base := _clock_box(xc, zc, hw + 0.8, hd + 0.8, _yd, bh, Color("4e3a28"), Color("2a1d13"), Color("3a2a1c"))
 	var box := _clock_box(xc, zc, hw, hd, _yd - bh, CLOCK.y, Color("dccfa8"), Color("998a66"), Color.TRANSPARENT)
+	var hull := PackedVector2Array()
+	for faces: Dictionary in [base, box]:
+		for q: PackedVector2Array in faces.values():
+			hull.append_array(q)
+	_occ.append(Geometry2D.convex_hull(hull))
 	var y1 := _yd - bh - CLOCK.y
 	clock_x = global_position.x + _bounds(box["top"]).get_center().x
 	for i in 4:   # as fendas do alarme, no fundo do tampo
@@ -2124,11 +2833,13 @@ func _shaded(pts: PackedVector2Array, xz: Array, col: Color) -> void:
 	var cols := PackedColorArray()
 	for p in xz:
 		cols.append(col.darkened(_shade(p.x, p.y)))
-	draw_polygon(pts, cols)
+	_fill(pts, cols)
 
 
 ## A frente do relógio, de frente, em `sz` px: a caixa creme, a janela preta de aro niquelado com as duas plaquetas
-## (horas e minutos) e a plaquinha de latão da marca embaixo. Guardada até a hora ou a virada mudar.
+## (horas e minutos) e a plaquinha de latão da marca embaixo. Guardada até a hora ou a virada mudar; aí a mesma
+## textura é refeita (o `_process` pergunta a cada quadro): a sala, já desenhada com ela, mostra a hora nova sem se
+## redesenhar.
 var _face_key := []
 var _face: ImageTexture
 func _clock_face(sz: Vector2i) -> ImageTexture:
@@ -2153,7 +2864,10 @@ func _clock_face(sz: Vector2i) -> ImageTexture:
 	_flip_card(img, Vector2i(win.position.x + 2, win.position.y + 2), card, "%02d" % (was / 60), "%02d" % (m / 60), step)
 	_flip_card(img, Vector2i(win.end.x - 2 - card.x, win.position.y + 2), card, "%02d" % (was % 60), "%02d" % (m % 60), step)
 	_face_key = key
-	_face = ImageTexture.create_from_image(img)
+	if _face and _face.get_size() == Vector2(sz):
+		_face.update(img)
+	else:
+		_face = ImageTexture.create_from_image(img)
 	return _face
 
 
@@ -2250,8 +2964,21 @@ func _box(x0: float, zf: float, wx: float, dz: float, y0: float, h: float) -> Di
 ## Uma face de objeto (sem contorno: um fio preto torto pela perspectiva serrilhava e parecia desenho mal feito; as
 ## faces se separam pela luz, o tampo mais claro e os lados mais escuros).
 func _poly(pts: PackedVector2Array, col: Color) -> void:
-	if not Geometry2D.triangulate_polygon(pts).is_empty():   # (uma face vista de quina não tem área)
-		draw_colored_polygon(pts, col)
+	_fill(pts, PackedColorArray([col]))
+
+
+## Um polígono cheio em `_ci` com a cor de cada ponto (`cols`, ou uma só para tudo), em primitivos: o Godot junta os
+## `draw_primitive` seguidos numa chamada de desenho só, e cada `draw_polygon` era uma (a sala passava de 2000 por
+## quadro, 6 ms de renderização parada, e cada redesenho criava mil polígonos). O quadrilátero vai inteiro (os da sala
+## são convexos); o resto, em triângulos. Sem área (uma face vista de quina), não aparece nada.
+func _fill(pts: PackedVector2Array, cols: PackedColorArray) -> void:
+	if pts.size() <= 4:
+		_ci.draw_primitive(pts, cols, PackedVector2Array())
+		return
+	var tri := Geometry2D.triangulate_polygon(pts)
+	for i in range(0, tri.size(), 3):
+		var c := cols if cols.size() == 1 else PackedColorArray([cols[tri[i]], cols[tri[i + 1]], cols[tri[i + 2]]])
+		_ci.draw_primitive(PackedVector2Array([pts[tri[i]], pts[tri[i + 1]], pts[tri[i + 2]]]), c, PackedVector2Array())
 
 
 ## Um paralelogramo da tela (o tampo `q` de uma caixa) como transformação de um retângulo de px (0, 0)–`size`: o
@@ -2273,10 +3000,10 @@ func _desk_shadow(foot: PackedVector2Array) -> void:
 	for p in foot:
 		pts.append(p + off)
 	for g in Geometry2D.offset_polygon(pts, 1.5, Geometry2D.JOIN_MITER):
-		draw_colored_polygon(g, Color(0, 0, 0, 0.15))
-	draw_colored_polygon(pts, Color(0, 0, 0, 0.3))
+		_poly(g, Color(0, 0, 0, 0.15))
+	_poly(pts, Color(0, 0, 0, 0.3))
 	for g in Geometry2D.offset_polygon(foot, 1.0, Geometry2D.JOIN_MITER):
-		draw_colored_polygon(g, Color(0, 0, 0, 0.45))
+		_poly(g, Color(0, 0, 0, 0.45))
 
 
 ## Onde fica a poça de luz da luminária no tampo (x, z da sala): embaixo dela, um pouco à frente do fundo da mesa.
@@ -2300,7 +3027,7 @@ func _dim(pts: PackedVector2Array, xz: Array) -> void:
 	var cols := PackedColorArray()
 	for p in xz:
 		cols.append(Color(0, 0, 0, _shade(p.x, p.y)))
-	draw_polygon(pts, cols)
+	_fill(pts, cols)
 
 
 ## Os cantos no tampo (x, z da sala) de um objeto de `wx` por `dz` com o meio em (`cx`, `cz`), girado `yaw` (rad):
@@ -2356,6 +3083,7 @@ func _flat(id: String, x0: float, zf: float, wx: float, dz: float, h: float, edg
 			post.call(sz)
 	_dim(top, xz)   # longe da luz, ponto a ponto
 	_props[id] = _bounds(foot + top)
+	_occ.append(Geometry2D.convex_hull(foot + top))
 	return top
 
 
@@ -2381,6 +3109,30 @@ func _homography(q: PackedVector2Array) -> Basis:
 func _tex_pt(p: Vector2) -> Vector2:
 	var v := _hom * Vector3(p.x / _hom_sz.x, p.y / _hom_sz.y, 1.0)
 	return Vector2(v.x / v.z, v.y / v.z)
+
+
+## As alturas (y do desenho de frente, px) de `y0` até `y1` que caem a cada `step` px da tela, no meio do objeto chato
+## sendo desenhado: o espaço entre as linhas de texto é o da tela, não o do papel. (No papel, linhas de 1 px a cada 2
+## viravam moiré e zigue-zague: a perspectiva aperta o fundo e estica a frente, e pulava ou dobrava linhas.)
+func _rows(y0: float, y1: float, step: float) -> Array:
+	var a := _tex_pt(Vector2(_hom_sz.x / 2.0, y0))
+	var b := _tex_pt(Vector2(_hom_sz.x / 2.0, y1))
+	var span := b.y - a.y
+	var out := []
+	if span < step:
+		return out
+	var inv := _hom.inverse()
+	for k in floori(span / step) + 1:
+		var p := a.lerp(b, k * step / span)
+		var r := inv * Vector3(p.x, p.y, 1.0)
+		out.append(r.y / r.z * _hom_sz.y)
+	return out
+
+
+## Um risco de tinta no objeto chato sendo desenhado, de `x0` a `x1` na altura `y` do desenho de frente, posto na
+## tela em pixel art (`cols`: a espessura, de cima para baixo), como o lápis do caderno.
+func _ink(x0: float, x1: float, y: float, cols: Array) -> void:
+	_pixel_line(_tex_pt(Vector2(x0, y)), _tex_pt(Vector2(x1, y)), cols)
 
 
 ## O desenho de frente de um objeto chato posto no quadrilátero `q` da tela pixel a pixel, como a frente do relógio:
@@ -2430,7 +3182,7 @@ func _fl(img: Image, a: Vector2, b: Vector2, c: Color) -> void:
 ## ponto de fuga, com os filetes dourados; na frente, o miolo de papel com as folhas marcadas entre as capas; e, no de
 ## cima, o tampo com a faixa do título e o emblema da central.
 func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
-	var cols := [Color("8e2a22"), Color("2a4a7c"), Color("b48c1c")]
+	var cols := [Pal.SEAL, Color("2a4a7c"), Pal.BOOK]
 	var offs := [Vector2(1, 0) * PROP_K, Vector2(3, 2) * PROP_K, Vector2(0, 1) * PROP_K]   # meio tortos: x e z de cada volume
 	var yaws := [deg_to_rad(-3.0), deg_to_rad(3.5), deg_to_rad(-1.0)]   # e cada um girado para um lado
 	var bh := 5.5 * PROP_K
@@ -2451,10 +3203,10 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 			var at := func(u: float, v: float) -> Vector2: return q[0].lerp(q[1], u).lerp(q[3].lerp(q[2], u), v)   # um ponto da face
 			if i == spine:   # a lombada: os filetes dourados e, entre eles, a etiqueta escura do volume com o número
 				_poly(q, c.darkened(0.2))
-				_pixel_line(at.call(0.0, 0.2), at.call(1.0, 0.2), [Color("e0c07a")])
-				_pixel_line(at.call(0.0, 0.8), at.call(1.0, 0.8), [Color("e0c07a")])
+				_pixel_line(at.call(0.0, 0.2), at.call(1.0, 0.2), [Pal.GOLD])
+				_pixel_line(at.call(0.0, 0.8), at.call(1.0, 0.8), [Pal.GOLD])
 				_poly(PackedVector2Array([at.call(0.32, 0.34), at.call(0.68, 0.34), at.call(0.68, 0.66), at.call(0.32, 0.66)]), c.darkened(0.5))
-				_pixel_line(at.call(0.44, 0.5), at.call(0.56, 0.5), [Color("e0c07a")])
+				_pixel_line(at.call(0.44, 0.5), at.call(0.56, 0.5), [Pal.GOLD])
 			else:
 				# o miolo entre as capas, com as folhas em linhas finas: numa imagem posta pixel a pixel, como a capa (em
 				# linhas tortas desenhadas na tela, elas viravam degraus quebrados e faixas)
@@ -2467,7 +3219,7 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 				if i == 2:   # tiras de papel marcando páginas, saindo da frente (cada volume as dele)
 					for m: Vector2 in [[Vector2(0.72, 0.0)], [Vector2(0.3, 1.0), Vector2(0.82, 0.0)], [Vector2(0.55, 1.0)]][b]:
 						var p: Vector2 = (at.call(m.x, 0.55) as Vector2).round()   # deitada entre as folhas: uma aba fina, com a sombra embaixo
-						var col := Color("a8564a") if m.y == 0.0 else Color("e0d4b0")
+						var col := Pal.FORM_RED if m.y == 0.0 else Pal.STRIP
 						draw_rect(Rect2(p - Vector2(3, 0), Vector2(6, 2)), col)
 						draw_rect(Rect2(p - Vector2(3, 0), Vector2(6, 1)), col.lightened(0.15))
 						draw_rect(Rect2(p + Vector2(-3, 2), Vector2(6, 1)), Color(0, 0, 0, 0.35))
@@ -2476,15 +3228,17 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 		var top := PackedVector2Array()
 		for p: Vector2 in xz:
 			top.append(_p3(p.x, y0 - bh, p.y))
-		_poly(top, c)
+		var cover := c.darkened(0.15)   # a capa, que pega a luz de cima de chapa, um tom abaixo da cor do cabo
+		_poly(top, cover)
 		all.append_array(top)
 		var sz := Vector2i(_top_xf(top)[1])
 		if b == 2 and sz.x >= 8 and sz.y >= 4:   # a capa do volume de cima, pixel a pixel como os objetos chatos
 			_hom = _homography(top)
 			_hom_sz = Vector2(sz)
-			_project(["lista", sz], _art_book_cover.bind(c), top, sz)
+			_project(["lista", sz], _art_book_cover.bind(cover), top, sz)
 		_dim(top, xz)   # longe da luz, ponto a ponto: cada volume logo depois de desenhado (os de cima cobrem os de baixo)
 	_props["lista"] = _bounds(all)
+	_occ.append(Geometry2D.convex_hull(all))
 
 
 ## A caneca de café em pé na mesa (centro `xc`, `zc`; raio `rr`, altura `hh`): uma caneca esmaltada de época,
@@ -2503,6 +3257,10 @@ func _draw_mug(xc: float, zc: float, rr: float, hh: float) -> void:
 		Vector2(body.position.x, body.end.y + rb)]))
 	var img := _mug_art(int(body.size.x), int(body.size.y), int(ry), int(rb))
 	draw_texture(img, body.position - Vector2(0, ry), Color.WHITE.darkened(_shade(xc, zc)))
+	var hull := PackedVector2Array()
+	for p in _mug_hulls[Vector4i(int(body.size.x), int(body.size.y), int(ry), int(rb))]:
+		hull.append(p + body.position - Vector2(0, ry))
+	_occ.append(hull)
 
 
 ## A caneca esmaltada de frente, com `w` de largura e `h` da boca ao pé (px), a boca e o pé em elipses de meia altura
@@ -2511,13 +3269,14 @@ func _draw_mug(xc: float, zc: float, rr: float, hh: float) -> void:
 ## dentro com o café embaixo (a luz da luminária refletida nele), a alça em C do lado da sombra e duas lascas no esmalte
 ## mostrando o ferro. Guardada por tamanho.
 static var _mugs := {}
+static var _mug_hulls := {}   # o contorno de cada caneca (px dela), da mesma chave
 func _mug_art(w: int, h: int, ry: int, rb: int) -> ImageTexture:
 	var key := Vector4i(w, h, ry, rb)
 	if _mugs.has(key):
 		return _mugs[key]
-	var hw := 7   # a alça, para fora do lado direito
+	var hw := 9   # a alça, para fora do lado direito
 	var img := Image.create(w + hw, h + ry + rb + 1, false, Image.FORMAT_RGBA8)
-	var ramp := [Color("f2ece0"), Color("e3dccb"), Color("cfc7b2"), Color("b6ad96"), Color("958c76"), Color("6e6656")]
+	var ramp := [Color("e2dbca"), Color("d3cbb7"), Color("bfb69f"), Color("a49b83"), Color("857c66"), Color("5e5848")]
 	var navy := [Color("4a608a"), Color("34486c"), Color("243452"), Color("18223a")]
 	var light := Vector2(-0.6, 0.8).normalized()   # (x de lado, z para os olhos): a luz vem do alto à esquerda
 	var top := float(ry)   # o centro da boca na imagem
@@ -2532,8 +3291,8 @@ func _mug_art(w: int, h: int, ry: int, rb: int) -> ImageTexture:
 		_fr(img, x, y0, 1, 2, navy[clampi(int((1.0 - d) * 3.99), 0, 3)])   # a borda
 		_fr(img, x, y1 - 1, 1, 1, navy[mini(3, clampi(int((1.0 - d) * 3.99), 0, 3) + 1)])   # o filete do pé
 	var gx := int(w * 0.28)   # o brilho do esmalte: uma coluna clara no alto do lado da luz
-	_fr(img, gx, int(top + ry) + 3, 1, int(h * 0.55), Color("fbf8f0"))
-	_fr(img, gx + 1, int(top + ry) + 4, 1, int(h * 0.3), Color("f6f2e8"))
+	_fr(img, gx, int(top + ry) + 3, 1, int(h * 0.55), Color("eee8da"))
+	_fr(img, gx + 1, int(top + ry) + 4, 1, int(h * 0.3), Color("e8e2d2"))
 	# a boca: o aro azul, o lado de dentro esmaltado (a parede de trás aparece acima do café) e o café com a luz nele
 	for y in range(0, ry * 2 + 1):
 		for x in w:
@@ -2552,23 +3311,34 @@ func _mug_art(w: int, h: int, ry: int, rb: int) -> ImageTexture:
 			elif e.y < -0.2:
 				c = navy[0]   # o aro, mais claro atrás (pega a luz por cima)
 			img.set_pixel(x, y, c)
-	var hy0 := top + ry + 2.0   # a alça em C, do lado da sombra: o anel com o furo, a beira de cima pegando a luz
-	var hy1 := top + ry + h * 0.66
+	var hy0 := top + ry + 2.0   # a alça em C, do lado da sombra: um anel grosso com o furo (fina, parecia arame), a
+	var hy1 := top + ry + h * 0.66   # beira de cima pegando a luz e a volta de fora na sombra
 	var hc := Vector2(w - 2.0, (hy0 + hy1) / 2.0)
-	var ho := Vector2(hw + 1.0, (hy1 - hy0) / 2.0)   # o anel por fora e o furo
-	var hi := Vector2(hw - 1.5, ho.y - 2.2)
+	var ho := Vector2(hw + 0.5, (hy1 - hy0) / 2.0)   # o anel por fora e o furo
+	var hi := Vector2(hw - 5.0, maxf(1.0, ho.y - 4.5))
 	for y in range(int(hy0), int(hy1) + 1):
 		for x in range(w - 1, w + hw):
 			var q := Vector2(x + 0.5, y + 0.5) - hc
-			if (q / ho).length_squared() > 1.0 or (q / hi).length_squared() < 1.0:
+			var out := (q / ho).length_squared()
+			if out > 1.0 or (q / hi).length_squared() < 1.0:
 				continue
-			var up := q.y < -ho.y * 0.5
-			img.set_pixel(x, y, Color("cfc7b2") if up else (Color("958c76") if q.x < hw * 0.5 else Color("6e6656")))
+			var c := Color("bfb69f")
+			if q.y < -ho.y * 0.4:
+				c = Color("d3cbb7")   # o alto, na luz
+			elif out > 0.8 and (q.x > hw * 0.4 or q.y > 0.0):
+				c = Color("958c76")   # a volta de fora e o pé, na sombra (mais escura, sumia na parede escura)
+			img.set_pixel(x, y, c)
 	for p in [Vector2i(int(w * 0.62), int(top + ry) + 1), Vector2i(int(w * 0.18), int(top + h) - 3)]:   # as lascas no esmalte
 		_fr(img, p.x, p.y, 2, 1, Color("2a2620"))
 		img.set_pixel(p.x, p.y + 1, Color("4a443c"))
 	var tex := ImageTexture.create_from_image(img)
 	_mugs[key] = tex
+	var bm := BitMap.new()   # o contorno dela, pelo que não é transparente (o relâmpago não passa por ela)
+	bm.create_from_image_alpha(img)
+	var pts := PackedVector2Array()
+	for poly in bm.opaque_to_polygons(Rect2i(Vector2i.ZERO, img.get_size()), 1.0):
+		pts.append_array(poly)
+	_mug_hulls[key] = Geometry2D.convex_hull(pts)
 	return tex
 
 
@@ -2576,10 +3346,10 @@ func _mug_art(w: int, h: int, ry: int, rb: int) -> ImageTexture:
 ## em 2 px, umas mais escuras que as outras, mais sujas junto das capas; `dk` escurece o lado que não está de frente.
 func _art_pages(sz: Vector2i, c: Color, dk: float) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	var paper := Color("d8cba6").darkened(dk)
+	var paper := Color("c6b994").darkened(dk)
 	img.fill(paper)
 	for y in range(2, sz.y - 2, 2):   # as folhas
-		var line := paper.darkened(0.07 if (y * 7) % 5 < 3 else 0.12)
+		var line := paper.darkened(0.05 if (y * 7) % 5 < 3 else 0.09)
 		var x := 0
 		while x < sz.x:   # cada linha com uma falha aqui e ali (folha mais curta)
 			var n := 6 + (x * 13 + y * 7) % 23
@@ -2597,8 +3367,19 @@ func _art_pages(sz: Vector2i, c: Color, dk: float) -> Image:
 ## colada com o ano, a marca de uma caneca que alguém pousou nela e a ponta da frente dobrada, mostrando a folha.
 func _art_book_cover(sz: Vector2i, c: Color) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	var gold := Color("e0c07a")
+	var gold := Pal.GOLD
 	img.fill(c)
+	for y in sz.y:   # o grão do papelão: pontos um pouco mais escuros ou claros, sempre os mesmos
+		for x in sz.x:
+			var g := (x * 73 + y * 151 + x * y * 7) % 97
+			if g < 6:
+				img.set_pixel(x, y, c.darkened(0.07))
+			elif g > 92:
+				img.set_pixel(x, y, c.lightened(0.05))
+	_fr(img, 2, 2, sz.x - 4, 1, c.darkened(0.16))   # o friso em volta, em baixo-relevo: a sombra em cima e à esquerda...
+	_fr(img, 2, 2, 1, sz.y - 4, c.darkened(0.16))
+	_fr(img, 2, sz.y - 3, sz.x - 4, 1, c.lightened(0.1))   # ...e a luz embaixo e à direita
+	_fr(img, sz.x - 3, 2, 1, sz.y - 4, c.lightened(0.1))
 	_fr(img, 0, 0, sz.x, 1, c.lightened(0.22))
 	_fr(img, 0, 0, 1, sz.y, c.lightened(0.1))
 	_fr(img, sz.x - 1, 0, 1, sz.y, c.darkened(0.25))
@@ -2641,192 +3422,453 @@ func _art_book_cover(sz: Vector2i, c: Color) -> Image:
 	return img
 
 
-## O mapa da cidade dobrado em sanfona, meio aberto na mesa: papel creme com os quarteirões de tamanhos desiguais,
-## cada bairro num tom (Vila Serena, Centro, Alto da Serra), as ruas claras entre eles e duas avenidas mais largas,
-## uma praça verde, o rio azul com a margem, a linha do trem, o selo do título num canto e as dobras alternando luz e
-## sombra (com quadrados iguais, lia como papel quadriculado).
+## O mapa da cidade sob o vidro da unidade de despacho (`_art_glass`): o mapa aberto (`CityMap`) em miniatura, com as
+## mesmas folhas (as dos bairros atendidos, enquadradas como ele abre; o papel tem a proporção delas), os quarteirões no
+## tom de cada bairro com as casas em volta e as árvores dos quintais (`CityMap.lots`), os lugares de telhado de barro,
+## a praça com os caminhos e o coreto, a zona rural, as divisas e o selo vermelho. Os nomes ficam de fora: nesse
+## tamanho, seriam só ruído.
 func _art_map(sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	img.fill(Color("ddd1ad"))   # o papel, e as ruas são ele à mostra
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 2207   # sempre o mesmo mapa
-	var tints := [Color("c9b88a"), Color("c9ad90"), Color("b9bc8c")]   # os bairros
-	var xs := [1]
-	while xs[-1] < sz.x - 8:
-		xs.append(xs[-1] + rng.randi_range(6, 10))
-	xs.append(sz.x - 1)
-	var ys := [1]
-	while ys[-1] < sz.y - 6:
-		ys.append(ys[-1] + rng.randi_range(4, 6))
-	ys.append(sz.y - 1)
-	var ave_x := xs.size() / 2   # as avenidas: uma rua de cada direção, mais larga
-	var ave_y := ys.size() / 2
-	for i in xs.size() - 1:
-		for j in ys.size() - 1:
-			var x0: int = xs[i] + (2 if i == ave_x else 1)
-			var y0: int = ys[j] + (2 if j == ave_y else 1)
-			var w: int = xs[i + 1] - x0
-			var h: int = ys[j + 1] - y0
-			if w < 2 or h < 2:
-				continue
-			var col: Color = tints[clampi(x0 * 3 / sz.x, 0, 2)]
-			if rng.randf() < 0.07:
-				col = Color("8f9f6a")   # uma praça
-			_fr(img, x0, y0, w, h, col)
-			_fr(img, x0, y0 + h - 1, w, 1, col.darkened(0.12))   # a quadra tem a beira de baixo na sombra
-	var river := [Vector2(0, sz.y * 0.82), Vector2(sz.x * 0.3, sz.y * 0.62), Vector2(sz.x * 0.56, sz.y * 0.74), Vector2(sz.x, sz.y * 0.36)]
-	for i in river.size() - 1:   # o rio, com a margem clara em cima
-		_fl(img, river[i] - Vector2(0, 1), river[i + 1] - Vector2(0, 1), Color("a9bcc0"))
-		_fl(img, river[i], river[i + 1], Color("5f86b0"))
-		_fl(img, river[i] + Vector2(0, 1), river[i + 1] + Vector2(0, 1), Color("48709e"))
-	for x in range(1, sz.x - 2, 4):   # a linha do trem, tracejada, perto do alto
-		_fr(img, x, int(sz.y * 0.18), 2, 1, Color("4a4038"))
-	var seal := Rect2i(sz.x - 14, sz.y - 8, 11, 6)   # o selo do título, com a borda vermelha
-	_fr(img, seal.position.x, seal.position.y, seal.size.x, seal.size.y, Color("8e2a22"))
-	_fr(img, seal.position.x + 1, seal.position.y + 1, seal.size.x - 2, seal.size.y - 2, Color("e6dcbc"))
-	_fr(img, seal.position.x + 2, seal.position.y + 2, seal.size.x - 4, 1, Color("4a4038"))
-	_fr(img, seal.position.x + 2, seal.position.y + 3, seal.size.x - 7, 1, Color("4a4038"))
-	var pw := sz.x / 4   # as dobras: quatro painéis em sanfona, um virado para a luz e o outro não
-	for k in [1, 3]:
-		for y in sz.y:
-			for x in range(k * pw, mini(sz.x, (k + 1) * pw)):
-				img.set_pixel(x, y, img.get_pixel(x, y).darkened(0.14))
-	for k in [1, 2, 3]:
-		_fr(img, k * pw - (1 if k != 2 else 0), 0, 1, sz.y, Color("f0e6c8") if k == 2 else Color("8a7c5a"))
-	_fr(img, 0, sz.y - 1, sz.x, 1, Color("8a7c5a"))   # a beira de baixo do papel
+	img.fill(Pal.MAP_PAPER)   # o papel, e as ruas são ele à mostra
+	var fr := CityMap.frame_of(GameData.sectors)
+	var s := Vector2(sz) / fr.size   # px do mapa -> px do desenho (o tampo como é visto: bem mais baixo que largo)
+	var pt := func(p: Vector2) -> Vector2: return ((p - fr.position) * s).round()
+	var put := func(r: Rect2, c: Color) -> Rect2:   # um retângulo do mapa no desenho, em px inteiros (ao menos 1)
+		var a: Vector2 = pt.call(r.position)
+		var b := Rect2(a, (pt.call(r.end) - a).max(Vector2.ONE))
+		_fr(img, b.position.x, b.position.y, b.size.x, b.size.y, c)
+		return b
+	for sheet in MapGrid.SHEETS:
+		if not CityMap.shown(sheet):
+			continue
+		var o: Vector2 = MapGrid.SHEETS[sheet]
+		if sheet == 0:   # a zona rural: as roças, as estradas de terra e o rio
+			for ci in 5:
+				for ri in 4:
+					var f := CityMap.field_rect(ci, ri)
+					put.call(Rect2(o + f.position, f.size), Pal.MAP_FIELDS[(ci + ri) % 2])
+			for v in CityMap.ROADS_V:
+				put.call(Rect2(o + Vector2(v - 5.0, 0), Vector2(10, 440)), Pal.MAP_DIRT)
+			for h in CityMap.ROADS_H:
+				put.call(Rect2(o + Vector2(0, h - 5.0), Vector2(600, 10)), Pal.MAP_DIRT)
+			for i in CityMap.RIVER.size() - 1:
+				for d in [Vector2.ZERO, Vector2(1, 0)]:
+					_fl(img, pt.call(o + CityMap.RIVER[i]) + d, pt.call(o + CityMap.RIVER[i + 1]) + d, Pal.MAP_RIVER)
+			continue
+		var tint: Color = Pal.MAP_TINTS[MapGrid.SHEET_SECTOR[sheet]]
+		var roof := tint.darkened(0.22)
+		for ci in 5:
+			for ri in 4:
+				var r := CityMap.block_rect(ci, ri)
+				r.position += o
+				var lm: int = MapGrid.LM.get(sheet, {}).get("%d,%d" % [ci, ri], -1)
+				var b: Rect2 = put.call(r, tint.darkened(0.3))   # a beira da quadra, de 1 px
+				_fr(img, b.position.x + 1, b.position.y + 1, b.size.x - 2, b.size.y - 2, Pal.MAP_PLAZA if lm == T.Key.MAP_SQUARE else tint)
+				if lm == T.Key.MAP_SQUARE:
+					var q := r.grow(-2)
+					for seg: Array in CityMap.square_paths(q):
+						_fl(img, pt.call(seg[0]), pt.call(seg[1]), Pal.MAP_PAPER)
+					for p: Vector2 in CityMap.square_trees(q):
+						put.call(Rect2(p, Vector2(8, 8)), Pal.MAP_TREE)
+					var c: Rect2 = put.call(Rect2(q.get_center() - Vector2(14, 12), Vector2(28, 24)), CityMap.LINE)   # o coreto
+					_fr(img, c.position.x + 1, c.position.y + 1, c.size.x - 2, c.size.y - 2, Pal.MAP_BANDSTAND)
+				elif lm != -1:   # o lugar: um prédio só, com a metade de cima (ou da esquerda) do telhado na luz; a beira
+					var mb := r.grow(-8)   # no barro escuro (no traço do mapa, 1 px aqui é um muro de 10 lá)
+					var lb: Rect2 = put.call(mb, Pal.MAP_LANDMARK.darkened(0.5))
+					var inner := lb.grow(-1)
+					_fr(img, inner.position.x, inner.position.y, inner.size.x, inner.size.y, Pal.MAP_LANDMARK)
+					var lit := inner.size * (Vector2(1, 0.5) if mb.size.x >= mb.size.y else Vector2(0.5, 1))
+					_fr(img, inner.position.x, inner.position.y, lit.x, lit.y, Pal.MAP_LANDMARK.lightened(0.12))
+				else:
+					for lot: Array in CityMap.lots(r.grow(-4), sheet * 31 + ci * 7 + ri * 3):
+						var lr: Rect2 = lot[0]
+						if lot[1] == CityMap.Lot.TREE:
+							put.call(lr, Pal.MAP_TREE)
+							continue
+						var h: Rect2 = put.call(lr, roof)
+						var half := Vector2(floorf(h.size.x / 2.0), h.size.y) if lot[1] == CityMap.Lot.HOUSE_ACROSS else Vector2(h.size.x, floorf(h.size.y / 2.0))
+						_fr(img, h.position.x, h.position.y, half.x, half.y, roof.lightened(0.1))
+	for seg: Array in CityMap.BORDERS:   # as divisas entre os bairros, tracejadas
+		if CityMap.shown(seg[0]) and CityMap.shown(seg[1]):
+			var n := int((seg[2] as Vector2).distance_to(seg[3]) / 24.0)
+			for i in n:
+				var a: Vector2 = (seg[2] as Vector2).lerp(seg[3], float(i) / n)
+				var e: Vector2 = (seg[2] as Vector2).lerp(seg[3], (i + 0.5) / n)
+				put.call(Rect2(a, e - a).abs().grow(1.5), Pal.MAP_PAPER.lerp(CityMap.LINE, 0.5))
+	var sw := maxi(12, roundi(sz.x * 0.19))   # o selo no canto, como no mapa aberto: a moldura vermelha, a seta do
+	var sh := maxi(5, roundi(sz.y * 0.08))    # norte e o nome da cidade
+	var sp := Vector2i(sz.x - sw - maxi(2, sz.x / 100), sz.y - sh - 2)
+	_fr(img, sp.x, sp.y, sw, sh, Pal.SEAL)
+	_fr(img, sp.x + 1, sp.y + 1, sw - 2, sh - 2, Pal.MAP_PAPER)
+	_fr(img, sp.x + 3, sp.y + 2, 1, sh - 4, CityMap.LINE)
+	_fr(img, sp.x + roundi(sw * 0.35), sp.y + sh / 2, roundi(sw * 0.55), 1, CityMap.LINE)
 	return img
 
 
-## O alfinete do mapa no local marcado, por cima do mapa, na tela: a cabeça redonda vista de cima (torta, serrilhava).
-## Parado: piscando e brilhando com uma emergência em andamento, não fazia sentido (um alfinete não acende).
-func _map_pin(sz: Vector2i) -> void:
-	var sp := _tex_pt(Vector2(sz.x * 0.7, sz.y * 0.42)).round()
-	_sprite(PixelArt.disc(6, [[3.0, Color(0, 0, 0, 0.35)]]), sp + Vector2(2, 2))
-	_sprite(PixelArt.disc(6, [[1.2, Color("f0a090")], [3.0, Color("e07060"), Color("b03a2e"), Color("7a2418")]]), sp)
+## A unidade de despacho, que abre o despacho (`x0`, a frente em `zf`, `wx` de largura; medidas em `UNIT`): um móvel
+## de metal no material das máquinas da ficha (`Pal.PANEL`), como um terminal antigo. Embaixo, a base, com as três
+## máquinas embutidas no tampo, na mesma disposição do despacho aberto (`_art_deck`: o transmissor à esquerda, a
+## impressora no meio e o triturador à direita) e, na frente, a plaqueta de latão e as luzes; em
+## cima, atrás, o painel inclinado com o mapa de papel sob o vidro (`_art_glass`). O estado do
+## jogo nela: a luz vermelha com uma emergência em andamento (`alert`) e o cartão saindo da impressora enquanto há um
+## na mesa (`card_out`), com a luz âmbar.
+func _draw_dispatch_unit(x0: float, zf: float, wx: float) -> void:
+	var k := PROP_K
+	var x1 := x0 + wx
+	var dd := _deep(UNIT.z * k)   # o fundo da base até o painel
+	var zb := zf + dd
+	var zt := zb + _deep(UNIT_TILT * k)   # o alto do vidro, mais para trás
+	var ze := zf + _deep(UNIT_D * k)   # o fundo do móvel
+	var yd := _yd - UNIT.y * k   # o tampo da base
+	var yt := yd - UNIT_PANEL * k   # o alto do painel
+	_desk_shadow(PackedVector2Array([_p3(x0, _yd, ze), _p3(x1, _yd, ze), _p3(x1, _yd, zf), _p3(x0, _yd, zf)]))
+	var dark := _shade(x0 + wx / 2.0, (zf + ze) / 2.0)
+	var all := PackedVector2Array()
+	var sx := x0 if x0 > 0.0 else x1   # o lado virado para o ponto de fuga (atravessando-o, nenhum)
+	if x0 > 0.0 or x1 < 0.0:
+		var base := PackedVector2Array([_p3(sx, yd, ze), _p3(sx, yd, zf), _p3(sx, _yd, zf), _p3(sx, _yd, ze)])
+		_poly(base, Pal.PANEL_LO.darkened(dark))
+		var side := PackedVector2Array([_p3(sx, yt, zt), _p3(sx, yt, ze), _p3(sx, yd, ze), _p3(sx, yd, zb)])
+		_poly(side, Pal.PANEL_LO.lightened(0.04).darkened(dark))
+		all.append_array(base + side)
+	var top := PackedVector2Array([_p3(x0, yt, ze), _p3(x1, yt, ze), _p3(x1, yt, zt), _p3(x0, yt, zt)])   # o alto do painel
+	_poly(top, Pal.PANEL_HI.darkened(dark))
+	_dim(top, [Vector2(x0, ze), Vector2(x1, ze), Vector2(x1, zt), Vector2(x0, zt)])
+	var glass := PackedVector2Array([_p3(x0, yt, zt), _p3(x1, yt, zt), _p3(x1, yd, zb), _p3(x0, yd, zb)])
+	_flat_art("despacho_vidro", glass, _art_glass, [GameData.sectors.duplicate()], dark)
+	var deck := PackedVector2Array([_p3(x0, yd, zb), _p3(x1, yd, zb), _p3(x1, yd, zf), _p3(x0, yd, zf)])
+	_flat_art("despacho_base", deck, _art_deck, [], dark)
+	if card_out:   # o cartão saindo da fenda da impressora, no meio, para trás (para cima do vidro)
+		var sz := _hom_sz
+		var card := PackedVector2Array([_tex_pt(sz * Vector2(0.38, 0.0)), _tex_pt(sz * Vector2(0.62, 0.0)),
+			_tex_pt(sz * Vector2(0.62, 0.46)), _tex_pt(sz * Vector2(0.38, 0.46))])
+		_poly(card, PunchCard.CARD.darkened(dark))
+		_pixel_line(_tex_pt(sz * Vector2(0.39, 0.15)), _tex_pt(sz * Vector2(0.61, 0.15)), [Pal.FORM_RED.darkened(dark)])
+	var front := Rect2(_p3(x0, yd, zf).round(), Vector2.ZERO).expand(_p3(x1, _yd, zf).round())   # a frente da base
+	draw_rect(front, Pal.PANEL.darkened(dark))
+	draw_rect(Rect2(front.position, Vector2(front.size.x, 1)), Pal.PANEL_HI.darkened(dark))
+	draw_rect(Rect2(front.position.x, front.end.y - 1, front.size.x, 1), Pal.EDGE)
+	var mid := front.position.y + floorf(front.size.y / 2.0)
+	var plate := Rect2(front.position.x + roundf(front.size.x * 0.36), mid - 2, roundf(front.size.x * 0.28), 4)
+	draw_rect(plate, Pal.BRASS.darkened(0.25 + dark))   # a plaqueta do fabricante
+	draw_rect(plate.grow(-1), Pal.BRASS.darkened(dark))
+	for i in 3:   # a saída de ar, à direita
+		draw_rect(Rect2(front.end.x - roundf(front.size.x * 0.22), mid - 2 + i * 2, roundf(front.size.x * 0.16), 1), Pal.PANEL_LO)
+	for l: Array in [[0.06, alert, Pal.RED], [0.14, card_out, Pal.AMBER]]:   # as luzes: ocorrência e cartão na mesa
+		var lr := Rect2(front.position.x + roundf(front.size.x * l[0]), mid - 1, 3, 3)
+		draw_rect(lr.grow(1), Pal.EDGE)
+		draw_rect(lr, l[2] if l[1] else (l[2] as Color).darkened(0.75))
+		if l[1]:
+			_light(lr, l[2], 0.6, true)
+	all.append_array(top + glass + deck)
+	all.append_array(PackedVector2Array([front.position, front.end, Vector2(front.position.x, front.end.y)]))
+	_props["despacho"] = _bounds(all)
+	_occ.append(Geometry2D.convex_hull(all))
+
+
+## O desenho de frente `art` (com `key`) posto no quadrilátero `q` da tela pixel a pixel (`_project`), escurecido
+## `dark` longe da luz; deixa `_hom` dele para o que vai por cima (`_tex_pt`).
+func _flat_art(id: String, q: PackedVector2Array, art: Callable, key: Array, dark: float) -> void:
+	var sz := Vector2i(_top_xf(q)[1])
+	if sz.x < 8 or sz.y < 3:   # (a tela ainda se arrumando)
+		return
+	_hom = _homography(q)
+	_hom_sz = Vector2(sz)
+	_project([id, sz, key], art, q, sz)
+	if dark > 0.0:
+		_poly(q, Color(0, 0, 0, dark))
+
+
+## O tampo da base da unidade de despacho, de cima (o alto do desenho é o fundo): a chapa com a beira clara e as três
+## fendas lado a lado, como no despacho aberto (`CardMachines`): o transmissor à esquerda, com as marcas âmbar, a
+## impressora no meio e o triturador à direita, com as faixas de perigo.
+func _art_deck(sz: Vector2i) -> Image:
+	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
+	img.fill(Pal.PANEL)
+	_fr(img, 0, 0, sz.x, 1, Pal.PANEL_HI)
+	_fr(img, 0, sz.y - 1, sz.x, 1, Pal.PANEL_HI)
+	var slot := func(x: float, y: float, w: float) -> Vector2i:   # uma fenda: o lábio e o escuro de dentro
+		var a := Vector2i(roundi(x * sz.x), roundi(y * sz.y))
+		var n := roundi(w * sz.x)
+		_fr(img, a.x - 1, a.y - 1, n + 2, 3, Pal.PANEL_LO)
+		_fr(img, a.x, a.y, n, 1, Pal.EDGE)
+		_fr(img, a.x - 1, a.y + 2, n + 2, 1, Pal.PANEL_HI)
+		return a
+	var tx: Vector2i = slot.call(0.05, 0.45, 0.27)   # o transmissor
+	_fr(img, tx.x, tx.y + 3, 2, 1, Pal.AMBER)
+	_fr(img, tx.x + roundi(0.27 * sz.x) - 2, tx.y + 3, 2, 1, Pal.AMBER)
+	slot.call(0.365, 0.45, 0.27)   # a impressora
+	var sh: Vector2i = slot.call(0.68, 0.45, 0.27)   # o triturador
+	for i in range(0, roundi(0.27 * sz.x), 4):
+		_fr(img, sh.x + i, sh.y + 3, 2, 1, CardMachines.HAZARD)
+	return img
+
+
+## O painel da unidade de despacho, de frente: a moldura de metal e, sob o vidro, o mapa de papel (`_art_map`, na
+## proporção das folhas, com papel em volta; um pouco mais escuro perto da moldura), a sombra da moldura no alto e o
+## reflexo do vidro na diagonal. Papel sob a luz da sala, não uma tela acesa.
+func _art_glass(sz: Vector2i) -> Image:
+	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
+	img.fill(Pal.PANEL)
+	_fr(img, 0, 0, sz.x, 1, Pal.PANEL_HI)
+	_fr(img, 0, 0, 1, sz.y, Pal.PANEL_HI)
+	_fr(img, sz.x - 1, 0, 1, sz.y, Pal.PANEL_LO)
+	var inner := _glass_inner(sz)
+	if inner.size.x < 4 or inner.size.y < 4:
+		return img
+	var paper := Image.create(inner.size.x, inner.size.y, false, Image.FORMAT_RGBA8)
+	paper.fill(Pal.MAP_PAPER)
+	var at := _glass_map(sz)
+	paper.blit_rect(_art_map(at.size), Rect2i(Vector2i.ZERO, at.size), at.position - inner.position)
+	for y in inner.size.y:
+		for x in inner.size.x:
+			var d := Vector2((x + 0.5) / inner.size.x - 0.5, (y + 0.5) / inner.size.y - 0.5).length() * 2.0
+			var c := paper.get_pixel(x, y).darkened(0.12 + 0.2 * d * d)   # o papel atrás do vidro, mais escuro na moldura
+			if absf((x - inner.size.x * 0.25) - (inner.size.y - y) * 0.8) < inner.size.x * 0.06:   # o reflexo do vidro
+				c = c.lightened(0.08)
+			img.set_pixel(inner.position.x + x, inner.position.y + y, c)
+	for x in inner.size.x:   # a sombra da moldura no alto do vidro
+		var c := img.get_pixel(inner.position.x + x, inner.position.y)
+		img.set_pixel(inner.position.x + x, inner.position.y, c.darkened(0.35))
+	return img
+
+
+## O vidro dentro da moldura do painel da unidade de despacho (`_art_glass` de `sz` px).
+func _glass_inner(sz: Vector2i) -> Rect2i:
+	var m := maxi(2, roundi(sz.x * 0.05))
+	return Rect2i(m, m, sz.x - m * 2, sz.y - m * 2)
+
+
+## Onde fica o mapa no painel da unidade de despacho (px do desenho de `sz`): no meio do vidro, na proporção das folhas.
+func _glass_map(sz: Vector2i) -> Rect2i:
+	var inner := _glass_inner(sz)
+	var fr := CityMap.frame_of(GameData.sectors)
+	var fit := minf(float(inner.size.x) / fr.size.x, float(inner.size.y) / fr.size.y)
+	var msz := Vector2i(maxi(1, floori(fr.size.x * fit) - 2), maxi(1, floori(fr.size.y * fit) - 2))
+	return Rect2i(inner.position + (inner.size - msz) / 2, msz)
 
 
 ## O caderno de ocorrências aberto: a capa de couro com a beira gasta, duas páginas creme (não brancas: chamavam mais o
-## olho que tudo) com a pauta discreta, a margem vermelha, a letra de mão em traços curtos e desiguais, a sombra da
-## dobra no meio e a espessura das folhas embaixo.
+## olho que tudo) com a margem vermelha, a sombra da dobra no meio e a espessura das folhas embaixo. A pauta e a letra
+## de mão vão por cima, na tela (`_notebook_marks`).
 func _art_notebook(sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	img.fill(Color("4a2f1c"))   # a capa
-	_fr(img, 0, 0, sz.x, 1, Color("6b4529"))
-	_fr(img, 0, sz.y - 1, sz.x, 1, Color("2e1c10"))
+	img.fill(Pal.LEATHER[1])   # a capa
+	_fr(img, 0, 0, sz.x, 1, Pal.LEATHER[0])
+	_fr(img, 0, sz.y - 1, sz.x, 1, Pal.LEATHER[2])
 	var half := sz.x / 2
 	for k in 2:
 		var x0 := 2 if k == 0 else half + 1
 		var x1 := half - 1 if k == 0 else sz.x - 2
-		_fr(img, x0, 1, x1 - x0, sz.y - 3, Color("d2c5a0"))
+		_fr(img, x0, 1, x1 - x0, sz.y - 3, Pal.NOTE_PAGE)
 		_fr(img, x0, sz.y - 3, x1 - x0, 1, Color("a89a74"))   # a espessura das folhas
 		_fr(img, x0, 1, x1 - x0, 1, Color("ddd2b0"))   # a beira de cima pega a luz
-		for y in range(4, sz.y - 3, 3):   # a pauta
-			_fr(img, x0, y, x1 - x0, 1, Color("bfb38e"))
-		_fr(img, x0 + 4, 1, 1, sz.y - 4, Color("b07060"))   # a margem
-		var row := 0
-		for y in range(3, sz.y - 4, 3):   # a letra de mão: umas palavras por linha, linha sim, linha não (cheia, era ruído)
-			row += 1
-			if (row + k) % 2 == 0 or (row * 7 + k * 3) % 5 == 0:
-				continue
-			var x := x0 + 6
-			var end := x0 + 6 + (x1 - x0 - 10) * (0.45 + 0.1 * ((row * 3 + k) % 5))
-			while x < end:
-				var n := 3 + (x * 3 + y * 5 + k) % 4
-				_fr(img, x, y, mini(n, int(end) - x), 1, Color("6a6474"))
-				x += n + 2
 	for i in 3:   # a sombra da dobra no meio, mais escura no fundo dela
 		_fr(img, half - 2 + i, 1, 1, sz.y - 3, Color("8a7a58").lerp(Color("b8ab86"), absf(i - 1.0)))
 	return img
 
 
-## Por cima do caderno, na tela: as tiras dos registros pendentes saindo do fundo dele (uma por registro, até seis) e o
-## lápis apoiado na página da direita, em pixel art na tela (torto pela perspectiva, serrilhava).
+## Por cima do caderno, na tela: a pauta e a letra de mão (umas palavras por linha, linha sim, linha não: cheia, era
+## ruído), a 3 px da tela uma linha da outra (`_rows`), as tiras dos registros pendentes saindo do fundo dele (uma por
+## registro, até seis) e o lápis apoiado na página da direita, em pixel art na tela (torto pela perspectiva, serrilhava).
 func _notebook_marks(sz: Vector2i) -> void:
+	var half := sz.x / 2
+	var rows := _rows(4.0, sz.y - 4.0, 3.0)
+	for k in 2:
+		var x0 := 2.0 if k == 0 else half + 3.0   # a pauta para antes da sombra da dobra
+		var x1 := half - 3.0 if k == 0 else sz.x - 3.0
+		for row in rows.size():
+			var y: float = rows[row]
+			_ink(x0, x1, y, [Pal.NOTE_RULE])
+			if (row + k) % 2 == 0 or (row * 7 + k * 3) % 5 == 0:
+				continue
+			var a := _tex_pt(Vector2(x0 + 6, y)) - Vector2(0, 1)   # as palavras, logo acima da pauta
+			var b := _tex_pt(Vector2(x0 + 6 + (x1 - x0 - 10) * (0.45 + 0.1 * ((row * 3 + k) % 5)), y)) - Vector2(0, 1)
+			var t := 0.0
+			var span := a.distance_to(b)
+			while t < span:
+				var n := 3.0 + (int(t) * 3 + row * 5 + k) % 4
+				_pixel_line(a.lerp(b, t / span), a.lerp(b, minf(t + n - 1.0, span) / span), [Color("6a6474")])
+				t += n + 2.0
+		var mx := (2.0 if k == 0 else half + 1.0) + 4.0   # a margem vermelha, impressa por cima da pauta
+		_pixel_line(_tex_pt(Vector2(mx, 1)), _tex_pt(Vector2(mx, sz.y - 3)), [Pal.NOTE_MARGIN])
 	for i in mini(pending, 6):
 		var p := _tex_pt(Vector2(8 + i * floorf((sz.x - 22) / 6.0), 0)).round()
 		var up := 6.0 + (i * 5) % 4
-		draw_rect(Rect2(p.x, p.y - up, 6, up + 2), Color("e0cc8a") if i % 2 == 0 else Color("d8c8ae"))
-		draw_rect(Rect2(p.x, p.y - up, 6, 1), Color("f0e0a8"))
-		draw_rect(Rect2(p.x + 1, p.y - up + 2, 4, 1), Color("a8564a"))
-	var half := sz.x / 2.0
+		var col := Pal.PENDING[i % 2]
+		draw_rect(Rect2(p.x, p.y - up, 6, up + 2), col)
+		draw_rect(Rect2(p.x + 5, p.y - up, 1, up + 2), col.darkened(0.2))   # o lado na sombra
+		draw_rect(Rect2(p.x, p.y - up, 5, 1), col.lightened(0.12))   # a beira de cima, na luz
+		draw_rect(Rect2(p.x + 1, p.y - up + 2, 3, 1), Pal.FORM_RED)
+		draw_rect(Rect2(p.x, p.y + 1, 6, 1), Color(0, 0, 0, 0.3))   # onde ela entra no caderno
 	var a := _tex_pt(Vector2(half + 10, sz.y - 5)).round()
 	var b := _tex_pt(Vector2(sz.x - 6, 4)).round()
 	var d := (b - a).normalized()
 	_pixel_line(a + Vector2(2, 2), b + d * 7 + Vector2(2, 2), [Color(0, 0, 0, 0.3), Color(0, 0, 0, 0.3)])
-	_pixel_line(a, b, [Color("d8b44a"), Color("a8841c"), Color("7a5e14")])
-	_pixel_line(a - d * 4, a, [Color("d8b88a"), Color("c8a87a"), Color("a8885a")])   # a madeira apontada
-	_pixel_line(a - d * 6, a - d * 4, [Color("2a2a2a")])   # o grafite
-	_pixel_line(b, b + d * 4, [Color("c6c1b3"), Color("8e897c"), Color("5a574e")])   # a ponteira de metal
-	_pixel_line(b + d * 4, b + d * 7, [Color("d89a9a"), Color("c87a7a"), Color("985050")])   # a borracha
+	_pixel_line(a, b, [Color("c4a042"), Color("957622"), Color("67521a")])   # o corpo, amarelo de lápis gasto
+	_pixel_line(a - d * 4, a, [Color("c8aa80"), Color("b0926a"), Color("8a7050")])   # a madeira apontada
+	_pixel_line(a - d * 6, a - d * 4, [Color("2a2620")])   # o grafite
+	_pixel_line(b, b + d * 4, Pal.NICKEL.slice(1))   # a ponteira, no níquel da mesa
+	_pixel_line(b + d * 4, b + d * 7, [Color("c08a80"), Color("a86a62"), Color("7a4a44")])   # a borracha
 
 
-## A prancheta do registro: tábua de duratex com os cantos cortados e a beira gasta, a folha datilografada com o
-## cabeçalho vermelho e as linhas em duas colunas (hora e o resto), e o prendedor niquelado com a mola e os rebites.
-## Com fala nova no registro (`unread`), uma folha nova, mais clara, presa por cima e meio deslocada.
+const CLIP_ART := [   ## o prendedor da prancheta, de pé na beira de cima (16 × 8): a alavanca em arco e o corpo com os rebites
+	"....eeeeeeee....",
+	"...eHLLLLLLMDe..",
+	"..eLM.......MDe.",
+	".eeeeeeeeeeeeee.",
+	"eHLLLLLLLLLLLLMe",
+	"eLoMMMMMMMMMMoDe",
+	"eMDDDDDDDDDDDDDe",
+	".eeeeeeeeeeeeee.",
+]
+## O níquel do prendedor: o mesmo do aro das lâmpadas da mesa comutadora (luz, meio, sombra), o brilho e os rebites.
+const CLIP_PAL := {"H": Pal.NICKEL[0], "L": Pal.NICKEL[1], "M": Pal.NICKEL[2], "D": Pal.NICKEL[3], "o": Color("ece7da"),
+	"e": Color("2a2620")}
+const SHEET_TURN := 3.5   ## graus que a folha nova da prancheta fica girada (reta, lia como um risco no meio da de baixo)
+
+
+## A prancheta do registro: tábua de duratex com os cantos cortados e a beira gasta e a folha. Com fala nova no registro
+## (`unread`), uma folha nova, mais clara, presa por cima, girada (`SHEET_TURN`) e com a ponta dobrada. O datilografado
+## das folhas e o prendedor vão por cima, na tela (`_clipboard_print`).
 func _art_clipboard(sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	img.fill(Color("6e4a2c"))
-	_fr(img, 0, 0, sz.x, 1, Color("8a5e3a"))
+	img.fill(Pal.BOARD[1])
+	_fr(img, 0, 0, sz.x, 1, Pal.BOARD[0])
 	_fr(img, 0, 0, 1, sz.y, Color("7e5634"))
-	_fr(img, sz.x - 1, 0, 1, sz.y, Color("4a3018"))
-	_fr(img, 0, sz.y - 1, sz.x, 1, Color("4a3018"))
+	_fr(img, sz.x - 1, 0, 1, sz.y, Pal.BOARD[2])
+	_fr(img, 0, sz.y - 1, sz.x, 1, Pal.BOARD[2])
 	for c in [Vector2i(0, 0), Vector2i(sz.x - 2, 0), Vector2i(0, sz.y - 2), Vector2i(sz.x - 2, sz.y - 2)]:   # os cantos cortados
 		img.set_pixel(c.x + (0 if c.x == 0 else 1), c.y + (0 if c.y == 0 else 1), Color(0, 0, 0, 0))
-	var sheet := func(x0: int, y0: int, w: int, h: int, base: Color, lines: int) -> void:
-		_fr(img, x0 + 1, y0 + 1, w, h, Color("4a3018"))   # a sombra da folha na tábua
-		_fr(img, x0, y0, w, h, base)
-		_fr(img, x0, y0, w, 1, base.lightened(0.12))
-		_fr(img, x0 + 2, y0 + 3, w - 4, 1, Color("a8564a"))   # o cabeçalho
-		_fr(img, x0 + 2, y0 + 2, (w - 4) / 2, 1, Color("5a5448"))
-		var y := y0 + 6
-		var n := 0
-		while y < y0 + h - 1 and n < lines:
-			_fr(img, x0 + 2, y, 3, 1, Color("6a6458"))   # a hora
-			_fr(img, x0 + 7, y, w - 9 - (y * 7) % 9, 1, Color("6a6458"))
-			y += 3
-			n += 1
-	sheet.call(3, 4, sz.x - 6, sz.y - 6, Color("cdc09c"), 99)
-	if unread:   # a folha nova cobre só o alto da de baixo (inteira, a prancheta parecia vazia)
-		sheet.call(5, 3, sz.x - 10, int(sz.y * 0.55), Color("e0d5b4"), 3)
-	var cx := sz.x / 2   # o prendedor
-	_fr(img, cx - 7, 0, 14, 4, Color("a8a294"))
-	_fr(img, cx - 7, 0, 14, 1, Color("e4dfd2"))
-	_fr(img, cx - 7, 3, 14, 1, Color("5e5a52"))
-	_fr(img, cx - 3, 1, 6, 2, Color("4a463e"))   # a fenda da mola
-	for rx in [cx - 6, cx + 5]:   # os rebites
-		img.set_pixel(rx, 2, Color("ece7da"))
+	var sheets := _sheets(sz)
+	var r: Rect2i = sheets[0][0]
+	_fr(img, r.position.x + 1, r.position.y + 1, r.size.x, r.size.y, Pal.BOARD[2])   # a sombra da folha na tábua
+	_fr(img, r.position.x, r.position.y, r.size.x, r.size.y, sheets[0][1])
+	_fr(img, r.position.x, r.position.y, r.size.x, 1, (sheets[0][1] as Color).lightened(0.12))
+	if sheets.size() > 1:   # a folha nova, girada em volta do prendedor, com a sombra na de baixo e a ponta dobrada
+		var n: Rect2i = sheets[1][0]
+		var base: Color = sheets[1][1]
+		var box := n.grow(4)
+		for y in range(maxi(0, box.position.y), mini(sz.y, box.end.y)):
+			for x in range(maxi(0, box.position.x), mini(sz.x, box.end.x)):
+				var l := _unturn(Vector2(x + 0.5, y + 0.5), n)   # o pixel na folha reta
+				var u := l.x - (n.end.x - 5.0)   # a ponta de baixo à direita
+				var v := l.y - (n.end.y - 5.0)
+				var corner := u > 0.0 and v > 0.0 and u + v > 5.0
+				if Rect2(n).has_point(l) and not corner:
+					var c := base.lightened(0.12) if l.y < n.position.y + 1.0 else base
+					if u > 0.0 and v > 0.0 and u + v > 3.0:
+						c = base.darkened(0.14) if u + v < 4.5 else base.lightened(0.06)   # a aba virada, com a dobra
+					img.set_pixel(x, y, c)
+				elif Rect2(n).has_point(l - Vector2(1, 1)) and not corner:
+					img.set_pixel(x, y, (sheets[0][1] as Color).darkened(0.25))   # a sombra dela
 	return img
 
 
-## O jornal da manhã dobrado ao meio: papel-jornal amarelado, o nome no alto numa faixa preta com a linha da data, a
-## manchete grossa em duas linhas, uma foto em retícula e as colunas de texto miúdo, e o vinco da dobra.
+## O ponto `p` do desenho da prancheta na folha nova `n` antes de girar (o giro é em volta do meio do alto dela, onde
+## fica o prendedor).
+func _unturn(p: Vector2, n: Rect2i) -> Vector2:
+	var c := Vector2(n.get_center().x, n.position.y)
+	return (p - c).rotated(-deg_to_rad(SHEET_TURN)) + c
+
+
+## O ponto `p` da folha nova `n` reta, girado como ela fica na prancheta.
+func _turn(p: Vector2, n: Rect2i) -> Vector2:
+	var c := Vector2(n.get_center().x, n.position.y)
+	return (p - c).rotated(deg_to_rad(SHEET_TURN)) + c
+
+
+## As folhas da prancheta (`sz`, o desenho de frente): [retângulo, cor do papel, quantas linhas]; com fala nova no
+## registro, a folha nova por cima cobre só o alto da de baixo (inteira, a prancheta parecia vazia).
+func _sheets(sz: Vector2i) -> Array:
+	var out := [[Rect2i(3, 4, sz.x - 6, sz.y - 6), Pal.SHEET, 99]]
+	if unread:
+		out.append([Rect2i(5, 3, sz.x - 10, int(sz.y * 0.55)), Pal.SHEET_NEW, 3])
+	return out
+
+
+## Por cima da prancheta, na tela: o datilografado de cada folha, o cabeçalho (o título e o fio vermelho) e as linhas
+## em duas colunas (a hora e o resto), a 3 px da tela uma da outra (`_rows`). Na de baixo, só o que a nova não cobre.
+func _clipboard_print(sz: Vector2i) -> void:
+	var sheets := _sheets(sz)
+	var cover := -1.0   # até onde a folha nova cobre a de baixo (y do desenho; girada, desce um pouco de um lado)
+	if sheets.size() > 1:
+		cover = (sheets[1][0] as Rect2i).end.y + 4.0
+	for i in sheets.size():
+		var r: Rect2i = sheets[i][0]
+		var rows := _rows(r.position.y + 2.0, r.end.y - 1.0, 1.0)
+		var x0 := float(r.position.x)
+		var w := float(r.size.x)
+		var n := 0
+		for k in rows.size():
+			var y: float = rows[k]
+			if i == 0 and y <= cover:
+				continue
+			var line := func(a: float, b: float, col: Color) -> void:   # na folha nova, girado com ela
+				var pa := Vector2(a, y)
+				var pb := Vector2(b, y)
+				if i == 1:
+					pa = _turn(pa, r)
+					pb = _turn(pb, r)
+				_pixel_line(_tex_pt(pa), _tex_pt(pb), [col])
+			if k == 0:
+				line.call(x0 + 2, x0 + 2 + (w - 4) / 2.0 - 1, Color("5a5448"))   # o título
+			elif k == 1:
+				line.call(x0 + 2, x0 + w - 3, Pal.FORM_RED)   # o fio vermelho do cabeçalho
+			elif k >= 4 and (k - 4) % 3 == 0 and n < sheets[i][2]:
+				line.call(x0 + 2, x0 + 4, Color("6a6458"))   # a hora
+				line.call(x0 + 7, x0 + w - 3 - (k * 7) % 9 - (6 if i == 1 else 0), Color("6a6458"))
+				n += 1
+	# o prendedor, de pé na beira de cima, com a sombra na folha (deitado no papel, era um borrão cinza)
+	var at := (_tex_pt(Vector2(sz.x / 2.0, 3.0)) - Vector2(8, 6)).round()
+	draw_texture(PixelArt.art(CLIP_ART, {"*": Color(0, 0, 0, 0.35)}), at + Vector2(1, 2))
+	draw_texture(PixelArt.art(CLIP_ART, CLIP_PAL), at)
+
+
+## O jornal da manhã dobrado ao meio: papel-jornal amarelado com a foto da primeira página (o céu claro em cima, o
+## escuro embaixo). O que é risco (o nome, a data, a manchete, as colunas e o vinco) vai por cima, na tela
+## (`_newspaper_print`); a foto era um xadrez em retícula, que a perspectiva virava moiré.
 func _art_newspaper(sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	img.fill(Color("c4b994"))
-	_fr(img, 0, 0, sz.x, 1, Color("d2c8a6"))
+	img.fill(Pal.NEWSPRINT)   # papel-jornal amarelado (cinza, longe da luz, sumia no escuro)
+	_fr(img, 0, 0, sz.x, 1, Color("e2d6b2"))
 	_fr(img, sz.x - 1, 0, 1, sz.y, Color("a89c78"))
 	_fr(img, 0, sz.y - 1, sz.x, 1, Color("a89c78"))
-	_fr(img, 2, 1, sz.x - 4, 3, Color("2a2620"))   # o nome do jornal
-	_fr(img, 2, 5, sz.x - 4, 1, Color("8a8068"))   # a linha da data
-	_fr(img, 2, 7, int(sz.x * 0.72), 2, Color("3a3630"))   # a manchete
-	_fr(img, 2, 10, int(sz.x * 0.5), 2, Color("3a3630"))
-	var photo := Rect2i(sz.x - int(sz.x * 0.3) - 2, 13, int(sz.x * 0.3), int(sz.y * 0.45))
-	_fr(img, photo.position.x - 1, photo.position.y - 1, photo.size.x + 2, photo.size.y + 2, Color("4a4438"))
-	for y in photo.size.y:   # a foto, em retícula
-		for x in photo.size.x:
-			var dark := (x + y) % 2 == 0 and y > photo.size.y * 0.4
-			img.set_pixel(photo.position.x + x, photo.position.y + y, Color("6e6656") if dark else Color("8e8470"))
-	var cw := (photo.position.x - 6) / 2
-	for y in range(14, sz.y - 2, 2):   # as colunas de texto
+	var photo := _news_photo(sz)
+	_fr(img, photo.position.x - 1, photo.position.y - 1, photo.size.x + 2, photo.size.y + 2, Color("3e382e"))
+	_fr(img, photo.position.x, photo.position.y, photo.size.x, photo.size.y, Color("938767"))
+	_fr(img, photo.position.x, photo.position.y + photo.size.y * 0.45, photo.size.x, photo.size.y * 0.55 + 1, Color("675f4c"))
+	return img
+
+
+## Onde fica a foto do jornal no desenho de frente dele (`sz`).
+func _news_photo(sz: Vector2i) -> Rect2i:
+	return Rect2i(sz.x - int(sz.x * 0.3) - 2, 13, int(sz.x * 0.3), int(sz.y * 0.45))
+
+
+## Por cima do jornal, na tela: o nome numa faixa escura, a linha da data, a manchete grossa em duas linhas, as
+## colunas de texto miúdo (a da direita embaixo da foto) e o vinco da dobra, cada risco com 1 px da tela (`_rows`).
+func _newspaper_print(sz: Vector2i) -> void:
+	var rows := _rows(2.0, sz.y - 2.0, 1.0)   # a altura no papel de cada px da tela, a partir do nome
+	if rows.size() < 16:
+		return
+	var ink := Color("2a2620")
+	var head := Color("3a3630")
+	_ink(2, sz.x - 2, rows[2], [ink, ink, ink])   # o nome do jornal (afastado da beira: colado, ela saía picotada)
+	_ink(2, sz.x - 2, rows[5], [Color("8a8068")])   # a data
+	_ink(2, 2 + sz.x * 0.72, rows[8], [head, head])   # a manchete
+	_ink(2, 2 + sz.x * 0.5, rows[11], [head, head])
+	var photo := _news_photo(sz)
+	var cw := (photo.position.x - 6) / 2.0
+	for k in range(14, rows.size() - 1, 2):   # as colunas de texto
+		var y: float = rows[k]
 		for col in 3:
-			var x0 := 2 + col * (cw + 2)
-			var w := cw - (y * 3 + col) % 4
+			var x0 := 2.0 + col * (cw + 2.0)
+			var w := cw - (k * 3 + col) % 4
 			if col == 2:
 				if y < photo.end.y + 2:
 					continue
-				w = photo.size.x - (y * 3) % 4
 				x0 = photo.position.x
-			_fr(img, x0, y, w, 1, Color("948a6e"))
-	_fr(img, 0, sz.y / 2, sz.x, 1, Color("a89c78"))   # o vinco
-	_fr(img, 0, sz.y / 2 + 1, sz.x, 1, Color("d2c8a6"))
-	return img
+				w = photo.size.x - (k * 3) % 4
+			_ink(x0, x0 + w - 1.0, y, [Pal.NEWS_INK])
+	_ink(0, sz.x - 1, sz.y / 2.0, [Color("a89c78"), Color("dccfa8")])   # o vinco

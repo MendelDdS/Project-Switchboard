@@ -23,6 +23,7 @@ func _fit() -> void:
 	var k := Vector2((vp as Window).size if vp is Window else (vp as SubViewport).size) / get_viewport_rect().size
 	_view.size = Vector2i((size * k).ceil())
 	_view.size_2d_override = Vector2i(size.ceil())
+	_view.render_target_update_mode = SubViewport.UPDATE_ONCE   # (o cenário só se desenha quando muda: `Background._show`)
 
 
 func _has_point(p: Vector2) -> bool:

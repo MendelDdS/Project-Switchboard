@@ -8,9 +8,17 @@ extends RichTextLabel
 
 signal unread_changed(on: bool)
 
+const HEAD := 24.0   ## o espaço do cabeçalho impresso no alto da folha (`PaperDeco.HEAD_Y`): o texto começa abaixo dele
+
 var unread := false
 var _calls: Array[PhoneCall] = []
 var _dirty := false
+
+
+func _ready() -> void:
+	var box := StyleBoxEmpty.new()
+	box.content_margin_top = HEAD
+	add_theme_stylebox_override("normal", box)
 
 
 ## Passa a registrar a ligação `c` (o Main chama quando ela toca).

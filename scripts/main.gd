@@ -10,8 +10,8 @@ const SHIFT_START_HOUR := 18            # o turno vai das 18:00...
 const SHIFT_END := 360.0                # ...até 00:00 (minutos depois do início)
 const LAST_CALL := 340.0                # 23:40: nada novo toca depois (a desconhecida tem regra própria) e aparece
 										# o botão Encerrar turno; quem está na linha à meia-noite é atendido até o fim
-const SHADOW_LEAD := 15.0               # minutos antes da ligação desconhecida em que a silhueta aparece na janela...
-const SHADOW_LEAVE := 10.0              # ...e em que ela sai (para ir ligar)
+const SHADOW_LEAD := 25.0               # minutos antes da ligação desconhecida em que o homem para embaixo do poste (chega andando)...
+const SHADOW_LEAVE := 10.0              # ...e em que vai embora andando (para ir ligar): fica 15 minutos
 const WEATHERS := ["rain", "fog", "clear"]   # clima sorteado no começo do turno (`-- --weather=fog` força um)
 const TALK_LEN := Vector2(34.0, 68.0)   # duração (min de jogo) de uma conversa transferida (≈ 45–90 s reais)
 const GIVE_UP_SEC := 60.0               # quem liga desiste se ninguém atende (as do roteiro aguentam 1,5x; retornos, 0,75x)
@@ -20,6 +20,7 @@ const SMALLTALK_CHANCE := 0.6           # ...às vezes (respostas e limites: Con
 const NAG_AFTER := 22.0                 # segundos de silêncio até reclamar da demora (emergência: EMERGENCY_NAG_AFTER)
 const EMERGENCY_NAG_AFTER := 26.0
 ## Atalhos das ferramentas (Input Map): aba -> ação.
+const WARM_TINT := Color(1.0, 0.62, 0.36, 0.35)   # a luminária recém-acesa: o brilho dela nesse tom e nessa fração da força
 const TAB_KEYS := {"lista": "tab_directory", "despacho": "tab_dispatch", "caderno": "tab_logbook", "registro": "tab_call_log"}
 var C: GameContent = GameData.CONTENT
 
@@ -57,7 +58,7 @@ var _taught_ring := false
 var _taught_list := false
 var _myst_lead := false
 var _calling_back := false
-var _tick_acc := 0.0
+var _minute := -1   # o minuto que o relógio de flip mostra (o "tic" quando a plaqueta vira)
 var _taught_midnight := false
 var _taught_bank := false
 var _hour := 0   ## a última hora cheia em que o relógio bateu (horas desde o começo do turno)
@@ -102,6 +103,7 @@ func _ready() -> void:
 	_update_room()
 	exchange = Exchange.new(GameData.board_numbers())
 	board.setup(exchange, %FoneSocket, %CordTray)
+	board.shelf = background.shelf   # onde a prateleira acaba: além dela, o plug solto cai até o tampo
 	var plan := Schedule.build(night, pace, LAST_CALL)
 	sched = plan.calls
 	tut = plan.tut
@@ -124,7 +126,7 @@ func _ready() -> void:
 	dispatch.blank_card.connect(func(loc: String): supervisor.fault("dispatch_blank", loc))
 	notebook.registered.connect(supervisor.on_registered)
 	notebook.pending_changed.connect(func(n: int):
-		tools.set_count("caderno", n)
+		tools.set_pending(n)
 		background.pending = n
 		if n > 0:
 			_teach("viu_tiras_caderno", T.Key.HINT_DESK_SLIPS))
@@ -207,13 +209,28 @@ func warn(t: String) -> void:
 	phone.warn(t)
 
 
+## Troca o clima na hora (painel de debug): a janela, o ambiente (se a noite já começou) e a conversa fiada.
+func set_weather(w: String) -> void:
+	weather = w
+	background.weather = w
+	if running:
+		Sfx.set_weather(w, 2.0)
+
+
 # ================================================================ laço principal
 
 func _start_shift() -> void:
 	Sfx.start_ambience(weather)
+	background.warm_up()
 	running = true
 	radio.say(T.text(T.Key.RADIO_PATROL))
 	hint(T.text(T.Key.HINT_WAIT_CALLS))
+
+
+## O ponto x da tela (px) como `Sfx.play_at` o quer: de 0 (borda esquerda) a 1 (direita). Em px, a badalada e a
+## campainha saíam só do lado direito.
+func _across(x: float) -> float:
+	return x / maxf(1.0, get_viewport().get_visible_rect().size.x)
 
 
 func _process(delta: float) -> void:
@@ -222,10 +239,11 @@ func _process(delta: float) -> void:
 		# à meia-noite o relógio para, a não ser que ainda haja alguém na linha (o turno se estende até resolver)
 		if minutes < SHIFT_END or not live.is_empty():
 			minutes += delta * GAME_MIN_PER_SEC
-		_tick_acc += delta
-		if _tick_acc > 1.0:
-			_tick_acc = 0.0
-			Sfx.play("tick", -3.0)
+		if int(minutes) != _minute:   # a plaqueta do relógio de flip vira: o "tic" quando ela bate, vindo do relógio
+			if _minute >= 0:   # (no começo do turno, nada vira)
+				get_tree().create_timer(Background.FLIP_SEC, false).timeout.connect(
+					func() -> void: Sfx.play_at("tick", _across(background.clock_x), -3.0))
+			_minute = int(minutes)
 		_run_schedule()
 		_update_line_timers()
 		# o turno fecha depois da meia-noite, da ligação desconhecida, da última ligação e do último registro
@@ -238,19 +256,23 @@ func _process(delta: float) -> void:
 				hint(T.text(T.Key.HINT_MIDNIGHT))
 		var can_end := after and minutes >= LAST_CALL and not ending
 		if can_end and not _end_shift.visible:   # a campainha da plaqueta: o turno já pode ser encerrado
-			Sfx.play_at("shift_bell", _shift_hours.get_global_rect().get_center().x)
+			Sfx.play_at("shift_bell", _across(_shift_hours.get_global_rect().get_center().x))
 		_end_shift.visible = can_end
 		_shift_hours.visible = not _end_shift.visible
 		var hour := floori(minutes / 60.0)
 		if hour > _hour:   # a badalada do relógio a cada hora cheia (vem do relógio de flip da mesa) e o sino da igreja
-			Sfx.play_at("chime", background.clock_x)
+			Sfx.play_at("chime", _across(background.clock_x))
 			background.toll((SHIFT_START_HOUR + hour - 1) % 12 + 1)
 		_hour = hour
 		background.minutes = SHIFT_START_HOUR * 60 + minutes
 		_nag()
 		supervisor.check_hold()
 	background.flick = flick
-	_glow.modulate.a = background.lamp_level
+	background.alert = not dispatch.fleet.incident.is_empty()   # o estado do despacho na unidade da mesa
+	background.card_out = not dispatch.machines.can_print()
+	var w := background.warm   # esquentando, o brilho é mais fraco e alaranjado (`Background.warm_up`)
+	_glow.modulate = Color(1.0, lerpf(WARM_TINT.g, 1.0, w), lerpf(WARM_TINT.b, 1.0, w), background.lamp_level * lerpf(WARM_TINT.a, 1.0, w))
+	tools.light = background.lamp_level
 
 
 ## Quem está na linha esperando o operador: na transferência, às vezes puxa conversa fiada depois de um tempo e,
@@ -600,9 +622,9 @@ func _run_schedule() -> void:
 		if m.kind == PhoneCall.Kind.MYSTERY and not _myst_lead and minutes >= m.at - 20.0:
 			_myst_lead = true
 			Sfx.hush_nature(true, 20.0)
-			Sfx.fade(Sfx.hum, -34.0, 20.0)
-	# alguém para do lado de fora da janela e sai antes de a ligação desconhecida tocar
-	background.shadow = minutes >= myst_plan - SHADOW_LEAD and minutes < myst_plan - SHADOW_LEAVE
+			Sfx.fade(Sfx.hum, Sfx.HUM_HUSHED, 20.0)
+	# o homem chega andando, para embaixo do poste lá fora e vai embora antes de a ligação desconhecida tocar
+	background.stranger = Vector2(myst_plan - SHADOW_LEAD, myst_plan - SHADOW_LEAVE) + Vector2.ONE * SHIFT_START_HOUR * 60.0   # (na hora do dia)
 	var c := sched[0]
 	if minutes < c.at:
 		return
@@ -782,7 +804,7 @@ func _update_room() -> void:
 
 ## Põe na mesa o jornal da manhã com as manchetes `news` (`ShiftReport.news` da noite anterior).
 func set_news(news: Array) -> void:
-	tools.news.show_news(news, night.weekday)
+	tools.news.show_news(news, night)
 	background.news = true
 
 

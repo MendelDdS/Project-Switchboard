@@ -24,6 +24,15 @@ cutoff_hz = 900.0
 [sub_resource type="AudioEffectPanner" id="AudioEffectPanner_rub"]
 resource_name = "Panner"
 
+[sub_resource type="AudioEffectReverb" id="AudioEffectReverb_rub"]
+resource_name = "Reverb"
+predelay_msec = 20.0
+room_size = 0.25
+damping = 0.6
+spread = 0.5
+hipass = 0.2
+wet = 0.05
+
 [resource]
 bus/1/name = &"Ambience"
 bus/1/solo = false
@@ -52,8 +61,10 @@ bus/4/solo = false
 bus/4/mute = false
 bus/4/bypass_fx = false
 bus/4/volume_db = 0.0
-bus/4/send = &"Effects"
+bus/4/send = &"Master"
 bus/4/effect/0/effect = SubResource("AudioEffectLowPassFilter_rub")
 bus/4/effect/0/enabled = true
 bus/4/effect/1/effect = SubResource("AudioEffectPanner_rub")
 bus/4/effect/1/enabled = true
+bus/4/effect/2/effect = SubResource("AudioEffectReverb_rub")
+bus/4/effect/2/enabled = true

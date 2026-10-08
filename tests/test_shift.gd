@@ -66,8 +66,8 @@ func _card_step(f: PhoneCall, e: EmergencyCall) -> bool:
 	if card.state == card.State.IDLE and d._location.is_empty():
 		d.set_location(e.street, e.block, e.address)
 		return true
-	if card.state != card.State.READY or card._up < 1.0:
-		return false   # imprimindo, entrando, ou as máquinas subindo
+	if card.state != card.State.READY:
+		return false   # imprimindo ou entrando
 	if d.occurrence() == "":
 		d.set_occurrence(e.occurrence)
 		for u in d.fleet.required():   # o que a situação pede agora (pode ter piorado)

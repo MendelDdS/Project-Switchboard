@@ -106,6 +106,85 @@ static func disc(d: int, layers: Array) -> ImageTexture:
 	return tex
 
 
+## O mapa `rows` (de `art`) girado `angle` rad em volta de `pivot` (px do mapa; um canto entre pixels), pixel a pixel
+## como no RotSprite: o mapa ampliado 8× pelo Scale2x três vezes (as diagonais viram degraus limpos, sem serrilhar) e
+## lido de volta, girado, no tamanho de antes. Girada pela transformação do desenho, a pixel art serrilhava e
+## esticava os pixels. Devolve [mapa girado, onde o pivô cai nele]. Guardado por mapa e ângulo; as cores ficam com
+## `art`, então um mapa girado serve para qualquer paleta.
+static var _turns := {}
+static var _bigs := {}
+static func turned(rows: Array, angle: float, pivot: Vector2) -> Array:
+	var key := hash([rows, snappedf(angle, 0.001), pivot])
+	if _turns.has(key):
+		return _turns[key]
+	if _turns.size() > CACHE_MAX:
+		_turns.clear()
+	var w := (rows[0] as String).length()
+	var h := rows.size()
+	var big: PackedByteArray = _bigs.get(hash(rows), PackedByteArray())
+	if big.is_empty():
+		if _bigs.size() > CACHE_MAX:
+			_bigs.clear()
+		big = PackedByteArray()
+		for y in h:
+			big.append_array((rows[y] as String).to_ascii_buffer())
+		for k in 3:
+			big = _scale2x(big, w << k, h << k)
+		_bigs[hash(rows)] = big
+	var bw := w * 8
+	var bh := h * 8
+	var box := Rect2(-pivot, Vector2(w, h))
+	var corners := [box.position, Vector2(box.end.x, box.position.y), box.end, Vector2(box.position.x, box.end.y)]
+	var lo := Vector2(INF, INF)
+	var hi := -lo
+	for c: Vector2 in corners:
+		var r := c.rotated(angle)
+		lo = lo.min(r)
+		hi = hi.max(r)
+	var o := Vector2i(floori(lo.x), floori(lo.y))
+	var size := Vector2i(ceili(hi.x), ceili(hi.y)) - o
+	var cs := cos(-angle)
+	var sn := sin(-angle)
+	var out := []
+	for y in size.y:
+		var line := PackedByteArray()
+		line.resize(size.x)
+		line.fill(46)   # "."
+		var py := o.y + y + 0.5
+		for x in size.x:
+			var px := o.x + x + 0.5
+			# o centro deste pixel, de volta ao mapa sem giro (e na escala do ampliado)
+			var sx := floori(((px * cs - py * sn) + pivot.x) * 8.0)
+			var sy := floori(((px * sn + py * cs) + pivot.y) * 8.0)
+			if sx >= 0 and sy >= 0 and sx < bw and sy < bh:
+				line[x] = big[sy * bw + sx]
+		out.append(line.get_string_from_ascii())
+	var res := [out, -Vector2(o)]
+	_turns[key] = res
+	return res
+
+
+## Scale2x (EPX) de um mapa de caracteres `w` × `h`, um byte por pixel: cada pixel vira quatro, e o canto que fica
+## entre dois vizinhos iguais toma a cor deles (a diagonal sai em degrau de meio pixel, sem borrar).
+static func _scale2x(src: PackedByteArray, w: int, h: int) -> PackedByteArray:
+	var dst := PackedByteArray()
+	dst.resize(w * h * 4)
+	var w2 := w * 2
+	for y in h:
+		for x in w:
+			var p := src[y * w + x]
+			var a := src[(y - 1) * w + x] if y > 0 else 46
+			var b := src[y * w + x + 1] if x < w - 1 else 46
+			var c := src[y * w + x - 1] if x > 0 else 46
+			var d := src[(y + 1) * w + x] if y < h - 1 else 46
+			var i := y * 2 * w2 + x * 2
+			dst[i] = a if c == a and c != d and a != b else p
+			dst[i + 1] = b if a == b and a != c and b != d else p
+			dst[i + w2] = c if d == c and d != b and c != a else p
+			dst[i + w2 + 1] = d if b == d and b != a and d != c else p
+	return dst
+
+
 ## Desenha a peça `tex` em `ci`, centrada em `c`, presa aos pixels (na transformação que `ci` estiver usando).
 static func sprite(ci: CanvasItem, tex: Texture2D, c: Vector2, mod := Color.WHITE) -> void:
 	var sz := Vector2(tex.get_size())

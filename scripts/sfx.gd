@@ -8,14 +8,14 @@ extends Node
 const VOL := {
 	"click": -14.0, "sw": -10.0, "plug_in": -3.0, "plug_out": -9.0, "key": -13.0, "page": -11.0,
 	"tick": -24.0, "pencil": -13.0, "ring": -9.0, "pulse": -10.0, "ringback": -13.0, "sit": -13.0,
-	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "rub": -13.0, "cord_stop": -16.0, "cord_tap": -17.0, "unroll": -8.0,
+	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "rub": -13.0, "cord_stop": -16.0, "cord_tap": -17.0, "cord_snag": -18.0, "cord_snap": -21.0, "unroll": -8.0,
 	"typing": -13.0, "printer": -14.0, "punch": -8.0, "feed": -11.0, "read": -14.0, "shred": -10.0, "deny": -14.0,
 	"chime": -11.0, "shift_bell": -13.0, "car": -15.0, "car_wet": -14.0, "neon": -29.0, "thunder": -8.0,
-	"bell": -15.0, "drip": -22.0, "rattle": -17.0, "step": -29.0, "step_wet": -27.0, "lamp_tick": -27.0,
+	"bell": -15.0, "rattle": -17.0, "dog": -27.0, "dog_low": -28.0, "lamp_tick": -27.0,
 }
 ## Volume (dB) dos sons de ambiente em cada clima; o que não aparece fica mudo.
 const WEATHER_MIX := {
-	"rain": {"rain": -18.0},
+	"rain": {"rain": -21.0},
 	"fog": {"crickets": -31.0},
 	"clear": {"breeze": -24.0, "crickets": -28.0},
 }
@@ -23,20 +23,29 @@ const WEATHER_MIX := {
 ## Atrito do fio no buraco (`cord_rub`): abaixo de RUB_MIN px/s, silêncio; em RUB_FULL, volume e tom no máximo.
 const RUB_MIN := 25.0
 const RUB_FULL := 600.0
-const RUB_PITCH := Vector2(1.0, 1.5)
+## Mais rápido, o agarra e solta fica mais junto (o fio esparso, `rub_slow`, passa para o denso, `rub`, entre
+## RUB_DENSE.x e RUB_DENSE.y px/s) e o tom sobe pouco: subindo só o tom (era até 1,5×), soava como fita acelerada.
+const RUB_DENSE := Vector2(80.0, 450.0)
+const RUB_PITCH := Vector2(1.0, 1.15)
 ## O agudo do atrito (fibras e rangido) é um som à parte: mudo abaixo de RUB_HI_FROM px/s (devagar, só o fio),
 ## volume normal em RUB_HI_NORMAL (médio) e RUB_HI_BOOST dB a mais em RUB_FULL (rápido).
 const RUB_HI_FROM := 120.0
 const RUB_HI_NORMAL := 300.0
 const RUB_HI_BOOST := 6.0
-## Os dois passam pelo barramento "Rub" (vai para Effects), com um passa-baixa que abre com a velocidade: fechado em
+## Os três passam pelo barramento "Rub" (vai direto para o Master, com uma reverberação mais seca que a do Effects:
+## o fio está na mão; o volume segue o de Effects, `Settings.FOLLOWS`), com um passa-baixa que abre com a velocidade: fechado em
 ## RUB_LP.x Hz até RUB_HI_FROM (devagar, só o "shhh" grave do fio), aberto em RUB_LP.y a partir de RUB_HI_NORMAL.
 const RUB_LP := Vector2(900.0, 11000.0)
+## O fio batendo na mesa (`cord_tap`) abaixa o atrito RUB_DUCK.x dB, que volta em RUB_DUCK.y s: a batida fica clara.
+const RUB_DUCK := Vector2(3.0, 0.05)
 ## Fio entrando no buraco (recolhendo) soa mais liso que saindo (puxado): multiplica tom e corte, soma dB ao agudo.
 const RUB_IN := {"pitch": 0.9, "lp": 0.7, "hi_db": -6.0}
 ## O fio do FONE (sai do telefone) é mais macio e grave que os cabos de conexão (saem da base de latão). A diferença
 ## diminui com a velocidade: puxado rápido, sobra só `fast` dela (o puxão forte soa forte em qualquer fio).
 const RUB_FONE := {"pitch": 0.85, "lp": 0.6, "hi_db": -4.0, "fast": 0.25}
+## O fio do plug solto (caindo ou recolhendo sozinho) passa sem mão puxando: frouxo, mais grave, liso e baixo, quase
+## sem o agudo. Multiplica tom e corte; soma dB ao atrito todo (`db`) e ao agudo (`hi_db`).
+const RUB_LOOSE := {"pitch": 0.85, "lp": 0.6, "db": -3.0, "hi_db": -10.0}
 const PAN := 0.7   # quanto os sons posicionados (`play_at`, atrito) vão para o seu lado (1 = só um lado do fone)
 ## Cada linha tem a campainha num tom levemente diferente (é o mesmo equipamento: só uma nuance), 01 a mais grave,
 ## 10 a mais aguda; passo relativo entre linhas vizinhas (0,006 = ±2,7% nas pontas, cerca de meio semitom).
@@ -44,16 +53,25 @@ const BELL_STEP := 0.006
 
 ## Sons mecânicos que se repetem muito (plugs, fios): cada vez sai com o tom e o volume levemente diferentes
 ## (± VARY_PITCH, ± VARY_DB), para a mesa cheia não soar como uma máquina.
-const VARIED := ["plug_in", "plug_out", "thump", "drop", "cord_stop", "cord_tap", "click", "punch", "neon", "drip", "step",
-	"step_wet", "lamp_tick"]
-## As gotas batendo no vidro, em relação à chuva (dB), e o zumbido da luminária acesa (dB).
-const RAIN_GLASS := -7.0
-const LAMP_BUZZ := -40.0
+const VARIED := ["plug_in", "plug_out", "thump", "drop", "cord_stop", "cord_tap", "cord_snag", "cord_snap", "click", "punch", "neon", "lamp_tick"]
+## O zumbido da luminária acesa (dB; era -40, alto demais).
+const LAMP_BUZZ := -44.0
+## O zumbido elétrico de 60 Hz da sala, a noite toda (dB; era -29, depois -37: tom grave e constante, cansava, sobretudo em fone),
+## e quanto ele baixa quando a noite se cala antes da ligação desconhecida (depois dela, some).
+const HUM_DB := -45.0
+const HUM_HUSHED := -50.0
 ## A chuva cresce e diminui em ondas lentas (dB de cada onda, período em s), em vez de um chiado constante.
 const RAIN_WAVES := [Vector2(2.5, 37.0), Vector2(1.5, 11.0)]
+## A força da chuva muda durante a noite (`set_rain`, de garoa a forte): dB a mais na chuva, de RAIN_GAIN.x (garoa) a
+## RAIN_GAIN.y (forte), em RAIN_GAIN.z s.
+const RAIN_GAIN := Vector3(-8.0, 3.0, 6.0)
 ## Com a noite avançando a cidade se cala: os grilos sobem e a brisa baixa (dB, com `set_late` em 1).
 const LATE_CRICKETS := 4.0
 const LATE_BREEZE := -3.0
+## Na pausa o jogo fica como ouvido de longe: um passa-baixa no Master fecha até MUFFLE.x Hz e o volume baixa
+## MUFFLE.y dB, em MUFFLE.z s (`muffle`).
+const MUFFLE := Vector3(700.0, -5.0, 0.35)
+const MUFFLE_OPEN := 20500.0
 const VARY_PITCH := 0.06
 const VARY_DB := 1.5
 
@@ -68,14 +86,15 @@ var breeze: AudioStreamPlayer
 var crickets: AudioStreamPlayer
 var hum: AudioStreamPlayer
 var hiss: AudioStreamPlayer
-var glass: AudioStreamPlayer2D   # as gotas no vidro, vindo da janela (`window_x`)
 var lamp_buzz: AudioStreamPlayer  # o zumbido da luminária, que acompanha a luz dela (`lamp`)
-var window_x := 0.9               ## onde fica a janela na tela (0..1); o cenário atualiza
 var _rain_db := -80.0             # o volume da chuva pedido pelo clima, antes das ondas
+var _rain_gain := 0.0             # e o tanto a mais (ou a menos) pela força dela agora (`set_rain`)
 var _lamp_on := false            # o ambiente da sala está tocando (o zumbido segue a luminária)
 var _late := 0.0                  # quanto a noite já avançou (0..1): a cidade se calando
 var _t := 0.0
-var rub: AudioStreamPlayer        # atrito do fio no buraco, em loop: o fio (agarra e solta, corpo)
+var rub: AudioStreamPlayer        # atrito do fio no buraco, em loop: o fio (agarra e solta, corpo), rápido
+var rub_slow: AudioStreamPlayer   # o mesmo devagar, com os estalos esparsos
+var _rub_loops: Array[AudioStreamPlayer] = []   # os três loops do atrito, juntos
 var rub_hi: AudioStreamPlayer     # e o agudo (fibras, rangido), com volume próprio
 var _rub_speed := 0.0             # px/s pedidos desde o último quadro (zera a cada quadro: sem pedido, cala)
 var _rub_v := 0.0                 # px/s, suavizado
@@ -83,7 +102,12 @@ var _rub_lp: AudioEffectLowPassFilter
 var _rub_pan: AudioEffectPanner
 var _rub_want := Vector3(0.5, 1.0, 0.0)   # pedido: x = lugar na tela (0..1), y = parte saindo, z = parte do FONE
 var _rub_mood := Vector3(0.5, 1.0, 0.0)   # o mesmo, suavizado
-var weather := "rain"
+var _rub_feel_want := Vector2(0.0, 1.0)   # pedido: x = parte do plug solto, y = tom do cabo (`Switchboard.CORD_TONE`)
+var _rub_feel := Vector2(0.0, 1.0)        # o mesmo, suavizado
+var _muffle_lp: AudioEffectLowPassFilter   # a pausa abafando tudo (`muffle`), no Master
+var _muffle_amp: AudioEffectAmplify
+var _rub_duck := 0.0                      # s que faltam para o atrito voltar depois de um `cord_tap`
+var weather := ""   ## o clima da noite ("" = ainda sem noite: a mistura não mexe em nada)
 var _hushed := false
 var _ring_on := false
 var _ring_timer: Timer
@@ -112,21 +136,20 @@ func _ready() -> void:
 	hum = _make_loop("hum")
 	hiss = _make_loop("hiss")
 	lamp_buzz = _make_loop("lamp_buzz")
-	glass = AudioStreamPlayer2D.new()
-	glass.stream = streams["rain_glass"]
-	glass.volume_db = -80.0
-	glass.bus = &"Ambience"
-	glass.attenuation = 0.0
-	glass.max_distance = 100000.0
-	glass.panning_strength = PAN
-	add_child(glass)
 	rub = _make_loop("rub")
+	rub_slow = _make_loop("rub_slow")
 	rub_hi = _make_loop("rub_hi")
-	for p in [rub, rub_hi]:
+	_rub_loops = [rub, rub_slow, rub_hi]
+	for p in _rub_loops:
 		p.bus = &"Rub"
 	var bus := AudioServer.get_bus_index(&"Rub")
 	_rub_lp = AudioServer.get_bus_effect(bus, 0)
 	_rub_pan = AudioServer.get_bus_effect(bus, 1)
+	_muffle_lp = AudioEffectLowPassFilter.new()
+	_muffle_lp.cutoff_hz = MUFFLE_OPEN
+	_muffle_amp = AudioEffectAmplify.new()
+	AudioServer.add_bus_effect(0, _muffle_lp)
+	AudioServer.add_bus_effect(0, _muffle_amp)
 	_ring_timer = Timer.new()
 	_ring_timer.wait_time = 3.0
 	add_child(_ring_timer)
@@ -172,6 +195,8 @@ func _start(p: Node, id: String, db: float, pitch: float) -> void:
 	p.volume_db = vol.get(id, -10.0) + db
 	p.pitch_scale = pitch
 	p.play()
+	if id == "cord_tap":
+		_rub_duck = RUB_DUCK.y
 
 
 func later(t: float, id: String, db: float = 0.0) -> void:
@@ -182,9 +207,9 @@ func later(t: float, id: String, db: float = 0.0) -> void:
 
 
 func start_ambience(w: String) -> void:
-	for p in [rain, breeze, crickets, hum, hiss, lamp_buzz, glass]:
+	for p in [rain, breeze, crickets, hum, hiss, lamp_buzz]:
 		p.play()
-	fade(hum, -29.0, 2.0)
+	fade(hum, HUM_DB, 2.0)
 	_lamp_on = true
 	set_weather(w, 2.0)
 
@@ -193,7 +218,7 @@ func stop_ambience(sec: float) -> void:
 	_lamp_on = false
 	for p in [breeze, crickets, hum, lamp_buzz]:
 		fade(p, -80.0, sec)
-	create_tween().tween_property(self, "_rain_db", -80.0, sec)
+	_tween(self, "_rain_db", -80.0, sec)
 	fade(hiss, -80.0, minf(sec, 1.0))
 
 
@@ -201,6 +226,11 @@ func stop_ambience(sec: float) -> void:
 func set_weather(w: String, sec: float = 4.0) -> void:
 	weather = w
 	_apply_mix(sec)
+
+
+## A força da chuva agora (0..1, de garoa a forte): o volume dela acompanha, aos poucos.
+func set_rain(level: float) -> void:
+	_tween(self, "_rain_gain", lerpf(RAIN_GAIN.x, RAIN_GAIN.y, level), RAIN_GAIN.z)
 
 
 ## Quanto a noite já avançou (0..1, das 22h à meia-noite): os grilos sobem e a brisa baixa aos poucos.
@@ -215,6 +245,17 @@ func lamp(level: float) -> void:
 		lamp_buzz.volume_db = LAMP_BUZZ + linear_to_db(maxf(level, 0.01))
 
 
+## Abafa tudo (a pausa: o jogo como ouvido de longe) ou volta ao normal.
+func muffle(on: bool) -> void:
+	_tween(_muffle_lp, "cutoff_hz", MUFFLE.x if on else MUFFLE_OPEN, MUFFLE.z)
+	_tween(_muffle_amp, "volume_db", MUFFLE.y if on else 0.0, MUFFLE.z)
+
+
+## A noite está calada (antes da ligação desconhecida): nem os cachorros latem.
+func hushed() -> bool:
+	return _hushed
+
+
 ## Antes da ligação desconhecida a noite se cala: grilos param, chuva e brisa baixam.
 func hush_nature(on: bool, sec: float) -> void:
 	_hushed = on
@@ -222,6 +263,8 @@ func hush_nature(on: bool, sec: float) -> void:
 
 
 func _apply_mix(sec: float) -> void:
+	if not WEATHER_MIX.has(weather):   # o cenário avisa a hora (`set_late`) desde a introdução, antes de a noite começar
+		return
 	var mix: Dictionary = WEATHER_MIX[weather]
 	for id in ["rain", "breeze", "crickets"]:
 		var db: float = mix.get(id, -80.0)
@@ -230,19 +273,22 @@ func _apply_mix(sec: float) -> void:
 		if _hushed:
 			db = -80.0 if id == "crickets" else db - 10.0
 		if id == "rain":   # a chuva tem as ondas por cima (`_process`)
-			create_tween().tween_property(self, "_rain_db", db, sec)
+			_tween(self, "_rain_db", db, sec)
 		else:
 			fade(get(id), db, sec)
 
 
 ## O fio está passando pelo buraco a `speed` px/s: o atrito acompanha, mais alto e mais agudo quanto mais rápido.
 ## `screen_x` (0..1) é onde fica o buraco na tela (o som vem daquele lado); `out_share`, quanto do fio está saindo
-## (puxado; o resto entra, recolhendo, mais liso); `fone_share`, quanto é o fio do FONE (mais macio).
+## (puxado; o resto entra, recolhendo, mais liso); `fone_share`, quanto é o fio do FONE (mais macio); `loose_share`,
+## quanto é de plug solto (sem mão puxando, frouxo); `tone`, o tom médio dos cabos (1 = o do FONE).
 ## Chamado a cada quadro pela mesa; parando de chamar (pausa), o som some.
-func cord_rub(speed: float, screen_x := 0.5, out_share := 1.0, fone_share := 0.0) -> void:
+func cord_rub(speed: float, screen_x := 0.5, out_share := 1.0, fone_share := 0.0, loose_share := 0.0,
+		tone := 1.0) -> void:
 	_rub_speed = speed
 	if speed > 0.0:
 		_rub_want = Vector3(screen_x, out_share, fone_share)
+		_rub_feel_want = Vector2(loose_share, tone)
 
 
 func _process(delta: float) -> void:
@@ -250,35 +296,43 @@ func _process(delta: float) -> void:
 	var wave := 0.0
 	for w: Vector2 in RAIN_WAVES:
 		wave += w.x * sin(TAU * _t / w.y)
-	rain.volume_db = _rain_db + wave
-	glass.volume_db = _rain_db + RAIN_GLASS + wave * 1.3
-	glass.position = Vector2(window_x * get_viewport().get_visible_rect().size.x, get_viewport().get_visible_rect().size.y / 2.0)
+	rain.volume_db = _rain_db + wave + _rain_gain
 	_rub_v = lerpf(_rub_v, _rub_speed, minf(1.0, delta * 18.0))
 	_rub_mood = _rub_mood.lerp(_rub_want, minf(1.0, delta * 10.0))
+	_rub_feel = _rub_feel.lerp(_rub_feel_want, minf(1.0, delta * 10.0))
 	_rub_speed = 0.0
 	var level := clampf((_rub_v - RUB_MIN) / (RUB_FULL - RUB_MIN), 0.0, 1.0)
 	if level < 0.01:
-		rub.stop()
-		rub_hi.stop()
+		for p in _rub_loops:
+			p.stop()
 		return
 	if not rub.playing:   # cada arrasto começa num trecho diferente do loop
-		rub.play(randf() * rub.stream.get_length())
-		rub_hi.play(randf() * rub_hi.stream.get_length())
+		for p in _rub_loops:
+			p.play(randf() * p.stream.get_length())
 	var smooth := 1.0 - _rub_mood.y   # parte recolhendo
 	var soft := _rub_mood.z * lerpf(1.0, RUB_FONE["fast"], level)
-	rub.volume_db = vol["rub"] + linear_to_db(level)
-	rub_hi.volume_db = rub.volume_db + _rub_hi_db(_rub_v) + RUB_IN["hi_db"] * smooth + RUB_FONE["hi_db"] * soft
-	rub.pitch_scale = lerpf(RUB_PITCH.x, RUB_PITCH.y, level) * _blend("pitch", smooth, soft)
+	var loose := _rub_feel.x
+	_rub_duck = maxf(_rub_duck - delta, 0.0)
+	var db: float = vol["rub"] + linear_to_db(level) - RUB_DUCK.x * _rub_duck / RUB_DUCK.y + RUB_LOOSE["db"] * loose
+	var dense := clampf((_rub_v - RUB_DENSE.x) / (RUB_DENSE.y - RUB_DENSE.x), 0.0, 1.0)
+	# potência constante: os dois têm o mesmo corpo, que não deve afundar no meio da troca
+	rub.volume_db = db + maxf(linear_to_db(sqrt(dense)), -80.0)
+	rub_slow.volume_db = db + maxf(linear_to_db(sqrt(1.0 - dense)), -80.0)
+	rub_hi.volume_db = db + _rub_hi_db(_rub_v) + RUB_IN["hi_db"] * smooth + RUB_FONE["hi_db"] * soft \
+			+ RUB_LOOSE["hi_db"] * loose
+	rub.pitch_scale = lerpf(RUB_PITCH.x, RUB_PITCH.y, level) * _blend("pitch", smooth, soft, loose) * _rub_feel.y
+	rub_slow.pitch_scale = rub.pitch_scale
 	rub_hi.pitch_scale = rub.pitch_scale
 	var open := clampf((_rub_v - RUB_HI_FROM) / (RUB_HI_NORMAL - RUB_HI_FROM), 0.0, 1.0)
 	# o corte abre em escala de oitavas, como o ouvido
-	_rub_lp.cutoff_hz = RUB_LP.x * pow(RUB_LP.y / RUB_LP.x, open) * _blend("lp", smooth, soft)
+	_rub_lp.cutoff_hz = RUB_LP.x * pow(RUB_LP.y / RUB_LP.x, open) * _blend("lp", smooth, soft, loose) * _rub_feel.y
 	_rub_pan.pan = (_rub_mood.x * 2.0 - 1.0) * PAN
 
 
-## Multiplicador de `key` ("pitch", "lp") para o fio recolhendo (`smooth`) e o do FONE (`soft`), ambos 0..1.
-func _blend(key: String, smooth: float, soft: float) -> float:
-	return lerpf(1.0, RUB_IN[key], smooth) * lerpf(1.0, RUB_FONE[key], soft)
+## Multiplicador de `key` ("pitch", "lp") para o fio recolhendo (`smooth`), o do FONE (`soft`) e o do plug solto
+## (`loose`), todos 0..1.
+func _blend(key: String, smooth: float, soft: float, loose: float) -> float:
+	return lerpf(1.0, RUB_IN[key], smooth) * lerpf(1.0, RUB_FONE[key], soft) * lerpf(1.0, RUB_LOOSE[key], loose)
 
 
 ## Volume do agudo do atrito em relação ao fio, pela velocidade (px/s): mudo devagar, igual no médio, mais forte rápido.
@@ -289,8 +343,21 @@ func _rub_hi_db(v: float) -> float:
 
 
 func fade(p: AudioStreamPlayer, db: float, t: float) -> void:
+	_tween(p, "volume_db", db, t)
+
+
+## Leva `prop` de `o` até `v` em `t` s, cancelando a mudança anterior do mesmo volume: duas ao mesmo tempo, a mais
+## longa terminava por último e ganhava (o clima padrão, mixado antes da noite começar em 8 s, trocava os grilos de
+## uma noite limpa pela chuva; o chiado da linha, ligado e desligado logo em seguida, podia ficar ligado).
+var _tweens := {}
+func _tween(o: Object, prop: String, v: float, t: float) -> void:
+	var key := "%d:%s" % [o.get_instance_id(), prop]
+	var old: Tween = _tweens.get(key)
+	if old != null and old.is_valid():
+		old.kill()
 	var tw := create_tween()
-	tw.tween_property(p, "volume_db", db, t)
+	tw.tween_property(o, prop, v, t)
+	_tweens[key] = tw
 
 
 ## Toca a campainha das linhas em `bells` (linha -> lugar da tomada na tela, 0..1), revezando entre elas a cada

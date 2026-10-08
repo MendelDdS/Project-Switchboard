@@ -19,8 +19,8 @@ const ROW_H := 50.0                # cada ocorrência: linha principal e, abaixo
 const X_CALLER := 62.0             # colunas do livro (as legendas acima seguem as mesmas larguras)
 const X_PLACE := 268.0
 const X_STAMP := 438.0
-const RULE := Color(0.35, 0.43, 0.55, 0.4)
-const MARGIN := Color(0.75, 0.25, 0.2, 0.45)
+const RULE := Pal.NOTE_RULE       # a pauta e a margem, as do caderno da mesa
+const MARGIN := Pal.NOTE_MARGIN
 
 var entries: Array[Dictionary] = []
 var pending: Dictionary = {}
