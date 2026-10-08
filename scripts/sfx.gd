@@ -62,9 +62,16 @@ const HUM_DB := -45.0
 const HUM_HUSHED := -50.0
 ## A chuva cresce e diminui em ondas lentas (dB de cada onda, período em s), em vez de um chiado constante.
 const RAIN_WAVES := [Vector2(2.5, 37.0), Vector2(1.5, 11.0)]
+## A força da chuva muda durante a noite (`set_rain`, de garoa a forte): dB a mais na chuva, de RAIN_GAIN.x (garoa) a
+## RAIN_GAIN.y (forte), em RAIN_GAIN.z s.
+const RAIN_GAIN := Vector3(-8.0, 3.0, 6.0)
 ## Com a noite avançando a cidade se cala: os grilos sobem e a brisa baixa (dB, com `set_late` em 1).
 const LATE_CRICKETS := 4.0
 const LATE_BREEZE := -3.0
+## Na pausa o jogo fica como ouvido de longe: um passa-baixa no Master fecha até MUFFLE.x Hz e o volume baixa
+## MUFFLE.y dB, em MUFFLE.z s (`muffle`).
+const MUFFLE := Vector3(700.0, -5.0, 0.35)
+const MUFFLE_OPEN := 20500.0
 const VARY_PITCH := 0.06
 const VARY_DB := 1.5
 
@@ -81,6 +88,7 @@ var hum: AudioStreamPlayer
 var hiss: AudioStreamPlayer
 var lamp_buzz: AudioStreamPlayer  # o zumbido da luminária, que acompanha a luz dela (`lamp`)
 var _rain_db := -80.0             # o volume da chuva pedido pelo clima, antes das ondas
+var _rain_gain := 0.0             # e o tanto a mais (ou a menos) pela força dela agora (`set_rain`)
 var _lamp_on := false            # o ambiente da sala está tocando (o zumbido segue a luminária)
 var _late := 0.0                  # quanto a noite já avançou (0..1): a cidade se calando
 var _t := 0.0
@@ -96,6 +104,8 @@ var _rub_want := Vector3(0.5, 1.0, 0.0)   # pedido: x = lugar na tela (0..1), y 
 var _rub_mood := Vector3(0.5, 1.0, 0.0)   # o mesmo, suavizado
 var _rub_feel_want := Vector2(0.0, 1.0)   # pedido: x = parte do plug solto, y = tom do cabo (`Switchboard.CORD_TONE`)
 var _rub_feel := Vector2(0.0, 1.0)        # o mesmo, suavizado
+var _muffle_lp: AudioEffectLowPassFilter   # a pausa abafando tudo (`muffle`), no Master
+var _muffle_amp: AudioEffectAmplify
 var _rub_duck := 0.0                      # s que faltam para o atrito voltar depois de um `cord_tap`
 var weather := ""   ## o clima da noite ("" = ainda sem noite: a mistura não mexe em nada)
 var _hushed := false
@@ -135,6 +145,11 @@ func _ready() -> void:
 	var bus := AudioServer.get_bus_index(&"Rub")
 	_rub_lp = AudioServer.get_bus_effect(bus, 0)
 	_rub_pan = AudioServer.get_bus_effect(bus, 1)
+	_muffle_lp = AudioEffectLowPassFilter.new()
+	_muffle_lp.cutoff_hz = MUFFLE_OPEN
+	_muffle_amp = AudioEffectAmplify.new()
+	AudioServer.add_bus_effect(0, _muffle_lp)
+	AudioServer.add_bus_effect(0, _muffle_amp)
 	_ring_timer = Timer.new()
 	_ring_timer.wait_time = 3.0
 	add_child(_ring_timer)
@@ -213,6 +228,11 @@ func set_weather(w: String, sec: float = 4.0) -> void:
 	_apply_mix(sec)
 
 
+## A força da chuva agora (0..1, de garoa a forte): o volume dela acompanha, aos poucos.
+func set_rain(level: float) -> void:
+	_tween(self, "_rain_gain", lerpf(RAIN_GAIN.x, RAIN_GAIN.y, level), RAIN_GAIN.z)
+
+
 ## Quanto a noite já avançou (0..1, das 22h à meia-noite): os grilos sobem e a brisa baixa aos poucos.
 func set_late(k: float) -> void:
 	_late = k
@@ -223,6 +243,12 @@ func set_late(k: float) -> void:
 func lamp(level: float) -> void:
 	if _lamp_on:
 		lamp_buzz.volume_db = LAMP_BUZZ + linear_to_db(maxf(level, 0.01))
+
+
+## Abafa tudo (a pausa: o jogo como ouvido de longe) ou volta ao normal.
+func muffle(on: bool) -> void:
+	_tween(_muffle_lp, "cutoff_hz", MUFFLE.x if on else MUFFLE_OPEN, MUFFLE.z)
+	_tween(_muffle_amp, "volume_db", MUFFLE.y if on else 0.0, MUFFLE.z)
 
 
 ## A noite está calada (antes da ligação desconhecida): nem os cachorros latem.
@@ -270,7 +296,7 @@ func _process(delta: float) -> void:
 	var wave := 0.0
 	for w: Vector2 in RAIN_WAVES:
 		wave += w.x * sin(TAU * _t / w.y)
-	rain.volume_db = _rain_db + wave
+	rain.volume_db = _rain_db + wave + _rain_gain
 	_rub_v = lerpf(_rub_v, _rub_speed, minf(1.0, delta * 18.0))
 	_rub_mood = _rub_mood.lerp(_rub_want, minf(1.0, delta * 10.0))
 	_rub_feel = _rub_feel.lerp(_rub_feel_want, minf(1.0, delta * 10.0))

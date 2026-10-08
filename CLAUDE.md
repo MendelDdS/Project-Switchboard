@@ -116,7 +116,18 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   três idiomas) na vista, na fonte gravada da mesa, que falha de vez em quando (`_sign_on`; o T falha sozinho; ao falhar, estala baixinho, som `neon`, abafado pela
   distância e com o eco das fachadas), com o
   halo sem miolo para as letras aparecerem (`_light(..., core = false)`), o reflexo na rua molhada e um reflexo
-  vermelho fraco na parede perto da janela (`SIGN_GLOW`). Os três entram no `_state`. O painel da mesa comutadora escurece frio nos cantos
+  vermelho fraco na parede perto da janela (`SIGN_GLOW`). Os três entram no `_state`. O prédio de tijolos da esquina é
+  de apartamentos: no 3º andar, uma varanda (`APT`; porta, vasos, laje vista de baixo e gradil) com a janela da sala,
+  onde a TV pisca azul (`_draw_balcony_back`/`_front`; a luz da sala apaga em `APT_DARK` e a TV em `TV_OFF`). Janelas que já
+  apagaram acendem de novo de madrugada, uns minutos (`WAKE`, `b["wake"]`). Na chuva, a força muda durante a noite
+  (`rain_level`, `RAIN_*`: garoa a forte, em ondas lentas): o som (`Sfx.set_rain`), a quantidade de pingos no vidro, o
+  vento no arbusto e os relâmpagos (só acima de `BOLT_RAIN`); as poças crescem com a noite (`_soaked`). O arbusto
+  balança em rajadas (`GUST`). Na noite limpa, nuvens passam pela lua (`_draw_moon`, `CLOUDS`, `MOON`), e coberta ela
+  apaga junto o brilho azul da janela na sala (`_moon_light`, `MOON_DIM`). O vidro embaça nos cantos e no pé, liso
+  (`_draw_mist`, `MIST`, na camada de cima; menos na chuva forte). Na chuva, as gotas do vidro fazem sombra na luz
+  da rua na mesa, só manchinhas sem borda, porque a luz é fraca (`_draw_drop_shadows`, `DROP_SHADOW`, na camada da poeira). No começo do turno a
+  luminária esquenta (`warm_up`, `WARM`): acende fraca, a sala mais escura (`WARM_DARK`) e o brilho alaranjado
+  (`Main.WARM_TINT`), e chega à luz inteira em 4 s. O painel da mesa comutadora escurece frio nos cantos
   (`ROOM_DARK`); interface, papéis e painel de baixo não escurecem (precisam ser lidos); o céu da vista clareia liso
   para o horizonte e a luz do poste atrás da silhueta também é lisa. **O vidro da janela reflete a sala**
   (`_draw_reflection`, por cima da cidade e da silhueta, antes da chuva): a sala espelhada no plano do vidro e vista
@@ -373,7 +384,8 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   guarda; Esc também guarda, antes de pausar); o número fica no canto da aba. No código, `Tools.set_tab(id)` abre.
 - **Pausa e configurações**: `PauseMenu` (`scenes/ui/pause_menu.tscn`, z 4, `process_mode` ALWAYS) usa
   `get_tree().paused`. **Todo `create_timer` do jogo leva `false` no 2º argumento** (senão continua contando na pausa);
-  o `Sfx` roda sempre (ambiente segue, `Main.pause()` cala a campainha e `_update_bell` a devolve). Configurações no
+  o `Sfx` roda sempre (ambiente segue, abafado: `Sfx.muffle`, um passa-baixa e um ganho no Master, `MUFFLE`; nas
+  Configurações volta ao normal para o volume se ajustar ouvindo; `Main.pause()` cala a campainha e `_update_bell` a devolve). Configurações no
   autoload `Settings` (`user://settings.cfg`): `locale`, `volumes` por barramento, `fullscreen` e `pixel_perfect` (a
   tela, que o `GameView` aplica), `text_speed` (`char_delay()`
   multiplica o tempo por letra na conversa e no rádio); sinal `changed`. `set_*` vale na hora (prévia) mas só
@@ -1118,6 +1130,11 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
     alcança, quase branco e nítido: a parede do fundo com a sombra do armário, a frente do armário, a lateral da mesa
     comutadora e a janela com a cruz do caixilho no tampo (era um véu azul e liso na tela inteira, até na frente da
     mesa comutadora).
+86. Ambiente melancólico, noir e aconchegante: a luminária esquenta no começo do turno, a pausa abafa o som, o prédio
+    da esquina virou apartamentos com varanda e a TV piscando na janela, janelas acendem de madrugada, a chuva muda de força durante a noite (com as poças crescendo), nuvens passam pela
+    lua, o arbusto balança em rajadas, o vidro embaça nos cantos e as
+    gotas do vidro fazem manchinhas de sombra na luz da rua na mesa. O semáforo do cruzamento foi testado e saiu. Ficaram de fora a pedido: chaminés (raras no
+    Brasil), o vento na fresta, o prédio estalando e o grão de filme; a sirene das viaturas fica para depois.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

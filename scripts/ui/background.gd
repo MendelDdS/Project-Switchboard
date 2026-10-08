@@ -27,6 +27,12 @@ extends Control
 
 signal prop_clicked(id: String)
 
+## A luminária esquentando no começo do turno (`warm_up`): acende a WARM.x da luz e chega a ela inteira em WARM.y s,
+## devagar no fim, como um filamento; em degraus de WARM_STEP (cada degrau redesenha a sala). Acima de 0,5, para não
+## apagar o que segue a luminária piscando (a luz dos postes lavando as fachadas).
+const WARM := Vector2(0.55, 4.0)
+const WARM_STEP := 0.05
+const WARM_DARK := 0.3   ## o escuro a mais na sala com a luminária ainda fria (`_draw_gloom`)
 const FLICK := [1.0, 0.2, 1.0, 1.0, 0.5, 1.0, 1.0, 0.1, 1.0, 1.0, 1.0, 0.4, 1.0, 1.0, 1.0, 1.0, 0.2, 1.0, 1.0, 0.6, 1.0, 1.0, 1.0]
 const WOOD := [Color("6b4529"), Color("4a2f1c"), Color("2a1a0f")]   ## madeira (luz, meio, sombra), a mesma do móvel
 const LIT := [Color("d59a3d"), Color("b38a3c"), Color("e2b25a")]   ## janelas acesas da cidade
@@ -70,6 +76,25 @@ const RAIN := 320        ## pingos caindo lá fora, na chuva
 const RAIN_FALL := Vector2(9.0, 16.0)   ## quanto o pingo cai a cada quadro da vista (px de 2x2), do mais longe ao mais perto: cruza o vidro em meio segundo
 const RAIN_STREAK := Vector2(6.0, 14.0) ## o comprimento do risco (px da tela), do mais longe ao mais perto: o rastro do quadro
 const RAIN_SLANT := 0.18 ## o vento: quanto o pingo anda para a esquerda a cada px que cai
+## A chuva muda de força durante a noite (`rain_level`: de garoa, `RAIN_LEVEL.x`, a forte, 1), em ondas lentas de
+## `RAIN_SPAN` min de jogo (duas, cada noite com as suas fases), em degraus de `RAIN_STEP`: o som (`Sfx.set_rain`), os
+## pingos no vidro, o vento no arbusto e os relâmpagos (só com ela acima de `BOLT_RAIN`) seguem. A rua vai ficando mais
+## molhada até `SOAK_MIN` min de chuva (as poças crescem).
+const RAIN_LEVEL := Vector2(0.15, 1.0)
+const RAIN_SPAN := Vector2(95.0, 37.0)
+const RAIN_STEP := 0.05
+const BOLT_RAIN := 0.55
+const SOAK_MIN := 150.0
+## Na noite limpa, nuvens passam pela lua (`CLOUDS`, devagar, `CLOUD_SPEED` da largura do vidro por segundo): coberta,
+## ela escurece, e o brilho azul da janela na sala junto (até `MOON_DIM` dele).
+const CLOUDS := 5
+const CLOUD_SPEED := 0.004
+const MOON := Vector2(0.4, 0.35)   ## onde fica a lua: x em fração do vidro, y em fração do céu à vista (de cima)
+const MOON_DIM := 0.45
+## O vidro embaçado nos cantos e no pé (`_draw_mist`), liso: a força em cada clima (na chuva, menos quanto mais forte).
+const MIST := {"fog": 0.38, "clear": 0.34, "rain": 0.26}
+const MIST_TINT := Color(0.66, 0.72, 0.78)
+const DROP_SHADOW := 1.8   ## a sombra das gotas do vidro na luz da rua na mesa (`_draw_drop_shadows`), em relação à força da luz ali
 const NOIR := Color(0.012, 0.022, 0.045, 0.72)   ## o escuro frio da sala fora da luz da luminária (`_draw_gloom`)
 const GLOOM_R := Vector2(820, 330)   ## até onde vai a luz da luminária antes do escuro todo (px da tela, elipse em volta da poça na mesa: larga, a mesa toda na luz)
 const GLOOM_IN := 0.25   ## dentro dessa fração do raio, nada de escuro: dali para fora ele cresce liso
@@ -121,6 +146,17 @@ const MAN_FROM := 16.0    ## de onde ele vem pela calçada (x, m; fora da vista)
 const MAN_WALK := 6.0     ## quanto ele leva andando de lá até o poste (min de jogo: ~8 s, ~1,6 m/s)
 const MAN_STRIDE := 0.75  ## o passo dele (m)
 const HOTEL_X := -9.5     ## o letreiro do hotel, no prédio do outro lado da esquina
+## O prédio de tijolos da esquina é de apartamentos: no 3º andar (de `floor` m), uma varanda de `x0` a `x1` (m ao longo
+## da rua), saindo `deep` m da fachada, com a porta (`door`, de x a y) e a janela da sala (`win`), onde a TV fica ligada.
+const APT := {"x0": 2.7, "x1": 7.6, "floor": 6.5, "deep": 1.0, "door": Vector2(3.2, 4.3), "win": Vector2(5.3, 6.9)}
+const APT_DARK := 21 * 60 + 40   ## a luz da sala do apartamento apaga: dali em diante, só a TV
+const TV_OFF := 23 * 60 + 35     ## e a TV também (alguém dormiu na frente dela)
+const TV_BLUE := Color(0.42, 0.58, 0.95)   ## a luz da TV no vidro
+## Janelas que acendem de madrugada (alguém levantou): `WAKE.x` delas, das janelas que já apagaram, acendem de novo
+## uma vez entre `WAKE_FROM` e a meia-noite, por `WAKE_FOR` min (sorteado, sempre o mesmo).
+const WAKE := 0.14
+const WAKE_FROM := 21 * 60 + 30
+const WAKE_FOR := Vector2(4, 14)
 ## As duas mãos da rua: [o meio do carro (z, m), o sentido (-1: para a esquerda)]. Pela mão de lá, da direita para a
 ## esquerda; pela de cá, entre o nosso meio-fio e a faixa do meio, voltando, da esquerda para a direita.
 const CAR_LANES := [Vector2(9.2, -1.0), Vector2(6.4, 1.0)]
@@ -128,6 +164,9 @@ const CAR_LANES := [Vector2(9.2, -1.0), Vector2(6.4, 1.0)]
 ## parede dela (não na vista). O meio e a meia largura (fração da largura do vão) e quanto a copa sobe acima do
 ## peitoril (fração da altura).
 const SHRUB := Vector3(0.62, 0.15, 0.11)
+## As rajadas de vento no arbusto: as duas ondas lentas que as fazem (rad/s) e quanto elas empurram a copa para a
+## esquerda (px da tela no alto dela).
+const GUST := Vector3(0.23, 0.071, 2.5)
 const CHURCH_K := 0.45    ## a escala da igreja (desenhada em px de 2x2), no fim da rua do cruzamento
 const SIGN_RED := Color("ff4a3a")    ## o neon dele aceso (apagado, quase preto)
 const SIGN_GLOW := Color(1.0, 0.25, 0.18, 0.05)   ## o reflexo vermelho dele na parede, perto da janela
@@ -193,6 +232,7 @@ const DIGITS := [   ## os algarismos das plaquetas, 9×19 px, desenhados à mão
 
 var flick := false
 var lamp_level := 1.0
+var warm := 1.0   ## o quanto a luminária já esquentou (0..1, `warm_up`): o Main tinge o brilho dela de laranja até chegar a 1
 var weather := "rain"
 var stranger := Vector2(INF, INF)   ## quando o homem do mistério para embaixo do poste e quando vai embora (min do dia; o Main atualiza)
 # O estado do jogo nos objetos da mesa, para ler de relance sem abrir nada (o Main atualiza):
@@ -274,7 +314,12 @@ var _dog_reply := -1.0   # quanto falta para o cachorro que responde (-1 = nenhu
 var _tolls := 0          # badaladas do sino que faltam bater
 var _toll_in := 0.0      # quanto falta para a próxima (s)
 var _late_sent := -1.0   # o quanto da noite avançada já foi passado ao `Sfx`
+var _warm_t := -1.0   # s desde que a luminária acendeu (`warm_up`; -1 = já quente)
 var _lamp_dim := false   # a luminária estava baixa no quadro anterior (ao piscar, estala)
+var _rain_phase := Vector2(randf() * TAU, randf() * TAU)   # as fases das ondas da chuva nesta noite
+var _rain_sent := -1.0   # a força da chuva já passada ao `Sfx`
+var _clouds: Array[Vector3] = []   # as nuvens da noite limpa: x (fração do vidro, sem o vento), altura (fração do céu à vista), tamanho
+var _street_map := []   # a conta da luz da rua na mesa (`_draw_street_light`): [x da quina, alturas, fundos, força]
 var _sign_was := true    # o letreiro estava aceso no quadro anterior (ao falhar, estala)
 var _bolt := -1.0        # há quanto tempo caiu o relâmpago (s; -1 = nenhum)
 var _bolt_in := 30.0     # quanto falta para o próximo (s)
@@ -314,6 +359,8 @@ func _ready() -> void:
 		_drops.append(Vector3(randf() * 1.2, randf(), randf()))
 	for i in 30:
 		_stars.append(Vector2(randf() * 0.95 + 0.02, randf() * 0.45 + 0.03))
+	for i in CLOUDS:
+		_clouds.append(Vector3(randf() * 1.4, randf_range(0.1, 0.75), randf_range(0.7, 1.3)))
 	_dust = dust
 	if _dust == null:   # (sem a camada da cena: aqui mesmo, atrás da interface)
 		_dust = Control.new()
@@ -346,7 +393,7 @@ func _process(delta: float) -> void:
 			_bolt_layer.queue_redraw()
 		_bolt_layer.visible = f > 0.0
 		_show()
-	var ov := [size, _paper(), lamp_level, _sign_on()]
+	var ov := [size, _paper(), lamp_level, _sign_on(), _moon_light(), _mist_force()]
 	if ov != _over_drawn:   # (o papel deslizando entra aqui: o corte do brilho acompanha já neste quadro)
 		_over_drawn = ov
 		_over.queue_redraw()
@@ -391,10 +438,16 @@ func _process(delta: float) -> void:
 				if b.y > 1.0:
 					b = Vector4(randf(), randf() * 0.8, 1 + randi() % 2, 0.0)
 			_beads[i] = b
+	if _warm_t >= 0.0:
+		_warm_t += 1.0 / 30.0
+		warm = snappedf(1.0 - pow(1.0 - minf(_warm_t / WARM.y, 1.0), 2.0), WARM_STEP)
+		if warm >= 1.0:
+			_warm_t = -1.0
+	var base := lerpf(WARM.x, 1.0, warm)
 	if flick:
-		lamp_level = FLICK[int(Time.get_ticks_msec() / 90.0) % FLICK.size()]
+		lamp_level = FLICK[int(Time.get_ticks_msec() / 90.0) % FLICK.size()] * base
 	else:
-		lamp_level = 1.0
+		lamp_level = base
 	var dim := lamp_level < 0.75
 	if dim != _lamp_dim:   # a luminária piscando estala
 		_lamp_dim = dim
@@ -409,6 +462,12 @@ func _process(delta: float) -> void:
 	_view.queue_redraw()
 	_vport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	_show()
+
+
+## A luminária acende agora (começo do turno): fraca e alaranjada, esquentando até a luz inteira (`WARM`).
+func warm_up() -> void:
+	_warm_t = 0.0
+	warm = 0.0
 
 
 ## A tela do cenário (o `View` do `SceneView`) mostra um quadro novo: ela só é desenhada quando algo nela muda (a sala,
@@ -492,7 +551,10 @@ func _events(delta: float) -> void:
 		Sfx.play_at("neon", x)
 	_sign_was = lit
 	_bolt_in -= delta
-	if _bolt < 0.0 and _bolt_in <= 0.0 and weather == "rain":
+	if weather == "rain" and rain_level() != _rain_sent:   # a chuva engrossa e afina: o som acompanha
+		_rain_sent = rain_level()
+		Sfx.set_rain(_rain_sent)
+	if _bolt < 0.0 and _bolt_in <= 0.0 and weather == "rain" and rain_level() > BOLT_RAIN:   # só na chuva forte
 		_bolt = 0.0
 		_thunder_at = randf_range(THUNDER_AFTER.x, THUNDER_AFTER.y)
 	if _bolt >= 0.0:
@@ -520,6 +582,33 @@ func _flash() -> float:
 			if _bolt >= p.x:
 				f = maxf(f, p.y * exp(-(_bolt - p.x) / 0.07))
 	return f
+
+
+## A força da chuva agora (`RAIN_LEVEL.x` = garoa, 1 = forte), pela hora: duas ondas lentas com as fases da noite.
+func rain_level() -> float:
+	var k := 0.55 + 0.3 * sin(TAU * minutes / RAIN_SPAN.x + _rain_phase.x) + 0.2 * sin(TAU * minutes / RAIN_SPAN.y + _rain_phase.y)
+	return snappedf(clampf(k, RAIN_LEVEL.x, RAIN_LEVEL.y), RAIN_STEP)
+
+
+## O quanto a rua já está molhada (0..1): cresce com a noite de chuva, até `SOAK_MIN` min.
+func _soaked() -> float:
+	return clampf((minutes - 18 * 60.0) / SOAK_MIN, 0.0, 1.0) if weather == "rain" else 0.0
+
+
+## Onde está cada nuvem agora (x em fração do vidro, levada pelo vento devagar).
+func _cloud_x(c: Vector3) -> float:
+	return fposmod(c.x + _mist / 3.6 * CLOUD_SPEED, 1.4) - 0.2
+
+
+## A luz da lua agora (0..1): o quanto as nuvens a deixam aparecer, na noite limpa (as outras não têm lua).
+func _moon_light() -> float:
+	if weather != "clear":
+		return 1.0
+	var cover := 0.0
+	for c in _clouds:
+		var d := Vector2((_cloud_x(c) - MOON.x) / (0.16 * c.z), (c.y - MOON.y) / (0.09 * c.z)).length()
+		cover = maxf(cover, 1.0 - smoothstep(0.35, 1.0, d))
+	return snappedf(1.0 - cover * 0.85, 0.05)
 
 
 ## O letreiro aceso: quase sempre; de vez em quando apaga um instante, como neon velho.
@@ -649,6 +738,7 @@ func _draw_over() -> void:
 		Bloom.light(_over, _sign_glow, SIGN_RED, 0.5, false, false)
 	_draw_gloom()
 	_draw_window_glow()
+	_draw_mist()
 	if _cover.has_area():   # uma ferramenta na frente do operador: o cenário atrás escurece e o papel faz sombra nele
 		_ci.draw_set_transform(Vector2.ZERO)
 		_ci.draw_rect(Rect2(_cover.position + Vector2(10, 12), _cover.size), Color(0, 0, 0, 0.35))
@@ -773,14 +863,14 @@ func _cut(poly: PackedVector2Array, occ: Array) -> Array:
 
 ## O escuro da sala (noir): tudo o que a luz da luminária não alcança fica frio e escuro (`NOIR`), liso, crescendo da
 ## luz para fora (`GLOOM_IN`, `GLOOM_R`; com uma borda marcada, parecia um recorte). O vidro da janela fica de fora: a
-## rua tem a luz dela. A luminária piscando escurece tudo junto.
+## rua tem a luz dela. A luminária piscando ou ainda esquentando (`warm`) escurece tudo junto.
 func _draw_gloom() -> void:
 	_ci.draw_set_transform(Vector2.ZERO)
 	var pool := _pool()
 	var c := _proj(pool.x, _yd, pool.y) * 2.0
 	var dark := func(p: Vector2) -> Color:
 		var k := smoothstep(GLOOM_IN, 1.0, ((p - c) / GLOOM_R).length())
-		return Color(NOIR, clampf(NOIR.a * k + (1.0 - lamp_level) * 0.3, 0.0, 0.9))
+		return Color(NOIR, clampf(NOIR.a * k + (1.0 - lamp_level) * 0.3 + (1.0 - warm) * WARM_DARK, 0.0, 0.9))
 	var glass := _bounds(_glass) if _glass.size() > 2 else Rect2()
 	var n := Vector2i(40, 24)
 	var cell := size / Vector2(n)
@@ -812,7 +902,7 @@ func _draw_window_glow() -> void:
 		return
 	_ci.draw_set_transform(Vector2.ZERO)
 	var c := _bounds(_glass).get_center()
-	var strength: float = WINDOW_GLOW.a * {"clear": 1.0, "rain": 0.8, "fog": 1.2}.get(weather, 1.0)
+	var strength: float = WINDOW_GLOW.a * {"clear": 1.0, "rain": 0.8, "fog": 1.2}.get(weather, 1.0) * lerpf(MOON_DIM, 1.0, _moon_light())
 	_light_fan(c, _ring(c, WINDOW_GLOW_R), Color(WINDOW_GLOW, strength))
 	if _sign_px != Vector2.ZERO and _sign_on():
 		_light_fan(_sign_px, _ring(_sign_px, WINDOW_GLOW_R * 0.6), SIGN_GLOW)
@@ -823,6 +913,38 @@ func _draw_window_glow() -> void:
 			cols.append(Color(sill, k.a * 0.35))
 		_fill(part[0], cols)
 	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+
+
+## O vidro embaçado do lado de dentro: liso, nos cantos e no pé dele (onde a água junta), só na parte que aparece
+## abaixo da persiana (`_glass`). A força é do clima (`_mist_force`).
+func _draw_mist() -> void:
+	var force := _mist_force()
+	if _glass.size() < 3 or force <= 0.0:
+		return
+	_ci.draw_set_transform(Vector2.ZERO)
+	var b := _bounds(_glass)
+	var fog := func(p: Vector2) -> Color:
+		var u := (p - b.position) / b.size
+		var e := pow(pow(absf(u.x * 2.0 - 1.0), 2.0) + pow(absf(u.y * 2.0 - 1.0), 2.0), 0.5)   # mais nos cantos
+		return Color(MIST_TINT, force * clampf(smoothstep(0.75, 1.4, e) + pow(clampf(u.y, 0.0, 1.0), 5.0) * 0.45, 0.0, 1.0))
+	var n := Vector2i(12, 10)
+	var cell := b.size / Vector2(n)
+	for j in n.y:
+		for i in n.x:
+			var a := b.position + cell * Vector2(i, j)
+			var quad := PackedVector2Array([a, a + Vector2(cell.x, 0), a + cell, a + Vector2(0, cell.y)])
+			for part: PackedVector2Array in Geometry2D.intersect_polygons(quad, _glass):
+				var cols := PackedColorArray()
+				for p in part:
+					cols.append(fog.call(p))
+				_fill(part, cols)
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+
+
+## A força do vidro embaçado agora (`MIST`): na chuva, mais fraco quanto mais forte ela está.
+func _mist_force() -> float:
+	var f: float = MIST.get(weather, 0.0)
+	return snappedf(f * (1.0 - 0.5 * rain_level()) if weather == "rain" else f, 0.02)
 
 
 ## Um círculo de raio `r` em volta de `c` (a borda de uma luz lisa, `_light_fan`).
@@ -1058,8 +1180,11 @@ func _back_state() -> Array:
 		for i in _stars.size():
 			if sin(tw + i * 1.7) > -0.6:
 				stars |= 1 << i
+	var clouds := 0   # as nuvens andam um pixel
+	if weather == "clear" and not _clouds.is_empty():
+		clouds = int(_cloud_x(_clouds[0]) * _vport.size.x)
 	return [_vport.size, _near, weather, window_art, int(minutes), flick, lamp_level > 0.5, snappedf(_flash(), 0.02),
-		_sign_on(), stars]
+		_sign_on(), stars, clouds, _moon_light()]
 
 
 ## À noite, com a sala acesa, o vidro reflete um pouco dela, por cima da cidade (e da silhueta, que fica atrás do
@@ -1376,13 +1501,11 @@ func _draw_street_light(w: float) -> void:
 	var ts: Array[float] = [maxf(SIDE_T, DESK_T), minf(_t2, te)]
 	if ts[1] < ts[0] + 0.02:   # (com a tela mudando de tamanho, a janela pode ainda não chegar à mesa)
 		return
+	_street_map = [xc, hs, ts, cool]
 	var street := Color(0.6, 0.72, 0.9)
-	var on_desk := func(u: float, v: float) -> Vector2:   # u: do peitoril (0) ao alto (1), e além; v: ao longo da parede, e além
-		var drop := _yd - lerpf(hs[0], hs[1], u)
-		return _proj(xc - drop / STREET_LIGHT, _yd, Z0 / maxf(DESK_T, lerpf(ts[0], ts[1], v)))   # (nunca atrás do tampo)
+	var on_desk := _street_pt
 	var glow := func(u: float, v: float) -> Color:
-		var a := smoothstep(-0.35, 0.45, u) * smoothstep(1.65, 0.6, u) * smoothstep(0.0, 0.45, v) * smoothstep(1.35, 0.55, v)
-		return Color(street, cool * a * 4.5)
+		return Color(street, _street_glow(u, v))
 	var n := 14
 	for i in n:
 		for k in n:
@@ -1392,6 +1515,46 @@ func _draw_street_light(w: float) -> void:
 			var v1 := lerpf(0.0, 1.35, float(k + 1) / n)
 			_fill(PackedVector2Array([on_desk.call(u0, v0), on_desk.call(u0, v1), on_desk.call(u1, v1), on_desk.call(u1, v0)]),
 				PackedColorArray([glow.call(u0, v0), glow.call(u0, v1), glow.call(u1, v1), glow.call(u1, v0)]))
+
+
+## Onde cai na mesa o ponto (`u`, `v`) do vão da janela (`u`: do peitoril, 0, ao pé da persiana, 1; `v`: ao longo da
+## parede), na luz da rua (`_draw_street_light`, que guarda a conta em `_street_map`); em px de 2x2.
+func _street_pt(u: float, v: float) -> Vector2:
+	var hs: Array[float] = _street_map[1]
+	var ts: Array[float] = _street_map[2]
+	var drop := _yd - lerpf(hs[0], hs[1], u)
+	return _proj(_street_map[0] - drop / STREET_LIGHT, _yd, Z0 / maxf(DESK_T, lerpf(ts[0], ts[1], v)))   # (nunca atrás do tampo)
+
+
+## A força da luz da rua na mesa no ponto (`u`, `v`) do vão: lisa, sumindo nas beiras.
+func _street_glow(u: float, v: float) -> float:
+	var a := smoothstep(-0.35, 0.45, u) * smoothstep(1.65, 0.6, u) * smoothstep(0.0, 0.45, v) * smoothstep(1.35, 0.55, v)
+	return _street_map[3] * a * 4.5
+
+
+## Na chuva, as gotas paradas e escorrendo no vidro (`_beads`) fazem sombra na luz da rua na mesa, levadas pela mesma
+## conta dela (`_street_pt`): a luz é fraca, então são só manchinhas sem borda (o miolo e um halo mais fraco em volta)
+## e, nas que escorrem, um rastro apagado; mais fortes onde a luz é mais forte. Na camada da poeira (anda a 30 quadros
+## por segundo sem redesenhar a sala).
+func _draw_drop_shadows() -> void:
+	if weather != "rain" or _street_map.is_empty() or lamp_level <= 0.5:
+		return
+	for b: Vector4 in _beads:
+		var u := 1.0 - b.y   # o vidro à vista, de cima para baixo; na mesa, do alto do vão (longe da parede) ao peitoril
+		var v := b.x
+		var a := _street_glow(u, v) * DROP_SHADOW
+		if a < 0.01:
+			continue
+		var p := (_street_pt(u, v) * 2.0).floor()
+		if _cover.has_point(p):
+			continue
+		var shade := Color(0.0, 0.01, 0.03, a * 0.4)
+		_dust.draw_rect(Rect2(p - Vector2(1, 1), Vector2(b.z + 3.0, b.z + 2.0)), shade)   # o halo, sem borda marcada
+		_dust.draw_rect(Rect2(p, Vector2(b.z + 1.0, b.z)), shade)   # e o miolo, por cima
+		if b.w > 0.0:   # escorrendo: o rastro molhado, apagado, para trás (para longe da parede)
+			var q := (_street_pt(minf(1.0, u + 0.06), v) * 2.0).floor()
+			for k in 5:
+				_dust.draw_rect(Rect2(p.lerp(q, (k + 1) / 5.0).floor(), Vector2(2, 1)), Color(shade, a * (0.25 - k * 0.04)))
 
 
 ## Armário de aço antigo, de chão, encostado na parede do fundo atrás da mesa (`x0` a partir do ponto de fuga, `CAB_W`, `CAB_TOP`, `CAB_T`; a mesa,
@@ -1573,9 +1736,7 @@ func _draw_city(g: Rect2) -> void:
 		for i in _stars.size():
 			var s: Vector2 = _stars[i]
 			_r(wx + floorf(s.x * ww), wy + floorf(s.y * (hzy - wy)), PX, PX, Color("c9d2dc") if sin(tw + i * 1.7) > -0.6 else Color("56606c"))
-		var moon := Vector2(wx + floorf(ww * 0.22), hzy - 40)
-		_ci.draw_circle(moon, 3.5, Color("d8d0a8"))
-		_ci.draw_circle(moon + Vector2(1.3, -0.7), 3.1, sky)
+		_draw_moon(g, sky, hzy)
 	if hzy - wy < 40.0:   # (a tela ainda não se arrumou: o vidro ainda não tem o tamanho dele)
 		return
 	if _city_for != g.size:
@@ -1625,12 +1786,39 @@ func _draw_city(g: Rect2) -> void:
 			_light_fan(c, rim, Color(1.0, 0.8, 0.5, 0.1))
 
 
+## A lua da noite limpa (`MOON`), na parte do céu que aparece abaixo da persiana, com o halo, e as nuvens passando
+## devagar por ela (`_clouds`): manchas lisas, um pouco mais claras que o céu (a cidade as ilumina por baixo), mais
+## claras na beira quando estão na frente da lua; coberta, a lua e o halo escurecem (`_moon_light`).
+func _draw_moon(g: Rect2, sky: Color, hzy: float) -> void:
+	var top := g.position.y + (g.size.y + _near) * _glass_from
+	var sh := hzy - top
+	var light := _moon_light()
+	var moon := Vector2(g.position.x + floorf(g.size.x * MOON.x), floorf(lerpf(top, hzy, MOON.y)))
+	_light_fan(moon, _ring(moon, 16.0), Color(0.75, 0.78, 0.7, 0.16 * light))
+	_ci.draw_set_transform(Vector2.ZERO)   # a lua em pixel art, em px da tela: o disco e o céu comendo um lado (crescente)
+	PixelArt.sprite(_ci, PixelArt.disc(14, [[7.0, Color.WHITE]]), moon * 2.0, Color("d8d0a8").lerp(sky, (1.0 - light) * 0.6))
+	PixelArt.sprite(_ci, PixelArt.disc(13, [[6.2, Color.WHITE]]), moon * 2.0 + Vector2(3, -1), sky)
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	for c in _clouds:
+		var at := Vector2(g.position.x + _cloud_x(c) * g.size.x, top + c.y * sh)
+		var r := Vector2(0.16 * c.z * g.size.x, 0.09 * c.z * sh)
+		var lit := 1.0 - smoothstep(0.0, 1.6, ((at - moon) / r).length())   # na frente da lua, a beira pega a luz dela
+		var col := sky.lightened(0.1).lerp(Color("8a8f8a"), 0.12 * lit * light)
+		for k in 3:   # três manchas juntas, a do meio maior
+			var o := at + Vector2((k - 1) * r.x * 0.55, (k % 2) * -r.y * 0.25)
+			var rim := PackedVector2Array()
+			for i in 12:
+				rim.append(o + Vector2(cos(TAU * i / 12.0) * r.x * (0.9 if k == 1 else 0.6), sin(TAU * i / 12.0) * r.y * (1.0 if k == 1 else 0.7)))
+			_light_fan(o, rim, Color(col, 0.85))
+
+
 ## A frente da vista, por cima da de trás (`_draw_city`) e redesenhada a cada quadro dela: o letreiro (o T falha
 ## sozinho), quem passa, os postes, o homem, o carro (na chuva, com o farol espelhado na rua) e a névoa.
 func _draw_city_front(g: Rect2) -> void:
 	if _hz(g) - g.position.y < 40.0:   # (a tela ainda não se arrumou: o vidro ainda não tem o tamanho dele)
 		return
 	_draw_hotel_sign(_hotel_pos(g))
+	_draw_balcony_front(g)
 	for w: Dictionary in _walkers:   # passam atrás dos postes e do homem
 		_draw_walker(g, w)
 	for x: float in FAR_LAMPS:
@@ -1789,7 +1977,7 @@ func _draw_street(g: Rect2, hz: Color) -> void:
 		_poly(_patch(g, x, x + rng.randf_range(1.0, 5.0), z, z + rng.randf_range(0.3, 1.2)), tone)
 	for lane: float in [cu + 1.3, cu + 2.7, fc - 2.7, fc - 1.3]:
 		_poly(_patch(g, -wide, wide, lane - 0.3, lane + 0.3), Color(0.6, 0.7, 0.8, 0.035))
-	var wet := 2.0 if weather == "rain" else 1.0
+	var wet := 1.0 + 1.6 * _soaked() if weather == "rain" else 1.0   # as poças crescem com a noite de chuva
 	for i in 12:   # as poças: espelham o céu (na chuva, mais)
 		var x := rng.randf_range(-14.0, 14.0)
 		var z := rng.randf_range(cu + 0.4, fc - 0.8)
@@ -1843,14 +2031,17 @@ func _draw_wet(g: Rect2, car: Dictionary = {}) -> void:
 		if _sign_on():
 			lights.append([_hotel_pos(g), _o(g, HOTEL_X, STREET["far_curb"] - 0.5), SIGN_RED])
 	for l: Array in lights:
-		var head: Vector2 = l[0]
-		var foot: Vector2 = l[1]
-		var length := (foot.y - head.y) * 0.9
-		var n := maxi(3, int(length / 1.5))
-		for k in n:
-			if k % 3 == 2:
-				continue   # quebrado pelas poças e pelos pingos
-			_r(foot.x - PX * (k % 2), foot.y + length * k / n, maxf(PX, 1.5 - k * 0.05), PX, Color(l[2], 0.32 * (1.0 - float(k) / n)))
+		_wet_streak(l[0], l[1], l[2])
+
+
+## O reflexo da luz `col` (que fica em `head`) no asfalto molhado, um risco vertical quebrado descendo de `foot`.
+func _wet_streak(head: Vector2, foot: Vector2, col: Color) -> void:
+	var length := (foot.y - head.y) * 0.9
+	var n := maxi(3, int(length / 1.5))
+	for k in n:
+		if k % 3 == 2:
+			continue   # quebrado pelas poças e pelos pingos
+		_r(foot.x - PX * (k % 2), foot.y + length * k / n, maxf(PX, 1.5 - k * 0.05), PX, Color(col, 0.32 * (1.0 - float(k) / n)))
 
 
 ## Uma parede da rua do cruzamento (`w`: o lado `x`, de `z0` a `z1`, `h` m), indo embora para o ponto de fuga, com
@@ -1892,14 +2083,17 @@ func _draw_far_house(g: Rect2, b: Dictionary, hz: Color) -> void:
 	_r(a.x, _o(g, x0, ff, 3.4).y, e.x - a.x, PX, col.lightened(0.12))   # a faixa acima do térreo
 	_r(a.x, a.y, PX, e.y - a.y, col.darkened(0.4))   # a divisa com o vizinho
 	_r(a.x, e.y - PX, e.x - a.x, PX, Color(0, 0, 0, 0.45))   # o pé, na calçada
-	for wv: Vector3 in b["wins"]:   # (x do meio, andar, hora de apagar; -1: apagada)
+	var wake: Dictionary = b["wake"]
+	for j in b["wins"].size():   # (x do meio, andar, hora de apagar; -1: apagada)
+		var wv: Vector3 = b["wins"][j]
 		var ground := wv.y == 0.0
 		var w := (1.8 if ground else 1.2) * k
 		var top := _o(g, wv.x, ff, 2.6 if ground else wv.y * 3.2 + 2.5)
 		var h := (2.6 if ground else 1.5) * k
 		var p := Vector2(top.x - w / 2.0, top.y)
 		_r(p.x - PX, p.y - PX, w + PX * 2.0, h + PX, col.darkened(0.55))   # o vão
-		if wv.z > minutes:
+		var woke: Vector2 = wake.get(j, Vector2.ZERO)
+		if wv.z > minutes or (minutes >= woke.x and minutes < woke.y):
 			var lc: Color = LIT[int(wv.x + wv.y) % LIT.size()]
 			_r(p.x, p.y, w, h, lc)
 			_r(p.x, p.y + h * 0.45, w, PX, lc.darkened(0.45))   # a travessa
@@ -1912,6 +2106,8 @@ func _draw_far_house(g: Rect2, b: Dictionary, hz: Color) -> void:
 			_r(p.x - PX * 2.0, p.y + h, w + PX * 4.0, PX, col.lightened(0.25))   # o peitoril, saindo da parede, e a sombra dele
 			_r(p.x - PX, p.y + h + PX, w + PX * 2.0, PX, col.darkened(0.35))
 			_r(p.x - PX * 2.0, p.y - PX * 2.0, w + PX * 4.0, PX, col.darkened(0.3))   # a verga
+	if b["brick"]:
+		_draw_balcony_back(g, col)
 
 
 ## A vitrine acesa de um bar no térreo do prédio de tijolos, logo atrás do homem (`MAN_X`): ele fica em silhueta contra
@@ -1956,6 +2152,89 @@ func _draw_marquee(g: Rect2) -> void:
 	_poly(top, Color("2a1c16"))
 	_poly(PackedVector2Array([top[3], top[2], _o(g, x1, ff - 1.2, 2.75), _o(g, x0, ff - 1.2, 2.75)]), Color("6a1e18"))   # a beira, vermelha
 	_ci.draw_line(_o(g, x0, ff - 1.2, 2.75), _o(g, x1, ff - 1.2, 2.75), Color(1.0, 0.8, 0.5, 0.6), PX)   # a luz embaixo dela
+
+
+## A parte parada da varanda do apartamento no prédio de tijolos (`APT`), na camada de trás: a porta (acesa, com a
+## cortina, até `APT_DARK`), o vão da janela da sala (o vidro com a TV é da frente, `_draw_balcony_front`), os vasos de
+## planta nos cantos e o lado de baixo da laje, visto de baixo (os olhos ficam abaixo dela).
+func _draw_balcony_back(g: Rect2, col: Color) -> void:
+	var ff: float = STREET["far"]
+	var fl: float = APT["floor"]
+	var dz: float = ff - APT["deep"]
+	var d: Vector2 = APT["door"]
+	var a := _o(g, d.x, ff, fl + 2.3)
+	var e := _o(g, d.y, ff, fl + 0.05)
+	_r(a.x - PX, a.y - PX, e.x - a.x + PX * 2.0, e.y - a.y + PX, col.darkened(0.55))
+	if minutes < APT_DARK:
+		var lc: Color = (LIT[1] as Color).darkened(0.15)
+		_r(a.x, a.y, e.x - a.x, e.y - a.y, lc)
+		_r(a.x, a.y, (e.x - a.x) * 0.6, e.y - a.y, lc.darkened(0.3))   # a cortina
+	else:
+		_r(a.x, a.y, e.x - a.x, e.y - a.y, Color("080b0e"))
+		_r(a.x, a.y, e.x - a.x, PX, Color(0.5, 0.55, 0.6, 0.3))
+	_r((a.x + e.x) / 2.0, a.y, PX, e.y - a.y, col.darkened(0.5))   # as duas folhas
+	var w: Vector2 = APT["win"]
+	var wa := _o(g, w.x, ff, fl + 2.4)
+	var we := _o(g, w.y, ff, fl + 0.9)
+	_r(wa.x - PX, wa.y - PX, we.x - wa.x + PX * 2.0, we.y - wa.y + PX, col.darkened(0.55))
+	_r(wa.x, wa.y, we.x - wa.x, we.y - wa.y, Color("080b0e"))
+	_r(wa.x - PX * 2.0, wa.y - PX * 2.0, we.x - wa.x + PX * 4.0, PX, col.darkened(0.3))   # a verga
+	for px: float in [APT["x0"] + 0.35, APT["x1"] - 0.4]:   # os vasos, atrás do gradil
+		var foot := _o(g, px, dz + 0.3, fl + 0.15)
+		var k := OUT_F / (dz + 0.3)
+		_r(foot.x - 0.18 * k, foot.y - 0.35 * k, 0.36 * k, 0.35 * k, Color("4a2a1c"))
+		for i in 7:
+			var lx := foot.x + (fposmod(i * 0.37, 1.0) - 0.5) * 0.6 * k
+			var ly := foot.y - (0.35 + 0.15 + fposmod(i * 0.61, 1.0) * 0.5) * k
+			_r(lx - PX, ly, PX * 3.0, PX * 2.0, Color("142219") if i % 2 else Color("1c2e22"))
+	var under := PackedVector2Array([_o(g, APT["x0"], ff, fl), _o(g, APT["x1"], ff, fl), _o(g, APT["x1"], dz, fl), _o(g, APT["x0"], dz, fl)])
+	_poly(under, col.darkened(0.65))
+
+
+## A parte da varanda que muda ou fica na frente, na camada da frente: o vidro da janela da sala com a luz da TV
+## piscando (as cenas trocando, `TV_BLUE`; com a luz da sala acesa, mistura com ela; até `TV_OFF`), a beira da laje e o
+## gradil de ferro na frente de tudo, que a TV tinge quando a sala está escura.
+func _draw_balcony_front(g: Rect2) -> void:
+	var ff: float = STREET["far"]
+	var fl: float = APT["floor"]
+	var dz: float = ff - APT["deep"]
+	var tv := Color(0, 0, 0, 0)
+	if minutes < TV_OFF:
+		var t := Time.get_ticks_msec() / 1000.0
+		var cut := floorf(t * 0.8 + sin(t * 0.31) * 0.7)   # cada cena, um brilho e um tom
+		var lv := 0.45 + 0.45 * fposmod(sin(cut * 12.9898) * 43758.5453, 1.0) + 0.05 * sin(t * 17.0)
+		var tint := TV_BLUE.lerp(Color(0.8, 0.88, 1.0), fposmod(sin(cut * 78.233) * 12345.6, 1.0) * 0.5)
+		var w: Vector2 = APT["win"]
+		var wa := _o(g, w.x, ff, fl + 2.4)
+		var we := _o(g, w.y, ff, fl + 0.9)
+		var glass: Color
+		if minutes < APT_DARK:
+			glass = (LIT[0] as Color).darkened(0.1).lerp(tint, 0.3 * lv)
+		else:
+			glass = Color("0b1018").lerp(tint, 0.2 + 0.55 * lv)
+			tv = Color(tint, lv)
+			var c := (wa + we) / 2.0
+			var rim := PackedVector2Array()
+			for i in 16:
+				rim.append(c + Vector2(cos(TAU * i / 16.0) * (we.x - wa.x) * 1.4, sin(TAU * i / 16.0) * (we.y - wa.y) * 1.3))
+			_light_fan(c, rim, Color(tint, 0.1 * lv))
+		_r(wa.x, wa.y, we.x - wa.x, we.y - wa.y, glass)
+		_r(we.x - (we.x - wa.x) * 0.25, wa.y, (we.x - wa.x) * 0.25, we.y - wa.y, glass.darkened(0.45))   # a cortina
+		_r(wa.x, wa.y, we.x - wa.x, maxf(PX, 0.15 * OUT_F / ff), glass.darkened(0.5))   # a sombra da verga
+	var iron := Color("15191c")
+	var x0: float = APT["x0"]
+	var x1: float = APT["x1"]
+	_poly(PackedVector2Array([_o(g, x0, dz, fl), _o(g, x1, dz, fl), _o(g, x1, dz, fl + 0.15), _o(g, x0, dz, fl + 0.15)]), Color("2a1a14"))
+	for h: float in [fl + 0.25, fl + 1.05]:   # o gradil: os corrimãos, o da frente e os dos lados até a fachada
+		_ci.draw_line(_o(g, x0, dz, h), _o(g, x1, dz, h), iron, PX)
+		_ci.draw_line(_o(g, x0, dz, h), _o(g, x0, ff, h), iron, PX)
+		_ci.draw_line(_o(g, x1, dz, h), _o(g, x1, ff, h), iron, PX)
+	var xb := x0
+	while xb <= x1 + 0.01:
+		var w: Vector2 = APT["win"]
+		var bar := iron.lerp(tv, 0.35 * tv.a) if xb > w.x - 0.6 and xb < w.y + 0.6 else iron
+		_r(_o(g, xb, dz).x, _o(g, xb, dz, fl + 1.05).y, PX, _o(g, xb, dz, fl + 0.15).y - _o(g, xb, dz, fl + 1.05).y, bar)
+		xb += 0.25
 
 
 ## Um poste da calçada de lá (em `x`, `z`), com 5 m: o tubo, o braço virado para a rua e a cabeça acesa.
@@ -2123,7 +2402,9 @@ func _draw_shrub() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 4242
 	var t := Time.get_ticks_msec() / 1000.0
-	var wind := {"rain": 1.0, "clear": 0.6, "fog": 0.3}.get(weather, 0.6) as float
+	var wind := {"rain": 0.5 + rain_level(), "clear": 0.6, "fog": 0.3}.get(weather, 0.6) as float
+	# as rajadas: o vento cresce e some em ondas lentas e empurra a copa para um lado (`GUST`)
+	var gust := pow(maxf(0.0, sin(t * GUST.x) * sin(t * GUST.y + 1.3)), 0.6)
 	var tones := [Color("08120c"), Color("0f2016"), Color("193323"), Color("2a4a33")]
 	var f := _flash()
 	_ci.draw_set_transform(Vector2.ZERO)   # as folhas em px da tela
@@ -2136,7 +2417,7 @@ func _draw_shrub() -> void:
 		var w := Vector2((SHRUB.x + dx) * gw, gh * (1.0 - hgt) + rng.randf_range(-1.0, 1.0))
 		var p := (_side_pt(w, WALL_D + 8.0) - _view_at) * 2.0   # do lado de fora, atrás do vidro
 		var k := clampf(_side_pt(w + Vector2(0, 1)).y - _side_pt(w).y, 0.8, 1.6)   # a escala da parede ali
-		var sway := roundf(sin(t * 1.4 + i * 0.7) * wind * hgt / SHRUB.z * 1.5)
+		var sway := roundf((sin(t * (1.4 + gust) + i * 0.7) * (1.0 + gust) - gust * GUST.z) * wind * hgt / SHRUB.z * 1.5)
 		var lit := clampf(hgt / SHRUB.z * 0.7 + (dx / maxf(0.01, r)) * 0.15 + rng.randf_range(-0.25, 0.2), 0.0, 0.99)
 		var c: Color = (tones[int(lit * tones.size())] as Color).lerp(Color("5a7090"), f * 0.5)
 		var px := p.floor() + Vector2(sway, 0)
@@ -2174,6 +2455,8 @@ func _build_city(gs: Vector2) -> void:
 	rng.seed = 1957
 	var sleep := RandomNumberGenerator.new()   # à parte: as casas continuam as mesmas
 	sleep.seed = 1958
+	var up := RandomNumberGenerator.new()   # quem levanta de madrugada, também à parte
+	up.seed = 1959
 	var off := func() -> float:
 		return INF if sleep.randf() < SLEEP.z else sleep.randf_range(SLEEP.x, SLEEP.y)
 	for r in [0, 1]:
@@ -2213,13 +2496,22 @@ func _build_city(gs: Vector2) -> void:
 		for f in floors:
 			var wsx := sp.x + 1.5
 			while wsx < sp.y - 1.0:
+				if i == 0 and f == 2 and wsx < APT["x1"]:   # a varanda do apartamento (`_draw_balcony`)
+					wsx += 3.0
+					continue
 				var o := -1.0   # apagada
 				if rng.randf() < (0.35 if f > 0 else 0.25):
 					o = off.call()
 				wins.append(Vector3(wsx, f, o))
 				wsx += 3.0
+		var wake := {}   # janela -> quando ela acende de novo (min do dia, de x a y)
+		for j in wins.size():
+			var wv := wins[j]
+			if wv.y > 0.0 and wv.z < INF and up.randf() < WAKE:
+				var at := up.randf_range(maxf(wv.z, WAKE_FROM) + 10.0, 23 * 60 + 50)
+				wake[j] = Vector2(at, at + up.randf_range(WAKE_FOR.x, WAKE_FOR.y))
 		_houses.append({"x0": sp.x, "x1": sp.y, "h": floors * 3.2 + 0.8, "col": Color("3a2219") if i == 0 else tones[rng.randi_range(0, 3)],
-			"brick": i == 0, "wins": wins})
+			"brick": i == 0, "wins": wins, "wake": wake})
 	_canyon.clear()   # as paredes da rua do cruzamento: os fundos dos prédios da esquina e os que vêm depois, até a praça
 	for side: float in [CROSSING.x, CROSSING.y]:
 		var z := STREET["far"] as float
@@ -2258,6 +2550,7 @@ func _draw_church(base: Vector2, col: Color) -> void:
 ## poeira que passa na frente dela); o papel de uma ferramenta fica na frente, e ela não desce abaixo do fundo do tampo.
 func _draw_dust() -> void:
 	_draw_steam()
+	_draw_drop_shadows()
 	var k := lamp_level * (0.5 if _cover.has_area() else 1.0)
 	var c := Vector2(_lamp_x * 2.0, 0.0)   # px da tela
 	var reach := size.x * 0.5
@@ -2304,7 +2597,9 @@ func _draw_glass_weather(g: Rect2) -> void:
 	if weather == "rain":
 		# os pingos: riscos de 1 px inclinados pelo vento, mais longos e claros os de perto, e acesos perto dos postes
 		var heads := _lamp_heads(g)
-		for d in _drops:
+		var many := int(_drops.size() * rain_level())   # na garoa, poucos
+		for i in many:
+			var d: Vector3 = _drops[i]
 			if d.x < 0.0 or d.x >= 1.0 or d.y < 0.0:
 				continue
 			var hp := Vector2(g.position.x + floorf(d.x * g.size.x * 2.0) * PX, g.position.y + floorf(d.y * g.size.y * 2.0) * PX)

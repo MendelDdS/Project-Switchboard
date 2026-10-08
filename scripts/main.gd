@@ -20,6 +20,7 @@ const SMALLTALK_CHANCE := 0.6           # ...às vezes (respostas e limites: Con
 const NAG_AFTER := 22.0                 # segundos de silêncio até reclamar da demora (emergência: EMERGENCY_NAG_AFTER)
 const EMERGENCY_NAG_AFTER := 26.0
 ## Atalhos das ferramentas (Input Map): aba -> ação.
+const WARM_TINT := Color(1.0, 0.62, 0.36, 0.35)   # a luminária recém-acesa: o brilho dela nesse tom e nessa fração da força
 const TAB_KEYS := {"lista": "tab_directory", "despacho": "tab_dispatch", "caderno": "tab_logbook", "registro": "tab_call_log"}
 var C: GameContent = GameData.CONTENT
 
@@ -220,6 +221,7 @@ func set_weather(w: String) -> void:
 
 func _start_shift() -> void:
 	Sfx.start_ambience(weather)
+	background.warm_up()
 	running = true
 	radio.say(T.text(T.Key.RADIO_PATROL))
 	hint(T.text(T.Key.HINT_WAIT_CALLS))
@@ -266,7 +268,8 @@ func _process(delta: float) -> void:
 		_nag()
 		supervisor.check_hold()
 	background.flick = flick
-	_glow.modulate.a = background.lamp_level
+	var w := background.warm   # esquentando, o brilho é mais fraco e alaranjado (`Background.warm_up`)
+	_glow.modulate = Color(1.0, lerpf(WARM_TINT.g, 1.0, w), lerpf(WARM_TINT.b, 1.0, w), background.lamp_level * lerpf(WARM_TINT.a, 1.0, w))
 	tools.light = background.lamp_level
 
 
