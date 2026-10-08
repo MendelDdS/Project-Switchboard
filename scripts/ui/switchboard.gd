@@ -66,6 +66,7 @@ const HOLE_LIP := 3.0    # ...e some abaixo disto (px abaixo do buraco), atrás 
 const HOLE_SHADE := [[0.0, 5.0, 0.65], [5.0, 10.0, 0.4], [10.0, 16.0, 0.2]]   # o fio entrando no buraco escurece: [de, até (px a partir do buraco), escuro]
 
 var _pushed := {}   ## ponta -> segundos desde que encaixou (a assentada, `PUSH_SEC`, e a passagem para de frente)
+var _pushed_ang := {}   ## ponta -> o ângulo do plug na mão quando encaixou (a passagem para de frente gira dali)
 var _pulled := {}   ## ponta -> [segundos desde que saiu do encaixe, onde ele estava]: o plug de frente sumindo
 var _silhouette := {}   ## inclinação do plug encaixado (em pé: false) -> polígono do contorno (destaque e sombra)
 var _lit := {}   ## lâmpada ("l3" linha, "d312" destino) -> [cor, quanto está acesa 0..1]; a cor fica enquanto apaga
@@ -288,6 +289,7 @@ const LAMP_ABOVE := 120.0   # px acima da tela: a luminária do teto, que não a
 const ROOM_LIGHT_R := 900.0   # px: até onde a luz dela chega no painel
 const ROOM_LIT := Color(1.0, 0.88, 0.66, 0.07)   # perto dela, o painel clareia quente...
 const ROOM_DARK := Color(0.012, 0.022, 0.045, 0.36)   # ...e longe, escurece
+const CORD_LIT := 0.6   # o fio e os plugs em pé pegam essa parte da luz da sala do painel (estão na frente dele)
 const STRIP_W := 30.0   # a faixa rebaixada de cada linha, da plaquinha à saída
 const WEAR := [0.5, 0.3, 0.15]   # o painel gasto em volta das tomadas: do perto ao longe (o quanto clareia)
 const KINK := 1.5   # px: as dobras que o fio de pano guarda, no máximo
@@ -507,6 +509,7 @@ func place(e: int, j: int) -> bool:
 		warned.emit(why)
 		_sfx("click", jack_rect(j).get_center())
 		return false
+	_pushed_ang[e] = _plug_angle(e)
 	ends[e] = j
 	held = -1
 	_loose.erase(e)
@@ -539,6 +542,7 @@ func _unseat(e: int) -> void:
 	if ends[e] != -1:
 		_pulled[e] = [0.0, jack_rect(int(ends[e])).get_center(), _tilt(int(ends[e]))]
 	_pushed.erase(e)
+	_pushed_ang.erase(e)
 
 
 ## Solta o plug: ele cai e o fio o puxa de volta para o buraco (o FONE volta ao telefone).
@@ -657,6 +661,7 @@ func _process(delta: float) -> void:
 		_pushed[e] += delta
 		if _pushed[e] >= maxf(PUSH_SEC, MORPH_SEC):
 			_pushed.erase(e)
+			_pushed_ang.erase(e)
 	for e in _pulled.keys():
 		_pulled[e][0] += delta
 		if _pulled[e][0] >= MORPH_SEC:
@@ -1157,7 +1162,7 @@ func _draw() -> void:
 
 	# legenda das lâmpadas, numa linha no pé do painel
 	_draw_legend()
-	_draw_room_light(Rect2(Vector2.ZERO, size).grow(-FRAME), Vector2(get_viewport_rect().size.x / 2.0 - global_position.x, -global_position.y - LAMP_ABOVE))
+	_draw_room_light(Rect2(Vector2.ZERO, size).grow(-FRAME))
 
 	# destaque da tomada sob o plug (antes de virar arraste, soltar desencaixa: sem destaque)
 	if held != -1 and _dragged:
@@ -1229,10 +1234,7 @@ func _draw_cabinet(r: Rect2) -> void:
 ## ponto numa grade com a cor nos cantos de cada quadrado, mais clara e quente perto dela (no alto, à direita) e mais
 ## escura nos cantos de baixo, longe; sem ela, o painel tinha a mesma luz em toda parte e parecia fora da sala. Por
 ## cima de tudo que é do painel e por baixo dos plugs e fios (que saem dele, na frente).
-func _draw_room_light(p: Rect2, lamp: Vector2) -> void:
-	var tone := func(q: Vector2) -> Color:
-		var k := clampf(1.0 - q.distance_to(lamp) / ROOM_LIGHT_R, 0.0, 1.0)
-		return ROOM_DARK.lerp(ROOM_LIT, k * k)
+func _draw_room_light(p: Rect2) -> void:
 	var n := Vector2i(12, 8)
 	for j in n.y:
 		for i in n.x:
@@ -1241,7 +1243,7 @@ func _draw_room_light(p: Rect2, lamp: Vector2) -> void:
 			var quad := PackedVector2Array([a, Vector2(b.x, a.y), b, Vector2(a.x, b.y)])
 			var cols := PackedColorArray()
 			for q in quad:
-				cols.append(tone.call(q))
+				cols.append(_room_tone(q))
 			draw_primitive(quad, cols, PackedVector2Array())   # (primitivos seguidos são uma chamada de desenho só; polígonos, uma cada)
 
 
@@ -1490,8 +1492,11 @@ func _draw_rope(e: int, shadow: bool) -> void:
 		return
 	var col: Array = _cable_col(e)
 	pts = _kinked(e, pts)
-	draw_polyline(pts, (col[0] as Color).darkened(EDGE), 8.0)
-	draw_polyline(pts, col[0], 5.0)
+	var lights := PackedColorArray()   # a luz da sala ao longo do fio
+	for q in pts:
+		lights.append(_lit_by(q))
+	draw_polyline_colors(pts, _tinted((col[0] as Color).darkened(EDGE), lights), 8.0)
+	draw_polyline_colors(pts, _tinted(col[0], lights), 5.0)
 	var pts2 := PackedVector2Array()
 	var length := 0.0
 	for i in pts.size():
@@ -1502,12 +1507,20 @@ func _draw_rope(e: int, shadow: bool) -> void:
 	while at < length:   # o trançado do pano: o brilho em pedaços
 		var part := _along(pts2, at, minf(at + BRAID - 2.0, length))
 		if part.size() >= 2:
-			draw_polyline(part, col[1], 1.5)
+			draw_polyline(part, (col[1] as Color) * _lit_by(part[0]), 1.5)
 		at += BRAID
 	for band in HOLE_SHADE:   # perto do buraco, a sombra de dentro dele, em degraus
 		var part := _along(pts, band[0], band[1])
 		if part.size() >= 2:
 			draw_polyline(part, Color(0, 0, 0, band[2]), 5.0)
+
+
+## A cor `c` sob cada luz de `lights`.
+func _tinted(c: Color, lights: PackedColorArray) -> PackedColorArray:
+	var out := PackedColorArray()
+	for l in lights:
+		out.append(c * l)
+	return out
 
 
 ## As dobras que um fio de pano velho guarda: cada ponto da corda sai um pouco para um lado, sempre o mesmo para cada
@@ -1567,15 +1580,16 @@ func _draw_plug(e: int, shadow: bool) -> void:
 				draw_set_transform(at.round(), 0.0, Vector2.ONE * lerpf(0.4, 1.0, k))
 			_draw_plug_face(_cable_col(e), tilt, _push(e), 1.0, int(ends[e]))
 			if k < 1.0:   # o corpo em pé gira para o eixo do encaixado e encurta até o tamanho dele, entrando no encaixe
-				var axis := Transform2D(lerpf(0.0, tilt.angle() - PI / 2.0, k), Vector2(1.0, lerpf(1.0, tilt.length() / PLUG_LEN, k)), 0.0, at.round())
+				var axis := Transform2D(lerp_angle(float(_pushed_ang.get(e, 0.0)), tilt.angle() - PI / 2.0, k), Vector2(1.0, lerpf(1.0, tilt.length() / PLUG_LEN, k)), 0.0, at.round())
 				draw_set_transform_matrix(axis * Transform2D(0.0, Vector2(0, PLUG_LEN)))
 				_draw_plug_body(_cable_col(e), false)
 		elif _plug_angle(e) != 0.0:   # girado pixel a pixel, preso aos pixels (girado pelo desenho, serrilhava)
-			var t := PixelArt.turned(PLUG_ART, _plug_angle(e), Vector2(10, PLUG_H))
+			var ang := _plug_angle(e)
+			var t := PixelArt.turned(_plug_art(ang), ang, Vector2(10, PLUG_H))
 			draw_set_transform(at.round())
-			draw_texture(PixelArt.art(t[0], _plug_pal(_cable_col(e))), -(t[1] as Vector2))
+			draw_texture(PixelArt.art(t[0], _plug_pal(_cable_col(e))), -(t[1] as Vector2), _lit_by(at))
 		else:
-			_draw_plug_body(_cable_col(e))
+			_draw_plug_body(_cable_col(e), true, _lit_by(at))
 	draw_set_transform(Vector2.ZERO)
 	if _cut < INF and not shadow:
 		draw_lip(self, hole(e))
@@ -1807,16 +1821,47 @@ func _face_rim(t: Vector2, n: int, around: bool) -> Array:
 ## um anel em cima, o serrilhado em listras finas e um anel no meio; a aba dourada; a ponta de metal dourado, com a luva,
 ## um isolante preto, o anel, outro isolante e o bico em ponta com a bolinha. `tip`
 ## falso: sem a ponta (entrando no encaixe, ela já está dentro). Entrando no buraco, só até `_cut`, escurecendo liso.
-func _draw_plug_body(col: Array, tip: bool = true) -> void:
+func _draw_plug_body(col: Array, tip: bool = true, light := Color.WHITE) -> void:
 	var top := -PLUG_H if tip else -PLUG_LEN
 	var bottom := minf(0.0, _cut)
 	if bottom > top:
-		draw_texture_rect_region(PixelArt.art(PLUG_ART, _plug_pal(col)), Rect2(-10, top, 20, bottom - top), Rect2(0, top + PLUG_H, 20, bottom - top))
+		draw_texture_rect_region(PixelArt.art(PLUG_ART, _plug_pal(col)), Rect2(-10, top, 20, bottom - top), Rect2(0, top + PLUG_H, 20, bottom - top), light)
 	if _cut < INF:   # entrando no buraco, o plug escurece até a beira dele
 		var none := Color(0, 0, 0, 0)
 		var deep := Color(0, 0, 0, 0.6)
 		draw_primitive(PackedVector2Array([Vector2(-10, _cut - 6.0), Vector2(10, _cut - 6.0), Vector2(10, _cut), Vector2(-10, _cut)]),
 			PackedColorArray([none, none, deep, deep]), PackedVector2Array())
+
+
+## O mapa do plug para o ângulo `ang`: o brilho dele fica do lado esquerdo, virado para a luz (`PixelArt.LIGHT`, alto
+## à esquerda); girado a ponto de esse lado ficar de costas para ela, vale o mapa espelhado, com o brilho do outro
+## lado (sem isso, o plug deitado com a ponta para a esquerda tinha a luz vindo de baixo).
+static var _plug_flipped: Array = []
+func _plug_art(ang: float) -> Array:
+	if Vector2.LEFT.rotated(ang).dot(PixelArt.LIGHT) >= 0.0:
+		return PLUG_ART
+	if _plug_flipped.is_empty():
+		for row: String in PLUG_ART:
+			_plug_flipped.append(row.reverse())
+	return _plug_flipped
+
+
+## A luz da luminária do teto no ponto p (da mesa), como a que cai no painel (`_draw_room_light`), em `CORD_LIT` da
+## força: a cor que multiplica o fio e os plugs ali (longe dela, mais escuros e frios).
+func _lit_by(p: Vector2) -> Color:
+	var t := _room_tone(p)
+	return Color.WHITE.lerp(Color(t.r, t.g, t.b), t.a * CORD_LIT)
+
+
+## O tom da luz da sala no ponto p da mesa: a cor e, no alfa, quanto ela pesa.
+func _room_tone(p: Vector2) -> Color:
+	var k := clampf(1.0 - p.distance_to(_lamp_pos()) / ROOM_LIGHT_R, 0.0, 1.0)
+	return ROOM_DARK.lerp(ROOM_LIT, k * k)
+
+
+## Onde fica a luminária do teto, nas coordenadas da mesa: no meio da tela, acima dela.
+func _lamp_pos() -> Vector2:
+	return Vector2(get_viewport_rect().size.x / 2.0 - global_position.x, -global_position.y - LAMP_ABOVE)
 
 
 ## As cores do plug do cabo `col` ([cor, brilho]), pelos caracteres de `PLUG_ART`: o cabo de baquelite na cor dele
