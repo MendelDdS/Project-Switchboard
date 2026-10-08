@@ -12,6 +12,8 @@ const LOCALES := ["pt_BR", "en", "es"]
 ## Cada idioma escrito no próprio idioma (não se traduz).
 const LOCALE_NAMES := {"pt_BR": "Português (Brasil)", "en": "English (US)", "es": "Español"}
 const BUSES := ["Ambience", "Voices", "Effects"]
+## Barramentos sem controle próprio, que seguem o volume de outro (o atrito do fio vai direto para o Master).
+const FOLLOWS := {"Rub": "Effects"}
 ## Quanto cada letra demora, relativo ao normal: lenta, normal, rápida.
 const TEXT_SPEEDS := [1.6, 1.0, 0.55]
 
@@ -104,10 +106,11 @@ func _changed() -> void:
 func _apply() -> void:
 	if TranslationServer.get_locale() != locale:
 		TranslationServer.set_locale(locale)
-	for bus in BUSES:
+	for bus in BUSES + FOLLOWS.keys():
+		var v: float = volumes[FOLLOWS.get(bus, bus)]
 		var i := AudioServer.get_bus_index(bus)
-		AudioServer.set_bus_volume_db(i, linear_to_db(volumes[bus]))
-		AudioServer.set_bus_mute(i, volumes[bus] <= 0.001)
+		AudioServer.set_bus_volume_db(i, linear_to_db(v))
+		AudioServer.set_bus_mute(i, v <= 0.001)
 
 
 func _load() -> void:

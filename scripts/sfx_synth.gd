@@ -245,6 +245,11 @@ func _build_basic() -> void:
 	_begin(0.45); _tone(0, 60, 0.4, "sine", 0.9); _end("thump")
 	# o fio terminando de entrar no buraco: um "tec" seco
 	_begin(0.06); _noise(0, 0.015, "bp", 2200, 1.5, 1.0); _tone(0, 320, 0.03, "sine", 0.5); _end("cord_stop")
+	# o fio parado agarrado na borda do buraco e soltando de uma vez: tranco abafado de pano com dois grãos de atrito
+	_begin(0.08); _noise(0, 0.025, "bp", 900, 0.9, 1.0); _tone(0, 140, 0.04, "sine", 0.45)
+	_noise(0.012, 0.012, "bp", 2300, 1.2, 0.5); _noise(0.026, 0.01, "bp", 1900, 1.2, 0.35); _end("cord_snag")
+	# o puxão parando de repente: as fibras raspam um instante na borda, "tsk"
+	_begin(0.06); _noise(0, 0.025, "bp", 3200, 1.3, 1.0); _noise(0.004, 0.018, "bp", 1600, 1.0, 0.5); _end("cord_snap")
 	# o fio caindo na mesa: "tap" macio e abafado
 	_begin(0.09); _noise(0, 0.03, "lp", 700, 0.7, 1.0); _tone(0, 110, 0.05, "sine", 0.5); _end("cord_tap")
 	# plug solto batendo na mesa
@@ -627,29 +632,23 @@ func _build_card() -> void:
 	_end("shred")
 
 
-## Atrito do fio na borda do buraco: dois loops que tocam juntos (`cord_rub` controla o volume de cada um).
-## - "rub", o fio: prende e escorrega ("agarra e solta"), estalos médios bem juntos que viram um zumbido áspero,
-##   sobre um corpo grave contínuo.
+## A madeira do móvel por baixo do atrito do fio: o pico dela, em fração do pico dos estalos.
+const WOOD := 0.3
+
+
+## Atrito do fio na borda do buraco: três loops que tocam juntos (`cord_rub` controla o volume de cada um).
+## - "rub" e "rub_slow", o fio: prende e escorrega ("agarra e solta") sobre um corpo grave contínuo, com a madeira
+##   do móvel soando a cada estalo. No "rub" (rápido) os estalos são bem juntos e viram um zumbido áspero; no
+##   "rub_slow" (devagar) são esparsos, cada agarrão separado. `cord_rub` cruza um no outro pela velocidade.
 ## - "rub_hi", o agudo: brilho de fibras raspando e o rangido de corda esfregada (o agarra-e-solta em ritmo quase
 ##   regular faz a corda vibrar, como um arco). Some quando o fio passa devagar.
-## Os dois saem com o mesmo ganho, como se fossem um som só.
+## Saem com o mesmo ganho, como se fossem um som só.
 func _build_rub() -> void:
-	_begin(1.4)
-	var t := 0.0
-	while t < 1.39:   # agarra e solta
-		_noise(t, _rng.randf_range(0.008, 0.016), "bp", _rng.randf_range(1550.0, 2850.0), 1.2, _rng.randf_range(0.5, 1.0))
-		t += _rng.randf_range(0.005, 0.010)
-	var body := PackedFloat32Array()   # corpo
-	body.resize(_w.size())
-	for i in body.size():
-		body[i] = _rng.randf_range(-0.6, 0.6)
-	body = _biquad(body, "lp", 920.0, 0.8)
-	for i in _w.size():
-		_w[i] += body[i]
-	var cord := _w
+	var cord := _rub_cord(1.4, Vector2(0.005, 0.010), Vector2(0.008, 0.016), Vector2(1550.0, 2850.0))
+	var slow := _rub_cord(2.0, Vector2(0.022, 0.05), Vector2(0.01, 0.02), Vector2(1300.0, 2500.0))
 
 	_begin(1.4)
-	t = 0.0
+	var t := 0.0
 	while t < 1.39:   # fibras
 		_noise(t, 0.06, "bp", _rng.randf_range(1700.0, 5700.0), 2.0, _rng.randf_range(0.08, 0.25))
 		t += _rng.randf_range(0.003, 0.008)
@@ -671,8 +670,8 @@ func _build_rub() -> void:
 		_w[k] += (ring_a[k] + ring_b[k] * 0.6) * 0.35
 	var hi := _w
 
-	# mesmo ganho nos dois: cada um sai com o pico que teria dentro da mistura
-	var layers := {"rub": cord, "rub_hi": hi}
+	# mesmo ganho em todos: cada um sai com o pico que teria dentro da mistura
+	var layers := {"rub": cord, "rub_slow": slow, "rub_hi": hi}
 	for id in layers:
 		_w = _biquad(layers[id], "lp", 8000.0, 0.7)
 		_loopify(0.2)
@@ -686,6 +685,37 @@ func _build_rub() -> void:
 		for v in _w:
 			own = maxf(own, absf(v))
 		_end(id, false, true, 0.8 * own / mix)
+
+
+## Um loop do fio, de `sec` s: estalos de agarra e solta a cada `gap` s (x..y), de `dur` s, na banda `band` Hz,
+## sobre o corpo grave e com a madeira do móvel soando a cada um.
+func _rub_cord(sec: float, gap: Vector2, dur: Vector2, band: Vector2) -> PackedFloat32Array:
+	_begin(sec)
+	var knock := PackedFloat32Array()   # cada agarra e solta bate na borda do buraco e faz soar o móvel
+	knock.resize(_w.size())
+	var t := 0.0
+	while t < sec - 0.01:   # agarra e solta
+		var g := _rng.randf_range(0.5, 1.0)
+		_noise(t, _rng.randf_range(dur.x, dur.y), "bp", _rng.randf_range(band.x, band.y), 1.2, g)
+		knock[int(t * RATE)] += g
+		t += _rng.randf_range(gap.x, gap.y)
+	var body := PackedFloat32Array()   # corpo
+	body.resize(_w.size())
+	for i in body.size():
+		body[i] = _rng.randf_range(-0.6, 0.6)
+	body = _biquad(body, "lp", 920.0, 0.8)
+	# a madeira: dois modos graves e bem amortecidos, um murmúrio oco por baixo do atrito, WOOD do pico dele
+	var wood := _resonator(knock, 210.0, 0.006)
+	var wood_b := _resonator(knock, 330.0, 0.004)
+	var peak := 0.0001
+	var wood_peak := 0.0001
+	for i in _w.size():
+		wood[i] += wood_b[i] * 0.6
+		peak = maxf(peak, absf(_w[i]))
+		wood_peak = maxf(wood_peak, absf(wood[i]))
+	for i in _w.size():
+		_w[i] += body[i] + wood[i] * WOOD * peak / wood_peak
+	return _w
 
 
 ## Toque da mesa: bipes curtos de seno (com um pouco do 2º e 3º harmônicos, para não soar eletrônico demais),

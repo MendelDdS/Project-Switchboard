@@ -96,6 +96,19 @@ const MAX_FLING := 1800.0      # px/s: o plug solto em movimento sai com o embal
 const DROP_SPEED := 120.0      # px/s: batendo na mesa mais rápido que isso, faz barulho
 const TAP_SPEED := Vector2(150.0, 600.0)   # px/s: o fio batendo na mesa faz "tap" a partir de x; em y, no volume máximo
 const TAP_GAP := 0.12          # s: intervalo mínimo entre dois "taps" do mesmo fio
+## O puxão da mão, na direção do buraco para fora (`_pull_edges`): o fio parado que sai rápido dá um tranco
+## (`cord_snag`: parado há SNAG_REST s, passa de SNAG_SPEED px/s até SNAG_WINDOW s depois de começar a andar) e o
+## puxão rápido que para de repente, um "tsk" de fibra (`cord_snap`: a mão cai para SNAP_DROP do pico, que vale
+## acima de SNAG_SPEED e é esquecido em SNAP_MEMORY s; parando devagar, o pico desce junto e não toca).
+const SNAG_SPEED := 300.0
+const SNAG_REST := 0.15
+const SNAG_WINDOW := 0.12
+const SNAP_DROP := 0.2
+const SNAP_MEMORY := 0.08
+const RUB_STILL := 30.0        # px/s: abaixo disso a mão está parada
+## Tom do atrito de cada cabo (multiplica o tom e o corte): FONE, vermelho, azul, amarelo. Só uma nuance, para a
+## mesa não soar como um fio só.
+const CORD_TONE := [1.0, 1.05, 0.95, 1.02]
 const PLUG_BASE := Vector2(0, 36)   # do ponto de referência do plug (topo do corpo) até onde o fio entra nele
 const PLUG_LEN := 59.0   # em pé: do fio até o alto da aba (a ponta de metal passa disso)
 ## Encaixado, de onde fica a tomada até onde o fio entra: a ponta de metal some dentro dela e o anel assenta no buraco.
@@ -282,6 +295,11 @@ var _rub_out := 0.0
 var _rub_in := 0.0
 var _rub_x := 0.0
 var _rub_fone := 0.0
+var _rub_loose := 0.0
+var _rub_tone := 0.0
+var _pull_rest := 0.0   # s com a mão parada (ou chegando perto do buraco)
+var _pull_run := -1.0   # s desde que a mão começou a puxar (-1: tranco já dado ou fora da janela)
+var _pull_top := 0.0    # pico recente do puxão, px/s
 var _drawn := []   # o que estava à mostra no último desenho (`_look`)
 
 
@@ -616,6 +634,7 @@ func _process(delta: float) -> void:
 		cursor = mouse
 	if delta > 0.0:
 		_mouse_vel = _mouse_vel.lerp((mouse - _last_mouse) / delta, 0.5)
+	_pull_edges(delta)
 	_hover = -1 if held != -1 else _plug_under(mouse)
 	mouse_default_cursor_shape = _cursor_shape(mouse)
 	_acc = minf(_acc + delta, STEP * 6)
@@ -626,13 +645,16 @@ func _process(delta: float) -> void:
 		_last_mouse = get_local_mouse_position()
 	var moved := _rub_out + _rub_in
 	if delta > 0.0 and moved > 0.0:
-		Sfx.cord_rub(moved / delta, _rub_x / moved, _rub_out / moved, _rub_fone / moved)
+		Sfx.cord_rub(moved / delta, _rub_x / moved, _rub_out / moved, _rub_fone / moved, _rub_loose / moved,
+				_rub_tone / moved)
 	else:
 		Sfx.cord_rub(0.0)
 	_rub_out = 0.0
 	_rub_in = 0.0
 	_rub_x = 0.0
 	_rub_fone = 0.0
+	_rub_loose = 0.0
+	_rub_tone = 0.0
 	if exchange != null:
 		var ms := Time.get_ticks_msec()
 		for n in range(1, 11):
@@ -739,6 +761,36 @@ func _sfx(id: String, p: Vector2, db: float = 0.0) -> void:
 	Sfx.play_at(id, screen_x(p), db)
 
 
+## Começo e fim de um puxão do plug na mão: o tranco do fio parado e o "tsk" quando a mão para de repente.
+func _pull_edges(delta: float) -> void:
+	if held == -1 or delta <= 0.0:
+		_pull_rest = SNAG_REST
+		_pull_run = -1.0
+		_pull_top = 0.0
+		return
+	var a := hole(held)
+	var pull := _mouse_vel.dot((get_local_mouse_position() - a).normalized())
+	if pull < RUB_STILL:
+		_pull_rest += delta
+		_pull_run = -1.0
+	else:
+		if _pull_rest >= SNAG_REST:
+			_pull_run = 0.0
+		_pull_rest = 0.0
+		if _pull_run >= 0.0:
+			_pull_run += delta
+			if pull > SNAG_SPEED:
+				_sfx("cord_snag", a)
+				_pull_run = -1.0
+			elif _pull_run > SNAG_WINDOW:
+				_pull_run = -1.0
+	_pull_top *= exp(-delta / SNAP_MEMORY)
+	if _pull_top > SNAG_SPEED and pull < _pull_top * SNAP_DROP:
+		_sfx("cord_snap", a)
+		_pull_top = 0.0
+	_pull_top = maxf(_pull_top, pull)
+
+
 ## `d` px do fio da ponta e passaram pelo buraco (positivo: saindo; negativo: entrando), para o som de atrito.
 func _count_rub(e: int, d: float) -> void:
 	if d > 0.0:
@@ -748,6 +800,9 @@ func _count_rub(e: int, d: float) -> void:
 	_rub_x += absf(d) * screen_x(hole(e))
 	if e == 0:
 		_rub_fone += absf(d)
+	if _loose.has(e):
+		_rub_loose += absf(d)
+	_rub_tone += absf(d) * CORD_TONE[cable_of(e)]
 
 
 ## Simula o fio da ponta e como uma corda presa no buraco: os pontos têm inércia e gravidade e a distância
