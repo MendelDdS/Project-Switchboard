@@ -8,6 +8,31 @@ signal options_changed
 signal state_changed
 
 enum Kind { TRANSFER, EMERGENCY, PRANK, INFO, MYSTERY }
+
+## Uma linha do caderno: o que se sabe da ligação quando ela termina (`Main._record`) e, depois de registrada, o tipo
+## que o jogador carimbou.
+class Record:
+	var time := ""
+	var who := ""
+	var where := "—"
+	var unit := "—"
+	var card := 0              ## o número do cartão de despacho enviado (emergência)
+	var obs := ""
+	var kind := PhoneCall.Kind.TRANSFER
+	var missed := false        ## não atendida: entra no livro sozinha
+	var tut := false
+	var shift := false         ## cortada pelo fim do turno (já teve a advertência)
+	var type: int = -1         ## o carimbo (`T.Key.TYPE_*`), depois de registrada
+
+	## A linha no livro: esta, com o carimbo `t` e a observação `note`.
+	func stamped(t: T.Key, note: String) -> Record:
+		var r := Record.new()
+		for k: String in ["time", "who", "where", "unit", "card", "kind", "missed", "tut", "shift"]:
+			r.set(k, get(k))
+		r.obs = note
+		r.type = t
+		return r
+
 enum Phase { NONE, AWAIT, EMERGENCY, INFO }
 enum End {
 	OPERATOR,   ## o operador desligou (botão Desligar)
@@ -59,7 +84,7 @@ var chats: Array[ChatTopic] = []   ## assuntos já puxados nesta ligação (não
 var hold_since := 0.0       ## minuto em que ficou em espera
 var transcript: Array[Dictionary] = []   ## {"who", "text", "cls"}; cls: "" / "op" / "sys" / "ghost"
 var options: Array[Dictionary] = []      ## {"label": String, "fn": Callable}
-var record: Dictionary = {}              ## linha do caderno gerada quando a ligação termina
+var record: Record                       ## linha do caderno gerada quando a ligação termina (nula antes)
 
 # transferência (o destino pode mudar quando o pedido não atende à noite)
 var target := ""

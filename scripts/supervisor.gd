@@ -31,7 +31,7 @@ func call_ended(c: PhoneCall, reason: PhoneCall.End) -> void:
 		return
 	var e: EmergencyCall = c.data if c.kind == PhoneCall.Kind.EMERGENCY else null
 	if reason in [PhoneCall.End.MISSED, PhoneCall.End.GAVE_UP]:
-		fault("missed" if reason == PhoneCall.End.MISSED else "hold", String(c.record["who"]))
+		fault("missed" if reason == PhoneCall.End.MISSED else "hold", c.record.who)
 		if e != null:
 			main.report.trouble(e)
 		call_again(c, PhoneCall.Retry.MISSED)
@@ -124,18 +124,18 @@ func on_arrived(e: EmergencyCall, result: Fleet.Result, occurrence: String, extr
 
 
 ## O supervisor confere o tipo registrado (não dá para saber o tipo de quem não foi atendido).
-func on_registered(rec: Dictionary, type: T.Key) -> void:
-	if rec["tut"] or rec["missed"] or not TYPE_OF.has(rec["kind"]):
+func on_registered(rec: PhoneCall.Record, type: T.Key) -> void:
+	if rec.tut or rec.missed or not TYPE_OF.has(rec.kind):
 		return
-	if type != TYPE_OF[rec["kind"]]:
-		main.report.add("register_wrong", rec["time"], rec["who"])
+	if type != TYPE_OF[rec.kind]:
+		main.report.add("register_wrong", rec.time, rec.who)
 
 
 ## Fim do turno: o que ficou sem registro no caderno.
 func shift_over() -> void:
-	var left: Array = main.notebook.queue.duplicate()
+	var left: Array[PhoneCall.Record] = main.notebook.queue.duplicate()
 	if main.notebook.has_pending():
 		left.append(main.notebook.pending)
 	for rec in left:
-		if not rec["tut"] and not rec.get("shift", false):   # cortada pelo fim do turno já teve a advertência
-			main.report.add("register_missing", rec["time"], rec["who"])
+		if not rec.tut and not rec.shift:   # cortada pelo fim do turno já teve a advertência
+			main.report.add("register_missing", rec.time, rec.who)

@@ -6,7 +6,7 @@ extends Control
 ## Quantas ocorrências esperam registro (a da ficha mais as da fila).
 signal pending_changed(count: int)
 ## Uma ocorrência foi registrada: `rec` é o que a ligação gerou; `type` é o tipo que o jogador escolheu.
-signal registered(rec: Dictionary, type: T.Key)
+signal registered(rec: PhoneCall.Record, type: T.Key)
 
 ## Cor do carimbo de cada tipo no livro.
 const STAMPS := {
@@ -22,9 +22,9 @@ const X_STAMP := 438.0
 const RULE := Pal.NOTE_RULE       # a pauta e a margem, as do caderno da mesa
 const MARGIN := Pal.NOTE_MARGIN
 
-var entries: Array[Dictionary] = []
-var pending: Dictionary = {}
-var queue: Array[Dictionary] = []
+var entries: Array[PhoneCall.Record] = []   ## o livro: as registradas, com o carimbo
+var pending: PhoneCall.Record              ## a da ficha (nula: nenhuma)
+var queue: Array[PhoneCall.Record] = []
 
 @onready var _scroll: ScrollContainer = %Scroll
 @onready var _page: Control = %Page
@@ -54,7 +54,7 @@ func _notification(what: int) -> void:
 
 
 func has_pending() -> bool:
-	return not pending.is_empty()
+	return pending != null
 
 
 func pending_count() -> int:
@@ -63,13 +63,12 @@ func pending_count() -> int:
 
 ## Nova ocorrência. Se já há uma na ficha, entra na fila. Não atendida vai direto para o livro (não há tipo a
 ## escolher: ninguém falou com a pessoa).
-func add(rec: Dictionary) -> void:
-	if rec["missed"]:
-		entries.append({"time": rec["time"], "who": rec["who"], "where": rec["where"], "unit": rec["unit"],
-			"card": rec.get("card", 0), "obs": "", "type": T.Key.TYPE_MISSED})
+func add(rec: PhoneCall.Record) -> void:
+	if rec.missed:
+		entries.append(rec.stamped(T.Key.TYPE_MISSED, ""))
 		_render_ledger()
 		return
-	if pending.is_empty():
+	if pending == null:
 		pending = rec
 		_fill()
 	else:
@@ -79,19 +78,18 @@ func add(rec: Dictionary) -> void:
 
 
 ## O registro mudou depois de entrar no caderno (ex.: unidades enviadas para a emergência).
-func refresh_record(rec: Dictionary) -> void:
+func refresh_record(rec: PhoneCall.Record) -> void:
 	if is_same(rec, pending):
 		_fill()
 
 
 ## Registra a ocorrência da ficha com o tipo escolhido; a próxima da fila sobe para a ficha.
 func register(type: T.Key) -> void:
-	if pending.is_empty():
+	if pending == null:
 		return
 	var rec := pending
-	entries.append({"time": rec["time"], "who": rec["who"], "where": rec["where"], "unit": rec["unit"],
-		"card": rec.get("card", 0), "obs": rec["obs"], "type": type})
-	pending = queue.pop_front() if not queue.is_empty() else {}
+	entries.append(rec.stamped(type, rec.obs))
+	pending = queue.pop_front() if not queue.is_empty() else null
 	Sfx.play("pencil")
 	_render_ledger()
 	_fill()
@@ -103,7 +101,7 @@ func register(type: T.Key) -> void:
 func reset() -> void:
 	entries.clear()
 	queue.clear()
-	pending = {}
+	pending = null
 	_render_ledger()
 	_fill()
 	pending_changed.emit(0)
@@ -114,20 +112,20 @@ func _fill() -> void:
 	if not has_pending():
 		return
 	_update_title()
-	_who.text = pending["who"]
-	var where := String(pending["where"])
-	if int(pending.get("card", 0)) > 0:
-		where += "  ·  " + T.text(T.Key.NOTEBOOK_CARD) % int(pending["card"])
-	if String(pending["unit"]) != "—":
-		where += "  ·  " + String(pending["unit"])
+	_who.text = pending.who
+	var where := pending.where
+	if pending.card > 0:
+		where += "  ·  " + T.text(T.Key.NOTEBOOK_CARD) % pending.card
+	if pending.unit != "—":
+		where += "  ·  " + pending.unit
 	_where.text = where
-	_obs.text = pending["obs"]
+	_obs.text = pending.obs
 	_obs.visible = _obs.text != ""
 
 
 func _update_title() -> void:
 	if has_pending():
-		_time.text = T.text(T.Key.NOTEBOOK_NEW) % pending["time"]
+		_time.text = T.text(T.Key.NOTEBOOK_NEW) % pending.time
 		_queue.text = T.text(T.Key.NOTEBOOK_QUEUE) % queue.size() if not queue.is_empty() else ""
 
 
@@ -154,20 +152,20 @@ func _draw_page() -> void:
 		_page.draw_string(Pal.ui, Vector2(X_CALLER, 28), T.text(T.Key.NOTEBOOK_EMPTY), HORIZONTAL_ALIGNMENT_LEFT, w - X_CALLER, 11, Pal.INK_SOFT)
 		return
 	for i in entries.size():
-		var r: Dictionary = entries[i]
+		var r := entries[i]
 		var y := i * ROW_H
 		var ink := Pal.INK
-		_page.draw_string(Pal.mono, Vector2(4, y + 22), r["time"], HORIZONTAL_ALIGNMENT_LEFT, -1, 11, ink)
-		_page.draw_string(Pal.mono, Vector2(X_CALLER, y + 22), _fit(Pal.mono, r["who"], 11, X_PLACE - X_CALLER - 10), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, ink)
-		_page.draw_string(Pal.mono, Vector2(X_PLACE, y + 22), _fit(Pal.mono, r["where"], 11, X_STAMP - X_PLACE - 10), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, ink)
-		_stamp(r["type"], Rect2(X_STAMP, y + 5, w - X_STAMP - 4, 22))
+		_page.draw_string(Pal.mono, Vector2(4, y + 22), r.time, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, ink)
+		_page.draw_string(Pal.mono, Vector2(X_CALLER, y + 22), _fit(Pal.mono, r.who, 11, X_PLACE - X_CALLER - 10), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, ink)
+		_page.draw_string(Pal.mono, Vector2(X_PLACE, y + 22), _fit(Pal.mono, r.where, 11, X_STAMP - X_PLACE - 10), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, ink)
+		_stamp(r.type, Rect2(X_STAMP, y + 5, w - X_STAMP - 4, 22))
 		var notes := PackedStringArray()
-		if int(r.get("card", 0)) > 0:   # o número do cartão de despacho enviado
-			notes.append(T.text(T.Key.NOTEBOOK_CARD) % int(r["card"]))
-		if String(r["unit"]) != "—":
-			notes.append(T.text(T.Key.COL_UNIT) + ": " + String(r["unit"]))
-		if String(r["obs"]) != "":
-			notes.append(r["obs"])
+		if r.card > 0:   # o número do cartão de despacho enviado
+			notes.append(T.text(T.Key.NOTEBOOK_CARD) % r.card)
+		if r.unit != "—":
+			notes.append(T.text(T.Key.COL_UNIT) + ": " + r.unit)
+		if r.obs != "":
+			notes.append(r.obs)
 		_page.draw_string(Pal.ui, Vector2(X_CALLER, y + 41), _fit(Pal.ui, "  ·  ".join(notes), 11, w - X_CALLER - 4), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.INK_SOFT)
 
 

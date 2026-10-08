@@ -7,10 +7,17 @@ extends VBoxContainer
 ## ou a tecla (as abas repetiam os objetos e tomavam altura do papel). A tecla da aberta ou Esc guardam. O jornal da
 ## manhã (`news`) também abre aqui, só pelo objeto da mesa.
 
+## O id de cada ferramenta: o mesmo nos objetos da mesa (`Background.PROPS`), nas teclas (`Main.TAB_KEYS`) e no papel
+## aberto (`PaperDeco.kind`). Use as constantes, nunca o texto.
+const DIRECTORY := "lista"
+const DISPATCH := "despacho"
+const LOGBOOK := "caderno"
+const CALL_LOG := "registro"
+const NEWS := "jornal"   ## o jornal da manhã: só pelo objeto da mesa, sem tecla
 const SLIDE_SEC := 0.2
 ## A cor do papel de cada ferramenta, a mesma do objeto dela na mesa (as outras, `Pal.PAPER`); a unidade de despacho é
 ## de metal (a moldura do vidro e a base das máquinas).
-const PAPER := {"caderno": Pal.NOTE_PAGE, "registro": Pal.SHEET, "jornal": Pal.NEWSPRINT, "despacho": Pal.PANEL}
+const PAPER := {LOGBOOK: Pal.NOTE_PAGE, CALL_LOG: Pal.SHEET, NEWS: Pal.NEWSPRINT, DISPATCH: Pal.PANEL}
 
 @onready var book: PhoneBook = %PhoneBook
 @onready var dispatch: Dispatch = %Dispatch
@@ -20,9 +27,9 @@ const PAPER := {"caderno": Pal.NOTE_PAGE, "registro": Pal.SHEET, "jornal": Pal.N
 @onready var body: Control = %Body   ## onde a ferramenta aberta fica (e, guardada, a janela aparece)
 @onready var _paper: Control = %Paper
 @onready var _deco: PaperDeco = %Deco
-@onready var _views := {"lista": book, "despacho": dispatch, "caderno": notebook, "registro": call_log, "jornal": news}
+@onready var _views := {DIRECTORY: book, DISPATCH: dispatch, LOGBOOK: notebook, CALL_LOG: call_log, NEWS: news}
 
-var tab := "lista"   ## a última aberta
+var tab := DIRECTORY   ## a última aberta
 var open := false
 var origin: Callable   ## id -> Rect2 global do objeto da mesa daquela ferramenta (o Main liga; vazio: desliza da direita)
 var light := 1.0:   ## a luz da luminária (o Main atualiza): cai também no papel aberto (`PaperDeco.light`)
@@ -45,7 +52,7 @@ func set_tab(id: String) -> void:
 	if id == tab and open:
 		_apply()
 		return
-	Sfx.play("unroll" if id == "despacho" else "page")   # o mapa é uma folha grande desenrolada
+	Sfx.play("unroll" if id == DISPATCH else "page")   # o mapa é uma folha grande desenrolada
 	tab = id
 	if not open:
 		open = true

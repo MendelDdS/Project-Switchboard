@@ -203,7 +203,7 @@ func _clear_units_notebook() -> void:
 ## Registra todas as pendências do caderno com o tipo certo (sem advertência).
 func _register_all() -> void:
 	while main.notebook.has_pending():
-		main.notebook.register(Supervisor.TYPE_OF.get(main.notebook.pending["kind"], T.Key.TYPE_COMMON))
+		main.notebook.register(Supervisor.TYPE_OF.get(main.notebook.pending.kind, T.Key.TYPE_COMMON))
 
 
 func _units(us: Array) -> String:

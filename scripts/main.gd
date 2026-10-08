@@ -21,7 +21,7 @@ const NAG_AFTER := 22.0                 # segundos de silêncio até reclamar da
 const EMERGENCY_NAG_AFTER := 26.0
 ## Atalhos das ferramentas (Input Map): aba -> ação.
 const WARM_TINT := Color(1.0, 0.62, 0.36, 0.35)   # a luminária recém-acesa: o brilho dela nesse tom e nessa fração da força
-const TAB_KEYS := {"lista": "tab_directory", "despacho": "tab_dispatch", "caderno": "tab_logbook", "registro": "tab_call_log"}
+const TAB_KEYS := {Tools.DIRECTORY: "tab_directory", Tools.DISPATCH: "tab_dispatch", Tools.LOGBOOK: "tab_logbook", Tools.CALL_LOG: "tab_call_log"}
 var C: GameContent = GameData.CONTENT
 
 var exchange: Exchange
@@ -268,7 +268,7 @@ func _process(delta: float) -> void:
 		_nag()
 		supervisor.check_hold()
 	background.flick = flick
-	background.alert = not dispatch.fleet.incident.is_empty()   # o estado do despacho na unidade da mesa
+	background.alert = dispatch.fleet.incident != null   # o estado do despacho na unidade da mesa
 	background.card_out = not dispatch.machines.can_print()
 	var w := background.warm   # esquentando, o brilho é mais fraco e alaranjado (`Background.warm_up`)
 	_glow.modulate = Color(1.0, lerpf(WARM_TINT.g, 1.0, w), lerpf(WARM_TINT.b, 1.0, w), background.lamp_level * lerpf(WARM_TINT.a, 1.0, w))
@@ -856,7 +856,7 @@ func end_call(c: PhoneCall, reason: PhoneCall.End) -> void:
 
 
 ## A linha do caderno já preenchida com o que se sabe da ligação.
-func _record(c: PhoneCall, reason: PhoneCall.End) -> Dictionary:
+func _record(c: PhoneCall, reason: PhoneCall.End) -> PhoneCall.Record:
 	var where := "—"
 	var unit := "—"
 	var obs := ""
@@ -896,8 +896,18 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> Dictionary:
 				obs = T.text(T.Key.OBS_CALL_DROPPED)
 	var unknown := c.kind == PhoneCall.Kind.MYSTERY or reason == PhoneCall.End.MISSED
 	var who := T.text(T.Key.UNKNOWN_CALLER) if unknown else tr(c.caller)
-	return {"time": c.time, "who": "%s (%s)" % [who, T.text(T.Key.LINE_N) % c.line], "where": where, "unit": unit, "card": card, "obs": obs,
-		"kind": c.kind, "missed": reason == PhoneCall.End.MISSED, "tut": c == tut, "shift": reason == PhoneCall.End.SHIFT_OVER}
+	var r := PhoneCall.Record.new()
+	r.time = c.time
+	r.who = "%s (%s)" % [who, T.text(T.Key.LINE_N) % c.line]
+	r.where = where
+	r.unit = unit
+	r.card = card
+	r.obs = obs
+	r.kind = c.kind
+	r.missed = reason == PhoneCall.End.MISSED
+	r.tut = c == tut
+	r.shift = reason == PhoneCall.End.SHIFT_OVER
+	return r
 
 
 ## `complete`: com este envio, tudo o que a emergência precisa agora está a caminho do lugar certo.
@@ -909,10 +919,10 @@ func _on_dispatched(loc: String, units_text: String, complete: bool, card: int) 
 	if complete and em_call.urgent():
 		em_call.secured = true
 		supervisor.secured(em_call)
-	if not em_call.record.is_empty():
-		em_call.record["where"] = loc
-		em_call.record["unit"] = units_text
-		em_call.record["card"] = card
+	if em_call.record != null:
+		em_call.record.where = loc
+		em_call.record.unit = units_text
+		em_call.record.card = card
 		notebook.refresh_record(em_call.record)
 	conversation.emergency_dispatched(em_call)
 

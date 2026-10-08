@@ -195,11 +195,11 @@ func _initialize() -> void:
 	var trip_c: float = city.trip("pol", {"street": "brasil", "block": 4})
 	var trip_3: float = city.trip("pol", {"street": "comercio", "block": 2})
 	var trip_2: float = city.trip("pol", {"street": "cruzeiro", "block": 0})
-	var going: Dictionary = city.trips[0]
-	await wait_until(func(): return going["t"] >= going["dur"], 15.0)
-	var site: Vector2 = going["pts"][-1]
-	ok(is_equal_approx(city.go_home("pol"), trip_2) and going["back"] and going["t"] == 0.0 and going["pts"][-1] == city.STATION["pol"]["p"]
-		and going["pts"][0] == site, "a viatura volta do local para a base pelo mesmo caminho, no mesmo tempo")
+	var going := city.trips[0]
+	await wait_until(func(): return going.t >= going.dur, 15.0)
+	var site: Vector2 = going.pts[-1]
+	ok(is_equal_approx(city.go_home("pol"), trip_2) and going.back and going.t == 0.0 and going.pts[-1] == city.STATION["pol"]["p"]
+		and going.pts[0] == site, "a viatura volta do local para a base pelo mesmo caminho, no mesmo tempo")
 	city.remove_units(["pol"])
 	ok(trip_c < trip_3 and trip_3 < trip_2, "viagem do Centro: %.1f s no Centro, %.1f s no setor 3, %.1f s no setor 2" % [trip_c, trip_3, trip_2])
 	# viaturas e emergência (`Fleet`, sem tela nem tempo): completo só com tudo a caminho do lugar certo; a chegada diz
@@ -208,21 +208,21 @@ func _initialize() -> void:
 	var em: EmergencyCall = GameData.CONTENT.emergencies.filter(func(x: EmergencyCall): return Array(x.required(0)) == ["amb"])[0]
 	var fl_here := {"street": em.street, "block": em.block}
 	var fl_away := {"street": em.street, "block": em.block + 1}
-	ok(not frota.send(["pol"], fl_here) and frota.arrive(["pol"], fl_here)["result"] == Fleet.Result.IDLE and frota.leave(["pol"]) == ["pol"],
+	ok(not frota.send(["pol"], fl_here) and frota.arrive(["pol"], fl_here).result == Fleet.Result.IDLE and frota.leave(["pol"]) == ["pol"],
 		"frota: sem emergência, a chegada não encontra nada")
 	frota.home(["pol"])
 	frota.set_incident(em)
 	ok(not frota.send(["pol"], fl_here) and frota.available(["pol", "amb"]) == ["amb"] and frota.en_route(), "frota: polícia a caminho, incompleto")
 	var fl_got := frota.arrive(["pol"], fl_here)
-	ok(fl_got["result"] == Fleet.Result.MISSING and fl_got["missing"] == ["amb"] and fl_got["extra"] == ["pol"] and fl_got["unneeded"] == ["pol"],
+	ok(fl_got.result == Fleet.Result.MISSING and fl_got.missing == ["amb"] and fl_got.extra == ["pol"] and fl_got.unneeded == ["pol"],
 		"frota: faltou a ambulância e a polícia sobrou")
 	frota.send(["amb"], fl_away)
 	fl_got = frota.arrive(["amb"], fl_away)
-	ok(fl_got["result"] == Fleet.Result.WRONG_PLACE and fl_got["unneeded"] == ["amb"], "frota: endereço errado")
+	ok(fl_got.result == Fleet.Result.WRONG_PLACE and fl_got.unneeded == ["amb"], "frota: endereço errado")
 	ok(frota.leave(["pol", "amb"]) == ["pol", "amb"] and frota.busy() == ["pol", "amb"], "frota: as duas voltando")
 	frota.home(["pol", "amb"])
 	ok(frota.busy().is_empty() and frota.send(["amb"], fl_here), "frota: a ambulância no lugar certo completa o socorro")
-	ok(frota.arrive(["amb"], fl_here)["result"] == Fleet.Result.OK and frota.arrive([], fl_here)["result"] == Fleet.Result.IDLE,
+	ok(frota.arrive(["amb"], fl_here).result == Fleet.Result.OK and frota.arrive([], fl_here).result == Fleet.Result.IDLE,
 		"frota: resolvida, e depois não há mais nada lá")
 	var fl_gen := frota.gen
 	frota.reset(true)
@@ -412,9 +412,9 @@ func _initialize() -> void:
 
 	# ---- 3. t3 desiste; caderno em fila
 	ok(await wait_until(func(): return t3.ended, 10.0), "t3 desistiu")
-	ok(t3.record["obs"] == T.text(T.Key.OBS_NOT_ANSWERED), "registro de não atendida")
+	ok(t3.record.obs == T.text(T.Key.OBS_NOT_ANSWERED), "registro de não atendida")
 	var nb = m.notebook
-	ok(nb.entries.back()["type"] == T.Key.TYPE_MISSED and not nb.queue.any(func(r): return r["missed"]), "não atendida registrada sozinha")
+	ok(nb.entries.back().type == T.Key.TYPE_MISSED and not nb.queue.any(func(r): return r.missed), "não atendida registrada sozinha")
 	ok(nb.queue.size() >= 1, "ocorrências em fila")
 	var before: int = nb.queue.size()
 	nb.register(T.Key.TYPE_COMMON)
@@ -422,14 +422,14 @@ func _initialize() -> void:
 	ok(m.background.pending == nb.pending_count(), "o caderno da mesa mostra quantas faltam")
 	ok(nb.entries.back()["type"] == T.Key.TYPE_COMMON, "registrada com o tipo do clique")
 	# as ocorrências chegaram com a aba fechada: aberta, a página do livro ocupa toda a área (com e sem a ficha)
-	m.tools.set_tab("caderno")
+	m.tools.set_tab(Tools.LOGBOOK)
 	await frames(3)
 	ok(nb._page.size.y >= nb._scroll.size.y - 1, "página do caderno preenche a área (com ficha)")
 	while nb.has_pending():
 		nb.register(T.Key.TYPE_COMMON)
 	await frames(3)
 	ok(not nb._form.visible and nb._page.size.y >= nb._scroll.size.y - 1 and nb._scroll.size.y > 300, "sem ficha, a página cresce até embaixo")
-	m.tools.set_tab("lista")
+	m.tools.set_tab(Tools.DIRECTORY)
 	print("OK 3 desistência / fila do caderno")
 
 	# ---- 4. o lugar pedido não atende (sorteado) e o operador sugere a alternativa
@@ -456,7 +456,7 @@ func _initialize() -> void:
 	_move(0, -1)              # tira o FONE com o destino ainda tocando
 	ok(ex.line(fl) == Exchange.Line.HOLD and not fa.ended, "em espera durante o toque")
 	ok(await wait_until(func(): return fa.connected), "completa sozinha quando o destino atende")
-	ok(fa.record["where"] == "Farmácia Santa Rita" and fa.record["obs"] == "", "registro com o destino novo")
+	ok(fa.record.where == "Farmácia Santa Rita" and fa.record.obs == "", "registro com o destino novo")
 	print("OK 4 não atende / alternativa / FONE fora durante o toque")
 
 	# ---- 5. cortar uma conversa em andamento puxando a SAÍDA
@@ -477,6 +477,23 @@ func _initialize() -> void:
 	# ---- 7. clicar num plug encaixado devolve à base (com animação); arrastar move
 	var c7 := _extra(GameData.transfers(TransferCall.Group.ESTABLISHMENT)[0])
 	m.after = false
+	# o fio sozinho (`Switchboard.Cord`, sem mesa): preso nas duas pontas, com folga, deita na prateleira e dorme;
+	# solto, o plug cai, bate nela e quica
+	var cord := Switchboard.Cord.new(Vector2.ZERO, Vector2(200, 0))
+	cord.floor_y = 40.0
+	for _i in 400:
+		cord.step(b.STEP, Vector2.ZERO, Vector2(200, 0), 260.0)
+	var lowest := 0.0
+	for q in cord.pts:
+		lowest = maxf(lowest, q.y)
+	ok(is_equal_approx(lowest, 40.0) and cord.asleep() and not cord.step(b.STEP, Vector2.ZERO, Vector2(200, 0), 260.0),
+		"fio: deita na prateleira (%.1f) e dorme parado" % lowest)
+	cord.free = true
+	var bounced := false
+	for _i in 200:
+		cord.step(b.STEP, Vector2.ZERO, Vector2.ZERO, 260.0)
+		bounced = bounced or cord.drop > Switchboard.Cord.BOUNCE_MIN
+	ok(bounced and cord.tip().y <= 40.0 + 0.01, "fio: o plug solto cai, quica e para na prateleira")
 	m.ring(c7)
 	var l7 := c7.line
 	_move(0, -1)
@@ -493,7 +510,7 @@ func _initialize() -> void:
 	b.cursor = Vector2(400, 200)   # longe do encaixe: cai antes de recolher
 	b._mouse_vel = Vector2(1200, 0)
 	b.go_home(0)
-	ok(not b._loose[0]["direct"] and b.ropes[0]["old"][b.ROPE_N - 1].x < 400 - 5, "sai com o embalo da mão")
+	ok(not b._loose[0]["direct"] and b.ropes[0].old[b.Cord.N - 1].x < 400 - 5, "sai com o embalo da mão")
 	ok(await wait_until(func(): return not b._loose.has(0), 5.0), "o fio recolheu o FONE")
 	ok(not b.ropes.has(0), "fio do FONE todo dentro do encaixe")
 	_move(1, l7 + 10)
@@ -526,10 +543,10 @@ func _initialize() -> void:
 	b._release(b.jack_rect(other_in).get_center())
 	ok(b.ends[0] == other_in, "arrastar move o FONE")
 	ok(b._order.back() == 0, "o último plug mexido fica por cima")
-	ok(await wait_until(func(): return b.ropes.has(0) and b.ropes[0].has("sleep"), 10.0), "fio parado deixa de ser simulado")
+	ok(await wait_until(func(): return b.ropes.has(0) and b.ropes[0].asleep(), 10.0), "fio parado deixa de ser simulado")
 	_move(0, l7)
 	await frames(1)
-	ok(not b.ropes[0].has("sleep") and b.ropes[0]["pts"][b.ROPE_N - 1] == b._plug_base(0), "mexer no plug acorda o fio")
+	ok(not b.ropes[0].asleep() and b.ropes[0].tip() == b._plug_base(0), "mexer no plug acorda o fio")
 	var hp: Vector2 = b.home_pos(3)
 	b._press(hp)
 	b._release(hp)
@@ -751,21 +768,21 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return not kc.active, 5.0), "X desliga")
 	_move(1, -1)
 	_move(2, -1)
-	for pair in [[KEY_2, "despacho"], [KEY_3, "caderno"], [KEY_1, "lista"]]:
+	for pair in [[KEY_2, Tools.DISPATCH], [KEY_3, Tools.LOGBOOK], [KEY_1, Tools.DIRECTORY]]:
 		_key(pair[0])
 		await frames(2)
 		ok(m.tools.tab == pair[1], "tecla abre a aba " + pair[1])
 	ok(m.background.unread, "a conversa encerrada vira folha nova na prancheta da mesa")
 	_key(KEY_4)
 	await frames(2)
-	ok(m.tools.tab == "registro" and m.tools.open, "tecla 4 abre o registro das conversas")
+	ok(m.tools.tab == Tools.CALL_LOG and m.tools.open, "tecla 4 abre o registro das conversas")
 	ok(not m.background.unread, "aberto o registro, a folha deixa de ser nova")
 	ok(kc in m.tools.call_log._calls and m.tools.call_log.text.contains(kc.transcript[0]["text"].left(12)), "o registro tem a conversa")
 	_key(KEY_4)
 	await frames(2)
 	ok(not m.tools.open, "a mesma tecla guarda a ferramenta (a janela aparece)")
 	await frames(2)   # o cenário se redesenha e guarda onde ficou cada objeto
-	for id in ["lista", "despacho", "caderno", "registro"]:   # objetos da cena abrem as ferramentas
+	for id in [Tools.DIRECTORY, Tools.DISPATCH, Tools.LOGBOOK, Tools.CALL_LOG]:   # objetos da cena abrem as ferramentas
 		m.tools.close()
 		await frames(12)
 		var pe := InputEventMouseButton.new()
@@ -781,9 +798,9 @@ func _initialize() -> void:
 	var pj := InputEventMouseButton.new()
 	pj.button_index = MOUSE_BUTTON_LEFT
 	pj.pressed = true
-	pj.position = (m.background._props["jornal"] as Rect2).get_center()
+	pj.position = (m.background._props[Tools.NEWS] as Rect2).get_center()
 	m.background.pointer(pj)
-	ok(m.tools.open and m.tools.tab == "jornal", "o jornal na mesa abre")
+	ok(m.tools.open and m.tools.tab == Tools.NEWS, "o jornal na mesa abre")
 	ok(m.tools.news.get_node("Page/Text/Headlines").text.contains("Rua do Sol"), "o jornal traz as manchetes da noite anterior")
 	m.tools.close()
 	# a sala muda pelos marcadores do roteiro, a partir da noite de cada mudança
@@ -803,7 +820,7 @@ func _initialize() -> void:
 	#          envia (em branco também: ninguém sai e o supervisor anota) e tudo limpa; a ficha não mexe no mapa
 	var d := m.dispatch
 	var card := d.machines
-	m.tools.set_tab("despacho")
+	m.tools.set_tab(Tools.DISPATCH)
 	await frames(2)
 	d.set_occurrence("")
 	ok(not d.can_send(), "despacho vazio não envia")
@@ -873,7 +890,7 @@ func _initialize() -> void:
 	ok(not d.fleet.is_free("amb"), "ambulância a caminho fica indisponível")
 	await frames(2)
 	ok(d.get_node("%Fleet").visible and d.get_node("%Report").text.contains(T.text(T.Key.UNIT_AMBULANCE)), "a faixa das viaturas mostra quem saiu")
-	m.tools.set_tab("lista")
+	m.tools.set_tab(Tools.DIRECTORY)
 	print("OK 13 mapa e despacho")
 
 	# ---- 14. painel de debug (F1): toca uma emergência, pula estágio, registra as pendências
@@ -894,7 +911,7 @@ func _initialize() -> void:
 	var live_before: int = m.live.size()   # um retorno de cenário anterior pode estar tocando
 	dbg._ring_transfer(false)
 	ok(m.live.size() == live_before + 1, "painel toca uma transferência junto")
-	m.notebook.add({"time": "18:00", "who": "x", "where": "—", "unit": "—", "obs": "", "kind": PhoneCall.Kind.TRANSFER, "missed": false, "tut": false})
+	m.notebook.add(PhoneCall.Record.new())
 	dbg._restore_all()
 	await frames(2)
 	ok(m.live.is_empty() and m.em_call == null and not de.urgent() and m.radio._alert == -1, "restaurar: ligações e emergência somem")

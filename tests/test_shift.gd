@@ -197,11 +197,11 @@ func _initialize() -> void:
 					f.options[0]["fn"].call()
 					_acted()
 	var recs: Array = m.notebook.entries + m.notebook.queue + ([m.notebook.pending] if m.notebook.has_pending() else [])
-	var lost := recs.filter(func(e): return e.get("type") == T.Key.TYPE_MISSED).size()
+	var lost := recs.filter(func(e): return e.type == T.Key.TYPE_MISSED).size()
 	if human:
 		print("humano: %.0f s por ação" % HUMAN_STEP)
 	if clumsy:
-		print("desastrado: deixou tocar %d, retornos=%d" % [skipped, recs.filter(func(e): return e["who"].begins_with(T.text(T.Key.UNKNOWN_CALLER))).size()])
+		print("desastrado: deixou tocar %d, retornos=%d" % [skipped, recs.filter(func(e): return e.who.begins_with(T.text(T.Key.UNKNOWN_CALLER))).size()])
 	max_quiet = maxf(max_quiet, m.minutes - last_ring)
 	print("desconhecida tocou às %s, atendidas depois=%d, fim às %s | máx=%d  2+=%d%%  3+=%d%%  sem_cabo=%d%%  perdidas=%d  ligações=%d (emerg=%d trotes=%d)  maior_silêncio=%d min" % [
 		myst_at, post, m.fmt(m.minutes), max_live, 100 * f2 / maxi(fall, 1), 100 * f3 / maxi(fall, 1),

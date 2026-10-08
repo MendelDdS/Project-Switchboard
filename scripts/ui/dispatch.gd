@@ -190,25 +190,25 @@ func _arrive(us: Array, target: Dictionary) -> void:
 	var and_ := " %s " % T.text(T.Key.AND)
 	var lower := func(list: Array) -> String: return and_.join(PackedStringArray(list.map(func(u): return T.text(Fleet.NAMES[u]).to_lower())))
 	var msg: String
-	match got["result"]:
+	match got.result:
 		Fleet.Result.IDLE:
 			msg = T.text(T.Key.RADIO_NOTHING)
 		Fleet.Result.WRONG_PLACE:
 			msg = T.text(T.Key.RADIO_WRONG_PLACE) % String(target["label"]).split(",")[0]
 		Fleet.Result.MISSING:
-			msg = T.text(T.Key.RADIO_NEED) % [lower.call(got["missing"]), fleet.incident["addr"]]
+			msg = T.text(T.Key.RADIO_NEED) % [lower.call(got.missing), fleet.incident.addr]
 		_:
 			msg = T.text(T.Key.RADIO_UNDER_CONTROL)
 	radio.say(msg)
-	var complaint := msg if got["result"] in [Fleet.Result.IDLE, Fleet.Result.WRONG_PLACE] else ""
-	if not got["extra"].is_empty():
-		complaint = T.text(T.Key.RADIO_NOT_NEEDED) % lower.call(got["extra"])
+	var complaint := msg if got.result in [Fleet.Result.IDLE, Fleet.Result.WRONG_PLACE] else ""
+	if not got.extra.is_empty():
+		complaint = T.text(T.Key.RADIO_NOT_NEEDED) % lower.call(got.extra)
 		radio.say(complaint)
-	var e: EmergencyCall = null if got["result"] == Fleet.Result.IDLE else fleet.incident["call"]
-	arrived.emit(e, got["result"], target["occurrence"], got["extra"])
+	var e: EmergencyCall = null if got.result == Fleet.Result.IDLE else fleet.incident.call
+	arrived.emit(e, got.result, target["occurrence"], got.extra)
 	# quem não era necessário volta assim que o rádio termina de dizer isso
-	_return(got["unneeded"], QUICK_STAY, complaint)
-	_return(us.filter(func(u): return not u in got["unneeded"]), STAY)
+	_return(got.unneeded, QUICK_STAY, complaint)
+	_return(us.filter(func(u): return not u in got.unneeded), STAY)
 
 
 ## Depois de `stay` s no local, as unidades voltam para a base pelo mapa e só então ficam disponíveis. Com `after`, os

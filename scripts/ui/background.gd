@@ -17,7 +17,7 @@ extends Control
 ## no lugar do desenho daquela camada (o clima continua por cima da vista).
 ## `weather`: "rain" (gotas no vidro, chão molhado), "fog" (névoa passando, luzes difusas) ou "clear" (estrelas e lua).
 ## `stranger`: quando o homem do mistério para embaixo do poste e quando vai embora (chega e sai andando, `_man_x`).
-## Objetos na mesa, ao alcance do operador, abrem as ferramentas (`prop_clicked`, o id da aba em `Tools.TABS`): as
+## Objetos na mesa, ao alcance do operador, abrem as ferramentas (`prop_clicked`, o id da ferramenta, `Tools.DIRECTORY`...): as
 ## listas telefônicas, o mapa dobrado, o caderno aberto e a prancheta do registro (o relógio de flip e a caneca só
 ## enfeitam). Ficam na sala, em centímetros da
 ## mesa, e passam pela mesma câmera (tamanho, escorço e o lado que aparece saem da conta), desenhados em pixels de 1x1
@@ -41,8 +41,8 @@ const CHURCH_DARK := 22 * 60   ## a porta da igreja apaga
 const SIGN_ENAMEL := Color("1f3b35")   ## a placa da companhia telefônica: o esmalte verde-escuro...
 const SIGN_INK := Color("d8cfae")   ## ...e o creme das letras e do filete
 const SIGN_AT := 0.62   ## onde fica o meio dela, na largura da mesa comutadora (à direita do horário do turno)
-const PROPS := {"lista": T.Key.TAB_DIRECTORY, "despacho": T.Key.TAB_DISPATCH, "caderno": T.Key.TAB_LOGBOOK, "registro": T.Key.TAB_CALL_LOG,
-	"jornal": T.Key.TAB_NEWS}
+const PROPS := {Tools.DIRECTORY: T.Key.TAB_DIRECTORY, Tools.DISPATCH: T.Key.TAB_DISPATCH, Tools.LOGBOOK: T.Key.TAB_LOGBOOK, Tools.CALL_LOG: T.Key.TAB_CALL_LOG,
+	Tools.NEWS: T.Key.TAB_NEWS}
 const DETAILS := ["cartaz_quermesse", "numero_anotado", "armario_entreaberto"]   ## o que `RoomChange.detail` pode pedir
 const SKY := {"rain": Color("0b141c"), "fog": Color("1b252b"), "clear": Color("0a1422")}
 const BOARD_SINK := 30.0   ## o fundo do tampo, em px da tela acima da base do painel: fica atrás da mesa comutadora
@@ -304,6 +304,7 @@ var _sign_glow := Rect2()   # o halo do letreiro no vidro (vazio = fora do vidro
 var _bolt_layer: Control   # o clarão do relâmpago, por cima de tudo e somado: só a força muda, no `modulate`
 var _bolt_lit: Array = []    # o que ele acende: [polígono (px da tela), cores], medido com a sala (`_bolt_build`)
 var _occ: Array = []         # os objetos da mesa (px da tela, convexos): o que fica na frente da parede e do armário
+var occ_ids := PackedStringArray()   # quem é cada um de `_occ` (o id da ferramenta, "relogio", "caneca"; o teste da mesa usa)
 var _occ_board := PackedVector2Array()   # a mesa comutadora inteira (px da tela)
 var _side_faces: Array = []  # a lateral da mesa comutadora (px da tela), virada para a janela
 var _cab := [Rect2(), Rect2()]   # o armário: o fundo dele (na parede) e a frente (px de 2x2)
@@ -694,6 +695,7 @@ func _draw() -> void:
 	_glows.clear()
 	_props.clear()
 	_occ.clear()
+	occ_ids.clear()
 	_side_faces.clear()
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 	var w := ceilf(size.x / 2.0)
@@ -2710,14 +2712,14 @@ func _draw_desk_props() -> void:
 	var near := _row(l + 6.0, r, [26.0 * k, 46.0 * k, 32.0 * k])
 	_draw_dispatch_unit(back[0], _at(0.5), UNIT.x * k)
 	_draw_books(back[1], _at(0.54), 31 * k, _deep(0.3 * k))
-	_flat("caderno", near[1], _at(0.08), 46 * k, _deep(0.26 * k), 2 * k, Color("3a2414"), _art_notebook, [], deg_to_rad(-2.0), _notebook_marks)
+	_flat(Tools.LOGBOOK, near[1], _at(0.06), 46 * k, _deep(0.26 * k), 2 * k, Color("3a2414"), _art_notebook, [], deg_to_rad(-2.0), _notebook_marks)
 	_draw_flip_clock(back[2] + cw / 2.0, _at(0.72))   # logo atrás da caneca (desenhado antes dela)
 	_draw_mug(back[2] + cw, _at(0.46), mr, 13 * k)   # mais larga que alta, como as esmaltadas
 	# papel tem 1 px de beira, e a prancheta, uns 2 (mais grossos, pareciam tábuas)
-	_flat("registro", near[0], _at(0.05), 26 * k, _deep(0.26 * k), 1.0, Color("4a3018"), _art_clipboard, [unread], deg_to_rad(-4.0),
+	_flat(Tools.CALL_LOG, near[0], _at(0.05), 26 * k, _deep(0.26 * k), 1.0, Color("4a3018"), _art_clipboard, [unread], deg_to_rad(-4.0),
 		_clipboard_print)
 	if news:
-		_flat("jornal", near[2], _at(0.07), 32 * k, _deep(0.19 * k), 0.5, Color("a89c78"), _art_newspaper, [], deg_to_rad(6.0),
+		_flat(Tools.NEWS, near[2], _at(0.07), 32 * k, _deep(0.19 * k), 0.5, Color("a89c78"), _art_newspaper, [], deg_to_rad(6.0),
 			_newspaper_print)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
@@ -2742,6 +2744,7 @@ func _draw_flip_clock(xc: float, zc: float) -> void:
 		for q: PackedVector2Array in faces.values():
 			hull.append_array(q)
 	_occ.append(Geometry2D.convex_hull(hull))
+	occ_ids.append("relogio")
 	var y1 := _yd - bh - CLOCK.y
 	clock_x = global_position.x + _bounds(box["top"]).get_center().x
 	for i in 4:   # as fendas do alarme, no fundo do tampo
@@ -3084,6 +3087,7 @@ func _flat(id: String, x0: float, zf: float, wx: float, dz: float, h: float, edg
 	_dim(top, xz)   # longe da luz, ponto a ponto
 	_props[id] = _bounds(foot + top)
 	_occ.append(Geometry2D.convex_hull(foot + top))
+	occ_ids.append(id)
 	return top
 
 
@@ -3235,10 +3239,11 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 		if b == 2 and sz.x >= 8 and sz.y >= 4:   # a capa do volume de cima, pixel a pixel como os objetos chatos
 			_hom = _homography(top)
 			_hom_sz = Vector2(sz)
-			_project(["lista", sz], _art_book_cover.bind(cover), top, sz)
+			_project([Tools.DIRECTORY, sz], _art_book_cover.bind(cover), top, sz)
 		_dim(top, xz)   # longe da luz, ponto a ponto: cada volume logo depois de desenhado (os de cima cobrem os de baixo)
-	_props["lista"] = _bounds(all)
+	_props[Tools.DIRECTORY] = _bounds(all)
 	_occ.append(Geometry2D.convex_hull(all))
+	occ_ids.append(Tools.DIRECTORY)
 
 
 ## A caneca de café em pé na mesa (centro `xc`, `zc`; raio `rr`, altura `hh`): uma caneca esmaltada de época,
@@ -3261,6 +3266,7 @@ func _draw_mug(xc: float, zc: float, rr: float, hh: float) -> void:
 	for p in _mug_hulls[Vector4i(int(body.size.x), int(body.size.y), int(ry), int(rb))]:
 		hull.append(p + body.position - Vector2(0, ry))
 	_occ.append(hull)
+	occ_ids.append("caneca")
 
 
 ## A caneca esmaltada de frente, com `w` de largura e `h` da boca ao pé (px), a boca e o pé em elipses de meia altura
@@ -3562,8 +3568,9 @@ func _draw_dispatch_unit(x0: float, zf: float, wx: float) -> void:
 			_light(lr, l[2], 0.6, true)
 	all.append_array(top + glass + deck)
 	all.append_array(PackedVector2Array([front.position, front.end, Vector2(front.position.x, front.end.y)]))
-	_props["despacho"] = _bounds(all)
+	_props[Tools.DISPATCH] = _bounds(all)
 	_occ.append(Geometry2D.convex_hull(all))
+	occ_ids.append(Tools.DISPATCH)
 
 
 ## O desenho de frente `art` (com `key`) posto no quadrilátero `q` da tela pixel a pixel (`_project`), escurecido

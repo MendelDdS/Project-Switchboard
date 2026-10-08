@@ -46,7 +46,15 @@ const ROADS_H := [90.0, 225.0, 360.0]
 
 var sel: Dictionary = {}
 var hover: Dictionary = {}
-var trips: Array = []
+## Uma viagem de viatura: o caminho e quanto dele já foi, no tempo do jogo.
+class Trip:
+	var u: String              ## a unidade (`Fleet.IDS`)
+	var pts: PackedVector2Array   ## o caminho (px do mapa), da saída à chegada
+	var t := 0.0               ## segundos andados
+	var dur := 0.0             ## segundos até chegar
+	var back := false          ## voltando para a base
+
+var trips: Array[Trip] = []
 var _k := 0.96
 var _off := Vector2.ZERO   ## mapa -> tela: tela = mapa * _k + _off
 var _tf := Transform2D.IDENTITY   ## transformação em uso no desenho (os textos a seguem só na posição)
@@ -224,8 +232,12 @@ func trip(u: String, target: Dictionary) -> float:
 	for i in range(1, pts.size()):
 		dist += pts[i].distance_to(pts[i - 1])
 	var sec := maxf(MIN_TRIP, dist / UNIT_SPEED)
-	trips = trips.filter(func(t): return t["u"] != u)
-	trips.append({"u": u, "pts": pts, "t": 0.0, "dur": sec, "back": false})
+	trips = trips.filter(func(t: Trip): return t.u != u)
+	var tr := Trip.new()
+	tr.u = u
+	tr.pts = pts
+	tr.dur = sec
+	trips.append(tr)
 	return sec
 
 
@@ -233,16 +245,16 @@ func trip(u: String, target: Dictionary) -> float:
 ## não aparecem no mapa: de papel sob o vidro, ele não mostra nada andando; a viagem só conta o tempo.)
 func go_home(u: String) -> float:
 	for tr in trips:
-		if tr["u"] == u:
-			var pts: PackedVector2Array = tr["pts"].duplicate()
-			pts.reverse()
-			tr.merge({"pts": pts, "t": 0.0, "back": true}, true)
-			return tr["dur"]
+		if tr.u == u:
+			tr.pts.reverse()
+			tr.t = 0.0
+			tr.back = true
+			return tr.dur
 	return 0.0
 
 
 func remove_units(us: Array) -> void:
-	trips = trips.filter(func(t): return not (t["u"] in us))
+	trips = trips.filter(func(t: Trip): return not (t.u in us))
 	queue_redraw()
 
 
@@ -254,7 +266,7 @@ func _process(d: float) -> void:
 			_reveal = -1.0
 		queue_redraw()
 	for tr in trips:   # no tempo do jogo: para na pausa e acompanha a velocidade
-		tr["t"] = minf(tr["t"] + d, tr["dur"])
+		tr.t = minf(tr.t + d, tr.dur)
 
 
 func _width(txt: String, sz: int) -> float:

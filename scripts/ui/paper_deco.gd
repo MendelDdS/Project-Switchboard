@@ -46,12 +46,12 @@ func _draw() -> void:
 	if sz.x < CLIP.x + BOARD_W * 2 or sz.y < BOARD_W * 4:   # (o papel ainda sem tamanho)
 		return
 	match kind:
-		"lista":
+		Tools.DIRECTORY:
 			draw_texture(_skin(kind, sz), Vector2.ZERO)
 			var cx := floorf((size.x - PhoneBook.TAB_W) / 2.0)   # o meio do livro (as abas ficam à direita dele)
 			for i in 6:   # a lombada: a sombra das páginas entrando no miolo
 				draw_rect(Rect2(cx - 3 + i, COVER, 1, size.y - COVER * 2), Color(0, 0, 0, 0.16 - absf(i - 2.5) * 0.04))
-		"caderno":
+		Tools.LOGBOOK:
 			draw_texture(_skin(kind, sz), Vector2.ZERO)
 			for i in mini(pending, 6):   # as tiras, saindo de cima do caderno (como no da mesa)
 				var x := floorf(size.x * 0.56) + i * 26.0
@@ -61,7 +61,7 @@ func _draw() -> void:
 				draw_rect(Rect2(x, 0, 12, h), col)
 				draw_rect(Rect2(x + 11, 0, 1, h), col.darkened(0.2))   # o lado na sombra
 				draw_rect(Rect2(x + 3, 3, 6, 2), Pal.FORM_RED)
-		"registro":
+		Tools.CALL_LOG:
 			draw_texture(_skin(kind, sz), Vector2.ZERO)
 			var x0 := BOARD_W + 12.0
 			var x1 := size.x - BOARD_W - 12.0
@@ -72,7 +72,7 @@ func _draw() -> void:
 			var at := Vector2(floorf((size.x - CLIP.x) / 2.0), 1)
 			draw_texture(_skin("prendedor", CLIP), at + Vector2(2, 3), Color(0, 0, 0, 0.35))   # a sombra dele na folha
 			draw_texture(_skin("prendedor", CLIP), at)
-		"jornal":
+		Tools.NEWS:
 			crease(self, Vector2(0, size.y / 2.0), Vector2(size.x, size.y / 2.0))
 	_draw_light()
 
@@ -114,17 +114,17 @@ static func _skin(k: String, sz: Vector2i) -> ImageTexture:
 ## tábua). A lista tem o friso em baixo-relevo, como a capa da mesa.
 static func _cover(k: String, sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	var w := BOARD_W if k == "registro" else COVER
-	var c: Color = {"lista": Pal.BOOK.darkened(0.15), "caderno": Pal.LEATHER[1], "registro": Pal.BOARD[1]}[k]
-	var hi: Color = {"lista": c.lightened(0.22), "caderno": Pal.LEATHER[0], "registro": Pal.BOARD[0]}[k]
-	var lo: Color = {"lista": c.darkened(0.25), "caderno": Pal.LEATHER[2], "registro": Pal.BOARD[2]}[k]
+	var w := BOARD_W if k == Tools.CALL_LOG else COVER
+	var c: Color = {Tools.DIRECTORY: Pal.BOOK.darkened(0.15), Tools.LOGBOOK: Pal.LEATHER[1], Tools.CALL_LOG: Pal.BOARD[1]}[k]
+	var hi: Color = {Tools.DIRECTORY: c.lightened(0.22), Tools.LOGBOOK: Pal.LEATHER[0], Tools.CALL_LOG: Pal.BOARD[0]}[k]
+	var lo: Color = {Tools.DIRECTORY: c.darkened(0.25), Tools.LOGBOOK: Pal.LEATHER[2], Tools.CALL_LOG: Pal.BOARD[2]}[k]
 	for y in sz.y:
 		var band := y < w or y >= sz.y - w
 		for x in (range(sz.x) if band else range(w) + range(sz.x - w, sz.x)):
 			img.set_pixel(x, y, _grain(k, c, x, y))
 	var fr := func(x: int, y: int, ww: int, hh: int, col: Color) -> void:
 		img.fill_rect(Rect2i(x, y, ww, hh), col)
-	if k == "lista":   # o friso: a sombra em cima e à esquerda, a luz embaixo e à direita
+	if k == Tools.DIRECTORY:   # o friso: a sombra em cima e à esquerda, a luz embaixo e à direita
 		fr.call(2, 2, sz.x - 4, 1, c.darkened(0.16))
 		fr.call(2, 2, 1, sz.y - 4, c.darkened(0.16))
 		fr.call(2, sz.y - 3, sz.x - 4, 1, c.lightened(0.1))
@@ -139,13 +139,13 @@ static func _cover(k: String, sz: Vector2i) -> Image:
 	fr.call(sz.x - w, w - 1, 1, sz.y - w * 2 + 2, c.lightened(0.12))
 	for p: Vector2i in [Vector2i(0, 0), Vector2i(sz.x - 1, 0), Vector2i(0, sz.y - 1), sz - Vector2i.ONE]:
 		var d := Vector2i(1 if p.x == 0 else -1, 1 if p.y == 0 else -1)
-		if k == "registro":   # o canto cortado
+		if k == Tools.CALL_LOG:   # o canto cortado
 			img.set_pixel(p.x, p.y, Color(0, 0, 0, 0))
 		else:   # gasto: mais claro, e o couro arredondado
 			for i in 3:
 				for j in 3 - i:
-					img.set_pixel(p.x + d.x * i, p.y + d.y * j, c.lightened(0.3 if k == "lista" else 0.18))
-			if k == "caderno":
+					img.set_pixel(p.x + d.x * i, p.y + d.y * j, c.lightened(0.3 if k == Tools.DIRECTORY else 0.18))
+			if k == Tools.LOGBOOK:
 				img.set_pixel(p.x, p.y, Color(0, 0, 0, 0))
 	return img
 
@@ -154,10 +154,10 @@ static func _cover(k: String, sz: Vector2i) -> Image:
 ## mesa), o couro manchado e a tábua, quase lisa, com fibras ao comprido.
 static func _grain(k: String, c: Color, x: int, y: int) -> Color:
 	match k:
-		"lista":
+		Tools.DIRECTORY:
 			var g := (x * 73 + y * 151 + x * y * 7) % 97
 			return c.darkened(0.07) if g < 6 else (c.lightened(0.05) if g > 92 else c)
-		"caderno":
+		Tools.LOGBOOK:
 			var g := (x * 31 + y * 57 + (x * y) % 13 * 11) % 41
 			var blot := sin(x * 0.11 + y * 0.07) * sin(x * 0.05 - y * 0.13)   # manchas largas, do uso
 			return c.darkened(0.12) if g < 3 else (c.lightened(0.07) if g == 3 or blot > 0.7 else c)

@@ -65,6 +65,7 @@ fi
 run flow
 run penalties
 run keys
+run layout
 for s in 1 2 3; do
 	run shift --seed=$s
 done

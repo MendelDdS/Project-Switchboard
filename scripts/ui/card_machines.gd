@@ -193,7 +193,7 @@ func _process(delta: float) -> void:
 			if _t >= sec + (READ_SEC if _into == Machine.SEND else 0.0):
 				_go(State.IDLE)
 				(inserted if _into == Machine.SEND else discarded).emit()
-	var alert := dispatch != null and not dispatch.fleet.incident.is_empty()
+	var alert := dispatch != null and dispatch.fleet.incident != null
 	if alert != _alert:
 		_alert = alert
 		queue_redraw()

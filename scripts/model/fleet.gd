@@ -12,10 +12,38 @@ const IDS := ["pol", "bomb", "amb"]
 const NAMES := {"pol": T.Key.UNIT_POLICE, "bomb": T.Key.UNIT_FIRE, "amb": T.Key.UNIT_AMBULANCE}
 const STATUS := [T.Key.UNIT_AVAILABLE, T.Key.UNIT_EN_ROUTE, T.Key.UNIT_ON_SITE, T.Key.UNIT_RETURNING]   # por `Unit`
 
+## A emergência em andamento: onde é e o que cada unidade já fez por ela.
+class Incident:
+	var call: EmergencyCall
+	var street: String
+	var block: int
+	var addr: String
+	var req: Array = []     ## o que precisa agora
+	var going: Array = []   ## já enviadas ao lugar certo
+	var sent: Array = []    ## já chegaram lá
+	var resolved := false
+
+	func _init(e: EmergencyCall, stage: int) -> void:
+		call = e
+		street = e.street
+		block = e.block
+		addr = e.address
+		req = Array(e.required(stage))
+
+	func at(target: Dictionary) -> bool:
+		return street == target["street"] and block == target["block"]
+
+
+## Como foi uma chegada (`arrive`).
+class Arrival:
+	var result := Result.OK
+	var missing: Array = []    ## as que ainda faltam
+	var extra: Array = []      ## as que foram ao lugar certo sem ser necessárias
+	var unneeded: Array = []   ## as que podem voltar logo (todas, se ninguém ali precisava delas; senão, as a mais)
+
+
 var units := {"pol": Unit.AVAILABLE, "bomb": Unit.AVAILABLE, "amb": Unit.AVAILABLE}
-## Emergência em andamento: call, street, block, req (o que precisa agora), going (já enviadas ao lugar certo),
-## sent (já chegaram lá), resolved, addr.
-var incident := {}
+var incident: Incident   ## nulo: nenhuma emergência em andamento
 ## Sobe no `reset`: viagens de antes dele não chegam nem voltam mais (quem espera confere).
 var gen := 0
 
@@ -35,19 +63,18 @@ func en_route() -> bool:
 
 ## Unidades que a emergência em andamento precisa agora.
 func required() -> Array:
-	return incident.get("req", [])
+	return [] if incident == null else incident.req
 
 
 ## Uma emergência começou a tocar: onde é e o que precisa (no estágio de agravamento `stage`).
 func set_incident(e: EmergencyCall, stage := 0) -> void:
-	incident = {"call": e, "street": e.street, "block": e.block, "req": Array(e.required(stage)), "sent": [], "going": [],
-		"resolved": false, "addr": e.address}
+	incident = Incident.new(e, stage)
 
 
 ## A situação piorou antes do despacho: passa a precisar destas unidades.
 func require(us: PackedStringArray) -> void:
-	if not incident.is_empty():
-		incident["req"] = Array(us)
+	if incident != null:
+		incident.req = Array(us)
 
 
 ## Todas livres na hora (as viagens em andamento não valem mais); `forget` também esquece a emergência.
@@ -56,7 +83,7 @@ func reset(forget := false) -> void:
 	for u in IDS:
 		units[u] = Unit.AVAILABLE
 	if forget:
-		incident = {}
+		incident = null
 
 
 ## As livres de `us`, na ordem de `IDS`.
@@ -72,34 +99,34 @@ func send(us: Array, target: Dictionary) -> bool:
 	if not _at_incident(target):
 		return false
 	for u in us:
-		if not u in incident["going"]:
-			incident["going"].append(u)
-	return incident["req"].all(func(r): return r in incident["going"])
+		if not u in incident.going:
+			incident.going.append(u)
+	return incident.req.all(func(r): return r in incident.going)
 
 
-## Chegaram a `target`. Devolve {"result": Result, "missing": as que ainda faltam, "extra": as que foram ao lugar certo
-## sem ser necessárias, "unneeded": as que podem voltar logo (todas, se ninguém ali precisava delas; senão, as a mais)}.
-func arrive(us: Array, target: Dictionary) -> Dictionary:
+## Chegaram a `target`: o que isso resolveu (`Arrival`).
+func arrive(us: Array, target: Dictionary) -> Arrival:
 	for u in us:
 		units[u] = Unit.ON_SITE
-	var out := {"result": Result.OK, "missing": [], "extra": [], "unneeded": us}
-	if incident.is_empty() or incident["resolved"]:
-		out["result"] = Result.IDLE
+	var out := Arrival.new()
+	out.unneeded = us
+	if incident == null or incident.resolved:
+		out.result = Result.IDLE
 		return out
 	if not _at_incident(target):
-		out["result"] = Result.WRONG_PLACE
+		out.result = Result.WRONG_PLACE
 		return out
 	for u in us:
-		if not u in incident["sent"]:
-			incident["sent"].append(u)
-		if not u in incident["req"]:
-			out["extra"].append(u)
-	out["unneeded"] = out["extra"]
-	out["missing"] = incident["req"].filter(func(r): return not r in incident["sent"])
-	if out["missing"].is_empty():
-		incident["resolved"] = true
+		if not u in incident.sent:
+			incident.sent.append(u)
+		if not u in incident.req:
+			out.extra.append(u)
+	out.unneeded = out.extra
+	out.missing = incident.req.filter(func(r): return not r in incident.sent)
+	if out.missing.is_empty():
+		incident.resolved = true
 	else:
-		out["result"] = Result.MISSING
+		out.result = Result.MISSING
 	return out
 
 
@@ -119,4 +146,4 @@ func home(us: Array) -> void:
 
 
 func _at_incident(target: Dictionary) -> bool:
-	return not incident.is_empty() and incident["street"] == target["street"] and incident["block"] == target["block"]
+	return incident != null and incident.at(target)
