@@ -38,7 +38,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   sem cache; em pedaços, `PARTS` e uma voz por pedaço, montados ao mesmo tempo nos núcleos, `WorkerThreadPool` em alta
   prioridade (a de baixa usa só ~30% deles): ~0,35 s num Mac recente pelo editor, ~0,9 s um depois do outro; cada
   pedaço numa instância com o seu sorteio, `_rng`, porque o `randf` global não é seguro entre linhas de execução) e tocado pelo autoload `Sfx` (`scripts/sfx.gd`: tocar, mixar, ambiente), inclusive as "vozes" por sílaba
-  (`Sfx.speak_char`). Barramentos em `default_bus_layout.tres`: Ambience, Voices, Effects (e Rub, o atrito do fio: vai direto para o Master, com uma reverberação mais seca que a do Effects, e segue o volume dele, `Settings.FOLLOWS`).
+  (`Sfx.speak_char`). Ao fechar, o `Sfx` para os sons e espera um instante (`_exit_tree`): fechando com som tocando,
+  as gravações vazavam ("ObjectDB instances leaked"). O aviso pequeno que ainda sai fechando no meio de uma conversa
+  (um `GDScript`, um `SceneTreeTimer`, "N resources still in use") é do Godot: um `await` de `create_timer` pendente
+  ao fechar sempre vaza (reproduzido num projeto mínimo; retomar as esperas na saída rodaria o jogo). Barramentos em `default_bus_layout.tres`: Ambience, Voices, Effects (e Rub, o atrito do fio: vai direto para o Master, com uma reverberação mais seca que a do Effects, e segue o volume dele, `Settings.FOLLOWS`).
   Ambience tem um compressor com sidechain em Voices (o ambiente baixa enquanto alguém fala); Effects, uma
   reverberação leve de sala. `Sfx.play_at(id, screen_x)` toca um som vindo de um lugar da tela (`screen_x` em fração da largura, de 0 a 1;
   de px, converta, como `Main._across`) (pool de
@@ -505,6 +508,14 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   (`PhoneBook`), mapa e despacho (`Dispatch` + `CityMap`, dono das unidades e da ocorrência) e caderno
   (`Notebook`, fila de ocorrências); `Intro`, `Ending`; widgets desenhados (`Switchboard`,
   `Background`, `Bevel`).
+- **`Background` e `Switchboard` em camadas por herança** (`extends "res://..."`, sem `class_name` nas de baixo;
+  cada camada só usa as de baixo, e cada constante ou variável fica na mais baixa que a usa; `Background.X` e
+  `Switchboard.X` continuam valendo para tudo): `background_base.gd` (estado em comum, câmera, `_fill`/`_poly`/`_p`,
+  clima) → `background_view.gd` (a vista da janela) → `background_props.gd` (o tampo e os objetos da mesa) →
+  `background.gd` (a sala, as camadas, o mouse); `switchboard_base.gd` (geometria e ligações) →
+  `switchboard_panel.gd` (o móvel, lâmpadas, tomadas, chapas, prateleira) → `switchboard_plugs.gd` (plugs e fios) →
+  `switchboard.gd` (entrada, física, sons e o `_draw`). Função nova vai na camada do que ela desenha; se uma de baixo
+  precisar dela, ela desce.
 
 ## Modelo da mesa (scripts/ui/switchboard.gd)
 - Tomadas por id inteiro: **1–10 entradas**, **11–20 saídas** (linha + 10), **destinos = o próprio número** (101–399,
@@ -878,6 +889,11 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
 - Ligação desconhecida (`MYSTERY`, entrada livre sorteada, guardada em `myst_line`) entre `Night.mystery_from` e `mystery_to` (22:00–23:30), só
   toca com a mesa em silêncio, por no máximo 30 min de jogo (`latest`, `Schedule.MYSTERY_WAIT`), e nunca depois de
   `LAST_CALL - MYSTERY_MARGIN` (23:30): o botão Encerrar turno só aparece depois dela.
+- **Ligação do roteiro toca sozinha** (`Main._scripted`: `story` ou a desconhecida): espera a mesa em silêncio por até
+  `Schedule.STORY_WAIT` (30 min, `latest`) e, enquanto ela está na mesa, nenhuma outra toca (o robô confere).
+- **Mesa parada demais**: vazia por `QUIET_SHARE` do maior `Pace.call_gap`, toca um pedido de informação a mais
+  (`Main._fill_quiet`; não com uma do roteiro a menos de `STORY_GAP`, nem depois de `LAST_CALL`). O robô mede a maior
+  mesa vazia (`mesa_vazia`, além do `maior_silêncio` entre toques).
 - Sorteadas: `Schedule._random_calls` — intervalo `Pace.call_gap` (nível 1: 45–60 … nível 5: 28–38; medido com `--human`) entre uma e a
   próxima, `Pace.peak_chance` de vir logo em seguida, no máximo `Pace.max_live` pedindo atenção (`_run_schedule`), a `STORY_GAP` das fixas. Tipos: `Pace.emergencies` (a `EMERGENCY_GAP` uma da outra; no laço, a
   emergência espera a anterior acabar e `Fleet.en_route()`), `Pace.pranks`, resto transferência/informação.

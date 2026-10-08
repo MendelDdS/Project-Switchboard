@@ -6,6 +6,7 @@ extends RefCounted
 
 const EMERGENCY_GAP := 60.0     # minutos de jogo entre duas emergências (o despacho cuida de uma por vez)
 const STORY_GAP := 8.0          # as ligações sorteadas ficam a tantos minutos das do roteiro
+const STORY_WAIT := 30.0        # a do roteiro espera a mesa silenciar por no máximo tantos minutos (toca sozinha)
 const TEMPLATE_CHANCE := 0.5    # chance de uma transferência ou emergência vir de um molde e não de um roteiro escrito
 const TRANSFER_SHARE := 0.65    # das ligações comuns, quantas são transferências (o resto, pedidos de informação)
 const MYSTERY_WAIT := 30.0      # a ligação desconhecida espera a mesa silenciar por no máximo tantos minutos...
@@ -26,6 +27,7 @@ static func build(night: Night, pace: Pace, last_call: float) -> Schedule:
 		c.at = st.at
 		c.story = true
 		c.requires = st.requires
+		c.latest = minf(st.at + STORY_WAIT, last_call)
 		fixed.append(c)
 	if not night.mystery.is_empty():
 		var myst := PhoneCall.mystery()

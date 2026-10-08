@@ -158,6 +158,17 @@ func _ready() -> void:
 
 # ------------------------------------------------------------------ reprodução
 
+## Ao fechar o jogo: para todos os sons, solta as gravações e dá ao áudio um instante para largar as reproduções
+## paradas (fechando com som tocando, elas e os sons vazavam na saída: "ObjectDB instances leaked").
+func _exit_tree() -> void:
+	for p in get_children():
+		if p is AudioStreamPlayer or p is AudioStreamPlayer2D:
+			p.stop()
+			p.stream = null
+	streams.clear()
+	OS.delay_msec(50)   # ponytail: o servidor de áudio só solta a reprodução parada no próximo passo da mixagem
+
+
 func play(id: String, db: float = 0.0, pitch: float = 1.0) -> AudioStreamPlayer:
 	if not streams.has(id):
 		return null

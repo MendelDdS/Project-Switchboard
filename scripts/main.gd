@@ -14,6 +14,7 @@ const SHADOW_LEAD := 25.0               # minutos antes da ligação desconhecid
 const SHADOW_LEAVE := 10.0              # ...e em que vai embora andando (para ir ligar): fica 15 minutos
 const WEATHERS := ["rain", "fog", "clear"]   # clima sorteado no começo do turno (`-- --weather=fog` força um)
 const TALK_LEN := Vector2(34.0, 68.0)   # duração (min de jogo) de uma conversa transferida (≈ 45–90 s reais)
+const QUIET_SHARE := 0.6               # mesa vazia por tanto do maior intervalo do ritmo (`Pace.call_gap`): toca uma a mais
 const GIVE_UP_SEC := 60.0               # quem liga desiste se ninguém atende (as do roteiro aguentam 1,5x; retornos, 0,75x)
 const SMALLTALK_AFTER := 10.0           # segundos de silêncio esperando a transferência até puxar conversa fiada...
 const SMALLTALK_CHANCE := 0.6           # ...às vezes (respostas e limites: Conversation); sem resposta, reclama da demora:
@@ -57,6 +58,7 @@ var _taught_multi := false
 var _taught_ring := false
 var _taught_list := false
 var _myst_lead := false
+var _quiet_from := 0.0   # desde quando a mesa está vazia (minutos do turno)
 var _calling_back := false
 var _minute := -1   # o minuto que o relógio de flip mostra (o "tic" quando a plaqueta vira)
 var _taught_midnight := false
@@ -627,6 +629,10 @@ func _run_schedule() -> void:
 			Sfx.fade(Sfx.hum, Sfx.HUM_HUSHED, 20.0)
 	# o homem chega andando, para embaixo do poste lá fora e vai embora antes de a ligação desconhecida tocar
 	background.stranger = Vector2(myst_plan - SHADOW_LEAD, myst_plan - SHADOW_LEAVE) + Vector2.ONE * SHIFT_START_HOUR * 60.0   # (na hora do dia)
+	if not live.is_empty():
+		_quiet_from = minutes
+	elif minutes - _quiet_from >= pace.call_gap.y * QUIET_SHARE:
+		_fill_quiet()
 	var c := sched[0]
 	if minutes < c.at:
 		return
@@ -642,9 +648,12 @@ func _run_schedule() -> void:
 	if c.kind == PhoneCall.Kind.EMERGENCY and c.retry != PhoneCall.Retry.NONE and report.is_resolved(c.data):
 		sched.pop_front()
 		return
-	# A ligação desconhecida e quem liga de novo só tocam com a mesa em silêncio (até `latest`), para não
-	# empilhar ligações sobre quem já está sobrecarregado; as outras esperam uma entrada livre.
-	var hush := (c.kind == PhoneCall.Kind.MYSTERY or c.retry != PhoneCall.Retry.NONE) and not live.is_empty() and minutes < c.latest
+	# As do roteiro, a ligação desconhecida e quem liga de novo só tocam com a mesa em silêncio (até `latest`), para
+	# não empilhar ligações sobre quem já está sobrecarregado; as outras esperam uma entrada livre.
+	var hush := (_scripted(c) or c.retry != PhoneCall.Retry.NONE) and not live.is_empty() and minutes < c.latest
+	# com uma do roteiro (ou a desconhecida) na mesa, nenhuma outra toca até ela acabar
+	if live.any(_scripted):
+		hush = true
 	# o despacho cuida de uma emergência por vez: a próxima espera a anterior desligar e as unidades chegarem
 	if c.kind == PhoneCall.Kind.EMERGENCY and ((em_call != null and (not em_call.ended or em_call.urgent())) or dispatch.fleet.en_route()):
 		hush = true
@@ -657,6 +666,22 @@ func _run_schedule() -> void:
 		return
 	sched.pop_front()
 	ring(c)
+
+
+## Ligação do roteiro ou a desconhecida: toca sozinha na mesa.
+func _scripted(c: PhoneCall) -> bool:
+	return c.story or c.kind == PhoneCall.Kind.MYSTERY
+
+
+## A mesa ficou vazia por `QUIET_SHARE` do maior intervalo do ritmo e a próxima ainda demora: toca um pedido de informação a mais (sorteado na
+## hora). Não com uma do roteiro para tocar (elas pedem a mesa em silêncio) nem depois da última ligação.
+func _fill_quiet() -> void:
+	_quiet_from = minutes
+	if minutes >= LAST_CALL or sched.any(func(x: PhoneCall): return x.at < minutes + Schedule.STORY_GAP):
+		return
+	var c := Schedule.info_call()
+	c.at = minutes
+	sched.push_front(c)
 
 
 # Conexões completadas duram um tempo; depois alguém desliga e a mesa mostra "desligou".
