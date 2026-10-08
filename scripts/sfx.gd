@@ -54,8 +54,12 @@ const BELL_STEP := 0.006
 ## Sons mecânicos que se repetem muito (plugs, fios): cada vez sai com o tom e o volume levemente diferentes
 ## (± VARY_PITCH, ± VARY_DB), para a mesa cheia não soar como uma máquina.
 const VARIED := ["plug_in", "plug_out", "thump", "drop", "cord_stop", "cord_tap", "cord_snag", "cord_snap", "click", "punch", "neon", "lamp_tick"]
-## O zumbido da luminária acesa (dB).
-const LAMP_BUZZ := -40.0
+## O zumbido da luminária acesa (dB; era -40, alto demais).
+const LAMP_BUZZ := -44.0
+## O zumbido elétrico de 60 Hz da sala, a noite toda (dB; era -29, depois -37: tom grave e constante, cansava, sobretudo em fone),
+## e quanto ele baixa quando a noite se cala antes da ligação desconhecida (depois dela, some).
+const HUM_DB := -45.0
+const HUM_HUSHED := -50.0
 ## A chuva cresce e diminui em ondas lentas (dB de cada onda, período em s), em vez de um chiado constante.
 const RAIN_WAVES := [Vector2(2.5, 37.0), Vector2(1.5, 11.0)]
 ## Com a noite avançando a cidade se cala: os grilos sobem e a brisa baixa (dB, com `set_late` em 1).
@@ -190,7 +194,7 @@ func later(t: float, id: String, db: float = 0.0) -> void:
 func start_ambience(w: String) -> void:
 	for p in [rain, breeze, crickets, hum, hiss, lamp_buzz]:
 		p.play()
-	fade(hum, -29.0, 2.0)
+	fade(hum, HUM_DB, 2.0)
 	_lamp_on = true
 	set_weather(w, 2.0)
 

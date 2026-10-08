@@ -57,7 +57,7 @@ var _taught_ring := false
 var _taught_list := false
 var _myst_lead := false
 var _calling_back := false
-var _tick_acc := 0.0
+var _minute := -1   # o minuto que o relógio de flip mostra (o "tic" quando a plaqueta vira)
 var _taught_midnight := false
 var _taught_bank := false
 var _hour := 0   ## a última hora cheia em que o relógio bateu (horas desde o começo do turno)
@@ -225,16 +225,23 @@ func _start_shift() -> void:
 	hint(T.text(T.Key.HINT_WAIT_CALLS))
 
 
+## O ponto x da tela (px) como `Sfx.play_at` o quer: de 0 (borda esquerda) a 1 (direita). Em px, a badalada e a
+## campainha saíam só do lado direito.
+func _across(x: float) -> float:
+	return x / maxf(1.0, get_viewport().get_visible_rect().size.x)
+
+
 func _process(delta: float) -> void:
 	talk_clock += delta
 	if running:
 		# à meia-noite o relógio para, a não ser que ainda haja alguém na linha (o turno se estende até resolver)
 		if minutes < SHIFT_END or not live.is_empty():
 			minutes += delta * GAME_MIN_PER_SEC
-		_tick_acc += delta
-		if _tick_acc > 1.0:
-			_tick_acc = 0.0
-			Sfx.play("tick", -3.0)
+		if int(minutes) != _minute:   # a plaqueta do relógio de flip vira: o "tic" quando ela bate, vindo do relógio
+			if _minute >= 0:   # (no começo do turno, nada vira)
+				get_tree().create_timer(Background.FLIP_SEC, false).timeout.connect(
+					func() -> void: Sfx.play_at("tick", _across(background.clock_x), -3.0))
+			_minute = int(minutes)
 		_run_schedule()
 		_update_line_timers()
 		# o turno fecha depois da meia-noite, da ligação desconhecida, da última ligação e do último registro
@@ -247,12 +254,12 @@ func _process(delta: float) -> void:
 				hint(T.text(T.Key.HINT_MIDNIGHT))
 		var can_end := after and minutes >= LAST_CALL and not ending
 		if can_end and not _end_shift.visible:   # a campainha da plaqueta: o turno já pode ser encerrado
-			Sfx.play_at("shift_bell", _shift_hours.get_global_rect().get_center().x)
+			Sfx.play_at("shift_bell", _across(_shift_hours.get_global_rect().get_center().x))
 		_end_shift.visible = can_end
 		_shift_hours.visible = not _end_shift.visible
 		var hour := floori(minutes / 60.0)
 		if hour > _hour:   # a badalada do relógio a cada hora cheia (vem do relógio de flip da mesa) e o sino da igreja
-			Sfx.play_at("chime", background.clock_x)
+			Sfx.play_at("chime", _across(background.clock_x))
 			background.toll((SHIFT_START_HOUR + hour - 1) % 12 + 1)
 		_hour = hour
 		background.minutes = SHIFT_START_HOUR * 60 + minutes
@@ -610,7 +617,7 @@ func _run_schedule() -> void:
 		if m.kind == PhoneCall.Kind.MYSTERY and not _myst_lead and minutes >= m.at - 20.0:
 			_myst_lead = true
 			Sfx.hush_nature(true, 20.0)
-			Sfx.fade(Sfx.hum, -34.0, 20.0)
+			Sfx.fade(Sfx.hum, Sfx.HUM_HUSHED, 20.0)
 	# o homem chega andando, para embaixo do poste lá fora e vai embora antes de a ligação desconhecida tocar
 	background.stranger = Vector2(myst_plan - SHADOW_LEAD, myst_plan - SHADOW_LEAVE) + Vector2.ONE * SHIFT_START_HOUR * 60.0   # (na hora do dia)
 	var c := sched[0]

@@ -40,7 +40,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   pedaço numa instância com o seu sorteio, `_rng`, porque o `randf` global não é seguro entre linhas de execução) e tocado pelo autoload `Sfx` (`scripts/sfx.gd`: tocar, mixar, ambiente), inclusive as "vozes" por sílaba
   (`Sfx.speak_char`). Barramentos em `default_bus_layout.tres`: Ambience, Voices, Effects (e Rub, o atrito do fio: vai direto para o Master, com uma reverberação mais seca que a do Effects, e segue o volume dele, `Settings.FOLLOWS`).
   Ambience tem um compressor com sidechain em Voices (o ambiente baixa enquanto alguém fala); Effects, uma
-  reverberação leve de sala. `Sfx.play_at(id, screen_x)` toca um som vindo de um lugar da tela (pool de
+  reverberação leve de sala. `Sfx.play_at(id, screen_x)` toca um som vindo de um lugar da tela (`screen_x` em fração da largura, de 0 a 1;
+  de px, converta, como `Main._across`) (pool de
   `AudioStreamPlayer2D`, `PAN`); a mesa usa para os sons dela (`Switchboard._sfx`, `screen_x`) e o rádio para a voz,
   o chiado e os bipes (`Radio.screen_x()`; `speak_char`, `syllable` e `static_burst` aceitam `at`). O toque da mesa
   (bipes suaves, `BEEP`; `ring_start(bells)`: linha -> lugar da tomada) reveza entre as linhas chamando, cada uma no seu tom (`BELL_STEP`).
@@ -58,7 +59,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   mais do lado da janela (`SfxSynth.RAIN_LEFT`: o lado esquerdo mais baixo), e cresce e diminui em ondas lentas
   (`RAIN_WAVES`, sobre `_rain_db`). **Nada de gota solta na chuva**: batidas, bolhas de poça, gotas no vidro e o pingo da
   calha soavam como "tic" e saíram a pedido; das
-  22h à meia-noite os grilos sobem e a brisa baixa (`Sfx.set_late`, `LATE_*`); a luminária zumbe bem baixo, seguindo a
+  22h à meia-noite os grilos sobem e a brisa baixa (`Sfx.set_late`, `LATE_*`); o zumbido elétrico de 60 Hz da sala fica baixo (`Sfx.HUM_DB`; a -29 e a -37 dB cansava, sobretudo em fone; antes da
+  ligação desconhecida baixa para `HUM_HUSHED` e, depois dela, some); a luminária zumbe bem baixo, seguindo a
   luz dela (`lamp_buzz`, `Sfx.lamp`, `LAMP_BUZZ`), e estala quando pisca (`lamp_tick`); `Background.weather` desenha a janela, `Conversation.topics()` junta os
   assuntos gerais com os do clima (`ChatTopic.weather`).
 - **Resolução: tudo em 1x1 sobre 1280×720, ampliado para qualquer tela sem quebrar os pixels.** A cena principal é
@@ -147,7 +149,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`Background.minutes`, o Main atualiza; `_flip_step`, `FLIP_SEC`). A frente é montada reta numa imagem
   (`_clock_face`, `_flip_card`, `_card`) e posta coluna a coluna na perspectiva exata: cada coluna da tela é um raio
   dos olhos que acerta a frente num ponto e numa distância, e a coluna vai da altura de cima à de baixo ali (torta por
-  transformação, os algarismos quebravam; um paralelogramo não batia com a caixa). Ao ouvido: a badalada de gongo a cada hora cheia (`chime`, `Main._hour`) vem do relógio
+  transformação, os algarismos quebravam; um paralelogramo não batia com a caixa). Ao ouvido: o "tic" de cada plaqueta que vira, quando ela bate (`tick`, `Main._minute`, `FLIP_SEC` depois de
+  começar a virar; era um tique-taque a cada segundo real, do relógio de ponteiros, e não batia com as plaquetas, que
+  viram a cada 1,33 s), e a badalada de gongo a cada hora cheia (`chime`, `Main._hour`) vêm do relógio
   (`Background.clock_x`) e a campainha de latão quando o turno pode ser encerrado (`shift_bell`), da plaqueta; embaixo
   dela a mesa comutadora (588×362), a faixa da prateleira (`Shelf`, 16 px: o encaixe do FONE, `%FoneSocket`, e os
   buracos dos cabos, `%CordTray`, com os plugs guardados em pé neles, na frente do painel, como numa mesa telefônica
@@ -309,8 +313,11 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   névoa. Na chuva, o asfalto molhado espelha as luzes em riscos verticais (`_draw_wet`). Na névoa (`_draw_fog`, por cima da rua e do
   outro lado, atrás do arbusto): um véu liso mais grosso rente ao chão (`FOG_VEIL`, `FOG_GROUND`), fiapos largos e lisos
   atravessando a rua com o vento (`FOG_WISPS`) e as luzes espalhando nela (halo e cone de laterais lisas em cada poste, o
-  vermelho do neon); as faixas retangulares que havia no vidro pareciam defeito. O carro (`_draw_car`, um só)
-  passa pela mão de lá (`CAR_Z`, `_car_x`), apoiado no asfalto: sombra de contato, facho dos faróis no chão, lado,
+  vermelho do neon); as faixas retangulares que havia no vidro pareciam defeito. Os carros (`_draw_car`, um por
+  vez em cada mão, cada mão no seu sorteio, `_cars`) passam pelas duas mãos (`CAR_LANES`, `_car_x`): pela de lá, da
+  direita para a esquerda; pela de cá, voltando, da esquerda para a direita, mais perto da faixa do meio que do nosso
+  meio-fio (rente a ele, ficava tão perto e de cima que virava uma mancha escura cortada pelo peitoril), apoiados no
+  asfalto: sombra de contato, facho dos faróis no chão, lado,
   teto e capô vistos um pouco de cima, a frente ou a traseira virada para nós. O brilho da luz de cima (`%Glow`, centrado no alto, liso) fica dentro da tela do cenário, logo depois do
   `Background`: ilumina a sala, não a interface; acompanha o tremor dela. **Para trocar por PNG**: `wall_art`, `window_art` e `desk_art` entram no lugar do desenho daquela camada
   (o clima continua por cima da janela). Guardadas, as abas das ferramentas somem (os objetos da mesa já dizem o
