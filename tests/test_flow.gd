@@ -509,6 +509,12 @@ func _initialize() -> void:
 	_mouse(b, js + Vector2(60, -40))
 	_mouse(b, js, 0)
 	ok(b.ends[1] == l7 + 10, "devolvido à mesma tomada no mesmo arraste, encaixa de novo")
+	# apertado e segurado parado (não é clique): soltar sobre a mesma tomada encaixa de novo
+	_mouse(b, js, 1)
+	ok(b.held == 1, "segurando o plug que saiu da tomada")
+	await frames(30)
+	_mouse(b, js, 0)
+	ok(b.ends[1] == l7 + 10, "segurado parado e solto na mesma tomada, encaixa de novo")
 	b._press(js)
 	b._release(js)
 	ok(b.ends[1] == -1, "a outra ponta também voltou")

@@ -86,8 +86,10 @@ var info_ghost := false
 var info_line := -1
 var info_until := 0
 var _press_pos := Vector2.ZERO
-var _dragged := false   # a mão se afastou CLICK_PX de onde apertou desde o clique (voltar ao lugar não faz virar clique)
-const CLICK_PX := 6.0   # apertar e soltar mexendo menos que isso é clique: desplugar, não encaixar
+var _dragged := false   # já não é clique: a mão se afastou CLICK_PX de onde apertou ou segurou CLICK_SEC
+var _held_for := 0.0    # s segurando desde o clique (tempo real, fora da velocidade do jogo)
+const CLICK_PX := 6.0   # apertar e soltar mexendo menos que isso, e mais rápido que CLICK_SEC s, é clique: desplugar,
+const CLICK_SEC := 0.25 # não encaixar (segurando parado sobre a tomada de onde o plug saiu, soltar o encaixa de novo)
 var _loose := {}               # ponta solta voltando para o buraco -> {"t": s caindo/recolhendo, "seat": -1 ou s assentando, "direct", "ang", e, assentando, "from", "turn", "v0", "sink", "hit"}
 const FALL_SEC := 0.35         # o plug solto cai livre antes de o fio começar a recolher
 const NEAR_HOLE := 45.0        # solto acima do buraco (a qualquer altura) e com essa distância na horizontal, o fio puxa o plug direto (sem cair)
@@ -595,6 +597,7 @@ func _press(pos: Vector2) -> void:
 	cursor = pos
 	_press_pos = pos
 	_dragged = false
+	_held_for = 0.0
 	var e := _plug_under(pos)
 	if e != -1:
 		_loose.erase(e)
@@ -661,7 +664,8 @@ func _process(delta: float) -> void:
 	var mouse := get_local_mouse_position()
 	if held != -1:
 		cursor = mouse
-		_dragged = _dragged or mouse.distance_to(_press_pos) >= CLICK_PX
+		_held_for += delta / maxf(Engine.time_scale, 0.001)
+		_dragged = _dragged or mouse.distance_to(_press_pos) >= CLICK_PX or _held_for >= CLICK_SEC
 	if delta > 0.0:
 		_mouse_vel = _mouse_vel.lerp((mouse - _last_mouse) / delta, 0.5)
 	_pull_edges(delta)
@@ -1155,8 +1159,8 @@ func _draw() -> void:
 	_draw_legend()
 	_draw_room_light(Rect2(Vector2.ZERO, size).grow(-FRAME), Vector2(get_viewport_rect().size.x / 2.0 - global_position.x, -global_position.y - LAMP_ABOVE))
 
-	# destaque da tomada sob o plug
-	if held != -1:
+	# destaque da tomada sob o plug (antes de virar arraste, soltar desencaixa: sem destaque)
+	if held != -1 and _dragged:
 		var hj := jack_at(get_local_mouse_position())
 		if hj != -1:
 			var ok := refuse(held, hj) == ""
