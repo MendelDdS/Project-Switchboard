@@ -651,7 +651,17 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   Recolhendo, pendurado ao lado do console, a quina é uma roldana (`Cord.hang_step`): o fio vai reto do buraco à quina e
   dela ao plug, que balança preso nela, sobe pendurado (ponta para baixo, `HANG_TURN`) e, na quina, volta para cima
   da prateleira e para a corda de sempre (com a corda solta contra a quina, ele ficava preso, laçava ou era
-  arremessado). O ângulo do plug solto segue o do fio aos poucos (`LOOSE_TURN`). Esticado, o fio de pano alisa: pela distância do buraco à ponta
+  arremessado). **A beira da frente da prateleira também é uma quina** (`Cord.lip_y` = fim do `tray_rect`; além da
+  lateral, a borda do tampo): com o plug abaixo dela, na frente do console, o fio vai pela prateleira, passa por cima
+  dela (`Cord.air`, o primeiro ponto no ar; `cross`, onde passa) e fica no ar, pendendo com a gravidade (os últimos
+  `LIP_PTS` pontos antes dela deitam no tampo da prateleira até ela), com a sombra afastada (`AIR_LIFT`) e o atrito
+  vindo dali (`over`, `over_at`). Antes, tudo abaixo da prateleira era um bloco: o fio dava um nó nela e atravessava o
+  console. Vale com o plug na mão (erguido, o fio sai sempre pela beira: a mesma mão dá o mesmo fio subindo ou
+  descendo, e o limite da mão, `_reach`, é reto do buraco, sem saltar) ou solto no ar; solto e deitado no tampo além
+  do console, o fio vem pela prateleira e, esticado, passa pela quina dela (`Cord.route`, também a reta do fio
+  esticado no desenho). Conta da beira da prateleira também na frente do tampo (deitado nele até a borda, fazia um
+  "Z"); o que estava no ar volta para cima aos poucos (`RISE`). Solto ali, o plug pende da beira como da quina (`hang_step`, `edge_x`) e, içado até ela, volta para a
+  prateleira com o fio reto do buraco; o fio esticado pela mão solta parado (`go_home`, sem estilingue). O ângulo do plug solto segue o do fio aos poucos (`LOOSE_TURN`). Esticado, o fio de pano alisa: pela distância do buraco à ponta
   (no pendurado, o caminho pela quina) a partir de `Cord.TAUT_FROM` do `Cord.MAX`, as dobras somem aos poucos, o trançado se
   espaça (`TAUT_BRAID`) e, da metade em diante, ele e a sombra afinam 1 px (`Cord.taut`, suavizada
   em `Cord.TAUT_EASE`); frouxo, volta com as dobras inteiras. (Pela folga não dava: os cabos de conexão têm sempre ~14 px

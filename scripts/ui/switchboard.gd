@@ -301,6 +301,7 @@ const STRIP_W := 30.0   # a faixa rebaixada de cada linha, da plaquinha à saíd
 const WEAR := [0.5, 0.3, 0.15]   # o painel gasto em volta das tomadas: do perto ao longe (o quanto clareia)
 const TAIL_IN := 6.0   # px do fio que entram na traseira do plug em pé (`_draw_tail`)
 const ROPE_W := 9.0   # px: a largura do fio com a beira (o miolo tem 3 a menos; esticado, os dois afinam 1). Era 8.
+const AIR_LIFT := Vector2(8, 10)   # a sombra do fio no ar, depois da beira da prateleira: longe do console, como a do plug na mão
 const SMOOTH_PX := 4.0   # px: o fio é desenhado em trechos retos deste tamanho, numa curva pelos pontos da corda (`_smooth`)
 const KINK := 1.5   # px: as dobras que o fio de pano guarda, no máximo
 const BRAID := 6.0   # px: o trançado do fio (o brilho dele vem em pedaços desse comprimento)
@@ -583,6 +584,8 @@ func go_home(e: int) -> void:
 		if direct:
 			r.length = minf(r.length, from.distance_to(hole(e)))
 		else:
+			for i in r.pts.size():   # o fio que a mão esticava solta parado (senão, o plug sai como de um estilingue)
+				r.old[i] = r.pts[i]
 			r.old[r.pts.size() - 1] = from - fling * STEP
 	else:
 		_sfx("thump", from, -14.0)
@@ -908,12 +911,12 @@ func _pull_edges(delta: float) -> void:
 
 
 ## `d` px do fio da ponta e passaram pelo buraco (positivo: saindo; negativo: entrando), para o som de atrito.
-func _count_rub(e: int, d: float) -> void:
+func _count_rub(e: int, d: float, at := Vector2.INF) -> void:
 	if d > 0.0:
 		_rub_out += d
 	else:
 		_rub_in -= d
-	_rub_x += absf(d) * screen_x(hole(e))
+	_rub_x += absf(d) * screen_x(hole(e) if at == Vector2.INF else at)
 	if e == 0:
 		_rub_fone += absf(d)
 	if _loose.has(e):
@@ -944,6 +947,7 @@ func _step_rope(e: int, dt: float) -> void:
 		ropes[e] = Cord.new(a, _plug_base(e))
 	var r: Cord = ropes[e]
 	r.floor_y = _floor()
+	r.lip_y = tray_rect().end.y   # a beira da frente da prateleira: abaixo dela, o fio fica no ar
 	r.ground = _ground()   # a lateral do console (x) e o tampo ao pé dele (y), além da prateleira
 	r.free = not an.is_empty()
 	r.direct = r.free and an["direct"]
@@ -961,15 +965,20 @@ func _step_rope(e: int, dt: float) -> void:
 				if not is_nan(r.swing):
 					an["ang"] = lerp_angle(float(an["ang"]), r.swing, HANG_TURN)
 				_count_rub(e, r.pulled)
+				_count_rub(e, r.over, r.over_at)
 				return
 	else:
 		b = _plug_base(e)
+		var reach := a.distance_to(b)
 		var slack := clampf(absf(b.x - a.x) * SLACK_PER_PX, CORD_SLACK, SLACK) if e == 0 else CORD_SLACK
-		slack = maxf(slack, a.distance_to(b) * SLACK_REACH)
-		length = lerpf(length, minf(a.distance_to(b) + slack, Cord.MAX), 0.08)
+		slack = maxf(slack, reach * SLACK_REACH)
+		if r.air >= 1:   # no ar, o peso do fio pendurado puxa a folga pela beira (sobrava em laço na prateleira)
+			slack = CORD_SLACK
+		length = lerpf(length, minf(reach + slack, Cord.MAX), 0.08)
 	if not r.step(dt, a, b, length):
 		return   # dormindo
 	_count_rub(e, r.pulled)
+	_count_rub(e, r.over, r.over_at)
 	if r.drop > DROP_SPEED:   # o plug solto bate na mesa
 		_sfx("drop", r.drop_at, lerpf(-10.0, 0.0, clampf((r.drop - DROP_SPEED) / (DROP_FULL - DROP_SPEED), 0.0, 1.0)))
 	r.tap_wait = maxf(r.tap_wait - dt, 0.0)
@@ -1465,15 +1474,18 @@ func _draw_rope(e: int, shadow: bool) -> void:
 		# tempo), então o desenho vai para a reta do buraco à ponta; pendurado na quina, ele já é reto em dois trechos
 		pts = pts.duplicate()
 		var n := pts.size() - 1
-		var a := pts[0]
-		var b := pts[n]
+		var line := r.route(pts[0], pts[n])   # reto, ou pela quina da prateleira
+		var total := Cord.length_of(line)
 		for i in range(1, n):
-			pts[i] = pts[i].lerp(a.lerp(b, float(i) / n), smoothstep(0.0, 1.0, taut))
+			pts[i] = pts[i].lerp(Cord.point_at(line, total * i / n), smoothstep(0.0, 1.0, taut))
 	if shadow:
 		var sh := PackedVector2Array()   # o fio desce do plug até o buraco: a sombra vai da do plug até a de rente ao painel
 		var lift := _lift(e)
 		for i in pts.size():
 			var k := float(i) / (pts.size() - 1)
+			if r.air >= 1:   # no ar, na frente do console: a sombra se afasta logo depois da beira e cai nele
+				sh.append(pts[i] + (ROPE_SHADOW if i < r.air else AIR_LIFT))
+				continue
 			sh.append(pts[i] + ROPE_SHADOW.lerp(lift, k * k))
 		draw_polyline(_smooth(sh), SHADOW, ROPE_W - 1.0 - thin)
 		return
