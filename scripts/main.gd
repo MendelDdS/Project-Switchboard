@@ -104,6 +104,7 @@ func _ready() -> void:
 	exchange = Exchange.new(GameData.board_numbers())
 	board.setup(exchange, %FoneSocket, %CordTray)
 	board.shelf = background.shelf   # onde a prateleira acaba: além dela, o plug solto cai até o tampo
+	board.eye = background.eye   # os olhos do operador: a paralaxe dos plugs encaixados
 	var plan := Schedule.build(night, pace, LAST_CALL)
 	sched = plan.calls
 	tut = plan.tut

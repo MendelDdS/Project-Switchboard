@@ -646,6 +646,12 @@ func shelf() -> Vector2:
 	return _shelf + global_position if _shelf.x < INF else _shelf
 
 
+## Os olhos do operador, o ponto de fuga da sala, em px da tela: a mesa comutadora tira deles a paralaxe dos plugs
+## encaixados (`Switchboard.eye`). Antes do primeiro desenho, INF.
+func eye() -> Vector2:
+	return _vp * 2.0 + global_position if _vp != Vector2.ZERO else Vector2(INF, INF)
+
+
 ## Onde fica na tela (global) o objeto da mesa que abre a ferramenta `id` (vazio se ele não está na mesa): de onde o
 ## papel dela sai (`Tools.origin`).
 func prop_rect(id: String) -> Rect2:

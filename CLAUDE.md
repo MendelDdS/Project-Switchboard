@@ -554,14 +554,18 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   sem a mão se afastar `CLICK_PX` de onde apertou (`_dragged`, tempo real), não só soltar perto dele: segurado parado,
   ou tirado da tomada e devolvido a ela no mesmo arraste, o plug encaixa de novo (antes, caía). Enquanto ainda é
   clique, a tomada sob o plug não ganha o destaque (soltar ali desencaixa).
-- Fios são cordas de Verlet, **uma por ponta**, cada uma um `Cord` (`scripts/ui/cord.gd`, `Switchboard.Cord`, sem
+- Fios são cordas de Verlet, **uma por ponta**, com um ponto a cada `Cord.SEG` px de fio para fora (`count`, `_resize`: com
+  22 pontos fixos, o fio longo tinha trechos de 30 px e virava uma linha quebrada), a rigidez do pano como regra (o ponto
+  dois adiante a pelo menos `BEND_MIN` de dois trechos) e as regras resolvidas indo e voltando (`STIFF_ITER`), cada uma um `Cord` (`scripts/ui/cord.gd`, `Switchboard.Cord`, sem
   `class_name`: só a física, sem tela nem som, testada sozinha no teste de fluxo; a mesa, em `_step_rope`, diz onde
   ficam o buraco e o plug, quanto fio está para fora e a prateleira, e lê do passo os sons e o plug solto), presas no buraco (`hole(e)`: o do FONE no encaixe, dois
   por cabo de conexão) e na traseira do plug (`_plug_base`); só existem com o fio para fora. No desenho, o fio de pano
   velho guarda dobras (`_kinked`, `KINK`: cada ponto da corda um pouco para um lado, sempre o mesmo, nada nas pontas; a
-  física segue lisa) e o brilho vem em pedaços, como trançado (`BRAID`).
+  física segue lisa) e o brilho vem em pedaços, como trançado (`BRAID`). Desenhado numa curva pelos pontos da corda (`_smooth`, Catmull-Rom em
+  trechos de `SMOOTH_PX`; ligados por retas, o fio longo virava uma linha quebrada).
   Folga: `CORD_SLACK` (conexão); a do FONE cresce com a distância na horizontal (`SLACK_PER_PX`, até `SLACK`: fixa, o
-  fio de uma entrada logo acima do buraco deitava na prateleira e fazia um "Z"). Fio parado por `Cord.SLEEP_STEPS` passos "dorme" (`Cord.sleep` =
+  fio de uma entrada logo acima do buraco deitava na prateleira e fazia um "Z"). Todos têm ao menos `SLACK_REACH` da distância do buraco ao plug (com
+  a folga mínima, o fio de uma tomada logo acima do buraco ficava reto, com um gancho na ponteira). Fio parado por `Cord.SLEEP_STEPS` passos "dorme" (`Cord.sleep` =
   área onde o mouse o acorda) e deixa de ser simulado até a ponta, o buraco ou o mouse mexerem nele.
 - Sob o mouse: `_plug_under` (plug que dá para pegar → `_hover`, desenhado com contorno claro) e `_cursor_shape`
   (mão aberta, mão fechada segurando, proibido sobre tomada que recusa, dedo em tomada/plaqueta que informa).
@@ -655,8 +659,10 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   deixava uma barriga, porque a gravidade puxa o meio a cada passo; pendurado na quina, `Cord.hang`, não). Puxando
   além do fim do fio, o plug na mão se inclina para o lado do puxão, inteiro a `LEAN_PX` além (a mesma mola do
   balanço), com a traseira virada para o buraco; o limite vale para a traseira girada (`_reach`). (Em pé, com o fio
-  chegando de lado, a junção dobrava e o fio passava por cima dele.) Encaixado, sai do painel em direção à câmera, vista de cima e da
-  direita (`_draw_plug_face`: o próprio `PLUG_ART` visto de frente, com os mesmos detalhes: anel e friso claro em cima,
+  chegando de lado, a junção dobrava e o fio passava por cima dele.) Encaixado, sai do painel em direção à câmera, a mesma do cenário (a ponta se afasta dos olhos do operador, o ponto
+  de fuga da sala, `Background.eye` → `Switchboard.eye`; à direita da mesa, na altura das plaquinhas das entradas:
+  as entradas saem quase só para a esquerda, as de baixo também para baixo; era um ponto 600 px acima do painel, e
+  todos pareciam vistos de cima) (`_draw_plug_face`: o próprio `PLUG_ART` visto de frente, com os mesmos detalhes: anel e friso claro em cima,
   serrilhado, `_knurled` (as listras verticais; tirado, o plug ficava pobre), anel do meio e capa em gomos afinando até
   o fio (a aba dourada, mais estreita que o corpo, fica escondida atrás dele); o corpo sai com a beira de todos os
   discos antes dos miolos (só o contorno), mas a capa, por cima, disco a disco com a beira de cada um
@@ -664,11 +670,11 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   volta da saída do fio (antes, liso, o plug parecia uma bola); pega a luz da sala como o fio que sai
   dele (`_lit_by`, também a ponteira, `_draw_plug_cap`, na largura do miolo do fio); montado com discos de pixel art, `disc`, um
   por pixel ao longo do eixo, cada um com a largura e os tons da linha do plug em pé que cai ali, `_face_row`: dela vale
-  a que mais se destaca, senão os detalhes sumiam no escorço; primeiro a beira de todos, depois o miolo sombreado; com cápsulas e círculos, saía embolotado); com paralaxe: a ponta se desloca do encaixe mais quanto mais longe de `PLUG_EYE` (`_tilt(j)`,
-  `PLUG_DEPTH`). O fio sai da ponteira (`_plug_base` = encaixe + `_tilt`; o plug encaixado é desenhado antes do fio,
+  a que mais se destaca, senão os detalhes sumiam no escorço; primeiro a beira de todos, depois o miolo sombreado; com cápsulas e círculos, saía embolotado); com paralaxe: a ponta se desloca do encaixe mais quanto mais longe dos olhos (`_tilt(j)`, `_eye`, no `_look`;
+  `PLUG_EYE` sem cenário; `PLUG_DEPTH` estilizado, a conta daria ~3× mais). O fio sai da ponteira (`_plug_base` = encaixe + `_tilt`; o plug encaixado é desenhado antes do fio,
   e o miolo da ponteira, `_draw_plug_cap`, depois). Encaixado, o fio sai no eixo do plug por `Cord.STUB` px e faz a curva
-  aos poucos (o penúltimo ponto da corda fica preso, `pin` em `Cord.step`; os seguintes tendem a continuar a direção,
-  `Cord.BEND`, uma vez por passo: por iteração endurecia o fio), a sombra vai do encaixe até `PLUG_SHADE` com uma
+  aos poucos (o penúltimo ponto da corda fica preso, `pin` em `Cord.step`; a curva sai da rigidez do pano, a mesma no
+  fio todo: `Cord.BEND_MIN`; um empurrão nos pontos perto do plug deixava o fio longo duro e o curto com um calombo), a sombra vai do encaixe até `PLUG_SHADE` com uma
   sombra de contato em volta do colar (a do fio sai do fim da do plug e chega a `ROPE_SHADOW` no buraco, `_lift`), a
   luz bate no contorno do plug encaixado (`_plug_light`, `_face_rim`: a silhueta dos discos juntos; na entrada, a
   lâmpada da linha acende só a beira de cima; no destino, o aro aceso acende a beira toda; clareada na cor da luz. Um

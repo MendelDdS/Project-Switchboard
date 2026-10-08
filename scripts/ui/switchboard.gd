@@ -144,10 +144,12 @@ const PLUG_LEN := 59.0   # em pé: do fio até o alto da aba (a ponta de metal p
 ## Encaixado, de onde fica a tomada até onde o fio entra: a ponta de metal some dentro dela e o anel assenta no buraco.
 const PLUG_FACE_R := 8.0   # encaixado: o raio do corpo (18 px com a beira, como o em pé; ele cobre a tomada e a aba)
 const EDGE := 0.65          # a beira do plug e do fio: a cor da peça escurecida assim (contorno preto destoava do cenário)
-## Encaixado, o plug sai do painel na direção da câmera: visto de cima e da direita, a ponta dele fica deslocada do
-## encaixe para baixo e para a esquerda, e mais quanto mais longe do ponto que a câmera olha reto (paralaxe, `_tilt`).
-const PLUG_EYE := Vector2(SIZE.x + 300, -600)   # o ponto da mesa que a câmera olha reto (fora dela, no alto à direita)
-const PLUG_DEPTH := 0.012   # px de deslocamento da ponta por px de distância do encaixe até PLUG_EYE
+## Encaixado, o plug sai do painel na direção da câmera, a mesma do cenário: a ponta dele se afasta do ponto de fuga
+## da sala (os olhos do operador, `eye`), mais quanto mais longe dele (paralaxe, `_tilt`). Os olhos ficam à direita da
+## mesa, na altura das plaquinhas das entradas: os plugs das entradas saem quase só para a esquerda, os de baixo
+## também para baixo. (Era um ponto fixo 600 px acima do painel: todos pareciam vistos de cima, contra a sala.)
+const PLUG_EYE := Vector2(SIZE.x + 134, 92)   # sem cenário (testes): onde os olhos ficam em 1280 × 720
+const PLUG_DEPTH := 0.02   # px de deslocamento da ponta por px de distância do encaixe até os olhos (estilizado: a conta daria ~0,06, de lado demais)
 const PLUG_SHADE := Vector2(7, 9)   # encaixado, a sombra vai do encaixe até aqui (luz no alto à esquerda)
 ## O encaixe, pixel a pixel (16×16, menor que o `JACK`; par, para o meio dele cair entre dois pixels, como o das
 ## plaquinhas e das lâmpadas), na medida da ponta do plug: o furo preto tem 8 px, a largura da luva (com 20, a tomada
@@ -299,6 +301,7 @@ const STRIP_W := 30.0   # a faixa rebaixada de cada linha, da plaquinha à saíd
 const WEAR := [0.5, 0.3, 0.15]   # o painel gasto em volta das tomadas: do perto ao longe (o quanto clareia)
 const TAIL_IN := 6.0   # px do fio que entram na traseira do plug em pé (`_draw_tail`)
 const ROPE_W := 9.0   # px: a largura do fio com a beira (o miolo tem 3 a menos; esticado, os dois afinam 1). Era 8.
+const SMOOTH_PX := 4.0   # px: o fio é desenhado em trechos retos deste tamanho, numa curva pelos pontos da corda (`_smooth`)
 const KINK := 1.5   # px: as dobras que o fio de pano guarda, no máximo
 const BRAID := 6.0   # px: o trançado do fio (o brilho dele vem em pedaços desse comprimento)
 ## Esticado (`Cord.taut`), o fio de pano alisa: as dobras somem aos poucos até o fim do fio, o trançado se espaça até
@@ -312,6 +315,7 @@ var _jacks: Array = []
 # ---- os fios (a física de cada um é um `Cord`) ----
 const SLACK := 70.0                # folga extra além da distância reta (fio do FONE), no máximo...
 const SLACK_PER_PX := 0.15         # ...e esta por px de distância na horizontal (logo acima do buraco, sobrava fio deitado na prateleira)
+const SLACK_REACH := 0.08         # e todos, ao menos esta fração da distância do buraco ao plug (sem ela, logo acima do buraco, o fio ficava reto com um gancho na ponteira)
 const CORD_SLACK := 14.0           # idem, fios dos cabos de conexão
 const STEP := 1.0 / 90.0
 var ropes := {}                    # ponta -> Cord (só enquanto o fio está para fora do buraco)
@@ -324,6 +328,9 @@ var _hand_was := Vector2.ZERO     # onde o plug na mão (ou o mouse) estava no q
 ## Onde a prateleira acaba (`Background.shelf`, em px da tela: x da lateral do console, y do tampo ao pé dele).
 ## Sem ela (testes sem cenário), a prateleira não tem fim, como antes.
 var shelf: Callable
+## Os olhos do operador, o ponto de fuga da sala (`Background.eye`, em px da tela); sem ele, `PLUG_EYE`.
+var eye: Callable
+var _eye := PLUG_EYE   # em px da mesa, medido a cada quadro
 var _swing_v := 0.0
 var _lamp_at := Vector2.ZERO   # onde fica a luminária do teto, medida no começo de cada desenho (`_lamp_pos`)
 # fio que passou pelos buracos neste quadro, para o som de atrito (px): saindo, entrando, e somas pesadas por px
@@ -576,7 +583,7 @@ func go_home(e: int) -> void:
 		if direct:
 			r.length = minf(r.length, from.distance_to(hole(e)))
 		else:
-			r.old[Cord.N - 1] = from - fling * STEP
+			r.old[r.pts.size() - 1] = from - fling * STEP
 	else:
 		_sfx("thump", from, -14.0)
 	if prev != -1:
@@ -667,6 +674,9 @@ func _release(pos: Vector2) -> void:
 
 
 func _process(delta: float) -> void:
+	if eye.is_valid():
+		var at: Vector2 = eye.call()
+		_eye = at - global_position if at.x < INF else PLUG_EYE
 	for e in _pushed.keys():   # a assentada anda antes dos fios: a ponta deles acompanha o plug no mesmo quadro
 		_pushed[e] += delta
 		if _pushed[e] >= maxf(PUSH_SEC, MORPH_SEC):
@@ -736,7 +746,7 @@ func _look() -> Array:
 			states.append(exchange.line(n))
 		for d in dest_nums:
 			states.append(exchange.dest(d))
-	return [size, ends.duplicate(), _hover, levels, states, Time.get_ticks_msec() < info_until, info_line, GameData.sectors.duplicate()]
+	return [size, ends.duplicate(), _hover, levels, states, Time.get_ticks_msec() < info_until, info_line, GameData.sectors.duplicate(), _eye]
 
 
 ## Onde o fio entra no plug.
@@ -955,6 +965,7 @@ func _step_rope(e: int, dt: float) -> void:
 	else:
 		b = _plug_base(e)
 		var slack := clampf(absf(b.x - a.x) * SLACK_PER_PX, CORD_SLACK, SLACK) if e == 0 else CORD_SLACK
+		slack = maxf(slack, a.distance_to(b) * SLACK_REACH)
 		length = lerpf(length, minf(a.distance_to(b) + slack, Cord.MAX), 0.08)
 	if not r.step(dt, a, b, length):
 		return   # dormindo
@@ -968,7 +979,7 @@ func _step_rope(e: int, dt: float) -> void:
 		r.tap_wait = TAP_GAP
 	if r.free:   # o plug solto segue o fio, que sai da traseira dele (com o fio quase todo dentro, fica como estava)
 		var pts := r.pts
-		var last := Cord.N - 1
+		var last := pts.size() - 1
 		var d := pts[last] - pts[last - 3]
 		if d.length_squared() >= 4.0:   # aos poucos: de pendurado para deitado, ele vira, não salta
 			an["ang"] = lerp_angle(float(an["ang"]), d.angle() + PI / 2, LOOSE_TURN)
@@ -1464,10 +1475,10 @@ func _draw_rope(e: int, shadow: bool) -> void:
 		for i in pts.size():
 			var k := float(i) / (pts.size() - 1)
 			sh.append(pts[i] + ROPE_SHADOW.lerp(lift, k * k))
-		draw_polyline(sh, SHADOW, ROPE_W - 1.0 - thin)
+		draw_polyline(_smooth(sh), SHADOW, ROPE_W - 1.0 - thin)
 		return
 	var col: Array = _cable_col(e)
-	pts = _kinked(e, pts, 1.0 - taut)
+	pts = _smooth(_kinked(e, pts, 1.0 - taut))
 	var lights := PackedColorArray()   # a luz da sala ao longo do fio
 	for q in pts:
 		lights.append(_lit_by(q))
@@ -1503,6 +1514,25 @@ func _draw_tail(e: int, at: Vector2, c: Color, light: Color, thin: float) -> voi
 	draw_line(at, inside, c * light, ROPE_W - 3.0 - thin)
 	var w := int(ROPE_W - thin)
 	PixelArt.sprite(self, PixelArt.disc(w, [[(w - 3) / 2.0, c], [w / 2.0, c.darkened(EDGE)]]), at, light)
+
+
+## A linha `pts` alisada numa curva (Catmull-Rom) que passa pelos mesmos pontos, em trechos de até SMOOTH_PX: com
+## os pontos da corda ficam a `Cord.SEG` px um do outro e, ligados por retas, o fio virava uma linha quebrada.
+func _smooth(pts: PackedVector2Array) -> PackedVector2Array:
+	var n := pts.size()
+	var out := PackedVector2Array()
+	for i in n - 1:
+		var p0 := pts[maxi(i - 1, 0)]
+		var p1 := pts[i]
+		var p2 := pts[i + 1]
+		var p3 := pts[mini(i + 2, n - 1)]
+		var parts := maxi(1, ceili(p1.distance_to(p2) / SMOOTH_PX))
+		for k in parts:
+			var t := float(k) / parts
+			out.append(0.5 * (2.0 * p1 + (p2 - p0) * t + (2.0 * p0 - 5.0 * p1 + 4.0 * p2 - p3) * t * t
+				+ (3.0 * p1 - p0 - 3.0 * p2 + p3) * t * t * t))
+	out.append(pts[n - 1])
+	return out
 
 
 ## A cor `c` sob cada luz de `lights`.
@@ -1634,14 +1664,14 @@ func _circle(c: Vector2, r: float) -> PackedVector2Array:
 
 
 ## Quanto a ponta do plug encaixado em `j` fica deslocada do encaixe: ele sai do painel na direção da câmera, que o
-## vê mais de lado quanto mais longe do ponto que ela olha reto (`PLUG_EYE`).
+## vê mais de lado quanto mais longe dos olhos (`eye`).
 func _tilt(j: int) -> Vector2:
 	return _tilt_at(jack_rect(j).get_center()).round()
 
 
 ## A paralaxe num ponto `p` da mesa: o que sai do painel ali se desloca assim (e o que entra, para o lado oposto).
 func _tilt_at(p: Vector2) -> Vector2:
-	return (p - PLUG_EYE) * PLUG_DEPTH
+	return (p - _eye) * PLUG_DEPTH
 
 
 ## O plug encaixado, a partir do encaixe, saindo do painel até `tilt`: o próprio plug em pé (`PLUG_ART`, da aba ao

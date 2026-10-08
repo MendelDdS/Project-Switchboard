@@ -494,6 +494,21 @@ func _initialize() -> void:
 		cord.step(b.STEP, Vector2.ZERO, Vector2.ZERO, 260.0)
 		bounced = bounced or cord.drop > Switchboard.Cord.BOUNCE_MIN
 	ok(bounced and cord.tip().y <= 40.0 + 0.01, "fio: o plug solto cai, quica e para na prateleira")
+	# a forma do fio encaixado: saindo da ponteira na horizontal, ele faz a curva e cai, sem subir acima do plug
+	# (o calombo de quando a curva era um empurrão nos pontos), e o comprimento quase não estica
+	for want: float in [440.0, 540.0, 640.0]:   # do buraco ao plug são 424 px
+		var hung := Switchboard.Cord.new(Vector2(0, 300), Vector2(300, 0))
+		hung.stub = Vector2.LEFT
+		for _i in 600:
+			hung.step(b.STEP, Vector2(0, 300), Vector2(300, 0), want)
+		var high := INF
+		var long := 0.0
+		for i in hung.pts.size():
+			high = minf(high, hung.pts[i].y)
+			if i > 0:
+				long += hung.pts[i].distance_to(hung.pts[i - 1])
+		ok(high >= -1.0, "fio: com %d px, não sobe acima do plug (%.1f)" % [want, high])
+		ok(long <= want * 1.02, "fio: com %d px, estica menos de 2%% (%.0f)" % [want, long])
 	m.ring(c7)
 	var l7 := c7.line
 	_move(0, -1)
@@ -510,7 +525,7 @@ func _initialize() -> void:
 	b.cursor = Vector2(400, 200)   # longe do encaixe: cai antes de recolher
 	b._mouse_vel = Vector2(1200, 0)
 	b.go_home(0)
-	ok(not b._loose[0]["direct"] and b.ropes[0].old[b.Cord.N - 1].x < 400 - 5, "sai com o embalo da mão")
+	ok(not b._loose[0]["direct"] and b.ropes[0].old[b.ropes[0].pts.size() - 1].x < 400 - 5, "sai com o embalo da mão")
 	ok(await wait_until(func(): return not b._loose.has(0), 5.0), "o fio recolheu o FONE")
 	ok(not b.ropes.has(0), "fio do FONE todo dentro do encaixe")
 	_move(1, l7 + 10)
