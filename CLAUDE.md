@@ -202,9 +202,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   as viagens em andamento), registra pendências, limpa advertências e apaga o progresso. Mesa de som: toca cada som de `Sfx.VOL` com
   um controle de volume que vale na hora (`Sfx.vol`, a cópia em uso) e "Copiar VOL" põe a constante ajustada na área de
   transferência, para colar em `sfx.gd`. Cada seção tem "Limpar" e o
-  topo tem "Restaurar tudo" (`Main.drop` tira uma ligação sem caderno, advertência nem retorno; a mesa é zerada antes de
-  tirar os cabos para nada contar como conversa cortada; `Notebook.reset`). Textos fixos em português (ferramenta, não interface). Ele só usa funções públicas do Main (`free_line`, `set_weather`,
-  `start_ending`, `cancel_dest_ring`, `drop`) e do relatório (`ShiftReport.forget`), para não quebrar quando o Main mudar.
+  topo tem "Restaurar tudo" (`Main.drop` tira uma ligação sem caderno, advertência nem retorno; `Main.drop_all` tira
+  todas e zera a mesa antes de tirar os cabos, para nada contar como conversa cortada; `Main.drop_emergency` apaga a
+  emergência em andamento; `Notebook.reset`). Textos fixos em português (ferramenta, não interface). O que mexe no
+  estado do Main fica em funções públicas dele (`free_line`, `ring`, `set_weather`, `start_ending`, `drop`, `drop_all`,
+  `drop_emergency`); dos campos, o painel só lê agenda e ligações para o texto de estado e adianta o relógio (`minutes`), para não quebrar quando o Main mudar.
 - **Captura de tela** (`tools/shot.tscn`, COM tela): `Godot --path . tools/shot.tscn -- --hour=22:30 --weather=rain
   --tool=despacho --card --emergency --news --width=1500 --zoom=x,y,w,h --out=build/shot.png` grava a tela inteira e o
   recorte ampliado 4× (`_zoom.png`); as opções do jogo (`--night`, `--seed`, `--lang`) também valem. Para conferir

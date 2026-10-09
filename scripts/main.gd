@@ -987,6 +987,43 @@ func drop(c: PhoneCall) -> void:
 	_refresh_panel()
 
 
+## Debug: tira todas as ligações do turno sem consequência e zera a mesa (linhas e destinos livres antes de tirar
+## os cabos: assim nada conta como conversa cortada); ninguém liga de novo.
+func drop_all() -> void:
+	drop_emergency()
+	for c in live.duplicate():
+		drop(c)
+	for c in sched.duplicate():
+		if c.retry != PhoneCall.Retry.NONE:
+			sched.erase(c)
+	for n in range(1, Exchange.LINES + 1):
+		exchange.set_line(n, Exchange.Line.FREE)
+	for d in GameData.board_numbers():
+		exchange.set_dest(d, Exchange.Dest.FREE)
+		cancel_dest_ring(d)   # toques de destino pendentes não valem mais
+	for e in board.ends.size():
+		if board.ends[e] != -1:
+			board.pick_up(e)
+			board.go_home(e)
+
+
+## Debug: a emergência em andamento some sem consequência: a ligação cai, a barra e a luz do rádio apagam, as
+## viaturas voltam, o jornal esquece dela e ela não liga de novo.
+func drop_emergency() -> void:
+	var c := em_call
+	if c == null:
+		return
+	if c in live:
+		drop(c)
+		exchange.set_line(c.line, Exchange.Line.FREE)
+	for r in sched.duplicate():
+		if r.data == c.data:
+			sched.erase(r)
+	em_call = null
+	dispatch.reset(true)
+	report.forget(c.data)
+
+
 # ================================================================ ligação desconhecida e final
 
 func _mystery_aftermath(c: PhoneCall) -> void:

@@ -32,7 +32,7 @@ func _ready() -> void:
 		return
 	_status = _label("")
 	_row([["Restaurar tudo", _restore_all]])
-	_section("Ligações e mesa", _clear_calls)
+	_section("Ligações e mesa", main.drop_all)
 	_row([["Transferência", _ring_transfer.bind(false)], ["Molde", _ring_transfer.bind(true)], ["Informação", func(): _ring(Schedule.info_call())]])
 	_row([["Trote", func(): _ring(PhoneCall.from_prank(C.pranks.pick_random()))], ["Desconhecida", func(): _ring(PhoneCall.mystery())]])
 	_emergency = OptionButton.new()
@@ -47,7 +47,7 @@ func _ready() -> void:
 	_row([["Tocar emergência (caso sorteado)", _ring_emergency]])
 	_section("Barra de agravamento", _clear_bar)
 	_bar = _label("")
-	_row([["Próximo estágio", _next_stage], ["Encerrar emergência", _clear_emergency]])
+	_row([["Próximo estágio", _next_stage], ["Encerrar emergência", main.drop_emergency]])
 	_freeze = CheckButton.new()
 	_freeze.text = "Congelar a barra"
 	_freeze.focus_mode = Control.FOCUS_NONE
@@ -145,52 +145,15 @@ func _next_stage() -> void:
 # ---------------------------------------------------------------- limpar
 
 func _restore_all() -> void:
-	_clear_calls()
+	main.drop_all()
 	_clear_bar()
 	Engine.time_scale = 1.0
 	_clear_units_notebook()
 
 
-## Encerra todas as ligações ativas sem consequência, zera a mesa (linhas e destinos livres antes de tirar os cabos:
-## assim nada conta como conversa cortada) e tira da agenda quem ia ligar de novo.
-func _clear_calls() -> void:
-	_clear_emergency()
-	for c in main.live.duplicate():
-		main.drop(c)
-	for c in main.sched.duplicate():
-		if c.retry != PhoneCall.Retry.NONE:
-			main.sched.erase(c)
-	for n in range(1, Exchange.LINES + 1):
-		main.exchange.set_line(n, Exchange.Line.FREE)
-	for d in GameData.board_numbers():
-		main.exchange.set_dest(d, Exchange.Dest.FREE)
-		main.cancel_dest_ring(d)   # toques de destino pendentes não valem mais
-	for e in main.board.ends.size():
-		if main.board.ends[e] != -1:
-			main.board.pick_up(e)
-			main.board.go_home(e)
-
-
-## A emergência em andamento some sem consequência: a ligação cai, a barra e a luz do rádio apagam, as viaturas
-## voltam, o jornal esquece dela e ela não liga de novo.
-func _clear_emergency() -> void:
-	var c: PhoneCall = main.em_call
-	if c == null:
-		return
-	if c in main.live:
-		main.drop(c)
-		main.exchange.set_line(c.line, Exchange.Line.FREE)
-	for r in main.sched.duplicate():
-		if r.data == c.data:
-			main.sched.erase(r)
-	main.em_call = null
-	main.dispatch.reset(true)
-	main.report.forget(c.data)
-
-
 func _clear_bar() -> void:
 	_freeze.button_pressed = false
-	_clear_emergency()
+	main.drop_emergency()
 
 
 func _clear_units_notebook() -> void:
