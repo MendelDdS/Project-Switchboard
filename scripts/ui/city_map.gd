@@ -205,7 +205,7 @@ func _gui_input(e: InputEvent) -> void:
 
 
 func route(u: String, target: Dictionary) -> PackedVector2Array:
-	var st: Vector2 = STATION[u]["p"]
+	var st: Vector2 = STATION[Fleet.kind(u)]["p"]   # a de reserva sai da mesma base
 	var s := GameData.street(target["street"])
 	var g := seg_geom(s, target["block"])
 	var m: Vector2 = g[2]

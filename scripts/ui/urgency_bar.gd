@@ -9,7 +9,7 @@ const COLORS := [Pal.GREEN, Pal.AMBER, Pal.RED]
 const NAMES := [T.Key.URGENCY_0, T.Key.URGENCY_1, T.Key.URGENCY_2]
 const BLINK_SEC := 1.4   ## quanto tempo pisca ao mudar de estágio
 
-var call: PhoneCall      ## emergência em andamento (Main põe quando ela toca)
+var call: PhoneCall      ## a emergência na linha do FONE (o `Urgency` põe a cada quadro)
 
 var _stage := 0
 var _blink := 0.0

@@ -332,3 +332,8 @@ O que o usuário pediu, em ordem (antes no `CLAUDE.md`). Acrescente cada pedido 
     e o retorno da mesma pessoa o mantém.
 104. Erro ao perder a emergência com o operador na linha: a barra era desenhada no quadro em que ela passava ao estágio
     3 (perdida), que não tem cor nem nome. O `UrgencyBar._draw` agora confere se ela ainda vale.
+105. Emergências simultâneas, no máximo duas: cada uma com a sua barra (o painel mostra a da linha do FONE, o rádio
+    acende na pior e avisa da outra); o cartão vai para a emergência do lugar marcado (fora de todas, para a que está
+    sendo atendida). A terceira espera; o debug recusa.
+106. Viaturas pela quantidade de emergências: com duas em andamento, até duas de cada tipo (a de reserva sai da mesma
+    base); com uma, continua uma de cada, e quem errou espera ela voltar.

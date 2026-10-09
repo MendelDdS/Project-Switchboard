@@ -29,7 +29,7 @@ func start(night: Night) -> void:
 	_night = night
 	active = true
 	main.notebook.registered.connect(_on_registered)
-	main.dispatch.sent.connect(func(_l, _u, _c, _n): _sent = true)
+	main.dispatch.sent.connect(func(_l, _u, _c, _n, _e): _sent = true)
 	main.dispatch.blank_card.connect(func(_l): _sent = true)
 	main.dispatch.arrived.connect(func(e: EmergencyCall, r: Fleet.Result, _o, _x):
 		if e != null and e == drill and r != Fleet.Result.WRONG_PLACE:   # um cartão do endereço errado não conta

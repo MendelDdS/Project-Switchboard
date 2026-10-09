@@ -1,11 +1,12 @@
 class_name Urgency
 extends Node
-## A barra de agravamento da emergência em andamento (`Main.em_call`; nó filho de Main). A situação piora até o socorro
+## As barras de agravamento das emergências em andamento (`Main.emergencies`, até duas; nó filho de Main). A situação piora até o socorro
 ## completo sair para o lugar certo (despacho incompleto ou no endereço errado não para a barra), mesmo com a ligação em
 ## espera ou já desligada; só para durante pergunta e resposta e na pausa do jogo. Com o operador fora da linha dela, o
 ## rádio inteiro avisa (`Radio.alert`). Cada estágio pode exigir unidades novas, mas só depois de alguém contar o que
 ## mudou (`told`); o último (perdida) já pune e piora o jornal, mas ainda dá para despachar. Quem liga de novo não tem
-## barra. O estado fica na `PhoneCall` (`stage`, `urgency`, `told`); o desenho, em `UrgencyBar`.
+## barra. O estado fica na `PhoneCall` (`stage`, `urgency`, `told`); o desenho, em `UrgencyBar` (a da linha do FONE).
+## Com duas, o rádio mostra a pior e avisa da que está fora da linha.
 
 var frozen := false   ## painel de debug: a barra não anda
 
@@ -19,14 +20,31 @@ func _process(delta: float) -> void:
 
 ## Anda `delta` segundos (os testes chamam à mão com o relógio parado).
 func tick(delta: float) -> void:
-	var c := main.em_call
-	var away := ""   # fora da linha da emergência, o rádio inteiro avisa
-	if c != null and c.urgent() and not c.on_line:
-		var where := (c.data as EmergencyCall).address if c.ended else T.text(T.Key.STATUS_LINE) % c.line + " " + T.text(T.Key.STATUS_ON_HOLD)
-		away = "%s\n%s · %s" % [T.text(T.Key.RADIO_INCIDENT_ON), where, T.text(UrgencyBar.NAMES[c.stage])]
-	main.radio.alert(c.stage if c != null and c.urgent() else -1, away)
-	if c == null or not c.urgent() or c.asking:
-		return
+	var worst := -1
+	var off: PhoneCall = null   # fora da linha de uma emergência, o rádio inteiro avisa (a pior das que estão fora)
+	var attending: PhoneCall = null
+	for c: PhoneCall in main.emergencies:
+		if c.on_line:
+			attending = c
+		if c.urgent():
+			worst = maxi(worst, c.stage)
+			if not c.on_line and (off == null or c.stage > off.stage):
+				off = c
+	var away := ""
+	if off != null:
+		var where := (off.data as EmergencyCall).address if off.ended else T.text(T.Key.STATUS_LINE) % off.line + " " + T.text(T.Key.STATUS_ON_HOLD)
+		away = "%s\n%s · %s" % [T.text(T.Key.RADIO_INCIDENT_ON), where, T.text(UrgencyBar.NAMES[off.stage])]
+	main.radio.alert(worst, away)
+	main.phone.urgency.call = attending
+	main.dispatch.attending = null if attending == null else attending.data
+	main.dispatch.set_spare(main.in_progress().size() >= Main.MAX_EMERGENCIES)
+	for c: PhoneCall in main.emergencies.duplicate():
+		if c.urgent() and not c.asking:
+			_advance(c, delta)
+
+
+## A barra de `c` anda; ao mudar de estágio, quem está na linha (ou o rádio) conta o que piorou.
+func _advance(c: PhoneCall, delta: float) -> void:
 	var e: EmergencyCall = c.data
 	if not frozen:
 		c.urgency += delta
@@ -53,5 +71,4 @@ func tick(delta: float) -> void:
 ## exigir as unidades dele; ninguém é cobrado pelo que não tinha como saber.
 func told(c: PhoneCall, stage: int) -> void:
 	c.told = maxi(c.told, stage)
-	if c == main.em_call:
-		main.dispatch.fleet.require((c.data as EmergencyCall).required(c.told))
+	main.dispatch.fleet.require(c.data, (c.data as EmergencyCall).required(c.told))

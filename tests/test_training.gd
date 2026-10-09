@@ -119,7 +119,7 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return m.training.call.ended), "ela desliga para a emergência de treino")
 	ok(await wait_until(_ringing(3)), "ela liga pela entrada 3")
 	var dp := m.dispatch
-	ok(dp.fleet.incident != null and dp.fleet.incident.call == m.training.drill, "o despacho espera a emergência de treino")
+	ok(dp.fleet.incident_of(m.training.drill) != null, "o despacho espera a emergência de treino")
 	_move(0, 3)
 	m.answer()
 	ok(await wait_until(_waiting("dispatch")), "pede para abrir o despacho")

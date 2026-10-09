@@ -20,6 +20,7 @@ const SMALLTALK_AFTER := 10.0           # segundos de silêncio esperando a tran
 const SMALLTALK_CHANCE := 0.6           # ...às vezes (respostas e limites: Conversation); sem resposta, reclama da demora:
 const NAG_AFTER := 22.0                 # segundos de silêncio até reclamar da demora (emergência: EMERGENCY_NAG_AFTER)
 const EMERGENCY_NAG_AFTER := 26.0
+const MAX_EMERGENCIES := 2              # emergências em andamento ao mesmo tempo (a próxima espera; o debug recusa)
 ## Atalhos das ferramentas (Input Map): aba -> ação.
 const WARM_TINT := Color(1.0, 0.62, 0.36, 0.35)   # a luminária recém-acesa: o brilho dela nesse tom e nessa fração da força
 const TAB_KEYS := {Tools.DIRECTORY: "tab_directory", Tools.DISPATCH: "tab_dispatch", Tools.LOGBOOK: "tab_logbook", Tools.CALL_LOG: "tab_call_log"}
@@ -42,7 +43,9 @@ var minutes := 0.0
 var running := false
 var sched: Array[PhoneCall] = []   ## ligações ainda por tocar, em ordem de horário (montadas por `Schedule`)
 var live: Array[PhoneCall] = []    ## tocando ou em andamento (podem ser várias ao mesmo tempo)
-var em_call: PhoneCall
+## Emergências que tocaram, a mais recente por último; as em andamento (`in_progress`) são no máximo
+## `MAX_EMERGENCIES`. Uma que acabou fica até dar lugar a outra (o despacho ainda pode chegar a ela).
+var emergencies: Array[PhoneCall] = []
 var myst_time := "02:13"
 var myst_line := 0                 ## entrada por onde veio a ligação desconhecida (sorteada)
 var myst_plan := INF               ## horário sorteado da ligação desconhecida (a silhueta segue este, mesmo se ela atrasar)
@@ -51,7 +54,7 @@ var ending := false
 var flick := false
 
 var _dgen := {}                    ## número -> geração do toque (invalida toques quando o cabo sai)
-var _sent := {}                    ## último despacho: call, loc, units
+var _sent := {}                    ## EmergencyCall -> último despacho para ela: loc, units, card
 ## Marcadores do "já viu" das dicas de primeira vez (`_teach`); o treinamento os liga quando ensina o mesmo.
 const SAW_SLIPS := "viu_tiras_caderno"
 const SAW_SHEET := "viu_folha_registro"
@@ -294,7 +297,7 @@ func _process(delta: float) -> void:
 		_nag()
 		supervisor.check_hold()
 	background.flick = flick
-	background.alert = dispatch.fleet.incident != null   # o estado do despacho na unidade da mesa
+	background.alert = not dispatch.fleet.incidents.is_empty()   # o estado do despacho na unidade da mesa
 	background.card_out = not dispatch.machines.can_print()
 	var w := background.warm   # esquentando, o brilho é mais fraco e alaranjado (`Background.warm_up`)
 	_glow.modulate = Color(1.0, lerpf(WARM_TINT.g, 1.0, w), lerpf(WARM_TINT.b, 1.0, w), background.lamp_level * lerpf(WARM_TINT.a, 1.0, w))
@@ -676,8 +679,8 @@ func _run_schedule() -> void:
 	# com uma do roteiro (ou a desconhecida) na mesa, nenhuma outra toca até ela acabar
 	if live.any(_scripted):
 		hush = true
-	# o despacho cuida de uma emergência por vez: a próxima espera a anterior desligar e as unidades chegarem
-	if c.kind == PhoneCall.Kind.EMERGENCY and ((em_call != null and (not em_call.ended or em_call.urgent())) or dispatch.fleet.en_route()):
+	# no máximo `MAX_EMERGENCIES` ao mesmo tempo: a próxima espera uma delas desligar e ter o socorro
+	if c.kind == PhoneCall.Kind.EMERGENCY and in_progress().size() >= MAX_EMERGENCIES:
 		hush = true
 	# não sobrecarregar: com `Pace.max_live` ligações pedindo atenção, a próxima espera (a desconhecida tem regra própria)
 	if c.kind != PhoneCall.Kind.MYSTERY and live.size() >= pace.max_live:
@@ -750,9 +753,12 @@ func ring(c: PhoneCall) -> void:
 		myst_time = c.time
 		myst_line = c.line
 	if c.kind == PhoneCall.Kind.EMERGENCY:
-		em_call = c
+		for old in emergencies.filter(func(x: PhoneCall): return x.data == c.data or x.ended and not x.urgent()):
+			emergencies.erase(old)   # quem liga de novo recomeça; as que acabaram dão lugar
+			dispatch.fleet.close(old.data)
+		emergencies.append(c)
+		_sent.erase(c.data)
 		dispatch.set_incident(c.data, c.told)
-		phone.urgency.call = c
 	_update_bell()
 	_refresh_panel()
 	if c.lesson:   # a dica é do treinamento
@@ -907,10 +913,10 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> PhoneCall.Record:
 				if c.info_ok == 0:
 					obs += " " + T.text(T.Key.OBS_WRONG_INFO)
 		PhoneCall.Kind.EMERGENCY:
-			var same: bool = not _sent.is_empty() and _sent["call"] == c
-			where = String(_sent["loc"]) if same else (c.data as EmergencyCall).address
-			unit = String(_sent["units"]) if same else "—"
-			card = int(_sent["card"]) if same else 0
+			var same: bool = _sent.has(c.data)
+			where = String(_sent[c.data]["loc"]) if same else (c.data as EmergencyCall).address
+			unit = String(_sent[c.data]["units"]) if same else "—"
+			card = int(_sent[c.data]["card"]) if same else 0
 		PhoneCall.Kind.PRANK:
 			where = (c.data as PrankCall).fake_address
 	match reason:
@@ -929,10 +935,10 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> PhoneCall.Record:
 				obs = T.text(T.Key.OBS_CALL_DROPPED)
 	if c.lesson:   # as da veterana: a de emergência de treino leva o local e o cartão do último envio
 		obs = T.text(T.Key.OBS_TRAINING)
-		if c == training.drill_call and not _sent.is_empty():
-			where = String(_sent["loc"])
-			unit = String(_sent["units"])
-			card = int(_sent["card"])
+		if c == training.drill_call and _sent.has(training.drill):
+			where = String(_sent[training.drill]["loc"])
+			unit = String(_sent[training.drill]["units"])
+			card = int(_sent[training.drill]["card"])
 	var unknown := c.kind == PhoneCall.Kind.MYSTERY or reason == PhoneCall.End.MISSED
 	var who := T.text(T.Key.UNKNOWN_CALLER) if unknown else tr(c.caller)
 	var r := PhoneCall.Record.new()
@@ -949,21 +955,37 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> PhoneCall.Record:
 	return r
 
 
-## `complete`: com este envio, tudo o que a emergência precisa agora está a caminho do lugar certo.
-func _on_dispatched(loc: String, units_text: String, complete: bool, card: int) -> void:
-	_sent = {"call": em_call, "loc": loc, "units": units_text, "card": card}
-	if em_call == null:
+## `complete`: com este envio, tudo o que a emergência `e` (a do cartão; nula sem nenhuma) precisa agora está a
+## caminho do lugar certo.
+func _on_dispatched(loc: String, units_text: String, complete: bool, card: int, e: EmergencyCall) -> void:
+	if e != null:
+		_sent[e] = {"loc": loc, "units": units_text, "card": card}
+	var c := emergency_of(e)
+	if c == null:
 		return
 	# o socorro completo saiu: a barra para (e o supervisor vê se demorou)
-	if complete and em_call.urgent():
-		em_call.secured = true
-		supervisor.secured(em_call)
-	if em_call.record != null:
-		em_call.record.where = loc
-		em_call.record.unit = units_text
-		em_call.record.card = card
-		notebook.refresh_record(em_call.record)
-	conversation.emergency_dispatched(em_call)
+	if complete and c.urgent():
+		c.secured = true
+		supervisor.secured(c)
+	if c.record != null:
+		c.record.where = loc
+		c.record.unit = units_text
+		c.record.card = card
+		notebook.refresh_record(c.record)
+	conversation.emergency_dispatched(c)
+
+
+## As emergências em andamento: na linha, tocando ou com a barra ainda correndo.
+func in_progress() -> Array:
+	return emergencies.filter(func(c: PhoneCall): return not c.ended or c.urgent())
+
+
+## A ligação mais recente da emergência `e` (nula se ela não tocou).
+func emergency_of(e: EmergencyCall) -> PhoneCall:
+	for i in range(emergencies.size() - 1, -1, -1):
+		if emergencies[i].data == e:
+			return emergencies[i]
+	return null
 
 
 ## Invalida os toques pendentes do destino `d` (o cabo saiu, ou o debug limpou a mesa); devolve a geração nova.
@@ -1007,21 +1029,19 @@ func drop_all() -> void:
 			board.go_home(e)
 
 
-## Debug: a emergência em andamento some sem consequência: a ligação cai, a barra e a luz do rádio apagam, as
-## viaturas voltam, o jornal esquece dela e ela não liga de novo.
+## Debug: as emergências somem sem consequência: as ligações caem, a barra e a luz do rádio apagam, as
+## viaturas voltam, o jornal esquece delas e elas não ligam de novo.
 func drop_emergency() -> void:
-	var c := em_call
-	if c == null:
-		return
-	if c in live:
-		drop(c)
-		exchange.set_line(c.line, Exchange.Line.FREE)
-	for r in sched.duplicate():
-		if r.data == c.data:
-			sched.erase(r)
-	em_call = null
+	for c in emergencies:
+		if c in live:
+			drop(c)
+			exchange.set_line(c.line, Exchange.Line.FREE)
+		for r in sched.duplicate():
+			if r.data == c.data:
+				sched.erase(r)
+		report.forget(c.data)
+	emergencies.clear()
 	dispatch.reset(true)
-	report.forget(c.data)
 
 
 # ================================================================ ligação desconhecida e final

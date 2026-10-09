@@ -205,8 +205,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   transferência, para colar em `sfx.gd`. A aba Vozes (o painel tem duas abas, Jogo e Vozes) fala cada letra pelo nome
   dela ("bê", "efe") ou um texto digitado, na voz escolhida (`_voices`, `_speak`). Cada seção tem "Limpar" e o
   topo tem "Restaurar tudo" (`Main.drop` tira uma ligação sem caderno, advertência nem retorno; `Main.drop_all` tira
-  todas e zera a mesa antes de tirar os cabos, para nada contar como conversa cortada; `Main.drop_emergency` apaga a
-  emergência em andamento; `Notebook.reset`). Textos fixos em português (ferramenta, não interface). O que mexe no
+  todas e zera a mesa antes de tirar os cabos, para nada contar como conversa cortada; `Main.drop_emergency` apaga as
+  emergências em andamento; tocar uma terceira emergência é recusado; `Notebook.reset`). Textos fixos em português (ferramenta, não interface). O que mexe no
   estado do Main fica em funções públicas dele (`free_line`, `ring`, `set_weather`, `start_ending`, `drop`, `drop_all`,
   `drop_emergency`); dos campos, o painel só lê agenda e ligações para o texto de estado e adianta o relógio (`minutes`), para não quebrar quando o Main mudar.
 - **Captura de tela** (`tools/shot.tscn`, COM tela): `Godot --path . tools/shot.tscn -- --hour=22:30 --weather=rain
@@ -327,10 +327,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   Quem não era necessária (a mais, endereço errado ou nada lá) volta logo depois de o rádio dizer isso (`Radio.said`,
   `QUICK_STAY`), ou no máximo `QUICK_WAIT` s depois de chegar se o rádio ainda estiver ocupado. Emergências escritas e moldes só nas ruas dos setores atendidos.
   **Regras das viaturas no `Fleet`** (`scripts/model/fleet.gd`, `Dispatch.fleet`; sem tela nem tempo, testado direto no
-  teste de fluxo): estado de cada uma (`Fleet.Unit`, `IDS`, `NAMES`, `STATUS`), a emergência em andamento (`incident`, um `Fleet.Incident`, nulo sem emergência;
-  `required`, `require`) e a ordem `send` (devolve se o socorro ficou completo) → `arrive` (um `Fleet.Arrival`: `Fleet.Result` OK, MISSING,
+  teste de fluxo): estado de cada uma (`Fleet.Unit`, `IDS`, `NAMES`, `STATUS`), as emergências em andamento (`incidents`, cada uma um `Fleet.Incident`;
+  `incident_of`, `required(e)`, `require(e, …)`, `close`), de qual é o cartão (`target_of`: a do lugar marcado; fora de
+  todas, a da linha do FONE, `Dispatch.attending`; sem ela, a primeira sem socorro) e a ordem `send` (devolve se o socorro ficou completo) → `arrive` (um `Fleet.Arrival`: `Fleet.Result` OK, MISSING,
   WRONG_PLACE, IDLE; o que falta, o que sobrou, quem volta logo) → `leave` → `home`; `gen` invalida viagens depois do
-  `reset`. O `Dispatch` fica com cartão, ficha, mapa, rádio e a espera entre os passos. `Dispatch.set_incident()` quando a emergência toca; `Dispatch.sent` → `Main._on_dispatched` →
+  `reset`. O `Dispatch` fica com cartão, ficha, mapa, rádio e a espera entre os passos. `Dispatch.set_incident()` quando a emergência toca; `Dispatch.sent` (com a emergência do cartão) → `Main._on_dispatched` →
   `Conversation.emergency_dispatched`. Na chegada,
   `Dispatch.arrived(e, result, occurrence, extra)` (`Fleet.Result`; tipo marcado; unidades
   que não eram necessárias) → `Supervisor.on_arrived`.
@@ -345,7 +346,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   inteiro acende: `Radio.alert(stage, away)`, moldura pulsando e aviso na tela; a luz "Ocorrência" acende sempre;
   a cada troca de estágio, `Radio.chirp` toca `radio_alert` vindo do rádio, mais agudo quanto pior): corre desde o atendimento, também em espera e depois de a pessoa desligar; para durante
   pergunta e resposta (`Conversation._em_ask`) e na pausa; para de vez só quando o socorro completo sai para o lugar
-  certo (`Dispatch.sent(..., complete)`, conta envios anteriores em `Fleet.incident.going`). Estágios por
+  certo (`Dispatch.sent(..., complete)`, conta envios anteriores em `Fleet.Incident.going`). Estágios por
   `EmergencyCall.stage_sec`; cada um chama `Conversation.emergency_worse` (fala `worsening`/`critical`/`lost`; com a
   pessoa já desligada, `RADIO_WORSE`/`RADIO_LOST`; depois de dita, `Urgency.told` atualiza `PhoneCall.told`, e só então `Fleet.require(e.required(told))`
   passa a exigir as unidades do estágio; com a pessoa já desligada ou se despedindo, o rádio diz também o que mandar,
@@ -353,7 +354,13 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `Conversation._qa`, índices depois das do roteiro; perdida = só o endereço e `OP_ANYONE_HURT` → `lost_answer`). Advertência pelo estágio
   quando o socorro completo sai (`_on_dispatched` → `Supervisor.secured`: `emergency_worse` média, `emergency_critical` grave + jornal LATE);
   perdida = `emergency_lost` gravíssima na hora (`Supervisor.lost`) + jornal BAD (sem `emergency_dropped` nem retorno). Retornos não têm
-  barra (herdam `stage` e `told`: as unidades e as perguntas de quando a ligação caiu). A próxima emergência espera a barra da anterior parar.
+  barra (herdam `stage` e `told`: as unidades e as perguntas de quando a ligação caiu). **Até duas emergências ao mesmo tempo**
+  (`Main.MAX_EMERGENCIES`, `Main.emergencies`, `in_progress()`: tocando, na linha ou com a barra correndo; `emergency_of(e)`):
+  cada uma com a sua barra; o painel mostra a da linha do FONE, e o rádio acende na pior e avisa da que está fora da linha.
+  A terceira espera uma delas desligar e ter o socorro. **Viaturas**: cada tipo tem duas (`Fleet.units`: "pol" e a
+  de reserva "pol2", `Fleet.SPARE`, `Fleet.kind`); a de reserva só sai com duas emergências em andamento (`Fleet.spare`,
+  posto pelo `Urgency` via `Dispatch.set_spare`; `Fleet.vehicle`/`crew` escolhem quem sai). Com uma, quem errou espera
+  a viatura voltar. O cartão perfura o tipo; o `Incident` conta tipos; viagens, `leave` e `home` são por viatura.
 - O Main chama `supervisor.fault()` onde a falha acontece (cabo cortado, número errado); `Supervisor.call_ended()`
   (chamado em `end_call`) decide advertência e retorno; `call_again()` agenda a mesma pessoa de novo (`PhoneCall.retry`; uma vez por motivo, `retried`;
   nunca depois do fim do turno; `too_late` sorteado com
@@ -436,8 +443,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`Main._fill_quiet`; não com uma do roteiro a menos de `STORY_GAP`, nem depois de `LAST_CALL`). O robô mede a maior
   mesa vazia (`mesa_vazia`, além do `maior_silêncio` entre toques).
 - Sorteadas: `Schedule._random_calls` — intervalo `Pace.call_gap` (nível 1: 45–60 … nível 5: 28–38; medido com `--human`) entre uma e a
-  próxima, `Pace.peak_chance` de vir logo em seguida, no máximo `Pace.max_live` pedindo atenção (`_run_schedule`), a `STORY_GAP` das fixas. Tipos: `Pace.emergencies` (a `EMERGENCY_GAP` uma da outra; no laço, a
-  emergência espera a anterior acabar e `Fleet.en_route()`), `Pace.pranks`, resto transferência/informação.
+  próxima, `Pace.peak_chance` de vir logo em seguida, no máximo `Pace.max_live` pedindo atenção (`_run_schedule`), a `STORY_GAP` das fixas. Tipos: `Pace.emergencies` (a `EMERGENCY_GAP` uma da outra; no laço, com
+  `MAX_EMERGENCIES` em andamento a próxima espera), `Pace.pranks`, resto transferência/informação.
   Um destino (e `alt_target`) por noite: dois pedidos do mesmo número travavam um ao outro.
 - `GIVE_UP_SEC` 60 s (`story` 1,5x, retornos 0,75x); treinamento e desconhecida nunca desistem.
 - Espera na linha (`Main._nag`, silêncio medido em `talk_clock`, que para na pausa): transferência pedida e o

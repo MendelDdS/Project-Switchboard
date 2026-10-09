@@ -124,8 +124,9 @@ func on_arrived(e: EmergencyCall, result: Fleet.Result, occurrence: String, extr
 		Fleet.Result.WRONG_PLACE:
 			fault("dispatch_wrong_place", e.address)
 			main.report.trouble(e)
-			if main.em_call != null and main.em_call.data == e:
-				call_again(main.em_call, PhoneCall.Retry.WORSE)
+			var c := main.emergency_of(e)
+			if c != null:
+				call_again(c, PhoneCall.Retry.WORSE)
 
 
 ## O supervisor confere o tipo registrado (não dá para saber o tipo de quem não foi atendido).

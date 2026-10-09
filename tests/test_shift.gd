@@ -71,7 +71,7 @@ func _card_step(f: PhoneCall, e: EmergencyCall) -> bool:
 		return false   # imprimindo ou entrando
 	if d.occurrence() == "":
 		d.set_occurrence(e.occurrence)
-		for u in d.fleet.required():   # o que a situação pede agora (pode ter piorado)
+		for u in d.fleet.required(e):   # o que a situação pede agora (pode ter piorado)
 			d.punch_unit(u)
 		return true
 	card._pos = Vector2(card._machine(card.Machine.SEND).get_center().x - card.CARD_W / 2.0, card._slot(card.Machine.SEND) - card.card.size.y + 8.0)
@@ -83,8 +83,8 @@ func _initialize() -> void:
 	Engine.time_scale = 2.0
 	m = await load_main()
 	if human:   # pelo cartão, o despacho sai só depois da leitura no transmissor: o estágio é o daquela hora
-		m.dispatch.sent.connect(func(_l, _u, _c, _n):
-			var f: PhoneCall = m.em_call
+		m.dispatch.sent.connect(func(_l, _u, _c, _n, e: EmergencyCall):
+			var f: PhoneCall = m.emergency_of(e)
 			if f != null:
 				stages.append("%d(%.0fs)" % [f.stage, f.urgency] if f.retry == PhoneCall.Retry.NONE else "retorno"))
 	m._intro.visible = false
@@ -199,7 +199,7 @@ func _initialize() -> void:
 					else:
 						m.dispatch.set_location(e.street, e.block, e.address)
 						m.dispatch.set_occurrence(e.occurrence)
-						for u in m.dispatch.fleet.required():   # o que a situação pede agora (pode ter piorado)
+						for u in m.dispatch.fleet.required(e):   # o que a situação pede agora (pode ter piorado)
 							m.dispatch.punch_unit(u)
 						stages.append("%d(%.0fs)" % [f.stage, f.urgency] if f.retry == PhoneCall.Retry.NONE else "retorno")
 						m.dispatch._send()

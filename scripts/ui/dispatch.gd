@@ -9,12 +9,14 @@ extends Control
 ## `_picked`). O mapa (`City`) fica no vidro: na cena, `CardMachines.BEZEL` dentro da beira do papel e acima da base
 ## (`CardMachines.BASE_H`); as máquinas (`Slip`) cobrem o papel todo. O transmissor aceita cartão incompleto:
 ## sem unidade, ninguém sai (`blank_card`, o supervisor pune); sem tipo, as unidades vão e a chegada é avaliada com o
-## tipo vazio. Depois do envio, tudo volta limpo para a próxima. As regras das viaturas e da emergência em andamento
-## ficam no `Fleet` (`fleet`); aqui ficam a tela, o rádio e o tempo das viagens.
+## tipo vazio. Depois do envio, tudo volta limpo para a próxima. As regras das viaturas e das emergências em andamento
+## (até duas ao mesmo tempo; o cartão vai para a do lugar marcado, `Fleet.target_of`) ficam no `Fleet` (`fleet`);
+## aqui ficam a tela, o rádio e o tempo das viagens.
 
 ## `complete`: tudo o que a emergência precisa agora está a caminho do lugar certo (contando envios anteriores).
-## `card`: o número do cartão enviado (vai para o caderno).
-signal sent(location: String, units_text: String, complete: bool, card: int)
+## `card`: o número do cartão enviado (vai para o caderno). `e`: de qual emergência é o cartão (`Fleet.target_of`;
+## nula sem nenhuma).
+signal sent(location: String, units_text: String, complete: bool, card: int, e: EmergencyCall)
 ## As unidades chegaram (`Fleet.arrive`). `e` é nulo em `IDLE`. `occurrence` é o tipo marcado no despacho;
 ## `extra`, as unidades que foram ao local certo sem ser necessárias.
 signal arrived(e: EmergencyCall, result: Fleet.Result, occurrence: String, extra: Array)
@@ -27,6 +29,7 @@ const QUICK_WAIT := 3.0     # ...ou, com o rádio ainda ocupado com outras mensa
 
 var radio: Radio
 var fleet := Fleet.new()
+var attending: EmergencyCall   ## a emergência na linha do FONE (o `Urgency` põe): a do cartão marcado fora de todas
 
 var _location := {}          ## {"street", "block", "label"} marcado no mapa
 var _occurrence := ""        ## tipo perfurado no cartão ("" = nenhum)
@@ -103,13 +106,20 @@ func picked() -> Array:
 	return _picked
 
 
-## Uma emergência começou a tocar (`Fleet.set_incident`).
+## Uma emergência começou a tocar (`Fleet.set_incident`; pode haver outra em andamento).
 func set_incident(e: EmergencyCall, stage := 0) -> void:
 	fleet.set_incident(e, stage)
 
 
+## Com duas emergências em andamento, as viaturas de reserva podem sair (`Fleet.spare`; o cartão mostra quem está livre).
+func set_spare(on: bool) -> void:
+	if fleet.spare != on:
+		fleet.spare = on
+		_refresh()
+
+
 ## Debug: todas as viaturas livres na hora (as que estavam a caminho não chegam mais) e nada marcado no despacho.
-## `forget` também esquece a emergência em andamento.
+## `forget` também esquece as emergências em andamento.
 func reset(forget := false) -> void:
 	fleet.reset(forget)
 	city.remove_units(Fleet.IDS)
@@ -131,7 +141,7 @@ func _refresh() -> void:
 		return
 	machines.refresh()
 	var busy := fleet.busy()
-	_report.text = "  ·  ".join(PackedStringArray(busy.map(func(u): return "%s: %s" % [T.text(Fleet.NAMES[u]), T.text(Fleet.STATUS[fleet.units[u]])])))
+	_report.text = "  ·  ".join(PackedStringArray(busy.map(func(u): return "%s: %s" % [T.text(Fleet.NAMES[Fleet.kind(u)]), T.text(Fleet.STATUS[fleet.units[u]])])))
 	if %Fleet.visible != not busy.is_empty():
 		%Fleet.visible = not busy.is_empty()
 		_block.call_deferred()   # a faixa muda de tamanho só no quadro seguinte
@@ -141,7 +151,7 @@ func _refresh() -> void:
 func _send() -> void:
 	if _location.is_empty():
 		return
-	var us := fleet.available(_picked)
+	var us := fleet.crew(_picked)   # as viaturas (com duas emergências, pode ser a de reserva)
 	var target := _location.duplicate()
 	target["occurrence"] = _occurrence
 	Sfx.static_burst(0.0, radio.screen_x())
@@ -155,10 +165,11 @@ func _send() -> void:
 	var travel := 0.0   # quem vem de mais longe (o Centro fica num canto da cidade) chega por último
 	for u in us:
 		travel = maxf(travel, city.trip(u, target))
-		names.append(T.text(Fleet.NAMES[u]))
-	var complete := fleet.send(us, target)
+		names.append(T.text(Fleet.NAMES[Fleet.kind(u)]))
+	var inc := fleet.target_of(target, attending)
+	var complete := fleet.send(us, target, inc)
 	_clean()
-	sent.emit(String(target["label"]), ", ".join(names), complete, machines.serial())
+	sent.emit(String(target["label"]), ", ".join(names), complete, machines.serial(), null if inc == null else inc.call)
 	var gen := fleet.gen
 	await get_tree().create_timer(1.8, false).timeout
 	if gen != fleet.gen:
@@ -166,7 +177,7 @@ func _send() -> void:
 	radio.say(T.text([T.Key.RADIO_ON_WAY, T.Key.RADIO_COPY].pick_random()))
 	await get_tree().create_timer(maxf(travel - 1.8, 0.5), false).timeout
 	if gen == fleet.gen:
-		_arrive(us, target)
+		_arrive(us, target, inc)
 
 
 ## O cartão foi para a trituradora: local e furos se perdem, nada sai, e a impressora espera outro local.
@@ -189,8 +200,8 @@ func _clean() -> void:
 
 
 ## Na chegada, o rádio diz o que encontraram; quem não era necessário volta logo, o resto depois de `STAY`.
-func _arrive(us: Array, target: Dictionary) -> void:
-	var got := fleet.arrive(us, target)
+func _arrive(us: Array, target: Dictionary, inc: Fleet.Incident) -> void:
+	var got := fleet.arrive(us, target, inc)
 	_refresh()
 	var and_ := " %s " % T.text(T.Key.AND)
 	var lower := func(list: Array) -> String: return and_.join(PackedStringArray(list.map(func(u): return T.text(Fleet.NAMES[u]).to_lower())))
@@ -201,7 +212,7 @@ func _arrive(us: Array, target: Dictionary) -> void:
 		Fleet.Result.WRONG_PLACE:
 			msg = T.text(T.Key.RADIO_WRONG_PLACE) % String(target["label"]).split(",")[0]
 		Fleet.Result.MISSING:
-			msg = T.text(T.Key.RADIO_NEED) % [lower.call(got.missing), fleet.incident.addr]
+			msg = T.text(T.Key.RADIO_NEED) % [lower.call(got.missing), inc.addr]
 		_:
 			msg = T.text(T.Key.RADIO_UNDER_CONTROL)
 	radio.say(msg)
@@ -209,7 +220,7 @@ func _arrive(us: Array, target: Dictionary) -> void:
 	if not got.extra.is_empty():
 		complaint = T.text(T.Key.RADIO_NOT_NEEDED) % lower.call(got.extra)
 		radio.say(complaint)
-	var e: EmergencyCall = null if got.result == Fleet.Result.IDLE else fleet.incident.call
+	var e: EmergencyCall = null if got.result == Fleet.Result.IDLE else inc.call
 	arrived.emit(e, got.result, target["occurrence"], got.extra)
 	# quem não era necessário volta assim que o rádio termina de dizer isso
 	_return(got.unneeded, QUICK_STAY, complaint)

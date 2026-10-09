@@ -4,7 +4,7 @@ extends RefCounted
 ## ligação desconhecida e as sorteadas. Não depende da cena: noite + semente → as mesmas ligações.
 ## Quando cada uma toca de fato (mesa cheia, emergência em curso...) é decidido pelo Main (`_run_schedule`).
 
-const EMERGENCY_GAP := 60.0     # minutos de jogo entre duas emergências (o despacho cuida de uma por vez)
+const EMERGENCY_GAP := 60.0     # minutos de jogo entre duas emergências sorteadas (em andamento, no máximo `Main.MAX_EMERGENCIES`)
 const STORY_GAP := 8.0          # as ligações sorteadas ficam a tantos minutos das do roteiro
 const STORY_WAIT := 30.0        # a do roteiro espera a mesa silenciar por no máximo tantos minutos (toca sozinha)
 const TEMPLATE_CHANCE := 0.5    # chance de uma transferência ou emergência vir de um molde e não de um roteiro escrito

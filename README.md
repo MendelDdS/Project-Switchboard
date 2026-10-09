@@ -176,8 +176,8 @@ Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
   Na noite em que um bairro novo é entregue (5 e 9), o nível não sobe, para o operador aprender o bairro antes.
   Da noite 4 em diante sobe sempre, até o nível 5, que vale para todas as noites seguintes (um nível 6 já fazia o
   robô em ritmo humano perder ligações toda noite). Para medir um nível: `tests/test_shift.gd -- --human --pace=N`.
-- **Tipo sorteado**: `emergencies` emergências (a pelo menos `EMERGENCY_GAP` = 60 min uma da outra, porque o
-  despacho cuida de uma por vez), `pranks` trotes e o resto transferências (65%) ou pedidos de informação
+- **Tipo sorteado**: `emergencies` emergências (a pelo menos `EMERGENCY_GAP` = 60 min uma da outra; atrasos e
+  retornos podem juntar duas, nunca mais de duas em andamento), `pranks` trotes e o resto transferências (65%) ou pedidos de informação
   (o número de alguém na lista). Um destino não se repete na mesma noite. O treinamento (noite 0) é a Cecília,
   veterana do Alto da Serra, ligando e ensinando o serviço (`data/nights/night_00.tres`, passos `LessonStep`).
 - **Ligação desconhecida**: toca por uma entrada livre qualquer, num horário sorteado entre `mystery_from` e

@@ -208,25 +208,41 @@ func _initialize() -> void:
 	var em: EmergencyCall = GameData.CONTENT.emergencies.filter(func(x: EmergencyCall): return Array(x.required(0)) == ["amb"])[0]
 	var fl_here := {"street": em.street, "block": em.block}
 	var fl_away := {"street": em.street, "block": em.block + 1}
-	ok(not frota.send(["pol"], fl_here) and frota.arrive(["pol"], fl_here).result == Fleet.Result.IDLE and frota.leave(["pol"]) == ["pol"],
-		"frota: sem emergência, a chegada não encontra nada")
+	ok(frota.target_of(fl_here) == null and not frota.send(["pol"], fl_here, null) and frota.arrive(["pol"], fl_here, null).result == Fleet.Result.IDLE \
+		and frota.leave(["pol"]) == ["pol"], "frota: sem emergência, a chegada não encontra nada")
 	frota.home(["pol"])
 	frota.set_incident(em)
-	ok(not frota.send(["pol"], fl_here) and frota.available(["pol", "amb"]) == ["amb"] and frota.en_route(), "frota: polícia a caminho, incompleto")
-	var fl_got := frota.arrive(["pol"], fl_here)
+	var inc := frota.target_of(fl_here)
+	ok(not frota.send(["pol"], fl_here, inc) and frota.available(["pol", "amb"]) == ["amb"] and frota.en_route(), "frota: polícia a caminho, incompleto")
+	var fl_got := frota.arrive(["pol"], fl_here, inc)
 	ok(fl_got.result == Fleet.Result.MISSING and fl_got.missing == ["amb"] and fl_got.extra == ["pol"] and fl_got.unneeded == ["pol"],
 		"frota: faltou a ambulância e a polícia sobrou")
-	frota.send(["amb"], fl_away)
-	fl_got = frota.arrive(["amb"], fl_away)
+	ok(frota.target_of(fl_away) == inc, "frota: cartão fora de todas vai para a única emergência")
+	frota.send(["amb"], fl_away, inc)
+	fl_got = frota.arrive(["amb"], fl_away, inc)
 	ok(fl_got.result == Fleet.Result.WRONG_PLACE and fl_got.unneeded == ["amb"], "frota: endereço errado")
 	ok(frota.leave(["pol", "amb"]) == ["pol", "amb"] and frota.busy() == ["pol", "amb"], "frota: as duas voltando")
 	frota.home(["pol", "amb"])
-	ok(frota.busy().is_empty() and frota.send(["amb"], fl_here), "frota: a ambulância no lugar certo completa o socorro")
-	ok(frota.arrive(["amb"], fl_here).result == Fleet.Result.OK and frota.arrive([], fl_here).result == Fleet.Result.IDLE,
+	ok(frota.busy().is_empty() and frota.send(["amb"], fl_here, inc), "frota: a ambulância no lugar certo completa o socorro")
+	ok(frota.arrive(["amb"], fl_here, inc).result == Fleet.Result.OK and frota.arrive([], fl_here, inc).result == Fleet.Result.IDLE,
 		"frota: resolvida, e depois não há mais nada lá")
+	# duas ao mesmo tempo: o cartão vai para a do lugar marcado; fora de todas, para a que está sendo atendida
+	var em2: EmergencyCall = GameData.CONTENT.emergencies.filter(func(x: EmergencyCall): return x.street != em.street)[0]
+	frota.set_incident(em2)
+	var fl_two := {"street": em2.street, "block": em2.block}
+	ok(frota.target_of(fl_two).call == em2 and frota.target_of(fl_here).call == em and frota.target_of(fl_away, em).call == em \
+		and frota.target_of(fl_away).call == em2 and frota.required(em2) == Array(em2.required(0)), "frota: duas emergências, cada cartão na sua")
+	# a viatura de reserva só sai com duas emergências: com uma, quem errou espera a outra voltar
+	frota.send(frota.crew(["pol"]), fl_here, null)
+	ok(not frota.is_free("pol") and frota.crew(["pol"]).is_empty(), "frota: sem reserva, a polícia fora deixa o tipo ocupado")
+	frota.spare = true
+	var fl_crew := frota.crew(["pol"])
+	frota.send(fl_crew, fl_two, frota.target_of(fl_two))
+	ok(fl_crew == ["pol" + Fleet.SPARE] and Fleet.kind(fl_crew[0]) == "pol" and not frota.is_free("pol")
+		and frota.target_of(fl_two).going == ["pol"], "frota: com duas emergências, sai a de reserva, e conta como polícia")
 	var fl_gen := frota.gen
 	frota.reset(true)
-	ok(frota.gen == fl_gen + 1 and frota.busy().is_empty() and frota.required().is_empty(), "frota: reset libera tudo e esquece a emergência")
+	ok(frota.gen == fl_gen + 1 and frota.busy().is_empty() and frota.incidents.is_empty(), "frota: reset libera tudo e esquece as emergências")
 	# lista telefônica: cada aba abre só a sua letra, com todos os contatos dela nas duas páginas; Virar passa de letra
 	# em letra até as anotações, Voltar volta até a primeira
 	var book: PhoneBook = m.tools.find_child("PhoneBook", true, false)
@@ -915,7 +931,7 @@ func _initialize() -> void:
 	ok(dbg.visible, "F1 abre o painel de debug")
 	dbg._emergency.select(0)
 	dbg._ring_emergency()
-	var de: PhoneCall = m.em_call
+	var de: PhoneCall = m.emergencies.back()
 	ok(de != null and de.ringing and de.data.street == C.emergencies[0].street, "painel toca a emergência escolhida")
 	_move(0, de.line)
 	m.answer()
@@ -926,13 +942,25 @@ func _initialize() -> void:
 	var live_before: int = m.live.size()   # um retorno de cenário anterior pode estar tocando
 	dbg._ring_transfer(false)
 	ok(m.live.size() == live_before + 1, "painel toca uma transferência junto")
+	dbg._emergency.select(1)
+	dbg._ring_emergency()
+	dbg._ring_emergency()
+	ok(m.in_progress().size() == Main.MAX_EMERGENCIES and m.dispatch.fleet.incidents.size() == Main.MAX_EMERGENCIES,
+		"duas emergências ao mesmo tempo, e não uma terceira")
+	m.urgency.tick(0.0)
+	var de2: PhoneCall = m.emergencies.back()
+	_move(0, de2.line)
+	m.answer()
+	await frames(2)
+	m.urgency.tick(0.0)
+	ok(m.phone.urgency.call == de2 and m.radio._away != "", "a barra é a da linha do FONE; o rádio avisa da outra")
 	m.notebook.add(PhoneCall.Record.new())
 	dbg._restore_all()
 	await frames(2)
-	ok(m.live.is_empty() and m.em_call == null and not de.urgent() and m.radio._alert == -1, "restaurar: ligações e emergência somem")
+	ok(m.live.is_empty() and m.emergencies.is_empty() and not de.urgent() and m.radio._alert == -1, "restaurar: ligações e emergência somem")
 	ok(range(1, Exchange.LINES + 1).all(func(n): return m.exchange.line(n) == Exchange.Line.FREE), "restaurar: linhas livres")
 	ok(await wait_until(func(): return m.board.ends.all(func(e): return e == -1), 10.0), "restaurar: cabos na base")
-	ok(m.dispatch.fleet.units.values().all(func(s): return s == 0) and m.dispatch.fleet.required().is_empty(), "restaurar: despacho livre")
+	ok(m.dispatch.fleet.units.values().all(func(s): return s == 0) and m.dispatch.fleet.incidents.is_empty(), "restaurar: despacho livre")
 	ok(not m.notebook.has_pending() and m.report.faults.is_empty() and Engine.time_scale == 1.0, "restaurar: caderno, relatório e tempo zerados")
 	ok(not m.sched.any(func(c): return c.retry != PhoneCall.Retry.NONE), "restaurar: ninguém liga de novo")
 	Engine.time_scale = 8.0

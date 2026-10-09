@@ -154,15 +154,14 @@ func _process(_delta: float) -> void:
 		next = "\npróxima: %s %s" % [Main.fmt(main.sched[0].at), KIND_NAMES[main.sched[0].kind]]
 	_status.text = "%s · noite %d · %s · %.0f×\nligações ativas: %d · advertências: %d%s" % [Main.fmt(main.minutes), main.night_no,
 		main.weather, Engine.time_scale, main.live.size(), main.report.faults.size(), next]
-	var c: PhoneCall = main.em_call
-	if c == null or c.ended and not c.urgent():
-		_bar.text = "sem emergência em andamento"
-		return
-	var e: EmergencyCall = c.data
-	var total := e.stage_sec.x + e.stage_sec.y + e.stage_sec.z
-	_bar.text = "%s · estágio %d (contado: %d)%s\nbarra: %.0f de %.0f s%s\nexige agora: %s\nreal (sem ouvir): %s" % [
-		e.address, c.stage, c.told, " · socorro completo" if c.secured else "", c.urgency, total,
-		" · congelada" if main.urgency.frozen else "", _units(main.dispatch.fleet.required()), _units(e.required(c.stage))]
+	var lines := PackedStringArray()
+	for c: PhoneCall in main.in_progress():
+		var e: EmergencyCall = c.data
+		var total := e.stage_sec.x + e.stage_sec.y + e.stage_sec.z
+		lines.append("%s · estágio %d (contado: %d)%s\nbarra: %.0f de %.0f s%s\nexige agora: %s\nreal (sem ouvir): %s" % [
+			e.address, c.stage, c.told, " · socorro completo" if c.secured else "", c.urgency, total,
+			" · congelada" if main.urgency.frozen else "", _units(main.dispatch.fleet.required(e)), _units(e.required(c.stage))])
+	_bar.text = "\n".join(lines) if not lines.is_empty() else "sem emergência em andamento"
 
 
 func _ring(c: PhoneCall) -> void:
@@ -179,15 +178,21 @@ func _ring_transfer(template: bool) -> void:
 
 
 func _ring_emergency() -> void:
+	if main.in_progress().size() >= Main.MAX_EMERGENCIES:
+		main.warn("Debug: já há %d emergências em andamento." % Main.MAX_EMERGENCIES)
+		return
 	var e := _emergencies[_emergency.selected]
 	_ring(PhoneCall.from_emergency(GameData.template_emergency(e) if e in C.emergency_templates else GameData.with_case(e)))
 
 
-## Pula para o fim do estágio atual (Urgency.tick muda de estágio no próximo quadro, mesmo com a barra congelada).
+## Pula para o fim do estágio atual da emergência na linha do FONE (sem ela, da primeira em andamento; Urgency.tick
+## muda de estágio no próximo quadro, mesmo com a barra congelada).
 func _next_stage() -> void:
-	var c: PhoneCall = main.em_call
-	if c == null or not c.urgent():
+	var urgent := main.emergencies.filter(func(x: PhoneCall): return x.urgent())
+	if urgent.is_empty():
 		return
+	var on: Array = urgent.filter(func(x: PhoneCall): return x.on_line)
+	var c: PhoneCall = on[0] if not on.is_empty() else urgent[0]
 	var e: EmergencyCall = c.data
 	c.urgency = [e.stage_sec.x, e.stage_sec.x + e.stage_sec.y, e.stage_sec.x + e.stage_sec.y + e.stage_sec.z][c.stage]
 
