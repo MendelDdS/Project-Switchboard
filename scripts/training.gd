@@ -157,7 +157,7 @@ func _wait(s: LessonStep) -> void:
 		if bad != told and bad != -1 and s.wrong != "" and _listening():
 			told = bad
 			since = 0.0
-			await _say(tr(s.wrong) % bad if "%d" in tr(s.wrong) else s.wrong)
+			await _say(_line(s.wrong, bad))
 		elif bad == -1:
 			told = -1
 		if s.seconds > 0.0 and since >= s.seconds and nudge < s.nudges.size() and _listening():
@@ -181,6 +181,7 @@ func _listening() -> bool:
 	return _here() and call.active and call.on_line and not call.talking
 
 
+## O jogador já fez `until` (os valores de `LessonStep.until`).
 func _done(until: String) -> bool:
 	var target := int(call.target) if call != null and call.target != "" else -1
 	match until:
@@ -221,7 +222,8 @@ func _done(until: String) -> bool:
 			return main.notebook.pending_count() == 0
 		"call_log":
 			return _opened(Tools.CALL_LOG, Main.SAW_SHEET)
-	return true
+	push_error("Training: passo com until desconhecido: \"%s\"" % until)
+	return true   # (não trava o treinamento)
 
 
 ## A ferramenta `tab` está aberta; o sinal da mesa que ela ensinou (`flag`) já não pede a dica de primeira vez.
@@ -270,11 +272,18 @@ func _mistake(s: LessonStep) -> int:
 	return -1
 
 
-## Transferir com o cabo no número errado: ela avisa antes de tocar lá (`Main.transfer`).
+## A fala `text` traduzida, com a tomada `n` no lugar do %d (se houver).
+func _line(text: String, n: int) -> String:
+	var t := tr(text)
+	return t % n if "%d" in t else t
+
+
+## Transferir com o cabo no número errado: ela avisa antes de tocar lá (`Main.transfer`). A fala é a do erro do passo
+## só nos passos de cabo e transferência (nos outros, a fala de erro é de outra coisa: fica o aviso).
 func wrong_number(d: int) -> void:
 	Sfx.play("click")
-	var line := tr(_step.wrong) if _step != null and _step.wrong != "" else ""
-	if line != "" and _listening():
-		_say(line % d if "%d" in line else line)
+	var cable := _step != null and _step.until in ["cord_out", "cord_dest", "transfer"]
+	if cable and _step.wrong != "" and _listening():
+		_say(_line(_step.wrong, d))
 	else:
 		main.warn(T.text(T.Key.WARN_TRAINING_WRONG) % d)

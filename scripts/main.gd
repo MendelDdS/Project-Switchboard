@@ -145,7 +145,7 @@ func _ready() -> void:
 	tools.origin = background.prop_rect   # o papel de cada ferramenta sai do objeto dela na mesa
 	background.prop_clicked.connect(func(id: String): if running and not ending: tools.set_tab(id))   # objetos da cena
 	_intro.setup(night_no, night, progress != null and progress.night > 0, progress != null)
-	if not night.lesson.is_empty():   # o treinamento começa com o FONE já na entrada 1
+	if is_training():   # o treinamento começa com o FONE já na entrada 1
 		board.plugged(0, 1)
 	if progress != null and night_no > 1:   # o jornal da manhã, com o que aconteceu na noite anterior
 		set_news(progress.news)
@@ -235,9 +235,14 @@ func _start_shift() -> void:
 	running = true
 	radio.say(T.text(T.Key.RADIO_PATROL))
 	hint(T.text(T.Key.HINT_WAIT_CALLS))
-	if not night.lesson.is_empty():
+	if is_training():
 		_taught_done = true   # a lâmpada vermelha ela ensina
 		training.start(night)
+
+
+## A noite do treinamento: a veterana ensina (`Night.lesson`, o `Training`) e as dicas de primeira vez valem.
+func is_training() -> bool:
+	return not night.lesson.is_empty()
 
 
 ## Tela inicial do jogo novo: pula o treinamento e vai direto para a noite 1.
@@ -523,7 +528,7 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 			c.sys(T.text(T.Key.SYS_CALLER_HUNG_UP))
 			end_call(c, PhoneCall.End.CALLER)
 		return
-	if await conversation.say(c, GameData.pick(C.wrong_destination)) and night_no == 0:
+	if await conversation.say(c, GameData.pick(C.wrong_destination)) and is_training():
 		hint(T.text(T.Key.HINT_WRONG_DEST))
 
 
@@ -556,7 +561,7 @@ func _wrong_unattended(c: PhoneCall, d: int) -> void:
 	c.sys(T.text(T.Key.SYS_WRONG_BOTH_HUNG) % GameData.entry(str(d)).name)
 	end_call(c, PhoneCall.End.CALLER)
 	supervisor.call_again(c, PhoneCall.Retry.WRONG_NUMBER)
-	if night_no == 0:
+	if is_training():
 		hint(T.text(T.Key.HINT_WRONG_UNATTENDED))
 
 
@@ -755,7 +760,7 @@ func ring(c: PhoneCall) -> void:
 	elif busy and not _taught_multi:
 		_taught_multi = true
 		hint(T.text(T.Key.HINT_ANOTHER_CALL))
-	elif night_no == 0 and not _taught_ring:
+	elif is_training() and not _taught_ring:
 		_taught_ring = true
 		hint(T.text(T.Key.HINT_REMEMBER))
 	if c.kind == PhoneCall.Kind.MYSTERY:
@@ -777,7 +782,7 @@ func on_transfer_waiting(c: PhoneCall) -> void:
 		_taught_bank = true
 		var s := int(c.target.left(1))
 		hint(T.text(T.Key.HINT_NEW_BANK) % [s, "ABC"[Switchboard.SECTOR_ORDER.find(s)]])
-	elif night_no == 0 and not _taught_list:
+	elif is_training() and not _taught_list:
 		_taught_list = true
 		hint(T.text(T.Key.HINT_CHECK_LIST))
 

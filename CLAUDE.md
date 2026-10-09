@@ -381,7 +381,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   outubro (`GameData.TRAINING_DAYS` antes da noite 1), setor 3, nível 1. `Main.night_no` 0 = treinamento e -1 = a
   salva; o jogo novo começa nela (`Progress.night` 0), e a tela inicial tem **Pular o treinamento** (`Intro.skip_pressed`
   → `Main._skip_training`: grava a noite 1 e recarrega). Ela não leva graves para a noite 1 e o `Pace.next` dela dá
-  sempre o nível 1. Começa com o FONE já na entrada 1 (`Switchboard.plugged`). A telefonista veterana (`Night.teacher`,
+  sempre o nível 1 ("é o treinamento" = `Main.is_training()`: a noite tem lição). Começa com o FONE já na entrada 1 (`Switchboard.plugged`). A telefonista veterana (`Night.teacher`,
   a Cecília, do Alto da Serra) liga e ensina como colega, pelos passos `Night.lesson` (`LessonStep`: RING por uma entrada
   certa, com ou sem pedido de transferência, `call`; SAY; OPERATOR; WAIT por `until`, com a dica do manual, `hint`, as
   falas de demora, `nudges` a cada `seconds`, e a do erro, `wrong`, com %d = a tomada errada; PAUSE; HANG_UP),
