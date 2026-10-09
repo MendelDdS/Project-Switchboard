@@ -53,6 +53,14 @@ const GUST := Vector3(0.23, 0.071, 2.5)
 const MOON_BIG := 1.6     ## a lua no horizonte, maior (a ilusão da lua no horizonte); volta a 1 ao subir
 const MOON_SHRINK := 0.4  ## até onde da subida (`_moon_t`) ela ainda está encolhendo
 const MOON_LOW := Color("e0a868")   ## o tom dela perto do horizonte (o ar mais grosso avermelha)
+## Na névoa, a lua espalhada: o raio do clarão em volta (vezes o halo de sempre), a força dele, a do miolo e a do
+## disco (quase apagado).
+const FOG_MOON := Vector4(6.0, 0.3, 0.55, 0.3)
+const OVERCAST := 14      ## as nuvens do céu da chuva (`_draw_overcast`)
+const OVERCAST_SPEED := 0.012
+const OVERCAST_LIT := Color("3e3733")    ## a nuvem clareada por baixo pelas luzes da cidade (perto do horizonte)
+const OVERCAST_DARK := Color("0d1216")   ## os vãos mais escuros entre elas
+const OVERCAST_DECK := Color("1b1e23")   ## o fundo de nuvem no alto (no horizonte, `OVERCAST_LIT`)
 const CHURCH_K := 0.45    ## a escala da igreja (desenhada em px de 2x2), no fim da rua do cruzamento
 const SIGN_RED := Color("ff4a3a")    ## o neon dele aceso (apagado, quase preto)
 const FOG := Color(0.55, 0.62, 0.66)   ## a cor da névoa (`_draw_fog`)
@@ -73,6 +81,7 @@ var _drops: Array = []   # pingos caindo: Vector3(x, y em frações da vista, pe
 var _beads: Array = []   # gotas paradas no vidro: Vector4(x, y em frações do vidro à vista, tamanho, velocidade; 0 = parada)
 var _moon_tex := {}   # a lua na fase da noite (`_moon_art`), por tamanho, guardada pela idade (`_moon_for`)
 var _moon_for := -1.0
+var _fog_moon := Vector4.ZERO   # na névoa, onde está a lua (x, y), o diâmetro e o quanto ela brilha: o clarão vai por cima do véu
 var _glass_from := 0.6   # de que fração da altura da vista o vidro aparece (acima: fora da tela ou atrás da persiana)
 var _stars: Array[Vector2] = []
 var _houses: Array = []        # os prédios do outro lado da rua, de frente: {x0, x1, h, col, brick, wins: [Vector3(x, andar, hora de apagar)]} (m)
@@ -105,6 +114,10 @@ func _draw_city(g: Rect2) -> void:
 			var s: Vector2 = _stars[i]
 			_r(wx + floorf(s.x * ww), wy + floorf(s.y * (hzy - wy)), PX, PX, Color("c9d2dc") if sin(tw + i * 1.7) > -0.6 else Color("56606c"))
 		_draw_moon(g, sky, hzy)
+	elif weather == "fog":
+		_draw_moon(g, sky, hzy)   # difusa: a névoa espalha a luz dela
+	elif weather == "rain":
+		_draw_overcast(g, sky, hzy)
 	if hzy - wy < 40.0:   # (a tela ainda não se arrumou: o vidro ainda não tem o tamanho dele)
 		return
 	if _city_for != g.size:
@@ -168,11 +181,21 @@ func _draw_moon(g: Rect2, sky: Color, hzy: float) -> void:
 	var moon := Vector2(g.position.x + g.size.x * pos.x, lerpf(top, hzy, pos.y))   # (sem prender à grade de 2x2: ela anda 1 px por vez)
 	var low := 1.0 - smoothstep(0.0, MOON_SHRINK, _moon_t())   # 1 no horizonte, 0 já no alto
 	var d := int(roundf(14.0 * lerpf(1.0, MOON_BIG, low)))   # o diâmetro (px da tela), encolhendo 1 px por vez
+	var fog := weather == "fog"
+	_fog_moon = Vector4.ZERO
+	var shine := 0.3 + 0.7 * _moon_lit()
+	var tone := Color(0.75, 0.78, 0.7).lerp(MOON_LOW, low)
 	if moon.y * 2.0 + d / 2.0 > top * 2.0:   # (acima disso, já atrás da persiana)
-		_light_fan(moon, _ring(moon, 16.0 * d / 14.0), Color(Color(0.75, 0.78, 0.7).lerp(MOON_LOW, low), 0.16 * light * (0.3 + 0.7 * _moon_lit())))
+		if fog:   # o clarão espalhado na névoa vai por cima do véu dela (`_draw_fog`, `_fog_moon`)
+			_fog_moon = Vector4(moon.x, moon.y, d, shine)
+		else:
+			_light_fan(moon, _ring(moon, 16.0 * d / 14.0), Color(tone, 0.16 * light * shine))
 		_ci.draw_set_transform(Vector2.ZERO)   # a lua em pixel art, em px da tela, na fase da noite (`_moon_art`)
-		PixelArt.sprite(_ci, _moon_art(_moon_age(), d), (moon * 2.0).round(), Color("d8d0a8").lerp(MOON_LOW, low).lerp(sky, (1.0 - light) * 0.6))
+		var col := Color("d8d0a8").lerp(MOON_LOW, low).lerp(sky, (1.0 - light) * 0.6)
+		PixelArt.sprite(_ci, _moon_art(_moon_age(), d), (moon * 2.0).round(), Color(col.lerp(tone, 0.4), FOG_MOON.w) if fog else col)
 		_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	if fog:
+		return
 	for c in _clouds:
 		var at := Vector2(g.position.x + _cloud_x(c) * g.size.x, top + c.y * sh)
 		var r := Vector2(0.16 * c.z * g.size.x, 0.09 * c.z * sh)
@@ -184,6 +207,34 @@ func _draw_moon(g: Rect2, sky: Color, hzy: float) -> void:
 			for i in 12:
 				rim.append(o + Vector2(cos(TAU * i / 12.0) * r.x * (0.9 if k == 1 else 0.6), sin(TAU * i / 12.0) * r.y * (1.0 if k == 1 else 0.7)))
 			_light_fan(o, rim, Color(col, 0.85))
+
+
+## O céu da chuva, nublado: nuvens grandes e lisas cobrindo tudo, passando com o vento (`OVERCAST_SPEED`), clareadas
+## por baixo pela luz da cidade (mais perto do horizonte, `OVERCAST_LIT`), com vãos mais escuros entre elas
+## (`OVERCAST_DARK`), e acesas pelo relâmpago (`_flash`). Sorteadas pelo índice, sempre as mesmas.
+func _draw_overcast(g: Rect2, sky: Color, hzy: float) -> void:
+	var top := g.position.y + (g.size.y + _near) * _glass_from
+	var sh := hzy - top
+	var flash := _flash()
+	var deck := OVERCAST_DECK.lerp(Color("a2acbc"), flash * 0.6)   # o fundo: o céu inteiro coberto, clareando para o horizonte
+	var deck_low := OVERCAST_LIT.lerp(Color("a2acbc"), flash * 0.6)
+	_fill(PackedVector2Array([Vector2(g.position.x, g.position.y), Vector2(g.end.x, g.position.y), Vector2(g.end.x, hzy), Vector2(g.position.x, hzy)]),
+		PackedColorArray([deck, deck, deck_low, deck_low]))
+	for k in OVERCAST:
+		var y := fmod(k * 0.618, 1.0) * 1.1 - 0.1   # (fração do céu à vista; as de cima passam da persiana)
+		var at := Vector2(g.position.x + _overcast_x(k) * g.size.x, top + y * sh)
+		var r := Vector2((0.22 + fmod(k * 0.37, 1.0) * 0.2) * g.size.x, (0.12 + fmod(k * 0.71, 1.0) * 0.1) * sh)
+		var col := OVERCAST_DARK if k % 3 == 0 else OVERCAST_DECK.lerp(OVERCAST_LIT, clampf(y, 0.0, 1.0)).lightened(0.12)
+		col = col.lerp(Color("a2acbc"), flash * (0.0 if k % 3 == 0 else 0.7))
+		var rim := PackedVector2Array()
+		for i in 16:
+			rim.append(at + Vector2(cos(TAU * i / 16.0) * r.x, sin(TAU * i / 16.0) * r.y))
+		_light_fan(at, rim, Color(col, 0.8))
+
+
+## Onde está a nuvem `k` do céu nublado (fração do vidro), andando com o vento.
+func _overcast_x(k: int) -> float:
+	return fposmod(fmod(k * 0.53, 1.0) * 1.6 - _mist / 3.6 * OVERCAST_SPEED, 1.6) - 0.3
 
 
 ## A lua na fase dela (`age`: dias desde a lua nova) e no diâmetro `size`, pixel a pixel e guardada: a parte acesa
@@ -251,6 +302,11 @@ func _draw_fog(g: Rect2) -> void:
 		PackedColorArray([Color(FOG, 0.0), Color(FOG, 0.0), Color(FOG, FOG_GROUND), Color(FOG, FOG_GROUND)]))
 	_fill(PackedVector2Array([Vector2(x0, base), Vector2(x1, base), Vector2(x1, y1), Vector2(x0, y1)]),
 		PackedColorArray([Color(FOG, FOG_GROUND), Color(FOG, FOG_GROUND), Color(FOG, FOG_GROUND * 0.4), Color(FOG, FOG_GROUND * 0.4)]))
+	if _fog_moon.z > 0.0:   # a lua na névoa: a luz dela espalhada num clarão largo e liso, mais forte no meio
+		var m := Vector2(_fog_moon.x, _fog_moon.y)
+		var tone := Color(0.8, 0.82, 0.76)
+		_light_fan(m, _ring(m, 16.0 * _fog_moon.z / 14.0 * FOG_MOON.x), Color(tone, FOG_MOON.y * _fog_moon.w))
+		_light_fan(m, _ring(m, 9.0 * _fog_moon.z / 14.0), Color(tone.lightened(0.4), FOG_MOON.z * _fog_moon.w))
 	for k in FOG_WISPS:   # cada um na sua distância, altura, tamanho e velocidade, sempre os mesmos
 		var z := lerpf(STREET["curb"] + 1.0, ff, fmod(k * 0.37, 1.0))
 		var c := _o(g, fposmod(k * 13.7 + _mist * (0.08 + (k % 3) * 0.03), 70.0) - 35.0, z, 0.3 + fmod(k * 0.53, 1.0) * 1.6)
@@ -942,8 +998,9 @@ func _draw_church(base: Vector2, col: Color) -> void:
 	_poly(PackedVector2Array([base + Vector2(-13, -18) * k, base + Vector2(0, -26) * k, base + Vector2(13, -18) * k]), col)
 	_r(base.x - 4 * k, base.y - 48 * k, 8 * k, 30 * k, col)
 	_poly(PackedVector2Array([base + Vector2(-5, -48) * k, base + Vector2(0, -60) * k, base + Vector2(5, -48) * k]), col)
-	_r(base.x - PX, base.y - 64 * k, PX, 4 * k, col)   # a cruz
-	_r(base.x - 1, base.y - 63 * k, 2, PX, col)
+	var top := Vector2(roundf(base.x / PX) * PX, roundf((base.y - 60 * k) / PX) * PX)   # a ponta da torre, presa ao pixel
+	_r(top.x - PX, top.y - 3.5, 2 * PX, 4.0, col)   # a cruz: a haste entra na ponta, e os braços ficam no alto dela
+	_r(top.x - 1.5, top.y - 2.5, 3.0, PX, col)
 	var face := base + Vector2(0, -40 * k)
 	_ci.draw_circle(face, 1.3, Color("e2b25a"))
 	_r(face.x - PX, face.y - 1, PX, 1, Color("2a2016"))   # os ponteiros

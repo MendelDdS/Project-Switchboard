@@ -131,7 +131,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   nasce às 18h atrás da igreja, grande e alaranjada no horizonte (a ilusão da lua no horizonte, `MOON_BIG`,
   `MOON_LOW`), volta ao tamanho dela ao subir (`MOON_SHRINK`) pelo vão entre os prédios da esquina e some atrás da
   persiana (alta, `BLIND`) às 22h15; desenhada antes da cidade, que a cobre. Nuvens passam por ela (`CLOUDS`), e
-  coberta ou já sumida ela apaga junto o brilho azul da janela na sala (`_moon_light`, `_moon_glow`, `MOON_DIM`). A fase é a do calendário de verdade na data do jogo (`_moon_age`, `SYNODIC`, `NEW_MOON`:
+  coberta ou já sumida ela apaga junto o brilho azul da janela na sala (`_moon_light`, `_moon_glow`, `MOON_DIM`). Na
+  névoa ela também sobe, mas difusa: o disco quase apagado e um clarão largo e liso por cima do véu da névoa
+  (`_fog_moon`, desenhado em `_draw_fog`; `FOG_MOON`). Na chuva, o céu é nublado (`_draw_overcast`): um fundo de nuvem
+  clareando para o horizonte pela luz da cidade (`OVERCAST_DECK`, `OVERCAST_LIT`), nuvens grandes e vãos escuros
+  (`OVERCAST_DARK`) passando com o vento (`OVERCAST_SPEED`, `_overcast_x`, no `_back_state`), acesas pelo relâmpago. A fase é a do calendário de verdade na data do jogo (`_moon_age`, `SYNODIC`, `NEW_MOON`:
   crescente quase cheia na noite 1, cheia no dia 11, minguante até a noite 15), com a luz do lado do hemisfério sul
   (`_moon_art`, guardada por idade); o brilho da janela na sala segue o quanto ela está acesa (`_moon_lit`). O vidro embaça nos cantos e no pé, liso
   (`_draw_mist`, `MIST`, na camada de cima; menos na chuva forte). Na chuva, as gotas do vidro fazem sombra na luz

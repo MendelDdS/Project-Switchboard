@@ -893,8 +893,10 @@ func _back_state() -> Array:
 	var clouds := 0   # as nuvens andam um pixel
 	if weather == "clear" and not _clouds.is_empty():
 		clouds = int(_cloud_x(_clouds[0]) * _vport.size.x)
+	elif weather == "rain":
+		clouds = int(_overcast_x(0) * _vport.size.x)
 	return [_vport.size, _near, weather, window_art, int(minutes), flick, lamp_level > 0.5, snappedf(_flash(), 0.02),
-		_sign_on(), stars, clouds, _moon_light(), snappedf(minutes, 0.5) if weather == "clear" and _moon_t() < 1.0 else 0.0]   # (a lua subindo: meio minuto, ~0,6 px)
+		_sign_on(), stars, clouds, _moon_light(), snappedf(minutes, 0.5) if weather != "rain" and _moon_t() < 1.0 else 0.0]   # (a lua subindo: meio minuto, ~0,6 px)
 
 
 ## À noite, com a sala acesa, o vidro reflete um pouco dela, por cima da cidade (e da silhueta, que fica atrás do
