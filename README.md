@@ -237,7 +237,8 @@ Todos os sons são sintetizados em `sfx.gd`: a campainha ("trrrim-trrrim" de mar
 
 Cada grupo de vogais do texto dispara uma sílaba sintetizada (pulso glotal + formantes da vogal; nasal em "ão", "também",
 "central"), com o ataque da consoante antes dela (estalo em p/t/b/d, chiado em s/f/ch/j, zumbido em m/n), a entonação
-da frase (a voz cai até o fim, a tônica de cada palavra sobe, a pergunta sobe nas últimas sílabas, a exclamação sai mais aguda, alta e enfática; `Sfx._tone`) e a altura de cada
+da frase (a voz cai até o fim, a tônica de cada palavra sobe, a pergunta sobe nas últimas sílabas, a exclamação sai mais aguda, alta e enfática; `Sfx._tone`); na emergência, quem liga se agita com a barra de
+agravamento, conforme o temperamento sorteado (`Sfx.agitation`, `PhoneCall.temper`) e a altura de cada
 pessoa, tirada do nome (`Sfx.pitch_of`). Timbres em `SfxSynth.VOICE`: `f0` (altura), `breath` (sopro), `bus` e, fora
 do telefone, `muffle` (quanto menor, mais abafado). As vozes de quem liga passam pelo barramento Phone, com a banda da
 linha (distorção, 300–3400 Hz e pico em 2 kHz; ajustável no editor, em `default_bus_layout.tres`).

@@ -107,6 +107,7 @@ var stage := 0              ## barra de agravamento: 0 inicial, 1 agravando, 2 a
 var told := 0               ## até que estágio a pessoa já contou o que mudou (libera as perguntas daquele estágio)
 var urgency := 0.0          ## segundos que a barra já correu
 var asking := false         ## pergunta e resposta em andamento: a barra para
+var temper := -1.0          ## de 0 (tranquila) a 1 (se agita toda) com a barra; -1 = ainda não sorteado (`Sfx.agitation`)
 # pedido de informação
 var ask := ""
 var about := ""             ## de quem pediu o número: "o Hotel Estrela"

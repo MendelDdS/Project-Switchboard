@@ -92,6 +92,11 @@ const EXCLAIM := {"pitch": 1.08, "db": 3.0}
 const EXCLAIM_STRESS := 1.8
 const EXCLAIM_FALL := 0.88
 const PERSON_PITCH := 0.08
+## Emergência: quem liga se agita com a barra de agravamento (`agitation`), cada um do seu jeito (`PhoneCall.temper`).
+## No máximo, a voz sobe `pitch`, treme `shake` (sorteio por sílaba), fica `db` mais alta e fala `speed` mais rápido
+## (`Conversation.say`). AGITATION_STAGE: quanto do máximo em cada estágio (`PhoneCall.stage`), vezes o temperamento.
+const AGITATION := {"pitch": 0.12, "shake": 0.04, "db": 2.0, "speed": 0.25}
+const AGITATION_STAGE := [0.3, 0.65, 1.0, 1.0]
 ## Fração da duração da sílaba (`SfxSynth.VOICE`, "dur") que precisa passar antes da próxima da mesma voz (`_syllable_wait`).
 const SYLLABLE_GAP := 0.7
 const ACCENTED := "áàâãéêíóôõú"
@@ -106,6 +111,7 @@ const ONSETS := {"stop": "ptkbdgcq", "fric": "szfvxjç", "nasal": "mn"}
 const VMAP := {"a": "a", "á": "a", "à": "a", "â": "a", "ã": "a", "e": "e", "é": "e", "ê": "e", "i": "i", "í": "i", "o": "o", "ó": "o", "ô": "o", "õ": "o", "u": "u", "ú": "u"}
 
 var streams: Dictionary = {}
+var _temper_rng := RandomNumberGenerator.new()   ## o temperamento das emergências (`agitation`), fora do sorteio global
 var _spoke := {}   ## voz -> ms (Time.get_ticks_msec) em que a última sílaba começa (no futuro, se está esperando)
 var _takes := {}   # id -> quantas versões ele tem (`_take`), dos sons com "~1", "~2"...
 var vol := VOL.duplicate()   ## o volume em uso; a mesa de som do debug mexe nele (o `VOL` é o padrão)
@@ -461,8 +467,9 @@ func ringback(times: int) -> float:
 ## Fala o caractere i de `text`: cada grupo de vogais dispara uma sílaba (ritmo de fala, estilo Papers, Please), com
 ## a entonação da frase (`_tone`). Devolve se o caractere é vogal (passe de volta em `prev_vowel`).
 ## `at`: de que lugar da tela vem a voz (como em `play_at`; -1 = do centro, como o fone). `pitch`: a altura da pessoa
-## (`pitch_of`).
-func speak_char(voice: String, text: String, i: int, prev_vowel: bool, laugh: bool = false, at := -1.0, pitch := 1.0) -> bool:
+## (`pitch_of`). `agitated`: de 0 a 1, o nervoso de quem liga numa emergência (`agitation`).
+func speak_char(voice: String, text: String, i: int, prev_vowel: bool, laugh: bool = false, at := -1.0, pitch := 1.0,
+		agitated := 0.0) -> bool:
 	var lc := text[i].to_lower()
 	if not VMAP.has(lc):
 		return false
@@ -474,7 +481,9 @@ func speak_char(voice: String, text: String, i: int, prev_vowel: bool, laugh: bo
 	var t := _tone(text, i)
 	if laugh:
 		t = [2, 1.13, 0.0]
-	var sound := syllable.bind(voice, VMAP[lc] + ("n" if _nasal(text, i) else ""), _onset(text, i), t[0], pitch * t[1], t[2], at)
+	pitch *= 1.0 + agitated * (AGITATION["pitch"] + randf_range(-1.0, 1.0) * AGITATION["shake"])
+	var sound := syllable.bind(voice, VMAP[lc] + ("n" if _nasal(text, i) else ""), _onset(text, i), t[0], pitch * t[1],
+		t[2] + agitated * AGITATION["db"], at)
 	if wait == 0.0:
 		sound.call()
 	else:   # em tempo real, como `_syllable_wait` mede
@@ -538,6 +547,17 @@ func _syllable_wait(v: String) -> float:
 ## pessoas da mesma voz (`SfxSynth.VOICE`) soando diferentes (até PERSON_PITCH para cima ou para baixo).
 static func pitch_of(who: String) -> float:
 	return 1.0 + (float(hash(who) % 1001) / 500.0 - 1.0) * PERSON_PITCH
+
+
+## O nervoso de quem liga na ligação `c`, de 0 a 1: só na emergência, pelo estágio da barra e o temperamento dela
+## (`PhoneCall.temper`, sorteado na primeira fala: de 0, tranquila, a voz quase não muda, a 1, se agita toda). Sorteio
+## próprio (`_temper_rng`), para não mudar a agenda de quem joga com `--seed`.
+func agitation(c: PhoneCall) -> float:
+	if c.kind != PhoneCall.Kind.EMERGENCY:
+		return 0.0
+	if c.temper < 0.0:
+		c.temper = _temper_rng.randf()
+	return AGITATION_STAGE[clampi(c.stage, 0, AGITATION_STAGE.size() - 1)] * c.temper
 
 
 ## A entonação da sílaba que começa em `i`: [curva (0 descendo, 1 reta, 2 subindo), altura, dB a mais], pelo jeito

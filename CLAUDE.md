@@ -40,7 +40,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   pedaço numa instância com o seu sorteio, `_rng`, porque o `randf` global não é seguro entre linhas de execução); **nada de chamar função a cada amostra** num laço de som (do
   próprio script ou de objeto, como `_rng.randf_range`): as linhas de execução travam umas nas outras, e 8 carros ao
   mesmo tempo levavam 10 vezes o tempo de um; a curva vai numa lista e o ruído num sorteio escrito no laço (`_build_car`) e tocado pelo autoload `Sfx` (`scripts/sfx.gd`: tocar, mixar, ambiente), inclusive as "vozes" por sílaba
-  (`Sfx.speak_char`: entonação da frase em `_tone`, altura da pessoa pelo nome em `pitch_of`; vogal nasal em `_nasal` e ataque da consoante em `_onset`, tocado junto com a vogal; as de quem liga tocam
+  (`Sfx.speak_char`: entonação da frase em `_tone`, altura da pessoa pelo nome em `pitch_of`; vogal nasal em `_nasal` e ataque da consoante em `_onset`, tocado junto com a vogal; na emergência, o nervoso pelo estágio da barra e o temperamento sorteado, `agitation`; as de quem liga tocam
   no barramento Phone, a banda do telefone, que vai para o Voices; desconhecida e rádio levam o filtro na sílaba). Ao fechar, o `Sfx` para os sons e espera um instante (`_exit_tree`): fechando com som tocando,
   as gravações vazavam ("ObjectDB instances leaked"). O aviso pequeno que ainda sai fechando no meio de uma conversa
   (um `GDScript`, um `SceneTreeTimer`, "N resources still in use") é do Godot: um `await` de `create_timer` pendente

@@ -327,3 +327,8 @@ O que o usuário pediu, em ordem (antes no `CLAUDE.md`). Acrescente cada pedido 
     toca; só é descartada se já houver outra esperando (a fala não acumula atraso).
 102. Falas 2 dB mais altas (`Sfx.VOICE_GAIN`), com um limitador no barramento Voices: a tônica de uma exclamação (e a
     voz da desconhecida) já passava de 0 dB e podia estourar.
+103. Emoção nas emergências: quem liga se agita com a barra de agravamento (voz mais aguda, trêmula, mais alta e mais
+    rápida), cada um do seu jeito: o temperamento é sorteado por ligação (umas pessoas quase não mudam, outras disparam)
+    e o retorno da mesma pessoa o mantém.
+104. Erro ao perder a emergência com o operador na linha: a barra era desenhada no quadro em que ela passava ao estágio
+    3 (perdida), que não tem cor nem nome. O `UrgencyBar._draw` agora confere se ela ainda vale.

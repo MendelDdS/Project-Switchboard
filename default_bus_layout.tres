@@ -8,6 +8,10 @@ attack_us = 500.0
 release_ms = 400.0
 sidechain = &"Voices"
 
+[sub_resource type="AudioEffectHardLimiter" id="AudioEffectHardLimiter_voices"]
+resource_name = "HardLimiter"
+ceiling_db = -1.0
+
 [sub_resource type="AudioEffectReverb" id="AudioEffectReverb_room"]
 resource_name = "Reverb"
 predelay_msec = 20.0
@@ -51,10 +55,6 @@ db = 1
 [sub_resource type="AudioEffectEQ10" id="AudioEffectEQ10_phone"]
 resource_name = "EQ10"
 band_db/2000_hz = 4.0
-
-[sub_resource type="AudioEffectHardLimiter" id="AudioEffectHardLimiter_voices"]
-resource_name = "HardLimiter"
-ceiling_db = -1.0
 
 [resource]
 bus/1/name = &"Ambience"

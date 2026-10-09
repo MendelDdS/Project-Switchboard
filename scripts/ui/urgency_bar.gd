@@ -31,7 +31,8 @@ func _active() -> bool:
 
 func _draw() -> void:
 	Bloom.clear(self)
-	if fmod(_blink, 0.3) > 0.15:
+	# o `Urgency` pode passar ao estágio 3 (perdida) depois do `_process` daqui, no mesmo quadro: ainda visível
+	if not _active() or fmod(_blink, 0.3) > 0.15:
 		return
 	var e: EmergencyCall = call.data
 	var col: Color = COLORS[call.stage]
