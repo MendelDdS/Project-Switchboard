@@ -5,11 +5,18 @@ extends PanelContainer
 ## tem um "Limpar" que desfaz o que ela mexe, e "Restaurar tudo" faz todos (o relógio fica onde está).
 ## Limpar não gera advertência nem retorno. Ferramenta de desenvolvimento: textos fixos em português, sem tradução.
 ## A mesa de som toca cada som do `Sfx.VOL` e ajusta o volume dele na hora (`Sfx.vol`); "Copiar VOL" põe na área de
-## transferência a constante pronta para colar em `sfx.gd`.
+## transferência a constante pronta para colar em `sfx.gd`. A aba Vozes fala cada letra (pelo nome dela, "bê", "efe")
+## ou um texto digitado, na voz escolhida, como numa ligação.
 
 const SPEEDS := [1.0, 2.0, 4.0, 8.0]
 const MIX_DB := Vector2(-40.0, 0.0)   ## faixa do controle de volume da mesa de som
 const LOOP_PREVIEW := 1.5             ## segundos que um som em loop (o atrito do fio) toca na mesa de som
+## O nome de cada letra, como se fala (a aba Vozes fala a letra por ele; vogal fala ela mesma).
+const LETTERS := {"a": "a", "b": "bê", "c": "cê", "d": "dê", "e": "é", "f": "efe", "g": "gê", "h": "agá", "i": "i",
+	"j": "jota", "k": "cá", "l": "ele", "m": "eme", "n": "ene", "o": "ó", "p": "pê", "q": "quê", "r": "erre", "s": "esse",
+	"t": "tê", "u": "u", "v": "vê", "w": "dáblio", "x": "xis", "y": "ípsilon", "z": "zê", "ç": "cê cedilha", "á": "á",
+	"â": "â", "ã": "ã", "é": "é", "ê": "ê", "í": "í", "ó": "ó", "ô": "ô", "õ": "õ", "ú": "ú"}
+const LETTERS_PER_ROW := 10
 const KIND_NAMES := ["transferência", "emergência", "trote", "informação", "desconhecida"]   # PhoneCall.Kind
 
 var C: GameContent = GameData.CONTENT
@@ -20,6 +27,9 @@ var _emergency: OptionButton
 var _emergencies: Array[EmergencyCall] = []   ## na ordem do seletor: as escritas e depois os moldes
 var _freeze: CheckButton
 var _mix := {}   ## id do som -> [controle, rótulo do volume]
+var _voice: OptionButton   ## a voz da aba Vozes (as chaves de `SfxSynth.VOICE`)
+var _say: LineEdit
+var _speaking := 0   ## a fala da aba Vozes em andamento (uma nova corta a anterior)
 var _weather0 := ""   ## o clima sorteado da noite, antes de o painel trocar (o "Limpar" volta para ele)
 
 @onready var main: Main = get_parent()
@@ -71,6 +81,46 @@ func _ready() -> void:
 	_row([["Copiar VOL", _copy_mix]])
 	for id: String in Sfx.VOL:
 		_mixer(id)
+	_box = %Voices
+	_voices()
+
+
+## A aba Vozes: a voz, o alfabeto (cada letra fala o nome dela) e uma caixa de texto.
+func _voices() -> void:
+	_voice = OptionButton.new()
+	_voice.focus_mode = Control.FOCUS_NONE
+	_voice.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	for v: String in SfxSynth.VOICE:
+		_voice.add_item("%s · %d Hz" % [v, SfxSynth.VOICE[v]["f0"]])
+	_box.add_child(_voice)
+	var row := []
+	for ch: String in LETTERS:
+		row.append([ch.to_upper(), _speak.bind(LETTERS[ch])])
+		if row.size() == LETTERS_PER_ROW:
+			_row(row)
+			row = []
+	if not row.is_empty():
+		_row(row)
+	_say = LineEdit.new()
+	_say.placeholder_text = "Texto para falar (Enter)"
+	_say.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	_say.add_theme_font_size_override("font_size", 11)
+	_say.text_submitted.connect(func(t: String): _speak(t))
+	_box.add_child(_say)
+	_row([["Falar", func(): _speak(_say.text)]])
+
+
+## Fala `text` na voz escolhida, no ritmo de `Conversation.say` (letra a letra; mais devagar na pontuação).
+func _speak(text: String) -> void:
+	_speaking += 1
+	var me := _speaking
+	var voice: String = SfxSynth.VOICE.keys()[_voice.selected]
+	var prev := false
+	for i in text.length():
+		if me != _speaking:
+			return
+		prev = Sfx.speak_char(voice, text, i, prev, false, -1.0)
+		await get_tree().create_timer((0.09 if text[i] in ",." else 0.028) * Settings.char_delay(), false).timeout
 
 
 func _set_weather(w: String) -> void:

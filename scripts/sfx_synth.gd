@@ -6,18 +6,26 @@ extends RefCounted
 ## Mac recente um depois do outro).
 
 const RATE := 22050
-# Vozes abafadas: cada vogal vira uma sílaba sintetizada (fonte glotal + formantes + filtro abafado).
-# f0 = altura, breath = sopro, muffle = corte do filtro (quanto menor, mais abafado), dur = duração da sílaba.
+# Vozes: cada vogal vira uma sílaba sintetizada (fonte glotal + formantes).
+# f0 = altura, breath = sopro, dur = duração da sílaba, bus = por onde toca. As do telefone (bus "Phone") ganham a
+# banda da linha no barramento (default_bus_layout.tres: distorção do microfone de carvão, 300–3400 Hz, pico em 2 kHz);
+# as outras levam o filtro na própria sílaba: muffle = corte do passa-baixa (quanto menor, mais abafado).
 const VOICE := {
-	"f": {"f0": 225.0, "breath": 0.10, "muffle": 1250.0, "dur": 0.13, "db": -7.0},
-	"m": {"f0": 118.0, "breath": 0.08, "muffle": 1000.0, "dur": 0.14, "db": -6.0},
-	"k": {"f0": 320.0, "breath": 0.06, "muffle": 1500.0, "dur": 0.11, "db": -9.0},
-	"w": {"f0": 140.0, "breath": 0.45, "muffle": 950.0, "dur": 0.14, "db": -8.0},
-	"g": {"f0": 92.0, "breath": 0.30, "muffle": 700.0, "dur": 0.21, "db": -5.0},
-	"r": {"f0": 135.0, "breath": 0.18, "muffle": 2300.0, "dur": 0.12, "db": -11.0},
+	"f": {"f0": 225.0, "breath": 0.10, "dur": 0.13, "db": -7.0, "bus": &"Phone"},
+	"m": {"f0": 118.0, "breath": 0.08, "dur": 0.14, "db": -6.0, "bus": &"Phone"},
+	"k": {"f0": 320.0, "breath": 0.06, "dur": 0.11, "db": -9.0, "bus": &"Phone"},
+	"w": {"f0": 140.0, "breath": 0.45, "dur": 0.14, "db": -8.0, "bus": &"Phone"},
+	"g": {"f0": 92.0, "breath": 0.30, "muffle": 700.0, "dur": 0.21, "db": -5.0, "bus": &"Voices"},
+	"r": {"f0": 135.0, "breath": 0.18, "muffle": 2300.0, "dur": 0.12, "db": -11.0, "bus": &"Voices"},
 }
 # Formantes (F1, F2) aproximados das vogais do português.
 const VOWEL := {"a": Vector2(780, 1250), "e": Vector2(480, 1850), "i": Vector2(310, 2250), "o": Vector2(500, 880), "u": Vector2(350, 720)}
+## Vogal nasal ("ã", "õ", "am", "em"...): o F1 vezes `f1` e com o ganho `f1_gain`, e o ressoar do nariz em `hz` (logo
+## acima do corte de 300 Hz do telefone) com o ganho `gain`.
+const NASAL := {"f1": 0.8, "f1_gain": 0.5, "hz": 320.0, "gain": 0.6}
+## O silêncio antes de cada vogal, onde entra o ataque da consoante (`_attack`), e o pico de cada ataque (a vogal tem 0,8).
+const LEAD := 0.045
+const ATTACKS := {"stop": 0.35, "fric": 0.2, "nasal": 0.3}
 ## Toque da mesa: "bi-bip" suave (a campainha de metal antiga incomodava). Frequência (Hz), duração e intervalo
 ## de cada bipe (s), quantos bipes.
 const BEEP := {"f": 740.0, "dur": 0.13, "gap": 0.09, "count": 2}
@@ -187,7 +195,9 @@ func _end(id: String, tel: bool = false, loop: bool = false, peak: float = 0.8, 
 	streams[id] = s
 
 
-func _syllable(v: String, vw: String, contour: float, consonant: bool) -> void:
+## A vogal `vw` da voz `v` (`nasal`: "ã", "õ", "am", "em"...), com a curva de entonação `contour`. Começa depois de
+## LEAD s de silêncio, o lugar do ataque da consoante (`_attack`), que toca junto com ela.
+func _syllable(v: String, vw: String, nasal: bool, contour: float) -> void:
 	var p: Dictionary = VOICE[v]
 	var f0: float = p["f0"]
 	var dur: float = p["dur"]
@@ -207,24 +217,61 @@ func _syllable(v: String, vw: String, contour: float, consonant: bool) -> void:
 		s = s * (1.0 - breath) + _rng.randf_range(-1.0, 1.0) * breath
 		var env := pow(sin(PI * k), 0.7)
 		src[i] = s * env
-	var a := _biquad(src, "bp", fm.x, 4.0)
+	# nasal: o F1 mais baixo e fraco e o ressoar do nariz embaixo (NASAL)
+	var a := _biquad(src, "bp", fm.x * (NASAL["f1"] if nasal else 1.0), 4.0)
 	var b := _biquad(src, "bp", fm.y, 6.0)
 	var c := _biquad(src, "bp", 2600.0, 7.0)
-	_begin(dur + 0.04)
-	var off := int(0.025 * RATE) if consonant else 0
+	var m := _biquad(src, "bp", NASAL["hz"], 3.0) if nasal else PackedFloat32Array()
+	var ga: float = NASAL["f1_gain"] if nasal else 1.0
+	_begin(LEAD + dur + 0.04)
+	var off := int(LEAD * RATE)
 	for i in n:
 		if off + i < _w.size():
-			_w[off + i] = a[i] + b[i] * 0.55 + c[i] * 0.18
-	if consonant:
-		_noise(0.0, 0.035, "hp", 2800.0, 0.7, 0.05)
-	# abafado: dois passa-baixas + corte de graves (como se viesse do outro lado de um vidro / fone)
-	var mf: float = p["muffle"]
-	_w = _biquad(_biquad(_biquad(_w, "lp", mf, 0.7), "lp", mf * 1.2, 0.7), "hp", 160.0, 0.7)
+			_w[off + i] = a[i] * ga + b[i] * 0.55 + c[i] * 0.18 + (m[i] * NASAL["gain"] if nasal else 0.0)
+	_voice_line(v)
+	_end("s_%s_%s%s_%d" % [v, vw, "n" if nasal else "", [-0.12, 0.0, 0.10].find(contour)], false, false, 0.8)
+
+
+## O ataque da consoante antes da vogal (`ATTACKS`), na voz `v`: termina em LEAD s, quando a vogal começa.
+## "stop" (p, t, b, d...): a boca fechada e o estalo; "fric" (s, f, ch, j...): o chiado; "nasal" (m, n): o zumbido
+## de boca fechada.
+func _attack(v: String, kind: String) -> void:
+	var f0: float = VOICE[v]["f0"]
+	_begin(LEAD + 0.01)
+	var n := int(LEAD * RATE)
+	match kind:
+		"stop":
+			_noise(LEAD - 0.014, 0.014, "bp", 2000.0, 0.9, 1.0)
+		"fric":
+			var x := PackedFloat32Array()
+			x.resize(n)
+			for i in n:
+				x[i] = _rng.randf_range(-1.0, 1.0) * sin(PI * float(i) / n)
+			x = _biquad(x, "bp", 2900.0, 1.2)
+			for i in n:
+				_w[i] = x[i]
+		"nasal":
+			var ph := 0.0
+			for i in n:
+				ph += f0 / RATE
+				_w[i] = sin(TAU * ph) * minf(1.0, float(i) / (n * 0.3))
+			_w = _biquad(_w, "lp", 450.0, 0.7)
+	_voice_line(v)
+	_end("s_%s_%s" % [v, kind], false, false, ATTACKS[kind])
+
+
+## O filtro de cada voz sobre `_w`: o abafado das que não vão pelo telefone (a voz do outro lado e o rádio: dois
+## passa-baixas), o corte dos graves e o rádio saturado.
+func _voice_line(v: String) -> void:
+	var p: Dictionary = VOICE[v]
+	if p.has("muffle"):
+		var mf: float = p["muffle"]
+		_w = _biquad(_biquad(_w, "lp", mf, 0.7), "lp", mf * 1.2, 0.7)
+	_w = _biquad(_w, "hp", 160.0, 0.7)
 	if v == "r":
 		for i in _w.size():
 			_w[i] = clampf(_w[i] * 40.0, -1.0, 1.0)
 		_w = _biquad(_w, "bp", 1600.0, 0.9)
-	_end("s_%s_%s_%d" % [v, vw, [-0.12, 0.0, 0.10].find(contour)], false, false, 0.8)
 
 
 ## Os sons da interface e da mesa, o chiado e o zumbido da sala.
@@ -290,11 +337,15 @@ func _build_basic() -> void:
 	_end("hiss", false, true, 0.6)
 
 
-## A voz `v` por sílaba: 3 variações de entonação por vogal (descendo, reta, subindo).
+## A voz `v` por sílaba: cada vogal, oral e nasal, em 3 entonações (descendo, reta, subindo), e os ataques das
+## consoantes.
 func _build_voice(v: String) -> void:
 	for vw in VOWEL:
-		for k in 3:
-			_syllable(v, vw, [-0.12, 0.0, 0.10][k], k == 0)
+		for nasal in [false, true]:
+			for k in 3:
+				_syllable(v, vw, nasal, [-0.12, 0.0, 0.10][k])
+	for kind in ATTACKS:
+		_attack(v, kind)
 
 
 # ------------------------------------------------------------------ ambientes e campainhas

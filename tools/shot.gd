@@ -7,6 +7,7 @@ extends Node
 ##   --width=1280           a largura do `main.tscn` (720 de altura; o jogo, no `GameView`, é sempre 1280)
 ##   --hour=20:00           a hora do turno no relógio e lá fora
 ##   --tool=id              abre a ferramenta (os ids de `Tools`: lista, despacho, caderno, registro, jornal)
+##   --debug=N              abre o painel de debug na aba N (0 = Jogo, 1 = Vozes)
 ##   --card                 marca um local no mapa e espera o cartão sair impresso
 ##   --emergency            toca uma emergência e atende (a luz vermelha da unidade, a barra, o rádio)
 ##   --news                 o jornal da manhã na mesa
@@ -47,6 +48,9 @@ func _ready() -> void:
 		m.answer()
 	if _args.has("tool"):
 		m.tools.set_tab(_args["tool"])
+	if _args.has("debug"):   # o painel de debug aberto, na aba N (0 = Jogo, 1 = Vozes)
+		m.get_node("%Debug").visible = true
+		(m.get_node("%Debug").find_child("Tabs") as TabContainer).current_tab = int(_args["debug"])
 	if _args.has("card"):
 		m.tools.set_tab(Tools.DISPATCH)
 		await get_tree().create_timer(0.5, false).timeout

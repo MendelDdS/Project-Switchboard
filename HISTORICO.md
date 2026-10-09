@@ -308,3 +308,22 @@ O que o usuário pediu, em ordem (antes no `CLAUDE.md`). Acrescente cada pedido 
     manual avisa quando os bombeiros ainda estão fora); o FONE fora da linha dela dá a dica de voltar; as fichas dela
     dizem "Treinamento" (a da emergência leva o local e o cartão); o caderno do treinamento é de 5 para 6; o botão de
     recomeçar aparece desde a noite 1; ao terminar, o manual lembra de registrar as fichas dela.
+96. Vozes: soavam "atrás de uma parede" (passa-baixa em ~1 kHz na sílaba). As de quem liga passam pelo barramento
+    Phone, com a banda do telefone dos anos 70 (distorção leve do microfone de carvão, 300–3400 Hz, pico em 2 kHz); a
+    desconhecida e o rádio continuam com o filtro próprio. Cada pessoa tem a sua altura, pelo nome (a mesma quando liga
+    de novo), e a fala ganhou entonação: a voz cai ao longo da frase, a tônica da palavra sobe e o fim da frase desce
+    (ou sobe na pergunta), em vez de um sorteio por sílaba.
+97. Entonação de pergunta e exclamação mais marcada: na pergunta a frase fica reta e as três últimas sílabas sobem em
+    rampa; na exclamação a frase toda fica mais aguda e mais alta, a tônica com mais ênfase e o fim caindo mais.
+98. Sílabas atropeladas: a fala anda no ritmo das letras, e vogais a duas letras uma da outra ("sei o", "com a")
+    saíam quase juntas. Uma sílaba só começa depois de 70% da anterior da mesma voz; a que chega cedo não toca (o texto
+    segue no mesmo ritmo).
+99. Vogais nasais e consoantes: "ã", "õ" e vogal antes de "m"/"n" sem vogal depois ("também", "central") soam nasais
+    (F1 mais baixo e fraco, ressoar do nariz); e cada sílaba ganha o ataque da consoante que vem antes no texto (estalo
+    em p/t/b/d, chiado em s/f/ch/j e no "r" do começo, zumbido em m/n), em vez de um chiado sorteado.
+100. O "a" saía forte demais: 2,5 dB a menos (`Sfx.VOWEL_DB`). O painel de debug ganhou abas (Jogo e Vozes); na de
+    Vozes, o alfabeto (cada letra fala o nome dela) e uma caixa de texto para ouvir qualquer fala na voz escolhida.
+101. "Alô" falava só o "A": o intervalo mínimo entre sílabas descartava a que chegava cedo. Agora ela espera a vez e
+    toca; só é descartada se já houver outra esperando (a fala não acumula atraso).
+102. Falas 2 dB mais altas (`Sfx.VOICE_GAIN`), com um limitador no barramento Voices: a tônica de uma exclamação (e a
+    voz da desconhecida) já passava de 0 dB e podia estourar.

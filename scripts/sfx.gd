@@ -2,7 +2,8 @@ extends Node
 ## Autoload `Sfx`: toca, mixa e cuida do ambiente de todos os sons do jogo, sintetizados ao iniciar por `SfxSynth`
 ## (nenhum arquivo de áudio).
 ## Para trocar por gravações reais, substitua as entradas de `streams` por AudioStreams importados.
-## Barramentos (default_bus_layout.tres): Ambience (clima, zumbido, chiado), Voices (sílabas), Effects (o resto).
+## Barramentos (default_bus_layout.tres): Ambience (clima, zumbido, chiado), Voices (sílabas), Effects (o resto); Phone
+## (a banda da linha telefônica) vai para Voices e leva as vozes de quem liga (`SfxSynth.VOICE`, "bus").
 ## Clima (`set_weather`): "rain" só chuva; "fog" grilos; "clear" brisa e grilos.
 
 const VOL := {
@@ -75,9 +76,37 @@ const MUFFLE_OPEN := 20500.0
 const VARY_PITCH := 0.06
 const VARY_DB := 1.5
 
+## Entonação das falas (`_tone`): a altura cai DECLINE do começo ao fim da frase, com JITTER de sorteio por sílaba;
+## a tônica de cada palavra sobe STRESS e STRESS_DB dB; a última sílaba da afirmação cai (FINAL_FALL).
+## Pergunta ("?"): a frase fica reta (sem a queda) e as últimas QUESTION_TAIL sílabas sobem, em rampa, até QUESTION_RISE.
+## Exclamação ("!"): a frase toda mais aguda e mais alta (EXCLAIM), a tônica com EXCLAIM_STRESS vezes a ênfase e o fim
+## caindo mais (EXCLAIM_FALL). Cada pessoa tem a sua altura, até PERSON_PITCH acima ou abaixo da voz (`pitch_of`).
+const DECLINE := 0.04
+const JITTER := 0.02
+const STRESS := 0.06
+const STRESS_DB := 2.0
+const FINAL_FALL := 0.95
+const QUESTION_RISE := 1.12
+const QUESTION_TAIL := 3
+const EXCLAIM := {"pitch": 1.08, "db": 3.0}
+const EXCLAIM_STRESS := 1.8
+const EXCLAIM_FALL := 0.88
+const PERSON_PITCH := 0.08
+## Fração da duração da sílaba (`SfxSynth.VOICE`, "dur") que precisa passar antes da próxima da mesma voz (`_syllable_wait`).
+const SYLLABLE_GAP := 0.7
+const ACCENTED := "áàâãéêíóôõú"
+const OXYTONE := "rlzuix"
+## dB a mais em todas as falas, sobre o `db` de cada voz (`SfxSynth.VOICE`; era 10). As mais fortes (a tônica de uma
+## exclamação) passam de 0 dB: o barramento Voices tem um limitador (`default_bus_layout.tres`) para não estourar.
+const VOICE_GAIN := 12.0
+## dB a mais em cada vogal (a vogal aberta, "a", saía forte demais).
+const VOWEL_DB := {"a": -2.5}
+## As consoantes de cada ataque (`_onset`); as que não aparecem ("l", o "r" fraco) não têm ataque.
+const ONSETS := {"stop": "ptkbdgcq", "fric": "szfvxjç", "nasal": "mn"}
 const VMAP := {"a": "a", "á": "a", "à": "a", "â": "a", "ã": "a", "e": "e", "é": "e", "ê": "e", "i": "i", "í": "i", "o": "o", "ó": "o", "ô": "o", "õ": "o", "u": "u", "ú": "u"}
 
 var streams: Dictionary = {}
+var _spoke := {}   ## voz -> ms (Time.get_ticks_msec) em que a última sílaba começa (no futuro, se está esperando)
 var _takes := {}   # id -> quantas versões ele tem (`_take`), dos sons com "~1", "~2"...
 var vol := VOL.duplicate()   ## o volume em uso; a mesa de som do debug mexe nele (o `VOL` é o padrão)
 var pool: Array[AudioStreamPlayer] = []
@@ -204,7 +233,7 @@ func _free(players: Array) -> Node:
 ## `p`: AudioStreamPlayer ou AudioStreamPlayer2D.
 func _start(p: Node, id: String, db: float, pitch: float) -> void:
 	p.stream = streams[_take(id)]
-	p.bus = &"Voices" if id.begins_with("s_") or id == "crackle" else &"Effects"
+	p.bus = SfxSynth.VOICE[id[2]]["bus"] if id.begins_with("s_") else (&"Voices" if id == "crackle" else &"Effects")
 	if id in VARIED:
 		db += randf_range(-VARY_DB, VARY_DB)
 		pitch *= 1.0 + randf_range(-VARY_PITCH, VARY_PITCH)
@@ -429,26 +458,166 @@ func ringback(times: int) -> float:
 	return times * 2.0
 
 
-## Fala o caractere i de `text`: cada grupo de vogais dispara uma sílaba abafada (ritmo de fala,
-## estilo Papers, Please). Devolve se o caractere é vogal (passe de volta em `prev_vowel`).
-## `at`: de que lugar da tela vem a voz (como em `play_at`; -1 = do centro, como o fone).
-func speak_char(voice: String, text: String, i: int, prev_vowel: bool, laugh: bool = false, at := -1.0) -> bool:
+## Fala o caractere i de `text`: cada grupo de vogais dispara uma sílaba (ritmo de fala, estilo Papers, Please), com
+## a entonação da frase (`_tone`). Devolve se o caractere é vogal (passe de volta em `prev_vowel`).
+## `at`: de que lugar da tela vem a voz (como em `play_at`; -1 = do centro, como o fone). `pitch`: a altura da pessoa
+## (`pitch_of`).
+func speak_char(voice: String, text: String, i: int, prev_vowel: bool, laugh: bool = false, at := -1.0, pitch := 1.0) -> bool:
 	var lc := text[i].to_lower()
 	if not VMAP.has(lc):
 		return false
-	if not prev_vowel:
-		var rise := laugh or (text.strip_edges().ends_with("?") and i > text.length() - 9)
-		syllable(voice, VMAP[lc], rise, at)
+	if prev_vowel:
+		return true
+	var wait := _syllable_wait(voice)
+	if wait < 0.0:
+		return true
+	var t := _tone(text, i)
+	if laugh:
+		t = [2, 1.13, 0.0]
+	var sound := syllable.bind(voice, VMAP[lc] + ("n" if _nasal(text, i) else ""), _onset(text, i), t[0], pitch * t[1], t[2], at)
+	if wait == 0.0:
+		sound.call()
+	else:   # em tempo real, como `_syllable_wait` mede
+		get_tree().create_timer(wait, false, false, true).timeout.connect(sound)
 	return true
 
 
-## Toca uma sílaba abafada. `rise` sobe a entonação (perguntas, risadas).
-func syllable(v: String, vowel: String, rise: bool = false, at := -1.0) -> void:
+## Se a sílaba que começa em `i` é nasal: tem "ã"/"õ" ("não", "irmã") ou termina em "m"/"n" sem vogal depois
+## ("também", "campo", "central"; "Benedito" não).
+func _nasal(text: String, i: int) -> bool:
+	var g := i
+	while g < text.length() and VMAP.has(text[g].to_lower()):
+		if text[g].to_lower() in "ãõ":
+			return true
+		g += 1
+	if g >= text.length() or not text[g].to_lower() in "mn":
+		return false
+	return g + 1 >= text.length() or not VMAP.has(text[g + 1].to_lower()) and text[g + 1].to_lower() != "h"
+
+
+## A consoante antes da sílaba que começa em `i`, pelo ataque (`SfxSynth.ATTACKS`): "stop", "fric", "nasal" ou ""
+## (vogal sozinha, "l" e o "r" fraco). Nos encontros ("pr", "bl", "tr") vale a primeira; "ch" e "j" chiam, "nh" é
+## nasal, "lh" é como "l", o "r" do começo da palavra e o "rr" chiam ("rua"), "c" e "g" antes de "e"/"i" também.
+func _onset(text: String, i: int) -> String:
+	var v := text[i].to_lower()
+	var j := i - 1
+	var c := text[j].to_lower() if j >= 0 else ""
+	if c in ["r", "l"] and j > 0 and text[j - 1].to_lower() in ONSETS["stop"] + "fv":   # encontro: "pr", "bl", "fr"
+		c = text[j - 1].to_lower()
+		v = ""
+	elif c == "h" and j > 0:   # "ch", "nh", "lh"
+		return {"c": "fric", "n": "nasal"}.get(text[j - 1].to_lower(), "")
+	elif c == "r" and (j == 0 or not _letter(text[j - 1]) or text[j - 1].to_lower() == "r"):
+		return "fric"
+	if c == "":
+		return ""
+	if c in "cg" and v != "" and v in "eiéêí":
+		return "fric"
+	for kind in ONSETS:
+		if c in ONSETS[kind]:
+			return kind
+	return ""
+
+
+## Quantos segundos a próxima sílaba da voz `v` espera: a anterior precisa ter tocado SYLLABLE_GAP da duração dela. A
+## fala anda no ritmo das letras (`Conversation.say`), e duas vogais a duas letras uma da outra ("Alô", "sei o") vinham
+## quase juntas, atropeladas. A que chega cedo espera a vez (0 = toca já); se já houver uma esperando, ela não toca
+## (-1), para a fala não ir acumulando atraso. Marca o começo da nova.
+func _syllable_wait(v: String) -> float:
+	var now := Time.get_ticks_msec()
+	var last := int(_spoke.get(v, -100000))   # o começo da última, que pode estar esperando (no futuro)
+	if last > now:
+		return -1.0
+	var dur: float = SfxSynth.VOICE.get(v, SfxSynth.VOICE["m"])["dur"]
+	var start := maxi(now, last + int(dur * SYLLABLE_GAP * 1000.0))
+	_spoke[v] = start
+	return (start - now) / 1000.0
+
+
+## A altura de cada pessoa, pelo nome: a mesma pessoa sempre com a mesma voz (também quando liga de novo), e duas
+## pessoas da mesma voz (`SfxSynth.VOICE`) soando diferentes (até PERSON_PITCH para cima ou para baixo).
+static func pitch_of(who: String) -> float:
+	return 1.0 + (float(hash(who) % 1001) / 500.0 - 1.0) * PERSON_PITCH
+
+
+## A entonação da sílaba que começa em `i`: [curva (0 descendo, 1 reta, 2 subindo), altura, dB a mais], pelo jeito
+## da frase (afirmação, pergunta ou exclamação; ver DECLINE). As do meio da frase sorteiam a curva.
+func _tone(text: String, i: int) -> Array:
+	var a := i   # a frase: do último ponto antes de i até o próximo
+	while a > 0 and not text[a - 1] in ".!?":
+		a -= 1
+	var b := i
+	while b < text.length() and not text[b] in ".!?":
+		b += 1
+	var end := text[b] if b < text.length() else "."
+	var before := _syllables(text, a, i)
+	var after := _syllables(text, i + 1, b)
+	var pitch := 1.0 + randf_range(-JITTER, JITTER)
+	if end != "?":
+		pitch += DECLINE * (1.0 - 2.0 * before / maxf(1.0, before + after))
+	var db := 0.0
+	var stress := EXCLAIM_STRESS if end == "!" else 1.0
+	if _stressed(text, i):
+		pitch += STRESS * stress
+		db = STRESS_DB * stress
+	if end == "!":
+		pitch *= EXCLAIM["pitch"]
+		db += EXCLAIM["db"]
+	if end == "?" and after < QUESTION_TAIL:
+		var k := float(QUESTION_TAIL - after) / QUESTION_TAIL   # 1/3, 2/3, 1 na última
+		return [2, pitch * lerpf(1.0, QUESTION_RISE, k), db]
+	if after > 0:
+		return [randi() % 3, pitch, db]
+	return [0, pitch * (EXCLAIM_FALL if end == "!" else FINAL_FALL), db]
+
+
+## Quantos grupos de vogais (sílabas faladas) começam em text[from, to); o que já vinha de antes de `from` não conta.
+func _syllables(text: String, from: int, to: int) -> int:
+	var n := 0
+	var prev := from > 0 and VMAP.has(text[from - 1].to_lower())
+	for j in range(from, to):
+		var v := VMAP.has(text[j].to_lower())
+		if v and not prev:
+			n += 1
+		prev = v
+	return n
+
+
+## Se a sílaba que começa em `i` é a tônica da palavra: a do acento, se houver; senão a última nas palavras
+## terminadas em OXYTONE ("falar", "aqui") e a penúltima nas outras. Palavra de uma sílaba sem acento ("de", "o") é átona.
+func _stressed(text: String, i: int) -> bool:
+	var a := i
+	while a > 0 and _letter(text[a - 1]):
+		a -= 1
+	var b := i
+	while b < text.length() and _letter(text[b]):
+		b += 1
+	var word := text.substr(a, b - a).to_lower()
+	var g := i   # o fim do grupo de vogais que começa em i
+	while g < b and VMAP.has(text[g].to_lower()):
+		g += 1
+	for ch in word:
+		if ch in ACCENTED:
+			return text.substr(i, g - i).to_lower().contains(ch)
+	var after := _syllables(text, g, b)
+	if _syllables(text, a, b) < 2:
+		return false
+	return after == (0 if word.right(1) in OXYTONE else 1)
+
+
+static func _letter(ch: String) -> bool:
+	return ch.to_lower() != ch.to_upper()
+
+
+## Toca uma sílaba: a vogal `vowel` ("a", "an" nasal...) com o ataque da consoante `onset` (`SfxSynth.ATTACKS`; ""
+## sem). `contour`: a curva gravada (0 descendo, 1 reta, 2 subindo); `pitch` e `db` somam ao timbre.
+func syllable(v: String, vowel: String, onset: String, contour: int, pitch := 1.0, db := 0.0, at := -1.0) -> void:
 	if not SfxSynth.VOICE.has(v):
 		v = "m"
-	var id := "s_%s_%s_%d" % [v, vowel, randi() % 3]
-	var pitch := randf_range(0.95, 1.05) * (1.13 if rise else 1.0)
-	_sound(id, at, float(SfxSynth.VOICE[v]["db"]) + 10.0, pitch)
+	var vol := float(SfxSynth.VOICE[v]["db"]) + VOICE_GAIN + db + float(VOWEL_DB.get(vowel[0], 0.0))
+	_sound("s_%s_%s_%d" % [v, vowel, contour], at, vol, pitch)
+	if onset != "":
+		_sound("s_%s_%s" % [v, onset], at, vol, pitch)
 	if v == "g" and randf() < 0.3:
 		_sound("crackle", at, -4.0)
 
