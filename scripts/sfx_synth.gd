@@ -30,19 +30,32 @@ const RAIN_LEFT := 0.4
 ## Os pedaços das receitas ([função, argumentos...]), cada um montado sozinho numa instância (`build`; mais as vozes,
 ## uma por pedaço); os mais pesados (a chuva, a brisa, o fio, os grilos, os carros, o sino) ficam em pedaços próprios
 ## para se dividirem entre os núcleos.
+const CAR_PEAK := 0.58   ## onde fica o mais alto da passagem do carro (fração da duração): chega devagar, some rápido
+const WET_SWEEP := Vector2(3000, 1000)   ## o chiado do pneu molhado, chegando e indo embora (Hz, o centro do filtro)
+const WET_TOP := 4000.0   ## acima disso, a janela fechada abafa (como na chuva)
+const WET_SPLASHES := Vector2i(2, 3)   ## as poças por onde o pneu passa (respingos)
+const WET_NEAR := 1.25   ## o carro da mão de cá: o chiado e o corte dos agudos mais altos (mais claro)
+const CAR_NEAR_SHARP := 1.8   ## o carro da mão de cá: a passagem mais concentrada no meio (expoente da curva)
+const CAR_TAKES := 3   ## versões de cada carro, cada uma com o seu sorteio
 const PARTS := [["_build_basic"], ["_build_ring"], ["_build_clock"], ["_build_rub"], ["_build_unroll"], ["_build_card"],
-	["_build_car"], ["_build_car", true], ["_build_thunder"], ["_build_neon"], ["_build_bell"], ["_build_dog"], ["_build_dog", true], ["_build_outside"],
+	["_build_thunder"], ["_build_neon"], ["_build_bell"], ["_build_dog"], ["_build_dog", true], ["_build_outside"],
 	["_build_lamp"], ["_build_rain"], ["_build_breeze"], ["_build_crickets"]]
 
 var streams := {}   ## id -> AudioStreamWAV
 var _w := PackedFloat32Array()   ## o som sendo montado (`_begin` ... `_end`)
+var _near := false   # o carro sendo montado é o da mão de cá (`_build_car`)
 var _rng := RandomNumberGenerator.new()   ## o sorteio desta instância (o global não é seguro entre linhas de execução)
 
 
 ## Todos os sons, por id. Cada pedaço (`PARTS`) numa instância própria, ao mesmo tempo (`WorkerThreadPool`); espera
 ## todos.
 static func build() -> Dictionary:
-	var jobs := PARTS.duplicate()
+	var jobs := []
+	for take in CAR_TAKES:   # os carros, cada versão num pedaço, primeiro (são dos mais demorados)
+		for wet in [false, true]:
+			for near in [false, true]:
+				jobs.append(["_build_car", wet, near, take])
+	jobs.append_array(PARTS)
 	for v in VOICE:
 		jobs.append(["_build_voice", v])
 	var parts: Array[SfxSynth] = []
@@ -287,34 +300,103 @@ func _build_voice(v: String) -> void:
 # ------------------------------------------------------------------ ambientes e campainhas
 
 ## Um carro passando lá fora: o motor grave caindo de tom ao passar (efeito Doppler) e o chiado dos pneus no asfalto,
-## crescendo e sumindo. `wet`: na chuva, os pneus jogam água, um chiado agudo que ondula por cima de tudo.
-func _build_car(wet := false) -> void:
+## crescendo e sumindo. `wet`: na chuva, o pneu no molhado (`_wet_tires`) no lugar do pneu seco. `near`: pela mão de
+## cá, mais perto (`_near`): mais claro, com mais Doppler e a passagem mais concentrada no meio. `take`: uma das
+## `CAR_TAKES` versões, cada uma num pedaço (`build`) com o seu sorteio (`Sfx._take` toca uma delas): a primeira com
+## o id, as outras com "~1", "~2"...
+func _build_car(wet: bool, near: bool, take: int) -> void:
+	_near = near
+	var id := ("car_wet" if wet else "car") + ("_near" if near else "")
 	var L := 3.2
 	_begin(L)
 	var n := _w.size()
 	var tires := PackedFloat32Array()
 	tires.resize(n)
 	var ph := 0.0
+	var r := _rng.randi()   # o ruído sorteado aqui mesmo (ver `_passes`)
+	var hz := 52.0 * _rng.randf_range(0.85, 1.2)   # cada carro com o seu motor
+	var doppler := 0.24 if near else 0.16
 	for i in n:
 		var t := float(i) / RATE
-		ph += 52.0 * (1.08 - 0.16 * t / L) / RATE
-		_w[i] = _wave("saw", ph) * 0.6 + sin(TAU * ph * 2.0) * 0.3
-		tires[i] = _rng.randf_range(-1.0, 1.0)
-	_w = _biquad(_w, "lp", 380.0, 0.7)
-	tires = _biquad(_biquad(tires, "lp", 1400.0, 0.7), "hp", 200.0, 0.7)
-	var water := PackedFloat32Array()
-	if wet:
-		water.resize(n)
-		for i in n:
-			water[i] = _rng.randf_range(-1.0, 1.0)
-		water = _biquad(_biquad(water, "hp", 1800.0, 0.7), "lp", 7000.0, 0.7)
+		ph += hz * (1.0 + doppler / 2.0 - doppler * smoothstep(CAR_PEAK - 0.3, CAR_PEAK + 0.2, t / L)) / RATE
+		_w[i] = ((ph - floorf(ph)) * 2.0 - 1.0) * 0.6 + sin(TAU * ph * 2.0) * 0.3   # (o dente de serra aqui mesmo: ver `_passes`)
+		r = (r * 1103515245 + 12345) & 0x7fffffff
+		tires[i] = r / 1073741823.5 - 1.0
+	_w = _biquad(_w, "lp", 480.0 if near else 380.0, 0.7)
+	tires = _biquad(_biquad(tires, "lp", 2000.0 if near else 1400.0, 0.7), "hp", 200.0, 0.7)
+	var env := _passes(n)
+	var water := _wet_tires(env) if wet else PackedFloat32Array()
 	for i in n:
-		var env := pow(sin(PI * float(i) / n), 2.0)
-		_w[i] = (_w[i] * 0.7 + tires[i] * 0.9) * env
-		if wet:
+		_w[i] = _w[i] * 0.45 * env[i] + water[i] if wet else (_w[i] * 0.7 + tires[i] * 0.9) * env[i]
+	_end(id + ("~%d" % take if take > 0 else ""))
+
+
+## A força da passagem do carro em cada uma das `n` amostras: chega aos poucos, mais alto um pouco depois do meio
+## (`CAR_PEAK`) e some mais rápido, atrás do prédio; o de perto, mais concentrado no meio (`CAR_NEAR_SHARP`). Numa
+## lista, não numa função por amostra: chamar função a cada amostra (do próprio script ou de um objeto, como o
+## `_rng`) trava as linhas de execução umas nas outras (8 carros ao mesmo tempo levavam 10 vezes o tempo de um); o
+## ruído dos carros sai de um sorteio simples escrito no laço.
+func _passes(n: int) -> PackedFloat32Array:
+	var k := CAR_NEAR_SHARP if _near else 1.0
+	var env := PackedFloat32Array()
+	env.resize(n)
+	for i in n:
+		var u := float(i) / n
+		env[i] = pow(sin(PI / 2.0 * u / CAR_PEAK), 2.4 * k) if u < CAR_PEAK \
+			else pow(cos(PI / 2.0 * (u - CAR_PEAK) / (1.0 - CAR_PEAK)), 1.6 * k)
+	return env
+
+
+## O pneu no asfalto molhado, ouvido pela janela fechada: um chiado liso ("chhhh") que fica mais claro chegando e
+## mais escuro indo embora (o filtro desce de `WET_SWEEP.x` a `WET_SWEEP.y` Hz na passagem, como o tom do motor),
+## o chapinhar grave da água embaixo e, no meio, os respingos de duas ou três poças (`WET_SPLASHES`: lufadas de
+## ~0,2 s, não estalos). Sem os agudos acima de `WET_TOP` Hz, como a chuva.
+func _wet_tires(env: PackedFloat32Array) -> PackedFloat32Array:
+	var n := env.size()
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var low := 0.0   # o filtro que varre (estado variável: passa-banda largo)
+	var band := 0.0
+	var drift := 0.0   # uma oscilação lenta e irregular da força (o pneu passando por mais ou menos água)
+	var drift_to := 1.0
+	var sweep := WET_SWEEP * (WET_NEAR if _near else 1.0)
+	var r := _rng.randi()   # o ruído sorteado aqui mesmo (ver `_passes`)
+	for i in n:
+		var u := float(i) / n
+		var f := lerpf(sweep.x, sweep.y, smoothstep(CAR_PEAK - 0.25, CAR_PEAK + 0.15, u))
+		var k := 2.0 * sin(PI * f / RATE)
+		r = (r * 1103515245 + 12345) & 0x7fffffff
+		var high := r / 1073741823.5 - 1.0 - low - 1.2 * band
+		band += k * high
+		low += k * band
+		if i % 2205 == 0:
+			drift_to = _rng.randf_range(0.8, 1.0)
+		drift += (drift_to - drift) * 0.0004
+		out[i] = band * 0.9 * drift * env[i]
+	var slosh := PackedFloat32Array()
+	slosh.resize(n)
+	for i in n:
+		r = (r * 1103515245 + 12345) & 0x7fffffff
+		slosh[i] = r / 1073741823.5 - 1.0
+	slosh = _biquad(_biquad(slosh, "lp", 420.0, 0.7), "hp", 90.0, 0.7)
+	for i in n:
+		out[i] += slosh[i] * 0.8 * env[i]
+	for s in _rng.randi_range(WET_SPLASHES.x, WET_SPLASHES.y):
+		var at := int(_rng.randf_range(CAR_PEAK - 0.15, CAR_PEAK + 0.1) * n)
+		var len := int(_rng.randf_range(0.16, 0.28) * RATE)
+		var burst := PackedFloat32Array()
+		burst.resize(len)
+		for i in len:
+			r = (r * 1103515245 + 12345) & 0x7fffffff
+			burst[i] = r / 1073741823.5 - 1.0
+		burst = _biquad(burst, "bp", _rng.randf_range(1300.0, 2100.0), 0.9)
+		var amp := _rng.randf_range(0.5, 0.8)
+		for i in len:
 			var t := float(i) / RATE
-			_w[i] = _w[i] * 0.7 + water[i] * 1.1 * pow(sin(PI * float(i) / n), 1.5) * (0.7 + 0.3 * sin(TAU * 6.0 * t + sin(TAU * 1.3 * t)))
-	_end("car_wet" if wet else "car")
+			if at + i < n:
+				out[at + i] += burst[i] * amp * minf(t / 0.025, 1.0) * exp(-t / 0.07)
+	var top := WET_TOP * (WET_NEAR if _near else 1.0)
+	return _biquad(_biquad(out, "lp", top, 0.7), "lp", top, 0.7)
 
 
 ## O neon do hotel falhando, do outro lado da rua: o estalo do reator e o zumbido de 120 Hz, abafados pela distância

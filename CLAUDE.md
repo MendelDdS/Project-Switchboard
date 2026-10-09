@@ -37,7 +37,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Todo o áudio é sintetizado ao iniciar por `SfxSynth.build()` (`scripts/sfx_synth.gd`: as receitas, 140 sons, 3,7 MB;
   sem cache; em pedaços, `PARTS` e uma voz por pedaço, montados ao mesmo tempo nos núcleos, `WorkerThreadPool` em alta
   prioridade (a de baixa usa só ~30% deles): ~0,35 s num Mac recente pelo editor, ~0,9 s um depois do outro; cada
-  pedaço numa instância com o seu sorteio, `_rng`, porque o `randf` global não é seguro entre linhas de execução) e tocado pelo autoload `Sfx` (`scripts/sfx.gd`: tocar, mixar, ambiente), inclusive as "vozes" por sílaba
+  pedaço numa instância com o seu sorteio, `_rng`, porque o `randf` global não é seguro entre linhas de execução); **nada de chamar função a cada amostra** num laço de som (do
+  próprio script ou de objeto, como `_rng.randf_range`): as linhas de execução travam umas nas outras, e 8 carros ao
+  mesmo tempo levavam 10 vezes o tempo de um; a curva vai numa lista e o ruído num sorteio escrito no laço (`_build_car`) e tocado pelo autoload `Sfx` (`scripts/sfx.gd`: tocar, mixar, ambiente), inclusive as "vozes" por sílaba
   (`Sfx.speak_char`). Ao fechar, o `Sfx` para os sons e espera um instante (`_exit_tree`): fechando com som tocando,
   as gravações vazavam ("ObjectDB instances leaked"). O aviso pequeno que ainda sai fechando no meio de uma conversa
   (um `GDScript`, um `SceneTreeTimer`, "N resources still in use") é do Godot: um `await` de `create_timer` pendente
@@ -97,7 +99,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   foram testadas e saíram a pedido). **Lá fora acontece coisa** (`Background._events`, tempos sorteados, sons vindo
   da janela): um carro passa na rua da vista com os faróis (`CAR_*`, som `car`; a luz deles varrendo a sala
   saiu a pedido, não parecia luz; na
-  chuva, `car_wet`, com o chiado da água); gente passa a pé pela calçada de lá, várias ao mesmo tempo e às vezes
+  chuva, `car_wet`, o pneu no molhado pela janela fechada, `SfxSynth._wet_tires`: chiado liso que escurece
+  ao passar, `WET_SWEEP`, sem agudos, `WET_TOP`, o chapinhar grave e respingos de poças, `WET_SPLASHES`; chega devagar e
+  some rápido, `_passes`, `CAR_PEAK`; o chiado que pulsava 6 vezes por segundo soava como motor e saiu; o da mão de
+  cá, `car_near`/`car_wet_near`, mais claro, com mais Doppler e a passagem mais concentrada, `WET_NEAR`,
+  `CAR_NEAR_SHARP`; cada um em `CAR_TAKES` versões, `id~1`..., sorteadas ao tocar, `Sfx._take`); gente passa a pé pela calçada de lá, várias ao mesmo tempo e às vezes
   em dupla (`_walkers`, `_walker`: cada um com o seu passo, altura e distância das fachadas; guarda-chuva na chuva e,
   sem ela, de chapéu ou não), em silhueta contra as luzes (`WALK_*`, `WALK_STEPS`, `_draw_walker`; sem som: os
   passos, de dentro do prédio, não se ouviriam, e saíram a pedido), cada vez menos das 18h às 22h (`WALK_FROM`/`WALK_UNTIL`) e, daí em diante,

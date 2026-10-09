@@ -10,7 +10,7 @@ const VOL := {
 	"tick": -24.0, "pencil": -13.0, "ring": -9.0, "pulse": -10.0, "ringback": -13.0, "sit": -13.0,
 	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "rub": -13.0, "cord_stop": -16.0, "cord_tap": -17.0, "cord_snag": -18.0, "cord_snap": -21.0, "unroll": -8.0,
 	"typing": -13.0, "printer": -14.0, "punch": -8.0, "feed": -11.0, "read": -14.0, "shred": -10.0, "deny": -14.0,
-	"chime": -11.0, "shift_bell": -13.0, "car": -15.0, "car_wet": -14.0, "neon": -29.0, "thunder": -8.0,
+	"chime": -11.0, "shift_bell": -13.0, "car": -15.0, "car_near": -13.0, "car_wet": -14.0, "car_wet_near": -12.0, "neon": -29.0, "thunder": -8.0,
 	"bell": -15.0, "rattle": -17.0, "dog": -27.0, "dog_low": -28.0, "lamp_tick": -27.0,
 }
 ## Volume (dB) dos sons de ambiente em cada clima; o que não aparece fica mudo.
@@ -78,6 +78,7 @@ const VARY_DB := 1.5
 const VMAP := {"a": "a", "á": "a", "à": "a", "â": "a", "ã": "a", "e": "e", "é": "e", "ê": "e", "i": "i", "í": "i", "o": "o", "ó": "o", "ô": "o", "õ": "o", "u": "u", "ú": "u"}
 
 var streams: Dictionary = {}
+var _takes := {}   # id -> quantas versões ele tem (`_take`), dos sons com "~1", "~2"...
 var vol := VOL.duplicate()   ## o volume em uso; a mesa de som do debug mexe nele (o `VOL` é o padrão)
 var pool: Array[AudioStreamPlayer] = []
 var pool_2d: Array[AudioStreamPlayer2D] = []   # para `play_at` (som que vem de um lugar da tela)
@@ -119,6 +120,10 @@ var _ring_turn := 0
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS   # o ambiente e os sons do menu seguem durante a pausa
 	streams = SfxSynth.build()
+	for key: String in streams:
+		if "~" in key:
+			var base := key.get_slice("~", 0)
+			_takes[base] = maxi(int(_takes.get(base, 1)), int(key.get_slice("~", 1)) + 1)
 	for i in 20:
 		var p := AudioStreamPlayer.new()
 		add_child(p)
@@ -198,7 +203,7 @@ func _free(players: Array) -> Node:
 
 ## `p`: AudioStreamPlayer ou AudioStreamPlayer2D.
 func _start(p: Node, id: String, db: float, pitch: float) -> void:
-	p.stream = streams[id]
+	p.stream = streams[_take(id)]
 	p.bus = &"Voices" if id.begins_with("s_") or id == "crackle" else &"Effects"
 	if id in VARIED:
 		db += randf_range(-VARY_DB, VARY_DB)
@@ -208,6 +213,12 @@ func _start(p: Node, id: String, db: float, pitch: float) -> void:
 	p.play()
 	if id == "cord_tap":
 		_rub_duck = RUB_DUCK.y
+
+
+## Uma das versões do som, sorteada: `id`, `id~1`, `id~2`... (as do carro, `SfxSynth.CAR_TAKES`; contadas em `_takes`).
+func _take(id: String) -> String:
+	var k := randi() % int(_takes.get(id, 1))
+	return id if k == 0 else "%s~%d" % [id, k]
 
 
 func later(t: float, id: String, db: float = 0.0) -> void:

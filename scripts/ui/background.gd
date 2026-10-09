@@ -353,7 +353,7 @@ func _events(delta: float) -> void:
 		if _car_in[lane] <= 0.0:
 			_cars.append({"t": 0.0, "lane": lane})
 			_car_in[lane] = INF   # o próximo desta mão é sorteado quando este sair
-			Sfx.play_at("car_wet" if weather == "rain" else "car", x, 2.0 if lane == 1 else 0.0)   # o de cá, mais perto
+			Sfx.play_at(("car_wet" if weather == "rain" else "car") + ("_near" if lane == 1 else ""), x)   # o de cá, mais perto
 	for i in range(_cars.size() - 1, -1, -1):
 		var c := _cars[i]
 		c["t"] += delta / CAR_SEC
