@@ -18,6 +18,8 @@ const TYPE_OF := {
 
 
 func fault(id: String, detail := "") -> void:
+	if main.training.active:   # o treinamento não gera advertência
+		return
 	main.report.add(id, Main.fmt(main.minutes), detail)
 
 
@@ -27,7 +29,7 @@ func who(c: PhoneCall) -> String:
 
 ## O que o supervisor vai anotar e quem vai ligar de novo por causa de como a ligação terminou.
 func call_ended(c: PhoneCall, reason: PhoneCall.End) -> void:
-	if c == main.tut or c.kind in [PhoneCall.Kind.PRANK, PhoneCall.Kind.MYSTERY]:
+	if c.lesson or c.kind in [PhoneCall.Kind.PRANK, PhoneCall.Kind.MYSTERY]:
 		return
 	var e: EmergencyCall = c.data if c.kind == PhoneCall.Kind.EMERGENCY else null
 	if reason in [PhoneCall.End.MISSED, PhoneCall.End.GAVE_UP]:
@@ -47,7 +49,7 @@ func call_ended(c: PhoneCall, reason: PhoneCall.End) -> void:
 
 
 ## A mesma pessoa liga de novo mais tarde, irritada e com menos paciência (no máximo uma vez por motivo).
-## Vale também para a ligação do tutorial (que só não gera advertência). Nunca depois da última ligação
+## Vale também para a ligação do treinamento (que só não gera advertência). Nunca depois da última ligação
 ## (`Main.LAST_CALL`): se não couber, o Main a descarta.
 func call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
 	if why in c.retried:
@@ -78,7 +80,7 @@ func call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
 ## Quem fica em espera tempo demais desiste.
 func check_hold() -> void:
 	for c in main.live.duplicate():
-		if c.active and c != main.tut and c.kind != PhoneCall.Kind.MYSTERY and main.exchange.line(c.line) == Exchange.Line.HOLD \
+		if c.active and not c.lesson and c.kind != PhoneCall.Kind.MYSTERY and main.exchange.line(c.line) == Exchange.Line.HOLD \
 				and main.minutes - c.hold_since > HOLD_GIVE_UP:
 			main.end_call(c, PhoneCall.End.GAVE_UP)
 
@@ -102,6 +104,8 @@ func lost(c: PhoneCall) -> void:
 
 ## As unidades chegaram ao local marcado no despacho.
 func on_arrived(e: EmergencyCall, result: Fleet.Result, occurrence: String, extra: Array) -> void:
+	if e != null and e == main.training.drill:   # a emergência de treino não conta (nem vai para o jornal)
+		return
 	if e != null and occurrence == "":   # cartão sem o tipo perfurado
 		fault("dispatch_type", T.text(T.Key.FAULT_DETAIL_UNCLASSIFIED) % tr(e.occurrence))
 	elif e != null and occurrence != e.occurrence:

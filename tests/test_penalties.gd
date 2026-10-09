@@ -114,10 +114,10 @@ func _initialize() -> void:
 	_clear_board()
 	print("OK 2b número errado com o FONE fora / liga de novo")
 
-	# ---- 2c. o mesmo fluxo liga de novo também na ligação do tutorial, numa ligação que já era um retorno
-	#          e perto do fim do turno (o retorno nunca fica para depois da meia-noite)
-	for kind in ["tutorial", "retorno", "fim do turno"]:
-		var cc: PhoneCall = m.tut if kind == "tutorial" else PhoneCall.from_transfer(load("res://data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres"))
+	# ---- 2c. o mesmo fluxo liga de novo também numa ligação que já era um retorno e perto do fim do turno (o
+	#          retorno nunca fica para depois da meia-noite)
+	for kind in ["retorno", "fim do turno"]:
+		var cc := PhoneCall.from_transfer(load("res://data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres"))
 		if kind == "retorno":
 			cc.retry = PhoneCall.Retry.MISSED
 			cc.retried.append(PhoneCall.Retry.MISSED)
@@ -138,7 +138,7 @@ func _initialize() -> void:
 		m.sched.erase(again[0])
 		_clear_board()
 	m.minutes = 0.0
-	print("OK 2c número errado com o FONE fora: tutorial, retorno e fim do turno")
+	print("OK 2c número errado com o FONE fora: retorno e fim do turno")
 
 	# ---- 3. registro com tipo errado
 	var nb = m.notebook

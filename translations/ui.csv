@@ -17,9 +17,11 @@ DIGIT_7,sete,seven,siete
 DIGIT_8,oito,eight,ocho
 DIGIT_9,nove,nine,nueve
 INTRO_NIGHT,Noite %d · %s · %s,Night %d · %s · %s,Noche %d · %s · %s
+INTRO_TRAINING,Treinamento · %s · %s,Training · %s · %s,Entrenamiento · %s · %s
 INTRO_INFO,"Tudo acontece na sua mesa. Use o mouse para levar os plugues até as tomadas e para consultar a lista, o mapa e o caderno. Mais de uma linha pode tocar ao mesmo tempo. Use fones de ouvido.","Everything happens at your desk. Use the mouse to move the plugs to the jacks and to check the directory, the map and the logbook. More than one line can ring at the same time. Use headphones.","Todo sucede en su mesa. Use el mouse para llevar los conectores a las tomas y para consultar la guía, el mapa y el cuaderno. Puede sonar más de una línea a la vez. Use audífonos."
 START_SHIFT,Começar turno,Start shift,Comenzar turno
-RESTART_FIRST_NIGHT,Recomeçar da primeira noite,Start over from the first night,Empezar de nuevo desde la primera noche
+RESTART_FIRST_NIGHT,Recomeçar do treinamento,Start over from the training,Empezar de nuevo desde el entrenamiento
+SKIP_TRAINING,Pular o treinamento,Skip the training,Saltar el entrenamiento
 END_DEMO_TITLE,Fim da demonstração,End of demo,Fin de la demostración
 END_DEMO_QUESTION,Você atenderia novamente?,Would you answer again?,¿Volvería a contestar?
 END_FIRED_TITLE,Você foi demitido.,You've been fired.,Usted fue despedido.
@@ -83,6 +85,8 @@ WARN_PLUG_OUTPUT,Ligue um cabo de conexão da SAÍDA %02d até o número de dest
 WARN_DEST_BUSY,O %d já está tocando ou em conversa.,%d is already ringing or on a call.,El %d ya está sonando o en conversación.
 WARN_PHONE_RINGING,O telefone está tocando.,The phone is ringing.,El teléfono está sonando.
 WARN_FONE_TO_BLINK,Leve o FONE até a entrada que está piscando.,Bring the HEADSET to the blinking input.,Lleve el AURICULAR a la entrada que parpadea.
+WARN_TRAINING_HANG_UP,%s ainda está explicando: ela desliga quando terminar.,%s is still explaining: she will hang up when she is done.,%s todavía está explicando: ella cuelga cuando termine.
+WARN_TRAINING_WRONG,"O cabo está no %d, que não é o número pedido.","The cord is on %d, which is not the number asked for.","El cable está en el %d, que no es el número pedido."
 OP_CONNECT_WAIT,"Um momento, vou conectar.","One moment, I'll put you through.","Un momento, lo comunico."
 OP_REPEAT,"Pode repetir, por favor?","Could you repeat that, please?","¿Puede repetir, por favor?"
 OP_SMALLTALK,"E aí, como vai a noite?","So, how's your night going?","¿Y qué tal la noche?"
@@ -113,16 +117,10 @@ HINT_EMERGENCY,"A barra mostra a situação piorando e só para com o socorro co
 HINT_WRONG_DEST,Tire a ponta do cabo desse destino. Confira o nome e o endereço na lista: há nomes parecidos.,Pull the cord out of that destination. Check the name and address in the directory: some names are similar.,Quite el cable de ese destino. Revise el nombre y la dirección en la guía: hay nombres parecidos.
 HINT_WRONG_UNATTENDED,"Sem o FONE na linha, uma conexão errada cai. A pessoa vai ligar de novo: confira o número na lista antes de transferir.","Without the HEADSET on the line, a wrong connection drops. The caller will call back: check the number in the directory before transferring.","Sin el AURICULAR en la línea, una conexión equivocada se cae. La persona volverá a llamar: revise el número en la guía antes de transferir."
 HINT_RED_LAMPS,Lâmpadas vermelhas: a conversa terminou. Tire as duas pontas do cabo de conexão para liberar a linha e o cabo.,Red lamps: the conversation is over. Pull both ends of the patch cord to free the line and the cord.,Lámparas rojas: la conversación terminó. Quite las dos puntas del cable de conexión para liberar la línea y el cable.
-HINT_TUT_PLUG,"A lâmpada da entrada %02d está piscando. Arraste o [b]FONE[/b] (cabo verde, no telefone) até a tomada dessa entrada.","The lamp on input %02d is blinking. Drag the [b]HEADSET[/b] (green cord, on the phone) to that input's jack.","La lámpara de la entrada %02d está parpadeando. Arrastre el [b]AURICULAR[/b] (cable verde, en el teléfono) hasta la toma de esa entrada."
 HINT_ANOTHER_CALL,"Outra entrada chamando! Leve o [b]FONE[/b] até ela: a ligação atual fica em espera. Para voltar, leve o FONE de volta à entrada dela.","Another input is ringing! Take the [b]HEADSET[/b] to it: the current call goes on hold. To go back, return the HEADSET to its input.","¡Otra entrada está llamando! Lleve el [b]AURICULAR[/b] hasta ella: la llamada actual queda en espera. Para volver, lleve el AURICULAR de nuevo a su entrada."
 HINT_REMEMBER,"Lembre: FONE na entrada que pisca, depois Atender.","Remember: HEADSET on the blinking input, then Answer.","Recuerde: AURICULAR en la entrada que parpadea, luego Contestar."
 HINT_TUT_ANSWER,Agora clique em [b]Atender[/b] para falar com quem ligou.,Now click [b]Answer[/b] to talk to the caller.,Ahora haga clic en [b]Contestar[/b] para hablar con quien llamó.
-HINT_TUT_FIND,"Procure [b]%s[/b] na lista. Pegue um [b]cabo de conexão[/b] na base e ligue uma ponta na [b]SAÍDA %02d[/b], logo abaixo da entrada.","Find [b]%s[/b] in the directory. Take a [b]patch cord[/b] from the base and plug one end into [b]OUTPUT %02d[/b], just below the input.","Busque [b]%s[/b] en la guía. Tome un [b]cable de conexión[/b] de la base y conecte una punta en la [b]SALIDA %02d[/b], justo debajo de la entrada."
-HINT_TUT_OTHER_END,"Leve a outra ponta desse cabo até o número de [b]%s[/b], na fileira de destinos.","Take the other end of that cord to the number for [b]%s[/b], in the destination row.","Lleve la otra punta de ese cable al número de [b]%s[/b], en la fila de destinos."
-HINT_TUT_TRANSFER,Clique em [b]Transferir[/b] para chamar o destino.,Click [b]Transfer[/b] to ring the destination.,Haga clic en [b]Transferir[/b] para llamar al destino.
-HINT_TUT_DEST_RINGING,O destino está tocando. Aguarde atender.,The destination is ringing. Wait for an answer.,El destino está sonando. Espere a que contesten.
 OP_TRY_OTHER,Ninguém atende. Quer que eu tente %s?,Nobody's answering. Want me to try %s?,Nadie contesta. ¿Quiere que intente con %s?
-HINT_TUT_CONNECTED,O destino atendeu e a ligação já segue pelo cabo de conexão. Tire o [b]FONE[/b] da entrada quando quiser (devolva ao telefone).,The destination answered and the call already goes through the patch cord. Pull the [b]HEADSET[/b] out of the input whenever you like (return it to the phone).,El destino contestó y la llamada ya sigue por el cable de conexión. Quite el [b]AURICULAR[/b] de la entrada cuando quiera (devuélvalo al teléfono).
 HINT_NO_CORDS,Não há cabos de conexão livres. Desmonte uma conexão encerrada (lâmpadas vermelhas).,No free patch cords. Take down a finished connection (red lamps).,No hay cables de conexión libres. Desarme una conexión terminada (lámparas rojas).
 HINT_DESK_SLIPS,"Cada tira saindo do caderno, na mesa, é uma ocorrência esperando registro (tecla 3).","Each slip sticking out of the logbook on the desk is a call waiting to be logged (key 3).","Cada tira que sale del cuaderno, en la mesa, es una llamada esperando registro (tecla 3)."
 HINT_DESK_SHEET,Folha nova na prancheta: uma conversa terminou e foi para o registro (tecla 4).,New sheet on the clipboard: a conversation ended and went to the call log (key 4).,Hoja nueva en la tablilla: una conversación terminó y pasó al registro (tecla 4).

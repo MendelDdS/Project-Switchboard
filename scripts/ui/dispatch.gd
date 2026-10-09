@@ -90,6 +90,11 @@ func punch_unit(u: String) -> void:
 		_refresh()
 
 
+## O local marcado ({"street", "block", "label"}; vazio = nenhum cartão).
+func location() -> Dictionary:
+	return _location
+
+
 func occurrence() -> String:
 	return _occurrence
 

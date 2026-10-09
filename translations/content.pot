@@ -634,7 +634,7 @@ msgstr ""
 msgid "Acidente de trânsito"
 msgstr ""
 
-#: data/content.tres data/calls/emergency_02_incendio_rua_do_moinho_40.tres data/calls/emergency_07_incendio_rua_das_flores_45.tres
+#: data/content.tres data/nights/night_00.tres data/calls/emergency_02_incendio_rua_do_moinho_40.tres
 msgid "Incêndio"
 msgstr ""
 
@@ -870,6 +870,466 @@ msgstr ""
 msgid "O supervisor deixou um recado: \"Última noite do período. O relatório de hoje vai para a diretoria.\""
 msgstr ""
 
+#: data/nights/night_00.tres
+msgid "Sexta-feira. Seu primeiro turno de verdade é na segunda. Hoje a Cecília, telefonista do Alto da Serra, vai ligar para lhe mostrar o serviço. O fone já está na entrada 1."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "A [b]entrada 1[/b] está chamando. Ponha o [b]FONE[/b] (o cabo verde) na tomada dela."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Alô? Aqui é a Cecília, da central."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Você é quem começa na segunda, não é? Muito prazer!"
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Eu cuido do Alto da Serra faz quinze anos."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "O supervisor me pediu pra te mostrar o serviço hoje, que a mesa está calma."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Prazer, Cecília. Pode falar."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Boa noite! Vamos lá."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Primeiro o básico: quando alguém chama, a lâmpada da entrada pisca."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Você põe o fone na tomada dela e aperta Atender."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Foi o que você acabou de fazer."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Agora eu vou desligar e te ligar pela entrada 2."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Aí você tira o fone daqui, põe lá na 2 e atende de novo."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Só um instante!"
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Cecília"
+msgstr ""
+
+#: data/nights/night_00.tres data/calls/transfer_02_sr_nelson_hotel_estrela.tres data/calls/transfer_26_dona_fatima_hotel_estrela.tres
+msgid "Hotel Estrela"
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Pronto, atenderam! Pode tirar o fone, que agora a conversa é minha com eles."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "A [b]entrada 2[/b] está chamando. Tire o [b]FONE[/b] da entrada 1 e encaixe na tomada da entrada 2."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Isso! Agora finge que eu sou alguém da cidade."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Me passa pro Hotel Estrela, por favor? Minha prima trabalha na recepção."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Quase ninguém sabe o número de cor, e nem você precisa saber."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Pra isso tem a lista telefônica, ali na mesa. Abre ela."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Clique na [b]lista telefônica[/b] na mesa (ou aperte 1)."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "As listas são aqueles volumes de capa mostarda, na mesa. Ou aperta o 1, que abre também."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Cada página dupla é uma letra, e as abas na beira trocam de letra."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Hotel Estrela fica no H. O número é o do fim do pontilhado."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Achou? Agora pega um cabo, um dos coloridos em pé na prateleira."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Encaixa uma ponta na saída da minha linha, logo embaixo da entrada 2."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Arraste um [b]cabo de conexão[/b] (vermelho, azul ou amarelo, em pé na prateleira) até a [b]SAÍDA 2[/b], logo abaixo da entrada 2."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Os cabos ficam em pé na prateleira, na frente do painel. É só pegar e arrastar."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "É a saída 2, na fileira de baixo, embaixo da entrada onde está o fone."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Opa, essa é a saída %d. A minha é a 2, logo embaixo da entrada onde está o fone."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Isso. A outra ponta do mesmo cabo vai no número do hotel, lá nos destinos, embaixo."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Leve a outra ponta do cabo até o número do [b]Hotel Estrela[/b], na fileira de destinos."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Os destinos ficam em ordem de número. Confere na lista se precisar."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Esse é o %d, não é o hotel. Confere o número na lista."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Agora aperta Transferir. O hotel vai tocar."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Quando atenderem, eu falo com eles e a ligação segue sozinha pelo cabo."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Aperte [b]Transferir[/b] (Tab) para chamar o hotel."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "É a tecla do meio, a Transferir."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Espera! Esse cabo está no %d, não no hotel. Troca a ponta antes."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "O hotel está tocando. Espere atender."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Ela e o hotel estão conversando pelo cabo: você já pode tirar o [b]FONE[/b] da entrada e devolvê-lo ao encaixe. Quando a conversa acabar, a lâmpada fica vermelha."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Lâmpada vermelha: a conversa acabou. Tire as duas pontas do cabo (um clique em cada plug) e o FONE, se ainda estiver na entrada, para liberar a linha."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "A Cecília está ligando de novo, pela [b]entrada 1[/b]. Ponha o [b]FONE[/b] nela."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Viu só? Atender, achar o número na lista, cabo na saída e no destino, Transferir."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "E quando a lâmpada fica vermelha, tira o cabo. Isso é metade do serviço."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "A outra metade é papel. Toda ligação que termina vai pro caderno de ocorrências."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Tá vendo as tiras saindo do caderno, ali na mesa? É uma pra cada ligação esperando registro."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Abre ele."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Clique no [b]caderno[/b] na mesa (ou aperte 3)."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "É o caderno de capa de couro, na frente da mesa. Ou aperta o 3."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Na ficha já vem quem ligou, a hora e pra onde foi. Você só diz o tipo."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "As minhas duas de agora foram ligações comuns. Carimba as duas como Comum."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Registre as ligações da Cecília: na ficha do caderno, clique em [b]Ligação comum[/b], uma vez para cada."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "É o botão Ligação comum, embaixo da ficha. A segunda sobe sozinha depois da primeira."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Ih, essa foi comum! Carimbo não se apaga, e o supervisor confere. Hoje não conta, mas presta atenção."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Isso. Emergência e trote têm carimbo próprio, e o supervisor confere tudo no fim da noite."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Pode deixar pra depois quando a mesa apertar, mas não esquece: ligação sem registro dá advertência."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Agora olha a prancheta, do lado. Apareceu uma folha nova nela, não apareceu?"
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Ali fica escrito tudo o que foi dito com o fone na linha. Abre."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Clique na [b]prancheta[/b] na mesa (ou aperte 4)."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "A prancheta é a tábua com o prendedor, na frente da mesa. Ou aperta o 4."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Se alguém disser um número ou um endereço e você esquecer, é só conferir aqui."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Agora a parte mais séria: emergência."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Vou desligar e te ligar pela entrada 3, fingindo que sou alguém da cidade pedindo socorro."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "A [b]entrada 3[/b] está chamando. Ponha o [b]FONE[/b] nela e atenda."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Central! Tá saindo fumaça da cozinha aqui de casa!"
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "É na Rua das Flores, 45! Ninguém se machucou, mas tá enchendo de fumaça!"
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Agora eu sou a Cecília de novo. Emergência é no despacho: a máquina com o mapa, ali na mesa. Abre."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Clique na [b]unidade de despacho[/b] na mesa, a do mapa (ou aperte 2)."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "É o móvel de metal com o mapa sob o vidro. Ou aperta o 2."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Clica na rua que ela disse, no trecho do número. Passando o mouse, aparece a numeração de cada trecho."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "No mapa, clique na [b]Rua das Flores[/b], no trecho de 1 a 99. A impressora solta um cartão."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "A Rua das Flores corta a Vila Serena. O 45 fica no primeiro trecho, de 1 a 99."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Esse cartão saiu pra outro lugar. Joga na trituradora, a máquina da direita, e marca de novo."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Isso, saiu o cartão. Agora finge de novo: eu, nervosa, corrijo o endereço."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Ai, me desculpa! Não é Rua das Flores, é Rua das Acácias, 45! A das Flores é a da minha mãe!"
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Acontece direto. Cartão com o lugar errado não serve: arrasta ele até a trituradora, a máquina da direita."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Arraste o cartão até a fenda da [b]trituradora[/b], a máquina da direita."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Pega o cartão e solta na fenda da máquina da direita. Ela come o cartão."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Pronto. Só sai um cartão por vez, então tem que se livrar do errado antes. Agora marca o lugar certo."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "No mapa, clique na [b]Rua das Acácias[/b], no trecho de 1 a 99."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "A Rua das Acácias também é da Vila Serena. O 45 fica no trecho de 1 a 99."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Esse não é o lugar. Tritura e marca a Rua das Acácias, de 1 a 99."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Agora perfura o cartão. Primeiro o tipo: fumaça é Incêndio."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Depois as unidades. Embaixo de cada uma está quando mandar: fumaça é bombeiros, e ninguém se machucou, então só eles."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Perfure no cartão o tipo [b]Incêndio[/b] e a unidade [b]Bombeiros[/b] (um clique em cada linha). Errou um furo? Triture o cartão e marque o local de novo."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "É só clicar na linha do Incêndio e na dos Bombeiros, no cartão."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Esse furo não está certo, e furo não se desfaz. Tritura o cartão e marca o lugar de novo."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Isso. Agora leva o cartão até o transmissor, a máquina da esquerda, e solta na fenda."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Arraste o cartão até a fenda do [b]transmissor[/b], a máquina da esquerda."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "A máquina da esquerda puxa o cartão e lê os furos. Só então as unidades saem."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Enviado! Agora escuta o rádio, do lado da tela: é por ele que as viaturas falam com a central."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "As unidades estão a caminho. Acompanhe o [b]rádio[/b], à direita da tela da conversa."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Ouviu? Chegaram e resolveram. Se faltasse alguém ou fosse no lugar errado, o rádio também diria."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Numa emergência de verdade, embaixo das opções aparece uma barra: enquanto ninguém sai, a situação piora."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Então pergunta o que precisa, marca, perfura e envia rápido. E no caderno ela leva o carimbo de Emergência."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Mais uma coisa: às vezes outra entrada chama no meio de uma conversa."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Aí você tira o fone da linha de quem está falando e põe na que está chamando. Quem ficou sem o fone fica em espera."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Tenta: tira o fone da minha entrada e põe na entrada 1, só pra ver."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Tire o [b]FONE[/b] da entrada 3 e ponha na entrada 1."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "É só puxar o fone daqui e encaixar na entrada 1. Eu espero."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "A lâmpada da entrada 3 pisca devagar: a Cecília está [b]em espera[/b] e não ouve nada. Volte o [b]FONE[/b] para a entrada 3."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Voltou! Viu a minha lâmpada piscando devagar? Era eu em espera, sem ouvir nada."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Ninguém gosta de esperar: quem fica muito tempo em espera desiste e desliga. Então não esquece ninguém lá."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "E o fim do turno: às 23:40 a central para de receber ligação nova."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Aí, no papel do horário colado na parede, aparece o botão Encerrar turno."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Antes de apertar, registra tudo no caderno e espera quem está na linha terminar. Quem você cortar e o que ficar sem registro, o supervisor anota."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "E se der meia-noite com a mesa vazia e tudo registrado, o turno fecha sozinho."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Por hoje é isso. A mesa é sua: a noite é calma, e o manual ali na parede ajuda."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Obrigado, Cecília!"
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Obrigada, Cecília!"
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Até a próxima!"
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Boa noite, e boa sorte!"
+msgstr ""
+
 #: data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres
 msgid "Dona Lurdes"
 msgstr ""
@@ -908,10 +1368,6 @@ msgstr ""
 
 #: data/calls/transfer_02_sr_nelson_hotel_estrela.tres
 msgid "O Hotel Estrela. Na avenida."
-msgstr ""
-
-#: data/calls/transfer_02_sr_nelson_hotel_estrela.tres data/calls/transfer_26_dona_fatima_hotel_estrela.tres
-msgid "Hotel Estrela"
 msgstr ""
 
 #: data/calls/transfer_02_sr_nelson_hotel_estrela.tres

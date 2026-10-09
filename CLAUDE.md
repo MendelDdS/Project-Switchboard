@@ -33,7 +33,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - **Moldes** (`data/templates/`, listas `transfer_templates`/`emergency_templates` no content): `TransferCall`/
   `EmergencyCall` com lacunas **em inglês** (`{place}`, `{reason}`, `{street}`, `{house}`...), preenchidas por
   `GameData.template_transfer()`/`template_emergency()`. Motivos em `DirectoryEntry.reasons`. `TEMPLATE_CHANCE`
-  (`Schedule`) mistura moldes e roteiros escritos (híbrido: tutorial, trotes e roteiro da noite sempre escritos).
+  (`Schedule`) mistura moldes e roteiros escritos (híbrido: treinamento, trotes e roteiro da noite sempre escritos).
 - Todo o áudio é sintetizado ao iniciar por `SfxSynth.build()` (`scripts/sfx_synth.gd`: as receitas, 140 sons, 3,7 MB;
   sem cache; em pedaços, `PARTS` e uma voz por pedaço, montados ao mesmo tempo nos núcleos, `WorkerThreadPool` em alta
   prioridade (a de baixa usa só ~30% deles): ~0,35 s num Mac recente pelo editor, ~0,9 s um depois do outro; cada
@@ -235,7 +235,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`c.closing`: informação respondida, emergência despachada) não entra em espera; a pessoa termina de falar sozinha
   e desliga, sem som e sem texto na transcrição (só o que for dito com o FONE na linha aparece).
 - Destino que não atende: pedido com alternativa (`TransferCall.alt_target`) sorteia ao ser criado se o lugar pedido
-  atende (`PhoneCall.away`, `AWAY_CHANCE`; nunca no tutorial); se não, toca sem resposta e o operador pode sugerir a
+  atende (`PhoneCall.away`, `AWAY_CHANCE`); se não, toca sem resposta e o operador pode sugerir a
   alternativa (`alt_ask`, `Conversation._transfer_alt`), que sempre atende. **A alternativa é do mesmo ramo**
   (`DirectoryEntry.category`: farmácia, igreja, mercearia, hospedagem, oficina; o teste confere; a
   Vila Serena tem hospedagem e oficina, então a mecânica aparece desde a noite 1): os moldes a escolhem sozinhos
@@ -352,9 +352,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   barra (herdam `stage` e `told`: as unidades e as perguntas de quando a ligação caiu). A próxima emergência espera a barra da anterior parar.
 - O Main chama `supervisor.fault()` onde a falha acontece (cabo cortado, número errado); `Supervisor.call_ended()`
   (chamado em `end_call`) decide advertência e retorno; `call_again()` agenda a mesma pessoa de novo (`PhoneCall.retry`; uma vez por motivo, `retried`;
-  também no tutorial; nunca depois do fim do turno; `too_late` sorteado com
+  nunca depois do fim do turno; `too_late` sorteado com
   `REDISPATCH_CHANCE`). `check_hold()` encerra quem passou de `HOLD_GIVE_UP` em espera (`End.GAVE_UP`).
-- Tutorial (`tut`), trotes e ligação desconhecida não geram advertência. Falas de retorno, manchetes e pareceres
+- Treinamento (`PhoneCall.lesson`), trotes e ligação desconhecida não geram advertência. Falas de retorno, manchetes e pareceres
   ficam no content (grupo "Supervisor e consequências").
 - À meia-noite, `start_ending` (`Supervisor.shift_over`) soma o que ficou sem registro e passa o relatório para `Ending.play(report)`, que mostra
   `ReportView` antes do título final.
@@ -375,8 +375,31 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 ## Noites (roteiro fixo)
 - 15 noites; as 3–15 ainda são genéricas (dia da semana e bilhete, sem roteiro nem ligação desconhecida).
 - `GameContent.nights` (ordem) → `Night` (`scripts/data/night.gd`, `data/nights/night_NN.tres`): dia da semana, bilhete
-  da intro, clima fixo (vazio = sorteado), `tutorial` (só a 1ª), a primeira página do jornal (`news_*`, opcional), `story` (`StoryCall`: roteiro escrito + horário fixo) e `mystery` (passos `PrankStep`; vazio = sem
+  da intro, clima fixo (vazio = sorteado), a primeira página do jornal (`news_*`, opcional), `story` (`StoryCall`: roteiro escrito + horário fixo) e `mystery` (passos `PrankStep`; vazio = sem
   ligação desconhecida naquela noite). **Só `story` e `mystery` são fixos; não existem ligações "principais".**
+- **Noite 0, o treinamento** (`GameContent.training`, `data/nights/night_00.tres`, fora de `nights`): sexta-feira, 5 de
+  outubro (`GameData.TRAINING_DAYS` antes da noite 1), setor 3, nível 1. `Main.night_no` 0 = treinamento e -1 = a
+  salva; o jogo novo começa nela (`Progress.night` 0), e a tela inicial tem **Pular o treinamento** (`Intro.skip_pressed`
+  → `Main._skip_training`: grava a noite 1 e recarrega). Ela não leva graves para a noite 1 e o `Pace.next` dela dá
+  sempre o nível 1. Começa com o FONE já na entrada 1 (`Switchboard.plugged`). A telefonista veterana (`Night.teacher`,
+  a Cecília, do Alto da Serra) liga e ensina como colega, pelos passos `Night.lesson` (`LessonStep`: RING por uma entrada
+  certa, com ou sem pedido de transferência, `call`; SAY; OPERATOR; WAIT por `until`, com a dica do manual, `hint`, as
+  falas de demora, `nudges` a cada `seconds`, e a do erro, `wrong`, com %d = a tomada errada; PAUSE; HANG_UP),
+  conduzidos pelo nó `Training` (`scripts/training.gd`). Ela fala devagar, uma frase curta por SAY
+  (`Training.SPEECH` no `PhoneCall.speech`): rápida, o texto se acumulava na tela. Erro e demora: ela comenta só se estiver na linha e calada;
+  senão, fica a dica. Enquanto ela ensina (`Training.active`) o relógio fica parado e nada da agenda toca; depois,
+  segue o turno calmo. As ligações dela são transferências com `PhoneCall.lesson` (o `Conversation` não as roda; o
+  Main não deixa desligar nelas nem transferir para o número errado, `Training.wrong_number`; a conversa dela com o
+  destino acaba em `Training.TALK_SEC`, `Main.talk_over`). Atender pisca enquanto ela chama com o FONE na entrada
+  (`PhonePanel.blink_answer`). Na última ligação ela ensina o caderno (as tiras, registrar as duas dela como
+  Comum; outro tipo, ela comenta, `Training._on_registered`) e a prancheta; abrir os dois liga o "já viu" das dicas de
+  primeira vez (`Main.SAW_SLIPS`/`SAW_SHEET`). Depois ela liga pela entrada 3 fingindo uma emergência de treino
+  (`LessonStep.emergency`, `Training.drill`, posta no `Dispatch.set_incident`): marcar o local, triturar o cartão
+  quando ela corrige o endereço, marcar de novo, perfurar, transmitir e ouvir o rádio (passos "dispatch", "card",
+  "shred", "punched", "sent", "arrived"; `Dispatch.location()`). A chegada dela não vai para o relatório nem para o
+  jornal (`Supervisor.on_arrived`), e o `Supervisor.fault` não anota nada durante o treinamento. Por fim, a espera
+  (o jogador tira o FONE da entrada dela e volta: "hold", "resume") e, só de boca, o fim do turno (23:40, Encerrar
+  turno, registrar antes, meia-noite). Teste: `tests/test_training.gd`.
 - **Ritmo por nível, não por noite** (`Pace`, `scripts/data/pace.gd`; `GameContent.paces`, 5 níveis; `Main.pace`):
   `call_gap`, `peak_chance`, `max_live`, `emergencies`, `pranks`. Noite 1 = nível 1; `Pace.next` decide o da próxima
   (salvo em `Progress.pace`): até a noite `CONFIDENCE_NIGHTS` (3) só sobe se a noite anterior não foi ruim
@@ -409,7 +432,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   próxima, `Pace.peak_chance` de vir logo em seguida, no máximo `Pace.max_live` pedindo atenção (`_run_schedule`), a `STORY_GAP` das fixas. Tipos: `Pace.emergencies` (a `EMERGENCY_GAP` uma da outra; no laço, a
   emergência espera a anterior acabar e `Fleet.en_route()`), `Pace.pranks`, resto transferência/informação.
   Um destino (e `alt_target`) por noite: dois pedidos do mesmo número travavam um ao outro.
-- `GIVE_UP_SEC` 60 s (`story` 1,5x, retornos 0,75x); tutorial (`tut`) e desconhecida nunca desistem.
+- `GIVE_UP_SEC` 60 s (`story` 1,5x, retornos 0,75x); treinamento e desconhecida nunca desistem.
 - Espera na linha (`Main._nag`, silêncio medido em `talk_clock`, que para na pausa): transferência pedida e o
   operador parado → depois de `SMALLTALK_AFTER` (10 s), com `SMALLTALK_CHANCE` (60%, uma vez por ligação), conversa
   fiada do cotidiano (`Conversation.smalltalk`). **Cada assunto é um `ChatTopic`** (`scripts/data/chat_topic.gd`,

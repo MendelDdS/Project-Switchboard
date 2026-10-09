@@ -182,6 +182,13 @@ func place(e: int, j: int) -> bool:
 	return true
 
 
+## A ponta `e` já encaixada na tomada `j`, sem som nem animação (o treinamento começa com o FONE na entrada 1).
+func plugged(e: int, j: int) -> void:
+	ends[e] = j
+	_raise(e)
+	end_changed.emit(e, j, -1)
+
+
 ## A ponta e passa a ser desenhada por cima das outras.
 func _raise(e: int) -> void:
 	_order.erase(e)

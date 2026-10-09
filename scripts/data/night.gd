@@ -8,14 +8,19 @@ extends Resource
 @export_multiline var note := ""
 ## Clima fixo da noite; vazio ("Sorteado") = sorteado.
 @export_enum("Sorteado:", "rain", "fog", "clear") var weather := ""
-## A primeira ligação da noite é uma transferência guiada passo a passo.
-@export var tutorial := false
 
 @export_group("Roteiro")
 ## Ligações do roteiro: sempre as mesmas, no horário marcado.
 @export var story: Array[StoryCall] = []
 ## Novidades da cidade nesta noite (conversa fiada): contadas antes dos assuntos gerais, uma vez por noite.
 @export var smalltalk: Array[ChatTopic] = []
+
+@export_group("Treinamento")
+## Só a noite 0: a telefonista veterana que liga e ensina o serviço (`LessonStep`, conduzido pelo `Training`). O relógio
+## só anda depois que ela termina; aí segue um turno calmo.
+@export var teacher := ""
+@export var teacher_voice := "f"
+@export var lesson: Array[LessonStep] = []
 
 @export_group("Jornal da manhã")
 ## A primeira página do jornal que está na mesa nesta noite (da segunda em diante), além das manchetes das emergências

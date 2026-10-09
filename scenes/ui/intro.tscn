@@ -94,6 +94,16 @@ focus_mode = 0
 theme_type_variation = &"DarkButton"
 text = "SETTINGS"
 
+[node name="Skip" type="Button" parent="Center/Card/VBox/Buttons"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+focus_mode = 0
+theme_type_variation = &"DarkButton"
+text = "SKIP_TRAINING"
+
 [node name="Reset" type="Button" parent="Center/Card/VBox/Buttons"]
 unique_name_in_owner = true
 visible = false

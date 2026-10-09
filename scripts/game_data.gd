@@ -14,14 +14,17 @@ const SECTOR_NIGHTS := {3: 1, 1: 5, 2: 9}
 static var sectors: Array = [1, 2, 3]
 
 
-## O primeiro dia do jogo: a noite 1 é a de segunda-feira, 8 de outubro de 1973; cada noite, um dia depois.
+## O primeiro dia do jogo: a noite 1 é a de segunda-feira, 8 de outubro de 1973; cada noite, um dia depois. O
+## treinamento (noite 0) é na sexta antes, dia 5 (`TRAINING_DAYS` antes da noite 1).
 const START := {"year": 1973, "month": 10, "day": 8, "hour": 12}
+const TRAINING_DAYS := 3
 const WEEKDAYS := [T.Key.DAY_SUN, T.Key.DAY_MON, T.Key.DAY_TUE, T.Key.DAY_WED, T.Key.DAY_THU, T.Key.DAY_FRI, T.Key.DAY_SAT]
 
 
 ## A data da noite `night` (o dia em que o turno começa): year, month, day e weekday (0 = domingo).
 static func date_of(night: int) -> Dictionary:
-	return Time.get_datetime_dict_from_unix_time(Time.get_unix_time_from_datetime_dict(START) + (night - 1) * 86400)
+	var days := night - 1 if night > 0 else -TRAINING_DAYS
+	return Time.get_datetime_dict_from_unix_time(Time.get_unix_time_from_datetime_dict(START) + days * 86400)
 
 
 ## A data por extenso ("Segunda-feira, 8 de outubro de 1973").
@@ -31,8 +34,9 @@ static func date_text(night: int) -> String:
 	return T.text(T.Key.DATE_LONG) % [T.text(WEEKDAYS[d.weekday]), d.day, d.year]
 
 
+## O treinamento (noite 0) já é no setor da primeira noite.
 static func sectors_for(night: int) -> Array:
-	return SECTOR_NIGHTS.keys().filter(func(s): return night >= SECTOR_NIGHTS[s])
+	return SECTOR_NIGHTS.keys().filter(func(s): return maxi(night, 1) >= SECTOR_NIGHTS[s])
 
 
 static func in_service(number: String) -> bool:

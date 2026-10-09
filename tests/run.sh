@@ -63,6 +63,7 @@ if [ $# -gt 0 ]; then   # tests/run.sh flow penalties: só esses (sem argumentos
 	exit $fails
 fi
 run flow
+run training
 run penalties
 run keys
 run layout

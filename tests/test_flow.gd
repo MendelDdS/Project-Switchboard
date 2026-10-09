@@ -169,7 +169,7 @@ func _initialize() -> void:
 	ok(per_sector == {"3": 12, "1": 12, "2": 12}, "lista: 12 números em cada setor: %s" % per_sector)
 	GameData.sectors = [3]
 	ok(GameData.board_numbers().size() == 12 and GameData.board_numbers().all(func(n): return str(n).begins_with("3")), "noite 1: mesa só com o setor 3")
-	ok(not GameData.transfers(TransferCall.Group.ESTABLISHMENT).is_empty(), "setor 3 tem estabelecimento para o tutorial")
+	ok(not GameData.transfers(TransferCall.Group.ESTABLISHMENT).is_empty(), "setor 3 tem estabelecimento")
 	var used: Array = []
 	var tpl := GameData.template_transfer(used)
 	while tpl != null:
@@ -254,7 +254,7 @@ func _initialize() -> void:
 		ok(st != null and e.address.get_slice(",", 0) == st.name and int(e.address.get_slice(",", 1)) / 100 == e.block,
 			"emergência no trecho certo: " + e.address)
 	ok([1, 2].all(func(sec): return C.emergencies.any(func(e): return GameData.street(e.street).block_sector(e.block) == sec)), "Centro e Alto da Serra têm emergências escritas")
-	# dica do banco novo: só para o setor entregue na noite (o 3 o tutorial apresenta)
+	# dica do banco novo: só para o setor entregue na noite (o 3 o treinamento apresenta)
 	m.night_no = 5
 	ok(m._new_sector("142") and not m._new_sector("305") and not m._new_sector("237") and not m._new_sector(""), "banco novo na noite 5: o A")
 	m.night_no = 1
@@ -285,7 +285,6 @@ func _initialize() -> void:
 		ok(ats == in_order and ats.all(func(a): return a >= 0.0 and a < m.SHIFT_END), "agenda em ordem: " + n.resource_path)
 		ok(plan.calls.all(func(c: PhoneCall): return c.story or c.kind == PhoneCall.Kind.MYSTERY or c.at < m.LAST_CALL),
 			"sorteadas antes da última ligação: " + n.resource_path)
-		ok((plan.tut != null) == n.tutorial and (plan.tut == null or plan.tut == plan.calls[0]), "tutorial é a primeira: " + n.resource_path)
 		ok((plan.mystery_at == INF) == n.mystery.is_empty(), "ligação desconhecida conforme a noite: " + n.resource_path)
 		ok(plan.calls.all(func(c: PhoneCall): return c.kind != PhoneCall.Kind.MYSTERY or c.latest <= m.LAST_CALL - Schedule.MYSTERY_MARGIN),
 			"desconhecida toca antes da última ligação: " + n.resource_path)
@@ -331,7 +330,8 @@ func _initialize() -> void:
 		C.transfers.size(), C.emergencies.size(), C.pranks.size(), C.transfer_templates.size(), places.size(), C.emergency_templates.size()])
 
 	# ---- 1. transferência completa; tirar o FONE não derruba a conversa
-	var a: PhoneCall = m.tut
+	var a := _extra(GameData.transfers(TransferCall.Group.ESTABLISHMENT)[0])
+	a.away = false
 	m.ring(a)
 	var ln := a.line
 	b.held = 0

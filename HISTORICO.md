@@ -288,3 +288,18 @@ O que o usuário pediu, em ordem (antes no `CLAUDE.md`). Acrescente cada pedido 
 89. Revisão geral: a dica do manual cresce com o texto (cortava em 2 linhas), o jogo fica sempre em 1280×720 (o monitor
     largo esticava a sala) e o jogo ganhou data: começa na segunda-feira, 8 de outubro de 1973, mostrada no
     calendário do armário, na introdução, no jornal e no caderno (os bilhetes que citavam o dia da semana acompanharam).
+90. O tutorial virou um treinamento com a Cecília, telefonista veterana do Alto da Serra, numa noite 0 (sexta, 5 de
+    outubro), antes da primeira: o FONE já na entrada 1, ela chama com a tecla Atender piscando, se apresenta, liga de
+    novo pela entrada 2 e ensina, como colega, a lista, os cabos, o Transferir e a desmontar a ligação; comenta o erro e
+    a demora quando está na linha (fora dela, só a dica do manual). Depois dela, um turno calmo; dá para pular o
+    treinamento na tela inicial. A transferência guiada da noite 1 saiu. Em partes: caderno, emergência com o cartão
+    e o resto ainda faltam.
+91. A Cecília falava rápido demais e o texto se acumulava: ela passou a falar mais devagar, em frases curtas (as
+    falas longas foram quebradas). Uma pausa de leitura entre as falas foi testada e saiu a pedido.
+92. Treinamento, parte 2: na última ligação, a Cecília ensina o caderno (as tiras, registrar as ligações dela como
+    comuns, comentando o tipo errado) e a prancheta do registro.
+93. Treinamento, parte 3: a Cecília liga pela entrada 3 fingindo uma emergência (fumaça numa casa) e ensina o
+    despacho: marcar o local no mapa, triturar o cartão quando ela corrige o endereço, perfurar o tipo e a unidade,
+    levar ao transmissor e ouvir o rádio; explica a barra de agravamento só de boca.
+94. Treinamento, parte 4: a Cecília pede para o jogador deixá-la em espera (o FONE na entrada 1) e voltar, explica
+    que quem espera demais desiste, e conta como termina o turno (23:40, Encerrar turno, registrar tudo, meia-noite).

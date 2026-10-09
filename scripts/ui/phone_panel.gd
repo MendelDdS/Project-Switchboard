@@ -10,6 +10,7 @@ extends MarginContainer
 
 const LINES := 20   ## falas da ligação em foco consideradas; a tela mostra as últimas que couberem (`_fit`)
 const WOOD := [Color("6b4529"), Color("4a2f1c"), Color("2a1a0f"), Color("3a2616")]   ## luz, meio, sombra, a frente da mesa
+const BLINK := Color(1.7, 1.55, 1.1)   ## a tecla Atender no auge da piscada (`blink_answer`)
 
 signal answer_pressed
 signal transfer_pressed
@@ -30,6 +31,7 @@ var _call: PhoneCall
 var _warn_gen := 0
 var _lines := PackedStringArray()   # as falas prontas para a tela, da mais antiga à mais nova
 var shown_lines := 0   ## quantas falas cabem e aparecem agora (a miniatura mostra as mesmas)
+var _blink: Tween   # a tecla Atender piscando (o treinamento mostra o que apertar)
 
 
 func _ready() -> void:
@@ -103,6 +105,20 @@ func set_buttons(can_answer: bool, can_transfer: bool, can_hang: bool) -> void:
 	_answer.disabled = not can_answer
 	_transfer.disabled = not can_transfer
 	_hangup.disabled = not can_hang
+
+
+## Pisca a tecla Atender (no treinamento, para o jogador saber o que apertar) ou para de piscar.
+func blink_answer(on: bool) -> void:
+	if (_blink != null) == on:
+		return
+	if on:
+		_blink = create_tween().set_loops()
+		_blink.tween_property(_answer, "modulate", BLINK, 0.4)
+		_blink.tween_property(_answer, "modulate", Color.WHITE, 0.4)
+	else:
+		_blink.kill()
+		_blink = null
+		_answer.modulate = Color.WHITE
 
 
 ## As três teclas, na ordem do painel (a miniatura acende as que estão ativas).

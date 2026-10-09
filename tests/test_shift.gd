@@ -143,7 +143,7 @@ func _initialize() -> void:
 			for c in m.live:
 				var key: String = c.time + str(c.line)
 				if c.ringing and not answered.has(key):
-					if clumsy and c.kind != PhoneCall.Kind.MYSTERY and c != m.tut and answered.size() % 3 == 1:
+					if clumsy and c.kind != PhoneCall.Kind.MYSTERY and answered.size() % 3 == 1:
 						answered[key] = true
 						skipped += 1
 						continue

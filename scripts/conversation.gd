@@ -68,7 +68,7 @@ func say(c: PhoneCall, text: String, pause: float = 0.55, who := "", voice := ""
 				li = c.add_line(who if who != "" else c.caller, "", "ghost" if ghost else "")
 			c.append_text(li, ch)
 			prev_vowel = Sfx.speak_char(voice, text, i, prev_vowel, paren)
-		var d := (0.062 if ghost else (0.09 if ch in [",", "."] else 0.028)) * Settings.char_delay()
+		var d := (0.062 if ghost else (0.09 if ch in [",", "."] else 0.028)) * Settings.char_delay() * c.speech
 		await get_tree().create_timer(d, false).timeout
 		if c.ended:
 			c.set_talking(false)

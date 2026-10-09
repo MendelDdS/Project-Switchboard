@@ -635,7 +635,7 @@ msgstr "to the Borracharia do Neno"
 msgid "Acidente de trânsito"
 msgstr "Traffic accident"
 
-#: data/content.tres data/calls/emergency_02_incendio_rua_do_moinho_40.tres data/calls/emergency_07_incendio_rua_das_flores_45.tres
+#: data/content.tres data/nights/night_00.tres data/calls/emergency_02_incendio_rua_do_moinho_40.tres
 msgid "Incêndio"
 msgstr "Fire"
 
@@ -871,6 +871,466 @@ msgstr "The supervisor left a note: \"Tomorrow is your last night of this period
 msgid "O supervisor deixou um recado: \"Última noite do período. O relatório de hoje vai para a diretoria.\""
 msgstr "The supervisor left a note: \"Last night of the period. Tonight's report goes to the board of directors.\""
 
+#: data/nights/night_00.tres
+msgid "Sexta-feira. Seu primeiro turno de verdade é na segunda. Hoje a Cecília, telefonista do Alto da Serra, vai ligar para lhe mostrar o serviço. O fone já está na entrada 1."
+msgstr "Friday. Your first real shift is on Monday. Tonight Cecília, the Alto da Serra operator, will call to show you the job. The headset is already on input 1."
+
+#: data/nights/night_00.tres
+msgid "A [b]entrada 1[/b] está chamando. Ponha o [b]FONE[/b] (o cabo verde) na tomada dela."
+msgstr "[b]Input 1[/b] is calling. Put the [b]HEADSET[/b] (the green cord) in its jack."
+
+#: data/nights/night_00.tres
+msgid "Alô? Aqui é a Cecília, da central."
+msgstr "Hello? This is Cecília, from the exchange."
+
+#: data/nights/night_00.tres
+msgid "Você é quem começa na segunda, não é? Muito prazer!"
+msgstr "You're the one starting on Monday, right? Nice to meet you!"
+
+#: data/nights/night_00.tres
+msgid "Eu cuido do Alto da Serra faz quinze anos."
+msgstr "I've been handling Alto da Serra for fifteen years."
+
+#: data/nights/night_00.tres
+msgid "O supervisor me pediu pra te mostrar o serviço hoje, que a mesa está calma."
+msgstr "The supervisor asked me to show you the job today, since the board is quiet."
+
+#: data/nights/night_00.tres
+msgid "Prazer, Cecília. Pode falar."
+msgstr "Nice to meet you, Cecília. Go ahead."
+
+#: data/nights/night_00.tres
+msgid "Boa noite! Vamos lá."
+msgstr "Good evening! Let's do it."
+
+#: data/nights/night_00.tres
+msgid "Primeiro o básico: quando alguém chama, a lâmpada da entrada pisca."
+msgstr "First the basics: when someone calls, the input lamp blinks."
+
+#: data/nights/night_00.tres
+msgid "Você põe o fone na tomada dela e aperta Atender."
+msgstr "You put the headset in its jack and press Answer."
+
+#: data/nights/night_00.tres
+msgid "Foi o que você acabou de fazer."
+msgstr "That's what you just did."
+
+#: data/nights/night_00.tres
+msgid "Agora eu vou desligar e te ligar pela entrada 2."
+msgstr "Now I'll hang up and call you on input 2."
+
+#: data/nights/night_00.tres
+msgid "Aí você tira o fone daqui, põe lá na 2 e atende de novo."
+msgstr "Then you take the headset out of here, put it in 2 and answer again."
+
+#: data/nights/night_00.tres
+msgid "Só um instante!"
+msgstr "Just a moment!"
+
+#: data/nights/night_00.tres
+msgid "Cecília"
+msgstr "Cecília"
+
+#: data/nights/night_00.tres data/calls/transfer_02_sr_nelson_hotel_estrela.tres data/calls/transfer_26_dona_fatima_hotel_estrela.tres
+msgid "Hotel Estrela"
+msgstr "Hotel Estrela"
+
+#: data/nights/night_00.tres
+msgid "Pronto, atenderam! Pode tirar o fone, que agora a conversa é minha com eles."
+msgstr "There, they answered! You can take the headset out, the talking is between me and them now."
+
+#: data/nights/night_00.tres
+msgid "A [b]entrada 2[/b] está chamando. Tire o [b]FONE[/b] da entrada 1 e encaixe na tomada da entrada 2."
+msgstr "[b]Input 2[/b] is calling. Take the [b]HEADSET[/b] out of input 1 and plug it into input 2's jack."
+
+#: data/nights/night_00.tres
+msgid "Isso! Agora finge que eu sou alguém da cidade."
+msgstr "That's it! Now pretend I'm someone from town."
+
+#: data/nights/night_00.tres
+msgid "Me passa pro Hotel Estrela, por favor? Minha prima trabalha na recepção."
+msgstr "Put me through to Hotel Estrela, please? My cousin works at the front desk."
+
+#: data/nights/night_00.tres
+msgid "Quase ninguém sabe o número de cor, e nem você precisa saber."
+msgstr "Hardly anyone knows the number by heart, and you don't need to either."
+
+#: data/nights/night_00.tres
+msgid "Pra isso tem a lista telefônica, ali na mesa. Abre ela."
+msgstr "That's what the phone book on the desk is for. Open it."
+
+#: data/nights/night_00.tres
+msgid "Clique na [b]lista telefônica[/b] na mesa (ou aperte 1)."
+msgstr "Click the [b]directory[/b] on the desk (or press 1)."
+
+#: data/nights/night_00.tres
+msgid "As listas são aqueles volumes de capa mostarda, na mesa. Ou aperta o 1, que abre também."
+msgstr "The directories are those mustard-covered volumes on the desk. Or press 1, that opens it too."
+
+#: data/nights/night_00.tres
+msgid "Cada página dupla é uma letra, e as abas na beira trocam de letra."
+msgstr "Each spread is one letter, and the tabs on the edge change the letter."
+
+#: data/nights/night_00.tres
+msgid "Hotel Estrela fica no H. O número é o do fim do pontilhado."
+msgstr "Hotel Estrela is under H. The number is at the end of the dotted line."
+
+#: data/nights/night_00.tres
+msgid "Achou? Agora pega um cabo, um dos coloridos em pé na prateleira."
+msgstr "Found it? Now take a cord, one of the colored ones standing on the shelf."
+
+#: data/nights/night_00.tres
+msgid "Encaixa uma ponta na saída da minha linha, logo embaixo da entrada 2."
+msgstr "Plug one end into my line's output, right below input 2."
+
+#: data/nights/night_00.tres
+msgid "Arraste um [b]cabo de conexão[/b] (vermelho, azul ou amarelo, em pé na prateleira) até a [b]SAÍDA 2[/b], logo abaixo da entrada 2."
+msgstr "Drag a [b]patch cord[/b] (red, blue or yellow, standing on the shelf) to [b]OUTPUT 2[/b], just below input 2."
+
+#: data/nights/night_00.tres
+msgid "Os cabos ficam em pé na prateleira, na frente do painel. É só pegar e arrastar."
+msgstr "The cords stand on the shelf, in front of the panel. Just grab one and drag it."
+
+#: data/nights/night_00.tres
+msgid "É a saída 2, na fileira de baixo, embaixo da entrada onde está o fone."
+msgstr "It's output 2, on the row below, under the input where the headset is."
+
+#: data/nights/night_00.tres
+msgid "Opa, essa é a saída %d. A minha é a 2, logo embaixo da entrada onde está o fone."
+msgstr "Oops, that's output %d. Mine is 2, right below the input where the headset is."
+
+#: data/nights/night_00.tres
+msgid "Isso. A outra ponta do mesmo cabo vai no número do hotel, lá nos destinos, embaixo."
+msgstr "Right. The other end of the same cord goes in the hotel's number, down in the destinations."
+
+#: data/nights/night_00.tres
+msgid "Leve a outra ponta do cabo até o número do [b]Hotel Estrela[/b], na fileira de destinos."
+msgstr "Take the other end of the cord to the number for the [b]Hotel Estrela[/b], in the destination row."
+
+#: data/nights/night_00.tres
+msgid "Os destinos ficam em ordem de número. Confere na lista se precisar."
+msgstr "The destinations are in number order. Check the directory if you need to."
+
+#: data/nights/night_00.tres
+msgid "Esse é o %d, não é o hotel. Confere o número na lista."
+msgstr "That's %d, not the hotel. Check the number in the directory."
+
+#: data/nights/night_00.tres
+msgid "Agora aperta Transferir. O hotel vai tocar."
+msgstr "Now press Transfer. The hotel will ring."
+
+#: data/nights/night_00.tres
+msgid "Quando atenderem, eu falo com eles e a ligação segue sozinha pelo cabo."
+msgstr "When they answer, I talk to them and the call goes on by itself through the cord."
+
+#: data/nights/night_00.tres
+msgid "Aperte [b]Transferir[/b] (Tab) para chamar o hotel."
+msgstr "Press [b]Transfer[/b] (Tab) to ring the hotel."
+
+#: data/nights/night_00.tres
+msgid "É a tecla do meio, a Transferir."
+msgstr "It's the middle key, Transfer."
+
+#: data/nights/night_00.tres
+msgid "Espera! Esse cabo está no %d, não no hotel. Troca a ponta antes."
+msgstr "Wait! That cord is on %d, not the hotel. Move the end first."
+
+#: data/nights/night_00.tres
+msgid "O hotel está tocando. Espere atender."
+msgstr "The hotel is ringing. Wait for an answer."
+
+#: data/nights/night_00.tres
+msgid "Ela e o hotel estão conversando pelo cabo: você já pode tirar o [b]FONE[/b] da entrada e devolvê-lo ao encaixe. Quando a conversa acabar, a lâmpada fica vermelha."
+msgstr "She and the hotel are talking through the cord: you can take the [b]HEADSET[/b] out of the input and put it back in its holder. When the talk ends, the lamp turns red."
+
+#: data/nights/night_00.tres
+msgid "Lâmpada vermelha: a conversa acabou. Tire as duas pontas do cabo (um clique em cada plug) e o FONE, se ainda estiver na entrada, para liberar a linha."
+msgstr "Red lamp: the talk is over. Pull both ends of the cord (one click on each plug), and the HEADSET if it's still in the input, to free the line."
+
+#: data/nights/night_00.tres
+msgid "A Cecília está ligando de novo, pela [b]entrada 1[/b]. Ponha o [b]FONE[/b] nela."
+msgstr "Cecília is calling again, on [b]input 1[/b]. Put the [b]HEADSET[/b] on it."
+
+#: data/nights/night_00.tres
+msgid "Viu só? Atender, achar o número na lista, cabo na saída e no destino, Transferir."
+msgstr "See? Answer, find the number in the book, cord in the output and the destination, Transfer."
+
+#: data/nights/night_00.tres
+msgid "E quando a lâmpada fica vermelha, tira o cabo. Isso é metade do serviço."
+msgstr "And when the lamp turns red, pull the cord. That's half the job."
+
+#: data/nights/night_00.tres
+msgid "A outra metade é papel. Toda ligação que termina vai pro caderno de ocorrências."
+msgstr "The other half is paperwork. Every call that ends goes to the logbook."
+
+#: data/nights/night_00.tres
+msgid "Tá vendo as tiras saindo do caderno, ali na mesa? É uma pra cada ligação esperando registro."
+msgstr "See the slips sticking out of the logbook, there on the desk? One for each call waiting to be logged."
+
+#: data/nights/night_00.tres
+msgid "Abre ele."
+msgstr "Open it."
+
+#: data/nights/night_00.tres
+msgid "Clique no [b]caderno[/b] na mesa (ou aperte 3)."
+msgstr "Click the [b]logbook[/b] on the desk (or press 3)."
+
+#: data/nights/night_00.tres
+msgid "É o caderno de capa de couro, na frente da mesa. Ou aperta o 3."
+msgstr "It's the leather-bound book, at the front of the desk. Or press 3."
+
+#: data/nights/night_00.tres
+msgid "Na ficha já vem quem ligou, a hora e pra onde foi. Você só diz o tipo."
+msgstr "The form already has who called, the time and where it went. You just say the type."
+
+#: data/nights/night_00.tres
+msgid "As minhas duas de agora foram ligações comuns. Carimba as duas como Comum."
+msgstr "My two just now were regular calls. Stamp both as Regular."
+
+#: data/nights/night_00.tres
+msgid "Registre as ligações da Cecília: na ficha do caderno, clique em [b]Ligação comum[/b], uma vez para cada."
+msgstr "Log Cecília's calls: on the logbook form, click [b]Regular call[/b], once for each."
+
+#: data/nights/night_00.tres
+msgid "É o botão Ligação comum, embaixo da ficha. A segunda sobe sozinha depois da primeira."
+msgstr "It's the Regular call button, under the form. The second one comes up by itself after the first."
+
+#: data/nights/night_00.tres
+msgid "Ih, essa foi comum! Carimbo não se apaga, e o supervisor confere. Hoje não conta, mas presta atenção."
+msgstr "Oops, that one was regular! A stamp can't be erased, and the supervisor checks. Tonight it doesn't count, but pay attention."
+
+#: data/nights/night_00.tres
+msgid "Isso. Emergência e trote têm carimbo próprio, e o supervisor confere tudo no fim da noite."
+msgstr "That's it. Emergencies and pranks have their own stamp, and the supervisor checks everything at the end of the night."
+
+#: data/nights/night_00.tres
+msgid "Pode deixar pra depois quando a mesa apertar, mas não esquece: ligação sem registro dá advertência."
+msgstr "You can leave it for later when the board gets busy, but don't forget: an unlogged call means a warning."
+
+#: data/nights/night_00.tres
+msgid "Agora olha a prancheta, do lado. Apareceu uma folha nova nela, não apareceu?"
+msgstr "Now look at the clipboard, next to it. A new sheet showed up on it, didn't it?"
+
+#: data/nights/night_00.tres
+msgid "Ali fica escrito tudo o que foi dito com o fone na linha. Abre."
+msgstr "Everything said with the headset on the line is written there. Open it."
+
+#: data/nights/night_00.tres
+msgid "Clique na [b]prancheta[/b] na mesa (ou aperte 4)."
+msgstr "Click the [b]clipboard[/b] on the desk (or press 4)."
+
+#: data/nights/night_00.tres
+msgid "A prancheta é a tábua com o prendedor, na frente da mesa. Ou aperta o 4."
+msgstr "The clipboard is the board with the clip, at the front of the desk. Or press 4."
+
+#: data/nights/night_00.tres
+msgid "Se alguém disser um número ou um endereço e você esquecer, é só conferir aqui."
+msgstr "If someone tells you a number or an address and you forget, just check here."
+
+#: data/nights/night_00.tres
+msgid "Agora a parte mais séria: emergência."
+msgstr "Now the serious part: emergencies."
+
+#: data/nights/night_00.tres
+msgid "Vou desligar e te ligar pela entrada 3, fingindo que sou alguém da cidade pedindo socorro."
+msgstr "I'll hang up and call you on input 3, pretending to be someone from town asking for help."
+
+#: data/nights/night_00.tres
+msgid "A [b]entrada 3[/b] está chamando. Ponha o [b]FONE[/b] nela e atenda."
+msgstr "[b]Input 3[/b] is calling. Put the [b]HEADSET[/b] in it and answer."
+
+#: data/nights/night_00.tres
+msgid "Central! Tá saindo fumaça da cozinha aqui de casa!"
+msgstr "Operator! There's smoke coming out of my kitchen!"
+
+#: data/nights/night_00.tres
+msgid "É na Rua das Flores, 45! Ninguém se machucou, mas tá enchendo de fumaça!"
+msgstr "It's at Rua das Flores, 45! Nobody's hurt, but it's filling up with smoke!"
+
+#: data/nights/night_00.tres
+msgid "Agora eu sou a Cecília de novo. Emergência é no despacho: a máquina com o mapa, ali na mesa. Abre."
+msgstr "Now I'm Cecília again. Emergencies go to dispatch: the machine with the map, there on the desk. Open it."
+
+#: data/nights/night_00.tres
+msgid "Clique na [b]unidade de despacho[/b] na mesa, a do mapa (ou aperte 2)."
+msgstr "Click the [b]dispatch unit[/b] on the desk, the one with the map (or press 2)."
+
+#: data/nights/night_00.tres
+msgid "É o móvel de metal com o mapa sob o vidro. Ou aperta o 2."
+msgstr "It's the metal cabinet with the map under glass. Or press 2."
+
+#: data/nights/night_00.tres
+msgid "Clica na rua que ela disse, no trecho do número. Passando o mouse, aparece a numeração de cada trecho."
+msgstr "Click the street she said, on the stretch with the number. Hovering the mouse shows each stretch's numbers."
+
+#: data/nights/night_00.tres
+msgid "No mapa, clique na [b]Rua das Flores[/b], no trecho de 1 a 99. A impressora solta um cartão."
+msgstr "On the map, click [b]Rua das Flores[/b], on the 1 to 99 stretch. The printer puts out a card."
+
+#: data/nights/night_00.tres
+msgid "A Rua das Flores corta a Vila Serena. O 45 fica no primeiro trecho, de 1 a 99."
+msgstr "Rua das Flores runs through Vila Serena. Number 45 is on the first stretch, 1 to 99."
+
+#: data/nights/night_00.tres
+msgid "Esse cartão saiu pra outro lugar. Joga na trituradora, a máquina da direita, e marca de novo."
+msgstr "That card came out for another place. Toss it in the shredder, the machine on the right, and mark it again."
+
+#: data/nights/night_00.tres
+msgid "Isso, saiu o cartão. Agora finge de novo: eu, nervosa, corrijo o endereço."
+msgstr "That's it, the card is out. Now pretend again: I'm nervous and I correct the address."
+
+#: data/nights/night_00.tres
+msgid "Ai, me desculpa! Não é Rua das Flores, é Rua das Acácias, 45! A das Flores é a da minha mãe!"
+msgstr "Oh, I'm sorry! It's not Rua das Flores, it's Rua das Acácias, 45! Flores is my mother's street!"
+
+#: data/nights/night_00.tres
+msgid "Acontece direto. Cartão com o lugar errado não serve: arrasta ele até a trituradora, a máquina da direita."
+msgstr "Happens all the time. A card with the wrong place is useless: drag it to the shredder, the machine on the right."
+
+#: data/nights/night_00.tres
+msgid "Arraste o cartão até a fenda da [b]trituradora[/b], a máquina da direita."
+msgstr "Drag the card to the slot of the [b]shredder[/b], the machine on the right."
+
+#: data/nights/night_00.tres
+msgid "Pega o cartão e solta na fenda da máquina da direita. Ela come o cartão."
+msgstr "Grab the card and drop it in the slot of the machine on the right. It eats the card."
+
+#: data/nights/night_00.tres
+msgid "Pronto. Só sai um cartão por vez, então tem que se livrar do errado antes. Agora marca o lugar certo."
+msgstr "There. Only one card comes out at a time, so you have to get rid of the wrong one first. Now mark the right place."
+
+#: data/nights/night_00.tres
+msgid "No mapa, clique na [b]Rua das Acácias[/b], no trecho de 1 a 99."
+msgstr "On the map, click [b]Rua das Acácias[/b], on the 1 to 99 stretch."
+
+#: data/nights/night_00.tres
+msgid "A Rua das Acácias também é da Vila Serena. O 45 fica no trecho de 1 a 99."
+msgstr "Rua das Acácias is in Vila Serena too. Number 45 is on the 1 to 99 stretch."
+
+#: data/nights/night_00.tres
+msgid "Esse não é o lugar. Tritura e marca a Rua das Acácias, de 1 a 99."
+msgstr "That's not the place. Shred it and mark Rua das Acácias, 1 to 99."
+
+#: data/nights/night_00.tres
+msgid "Agora perfura o cartão. Primeiro o tipo: fumaça é Incêndio."
+msgstr "Now punch the card. First the type: smoke is Fire."
+
+#: data/nights/night_00.tres
+msgid "Depois as unidades. Embaixo de cada uma está quando mandar: fumaça é bombeiros, e ninguém se machucou, então só eles."
+msgstr "Then the units. Under each one it says when to send it: smoke is the fire department, and nobody's hurt, so just them."
+
+#: data/nights/night_00.tres
+msgid "Perfure no cartão o tipo [b]Incêndio[/b] e a unidade [b]Bombeiros[/b] (um clique em cada linha). Errou um furo? Triture o cartão e marque o local de novo."
+msgstr "Punch the type [b]Fire[/b] and the unit [b]Fire department[/b] on the card (one click on each line). Punched a wrong hole? Shred the card and mark the place again."
+
+#: data/nights/night_00.tres
+msgid "É só clicar na linha do Incêndio e na dos Bombeiros, no cartão."
+msgstr "Just click the Fire line and the Fire department line on the card."
+
+#: data/nights/night_00.tres
+msgid "Esse furo não está certo, e furo não se desfaz. Tritura o cartão e marca o lugar de novo."
+msgstr "That hole isn't right, and a hole can't be undone. Shred the card and mark the place again."
+
+#: data/nights/night_00.tres
+msgid "Isso. Agora leva o cartão até o transmissor, a máquina da esquerda, e solta na fenda."
+msgstr "That's it. Now take the card to the transmitter, the machine on the left, and drop it in the slot."
+
+#: data/nights/night_00.tres
+msgid "Arraste o cartão até a fenda do [b]transmissor[/b], a máquina da esquerda."
+msgstr "Drag the card to the slot of the [b]transmitter[/b], the machine on the left."
+
+#: data/nights/night_00.tres
+msgid "A máquina da esquerda puxa o cartão e lê os furos. Só então as unidades saem."
+msgstr "The machine on the left pulls the card in and reads the holes. Only then do the units go out."
+
+#: data/nights/night_00.tres
+msgid "Enviado! Agora escuta o rádio, do lado da tela: é por ele que as viaturas falam com a central."
+msgstr "Sent! Now listen to the radio, next to the screen: that's how the units talk to the exchange."
+
+#: data/nights/night_00.tres
+msgid "As unidades estão a caminho. Acompanhe o [b]rádio[/b], à direita da tela da conversa."
+msgstr "The units are on their way. Follow the [b]radio[/b], to the right of the conversation screen."
+
+#: data/nights/night_00.tres
+msgid "Ouviu? Chegaram e resolveram. Se faltasse alguém ou fosse no lugar errado, o rádio também diria."
+msgstr "Hear that? They got there and handled it. If someone was missing or it was the wrong place, the radio would say so too."
+
+#: data/nights/night_00.tres
+msgid "Numa emergência de verdade, embaixo das opções aparece uma barra: enquanto ninguém sai, a situação piora."
+msgstr "In a real emergency, a bar shows up under the options: as long as nobody goes out, things get worse."
+
+#: data/nights/night_00.tres
+msgid "Então pergunta o que precisa, marca, perfura e envia rápido. E no caderno ela leva o carimbo de Emergência."
+msgstr "So ask what you need, mark, punch and send it fast. And in the logbook it gets the Emergency stamp."
+
+#: data/nights/night_00.tres
+msgid "Mais uma coisa: às vezes outra entrada chama no meio de uma conversa."
+msgstr "One more thing: sometimes another input calls in the middle of a conversation."
+
+#: data/nights/night_00.tres
+msgid "Aí você tira o fone da linha de quem está falando e põe na que está chamando. Quem ficou sem o fone fica em espera."
+msgstr "Then you take the headset off the line you're on and put it in the one calling. Whoever's left without the headset is on hold."
+
+#: data/nights/night_00.tres
+msgid "Tenta: tira o fone da minha entrada e põe na entrada 1, só pra ver."
+msgstr "Try it: take the headset out of my input and put it in input 1, just to see."
+
+#: data/nights/night_00.tres
+msgid "Tire o [b]FONE[/b] da entrada 3 e ponha na entrada 1."
+msgstr "Take the [b]HEADSET[/b] out of input 3 and put it in input 1."
+
+#: data/nights/night_00.tres
+msgid "É só puxar o fone daqui e encaixar na entrada 1. Eu espero."
+msgstr "Just pull the headset from here and plug it into input 1. I'll wait."
+
+#: data/nights/night_00.tres
+msgid "A lâmpada da entrada 3 pisca devagar: a Cecília está [b]em espera[/b] e não ouve nada. Volte o [b]FONE[/b] para a entrada 3."
+msgstr "Input 3's lamp blinks slowly: Cecília is [b]on hold[/b] and can't hear anything. Put the [b]HEADSET[/b] back in input 3."
+
+#: data/nights/night_00.tres
+msgid "Voltou! Viu a minha lâmpada piscando devagar? Era eu em espera, sem ouvir nada."
+msgstr "You're back! See my lamp blinking slowly? That was me on hold, hearing nothing."
+
+#: data/nights/night_00.tres
+msgid "Ninguém gosta de esperar: quem fica muito tempo em espera desiste e desliga. Então não esquece ninguém lá."
+msgstr "Nobody likes to wait: whoever's on hold too long gives up and hangs up. So don't forget anyone there."
+
+#: data/nights/night_00.tres
+msgid "E o fim do turno: às 23:40 a central para de receber ligação nova."
+msgstr "And the end of the shift: at 23:40 the exchange stops taking new calls."
+
+#: data/nights/night_00.tres
+msgid "Aí, no papel do horário colado na parede, aparece o botão Encerrar turno."
+msgstr "Then, on the schedule taped to the wall, the End shift button shows up."
+
+#: data/nights/night_00.tres
+msgid "Antes de apertar, registra tudo no caderno e espera quem está na linha terminar. Quem você cortar e o que ficar sem registro, o supervisor anota."
+msgstr "Before pressing it, log everything in the logbook and wait for whoever's on the line to finish. Anyone you cut off and anything left unlogged, the supervisor writes down."
+
+#: data/nights/night_00.tres
+msgid "E se der meia-noite com a mesa vazia e tudo registrado, o turno fecha sozinho."
+msgstr "And if it hits midnight with the board empty and everything logged, the shift closes by itself."
+
+#: data/nights/night_00.tres
+msgid "Por hoje é isso. A mesa é sua: a noite é calma, e o manual ali na parede ajuda."
+msgstr "That's it for today. The board is yours: it's a quiet night, and the manual on the wall helps."
+
+#: data/nights/night_00.tres
+msgid "Obrigado, Cecília!"
+msgstr "Thank you, Cecília!"
+
+#: data/nights/night_00.tres
+msgid "Obrigada, Cecília!"
+msgstr "Thanks so much, Cecília!"
+
+#: data/nights/night_00.tres
+msgid "Até a próxima!"
+msgstr "See you next time!"
+
+#: data/nights/night_00.tres
+msgid "Boa noite, e boa sorte!"
+msgstr "Good night, and good luck!"
+
 #: data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres
 msgid "Dona Lurdes"
 msgstr "Dona Lurdes"
@@ -910,10 +1370,6 @@ msgstr "Can you put me through to the Hotel Estrela, please? My brother came in 
 #: data/calls/transfer_02_sr_nelson_hotel_estrela.tres
 msgid "O Hotel Estrela. Na avenida."
 msgstr "The Hotel Estrela. On the avenue."
-
-#: data/calls/transfer_02_sr_nelson_hotel_estrela.tres data/calls/transfer_26_dona_fatima_hotel_estrela.tres
-msgid "Hotel Estrela"
-msgstr "Hotel Estrela"
 
 #: data/calls/transfer_02_sr_nelson_hotel_estrela.tres
 msgid "Muito obrigado."

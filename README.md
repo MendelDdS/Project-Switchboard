@@ -42,7 +42,7 @@ Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
 
 À meia-noite, antes da tela final, o supervisor confere o turno (`ShiftReport` em `scripts/model/shift_report.gd`,
 tela em `scenes/ui/report_view.tscn`): lista as advertências (leve, média, grave, gravíssima), traz o **jornal da manhã** com o
-desfecho de cada emergência e dá um parecer (`verdicts` no content). A ligação do tutorial, os trotes e a
+desfecho de cada emergência e dá um parecer (`verdicts` no content). As ligações do treinamento, os trotes e a
 ligação desconhecida não contam.
 
 | Falha | Gravidade | O que acontece no turno |
@@ -66,8 +66,8 @@ ligação desconhecida não contam.
 
 Quem liga de novo espera a mesa esvaziar (no máximo `RETRY_WAIT`, 20 min de jogo), para não empilhar ligações
 sobre quem já está sobrecarregado. Quando a emergência liga de novo, em `REDISPATCH_CHANCE` (60%) dos casos ainda dá para despachar (no jornal: "com
-atraso"); nos outros, já é tarde (no jornal: "ninguém foi atender"). Cada pessoa liga de novo no máximo uma vez por motivo, sempre antes do fim do turno (vale também para a
-ligação do tutorial, que só não gera advertência).
+atraso"); nos outros, já é tarde (no jornal: "ninguém foi atender"). Cada pessoa liga de novo no máximo uma vez por motivo, sempre antes do fim do turno (vale também para as
+ligações do treinamento, que só não geram advertência).
 As advertências graves se somam entre as noites: `ShiftReport.SEVERE_LIMIT` (3) graves acumuladas é demissão, e o
 jogo volta para a primeira noite. Uma gravíssima conta como `CRITICAL_WEIGHT` (2) graves.
 
@@ -102,7 +102,7 @@ O robô em ritmo humano (5 s por ação, lendo cada resposta até o fim, 15 s no
 ## Moldes (conversas geradas)
 
 Metade das transferências e das emergências do turno (`TEMPLATE_CHANCE` em `schedule.gd`) vem de um molde; a outra metade,
-dos roteiros escritos em `data/calls/`. Os trotes, o tutorial, as ligações do roteiro da noite e a ligação
+dos roteiros escritos em `data/calls/`. Os trotes, o treinamento, as ligações do roteiro da noite e a ligação
 desconhecida são sempre escritos à mão.
 
 - **Transferência** (`transfer_templates`): o molde é um `TransferCall` com lacunas em `opening` e `repeat`.
@@ -178,13 +178,13 @@ Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
   robô em ritmo humano perder ligações toda noite). Para medir um nível: `tests/test_shift.gd -- --human --pace=N`.
 - **Tipo sorteado**: `emergencies` emergências (a pelo menos `EMERGENCY_GAP` = 60 min uma da outra, porque o
   despacho cuida de uma por vez), `pranks` trotes e o resto transferências (65%) ou pedidos de informação
-  (o número de alguém na lista). Um destino não se repete na mesma noite. Na primeira noite, a primeira
-  ligação é uma transferência guiada (tutorial).
+  (o número de alguém na lista). Um destino não se repete na mesma noite. O treinamento (noite 0) é a Cecília,
+  veterana do Alto da Serra, ligando e ensinando o serviço (`data/nights/night_00.tres`, passos `LessonStep`).
 - **Ligação desconhecida**: toca por uma entrada livre qualquer, num horário sorteado entre `mystery_from` e
   `mystery_to` da noite (22:00–23:30).
 - As ligações tocam no horário mesmo com o operador ocupado; uma emergência espera a anterior desligar e as unidades
-  chegarem. Quem ninguém atende desiste (`GIVE_UP_SEC`: 60 s; as do roteiro aguentam 90 s, os retornos 45 s; a do
-  tutorial e a desconhecida não desistem).
+  chegarem. Quem ninguém atende desiste (`GIVE_UP_SEC`: 60 s; as do roteiro aguentam 90 s, os retornos 45 s; as do
+  treinamento e a desconhecida não desistem).
 - A ligação desconhecida espera a mesa ficar em silêncio, por no máximo 30 minutos de jogo.
 - Alguns números não atendem à noite (`closed_at_night` no contato). Roteiros com `alt_target` deixam o operador
   sugerir outro lugar.

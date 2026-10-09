@@ -16,6 +16,8 @@ extends Resource
 @export_group("Noites")
 ## Em ordem; cada uma com o bilhete e o roteiro fixo dela (data/nights/).
 @export var nights: Array[Night] = []
+## A noite 0, antes da primeira: o treinamento (`Night.lesson`) e um turno calmo. Fica fora de `nights`.
+@export var training: Night
 ## Níveis de ritmo das ligações sorteadas, do mais calmo ao limite (veja Pace): o 1 é o da primeira noite e o último
 ## vale para todas as noites depois de chegar nele.
 @export var paces: Array[Pace] = []

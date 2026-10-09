@@ -1,0 +1,481 @@
+[gd_resource type="Resource" script_class="Night" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/lesson_step.gd" id="2_lesson"]
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="3_transfer"]
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="4_emergency"]
+
+[sub_resource type="Resource" id="Ask_hotel"]
+script = ExtResource("3_transfer")
+caller = "Cecília"
+target = "305"
+destination = "Hotel Estrela"
+thanks = "Pronto, atenderam! Pode tirar o fone, que agora a conversa é minha com eles."
+
+[sub_resource type="Resource" id="Drill"]
+script = ExtResource("4_emergency")
+caller = "Cecília"
+street = "acacias"
+address = "Rua das Acácias, 45"
+occurrence = "Incêndio"
+units = PackedStringArray("bomb")
+
+[sub_resource type="Resource" id="Lesson_01"]
+script = ExtResource("2_lesson")
+kind = 0
+hint = "A [b]entrada 1[/b] está chamando. Ponha o [b]FONE[/b] (o cabo verde) na tomada dela."
+
+[sub_resource type="Resource" id="Lesson_02"]
+script = ExtResource("2_lesson")
+text = "Alô? Aqui é a Cecília, da central."
+
+[sub_resource type="Resource" id="Lesson_03"]
+script = ExtResource("2_lesson")
+text = "Você é quem começa na segunda, não é? Muito prazer!"
+
+[sub_resource type="Resource" id="Lesson_04"]
+script = ExtResource("2_lesson")
+text = "Eu cuido do Alto da Serra faz quinze anos."
+
+[sub_resource type="Resource" id="Lesson_05"]
+script = ExtResource("2_lesson")
+text = "O supervisor me pediu pra te mostrar o serviço hoje, que a mesa está calma."
+
+[sub_resource type="Resource" id="Lesson_06"]
+script = ExtResource("2_lesson")
+kind = 2
+options = PackedStringArray("Prazer, Cecília. Pode falar.", "Boa noite! Vamos lá.")
+
+[sub_resource type="Resource" id="Lesson_07"]
+script = ExtResource("2_lesson")
+text = "Primeiro o básico: quando alguém chama, a lâmpada da entrada pisca."
+
+[sub_resource type="Resource" id="Lesson_08"]
+script = ExtResource("2_lesson")
+text = "Você põe o fone na tomada dela e aperta Atender."
+
+[sub_resource type="Resource" id="Lesson_09"]
+script = ExtResource("2_lesson")
+text = "Foi o que você acabou de fazer."
+
+[sub_resource type="Resource" id="Lesson_10"]
+script = ExtResource("2_lesson")
+text = "Agora eu vou desligar e te ligar pela entrada 2."
+
+[sub_resource type="Resource" id="Lesson_11"]
+script = ExtResource("2_lesson")
+text = "Aí você tira o fone daqui, põe lá na 2 e atende de novo."
+
+[sub_resource type="Resource" id="Lesson_12"]
+script = ExtResource("2_lesson")
+text = "Só um instante!"
+
+[sub_resource type="Resource" id="Lesson_13"]
+script = ExtResource("2_lesson")
+kind = 5
+
+[sub_resource type="Resource" id="Lesson_14"]
+script = ExtResource("2_lesson")
+kind = 4
+seconds = 2.5
+
+[sub_resource type="Resource" id="Lesson_15"]
+script = ExtResource("2_lesson")
+kind = 0
+line = 2
+call = SubResource("Ask_hotel")
+hint = "A [b]entrada 2[/b] está chamando. Tire o [b]FONE[/b] da entrada 1 e encaixe na tomada da entrada 2."
+
+[sub_resource type="Resource" id="Lesson_16"]
+script = ExtResource("2_lesson")
+text = "Isso! Agora finge que eu sou alguém da cidade."
+
+[sub_resource type="Resource" id="Lesson_17"]
+script = ExtResource("2_lesson")
+text = "Me passa pro Hotel Estrela, por favor? Minha prima trabalha na recepção."
+
+[sub_resource type="Resource" id="Lesson_18"]
+script = ExtResource("2_lesson")
+text = "Quase ninguém sabe o número de cor, e nem você precisa saber."
+
+[sub_resource type="Resource" id="Lesson_19"]
+script = ExtResource("2_lesson")
+text = "Pra isso tem a lista telefônica, ali na mesa. Abre ela."
+
+[sub_resource type="Resource" id="Lesson_20"]
+script = ExtResource("2_lesson")
+kind = 3
+seconds = 12.0
+hint = "Clique na [b]lista telefônica[/b] na mesa (ou aperte 1)."
+nudges = PackedStringArray("As listas são aqueles volumes de capa mostarda, na mesa. Ou aperta o 1, que abre também.")
+
+[sub_resource type="Resource" id="Lesson_21"]
+script = ExtResource("2_lesson")
+text = "Cada página dupla é uma letra, e as abas na beira trocam de letra."
+
+[sub_resource type="Resource" id="Lesson_22"]
+script = ExtResource("2_lesson")
+text = "Hotel Estrela fica no H. O número é o do fim do pontilhado."
+
+[sub_resource type="Resource" id="Lesson_23"]
+script = ExtResource("2_lesson")
+text = "Achou? Agora pega um cabo, um dos coloridos em pé na prateleira."
+
+[sub_resource type="Resource" id="Lesson_24"]
+script = ExtResource("2_lesson")
+text = "Encaixa uma ponta na saída da minha linha, logo embaixo da entrada 2."
+
+[sub_resource type="Resource" id="Lesson_25"]
+script = ExtResource("2_lesson")
+kind = 3
+seconds = 15.0
+until = "cord_out"
+hint = "Arraste um [b]cabo de conexão[/b] (vermelho, azul ou amarelo, em pé na prateleira) até a [b]SAÍDA 2[/b], logo abaixo da entrada 2."
+nudges = PackedStringArray("Os cabos ficam em pé na prateleira, na frente do painel. É só pegar e arrastar.", "É a saída 2, na fileira de baixo, embaixo da entrada onde está o fone.")
+wrong = "Opa, essa é a saída %d. A minha é a 2, logo embaixo da entrada onde está o fone."
+
+[sub_resource type="Resource" id="Lesson_26"]
+script = ExtResource("2_lesson")
+text = "Isso. A outra ponta do mesmo cabo vai no número do hotel, lá nos destinos, embaixo."
+
+[sub_resource type="Resource" id="Lesson_27"]
+script = ExtResource("2_lesson")
+kind = 3
+seconds = 15.0
+until = "cord_dest"
+hint = "Leve a outra ponta do cabo até o número do [b]Hotel Estrela[/b], na fileira de destinos."
+nudges = PackedStringArray("Os destinos ficam em ordem de número. Confere na lista se precisar.")
+wrong = "Esse é o %d, não é o hotel. Confere o número na lista."
+
+[sub_resource type="Resource" id="Lesson_28"]
+script = ExtResource("2_lesson")
+text = "Agora aperta Transferir. O hotel vai tocar."
+
+[sub_resource type="Resource" id="Lesson_29"]
+script = ExtResource("2_lesson")
+text = "Quando atenderem, eu falo com eles e a ligação segue sozinha pelo cabo."
+
+[sub_resource type="Resource" id="Lesson_30"]
+script = ExtResource("2_lesson")
+kind = 3
+seconds = 12.0
+until = "transfer"
+hint = "Aperte [b]Transferir[/b] (Tab) para chamar o hotel."
+nudges = PackedStringArray("É a tecla do meio, a Transferir.")
+wrong = "Espera! Esse cabo está no %d, não no hotel. Troca a ponta antes."
+
+[sub_resource type="Resource" id="Lesson_31"]
+script = ExtResource("2_lesson")
+kind = 3
+until = "connected"
+hint = "O hotel está tocando. Espere atender."
+
+[sub_resource type="Resource" id="Lesson_32"]
+script = ExtResource("2_lesson")
+kind = 3
+until = "line_done"
+hint = "Ela e o hotel estão conversando pelo cabo: você já pode tirar o [b]FONE[/b] da entrada e devolvê-lo ao encaixe. Quando a conversa acabar, a lâmpada fica vermelha."
+
+[sub_resource type="Resource" id="Lesson_33"]
+script = ExtResource("2_lesson")
+kind = 3
+until = "line_free"
+hint = "Lâmpada vermelha: a conversa acabou. Tire as duas pontas do cabo (um clique em cada plug) e o FONE, se ainda estiver na entrada, para liberar a linha."
+
+[sub_resource type="Resource" id="Lesson_34"]
+script = ExtResource("2_lesson")
+kind = 4
+seconds = 2.0
+
+[sub_resource type="Resource" id="Lesson_35"]
+script = ExtResource("2_lesson")
+kind = 0
+hint = "A Cecília está ligando de novo, pela [b]entrada 1[/b]. Ponha o [b]FONE[/b] nela."
+
+[sub_resource type="Resource" id="Lesson_36"]
+script = ExtResource("2_lesson")
+text = "Viu só? Atender, achar o número na lista, cabo na saída e no destino, Transferir."
+
+[sub_resource type="Resource" id="Lesson_37"]
+script = ExtResource("2_lesson")
+text = "E quando a lâmpada fica vermelha, tira o cabo. Isso é metade do serviço."
+
+[sub_resource type="Resource" id="Lesson_38"]
+script = ExtResource("2_lesson")
+text = "A outra metade é papel. Toda ligação que termina vai pro caderno de ocorrências."
+
+[sub_resource type="Resource" id="Lesson_39"]
+script = ExtResource("2_lesson")
+text = "Tá vendo as tiras saindo do caderno, ali na mesa? É uma pra cada ligação esperando registro."
+
+[sub_resource type="Resource" id="Lesson_40"]
+script = ExtResource("2_lesson")
+text = "Abre ele."
+
+[sub_resource type="Resource" id="Lesson_41"]
+script = ExtResource("2_lesson")
+kind = 3
+seconds = 12.0
+until = "logbook"
+hint = "Clique no [b]caderno[/b] na mesa (ou aperte 3)."
+nudges = PackedStringArray("É o caderno de capa de couro, na frente da mesa. Ou aperta o 3.")
+
+[sub_resource type="Resource" id="Lesson_42"]
+script = ExtResource("2_lesson")
+text = "Na ficha já vem quem ligou, a hora e pra onde foi. Você só diz o tipo."
+
+[sub_resource type="Resource" id="Lesson_43"]
+script = ExtResource("2_lesson")
+text = "As minhas duas de agora foram ligações comuns. Carimba as duas como Comum."
+
+[sub_resource type="Resource" id="Lesson_44"]
+script = ExtResource("2_lesson")
+kind = 3
+seconds = 15.0
+until = "registered"
+hint = "Registre as ligações da Cecília: na ficha do caderno, clique em [b]Ligação comum[/b], uma vez para cada."
+nudges = PackedStringArray("É o botão Ligação comum, embaixo da ficha. A segunda sobe sozinha depois da primeira.")
+wrong = "Ih, essa foi comum! Carimbo não se apaga, e o supervisor confere. Hoje não conta, mas presta atenção."
+
+[sub_resource type="Resource" id="Lesson_45"]
+script = ExtResource("2_lesson")
+text = "Isso. Emergência e trote têm carimbo próprio, e o supervisor confere tudo no fim da noite."
+
+[sub_resource type="Resource" id="Lesson_46"]
+script = ExtResource("2_lesson")
+text = "Pode deixar pra depois quando a mesa apertar, mas não esquece: ligação sem registro dá advertência."
+
+[sub_resource type="Resource" id="Lesson_47"]
+script = ExtResource("2_lesson")
+text = "Agora olha a prancheta, do lado. Apareceu uma folha nova nela, não apareceu?"
+
+[sub_resource type="Resource" id="Lesson_48"]
+script = ExtResource("2_lesson")
+text = "Ali fica escrito tudo o que foi dito com o fone na linha. Abre."
+
+[sub_resource type="Resource" id="Lesson_49"]
+script = ExtResource("2_lesson")
+kind = 3
+seconds = 12.0
+until = "call_log"
+hint = "Clique na [b]prancheta[/b] na mesa (ou aperte 4)."
+nudges = PackedStringArray("A prancheta é a tábua com o prendedor, na frente da mesa. Ou aperta o 4.")
+
+[sub_resource type="Resource" id="Lesson_50"]
+script = ExtResource("2_lesson")
+text = "Se alguém disser um número ou um endereço e você esquecer, é só conferir aqui."
+
+[sub_resource type="Resource" id="Lesson_51"]
+script = ExtResource("2_lesson")
+text = "Agora a parte mais séria: emergência."
+
+[sub_resource type="Resource" id="Lesson_52"]
+script = ExtResource("2_lesson")
+text = "Vou desligar e te ligar pela entrada 3, fingindo que sou alguém da cidade pedindo socorro."
+
+[sub_resource type="Resource" id="Lesson_53"]
+script = ExtResource("2_lesson")
+kind = 5
+
+[sub_resource type="Resource" id="Lesson_54"]
+script = ExtResource("2_lesson")
+kind = 4
+seconds = 2.5
+
+[sub_resource type="Resource" id="Lesson_55"]
+script = ExtResource("2_lesson")
+kind = 0
+line = 3
+emergency = SubResource("Drill")
+hint = "A [b]entrada 3[/b] está chamando. Ponha o [b]FONE[/b] nela e atenda."
+
+[sub_resource type="Resource" id="Lesson_56"]
+script = ExtResource("2_lesson")
+text = "Central! Tá saindo fumaça da cozinha aqui de casa!"
+
+[sub_resource type="Resource" id="Lesson_57"]
+script = ExtResource("2_lesson")
+text = "É na Rua das Flores, 45! Ninguém se machucou, mas tá enchendo de fumaça!"
+
+[sub_resource type="Resource" id="Lesson_58"]
+script = ExtResource("2_lesson")
+text = "Agora eu sou a Cecília de novo. Emergência é no despacho: a máquina com o mapa, ali na mesa. Abre."
+
+[sub_resource type="Resource" id="Lesson_59"]
+script = ExtResource("2_lesson")
+kind = 3
+seconds = 12.0
+until = "dispatch"
+hint = "Clique na [b]unidade de despacho[/b] na mesa, a do mapa (ou aperte 2)."
+nudges = PackedStringArray("É o móvel de metal com o mapa sob o vidro. Ou aperta o 2.")
+
+[sub_resource type="Resource" id="Lesson_60"]
+script = ExtResource("2_lesson")
+text = "Clica na rua que ela disse, no trecho do número. Passando o mouse, aparece a numeração de cada trecho."
+
+[sub_resource type="Resource" id="Lesson_61"]
+script = ExtResource("2_lesson")
+kind = 3
+seconds = 18.0
+street = "flores"
+until = "card"
+hint = "No mapa, clique na [b]Rua das Flores[/b], no trecho de 1 a 99. A impressora solta um cartão."
+nudges = PackedStringArray("A Rua das Flores corta a Vila Serena. O 45 fica no primeiro trecho, de 1 a 99.")
+wrong = "Esse cartão saiu pra outro lugar. Joga na trituradora, a máquina da direita, e marca de novo."
+
+[sub_resource type="Resource" id="Lesson_62"]
+script = ExtResource("2_lesson")
+text = "Isso, saiu o cartão. Agora finge de novo: eu, nervosa, corrijo o endereço."
+
+[sub_resource type="Resource" id="Lesson_63"]
+script = ExtResource("2_lesson")
+text = "Ai, me desculpa! Não é Rua das Flores, é Rua das Acácias, 45! A das Flores é a da minha mãe!"
+
+[sub_resource type="Resource" id="Lesson_64"]
+script = ExtResource("2_lesson")
+text = "Acontece direto. Cartão com o lugar errado não serve: arrasta ele até a trituradora, a máquina da direita."
+
+[sub_resource type="Resource" id="Lesson_65"]
+script = ExtResource("2_lesson")
+kind = 3
+seconds = 15.0
+until = "shred"
+hint = "Arraste o cartão até a fenda da [b]trituradora[/b], a máquina da direita."
+nudges = PackedStringArray("Pega o cartão e solta na fenda da máquina da direita. Ela come o cartão.")
+
+[sub_resource type="Resource" id="Lesson_66"]
+script = ExtResource("2_lesson")
+text = "Pronto. Só sai um cartão por vez, então tem que se livrar do errado antes. Agora marca o lugar certo."
+
+[sub_resource type="Resource" id="Lesson_67"]
+script = ExtResource("2_lesson")
+kind = 3
+seconds = 18.0
+until = "card"
+hint = "No mapa, clique na [b]Rua das Acácias[/b], no trecho de 1 a 99."
+nudges = PackedStringArray("A Rua das Acácias também é da Vila Serena. O 45 fica no trecho de 1 a 99.")
+wrong = "Esse não é o lugar. Tritura e marca a Rua das Acácias, de 1 a 99."
+
+[sub_resource type="Resource" id="Lesson_68"]
+script = ExtResource("2_lesson")
+text = "Agora perfura o cartão. Primeiro o tipo: fumaça é Incêndio."
+
+[sub_resource type="Resource" id="Lesson_69"]
+script = ExtResource("2_lesson")
+text = "Depois as unidades. Embaixo de cada uma está quando mandar: fumaça é bombeiros, e ninguém se machucou, então só eles."
+
+[sub_resource type="Resource" id="Lesson_70"]
+script = ExtResource("2_lesson")
+kind = 3
+seconds = 20.0
+until = "punched"
+hint = "Perfure no cartão o tipo [b]Incêndio[/b] e a unidade [b]Bombeiros[/b] (um clique em cada linha). Errou um furo? Triture o cartão e marque o local de novo."
+nudges = PackedStringArray("É só clicar na linha do Incêndio e na dos Bombeiros, no cartão.")
+wrong = "Esse furo não está certo, e furo não se desfaz. Tritura o cartão e marca o lugar de novo."
+
+[sub_resource type="Resource" id="Lesson_71"]
+script = ExtResource("2_lesson")
+text = "Isso. Agora leva o cartão até o transmissor, a máquina da esquerda, e solta na fenda."
+
+[sub_resource type="Resource" id="Lesson_72"]
+script = ExtResource("2_lesson")
+kind = 3
+seconds = 15.0
+until = "sent"
+hint = "Arraste o cartão até a fenda do [b]transmissor[/b], a máquina da esquerda."
+nudges = PackedStringArray("A máquina da esquerda puxa o cartão e lê os furos. Só então as unidades saem.")
+
+[sub_resource type="Resource" id="Lesson_73"]
+script = ExtResource("2_lesson")
+text = "Enviado! Agora escuta o rádio, do lado da tela: é por ele que as viaturas falam com a central."
+
+[sub_resource type="Resource" id="Lesson_74"]
+script = ExtResource("2_lesson")
+kind = 3
+until = "arrived"
+hint = "As unidades estão a caminho. Acompanhe o [b]rádio[/b], à direita da tela da conversa."
+
+[sub_resource type="Resource" id="Lesson_75"]
+script = ExtResource("2_lesson")
+text = "Ouviu? Chegaram e resolveram. Se faltasse alguém ou fosse no lugar errado, o rádio também diria."
+
+[sub_resource type="Resource" id="Lesson_76"]
+script = ExtResource("2_lesson")
+text = "Numa emergência de verdade, embaixo das opções aparece uma barra: enquanto ninguém sai, a situação piora."
+
+[sub_resource type="Resource" id="Lesson_77"]
+script = ExtResource("2_lesson")
+text = "Então pergunta o que precisa, marca, perfura e envia rápido. E no caderno ela leva o carimbo de Emergência."
+
+[sub_resource type="Resource" id="Lesson_78"]
+script = ExtResource("2_lesson")
+text = "Mais uma coisa: às vezes outra entrada chama no meio de uma conversa."
+
+[sub_resource type="Resource" id="Lesson_79"]
+script = ExtResource("2_lesson")
+text = "Aí você tira o fone da linha de quem está falando e põe na que está chamando. Quem ficou sem o fone fica em espera."
+
+[sub_resource type="Resource" id="Lesson_80"]
+script = ExtResource("2_lesson")
+text = "Tenta: tira o fone da minha entrada e põe na entrada 1, só pra ver."
+
+[sub_resource type="Resource" id="Lesson_81"]
+script = ExtResource("2_lesson")
+kind = 3
+seconds = 15.0
+until = "hold"
+hint = "Tire o [b]FONE[/b] da entrada 3 e ponha na entrada 1."
+nudges = PackedStringArray("É só puxar o fone daqui e encaixar na entrada 1. Eu espero.")
+
+[sub_resource type="Resource" id="Lesson_82"]
+script = ExtResource("2_lesson")
+kind = 3
+until = "resume"
+hint = "A lâmpada da entrada 3 pisca devagar: a Cecília está [b]em espera[/b] e não ouve nada. Volte o [b]FONE[/b] para a entrada 3."
+
+[sub_resource type="Resource" id="Lesson_83"]
+script = ExtResource("2_lesson")
+text = "Voltou! Viu a minha lâmpada piscando devagar? Era eu em espera, sem ouvir nada."
+
+[sub_resource type="Resource" id="Lesson_84"]
+script = ExtResource("2_lesson")
+text = "Ninguém gosta de esperar: quem fica muito tempo em espera desiste e desliga. Então não esquece ninguém lá."
+
+[sub_resource type="Resource" id="Lesson_85"]
+script = ExtResource("2_lesson")
+text = "E o fim do turno: às 23:40 a central para de receber ligação nova."
+
+[sub_resource type="Resource" id="Lesson_86"]
+script = ExtResource("2_lesson")
+text = "Aí, no papel do horário colado na parede, aparece o botão Encerrar turno."
+
+[sub_resource type="Resource" id="Lesson_87"]
+script = ExtResource("2_lesson")
+text = "Antes de apertar, registra tudo no caderno e espera quem está na linha terminar. Quem você cortar e o que ficar sem registro, o supervisor anota."
+
+[sub_resource type="Resource" id="Lesson_88"]
+script = ExtResource("2_lesson")
+text = "E se der meia-noite com a mesa vazia e tudo registrado, o turno fecha sozinho."
+
+[sub_resource type="Resource" id="Lesson_89"]
+script = ExtResource("2_lesson")
+text = "Por hoje é isso. A mesa é sua: a noite é calma, e o manual ali na parede ajuda."
+
+[sub_resource type="Resource" id="Lesson_90"]
+script = ExtResource("2_lesson")
+kind = 2
+options = PackedStringArray("Obrigado, Cecília!", "Obrigada, Cecília!", "Até a próxima!")
+
+[sub_resource type="Resource" id="Lesson_91"]
+script = ExtResource("2_lesson")
+text = "Boa noite, e boa sorte!"
+
+[sub_resource type="Resource" id="Lesson_92"]
+script = ExtResource("2_lesson")
+kind = 5
+
+[resource]
+script = ExtResource("1_night")
+note = "Sexta-feira. Seu primeiro turno de verdade é na segunda. Hoje a Cecília, telefonista do Alto da Serra, vai ligar para lhe mostrar o serviço. O fone já está na entrada 1."
+teacher = "Cecília"
+lesson = Array[ExtResource("2_lesson")]([SubResource("Lesson_01"), SubResource("Lesson_02"), SubResource("Lesson_03"), SubResource("Lesson_04"), SubResource("Lesson_05"), SubResource("Lesson_06"), SubResource("Lesson_07"), SubResource("Lesson_08"), SubResource("Lesson_09"), SubResource("Lesson_10"), SubResource("Lesson_11"), SubResource("Lesson_12"), SubResource("Lesson_13"), SubResource("Lesson_14"), SubResource("Lesson_15"), SubResource("Lesson_16"), SubResource("Lesson_17"), SubResource("Lesson_18"), SubResource("Lesson_19"), SubResource("Lesson_20"), SubResource("Lesson_21"), SubResource("Lesson_22"), SubResource("Lesson_23"), SubResource("Lesson_24"), SubResource("Lesson_25"), SubResource("Lesson_26"), SubResource("Lesson_27"), SubResource("Lesson_28"), SubResource("Lesson_29"), SubResource("Lesson_30"), SubResource("Lesson_31"), SubResource("Lesson_32"), SubResource("Lesson_33"), SubResource("Lesson_34"), SubResource("Lesson_35"), SubResource("Lesson_36"), SubResource("Lesson_37"), SubResource("Lesson_38"), SubResource("Lesson_39"), SubResource("Lesson_40"), SubResource("Lesson_41"), SubResource("Lesson_42"), SubResource("Lesson_43"), SubResource("Lesson_44"), SubResource("Lesson_45"), SubResource("Lesson_46"), SubResource("Lesson_47"), SubResource("Lesson_48"), SubResource("Lesson_49"), SubResource("Lesson_50"), SubResource("Lesson_51"), SubResource("Lesson_52"), SubResource("Lesson_53"), SubResource("Lesson_54"), SubResource("Lesson_55"), SubResource("Lesson_56"), SubResource("Lesson_57"), SubResource("Lesson_58"), SubResource("Lesson_59"), SubResource("Lesson_60"), SubResource("Lesson_61"), SubResource("Lesson_62"), SubResource("Lesson_63"), SubResource("Lesson_64"), SubResource("Lesson_65"), SubResource("Lesson_66"), SubResource("Lesson_67"), SubResource("Lesson_68"), SubResource("Lesson_69"), SubResource("Lesson_70"), SubResource("Lesson_71"), SubResource("Lesson_72"), SubResource("Lesson_73"), SubResource("Lesson_74"), SubResource("Lesson_75"), SubResource("Lesson_76"), SubResource("Lesson_77"), SubResource("Lesson_78"), SubResource("Lesson_79"), SubResource("Lesson_80"), SubResource("Lesson_81"), SubResource("Lesson_82"), SubResource("Lesson_83"), SubResource("Lesson_84"), SubResource("Lesson_85"), SubResource("Lesson_86"), SubResource("Lesson_87"), SubResource("Lesson_88"), SubResource("Lesson_89"), SubResource("Lesson_90"), SubResource("Lesson_91"), SubResource("Lesson_92")])

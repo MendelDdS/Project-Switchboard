@@ -6,7 +6,7 @@ extends RefCounted
 
 const PATH := "user://progress.cfg"
 
-var night := 1
+var night := 0   ## 0 = o treinamento (jogo novo)
 var pace := 1   ## nível de ritmo da próxima noite (GameContent.paces; veja Pace.next)
 var severe := 0
 var flags := PackedStringArray()
@@ -17,7 +17,7 @@ static func load_saved() -> Progress:
 	var p := Progress.new()
 	var f := ConfigFile.new()
 	if f.load(PATH) == OK:
-		p.night = f.get_value("progress", "night", 1)
+		p.night = f.get_value("progress", "night", 0)
 		p.pace = f.get_value("progress", "pace", Pace.expected(p.night))
 		p.severe = f.get_value("progress", "severe", 0)
 		p.flags = f.get_value("progress", "flags", PackedStringArray())
@@ -35,6 +35,6 @@ func save() -> void:
 	f.save(PATH)
 
 
-## Volta para a primeira noite.
+## Volta para o começo (o treinamento).
 static func clear() -> void:
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(PATH))

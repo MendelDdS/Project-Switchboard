@@ -10,6 +10,7 @@
 [ext_resource type="Script" path="res://scripts/supervisor.gd" id="22_supervisor"]
 [ext_resource type="Script" path="res://scripts/ui/fone_socket.gd" id="25_fone_socket"]
 [ext_resource type="Script" path="res://scripts/urgency.gd" id="23_urgency"]
+[ext_resource type="Script" path="res://scripts/training.gd" id="24_training"]
 [ext_resource type="Script" path="res://scripts/ui/bloom.gd" id="24_bloom"]
 [ext_resource type="PackedScene" path="res://scenes/ui/intro.tscn" id="11_intro"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ending.tscn" id="12_ending"]
@@ -274,6 +275,10 @@ script = ExtResource("22_supervisor")
 [node name="Urgency" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("23_urgency")
+
+[node name="Training" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("24_training")
 
 [node name="Intro" parent="." unique_id=2147120183 instance=ExtResource("11_intro")]
 unique_name_in_owner = true

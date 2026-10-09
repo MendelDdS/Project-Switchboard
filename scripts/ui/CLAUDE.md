@@ -231,7 +231,7 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   extenso (`Background.CALENDAR`, sem abrir ferramenta nem trocar o cursor). A mesma data vai na introdução, no jornal
   (`NEWS_EDITION`) e no caderno ("Noite de 8 para 9", `Notebook.night`). Na
   primeira vez que cada sinal da mesa aparece (tiras, folha nova), uma dica do manual explica, uma vez no
-  jogo todo (`Main._teach`: o "já viu" fica nos marcadores salvos; espera o tutorial acabar). Sob o
+  jogo todo (`Main._teach`: o "já viu" fica nos marcadores salvos; espera o treinamento acabar). Sob o
   mouse: contorno, o nome da ferramenta e o dedo. **O cenário só se redesenha quando algo que ele mostra
   muda**, e o que muda sozinho fica fora do desenho da sala (redesenhá-la custava ~20 ms e ela se redesenhava 3 a 4
   vezes por segundo parada; ver a história 84): a sala (`Background._state`: o lugar das peças da interface, a

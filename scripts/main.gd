@@ -26,7 +26,7 @@ const TAB_KEYS := {Tools.DIRECTORY: "tab_directory", Tools.DISPATCH: "tab_dispat
 var C: GameContent = GameData.CONTENT
 
 var exchange: Exchange
-var night_no := 0                  ## número da noite (1 = primeira); 0 = a salva (`-- --night=N` força uma, sem salvar)
+var night_no := -1                 ## número da noite (0 = o treinamento, 1 = a primeira); -1 = a salva (`-- --night=N` força uma, sem salvar)
 var night: Night                   ## roteiro fixo da noite
 var pace_level := 1                ## nível de ritmo desta noite (GameContent.paces)
 var force_sectors: Array = []      ## testes: setores atendidos (vazio = os da noite, GameData.SECTOR_NIGHTS)
@@ -42,7 +42,6 @@ var minutes := 0.0
 var running := false
 var sched: Array[PhoneCall] = []   ## ligações ainda por tocar, em ordem de horário (montadas por `Schedule`)
 var live: Array[PhoneCall] = []    ## tocando ou em andamento (podem ser várias ao mesmo tempo)
-var tut: PhoneCall                 ## primeira ligação: guia passo a passo
 var em_call: PhoneCall
 var myst_time := "02:13"
 var myst_line := 0                 ## entrada por onde veio a ligação desconhecida (sorteada)
@@ -53,6 +52,10 @@ var flick := false
 
 var _dgen := {}                    ## número -> geração do toque (invalida toques quando o cabo sai)
 var _sent := {}                    ## último despacho: call, loc, units
+## Marcadores do "já viu" das dicas de primeira vez (`_teach`); o treinamento os liga quando ensina o mesmo.
+const SAW_SLIPS := "viu_tiras_caderno"
+const SAW_SHEET := "viu_folha_registro"
+
 var _taught_done := false
 var _taught_multi := false
 var _taught_ring := false
@@ -78,6 +81,7 @@ var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o
 @onready var conversation: Conversation = %Conversation
 @onready var supervisor: Supervisor = %Supervisor
 @onready var urgency: Urgency = %Urgency
+@onready var training: Training = %Training
 @onready var _hint: RichTextLabel = %Hint
 @onready var _glow: CanvasItem = %Glow
 @onready var _intro: Intro = %Intro
@@ -110,7 +114,6 @@ func _ready() -> void:
 	board.eye = background.eye   # os olhos do operador: a paralaxe dos plugs encaixados
 	var plan := Schedule.build(night, pace, LAST_CALL)
 	sched = plan.calls
-	tut = plan.tut
 	myst_plan = plan.mystery_at
 	after = night.mystery.is_empty()   # noite sem ligação desconhecida: o turno fecha à meia-noite
 	board.end_changed.connect(_on_end_changed)
@@ -121,6 +124,7 @@ func _ready() -> void:
 	phone.hangup_pressed.connect(hangup)
 	_end_shift.pressed.connect(end_shift)
 	_intro.start_pressed.connect(_start_shift)
+	_intro.skip_pressed.connect(_skip_training)
 	_intro.settings_pressed.connect(_pause.open_settings)
 	_pause.resumed.connect(_update_bell)
 	dispatch.radio = radio
@@ -133,14 +137,16 @@ func _ready() -> void:
 		tools.set_pending(n)
 		background.pending = n
 		if n > 0:
-			_teach("viu_tiras_caderno", T.Key.HINT_DESK_SLIPS))
+			_teach(SAW_SLIPS, T.Key.HINT_DESK_SLIPS))
 	tools.call_log.unread_changed.connect(func(on: bool):
 		background.unread = on
 		if on:
-			_teach("viu_folha_registro", T.Key.HINT_DESK_SHEET))
+			_teach(SAW_SHEET, T.Key.HINT_DESK_SHEET))
 	tools.origin = background.prop_rect   # o papel de cada ferramenta sai do objeto dela na mesa
 	background.prop_clicked.connect(func(id: String): if running and not ending: tools.set_tab(id))   # objetos da cena
-	_intro.setup(night_no, night, progress != null and progress.night > 1)
+	_intro.setup(night_no, night, progress != null and progress.night > 1, progress != null)
+	if not night.lesson.is_empty():   # o treinamento começa com o FONE já na entrada 1
+		board.plugged(0, 1)
 	if progress != null and night_no > 1:   # o jornal da manhã, com o que aconteceu na noite anterior
 		set_news(progress.news)
 	# noite de entrega de um setor: o mapa se abre para o bairro novo na primeira vez que aparece
@@ -164,15 +170,15 @@ func _load_night() -> void:
 			for f in a.get_slice("=", 1).split(",", false):
 				flags.apply(f)
 	pace_level = Pace.expected(night_no)
-	if night_no == 0:
+	if night_no == -1:
 		progress = Progress.load_saved()
 		night_no = progress.night
 		pace_level = progress.pace
 		report.severe_before = progress.severe
 		for f in progress.flags:
 			flags.apply(f)
-	night_no = clampi(night_no, 1, C.nights.size())
-	night = C.nights[night_no - 1]
+	night_no = clampi(night_no, 0, C.nights.size())
+	night = C.training if night_no == 0 else C.nights[night_no - 1]
 	GameData.sectors = GameData.sectors_for(night_no) if force_sectors.is_empty() else force_sectors
 	pace_level = clampi(forced_pace if forced_pace > 0 else pace_level, 1, C.paces.size())
 	pace = C.paces[pace_level - 1]
@@ -201,9 +207,9 @@ func hint(t: String) -> void:
 
 
 ## Dica da primeira vez que um sinal da mesa aparece, uma vez no jogo todo: o "já viu" (`flag`) fica nos marcadores,
-## salvos entre as noites. Durante o tutorial espera (a dica dele não pode ser atropelada).
+## salvos entre as noites. Durante o treinamento espera (a dica dele não pode ser atropelada).
 func _teach(flag: String, key: T.Key) -> void:
-	if flags.has(flag) or (tut != null and not tut.ended):
+	if flags.has(flag) or training.active:
 		return
 	flags.apply(flag)
 	hint(T.text(key))
@@ -229,6 +235,15 @@ func _start_shift() -> void:
 	running = true
 	radio.say(T.text(T.Key.RADIO_PATROL))
 	hint(T.text(T.Key.HINT_WAIT_CALLS))
+	if not night.lesson.is_empty():
+		training.start(night)
+
+
+## Tela inicial do jogo novo: pula o treinamento e vai direto para a noite 1.
+func _skip_training() -> void:
+	progress.night = 1
+	progress.save()
+	get_tree().reload_current_scene()
 
 
 ## O ponto x da tela (px) como `Sfx.play_at` o quer: de 0 (borda esquerda) a 1 (direita). Em px, a badalada e a
@@ -241,7 +256,8 @@ func _process(delta: float) -> void:
 	talk_clock += delta
 	if running:
 		# à meia-noite o relógio para, a não ser que ainda haja alguém na linha (o turno se estende até resolver)
-		if minutes < SHIFT_END or not live.is_empty():
+		# no treinamento, o relógio só anda depois que a veterana termina (e nada da agenda toca antes)
+		if (minutes < SHIFT_END or not live.is_empty()) and not training.active:
 			minutes += delta * GAME_MIN_PER_SEC
 		if int(minutes) != _minute:   # a plaqueta do relógio de flip vira: o "tic" quando ela bate, vindo do relógio
 			if _minute >= 0:   # (no começo do turno, nada vira)
@@ -283,7 +299,7 @@ func _process(delta: float) -> void:
 ## se a demora continuar, reclama; na emergência, pede pressa (só antes de a situação piorar).
 func _nag() -> void:
 	var f := _focus()
-	if f == null or not f.active or f.talking or f.closing:
+	if f == null or not f.active or f.talking or f.closing or f.lesson:
 		return
 	var quiet := talk_clock - f.last_talk
 	if f.kind == PhoneCall.Kind.TRANSFER and f.phase == PhoneCall.Phase.AWAIT:
@@ -353,7 +369,6 @@ func _on_end_changed(e: int, j: int, prev: int) -> void:
 		_vacated(prev, e)
 	if j != -1:
 		_filled(j, e)
-	tutorial_step()
 	_refresh_panel()
 
 
@@ -453,6 +468,9 @@ func transfer() -> void:
 	if d == -1:
 		warn(T.text(T.Key.WARN_PLUG_OUTPUT) % c.line)
 		return
+	if c.lesson and str(d) != c.target:   # no treinamento, ela avisa antes de tocar no número errado
+		training.wrong_number(d)
+		return
 	if exchange.dest(d) != Exchange.Dest.FREE:
 		warn(T.text(T.Key.WARN_DEST_BUSY) % d)
 		return
@@ -468,7 +486,6 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 	exchange.set_dest(d, Exchange.Dest.RING)
 	c.set_options([])   # a conversa agora é com o destino; as opções voltam se a transferência for desfeita
 	phone.flash(T.text(T.Key.DISPLAY_RINGING) % d, 60000)
-	tutorial_step()
 	_update_call_ui()
 	for i in (4 if closed else (2 if right else 3)):
 		if c.on_line:
@@ -487,9 +504,8 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 	Sfx.play("sw")
 	phone.flash(T.text(T.Key.DISPLAY_CONNECTED) % d, 3000)
 	var who := GameData.entry(str(d)).name
-	tutorial_step()
 	_update_call_ui()
-	if not right and c != tut:
+	if not right and not c.lesson:
 		supervisor.fault("wrong_number", supervisor.who(c))
 		c.wrong += 1
 	if right and c.on_line:   # o operador ouve o agradecimento; a conversa entre os dois ele já não ouve
@@ -506,7 +522,7 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 			c.sys(T.text(T.Key.SYS_CALLER_HUNG_UP))
 			end_call(c, PhoneCall.End.CALLER)
 		return
-	if await conversation.say(c, GameData.pick(C.wrong_destination)) and tut != null:
+	if await conversation.say(c, GameData.pick(C.wrong_destination)) and night_no == 0:
 		hint(T.text(T.Key.HINT_WRONG_DEST))
 
 
@@ -539,7 +555,7 @@ func _wrong_unattended(c: PhoneCall, d: int) -> void:
 	c.sys(T.text(T.Key.SYS_WRONG_BOTH_HUNG) % GameData.entry(str(d)).name)
 	end_call(c, PhoneCall.End.CALLER)
 	supervisor.call_again(c, PhoneCall.Retry.WRONG_NUMBER)
-	if tut != null:
+	if night_no == 0:
 		hint(T.text(T.Key.HINT_WRONG_UNATTENDED))
 
 
@@ -689,14 +705,19 @@ func _update_line_timers() -> void:
 	for n in range(1, Exchange.LINES + 1):
 		var until := exchange.line_until(n)
 		if exchange.line(n) == Exchange.Line.CONN and until >= 0.0 and minutes >= until:
-			exchange.set_line(n, Exchange.Line.DONE)
-			var d := board.dest_of_output(n)
-			if d != -1 and exchange.dest(d) == Exchange.Dest.CONN:
-				exchange.set_dest(d, Exchange.Dest.DONE)
-			Sfx.play("sw", -8.0)
+			talk_over(n)
 			if not _taught_done and live.is_empty():
 				_taught_done = true
 				hint(T.text(T.Key.HINT_RED_LAMPS))
+
+
+## A conversa conectada pela linha `n` terminou: linha e destino ficam vermelhos até o operador tirar as pontas.
+func talk_over(n: int) -> void:
+	exchange.set_line(n, Exchange.Line.DONE)
+	var d := board.dest_of_output(n)
+	if d != -1 and exchange.dest(d) == Exchange.Dest.CONN:
+		exchange.set_dest(d, Exchange.Dest.DONE)
+	Sfx.play("sw", -8.0)
 
 
 func _update_bell() -> void:
@@ -712,7 +733,8 @@ func _update_bell() -> void:
 
 func ring(c: PhoneCall) -> void:
 	var busy := not live.is_empty()
-	c.line = free_line()
+	if c.line == 0:   # a veterana do treinamento liga por uma entrada certa
+		c.line = free_line()
 	exchange.set_line(c.line, Exchange.Line.RING)
 	c.ringing = true
 	c.time = fmt(minutes)
@@ -727,65 +749,39 @@ func ring(c: PhoneCall) -> void:
 		phone.urgency.call = c
 	_update_bell()
 	_refresh_panel()
-	if c == tut:
-		hint(T.text(T.Key.HINT_TUT_PLUG) % c.line)
+	if c.lesson:   # a dica é do treinamento
+		pass
 	elif busy and not _taught_multi:
 		_taught_multi = true
 		hint(T.text(T.Key.HINT_ANOTHER_CALL))
-	elif tut != null and tut.ended and not _taught_ring:
+	elif night_no == 0 and not _taught_ring:
 		_taught_ring = true
 		hint(T.text(T.Key.HINT_REMEMBER))
 	if c.kind == PhoneCall.Kind.MYSTERY:
 		await get_tree().create_timer(9.0, false).timeout
 		if c.ringing and not ending:
 			warn(T.text(T.Key.WARN_PHONE_RINGING))
-	elif c != tut:
+	elif not c.lesson:
 		await get_tree().create_timer(GIVE_UP_SEC * (0.75 if c.retry != PhoneCall.Retry.NONE else 1.5 if c.story else 1.0), false).timeout
 		if c.ringing:
 			end_call(c, PhoneCall.End.MISSED)
 
 
-func tutorial_step() -> void:
-	var c := tut
-	if c == null or c.line == 0 or c.ended:
-		return
-	var n := c.line
-	if c.ringing:
-		if board.fone_line() == n:
-			hint(T.text(T.Key.HINT_TUT_ANSWER))
-		return
-	if c.phase != PhoneCall.Phase.AWAIT or board.fone_line() != n:
-		return
-	var dest := c.destination.split(" (")[0]
-	var d := board.dest_of_output(n)
-	if board.cord_at(n + 10) == -1:
-		hint(T.text(T.Key.HINT_TUT_FIND) % [dest, n])
-	elif d == -1:
-		hint(T.text(T.Key.HINT_TUT_OTHER_END) % dest)
-	elif exchange.dest(d) == Exchange.Dest.FREE:
-		hint(T.text(T.Key.HINT_TUT_TRANSFER))
-	elif exchange.dest(d) == Exchange.Dest.RING:
-		hint(T.text(T.Key.HINT_TUT_DEST_RINGING))
-	else:
-		hint(T.text(T.Key.HINT_TUT_CONNECTED))
-
-
 ## Chamado pela conversa quando o solicitante termina o pedido de transferência.
 func on_transfer_waiting(c: PhoneCall) -> void:
 	_update_call_ui()
-	tutorial_step()
 	if board.free_patches() == 0 and board.cord_at(c.line + 10) == -1:
 		hint(T.text(T.Key.HINT_NO_CORDS))
 	elif not _taught_bank and _new_sector(c.target):
 		_taught_bank = true
 		var s := int(c.target.left(1))
 		hint(T.text(T.Key.HINT_NEW_BANK) % [s, "ABC"[Switchboard.SECTOR_ORDER.find(s)]])
-	elif tut != null and c != tut and not _taught_list:
+	elif night_no == 0 and not _taught_list:
 		_taught_list = true
 		hint(T.text(T.Key.HINT_CHECK_LIST))
 
 
-## O número é de um setor entregue nesta noite (o 3, da primeira noite, o tutorial já apresenta)?
+## O número é de um setor entregue nesta noite (o 3, do começo, o treinamento já apresenta)?
 func _new_sector(number: String) -> bool:
 	var s := int(number.left(1)) if number != "" else 0
 	return s != 3 and GameData.SECTOR_NIGHTS.get(s, 0) == night_no
@@ -804,12 +800,16 @@ func answer() -> void:
 	Sfx.play("sw")
 	exchange.set_line(c.line, Exchange.Line.TALK)
 	_refresh_panel()
-	conversation.run(c)
+	if not c.lesson:   # a veterana do treinamento fala pelo `Training`
+		conversation.run(c)
 
 
 func hangup() -> void:
 	var c := _focus()
 	if c == null or not c.active:
+		return
+	if c.lesson:   # a veterana desliga quando terminar de explicar
+		warn(T.text(T.Key.WARN_TRAINING_HANG_UP) % tr(c.caller))
 		return
 	Sfx.play("sw")
 	c.add_line("", T.text(T.Key.OP_HANGS_UP), "op")
@@ -874,7 +874,7 @@ func end_call(c: PhoneCall, reason: PhoneCall.End) -> void:
 	notebook.add(c.record)
 	supervisor.call_ended(c, reason)
 	await get_tree().create_timer(1.5, false).timeout
-	if ending or reason == PhoneCall.End.MISSED:   # não atendida já entra registrada
+	if ending or reason == PhoneCall.End.MISSED or c.lesson:   # não atendida já entra registrada
 		return
 	if live.is_empty():   # a aba mostra quantas faltam; o jogador abre o caderno quando quiser
 		hint(T.text(T.Key.HINT_REGISTER))
@@ -932,7 +932,7 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> PhoneCall.Record:
 	r.obs = obs
 	r.kind = c.kind
 	r.missed = reason == PhoneCall.End.MISSED
-	r.tut = c == tut
+	r.tut = c.lesson
 	r.shift = reason == PhoneCall.End.SHIFT_OVER
 	return r
 
@@ -1011,12 +1011,12 @@ func start_ending() -> void:
 	supervisor.shift_over()
 	var last := night_no >= C.nights.size()
 	if progress != null:
-		if report.fired() or last:
+		if (report.fired() and night_no > 0) or last:
 			Progress.clear()
 		else:
 			progress.night = night_no + 1
 			progress.pace = Pace.next(pace_level, night_no, report.verdict())
-			progress.severe = report.severe_total()
+			progress.severe = report.severe_total() if night_no > 0 else 0   # o treinamento não conta
 			progress.flags = flags.names()
 			progress.news = report.news()
 			progress.save()
