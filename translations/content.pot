@@ -782,7 +782,7 @@ msgstr ""
 msgid "Imagino."
 msgstr ""
 
-#: data/nights/night_02.tres data/content.tres
+#: data/nights/night_02.tres
 msgid "...Pois é."
 msgstr ""
 
@@ -1346,7 +1346,7 @@ msgstr ""
 msgid "A farmácia de plantão, moço. A que fica aberta de noite."
 msgstr ""
 
-#: data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres data/calls/transfer_22_seu_anibal_farmacia_central.tres
+#: data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres data/calls/transfer_22_seu_anibal_farmacia_central.tres data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
 msgid "Farmácia Santa Rita"
 msgstr ""
 
@@ -1410,7 +1410,7 @@ msgstr ""
 msgid "A Pão Dourado. A padaria."
 msgstr ""
 
-#: data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres
+#: data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres data/calls/transfer_44_dona_glorinha_padaria_pao_dourado.tres
 msgid "Padaria Pão Dourado"
 msgstr ""
 
@@ -1450,7 +1450,7 @@ msgstr ""
 msgid "A oficina do Tião. Na Rua do Moinho."
 msgstr ""
 
-#: data/calls/transfer_06_caminhoneiro_oficina_do_tiao.tres
+#: data/calls/transfer_06_caminhoneiro_oficina_do_tiao.tres data/calls/transfer_40_motorista_borracharia_do_neno.tres
 msgid "Oficina do Tião"
 msgstr ""
 
@@ -1502,7 +1502,7 @@ msgstr ""
 msgid "Cine Odeon"
 msgstr ""
 
-#: data/calls/transfer_08_dona_cida_cine_odeon.tres
+#: data/calls/transfer_08_dona_cida_cine_odeon.tres data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
 msgid "Obrigada, meu bem."
 msgstr ""
 
@@ -1614,7 +1614,7 @@ msgstr ""
 msgid "Joaquim Ferreira, do armazém."
 msgstr ""
 
-#: data/calls/transfer_13_sr_ivo_armazem_ferreira.tres data/calls/transfer_32_seu_lauro_armazem_ferreira.tres
+#: data/calls/transfer_13_sr_ivo_armazem_ferreira.tres data/calls/transfer_32_seu_lauro_armazem_ferreira.tres data/calls/transfer_49_menino_mercearia_silva.tres
 msgid "Armazém Ferreira"
 msgstr ""
 
@@ -1622,7 +1622,7 @@ msgstr ""
 msgid "Tá certo, obrigado."
 msgstr ""
 
-#: data/calls/transfer_14_senhora_casa_paroquial.tres data/calls/emergency_06_outro_rua_do_comercio_71.tres data/calls/emergency_07_incendio_rua_das_flores_45.tres
+#: data/calls/transfer_14_senhora_casa_paroquial.tres data/calls/transfer_50_senhora_otavio_almeida.tres data/calls/emergency_06_outro_rua_do_comercio_71.tres
 msgid "Senhora"
 msgstr ""
 
@@ -1638,7 +1638,7 @@ msgstr ""
 msgid "O Padre Anselmo. Na casa dele, não na igreja."
 msgstr ""
 
-#: data/calls/transfer_14_senhora_casa_paroquial.tres data/calls/transfer_23_dona_aurora_igreja_matriz.tres
+#: data/calls/transfer_14_senhora_casa_paroquial.tres data/calls/transfer_23_dona_aurora_igreja_matriz.tres data/calls/transfer_43_noivo_casa_paroquial.tres
 msgid "Casa Paroquial"
 msgstr ""
 
@@ -1662,7 +1662,7 @@ msgstr ""
 msgid "Otávio Almeida. Rua da Estação."
 msgstr ""
 
-#: data/calls/transfer_15_vizinho_otavio_almeida.tres
+#: data/calls/transfer_15_vizinho_otavio_almeida.tres data/calls/transfer_50_senhora_otavio_almeida.tres
 msgid "Otávio Almeida"
 msgstr ""
 
@@ -1806,7 +1806,7 @@ msgstr ""
 msgid "A Farmácia Central. Na Praça da Matriz."
 msgstr ""
 
-#: data/calls/transfer_22_seu_anibal_farmacia_central.tres
+#: data/calls/transfer_22_seu_anibal_farmacia_central.tres data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
 msgid "Farmácia Central"
 msgstr ""
 
@@ -1838,7 +1838,7 @@ msgstr ""
 msgid "A Igreja Matriz."
 msgstr ""
 
-#: data/calls/transfer_23_dona_aurora_igreja_matriz.tres
+#: data/calls/transfer_23_dona_aurora_igreja_matriz.tres data/calls/transfer_43_noivo_casa_paroquial.tres
 msgid "Igreja Matriz"
 msgstr ""
 
@@ -1886,7 +1886,7 @@ msgstr ""
 msgid "A Mercearia Silva, na Rua do Cruzeiro."
 msgstr ""
 
-#: data/calls/transfer_25_seu_jair_mercearia_silva.tres
+#: data/calls/transfer_25_seu_jair_mercearia_silva.tres data/calls/transfer_49_menino_mercearia_silva.tres
 msgid "Mercearia Silva"
 msgstr ""
 
@@ -1902,7 +1902,7 @@ msgstr ""
 msgid "Minha filha chegou no ônibus das dez e foi pro Hotel Estrela. Quero saber se ela chegou bem."
 msgstr ""
 
-#: data/calls/transfer_26_dona_fatima_hotel_estrela.tres
+#: data/calls/transfer_26_dona_fatima_hotel_estrela.tres data/calls/transfer_39_caixeiro_hotel_estrela.tres
 msgid "O Hotel Estrela, na avenida."
 msgstr ""
 
@@ -2082,6 +2082,326 @@ msgstr ""
 msgid "Obrigada. Deve estar dormindo, né?"
 msgstr ""
 
+#: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
+msgid "Dona Benta"
+msgstr ""
+
+#: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
+msgid "Boa noite, moço."
+msgstr ""
+
+#: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
+msgid "Me liga com a Pensão Dona Cota? Meu filho chegou de viagem e ficou lá."
+msgstr ""
+
+#: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
+msgid "A pensão da Dona Cota, na Rua da Estação."
+msgstr ""
+
+#: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres data/calls/transfer_39_caixeiro_hotel_estrela.tres
+msgid "Pensão Dona Cota"
+msgstr ""
+
+#: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
+msgid "Obrigada, meu filho. Boa noite."
+msgstr ""
+
+#: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
+msgid "A pensão não atende. Quer que eu tente o Hotel Estrela?"
+msgstr ""
+
+#: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
+msgid "Tenta, sim. Vai ver ele foi pra lá."
+msgstr ""
+
+#: data/calls/transfer_39_caixeiro_hotel_estrela.tres
+msgid "Caixeiro-viajante"
+msgstr ""
+
+#: data/calls/transfer_39_caixeiro_hotel_estrela.tres
+msgid "Boa noite. Estou na rodoviária e perdi o último ônibus."
+msgstr ""
+
+#: data/calls/transfer_39_caixeiro_hotel_estrela.tres
+msgid "Me liga com o Hotel Estrela? Preciso de um quarto pra hoje."
+msgstr ""
+
+#: data/calls/transfer_39_caixeiro_hotel_estrela.tres
+msgid "Muito obrigado. O senhor me salvou a noite."
+msgstr ""
+
+#: data/calls/transfer_39_caixeiro_hotel_estrela.tres
+msgid "O hotel não atende. Quer que eu tente a Pensão Dona Cota?"
+msgstr ""
+
+#: data/calls/transfer_39_caixeiro_hotel_estrela.tres
+msgid "Pode ser. Uma cama já está bom."
+msgstr ""
+
+#: data/calls/transfer_40_motorista_borracharia_do_neno.tres
+msgid "Motorista de caminhão"
+msgstr ""
+
+#: data/calls/transfer_40_motorista_borracharia_do_neno.tres
+msgid "Central, boa noite. Furou o pneu do caminhão aqui na entrada da cidade."
+msgstr ""
+
+#: data/calls/transfer_40_motorista_borracharia_do_neno.tres
+msgid "Me liga com a Borracharia do Neno?"
+msgstr ""
+
+#: data/calls/transfer_40_motorista_borracharia_do_neno.tres
+msgid "A borracharia do Neno. Do pneu."
+msgstr ""
+
+#: data/calls/transfer_40_motorista_borracharia_do_neno.tres
+msgid "Borracharia do Neno"
+msgstr ""
+
+#: data/calls/transfer_40_motorista_borracharia_do_neno.tres
+msgid "Valeu, central. Deus te ajude."
+msgstr ""
+
+#: data/calls/transfer_40_motorista_borracharia_do_neno.tres
+msgid "A borracharia não atende. Quer que eu tente a Oficina do Tião?"
+msgstr ""
+
+#: data/calls/transfer_40_motorista_borracharia_do_neno.tres
+msgid "Tenta. O Tião também conserta pneu."
+msgstr ""
+
+#: data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
+msgid "Ô, central. Me liga com o Bilhar do Tonho?"
+msgstr ""
+
+#: data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
+msgid "Esqueci meu chapéu lá e minha mãe vai brigar comigo."
+msgstr ""
+
+#: data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
+msgid "O bilhar do Tonho, na Rua do Comércio."
+msgstr ""
+
+#: data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
+msgid "Bilhar do Tonho"
+msgstr ""
+
+#: data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
+msgid "Valeu! O senhor é dos bons."
+msgstr ""
+
+#: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
+msgid "Dona Zefa"
+msgstr ""
+
+#: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
+msgid "Boa noite. A farmácia Santa Rita, por favor."
+msgstr ""
+
+#: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
+msgid "Meu marido está com uma dor de dente que não deixa ninguém dormir."
+msgstr ""
+
+#: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
+msgid "A Santa Rita, na Rua do Mercado."
+msgstr ""
+
+#: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
+msgid "Ai, obrigada. Agora a casa dorme."
+msgstr ""
+
+#: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
+msgid "A Santa Rita não atende. Quer que eu tente a Farmácia Central, da praça?"
+msgstr ""
+
+#: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
+msgid "Qualquer uma, moço. Contanto que tenha remédio."
+msgstr ""
+
+#: data/calls/transfer_43_noivo_casa_paroquial.tres
+msgid "Noivo"
+msgstr ""
+
+#: data/calls/transfer_43_noivo_casa_paroquial.tres
+msgid "Boa noite. Desculpe ligar tarde."
+msgstr ""
+
+#: data/calls/transfer_43_noivo_casa_paroquial.tres
+msgid "Preciso falar com o padre Anselmo, na Casa Paroquial. É sobre o meu casamento no sábado."
+msgstr ""
+
+#: data/calls/transfer_43_noivo_casa_paroquial.tres
+msgid "A Casa Paroquial. O padre Anselmo."
+msgstr ""
+
+#: data/calls/transfer_43_noivo_casa_paroquial.tres
+msgid "Obrigado. Reza por mim, que eu tô nervoso."
+msgstr ""
+
+#: data/calls/transfer_43_noivo_casa_paroquial.tres
+msgid "A Casa Paroquial não atende. Quer que eu tente a secretaria da Igreja Matriz?"
+msgstr ""
+
+#: data/calls/transfer_43_noivo_casa_paroquial.tres
+msgid "Pode ser. Alguém lá deve dar o recado."
+msgstr ""
+
+#: data/calls/transfer_44_dona_glorinha_padaria_pao_dourado.tres
+msgid "Dona Glorinha"
+msgstr ""
+
+#: data/calls/transfer_44_dona_glorinha_padaria_pao_dourado.tres
+msgid "Boa noite. Me liga com a Padaria Pão Dourado?"
+msgstr ""
+
+#: data/calls/transfer_44_dona_glorinha_padaria_pao_dourado.tres
+msgid "Quero encomendar o bolo do aniversário da minha neta."
+msgstr ""
+
+#: data/calls/transfer_44_dona_glorinha_padaria_pao_dourado.tres
+msgid "A padaria Pão Dourado, na Rua das Acácias."
+msgstr ""
+
+#: data/calls/transfer_44_dona_glorinha_padaria_pao_dourado.tres
+msgid "Obrigada, querido. Vou pedir um de coco."
+msgstr ""
+
+#: data/calls/transfer_45_reporter_gazeta.tres
+msgid "Correspondente"
+msgstr ""
+
+#: data/calls/transfer_45_reporter_gazeta.tres
+msgid "Central, aqui é o correspondente da Gazeta na estrada."
+msgstr ""
+
+#: data/calls/transfer_45_reporter_gazeta.tres
+msgid "Me liga com a redação, rápido. O jornal fecha daqui a pouco."
+msgstr ""
+
+#: data/calls/transfer_45_reporter_gazeta.tres
+msgid "A Gazeta de São Sotero. A redação."
+msgstr ""
+
+#: data/calls/transfer_45_reporter_gazeta.tres
+msgid "Gazeta de São Sotero"
+msgstr ""
+
+#: data/calls/transfer_45_reporter_gazeta.tres
+msgid "Obrigado. Amanhã o senhor lê no jornal."
+msgstr ""
+
+#: data/calls/transfer_46_afilhado_geraldo_martins.tres
+msgid "Afilhado"
+msgstr ""
+
+#: data/calls/transfer_46_afilhado_geraldo_martins.tres
+msgid "Boa noite. Queria falar com o meu padrinho, o seu Geraldo."
+msgstr ""
+
+#: data/calls/transfer_46_afilhado_geraldo_martins.tres
+msgid "Geraldo Martins. Ele mora na Rua da Matriz."
+msgstr ""
+
+#: data/calls/transfer_46_afilhado_geraldo_martins.tres
+msgid "Geraldo Martins, da Rua da Matriz."
+msgstr ""
+
+#: data/calls/transfer_46_afilhado_geraldo_martins.tres
+msgid "Geraldo Martins"
+msgstr ""
+
+#: data/calls/transfer_46_afilhado_geraldo_martins.tres
+msgid "Obrigado, moço. Ele vai gostar da notícia."
+msgstr ""
+
+#: data/calls/transfer_47_veterinario_sitio_boa_esperanca.tres
+msgid "Veterinário"
+msgstr ""
+
+#: data/calls/transfer_47_veterinario_sitio_boa_esperanca.tres
+msgid "Central, boa noite. Me liga com o Sítio Boa Esperança?"
+msgstr ""
+
+#: data/calls/transfer_47_veterinario_sitio_boa_esperanca.tres
+msgid "Me chamaram por causa de uma vaca pra parir. Quero saber se ainda precisa."
+msgstr ""
+
+#: data/calls/transfer_47_veterinario_sitio_boa_esperanca.tres
+msgid "O Sítio Boa Esperança, lá no Cruzeiro."
+msgstr ""
+
+#: data/calls/transfer_47_veterinario_sitio_boa_esperanca.tres
+msgid "Sítio Boa Esperança"
+msgstr ""
+
+#: data/calls/transfer_47_veterinario_sitio_boa_esperanca.tres
+msgid "Obrigado. Vou ligando a caminhonete."
+msgstr ""
+
+#: data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
+msgid "Dona Mirtes"
+msgstr ""
+
+#: data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
+msgid "Boa noite. A Dona Laudelina, por favor."
+msgstr ""
+
+#: data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
+msgid "Laudelina Prado. Ela me emprestou a forma de pudim e eu quero devolver amanhã cedo."
+msgstr ""
+
+#: data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
+msgid "Laudelina Prado. Da Bela Vista."
+msgstr ""
+
+#: data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
+msgid "Laudelina Prado"
+msgstr ""
+
+#: data/calls/transfer_49_menino_mercearia_silva.tres data/calls/prank_05_menino.tres data/calls/prank_09_menino.tres
+msgid "Menino"
+msgstr ""
+
+#: data/calls/transfer_49_menino_mercearia_silva.tres
+msgid "Alô? Moço, minha mãe mandou ligar pra Mercearia Silva."
+msgstr ""
+
+#: data/calls/transfer_49_menino_mercearia_silva.tres
+msgid "É pra ver se ainda tem leite. Ela tá aqui do lado."
+msgstr ""
+
+#: data/calls/transfer_49_menino_mercearia_silva.tres
+msgid "A mercearia do seu Silva!"
+msgstr ""
+
+#: data/calls/transfer_49_menino_mercearia_silva.tres
+msgid "Brigado, moço!"
+msgstr ""
+
+#: data/calls/transfer_49_menino_mercearia_silva.tres
+msgid "A mercearia não atende. Quer que eu tente o Armazém Ferreira?"
+msgstr ""
+
+#: data/calls/transfer_49_menino_mercearia_silva.tres
+msgid "(cochichando) Mãe, pode ser o Ferreira? ... Ela disse que pode!"
+msgstr ""
+
+#: data/calls/transfer_50_senhora_otavio_almeida.tres
+msgid "Boa noite. O Almeida, por favor."
+msgstr ""
+
+#: data/calls/transfer_50_senhora_otavio_almeida.tres
+msgid "Não o doutor, não. O Otávio, da Rua da Estação."
+msgstr ""
+
+#: data/calls/transfer_50_senhora_otavio_almeida.tres
+msgid "Otávio Almeida. O da Estação."
+msgstr ""
+
+#: data/calls/transfer_50_senhora_otavio_almeida.tres
+msgid "Esse mesmo. Obrigada."
+msgstr ""
+
 #: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
 msgid "Mulher"
 msgstr ""
@@ -2242,7 +2562,7 @@ msgstr ""
 msgid "Qual é o endereço?"
 msgstr ""
 
-#: data/calls/emergency_03_mal_subito_rua_do_sol_230.tres data/calls/emergency_14_mal_subito_rua_do_sol_530.tres data/templates/emergency_mal_subito.tres
+#: data/calls/emergency_03_mal_subito_rua_do_sol_230.tres data/calls/emergency_14_mal_subito_rua_do_sol_530.tres data/calls/emergency_20_acidente_avenida_brasil_420.tres
 msgid "Ele está respirando?"
 msgstr ""
 
@@ -2314,7 +2634,7 @@ msgstr ""
 msgid "O que você está vendo?"
 msgstr ""
 
-#: data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres
+#: data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres data/calls/emergency_25_invasao_rua_bela_vista_230.tres
 msgid "Quantas pessoas?"
 msgstr ""
 
@@ -2378,7 +2698,7 @@ msgstr ""
 msgid "Central! Tão brigando aqui no Bar do Zé! Um puxou uma faca!"
 msgstr ""
 
-#: data/calls/emergency_05_outro_rua_da_estacao_140.tres
+#: data/calls/emergency_05_outro_rua_da_estacao_140.tres data/calls/emergency_18_invasao_rua_do_mercado_90.tres data/calls/emergency_20_acidente_avenida_brasil_420.tres
 msgid "Alguém está ferido?"
 msgstr ""
 
@@ -2622,7 +2942,7 @@ msgstr ""
 msgid "Começou a sair fumaça do capô do carro!"
 msgstr ""
 
-#: data/calls/emergency_08_acidente_avenida_brasil_60.tres
+#: data/calls/emergency_08_acidente_avenida_brasil_60.tres data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
 msgid "Tem alguém perto do carro?"
 msgstr ""
 
@@ -2646,7 +2966,7 @@ msgstr ""
 msgid "Central, minha mãe tá passando mal! A boca tá torta e ela não fala direito!"
 msgstr ""
 
-#: data/calls/emergency_09_mal_subito_rua_do_comercio_150.tres
+#: data/calls/emergency_09_mal_subito_rua_do_comercio_150.tres data/calls/emergency_25_invasao_rua_bela_vista_230.tres
 msgid "Ela está consciente?"
 msgstr ""
 
@@ -2686,7 +3006,7 @@ msgstr ""
 msgid "Ela desmaiou! Não acorda!"
 msgstr ""
 
-#: data/calls/emergency_09_mal_subito_rua_do_comercio_150.tres
+#: data/calls/emergency_09_mal_subito_rua_do_comercio_150.tres data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
 msgid "Ela está respirando?"
 msgstr ""
 
@@ -2710,7 +3030,7 @@ msgstr ""
 msgid "O senhor está em segurança?"
 msgstr ""
 
-#: data/calls/emergency_10_invasao_rua_do_moinho_260.tres
+#: data/calls/emergency_10_invasao_rua_do_moinho_260.tres data/calls/emergency_18_invasao_rua_do_mercado_90.tres data/calls/emergency_29_invasao_rua_do_comercio_420.tres
 msgid "A pessoa está armada?"
 msgstr ""
 
@@ -2830,7 +3150,7 @@ msgstr ""
 msgid "Alguém está armado?"
 msgstr ""
 
-#: data/calls/emergency_12_outro_rua_das_acacias_330.tres data/templates/emergency_incendio.tres data/templates/emergency_briga.tres
+#: data/calls/emergency_12_outro_rua_das_acacias_330.tres data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
 msgid "Alguém se machucou?"
 msgstr ""
 
@@ -3106,6 +3426,878 @@ msgstr ""
 msgid "(chorando) Ele quebrou a janela e me acertou o braço... tá sangrando."
 msgstr ""
 
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "Tipógrafo"
+msgstr ""
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "Central! A oficina da gráfica tá pegando fogo! O papel todo tá queimando!"
+msgstr ""
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres data/templates/emergency_gas.tres
+msgid "Tem alguém dentro?"
+msgstr ""
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "Rua Sete de Setembro, 60! Atrás da Gazeta!"
+msgstr ""
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "Não, a gente saiu tudo pela frente."
+msgstr ""
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "Não, graças a Deus. Só a fumaça."
+msgstr ""
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "O seu Amaro queimou o braço tirando as chapas da máquina!"
+msgstr ""
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "Tá bom. A gente vai molhar a parede do vizinho enquanto isso."
+msgstr ""
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "A fumaça tá entrando no sobrado do lado! Mora gente lá em cima!"
+msgstr ""
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "Quem mora no sobrado?"
+msgstr ""
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "Um casal de velhinhos. Eles já desceram pra calçada."
+msgstr ""
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "A velhinha desmaiou na calçada! Respirou muita fumaça!"
+msgstr ""
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "Tá, mas tossindo muito e chiando no peito."
+msgstr ""
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "O teto da gráfica caiu... e o fogo pegou o sobrado. Ninguém veio!"
+msgstr ""
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "A velhinha não acorda, e o marido dela tá com o rosto queimado!"
+msgstr ""
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Farmacêutico"
+msgstr ""
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Central, acabaram de assaltar a farmácia! O homem levou o dinheiro do caixa!"
+msgstr ""
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Rua do Mercado, 90. A Farmácia Santa Rita."
+msgstr ""
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Tava! Com um revólver! Saiu correndo pra praça."
+msgstr ""
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Não, ninguém. Só o susto."
+msgstr ""
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "O balconista levou uma coronhada na cabeça! Tá sangrando!"
+msgstr ""
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Tá bom. Eu vou fechar a porta e esperar aqui dentro."
+msgstr ""
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Ele voltou! Tá rondando a praça, olhando pra cá!"
+msgstr ""
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Ele está sozinho?"
+msgstr ""
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Acho que tem outro esperando numa bicicleta."
+msgstr ""
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Ele deu um tiro pro alto! O povo tá correndo!"
+msgstr ""
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Alguém foi atingido?"
+msgstr ""
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Acho que não... mas uma senhora caiu correndo."
+msgstr ""
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Eles fugiram... sumiram pela estrada. Ninguém apareceu."
+msgstr ""
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "A senhora que caiu quebrou o braço. Tá aqui no banco, chorando de dor."
+msgstr ""
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Zeladora da igreja"
+msgstr ""
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Central, uma senhora passou mal na saída da missa! Caiu no chão!"
+msgstr ""
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Ela consegue falar?"
+msgstr ""
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Rua da Matriz, 30. Na escadaria do lado da igreja."
+msgstr ""
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Tá, mas tá branca que nem papel."
+msgstr ""
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Tá tentando, mas a boca tá torta e a fala sai enrolada."
+msgstr ""
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Graças a Deus. O padre tá aqui segurando a mão dela."
+msgstr ""
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Ela não mexe mais o braço direito!"
+msgstr ""
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Ela está acordada?"
+msgstr ""
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Tá de olho aberto, mas não responde quando a gente chama."
+msgstr ""
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Ela tá vomitando! A gente virou ela de lado!"
+msgstr ""
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Ela bateu a cabeça quando caiu?"
+msgstr ""
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Bateu no degrau. Tem um galo, mas não sangra."
+msgstr ""
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Ela fechou os olhos... o padre já tá rezando por ela."
+msgstr ""
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Ela ainda respira, mas bem fraquinho. Não acorda mais."
+msgstr ""
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "Cobrador"
+msgstr ""
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "Central, o ônibus da linha bateu num poste aqui na avenida! O fio caiu na rua!"
+msgstr ""
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "O fio está soltando faísca?"
+msgstr ""
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "Avenida Brasil, 420! Perto da delegacia!"
+msgstr ""
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "Não, todo mundo desceu andando. Só o susto."
+msgstr ""
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "Tá! E tá atravessado na rua, ninguém passa!"
+msgstr ""
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "Uma passageira bateu a testa no banco da frente! Tá sangrando!"
+msgstr ""
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "Tá bom. Eu seguro o povo longe do fio."
+msgstr ""
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "O fio encostou no ônibus! Tem gente ainda pegando as malas lá dentro!"
+msgstr ""
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "Quantas pessoas ainda estão no ônibus?"
+msgstr ""
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "Duas. Eu gritei pra elas não encostarem em nada."
+msgstr ""
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "O motorista desceu pela porta e levou um choque! Tá caído na calçada!"
+msgstr ""
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "Tá, mas não acorda. A mão dele tá queimada."
+msgstr ""
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "O ônibus pegou fogo... A gente tirou o pessoal como deu. Por que demoraram?"
+msgstr ""
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "O motorista ainda não acordou, e um rapaz queimou as mãos ajudando."
+msgstr ""
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Vizinha do prédio"
+msgstr ""
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Central, tá um cheiro forte de gás no corredor do prédio! Vem do apartamento da Dona Ilda!"
+msgstr ""
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Ela atende a porta?"
+msgstr ""
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Alguém acendeu alguma luz ou fósforo?"
+msgstr ""
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Rua das Flores, 350! O prédio de três andares!"
+msgstr ""
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Não! A gente bate e nada! Ela deve ter passado mal com o gás!"
+msgstr ""
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Não, ninguém. Abri as janelas do corredor."
+msgstr ""
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Atendeu agora, toda tonta. Disse que o fogão apagou e ela dormiu. Tá bem, só zonza."
+msgstr ""
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Tá. Vou tirar todo mundo do prédio."
+msgstr ""
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "O cheiro tá chegando no andar de baixo! Tem criança lá!"
+msgstr ""
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "As crianças já saíram?"
+msgstr ""
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Já! A mãe levou elas pra calçada."
+msgstr ""
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "O vizinho de baixo tá com dor de cabeça e vomitando!"
+msgstr ""
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Ele consegue andar?"
+msgstr ""
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Consegue, apoiado. Tá sentado no meio-fio."
+msgstr ""
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Teve um estouro no apartamento dela! Quebrou as janelas todas!"
+msgstr ""
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "A Dona Ilda ainda tá lá dentro, e o vizinho levou um corte de vidro no rosto!"
+msgstr ""
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Central, o vizinho tá aqui no meu portão com uma foice, ameaçando por causa do muro!"
+msgstr ""
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Ele está bêbado?"
+msgstr ""
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Rua Tiradentes, 250! A casa de muro amarelo!"
+msgstr ""
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Ainda não. Eu tranquei o portão."
+msgstr ""
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Tá. Tá gritando que o muro é dele."
+msgstr ""
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Meu filho foi segurar ele e levou um talho no braço!"
+msgstr ""
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Tá. Vou ficar aqui dentro com a porta trancada."
+msgstr ""
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Ele tá derrubando o muro com a foice! A rua tá cheia de gente olhando!"
+msgstr ""
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Tem mais alguém com ele?"
+msgstr ""
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "O irmão dele chegou agora, com um pedaço de pau."
+msgstr ""
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Os dois pularam o muro! Tão batendo no meu genro!"
+msgstr ""
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Onde ele está ferido?"
+msgstr ""
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Na cabeça! Tá caído no quintal, sangrando!"
+msgstr ""
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Eles foram embora... deixaram meu genro no chão. Ninguém veio ajudar."
+msgstr ""
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Meu genro não acorda, e minha filha machucou a mão tentando separar."
+msgstr ""
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Ajudante de padeiro"
+msgstr ""
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Central, o padeiro caiu do lado do forno! Tá passando muito mal!"
+msgstr ""
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Ele reclamou de alguma dor?"
+msgstr ""
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Rua das Acácias, 450! A Padaria Pão Dourado, pelos fundos!"
+msgstr ""
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Tá, mas tá suando frio."
+msgstr ""
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Disse que o peito tava apertando e o braço formigando."
+msgstr ""
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Disse que o peito apertava... e quando caiu derrubou a lenha, tá pegando fogo nos sacos de farinha!"
+msgstr ""
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Tá bom. Vou abrir a porta da frente pra eles."
+msgstr ""
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Ele tá ficando roxo! Tá com falta de ar!"
+msgstr ""
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Ele toma algum remédio?"
+msgstr ""
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Toma um do coração, mas esqueceu em casa."
+msgstr ""
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Ele parou de responder! Tô sacudindo ele e nada!"
+msgstr ""
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Ele ainda respira?"
+msgstr ""
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Bem pouquinho... de vez em quando."
+msgstr ""
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Ele não respira mais... a gente tá tentando, mas demorou demais."
+msgstr ""
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "O padeiro tá desacordado, e o outro ajudante tá apertando o peito dele."
+msgstr ""
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres data/content.tres
+msgid "Moradora"
+msgstr ""
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "Central, um carro desceu a ladeira sem freio e entrou no muro da minha casa!"
+msgstr ""
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "O carro está no meio da rua?"
+msgstr ""
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "Rua das Palmeiras, 140! No fim da ladeira!"
+msgstr ""
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "O motorista tá com a cabeça sangrando no volante!"
+msgstr ""
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "Tá! Metade na rua, metade no muro. Ninguém passa."
+msgstr ""
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "Não, o motorista saiu andando. Só o muro que foi."
+msgstr ""
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "O motorista tá preso, a porta amassou toda! E tá sangrando!"
+msgstr ""
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "Tá. Vou pôr uma lanterna na ladeira pra ninguém bater."
+msgstr ""
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "Tá saindo fumaça do motor! Tá pingando gasolina!"
+msgstr ""
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "O fogo já começou?"
+msgstr ""
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "Ainda não, só a fumaça e o cheiro."
+msgstr ""
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "Pegou fogo embaixo do carro!"
+msgstr ""
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "Meu marido tá tentando apagar com terra e queimou a mão!"
+msgstr ""
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "O carro tá todo em chamas... e o muro desabou. Por que não vieram?"
+msgstr ""
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "Tiramos o motorista, mas ele tá desmaiado, e meu marido tá com a mão em carne viva!"
+msgstr ""
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Seu Joaquim"
+msgstr ""
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "(baixinho) Central, tem gente arrombando o depósito do armazém. Tô ouvindo daqui de cima."
+msgstr ""
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Tem mais alguém na casa?"
+msgstr ""
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Rua Bela Vista, 230. O Armazém Ferreira. Eu moro em cima."
+msgstr ""
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Uns dois ou três. Tão carregando os sacos de arroz numa carroça."
+msgstr ""
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Minha mulher. Tá aqui comigo, quietinha."
+msgstr ""
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Meu filho desceu pra ver e não voltou... ouvi um grito dele!"
+msgstr ""
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Tá bom. Não vou descer, prometo."
+msgstr ""
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Eles tão subindo a escada! Ouço os passos!"
+msgstr ""
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "A porta do quarto tem tranca?"
+msgstr ""
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Tem. Pus a cômoda na frente também."
+msgstr ""
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Tão chutando a porta! Minha mulher passou mal de nervoso!"
+msgstr ""
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Tá, mas com a mão no peito, sem ar."
+msgstr ""
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Eles levaram tudo e foram embora... a gente ficou sozinho aqui."
+msgstr ""
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Minha mulher tá deitada, com dor no peito, e eu cortei a mão na porta."
+msgstr ""
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "Caseiro"
+msgstr ""
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "Central! O paiol do sítio tá pegando fogo! O vento tá levando pro pasto!"
+msgstr ""
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "Rua do Cruzeiro, 260! O Sítio Boa Esperança, no fim da rua!"
+msgstr ""
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "Não, só o milho e as ferramentas."
+msgstr ""
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "Não. Tô jogando água com o balde."
+msgstr ""
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "O patrão tentou tirar o cavalo e se queimou todo nos braços!"
+msgstr ""
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "Tá. Vou soltar os bichos do curral."
+msgstr ""
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "O fogo pegou no pasto e tá indo pra casa!"
+msgstr ""
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "Tem gente na casa?"
+msgstr ""
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "A patroa e as duas meninas. Já mandei sair."
+msgstr ""
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "A menina menor voltou pra buscar o cachorro e não saiu!"
+msgstr ""
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Onde ela está?"
+msgstr ""
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "No quarto dos fundos! A fumaça tá saindo pela janela!"
+msgstr ""
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "A casa queimou... a gente perdeu tudo. Ninguém subiu a serra."
+msgstr ""
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "Eu tirei a menina pela janela, mas ela tá tossindo sem parar e com o braço queimado."
+msgstr ""
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "Mãe"
+msgstr ""
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "Central, meu filho caiu no córrego atrás de casa! A correnteza tá levando ele!"
+msgstr ""
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "Ele está segurando em alguma coisa?"
+msgstr ""
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "Quantos anos ele tem?"
+msgstr ""
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "Rua do Moinho, 410! Atrás do moinho velho!"
+msgstr ""
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "Num galho! Tá preso no galho, a água batendo no peito!"
+msgstr ""
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "Nove! Ele não sabe nadar direito!"
+msgstr ""
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "O vizinho pulou e tirou ele! Mas ele engoliu muita água, tá tossindo e roxo!"
+msgstr ""
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "Rápido, pelo amor de Deus! Eu fico gritando com ele pra ele não soltar!"
+msgstr ""
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "A água tá subindo! Choveu lá em cima da serra!"
+msgstr ""
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "Tem alguém na margem com ele?"
+msgstr ""
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "O pai dele tá estendendo uma corda, mas não alcança."
+msgstr ""
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "O pai pulou atrás dele! Agora os dois tão na água!"
+msgstr ""
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "Eles conseguem chegar na margem?"
+msgstr ""
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "O pai pegou o menino, mas a correnteza tá forte demais!"
+msgstr ""
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "A correnteza levou os dois lá pra baixo... a gente tá correndo pela margem. Cadê vocês?"
+msgstr ""
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "Os vizinhos tiraram os dois na curva do rio. O menino não acorda, e o pai bateu a cabeça."
+msgstr ""
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "Central, o vento derrubou um fio de luz aqui na rua! Tá soltando faísca no chão!"
+msgstr ""
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "O fio está bloqueando a rua?"
+msgstr ""
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "Rua da Estação, 450! Na frente da antiga estação de trem!"
+msgstr ""
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "Tá! Atravessado de um lado a outro. Os carros tão parando."
+msgstr ""
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "Não, graças a Deus."
+msgstr ""
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "Um rapaz de bicicleta passou por cima e levou um choque! Tá caído!"
+msgstr ""
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "Tá. Vou ficar aqui avisando quem passar."
+msgstr ""
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "A faísca pegou no capim do terreno do lado! Tá começando um fogo!"
+msgstr ""
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "O fogo está perto das casas?"
+msgstr ""
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "Ainda não, mas tá indo pro lado da cerca da Dona Nena."
+msgstr ""
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "Um cachorro encostou no fio e o dono foi puxar! Os dois tão caídos!"
+msgstr ""
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "O homem está respirando?"
+msgstr ""
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "Acho que sim... mas tá todo duro, não mexe."
+msgstr ""
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "O fogo pegou a cerca e o quintal da Dona Nena... Ninguém apareceu!"
+msgstr ""
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "O homem do cachorro não acorda, e a Dona Nena tá passando mal com a fumaça."
+msgstr ""
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Dona Sônia"
+msgstr ""
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Central, tem um homem no meu quintal mexendo no galinheiro! Agora, nesse minuto!"
+msgstr ""
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Você conhece a pessoa?"
+msgstr ""
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Rua do Comércio, 420! A casa da Sônia Vieira!"
+msgstr ""
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Não! Nunca vi. Tá de chapéu, enfiando as galinhas num saco."
+msgstr ""
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Tá com um facão na cintura!"
+msgstr ""
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Tá com um facão! E meu marido foi atrás dele e caiu do barranco, tá gemendo!"
+msgstr ""
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Tá bom. Vou apagar a luz e ficar quieta."
+msgstr ""
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Ele me viu na janela! Tá vindo pra porta da cozinha!"
+msgstr ""
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "A porta está trancada?"
+msgstr ""
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Tá, mas é de madeira fina. Tô segurando com a vassoura."
+msgstr ""
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Ele quebrou o vidro da porta! Cortou a mão e tá sangrando, mas não para!"
+msgstr ""
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Ele entrou na casa?"
+msgstr ""
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Ainda não! Tô trancada no quarto com o telefone!"
+msgstr ""
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Ele levou as galinhas e o rádio da sala... foi embora. Ninguém veio."
+msgstr ""
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Eu caí no corredor fugindo dele e torci o pé. Tá inchando muito."
+msgstr ""
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Neta"
+msgstr ""
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Central, a minha avó tá passando mal! A fala dela tá esquisita!"
+msgstr ""
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Ela consegue levantar os dois braços?"
+msgstr ""
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Rua Bela Vista, 160! A casa da Dona Laudelina Prado!"
+msgstr ""
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Sentada na cozinha. Eu tô do lado dela."
+msgstr ""
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Só o esquerdo. O direito cai sozinho."
+msgstr ""
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Ela se trancou no banheiro e caiu lá dentro! A porta não abre!"
+msgstr ""
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Tá. Vou ficar segurando a mão dela."
+msgstr ""
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Agora ela não fala mais nada! Só olha pra mim!"
+msgstr ""
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Ela está respirando bem?"
+msgstr ""
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Tá, mas fazendo um barulho no peito."
+msgstr ""
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Ela caiu da cadeira! Bateu a cabeça na quina da mesa!"
+msgstr ""
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "A cabeça está sangrando?"
+msgstr ""
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Um pouco. Tô apertando com o pano de prato."
+msgstr ""
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Ela não acorda mais... eu chamo, chamo... Vocês demoraram demais."
+msgstr ""
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Ela respira bem fraquinho, e a mão direita tá gelada."
+msgstr ""
+
 #: data/calls/prank_01_crianca.tres
 msgid "Criança"
 msgstr ""
@@ -3130,7 +4322,7 @@ msgstr ""
 msgid "É urgente. Ele comeu meu sanduíche."
 msgstr ""
 
-#: data/calls/prank_01_crianca.tres data/calls/prank_05_menino.tres
+#: data/calls/prank_01_crianca.tres data/calls/prank_05_menino.tres data/calls/prank_15_garoto.tres
 msgid "(risadas abafadas)"
 msgstr ""
 
@@ -3174,7 +4366,7 @@ msgstr ""
 msgid "Fala pra ela, tá? Tchau!"
 msgstr ""
 
-#: data/calls/prank_03_menina.tres data/calls/prank_06_menina.tres
+#: data/calls/prank_03_menina.tres data/calls/prank_06_menina.tres data/calls/prank_12_menina.tres
 msgid "Menina"
 msgstr ""
 
@@ -3220,10 +4412,6 @@ msgstr ""
 
 #: data/calls/prank_04_garoto.tres
 msgid "Então corre atrás dela!"
-msgstr ""
-
-#: data/calls/prank_05_menino.tres data/calls/prank_09_menino.tres
-msgid "Menino"
 msgstr ""
 
 #: data/calls/prank_05_menino.tres
@@ -3354,6 +4542,158 @@ msgstr ""
 msgid "Paula Tejano!"
 msgstr ""
 
+#: data/calls/prank_11_menino.tres
+msgid "Alô? O senhor tem água encanada aí?"
+msgstr ""
+
+#: data/calls/prank_11_menino.tres
+msgid "Tenho, por quê?"
+msgstr ""
+
+#: data/calls/prank_11_menino.tres
+msgid "Então solta ela, que ela é inocente!"
+msgstr ""
+
+#: data/calls/prank_12_menina.tres
+msgid "Moço, quanto é sete vezes oito?"
+msgstr ""
+
+#: data/calls/prank_12_menina.tres
+msgid "Cinquenta e seis."
+msgstr ""
+
+#: data/calls/prank_12_menina.tres
+msgid "Isso não é serviço da central."
+msgstr ""
+
+#: data/calls/prank_12_menina.tres
+msgid "Brigada! A professora disse pra perguntar pra quem sabe!"
+msgstr ""
+
+#: data/calls/prank_12_menina.tres data/calls/prank_20_menina.tres
+msgid "(risadinha)"
+msgstr ""
+
+#: data/calls/prank_13_menino.tres
+msgid "Alô? É do Polo Norte?"
+msgstr ""
+
+#: data/calls/prank_13_menino.tres
+msgid "Não, aqui é a central de São Sotero."
+msgstr ""
+
+#: data/calls/prank_13_menino.tres
+msgid "Ah... então avisa o Papai Noel que eu me comportei, tá?"
+msgstr ""
+
+#: data/calls/prank_13_menino.tres
+msgid "Quase o ano todo!"
+msgstr ""
+
+#: data/calls/prank_14_rapaz.tres
+msgid "Boa noite. Me liga com o seu Armando?"
+msgstr ""
+
+#: data/calls/prank_14_rapaz.tres
+msgid "Armando de quê?"
+msgstr ""
+
+#: data/calls/prank_14_rapaz.tres
+msgid "Armando Barraco!"
+msgstr ""
+
+#: data/calls/prank_14_rapaz.tres
+msgid "(gargalhadas)"
+msgstr ""
+
+#: data/calls/prank_15_garoto.tres
+msgid "Central? Eu tenho um recado muito importante pro senhor."
+msgstr ""
+
+#: data/calls/prank_15_garoto.tres
+msgid "Pois não?"
+msgstr ""
+
+#: data/calls/prank_15_garoto.tres
+msgid "(um arroto enorme)"
+msgstr ""
+
+#: data/calls/prank_16_rapaz.tres
+msgid "Locutor"
+msgstr ""
+
+#: data/calls/prank_16_rapaz.tres
+msgid "Parabéns! O senhor acaba de ganhar o grande prêmio da noite!"
+msgstr ""
+
+#: data/calls/prank_16_rapaz.tres
+msgid "Ganhei o quê?"
+msgstr ""
+
+#: data/calls/prank_16_rapaz.tres
+msgid "Isso é trote, rapaz."
+msgstr ""
+
+#: data/calls/prank_16_rapaz.tres
+msgid "Uma noite inteirinha atendendo telefone!"
+msgstr ""
+
+#: data/calls/prank_17_menino.tres
+msgid "Alô, é do zoológico?"
+msgstr ""
+
+#: data/calls/prank_17_menino.tres
+msgid "Não, aqui é a central telefônica."
+msgstr ""
+
+#: data/calls/prank_17_menino.tres
+msgid "Ué! Então por que é que atendeu um macaco?"
+msgstr ""
+
+#: data/calls/prank_18_garoto.tres
+msgid "(voz grossa) Aqui quem fala é o prefeito. Exijo falar com o operador."
+msgstr ""
+
+#: data/calls/prank_18_garoto.tres
+msgid "É ele mesmo. Pois não, senhor prefeito?"
+msgstr ""
+
+#: data/calls/prank_18_garoto.tres
+msgid "Quantos anos o senhor tem?"
+msgstr ""
+
+#: data/calls/prank_18_garoto.tres
+msgid "(a voz afina) ...Mãe! Ele descobriu!"
+msgstr ""
+
+#: data/calls/prank_19_criancas.tres
+msgid "Crianças"
+msgstr ""
+
+#: data/calls/prank_19_criancas.tres
+msgid "(várias vozes) Parabéns pra você, nesta data querida..."
+msgstr ""
+
+#: data/calls/prank_19_criancas.tres
+msgid "Mas hoje não é meu aniversário."
+msgstr ""
+
+#: data/calls/prank_19_criancas.tres
+msgid "A gente sabe!"
+msgstr ""
+
+#: data/calls/prank_20_menina.tres
+msgid "Alô? Aí é a casa do Zé?"
+msgstr ""
+
+#: data/calls/prank_20_menina.tres
+msgid "Não, aqui é a central."
+msgstr ""
+
+#: data/calls/prank_20_menina.tres
+msgid "Então por que é que atendeu?"
+msgstr ""
+
 #: data/templates/transfer_01.tres
 msgid "Me liga com {place}, por favor? {reason}"
 msgstr ""
@@ -3424,6 +4764,42 @@ msgstr ""
 
 #: data/templates/transfer_07.tres
 msgid "{place}, da {street}."
+msgstr ""
+
+#: data/templates/transfer_08.tres data/content.tres
+msgid "Alô? Central?"
+msgstr ""
+
+#: data/templates/transfer_08.tres
+msgid "Faz favor de me ligar {to_place}. {reason}"
+msgstr ""
+
+#: data/templates/transfer_08.tres
+msgid "{place}, moço."
+msgstr ""
+
+#: data/templates/transfer_09.tres
+msgid "Central? Graças a Deus que atendeu."
+msgstr ""
+
+#: data/templates/transfer_09.tres
+msgid "Pode me ligar com {place}? {reason}"
+msgstr ""
+
+#: data/templates/transfer_09.tres
+msgid "{place}. Por favor, é importante."
+msgstr ""
+
+#: data/templates/transfer_10.tres
+msgid "Boa noite. É da central?"
+msgstr ""
+
+#: data/templates/transfer_10.tres
+msgid "Eu ia pedir o número {of_place}, mas pode ligar direto."
+msgstr ""
+
+#: data/templates/transfer_10.tres
+msgid "{place}, na {street}."
 msgstr ""
 
 #: data/content.tres
@@ -3522,7 +4898,7 @@ msgstr ""
 msgid "Tá. Eu espero aqui na porta."
 msgstr ""
 
-#: data/templates/emergency_mal_subito.tres
+#: data/templates/emergency_mal_subito.tres data/templates/emergency_queda.tres data/templates/emergency_fio_caido.tres
 msgid "Ele está acordado?"
 msgstr ""
 
@@ -3702,6 +5078,290 @@ msgstr ""
 msgid "O rapaz continua no chão, sangrando muito pela cabeça!"
 msgstr ""
 
+#: data/templates/emergency_queda.tres
+msgid "Central, um homem caiu do telhado aqui na {street}!"
+msgstr ""
+
+#: data/templates/emergency_queda.tres
+msgid "Ele mexe as pernas?"
+msgstr ""
+
+#: data/templates/emergency_queda.tres
+msgid "{address}! Ele tava arrumando as telhas!"
+msgstr ""
+
+#: data/templates/emergency_queda.tres
+msgid "Tá, mas gemendo muito."
+msgstr ""
+
+#: data/templates/emergency_queda.tres
+msgid "Mexe, mas o braço tá torto."
+msgstr ""
+
+#: data/templates/emergency_queda.tres
+msgid "Mexe... mas ele caiu em cima do muro e ficou preso entre o muro e a grade!"
+msgstr ""
+
+#: data/templates/emergency_queda.tres
+msgid "Tá. A gente não vai mexer nele."
+msgstr ""
+
+#: data/templates/emergency_queda.tres
+msgid "Ele tá ficando pálido e com frio!"
+msgstr ""
+
+#: data/templates/emergency_queda.tres
+msgid "Ele bateu a cabeça?"
+msgstr ""
+
+#: data/templates/emergency_queda.tres
+msgid "Acho que sim. Tem sangue atrás da orelha."
+msgstr ""
+
+#: data/templates/emergency_queda.tres
+msgid "Ele apagou! Não responde mais!"
+msgstr ""
+
+#: data/templates/emergency_queda.tres
+msgid "Tá, mas bem curtinho."
+msgstr ""
+
+#: data/templates/emergency_queda.tres
+msgid "Ele não acorda mais... e ninguém veio."
+msgstr ""
+
+#: data/templates/emergency_queda.tres
+msgid "Ele respira bem fraco, e a cabeça não para de sangrar."
+msgstr ""
+
+#: data/templates/emergency_fio_caido.tres
+msgid "Central, caiu um fio de luz no meio da {street}! Tá soltando faísca!"
+msgstr ""
+
+#: data/templates/emergency_fio_caido.tres
+msgid "O fio está fechando a rua?"
+msgstr ""
+
+#: data/templates/emergency_fio_caido.tres
+msgid "{address}! Bem na frente de casa!"
+msgstr ""
+
+#: data/templates/emergency_fio_caido.tres
+msgid "Tá, de ponta a ponta. Os carros tão parando."
+msgstr ""
+
+#: data/templates/emergency_fio_caido.tres
+msgid "Não, ainda não."
+msgstr ""
+
+#: data/templates/emergency_fio_caido.tres
+msgid "Um senhor encostou nele sem ver e caiu duro na calçada!"
+msgstr ""
+
+#: data/templates/emergency_fio_caido.tres
+msgid "Tá. Vou segurar o povo longe."
+msgstr ""
+
+#: data/templates/emergency_fio_caido.tres
+msgid "A faísca pegou fogo no mato da calçada!"
+msgstr ""
+
+#: data/templates/emergency_fio_caido.tres
+msgid "O fogo está perto de alguma casa?"
+msgstr ""
+
+#: data/templates/emergency_fio_caido.tres
+msgid "Do muro do vizinho. Ainda dá pra apagar com balde."
+msgstr ""
+
+#: data/templates/emergency_fio_caido.tres
+msgid "Um menino de bicicleta passou por cima do fio! Tá caído!"
+msgstr ""
+
+#: data/templates/emergency_fio_caido.tres
+msgid "Não! E a mão dele tá preta!"
+msgstr ""
+
+#: data/templates/emergency_fio_caido.tres
+msgid "O fogo pegou a casa do vizinho... e ninguém veio."
+msgstr ""
+
+#: data/templates/emergency_fio_caido.tres
+msgid "O menino da bicicleta não acorda, e o vizinho queimou o braço."
+msgstr ""
+
+#: data/templates/emergency_gas.tres
+msgid "Central, tá um cheiro forte de gás na casa do lado, aqui na {street}!"
+msgstr ""
+
+#: data/templates/emergency_gas.tres
+msgid "Alguém está passando mal?"
+msgstr ""
+
+#: data/templates/emergency_gas.tres
+msgid "{address}! A casa de muro azul!"
+msgstr ""
+
+#: data/templates/emergency_gas.tres
+msgid "Acho que não, tá tudo apagado."
+msgstr ""
+
+#: data/templates/emergency_gas.tres
+msgid "Não, só a gente aqui fora com o nariz ardendo."
+msgstr ""
+
+#: data/templates/emergency_gas.tres
+msgid "Tem! A dona da casa tá lá dentro e não atende!"
+msgstr ""
+
+#: data/templates/emergency_gas.tres
+msgid "Tá. Ninguém vai acender nada aqui."
+msgstr ""
+
+#: data/templates/emergency_gas.tres
+msgid "O cheiro tá chegando na rua toda!"
+msgstr ""
+
+#: data/templates/emergency_gas.tres
+msgid "Os vizinhos saíram de casa?"
+msgstr ""
+
+#: data/templates/emergency_gas.tres
+msgid "Quase todos. Tô batendo nas portas."
+msgstr ""
+
+#: data/templates/emergency_gas.tres
+msgid "Uma senhora da casa de trás desmaiou no portão!"
+msgstr ""
+
+#: data/templates/emergency_gas.tres
+msgid "Tá, mas tá roxinha."
+msgstr ""
+
+#: data/templates/emergency_gas.tres
+msgid "Teve um estouro! As janelas voaram longe!"
+msgstr ""
+
+#: data/templates/emergency_gas.tres
+msgid "A senhora não acorda, e um rapaz cortou o rosto no vidro."
+msgstr ""
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Central, um carro atropelou um rapaz aqui na {street} e fugiu!"
+msgstr ""
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Ele está no meio da rua?"
+msgstr ""
+
+#: data/templates/emergency_atropelamento.tres
+msgid "{address}! Na esquina!"
+msgstr ""
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Tá, mas a perna tá toda torta."
+msgstr ""
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Tá! A gente tá desviando os carros com a mão."
+msgstr ""
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Tá bom. A gente fica aqui com ele."
+msgstr ""
+
+#: data/templates/emergency_atropelamento.tres
+msgid "A perna dele tá sangrando muito!"
+msgstr ""
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Dá pra apertar o machucado com um pano?"
+msgstr ""
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Tô apertando com a minha camisa."
+msgstr ""
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Ele tá fechando o olho! Tá gelado!"
+msgstr ""
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Ele ainda responde?"
+msgstr ""
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Só aperta a minha mão."
+msgstr ""
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Ele desmaiou... a gente esperou e ninguém veio."
+msgstr ""
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Ele respira, mas não acorda, e a camisa tá encharcada de sangue."
+msgstr ""
+
+#: data/templates/emergency_desabamento.tres
+msgid "Central, um muro desabou aqui na {street}! Caiu em cima de alguém!"
+msgstr ""
+
+#: data/templates/emergency_desabamento.tres
+msgid "A pessoa está presa?"
+msgstr ""
+
+#: data/templates/emergency_desabamento.tres
+msgid "Ela fala com vocês?"
+msgstr ""
+
+#: data/templates/emergency_desabamento.tres
+msgid "{address}! O muro do terreno da esquina!"
+msgstr ""
+
+#: data/templates/emergency_desabamento.tres
+msgid "Tá! As pernas tão embaixo dos tijolos!"
+msgstr ""
+
+#: data/templates/emergency_desabamento.tres
+msgid "Fala, mas tá chorando de dor."
+msgstr ""
+
+#: data/templates/emergency_desabamento.tres
+msgid "Tá. A gente não vai puxar ela."
+msgstr ""
+
+#: data/templates/emergency_desabamento.tres
+msgid "O resto do muro tá rachando! Pode cair mais!"
+msgstr ""
+
+#: data/templates/emergency_desabamento.tres
+msgid "Tem mais alguém perto do muro?"
+msgstr ""
+
+#: data/templates/emergency_desabamento.tres
+msgid "O marido dela, tirando os tijolos com a mão."
+msgstr ""
+
+#: data/templates/emergency_desabamento.tres
+msgid "Caiu outro pedaço! Pegou o marido dela no ombro!"
+msgstr ""
+
+#: data/templates/emergency_desabamento.tres
+msgid "Ele consegue sair dali?"
+msgstr ""
+
+#: data/templates/emergency_desabamento.tres
+msgid "Saiu, mas o braço tá pendurado."
+msgstr ""
+
+#: data/templates/emergency_desabamento.tres
+msgid "O muro caiu todo... ninguém apareceu."
+msgstr ""
+
+#: data/templates/emergency_desabamento.tres
+msgid "Ela não responde mais, e o marido tá com o ombro quebrado."
+msgstr ""
+
 #: data/content.tres
 msgid "{street}, perto {landmark}"
 msgstr ""
@@ -3735,7 +5395,7 @@ msgid "Central de São Sotero, pois não?"
 msgstr ""
 
 #: data/content.tres
-msgid "Desculpe ligar tão tarde."
+msgid "Desculpe incomodar, o senhor deve estar cheio de ligação."
 msgstr ""
 
 #: data/content.tres
@@ -3815,19 +5475,23 @@ msgid "Ah... tá. Eu espero aqui."
 msgstr ""
 
 #: data/content.tres
-msgid "Faltou luz lá na Rua do Sol ontem, sabia?"
+msgid "O seu Geraldo, da Rua da Matriz, fez cem anos hoje, sabia?"
 msgstr ""
 
 #: data/content.tres
-msgid "Ouvi falar. Ficou muito tempo sem?"
+msgid "Cem anos! Que bênção."
 msgstr ""
 
 #: data/content.tres
-msgid "A noite toda! A gente jantou à luz de vela."
+msgid "Teve bolo na praça e banda. Ele dançou com a bisneta!"
 msgstr ""
 
 #: data/content.tres
-msgid "Sei."
+msgid "Que bom pra ele."
+msgstr ""
+
+#: data/content.tres
+msgid "...É. E lúcido, viu? Melhor que eu."
 msgstr ""
 
 #: data/content.tres
@@ -3891,15 +5555,15 @@ msgid "Ah... tá. Eu vejo amanhã, então."
 msgstr ""
 
 #: data/content.tres
-msgid "Meu relógio adiantou de novo."
+msgid "Meu relógio adiantou de novo. O senhor me diz a hora certa?"
 msgstr ""
 
 #: data/content.tres
-msgid "O meu atrasa."
+msgid "Digo, sim. O relógio da central é o certo da cidade."
 msgstr ""
 
 #: data/content.tres
-msgid "Hehe, então a gente se completa."
+msgid "Então eu acerto o meu pelo seu. Pronto, agora vai."
 msgstr ""
 
 #: data/content.tres
@@ -3907,11 +5571,11 @@ msgid "Leva no relojoeiro."
 msgstr ""
 
 #: data/content.tres
-msgid "Tá, tá. Vou levar."
+msgid "Tá, tá. Vou levar amanhã."
 msgstr ""
 
 #: data/content.tres
-msgid "Desculpa, é que eu não consigo dormir."
+msgid "Desculpa ficar puxando conversa, é que eu não consigo dormir."
 msgstr ""
 
 #: data/content.tres
@@ -4031,23 +5695,23 @@ msgid "Normal pro senhor, né..."
 msgstr ""
 
 #: data/content.tres
-msgid "Minha horta tá dando tomate que é uma beleza."
+msgid "A vizinha tá dando festa de aniversário, a música vai até tarde."
 msgstr ""
 
 #: data/content.tres
-msgid "Qual é o segredo?"
+msgid "Pelo menos é festa, e não briga."
 msgstr ""
 
 #: data/content.tres
-msgid "Esterco e conversa. Planta gosta de prosa."
+msgid "Isso é! E ela ainda me mandou um prato de salgadinho."
 msgstr ""
 
 #: data/content.tres
-msgid "Ah, legal."
+msgid "Paciência."
 msgstr ""
 
 #: data/content.tres
-msgid "...É. Bom, deixa eu esperar aqui."
+msgid "Paciência eu tenho. Sono é que não."
 msgstr ""
 
 #: data/content.tres
@@ -4267,6 +5931,254 @@ msgid "Tô aproveitando, com um cafezinho."
 msgstr ""
 
 #: data/content.tres
+msgid "A novela das oito tá boa demais. O senhor tem acompanhado?"
+msgstr ""
+
+#: data/content.tres
+msgid "Não perco um capítulo."
+msgstr ""
+
+#: data/content.tres
+msgid "Pois é! Aposto que amanhã descobrem quem é o pai da menina."
+msgstr ""
+
+#: data/content.tres
+msgid "Não tenho tempo pra novela."
+msgstr ""
+
+#: data/content.tres
+msgid "Ah, é verdade, o senhor trabalha de noite..."
+msgstr ""
+
+#: data/content.tres
+msgid "O time da cidade ganhou domingo, viu? Três a um."
+msgstr ""
+
+#: data/content.tres
+msgid "Vi no jornal! Que jogão."
+msgstr ""
+
+#: data/content.tres
+msgid "O goleiro pegou um pênalti no fim. O povo invadiu o campo de alegria."
+msgstr ""
+
+#: data/content.tres
+msgid "Não acompanho futebol."
+msgstr ""
+
+#: data/content.tres
+msgid "Ah, então o senhor é dos poucos aqui."
+msgstr ""
+
+#: data/content.tres
+msgid "Minha filha vai casar mês que vem."
+msgstr ""
+
+#: data/content.tres
+msgid "Que notícia boa! Parabéns."
+msgstr ""
+
+#: data/content.tres
+msgid "Obrigada! O vestido tá sendo feito aqui em casa mesmo."
+msgstr ""
+
+#: data/content.tres
+msgid "Parabéns."
+msgstr ""
+
+#: data/content.tres
+msgid "Obrigada... É, tem muita coisa pra arrumar ainda."
+msgstr ""
+
+#: data/content.tres
+msgid "O circo chegou na cidade. O senhor viu o cartaz?"
+msgstr ""
+
+#: data/content.tres
+msgid "Vi! Tem até elefante, é verdade?"
+msgstr ""
+
+#: data/content.tres
+msgid "Tem um só, velhinho, coitado. Mas as crianças tão encantadas."
+msgstr ""
+
+#: data/content.tres
+msgid "Não vi, não."
+msgstr ""
+
+#: data/content.tres
+msgid "É lá no campo perto da estação. Tá uma festa."
+msgstr ""
+
+#: data/content.tres
+msgid "Meu marido tá de plantão no hospital, por isso eu fico acordada até tarde."
+msgstr ""
+
+#: data/content.tres
+msgid "Deve ser puxado pra vocês dois."
+msgstr ""
+
+#: data/content.tres
+msgid "É, mas a gente se acostuma. Ele chega de manhã com o pão."
+msgstr ""
+
+#: data/content.tres
+msgid "Entendo."
+msgstr ""
+
+#: data/content.tres
+msgid "Pois é... a casa fica quieta demais."
+msgstr ""
+
+#: data/content.tres
+msgid "Tô com um bolo de fubá no forno enquanto espero."
+msgstr ""
+
+#: data/content.tres
+msgid "Que delícia. Deu até fome aqui."
+msgstr ""
+
+#: data/content.tres
+msgid "Se desse, eu mandava um pedaço pela linha!"
+msgstr ""
+
+#: data/content.tres
+msgid "Tá quase pronto... o cheiro já tomou a casa toda."
+msgstr ""
+
+#: data/content.tres
+msgid "Chegou carta do meu irmão hoje, depois de dois anos. Tô tão contente que precisava contar pra alguém."
+msgstr ""
+
+#: data/content.tres
+msgid "Que bom! E ele está bem?"
+msgstr ""
+
+#: data/content.tres
+msgid "Tá ótimo! E diz que vem pro Natal."
+msgstr ""
+
+#: data/content.tres
+msgid "Que bom."
+msgstr ""
+
+#: data/content.tres
+msgid "É... ele escreve pouco, mas escreve."
+msgstr ""
+
+#: data/content.tres
+msgid "Acabei de chegar da novena. A igreja tava cheia."
+msgstr ""
+
+#: data/content.tres
+msgid "Que bom. Essa cidade tem muita fé."
+msgstr ""
+
+#: data/content.tres
+msgid "Tem! O padre Anselmo até pediu mais bancos pra prefeitura."
+msgstr ""
+
+#: data/content.tres
+msgid "Tava bonita, mas comprida que só."
+msgstr ""
+
+#: data/content.tres
+msgid "Amanhã cedo eu levo minha mãe no médico, na capital. Nem sei se vou conseguir dormir."
+msgstr ""
+
+#: data/content.tres
+msgid "Vai dar tudo certo."
+msgstr ""
+
+#: data/content.tres
+msgid "Deus queira. É só exame, mas ela tá nervosa, e eu mais ainda."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa viagem."
+msgstr ""
+
+#: data/content.tres
+msgid "Obrigada. A estrada é longa, mas a gente vai."
+msgstr ""
+
+#: data/content.tres
+msgid "A prefeitura prometeu calçar a minha rua de novo."
+msgstr ""
+
+#: data/content.tres
+msgid "Quem sabe dessa vez sai."
+msgstr ""
+
+#: data/content.tres
+msgid "Deus te ouça! Toda eleição é a mesma promessa."
+msgstr ""
+
+#: data/content.tres
+msgid "Promessa é promessa."
+msgstr ""
+
+#: data/content.tres
+msgid "Pois é, e buraco é buraco."
+msgstr ""
+
+#: data/content.tres
+msgid "Tô fazendo crochê enquanto espero. Aprendi com a minha vizinha."
+msgstr ""
+
+#: data/content.tres
+msgid "Que bonito! Já fez alguma peça?"
+msgstr ""
+
+#: data/content.tres
+msgid "Um paninho de bandeja. Torto, mas é meu."
+msgstr ""
+
+#: data/content.tres
+msgid "É um passatempo. A noite fica mais curta."
+msgstr ""
+
+#: data/content.tres
+msgid "O senhor sabe se a farmácia de plantão hoje é a Santa Rita?"
+msgstr ""
+
+#: data/content.tres
+msgid "É a Santa Rita, sim, na Rua do Mercado."
+msgstr ""
+
+#: data/content.tres
+msgid "Ah, bom saber. Vai que alguém precisa de noite."
+msgstr ""
+
+#: data/content.tres
+msgid "Não sei dizer."
+msgstr ""
+
+#: data/content.tres
+msgid "Tudo bem, amanhã eu pergunto lá."
+msgstr ""
+
+#: data/content.tres
+msgid "O Cine Odeon vai passar filme novo no sábado."
+msgstr ""
+
+#: data/content.tres
+msgid "Qual filme?"
+msgstr ""
+
+#: data/content.tres
+msgid "Um de faroeste, com tiroteio e tudo. Já separei o dinheiro."
+msgstr ""
+
+#: data/content.tres
+msgid "Não vou muito ao cinema."
+msgstr ""
+
+#: data/content.tres
+msgid "Pois devia! Trocaram as cadeiras, tá uma beleza."
+msgstr ""
+
+#: data/content.tres
 msgid "Vai indo, moço."
 msgstr ""
 
@@ -4288,10 +6200,6 @@ msgstr ""
 
 #: data/content.tres
 msgid "Ah, aqui tá tudo calmo."
-msgstr ""
-
-#: data/content.tres
-msgid "Alô? Central?"
 msgstr ""
 
 #: data/content.tres
@@ -4424,10 +6332,6 @@ msgstr ""
 
 #: data/content.tres
 msgid "Não é esse número, não."
-msgstr ""
-
-#: data/content.tres
-msgid "Moradora"
 msgstr ""
 
 #: data/content.tres

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_tr"]
+
+[resource]
+script = ExtResource("1_tr")
+group = 1
+voice = "f"
+caller = "Senhora"
+opening = PackedStringArray("Boa noite. O Almeida, por favor.", "Não o doutor, não. O Otávio, da Rua da Estação.")
+repeat = "Otávio Almeida. O da Estação."
+target = "251"
+destination = "Otávio Almeida"
+thanks = "Esse mesmo. Obrigada."

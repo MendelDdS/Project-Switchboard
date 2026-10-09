@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_prank"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_1"]
+script = ExtResource("2_step")
+text = "Alô? O senhor tem água encanada aí?"
+
+[sub_resource type="Resource" id="Step_2"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Tenho, por quê?")
+
+[sub_resource type="Resource" id="Step_3"]
+script = ExtResource("2_step")
+text = "Então solta ela, que ela é inocente!"
+
+[sub_resource type="Resource" id="Step_4"]
+script = ExtResource("2_step")
+text = "(risadas)"
+
+[sub_resource type="Resource" id="Step_5"]
+script = ExtResource("2_step")
+kind = 3
+
+[resource]
+script = ExtResource("1_prank")
+voice = "k"
+caller = "Menino"
+steps = Array[ExtResource("2_step")]([SubResource("Step_1"), SubResource("Step_2"), SubResource("Step_3"), SubResource("Step_4"), SubResource("Step_5")])

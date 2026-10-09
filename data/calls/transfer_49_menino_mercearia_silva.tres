@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_tr"]
+
+[resource]
+script = ExtResource("1_tr")
+voice = "k"
+caller = "Menino"
+opening = PackedStringArray("Alô? Moço, minha mãe mandou ligar pra Mercearia Silva.", "É pra ver se ainda tem leite. Ela tá aqui do lado.")
+repeat = "A mercearia do seu Silva!"
+target = "262"
+destination = "Mercearia Silva"
+thanks = "Brigado, moço!"
+alt_target = "288"
+alt_destination = "Armazém Ferreira"
+alt_ask = "A mercearia não atende. Quer que eu tente o Armazém Ferreira?"
+alt_yes = "(cochichando) Mãe, pode ser o Ferreira? ... Ela disse que pode!"

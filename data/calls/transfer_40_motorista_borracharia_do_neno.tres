@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_tr"]
+
+[resource]
+script = ExtResource("1_tr")
+voice = "m"
+caller = "Motorista de caminhão"
+opening = PackedStringArray("Central, boa noite. Furou o pneu do caminhão aqui na entrada da cidade.", "Me liga com a Borracharia do Neno?")
+repeat = "A borracharia do Neno. Do pneu."
+target = "336"
+destination = "Borracharia do Neno"
+thanks = "Valeu, central. Deus te ajude."
+alt_target = "318"
+alt_destination = "Oficina do Tião"
+alt_ask = "A borracharia não atende. Quer que eu tente a Oficina do Tião?"
+alt_yes = "Tenta. O Tião também conserta pneu."

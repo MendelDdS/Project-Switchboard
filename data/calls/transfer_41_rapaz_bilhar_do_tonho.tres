@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_tr"]
+
+[resource]
+script = ExtResource("1_tr")
+group = 2
+voice = "m"
+caller = "Rapaz"
+opening = PackedStringArray("Ô, central. Me liga com o Bilhar do Tonho?", "Esqueci meu chapéu lá e minha mãe vai brigar comigo.")
+repeat = "O bilhar do Tonho, na Rua do Comércio."
+target = "355"
+destination = "Bilhar do Tonho"
+thanks = "Valeu! O senhor é dos bons."

@@ -783,7 +783,7 @@ msgstr "¡Hasta hubo un acordeonista de la capital!"
 msgid "Imagino."
 msgstr "Me imagino."
 
-#: data/nights/night_02.tres data/content.tres
+#: data/nights/night_02.tres
 msgid "...Pois é."
 msgstr "...Pues sí."
 
@@ -1347,7 +1347,7 @@ msgstr "¿Podría comunicarme con la farmacia? La de turno. Mi nieto tiene fiebr
 msgid "A farmácia de plantão, moço. A que fica aberta de noite."
 msgstr "La farmacia de turno, joven. La que abre de noche."
 
-#: data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres data/calls/transfer_22_seu_anibal_farmacia_central.tres
+#: data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres data/calls/transfer_22_seu_anibal_farmacia_central.tres data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
 msgid "Farmácia Santa Rita"
 msgstr "Farmácia Santa Rita"
 
@@ -1411,7 +1411,7 @@ msgstr "Quiero hablar con la Padaria Pão Dourado. Es para encargar el pan de ma
 msgid "A Pão Dourado. A padaria."
 msgstr "La Pão Dourado. La panadería."
 
-#: data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres
+#: data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres data/calls/transfer_44_dona_glorinha_padaria_pao_dourado.tres
 msgid "Padaria Pão Dourado"
 msgstr "Padaria Pão Dourado"
 
@@ -1451,7 +1451,7 @@ msgstr "Se me paró el camión cerca del molino. Tião, el del taller, atiende d
 msgid "A oficina do Tião. Na Rua do Moinho."
 msgstr "El taller de Tião. En la Rua do Moinho."
 
-#: data/calls/transfer_06_caminhoneiro_oficina_do_tiao.tres
+#: data/calls/transfer_06_caminhoneiro_oficina_do_tiao.tres data/calls/transfer_40_motorista_borracharia_do_neno.tres
 msgid "Oficina do Tião"
 msgstr "Oficina do Tião"
 
@@ -1503,7 +1503,7 @@ msgstr "El Cine Odeon, en la avenida."
 msgid "Cine Odeon"
 msgstr "Cine Odeon"
 
-#: data/calls/transfer_08_dona_cida_cine_odeon.tres
+#: data/calls/transfer_08_dona_cida_cine_odeon.tres data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
 msgid "Obrigada, meu bem."
 msgstr "Gracias, cariño."
 
@@ -1615,7 +1615,7 @@ msgstr "El del almacén. No el otro."
 msgid "Joaquim Ferreira, do armazém."
 msgstr "Joaquim Ferreira, el del almacén."
 
-#: data/calls/transfer_13_sr_ivo_armazem_ferreira.tres data/calls/transfer_32_seu_lauro_armazem_ferreira.tres
+#: data/calls/transfer_13_sr_ivo_armazem_ferreira.tres data/calls/transfer_32_seu_lauro_armazem_ferreira.tres data/calls/transfer_49_menino_mercearia_silva.tres
 msgid "Armazém Ferreira"
 msgstr "Armazém Ferreira"
 
@@ -1623,7 +1623,7 @@ msgstr "Armazém Ferreira"
 msgid "Tá certo, obrigado."
 msgstr "Está bien, gracias."
 
-#: data/calls/transfer_14_senhora_casa_paroquial.tres data/calls/emergency_06_outro_rua_do_comercio_71.tres data/calls/emergency_07_incendio_rua_das_flores_45.tres
+#: data/calls/transfer_14_senhora_casa_paroquial.tres data/calls/transfer_50_senhora_otavio_almeida.tres data/calls/emergency_06_outro_rua_do_comercio_71.tres
 msgid "Senhora"
 msgstr "Señora"
 
@@ -1639,7 +1639,7 @@ msgstr "Es por la misa de séptimo día. Debe estar en su casa."
 msgid "O Padre Anselmo. Na casa dele, não na igreja."
 msgstr "El padre Anselmo. En su casa, no en la iglesia."
 
-#: data/calls/transfer_14_senhora_casa_paroquial.tres data/calls/transfer_23_dona_aurora_igreja_matriz.tres
+#: data/calls/transfer_14_senhora_casa_paroquial.tres data/calls/transfer_23_dona_aurora_igreja_matriz.tres data/calls/transfer_43_noivo_casa_paroquial.tres
 msgid "Casa Paroquial"
 msgstr "Casa Paroquial"
 
@@ -1663,7 +1663,7 @@ msgstr "Otávio, el de la Rua da Estação. No el doctor."
 msgid "Otávio Almeida. Rua da Estação."
 msgstr "Otávio Almeida. Rua da Estação."
 
-#: data/calls/transfer_15_vizinho_otavio_almeida.tres
+#: data/calls/transfer_15_vizinho_otavio_almeida.tres data/calls/transfer_50_senhora_otavio_almeida.tres
 msgid "Otávio Almeida"
 msgstr "Otávio Almeida"
 
@@ -1807,7 +1807,7 @@ msgstr "Buenas noches. ¿Me comunica con la Farmácia Central, la de la plaza?"
 msgid "A Farmácia Central. Na Praça da Matriz."
 msgstr "La Farmácia Central. En la Praça da Matriz."
 
-#: data/calls/transfer_22_seu_anibal_farmacia_central.tres
+#: data/calls/transfer_22_seu_anibal_farmacia_central.tres data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
 msgid "Farmácia Central"
 msgstr "Farmácia Central"
 
@@ -1839,7 +1839,7 @@ msgstr "Es para pedir una bendición... mi hija viaja mañana temprano."
 msgid "A Igreja Matriz."
 msgstr "La Igreja Matriz."
 
-#: data/calls/transfer_23_dona_aurora_igreja_matriz.tres
+#: data/calls/transfer_23_dona_aurora_igreja_matriz.tres data/calls/transfer_43_noivo_casa_paroquial.tres
 msgid "Igreja Matriz"
 msgstr "Igreja Matriz"
 
@@ -1887,7 +1887,7 @@ msgstr "¿La Mercearia Silva todavía atiende? Silva vive en el fondo. Se acabar
 msgid "A Mercearia Silva, na Rua do Cruzeiro."
 msgstr "La Mercearia Silva, en la Rua do Cruzeiro."
 
-#: data/calls/transfer_25_seu_jair_mercearia_silva.tres
+#: data/calls/transfer_25_seu_jair_mercearia_silva.tres data/calls/transfer_49_menino_mercearia_silva.tres
 msgid "Mercearia Silva"
 msgstr "Mercearia Silva"
 
@@ -1903,7 +1903,7 @@ msgstr "Dona Fátima"
 msgid "Minha filha chegou no ônibus das dez e foi pro Hotel Estrela. Quero saber se ela chegou bem."
 msgstr "Mi hija llegó en el autobús de las diez y fue al Hotel Estrela. Quiero saber si llegó bien."
 
-#: data/calls/transfer_26_dona_fatima_hotel_estrela.tres
+#: data/calls/transfer_26_dona_fatima_hotel_estrela.tres data/calls/transfer_39_caixeiro_hotel_estrela.tres
 msgid "O Hotel Estrela, na avenida."
 msgstr "El Hotel Estrela, en la avenida."
 
@@ -2083,6 +2083,326 @@ msgstr "Benedito Souza"
 msgid "Obrigada. Deve estar dormindo, né?"
 msgstr "Gracias. Debe estar dormido, ¿no?"
 
+#: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
+msgid "Dona Benta"
+msgstr "Dona Benta"
+
+#: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
+msgid "Boa noite, moço."
+msgstr "Buenas noches, joven."
+
+#: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
+msgid "Me liga com a Pensão Dona Cota? Meu filho chegou de viagem e ficou lá."
+msgstr "¿Me comunica con la Pensão Dona Cota? Mi hijo volvió de viaje y se quedó allí."
+
+#: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
+msgid "A pensão da Dona Cota, na Rua da Estação."
+msgstr "La pensión de Dona Cota, en la Rua da Estação."
+
+#: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres data/calls/transfer_39_caixeiro_hotel_estrela.tres
+msgid "Pensão Dona Cota"
+msgstr "Pensão Dona Cota"
+
+#: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
+msgid "Obrigada, meu filho. Boa noite."
+msgstr "Gracias, hijo. Buenas noches."
+
+#: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
+msgid "A pensão não atende. Quer que eu tente o Hotel Estrela?"
+msgstr "La pensión no contesta. ¿Quiere que pruebe con el Hotel Estrela?"
+
+#: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
+msgid "Tenta, sim. Vai ver ele foi pra lá."
+msgstr "Pruebe, sí. A lo mejor se fue para allá."
+
+#: data/calls/transfer_39_caixeiro_hotel_estrela.tres
+msgid "Caixeiro-viajante"
+msgstr "Viajante de comercio"
+
+#: data/calls/transfer_39_caixeiro_hotel_estrela.tres
+msgid "Boa noite. Estou na rodoviária e perdi o último ônibus."
+msgstr "Buenas noches. Estoy en la terminal y perdí el último autobús."
+
+#: data/calls/transfer_39_caixeiro_hotel_estrela.tres
+msgid "Me liga com o Hotel Estrela? Preciso de um quarto pra hoje."
+msgstr "¿Me comunica con el Hotel Estrela? Necesito un cuarto para hoy."
+
+#: data/calls/transfer_39_caixeiro_hotel_estrela.tres
+msgid "Muito obrigado. O senhor me salvou a noite."
+msgstr "Muchas gracias. Me salvó la noche."
+
+#: data/calls/transfer_39_caixeiro_hotel_estrela.tres
+msgid "O hotel não atende. Quer que eu tente a Pensão Dona Cota?"
+msgstr "El hotel no contesta. ¿Quiere que pruebe con la Pensão Dona Cota?"
+
+#: data/calls/transfer_39_caixeiro_hotel_estrela.tres
+msgid "Pode ser. Uma cama já está bom."
+msgstr "Puede ser. Con una cama me basta."
+
+#: data/calls/transfer_40_motorista_borracharia_do_neno.tres
+msgid "Motorista de caminhão"
+msgstr "Camionero"
+
+#: data/calls/transfer_40_motorista_borracharia_do_neno.tres
+msgid "Central, boa noite. Furou o pneu do caminhão aqui na entrada da cidade."
+msgstr "Central, buenas noches. Se me pinchó una llanta del camión a la entrada del pueblo."
+
+#: data/calls/transfer_40_motorista_borracharia_do_neno.tres
+msgid "Me liga com a Borracharia do Neno?"
+msgstr "¿Me comunica con la Borracharia do Neno?"
+
+#: data/calls/transfer_40_motorista_borracharia_do_neno.tres
+msgid "A borracharia do Neno. Do pneu."
+msgstr "La gomería de Neno. Por la llanta."
+
+#: data/calls/transfer_40_motorista_borracharia_do_neno.tres
+msgid "Borracharia do Neno"
+msgstr "Borracharia do Neno"
+
+#: data/calls/transfer_40_motorista_borracharia_do_neno.tres
+msgid "Valeu, central. Deus te ajude."
+msgstr "Gracias, central. Que Dios lo ayude."
+
+#: data/calls/transfer_40_motorista_borracharia_do_neno.tres
+msgid "A borracharia não atende. Quer que eu tente a Oficina do Tião?"
+msgstr "La gomería no contesta. ¿Quiere que pruebe con la Oficina do Tião?"
+
+#: data/calls/transfer_40_motorista_borracharia_do_neno.tres
+msgid "Tenta. O Tião também conserta pneu."
+msgstr "Pruebe. Tião también arregla llantas."
+
+#: data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
+msgid "Ô, central. Me liga com o Bilhar do Tonho?"
+msgstr "Oiga, central. ¿Me comunica con el Bilhar do Tonho?"
+
+#: data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
+msgid "Esqueci meu chapéu lá e minha mãe vai brigar comigo."
+msgstr "Me olvidé el sombrero allí y mi mamá me va a regañar."
+
+#: data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
+msgid "O bilhar do Tonho, na Rua do Comércio."
+msgstr "El billar de Tonho, en la Rua do Comércio."
+
+#: data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
+msgid "Bilhar do Tonho"
+msgstr "Bilhar do Tonho"
+
+#: data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
+msgid "Valeu! O senhor é dos bons."
+msgstr "¡Gracias! Usted es de los buenos."
+
+#: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
+msgid "Dona Zefa"
+msgstr "Dona Zefa"
+
+#: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
+msgid "Boa noite. A farmácia Santa Rita, por favor."
+msgstr "Buenas noches. La farmacia Santa Rita, por favor."
+
+#: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
+msgid "Meu marido está com uma dor de dente que não deixa ninguém dormir."
+msgstr "Mi marido tiene un dolor de muelas que no deja dormir a nadie."
+
+#: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
+msgid "A Santa Rita, na Rua do Mercado."
+msgstr "La Santa Rita, en la Rua do Mercado."
+
+#: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
+msgid "Ai, obrigada. Agora a casa dorme."
+msgstr "Ay, gracias. Ahora la casa duerme."
+
+#: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
+msgid "A Santa Rita não atende. Quer que eu tente a Farmácia Central, da praça?"
+msgstr "La Santa Rita no contesta. ¿Quiere que pruebe con la Farmácia Central, la de la plaza?"
+
+#: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
+msgid "Qualquer uma, moço. Contanto que tenha remédio."
+msgstr "Cualquiera, joven. Con tal de que tengan remedio."
+
+#: data/calls/transfer_43_noivo_casa_paroquial.tres
+msgid "Noivo"
+msgstr "Novio"
+
+#: data/calls/transfer_43_noivo_casa_paroquial.tres
+msgid "Boa noite. Desculpe ligar tarde."
+msgstr "Buenas noches. Disculpe que llame tarde."
+
+#: data/calls/transfer_43_noivo_casa_paroquial.tres
+msgid "Preciso falar com o padre Anselmo, na Casa Paroquial. É sobre o meu casamento no sábado."
+msgstr "Necesito hablar con el padre Anselmo, en la Casa Paroquial. Es sobre mi boda del sábado."
+
+#: data/calls/transfer_43_noivo_casa_paroquial.tres
+msgid "A Casa Paroquial. O padre Anselmo."
+msgstr "La Casa Paroquial. El padre Anselmo."
+
+#: data/calls/transfer_43_noivo_casa_paroquial.tres
+msgid "Obrigado. Reza por mim, que eu tô nervoso."
+msgstr "Gracias. Rece por mí, que estoy nervioso."
+
+#: data/calls/transfer_43_noivo_casa_paroquial.tres
+msgid "A Casa Paroquial não atende. Quer que eu tente a secretaria da Igreja Matriz?"
+msgstr "La Casa Paroquial no contesta. ¿Quiere que pruebe con la secretaría de la Igreja Matriz?"
+
+#: data/calls/transfer_43_noivo_casa_paroquial.tres
+msgid "Pode ser. Alguém lá deve dar o recado."
+msgstr "Puede ser. Alguien allí le dará el recado."
+
+#: data/calls/transfer_44_dona_glorinha_padaria_pao_dourado.tres
+msgid "Dona Glorinha"
+msgstr "Dona Glorinha"
+
+#: data/calls/transfer_44_dona_glorinha_padaria_pao_dourado.tres
+msgid "Boa noite. Me liga com a Padaria Pão Dourado?"
+msgstr "Buenas noches. ¿Me comunica con la Padaria Pão Dourado?"
+
+#: data/calls/transfer_44_dona_glorinha_padaria_pao_dourado.tres
+msgid "Quero encomendar o bolo do aniversário da minha neta."
+msgstr "Quiero encargar la torta del cumpleaños de mi nieta."
+
+#: data/calls/transfer_44_dona_glorinha_padaria_pao_dourado.tres
+msgid "A padaria Pão Dourado, na Rua das Acácias."
+msgstr "La panadería Pão Dourado, en la Rua das Acácias."
+
+#: data/calls/transfer_44_dona_glorinha_padaria_pao_dourado.tres
+msgid "Obrigada, querido. Vou pedir um de coco."
+msgstr "Gracias, querido. Voy a pedir una de coco."
+
+#: data/calls/transfer_45_reporter_gazeta.tres
+msgid "Correspondente"
+msgstr "Corresponsal"
+
+#: data/calls/transfer_45_reporter_gazeta.tres
+msgid "Central, aqui é o correspondente da Gazeta na estrada."
+msgstr "Central, habla el corresponsal de la Gazeta en la carretera."
+
+#: data/calls/transfer_45_reporter_gazeta.tres
+msgid "Me liga com a redação, rápido. O jornal fecha daqui a pouco."
+msgstr "Comuníqueme con la redacción, rápido. El diario cierra dentro de poco."
+
+#: data/calls/transfer_45_reporter_gazeta.tres
+msgid "A Gazeta de São Sotero. A redação."
+msgstr "La Gazeta de São Sotero. La redacción."
+
+#: data/calls/transfer_45_reporter_gazeta.tres
+msgid "Gazeta de São Sotero"
+msgstr "Gazeta de São Sotero"
+
+#: data/calls/transfer_45_reporter_gazeta.tres
+msgid "Obrigado. Amanhã o senhor lê no jornal."
+msgstr "Gracias. Mañana lo lee en el diario."
+
+#: data/calls/transfer_46_afilhado_geraldo_martins.tres
+msgid "Afilhado"
+msgstr "Ahijado"
+
+#: data/calls/transfer_46_afilhado_geraldo_martins.tres
+msgid "Boa noite. Queria falar com o meu padrinho, o seu Geraldo."
+msgstr "Buenas noches. Quería hablar con mi padrino, el señor Geraldo."
+
+#: data/calls/transfer_46_afilhado_geraldo_martins.tres
+msgid "Geraldo Martins. Ele mora na Rua da Matriz."
+msgstr "Geraldo Martins. Vive en la Rua da Matriz."
+
+#: data/calls/transfer_46_afilhado_geraldo_martins.tres
+msgid "Geraldo Martins, da Rua da Matriz."
+msgstr "Geraldo Martins, de la Rua da Matriz."
+
+#: data/calls/transfer_46_afilhado_geraldo_martins.tres
+msgid "Geraldo Martins"
+msgstr "Geraldo Martins"
+
+#: data/calls/transfer_46_afilhado_geraldo_martins.tres
+msgid "Obrigado, moço. Ele vai gostar da notícia."
+msgstr "Gracias, joven. Le va a gustar la noticia."
+
+#: data/calls/transfer_47_veterinario_sitio_boa_esperanca.tres
+msgid "Veterinário"
+msgstr "Veterinario"
+
+#: data/calls/transfer_47_veterinario_sitio_boa_esperanca.tres
+msgid "Central, boa noite. Me liga com o Sítio Boa Esperança?"
+msgstr "Central, buenas noches. ¿Me comunica con el Sítio Boa Esperança?"
+
+#: data/calls/transfer_47_veterinario_sitio_boa_esperanca.tres
+msgid "Me chamaram por causa de uma vaca pra parir. Quero saber se ainda precisa."
+msgstr "Me llamaron por una vaca que va a parir. Quiero saber si todavía me necesitan."
+
+#: data/calls/transfer_47_veterinario_sitio_boa_esperanca.tres
+msgid "O Sítio Boa Esperança, lá no Cruzeiro."
+msgstr "El Sítio Boa Esperança, allá en el Cruzeiro."
+
+#: data/calls/transfer_47_veterinario_sitio_boa_esperanca.tres
+msgid "Sítio Boa Esperança"
+msgstr "Sítio Boa Esperança"
+
+#: data/calls/transfer_47_veterinario_sitio_boa_esperanca.tres
+msgid "Obrigado. Vou ligando a caminhonete."
+msgstr "Gracias. Voy arrancando la camioneta."
+
+#: data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
+msgid "Dona Mirtes"
+msgstr "Dona Mirtes"
+
+#: data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
+msgid "Boa noite. A Dona Laudelina, por favor."
+msgstr "Buenas noches. Doña Laudelina, por favor."
+
+#: data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
+msgid "Laudelina Prado. Ela me emprestou a forma de pudim e eu quero devolver amanhã cedo."
+msgstr "Laudelina Prado. Me prestó el molde de flan y quiero devolverlo mañana temprano."
+
+#: data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
+msgid "Laudelina Prado. Da Bela Vista."
+msgstr "Laudelina Prado. De la Bela Vista."
+
+#: data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
+msgid "Laudelina Prado"
+msgstr "Laudelina Prado"
+
+#: data/calls/transfer_49_menino_mercearia_silva.tres data/calls/prank_05_menino.tres data/calls/prank_09_menino.tres
+msgid "Menino"
+msgstr "Niño"
+
+#: data/calls/transfer_49_menino_mercearia_silva.tres
+msgid "Alô? Moço, minha mãe mandou ligar pra Mercearia Silva."
+msgstr "¿Aló? Señor, mi mamá me mandó llamar a la Mercearia Silva."
+
+#: data/calls/transfer_49_menino_mercearia_silva.tres
+msgid "É pra ver se ainda tem leite. Ela tá aqui do lado."
+msgstr "Es para ver si todavía tienen leche. Ella está aquí al lado."
+
+#: data/calls/transfer_49_menino_mercearia_silva.tres
+msgid "A mercearia do seu Silva!"
+msgstr "¡El almacén del señor Silva!"
+
+#: data/calls/transfer_49_menino_mercearia_silva.tres
+msgid "Brigado, moço!"
+msgstr "¡Gracias, señor!"
+
+#: data/calls/transfer_49_menino_mercearia_silva.tres
+msgid "A mercearia não atende. Quer que eu tente o Armazém Ferreira?"
+msgstr "El almacén no contesta. ¿Quiere que pruebe con el Armazém Ferreira?"
+
+#: data/calls/transfer_49_menino_mercearia_silva.tres
+msgid "(cochichando) Mãe, pode ser o Ferreira? ... Ela disse que pode!"
+msgstr "(cuchicheando) Mamá, ¿puede ser el de Ferreira? ... ¡Dice que sí!"
+
+#: data/calls/transfer_50_senhora_otavio_almeida.tres
+msgid "Boa noite. O Almeida, por favor."
+msgstr "Buenas noches. Almeida, por favor."
+
+#: data/calls/transfer_50_senhora_otavio_almeida.tres
+msgid "Não o doutor, não. O Otávio, da Rua da Estação."
+msgstr "No el doctor, no. Otávio, el de la Rua da Estação."
+
+#: data/calls/transfer_50_senhora_otavio_almeida.tres
+msgid "Otávio Almeida. O da Estação."
+msgstr "Otávio Almeida. El de la Estação."
+
+#: data/calls/transfer_50_senhora_otavio_almeida.tres
+msgid "Esse mesmo. Obrigada."
+msgstr "Ese mismo. Gracias."
+
 #: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
 msgid "Mulher"
 msgstr "Mujer"
@@ -2243,7 +2563,7 @@ msgstr "¡Central, mi padre se cayó en el baño y no despierta!"
 msgid "Qual é o endereço?"
 msgstr "¿Cuál es la dirección?"
 
-#: data/calls/emergency_03_mal_subito_rua_do_sol_230.tres data/calls/emergency_14_mal_subito_rua_do_sol_530.tres data/templates/emergency_mal_subito.tres
+#: data/calls/emergency_03_mal_subito_rua_do_sol_230.tres data/calls/emergency_14_mal_subito_rua_do_sol_530.tres data/calls/emergency_20_acidente_avenida_brasil_420.tres
 msgid "Ele está respirando?"
 msgstr "¿Está respirando?"
 
@@ -2315,7 +2635,7 @@ msgstr "Central... hay alguien tratando de forzar la casa del vecino."
 msgid "O que você está vendo?"
 msgstr "¿Qué está viendo?"
 
-#: data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres
+#: data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres data/calls/emergency_25_invasao_rua_bela_vista_230.tres
 msgid "Quantas pessoas?"
 msgstr "¿Cuántas personas?"
 
@@ -2379,7 +2699,7 @@ msgstr "Hombre nervioso"
 msgid "Central! Tão brigando aqui no Bar do Zé! Um puxou uma faca!"
 msgstr "¡Central! ¡Se están peleando aquí en el Bar do Zé! ¡Uno sacó un cuchillo!"
 
-#: data/calls/emergency_05_outro_rua_da_estacao_140.tres
+#: data/calls/emergency_05_outro_rua_da_estacao_140.tres data/calls/emergency_18_invasao_rua_do_mercado_90.tres data/calls/emergency_20_acidente_avenida_brasil_420.tres
 msgid "Alguém está ferido?"
 msgstr "¿Hay alguien herido?"
 
@@ -2623,7 +2943,7 @@ msgstr "¡No, están todos parados mirando!"
 msgid "Começou a sair fumaça do capô do carro!"
 msgstr "¡Empezó a salir humo del capó del auto!"
 
-#: data/calls/emergency_08_acidente_avenida_brasil_60.tres
+#: data/calls/emergency_08_acidente_avenida_brasil_60.tres data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
 msgid "Tem alguém perto do carro?"
 msgstr "¿Hay alguien cerca del auto?"
 
@@ -2647,7 +2967,7 @@ msgstr "Hija"
 msgid "Central, minha mãe tá passando mal! A boca tá torta e ela não fala direito!"
 msgstr "¡Central, mi madre se siente mal! ¡Tiene la boca torcida y no habla bien!"
 
-#: data/calls/emergency_09_mal_subito_rua_do_comercio_150.tres
+#: data/calls/emergency_09_mal_subito_rua_do_comercio_150.tres data/calls/emergency_25_invasao_rua_bela_vista_230.tres
 msgid "Ela está consciente?"
 msgstr "¿Está consciente?"
 
@@ -2687,7 +3007,7 @@ msgstr "Solo el izquierdo. El derecho está caído."
 msgid "Ela desmaiou! Não acorda!"
 msgstr "¡Se desmayó! ¡No se despierta!"
 
-#: data/calls/emergency_09_mal_subito_rua_do_comercio_150.tres
+#: data/calls/emergency_09_mal_subito_rua_do_comercio_150.tres data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
 msgid "Ela está respirando?"
 msgstr "¿Está respirando?"
 
@@ -2711,7 +3031,7 @@ msgstr "(susurrando) Central... hay alguien dentro de mi casa."
 msgid "O senhor está em segurança?"
 msgstr "¿Usted está a salvo?"
 
-#: data/calls/emergency_10_invasao_rua_do_moinho_260.tres
+#: data/calls/emergency_10_invasao_rua_do_moinho_260.tres data/calls/emergency_18_invasao_rua_do_mercado_90.tres data/calls/emergency_29_invasao_rua_do_comercio_420.tres
 msgid "A pessoa está armada?"
 msgstr "¿La persona está armada?"
 
@@ -2831,7 +3151,7 @@ msgstr "¡Central, hay una pelea fea a la salida del baile, en la Rua das Acáci
 msgid "Alguém está armado?"
 msgstr "¿Alguien está armado?"
 
-#: data/calls/emergency_12_outro_rua_das_acacias_330.tres data/templates/emergency_incendio.tres data/templates/emergency_briga.tres
+#: data/calls/emergency_12_outro_rua_das_acacias_330.tres data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
 msgid "Alguém se machucou?"
 msgstr "¿Alguien se lastimó?"
 
@@ -3107,6 +3427,878 @@ msgstr "(en voz baja) Estoy trancando la puerta de la cocina... ¡está golpeand
 msgid "(chorando) Ele quebrou a janela e me acertou o braço... tá sangrando."
 msgstr "(llorando) Rompió la ventana y me pegó en el brazo... está sangrando."
 
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "Tipógrafo"
+msgstr "Tipógrafo"
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "Central! A oficina da gráfica tá pegando fogo! O papel todo tá queimando!"
+msgstr "¡Central! ¡El taller de la imprenta se está quemando! ¡Todo el papel está ardiendo!"
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres data/templates/emergency_gas.tres
+msgid "Tem alguém dentro?"
+msgstr "¿Hay alguien adentro?"
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "Rua Sete de Setembro, 60! Atrás da Gazeta!"
+msgstr "¡Rua Sete de Setembro, 60! ¡Detrás de la Gazeta!"
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "Não, a gente saiu tudo pela frente."
+msgstr "No, salimos todos por adelante."
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "Não, graças a Deus. Só a fumaça."
+msgstr "No, gracias a Dios. Solo el humo."
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "O seu Amaro queimou o braço tirando as chapas da máquina!"
+msgstr "¡El señor Amaro se quemó el brazo sacando las planchas de la máquina!"
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "Tá bom. A gente vai molhar a parede do vizinho enquanto isso."
+msgstr "Bueno. Mientras tanto vamos a mojar la pared del vecino."
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "A fumaça tá entrando no sobrado do lado! Mora gente lá em cima!"
+msgstr "¡El humo está entrando en la casa de al lado! ¡Arriba vive gente!"
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "Quem mora no sobrado?"
+msgstr "¿Quién vive en esa casa?"
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "Um casal de velhinhos. Eles já desceram pra calçada."
+msgstr "Una pareja de viejitos. Ya bajaron a la vereda."
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "A velhinha desmaiou na calçada! Respirou muita fumaça!"
+msgstr "¡La viejita se desmayó en la vereda! ¡Respiró mucho humo!"
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "Tá, mas tossindo muito e chiando no peito."
+msgstr "Sí, pero tose mucho y le silba el pecho."
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "O teto da gráfica caiu... e o fogo pegou o sobrado. Ninguém veio!"
+msgstr "Se cayó el techo de la imprenta... y el fuego agarró la casa. ¡No vino nadie!"
+
+#: data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
+msgid "A velhinha não acorda, e o marido dela tá com o rosto queimado!"
+msgstr "¡La viejita no se despierta y el marido tiene la cara quemada!"
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Farmacêutico"
+msgstr "Farmacéutico"
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Central, acabaram de assaltar a farmácia! O homem levou o dinheiro do caixa!"
+msgstr "¡Central, acaban de asaltar la farmacia! ¡El hombre se llevó la plata de la caja!"
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Rua do Mercado, 90. A Farmácia Santa Rita."
+msgstr "Rua do Mercado, 90. La Farmácia Santa Rita."
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Tava! Com um revólver! Saiu correndo pra praça."
+msgstr "¡Sí! ¡Con un revólver! Salió corriendo para la plaza."
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Não, ninguém. Só o susto."
+msgstr "No, nadie. Solo el susto."
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "O balconista levou uma coronhada na cabeça! Tá sangrando!"
+msgstr "¡Al empleado le pegaron con la culata en la cabeza! ¡Está sangrando!"
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Tá bom. Eu vou fechar a porta e esperar aqui dentro."
+msgstr "Bueno. Voy a cerrar la puerta y esperar aquí adentro."
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Ele voltou! Tá rondando a praça, olhando pra cá!"
+msgstr "¡Volvió! ¡Está dando vueltas por la plaza, mirando para acá!"
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Ele está sozinho?"
+msgstr "¿Está solo?"
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Acho que tem outro esperando numa bicicleta."
+msgstr "Creo que hay otro esperando en una bicicleta."
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Ele deu um tiro pro alto! O povo tá correndo!"
+msgstr "¡Pegó un tiro al aire! ¡La gente está corriendo!"
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Alguém foi atingido?"
+msgstr "¿Le dieron a alguien?"
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Acho que não... mas uma senhora caiu correndo."
+msgstr "Creo que no... pero una señora se cayó corriendo."
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Eles fugiram... sumiram pela estrada. Ninguém apareceu."
+msgstr "Se escaparon... desaparecieron por la carretera. No apareció nadie."
+
+#: data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "A senhora que caiu quebrou o braço. Tá aqui no banco, chorando de dor."
+msgstr "La señora que se cayó se rompió el brazo. Está aquí en el banco, llorando de dolor."
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Zeladora da igreja"
+msgstr "Cuidadora de la iglesia"
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Central, uma senhora passou mal na saída da missa! Caiu no chão!"
+msgstr "¡Central, una señora se descompuso a la salida de misa! ¡Se cayó al suelo!"
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Ela consegue falar?"
+msgstr "¿Puede hablar?"
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Rua da Matriz, 30. Na escadaria do lado da igreja."
+msgstr "Rua da Matriz, 30. En la escalinata al lado de la iglesia."
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Tá, mas tá branca que nem papel."
+msgstr "Sí, pero está blanca como el papel."
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Tá tentando, mas a boca tá torta e a fala sai enrolada."
+msgstr "Lo intenta, pero tiene la boca torcida y habla enredado."
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Graças a Deus. O padre tá aqui segurando a mão dela."
+msgstr "Gracias a Dios. El padre está aquí agarrándole la mano."
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Ela não mexe mais o braço direito!"
+msgstr "¡Ya no mueve el brazo derecho!"
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Ela está acordada?"
+msgstr "¿Está despierta?"
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Tá de olho aberto, mas não responde quando a gente chama."
+msgstr "Tiene los ojos abiertos, pero no responde cuando la llamamos."
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Ela tá vomitando! A gente virou ela de lado!"
+msgstr "¡Está vomitando! ¡La pusimos de costado!"
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Ela bateu a cabeça quando caiu?"
+msgstr "¿Se golpeó la cabeza al caer?"
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Bateu no degrau. Tem um galo, mas não sangra."
+msgstr "En el escalón. Tiene un chichón, pero no sangra."
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Ela fechou os olhos... o padre já tá rezando por ela."
+msgstr "Cerró los ojos... el padre ya está rezando por ella."
+
+#: data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Ela ainda respira, mas bem fraquinho. Não acorda mais."
+msgstr "Todavía respira, pero muy despacito. Ya no se despierta."
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "Cobrador"
+msgstr "Guarda del autobús"
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "Central, o ônibus da linha bateu num poste aqui na avenida! O fio caiu na rua!"
+msgstr "¡Central, el autobús chocó contra un poste aquí en la avenida! ¡El cable cayó a la calle!"
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "O fio está soltando faísca?"
+msgstr "¿El cable está echando chispas?"
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "Avenida Brasil, 420! Perto da delegacia!"
+msgstr "¡Avenida Brasil, 420! ¡Cerca de la comisaría!"
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "Não, todo mundo desceu andando. Só o susto."
+msgstr "No, todos bajaron caminando. Solo el susto."
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "Tá! E tá atravessado na rua, ninguém passa!"
+msgstr "¡Sí! ¡Y está cruzado en la calle, no pasa nadie!"
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "Uma passageira bateu a testa no banco da frente! Tá sangrando!"
+msgstr "¡Una pasajera se golpeó la frente con el asiento de adelante! ¡Está sangrando!"
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "Tá bom. Eu seguro o povo longe do fio."
+msgstr "Bueno. Yo mantengo a la gente lejos del cable."
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "O fio encostou no ônibus! Tem gente ainda pegando as malas lá dentro!"
+msgstr "¡El cable tocó el autobús! ¡Todavía hay gente sacando las valijas adentro!"
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "Quantas pessoas ainda estão no ônibus?"
+msgstr "¿Cuántas personas siguen en el autobús?"
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "Duas. Eu gritei pra elas não encostarem em nada."
+msgstr "Dos. Les grité que no tocaran nada."
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "O motorista desceu pela porta e levou um choque! Tá caído na calçada!"
+msgstr "¡El chofer bajó por la puerta y le dio la corriente! ¡Está tirado en la vereda!"
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "Tá, mas não acorda. A mão dele tá queimada."
+msgstr "Sí, pero no se despierta. Tiene la mano quemada."
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "O ônibus pegou fogo... A gente tirou o pessoal como deu. Por que demoraram?"
+msgstr "El autobús se prendió fuego... Sacamos a la gente como pudimos. ¿Por qué tardaron?"
+
+#: data/calls/emergency_20_acidente_avenida_brasil_420.tres
+msgid "O motorista ainda não acordou, e um rapaz queimou as mãos ajudando."
+msgstr "El chofer todavía no se despertó y un muchacho se quemó las manos ayudando."
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Vizinha do prédio"
+msgstr "Vecina del edificio"
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Central, tá um cheiro forte de gás no corredor do prédio! Vem do apartamento da Dona Ilda!"
+msgstr "¡Central, hay un olor fuerte a gas en el pasillo del edificio! ¡Viene del departamento de doña Ilda!"
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Ela atende a porta?"
+msgstr "¿Ella abre la puerta?"
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Alguém acendeu alguma luz ou fósforo?"
+msgstr "¿Alguien prendió una luz o un fósforo?"
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Rua das Flores, 350! O prédio de três andares!"
+msgstr "¡Rua das Flores, 350! ¡El edificio de tres pisos!"
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Não! A gente bate e nada! Ela deve ter passado mal com o gás!"
+msgstr "¡No! ¡Golpeamos y nada! ¡El gas la debe haber descompuesto!"
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Não, ninguém. Abri as janelas do corredor."
+msgstr "No, nadie. Abrí las ventanas del pasillo."
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Atendeu agora, toda tonta. Disse que o fogão apagou e ela dormiu. Tá bem, só zonza."
+msgstr "Abrió recién, toda mareada. Dice que la hornalla se apagó y se durmió. Está bien, solo mareada."
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Tá. Vou tirar todo mundo do prédio."
+msgstr "Bueno. Voy a sacar a todos del edificio."
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "O cheiro tá chegando no andar de baixo! Tem criança lá!"
+msgstr "¡El olor está llegando al piso de abajo! ¡Hay chicos ahí!"
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "As crianças já saíram?"
+msgstr "¿Los chicos ya salieron?"
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Já! A mãe levou elas pra calçada."
+msgstr "¡Sí! La madre los llevó a la vereda."
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "O vizinho de baixo tá com dor de cabeça e vomitando!"
+msgstr "¡El vecino de abajo tiene dolor de cabeza y está vomitando!"
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Ele consegue andar?"
+msgstr "¿Puede caminar?"
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Consegue, apoiado. Tá sentado no meio-fio."
+msgstr "Sí, apoyado. Está sentado en el cordón."
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "Teve um estouro no apartamento dela! Quebrou as janelas todas!"
+msgstr "¡Hubo una explosión en su departamento! ¡Se rompieron todas las ventanas!"
+
+#: data/calls/emergency_21_outro_rua_das_flores_350.tres
+msgid "A Dona Ilda ainda tá lá dentro, e o vizinho levou um corte de vidro no rosto!"
+msgstr "¡Doña Ilda sigue adentro, y el vecino se cortó la cara con un vidrio!"
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Central, o vizinho tá aqui no meu portão com uma foice, ameaçando por causa do muro!"
+msgstr "¡Central, el vecino está en mi portón con una hoz, amenazándome por lo del muro!"
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Ele está bêbado?"
+msgstr "¿Está borracho?"
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Rua Tiradentes, 250! A casa de muro amarelo!"
+msgstr "¡Rua Tiradentes, 250! ¡La casa del muro amarillo!"
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Ainda não. Eu tranquei o portão."
+msgstr "Todavía no. Cerré el portón con llave."
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Tá. Tá gritando que o muro é dele."
+msgstr "Sí. Grita que el muro es de él."
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Meu filho foi segurar ele e levou um talho no braço!"
+msgstr "¡Mi hijo lo quiso agarrar y se ligó un tajo en el brazo!"
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Tá. Vou ficar aqui dentro com a porta trancada."
+msgstr "Bueno. Me quedo adentro con la puerta trancada."
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Ele tá derrubando o muro com a foice! A rua tá cheia de gente olhando!"
+msgstr "¡Está tirando el muro abajo con la hoz! ¡La calle está llena de gente mirando!"
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Tem mais alguém com ele?"
+msgstr "¿Hay alguien más con él?"
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "O irmão dele chegou agora, com um pedaço de pau."
+msgstr "Recién llegó el hermano, con un palo."
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Os dois pularam o muro! Tão batendo no meu genro!"
+msgstr "¡Los dos saltaron el muro! ¡Le están pegando a mi yerno!"
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Onde ele está ferido?"
+msgstr "¿Dónde está herido?"
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Na cabeça! Tá caído no quintal, sangrando!"
+msgstr "¡En la cabeza! ¡Está tirado en el patio, sangrando!"
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Eles foram embora... deixaram meu genro no chão. Ninguém veio ajudar."
+msgstr "Se fueron... dejaron a mi yerno en el suelo. No vino nadie a ayudar."
+
+#: data/calls/emergency_22_outro_rua_tiradentes_250.tres
+msgid "Meu genro não acorda, e minha filha machucou a mão tentando separar."
+msgstr "Mi yerno no se despierta, y mi hija se lastimó la mano tratando de separarlos."
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Ajudante de padeiro"
+msgstr "Ayudante de panadero"
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Central, o padeiro caiu do lado do forno! Tá passando muito mal!"
+msgstr "¡Central, el panadero se cayó al lado del horno! ¡Está muy mal!"
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Ele reclamou de alguma dor?"
+msgstr "¿Se quejó de algún dolor?"
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Rua das Acácias, 450! A Padaria Pão Dourado, pelos fundos!"
+msgstr "¡Rua das Acácias, 450! ¡La Padaria Pão Dourado, por el fondo!"
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Tá, mas tá suando frio."
+msgstr "Sí, pero tiene sudor frío."
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Disse que o peito tava apertando e o braço formigando."
+msgstr "Dijo que le apretaba el pecho y le hormigueaba el brazo."
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Disse que o peito apertava... e quando caiu derrubou a lenha, tá pegando fogo nos sacos de farinha!"
+msgstr "Dijo que le apretaba el pecho... ¡y al caer tiró la leña, se están prendiendo las bolsas de harina!"
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Tá bom. Vou abrir a porta da frente pra eles."
+msgstr "Bueno. Voy a abrir la puerta de adelante para ellos."
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Ele tá ficando roxo! Tá com falta de ar!"
+msgstr "¡Se está poniendo morado! ¡Le falta el aire!"
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Ele toma algum remédio?"
+msgstr "¿Toma algún remedio?"
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Toma um do coração, mas esqueceu em casa."
+msgstr "Toma uno para el corazón, pero se lo olvidó en casa."
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Ele parou de responder! Tô sacudindo ele e nada!"
+msgstr "¡Dejó de responder! ¡Lo sacudo y nada!"
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Ele ainda respira?"
+msgstr "¿Todavía respira?"
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Bem pouquinho... de vez em quando."
+msgstr "Muy poquito... de vez en cuando."
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Ele não respira mais... a gente tá tentando, mas demorou demais."
+msgstr "Ya no respira... estamos intentando, pero tardó demasiado."
+
+#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "O padeiro tá desacordado, e o outro ajudante tá apertando o peito dele."
+msgstr "El panadero está inconsciente, y el otro ayudante le aprieta el pecho."
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres data/content.tres
+msgid "Moradora"
+msgstr "Residente"
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "Central, um carro desceu a ladeira sem freio e entrou no muro da minha casa!"
+msgstr "¡Central, un auto bajó la cuesta sin frenos y se metió en el muro de mi casa!"
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "O carro está no meio da rua?"
+msgstr "¿El auto está en medio de la calle?"
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "Rua das Palmeiras, 140! No fim da ladeira!"
+msgstr "¡Rua das Palmeiras, 140! ¡Al final de la cuesta!"
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "O motorista tá com a cabeça sangrando no volante!"
+msgstr "¡El chofer tiene la cabeza sangrando contra el volante!"
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "Tá! Metade na rua, metade no muro. Ninguém passa."
+msgstr "¡Sí! Mitad en la calle, mitad en el muro. No pasa nadie."
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "Não, o motorista saiu andando. Só o muro que foi."
+msgstr "No, el chofer salió caminando. Solo el muro."
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "O motorista tá preso, a porta amassou toda! E tá sangrando!"
+msgstr "¡El chofer está atrapado, la puerta quedó toda aplastada! ¡Y está sangrando!"
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "Tá. Vou pôr uma lanterna na ladeira pra ninguém bater."
+msgstr "Bueno. Voy a poner una linterna en la cuesta para que nadie choque."
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "Tá saindo fumaça do motor! Tá pingando gasolina!"
+msgstr "¡Sale humo del motor! ¡Está goteando nafta!"
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "O fogo já começou?"
+msgstr "¿Ya empezó el fuego?"
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "Ainda não, só a fumaça e o cheiro."
+msgstr "Todavía no, solo el humo y el olor."
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "Pegou fogo embaixo do carro!"
+msgstr "¡Se prendió fuego debajo del auto!"
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "Meu marido tá tentando apagar com terra e queimou a mão!"
+msgstr "¡Mi marido intenta apagarlo con tierra y se quemó la mano!"
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "O carro tá todo em chamas... e o muro desabou. Por que não vieram?"
+msgstr "El auto está todo en llamas... y el muro se derrumbó. ¿Por qué no vinieron?"
+
+#: data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres
+msgid "Tiramos o motorista, mas ele tá desmaiado, e meu marido tá com a mão em carne viva!"
+msgstr "¡Sacamos al chofer, pero está desmayado, y mi marido tiene la mano en carne viva!"
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Seu Joaquim"
+msgstr "Seu Joaquim"
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "(baixinho) Central, tem gente arrombando o depósito do armazém. Tô ouvindo daqui de cima."
+msgstr "(bajito) Central, hay gente forzando el depósito del almacén. Los oigo desde arriba."
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Tem mais alguém na casa?"
+msgstr "¿Hay alguien más en la casa?"
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Rua Bela Vista, 230. O Armazém Ferreira. Eu moro em cima."
+msgstr "Rua Bela Vista, 230. El Armazém Ferreira. Vivo arriba."
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Uns dois ou três. Tão carregando os sacos de arroz numa carroça."
+msgstr "Dos o tres. Están cargando las bolsas de arroz en un carro."
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Minha mulher. Tá aqui comigo, quietinha."
+msgstr "Mi mujer. Está aquí conmigo, calladita."
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Meu filho desceu pra ver e não voltou... ouvi um grito dele!"
+msgstr "Mi hijo bajó a ver y no volvió... ¡lo oí gritar!"
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Tá bom. Não vou descer, prometo."
+msgstr "Bueno. No voy a bajar, lo prometo."
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Eles tão subindo a escada! Ouço os passos!"
+msgstr "¡Están subiendo la escalera! ¡Oigo los pasos!"
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "A porta do quarto tem tranca?"
+msgstr "¿La puerta del cuarto tiene traba?"
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Tem. Pus a cômoda na frente também."
+msgstr "Sí. También le puse la cómoda adelante."
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Tão chutando a porta! Minha mulher passou mal de nervoso!"
+msgstr "¡Están pateando la puerta! ¡A mi mujer le dio un ataque de nervios!"
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Tá, mas com a mão no peito, sem ar."
+msgstr "Sí, pero con la mano en el pecho, sin aire."
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Eles levaram tudo e foram embora... a gente ficou sozinho aqui."
+msgstr "Se llevaron todo y se fueron... nos quedamos solos aquí."
+
+#: data/calls/emergency_25_invasao_rua_bela_vista_230.tres
+msgid "Minha mulher tá deitada, com dor no peito, e eu cortei a mão na porta."
+msgstr "Mi mujer está acostada, con dolor en el pecho, y yo me corté la mano con la puerta."
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "Caseiro"
+msgstr "Casero"
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "Central! O paiol do sítio tá pegando fogo! O vento tá levando pro pasto!"
+msgstr "¡Central! ¡El galpón del sitio se está quemando! ¡El viento lo lleva al pasto!"
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "Rua do Cruzeiro, 260! O Sítio Boa Esperança, no fim da rua!"
+msgstr "¡Rua do Cruzeiro, 260! ¡El Sítio Boa Esperança, al final de la calle!"
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "Não, só o milho e as ferramentas."
+msgstr "No, solo el maíz y las herramientas."
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "Não. Tô jogando água com o balde."
+msgstr "No. Le estoy tirando agua con el balde."
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "O patrão tentou tirar o cavalo e se queimou todo nos braços!"
+msgstr "¡El patrón quiso sacar el caballo y se quemó todos los brazos!"
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "Tá. Vou soltar os bichos do curral."
+msgstr "Bueno. Voy a soltar a los animales del corral."
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "O fogo pegou no pasto e tá indo pra casa!"
+msgstr "¡El fuego agarró el pasto y va para la casa!"
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "Tem gente na casa?"
+msgstr "¿Hay gente en la casa?"
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "A patroa e as duas meninas. Já mandei sair."
+msgstr "La patrona y las dos nenas. Ya les dije que salieran."
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "A menina menor voltou pra buscar o cachorro e não saiu!"
+msgstr "¡La nena más chica volvió a buscar al perro y no salió!"
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Onde ela está?"
+msgstr "¿Dónde está?"
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "No quarto dos fundos! A fumaça tá saindo pela janela!"
+msgstr "¡En el cuarto del fondo! ¡Sale humo por la ventana!"
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "A casa queimou... a gente perdeu tudo. Ninguém subiu a serra."
+msgstr "La casa se quemó... perdimos todo. Nadie subió la sierra."
+
+#: data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres
+msgid "Eu tirei a menina pela janela, mas ela tá tossindo sem parar e com o braço queimado."
+msgstr "Saqué a la nena por la ventana, pero tose sin parar y tiene el brazo quemado."
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "Mãe"
+msgstr "Madre"
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "Central, meu filho caiu no córrego atrás de casa! A correnteza tá levando ele!"
+msgstr "¡Central, mi hijo se cayó al arroyo detrás de casa! ¡La corriente se lo lleva!"
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "Ele está segurando em alguma coisa?"
+msgstr "¿Está agarrado de algo?"
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "Quantos anos ele tem?"
+msgstr "¿Cuántos años tiene?"
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "Rua do Moinho, 410! Atrás do moinho velho!"
+msgstr "¡Rua do Moinho, 410! ¡Detrás del molino viejo!"
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "Num galho! Tá preso no galho, a água batendo no peito!"
+msgstr "¡De una rama! ¡Está agarrado de una rama, el agua le llega al pecho!"
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "Nove! Ele não sabe nadar direito!"
+msgstr "¡Nueve! ¡No sabe nadar bien!"
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "O vizinho pulou e tirou ele! Mas ele engoliu muita água, tá tossindo e roxo!"
+msgstr "¡El vecino se tiró y lo sacó! ¡Pero tragó mucha agua, está tosiendo y morado!"
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "Rápido, pelo amor de Deus! Eu fico gritando com ele pra ele não soltar!"
+msgstr "¡Rápido, por el amor de Dios! ¡Yo le sigo gritando para que no se suelte!"
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "A água tá subindo! Choveu lá em cima da serra!"
+msgstr "¡El agua está subiendo! ¡Llovió arriba en la sierra!"
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "Tem alguém na margem com ele?"
+msgstr "¿Hay alguien en la orilla con él?"
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "O pai dele tá estendendo uma corda, mas não alcança."
+msgstr "El padre le tira una soga, pero no llega."
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "O pai pulou atrás dele! Agora os dois tão na água!"
+msgstr "¡El padre se tiró a buscarlo! ¡Ahora los dos están en el agua!"
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "Eles conseguem chegar na margem?"
+msgstr "¿Pueden llegar a la orilla?"
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "O pai pegou o menino, mas a correnteza tá forte demais!"
+msgstr "¡El padre agarró al nene, pero la corriente es muy fuerte!"
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "A correnteza levou os dois lá pra baixo... a gente tá correndo pela margem. Cadê vocês?"
+msgstr "La corriente se los llevó a los dos río abajo... estamos corriendo por la orilla. ¿Dónde están?"
+
+#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "Os vizinhos tiraram os dois na curva do rio. O menino não acorda, e o pai bateu a cabeça."
+msgstr "Los vecinos los sacaron a los dos en la curva del río. El nene no se despierta y el padre se golpeó la cabeza."
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "Central, o vento derrubou um fio de luz aqui na rua! Tá soltando faísca no chão!"
+msgstr "¡Central, el viento tiró un cable de luz aquí en la calle! ¡Está echando chispas en el suelo!"
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "O fio está bloqueando a rua?"
+msgstr "¿El cable está cortando la calle?"
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "Rua da Estação, 450! Na frente da antiga estação de trem!"
+msgstr "¡Rua da Estação, 450! ¡Frente a la vieja estación de tren!"
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "Tá! Atravessado de um lado a outro. Os carros tão parando."
+msgstr "¡Sí! Cruzado de lado a lado. Los autos están parando."
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "Não, graças a Deus."
+msgstr "No, gracias a Dios."
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "Um rapaz de bicicleta passou por cima e levou um choque! Tá caído!"
+msgstr "¡Un muchacho en bicicleta le pasó por encima y le dio la corriente! ¡Está tirado!"
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "Tá. Vou ficar aqui avisando quem passar."
+msgstr "Bueno. Me quedo aquí avisando a los que pasen."
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "A faísca pegou no capim do terreno do lado! Tá começando um fogo!"
+msgstr "¡Las chispas agarraron el pasto del terreno de al lado! ¡Está empezando un fuego!"
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "O fogo está perto das casas?"
+msgstr "¿El fuego está cerca de las casas?"
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "Ainda não, mas tá indo pro lado da cerca da Dona Nena."
+msgstr "Todavía no, pero va para el lado del cerco de doña Nena."
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "Um cachorro encostou no fio e o dono foi puxar! Os dois tão caídos!"
+msgstr "¡Un perro tocó el cable y el dueño lo fue a sacar! ¡Los dos están tirados!"
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "O homem está respirando?"
+msgstr "¿El hombre está respirando?"
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "Acho que sim... mas tá todo duro, não mexe."
+msgstr "Creo que sí... pero está todo duro, no se mueve."
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "O fogo pegou a cerca e o quintal da Dona Nena... Ninguém apareceu!"
+msgstr "¡El fuego agarró el cerco y el patio de doña Nena... No apareció nadie!"
+
+#: data/calls/emergency_28_outro_rua_da_estacao_450.tres
+msgid "O homem do cachorro não acorda, e a Dona Nena tá passando mal com a fumaça."
+msgstr "El hombre del perro no se despierta, y doña Nena se siente mal por el humo."
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Dona Sônia"
+msgstr "Dona Sônia"
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Central, tem um homem no meu quintal mexendo no galinheiro! Agora, nesse minuto!"
+msgstr "¡Central, hay un hombre en mi patio metiéndose en el gallinero! ¡Ahora, en este momento!"
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Você conhece a pessoa?"
+msgstr "¿Conoce a la persona?"
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Rua do Comércio, 420! A casa da Sônia Vieira!"
+msgstr "¡Rua do Comércio, 420! ¡La casa de Sônia Vieira!"
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Não! Nunca vi. Tá de chapéu, enfiando as galinhas num saco."
+msgstr "¡No! Nunca lo vi. Lleva sombrero y mete las gallinas en una bolsa."
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Tá com um facão na cintura!"
+msgstr "¡Tiene un machete en la cintura!"
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Tá com um facão! E meu marido foi atrás dele e caiu do barranco, tá gemendo!"
+msgstr "¡Tiene un machete! ¡Y mi marido fue a buscarlo y se cayó del barranco, está quejándose!"
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Tá bom. Vou apagar a luz e ficar quieta."
+msgstr "Bueno. Voy a apagar la luz y quedarme quieta."
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Ele me viu na janela! Tá vindo pra porta da cozinha!"
+msgstr "¡Me vio en la ventana! ¡Viene a la puerta de la cocina!"
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "A porta está trancada?"
+msgstr "¿La puerta está trancada?"
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Tá, mas é de madeira fina. Tô segurando com a vassoura."
+msgstr "Sí, pero es de madera fina. La estoy sosteniendo con la escoba."
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Ele quebrou o vidro da porta! Cortou a mão e tá sangrando, mas não para!"
+msgstr "¡Rompió el vidrio de la puerta! ¡Se cortó la mano y está sangrando, pero no para!"
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Ele entrou na casa?"
+msgstr "¿Entró a la casa?"
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Ainda não! Tô trancada no quarto com o telefone!"
+msgstr "¡Todavía no! ¡Estoy encerrada en el cuarto con el teléfono!"
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Ele levou as galinhas e o rádio da sala... foi embora. Ninguém veio."
+msgstr "Se llevó las gallinas y la radio del living... se fue. No vino nadie."
+
+#: data/calls/emergency_29_invasao_rua_do_comercio_420.tres
+msgid "Eu caí no corredor fugindo dele e torci o pé. Tá inchando muito."
+msgstr "Me caí en el pasillo huyendo de él y me torcí el pie. Se está hinchando mucho."
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Neta"
+msgstr "Nieta"
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Central, a minha avó tá passando mal! A fala dela tá esquisita!"
+msgstr "¡Central, mi abuela se siente mal! ¡Habla raro!"
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Ela consegue levantar os dois braços?"
+msgstr "¿Puede levantar los dos brazos?"
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Rua Bela Vista, 160! A casa da Dona Laudelina Prado!"
+msgstr "¡Rua Bela Vista, 160! ¡La casa de doña Laudelina Prado!"
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Sentada na cozinha. Eu tô do lado dela."
+msgstr "Sentada en la cocina. Estoy al lado de ella."
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Só o esquerdo. O direito cai sozinho."
+msgstr "Solo el izquierdo. El derecho se le cae solo."
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Ela se trancou no banheiro e caiu lá dentro! A porta não abre!"
+msgstr "¡Se encerró en el baño y se cayó adentro! ¡La puerta no abre!"
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Tá. Vou ficar segurando a mão dela."
+msgstr "Bueno. Me quedo agarrándole la mano."
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Agora ela não fala mais nada! Só olha pra mim!"
+msgstr "¡Ahora ya no dice nada! ¡Solo me mira!"
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Ela está respirando bem?"
+msgstr "¿Respira bien?"
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Tá, mas fazendo um barulho no peito."
+msgstr "Sí, pero hace un ruido en el pecho."
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Ela caiu da cadeira! Bateu a cabeça na quina da mesa!"
+msgstr "¡Se cayó de la silla! ¡Se golpeó la cabeza con la punta de la mesa!"
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "A cabeça está sangrando?"
+msgstr "¿La cabeza le sangra?"
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Um pouco. Tô apertando com o pano de prato."
+msgstr "Un poco. Le estoy apretando con el repasador."
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Ela não acorda mais... eu chamo, chamo... Vocês demoraram demais."
+msgstr "Ya no se despierta... la llamo y la llamo... Tardaron demasiado."
+
+#: data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres
+msgid "Ela respira bem fraquinho, e a mão direita tá gelada."
+msgstr "Respira muy despacito, y tiene la mano derecha helada."
+
 #: data/calls/prank_01_crianca.tres
 msgid "Criança"
 msgstr "Niño pequeño"
@@ -3131,7 +4323,7 @@ msgstr "Rua Au-Au, número 4."
 msgid "É urgente. Ele comeu meu sanduíche."
 msgstr "Es urgente. Se comió mi sándwich."
 
-#: data/calls/prank_01_crianca.tres data/calls/prank_05_menino.tres
+#: data/calls/prank_01_crianca.tres data/calls/prank_05_menino.tres data/calls/prank_15_garoto.tres
 msgid "(risadas abafadas)"
 msgstr "(risas ahogadas)"
 
@@ -3175,7 +4367,7 @@ msgstr "¿Desde dónde está llamando?"
 msgid "Fala pra ela, tá? Tchau!"
 msgstr "Dígaselo, ¿sí? ¡Chau!"
 
-#: data/calls/prank_03_menina.tres data/calls/prank_06_menina.tres
+#: data/calls/prank_03_menina.tres data/calls/prank_06_menina.tres data/calls/prank_12_menina.tres
 msgid "Menina"
 msgstr "Niña"
 
@@ -3222,10 +4414,6 @@ msgstr "¿Qué broma es esta?"
 #: data/calls/prank_04_garoto.tres
 msgid "Então corre atrás dela!"
 msgstr "¡Entonces corra a alcanzarla!"
-
-#: data/calls/prank_05_menino.tres data/calls/prank_09_menino.tres
-msgid "Menino"
-msgstr "Niño"
 
 #: data/calls/prank_05_menino.tres
 msgid "Central? Aqui quem fala é o presidente da república."
@@ -3355,6 +4543,158 @@ msgstr "¿Qué Aitor, por favor?"
 msgid "Paula Tejano!"
 msgstr "¡Aitor Tilla!"
 
+#: data/calls/prank_11_menino.tres
+msgid "Alô? O senhor tem água encanada aí?"
+msgstr "¿Aló? ¿Usted tiene agua corriente ahí?"
+
+#: data/calls/prank_11_menino.tres
+msgid "Tenho, por quê?"
+msgstr "Sí, ¿por qué?"
+
+#: data/calls/prank_11_menino.tres
+msgid "Então solta ela, que ela é inocente!"
+msgstr "¡Entonces déjela correr, que es inocente!"
+
+#: data/calls/prank_12_menina.tres
+msgid "Moço, quanto é sete vezes oito?"
+msgstr "Señor, ¿cuánto es siete por ocho?"
+
+#: data/calls/prank_12_menina.tres
+msgid "Cinquenta e seis."
+msgstr "Cincuenta y seis."
+
+#: data/calls/prank_12_menina.tres
+msgid "Isso não é serviço da central."
+msgstr "Eso no es trabajo de la central."
+
+#: data/calls/prank_12_menina.tres
+msgid "Brigada! A professora disse pra perguntar pra quem sabe!"
+msgstr "¡Gracias! ¡La maestra dijo que le preguntara a alguien que sabe!"
+
+#: data/calls/prank_12_menina.tres data/calls/prank_20_menina.tres
+msgid "(risadinha)"
+msgstr "(risita)"
+
+#: data/calls/prank_13_menino.tres
+msgid "Alô? É do Polo Norte?"
+msgstr "¿Aló? ¿Es el Polo Norte?"
+
+#: data/calls/prank_13_menino.tres
+msgid "Não, aqui é a central de São Sotero."
+msgstr "No, aquí es la central de São Sotero."
+
+#: data/calls/prank_13_menino.tres
+msgid "Ah... então avisa o Papai Noel que eu me comportei, tá?"
+msgstr "Ah... entonces avísele a Papá Noel que me porté bien, ¿sí?"
+
+#: data/calls/prank_13_menino.tres
+msgid "Quase o ano todo!"
+msgstr "¡Casi todo el año!"
+
+#: data/calls/prank_14_rapaz.tres
+msgid "Boa noite. Me liga com o seu Armando?"
+msgstr "Buenas noches. ¿Me comunica con el señor Armando?"
+
+#: data/calls/prank_14_rapaz.tres
+msgid "Armando de quê?"
+msgstr "¿Armando qué?"
+
+#: data/calls/prank_14_rapaz.tres
+msgid "Armando Barraco!"
+msgstr "¡Armando Barraco! ¡Armando lío!"
+
+#: data/calls/prank_14_rapaz.tres
+msgid "(gargalhadas)"
+msgstr "(carcajadas)"
+
+#: data/calls/prank_15_garoto.tres
+msgid "Central? Eu tenho um recado muito importante pro senhor."
+msgstr "¿Central? Tengo un recado muy importante para usted."
+
+#: data/calls/prank_15_garoto.tres
+msgid "Pois não?"
+msgstr "¿Sí?"
+
+#: data/calls/prank_15_garoto.tres
+msgid "(um arroto enorme)"
+msgstr "(un eructo enorme)"
+
+#: data/calls/prank_16_rapaz.tres
+msgid "Locutor"
+msgstr "Locutor"
+
+#: data/calls/prank_16_rapaz.tres
+msgid "Parabéns! O senhor acaba de ganhar o grande prêmio da noite!"
+msgstr "¡Felicitaciones! ¡Acaba de ganar el gran premio de la noche!"
+
+#: data/calls/prank_16_rapaz.tres
+msgid "Ganhei o quê?"
+msgstr "¿Gané qué?"
+
+#: data/calls/prank_16_rapaz.tres
+msgid "Isso é trote, rapaz."
+msgstr "Esto es una broma, muchacho."
+
+#: data/calls/prank_16_rapaz.tres
+msgid "Uma noite inteirinha atendendo telefone!"
+msgstr "¡Una noche enterita atendiendo el teléfono!"
+
+#: data/calls/prank_17_menino.tres
+msgid "Alô, é do zoológico?"
+msgstr "¿Aló, es el zoológico?"
+
+#: data/calls/prank_17_menino.tres
+msgid "Não, aqui é a central telefônica."
+msgstr "No, aquí es la central telefónica."
+
+#: data/calls/prank_17_menino.tres
+msgid "Ué! Então por que é que atendeu um macaco?"
+msgstr "¡Uy! ¿Entonces por qué contestó un mono?"
+
+#: data/calls/prank_18_garoto.tres
+msgid "(voz grossa) Aqui quem fala é o prefeito. Exijo falar com o operador."
+msgstr "(voz gruesa) Habla el intendente. Exijo hablar con el operador."
+
+#: data/calls/prank_18_garoto.tres
+msgid "É ele mesmo. Pois não, senhor prefeito?"
+msgstr "Él habla. ¿En qué puedo ayudarlo, señor intendente?"
+
+#: data/calls/prank_18_garoto.tres
+msgid "Quantos anos o senhor tem?"
+msgstr "¿Y cuántos años tiene usted?"
+
+#: data/calls/prank_18_garoto.tres
+msgid "(a voz afina) ...Mãe! Ele descobriu!"
+msgstr "(la voz se afina) ...¡Mamá! ¡Se dio cuenta!"
+
+#: data/calls/prank_19_criancas.tres
+msgid "Crianças"
+msgstr "Niños"
+
+#: data/calls/prank_19_criancas.tres
+msgid "(várias vozes) Parabéns pra você, nesta data querida..."
+msgstr "(varias voces) Feliz cumpleaños a ti, feliz cumpleaños a ti..."
+
+#: data/calls/prank_19_criancas.tres
+msgid "Mas hoje não é meu aniversário."
+msgstr "Pero hoy no es mi cumpleaños."
+
+#: data/calls/prank_19_criancas.tres
+msgid "A gente sabe!"
+msgstr "¡Ya sabemos!"
+
+#: data/calls/prank_20_menina.tres
+msgid "Alô? Aí é a casa do Zé?"
+msgstr "¿Aló? ¿Es la casa de Zé?"
+
+#: data/calls/prank_20_menina.tres
+msgid "Não, aqui é a central."
+msgstr "No, aquí es la central."
+
+#: data/calls/prank_20_menina.tres
+msgid "Então por que é que atendeu?"
+msgstr "¿Y entonces por qué contestó?"
+
 #: data/templates/transfer_01.tres
 msgid "Me liga com {place}, por favor? {reason}"
 msgstr "¿Me comunica con {place}, por favor? {reason}"
@@ -3425,6 +4765,42 @@ msgstr "¿Me comunica con {place}, que está en la {street}?"
 
 #: data/templates/transfer_07.tres
 msgid "{place}, da {street}."
+msgstr "{place}, en la {street}."
+
+#: data/templates/transfer_08.tres data/content.tres
+msgid "Alô? Central?"
+msgstr "¿Hola? ¿Central?"
+
+#: data/templates/transfer_08.tres
+msgid "Faz favor de me ligar {to_place}. {reason}"
+msgstr "Hágame el favor de comunicarme {to_place}. {reason}"
+
+#: data/templates/transfer_08.tres
+msgid "{place}, moço."
+msgstr "{place}, joven."
+
+#: data/templates/transfer_09.tres
+msgid "Central? Graças a Deus que atendeu."
+msgstr "¿Central? Gracias a Dios que contestó."
+
+#: data/templates/transfer_09.tres
+msgid "Pode me ligar com {place}? {reason}"
+msgstr "¿Puede comunicarme con {place}? {reason}"
+
+#: data/templates/transfer_09.tres
+msgid "{place}. Por favor, é importante."
+msgstr "{place}. Por favor, es importante."
+
+#: data/templates/transfer_10.tres
+msgid "Boa noite. É da central?"
+msgstr "Buenas noches. ¿Es la central?"
+
+#: data/templates/transfer_10.tres
+msgid "Eu ia pedir o número {of_place}, mas pode ligar direto."
+msgstr "Iba a pedir el número {of_place}, pero puede comunicarme directamente."
+
+#: data/templates/transfer_10.tres
+msgid "{place}, na {street}."
 msgstr "{place}, en la {street}."
 
 #: data/content.tres
@@ -3523,7 +4899,7 @@ msgstr "En la cocina de su casa. ¡Y hay un olor fuerte a gas ahí adentro!"
 msgid "Tá. Eu espero aqui na porta."
 msgstr "Bueno. Espero aquí en la puerta."
 
-#: data/templates/emergency_mal_subito.tres
+#: data/templates/emergency_mal_subito.tres data/templates/emergency_queda.tres data/templates/emergency_fio_caido.tres
 msgid "Ele está acordado?"
 msgstr "¿Está despierto?"
 
@@ -3703,6 +5079,290 @@ msgstr "Se escaparon todos... y el muchacho sigue en el piso. No vino nadie."
 msgid "O rapaz continua no chão, sangrando muito pela cabeça!"
 msgstr "¡El muchacho sigue en el piso, sangrando mucho de la cabeza!"
 
+#: data/templates/emergency_queda.tres
+msgid "Central, um homem caiu do telhado aqui na {street}!"
+msgstr "¡Central, un hombre se cayó del techo aquí en la {street}!"
+
+#: data/templates/emergency_queda.tres
+msgid "Ele mexe as pernas?"
+msgstr "¿Mueve las piernas?"
+
+#: data/templates/emergency_queda.tres
+msgid "{address}! Ele tava arrumando as telhas!"
+msgstr "¡{address}! ¡Estaba arreglando las tejas!"
+
+#: data/templates/emergency_queda.tres
+msgid "Tá, mas gemendo muito."
+msgstr "Sí, pero se queja mucho."
+
+#: data/templates/emergency_queda.tres
+msgid "Mexe, mas o braço tá torto."
+msgstr "Sí, pero tiene el brazo torcido."
+
+#: data/templates/emergency_queda.tres
+msgid "Mexe... mas ele caiu em cima do muro e ficou preso entre o muro e a grade!"
+msgstr "Sí... ¡pero cayó sobre el muro y quedó atrapado entre el muro y la reja!"
+
+#: data/templates/emergency_queda.tres
+msgid "Tá. A gente não vai mexer nele."
+msgstr "Bueno. No lo vamos a mover."
+
+#: data/templates/emergency_queda.tres
+msgid "Ele tá ficando pálido e com frio!"
+msgstr "¡Se está poniendo pálido y frío!"
+
+#: data/templates/emergency_queda.tres
+msgid "Ele bateu a cabeça?"
+msgstr "¿Se golpeó la cabeza?"
+
+#: data/templates/emergency_queda.tres
+msgid "Acho que sim. Tem sangue atrás da orelha."
+msgstr "Creo que sí. Tiene sangre detrás de la oreja."
+
+#: data/templates/emergency_queda.tres
+msgid "Ele apagou! Não responde mais!"
+msgstr "¡Se desmayó! ¡Ya no responde!"
+
+#: data/templates/emergency_queda.tres
+msgid "Tá, mas bem curtinho."
+msgstr "Sí, pero muy cortito."
+
+#: data/templates/emergency_queda.tres
+msgid "Ele não acorda mais... e ninguém veio."
+msgstr "Ya no se despierta... y no vino nadie."
+
+#: data/templates/emergency_queda.tres
+msgid "Ele respira bem fraco, e a cabeça não para de sangrar."
+msgstr "Respira muy débil, y la cabeza no para de sangrar."
+
+#: data/templates/emergency_fio_caido.tres
+msgid "Central, caiu um fio de luz no meio da {street}! Tá soltando faísca!"
+msgstr "¡Central, se cayó un cable de luz en medio de la {street}! ¡Está echando chispas!"
+
+#: data/templates/emergency_fio_caido.tres
+msgid "O fio está fechando a rua?"
+msgstr "¿El cable corta la calle?"
+
+#: data/templates/emergency_fio_caido.tres
+msgid "{address}! Bem na frente de casa!"
+msgstr "¡{address}! ¡Justo frente a mi casa!"
+
+#: data/templates/emergency_fio_caido.tres
+msgid "Tá, de ponta a ponta. Os carros tão parando."
+msgstr "Sí, de punta a punta. Los autos están parando."
+
+#: data/templates/emergency_fio_caido.tres
+msgid "Não, ainda não."
+msgstr "No, todavía no."
+
+#: data/templates/emergency_fio_caido.tres
+msgid "Um senhor encostou nele sem ver e caiu duro na calçada!"
+msgstr "¡Un señor lo tocó sin ver y cayó duro en la vereda!"
+
+#: data/templates/emergency_fio_caido.tres
+msgid "Tá. Vou segurar o povo longe."
+msgstr "Bueno. Voy a mantener a la gente lejos."
+
+#: data/templates/emergency_fio_caido.tres
+msgid "A faísca pegou fogo no mato da calçada!"
+msgstr "¡Las chispas prendieron fuego al pasto de la vereda!"
+
+#: data/templates/emergency_fio_caido.tres
+msgid "O fogo está perto de alguma casa?"
+msgstr "¿El fuego está cerca de alguna casa?"
+
+#: data/templates/emergency_fio_caido.tres
+msgid "Do muro do vizinho. Ainda dá pra apagar com balde."
+msgstr "Del muro del vecino. Todavía se puede apagar con un balde."
+
+#: data/templates/emergency_fio_caido.tres
+msgid "Um menino de bicicleta passou por cima do fio! Tá caído!"
+msgstr "¡Un nene en bicicleta pasó por encima del cable! ¡Está tirado!"
+
+#: data/templates/emergency_fio_caido.tres
+msgid "Não! E a mão dele tá preta!"
+msgstr "¡No! ¡Y tiene la mano negra!"
+
+#: data/templates/emergency_fio_caido.tres
+msgid "O fogo pegou a casa do vizinho... e ninguém veio."
+msgstr "El fuego agarró la casa del vecino... y no vino nadie."
+
+#: data/templates/emergency_fio_caido.tres
+msgid "O menino da bicicleta não acorda, e o vizinho queimou o braço."
+msgstr "El nene de la bicicleta no se despierta, y el vecino se quemó el brazo."
+
+#: data/templates/emergency_gas.tres
+msgid "Central, tá um cheiro forte de gás na casa do lado, aqui na {street}!"
+msgstr "¡Central, hay un olor fuerte a gas en la casa de al lado, aquí en la {street}!"
+
+#: data/templates/emergency_gas.tres
+msgid "Alguém está passando mal?"
+msgstr "¿Alguien se siente mal?"
+
+#: data/templates/emergency_gas.tres
+msgid "{address}! A casa de muro azul!"
+msgstr "¡{address}! ¡La casa del muro azul!"
+
+#: data/templates/emergency_gas.tres
+msgid "Acho que não, tá tudo apagado."
+msgstr "Creo que no, está todo apagado."
+
+#: data/templates/emergency_gas.tres
+msgid "Não, só a gente aqui fora com o nariz ardendo."
+msgstr "No, solo nosotros aquí afuera con la nariz ardiendo."
+
+#: data/templates/emergency_gas.tres
+msgid "Tem! A dona da casa tá lá dentro e não atende!"
+msgstr "¡Sí! ¡La dueña está adentro y no contesta!"
+
+#: data/templates/emergency_gas.tres
+msgid "Tá. Ninguém vai acender nada aqui."
+msgstr "Bueno. Nadie va a prender nada aquí."
+
+#: data/templates/emergency_gas.tres
+msgid "O cheiro tá chegando na rua toda!"
+msgstr "¡El olor está llegando a toda la calle!"
+
+#: data/templates/emergency_gas.tres
+msgid "Os vizinhos saíram de casa?"
+msgstr "¿Los vecinos salieron de sus casas?"
+
+#: data/templates/emergency_gas.tres
+msgid "Quase todos. Tô batendo nas portas."
+msgstr "Casi todos. Estoy golpeando las puertas."
+
+#: data/templates/emergency_gas.tres
+msgid "Uma senhora da casa de trás desmaiou no portão!"
+msgstr "¡Una señora de la casa de atrás se desmayó en el portón!"
+
+#: data/templates/emergency_gas.tres
+msgid "Tá, mas tá roxinha."
+msgstr "Sí, pero está moradita."
+
+#: data/templates/emergency_gas.tres
+msgid "Teve um estouro! As janelas voaram longe!"
+msgstr "¡Hubo una explosión! ¡Las ventanas volaron lejos!"
+
+#: data/templates/emergency_gas.tres
+msgid "A senhora não acorda, e um rapaz cortou o rosto no vidro."
+msgstr "La señora no se despierta, y un muchacho se cortó la cara con el vidrio."
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Central, um carro atropelou um rapaz aqui na {street} e fugiu!"
+msgstr "¡Central, un auto atropelló a un muchacho aquí en la {street} y se escapó!"
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Ele está no meio da rua?"
+msgstr "¿Está en medio de la calle?"
+
+#: data/templates/emergency_atropelamento.tres
+msgid "{address}! Na esquina!"
+msgstr "¡{address}! ¡En la esquina!"
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Tá, mas a perna tá toda torta."
+msgstr "Sí, pero tiene la pierna toda torcida."
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Tá! A gente tá desviando os carros com a mão."
+msgstr "¡Sí! Estamos desviando los autos con la mano."
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Tá bom. A gente fica aqui com ele."
+msgstr "Bueno. Nos quedamos aquí con él."
+
+#: data/templates/emergency_atropelamento.tres
+msgid "A perna dele tá sangrando muito!"
+msgstr "¡La pierna le sangra mucho!"
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Dá pra apertar o machucado com um pano?"
+msgstr "¿Pueden apretar la herida con un trapo?"
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Tô apertando com a minha camisa."
+msgstr "Estoy apretando con mi camisa."
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Ele tá fechando o olho! Tá gelado!"
+msgstr "¡Está cerrando los ojos! ¡Está helado!"
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Ele ainda responde?"
+msgstr "¿Todavía responde?"
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Só aperta a minha mão."
+msgstr "Solo me aprieta la mano."
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Ele desmaiou... a gente esperou e ninguém veio."
+msgstr "Se desmayó... esperamos y no vino nadie."
+
+#: data/templates/emergency_atropelamento.tres
+msgid "Ele respira, mas não acorda, e a camisa tá encharcada de sangue."
+msgstr "Respira, pero no se despierta, y la camisa está empapada de sangre."
+
+#: data/templates/emergency_desabamento.tres
+msgid "Central, um muro desabou aqui na {street}! Caiu em cima de alguém!"
+msgstr "¡Central, se derrumbó un muro aquí en la {street}! ¡Le cayó encima a alguien!"
+
+#: data/templates/emergency_desabamento.tres
+msgid "A pessoa está presa?"
+msgstr "¿La persona está atrapada?"
+
+#: data/templates/emergency_desabamento.tres
+msgid "Ela fala com vocês?"
+msgstr "¿Les habla?"
+
+#: data/templates/emergency_desabamento.tres
+msgid "{address}! O muro do terreno da esquina!"
+msgstr "¡{address}! ¡El muro del terreno de la esquina!"
+
+#: data/templates/emergency_desabamento.tres
+msgid "Tá! As pernas tão embaixo dos tijolos!"
+msgstr "¡Sí! ¡Tiene las piernas debajo de los ladrillos!"
+
+#: data/templates/emergency_desabamento.tres
+msgid "Fala, mas tá chorando de dor."
+msgstr "Sí, pero llora de dolor."
+
+#: data/templates/emergency_desabamento.tres
+msgid "Tá. A gente não vai puxar ela."
+msgstr "Bueno. No la vamos a tirar."
+
+#: data/templates/emergency_desabamento.tres
+msgid "O resto do muro tá rachando! Pode cair mais!"
+msgstr "¡El resto del muro se está rajando! ¡Puede caer más!"
+
+#: data/templates/emergency_desabamento.tres
+msgid "Tem mais alguém perto do muro?"
+msgstr "¿Hay alguien más cerca del muro?"
+
+#: data/templates/emergency_desabamento.tres
+msgid "O marido dela, tirando os tijolos com a mão."
+msgstr "El marido, sacando los ladrillos con la mano."
+
+#: data/templates/emergency_desabamento.tres
+msgid "Caiu outro pedaço! Pegou o marido dela no ombro!"
+msgstr "¡Se cayó otro pedazo! ¡Le pegó al marido en el hombro!"
+
+#: data/templates/emergency_desabamento.tres
+msgid "Ele consegue sair dali?"
+msgstr "¿Puede salir de ahí?"
+
+#: data/templates/emergency_desabamento.tres
+msgid "Saiu, mas o braço tá pendurado."
+msgstr "Salió, pero tiene el brazo colgando."
+
+#: data/templates/emergency_desabamento.tres
+msgid "O muro caiu todo... ninguém apareceu."
+msgstr "El muro se cayó entero... no apareció nadie."
+
+#: data/templates/emergency_desabamento.tres
+msgid "Ela não responde mais, e o marido tá com o ombro quebrado."
+msgstr "Ya no responde, y el marido tiene el hombro roto."
+
 #: data/content.tres
 msgid "{street}, perto {landmark}"
 msgstr "{street}, cerca {landmark}"
@@ -3736,8 +5396,8 @@ msgid "Central de São Sotero, pois não?"
 msgstr "Central de São Sotero, ¿diga?"
 
 #: data/content.tres
-msgid "Desculpe ligar tão tarde."
-msgstr "Disculpe que llame tan tarde."
+msgid "Desculpe incomodar, o senhor deve estar cheio de ligação."
+msgstr "Disculpe la molestia, usted debe estar lleno de llamadas."
 
 #: data/content.tres
 msgid "Imagina, é pra isso que a central existe."
@@ -3816,20 +5476,24 @@ msgid "Ah... tá. Eu espero aqui."
 msgstr "Ah... bueno. Espero aquí."
 
 #: data/content.tres
-msgid "Faltou luz lá na Rua do Sol ontem, sabia?"
-msgstr "Anoche se cortó la luz en la Rua do Sol, ¿sabía?"
+msgid "O seu Geraldo, da Rua da Matriz, fez cem anos hoje, sabia?"
+msgstr "El señor Geraldo, de la Rua da Matriz, cumplió cien años hoy, ¿sabía?"
 
 #: data/content.tres
-msgid "Ouvi falar. Ficou muito tempo sem?"
-msgstr "Algo escuché. ¿Estuvo mucho tiempo sin luz?"
+msgid "Cem anos! Que bênção."
+msgstr "¡Cien años! Qué bendición."
 
 #: data/content.tres
-msgid "A noite toda! A gente jantou à luz de vela."
-msgstr "¡Toda la noche! Cenamos a la luz de las velas."
+msgid "Teve bolo na praça e banda. Ele dançou com a bisneta!"
+msgstr "Hubo torta en la plaza y banda. ¡Bailó con la bisnieta!"
 
 #: data/content.tres
-msgid "Sei."
-msgstr "Ya veo."
+msgid "Que bom pra ele."
+msgstr "Qué bueno para él."
+
+#: data/content.tres
+msgid "...É. E lúcido, viu? Melhor que eu."
+msgstr "...Sí. Y lúcido, ¿eh? Mejor que yo."
 
 #: data/content.tres
 msgid "Essa central nunca dorme, né?"
@@ -3892,28 +5556,28 @@ msgid "Ah... tá. Eu vejo amanhã, então."
 msgstr "Ah... bueno. Mañana veo, entonces."
 
 #: data/content.tres
-msgid "Meu relógio adiantou de novo."
-msgstr "Mi reloj se adelantó otra vez."
+msgid "Meu relógio adiantou de novo. O senhor me diz a hora certa?"
+msgstr "Mi reloj se adelantó otra vez. ¿Me dice la hora exacta?"
 
 #: data/content.tres
-msgid "O meu atrasa."
-msgstr "El mío se atrasa."
+msgid "Digo, sim. O relógio da central é o certo da cidade."
+msgstr "Claro. El reloj de la central es el que marca la hora del pueblo."
 
 #: data/content.tres
-msgid "Hehe, então a gente se completa."
-msgstr "Je, entonces nos complementamos."
+msgid "Então eu acerto o meu pelo seu. Pronto, agora vai."
+msgstr "Entonces pongo el mío en hora con el suyo. Listo, ahora sí."
 
 #: data/content.tres
 msgid "Leva no relojoeiro."
 msgstr "Llévelo al relojero."
 
 #: data/content.tres
-msgid "Tá, tá. Vou levar."
-msgstr "Sí, sí. Lo voy a llevar."
+msgid "Tá, tá. Vou levar amanhã."
+msgstr "Sí, sí. Lo llevo mañana."
 
 #: data/content.tres
-msgid "Desculpa, é que eu não consigo dormir."
-msgstr "Perdón, es que no puedo dormir."
+msgid "Desculpa ficar puxando conversa, é que eu não consigo dormir."
+msgstr "Perdone que le dé charla, es que no puedo dormir."
 
 #: data/content.tres
 msgid "Nem eu, e olha que é meu trabalho."
@@ -4032,24 +5696,24 @@ msgid "Normal pro senhor, né..."
 msgstr "Normal para usted, quizás..."
 
 #: data/content.tres
-msgid "Minha horta tá dando tomate que é uma beleza."
-msgstr "Mi huerta está dando unos tomates hermosos."
+msgid "A vizinha tá dando festa de aniversário, a música vai até tarde."
+msgstr "La vecina está festejando un cumpleaños, la música va a seguir hasta tarde."
 
 #: data/content.tres
-msgid "Qual é o segredo?"
-msgstr "¿Cuál es el secreto?"
+msgid "Pelo menos é festa, e não briga."
+msgstr "Por lo menos es fiesta, y no pelea."
 
 #: data/content.tres
-msgid "Esterco e conversa. Planta gosta de prosa."
-msgstr "Abono y charla. A las plantas les gusta conversar."
+msgid "Isso é! E ela ainda me mandou um prato de salgadinho."
+msgstr "¡Eso sí! Y encima me mandó un plato de bocaditos."
 
 #: data/content.tres
-msgid "Ah, legal."
-msgstr "Ah, qué bien."
+msgid "Paciência."
+msgstr "Paciencia."
 
 #: data/content.tres
-msgid "...É. Bom, deixa eu esperar aqui."
-msgstr "...Sí. Bueno, espero aquí."
+msgid "Paciência eu tenho. Sono é que não."
+msgstr "Paciencia tengo. Lo que no tengo es sueño."
 
 #: data/content.tres
 msgid "Que chuva, hein? Não parou desde a tarde."
@@ -4268,6 +5932,254 @@ msgid "Tô aproveitando, com um cafezinho."
 msgstr "La estoy aprovechando, con un cafecito."
 
 #: data/content.tres
+msgid "A novela das oito tá boa demais. O senhor tem acompanhado?"
+msgstr "La novela de las ocho está buenísima. ¿Usted la sigue?"
+
+#: data/content.tres
+msgid "Não perco um capítulo."
+msgstr "No me pierdo un capítulo."
+
+#: data/content.tres
+msgid "Pois é! Aposto que amanhã descobrem quem é o pai da menina."
+msgstr "¡Así es! Apuesto a que mañana descubren quién es el padre de la chica."
+
+#: data/content.tres
+msgid "Não tenho tempo pra novela."
+msgstr "No tengo tiempo para novelas."
+
+#: data/content.tres
+msgid "Ah, é verdade, o senhor trabalha de noite..."
+msgstr "Ah, es verdad, usted trabaja de noche..."
+
+#: data/content.tres
+msgid "O time da cidade ganhou domingo, viu? Três a um."
+msgstr "El equipo del pueblo ganó el domingo, ¿vio? Tres a uno."
+
+#: data/content.tres
+msgid "Vi no jornal! Que jogão."
+msgstr "¡Lo vi en el diario! Qué partidazo."
+
+#: data/content.tres
+msgid "O goleiro pegou um pênalti no fim. O povo invadiu o campo de alegria."
+msgstr "El arquero atajó un penal al final. La gente invadió la cancha de alegría."
+
+#: data/content.tres
+msgid "Não acompanho futebol."
+msgstr "No sigo el fútbol."
+
+#: data/content.tres
+msgid "Ah, então o senhor é dos poucos aqui."
+msgstr "Ah, entonces usted es de los pocos aquí."
+
+#: data/content.tres
+msgid "Minha filha vai casar mês que vem."
+msgstr "Mi hija se casa el mes que viene."
+
+#: data/content.tres
+msgid "Que notícia boa! Parabéns."
+msgstr "¡Qué buena noticia! Felicitaciones."
+
+#: data/content.tres
+msgid "Obrigada! O vestido tá sendo feito aqui em casa mesmo."
+msgstr "¡Gracias! El vestido lo están haciendo aquí mismo en casa."
+
+#: data/content.tres
+msgid "Parabéns."
+msgstr "Felicitaciones."
+
+#: data/content.tres
+msgid "Obrigada... É, tem muita coisa pra arrumar ainda."
+msgstr "Gracias... Sí, todavía hay mucho que organizar."
+
+#: data/content.tres
+msgid "O circo chegou na cidade. O senhor viu o cartaz?"
+msgstr "Llegó el circo al pueblo. ¿Vio el cartel?"
+
+#: data/content.tres
+msgid "Vi! Tem até elefante, é verdade?"
+msgstr "¡Sí! ¿Es verdad que hasta tiene elefante?"
+
+#: data/content.tres
+msgid "Tem um só, velhinho, coitado. Mas as crianças tão encantadas."
+msgstr "Uno solo, viejito, pobre. Pero los chicos están encantados."
+
+#: data/content.tres
+msgid "Não vi, não."
+msgstr "No, no lo vi."
+
+#: data/content.tres
+msgid "É lá no campo perto da estação. Tá uma festa."
+msgstr "Está en el campo cerca de la estación. Es una fiesta."
+
+#: data/content.tres
+msgid "Meu marido tá de plantão no hospital, por isso eu fico acordada até tarde."
+msgstr "Mi marido está de guardia en el hospital, por eso me quedo despierta hasta tarde."
+
+#: data/content.tres
+msgid "Deve ser puxado pra vocês dois."
+msgstr "Debe ser duro para los dos."
+
+#: data/content.tres
+msgid "É, mas a gente se acostuma. Ele chega de manhã com o pão."
+msgstr "Sí, pero uno se acostumbra. Llega a la mañana con el pan."
+
+#: data/content.tres
+msgid "Entendo."
+msgstr "Entiendo."
+
+#: data/content.tres
+msgid "Pois é... a casa fica quieta demais."
+msgstr "Así es... la casa queda demasiado callada."
+
+#: data/content.tres
+msgid "Tô com um bolo de fubá no forno enquanto espero."
+msgstr "Tengo una torta de maíz en el horno mientras espero."
+
+#: data/content.tres
+msgid "Que delícia. Deu até fome aqui."
+msgstr "Qué rico. Hasta me dio hambre."
+
+#: data/content.tres
+msgid "Se desse, eu mandava um pedaço pela linha!"
+msgstr "¡Si se pudiera, le mandaba un pedazo por la línea!"
+
+#: data/content.tres
+msgid "Tá quase pronto... o cheiro já tomou a casa toda."
+msgstr "Ya casi está... el olor llenó toda la casa."
+
+#: data/content.tres
+msgid "Chegou carta do meu irmão hoje, depois de dois anos. Tô tão contente que precisava contar pra alguém."
+msgstr "Hoy llegó carta de mi hermano, después de dos años. Estoy tan contenta que necesitaba contárselo a alguien."
+
+#: data/content.tres
+msgid "Que bom! E ele está bem?"
+msgstr "¡Qué bueno! ¿Y él está bien?"
+
+#: data/content.tres
+msgid "Tá ótimo! E diz que vem pro Natal."
+msgstr "¡Está muy bien! Y dice que viene para Navidad."
+
+#: data/content.tres
+msgid "Que bom."
+msgstr "Qué bueno."
+
+#: data/content.tres
+msgid "É... ele escreve pouco, mas escreve."
+msgstr "Sí... escribe poco, pero escribe."
+
+#: data/content.tres
+msgid "Acabei de chegar da novena. A igreja tava cheia."
+msgstr "Acabo de volver de la novena. La iglesia estaba llena."
+
+#: data/content.tres
+msgid "Que bom. Essa cidade tem muita fé."
+msgstr "Qué bueno. Este pueblo tiene mucha fe."
+
+#: data/content.tres
+msgid "Tem! O padre Anselmo até pediu mais bancos pra prefeitura."
+msgstr "¡Mucha! El padre Anselmo hasta le pidió más bancos a la municipalidad."
+
+#: data/content.tres
+msgid "Tava bonita, mas comprida que só."
+msgstr "Estuvo linda, pero larguísima."
+
+#: data/content.tres
+msgid "Amanhã cedo eu levo minha mãe no médico, na capital. Nem sei se vou conseguir dormir."
+msgstr "Mañana temprano llevo a mi mamá al médico, en la capital. No sé si voy a poder dormir."
+
+#: data/content.tres
+msgid "Vai dar tudo certo."
+msgstr "Todo va a salir bien."
+
+#: data/content.tres
+msgid "Deus queira. É só exame, mas ela tá nervosa, e eu mais ainda."
+msgstr "Ojalá. Son solo estudios, pero ella está nerviosa, y yo más todavía."
+
+#: data/content.tres
+msgid "Boa viagem."
+msgstr "Buen viaje."
+
+#: data/content.tres
+msgid "Obrigada. A estrada é longa, mas a gente vai."
+msgstr "Gracias. El camino es largo, pero vamos."
+
+#: data/content.tres
+msgid "A prefeitura prometeu calçar a minha rua de novo."
+msgstr "La municipalidad prometió empedrar mi calle otra vez."
+
+#: data/content.tres
+msgid "Quem sabe dessa vez sai."
+msgstr "A lo mejor esta vez sale."
+
+#: data/content.tres
+msgid "Deus te ouça! Toda eleição é a mesma promessa."
+msgstr "¡Dios lo oiga! Cada elección es la misma promesa."
+
+#: data/content.tres
+msgid "Promessa é promessa."
+msgstr "Promesa es promesa."
+
+#: data/content.tres
+msgid "Pois é, e buraco é buraco."
+msgstr "Así es, y un pozo es un pozo."
+
+#: data/content.tres
+msgid "Tô fazendo crochê enquanto espero. Aprendi com a minha vizinha."
+msgstr "Estoy tejiendo crochet mientras espero. Me enseñó mi vecina."
+
+#: data/content.tres
+msgid "Que bonito! Já fez alguma peça?"
+msgstr "¡Qué lindo! ¿Ya hizo alguna pieza?"
+
+#: data/content.tres
+msgid "Um paninho de bandeja. Torto, mas é meu."
+msgstr "Un paño de bandeja. Torcido, pero es mío."
+
+#: data/content.tres
+msgid "É um passatempo. A noite fica mais curta."
+msgstr "Es un pasatiempo. La noche se hace más corta."
+
+#: data/content.tres
+msgid "O senhor sabe se a farmácia de plantão hoje é a Santa Rita?"
+msgstr "¿Usted sabe si la farmacia de turno hoy es la Santa Rita?"
+
+#: data/content.tres
+msgid "É a Santa Rita, sim, na Rua do Mercado."
+msgstr "Sí, es la Santa Rita, en la Rua do Mercado."
+
+#: data/content.tres
+msgid "Ah, bom saber. Vai que alguém precisa de noite."
+msgstr "Ah, bueno saberlo. Por si alguien necesita de noche."
+
+#: data/content.tres
+msgid "Não sei dizer."
+msgstr "No sabría decirle."
+
+#: data/content.tres
+msgid "Tudo bem, amanhã eu pergunto lá."
+msgstr "Está bien, mañana pregunto allá."
+
+#: data/content.tres
+msgid "O Cine Odeon vai passar filme novo no sábado."
+msgstr "El Cine Odeon va a pasar una película nueva el sábado."
+
+#: data/content.tres
+msgid "Qual filme?"
+msgstr "¿Qué película?"
+
+#: data/content.tres
+msgid "Um de faroeste, com tiroteio e tudo. Já separei o dinheiro."
+msgstr "Una del oeste, con tiroteo y todo. Ya separé la plata."
+
+#: data/content.tres
+msgid "Não vou muito ao cinema."
+msgstr "No voy mucho al cine."
+
+#: data/content.tres
+msgid "Pois devia! Trocaram as cadeiras, tá uma beleza."
+msgstr "¡Debería! Cambiaron las butacas, quedó precioso."
+
+#: data/content.tres
 msgid "Vai indo, moço."
 msgstr "Ahí va, joven."
 
@@ -4290,10 +6202,6 @@ msgstr "Ahí va, como se puede."
 #: data/content.tres
 msgid "Ah, aqui tá tudo calmo."
 msgstr "Ah, aquí está todo tranquilo."
-
-#: data/content.tres
-msgid "Alô? Central?"
-msgstr "¿Hola? ¿Central?"
 
 #: data/content.tres
 msgid "Ainda está aí?"
@@ -4426,10 +6334,6 @@ msgstr "Joven, esa voz no la conozco."
 #: data/content.tres
 msgid "Não é esse número, não."
 msgstr "No es ese número, no."
-
-#: data/content.tres
-msgid "Moradora"
-msgstr "Residente"
 
 #: data/content.tres
 msgid "Liguei agora há pouco e ninguém atendeu!"

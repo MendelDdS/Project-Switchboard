@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_emerg"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[resource]
+script = ExtResource("1_emerg")
+voice = "f"
+caller = "Zeladora da igreja"
+opening = "Central, uma senhora passou mal na saída da missa! Caiu no chão!"
+questions = PackedStringArray("Qual é o endereço?", "Ela está respirando?", "Ela consegue falar?")
+answers = PackedStringArray("Rua da Matriz, 30. Na escadaria do lado da igreja.", "Tá, mas tá branca que nem papel.", "Tá tentando, mas a boca tá torta e a fala sai enrolada.")
+street = "matriz"
+block = 0
+address = "Rua da Matriz, 30"
+occurrence = "Mal súbito"
+units = PackedStringArray("amb")
+after = "Graças a Deus. O padre tá aqui segurando a mão dela."
+stage_sec = Vector3(35, 18, 18)
+worsening = "Ela não mexe mais o braço direito!"
+worsening_units = PackedStringArray()
+worsening_question = "Ela está acordada?"
+worsening_answer = "Tá de olho aberto, mas não responde quando a gente chama."
+critical = "Ela tá vomitando! A gente virou ela de lado!"
+critical_units = PackedStringArray()
+critical_question = "Ela bateu a cabeça quando caiu?"
+critical_answer = "Bateu no degrau. Tem um galo, mas não sangra."
+lost = "Ela fechou os olhos... o padre já tá rezando por ela."
+lost_answer = "Ela ainda respira, mas bem fraquinho. Não acorda mais."
+lost_units = PackedStringArray("amb")

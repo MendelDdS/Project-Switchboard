@@ -337,3 +337,16 @@ O que o usuário pediu, em ordem (antes no `CLAUDE.md`). Acrescente cada pedido 
     sendo atendida). A terceira espera; o debug recusa.
 106. Viaturas pela quantidade de emergências: com duas em andamento, até duas de cada tipo (a de reserva sai da mesma
     base); com uma, continua uma de cada, e quem errou espera ela voltar.
+107. Mais ligações: 13 transferências escritas (os destinos que ainda não tinham, várias com alternativa do mesmo
+    ramo), 3 moldes de transferência, 14 emergências escritas (7 no Centro e 7 no Alto da Serra, dez por bairro),
+    5 moldes de emergência (queda, fio caído, gás, atropelamento, desabamento) e 10 trotes.
+108. Mais 13 assuntos de conversa fiada do cotidiano (novela, futebol, casamento da filha, circo, marido de plantão,
+    bolo no forno, carta do irmão, novena, viagem ao médico, rua sem calçamento, crochê, farmácia de plantão, filme no
+    cinema), cada um com uma resposta simpática e uma seca que continuam o assunto. Galinha, dente de leite, cachorro
+    fugido e rádio novo saíram a pedido: assunto sem motivo para contar à central (curiosidade solta) parece aleatório;
+    toda conversa fiada precisa de um gancho: novidade da cidade, o que a pessoa faz enquanto espera ou por que está acordada.
+109. Revisão dos assuntos antigos pelo mesmo critério: horta e falta de luz (perto demais do mistério) trocados pela
+    festa da vizinha e pelos cem anos do seu Geraldo; relógio adiantado pede a hora certa à central; o crochê é feito
+    enquanto espera. Pedir desculpa por ligar tarde não faz sentido (é o horário da central): uma pede desculpa por
+    incomodar com a central cheia, a outra por puxar conversa. A carta do irmão diz por que ela conta (precisava contar
+    pra alguém).

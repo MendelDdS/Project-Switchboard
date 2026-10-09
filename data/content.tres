@@ -106,6 +106,51 @@
 [ext_resource type="Resource" path="res://data/room/quermesse.tres" id="81_room"]
 [ext_resource type="Resource" path="res://data/room/numero.tres" id="82_room"]
 [ext_resource type="Resource" path="res://data/room/armario.tres" id="83_room"]
+[ext_resource type="Resource" path="res://data/calls/transfer_38_dona_benta_pensao_dona_cota.tres" id="n_transfer_38_dona_benta_pensao_dona_cota"]
+[ext_resource type="Resource" path="res://data/calls/transfer_39_caixeiro_hotel_estrela.tres" id="n_transfer_39_caixeiro_hotel_estrela"]
+[ext_resource type="Resource" path="res://data/calls/transfer_40_motorista_borracharia_do_neno.tres" id="n_transfer_40_motorista_borracharia_do_neno"]
+[ext_resource type="Resource" path="res://data/calls/transfer_41_rapaz_bilhar_do_tonho.tres" id="n_transfer_41_rapaz_bilhar_do_tonho"]
+[ext_resource type="Resource" path="res://data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres" id="n_transfer_42_dona_zefa_farmacia_santa_rita"]
+[ext_resource type="Resource" path="res://data/calls/transfer_43_noivo_casa_paroquial.tres" id="n_transfer_43_noivo_casa_paroquial"]
+[ext_resource type="Resource" path="res://data/calls/transfer_44_dona_glorinha_padaria_pao_dourado.tres" id="n_transfer_44_dona_glorinha_padaria_pao_dourado"]
+[ext_resource type="Resource" path="res://data/calls/transfer_45_reporter_gazeta.tres" id="n_transfer_45_reporter_gazeta"]
+[ext_resource type="Resource" path="res://data/calls/transfer_46_afilhado_geraldo_martins.tres" id="n_transfer_46_afilhado_geraldo_martins"]
+[ext_resource type="Resource" path="res://data/calls/transfer_47_veterinario_sitio_boa_esperanca.tres" id="n_transfer_47_veterinario_sitio_boa_esperanca"]
+[ext_resource type="Resource" path="res://data/calls/transfer_48_dona_mirtes_laudelina_prado.tres" id="n_transfer_48_dona_mirtes_laudelina_prado"]
+[ext_resource type="Resource" path="res://data/calls/transfer_49_menino_mercearia_silva.tres" id="n_transfer_49_menino_mercearia_silva"]
+[ext_resource type="Resource" path="res://data/calls/transfer_50_senhora_otavio_almeida.tres" id="n_transfer_50_senhora_otavio_almeida"]
+[ext_resource type="Resource" path="res://data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres" id="n_emergency_17_incendio_rua_sete_de_setembro_60"]
+[ext_resource type="Resource" path="res://data/calls/emergency_18_invasao_rua_do_mercado_90.tres" id="n_emergency_18_invasao_rua_do_mercado_90"]
+[ext_resource type="Resource" path="res://data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres" id="n_emergency_19_mal_subito_rua_da_matriz_30"]
+[ext_resource type="Resource" path="res://data/calls/emergency_20_acidente_avenida_brasil_420.tres" id="n_emergency_20_acidente_avenida_brasil_420"]
+[ext_resource type="Resource" path="res://data/calls/emergency_21_outro_rua_das_flores_350.tres" id="n_emergency_21_outro_rua_das_flores_350"]
+[ext_resource type="Resource" path="res://data/calls/emergency_22_outro_rua_tiradentes_250.tres" id="n_emergency_22_outro_rua_tiradentes_250"]
+[ext_resource type="Resource" path="res://data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres" id="n_emergency_23_mal_subito_rua_das_acacias_450"]
+[ext_resource type="Resource" path="res://data/calls/emergency_24_acidente_rua_das_palmeiras_140.tres" id="n_emergency_24_acidente_rua_das_palmeiras_140"]
+[ext_resource type="Resource" path="res://data/calls/emergency_25_invasao_rua_bela_vista_230.tres" id="n_emergency_25_invasao_rua_bela_vista_230"]
+[ext_resource type="Resource" path="res://data/calls/emergency_26_incendio_rua_do_cruzeiro_260.tres" id="n_emergency_26_incendio_rua_do_cruzeiro_260"]
+[ext_resource type="Resource" path="res://data/calls/emergency_27_outro_rua_do_moinho_410.tres" id="n_emergency_27_outro_rua_do_moinho_410"]
+[ext_resource type="Resource" path="res://data/calls/emergency_28_outro_rua_da_estacao_450.tres" id="n_emergency_28_outro_rua_da_estacao_450"]
+[ext_resource type="Resource" path="res://data/calls/emergency_29_invasao_rua_do_comercio_420.tres" id="n_emergency_29_invasao_rua_do_comercio_420"]
+[ext_resource type="Resource" path="res://data/calls/emergency_30_mal_subito_rua_bela_vista_160.tres" id="n_emergency_30_mal_subito_rua_bela_vista_160"]
+[ext_resource type="Resource" path="res://data/calls/prank_11_menino.tres" id="n_prank_11_menino"]
+[ext_resource type="Resource" path="res://data/calls/prank_12_menina.tres" id="n_prank_12_menina"]
+[ext_resource type="Resource" path="res://data/calls/prank_13_menino.tres" id="n_prank_13_menino"]
+[ext_resource type="Resource" path="res://data/calls/prank_14_rapaz.tres" id="n_prank_14_rapaz"]
+[ext_resource type="Resource" path="res://data/calls/prank_15_garoto.tres" id="n_prank_15_garoto"]
+[ext_resource type="Resource" path="res://data/calls/prank_16_rapaz.tres" id="n_prank_16_rapaz"]
+[ext_resource type="Resource" path="res://data/calls/prank_17_menino.tres" id="n_prank_17_menino"]
+[ext_resource type="Resource" path="res://data/calls/prank_18_garoto.tres" id="n_prank_18_garoto"]
+[ext_resource type="Resource" path="res://data/calls/prank_19_criancas.tres" id="n_prank_19_criancas"]
+[ext_resource type="Resource" path="res://data/calls/prank_20_menina.tres" id="n_prank_20_menina"]
+[ext_resource type="Resource" path="res://data/templates/transfer_08.tres" id="n_transfer_08"]
+[ext_resource type="Resource" path="res://data/templates/transfer_09.tres" id="n_transfer_09"]
+[ext_resource type="Resource" path="res://data/templates/transfer_10.tres" id="n_transfer_10"]
+[ext_resource type="Resource" path="res://data/templates/emergency_queda.tres" id="n_emergency_queda"]
+[ext_resource type="Resource" path="res://data/templates/emergency_fio_caido.tres" id="n_emergency_fio_caido"]
+[ext_resource type="Resource" path="res://data/templates/emergency_gas.tres" id="n_emergency_gas"]
+[ext_resource type="Resource" path="res://data/templates/emergency_atropelamento.tres" id="n_emergency_atropelamento"]
+[ext_resource type="Resource" path="res://data/templates/emergency_desabamento.tres" id="n_emergency_desabamento"]
 
 [sub_resource type="Resource" id="Resource_ssh4q"]
 script = ExtResource("1_6g7xa")
@@ -480,7 +525,7 @@ tone = 2
 [sub_resource type="Resource" id="Topic_00"]
 script = ExtResource("99_chat")
 unprompted_only = true
-line = "Desculpe ligar tão tarde."
+line = "Desculpe incomodar, o senhor deve estar cheio de ligação."
 replies = Array[ExtResource("98_reply")]([SubResource("Reply_00_0"), SubResource("Reply_00_1")])
 
 [sub_resource type="Resource" id="Reply_01_0"]
@@ -538,19 +583,19 @@ replies = Array[ExtResource("98_reply")]([SubResource("Reply_03_0"), SubResource
 
 [sub_resource type="Resource" id="Reply_04_0"]
 script = ExtResource("98_reply")
-text = "Ouvi falar. Ficou muito tempo sem?"
-follow = "A noite toda! A gente jantou à luz de vela."
+text = "Cem anos! Que bênção."
+follow = "Teve bolo na praça e banda. Ele dançou com a bisneta!"
 tone = 1
 
 [sub_resource type="Resource" id="Reply_04_1"]
 script = ExtResource("98_reply")
-text = "Sei."
-follow = "...Pois é."
+text = "Que bom pra ele."
+follow = "...É. E lúcido, viu? Melhor que eu."
 tone = 2
 
 [sub_resource type="Resource" id="Topic_04"]
 script = ExtResource("99_chat")
-line = "Faltou luz lá na Rua do Sol ontem, sabia?"
+line = "O seu Geraldo, da Rua da Matriz, fez cem anos hoje, sabia?"
 replies = Array[ExtResource("98_reply")]([SubResource("Reply_04_0"), SubResource("Reply_04_1")])
 
 [sub_resource type="Resource" id="Reply_05_0"]
@@ -606,19 +651,19 @@ replies = Array[ExtResource("98_reply")]([SubResource("Reply_07_0"), SubResource
 
 [sub_resource type="Resource" id="Reply_08_0"]
 script = ExtResource("98_reply")
-text = "O meu atrasa."
-follow = "Hehe, então a gente se completa."
+text = "Digo, sim. O relógio da central é o certo da cidade."
+follow = "Então eu acerto o meu pelo seu. Pronto, agora vai."
 tone = 1
 
 [sub_resource type="Resource" id="Reply_08_1"]
 script = ExtResource("98_reply")
 text = "Leva no relojoeiro."
-follow = "Tá, tá. Vou levar."
+follow = "Tá, tá. Vou levar amanhã."
 tone = 2
 
 [sub_resource type="Resource" id="Topic_08"]
 script = ExtResource("99_chat")
-line = "Meu relógio adiantou de novo."
+line = "Meu relógio adiantou de novo. O senhor me diz a hora certa?"
 replies = Array[ExtResource("98_reply")]([SubResource("Reply_08_0"), SubResource("Reply_08_1")])
 
 [sub_resource type="Resource" id="Reply_09_0"]
@@ -636,7 +681,7 @@ tone = 2
 [sub_resource type="Resource" id="Topic_09"]
 script = ExtResource("99_chat")
 unprompted_only = true
-line = "Desculpa, é que eu não consigo dormir."
+line = "Desculpa ficar puxando conversa, é que eu não consigo dormir."
 replies = Array[ExtResource("98_reply")]([SubResource("Reply_09_0"), SubResource("Reply_09_1")])
 
 [sub_resource type="Resource" id="Reply_10_0"]
@@ -726,19 +771,19 @@ replies = Array[ExtResource("98_reply")]([SubResource("Reply_14_0"), SubResource
 
 [sub_resource type="Resource" id="Reply_15_0"]
 script = ExtResource("98_reply")
-text = "Qual é o segredo?"
-follow = "Esterco e conversa. Planta gosta de prosa."
+text = "Pelo menos é festa, e não briga."
+follow = "Isso é! E ela ainda me mandou um prato de salgadinho."
 tone = 1
 
 [sub_resource type="Resource" id="Reply_15_1"]
 script = ExtResource("98_reply")
-text = "Ah, legal."
-follow = "...É. Bom, deixa eu esperar aqui."
+text = "Paciência."
+follow = "Paciência eu tenho. Sono é que não."
 tone = 2
 
 [sub_resource type="Resource" id="Topic_15"]
 script = ExtResource("99_chat")
-line = "Minha horta tá dando tomate que é uma beleza."
+line = "A vizinha tá dando festa de aniversário, a música vai até tarde."
 replies = Array[ExtResource("98_reply")]([SubResource("Reply_15_0"), SubResource("Reply_15_1")])
 
 [sub_resource type="Resource" id="Reply_16_0"]
@@ -939,6 +984,230 @@ weather = "clear"
 line = "Noite fresquinha, né? Até dá gosto de ficar na janela."
 replies = Array[ExtResource("98_reply")]([SubResource("Reply_26_0"), SubResource("Reply_26_1")])
 
+[sub_resource type="Resource" id="Reply_27_0"]
+script = ExtResource("98_reply")
+text = "Não perco um capítulo."
+follow = "Pois é! Aposto que amanhã descobrem quem é o pai da menina."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_27_1"]
+script = ExtResource("98_reply")
+text = "Não tenho tempo pra novela."
+follow = "Ah, é verdade, o senhor trabalha de noite..."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_27"]
+script = ExtResource("99_chat")
+line = "A novela das oito tá boa demais. O senhor tem acompanhado?"
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_27_0"), SubResource("Reply_27_1")])
+
+[sub_resource type="Resource" id="Reply_28_0"]
+script = ExtResource("98_reply")
+text = "Vi no jornal! Que jogão."
+follow = "O goleiro pegou um pênalti no fim. O povo invadiu o campo de alegria."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_28_1"]
+script = ExtResource("98_reply")
+text = "Não acompanho futebol."
+follow = "Ah, então o senhor é dos poucos aqui."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_28"]
+script = ExtResource("99_chat")
+voices = PackedStringArray("m", "w")
+line = "O time da cidade ganhou domingo, viu? Três a um."
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_28_0"), SubResource("Reply_28_1")])
+
+[sub_resource type="Resource" id="Reply_29_0"]
+script = ExtResource("98_reply")
+text = "Que notícia boa! Parabéns."
+follow = "Obrigada! O vestido tá sendo feito aqui em casa mesmo."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_29_1"]
+script = ExtResource("98_reply")
+text = "Parabéns."
+follow = "Obrigada... É, tem muita coisa pra arrumar ainda."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_29"]
+script = ExtResource("99_chat")
+line = "Minha filha vai casar mês que vem."
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_29_0"), SubResource("Reply_29_1")])
+
+[sub_resource type="Resource" id="Reply_30_0"]
+script = ExtResource("98_reply")
+text = "Vi! Tem até elefante, é verdade?"
+follow = "Tem um só, velhinho, coitado. Mas as crianças tão encantadas."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_30_1"]
+script = ExtResource("98_reply")
+text = "Não vi, não."
+follow = "É lá no campo perto da estação. Tá uma festa."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_30"]
+script = ExtResource("99_chat")
+line = "O circo chegou na cidade. O senhor viu o cartaz?"
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_30_0"), SubResource("Reply_30_1")])
+
+[sub_resource type="Resource" id="Reply_31_0"]
+script = ExtResource("98_reply")
+text = "Deve ser puxado pra vocês dois."
+follow = "É, mas a gente se acostuma. Ele chega de manhã com o pão."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_31_1"]
+script = ExtResource("98_reply")
+text = "Entendo."
+follow = "Pois é... a casa fica quieta demais."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_31"]
+script = ExtResource("99_chat")
+voices = PackedStringArray("f")
+line = "Meu marido tá de plantão no hospital, por isso eu fico acordada até tarde."
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_31_0"), SubResource("Reply_31_1")])
+
+[sub_resource type="Resource" id="Reply_32_0"]
+script = ExtResource("98_reply")
+text = "Que delícia. Deu até fome aqui."
+follow = "Se desse, eu mandava um pedaço pela linha!"
+tone = 1
+
+[sub_resource type="Resource" id="Reply_32_1"]
+script = ExtResource("98_reply")
+text = "Hum."
+follow = "Tá quase pronto... o cheiro já tomou a casa toda."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_32"]
+script = ExtResource("99_chat")
+line = "Tô com um bolo de fubá no forno enquanto espero."
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_32_0"), SubResource("Reply_32_1")])
+
+[sub_resource type="Resource" id="Reply_33_0"]
+script = ExtResource("98_reply")
+text = "Que bom! E ele está bem?"
+follow = "Tá ótimo! E diz que vem pro Natal."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_33_1"]
+script = ExtResource("98_reply")
+text = "Que bom."
+follow = "É... ele escreve pouco, mas escreve."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_33"]
+script = ExtResource("99_chat")
+line = "Chegou carta do meu irmão hoje, depois de dois anos. Tô tão contente que precisava contar pra alguém."
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_33_0"), SubResource("Reply_33_1")])
+
+[sub_resource type="Resource" id="Reply_34_0"]
+script = ExtResource("98_reply")
+text = "Que bom. Essa cidade tem muita fé."
+follow = "Tem! O padre Anselmo até pediu mais bancos pra prefeitura."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_34_1"]
+script = ExtResource("98_reply")
+text = "Hum."
+follow = "Tava bonita, mas comprida que só."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_34"]
+script = ExtResource("99_chat")
+line = "Acabei de chegar da novena. A igreja tava cheia."
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_34_0"), SubResource("Reply_34_1")])
+
+[sub_resource type="Resource" id="Reply_35_0"]
+script = ExtResource("98_reply")
+text = "Vai dar tudo certo."
+follow = "Deus queira. É só exame, mas ela tá nervosa, e eu mais ainda."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_35_1"]
+script = ExtResource("98_reply")
+text = "Boa viagem."
+follow = "Obrigada. A estrada é longa, mas a gente vai."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_35"]
+script = ExtResource("99_chat")
+line = "Amanhã cedo eu levo minha mãe no médico, na capital. Nem sei se vou conseguir dormir."
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_35_0"), SubResource("Reply_35_1")])
+
+[sub_resource type="Resource" id="Reply_36_0"]
+script = ExtResource("98_reply")
+text = "Quem sabe dessa vez sai."
+follow = "Deus te ouça! Toda eleição é a mesma promessa."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_36_1"]
+script = ExtResource("98_reply")
+text = "Promessa é promessa."
+follow = "Pois é, e buraco é buraco."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_36"]
+script = ExtResource("99_chat")
+line = "A prefeitura prometeu calçar a minha rua de novo."
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_36_0"), SubResource("Reply_36_1")])
+
+[sub_resource type="Resource" id="Reply_37_0"]
+script = ExtResource("98_reply")
+text = "Que bonito! Já fez alguma peça?"
+follow = "Um paninho de bandeja. Torto, mas é meu."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_37_1"]
+script = ExtResource("98_reply")
+text = "Hum."
+follow = "É um passatempo. A noite fica mais curta."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_37"]
+script = ExtResource("99_chat")
+voices = PackedStringArray("f", "w")
+line = "Tô fazendo crochê enquanto espero. Aprendi com a minha vizinha."
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_37_0"), SubResource("Reply_37_1")])
+
+[sub_resource type="Resource" id="Reply_38_0"]
+script = ExtResource("98_reply")
+text = "É a Santa Rita, sim, na Rua do Mercado."
+follow = "Ah, bom saber. Vai que alguém precisa de noite."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_38_1"]
+script = ExtResource("98_reply")
+text = "Não sei dizer."
+follow = "Tudo bem, amanhã eu pergunto lá."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_38"]
+script = ExtResource("99_chat")
+line = "O senhor sabe se a farmácia de plantão hoje é a Santa Rita?"
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_38_0"), SubResource("Reply_38_1")])
+
+[sub_resource type="Resource" id="Reply_39_0"]
+script = ExtResource("98_reply")
+text = "Qual filme?"
+follow = "Um de faroeste, com tiroteio e tudo. Já separei o dinheiro."
+tone = 1
+
+[sub_resource type="Resource" id="Reply_39_1"]
+script = ExtResource("98_reply")
+text = "Não vou muito ao cinema."
+follow = "Pois devia! Trocaram as cadeiras, tá uma beleza."
+tone = 2
+
+[sub_resource type="Resource" id="Topic_39"]
+script = ExtResource("99_chat")
+line = "O Cine Odeon vai passar filme novo no sábado."
+replies = Array[ExtResource("98_reply")]([SubResource("Reply_39_0"), SubResource("Reply_39_1")])
+
 [sub_resource type="Resource" id="Pace_1"]
 script = ExtResource("97_pace")
 call_gap = Vector2(45, 60)
@@ -1059,14 +1328,14 @@ nights = Array[ExtResource("90_night")]([ExtResource("91_night1"), ExtResource("
 training = ExtResource("91_night0")
 room = Array[ExtResource("80_room")]([ExtResource("81_room"), ExtResource("82_room"), ExtResource("83_room")])
 paces = Array[ExtResource("97_pace")]([SubResource("Pace_1"), SubResource("Pace_2"), SubResource("Pace_3"), SubResource("Pace_4"), SubResource("Pace_5")])
-transfers = Array[ExtResource("17_q4d2e")]([ExtResource("18_g0ddb"), ExtResource("19_y6u46"), ExtResource("20_5hhcc"), ExtResource("21_r4mvx"), ExtResource("22_nagbo"), ExtResource("23_7ad0u"), ExtResource("24_76ki8"), ExtResource("25_q3bf4"), ExtResource("26_61w3p"), ExtResource("27_grq3w"), ExtResource("28_otrev"), ExtResource("29_flf23"), ExtResource("30_amupc"), ExtResource("31_xeepj"), ExtResource("32_nyi6e"), ExtResource("33_xdh2c"), ExtResource("34_hps07"), ExtResource("35_2ubng"), ExtResource("36_35dgx"), ExtResource("37_8shhh"), ExtResource("38_ko1bc"), ExtResource("39_11ieg"), ExtResource("40_grptk"), ExtResource("41_e6ja0"), ExtResource("50_amupc"), ExtResource("51_xeepj"), ExtResource("52_nyi6e"), ExtResource("53_xdh2c"), ExtResource("54_hps07"), ExtResource("55_2ubng"), ExtResource("56_35dgx"), ExtResource("57_8shhh"), ExtResource("58_ko1bc"), ExtResource("59_11ieg"), ExtResource("60_grptk"), ExtResource("61_e6ja0"), ExtResource("62_ssh4q")])
-emergencies = Array[ExtResource("2_l0sn3")]([ExtResource("3_v72nw"), ExtResource("4_brh46"), ExtResource("5_t6c0w"), ExtResource("6_cbrcj"), ExtResource("7_ks6ko"), ExtResource("8_ec5ew"), ExtResource("9_nagbo"), ExtResource("10_7ad0u"), ExtResource("11_76ki8"), ExtResource("12_q3bf4"), ExtResource("80_em11"), ExtResource("81_em12"), ExtResource("82_em13"), ExtResource("83_em14"), ExtResource("84_em15"), ExtResource("85_em16")])
-pranks = Array[ExtResource("9_ev121")]([ExtResource("10_wfk0g"), ExtResource("11_pg478"), ExtResource("12_3mr8u"), ExtResource("13_4b6fe"), ExtResource("14_3w1w1"), ExtResource("19_61w3p"), ExtResource("20_grq3w"), ExtResource("21_otrev"), ExtResource("22_flf23"), ExtResource("23_pt10r")])
-transfer_templates = Array[ExtResource("17_q4d2e")]([ExtResource("31_11ieg"), ExtResource("32_grptk"), ExtResource("33_e6ja0"), ExtResource("34_ssh4q"), ExtResource("35_7bth5"), ExtResource("36_4thi7"), ExtResource("37_ufmoj")])
+transfers = Array[ExtResource("17_q4d2e")]([ExtResource("18_g0ddb"), ExtResource("19_y6u46"), ExtResource("20_5hhcc"), ExtResource("21_r4mvx"), ExtResource("22_nagbo"), ExtResource("23_7ad0u"), ExtResource("24_76ki8"), ExtResource("25_q3bf4"), ExtResource("26_61w3p"), ExtResource("27_grq3w"), ExtResource("28_otrev"), ExtResource("29_flf23"), ExtResource("30_amupc"), ExtResource("31_xeepj"), ExtResource("32_nyi6e"), ExtResource("33_xdh2c"), ExtResource("34_hps07"), ExtResource("35_2ubng"), ExtResource("36_35dgx"), ExtResource("37_8shhh"), ExtResource("38_ko1bc"), ExtResource("39_11ieg"), ExtResource("40_grptk"), ExtResource("41_e6ja0"), ExtResource("50_amupc"), ExtResource("51_xeepj"), ExtResource("52_nyi6e"), ExtResource("53_xdh2c"), ExtResource("54_hps07"), ExtResource("55_2ubng"), ExtResource("56_35dgx"), ExtResource("57_8shhh"), ExtResource("58_ko1bc"), ExtResource("59_11ieg"), ExtResource("60_grptk"), ExtResource("61_e6ja0"), ExtResource("62_ssh4q"), ExtResource("n_transfer_38_dona_benta_pensao_dona_cota"), ExtResource("n_transfer_39_caixeiro_hotel_estrela"), ExtResource("n_transfer_40_motorista_borracharia_do_neno"), ExtResource("n_transfer_41_rapaz_bilhar_do_tonho"), ExtResource("n_transfer_42_dona_zefa_farmacia_santa_rita"), ExtResource("n_transfer_43_noivo_casa_paroquial"), ExtResource("n_transfer_44_dona_glorinha_padaria_pao_dourado"), ExtResource("n_transfer_45_reporter_gazeta"), ExtResource("n_transfer_46_afilhado_geraldo_martins"), ExtResource("n_transfer_47_veterinario_sitio_boa_esperanca"), ExtResource("n_transfer_48_dona_mirtes_laudelina_prado"), ExtResource("n_transfer_49_menino_mercearia_silva"), ExtResource("n_transfer_50_senhora_otavio_almeida")])
+emergencies = Array[ExtResource("2_l0sn3")]([ExtResource("3_v72nw"), ExtResource("4_brh46"), ExtResource("5_t6c0w"), ExtResource("6_cbrcj"), ExtResource("7_ks6ko"), ExtResource("8_ec5ew"), ExtResource("9_nagbo"), ExtResource("10_7ad0u"), ExtResource("11_76ki8"), ExtResource("12_q3bf4"), ExtResource("80_em11"), ExtResource("81_em12"), ExtResource("82_em13"), ExtResource("83_em14"), ExtResource("84_em15"), ExtResource("85_em16"), ExtResource("n_emergency_17_incendio_rua_sete_de_setembro_60"), ExtResource("n_emergency_18_invasao_rua_do_mercado_90"), ExtResource("n_emergency_19_mal_subito_rua_da_matriz_30"), ExtResource("n_emergency_20_acidente_avenida_brasil_420"), ExtResource("n_emergency_21_outro_rua_das_flores_350"), ExtResource("n_emergency_22_outro_rua_tiradentes_250"), ExtResource("n_emergency_23_mal_subito_rua_das_acacias_450"), ExtResource("n_emergency_24_acidente_rua_das_palmeiras_140"), ExtResource("n_emergency_25_invasao_rua_bela_vista_230"), ExtResource("n_emergency_26_incendio_rua_do_cruzeiro_260"), ExtResource("n_emergency_27_outro_rua_do_moinho_410"), ExtResource("n_emergency_28_outro_rua_da_estacao_450"), ExtResource("n_emergency_29_invasao_rua_do_comercio_420"), ExtResource("n_emergency_30_mal_subito_rua_bela_vista_160")])
+pranks = Array[ExtResource("9_ev121")]([ExtResource("10_wfk0g"), ExtResource("11_pg478"), ExtResource("12_3mr8u"), ExtResource("13_4b6fe"), ExtResource("14_3w1w1"), ExtResource("19_61w3p"), ExtResource("20_grq3w"), ExtResource("21_otrev"), ExtResource("22_flf23"), ExtResource("23_pt10r"), ExtResource("n_prank_11_menino"), ExtResource("n_prank_12_menina"), ExtResource("n_prank_13_menino"), ExtResource("n_prank_14_rapaz"), ExtResource("n_prank_15_garoto"), ExtResource("n_prank_16_rapaz"), ExtResource("n_prank_17_menino"), ExtResource("n_prank_18_garoto"), ExtResource("n_prank_19_criancas"), ExtResource("n_prank_20_menina")])
+transfer_templates = Array[ExtResource("17_q4d2e")]([ExtResource("31_11ieg"), ExtResource("32_grptk"), ExtResource("33_e6ja0"), ExtResource("34_ssh4q"), ExtResource("35_7bth5"), ExtResource("36_4thi7"), ExtResource("37_ufmoj"), ExtResource("n_transfer_08"), ExtResource("n_transfer_09"), ExtResource("n_transfer_10")])
 transfer_thanks = PackedStringArray("Deus lhe pague.", "Valeu, central.", "Agradeço. Boa noite.", "Ótimo. Boa noite.", "Isso. Boa noite pro senhor.")
-emergency_templates = Array[ExtResource("2_l0sn3")]([ExtResource("13_hps07"), ExtResource("14_2ubng"), ExtResource("15_35dgx"), ExtResource("16_8shhh"), ExtResource("17_ko1bc")])
+emergency_templates = Array[ExtResource("2_l0sn3")]([ExtResource("13_hps07"), ExtResource("14_2ubng"), ExtResource("15_35dgx"), ExtResource("16_8shhh"), ExtResource("17_ko1bc"), ExtResource("n_emergency_queda"), ExtResource("n_emergency_fio_caido"), ExtResource("n_emergency_gas"), ExtResource("n_emergency_atropelamento"), ExtResource("n_emergency_desabamento")])
 greetings = PackedStringArray("Central, boa noite.", "Central telefônica, pois não?", "Central, boa noite. Em que posso ajudar?", "Central, pois não?", "Central.", "Central telefônica, boa noite.", "Central de São Sotero, pois não?")
-smalltalk = Array[ExtResource("99_chat")]([SubResource("Topic_00"), SubResource("Topic_01"), SubResource("Topic_02"), SubResource("Topic_03"), SubResource("Topic_04"), SubResource("Topic_05"), SubResource("Topic_06"), SubResource("Topic_07"), SubResource("Topic_08"), SubResource("Topic_09"), SubResource("Topic_10"), SubResource("Topic_11"), SubResource("Topic_12"), SubResource("Topic_13"), SubResource("Topic_14"), SubResource("Topic_15"), SubResource("Topic_16"), SubResource("Topic_17"), SubResource("Topic_18"), SubResource("Topic_19"), SubResource("Topic_20"), SubResource("Topic_21"), SubResource("Topic_22"), SubResource("Topic_23"), SubResource("Topic_24"), SubResource("Topic_25"), SubResource("Topic_26")])
+smalltalk = Array[ExtResource("99_chat")]([SubResource("Topic_00"), SubResource("Topic_01"), SubResource("Topic_02"), SubResource("Topic_03"), SubResource("Topic_04"), SubResource("Topic_05"), SubResource("Topic_06"), SubResource("Topic_07"), SubResource("Topic_08"), SubResource("Topic_09"), SubResource("Topic_10"), SubResource("Topic_11"), SubResource("Topic_12"), SubResource("Topic_13"), SubResource("Topic_14"), SubResource("Topic_15"), SubResource("Topic_16"), SubResource("Topic_17"), SubResource("Topic_18"), SubResource("Topic_19"), SubResource("Topic_20"), SubResource("Topic_21"), SubResource("Topic_22"), SubResource("Topic_23"), SubResource("Topic_24"), SubResource("Topic_25"), SubResource("Topic_26"), SubResource("Topic_27"), SubResource("Topic_28"), SubResource("Topic_29"), SubResource("Topic_30"), SubResource("Topic_31"), SubResource("Topic_32"), SubResource("Topic_33"), SubResource("Topic_34"), SubResource("Topic_35"), SubResource("Topic_36"), SubResource("Topic_37"), SubResource("Topic_38"), SubResource("Topic_39")])
 chat_bridge = PackedStringArray("Vai indo, moço.", "Ah, vai bem, graças a Deus.", "Tranquila, tranquila.", "Ih, devagar...", "Vai indo, do jeito que dá.", "Ah, aqui tá tudo calmo.")
 waiting = PackedStringArray("Alô? Central?", "Ainda está aí?", "Alô? Conseguiu?", "Moço? A ligação caiu?", "Alô? Tô esperando...", "Demora muito?", "Central? Tá me ouvindo?", "Ainda tô aqui, viu?", "Alô? Caiu?")
 emergency_waiting = PackedStringArray("Alô?! Vocês vão mandar alguém?", "Por favor, rápido!", "Central?!", "Alô! Tá demorando!", "Central, ainda tá aí?", "Manda alguém, pelo amor de Deus!")

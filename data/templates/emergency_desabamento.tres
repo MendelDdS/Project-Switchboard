@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_emerg"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[resource]
+script = ExtResource("1_emerg")
+opening = "Central, um muro desabou aqui na {street}! Caiu em cima de alguém!"
+questions = PackedStringArray("Qual é o endereço?", "A pessoa está presa?", "Ela fala com vocês?")
+answers = PackedStringArray("{address}! O muro do terreno da esquina!", "Tá! As pernas tão embaixo dos tijolos!", "Fala, mas tá chorando de dor.")
+occurrence = "Outro"
+units = PackedStringArray("bomb", "amb")
+after = "Tá. A gente não vai puxar ela."
+stage_sec = Vector3(35, 18, 18)
+worsening = "O resto do muro tá rachando! Pode cair mais!"
+worsening_units = PackedStringArray()
+worsening_question = "Tem mais alguém perto do muro?"
+worsening_answer = "O marido dela, tirando os tijolos com a mão."
+critical = "Caiu outro pedaço! Pegou o marido dela no ombro!"
+critical_units = PackedStringArray()
+critical_question = "Ele consegue sair dali?"
+critical_answer = "Saiu, mas o braço tá pendurado."
+lost = "O muro caiu todo... ninguém apareceu."
+lost_answer = "Ela não responde mais, e o marido tá com o ombro quebrado."
+lost_units = PackedStringArray("amb")

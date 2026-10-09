@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_emerg"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("bomb", "amb")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "O vizinho pulou e tirou ele! Mas ele engoliu muita água, tá tossindo e roxo!", "")
+units = PackedStringArray("amb")
+
+[resource]
+script = ExtResource("1_emerg")
+voice = "f"
+caller = "Mãe"
+opening = "Central, meu filho caiu no córrego atrás de casa! A correnteza tá levando ele!"
+questions = PackedStringArray("Qual é o endereço?", "Ele está segurando em alguma coisa?", "Quantos anos ele tem?")
+answers = PackedStringArray("Rua do Moinho, 410! Atrás do moinho velho!", "Num galho! Tá preso no galho, a água batendo no peito!", "Nove! Ele não sabe nadar direito!")
+street = "moinho"
+block = 4
+address = "Rua do Moinho, 410"
+occurrence = "Outro"
+units = PackedStringArray("bomb", "amb")
+after = "Rápido, pelo amor de Deus! Eu fico gritando com ele pra ele não soltar!"
+stage_sec = Vector3(35, 18, 18)
+worsening = "A água tá subindo! Choveu lá em cima da serra!"
+worsening_units = PackedStringArray()
+worsening_question = "Tem alguém na margem com ele?"
+worsening_answer = "O pai dele tá estendendo uma corda, mas não alcança."
+critical = "O pai pulou atrás dele! Agora os dois tão na água!"
+critical_units = PackedStringArray()
+critical_question = "Eles conseguem chegar na margem?"
+critical_answer = "O pai pegou o menino, mas a correnteza tá forte demais!"
+lost = "A correnteza levou os dois lá pra baixo... a gente tá correndo pela margem. Cadê vocês?"
+lost_answer = "Os vizinhos tiraram os dois na curva do rio. O menino não acorda, e o pai bateu a cabeça."
+lost_units = PackedStringArray("amb")
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2")])

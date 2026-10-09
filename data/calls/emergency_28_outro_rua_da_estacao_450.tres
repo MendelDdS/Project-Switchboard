@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_emerg"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("pol", "bomb")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "", "Um rapaz de bicicleta passou por cima e levou um choque! Tá caído!")
+units = PackedStringArray("pol", "bomb", "amb")
+
+[resource]
+script = ExtResource("1_emerg")
+voice = "m"
+caller = "Rapaz"
+opening = "Central, o vento derrubou um fio de luz aqui na rua! Tá soltando faísca no chão!"
+questions = PackedStringArray("Qual é o endereço?", "O fio está bloqueando a rua?", "Alguém se machucou?")
+answers = PackedStringArray("Rua da Estação, 450! Na frente da antiga estação de trem!", "Tá! Atravessado de um lado a outro. Os carros tão parando.", "Não, graças a Deus.")
+street = "estacao"
+block = 4
+address = "Rua da Estação, 450"
+occurrence = "Outro"
+units = PackedStringArray("pol", "bomb")
+after = "Tá. Vou ficar aqui avisando quem passar."
+stage_sec = Vector3(40, 20, 20)
+worsening = "A faísca pegou no capim do terreno do lado! Tá começando um fogo!"
+worsening_units = PackedStringArray()
+worsening_question = "O fogo está perto das casas?"
+worsening_answer = "Ainda não, mas tá indo pro lado da cerca da Dona Nena."
+critical = "Um cachorro encostou no fio e o dono foi puxar! Os dois tão caídos!"
+critical_units = PackedStringArray("amb")
+critical_question = "O homem está respirando?"
+critical_answer = "Acho que sim... mas tá todo duro, não mexe."
+lost = "O fogo pegou a cerca e o quintal da Dona Nena... Ninguém apareceu!"
+lost_answer = "O homem do cachorro não acorda, e a Dona Nena tá passando mal com a fumaça."
+lost_units = PackedStringArray("amb")
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2")])

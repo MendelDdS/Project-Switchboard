@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_tr"]
+
+[resource]
+script = ExtResource("1_tr")
+group = 2
+voice = "m"
+caller = "Correspondente"
+opening = PackedStringArray("Central, aqui é o correspondente da Gazeta na estrada.", "Me liga com a redação, rápido. O jornal fecha daqui a pouco.")
+repeat = "A Gazeta de São Sotero. A redação."
+target = "101"
+destination = "Gazeta de São Sotero"
+thanks = "Obrigado. Amanhã o senhor lê no jornal."

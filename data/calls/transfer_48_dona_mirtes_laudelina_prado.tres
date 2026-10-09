@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_tr"]
+
+[resource]
+script = ExtResource("1_tr")
+group = 1
+voice = "f"
+caller = "Dona Mirtes"
+opening = PackedStringArray("Boa noite. A Dona Laudelina, por favor.", "Laudelina Prado. Ela me emprestou a forma de pudim e eu quero devolver amanhã cedo.")
+repeat = "Laudelina Prado. Da Bela Vista."
+target = "280"
+destination = "Laudelina Prado"
+thanks = "Obrigada, meu bem."

@@ -378,7 +378,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   que devolve nulo quando acabam os lugares e a agenda troca por pedido de informação) e os pedidos de informação.
   Polícia, bombeiros e hospital (despacho) valem para a cidade toda. Testes de cenário usam `load_main([1, 2, 3])`.
 - Bairros: setor 1 **Centro**, setor 2 **Alto da Serra** (com a zona rural), setor 3 **Vila Serena** (`MAP_DISTRICT_*`,
-  nome no rodapé de cada folha do mapa). Cada um tem emergências escritas (Centro: 11–13; Alto da Serra: 14–16, a 14
+  nome no rodapé de cada folha do mapa). Cada um tem dez emergências escritas (Vila Serena: 01–10; Centro: 11–13 e 17–23; Alto da Serra: 14–16 e 24–30, a 14
   na casa do Benedito Souza, endereço dele na lista). Na noite da entrega: a primeira transferência para o banco novo
   mostra `HINT_NEW_BANK` (`Main._new_sector`), e na primeira vez que o mapa aparece ele sai do enquadramento antigo e
   se abre para o bairro novo (`CityMap.pending_reveal`, `REVEAL_SEC`; o bairro novo aparece aos poucos).

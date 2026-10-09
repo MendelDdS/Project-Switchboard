@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_tr"]
+
+[resource]
+script = ExtResource("1_tr")
+voice = "f"
+caller = "Dona Glorinha"
+opening = PackedStringArray("Boa noite. Me liga com a Padaria Pão Dourado?", "Quero encomendar o bolo do aniversário da minha neta.")
+repeat = "A padaria Pão Dourado, na Rua das Acácias."
+target = "142"
+destination = "Padaria Pão Dourado"
+thanks = "Obrigada, querido. Vou pedir um de coco."

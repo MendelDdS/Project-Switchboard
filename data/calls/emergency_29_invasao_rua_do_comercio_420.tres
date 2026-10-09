@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_emerg"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("pol")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "", "Tá com um facão! E meu marido foi atrás dele e caiu do barranco, tá gemendo!")
+units = PackedStringArray("pol", "amb")
+
+[resource]
+script = ExtResource("1_emerg")
+voice = "f"
+caller = "Dona Sônia"
+opening = "Central, tem um homem no meu quintal mexendo no galinheiro! Agora, nesse minuto!"
+questions = PackedStringArray("Qual é o endereço?", "Você conhece a pessoa?", "A pessoa está armada?")
+answers = PackedStringArray("Rua do Comércio, 420! A casa da Sônia Vieira!", "Não! Nunca vi. Tá de chapéu, enfiando as galinhas num saco.", "Tá com um facão na cintura!")
+street = "comercio"
+block = 4
+address = "Rua do Comércio, 420"
+occurrence = "Invasão / roubo"
+units = PackedStringArray("pol")
+after = "Tá bom. Vou apagar a luz e ficar quieta."
+stage_sec = Vector3(45, 22, 22)
+worsening = "Ele me viu na janela! Tá vindo pra porta da cozinha!"
+worsening_units = PackedStringArray()
+worsening_question = "A porta está trancada?"
+worsening_answer = "Tá, mas é de madeira fina. Tô segurando com a vassoura."
+critical = "Ele quebrou o vidro da porta! Cortou a mão e tá sangrando, mas não para!"
+critical_units = PackedStringArray("amb")
+critical_question = "Ele entrou na casa?"
+critical_answer = "Ainda não! Tô trancada no quarto com o telefone!"
+lost = "Ele levou as galinhas e o rádio da sala... foi embora. Ninguém veio."
+lost_answer = "Eu caí no corredor fugindo dele e torci o pé. Tá inchando muito."
+lost_units = PackedStringArray("amb")
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2")])
