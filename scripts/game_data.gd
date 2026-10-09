@@ -21,9 +21,9 @@ const TRAINING_DAYS := 3
 const WEEKDAYS := [T.Key.DAY_SUN, T.Key.DAY_MON, T.Key.DAY_TUE, T.Key.DAY_WED, T.Key.DAY_THU, T.Key.DAY_FRI, T.Key.DAY_SAT]
 
 
-## A data da noite `night` (o dia em que o turno começa): year, month, day e weekday (0 = domingo).
-static func date_of(night: int) -> Dictionary:
-	var days := night - 1 if night > 0 else -TRAINING_DAYS
+## A data da noite `night` (o dia em que o turno começa), mais `plus` dias: year, month, day e weekday (0 = domingo).
+static func date_of(night: int, plus := 0) -> Dictionary:
+	var days := (night - 1 if night > 0 else -TRAINING_DAYS) + plus
 	return Time.get_datetime_dict_from_unix_time(Time.get_unix_time_from_datetime_dict(START) + days * 86400)
 
 

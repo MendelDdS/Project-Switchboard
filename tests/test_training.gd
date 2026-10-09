@@ -2,7 +2,8 @@ extends "res://tests/test_base.gd"
 ## O treinamento da noite 0 (`Training`): a Cecília liga pela entrada 1 (com o FONE já nela), depois pela 2 com o
 ## pedido de transferência, comenta o cabo na saída errada; na última, ensina o caderno (e comenta o tipo errado) e a
 ## prancheta; na quarta, finge uma emergência (despacho: marcar, triturar, perfurar, transmitir, o rádio), a espera
-## e o fim do turno; no fim, o relógio volta a andar.
+## e o fim do turno; no fim, o relógio volta a andar. Também: a pausa não conta a demora, o cartão enviado ao endereço
+## errado antes da hora não vale como chegada, o FONE fora da linha dela dá a dica de voltar, e o treinamento não demite.
 
 var m: Main
 var b: Switchboard
@@ -50,6 +51,11 @@ func _initialize() -> void:
 	ok(d.day == 5 and d.weekday == 5, "o treinamento é na sexta, 5 de outubro")
 	ok(GameData.sectors_for(0) == [3], "o treinamento é no setor 3")
 	ok(Pace.next(3, 0, 2) == 1, "a noite 1 começa no primeiro nível depois do treinamento")
+	ok(GameData.date_of(0, 1).day == 6, "o caderno do treinamento é da noite de 5 para 6")
+	var r := ShiftReport.new()
+	r.night = 0
+	r.severe_before = ShiftReport.SEVERE_LIMIT
+	ok(not r.fired(), "o treinamento não demite")
 	m = load("res://scenes/main.tscn").instantiate()
 	m.night_no = 0
 	get_tree().root.add_child(m)
@@ -76,6 +82,10 @@ func _initialize() -> void:
 	m.answer()
 	var c := m.training.call
 	ok(await wait_until(_waiting("directory")), "pede para abrir a lista")
+	get_tree().paused = true
+	await frames(200)   # mais que a demora do passo (12 s de jogo)
+	ok(not _said("capa mostarda"), "na pausa a demora não conta")
+	get_tree().paused = false
 	m.tools.set_tab(Tools.DIRECTORY)
 	ok(await wait_until(_waiting("cord_out")), "pede o cabo na saída")
 	_move(1, 13)
@@ -93,6 +103,9 @@ func _initialize() -> void:
 	ok(await wait_until(_ringing(1)), "ela liga de novo pela entrada 1")
 	_move(0, 1)
 	m.answer()
+	_move(0, -1)
+	ok(await wait_until(func(): return T.text(T.Key.HINT_TRAINING_BACK) % [tr(c.caller), 1] in m._hint.text), "FONE fora da linha dela: a dica de voltar")
+	_move(0, 1)
 	ok(await wait_until(_waiting("logbook")), "pede para abrir o caderno")
 	ok(m.notebook.pending_count() == 2, "as duas ligações dela esperam registro")
 	m.tools.set_tab(Tools.LOGBOOK)
@@ -114,13 +127,22 @@ func _initialize() -> void:
 	ok(await wait_until(_waiting("card")), "pede para marcar o local")
 	dp.set_location("flores", 0, "Rua das Flores, 1–99")
 	ok(await wait_until(_waiting("shred")), "corrige o endereço e pede para triturar")
-	_shred(dp)
+	# o jogador perfura e envia o cartão do endereço errado em vez de triturar: os bombeiros vão para lá
+	dp.set_occurrence("Incêndio")
+	dp.punch_unit("bomb")
+	dp.machines.clear()
+	dp.machines.inserted.emit()
 	ok(await wait_until(func(): return _waiting("card").call() and m.training._step.street == ""), "pede o lugar certo")
 	dp.set_location("sol", 0, "Rua do Sol, 1–99")
 	ok(await wait_until(func(): return _said("Esse não é o lugar")), "comenta o cartão do lugar errado")
 	_shred(dp)
 	dp.set_location("acacias", 0, "Rua das Acácias, 1–99")
 	ok(await wait_until(_waiting("punched")), "pede para perfurar")
+	ok(await wait_until(func(): return dp.fleet.is_free("bomb"), 120.0), "os bombeiros voltam à base")
+	ok(not m.training._arrived, "a chegada ao endereço errado não conta")
+	dp.fleet.units["bomb"] = Fleet.Unit.RETURNING   # ainda voltando de outro cartão
+	ok(await wait_until(func(): return T.text(T.Key.HINT_TRAINING_UNITS_AWAY) in m._hint.text), "os bombeiros ainda estão fora: a dica de esperar")
+	dp.fleet.units["bomb"] = Fleet.Unit.AVAILABLE
 	dp.set_occurrence("Incêndio")
 	dp.punch_unit("bomb")
 	ok(await wait_until(_waiting("sent")), "pede para levar ao transmissor")
@@ -136,6 +158,9 @@ func _initialize() -> void:
 	ok(m.flags.has(Main.SAW_SHEET), "ensinou a folha nova")
 	ok(await wait_until(func(): return not m.training.active), "o treinamento termina")
 	ok(m.notebook.pending_count() == 2, "as duas últimas ligações dela vão para o caderno")
+	var recs: Array = m.notebook.queue + [m.notebook.pending]
+	ok(recs.all(func(x: PhoneCall.Record): return x.obs == T.text(T.Key.OBS_TRAINING)), "as fichas dela dizem que é treinamento")
+	ok(recs.any(func(x: PhoneCall.Record): return x.card > 0 and "Acácias" in x.where), "a da emergência de treino leva o local e o cartão")
 	ok(m.report._incidents.is_empty(), "a emergência de treino não vai para o relatório")
 	ok(m.report.faults.is_empty(), "o treinamento não gera advertência")
 	await frames(30)

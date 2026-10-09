@@ -144,7 +144,7 @@ func _ready() -> void:
 			_teach(SAW_SHEET, T.Key.HINT_DESK_SHEET))
 	tools.origin = background.prop_rect   # o papel de cada ferramenta sai do objeto dela na mesa
 	background.prop_clicked.connect(func(id: String): if running and not ending: tools.set_tab(id))   # objetos da cena
-	_intro.setup(night_no, night, progress != null and progress.night > 1, progress != null)
+	_intro.setup(night_no, night, progress != null and progress.night > 0, progress != null)
 	if not night.lesson.is_empty():   # o treinamento começa com o FONE já na entrada 1
 		board.plugged(0, 1)
 	if progress != null and night_no > 1:   # o jornal da manhã, com o que aconteceu na noite anterior
@@ -236,6 +236,7 @@ func _start_shift() -> void:
 	radio.say(T.text(T.Key.RADIO_PATROL))
 	hint(T.text(T.Key.HINT_WAIT_CALLS))
 	if not night.lesson.is_empty():
+		_taught_done = true   # a lâmpada vermelha ela ensina
 		training.start(night)
 
 
@@ -921,6 +922,12 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> PhoneCall.Record:
 				obs = T.text(T.Key.OBS_WRONG_NUMBER) if c.wrong > 0 else T.text(T.Key.OBS_NOT_CONNECTED)
 			elif c.kind == PhoneCall.Kind.MYSTERY:
 				obs = T.text(T.Key.OBS_CALL_DROPPED)
+	if c.lesson:   # as da veterana: a de emergência de treino leva o local e o cartão do último envio
+		obs = T.text(T.Key.OBS_TRAINING)
+		if c == training.drill_call and not _sent.is_empty():
+			where = String(_sent["loc"])
+			unit = String(_sent["units"])
+			card = int(_sent["card"])
 	var unknown := c.kind == PhoneCall.Kind.MYSTERY or reason == PhoneCall.End.MISSED
 	var who := T.text(T.Key.UNKNOWN_CALLER) if unknown else tr(c.caller)
 	var r := PhoneCall.Record.new()
@@ -1011,7 +1018,7 @@ func start_ending() -> void:
 	supervisor.shift_over()
 	var last := night_no >= C.nights.size()
 	if progress != null:
-		if (report.fired() and night_no > 0) or last:
+		if report.fired() or last:
 			Progress.clear()
 		else:
 			progress.night = night_no + 1

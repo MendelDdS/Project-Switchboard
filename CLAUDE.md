@@ -397,7 +397,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`LessonStep.emergency`, `Training.drill`, posta no `Dispatch.set_incident`): marcar o local, triturar o cartão
   quando ela corrige o endereço, marcar de novo, perfurar, transmitir e ouvir o rádio (passos "dispatch", "card",
   "shred", "punched", "sent", "arrived"; `Dispatch.location()`). A chegada dela não vai para o relatório nem para o
-  jornal (`Supervisor.on_arrived`), e o `Supervisor.fault` não anota nada durante o treinamento. Por fim, a espera
+  jornal (`Supervisor.on_arrived`; só a chegada ao lugar certo cumpre "arrived"), e o `Supervisor.fault` não anota
+  nada durante o treinamento. As esperas dela não contam na pausa; com o FONE fora da linha dela, o manual diz para
+  voltar (`HINT_TRAINING_BACK`). As fichas dela dizem "Treinamento" (`OBS_TRAINING`; a da emergência, `drill_call`,
+  leva o local e o cartão). A noite 0 nunca demite (`ShiftReport.fired`) e fecha com "Fim do treinamento". Por fim, a espera
   (o jogador tira o FONE da entrada dela e volta: "hold", "resume") e, só de boca, o fim do turno (23:40, Encerrar
   turno, registrar antes, meia-noite). Teste: `tests/test_training.gd`.
 - **Ritmo por nível, não por noite** (`Pace`, `scripts/data/pace.gd`; `GameContent.paces`, 5 níveis; `Main.pace`):

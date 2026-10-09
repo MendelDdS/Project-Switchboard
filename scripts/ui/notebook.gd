@@ -62,7 +62,7 @@ func _notification(what: int) -> void:
 
 ## A data da noite no alto do livro ("Noite de 8 para 9", `GameData.date_of`).
 func _date() -> void:
-	%Date.text = T.text(T.Key.NOTEBOOK_DATE) % [GameData.date_of(night).day, GameData.date_of(night + 1).day]
+	%Date.text = T.text(T.Key.NOTEBOOK_DATE) % [GameData.date_of(night).day, GameData.date_of(night, 1).day]
 
 
 func has_pending() -> bool:

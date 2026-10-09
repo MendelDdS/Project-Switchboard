@@ -1099,7 +1099,7 @@ msgid "Ih, essa foi comum! Carimbo não se apaga, e o supervisor confere. Hoje n
 msgstr ""
 
 #: data/nights/night_00.tres
-msgid "Isso. Emergência e trote têm carimbo próprio, e o supervisor confere tudo no fim da noite."
+msgid "Pronto. Emergência e trote têm carimbo próprio, e o supervisor confere tudo no fim da noite."
 msgstr ""
 
 #: data/nights/night_00.tres
@@ -1159,7 +1159,7 @@ msgid "É o móvel de metal com o mapa sob o vidro. Ou aperta o 2."
 msgstr ""
 
 #: data/nights/night_00.tres
-msgid "Clica na rua que ela disse, no trecho do número. Passando o mouse, aparece a numeração de cada trecho."
+msgid "Clica na rua que eu disse, no trecho do número. Passando o mouse, aparece a numeração de cada trecho."
 msgstr ""
 
 #: data/nights/night_00.tres

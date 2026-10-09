@@ -56,8 +56,9 @@ func severe_total() -> int:
 	return severe_before + count(Severity.SEVERE) + CRITICAL_WEIGHT * count(Severity.CRITICAL)
 
 
+## Demitido: graves demais (o treinamento, noite 0, nunca demite).
 func fired() -> bool:
-	return severe_total() >= SEVERE_LIMIT
+	return night > 0 and severe_total() >= SEVERE_LIMIT
 
 
 ## Emergência que teve problema (não atendida, sem despacho, endereço errado): se for resolvida, foi com atraso.

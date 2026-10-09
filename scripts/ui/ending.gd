@@ -24,6 +24,10 @@ func play(report: ShiftReport, more: bool) -> void:
 		_title.text = T.text(T.Key.END_FIRED_TITLE)
 		_question.text = T.text(T.Key.END_FIRED_TEXT)
 		_restart.text = T.text(T.Key.RESTART_FIRST_NIGHT)
+	elif more and report.night == 0:
+		_title.text = T.text(T.Key.END_TRAINING_TITLE)
+		_question.text = T.text(T.Key.END_TRAINING_TEXT)
+		_restart.text = T.text(T.Key.NEXT_NIGHT)
 	elif more:
 		_title.text = T.text(T.Key.END_NIGHT_TITLE) % report.night
 		_question.text = T.text(T.Key.END_NIGHT_TEXT)

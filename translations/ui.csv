@@ -28,6 +28,8 @@ END_FIRED_TITLE,Você foi demitido.,You've been fired.,Usted fue despedido.
 END_FIRED_TEXT,A companhia telefônica agradece seus serviços.,The telephone company thanks you for your service.,La compañía telefónica le agradece sus servicios.
 END_NIGHT_TITLE,Fim da noite %d,End of night %d,Fin de la noche %d
 END_NIGHT_TEXT,"Amanhã, às 18:00, a central é sua de novo.","Tomorrow at 18:00, the switchboard is yours again.","Mañana, a las 18:00, la central es suya otra vez."
+END_TRAINING_TITLE,Fim do treinamento,End of training,Fin del entrenamiento
+END_TRAINING_TEXT,"Na segunda-feira, às 18:00, a central é sua.","On Monday at 18:00, the switchboard is yours.","El lunes, a las 18:00, la central es suya."
 NEXT_NIGHT,Próxima noite,Next night,Siguiente noche
 SHIFT_HOURS,"Turno
 18:00–00:00","Shift
@@ -87,6 +89,8 @@ WARN_PHONE_RINGING,O telefone está tocando.,The phone is ringing.,El teléfono 
 WARN_FONE_TO_BLINK,Leve o FONE até a entrada que está piscando.,Bring the HEADSET to the blinking input.,Lleve el AURICULAR a la entrada que parpadea.
 WARN_TRAINING_HANG_UP,%s ainda está explicando: ela desliga quando terminar.,%s is still explaining: she will hang up when she is done.,%s todavía está explicando: ella cuelga cuando termine.
 WARN_TRAINING_WRONG,"O cabo está no %d, que não é o número pedido.","The cord is on %d, which is not the number asked for.","El cable está en el %d, que no es el número pedido."
+HINT_TRAINING_BACK,"%s está em espera e não ouve nada: volte o [b]FONE[/b] para a [b]entrada %d[/b].","%s is on hold and cannot hear you: put the [b]HEADSET[/b] back on [b]input %d[/b].","%s está en espera y no oye nada: vuelva a poner el [b]AURICULAR[/b] en la [b]entrada %d[/b]."
+HINT_TRAINING_UNITS_AWAY,"Os [b]bombeiros[/b] ainda estão fora, voltando de outro cartão: espere chegarem à base para perfurá-los.","The [b]fire brigade[/b] is still out, coming back from another card: wait for them to reach the station before punching them.","Los [b]bomberos[/b] todavía están fuera, volviendo de otra tarjeta: espere a que lleguen a la base para perforarlos."
 OP_CONNECT_WAIT,"Um momento, vou conectar.","One moment, I'll put you through.","Un momento, lo comunico."
 OP_REPEAT,"Pode repetir, por favor?","Could you repeat that, please?","¿Puede repetir, por favor?"
 OP_SMALLTALK,"E aí, como vai a noite?","So, how's your night going?","¿Y qué tal la noche?"
@@ -159,6 +163,7 @@ OBS_NOT_ANSWERED,Não atendida.,Not answered.,No contestada.
 OBS_GAVE_UP,Desistiu na espera.,Gave up on hold.,Desistió en espera.
 OBS_NOT_CONNECTED,Não conectada.,Not connected.,No conectada.
 OBS_CALL_DROPPED,A ligação caiu.,The call dropped.,La llamada se cortó.
+OBS_TRAINING,Treinamento (não conta).,Training (does not count).,Entrenamiento (no cuenta).
 TAB_DIRECTORY,Lista telefônica,Phone directory,Guía telefónica
 TAB_DISPATCH,Mapa e despacho,Map & dispatch,Mapa y despacho
 TAB_LOGBOOK,Caderno,Logbook,Cuaderno
@@ -268,6 +273,7 @@ RADIO_NOT_NEEDED,"Central, aqui não precisa de %s. Liberando.","Dispatch, no ne
 REPORT_TITLE,Relatório do supervisor,Supervisor's report,Informe del supervisor
 REPORT_SIGN,Assinar e sair,Sign and leave,Firmar y salir
 REPORT_NIGHT,Noite %d · turno das %s às %s,Night %d · shift from %s to %s,Noche %d · turno de %s a %s
+REPORT_TRAINING,Treinamento · turno das %s às %s,Training · shift from %s to %s,Entrenamiento · turno de %s a %s
 REPORT_WARNINGS,ADVERTÊNCIAS,WARNINGS,ADVERTENCIAS
 REPORT_NONE,Nenhuma.,None.,Ninguna.
 REPORT_CRITICAL,Gravíssimas,Critical,Gravísimas

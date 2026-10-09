@@ -239,7 +239,7 @@ wrong = "Ih, essa foi comum! Carimbo não se apaga, e o supervisor confere. Hoje
 
 [sub_resource type="Resource" id="Lesson_45"]
 script = ExtResource("2_lesson")
-text = "Isso. Emergência e trote têm carimbo próprio, e o supervisor confere tudo no fim da noite."
+text = "Pronto. Emergência e trote têm carimbo próprio, e o supervisor confere tudo no fim da noite."
 
 [sub_resource type="Resource" id="Lesson_46"]
 script = ExtResource("2_lesson")
@@ -311,7 +311,7 @@ nudges = PackedStringArray("É o móvel de metal com o mapa sob o vidro. Ou aper
 
 [sub_resource type="Resource" id="Lesson_60"]
 script = ExtResource("2_lesson")
-text = "Clica na rua que ela disse, no trecho do número. Passando o mouse, aparece a numeração de cada trecho."
+text = "Clica na rua que eu disse, no trecho do número. Passando o mouse, aparece a numeração de cada trecho."
 
 [sub_resource type="Resource" id="Lesson_61"]
 script = ExtResource("2_lesson")

@@ -17,8 +17,10 @@ var call: PhoneCall   ## a ligação dela agora (nula antes da primeira)
 var _night: Night
 var _step: LessonStep   ## o passo esperando o jogador
 var drill: EmergencyCall   ## a emergência de treino (nula antes dela; `LessonStep.emergency`)
+var drill_call: PhoneCall  ## a ligação dela com a emergência de treino (a ficha leva o local e o cartão)
 var _sent := false      ## um cartão entrou no transmissor (passo "sent")
-var _arrived := false   ## as unidades chegaram à emergência de treino (passo "arrived")
+var _arrived := false   ## as unidades chegaram ao lugar certo da emergência de treino (passo "arrived")
+var _hint := ""         ## a dica do passo, no papel do manual (`_show`)
 
 @onready var main: Main = get_parent()
 
@@ -29,8 +31,8 @@ func start(night: Night) -> void:
 	main.notebook.registered.connect(_on_registered)
 	main.dispatch.sent.connect(func(_l, _u, _c, _n): _sent = true)
 	main.dispatch.blank_card.connect(func(_l): _sent = true)
-	main.dispatch.arrived.connect(func(e: EmergencyCall, _r, _o, _x):
-		if e != null and e == drill:
+	main.dispatch.arrived.connect(func(e: EmergencyCall, r: Fleet.Result, _o, _x):
+		if e != null and e == drill and r != Fleet.Result.WRONG_PLACE:   # um cartão do endereço errado não conta
 			await main.radio.said   # o rádio diz o que encontraram
 			_arrived = true)
 	for s in night.lesson:
@@ -38,7 +40,8 @@ func start(night: Night) -> void:
 		await _play(s)
 	_step = null
 	active = false
-	main.hint("")
+	# as fichas das últimas ligações dela ficam para o jogador registrar
+	_show(T.text(T.Key.HINT_REGISTER) if main.notebook.pending_count() > 0 else "")
 	finished.emit()
 
 
@@ -72,8 +75,21 @@ func _here() -> bool:
 	return call != null and not call.ended
 
 
+## Ela diz `text`; com o FONE fora da linha dela, ela espera em silêncio e o manual diz para voltar.
 func _say(text: String) -> bool:
-	return await main.conversation.say(call, text, 0.45)
+	var away := _here() and not call.on_line and not call.closing
+	if away:
+		main.hint(T.text(T.Key.HINT_TRAINING_BACK) % [tr(call.caller), call.line])
+	var said := await main.conversation.say(call, text, 0.45)
+	if away:
+		main.hint(_hint)
+	return said
+
+
+## A dica do passo no papel do manual.
+func _show(h: String) -> void:
+	_hint = h
+	main.hint(h)
 
 
 func _pause(sec: float) -> void:
@@ -96,6 +112,7 @@ func _ring(s: LessonStep) -> void:
 	call = c
 	if s.emergency != null:
 		drill = s.emergency
+		drill_call = c
 		main.dispatch.set_incident(drill)
 	main.ring(c)
 	var shown := ""
@@ -104,11 +121,11 @@ func _ring(s: LessonStep) -> void:
 		var h := T.text(T.Key.HINT_TUT_ANSWER) if on else tr(s.hint)
 		if h != shown:
 			shown = h
-			main.hint(h)
+			_show(h)
 		main.phone.blink_answer(on)
 		await get_tree().process_frame
 	main.phone.blink_answer(false)
-	main.hint("")
+	_show("")
 	if s.call != null:
 		c.phase = PhoneCall.Phase.AWAIT   # o pedido dela: o Transferir passa a valer
 
@@ -116,15 +133,20 @@ func _ring(s: LessonStep) -> void:
 ## Espera o jogador fazer `s.until`. Ela comenta o erro (`wrong`) e a demora (`nudges`), uma fala de cada vez, só com
 ## o operador na linha dela.
 func _wait(s: LessonStep) -> void:
-	main.hint(tr(s.hint))
 	if s.until == "sent":
 		_sent = false
+		_arrived = false
 	var since := 0.0
 	var nudge := 0
 	var told := -1   # o lugar errado já comentado (não repete enquanto ele não mudar)
 	var talked := 0.0
 	while not _done(s.until):
+		var h := _wait_hint(s)
+		if h != _hint:
+			_show(h)
 		await get_tree().process_frame
+		if get_tree().paused:   # o quadro passa na pausa, mas a demora e a conversa dela não contam
+			continue
 		var dt := get_process_delta_time()
 		since += dt
 		if s.until == "line_done":   # a conversa dela com o destino acaba sozinha (o relógio está parado)
@@ -142,6 +164,16 @@ func _wait(s: LessonStep) -> void:
 			since = 0.0
 			nudge += 1
 			await _say(s.nudges[nudge - 1])
+
+
+## A dica do manual no passo `s`: a dele, ou, se as unidades da emergência de treino ainda estão fora (um cartão
+## enviado antes da hora), esperar que voltem para perfurá-las.
+func _wait_hint(s: LessonStep) -> String:
+	if s.until == "punched":
+		var d := main.dispatch
+		if Array(drill.units).any(func(u): return not u in d.picked() and not d.fleet.is_free(u)):
+			return T.text(T.Key.HINT_TRAINING_UNITS_AWAY)
+	return tr(s.hint)
 
 
 ## Ela está na linha e calada: pode comentar.

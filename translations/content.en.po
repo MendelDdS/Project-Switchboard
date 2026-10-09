@@ -1100,8 +1100,8 @@ msgid "Ih, essa foi comum! Carimbo não se apaga, e o supervisor confere. Hoje n
 msgstr "Oops, that one was regular! A stamp can't be erased, and the supervisor checks. Tonight it doesn't count, but pay attention."
 
 #: data/nights/night_00.tres
-msgid "Isso. Emergência e trote têm carimbo próprio, e o supervisor confere tudo no fim da noite."
-msgstr "That's it. Emergencies and pranks have their own stamp, and the supervisor checks everything at the end of the night."
+msgid "Pronto. Emergência e trote têm carimbo próprio, e o supervisor confere tudo no fim da noite."
+msgstr "All right. Emergencies and pranks have their own stamp, and the supervisor checks everything at the end of the night."
 
 #: data/nights/night_00.tres
 msgid "Pode deixar pra depois quando a mesa apertar, mas não esquece: ligação sem registro dá advertência."
@@ -1160,8 +1160,8 @@ msgid "É o móvel de metal com o mapa sob o vidro. Ou aperta o 2."
 msgstr "It's the metal cabinet with the map under glass. Or press 2."
 
 #: data/nights/night_00.tres
-msgid "Clica na rua que ela disse, no trecho do número. Passando o mouse, aparece a numeração de cada trecho."
-msgstr "Click the street she said, on the stretch with the number. Hovering the mouse shows each stretch's numbers."
+msgid "Clica na rua que eu disse, no trecho do número. Passando o mouse, aparece a numeração de cada trecho."
+msgstr "Click the street I said, on the stretch with the number. Hovering the mouse shows each stretch's numbers."
 
 #: data/nights/night_00.tres
 msgid "No mapa, clique na [b]Rua das Flores[/b], no trecho de 1 a 99. A impressora solta um cartão."

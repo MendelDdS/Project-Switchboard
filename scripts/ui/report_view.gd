@@ -20,7 +20,10 @@ func _ready() -> void:
 
 
 func show_report(r: ShiftReport) -> void:
-	_night.text = T.text(T.Key.REPORT_NIGHT) % [r.night, Main.fmt(0.0), Main.fmt(Main.SHIFT_END)]
+	if r.night == 0:
+		_night.text = T.text(T.Key.REPORT_TRAINING) % [Main.fmt(0.0), Main.fmt(Main.SHIFT_END)]
+	else:
+		_night.text = T.text(T.Key.REPORT_NIGHT) % [r.night, Main.fmt(0.0), Main.fmt(Main.SHIFT_END)]
 	var s := "[b]%s[/b]\n" % T.text(T.Key.REPORT_WARNINGS)
 	if r.faults.is_empty():
 		s += T.text(T.Key.REPORT_NONE) + "\n"

@@ -303,3 +303,8 @@ O que o usuário pediu, em ordem (antes no `CLAUDE.md`). Acrescente cada pedido 
     levar ao transmissor e ouvir o rádio; explica a barra de agravamento só de boca.
 94. Treinamento, parte 4: a Cecília pede para o jogador deixá-la em espera (o FONE na entrada 1) e voltar, explica
     que quem espera demais desiste, e conta como termina o turno (23:40, Encerrar turno, registrar tudo, meia-noite).
+95. Revisão do treinamento: a noite 0 não demite (`ShiftReport.fired`) e fecha com "Fim do treinamento"; a pausa não
+    conta a demora nem a conversa dela; um cartão do endereço errado enviado antes da hora não vale como chegada (e o
+    manual avisa quando os bombeiros ainda estão fora); o FONE fora da linha dela dá a dica de voltar; as fichas dela
+    dizem "Treinamento" (a da emergência leva o local e o cartão); o caderno do treinamento é de 5 para 6; o botão de
+    recomeçar aparece desde a noite 1; ao terminar, o manual lembra de registrar as fichas dela.
