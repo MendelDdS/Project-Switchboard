@@ -43,6 +43,72 @@ const WAKE_FOR := Vector2(4, 14)
 ## As duas mãos da rua: [o meio do carro (z, m), o sentido (-1: para a esquerda)]. Pela mão de lá, da direita para a
 ## esquerda; pela de cá, entre o nosso meio-fio e a faixa do meio, voltando, da esquerda para a direita.
 const CAR_LANES := [Vector2(9.2, -1.0), Vector2(6.4, 1.0)]
+## Os carros da rua, os de 1973 (em metros, a partir da frente: `along`, altura): o comprimento e a largura, o lado
+## de cá (`body`, e a cabine da picape, `cab`), os vidros do lado (`win`: os quatro cantos, de baixo da frente ao de
+## baixo de trás) e as colunas entre eles, o que se vê de cima (`tops`: de, até, altura), os vidros inclinados (`glass`:
+## de, altura, até, altura) e as chapas inclinadas (`slopes`), a altura da frente e da traseira (e o vidro delas, numa
+## Kombi), os frisos, as portas, as rodas (onde e o raio), a altura dos faróis, a linha de cintura (`belt`) e o som (o
+## tom do motor, `pitch`). `weight`: quantos passam (o Fusca é o mais comum). O Fusca tem os faróis nos para-lamas
+## (`lamp_at`) e os para-lamas saltados (`fenders`); a picape, a caçamba (`bed`); o caminhão, o baú (`box`, na cor
+## `box_col`).
+const CAR_KINDS := {
+	"fusca": {"weight": 4.0, "pitch": 1.1, "len": 4.05, "wide": 1.55, "belt": 0.86, "lamp": 0.66, "lamp_at": 0.22, "fenders": true,
+		"body": [Vector2(0, 0.3), Vector2(0, 0.5), Vector2(0.06, 0.62), Vector2(0.2, 0.74), Vector2(0.5, 0.82), Vector2(0.95, 0.86),
+			Vector2(3.0, 0.88), Vector2(3.45, 0.82), Vector2(3.8, 0.7), Vector2(3.98, 0.55), Vector2(4.05, 0.42), Vector2(4.05, 0.3)],
+		"win": [Vector2(1.0, 0.9), Vector2(1.32, 1.34), Vector2(1.55, 1.43), Vector2(2.35, 1.44), Vector2(2.7, 1.3), Vector2(3.0, 0.92)],
+		"pillars": [1.95],
+		"tops": [Vector3(0.2, 0.95, 0.82), Vector3(1.55, 2.4, 1.48), Vector3(3.1, 3.75, 0.78)],
+		"glass": [Vector4(0.95, 0.86, 1.3, 1.4), Vector4(1.3, 1.4, 1.55, 1.48)],
+		"slopes": [Vector4(2.4, 1.48, 2.75, 1.36), Vector4(2.75, 1.36, 3.0, 1.1), Vector4(3.0, 1.1, 3.1, 0.88)],
+		"front": 0.78, "back": 0.72, "trim": [0.86], "doors": [2.0], "wheels": [0.7, 3.15], "wheel": 0.32},
+	"brasilia": {"weight": 2.0, "pitch": 1.05, "len": 4.0, "wide": 1.6, "belt": 0.85, "lamp": 0.66,
+		"body": [Vector2(0, 0.3), Vector2(0, 0.7), Vector2(0.08, 0.82), Vector2(3.95, 0.86), Vector2(4.0, 0.75), Vector2(4.0, 0.3)],
+		"win": [Vector2(0.95, 0.88), Vector2(1.45, 1.38), Vector2(3.75, 1.38), Vector2(3.9, 0.88)], "pillars": [2.2, 3.05],
+		"tops": [Vector3(0.05, 0.95, 0.82), Vector3(1.45, 3.8, 1.42)], "glass": [Vector4(0.95, 0.84, 1.45, 1.42)],
+		"front": 0.82, "back": 1.38, "back_glass": Vector2(0.92, 1.32), "trim": [0.82], "doors": [2.25], "wheels": [0.75, 3.25], "wheel": 0.3},
+	"sedan": {"weight": 2.5, "pitch": 0.95, "len": 4.5, "wide": 1.8, "belt": 0.95, "lamp": 0.7,
+		"body": [Vector2(0, 0.3), Vector2(0, 0.8), Vector2(0.1, 0.95), Vector2(4.4, 0.95), Vector2(4.5, 0.8), Vector2(4.5, 0.3)],
+		"win": [Vector2(1.1, 0.97), Vector2(1.6, 1.43), Vector2(3.2, 1.43), Vector2(3.6, 0.97)], "pillars": [2.35],
+		"tops": [Vector3(0.0, 1.1, 0.95), Vector3(1.6, 3.2, 1.45), Vector3(3.6, 4.5, 0.95)],
+		"glass": [Vector4(1.1, 0.95, 1.6, 1.45), Vector4(3.6, 0.95, 3.2, 1.45)],
+		"front": 0.95, "back": 0.95, "trim": [0.95, 0.4], "doors": [2.3], "wheels": [0.8, 3.6], "wheel": 0.31},
+	"perua": {"weight": 1.5, "pitch": 1.0, "len": 4.4, "wide": 1.75, "belt": 0.93, "lamp": 0.68,
+		"body": [Vector2(0, 0.3), Vector2(0, 0.8), Vector2(0.1, 0.93), Vector2(4.35, 0.93), Vector2(4.4, 0.8), Vector2(4.4, 0.3)],
+		"win": [Vector2(1.1, 0.95), Vector2(1.6, 1.4), Vector2(4.25, 1.4), Vector2(4.3, 0.95)], "pillars": [2.35, 3.4],
+		"tops": [Vector3(0.0, 1.1, 0.93), Vector3(1.6, 4.3, 1.42)], "glass": [Vector4(1.1, 0.93, 1.6, 1.42)],
+		"front": 0.93, "back": 1.4, "back_glass": Vector2(0.95, 1.35), "trim": [0.93], "doors": [2.3], "wheels": [0.8, 3.5], "wheel": 0.31},
+	"kombi": {"weight": 1.3, "pitch": 0.9, "len": 4.3, "wide": 1.75, "belt": 1.1, "lamp": 0.8,
+		"body": [Vector2(0, 0.3), Vector2(0, 1.85), Vector2(0.12, 1.95), Vector2(4.2, 1.95), Vector2(4.3, 1.8), Vector2(4.3, 0.3)],
+		"upper": [Vector2(0, 1.1), Vector2(0, 1.85), Vector2(0.12, 1.95), Vector2(4.2, 1.95), Vector2(4.3, 1.8), Vector2(4.3, 1.1)],
+		"win": [Vector2(0.2, 1.15), Vector2(0.2, 1.75), Vector2(4.1, 1.75), Vector2(4.1, 1.15)], "pillars": [1.1, 2.0, 3.0],
+		"tops": [Vector3(0.1, 4.2, 1.95)], "glass": [],
+		"front": 1.9, "front_glass": Vector2(1.2, 1.75), "back": 1.85, "trim": [1.1], "doors": [1.15], "wheels": [0.6, 3.0], "wheel": 0.3},
+	"picape": {"weight": 1.2, "pitch": 0.85, "len": 4.9, "wide": 1.9, "belt": 1.05, "lamp": 0.8,
+		"body": [Vector2(0, 0.4), Vector2(0, 0.95), Vector2(0.1, 1.05), Vector2(4.85, 1.05), Vector2(4.9, 0.95), Vector2(4.9, 0.4)],
+		"cab": [Vector2(1.5, 1.05), Vector2(1.85, 1.75), Vector2(2.65, 1.75), Vector2(2.65, 1.05)],
+		"win": [Vector2(1.62, 1.08), Vector2(1.9, 1.68), Vector2(2.55, 1.68), Vector2(2.55, 1.08)], "pillars": [],
+		"tops": [Vector3(0.0, 1.5, 1.05), Vector3(1.85, 2.65, 1.75)], "glass": [Vector4(1.5, 1.05, 1.85, 1.75)], "bed": Vector2(2.75, 4.85),
+		"front": 1.05, "back": 1.05, "trim": [0.75], "doors": [2.6], "wheels": [0.95, 3.95], "wheel": 0.38},
+	"caminhao": {"weight": 0.4, "pitch": 0.7, "len": 6.5, "wide": 2.2, "belt": 1.4, "lamp": 0.95,
+		"body": [Vector2(0, 0.5), Vector2(0, 1.25), Vector2(0.15, 1.32), Vector2(1.4, 1.38), Vector2(1.4, 1.1), Vector2(6.5, 1.1), Vector2(6.5, 0.5)],
+		"cab": [Vector2(1.4, 1.1), Vector2(1.4, 1.4), Vector2(1.6, 2.3), Vector2(2.8, 2.3), Vector2(2.8, 1.1)],
+		"box": [Vector2(2.95, 1.05), Vector2(2.95, 3.0), Vector2(6.5, 3.0), Vector2(6.5, 1.05)], "box_col": Color("3e3a30"),
+		"win": [Vector2(1.55, 1.45), Vector2(1.7, 2.15), Vector2(2.6, 2.15), Vector2(2.6, 1.45)], "pillars": [],
+		"tops": [Vector3(0.0, 1.4, 1.32), Vector3(1.6, 2.8, 2.3), Vector3(2.95, 6.5, 3.0)], "glass": [Vector4(1.4, 1.4, 1.6, 2.28)],
+		"front": 1.32, "back": 3.0, "trim": [], "doors": [2.55], "wheels": [1.0, 5.3], "wheel": 0.48},
+}
+## As cores dos carros, de noite (escurecidas): azul, vinho, bege, verde, branco, cinza, mostarda.
+const CAR_COLORS := [Color("1b2530"), Color("2e1816"), Color("35312a"), Color("18261d"), Color("3c403f"), Color("222228"), Color("362b16")]
+const CAR_UPPER := Color("4a4c48")   ## a parte de cima da Kombi, clara
+const CAR_SKY := Color("2a3440")   ## o céu refletido no teto e no capô (de noite, a luz que vem de cima)
+const CAR_SHEEN := 2.4   ## até onde (m ao longo da rua) a luz de um poste corre pela lataria
+const CAR_WET := 1.6   ## na chuva, a lataria molhada: a luz dos postes nela mais forte e mais espalhada
+const TAXI := 0.15   ## dos Fuscas e sedãs, quantos são táxi (com a placa acesa no teto)
+const TAXI_KINDS := ["fusca", "sedan"]
+const CAR_HEAD := Color("fff1c8")   ## os faróis
+const TAXI_SIGN := Color("f0d88a")   ## a placa acesa do táxi
+const CAR_SPRAY := 14   ## os pontos do borrifo atrás de cada roda, na chuva
+const CAR_TAIL := Color("8a1e14")   ## as lanternas
 ## O arbusto plantado junto da nossa parede, embaixo da janela: é do primeiro plano, como a janela, e fica no plano da
 ## parede dela (não na vista). O meio e a meia largura (fração da largura do vão) e quanto a copa sobe acima do
 ## peitoril (fração da altura).
@@ -73,6 +139,7 @@ const FOG_WISPS := 9     ## os fiapos passando pela rua
 const WIN_SILL := 21.0
 const WALL_D := 16.0        ## a espessura da parede (para fora, nas unidades da parede do fundo): o vidro fica do lado de fora
 
+var _spray_rng := RandomNumberGenerator.new()   # o sorteio do borrifo dos pneus (`_spray`), sem criar um a cada quadro
 var flick := false
 var lamp_level := 1.0
 var warm := 1.0   ## o quanto a luminária já esquentou (0..1, `warm_up`): o Main tinge o brilho dela de laranja até chegar a 1
@@ -90,7 +157,7 @@ var _city: Array = []          # a cidade no fundo: {x, w, h, row, lit: [Vector3
 var _city_for := Vector2.ZERO  # tamanho do vidro para o qual `_city` foi montada
 var _view_at := Vector2.ZERO   # onde a vista começa na tela (px de 2x2): o arbusto é posto pela parede da sala
 var _near := 0.0         # a vista passa do peitoril de longe para baixo (px de 2x2): a parte de perto da janela, mais alta na tela, mostra a calçada embaixo dela
-var _cars: Array[Dictionary] = []   # os carros passando lá fora: {"t": de 0 a 1, "lane": em `CAR_LANES`}
+var _cars: Array[Dictionary] = []   # os carros passando lá fora: {"t": de 0 a 1, "lane": em `CAR_LANES`, "kind": em `CAR_KINDS`, "col", "taxi"}
 var _walkers: Array = []   # quem está passando na calçada de lá (`_walker`), na ordem do desenho: os de mais longe primeiro
 
 
@@ -475,12 +542,16 @@ func _draw_street(g: Rect2, hz: Color) -> void:
 
 
 ## A chuva no chão: o asfalto molhado espelha as luzes em riscos verticais, quebrados, embaixo de cada uma (os postes
-## e o letreiro; com `car`, só o farol daquele carro, que anda: vai na frente da vista), mais fracos para baixo.
+## e o letreiro; com `car`, só o farol e a lanterna daquele carro, que anda: vai na frente da vista), mais fracos para
+## baixo.
 func _draw_wet(g: Rect2, car: Dictionary = {}) -> void:
 	var lights := []   # [cabeça, pé, cor]
 	if not car.is_empty():
 		var z: float = CAR_LANES[car["lane"]].x
-		lights.append([_o(g, _car_x(car), z - 0.9, 0.7), _o(g, _car_x(car), z - 1.2), Color("fff1c8")])
+		var m: Dictionary = CAR_KINDS[car["kind"]]
+		var rear: float = _car_x(car) - CAR_LANES[car["lane"]].y * m["len"]
+		lights.append([_o(g, _car_x(car), z - 0.9, m["lamp"]), _o(g, _car_x(car), z - 1.2), CAR_HEAD])
+		lights.append([_o(g, rear, z - 0.9, m["lamp"]), _o(g, rear, z - 1.2), CAR_TAIL.lightened(0.3)])
 	else:
 		if lamp_level > 0.5:
 			for i in FAR_LAMPS.size():
@@ -789,67 +860,174 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 		_p(foot.x + a.x, foot.y + a.y, maxf(1.0, b.x - a.x), maxf(1.0, b.y - a.y), dark)
 
 
-## O carro `c` passando pela mão dele (`CAR_LANES`), apoiado no asfalto: a sombra de contato, o facho dos faróis no
-## chão à frente, o lado de cá (vidros, coluna, frisos, rodas com calota), o capô, o teto e o porta-malas vistos um
-## pouco de cima (os olhos ficam acima dele) e a frente ou a traseira, a que estiver virada para nós. Posto a partir da
-## frente (`_car_x`), no sentido em que anda: o de lá vai para a esquerda, o de cá volta para a direita. 4,5 × 1,8 ×
-## 1,45 m.
+## O carro `c` passando pela mão dele (`CAR_LANES`), apoiado no asfalto, na forma do modelo dele (`CAR_KINDS`) e na cor
+## dele: a sombra de contato, o facho dos faróis no chão à frente, o capô, o teto e o porta-malas vistos um pouco de
+## cima (os olhos ficam acima dele; mais escuros que o lado, porque de noite não vem luz do alto, só um pouco do céu,
+## `CAR_SKY`), os vidros inclinados, a frente ou a traseira (a que estiver virada para nós) e o lado de cá (vidros,
+## colunas, frisos, rodas redondas com calota nos arcos dos para-lamas). A luz dos postes
+## corre pela lataria quando ele passa embaixo deles (`_sheen`; molhada, mais, `CAR_WET`), faróis e lanternas acesos
+## com halo (o par deles quando a frente ou a traseira está virada para nós), a placa do táxi (`taxi`) e, na chuva, o
+## borrifo dos pneus (`_spray`). Posto a partir da frente (`_car_x`), no sentido em que
+## anda: o de lá vai para a esquerda, o de cá volta para a direita.
 func _draw_car(g: Rect2, c: Dictionary) -> void:
+	var m: Dictionary = CAR_KINDS[c["kind"]]
 	var lane: Vector2 = CAR_LANES[c["lane"]]
 	var d := lane.y   # o sentido: a frente vai para lá
 	var x := _car_x(c)
+	var L: float = m["len"]
 	var at := func(a: float) -> float: return x - d * a   # a metros da frente, para trás
 	var span := func(a: float, b: float) -> Vector2: return Vector2(minf(at.call(a), at.call(b)), maxf(at.call(a), at.call(b)))
-	var z0 := lane.x - 0.9   # o lado de cá
-	var z1 := lane.x + 0.9
-	var body := Color("1b2530")
-	var top := Color("2e3a46")
+	var z0: float = lane.x - m["wide"] / 2.0   # o lado de cá
+	var z1: float = lane.x + m["wide"] / 2.0
+	var body: Color = c["col"]
+	var wet := weather == "rain"
+	var top := body.darkened(0.3).lerp(CAR_SKY, 0.3 if wet else 0.15)   # molhado, espelha mais o céu
 	var glass := Color("0b1218")
 	var chrome := Color("5a6670")
-	var all: Vector2 = span.call(-0.2, 4.7)
+	var all: Vector2 = span.call(-0.2, L + 0.2)
 	_poly(_patch(g, all.x, all.y, z0 - 0.15, z1 + 0.15), Color(0, 0, 0, 0.55))   # o contato com o asfalto
 	_poly(PackedVector2Array([_o(g, x, z0 + 0.2), _o(g, x, z1 - 0.2), _o(g, x + d * 8.0, z1 + 0.6), _o(g, x + d * 8.0, z0 - 0.6)]),
 		Color(1.0, 0.95, 0.8, 0.12))   # o facho dos faróis
-	var trunk: Vector2 = span.call(3.6, 4.5)
-	_poly(_patch(g, trunk.x, trunk.y, z0, z1, 0.95), top)   # o porta-malas
-	var roof: Vector2 = span.call(1.6, 3.2)
-	_poly(_patch(g, roof.x, roof.y, z0 + 0.15, z1 - 0.15, 1.45), top.lightened(0.08))   # o teto
-	_poly(PackedVector2Array([_o(g, at.call(1.1), z0 + 0.1, 0.95), _o(g, at.call(1.6), z0 + 0.15, 1.45),
-		_o(g, at.call(1.6), z1 - 0.15, 1.45), _o(g, at.call(1.1), z1 - 0.1, 0.95)]), glass)   # o para-brisa
-	var hood: Vector2 = span.call(0.0, 1.1)
-	_poly(_patch(g, hood.x, hood.y, z0, z1, 0.95), top)   # o capô
-	var rear: float = at.call(4.5)
-	if d * x < 0.0:   # a frente, virada para nós enquanto ele vem
-		_poly(PackedVector2Array([_o(g, x, z0, 0.3), _o(g, x, z1, 0.3), _o(g, x, z1, 0.95), _o(g, x, z0, 0.95)]), body.darkened(0.2))
+	if m.has("bed"):   # a caçamba: o fundo dela, mais escuro, entre as paredes
+		var bed: Vector2 = m["bed"]
+		var bs: Vector2 = span.call(bed.x, bed.y)
+		_poly(_patch(g, bs.x, bs.y, z0 + 0.08, z1 - 0.08, 0.75), body.darkened(0.45))
+		_poly(PackedVector2Array([_o(g, bs.x, z1 - 0.08, 0.75), _o(g, bs.y, z1 - 0.08, 0.75), _o(g, bs.y, z1 - 0.08, m["belt"]),
+			_o(g, bs.x, z1 - 0.08, m["belt"])]), body.darkened(0.3))   # a parede de lá, por dentro
+		_poly(_patch(g, bs.x, bs.y, z1 - 0.08, z1, m["belt"]), top.lightened(0.1))   # a beira dela
+		var back: float = at.call(m["cab"][3].x)   # a parede de trás da cabine, virada para a caçamba
+		if d * back > 0.0:
+			_poly(PackedVector2Array([_o(g, back, z0, 0.75), _o(g, back, z1, 0.75), _o(g, back, z1, 1.75), _o(g, back, z0, 1.75)]),
+				body.darkened(0.25))
+			_poly(PackedVector2Array([_o(g, back, z0 + 0.4, 1.2), _o(g, back, z1 - 0.4, 1.2), _o(g, back, z1 - 0.4, 1.6),
+				_o(g, back, z0 + 0.4, 1.6)]), glass)   # o vidro de trás
+	var box: Color = m.get("box_col", body)
+	for t: Vector3 in m["tops"]:   # o que se vê de cima: capô, teto, porta-malas (e o teto do baú)
+		var ts: Vector2 = span.call(t.x, t.y)
+		var tc := box.darkened(0.3) if m.has("box") and t.x >= m["box"][0].x else (top.lerp(CAR_SKY, 0.1) if t.z > 1.3 else top)
+		_poly(_patch(g, ts.x, ts.y, z0 + 0.1, z1 - 0.1, t.z), tc)
+	for q: Vector4 in m["glass"]:   # os vidros inclinados (para-brisa, vigia)
+		_poly(PackedVector2Array([_o(g, at.call(q.x), z0 + 0.1, q.y), _o(g, at.call(q.z), z0 + 0.15, q.w),
+			_o(g, at.call(q.z), z1 - 0.15, q.w), _o(g, at.call(q.x), z1 - 0.1, q.y)]), glass)
+	for q: Vector4 in m.get("slopes", []):   # as chapas inclinadas (a traseira arredondada do Fusca)
+		_poly(PackedVector2Array([_o(g, at.call(q.x), z0 + 0.1, q.y), _o(g, at.call(q.z), z0 + 0.1, q.w),
+			_o(g, at.call(q.z), z1 - 0.1, q.w), _o(g, at.call(q.x), z1 - 0.1, q.y)]), top)
+	var rear: float = at.call(L)
+	var face := Vector2.ZERO   # a frente ou a traseira virada para nós: onde (x) e até que altura
+	var face_glass := Vector2.ZERO
+	if d * x < 0.0:   # a frente, enquanto ele vem
+		face = Vector2(x, m["front"])
+		face_glass = m.get("front_glass", Vector2.ZERO)
 	elif d * rear > 0.0:   # a traseira, quando ele já passou
-		_poly(PackedVector2Array([_o(g, rear, z0, 0.3), _o(g, rear, z1, 0.3), _o(g, rear, z1, 0.95), _o(g, rear, z0, 0.95)]),
-			body.darkened(0.2))
-	var side := PackedVector2Array()   # o lado de cá
-	for p: Vector2 in [Vector2(0.0, 0.3), Vector2(0.0, 0.8), Vector2(0.1, 0.95), Vector2(4.4, 0.95), Vector2(4.5, 0.8), Vector2(4.5, 0.3)]:
-		side.append(_o(g, at.call(p.x), z0, p.y))
-	_poly(side, body)
+		face = Vector2(rear, m["back"])
+		face_glass = m.get("back_glass", Vector2.ZERO)
+	if face.y > 0.0:
+		var fc := box if m.has("box") and face.x == rear else body
+		_poly(PackedVector2Array([_o(g, face.x, z0, 0.3), _o(g, face.x, z1, 0.3), _o(g, face.x, z1, face.y), _o(g, face.x, z0, face.y)]),
+			fc.darkened(0.2))
+		if face_glass != Vector2.ZERO:
+			_poly(PackedVector2Array([_o(g, face.x, z0 + 0.1, face_glass.x), _o(g, face.x, z1 - 0.1, face_glass.x),
+				_o(g, face.x, z1 - 0.1, face_glass.y), _o(g, face.x, z0 + 0.1, face_glass.y)]), glass)
+	for key in ["body", "cab", "box"]:   # o lado de cá (e a cabine da picape e do caminhão, e o baú)
+		if m.has(key):
+			var side := PackedVector2Array()
+			for p: Vector2 in m[key]:
+				side.append(_o(g, at.call(p.x), z0, p.y))
+			_poly(side, box if key == "box" else body)
+	if m.has("upper"):   # a Kombi em duas cores: a de cima clara
+		var up := PackedVector2Array()
+		for p: Vector2 in m["upper"]:
+			up.append(_o(g, at.call(p.x), z0, p.y))
+		_poly(up, CAR_UPPER)
 	var win := PackedVector2Array()
-	for p: Vector2 in [Vector2(1.1, 0.97), Vector2(1.6, 1.43), Vector2(3.2, 1.43), Vector2(3.6, 0.97)]:
+	for p: Vector2 in m["win"]:
 		win.append(_o(g, at.call(p.x), z0 + 0.05, p.y))
 	_poly(win, glass)
-	_ci.draw_line(_o(g, at.call(2.35), z0, 0.97), _o(g, at.call(2.35), z0, 1.43), body, PX)   # a coluna do meio
-	_ci.draw_line(_o(g, at.call(1.5), z0, 1.2), _o(g, at.call(1.9), z0, 1.38), Color("3a4a58"), PX)   # o reflexo
-	_ci.draw_line(_o(g, x, z0, 0.95), _o(g, rear, z0, 0.95), chrome, PX)   # os frisos
-	_ci.draw_line(_o(g, x, z0, 0.4), _o(g, rear, z0, 0.4), chrome, PX)
-	_ci.draw_line(_o(g, at.call(2.3), z0, 0.4), _o(g, at.call(2.3), z0, 0.95), Color(0, 0, 0, 0.5), PX)   # a porta
-	for wx2 in [0.8, 3.6]:   # as rodas, com a calota
-		var a := _o(g, minf(at.call(wx2 - 0.33), at.call(wx2 + 0.33)), z0, 0.62)
-		var b := _o(g, maxf(at.call(wx2 - 0.33), at.call(wx2 + 0.33)), z0, 0.0)
-		_r(a.x, a.y, b.x - a.x, b.y - a.y, Color("030506"))
-		var m := (a + b) / 2.0
-		_r(m.x - (b.x - a.x) * 0.2, m.y - (b.y - a.y) * 0.2, (b.x - a.x) * 0.4, (b.y - a.y) * 0.4, Color("3a444b"))
+	var wb: Vector2 = Vector2(m["win"][0].y, m["win"][1].y)   # a altura dos vidros: para as colunas
+	for a: float in m["pillars"]:   # as colunas
+		_ci.draw_line(_o(g, at.call(a), z0, wb.x), _o(g, at.call(a), z0, maxf(wb.y, m["win"][2].y)), CAR_UPPER if m.has("upper") else body, PX)
+	var w0: Vector2 = m["win"][0]
+	var w1: Vector2 = m["win"][1]
+	_ci.draw_line(_o(g, at.call(lerpf(w0.x, w1.x, 0.6) + 0.1), z0, lerpf(w0.y, w1.y, 0.5)), _o(g, at.call(w1.x + 0.3), z0, w1.y - 0.05),
+		Color("3a4a58"), PX)   # o reflexo
+	for h: float in m["trim"]:   # os frisos
+		_ci.draw_line(_o(g, at.call(0.05), z0, h), _o(g, at.call(L - 0.05), z0, h), chrome, PX)
+	for a: float in m.get("doors", []):   # as portas
+		_ci.draw_line(_o(g, at.call(a), z0, 0.4), _o(g, at.call(a), z0, m["belt"]), Color(0, 0, 0, 0.5), PX)
+	var shine := CAR_WET if wet else 1.0
+	for t: Vector3 in m["tops"]:   # a luz dos postes na beira de lá do capô, do teto e do porta-malas
+		_sheen(g, at.call(t.x), at.call(t.y), z1 - 0.15, t.z, 0.55 * shine, shine)
+	for h: float in m["trim"]:   # e nos frisos
+		_sheen(g, at.call(0.05), at.call(L - 0.05), z0, h, 0.35 * shine, shine)
+	if c.get("taxi", false):   # o táxi: a placa acesa no teto
+		var roof: Vector3 = m["tops"][1]
+		var tx: float = at.call((roof.x + roof.y) / 2.0)
+		_poly(PackedVector2Array([_o(g, tx - 0.25, z0 + 0.6, roof.z), _o(g, tx + 0.25, z0 + 0.6, roof.z),
+			_o(g, tx + 0.25, z0 + 0.6, roof.z + 0.16), _o(g, tx - 0.25, z0 + 0.6, roof.z + 0.16)]), TAXI_SIGN)
+		var tc := _o(g, tx, z0 + 0.6, roof.z + 0.08)
+		_light_fan(tc, _ring(tc, 0.5 * OUT_F / z0), Color(TAXI_SIGN, 0.3))
+	var r: float = m["wheel"]
+	_ci.draw_set_transform(Vector2.ZERO)   # as rodas em pixel art, em px da tela
+	for wx2: float in m["wheels"]:   # o arco do para-lama, o pneu e a calota
+		var mid := _o(g, at.call(wx2), z0, r) * 2.0
+		var dia := maxi(3, roundi(r * 2.0 * OUT_F / z0 * 2.0))
+		var arch := dia + 2
+		if m.get("fenders", false):   # o para-lama saltado do Fusca, com a luz na beira de cima
+			PixelArt.sprite(_ci, PixelArt.disc(arch + 2, [[(arch + 2) / 2.0, body.lightened(0.12)]]), mid - Vector2(0, 2))
+		PixelArt.sprite(_ci, PixelArt.disc(arch, [[arch / 2.0, body.darkened(0.6)]]), mid - Vector2(0, 1))
+		PixelArt.sprite(_ci, PixelArt.disc(dia, [[dia * 0.22, Color("4a545b"), Color("3a444b"), Color("22292e")],
+			[dia / 2.0, Color("14181b"), Color("0a0d0f"), Color("030506")]]), mid)
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	if wet:
+		_spray(g, c, m, at, z0)
 	var k := OUT_F / z0
 	var w := maxf(1.0, 0.2 * k)
-	var hl := _o(g, x, z0, 0.7)
-	_r(hl.x - PX if d < 0.0 else hl.x - w + PX, hl.y - 0.08 * k, w, maxf(1.0, 0.16 * k), Color("fff1c8"))   # o farol
+	var hl := _o(g, at.call(m.get("lamp_at", 0.0)), z0, m["lamp"])
+	_r(hl.x - PX if d < 0.0 else hl.x - w + PX, hl.y - 0.08 * k, w, maxf(1.0, 0.16 * k), CAR_HEAD)   # o farol
+	_light_fan(hl, _ring(hl, 0.35 * k), Color(CAR_HEAD, 0.3))
 	var tw := maxf(PX, 0.15 * k)
-	var tl := _o(g, rear, z0, 0.75)
-	_r(tl.x - tw if d < 0.0 else tl.x, tl.y - 0.08 * k, tw, maxf(1.0, 0.16 * k), Color("8a1e14"))   # a lanterna
+	var tl := _o(g, rear, z0, m["lamp"] + 0.05)
+	_r(tl.x - tw if d < 0.0 else tl.x, tl.y - 0.08 * k, tw, maxf(1.0, 0.16 * k), CAR_TAIL)   # a lanterna
+	_light_fan(tl, _ring(tl, 0.25 * k), Color(CAR_TAIL.lightened(0.3), 0.3))
+	if face.y > 0.0:   # de frente (ou de costas) para nós, o par de faróis (ou de lanternas) acesos, com o halo
+		var front := face.x == x
+		for zl: float in [z0 + 0.3, z1 - 0.3]:
+			var p := _o(g, face.x, zl, m["lamp"] + (0.0 if front else 0.05))
+			var kk := OUT_F / zl
+			var col := CAR_HEAD if front else CAR_TAIL
+			_light_fan(p, _ring(p, (0.7 if front else 0.35) * kk), Color(col.lightened(0.0 if front else 0.3), 0.45 if front else 0.35))
+			_r(p.x - 0.1 * kk, p.y - 0.07 * kk, maxf(PX, 0.2 * kk), maxf(PX, 0.14 * kk), col)
+
+
+## Na chuva, a água que os pneus levantam: um borrifo atrás de cada roda, mais alto perto dela e sumindo para trás,
+## tremendo a cada quadro (os pontos sorteados pelo tempo).
+func _spray(g: Rect2, c: Dictionary, m: Dictionary, at: Callable, z0: float) -> void:
+	var rng := _spray_rng
+	rng.seed = int(Time.get_ticks_msec() / 60)
+	var r: float = m["wheel"]
+	for wx2: float in m["wheels"]:
+		for i in CAR_SPRAY:
+			var back := rng.randf() * 1.4
+			var h := rng.randf() * r * 1.6 * (1.0 - back / 1.6)
+			var p := _o(g, at.call(wx2 + r * 0.6 + back), z0 - 0.05, h)
+			_p(roundf(p.x * 2.0), roundf(p.y * 2.0), 1, 1, Color(0.75, 0.8, 0.85, 0.35 * (1.0 - back / 1.4)))
+
+
+## A luz dos postes (`FAR_LAMPS`) refletida numa linha da lataria, de `x0` a `x1` (m ao longo da rua) a `z` m e `h` de
+## altura: um pixel por coluna da tela, mais forte quanto mais perto de um poste (`CAR_SHEEN`, vezes `spread`); `alpha`
+## no máximo.
+func _sheen(g: Rect2, x0: float, x1: float, z: float, h: float, alpha: float, spread := 1.0) -> void:
+	var a := _o(g, x0, z, h)
+	var b := _o(g, x1, z, h)
+	var n := absi(roundi((b.x - a.x) * 2.0))
+	for i in n + 1:
+		var u := float(i) / maxf(1.0, n)
+		var lit := 0.0
+		for lx: float in FAR_LAMPS:
+			lit += exp(-pow((lerpf(x0, x1, u) - lx) / (CAR_SHEEN * spread), 2.0))
+		if lit > 0.05:
+			var q := a.lerp(b, u)
+			_p(roundf(q.x * 2.0), roundf(q.y * 2.0), 1, 1, Color(1.0, 0.85, 0.55, alpha * minf(lit, 1.0)))
 
 
 ## O arbusto plantado junto da nossa parede, embaixo da janela (`SHRUB`): só a copa aparece, subindo do peitoril

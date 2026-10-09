@@ -351,9 +351,12 @@ func _events(delta: float) -> void:
 	for lane in CAR_LANES.size():   # um carro por vez em cada mão, cada uma no seu tempo
 		_car_in[lane] -= delta
 		if _car_in[lane] <= 0.0:
-			_cars.append({"t": 0.0, "lane": lane})
+			var kind := _car_kind()
+			_cars.append({"t": 0.0, "lane": lane, "kind": kind, "col": CAR_COLORS.pick_random(),
+				"taxi": kind in TAXI_KINDS and randf() < TAXI})
 			_car_in[lane] = INF   # o próximo desta mão é sorteado quando este sair
-			Sfx.play_at(("car_wet" if weather == "rain" else "car") + ("_near" if lane == 1 else ""), x)   # o de cá, mais perto
+			Sfx.play_at(("car_wet" if weather == "rain" else "car") + ("_near" if lane == 1 else ""), x, 0.0,
+				CAR_KINDS[kind]["pitch"] * randf_range(0.97, 1.03))   # o de cá, mais perto; cada modelo no tom dele
 	for i in range(_cars.size() - 1, -1, -1):
 		var c := _cars[i]
 		c["t"] += delta / CAR_SEC
@@ -395,6 +398,19 @@ func _events(delta: float) -> void:
 				Sfx.play_at("rattle", x, -6.0 * (_thunder_at - THUNDER_AFTER.x) / (RATTLE_NEAR - THUNDER_AFTER.x))
 			_bolt = -1.0
 			_bolt_in = randf_range(BOLT_EVERY.x, BOLT_EVERY.y)
+
+
+## Um modelo de carro sorteado pelo quanto ele passa (`CAR_KINDS`, `weight`).
+func _car_kind() -> String:
+	var total := 0.0
+	for k: String in CAR_KINDS:
+		total += CAR_KINDS[k]["weight"]
+	var r := randf() * total
+	for k: String in CAR_KINDS:
+		r -= CAR_KINDS[k]["weight"]
+		if r <= 0.0:
+			return k
+	return "fusca"
 
 
 ## O sino da igreja bate a hora (`count` badaladas), começando um pouco depois do gongo da mesa.

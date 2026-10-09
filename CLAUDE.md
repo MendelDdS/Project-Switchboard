@@ -355,7 +355,15 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   outro lado, atrás do arbusto): um véu liso mais grosso rente ao chão (`FOG_VEIL`, `FOG_GROUND`), fiapos largos e lisos
   atravessando a rua com o vento (`FOG_WISPS`) e as luzes espalhando nela (halo e cone de laterais lisas em cada poste, o
   vermelho do neon); as faixas retangulares que havia no vidro pareciam defeito. Os carros (`_draw_car`, um por
-  vez em cada mão, cada mão no seu sorteio, `_cars`) passam pelas duas mãos (`CAR_LANES`, `_car_x`): pela de lá, da
+  vez em cada mão; modelos de 1973 sorteados pelo quanto passam, `CAR_KINDS`: Fusca, sedã, perua, Kombi em duas cores e
+  picape com caçamba, cada um com o seu tom de motor, `pitch`, e uma cor escura da noite, `CAR_COLORS`; `_car_kind`; o teto e o capô mais escuros que o
+  lado, com um pouco do céu, `CAR_SKY`; rodas redondas em pixel art nos arcos dos para-lamas; a luz dos postes correndo
+  pela beira do teto e pelos frisos quando ele passa embaixo deles, `_sheen`, `CAR_SHEEN`; faróis e lanternas acesos, com halo (o par
+  deles com a frente ou a traseira virada para nós) e espelhados na rua molhada; Brasília e caminhão de baú entre os
+  modelos, o Fusca com os para-lamas saltados e os faróis neles, a caçamba da picape com a parede de dentro; táxis
+  (`TAXI`, `TAXI_KINDS`, placa acesa no teto); na chuva, a lataria mais brilhante (`CAR_WET`) e o borrifo dos pneus
+  (`_spray`) (as silhuetas de quem vai dentro
+  foram testadas e saíram a pedido), cada mão no seu sorteio, `_cars`) passam pelas duas mãos (`CAR_LANES`, `_car_x`): pela de lá, da
   direita para a esquerda; pela de cá, voltando, da esquerda para a direita, mais perto da faixa do meio que do nosso
   meio-fio (rente a ele, ficava tão perto e de cima que virava uma mancha escura cortada pelo peitoril), apoiados no
   asfalto: sombra de contato, facho dos faróis no chão, lado,
