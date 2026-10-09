@@ -294,6 +294,7 @@ func _process(delta: float) -> void:
 			background.toll((SHIFT_START_HOUR + hour - 1) % 12 + 1)
 		_hour = hour
 		background.minutes = SHIFT_START_HOUR * 60 + minutes
+		radio.minutes = minutes
 		_nag()
 		supervisor.check_hold()
 	background.flick = flick

@@ -350,3 +350,5 @@ O que o usuário pediu, em ordem (antes no `CLAUDE.md`). Acrescente cada pedido 
     enquanto espera. Pedir desculpa por ligar tarde não faz sentido (é o horário da central): uma pede desculpa por
     incomodar com a central cheia, a outra por puxar conversa. A carta do irmão diz por que ela conta (precisava contar
     pra alguém).
+110. Rádio: cada mensagem leva na frente a hora em que chegou ("[21:04] Central, viatura 2…"), para saber se é nova e
+    quanto a viatura demorou; um pouco mais de espaço entre as linhas da tela, que quase se encostavam.

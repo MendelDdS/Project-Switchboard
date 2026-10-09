@@ -322,7 +322,7 @@ func _initialize() -> void:
 	var more := Array(e10.required(2)).filter(func(u): return not u in e10.required(1))
 	var said := T.text(T.Key.RADIO_WORSE) % e10.address + " " + T.text(T.Key.RADIO_SEND_MORE) % " e ".join(more.map(func(u): return T.text({"pol": T.Key.UNIT_POLICE, "bomb": T.Key.UNIT_FIRE, "amb": T.Key.UNIT_AMBULANCE}[u]).to_lower()))
 	ok(c10.stage == 2 and Array(m.dispatch.fleet.required(e10)) == Array(e10.required(2)), "agravada: exige o que o rádio contou")
-	ok(await wait_until(func(): return m.radio._screen.text == said, 30.0), "o rádio avisa: " + said)
+	ok(await wait_until(func(): return m.radio._screen.text.ends_with(said), 30.0), "o rádio avisa: " + said)
 	await wait_until(func(): return m.dispatch.fleet.required(e10).all(func(u): return u == need[0] or m.dispatch.fleet.units[u] == 0), 30.0)
 	m.dispatch.set_location(e10.street, e10.block, e10.address)
 	m.dispatch.set_occurrence(e10.occurrence)
