@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://scripts/ui/call_log.gd" id="6_call_log"]
 [ext_resource type="Script" path="res://scripts/ui/news_view.gd" id="7_news"]
 [ext_resource type="Script" path="res://scripts/ui/paper_deco.gd" id="8_deco"]
+[ext_resource type="PackedScene" path="res://scenes/ui/toll.tscn" id="9_toll"]
 
 [node name="Tools" type="VBoxContainer"]
 custom_minimum_size = Vector2(620, 0)
@@ -61,6 +62,10 @@ theme_override_colors/default_color = Color(0.1647, 0.1373, 0.098, 1)
 theme_override_font_sizes/normal_font_size = 11
 theme_override_constants/line_separation = 3
 script = ExtResource("6_call_log")
+
+[node name="Toll" parent="Body/Paper/Margin" instance=ExtResource("9_toll")]
+unique_name_in_owner = true
+layout_mode = 2
 
 [node name="News" type="VBoxContainer" parent="Body/Paper/Margin"]
 unique_name_in_owner = true

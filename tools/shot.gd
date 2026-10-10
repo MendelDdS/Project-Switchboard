@@ -6,11 +6,12 @@ extends Node
 ##   --out=build/shot.png   onde gravar (o recorte vai em <nome>_zoom.png)
 ##   --width=1280           a largura do `main.tscn` (720 de altura; o jogo, no `GameView`, é sempre 1280)
 ##   --hour=20:00           a hora do turno no relógio e lá fora
-##   --tool=id              abre a ferramenta (os ids de `Tools`: lista, despacho, caderno, registro, jornal)
+##   --tool=id              abre a ferramenta (os ids de `Tools`: lista, despacho, caderno, registro, jornal, calculografo)
 ##   --debug=N              abre o painel de debug na aba N (0 = Jogo, 1 = Vozes)
 ##   --card                 marca um local no mapa e espera o cartão sair impresso
 ##   --emergency            toca uma emergência e atende (a luz vermelha da unidade, a barra, o rádio)
 ##   --news                 o jornal da manhã na mesa
+##   --toll                 um interurbano contando no calculógrafo e um bilhete impresso, um deles carimbado
 ##   --zoom=x,y,w,h         o recorte, em px do jogo, ampliado `ZOOM` vezes
 ##   --wait=5               segundos antes de capturar (a luminária esquenta em 4)
 ## As do jogo também valem: --weather=rain|fog|clear, --night=N, --seed=N, --lang=en.
@@ -40,6 +41,13 @@ func _ready() -> void:
 	m.minutes = (int(hm[0]) - Main.SHIFT_START_HOUR) * 60.0 + (int(hm[1]) if hm.size() > 1 else 0)
 	if _args.has("news"):
 		m.set_news([{"outcome": 0, "template": GameData.CONTENT.news_ok[0], "occurrence": "Outro", "address": "Rua do Sol, 10"}])
+	if _args.has("toll"):
+		m.toll.start(4, GameData.trunk_city(901), "23-118", m.minutes - 6.4)
+		m.toll.stop(4, m.minutes)
+		m.toll.start(7, GameData.trunk_city(903), "4-52", m.minutes - 3.2)
+		m.toll.stop(7, m.minutes).stamp(Vector2(120, 60))
+		m.exchange.set_line(2, Exchange.Line.CONN, m.minutes + 60.0)   # senão a linha livre já imprime o bilhete
+		m.toll.start(2, GameData.trunk_city(902), "7-30", m.minutes - 2.0)
 	if _args.has("emergency"):
 		m.ring(PhoneCall.from_emergency(GameData.template_emergency()))
 		await get_tree().create_timer(0.5, false).timeout

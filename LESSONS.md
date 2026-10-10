@@ -189,3 +189,9 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
 - **Peça que aparece só mais tarde muda a altura da interface.** O botão Encerrar turno (às 23:40) deixa o bilhete
   do turno 2 px mais alto que a faixa encolhida, e a tela inteira subiria. Ao encolher uma faixa, meça
   `get_combined_minimum_size()` também com tudo o que pode aparecer nela.
+- **Objeto de papel na mesa é solto, não arrastado até um alvo.** O arrastar do Godot (`_get_drag_data`) leva uma
+  imagem até onde ele aceita soltar e o objeto volta para o lugar: o usuário pediu bilhetes e carimbo livres, que ficam
+  onde são soltos, como o cartão do despacho. Para peças físicas, faça o arrastar próprio (pegar, levar, soltar).
+- **Objeto novo na sala segue a câmera dela.** A prancheta pendurada "ao lado da mesa comutadora" saiu de frente, na
+  parede, e destoou: o usuário pediu na lateral do painel, na perspectiva da sala (`_p3`). Nada na sala é desenhado de
+  frente fora da câmera, nem um prendedor.

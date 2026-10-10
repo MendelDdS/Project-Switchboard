@@ -80,6 +80,28 @@ func _mouse(n: Control, p: Vector2, pressed := -1) -> void:
 	n._gui_input(e)
 
 
+## Arrasta com o mouse de `a` até `b` (coordenadas da tela): aperta, anda em 8 passos com o botão apertado e solta.
+func _drag_mouse(a: Vector2, b: Vector2) -> void:
+	var vp := get_viewport()
+	var e := InputEventMouseButton.new()
+	e.button_index = MOUSE_BUTTON_LEFT
+	e.pressed = true
+	e.position = a
+	vp.push_input(e)
+	for i in 8:
+		var mm := InputEventMouseMotion.new()
+		mm.button_mask = MOUSE_BUTTON_MASK_LEFT
+		mm.position = a.lerp(b, (i + 1) / 8.0)
+		mm.relative = (b - a) / 8.0
+		vp.push_input(mm)
+		await frames(1)
+	var u := e.duplicate()
+	u.pressed = false
+	u.position = b
+	vp.push_input(u)
+	await frames(2)
+
+
 ## Clique (aperta e solta no mesmo lugar) sobre o nó `n`.
 func _click(n: Control, p: Vector2) -> void:
 	_mouse(n, p, 1)
@@ -415,11 +437,33 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return lc.connected), "tronco certo: a telefonista de lá completa")
 	ok(lc.transcript.any(func(l): return lt.far_number in String(l["text"])), "o operador passou o número de lá")
 	ok(ex.line(ln) == Exchange.Line.CONN and ex.dest(tgt) == Exchange.Dest.CONN, "interurbano conectado")
+	ok(m.toll.counting(ln) and m.toll.tickets().is_empty(), "o calculógrafo conta o interurbano")
 	m.minutes = ex.line_until(ln) + 1.0
 	await frames(1)
+	var tk: TollTicket = m.toll.tickets()[0] if m.toll.tickets().size() == 1 else null
+	ok(tk != null and not m.toll.counting(ln) and tk.line == ln and tk.city == GameData.trunk_city(tgt) and tk.far == lt.far_number
+		and tk.minutes() >= 1, "a conversa acabou: o calculógrafo imprimiu o bilhete")
 	for e in [0, 1, 2]:
 		_move(e, -1)
 	ok(ex.line(ln) == Exchange.Line.FREE and ex.dest(tgt) == Exchange.Dest.FREE, "interurbano encerrado")
+	var toll_faults := m.report.faults.size()
+	m.toll.file(tk)
+	ok(m.report.faults.size() == toll_faults + 1 and m.report.faults[-1]["id"] == "toll_unstamped" and m.toll.tickets().is_empty(),
+		"bilhete sem carimbo na caixinha: advertência leve")
+	m.toll.start(5, "Capital", "45-12", m.minutes)
+	var tk2 := m.toll.stop(5, m.minutes + 3.2)
+	m.tools.set_tab(Tools.TOLL)
+	await frames(30)
+	var stamp: Control = m.toll._stamp
+	await _drag_mouse(stamp.get_global_rect().get_center(), tk2.get_global_rect().get_center())
+	var mark := tk2.mark
+	await _drag_mouse(stamp.get_global_rect().get_center(), stamp.get_global_rect().get_center() + Vector2(24, 6))
+	ok(tk2.stamped and tk2.mark == mark and tk2.minutes() == 4 and stamp.get_global_rect().has_point(tk2.get_global_rect().get_center() + Vector2(24, 6)),
+		"carimbo levado até o bilhete e solto lá, uma marca só; o minuto começado conta inteiro")
+	var desk: Control = m.toll._desk
+	await _drag_mouse(tk2.get_global_position() + Vector2(10, 80), desk.get_global_position() + m.toll._box().get_center())
+	m.tools.close()
+	ok(m.report.faults.size() == toll_faults + 1 and m.toll.filed == 2 and m.toll.tickets().is_empty(), "carimbado, arrastado até a caixinha sem advertência")
 	print("OK 1b interurbano pelo tronco da cidade")
 
 	# ---- 2. três ligações ao mesmo tempo, com espera

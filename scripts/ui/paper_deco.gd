@@ -166,8 +166,8 @@ static func _grain(k: String, c: Color, x: int, y: int) -> Color:
 			return c.darkened(0.06) if g < 4 else c
 
 
-## O prendedor da prancheta, de pé na beira de cima, no níquel da mesa (o mesmo desenho do `Background.CLIP_ART`,
-## maior): a alavanca em arco por cima e o corpo com a luz no alto, a sombra embaixo e os rebites nas pontas.
+## O prendedor da prancheta, de pé na beira de cima, no níquel da mesa (o da prancheta da sala,
+## de frente): a alavanca em arco por cima e o corpo com a luz no alto, a sombra embaixo e os rebites nas pontas.
 static func _clip(sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
 	var edge := Color("2a2620")

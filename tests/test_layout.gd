@@ -6,7 +6,7 @@ extends "res://tests/test_base.gd"
 
 const WIDTHS := [1280, 1500, 1708]   # o jogo é sempre 1280 (`GameView`); as outras, o `main.tscn` sozinho numa janela larga
 const TOGETHER := [["relogio", "caneca"]]   # os que se encostam de propósito
-const WANT := [Tools.DIRECTORY, Tools.DISPATCH, Tools.LOGBOOK, Tools.CALL_LOG, Tools.NEWS, "relogio", "caneca"]
+const WANT := [Tools.DIRECTORY, Tools.DISPATCH, Tools.LOGBOOK, Tools.CALL_LOG, Tools.NEWS, Tools.TOLL, "relogio", "caneca"]
 
 
 func _initialize() -> void:

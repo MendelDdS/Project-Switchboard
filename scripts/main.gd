@@ -59,6 +59,7 @@ var _sent := {}                    ## EmergencyCall -> último despacho para ela
 const SAW_SLIPS := "viu_tiras_caderno"
 const SAW_SHEET := "viu_folha_registro"
 const SAW_TRUNK := "viu_interurbano"   # a primeira ligação interurbana: a dica de como completar
+const SAW_TOLL := "viu_tarifacao"   # o primeiro bilhete de tarifação: a dica do carimbo e da caixinha
 
 var _taught_done := false
 var _taught_multi := false
@@ -82,6 +83,7 @@ var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o
 @onready var tools: Tools = %Tools
 @onready var notebook: Notebook = tools.notebook
 @onready var dispatch: Dispatch = tools.dispatch
+@onready var toll: Toll = tools.toll
 @onready var conversation: Conversation = %Conversation
 @onready var supervisor: Supervisor = %Supervisor
 @onready var urgency: Urgency = %Urgency
@@ -142,6 +144,7 @@ func _ready() -> void:
 		background.pending = n
 		if n > 0:
 			_teach(SAW_SLIPS, T.Key.HINT_DESK_SLIPS))
+	toll.unstamped.connect(func(t: TollTicket): supervisor.fault("toll_unstamped", t.detail()))
 	tools.call_log.unread_changed.connect(func(on: bool):
 		background.unread = on
 		if on:
@@ -301,6 +304,9 @@ func _process(delta: float) -> void:
 	background.flick = flick
 	background.alert = not dispatch.fleet.incidents.is_empty()   # o estado do despacho na unidade da mesa
 	background.card_out = not dispatch.machines.can_print()
+	background.tickets = toll.waiting()   # o calculógrafo da mesa: o bilhete esperando e a luz contando
+	background.metering = toll.metering()
+	toll.now = minutes
 	var w := background.warm   # esquentando, o brilho é mais fraco e alaranjado (`Background.warm_up`)
 	_glow.modulate = Color(1.0, lerpf(WARM_TINT.g, 1.0, w), lerpf(WARM_TINT.b, 1.0, w), background.lamp_level * lerpf(WARM_TINT.a, 1.0, w))
 	tools.light = background.lamp_level
@@ -542,8 +548,8 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 ## Tronco interurbano: a telefonista da outra cidade atende, o operador passa o número e ela chama lá (mais
 ## toques); verdadeiro quando o número atendeu. No tronco errado, ela não acha o número e a transferência volta (conta
 ## como número errado). Ela só fala com o FONE na linha: sem o número, não completa.
-## ponytail: a outra ponta sempre tem linha e ninguém cobra; tronco ocupado lá, a cobrar e bilhete de tarifação, quando
-## o interurbano ganhar burocracia.
+## ponytail: a outra ponta sempre tem linha e ninguém fala a cobrar; tronco ocupado lá e ligação a cobrar, quando o
+## interurbano ganhar mais burocracia.
 func _trunk(c: PhoneCall, d: int, g: int, right: bool) -> bool:
 	var who := GameData.entry(str(d)).name
 	c.sys(T.text(T.Key.SYS_ANSWERED) % who)
@@ -592,6 +598,8 @@ func _try_complete(c: PhoneCall) -> bool:
 	exchange.set_line(c.line, Exchange.Line.CONN, minutes + randf_range(TALK_LEN.x, TALK_LEN.y))
 	c.connected = true
 	c.dest_num = d
+	if GameData.is_trunk(d):   # a outra ponta atendeu: o calculógrafo começa a contar
+		toll.start(c.line, GameData.trunk_city(d), (c.data as TransferCall).far_number, minutes)
 	c.sys(T.text(T.Key.SYS_LINES_CONNECTED) % [c.line, d])
 	phone.flash("%02d - %d" % [c.line, d], 2600)
 	end_call(c, PhoneCall.End.CONNECTED)
@@ -759,6 +767,15 @@ func _update_line_timers() -> void:
 			if not _taught_done and live.is_empty():
 				_taught_done = true
 				hint(T.text(T.Key.HINT_RED_LAMPS))
+		if toll.counting(n) and exchange.line(n) != Exchange.Line.CONN:   # acabou ou foi cortada
+			_print_ticket(n)
+
+
+## O interurbano da entrada `n` acabou: o calculógrafo imprime o bilhete (da primeira vez, a dica do carimbo).
+func _print_ticket(n: int) -> void:
+	toll.stop(n, minutes)
+	Sfx.play_at("printer", _across(background.prop_rect(Tools.TOLL).get_center().x))
+	_teach(SAW_TOLL, T.Key.HINT_TOLL)
 
 
 ## A conversa conectada pela linha `n` terminou: linha e destino ficam vermelhos até o operador tirar as pontas.

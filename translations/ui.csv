@@ -176,6 +176,7 @@ TAB_DISPATCH,Mapa e despacho,Map & dispatch,Mapa y despacho
 TAB_LOGBOOK,Caderno,Logbook,Cuaderno
 TAB_CALL_LOG,Registro,Call log,Registro
 TAB_NEWS,Jornal da manhã,Morning paper,Diario de la mañana
+TAB_TOLL,Calculógrafo,Toll timer,Tarificador
 NEWS_MASTHEAD,Gazeta de São Sotero,Gazeta de São Sotero,Gazeta de São Sotero
 NEWS_EDITION,Edição da manhã · %s,Morning edition · %s,Edición de la mañana · %s
 BOOK_BACK,◀ Voltar,◀ Back,◀ Atrás
@@ -252,6 +253,16 @@ CARD_SECTOR,SETOR,SECTOR,SECTOR
 CARD_SENDER,TRANSMISSOR,TRANSMITTER,TRANSMISOR
 CARD_SENDING,TRANSMITINDO...,SENDING...,TRANSMITIENDO...
 CARD_SHREDDER,TRITURADOR,SHREDDER,TRITURADORA
+TOLL_MACHINE,CALCULÓGRAFO,TOLL TIMER,TARIFICADOR
+TOLL_TICKET,BILHETE DE TARIFAÇÃO,TOLL TICKET,BOLETA DE TARIFA
+TOLL_LINE,ENTRADA,LINE,LÍNEA
+TOLL_TO,PARA,TO,PARA
+TOLL_TIME,HORÁRIO,TIME,HORARIO
+TOLL_MINUTES,MINUTOS,MINUTES,MINUTOS
+TOLL_MIN,%d MIN,%d MIN,%d MIN
+TOLL_STAMP,TARIFADO,CHARGED,TARIFADO
+TOLL_BOX,BILHETES,TICKETS,BOLETAS
+TOLL_IDLE,NENHUM INTERURBANO,NO LONG DISTANCE CALL,NINGUNA LARGA DISTANCIA
 CARD_ONE_AT_A_TIME,UM CARTÃO POR VEZ,ONE CARD AT A TIME,UNA TARJETA A LA VEZ
 NOTEBOOK_CARD,Ficha nº %04d,Card no. %04d,Ficha n.º %04d
 CARD_INSERT,INSIRA O CARTÃO,INSERT THE CARD,INSERTE LA TARJETA
@@ -304,6 +315,7 @@ FAULT_CUT_CALL,Conversa cortada no meio,Conversation cut off,Conversación corta
 FAULT_WRONG_INFO,Informação errada,Wrong information,Información equivocada
 FAULT_REGISTER_WRONG,Registro com o tipo errado,Logged with the wrong type,Registro con el tipo equivocado
 FAULT_REGISTER_MISSING,Ocorrência sem registro,Call not logged,Llamada sin registrar
+FAULT_TOLL_UNSTAMPED,Bilhete de tarifação guardado sem carimbo,Toll ticket filed without the stamp,Boleta de tarifa guardada sin sello
 FAULT_DISPATCH_WRONG_PLACE,Unidades enviadas ao endereço errado,Units sent to the wrong address,Unidades enviadas a la dirección equivocada
 FAULT_DISPATCH_MISSING,Faltaram unidades no despacho,Not enough units dispatched,Faltaron unidades en el despacho
 FAULT_DISPATCH_IDLE,Unidades enviadas sem ocorrência,Units sent with no emergency,Unidades enviadas sin emergencia
@@ -354,3 +366,4 @@ CALL_LOG_EMPTY,Nenhuma conversa ainda. Tudo o que for dito com o FONE na linha f
 TRUNK_OPERATOR,Telefonista (%s),Operator (%s),Operadora (%s)
 OP_TRUNK_NUMBER,"Aqui é São Sotero. O número %s, por favor.","São Sotero calling. Number %s, please.","Aquí São Sotero. El número %s, por favor."
 HINT_TRUNK,"Interurbano: ligue a SAÍDA na tomada da cidade, no banco INTERURBANO, e Transfira. Com o FONE na linha, passe o número à telefonista de lá.","Long distance: plug the OUTPUT into the city's jack in the LONG DISTANCE bank and Transfer. With the HEADSET on the line, give the number to the operator there.","Larga distancia: conecte la SALIDA en la toma de la ciudad, en el banco LARGA DISTANCIA, y Transfiera. Con el AURICULAR en la línea, dé el número a la operadora de allá."
+HINT_TOLL,"Interurbano encerrado: o calculógrafo, na mesa, imprimiu o bilhete. Abra-o, arraste o carimbo até o bilhete e depois o bilhete até a caixinha.","Long distance call over: the toll timer on the desk printed the ticket. Open it, drag the stamp onto the ticket and then the ticket into the box.","Larga distancia terminada: el tarificador, en la mesa, imprimió la boleta. Ábralo, arrastre el sello hasta la boleta y después la boleta hasta la cajita."

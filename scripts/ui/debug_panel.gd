@@ -43,7 +43,7 @@ func _ready() -> void:
 	_status = _label("")
 	_row([["Restaurar tudo", _restore_all]])
 	_section("Ligações e mesa", main.drop_all)
-	_row([["Transferência", _ring_transfer.bind(false)], ["Molde", _ring_transfer.bind(true)], ["Informação", func(): _ring(Schedule.info_call())]])
+	_row([["Transferência", _ring_transfer.bind(false)], ["Molde", _ring_transfer.bind(true)], ["Interurbano", _ring_trunk], ["Informação", func(): _ring(Schedule.info_call())]])
 	_row([["Trote", func(): _ring(PhoneCall.from_prank(C.pranks.pick_random()))], ["Desconhecida", func(): _ring(PhoneCall.mystery())]])
 	_emergency = OptionButton.new()
 	_emergency.focus_mode = Control.FOCUS_NONE
@@ -175,6 +175,16 @@ func _ring(c: PhoneCall) -> void:
 
 func _ring_transfer(template: bool) -> void:
 	_ring(PhoneCall.from_transfer(GameData.template_transfer() if template else C.transfers.filter(GameData.serves).pick_random()))
+
+
+## Um interurbano de molde, num tronco que nenhuma ligação da mesa esteja usando (dois no mesmo travavam um ao outro).
+func _ring_trunk() -> void:
+	var used := main.live.filter(func(x: PhoneCall): return x.data is TransferCall).map(func(x: PhoneCall): return (x.data as TransferCall).target)
+	var t := GameData.trunk_transfer(used)
+	if t == null:
+		main.warn("Debug: todos os troncos estão em uso.")
+	else:
+		_ring(PhoneCall.from_transfer(t))
 
 
 func _ring_emergency() -> void:

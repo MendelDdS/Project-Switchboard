@@ -18,8 +18,8 @@ extends "res://scripts/ui/background_props.gd"
 ## `weather`: "rain" (gotas no vidro, chão molhado), "fog" (névoa passando, luzes difusas) ou "clear" (estrelas e lua).
 ## `stranger`: quando o homem do mistério para embaixo do poste e quando vai embora (chega e sai andando, `_man_x`).
 ## Objetos na mesa, ao alcance do operador, abrem as ferramentas (`prop_clicked`, o id da ferramenta, `Tools.DIRECTORY`...): as
-## listas telefônicas, o mapa dobrado, o caderno aberto e a prancheta do registro (o relógio de flip e a caneca só
-## enfeitam). Ficam na sala, em centímetros da
+## listas telefônicas, a unidade de despacho, o caderno aberto, o calculógrafo e a prancheta do registro, pendurada na
+## lateral da mesa comutadora (o relógio de flip e a caneca só enfeitam). Ficam na sala, em centímetros da
 ## mesa, e passam pela mesma câmera (tamanho, escorço e o lado que aparece saem da conta), desenhados em pixels de 1x1
 ## com o detalhe da mesa comutadora; o resto do cenário também tem o detalhe em 1x1 (`PX`). Sob o mouse, ganham contorno, o nome da ferramenta e
 ## o cursor de dedo (o `SceneView` repassa o mouse, `pointer`, e desenha o contorno, `draw_hover`); o clique só vale
@@ -39,9 +39,12 @@ const SIGN_ENAMEL := Color("1f3b35")   ## a placa da companhia telefônica: o es
 const SIGN_INK := Color("d8cfae")   ## ...e o creme das letras e do filete
 const SIGN_AT := 0.62   ## onde fica o meio dela, na largura da mesa comutadora (à direita do horário do turno)
 const PROPS := {Tools.DIRECTORY: T.Key.TAB_DIRECTORY, Tools.DISPATCH: T.Key.TAB_DISPATCH, Tools.LOGBOOK: T.Key.TAB_LOGBOOK, Tools.CALL_LOG: T.Key.TAB_CALL_LOG,
-	Tools.NEWS: T.Key.TAB_NEWS}
+	Tools.NEWS: T.Key.TAB_NEWS, Tools.TOLL: T.Key.TAB_TOLL}
 
 
+const TIP_SEC := 1.3   ## o bilhete subindo na fenda do calculógrafo da mesa: o tempo do som da impressora ("printer")
+const HUNG := Vector2(24, 32)   ## a prancheta do registro pendurada na lateral do painel: funda (z) e alta (y), na sala
+const HUNG_AT := 0.3   ## onde fica o alto dela, na altura do painel
 const CALENDAR := "calendario"   ## a folhinha do armário: sob o mouse, a data da noite (não abre ferramenta)
 const DETAILS := ["cartaz_quermesse", "numero_anotado", "armario_entreaberto"]   ## o que `RoomChange.detail` pode pedir
 const BOARD_SINK := 14.0   ## o fundo do tampo, em px da tela acima da base do painel: fica atrás da mesa comutadora (o painel recuado para a parede, a prateleira funda)
@@ -133,7 +136,13 @@ var _sign_glow := Rect2()   # o halo do letreiro no vidro (vazio = fora do vidro
 var _bolt_layer: Control   # o clarão do relâmpago, por cima de tudo e somado: só a força muda, no `modulate`
 var _bolt_lit: Array = []    # o que ele acende: [polígono (px da tela), cores], medido com a sala (`_bolt_build`)
 var _occ_board := PackedVector2Array()   # a mesa comutadora inteira (px da tela)
-var _side_faces: Array = []  # a lateral da mesa comutadora (px da tela), virada para a janela
+var _side_faces: Array = []  # a lateral da mesa comutadora (px da tela), virada para a janela: [o console, o painel]
+var _panel_z := 0.0  # a frente do painel da mesa comutadora (z)
+var tickets := 0          ## bilhetes de tarifação esperando a caixinha: a ponta de um, de pé na fenda do calculógrafo
+var _tip_layer: Control   # a ponta do bilhete no calculógrafo da mesa (`_draw_tip`)
+var _tip_n := 0           # quantos bilhetes ela mostrava
+var _tip_t := TIP_SEC     # desde que o último saiu (s)
+var _tip_h := 0           # a altura dela, desenhada (px)
 var _cab := [Rect2(), Rect2()]   # o armário: o fundo dele (na parede) e a frente (px de 2x2)
 var _headless := false   # sem tela (os testes): a vista da janela não é desenhada
 var _sill_lit: Array = []   # o peitoril na luz de fora: [polígono (px da tela), cores], desenhado por cima do escuro da sala
@@ -169,6 +178,11 @@ func _ready() -> void:
 	_view.draw.connect(_draw_view)
 	_vport.add_child(_view)
 	add_child(_vport)
+	_tip_layer = Control.new()
+	_tip_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_tip_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_tip_layer.draw.connect(_draw_tip)
+	add_child(_tip_layer)
 	_over = Control.new()
 	_over.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_over.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -214,6 +228,16 @@ func _process(delta: float) -> void:
 		queue_redraw()
 		_over.queue_redraw()   # (depois da sala: usa o vidro e a poça de luz que ela acabou de medir)
 		_bolt_layer.queue_redraw()
+		_tip_layer.queue_redraw()
+		_show()
+	if tickets > _tip_n:   # saiu um bilhete: a ponta sobe de novo, no tempo da impressora
+		_tip_t = 0.0
+	_tip_n = tickets
+	_tip_t = minf(_tip_t + delta, TIP_SEC)
+	var tip := 0 if tickets == 0 else roundi(_tip.size.y * _tip_t / TIP_SEC)
+	if tip != _tip_h:
+		_tip_h = tip
+		_tip_layer.queue_redraw()
 		_show()
 	var f := snappedf(_flash(), 0.02)
 	if f != _bolt_layer.modulate.a:   # o relâmpago: o desenho dele fica; só a força muda
@@ -312,7 +336,7 @@ func _show() -> void:
 ## luminária e o estado do jogo nos objetos.
 func _state() -> Array:
 	return [size, board.get_global_rect() if board else Rect2(), desk.get_global_rect() if desk else Rect2(),
-		window.get_global_rect() if window else Rect2(), lamp_level, pending, unread, alert, card_out, news, details, night, weather,
+		window.get_global_rect() if window else Rect2(), lamp_level, pending, unread, alert, card_out, news, metering, details, night, weather,
 		TranslationServer.get_locale()]
 
 
@@ -483,6 +507,7 @@ func _draw() -> void:
 	_draw_desk(Rect2(0, top, w, h - top), front)
 	_draw_switchboard(front)
 	_draw_side_wall(top, front, w)
+	_draw_hung_clipboard()
 	_draw_desk_props()
 	_draw_street_light(w)
 	_bolt_build(top)
@@ -510,6 +535,16 @@ func _draw_over() -> void:
 		_ci.draw_rect(Rect2(_cover.position + Vector2(10, 12), _cover.size), Color(0, 0, 0, 0.35))
 		_ci.draw_rect(Rect2(Vector2.ZERO, size), Color(0, 0, 0, 0.28))
 	_ci = self
+
+
+## A ponta do bilhete de tarifação de pé na fenda do calculógrafo da mesa (`_tip`, `_tip_layer`), com a faixa azul do
+## formulário no alto, subindo pixel a pixel enquanto ele é impresso (`TIP_SEC`; na sala, ela se redesenhava a cada um).
+func _draw_tip() -> void:
+	if _tip_h <= 0:
+		return
+	var r := Rect2(_tip.position.x, _tip.end.y - _tip_h, _tip.size.x, _tip_h)
+	_tip_layer.draw_rect(r, TollTicket.PAPER.darkened(_tip_dark))
+	_tip_layer.draw_rect(Rect2(r.position, Vector2(r.size.x, mini(2, _tip_h))), TollTicket.FORM.darkened(_tip_dark))
 
 
 ## O clarão do relâmpago (`_bolt_layer`, uma camada somada por cima de tudo: a força é o `modulate`, o desenho fica): o que
@@ -827,6 +862,28 @@ func _cast(r: Rect2, s: float) -> void:
 		_r(p.x, p.y, roundf(r.size.x * f), roundf(r.size.y * f), Color(0, 0, 0, 0.14))
 
 
+## A prancheta do registro, pendurada num prego na lateral do painel da mesa comutadora (a virada para a janela), rente
+## a ela e na perspectiva dela (`HUNG`, na sala; mais funda que o painel, passa um pouco da quina de trás): o mesmo
+## desenho da que ficava na mesa (`_art_clipboard`, `_clipboard_print`), com a sombra na lateral.
+func _draw_hung_clipboard() -> void:
+	if _side_faces.size() < 2:
+		return
+	draw_set_transform(Vector2.ZERO)
+	var b := Rect2(board.global_position - global_position, board.size)
+	var y0 := ((b.position.y + b.size.y * HUNG_AT) / 2.0 - _vp.y) * _panel_z / Z0
+	var at := func(dz: float, dy: float) -> Vector2: return _p3(_side_x, y0 + dy, _panel_z + 1.5 + dz)
+	var q := PackedVector2Array([at.call(0, 0), at.call(HUNG.x, 0), at.call(HUNG.x, HUNG.y), at.call(0, HUNG.y)])
+	var drop := PackedVector2Array([at.call(1, 1.5), at.call(HUNG.x + 1, 1.5), at.call(HUNG.x + 1, HUNG.y + 1.5), at.call(1, HUNG.y + 1.5)])
+	for s: PackedVector2Array in Geometry2D.intersect_polygons(drop, _side_faces[1]):   # a sombra: só onde há lateral atrás
+		_poly(s, Color(0, 0, 0, 0.3))
+	_flat_art(Tools.CALL_LOG, q, _art_clipboard, [unread], 0.12)
+	_clipboard_print(Vector2i(_hom_sz))
+	_props[Tools.CALL_LOG] = _bounds(q)
+	_occ.append(q)
+	occ_ids.append(Tools.CALL_LOG)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+
+
 ## Calendário de folhinha: o mês da noite (`GameData.date_of`) com o cabeçalho vermelho e a semana começando na
 ## segunda, os domingos em vermelho, os dias que já passaram riscados e o de hoje circulado. Sob o mouse, a data
 ## por extenso (`CALENDAR`).
@@ -959,6 +1016,7 @@ func _draw_switchboard(front: float) -> void:
 	var k := (b.end.y - vp.y) / maxf(1.0, sy - vp.y)       # quanto o painel encolhe visto da frente do console
 	var zp := _zd.x / k                                    # o painel (z): o console começa na frente do tampo
 	var kb := zp / (zp + BOARD_D)
+	_panel_z = zp
 	_side_x = (b.end.x / 2.0 - _vp.x) * zp / Z0
 	var near := func(p: Vector2) -> Vector2: return vp + (p - vp) / k    # da linha do painel para a frente
 	var back := func(p: Vector2) -> Vector2: return vp + (p - vp) * kb   # da linha do painel para o fundo

@@ -54,6 +54,7 @@ ligação desconhecida não contam.
 | Encerrar o turno com alguém na linha ou tocando | média | — (emergência sem despacho conta como emergência sem despacho) |
 | Dar a informação errada | leve | a pessoa liga de novo reclamando |
 | Registrar com o tipo errado / deixar sem registro no fim do turno | leve | — |
+| Guardar o bilhete de tarifação do interurbano na caixinha sem o carimbo | leve | — |
 | Despachar no endereço errado | grave | o rádio avisa que não há nada no local e as unidades voltam; a pessoa agradece, mas liga de novo dizendo que piorou |
 | Encerrar uma emergência sem despachar | grave | a pessoa liga de novo dizendo que piorou |
 | Despachar com a situação agravando (2º estágio da barra) | média | — |

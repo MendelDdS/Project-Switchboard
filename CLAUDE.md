@@ -141,7 +141,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   o nome no tampo). Ferramentas: ações `tab_directory`/`tab_dispatch`/`tab_logbook`/`tab_call_log` (1 a 4),
   tratadas em `Main._unhandled_input` só durante o turno (`Main.TAB_KEYS`, `Tools.toggle`: a tecla da ferramenta aberta a
   guarda; Esc também guarda, antes de pausar). No código, `Tools.set_tab(id)` abre; os ids são as constantes `Tools.DIRECTORY`, `DISPATCH`, `LOGBOOK`,
-  `CALL_LOG` e `NEWS` (nunca o texto: o `check.sh` acusa).
+  `CALL_LOG`, `NEWS` e `TOLL` (nunca o texto: o `check.sh` acusa).
 - **Pausa e configurações**: `PauseMenu` (`scenes/ui/pause_menu.tscn`, z 4, `process_mode` ALWAYS) usa
   `get_tree().paused`. **Todo `create_timer` do jogo leva `false` no 2º argumento** (senão continua contando na pausa);
   o `Sfx` roda sempre (ambiente segue, abafado: `Sfx.muffle`, um passa-baixa e um ganho no Master, `MUFFLE`; nas
@@ -199,7 +199,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Semente fixa: `Godot --path . -- --seed=123` repete a agenda do turno (sem `--seed`, é aleatória).
 - **Painel de debug** (F1, ação `debug`; `DebugPanel`, `scenes/ui/debug_panel.tscn`, nó `%Debug` do Main, z 5): só em
   build de debug (editor ou export de debug; no release ele se apaga). Toca ligações na hora (qualquer tipo; emergência
-  escolhida, com o caso sorteado), pula estágio ou congela a barra (`Urgency.frozen`), mostra o que a emergência
+  escolhida, com o caso sorteado; interurbano num tronco que nenhuma ligação da mesa usa), pula estágio ou congela a barra (`Urgency.frozen`), mostra o que a emergência
   exige (contado e real), velocidade 1–8×, pula o relógio, troca o clima na hora (`Main.set_weather`), encerra o turno, troca de noite (`_go_night`: troca o Main por um novo na noite anterior/seguinte, no mesmo pai, dentro da tela do `GameView`; posto na raiz, saía na resolução da janela e quebrava o layout; sem ler nem
   gravar o progresso, para testar a entrega dos setores), libera viaturas (`Dispatch.reset`; `_gen` cancela
   as viagens em andamento), registra pendências, limpa advertências e apaga o progresso. Mesa de som: toca cada som de `Sfx.VOL` com
@@ -212,7 +212,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   estado do Main fica em funções públicas dele (`free_line`, `ring`, `set_weather`, `start_ending`, `drop`, `drop_all`,
   `drop_emergency`); dos campos, o painel só lê agenda e ligações para o texto de estado e adianta o relógio (`minutes`), para não quebrar quando o Main mudar.
 - **Captura de tela** (`tools/shot.tscn`, COM tela): `Godot --path . tools/shot.tscn -- --hour=22:30 --weather=rain
-  --tool=despacho --card --emergency --news --width=1500 --zoom=x,y,w,h --out=build/shot.png` grava a tela inteira e o
+  --tool=despacho --card --emergency --news --toll --width=1500 --zoom=x,y,w,h --out=build/shot.png` grava a tela inteira e o
   recorte ampliado 4× (`_zoom.png`); `--debug=N` abre o painel de debug na aba N; as opções do jogo (`--night`, `--seed`, `--lang`) também valem. Para conferir
   mudança visual medindo, não só olhando a captura.
 - **Sem tela, a vista da janela não é desenhada** (`Background._headless`): com `--fixed-fps` e o tempo acelerado,
@@ -259,7 +259,21 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   a telefonista de lá atende (`trunk_hello`), o operador passa o número (`OP_TRUNK_NUMBER`), ela chama (`trunk_wait`,
   mais toques) e só então conecta (`Main._trunk`; ela só fala com o FONE na linha). No tronco errado o número não é de
   lá (`trunk_unknown`, dest livre de novo, conta como número errado; na segunda, quem ligou desiste). Dica da primeira
-  vez: `HINT_TRUNK` (`SAW_TRUNK`). Ponytail: sem tronco ocupado na outra ponta nem a cobrar/tarifação.
+  vez: `HINT_TRUNK` (`SAW_TRUNK`). Ponytail: sem tronco ocupado na outra ponta nem ligação a cobrar.
+- **Bilhete de tarifação** (o calculógrafo, `Toll`, `scripts/ui/toll.gd`, a ferramenta `Tools.TOLL`, só pelo objeto da
+  mesa, no lugar onde ficava a prancheta, que agora fica pendurada na lateral do painel da mesa comutadora): começa a contar sozinho
+  quando a telefonista de lá completa (`Main._try_complete` → `Toll.start`) e, quando a linha sai de conectada (acabou,
+  cortada ou fim do turno; `Main._update_line_timers` → `_print_ticket`), imprime o bilhete (`TollTicket`,
+  `scripts/ui/toll_ticket.gd`: entrada, cidade e número de lá, horário e minutos, o começado conta inteiro), que cai na
+  mesa embaixo da fenda (`%Desk`, o tampo com a almofada de tinta e a caixinha). **Bilhetes e carimbo são soltos**: o
+  jogador pega qualquer um, leva para onde quiser e ele fica onde foi solto (`Toll._on_desk_input`, um arrastar próprio
+  como o do cartão do despacho, não o do Godot; o de cima é o pego, `_piece_at`, e na mão a sombra se afasta,
+  `TollTicket.LIFT`). O carimbo solto em cima de um bilhete o carimba onde o meio dele caiu (uma vez só, `stamp`); o
+  bilhete solto com o mouse na caixinha vai para ela (`file`); sem o carimbo, ela aceita e vem a advertência leve
+  `toll_unstamped` (`Toll.unstamped`). Na mesa da sala, a ponta do bilhete esperando sobe da fenda do calculógrafo no
+  tempo do som da impressora (`Background._draw_tip`, camada própria, `TIP_SEC`) e a luz âmbar acende enquanto conta
+  (`Background.tickets`/`metering`). Dica da
+  primeira vez: `HINT_TOLL` (`SAW_TOLL`). Ponytail: bilhete esquecido na mesa no fim do turno não conta, e não há tecla.
 - Fim de ligação: `end_call(c, PhoneCall.End.*)` gera `c.record` (um `PhoneCall.Record`, nulo antes; no livro, `stamped` com o carimbo) e manda para `Notebook.add()` (fila; não trava o turno; não atendida vai
   direto para o livro com o carimbo `TYPE_MISSED`, sem escolher tipo).
   O caderno registra com **um clique no tipo** (`register(T.Key.TYPE_*)`: Comum, Emergência, Trote; o resto da linha

@@ -397,3 +397,14 @@ O que o usuário pediu, em ordem (antes no `CLAUDE.md`). Acrescente cada pedido 
     a física ficou como estava.
 121. Cada setor entregue ao operador traz um par de cabos: o lugar tampado na prateleira abre e o cabo novo está lá
     (branco na noite 5, com o Centro; preto na noite 9, com o Alto da Serra; `patches`, pelos setores atendidos).
+122. Bilhete de tarifação dos interurbanos: um calculógrafo na mesa começa a contar sozinho quando a outra ponta
+    atende e, quando a conversa acaba, imprime o bilhete; o operador arrasta o carimbo até o bilhete e o bilhete até
+    uma caixinha, e guardado sem carimbo dá advertência leve.
+123. Sem lugar na mesa para o calculógrafo, ele ficou no lugar da prancheta do registro, que passou a ficar pendurada
+    ao lado da mesa comutadora.
+124. O painel de debug toca um interurbano na hora (botão Interurbano, num tronco livre).
+125. Bilhetes e carimbo do calculógrafo soltos na mesa dele: pegos, levados e soltos em qualquer lugar (antes, o
+    arrastar do Godot, que só levava uma imagem até o alvo); o carimbo carimba o bilhete em que é solto.
+126. Na miniatura do calculógrafo da sala, o bilhete sobe da fenda enquanto é impresso.
+127. A prancheta do registro pendurada na lateral do painel da mesa comutadora, na perspectiva e no ângulo da sala (de
+    frente, na parede, destoava).

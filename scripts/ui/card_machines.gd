@@ -334,76 +334,76 @@ func _draw_strip() -> void:
 	var b := _base()
 	var y := b.end.y - STRIP - 3.0
 	var mid := y + floorf(STRIP / 2.0)
-	_led(Vector2(b.position.x + 12.0, mid - 2.0), _alert, Pal.RED)
-	_led(Vector2(b.position.x + 24.0, mid - 2.0), state != State.IDLE, Pal.AMBER)
-	var plate := Rect2(floorf(b.get_center().x - 60.0), mid - 3.0, 120, 7)
-	draw_rect(plate, Pal.BRASS.darkened(0.25))
-	draw_rect(plate.grow(-1.0), Pal.BRASS)
-	for x: float in [plate.position.x + 2.0, plate.end.x - 3.0]:   # os parafusos dela
+	led(self, Vector2(b.position.x + 12.0, mid - 2.0), _alert, Pal.RED)
+	led(self, Vector2(b.position.x + 24.0, mid - 2.0), state != State.IDLE, Pal.AMBER)
+	var brass := Rect2(floorf(b.get_center().x - 60.0), mid - 3.0, 120, 7)
+	draw_rect(brass, Pal.BRASS.darkened(0.25))
+	draw_rect(brass.grow(-1.0), Pal.BRASS)
+	for x: float in [brass.position.x + 2.0, brass.end.x - 3.0]:   # os parafusos dela
 		draw_rect(Rect2(x, mid, 1, 1), Pal.PANEL_LO)
 	for i in 3:
 		draw_rect(Rect2(b.end.x - 60.0, mid - 3.0 + i * 3, 46, 1), Pal.PANEL_LO)
 
 
 ## Caixa de metal: sombra, borda, luz em cima e à esquerda, sombra embaixo e à direita, parafusos nos cantos.
-func _box(r: Rect2) -> void:
-	draw_rect(Rect2(r.position + Vector2(2, 2), r.size), Color(0, 0, 0, 0.35))
-	draw_rect(r, Pal.EDGE)
+static func box(ci: CanvasItem, r: Rect2) -> void:
+	ci.draw_rect(Rect2(r.position + Vector2(2, 2), r.size), Color(0, 0, 0, 0.35))
+	ci.draw_rect(r, Pal.EDGE)
 	var b := r.grow(-1.0)
-	draw_rect(b, Pal.PANEL)
-	draw_rect(Rect2(b.position, Vector2(b.size.x, 1)), Pal.PANEL_HI)
-	draw_rect(Rect2(b.position, Vector2(1, b.size.y)), Pal.PANEL_HI)
-	draw_rect(Rect2(b.position.x, b.end.y - 2.0, b.size.x, 2), Pal.PANEL_LO)
-	draw_rect(Rect2(b.end.x - 2.0, b.position.y, 2, b.size.y), Pal.PANEL_LO)
+	ci.draw_rect(b, Pal.PANEL)
+	ci.draw_rect(Rect2(b.position, Vector2(b.size.x, 1)), Pal.PANEL_HI)
+	ci.draw_rect(Rect2(b.position, Vector2(1, b.size.y)), Pal.PANEL_HI)
+	ci.draw_rect(Rect2(b.position.x, b.end.y - 2.0, b.size.x, 2), Pal.PANEL_LO)
+	ci.draw_rect(Rect2(b.end.x - 2.0, b.position.y, 2, b.size.y), Pal.PANEL_LO)
 	for c in [Vector2(4, 4), Vector2(r.size.x - 7, 4), Vector2(4, r.size.y - 7), Vector2(r.size.x - 7, r.size.y - 7)]:
-		draw_rect(Rect2(r.position + c, Vector2(3, 3)), Pal.BRASS)
-		draw_rect(Rect2(r.position + c + Vector2(1, 1), Vector2(1, 1)), Pal.PANEL_LO)   # a fenda do parafuso
+		ci.draw_rect(Rect2(r.position + c, Vector2(3, 3)), Pal.BRASS)
+		ci.draw_rect(Rect2(r.position + c + Vector2(1, 1), Vector2(1, 1)), Pal.PANEL_LO)   # a fenda do parafuso
 
 
 ## Saída de ar: `n` riscos escuros com o brilho embaixo.
-func _vent(at: Vector2, n: int, w: float) -> void:
+static func vent(ci: CanvasItem, at: Vector2, n: int, w: float) -> void:
 	for i in n:
-		draw_rect(Rect2(at + Vector2(0, i * 4), Vector2(w, 2)), Pal.PANEL_LO)
-		draw_rect(Rect2(at + Vector2(0, i * 4 + 2), Vector2(w, 1)), Color(Pal.PANEL_HI, 0.5))
+		ci.draw_rect(Rect2(at + Vector2(0, i * 4), Vector2(w, 2)), Pal.PANEL_LO)
+		ci.draw_rect(Rect2(at + Vector2(0, i * 4 + 2), Vector2(w, 1)), Color(Pal.PANEL_HI, 0.5))
 
 
 ## Fenda de entrada ou saída: um rasgo fino, com a beira de metal na luz embaixo dele.
-func _mouth(x: float, y: float, w: float) -> void:
-	draw_rect(Rect2(x - 2.0, y - 2.0, w + 4.0, 5), Pal.PANEL_LO)
-	draw_rect(Rect2(x, y - 1.0, w, 2), Color.BLACK)
-	draw_rect(Rect2(x - 2.0, y + 2.0, w + 4.0, 1), Pal.PANEL_HI)
+static func mouth(ci: CanvasItem, x: float, y: float, w: float) -> void:
+	ci.draw_rect(Rect2(x - 2.0, y - 2.0, w + 4.0, 5), Pal.PANEL_LO)
+	ci.draw_rect(Rect2(x, y - 1.0, w, 2), Color.BLACK)
+	ci.draw_rect(Rect2(x - 2.0, y + 2.0, w + 4.0, 1), Pal.PANEL_HI)
 
 
-func _led(at: Vector2, on: bool, col: Color) -> void:
-	draw_rect(Rect2(at - Vector2(1, 1), Vector2(7, 7)), Pal.EDGE)
-	draw_rect(Rect2(at, Vector2(5, 5)), col if on else Pal.PANEL_LO)
+static func led(ci: CanvasItem, at: Vector2, on: bool, col: Color) -> void:
+	ci.draw_rect(Rect2(at - Vector2(1, 1), Vector2(7, 7)), Pal.EDGE)
+	ci.draw_rect(Rect2(at, Vector2(5, 5)), col if on else Pal.PANEL_LO)
 	if on:
-		draw_rect(Rect2(at + Vector2(1, 1), Vector2(1, 1)), Color(1, 1, 1, 0.6))   # o brilho da lâmpada
-		Bloom.light(self, Rect2(at, Vector2(5, 5)), col)
+		ci.draw_rect(Rect2(at + Vector2(1, 1), Vector2(1, 1)), Color(1, 1, 1, 0.6))   # o brilho da lâmpada
+		Bloom.light(ci, Rect2(at, Vector2(5, 5)), col)
 
 
 ## A placa de latão com o nome da máquina.
-func _plate(r: Rect2, text: String) -> void:
-	var plate := Rect2(r.position.x + 10.0, r.position.y + 22.0, minf(112.0, r.size.x - 20.0), 18.0)
-	draw_rect(plate, Pal.BRASS)
-	draw_rect(plate.grow(-1.0), Pal.BRASS.darkened(0.25))
-	PunchCard.write(self, Vector2(plate.position.x, plate.position.y + 13.0), text, Pal.INK, plate.size.x, HORIZONTAL_ALIGNMENT_CENTER)
+static func plate(ci: CanvasItem, r: Rect2, text: String) -> void:
+	var brass := Rect2(r.position.x + 10.0, r.position.y + 22.0, minf(112.0, r.size.x - 20.0), 18.0)
+	ci.draw_rect(brass, Pal.BRASS)
+	ci.draw_rect(brass.grow(-1.0), Pal.BRASS.darkened(0.25))
+	PunchCard.write(ci, Vector2(brass.position.x, brass.position.y + 13.0), text, Pal.INK, brass.size.x, HORIZONTAL_ALIGNMENT_CENTER)
 
 
 ## A impressora, no meio: a fenda por onde o cartão sobe, a placa, a luz (âmbar trabalhando; vermelha piscando com o
 ## aviso, quando recusa) e a saída de ar.
 func _draw_printer() -> void:
 	var r := _printer()
-	_box(r)
-	_mouth(_mouth_x(1), _printer_slot(), CARD_W)
-	_plate(r, T.text(T.Key.CARD_PRINTER))
+	box(self, r)
+	mouth(self, _mouth_x(1), _printer_slot(), CARD_W)
+	plate(self, r, T.text(T.Key.CARD_PRINTER))
 	var busy := state in [State.TYPING, State.PRINTING]
 	if _refused >= 0.0:   # recusou: luz vermelha piscando e o aviso embaixo da placa
-		_led(r.position + Vector2(12, 50), fmod(_refused, 0.3) < 0.15, Pal.RED)
+		led(self, r.position + Vector2(12, 50), fmod(_refused, 0.3) < 0.15, Pal.RED)
 		PunchCard.write(self, Vector2(r.position.x + 24.0, r.position.y + 58.0), T.text(T.Key.CARD_ONE_AT_A_TIME), Pal.RED, r.size.x - 30.0)
 	else:
-		_led(r.position + Vector2(12, 50), busy and fmod(_t, 0.24) < 0.12, Pal.AMBER)
-	_vent(Vector2(r.end.x - 44.0, r.position.y + 24.0), 4, 32.0)
+		led(self, r.position + Vector2(12, 50), busy and fmod(_t, 0.24) < 0.12, Pal.AMBER)
+	vent(self, Vector2(r.end.x - 44.0, r.position.y + 24.0), 4, 32.0)
 
 
 ## Sem cartão, uma tira de papel sai da fenda da impressora: o aviso ou, enquanto datilografa, o local aparecendo.
@@ -420,33 +420,33 @@ func _draw_tongue() -> void:
 ## O transmissor, à esquerda: a fenda com setas, a placa, a luz de pronto e o aviso e a saída de ar.
 func _draw_sender() -> void:
 	var r := _machine(Machine.SEND)
-	_box(r)
+	box(self, r)
 	var x0 := _mouth_x(0)
 	var y := _slot(Machine.SEND)
-	_mouth(x0, y, CARD_W)
+	mouth(self, x0, y, CARD_W)
 	for side in [x0 - 10.0, x0 + CARD_W + 4.0]:   # setas apontando a fenda
 		if side > r.position.x and side + 6.0 < r.end.x:
 			draw_primitive(PackedVector2Array([Vector2(side, y - 3.0), Vector2(side + 6.0, y - 3.0), Vector2(side + 3.0, y + 2.0)]),
 				PackedColorArray([Pal.AMBER]), PackedVector2Array())
-	_plate(r, T.text(T.Key.CARD_SENDER))
+	plate(self, r, T.text(T.Key.CARD_SENDER))
 	var feeding := state == State.FEEDING and _into == Machine.SEND
 	var ready := dispatch.can_send()
-	_led(r.position + Vector2(12, 50), feeding and fmod(_t, 0.2) < 0.1 or not feeding and ready, Pal.AMBER if feeding else Pal.GREEN)
+	led(self, r.position + Vector2(12, 50), feeding and fmod(_t, 0.2) < 0.1 or not feeding and ready, Pal.AMBER if feeding else Pal.GREEN)
 	var msg := T.text(T.Key.CARD_SENDING) if feeding else T.text(T.Key.CARD_INSERT)
 	PunchCard.write(self, Vector2(r.position.x + 24.0, r.position.y + 58.0), msg, Pal.AMBER, r.size.x - 30.0)
-	_vent(Vector2(r.end.x - 44.0, r.position.y + 24.0), 4, 32.0)
+	vent(self, Vector2(r.end.x - 44.0, r.position.y + 24.0), 4, 32.0)
 
 
 ## A trituradora, à direita: a fenda com as lâminas, a faixa de perigo, a placa e a luz; treme enquanto tritura.
 func _draw_shredder() -> void:
 	var r := _machine(Machine.SHRED)
-	_box(r)
+	box(self, r)
 	var x0 := _mouth_x(2) + _shake.x
 	var y := _slot(Machine.SHRED)
-	_mouth(x0, y, CARD_W)
+	mouth(self, x0, y, CARD_W)
 	for x in range(int(x0) + 2, int(x0 + CARD_W) - 4, 6):   # as lâminas aparecendo na fenda
 		draw_colored_polygon(PackedVector2Array([Vector2(x, y + 2), Vector2(x + 3, y - 1), Vector2(x + 6, y + 2)]), Pal.DIM)
-	_plate(r, T.text(T.Key.CARD_SHREDDER))
+	plate(self, r, T.text(T.Key.CARD_SHREDDER))
 	var band := Rect2(r.position.x + 6.0, r.end.y - 16.0, r.size.x - 12.0, 8.0)
 	draw_rect(band, Color.BLACK)
 	var clip := PackedVector2Array([band.position, Vector2(band.end.x, band.position.y), band.end, Vector2(band.position.x, band.end.y)])
@@ -454,5 +454,5 @@ func _draw_shredder() -> void:
 		var poly := PackedVector2Array([Vector2(x, band.end.y), Vector2(x + 6, band.end.y), Vector2(x + 14, band.position.y), Vector2(x + 8, band.position.y)])
 		for c in Geometry2D.intersect_polygons(poly, clip):
 			draw_colored_polygon(c, HAZARD)
-	_led(r.position + Vector2(12, 50), state == State.FEEDING and _into == Machine.SHRED, Pal.RED)
-	_vent(Vector2(r.end.x - 44.0, r.position.y + 24.0), 4, 32.0)
+	led(self, r.position + Vector2(12, 50), state == State.FEEDING and _into == Machine.SHRED, Pal.RED)
+	vent(self, Vector2(r.end.x - 44.0, r.position.y + 24.0), 4, 32.0)

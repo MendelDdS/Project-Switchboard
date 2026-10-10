@@ -1,6 +1,6 @@
 extends "res://scripts/ui/background_view.gd"
-## Os objetos da mesa do cenário (`Background`) e o tampo: listas, unidade de despacho, caderno, prancheta, jornal,
-## caneca e o relógio de flip, cada um posto na sala e passado pela câmera (`_box`, `_flat`, `_project`).
+## Os objetos da mesa do cenário (`Background`) e o tampo: listas, unidade de despacho, caderno, calculógrafo, jornal,
+## caneca e o relógio de flip (e a prancheta, pendurada na lateral da mesa comutadora), cada um posto na sala e passado pela câmera (`_box`, `_flat`, `_project`).
 
 const DESK_T := 1.25    ## o fundo do tampo, Z0/DESK_T: a mesa fica afastada da parede (o armário cabe atrás)
 const PLANKS := 6       ## as tábuas do tampo, todas da mesma largura (a câmera as espaça)
@@ -16,6 +16,9 @@ const BOOKS_SPAN := 40.0   ## o lugar das listas na fileira (na escala dos objet
 const UNIT_PANEL := 16.0
 const UNIT_TILT := 0.11
 const UNIT_D := 0.3
+## O calculógrafo (`_draw_calculograph`, na escala dos objetos, `PROP_K`): largura, altura e fundo (fração do tampo).
+## Baixo, porque fica na fileira da frente, logo na frente da base da unidade de despacho: mais alto, a tampava.
+const CALC := Vector3(22, 8, 0.12)
 const CLOCK := Vector3(24, 12.5, 14) * PROP_K   ## o relógio de flip da mesa: largura, altura e fundo (na escala da sala; ~15 × 8 × 9 cm, como as listas de 21 cm)
 ## Quanto ele está virado para os olhos do operador (1 = de frente para eles; 0 = reto, para a parede). Reto: virado
 ## pela metade (13°), a frente descia uns 5° entre as horizontais da sala e o lado, que mostra que é uma caixa, quase
@@ -51,12 +54,15 @@ var unread := false  ## o registro das conversas tem fala nova: uma folha nova p
 var alert := false     ## há uma emergência em andamento: a luz vermelha da unidade de despacho (o Main atualiza)
 var card_out := false  ## há um cartão perfurado na mesa: ele sai da fenda da impressora da unidade, com a luz âmbar
 var news := false    ## o jornal da manhã está na mesa (da segunda noite em diante; `Main.set_news`)
+var metering := false   ## o calculógrafo está contando um interurbano: a luz âmbar dele
 var clock_x := 0.0   ## onde o relógio está na tela (x global): de lá vêm a badalada das horas e a campainha do turno
 var _yaw := 0.0   # quanto o relógio da mesa está girado (rad; `_draw_flip_clock`)
 var _props := {}       # objeto que abre ferramenta -> retângulo dele (px da tela), do último desenho
 var _lamp_x := 0.0     # onde está a luminária, no meio da tela (px de 2x2): a luz na mesa e a sombra dos objetos dependem dela
 var _zd := Vector2.ZERO   # a frente e o fundo do tampo (z)
 var _side_x := 0.0     # a lateral da mesa comutadora na sala (x): os objetos da mesa ficam à direita dela
+var _tip := Rect2()   # a ponta do bilhete de pé na fenda do calculógrafo, inteira (px da tela; a camada dela a desenha)
+var _tip_dark := 0.0
 var _hom := Basis()          # a perspectiva do objeto chato sendo desenhado (`_flat`, `_homography`): o que vai por cima dele, na tela
 var _hom_sz := Vector2.ONE   # o tamanho do desenho de frente dele (px)
 var _occ: Array = []         # os objetos da mesa (px da tela, convexos): o que fica na frente da parede e do armário
@@ -80,7 +86,7 @@ func _draw_desk(r: Rect2, front: float) -> void:
 	if desk_art:
 		draw_texture_rect(desk_art, Rect2(r.position, Vector2(r.size.x, depth)), true)
 	else:
-		_r(r.position.x, r.position.y, r.size.x, depth, Color("241a12"))
+		_r(r.position.x, r.position.y, r.size.x, depth, Pal.DESK)
 		# as emendas: tábuas da mesma largura, espaçadas pela câmera (mais juntas no fundo)
 		var zb := Z0 / DESK_T
 		var zf := Z0 * _yd / (front - _vp.y)
@@ -116,8 +122,8 @@ func _draw_desk(r: Rect2, front: float) -> void:
 	_r(r.position.x, front + 6, r.size.x, r.end.y - front - 6, Color("0a0705"))
 
 
-## Na mesa, embaixo da janela, ao alcance do operador: as listas telefônicas, o caderno aberto, a caneca de café, a
-## prancheta do registro e o mapa dobrado, do fundo para a frente (quem está mais perto é desenhado por cima). Cada um
+## Na mesa, embaixo da janela, ao alcance do operador: as listas telefônicas, o caderno aberto, a caneca de café, o
+## calculógrafo e a unidade de despacho, do fundo para a frente (quem está mais perto é desenhado por cima). Cada um
 ## fica num lugar da sala (x a partir dos olhos, z a distância; ver `Z0`) e é desenhado em px da tela (1x1).
 func _draw_desk_props() -> void:
 	draw_set_transform(Vector2.ZERO)
@@ -125,7 +131,8 @@ func _draw_desk_props() -> void:
 	# mesma folga entre eles, em qualquer largura de janela: presos a uma ponta só, sobrava mesa vazia na outra, e
 	# presos a pontas diferentes, eles se trombavam). Atrás, o que é alto: a unidade de despacho, o caderno e o relógio
 	# com a caneca na frente dele; na frente: prancheta, listas (fora da frente da unidade, para não tampar as fendas
-	# dela) e o lugar do jornal (guardado mesmo sem ele, para nada mudar de lugar entre as noites).
+	# dela) e o lugar do jornal (guardado mesmo sem ele, para nada mudar de lugar entre as noites). O calculógrafo ficou no
+	# lugar da prancheta, que agora fica pendurada na lateral da mesa comutadora (a mesa não tinha lugar para mais um).
 	# Todos em `PROP_K`, a escala dos plugs da mesa comutadora (que seguem as tomadas)
 	var l := _side_x + 8.0
 	var r := _cx - _vp.x - WALL_PAD   # a parede da direita é o plano x = quina (na escala da parede do fundo)
@@ -136,19 +143,68 @@ func _draw_desk_props() -> void:
 	# (a fileira de trás começa encostada na lateral da mesa comutadora; as listas ocupam mais que a largura delas,
 	# com os volumes desencontrados, `BOOKS_SPAN`: sem isso, o relógio encostava na pilha)
 	var back := _row(_side_x + 2.0, r, [UNIT.x * k, BOOKS_SPAN * k, cw + mr])
-	var near := _row(l + 6.0, r, [26.0 * k, 46.0 * k, 32.0 * k])
+	var near := _row(l + 6.0, r, [CALC.x * k, 46.0 * k, 32.0 * k])
 	_draw_dispatch_unit(back[0], _at(0.5), UNIT.x * k)
 	_draw_books(back[1], _at(0.54), 31 * k, _deep(0.3 * k))
 	_flat(Tools.LOGBOOK, near[1], _at(0.06), 46 * k, _deep(0.26 * k), 2 * k, Color("3a2414"), _art_notebook, [], deg_to_rad(-2.0), _notebook_marks)
 	_draw_flip_clock(back[2] + cw / 2.0, _at(0.72))   # logo atrás da caneca (desenhado antes dela)
 	_draw_mug(back[2] + cw, _at(0.46), mr, 13 * k)   # mais larga que alta, como as esmaltadas
-	# papel tem 1 px de beira, e a prancheta, uns 2 (mais grossos, pareciam tábuas)
-	_flat(Tools.CALL_LOG, near[0], _at(0.05), 26 * k, _deep(0.26 * k), 1.0, Color("4a3018"), _art_clipboard, [unread], deg_to_rad(-4.0),
-		_clipboard_print)
+	_draw_calculograph(near[0], _at(0.05))
+	# papel tem 1 px de beira (mais grosso, parecia tábua)
 	if news:
 		_flat(Tools.NEWS, near[2], _at(0.07), 32 * k, _deep(0.19 * k), 0.5, Color("a89c78"), _art_newspaper, [], deg_to_rad(6.0),
 			_newspaper_print)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+
+
+## O calculógrafo, que abre a tarifação (`x0`, a frente em `zf`; medidas em `CALC`): uma caixa baixa de metal, no
+## material das máquinas do despacho, com a fenda do bilhete no tampo e, na frente, o visor, a plaqueta de latão, a
+## saída de ar e a luz âmbar, acesa enquanto conta um interurbano (`metering`). A ponta do bilhete que sai da fenda
+## fica numa camada própria (`_tip`, `Background._draw_tip`).
+func _draw_calculograph(x0: float, zf: float) -> void:
+	_yaw = 0.0
+	var hw := CALC.x * PROP_K / 2.0
+	var hd := _deep(CALC.z * PROP_K) / 2.0
+	var xc := x0 + hw
+	var zc := zf + hd
+	var y1 := _yd - CALC.y * PROP_K
+	_desk_shadow(PackedVector2Array([_clock_pt(xc, zc, -hw, hd, _yd), _clock_pt(xc, zc, hw, hd, _yd), _clock_pt(xc, zc, hw, -hd, _yd),
+		_clock_pt(xc, zc, -hw, -hd, _yd)]))
+	var box := _clock_box(xc, zc, hw, hd, _yd, CALC.y * PROP_K, Pal.PANEL_HI, Pal.PANEL_LO, Pal.PANEL)
+	var dark := _shade(xc, zc)
+	var v := -hd * 0.2   # a fenda, um pouco para a frente do meio do tampo
+	_pixel_line(_clock_pt(xc, zc, -hw * 0.7, v, y1), _clock_pt(xc, zc, hw * 0.7, v, y1), [Pal.EDGE, Pal.PANEL_LO])
+	var hull := PackedVector2Array()
+	for f: PackedVector2Array in box.values():
+		hull.append_array(f)
+	# a ponta do bilhete, de pé na fenda (reta na tela: o calculógrafo fica de frente), fica com a camada dela, que a
+	# faz subir sem redesenhar a sala; aqui, só onde ela fica
+	var a := _clock_pt(xc, zc, -hw * 0.45, v, y1).round()
+	var b := _clock_pt(xc, zc, hw * 0.45, v, y1 - 2.5 * PROP_K).round()
+	_tip = Rect2(a.x, b.y, b.x - a.x, a.y - b.y)
+	_tip_dark = dark
+	hull.append_array(PackedVector2Array([_tip.position, _tip.end]))
+	if box.has("front"):
+		var f := _bounds(box["front"]).grow(-1.0)
+		var screen := Rect2(f.position.x + roundf(f.size.x * 0.08), f.position.y + roundf(f.size.y * 0.2), roundf(f.size.x * 0.4), roundf(f.size.y * 0.32))
+		draw_rect(screen.grow(1.0), Pal.EDGE)
+		draw_rect(screen, Color("0f0d09"))
+		if metering:   # os minutos contando, no visor
+			for i in 3:
+				draw_rect(Rect2(screen.position.x + 3.0 + i * 5.0, screen.get_center().y - 1.0, 3, 3), Pal.AMBER.darkened(0.2))
+		var brass := Rect2(screen.position.x, screen.end.y + roundf(f.size.y * 0.16), screen.size.x, 4)
+		draw_rect(brass, Pal.BRASS.darkened(0.25 + dark))
+		draw_rect(brass.grow(-1.0), Pal.BRASS.darkened(dark))
+		var lamp := Rect2(screen.end.x + roundf(f.size.x * 0.08), screen.get_center().y - 1.0, 3, 3)
+		draw_rect(lamp.grow(1.0), Pal.EDGE)
+		draw_rect(lamp, Pal.AMBER if metering else Pal.AMBER.darkened(0.75))
+		if metering:
+			_light(lamp, Pal.AMBER, 0.6, true)
+		for i in 3:   # a saída de ar, à direita
+			draw_rect(Rect2(f.end.x - roundf(f.size.x * 0.3), screen.position.y + i * 3.0, roundf(f.size.x * 0.22), 1), Pal.PANEL_LO.darkened(dark))
+	_props[Tools.TOLL] = _bounds(hull)
+	_occ.append(Geometry2D.convex_hull(hull))
+	occ_ids.append(Tools.TOLL)
 
 
 ## O relógio da sala: um relógio de flip na mesa (centro `xc`, `zc`; medidas em `CLOCK`), meio virado para o operador
@@ -1134,21 +1190,6 @@ func _notebook_marks(sz: Vector2i) -> void:
 	_pixel_line(b + d * 4, b + d * 7, [Color("c08a80"), Color("a86a62"), Color("7a4a44")])   # a borracha
 
 
-const CLIP_ART := [   ## o prendedor da prancheta, de pé na beira de cima (16 × 8): a alavanca em arco e o corpo com os rebites
-	"....eeeeeeee....",
-	"...eHLLLLLLMDe..",
-	"..eLM.......MDe.",
-	".eeeeeeeeeeeeee.",
-	"eHLLLLLLLLLLLLMe",
-	"eLoMMMMMMMMMMoDe",
-	"eMDDDDDDDDDDDDDe",
-	".eeeeeeeeeeeeee.",
-]
-## O níquel do prendedor: o mesmo do aro das lâmpadas da mesa comutadora (luz, meio, sombra), o brilho e os rebites.
-const CLIP_PAL := {"H": Pal.NICKEL[0], "L": Pal.NICKEL[1], "M": Pal.NICKEL[2], "D": Pal.NICKEL[3], "o": Color("ece7da"),
-	"e": Color("2a2620")}
-
-
 const SHEET_TURN := 3.5   ## graus que a folha nova da prancheta fica girada (reta, lia como um risco no meio da de baixo)
 
 
@@ -1243,10 +1284,19 @@ func _clipboard_print(sz: Vector2i) -> void:
 				line.call(x0 + 2, x0 + 4, Color("6a6458"))   # a hora
 				line.call(x0 + 7, x0 + w - 3 - (k * 7) % 9 - (6 if i == 1 else 0), Color("6a6458"))
 				n += 1
-	# o prendedor, de pé na beira de cima, com a sombra na folha (deitado no papel, era um borrão cinza)
-	var at := (_tex_pt(Vector2(sz.x / 2.0, 3.0)) - Vector2(8, 6)).round()
-	draw_texture(PixelArt.art(CLIP_ART, {"*": Color(0, 0, 0, 0.35)}), at + Vector2(1, 2))
-	draw_texture(PixelArt.art(CLIP_ART, CLIP_PAL), at)
+	# o prendedor de níquel na beira de cima, na perspectiva da prancheta: o corpo (a luz no alto, a sombra embaixo e
+	# a da folha), a alavanca por cima e o prego no furo dela
+	var quad := func(x0: float, x1: float, y0: float, y1: float, off := Vector2.ZERO) -> PackedVector2Array:
+		return PackedVector2Array([_tex_pt(Vector2(x0, y0)) + off, _tex_pt(Vector2(x1, y0)) + off, _tex_pt(Vector2(x1, y1)) + off,
+			_tex_pt(Vector2(x0, y1)) + off])
+	var a := sz.x * 0.2
+	var c := sz.x * 0.8
+	_poly(quad.call(a, c, 1.0, 6.0, Vector2(1, 2)), Color(0, 0, 0, 0.35))
+	_poly(quad.call(a, c, 1.0, 6.0), Pal.NICKEL[2])
+	_pixel_line(_tex_pt(Vector2(a, 1.0)), _tex_pt(Vector2(c, 1.0)), [Pal.NICKEL[0]])
+	_pixel_line(_tex_pt(Vector2(a, 5.0)), _tex_pt(Vector2(c, 5.0)), [Pal.NICKEL[3]])
+	_pixel_line(_tex_pt(Vector2(sz.x * 0.35, -1.0)), _tex_pt(Vector2(sz.x * 0.65, -1.0)), [Pal.NICKEL[1], Pal.NICKEL[3]])
+	_poly(quad.call(sz.x * 0.45, sz.x * 0.55, -5.0, -3.0), Pal.NICKEL[3])
 
 
 ## O jornal da manhã dobrado ao meio: papel-jornal amarelado com a foto da primeira página (o céu claro em cima, o

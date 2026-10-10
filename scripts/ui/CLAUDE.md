@@ -183,10 +183,14 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   proporção delas: quarteirões no tom do bairro, casas e árvores, lugares de telhado de barro, praça, zona rural,
   divisas e o selo; sem nomes, que nesse tamanho seriam ruído; papel sob a luz da sala, não tela acesa, a pedido),
   caderno aberto (3) e
-  prancheta do registro (4), mais a caneca, postos por fração da profundidade do tampo (`_at`, `_deep`: ficam no
+  o calculógrafo (4, `_draw_calculograph`, `CALC`: uma caixa baixa das máquinas do despacho, com a ponta do bilhete na
+  fenda, que sobe numa camada própria da sala enquanto ele é impresso, `_tip`, `Background._draw_tip`, e a luz âmbar contando, `metering`), mais a caneca, postos por fração da profundidade do tampo (`_at`, `_deep`: ficam no
   tampo seja qual for a câmera) e, na largura, a partir da lateral da mesa comutadora (`_side_x`), em duas fileiras
   com folga entre eles: atrás, o que é alto: a unidade de despacho, as listas e o relógio de flip com a caneca na
-  frente dele; na frente, o que é chato: prancheta, caderno e jornal (as listas na frente tampavam o caderno inteiro) (numa tela mais larga, a folga sobra perto da janela). **Cada um fica num lugar da sala e passa pela câmera** (`_draw_desk_props`:
+  frente dele; na frente, o que é baixo: calculógrafo, caderno e jornal (as listas na frente tampavam o caderno inteiro;
+  o calculógrafo ficou no lugar da prancheta do registro, que agora fica pendurada num prego na lateral do painel da
+  mesa comutadora, rente a ela e na perspectiva dela, `Background._draw_hung_clipboard`, `HUNG` na sala, mais funda que
+  o painel, com o mesmo desenho de antes e o prendedor em perspectiva; de frente, na parede, destoava da sala) (numa tela mais larga, a folga sobra perto da janela). **Cada um fica num lugar da sala e passa pela câmera** (`_draw_desk_props`:
   tamanho, escorço e o lado que aparece saem da conta; `_box` dá os cantos; nos objetos chatos (caderno,
   prancheta, jornal e a capa da lista de cima), `_flat` desenha o tampo de frente numa imagem do tamanho que ele tem na
   tela, `_top_xf`, e `_project` o põe na perspectiva pixel a pixel pela homografia, `_homography`, como a frente do

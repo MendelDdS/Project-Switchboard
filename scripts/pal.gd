@@ -51,6 +51,7 @@ const MAP_FURROWS: Array[Color] = [Color("8f9a63"), Color("a8956a")]   ## ...e o
 const MAP_DIRT := Color("b49d72")    ## as estradas de terra
 const MAP_RIVER := Color("6f8fa0")   ## o rio
 const SEAL := Color("8e2a22")        ## o vermelho do selo do mapa (e da capa da lista de baixo)
+const DESK := Color("241a12")   ## o tampo da mesa (a madeira escura), no cenário e no calculógrafo aberto
 const NICKEL: Array[Color] = [Color("f4f0e6"), Color("d6d1c3"), Color("8e897c"), Color("45413a")]   ## o níquel (brilho, luz, meio, sombra): o prendedor da prancheta, o aro das lâmpadas
 
 ## Uma fonte só, de pixel: Departure Mono (SIL OFL). Fica nítida só em múltiplos de 11 (11, 22, 33, 44); fora deles os
