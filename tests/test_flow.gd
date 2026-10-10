@@ -109,6 +109,7 @@ func _initialize() -> void:
 	m.running = true
 	b = m.board
 	ex = m.exchange
+	ok(b.patches == b.SHELF_SLOTS, "com os três setores, os cinco cabos (um par por setor novo)")
 
 	# ---- 0. conteúdo: todo roteiro aponta para números, ruas e unidades que existem
 	var C: GameContent = GameData.CONTENT
@@ -389,7 +390,7 @@ func _initialize() -> void:
 	_move(1, -1)
 	ok(ex.line(ln) == Exchange.Line.FREE, "linha liberada")
 	_move(2, -1)
-	ok(ex.dest(tgt) == Exchange.Dest.FREE and b.free_patches() == b.PATCHES, "destino e cabo liberados")
+	ok(ex.dest(tgt) == Exchange.Dest.FREE and b.free_patches() == b.patches, "destino e cabo liberados")
 	print("OK 1 transferência completa / tirar o FONE mantém a ligação")
 
 	# ---- 1b. interurbano: a saída no tronco da cidade; a telefonista de lá pede o número e completa
@@ -582,7 +583,7 @@ func _initialize() -> void:
 	b._press(jd)
 	b._release(jd)
 	ok(b.ends[2] == -1 and b.ends[1] == l7 + 10, "só a ponta clicada volta")
-	ok(b.free_patches() < b.PATCHES, "o cabo só volta à base com as duas pontas")
+	ok(b.free_patches() < b.patches, "o cabo só volta à base com as duas pontas")
 	var js: Vector2 = b.jack_rect(l7 + 10).get_center()
 	# tirado da tomada e devolvido a ela no mesmo arraste: soltava perto de onde apertou, contava como clique e caía
 	_mouse(b, js, 1)
@@ -599,7 +600,7 @@ func _initialize() -> void:
 	b._release(js)
 	ok(b.ends[1] == -1, "a outra ponta também voltou")
 	ok(await wait_until(func(): return b._loose.is_empty(), 5.0), "animações terminaram")
-	ok(b.free_patches() == b.PATCHES, "cabo de volta à base")
+	ok(b.free_patches() == b.patches, "cabo de volta à base")
 	_move(0, l7)
 	var other_in := 1 if l7 != 1 else 2
 	b._press(jc)

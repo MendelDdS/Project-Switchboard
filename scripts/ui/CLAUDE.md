@@ -296,9 +296,10 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   A e B; o C, do setor 3, nunca é tampado; chapa lisa (o escovado saiu a pedido), a letra estampada em relevo, o aviso `BOARD_PLATE_NOTICE`
   pintado com estêncil e riscos de chave de fenda em volta dos parafusos) e as tomadas dele não existem para o clique.
 - `ends[]`: tomada de cada ponta (-1 = na base). **Ponta 0 = FONE** (cabo verde, encaixe `FoneSocket` na prateleira, só
-  entra em entradas). **Pontas 1..2*PATCHES = cabos de conexão** (vermelho, azul, amarelo em `CORD_COLORS`; independentes; `mate(e)`
-  dá a outra ponta; uma ponta na saída, a outra no destino). `PATCHES = 3` em uso, de `SHELF_SLOTS = 5` lugares
-  na prateleira (cada setor novo vai trazer um par; até lá, o lugar dele fica sob um tampo, `_draw_cover`).
+  entra em entradas). **Pontas 1..2*patches = cabos de conexão** (vermelho, azul, amarelo, branco e preto em `CORD_COLORS`; independentes; `mate(e)`
+  dá a outra ponta; uma ponta na saída, a outra no destino). `SHELF_SLOTS = 5` lugares na prateleira; cada setor
+  entregue ao operador traz um par (`patches`, contado no `_ready` pelos `GameData.sectors`: 3 cabos no setor 3, 4
+  da noite 5, 5 da noite 9), e o lugar de cada setor que ainda não é dele fica sob um tampo (`_draw_cover`).
 - `setup(exchange, socket, tray)` liga a mesa ao estado, ao encaixe do FONE e à faixa dos buracos dos cabos (lugares
   na prateleira, fora do retângulo dela: `socket_rect`, `tray_rect`; o clique vale neles, `_has_point`). Os buracos
   ficam na prateleira em duas fileiras (`hole`, `SHELF_HOLE_Y` atrás, `SHELF_FRONT_Y` na frente, `FONE_HOLE_X`; aro

@@ -284,7 +284,8 @@ Para começar num ponto específico, combine com as opções de linha de comando
 - **Destinos:** um plug por número da lista (menos polícia, bombeiros e hospital, que vão pelo despacho).
 - **FONE** (cabo verde): sai do encaixe no canto do telefone e só entra nas entradas.
   A ligação da entrada onde o FONE está é a que aparece no telefone.
-- **Cabos de conexão** (vermelho, azul e amarelo, `CORD_COLORS`): `PATCHES = 3` em `scripts/ui/switchboard.gd`, independentes, com um plug em cada ponta:
+- **Cabos de conexão** (vermelho, azul e amarelo; branco quando chega o Centro, na noite 5, e preto com o Alto da Serra, na noite 9;
+  `CORD_COLORS`, `patches` em `scripts/ui/switchboard_base.gd`), independentes, com um plug em cada ponta:
   uma ponta na SAÍDA da linha, a outra no destino.
 
 Transferência: FONE na entrada que pisca → **Atender** → o solicitante pede → cabo de conexão da SAÍDA da linha

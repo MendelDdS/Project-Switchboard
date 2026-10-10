@@ -183,7 +183,7 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
 - **Mudou o `ui.csv` com o editor aberto: peça o foco no editor na hora.** Sem `--import`, as `.translation` só se
   refazem quando o editor ganha foco; até lá o `test_flow` para na conferência das traduções e não testa o resto.
   Mexa nos textos primeiro e avise o usuário logo, não no fim.
-- **Teste com número fixo quebra quando a constante muda** (`free_patches() == 3` com 5 cabos): use `b.PATCHES`.
+- **Teste com número fixo quebra quando a constante muda** (`free_patches() == 3` com 5 cabos): use `b.patches`.
 - **Para rodar um cenário só enquanto outro falha**, copie-o para um `tests/test_<x>.gd` temporário (a cabeça do
   `test_flow`, o cenário e `finish("nome")`) e apague depois.
 - **Peça que aparece só mais tarde muda a altura da interface.** O botão Encerrar turno (às 23:40) deixa o bilhete

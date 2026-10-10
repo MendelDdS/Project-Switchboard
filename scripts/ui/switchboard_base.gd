@@ -5,8 +5,7 @@ extends Control
 ## (`switchboard_plugs.gd`) e a mesa com a entrada, a física e o desenho (`switchboard.gd`); cada uma só usa as de baixo.
 
 const SIZE := Vector2(588, 362)
-const PATCHES := 3
-const SHELF_SLOTS := 5   # lugares de cabo na prateleira: os que sobram dos `PATCHES` ficam tampados, à espera dos cabos novos
+const SHELF_SLOTS := 5   # lugares de cabo na prateleira: um por setor ainda não atendido fica tampado, à espera do cabo novo (`patches`)
 const TRUNK_GAP := 8.0      # do último plug guardado até o bloco interurbano (o vão da moldura dos bancos)
 const PAIR_SHIFT := 16.0    # a ponta da frente de um cabo, à esquerda da de trás: encostadas, as duas se leem como um par
 const FONE_HOLE_X := 40.0   # o buraco do FONE, a partir da esquerda do encaixe (o nome gravado embaixo cabe nos três idiomas)
@@ -18,7 +17,8 @@ var exchange: Exchange
 var fone_socket: Control       # encaixe do FONE, na prateleira à frente do painel
 var tray: Control              # os buracos dos cabos de conexão, na prateleira à frente do painel
 var _slots := {}               # número -> centro da tomada (de todos os setores, atendidos ou não)
-var ends: Array = []           # tomada de cada ponta (-1 = na base). 0 = FONE; 1..2*PATCHES = pontas dos cabos de conexão
+var ends: Array = []           # tomada de cada ponta (-1 = na base). 0 = FONE; 1..2*patches = pontas dos cabos de conexão
+var patches := 3               # cabos de conexão em uso: cada setor entregue ao operador traz um par (a mesa conta ao montar)
 var held := -1
 ## Os olhos do operador, o ponto de fuga da sala, em px da mesa (medido a cada quadro pela mesa; sem cenário, nos
 ## testes, onde eles ficam em 1280 × 720): os plugs encaixados apontam para ele e a prateleira foge para ele.
@@ -154,7 +154,7 @@ func fone_line() -> int:
 
 func free_patches() -> int:
 	var n := 0
-	for k in PATCHES:
+	for k in patches:
 		var a := 1 + k * 2
 		if ends[a] == -1 and ends[a + 1] == -1 and held != a and held != a + 1:
 			n += 1

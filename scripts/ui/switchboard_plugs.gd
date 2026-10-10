@@ -3,7 +3,7 @@ extends "res://scripts/ui/switchboard_panel.gd"
 ## luz e a sombra deles e o fio de pano pela corda (`_draw_rope`, `_kinked`, `_smooth`).
 
 const Cord := preload("res://scripts/ui/cord.gd")   ## a física de cada fio
-## [cor, brilho] de cada cabo: 0 = FONE (verde), 1..PATCHES = cabos de conexão (vermelho, azul, amarelo, branco, preto).
+## [cor, brilho] de cada cabo: 0 = FONE (verde), 1..patches = cabos de conexão (vermelho, azul, amarelo, branco, preto).
 ## Mais cabos de conexão pedem mais cores aqui.
 const CORD_COLORS := [
 	[Color("3d6e34"), Color("6c9e58")],

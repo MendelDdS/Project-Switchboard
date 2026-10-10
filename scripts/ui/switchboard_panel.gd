@@ -351,10 +351,10 @@ func _draw_rule(y: float, caption: String, line := true) -> void:
 ## (a cor de cada cabo já diz qual é; o nome gravado embaixo saiu, a pedido).
 func _draw_tray() -> void:
 	_draw_fone_tag()
-	for k in PATCHES:
+	for k in patches:
 		for e in [1 + k * 2, 2 + k * 2]:
 			draw_grommet(_ci, hole(e))
-	for k in range(PATCHES, SHELF_SLOTS):   # cada setor novo traz um cabo: até lá, o lugar dele fica tampado
+	for k in range(patches, SHELF_SLOTS):   # cada setor novo traz um cabo: até lá, o lugar dele fica tampado
 		_draw_cover(k)
 
 

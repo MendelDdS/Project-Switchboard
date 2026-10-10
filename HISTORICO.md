@@ -395,3 +395,5 @@ O que o usuário pediu, em ordem (antes no `CLAUDE.md`). Acrescente cada pedido 
     redesenha mais a mesa inteira) e o trançado do fio numa chamada de desenho só. O fio que parecia demorar ~10 s
     para dormir era o mouse passando pela janela durante a medição: sem ele, os fios assentam e dormem em 2 a 5 s, e
     a física ficou como estava.
+121. Cada setor entregue ao operador traz um par de cabos: o lugar tampado na prateleira abre e o cabo novo está lá
+    (branco na noite 5, com o Centro; preto na noite 9, com o Alto da Serra; `patches`, pelos setores atendidos).

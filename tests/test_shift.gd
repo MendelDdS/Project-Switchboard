@@ -90,6 +90,7 @@ func _initialize() -> void:
 	m._intro.visible = false
 	m._start_shift()
 	var b := m.board
+	ok(b.patches == 2 + GameData.sectors.size(), "3 cabos no setor 3 e um a mais por setor entregue")
 	for n in b._slots:   # setor ainda coberto pela chapa: a tomada não responde
 		ok((b.jack_at(b._slots[n]) == n) == GameData.in_service(str(n)), "tomada %d conforme o setor" % n)
 	var ex: Exchange = m.exchange
@@ -169,7 +170,7 @@ func _initialize() -> void:
 					var s: int = b.cord_at(f.line + 10)
 					var d: int = b.dest_of_output(f.line)
 					if s == -1:
-						for k in b.PATCHES:
+						for k in b.patches:
 							if b.ends[1 + k * 2] == -1 and b.ends[2 + k * 2] == -1:
 								b.held = 1 + k * 2
 								b.place(1 + k * 2, f.line + 10)

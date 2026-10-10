@@ -4,7 +4,7 @@ extends "res://scripts/ui/switchboard_plugs.gd"
 ## - ENTRADAS 01–10: onde as chamadas chegam. O FONE (cabo verde, que sai do telefone) entra aqui para atender.
 ## - SAÍDAS: uma tomada logo abaixo de cada entrada. Uma ponta do cabo de conexão entra aqui...
 ## - DESTINOS: ...e a outra ponta no número pedido.
-## Os cabos de conexão são poucos (PATCHES): desmontar as conexões encerradas libera cabos.
+## Os cabos de conexão são poucos (`patches`; cada setor novo traz um): desmontar as conexões encerradas libera cabos.
 ## Cada ponta tem o próprio fio, que sai de um buraco (dois por cabo de conexão na bandeja, na mesa à frente do painel;
 ## o do FONE no encaixe).
 ## Arraste o plug até a tomada (clicar e segurar). Clicar num plug encaixado (sem arrastar),
@@ -124,6 +124,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_ci = self
 	_layers.append(self)
+	patches = SHELF_SLOTS - SECTOR_ORDER.size() + GameData.sectors.size()   # um lugar tampado por setor que ainda não é do operador
 	for f: Callable in [_draw_lamps, _draw_top, _draw_cords]:   # por cima do painel, nesta ordem (`_draw`)
 		var layer := Control.new()
 		layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -134,7 +135,7 @@ func _ready() -> void:
 	_lamps = _layers[1]
 	_top = _layers[2]
 	_cords = _layers[3]
-	for i in 1 + PATCHES * 2:
+	for i in 1 + patches * 2:
 		ends.append(-1)
 		_order.append(i)
 
