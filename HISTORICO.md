@@ -390,3 +390,8 @@ O que o usuário pediu, em ordem (antes no `CLAUDE.md`). Acrescente cada pedido 
     e a margem de cima cederam a altura; o fundo do tampo, a sala e o ponto de fuga ficaram onde estavam) e as duas
     fileiras de buracos se afastaram do rodapé do painel, da beira da frente e uma da outra, para os cabos terem
     respiro (`SHELF_HOLE_Y`, `SHELF_FRONT_Y`).
+120. Análise de desempenho e as correções dela: a mesa comutadora em camadas (o painel parado, as lâmpadas, as
+    tomadas com a luz da sala e os fios, cada uma redesenhada só quando o que mostra muda: a lâmpada piscando não
+    redesenha mais a mesa inteira) e o trançado do fio numa chamada de desenho só. O fio que parecia demorar ~10 s
+    para dormir era o mouse passando pela janela durante a medição: sem ele, os fios assentam e dormem em 2 a 5 s, e
+    a física ficou como estava.

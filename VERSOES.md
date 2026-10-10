@@ -33,7 +33,7 @@ Commit `4e515f9` · macOS e Windows
 
 ## v0.5.0-alpha — 10/10/2026
 
-Commit (a definir: `cd070a7` + a prateleira mais funda e a versão, ainda sem commit) · macOS, Windows e Linux
+Commit `8732b9a` · macOS, Windows e Linux
 
 ### Novidades
 - Interurbanos: o banco INTERURBANO com seis cidades; quem liga pede a cidade e o número de lá, o operador liga no

@@ -235,15 +235,15 @@ func _draw_rope(e: int, shadow: bool) -> void:
 				sh.append(pts[i] + (ROPE_SHADOW if i < r.air else AIR_LIFT))
 				continue
 			sh.append(pts[i] + ROPE_SHADOW.lerp(lift, k * k))
-		draw_polyline(_smooth(sh), SHADOW, ROPE_W - 1.0 - thin)
+		_ci.draw_polyline(_smooth(sh), SHADOW, ROPE_W - 1.0 - thin)
 		return
 	var col: Array = _cable_col(e)
 	pts = _smooth(_kinked(e, pts, 1.0 - taut))
 	var lights := PackedColorArray()   # a luz da sala ao longo do fio
 	for q in pts:
 		lights.append(_lit_by(q))
-	draw_polyline_colors(pts, _tinted((col[0] as Color).darkened(EDGE), lights), ROPE_W - thin)
-	draw_polyline_colors(pts, _tinted(col[0], lights), ROPE_W - 3.0 - thin)
+	_ci.draw_polyline_colors(pts, _tinted((col[0] as Color).darkened(EDGE), lights), ROPE_W - thin)
+	_ci.draw_polyline_colors(pts, _tinted(col[0], lights), ROPE_W - 3.0 - thin)
 	if ends[e] == -1:   # em pé (na mão, solto ou guardado): o fio entra na traseira do plug
 		_draw_tail(e, pts[pts.size() - 1], col[0], lights[lights.size() - 1], thin)
 	var pts2 := PackedVector2Array()
@@ -254,15 +254,21 @@ func _draw_rope(e: int, shadow: bool) -> void:
 			length += pts[i].distance_to(pts[i - 1])
 	var at := 0.0
 	var braid := BRAID * lerpf(1.0, TAUT_BRAID, taut)   # o pano esticado espaça o trançado
+	var segs := PackedVector2Array()   # o trançado inteiro numa chamada de desenho só (um traço por pedaço eram dezenas)
+	var tones := PackedColorArray()
 	while at < length:   # o trançado do pano: o brilho em pedaços
 		var part := Cord.along(pts2, at, minf(at + braid - 2.0, length))
-		if part.size() >= 2:
-			draw_polyline(part, (col[1] as Color) * _lit_by(part[0]), 1.5)
+		var tone := (col[1] as Color) * _lit_by(part[0]) if part.size() >= 2 else Color()
+		for i in part.size() - 1:
+			segs.append_array([part[i], part[i + 1]])
+			tones.append(tone)
 		at += braid
+	if not segs.is_empty():
+		_ci.draw_multiline_colors(segs, tones, 1.5)
 	for band in HOLE_SHADE:   # perto do buraco, a sombra de dentro dele, em degraus
 		var part := Cord.along(pts, band[0], band[1])
 		if part.size() >= 2:
-			draw_polyline(part, Color(0, 0, 0, band[2]), ROPE_W - 3.0 - thin)
+			_ci.draw_polyline(part, Color(0, 0, 0, band[2]), ROPE_W - 3.0 - thin)
 
 
 ## O fio entrando na traseira do plug em pé, em `at`: um trecho dele segue TAIL_IN px para dentro do plug, no eixo
@@ -270,10 +276,10 @@ func _draw_rope(e: int, shadow: bool) -> void:
 ## terminava num corte reto no meio da ponta do plug e deixava um vão do outro lado.
 func _draw_tail(e: int, at: Vector2, c: Color, light: Color, thin: float) -> void:
 	var inside := at + Vector2.UP.rotated(_plug_angle(e)) * TAIL_IN
-	draw_line(at, inside, c.darkened(EDGE) * light, ROPE_W - thin)
-	draw_line(at, inside, c * light, ROPE_W - 3.0 - thin)
+	_ci.draw_line(at, inside, c.darkened(EDGE) * light, ROPE_W - thin)
+	_ci.draw_line(at, inside, c * light, ROPE_W - 3.0 - thin)
 	var w := int(ROPE_W - thin)
-	PixelArt.sprite(self, PixelArt.disc(w, [[(w - 3) / 2.0, c], [w / 2.0, c.darkened(EDGE)]]), at, light)
+	PixelArt.sprite(_ci, PixelArt.disc(w, [[(w - 3) / 2.0, c], [w / 2.0, c.darkened(EDGE)]]), at, light)
 
 
 ## A linha `pts` alisada numa curva (Catmull-Rom) que passa pelos mesmos pontos, em trechos de até SMOOTH_PX: com
@@ -328,11 +334,11 @@ func _draw_plug(e: int, shadow: bool) -> void:
 	var at := _plug_base(e) - tilt   # encaixado, desenha a partir do encaixe
 	if shadow and not seated:
 		at += _lift(e)
-	draw_set_transform(at.round(), _plug_angle(e))
+	_ci.draw_set_transform(at.round(), _plug_angle(e))
 	_cut = hole(e).y + HOLE_LIP - at.round().y if _in_hole(e) else INF
 	if shadow and seated:   # do encaixe até onde a luz joga a ponta, no painel
-		draw_colored_polygon(Geometry2D.convex_hull(_circle(Vector2.ZERO, PLUG_FACE_R + 1.0) + _circle(PLUG_SHADE, PLUG_FACE_R)), SHADOW)
-		PixelArt.sprite(self, PixelArt.disc(PLUG_ABA_D + 2, [[PLUG_ABA_D / 2.0 + 1.0, Color.WHITE]]), Vector2.ZERO, SHADOW)   # sombra de contato: a aba presa no encaixe
+		_ci.draw_colored_polygon(Geometry2D.convex_hull(_circle(Vector2.ZERO, PLUG_FACE_R + 1.0) + _circle(PLUG_SHADE, PLUG_FACE_R)), SHADOW)
+		PixelArt.sprite(_ci, PixelArt.disc(PLUG_ABA_D + 2, [[PLUG_ABA_D / 2.0 + 1.0, Color.WHITE]]), Vector2.ZERO, SHADOW)   # sombra de contato: a aba presa no encaixe
 	elif shadow:
 		_draw_cut(_plug_outline(e, 0.0), SHADOW)
 	else:
@@ -341,22 +347,22 @@ func _draw_plug(e: int, shadow: bool) -> void:
 		if seated:
 			var k := minf(float(_pushed.get(e, MORPH_SEC)) / MORPH_SEC, 1.0)
 			if k < 1.0:   # acabou de encaixar: a vista de frente cresce enquanto o corpo em pé entra no encaixe
-				draw_set_transform(at.round(), 0.0, Vector2.ONE * lerpf(0.4, 1.0, k))
+				_ci.draw_set_transform(at.round(), 0.0, Vector2.ONE * lerpf(0.4, 1.0, k))
 			_draw_plug_face(_cable_col(e), tilt, _push(e), 1.0, int(ends[e]), _lit_by(at))
 			if k < 1.0:   # o corpo em pé gira para o eixo do encaixado e encurta até o tamanho dele, entrando no encaixe
 				var axis := Transform2D(lerp_angle(float(_pushed_ang.get(e, 0.0)), tilt.angle() - PI / 2.0, k), Vector2(1.0, lerpf(1.0, tilt.length() / PLUG_LEN, k)), 0.0, at.round())
-				draw_set_transform_matrix(axis * Transform2D(0.0, Vector2(0, PLUG_LEN)))
+				_ci.draw_set_transform_matrix(axis * Transform2D(0.0, Vector2(0, PLUG_LEN)))
 				_draw_plug_body(_cable_col(e), false, _lit_by(at))
 		elif _plug_angle(e) != 0.0:   # girado pixel a pixel, preso aos pixels (girado pelo desenho, serrilhava)
 			var ang := _plug_angle(e)
 			var t := PixelArt.turned(_plug_art(ang), ang, Vector2(10, PLUG_H))
-			draw_set_transform(at.round())
-			draw_texture(PixelArt.art(t[0], _plug_pal(_cable_col(e))), -(t[1] as Vector2), _lit_by(at))
+			_ci.draw_set_transform(at.round())
+			_ci.draw_texture(PixelArt.art(t[0], _plug_pal(_cable_col(e))), -(t[1] as Vector2), _lit_by(at))
 		else:
 			_draw_plug_body(_cable_col(e), true, _lit_by(at))
-	draw_set_transform(Vector2.ZERO)
+	_ci.draw_set_transform(Vector2.ZERO)
 	if _cut < INF and not shadow:
-		draw_lip(self, hole(e))
+		draw_lip(_ci, hole(e))
 	_cut = INF
 
 
@@ -376,14 +382,14 @@ func _draw_cut(shape: PackedVector2Array, col: Color) -> void:
 		var cut := Geometry2D.intersect_polygons(shape, PackedVector2Array([Vector2(-30, -90), Vector2(30, -90), Vector2(30, _cut), Vector2(-30, _cut)]))
 		shape = cut[0] if not cut.is_empty() else PackedVector2Array()
 	if shape.size() >= 3:
-		draw_colored_polygon(shape, col)
+		_ci.draw_colored_polygon(shape, col)
 
 
 ## Desenha `r` no plug em pé só até `_cut` (o resto está dentro do buraco da prateleira).
 func _pr(r: Rect2, col: Color) -> void:
 	r.size.y = minf(r.end.y, _cut) - r.position.y
 	if r.size.y > 0.0:
-		draw_rect(r, col)
+		_ci.draw_rect(r, col)
 
 
 ## Quanto a sombra se desloca de onde o fio entra no plug: mais quanto mais o plug sai do painel (na mão, mais).
@@ -461,14 +467,14 @@ func _draw_plug_face(col: Array, tilt: Vector2, push: float, alpha: float, j := 
 			if (layer == 2) != r[6]:
 				continue
 			if layer != 1:
-				PixelArt.sprite(self, PixelArt.disc(r[0], [[r[0] / 2.0, pal[r[1]]]]), t * float(k) / n, mod)
+				PixelArt.sprite(_ci, PixelArt.disc(r[0], [[r[0] / 2.0, pal[r[1]]]]), t * float(k) / n, mod)
 			if layer != 0:
 				var d: int = r[0] - 2
 				var tones := [pal[r[2]], pal[r[3]], pal[r[4]]]
-				PixelArt.sprite(self, _knurled(d, tones) if r[5] else PixelArt.disc(d, [[d / 2.0, tones[0], tones[1], tones[2]]]), t * float(k) / n, mod)
+				PixelArt.sprite(_ci, _knurled(d, tones) if r[5] else PixelArt.disc(d, [[d / 2.0, tones[0], tones[1], tones[2]]]), t * float(k) / n, mod)
 	if light[1] > 0.02:
 		var rim: Array = _face_rim(t, n, light[2])
-		draw_texture(rim[0], rim[1], Color((light[0] as Color).lightened(0.35), light[1] * 0.8 * alpha))
+		_ci.draw_texture(rim[0], rim[1], Color((light[0] as Color).lightened(0.35), light[1] * 0.8 * alpha))
 
 
 ## A linha do `PLUG_ART` que aparece no passo `k` de `n` do plug encaixado, como [diâmetro com a beira, beira, luz,
@@ -529,7 +535,7 @@ func _draw_plug_cap(e: int) -> void:
 		return   # ainda entrando: o corpo em pé está por cima
 	var col: Array = _cable_col(e)
 	var w := int(ROPE_W - 3.0)   # na cor e na largura do miolo do fio, sem contorno: o fio continua nela
-	PixelArt.sprite(self, PixelArt.disc(w, [[1.0, col[1]], [w / 2.0, col[0]]]), _plug_base(e).round(), _lit_by(_plug_base(e)))
+	PixelArt.sprite(_ci, PixelArt.disc(w, [[1.0, col[1]], [w / 2.0, col[0]]]), _plug_base(e).round(), _lit_by(_plug_base(e)))
 
 
 ## A luz que bate no plug encaixado em `j`, como [cor, nível, de todos os lados]: na entrada, a lâmpada da linha,
@@ -604,11 +610,11 @@ func _draw_plug_body(col: Array, tip: bool = true, light := Color.WHITE) -> void
 	var top := -PLUG_H if tip else -PLUG_LEN
 	var bottom := minf(0.0, _cut)
 	if bottom > top:
-		draw_texture_rect_region(PixelArt.art(PLUG_ART, _plug_pal(col)), Rect2(-10, top, 20, bottom - top), Rect2(0, top + PLUG_H, 20, bottom - top), light)
+		_ci.draw_texture_rect_region(PixelArt.art(PLUG_ART, _plug_pal(col)), Rect2(-10, top, 20, bottom - top), Rect2(0, top + PLUG_H, 20, bottom - top), light)
 	if _cut < INF:   # entrando no buraco, o plug escurece até a beira dele
 		var none := Color(0, 0, 0, 0)
 		var deep := Color(0, 0, 0, 0.6)
-		draw_primitive(PackedVector2Array([Vector2(-10, _cut - 6.0), Vector2(10, _cut - 6.0), Vector2(10, _cut), Vector2(-10, _cut)]),
+		_ci.draw_primitive(PackedVector2Array([Vector2(-10, _cut - 6.0), Vector2(10, _cut - 6.0), Vector2(10, _cut), Vector2(-10, _cut)]),
 			PackedColorArray([none, none, deep, deep]), PackedVector2Array())
 
 

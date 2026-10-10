@@ -91,7 +91,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   varredura.
 - **O cenário (`Background`) e a mesa comutadora (`Switchboard`) estão descritos em `scripts/ui/CLAUDE.md`** (lido
   ao mexer em `scripts/ui/`). Regras gerais deles: **o cenário e a mesa só se redesenham quando o que mostram muda**
-  (estado comparado no `_process`: `Background._state`, a camada `_over`, o `_back_state` da vista, o `_look` da mesa);
+  (estado comparado no `_process`: `Background._state`, a camada `_over`, o `_back_state` da vista, o `_look` de cada
+  camada da mesa: painel, lâmpadas, tomadas com a luz da sala e fios);
   quem acrescentar ao desenho algo que muda precisa pôr isso no estado da camada certa. Sem tela, a vista da janela
   não é desenhada (`Background._headless`).
 - **Bloom das luzes** (`Bloom`, `scripts/ui/bloom.gd`, nó `Bloom` do Main, z 2: acima da mesa e dos painéis, abaixo dos
@@ -107,7 +108,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   Label no grupo "bloom" brilham na cor deles (luzes do rádio). Luz
   sem miolo tem o halo fraco por dentro (`HOLLOW`); luz de quem recorta o conteúdo (`clip_contents`) é recortada também.
   O que fica na frente das luzes de quem desenha (os plugs encaixados da mesa) entra com `Bloom.occlude(self, polígono)`:
-  os blocos do halo cobertos por ele somem (`_cut`, guardado; plug parado não refaz).
+  os blocos do halo cobertos por ele somem (`_cut`, guardado; plug parado não refaz). A máscara só vale para as luzes
+  do mesmo dono: na mesa, a camada das lâmpadas registra as duas.
 - Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`). **Área cheia em `draw_primitive`, não em
   `draw_polygon`**: cada `draw_polygon`/`draw_colored_polygon` é uma chamada de desenho (e cria um polígono a cada
   redesenho); `draw_primitive` (até 4 pontos) seguidos viram uma só. O cenário tem `Background._fill`/`_poly` (o

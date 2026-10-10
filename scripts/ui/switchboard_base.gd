@@ -37,7 +37,8 @@ const ROOM_LIT := Color(1.0, 0.88, 0.66, 0.07)   # perto dela, o painel clareia 
 const ROOM_DARK := Color(0.012, 0.022, 0.045, 0.36)   # ...e longe, escurece
 
 var _jacks: Array = []
-var _lamp_at := Vector2.ZERO   # onde fica a luminária do teto, medida no começo de cada desenho (`_lamp_pos`)
+var _lamp_at := Vector2.ZERO   # onde fica a luminária do teto, medida a cada quadro (`_lamp_pos`)
+var _ci: CanvasItem   # onde as funções de desenho desenham: a mesa, ou uma das camadas por cima dela (`_layers`)
 
 
 ## Encaixe do FONE em coordenadas da mesa (na prateleira à frente do painel, fora do retângulo dela).

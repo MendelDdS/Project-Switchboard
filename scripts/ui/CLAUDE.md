@@ -372,10 +372,20 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
 - A luz da luminária do teto também cai no painel (`_draw_room_light`, `ROOM_LIT`/`ROOM_DARK`, `LAMP_ABOVE`): liso,
   mais claro e quente no alto à direita, mais escuro nos cantos de baixo; por cima de tudo que é do painel e por
   baixo dos plugs e fios.
-- **A mesa só se redesenha quando algo que ela mostra muda** (`_look`: lâmpadas, estados das linhas e destinos,
-  pontas, plug sob o mouse, balão, setores) ou com algo se mexendo (plug na mão, solto, encaixando ou saindo, fio
-  acordado), e mais uma vez no quadro em que tudo para (o lugar final; sem isso, o plug que assentava ficava desenhado torto, meio fora do buraco); parada, fica o desenho guardado (o `Bloom` guarda as luzes de quem desenha). Quem acrescentar ao desenho
-  algo que muda precisa pôr isso no `_look`.
+- **A mesa é desenhada em quatro camadas, e cada uma só se redesenha quando o que ela mostra muda** (`_layers`; `_look`
+  devolve o estado de cada uma, comparado no `_process`): o painel parado (a própria mesa, `_draw`: móvel, faixas,
+  plaquinhas, tomadas das linhas, estados e numeração; muda com os estados e os setores), as lâmpadas (`_lamps`,
+  `_draw_lamps`: lâmpadas, o reflexo delas na entrada e o aro aceso dos destinos; registra no `Bloom` as luzes e os
+  plugs encaixados que as cobrem, porque as máscaras do `Bloom` só valem para as luzes de quem as registrou), as
+  tomadas dos destinos com as chapas e a luz da sala (`_top`, `_draw_top`: por cima do aro aceso e das lâmpadas) e os
+  plugs com os fios e o balão (`_cords`, `_draw_cords`; também a cada quadro com algo se mexendo: plug na mão, solto,
+  encaixando ou saindo, fio acordado; e mais uma vez no quadro em que tudo para, o lugar final: sem isso, o plug que
+  assentava ficava desenhado torto, meio fora do buraco). Antes, a lâmpada piscando redesenhava a mesa inteira
+  (~1 ms por quadro só nela, ~3 ms com cabos); agora, só as lâmpadas (~0,1 ms). As funções de desenho do
+  `switchboard_panel.gd` e do `switchboard_plugs.gd` desenham em `_ci` (a mesa, ou a camada que a está desenhando,
+  como o `_ci` do `Background`). Quem acrescentar ao desenho algo que muda precisa pôr isso no estado da camada certa
+  do `_look`. O trançado do fio é uma chamada de desenho só (`draw_multiline_colors`; um `draw_polyline` por pedaço
+  eram dezenas por fio).
 - Layout da mesa (`SIZE` 588×362, também em `main.tscn`): móvel com moldura de madeira (`_draw_cabinet`, `FRAME`,
   `WOOD`) e faixas gravadas com o nome de cada seção (`_draw_rule`, `RULES`: entradas, saídas, destinos); coluna de cada linha em `ROW_Y` (plaquinha de metal com o número
   gravado, `_draw_number_plate`; estado; lâmpada; entrada; saída), todos os encaixes com `JACK` px, bancos de destino em

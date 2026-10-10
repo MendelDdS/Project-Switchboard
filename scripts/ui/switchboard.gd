@@ -112,12 +112,28 @@ var _rub_tone := 0.0
 var _pull_rest := 0.0   # s com a mão parada (ou chegando perto do buraco)
 var _pull_run := -1.0   # s desde que a mão começou a puxar (-1: tranco já dado ou fora da janela)
 var _pull_top := 0.0    # pico recente do puxão, px/s
-var _drawn := []   # o que estava à mostra no último desenho (`_look`)
+var _layers: Array[CanvasItem] = []   # a mesa (o painel parado) e as camadas por cima dela, cada uma com o seu desenho
+var _lamps: Control
+var _top: Control
+var _cords: Control
+var _drawn := [[], [], [], []]   # o que cada uma mostrava no último desenho (`_look`)
 
 
 func _ready() -> void:
 	custom_minimum_size = SIZE
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	_ci = self
+	_layers.append(self)
+	for f: Callable in [_draw_lamps, _draw_top, _draw_cords]:   # por cima do painel, nesta ordem (`_draw`)
+		var layer := Control.new()
+		layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+		layer.draw.connect(f)
+		add_child(layer)
+		_layers.append(layer)
+	_lamps = _layers[1]
+	_top = _layers[2]
+	_cords = _layers[3]
 	for i in 1 + PATCHES * 2:
 		ends.append(-1)
 		_order.append(i)
@@ -375,27 +391,36 @@ func _process(delta: float) -> void:
 	var moving := held != -1 or not (_loose.is_empty() and _pushed.is_empty() and _pulled.is_empty())
 	for e in ropes:
 		moving = moving or not (ropes[e] as Cord).asleep()
+	_lamp_at = _lamp_pos()
 	var now := _look()
-	now.append(moving)   # no quadro em que tudo para, mais um desenho: o do lugar final (sem ele, o plug ficava torto, meio fora do buraco)
-	if moving or now != _drawn:
-		_drawn = now
-		queue_redraw()
+	now[3].append(moving)   # no quadro em que tudo para, mais um desenho: o do lugar final (sem ele, o plug ficava torto, meio fora do buraco)
+	for k in now.size():
+		if now[k] != _drawn[k] or (k == 3 and moving):
+			_layers[k].queue_redraw()
+	_drawn = now
 
 
-## O que a mesa mostra parada: muda, ela se redesenha (com algo se mexendo, a cada quadro). Parada, fica o desenho
-## guardado (as luzes do `Bloom` também ficam: ele guarda as de quem desenha até a próxima vez).
+## O que cada camada mostra parada, na ordem de `_layers`: mudou, ela se redesenha (os fios, com algo se mexendo, a
+## cada quadro). Parada, fica o desenho guardado (as luzes do `Bloom` também ficam: ele guarda as de quem desenha até
+## a próxima vez).
 func _look() -> Array:
 	var levels := PackedFloat32Array()
 	for key in _lit:
 		var lt: Array = _lit[key]
 		levels.append_array([lt[1], (lt[0] as Color).r, (lt[0] as Color).g])
 	var states := PackedInt32Array()
+	var plugs := []   # a luz das lâmpadas nos plugs encaixados (`_plug_light`)
 	if exchange != null:
 		for n in range(1, 11):
 			states.append(exchange.line(n))
 		for d in dest_nums:
 			states.append(exchange.dest(d))
-	return [size, ends.duplicate(), _hover, levels, states, Time.get_ticks_msec() < info_until, info_line, GameData.sectors.duplicate(), _eye]
+		for j in ends:
+			if j != -1:
+				plugs.append(_plug_light(j))
+	return [[size, states, GameData.sectors.duplicate()], [size, levels, ends.duplicate(), _eye],
+		[size, GameData.sectors.duplicate(), _lamp_at],
+		[size, ends.duplicate(), _hover, plugs, Time.get_ticks_msec() < info_until, info_line, _eye, _lamp_at]]
 
 
 ## O plug da ponta e está no ponto p (guardado, vale a base inteira; fora dela, o desenho do plug).
@@ -595,12 +620,10 @@ func _step_rope(e: int, dt: float) -> void:
 				_seat(e, pts[last])
 
 
+## O painel parado: o móvel, as faixas, as plaquinhas, as tomadas das linhas e a numeração. Por cima dele, cada uma
+## com o seu desenho (refeito só quando o que ela mostra muda, `_look`): as lâmpadas (`_lamps`), as tomadas dos
+## destinos com a luz da sala (`_top`) e os plugs com os fios (`_cords`).
 func _draw() -> void:
-	Bloom.clear(self)
-	_lamp_at = _lamp_pos()   # uma vez por desenho: a luz da sala no painel, nos fios e nos plugs sai dela
-	var w := size.x
-	var h := size.y
-	var ms := Time.get_ticks_msec()
 	_draw_cabinet(Rect2(Vector2.ZERO, size))
 	_draw_tray()
 	for y in RULES.values():
@@ -619,10 +642,7 @@ func _draw() -> void:
 		var st := exchange.line(n)
 		var cx := col_x(i)
 		_draw_number_plate(Rect2(cx - 18, ROW_Y["plate"], 36, ROW_Y["plate_h"]), "%02d" % n)
-		var lt: Array = _lit.get("l%d" % n, [LAMP_OFF, 0.0])
-		_draw_lamp(Vector2(cx, ROW_Y["lamp"]), lt[0], lt[1])
 		_draw_jack(jack_rect(n))
-		_reflect(jack_rect(n), lt[0], lt[1])
 		var sc := Pal.DIM
 		if st in [Exchange.Line.RING, Exchange.Line.TALK, Exchange.Line.HOLD]:
 			sc = Pal.AMBER
@@ -640,35 +660,70 @@ func _draw() -> void:
 		draw_string(Pal.ui, Vector2(br.position.x + 4, RULES["dest"] + 5), cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
 		draw_rect(br, Pal.PANEL_LO, false, 1.0)
 	for d in dest_nums:
-		var jr := jack_rect(d)
-		var cx := jr.get_center().x
-		var st := exchange.dest(d)
 		if not GameData.is_trunk(d):   # o tronco tem o nome da cidade em cima (`_draw_trunks`)
-			draw_string(Pal.mono, Vector2(cx - 16, jr.position.y - 5), str(d), HORIZONTAL_ALIGNMENT_CENTER, 32, 11, Color("d8c9a2") if st == Exchange.Dest.FREE else Pal.TEXT)
-		var dl: Array = _lit.get("d%d" % d, [LAMP_OFF, 0.0])
-		if dl[1] > 0.02:   # o aro em volta da tomada acende
-			PixelArt.sprite(self, PixelArt.disc(JACK_PX + 8, [[JACK_PX / 2.0 + 4.0, Color.WHITE]]), jr.get_center(), Color(dl[0], dl[1]))
-			Bloom.light(self, jr.grow((JACK_PX - JACK) / 2.0 + 3.0), Color(dl[0], dl[1]), 1.0, false, true)
-		_draw_jack(jr)
-	for s in _blocks:
-		if not s in GameData.sectors:
-			_draw_plate(_blocks[s], "ABC"[SECTOR_ORDER.find(s)])
+			var jr := jack_rect(d)
+			draw_string(Pal.mono, Vector2(jr.get_center().x - 16, jr.position.y - 5), str(d), HORIZONTAL_ALIGNMENT_CENTER, 32, 11,
+				Color("d8c9a2") if exchange.dest(d) == Exchange.Dest.FREE else Pal.TEXT)
 
 	# legenda das lâmpadas, numa linha no pé do painel
 	_draw_legend()
-	_draw_room_light(Rect2(Vector2.ZERO, size).grow(-FRAME))
 
+
+## As lâmpadas das linhas (com a luz delas no aro da entrada) e o aro aceso dos destinos. As luzes vão para o `Bloom`,
+## cortadas pelos plugs encaixados, que ficam na frente delas.
+func _draw_lamps() -> void:
+	if exchange == null:
+		return
+	_ci = _lamps
+	Bloom.clear(_lamps)
+	for i in 10:
+		var n := i + 1
+		var lt: Array = _lit.get("l%d" % n, [LAMP_OFF, 0.0])
+		_draw_lamp(Vector2(col_x(i), ROW_Y["lamp"]), lt[0], lt[1])
+		_reflect(jack_rect(n), lt[0], lt[1])
+	for d in dest_nums:
+		var dl: Array = _lit.get("d%d" % d, [LAMP_OFF, 0.0])
+		if dl[1] > 0.02:   # o aro em volta da tomada acende (a tomada, por cima, é da `_top`)
+			var jr := jack_rect(d)
+			PixelArt.sprite(_lamps, PixelArt.disc(JACK_PX + 8, [[JACK_PX / 2.0 + 4.0, Color.WHITE]]), jr.get_center(), Color(dl[0], dl[1]))
+			Bloom.light(_lamps, jr.grow((JACK_PX - JACK) / 2.0 + 3.0), Color(dl[0], dl[1]), 1.0, false, true)
+	for e in ends.size():
+		if ends[e] != -1:
+			Bloom.occlude(_lamps, Transform2D(0.0, jack_rect(int(ends[e])).get_center().round()) * _plug_outline(e, 1.0))
+	_ci = self
+
+
+## Por cima das lâmpadas: as tomadas dos destinos (o aro aceso fica em volta delas), as chapas dos bancos que ainda não
+## são do operador e a luz da sala, que cai em tudo o que é do painel.
+func _draw_top() -> void:
+	if exchange == null:
+		return
+	_ci = _top
+	for d in dest_nums:
+		_draw_jack(jack_rect(d))
+	for s in _blocks:
+		if not s in GameData.sectors:
+			_draw_plate(_blocks[s], "ABC"[SECTOR_ORDER.find(s)])
+	_draw_room_light(Rect2(Vector2.ZERO, size).grow(-FRAME))
+	_ci = self
+
+
+## Os plugs e os fios, na frente do painel, e o balão de informação.
+func _draw_cords() -> void:
+	if exchange == null:
+		return
+	_ci = _cords
 	# destaque da tomada sob o plug (antes de virar arraste, soltar desencaixa: sem destaque)
 	if held != -1 and _dragged:
 		var hj := jack_at(get_local_mouse_position())
 		if hj != -1:
 			var ok := refuse(held, hj) == ""
 			var hr := jack_rect(hj)
-			draw_arc(hr.get_center(), hr.size.x / 2.0 + 4.0, 0.0, TAU, 32, Pal.GLOW if ok else Pal.RED, 2.0)
+			_cords.draw_arc(hr.get_center(), hr.size.x / 2.0 + 4.0, 0.0, TAU, 32, Pal.GLOW if ok else Pal.RED, 2.0)
 			if ok:
 				var gc := Pal.GLOW
 				gc.a = 0.2
-				draw_rect(hr, gc)
+				_cords.draw_rect(hr, gc)
 
 	# cada ponta (fio e plug) na ordem em que foi mexida: o fio da mais recente passa por cima dos plugs das
 	# outras (o da mão inclusive); as sombras antes, por baixo de tudo
@@ -681,36 +736,42 @@ func _draw() -> void:
 		_draw_plug(e, true)
 	for e in _pulled:   # plugs que acabaram de sair: a vista de frente sumindo no encaixe
 		var k: float = _pulled[e][0] / MORPH_SEC
-		draw_set_transform(_pulled[e][1], 0.0, Vector2.ONE * lerpf(1.0, 0.4, k))
+		_cords.draw_set_transform(_pulled[e][1], 0.0, Vector2.ONE * lerpf(1.0, 0.4, k))
 		_draw_plug_face(_cable_col(e), _pulled[e][2], 0.0, 1.0 - k, -1, _lit_by(_pulled[e][1]))
-		draw_set_transform(Vector2.ZERO)
+		_cords.draw_set_transform(Vector2.ZERO)
 	for e in order:
 		if ends[e] != -1:   # encaixado, visto de frente: o fio sai do meio dele (da ponteira), por cima do tampo
 			_draw_plug(e, false)
-			Bloom.occlude(self, Transform2D(0.0, jack_rect(int(ends[e])).get_center().round()) * _plug_outline(e, 1.0))
 			_draw_rope(e, false)
 			_draw_plug_cap(e)
 		else:
 			_draw_rope(e, false)
 			_draw_plug(e, false)
 		if ropes.has(e) and not _in_hole(e):   # o fio sai de dentro do buraco: a beira da frente passa por cima dele
-			draw_lip(self, hole(e))
+			draw_lip(_cords, hole(e))
 
 	# balão de informação
-	if ms < info_until and info_line > 0:
+	if Time.get_ticks_msec() < info_until and info_line > 0:
 		var jr := jack_rect(info_line)
 		var bw := 200.0
 		var bh := 12.0 + info_lines.size() * 19.0
-		var bx := clampf(jr.get_center().x - bw / 2, 8, w - bw - 8)
-		var by := minf(jr.end.y + 8, h - bh - 8)
+		var bx := clampf(jr.get_center().x - bw / 2, 8, size.x - bw - 8)
+		var by := minf(jr.end.y + 8, size.y - bh - 8)
 		var bc := Pal.GHOST if info_ghost else Pal.BRASS
-		draw_rect(Rect2(bx, by, bw, bh), bc)
-		draw_rect(Rect2(bx + 2, by + 2, bw - 4, bh - 4), Color("0e0c08"))
+		_cords.draw_rect(Rect2(bx, by, bw, bh), bc)
+		_cords.draw_rect(Rect2(bx + 2, by + 2, bw - 4, bh - 4), Color("0e0c08"))
 		for k in info_lines.size():
-			draw_string(Pal.mono, Vector2(bx + 10, by + 22 + k * 19), info_lines[k], HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.GHOST if info_ghost else Pal.TEXT)
+			_cords.draw_string(Pal.mono, Vector2(bx + 10, by + 22 + k * 19), info_lines[k], HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.GHOST if info_ghost else Pal.TEXT)
+	_ci = self
+
+
+## O painel e as camadas por cima dele, tudo de novo.
+func _redraw_all() -> void:
+	for layer in _layers:
+		layer.queue_redraw()
 
 
 ## O idioma mudou nas configurações: redesenha os textos.
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_TRANSLATION_CHANGED:
-		queue_redraw()
+		_redraw_all()
