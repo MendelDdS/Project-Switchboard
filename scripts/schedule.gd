@@ -9,6 +9,7 @@ const STORY_GAP := 8.0          # as ligações sorteadas ficam a tantos minutos
 const STORY_WAIT := 30.0        # a do roteiro espera a mesa silenciar por no máximo tantos minutos (toca sozinha)
 const TEMPLATE_CHANCE := 0.5    # chance de uma transferência ou emergência vir de um molde e não de um roteiro escrito
 const TRANSFER_SHARE := 0.65    # das ligações comuns, quantas são transferências (o resto, pedidos de informação)
+const TRUNK_SHARE := 0.2        # das transferências, quantas são interurbanos (pelo banco INTERURBANO; nunca no treinamento)
 const MYSTERY_WAIT := 30.0      # a ligação desconhecida espera a mesa silenciar por no máximo tantos minutos...
 const MYSTERY_MARGIN := 10.0    # ...e toca no máximo tantos minutos antes da última ligação, para acabar antes do
                                 # botão Encerrar turno (que só aparece depois dela)
@@ -83,11 +84,13 @@ func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[Phon
 		elif randf() < TRANSFER_SHARE:
 			# um número por noite: duas pessoas pedindo o mesmo destino ficariam esperando uma pela outra
 			var fresh := transfers.filter(func(x: TransferCall): return not x.target in targets and not x.alt_target in targets)
-			var tc: TransferCall = fresh.back() if randf() >= TEMPLATE_CHANCE and not fresh.is_empty() else GameData.template_transfer(targets)
+			var tc: TransferCall = GameData.trunk_transfer(targets) if night.lesson.is_empty() and randf() < TRUNK_SHARE else null
+			if tc == null:
+				tc = fresh.back() if randf() >= TEMPLATE_CHANCE and not fresh.is_empty() else GameData.template_transfer(targets)
 			if tc == null and not fresh.is_empty():
 				tc = fresh.back()
 			if tc != null:
-				transfers.erase(tc)
+				transfers.erase(tc)   # (o interurbano nem está na lista)
 				c = PhoneCall.from_transfer(tc)
 				targets.append(tc.alt_target)
 		if c == null:   # pedido de informação (ou nenhum número livre para transferir nesta noite)

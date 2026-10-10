@@ -4,16 +4,27 @@ extends Control
 ## dividida em camadas por herança: esta, o painel (`switchboard_panel.gd`), os plugs e fios
 ## (`switchboard_plugs.gd`) e a mesa com a entrada, a física e o desenho (`switchboard.gd`); cada uma só usa as de baixo.
 
+const SIZE := Vector2(588, 362)
 const PATCHES := 3
-const FONE_HOLE_X := 50.0   # o buraco do FONE, a partir da esquerda do encaixe (no meio dele)
-const SHELF_HOLE_Y := 3.0   # os buracos da prateleira, no alto da faixa dela (o nome fica gravado embaixo)
+const SHELF_SLOTS := 5   # lugares de cabo na prateleira: os que sobram dos `PATCHES` ficam tampados, à espera dos cabos novos
+const TRUNK_GAP := 8.0      # do último plug guardado até o bloco interurbano (o vão da moldura dos bancos)
+const PAIR_SHIFT := 16.0    # a ponta da frente de um cabo, à esquerda da de trás: encostadas, as duas se leem como um par
+const FONE_HOLE_X := 40.0   # o buraco do FONE, a partir da esquerda do encaixe (o nome gravado embaixo cabe nos três idiomas)
+const SHELF_HOLE_Y := 1.0   # a fileira de trás dos buracos da prateleira (o FONE e a primeira ponta de cada cabo), no alto da faixa
+const SHELF_FRONT_Y := 15.0 # a fileira da frente (a outra ponta), logo à frente da de trás, como nas mesas de verdade
 const PLUG_SINK := 22.0  # guardado, o plug entra tanto no buraco (px abaixo dele: a capa de borracha some nele, o corpo fica à mostra)...
 
+var exchange: Exchange
 var fone_socket: Control       # encaixe do FONE, na prateleira à frente do painel
 var tray: Control              # os buracos dos cabos de conexão, na prateleira à frente do painel
 var _slots := {}               # número -> centro da tomada (de todos os setores, atendidos ou não)
 var ends: Array = []           # tomada de cada ponta (-1 = na base). 0 = FONE; 1..2*PATCHES = pontas dos cabos de conexão
 var held := -1
+## Os olhos do operador, o ponto de fuga da sala, em px da mesa (medido a cada quadro pela mesa; sem cenário, nos
+## testes, onde eles ficam em 1280 × 720): os plugs encaixados apontam para ele e a prateleira foge para ele.
+const PLUG_EYE := Vector2(SIZE.x + 134, 92)
+var _eye := PLUG_EYE
+var trunks := Rect2()   # o bloco interurbano no painel (a mesa o põe ao montar os bancos): os cabos vão até ele
 
 const PLUG_BASE := Vector2(0, 36)   # do ponto de referência do plug (topo do corpo) até onde o fio entra nele
 const PLUG_H := 93.0   # a altura do `PLUG_ART`: do bico até onde sai o fio
@@ -32,14 +43,14 @@ var _lamp_at := Vector2.ZERO   # onde fica a luminária do teto, medida no come�
 ## Encaixe do FONE em coordenadas da mesa (na prateleira à frente do painel, fora do retângulo dela).
 func socket_rect() -> Rect2:
 	if fone_socket == null:
-		return Rect2(0, 370, 100, 16)
+		return Rect2(0, 370, 58, 16)
 	return Rect2(fone_socket.global_position - global_position, fone_socket.size)
 
 
 ## A faixa dos buracos dos cabos na prateleira, em coordenadas da mesa (também fora do retângulo dela).
 func tray_rect() -> Rect2:
 	if tray == null:
-		return Rect2(112, 370, 476, 16)
+		return Rect2(70, 370, 518, 16)
 	return Rect2(tray.global_position - global_position, tray.size)
 
 
@@ -70,10 +81,17 @@ func top_rect(i: int) -> Rect2:
 	return Rect2(col_x(i) - 20, ROW_Y["plate"] - 2, 40, ROW_Y["lamp"] - ROW_Y["plate"] + 8)
 
 
-## Centro do lugar do cabo de conexão k na prateleira (as duas pontas ficam lado a lado).
+## A coluna do cabo de conexão k na prateleira, na fileira de trás. As duas pontas de cada cabo ficam juntas (a da
+## frente encostada, `front_of`) e os `SHELF_SLOTS` lugares, a um passo igual, enchem a prateleira até o bloco
+## interurbano.
 func patch_x(k: int) -> float:
-	var t := tray_rect()
-	return t.position.x + t.size.x * (k + 0.5) / PATCHES
+	return socket_rect().position.x + FONE_HOLE_X + _pitch() * (k + 1)
+
+
+## De um lugar de cabo ao seguinte.
+func _pitch() -> float:
+	var right := (trunks.position.x if trunks.has_area() else tray_rect().end.x) - TRUNK_GAP - 12.0   # 12: a metade do plug (`home_rect`)
+	return (right - socket_rect().position.x - FONE_HOLE_X) / SHELF_SLOTS
 
 
 ## Onde fica o plug guardado, de pé no buraco dele na prateleira, como nas mesas de verdade (o fio desce por ele).
@@ -81,11 +99,18 @@ func home_pos(e: int) -> Vector2:
 	return hole(e) - PLUG_BASE + Vector2(0, PLUG_SINK)
 
 
-## Buraco de onde sai o fio da ponta e, na prateleira (o do FONE no encaixe dele; os de conexão aos pares).
+## Buraco de onde sai o fio da ponta e, na prateleira (o do FONE no encaixe dele; os de conexão um atrás do outro).
 func hole(e: int) -> Vector2:
 	if e == 0:
 		return socket_rect().position + Vector2(FONE_HOLE_X, SHELF_HOLE_Y)
-	return Vector2(patch_x((e - 1) / 2) + (-15.0 if e % 2 == 1 else 15.0), tray_rect().position.y + SHELF_HOLE_Y)
+	var back := Vector2(patch_x((e - 1) / 2), tray_rect().position.y + SHELF_HOLE_Y)
+	return back if e % 2 == 1 else front_of(back)
+
+
+## O lugar da fileira da frente ao lado do buraco de trás `p` (a outra ponta do mesmo cabo): `PAIR_SHIFT` à esquerda,
+## sempre o mesmo (pela perspectiva exata seriam 20 a 32 px, um a cada coluna, e o desencontro parecia bagunça).
+func front_of(p: Vector2) -> Vector2:
+	return p + Vector2(-PAIR_SHIFT, SHELF_FRONT_Y - SHELF_HOLE_Y)
 
 
 func home_rect(e: int) -> Rect2:

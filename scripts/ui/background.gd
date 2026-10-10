@@ -997,12 +997,7 @@ func _draw_switchboard(front: float) -> void:
 	if radio and radio.visible:   # na frente do console, em volta da miniatura do painel: a plaqueta e os botões dele
 		var rr := Rect2(radio.global_position - global_position, radio.size)
 		var my := roundf((sy + fy) / 2.0)
-		var plate := Rect2(rr.position.x - 74, my - 8, 56, 16)
-		draw_rect(Rect2(plate.position + Vector2(1, 1), plate.size), Color(0, 0, 0, 0.35))
-		draw_rect(plate, Color("8a6a2e"))
-		draw_rect(Rect2(plate.position, Vector2(plate.size.x, 1)), Color("c4a35a"))
-		for i in 2:   # o nome gravado (as letras não se leem dessa distância)
-			draw_rect(Rect2(plate.position.x + 8, plate.position.y + 5 + i * 5, plate.size.x - 16 - i * 12, 1), Color("4a3a18"))
+		Switchboard.draw_maker_plate(self, Rect2(rr.position.x - 114, my - 13, 96, 26))   # a plaqueta do fabricante
 		for i in 2:   # baquelite: a borda em volta do tampo, os dois com a luz no alto à esquerda
 			var c := Vector2(rr.end.x + 24 + i * 30, my)
 			_sprite(PixelArt.disc(19, [[9.0, Color(0, 0, 0, 0.35)]]), c + Vector2(1, 2))

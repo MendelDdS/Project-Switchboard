@@ -4815,6 +4815,78 @@ msgstr "Perfecto. Buenas noches."
 msgid "Isso. Boa noite pro senhor."
 msgstr "Eso es. Buenas noches para usted."
 
+#: data/templates/trunk_01.tres
+msgid "Boa noite. Eu queria fazer um interurbano {to_city}."
+msgstr "Buenas noches. Quería hacer una llamada de larga distancia {to_city}."
+
+#: data/templates/trunk_01.tres
+msgid "O número é {far}. É da minha irmã."
+msgstr "El número es {far}. Es de mi hermana."
+
+#: data/templates/trunk_01.tres
+msgid "Um interurbano {to_city}, número {far}."
+msgstr "Una llamada {to_city}, número {far}."
+
+#: data/templates/trunk_02.tres
+msgid "Central? Preciso ligar {to_city}, é sobre um negócio."
+msgstr "¿Central? Necesito llamar {to_city}, es por un negocio."
+
+#: data/templates/trunk_02.tres
+msgid "Anota aí: {far}."
+msgstr "Anote: {far}."
+
+#: data/templates/trunk_02.tres
+msgid "{to_city}, moço. O número é {far}."
+msgstr "{to_city}, joven. El número es {far}."
+
+#: data/templates/trunk_03.tres
+msgid "Boa noite. Dá pra completar uma ligação {to_city}?"
+msgstr "Buenas noches. ¿Puede completar una llamada {to_city}?"
+
+#: data/templates/trunk_03.tres
+msgid "É o {far}, do meu filho. Ele mudou pra lá faz pouco."
+msgstr "Es el {far}, de mi hijo. Se mudó allá hace poco."
+
+#: data/templates/trunk_03.tres
+msgid "É {to_city}. {far}."
+msgstr "Es {to_city}. {far}."
+
+#: data/templates/trunk_04.tres
+msgid "Alô, central. Um interurbano {to_city}, por favor."
+msgstr "Hola, central. Una llamada de larga distancia {to_city}, por favor."
+
+#: data/templates/trunk_04.tres
+msgid "Número {far}. Pode cobrar aqui, tá?"
+msgstr "Número {far}. Puede cobrarlo aquí, ¿sí?"
+
+#: data/templates/trunk_04.tres
+msgid "{to_city}, o {far}."
+msgstr "{to_city}, el {far}."
+
+#: data/content.tres
+msgid "pra Capital"
+msgstr "a la Capital"
+
+#: data/content.tres
+msgid "pro Norte"
+msgstr "al Norte"
+
+#: data/content.tres
+msgid "pro Sul"
+msgstr "al Sur"
+
+#: data/content.tres
+msgid "pro Leste"
+msgstr "al Este"
+
+#: data/content.tres
+msgid "pro Oeste"
+msgstr "al Oeste"
+
+#: data/content.tres
+msgid "pro Litoral"
+msgstr "al Litoral"
+
 #: data/templates/emergency_incendio.tres
 msgid "Central! Tá pegando fogo numa casa aqui na {street}! Já tá subindo pelo telhado!"
 msgstr "¡Central! ¡Se está quemando una casa aquí en {street}! ¡Ya está subiendo por el techo!"
@@ -6334,6 +6406,42 @@ msgstr "Joven, esa voz no la conozco."
 #: data/content.tres
 msgid "Não é esse número, não."
 msgstr "No es ese número, no."
+
+#: data/content.tres
+msgid "Interurbano, boa noite."
+msgstr "Larga distancia, buenas noches."
+
+#: data/content.tres
+msgid "Telefonista, pois não?"
+msgstr "Operadora, ¿dígame?"
+
+#: data/content.tres
+msgid "Interurbano. Qual o número?"
+msgstr "Larga distancia. ¿Qué número?"
+
+#: data/content.tres
+msgid "Um momento, vou chamar."
+msgstr "Un momento, voy a llamar."
+
+#: data/content.tres
+msgid "Aguarde, estou completando."
+msgstr "Espere, estoy completando."
+
+#: data/content.tres
+msgid "Só um instante, já chamo."
+msgstr "Un instante, ya llamo."
+
+#: data/content.tres
+msgid "Esse número não é daqui, não."
+msgstr "Ese número no es de aquí."
+
+#: data/content.tres
+msgid "Não tenho esse número aqui. Confere a cidade?"
+msgstr "No tengo ese número aquí. ¿Revisa la ciudad?"
+
+#: data/content.tres
+msgid "Aqui não existe esse número, colega."
+msgstr "Aquí no existe ese número, colega."
 
 #: data/content.tres
 msgid "Liguei agora há pouco e ninguém atendeu!"

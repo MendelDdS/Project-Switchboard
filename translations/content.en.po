@@ -4815,6 +4815,78 @@ msgstr "Great. Good night."
 msgid "Isso. Boa noite pro senhor."
 msgstr "That's it. Good night to you, sir."
 
+#: data/templates/trunk_01.tres
+msgid "Boa noite. Eu queria fazer um interurbano {to_city}."
+msgstr "Good evening. I'd like to place a long-distance call {to_city}."
+
+#: data/templates/trunk_01.tres
+msgid "O número é {far}. É da minha irmã."
+msgstr "The number is {far}. It's my sister's."
+
+#: data/templates/trunk_01.tres
+msgid "Um interurbano {to_city}, número {far}."
+msgstr "A long-distance call {to_city}, number {far}."
+
+#: data/templates/trunk_02.tres
+msgid "Central? Preciso ligar {to_city}, é sobre um negócio."
+msgstr "Operator? I need to call {to_city}, it's about some business."
+
+#: data/templates/trunk_02.tres
+msgid "Anota aí: {far}."
+msgstr "Write it down: {far}."
+
+#: data/templates/trunk_02.tres
+msgid "{to_city}, moço. O número é {far}."
+msgstr "{to_city}, mister. The number is {far}."
+
+#: data/templates/trunk_03.tres
+msgid "Boa noite. Dá pra completar uma ligação {to_city}?"
+msgstr "Good evening. Can you put a call through {to_city}?"
+
+#: data/templates/trunk_03.tres
+msgid "É o {far}, do meu filho. Ele mudou pra lá faz pouco."
+msgstr "It's {far}, my son's. He moved there not long ago."
+
+#: data/templates/trunk_03.tres
+msgid "É {to_city}. {far}."
+msgstr "It's {to_city}. {far}."
+
+#: data/templates/trunk_04.tres
+msgid "Alô, central. Um interurbano {to_city}, por favor."
+msgstr "Hello, operator. A long-distance call {to_city}, please."
+
+#: data/templates/trunk_04.tres
+msgid "Número {far}. Pode cobrar aqui, tá?"
+msgstr "Number {far}. You can charge it here, all right?"
+
+#: data/templates/trunk_04.tres
+msgid "{to_city}, o {far}."
+msgstr "{to_city}, number {far}."
+
+#: data/content.tres
+msgid "pra Capital"
+msgstr "to the Capital"
+
+#: data/content.tres
+msgid "pro Norte"
+msgstr "to the North"
+
+#: data/content.tres
+msgid "pro Sul"
+msgstr "to the South"
+
+#: data/content.tres
+msgid "pro Leste"
+msgstr "to the East"
+
+#: data/content.tres
+msgid "pro Oeste"
+msgstr "to the West"
+
+#: data/content.tres
+msgid "pro Litoral"
+msgstr "to the Coast"
+
 #: data/templates/emergency_incendio.tres
 msgid "Central! Tá pegando fogo numa casa aqui na {street}! Já tá subindo pelo telhado!"
 msgstr "Operator! A house is on fire here on {street}! It's already going up the roof!"
@@ -6334,6 +6406,42 @@ msgstr "Young man, I don't know that voice."
 #: data/content.tres
 msgid "Não é esse número, não."
 msgstr "That's not the right number."
+
+#: data/content.tres
+msgid "Interurbano, boa noite."
+msgstr "Long distance, good evening."
+
+#: data/content.tres
+msgid "Telefonista, pois não?"
+msgstr "Operator, how may I help?"
+
+#: data/content.tres
+msgid "Interurbano. Qual o número?"
+msgstr "Long distance. What number?"
+
+#: data/content.tres
+msgid "Um momento, vou chamar."
+msgstr "One moment, I'll ring it."
+
+#: data/content.tres
+msgid "Aguarde, estou completando."
+msgstr "Hold on, I'm putting it through."
+
+#: data/content.tres
+msgid "Só um instante, já chamo."
+msgstr "Just a moment, ringing now."
+
+#: data/content.tres
+msgid "Esse número não é daqui, não."
+msgstr "That number isn't from here."
+
+#: data/content.tres
+msgid "Não tenho esse número aqui. Confere a cidade?"
+msgstr "I don't have that number here. Can you check the city?"
+
+#: data/content.tres
+msgid "Aqui não existe esse número, colega."
+msgstr "There's no such number here, colleague."
 
 #: data/content.tres
 msgid "Liguei agora há pouco e ninguém atendeu!"

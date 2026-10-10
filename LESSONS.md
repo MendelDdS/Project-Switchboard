@@ -41,6 +41,34 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   "no olho" (a espessura do vão pintada na parede, a vista de frente com a nossa calçada) contradizia a sala. O que é
   de fora e só aparece pelo vidro pode ter a câmera própria, mas nada nela pode encostar no que a sala já mostra.
 
+### A prateleira, os tampos e os interurbanos (outubro de 2026)
+
+- **Esqueci o ângulo de visão duas vezes.** A plaquinha do FONE e o tampo dos lugares vagos ficam deitados na
+  prateleira, e eu os desenhei retos, de frente ("e novamente você esquecendo do ângulo de visão!"). Antes de desenhar
+  uma peça, decida em que plano ela está: deitada no tampo, na prateleira ou no papel, as laterais fogem para os olhos.
+- **...e a inclinação precisa bater com a dos vizinhos.** O tampo na perspectiva exata do ponto de fuga ficou bem mais
+  inclinado que os pares de buracos ao lado, que usam um desencontro fixo e estilizado (`PAIR_SHIFT`, a pedido). Na
+  prateleira, a referência é `front_of`: tudo o que fica deitado nela segue essa inclinação. Compare a peça nova com o
+  que está ao lado, na captura, antes de mostrar.
+- **Texto de pixel não se inclina.** As letras da plaquinha deslocadas linha a linha viraram borrão, mesmo a 1/3 da
+  inclinação; a placa inclinada com as letras retas ficou "muito ruim". Ficou reta. Peça com texto, reta; sem texto
+  (o tampo), na inclinação da prateleira.
+- **Não enfeite sem perguntar.** A placa no cabo do FONE, para diferenciá-lo, foi "horrível". Para diferenciar uma
+  peça, descreva 2 ou 3 opções antes de desenhar.
+- **Disposição tem significado.** Nas duas fileiras, alternei as pontas a um passo igual e as cores se misturaram
+  ("junte os cabos de mesma cor!!!!": as duas pontas são a mesma ligação). Depois fiz um tampo só para os dois lugares
+  vagos, mas cada setor libera um par: um tampo por par. Antes de reorganizar, liste o que tem de continuar junto e o
+  que cada lugar representa no jogo.
+- **Perspectiva exata num padrão repetido parece bagunça.** O desencontro das fileiras variava de 20 a 32 px de uma
+  coluna para a outra. Em fileira, passo fixo.
+- **Forma em perspectiva se ancora no meio do que cobre.** Ancorado na beira da frente, o tampo fugia para a direita
+  dos buracos.
+- **Para centrar no pixel, mesma paridade de largura.** A plaquinha de 21 px sob o plug de 20 sobrava meio pixel para
+  um lado, e o usuário viu. Largura par sob peça par.
+- **Peça nova com o material e as proporções da sala.** O tampo em níquel (`_draw_metal`) ficou claro demais na sala
+  escura (refeito com o metal do painel); depois, fino demais, e com dois parafusos nos lados em vez de um em cada
+  canto, como se prende uma chapa. Pense no objeto de verdade antes de desenhar.
+
 ## Lógica
 
 - **Toda espera na agenda precisa de limite.** A linha 07 só tocava com a mesa em silêncio e as ligações principais
@@ -52,6 +80,13 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   `==` (dois registros iguais se confundem). As ligações eram `Dictionary` no protótipo; hoje são `PhoneCall` (objeto),
   então `==` e `live.erase(c)` comparam a referência e são seguros.
 - **Ao iterar `live` e poder encerrar ligações no meio**, itere sobre `live.duplicate()` (`end_call` remove da lista).
+
+- **Mudou a geometria dos buracos: procure tudo o que sai dela.** A fileira da frente ficou 14 px abaixo, mas o fio
+  continuava repousando na linha da de trás (`_floor()` = `SHELF_HOLE_Y`), e o plug da frente travava antes de entrar.
+  O teste não pegou: depois de `SEAT_WAIT` o plug assenta de qualquer jeito. Ao mexer em `hole()`, procure
+  `SHELF_HOLE_Y`, `floor_y`, `lip_y` e `HOLE_LIP`, e confira o encaixe pela distância (`SEAT_NEAR`), não pelo tempo.
+- **Número novo fora dos setores quebra as regras "só do setor".** Os troncos (9xx) valem para a cidade toda:
+  `GameData.in_service` e o teste "a agenda da noite 1 só pede o setor 3" precisaram saber disso.
 
 ## GDScript / Godot 4.6
 
@@ -116,6 +151,14 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   os testes passavam porque leem o `.tres` de texto. Desligado com `editor/export/convert_text_resources_to_binary=false`.
   **Sempre rode o pacote exportado** (`--export-pack` + `--main-pack`) antes de entregar um executável.
 
+- **Camadas da mesa: a variável usada numa camada de baixo desce para ela.** O `_draw_trunks` (painel) passou a ler
+  `exchange`, declarado na mesa (topo): o erro derrubou as camadas de cima e o Main, e a mensagem só dizia "Could not
+  resolve class". Para achar a camada quebrada, `--check-only -s scripts/ui/switchboard_<camada>.gd`, uma por uma (o
+  erro de `Sfx` ali é só a falta do autoload).
+- **O `_ready` do `FoneSocket` sobrescreve o `custom_minimum_size` da cena**: mudar só o `.tscn` não muda nada.
+- **O `test_flow` é uma função só, enorme**: um nome de variável repetido (`other`) é erro de análise e nenhum
+  cenário roda. Use nomes específicos.
+
 ## Ferramentas e testes
 
 - **`assert` que falha em script `-s` não fecha o Godot**: o processo trava. Rode com limite de tempo
@@ -134,3 +177,10 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   quando outro cenário deixou o teste mais longo. Guarde o tamanho antes e confira `antes + 1`.
 - **Um assert errado no teste parece bug do jogo.** Antes de mexer no código, confira se a expectativa do teste
   está certa (ex.: contar linhas da transcrição depois de a linha "(Em espera.)" já ter entrado).
+- **Captura com `--out` absoluto foi gravada dentro do projeto** (`private/`). Use caminho relativo, em `build/`.
+- **Mudou o `ui.csv` com o editor aberto: peça o foco no editor na hora.** Sem `--import`, as `.translation` só se
+  refazem quando o editor ganha foco; até lá o `test_flow` para na conferência das traduções e não testa o resto.
+  Mexa nos textos primeiro e avise o usuário logo, não no fim.
+- **Teste com número fixo quebra quando a constante muda** (`free_patches() == 3` com 5 cabos): use `b.PATCHES`.
+- **Para rodar um cenário só enquanto outro falha**, copie-o para um `tests/test_<x>.gd` temporário (a cabeça do
+  `test_flow`, o cenário e `finish("nome")`) e apague depois.

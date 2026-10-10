@@ -104,7 +104,7 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   (`Background.clock_x`) e a campainha de latão quando o turno pode ser encerrado (`shift_bell`), da plaqueta; embaixo
   dela a mesa comutadora (588×362), a faixa da prateleira (`Shelf`, 16 px: o encaixe do FONE, `%FoneSocket`, e os
   buracos dos cabos, `%CordTray`, com os plugs guardados em pé neles, na frente do painel, como numa mesa telefônica
-  de verdade; os fios repousam na linha dos buracos, `Switchboard._floor`) e a faixa da frente do console (`%Desk`), com a
+  de verdade; cada fio repousa na fileira do buraco dele, `floor_y`) e a faixa da frente do console (`%Desk`), com a
   **miniatura do painel de baixo** no meio (`%Mini`, `ConsoleMini`: a tela da conversa, as teclas e o rádio na
   disposição e proporção de verdade dos blocos do `PhonePanel`, copiando o estado: tela acesa com as falas em traços,
   teclas ativas acesas; o rádio peça por peça no lugar das do rádio de verdade, `Radio.parts`, com as mesmas linhas da tela quebradas na largura dela, o histórico apagado em cima e a mensagem de agora embaixo, `Radio.lines`, `_wrap`; o painel de baixo é a vista de perto dela). Ela não tem `z_index`
@@ -297,12 +297,22 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   pintado com estêncil e riscos de chave de fenda em volta dos parafusos) e as tomadas dele não existem para o clique.
 - `ends[]`: tomada de cada ponta (-1 = na base). **Ponta 0 = FONE** (cabo verde, encaixe `FoneSocket` na prateleira, só
   entra em entradas). **Pontas 1..2*PATCHES = cabos de conexão** (vermelho, azul, amarelo em `CORD_COLORS`; independentes; `mate(e)`
-  dá a outra ponta; uma ponta na saída, a outra no destino). `PATCHES = 3`.
+  dá a outra ponta; uma ponta na saída, a outra no destino). `PATCHES = 3` em uso, de `SHELF_SLOTS = 5` lugares
+  na prateleira (cada setor novo vai trazer um par; até lá, o lugar dele fica sob um tampo, `_draw_cover`).
 - `setup(exchange, socket, tray)` liga a mesa ao estado, ao encaixe do FONE e à faixa dos buracos dos cabos (lugares
   na prateleira, fora do retângulo dela: `socket_rect`, `tray_rect`; o clique vale neles, `_has_point`). Os buracos
-  ficam no alto da prateleira (`hole`, `SHELF_HOLE_Y`, `FONE_HOLE_X`; aro de latão achatado pela perspectiva,
-  em pixel art, `HOLE_ART`, `draw_grommet`; dois por cabo, a 30 px um do outro), os plugs guardados em pé neles (`home_pos`) e, só embaixo do encaixe do FONE, o nome
-  gravado na madeira (`engrave`, `FoneSocket`; os "CABO 1/2/3" saíram a pedido: a cor diz qual é o cabo); o buraco é mais largo que o plug, que entra nele (`PLUG_SINK`: abaixo
+  ficam na prateleira em duas fileiras (`hole`, `SHELF_HOLE_Y` atrás, `SHELF_FRONT_Y` na frente, `FONE_HOLE_X`; aro
+  de latão achatado pela perspectiva, em pixel art, `HOLE_ART`, `draw_grommet`): o FONE sozinho atrás e as duas pontas de
+  cada cabo juntas, como um par, a da frente `PAIR_SHIFT` à esquerda da de trás (`front_of`; sempre o mesmo: pela
+  perspectiva exata o desencontro variava a cada coluna e parecia bagunça; alternadas uma a uma, não se via qual ponta
+  era de qual cabo); os `SHELF_SLOTS` lugares a um passo igual do FONE até `TRUNK_GAP` antes do banco interurbano
+  (`patch_x`, `_pitch`, `trunks`). Os lugares vagos ficam sob um tampo de metal parafusado deitado na prateleira, na
+  inclinação dos pares, linha a linha de pixels (`_draw_cover`, `COVER_W`; na perspectiva exata ficava inclinado demais
+  ao lado dos pares). Os plugs guardados em pé neles (`home_pos`; os da fileira de trás são desenhados antes, a da frente
+  passa na frente; cada fio repousa na fileira do buraco dele, `floor_y`, senão o da frente travava antes de entrar) e
+  o nome do FONE numa plaquinha de latão reta na fileira da frente, centrada embaixo do buraco dele, na largura par do
+  plug (`_draw_fone_tag`; inclinada pela perspectiva ficou torta demais; gravado embaixo do buraco, a beira da frente
+  dele cobria o alto das letras; os "CABO 1/2/3" saíram a pedido: a cor diz qual é o cabo); o buraco é mais largo que o plug, que entra nele (`PLUG_SINK`: abaixo
   de `HOLE_LIP` o plug não é desenhado, `_cut`/`_pr`, e a beira da frente do buraco passa por cima dele e dos fios
   que saem dali, `draw_lip`), sem contorno preto; fio e plug escurecem em degraus ao entrar nele (`HOLE_SHADE`,
   `_along`), senão pareciam flutuar. As pontas dos plugs em pé passam na frente do pé do painel, logo abaixo da
@@ -379,8 +389,13 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   parecia solta); as faixas gravadas passam por baixo e o nome delas por cima (`_draw_rule(y, nome, false)`).
 - Uso de anos (`_draw_wear`, sempre o mesmo): o painel clareado em volta das tomadas (`WEAR`, pelo quanto cada uma é
   usada, `_use`: entradas mais, das primeiras linhas para as últimas) e riscos finos de plug que errou o furo.
-- Plaqueta de latão do fabricante no pé do painel, no vão entre os dois primeiros pares de buracos da prateleira (ali
-  nenhum plug guardado fica na frente; `_draw_maker_plate`: `BOARD_MAKER` na fonte gravada e "SÃO SOTERO").
+- Plaqueta de latão do fabricante na frente do console, à esquerda da miniatura (`Switchboard.draw_maker_plate`,
+  estática, desenhada pelo `Background`: `BOARD_MAKER` na fonte gravada e "SÃO SOTERO"; ficava no pé do painel e saiu
+  de lá quando os cabos se juntaram).
+- Troncos interurbanos (`_draw_trunks`): um banco de seis tomadas no canto de baixo à direita do painel, embaixo do
+  banco C e na largura do B, com "INTERURBANO" gravado na moldura e a cidade em cima de cada tomada
+  (`BOARD_TRUNK_1..6`, nomes provisórios). As tomadas são destinos como os outros (`GameData.TRUNKS`, 901–906, de
+  todos os setores; posição em `_layout_dests`, desenho, aro aceso e clique no laço dos destinos, sem o número em cima).
 - **Pixel art em código, sem arquivos de imagem** (decisão do usuário): `PixelArt` (`scripts/ui/pixel_art.gd`, só
   funções estáticas, usadas pela mesa, pelo cenário, pelo painel e pelo bloom) monta e guarda as texturas: mapas de
   texto (`art`), peças redondas (`disc`), a fonte gravada do painel (`tiny`) e `sprite`, que desenha uma delas centrada

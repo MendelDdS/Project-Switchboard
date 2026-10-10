@@ -38,6 +38,11 @@ extends Resource
 @export var transfer_templates: Array[TransferCall] = []
 ## Agradecimento de quem foi transferido por molde (sem gênero: quem liga é sorteado).
 @export var transfer_thanks: PackedStringArray = []
+## Interurbanos com lacunas: {to_city} "pra Capital" (`trunk_to`) e {far} o número na outra cidade. Vão para um
+## tronco sorteado (`GameData.trunk_transfer`).
+@export var trunk_templates: Array[TransferCall] = []
+## "pra Capital", "pro Norte"...: uma por tronco, na ordem de `GameData.TRUNKS`.
+@export var trunk_to: PackedStringArray = []
 ## Emergências com lacunas: {street} "Rua do Sol", {house} "145", {address} "Rua do Sol, 145" (rua e número sorteados).
 ## Rua, trecho e endereço do molde são ignorados; ocorrência e unidades valem.
 @export var emergency_templates: Array[EmergencyCall] = []
@@ -62,6 +67,13 @@ extends Resource
 @export var alt_accepted: PackedStringArray = []
 ## Quando o destino errado atende.
 @export var wrong_destination: PackedStringArray = []
+
+## A telefonista da outra cidade atende o tronco (o operador então passa o número)...
+@export var trunk_hello: PackedStringArray = []
+## ...e vai chamar lá.
+@export var trunk_wait: PackedStringArray = []
+## No tronco errado, o número não é de lá.
+@export var trunk_unknown: PackedStringArray = []
 
 ## Quem liga nos pedidos de informação e nos moldes: "voz:nome", ex.: "f:Moradora".
 @export var callers: PackedStringArray = []

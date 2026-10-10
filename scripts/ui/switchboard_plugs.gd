@@ -3,13 +3,15 @@ extends "res://scripts/ui/switchboard_panel.gd"
 ## luz e a sombra deles e o fio de pano pela corda (`_draw_rope`, `_kinked`, `_smooth`).
 
 const Cord := preload("res://scripts/ui/cord.gd")   ## a física de cada fio
-## [cor, brilho] de cada cabo: 0 = FONE (verde), 1..PATCHES = cabos de conexão (vermelho, azul, amarelo).
+## [cor, brilho] de cada cabo: 0 = FONE (verde), 1..PATCHES = cabos de conexão (vermelho, azul, amarelo, branco, preto).
 ## Mais cabos de conexão pedem mais cores aqui.
 const CORD_COLORS := [
 	[Color("3d6e34"), Color("6c9e58")],
 	[Color("8e2a22"), Color("c4493b")],
 	[Color("2a4a7c"), Color("4f7bb6")],
 	[Color("b48c1c"), Color("e6c24c")],
+	[Color("b8b2a2"), Color("e4dfd0")],   # branco de pano velho, puxado para o creme
+	[Color("2a2723"), Color("57524a")],   # preto: o brilho mais claro, senão o trançado some
 ]
 const HOLE_LIP := 3.0    # ...e some abaixo disto (px abaixo do buraco), atrás da beira da frente dele
 const HOLE_SHADE := [[0.0, 5.0, 0.65], [5.0, 10.0, 0.4], [10.0, 16.0, 0.2]]   # o fio entrando no buraco escurece: [de, até (px a partir do buraco), escuro]
@@ -33,7 +35,6 @@ const EDGE := 0.65          # a beira do plug e do fio: a cor da peça escurecid
 ## da sala (os olhos do operador, `eye`), mais quanto mais longe dele (paralaxe, `_tilt`). Os olhos ficam à direita da
 ## mesa, na altura das plaquinhas das entradas: os plugs das entradas saem quase só para a esquerda, os de baixo
 ## também para baixo. (Era um ponto fixo 600 px acima do painel: todos pareciam vistos de cima, contra a sala.)
-const PLUG_EYE := Vector2(SIZE.x + 134, 92)   # sem cenário (testes): onde os olhos ficam em 1280 × 720
 const PLUG_DEPTH := 0.02   # px de deslocamento da ponta por px de distância do encaixe até os olhos (estilizado: a conta daria ~0,06, de lado demais)
 const PLUG_SHADE := Vector2(7, 9)   # encaixado, a sombra vai do encaixe até aqui (luz no alto à esquerda)
 const PLUG_ART := [   ## o plug em pé, de 20 × 93 px (y de -93 a -1; o fio sai de y = 0): `_plug_pal` dá as cores
@@ -152,7 +153,6 @@ const ROPE_SHADOW := Vector2(3, 4)  # deslocamento da sombra dos fios junto ao b
 
 var ropes := {}                    # ponta -> Cord (só enquanto o fio está para fora do buraco)
 var _swing := 0.0                 # rad: o balanço do plug na mão (`SWING_*`)
-var _eye := PLUG_EYE   # em px da mesa, medido a cada quadro
 
 
 ## Onde o fio entra no plug.

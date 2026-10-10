@@ -20,6 +20,10 @@ enum Group {
 @export var destination := ""
 @export var thanks := ""
 
+## Interurbano (`target` é um tronco, `GameData.TRUNKS`): o número na outra cidade, que o operador passa à
+## telefonista de lá.
+@export var far_number := ""
+
 @export_group("Se ninguém atender")
 ## Outro estabelecimento que o operador pode sugerir quando `target` não atende (sorteado: `PhoneCall.away`).
 @export var alt_target := ""

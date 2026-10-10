@@ -41,6 +41,13 @@ CONSOLE_IDLE,Aguardando chamada,Waiting for a call,Esperando llamada
 SIGN_COMPANY,COMPANHIA TELEFÔNICA DE SÃO SOTERO,SÃO SOTERO TELEPHONE COMPANY,COMPAÑÍA TELEFÓNICA DE SÃO SOTERO
 BOARD_MAKER,CENTRAL TELEFÔNICA,TELEPHONE EXCHANGE,CENTRAL TELEFÓNICA
 BOARD_PLATE_NOTICE,SETOR NÃO ATENDIDO,SECTOR NOT IN SERVICE,SECTOR SIN SERVICIO
+BOARD_TRUNKS,INTERURBANO,LONG DISTANCE,LARGA DISTANCIA
+BOARD_TRUNK_1,CAPITAL,CAPITAL,CAPITAL
+BOARD_TRUNK_2,NORTE,NORTH,NORTE
+BOARD_TRUNK_3,SUL,SOUTH,SUR
+BOARD_TRUNK_4,LESTE,EAST,ESTE
+BOARD_TRUNK_5,OESTE,WEST,OESTE
+BOARD_TRUNK_6,LITORAL,COAST,LITORAL
 LEGEND_RING,chamando / em linha,ringing / on the line,llamando / en línea
 LEGEND_CONN,conectada,connected,conectada
 LEGEND_DONE,desligou: desmonte,hung up: take down,colgó: desarme
@@ -344,3 +351,6 @@ FAULT_SHIFT_HUNG_UP,Encerrou o turno com alguém na linha,Ended the shift with s
 OBS_SHIFT_ENDED,Turno encerrado durante a ligação.,Shift ended during the call.,Turno terminado durante la llamada.
 HINT_MIDNIGHT,"Meia-noite. Registre o que falta no caderno ou encerre o turno.","Midnight. Log what's left in the logbook or end the shift.","Medianoche. Registre lo que falta en el cuaderno o termine el turno."
 CALL_LOG_EMPTY,Nenhuma conversa ainda. Tudo o que for dito com o FONE na linha fica registrado aqui.,No conversations yet. Everything said with the HEADSET on the line is logged here.,Ninguna conversación todavía. Todo lo que se diga con el AURICULAR en la línea queda registrado aquí.
+TRUNK_OPERATOR,Telefonista (%s),Operator (%s),Operadora (%s)
+OP_TRUNK_NUMBER,"Aqui é São Sotero. O número %s, por favor.","São Sotero calling. Number %s, please.","Aquí São Sotero. El número %s, por favor."
+HINT_TRUNK,"Interurbano: ligue a SAÍDA na tomada da cidade, no banco INTERURBANO, e Transfira. Com o FONE na linha, passe o número à telefonista de lá.","Long distance: plug the OUTPUT into the city's jack in the LONG DISTANCE bank and Transfer. With the HEADSET on the line, give the number to the operator there.","Larga distancia: conecte la SALIDA en la toma de la ciudad, en el banco LARGA DISTANCIA, y Transfiera. Con el AURICULAR en la línea, dé el número a la operadora de allá."

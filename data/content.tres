@@ -146,6 +146,10 @@
 [ext_resource type="Resource" path="res://data/templates/transfer_08.tres" id="n_transfer_08"]
 [ext_resource type="Resource" path="res://data/templates/transfer_09.tres" id="n_transfer_09"]
 [ext_resource type="Resource" path="res://data/templates/transfer_10.tres" id="n_transfer_10"]
+[ext_resource type="Resource" path="res://data/templates/trunk_01.tres" id="n_trunk_01"]
+[ext_resource type="Resource" path="res://data/templates/trunk_02.tres" id="n_trunk_02"]
+[ext_resource type="Resource" path="res://data/templates/trunk_03.tres" id="n_trunk_03"]
+[ext_resource type="Resource" path="res://data/templates/trunk_04.tres" id="n_trunk_04"]
 [ext_resource type="Resource" path="res://data/templates/emergency_queda.tres" id="n_emergency_queda"]
 [ext_resource type="Resource" path="res://data/templates/emergency_fio_caido.tres" id="n_emergency_fio_caido"]
 [ext_resource type="Resource" path="res://data/templates/emergency_gas.tres" id="n_emergency_gas"]
@@ -1332,6 +1336,8 @@ transfers = Array[ExtResource("17_q4d2e")]([ExtResource("18_g0ddb"), ExtResource
 emergencies = Array[ExtResource("2_l0sn3")]([ExtResource("3_v72nw"), ExtResource("4_brh46"), ExtResource("5_t6c0w"), ExtResource("6_cbrcj"), ExtResource("7_ks6ko"), ExtResource("8_ec5ew"), ExtResource("9_nagbo"), ExtResource("10_7ad0u"), ExtResource("11_76ki8"), ExtResource("12_q3bf4"), ExtResource("80_em11"), ExtResource("81_em12"), ExtResource("82_em13"), ExtResource("83_em14"), ExtResource("84_em15"), ExtResource("85_em16"), ExtResource("n_emergency_17_incendio_rua_sete_de_setembro_60"), ExtResource("n_emergency_18_invasao_rua_do_mercado_90"), ExtResource("n_emergency_19_mal_subito_rua_da_matriz_30"), ExtResource("n_emergency_20_acidente_avenida_brasil_420"), ExtResource("n_emergency_21_outro_rua_das_flores_350"), ExtResource("n_emergency_22_outro_rua_tiradentes_250"), ExtResource("n_emergency_23_mal_subito_rua_das_acacias_450"), ExtResource("n_emergency_24_acidente_rua_das_palmeiras_140"), ExtResource("n_emergency_25_invasao_rua_bela_vista_230"), ExtResource("n_emergency_26_incendio_rua_do_cruzeiro_260"), ExtResource("n_emergency_27_outro_rua_do_moinho_410"), ExtResource("n_emergency_28_outro_rua_da_estacao_450"), ExtResource("n_emergency_29_invasao_rua_do_comercio_420"), ExtResource("n_emergency_30_mal_subito_rua_bela_vista_160")])
 pranks = Array[ExtResource("9_ev121")]([ExtResource("10_wfk0g"), ExtResource("11_pg478"), ExtResource("12_3mr8u"), ExtResource("13_4b6fe"), ExtResource("14_3w1w1"), ExtResource("19_61w3p"), ExtResource("20_grq3w"), ExtResource("21_otrev"), ExtResource("22_flf23"), ExtResource("23_pt10r"), ExtResource("n_prank_11_menino"), ExtResource("n_prank_12_menina"), ExtResource("n_prank_13_menino"), ExtResource("n_prank_14_rapaz"), ExtResource("n_prank_15_garoto"), ExtResource("n_prank_16_rapaz"), ExtResource("n_prank_17_menino"), ExtResource("n_prank_18_garoto"), ExtResource("n_prank_19_criancas"), ExtResource("n_prank_20_menina")])
 transfer_templates = Array[ExtResource("17_q4d2e")]([ExtResource("31_11ieg"), ExtResource("32_grptk"), ExtResource("33_e6ja0"), ExtResource("34_ssh4q"), ExtResource("35_7bth5"), ExtResource("36_4thi7"), ExtResource("37_ufmoj"), ExtResource("n_transfer_08"), ExtResource("n_transfer_09"), ExtResource("n_transfer_10")])
+trunk_templates = Array[ExtResource("17_q4d2e")]([ExtResource("n_trunk_01"), ExtResource("n_trunk_02"), ExtResource("n_trunk_03"), ExtResource("n_trunk_04")])
+trunk_to = PackedStringArray("pra Capital", "pro Norte", "pro Sul", "pro Leste", "pro Oeste", "pro Litoral")
 transfer_thanks = PackedStringArray("Deus lhe pague.", "Valeu, central.", "Agradeço. Boa noite.", "Ótimo. Boa noite.", "Isso. Boa noite pro senhor.")
 emergency_templates = Array[ExtResource("2_l0sn3")]([ExtResource("13_hps07"), ExtResource("14_2ubng"), ExtResource("15_35dgx"), ExtResource("16_8shhh"), ExtResource("17_ko1bc"), ExtResource("n_emergency_queda"), ExtResource("n_emergency_fio_caido"), ExtResource("n_emergency_gas"), ExtResource("n_emergency_atropelamento"), ExtResource("n_emergency_desabamento")])
 greetings = PackedStringArray("Central, boa noite.", "Central telefônica, pois não?", "Central, boa noite. Em que posso ajudar?", "Central, pois não?", "Central.", "Central telefônica, boa noite.", "Central de São Sotero, pois não?")
@@ -1342,6 +1348,9 @@ emergency_waiting = PackedStringArray("Alô?! Vocês vão mandar alguém?", "Por
 alt_accepted = PackedStringArray("Pode ser. Obrigado.", "Serve, sim. Pode ligar.", "Tanto faz, contanto que atendam.", "Ah, pode ser essa mesmo.")
 address_landmark = PackedStringArray("{street}, perto {landmark}", "na frente {landmark}, na {street}")
 hold_ok = PackedStringArray("Tá bom, eu espero.", "Obrigado, aguardo.", "Certo.", "Pode ser, eu fico na linha.", "Tá, mas rapidinho, tá?", "Tá, fico esperando.", "Sem pressa, moço.", "Tá bem, obrigada.")
+trunk_hello = PackedStringArray("Interurbano, boa noite.", "Telefonista, pois não?", "Interurbano. Qual o número?")
+trunk_wait = PackedStringArray("Um momento, vou chamar.", "Aguarde, estou completando.", "Só um instante, já chamo.")
+trunk_unknown = PackedStringArray("Esse número não é daqui, não.", "Não tenho esse número aqui. Confere a cidade?", "Aqui não existe esse número, colega.")
 wrong_destination = PackedStringArray("Não, moço, não é aí.", "Hã? Não é com essa pessoa que eu quero falar.", "Esse não é quem eu pedi!", "Opa, acho que o senhor ligou errado.", "Ih, quem atendeu não foi quem eu pedi.", "Moço, essa voz eu não conheço.", "Não é esse número, não.")
 callers = PackedStringArray("f:Moradora", "m:Morador", "w:Senhor", "f:Senhora", "m:Rapaz", "f:Moça", "w:Seu Jair", "f:Dona Cida", "m:Seu Valdir", "f:Dona Olga")
 retry_missed = PackedStringArray("Liguei agora há pouco e ninguém atendeu!", "Central? Até que enfim! Já liguei antes.", "Tô tentando faz tempo. Ninguém atende essa central?")

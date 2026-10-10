@@ -109,6 +109,10 @@ desconhecida são sempre escritos à mão.
   O contato é sorteado entre os que têm `spoken` e `reasons` na lista e atendem à noite; quem liga sai de `callers`.
   Lacunas: `{place}` "o Hotel Estrela", `{of_place}` "do Hotel Estrela", `{to_place}` "pro Hotel Estrela",
   `{street}` rua do contato, `{number}` "305", `{digits}` "três, zero, cinco", `{reason}` um dos motivos do contato.
+- **Interurbano** (`trunk_templates`): um `TransferCall` com lacunas em `opening` e `repeat`, para um tronco sorteado
+  (a tomada da cidade no banco INTERURBANO). Lacunas: `{to_city}` "pra Capital" (uma por tronco em `trunk_to`, na ordem
+  das tomadas) e `{far}` o número na outra cidade, que o operador passa à telefonista de lá (`trunk_hello`,
+  `trunk_wait`, `trunk_unknown`).
 - **Emergência** (`emergency_templates`): o molde é um `EmergencyCall`; valem ocorrência, unidades e as falas.
   `cases` (`EmergencyCase`, também nos roteiros escritos, que quase todos têm) são variações sorteadas: cada caso troca algumas
   respostas ("" mantém a do roteiro) e diz as unidades dele. Assim o mesmo incêndio pede só bombeiros ou também

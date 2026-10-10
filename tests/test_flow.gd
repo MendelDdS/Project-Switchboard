@@ -179,7 +179,7 @@ func _initialize() -> void:
 	ok(not used.is_empty(), "moldes até acabarem os lugares, sem repetir")
 	var sector3 := func(c: PhoneCall) -> bool:
 		if c.kind == PhoneCall.Kind.TRANSFER:
-			return c.target.begins_with("3")
+			return c.target.begins_with("3") or GameData.is_trunk(c.target)   # os troncos são da cidade toda
 		return c.kind != PhoneCall.Kind.INFO or c.answer.begins_with("3")
 	for s in 5:
 		ok(Schedule.build(C.nights[0], C.paces[0], m.LAST_CALL).calls.all(sector3), "agenda da noite 1 só pede números do setor 3")
@@ -327,6 +327,9 @@ func _initialize() -> void:
 			"molde: alternativa do mesmo ramo")
 		ok(GameData.entry(t.target).category == "" or t.alt_target != "", "molde: estabelecimento com ramo tem alternativa")
 		ok(not holes.call(Array(t.opening) + [t.repeat, t.thanks]) and t.caller != "", "molde de transferência preenchido: " + " / ".join(t.opening))
+		var tt := GameData.trunk_transfer()
+		ok(GameData.is_trunk(tt.target) and tt.far_number != "" and not holes.call(Array(tt.opening) + [tt.repeat]),
+			"molde de interurbano preenchido: " + " / ".join(tt.opening))
 		var e := GameData.template_emergency()
 		var house := int(e.address.get_slice(", ", 1))
 		if house > 0:
@@ -386,8 +389,37 @@ func _initialize() -> void:
 	_move(1, -1)
 	ok(ex.line(ln) == Exchange.Line.FREE, "linha liberada")
 	_move(2, -1)
-	ok(ex.dest(tgt) == Exchange.Dest.FREE and b.free_patches() == 3, "destino e cabo liberados")
+	ok(ex.dest(tgt) == Exchange.Dest.FREE and b.free_patches() == b.PATCHES, "destino e cabo liberados")
 	print("OK 1 transferência completa / tirar o FONE mantém a ligação")
+
+	# ---- 1b. interurbano: a saída no tronco da cidade; a telefonista de lá pede o número e completa
+	ok(GameData.TRUNKS.size() == C.trunk_to.size() and GameData.TRUNKS.all(func(d): return ex.has_dest(d) and b.jack_at(b.jack_rect(d).get_center()) == d),
+		"os troncos são tomadas de destino da mesa")
+	var lt := GameData.trunk_transfer()
+	var lc := _extra(lt)
+	m.ring(lc)
+	ln = lc.line
+	_move(0, ln)
+	m.answer()
+	ok(await wait_until(_awaiting(lc)), "pedido de interurbano")
+	tgt = int(lt.target)
+	var wrong_trunk: int = GameData.TRUNKS.filter(func(d): return d != tgt)[0]
+	_move(1, ln + 10)
+	_move(2, wrong_trunk)
+	m.transfer()
+	ok(await wait_until(func(): return lc.wrong == 1 and ex.dest(wrong_trunk) == Exchange.Dest.FREE and not lc.talking), "tronco errado: o número não é de lá")
+	ok(not lc.options.is_empty() and not lc.ended, "tronco errado: a transferência volta")
+	_move(2, tgt)
+	m.transfer()
+	ok(await wait_until(func(): return lc.connected), "tronco certo: a telefonista de lá completa")
+	ok(lc.transcript.any(func(l): return lt.far_number in String(l["text"])), "o operador passou o número de lá")
+	ok(ex.line(ln) == Exchange.Line.CONN and ex.dest(tgt) == Exchange.Dest.CONN, "interurbano conectado")
+	m.minutes = ex.line_until(ln) + 1.0
+	await frames(1)
+	for e in [0, 1, 2]:
+		_move(e, -1)
+	ok(ex.line(ln) == Exchange.Line.FREE and ex.dest(tgt) == Exchange.Dest.FREE, "interurbano encerrado")
+	print("OK 1b interurbano pelo tronco da cidade")
 
 	# ---- 2. três ligações ao mesmo tempo, com espera
 	var t1 := _extra(GameData.transfers(TransferCall.Group.ESTABLISHMENT)[1])
@@ -550,7 +582,7 @@ func _initialize() -> void:
 	b._press(jd)
 	b._release(jd)
 	ok(b.ends[2] == -1 and b.ends[1] == l7 + 10, "só a ponta clicada volta")
-	ok(b.free_patches() < 3, "o cabo só volta à base com as duas pontas")
+	ok(b.free_patches() < b.PATCHES, "o cabo só volta à base com as duas pontas")
 	var js: Vector2 = b.jack_rect(l7 + 10).get_center()
 	# tirado da tomada e devolvido a ela no mesmo arraste: soltava perto de onde apertou, contava como clique e caía
 	_mouse(b, js, 1)
@@ -567,7 +599,7 @@ func _initialize() -> void:
 	b._release(js)
 	ok(b.ends[1] == -1, "a outra ponta também voltou")
 	ok(await wait_until(func(): return b._loose.is_empty(), 5.0), "animações terminaram")
-	ok(b.free_patches() == 3, "cabo de volta à base")
+	ok(b.free_patches() == b.PATCHES, "cabo de volta à base")
 	_move(0, l7)
 	var other_in := 1 if l7 != 1 else 2
 	b._press(jc)

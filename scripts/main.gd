@@ -58,6 +58,7 @@ var _sent := {}                    ## EmergencyCall -> último despacho para ela
 ## Marcadores do "já viu" das dicas de primeira vez (`_teach`); o treinamento os liga quando ensina o mesmo.
 const SAW_SLIPS := "viu_tiras_caderno"
 const SAW_SHEET := "viu_folha_registro"
+const SAW_TRUNK := "viu_interurbano"   # a primeira ligação interurbana: a dica de como completar
 
 var _taught_done := false
 var _taught_multi := false
@@ -111,7 +112,7 @@ func _ready() -> void:
 	background.night = night_no
 	notebook.night = night_no
 	_update_room()
-	exchange = Exchange.new(GameData.board_numbers())
+	exchange = Exchange.new(GameData.board_numbers() + GameData.TRUNKS)
 	board.setup(exchange, %FoneSocket, %CordTray)
 	board.shelf = background.shelf   # onde a prateleira acaba: além dela, o plug solto cai até o tampo
 	board.eye = background.eye   # os olhos do operador: a paralaxe dos plugs encaixados
@@ -502,6 +503,8 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 			Sfx.play("ringback")
 		if not await conversation.wait(c, 2.0) or _dgen[d] != g:
 			return
+	if GameData.is_trunk(d) and not await _trunk(c, d, g, right):
+		return
 	if closed:
 		exchange.set_dest(d, Exchange.Dest.FREE)
 		phone.flash(T.text(T.Key.DISPLAY_NO_ANSWER) % d, 3000)
@@ -513,7 +516,7 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 	exchange.set_dest(d, Exchange.Dest.CONN)
 	Sfx.play("sw")
 	phone.flash(T.text(T.Key.DISPLAY_CONNECTED) % d, 3000)
-	var who := GameData.entry(str(d)).name
+	var who := tr(c.destination) if right and GameData.is_trunk(d) else GameData.entry(str(d)).name
 	_update_call_ui()
 	if not right and not c.lesson:
 		supervisor.fault("wrong_number", supervisor.who(c))
@@ -534,6 +537,43 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 		return
 	if await conversation.say(c, GameData.pick(C.wrong_destination)) and is_training():
 		hint(T.text(T.Key.HINT_WRONG_DEST))
+
+
+## Tronco interurbano: a telefonista da outra cidade atende, o operador passa o número e ela chama lá (mais
+## toques); verdadeiro quando o número atendeu. No tronco errado, ela não acha o número e a transferência volta (conta
+## como número errado). Ela só fala com o FONE na linha: sem o número, não completa.
+## ponytail: a outra ponta sempre tem linha e ninguém cobra; tronco ocupado lá, a cobrar e bilhete de tarifação, quando
+## o interurbano ganhar burocracia.
+func _trunk(c: PhoneCall, d: int, g: int, right: bool) -> bool:
+	var who := GameData.entry(str(d)).name
+	c.sys(T.text(T.Key.SYS_ANSWERED) % who)
+	if not await conversation.say(c, GameData.pick(C.trunk_hello), 0.4, who, "f") or _dgen[d] != g:
+		return false
+	var far := (c.data as TransferCall).far_number
+	if not await conversation.op(c, T.text(T.Key.OP_TRUNK_NUMBER) % (far if far != "" else "?")) or _dgen[d] != g:
+		return false
+	if not right:
+		if not await conversation.say(c, GameData.pick(C.trunk_unknown), 0.4, who, "f") or _dgen[d] != g:
+			return false
+		exchange.set_dest(d, Exchange.Dest.FREE)
+		if not c.lesson:
+			supervisor.fault("wrong_number", supervisor.who(c))
+			c.wrong += 1
+		if c.wrong >= 2 and await conversation.say(c, GameData.pick(C.gave_up), 0.5):
+			c.sys(T.text(T.Key.SYS_CALLER_HUNG_UP))
+			end_call(c, PhoneCall.End.CALLER)
+			return false
+		conversation.transfer_choices(c)
+		_update_call_ui()
+		return false
+	if not await conversation.say(c, GameData.pick(C.trunk_wait), 0.4, who, "f") or _dgen[d] != g:
+		return false
+	for i in 3:   # lá na outra cidade, o telefone toca
+		if c.on_line:
+			Sfx.play("ringback")
+		if not await conversation.wait(c, 2.0) or _dgen[d] != g:
+			return false
+	return true
 
 
 ## Destino atendeu: os dois lados seguem conectados pelo cabo de conexão, com ou sem o FONE na entrada.
@@ -785,6 +825,8 @@ func on_transfer_waiting(c: PhoneCall) -> void:
 	_update_call_ui()
 	if board.free_patches() == 0 and board.cord_at(c.line + 10) == -1:
 		hint(T.text(T.Key.HINT_NO_CORDS))
+	elif GameData.is_trunk(c.target) and not flags.has(SAW_TRUNK):
+		_teach(SAW_TRUNK, T.Key.HINT_TRUNK)
 	elif not _taught_bank and _new_sector(c.target):
 		_taught_bank = true
 		var s := int(c.target.left(1))
@@ -1021,7 +1063,7 @@ func drop_all() -> void:
 			sched.erase(c)
 	for n in range(1, Exchange.LINES + 1):
 		exchange.set_line(n, Exchange.Line.FREE)
-	for d in GameData.board_numbers():
+	for d in exchange.dest_numbers():
 		exchange.set_dest(d, Exchange.Dest.FREE)
 		cancel_dest_ring(d)   # toques de destino pendentes não valem mais
 	for e in board.ends.size():

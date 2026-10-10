@@ -249,6 +249,15 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   → `_ring_dest` → destino atende (com o FONE na linha, quem ligou agradece) → `_try_complete` na hora, com ou sem o
   FONE na entrada (o operador não ouve a conversa dos dois) → linha e destino CONN por `TALK_LEN`
   → DONE (vermelho) até o jogador tirar as pontas. `_dgen` invalida toques de destino quando o cabo sai.
+- **Interurbano** (`GameData.TRUNKS`, 901–906: uma tomada por cidade no banco INTERURBANO da mesa, destinos do
+  `Exchange` fora da lista e de todos os setores; `GameData.entry` devolve a telefonista de lá, `TRUNK_OPERATOR`):
+  transferência cujo `target` é um tronco e `TransferCall.far_number` o número na outra cidade, montada por molde
+  (`GameData.trunk_transfer`, `trunk_templates`, lacunas {to_city} = `trunk_to` e {far}; `Schedule.TRUNK_SHARE` das
+  transferências, nunca no treinamento; um tronco por noite, como os destinos). Saída no tronco → Transferir → toca →
+  a telefonista de lá atende (`trunk_hello`), o operador passa o número (`OP_TRUNK_NUMBER`), ela chama (`trunk_wait`,
+  mais toques) e só então conecta (`Main._trunk`; ela só fala com o FONE na linha). No tronco errado o número não é de
+  lá (`trunk_unknown`, dest livre de novo, conta como número errado; na segunda, quem ligou desiste). Dica da primeira
+  vez: `HINT_TRUNK` (`SAW_TRUNK`). Ponytail: sem tronco ocupado na outra ponta nem a cobrar/tarifação.
 - Fim de ligação: `end_call(c, PhoneCall.End.*)` gera `c.record` (um `PhoneCall.Record`, nulo antes; no livro, `stamped` com o carimbo) e manda para `Notebook.add()` (fila; não trava o turno; não atendida vai
   direto para o livro com o carimbo `TYPE_MISSED`, sem escolher tipo).
   O caderno registra com **um clique no tipo** (`register(T.Key.TYPE_*)`: Comum, Emergência, Trote; o resto da linha

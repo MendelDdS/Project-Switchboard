@@ -4814,6 +4814,78 @@ msgstr ""
 msgid "Isso. Boa noite pro senhor."
 msgstr ""
 
+#: data/templates/trunk_01.tres
+msgid "Boa noite. Eu queria fazer um interurbano {to_city}."
+msgstr ""
+
+#: data/templates/trunk_01.tres
+msgid "O número é {far}. É da minha irmã."
+msgstr ""
+
+#: data/templates/trunk_01.tres
+msgid "Um interurbano {to_city}, número {far}."
+msgstr ""
+
+#: data/templates/trunk_02.tres
+msgid "Central? Preciso ligar {to_city}, é sobre um negócio."
+msgstr ""
+
+#: data/templates/trunk_02.tres
+msgid "Anota aí: {far}."
+msgstr ""
+
+#: data/templates/trunk_02.tres
+msgid "{to_city}, moço. O número é {far}."
+msgstr ""
+
+#: data/templates/trunk_03.tres
+msgid "Boa noite. Dá pra completar uma ligação {to_city}?"
+msgstr ""
+
+#: data/templates/trunk_03.tres
+msgid "É o {far}, do meu filho. Ele mudou pra lá faz pouco."
+msgstr ""
+
+#: data/templates/trunk_03.tres
+msgid "É {to_city}. {far}."
+msgstr ""
+
+#: data/templates/trunk_04.tres
+msgid "Alô, central. Um interurbano {to_city}, por favor."
+msgstr ""
+
+#: data/templates/trunk_04.tres
+msgid "Número {far}. Pode cobrar aqui, tá?"
+msgstr ""
+
+#: data/templates/trunk_04.tres
+msgid "{to_city}, o {far}."
+msgstr ""
+
+#: data/content.tres
+msgid "pra Capital"
+msgstr ""
+
+#: data/content.tres
+msgid "pro Norte"
+msgstr ""
+
+#: data/content.tres
+msgid "pro Sul"
+msgstr ""
+
+#: data/content.tres
+msgid "pro Leste"
+msgstr ""
+
+#: data/content.tres
+msgid "pro Oeste"
+msgstr ""
+
+#: data/content.tres
+msgid "pro Litoral"
+msgstr ""
+
 #: data/templates/emergency_incendio.tres
 msgid "Central! Tá pegando fogo numa casa aqui na {street}! Já tá subindo pelo telhado!"
 msgstr ""
@@ -6332,6 +6404,42 @@ msgstr ""
 
 #: data/content.tres
 msgid "Não é esse número, não."
+msgstr ""
+
+#: data/content.tres
+msgid "Interurbano, boa noite."
+msgstr ""
+
+#: data/content.tres
+msgid "Telefonista, pois não?"
+msgstr ""
+
+#: data/content.tres
+msgid "Interurbano. Qual o número?"
+msgstr ""
+
+#: data/content.tres
+msgid "Um momento, vou chamar."
+msgstr ""
+
+#: data/content.tres
+msgid "Aguarde, estou completando."
+msgstr ""
+
+#: data/content.tres
+msgid "Só um instante, já chamo."
+msgstr ""
+
+#: data/content.tres
+msgid "Esse número não é daqui, não."
+msgstr ""
+
+#: data/content.tres
+msgid "Não tenho esse número aqui. Confere a cidade?"
+msgstr ""
+
+#: data/content.tres
+msgid "Aqui não existe esse número, colega."
 msgstr ""
 
 #: data/content.tres

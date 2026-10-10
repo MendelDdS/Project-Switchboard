@@ -25,7 +25,6 @@ const DEST_PITCH := 29.0     # px entre duas tomadas de destino vizinhas
 const BLOCK_GAP := 12.0      # px entre dois blocos
 
 var _pulled := {}   ## ponta -> [segundos desde que saiu do encaixe, onde ele estava]: o plug de frente sumindo
-var exchange: Exchange
 var dest_nums: Array = []      # destinos em serviço (dos setores atendidos)
 var _blocks := {}              # setor -> retângulo do bloco
 var _order: Array = []         # ordem de desenho das pontas: a mexida por último fica por cima
@@ -80,7 +79,7 @@ const SNAP_MEMORY := 0.08
 const RUB_STILL := 30.0        # px/s: abaixo disso a mão está parada
 ## Tom do atrito de cada cabo (multiplica o tom e o corte): FONE, vermelho, azul, amarelo. Só uma nuance, para a
 ## mesa não soar como um fio só.
-const CORD_TONE := [1.0, 1.05, 0.95, 1.02]
+const CORD_TONE := [1.0, 1.05, 0.95, 1.02, 0.97, 1.04]
 ## Onde o corpo do plug encaixado termina e a capa começa, como fração do comprimento a partir do painel (das
 ## `PLUG_LEN` linhas do `PLUG_ART` da aba até o fio, 3 de aba e 37 de corpo): a luz da lâmpada bate ali.
 const PLUG_BODY_END := 40.0 / 59.0
@@ -154,11 +153,9 @@ func _layout_dests() -> void:
 		# o mesmo vão (8 px) entre a moldura e os números, em cima, e entre a moldura e as tomadas de baixo
 		_blocks[s] = Rect2(x - 3, DEST_TOP - 21, cols[k] * DEST_PITCH + 6, DEST_ROW + 50)
 		x += cols[k] * DEST_PITCH + BLOCK_GAP
-
-
-## Os fios repousam na prateleira, na linha dos buracos (os nomes gravados ficam na frente, livres).
-func _floor() -> float:
-	return tray_rect().position.y + SHELF_HOLE_Y
+	trunks = Rect2(_blocks[3].end.x - _blocks[2].size.x, 296.0, _blocks[2].size.x, 47.0)   # embaixo do banco C, na largura do B
+	for k in GameData.TRUNKS.size():   # uma tomada por cidade, com o nome dela em cima (`_draw_trunks`)
+		_slots[GameData.TRUNKS[k]] = Vector2(trunks.position.x + 3.0 + (k + 0.5) * (trunks.size.x - 6.0) / GameData.TRUNKS.size(), trunks.position.y + 30.0)
 
 
 func _has_point(p: Vector2) -> bool:   # o painel até a prateleira, com o vão entre eles (os plugs guardados passam por ele)
@@ -545,7 +542,7 @@ func _step_rope(e: int, dt: float) -> void:
 	if not ropes.has(e):
 		ropes[e] = Cord.new(a, _plug_base(e))
 	var r: Cord = ropes[e]
-	r.floor_y = _floor()
+	r.floor_y = a.y   # o fio repousa na prateleira na fileira do buraco dele (na de trás, o da frente não descia até o buraco)
 	r.lip_y = tray_rect().end.y   # a beira da frente da prateleira: abaixo dela, o fio fica no ar
 	r.ground = _ground()   # a lateral do console (x) e o tampo ao pé dele (y), além da prateleira
 	r.free = not an.is_empty()
@@ -605,7 +602,7 @@ func _draw() -> void:
 	var h := size.y
 	var ms := Time.get_ticks_msec()
 	_draw_cabinet(Rect2(Vector2.ZERO, size))
-	_draw_tray(tray_rect())
+	_draw_tray()
 	for y in RULES.values():
 		_draw_rule(y, "")
 	if exchange == null:
@@ -614,7 +611,7 @@ func _draw() -> void:
 	_draw_rule(RULES["in"], T.text(T.Key.BOARD_INPUTS), false)   # os nomes por cima das faixas
 	_draw_rule(RULES["out"], T.text(T.Key.BOARD_OUTPUTS), false)
 	_draw_wear()
-	_draw_maker_plate()
+	_draw_trunks(trunks)
 
 	# entradas e saídas
 	for i in 10:
@@ -646,7 +643,8 @@ func _draw() -> void:
 		var jr := jack_rect(d)
 		var cx := jr.get_center().x
 		var st := exchange.dest(d)
-		draw_string(Pal.mono, Vector2(cx - 16, jr.position.y - 5), str(d), HORIZONTAL_ALIGNMENT_CENTER, 32, 11, Color("d8c9a2") if st == Exchange.Dest.FREE else Pal.TEXT)
+		if not GameData.is_trunk(d):   # o tronco tem o nome da cidade em cima (`_draw_trunks`)
+			draw_string(Pal.mono, Vector2(cx - 16, jr.position.y - 5), str(d), HORIZONTAL_ALIGNMENT_CENTER, 32, 11, Color("d8c9a2") if st == Exchange.Dest.FREE else Pal.TEXT)
 		var dl: Array = _lit.get("d%d" % d, [LAMP_OFF, 0.0])
 		if dl[1] > 0.02:   # o aro em volta da tomada acende
 			PixelArt.sprite(self, PixelArt.disc(JACK_PX + 8, [[JACK_PX / 2.0 + 4.0, Color.WHITE]]), jr.get_center(), Color(dl[0], dl[1]))
@@ -674,7 +672,11 @@ func _draw() -> void:
 
 	# cada ponta (fio e plug) na ordem em que foi mexida: o fio da mais recente passa por cima dos plugs das
 	# outras (o da mão inclusive); as sombras antes, por baixo de tudo
-	for e in _order:
+	# os guardados primeiro, os de trás antes dos da frente (a fileira da frente passa na frente da de trás)
+	var home := _order.filter(func(e: int) -> bool: return _in_hole(e))
+	var order: Array = home.filter(func(e: int) -> bool: return e % 2 == 1 or e == 0) + home.filter(func(e: int) -> bool: return e % 2 == 0 and e != 0) \
+		+ _order.filter(func(e: int) -> bool: return not _in_hole(e))
+	for e in order:
 		_draw_rope(e, true)
 		_draw_plug(e, true)
 	for e in _pulled:   # plugs que acabaram de sair: a vista de frente sumindo no encaixe
@@ -682,7 +684,7 @@ func _draw() -> void:
 		draw_set_transform(_pulled[e][1], 0.0, Vector2.ONE * lerpf(1.0, 0.4, k))
 		_draw_plug_face(_cable_col(e), _pulled[e][2], 0.0, 1.0 - k, -1, _lit_by(_pulled[e][1]))
 		draw_set_transform(Vector2.ZERO)
-	for e in _order:
+	for e in order:
 		if ends[e] != -1:   # encaixado, visto de frente: o fio sai do meio dele (da ponteira), por cima do tampo
 			_draw_plug(e, false)
 			Bloom.occlude(self, Transform2D(0.0, jack_rect(int(ends[e])).get_center().round()) * _plug_outline(e, 1.0))

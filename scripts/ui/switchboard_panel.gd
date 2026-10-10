@@ -4,7 +4,6 @@ extends "res://scripts/ui/switchboard_base.gd"
 
 const DEST_TOP := 211.0      # topo das tomadas da primeira fileira (a segunda fica DEST_ROW px abaixo)
 const DEST_ROW := 46.0
-const SIZE := Vector2(588, 362)
 const FRAME := 7.0           # a moldura de madeira do móvel, em volta do painel
 ## Faixas gravadas no painel que separam as seções (altura da linha; o nome fica sobre ela, à esquerda).
 const RULES := {"in": 22.0, "out": 131.0, "dest": 181.0}
@@ -228,34 +227,31 @@ func _use(j: int) -> float:
 	return 0.35
 
 
-## A plaqueta de latão do fabricante, no pé do painel (ali ficava vazio), no vão entre os dois primeiros pares de
-## buracos da prateleira, onde nenhum plug guardado fica na frente: o nome da central gravado (escuro, com o brilho
-## embaixo) e um parafuso em cada ponta.
-func _draw_maker_plate() -> void:
-	var cx := roundf((hole(2).x + hole(3).x) / 2.0)
-	var bottom := DEST_TOP - 21.0 + DEST_ROW + 50.0   # o pé dos bancos de destino
-	var r := Rect2(cx - 48.0, roundf((bottom + SIZE.y - FRAME) / 2.0 - 13.0), 96.0, 26.0)
+## A plaqueta de latão do fabricante em `r` (96×26), desenhada pelo cenário na frente do console, ao lado da miniatura
+## do painel: o nome da central gravado (escuro, com o brilho embaixo) e um parafuso em cada ponta.
+static func draw_maker_plate(ci: CanvasItem, r: Rect2) -> void:
 	var pal := HOLE_PAL
-	draw_rect(Rect2(r.position + Vector2(1, 2), r.size), SHADOW)
-	draw_rect(r.grow(1), EDGE_DARK)
-	draw_rect(r, Color("b0904c"))
-	draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), pal["F"])
-	draw_rect(Rect2(r.position, Vector2(1, r.size.y)), pal["f"])
-	draw_rect(Rect2(r.position.x, r.end.y - 1, r.size.x, 1), pal["b"])
-	draw_rect(Rect2(r.end.x - 1, r.position.y, 1, r.size.y), pal["b"])
-	draw_rect(r.grow(-3), pal["b"], false, 1.0)   # o friso gravado em volta
+	var cx := r.get_center().x
+	ci.draw_rect(Rect2(r.position + Vector2(1, 2), r.size), SHADOW)
+	ci.draw_rect(r.grow(1), EDGE_DARK)
+	ci.draw_rect(r, Color("b0904c"))
+	ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), pal["F"])
+	ci.draw_rect(Rect2(r.position, Vector2(1, r.size.y)), pal["f"])
+	ci.draw_rect(Rect2(r.position.x, r.end.y - 1, r.size.x, 1), pal["b"])
+	ci.draw_rect(Rect2(r.end.x - 1, r.position.y, 1, r.size.y), pal["b"])
+	ci.draw_rect(r.grow(-3), pal["b"], false, 1.0)   # o friso gravado em volta
 	for x in [r.position.x + 7.0, r.end.x - 7.0]:
-		PixelArt.sprite(self, PixelArt.disc(5, [[1.5, pal["F"], pal["f"], pal["b"]], [2.5, pal["w"]]]), Vector2(x, r.get_center().y))
-		draw_rect(Rect2(x - 1.0, r.get_center().y, 3, 1), pal["w"])   # a fenda
+		PixelArt.sprite(ci, PixelArt.disc(5, [[1.5, pal["F"], pal["f"], pal["b"]], [2.5, pal["w"]]]), Vector2(x, r.get_center().y))
+		ci.draw_rect(Rect2(x - 1.0, r.get_center().y, 3, 1), pal["w"])   # a fenda
 	var maker := PixelArt.tiny(T.text(T.Key.BOARD_MAKER))
 	var at := Vector2(roundf(cx - maker.get_width() / 2.0), r.position.y + 2.0)
-	draw_texture(maker, at + Vector2(0, 1), pal["F"])
-	draw_texture(maker, at, pal["w"])
+	ci.draw_texture(maker, at + Vector2(0, 1), pal["F"])
+	ci.draw_texture(maker, at, pal["w"])
 	var town := "SÃO SOTERO"
 	var nw := Pal.mono.get_string_size(town, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
 	var np := Vector2(roundf(cx - nw / 2.0), r.end.y - 6.0)
-	draw_string(Pal.mono, np + Vector2(0, 1), town, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, pal["F"])
-	draw_string(Pal.mono, np, town, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, pal["w"])
+	ci.draw_string(Pal.mono, np + Vector2(0, 1), town, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, pal["F"])
+	ci.draw_string(Pal.mono, np, town, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, pal["w"])
 
 
 ## A moldura de madeira do móvel, pixel a pixel e guardada: quatro trilhos com os cantos em meia-esquadria (uma
@@ -263,6 +259,23 @@ func _draw_maker_plate() -> void:
 ## lados em pé); a beira escura por fora, a luz em cima e à esquerda, a sombra embaixo e à direita, e as quinas gastas,
 ## mais claras, de anos de mãos.
 static var _woods := {}
+
+
+## Os troncos interurbanos, no canto de baixo à direita do painel, em `br` (a largura de um banco de destino): um
+## banco como os de destino, com o nome gravado na moldura e o da cidade em cima de cada tomada. As tomadas são
+## destinos (`GameData.TRUNKS`, posição em `_layout_dests`), desenhadas e acesas com os outros.
+func _draw_trunks(br: Rect2) -> void:
+	draw_rect(br, Pal.PANEL_LO, false, 1.0)
+	var cap := PixelArt.tiny(T.text(T.Key.BOARD_TRUNKS))   # na moldura, como o nome das faixas
+	var at := Vector2(roundf(br.get_center().x - cap.get_width() / 2.0), br.position.y - 5.0)
+	draw_rect(Rect2(at.x - 3.0, br.position.y - 1.0, cap.get_width() + 6.0, 3.0), Pal.PANEL)
+	draw_texture(cap, at, Pal.BRASS)
+	for k in GameData.TRUNKS.size():
+		var d: int = GameData.TRUNKS[k]
+		var label := PixelArt.tiny(T.text(GameData.TRUNK_NAMES[k]))
+		var x := jack_rect(d).get_center().x
+		draw_texture(label, Vector2(roundf(x - label.get_width() / 2.0), br.position.y + 4.0),
+			Color("d8c9a2") if exchange.dest(d) == Exchange.Dest.FREE else Pal.TEXT)
 
 
 func _wood_frame(sz: Vector2) -> ImageTexture:
@@ -336,19 +349,68 @@ func _draw_rule(y: float, caption: String, line := true) -> void:
 
 ## A prateleira à frente do painel, onde os cabos de conexão ficam guardados de pé: os buracos de onde saem os fios
 ## (a cor de cada cabo já diz qual é; o nome gravado embaixo saiu, a pedido).
-func _draw_tray(_r: Rect2) -> void:
+func _draw_tray() -> void:
+	_draw_fone_tag()
 	for k in PATCHES:
 		for e in [1 + k * 2, 2 + k * 2]:
 			draw_grommet(self, hole(e))
+	for k in range(PATCHES, SHELF_SLOTS):   # cada setor novo traz um cabo: até lá, o lugar dele fica tampado
+		_draw_cover(k)
 
 
-## Um nome gravado na madeira da prateleira, centrado em `at.x` com a base em `at.y`: o sulco escuro e o latão.
-static func engrave(ci: CanvasItem, at: Vector2, text: String) -> void:
-	var f: Font = Pal.mono if Pal.mono != null else ThemeDB.fallback_font
-	var w := f.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
-	var p := Vector2(roundf(at.x - w / 2.0), at.y)
-	ci.draw_string(f, p + Vector2(0, 1), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(0, 0, 0, 0.6))
-	ci.draw_string(f, p, text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.BRASS)
+const COVER_W := 46.0   # a largura do tampo, quase todo o lugar do par (com o vão do passo entre um e outro)
+
+
+## O lugar vago do cabo `k` na prateleira, sob um tampo de metal parafusado, deitado nela: linha a linha de pixels,
+## na inclinação dos pares de buracos (`front_of`: a ponta da frente à esquerda da de trás), por cima dos dois.
+func _draw_cover(k: int) -> void:
+	var back := Vector2(patch_x(k), tray_rect().position.y + SHELF_HOLE_Y)
+	var front := front_of(back)
+	var y0 := back.y - 6.0
+	var y1 := front.y + 6.0
+	var at := func(y: float) -> float:   # o meio do tampo na linha y: na reta do buraco de trás ao da frente
+		return roundf(back.x + (front.x - back.x) * (y - back.y) / (front.y - back.y))
+	for y in range(int(y0), int(y1) + 1):
+		var x: float = at.call(y)
+		draw_rect(Rect2(x - COVER_W / 2.0 + 1.0, y + 2.0, COVER_W, 1), SHADOW)
+		draw_rect(Rect2(x - COVER_W / 2.0 - 1.0, y, COVER_W + 2.0, 1), EDGE_DARK)
+		var c: Color = Pal.PANEL_HI if y == int(y0) else (Pal.PANEL_LO if y == int(y1) else Pal.PANEL.lightened(0.06))
+		draw_rect(Rect2(x - COVER_W / 2.0, y, COVER_W, 1), c)
+	for sy in [y0 + 4.0, y1 - 4.0]:   # um parafuso de latão em cada canto, com a fenda
+		for dx in [-COVER_W / 2.0 + 5.0, COVER_W / 2.0 - 5.0]:
+			var sp := Vector2(at.call(sy) + dx, sy)
+			PixelArt.sprite(self, PixelArt.disc(5, [[1.5, HOLE_PAL["F"], HOLE_PAL["f"], HOLE_PAL["b"]], [2.5, HOLE_PAL["w"]]]), sp)
+			draw_rect(Rect2(sp.x - 1.0, sy, 3, 1), HOLE_PAL["w"])
+
+
+static var _fone_tags := {}   # nome -> textura
+
+
+## A plaquinha de latão com o nome do FONE na prateleira, na fileira da frente, logo embaixo do buraco dele (reta:
+## inclinada pela perspectiva, linha a linha, ficava torta demais).
+func _draw_fone_tag() -> void:
+	var c := hole(0) + Vector2(0, SHELF_FRONT_Y - SHELF_HOLE_Y)   # na fileira da frente, logo embaixo do buraco do FONE
+	var text := T.text(T.Key.FONE_LABEL)
+	if not _fone_tags.has(text):
+		_fone_tags[text] = _fone_tag(text)
+	var tag: Texture2D = _fone_tags[text]
+	draw_texture(tag, (c - Vector2(tag.get_size()) / 2.0 - Vector2(0.5, 0)).round())   # o plug vai de x - 10 a x + 9
+
+
+## A plaquinha: beira escura, latão com a quina de cima pegando a luz e as letras gravadas.
+static func _fone_tag(text: String) -> Texture2D:
+	var letters := PixelArt.tiny(text).get_image()
+	var w := letters.get_width() + 6   # beira de 1 e 2 de margem de cada lado...
+	w += w % 2   # ...e largura par, como o plug: com o meio entre dois pixels, a placa fica bem embaixo dele
+	var out := Image.create(w, 9, false, Image.FORMAT_RGBA8)
+	out.fill(EDGE_DARK)
+	out.fill_rect(Rect2i(1, 1, w - 2, 7), HOLE_PAL["f"])
+	out.fill_rect(Rect2i(1, 1, w - 2, 1), HOLE_PAL["F"])
+	for y in range(3, 8):   # as letras ocupam as linhas 3 a 7 da imagem
+		for x in letters.get_width():
+			if letters.get_pixel(x, y).a > 0.5:
+				out.set_pixel(3 + x, y - 1, HOLE_PAL["w"])
+	return ImageTexture.create_from_image(out)
 
 
 ## Buraco da prateleira visto de cima (achatado pela perspectiva), pixel a pixel (`HOLE_ART`): o aro de latão, com a

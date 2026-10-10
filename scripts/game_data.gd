@@ -40,7 +40,7 @@ static func sectors_for(night: int) -> Array:
 
 
 static func in_service(number: String) -> bool:
-	return number != "" and int(number.left(1)) in sectors
+	return number != "" and (int(number.left(1)) in sectors or is_trunk(number))
 
 
 ## A transferência pede só números dos setores atendidos (o pedido e a alternativa).
@@ -60,12 +60,57 @@ static func street(id: String) -> Street:
 	return null
 
 
-## Contato da lista telefônica pelo número (nulo se não existir).
+## Contato da lista telefônica pelo número (nulo se não existir); num tronco, a telefonista da cidade dele.
 static func entry(number: String) -> DirectoryEntry:
 	for e in CONTENT.directory:
 		if e.number == number:
 			return e
+	if is_trunk(number):
+		var t := DirectoryEntry.new()
+		t.number = number
+		t.name = T.text(T.Key.TRUNK_OPERATOR) % trunk_city(int(number))
+		return t
 	return null
+
+
+## Os troncos interurbanos, um por cidade (o banco INTERURBANO da mesa): tomadas de destino fora da lista e de todos
+## os setores, ligadas à central da outra cidade, onde outra telefonista completa a ligação.
+const TRUNKS := [901, 902, 903, 904, 905, 906]
+const TRUNK_NAMES := [T.Key.BOARD_TRUNK_1, T.Key.BOARD_TRUNK_2, T.Key.BOARD_TRUNK_3, T.Key.BOARD_TRUNK_4, T.Key.BOARD_TRUNK_5, T.Key.BOARD_TRUNK_6]
+
+
+static func is_trunk(number: Variant) -> bool:
+	return str(number).is_valid_int() and int(str(number)) in TRUNKS
+
+
+## O nome da cidade do tronco `d` ("Capital"), o da chapa sem as maiúsculas.
+static func trunk_city(d: int) -> String:
+	return T.text(TRUNK_NAMES[TRUNKS.find(d)]).capitalize()
+
+
+## Interurbano montado a partir de um molde (`trunk_templates`), para um tronco fora de `exclude`: quem liga pede a
+## cidade ({to_city}, `trunk_to`) e diz o número de lá ({far}); nulo se todos os troncos já foram pedidos.
+static func trunk_transfer(exclude: Array = []) -> TransferCall:
+	var free := range(TRUNKS.size()).filter(func(k: int): return not str(TRUNKS[k]) in exclude)
+	if free.is_empty() or CONTENT.trunk_templates.is_empty():
+		return null
+	var k: int = free.pick_random()
+	var who := pick(CONTENT.callers).split(":")
+	var far := "%d%d-%02d" % [randi_range(2, 9), randi_range(0, 9), randi_range(0, 99)]
+	var vars := {"to_city": String(TranslationServer.translate(CONTENT.trunk_to[k])), "far": far}
+	var tpl: TransferCall = CONTENT.trunk_templates.pick_random()
+	var t := TransferCall.new()
+	t.group = TransferCall.Group.EXTRA
+	t.voice = who[0]
+	t.caller = who[1]
+	for l in tpl.opening:
+		t.opening.append(fill(l, vars))
+	t.repeat = fill(tpl.repeat, vars)
+	t.target = str(TRUNKS[k])
+	t.far_number = far
+	t.destination = "%s (%s)" % [far, trunk_city(TRUNKS[k])]
+	t.thanks = pick(CONTENT.transfer_thanks)
+	return t
 
 
 const LANDMARK_CHANCE := 0.4   # emergência de molde em que quem liga diz a rua e um lugar do mapa em vez do número

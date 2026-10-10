@@ -352,3 +352,38 @@ O que o usuário pediu, em ordem (antes no `CLAUDE.md`). Acrescente cada pedido 
     pra alguém).
 110. Rádio: cada mensagem leva na frente a hora em que chegou ("[21:04] Central, viatura 2…"), para saber se é nova e
     quanto a viatura demorou; um pouco mais de espaço entre as linhas da tela, que quase se encostavam.
+111. Ligações interurbanas pelos troncos, como nas mesas de verdade (a ligação vai à central da outra cidade, onde
+    outra telefonista completa). Primeiro passo, só para ver como fica: um banco de seis troncos (CAPITAL, NORTE, SUL,
+    LESTE, OESTE, LITORAL, nomes provisórios) no canto de baixo à direita do painel, embaixo do banco C e na largura do
+    B (`_draw_trunks`). Os cabos de conexão se juntaram perto do FONE (`PATCH_PITCH`; o resto da prateleira fica para
+    os cabos novos que virão com os setores) e a plaqueta do fabricante foi para a plaqueta lisa do console, ao lado
+    da miniatura. Depois, o FONE mais para a esquerda (`FONE_HOLE_X`, encaixe de 48 px) e os cabos logo depois dele,
+    com 12 px entre um plug e o par seguinte. As tomadas dos troncos ainda não aceitam plug.
+112. O nome do FONE numa plaquinha de latão na frente do console, abaixo da beira da prateleira (gravado embaixo do
+    buraco saía cortado: a beira da frente do buraco, desenhada por cima do plug, cobria o alto das letras). Uma
+    chapa de latão em volta do buraco do FONE, para distingui-lo dos cabos, foi testada (de frente e depois em
+    perspectiva, fugindo para o ponto de fuga) e saiu a pedido: ficou feia. Depois a plaquinha foi para o chão da
+    prateleira, logo à frente do buraco, na perspectiva dos olhos (a placa inclinada para o ponto de fuga; as letras
+    ficam retas, porque inclinadas linha a linha, mesmo com um terço do ângulo, as de 5 px viravam um borrão), e os
+    cabos se afastaram do FONE (24 px até o primeiro plug).
+113. Teste: as duas pontas de cada cabo uma atrás da outra na prateleira, como nas mesas de verdade (`SHELF_HOLE_Y`
+    atrás, `SHELF_FRONT_Y` na frente, uma coluna por cabo, `PATCH_PITCH`). Pela perspectiva, a da frente fica 20 a 32
+    px à esquerda da de trás (na reta do ponto de fuga), e os guardados da frente passam na frente dos de trás. Com o
+    desencontro variando a cada coluna parecia bagunça: a da frente ficou sempre meio passo à esquerda (`FRONT_SHIFT`),
+    como tijolos, e o FONE 10 px mais longe da beira para a plaquinha caber.
+114. Os cabos se espalham pela prateleira até o bloco interurbano, sem sobrar espaço (`_step`: do FONE até
+    `TRUNK_GAP` antes do bloco, `trunks`, dividido pelos plugs; com mais cabos, o passo encolhe).
+115. As duas pontas de cada cabo juntas, como um par (a da frente encostada à esquerda da de trás, `PAIR_SHIFT`), e
+    os pares a um passo igual até o interurbano (`_pitch`): fazem parte da mesma ligação, e alternadas uma a uma não
+    dava para ver qual ponta era de qual cabo.
+116. Correção: a ponta da fileira da frente travava antes de entrar no buraco (o fio repousava na linha da fileira de
+    trás e não descia até ele; agora cada fio repousa na fileira do buraco dele). A plaquinha "FONE" inclinada pela
+    perspectiva ficou ruim: agora é reta, na fileira da frente, centrada embaixo do buraco do FONE.
+117. Volta a 3 cabos; os dois lugares que sobram ficam sob um tampo cada, porque cada setor novo vai liberar um par
+    (`SHELF_SLOTS`, `_draw_cover`). O tampo foi primeiro um retângulo reto, depois na perspectiva exata (o usuário
+    pediu o ângulo de visão), mais à esquerda (ancorado no meio do fundo), um por par, na inclinação dos pares de
+    buracos (na exata ficava inclinado demais ao lado deles), mais largo (fino demais) e com um parafuso em cada canto.
+118. Interurbanos funcionando: as tomadas do banco INTERURBANO são destinos (troncos 901–906); quem liga pede a cidade
+    e diz o número de lá; o operador liga a saída no tronco, transfere, passa o número à telefonista da outra cidade
+    e ela completa. Tronco errado: o número não é de lá.
+
