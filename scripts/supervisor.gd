@@ -137,8 +137,10 @@ func on_registered(rec: PhoneCall.Record, type: T.Key) -> void:
 		main.report.add("register_wrong", rec.time, rec.who)
 
 
-## Fim do turno: o que ficou sem registro no caderno.
+## Fim do turno: o que ficou sem registro no caderno e os bilhetes esquecidos na mesa do calculógrafo.
 func shift_over() -> void:
+	for t in main.toll.tickets():
+		main.report.add("toll_forgotten", Main.fmt(t.end), t.detail())
 	var left: Array[PhoneCall.Record] = main.notebook.queue.duplicate()
 	if main.notebook.has_pending():
 		left.append(main.notebook.pending)

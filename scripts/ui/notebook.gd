@@ -128,6 +128,8 @@ func _fill() -> void:
 	var where := pending.where
 	if pending.card > 0:
 		where += "  ·  " + T.text(T.Key.NOTEBOOK_CARD) % pending.card
+	if pending.ticket > 0:
+		where += "  ·  " + T.text(T.Key.NOTEBOOK_TICKET) % pending.ticket
 	if pending.unit != "—":
 		where += "  ·  " + pending.unit
 	_where.text = where
@@ -174,6 +176,8 @@ func _draw_page() -> void:
 		var notes := PackedStringArray()
 		if r.card > 0:   # o número do cartão de despacho enviado
 			notes.append(T.text(T.Key.NOTEBOOK_CARD) % r.card)
+		if r.ticket > 0:   # o do bilhete de tarifação
+			notes.append(T.text(T.Key.NOTEBOOK_TICKET) % r.ticket)
 		if r.unit != "—":
 			notes.append(T.text(T.Key.COL_UNIT) + ": " + r.unit)
 		if r.obs != "":

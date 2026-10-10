@@ -195,3 +195,9 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
 - **Objeto novo na sala segue a câmera dela.** A prancheta pendurada "ao lado da mesa comutadora" saiu de frente, na
   parede, e destoou: o usuário pediu na lateral do painel, na perspectiva da sala (`_p3`). Nada na sala é desenhado de
   frente fora da câmera, nem um prendedor.
+- **O nome de um objeto da sala (ao passar o mouse) é desenhado embaixo da mesa comutadora.** O `SceneView` desenha o
+  contorno e o nome (`Background.draw_hover`), e o `Board` fica por cima dele: o nome da prancheta, centrado sobre ela
+  na lateral do painel, saía cortado. Objeto novo perto da mesa: confira com `shot.tscn -- --hover=id`.
+- **Objeto em pé na mesa de uma ferramenta é visto em 3/4, da cadeira.** O carimbo desenhado de cima era um bloco chato;
+  o usuário mandou uma referência com tampo, frente e cabo à vista. Papel deitado (bilhete, cartão) fica de cima;
+  o que tem altura mostra a frente e o tampo.

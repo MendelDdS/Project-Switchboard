@@ -23,12 +23,6 @@ const FORM := Color("8a2a1c")          # o formulário vem impresso na tinta ver
 const RULE := Color(0.35, 0.43, 0.55, 0.3)   # a pauta, como a do caderno
 const HOLE := Color("17110b")
 const MISSING := Color("8a3a14")
-const SHADOW := Color(0, 0, 0, 0.35)
-const SHADOW_REST := Vector2(3, 4)     # sombra do cartão na mesa...
-const SHADOW_HELD := Vector2(9, 12)    # ...e erguido, na mão (como o plug da mesa)
-const HELD_SCALE := 1.06               # na mão, o cartão chega perto dos olhos (maior)...
-const LIFT_SEC := 0.1                  # ...nesse tempo; solto, cai na mesa nesse outro, acelerando
-const DROP_SEC := 0.2
 const TOP := 72.0                      # o cabeçalho: faixa, local, bairro e setor, fio duplo
 const FOOT := 18.0                     # o rodapé: fio e o nome da central
 const CHAD_SEC := 0.45                 # o picote caindo
@@ -37,10 +31,11 @@ var dispatch: Dispatch
 var serial := 0
 var place := ""             ## o local impresso ("Rua do Sol, 1–99")
 var sector := 0
-## Na mão: sobe (maior, sombra mais longe); solto, cai de volta na mesa (`_height`).
+## Na mão: sobe (maior, sombra mais longe); solto, cai de volta na mesa (`_lift`).
 var held := false:
 	set(v):
 		held = v
+		_lift.held = v
 		set_process(true)
 var cells: Array[Dictionary] = []   ## posições de furo: {box (o quadradinho), part, id, row (a linha inteira, clicável)}
 var _hover := {}            ## a posição sob o mouse (a linha dela fica realçada se der para perfurar)
@@ -48,8 +43,7 @@ var _heads := {}            ## Part -> y do título da parte
 var _rules: Array[float] = []   ## pauta entre as linhas
 var _specks: Array[Vector2] = []   ## fibras do papel (cada cartão as suas)
 var _chads: Array = []      ## picotes caindo: [posição no cartão, segundos]
-var _lift := 0.0            ## 0 na mesa, 1 na mão (o tempo da subida ou da queda)
-var _height := 0.0          ## a altura que se vê: sobe liso e cai acelerando
+var _lift := Lift.new()
 
 
 func _ready() -> void:
@@ -107,11 +101,9 @@ func _process(delta: float) -> void:
 	for ch in _chads:
 		ch[1] += delta
 	_chads = _chads.filter(func(ch): return ch[1] < CHAD_SEC)
-	var up := 1.0 if held else 0.0
-	_lift = move_toward(_lift, up, delta / (LIFT_SEC if held else DROP_SEC))
-	_height = smoothstep(0.0, 1.0, _lift) if held else _lift * _lift
-	scale = Vector2.ONE * lerpf(1.0, HELD_SCALE, _height)   # parado na mesa, 1 exato: as letras ficam nítidas
-	if _chads.is_empty() and _lift == up:
+	var moving := _lift.step(delta)
+	scale = _lift.scale()
+	if _chads.is_empty() and not moving:
 		set_process(false)
 	queue_redraw()
 
@@ -173,11 +165,10 @@ func _can_punch(c: Dictionary) -> bool:
 
 func _draw() -> void:
 	var shape := PackedVector2Array([Vector2(10, 0), Vector2(W, 0), Vector2(W, size.y), Vector2(0, size.y), Vector2(0, 10)])
-	var lift := SHADOW_REST.lerp(SHADOW_HELD, _height)
 	var shadow := PackedVector2Array()
 	for q in shape:
-		shadow.append(q + lift)
-	draw_colored_polygon(shadow, SHADOW)
+		shadow.append(q + _lift.shadow())
+	draw_colored_polygon(shadow, Lift.SHADOW)
 	draw_colored_polygon(shape, CARD)   # o canto cortado dos cartões perfurados
 	for sp in _specks:   # fibras do papel
 		draw_rect(Rect2(sp, Vector2(2 if int(sp.x) % 3 == 0 else 1, 1)), CARD.darkened(0.1))

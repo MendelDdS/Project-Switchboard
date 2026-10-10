@@ -265,6 +265,7 @@ TOLL_BOX,BILHETES,TICKETS,BOLETAS
 TOLL_IDLE,NENHUM INTERURBANO,NO LONG DISTANCE CALL,NINGUNA LARGA DISTANCIA
 CARD_ONE_AT_A_TIME,UM CARTÃO POR VEZ,ONE CARD AT A TIME,UNA TARJETA A LA VEZ
 NOTEBOOK_CARD,Ficha nº %04d,Card no. %04d,Ficha n.º %04d
+NOTEBOOK_TICKET,Bilhete nº %04d,Ticket no. %04d,Boleta n.º %04d
 CARD_INSERT,INSIRA O CARTÃO,INSERT THE CARD,INSERTE LA TARJETA
 DISPATCH_OPEN,Abrir ficha,Open slip,Abrir ficha
 DISPATCH_WHY_POL,"crime, briga, arma, rua bloqueada","crime, fight, weapon, blocked road","delito, pelea, arma, calle bloqueada"
@@ -316,6 +317,7 @@ FAULT_WRONG_INFO,Informação errada,Wrong information,Información equivocada
 FAULT_REGISTER_WRONG,Registro com o tipo errado,Logged with the wrong type,Registro con el tipo equivocado
 FAULT_REGISTER_MISSING,Ocorrência sem registro,Call not logged,Llamada sin registrar
 FAULT_TOLL_UNSTAMPED,Bilhete de tarifação guardado sem carimbo,Toll ticket filed without the stamp,Boleta de tarifa guardada sin sello
+FAULT_TOLL_FORGOTTEN,Bilhete de tarifação esquecido na mesa,Toll ticket left on the desk,Boleta de tarifa olvidada en la mesa
 FAULT_DISPATCH_WRONG_PLACE,Unidades enviadas ao endereço errado,Units sent to the wrong address,Unidades enviadas a la dirección equivocada
 FAULT_DISPATCH_MISSING,Faltaram unidades no despacho,Not enough units dispatched,Faltaron unidades en el despacho
 FAULT_DISPATCH_IDLE,Unidades enviadas sem ocorrência,Units sent with no emergency,Unidades enviadas sin emergencia
@@ -361,9 +363,9 @@ shift","Terminar
 turno"
 FAULT_SHIFT_HUNG_UP,Encerrou o turno com alguém na linha,Ended the shift with someone on the line,Terminó el turno con alguien en la línea
 OBS_SHIFT_ENDED,Turno encerrado durante a ligação.,Shift ended during the call.,Turno terminado durante la llamada.
-HINT_MIDNIGHT,"Meia-noite. Registre o que falta no caderno ou encerre o turno.","Midnight. Log what's left in the logbook or end the shift.","Medianoche. Registre lo que falta en el cuaderno o termine el turno."
+HINT_MIDNIGHT,"Meia-noite. Registre o que falta no caderno e guarde os bilhetes, ou encerre o turno.","Midnight. Log what's left in the logbook and file the tickets, or end the shift.","Medianoche. Registre lo que falta en el cuaderno y guarde las boletas, o termine el turno."
 CALL_LOG_EMPTY,Nenhuma conversa ainda. Tudo o que for dito com o FONE na linha fica registrado aqui.,No conversations yet. Everything said with the HEADSET on the line is logged here.,Ninguna conversación todavía. Todo lo que se diga con el AURICULAR en la línea queda registrado aquí.
 TRUNK_OPERATOR,Telefonista (%s),Operator (%s),Operadora (%s)
 OP_TRUNK_NUMBER,"Aqui é São Sotero. O número %s, por favor.","São Sotero calling. Number %s, please.","Aquí São Sotero. El número %s, por favor."
 HINT_TRUNK,"Interurbano: ligue a SAÍDA na tomada da cidade, no banco INTERURBANO, e Transfira. Com o FONE na linha, passe o número à telefonista de lá.","Long distance: plug the OUTPUT into the city's jack in the LONG DISTANCE bank and Transfer. With the HEADSET on the line, give the number to the operator there.","Larga distancia: conecte la SALIDA en la toma de la ciudad, en el banco LARGA DISTANCIA, y Transfiera. Con el AURICULAR en la línea, dé el número a la operadora de allá."
-HINT_TOLL,"Interurbano encerrado: o calculógrafo, na mesa, imprimiu o bilhete. Abra-o, arraste o carimbo até o bilhete e depois o bilhete até a caixinha.","Long distance call over: the toll timer on the desk printed the ticket. Open it, drag the stamp onto the ticket and then the ticket into the box.","Larga distancia terminada: el tarificador, en la mesa, imprimió la boleta. Ábralo, arrastre el sello hasta la boleta y después la boleta hasta la cajita."
+HINT_TOLL,"Interurbano encerrado: o calculógrafo, na mesa, imprimiu o bilhete. Abra-o, arraste o carimbo até o bilhete e depois o bilhete até a caixinha. Se o carimbo secar, encoste-o na almofada.","Long distance call over: the toll timer on the desk printed the ticket. Open it, drag the stamp onto the ticket and then the ticket into the box. If the stamp runs dry, press it on the ink pad.","Larga distancia terminada: el tarificador, en la mesa, imprimió la boleta. Ábralo, arrastre el sello hasta la boleta y después la boleta hasta la cajita. Si el sello se seca, apóyelo en la almohadilla."

@@ -777,6 +777,9 @@ func draw_hover(ci: CanvasItem) -> void:
 	var cap := GameData.date_text(night) if _hot == CALENDAR else T.text(PROPS[_hot])
 	var cw := Pal.ui.get_string_size(cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
 	var at := Vector2(clampf(hr.get_center().x - cw / 2.0 - 5, 4, size.x - cw - 14), hr.position.y - 22)
+	var b := Rect2(board.global_position - global_position, board.size) if board else Rect2()
+	if hr.get_center().x > b.end.x and at.x < b.end.x:   # a mesa comutadora fica por cima do cenário: o nome da prancheta, na lateral dela, vai todo para fora
+		at.x = b.end.x + 2.0
 	ci.draw_rect(Rect2(at, Vector2(cw + 10, 16)), Color(0, 0, 0, 0.8))
 	ci.draw_string(Pal.ui, at + Vector2(5, 12), cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.TEXT)
 

@@ -408,3 +408,15 @@ O que o usuário pediu, em ordem (antes no `CLAUDE.md`). Acrescente cada pedido 
 126. Na miniatura do calculógrafo da sala, o bilhete sobe da fenda enquanto é impresso.
 127. A prancheta do registro pendurada na lateral do painel da mesa comutadora, na perspectiva e no ângulo da sala (de
     frente, na parede, destoava).
+128. Melhorias do calculógrafo, sugeridas e aprovadas: o robô do turno carimba e guarda os bilhetes (medido: 1 a 2 por
+    noite, sem efeito no ritmo); bilhete esquecido na mesa é advertência leve e a meia-noite espera guardá-lo; bilhete e
+    carimbo sobem na mão e caem soltos como o cartão do despacho (`Lift`); o número do bilhete vai para o caderno; a
+    Cecília explica o calculógrafo no treinamento; guardar a ferramenta com uma peça na mão a deixa na mesa.
+129. O carimbo do calculógrafo em 3/4, como na referência do usuário (tampo chanfrado, frente com "TARIFADO" gravado e
+    cabo cilíndrico em cima; antes, visto de cima, era um bloco chato); o nome da prancheta, ao passar o mouse, saía
+    escondido embaixo da mesa comutadora e agora vai todo para fora dela; o bilhete guardado desce para dentro da
+    caixinha e some atrás da frente dela.
+130. Três sugestões aceitas para o calculógrafo: com ele aberto, o bilhete sai da fenda da máquina no tempo da
+    impressora e cai na mesa; o carimbo bate quando chega na mesa (o som na batida, não ao soltar, e o bloco se
+    achata um pouco); e a borracha seca a cada batida (a segunda marca mais fraca, a terceira só um vulto que não vale)
+    até ser passada na almofada, que ganhou função. A dica do primeiro bilhete fala da almofada.

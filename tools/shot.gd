@@ -12,6 +12,7 @@ extends Node
 ##   --emergency            toca uma emergência e atende (a luz vermelha da unidade, a barra, o rádio)
 ##   --news                 o jornal da manhã na mesa
 ##   --toll                 um interurbano contando no calculógrafo e um bilhete impresso, um deles carimbado
+##   --hover=id             o mouse em cima do objeto da mesa (os ids de `Tools`): o contorno e o nome
 ##   --zoom=x,y,w,h         o recorte, em px do jogo, ampliado `ZOOM` vezes
 ##   --wait=5               segundos antes de capturar (a luminária esquenta em 4)
 ## As do jogo também valem: --weather=rain|fog|clear, --night=N, --seed=N, --lang=en.
@@ -56,6 +57,9 @@ func _ready() -> void:
 		m.answer()
 	if _args.has("tool"):
 		m.tools.set_tab(_args["tool"])
+	if _args.has("hover"):
+		m.background._hot = _args["hover"]
+		m.get_node("Scene").queue_redraw()
 	if _args.has("debug"):   # o painel de debug aberto, na aba N (0 = Jogo, 1 = Vozes)
 		m.get_node("%Debug").visible = true
 		(m.get_node("%Debug").find_child("Tabs") as TabContainer).current_tab = int(_args["debug"])

@@ -280,7 +280,7 @@ func _process(delta: float) -> void:
 		_run_schedule()
 		_update_line_timers()
 		# o turno fecha depois da meia-noite, da ligação desconhecida, da última ligação e do último registro
-		# (com registro pendente, espera o operador registrar ou encerrar pelo botão)
+		# (com registro pendente ou bilhete na mesa, espera o operador registrar e guardar ou encerrar pelo botão)
 		if minutes >= SHIFT_END and after and live.is_empty():
 			if not _unregistered():
 				start_ending()
@@ -960,6 +960,7 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> PhoneCall.Record:
 	var unit := "—"
 	var obs := ""
 	var card := 0   # o cartão de despacho enviado (emergência)
+	var ticket := 0   # o bilhete de tarifação (interurbano)
 	match c.kind:
 		PhoneCall.Kind.TRANSFER:
 			if c.connected:
@@ -967,6 +968,7 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> PhoneCall.Record:
 				where = tr(c.destination) if right else GameData.entry(str(c.dest_num)).name
 				if not right:
 					obs = T.text(T.Key.OBS_WRONG_NUMBER)
+				ticket = toll.ticket_of(c.line)
 		PhoneCall.Kind.INFO:
 			if c.info_ok >= 0:
 				obs = T.text(T.Key.OBS_ASKED_NUMBER) % tr("d" + c.about)
@@ -1007,6 +1009,7 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> PhoneCall.Record:
 	r.where = where
 	r.unit = unit
 	r.card = card
+	r.ticket = ticket
 	r.obs = obs
 	r.kind = c.kind
 	r.missed = reason == PhoneCall.End.MISSED
@@ -1117,7 +1120,7 @@ func _mystery_aftermath(c: PhoneCall) -> void:
 
 
 func _unregistered() -> bool:
-	return notebook.has_pending() or not notebook.queue.is_empty()
+	return notebook.has_pending() or not notebook.queue.is_empty() or toll.waiting() > 0
 
 
 ## Botão Encerrar turno (a partir de LAST_CALL): quem ainda está na linha ou tocando fica sem resposta, como se o

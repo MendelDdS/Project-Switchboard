@@ -162,6 +162,13 @@ func _initialize() -> void:
 			if m.notebook.has_pending() and frames_left % 120 == 0:
 				m.notebook.register(T.Key.TYPE_COMMON)
 				_acted()
+			elif m.toll.waiting() > 0 and frames_left % 120 == 0:   # o bilhete: carimbar e, depois, guardar
+				var t: TollTicket = m.toll.tickets()[0]
+				if t.stamped:
+					m.toll.file(t)
+				else:
+					t.stamp(t.size / 2.0)
+				_acted()
 			continue
 		match f.kind:
 			PhoneCall.Kind.TRANSFER:
@@ -220,6 +227,7 @@ func _initialize() -> void:
 		100 * starved / maxi(fall, 1), lost, recs.size(), int(kinds.get(PhoneCall.Kind.EMERGENCY, 0)),
 		int(kinds.get(PhoneCall.Kind.PRANK, 0)), max_quiet, max_empty])
 	print("despachos (estágio e barra corrida): ", ", ".join(stages))
+	print("bilhetes guardados=%d, esquecidos na mesa=%d" % [m.toll.filed, m.toll.waiting()])
 	ok(myst_at != "" or m.night.mystery.is_empty(), "a ligação desconhecida tocou")
 	ok(m.ending and m.minutes >= m.SHIFT_END, "o turno terminou no horário")
 	finish("turno completo")

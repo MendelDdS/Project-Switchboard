@@ -21,6 +21,7 @@ const FAULTS := {
 	"register_wrong": [Severity.LIGHT, T.Key.FAULT_REGISTER_WRONG],
 	"register_missing": [Severity.LIGHT, T.Key.FAULT_REGISTER_MISSING],
 	"toll_unstamped": [Severity.LIGHT, T.Key.FAULT_TOLL_UNSTAMPED],
+	"toll_forgotten": [Severity.LIGHT, T.Key.FAULT_TOLL_FORGOTTEN],
 	"dispatch_wrong_place": [Severity.SEVERE, T.Key.FAULT_DISPATCH_WRONG_PLACE],
 	"dispatch_missing": [Severity.MEDIUM, T.Key.FAULT_DISPATCH_MISSING],
 	"dispatch_idle": [Severity.MEDIUM, T.Key.FAULT_DISPATCH_IDLE],

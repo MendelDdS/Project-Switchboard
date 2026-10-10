@@ -17,6 +17,7 @@ class Record:
 	var where := "—"
 	var unit := "—"
 	var card := 0              ## o número do cartão de despacho enviado (emergência)
+	var ticket := 0            ## o número do bilhete de tarifação (interurbano)
 	var obs := ""
 	var kind := PhoneCall.Kind.TRANSFER
 	var missed := false        ## não atendida: entra no livro sozinha
@@ -27,7 +28,7 @@ class Record:
 	## A linha no livro: esta, com o carimbo `t` e a observação `note`.
 	func stamped(t: T.Key, note: String) -> Record:
 		var r := Record.new()
-		for k: String in ["time", "who", "where", "unit", "card", "kind", "missed", "tut", "shift"]:
+		for k: String in ["time", "who", "where", "unit", "card", "ticket", "kind", "missed", "tut", "shift"]:
 			r.set(k, get(k))
 		r.obs = note
 		r.type = t

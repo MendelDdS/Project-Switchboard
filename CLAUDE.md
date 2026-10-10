@@ -194,6 +194,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     a noite 2 (`--night=2`) e um turno `--human` (5 s de jogo por ação, como uma pessoa: **é este que mede se o ritmo
     cabe**; o robô normal é rápido demais). No `--human` o despacho passa pelo cartão (`_card_step`: pensar, marcar,
     esperar imprimir, perfurar, levar ao transmissor e esperar a leitura), e o estágio anotado é o da hora do envio.
+    Com a mesa livre, ele registra no caderno e carimba e guarda os bilhetes (uma ação cada; imprime quantos guardou).
   - Rode depois de qualquer mudança em agenda, fim de ligação, mesa ou cabos. `run.sh` também joga um turno em
     `--lang=en` e outro em `--lang=es`; o teste de fluxo confere chaves, lacunas e cenas (`_check_translations`).
 - Semente fixa: `Godot --path . -- --seed=123` repete a agenda do turno (sem `--seed`, é aleatória).
@@ -213,7 +214,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `drop_emergency`); dos campos, o painel só lê agenda e ligações para o texto de estado e adianta o relógio (`minutes`), para não quebrar quando o Main mudar.
 - **Captura de tela** (`tools/shot.tscn`, COM tela): `Godot --path . tools/shot.tscn -- --hour=22:30 --weather=rain
   --tool=despacho --card --emergency --news --toll --width=1500 --zoom=x,y,w,h --out=build/shot.png` grava a tela inteira e o
-  recorte ampliado 4× (`_zoom.png`); `--debug=N` abre o painel de debug na aba N; as opções do jogo (`--night`, `--seed`, `--lang`) também valem. Para conferir
+  recorte ampliado 4× (`_zoom.png`); `--hover=id` põe o mouse num objeto da mesa (contorno e nome); `--debug=N` abre o painel de debug na aba N; as opções do jogo (`--night`, `--seed`, `--lang`) também valem. Para conferir
   mudança visual medindo, não só olhando a captura.
 - **Sem tela, a vista da janela não é desenhada** (`Background._headless`): com `--fixed-fps` e o tempo acelerado,
   ela era redesenhada a cada quadro e virou 2/3 do tempo de um turno do robô (27 s em vez de 9). Quem acrescentar
@@ -267,13 +268,25 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `scripts/ui/toll_ticket.gd`: entrada, cidade e número de lá, horário e minutos, o começado conta inteiro), que cai na
   mesa embaixo da fenda (`%Desk`, o tampo com a almofada de tinta e a caixinha). **Bilhetes e carimbo são soltos**: o
   jogador pega qualquer um, leva para onde quiser e ele fica onde foi solto (`Toll._on_desk_input`, um arrastar próprio
-  como o do cartão do despacho, não o do Godot; o de cima é o pego, `_piece_at`, e na mão a sombra se afasta,
-  `TollTicket.LIFT`). O carimbo solto em cima de um bilhete o carimba onde o meio dele caiu (uma vez só, `stamp`); o
-  bilhete solto com o mouse na caixinha vai para ela (`file`); sem o carimbo, ela aceita e vem a advertência leve
-  `toll_unstamped` (`Toll.unstamped`). Na mesa da sala, a ponta do bilhete esperando sobe da fenda do calculógrafo no
+  como o do cartão do despacho, não o do Godot; o de cima é o pego, `_piece_at`; na mão sobem e, soltos, caem, como o
+  cartão, `Lift`; guardar a ferramenta com um deles na mão o deixa onde estava). O carimbo é visto em 3/4, como da
+  cadeira (o bilhete, de cima): tampo chanfrado, frente com o nome gravado, borracha embaixo e cabo de baquelite
+  (`Toll.STAMP`, `_draw_stamp`); solto, bate na mesa quando acaba de cair (o som e o bloco se achatando, `BUMP`,
+  `Toll._process`). Solto em cima de um bilhete, o carimba onde caiu o meio da borracha (`RUBBER_MID`; uma vez só,
+  `stamp`); a borracha seca a cada batida (`Toll.INK`: a primeira cheia, a outra mais fraca e, depois, só o vulto, que
+  não vale como carimbo, `TollTicket.ink`) e volta a ter tinta solta na almofada (a borracha muda de cor). Com a
+  ferramenta aberta, o bilhete impresso sai da fenda da máquina no tempo do som da impressora, a beira de baixo na
+  frente, e cai na mesa (`_emerge`: `TollTicket.top` sobe o desenho; saindo, não se pega). O bilhete solto com o mouse na caixinha vai para ela (`file`; conta na hora) e desce para dentro,
+  sumindo atrás da frente dela (`_sink`: a altura dele encolhe até a boca, `BOX_MOUTH`, com `clip_contents`; por isso o
+  `TollTicket` desenha sempre em `SIZE`); sem o carimbo, ela aceita e vem a advertência leve
+  `toll_unstamped` (`Toll.unstamped`). O número do bilhete é reservado quando começa a contar (`Toll.ticket_of`) e vai
+  para a ficha do caderno ("Bilhete nº 0002", `PhoneCall.Record.ticket`). Bilhete esquecido na mesa: à meia-noite o turno
+  espera guardar, como o registro (`Main._unregistered`), e no fim é advertência leve `toll_forgotten`
+  (`Supervisor.shift_over`). Na mesa da sala, a ponta do bilhete esperando sobe da fenda do calculógrafo no
   tempo do som da impressora (`Background._draw_tip`, camada própria, `TIP_SEC`) e a luz âmbar acende enquanto conta
   (`Background.tickets`/`metering`). Dica da
-  primeira vez: `HINT_TOLL` (`SAW_TOLL`). Ponytail: bilhete esquecido na mesa no fim do turno não conta, e não há tecla.
+  primeira vez: `HINT_TOLL` (`SAW_TOLL`). Ponytail: não há tecla, e o interurbano ainda contando no fim do turno não
+  imprime.
 - Fim de ligação: `end_call(c, PhoneCall.End.*)` gera `c.record` (um `PhoneCall.Record`, nulo antes; no livro, `stamped` com o carimbo) e manda para `Notebook.add()` (fila; não trava o turno; não atendida vai
   direto para o livro com o carimbo `TYPE_MISSED`, sem escolher tipo).
   O caderno registra com **um clique no tipo** (`register(T.Key.TYPE_*)`: Comum, Emergência, Trote; o resto da linha
@@ -298,7 +311,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   borda de baixo (`_clamp`). O cartão é um formulário: impresso na tinta
   vermelha das emergências (`FORM`, a do carimbo do caderno: faixa com o número, rótulos, posições de furo, fio duplo,
   rodapé com o nome da central, marcas de coluna na borda) com os dados datilografados em preto sobre linhas
-  pontilhadas, pauta como a do caderno, fibras no papel e sombra na mesa (na mão ele sobe: cresce `HELD_SCALE` em volta de onde foi pego e a sombra se afasta; solto, cai acelerando, `DROP_SEC`; parado, escala 1 exata para o texto ficar nítido). O jogador perfura
+  pontilhadas, pauta como a do caderno, fibras no papel e sombra na mesa (na mão ele sobe: cresce em volta de onde foi pego e a sombra se afasta; solto, cai acelerando; parado, escala 1 exata para o texto ficar nítido; `Lift`, `scripts/ui/lift.gd`, o mesmo do bilhete e do carimbo do calculógrafo). O jogador perfura
   o tipo de ocorrência (um só) e as unidades (protocolo impresso embaixo de cada uma, `DISPATCH_WHY_*`; ocupada sai
   riscada) em posições fixas (`punch`, picote caindo; clicar em qualquer ponto da linha perfura o quadradinho dela, e a
   linha sob o mouse fica realçada se der para perfurar). Furo não se desfaz. **Um cartão por vez, de qualquer tipo**
@@ -428,7 +441,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   Main não deixa desligar nelas nem transferir para o número errado, `Training.wrong_number`; a conversa dela com o
   destino acaba em `Training.TALK_SEC`, `Main.talk_over`). Atender pisca enquanto ela chama com o FONE na entrada
   (`PhonePanel.blink_answer`). Na última ligação ela ensina o caderno (as tiras, registrar as duas dela como
-  Comum; outro tipo, ela comenta, `Training._on_registered`) e a prancheta; abrir os dois liga o "já viu" das dicas de
+  Comum; outro tipo, ela comenta, `Training._on_registered`), a prancheta e, só de boca, o calculógrafo (carimbar e
+  guardar o bilhete); abrir os dois primeiros liga o "já viu" das dicas de
   primeira vez (`Main.SAW_SLIPS`/`SAW_SHEET`). Depois ela liga pela entrada 3 fingindo uma emergência de treino
   (`LessonStep.emergency`, `Training.drill`, posta no `Dispatch.set_incident`): marcar o local, triturar o cartão
   quando ela corrige o endereço, marcar de novo, perfurar, transmitir e ouvir o rádio (passos "dispatch", "card",
@@ -496,7 +510,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   tocando termina com `End.SHIFT_OVER` (advertência média `shift_hung_up`; emergência sem despacho vira
   `emergency_dropped`; já resolvida, `closing`, não conta; o registro dela não conta como sem registro). À meia-noite
   ninguém é cortado: com alguém na linha o relógio continua até ela acabar; com a mesa vazia ele para, e o turno fecha
-  sozinho quando não falta registrar nada (senão, `HINT_MIDNIGHT` e espera registrar ou o botão).
+  sozinho quando não falta registrar nada nem bilhete na mesa (senão, `HINT_MIDNIGHT` e espera registrar e guardar ou
+  o botão).
 - Relógio: 0,75 min de jogo por segundo real (`GAME_MIN_PER_SEC`): 6 h de turno ≈ 8 min reais.
 
 ## Histórico das decisões de design

@@ -1116,16 +1116,28 @@ msgid "Ali fica escrito tudo o que foi dito com o fone na linha. Abre."
 msgstr "Ahí queda escrito todo lo que se dijo con el auricular en la línea. Ábrela."
 
 #: data/nights/night_00.tres
-msgid "Clique na [b]prancheta[/b] na mesa (ou aperte 4)."
-msgstr "Haz clic en la [b]tablilla[/b] de la mesa (o pulsa 4)."
+msgid "Clique na [b]prancheta[/b], pendurada na lateral da mesa comutadora (ou aperte 4)."
+msgstr "Haz clic en la [b]tablilla[/b], colgada al costado del conmutador (o pulsa 4)."
 
 #: data/nights/night_00.tres
-msgid "A prancheta é a tábua com o prendedor, na frente da mesa. Ou aperta o 4."
-msgstr "La tablilla es la tabla con la pinza, al frente de la mesa. O aprieta el 4."
+msgid "A prancheta é a tábua com o prendedor, pendurada do lado da mesa comutadora. Ou aperta o 4."
+msgstr "La tablilla es la tabla con la pinza, colgada al lado del conmutador. O aprieta el 4."
 
 #: data/nights/night_00.tres
 msgid "Se alguém disser um número ou um endereço e você esquecer, é só conferir aqui."
 msgstr "Si alguien te dice un número o una dirección y te olvidas, solo revisa aquí."
+
+#: data/nights/night_00.tres
+msgid "Na mesa tem também o calculógrafo. Ele conta sozinho o tempo dos interurbanos."
+msgstr "En la mesa también está el tarificador. Cuenta solo el tiempo de las llamadas de larga distancia."
+
+#: data/nights/night_00.tres
+msgid "Quando a conversa acaba, ele imprime o bilhete. Você carimba e guarda na caixinha."
+msgstr "Cuando termina la conversación, imprime la boleta. Tú la sellas y la guardas en la cajita."
+
+#: data/nights/night_00.tres
+msgid "Bilhete sem carimbo ou esquecido na mesa, o supervisor anota."
+msgstr "Boleta sin sello u olvidada en la mesa, el supervisor la anota."
 
 #: data/nights/night_00.tres
 msgid "Agora a parte mais séria: emergência."

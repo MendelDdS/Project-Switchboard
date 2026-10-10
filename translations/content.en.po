@@ -1116,16 +1116,28 @@ msgid "Ali fica escrito tudo o que foi dito com o fone na linha. Abre."
 msgstr "Everything said with the headset on the line is written there. Open it."
 
 #: data/nights/night_00.tres
-msgid "Clique na [b]prancheta[/b] na mesa (ou aperte 4)."
-msgstr "Click the [b]clipboard[/b] on the desk (or press 4)."
+msgid "Clique na [b]prancheta[/b], pendurada na lateral da mesa comutadora (ou aperte 4)."
+msgstr "Click the [b]clipboard[/b], hanging on the side of the switchboard (or press 4)."
 
 #: data/nights/night_00.tres
-msgid "A prancheta é a tábua com o prendedor, na frente da mesa. Ou aperta o 4."
-msgstr "The clipboard is the board with the clip, at the front of the desk. Or press 4."
+msgid "A prancheta é a tábua com o prendedor, pendurada do lado da mesa comutadora. Ou aperta o 4."
+msgstr "The clipboard is the board with the clip, hanging by the switchboard. Or press 4."
 
 #: data/nights/night_00.tres
 msgid "Se alguém disser um número ou um endereço e você esquecer, é só conferir aqui."
 msgstr "If someone tells you a number or an address and you forget, just check here."
+
+#: data/nights/night_00.tres
+msgid "Na mesa tem também o calculógrafo. Ele conta sozinho o tempo dos interurbanos."
+msgstr "There's also the toll timer on the desk. It times the long distance calls by itself."
+
+#: data/nights/night_00.tres
+msgid "Quando a conversa acaba, ele imprime o bilhete. Você carimba e guarda na caixinha."
+msgstr "When the call ends, it prints the ticket. You stamp it and file it in the box."
+
+#: data/nights/night_00.tres
+msgid "Bilhete sem carimbo ou esquecido na mesa, o supervisor anota."
+msgstr "A ticket without the stamp, or left on the desk, the supervisor writes down."
 
 #: data/nights/night_00.tres
 msgid "Agora a parte mais séria: emergência."

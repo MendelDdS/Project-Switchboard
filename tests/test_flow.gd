@@ -81,6 +81,12 @@ func _mouse(n: Control, p: Vector2, pressed := -1) -> void:
 
 
 ## Arrasta com o mouse de `a` até `b` (coordenadas da tela): aperta, anda em 8 passos com o botão apertado e solta.
+## Um interurbano de um minuto na entrada `n`, já encerrado: o bilhete impresso.
+func _ticket(n: int) -> TollTicket:
+	m.toll.start(n, "Capital", "45-12", m.minutes)
+	return m.toll.stop(n, m.minutes + 1.0)
+
+
 func _drag_mouse(a: Vector2, b: Vector2) -> void:
 	var vp := get_viewport()
 	var e := InputEventMouseButton.new()
@@ -443,6 +449,7 @@ func _initialize() -> void:
 	var tk: TollTicket = m.toll.tickets()[0] if m.toll.tickets().size() == 1 else null
 	ok(tk != null and not m.toll.counting(ln) and tk.line == ln and tk.city == GameData.trunk_city(tgt) and tk.far == lt.far_number
 		and tk.minutes() >= 1, "a conversa acabou: o calculógrafo imprimiu o bilhete")
+	ok(lc.record != null and lc.record.ticket == tk.serial, "o número do bilhete vai para o caderno")
 	for e in [0, 1, 2]:
 		_move(e, -1)
 	ok(ex.line(ln) == Exchange.Line.FREE and ex.dest(tgt) == Exchange.Dest.FREE, "interurbano encerrado")
@@ -461,9 +468,46 @@ func _initialize() -> void:
 	ok(tk2.stamped and tk2.mark == mark and tk2.minutes() == 4 and stamp.get_global_rect().has_point(tk2.get_global_rect().get_center() + Vector2(24, 6)),
 		"carimbo levado até o bilhete e solto lá, uma marca só; o minuto começado conta inteiro")
 	var desk: Control = m.toll._desk
+	var press := InputEventMouseButton.new()
+	press.button_index = MOUSE_BUTTON_LEFT
+	press.pressed = true
+	press.position = tk2.get_global_position() + Vector2(10, 80)
+	get_viewport().push_input(press)
+	await frames(2)
+	var was_held := tk2.held
+	m.tools.close()
+	var release := press.duplicate()
+	release.pressed = false
+	get_viewport().push_input(release)
+	await frames(2)
+	ok(was_held and not tk2.held and m.toll._held == null, "guardou a ferramenta com o bilhete na mão: ele fica na mesa")
+	m.tools.set_tab(Tools.TOLL)
+	await frames(30)
 	await _drag_mouse(tk2.get_global_position() + Vector2(10, 80), desk.get_global_position() + m.toll._box().get_center())
 	m.tools.close()
 	ok(m.report.faults.size() == toll_faults + 1 and m.toll.filed == 2 and m.toll.tickets().is_empty(), "carimbado, arrastado até a caixinha sem advertência")
+	ok(is_instance_valid(tk2) and tk2.clip_contents, "o bilhete desce para dentro da caixinha")
+	await frames(20)
+	ok(not is_instance_valid(tk2), "e some lá dentro")
+	m.tools.set_tab(Tools.TOLL)
+	await frames(2)
+	var tk3 := _ticket(6)
+	ok(tk3.clip_contents and m.toll._piece_at(tk3.get_rect().get_center()) != tk3, "com o calculógrafo aberto, o bilhete sai da fenda (e não se pega antes)")
+	await frames(20)
+	ok(not tk3.clip_contents and tk3.position.y >= 0.0, "e cai na mesa")
+	var aside := Vector2(roundf(desk.size.x / 2.0 - stamp.size.x / 2.0), desk.size.y - stamp.size.y - 6.0)   # o bilhete novo cai por cima do carimbo
+	stamp.position = aside
+	await _drag_mouse(stamp.get_global_rect().get_center(), tk3.get_global_rect().get_center())
+	ok(tk3.stamped and tk3.ink == 0.5, "a segunda batida sai mais fraca")
+	var tk4 := _ticket(7)
+	await frames(20)
+	stamp.position = aside
+	await _drag_mouse(stamp.get_global_rect().get_center(), tk4.get_global_rect().get_center())
+	ok(not tk4.stamped and tk4.ink == 0.0, "com a borracha seca, fica só o vulto e não vale")
+	await _drag_mouse(stamp.get_global_rect().get_center(), desk.get_global_position() + m.toll._pad().get_center() - m.toll.RUBBER_MID + stamp.size / 2.0)
+	await _drag_mouse(stamp.get_global_rect().get_center(), tk4.get_global_rect().get_center())
+	ok(tk4.stamped and tk4.ink == 1.0, "passado na almofada, volta a marcar")
+	m.tools.close()
 	print("OK 1b interurbano pelo tronco da cidade")
 
 	# ---- 2. três ligações ao mesmo tempo, com espera

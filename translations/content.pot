@@ -1115,15 +1115,27 @@ msgid "Ali fica escrito tudo o que foi dito com o fone na linha. Abre."
 msgstr ""
 
 #: data/nights/night_00.tres
-msgid "Clique na [b]prancheta[/b] na mesa (ou aperte 4)."
+msgid "Clique na [b]prancheta[/b], pendurada na lateral da mesa comutadora (ou aperte 4)."
 msgstr ""
 
 #: data/nights/night_00.tres
-msgid "A prancheta é a tábua com o prendedor, na frente da mesa. Ou aperta o 4."
+msgid "A prancheta é a tábua com o prendedor, pendurada do lado da mesa comutadora. Ou aperta o 4."
 msgstr ""
 
 #: data/nights/night_00.tres
 msgid "Se alguém disser um número ou um endereço e você esquecer, é só conferir aqui."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Na mesa tem também o calculógrafo. Ele conta sozinho o tempo dos interurbanos."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Quando a conversa acaba, ele imprime o bilhete. Você carimba e guarda na caixinha."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Bilhete sem carimbo ou esquecido na mesa, o supervisor anota."
 msgstr ""
 
 #: data/nights/night_00.tres
