@@ -52,6 +52,10 @@ const MAP_DIRT := Color("b49d72")    ## as estradas de terra
 const MAP_RIVER := Color("6f8fa0")   ## o rio
 const SEAL := Color("8e2a22")        ## o vermelho do selo do mapa (e da capa da lista de baixo)
 const DESK := Color("241a12")   ## o tampo da mesa (a madeira escura), no cenário e no calculógrafo aberto
+## O grão do tampo (`DESK`): a emenda das tábuas, a beira de cada uma na luz, o veio e a sombra dele...
+const DESK_GRAIN: Array[Color] = [Color("1a120c"), Color("2b2016"), Color("2e2219"), Color("20170f")]
+## ...e a borda da frente, de cima para baixo: a quina arredondada pegando a luz (três tons), a espessura e o friso nela.
+const DESK_EDGE: Array[Color] = [Color("5a4030"), Color("7a5434"), Color("6b4529"), Color("3a2616"), Color("442c1a")]
 const NICKEL: Array[Color] = [Color("f4f0e6"), Color("d6d1c3"), Color("8e897c"), Color("45413a")]   ## o níquel (brilho, luz, meio, sombra): o prendedor da prancheta, o aro das lâmpadas
 
 ## Uma fonte só, de pixel: Departure Mono (SIL OFL). Fica nítida só em múltiplos de 11 (11, 22, 33, 44); fora deles os

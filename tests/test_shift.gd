@@ -167,7 +167,7 @@ func _initialize() -> void:
 				if t.stamped:
 					m.toll.file(t)
 				else:
-					t.stamp(t.size / 2.0)
+					t.stamp(TollTicket.FIELD.get_center())
 				_acted()
 			continue
 		match f.kind:

@@ -114,7 +114,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `draw_polygon`**: cada `draw_polygon`/`draw_colored_polygon` é uma chamada de desenho (e cria um polígono a cada
   redesenho); `draw_primitive` (até 4 pontos) seguidos viram uma só. O cenário tem `Background._fill`/`_poly` (o
   quadrilátero inteiro; o resto, em triângulos); a sala passava de 2000 chamadas por quadro. **Os materiais dos objetos da mesa** (capa da lista,
-  couro do caderno, tábua e folhas da prancheta, papel-jornal, papel e tons do mapa, níquel, o vermelho do formulário) são
+  couro do caderno, tábua e folhas da prancheta, papel-jornal, papel e tons do mapa, níquel, o vermelho do formulário, o grão e a borda do tampo) são
   constantes do `Pal`, usadas pelo objeto (`Background._art_*`) e pelo papel aberto dele: o que muda numa ponta muda na outra. **Uma fonte só, de pixel: Departure Mono**
   (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11** (o estado de cada linha na mesa não usa
   ela: em 11, "conectada" não cabe na coluna, e em 8, fora da grade, borrava; é uma fonte de pixel própria, maiúsculas
@@ -265,16 +265,30 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   mesa, no lugar onde ficava a prancheta, que agora fica pendurada na lateral do painel da mesa comutadora): começa a contar sozinho
   quando a telefonista de lá completa (`Main._try_complete` → `Toll.start`) e, quando a linha sai de conectada (acabou,
   cortada ou fim do turno; `Main._update_line_timers` → `_print_ticket`), imprime o bilhete (`TollTicket`,
-  `scripts/ui/toll_ticket.gd`: entrada, cidade e número de lá, horário e minutos, o começado conta inteiro), que cai na
-  mesa embaixo da fenda (`%Desk`, o tampo com a almofada de tinta e a caixinha). **Bilhetes e carimbo são soltos**: o
+  `scripts/ui/toll_ticket.gd`: entrada, cidade e número de lá, horário e minutos, o começado conta inteiro; papel com
+  fibras, a beira de baixo serrilhada e, embaixo dos dados, o campo tracejado do carimbo, `FIELD`), que cai na
+  mesa embaixo da fenda (`%Desk`, com a almofada de tinta e a caixinha). A máquina mostra os minutos em contadores de
+  tambor, um por entrada (`Toll._counter`: a plaquinha, a lâmpada e os tambores com os algarismos de `DIGITS`, que rolam
+  no começo de cada minuto começado, `ROLL`; o visor só se redesenha a cada quadro enquanto um rola, `_rolling`) e fica
+  apoiada na mesa pelos pés. O tampo é desenhado pelo próprio `Toll` (`_draw`), até a beira do papel, com o grão e a
+  borda da frente da mesa da sala (`Pal.DESK_GRAIN`, `Pal.DESK_EDGE`). A almofada tem a tampa aberta atrás e o brilho
+  da tinta no feltro, que some quando ela é carimbada e volta (`_wet`, `WET_SEC`); na caixinha, a beira de cada bilhete
+  guardado mostra a faixa do formulário e, nos carimbados, a ponta da marca (`_filed`). **Bilhetes e carimbo são soltos**: o
   jogador pega qualquer um, leva para onde quiser e ele fica onde foi solto (`Toll._on_desk_input`, um arrastar próprio
   como o do cartão do despacho, não o do Godot; o de cima é o pego, `_piece_at`; na mão sobem e, soltos, caem, como o
-  cartão, `Lift`; guardar a ferramenta com um deles na mão o deixa onde estava). O carimbo é visto em 3/4, como da
-  cadeira (o bilhete, de cima): tampo chanfrado, frente com o nome gravado, borracha embaixo e cabo de baquelite
-  (`Toll.STAMP`, `_draw_stamp`); solto, bate na mesa quando acaba de cair (o som e o bloco se achatando, `BUMP`,
-  `Toll._process`). Solto em cima de um bilhete, o carimba onde caiu o meio da borracha (`RUBBER_MID`; uma vez só,
-  `stamp`); a borracha seca a cada batida (`Toll.INK`: a primeira cheia, a outra mais fraca e, depois, só o vulto, que
-  não vale como carimbo, `TollTicket.ink`) e volta a ter tinta solta na almofada (a borracha muda de cor). Com a
+  cartão, `Lift`; guardar a ferramenta com um deles na mão o deixa onde estava). O carimbo é visto de cima, inclinado, como
+  da cadeira, no modelo do numerador automático de escritório (a referência do usuário, em pixel art), fino (88 px):
+  o cabo de baquelite preta em cogumelo (o preto dos cabos), com o tampo oval e o brilho, a haste cromada e o anel,
+  fatias redondas deitadas uma por cima da outra (`_knob`, `_knob_r`, `_knob_tone`, `SQUASH`; o desenho em texto de
+  28 px saía achatado); o corpo de níquel com o tampo à vista e a plaqueta "TARIFADO"; embaixo, o eixo com as pontas,
+  as rodas de algarismos de latão com os tipos na cor da tinta e a língua; e a armação parada, as pernas com os
+  parafusos, descendo até o fundo da sapata, e a sapata entre elas, vista de cima, com a janela (`WINDOW`, do tamanho da marca, `TollTicket.MARK_SIZE`: o fio duplo
+  e "TARIFADO"), por onde se vê onde ele vai carimbar (`Toll.STAMP`, `_draw_stamp`); só a armação
+  fica dentro da mesa (`FOOT`, `_inside`): o resto passa por cima da máquina para alcançar o bilhete embaixo da
+  fenda, e o mouse ali chega pelo próprio carimbo (`mouse_filter` PASS). Levar e soltar não carimba: **posto em cima do
+  bilhete, um clique nele** (apertar e soltar sem andar `CardMachines.DRAG_START` px) o aperta (o corpo desce e volta,
+  `PRESS`, pelas pernas, até as rodas de latão encostarem no papel, na janela, `_stamp_down`) e, nesse instante (`_touch`, com o som), carimba embaixo do meio da janela (`RUBBER_MID`; uma vez só, `stamp`); a borracha seca a cada batida (`Toll.INK`: a primeira cheia, a outra mais fraca e, depois, só o vulto, que
+  não vale como carimbo, `TollTicket.ink`) e volta a ter tinta apertado na almofada (a borracha muda de cor). Com a
   ferramenta aberta, o bilhete impresso sai da fenda da máquina no tempo do som da impressora, a beira de baixo na
   frente, e cai na mesa (`_emerge`: `TollTicket.top` sobe o desenho; saindo, não se pega). O bilhete solto com o mouse na caixinha vai para ela (`file`; conta na hora) e desce para dentro,
   sumindo atrás da frente dela (`_sink`: a altura dele encolhe até a boca, `BOX_MOUTH`, com `clip_contents`; por isso o

@@ -420,3 +420,40 @@ O que o usuário pediu, em ordem (antes no `CLAUDE.md`). Acrescente cada pedido 
     impressora e cai na mesa; o carimbo bate quando chega na mesa (o som na batida, não ao soltar, e o bloco se
     achata um pouco); e a borracha seca a cada batida (a segunda marca mais fraca, a terceira só um vulto que não vale)
     até ser passada na almofada, que ganhou função. A dica do primeiro bilhete fala da almofada.
+131. O carimbo do calculógrafo no modelo de uma nova referência do usuário (caixa preta com visor na frente, haste e
+    bola vermelha em cima), no ângulo do jogo, de frente como da cadeira (a primeira versão seguiu o ângulo da imagem,
+    girado, e saiu a pedido). Levar e soltar não carimba mais: o jogador põe o carimbo em cima do bilhete e clica nele
+    para apertar; a almofada também se carimba com um clique.
+132. O carimbo de caixa preta com visor destoava da arte do jogo (preto e cinza neutros, vermelho saturado, plástico
+    de outra época, volume chapado, sem a plaqueta das máquinas, maior que o bilhete): redesenhado, a pedido, na mesma
+    forma (caixa, haste e bola) com os materiais da mesa: metal pintado das máquinas com a plaqueta de latão
+    "TARIFADO", saia de níquel, a borracha aparecendo embaixo na cor da tinta, haste de níquel e bola de baquelite no
+    vermelho dos cabos; mais baixo (98 px).
+133. Melhorias gráficas do calculógrafo aberto, sugeridas e aprovadas: o visor de letras âmbar (cara de monitor, fora
+    de 1973) virou contadores de tambor, um por entrada, que rolam a cada minuto; o tampo ganhou o veio e a borda da
+    frente da mesa da sala; a máquina, os pés e a sombra na mesa; o bilhete, fibras, a beira serrilhada e o campo do
+    carimbo (a marca caía em cima dos dados); a almofada, a tampa aberta e o brilho da tinta, que some ao carimbá-la;
+    e a caixinha mostra a faixa azul dos bilhetes guardados e a ponta da marca nos carimbados.
+134. Mais acabamento no carimbo, sugerido e aprovado: a bola numa haste fina parecia joystick e virou um cabo torneado
+    de baquelite (bola achatada, pescoço grosso, virola e ressalto de níquel), sombreado como esfera (as três fatias
+    do `PixelArt.disc` davam cara de bola de praia); corpo de quinas chanfradas, mais estreito que a saia (o degrau),
+    plaqueta presa por rebites em vez dos parafusos nos cantos (parecia caixa de ferramentas); tampo mais raso; mais
+    luz na quina do tampo e na da esquerda; e a linha de contato embaixo da borracha. Ficou com 87 px de altura.
+135. O cabo do carimbo ainda estava estranho: contorno preto (o plug, a outra baquelite torneada do jogo, não tem),
+    sombreado calculado com faixas serrilhadas, pixels soltos e o brilho como uma mancha grudada na beira, o pescoço
+    mais claro que a parte de baixo da bola e entrando seco nela (cogumelo com palito). Refeito em texto no
+    acabamento do plug (`HANDLE_ART`: faixas de pé no vermelho dos cabos, a bola em pera, um tom mais clara em cima e
+    mais escura embaixo, o pescoço afinando e alargando até o anel, a virola e o ressalto de níquel), com 28 px de
+    largura.
+136. O carimbo ainda não parecia um carimbo e o cabo estava achatado: o usuário mandou a foto de um numerador automático
+    de escritório (Nykon) para servir de base. Redesenhado nele: o cabo de baquelite preta em cogumelo, alto, torneado
+    linha a linha (`Toll._knob`), sobre a haste cromada e o anel; o corpo de níquel com o painel rebaixado e a etiqueta;
+    embaixo, entre as pernas com parafusos, as rodas de algarismos e a língua de latão; e a sapata com a borracha na
+    janela. Apertado, o corpo e o cabo descem pelas pernas.
+137. O carimbo precisava ser mais fino e visto de cima para baixo, como na referência em pixel art que o usuário mandou
+    (o mesmo numerador): 88 px de largura em vez de 128, o tampo oval do cabo, o tampo do corpo e a sapata vistos de
+    cima, as pernas mais altas e a sapata com a janela, por onde se vê o bilhete embaixo e a marca depois de carimbar.
+    A marca do bilhete encolheu para caber na janela (64×20: o fio duplo e "TARIFADO"; o nome da central saiu dela).
+138. Dois ajustes no carimbo: apertado, ele desce até as rodas de latão encostarem no papel, na janela da sapata, e só
+    então a marca aparece (`Toll._touch`, no meio do aperto, `PRESS` 39 px); e as pernas descem até o fundo da sapata,
+    com a janela entre elas (antes, a sapata com os dentes parecia solta embaixo das pernas).

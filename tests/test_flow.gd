@@ -108,6 +108,32 @@ func _drag_mouse(a: Vector2, b: Vector2) -> void:
 	await frames(2)
 
 
+## Aperta e solta o mouse em `p` (coordenadas da tela), pela janela.
+func _tap_mouse(p: Vector2) -> void:
+	var e := InputEventMouseButton.new()
+	e.button_index = MOUSE_BUTTON_LEFT
+	e.pressed = true
+	e.position = p
+	get_viewport().push_input(e)
+	var u := e.duplicate()
+	u.pressed = false
+	get_viewport().push_input(u)
+	await frames(2)
+
+
+## Onde pegar o carimbo do calculógrafo (o meio dele cai na caixa).
+func _grip() -> Vector2:
+	var s: Control = m.toll._stamp
+	return s.global_position + s.size / 2.0
+
+
+## Leva o carimbo com o meio do fundo em `p` (na tela) e clica nele: carimba o que estiver embaixo.
+func _stamp_at(p: Vector2) -> void:
+	await _drag_mouse(_grip(), p - Toll.RUBBER_MID + m.toll._stamp.size / 2.0)
+	await _tap_mouse(_grip())
+	await frames(int(Toll.PRESS_SEC * 60.0) + 2)   # (carimba quando os tipos encostam, no meio do aperto)
+
+
 ## Clique (aperta e solta no mesmo lugar) sobre o nó `n`.
 func _click(n: Control, p: Vector2) -> void:
 	_mouse(n, p, 1)
@@ -462,11 +488,14 @@ func _initialize() -> void:
 	m.tools.set_tab(Tools.TOLL)
 	await frames(30)
 	var stamp: Control = m.toll._stamp
-	await _drag_mouse(stamp.get_global_rect().get_center(), tk2.get_global_rect().get_center())
+	await _drag_mouse(_grip(), tk2.get_global_rect().get_center() - Toll.RUBBER_MID + stamp.size / 2.0)
+	ok(not tk2.stamped and (stamp.get_global_position() + Toll.RUBBER_MID).distance_to(tk2.get_global_rect().get_center()) < 1.5, "carimbo levado até o bilhete: ainda não carimba")
+	await _tap_mouse(_grip())
+	await frames(int(Toll.PRESS_SEC * 60.0) + 2)
 	var mark := tk2.mark
-	await _drag_mouse(stamp.get_global_rect().get_center(), stamp.get_global_rect().get_center() + Vector2(24, 6))
-	ok(tk2.stamped and tk2.mark == mark and tk2.minutes() == 4 and stamp.get_global_rect().has_point(tk2.get_global_rect().get_center() + Vector2(24, 6)),
-		"carimbo levado até o bilhete e solto lá, uma marca só; o minuto começado conta inteiro")
+	ok(tk2.stamped and (stamp.get_global_position() + Toll.RUBBER_MID).distance_to(tk2.get_global_rect().get_center()) < 1.5, "clicado em cima do bilhete, carimba (e fica no lugar)")
+	await _stamp_at(tk2.get_global_rect().get_center() + Vector2(24, 6))
+	ok(tk2.mark == mark and tk2.minutes() == 4, "uma marca só; o minuto começado conta inteiro")
 	var desk: Control = m.toll._desk
 	var press := InputEventMouseButton.new()
 	press.button_index = MOUSE_BUTTON_LEFT
@@ -497,15 +526,18 @@ func _initialize() -> void:
 	ok(not tk3.clip_contents and tk3.position.y >= 0.0, "e cai na mesa")
 	var aside := Vector2(roundf(desk.size.x / 2.0 - stamp.size.x / 2.0), desk.size.y - stamp.size.y - 6.0)   # o bilhete novo cai por cima do carimbo
 	stamp.position = aside
-	await _drag_mouse(stamp.get_global_rect().get_center(), tk3.get_global_rect().get_center())
+	await _stamp_at(tk3.get_global_rect().get_center())
 	ok(tk3.stamped and tk3.ink == 0.5, "a segunda batida sai mais fraca")
 	var tk4 := _ticket(7)
 	await frames(20)
 	stamp.position = aside
-	await _drag_mouse(stamp.get_global_rect().get_center(), tk4.get_global_rect().get_center())
+	await _stamp_at(tk4.get_global_rect().get_center())
 	ok(not tk4.stamped and tk4.ink == 0.0, "com a borracha seca, fica só o vulto e não vale")
-	await _drag_mouse(stamp.get_global_rect().get_center(), desk.get_global_position() + m.toll._pad().get_center() - m.toll.RUBBER_MID + stamp.size / 2.0)
-	await _drag_mouse(stamp.get_global_rect().get_center(), tk4.get_global_rect().get_center())
+	await _drag_mouse(_grip(), desk.get_global_position() + m.toll._pad().get_center() - Toll.RUBBER_MID + stamp.size / 2.0)
+	await _stamp_at(tk4.get_global_rect().get_center())
+	ok(not tk4.stamped, "solto na almofada sem apertar, não ganha tinta")
+	await _stamp_at(desk.get_global_position() + m.toll._pad().get_center())
+	await _stamp_at(tk4.get_global_rect().get_center())
 	ok(tk4.stamped and tk4.ink == 1.0, "passado na almofada, volta a marcar")
 	m.tools.close()
 	print("OK 1b interurbano pelo tronco da cidade")

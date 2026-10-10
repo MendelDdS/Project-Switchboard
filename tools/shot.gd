@@ -11,7 +11,7 @@ extends Node
 ##   --card                 marca um local no mapa e espera o cartão sair impresso
 ##   --emergency            toca uma emergência e atende (a luz vermelha da unidade, a barra, o rádio)
 ##   --news                 o jornal da manhã na mesa
-##   --toll                 um interurbano contando no calculógrafo e um bilhete impresso, um deles carimbado
+##   --toll                 um interurbano contando no calculógrafo, dois bilhetes na mesa (um carimbado) e três na caixinha
 ##   --hover=id             o mouse em cima do objeto da mesa (os ids de `Tools`): o contorno e o nome
 ##   --zoom=x,y,w,h         o recorte, em px do jogo, ampliado `ZOOM` vezes
 ##   --wait=5               segundos antes de capturar (a luminária esquenta em 4)
@@ -46,7 +46,13 @@ func _ready() -> void:
 		m.toll.start(4, GameData.trunk_city(901), "23-118", m.minutes - 6.4)
 		m.toll.stop(4, m.minutes)
 		m.toll.start(7, GameData.trunk_city(903), "4-52", m.minutes - 3.2)
-		m.toll.stop(7, m.minutes).stamp(Vector2(120, 60))
+		m.toll.stop(7, m.minutes).stamp(TollTicket.FIELD.get_center())
+		for i in 3:   # e três já na caixinha, dois carimbados
+			m.toll.start(8, GameData.trunk_city(904), "9-%d" % i, m.minutes - 2.0)
+			var t := m.toll.stop(8, m.minutes)
+			if i != 1:
+				t.stamp(TollTicket.FIELD.get_center())
+			m.toll.file(t)
 		m.exchange.set_line(2, Exchange.Line.CONN, m.minutes + 60.0)   # senão a linha livre já imprime o bilhete
 		m.toll.start(2, GameData.trunk_city(902), "7-30", m.minutes - 2.0)
 	if _args.has("emergency"):

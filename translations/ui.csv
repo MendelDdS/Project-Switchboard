@@ -259,10 +259,9 @@ TOLL_LINE,ENTRADA,LINE,LÍNEA
 TOLL_TO,PARA,TO,PARA
 TOLL_TIME,HORÁRIO,TIME,HORARIO
 TOLL_MINUTES,MINUTOS,MINUTES,MINUTOS
-TOLL_MIN,%d MIN,%d MIN,%d MIN
 TOLL_STAMP,TARIFADO,CHARGED,TARIFADO
+TOLL_FIELD,CARIMBO,STAMP,SELLO
 TOLL_BOX,BILHETES,TICKETS,BOLETAS
-TOLL_IDLE,NENHUM INTERURBANO,NO LONG DISTANCE CALL,NINGUNA LARGA DISTANCIA
 CARD_ONE_AT_A_TIME,UM CARTÃO POR VEZ,ONE CARD AT A TIME,UNA TARJETA A LA VEZ
 NOTEBOOK_CARD,Ficha nº %04d,Card no. %04d,Ficha n.º %04d
 NOTEBOOK_TICKET,Bilhete nº %04d,Ticket no. %04d,Boleta n.º %04d
@@ -368,4 +367,4 @@ CALL_LOG_EMPTY,Nenhuma conversa ainda. Tudo o que for dito com o FONE na linha f
 TRUNK_OPERATOR,Telefonista (%s),Operator (%s),Operadora (%s)
 OP_TRUNK_NUMBER,"Aqui é São Sotero. O número %s, por favor.","São Sotero calling. Number %s, please.","Aquí São Sotero. El número %s, por favor."
 HINT_TRUNK,"Interurbano: ligue a SAÍDA na tomada da cidade, no banco INTERURBANO, e Transfira. Com o FONE na linha, passe o número à telefonista de lá.","Long distance: plug the OUTPUT into the city's jack in the LONG DISTANCE bank and Transfer. With the HEADSET on the line, give the number to the operator there.","Larga distancia: conecte la SALIDA en la toma de la ciudad, en el banco LARGA DISTANCIA, y Transfiera. Con el AURICULAR en la línea, dé el número a la operadora de allá."
-HINT_TOLL,"Interurbano encerrado: o calculógrafo, na mesa, imprimiu o bilhete. Abra-o, arraste o carimbo até o bilhete e depois o bilhete até a caixinha. Se o carimbo secar, encoste-o na almofada.","Long distance call over: the toll timer on the desk printed the ticket. Open it, drag the stamp onto the ticket and then the ticket into the box. If the stamp runs dry, press it on the ink pad.","Larga distancia terminada: el tarificador, en la mesa, imprimió la boleta. Ábralo, arrastre el sello hasta la boleta y después la boleta hasta la cajita. Si el sello se seca, apóyelo en la almohadilla."
+HINT_TOLL,"Interurbano encerrado: o calculógrafo, na mesa, imprimiu o bilhete. Abra-o, ponha o carimbo em cima do bilhete, clique nele para carimbar e depois arraste o bilhete até a caixinha. Se o carimbo secar, carimbe a almofada.","Long distance call over: the toll timer on the desk printed the ticket. Open it, put the stamp on the ticket, click it to stamp and then drag the ticket into the box. If the stamp runs dry, stamp the ink pad.","Larga distancia terminada: el tarificador, en la mesa, imprimió la boleta. Ábralo, ponga el sello sobre la boleta, haga clic en él para sellar y después arrastre la boleta hasta la cajita. Si el sello se seca, selle la almohadilla."

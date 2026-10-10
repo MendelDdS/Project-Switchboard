@@ -201,3 +201,13 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
 - **Objeto em pé na mesa de uma ferramenta é visto em 3/4, da cadeira.** O carimbo desenhado de cima era um bloco chato;
   o usuário mandou uma referência com tampo, frente e cabo à vista. Papel deitado (bilhete, cartão) fica de cima;
   o que tem altura mostra a frente e o tampo.
+- **Objeto real tem que ser desenhado a partir de uma referência real.** O carimbo inventado (caixa com plaqueta e um
+  cabo de 28 px em texto) não parecia um carimbo e o cabo saía achatado; o usuário mandou a foto de um numerador de
+  escritório. Antes de desenhar um objeto do mundo real, peça ou procure a referência e copie as proporções dela
+  (o cabo alto, a haste, o corpo, as pernas, a sapata), não só os materiais. Copie também o ângulo: o primeiro redesenho
+  ficou largo e de frente, e o usuário mandou a referência em pixel art, fina e vista de cima (tampos à vista, peças
+  redondas como elipses deitadas).
+- **Peça de máquina desenhada tem que estar presa e funcionar como a de verdade.** A sapata do carimbo ficou solta
+  embaixo das pernas (as pernas acabavam no tampo dela), e o aperto descia 6 px sem chegar ao papel: o usuário pediu
+  as pernas até o fundo da sapata e as rodas encostando no papel antes de a marca aparecer. Ao animar ou montar um
+  objeto, siga o caminho físico: o que segura o quê e onde o movimento termina.

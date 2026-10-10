@@ -93,14 +93,14 @@ func _draw_desk(r: Rect2, front: float) -> void:
 		for k in PLANKS:
 			var y0 := roundf(_proj(0, _yd, lerpf(zb, zf, float(k) / PLANKS)).y * 2.0)
 			var y1 := roundf(_proj(0, _yd, lerpf(zb, zf, float(k + 1) / PLANKS)).y * 2.0)
-			_p(0, y1 - 1, w2, 1, Color("1a120c"))
-			_p(0, y0, w2, 1, Color("2b2016"))   # a beira de cada tábua pega luz
+			_p(0, y1 - 1, w2, 1, Pal.DESK_GRAIN[0])
+			_p(0, y0, w2, 1, Pal.DESK_GRAIN[1])   # a beira de cada tábua pega luz
 			for i in int(w2 / 60.0):   # os veios, mais compridos na frente (mais perto)
 				var gx := fmod(i * 197.0 + k * 61.0, w2)
 				var gy := roundf(y0 + (y1 - y0) * (0.25 + 0.5 * ((i * 7 + k) % 5) / 4.0))
 				var gl := 16.0 + (i % 4) * 10.0 + k * 10.0
-				_p(gx, gy, gl, 1, Color("2e2219"))
-				_p(gx + gl * 0.3, gy + 1, gl * 0.5, 1, Color("20170f"))
+				_p(gx, gy, gl, 1, Pal.DESK_GRAIN[2])
+				_p(gx + gl * 0.3, gy + 1, gl * 0.5, 1, Pal.DESK_GRAIN[3])
 		for k in 2:   # o fundo escurece de leve (sem linha na quina: com ela parecia o rodapé de um chão)
 			_r(r.position.x, r.position.y, r.size.x, depth * (0.16 - k * 0.08), Color(0, 0, 0, 0.04))
 	# a luz da luminária: um círculo no tampo, embaixo dela (que fica um pouco à frente do fundo da mesa), liso e mais
@@ -113,12 +113,12 @@ func _draw_desk(r: Rect2, front: float) -> void:
 	_light_fan(_proj(pool.x, _yd, pool.y), pts, Color(1.0, 0.78, 0.48, 0.22 * lamp_level))
 	# a borda da frente: o canto arredondado do tampo pega a luz, a espessura dele e, embaixo, o escuro sob a mesa
 	var f := front * 2.0
-	_p(0, f - 2, w2, 1, Color("5a4030"))
-	_p(0, f - 1, w2, 1, Color("7a5434"))
-	_p(0, f, w2, 2, Color("6b4529"))
-	_p(0, f + 2, w2, 8, Color("3a2616"))
-	_p(0, f + 4, w2, 1, Color("442c1a"))   # um friso na espessura
-	_p(0, f + 10, w2, 2, Color("1a120c"))
+	_p(0, f - 2, w2, 1, Pal.DESK_EDGE[0])
+	_p(0, f - 1, w2, 1, Pal.DESK_EDGE[1])
+	_p(0, f, w2, 2, Pal.DESK_EDGE[2])
+	_p(0, f + 2, w2, 8, Pal.DESK_EDGE[3])
+	_p(0, f + 4, w2, 1, Pal.DESK_EDGE[4])   # um friso na espessura
+	_p(0, f + 10, w2, 2, Pal.DESK_GRAIN[0])
 	_r(r.position.x, front + 6, r.size.x, r.end.y - front - 6, Color("0a0705"))
 
 

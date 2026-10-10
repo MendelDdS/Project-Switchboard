@@ -6,13 +6,15 @@ extends Control
 ## que o leva e o solta; na mão, sobe como o cartão do despacho, `Lift`); o carimbo solto em cima dele deixa a marca
 ## vermelha onde o meio dele caiu (`stamp`), mais fraca com a borracha secando.
 
-const SIZE := Vector2(190, 92)   ## o título e o número lado a lado na faixa (em 176, encostavam)
+const SIZE := Vector2(190, 130)   ## o título e o número lado a lado na faixa (em 176, encostavam); embaixo, o campo do carimbo
 const PAPER := Color("e4dcc0")
 const EDGE := Color("a89c78")
 const FORM := Color("34507e")   ## o formulário vem impresso em azul (o cartão do despacho, em vermelho)
 const MARK := Color("b03a2e")   ## a tinta do carimbo
-const MARK_SIZE := Vector2(124, 30)   ## na largura do nome da central em inglês, o mais longo
+const MARK_SIZE := Vector2(64, 20)   ## a janela da sapata do carimbo (`Toll.WINDOW`): o fio duplo e "TARIFADO"
 const VALUE_X := 62.0   ## onde começam os dados, à direita dos rótulos
+const FIELD := Rect2(30, 92, 130, 34)   ## o campo impresso do carimbo, embaixo dos dados (cabe a marca, `MARK_SIZE`), com o nome em cima
+const TEETH := 4.0   ## a beira de baixo, serrilhada onde a máquina cortou a tira: um dente a cada tanto (px)
 
 var serial := 0
 var line := 0
@@ -32,6 +34,7 @@ var held := false:
 		set_process(true)
 
 var _lift := Lift.new()
+var _specks: Array[Vector2] = []   # as fibras do papel (cada bilhete as suas, pelo número)
 
 
 func _init() -> void:
@@ -57,7 +60,7 @@ func stamp(at: Vector2, wet := 1.0) -> void:
 	queue_redraw()
 
 
-## A marca do carimbo em `mark`: o fio duplo, "TARIFADO" e o nome da central na letra miúda, com falhas da tinta
+## A marca do carimbo em `mark`: o fio duplo e "TARIFADO", com falhas da tinta
 ## (cada bilhete as suas, pelo número; com menos tinta, mais claras e mais falhas).
 func _draw_mark() -> void:
 	var r := Rect2((mark - MARK_SIZE / 2.0).round(), MARK_SIZE)
@@ -74,9 +77,7 @@ func _draw_mark() -> void:
 			for x: float in [b.position.x, b.end.x - 1.0]:
 				if posmod(y * 5 + int(x) - n, 11) >= gaps:
 					draw_rect(Rect2(x, y, 1, 1), tint)
-	PunchCard.write(self, Vector2(r.position.x, r.position.y + 15.0), T.text(T.Key.TOLL_STAMP), tint, r.size.x, HORIZONTAL_ALIGNMENT_CENTER)
-	var central := PixelArt.tiny(T.text(T.Key.GAME_TITLE))
-	draw_texture(central, Vector2(floorf(mark.x - central.get_width() / 2.0), r.end.y - 10.0), tint)
+	PunchCard.write(self, Vector2(r.position.x, r.position.y + 14.0), T.text(T.Key.TOLL_STAMP), tint, r.size.x, HORIZONTAL_ALIGNMENT_CENTER)
 
 
 func _process(delta: float) -> void:
@@ -92,11 +93,19 @@ func _notification(what: int) -> void:
 
 
 ## Sempre no tamanho inteiro (`SIZE`): entrando na caixinha, a altura encolhe e recorta (`clip_contents`, `Toll._sink`);
-## saindo da fenda, também, e o desenho sobe o que ainda está lá dentro (`top`).
+## saindo da fenda, também, e o desenho sobe o que ainda está lá dentro (`top`). O papel com as fibras (como o cartão
+## do despacho), a beira de baixo serrilhada e, embaixo dos dados, o campo do carimbo, tracejado.
 func _draw() -> void:
 	draw_set_transform(Vector2(0, -top))
-	draw_rect(Rect2(_lift.shadow(), SIZE), Lift.SHADOW)   # a sombra na mesa
-	draw_rect(Rect2(Vector2.ZERO, SIZE), PAPER)
+	draw_rect(Rect2(_lift.shadow(), SIZE - Vector2(0, 1)), Lift.SHADOW)   # a sombra na mesa
+	draw_rect(Rect2(0, 0, SIZE.x, SIZE.y - 2.0), PAPER)
+	if _specks.is_empty():
+		var rng := RandomNumberGenerator.new()
+		rng.seed = serial
+		for i in 40:
+			_specks.append(Vector2(rng.randi_range(2, int(SIZE.x) - 4), rng.randi_range(18, int(SIZE.y) - 5)))
+	for sp in _specks:
+		draw_rect(Rect2(sp, Vector2(2 if int(sp.x) % 3 == 0 else 1, 1)), PAPER.darkened(0.1))
 	draw_rect(Rect2(0, 0, SIZE.x, 16), FORM)
 	PunchCard.write(self, Vector2(6, 12), T.text(T.Key.TOLL_TICKET), PAPER)
 	PunchCard.write(self, Vector2(6, 12), "%04d" % serial, PAPER, SIZE.x - 12.0, HORIZONTAL_ALIGNMENT_RIGHT)
@@ -108,6 +117,21 @@ func _draw() -> void:
 		PunchCard.write(self, Vector2(VALUE_X, y), rows[i][1], Pal.INK)
 		for x in range(int(VALUE_X), int(SIZE.x) - 6, 3):   # a linha de preencher
 			draw_rect(Rect2(x, y + 3.0, 1, 1), Color(FORM, 0.6))
-	draw_rect(Rect2(Vector2.ZERO, SIZE), EDGE, false, 1.0)
+	for x in range(int(FIELD.position.x), int(FIELD.end.x), 3):   # o campo do carimbo
+		for y: float in [FIELD.position.y, FIELD.end.y - 1.0]:
+			draw_rect(Rect2(x, y, 2, 1), Color(FORM, 0.6))
+	for y in range(int(FIELD.position.y), int(FIELD.end.y), 3):
+		for x: float in [FIELD.position.x, FIELD.end.x - 1.0]:
+			draw_rect(Rect2(x, y, 1, 2), Color(FORM, 0.6))
+	var label := PixelArt.tiny(T.text(T.Key.TOLL_FIELD))
+	draw_texture(label, FIELD.position + Vector2(0, -9), FORM)
+	var bottom := SIZE.y - 2.0
+	draw_rect(Rect2(0, 0, SIZE.x, 1), EDGE)   # a beira: em cima e dos lados...
+	for x: float in [0.0, SIZE.x - 1.0]:
+		draw_rect(Rect2(x, 0, 1, bottom), EDGE)
+	for x in range(0, int(SIZE.x), int(TEETH)):   # ...e os dentes embaixo
+		draw_rect(Rect2(x, bottom, TEETH - 1.0, 1), PAPER)
+		draw_rect(Rect2(x + TEETH - 1.0, bottom, 1, 1), EDGE)
+		draw_rect(Rect2(x, bottom + 1.0, TEETH - 1.0, 1), EDGE)
 	if ink >= 0.0:
 		_draw_mark()
