@@ -98,7 +98,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 12
+theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 8
 
@@ -120,7 +120,7 @@ mouse_filter = 2
 theme_override_constants/separation = 8
 
 [node name="TopLeft" type="HBoxContainer" parent="Layout/Rows/Columns/Left" unique_id=1593524455]
-custom_minimum_size = Vector2(0, 52)
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 12
@@ -158,14 +158,14 @@ layout_mode = 2
 script = ExtResource("5_switchboard")
 
 [node name="Shelf" type="HBoxContainer" parent="Layout/Rows/Columns/Left"]
-custom_minimum_size = Vector2(0, 16)
+custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 12
 
 [node name="FoneSocket" type="Control" parent="Layout/Rows/Columns/Left/Shelf"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(58, 16)
+custom_minimum_size = Vector2(58, 32)
 layout_mode = 2
 mouse_filter = 2
 script = ExtResource("25_fone_socket")

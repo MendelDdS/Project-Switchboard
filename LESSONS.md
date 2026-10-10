@@ -84,7 +84,9 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
 - **Mudou a geometria dos buracos: procure tudo o que sai dela.** A fileira da frente ficou 14 px abaixo, mas o fio
   continuava repousando na linha da de trás (`_floor()` = `SHELF_HOLE_Y`), e o plug da frente travava antes de entrar.
   O teste não pegou: depois de `SEAT_WAIT` o plug assenta de qualquer jeito. Ao mexer em `hole()`, procure
-  `SHELF_HOLE_Y`, `floor_y`, `lip_y` e `HOLE_LIP`, e confira o encaixe pela distância (`SEAT_NEAR`), não pelo tempo.
+  `SHELF_HOLE_Y`, `floor_y`, `lip_y` e `HOLE_LIP`. Para ver se algum plug trava, compare quantos quadros cada ponta
+  leva para assentar antes e depois da mudança (`go_home` até sair de `ropes`): travado leva uns 15 a mais. A
+  distância medida de fora não serve: é a do quadro anterior, e o plug anda vários px por quadro.
 - **Número novo fora dos setores quebra as regras "só do setor".** Os troncos (9xx) valem para a cidade toda:
   `GameData.in_service` e o teste "a agenda da noite 1 só pede o setor 3" precisaram saber disso.
 
@@ -184,3 +186,6 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
 - **Teste com número fixo quebra quando a constante muda** (`free_patches() == 3` com 5 cabos): use `b.PATCHES`.
 - **Para rodar um cenário só enquanto outro falha**, copie-o para um `tests/test_<x>.gd` temporário (a cabeça do
   `test_flow`, o cenário e `finish("nome")`) e apague depois.
+- **Peça que aparece só mais tarde muda a altura da interface.** O botão Encerrar turno (às 23:40) deixa o bilhete
+  do turno 2 px mais alto que a faixa encolhida, e a tela inteira subiria. Ao encolher uma faixa, meça
+  `get_combined_minimum_size()` também com tudo o que pode aparecer nela.

@@ -5,7 +5,7 @@ extends Control
 ## desenha o plug e o fio por cima e recebe os cliques aqui (por isso este nó e os containers acima dele ignoram o mouse).
 
 func _ready() -> void:
-	custom_minimum_size = Vector2(58, 16)
+	custom_minimum_size = Vector2(58, 32)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 

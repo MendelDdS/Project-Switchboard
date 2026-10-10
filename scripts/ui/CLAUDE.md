@@ -87,7 +87,7 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   teto já fica só na tela do cenário. Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
   **Disposição (cena + painel)**: a tela é uma mesa de trabalho. No alto da esquerda, o horário do turno num
   papel colado com fita na parede (`ShiftPlate`, variação `TapedNote`, com o horário e o botão Encerrar turno; era uma
-  plaqueta de latão; a faixa dele, `TopLeft`, tem 52 px fixos) e, à direita dele, na parede acima da mesa
+  plaqueta de latão; a faixa dele, `TopLeft`, tem 42 px fixos, a altura do bilhete com o botão; era 52, e os 16 px que saíram dela e da margem de cima foram para a prateleira) e, à direita dele, na parede acima da mesa
   comutadora, a placa esmaltada da companhia telefônica (`Background._draw_company_sign`, `SIGN_COMPANY`). O relógio da sala é um **relógio de flip na mesa** (`Background._draw_flip_clock`, o único da tela):
   caixa de baquelite creme numa base escura, reta, com a frente paralela à tela (`CLOCK`; `CLOCK_TURN` gira para os
   olhos uma fração do ângulo até eles, `_yaw`; foi 0,5: certo na conta, mas a frente descia uns 5° entre as horizontais
@@ -102,7 +102,7 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   começar a virar; era um tique-taque a cada segundo real, do relógio de ponteiros, e não batia com as plaquetas, que
   viram a cada 1,33 s), e a badalada de gongo a cada hora cheia (`chime`, `Main._hour`) vêm do relógio
   (`Background.clock_x`) e a campainha de latão quando o turno pode ser encerrado (`shift_bell`), da plaqueta; embaixo
-  dela a mesa comutadora (588×362), a faixa da prateleira (`Shelf`, 16 px: o encaixe do FONE, `%FoneSocket`, e os
+  dela a mesa comutadora (588×362), a faixa da prateleira (`Shelf`, 32 px; era 16: o painel foi recuado para a parede, a pedido, para os cabos terem respiro; o encaixe do FONE, `%FoneSocket`, e os
   buracos dos cabos, `%CordTray`, com os plugs guardados em pé neles, na frente do painel, como numa mesa telefônica
   de verdade; cada fio repousa na fileira do buraco dele, `floor_y`) e a faixa da frente do console (`%Desk`), com a
   **miniatura do painel de baixo** no meio (`%Mini`, `ConsoleMini`: a tela da conversa, as teclas e o rádio na
@@ -125,7 +125,7 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   do tampo, `PhonePanel._draw`; os blocos `HudPanel` são telas e chapas encaixadas; a tela da conversa tem vidro e
   apaga sem ligação, `ScreenGlass`, mas fica esperando como um terminal antigo: "Aguardando chamada" bem apagado
   e o cursor piscando, `idle`, `CONSOLE_IDLE`; o rádio mostra acima da mensagem de agora as anteriores, cada uma mais
-  apagada, `Radio.HISTORY`, `_archive`, as que couberem; cada uma com a hora em que chegou na frente, `Radio.minutes`, posto pelo Main). A altura útil é 700 px: as colunas pedem 540 (a da esquerda, exata) e o
+  apagada, `Radio.HISTORY`, `_archive`, as que couberem; cada uma com a hora em que chegou na frente, `Radio.minutes`, posto pelo Main). A altura útil é 706 px: as colunas pedem 546 (a da esquerda, exata) e o
   painel 150; passando, a tela inteira sobe e a plaqueta sai por cima. O `Background` (cenário em camadas, em pixels de 1x1 como a interface: as contas em unidades de 2 px e os detalhes finos em `PX`/`_p`; desenhado no `SceneView`, uma tela própria na resolução da janela, que repassa o mouse a ele, `pointer`/`prop_at`/`leave`, e desenha por cima o contorno e o nome do objeto sob o mouse, `draw_hover`) estica
   parede e mesa até a borda, como o canto de uma sala visto de quem está sentado à mesa. **Uma câmera só**, em
   perspectiva de um ponto: o ponto de fuga (`_vp`) fica em `VP_AT` do espaço da mesa, da mesa comutadora à
@@ -163,7 +163,7 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   olhos e o alto `WIN_TOP` acima deles, e a travessa do caixilho quase na altura deles; a janela e o armário são medidos
   em cm a partir dos olhos, `_cm`, e acompanham a câmera quando ela muda; a vista da cidade é desenhada de frente num vidro fora da tela, `_vport`, e só recortada
   pelo vidro: está longe e não entorta com a janela; o horizonte dela fica na altura dos olhos); a mesa, afastada da
-  parede (`DESK_T`), com o fundo do tampo atrás da mesa comutadora (`BOARD_SINK`), a borda da frente logo abaixo da
+  parede (`DESK_T`), com o fundo do tampo atrás da mesa comutadora (`BOARD_SINK`; ele não sai do lugar quando o painel recua: o painel se aproxima da parede, e a sala e o ponto de fuga ficam onde estão), a borda da frente logo abaixo da
   faixa de mesa (`Background.desk`) e a ponta na parede da direita, numa
   linha que foge para o ponto de fuga. A luz vem de cima, do meio da tela, de uma luminária que não aparece (o
   desenho dela foi tirado a pedido do usuário: `_lamp_x` no meio, `LAMP_Y` acima da tela); ela dobra na quina: na

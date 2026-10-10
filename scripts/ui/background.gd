@@ -44,7 +44,7 @@ const PROPS := {Tools.DIRECTORY: T.Key.TAB_DIRECTORY, Tools.DISPATCH: T.Key.TAB_
 
 const CALENDAR := "calendario"   ## a folhinha do armário: sob o mouse, a data da noite (não abre ferramenta)
 const DETAILS := ["cartaz_quermesse", "numero_anotado", "armario_entreaberto"]   ## o que `RoomChange.detail` pode pedir
-const BOARD_SINK := 30.0   ## o fundo do tampo, em px da tela acima da base do painel: fica atrás da mesa comutadora
+const BOARD_SINK := 14.0   ## o fundo do tampo, em px da tela acima da base do painel: fica atrás da mesa comutadora (o painel recuado para a parede, a prateleira funda)
 const LAMP_Y := -30.0      ## a boca da luminária, acima da tela (px de 2x2): de onde sai a luz e saem as sombras na parede
 const WALL_GAP := 40.0     ## quanto a luminária fica à frente da parede (px de 2x2): abre o arco de luz nela
 # A câmera. Medidas da sala na escala da parede do fundo (px de 2x2 lá; ~0,56 cm): x para a direita e y para baixo a

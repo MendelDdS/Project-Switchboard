@@ -10,8 +10,8 @@ const SHELF_SLOTS := 5   # lugares de cabo na prateleira: os que sobram dos `PAT
 const TRUNK_GAP := 8.0      # do último plug guardado até o bloco interurbano (o vão da moldura dos bancos)
 const PAIR_SHIFT := 16.0    # a ponta da frente de um cabo, à esquerda da de trás: encostadas, as duas se leem como um par
 const FONE_HOLE_X := 40.0   # o buraco do FONE, a partir da esquerda do encaixe (o nome gravado embaixo cabe nos três idiomas)
-const SHELF_HOLE_Y := 1.0   # a fileira de trás dos buracos da prateleira (o FONE e a primeira ponta de cada cabo), no alto da faixa
-const SHELF_FRONT_Y := 15.0 # a fileira da frente (a outra ponta), logo à frente da de trás, como nas mesas de verdade
+const SHELF_HOLE_Y := 10.0  # a fileira de trás dos buracos da prateleira (o FONE e a primeira ponta de cada cabo), afastada do rodapé do painel
+const SHELF_FRONT_Y := 29.0 # a fileira da frente (a outra ponta), à frente da de trás, como nas mesas de verdade; o mesmo vão entre as fileiras e até as beiras
 const PLUG_SINK := 22.0  # guardado, o plug entra tanto no buraco (px abaixo dele: a capa de borracha some nele, o corpo fica à mostra)...
 
 var exchange: Exchange
@@ -22,7 +22,7 @@ var ends: Array = []           # tomada de cada ponta (-1 = na base). 0 = FONE; 
 var held := -1
 ## Os olhos do operador, o ponto de fuga da sala, em px da mesa (medido a cada quadro pela mesa; sem cenário, nos
 ## testes, onde eles ficam em 1280 × 720): os plugs encaixados apontam para ele e a prateleira foge para ele.
-const PLUG_EYE := Vector2(SIZE.x + 134, 92)
+const PLUG_EYE := Vector2(SIZE.x + 176, 108)
 var _eye := PLUG_EYE
 var trunks := Rect2()   # o bloco interurbano no painel (a mesa o põe ao montar os bancos): os cabos vão até ele
 
@@ -43,14 +43,14 @@ var _lamp_at := Vector2.ZERO   # onde fica a luminária do teto, medida no come�
 ## Encaixe do FONE em coordenadas da mesa (na prateleira à frente do painel, fora do retângulo dela).
 func socket_rect() -> Rect2:
 	if fone_socket == null:
-		return Rect2(0, 370, 58, 16)
+		return Rect2(0, 370, 58, 32)
 	return Rect2(fone_socket.global_position - global_position, fone_socket.size)
 
 
 ## A faixa dos buracos dos cabos na prateleira, em coordenadas da mesa (também fora do retângulo dela).
 func tray_rect() -> Rect2:
 	if tray == null:
-		return Rect2(70, 370, 518, 16)
+		return Rect2(70, 370, 518, 32)
 	return Rect2(tray.global_position - global_position, tray.size)
 
 

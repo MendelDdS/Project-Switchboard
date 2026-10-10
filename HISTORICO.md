@@ -386,4 +386,7 @@ O que o usuário pediu, em ordem (antes no `CLAUDE.md`). Acrescente cada pedido 
 118. Interurbanos funcionando: as tomadas do banco INTERURBANO são destinos (troncos 901–906); quem liga pede a cidade
     e diz o número de lá; o operador liga a saída no tronco, transfere, passa o número à telefonista da outra cidade
     e ela completa. Tronco errado: o número não é de lá.
-
+119. A prateleira ficou mais funda: o painel da mesa comutadora recuou 16 px para a parede (a faixa do bilhete do turno
+    e a margem de cima cederam a altura; o fundo do tampo, a sala e o ponto de fuga ficaram onde estavam) e as duas
+    fileiras de buracos se afastaram do rodapé do painel, da beira da frente e uma da outra, para os cabos terem
+    respiro (`SHELF_HOLE_Y`, `SHELF_FRONT_Y`).
