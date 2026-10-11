@@ -555,8 +555,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Relógio: 0,75 min de jogo por segundo real (`GAME_MIN_PER_SEC`): 6 h de turno ≈ 8 min reais.
 
 ## Histórico das decisões de design
-- O que o usuário pediu, em ordem, e por quê, fica em [HISTORICO.md](HISTORICO.md): leia antes de refazer ou desfazer
-  algo visual ou de mecânica (muita coisa foi testada e saiu a pedido) e acrescente ali cada pedido novo do usuário.
+- O que o usuário pediu, em ordem, e por quê, fica em [HISTORICO.md](HISTORICO.md): consulte antes de refazer ou
+  desfazer algo visual ou de mecânica (muita coisa foi testada e saiu a pedido) e acrescente ali cada pedido novo do
+  usuário, com as chaves do assunto. **Não leia tudo**: cada item tem chaves (`#camera`, `#cabos`, `#saiu`..., a lista
+  fica no alto do arquivo) e só os itens com as chaves do pedido interessam:
+  `awk -v t='camera|janela|saiu' '/^[0-9]+\. /{p = $0 ~ "#(" t ")( |$)"} p' HISTORICO.md`.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.
