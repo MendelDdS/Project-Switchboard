@@ -135,7 +135,8 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   quina, o armário (`CAB_W`) e o lugar do cartaz (`POSTER_W`) com a mesma folga entre eles; os objetos da mesa em duas
   fileiras de ponta a ponta entre a lateral da mesa comutadora e a parede da direita (`_row`, `WALL_PAD`; a da frente para
   `EDGE_PAD` antes, porque perto a parede já passou da beira da tela), com a mesma folga entre eles e antes do primeiro
-  (encostados na mesa comutadora, pareciam apertados). Os lugares do cartaz e do jornal ficam guardados mesmo sem eles, para nada mudar entre as noites.
+  (encostados na mesa comutadora, pareciam apertados); na da frente, o calculógrafo fica no meio da unidade de despacho,
+  alinhado com ela, e o bloco de fichas e o jornal se distribuem do fim dele até a parede. Os lugares do cartaz e do jornal ficam guardados mesmo sem eles, para nada mudar entre as noites.
   (Presos a uma ponta só, sobrava mesa vazia numa janela larga; presos a pontas diferentes, o relógio caía em cima do
   jornal em 1280 e o armário entrava atrás da mesa comutadora.) e `EYE` acima do fundo do tampo, dentro da tela, na altura da janela (era logo acima
   da tela: a mesa vista mais de cima, mas a parede da janela ficava a 44 cm da cabeça e a janela descia uns 40°; com

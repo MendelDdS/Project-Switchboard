@@ -187,7 +187,8 @@ func _draw_desk_props() -> void:
 	# em duas fileiras, distribuídas de ponta a ponta entre a lateral da mesa comutadora e a parede da direita, com a
 	# mesma folga entre eles e antes do primeiro (encostado na mesa comutadora, parecia apertado), em qualquer largura de
 	# janela: presos a uma ponta só, sobrava mesa vazia na outra, e presos a pontas diferentes, eles se trombavam. Atrás,
-	# o que é alto: a unidade de despacho, as listas e o relógio com a caneca na frente dele; na frente: o calculógrafo,
+	# o que é alto: a unidade de despacho, as listas e o relógio com a caneca na frente dele; na frente: o calculógrafo (no
+	# meio da unidade de despacho, alinhado com ela),
 	# o bloco de fichas (era um caderno aberto, que tomava a fileira) e o lugar do jornal (guardado mesmo sem ele, para
 	# nada mudar de lugar entre as noites). Todos em `PROP_K`, no tamanho de verdade; o jornal, dobrado estreito
 	var r := _cx - _vp.x - WALL_PAD   # a parede da direita é o plano x = quina (na escala da parede do fundo)
@@ -197,17 +198,18 @@ func _draw_desk_props() -> void:
 	# (a fileira de trás conta a folga da lateral, onde a prancheta fica pendurada; as listas ocupam mais que a largura
 	# delas, com os volumes desencontrados, `BOOKS_SPAN`: sem isso, o relógio encostava na pilha)
 	var back := _row(_side_x - 4.0, r, [0.0, UNIT.x * k, BOOKS_SPAN * k, cw + mr]).slice(1)   # (o 0: a mesma folga antes do primeiro)
-	var near := _row(_side_x, r - EDGE_PAD, [0.0, CALC.x * k, PAD_W * k, NEWS_W * k]).slice(1)
+	var cx: float = back[0] + (UNIT.x - CALC.x) * k / 2.0   # o calculógrafo no meio da unidade de despacho, logo atrás dele
+	var near := _row(cx + CALC.x * k, r - EDGE_PAD, [0.0, PAD_W * k, NEWS_W * k]).slice(1)   # e os outros dois depois dele
 	_draw_dispatch_unit(back[0], _at(0.6), UNIT.x * k)   # recuada: a máquina do calculógrafo, na frente dela, não tampa a base
 	_draw_books(back[1], _at(0.54), 31 * k, _deep(0.3 * k))
-	_flat(Tools.LOGBOOK, near[1], _at(0.06), PAD_W * k, _deep(0.26 * k), 2 * k, Pal.NOTE_PAGE.darkened(0.25), _art_pad, [], deg_to_rad(-2.0),
+	_flat(Tools.LOGBOOK, near[0], _at(0.06), PAD_W * k, _deep(0.26 * k), 2 * k, Pal.NOTE_PAGE.darkened(0.25), _art_pad, [], deg_to_rad(-2.0),
 		_pad_marks)
 	_draw_flip_clock(back[2] + cw / 2.0, _at(0.72))   # logo atrás da caneca (desenhado antes dela)
 	_draw_mug(back[2] + cw, _at(0.46), mr, 13 * k)   # mais larga que alta, como as esmaltadas
-	_draw_calculograph(near[0], _at(0.06))   # na linha do bloco de fichas
+	_draw_calculograph(cx, _at(0.06))   # na linha do bloco de fichas
 	# papel tem 1 px de beira (mais grosso, parecia tábua)
 	if news:
-		_flat(Tools.NEWS, near[2], _at(0.07), NEWS_W * k, _deep(0.19 * k), 0.5, Color("a89c78"), _art_newspaper, [], deg_to_rad(6.0),
+		_flat(Tools.NEWS, near[1], _at(0.07), NEWS_W * k, _deep(0.19 * k), 0.5, Color("a89c78"), _art_newspaper, [], deg_to_rad(6.0),
 			_newspaper_print)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 

@@ -511,3 +511,5 @@ O que o usuário pediu, em ordem (antes no `CLAUDE.md`). Acrescente cada pedido 
     mesa": a almofada e a caixinha encostadas nos cantos passavam dos lados da máquina na sala (perto, a mesinha abre
     mais que ela) e o carimbo ficava na beira da mesa. Agora as duas ficam afastadas dos lados e de baixo na mesma
     medida (`Toll.INSET`), na mesma linha, e o calculógrafo da sala fica na linha do bloco de fichas.
+149. O calculógrafo da sala mais para a esquerda, alinhado com a unidade de despacho atrás dele (o meio de um no meio
+    da outra); o bloco de fichas e o jornal se distribuem no que sobra da fileira da frente, até a parede.
