@@ -513,3 +513,6 @@ O que o usuário pediu, em ordem (antes no `CLAUDE.md`). Acrescente cada pedido 
     medida (`Toll.INSET`), na mesma linha, e o calculógrafo da sala fica na linha do bloco de fichas.
 149. O calculógrafo da sala mais para a esquerda, alinhado com a unidade de despacho atrás dele (o meio de um no meio
     da outra); o bloco de fichas e o jornal se distribuem no que sobra da fileira da frente, até a parede.
+150. A lateral da mesa comutadora angulada demais para a esquerda: o ponto de fuga mais perto dela (`VP_AT` 0,32 →
+    0,24; na tela, de x 700 para 664): a lateral fica a 10° da linha de visão, não 14°, e sai mais estreita e menos
+    inclinada; a sala inteira acompanha.
