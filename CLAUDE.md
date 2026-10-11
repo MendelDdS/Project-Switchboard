@@ -200,7 +200,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Semente fixa: `Godot --path . -- --seed=123` repete a agenda do turno (sem `--seed`, é aleatória).
 - **Painel de debug** (F1, ação `debug`; `DebugPanel`, `scenes/ui/debug_panel.tscn`, nó `%Debug` do Main, z 5): só em
   build de debug (editor ou export de debug; no release ele se apaga). Toca ligações na hora (qualquer tipo; emergência
-  escolhida, com o caso sorteado; interurbano num tronco que nenhuma ligação da mesa usa), pula estágio ou congela a barra (`Urgency.frozen`), mostra o que a emergência
+  escolhida, com o caso sorteado; interurbano num tronco que nenhuma ligação da mesa usa), imprime só um bilhete de tarifação,
+  sem ligação (de 1 a 12 minutos até agora, numa entrada sem contador; `Main.print_ticket`), pula estágio ou congela a barra (`Urgency.frozen`), mostra o que a emergência
   exige (contado e real), velocidade 1–8×, pula o relógio, troca o clima na hora (`Main.set_weather`), encerra o turno, troca de noite (`_go_night`: troca o Main por um novo na noite anterior/seguinte, no mesmo pai, dentro da tela do `GameView`; posto na raiz, saía na resolução da janela e quebrava o layout; sem ler nem
   gravar o progresso, para testar a entrega dos setores), libera viaturas (`Dispatch.reset`; `_gen` cancela
   as viagens em andamento), registra pendências, limpa advertências e apaga o progresso. Mesa de som: toca cada som de `Sfx.VOL` com
@@ -210,7 +211,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   topo tem "Restaurar tudo" (`Main.drop` tira uma ligação sem caderno, advertência nem retorno; `Main.drop_all` tira
   todas e zera a mesa antes de tirar os cabos, para nada contar como conversa cortada; `Main.drop_emergency` apaga as
   emergências em andamento; tocar uma terceira emergência é recusado; `Notebook.reset`). Textos fixos em português (ferramenta, não interface). O que mexe no
-  estado do Main fica em funções públicas dele (`free_line`, `ring`, `set_weather`, `start_ending`, `drop`, `drop_all`,
+  estado do Main fica em funções públicas dele (`free_line`, `ring`, `print_ticket`, `set_weather`, `start_ending`, `drop`, `drop_all`,
   `drop_emergency`); dos campos, o painel só lê agenda e ligações para o texto de estado e adianta o relógio (`minutes`), para não quebrar quando o Main mudar.
 - **Captura de tela** (`tools/shot.tscn`, COM tela): `Godot --path . tools/shot.tscn -- --hour=22:30 --weather=rain
   --tool=despacho --card --emergency --news --toll --width=1500 --zoom=x,y,w,h --out=build/shot.png` grava a tela inteira e o
@@ -280,25 +281,50 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   da cadeira, no modelo do numerador automático de escritório (a referência do usuário, em pixel art), fino (88 px):
   o cabo de baquelite preta em cogumelo (o preto dos cabos), com o tampo oval e o brilho, a haste cromada e o anel,
   fatias redondas deitadas uma por cima da outra (`_knob`, `_knob_r`, `_knob_tone`, `SQUASH`; o desenho em texto de
-  28 px saía achatado); o corpo de níquel com o tampo à vista e a plaqueta "TARIFADO"; embaixo, o eixo com as pontas,
-  as rodas de algarismos de latão com os tipos na cor da tinta e a língua; e a armação parada, as pernas com os
-  parafusos, descendo até o fundo da sapata, e a sapata entre elas, vista de cima, com a janela (`WINDOW`, do tamanho da marca, `TollTicket.MARK_SIZE`: o fio duplo
-  e "TARIFADO"), por onde se vê onde ele vai carimbar (`Toll.STAMP`, `_draw_stamp`); só a armação
+  28 px saía achatado), com o medalhão de latão do fabricante (inventado, `BRAND`) no tampo e o reflexo quente da
+  luminária do lado da luz (`GLINT`); o corpo de níquel com o tampo à vista e a plaqueta "TARIFADO"; embaixo, o eixo
+  com as pontas e as rodas de algarismos de latão, da largura da janela, com os tipos na cor da tinta; e a armação
+  parada, as pernas com o rasgo do eixo e os parafusos de latão, descendo até o fundo da sapata, o seletor de latão
+  com riscos gravados e a alavanca serrilhada (`SELECTOR`; sem letras nem números: "0 1 2 D", o modo de repetição dos
+  numeradores de verdade, ninguém entendia; molas de retorno à vista também saíram, a pedido), e a sapata entre elas, vista de cima, com a janela (`WINDOW`, do tamanho da marca,
+  `TollTicket.MARK_SIZE`, 64×34: a moldura grossa de cantos redondos com um fio fino por dentro, a data da noite,
+  miúda, `PixelArt.tiny`, entre dois traços, "TARIFADO" na fonte de 11 em negrito e "SÃO SOTERO" miúdo,
+  `CityMap.CITY`, entre estrelinhas; a tinta falha nos fios, cada bilhete do seu jeito, mais de um lado e mais com a
+  borracha secando; a data pela noite, `TollTicket.night`, que o Main passa ao `Toll`), por onde se vê onde ele vai
+  carimbar (`Toll.STAMP`, `_draw_stamp`). A sombra da armação tem duas camadas, a curta e escura de quem encosta na
+  mesa (`SHADOW_NEAR`, some na mão) e a longa e fraca, como a do corpo e do cabo; a longa da armação não passa onde
+  cai a do corpo (`_minus`): sombras translúcidas somadas escurecem o dobro (o `modulate` vale por desenho); só a armação
   fica dentro da mesa (`FOOT`, `_inside`): o resto passa por cima da máquina para alcançar o bilhete embaixo da
   fenda, e o mouse ali chega pelo próprio carimbo (`mouse_filter` PASS). Levar e soltar não carimba: **posto em cima do
-  bilhete, um clique nele** (apertar e soltar sem andar `CardMachines.DRAG_START` px) o aperta (o corpo desce e volta,
-  `PRESS`, pelas pernas, até as rodas de latão encostarem no papel, na janela, `_stamp_down`) e, nesse instante (`_touch`, com o som), carimba embaixo do meio da janela (`RUBBER_MID`; uma vez só, `stamp`); a borracha seca a cada batida (`Toll.INK`: a primeira cheia, a outra mais fraca e, depois, só o vulto, que
+  bilhete, um clique nele** (apertar e soltar sem andar `CardMachines.DRAG_START` px) o aperta (`_stamp_down`): o
+  corpo desce pelas pernas acelerando, até as rodas de latão encostarem no fundo da janela, tampando-a toda (`PRESS`;
+  parando no meio dela, o papel à vista embaixo das rodas, parecia não encostar), fica no papel um instante e volta
+  freando (`_press_k`, `PRESS_DOWN`, `PRESS_HOLD`, `PRESS_SEC`), e a sombra do que desce encurta perto do papel; na
+  batida (`_touch`: o baque e o estalo do metal, `thump` e `punch`) a mesa sacode, o que está nela pula e assenta
+  (`SHAKE_SEC`, `SHAKE_PX`, a posição do `%Desk` volta a `_desk_at`), e ele carimba o bilhete de
+  cima que estiver embaixo da janela, nem que só a beira (`_ticket_under`; um que já tem marca que vale não recebe
+  outra): **a marca sai onde a janela estava** (o meio em `RUBBER_MID`, `stamp`), recortada no papel (`TollTicket._inked`,
+  `clip_contents`; antes era empurrada para dentro e saía longe de onde bateu); com menos da metade no papel é borrão e
+  não vale (`MARK_VALID`), e as que não valem continuam no papel (`_marks`) quando ele é carimbado de novo; a borracha seca a cada batida (`Toll.INK`: a primeira cheia, a outra mais fraca e, depois, só o vulto, que
   não vale como carimbo, `TollTicket.ink`) e volta a ter tinta apertado na almofada (a borracha muda de cor). Com a
   ferramenta aberta, o bilhete impresso sai da fenda da máquina no tempo do som da impressora, a beira de baixo na
-  frente, e cai na mesa (`_emerge`: `TollTicket.top` sobe o desenho; saindo, não se pega). O bilhete solto com o mouse na caixinha vai para ela (`file`; conta na hora) e desce para dentro,
+  frente, e cai na mesa (`_emerge`: `TollTicket.top` sobe o desenho; saindo, não se pega); impresso com ela fechada
+  (o comum), espera na fenda (`_fresh`; na sala, a ponta de pé) e sai dela quando a ferramenta abre, mais depressa
+  (`OUT_SEC`, um depois do outro; `_arrange`, chamado também quando ela fica visível). O bilhete solto com o mouse na caixinha vai para ela (`file`; conta na hora) e desce para dentro,
   sumindo atrás da frente dela (`_sink`: a altura dele encolhe até a boca, `BOX_MOUTH`, com `clip_contents`; por isso o
   `TollTicket` desenha sempre em `SIZE`); sem o carimbo, ela aceita e vem a advertência leve
   `toll_unstamped` (`Toll.unstamped`). O número do bilhete é reservado quando começa a contar (`Toll.ticket_of`) e vai
   para a ficha do caderno ("Bilhete nº 0002", `PhoneCall.Record.ticket`). Bilhete esquecido na mesa: à meia-noite o turno
   espera guardar, como o registro (`Main._unregistered`), e no fim é advertência leve `toll_forgotten`
-  (`Supervisor.shift_over`). Na mesa da sala, a ponta do bilhete esperando sobe da fenda do calculógrafo no
-  tempo do som da impressora (`Background._draw_tip`, camada própria, `TIP_SEC`) e a luz âmbar acende enquanto conta
-  (`Background.tickets`/`metering`). Dica da
+  (`Supervisor.shift_over`). **Na mesa da sala, o calculógrafo é a ferramenta aberta em miniatura** (antes era uma
+  caixa com a fenda no tampo e um visor, e não batia com ela): a máquina atrás, com o mostrador do relógio (os
+  ponteiros na hora do jogo, numa textura trocada no lugar, `Background._dial_face`), os dez contadores (o da entrada
+  contando acende, `Toll.counters` → `Background.counting`), a plaqueta com a luz e a fenda embaixo, de onde a ponta do
+  bilhete esperando (`Toll.in_slot` → `Background.tickets`) desce para a mesinha no tempo do som da impressora
+  (`Background._draw_tip`, camada própria, `TIP_SEC`); na frente dela, a mesinha na proporção da mesa aberta
+  (`Toll.NOMINAL`, a de 1280 × 720), com a almofada, os bilhetes soltos com as marcas, a caixinha com os guardados e o
+  carimbo em pé onde o jogador os deixou (`Toll.layout` → `Background.toll_desk`, passado só com a ferramenta fechada:
+  aberta, levar um bilhete redesenharia a sala a cada quadro). Dica da
   primeira vez: `HINT_TOLL` (`SAW_TOLL`). Ponytail: não há tecla, e o interurbano ainda contando no fim do turno não
   imprime.
 - Fim de ligação: `end_call(c, PhoneCall.End.*)` gera `c.record` (um `PhoneCall.Record`, nulo antes; no livro, `stamped` com o carimbo) e manda para `Notebook.add()` (fila; não trava o turno; não atendida vai

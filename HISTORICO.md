@@ -457,3 +457,37 @@ O que o usuário pediu, em ordem (antes no `CLAUDE.md`). Acrescente cada pedido 
 138. Dois ajustes no carimbo: apertado, ele desce até as rodas de latão encostarem no papel, na janela da sapata, e só
     então a marca aparece (`Toll._touch`, no meio do aperto, `PRESS` 39 px); e as pernas descem até o fundo da sapata,
     com a janela entre elas (antes, a sapata com os dentes parecia solta embaixo das pernas).
+139. O bilhete não saía pelo buraco da impressora: impresso com o calculógrafo fechado (o caso comum), ao abrir ele já
+    estava deitado na mesa. Agora espera na fenda (na sala, a ponta de pé) e sai dela quando a ferramenta abre. E a
+    marca do carimbo ganhou três linhas: a data da noite pequena em cima, "TARIFADO" médio e "SÃO SOTERO" bem pequeno
+    embaixo (64×32; a janela da sapata, o aperto e o bilhete, 140 px, cresceram junto).
+140. Mais detalhes no carimbo: as molas de retorno sob as pontas do eixo, que encolhem no aperto; o seletor de latão
+    com as marcas gravadas e a alavanca serrilhada (no lugar da língua lisa); no cabo, o medalhão de latão de um
+    fabricante inventado e o reflexo quente da luminária; e a sombra da armação em duas camadas (curta e escura
+    encostada na mesa, longa e fraca), sem a faixa mais escura onde a sombra do corpo caía em cima da das pernas no
+    aperto. A marca vermelha, que estava simples demais: moldura grossa de cantos redondos com um fio fino por dentro,
+    traços dos lados da data, "TARIFADO" em negrito, estrelinhas dos lados de "SÃO SOTERO" e a tinta falhando e
+    carregando como a de uma borracha de verdade (64×34; a janela e a sapata cresceram junto).
+141. Ajustes do carimbo: as molas de retorno saíram (não gostou; voltaram os parafusos de latão das pernas); o seletor
+    perdeu o "0 1 2 D", que não dava para entender (o modo de repetição dos numeradores de verdade), e ficou com riscos
+    gravados; o aperto parecia não encostar (as rodas paravam no meio da janela, com o papel à vista embaixo delas):
+    agora desce até as rodas tamparem a janela toda, e a sombra encurta perto do papel; e a batida ganhou impacto:
+    desce acelerando, para seco no papel um instante e volta freando, a mesa sacode (o que está nela pula e assenta) e o
+    som soma o estalo do metal ao baque.
+142. Debug só para imprimir bilhetes: "Imprimir bilhete" no painel (F1) solta um bilhete de tarifação sem ligação,
+    como se um interurbano tivesse acabado agora, para testar o carimbo e a caixinha sem esperar uma conversa.
+143. Carimbado um pouco fora do bilhete, a marca saía em outro lugar (era empurrada para dentro do papel). Agora sai
+    onde a janela do carimbo estava, cortada na beira do papel; com menos da metade dentro é borrão e não vale (dá
+    para carimbar de novo, e o borrão continua no papel). Das sugestões (marca cortada, tinta na mesa, ímã no campo,
+    não deixar carimbar na beira), o usuário escolheu a marca cortada com a regra do borrão.
+144. A miniatura do calculógrafo na sala não batia com a ferramenta aberta (a fenda no tampo, um visor com três pontos,
+    sem o relógio, sem a mesa dele). Das sugestões, o usuário quis as duas: a máquina refeita pela aberta (mostrador
+    com os ponteiros, os dez contadores acendendo pela entrada, a plaqueta com a luz, a fenda embaixo, de onde o
+    bilhete sai para a mesa) e a mesinha dela na sala, com a almofada, os bilhetes soltos, a caixinha e o carimbo onde
+    o jogador os deixou (de longe se vê um bilhete esquecido).
+145. As proporções da sala não faziam sentido: os plugs (18 × 93 px, uns 12 cm em pé) ficavam maiores que o carimbo,
+    as listas e o relógio. O usuário quis as duas sugestões, uma depois da outra: os plugs de volta a uns 2/3 e mais
+    finos (14 × 66 px, uns 2 × 9 cm; buraco da prateleira, fio e plug encaixado afinaram junto; as tomadas ficaram) e o
+    calculógrafo da sala maior (de 14 para uns 22 cm, com um carimbo novo em pé, de pixel art, como o da ferramenta).
+    O dobro não cabia na fileira da frente em 1280: o jornal ficou dobrado mais estreito e a unidade de despacho foi
+    recuada, para a máquina não tampar a base dela.

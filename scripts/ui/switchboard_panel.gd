@@ -8,32 +8,28 @@ const FRAME := 7.0           # a moldura de madeira do móvel, em volta do paine
 ## Faixas gravadas no painel que separam as seções (altura da linha; o nome fica sobre ela, à esquerda).
 const RULES := {"in": 22.0, "out": 131.0, "dest": 181.0}
 const WOOD := [Color("6b4529"), Color("4a2f1c"), Color("2a1a0f")]   # madeira do móvel e da bandeja: luz, meio, sombra
-## O buraco da prateleira (28×14, achatado pela perspectiva; o vão, 22 de largura, mais largo que o plug, que entra
+## O buraco da prateleira (20×10, achatado pela perspectiva; o vão, 16 de largura, mais largo que o plug, que entra
 ## nele): b, a beira de trás do aro (na sombra); f e F, a da frente (na luz, com o brilho); w, a parede de dentro do lado
 ## de trás; h, o vão. As linhas são de elipses de pixel art (`draw_grommet`).
 const HOLE_ART := [
-	".........bbbbbbbbbb.........",
-	"......bbbbbbbbbbbbbbbb......",
-	"...bbbbbwwwwwwwwwwwwbbbbb...",
-	"..bbbbwwwwwwhhhhwwwwwwbbbb..",
-	".bbbwwwhhhhhhhhhhhhhhwwwbbb.",
-	"bbbwwhhhhhhhhhhhhhhhhhhwwbbb",
-	"bbbwhhhhhhhhhhhhhhhhhhhhwbbb",
-	"fffhhhhhhhhhhhhhhhhhhhhhhfff",
-	"fffhhhhhhhhhhhhhhhhhhhhhhfff",
-	".fffhhhhhhhhhhhhhhhhhhhhfff.",
-	"..ffffhhhhhhhhhhhhhhhhffff..",
-	"...fffffhhhhhhhhhhhhfffff...",
-	"......ffFffffffffffFff......",
-	".........FFFFFFFFFF.........",
+	"......bbbbbbbb......",
+	"...bbbbbbbbbbbbbb...",
+	".bbbwwwwwwwwwwwwbbb.",
+	"bbbwwwhhhhhhhhwwwbbb",
+	"bbwhhhhhhhhhhhhhhwbb",
+	"ffhhhhhhhhhhhhhhhhff",
+	"ffhhhhhhhhhhhhhhhhff",
+	".ffhhhhhhhhhhhhhhff.",
+	"...ffFffffffffFff...",
+	"......FFFFFFFF......",
 ]
 const HOLE_PAL := {"b": Color("7a6230"), "f": Color("c4a35a"), "F": Color("e6cf8e"), "w": Color("3a2a12"), "h": Color("140d06")}
 
 var _lit := {}   ## lâmpada ("l3" linha, "d312" destino) -> [cor, quanto está acesa 0..1]; a cor fica enquanto apaga
 
 ## O encaixe, pixel a pixel (16×16, menor que o `JACK`; par, para o meio dele cair entre dois pixels, como o das
-## plaquinhas e das lâmpadas), na medida da ponta do plug: o furo preto tem 8 px, a largura da luva (com 20, a tomada
-## ficava grande demais para ela). Um aro niquelado fino (2 a 3 pixels) com a beira escura por fora, em volta do furo.
+## plaquinhas e das lâmpadas), na medida da ponta do plug: o furo preto tem 8 px, pouco mais que a luva, de 6 (com 20, a
+## tomada ficava grande demais para ela). Um aro niquelado fino (2 a 3 pixels) com a beira escura por fora, em volta do furo.
 ## A luz (alto à esquerda) bate na face do aro desse lado, com um fio de brilho no meio dele, e, por dentro, na parede
 ## do furo do lado oposto (embaixo à direita). Os dois círculos (16 e 10 pixels) têm as larguras de linha das
 ## circunferências de pixel art (6, 10, 12, 14...): com outros raios saíam com lados retos, como um octógono; a beira e

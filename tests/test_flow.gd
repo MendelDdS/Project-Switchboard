@@ -131,7 +131,7 @@ func _grip() -> Vector2:
 func _stamp_at(p: Vector2) -> void:
 	await _drag_mouse(_grip(), p - Toll.RUBBER_MID + m.toll._stamp.size / 2.0)
 	await _tap_mouse(_grip())
-	await frames(int(Toll.PRESS_SEC * 60.0) + 2)   # (carimba quando os tipos encostam, no meio do aperto)
+	await frames(int(Toll.PRESS_SEC * 60.0) + 2)   # (carimba quando as rodas encostam, no fim da descida)
 
 
 ## Clique (aperta e solta no mesmo lugar) sobre o nó `n`.
@@ -470,6 +470,8 @@ func _initialize() -> void:
 	ok(lc.transcript.any(func(l): return lt.far_number in String(l["text"])), "o operador passou o número de lá")
 	ok(ex.line(ln) == Exchange.Line.CONN and ex.dest(tgt) == Exchange.Dest.CONN, "interurbano conectado")
 	ok(m.toll.counting(ln) and m.toll.tickets().is_empty(), "o calculógrafo conta o interurbano")
+	await frames(1)
+	ok(m.background.counting == 1 << ln, "no calculógrafo da sala, o contador da entrada acende")
 	m.minutes = ex.line_until(ln) + 1.0
 	await frames(1)
 	var tk: TollTicket = m.toll.tickets()[0] if m.toll.tickets().size() == 1 else null
@@ -485,15 +487,21 @@ func _initialize() -> void:
 		"bilhete sem carimbo na caixinha: advertência leve")
 	m.toll.start(5, "Capital", "45-12", m.minutes)
 	var tk2 := m.toll.stop(5, m.minutes + 3.2)
+	await frames(1)
+	ok(m.background.tickets == 1, "impresso com ele fechado, na sala a ponta sai da fenda")
 	m.tools.set_tab(Tools.TOLL)
-	await frames(30)
+	await frames(2)
+	ok(tk2.clip_contents, "impresso com o calculógrafo fechado, o bilhete sai da fenda quando ele abre")
+	await frames(28)
 	var stamp: Control = m.toll._stamp
 	await _drag_mouse(_grip(), tk2.get_global_rect().get_center() - Toll.RUBBER_MID + stamp.size / 2.0)
 	ok(not tk2.stamped and (stamp.get_global_position() + Toll.RUBBER_MID).distance_to(tk2.get_global_rect().get_center()) < 1.5, "carimbo levado até o bilhete: ainda não carimba")
+	var desk_at := m.toll._desk.position
 	await _tap_mouse(_grip())
 	await frames(int(Toll.PRESS_SEC * 60.0) + 2)
 	var mark := tk2.mark
 	ok(tk2.stamped and (stamp.get_global_position() + Toll.RUBBER_MID).distance_to(tk2.get_global_rect().get_center()) < 1.5, "clicado em cima do bilhete, carimba (e fica no lugar)")
+	ok(m.toll._desk.position == desk_at, "a mesa sacudida pela batida volta ao lugar")
 	await _stamp_at(tk2.get_global_rect().get_center() + Vector2(24, 6))
 	ok(tk2.mark == mark and tk2.minutes() == 4, "uma marca só; o minuto começado conta inteiro")
 	var desk: Control = m.toll._desk
@@ -539,7 +547,22 @@ func _initialize() -> void:
 	await _stamp_at(desk.get_global_position() + m.toll._pad().get_center())
 	await _stamp_at(tk4.get_global_rect().get_center())
 	ok(tk4.stamped and tk4.ink == 1.0, "passado na almofada, volta a marcar")
+	var pad := desk.get_global_position() + m.toll._pad().get_center()
+	await _stamp_at(pad)
+	var tk5 := _ticket(8)
+	await frames(20)
+	await _stamp_at(tk5.get_global_rect().position + Vector2(10, 60))
+	ok(tk5.stamped and tk5.mark.distance_to(Vector2(10, 60)) < 1.5, "na beira, a marca fica onde bateu (cortada no papel) e vale com mais da metade dentro")
+	var tk6 := _ticket(9)
+	await frames(20)
+	await _stamp_at(tk6.get_global_rect().position + Vector2(-10, 60))
+	ok(not tk6.stamped and tk6.ink > 0.0 and tk6.mark.x < 0.0, "com menos da metade no papel, é borrão: com tinta e não vale")
+	await _stamp_at(pad)
+	await _stamp_at(tk6.get_global_rect().get_center())
+	ok(tk6.stamped and tk6.marks.size() == 2, "carimbado de novo, vale, e o borrão continua no papel")
 	m.tools.close()
+	ok(await wait_until(func(): return m.background.toll_desk.size() == 4 + m.toll.tickets().size()) and m.background.toll_desk[-1][1].size() == 2,
+		"guardado, o calculógrafo da sala mostra os bilhetes soltos com as marcas")
 	print("OK 1b interurbano pelo tronco da cidade")
 
 	# ---- 2. três ligações ao mesmo tempo, com espera

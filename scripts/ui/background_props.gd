@@ -7,18 +7,71 @@ const PLANKS := 6       ## as tábuas do tampo, todas da mesma largura (a câmer
 const POOL_R := 150.0   ## o raio da poça de luz da luminária no tampo
 const SHADE_MAX := 0.3   ## o mais escuro que um objeto da mesa fica, longe da poça de luz (`_shade`)
 const WALL_PAD := 10.0           ## a folga dos objetos da mesa até a parede da direita (x da sala)
-const PROP_K := 93.0 / 66.0   ## a escala dos objetos da mesa: a mesma dos plugs, que cresceram até o tamanho das tomadas (antes, o plug ficava maior que o relógio e o caderno)
+const PROP_K := 93.0 / 66.0   ## a escala dos objetos da mesa: no tamanho de verdade deles na sala (`_cm`; as listas com 21 cm), maiores que o plug em pé (uns 9 cm)
 ## A unidade de despacho (`_draw_dispatch_unit`, na escala dos objetos, `PROP_K`): largura, altura da base e fundo da
 ## base até o painel (fração do tampo); o painel: a altura acima da base, o quanto o alto dele recua (fração do tampo,
 ## para ficar inclinado, de frente para os olhos) e o fundo do móvel todo (fração do tampo).
 const UNIT := Vector3(39, 6, 0.17)
 const BOOKS_SPAN := 40.0   ## o lugar das listas na fileira (na escala dos objetos): os 31 delas mais os volumes desencontrados e a lombada
 const UNIT_PANEL := 16.0
+const NEWS_W := 25.0   ## a largura do jornal dobrado (na escala dos objetos, uns 16 cm): com 32, o calculógrafo não cabia do lado
 const UNIT_TILT := 0.11
 const UNIT_D := 0.3
-## O calculógrafo (`_draw_calculograph`, na escala dos objetos, `PROP_K`): largura, altura e fundo (fração do tampo).
-## Baixo, porque fica na fileira da frente, logo na frente da base da unidade de despacho: mais alto, a tampava.
-const CALC := Vector3(22, 8, 0.12)
+## O calculógrafo (`_draw_calculograph`, na escala dos objetos, `PROP_K`): a largura (uns 22 cm, com o bilhete de 7; com
+## 14, o carimbo tinha 2 cm e o plug parecia gigante), a altura da máquina e o fundo dela (fração do tampo); na frente
+## dela, a mesinha dela, na proporção da mesa da ferramenta (`Toll.NOMINAL`). Baixo, porque fica na fileira da frente,
+## logo na frente da base da unidade de despacho: mais alto, a tampava.
+const CALC := Vector3(34, 4, 0.06)
+const TOLL_BOX_H := 4.5   ## a altura da caixinha dos bilhetes (na sala, uns 2 cm)
+const STAMP_ART := [   ## o carimbo em pé na mesinha, como o da ferramenta (27 × 47 px, uns 6 cm): o cabo de baquelite com o medalhão, a haste, o corpo com a plaqueta, as rodas de latão entre as pernas e a sapata vazada
+	".........kkKKKKKkk.........",
+	".......kKKhhhKKKKKKk.......",
+	"......kKhhgKKmmmKKKKk......",
+	".....kKhgKKmMbMmKKKKKk.....",
+	".....kKhhKKKmmmKKKKKKk.....",
+	".....kkKKKKKKKKKKKKKkk.....",
+	".....kKhKKKKKKKKKKKKKk.....",
+	".....kkKKKKKKKKKKKKKkk.....",
+	"......kkkkkkkkkkkkkkk......",
+	"........kkkkkkkkkkk........",
+	"...........cpcCd...........",
+	"...........cpcCd...........",
+	"...........cpcCd...........",
+	".........ccppcCCdd.........",
+	".........ccppcCCdd.........",
+	"...........cpcCd...........",
+	"...........cpcCd...........",
+	"...........cpcCd...........",
+	"...........cpcCd...........",
+	"...........cpcCd...........",
+	".........ccpccCCdd.........",
+	"..cppppppppppppppppppppCd..",
+	"..cpppppppppppppppppppcCd..",
+	"..CCCCCCCCCCCCCCCCCCCCCCd..",
+	"..cCCCCCCCCCCCCCCCCCCCCCd..",
+	"..cCCpppppppppppppppppCCd..",
+	"..cCCpiiiiiiiiiiiiiiipCCd..",
+	"..cCCpppppppppppppppppCCd..",
+	"..cCCCCCCCCCCCCCCCCCCCCCd..",
+	"..ddddddddddddddddddddddd..",
+	"cCdeeeeeeeeeeeeeeeeeeeeecCd",
+	"cbd.bBbBbBbBbBbBbBbBbBb.cCd",
+	"cCd.BbBbBbBbBbBbBbBbBbB.cCd",
+	"cCd.bBbBbBbBbBbBbBbBbBb.cCd",
+	"cCd.BbBbBbBbBbBbBbBbBbB.cCd",
+	"cCd......bbbbbbbbb......cCd",
+	"cCd......bBBBBBBBb......cCd",
+	"cCd.....................cCd",
+	"cbd.....................cCd",
+	"cCd.....................cCd",
+	"cpppppppppppppppppppppppppd",
+	"cpp.....................ppd",
+	"cpp.....................ppd",
+	"cpp.....................ppd",
+	"cpppppppppppppppppppppppppd",
+	"CCCCCCCCCCCCCCCCCCCCCCCCCCd",
+	"ddddddddddddddddddddddddddd",
+]
 const CLOCK := Vector3(24, 12.5, 14) * PROP_K   ## o relógio de flip da mesa: largura, altura e fundo (na escala da sala; ~15 × 8 × 9 cm, como as listas de 21 cm)
 ## Quanto ele está virado para os olhos do operador (1 = de frente para eles; 0 = reto, para a parede). Reto: virado
 ## pela metade (13°), a frente descia uns 5° entre as horizontais da sala e o lado, que mostra que é uma caixa, quase
@@ -54,15 +107,17 @@ var unread := false  ## o registro das conversas tem fala nova: uma folha nova p
 var alert := false     ## há uma emergência em andamento: a luz vermelha da unidade de despacho (o Main atualiza)
 var card_out := false  ## há um cartão perfurado na mesa: ele sai da fenda da impressora da unidade, com a luz âmbar
 var news := false    ## o jornal da manhã está na mesa (da segunda noite em diante; `Main.set_news`)
-var metering := false   ## o calculógrafo está contando um interurbano: a luz âmbar dele
+var counting := 0    ## as entradas contando um interurbano, um bit cada (`Toll.counters`): os contadores acesos do calculógrafo
+var toll_desk := []  ## o que está na mesinha do calculógrafo e onde (`Toll.layout`; o Main só passa com a ferramenta fechada)
 var clock_x := 0.0   ## onde o relógio está na tela (x global): de lá vêm a badalada das horas e a campainha do turno
 var _yaw := 0.0   # quanto o relógio da mesa está girado (rad; `_draw_flip_clock`)
 var _props := {}       # objeto que abre ferramenta -> retângulo dele (px da tela), do último desenho
 var _lamp_x := 0.0     # onde está a luminária, no meio da tela (px de 2x2): a luz na mesa e a sombra dos objetos dependem dela
 var _zd := Vector2.ZERO   # a frente e o fundo do tampo (z)
 var _side_x := 0.0     # a lateral da mesa comutadora na sala (x): os objetos da mesa ficam à direita dela
-var _tip := Rect2()   # a ponta do bilhete de pé na fenda do calculógrafo, inteira (px da tela; a camada dela a desenha)
+var _tip := Rect2()   # a ponta do bilhete saindo da fenda do calculógrafo, inteira (px da tela; a camada dela a desenha)
 var _tip_dark := 0.0
+var _tip_cover: Array = []   # o carimbo em pé na mesinha [textura, meio, cor]: fica na frente da fenda, e a camada da ponta o desenha de novo por cima dela
 var _hom := Basis()          # a perspectiva do objeto chato sendo desenhado (`_flat`, `_homography`): o que vai por cima dele, na tela
 var _hom_sz := Vector2.ONE   # o tamanho do desenho de frente dele (px)
 var _occ: Array = []         # os objetos da mesa (px da tela, convexos): o que fica na frente da parede e do armário
@@ -133,7 +188,7 @@ func _draw_desk_props() -> void:
 	# com a caneca na frente dele; na frente: prancheta, listas (fora da frente da unidade, para não tampar as fendas
 	# dela) e o lugar do jornal (guardado mesmo sem ele, para nada mudar de lugar entre as noites). O calculógrafo ficou no
 	# lugar da prancheta, que agora fica pendurada na lateral da mesa comutadora (a mesa não tinha lugar para mais um).
-	# Todos em `PROP_K`, a escala dos plugs da mesa comutadora (que seguem as tomadas)
+	# Todos em `PROP_K`, no tamanho de verdade; o jornal, dobrado estreito, para o calculógrafo caber na fileira da frente
 	var l := _side_x + 8.0
 	var r := _cx - _vp.x - WALL_PAD   # a parede da direita é o plano x = quina (na escala da parede do fundo)
 	var k := PROP_K
@@ -143,68 +198,185 @@ func _draw_desk_props() -> void:
 	# (a fileira de trás começa encostada na lateral da mesa comutadora; as listas ocupam mais que a largura delas,
 	# com os volumes desencontrados, `BOOKS_SPAN`: sem isso, o relógio encostava na pilha)
 	var back := _row(_side_x + 2.0, r, [UNIT.x * k, BOOKS_SPAN * k, cw + mr])
-	var near := _row(l + 6.0, r, [CALC.x * k, 46.0 * k, 32.0 * k])
-	_draw_dispatch_unit(back[0], _at(0.5), UNIT.x * k)
+	var near := _row(l + 6.0, r, [CALC.x * k, 46.0 * k, NEWS_W * k])
+	_draw_dispatch_unit(back[0], _at(0.6), UNIT.x * k)   # recuada: a máquina do calculógrafo, na frente dela, não tampa a base
 	_draw_books(back[1], _at(0.54), 31 * k, _deep(0.3 * k))
 	_flat(Tools.LOGBOOK, near[1], _at(0.06), 46 * k, _deep(0.26 * k), 2 * k, Color("3a2414"), _art_notebook, [], deg_to_rad(-2.0), _notebook_marks)
 	_draw_flip_clock(back[2] + cw / 2.0, _at(0.72))   # logo atrás da caneca (desenhado antes dela)
 	_draw_mug(back[2] + cw, _at(0.46), mr, 13 * k)   # mais larga que alta, como as esmaltadas
-	_draw_calculograph(near[0], _at(0.05))
+	_draw_calculograph(near[0], _at(0.02))
 	# papel tem 1 px de beira (mais grosso, parecia tábua)
 	if news:
-		_flat(Tools.NEWS, near[2], _at(0.07), 32 * k, _deep(0.19 * k), 0.5, Color("a89c78"), _art_newspaper, [], deg_to_rad(6.0),
+		_flat(Tools.NEWS, near[2], _at(0.07), NEWS_W * k, _deep(0.19 * k), 0.5, Color("a89c78"), _art_newspaper, [], deg_to_rad(6.0),
 			_newspaper_print)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
-## O calculógrafo, que abre a tarifação (`x0`, a frente em `zf`; medidas em `CALC`): uma caixa baixa de metal, no
-## material das máquinas do despacho, com a fenda do bilhete no tampo e, na frente, o visor, a plaqueta de latão, a
-## saída de ar e a luz âmbar, acesa enquanto conta um interurbano (`metering`). A ponta do bilhete que sai da fenda
-## fica numa camada própria (`_tip`, `Background._draw_tip`).
+## O calculógrafo, que abre a tarifação (`x0`, a frente em `zf`; medidas em `CALC`), como a ferramenta aberta. Atrás, a
+## máquina, uma caixa baixa no material das máquinas do despacho; na frente dela, o mostrador do relógio (`_dial_face`),
+## os dez contadores em duas fileiras (a plaquinha, os tambores e a luz âmbar de cada entrada contando, `counting`), a
+## plaqueta de latão com a luz e a saída de ar e, embaixo, a fenda, de onde sai o bilhete (a ponta numa camada própria,
+## `_tip`, `Background._draw_tip`). Na frente dela, a mesinha (o que está nela e onde, `toll_desk`): a almofada com a
+## tampa aberta, os bilhetes soltos com as marcas do carimbo, a caixinha com os guardados e o carimbo em pé.
 func _draw_calculograph(x0: float, zf: float) -> void:
 	_yaw = 0.0
-	var hw := CALC.x * PROP_K / 2.0
+	_tip_cover = []
+	var w := CALC.x * PROP_K
+	var d := w * Toll.NOMINAL.y / Toll.NOMINAL.x
+	var zb := zf + d   # o fundo da mesinha: a frente da máquina
+	var hw := w / 2.0
 	var hd := _deep(CALC.z * PROP_K) / 2.0
 	var xc := x0 + hw
-	var zc := zf + hd
-	var y1 := _yd - CALC.y * PROP_K
+	var zc := zb + hd
 	_desk_shadow(PackedVector2Array([_clock_pt(xc, zc, -hw, hd, _yd), _clock_pt(xc, zc, hw, hd, _yd), _clock_pt(xc, zc, hw, -hd, _yd),
 		_clock_pt(xc, zc, -hw, -hd, _yd)]))
 	var box := _clock_box(xc, zc, hw, hd, _yd, CALC.y * PROP_K, Pal.PANEL_HI, Pal.PANEL_LO, Pal.PANEL)
-	var dark := _shade(xc, zc)
-	var v := -hd * 0.2   # a fenda, um pouco para a frente do meio do tampo
-	_pixel_line(_clock_pt(xc, zc, -hw * 0.7, v, y1), _clock_pt(xc, zc, hw * 0.7, v, y1), [Pal.EDGE, Pal.PANEL_LO])
 	var hull := PackedVector2Array()
 	for f: PackedVector2Array in box.values():
 		hull.append_array(f)
-	# a ponta do bilhete, de pé na fenda (reta na tela: o calculógrafo fica de frente), fica com a camada dela, que a
-	# faz subir sem redesenhar a sala; aqui, só onde ela fica
-	var a := _clock_pt(xc, zc, -hw * 0.45, v, y1).round()
-	var b := _clock_pt(xc, zc, hw * 0.45, v, y1 - 2.5 * PROP_K).round()
-	_tip = Rect2(a.x, b.y, b.x - a.x, a.y - b.y)
-	_tip_dark = dark
-	hull.append_array(PackedVector2Array([_tip.position, _tip.end]))
+	var dark := _shade(xc, zb)
 	if box.has("front"):
-		var f := _bounds(box["front"]).grow(-1.0)
-		var screen := Rect2(f.position.x + roundf(f.size.x * 0.08), f.position.y + roundf(f.size.y * 0.2), roundf(f.size.x * 0.4), roundf(f.size.y * 0.32))
-		draw_rect(screen.grow(1.0), Pal.EDGE)
-		draw_rect(screen, Color("0f0d09"))
-		if metering:   # os minutos contando, no visor
-			for i in 3:
-				draw_rect(Rect2(screen.position.x + 3.0 + i * 5.0, screen.get_center().y - 1.0, 3, 3), Pal.AMBER.darkened(0.2))
-		var brass := Rect2(screen.position.x, screen.end.y + roundf(f.size.y * 0.16), screen.size.x, 4)
-		draw_rect(brass, Pal.BRASS.darkened(0.25 + dark))
-		draw_rect(brass.grow(-1.0), Pal.BRASS.darkened(dark))
-		var lamp := Rect2(screen.end.x + roundf(f.size.x * 0.08), screen.get_center().y - 1.0, 3, 3)
-		draw_rect(lamp.grow(1.0), Pal.EDGE)
-		draw_rect(lamp, Pal.AMBER if metering else Pal.AMBER.darkened(0.75))
-		if metering:
+		var f := _bounds(box["front"])
+		f = Rect2(f.position.round(), f.size.round())
+		var dial := _dial_face(int(f.size.y * 0.7) | 1)
+		draw_texture(dial, f.position + Vector2(3, 2), Color.WHITE.darkened(dark))
+		var win := Rect2(f.position.x + roundf(f.size.x * 0.17), f.position.y + 2.0, roundf(f.size.x * 0.57), 0)
+		var cell := Vector2(floorf(win.size.x / 5.0), floorf((f.size.y - 7.0) / 2.0))
+		win.size.y = cell.y * 2.0
+		draw_rect(win, Pal.PANEL_LO.darkened(dark))
+		for n in range(1, Exchange.LINES + 1):
+			var o := win.position + Vector2((n - 1) % 5, (n - 1) / 5) * cell + Vector2(0, roundf(cell.y / 2.0) - 1.0)
+			var on := (counting & (1 << n)) != 0
+			draw_rect(Rect2(o + Vector2(1, 0), Vector2(2, 2)), Pal.BRASS.darkened(dark))   # a plaquinha da entrada
+			draw_rect(Rect2(o + Vector2(4, 0), Vector2(cell.x - 8.0, 2)), (Pal.SHEET_NEW if on else Pal.PANEL_HI).darkened(dark))   # os tambores
+			var led := Rect2(o + Vector2(cell.x - 3.0, 0), Vector2(2, 2))
+			draw_rect(led, Pal.AMBER if on else Pal.AMBER.darkened(0.75))
+			if on:
+				_light(led, Pal.AMBER, 0.4, true)
+		var side := Rect2(win.end.x + 3.0, f.position.y + 2.0, f.end.x - win.end.x - 6.0, f.size.y)
+		draw_rect(Rect2(side.position, Vector2(side.size.x, 3)), Pal.BRASS.darkened(0.25 + dark))   # a plaqueta
+		draw_rect(Rect2(side.position + Vector2(1, 1), Vector2(side.size.x - 2.0, 1)), Pal.BRASS.darkened(dark))
+		var lamp := Rect2(side.position + Vector2(0, 6), Vector2(2, 2))
+		draw_rect(lamp, Pal.AMBER if counting else Pal.AMBER.darkened(0.75))
+		if counting:
 			_light(lamp, Pal.AMBER, 0.6, true)
-		for i in 3:   # a saída de ar, à direita
-			draw_rect(Rect2(f.end.x - roundf(f.size.x * 0.3), screen.position.y + i * 3.0, roundf(f.size.x * 0.22), 1), Pal.PANEL_LO.darkened(dark))
+		for i in 3:   # a saída de ar
+			draw_rect(Rect2(side.position.x + 4.0, side.position.y + 6.0 + i * 2.0, side.size.x - 4.0, 1), Pal.PANEL_LO.darkened(dark))
+		var mw := roundf(f.size.x * TollTicket.SIZE.x / Toll.NOMINAL.x)   # a fenda, embaixo do meio dos contadores
+		var mouth := Rect2(roundf(win.get_center().x - mw / 2.0), f.end.y - 3.0, mw, 1)
+		draw_rect(mouth, Pal.EDGE)
+		draw_rect(Rect2(mouth.position + Vector2(0, 1), mouth.size), Pal.PANEL_HI.darkened(dark))
+		# a ponta do bilhete saindo dela para a mesinha fica com a camada dela, que a faz descer sem redesenhar a sala
+		_tip = Rect2(mouth.position + Vector2(1, 1), Vector2(mw - 2.0, 6))
+		_tip_dark = dark
+		hull.append_array(PackedVector2Array([_tip.position, _tip.end]))
+	var pt := func(p: Vector2, y: float) -> Vector2: return _p3(x0 + p.x * w, _yd - y, zb - p.y * d)   # um ponto da mesinha (fração dela), `y` acima
+	var quad := func(r: Rect2) -> PackedVector2Array:
+		return PackedVector2Array([pt.call(r.position, 0.0), pt.call(Vector2(r.end.x, r.position.y), 0.0), pt.call(r.end, 0.0),
+			pt.call(Vector2(r.position.x, r.end.y), 0.0)])
+	hull.append_array(quad.call(Rect2(0, 0, 1, 1)))
+	if toll_desk.size() >= 4:
+		dark = _shade(xc, zf + d / 2.0)
+		var pad: Rect2 = toll_desk[0]
+		var lid := Toll.LID / Toll.NOMINAL.x * w
+		_poly(PackedVector2Array([pt.call(pad.position, lid), pt.call(Vector2(pad.end.x, pad.position.y), lid),
+			pt.call(Vector2(pad.end.x, pad.position.y), 0.0), pt.call(pad.position, 0.0)]), Pal.NICKEL[3].darkened(dark))   # a tampa aberta, de costas
+		_poly(quad.call(pad), Pal.NICKEL[2].darkened(dark))
+		var rim := Vector2(5, 5) / Toll.NOMINAL
+		_poly(quad.call(Rect2(pad.position + rim, pad.size - rim * 2.0)), TollTicket.MARK.darkened(0.5 + dark))   # o feltro
+		for i in range(4, toll_desk.size()):   # os bilhetes soltos, na ordem em que estão empilhados
+			var r: Rect2 = toll_desk[i][0]
+			var q: PackedVector2Array = quad.call(r)
+			var sh := PackedVector2Array()
+			for p in q:
+				sh.append(p + Vector2(1, 1))
+			_poly(sh, Lift.SHADOW)
+			_poly(q, TollTicket.PAPER.darkened(dark))
+			_poly(quad.call(Rect2(r.position, Vector2(r.size.x, r.size.y * TollTicket.BAND / TollTicket.SIZE.y))), TollTicket.FORM.darkened(dark))
+			var half := TollTicket.MARK_SIZE / TollTicket.SIZE / 2.0
+			for m: Vector3 in toll_desk[i][1]:   # as marcas, cortadas no papel
+				var mr := Rect2(Vector2(m.x, m.y) - half, half * 2.0).intersection(Rect2(0, 0, 1, 1))
+				if mr.has_area():
+					_poly(quad.call(Rect2(r.position + mr.position * r.size, mr.size * r.size)), Color(TollTicket.MARK, lerpf(0.25, 0.75, m.z)).darkened(dark))
+		var bx: Rect2 = toll_desk[1]
+		var shoe: Rect2 = toll_desk[3]
+		var draw_box := func() -> PackedVector2Array:   # a caixinha: a madeira, a boca escura com os guardados de pé e a plaqueta na frente
+			var bc := Vector2(x0 + bx.get_center().x * w, zb - bx.get_center().y * d)
+			var bh := bx.size * Vector2(w, d) / 2.0
+			_desk_shadow(quad.call(bx))
+			var faces := _clock_box(bc.x, bc.y, bh.x, bh.y, _yd, TOLL_BOX_H, Pal.BOARD[0], Pal.BOARD[2], Pal.BOARD[1])
+			var y1 := _yd - TOLL_BOX_H
+			var e := 0.5
+			_poly(PackedVector2Array([_clock_pt(bc.x, bc.y, -bh.x + e, bh.y - e, y1), _clock_pt(bc.x, bc.y, bh.x - e, bh.y - e, y1),
+				_clock_pt(bc.x, bc.y, bh.x - e, -bh.y + e, y1), _clock_pt(bc.x, bc.y, -bh.x + e, -bh.y + e, y1)]), Color("140e09"))
+			for i in mini(toll_desk[2], 3):
+				var v := lerpf(bh.y - e * 3.0, -bh.y + e * 3.0, 0.3 + i * 0.25)
+				_pixel_line(_clock_pt(bc.x, bc.y, -bh.x + e * 3.0, v, y1 + 0.4), _clock_pt(bc.x, bc.y, bh.x - e * 3.0, v, y1 + 0.4),
+					[TollTicket.PAPER.darkened(0.3 + dark)])
+			if faces.has("front"):
+				var bf := _bounds(faces["front"])
+				draw_rect(Rect2(roundf(bf.get_center().x - bf.size.x * 0.22), roundf(bf.get_center().y - 1.0), roundf(bf.size.x * 0.44), 2),
+					Pal.BRASS.darkened(0.15 + dark))
+			var out := PackedVector2Array()
+			for g: PackedVector2Array in faces.values():
+				out.append_array(g)
+			return out
+		var draw_stamp := func() -> PackedVector2Array:   # o carimbo, em pé onde a sapata está
+			_desk_shadow(quad.call(shoe))
+			var tex := _stamp_art()
+			var foot: Vector2 = pt.call(Vector2(shoe.get_center().x, shoe.end.y), 0.0)
+			var c := foot.round() - Vector2(0, tex.get_height() / 2.0)
+			_sprite(tex, c, Color.WHITE.darkened(dark))
+			_tip_cover = [tex, c, Color.WHITE.darkened(dark)]
+			return PackedVector2Array([c - tex.get_size() / 2.0, c + tex.get_size() / 2.0])
+		var near: Array = [draw_box, draw_stamp] if shoe.end.y >= bx.end.y else [draw_stamp, draw_box]   # quem está mais perto vai por cima
+		for draw_it: Callable in near:
+			hull.append_array(draw_it.call())
 	_props[Tools.TOLL] = _bounds(hull)
 	_occ.append(Geometry2D.convex_hull(hull))
 	occ_ids.append(Tools.TOLL)
+
+
+## O carimbo da mesinha do calculógrafo (`STAMP_ART`), nas cores do da ferramenta.
+func _stamp_art() -> ImageTexture:
+	var k: Color = Switchboard.CORD_COLORS[5][0]
+	var n := Pal.NICKEL
+	return PixelArt.art(STAMP_ART, {"k": k.darkened(0.5), "K": k, "h": k.lerp(Switchboard.CORD_COLORS[5][1], 0.6), "g": Toll.GLINT,
+		"m": Pal.BRASS, "M": Pal.BRASS.darkened(0.3), "c": n[1], "C": n[2], "d": n[3], "p": n[0], "i": Pal.INK, "b": Pal.BRASS,
+		"B": Pal.BRASS.darkened(0.3), "e": Pal.EDGE})
+
+
+## O mostrador do relógio do calculógrafo da mesa (`n` px, ímpar): o aro niquelado, o fundo creme, as marcas das horas
+## e os ponteiros na hora do jogo. Como a frente do relógio de flip, refeito no lugar quando o minuto muda (o
+## `_process` pergunta a cada quadro): a sala, já desenhada com ele, não se redesenha.
+var _dial_key := []
+var _dial: ImageTexture
+
+
+func _dial_face(n: int) -> ImageTexture:
+	var t := int(minutes) % 720
+	if [n, t] == _dial_key:
+		return _dial
+	var img := Image.create(n, n, false, Image.FORMAT_RGBA8)
+	var o := Vector2(n / 2, n / 2)
+	for y in n:
+		for x in n:
+			var p := Vector2(x, y) - o
+			if p.length() <= n / 2.0 - 1.5:
+				img.set_pixel(x, y, Pal.SHEET_NEW)
+			elif p.length() <= n / 2.0:
+				img.set_pixel(x, y, Pal.NICKEL[1] if p.x + p.y < 0.0 else Pal.NICKEL[3])   # a luz vem do alto à esquerda
+	for i in 4:
+		img.set_pixelv(Vector2i(o + Vector2.UP.rotated(TAU * i / 4.0) * (n / 2.0 - 2.5)), Pal.INK)
+	_fl(img, o, o + Vector2.UP.rotated(TAU * t / 720.0) * n * 0.22, Pal.INK)
+	_fl(img, o, o + Vector2.UP.rotated(TAU * (t % 60) / 60.0) * n * 0.34, Pal.INK)
+	img.set_pixelv(Vector2i(o), Pal.INK_RED)
+	_dial_key = [n, t]
+	if _dial and _dial.get_size() == Vector2(n, n):
+		_dial.update(img)
+	else:
+		_dial = ImageTexture.create_from_image(img)
+	return _dial
 
 
 ## O relógio da sala: um relógio de flip na mesa (centro `xc`, `zc`; medidas em `CLOCK`), meio virado para o operador

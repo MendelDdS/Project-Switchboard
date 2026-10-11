@@ -113,6 +113,7 @@ func _ready() -> void:
 	background.weather = weather
 	background.night = night_no
 	notebook.night = night_no
+	toll.night = night_no
 	_update_room()
 	exchange = Exchange.new(GameData.board_numbers() + GameData.TRUNKS)
 	board.setup(exchange, %FoneSocket, %CordTray)
@@ -304,8 +305,10 @@ func _process(delta: float) -> void:
 	background.flick = flick
 	background.alert = not dispatch.fleet.incidents.is_empty()   # o estado do despacho na unidade da mesa
 	background.card_out = not dispatch.machines.can_print()
-	background.tickets = toll.waiting()   # o calculógrafo da mesa: o bilhete esperando e a luz contando
-	background.metering = toll.metering()
+	background.tickets = toll.in_slot()   # o calculógrafo da mesa: o bilhete saindo da fenda, os contadores e a mesinha dele
+	background.counting = toll.counters()
+	if not toll.is_visible_in_tree():   # (aberta, ela cobre o da sala, que se redesenharia a cada quadro com um bilhete na mão)
+		background.toll_desk = toll.layout()
 	toll.now = minutes
 	var w := background.warm   # esquentando, o brilho é mais fraco e alaranjado (`Background.warm_up`)
 	_glow.modulate = Color(1.0, lerpf(WARM_TINT.g, 1.0, w), lerpf(WARM_TINT.b, 1.0, w), background.lamp_level * lerpf(WARM_TINT.a, 1.0, w))
@@ -768,11 +771,11 @@ func _update_line_timers() -> void:
 				_taught_done = true
 				hint(T.text(T.Key.HINT_RED_LAMPS))
 		if toll.counting(n) and exchange.line(n) != Exchange.Line.CONN:   # acabou ou foi cortada
-			_print_ticket(n)
+			print_ticket(n)
 
 
 ## O interurbano da entrada `n` acabou: o calculógrafo imprime o bilhete (da primeira vez, a dica do carimbo).
-func _print_ticket(n: int) -> void:
+func print_ticket(n: int) -> void:
 	toll.stop(n, minutes)
 	Sfx.play_at("printer", _across(background.prop_rect(Tools.TOLL).get_center().x))
 	_teach(SAW_TOLL, T.Key.HINT_TOLL)

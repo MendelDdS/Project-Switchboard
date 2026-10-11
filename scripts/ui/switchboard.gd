@@ -80,9 +80,6 @@ const RUB_STILL := 30.0        # px/s: abaixo disso a mão está parada
 ## Tom do atrito de cada cabo (multiplica o tom e o corte): FONE, vermelho, azul, amarelo. Só uma nuance, para a
 ## mesa não soar como um fio só.
 const CORD_TONE := [1.0, 1.05, 0.95, 1.02, 0.97, 1.04]
-## Onde o corpo do plug encaixado termina e a capa começa, como fração do comprimento a partir do painel (das
-## `PLUG_LEN` linhas do `PLUG_ART` da aba até o fio, 3 de aba e 37 de corpo): a luz da lâmpada bate ali.
-const PLUG_BODY_END := 40.0 / 59.0
 
 const SLACK := 70.0                # folga extra além da distância reta (fio do FONE), no máximo...
 const SLACK_PER_PX := 0.15         # ...e esta por px de distância na horizontal (logo acima do buraco, sobrava fio deitado na prateleira)
@@ -437,7 +434,7 @@ func _plug_rect(e: int) -> Rect2:
 	if ends[e] != -1:   # do encaixe (atrás) até a ponteira (aqui)
 		var r := PLUG_FACE_R + 1.0
 		return Rect2(-_tilt(int(ends[e])) - Vector2(r, r), Vector2(r, r) * 2.0).merge(Rect2(-r, -r, r * 2.0, r * 2.0))
-	return Rect2(-10, -PLUG_H, 20, PLUG_H)
+	return Rect2(-PLUG_W / 2.0, -PLUG_H, PLUG_W, PLUG_H)
 
 
 ## Começa a assentar a ponta e, que chegou à boca do buraco com a traseira em `at`: o fio já entrou todo.

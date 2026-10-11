@@ -211,3 +211,21 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   embaixo das pernas (as pernas acabavam no tampo dela), e o aperto descia 6 px sem chegar ao papel: o usuário pediu
   as pernas até o fundo da sapata e as rodas encostando no papel antes de a marca aparecer. Ao animar ou montar um
   objeto, siga o caminho físico: o que segura o quê e onde o movimento termina.
+- **Animação de algo que acontece com a ferramenta fechada tem que valer quando ela abre.** O bilhete só saía da fenda
+  se fosse impresso com o calculógrafo aberto, e foi só esse caso que a captura conferiu; no jogo, a conversa acaba
+  com o jogador na mesa comutadora, e ao abrir o bilhete já estava deitado. Confira o caminho comum do jogador (a
+  ferramenta fechada quando o evento acontece), não só o que a captura monta.
+- **Desenho em jogo não pode precisar de legenda.** O seletor do carimbo ganhou "0 1 2 D", copiado do numerador de
+  verdade (o modo de repetição), e o usuário não entendeu: o jogador não tem como saber. Detalhe realista que só faz
+  sentido para quem conhece o objeto fica sem letras (riscos, marcas) ou sai.
+- **"Encostar" tem que se ver: o que bate cobre o lugar onde bate.** O aperto do carimbo descia até as rodas, mas
+  parava no meio da janela e o papel continuava à vista embaixo delas; parecia não chegar. No contato, a peça tampa a
+  área toda, a sombra dela encurta, e a batida precisa de peso: descer acelerando, parar seco, segurar um instante,
+  voltar freando, a mesa sacudindo e o som do impacto. Um movimento senoidal, liso e simétrico, não bate em nada.
+- **O resultado de uma ação física sai onde ela aconteceu.** O bilhete empurrava a marca do carimbo para dentro do papel
+  (um `clamp` para ela caber inteira), e carimbado na beira a marca aparecia longe da janela. Não corrija a posição em
+  silêncio: recorte o que cai fora e resolva a validade por regra (o borrão), à vista do jogador.
+- **Tamanho na sala se confere em centímetros, pela câmera (`Background._cm`), contra os vizinhos e os plugs.** O
+  calculógrafo refeito ficou no espaço da miniatura antiga (14 cm), com bilhetes de 5 cm e um carimbo de 2 cm, e o
+  usuário viu que os plugs (~12 cm em pé, 2,5 cm de grossura) ficavam maiores que carimbo, listas e relógio. Antes de
+  desenhar um objeto, diga o tamanho de verdade dele e confira na conta, não só se cabe no lugar.

@@ -138,7 +138,7 @@ var _bolt_lit: Array = []    # o que ele acende: [polígono (px da tela), cores]
 var _occ_board := PackedVector2Array()   # a mesa comutadora inteira (px da tela)
 var _side_faces: Array = []  # a lateral da mesa comutadora (px da tela), virada para a janela: [o console, o painel]
 var _panel_z := 0.0  # a frente do painel da mesa comutadora (z)
-var tickets := 0          ## bilhetes de tarifação esperando a caixinha: a ponta de um, de pé na fenda do calculógrafo
+var tickets := 0          ## bilhetes de tarifação esperando na fenda do calculógrafo (impressos com a ferramenta fechada): a ponta de um saindo dela
 var _tip_layer: Control   # a ponta do bilhete no calculógrafo da mesa (`_draw_tip`)
 var _tip_n := 0           # quantos bilhetes ela mostrava
 var _tip_t := TIP_SEC     # desde que o último saiu (s)
@@ -230,7 +230,7 @@ func _process(delta: float) -> void:
 		_bolt_layer.queue_redraw()
 		_tip_layer.queue_redraw()
 		_show()
-	if tickets > _tip_n:   # saiu um bilhete: a ponta sobe de novo, no tempo da impressora
+	if tickets > _tip_n:   # saiu um bilhete: a ponta desce da fenda de novo, no tempo da impressora
 		_tip_t = 0.0
 	_tip_n = tickets
 	_tip_t = minf(_tip_t + delta, TIP_SEC)
@@ -255,6 +255,11 @@ func _process(delta: float) -> void:
 		var was := _face_key
 		_clock_face(_face_key[0])
 		if _face_key != was:
+			_show()
+	if _dial:   # e os ponteiros do calculógrafo
+		var had := _dial_key
+		_dial_face(_dial_key[0])
+		if _dial_key != had:
 			_show()
 	_acc += delta
 	if _acc < 1.0 / 30.0:
@@ -336,7 +341,7 @@ func _show() -> void:
 ## luminária e o estado do jogo nos objetos.
 func _state() -> Array:
 	return [size, board.get_global_rect() if board else Rect2(), desk.get_global_rect() if desk else Rect2(),
-		window.get_global_rect() if window else Rect2(), lamp_level, pending, unread, alert, card_out, news, metering, details, night, weather,
+		window.get_global_rect() if window else Rect2(), lamp_level, pending, unread, alert, card_out, news, counting, toll_desk, details, night, weather,
 		TranslationServer.get_locale()]
 
 
@@ -537,14 +542,18 @@ func _draw_over() -> void:
 	_ci = self
 
 
-## A ponta do bilhete de tarifação de pé na fenda do calculógrafo da mesa (`_tip`, `_tip_layer`), com a faixa azul do
-## formulário no alto, subindo pixel a pixel enquanto ele é impresso (`TIP_SEC`; na sala, ela se redesenhava a cada um).
+## A ponta do bilhete de tarifação saindo da fenda do calculógrafo da mesa para a mesinha dele (`_tip`, `_tip_layer`),
+## a beira serrilhada na frente, como sai na ferramenta, descendo pixel a pixel enquanto ele é impresso (`TIP_SEC`; na
+## sala, ela se redesenhava a cada um).
 func _draw_tip() -> void:
 	if _tip_h <= 0:
 		return
-	var r := Rect2(_tip.position.x, _tip.end.y - _tip_h, _tip.size.x, _tip_h)
+	var r := Rect2(_tip.position, Vector2(_tip.size.x, _tip_h))
 	_tip_layer.draw_rect(r, TollTicket.PAPER.darkened(_tip_dark))
-	_tip_layer.draw_rect(Rect2(r.position, Vector2(r.size.x, mini(2, _tip_h))), TollTicket.FORM.darkened(_tip_dark))
+	for x in range(0, int(r.size.x), 2):
+		_tip_layer.draw_rect(Rect2(r.position.x + x, r.end.y - 1.0, 1, 1), TollTicket.EDGE.darkened(_tip_dark))
+	if not _tip_cover.is_empty() and Rect2(_tip_cover[1] - _tip_cover[0].get_size() / 2.0, _tip_cover[0].get_size()).intersects(r):
+		PixelArt.sprite(_tip_layer, _tip_cover[0], _tip_cover[1], _tip_cover[2])   # o carimbo em pé na frente da fenda tampa a ponta
 
 
 ## O clarão do relâmpago (`_bolt_layer`, uma camada somada por cima de tudo: a força é o `modulate`, o desenho fica): o que

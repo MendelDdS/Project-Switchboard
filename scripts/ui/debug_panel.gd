@@ -44,7 +44,7 @@ func _ready() -> void:
 	_row([["Restaurar tudo", _restore_all]])
 	_section("Ligações e mesa", main.drop_all)
 	_row([["Transferência", _ring_transfer.bind(false)], ["Molde", _ring_transfer.bind(true)], ["Interurbano", _ring_trunk], ["Informação", func(): _ring(Schedule.info_call())]])
-	_row([["Trote", func(): _ring(PhoneCall.from_prank(C.pranks.pick_random()))], ["Desconhecida", func(): _ring(PhoneCall.mystery())]])
+	_row([["Trote", func(): _ring(PhoneCall.from_prank(C.pranks.pick_random()))], ["Desconhecida", func(): _ring(PhoneCall.mystery())], ["Imprimir bilhete", _print_ticket]])
 	_emergency = OptionButton.new()
 	_emergency.focus_mode = Control.FOCUS_NONE
 	for e in C.emergencies:
@@ -185,6 +185,19 @@ func _ring_trunk() -> void:
 		main.warn("Debug: todos os troncos estão em uso.")
 	else:
 		_ring(PhoneCall.from_transfer(t))
+
+
+## Só o bilhete, sem ligação: um interurbano de molde que teria falado de 1 a 12 minutos até agora, numa entrada sem
+## contador; o calculógrafo imprime como no fim de uma conversa (o som e, da primeira vez, a dica).
+func _print_ticket() -> void:
+	var free := range(1, Exchange.LINES + 1).filter(func(n: int): return not main.toll.counting(n))
+	var t := GameData.trunk_transfer()
+	if free.is_empty() or t == null:
+		main.warn("Debug: nenhuma entrada sem contador.")
+		return
+	var n: int = free.pick_random()
+	main.toll.start(n, GameData.trunk_city(int(t.target)), t.far_number, maxf(main.minutes - randf_range(1.0, 12.0), 0.0))
+	main.print_ticket(n)
 
 
 func _ring_emergency() -> void:

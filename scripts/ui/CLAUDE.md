@@ -183,8 +183,10 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   proporção delas: quarteirões no tom do bairro, casas e árvores, lugares de telhado de barro, praça, zona rural,
   divisas e o selo; sem nomes, que nesse tamanho seriam ruído; papel sob a luz da sala, não tela acesa, a pedido),
   caderno aberto (3) e
-  o calculógrafo (4, `_draw_calculograph`, `CALC`: uma caixa baixa das máquinas do despacho, com a ponta do bilhete na
-  fenda, que sobe numa camada própria da sala enquanto ele é impresso, `_tip`, `Background._draw_tip`, e a luz âmbar contando, `metering`), mais a caneca, postos por fração da profundidade do tampo (`_at`, `_deep`: ficam no
+  o calculógrafo (4, `_draw_calculograph`, `CALC`: a ferramenta aberta em miniatura, a máquina das máquinas do despacho
+  atrás, com o mostrador, `_dial_face`, os contadores, `counting`, e a fenda embaixo, de onde a ponta do bilhete desce
+  numa camada própria da sala enquanto ele é impresso, `_tip`, `Background._draw_tip`; na frente, a mesinha dela com o
+  que está na da ferramenta, `toll_desk`: almofada, bilhetes, caixinha, `TOLL_BOX_H`, e o carimbo em pé, `STAMP_ART`, que a camada da ponta desenha de novo por cima dela, `_tip_cover`; uns 22 cm de largura: com 14, carimbo e bilhetes ficavam menores que um plug; para caber, o jornal fica dobrado estreito, `NEWS_W`, e a unidade de despacho, recuada), mais a caneca, postos por fração da profundidade do tampo (`_at`, `_deep`: ficam no
   tampo seja qual for a câmera) e, na largura, a partir da lateral da mesa comutadora (`_side_x`), em duas fileiras
   com folga entre eles: atrás, o que é alto: a unidade de despacho, as listas e o relógio de flip com a caneca na
   frente dele; na frente, o que é baixo: calculógrafo, caderno e jornal (as listas na frente tampavam o caderno inteiro;
@@ -440,17 +442,17 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   fino de níquel, sem furo (`_draw_lamp`, `BEZEL`, `LAMP_OFF`: com o assento preto pareciam mais uma tomada) que acendem rápido e apagam devagar, como
   filamento (`_lamp`/`_dest_lamp` dizem cor e nível desejado, `_fade` chega lá em `LAMP_ON_SEC`/`LAMP_OFF_SEC`, estado em
   `_lit`; a linha tocando pulsa). A luz acesa tinge o aro dela e o alto do aro do encaixe logo abaixo (`_reflect`).
-- Plug (`_draw_plug`): de pé (comprido, `PLUG_LEN` do fio à aba; guardado, afunda `PLUG_SINK` = 22 px no buraco: a capa
-  de borracha some nele e o corpo fica à mostra, sem esconder metade do plug) (solto, na mão, na bandeja; `_draw_plug_body`) é um mapa de pixels (`PLUG_ART`, 20×93, cores
+- Plug (`_draw_plug`): de pé (comprido, `PLUG_LEN` do fio à aba; guardado, afunda `PLUG_SINK` = 14 px no buraco: a capa
+  de borracha some nele e o corpo fica à mostra, sem esconder metade do plug) (solto, na mão, na bandeja; `_draw_plug_body`) é um mapa de pixels (`PLUG_ART`, 16×66, cores
   por cabo em `_plug_pal`; sombreado de cilindro com o brilho numa coluna só e a beira escura à direita, cantos
   arredondados; contido como o relógio: brilho largo e colar claro destoavam), no jeito de um plugue P10 (referência
-  do usuário): a capa de borracha em gomos afinando até o fio (termina em 10 px, a largura do fio, `ROPE_W`), o corpo na cor do cabo (identifica o cabo) com anel em
+  do usuário): a capa de borracha em gomos afinando até o fio (termina em 8 px, a largura do fio, `ROPE_W`), o corpo na cor do cabo (identifica o cabo) com anel em
   cima, serrilhado em listras finas e anel no meio, a aba dourada e a ponta de metal dourado (luva, isolante preto,
-  anel, outro isolante e o bico em ponta com a bolinha); comprido e fino como o P10 e **na escala das tomadas** (18 ×
-  93 px, `PLUG_H`, `PLUG_LEN` até a aba: o corpo enche o buraco da prateleira, `HOLE_ART` 28 × 14, e a luva de 8 entra
-  no furo de 8 da tomada; o encaixado na mesma proporção, `PLUG_FACE_R`, 18 px de corpo com a beira, cobrindo a tomada); para o plug não ficar maior que o
-  relógio e o caderno (um P10 tem uns 10 cm), **os objetos da mesa crescem na mesma proporção** (`Background.PROP_K` =
-  93/66, a caneca na frente do relógio para caberem em 1280); a área de clique do plug guardado sai da altura dele
+  anel, outro isolante e o bico em ponta com a bolinha); comprido e fino como o P10 e **na escala da sala** (14 ×
+  66 px, uns 2 × 9 cm, `PLUG_W`, `PLUG_H`, `PLUG_LEN` até a aba: o corpo enche o buraco da prateleira, `HOLE_ART` 20 × 10, e a luva de 6 entra
+  no furo de 8 da tomada; o encaixado, `PLUG_FACE_R`, 14 px de corpo com a beira, cobrindo o furo e quase todo o aro):
+  menor que o relógio, as listas e o carimbo do calculógrafo (com 18 × 93, na escala das tomadas, e os objetos da mesa
+  crescidos na mesma proporção, `Background.PROP_K`, ele ficava maior que todos eles e saiu a pedido); a área de clique do plug guardado sai da altura dele
   (`home_rect`); gira com o fio em passos de
   `ROT_STEP` (5°), cada passo montado pixel a pixel como no RotSprite (`PixelArt.turned`: o mapa ampliado 8× pelo
   Scale2x e lido de volta girado, guardado por ângulo e servindo a qualquer cabo; girado pela transformação do
@@ -513,7 +515,7 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   num polígono, guardado; o destaque é ele alargado); `_plug_rect(seated)` é o retângulo do clique.
   No plug em pé (na mão, solto, guardado), o fio entra `TAIL_IN` px na traseira dele, no eixo, e uma junta redonda
   fecha a dobra (`_draw_tail`): chegando de lado, ele terminava num corte reto no meio da ponta e deixava um vão.
-  O fio tem `ROPE_W` (9 px com a beira; o miolo, 3 a menos; era 8, engrossou para o esticado, 1 px mais fino, se ler).
+  O fio tem `ROPE_W` (7 px com a beira; o miolo, 3 a menos; era 9, com o plug maior).
   Sombras (`SHADOW`): fios deslocados `ROPE_SHADOW`; plug mais longe quanto mais sai do painel (solto, na mão).
   Sem contorno preto em plug e fio: a beira é a cor da própria peça escurecida (`EDGE`; o metal, `BEZEL[2]`), como no
   cenário. Encaixado, o corpo (`PLUG_FACE_R`) cobre a tomada e a aba de latão; a aba só aparece na sombra de contato.

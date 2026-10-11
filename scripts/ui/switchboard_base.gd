@@ -11,7 +11,7 @@ const PAIR_SHIFT := 16.0    # a ponta da frente de um cabo, à esquerda da de tr
 const FONE_HOLE_X := 40.0   # o buraco do FONE, a partir da esquerda do encaixe (o nome gravado embaixo cabe nos três idiomas)
 const SHELF_HOLE_Y := 10.0  # a fileira de trás dos buracos da prateleira (o FONE e a primeira ponta de cada cabo), afastada do rodapé do painel
 const SHELF_FRONT_Y := 29.0 # a fileira da frente (a outra ponta), à frente da de trás, como nas mesas de verdade; o mesmo vão entre as fileiras e até as beiras
-const PLUG_SINK := 22.0  # guardado, o plug entra tanto no buraco (px abaixo dele: a capa de borracha some nele, o corpo fica à mostra)...
+const PLUG_SINK := 14.0  # guardado, o plug entra tanto no buraco (px abaixo dele: a capa de borracha some nele, o corpo fica à mostra)...
 
 var exchange: Exchange
 var fone_socket: Control       # encaixe do FONE, na prateleira à frente do painel
@@ -26,8 +26,9 @@ const PLUG_EYE := Vector2(SIZE.x + 176, 108)
 var _eye := PLUG_EYE
 var trunks := Rect2()   # o bloco interurbano no painel (a mesa o põe ao montar os bancos): os cabos vão até ele
 
-const PLUG_BASE := Vector2(0, 36)   # do ponto de referência do plug (topo do corpo) até onde o fio entra nele
-const PLUG_H := 93.0   # a altura do `PLUG_ART`: do bico até onde sai o fio
+const PLUG_BASE := Vector2(0, 26)   # de onde a mão pega o plug (o meio do corpo) até onde o fio entra nele
+const PLUG_H := 66.0   # a altura do `PLUG_ART`: do bico até onde sai o fio...
+const PLUG_W := 16.0   # ...e a largura dele (o corpo tem 14)
 const JACK := 22.0          # diâmetro de todos os encaixes (entradas, saídas e destinos)
 ## A coluna de cada linha, de cima para baixo: plaquinha com o número (topo e altura), estado (linha de base do texto),
 ## lâmpada, entrada e saída (centros). O estado fica acima da lâmpada: embaixo da entrada, o plug encaixado o cobria.
@@ -91,7 +92,7 @@ func patch_x(k: int) -> float:
 
 ## De um lugar de cabo ao seguinte.
 func _pitch() -> float:
-	var right := (trunks.position.x if trunks.has_area() else tray_rect().end.x) - TRUNK_GAP - 12.0   # 12: a metade do plug (`home_rect`)
+	var right := (trunks.position.x if trunks.has_area() else tray_rect().end.x) - TRUNK_GAP - PLUG_W / 2.0 - 2.0   # a metade do plug guardado (`home_rect`)
 	return (right - socket_rect().position.x - FONE_HOLE_X) / SHELF_SLOTS
 
 
@@ -116,7 +117,7 @@ func front_of(p: Vector2) -> Vector2:
 
 func home_rect(e: int) -> Rect2:
 	var h := home_pos(e)
-	return Rect2(h.x - 12, h.y + PLUG_BASE.y - PLUG_H, 24, PLUG_H - 2.0)   # do bico até a beira do buraco
+	return Rect2(h.x - PLUG_W / 2.0 - 2.0, h.y + PLUG_BASE.y - PLUG_H, PLUG_W + 4.0, PLUG_H - 2.0)   # do bico até a beira do buraco
 
 
 ## A outra ponta do mesmo cabo de conexão (-1 para o FONE).
