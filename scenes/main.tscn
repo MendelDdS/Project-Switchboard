@@ -113,8 +113,13 @@ size_flags_vertical = 3
 mouse_filter = 2
 theme_override_constants/separation = 24
 
+[node name="Gutter" type="Control" parent="Layout/Rows/Columns"]
+custom_minimum_size = Vector2(16, 0)
+layout_mode = 2
+mouse_filter = 2
+
 [node name="Left" type="VBoxContainer" parent="Layout/Rows/Columns" unique_id=2075594968]
-custom_minimum_size = Vector2(588, 0)
+custom_minimum_size = Vector2(492, 0)
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 8
@@ -122,12 +127,13 @@ theme_override_constants/separation = 8
 [node name="TopLeft" type="HBoxContainer" parent="Layout/Rows/Columns/Left" unique_id=1593524455]
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
+size_flags_vertical = 3
 mouse_filter = 2
 theme_override_constants/separation = 12
 
 [node name="ShiftPlate" type="PanelContainer" parent="Layout/Rows/Columns/Left/TopLeft"]
 layout_mode = 2
-size_flags_vertical = 4
+size_flags_vertical = 0
 theme_type_variation = &"TapedNote"
 
 [node name="HBox" type="HBoxContainer" parent="Layout/Rows/Columns/Left/TopLeft/ShiftPlate"]
@@ -153,7 +159,7 @@ text = "END_SHIFT"
 [node name="Board" type="Control" parent="Layout/Rows/Columns/Left" unique_id=995017339]
 unique_name_in_owner = true
 z_index = 1
-custom_minimum_size = Vector2(588, 362)
+custom_minimum_size = Vector2(492, 304)
 layout_mode = 2
 script = ExtResource("5_switchboard")
 

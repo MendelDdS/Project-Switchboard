@@ -229,3 +229,11 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   calculógrafo refeito ficou no espaço da miniatura antiga (14 cm), com bilhetes de 5 cm e um carimbo de 2 cm, e o
   usuário viu que os plugs (~12 cm em pé, 2,5 cm de grossura) ficavam maiores que carimbo, listas e relógio. Antes de
   desenhar um objeto, diga o tamanho de verdade dele e confira na conta, não só se cabe no lugar.
+- **Menos relevo não é tirar o sombreado.** Pedido "menos protuberância no aro da tomada", deixei o aro num tom só com
+  um chanfro de 1 px, e o usuário viu que os detalhes tinham sumido. Para achatar uma peça em pixel art, aproxime os
+  tons (o claro e o escuro mais perto do meio) e encurte a sombra, mantendo o desenho e os tons que ela tinha.
+- **Miniatura confere a proporção de cada peça com a aberta, não só o tamanho total.** A máquina do calculógrafo da sala
+  tinha 22 × 2,6 cm (8,7 : 1) e a aberta 632 × 104 (6 : 1): o usuário viu a miniatura "larga demais". E o que fica nos
+  cantos da frente de uma mesinha em perspectiva abre para fora do que está atrás dela (perto, tudo fica maior): a
+  almofada e a caixinha encostadas nos cantos passavam dos lados da máquina e o conjunto parecia torto. Afaste dos
+  cantos o que tem de parecer alinhado.

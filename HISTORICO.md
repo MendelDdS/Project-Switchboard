@@ -491,3 +491,23 @@ O que o usuário pediu, em ordem (antes no `CLAUDE.md`). Acrescente cada pedido 
     calculógrafo da sala maior (de 14 para uns 22 cm, com um carimbo novo em pé, de pixel art, como o da ferramenta).
     O dobro não cabia na fileira da frente em 1280: o jornal ficou dobrado mais estreito e a unidade de despacho foi
     recuada, para a máquina não tampar a base dela.
+146. A mesa comutadora menor, para as coisas não ficarem tão espaçadas nem tomarem tanto da mesa da sala (588 × 362
+    para 492 × 304: colunas das linhas a 44 px, destinos a 24, a sobra de altura vira parede acima dela), e as
+    tomadas na proporção dos plugs: o furo escuro de 6 px, a largura da luva. Vendo a primeira versão (aro de 12), o
+    usuário pediu o aro maior com o mesmo furo (14 px, 3 de níquel) e menos protuberância. Chato, num tom só, perdeu
+    os detalhes; ficou o desenho detalhado com os tons do níquel mais perto uns dos outros e a sombra curta. As
+    lâmpadas acompanharam (14 px).
+147. A mesa comutadora 40 px mais para a direita (`Gutter` antes da coluna da esquerda) e os objetos da mesa também,
+    com respiro entre eles e entre a mesa comutadora e o primeiro (a mesma folga antes do primeiro, `_row` com um 0 na
+    frente). Na fileira da frente não cabia, com o jornal: o usuário propôs trocar o caderno aberto por um **bloco de
+    fichas de ocorrência** (a ficha da noite é entregue ao supervisor no fim do turno), com o jornal ao lado. Na mesa,
+    a folha de cima com a fita de pano da colagem, o impresso, a pauta e o lápis (`_art_pad`, 26 de largura, era 46);
+    aberto, o papel com a fita no alto e a beira das folhas e o papelão em volta (`PaperDeco`); nos textos, "caderno"
+    virou "ficha"/"bloco de fichas" (título "Ficha de ocorrências"), nos três idiomas.
+148. Três pedidos do calculógrafo: (1) sem o relógio redondo na máquina, aberta e na sala, porque repetia o de flip
+    ao lado (o visor dos contadores ocupa o lugar, cada contador no meio da célula); (2) a miniatura da sala estava
+    larga demais perto da aberta (22 × 2,6 cm, uma tira; a aberta é 632 × 104): ficou com uns 18 cm, a máquina na
+    proporção da aberta, e a mesinha na proporção da mesa aberta de agora (`Toll.NOMINAL` 632 × 354); (3) "torto na
+    mesa": a almofada e a caixinha encostadas nos cantos passavam dos lados da máquina na sala (perto, a mesinha abre
+    mais que ela) e o carimbo ficava na beira da mesa. Agora as duas ficam afastadas dos lados e de baixo na mesma
+    medida (`Toll.INSET`), na mesma linha, e o calculógrafo da sala fica na linha do bloco de fichas.

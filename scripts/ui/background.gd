@@ -256,11 +256,6 @@ func _process(delta: float) -> void:
 		_clock_face(_face_key[0])
 		if _face_key != was:
 			_show()
-	if _dial:   # e os ponteiros do calculógrafo
-		var had := _dial_key
-		_dial_face(_dial_key[0])
-		if _dial_key != had:
-			_show()
 	_acc += delta
 	if _acc < 1.0 / 30.0:
 		return

@@ -5,7 +5,7 @@ Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
 ## Estrutura
 
 - `scenes/main.tscn` — cena principal (layout em containers); `scenes/ui/` — telefone, rádio, abas de ferramentas
-  (lista telefônica, mapa e despacho, caderno), tela inicial e final. Edite a interface no editor do Godot.
+  (lista telefônica, mapa e despacho, ficha de ocorrências), tela inicial e final. Edite a interface no editor do Godot.
 - `themes/main_theme.tres` — tema global (cores, fontes e variações de botão/painel/rótulo).
 - `data/content.tres` — **todo o conteúdo**: lista telefônica (nomes como se fala, "Rosa Lima", "Corpo de
   Bombeiros"; a lista se ordena sozinha), ruas, falas avulsas, pedidos de informação e as
@@ -196,12 +196,12 @@ Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
 - Conexões completadas duram 34–68 minutos de jogo, cerca de 45–90 s reais (`TALK_LEN` em `main.gd`); depois as lâmpadas ficam vermelhas
   até o operador desmontar. Conversas mais longas prendem os cabos de conexão por mais tempo: em turnos
   movimentados, às vezes é preciso esperar uma conversa acabar (ou cortá-la) para ter um cabo livre.
-- O caderno guarda as ocorrências numa fila: dá para registrar depois, sem travar o turno. A aba mostra quantas
-  faltam; registrar é um clique no tipo (ligação comum, emergência ou trote), o resto o caderno já anotou.
+- A ficha de ocorrências (o bloco de fichas na mesa; a da noite vai para o supervisor) guarda as ocorrências numa fila: dá para registrar depois, sem travar o turno. A aba mostra quantas
+  faltam; registrar é um clique no tipo (ligação comum, emergência ou trote), o resto a ficha já anotou.
 - A última ligação nova toca às 23:40 (`LAST_CALL`); a partir daí aparece o botão **Encerrar turno** ao lado do relógio
   (depois da ligação desconhecida). Encerrar com alguém na linha conta como desligar na cara dela (advertência média).
 - À meia-noite ninguém é cortado: quem está na linha é atendido até o fim (o relógio continua). O turno termina quando a
-  mesa esvazia e não falta nada no caderno (ou pelo botão), depois de a ligação desconhecida ter tocado e caído, e vem
+  mesa esvazia e não falta nada na ficha (ou pelo botão), depois de a ligação desconhecida ter tocado e caído, e vem
   a tela final.
 
 ## Clima e sons
@@ -262,7 +262,7 @@ também devolve o plug à base. Cada tipo de plug só encaixa nas tomadas compat
 acende em amarelo se aceita, em vermelho se não.
 
 Atalhos do telefone: **Espaço** atende, **Tab** transfere, **X** desliga (a tecla aparece no canto de cada botão).
-Com um campo de texto em foco, as teclas vão para o campo. **1**, **2** e **3** abrem a lista, o despacho e o caderno.
+Com um campo de texto em foco, as teclas vão para o campo. **1**, **2** e **3** abrem a lista, o despacho e a ficha de ocorrências.
 
 **F1** abre o painel de debug (só rodando pelo editor ou num export de debug; não existe no jogo final):
 
@@ -326,5 +326,5 @@ ao passar o mouse por cima. Ajuste `SLACK` (folga), `DAMPING` (quanto demora par
 ## Ligação desconhecida
 
 Toca por uma entrada livre sorteada, como qualquer outra (lâmpada piscando, cabo + Atender).
-Quando cai, a linha volta a ficar livre e a ocorrência vai para o caderno; clicar nessa linha
+Quando cai, a linha volta a ficar livre e a ocorrência vai para a ficha; clicar nessa linha
 mostra o registro da última chamada.

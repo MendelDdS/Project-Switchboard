@@ -18,7 +18,7 @@ DIGIT_8,oito,eight,ocho
 DIGIT_9,nove,nine,nueve
 INTRO_NIGHT,Noite %d · %s · %s,Night %d · %s · %s,Noche %d · %s · %s
 INTRO_TRAINING,Treinamento · %s · %s,Training · %s · %s,Entrenamiento · %s · %s
-INTRO_INFO,"Tudo acontece na sua mesa. Use o mouse para levar os plugues até as tomadas e para consultar a lista, o mapa e o caderno. Mais de uma linha pode tocar ao mesmo tempo. Use fones de ouvido.","Everything happens at your desk. Use the mouse to move the plugs to the jacks and to check the directory, the map and the logbook. More than one line can ring at the same time. Use headphones.","Todo sucede en su mesa. Use el mouse para llevar los conectores a las tomas y para consultar la guía, el mapa y el cuaderno. Puede sonar más de una línea a la vez. Use audífonos."
+INTRO_INFO,"Tudo acontece na sua mesa. Use o mouse para levar os plugues até as tomadas e para consultar a lista, o mapa e a ficha de ocorrências. Mais de uma linha pode tocar ao mesmo tempo. Use fones de ouvido.","Everything happens at your desk. Use the mouse to move the plugs to the jacks and to check the directory, the map and the log sheet. More than one line can ring at the same time. Use headphones.","Todo sucede en su mesa. Use el mouse para llevar los conectores a las tomas y para consultar la guía, el mapa y la ficha de llamadas. Puede sonar más de una línea a la vez. Use audífonos."
 START_SHIFT,Começar turno,Start shift,Comenzar turno
 RESTART_FIRST_NIGHT,Recomeçar do treinamento,Start over from the training,Empezar de nuevo desde el entrenamiento
 SKIP_TRAINING,Pular o treinamento,Skip the training,Saltar el entrenamiento
@@ -122,7 +122,7 @@ SYS_YOU_ENDED,(Você encerrou a ligação.),(You ended the call.),(Usted termin�
 SYS_NOBODY_ANSWERED,(Ninguém atendeu. A pessoa desistiu.),(Nobody answered. The caller gave up.),(Nadie contestó. La persona desistió.)
 SYS_TIRED_WAITING,(Cansou de esperar e desligou.),(Got tired of waiting and hung up.),(Se cansó de esperar y colgó.)
 SYS_CALL_DROPPED,(A ligação caiu.),(The call dropped.),(La llamada se cortó.)
-HINT_WAIT_CALLS,"Aguarde as chamadas. A lista, o mapa e despacho, o caderno e o registro das conversas abrem pelos objetos na mesa (ou teclas 1 a 4).","Wait for calls. The directory, map & dispatch, the logbook and the call log open from the objects on the desk (or keys 1 to 4).","Espere las llamadas. La guía, el mapa y despacho, el cuaderno y el registro de conversaciones se abren con los objetos de la mesa (o teclas 1 a 4)."
+HINT_WAIT_CALLS,"Aguarde as chamadas. A lista, o mapa e despacho, as fichas e o registro das conversas abrem pelos objetos na mesa (ou teclas 1 a 4).","Wait for calls. The directory, map & dispatch, the log sheets and the call log open from the objects on the desk (or keys 1 to 4).","Espere las llamadas. La guía, el mapa y despacho, las fichas y el registro de conversaciones se abren con los objetos de la mesa (o teclas 1 a 4)."
 HINT_INFO,Pedido de informação: confira a lista telefônica antes de responder.,Information request: check the phone directory before answering.,Pedido de información: revise la guía telefónica antes de responder.
 HINT_EMERGENCY,"A barra mostra a situação piorando e só para com o socorro completo a caminho (fora da linha, o rádio avisa). Mande o que as respostas pedirem: protocolo no despacho.","The bar shows the situation getting worse and only stops once full help is on the way (off the line, the radio warns you). Send what the answers call for: protocol in dispatch.","La barra muestra la situación empeorando y solo se detiene con toda la ayuda en camino (fuera de la línea, la radio avisa). Envíe lo que pidan las respuestas: protocolo en el despacho."
 HINT_WRONG_DEST,Tire a ponta do cabo desse destino. Confira o nome e o endereço na lista: há nomes parecidos.,Pull the cord out of that destination. Check the name and address in the directory: some names are similar.,Quite el cable de ese destino. Revise el nombre y la dirección en la guía: hay nombres parecidos.
@@ -133,12 +133,12 @@ HINT_REMEMBER,"Lembre: FONE na entrada que pisca, depois Atender.","Remember: HE
 HINT_TUT_ANSWER,Agora clique em [b]Atender[/b] para falar com quem ligou.,Now click [b]Answer[/b] to talk to the caller.,Ahora haga clic en [b]Contestar[/b] para hablar con quien llamó.
 OP_TRY_OTHER,Ninguém atende. Quer que eu tente %s?,Nobody's answering. Want me to try %s?,Nadie contesta. ¿Quiere que intente con %s?
 HINT_NO_CORDS,Não há cabos de conexão livres. Desmonte uma conexão encerrada (lâmpadas vermelhas).,No free patch cords. Take down a finished connection (red lamps).,No hay cables de conexión libres. Desarme una conexión terminada (lámparas rojas).
-HINT_DESK_SLIPS,"Cada tira saindo do caderno, na mesa, é uma ocorrência esperando registro (tecla 3).","Each slip sticking out of the logbook on the desk is a call waiting to be logged (key 3).","Cada tira que sale del cuaderno, en la mesa, es una llamada esperando registro (tecla 3)."
+HINT_DESK_SLIPS,"Cada tira saindo do bloco de fichas, na mesa, é uma ocorrência esperando registro (tecla 3).","Each slip sticking out of the pad of log sheets on the desk is a call waiting to be logged (key 3).","Cada tira que sale del bloque de fichas, en la mesa, es una llamada esperando registro (tecla 3)."
 HINT_DESK_SHEET,Folha nova na prancheta: uma conversa terminou e foi para o registro (tecla 4).,New sheet on the clipboard: a conversation ended and went to the call log (key 4).,Hoja nueva en la tablilla: una conversación terminó y pasó al registro (tecla 4).
 HINT_CHECK_LIST,Consulte a lista. Confira o nome e o endereço.,Check the directory. Confirm the name and address.,Consulte la guía. Revise el nombre y la dirección.
-HINT_REGISTER,Registre a ocorrência no caderno.,Log the call in the logbook.,Registre la llamada en el cuaderno.
-HINT_REGISTER_LATER,Há ocorrências para registrar no caderno quando der tempo.,There are calls to log in the logbook when you have time.,Hay llamadas para registrar en el cuaderno cuando tenga tiempo.
-NOTEBOOK_TITLE,Caderno de ocorrências,Call logbook,Cuaderno de llamadas
+HINT_REGISTER,Registre a ocorrência na ficha.,Log the call on the log sheet.,Registre la llamada en la ficha.
+HINT_REGISTER_LATER,Há ocorrências para registrar na ficha quando der tempo.,There are calls to log on the log sheet when you have time.,Hay llamadas para registrar en la ficha cuando tenga tiempo.
+NOTEBOOK_TITLE,Ficha de ocorrências,Shift log sheet,Ficha de llamadas
 NOTEBOOK_DATE,Noite de %d para %d,Night of the %d–%d,Noche del %d al %d
 DATE_LONG,"%s, %d de outubro de %d","%s, October %d, %d","%s, %d de octubre de %d"
 CALENDAR_MONTH,OUT,OCT,OCT
@@ -173,7 +173,7 @@ OBS_CALL_DROPPED,A ligação caiu.,The call dropped.,La llamada se cortó.
 OBS_TRAINING,Treinamento (não conta).,Training (does not count).,Entrenamiento (no cuenta).
 TAB_DIRECTORY,Lista telefônica,Phone directory,Guía telefónica
 TAB_DISPATCH,Mapa e despacho,Map & dispatch,Mapa y despacho
-TAB_LOGBOOK,Caderno,Logbook,Cuaderno
+TAB_LOGBOOK,Fichas,Log sheets,Fichas
 TAB_CALL_LOG,Registro,Call log,Registro
 TAB_NEWS,Jornal da manhã,Morning paper,Diario de la mañana
 TAB_TOLL,Calculógrafo,Toll timer,Tarificador
@@ -362,7 +362,7 @@ shift","Terminar
 turno"
 FAULT_SHIFT_HUNG_UP,Encerrou o turno com alguém na linha,Ended the shift with someone on the line,Terminó el turno con alguien en la línea
 OBS_SHIFT_ENDED,Turno encerrado durante a ligação.,Shift ended during the call.,Turno terminado durante la llamada.
-HINT_MIDNIGHT,"Meia-noite. Registre o que falta no caderno e guarde os bilhetes, ou encerre o turno.","Midnight. Log what's left in the logbook and file the tickets, or end the shift.","Medianoche. Registre lo que falta en el cuaderno y guarde las boletas, o termine el turno."
+HINT_MIDNIGHT,"Meia-noite. Registre o que falta na ficha e guarde os bilhetes, ou encerre o turno.","Midnight. Log what's left on the log sheet and file the tickets, or end the shift.","Medianoche. Registre lo que falta en la ficha y guarde las boletas, o termine el turno."
 CALL_LOG_EMPTY,Nenhuma conversa ainda. Tudo o que for dito com o FONE na linha fica registrado aqui.,No conversations yet. Everything said with the HEADSET on the line is logged here.,Ninguna conversación todavía. Todo lo que se diga con el AURICULAR en la línea queda registrado aquí.
 TRUNK_OPERATOR,Telefonista (%s),Operator (%s),Operadora (%s)
 OP_TRUNK_NUMBER,"Aqui é São Sotero. O número %s, por favor.","São Sotero calling. Number %s, please.","Aquí São Sotero. El número %s, por favor."

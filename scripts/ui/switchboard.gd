@@ -21,7 +21,8 @@ signal warned(text: String)
 ## duas fileiras. A mesa saiu de fábrica assim; a faixa coincide com o setor da cidade (o primeiro dígito), e o banco
 ## de um setor que ainda não é do operador fica tampado por uma chapa com a letra dele (`GameData.sectors`).
 const SECTOR_ORDER := [1, 2, 3]
-const DEST_PITCH := 29.0     # px entre duas tomadas de destino vizinhas
+const DEST_PITCH := 24.0     # px entre duas tomadas de destino vizinhas (o número em cima, "305", tem 21)
+const TRUNK_PITCH := 30.0    # px entre dois troncos (o nome em cima, "LITORAL", tem 27 na fonte gravada)
 const BLOCK_GAP := 12.0      # px entre dois blocos
 
 var _pulled := {}   ## ponta -> [segundos desde que saiu do encaixe, onde ele estava]: o plug de frente sumindo
@@ -165,11 +166,12 @@ func _layout_dests() -> void:
 		for i in nums.size():
 			_slots[nums[i]] = Vector2(x + (i % cols[k]) * DEST_PITCH + DEST_PITCH / 2.0, DEST_TOP + 11.0 + int(i / cols[k]) * DEST_ROW)
 		# o mesmo vão (8 px) entre a moldura e os números, em cima, e entre a moldura e as tomadas de baixo
-		_blocks[s] = Rect2(x - 3, DEST_TOP - 21, cols[k] * DEST_PITCH + 6, DEST_ROW + 50)
+		_blocks[s] = Rect2(x - 3, DEST_TOP - 21, cols[k] * DEST_PITCH + 6, DEST_ROW + JACK + 28)
 		x += cols[k] * DEST_PITCH + BLOCK_GAP
-	trunks = Rect2(_blocks[3].end.x - _blocks[2].size.x, 296.0, _blocks[2].size.x, 47.0)   # embaixo do banco C, na largura do B
+	var tw := GameData.TRUNKS.size() * TRUNK_PITCH + 6.0
+	trunks = Rect2(_blocks[3].end.x - tw, _blocks[3].end.y + 10.0, tw, 38.0)   # embaixo do banco C, alinhado à direita dele
 	for k in GameData.TRUNKS.size():   # uma tomada por cidade, com o nome dela em cima (`_draw_trunks`)
-		_slots[GameData.TRUNKS[k]] = Vector2(trunks.position.x + 3.0 + (k + 0.5) * (trunks.size.x - 6.0) / GameData.TRUNKS.size(), trunks.position.y + 30.0)
+		_slots[GameData.TRUNKS[k]] = Vector2(trunks.position.x + 3.0 + (k + 0.5) * TRUNK_PITCH, trunks.position.y + 24.0)
 
 
 func _has_point(p: Vector2) -> bool:   # o painel até a prateleira, com o vão entre eles (os plugs guardados passam por ele)
@@ -639,7 +641,7 @@ func _draw() -> void:
 		var n := i + 1
 		var st := exchange.line(n)
 		var cx := col_x(i)
-		_draw_number_plate(Rect2(cx - 18, ROW_Y["plate"], 36, ROW_Y["plate_h"]), "%02d" % n)
+		_draw_number_plate(Rect2(cx - 14, ROW_Y["plate"], 28, ROW_Y["plate_h"]), "%02d" % n)
 		_draw_jack(jack_rect(n))
 		var sc := Pal.DIM
 		if st in [Exchange.Line.RING, Exchange.Line.TALK, Exchange.Line.HOLD]:

@@ -1,12 +1,13 @@
 extends "res://scripts/ui/background_view.gd"
-## Os objetos da mesa do cenário (`Background`) e o tampo: listas, unidade de despacho, caderno, calculógrafo, jornal,
+## Os objetos da mesa do cenário (`Background`) e o tampo: listas, unidade de despacho, bloco de fichas, calculógrafo, jornal,
 ## caneca e o relógio de flip (e a prancheta, pendurada na lateral da mesa comutadora), cada um posto na sala e passado pela câmera (`_box`, `_flat`, `_project`).
 
 const DESK_T := 1.25    ## o fundo do tampo, Z0/DESK_T: a mesa fica afastada da parede (o armário cabe atrás)
 const PLANKS := 6       ## as tábuas do tampo, todas da mesma largura (a câmera as espaça)
 const POOL_R := 150.0   ## o raio da poça de luz da luminária no tampo
 const SHADE_MAX := 0.3   ## o mais escuro que um objeto da mesa fica, longe da poça de luz (`_shade`)
-const WALL_PAD := 10.0           ## a folga dos objetos da mesa até a parede da direita (x da sala)
+const EDGE_PAD := 7.0            ## o tanto a mais na fileira da frente: perto, a parede já passou da beira da tela, e o jornal parava fora dela
+const WALL_PAD := 3.0           ## a folga dos objetos da mesa até a parede da direita (x da sala)
 const PROP_K := 93.0 / 66.0   ## a escala dos objetos da mesa: no tamanho de verdade deles na sala (`_cm`; as listas com 21 cm), maiores que o plug em pé (uns 9 cm)
 ## A unidade de despacho (`_draw_dispatch_unit`, na escala dos objetos, `PROP_K`): largura, altura da base e fundo da
 ## base até o painel (fração do tampo); o painel: a altura acima da base, o quanto o alto dele recua (fração do tampo,
@@ -14,14 +15,15 @@ const PROP_K := 93.0 / 66.0   ## a escala dos objetos da mesa: no tamanho de ver
 const UNIT := Vector3(39, 6, 0.17)
 const BOOKS_SPAN := 40.0   ## o lugar das listas na fileira (na escala dos objetos): os 31 delas mais os volumes desencontrados e a lombada
 const UNIT_PANEL := 16.0
+const PAD_W := 26.0    ## a largura do bloco de fichas (na escala dos objetos, uns 18 cm; o caderno aberto, com 46, tomava a fileira da frente)
 const NEWS_W := 25.0   ## a largura do jornal dobrado (na escala dos objetos, uns 16 cm): com 32, o calculógrafo não cabia do lado
 const UNIT_TILT := 0.11
 const UNIT_D := 0.3
-## O calculógrafo (`_draw_calculograph`, na escala dos objetos, `PROP_K`): a largura (uns 22 cm, com o bilhete de 7; com
-## 14, o carimbo tinha 2 cm e o plug parecia gigante), a altura da máquina e o fundo dela (fração do tampo); na frente
-## dela, a mesinha dela, na proporção da mesa da ferramenta (`Toll.NOMINAL`). Baixo, porque fica na fileira da frente,
-## logo na frente da base da unidade de despacho: mais alto, a tampava.
-const CALC := Vector3(34, 4, 0.06)
+## O calculógrafo (`_draw_calculograph`, na escala dos objetos, `PROP_K`): a largura (uns 18 cm, com o bilhete de 6; com
+## 14, o carimbo tinha 2 cm e o plug parecia gigante; com 22, larga e baixa demais perto da aberta), a altura da máquina,
+## na proporção da da ferramenta (632 × 104), e o fundo dela (fração do tampo); na frente dela, a mesinha dela, na
+## proporção da mesa da ferramenta (`Toll.NOMINAL`).
+const CALC := Vector3(28, 4.6, 0.06)
 const TOLL_BOX_H := 4.5   ## a altura da caixinha dos bilhetes (na sala, uns 2 cm)
 const STAMP_ART := [   ## o carimbo em pé na mesinha, como o da ferramenta (27 × 47 px, uns 6 cm): o cabo de baquelite com o medalhão, a haste, o corpo com a plaqueta, as rodas de latão entre as pernas e a sapata vazada
 	".........kkKKKKKkk.........",
@@ -102,7 +104,7 @@ const DIGITS := [   ## os algarismos das plaquetas, 9×19 px, desenhados à mão
 
 @export var desk_art: Texture2D     ## imagem da madeira da mesa (repetida), no lugar do desenho
 # O estado do jogo nos objetos da mesa, para ler de relance sem abrir nada (o Main atualiza):
-var pending := 0     ## registros esperando no caderno: uma tira de papel saindo dele por registro
+var pending := 0     ## registros esperando no bloco de fichas: uma tira de papel saindo dele por registro
 var unread := false  ## o registro das conversas tem fala nova: uma folha nova presa na prancheta
 var alert := false     ## há uma emergência em andamento: a luz vermelha da unidade de despacho (o Main atualiza)
 var card_out := false  ## há um cartão perfurado na mesa: ele sai da fenda da impressora da unidade, com a luz âmbar
@@ -177,34 +179,32 @@ func _draw_desk(r: Rect2, front: float) -> void:
 	_r(r.position.x, front + 6, r.size.x, r.end.y - front - 6, Color("0a0705"))
 
 
-## Na mesa, embaixo da janela, ao alcance do operador: as listas telefônicas, o caderno aberto, a caneca de café, o
+## Na mesa, embaixo da janela, ao alcance do operador: as listas telefônicas, o bloco de fichas, a caneca de café, o
 ## calculógrafo e a unidade de despacho, do fundo para a frente (quem está mais perto é desenhado por cima). Cada um
 ## fica num lugar da sala (x a partir dos olhos, z a distância; ver `Z0`) e é desenhado em px da tela (1x1).
 func _draw_desk_props() -> void:
 	draw_set_transform(Vector2.ZERO)
-	# em duas fileiras, distribuídas de ponta a ponta entre a lateral da mesa comutadora e a parede da direita (a
-	# mesma folga entre eles, em qualquer largura de janela: presos a uma ponta só, sobrava mesa vazia na outra, e
-	# presos a pontas diferentes, eles se trombavam). Atrás, o que é alto: a unidade de despacho, o caderno e o relógio
-	# com a caneca na frente dele; na frente: prancheta, listas (fora da frente da unidade, para não tampar as fendas
-	# dela) e o lugar do jornal (guardado mesmo sem ele, para nada mudar de lugar entre as noites). O calculógrafo ficou no
-	# lugar da prancheta, que agora fica pendurada na lateral da mesa comutadora (a mesa não tinha lugar para mais um).
-	# Todos em `PROP_K`, no tamanho de verdade; o jornal, dobrado estreito, para o calculógrafo caber na fileira da frente
-	var l := _side_x + 8.0
+	# em duas fileiras, distribuídas de ponta a ponta entre a lateral da mesa comutadora e a parede da direita, com a
+	# mesma folga entre eles e antes do primeiro (encostado na mesa comutadora, parecia apertado), em qualquer largura de
+	# janela: presos a uma ponta só, sobrava mesa vazia na outra, e presos a pontas diferentes, eles se trombavam. Atrás,
+	# o que é alto: a unidade de despacho, as listas e o relógio com a caneca na frente dele; na frente: o calculógrafo,
+	# o bloco de fichas (era um caderno aberto, que tomava a fileira) e o lugar do jornal (guardado mesmo sem ele, para
+	# nada mudar de lugar entre as noites). Todos em `PROP_K`, no tamanho de verdade; o jornal, dobrado estreito
 	var r := _cx - _vp.x - WALL_PAD   # a parede da direita é o plano x = quina (na escala da parede do fundo)
 	var k := PROP_K
 	var cw := CLOCK.x + 2.0   # o relógio, meio virado, ocupa um pouco mais que a largura dele
 	var mr := 6.6 * k         # a caneca, na frente do relógio, encostada na ponta direita dele
-	# (maiores, e com a prancheta funda, eles se encostavam e a mesa parecia apertada)
-	# (a fileira de trás começa encostada na lateral da mesa comutadora; as listas ocupam mais que a largura delas,
-	# com os volumes desencontrados, `BOOKS_SPAN`: sem isso, o relógio encostava na pilha)
-	var back := _row(_side_x + 2.0, r, [UNIT.x * k, BOOKS_SPAN * k, cw + mr])
-	var near := _row(l + 6.0, r, [CALC.x * k, 46.0 * k, NEWS_W * k])
+	# (a fileira de trás conta a folga da lateral, onde a prancheta fica pendurada; as listas ocupam mais que a largura
+	# delas, com os volumes desencontrados, `BOOKS_SPAN`: sem isso, o relógio encostava na pilha)
+	var back := _row(_side_x - 4.0, r, [0.0, UNIT.x * k, BOOKS_SPAN * k, cw + mr]).slice(1)   # (o 0: a mesma folga antes do primeiro)
+	var near := _row(_side_x, r - EDGE_PAD, [0.0, CALC.x * k, PAD_W * k, NEWS_W * k]).slice(1)
 	_draw_dispatch_unit(back[0], _at(0.6), UNIT.x * k)   # recuada: a máquina do calculógrafo, na frente dela, não tampa a base
 	_draw_books(back[1], _at(0.54), 31 * k, _deep(0.3 * k))
-	_flat(Tools.LOGBOOK, near[1], _at(0.06), 46 * k, _deep(0.26 * k), 2 * k, Color("3a2414"), _art_notebook, [], deg_to_rad(-2.0), _notebook_marks)
+	_flat(Tools.LOGBOOK, near[1], _at(0.06), PAD_W * k, _deep(0.26 * k), 2 * k, Pal.NOTE_PAGE.darkened(0.25), _art_pad, [], deg_to_rad(-2.0),
+		_pad_marks)
 	_draw_flip_clock(back[2] + cw / 2.0, _at(0.72))   # logo atrás da caneca (desenhado antes dela)
 	_draw_mug(back[2] + cw, _at(0.46), mr, 13 * k)   # mais larga que alta, como as esmaltadas
-	_draw_calculograph(near[0], _at(0.02))
+	_draw_calculograph(near[0], _at(0.06))   # na linha do bloco de fichas
 	# papel tem 1 px de beira (mais grosso, parecia tábua)
 	if news:
 		_flat(Tools.NEWS, near[2], _at(0.07), NEWS_W * k, _deep(0.19 * k), 0.5, Color("a89c78"), _art_newspaper, [], deg_to_rad(6.0),
@@ -213,7 +213,7 @@ func _draw_desk_props() -> void:
 
 
 ## O calculógrafo, que abre a tarifação (`x0`, a frente em `zf`; medidas em `CALC`), como a ferramenta aberta. Atrás, a
-## máquina, uma caixa baixa no material das máquinas do despacho; na frente dela, o mostrador do relógio (`_dial_face`),
+## máquina, uma caixa baixa no material das máquinas do despacho; na frente dela, sem relógio (o da mesa fica ao lado),
 ## os dez contadores em duas fileiras (a plaquinha, os tambores e a luz âmbar de cada entrada contando, `counting`), a
 ## plaqueta de latão com a luz e a saída de ar e, embaixo, a fenda, de onde sai o bilhete (a ponta numa camada própria,
 ## `_tip`, `Background._draw_tip`). Na frente dela, a mesinha (o que está nela e onde, `toll_desk`): a almofada com a
@@ -238,10 +238,8 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 	if box.has("front"):
 		var f := _bounds(box["front"])
 		f = Rect2(f.position.round(), f.size.round())
-		var dial := _dial_face(int(f.size.y * 0.7) | 1)
-		draw_texture(dial, f.position + Vector2(3, 2), Color.WHITE.darkened(dark))
-		var win := Rect2(f.position.x + roundf(f.size.x * 0.17), f.position.y + 2.0, roundf(f.size.x * 0.57), 0)
-		var cell := Vector2(floorf(win.size.x / 5.0), floorf((f.size.y - 7.0) / 2.0))
+		var win := Rect2(f.position.x + 3.0, f.position.y + 2.0, roundf(f.size.x * 0.76) - 3.0, 0)   # o visor, como o da aberta (`Toll._screen`)
+		var cell := Vector2(floorf(win.size.x / 5.0), maxf(floorf((f.size.y - 7.0) / 2.0), 1.0))   # (sem tela, no primeiro desenho, a frente tem 1 px)
 		win.size.y = cell.y * 2.0
 		draw_rect(win, Pal.PANEL_LO.darkened(dark))
 		for n in range(1, Exchange.LINES + 1):
@@ -344,39 +342,6 @@ func _stamp_art() -> ImageTexture:
 	return PixelArt.art(STAMP_ART, {"k": k.darkened(0.5), "K": k, "h": k.lerp(Switchboard.CORD_COLORS[5][1], 0.6), "g": Toll.GLINT,
 		"m": Pal.BRASS, "M": Pal.BRASS.darkened(0.3), "c": n[1], "C": n[2], "d": n[3], "p": n[0], "i": Pal.INK, "b": Pal.BRASS,
 		"B": Pal.BRASS.darkened(0.3), "e": Pal.EDGE})
-
-
-## O mostrador do relógio do calculógrafo da mesa (`n` px, ímpar): o aro niquelado, o fundo creme, as marcas das horas
-## e os ponteiros na hora do jogo. Como a frente do relógio de flip, refeito no lugar quando o minuto muda (o
-## `_process` pergunta a cada quadro): a sala, já desenhada com ele, não se redesenha.
-var _dial_key := []
-var _dial: ImageTexture
-
-
-func _dial_face(n: int) -> ImageTexture:
-	var t := int(minutes) % 720
-	if [n, t] == _dial_key:
-		return _dial
-	var img := Image.create(n, n, false, Image.FORMAT_RGBA8)
-	var o := Vector2(n / 2, n / 2)
-	for y in n:
-		for x in n:
-			var p := Vector2(x, y) - o
-			if p.length() <= n / 2.0 - 1.5:
-				img.set_pixel(x, y, Pal.SHEET_NEW)
-			elif p.length() <= n / 2.0:
-				img.set_pixel(x, y, Pal.NICKEL[1] if p.x + p.y < 0.0 else Pal.NICKEL[3])   # a luz vem do alto à esquerda
-	for i in 4:
-		img.set_pixelv(Vector2i(o + Vector2.UP.rotated(TAU * i / 4.0) * (n / 2.0 - 2.5)), Pal.INK)
-	_fl(img, o, o + Vector2.UP.rotated(TAU * t / 720.0) * n * 0.22, Pal.INK)
-	_fl(img, o, o + Vector2.UP.rotated(TAU * (t % 60) / 60.0) * n * 0.34, Pal.INK)
-	img.set_pixelv(Vector2i(o), Pal.INK_RED)
-	_dial_key = [n, t]
-	if _dial and _dial.get_size() == Vector2(n, n):
-		_dial.update(img)
-	else:
-		_dial = ImageTexture.create_from_image(img)
-	return _dial
 
 
 ## O relógio da sala: um relógio de flip na mesa (centro `xc`, `zc`; medidas em `CLOCK`), meio virado para o operador
@@ -1298,61 +1263,68 @@ func _glass_map(sz: Vector2i) -> Rect2i:
 	return Rect2i(inner.position + (inner.size - msz) / 2, msz)
 
 
-## O caderno de ocorrências aberto: a capa de couro com a beira gasta, duas páginas creme (não brancas: chamavam mais o
-## olho que tudo) com a margem vermelha, a sombra da dobra no meio e a espessura das folhas embaixo. A pauta e a letra
-## de mão vão por cima, na tela (`_notebook_marks`).
-func _art_notebook(sz: Vector2i) -> Image:
+## O bloco de fichas de ocorrência (a ficha da noite vai para o supervisor no fim do turno), de pé no tampo: a folha de
+## cima, creme (não branca: chamava mais o olho que tudo), e, no alto, a fita de pano da colagem com a sombra dela na
+## folha. A espessura do bloco é a beira das folhas, pelo `_flat`; o impresso, a pauta e a letra de mão vão por cima,
+## na tela (`_pad_marks`).
+func _art_pad(sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	img.fill(Pal.LEATHER[1])   # a capa
-	_fr(img, 0, 0, sz.x, 1, Pal.LEATHER[0])
-	_fr(img, 0, sz.y - 1, sz.x, 1, Pal.LEATHER[2])
-	var half := sz.x / 2
-	for k in 2:
-		var x0 := 2 if k == 0 else half + 1
-		var x1 := half - 1 if k == 0 else sz.x - 2
-		_fr(img, x0, 1, x1 - x0, sz.y - 3, Pal.NOTE_PAGE)
-		_fr(img, x0, sz.y - 3, x1 - x0, 1, Color("a89a74"))   # a espessura das folhas
-		_fr(img, x0, 1, x1 - x0, 1, Color("ddd2b0"))   # a beira de cima pega a luz
-	for i in 3:   # a sombra da dobra no meio, mais escura no fundo dela
-		_fr(img, half - 2 + i, 1, 1, sz.y - 3, Color("8a7a58").lerp(Color("b8ab86"), absf(i - 1.0)))
+	img.fill(Pal.NOTE_PAGE)
+	var t := _pad_tape(sz)
+	_fr(img, 0, 0, sz.x, 1, Pal.PAD_TAPE[0])   # a fita: a dobra de cima na luz...
+	_fr(img, 0, 1, sz.x, t - 2, Pal.PAD_TAPE[1])
+	_fr(img, 0, t - 1, sz.x, 1, Pal.PAD_TAPE[2])   # ...e a beira de baixo, na sombra
+	_fr(img, 0, t, sz.x, 1, Pal.NOTE_PAGE.darkened(0.15))   # a sombra dela na folha
+	_fr(img, sz.x - 1, t, 1, sz.y - t, Pal.NOTE_PAGE.darkened(0.08))   # a beira da direita, longe da luz
+	_fr(img, 0, sz.y - 1, sz.x, 1, Pal.NOTE_PAGE.darkened(0.1))
 	return img
 
 
-## Por cima do caderno, na tela: a pauta e a letra de mão (umas palavras por linha, linha sim, linha não: cheia, era
-## ruído), a 3 px da tela uma linha da outra (`_rows`), as tiras dos registros pendentes saindo do fundo dele (uma por
-## registro, até seis) e o lápis apoiado na página da direita, em pixel art na tela (torto pela perspectiva, serrilhava).
-func _notebook_marks(sz: Vector2i) -> void:
-	var half := sz.x / 2
-	var rows := _rows(4.0, sz.y - 4.0, 3.0)
-	for k in 2:
-		var x0 := 2.0 if k == 0 else half + 3.0   # a pauta para antes da sombra da dobra
-		var x1 := half - 3.0 if k == 0 else sz.x - 3.0
-		for row in rows.size():
-			var y: float = rows[row]
-			_ink(x0, x1, y, [Pal.NOTE_RULE])
-			if (row + k) % 2 == 0 or (row * 7 + k * 3) % 5 == 0:
-				continue
-			var a := _tex_pt(Vector2(x0 + 6, y)) - Vector2(0, 1)   # as palavras, logo acima da pauta
-			var b := _tex_pt(Vector2(x0 + 6 + (x1 - x0 - 10) * (0.45 + 0.1 * ((row * 3 + k) % 5)), y)) - Vector2(0, 1)
-			var t := 0.0
-			var span := a.distance_to(b)
-			while t < span:
-				var n := 3.0 + (int(t) * 3 + row * 5 + k) % 4
-				_pixel_line(a.lerp(b, t / span), a.lerp(b, minf(t + n - 1.0, span) / span), [Color("6a6474")])
-				t += n + 2.0
-		var mx := (2.0 if k == 0 else half + 1.0) + 4.0   # a margem vermelha, impressa por cima da pauta
-		_pixel_line(_tex_pt(Vector2(mx, 1)), _tex_pt(Vector2(mx, sz.y - 3)), [Pal.NOTE_MARGIN])
+## A altura da fita da colagem no desenho do bloco de fichas (`sz`): uns 10% da folha (com 7, de longe era um fio), nunca menos de 3 px.
+func _pad_tape(sz: Vector2i) -> int:
+	return maxi(3, roundi(sz.y * 0.1))
+
+
+## Por cima do bloco de fichas, na tela: o impresso da ficha (o título e o fio vermelho embaixo dele, como o cabeçalho
+## da ficha aberta), a pauta a 3 px da tela uma linha da outra (`_rows`) com a margem vermelha, a letra de mão (a hora
+## antes da margem e umas palavras depois, linha sim, linha não: cheia, era ruído), as tiras dos registros pendentes
+## saindo de baixo dele, por trás (uma por registro, até seis), e o lápis apoiado na folha, em pixel art na tela (torto
+## pela perspectiva, serrilhava).
+func _pad_marks(sz: Vector2i) -> void:
+	var t := _pad_tape(sz)
+	var rows := _rows(t + 2.0, sz.y - 3.0, 3.0)
+	var mx := roundf(sz.x * 0.16)   # a margem, depois da coluna da hora (a da ficha aberta)
+	for row in rows.size():
+		var y: float = rows[row]
+		if row == 0:   # o título impresso, em tipos iguais
+			for x in range(3, int(sz.x * 0.62), 4):
+				_ink(x, x + 2.0, y - 1.0, [Pal.INK_SOFT])
+			continue
+		_ink(2.0, sz.x - 2.0, y, [Pal.FORM_RED if row == 1 else Pal.NOTE_RULE])
+		if row < 2 or row % 2 == 1 or row > rows.size() - 3:
+			continue
+		_ink(3.0, mx - 3.0, y - 1.0, [Color("6a6474")])   # a hora
+		var a := _tex_pt(Vector2(mx + 3.0, y)) - Vector2(0, 1)   # as palavras, logo acima da pauta
+		var b := _tex_pt(Vector2(mx + 3.0 + (sz.x - mx - 8.0) * (0.45 + 0.1 * ((row * 3) % 5)), y)) - Vector2(0, 1)
+		var w := 0.0
+		var span := a.distance_to(b)
+		while w < span:
+			var n := 3.0 + (int(w) * 3 + row * 5) % 4
+			_pixel_line(a.lerp(b, w / span), a.lerp(b, minf(w + n - 1.0, span) / span), [Color("6a6474")])
+			w += n + 2.0
+	if rows.size() > 1:   # a margem vermelha, impressa, do fio do cabeçalho para baixo
+		_pixel_line(_tex_pt(Vector2(mx, rows[1])), _tex_pt(Vector2(mx, sz.y - 2)), [Pal.NOTE_MARGIN])
 	for i in mini(pending, 6):
-		var p := _tex_pt(Vector2(8 + i * floorf((sz.x - 22) / 6.0), 0)).round()
+		var p := _tex_pt(Vector2(5 + i * floorf((sz.x - 12) / 6.0), 0)).round()
 		var up := 6.0 + (i * 5) % 4
 		var col := Pal.PENDING[i % 2]
 		draw_rect(Rect2(p.x, p.y - up, 6, up + 2), col)
 		draw_rect(Rect2(p.x + 5, p.y - up, 1, up + 2), col.darkened(0.2))   # o lado na sombra
 		draw_rect(Rect2(p.x, p.y - up, 5, 1), col.lightened(0.12))   # a beira de cima, na luz
 		draw_rect(Rect2(p.x + 1, p.y - up + 2, 3, 1), Pal.FORM_RED)
-		draw_rect(Rect2(p.x, p.y + 1, 6, 1), Color(0, 0, 0, 0.3))   # onde ela entra no caderno
-	var a := _tex_pt(Vector2(half + 10, sz.y - 5)).round()
-	var b := _tex_pt(Vector2(sz.x - 6, 4)).round()
+		draw_rect(Rect2(p.x, p.y + 1, 6, 1), Color(0, 0, 0, 0.3))   # onde ela entra embaixo do bloco
+	var a := _tex_pt(Vector2(sz.x * 0.5, sz.y - 4)).round()
+	var b := _tex_pt(Vector2(sz.x - 5, t + 5)).round()
 	var d := (b - a).normalized()
 	_pixel_line(a + Vector2(2, 2), b + d * 7 + Vector2(2, 2), [Color(0, 0, 0, 0.3), Color(0, 0, 0, 0.3)])
 	_pixel_line(a, b, [Color("c4a042"), Color("957622"), Color("67521a")])   # o corpo, amarelo de lápis gasto

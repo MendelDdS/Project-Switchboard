@@ -114,7 +114,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `draw_polygon`**: cada `draw_polygon`/`draw_colored_polygon` é uma chamada de desenho (e cria um polígono a cada
   redesenho); `draw_primitive` (até 4 pontos) seguidos viram uma só. O cenário tem `Background._fill`/`_poly` (o
   quadrilátero inteiro; o resto, em triângulos); a sala passava de 2000 chamadas por quadro. **Os materiais dos objetos da mesa** (capa da lista,
-  couro do caderno, tábua e folhas da prancheta, papel-jornal, papel e tons do mapa, níquel, o vermelho do formulário, o grão e a borda do tampo) são
+  fita e papelão do bloco de fichas, tábua e folhas da prancheta, papel-jornal, papel e tons do mapa, níquel, o vermelho do formulário, o grão e a borda do tampo) são
   constantes do `Pal`, usadas pelo objeto (`Background._art_*`) e pelo papel aberto dele: o que muda numa ponta muda na outra. **Uma fonte só, de pixel: Departure Mono**
   (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11** (o estado de cada linha na mesa não usa
   ela: em 11, "conectada" não cabe na coluna, e em 8, fora da grade, borrava; é uma fonte de pixel própria, maiúsculas
@@ -317,12 +317,12 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   para a ficha do caderno ("Bilhete nº 0002", `PhoneCall.Record.ticket`). Bilhete esquecido na mesa: à meia-noite o turno
   espera guardar, como o registro (`Main._unregistered`), e no fim é advertência leve `toll_forgotten`
   (`Supervisor.shift_over`). **Na mesa da sala, o calculógrafo é a ferramenta aberta em miniatura** (antes era uma
-  caixa com a fenda no tampo e um visor, e não batia com ela): a máquina atrás, com o mostrador do relógio (os
-  ponteiros na hora do jogo, numa textura trocada no lugar, `Background._dial_face`), os dez contadores (o da entrada
+  caixa com a fenda no tampo e um visor, e não batia com ela): a máquina atrás, na proporção da aberta (`CALC`), sem
+  relógio, nem nela nem na aberta (o de flip, ao lado, já dá a hora), os dez contadores (o da entrada
   contando acende, `Toll.counters` → `Background.counting`), a plaqueta com a luz e a fenda embaixo, de onde a ponta do
   bilhete esperando (`Toll.in_slot` → `Background.tickets`) desce para a mesinha no tempo do som da impressora
   (`Background._draw_tip`, camada própria, `TIP_SEC`); na frente dela, a mesinha na proporção da mesa aberta
-  (`Toll.NOMINAL`, a de 1280 × 720), com a almofada, os bilhetes soltos com as marcas, a caixinha com os guardados e o
+  (`Toll.NOMINAL`, a de 1280 × 720), com a almofada e a caixinha afastadas dos cantos na mesma medida (`Toll.INSET`), os bilhetes soltos com as marcas, a caixinha com os guardados e o
   carimbo em pé onde o jogador os deixou (`Toll.layout` → `Background.toll_desk`, passado só com a ferramenta fechada:
   aberta, levar um bilhete redesenharia a sala a cada quadro). Dica da
   primeira vez: `HINT_TOLL` (`SAW_TOLL`). Ponytail: não há tecla, e o interurbano ainda contando no fim do turno não

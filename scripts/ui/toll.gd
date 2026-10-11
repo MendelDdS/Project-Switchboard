@@ -14,10 +14,12 @@ extends VBoxContainer
 
 signal unstamped(t: TollTicket)
 
-const DIAL := 64   ## o mostrador do relógio da máquina (px)
-const NOMINAL := Vector2(576, 352)   ## a mesa dela no jogo (1280 × 720): a do calculógrafo da sala tem esta proporção (`layout`)
-const PAD := Vector2(150, 44)   ## a almofada de tinta, no canto de baixo à esquerda da mesa
-const BOX := Vector2(220, 92)   ## a caixinha dos bilhetes, no canto de baixo à direita
+const NOMINAL := Vector2(632, 354)   ## a mesa dela no jogo (1280 × 720): a do calculógrafo da sala tem esta proporção (`layout`)
+const PAD := Vector2(150, 44)   ## a almofada de tinta, embaixo à esquerda da mesa...
+const BOX := Vector2(220, 92)   ## ...e a caixinha dos bilhetes, embaixo à direita, na mesma linha
+## A folga da almofada e da caixinha até a beira dos lados e até a de baixo, a mesma nas duas. Encostadas nos cantos, na
+## sala elas passavam dos lados da máquina (perto, a mesinha abre mais que ela) e o calculógrafo parecia torto.
+const INSET := Vector2(48, 12)
 const BOX_MOUTH := 30.0         ## da beira de trás da caixinha até a frente dela: a boca, onde o bilhete entra e some
 const SINK_SEC := 0.3           ## o bilhete descendo para dentro da caixinha
 const OUT_SEC := 0.45           ## o bilhete que esperava na fenda saindo dela quando a ferramenta abre
@@ -75,10 +77,11 @@ const SHAKE_PX := 2.0
 
 var filed := 0   ## bilhetes na caixinha
 var night := 1   ## a noite do turno (`Main`): a data nas rodas do carimbo
-## O minuto do turno (o Main atualiza a cada quadro): o relógio da máquina e os minutos de quem está falando.
+## O minuto do turno (o Main atualiza a cada quadro): os minutos de quem está falando (o visor só se redesenha quando um
+## tambor rola).
 var now := 0.0:
 	set(v):
-		if is_node_ready() and (int(v) != int(now) or _rolling(v) or _rolling(now)):
+		if is_node_ready() and (_rolling(v) or _rolling(now)):
 			_machine.queue_redraw()
 		now = v
 var _meters := {}   # entrada -> [cidade, número de lá, minuto em que a outra ponta atendeu, número do bilhete]: contando
@@ -465,46 +468,34 @@ func _notification(what: int) -> void:
 
 
 func _pad(s := _desk.size) -> Rect2:
-	return Rect2(6, s.y - PAD.y - 6, PAD.x, PAD.y)
+	return Rect2(INSET.x, s.y - PAD.y - INSET.y, PAD.x, PAD.y)
 
 
 func _box(s := _desk.size) -> Rect2:
-	return Rect2(s.x - BOX.x - 6, s.y - BOX.y - 4, BOX.x, BOX.y)
+	return Rect2(s.x - BOX.x - INSET.x, s.y - BOX.y - INSET.y, BOX.x, BOX.y)
 
 
-## O visor da máquina (no desenho dela): no meio, entre o relógio e a placa; a fenda do bilhete fica embaixo dele.
+## O visor da máquina (no desenho dela): à esquerda da placa; a fenda do bilhete fica embaixo do meio dele.
 func _screen() -> Rect2:
 	var r := Rect2(Vector2.ZERO, _machine.size - Vector2(2, 2)).abs()
-	return Rect2(r.position.x + DIAL + 34.0, r.position.y + 12.0, r.size.x - DIAL - 34.0 - 150.0, r.size.y - 40.0)
+	return Rect2(r.position.x + 16.0, r.position.y + 12.0, r.size.x - 16.0 - 150.0, r.size.y - 40.0)
 
 
-## A máquina: a caixa de metal das do despacho (`CardMachines.box`) com o relógio redondo à esquerda (os ponteiros na
-## hora do turno), o painel dos contadores (um por entrada, com a plaquinha, os tambores dos minutos, `_counter`, e a
-## lâmpada acesa enquanto conta), a placa, a luz âmbar acesa enquanto conta algum e, embaixo, a fenda de onde sai o
-## bilhete; apoiada na mesa pelos pés de borracha.
+## A máquina: a caixa de metal das do despacho (`CardMachines.box`) com o painel dos contadores (um por entrada, com a
+## plaquinha, os tambores dos minutos, `_counter`, e a lâmpada acesa enquanto conta), a placa, a luz âmbar acesa
+## enquanto conta algum e, embaixo, a fenda de onde sai o bilhete; apoiada na mesa pelos pés de borracha. Sem relógio:
+## o da mesa da sala, ao lado, já dá a hora.
 func _draw_machine() -> void:
 	var ci := _machine
 	Bloom.clear(ci)
 	var r := Rect2(Vector2.ZERO, ci.size - Vector2(2, 2)).abs()
 	CardMachines.box(ci, r)
-	var c := Vector2(roundf(r.position.x + 16.0 + DIAL / 2.0), roundf(r.position.y + 12.0 + DIAL / 2.0))
-	ci.draw_texture(PixelArt.disc(DIAL + 6, [[DIAL / 2.0 - 1.0, Pal.SHEET_NEW], [DIAL / 2.0 + 3.0, Pal.NICKEL[1], Pal.NICKEL[2], Pal.NICKEL[3]]]),
-		c - Vector2(DIAL + 6, DIAL + 6) / 2.0)
-	for i in 12:   # as marcas das horas
-		var d := Vector2.UP.rotated(TAU * i / 12.0)
-		ci.draw_rect(Rect2((c + d * (DIAL / 2.0 - 5.0)).round() - Vector2.ONE, Vector2(2, 2) if i % 3 == 0 else Vector2.ONE), Pal.INK)
-	var t := Main.SHIFT_START_HOUR * 60 + int(now)
-	var mins := Vector2.UP.rotated(TAU * (t % 60) / 60.0)
-	var hours := Vector2.UP.rotated(TAU * ((t / 60) % 12 + (t % 60) / 60.0) / 12.0)
-	ci.draw_line(c, (c + hours * DIAL * 0.26).round(), Pal.INK, 2.0)
-	ci.draw_line(c, (c + mins * DIAL * 0.38).round(), Pal.INK, 1.0)
-	ci.draw_rect(Rect2(c - Vector2.ONE, Vector2(2, 2)), Pal.INK_RED)
 	var screen := _screen()
 	ci.draw_rect(screen.grow(1.0), Pal.EDGE)
 	ci.draw_rect(screen, Pal.PANEL_LO)
 	var cell := (screen.size / Vector2(COUNTER_COLS, ceilf(float(Exchange.LINES) / COUNTER_COLS))).floor()
 	for n in range(1, Exchange.LINES + 1):
-		var o := screen.position + Vector2((n - 1) % COUNTER_COLS, (n - 1) / COUNTER_COLS) * cell
+		var o := screen.position + Vector2((n - 1) % COUNTER_COLS, (n - 1) / COUNTER_COLS) * cell + Vector2(roundf((cell.x - 62.0) / 2.0), 0)   # no meio da célula
 		var plate := Rect2(o.x + 3.0, o.y + roundf((cell.y - 13.0) / 2.0), 18, 13)   # a plaquinha da entrada
 		ci.draw_rect(plate, Pal.BRASS)
 		ci.draw_rect(plate.grow(-1.0), Pal.BRASS.darkened(0.25))

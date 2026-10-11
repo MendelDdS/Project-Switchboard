@@ -202,11 +202,11 @@ text = "E quando a lâmpada fica vermelha, tira o cabo. Isso é metade do servi�
 
 [sub_resource type="Resource" id="Lesson_38"]
 script = ExtResource("2_lesson")
-text = "A outra metade é papel. Toda ligação que termina vai pro caderno de ocorrências."
+text = "A outra metade é papel. Toda ligação que termina vai pra ficha de ocorrências."
 
 [sub_resource type="Resource" id="Lesson_39"]
 script = ExtResource("2_lesson")
-text = "Tá vendo as tiras saindo do caderno, ali na mesa? É uma pra cada ligação esperando registro."
+text = "Tá vendo as tiras saindo do bloco de fichas, ali na mesa? É uma pra cada ligação esperando registro."
 
 [sub_resource type="Resource" id="Lesson_40"]
 script = ExtResource("2_lesson")
@@ -217,8 +217,8 @@ script = ExtResource("2_lesson")
 kind = 3
 seconds = 12.0
 until = "logbook"
-hint = "Clique no [b]caderno[/b] na mesa (ou aperte 3)."
-nudges = PackedStringArray("É o caderno de capa de couro, na frente da mesa. Ou aperta o 3.")
+hint = "Clique no [b]bloco de fichas[/b] na mesa (ou aperte 3)."
+nudges = PackedStringArray("É o bloco de fichas, com a fita vermelha no alto, na frente da mesa. Ou aperta o 3.")
 
 [sub_resource type="Resource" id="Lesson_42"]
 script = ExtResource("2_lesson")
@@ -233,7 +233,7 @@ script = ExtResource("2_lesson")
 kind = 3
 seconds = 15.0
 until = "registered"
-hint = "Registre as ligações da Cecília: na ficha do caderno, clique em [b]Ligação comum[/b], uma vez para cada."
+hint = "Registre as ligações da Cecília: na ficha de ocorrências, clique em [b]Ligação comum[/b], uma vez para cada."
 nudges = PackedStringArray("É o botão Ligação comum, embaixo da ficha. A segunda sobe sozinha depois da primeira.")
 wrong = "Ih, essa foi comum! Carimbo não se apaga, e o supervisor confere. Hoje não conta, mas presta atenção."
 
@@ -417,7 +417,7 @@ text = "Numa emergência de verdade, embaixo das opções aparece uma barra: enq
 
 [sub_resource type="Resource" id="Lesson_77"]
 script = ExtResource("2_lesson")
-text = "Então pergunta o que precisa, marca, perfura e envia rápido. E no caderno ela leva o carimbo de Emergência."
+text = "Então pergunta o que precisa, marca, perfura e envia rápido. E na ficha ela leva o carimbo de Emergência."
 
 [sub_resource type="Resource" id="Lesson_78"]
 script = ExtResource("2_lesson")
@@ -463,7 +463,7 @@ text = "Aí, no papel do horário colado na parede, aparece o botão Encerrar tu
 
 [sub_resource type="Resource" id="Lesson_87"]
 script = ExtResource("2_lesson")
-text = "Antes de apertar, registra tudo no caderno e espera quem está na linha terminar. Quem você cortar e o que ficar sem registro, o supervisor anota."
+text = "Antes de apertar, registra tudo na ficha e espera quem está na linha terminar. Quem você cortar e o que ficar sem registro, o supervisor anota."
 
 [sub_resource type="Resource" id="Lesson_88"]
 script = ExtResource("2_lesson")

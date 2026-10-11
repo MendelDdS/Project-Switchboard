@@ -87,7 +87,7 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   teto já fica só na tela do cenário. Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
   **Disposição (cena + painel)**: a tela é uma mesa de trabalho. No alto da esquerda, o horário do turno num
   papel colado com fita na parede (`ShiftPlate`, variação `TapedNote`, com o horário e o botão Encerrar turno; era uma
-  plaqueta de latão; a faixa dele, `TopLeft`, tem 42 px fixos, a altura do bilhete com o botão; era 52, e os 16 px que saíram dela e da margem de cima foram para a prateleira) e, à direita dele, na parede acima da mesa
+  plaqueta de latão; a faixa dele, `TopLeft`, tem no mínimo 42 px, a altura do bilhete com o botão, e cresce com a altura que a mesa comutadora não usa: a parede acima dela, com o bilhete no alto; era 52, e os 16 px que saíram dela e da margem de cima foram para a prateleira) e, à direita dele, na parede acima da mesa
   comutadora, a placa esmaltada da companhia telefônica (`Background._draw_company_sign`, `SIGN_COMPANY`). O relógio da sala é um **relógio de flip na mesa** (`Background._draw_flip_clock`, o único da tela):
   caixa de baquelite creme numa base escura, reta, com a frente paralela à tela (`CLOCK`; `CLOCK_TURN` gira para os
   olhos uma fração do ângulo até eles, `_yaw`; foi 0,5: certo na conta, mas a frente descia uns 5° entre as horizontais
@@ -102,7 +102,7 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   começar a virar; era um tique-taque a cada segundo real, do relógio de ponteiros, e não batia com as plaquetas, que
   viram a cada 1,33 s), e a badalada de gongo a cada hora cheia (`chime`, `Main._hour`) vêm do relógio
   (`Background.clock_x`) e a campainha de latão quando o turno pode ser encerrado (`shift_bell`), da plaqueta; embaixo
-  dela a mesa comutadora (588×362), a faixa da prateleira (`Shelf`, 32 px; era 16: o painel foi recuado para a parede, a pedido, para os cabos terem respiro; o encaixe do FONE, `%FoneSocket`, e os
+  dela a mesa comutadora (492×304; era 588×362, e com as tomadas na medida dos plugs ficava espaçada e tomava a mesa da sala), a faixa da prateleira (`Shelf`, 32 px; era 16: o painel foi recuado para a parede, a pedido, para os cabos terem respiro; o encaixe do FONE, `%FoneSocket`, e os
   buracos dos cabos, `%CordTray`, com os plugs guardados em pé neles, na frente do painel, como numa mesa telefônica
   de verdade; cada fio repousa na fileira do buraco dele, `floor_y`) e a faixa da frente do console (`%Desk`), com a
   **miniatura do painel de baixo** no meio (`%Mini`, `ConsoleMini`: a tela da conversa, as teclas e o rádio na
@@ -114,7 +114,7 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   cima dos objetos da mesa) e as ferramentas (`Tools`: no `%Body`, o papel da ferramenta aberta; guardadas, a
   janela aparece; sem abas, a pedido: repetiam os objetos da mesa e tomavam 40 px de altura do papel). O papel sai do objeto da ferramenta na mesa (`Tools.origin` = `Background.prop_rect`: pequeno, em
   cima dele, e cresce até o lugar; ao guardar, volta), tem a forma e o material do objeto (`PaperDeco`, a moldura em pixel art guardada por
-  tamanho, `_cover`: a capa de papelão mostarda da lista com o grão e o friso, como a da mesa; a capa de couro do caderno, com as
+  tamanho, `_cover`: a capa de papelão mostarda da lista com o grão e o friso, como a da mesa; o caderno é o bloco de fichas de ocorrência (a fita de pano da colagem no alto, `Pal.PAD_TAPE`, a beira das folhas de baixo e o papelão, `Pal.PAD_BACK`), com as
   tiras dos registros pendentes saindo de cima, `pending`; a tábua da prancheta com o prendedor niquelado, `_clip`, e o cabeçalho
   datilografado com o fio vermelho, `HEAD_Y`/`CallLog.HEAD`; o vinco do jornal; no despacho, nada: a moldura de metal da unidade em volta do vidro
   do mapa e a base das máquinas são do `CardMachines`, por baixo do cartão), o papel na cor do objeto (`Tools.PAPER`) e a luz
@@ -133,8 +133,9 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   larga ele fugia dos objetos e as listas apareciam bem de lado; no meio exato das fileiras, a parede da janela
   entrava pela mesa e espremia os objetos). **A sala se distribui na largura que tiver**: entre a mesa comutadora e a
   quina, o armário (`CAB_W`) e o lugar do cartaz (`POSTER_W`) com a mesma folga entre eles; os objetos da mesa em duas
-  fileiras de ponta a ponta entre a lateral da mesa comutadora e a parede da direita (`_row`, `WALL_PAD`), com a mesma
-  folga entre eles. Os lugares do cartaz e do jornal ficam guardados mesmo sem eles, para nada mudar entre as noites.
+  fileiras de ponta a ponta entre a lateral da mesa comutadora e a parede da direita (`_row`, `WALL_PAD`; a da frente para
+  `EDGE_PAD` antes, porque perto a parede já passou da beira da tela), com a mesma folga entre eles e antes do primeiro
+  (encostados na mesa comutadora, pareciam apertados). Os lugares do cartaz e do jornal ficam guardados mesmo sem eles, para nada mudar entre as noites.
   (Presos a uma ponta só, sobrava mesa vazia numa janela larga; presos a pontas diferentes, o relógio caía em cima do
   jornal em 1280 e o armário entrava atrás da mesa comutadora.) e `EYE` acima do fundo do tampo, dentro da tela, na altura da janela (era logo acima
   da tela: a mesa vista mais de cima, mas a parede da janela ficava a 44 cm da cabeça e a janela descia uns 40°; com
@@ -182,11 +183,13 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   o vidro, `_art_glass`: o mapa aberto em miniatura, `_art_map`, com as mesmas folhas, as dos bairros atendidos, na
   proporção delas: quarteirões no tom do bairro, casas e árvores, lugares de telhado de barro, praça, zona rural,
   divisas e o selo; sem nomes, que nesse tamanho seriam ruído; papel sob a luz da sala, não tela acesa, a pedido),
-  caderno aberto (3) e
+  bloco de fichas de ocorrência (3, `_art_pad`, `PAD_W`: a ficha da noite, que vai para o supervisor; era um caderno
+  aberto de 46, que tomava a fileira da frente: a folha de cima com a fita da colagem, `_pad_tape`, o impresso, a pauta,
+  a margem, a letra de mão, as tiras e o lápis, `_pad_marks`) e
   o calculógrafo (4, `_draw_calculograph`, `CALC`: a ferramenta aberta em miniatura, a máquina das máquinas do despacho
-  atrás, com o mostrador, `_dial_face`, os contadores, `counting`, e a fenda embaixo, de onde a ponta do bilhete desce
+  atrás, sem relógio (o de flip fica ao lado), com os contadores, `counting`, e a fenda embaixo, de onde a ponta do bilhete desce
   numa camada própria da sala enquanto ele é impresso, `_tip`, `Background._draw_tip`; na frente, a mesinha dela com o
-  que está na da ferramenta, `toll_desk`: almofada, bilhetes, caixinha, `TOLL_BOX_H`, e o carimbo em pé, `STAMP_ART`, que a camada da ponta desenha de novo por cima dela, `_tip_cover`; uns 22 cm de largura: com 14, carimbo e bilhetes ficavam menores que um plug; para caber, o jornal fica dobrado estreito, `NEWS_W`, e a unidade de despacho, recuada), mais a caneca, postos por fração da profundidade do tampo (`_at`, `_deep`: ficam no
+  que está na da ferramenta, `toll_desk`: almofada, bilhetes, caixinha, `TOLL_BOX_H`, e o carimbo em pé, `STAMP_ART`, que a camada da ponta desenha de novo por cima dela, `_tip_cover`; a almofada e a caixinha afastadas dos cantos na mesma medida, `Toll.INSET`: nos cantos, perto, elas passavam dos lados da máquina e ele parecia torto; uns 18 cm de largura, a máquina na proporção da aberta: com 14, carimbo e bilhetes ficavam menores que um plug, e com 22 × 2,6 cm ela saía larga e baixa demais; para caber, o jornal fica dobrado estreito, `NEWS_W`, e a unidade de despacho, recuada), mais a caneca, postos por fração da profundidade do tampo (`_at`, `_deep`: ficam no
   tampo seja qual for a câmera) e, na largura, a partir da lateral da mesa comutadora (`_side_x`), em duas fileiras
   com folga entre eles: atrás, o que é alto: a unidade de despacho, as listas e o relógio de flip com a caneca na
   frente dele; na frente, o que é baixo: calculógrafo, caderno e jornal (as listas na frente tampavam o caderno inteiro;
@@ -199,7 +202,7 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   relógio, guardado até o desenho mudar; torto por transformação, o desenho esticava e entortava os pixels, uma linha
   de 1 px virava 0 ou 2, e destoava do resto do jogo; o que não pode entortar, como o lápis, o alfinete e as tiras do
   caderno, vai por cima já na tela, `_tex_pt`; **risco fino também vai na tela**: texto, pauta, colunas e vincos do
-  jornal, da prancheta e do caderno (`_newspaper_print`, `_clipboard_print`, `_notebook_marks`) com `_ink` (um risco
+  jornal, da prancheta e do caderno (`_newspaper_print`, `_clipboard_print`, `_pad_marks`) com `_ink` (um risco
   em pixel art) nas alturas de `_rows` (a cada N px da tela, não do papel): no papel, linhas de 1 px a cada 2 viravam
   moiré e zigue-zague na perspectiva; área cheia, como a foto do jornal, pode ficar no desenho; papel tem 1 px de beira
   e a prancheta, 2 (com mais, pareciam tábuas); os desenhos são `_art_*`), **cada um girado uns graus, como largado na mesa**
@@ -393,7 +396,7 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   como o `_ci` do `Background`). Quem acrescentar ao desenho algo que muda precisa pôr isso no estado da camada certa
   do `_look`. O trançado do fio é uma chamada de desenho só (`draw_multiline_colors`; um `draw_polyline` por pedaço
   eram dezenas por fio).
-- Layout da mesa (`SIZE` 588×362, também em `main.tscn`): móvel com moldura de madeira (`_draw_cabinet`, `FRAME`,
+- Layout da mesa (`SIZE` 492×304, também em `main.tscn`; o passo das colunas, 44 px, `col_x`, é o do estado mais longo, e o dos destinos, `DEST_PITCH` 24, o dos números em cima deles): móvel com moldura de madeira (`_draw_cabinet`, `FRAME`,
   `WOOD`) e faixas gravadas com o nome de cada seção (`_draw_rule`, `RULES`: entradas, saídas, destinos); coluna de cada linha em `ROW_Y` (plaquinha de metal com o número
   gravado, `_draw_number_plate`; estado; lâmpada; entrada; saída), todos os encaixes com `JACK` px, bancos de destino em
   `DEST_TOP`/`DEST_ROW` (cada banco com o mesmo vão, 8 px, entre a moldura e os números e entre as tomadas de baixo e a moldura, `_blocks`) e a legenda das lâmpadas na faixa das entradas, à direita, na fonte gravada do painel (`_draw_legend`, `tiny`; no pé do painel, os plugs guardados passavam na frente dela). Mexendo na altura, confira que a coluna da esquerda ainda cabe (até 540).
@@ -410,7 +413,7 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   estática, desenhada pelo `Background`: `BOARD_MAKER` na fonte gravada e "SÃO SOTERO"; ficava no pé do painel e saiu
   de lá quando os cabos se juntaram).
 - Troncos interurbanos (`_draw_trunks`): um banco de seis tomadas no canto de baixo à direita do painel, embaixo do
-  banco C e na largura do B, com "INTERURBANO" gravado na moldura e a cidade em cima de cada tomada
+  banco C e alinhado à direita dele (`TRUNK_PITCH`: o nome mais longo da cidade cabe em cima de cada tomada), com "INTERURBANO" gravado na moldura e a cidade em cima de cada tomada
   (`BOARD_TRUNK_1..6`, nomes provisórios). As tomadas são destinos como os outros (`GameData.TRUNKS`, 901–906, de
   todos os setores; posição em `_layout_dests`, desenho, aro aceso e clique no laço dos destinos, sem o número em cima).
 - **Pixel art em código, sem arquivos de imagem** (decisão do usuário): `PixelArt` (`scripts/ui/pixel_art.gd`, só
@@ -430,18 +433,19 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   café com a luz refletida, a alça em C do lado da sombra e lascas no esmalte), com o vapor subindo na camada da poeira
   (`_draw_steam`), que some com as horas porque o café esfria (`STEAM_FOR`); o painel do operador nos parafusos e o `Bloom` no miolo das luzes redondas. Beira das peças e do
   móvel em `EDGE_DARK` (marrom quase preto), não preto. Os plugs também são pixel art, no acabamento do relógio
-  da mesa (abaixo). **O encaixe é um mapa de pixels** (`JACK_ART`, 16×16, menor que o `JACK`, com o furo preto de 8 px, a largura da luva do plug: com 20, a tomada ficava grande demais para a ponta de metal; com 24, passava das linhas do banco; `art`: um caractere por pixel e a
-  paleta, `_jack_pal`; o mesmo da branch 2×2, pela referência do usuário, com mais tons): aro niquelado fino (2 a 3
-  pixels; mais grosso, destoava da referência; os raios dão as larguras de linha de um círculo de pixel art, senão
-  saía octogonal) com a beira
-  escura em volta do furo preto e largo, a luz na face do aro no alto à esquerda (com um fio de brilho) e na parede do
+  da mesa (abaixo). **O encaixe é um mapa de pixels** (`JACK_ART`, 14×14, menor que o `JACK`, com o furo escuro de 6 px, a largura da luva do plug, e o aro da largura do corpo dele: com 16 e o furo de 8, na medida do plug antigo, ficava grande; com 12, o níquel de 2 px era fino demais; `art`: um caractere por pixel e a
+  paleta, `_jack_pal`; o mesmo da branch 2×2, pela referência do usuário): aro niquelado de 3 pixels com os tons
+  perto uns dos outros e a sombra curta (com o contraste inteiro, claro no alto à esquerda e escuro do outro lado,
+  parecia uma cúpula saltando do painel; num tom só, chato, perdia os detalhes: os dois saíram a pedido; os raios dão
+  as larguras de linha de um círculo de pixel art, senão saía octogonal), com a beira
+  escura em volta do furo escuro, a luz na face do aro no alto à esquerda (com um fio de brilho) e na parede do
   furo embaixo à direita; as saídas no níquel mais escuro (`dim`). Largura par e o meio num pixel inteiro (`jack_rect`
   arredonda o dos destinos), para ficar no eixo da plaquinha e da lâmpada. (Uma versão em `_disc` com a bucha de latão
   saiu com o furo maior e foi rejeitada.)
 - Encaixes redondos (`_draw_jack`: o aro niquelado e o furo, com a sombra no painel); lâmpadas de vidro leitoso abaulado num aro
-  fino de níquel, sem furo (`_draw_lamp`, `BEZEL`, `LAMP_OFF`: com o assento preto pareciam mais uma tomada) que acendem rápido e apagam devagar, como
+  fino de níquel, do tamanho das tomadas (14 px), sem furo (`_draw_lamp`, `BEZEL`, `LAMP_OFF`: com o assento preto pareciam mais uma tomada) que acendem rápido e apagam devagar, como
   filamento (`_lamp`/`_dest_lamp` dizem cor e nível desejado, `_fade` chega lá em `LAMP_ON_SEC`/`LAMP_OFF_SEC`, estado em
-  `_lit`; a linha tocando pulsa). A luz acesa tinge o aro dela e o alto do aro do encaixe logo abaixo (`_reflect`).
+  `_lit`; a linha tocando pulsa). A luz acesa tinge o aro dela e o chanfro de cima do encaixe logo abaixo (`_reflect`).
 - Plug (`_draw_plug`): de pé (comprido, `PLUG_LEN` do fio à aba; guardado, afunda `PLUG_SINK` = 14 px no buraco: a capa
   de borracha some nele e o corpo fica à mostra, sem esconder metade do plug) (solto, na mão, na bandeja; `_draw_plug_body`) é um mapa de pixels (`PLUG_ART`, 16×66, cores
   por cabo em `_plug_pal`; sombreado de cilindro com o brilho numa coluna só e a beira escura à direita, cantos

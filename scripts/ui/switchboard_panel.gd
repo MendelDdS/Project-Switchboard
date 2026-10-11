@@ -2,11 +2,11 @@ extends "res://scripts/ui/switchboard_base.gd"
 ## O painel da mesa comutadora (`Switchboard`): o móvel de madeira, as faixas gravadas, as plaquinhas, as lâmpadas,
 ## as tomadas, o desgaste, as chapas dos bancos e a prateleira com os buracos dos cabos.
 
-const DEST_TOP := 211.0      # topo das tomadas da primeira fileira (a segunda fica DEST_ROW px abaixo)
-const DEST_ROW := 46.0
+const DEST_TOP := 182.0      # topo das tomadas da primeira fileira (a segunda fica DEST_ROW px abaixo)
+const DEST_ROW := 36.0
 const FRAME := 7.0           # a moldura de madeira do móvel, em volta do painel
 ## Faixas gravadas no painel que separam as seções (altura da linha; o nome fica sobre ela, à esquerda).
-const RULES := {"in": 22.0, "out": 131.0, "dest": 181.0}
+const RULES := {"in": 20.0, "out": 112.0, "dest": 152.0}
 const WOOD := [Color("6b4529"), Color("4a2f1c"), Color("2a1a0f")]   # madeira do móvel e da bandeja: luz, meio, sombra
 ## O buraco da prateleira (20×10, achatado pela perspectiva; o vão, 16 de largura, mais largo que o plug, que entra
 ## nele): b, a beira de trás do aro (na sombra); f e F, a da frente (na luz, com o brilho); w, a parede de dentro do lado
@@ -27,39 +27,40 @@ const HOLE_PAL := {"b": Color("7a6230"), "f": Color("c4a35a"), "F": Color("e6cf8
 
 var _lit := {}   ## lâmpada ("l3" linha, "d312" destino) -> [cor, quanto está acesa 0..1]; a cor fica enquanto apaga
 
-## O encaixe, pixel a pixel (16×16, menor que o `JACK`; par, para o meio dele cair entre dois pixels, como o das
-## plaquinhas e das lâmpadas), na medida da ponta do plug: o furo preto tem 8 px, pouco mais que a luva, de 6 (com 20, a
-## tomada ficava grande demais para ela). Um aro niquelado fino (2 a 3 pixels) com a beira escura por fora, em volta do furo.
-## A luz (alto à esquerda) bate na face do aro desse lado, com um fio de brilho no meio dele, e, por dentro, na parede
-## do furo do lado oposto (embaixo à direita). Os dois círculos (16 e 10 pixels) têm as larguras de linha das
-## circunferências de pixel art (6, 10, 12, 14...): com outros raios saíam com lados retos, como um octógono; a beira e
-## o chanfro têm sempre 1 pixel. As cores vêm de `_jack_pal`.
+## O encaixe, pixel a pixel (14×14, menor que o `JACK`; par, para o meio dele cair entre dois pixels, como o das
+## plaquinhas e das lâmpadas), na medida do plug: o furo escuro tem 6 px, a largura da luva, e o aro, a do corpo (com
+## 16 e o furo de 8, na medida do plug antigo, ficava grande para ele; com 12, o níquel de 2 px era fino demais). O aro
+## niquelado (3 pixels) com a beira escura por fora, em volta do furo. A luz (alto à esquerda) bate na face do aro desse
+## lado, com um fio de brilho, e, por dentro, na parede do furo do lado oposto (embaixo à direita); os tons do aro ficam
+## perto uns dos outros (`_jack_pal`): com o contraste inteiro, ele parecia uma cúpula saltando do painel, e num tom
+## só perdia os detalhes.
+## Os dois círculos (14 e 6 pixels) têm as
+## larguras de linha das circunferências de pixel art (4, 8, 10, 12, 12, 14 e 4, 6): com outros raios saíam com lados
+## retos, como um octógono; a beira e o chanfro têm sempre 1 pixel. As cores vêm de `_jack_pal`.
 const JACK_ART := [
-	".....eeeeee.....",
-	"...eeLLLMMMee...",
-	"..eLlllLLMMDDe..",
-	".eLllLddddMMDDe.",
-	".eLlldhhhhkMDDe.",
-	"eLlldhhhhhhkMDDe",
-	"eLldhhhhhhhhkMDe",
-	"eLldhhhhhhhhWMDe",
-	"eMLdhhhhhhhhWDDe",
-	"eMLkhhhhhhhkWDDe",
-	"eMMDkhhhhhkWDDde",
-	".eDMDkkkkWWdDde.",
-	".eDMMDdkWWdddde.",
-	"..eDDDDDDdddde..",
-	"...eeDDDDddee...",
-	".....eeeeee.....",
+	".....eeee.....",
+	"...eeLLMMee...",
+	"..eLllLLMMDe..",
+	".eLlllLLMMMDe.",
+	".eLllkkkkMMDe.",
+	"eLllkhhhhkMDDe",
+	"eLllkhhhhWMDDe",
+	"eMLlkhhhhWDDde",
+	"eMMLkhhhhWDDde",
+	".eMDMkkWWdDde.",
+	".eDMMDDDdddde.",
+	"..eDDDDdddde..",
+	"...eeDDddee...",
+	".....eeee.....",
 ]
-const JACK_PX := 16   # o lado do `JACK_ART`, em pixels
+const JACK_PX := 14   # o lado do `JACK_ART`, em pixels
 const EDGE_DARK := Color("1c130b")   # a beira das peças: marrom quase preto, não preto puro
 const SHADOW := Color(0, 0, 0, 0.35)
 const PLATE := Color("4d483d")   # chapa sobre o banco que ainda não está em uso
-const LAMP_R := 4.5         # raio do vidro da lâmpada de cada linha (o aro de metal fica em volta)
+const LAMP_R := 3.5         # o raio da luz da lâmpada de cada linha, no `Bloom` (o vidro tem 5; o aro de metal fica em volta)
 const BEZEL := [Color("d6d1c3"), Color("8e897c"), Color("45413a")]   # aro niquelado: luz, meio, sombra
 const LAMP_OFF := Color("6b6556")   # o vidro leitoso da lâmpada apagada (escuro, parecia o furo de uma tomada)
-const STRIP_W := 30.0   # a faixa rebaixada de cada linha, da plaquinha à saída
+const STRIP_W := 24.0   # a faixa rebaixada de cada linha, da plaquinha à saída
 const WEAR := [0.5, 0.3, 0.15]   # o painel gasto em volta das tomadas: do perto ao longe (o quanto clareia)
 const LAMP_ON_SEC := 0.06    # a lâmpada (de filamento) acende quase na hora...
 const LAMP_OFF_SEC := 0.18   # ...e apaga mais devagar, o filamento esfriando: a linha tocando pulsa em vez de piscar seco
@@ -107,25 +108,25 @@ func _fade(key: String, want: Array, delta: float) -> void:
 ## preto, ela parecia mais uma tomada). Apagada, o vidro fica leitoso (`LAMP_OFF`); acesa, toma a cor da linha, o aro
 ## pega a cor dela e o centro estoura para o branco (o halo é do `Bloom`). A luz da sala brilha no alto do vidro.
 func _draw_lamp(c: Vector2, col: Color, level: float) -> void:
-	PixelArt.sprite(_ci, PixelArt.disc(16, [[7.0, BEZEL[0], BEZEL[1], BEZEL[2]], [8.0, EDGE_DARK]]), c)   # o aro
+	PixelArt.sprite(_ci, PixelArt.disc(14, [[6.0, BEZEL[0], BEZEL[1], BEZEL[2]], [7.0, EDGE_DARK]]), c)   # o aro, do tamanho da tomada
 	if level > 0.02:
-		PixelArt.sprite(_ci, PixelArt.disc(16, [[6.0, Color.TRANSPARENT], [7.0, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), c, Color(col, 0.35 * level))   # a luz no aro
+		PixelArt.sprite(_ci, PixelArt.disc(14, [[5.0, Color.TRANSPARENT], [6.0, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), c, Color(col, 0.35 * level))   # a luz no aro
 	# o vidro abaulado (luz no alto à esquerda): o aceso por cima do apagado, com `level` no modulate (uma cor por quadro
 	# na chave do `disc` guardava uma textura nova a cada quadro da lâmpada pulsando)
-	PixelArt.sprite(_ci, PixelArt.disc(12, [[6.0, LAMP_OFF.lightened(0.3), LAMP_OFF, LAMP_OFF.darkened(0.4)]]), c)
+	PixelArt.sprite(_ci, PixelArt.disc(10, [[5.0, LAMP_OFF.lightened(0.3), LAMP_OFF, LAMP_OFF.darkened(0.4)]]), c)
 	if level > 0.02:   # acesa: o centro estoura para o branco (o halo é do Bloom; o miolo nítido, daqui)
-		PixelArt.sprite(_ci, PixelArt.disc(12, [[6.0, col.lightened(0.3), col, col.darkened(0.4)]]), c, Color(1, 1, 1, level))
-		PixelArt.sprite(_ci, PixelArt.disc(6, [[2.8, Color.WHITE]]), c, Color(Color.WHITE.lerp(col, Bloom.HOT_TINT), level))
+		PixelArt.sprite(_ci, PixelArt.disc(10, [[5.0, col.lightened(0.3), col, col.darkened(0.4)]]), c, Color(1, 1, 1, level))
+		PixelArt.sprite(_ci, PixelArt.disc(4, [[2.0, Color.WHITE]]), c, Color(Color.WHITE.lerp(col, Bloom.HOT_TINT), level))
 		Bloom.light(_ci, Rect2(c - Vector2(LAMP_R, LAMP_R), Vector2(LAMP_R, LAMP_R) * 2.0), Color(col, level), 1.0, false, true)
-	_ci.draw_rect(Rect2(c + Vector2(-3, -4), Vector2(2, 1)), Color(1, 1, 1, 0.5))   # o brilho da sala no vidro
-	_ci.draw_rect(Rect2(c + Vector2(-4, -3), Vector2(1, 1)), Color(1, 1, 1, 0.25))
+	_ci.draw_rect(Rect2(c + Vector2(-3, -3), Vector2(2, 1)), Color(1, 1, 1, 0.5))   # o brilho da sala no vidro
+	_ci.draw_rect(Rect2(c + Vector2(-3, -2), Vector2(1, 1)), Color(1, 1, 1, 0.25))
 
 
 ## Encaixe redondo como os das mesas antigas, pixel a pixel (`JACK_ART`), com a sombra no painel. `dim`: o metal mais
 ## escuro (`_jack_pal`).
 func _draw_jack(jr: Rect2, dim := 0.0) -> void:
 	var r := _jack_px(jr)
-	_ci.draw_texture_rect(PixelArt.art(JACK_ART, {"*": Color(0, 0, 0, 0.35)}), Rect2(r.position + Vector2(1, 2), r.size), false)
+	_ci.draw_texture_rect(PixelArt.art(JACK_ART, {"*": Color(0, 0, 0, 0.25)}), Rect2(r.position + Vector2.ONE, r.size), false)   # rente ao painel: sombra curta
 	_ci.draw_texture_rect(PixelArt.art(JACK_ART, _jack_pal(dim)), r, false)
 
 
@@ -136,8 +137,9 @@ func _jack_px(jr: Rect2) -> Rect2:
 
 ## As cores do encaixe: níquel (`dim` escurece o metal: as saídas, para não se confundirem com as entradas).
 func _jack_pal(dim: float) -> Dictionary:
-	var pal := {"l": Color("f3eee0"), "L": Color("cfc3a9"), "M": Color("8e8272"), "D": Color("4f4840"),
-		"d": Color("35302a"), "W": Color("e0d6c0")}
+	# os tons do aro a 60% do caminho de f3eee0…35302a até o meio deles: com o contraste inteiro, saltava do painel
+	var pal := {"l": Color("d7d0bf"), "L": Color("c2b69e"), "M": Color("9b8f7d"), "D": Color("756c5f"),
+		"d": Color("655e52"), "W": Color("e0d6c0")}
 	for k in pal:
 		pal[k] = (pal[k] as Color).darkened(dim)
 	pal.merge({"e": Color("0b0907"), "h": Color("050403"), "k": Color("1e1b17")})
@@ -189,7 +191,7 @@ func _draw_room_light(p: Rect2) -> void:
 ## coluna (sem ela, a saída parecia solta). As faixas gravadas passam por baixo; o nome delas, por cima.
 func _draw_strips() -> void:
 	for i in 10:
-		var r := Rect2(col_x(i) - STRIP_W / 2.0, ROW_Y["plate"] + 4.0, STRIP_W, ROW_Y["out"] + 11.0 - ROW_Y["plate"])
+		var r := Rect2(col_x(i) - STRIP_W / 2.0, ROW_Y["plate"] + 4.0, STRIP_W, ROW_Y["out"] + JACK / 2.0 - ROW_Y["plate"])
 		_ci.draw_rect(r, Pal.PANEL.darkened(0.05))
 		_ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), Color(Pal.PANEL_LO, 0.6))   # rebaixada: a sombra em cima e à esquerda
 		_ci.draw_rect(Rect2(r.position, Vector2(1, r.size.y)), Color(Pal.PANEL_LO, 0.6))
@@ -202,14 +204,14 @@ func _draw_strips() -> void:
 func _draw_wear() -> void:
 	for j in _jacks:
 		var use := _use(j)
-		PixelArt.sprite(_ci, PixelArt.disc(28, [[10.0, Color(Pal.PANEL_HI, WEAR[0])], [12.0, Color(Pal.PANEL_HI, WEAR[1])], [14.0, Color(Pal.PANEL_HI, WEAR[2])]]),
+		PixelArt.sprite(_ci, PixelArt.disc(26, [[9.0, Color(Pal.PANEL_HI, WEAR[0])], [11.0, Color(Pal.PANEL_HI, WEAR[1])], [13.0, Color(Pal.PANEL_HI, WEAR[2])]]),
 			jack_rect(j).get_center(), Color(1, 1, 1, use))
 		var rng := RandomNumberGenerator.new()
 		rng.seed = j
 		for k in roundi(use * 2.0):
 			var a := rng.randf() * TAU
-			var from := jack_rect(j).get_center() + Vector2.from_angle(a) * rng.randf_range(9.0, 11.0)
-			var to := from + Vector2.from_angle(a + rng.randf_range(-0.6, 0.6)) * rng.randf_range(3.0, 6.0)
+			var from := jack_rect(j).get_center() + Vector2.from_angle(a) * rng.randf_range(8.0, 10.0)
+			var to := from + Vector2.from_angle(a + rng.randf_range(-0.6, 0.6)) * rng.randf_range(2.0, 5.0)
 			_ci.draw_line(from.round() + Vector2(0.5, 0.5), to.round() + Vector2(0.5, 0.5), Color(Pal.PANEL_HI, 0.45), 1.0)
 
 
@@ -354,7 +356,7 @@ func _draw_tray() -> void:
 		_draw_cover(k)
 
 
-const COVER_W := 46.0   # a largura do tampo, quase todo o lugar do par (com o vão do passo entre um e outro)
+const COVER_W := 34.0   # a largura do tampo: cobre os buracos do par, com um vão até o lugar seguinte
 
 
 ## O lugar vago do cabo `k` na prateleira, sob um tampo de metal parafusado, deitado nela: linha a linha de pixels,

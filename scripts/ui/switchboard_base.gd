@@ -4,7 +4,7 @@ extends Control
 ## dividida em camadas por herança: esta, o painel (`switchboard_panel.gd`), os plugs e fios
 ## (`switchboard_plugs.gd`) e a mesa com a entrada, a física e o desenho (`switchboard.gd`); cada uma só usa as de baixo.
 
-const SIZE := Vector2(588, 362)
+const SIZE := Vector2(492, 304)   # era 588 × 362: com as tomadas na medida dos plugs, tudo ficava espaçado e a mesa tomava a sala
 const SHELF_SLOTS := 5   # lugares de cabo na prateleira: um por setor ainda não atendido fica tampado, à espera do cabo novo (`patches`)
 const TRUNK_GAP := 8.0      # do último plug guardado até o bloco interurbano (o vão da moldura dos bancos)
 const PAIR_SHIFT := 16.0    # a ponta da frente de um cabo, à esquerda da de trás: encostadas, as duas se leem como um par
@@ -29,10 +29,10 @@ var trunks := Rect2()   # o bloco interurbano no painel (a mesa o põe ao montar
 const PLUG_BASE := Vector2(0, 26)   # de onde a mão pega o plug (o meio do corpo) até onde o fio entra nele
 const PLUG_H := 66.0   # a altura do `PLUG_ART`: do bico até onde sai o fio...
 const PLUG_W := 16.0   # ...e a largura dele (o corpo tem 14)
-const JACK := 22.0          # diâmetro de todos os encaixes (entradas, saídas e destinos)
+const JACK := 16.0          # o lugar de cada encaixe (entradas, saídas e destinos; o desenho, `JACK_PX`, é menor)
 ## A coluna de cada linha, de cima para baixo: plaquinha com o número (topo e altura), estado (linha de base do texto),
 ## lâmpada, entrada e saída (centros). O estado fica acima da lâmpada: embaixo da entrada, o plug encaixado o cobria.
-const ROW_Y := {"plate": 32.0, "plate_h": 17.0, "state": 61.0, "lamp": 76.0, "in": 104.0, "out": 156.0}
+const ROW_Y := {"plate": 30.0, "plate_h": 15.0, "state": 57.0, "lamp": 68.0, "in": 90.0, "out": 132.0}
 const ROOM_LIGHT_R := 900.0   # px: até onde a luz dela chega no painel
 const ROOM_LIT := Color(1.0, 0.88, 0.66, 0.07)   # perto dela, o painel clareia quente...
 const ROOM_DARK := Color(0.012, 0.022, 0.045, 0.36)   # ...e longe, escurece
@@ -45,20 +45,20 @@ var _ci: CanvasItem   # onde as funções de desenho desenham: a mesa, ou uma da
 ## Encaixe do FONE em coordenadas da mesa (na prateleira à frente do painel, fora do retângulo dela).
 func socket_rect() -> Rect2:
 	if fone_socket == null:
-		return Rect2(0, 370, 58, 32)
+		return Rect2(0, SIZE.y + 8.0, 58, 32)
 	return Rect2(fone_socket.global_position - global_position, fone_socket.size)
 
 
 ## A faixa dos buracos dos cabos na prateleira, em coordenadas da mesa (também fora do retângulo dela).
 func tray_rect() -> Rect2:
 	if tray == null:
-		return Rect2(70, 370, 518, 32)
+		return Rect2(70, SIZE.y + 8.0, SIZE.x - 70.0, 32)
 	return Rect2(tray.global_position - global_position, tray.size)
 
 
 # Tomadas: 1–10 entradas, 11–20 saídas (linha + 10), destinos pelo próprio número (101–399).
 func col_x(i: int) -> float:
-	return 42.0 + i * 56.0
+	return 48.0 + i * 44.0   # 44: o estado mais longo ("ON THE LINE", 43 px na fonte gravada) cabe ao lado do vizinho
 
 
 func jack_rect(j: int) -> Rect2:

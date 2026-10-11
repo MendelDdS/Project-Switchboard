@@ -27,11 +27,12 @@ const GLOW := Color("ffd183")
 ## ferramentas): o que muda numa ponta muda na outra.
 const BOOK := Color("b48c1c")   ## a capa da lista telefônica de cima (mostarda; as outras duas, vermelha e azul)
 const GOLD := Color("e0c07a")   ## o dourado das letras e dos filetes das listas
-const LEATHER: Array[Color] = [Color("6b4529"), Color("4a2f1c"), Color("2e1c10")]   ## o couro do caderno: a beira na luz, a capa, a beira na sombra
-const NOTE_PAGE := Color("d2c5a0")     ## a folha do caderno...
+const PAD_BACK: Array[Color] = [Color("8a7f6c"), Color("6c6253"), Color("463f35")]   ## o papelão de trás do bloco de fichas: a beira na luz, o papelão, a beira na sombra
+const PAD_TAPE: Array[Color] = [Color("7c3a2c"), Color("5c2a20"), Color("3c1a14")]   ## a fita de pano da colagem, no alto do bloco
+const NOTE_PAGE := Color("d2c5a0")     ## a ficha de ocorrências (o bloco de fichas)...
 const NOTE_RULE := Color("bfb38e")     ## ...a pauta...
 const NOTE_MARGIN := Color("b07060")   ## ...e a margem vermelha
-const PENDING: Array[Color] = [Color("d4c084"), Color("cdbda4")]   ## as tiras dos registros pendentes saindo do caderno
+const PENDING: Array[Color] = [Color("d4c084"), Color("cdbda4")]   ## as tiras dos registros pendentes saindo do bloco de fichas
 const BOARD: Array[Color] = [Color("8a5e3a"), Color("6e4a2c"), Color("4a3018")]   ## a tábua da prancheta: a beira na luz, a tábua, a beira na sombra
 const SHEET := Color("cdc09c")       ## a folha da prancheta (a nova, ainda não lida: SHEET_NEW)
 const SHEET_NEW := Color("e0d5b4")

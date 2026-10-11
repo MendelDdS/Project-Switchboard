@@ -720,8 +720,8 @@ msgid "Ela sempre fica acesa?"
 msgstr "Is it always on?"
 
 #: data/nights/night_02.tres
-msgid "O supervisor deixou um recado: \"Ontem a linha ficou com chiado depois das dez. A companhia vai olhar. Se acontecer de novo, anote no caderno.\""
-msgstr "The supervisor left a note: \"Last night the line had static after ten. The company will look into it. If it happens again, write it in the logbook.\""
+msgid "O supervisor deixou um recado: \"Ontem a linha ficou com chiado depois das dez. A companhia vai olhar. Se acontecer de novo, anote na ficha.\""
+msgstr "The supervisor left a note: \"Last night the line had static after ten. The company will look into it. If it happens again, write it on the log sheet.\""
 
 #: data/calls/story_02_seu_ernesto_radio_serena_am.tres data/calls/transfer_31_seu_ernesto_celia_rocha_rua_do_sol.tres
 msgid "Seu Ernesto"
@@ -820,8 +820,8 @@ msgid "Não apaga, tá?"
 msgstr "Don't turn it off, okay?"
 
 #: data/nights/night_03.tres
-msgid "O supervisor deixou um recado: \"Boa semana até aqui. Continue registrando tudo no caderno.\""
-msgstr "The supervisor left a note: \"Good week so far. Keep logging everything in the logbook.\""
+msgid "O supervisor deixou um recado: \"Boa semana até aqui. Continue registrando tudo na ficha.\""
+msgstr "The supervisor left a note: \"Good week so far. Keep logging everything on the log sheet.\""
 
 #: data/nights/night_04.tres
 msgid "O supervisor deixou um recado: \"O fim de semana vem aí e o movimento costuma crescer. Não deixe ninguém esperando.\""
@@ -856,8 +856,8 @@ msgid "O supervisor deixou um recado: \"Quase fim de semana de novo. Paciência 
 msgstr "The supervisor left a note: \"Almost the weekend again. Be patient with callers.\""
 
 #: data/nights/night_12.tres
-msgid "O supervisor deixou um recado: \"Não esqueça: tudo o que acontece vai para o caderno.\""
-msgstr "The supervisor left a note: \"Don't forget: everything that happens goes in the logbook.\""
+msgid "O supervisor deixou um recado: \"Não esqueça: tudo o que acontece vai para a ficha.\""
+msgstr "The supervisor left a note: \"Don't forget: everything that happens goes on the log sheet.\""
 
 #: data/nights/night_13.tres
 msgid "O supervisor deixou um recado: \"Faltam poucas noites para a avaliação do mês.\""
@@ -1060,24 +1060,24 @@ msgid "E quando a lâmpada fica vermelha, tira o cabo. Isso é metade do serviç
 msgstr "And when the lamp turns red, pull the cord. That's half the job."
 
 #: data/nights/night_00.tres
-msgid "A outra metade é papel. Toda ligação que termina vai pro caderno de ocorrências."
-msgstr "The other half is paperwork. Every call that ends goes to the logbook."
+msgid "A outra metade é papel. Toda ligação que termina vai pra ficha de ocorrências."
+msgstr "The other half is paperwork. Every call that ends goes on the log sheet."
 
 #: data/nights/night_00.tres
-msgid "Tá vendo as tiras saindo do caderno, ali na mesa? É uma pra cada ligação esperando registro."
-msgstr "See the slips sticking out of the logbook, there on the desk? One for each call waiting to be logged."
+msgid "Tá vendo as tiras saindo do bloco de fichas, ali na mesa? É uma pra cada ligação esperando registro."
+msgstr "See the slips sticking out of the pad of log sheets, there on the desk? One for each call waiting to be logged."
 
 #: data/nights/night_00.tres
 msgid "Abre ele."
 msgstr "Open it."
 
 #: data/nights/night_00.tres
-msgid "Clique no [b]caderno[/b] na mesa (ou aperte 3)."
-msgstr "Click the [b]logbook[/b] on the desk (or press 3)."
+msgid "Clique no [b]bloco de fichas[/b] na mesa (ou aperte 3)."
+msgstr "Click the [b]pad of log sheets[/b] on the desk (or press 3)."
 
 #: data/nights/night_00.tres
-msgid "É o caderno de capa de couro, na frente da mesa. Ou aperta o 3."
-msgstr "It's the leather-bound book, at the front of the desk. Or press 3."
+msgid "É o bloco de fichas, com a fita vermelha no alto, na frente da mesa. Ou aperta o 3."
+msgstr "It's the pad of forms with the red tape along the top, at the front of the desk. Or press 3."
 
 #: data/nights/night_00.tres
 msgid "Na ficha já vem quem ligou, a hora e pra onde foi. Você só diz o tipo."
@@ -1088,8 +1088,8 @@ msgid "As minhas duas de agora foram ligações comuns. Carimba as duas como Com
 msgstr "My two just now were regular calls. Stamp both as Regular."
 
 #: data/nights/night_00.tres
-msgid "Registre as ligações da Cecília: na ficha do caderno, clique em [b]Ligação comum[/b], uma vez para cada."
-msgstr "Log Cecília's calls: on the logbook form, click [b]Regular call[/b], once for each."
+msgid "Registre as ligações da Cecília: na ficha de ocorrências, clique em [b]Ligação comum[/b], uma vez para cada."
+msgstr "Log Cecília's calls: on the log sheet, click [b]Regular call[/b], once for each."
 
 #: data/nights/night_00.tres
 msgid "É o botão Ligação comum, embaixo da ficha. A segunda sobe sozinha depois da primeira."
@@ -1272,8 +1272,8 @@ msgid "Numa emergência de verdade, embaixo das opções aparece uma barra: enqu
 msgstr "In a real emergency, a bar shows up under the options: as long as nobody goes out, things get worse."
 
 #: data/nights/night_00.tres
-msgid "Então pergunta o que precisa, marca, perfura e envia rápido. E no caderno ela leva o carimbo de Emergência."
-msgstr "So ask what you need, mark, punch and send it fast. And in the logbook it gets the Emergency stamp."
+msgid "Então pergunta o que precisa, marca, perfura e envia rápido. E na ficha ela leva o carimbo de Emergência."
+msgstr "So ask what you need, mark, punch and send it fast. And on the log sheet it gets the Emergency stamp."
 
 #: data/nights/night_00.tres
 msgid "Mais uma coisa: às vezes outra entrada chama no meio de uma conversa."
@@ -1316,8 +1316,8 @@ msgid "Aí, no papel do horário colado na parede, aparece o botão Encerrar tur
 msgstr "Then, on the schedule taped to the wall, the End shift button shows up."
 
 #: data/nights/night_00.tres
-msgid "Antes de apertar, registra tudo no caderno e espera quem está na linha terminar. Quem você cortar e o que ficar sem registro, o supervisor anota."
-msgstr "Before pressing it, log everything in the logbook and wait for whoever's on the line to finish. Anyone you cut off and anything left unlogged, the supervisor writes down."
+msgid "Antes de apertar, registra tudo na ficha e espera quem está na linha terminar. Quem você cortar e o que ficar sem registro, o supervisor anota."
+msgstr "Before pressing it, log everything on the log sheet and wait for whoever's on the line to finish. Anyone you cut off and anything left unlogged, the supervisor writes down."
 
 #: data/nights/night_00.tres
 msgid "E se der meia-noite com a mesa vazia e tudo registrado, o turno fecha sozinho."

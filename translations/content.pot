@@ -719,7 +719,7 @@ msgid "Ela sempre fica acesa?"
 msgstr ""
 
 #: data/nights/night_02.tres
-msgid "O supervisor deixou um recado: \"Ontem a linha ficou com chiado depois das dez. A companhia vai olhar. Se acontecer de novo, anote no caderno.\""
+msgid "O supervisor deixou um recado: \"Ontem a linha ficou com chiado depois das dez. A companhia vai olhar. Se acontecer de novo, anote na ficha.\""
 msgstr ""
 
 #: data/calls/story_02_seu_ernesto_radio_serena_am.tres data/calls/transfer_31_seu_ernesto_celia_rocha_rua_do_sol.tres
@@ -819,7 +819,7 @@ msgid "Não apaga, tá?"
 msgstr ""
 
 #: data/nights/night_03.tres
-msgid "O supervisor deixou um recado: \"Boa semana até aqui. Continue registrando tudo no caderno.\""
+msgid "O supervisor deixou um recado: \"Boa semana até aqui. Continue registrando tudo na ficha.\""
 msgstr ""
 
 #: data/nights/night_04.tres
@@ -855,7 +855,7 @@ msgid "O supervisor deixou um recado: \"Quase fim de semana de novo. Paciência 
 msgstr ""
 
 #: data/nights/night_12.tres
-msgid "O supervisor deixou um recado: \"Não esqueça: tudo o que acontece vai para o caderno.\""
+msgid "O supervisor deixou um recado: \"Não esqueça: tudo o que acontece vai para a ficha.\""
 msgstr ""
 
 #: data/nights/night_13.tres
@@ -1059,11 +1059,11 @@ msgid "E quando a lâmpada fica vermelha, tira o cabo. Isso é metade do serviç
 msgstr ""
 
 #: data/nights/night_00.tres
-msgid "A outra metade é papel. Toda ligação que termina vai pro caderno de ocorrências."
+msgid "A outra metade é papel. Toda ligação que termina vai pra ficha de ocorrências."
 msgstr ""
 
 #: data/nights/night_00.tres
-msgid "Tá vendo as tiras saindo do caderno, ali na mesa? É uma pra cada ligação esperando registro."
+msgid "Tá vendo as tiras saindo do bloco de fichas, ali na mesa? É uma pra cada ligação esperando registro."
 msgstr ""
 
 #: data/nights/night_00.tres
@@ -1071,11 +1071,11 @@ msgid "Abre ele."
 msgstr ""
 
 #: data/nights/night_00.tres
-msgid "Clique no [b]caderno[/b] na mesa (ou aperte 3)."
+msgid "Clique no [b]bloco de fichas[/b] na mesa (ou aperte 3)."
 msgstr ""
 
 #: data/nights/night_00.tres
-msgid "É o caderno de capa de couro, na frente da mesa. Ou aperta o 3."
+msgid "É o bloco de fichas, com a fita vermelha no alto, na frente da mesa. Ou aperta o 3."
 msgstr ""
 
 #: data/nights/night_00.tres
@@ -1087,7 +1087,7 @@ msgid "As minhas duas de agora foram ligações comuns. Carimba as duas como Com
 msgstr ""
 
 #: data/nights/night_00.tres
-msgid "Registre as ligações da Cecília: na ficha do caderno, clique em [b]Ligação comum[/b], uma vez para cada."
+msgid "Registre as ligações da Cecília: na ficha de ocorrências, clique em [b]Ligação comum[/b], uma vez para cada."
 msgstr ""
 
 #: data/nights/night_00.tres
@@ -1271,7 +1271,7 @@ msgid "Numa emergência de verdade, embaixo das opções aparece uma barra: enqu
 msgstr ""
 
 #: data/nights/night_00.tres
-msgid "Então pergunta o que precisa, marca, perfura e envia rápido. E no caderno ela leva o carimbo de Emergência."
+msgid "Então pergunta o que precisa, marca, perfura e envia rápido. E na ficha ela leva o carimbo de Emergência."
 msgstr ""
 
 #: data/nights/night_00.tres
@@ -1315,7 +1315,7 @@ msgid "Aí, no papel do horário colado na parede, aparece o botão Encerrar tur
 msgstr ""
 
 #: data/nights/night_00.tres
-msgid "Antes de apertar, registra tudo no caderno e espera quem está na linha terminar. Quem você cortar e o que ficar sem registro, o supervisor anota."
+msgid "Antes de apertar, registra tudo na ficha e espera quem está na linha terminar. Quem você cortar e o que ficar sem registro, o supervisor anota."
 msgstr ""
 
 #: data/nights/night_00.tres
