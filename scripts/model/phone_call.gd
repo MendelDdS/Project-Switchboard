@@ -99,6 +99,7 @@ var no_answer := false
 var alt_done := false
 var connected := false
 var dest_num := 0
+var suspicion := 0.0        ## conectada e escutada: de 0 a 1, o quanto os dois desconfiam (`Eavesdrop`; em 1, denunciam)
 var wrong := 0              ## quantas vezes foi conectada ao número errado
 # emergência
 var asked: Array[int] = []

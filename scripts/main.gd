@@ -87,6 +87,7 @@ var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o
 @onready var conversation: Conversation = %Conversation
 @onready var supervisor: Supervisor = %Supervisor
 @onready var urgency: Urgency = %Urgency
+@onready var eavesdrop: Eavesdrop = %Eavesdrop
 @onready var training: Training = %Training
 @onready var _hint: RichTextLabel = %Hint
 @onready var _glow: CanvasItem = %Glow
@@ -126,9 +127,11 @@ func _ready() -> void:
 	board.end_changed.connect(_on_end_changed)
 	board.info_requested.connect(_show_line_info)
 	board.warned.connect(warn)
+	board.lever_pressed.connect(_on_lever)
 	phone.answer_pressed.connect(answer)
 	phone.transfer_pressed.connect(transfer)
 	phone.hangup_pressed.connect(hangup)
+	phone.listen_pressed.connect(listen)
 	_end_shift.pressed.connect(end_shift)
 	_intro.start_pressed.connect(_start_shift)
 	_intro.skip_pressed.connect(_skip_training)
@@ -185,6 +188,8 @@ func _load_night() -> void:
 		report.severe_before = progress.severe
 		for f in progress.flags:
 			flags.apply(f)
+		for f in progress.later:   # o que ficou para ser cobrado hoje (a denúncia de uma escuta)
+			report.add(f["id"], T.text(T.Key.REPORT_YESTERDAY) % f["time"], f["detail"])
 	night_no = clampi(night_no, 0, C.nights.size())
 	night = C.training if night_no == 0 else C.nights[night_no - 1]
 	GameData.sectors = GameData.sectors_for(night_no) if force_sectors.is_empty() else force_sectors
@@ -498,6 +503,25 @@ func transfer() -> void:
 	_ring_dest(c, d)
 
 
+## Tecla Escutar (Z): sobe e desce a chave de escuta da linha conectada em que o FONE está.
+func listen() -> void:
+	var n := board.fone_line()
+	if n != -1 and exchange.line(n) == Exchange.Line.CONN:
+		eavesdrop.toggle(n)
+		_update_call_ui()
+
+
+## Clique na chave de escuta da linha `n`: só sobe com a linha conectada e o FONE na entrada dela; desce sempre.
+func _on_lever(n: int) -> void:
+	if exchange.line(n) != Exchange.Line.CONN:
+		return
+	if not exchange.key(n) and board.fone_line() != n:
+		warn(T.text(T.Key.WARN_LISTEN_FONE) % n)
+		return
+	eavesdrop.toggle(n)
+	_update_call_ui()
+
+
 ## O destino toca; se o cabo sair da tomada ou a chamada cair, para de tocar.
 func _ring_dest(c: PhoneCall, d: int) -> void:
 	var g := cancel_dest_ring(d)
@@ -601,6 +625,7 @@ func _try_complete(c: PhoneCall) -> bool:
 	exchange.set_line(c.line, Exchange.Line.CONN, minutes + randf_range(TALK_LEN.x, TALK_LEN.y))
 	c.connected = true
 	c.dest_num = d
+	eavesdrop.connected(c)
 	if GameData.is_trunk(d):   # a outra ponta atendeu: o calculógrafo começa a contar
 		toll.start(c.line, GameData.trunk_city(d), (c.data as TransferCall).far_number, minutes)
 	c.sys(T.text(T.Key.SYS_LINES_CONNECTED) % [c.line, d])
@@ -684,6 +709,8 @@ func _update_call_ui() -> void:
 	var can_transfer := f != null and f.active and f.kind == PhoneCall.Kind.TRANSFER and f.phase == PhoneCall.Phase.AWAIT
 	can_transfer = can_transfer and not _transferred(f)
 	phone.set_buttons(f != null and f.ringing, can_transfer, f != null and f.active)
+	var n := board.fone_line()
+	phone.set_listen(n != -1 and exchange.line(n) == Exchange.Line.CONN, n != -1 and exchange.key(n))
 
 
 # ================================================================ agenda das ligações
@@ -788,6 +815,7 @@ func talk_over(n: int) -> void:
 	if d != -1 and exchange.dest(d) == Exchange.Dest.CONN:
 		exchange.set_dest(d, Exchange.Dest.DONE)
 	Sfx.play("sw", -8.0)
+	_update_call_ui()
 
 
 func _update_bell() -> void:
@@ -1143,8 +1171,12 @@ func start_ending() -> void:
 	running = false
 	Sfx.ring_stop()
 	Sfx.stop_ambience(5.0)
-	supervisor.shift_over()
 	var last := night_no >= C.nights.size()
+	var later := progress != null and not last and night_no > 0   # o que a companhia cobra amanhã (o treinamento não leva)
+	if progress == null or last:   # sem noite seguinte: cobra hoje
+		for f in report.later:
+			report.add(f["id"], f["time"], f["detail"])
+	supervisor.shift_over()
 	if progress != null:
 		if report.fired() or last:
 			Progress.clear()
@@ -1154,6 +1186,7 @@ func start_ending() -> void:
 			progress.severe = report.severe_total() if night_no > 0 else 0   # o treinamento não conta
 			progress.flags = flags.names()
 			progress.news = report.news()
+			progress.later = report.later if later else []
 			progress.save()
 	await get_tree().create_timer(5.0, false).timeout
 	_ending.play(report, not last)

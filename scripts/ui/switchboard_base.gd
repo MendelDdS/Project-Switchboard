@@ -31,8 +31,9 @@ const PLUG_H := 66.0   # a altura do `PLUG_ART`: do bico até onde sai o fio...
 const PLUG_W := 16.0   # ...e a largura dele (o corpo tem 14)
 const JACK := 16.0          # o lugar de cada encaixe (entradas, saídas e destinos; o desenho, `JACK_PX`, é menor)
 ## A coluna de cada linha, de cima para baixo: plaquinha com o número (topo e altura), estado (linha de base do texto),
-## lâmpada, entrada e saída (centros). O estado fica acima da lâmpada: embaixo da entrada, o plug encaixado o cobria.
-const ROW_Y := {"plate": 30.0, "plate_h": 15.0, "state": 57.0, "lamp": 68.0, "in": 90.0, "out": 132.0}
+## lâmpada, entrada, chave de escuta e saída (centros). O estado fica acima da lâmpada: embaixo da entrada, o plug
+## encaixado o cobria.
+const ROW_Y := {"plate": 30.0, "plate_h": 15.0, "state": 57.0, "lamp": 68.0, "in": 90.0, "key": 111.0, "out": 132.0}
 const ROOM_LIGHT_R := 900.0   # px: até onde a luz dela chega no painel
 const ROOM_LIT := Color(1.0, 0.88, 0.66, 0.07)   # perto dela, o painel clareia quente...
 const ROOM_DARK := Color(0.012, 0.022, 0.045, 0.36)   # ...e longe, escurece
@@ -77,6 +78,18 @@ func jack_at(pos: Vector2) -> int:
 		if jack_rect(j).grow(4).has_point(pos):
 			return j
 	return -1
+
+
+## A chave de escuta da coluna `i`, entre a entrada e a saída (a alavanca para cima ou para baixo).
+func lever_rect(i: int) -> Rect2:
+	return Rect2(col_x(i) - 6, ROW_Y["key"] - 13, 12, 26)
+
+
+## A alavanca da linha `n` levantada: a chave de escuta, ou o destino tocando (o operador ouve chamar; quando atendem,
+## ela desce sozinha).
+func lever_up(n: int) -> bool:
+	var d := dest_of_output(n)
+	return exchange.key(n) or d != -1 and exchange.dest(d) == Exchange.Dest.RING
 
 
 func top_rect(i: int) -> Rect2:

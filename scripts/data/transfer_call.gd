@@ -19,6 +19,13 @@ enum Group {
 ## Nome que vai para o caderno.
 @export var destination := ""
 @export var thanks := ""
+## O que os dois conversam depois de conectados, para quem escutar a linha (`Eavesdrop`): uma fala por item,
+## alternando quem ligou e quem atendeu, começando por quem ligou. Vazio: só o murmúrio das vozes, sem texto. A conversa
+## anda ouvindo ou não: o que o operador não ouviu, perdeu.
+@export var overheard: PackedStringArray = []
+## Marcadores ligados (`StoryFlags.apply`) quando o operador ouve todas as falas de `overheard` (o roteiro sabe que
+## aquela conversa foi ouvida).
+@export var overheard_sets: PackedStringArray = []
 
 ## Interurbano (`target` é um tronco, `GameData.TRUNKS`): o número na outra cidade, que o operador passa à
 ## telefonista de lá.

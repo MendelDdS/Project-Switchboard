@@ -447,6 +447,65 @@ func _initialize() -> void:
 	ok(ex.dest(tgt) == Exchange.Dest.FREE and b.free_patches() == b.patches, "destino e cabo liberados")
 	print("OK 1 transferência completa / tirar o FONE mantém a ligação")
 
+	# ---- 1a. escuta: a chave sobe com o destino tocando e desce quando atendem; a tecla Escutar (Z) ou a alavanca a
+	# sobe com o FONE na linha conectada; entrar na linha estala; ouvindo, a suspeita sobe (sem ouvir, baixa) e, em 1,
+	# eles desligam e denunciam (advertência grave no relatório da noite seguinte)
+	var ed: TransferCall = GameData.transfers(TransferCall.Group.ESTABLISHMENT)[1].duplicate()
+	ed.overheard = ["Oi, sou eu de novo, tudo bem por aí?", "Tudo, e você? Faz tempo que não liga."]
+	ed.overheard_sets = ["ouviu_teste"]
+	var ea := _extra(ed)
+	ea.away = false
+	m.ring(ea)
+	var el := ea.line
+	var et := int(ea.target)
+	_move(0, el)
+	m.answer()
+	ok(await wait_until(_awaiting(ea)), "escuta: pedido de transferência")
+	_move(1, el + 10)
+	_move(2, et)
+	m.transfer()
+	ok(b.lever_up(el) and not ex.key(el), "escuta: a alavanca sobe com o destino tocando")
+	ok(await wait_until(func(): return ea.connected), "escuta: conectada")
+	ok(not b.lever_up(el), "escuta: o destino atendeu e a alavanca desceu sozinha")
+	ok(m.phone._transfer.disabled and not m.phone._listen.disabled and m.phone._listen.text == "LISTEN",
+		"escuta: com o FONE na linha conectada, a tecla Escutar vale")
+	m.listen()
+	ok(ex.key(el) and m.phone._listen.text == "LISTEN_STOP", "escuta: Z sobe a chave e a tecla vira Soltar")
+	await frames(2)
+	ok(m.eavesdrop.listening(el) and ea.suspicion >= Eavesdrop.CLICK, "escuta: entrar na linha estala")
+	ok(await wait_until(func(): return m.flags.allows(["ouviu_teste"])), "escuta: ouviu as falas escritas e o marcador da ligação liga")
+	var heard := ea.suspicion
+	ok(heard > Eavesdrop.CLICK and m.flags.allows(["escutou_%d" % m.night_no]), "escuta: ouvindo, a suspeita sobe e o marcador liga")
+	ok(m.phone.shown() != ea and m.phone.shown().line == el, "escuta: a tela mostra o que se ouve (fora do registro da ligação)")
+	m.listen()
+	await frames(10)
+	ok(not ex.key(el) and ea.suspicion < heard, "escuta: a chave desce e a suspeita baixa devagar")
+	_move(0, -1)
+	_click(b, b.lever_rect(el - 1).get_center())
+	ok(not ex.key(el), "escuta: sem o FONE na linha, a alavanca não sobe")
+	_move(0, el)
+	_click(b, b.lever_rect(el - 1).get_center())
+	ok(ex.key(el), "escuta: com o FONE, o clique na alavanca a sobe")
+	await frames(2)
+	var s0 := ea.suspicion
+	_move(0, -1)
+	await frames(2)
+	_move(0, el)
+	await frames(2)
+	ok(ea.suspicion > s0 + Eavesdrop.CLICK * 0.5, "escuta: o FONE encaixando com a chave em cima também estala")
+	var faults_was := m.report.faults.size()
+	m.eavesdrop.tick(Eavesdrop.LISTEN_SEC)
+	ok(m.report.faults.size() == faults_was and m.report.later[-1]["id"] == "eavesdrop" and m.flags.allows(["denunciado_%d" % m.night_no]),
+		"escuta: suspeita cheia, a denúncia fica para o relatório de amanhã, e o marcador")
+	m.report.later.clear()
+	ok(await wait_until(func(): return ex.line(el) == Exchange.Line.DONE), "escuta: os dois desligam")
+	ok(not ex.key(el) and not b.lever_up(el), "escuta: a conversa acabou e a chave desceu")
+	_move(0, -1)
+	_move(1, -1)
+	_move(2, -1)
+	ok(ex.line(el) == Exchange.Line.FREE and ex.dest(et) == Exchange.Dest.FREE, "escuta: linha e destino liberados")
+	print("OK 1a escuta")
+
 	# ---- 1b. interurbano: a saída no tronco da cidade; a telefonista de lá pede o número e completa
 	ok(GameData.TRUNKS.size() == C.trunk_to.size() and GameData.TRUNKS.all(func(d): return ex.has_dest(d) and b.jack_at(b.jack_rect(d).get_center()) == d),
 		"os troncos são tomadas de destino da mesa")
@@ -815,6 +874,7 @@ func _initialize() -> void:
 	ok(m.flags.has("disse_sim") and "Que bom." in lines and not "Que pena." in lines, "a escolha ligou o marcador e mudou a fala")
 	_move(0, -1)
 	var sc := PhoneCall.from_transfer(GameData.transfers(TransferCall.Group.EXTRA)[1])
+	m.minutes = minf(m.minutes, Main.LAST_CALL - 60.0)   # o relógio andou com os cenários de antes; depois de LAST_CALL nada toca
 	sc.requires = PackedStringArray(["!disse_sim"])
 	sc.at = m.minutes
 	m.sched.push_front(sc)

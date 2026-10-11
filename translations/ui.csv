@@ -79,6 +79,8 @@ INFO_FONE_CONNECTED,FONE CONECTADO,HEADSET CONNECTED,AURICULAR CONECTADO
 ANSWER,Atender,Answer,Contestar
 TRANSFER,Transferir,Transfer,Transferir
 HANG_UP,Desligar,Hang up,Colgar
+LISTEN,Escutar,Listen,Escuchar
+LISTEN_STOP,Soltar,Release,Soltar
 KEY_SPACE,Espaço,Space,Espacio
 STATUS_LINE,Linha %02d,Line %02d,Línea %02d
 STATUS_ON_HOLD,em espera,on hold,en espera
@@ -88,6 +90,7 @@ DISPLAY_CONNECTED,%d CONECTADO,%d CONNECTED,%d CONECTADO
 DISPLAY_LINE_DOTS,LINHA %02d…,LINE %02d…,LÍNEA %02d…
 DISPLAY_NO_NUMBER,NÚMERO NÃO EXISTE,NUMBER DOES NOT EXIST,EL NÚMERO NO EXISTE
 WARN_FONE_TO_TRANSFER,Leve o FONE até a entrada da ligação que você quer transferir.,Bring the HEADSET to the input of the call you want to transfer.,Lleve el AURICULAR a la entrada de la llamada que quiere transferir.
+WARN_LISTEN_FONE,"Para escutar a linha %02d, leve o FONE até a entrada dela.","To listen in on line %02d, bring the HEADSET to its input.","Para escuchar la línea %02d, lleve el AURICULAR a su entrada."
 WARN_NOT_TRANSFER,Esse solicitante não pediu transferência.,This caller didn't ask for a transfer.,Esta persona no pidió una transferencia.
 WARN_LISTEN_FIRST,Ouça o pedido do solicitante antes de transferir.,Hear the caller's request before transferring.,Escuche el pedido antes de transferir.
 WARN_PLUG_OUTPUT,Ligue um cabo de conexão da SAÍDA %02d até o número de destino.,Connect a patch cord from OUTPUT %02d to the destination number.,Conecte un cable de conexión de la SALIDA %02d al número de destino.
@@ -113,6 +116,9 @@ SYS_OTHER_SIDE_ENDED,(A ligação foi encerrada do outro lado.),(The call was en
 SYS_ON_HOLD,(Em espera.),(On hold.),(En espera.)
 SYS_CALL_TO_CANCELLED,(Chamada para %d cancelada.),(Call to %d canceled.),(Llamada al %d cancelada.)
 SYS_DISCONNECTED,(%d desconectado.),(%d disconnected.),(%d desconectado.)
+SYS_LISTENING,(Escutando a linha %02d: %s e %s.),(Listening in on line %02d: %s and %s.),(Escuchando la línea %02d: %s y %s.)
+SYS_LINE_SILENT,(Silêncio na linha.),(Silence on the line.),(Silencio en la línea.)
+SYS_BOTH_HUNG_UP,(Os dois desligaram.),(Both hung up.),(Los dos colgaron.)
 SYS_NOBODY_ANSWERS,(Ninguém atende no %d.),(Nobody answers at %d.),(Nadie contesta en el %d.)
 SYS_ANSWERED,(%s atendeu.),(%s answered.),(%s contestó.)
 SYS_WRONG_PERSON,(Atendeu: %s. Não é quem o solicitante pediu.),(Answered: %s. Not who the caller asked for.),(Contestó: %s. No es a quien pidió la persona.)
@@ -312,6 +318,8 @@ FAULT_MISSED,Ligação não atendida,Call not answered,Llamada no contestada
 FAULT_HOLD,Solicitante desistiu na espera,Caller gave up on hold,La persona desistió en espera
 FAULT_WRONG_NUMBER,Conectou o número errado,Connected the wrong number,Conectó el número equivocado
 FAULT_CUT_CALL,Conversa cortada no meio,Conversation cut off,Conversación cortada a la mitad
+REPORT_YESTERDAY,"ontem, %s","yesterday, %s","ayer, %s"
+FAULT_EAVESDROP,Assinante denunciou que a conversa foi ouvida,A subscriber reported the conversation was listened in on,Un abonado denunció que escucharon su conversación
 FAULT_WRONG_INFO,Informação errada,Wrong information,Información equivocada
 FAULT_REGISTER_WRONG,Registro com o tipo errado,Logged with the wrong type,Registro con el tipo equivocado
 FAULT_REGISTER_MISSING,Ocorrência sem registro,Call not logged,Llamada sin registrar

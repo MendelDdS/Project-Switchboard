@@ -23,6 +23,13 @@ func fault(id: String, detail := "") -> void:
 	main.report.add(id, Main.fmt(main.minutes), detail)
 
 
+## Advertência que o supervisor só fica sabendo depois (a denúncia de um assinante): vai para o relatório da noite
+## seguinte, com a hora de hoje (sem noite seguinte, para o de hoje; `Main.start_ending`).
+func fault_later(id: String, detail := "") -> void:
+	if not main.training.active:
+		main.report.later.append({"id": id, "time": Main.fmt(main.minutes), "detail": detail})
+
+
 func who(c: PhoneCall) -> String:
 	return "%s (%s)" % [tr(c.caller), T.text(T.Key.LINE_N) % c.line]
 

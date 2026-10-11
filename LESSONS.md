@@ -237,3 +237,6 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   cantos da frente de uma mesinha em perspectiva abre para fora do que está atrás dela (perto, tudo fica maior): a
   almofada e a caixinha encostadas nos cantos passavam dos lados da máquina e o conjunto parecia torto. Afaste dos
   cantos o que tem de parecer alinhado.
+- **Ação nova ganha tecla própria, não carona numa existente.** A chave de escuta foi posta no Tab, que vira outra coisa
+  conforme a linha (Transferir ou escutar), e o usuário pediu a tecla Z, separada, com o nome dela no console. Uma
+  tecla que muda de sentido pelo estado pega o jogador de surpresa (Tab apertado para transferir abria a escuta).

@@ -16,6 +16,7 @@ extends "res://scripts/ui/switchboard_plugs.gd"
 signal end_changed(end: int, jack: int, prev: int)
 signal info_requested(jack: int)
 signal warned(text: String)
+signal lever_pressed(line: int)   ## clique na chave de escuta da linha
 
 ## Destinos em três bancos de tomadas, A, B e C, cada um com uma faixa de numeração (100–199, 200–299, 300–399), em
 ## duas fileiras. A mesa saiu de fábrica assim; a faixa coincide com o setor da cidade (o primeiro dígito), e o banco
@@ -36,6 +37,9 @@ var info_until := 0
 var _press_pos := Vector2.ZERO
 var _dragged := false   # já não é clique: a mão se afastou CLICK_PX de onde apertou ou segurou CLICK_SEC
 var _held_for := 0.0    # s segurando desde o clique (tempo real, fora da velocidade do jogo)
+var _levers := []       # a alavanca de cada linha como estava (para cima?), para saber quando ela vira
+var _flips := {}        # linha -> s desde que a alavanca começou a virar (`LEVER_SEC`)
+const LEVER_SEC := 0.09 # a alavanca virando: passa de frente e bate um pixel além antes de assentar
 
 const CLICK_PX := 6.0   # apertar e soltar mexendo menos que isso, e mais rápido que CLICK_SEC s, é clique: desplugar,
 const CLICK_SEC := 0.25 # não encaixar (segurando parado sobre a tomada de onde o plug saiu, soltar o encaixa de novo)
@@ -165,11 +169,11 @@ func _layout_dests() -> void:
 		nums.sort()
 		for i in nums.size():
 			_slots[nums[i]] = Vector2(x + (i % cols[k]) * DEST_PITCH + DEST_PITCH / 2.0, DEST_TOP + 11.0 + int(i / cols[k]) * DEST_ROW)
-		# o mesmo vão (8 px) entre a moldura e os números, em cima, e entre a moldura e as tomadas de baixo
-		_blocks[s] = Rect2(x - 3, DEST_TOP - 21, cols[k] * DEST_PITCH + 6, DEST_ROW + JACK + 28)
+		# em cima, a moldura rente aos números (o vão que sobra fica para o nome das saídas); embaixo, 8 px até as tomadas
+		_blocks[s] = Rect2(x - 3, DEST_TOP - 17, cols[k] * DEST_PITCH + 6, DEST_ROW + JACK + 24)
 		x += cols[k] * DEST_PITCH + BLOCK_GAP
 	var tw := GameData.TRUNKS.size() * TRUNK_PITCH + 6.0
-	trunks = Rect2(_blocks[3].end.x - tw, _blocks[3].end.y + 10.0, tw, 38.0)   # embaixo do banco C, alinhado à direita dele
+	trunks = Rect2(_blocks[3].end.x - tw, _blocks[3].end.y + 6.0, tw, 38.0)   # embaixo do banco C, alinhado à direita dele (6 px: o pé do painel)
 	for k in GameData.TRUNKS.size():   # uma tomada por cidade, com o nome dela em cima (`_draw_trunks`)
 		_slots[GameData.TRUNKS[k]] = Vector2(trunks.position.x + 3.0 + (k + 0.5) * TRUNK_PITCH, trunks.position.y + 24.0)
 
@@ -290,6 +294,9 @@ func _press(pos: Vector2) -> void:
 		pick_up(e)
 		return
 	var j := jack_at(pos)
+	if j == -1 and _lever_at(pos) != -1:
+		lever_pressed.emit(_lever_at(pos))
+		return
 	if j == -1:
 		j = _top_at(pos)
 	if j != -1:
@@ -303,6 +310,14 @@ func _plug_under(p: Vector2) -> int:
 		if e != held and _plug_hit(e, p):
 			return e
 	return cord_at(jack_at(p))
+
+
+## A linha (1–10) cuja chave de escuta está em p, ou -1.
+func _lever_at(p: Vector2) -> int:
+	for i in 10:
+		if lever_rect(i).has_point(p):
+			return i + 1
+	return -1
 
 
 ## A linha (1–10) cuja plaqueta está em p, ou -1.
@@ -321,7 +336,7 @@ func _cursor_shape(p: Vector2) -> CursorShape:
 		return CURSOR_FORBIDDEN if j != -1 and refuse(held, j) != "" else CURSOR_DRAG
 	if _hover != -1:
 		return CURSOR_MOVE
-	if jack_at(p) != -1 or _top_at(p) != -1:
+	if jack_at(p) != -1 or _top_at(p) != -1 or _lever_at(p) != -1:
 		return CURSOR_POINTING_HAND
 	return CURSOR_ARROW
 
@@ -388,6 +403,7 @@ func _process(delta: float) -> void:
 			_fade("l%d" % n, _lamp(exchange.line(n), ms, fone_line() == n), delta)
 		for d in dest_nums:
 			_fade("d%d" % d, _dest_lamp(exchange.dest(d), ms), delta)
+		_flip_levers(delta)
 	var moving := held != -1 or not (_loose.is_empty() and _pushed.is_empty() and _pulled.is_empty())
 	for e in ropes:
 		moving = moving or not (ropes[e] as Cord).asleep()
@@ -400,6 +416,32 @@ func _process(delta: float) -> void:
 	_drawn = now
 
 
+## A alavanca que virou começa a animação (e estala, vinda dela); as que estão virando andam.
+func _flip_levers(delta: float) -> void:
+	for n in _flips.keys():
+		_flips[n] += delta
+		if _flips[n] >= LEVER_SEC:
+			_flips.erase(n)
+	for n in range(1, 11):
+		var up := lever_up(n)
+		if _levers.size() == 10 and _levers[n - 1] != up:
+			_flips[n] = 0.0
+			_sfx("click", lever_rect(n - 1).get_center(), -2.0)
+			_sfx("sw", lever_rect(n - 1).get_center(), -10.0)
+		if _levers.size() < 10:
+			_levers.append(up)
+		_levers[n - 1] = up
+
+
+## A pose da alavanca da linha `n`: [direção (-1 para cima, 1 para baixo, 0 de frente), px além (a batida)].
+func _lever_pose(n: int) -> Array:
+	var dir := -1 if _levers.size() == 10 and _levers[n - 1] else 1
+	if not _flips.has(n):
+		return [dir, 0.0]
+	var k: float = _flips[n] / LEVER_SEC
+	return [0, 0.0] if k < 0.4 else [dir, 1.0 if k < 0.75 else 0.0]
+
+
 ## O que cada camada mostra parada, na ordem de `_layers`: mudou, ela se redesenha (os fios, com algo se mexendo, a
 ## cada quadro). Parada, fica o desenho guardado (as luzes do `Bloom` também ficam: ele guarda as de quem desenha até
 ## a próxima vez).
@@ -410,15 +452,17 @@ func _look() -> Array:
 		levels.append_array([lt[1], (lt[0] as Color).r, (lt[0] as Color).g])
 	var states := PackedInt32Array()
 	var plugs := []   # a luz das lâmpadas nos plugs encaixados (`_plug_light`)
+	var poses := []   # as chaves de escuta (`_lever_pose`)
 	if exchange != null:
 		for n in range(1, 11):
 			states.append(exchange.line(n))
+			poses.append(_lever_pose(n))
 		for d in dest_nums:
 			states.append(exchange.dest(d))
 		for j in ends:
 			if j != -1:
 				plugs.append(_plug_light(j))
-	return [[size, states, GameData.sectors.duplicate()], [size, levels, ends.duplicate(), _eye],
+	return [[size, states, GameData.sectors.duplicate()], [size, levels, ends.duplicate(), _eye, poses],
 		[size, GameData.sectors.duplicate(), _lamp_at],
 		[size, ends.duplicate(), _hover, plugs, Time.get_ticks_msec() < info_until, info_line, _eye, _lamp_at]]
 
@@ -632,7 +676,8 @@ func _draw() -> void:
 		return
 	_draw_strips()
 	_draw_rule(RULES["in"], T.text(T.Key.BOARD_INPUTS), false)   # os nomes por cima das faixas
-	_draw_rule(RULES["out"], T.text(T.Key.BOARD_OUTPUTS), false)
+	# o nome das saídas embaixo delas, no vão até os bancos (a faixa entre as entradas e as saídas é das chaves de escuta)
+	_draw_rule(ROW_Y["out"] + JACK / 2.0 + 13.0, T.text(T.Key.BOARD_OUTPUTS), false)
 	_draw_wear()
 	_draw_trunks(trunks)
 
@@ -652,13 +697,9 @@ func _draw() -> void:
 		draw_texture(label, Vector2(roundf(cx - label.get_width() / 2.0), ROW_Y["state"] - 8.0), sc)
 		_draw_jack(jack_rect(n + 10), 0.25)
 
-	# destinos: a faixa de numeração de cada banco fica sobre a faixa gravada, como rótulo da seção
+	# destinos: a moldura de cada banco (a faixa de numeração vai nela, por cima da chapa: `_draw_top`)
 	for s in _blocks:
-		var br: Rect2 = _blocks[s]
-		var cap := "%d–%d" % [s * 100, s * 100 + 99]
-		draw_rect(Rect2(br.position.x, RULES["dest"] - 7, Pal.ui.get_string_size(cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 8, 15), Pal.PANEL)
-		draw_string(Pal.ui, Vector2(br.position.x + 4, RULES["dest"] + 5), cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.DIM)
-		draw_rect(br, Pal.PANEL_LO, false, 1.0)
+		draw_rect(_blocks[s], Pal.PANEL_LO, false, 1.0)
 	for d in dest_nums:
 		if not GameData.is_trunk(d):   # o tronco tem o nome da cidade em cima (`_draw_trunks`)
 			var jr := jack_rect(d)
@@ -676,11 +717,14 @@ func _draw_lamps() -> void:
 		return
 	_ci = _lamps
 	Bloom.clear(_lamps)
+	var levers := []
 	for i in 10:
 		var n := i + 1
 		var lt: Array = _lit.get("l%d" % n, [LAMP_OFF, 0.0])
 		_draw_lamp(Vector2(col_x(i), ROW_Y["lamp"]), lt[0], lt[1])
 		_reflect(jack_rect(n), lt[0], lt[1])
+		levers.append([Vector2(col_x(i), ROW_Y["key"])] + _lever_pose(n))
+	_draw_levers(levers)
 	for d in dest_nums:
 		var dl: Array = _lit.get("d%d" % d, [LAMP_OFF, 0.0])
 		if dl[1] > 0.02:   # o aro em volta da tomada acende (a tomada, por cima, é da `_top`)
@@ -704,6 +748,12 @@ func _draw_top() -> void:
 	for s in _blocks:
 		if not s in GameData.sectors:
 			_draw_plate(_blocks[s], "ABC"[SECTOR_ORDER.find(s)])
+	for s in GameData.sectors:   # a faixa de numeração na moldura de cima, à esquerda, como o nome do INTERURBANO (a chapa dispensa)
+		var br: Rect2 = _blocks[s]
+		var cap := PixelArt.tiny("%d-%d" % [s * 100, s * 100 + 99])
+		var at := Vector2(br.position.x + 14.0, br.position.y - 5.0)   # (passando o parafuso da chapa)
+		_top.draw_rect(Rect2(at.x - 3.0, br.position.y - 1.0, cap.get_width() + 6.0, 3.0), Pal.PANEL)
+		_top.draw_texture(cap, at, Pal.BRASS)
 	_draw_room_light(Rect2(Vector2.ZERO, size).grow(-FRAME))
 	_ci = self
 

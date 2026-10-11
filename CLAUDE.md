@@ -10,7 +10,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Tudo em português: textos da interface, falas, comentários (`##` para doc de função) e mensagens ao usuário.
 - **Interface em cenas** (`scenes/`), com Containers; scripts de interface em `scripts/ui/`. Lógica em `scripts/`.
   Estilo visual no tema global `themes/main_theme.tres` (variações de tipo: `GreenButton`, `AmberButton`,
-  `RedButton`, `InkButton`, `DarkButton`, `ChoiceButton`, `HudPanel`, `GreenKey`, `AmberKey`, `RedKey` (teclas do console:
+  `RedButton`, `InkButton`, `DarkButton`, `ChoiceButton`, `HudPanel`, `GreenKey`, `AmberKey`, `IvoryKey`, `RedKey` (teclas do console:
   `KeyCapStyle`, um StyleBox em script, `scripts/ui/key_cap_style.gd`), `PaperToggle`, `PaperInk`, `LetterButton`,
   `DarkPanel`, `PaperPanel`, `NotePanel`, `FormPanel`, `SlipPanel`, `InkLabel`, `InkSoftLabel`, `DimLabel`, `AmberLabel`,
   `MonoLabel`, `InkMonoLabel`, `TapedNote`/`TapedLabel`: papel preso com fita, `TapedPaperStyle`). Prefira variação de tema a override por nó.
@@ -133,7 +133,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   no .po. Texto que já chega traduzido num Button/Label dinâmico: `auto_translate_mode = DISABLED`.
 - Entrada: ação `cancel_plug` no Input Map (Esc e botão direito) devolve o plug que está na mão; ação `pause` (Esc, P)
   pausa o turno quando não há plug na mão (`Main._unhandled_input`). Atalhos do telefone: ações `answer_call`
-  (Espaço), `transfer_call` (Tab), `hang_up` (X), tratadas em `PhonePanel._input` **antes da interface** (Espaço e
+  (Espaço), `transfer_call` (Tab), `listen_call` (Z, a tecla Escutar/Soltar), `hang_up` (X), tratadas em `PhonePanel._input` **antes da interface** (Espaço e
   Tab também apertam o botão em foco e passam o foco; por isso não dá para usar `Button.shortcut`). Só com o botão
   ativo; na pausa não valem; com um campo de texto em foco a tecla fica com ele. Cada tecla é uma chapa de metal
   parafusada com a etiqueta de latão no alto, onde fica o atalho (Label `Key`; "Espaço" traduzido, `KEY_SPACE`), e a
@@ -253,6 +253,23 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   → `_ring_dest` → destino atende (com o FONE na linha, quem ligou agradece) → `_try_complete` na hora, com ou sem o
   FONE na entrada (o operador não ouve a conversa dos dois) → linha e destino CONN por `TALK_LEN`
   → DONE (vermelho) até o jogador tirar as pontas. `_dgen` invalida toques de destino quando o cabo sai.
+- **Escuta** (`Eavesdrop`, `scripts/eavesdrop.gd`, nó filho do Main): cada linha tem uma chave de escuta na mesa,
+  entre a entrada e a saída (`Exchange.key`/`set_key`; só sobe com a linha CONN e desce sozinha quando ela sai de
+  CONN). A alavanca sobe com o destino tocando e desce quando ele atende (`Switchboard.lever_up`); com o FONE na linha
+  conectada, a tecla Escutar (Z, `Main.listen`; levantada, ela diz Soltar, `PhonePanel.set_listen`) ou o clique na
+  alavanca (`Main._on_lever`; sem o FONE, `WARN_LISTEN_FONE`) a sobe e desce. Ouvindo (`Eavesdrop.listening`), a tela
+  mostra o que se ouve numa PhoneCall só dela (`_ears`, fora do Registro): as falas escritas (`TransferCall.overheard`,
+  alternando quem ligou e quem atendeu) ou o murmúrio das vozes sem texto (assuntos da conversa fiada, `MURMUR_DB`).
+  **A conversa anda ouvindo ou não**: o que ele não ouviu, perdeu (entrando no meio, a fala começa com "…"); ouvidas
+  todas as escritas (`HEARD_SHARE` de cada), ligam os marcadores da ligação (`TransferCall.overheard_sets`). **A
+  suspeita** (`PhoneCall.suspicion`, 0 a 1 em `LISTEN_SEC` ouvindo; cada entrada na linha, pela chave subindo ou pelo
+  FONE encaixando com ela em cima, soma `CLICK`; sem ninguém ouvindo, baixa em `COOL_SEC`) só aparece na conversa:
+  silêncio (`HUSH`, `SYS_LINE_SILENT`), a pergunta (`ASK`, `C.overheard_ask`) e, em 1, a reclamação
+  (`C.overheard_caught`) e os dois desligam (`talk_over`). **A denúncia chega no relatório da noite seguinte**
+  (`Supervisor.fault_later` → `ShiftReport.later` → `Progress.later`; lá, a advertência grave `eavesdrop` com a hora
+  "ontem, 21:30", `REPORT_YESTERDAY`); sem noite seguinte (a última, noite forçada) entra no de hoje, e a do
+  treinamento não vai. Marcadores `escutou_N` e `denunciado_N` para o roteiro (pedidos de escuta de gente autoritária
+  virão com a história). Captura: `tools/shot.tscn -- --listen`.
 - **Interurbano** (`GameData.TRUNKS`, 901–906: uma tomada por cidade no banco INTERURBANO da mesa, destinos do
   `Exchange` fora da lista e de todos os setores; `GameData.entry` devolve a telefonista de lá, `TRUNK_OPERATOR`):
   transferência cujo `target` é um tronco e `TransferCall.far_number` o número na outra cidade, montada por molde

@@ -695,3 +695,16 @@ Chaves:
     câmera, a pedido: olhos mais altos (`EYE` 170: a janela subia e a vista perdia o céu, como antes do item 68, e os
     objetos da frente encolhiam), o ponto de fuga à direita (`VP_AT` 0,35: a lateral da mesa comutadora alargava,
     contra o item 150) e metade de cada (`EYE` 150, `VP_AT` 0,30).
+152. #mesa-comutadora #consequencias #conversa
+    Escutar ligação: uma chave de escuta por linha entre a entrada e a saída (alavanca como nas mesas de verdade, pela
+    foto do usuário), que sobe ao transferir e desce sozinha quando o destino atende; com o FONE na linha, Tab ou o
+    clique na alavanca a sobe para ouvir os dois (murmúrio sem texto; as falas escritas, só quando o roteiro trouxer).
+    O nome "SAÍDAS · CABO DE CONEXÃO" foi para baixo das saídas, miúdo. Escutar levanta a suspeita deles, que o
+    jogador só percebe pela conversa (silêncio, "tem alguém na linha?"); cheia, denunciam a telefonista: advertência
+    grave. Será usada na história (pessoas autoritárias pedindo para escutar).
+153. #mesa-comutadora #consequencias #conversa
+    Escuta afinada: tecla própria no console, Escutar (Z), que vira Soltar com a chave levantada (antes era o Tab, no
+    Transferir); o FONE encaixando com a chave em cima também estala (tirar e pôr o FONE não burlava mais); a suspeita
+    baixa devagar sem ninguém ouvindo (escutar aos pedaços vale a pena); a conversa anda ouvindo ou não (o que não ouviu,
+    perdeu); ouvir todas as falas escritas liga os marcadores da ligação (`overheard_sets`); a denúncia só chega no
+    relatório da noite seguinte.

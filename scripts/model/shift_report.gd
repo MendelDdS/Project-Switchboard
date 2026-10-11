@@ -16,6 +16,7 @@ const FAULTS := {
 	"hold": [Severity.MEDIUM, T.Key.FAULT_HOLD],
 	"wrong_number": [Severity.MEDIUM, T.Key.FAULT_WRONG_NUMBER],
 	"cut_call": [Severity.MEDIUM, T.Key.FAULT_CUT_CALL],
+	"eavesdrop": [Severity.SEVERE, T.Key.FAULT_EAVESDROP],   # a escuta notada: os dois denunciam a telefonista
 	"shift_hung_up": [Severity.MEDIUM, T.Key.FAULT_SHIFT_HUNG_UP],
 	"wrong_info": [Severity.LIGHT, T.Key.FAULT_WRONG_INFO],
 	"register_wrong": [Severity.LIGHT, T.Key.FAULT_REGISTER_WRONG],
@@ -38,6 +39,7 @@ const FAULTS := {
 var night := 1
 var severe_before := 0               ## advertências graves das noites anteriores
 var faults: Array[Dictionary] = []   ## {"id", "time", "detail"}, em ordem
+var later: Array = []                ## as que só chegam no relatório da noite seguinte (`Supervisor.fault_later`)
 var _incidents := {}                 ## EmergencyCall -> {"trouble": bool, "outcome": Outcome ou -1}
 var _picked := {}                    ## EmergencyCall -> [Outcome, molde da manchete]: sorteada uma vez só
 

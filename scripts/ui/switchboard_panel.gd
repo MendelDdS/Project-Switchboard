@@ -2,11 +2,11 @@ extends "res://scripts/ui/switchboard_base.gd"
 ## O painel da mesa comutadora (`Switchboard`): o móvel de madeira, as faixas gravadas, as plaquinhas, as lâmpadas,
 ## as tomadas, o desgaste, as chapas dos bancos e a prateleira com os buracos dos cabos.
 
-const DEST_TOP := 182.0      # topo das tomadas da primeira fileira (a segunda fica DEST_ROW px abaixo)
+const DEST_TOP := 188.0      # topo das tomadas da primeira fileira (a segunda fica DEST_ROW px abaixo)
 const DEST_ROW := 36.0
 const FRAME := 7.0           # a moldura de madeira do móvel, em volta do painel
 ## Faixas gravadas no painel que separam as seções (altura da linha; o nome fica sobre ela, à esquerda).
-const RULES := {"in": 20.0, "out": 112.0, "dest": 152.0}
+const RULES := {"in": 20.0, "out": 112.0}
 const WOOD := [Color("6b4529"), Color("4a2f1c"), Color("2a1a0f")]   # madeira do móvel e da bandeja: luz, meio, sombra
 ## O buraco da prateleira (20×10, achatado pela perspectiva; o vão, 16 de largura, mais largo que o plug, que entra
 ## nele): b, a beira de trás do aro (na sombra); f e F, a da frente (na luz, com o brilho); w, a parede de dentro do lado
@@ -64,6 +64,32 @@ const STRIP_W := 24.0   # a faixa rebaixada de cada linha, da plaquinha à saíd
 const WEAR := [0.5, 0.3, 0.15]   # o painel gasto em volta das tomadas: do perto ao longe (o quanto clareia)
 const LAMP_ON_SEC := 0.06    # a lâmpada (de filamento) acende quase na hora...
 const LAMP_OFF_SEC := 0.18   # ...e apaga mais devagar, o filamento esfriando: a linha tocando pulsa em vez de piscar seco
+## A alavanca da chave de escuta para baixo, do eixo (no meio da porca) à ponta: um bastão que engrossa até a ponta
+## arredondada, a luz à esquerda e a ponta, virada para baixo, na sombra. Cabe entre a entrada e a saída.
+const CORD_COLORS := [
+	[Color("3d6e34"), Color("6c9e58")],
+	[Color("8e2a22"), Color("c4493b")],
+	[Color("2a4a7c"), Color("4f7bb6")],
+	[Color("b48c1c"), Color("e6c24c")],
+	[Color("b8b2a2"), Color("e4dfd0")],   # branco de pano velho, puxado para o creme
+	[Color("2a2723"), Color("57524a")],   # preto: o brilho mais claro, senão o trançado some
+]
+const LEVER_ART := [   # para baixo: a haste curta de metal (L, M, D) saindo da porca e, na ponta, o pino comprido de baquelite preta (l, w, m, d)
+	"..eLDe..",
+	"..eLDe..",
+	"..eLDe..",
+	"..eLDe..",
+	".ellmde.",
+	".ewlmde.",
+	".ewlmde.",
+	".ellmde.",
+	".ellmde.",
+	".elmmde.",
+	"..edde..",
+]
+## Para cima: o pino visto mais de frente (a ponta redonda) e a haste embaixo dele.
+const LEVER_UP := ["..elle..", ".elmmde.", ".ewlmde.", ".ewlmde.", ".ellmde.", ".ellmde.", ".elmmde.", "..eLDe..", "..eLDe..",
+	"..eLDe..", "..eLDe.."]
 
 
 ## Cor da lâmpada de uma linha (Exchange.Line) e quanto ela quer estar acesa (0..1); `_fade` chega lá aos poucos.
@@ -120,6 +146,35 @@ func _draw_lamp(c: Vector2, col: Color, level: float) -> void:
 		Bloom.light(_ci, Rect2(c - Vector2(LAMP_R, LAMP_R), Vector2(LAMP_R, LAMP_R) * 2.0), Color(col, level), 1.0, false, true)
 	_ci.draw_rect(Rect2(c + Vector2(-3, -3), Vector2(2, 1)), Color(1, 1, 1, 0.5))   # o brilho da sala no vidro
 	_ci.draw_rect(Rect2(c + Vector2(-3, -2), Vector2(1, 1)), Color(1, 1, 1, 0.25))
+
+
+## As chaves de escuta, como as das mesas de verdade: a porca niquelada no painel e a alavanca de bastão (`LEVER_ART`).
+## Cada uma em `levers` é [centro, direção, px além]: para cima (-1), para baixo (1) ou, virando, de frente (0: só a
+## ponta, virada para os olhos), `over` px além, na batida. A sombra cai embaixo à direita (a luz vem do alto à
+## esquerda). Em passadas, todas as sombras, as porcas e as alavancas, para cada textura ser uma chamada de desenho só.
+func _draw_levers(levers: Array) -> void:
+	var b: Color = CORD_COLORS[5][0]   # o pino da ponta, de baquelite preta, como os cabos pretos; a haste é de metal
+	var hi: Color = CORD_COLORS[5][1]
+	var shade := {"e": SHADOW, "L": SHADOW, "M": SHADOW, "D": SHADOW, "l": SHADOW, "w": SHADOW, "m": SHADOW, "d": SHADOW}
+	var tones := {"e": EDGE_DARK, "L": BEZEL[0], "M": BEZEL[1], "D": BEZEL[2], "l": b.lerp(hi, 0.6), "w": hi.lightened(0.25), "m": b,
+		"d": b.darkened(0.4)}
+	for v in levers:
+		PixelArt.sprite(_ci, PixelArt.disc(10, [[5.0, SHADOW]]), v[0] + Vector2(1, 2))
+	for v in levers:
+		if v[1] != 0:
+			_ci.draw_texture(PixelArt.art(LEVER_ART if v[1] > 0 else LEVER_UP, shade), _lever_corner(v) + Vector2(2, 2))
+	for v in levers:   # a porca (pequena: a haste aparece além dela)
+		PixelArt.sprite(_ci, PixelArt.disc(10, [[2.0, EDGE_DARK], [3.5, BEZEL[0], BEZEL[1], BEZEL[2]], [4.0, BEZEL[2]], [5.0, EDGE_DARK]]), v[0])
+	for v in levers:
+		if v[1] == 0:
+			PixelArt.sprite(_ci, PixelArt.disc(8, [[3.0, b.lerp(hi, 0.6), b, b.darkened(0.4)], [4.0, EDGE_DARK]]), v[0])
+		else:
+			_ci.draw_texture(PixelArt.art(LEVER_ART if v[1] > 0 else LEVER_UP, tones), _lever_corner(v))
+
+
+## Onde vai o canto da alavanca [centro, direção, px além] de `_draw_levers`.
+static func _lever_corner(v: Array) -> Vector2:
+	return v[0] + Vector2(-LEVER_ART[0].length() / 2.0, (0.0 if v[1] > 0 else 1.0 - LEVER_ART.size()) + v[1] * v[2])
 
 
 ## Encaixe redondo como os das mesas antigas, pixel a pixel (`JACK_ART`), com a sombra no painel. `dim`: o metal mais

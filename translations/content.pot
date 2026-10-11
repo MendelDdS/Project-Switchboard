@@ -6543,6 +6543,30 @@ msgid "Não, chega. Boa noite."
 msgstr ""
 
 #: data/content.tres
+msgid "Peraí... Alô? Tem alguém na linha?"
+msgstr ""
+
+#: data/content.tres
+msgid "Você ouviu esse estalo? Parece que tem gente ouvindo."
+msgstr ""
+
+#: data/content.tres
+msgid "Psiu. Tem alguém escutando a gente?"
+msgstr ""
+
+#: data/content.tres
+msgid "Tem gente ouvindo, sim! Amanhã eu reclamo na companhia."
+msgstr ""
+
+#: data/content.tres
+msgid "Isso é um abuso! Vou denunciar essa telefonista."
+msgstr ""
+
+#: data/content.tres
+msgid "Desliga, desliga. Amanhã eu vou lá na companhia reclamar."
+msgstr ""
+
+#: data/content.tres
 msgid "{occurrence} na {address}: socorro chega a tempo."
 msgstr ""
 

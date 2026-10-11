@@ -5,14 +5,6 @@ extends "res://scripts/ui/switchboard_panel.gd"
 const Cord := preload("res://scripts/ui/cord.gd")   ## a física de cada fio
 ## [cor, brilho] de cada cabo: 0 = FONE (verde), 1..patches = cabos de conexão (vermelho, azul, amarelo, branco, preto).
 ## Mais cabos de conexão pedem mais cores aqui.
-const CORD_COLORS := [
-	[Color("3d6e34"), Color("6c9e58")],
-	[Color("8e2a22"), Color("c4493b")],
-	[Color("2a4a7c"), Color("4f7bb6")],
-	[Color("b48c1c"), Color("e6c24c")],
-	[Color("b8b2a2"), Color("e4dfd0")],   # branco de pano velho, puxado para o creme
-	[Color("2a2723"), Color("57524a")],   # preto: o brilho mais claro, senão o trançado some
-]
 const HOLE_LIP := 3.0    # ...e some abaixo disto (px abaixo do buraco), atrás da beira da frente dele
 const HOLE_SHADE := [[0.0, 5.0, 0.65], [5.0, 10.0, 0.4], [10.0, 16.0, 0.2]]   # o fio entrando no buraco escurece: [de, até (px a partir do buraco), escuro]
 

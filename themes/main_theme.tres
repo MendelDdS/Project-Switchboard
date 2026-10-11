@@ -95,6 +95,49 @@ content_margin_bottom = 15.0
 script = ExtResource("2_keycap")
 color = Color(0.9529412, 0.65882355, 0.23529412, 1)
 
+[sub_resource type="StyleBox" id="KeyCap_Ivory_disabled"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 6.0
+content_margin_top = 29.0
+content_margin_right = 6.0
+content_margin_bottom = 15.0
+script = ExtResource("2_keycap")
+color = Color(0.85, 0.81, 0.7, 1)
+off = true
+
+[sub_resource type="StyleBox" id="KeyCap_Ivory_hover"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 6.0
+content_margin_top = 29.0
+content_margin_right = 6.0
+content_margin_bottom = 15.0
+script = ExtResource("2_keycap")
+color = Color(0.85, 0.81, 0.7, 1)
+hover = true
+
+[sub_resource type="StyleBox" id="KeyCap_Ivory_pressed"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 6.0
+content_margin_top = 33.0
+content_margin_right = 6.0
+content_margin_bottom = 11.0
+script = ExtResource("2_keycap")
+color = Color(0.85, 0.81, 0.7, 1)
+pressed = true
+
+[sub_resource type="StyleBox" id="KeyCap_Ivory_normal"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 6.0
+content_margin_top = 29.0
+content_margin_right = 6.0
+content_margin_bottom = 15.0
+script = ExtResource("2_keycap")
+color = Color(0.85, 0.81, 0.7, 1)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7ceur"]
 content_margin_left = 6.0
 content_margin_top = 3.0
@@ -741,6 +784,19 @@ AmberKey/styles/hover = SubResource("KeyCap_Amber_hover")
 AmberKey/styles/hover_pressed = SubResource("KeyCap_Amber_pressed")
 AmberKey/styles/normal = SubResource("KeyCap_Amber_normal")
 AmberKey/styles/pressed = SubResource("KeyCap_Amber_pressed")
+IvoryKey/base_type = &"Button"
+IvoryKey/colors/font_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+IvoryKey/colors/font_disabled_color = Color(0.10980392, 0.08235294, 0.047058824, 0.5)
+IvoryKey/colors/font_focus_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+IvoryKey/colors/font_hover_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+IvoryKey/colors/font_hover_pressed_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+IvoryKey/colors/font_pressed_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+IvoryKey/font_sizes/font_size = 11
+IvoryKey/styles/disabled = SubResource("KeyCap_Ivory_disabled")
+IvoryKey/styles/hover = SubResource("KeyCap_Ivory_hover")
+IvoryKey/styles/hover_pressed = SubResource("KeyCap_Ivory_pressed")
+IvoryKey/styles/normal = SubResource("KeyCap_Ivory_normal")
+IvoryKey/styles/pressed = SubResource("KeyCap_Ivory_pressed")
 AmberLabel/base_type = &"Label"
 AmberLabel/colors/font_color = Color(0.9529412, 0.65882355, 0.23529412, 1)
 Button/colors/font_color = Color(0.84705883, 0.7921569, 0.6392157, 1)

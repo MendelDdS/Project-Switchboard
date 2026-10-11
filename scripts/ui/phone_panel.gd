@@ -15,6 +15,7 @@ const BLINK := Color(1.7, 1.55, 1.1)   ## a tecla Atender no auge da piscada (`b
 signal answer_pressed
 signal transfer_pressed
 signal hangup_pressed
+signal listen_pressed
 
 @onready var urgency: UrgencyBar = %Urgency
 @onready var radio: Radio = %Radio
@@ -25,6 +26,7 @@ signal hangup_pressed
 @onready var _answer: Button = %Answer
 @onready var _transfer: Button = %Transfer
 @onready var _hangup: Button = %Hangup
+@onready var _listen: Button = %Listen   ## a chave de escuta da linha do FONE (Escutar / Soltar)
 @onready var _glass: ScreenGlass = %Glass
 
 var _call: PhoneCall
@@ -38,7 +40,9 @@ func _ready() -> void:
 	_answer.pressed.connect(answer_pressed.emit)
 	_transfer.pressed.connect(transfer_pressed.emit)
 	_hangup.pressed.connect(hangup_pressed.emit)
+	_listen.pressed.connect(listen_pressed.emit)
 	set_buttons(false, false, false)
+	set_listen(false, false)
 	_glass.idle = T.Key.CONSOLE_IDLE   # sem ligação, a tela espera com o cursor piscando
 	_glass.off = true
 	_transcript.resized.connect(_fit)   # as opções e os avisos ganham ou perdem fileiras: cabe mais ou menos conversa
@@ -51,7 +55,7 @@ func _input(e: InputEvent) -> void:
 	var focus := get_viewport().gui_get_focus_owner()
 	if focus is LineEdit or focus is TextEdit:
 		return
-	for pair in [["answer_call", _answer], ["transfer_call", _transfer], ["hang_up", _hangup]]:
+	for pair in [["answer_call", _answer], ["transfer_call", _transfer], ["listen_call", _listen], ["hang_up", _hangup]]:
 		var b: Button = pair[1]
 		if e.is_action_pressed(pair[0]) and not b.disabled and b.is_visible_in_tree():
 			get_viewport().set_input_as_handled()
@@ -107,6 +111,12 @@ func set_buttons(can_answer: bool, can_transfer: bool, can_hang: bool) -> void:
 	_hangup.disabled = not can_hang
 
 
+## A tecla Escutar: ativa com o FONE numa linha conectada; com a chave dela levantada, vira Soltar.
+func set_listen(can: bool, up: bool) -> void:
+	_listen.disabled = not can
+	_listen.text = "LISTEN_STOP" if up else "LISTEN"
+
+
 ## Pisca a tecla Atender (no treinamento, para o jogador saber o que apertar) ou para de piscar.
 func blink_answer(on: bool) -> void:
 	if (_blink != null) == on:
@@ -123,7 +133,7 @@ func blink_answer(on: bool) -> void:
 
 ## As três teclas, na ordem do painel (a miniatura acende as que estão ativas).
 func keys() -> Array[Button]:
-	return [_answer, _transfer, _hangup]
+	return [_answer, _transfer, _listen, _hangup]
 
 
 ## Aviso numa linha da tela da conversa por `ms` milissegundos (enquanto isso a transcrição encolhe): o que acontece

@@ -93,6 +93,10 @@ extends Resource
 @export var woken_up: PackedStringArray = []
 ## Solicitante que desiste depois da segunda conexão errada.
 @export var gave_up: PackedStringArray = []
+## Escuta (`Eavesdrop`): quem conversa desconfia que tem alguém na linha...
+@export var overheard_ask: PackedStringArray = []
+## ...e, tendo certeza, desliga para denunciar a telefonista.
+@export var overheard_caught: PackedStringArray = []
 ## Manchetes do jornal da manhã: {occurrence} e {address}.
 @export var news_ok: PackedStringArray = []
 @export var news_late: PackedStringArray = []

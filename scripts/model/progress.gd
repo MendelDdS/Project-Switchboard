@@ -2,7 +2,8 @@ class_name Progress
 extends RefCounted
 ## O que fica salvo entre as noites (user://progress.cfg): a próxima noite e o ritmo dela, as advertências graves
 ## acumuladas, os marcadores do roteiro (escolhas que mudam as noites seguintes; veja StoryFlags) e o jornal da manhã
-## seguinte (as manchetes da noite, `ShiftReport.news`, que ficam na mesa na próxima).
+## seguinte (as manchetes da noite, `ShiftReport.news`, que ficam na mesa na próxima) e as advertências que só chegam
+## nela (`ShiftReport.later`).
 
 const PATH := "user://progress.cfg"
 
@@ -11,6 +12,7 @@ var pace := 1   ## nível de ritmo da próxima noite (GameContent.paces; veja Pa
 var severe := 0
 var flags := PackedStringArray()
 var news: Array = []
+var later: Array = []
 
 
 static func load_saved() -> Progress:
@@ -22,6 +24,7 @@ static func load_saved() -> Progress:
 		p.severe = f.get_value("progress", "severe", 0)
 		p.flags = f.get_value("progress", "flags", PackedStringArray())
 		p.news = f.get_value("progress", "news", [])
+		p.later = f.get_value("progress", "later", [])
 	return p
 
 
@@ -32,6 +35,7 @@ func save() -> void:
 	f.set_value("progress", "severe", severe)
 	f.set_value("progress", "flags", flags)
 	f.set_value("progress", "news", news)
+	f.set_value("progress", "later", later)
 	f.save(PATH)
 
 

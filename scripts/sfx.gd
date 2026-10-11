@@ -467,9 +467,9 @@ func ringback(times: int) -> float:
 ## Fala o caractere i de `text`: cada grupo de vogais dispara uma sílaba (ritmo de fala, estilo Papers, Please), com
 ## a entonação da frase (`_tone`). Devolve se o caractere é vogal (passe de volta em `prev_vowel`).
 ## `at`: de que lugar da tela vem a voz (como em `play_at`; -1 = do centro, como o fone). `pitch`: a altura da pessoa
-## (`pitch_of`). `agitated`: de 0 a 1, o nervoso de quem liga numa emergência (`agitation`).
+## (`pitch_of`). `agitated`: de 0 a 1, o nervoso de quem liga numa emergência (`agitation`). `db`: mais baixa (a escuta).
 func speak_char(voice: String, text: String, i: int, prev_vowel: bool, laugh: bool = false, at := -1.0, pitch := 1.0,
-		agitated := 0.0) -> bool:
+		agitated := 0.0, db := 0.0) -> bool:
 	var lc := text[i].to_lower()
 	if not VMAP.has(lc):
 		return false
@@ -483,7 +483,7 @@ func speak_char(voice: String, text: String, i: int, prev_vowel: bool, laugh: bo
 		t = [2, 1.13, 0.0]
 	pitch *= 1.0 + agitated * (AGITATION["pitch"] + randf_range(-1.0, 1.0) * AGITATION["shake"])
 	var sound := syllable.bind(voice, VMAP[lc] + ("n" if _nasal(text, i) else ""), _onset(text, i), t[0], pitch * t[1],
-		t[2] + agitated * AGITATION["db"], at)
+		t[2] + agitated * AGITATION["db"] + db, at)
 	if wait == 0.0:
 		sound.call()
 	else:   # em tempo real, como `_syllable_wait` mede

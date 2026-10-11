@@ -299,6 +299,10 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   mesa é `background.pointer(evento)`.
 
 ## Modelo da mesa (scripts/ui/switchboard.gd)
+- **Chave de escuta** de cada linha entre a entrada e a saída (`ROW_Y["key"]`, `lever_rect`): a porca niquelada e a
+  alavanca de bastão de haste de metal com o pino de baquelite preta na ponta, no preto dos cabos (`CORD_COLORS`, que desceu para a camada do painel; `LEVER_ART`/`LEVER_UP`, `_draw_levers`, em passadas: as sombras, as porcas e as alavancas, uma chamada de desenho cada, na camada das lâmpadas), para cima com a chave
+  levantada ou o destino tocando (`lever_up`); ao virar, passa de frente e bate um pixel além (`_flip_levers`,
+  `LEVER_SEC`, estalo vindo dela); clique emite `lever_pressed`. O nome das saídas foi para baixo delas, na fonte de 11, como "ENTRADAS · FONE", no meio do vão até os bancos: a faixa de numeração de cada banco atendido ("100-199") saiu da faixa gravada e foi para a moldura de cima dele, à esquerda e miúda, como o nome do INTERURBANO (`_draw_top`; o banco sob a chapa fica sem); os bancos desceram (`DEST_TOP` 188, a moldura rente aos números) e o interurbano fica 6 px abaixo do banco C.
 - Tomadas por id inteiro: **1–10 entradas**, **11–20 saídas** (linha + 10), **destinos = o próprio número** (101–399,
   exceto 190/192/193, que vão pelo despacho). Destinos em três bancos de fábrica, A | B | C, rotulados pela faixa de
   numeração (100–199 | 200–299 | 300–399, `SECTOR_ORDER`, duas fileiras cada, `_layout_dests`/`_slots`; a mesa não

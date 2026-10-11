@@ -11,6 +11,7 @@ extends Node
 ##   --card                 marca um local no mapa e espera o cartão sair impresso
 ##   --emergency            toca uma emergência e atende (a luz vermelha da unidade, a barra, o rádio)
 ##   --news                 o jornal da manhã na mesa
+##   --listen               a linha 3 conectada, com o FONE nela e a chave de escuta levantada
 ##   --toll                 um interurbano contando no calculógrafo, dois bilhetes na mesa (um carimbado) e três na caixinha
 ##   --hover=id             o mouse em cima do objeto da mesa (os ids de `Tools`): o contorno e o nome
 ##   --zoom=x,y,w,h         o recorte, em px do jogo, ampliado `ZOOM` vezes
@@ -55,6 +56,10 @@ func _ready() -> void:
 			m.toll.file(t)
 		m.exchange.set_line(2, Exchange.Line.CONN, m.minutes + 60.0)   # senão a linha livre já imprime o bilhete
 		m.toll.start(2, GameData.trunk_city(902), "7-30", m.minutes - 2.0)
+	if _args.has("listen"):
+		m.exchange.set_line(3, Exchange.Line.CONN, m.minutes + 60.0)
+		m.board.plugged(0, 3)
+		m.listen()
 	if _args.has("emergency"):
 		m.ring(PhoneCall.from_emergency(GameData.template_emergency()))
 		await get_tree().create_timer(0.5, false).timeout
