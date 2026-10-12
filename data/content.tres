@@ -1,6 +1,8 @@
 [gd_resource type="Resource" script_class="GameContent" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_6g7xa"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="97_motive"]
+[ext_resource type="Script" path="res://scripts/data/talk_fill.gd" id="98_talk_fill"]
 [ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="99_chat"]
 [ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="98_reply"]
 [ext_resource type="Script" path="res://scripts/data/pace.gd" id="97_pace"]
@@ -161,14 +163,24 @@ script = ExtResource("1_6g7xa")
 name = "Dr. Augusto Almeida"
 address = "Rua das Palmeiras, 85"
 number = "214"
-reasons = PackedStringArray()
+voice = "m"
+motives = Array[ExtResource("97_motive")]([])
 
 [sub_resource type="Resource" id="Resource_7bth5"]
 script = ExtResource("1_6g7xa")
 name = "Otávio Almeida"
 address = "Rua da Estação, 309"
 number = "251"
-reasons = PackedStringArray()
+voice = "m"
+motives = Array[ExtResource("97_motive")]([])
+
+[sub_resource type="Resource" id="Motive_01"]
+script = ExtResource("97_motive")
+text = "Quero comprar fósforo e querosene ainda hoje."
+
+[sub_resource type="Resource" id="Motive_02"]
+script = ExtResource("97_motive")
+text = "Quero saber se amanhã chega querosene."
 
 [sub_resource type="Resource" id="Resource_4thi7"]
 script = ExtResource("1_6g7xa")
@@ -176,25 +188,53 @@ name = "Armazém Ferreira"
 note = "Joaquim Ferreira"
 address = "Rua Bela Vista, 230"
 number = "288"
+voice = "m"
+hello = "Armazém Ferreira, boa noite."
 category = "mercearia"
 spoken = "o Armazém Ferreira"
-reasons = PackedStringArray("Quero comprar fósforo e querosene ainda hoje.", "Quero saber se amanhã chega querosene.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_01"), SubResource("Motive_02")])
+
+[sub_resource type="Resource" id="Motive_03"]
+script = ExtResource("97_motive")
+text = "Preciso dar um recado pra um amigo que tá lá."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite, Zé. O Baixinho ainda está por aí? O de boné.", "Está aqui no balcão. Quer que eu chame?", "Não precisa. Só avisa que amanhã a pescaria mudou pras {dawn}.", "Pras {dawn}. Pode deixar que eu falo.", "E diz pra ele não esquecer as iscas, que da outra vez esqueceu.", "Vou falar. Ele vai reclamar, mas eu falo."), PackedStringArray("Boa noite, Zé. O Alemão passou por aí hoje?", "Está aqui, jogando dominó.", "Diz pra ele que o carro dele está pronto, pode buscar.", "O carro pronto. E ele paga quando?", "Amanhã, até as {hour}, senão eu cobro juros.", "Vou falar exatamente assim.")])
+
+[sub_resource type="Resource" id="Motive_04"]
+script = ExtResource("97_motive")
+text = "Acho que esqueci meu chapéu lá."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Acho que esqueci meu chapéu aí hoje à tarde.", "Chapéu de palha ou de feltro?", "De feltro, {color}, com uma fita escura.", "Tem um desses pendurado aqui atrás do balcão.", "É esse! Guarda pra mim, que amanhã eu passo aí.", "Fica guardado. Ninguém mexe nas coisas daqui."), PackedStringArray("Boa noite. Esqueci meu chapéu aí. Alguém achou?", "Achou, sim. Mas tem dois aqui. Como é o seu?", "Um {color}, com uma pena do lado.", "Esse está aqui comigo. O outro é de um freguês.", "Guarda pra mim? Busco amanhã depois das {hour}.", "Fica atrás do balcão, esperando.")])
+
+[sub_resource type="Resource" id="Motive_05"]
+script = ExtResource("97_motive")
+text = "Quero saber se o jogo ainda tá passando na televisão de lá."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. O jogo ainda está passando aí na televisão?", "Está no segundo tempo. Todo mundo grudado na tela.", "E o placar, como está?", "{score}. Quase saiu um gol agora há pouco.", "Guarda uma cadeira pra mim, que eu estou indo aí.", "Vem logo, que aqui não cabe mais ninguém."), PackedStringArray("Boa noite. O jogo já acabou aí?", "Acabou agora. Ficou {score}.", "E o pessoal, está todo mundo bravo?", "Uns comemorando, outros xingando o juiz.", "Então nem vou aí hoje.", "Faz bem. Hoje a discussão está feia.")])
 
 [sub_resource type="Resource" id="Resource_ufmoj"]
 script = ExtResource("1_6g7xa")
 name = "Bar do Zé"
 address = "Rua da Estação, 140"
 number = "327"
+voice = "m"
+hello = "Bar do Zé, pode falar."
 spoken = "o Bar do Zé"
-reasons = PackedStringArray("Preciso dar um recado pra um amigo que tá lá.", "Acho que esqueci meu chapéu lá.", "Quero saber se o jogo ainda tá passando na televisão de lá.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_03"), SubResource("Motive_04"), SubResource("Motive_05")])
+
+[sub_resource type="Resource" id="Motive_06"]
+script = ExtResource("97_motive")
+text = "Quero encomendar leite e queijo pra amanhã."
+
+[sub_resource type="Resource" id="Motive_07"]
+script = ExtResource("97_motive")
+text = "Meu filho trabalha lá e ainda não voltou pra casa."
 
 [sub_resource type="Resource" id="Resource_yijt6"]
 script = ExtResource("1_6g7xa")
 name = "Sítio Boa Esperança"
 address = "Rua do Cruzeiro, 260"
 number = "209"
+hello = "Sítio Boa Esperança, pois não?"
 spoken = "o Sítio Boa Esperança"
-reasons = PackedStringArray("Quero encomendar leite e queijo pra amanhã.", "Meu filho trabalha lá e ainda não voltou pra casa.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_06"), SubResource("Motive_07")])
 
 [sub_resource type="Resource" id="Resource_em5wb"]
 script = ExtResource("1_6g7xa")
@@ -203,7 +243,15 @@ note = "use o despacho"
 address = "Avenida Brasil, 530"
 number = "193"
 dispatch_only = true
-reasons = PackedStringArray()
+motives = Array[ExtResource("97_motive")]([])
+
+[sub_resource type="Resource" id="Motive_08"]
+script = ExtResource("97_motive")
+text = "Preciso marcar uma missa de sétimo dia."
+
+[sub_resource type="Resource" id="Motive_09"]
+script = ExtResource("97_motive")
+text = "Quero pedir uma visita do padre pra minha mãe, que está de cama."
 
 [sub_resource type="Resource" id="Resource_yceab"]
 script = ExtResource("1_6g7xa")
@@ -211,17 +259,30 @@ name = "Casa Paroquial"
 note = "Pe. Anselmo"
 address = "Praça da Matriz, 1"
 number = "120"
+voice = "w"
+hello = "Casa Paroquial, boa noite."
 category = "igreja"
 spoken = "a Casa Paroquial"
-reasons = PackedStringArray("Preciso marcar uma missa de sétimo dia.", "Quero pedir uma visita do padre pra minha mãe, que está de cama.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_08"), SubResource("Motive_09")])
+
+[sub_resource type="Resource" id="Motive_10"]
+script = ExtResource("97_motive")
+text = "Quero saber que filme passa amanhã."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Que filme passa amanhã?", "Amanhã passa {film}, na sessão das {hour}.", "Lá em casa todo mundo vai gostar.", "Chega cedo, que a sala enche.", "Precisa comprar o ingresso antes?", "A bilheteria abre meia hora antes da sessão."), PackedStringArray("Boa noite. Amanhã tem matinê?", "Tem, às três da tarde. É {film}.", "Criança pode entrar?", "Pode, acompanhada de um adulto.", "Então vou levar meus sobrinhos.", "Chega cedo, que matinê lota.")])
+
+[sub_resource type="Resource" id="Motive_11"]
+script = ExtResource("97_motive")
+text = "Esqueci meu guarda-chuva na sessão das oito."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Esqueci um guarda-chuva na sessão das oito.", "O lanterninha recolheu uns três hoje. Como é o seu?", "{color}, com o cabo de madeira curvado.", "Tem um assim aqui na bilheteria.", "Ainda bem. Posso buscar amanhã?", "Pode. É só pedir na bilheteria."), PackedStringArray("Boa noite. Deixei meu guarda-chuva na poltrona, na sessão das oito.", "Em que fileira você sentou?", "Lá no fundo, perto da porta.", "O lanterninha achou um {color} lá atrás.", "Deve ser o meu. Posso buscar amanhã?", "Pode. Fica guardado na bilheteria.")])
 
 [sub_resource type="Resource" id="Resource_dmgf0"]
 script = ExtResource("1_6g7xa")
 name = "Cine Odeon"
 address = "Avenida Brasil, 95"
 number = "344"
+hello = "Cine Odeon, boa noite."
 spoken = "o Cine Odeon"
-reasons = PackedStringArray("Quero saber que filme passa amanhã.", "Esqueci meu guarda-chuva na sessão das oito.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_10"), SubResource("Motive_11")])
 
 [sub_resource type="Resource" id="Resource_s63jb"]
 script = ExtResource("1_6g7xa")
@@ -229,23 +290,43 @@ name = "Clínica São Lucas"
 note = "recepção"
 address = "Rua das Palmeiras, 85"
 number = "213"
-reasons = PackedStringArray()
+voice = "f"
+hello = "Clínica São Lucas, recepção."
+motives = Array[ExtResource("97_motive")]([])
+
+[sub_resource type="Resource" id="Motive_12"]
+script = ExtResource("97_motive")
+text = "Ele é meu cunhado. É assunto de família."
+
+[sub_resource type="Resource" id="Motive_13"]
+script = ExtResource("97_motive")
+text = "Ele ficou de me emprestar o carro amanhã cedo."
 
 [sub_resource type="Resource" id="Resource_d8b43"]
 script = ExtResource("1_6g7xa")
 name = "Geraldo Martins"
 address = "Rua da Matriz, 210"
 number = "155"
+voice = "m"
 spoken = "o seu Geraldo Martins"
-reasons = PackedStringArray("Ele é meu cunhado. É assunto de família.", "Ele ficou de me emprestar o carro amanhã cedo.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_12"), SubResource("Motive_13")])
+
+[sub_resource type="Resource" id="Motive_14"]
+script = ExtResource("97_motive")
+text = "Ela é minha comadre. Quero saber como ela está."
+
+[sub_resource type="Resource" id="Motive_15"]
+script = ExtResource("97_motive")
+text = "Ela ficou de me devolver uma panela."
 
 [sub_resource type="Resource" id="Resource_xawj0"]
 script = ExtResource("1_6g7xa")
 name = "Marta Costa"
 address = "Rua do Sol, 354"
 number = "223"
+voice = "f"
 spoken = "a Dona Marta Costa"
-reasons = PackedStringArray("Ela é minha comadre. Quero saber como ela está.", "Ela ficou de me devolver uma panela.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_14"), SubResource("Motive_15")])
 
 [sub_resource type="Resource" id="Resource_tew1k"]
 script = ExtResource("1_6g7xa")
@@ -254,48 +335,91 @@ note = "use o despacho"
 address = "Avenida Brasil, 380"
 number = "190"
 dispatch_only = true
-reasons = PackedStringArray()
+motives = Array[ExtResource("97_motive")]([])
+
+[sub_resource type="Resource" id="Motive_16"]
+script = ExtResource("97_motive")
+text = "Ela está costurando o vestido de noiva da minha filha."
+
+[sub_resource type="Resource" id="Motive_17"]
+script = ExtResource("97_motive")
+text = "Ela pediu pra eu ligar quando chegasse."
 
 [sub_resource type="Resource" id="Resource_i4sgx"]
 script = ExtResource("1_6g7xa")
 name = "Laudelina Prado"
 address = "Rua Bela Vista, 160"
 number = "280"
+voice = "f"
 spoken = "a Dona Laudelina Prado"
-reasons = PackedStringArray("Ela está costurando o vestido de noiva da minha filha.", "Ela pediu pra eu ligar quando chegasse.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_16"), SubResource("Motive_17")])
+
+[sub_resource type="Resource" id="Motive_18"]
+script = ExtResource("97_motive")
+text = "Quero saber se tem remédio pra enjoo."
+
+[sub_resource type="Resource" id="Motive_19"]
+script = ExtResource("97_motive")
+text = "Preciso de um remédio pra pressão."
 
 [sub_resource type="Resource" id="Resource_2cdgd"]
 script = ExtResource("1_6g7xa")
 name = "Farmácia Central"
 address = "Praça da Matriz, 3"
 number = "118"
+hello = "Farmácia Central, boa noite."
 category = "farmácia"
 spoken = "a Farmácia Central"
-reasons = PackedStringArray("Quero saber se tem remédio pra enjoo.", "Preciso de um remédio pra pressão.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_18"), SubResource("Motive_19")])
+
+[sub_resource type="Resource" id="Motive_20"]
+script = ExtResource("97_motive")
+text = "Meu neto está com febre."
+
+[sub_resource type="Resource" id="Motive_21"]
+script = ExtResource("97_motive")
+text = "Preciso de um remédio pra dor de dente."
+
+[sub_resource type="Resource" id="Motive_22"]
+script = ExtResource("97_motive")
+text = "Quero saber se tem xarope pra tosse."
 
 [sub_resource type="Resource" id="Resource_k2mqa"]
 script = ExtResource("1_6g7xa")
 name = "Farmácia Santa Rita"
 address = "Rua do Mercado, 90"
 number = "162"
+hello = "Farmácia Santa Rita, boa noite."
 category = "farmácia"
 spoken = "a Farmácia Santa Rita"
-reasons = PackedStringArray("Meu neto está com febre.", "Preciso de um remédio pra dor de dente.", "Quero saber se tem xarope pra tosse.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_20"), SubResource("Motive_21"), SubResource("Motive_22")])
 
 [sub_resource type="Resource" id="Resource_wgbdt"]
 script = ExtResource("1_6g7xa")
 name = "Joaquim Ferreira"
 address = "Rua da Estação, 360"
 number = "291"
-reasons = PackedStringArray()
+voice = "m"
+motives = Array[ExtResource("97_motive")]([])
+
+[sub_resource type="Resource" id="Motive_23"]
+script = ExtResource("97_motive")
+text = "Meu tio faleceu agora há pouco."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Meu tio faleceu agora há pouco, em casa.", "Meus sentimentos. O médico já veio atestar?", "Já veio. Disse que foi o coração.", "Então eu mando o carro buscar. Qual é o endereço?", "{street}, {house}. A casa do portão {color}.", "Chegamos em {wait}. Separe uma roupa pra ele."), PackedStringArray("Boa noite. Minha avó faleceu agora há pouco.", "Meus sentimentos. Foi em casa ou no hospital?", "Em casa, dormindo. O médico já veio.", "Vocês querem o velório em casa ou na capela?", "Em casa. Ela morava na {street}, {house}.", "Então levo as coisas pra lá em {wait}.")])
+
+[sub_resource type="Resource" id="Motive_24"]
+script = ExtResource("97_motive")
+text = "Preciso acertar o velório de amanhã."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Preciso acertar as coisas do velório de amanhã.", "Pois não. Vai ser na capela ou em casa?", "Na capela. A família quer de manhã, cedo.", "Às oito a capela está livre. Precisa de flores?", "Uma coroa só, simples. Com o nome da família.", "Anotado. Às sete eu abro a capela."), PackedStringArray("Boa noite. Queria saber o preço do caixão e do velório.", "Depende da madeira. Tem o simples e o envernizado.", "O simples. A família não tem muito.", "O simples já vem com as velas e o pano.", "E a coroa de flores, vocês fazem também?", "Faço. Passa aqui amanhã que a gente acerta tudo.")])
 
 [sub_resource type="Resource" id="Resource_dldyi"]
 script = ExtResource("1_6g7xa")
 name = "Funerária Paz Eterna"
 address = "Rua das Acácias, 250"
 number = "399"
+hello = "Funerária Paz Eterna, boa noite."
 spoken = "a Funerária Paz Eterna"
-reasons = PackedStringArray("Meu tio faleceu agora há pouco.", "Preciso acertar o velório de amanhã.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_23"), SubResource("Motive_24")])
 
 [sub_resource type="Resource" id="Resource_e0jml"]
 script = ExtResource("1_6g7xa")
@@ -304,16 +428,35 @@ note = "use o despacho"
 address = "Rua das Flores, 460"
 number = "192"
 dispatch_only = true
-reasons = PackedStringArray()
+motives = Array[ExtResource("97_motive")]([])
+
+[sub_resource type="Resource" id="Motive_25"]
+script = ExtResource("97_motive")
+text = "Preciso de um quarto pra esta noite."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Vocês ainda têm quarto pra hoje?", "Tenho um de solteiro, no andar de cima. Pra quantas noites?", "Só esta. Amanhã cedo eu sigo viagem.", "A diária é com café da manhã, paga na chegada.", "Pode segurar pra mim? Chego em {wait}.", "Seguro até as {hour}. Qual o nome, por favor?"), PackedStringArray("Boa noite. Perdi o último ônibus. Tem onde dormir aí hoje?", "Tem um quarto pequeno, perto da escada. É meio barulhento.", "Não faz mal, é só pra esta noite.", "Então pode vir. A porta fica aberta até as {hour}.", "Aceita pagar amanhã cedo? Hoje estou sem trocado.", "Aceito. Só deixa o documento comigo na chegada.")])
+
+[sub_resource type="Resource" id="Motive_26"]
+script = ExtResource("97_motive")
+text = "Quero saber se ainda tem quarto vago pra amanhã."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Queria reservar um quarto pra amanhã. Ainda tem vago?", "Amanhã está quase cheio. Sobrou um de casal, nos fundos.", "Serve. São {nights}, a partir de amanhã.", "{nights}. Vou anotar aqui no livro.", "Chego no ônibus da tarde. Posso pagar quando chegar?", "Pode, sim. Só não passe das {hour}, que a portaria fecha."), PackedStringArray("Boa noite. Amanhã chega um parente meu de viagem. Tem quarto?", "Pra amanhã tem, sim. Quantas pessoas?", "Uma só. Fica {nights}.", "Fica no quarto da frente, com janela pra rua.", "Pode deixar no meu nome? Eu passo aí pra acertar.", "Deixo. Pode passar a qualquer hora pra acertar.")])
 
 [sub_resource type="Resource" id="Resource_vcut8"]
 script = ExtResource("1_6g7xa")
 name = "Hotel Estrela"
 address = "Avenida Brasil, 30"
 number = "305"
+hello = "Hotel Estrela, boa noite."
 category = "hospedagem"
 spoken = "o Hotel Estrela"
-reasons = PackedStringArray("Preciso de um quarto pra esta noite.", "Quero saber se ainda tem quarto vago pra amanhã.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_25"), SubResource("Motive_26")])
+
+[sub_resource type="Resource" id="Motive_27"]
+script = ExtResource("97_motive")
+text = "Quero saber o horário da missa de domingo."
+
+[sub_resource type="Resource" id="Motive_28"]
+script = ExtResource("97_motive")
+text = "Quero marcar o batizado do meu neto."
 
 [sub_resource type="Resource" id="Resource_wcyhl"]
 script = ExtResource("1_6g7xa")
@@ -321,145 +464,293 @@ name = "Igreja Matriz"
 note = "secretaria"
 address = "Praça da Matriz, 1"
 number = "124"
+hello = "Igreja Matriz, secretaria."
 category = "igreja"
 spoken = "a Igreja Matriz"
-reasons = PackedStringArray("Quero saber o horário da missa de domingo.", "Quero marcar o batizado do meu neto.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_27"), SubResource("Motive_28")])
+
+[sub_resource type="Resource" id="Motive_29"]
+script = ExtResource("97_motive")
+text = "Sou parente dela e acabei de chegar de viagem."
+
+[sub_resource type="Resource" id="Motive_30"]
+script = ExtResource("97_motive")
+text = "Ela pediu pra eu ligar quando chegasse em casa."
 
 [sub_resource type="Resource" id="Resource_pli3n"]
 script = ExtResource("1_6g7xa")
 name = "Rosa Lima"
 address = "Rua do Cruzeiro, 177"
 number = "296"
+voice = "f"
 spoken = "a Dona Rosa Lima"
-reasons = PackedStringArray("Sou parente dela e acabei de chegar de viagem.", "Ela pediu pra eu ligar quando chegasse em casa.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_29"), SubResource("Motive_30")])
+
+[sub_resource type="Resource" id="Motive_31"]
+script = ExtResource("97_motive")
+text = "Acabou a vela aqui em casa e faltou luz."
+
+[sub_resource type="Resource" id="Motive_32"]
+script = ExtResource("97_motive")
+text = "Quero deixar uma encomenda pra amanhã cedo."
 
 [sub_resource type="Resource" id="Resource_kofd3"]
 script = ExtResource("1_6g7xa")
 name = "Mercearia Silva"
 address = "Rua do Cruzeiro, 85"
 number = "262"
+hello = "Mercearia Silva, boa noite."
 category = "mercearia"
 spoken = "a Mercearia Silva"
-reasons = PackedStringArray("Acabou a vela aqui em casa e faltou luz.", "Quero deixar uma encomenda pra amanhã cedo.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_31"), SubResource("Motive_32")])
+
+[sub_resource type="Resource" id="Motive_33"]
+script = ExtResource("97_motive")
+text = "Ele disse que eu podia ligar a qualquer hora."
+
+[sub_resource type="Resource" id="Motive_34"]
+script = ExtResource("97_motive")
+text = "É sobre o negócio do terreno."
 
 [sub_resource type="Resource" id="Resource_bws1x"]
 script = ExtResource("1_6g7xa")
 name = "Paulo Nogueira"
 address = "Rua das Acácias, 318"
 number = "131"
+voice = "m"
 spoken = "o seu Paulo Nogueira"
-reasons = PackedStringArray("Ele disse que eu podia ligar a qualquer hora.", "É sobre o negócio do terreno.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_33"), SubResource("Motive_34")])
+
+[sub_resource type="Resource" id="Motive_35"]
+script = ExtResource("97_motive")
+text = "Meu carro atolou na estrada do moinho."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. O carro atolou na estrada do moinho. A roda afundou toda.", "Na estrada de terra? Aquele trecho depois da ponte?", "Isso, logo depois da ponte. Não vai nem pra frente nem pra trás.", "Vou ter que ir com a caminhonete e a corda. Chego em {wait}.", "Eu espero aqui no carro, com o pisca ligado.", "Não sai de perto. Já estou pegando a lanterna."), PackedStringArray("Boa noite. Atolei o carro na estrada do moinho.", "De novo aquele barro? Em que altura?", "Perto da porteira da fazenda, depois da curva grande.", "Sei onde é. Tem alguém aí com você?", "Não, só eu. E está escuro demais.", "Fica dentro do carro. Chego em {wait}.")])
+
+[sub_resource type="Resource" id="Motive_36"]
+script = ExtResource("97_motive")
+text = "O caminhão não quer pegar de jeito nenhum."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. O caminhão não pega. Gira, gira e não pega.", "Faz barulho de quê? Estala, ou nem isso?", "Estala e morre. As luzes acendem, a bateria parece boa.", "Pode ser o combustível. Tem óleo no tanque?", "Tem, enchi hoje de manhã no posto.", "Então vou aí dar uma olhada. Me diz direitinho onde você está."), PackedStringArray("Boa noite. Meu caminhão parou e não pega mais.", "Parou como? Foi morrendo aos poucos?", "Foi engasgando e apagou. Agora nem tenta pegar.", "Pode ser a correia. Onde ele está?", "Na {street}, perto do número {house}.", "Vou aí com a caixa de ferramentas. Chego em {wait}.")])
 
 [sub_resource type="Resource" id="Resource_52df0"]
 script = ExtResource("1_6g7xa")
 name = "Oficina do Tião"
 address = "Rua do Moinho, 44"
 number = "318"
+voice = "m"
+hello = "Oficina do Tião, boa noite."
 category = "oficina"
 spoken = "a Oficina do Tião"
-reasons = PackedStringArray("Meu carro atolou na estrada do moinho.", "O caminhão não quer pegar de jeito nenhum.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_35"), SubResource("Motive_36")])
+
+[sub_resource type="Resource" id="Motive_37"]
+script = ExtResource("97_motive")
+text = "Quero encomendar pão pra amanhã cedo."
+
+[sub_resource type="Resource" id="Motive_38"]
+script = ExtResource("97_motive")
+text = "Esqueci o troco lá hoje de manhã."
 
 [sub_resource type="Resource" id="Resource_8y4og"]
 script = ExtResource("1_6g7xa")
 name = "Padaria Pão Dourado"
 address = "Rua das Acácias, 450"
 number = "142"
+hello = "Padaria Pão Dourado, boa noite."
 spoken = "a Padaria Pão Dourado"
-reasons = PackedStringArray("Quero encomendar pão pra amanhã cedo.", "Esqueci o troco lá hoje de manhã.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_37"), SubResource("Motive_38")])
+
+[sub_resource type="Resource" id="Motive_39"]
+script = ExtResource("97_motive")
+text = "Ela está esperando minha ligação."
+
+[sub_resource type="Resource" id="Motive_40"]
+script = ExtResource("97_motive")
+text = "Preciso dar um recado da família."
 
 [sub_resource type="Resource" id="Resource_3vj4f"]
 script = ExtResource("1_6g7xa")
 name = "Lúcia Pereira"
 address = "Rua das Flores, 390"
 number = "147"
+voice = "f"
 spoken = "a Lúcia Pereira"
-reasons = PackedStringArray("Ela está esperando minha ligação.", "Preciso dar um recado da família.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_39"), SubResource("Motive_40")])
+
+[sub_resource type="Resource" id="Motive_41"]
+script = ExtResource("97_motive")
+text = "Tô quase sem gasolina."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Vocês ainda estão abertos? Estou quase sem gasolina.", "Até a meia-noite. De onde você está vindo?", "Da estrada do moinho. O ponteiro já está no fim.", "Então desce devagar, sem acelerar muito, que dá.", "E se não der?", "Se não der, liga de novo que eu levo um galão aí."), PackedStringArray("Boa noite. O carro está na reserva. Dá pra chegar aí?", "De onde você vem?", "Da {street}, lá perto do número {house}.", "Dá, é pertinho. Vem devagar.", "Vocês fecham que horas?", "Hoje eu fico até as {hour}. Depois, só amanhã.")])
+
+[sub_resource type="Resource" id="Motive_42"]
+script = ExtResource("97_motive")
+text = "Quero saber se o posto ainda está aberto."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. O posto ainda está aberto?", "Aberto até a meia-noite, como sempre.", "Ainda bem. Preciso encher o tanque pra viajar amanhã cedo.", "Vem agora, que de manhã a fila é grande.", "Vocês calibram pneu também?", "Tem ar, sim. Fica do lado da bomba, pode usar à vontade."), PackedStringArray("Boa noite. Ainda dá tempo de abastecer?", "Dá. Hoje eu fecho às {hour}.", "Vocês trocam óleo também?", "Troca, mas só de dia. De noite é só a bomba.", "Então amanhã eu passo pra trocar.", "Vem cedo, que de manhã o mecânico está aqui.")])
 
 [sub_resource type="Resource" id="Resource_osrdx"]
 script = ExtResource("1_6g7xa")
 name = "Posto São Cristóvão"
 address = "Rua da Estação, 200"
 number = "347"
+hello = "Posto São Cristóvão, boa noite."
 spoken = "o Posto São Cristóvão"
-reasons = PackedStringArray("Tô quase sem gasolina.", "Quero saber se o posto ainda está aberto.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_41"), SubResource("Motive_42")])
+
+[sub_resource type="Resource" id="Motive_43"]
+script = ExtResource("97_motive")
+text = "Quero pôr um anúncio no jornal de amanhã."
+
+[sub_resource type="Resource" id="Motive_44"]
+script = ExtResource("97_motive")
+text = "Saiu meu nome errado na edição de hoje."
 
 [sub_resource type="Resource" id="Resource_yi6mb"]
 script = ExtResource("1_6g7xa")
 name = "Gazeta de São Sotero"
 address = "Rua Sete de Setembro, 50"
 number = "101"
+hello = "Gazeta, redação."
 spoken = "a Gazeta"
-reasons = PackedStringArray("Quero pôr um anúncio no jornal de amanhã.", "Saiu meu nome errado na edição de hoje.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_43"), SubResource("Motive_44")])
+
+[sub_resource type="Resource" id="Motive_45"]
+script = ExtResource("97_motive")
+text = "Quero pedir uma música."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Queria pedir uma música pro programa da noite.", "Pode pedir. Qual é a música?", "Uma valsa antiga, aquela que tocava nos bailes do clube.", "Tem várias. Sabe o nome de alguma?", "O nome eu não lembro. Mas é a que todo mundo dançava no fim.", "Já sei qual é. Toca às {hour}. Ofereço pra quem?"), PackedStringArray("Boa noite. Queria oferecer uma música pra uma pessoa especial.", "Pode falar. Qual música?", "Uma moda de viola, daquelas bem antigas.", "Tenho umas três aqui. Ofereço em nome de quem?", "Diz só que é de alguém que não esqueceu.", "Vai ao ar às {hour}, no programa dos pedidos.")])
+
+[sub_resource type="Resource" id="Motive_46"]
+script = ExtResource("97_motive")
+text = "Quero mandar um recado pra um parente que trabalha na roça."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Queria mandar um recado pelo rádio.", "Recado pra quem, e de quem?", "Pro meu primo, que trabalha na colheita. Diz que a família está bem.", "Só isso? Que a família está bem?", "E que é pra ele descer no fim do mês, que a gente espera.", "Vai ao ar às {hour}, no quadro dos recados."), PackedStringArray("Boa noite. Dá pra mandar um recado pra roça pelo programa?", "Dá. Pra quem é o recado?", "Pro meu tio, que está no sítio. Diz pra ele descer na feira.", "Na feira de quando?", "Na de sábado. Tem gente esperando por ele.", "Vai ao ar às {hour}, depois das notícias.")])
 
 [sub_resource type="Resource" id="Resource_drsc6"]
 script = ExtResource("1_6g7xa")
 name = "Rádio Serena AM"
 address = "Rua do Sol, 199"
 number = "390"
+hello = "Rádio Serena, boa noite."
 spoken = "a Rádio Serena"
-reasons = PackedStringArray("Quero pedir uma música.", "Quero mandar um recado pra um parente que trabalha na roça.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_45"), SubResource("Motive_46")])
+
+[sub_resource type="Resource" id="Motive_47"]
+script = ExtResource("97_motive")
+text = "Somos sócios. É sobre a loja."
+
+[sub_resource type="Resource" id="Motive_48"]
+script = ExtResource("97_motive")
+text = "Preciso confirmar a viagem de amanhã."
 
 [sub_resource type="Resource" id="Resource_dr0p2"]
 script = ExtResource("1_6g7xa")
 name = "Alberto Ramos"
 address = "Avenida Brasil, 480"
 number = "168"
+voice = "m"
 spoken = "o seu Alberto Ramos"
-reasons = PackedStringArray("Somos sócios. É sobre a loja.", "Preciso confirmar a viagem de amanhã.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_47"), SubResource("Motive_48")])
 
 [sub_resource type="Resource" id="Resource_tnurf"]
 script = ExtResource("1_6g7xa")
 name = "Célia Rocha"
 address = "Rua do Sol, 88"
 number = "367"
-reasons = PackedStringArray()
+voice = "f"
+motives = Array[ExtResource("97_motive")]([])
 
 [sub_resource type="Resource" id="Resource_6dq54"]
 script = ExtResource("1_6g7xa")
 name = "Célia Rocha"
 address = "Avenida Brasil, 240"
 number = "373"
-reasons = PackedStringArray()
+voice = "f"
+motives = Array[ExtResource("97_motive")]([])
+
+[sub_resource type="Resource" id="Motive_49"]
+script = ExtResource("97_motive")
+text = "Meu pai está aí jogando e não volta pra casa."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Meu pai está aí? Um senhor de bigode, de camisa xadrez.", "Está, sim. Na mesa do fundo, ganhando de todo mundo.", "Fala pra ele que a mãe está esperando com a janta.", "Falo, mas ele disse que só sai depois da última partida.", "Diz que a janta já esfriou duas vezes.", "Esse recado eu dou. Aí ele vem rapidinho."), PackedStringArray("Boa noite. Meu pai está aí no bilhar?", "Está, sim. Jogando a dinheiro com uns rapazes.", "A dinheiro? Fala pra ele vir pra casa agora.", "Ele disse que só sai quando recuperar o que perdeu.", "Diz que a mãe está esperando acordada.", "Esse recado assusta mais. Vou falar.")])
+
+[sub_resource type="Resource" id="Motive_50"]
+script = ExtResource("97_motive")
+text = "Quero deixar um recado pro meu irmão, que joga aí toda noite."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Meu irmão está aí? O magrinho, de óculos.", "Está aqui, esperando a vez dele na mesa.", "Avisa que a moto dele ficou com o farol aceso na frente de casa.", "O farol aceso? Vou falar agora, senão amanhã não pega.", "Isso. E diz que eu não vou lá apagar, não.", "Pode deixar, eu falo assim mesmo."), PackedStringArray("Boa noite. Meu irmão está aí? O de chapéu {color}.", "Está, na mesa do canto.", "Avisa que amanhã ele começa no serviço às {dawn}.", "Às {dawn}? Vou falar, mas ele não vai gostar.", "Diz que é ordem do patrão.", "Pode deixar. Falo agora mesmo.")])
 
 [sub_resource type="Resource" id="Resource_6y7ie"]
 script = ExtResource("1_6g7xa")
 name = "Bilhar do Tonho"
 address = "Rua do Comércio, 260"
 number = "355"
+voice = "m"
+hello = "Bilhar do Tonho, pode falar."
 spoken = "o Bilhar do Tonho"
-reasons = PackedStringArray("Meu pai está aí jogando e não volta pra casa.", "Quero deixar um recado pro meu irmão, que joga aí toda noite.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_49"), SubResource("Motive_50")])
+
+[sub_resource type="Resource" id="Motive_51"]
+script = ExtResource("97_motive")
+text = "A luz da casa dele tá acesa e ele não atende a porta."
+
+[sub_resource type="Resource" id="Motive_52"]
+script = ExtResource("97_motive")
+text = "Ele ficou de me emprestar a escada."
 
 [sub_resource type="Resource" id="Resource_7llgn"]
 script = ExtResource("1_6g7xa")
 name = "Benedito Souza"
 address = "Rua do Sol, 530"
 number = "271"
+voice = "w"
 spoken = "o seu Benedito Souza"
-reasons = PackedStringArray("A luz da casa dele tá acesa e ele não atende a porta.", "Ele ficou de me emprestar a escada.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_51"), SubResource("Motive_52")])
+
+[sub_resource type="Resource" id="Motive_53"]
+script = ExtResource("97_motive")
+text = "Preciso de um carro até a rodoviária."
+
+[sub_resource type="Resource" id="Motive_54"]
+script = ExtResource("97_motive")
+text = "O último ônibus sai às onze e eu não posso perder."
 
 [sub_resource type="Resource" id="Resource_hmatr"]
 script = ExtResource("1_6g7xa")
 name = "Ponto de Táxi da Rodoviária"
 address = "Avenida Brasil, 590"
 number = "176"
+hello = "Ponto de táxi, boa noite."
 spoken = "o ponto de táxi da rodoviária"
-reasons = PackedStringArray("Preciso de um carro até a rodoviária.", "O último ônibus sai às onze e eu não posso perder.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_53"), SubResource("Motive_54")])
+
+[sub_resource type="Resource" id="Motive_55"]
+script = ExtResource("97_motive")
+text = "Ele ficou de me devolver a furadeira."
+
+[sub_resource type="Resource" id="Motive_56"]
+script = ExtResource("97_motive")
+text = "É sobre a pescaria de domingo."
 
 [sub_resource type="Resource" id="Resource_uhirb"]
 script = ExtResource("1_6g7xa")
 name = "Ivo Teixeira"
 address = "Rua das Flores, 333"
 number = "184"
+voice = "m"
 spoken = "o seu Ivo Teixeira"
-reasons = PackedStringArray("Ele ficou de me devolver a furadeira.", "É sobre a pescaria de domingo.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_55"), SubResource("Motive_56")])
+
+[sub_resource type="Resource" id="Motive_57"]
+script = ExtResource("97_motive")
+text = "Ela está esperando notícias minhas."
+
+[sub_resource type="Resource" id="Motive_58"]
+script = ExtResource("97_motive")
+text = "É sobre o aniversário da mãe dela."
 
 [sub_resource type="Resource" id="Resource_5fdhg"]
 script = ExtResource("1_6g7xa")
 name = "Sônia Vieira"
 address = "Rua do Comércio, 420"
 number = "237"
+voice = "f"
 spoken = "a Dona Sônia Vieira"
-reasons = PackedStringArray("Ela está esperando notícias minhas.", "É sobre o aniversário da mãe dela.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_57"), SubResource("Motive_58")])
 
 [sub_resource type="Resource" id="Resource_ecmv4"]
 script = ExtResource("16_5siro")
@@ -1305,23 +1596,82 @@ name = "Rua do Cruzeiro"
 sector = 2
 pos = 360.0
 
+[sub_resource type="Resource" id="Motive_59"]
+script = ExtResource("97_motive")
+text = "Preciso de um quarto barato pra esta noite."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Tem quarto pra hoje? Coisa simples, só pra dormir.", "Tem uma cama no quarto dos fundos. O banheiro é no corredor.", "Tá ótimo. E quanto fica?", "Com café é um pouco mais. Sem café sai mais em conta.", "Sem café, então. Daqui a {wait} eu chego.", "Bate na janela do lado, que a porta da frente já está trancada."), PackedStringArray("Boa noite. Tem cama pra hoje? Não posso pagar muito.", "Tem a do quarto coletivo. Divide com mais dois.", "Serve. Eles roncam?", "Um ronca, o outro fala dormindo. Mas são gente boa.", "Tá bom. Chego em {wait}.", "Traz cobertor, se tiver. A noite aqui esfria.")])
+
+[sub_resource type="Resource" id="Motive_60"]
+script = ExtResource("97_motive")
+text = "Quero saber se tem vaga pra dois pernoitarem."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Tem vaga pra duas pessoas? É só pra pernoitar.", "Pra dois tem o quarto da frente, com duas camas.", "Ótimo. A gente chegou no último ônibus e não tem onde ficar.", "Então venham logo, que a rua aqui fica escura depois das {hour}.", "Precisa levar alguma coisa? Documento?", "Só o documento, pra anotar no livro de hóspedes."), PackedStringArray("Boa noite. Tem quarto pra duas pessoas, só esta noite?", "Tem, mas só com uma cama de casal.", "Somos dois irmãos. Não tem com duas camas?", "Posso pôr um colchão no chão. Serve?", "Serve, sim. Chegamos em {wait}.", "Vou deixar a luz da frente acesa pra vocês.")])
+
 [sub_resource type="Resource" id="Resource_pens1"]
 script = ExtResource("1_6g7xa")
 name = "Pensão Dona Cota"
 address = "Rua da Estação, 40"
 number = "312"
+voice = "f"
+hello = "Pensão Dona Cota, pois não?"
 category = "hospedagem"
 spoken = "a Pensão Dona Cota"
-reasons = PackedStringArray("Preciso de um quarto barato pra esta noite.", "Quero saber se tem vaga pra dois pernoitarem.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_59"), SubResource("Motive_60")])
+
+[sub_resource type="Resource" id="Motive_61"]
+script = ExtResource("97_motive")
+text = "Furou o pneu do carro aqui na estrada."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Furou o pneu, e o estepe também está vazio.", "Os dois? Aí não tem jeito, vou ter que ir até aí.", "Estou na saída da cidade, perto da placa de São Sotero.", "Sei onde é. Levo um pneu e o macaco.", "Quanto tempo, mais ou menos?", "Coisa de {wait}. Liga o pisca, que de noite ninguém enxerga nada."), PackedStringArray("Boa noite. Furou o pneu e eu não tenho macaco.", "Sem macaco não tem jeito. Onde você está?", "Na {street}, quase no número {house}.", "É perto, então. Dá pra ir a pé com o macaco.", "Precisa levar alguma coisa?", "Só a lanterna, se tiver. Chego em {wait}.")])
+
+[sub_resource type="Resource" id="Motive_62"]
+script = ExtResource("97_motive")
+text = "O carro morreu no meio da rua e não pega."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. O carro morreu no meio da rua e não quer pegar.", "Está atrapalhando o trânsito?", "A essa hora não passa ninguém. Mas está bem no meio da rua.", "Empurra pro canto, se conseguir. Tem alguém aí pra ajudar?", "Tem um rapaz aqui me ajudando a empurrar.", "Então empurra e me espera. Em {wait} eu chego."), PackedStringArray("Boa noite. O carro apagou aqui na {street} e não pega mais.", "Fez algum barulho antes de apagar?", "Deu um estouro e saiu fumaça preta.", "Então nem tenta dar partida de novo.", "Tá bom. Fico esperando aqui do lado.", "Chego em {wait}. Deixa o capô aberto pra eu achar.")])
 
 [sub_resource type="Resource" id="Resource_borr1"]
 script = ExtResource("1_6g7xa")
 name = "Borracharia do Neno"
 address = "Rua das Acácias, 270"
 number = "336"
+voice = "m"
+hello = "Borracharia do Neno, boa noite."
 category = "oficina"
 spoken = "a Borracharia do Neno"
-reasons = PackedStringArray("Furou o pneu do carro aqui na estrada.", "O carro morreu no meio da rua e não pega.")
+motives = Array[ExtResource("97_motive")]([SubResource("Motive_61"), SubResource("Motive_62")])
+
+[sub_resource type="Resource" id="TalkFill_hour"]
+script = ExtResource("98_talk_fill")
+key = "hour"
+values = PackedStringArray("sete", "oito", "nove", "dez", "onze")
+
+[sub_resource type="Resource" id="TalkFill_dawn"]
+script = ExtResource("98_talk_fill")
+key = "dawn"
+values = PackedStringArray("quatro", "cinco", "seis")
+
+[sub_resource type="Resource" id="TalkFill_wait"]
+script = ExtResource("98_talk_fill")
+key = "wait"
+values = PackedStringArray("meia hora", "vinte minutos", "quarenta minutos", "uma hora")
+
+[sub_resource type="Resource" id="TalkFill_nights"]
+script = ExtResource("98_talk_fill")
+key = "nights"
+values = PackedStringArray("duas noites", "três noites", "quatro noites")
+
+[sub_resource type="Resource" id="TalkFill_color"]
+script = ExtResource("98_talk_fill")
+key = "color"
+values = PackedStringArray("verde", "azul", "cinza", "marrom")
+
+[sub_resource type="Resource" id="TalkFill_score"]
+script = ExtResource("98_talk_fill")
+key = "score"
+values = PackedStringArray("um a um", "dois a um", "zero a zero", "dois a dois")
+
+[sub_resource type="Resource" id="TalkFill_film"]
+script = ExtResource("98_talk_fill")
+key = "film"
+values = PackedStringArray("um faroeste", "uma comédia", "um filme de guerra", "um romance")
 
 [resource]
 script = ExtResource("15_65xm7")
@@ -1360,6 +1710,11 @@ retry_worse = PackedStringArray("Central! Ninguém apareceu aqui e tá ficando p
 retry_too_late = PackedStringArray("Liguei mais cedo. Ninguém veio. Agora não adianta mais.", "Não precisa mandar mais ninguém. Já era.", "Vocês demoraram demais. Eu só queria que soubessem.")
 woken_up = PackedStringArray("Alô? Quem é, a essa hora?", "Hã? Isso é hora de ligar pros outros?", "Quem tá ligando? Aqui tá todo mundo dormindo!", "Alô?! Isso é hora?")
 gave_up = PackedStringArray("Quer saber? Esquece. Eu ligo amanhã.", "Errou de novo? Deixa pra lá.", "Não, chega. Boa noite.")
+overheard_hello = PackedStringArray("Alô?", "Alô, quem fala?", "Pronto, pode falar.", "Alô, boa noite.")
+overheard_greet = PackedStringArray("Oi, sou eu.", "Boa noite, sou eu. Tá me ouvindo bem?", "Oi! Que bom que atendeu.", "Boa noite. Desculpa ligar a essa hora.")
+talk_fills = Array[ExtResource("98_talk_fill")]([SubResource("TalkFill_hour"), SubResource("TalkFill_dawn"), SubResource("TalkFill_wait"), SubResource("TalkFill_nights"), SubResource("TalkFill_color"), SubResource("TalkFill_score"), SubResource("TalkFill_film")])
+overheard_bye = PackedStringArray("Então tá combinado. Boa noite.", "Tá bom, então. Até amanhã.", "Combinado. Boa noite, viu?", "Então é isso. Boa noite.")
+overheard_bye_back = PackedStringArray("Boa noite.", "Até mais.", "Disponha. Boa noite.", "Boa noite. Vai com Deus.")
 overheard_ask = PackedStringArray("Peraí... Alô? Tem alguém na linha?", "Você ouviu esse estalo? Parece que tem gente ouvindo.", "Psiu. Tem alguém escutando a gente?")
 overheard_caught = PackedStringArray("Tem gente ouvindo, sim! Amanhã eu reclamo na companhia.", "Isso é um abuso! Vou denunciar essa telefonista.", "Desliga, desliga. Amanhã eu vou lá na companhia reclamar.")
 news_ok = PackedStringArray("{occurrence} na {address}: socorro chega a tempo.", "{occurrence} na {address}: equipe controla a situação.")

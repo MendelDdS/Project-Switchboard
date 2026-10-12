@@ -25,6 +25,7 @@ var calls := {}   ## linha -> a PhoneCall conectada nela (a transferência compl
 var _ears := {}   ## linha -> o que o operador ouve dela (a transcrição da tela)
 var _cue := {}    ## linha -> fala que um deles diz na próxima vez (a pergunta da suspeita)
 var _quiet := {}  ## linha -> s de silêncio que faltam (`HUSH`)
+var _written := {}  ## linhas cuja conversa ainda tem falas escritas por dizer (`speaking`)
 
 @onready var main: Main = get_parent()
 
@@ -34,8 +35,11 @@ func _process(delta: float) -> void:
 		tick(delta)
 
 
-## A transferência `c` completou: os dois começam a conversar (se ninguém ouvir, ninguém fica sabendo).
+## A transferência `c` completou: os dois começam a conversar (se ninguém ouvir, ninguém fica sabendo). As do
+## treinamento não se escutam.
 func connected(c: PhoneCall) -> void:
+	if c.lesson:
+		return
 	if _ears.has(c.line):
 		(_ears[c.line] as PhoneCall).ended = true
 	var ear := PhoneCall.new()
@@ -53,6 +57,11 @@ func toggle(n: int) -> void:
 	main.exchange.set_key(n, not main.exchange.key(n))
 
 
+## A conversa da linha `n` ainda tem falas escritas por dizer: ela não acaba antes (`Main._update_line_timers`).
+func speaking(n: int) -> bool:
+	return _written.has(n)
+
+
 ## O operador está ouvindo a linha `n` agora.
 func listening(n: int) -> bool:
 	return n == main.board.fone_line() and main.exchange.key(n) and calls.has(n)
@@ -66,6 +75,7 @@ func tick(delta: float) -> void:
 			ear.ended = true
 			calls.erase(n)
 			_ears.erase(n)
+			_written.erase(n)
 			continue
 		if _quiet.has(n):
 			_quiet[n] -= delta
@@ -94,13 +104,14 @@ func _heard(n: int, c: PhoneCall, ear: PhoneCall) -> void:
 	main.phone.show_call(ear)
 
 
-## A suspeita da linha `n` sobe `by`; passando de um limite, eles reagem.
+## A suspeita da linha `n` sobe `by` (vezes a desconfiança deles, `TransferCall.wary`); passando de um limite, eles reagem.
 func _raise(n: int, by: float) -> void:
 	var c: PhoneCall = calls[n]
 	var was := c.suspicion
 	if was >= 1.0:
 		return
-	c.suspicion = minf(1.0, was + by)
+	var data := c.data as TransferCall
+	c.suspicion = minf(1.0, was + by * (data.wary if data != null else 1.0))
 	if was < HUSH and c.suspicion >= HUSH:
 		_quiet[n] = HUSH_SEC
 		(_ears[n] as PhoneCall).sys(T.text(T.Key.SYS_LINE_SILENT))
@@ -117,6 +128,7 @@ func _caught(n: int, c: PhoneCall, ear: PhoneCall) -> void:
 	_cue.erase(n)
 	_quiet.erase(n)
 	calls.erase(n)   # a conversa deles acabou: a suspeita não anda mais
+	_written.erase(n)
 	ear.ended = true   # a fala de antes para; a reclamação vem a seguir
 	var last := PhoneCall.new()
 	last.line = n
@@ -131,30 +143,52 @@ func _caught(n: int, c: PhoneCall, ear: PhoneCall) -> void:
 		main.talk_over(n)
 
 
-## A conversa dos dois: as falas escritas, depois o murmúrio, até a linha cair. Um fala, o outro responde. Ouvidas
-## todas as escritas, liga os marcadores da ligação (`TransferCall.overheard_sets`).
+## A conversa dos dois: o "alô" de quem atende e as falas escritas, que fecham com a despedida (`C.overheard_bye`) e
+## eles desligam; sem elas, o cumprimento de quem ligou (se atendeu uma pessoa) e o murmúrio até o fim do `TALK_LEN`.
+## Um fala, o outro responde. Cada fala escrita ouvida liga o marcador dela (`TransferCall.overheard_flags`); ouvidas
+## todas, os da ligação (`overheard_sets`).
 func _talk(c: PhoneCall, ear: PhoneCall) -> void:
 	var who := [tr(c.caller), _other(c)]
-	var voices := [c.voice, ["m", "f", "w"][absi(hash(who[1])) % 3]]
+	var place := GameData.entry(str(c.dest_num))
+	var voices := [c.voice, GameData.voice_of(place) if place != null else "m"]
 	var data: TransferCall = c.data if c.data is TransferCall else null
-	var lines: PackedStringArray = data.overheard if data != null else PackedStringArray()
-	var k := 0      # a próxima fala escrita
-	var turn := 0   # quem fala
+	var written: PackedStringArray = data.overheard if data != null else PackedStringArray()
+	var hello := place.hello if place != null and place.hello != "" else GameData.pick(C.overheard_hello)
+	var lines := PackedStringArray([hello]) + written
+	if not written.is_empty():
+		lines.append_array([GameData.pick(C.overheard_bye), GameData.pick(C.overheard_bye_back)])
+	elif place == null or place.hello == "":
+		lines.append(GameData.pick(C.overheard_greet))
+	var vars := GameData.talk_vars()   # as lacunas, as mesmas na conversa toda
+	var k := 0      # a próxima fala do "alô" ou escrita
+	var turn := 1   # quem fala: quem atendeu começa
 	var heard := 0  # falas escritas ouvidas
+	if not written.is_empty():
+		_written[c.line] = true
 	while not ear.ended:
 		var cue: String = _cue.get(c.line, "")
 		_cue.erase(c.line)
-		var text := cue if cue != "" else (lines[k] if k < lines.size() else tr((main.conversation.topics().pick_random() as ChatTopic).line))
+		var text := cue if cue != "" else (GameData.fill(lines[k], vars) if k < lines.size() else tr((main.conversation.topics().pick_random() as ChatTopic).line))
 		var got := await _say(ear, text, who[turn % 2], voices[turn % 2], cue != "" or k < lines.size())
 		if got < 0.0:
 			return
 		turn += 1
-		if cue == "" and k < lines.size():
-			heard += 1 if got >= HEARD_SHARE else 0
-			k += 1
-			if k == lines.size() and heard == k:
+		if cue != "" or k >= lines.size():
+			continue
+		var j := k - 1   # a fala escrita (antes dela, o "alô")
+		k += 1
+		if j >= 0 and j < written.size() and got >= HEARD_SHARE:
+			heard += 1
+			if j < data.overheard_flags.size() and data.overheard_flags[j] != "":
+				main.flags.apply(data.overheard_flags[j])
+			if heard == written.size():
 				for f in data.overheard_sets:
 					main.flags.apply(f)
+		if k == lines.size():
+			_written.erase(c.line)
+			if not written.is_empty() and main.exchange.line(c.line) == Exchange.Line.CONN:
+				main.talk_over(c.line)   # despediram-se
+				return
 
 
 ## Um dos dois diz `text` (`shown`: na transcrição; senão, só o som, o murmúrio), letra a letra como na

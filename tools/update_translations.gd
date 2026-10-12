@@ -15,7 +15,7 @@ const POT := "res://translations/content.pot"
 const LANGS := ["en", "es"]
 ## Campos que não se traduzem: nomes próprios (contatos, ruas, endereços) e dados internos.
 const SKIP := ["name", "address", "number", "category", "target", "alt_target", "street", "id", "voice", "voices", "effect", "weather", "teacher", "teacher_voice", "until",
-	"fake_address", "block_labels", "units", "worsening_units", "critical_units", "lost_units", "requires", "sets", "overheard_sets", "detail", "news_photo", "resource_name", "resource_path", "resource_scene_unique_id"]
+	"fake_address", "block_labels", "units", "worsening_units", "critical_units", "lost_units", "requires", "sets", "overheard_sets", "overheard_flags", "key", "detail", "news_photo", "resource_name", "resource_path", "resource_scene_unique_id"]
 
 var _ids := {}   ## msgid -> Array de arquivos onde aparece (em ordem de descoberta)
 
@@ -81,6 +81,9 @@ func _visit(r: Resource, src: String, seen: Dictionary) -> void:
 				for item in v:
 					if item is Resource:
 						_visit(item, src, seen)
+					elif item is PackedStringArray:   # Motive.talks
+						for t in item:
+							_add(t, src)
 	# "o Hotel Estrela" também aparece como "do Hotel Estrela" e "pro Hotel Estrela" (lacunas dos moldes)
 	if r is DirectoryEntry and r.spoken != "":
 		_add("d" + r.spoken, src)

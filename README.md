@@ -107,7 +107,7 @@ dos roteiros escritos em `data/calls/`. Os trotes, o treinamento, as ligações 
 desconhecida são sempre escritos à mão.
 
 - **Transferência** (`transfer_templates`): o molde é um `TransferCall` com lacunas em `opening` e `repeat`.
-  O contato é sorteado entre os que têm `spoken` e `reasons` na lista e atendem à noite; quem liga sai de `callers`.
+  O contato é sorteado entre os que têm `spoken` e `motives` na lista e atendem à noite; quem liga sai de `callers`.
   Lacunas: `{place}` "o Hotel Estrela", `{of_place}` "do Hotel Estrela", `{to_place}` "pro Hotel Estrela",
   `{street}` rua do contato, `{number}` "305", `{digits}` "três, zero, cinco", `{reason}` um dos motivos do contato.
 - **Interurbano** (`trunk_templates`): um `TransferCall` com lacunas em `opening` e `repeat`, para um tronco sorteado
@@ -119,8 +119,22 @@ desconhecida são sempre escritos à mão.
   respostas ("" mantém a do roteiro) e diz as unidades dele. Assim o mesmo incêndio pede só bombeiros ou também
   ambulância, e o jogador precisa perguntar.
   Rua e número são sorteados; o trecho do mapa sai do número. Lacunas: `{street}`, `{house}`, `{address}`.
-- **Para ter mais variedade:** acrescente motivos (`reasons`) aos contatos, ou um `spoken` + motivos a um contato
+- **Para ter mais variedade:** acrescente motivos (`motives`) aos contatos, ou um `spoken` + motivos a um contato
   novo. Um molde novo vale para todos os contatos. Escreva motivos que sirvam para quem liga, homem ou mulher.
+- **Cada motivo (`Motive`) traz as conversas que vêm depois** (`talks`, duas ou mais; uma é sorteada por ligação), o
+  que o operador ouve se escutar a linha: quem
+  pede remédio fala de remédio com a farmácia, quem pede quarto reserva noites no hotel. O lugar atende primeiro, com a
+  fala `hello` do contato ("Hotel Estrela, boa noite."; as pessoas, com um "alô" sorteado de `overheard_hello`), e a
+  conversa começa por quem ligou, cumprimentando, e alterna. De 4 a 6 falas, com o que importa no meio. Num lugar com
+  ramo (`category`), não diga o tipo do lugar: se ele não atender, quem atende é outro do mesmo ramo. Cada fala com até
+  90 letras, também traduzida. Sem `talks`, só se ouve o murmúrio. Depois da última fala, os dois se despedem e
+  desligam.
+- **Lacunas das conversas** (`talk_fills` no content, cada uma um `TalkFill` com `key` e `values`): `{hour}` (sete a
+  onze), `{dawn}` (quatro a seis), `{wait}` (vinte minutos, meia hora...), `{nights}`, `{color}`, `{score}`, `{film}`,
+  e `{street}`/`{house}`, uma rua e um número dos setores atendidos. O valor é sorteado uma vez por conversa (o mesmo em
+  todas as falas dela), então a hora ou o tempo que se ouve muda de uma ligação para outra. Lacuna nova: um `TalkFill`
+  novo; o valor precisa servir em todas as falas que usam a lacuna.
+- **A voz de quem atende** é a `voice` do contato (`f`, `m`, `w`, `k`); sem ela, uma tirada do nome, sempre a mesma.
 - A primeira letra de cada fala vira maiúscula depois de preenchida (`GameData.fill`).
 
 ## Testes

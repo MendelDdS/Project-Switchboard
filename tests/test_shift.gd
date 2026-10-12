@@ -4,6 +4,8 @@ extends "res://tests/test_base.gd"
 ## como uma pessoa: mede se o ritmo das ligações cabe no tempo de quem joga de verdade.
 ## Com `-- --clumsy` ele deixa de atender 1 em cada 3 ligações (como alguém sobrecarregado): mede a bola de neve
 ## dos retornos (quem liga de novo).
+## Com `-- --nosy`, com a mesa livre, ele escuta as conversas conectadas: solta quando eles se calam (`Eavesdrop.HUSH`)
+## e volta quando a suspeita baixa (`NOSY_BACK`). Mede quanto dá para ouvir sem ser denunciado e se atrapalha o ritmo.
 ## Falha se houver travamento: o turno precisa chegar ao final (00:00) depois da ligação desconhecida.
 
 var m: Main
@@ -19,6 +21,9 @@ var clumsy := "--clumsy" in OS.get_cmdline_user_args()
 var skipped := 0
 var human := "--human" in OS.get_cmdline_user_args()
 const HUMAN_STEP := 5.0   ## segundos reais por ação no modo --human
+var nosy := "--nosy" in OS.get_cmdline_user_args()
+const NOSY_BACK := 0.1    ## o curioso volta a uma conversa com a suspeita abaixo disto
+var heard := {}           ## cada PhoneCall conectada -> s ouvidos dela (modo --nosy)
 var next_act := 0.0       ## instante (s, na velocidade do jogo) em que a "pessoa" pode agir de novo
 
 
@@ -54,6 +59,30 @@ func _fone_to(b, j: int) -> void:
 	else:
 		b.held = 0
 	b.place(0, j)
+
+
+## O curioso (modo --nosy): ouvindo, solta quando eles se calam ou alguém chama; com a mesa livre, leva o FONE a uma
+## conversa que já esqueceu a desconfiança e levanta a chave. Devolve se ficou ouvindo (o quadro acaba aqui).
+func _snoop(b, f: PhoneCall) -> bool:
+	var n: int = b.fone_line()
+	var busy := f != null and f.active or m.live.any(func(c: PhoneCall): return c.ringing or c.active and not c.closing)
+	if m.eavesdrop.listening(n):
+		var c: PhoneCall = m.eavesdrop.calls[n]
+		if not busy and c.suspicion < Eavesdrop.HUSH:
+			return true
+		m.listen()
+		_acted()
+		return false
+	if busy:
+		return false
+	for k in m.eavesdrop.calls:
+		var c: PhoneCall = m.eavesdrop.calls[k]
+		if c.suspicion < NOSY_BACK:
+			_fone_to(b, k)
+			m.listen()
+			_acted()
+			return true
+	return false
 
 
 ## Um passo do despacho pelo cartão (modo --human). Devolve se fez alguma ação (que conta tempo); esperar a
@@ -138,7 +167,12 @@ func _initialize() -> void:
 		# a pessoa lê a resposta da emergência até o fim antes de pensar no próximo passo
 		if human and f != null and f.kind == PhoneCall.Kind.EMERGENCY and f.talking:
 			next_act = maxf(next_act, _now() + HUMAN_STEP)
+		if nosy:
+			for lc: PhoneCall in m.eavesdrop.calls.values():
+				heard[lc] = float(heard.get(lc, 0.0)) + (m.get_process_delta_time() if m.eavesdrop.listening(lc.line) else 0.0)
 		if _now() < next_act:
+			continue
+		if nosy and _snoop(b, f):
 			continue
 		if f == null or not f.active:
 			for c in m.live:
@@ -221,6 +255,13 @@ func _initialize() -> void:
 		print("humano: %.0f s por ação" % HUMAN_STEP)
 	if clumsy:
 		print("desastrado: deixou tocar %d, retornos=%d" % [skipped, recs.filter(func(e): return e.who.begins_with(T.text(T.Key.UNKNOWN_CALLER))).size()])
+	if nosy:
+		var secs: Array = heard.values().filter(func(x): return x > 0.0)
+		var told := m.report.faults.filter(func(x): return x["id"] == "eavesdrop").size()   # sem noite seguinte, a denúncia já entrou no relatório de hoje
+		print("curioso: ouviu %d de %d conversas conectadas, %.0f s no total (média %.0f s, maior %.0f s), denunciado %d vez(es)" % [secs.size(), heard.size(),
+			secs.reduce(func(a, x): return a + x, 0.0), secs.reduce(func(a, x): return a + x, 0.0) / maxi(secs.size(), 1),
+			secs.reduce(func(a, x): return maxf(a, x), 0.0), told])
+		ok(not secs.is_empty() and told == 0, "o curioso escuta e, soltando no silêncio, não é denunciado")
 	max_quiet = maxf(max_quiet, m.minutes - last_ring)
 	print("desconhecida tocou às %s, atendidas depois=%d, fim às %s | máx=%d  2+=%d%%  3+=%d%%  sem_cabo=%d%%  perdidas=%d  ligações=%d (emerg=%d trotes=%d)  maior_silêncio=%d min  mesa_vazia=%d min" % [
 		myst_at, post, m.fmt(m.minutes), max_live, 100 * f2 / maxi(fall, 1), 100 * f3 / maxi(fall, 1),

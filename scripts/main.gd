@@ -506,14 +506,20 @@ func transfer() -> void:
 ## Tecla Escutar (Z): sobe e desce a chave de escuta da linha conectada em que o FONE está.
 func listen() -> void:
 	var n := board.fone_line()
-	if n != -1 and exchange.line(n) == Exchange.Line.CONN:
+	if _can_listen(n):
 		eavesdrop.toggle(n)
 		_update_call_ui()
 
 
+## A chave de escuta da linha `n` pode virar: a linha conectada e a conversa escutável (a do treinamento e a já
+## denunciada não são); levantada, sempre desce.
+func _can_listen(n: int) -> bool:
+	return n != -1 and exchange.line(n) == Exchange.Line.CONN and (exchange.key(n) or eavesdrop.calls.has(n))
+
+
 ## Clique na chave de escuta da linha `n`: só sobe com a linha conectada e o FONE na entrada dela; desce sempre.
 func _on_lever(n: int) -> void:
-	if exchange.line(n) != Exchange.Line.CONN:
+	if not _can_listen(n):
 		return
 	if not exchange.key(n) and board.fone_line() != n:
 		warn(T.text(T.Key.WARN_LISTEN_FONE) % n)
@@ -561,7 +567,7 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 		return
 	# número errado: quem atendeu reclama de ter sido acordado, e o solicitante também
 	c.sys(T.text(T.Key.SYS_WRONG_PERSON) % who)
-	if not await conversation.say(c, GameData.pick(C.woken_up), 0.4, who, ["m", "f", "w"].pick_random()):
+	if not await conversation.say(c, GameData.pick(C.woken_up), 0.4, who, GameData.voice_of(GameData.entry(str(d)))):
 		return
 	if c.wrong >= 2:
 		if await conversation.say(c, GameData.pick(C.gave_up), 0.5):
@@ -579,14 +585,15 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 ## interurbano ganhar mais burocracia.
 func _trunk(c: PhoneCall, d: int, g: int, right: bool) -> bool:
 	var who := GameData.entry(str(d)).name
+	var voice := GameData.voice_of(GameData.entry(str(d)))
 	c.sys(T.text(T.Key.SYS_ANSWERED) % who)
-	if not await conversation.say(c, GameData.pick(C.trunk_hello), 0.4, who, "f") or _dgen[d] != g:
+	if not await conversation.say(c, GameData.pick(C.trunk_hello), 0.4, who, voice) or _dgen[d] != g:
 		return false
 	var far := (c.data as TransferCall).far_number
 	if not await conversation.op(c, T.text(T.Key.OP_TRUNK_NUMBER) % (far if far != "" else "?")) or _dgen[d] != g:
 		return false
 	if not right:
-		if not await conversation.say(c, GameData.pick(C.trunk_unknown), 0.4, who, "f") or _dgen[d] != g:
+		if not await conversation.say(c, GameData.pick(C.trunk_unknown), 0.4, who, voice) or _dgen[d] != g:
 			return false
 		exchange.set_dest(d, Exchange.Dest.FREE)
 		if not c.lesson:
@@ -599,7 +606,7 @@ func _trunk(c: PhoneCall, d: int, g: int, right: bool) -> bool:
 		conversation.transfer_choices(c)
 		_update_call_ui()
 		return false
-	if not await conversation.say(c, GameData.pick(C.trunk_wait), 0.4, who, "f") or _dgen[d] != g:
+	if not await conversation.say(c, GameData.pick(C.trunk_wait), 0.4, who, voice) or _dgen[d] != g:
 		return false
 	for i in 3:   # lá na outra cidade, o telefone toca
 		if c.on_line:
@@ -710,7 +717,7 @@ func _update_call_ui() -> void:
 	can_transfer = can_transfer and not _transferred(f)
 	phone.set_buttons(f != null and f.ringing, can_transfer, f != null and f.active)
 	var n := board.fone_line()
-	phone.set_listen(n != -1 and exchange.line(n) == Exchange.Line.CONN, n != -1 and exchange.key(n))
+	phone.set_listen(_can_listen(n), n != -1 and exchange.key(n))
 
 
 # ================================================================ agenda das ligações
@@ -792,7 +799,7 @@ func _fill_quiet() -> void:
 func _update_line_timers() -> void:
 	for n in range(1, Exchange.LINES + 1):
 		var until := exchange.line_until(n)
-		if exchange.line(n) == Exchange.Line.CONN and until >= 0.0 and minutes >= until:
+		if exchange.line(n) == Exchange.Line.CONN and until >= 0.0 and minutes >= until and not eavesdrop.speaking(n):   # nem no meio das falas escritas
 			talk_over(n)
 			if not _taught_done and live.is_empty():
 				_taught_done = true

@@ -708,3 +708,21 @@ Chaves:
     baixa devagar sem ninguém ouvindo (escutar aos pedaços vale a pena); a conversa anda ouvindo ou não (o que não ouviu,
     perdeu); ouvir todas as falas escritas liga os marcadores da ligação (`overheard_sets`); a denúncia só chega no
     relatório da noite seguinte.
+154. #consequencias #conversa
+    Escuta: desconfiança por ligação (`TransferCall.wary`, para quem mandar escutar alguém desconfiado ou distraído),
+    as ligações do treinamento não se escutam e o robô curioso (`--nosy`) mede quanto dá para ouvir sem ser
+    denunciado (~1/3 de cada conversa, soltando no silêncio) e que a escuta não atrapalha o ritmo.
+155. #conversa #consequencias
+    Escuta, preparando as conversas que o jogador vai precisar ouvir: com falas escritas, a ligação não acaba antes da
+    última; toda conversa começa por um cumprimento de verdade, sorteado (texto, não murmúrio), para dar tempo de
+    levantar a chave; e cada fala escrita ouvida pode ligar um marcador próprio (`overheard_flags`).
+156. #conversa #conteudo
+    Conversas de verdade na escuta, pelo motivo do pedido (quem pede remédio fala de remédio com a farmácia, quem pede
+    quarto reserva noites no hotel), em dados fáceis de crescer: cada motivo da lista virou um `Motive` com a frase do
+    pedido e a conversa juntas; o lugar atende com o próprio nome (`hello`) e a pessoa com um "alô". Escritas as 21 da
+    Vila Serena (noite 1).
+157. #conversa #conteudo
+    Melhorias das conversas escutadas: quem atende tem voz própria (`voice` do contato, ou tirada do nome, sempre a
+    mesma); depois da última fala escrita os dois se despedem e desligam (a linha fica livre antes); o teste confere as regras de escrita (sem o tipo do lugar, lacunas que existem, falas
+    curtas nos três idiomas); lacunas sorteadas por conversa ({hour}, {wait}, {nights}, {street}...), para o que se
+    ouve não ser sempre igual; e duas conversas por motivo, sorteadas.

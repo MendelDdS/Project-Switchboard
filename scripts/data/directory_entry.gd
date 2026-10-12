@@ -15,5 +15,11 @@ extends Resource
 @export var dispatch_only := false
 ## Como as pessoas se referem ao lugar ao pedir o número (ex.: "o Hotel Estrela"). Vazio = ninguém pede.
 @export var spoken := ""
-## Por que alguém liga para cá, uma frase cada (lacuna {reason} dos moldes). Vazio = não entra nos moldes.
-@export var reasons: PackedStringArray = []
+## Por que alguém liga para cá, cada um com a conversa que vem depois (`Motive`). Vazio = não entra nos moldes.
+@export var motives: Array[Motive] = []
+## Como o lugar atende o telefone ("Hotel Estrela, boa noite."): a primeira fala de quem escuta a linha (`Eavesdrop`).
+## Vazio (as pessoas): um "alô" sorteado (`GameContent.overheard_hello`).
+@export var hello := ""
+## A voz de quem atende (`SfxSynth.VOICE`: f, m, k, w), para bater com o nome (a Dona Cota, o Zé). Vazio: uma pelo nome,
+## sempre a mesma (`GameData.voice_of`).
+@export var voice := ""

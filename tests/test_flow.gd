@@ -66,6 +66,37 @@ func _check_translations() -> void:
 	TranslationServer.set_locale("pt_BR")   # o padrão do jogo (Settings não existe ao compilar um teste)
 
 
+## As regras de escrita das conversas escutadas (README, "Cada motivo traz a conversa"): num lugar com ramo que pode
+## ser trocado pela alternativa, a conversa não diz o tipo do lugar (`KIND_WORDS`; ramo novo entra nela); só lacunas
+## que existem; cada fala num fôlego (`TALK_MAX` letras) nos três idiomas.
+const KIND_WORDS := {"hospedagem": ["hotel", "pensão", "pousada"], "oficina": ["oficina", "borracharia"],
+	"farmácia": ["farmácia", "drogaria"], "igreja": ["igreja", "paróquia", "paroquial"], "mercearia": ["mercearia", "armazém"]}
+const TALK_MAX := 90
+func _check_talks() -> void:
+	var talks := []   # [contato, falas, se a alternativa pode atender no lugar]
+	for d: DirectoryEntry in GameData.CONTENT.directory:
+		ok(d.category == "" or KIND_WORDS.has(d.category), "ramo sem as palavras do tipo em KIND_WORDS: " + d.category)
+		for mo: Motive in d.motives:
+			for talk in mo.talks:
+				talks.append([d, talk, true])
+	for t: TransferCall in GameData.CONTENT.transfers:
+		talks.append([GameData.entry(t.target), t.overheard, t.alt_target != ""])
+	for x in talks:
+		var words: Array = KIND_WORDS.get(x[0].category, []) if x[2] else []
+		for line: String in x[1]:
+			ok(not words.any(func(w: String): return w in line.to_lower()), "a conversa diz o tipo do lugar (%s): %s" % [x[0].name, line])
+			ok(_holes(line).all(func(h: String): return h.trim_prefix("{").trim_suffix("}") in GameData.talk_holes()),
+				"lacuna que não existe na conversa: " + line)
+	var all_holes := " ".join(GameData.talk_holes().map(func(h: String): return "{%s}" % h))
+	ok(not "{" in GameData.fill(all_holes, GameData.talk_vars()), "toda lacuna da conversa escutada é preenchida")
+	for lang in ["pt_BR", "en", "es"]:
+		TranslationServer.set_locale(lang)
+		for x in talks:
+			for line: String in x[1]:
+				ok(tr(line).length() <= TALK_MAX, "fala escutada longa demais (%s): %s" % [lang, tr(line)])
+	TranslationServer.set_locale("pt_BR")
+
+
 func _extra(t: TransferCall) -> PhoneCall:
 	return PhoneCall.from_transfer(t)
 
@@ -382,6 +413,8 @@ func _initialize() -> void:
 			"molde: alternativa do mesmo ramo")
 		ok(GameData.entry(t.target).category == "" or t.alt_target != "", "molde: estabelecimento com ramo tem alternativa")
 		ok(not holes.call(Array(t.opening) + [t.repeat, t.thanks]) and t.caller != "", "molde de transferência preenchido: " + " / ".join(t.opening))
+		ok(GameData.entry(t.target).motives.any(func(mo: Motive): return (t.overheard in mo.talks or mo.talks.is_empty() and t.overheard.is_empty()) and tr(mo.text) in "".join(t.opening + PackedStringArray([t.repeat]))),
+			"molde: a conversa escutada é a do motivo pedido")
 		var tt := GameData.trunk_transfer()
 		ok(GameData.is_trunk(tt.target) and tt.far_number != "" and not holes.call(Array(tt.opening) + [tt.repeat]),
 			"molde de interurbano preenchido: " + " / ".join(tt.opening))
@@ -396,10 +429,13 @@ func _initialize() -> void:
 		ok(not holes.call(Array(e.answers) + [e.opening, e.after]), "molde de emergência preenchido: " + e.opening)
 	ok(landmarks > 60 and landmarks < 180, "às vezes quem liga diz um lugar do mapa: %d de 300" % landmarks)
 	_check_translations()
+	_check_talks()
 	for c in m.find_children("*", "Control", true, false):
 		if c is BaseButton or c is Slider:
 			ok(c.mouse_default_cursor_shape == Control.CURSOR_POINTING_HAND, "sem cursor de dedo: %s" % m.get_path_to(c))
-	var places := C.directory.filter(func(d): return not d.reasons.is_empty())
+	var places := C.directory.filter(func(d): return not d.motives.is_empty())
+	for d: DirectoryEntry in places.filter(func(d: DirectoryEntry): return d.number.begins_with("3")):   # a Vila Serena, desde a noite 1
+		ok(d.hello != "" and d.motives.all(func(mo: Motive): return mo.talks.size() >= 2 and mo.talks.all(func(k: PackedStringArray): return k.size() >= 4)), "duas conversas escutadas de cada motivo: " + d.name)
 	print("OK 0 conteúdo (%d transferências, %d emergências, %d trotes; moldes: %d de transferência para %d contatos, %d de emergência)" % [
 		C.transfers.size(), C.emergencies.size(), C.pranks.size(), C.transfer_templates.size(), places.size(), C.emergency_templates.size()])
 
@@ -451,8 +487,10 @@ func _initialize() -> void:
 	# sobe com o FONE na linha conectada; entrar na linha estala; ouvindo, a suspeita sobe (sem ouvir, baixa) e, em 1,
 	# eles desligam e denunciam (advertência grave no relatório da noite seguinte)
 	var ed: TransferCall = GameData.transfers(TransferCall.Group.ESTABLISHMENT)[1].duplicate()
-	ed.overheard = ["Oi, sou eu de novo, tudo bem por aí?", "Tudo, e você? Faz tempo que não liga."]
+	ed.overheard = ["Liguei pra saber da reunião de amanhã.", "Ficou pras oito, na casa do Benedito."]
 	ed.overheard_sets = ["ouviu_teste"]
+	ed.overheard_flags = ["", "ouviu_hora"]
+	ed.wary = 1.5
 	var ea := _extra(ed)
 	ea.away = false
 	m.ring(ea)
@@ -467,16 +505,48 @@ func _initialize() -> void:
 	ok(b.lever_up(el) and not ex.key(el), "escuta: a alavanca sobe com o destino tocando")
 	ok(await wait_until(func(): return ea.connected), "escuta: conectada")
 	ok(not b.lever_up(el), "escuta: o destino atendeu e a alavanca desceu sozinha")
+	var m0 := m.minutes
+	m.minutes = ex.line_until(el) + 1.0
+	await frames(1)
+	ok(ex.line(el) == Exchange.Line.CONN and m.eavesdrop.speaking(el), "escuta: a conversa não acaba antes das falas escritas")
+	m.minutes = m0
+	ex.set_line(el, Exchange.Line.CONN, m.minutes + 200.0)   # (uma conversa longa: o TALK_LEN sorteado curto acabava no meio do cenário)
 	ok(m.phone._transfer.disabled and not m.phone._listen.disabled and m.phone._listen.text == "LISTEN",
 		"escuta: com o FONE na linha conectada, a tecla Escutar vale")
 	m.listen()
 	ok(ex.key(el) and m.phone._listen.text == "LISTEN_STOP", "escuta: Z sobe a chave e a tecla vira Soltar")
 	await frames(2)
-	ok(m.eavesdrop.listening(el) and ea.suspicion >= Eavesdrop.CLICK, "escuta: entrar na linha estala")
+	ok(m.eavesdrop.listening(el) and ea.suspicion >= Eavesdrop.CLICK * ed.wary, "escuta: entrar na linha estala (vezes a desconfiança deles)")
+	ed.wary = 0.5   # (ouvindo o cumprimento e as falas de uma vez, a desconfiança comum chega a denunciar)
 	ok(await wait_until(func(): return m.flags.allows(["ouviu_teste"])), "escuta: ouviu as falas escritas e o marcador da ligação liga")
-	var heard := ea.suspicion
-	ok(heard > Eavesdrop.CLICK and m.flags.allows(["escutou_%d" % m.night_no]), "escuta: ouvindo, a suspeita sobe e o marcador liga")
+	ok(m.flags.allows(["ouviu_hora"]), "escuta: e o da fala ouvida")
+	ok(ea.suspicion > Eavesdrop.CLICK and m.flags.allows(["escutou_%d" % m.night_no]), "escuta: ouvindo, a suspeita sobe e o marcador liga")
 	ok(m.phone.shown() != ea and m.phone.shown().line == el, "escuta: a tela mostra o que se ouve (fora do registro da ligação)")
+	ok(await wait_until(func(): return ex.line(el) == Exchange.Line.DONE), "escuta: depois da última fala escrita, eles se despedem e desligam")
+	ok(not ex.key(el) and not b.lever_up(el), "escuta: a conversa acabou e a chave desceu")
+	_move(0, -1)
+	_move(1, -1)
+	_move(2, -1)
+	ok(ex.line(el) == Exchange.Line.FREE and ex.dest(et) == Exchange.Dest.FREE, "escuta: linha e destino liberados")
+	# a mesma ligação sem falas escritas (só o murmúrio, até o fim do TALK_LEN): alavanca, estalo e denúncia
+	ed.overheard = []
+	ed.wary = 1.0
+	ea = _extra(ed)
+	ea.away = false
+	m.ring(ea)
+	el = ea.line
+	et = int(ea.target)
+	_move(0, el)
+	m.answer()
+	ok(await wait_until(_awaiting(ea)), "escuta: pedido de transferência de novo")
+	_move(1, el + 10)
+	_move(2, et)
+	m.transfer()
+	ok(await wait_until(func(): return ea.connected), "escuta: conectada de novo")
+	ex.set_line(el, Exchange.Line.CONN, m.minutes + 200.0)
+	m.listen()
+	await frames(30)
+	var heard := ea.suspicion
 	m.listen()
 	await frames(10)
 	ok(not ex.key(el) and ea.suspicion < heard, "escuta: a chave desce e a suspeita baixa devagar")
@@ -504,6 +574,11 @@ func _initialize() -> void:
 	_move(1, -1)
 	_move(2, -1)
 	ok(ex.line(el) == Exchange.Line.FREE and ex.dest(et) == Exchange.Dest.FREE, "escuta: linha e destino liberados")
+	var lesson := _extra(GameData.transfers(TransferCall.Group.ESTABLISHMENT)[0])
+	lesson.line = el
+	lesson.lesson = true
+	m.eavesdrop.connected(lesson)
+	ok(not m.eavesdrop.calls.has(el), "escuta: a conversa do treinamento não se escuta")
 	print("OK 1a escuta")
 
 	# ---- 1b. interurbano: a saída no tronco da cidade; a telefonista de lá pede o número e completa

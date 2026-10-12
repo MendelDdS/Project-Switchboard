@@ -20,6 +20,10 @@ msgid "Quero saber se amanhã chega querosene."
 msgstr "I want to know if the kerosene comes in tomorrow."
 
 #: data/content.tres
+msgid "Armazém Ferreira, boa noite."
+msgstr "Ferreira's Store, good evening."
+
+#: data/content.tres
 msgid "do Armazém Ferreira"
 msgstr "for the Armazém Ferreira"
 
@@ -36,12 +40,160 @@ msgid "Preciso dar um recado pra um amigo que tá lá."
 msgstr "I need to pass a message to a friend who's there."
 
 #: data/content.tres
+msgid "Boa noite, Zé. O Baixinho ainda está por aí? O de boné."
+msgstr "Evening, Zé. Is Shorty still around? The one in the cap."
+
+#: data/content.tres
+msgid "Está aqui no balcão. Quer que eu chame?"
+msgstr "He's here at the counter. Want me to get him?"
+
+#: data/content.tres
+msgid "Não precisa. Só avisa que amanhã a pescaria mudou pras {dawn}."
+msgstr "No need. Just tell him tomorrow's fishing moved to {dawn}."
+
+#: data/content.tres
+msgid "Pras {dawn}. Pode deixar que eu falo."
+msgstr "To {dawn}. Leave it to me, I'll tell him."
+
+#: data/content.tres
+msgid "E diz pra ele não esquecer as iscas, que da outra vez esqueceu."
+msgstr "And tell him not to forget the bait, he forgot it last time."
+
+#: data/content.tres
+msgid "Vou falar. Ele vai reclamar, mas eu falo."
+msgstr "I'll tell him. He'll grumble, but I'll tell him."
+
+#: data/content.tres
+msgid "Boa noite, Zé. O Alemão passou por aí hoje?"
+msgstr "Evening, Zé. Has Whitey been by today?"
+
+#: data/content.tres
+msgid "Está aqui, jogando dominó."
+msgstr "He's here, playing dominoes."
+
+#: data/content.tres
+msgid "Diz pra ele que o carro dele está pronto, pode buscar."
+msgstr "Tell him his car's ready, he can pick it up."
+
+#: data/content.tres
+msgid "O carro pronto. E ele paga quando?"
+msgstr "Car's ready. And when does he pay?"
+
+#: data/content.tres
+msgid "Amanhã, até as {hour}, senão eu cobro juros."
+msgstr "Tomorrow, by {hour}, or I charge interest."
+
+#: data/content.tres
+msgid "Vou falar exatamente assim."
+msgstr "I'll tell him just like that."
+
+#: data/content.tres
 msgid "Acho que esqueci meu chapéu lá."
 msgstr "I think I left my hat there."
 
 #: data/content.tres
+msgid "Boa noite. Acho que esqueci meu chapéu aí hoje à tarde."
+msgstr "Good evening. I think I left my hat there this afternoon."
+
+#: data/content.tres
+msgid "Chapéu de palha ou de feltro?"
+msgstr "Straw hat or felt?"
+
+#: data/content.tres
+msgid "De feltro, {color}, com uma fita escura."
+msgstr "Felt, {color}, with a dark band."
+
+#: data/content.tres
+msgid "Tem um desses pendurado aqui atrás do balcão."
+msgstr "There's one like that hanging behind the counter."
+
+#: data/content.tres
+msgid "É esse! Guarda pra mim, que amanhã eu passo aí."
+msgstr "That's it! Keep it for me, I'll stop by tomorrow."
+
+#: data/content.tres
+msgid "Fica guardado. Ninguém mexe nas coisas daqui."
+msgstr "It'll be here. Nobody touches things in here."
+
+#: data/content.tres
+msgid "Boa noite. Esqueci meu chapéu aí. Alguém achou?"
+msgstr "Good evening. I left my hat there. Did anyone find it?"
+
+#: data/content.tres
+msgid "Achou, sim. Mas tem dois aqui. Como é o seu?"
+msgstr "Yes. But there are two here. What's yours like?"
+
+#: data/content.tres
+msgid "Um {color}, com uma pena do lado."
+msgstr "A {color} one, with a feather on the side."
+
+#: data/content.tres
+msgid "Esse está aqui comigo. O outro é de um freguês."
+msgstr "That one's here with me. The other's a customer's."
+
+#: data/content.tres
+msgid "Guarda pra mim? Busco amanhã depois das {hour}."
+msgstr "Keep it for me? I'll pick it up tomorrow after {hour}."
+
+#: data/content.tres
+msgid "Fica atrás do balcão, esperando."
+msgstr "It'll be behind the counter, waiting."
+
+#: data/content.tres
 msgid "Quero saber se o jogo ainda tá passando na televisão de lá."
 msgstr "I want to know if the game is still on their TV."
+
+#: data/content.tres
+msgid "Boa noite. O jogo ainda está passando aí na televisão?"
+msgstr "Good evening. Is the game still on the TV there?"
+
+#: data/content.tres
+msgid "Está no segundo tempo. Todo mundo grudado na tela."
+msgstr "It's the second half. Everyone's glued to the screen."
+
+#: data/content.tres
+msgid "E o placar, como está?"
+msgstr "And the score?"
+
+#: data/content.tres
+msgid "{score}. Quase saiu um gol agora há pouco."
+msgstr "{score}. A goal nearly went in just now."
+
+#: data/content.tres
+msgid "Guarda uma cadeira pra mim, que eu estou indo aí."
+msgstr "Save me a chair, I'm on my way."
+
+#: data/content.tres
+msgid "Vem logo, que aqui não cabe mais ninguém."
+msgstr "Come quick, there's no room left in here."
+
+#: data/content.tres
+msgid "Boa noite. O jogo já acabou aí?"
+msgstr "Good evening. Is the game over there?"
+
+#: data/content.tres
+msgid "Acabou agora. Ficou {score}."
+msgstr "Just ended. It finished {score}."
+
+#: data/content.tres
+msgid "E o pessoal, está todo mundo bravo?"
+msgstr "And the crowd, is everyone sore?"
+
+#: data/content.tres
+msgid "Uns comemorando, outros xingando o juiz."
+msgstr "Some celebrating, some cursing the referee."
+
+#: data/content.tres
+msgid "Então nem vou aí hoje."
+msgstr "Then I won't come over tonight."
+
+#: data/content.tres
+msgid "Faz bem. Hoje a discussão está feia."
+msgstr "Wise. The arguing's ugly tonight."
+
+#: data/content.tres
+msgid "Bar do Zé, pode falar."
+msgstr "Zé's Bar, go ahead."
 
 #: data/content.tres
 msgid "do Bar do Zé"
@@ -62,6 +214,10 @@ msgstr "I want to order milk and cheese for tomorrow."
 #: data/content.tres
 msgid "Meu filho trabalha lá e ainda não voltou pra casa."
 msgstr "My son works there and he hasn't come home yet."
+
+#: data/content.tres
+msgid "Sítio Boa Esperança, pois não?"
+msgstr "Boa Esperança Farm, yes?"
 
 #: data/content.tres
 msgid "do Sítio Boa Esperança"
@@ -92,6 +248,10 @@ msgid "Quero pedir uma visita do padre pra minha mãe, que está de cama."
 msgstr "I'd like the priest to visit my mother, she's bedridden."
 
 #: data/content.tres
+msgid "Casa Paroquial, boa noite."
+msgstr "Parish house, good evening."
+
+#: data/content.tres
 msgid "da Casa Paroquial"
 msgstr "for the Casa Paroquial"
 
@@ -108,8 +268,108 @@ msgid "Quero saber que filme passa amanhã."
 msgstr "I want to know what film is showing tomorrow."
 
 #: data/content.tres
+msgid "Boa noite. Que filme passa amanhã?"
+msgstr "Good evening. What's showing tomorrow?"
+
+#: data/content.tres
+msgid "Amanhã passa {film}, na sessão das {hour}."
+msgstr "Tomorrow it's {film}, at the {hour} o'clock show."
+
+#: data/content.tres
+msgid "Lá em casa todo mundo vai gostar."
+msgstr "Everyone at home will like that."
+
+#: data/content.tres
+msgid "Chega cedo, que a sala enche."
+msgstr "Come early, the house fills up."
+
+#: data/content.tres
+msgid "Precisa comprar o ingresso antes?"
+msgstr "Do I need to buy the ticket ahead?"
+
+#: data/content.tres
+msgid "A bilheteria abre meia hora antes da sessão."
+msgstr "The box office opens half an hour before the show."
+
+#: data/content.tres
+msgid "Boa noite. Amanhã tem matinê?"
+msgstr "Good evening. Is there a matinee tomorrow?"
+
+#: data/content.tres
+msgid "Tem, às três da tarde. É {film}."
+msgstr "Yes, at three in the afternoon. It's {film}."
+
+#: data/content.tres
+msgid "Criança pode entrar?"
+msgstr "Can children come in?"
+
+#: data/content.tres
+msgid "Pode, acompanhada de um adulto."
+msgstr "Yes, with an adult."
+
+#: data/content.tres
+msgid "Então vou levar meus sobrinhos."
+msgstr "Then I'll bring my nephews and nieces."
+
+#: data/content.tres
+msgid "Chega cedo, que matinê lota."
+msgstr "Come early, matinees fill up."
+
+#: data/content.tres
 msgid "Esqueci meu guarda-chuva na sessão das oito."
 msgstr "I left my umbrella at the eight o'clock show."
+
+#: data/content.tres
+msgid "Boa noite. Esqueci um guarda-chuva na sessão das oito."
+msgstr "Good evening. I left an umbrella at the eight o'clock show."
+
+#: data/content.tres
+msgid "O lanterninha recolheu uns três hoje. Como é o seu?"
+msgstr "The usher picked up about three today. What's yours like?"
+
+#: data/content.tres
+msgid "{color}, com o cabo de madeira curvado."
+msgstr "{color}, with a curved wooden handle."
+
+#: data/content.tres
+msgid "Tem um assim aqui na bilheteria."
+msgstr "There's one like that here at the box office."
+
+#: data/content.tres
+msgid "Ainda bem. Posso buscar amanhã?"
+msgstr "Thank goodness. Can I pick it up tomorrow?"
+
+#: data/content.tres
+msgid "Pode. É só pedir na bilheteria."
+msgstr "Sure. Just ask at the box office."
+
+#: data/content.tres
+msgid "Boa noite. Deixei meu guarda-chuva na poltrona, na sessão das oito."
+msgstr "Good evening. I left my umbrella on my seat at the eight o'clock show."
+
+#: data/content.tres
+msgid "Em que fileira você sentou?"
+msgstr "Which row were you in?"
+
+#: data/content.tres
+msgid "Lá no fundo, perto da porta."
+msgstr "Way at the back, near the door."
+
+#: data/content.tres
+msgid "O lanterninha achou um {color} lá atrás."
+msgstr "The usher found a {color} one back there."
+
+#: data/content.tres
+msgid "Deve ser o meu. Posso buscar amanhã?"
+msgstr "Must be mine. Can I pick it up tomorrow?"
+
+#: data/content.tres
+msgid "Pode. Fica guardado na bilheteria."
+msgstr "Sure. It'll be kept at the box office."
+
+#: data/content.tres
+msgid "Cine Odeon, boa noite."
+msgstr "Odeon Cinema, good evening."
 
 #: data/content.tres
 msgid "do Cine Odeon"
@@ -122,6 +382,10 @@ msgstr "to the Cine Odeon"
 #: data/content.tres
 msgid "recepção"
 msgstr "front desk"
+
+#: data/content.tres
+msgid "Clínica São Lucas, recepção."
+msgstr "São Lucas Clinic, front desk."
 
 #: data/content.tres
 msgid "o seu Geraldo Martins"
@@ -196,6 +460,10 @@ msgid "Preciso de um remédio pra pressão."
 msgstr "I need some blood pressure medicine."
 
 #: data/content.tres
+msgid "Farmácia Central, boa noite."
+msgstr "Central Pharmacy, good evening."
+
+#: data/content.tres
 msgid "da Farmácia Central"
 msgstr "for the Farmácia Central"
 
@@ -220,6 +488,10 @@ msgid "Quero saber se tem xarope pra tosse."
 msgstr "I want to know if they have cough syrup."
 
 #: data/content.tres
+msgid "Farmácia Santa Rita, boa noite."
+msgstr "Santa Rita Pharmacy, good evening."
+
+#: data/content.tres
 msgid "da Farmácia Santa Rita"
 msgstr "for the Farmácia Santa Rita"
 
@@ -236,8 +508,108 @@ msgid "Meu tio faleceu agora há pouco."
 msgstr "My uncle passed away a little while ago."
 
 #: data/content.tres
+msgid "Boa noite. Meu tio faleceu agora há pouco, em casa."
+msgstr "Good evening. My uncle passed away a little while ago, at home."
+
+#: data/content.tres
+msgid "Meus sentimentos. O médico já veio atestar?"
+msgstr "My condolences. Has the doctor come to certify?"
+
+#: data/content.tres
+msgid "Já veio. Disse que foi o coração."
+msgstr "He has. He said it was his heart."
+
+#: data/content.tres
+msgid "Então eu mando o carro buscar. Qual é o endereço?"
+msgstr "Then I'll send the car. What's the address?"
+
+#: data/content.tres
+msgid "{street}, {house}. A casa do portão {color}."
+msgstr "{street}, {house}. The house with the {color} gate."
+
+#: data/content.tres
+msgid "Chegamos em {wait}. Separe uma roupa pra ele."
+msgstr "We'll be there in {wait}. Set aside some clothes for him."
+
+#: data/content.tres
+msgid "Boa noite. Minha avó faleceu agora há pouco."
+msgstr "Good evening. My grandmother passed away a little while ago."
+
+#: data/content.tres
+msgid "Meus sentimentos. Foi em casa ou no hospital?"
+msgstr "My condolences. At home or in the hospital?"
+
+#: data/content.tres
+msgid "Em casa, dormindo. O médico já veio."
+msgstr "At home, in her sleep. The doctor's been."
+
+#: data/content.tres
+msgid "Vocês querem o velório em casa ou na capela?"
+msgstr "Do you want the wake at home or at the chapel?"
+
+#: data/content.tres
+msgid "Em casa. Ela morava na {street}, {house}."
+msgstr "At home. She lived at {street}, {house}."
+
+#: data/content.tres
+msgid "Então levo as coisas pra lá em {wait}."
+msgstr "Then I'll bring everything over in {wait}."
+
+#: data/content.tres
 msgid "Preciso acertar o velório de amanhã."
 msgstr "I need to arrange tomorrow's wake."
+
+#: data/content.tres
+msgid "Boa noite. Preciso acertar as coisas do velório de amanhã."
+msgstr "Good evening. I need to sort out tomorrow's wake."
+
+#: data/content.tres
+msgid "Pois não. Vai ser na capela ou em casa?"
+msgstr "Of course. Will it be at the chapel or at home?"
+
+#: data/content.tres
+msgid "Na capela. A família quer de manhã, cedo."
+msgstr "At the chapel. The family wants it early in the morning."
+
+#: data/content.tres
+msgid "Às oito a capela está livre. Precisa de flores?"
+msgstr "The chapel's free at eight. Do you need flowers?"
+
+#: data/content.tres
+msgid "Uma coroa só, simples. Com o nome da família."
+msgstr "Just one wreath, simple. With the family name."
+
+#: data/content.tres
+msgid "Anotado. Às sete eu abro a capela."
+msgstr "Noted. I'll open the chapel at seven."
+
+#: data/content.tres
+msgid "Boa noite. Queria saber o preço do caixão e do velório."
+msgstr "Good evening. I'd like to know the price of the coffin and the wake."
+
+#: data/content.tres
+msgid "Depende da madeira. Tem o simples e o envernizado."
+msgstr "Depends on the wood. There's plain and varnished."
+
+#: data/content.tres
+msgid "O simples. A família não tem muito."
+msgstr "The plain one. The family hasn't much."
+
+#: data/content.tres
+msgid "O simples já vem com as velas e o pano."
+msgstr "The plain one comes with the candles and the cloth."
+
+#: data/content.tres
+msgid "E a coroa de flores, vocês fazem também?"
+msgstr "And the wreath, do you do that too?"
+
+#: data/content.tres
+msgid "Faço. Passa aqui amanhã que a gente acerta tudo."
+msgstr "I do. Come by tomorrow and we'll settle everything."
+
+#: data/content.tres
+msgid "Funerária Paz Eterna, boa noite."
+msgstr "Paz Eterna Funeral Home, good evening."
 
 #: data/content.tres
 msgid "da Funerária Paz Eterna"
@@ -256,8 +628,108 @@ msgid "Preciso de um quarto pra esta noite."
 msgstr "I need a room for tonight."
 
 #: data/content.tres
+msgid "Boa noite. Vocês ainda têm quarto pra hoje?"
+msgstr "Good evening. Do you still have a room for tonight?"
+
+#: data/content.tres
+msgid "Tenho um de solteiro, no andar de cima. Pra quantas noites?"
+msgstr "I have a single, upstairs. For how many nights?"
+
+#: data/content.tres
+msgid "Só esta. Amanhã cedo eu sigo viagem."
+msgstr "Just tonight. I'm moving on early tomorrow."
+
+#: data/content.tres
+msgid "A diária é com café da manhã, paga na chegada."
+msgstr "Breakfast is included, paid on arrival."
+
+#: data/content.tres
+msgid "Pode segurar pra mim? Chego em {wait}."
+msgstr "Can you hold it for me? I'll be there in {wait}."
+
+#: data/content.tres
+msgid "Seguro até as {hour}. Qual o nome, por favor?"
+msgstr "I'll hold it until {hour}. What's the name, please?"
+
+#: data/content.tres
+msgid "Boa noite. Perdi o último ônibus. Tem onde dormir aí hoje?"
+msgstr "Good evening. I missed the last bus. Is there a bed for tonight?"
+
+#: data/content.tres
+msgid "Tem um quarto pequeno, perto da escada. É meio barulhento."
+msgstr "There's a small room by the stairs. It's a bit noisy."
+
+#: data/content.tres
+msgid "Não faz mal, é só pra esta noite."
+msgstr "Doesn't matter, it's just for tonight."
+
+#: data/content.tres
+msgid "Então pode vir. A porta fica aberta até as {hour}."
+msgstr "Then come on over. The door stays open until {hour}."
+
+#: data/content.tres
+msgid "Aceita pagar amanhã cedo? Hoje estou sem trocado."
+msgstr "Can I pay first thing tomorrow? I've no change tonight."
+
+#: data/content.tres
+msgid "Aceito. Só deixa o documento comigo na chegada."
+msgstr "All right. Just leave your papers with me when you arrive."
+
+#: data/content.tres
 msgid "Quero saber se ainda tem quarto vago pra amanhã."
 msgstr "I want to know if there's still a room free for tomorrow."
+
+#: data/content.tres
+msgid "Boa noite. Queria reservar um quarto pra amanhã. Ainda tem vago?"
+msgstr "Good evening. I'd like to book a room for tomorrow. Is there one free?"
+
+#: data/content.tres
+msgid "Amanhã está quase cheio. Sobrou um de casal, nos fundos."
+msgstr "Tomorrow is nearly full. There's one double left, at the back."
+
+#: data/content.tres
+msgid "Serve. São {nights}, a partir de amanhã."
+msgstr "That'll do. It's {nights}, starting tomorrow."
+
+#: data/content.tres
+msgid "{nights}. Vou anotar aqui no livro."
+msgstr "{nights}. I'll write it in the book."
+
+#: data/content.tres
+msgid "Chego no ônibus da tarde. Posso pagar quando chegar?"
+msgstr "I'm coming on the afternoon bus. Can I pay when I get there?"
+
+#: data/content.tres
+msgid "Pode, sim. Só não passe das {hour}, que a portaria fecha."
+msgstr "Of course. Just don't come after {hour}, the front door closes."
+
+#: data/content.tres
+msgid "Boa noite. Amanhã chega um parente meu de viagem. Tem quarto?"
+msgstr "Good evening. A relative of mine arrives tomorrow. Any rooms?"
+
+#: data/content.tres
+msgid "Pra amanhã tem, sim. Quantas pessoas?"
+msgstr "For tomorrow, yes. How many people?"
+
+#: data/content.tres
+msgid "Uma só. Fica {nights}."
+msgstr "Just one. Staying {nights}."
+
+#: data/content.tres
+msgid "Fica no quarto da frente, com janela pra rua."
+msgstr "That'll be the front room, with a window on the street."
+
+#: data/content.tres
+msgid "Pode deixar no meu nome? Eu passo aí pra acertar."
+msgstr "Can you put it under my name? I'll come by to settle it."
+
+#: data/content.tres
+msgid "Deixo. Pode passar a qualquer hora pra acertar."
+msgstr "Done. Come by any time to settle it."
+
+#: data/content.tres
+msgid "Hotel Estrela, boa noite."
+msgstr "Hotel Estrela, good evening."
 
 #: data/content.tres
 msgid "do Hotel Estrela"
@@ -282,6 +754,10 @@ msgstr "I want to know what time Sunday mass is."
 #: data/content.tres
 msgid "Quero marcar o batizado do meu neto."
 msgstr "I want to schedule my grandson's baptism."
+
+#: data/content.tres
+msgid "Igreja Matriz, secretaria."
+msgstr "Main Church, parish office."
 
 #: data/content.tres
 msgid "da Igreja Matriz"
@@ -324,6 +800,10 @@ msgid "Quero deixar uma encomenda pra amanhã cedo."
 msgstr "I want to place an order for early tomorrow."
 
 #: data/content.tres
+msgid "Mercearia Silva, boa noite."
+msgstr "Silva's Grocery, good evening."
+
+#: data/content.tres
 msgid "da Mercearia Silva"
 msgstr "for the Mercearia Silva"
 
@@ -360,8 +840,108 @@ msgid "Meu carro atolou na estrada do moinho."
 msgstr "My car got stuck in the mud on the mill road."
 
 #: data/content.tres
+msgid "Boa noite. O carro atolou na estrada do moinho. A roda afundou toda."
+msgstr "Good evening. My car's stuck on the mill road. The wheel sank right in."
+
+#: data/content.tres
+msgid "Na estrada de terra? Aquele trecho depois da ponte?"
+msgstr "On the dirt road? That stretch past the bridge?"
+
+#: data/content.tres
+msgid "Isso, logo depois da ponte. Não vai nem pra frente nem pra trás."
+msgstr "That's it, just past the bridge. It won't go forward or back."
+
+#: data/content.tres
+msgid "Vou ter que ir com a caminhonete e a corda. Chego em {wait}."
+msgstr "I'll have to bring the pickup and the rope. I'll be there in {wait}."
+
+#: data/content.tres
+msgid "Eu espero aqui no carro, com o pisca ligado."
+msgstr "I'll wait here in the car, hazard lights on."
+
+#: data/content.tres
+msgid "Não sai de perto. Já estou pegando a lanterna."
+msgstr "Stay close to it. I'm grabbing the flashlight now."
+
+#: data/content.tres
+msgid "Boa noite. Atolei o carro na estrada do moinho."
+msgstr "Good evening. I got the car stuck on the mill road."
+
+#: data/content.tres
+msgid "De novo aquele barro? Em que altura?"
+msgstr "That mud again? Where along it?"
+
+#: data/content.tres
+msgid "Perto da porteira da fazenda, depois da curva grande."
+msgstr "Near the farm gate, past the big bend."
+
+#: data/content.tres
+msgid "Sei onde é. Tem alguém aí com você?"
+msgstr "I know the spot. Anyone there with you?"
+
+#: data/content.tres
+msgid "Não, só eu. E está escuro demais."
+msgstr "No, just me. And it's awfully dark."
+
+#: data/content.tres
+msgid "Fica dentro do carro. Chego em {wait}."
+msgstr "Stay in the car. I'll be there in {wait}."
+
+#: data/content.tres
 msgid "O caminhão não quer pegar de jeito nenhum."
 msgstr "The truck just won't start."
+
+#: data/content.tres
+msgid "Boa noite. O caminhão não pega. Gira, gira e não pega."
+msgstr "Good evening. The truck won't start. It turns and turns and won't catch."
+
+#: data/content.tres
+msgid "Faz barulho de quê? Estala, ou nem isso?"
+msgstr "What does it sound like? Does it click, or not even that?"
+
+#: data/content.tres
+msgid "Estala e morre. As luzes acendem, a bateria parece boa."
+msgstr "It clicks and dies. The lights come on, the battery seems fine."
+
+#: data/content.tres
+msgid "Pode ser o combustível. Tem óleo no tanque?"
+msgstr "Could be the fuel. Is there diesel in the tank?"
+
+#: data/content.tres
+msgid "Tem, enchi hoje de manhã no posto."
+msgstr "Yes, I filled up this morning."
+
+#: data/content.tres
+msgid "Então vou aí dar uma olhada. Me diz direitinho onde você está."
+msgstr "Then I'll come take a look. Tell me exactly where you are."
+
+#: data/content.tres
+msgid "Boa noite. Meu caminhão parou e não pega mais."
+msgstr "Good evening. My truck stalled and won't start again."
+
+#: data/content.tres
+msgid "Parou como? Foi morrendo aos poucos?"
+msgstr "Stalled how? Did it die bit by bit?"
+
+#: data/content.tres
+msgid "Foi engasgando e apagou. Agora nem tenta pegar."
+msgstr "It sputtered and cut out. Now it won't even try."
+
+#: data/content.tres
+msgid "Pode ser a correia. Onde ele está?"
+msgstr "Could be the belt. Where is it?"
+
+#: data/content.tres
+msgid "Na {street}, perto do número {house}."
+msgstr "On {street}, near number {house}."
+
+#: data/content.tres
+msgid "Vou aí com a caixa de ferramentas. Chego em {wait}."
+msgstr "I'll come with the toolbox. I'll be there in {wait}."
+
+#: data/content.tres
+msgid "Oficina do Tião, boa noite."
+msgstr "Tião's Garage, good evening."
 
 #: data/content.tres
 msgid "da Oficina do Tião"
@@ -382,6 +962,10 @@ msgstr "I want to order bread for early tomorrow."
 #: data/content.tres
 msgid "Esqueci o troco lá hoje de manhã."
 msgstr "I forgot my change there this morning."
+
+#: data/content.tres
+msgid "Padaria Pão Dourado, boa noite."
+msgstr "Pão Dourado Bakery, good evening."
 
 #: data/content.tres
 msgid "da Padaria Pão Dourado"
@@ -420,8 +1004,108 @@ msgid "Tô quase sem gasolina."
 msgstr "I'm almost out of gas."
 
 #: data/content.tres
+msgid "Boa noite. Vocês ainda estão abertos? Estou quase sem gasolina."
+msgstr "Good evening. Are you still open? I'm almost out of gas."
+
+#: data/content.tres
+msgid "Até a meia-noite. De onde você está vindo?"
+msgstr "Until midnight. Where are you coming from?"
+
+#: data/content.tres
+msgid "Da estrada do moinho. O ponteiro já está no fim."
+msgstr "From the mill road. The needle's on empty."
+
+#: data/content.tres
+msgid "Então desce devagar, sem acelerar muito, que dá."
+msgstr "Then come down slowly, easy on the gas, and you'll make it."
+
+#: data/content.tres
+msgid "E se não der?"
+msgstr "And if I don't?"
+
+#: data/content.tres
+msgid "Se não der, liga de novo que eu levo um galão aí."
+msgstr "If you don't, call again and I'll bring you a can."
+
+#: data/content.tres
+msgid "Boa noite. O carro está na reserva. Dá pra chegar aí?"
+msgstr "Good evening. The car's on reserve. Can I make it there?"
+
+#: data/content.tres
+msgid "De onde você vem?"
+msgstr "Where are you coming from?"
+
+#: data/content.tres
+msgid "Da {street}, lá perto do número {house}."
+msgstr "From {street}, near number {house}."
+
+#: data/content.tres
+msgid "Dá, é pertinho. Vem devagar."
+msgstr "You'll make it, it's close. Drive slowly."
+
+#: data/content.tres
+msgid "Vocês fecham que horas?"
+msgstr "What time do you close?"
+
+#: data/content.tres
+msgid "Hoje eu fico até as {hour}. Depois, só amanhã."
+msgstr "Tonight I'm here until {hour}. After that, tomorrow."
+
+#: data/content.tres
 msgid "Quero saber se o posto ainda está aberto."
 msgstr "I want to know if the gas station is still open."
+
+#: data/content.tres
+msgid "Boa noite. O posto ainda está aberto?"
+msgstr "Good evening. Is the station still open?"
+
+#: data/content.tres
+msgid "Aberto até a meia-noite, como sempre."
+msgstr "Open till midnight, as always."
+
+#: data/content.tres
+msgid "Ainda bem. Preciso encher o tanque pra viajar amanhã cedo."
+msgstr "Good. I need to fill up for a trip early tomorrow."
+
+#: data/content.tres
+msgid "Vem agora, que de manhã a fila é grande."
+msgstr "Come now, the line's long in the morning."
+
+#: data/content.tres
+msgid "Vocês calibram pneu também?"
+msgstr "Do you do tire air too?"
+
+#: data/content.tres
+msgid "Tem ar, sim. Fica do lado da bomba, pode usar à vontade."
+msgstr "Yes, there's air. It's by the pump, help yourself."
+
+#: data/content.tres
+msgid "Boa noite. Ainda dá tempo de abastecer?"
+msgstr "Good evening. Is there still time to fill up?"
+
+#: data/content.tres
+msgid "Dá. Hoje eu fecho às {hour}."
+msgstr "There is. Tonight I close at {hour}."
+
+#: data/content.tres
+msgid "Vocês trocam óleo também?"
+msgstr "Do you change oil too?"
+
+#: data/content.tres
+msgid "Troca, mas só de dia. De noite é só a bomba."
+msgstr "We do, but only by day. At night it's just the pump."
+
+#: data/content.tres
+msgid "Então amanhã eu passo pra trocar."
+msgstr "Then I'll come by tomorrow for the oil."
+
+#: data/content.tres
+msgid "Vem cedo, que de manhã o mecânico está aqui."
+msgstr "Come early, the mechanic's here in the morning."
+
+#: data/content.tres
+msgid "Posto São Cristóvão, boa noite."
+msgstr "São Cristóvão Station, good evening."
 
 #: data/content.tres
 msgid "do Posto São Cristóvão"
@@ -444,6 +1128,10 @@ msgid "Saiu meu nome errado na edição de hoje."
 msgstr "They printed my name wrong in today's edition."
 
 #: data/content.tres
+msgid "Gazeta, redação."
+msgstr "Gazeta, newsroom."
+
+#: data/content.tres
 msgid "da Gazeta"
 msgstr "for the Gazeta"
 
@@ -460,8 +1148,108 @@ msgid "Quero pedir uma música."
 msgstr "I want to request a song."
 
 #: data/content.tres
+msgid "Boa noite. Queria pedir uma música pro programa da noite."
+msgstr "Good evening. I'd like to request a song for the night show."
+
+#: data/content.tres
+msgid "Pode pedir. Qual é a música?"
+msgstr "Go ahead. Which song?"
+
+#: data/content.tres
+msgid "Uma valsa antiga, aquela que tocava nos bailes do clube."
+msgstr "An old waltz, the one they played at the club dances."
+
+#: data/content.tres
+msgid "Tem várias. Sabe o nome de alguma?"
+msgstr "There are a few. Know the name?"
+
+#: data/content.tres
+msgid "O nome eu não lembro. Mas é a que todo mundo dançava no fim."
+msgstr "I don't remember the name. But it's the one everybody danced to at the end."
+
+#: data/content.tres
+msgid "Já sei qual é. Toca às {hour}. Ofereço pra quem?"
+msgstr "I know the one. It'll play at {hour}. Who's it for?"
+
+#: data/content.tres
+msgid "Boa noite. Queria oferecer uma música pra uma pessoa especial."
+msgstr "Good evening. I'd like to dedicate a song to someone special."
+
+#: data/content.tres
+msgid "Pode falar. Qual música?"
+msgstr "Go ahead. Which song?"
+
+#: data/content.tres
+msgid "Uma moda de viola, daquelas bem antigas."
+msgstr "A country ballad, one of the really old ones."
+
+#: data/content.tres
+msgid "Tenho umas três aqui. Ofereço em nome de quem?"
+msgstr "I've got about three here. From whom shall I say?"
+
+#: data/content.tres
+msgid "Diz só que é de alguém que não esqueceu."
+msgstr "Just say it's from someone who hasn't forgotten."
+
+#: data/content.tres
+msgid "Vai ao ar às {hour}, no programa dos pedidos."
+msgstr "It goes out at {hour}, on the request show."
+
+#: data/content.tres
 msgid "Quero mandar um recado pra um parente que trabalha na roça."
 msgstr "I want to send a message to a relative who works out on the farm."
+
+#: data/content.tres
+msgid "Boa noite. Queria mandar um recado pelo rádio."
+msgstr "Good evening. I'd like to send a message over the radio."
+
+#: data/content.tres
+msgid "Recado pra quem, e de quem?"
+msgstr "A message for whom, and from whom?"
+
+#: data/content.tres
+msgid "Pro meu primo, que trabalha na colheita. Diz que a família está bem."
+msgstr "For my cousin, who works the harvest. Say the family's well."
+
+#: data/content.tres
+msgid "Só isso? Que a família está bem?"
+msgstr "That's all? That the family's well?"
+
+#: data/content.tres
+msgid "E que é pra ele descer no fim do mês, que a gente espera."
+msgstr "And that he should come down at the end of the month, we'll be waiting."
+
+#: data/content.tres
+msgid "Vai ao ar às {hour}, no quadro dos recados."
+msgstr "It goes out at {hour}, in the messages segment."
+
+#: data/content.tres
+msgid "Boa noite. Dá pra mandar um recado pra roça pelo programa?"
+msgstr "Good evening. Can I send a message out to the farms on the show?"
+
+#: data/content.tres
+msgid "Dá. Pra quem é o recado?"
+msgstr "You can. Who's the message for?"
+
+#: data/content.tres
+msgid "Pro meu tio, que está no sítio. Diz pra ele descer na feira."
+msgstr "For my uncle, out at the farm. Tell him to come down for the market."
+
+#: data/content.tres
+msgid "Na feira de quando?"
+msgstr "Which market day?"
+
+#: data/content.tres
+msgid "Na de sábado. Tem gente esperando por ele."
+msgstr "Saturday's. There are people waiting for him."
+
+#: data/content.tres
+msgid "Vai ao ar às {hour}, depois das notícias."
+msgstr "It goes out at {hour}, after the news."
+
+#: data/content.tres
+msgid "Rádio Serena, boa noite."
+msgstr "Radio Serena, good evening."
 
 #: data/content.tres
 msgid "da Rádio Serena"
@@ -500,8 +1288,108 @@ msgid "Meu pai está aí jogando e não volta pra casa."
 msgstr "My father's there playing and won't come home."
 
 #: data/content.tres
+msgid "Boa noite. Meu pai está aí? Um senhor de bigode, de camisa xadrez."
+msgstr "Good evening. Is my father there? An older man with a mustache, plaid shirt."
+
+#: data/content.tres
+msgid "Está, sim. Na mesa do fundo, ganhando de todo mundo."
+msgstr "He is. At the back table, beating everyone."
+
+#: data/content.tres
+msgid "Fala pra ele que a mãe está esperando com a janta."
+msgstr "Tell him Mom's waiting with dinner."
+
+#: data/content.tres
+msgid "Falo, mas ele disse que só sai depois da última partida."
+msgstr "I will, but he said he's not leaving till the last game."
+
+#: data/content.tres
+msgid "Diz que a janta já esfriou duas vezes."
+msgstr "Tell him dinner's gone cold twice already."
+
+#: data/content.tres
+msgid "Esse recado eu dou. Aí ele vem rapidinho."
+msgstr "That one I'll pass on. He'll be home in no time."
+
+#: data/content.tres
+msgid "Boa noite. Meu pai está aí no bilhar?"
+msgstr "Good evening. Is my father there at the tables?"
+
+#: data/content.tres
+msgid "Está, sim. Jogando a dinheiro com uns rapazes."
+msgstr "He is. Playing for money with some young fellows."
+
+#: data/content.tres
+msgid "A dinheiro? Fala pra ele vir pra casa agora."
+msgstr "For money? Tell him to come home right now."
+
+#: data/content.tres
+msgid "Ele disse que só sai quando recuperar o que perdeu."
+msgstr "He says he won't leave till he wins back what he lost."
+
+#: data/content.tres
+msgid "Diz que a mãe está esperando acordada."
+msgstr "Tell him Mom's waiting up."
+
+#: data/content.tres
+msgid "Esse recado assusta mais. Vou falar."
+msgstr "That message is scarier. I'll tell him."
+
+#: data/content.tres
 msgid "Quero deixar um recado pro meu irmão, que joga aí toda noite."
 msgstr "I want to leave a message for my brother, he plays there every night."
+
+#: data/content.tres
+msgid "Boa noite. Meu irmão está aí? O magrinho, de óculos."
+msgstr "Good evening. Is my brother there? The skinny one with glasses."
+
+#: data/content.tres
+msgid "Está aqui, esperando a vez dele na mesa."
+msgstr "He's here, waiting for his turn at the table."
+
+#: data/content.tres
+msgid "Avisa que a moto dele ficou com o farol aceso na frente de casa."
+msgstr "Tell him he left his motorbike's headlight on in front of the house."
+
+#: data/content.tres
+msgid "O farol aceso? Vou falar agora, senão amanhã não pega."
+msgstr "The headlight on? I'll tell him now, or it won't start tomorrow."
+
+#: data/content.tres
+msgid "Isso. E diz que eu não vou lá apagar, não."
+msgstr "Right. And tell him I'm not going out to turn it off."
+
+#: data/content.tres
+msgid "Pode deixar, eu falo assim mesmo."
+msgstr "Leave it to me, I'll tell him just like that."
+
+#: data/content.tres
+msgid "Boa noite. Meu irmão está aí? O de chapéu {color}."
+msgstr "Good evening. Is my brother there? The one in the {color} hat."
+
+#: data/content.tres
+msgid "Está, na mesa do canto."
+msgstr "He is, at the corner table."
+
+#: data/content.tres
+msgid "Avisa que amanhã ele começa no serviço às {dawn}."
+msgstr "Tell him he starts work tomorrow at {dawn}."
+
+#: data/content.tres
+msgid "Às {dawn}? Vou falar, mas ele não vai gostar."
+msgstr "At {dawn}? I'll tell him, but he won't like it."
+
+#: data/content.tres
+msgid "Diz que é ordem do patrão."
+msgstr "Tell him it's the boss's orders."
+
+#: data/content.tres
+msgid "Pode deixar. Falo agora mesmo."
+msgstr "Leave it to me. I'll tell him right now."
+
+#: data/content.tres
+msgid "Bilhar do Tonho, pode falar."
+msgstr "Tonho's Pool Hall, go ahead."
 
 #: data/content.tres
 msgid "do Bilhar do Tonho"
@@ -542,6 +1430,10 @@ msgstr "I need a car to the bus station."
 #: data/content.tres
 msgid "O último ônibus sai às onze e eu não posso perder."
 msgstr "The last bus leaves at eleven and I can't miss it."
+
+#: data/content.tres
+msgid "Ponto de táxi, boa noite."
+msgstr "Taxi stand, good evening."
 
 #: data/content.tres
 msgid "do ponto de táxi da rodoviária"
@@ -600,8 +1492,108 @@ msgid "Preciso de um quarto barato pra esta noite."
 msgstr "I need a cheap room for tonight."
 
 #: data/content.tres
+msgid "Boa noite. Tem quarto pra hoje? Coisa simples, só pra dormir."
+msgstr "Good evening. Any room for tonight? Something simple, just to sleep."
+
+#: data/content.tres
+msgid "Tem uma cama no quarto dos fundos. O banheiro é no corredor."
+msgstr "There's a bed in the back room. The bathroom is down the hall."
+
+#: data/content.tres
+msgid "Tá ótimo. E quanto fica?"
+msgstr "That's fine. How much is it?"
+
+#: data/content.tres
+msgid "Com café é um pouco mais. Sem café sai mais em conta."
+msgstr "With breakfast it's a little more. Without it's cheaper."
+
+#: data/content.tres
+msgid "Sem café, então. Daqui a {wait} eu chego."
+msgstr "Without, then. I'll be there in {wait}."
+
+#: data/content.tres
+msgid "Bate na janela do lado, que a porta da frente já está trancada."
+msgstr "Knock on the side window, the front door's already locked."
+
+#: data/content.tres
+msgid "Boa noite. Tem cama pra hoje? Não posso pagar muito."
+msgstr "Good evening. Got a bed for tonight? I can't pay much."
+
+#: data/content.tres
+msgid "Tem a do quarto coletivo. Divide com mais dois."
+msgstr "There's one in the shared room. You'd be with two others."
+
+#: data/content.tres
+msgid "Serve. Eles roncam?"
+msgstr "That'll do. Do they snore?"
+
+#: data/content.tres
+msgid "Um ronca, o outro fala dormindo. Mas são gente boa."
+msgstr "One snores, the other talks in his sleep. Good folks, though."
+
+#: data/content.tres
+msgid "Tá bom. Chego em {wait}."
+msgstr "All right. I'll be there in {wait}."
+
+#: data/content.tres
+msgid "Traz cobertor, se tiver. A noite aqui esfria."
+msgstr "Bring a blanket if you have one. It gets cold here at night."
+
+#: data/content.tres
 msgid "Quero saber se tem vaga pra dois pernoitarem."
 msgstr "I want to know if there's room for two for the night."
+
+#: data/content.tres
+msgid "Boa noite. Tem vaga pra duas pessoas? É só pra pernoitar."
+msgstr "Good evening. Any room for two? Just for the night."
+
+#: data/content.tres
+msgid "Pra dois tem o quarto da frente, com duas camas."
+msgstr "For two there's the front room, with two beds."
+
+#: data/content.tres
+msgid "Ótimo. A gente chegou no último ônibus e não tem onde ficar."
+msgstr "Great. We came on the last bus and have nowhere to stay."
+
+#: data/content.tres
+msgid "Então venham logo, que a rua aqui fica escura depois das {hour}."
+msgstr "Then come quickly, the street gets dark here after {hour}."
+
+#: data/content.tres
+msgid "Precisa levar alguma coisa? Documento?"
+msgstr "Do we need to bring anything? Papers?"
+
+#: data/content.tres
+msgid "Só o documento, pra anotar no livro de hóspedes."
+msgstr "Just your papers, for the guest book."
+
+#: data/content.tres
+msgid "Boa noite. Tem quarto pra duas pessoas, só esta noite?"
+msgstr "Good evening. Got a room for two, just tonight?"
+
+#: data/content.tres
+msgid "Tem, mas só com uma cama de casal."
+msgstr "Yes, but only with a double bed."
+
+#: data/content.tres
+msgid "Somos dois irmãos. Não tem com duas camas?"
+msgstr "We're siblings. Isn't there one with two beds?"
+
+#: data/content.tres
+msgid "Posso pôr um colchão no chão. Serve?"
+msgstr "I can put a mattress on the floor. Will that do?"
+
+#: data/content.tres
+msgid "Serve, sim. Chegamos em {wait}."
+msgstr "That'll do. We'll be there in {wait}."
+
+#: data/content.tres
+msgid "Vou deixar a luz da frente acesa pra vocês."
+msgstr "I'll leave the front light on for you."
+
+#: data/content.tres
+msgid "Pensão Dona Cota, pois não?"
+msgstr "Dona Cota's Boarding House, yes?"
 
 #: data/content.tres
 msgid "da Pensão Dona Cota"
@@ -620,8 +1612,108 @@ msgid "Furou o pneu do carro aqui na estrada."
 msgstr "I got a flat tire out here on the road."
 
 #: data/content.tres
+msgid "Boa noite. Furou o pneu, e o estepe também está vazio."
+msgstr "Good evening. I've got a flat, and the spare's flat too."
+
+#: data/content.tres
+msgid "Os dois? Aí não tem jeito, vou ter que ir até aí."
+msgstr "Both? Then there's nothing for it, I'll have to come out."
+
+#: data/content.tres
+msgid "Estou na saída da cidade, perto da placa de São Sotero."
+msgstr "I'm on the way out of town, near the São Sotero sign."
+
+#: data/content.tres
+msgid "Sei onde é. Levo um pneu e o macaco."
+msgstr "I know where that is. I'll bring a tire and the jack."
+
+#: data/content.tres
+msgid "Quanto tempo, mais ou menos?"
+msgstr "How long, more or less?"
+
+#: data/content.tres
+msgid "Coisa de {wait}. Liga o pisca, que de noite ninguém enxerga nada."
+msgstr "About {wait}. Put your hazards on, nobody sees a thing at night."
+
+#: data/content.tres
+msgid "Boa noite. Furou o pneu e eu não tenho macaco."
+msgstr "Good evening. I've got a flat and no jack."
+
+#: data/content.tres
+msgid "Sem macaco não tem jeito. Onde você está?"
+msgstr "No jack, no way. Where are you?"
+
+#: data/content.tres
+msgid "Na {street}, quase no número {house}."
+msgstr "On {street}, almost at number {house}."
+
+#: data/content.tres
+msgid "É perto, então. Dá pra ir a pé com o macaco."
+msgstr "That's close, then. I can walk over with the jack."
+
+#: data/content.tres
+msgid "Precisa levar alguma coisa?"
+msgstr "Do I need anything?"
+
+#: data/content.tres
+msgid "Só a lanterna, se tiver. Chego em {wait}."
+msgstr "Just a flashlight, if you have one. I'll be there in {wait}."
+
+#: data/content.tres
 msgid "O carro morreu no meio da rua e não pega."
 msgstr "The car died in the middle of the street and won't start."
+
+#: data/content.tres
+msgid "Boa noite. O carro morreu no meio da rua e não quer pegar."
+msgstr "Good evening. The car died in the middle of the street and won't start."
+
+#: data/content.tres
+msgid "Está atrapalhando o trânsito?"
+msgstr "Is it blocking traffic?"
+
+#: data/content.tres
+msgid "A essa hora não passa ninguém. Mas está bem no meio da rua."
+msgstr "Nobody's out at this hour. But it's right in the middle of the street."
+
+#: data/content.tres
+msgid "Empurra pro canto, se conseguir. Tem alguém aí pra ajudar?"
+msgstr "Push it to the side if you can. Anyone there to help?"
+
+#: data/content.tres
+msgid "Tem um rapaz aqui me ajudando a empurrar."
+msgstr "There's a young man here helping me push."
+
+#: data/content.tres
+msgid "Então empurra e me espera. Em {wait} eu chego."
+msgstr "Then push it over and wait for me. I'll be there in {wait}."
+
+#: data/content.tres
+msgid "Boa noite. O carro apagou aqui na {street} e não pega mais."
+msgstr "Good evening. The car cut out here on {street} and won't start."
+
+#: data/content.tres
+msgid "Fez algum barulho antes de apagar?"
+msgstr "Did it make any noise before it cut out?"
+
+#: data/content.tres
+msgid "Deu um estouro e saiu fumaça preta."
+msgstr "There was a bang and black smoke came out."
+
+#: data/content.tres
+msgid "Então nem tenta dar partida de novo."
+msgstr "Then don't even try starting it again."
+
+#: data/content.tres
+msgid "Tá bom. Fico esperando aqui do lado."
+msgstr "All right. I'll wait right here beside it."
+
+#: data/content.tres
+msgid "Chego em {wait}. Deixa o capô aberto pra eu achar."
+msgstr "I'll be there in {wait}. Leave the hood up so I can spot it."
+
+#: data/content.tres
+msgid "Borracharia do Neno, boa noite."
+msgstr "Neno's Tire Shop, good evening."
 
 #: data/content.tres
 msgid "da Borracharia do Neno"
@@ -6542,6 +7634,174 @@ msgstr "Wrong again? Never mind."
 #: data/content.tres
 msgid "Não, chega. Boa noite."
 msgstr "No, that's enough. Good night."
+
+#: data/content.tres
+msgid "Alô?"
+msgstr "Hello?"
+
+#: data/content.tres
+msgid "Alô, quem fala?"
+msgstr "Hello, who's this?"
+
+#: data/content.tres
+msgid "Pronto, pode falar."
+msgstr "Yes, go ahead."
+
+#: data/content.tres
+msgid "Alô, boa noite."
+msgstr "Hello, good evening."
+
+#: data/content.tres
+msgid "Oi, sou eu."
+msgstr "Hi, it's me."
+
+#: data/content.tres
+msgid "Boa noite, sou eu. Tá me ouvindo bem?"
+msgstr "Evening, it's me. Can you hear me all right?"
+
+#: data/content.tres
+msgid "Oi! Que bom que atendeu."
+msgstr "Hi! Glad you picked up."
+
+#: data/content.tres
+msgid "Boa noite. Desculpa ligar a essa hora."
+msgstr "Good evening. Sorry to call so late."
+
+#: data/content.tres
+msgid "sete"
+msgstr "seven"
+
+#: data/content.tres
+msgid "oito"
+msgstr "eight"
+
+#: data/content.tres
+msgid "nove"
+msgstr "nine"
+
+#: data/content.tres
+msgid "dez"
+msgstr "ten"
+
+#: data/content.tres
+msgid "onze"
+msgstr "eleven"
+
+#: data/content.tres
+msgid "quatro"
+msgstr "four"
+
+#: data/content.tres
+msgid "cinco"
+msgstr "five"
+
+#: data/content.tres
+msgid "seis"
+msgstr "six"
+
+#: data/content.tres
+msgid "meia hora"
+msgstr "half an hour"
+
+#: data/content.tres
+msgid "vinte minutos"
+msgstr "twenty minutes"
+
+#: data/content.tres
+msgid "quarenta minutos"
+msgstr "forty minutes"
+
+#: data/content.tres
+msgid "uma hora"
+msgstr "an hour"
+
+#: data/content.tres
+msgid "duas noites"
+msgstr "two nights"
+
+#: data/content.tres
+msgid "três noites"
+msgstr "three nights"
+
+#: data/content.tres
+msgid "quatro noites"
+msgstr "four nights"
+
+#: data/content.tres
+msgid "verde"
+msgstr "green"
+
+#: data/content.tres
+msgid "azul"
+msgstr "blue"
+
+#: data/content.tres
+msgid "cinza"
+msgstr "grey"
+
+#: data/content.tres
+msgid "marrom"
+msgstr "brown"
+
+#: data/content.tres
+msgid "um a um"
+msgstr "one all"
+
+#: data/content.tres
+msgid "dois a um"
+msgstr "two to one"
+
+#: data/content.tres
+msgid "zero a zero"
+msgstr "nil-nil"
+
+#: data/content.tres
+msgid "dois a dois"
+msgstr "two all"
+
+#: data/content.tres
+msgid "um faroeste"
+msgstr "a western"
+
+#: data/content.tres
+msgid "uma comédia"
+msgstr "a comedy"
+
+#: data/content.tres
+msgid "um filme de guerra"
+msgstr "a war picture"
+
+#: data/content.tres
+msgid "um romance"
+msgstr "a romance"
+
+#: data/content.tres
+msgid "Então tá combinado. Boa noite."
+msgstr "All right, it's settled then. Good night."
+
+#: data/content.tres
+msgid "Tá bom, então. Até amanhã."
+msgstr "All right, then. See you tomorrow."
+
+#: data/content.tres
+msgid "Combinado. Boa noite, viu?"
+msgstr "Settled. Good night, now."
+
+#: data/content.tres
+msgid "Então é isso. Boa noite."
+msgstr "That's it, then. Good night."
+
+#: data/content.tres
+msgid "Até mais."
+msgstr "See you."
+
+#: data/content.tres
+msgid "Disponha. Boa noite."
+msgstr "Anytime. Good night."
+
+#: data/content.tres
+msgid "Boa noite. Vai com Deus."
+msgstr "Good night. God bless."
 
 #: data/content.tres
 msgid "Peraí... Alô? Tem alguém na linha?"

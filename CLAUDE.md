@@ -32,7 +32,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   desenha); lugar novo no mapa precisa de `MAP_X` e `MAP_X_OF` e fica num quarteirão que bata com o endereço da lista.
 - **Moldes** (`data/templates/`, listas `transfer_templates`/`emergency_templates` no content): `TransferCall`/
   `EmergencyCall` com lacunas **em inglês** (`{place}`, `{reason}`, `{street}`, `{house}`...), preenchidas por
-  `GameData.template_transfer()`/`template_emergency()`. Motivos em `DirectoryEntry.reasons`. `TEMPLATE_CHANCE`
+  `GameData.template_transfer()`/`template_emergency()`. Motivos em `DirectoryEntry.motives` (`Motive`: o pedido e a conversa que vem depois). `TEMPLATE_CHANCE`
   (`Schedule`) mistura moldes e roteiros escritos (híbrido: treinamento, trotes e roteiro da noite sempre escritos).
 - Todo o áudio é sintetizado ao iniciar por `SfxSynth.build()` (`scripts/sfx_synth.gd`: as receitas, 258 sons, 6,5 MB;
   sem cache; em pedaços, `PARTS` e uma voz por pedaço, montados ao mesmo tempo nos núcleos, `WorkerThreadPool` em alta
@@ -195,6 +195,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     cabe**; o robô normal é rápido demais). No `--human` o despacho passa pelo cartão (`_card_step`: pensar, marcar,
     esperar imprimir, perfurar, levar ao transmissor e esperar a leitura), e o estágio anotado é o da hora do envio.
     Com a mesa livre, ele registra no caderno e carimba e guarda os bilhetes (uma ação cada; imprime quantos guardou).
+    `--nosy` (no `run.sh`, com `--human`): com a mesa livre, ele escuta as conversas conectadas, solta no silêncio
+    deles (`HUSH`) e volta quando a suspeita baixa (`NOSY_BACK`); imprime quanto ouviu e falha se for denunciado.
+    Medido: ~20–25 s ouvidos por conversa (de 45–90 s), nenhuma denúncia e o mesmo ritmo de ligações.
   - Rode depois de qualquer mudança em agenda, fim de ligação, mesa ou cabos. `run.sh` também joga um turno em
     `--lang=en` e outro em `--lang=es`; o teste de fluxo confere chaves, lacunas e cenas (`_check_translations`).
 - Semente fixa: `Godot --path . -- --seed=123` repete a agenda do turno (sem `--seed`, é aleatória).
@@ -258,17 +261,32 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   CONN). A alavanca sobe com o destino tocando e desce quando ele atende (`Switchboard.lever_up`); com o FONE na linha
   conectada, a tecla Escutar (Z, `Main.listen`; levantada, ela diz Soltar, `PhonePanel.set_listen`) ou o clique na
   alavanca (`Main._on_lever`; sem o FONE, `WARN_LISTEN_FONE`) a sobe e desce. Ouvindo (`Eavesdrop.listening`), a tela
-  mostra o que se ouve numa PhoneCall só dela (`_ears`, fora do Registro): as falas escritas (`TransferCall.overheard`,
-  alternando quem ligou e quem atendeu) ou o murmúrio das vozes sem texto (assuntos da conversa fiada, `MURMUR_DB`).
-  **A conversa anda ouvindo ou não**: o que ele não ouviu, perdeu (entrando no meio, a fala começa com "…"); ouvidas
-  todas as escritas (`HEARD_SHARE` de cada), ligam os marcadores da ligação (`TransferCall.overheard_sets`). **A
+  mostra o que se ouve numa PhoneCall só dela (`_ears`, fora do Registro): quem atende fala primeiro (o lugar com o
+  nome dele, `DirectoryEntry.hello`; a pessoa, um "alô" de `C.overheard_hello`), depois as falas escritas
+  (`TransferCall.overheard`, começando por quem ligou, que cumprimenta, e alternando; sem elas, o cumprimento de
+  `C.overheard_greet` se atendeu uma pessoa) e depois o murmúrio das vozes sem texto (assuntos da conversa fiada,
+  `MURMUR_DB`). **Nos moldes, a conversa vem do motivo** (`Motive`, `scripts/data/motive.gd`: `DirectoryEntry.motives`,
+  cada um com o `text` que vira o {reason} e as `talks`, uma sorteada, que vira o `overheard`), para nunca sair do
+  assunto do pedido. Lacunas sorteadas por conversa (`TalkFill`, `GameContent.talk_fills`: {hour}, {wait},
+  {nights}...; {street} e {house} do mapa; `GameData.talk_vars`, preenchidas no `Eavesdrop._talk`) mudam o que se
+  ouve. Quem atende tem a voz do contato (`DirectoryEntry.voice`; sem ela, uma pelo nome, `GameData.voice_of`).
+  Depois da última fala escrita, os dois se despedem (`C.overheard_bye`/`overheard_bye_back`) e desligam
+  (`Main.talk_over`). Regras de escrita conferidas no teste de fluxo (`_check_talks`): sem o tipo do lugar num
+  lugar com ramo (a alternativa pode atender; `KIND_WORDS`), só lacunas que existem, cada fala até `TALK_MAX` letras
+  nos três idiomas. Todo motivo da Vila Serena tem duas conversas (o teste confere); os outros setores e os roteiros
+  escritos ainda só murmuram. **A conversa anda ouvindo ou não**: o que ele não ouviu, perdeu (entrando
+  no meio, a fala começa com "…"), mas com falas escritas ela não acaba antes da última (`Eavesdrop.speaking`, no
+  `Main._update_line_timers`). Cada escrita ouvida (`HEARD_SHARE` dela) liga o marcador dela
+  (`TransferCall.overheard_flags`, na mesma ordem: o roteiro sabe se ele pegou o nome, a hora); ouvidas todas, os da
+  ligação (`overheard_sets`). **A
   suspeita** (`PhoneCall.suspicion`, 0 a 1 em `LISTEN_SEC` ouvindo; cada entrada na linha, pela chave subindo ou pelo
-  FONE encaixando com ela em cima, soma `CLICK`; sem ninguém ouvindo, baixa em `COOL_SEC`) só aparece na conversa:
+  FONE encaixando com ela em cima, soma `CLICK`; tudo vezes a desconfiança deles, `TransferCall.wary`; sem ninguém
+  ouvindo, baixa em `COOL_SEC`) só aparece na conversa:
   silêncio (`HUSH`, `SYS_LINE_SILENT`), a pergunta (`ASK`, `C.overheard_ask`) e, em 1, a reclamação
   (`C.overheard_caught`) e os dois desligam (`talk_over`). **A denúncia chega no relatório da noite seguinte**
   (`Supervisor.fault_later` → `ShiftReport.later` → `Progress.later`; lá, a advertência grave `eavesdrop` com a hora
   "ontem, 21:30", `REPORT_YESTERDAY`); sem noite seguinte (a última, noite forçada) entra no de hoje, e a do
-  treinamento não vai. Marcadores `escutou_N` e `denunciado_N` para o roteiro (pedidos de escuta de gente autoritária
+  treinamento não vai; as ligações do treinamento não se escutam (`Main._can_listen`). Marcadores `escutou_N` e `denunciado_N` para o roteiro (pedidos de escuta de gente autoritária
   virão com a história). Captura: `tools/shot.tscn -- --listen`.
 - **Interurbano** (`GameData.TRUNKS`, 901–906: uma tomada por cidade no banco INTERURBANO da mesa, destinos do
   `Exchange` fora da lista e de todos os setores; `GameData.entry` devolve a telefonista de lá, `TRUNK_OPERATOR`):

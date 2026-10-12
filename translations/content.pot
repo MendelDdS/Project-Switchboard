@@ -19,6 +19,10 @@ msgid "Quero saber se amanhã chega querosene."
 msgstr ""
 
 #: data/content.tres
+msgid "Armazém Ferreira, boa noite."
+msgstr ""
+
+#: data/content.tres
 msgid "do Armazém Ferreira"
 msgstr ""
 
@@ -35,11 +39,159 @@ msgid "Preciso dar um recado pra um amigo que tá lá."
 msgstr ""
 
 #: data/content.tres
+msgid "Boa noite, Zé. O Baixinho ainda está por aí? O de boné."
+msgstr ""
+
+#: data/content.tres
+msgid "Está aqui no balcão. Quer que eu chame?"
+msgstr ""
+
+#: data/content.tres
+msgid "Não precisa. Só avisa que amanhã a pescaria mudou pras {dawn}."
+msgstr ""
+
+#: data/content.tres
+msgid "Pras {dawn}. Pode deixar que eu falo."
+msgstr ""
+
+#: data/content.tres
+msgid "E diz pra ele não esquecer as iscas, que da outra vez esqueceu."
+msgstr ""
+
+#: data/content.tres
+msgid "Vou falar. Ele vai reclamar, mas eu falo."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite, Zé. O Alemão passou por aí hoje?"
+msgstr ""
+
+#: data/content.tres
+msgid "Está aqui, jogando dominó."
+msgstr ""
+
+#: data/content.tres
+msgid "Diz pra ele que o carro dele está pronto, pode buscar."
+msgstr ""
+
+#: data/content.tres
+msgid "O carro pronto. E ele paga quando?"
+msgstr ""
+
+#: data/content.tres
+msgid "Amanhã, até as {hour}, senão eu cobro juros."
+msgstr ""
+
+#: data/content.tres
+msgid "Vou falar exatamente assim."
+msgstr ""
+
+#: data/content.tres
 msgid "Acho que esqueci meu chapéu lá."
 msgstr ""
 
 #: data/content.tres
+msgid "Boa noite. Acho que esqueci meu chapéu aí hoje à tarde."
+msgstr ""
+
+#: data/content.tres
+msgid "Chapéu de palha ou de feltro?"
+msgstr ""
+
+#: data/content.tres
+msgid "De feltro, {color}, com uma fita escura."
+msgstr ""
+
+#: data/content.tres
+msgid "Tem um desses pendurado aqui atrás do balcão."
+msgstr ""
+
+#: data/content.tres
+msgid "É esse! Guarda pra mim, que amanhã eu passo aí."
+msgstr ""
+
+#: data/content.tres
+msgid "Fica guardado. Ninguém mexe nas coisas daqui."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Esqueci meu chapéu aí. Alguém achou?"
+msgstr ""
+
+#: data/content.tres
+msgid "Achou, sim. Mas tem dois aqui. Como é o seu?"
+msgstr ""
+
+#: data/content.tres
+msgid "Um {color}, com uma pena do lado."
+msgstr ""
+
+#: data/content.tres
+msgid "Esse está aqui comigo. O outro é de um freguês."
+msgstr ""
+
+#: data/content.tres
+msgid "Guarda pra mim? Busco amanhã depois das {hour}."
+msgstr ""
+
+#: data/content.tres
+msgid "Fica atrás do balcão, esperando."
+msgstr ""
+
+#: data/content.tres
 msgid "Quero saber se o jogo ainda tá passando na televisão de lá."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. O jogo ainda está passando aí na televisão?"
+msgstr ""
+
+#: data/content.tres
+msgid "Está no segundo tempo. Todo mundo grudado na tela."
+msgstr ""
+
+#: data/content.tres
+msgid "E o placar, como está?"
+msgstr ""
+
+#: data/content.tres
+msgid "{score}. Quase saiu um gol agora há pouco."
+msgstr ""
+
+#: data/content.tres
+msgid "Guarda uma cadeira pra mim, que eu estou indo aí."
+msgstr ""
+
+#: data/content.tres
+msgid "Vem logo, que aqui não cabe mais ninguém."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. O jogo já acabou aí?"
+msgstr ""
+
+#: data/content.tres
+msgid "Acabou agora. Ficou {score}."
+msgstr ""
+
+#: data/content.tres
+msgid "E o pessoal, está todo mundo bravo?"
+msgstr ""
+
+#: data/content.tres
+msgid "Uns comemorando, outros xingando o juiz."
+msgstr ""
+
+#: data/content.tres
+msgid "Então nem vou aí hoje."
+msgstr ""
+
+#: data/content.tres
+msgid "Faz bem. Hoje a discussão está feia."
+msgstr ""
+
+#: data/content.tres
+msgid "Bar do Zé, pode falar."
 msgstr ""
 
 #: data/content.tres
@@ -60,6 +212,10 @@ msgstr ""
 
 #: data/content.tres
 msgid "Meu filho trabalha lá e ainda não voltou pra casa."
+msgstr ""
+
+#: data/content.tres
+msgid "Sítio Boa Esperança, pois não?"
 msgstr ""
 
 #: data/content.tres
@@ -91,6 +247,10 @@ msgid "Quero pedir uma visita do padre pra minha mãe, que está de cama."
 msgstr ""
 
 #: data/content.tres
+msgid "Casa Paroquial, boa noite."
+msgstr ""
+
+#: data/content.tres
 msgid "da Casa Paroquial"
 msgstr ""
 
@@ -107,7 +267,107 @@ msgid "Quero saber que filme passa amanhã."
 msgstr ""
 
 #: data/content.tres
+msgid "Boa noite. Que filme passa amanhã?"
+msgstr ""
+
+#: data/content.tres
+msgid "Amanhã passa {film}, na sessão das {hour}."
+msgstr ""
+
+#: data/content.tres
+msgid "Lá em casa todo mundo vai gostar."
+msgstr ""
+
+#: data/content.tres
+msgid "Chega cedo, que a sala enche."
+msgstr ""
+
+#: data/content.tres
+msgid "Precisa comprar o ingresso antes?"
+msgstr ""
+
+#: data/content.tres
+msgid "A bilheteria abre meia hora antes da sessão."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Amanhã tem matinê?"
+msgstr ""
+
+#: data/content.tres
+msgid "Tem, às três da tarde. É {film}."
+msgstr ""
+
+#: data/content.tres
+msgid "Criança pode entrar?"
+msgstr ""
+
+#: data/content.tres
+msgid "Pode, acompanhada de um adulto."
+msgstr ""
+
+#: data/content.tres
+msgid "Então vou levar meus sobrinhos."
+msgstr ""
+
+#: data/content.tres
+msgid "Chega cedo, que matinê lota."
+msgstr ""
+
+#: data/content.tres
 msgid "Esqueci meu guarda-chuva na sessão das oito."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Esqueci um guarda-chuva na sessão das oito."
+msgstr ""
+
+#: data/content.tres
+msgid "O lanterninha recolheu uns três hoje. Como é o seu?"
+msgstr ""
+
+#: data/content.tres
+msgid "{color}, com o cabo de madeira curvado."
+msgstr ""
+
+#: data/content.tres
+msgid "Tem um assim aqui na bilheteria."
+msgstr ""
+
+#: data/content.tres
+msgid "Ainda bem. Posso buscar amanhã?"
+msgstr ""
+
+#: data/content.tres
+msgid "Pode. É só pedir na bilheteria."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Deixei meu guarda-chuva na poltrona, na sessão das oito."
+msgstr ""
+
+#: data/content.tres
+msgid "Em que fileira você sentou?"
+msgstr ""
+
+#: data/content.tres
+msgid "Lá no fundo, perto da porta."
+msgstr ""
+
+#: data/content.tres
+msgid "O lanterninha achou um {color} lá atrás."
+msgstr ""
+
+#: data/content.tres
+msgid "Deve ser o meu. Posso buscar amanhã?"
+msgstr ""
+
+#: data/content.tres
+msgid "Pode. Fica guardado na bilheteria."
+msgstr ""
+
+#: data/content.tres
+msgid "Cine Odeon, boa noite."
 msgstr ""
 
 #: data/content.tres
@@ -120,6 +380,10 @@ msgstr ""
 
 #: data/content.tres
 msgid "recepção"
+msgstr ""
+
+#: data/content.tres
+msgid "Clínica São Lucas, recepção."
 msgstr ""
 
 #: data/content.tres
@@ -195,6 +459,10 @@ msgid "Preciso de um remédio pra pressão."
 msgstr ""
 
 #: data/content.tres
+msgid "Farmácia Central, boa noite."
+msgstr ""
+
+#: data/content.tres
 msgid "da Farmácia Central"
 msgstr ""
 
@@ -219,6 +487,10 @@ msgid "Quero saber se tem xarope pra tosse."
 msgstr ""
 
 #: data/content.tres
+msgid "Farmácia Santa Rita, boa noite."
+msgstr ""
+
+#: data/content.tres
 msgid "da Farmácia Santa Rita"
 msgstr ""
 
@@ -235,7 +507,107 @@ msgid "Meu tio faleceu agora há pouco."
 msgstr ""
 
 #: data/content.tres
+msgid "Boa noite. Meu tio faleceu agora há pouco, em casa."
+msgstr ""
+
+#: data/content.tres
+msgid "Meus sentimentos. O médico já veio atestar?"
+msgstr ""
+
+#: data/content.tres
+msgid "Já veio. Disse que foi o coração."
+msgstr ""
+
+#: data/content.tres
+msgid "Então eu mando o carro buscar. Qual é o endereço?"
+msgstr ""
+
+#: data/content.tres
+msgid "{street}, {house}. A casa do portão {color}."
+msgstr ""
+
+#: data/content.tres
+msgid "Chegamos em {wait}. Separe uma roupa pra ele."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Minha avó faleceu agora há pouco."
+msgstr ""
+
+#: data/content.tres
+msgid "Meus sentimentos. Foi em casa ou no hospital?"
+msgstr ""
+
+#: data/content.tres
+msgid "Em casa, dormindo. O médico já veio."
+msgstr ""
+
+#: data/content.tres
+msgid "Vocês querem o velório em casa ou na capela?"
+msgstr ""
+
+#: data/content.tres
+msgid "Em casa. Ela morava na {street}, {house}."
+msgstr ""
+
+#: data/content.tres
+msgid "Então levo as coisas pra lá em {wait}."
+msgstr ""
+
+#: data/content.tres
 msgid "Preciso acertar o velório de amanhã."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Preciso acertar as coisas do velório de amanhã."
+msgstr ""
+
+#: data/content.tres
+msgid "Pois não. Vai ser na capela ou em casa?"
+msgstr ""
+
+#: data/content.tres
+msgid "Na capela. A família quer de manhã, cedo."
+msgstr ""
+
+#: data/content.tres
+msgid "Às oito a capela está livre. Precisa de flores?"
+msgstr ""
+
+#: data/content.tres
+msgid "Uma coroa só, simples. Com o nome da família."
+msgstr ""
+
+#: data/content.tres
+msgid "Anotado. Às sete eu abro a capela."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Queria saber o preço do caixão e do velório."
+msgstr ""
+
+#: data/content.tres
+msgid "Depende da madeira. Tem o simples e o envernizado."
+msgstr ""
+
+#: data/content.tres
+msgid "O simples. A família não tem muito."
+msgstr ""
+
+#: data/content.tres
+msgid "O simples já vem com as velas e o pano."
+msgstr ""
+
+#: data/content.tres
+msgid "E a coroa de flores, vocês fazem também?"
+msgstr ""
+
+#: data/content.tres
+msgid "Faço. Passa aqui amanhã que a gente acerta tudo."
+msgstr ""
+
+#: data/content.tres
+msgid "Funerária Paz Eterna, boa noite."
 msgstr ""
 
 #: data/content.tres
@@ -255,7 +627,107 @@ msgid "Preciso de um quarto pra esta noite."
 msgstr ""
 
 #: data/content.tres
+msgid "Boa noite. Vocês ainda têm quarto pra hoje?"
+msgstr ""
+
+#: data/content.tres
+msgid "Tenho um de solteiro, no andar de cima. Pra quantas noites?"
+msgstr ""
+
+#: data/content.tres
+msgid "Só esta. Amanhã cedo eu sigo viagem."
+msgstr ""
+
+#: data/content.tres
+msgid "A diária é com café da manhã, paga na chegada."
+msgstr ""
+
+#: data/content.tres
+msgid "Pode segurar pra mim? Chego em {wait}."
+msgstr ""
+
+#: data/content.tres
+msgid "Seguro até as {hour}. Qual o nome, por favor?"
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Perdi o último ônibus. Tem onde dormir aí hoje?"
+msgstr ""
+
+#: data/content.tres
+msgid "Tem um quarto pequeno, perto da escada. É meio barulhento."
+msgstr ""
+
+#: data/content.tres
+msgid "Não faz mal, é só pra esta noite."
+msgstr ""
+
+#: data/content.tres
+msgid "Então pode vir. A porta fica aberta até as {hour}."
+msgstr ""
+
+#: data/content.tres
+msgid "Aceita pagar amanhã cedo? Hoje estou sem trocado."
+msgstr ""
+
+#: data/content.tres
+msgid "Aceito. Só deixa o documento comigo na chegada."
+msgstr ""
+
+#: data/content.tres
 msgid "Quero saber se ainda tem quarto vago pra amanhã."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Queria reservar um quarto pra amanhã. Ainda tem vago?"
+msgstr ""
+
+#: data/content.tres
+msgid "Amanhã está quase cheio. Sobrou um de casal, nos fundos."
+msgstr ""
+
+#: data/content.tres
+msgid "Serve. São {nights}, a partir de amanhã."
+msgstr ""
+
+#: data/content.tres
+msgid "{nights}. Vou anotar aqui no livro."
+msgstr ""
+
+#: data/content.tres
+msgid "Chego no ônibus da tarde. Posso pagar quando chegar?"
+msgstr ""
+
+#: data/content.tres
+msgid "Pode, sim. Só não passe das {hour}, que a portaria fecha."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Amanhã chega um parente meu de viagem. Tem quarto?"
+msgstr ""
+
+#: data/content.tres
+msgid "Pra amanhã tem, sim. Quantas pessoas?"
+msgstr ""
+
+#: data/content.tres
+msgid "Uma só. Fica {nights}."
+msgstr ""
+
+#: data/content.tres
+msgid "Fica no quarto da frente, com janela pra rua."
+msgstr ""
+
+#: data/content.tres
+msgid "Pode deixar no meu nome? Eu passo aí pra acertar."
+msgstr ""
+
+#: data/content.tres
+msgid "Deixo. Pode passar a qualquer hora pra acertar."
+msgstr ""
+
+#: data/content.tres
+msgid "Hotel Estrela, boa noite."
 msgstr ""
 
 #: data/content.tres
@@ -280,6 +752,10 @@ msgstr ""
 
 #: data/content.tres
 msgid "Quero marcar o batizado do meu neto."
+msgstr ""
+
+#: data/content.tres
+msgid "Igreja Matriz, secretaria."
 msgstr ""
 
 #: data/content.tres
@@ -323,6 +799,10 @@ msgid "Quero deixar uma encomenda pra amanhã cedo."
 msgstr ""
 
 #: data/content.tres
+msgid "Mercearia Silva, boa noite."
+msgstr ""
+
+#: data/content.tres
 msgid "da Mercearia Silva"
 msgstr ""
 
@@ -359,7 +839,107 @@ msgid "Meu carro atolou na estrada do moinho."
 msgstr ""
 
 #: data/content.tres
+msgid "Boa noite. O carro atolou na estrada do moinho. A roda afundou toda."
+msgstr ""
+
+#: data/content.tres
+msgid "Na estrada de terra? Aquele trecho depois da ponte?"
+msgstr ""
+
+#: data/content.tres
+msgid "Isso, logo depois da ponte. Não vai nem pra frente nem pra trás."
+msgstr ""
+
+#: data/content.tres
+msgid "Vou ter que ir com a caminhonete e a corda. Chego em {wait}."
+msgstr ""
+
+#: data/content.tres
+msgid "Eu espero aqui no carro, com o pisca ligado."
+msgstr ""
+
+#: data/content.tres
+msgid "Não sai de perto. Já estou pegando a lanterna."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Atolei o carro na estrada do moinho."
+msgstr ""
+
+#: data/content.tres
+msgid "De novo aquele barro? Em que altura?"
+msgstr ""
+
+#: data/content.tres
+msgid "Perto da porteira da fazenda, depois da curva grande."
+msgstr ""
+
+#: data/content.tres
+msgid "Sei onde é. Tem alguém aí com você?"
+msgstr ""
+
+#: data/content.tres
+msgid "Não, só eu. E está escuro demais."
+msgstr ""
+
+#: data/content.tres
+msgid "Fica dentro do carro. Chego em {wait}."
+msgstr ""
+
+#: data/content.tres
 msgid "O caminhão não quer pegar de jeito nenhum."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. O caminhão não pega. Gira, gira e não pega."
+msgstr ""
+
+#: data/content.tres
+msgid "Faz barulho de quê? Estala, ou nem isso?"
+msgstr ""
+
+#: data/content.tres
+msgid "Estala e morre. As luzes acendem, a bateria parece boa."
+msgstr ""
+
+#: data/content.tres
+msgid "Pode ser o combustível. Tem óleo no tanque?"
+msgstr ""
+
+#: data/content.tres
+msgid "Tem, enchi hoje de manhã no posto."
+msgstr ""
+
+#: data/content.tres
+msgid "Então vou aí dar uma olhada. Me diz direitinho onde você está."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Meu caminhão parou e não pega mais."
+msgstr ""
+
+#: data/content.tres
+msgid "Parou como? Foi morrendo aos poucos?"
+msgstr ""
+
+#: data/content.tres
+msgid "Foi engasgando e apagou. Agora nem tenta pegar."
+msgstr ""
+
+#: data/content.tres
+msgid "Pode ser a correia. Onde ele está?"
+msgstr ""
+
+#: data/content.tres
+msgid "Na {street}, perto do número {house}."
+msgstr ""
+
+#: data/content.tres
+msgid "Vou aí com a caixa de ferramentas. Chego em {wait}."
+msgstr ""
+
+#: data/content.tres
+msgid "Oficina do Tião, boa noite."
 msgstr ""
 
 #: data/content.tres
@@ -380,6 +960,10 @@ msgstr ""
 
 #: data/content.tres
 msgid "Esqueci o troco lá hoje de manhã."
+msgstr ""
+
+#: data/content.tres
+msgid "Padaria Pão Dourado, boa noite."
 msgstr ""
 
 #: data/content.tres
@@ -419,7 +1003,107 @@ msgid "Tô quase sem gasolina."
 msgstr ""
 
 #: data/content.tres
+msgid "Boa noite. Vocês ainda estão abertos? Estou quase sem gasolina."
+msgstr ""
+
+#: data/content.tres
+msgid "Até a meia-noite. De onde você está vindo?"
+msgstr ""
+
+#: data/content.tres
+msgid "Da estrada do moinho. O ponteiro já está no fim."
+msgstr ""
+
+#: data/content.tres
+msgid "Então desce devagar, sem acelerar muito, que dá."
+msgstr ""
+
+#: data/content.tres
+msgid "E se não der?"
+msgstr ""
+
+#: data/content.tres
+msgid "Se não der, liga de novo que eu levo um galão aí."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. O carro está na reserva. Dá pra chegar aí?"
+msgstr ""
+
+#: data/content.tres
+msgid "De onde você vem?"
+msgstr ""
+
+#: data/content.tres
+msgid "Da {street}, lá perto do número {house}."
+msgstr ""
+
+#: data/content.tres
+msgid "Dá, é pertinho. Vem devagar."
+msgstr ""
+
+#: data/content.tres
+msgid "Vocês fecham que horas?"
+msgstr ""
+
+#: data/content.tres
+msgid "Hoje eu fico até as {hour}. Depois, só amanhã."
+msgstr ""
+
+#: data/content.tres
 msgid "Quero saber se o posto ainda está aberto."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. O posto ainda está aberto?"
+msgstr ""
+
+#: data/content.tres
+msgid "Aberto até a meia-noite, como sempre."
+msgstr ""
+
+#: data/content.tres
+msgid "Ainda bem. Preciso encher o tanque pra viajar amanhã cedo."
+msgstr ""
+
+#: data/content.tres
+msgid "Vem agora, que de manhã a fila é grande."
+msgstr ""
+
+#: data/content.tres
+msgid "Vocês calibram pneu também?"
+msgstr ""
+
+#: data/content.tres
+msgid "Tem ar, sim. Fica do lado da bomba, pode usar à vontade."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Ainda dá tempo de abastecer?"
+msgstr ""
+
+#: data/content.tres
+msgid "Dá. Hoje eu fecho às {hour}."
+msgstr ""
+
+#: data/content.tres
+msgid "Vocês trocam óleo também?"
+msgstr ""
+
+#: data/content.tres
+msgid "Troca, mas só de dia. De noite é só a bomba."
+msgstr ""
+
+#: data/content.tres
+msgid "Então amanhã eu passo pra trocar."
+msgstr ""
+
+#: data/content.tres
+msgid "Vem cedo, que de manhã o mecânico está aqui."
+msgstr ""
+
+#: data/content.tres
+msgid "Posto São Cristóvão, boa noite."
 msgstr ""
 
 #: data/content.tres
@@ -443,6 +1127,10 @@ msgid "Saiu meu nome errado na edição de hoje."
 msgstr ""
 
 #: data/content.tres
+msgid "Gazeta, redação."
+msgstr ""
+
+#: data/content.tres
 msgid "da Gazeta"
 msgstr ""
 
@@ -459,7 +1147,107 @@ msgid "Quero pedir uma música."
 msgstr ""
 
 #: data/content.tres
+msgid "Boa noite. Queria pedir uma música pro programa da noite."
+msgstr ""
+
+#: data/content.tres
+msgid "Pode pedir. Qual é a música?"
+msgstr ""
+
+#: data/content.tres
+msgid "Uma valsa antiga, aquela que tocava nos bailes do clube."
+msgstr ""
+
+#: data/content.tres
+msgid "Tem várias. Sabe o nome de alguma?"
+msgstr ""
+
+#: data/content.tres
+msgid "O nome eu não lembro. Mas é a que todo mundo dançava no fim."
+msgstr ""
+
+#: data/content.tres
+msgid "Já sei qual é. Toca às {hour}. Ofereço pra quem?"
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Queria oferecer uma música pra uma pessoa especial."
+msgstr ""
+
+#: data/content.tres
+msgid "Pode falar. Qual música?"
+msgstr ""
+
+#: data/content.tres
+msgid "Uma moda de viola, daquelas bem antigas."
+msgstr ""
+
+#: data/content.tres
+msgid "Tenho umas três aqui. Ofereço em nome de quem?"
+msgstr ""
+
+#: data/content.tres
+msgid "Diz só que é de alguém que não esqueceu."
+msgstr ""
+
+#: data/content.tres
+msgid "Vai ao ar às {hour}, no programa dos pedidos."
+msgstr ""
+
+#: data/content.tres
 msgid "Quero mandar um recado pra um parente que trabalha na roça."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Queria mandar um recado pelo rádio."
+msgstr ""
+
+#: data/content.tres
+msgid "Recado pra quem, e de quem?"
+msgstr ""
+
+#: data/content.tres
+msgid "Pro meu primo, que trabalha na colheita. Diz que a família está bem."
+msgstr ""
+
+#: data/content.tres
+msgid "Só isso? Que a família está bem?"
+msgstr ""
+
+#: data/content.tres
+msgid "E que é pra ele descer no fim do mês, que a gente espera."
+msgstr ""
+
+#: data/content.tres
+msgid "Vai ao ar às {hour}, no quadro dos recados."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Dá pra mandar um recado pra roça pelo programa?"
+msgstr ""
+
+#: data/content.tres
+msgid "Dá. Pra quem é o recado?"
+msgstr ""
+
+#: data/content.tres
+msgid "Pro meu tio, que está no sítio. Diz pra ele descer na feira."
+msgstr ""
+
+#: data/content.tres
+msgid "Na feira de quando?"
+msgstr ""
+
+#: data/content.tres
+msgid "Na de sábado. Tem gente esperando por ele."
+msgstr ""
+
+#: data/content.tres
+msgid "Vai ao ar às {hour}, depois das notícias."
+msgstr ""
+
+#: data/content.tres
+msgid "Rádio Serena, boa noite."
 msgstr ""
 
 #: data/content.tres
@@ -499,7 +1287,107 @@ msgid "Meu pai está aí jogando e não volta pra casa."
 msgstr ""
 
 #: data/content.tres
+msgid "Boa noite. Meu pai está aí? Um senhor de bigode, de camisa xadrez."
+msgstr ""
+
+#: data/content.tres
+msgid "Está, sim. Na mesa do fundo, ganhando de todo mundo."
+msgstr ""
+
+#: data/content.tres
+msgid "Fala pra ele que a mãe está esperando com a janta."
+msgstr ""
+
+#: data/content.tres
+msgid "Falo, mas ele disse que só sai depois da última partida."
+msgstr ""
+
+#: data/content.tres
+msgid "Diz que a janta já esfriou duas vezes."
+msgstr ""
+
+#: data/content.tres
+msgid "Esse recado eu dou. Aí ele vem rapidinho."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Meu pai está aí no bilhar?"
+msgstr ""
+
+#: data/content.tres
+msgid "Está, sim. Jogando a dinheiro com uns rapazes."
+msgstr ""
+
+#: data/content.tres
+msgid "A dinheiro? Fala pra ele vir pra casa agora."
+msgstr ""
+
+#: data/content.tres
+msgid "Ele disse que só sai quando recuperar o que perdeu."
+msgstr ""
+
+#: data/content.tres
+msgid "Diz que a mãe está esperando acordada."
+msgstr ""
+
+#: data/content.tres
+msgid "Esse recado assusta mais. Vou falar."
+msgstr ""
+
+#: data/content.tres
 msgid "Quero deixar um recado pro meu irmão, que joga aí toda noite."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Meu irmão está aí? O magrinho, de óculos."
+msgstr ""
+
+#: data/content.tres
+msgid "Está aqui, esperando a vez dele na mesa."
+msgstr ""
+
+#: data/content.tres
+msgid "Avisa que a moto dele ficou com o farol aceso na frente de casa."
+msgstr ""
+
+#: data/content.tres
+msgid "O farol aceso? Vou falar agora, senão amanhã não pega."
+msgstr ""
+
+#: data/content.tres
+msgid "Isso. E diz que eu não vou lá apagar, não."
+msgstr ""
+
+#: data/content.tres
+msgid "Pode deixar, eu falo assim mesmo."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Meu irmão está aí? O de chapéu {color}."
+msgstr ""
+
+#: data/content.tres
+msgid "Está, na mesa do canto."
+msgstr ""
+
+#: data/content.tres
+msgid "Avisa que amanhã ele começa no serviço às {dawn}."
+msgstr ""
+
+#: data/content.tres
+msgid "Às {dawn}? Vou falar, mas ele não vai gostar."
+msgstr ""
+
+#: data/content.tres
+msgid "Diz que é ordem do patrão."
+msgstr ""
+
+#: data/content.tres
+msgid "Pode deixar. Falo agora mesmo."
+msgstr ""
+
+#: data/content.tres
+msgid "Bilhar do Tonho, pode falar."
 msgstr ""
 
 #: data/content.tres
@@ -540,6 +1428,10 @@ msgstr ""
 
 #: data/content.tres
 msgid "O último ônibus sai às onze e eu não posso perder."
+msgstr ""
+
+#: data/content.tres
+msgid "Ponto de táxi, boa noite."
 msgstr ""
 
 #: data/content.tres
@@ -599,7 +1491,107 @@ msgid "Preciso de um quarto barato pra esta noite."
 msgstr ""
 
 #: data/content.tres
+msgid "Boa noite. Tem quarto pra hoje? Coisa simples, só pra dormir."
+msgstr ""
+
+#: data/content.tres
+msgid "Tem uma cama no quarto dos fundos. O banheiro é no corredor."
+msgstr ""
+
+#: data/content.tres
+msgid "Tá ótimo. E quanto fica?"
+msgstr ""
+
+#: data/content.tres
+msgid "Com café é um pouco mais. Sem café sai mais em conta."
+msgstr ""
+
+#: data/content.tres
+msgid "Sem café, então. Daqui a {wait} eu chego."
+msgstr ""
+
+#: data/content.tres
+msgid "Bate na janela do lado, que a porta da frente já está trancada."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Tem cama pra hoje? Não posso pagar muito."
+msgstr ""
+
+#: data/content.tres
+msgid "Tem a do quarto coletivo. Divide com mais dois."
+msgstr ""
+
+#: data/content.tres
+msgid "Serve. Eles roncam?"
+msgstr ""
+
+#: data/content.tres
+msgid "Um ronca, o outro fala dormindo. Mas são gente boa."
+msgstr ""
+
+#: data/content.tres
+msgid "Tá bom. Chego em {wait}."
+msgstr ""
+
+#: data/content.tres
+msgid "Traz cobertor, se tiver. A noite aqui esfria."
+msgstr ""
+
+#: data/content.tres
 msgid "Quero saber se tem vaga pra dois pernoitarem."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Tem vaga pra duas pessoas? É só pra pernoitar."
+msgstr ""
+
+#: data/content.tres
+msgid "Pra dois tem o quarto da frente, com duas camas."
+msgstr ""
+
+#: data/content.tres
+msgid "Ótimo. A gente chegou no último ônibus e não tem onde ficar."
+msgstr ""
+
+#: data/content.tres
+msgid "Então venham logo, que a rua aqui fica escura depois das {hour}."
+msgstr ""
+
+#: data/content.tres
+msgid "Precisa levar alguma coisa? Documento?"
+msgstr ""
+
+#: data/content.tres
+msgid "Só o documento, pra anotar no livro de hóspedes."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Tem quarto pra duas pessoas, só esta noite?"
+msgstr ""
+
+#: data/content.tres
+msgid "Tem, mas só com uma cama de casal."
+msgstr ""
+
+#: data/content.tres
+msgid "Somos dois irmãos. Não tem com duas camas?"
+msgstr ""
+
+#: data/content.tres
+msgid "Posso pôr um colchão no chão. Serve?"
+msgstr ""
+
+#: data/content.tres
+msgid "Serve, sim. Chegamos em {wait}."
+msgstr ""
+
+#: data/content.tres
+msgid "Vou deixar a luz da frente acesa pra vocês."
+msgstr ""
+
+#: data/content.tres
+msgid "Pensão Dona Cota, pois não?"
 msgstr ""
 
 #: data/content.tres
@@ -619,7 +1611,107 @@ msgid "Furou o pneu do carro aqui na estrada."
 msgstr ""
 
 #: data/content.tres
+msgid "Boa noite. Furou o pneu, e o estepe também está vazio."
+msgstr ""
+
+#: data/content.tres
+msgid "Os dois? Aí não tem jeito, vou ter que ir até aí."
+msgstr ""
+
+#: data/content.tres
+msgid "Estou na saída da cidade, perto da placa de São Sotero."
+msgstr ""
+
+#: data/content.tres
+msgid "Sei onde é. Levo um pneu e o macaco."
+msgstr ""
+
+#: data/content.tres
+msgid "Quanto tempo, mais ou menos?"
+msgstr ""
+
+#: data/content.tres
+msgid "Coisa de {wait}. Liga o pisca, que de noite ninguém enxerga nada."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Furou o pneu e eu não tenho macaco."
+msgstr ""
+
+#: data/content.tres
+msgid "Sem macaco não tem jeito. Onde você está?"
+msgstr ""
+
+#: data/content.tres
+msgid "Na {street}, quase no número {house}."
+msgstr ""
+
+#: data/content.tres
+msgid "É perto, então. Dá pra ir a pé com o macaco."
+msgstr ""
+
+#: data/content.tres
+msgid "Precisa levar alguma coisa?"
+msgstr ""
+
+#: data/content.tres
+msgid "Só a lanterna, se tiver. Chego em {wait}."
+msgstr ""
+
+#: data/content.tres
 msgid "O carro morreu no meio da rua e não pega."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. O carro morreu no meio da rua e não quer pegar."
+msgstr ""
+
+#: data/content.tres
+msgid "Está atrapalhando o trânsito?"
+msgstr ""
+
+#: data/content.tres
+msgid "A essa hora não passa ninguém. Mas está bem no meio da rua."
+msgstr ""
+
+#: data/content.tres
+msgid "Empurra pro canto, se conseguir. Tem alguém aí pra ajudar?"
+msgstr ""
+
+#: data/content.tres
+msgid "Tem um rapaz aqui me ajudando a empurrar."
+msgstr ""
+
+#: data/content.tres
+msgid "Então empurra e me espera. Em {wait} eu chego."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. O carro apagou aqui na {street} e não pega mais."
+msgstr ""
+
+#: data/content.tres
+msgid "Fez algum barulho antes de apagar?"
+msgstr ""
+
+#: data/content.tres
+msgid "Deu um estouro e saiu fumaça preta."
+msgstr ""
+
+#: data/content.tres
+msgid "Então nem tenta dar partida de novo."
+msgstr ""
+
+#: data/content.tres
+msgid "Tá bom. Fico esperando aqui do lado."
+msgstr ""
+
+#: data/content.tres
+msgid "Chego em {wait}. Deixa o capô aberto pra eu achar."
+msgstr ""
+
+#: data/content.tres
+msgid "Borracharia do Neno, boa noite."
 msgstr ""
 
 #: data/content.tres
@@ -6540,6 +7632,174 @@ msgstr ""
 
 #: data/content.tres
 msgid "Não, chega. Boa noite."
+msgstr ""
+
+#: data/content.tres
+msgid "Alô?"
+msgstr ""
+
+#: data/content.tres
+msgid "Alô, quem fala?"
+msgstr ""
+
+#: data/content.tres
+msgid "Pronto, pode falar."
+msgstr ""
+
+#: data/content.tres
+msgid "Alô, boa noite."
+msgstr ""
+
+#: data/content.tres
+msgid "Oi, sou eu."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite, sou eu. Tá me ouvindo bem?"
+msgstr ""
+
+#: data/content.tres
+msgid "Oi! Que bom que atendeu."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Desculpa ligar a essa hora."
+msgstr ""
+
+#: data/content.tres
+msgid "sete"
+msgstr ""
+
+#: data/content.tres
+msgid "oito"
+msgstr ""
+
+#: data/content.tres
+msgid "nove"
+msgstr ""
+
+#: data/content.tres
+msgid "dez"
+msgstr ""
+
+#: data/content.tres
+msgid "onze"
+msgstr ""
+
+#: data/content.tres
+msgid "quatro"
+msgstr ""
+
+#: data/content.tres
+msgid "cinco"
+msgstr ""
+
+#: data/content.tres
+msgid "seis"
+msgstr ""
+
+#: data/content.tres
+msgid "meia hora"
+msgstr ""
+
+#: data/content.tres
+msgid "vinte minutos"
+msgstr ""
+
+#: data/content.tres
+msgid "quarenta minutos"
+msgstr ""
+
+#: data/content.tres
+msgid "uma hora"
+msgstr ""
+
+#: data/content.tres
+msgid "duas noites"
+msgstr ""
+
+#: data/content.tres
+msgid "três noites"
+msgstr ""
+
+#: data/content.tres
+msgid "quatro noites"
+msgstr ""
+
+#: data/content.tres
+msgid "verde"
+msgstr ""
+
+#: data/content.tres
+msgid "azul"
+msgstr ""
+
+#: data/content.tres
+msgid "cinza"
+msgstr ""
+
+#: data/content.tres
+msgid "marrom"
+msgstr ""
+
+#: data/content.tres
+msgid "um a um"
+msgstr ""
+
+#: data/content.tres
+msgid "dois a um"
+msgstr ""
+
+#: data/content.tres
+msgid "zero a zero"
+msgstr ""
+
+#: data/content.tres
+msgid "dois a dois"
+msgstr ""
+
+#: data/content.tres
+msgid "um faroeste"
+msgstr ""
+
+#: data/content.tres
+msgid "uma comédia"
+msgstr ""
+
+#: data/content.tres
+msgid "um filme de guerra"
+msgstr ""
+
+#: data/content.tres
+msgid "um romance"
+msgstr ""
+
+#: data/content.tres
+msgid "Então tá combinado. Boa noite."
+msgstr ""
+
+#: data/content.tres
+msgid "Tá bom, então. Até amanhã."
+msgstr ""
+
+#: data/content.tres
+msgid "Combinado. Boa noite, viu?"
+msgstr ""
+
+#: data/content.tres
+msgid "Então é isso. Boa noite."
+msgstr ""
+
+#: data/content.tres
+msgid "Até mais."
+msgstr ""
+
+#: data/content.tres
+msgid "Disponha. Boa noite."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite. Vai com Deus."
 msgstr ""
 
 #: data/content.tres
