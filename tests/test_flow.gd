@@ -26,7 +26,7 @@ func _step(kind: PrankStep.Kind, text := "", requires := PackedStringArray()) ->
 
 ## Lacunas de um texto (%s, %02d, {place}...), para comparar entre idiomas.
 func _holes(s: String) -> Array:
-	var re := RegEx.create_from_string("%[0-9]*[sd]|\\{[a-z_]+\\}")
+	var re := RegEx.create_from_string("%[0-9]*[sd]|\\{[a-z_]+\\}|\\[[a-z]+:")   # [tipo: a marca da palavra-chave (`Clue`)
 	var out := re.search_all(s).map(func(m: RegExMatch): return m.get_string())
 	out.sort()
 	return out
@@ -68,7 +68,8 @@ func _check_translations() -> void:
 
 ## As regras de escrita das conversas escutadas (README, "Cada motivo traz a conversa"): num lugar com ramo que pode
 ## ser trocado pela alternativa, a conversa não diz o tipo do lugar (`KIND_WORDS`; ramo novo entra nela); só lacunas
-## que existem; cada fala num fôlego (`TALK_MAX` letras) nos três idiomas.
+## que existem; palavras-chave (`Clue`) bem marcadas e de tipo conhecido; cada fala num fôlego (`TALK_MAX` letras,
+## sem as marcas) nos três idiomas.
 const KIND_WORDS := {"hospedagem": ["hotel", "pensão", "pousada"], "oficina": ["oficina", "borracharia"],
 	"farmácia": ["farmácia", "drogaria"], "igreja": ["igreja", "paróquia", "paroquial"], "mercearia": ["mercearia", "armazém"]}
 const TALK_MAX := 90
@@ -85,15 +86,19 @@ func _check_talks() -> void:
 		var words: Array = KIND_WORDS.get(x[0].category, []) if x[2] else []
 		for line: String in x[1]:
 			ok(not words.any(func(w: String): return w in line.to_lower()), "a conversa diz o tipo do lugar (%s): %s" % [x[0].name, line])
-			ok(_holes(line).all(func(h: String): return h.trim_prefix("{").trim_suffix("}") in GameData.talk_holes()),
-				"lacuna que não existe na conversa: " + line)
+			var known := func(h: String): return h.trim_prefix("{").trim_suffix("}") in GameData.talk_holes() or h.trim_prefix("[").trim_suffix(":") in Clue.KINDS
+			ok(_holes(line).all(known), "lacuna ou tipo de palavra-chave que não existe: " + line)
+			var plain: String = Clue.parse(line)[0]
+			ok(not "[" in plain and not "]" in plain, "palavra-chave mal marcada: " + line)
+	ok(Clue.parse("[time:{hour}]. Na [street:Rua do Sol].") == ["{hour}. Na Rua do Sol.", [[0, 6, "time"], [11, 21, "street"]]],
+		"palavras-chave: a fala sem as marcas e onde fica cada uma")
 	var all_holes := " ".join(GameData.talk_holes().map(func(h: String): return "{%s}" % h))
 	ok(not "{" in GameData.fill(all_holes, GameData.talk_vars()), "toda lacuna da conversa escutada é preenchida")
 	for lang in ["pt_BR", "en", "es"]:
 		TranslationServer.set_locale(lang)
 		for x in talks:
 			for line: String in x[1]:
-				ok(tr(line).length() <= TALK_MAX, "fala escutada longa demais (%s): %s" % [lang, tr(line)])
+				ok(Clue.parse(tr(line))[0].length() <= TALK_MAX, "fala escutada longa demais (%s): %s" % [lang, tr(line)])
 	TranslationServer.set_locale("pt_BR")
 
 
@@ -434,13 +439,17 @@ func _initialize() -> void:
 		if c is BaseButton or c is Slider:
 			ok(c.mouse_default_cursor_shape == Control.CURSOR_POINTING_HAND, "sem cursor de dedo: %s" % m.get_path_to(c))
 	var places := C.directory.filter(func(d): return not d.motives.is_empty())
-	for d: DirectoryEntry in places.filter(func(d: DirectoryEntry): return d.number.begins_with("3")):   # a Vila Serena, desde a noite 1
-		ok(d.hello != "" and d.motives.all(func(mo: Motive): return mo.talks.size() >= 2 and mo.talks.all(func(k: PackedStringArray): return k.size() >= 4)), "duas conversas escutadas de cada motivo: " + d.name)
+	for d: DirectoryEntry in places:
+		ok(d.motives.all(func(mo: Motive): return mo.talks.size() >= 2 and mo.talks.all(func(k: PackedStringArray): return k.size() >= 4)), "duas conversas escutadas de cada motivo: " + d.name)
+	for t: TransferCall in C.transfers:
+		ok(t.overheard.size() >= 4, "conversa escutada da ligação escrita: " + t.caller + " -> " + t.destination)
 	print("OK 0 conteúdo (%d transferências, %d emergências, %d trotes; moldes: %d de transferência para %d contatos, %d de emergência)" % [
 		C.transfers.size(), C.emergencies.size(), C.pranks.size(), C.transfer_templates.size(), places.size(), C.emergency_templates.size()])
 
 	# ---- 1. transferência completa; tirar o FONE não derruba a conversa
-	var a := _extra(GameData.transfers(TransferCall.Group.ESTABLISHMENT)[0])
+	var quiet: TransferCall = GameData.transfers(TransferCall.Group.ESTABLISHMENT)[0].duplicate()
+	quiet.overheard = PackedStringArray()   # falas escritas seguram a linha até a última (cenário 1a)
+	var a := _extra(quiet)
 	a.away = false
 	m.ring(a)
 	var ln := a.line
@@ -487,7 +496,7 @@ func _initialize() -> void:
 	# sobe com o FONE na linha conectada; entrar na linha estala; ouvindo, a suspeita sobe (sem ouvir, baixa) e, em 1,
 	# eles desligam e denunciam (advertência grave no relatório da noite seguinte)
 	var ed: TransferCall = GameData.transfers(TransferCall.Group.ESTABLISHMENT)[1].duplicate()
-	ed.overheard = ["Liguei pra saber da reunião de amanhã.", "Ficou pras oito, na casa do Benedito."]
+	ed.overheard = ["Liguei pra saber da reunião de amanhã.", "Ficou pras [time:oito], na casa do [person:Benedito Souza]."]
 	ed.overheard_sets = ["ouviu_teste"]
 	ed.overheard_flags = ["", "ouviu_hora"]
 	ed.wary = 1.5
@@ -520,6 +529,12 @@ func _initialize() -> void:
 	ed.wary = 0.5   # (ouvindo o cumprimento e as falas de uma vez, a desconfiança comum chega a denunciar)
 	ok(await wait_until(func(): return m.flags.allows(["ouviu_teste"])), "escuta: ouviu as falas escritas e o marcador da ligação liga")
 	ok(m.flags.allows(["ouviu_hora"]), "escuta: e o da fala ouvida")
+	ok(m.eavesdrop.clues.map(func(k: Clue): return [k.word, k.kind, k.call]) == [["oito", "time", ea], ["Benedito Souza", "person", ea]],
+		"escuta: as palavras-chave ouvidas inteiras ficam guardadas, sem as marcas")
+	var saved := Clue.from_dict(m.eavesdrop.clues[1].to_dict())
+	ok([saved.word, saved.kind, saved.night, saved.caller, saved.number] == ["Benedito Souza", "person", m.night_no, ea.caller, str(et)],
+		"escuta: a palavra-chave volta igual do progresso salvo (para as noites seguintes)")
+	ok(m.phone.shown().transcript.all(func(l: Dictionary): return not "[" in l["text"]), "escuta: a marca não aparece na tela")
 	ok(ea.suspicion > Eavesdrop.CLICK and m.flags.allows(["escutou_%d" % m.night_no]), "escuta: ouvindo, a suspeita sobe e o marcador liga")
 	ok(m.phone.shown() != ea and m.phone.shown().line == el, "escuta: a tela mostra o que se ouve (fora do registro da ligação)")
 	ok(await wait_until(func(): return ex.line(el) == Exchange.Line.DONE), "escuta: depois da última fala escrita, eles se despedem e desligam")

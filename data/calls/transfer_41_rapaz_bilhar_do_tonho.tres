@@ -12,3 +12,4 @@ repeat = "O bilhar do Tonho, na Rua do Comércio."
 target = "355"
 destination = "Bilhar do Tonho"
 thanks = "Valeu! O senhor é dos bons."
+overheard = PackedStringArray("Tonho? Esqueci meu chapéu aí.", "Um de palha, com fita preta?", "Esse! Era do meu avô. Minha mãe vai me matar.", "Está pendurado atrás do balcão. Vem buscar amanhã.", "Não dá pra ser hoje? Por favor.", "Vem rápido, que eu fecho às onze.")

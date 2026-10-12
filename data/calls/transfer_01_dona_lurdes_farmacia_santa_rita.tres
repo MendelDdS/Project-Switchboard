@@ -10,3 +10,4 @@ repeat = "A farmácia de plantão, moço. A que fica aberta de noite."
 target = "162"
 destination = "Farmácia Santa Rita"
 thanks = "Obrigada, meu filho. Deus te abençoe."
+overheard = PackedStringArray("Boa noite. Meu neto está com febre, e alta.", "Quantos anos tem o menino, senhora?", "Seis. Está mole, não quer nem água.", "Tenho um antitérmico em gotas. Mando o rapaz levar aí.", "Deus lhe pague. E se a febre não baixar?", "Aí chama o médico. Mas dá banho morno, que ajuda.")

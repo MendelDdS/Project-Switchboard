@@ -11,3 +11,4 @@ repeat = "O Posto São Cristóvão."
 target = "347"
 destination = "Posto São Cristóvão"
 thanks = "Obrigado, central."
+overheard = PackedStringArray("Ainda está aberto? Estou quase sem gasolina.", "Fecho às dez. Você está onde?", "Na saída da cidade. O ponteiro já está no vermelho.", "Dá pra chegar. Vem devagar, sem acelerar muito.", "Me espera, pelo amor de Deus.", "Espero. Deixo a luz da bomba acesa.")

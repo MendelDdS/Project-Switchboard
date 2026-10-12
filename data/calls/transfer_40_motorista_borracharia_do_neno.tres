@@ -15,3 +15,4 @@ alt_target = "318"
 alt_destination = "Oficina do Tião"
 alt_ask = "A borracharia não atende. Quer que eu tente a Oficina do Tião?"
 alt_yes = "Tenta. O Tião também conserta pneu."
+overheard = PackedStringArray("Boa noite. Furou o pneu do caminhão na entrada da cidade.", "O estepe também está ruim?", "Está careca, não aguenta a carga.", "Levo um pneu e o macaco grande. Em meia hora estou aí.", "Estou com o pisca ligado, do lado da placa.")

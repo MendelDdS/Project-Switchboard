@@ -15,3 +15,4 @@ alt_target = "305"
 alt_destination = "Hotel Estrela"
 alt_ask = "A pensão não atende. Quer que eu tente o Hotel Estrela?"
 alt_yes = "Tenta, sim. Vai ver ele foi pra lá."
+overheard = PackedStringArray("Boa noite, moço. Meu filho chegou de viagem e ficou aí.", "Como ele se chama, senhora?", "Rogério. Um moço alto, de bigode.", "Chegou, sim. Está jantando lá na sala.", "Diz pra ele vir almoçar comigo amanhã.", "Digo, sim. Boa noite, senhora.")

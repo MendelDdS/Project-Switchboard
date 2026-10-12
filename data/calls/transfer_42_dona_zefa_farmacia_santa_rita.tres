@@ -15,3 +15,4 @@ alt_target = "118"
 alt_destination = "Farmácia Central"
 alt_ask = "A Santa Rita não atende. Quer que eu tente a Farmácia Central, da praça?"
 alt_yes = "Qualquer uma, moço. Contanto que tenha remédio."
+overheard = PackedStringArray("Boa noite. Meu marido está com uma dor de dente horrível.", "Inchou o rosto?", "Um pouco. Ele não para de gemer, ninguém dorme.", "Tenho um analgésico forte. E compressa fria no rosto.", "Mando meu filho buscar agora.", "E amanhã leva ele no dentista, sem desculpa.")

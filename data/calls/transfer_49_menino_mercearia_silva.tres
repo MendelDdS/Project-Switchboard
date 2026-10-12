@@ -15,3 +15,4 @@ alt_target = "288"
 alt_destination = "Armazém Ferreira"
 alt_ask = "A mercearia não atende. Quer que eu tente o Armazém Ferreira?"
 alt_yes = "(cochichando) Mãe, pode ser o Ferreira? ... Ela disse que pode!"
+overheard = PackedStringArray("Alô? Moço, minha mãe quer saber se ainda tem leite.", "Tem dois litros. Quem é que está falando?", "É o Tiaguinho, filho da Dona Lurdinha.", "Diz pra ela que eu guardo. Pode vir buscar.", "Mãe! Ele disse que tem!")

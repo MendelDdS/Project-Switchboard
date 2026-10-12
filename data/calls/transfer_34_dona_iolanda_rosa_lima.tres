@@ -11,3 +11,4 @@ repeat = "Rosa Lima, das Acácias."
 target = "296"
 destination = "Rosa Lima"
 thanks = "Obrigada, querido."
+overheard = PackedStringArray("Rosa? É a Iolanda! Da capital.", "Iolanda! Faz quanto tempo, minha irmã!", "Vou passar o Natal aí com vocês, se puder.", "Se pode? Vou arrumar o quarto da frente pra você.", "Chego no dia vinte, no ônibus da tarde.")

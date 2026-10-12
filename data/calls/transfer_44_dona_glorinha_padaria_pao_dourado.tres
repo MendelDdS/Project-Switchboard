@@ -11,3 +11,4 @@ repeat = "A padaria Pão Dourado, na Rua das Acácias."
 target = "142"
 destination = "Padaria Pão Dourado"
 thanks = "Obrigada, querido. Vou pedir um de coco."
+overheard = PackedStringArray("Boa noite. Quero encomendar o bolo do aniversário da minha neta.", "Que bom! De que sabor, Dona Glorinha?", "Chocolate com morango. Ela faz sete anos.", "Escrevo o nome dela em cima?", "Escreve: Mariana. Com letra cor-de-rosa.", "Fica pronto sábado às dez.")

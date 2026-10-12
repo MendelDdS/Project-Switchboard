@@ -12,3 +12,4 @@ repeat = "Laudelina Prado. Da Bela Vista."
 target = "280"
 destination = "Laudelina Prado"
 thanks = "Obrigada, meu bem."
+overheard = PackedStringArray("Dona Laudelina? É a Mirtes. Da forma de pudim.", "Ah, Mirtes! E o pudim, deu certo?", "Ficou lindo. Todo mundo pediu a receita.", "Que bom. A forma pode trazer quando quiser.", "Levo amanhã cedo, com um pedaço do pudim.")

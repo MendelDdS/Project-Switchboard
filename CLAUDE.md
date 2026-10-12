@@ -273,12 +273,19 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   Depois da última fala escrita, os dois se despedem (`C.overheard_bye`/`overheard_bye_back`) e desligam
   (`Main.talk_over`). Regras de escrita conferidas no teste de fluxo (`_check_talks`): sem o tipo do lugar num
   lugar com ramo (a alternativa pode atender; `KIND_WORDS`), só lacunas que existem, cada fala até `TALK_MAX` letras
-  nos três idiomas. Todo motivo da Vila Serena tem duas conversas (o teste confere); os outros setores e os roteiros
-  escritos ainda só murmuram. **A conversa anda ouvindo ou não**: o que ele não ouviu, perdeu (entrando
+  nos três idiomas. Todo motivo tem duas conversas e toda transferência escrita tem a sua (`overheard`; o teste
+  confere); só os roteiros da noite (`story`) ainda murmuram. **A conversa anda ouvindo ou não**: o que ele não ouviu, perdeu (entrando
   no meio, a fala começa com "…"), mas com falas escritas ela não acaba antes da última (`Eavesdrop.speaking`, no
   `Main._update_line_timers`). Cada escrita ouvida (`HEARD_SHARE` dela) liga o marcador dela
   (`TransferCall.overheard_flags`, na mesma ordem: o roteiro sabe se ele pegou o nome, a hora); ouvidas todas, os da
-  ligação (`overheard_sets`). **A
+  ligação (`overheard_sets`). **Palavras-chave** (`Clue`, `scripts/model/clue.gd`): nas falas escritas, marcadas
+  `[tipo:texto]` (tipos em `Clue.KINDS`: person, street, place, phone, time...; podem envolver uma lacuna,
+  `[time:{hour}]`); a marca some da tela e da voz (`Clue.parse`, no `Eavesdrop._say`), e a palavra ouvida com todas
+  as letras (nenhuma perdida com a chave abaixada) entra em `Eavesdrop.clues` (palavra, tipo, noite, hora, quem ligou
+  e para que número; uma vez por conversa) com o sinal `clue_heard`. Ficam as de todas as noites: salvas no
+  `Progress.clues` (em dicionário, `Clue.to_dict`/`from_dict`) no fim do turno e lidas no `Eavesdrop._ready`. É a
+  base do documento que o jogador vai repassar a um interessado (ainda não existe; por ora nada lê `clues`). O teste confere os tipos, as marcas
+  fechadas e que a tradução mantém os tipos (`_holes`). **A
   suspeita** (`PhoneCall.suspicion`, 0 a 1 em `LISTEN_SEC` ouvindo; cada entrada na linha, pela chave subindo ou pelo
   FONE encaixando com ela em cima, soma `CLICK`; tudo vezes a desconfiança deles, `TransferCall.wary`; sem ninguém
   ouvindo, baixa em `COOL_SEC`) só aparece na conversa:
@@ -544,7 +551,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   Para um recurso novo usar marcadores: exporte `requires`/`sets` e chame `allows`/`apply`. Testar um ramo:
   `-- --night=2 --flags=a,b`.
 - `Progress` (`scripts/model/progress.gd`, `user://progress.cfg`): próxima noite e graves acumuladas
-  (`ShiftReport.severe_before`/`severe_total()`/`fired()`) e marcadores. Main salva em `start_ending` (última
+  (`ShiftReport.severe_before`/`severe_total()`/`fired()`), marcadores e as palavras-chave ouvidas (`clues`). Main salva em `start_ending` (última
   noite ou demissão limpa o save). `-- --night=N` força uma noite **sem ler nem gravar** o save; `test_base.load_main` força a noite 1.
 
 ## Agenda e ritmo (constantes no topo de main.gd e schedule.gd; por noite em `Night`)

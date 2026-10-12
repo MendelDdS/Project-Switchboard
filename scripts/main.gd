@@ -1194,6 +1194,7 @@ func start_ending() -> void:
 			progress.flags = flags.names()
 			progress.news = report.news()
 			progress.later = report.later if later else []
+			progress.clues = eavesdrop.clues.map(func(k: Clue): return k.to_dict())
 			progress.save()
 	await get_tree().create_timer(5.0, false).timeout
 	_ending.play(report, not last)

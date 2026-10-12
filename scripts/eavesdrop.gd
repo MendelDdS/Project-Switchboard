@@ -10,6 +10,9 @@ extends Node
 ## alguém na linha (`ASK`) e, em 1, desligam para denunciar a telefonista: a companhia cobra no relatório da noite
 ## seguinte (`Supervisor.fault_later`, advertência grave `eavesdrop`). Marcadores para o roteiro: `escutou_N` (ouviu
 ## alguma conversa na noite N), `denunciado_N` e os da ligação ouvida inteira (`TransferCall.overheard_sets`).
+## Palavras-chave (`Clue`, `[tipo:texto]` nas falas escritas): ouvida inteira, entra em `clues` (`clue_heard`).
+
+signal clue_heard(clue: Clue)
 
 const LISTEN_SEC := 25.0   # segundos ouvindo até a suspeita chegar a 1 (a conversa toda dura 45–90 s)
 const CLICK := 0.08        # o estalo de cada vez que a chave sobe
@@ -26,8 +29,14 @@ var _ears := {}   ## linha -> o que o operador ouve dela (a transcrição da tel
 var _cue := {}    ## linha -> fala que um deles diz na próxima vez (a pergunta da suspeita)
 var _quiet := {}  ## linha -> s de silêncio que faltam (`HUSH`)
 var _written := {}  ## linhas cuja conversa ainda tem falas escritas por dizer (`speaking`)
+var clues: Array[Clue] = []   ## as palavras-chave ouvidas, desta noite e das anteriores (`Progress.clues`), na ordem
 
 @onready var main: Main = get_parent()
+
+
+func _ready() -> void:
+	if main.progress != null:
+		clues.assign(main.progress.clues.map(Clue.from_dict))
 
 
 func _process(delta: float) -> void:
@@ -191,13 +200,33 @@ func _talk(c: PhoneCall, ear: PhoneCall) -> void:
 				return
 
 
+## A palavra-chave `word` (`kind`) da conversa da linha `n` foi ouvida inteira.
+func _clue(n: int, word: String, kind: String) -> void:
+	var c: PhoneCall = calls.get(n)
+	if c == null or clues.any(func(k: Clue): return k.call == c and k.word == word):
+		return
+	var k := Clue.new()
+	k.word = word
+	k.kind = kind
+	k.call = c
+	k.night = main.night_no
+	k.minutes = main.minutes
+	k.caller = c.caller
+	k.number = str(c.dest_num)
+	clues.append(k)
+	clue_heard.emit(k)
+
+
 ## Um dos dois diz `text` (`shown`: na transcrição; senão, só o som, o murmúrio), letra a letra como na
 ## `Conversation.say`. Anda com o operador ouvindo ou não (ele ouve e vê só o que pegou; entrando no meio, a fala
 ## começa com "…") e para no silêncio da suspeita. Devolve quanto dela ele ouviu (0 a 1), ou -1 se a linha cair.
 func _say(ear: PhoneCall, text: String, who: String, voice: String, shown: bool) -> float:
-	text = tr(text)
+	var parsed := Clue.parse(tr(text))   # sem as marcas das palavras-chave
+	text = parsed[0]
+	text = text.left(1).to_upper() + text.substr(1)   # a fala pode começar por uma palavra-chave
 	var li := -1
 	var heard := 0
+	var missed := -1   # a última letra que o operador não ouviu
 	var prev_vowel := false
 	var pitch := Sfx.pitch_of(who)
 	for i in text.length():
@@ -214,6 +243,11 @@ func _say(ear: PhoneCall, text: String, who: String, voice: String, shown: bool)
 					li = ear.add_line(who, "…" if i > 0 else "")
 				ear.append_text(li, text[i])
 			prev_vowel = Sfx.speak_char(voice, text, i, prev_vowel, false, -1.0, pitch, 0.0, 0.0 if shown else MURMUR_DB)
+		else:
+			missed = i
+		for s in parsed[1]:
+			if s[1] - 1 == i and missed < s[0]:
+				_clue(ear.line, text.substr(s[0], s[1] - s[0]), s[2])
 		await get_tree().create_timer((0.09 if text[i] in [",", "."] else 0.028) * Settings.char_delay(), false).timeout
 	await get_tree().create_timer(0.5, false).timeout
 	return -1.0 if ear.ended else heard / float(maxi(1, text.length()))

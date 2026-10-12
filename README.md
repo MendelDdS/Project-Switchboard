@@ -134,6 +134,12 @@ desconhecida são sempre escritos à mão.
   e `{street}`/`{house}`, uma rua e um número dos setores atendidos. O valor é sorteado uma vez por conversa (o mesmo em
   todas as falas dela), então a hora ou o tempo que se ouve muda de uma ligação para outra. Lacuna nova: um `TalkFill`
   novo; o valor precisa servir em todas as falas que usam a lacuna.
+- **Palavras-chave das conversas escutadas:** nas falas escritas, o que o jogador deve pegar escutando (nomes, ruas,
+  telefones, horários) vai marcado como `[tipo:texto]`: "Ficou pras [time:oito], na casa do [person:Benedito Souza]."
+  Tipos: `person` (pessoa), `street` (rua ou endereço), `place` (lugar), `phone` (telefone), `time` (hora), `date`
+  (data), `number` (outro número), `other`. A marca não aparece na tela nem na voz, e pode envolver uma lacuna
+  (`[time:{hour}]`). O jogador só pega a palavra se ouvir todas as letras dela. Na tradução, mantenha a marca e o
+  tipo e traduza só o texto ("[time:eight]"); nomes próprios ficam iguais.
 - **A voz de quem atende** é a `voice` do contato (`f`, `m`, `w`, `k`); sem ela, uma tirada do nome, sempre a mesma.
 - A primeira letra de cada fala vira maiúscula depois de preenchida (`GameData.fill`).
 

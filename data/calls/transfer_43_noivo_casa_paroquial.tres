@@ -15,3 +15,4 @@ alt_target = "124"
 alt_destination = "Igreja Matriz"
 alt_ask = "A Casa Paroquial não atende. Quer que eu tente a secretaria da Igreja Matriz?"
 alt_yes = "Pode ser. Alguém lá deve dar o recado."
+overheard = PackedStringArray("Boa noite. Desculpe a hora. É sobre o meu casamento no sábado.", "Pode falar, meu filho. Algum problema?", "A noiva quer mudar pras cinco. Os parentes chegam atrasados.", "Às cinco tem batizado. Pode ser às seis?", "Às seis está ótimo. Ela vai ficar feliz.", "Então seis horas. E nada de atraso da noiva, hein?")

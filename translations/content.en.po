@@ -16,8 +16,104 @@ msgid "Quero comprar fósforo e querosene ainda hoje."
 msgstr "I want to buy matches and kerosene tonight."
 
 #: data/content.tres
+msgid "Boa noite. Ainda dá pra comprar fósforo e querosene hoje?"
+msgstr "Good evening. Can I still buy matches and kerosene tonight?"
+
+#: data/content.tres
+msgid "A porta já fechou, mas eu atendo pela janela do lado."
+msgstr "The door's closed, but I'll serve you at the side window."
+
+#: data/content.tres
+msgid "Ótimo. Quero um litro de querosene e duas caixas de fósforo."
+msgstr "Great. I'd like a liter of kerosene and two boxes of matches."
+
+#: data/content.tres
+msgid "Traz a garrafa, que o querosene eu vendo a granel."
+msgstr "Bring a bottle, I sell kerosene loose."
+
+#: data/content.tres
+msgid "Chego em {wait}. Pode ser?"
+msgstr "I'll be there in {wait}. All right?"
+
+#: data/content.tres
+msgid "Pode. Só não passa das {hour}, que eu vou deitar."
+msgstr "Fine. Just don't come after {hour}, I'm going to bed."
+
+#: data/content.tres
+msgid "Boa noite. Faltou luz aqui e o lampião está seco."
+msgstr "Good evening. The power's out here and the lamp is dry."
+
+#: data/content.tres
+msgid "Querosene eu tenho. Quanto você precisa?"
+msgstr "I've got kerosene. How much do you need?"
+
+#: data/content.tres
+msgid "Meio litro basta. E uma caixa de fósforo, que a minha molhou."
+msgstr "Half a liter will do. And a box of matches, mine got wet."
+
+#: data/content.tres
+msgid "Pode vir. Bate na porta dos fundos, que eu escuto."
+msgstr "Come on over. Knock at the back door, I'll hear you."
+
+#: data/content.tres
+msgid "Pago amanhã? Hoje estou sem dinheiro trocado."
+msgstr "Can I pay tomorrow? I've no change tonight."
+
+#: data/content.tres
+msgid "Anoto na caderneta. Paga no fim do mês."
+msgstr "I'll put it on your tab. Pay at the end of the month."
+
+#: data/content.tres
 msgid "Quero saber se amanhã chega querosene."
 msgstr "I want to know if the kerosene comes in tomorrow."
+
+#: data/content.tres
+msgid "Boa noite. O querosene chega amanhã?"
+msgstr "Good evening. Is the kerosene coming in tomorrow?"
+
+#: data/content.tres
+msgid "O caminhão vem amanhã cedo, se a estrada deixar."
+msgstr "The truck comes early tomorrow, if the road allows."
+
+#: data/content.tres
+msgid "Então separa cinco litros pra mim?"
+msgstr "Then will you set aside five liters for me?"
+
+#: data/content.tres
+msgid "Separo. Passa depois das {hour}, que até lá já descarregou."
+msgstr "I will. Come after {hour}, it'll be unloaded by then."
+
+#: data/content.tres
+msgid "Levo o galão vazio. Quanto está o litro?"
+msgstr "I'll bring the empty can. How much a liter?"
+
+#: data/content.tres
+msgid "Subiu um pouco. Amanhã eu te digo o preço certo."
+msgstr "It went up a bit. I'll tell you the exact price tomorrow."
+
+#: data/content.tres
+msgid "Boa noite. O querosene já acabou aí?"
+msgstr "Good evening. Are you out of kerosene?"
+
+#: data/content.tres
+msgid "Acabou hoje à tarde. Chega mais amanhã, no caminhão."
+msgstr "Ran out this afternoon. More comes tomorrow on the truck."
+
+#: data/content.tres
+msgid "Que horas o caminhão costuma chegar?"
+msgstr "What time does the truck usually arrive?"
+
+#: data/content.tres
+msgid "Lá pelas {dawn} da manhã. Ele sai da capital de madrugada."
+msgstr "Around {dawn} in the morning. It leaves the capital before dawn."
+
+#: data/content.tres
+msgid "Então eu passo cedo, antes de ir pro serviço."
+msgstr "Then I'll come early, before work."
+
+#: data/content.tres
+msgid "Vem, que eu guardo um galão no seu nome."
+msgstr "Do. I'll keep a can under your name."
 
 #: data/content.tres
 msgid "Armazém Ferreira, boa noite."
@@ -212,8 +308,104 @@ msgid "Quero encomendar leite e queijo pra amanhã."
 msgstr "I want to order milk and cheese for tomorrow."
 
 #: data/content.tres
+msgid "Boa noite. Queria encomendar leite e queijo pra amanhã."
+msgstr "Good evening. I'd like to order milk and cheese for tomorrow."
+
+#: data/content.tres
+msgid "Quanto de leite? A ordenha é às {dawn}."
+msgstr "How much milk? Milking is at {dawn}."
+
+#: data/content.tres
+msgid "Três litros. E um queijo fresco, dos grandes."
+msgstr "Three liters. And a fresh cheese, a big one."
+
+#: data/content.tres
+msgid "O fresco só fica pronto de tarde. Serve o curado?"
+msgstr "The fresh one's only ready in the afternoon. Will aged do?"
+
+#: data/content.tres
+msgid "Serve. Vocês entregam na {street}?"
+msgstr "That'll do. Do you deliver on {street}?"
+
+#: data/content.tres
+msgid "Entrega a carroça, lá pelas sete. Deixo no portão."
+msgstr "The cart delivers, around seven. I'll leave it at the gate."
+
+#: data/content.tres
+msgid "Boa noite. Amanhã é aniversário lá em casa. Preciso de leite e queijo."
+msgstr "Good evening. It's a birthday at home tomorrow. I need milk and cheese."
+
+#: data/content.tres
+msgid "Quanto vai ser?"
+msgstr "How much will you need?"
+
+#: data/content.tres
+msgid "Cinco litros de leite e dois queijos. Vou fazer pão de queijo."
+msgstr "Five liters of milk and two cheeses. I'm making cheese bread."
+
+#: data/content.tres
+msgid "Dá. Mas o queijo eu só entrego depois das {hour}."
+msgstr "Can do. But I only deliver cheese after {hour}."
+
+#: data/content.tres
+msgid "Está ótimo. A festa é de tarde."
+msgstr "That's fine. The party's in the afternoon."
+
+#: data/content.tres
+msgid "Então fica combinado. Acerta comigo na entrega."
+msgstr "Then it's settled. Pay me on delivery."
+
+#: data/content.tres
 msgid "Meu filho trabalha lá e ainda não voltou pra casa."
 msgstr "My son works there and he hasn't come home yet."
+
+#: data/content.tres
+msgid "Boa noite. Meu filho trabalha aí e ainda não voltou pra casa."
+msgstr "Good evening. My son works there and he hasn't come home yet."
+
+#: data/content.tres
+msgid "O rapaz do curral? Ficou até mais tarde por causa de uma vaca."
+msgstr "The boy from the corral? He stayed late because of a cow."
+
+#: data/content.tres
+msgid "Ai, que susto. Está tudo bem com ele?"
+msgstr "Oh, what a fright. Is he all right?"
+
+#: data/content.tres
+msgid "Está, sim. A vaca pariu agora há pouco e ele ajudou."
+msgstr "He is. The cow calved a little while ago and he helped."
+
+#: data/content.tres
+msgid "E como ele volta a essa hora? A estrada está escura."
+msgstr "And how's he getting back at this hour? The road is dark."
+
+#: data/content.tres
+msgid "Levo ele de charrete daqui a {wait}."
+msgstr "I'll take him in the buggy in {wait}."
+
+#: data/content.tres
+msgid "Boa noite. Meu filho ainda está aí no sítio?"
+msgstr "Good evening. Is my son still there at the farm?"
+
+#: data/content.tres
+msgid "Está. Ficou consertando a cerca que o boi derrubou."
+msgstr "He is. He stayed to fix the fence the ox knocked down."
+
+#: data/content.tres
+msgid "A janta dele está esfriando. Ele demora?"
+msgstr "His supper's getting cold. Will he be long?"
+
+#: data/content.tres
+msgid "Falta pouco. Ele disse que chega antes das {hour}."
+msgstr "Not much longer. He said he'll be home before {hour}."
+
+#: data/content.tres
+msgid "Pede pra ele vir pela estrada, não pelo mato."
+msgstr "Ask him to come by the road, not through the woods."
+
+#: data/content.tres
+msgid "Pode deixar. Empresto a lanterna pra ele."
+msgstr "Will do. I'll lend him the flashlight."
 
 #: data/content.tres
 msgid "Sítio Boa Esperança, pois não?"
@@ -244,8 +436,104 @@ msgid "Preciso marcar uma missa de sétimo dia."
 msgstr "I need to book a seventh-day mass."
 
 #: data/content.tres
+msgid "Boa noite. Queria marcar uma missa de sétimo dia."
+msgstr "Good evening. I'd like to arrange a seventh-day mass."
+
+#: data/content.tres
+msgid "Meus pêsames. Pra quando seria?"
+msgstr "My condolences. For when would it be?"
+
+#: data/content.tres
+msgid "Pra quinta-feira. Pode ser na missa das sete?"
+msgstr "For Thursday. Could it be at the seven o'clock mass?"
+
+#: data/content.tres
+msgid "Pode. Qual o nome do falecido, pra ler no altar?"
+msgstr "Yes. What's the name of the departed, to read at the altar?"
+
+#: data/content.tres
+msgid "Teodoro Bastos. Era meu avô."
+msgstr "Teodoro Bastos. He was my grandfather."
+
+#: data/content.tres
+msgid "Anotado. Quinta, às sete, pelo Teodoro Bastos."
+msgstr "Noted. Thursday at seven, for Teodoro Bastos."
+
+#: data/content.tres
+msgid "Boa noite. Minha tia faleceu e a família quer a missa de sétimo dia."
+msgstr "Good evening. My aunt passed away and the family wants the seventh-day mass."
+
+#: data/content.tres
+msgid "Sinto muito. Domingo tem missa às oito e às dez."
+msgstr "I'm sorry. Sunday there's mass at eight and at ten."
+
+#: data/content.tres
+msgid "Às dez é melhor, que vem gente de fora."
+msgstr "Ten is better, people are coming from out of town."
+
+#: data/content.tres
+msgid "Então fica às dez. Vão querer o coral?"
+msgstr "Ten it is, then. Will you want the choir?"
+
+#: data/content.tres
+msgid "Se puder, sim. Ela cantava no coral quando era moça."
+msgstr "If possible, yes. She sang in the choir as a girl."
+
+#: data/content.tres
+msgid "Eu falo com as moças do coral amanhã cedo."
+msgstr "I'll talk to the choir ladies first thing tomorrow."
+
+#: data/content.tres
 msgid "Quero pedir uma visita do padre pra minha mãe, que está de cama."
 msgstr "I'd like the priest to visit my mother, she's bedridden."
+
+#: data/content.tres
+msgid "Boa noite. Minha mãe está de cama e queria uma visita do padre."
+msgstr "Good evening. My mother's bedridden and would like a visit from the priest."
+
+#: data/content.tres
+msgid "Ela está muito mal?"
+msgstr "Is she very ill?"
+
+#: data/content.tres
+msgid "Não, graças a Deus. Mas não sai de casa faz um mês e sente falta da missa."
+msgstr "No, thank God. But she hasn't left the house in a month and misses mass."
+
+#: data/content.tres
+msgid "Amanhã, depois da missa das sete, alguém leva a comunhão."
+msgstr "Tomorrow, after the seven o'clock mass, someone will bring communion."
+
+#: data/content.tres
+msgid "Ela mora na {street}, número {house}."
+msgstr "She lives on {street}, number {house}."
+
+#: data/content.tres
+msgid "Anotado. Deixa o portão aberto, por favor."
+msgstr "Noted. Leave the gate open, please."
+
+#: data/content.tres
+msgid "Boa noite. Dá pra pedir que o padre passe lá em casa? Minha mãe pediu."
+msgstr "Good evening. Could the priest stop by our house? My mother asked."
+
+#: data/content.tres
+msgid "Ela está doente?"
+msgstr "Is she sick?"
+
+#: data/content.tres
+msgid "Quebrou a perna e está de cama. Queria se confessar."
+msgstr "She broke her leg and she's in bed. She'd like to confess."
+
+#: data/content.tres
+msgid "Sábado de manhã dá. Lá pelas {hour}, depois das visitas do hospital."
+msgstr "Saturday morning works. Around {hour}, after the hospital rounds."
+
+#: data/content.tres
+msgid "Está ótimo. Ela vai ficar tão contente."
+msgstr "That's wonderful. She'll be so happy."
+
+#: data/content.tres
+msgid "Diga a ela que vamos rezar por ela."
+msgstr "Tell her we'll pray for her."
 
 #: data/content.tres
 msgid "Casa Paroquial, boa noite."
@@ -396,8 +684,104 @@ msgid "Ele é meu cunhado. É assunto de família."
 msgstr "He's my brother-in-law. It's a family matter."
 
 #: data/content.tres
+msgid "Geraldo, sou eu. Desculpa a hora, é sobre a mamãe."
+msgstr "Geraldo, it's me. Sorry about the hour, it's about Mom."
+
+#: data/content.tres
+msgid "Aconteceu alguma coisa com a sogra?"
+msgstr "Did something happen to your mom?"
+
+#: data/content.tres
+msgid "Nada grave. Mas ela quer reunir a família no domingo."
+msgstr "Nothing serious. But she wants the family together on Sunday."
+
+#: data/content.tres
+msgid "Domingo? E a que horas?"
+msgstr "Sunday? What time?"
+
+#: data/content.tres
+msgid "Almoço, ao meio-dia. E pediu pra levar a sobremesa."
+msgstr "Lunch, at noon. And she asked you to bring dessert."
+
+#: data/content.tres
+msgid "Então avisa que a gente vai. A sobremesa é com a sua irmã."
+msgstr "Tell her we'll be there. Dessert's your sister's job."
+
+#: data/content.tres
+msgid "Boa noite, Geraldo. Precisamos falar da casa do sítio."
+msgstr "Evening, Geraldo. We need to talk about the farmhouse."
+
+#: data/content.tres
+msgid "A do seu pai? O que tem ela?"
+msgstr "Your father's? What about it?"
+
+#: data/content.tres
+msgid "O telhado caiu num canto. Choveu dentro a semana toda."
+msgstr "The roof caved in at one corner. It rained inside all week."
+
+#: data/content.tres
+msgid "Então tem que arrumar antes que piore."
+msgstr "Then it needs fixing before it gets worse."
+
+#: data/content.tres
+msgid "Pois é. Dá pra dividir a telha entre a família?"
+msgstr "Exactly. Can the family split the cost of tiles?"
+
+#: data/content.tres
+msgid "Dá. Sábado eu subo lá com a escada e vejo quanto precisa."
+msgstr "Sure. Saturday I'll go up with the ladder and see what's needed."
+
+#: data/content.tres
 msgid "Ele ficou de me emprestar o carro amanhã cedo."
 msgstr "He said he'd lend me his car early tomorrow."
+
+#: data/content.tres
+msgid "Geraldo, boa noite. O carro amanhã ainda está de pé?"
+msgstr "Evening, Geraldo. Is the car still on for tomorrow?"
+
+#: data/content.tres
+msgid "Está. Mas o tanque está na reserva, viu?"
+msgstr "It is. But the tank's on reserve, mind."
+
+#: data/content.tres
+msgid "Eu ponho gasolina. A que horas eu pego?"
+msgstr "I'll fill it up. What time do I pick it up?"
+
+#: data/content.tres
+msgid "Às {dawn}. A chave fica embaixo do tapete."
+msgstr "At {dawn}. The key's under the mat."
+
+#: data/content.tres
+msgid "Combinado. Devolvo antes do almoço."
+msgstr "Deal. I'll bring it back before lunch."
+
+#: data/content.tres
+msgid "E cuidado com a segunda marcha, que ela escapa."
+msgstr "And careful with second gear, it slips."
+
+#: data/content.tres
+msgid "Boa noite, Geraldo. Preciso do carro amanhã cedo pra levar a mamãe ao médico."
+msgstr "Evening, Geraldo. I need the car early tomorrow to take Mom to the doctor."
+
+#: data/content.tres
+msgid "Pode levar. Ele está na garagem, com a chave no contato."
+msgstr "Take it. It's in the garage, key in the ignition."
+
+#: data/content.tres
+msgid "Ótimo. Devolvo de tarde, de tanque cheio."
+msgstr "Great. I'll return it in the afternoon, tank full."
+
+#: data/content.tres
+msgid "O pneu da frente está meio murcho. Passa no posto antes."
+msgstr "The front tire's a bit low. Stop at the station first."
+
+#: data/content.tres
+msgid "Pode deixar. A consulta é às {hour}, dá tempo."
+msgstr "Will do. The appointment's at {hour}, there's time."
+
+#: data/content.tres
+msgid "Manda um abraço pra ela."
+msgstr "Give her my love."
 
 #: data/content.tres
 msgid "do seu Geraldo Martins"
@@ -416,8 +800,104 @@ msgid "Ela é minha comadre. Quero saber como ela está."
 msgstr "She's my child's godmother. I want to know how she's doing."
 
 #: data/content.tres
+msgid "Comadre, boa noite! Liguei pra saber como você está."
+msgstr "Evening, my dear! I called to see how you're doing."
+
+#: data/content.tres
+msgid "Ah, que bom ouvir sua voz. Estou melhor da gripe."
+msgstr "Oh, how nice to hear your voice. I'm over the worst of the flu."
+
+#: data/content.tres
+msgid "E a tosse, passou?"
+msgstr "And the cough, is it gone?"
+
+#: data/content.tres
+msgid "Quase. Estou tomando chá de limão com mel toda noite."
+msgstr "Almost. I'm having lemon tea with honey every night."
+
+#: data/content.tres
+msgid "Amanhã eu levo uma canja aí, lá pelas {hour}."
+msgstr "Tomorrow I'll bring you some chicken soup, around {hour}."
+
+#: data/content.tres
+msgid "Vem, sim. E traz o afilhado, que estou com saudade."
+msgstr "Please do. And bring my godson, I miss him."
+
+#: data/content.tres
+msgid "Boa noite, comadre. Fiquei sabendo que você caiu no quintal."
+msgstr "Evening, dear. I heard you had a fall in the yard."
+
+#: data/content.tres
+msgid "Caí, mas foi só o tornozelo. Já está enfaixado."
+msgstr "I did, but it was just my ankle. It's bandaged now."
+
+#: data/content.tres
+msgid "E quem está cuidando de você?"
+msgstr "And who's looking after you?"
+
+#: data/content.tres
+msgid "Minha sobrinha vem de manhã. De noite fico com o rádio."
+msgstr "My niece comes in the mornings. At night I've got the radio."
+
+#: data/content.tres
+msgid "Amanhã eu passo aí e faço o almoço."
+msgstr "Tomorrow I'll come by and make lunch."
+
+#: data/content.tres
+msgid "Não precisa, mas eu aceito. Traz o pão da padaria."
+msgstr "No need, but I'll accept. Bring bread from the bakery."
+
+#: data/content.tres
 msgid "Ela ficou de me devolver uma panela."
 msgstr "She was supposed to give me back a pot."
+
+#: data/content.tres
+msgid "Boa noite, Marta. Lembra da panela de pressão que eu te emprestei?"
+msgstr "Evening, Marta. Remember the pressure cooker I lent you?"
+
+#: data/content.tres
+msgid "Lembro! Está aqui lavadinha, esperando você."
+msgstr "I do! It's right here, washed and waiting for you."
+
+#: data/content.tres
+msgid "Preciso dela amanhã. Vou cozinhar feijão pra festa."
+msgstr "I need it tomorrow. I'm cooking beans for the party."
+
+#: data/content.tres
+msgid "Eu levo aí de manhã, lá pelas {hour}."
+msgstr "I'll bring it over in the morning, around {hour}."
+
+#: data/content.tres
+msgid "E a borracha da tampa, ainda está boa?"
+msgstr "And the lid's rubber seal, still good?"
+
+#: data/content.tres
+msgid "Troquei. A outra estava gasta, pus uma nova."
+msgstr "I changed it. The old one was worn, I put in a new one."
+
+#: data/content.tres
+msgid "Oi, Marta. Desculpa a hora. É por causa da panela grande."
+msgstr "Hi, Marta. Sorry about the hour. It's about the big pot."
+
+#: data/content.tres
+msgid "Ai, eu esqueci! Usei no domingo e ficou aqui."
+msgstr "Oh, I forgot! I used it Sunday and it stayed here."
+
+#: data/content.tres
+msgid "Não tem pressa. Mas amanhã vou fazer doce de goiaba."
+msgstr "No hurry. But tomorrow I'm making guava jam."
+
+#: data/content.tres
+msgid "Então eu levo cedo. E quero provar o doce, viu?"
+msgstr "Then I'll bring it early. And I want a taste of that jam."
+
+#: data/content.tres
+msgid "Separo um pote pra você."
+msgstr "I'll save you a jar."
+
+#: data/content.tres
+msgid "Lá pelas {hour} eu passo aí."
+msgstr "I'll be there around {hour}."
 
 #: data/content.tres
 msgid "da Dona Marta Costa"
@@ -436,8 +916,104 @@ msgid "Ela está costurando o vestido de noiva da minha filha."
 msgstr "She's sewing my daughter's wedding dress."
 
 #: data/content.tres
+msgid "Boa noite, Dona Laudelina. Como está o vestido da minha filha?"
+msgstr "Good evening, Dona Laudelina. How's my daughter's dress coming?"
+
+#: data/content.tres
+msgid "Falta a barra e os botões das costas. Quase pronto."
+msgstr "Just the hem and the back buttons left. Nearly done."
+
+#: data/content.tres
+msgid "O casamento é sábado. Dá tempo?"
+msgstr "The wedding's Saturday. Will there be time?"
+
+#: data/content.tres
+msgid "Dá. Mas ela precisa vir provar amanhã, às {hour}."
+msgstr "Yes. But she has to come try it on tomorrow at {hour}."
+
+#: data/content.tres
+msgid "Ela vai. E o véu, a senhora também faz?"
+msgstr "She'll come. And the veil, do you make that too?"
+
+#: data/content.tres
+msgid "Faço, se trouxer a renda. Eu não tenho mais aqui."
+msgstr "I do, if you bring the lace. I've none left here."
+
+#: data/content.tres
+msgid "Boa noite. Desculpa ligar tarde, é sobre o vestido de noiva."
+msgstr "Good evening. Sorry to call late, it's about the wedding dress."
+
+#: data/content.tres
+msgid "Pode falar. Estou aqui mesmo com ele na máquina."
+msgstr "Go ahead. I've got it on the machine right now."
+
+#: data/content.tres
+msgid "Minha filha emagreceu. Acho que vai ficar largo."
+msgstr "My daughter's lost weight. I think it'll be loose."
+
+#: data/content.tres
+msgid "Então eu aperto na cintura. Ela vem provar quando?"
+msgstr "Then I'll take it in at the waist. When can she try it?"
+
+#: data/content.tres
+msgid "Amanhã, depois do serviço. Lá pelas {hour}?"
+msgstr "Tomorrow, after work. Around {hour}?"
+
+#: data/content.tres
+msgid "Pode vir. Deixo a luz da varanda acesa."
+msgstr "Come by. I'll leave the porch light on."
+
+#: data/content.tres
 msgid "Ela pediu pra eu ligar quando chegasse."
 msgstr "She asked me to call when I got home."
+
+#: data/content.tres
+msgid "Dona Laudelina? Cheguei. A senhora pediu pra eu avisar."
+msgstr "Dona Laudelina? I'm home. You asked me to let you know."
+
+#: data/content.tres
+msgid "Graças a Deus. Com essa estrada escura eu fico aflita."
+msgstr "Thank God. With that dark road I get anxious."
+
+#: data/content.tres
+msgid "O ônibus atrasou {wait}, mas chegou."
+msgstr "The bus was {wait} late, but it made it."
+
+#: data/content.tres
+msgid "E o pacote que eu mandei, entregou?"
+msgstr "And the parcel I sent, did you deliver it?"
+
+#: data/content.tres
+msgid "Entreguei, e sua irmã mandou um beijo."
+msgstr "I did, and your sister sends a kiss."
+
+#: data/content.tres
+msgid "Ah, que bom. Agora vai descansar."
+msgstr "Oh, good. Now go and rest."
+
+#: data/content.tres
+msgid "Boa noite, Dona Laudelina. Só pra avisar que cheguei bem."
+msgstr "Good evening, Dona Laudelina. Just letting you know I got in safe."
+
+#: data/content.tres
+msgid "Ah, que alívio. Choveu muito na serra?"
+msgstr "Oh, what a relief. Did it rain much up in the hills?"
+
+#: data/content.tres
+msgid "Bastante. A estrada tinha barro até o meio da roda."
+msgstr "Plenty. The mud on the road came up to the hubcaps."
+
+#: data/content.tres
+msgid "E você trouxe o tecido que eu pedi?"
+msgstr "And did you bring the fabric I asked for?"
+
+#: data/content.tres
+msgid "Trouxe. Três metros de cetim, {color}."
+msgstr "I did. Three meters of satin, {color}."
+
+#: data/content.tres
+msgid "Que maravilha. Amanhã cedo eu passo aí pra buscar."
+msgstr "Wonderful. I'll come pick it up early tomorrow."
 
 #: data/content.tres
 msgid "da Dona Laudelina Prado"
@@ -455,9 +1031,105 @@ msgstr "the Farmácia Central"
 msgid "Quero saber se tem remédio pra enjoo."
 msgstr "I want to know if you have something for nausea."
 
+#: data/content.tres
+msgid "Boa noite. Vocês têm remédio pra enjoo?"
+msgstr "Good evening. Do you have anything for nausea?"
+
+#: data/content.tres
+msgid "Tenho. É pra criança ou pra adulto?"
+msgstr "I do. Is it for a child or an adult?"
+
+#: data/content.tres
+msgid "Pra mim. Vou viajar de ônibus amanhã e passo mal na serra."
+msgstr "For me. I'm taking the bus tomorrow and the hills make me sick."
+
+#: data/content.tres
+msgid "Então toma um comprimido meia hora antes de sair."
+msgstr "Then take one tablet half an hour before you leave."
+
+#: data/content.tres
+msgid "Posso buscar agora? Moro na {street}."
+msgstr "Can I come for it now? I live on {street}."
+
+#: data/content.tres
+msgid "Pode. Toca a campainha, que eu estou de plantão."
+msgstr "Yes. Ring the bell, I'm on night duty."
+
+#: data/content.tres
+msgid "Boa noite. Meu filho está enjoado desde a janta."
+msgstr "Good evening. My son's been queasy since supper."
+
+#: data/content.tres
+msgid "Ele vomitou? Tem febre?"
+msgstr "Has he vomited? Any fever?"
+
+#: data/content.tres
+msgid "Vomitou uma vez. Febre, não."
+msgstr "Once. No fever."
+
+#: data/content.tres
+msgid "Dá soro caseiro aos golinhos. E tenho um xarope que ajuda."
+msgstr "Give him homemade saline in sips. And I've a syrup that helps."
+
+#: data/content.tres
+msgid "Vou buscar. Chego em {wait}."
+msgstr "I'll come get it. I'll be there in {wait}."
+
+#: data/content.tres
+msgid "Estou esperando. Se a febre vier, chama o médico."
+msgstr "I'll be waiting. If a fever comes, call the doctor."
+
 #: data/content.tres data/calls/transfer_22_seu_anibal_farmacia_central.tres
 msgid "Preciso de um remédio pra pressão."
 msgstr "I need some blood pressure medicine."
+
+#: data/content.tres
+msgid "Boa noite. Acabou o remédio de pressão do meu pai."
+msgstr "Good evening. My father's blood pressure pills ran out."
+
+#: data/content.tres
+msgid "Tem a receita? É qual remédio?"
+msgstr "Do you have the prescription? Which medicine?"
+
+#: data/content.tres
+msgid "Tenho a caixa vazia aqui. O médico deu receita pra seis meses."
+msgstr "I've got the empty box here. The doctor prescribed six months."
+
+#: data/content.tres
+msgid "Então traz a caixa e a receita, que eu vejo."
+msgstr "Then bring the box and the prescription, I'll check."
+
+#: data/content.tres
+msgid "Ele toma às {hour}. Ainda dá tempo?"
+msgstr "He takes it at {hour}. Is there still time?"
+
+#: data/content.tres
+msgid "Dá. Vem logo, que eu fecho a porta e atendo pela janela."
+msgstr "Yes. Come quickly, I'll close the door and serve at the window."
+
+#: data/content.tres
+msgid "Boa noite. A pressão da minha mãe subiu. Tem remédio aí?"
+msgstr "Good evening. My mother's blood pressure is up. Do you have medicine?"
+
+#: data/content.tres
+msgid "Tenho, mas sem receita não posso vender. Ela já toma algum?"
+msgstr "I do, but I can't sell it without a prescription. Does she take any?"
+
+#: data/content.tres
+msgid "Toma, mas acabou ontem. A receita está com ela."
+msgstr "She does, but it ran out yesterday. She has the prescription."
+
+#: data/content.tres
+msgid "Então traz a receita. E mede a pressão de novo daqui a {wait}."
+msgstr "Then bring the prescription. And check her pressure again in {wait}."
+
+#: data/content.tres
+msgid "E se continuar alta?"
+msgstr "And if it stays high?"
+
+#: data/content.tres
+msgid "Aí liga pro médico, ou pra central chamar o hospital."
+msgstr "Then call the doctor, or the exchange for the hospital."
 
 #: data/content.tres
 msgid "Farmácia Central, boa noite."
@@ -480,12 +1152,156 @@ msgid "Meu neto está com febre."
 msgstr "My grandson has a fever."
 
 #: data/content.tres
+msgid "Boa noite. Meu neto está com febre desde a tarde."
+msgstr "Good evening. My grandson's had a fever since this afternoon."
+
+#: data/content.tres data/calls/emergency_27_outro_rua_do_moinho_410.tres
+msgid "Quantos anos ele tem?"
+msgstr "How old is he?"
+
+#: data/content.tres
+msgid "Quatro. Está quente e não quer comer nada."
+msgstr "Four. He's burning up and won't eat a thing."
+
+#: data/content.tres
+msgid "Tenho um antitérmico em gotas. Dez gotas a cada seis horas."
+msgstr "I've fever drops. Ten drops every six hours."
+
+#: data/content.tres
+msgid "Mando o meu genro buscar em {wait}."
+msgstr "I'll send my son-in-law for it in {wait}."
+
+#: data/content.tres
+msgid "Está bem. E põe um pano úmido na testa dele."
+msgstr "All right. And put a damp cloth on his forehead."
+
+#: data/content.tres
+msgid "Boa noite. Meu neto acordou ardendo em febre."
+msgstr "Good evening. My grandson woke up burning with fever."
+
+#: data/content.tres
+msgid "Já mediu? Quanto deu?"
+msgstr "Did you take his temperature? How high?"
+
+#: data/content.tres
+msgid "Trinta e oito e meio. Ele está chorando muito."
+msgstr "Thirty-eight and a half. He's crying a lot."
+
+#: data/content.tres
+msgid "Dá um banho morno e eu separo o xarope pra febre."
+msgstr "Give him a lukewarm bath and I'll set aside the fever syrup."
+
+#: data/content.tres
+msgid "Moro na {street}. Vocês entregam?"
+msgstr "I live on {street}. Do you deliver?"
+
+#: data/content.tres
+msgid "Meu filho leva de bicicleta. Chega em {wait}."
+msgstr "My son will bring it on his bike. He'll be there in {wait}."
+
+#: data/content.tres
 msgid "Preciso de um remédio pra dor de dente."
 msgstr "I need something for a toothache."
 
 #: data/content.tres
+msgid "Boa noite. Estou com uma dor de dente que não aguento."
+msgstr "Good evening. I've got a toothache I can't stand."
+
+#: data/content.tres
+msgid "É no dente de cima ou de baixo? Está inchado?"
+msgstr "Upper tooth or lower? Is it swollen?"
+
+#: data/content.tres
+msgid "De baixo, no fundo. Inchou um pouco o rosto."
+msgstr "Lower, at the back. My face swelled up a bit."
+
+#: data/content.tres
+msgid "Tenho um comprimido pra dor. Mas amanhã procura o dentista."
+msgstr "I've a pill for the pain. But see the dentist tomorrow."
+
+#: data/content.tres
+msgid "Vou, sim. Posso passar aí agora?"
+msgstr "I will. Can I come by now?"
+
+#: data/content.tres
+msgid "Pode. E enquanto isso, compressa fria no rosto."
+msgstr "Yes. And meanwhile, a cold compress on your face."
+
+#: data/content.tres
+msgid "Boa noite. Lá em casa ninguém dorme por causa de uma dor de dente."
+msgstr "Good evening. Nobody at home can sleep because of a toothache."
+
+#: data/content.tres
+msgid "Já tentou cravo? Põe um no dente que alivia."
+msgstr "Tried cloves? Put one on the tooth, it helps."
+
+#: data/content.tres
+msgid "Já, e não adiantou. Precisa de remédio mesmo."
+msgstr "We did, it didn't help. We need real medicine."
+
+#: data/content.tres
+msgid "Então eu separo um analgésico. Vem buscar até as {hour}."
+msgstr "Then I'll set aside a painkiller. Come get it by {hour}."
+
+#: data/content.tres
+msgid "Chego em {wait}. Deus lhe pague."
+msgstr "I'll be there in {wait}. Bless you."
+
+#: data/content.tres
+msgid "Vem pela porta do lado, que a da frente já fechou."
+msgstr "Use the side door, the front one's already shut."
+
+#: data/content.tres
 msgid "Quero saber se tem xarope pra tosse."
 msgstr "I want to know if they have cough syrup."
+
+#: data/content.tres
+msgid "Boa noite. Vocês têm xarope pra tosse?"
+msgstr "Good evening. Do you have cough syrup?"
+
+#: data/content.tres
+msgid "Tenho de dois tipos. É tosse seca ou com catarro?"
+msgstr "I've two kinds. Dry cough or chesty?"
+
+#: data/content.tres
+msgid "Seca. Não para nem de noite."
+msgstr "Dry. It won't stop even at night."
+
+#: data/content.tres
+msgid "Então é o de mel e agrião. Uma colher antes de dormir."
+msgstr "Then it's the honey and watercress one. A spoonful before bed."
+
+#: data/content.tres
+msgid "Posso pegar amanhã cedo, antes das {hour}?"
+msgstr "Can I pick it up early tomorrow, before {hour}?"
+
+#: data/content.tres
+msgid "Pode. Deixo separado no balcão com o seu nome."
+msgstr "Yes. I'll leave it on the counter under your name."
+
+#: data/content.tres
+msgid "Boa noite. Minha filha está tossindo a noite inteira."
+msgstr "Good evening. My daughter's been coughing all night."
+
+#: data/content.tres
+msgid "Tem febre junto?"
+msgstr "Any fever with it?"
+
+#: data/content.tres
+msgid "Um pouco. Ela pegou chuva voltando da escola."
+msgstr "A little. She got caught in the rain coming home from school."
+
+#: data/content.tres
+msgid "Tenho um xarope infantil. Uma colherinha de seis em seis horas."
+msgstr "I've a children's syrup. A teaspoon every six hours."
+
+#: data/content.tres
+msgid "Vou buscar agora. Chego em {wait}."
+msgstr "I'll come get it now. I'll be there in {wait}."
+
+#: data/content.tres
+msgid "Vem com casaco, que a noite esfriou."
+msgstr "Wear a coat, the night's turned cold."
 
 #: data/content.tres
 msgid "Farmácia Santa Rita, boa noite."
@@ -752,8 +1568,104 @@ msgid "Quero saber o horário da missa de domingo."
 msgstr "I want to know what time Sunday mass is."
 
 #: data/content.tres
+msgid "Boa noite. Qual é o horário da missa de domingo?"
+msgstr "Good evening. What time is Sunday mass?"
+
+#: data/content.tres
+msgid "Tem às sete e às nove. E a das crianças, às dez."
+msgstr "There's one at seven and one at nine. And the children's at ten."
+
+#: data/content.tres
+msgid "E a das sete tem coral?"
+msgstr "Does the seven o'clock have the choir?"
+
+#: data/content.tres
+msgid "O coral canta na das nove. A das sete é mais rezada."
+msgstr "The choir sings at nine. The seven is a quiet mass."
+
+#: data/content.tres
+msgid "Então vou na das nove, com a família toda."
+msgstr "Then I'll go to the nine, with the whole family."
+
+#: data/content.tres
+msgid "Chegue cedo, que domingo os bancos enchem."
+msgstr "Come early, the pews fill up on Sundays."
+
+#: data/content.tres
+msgid "Boa noite. A missa de domingo mudou de horário?"
+msgstr "Good evening. Has Sunday mass changed times?"
+
+#: data/content.tres
+msgid "Só neste domingo. Por causa da procissão, vai ser às {hour}."
+msgstr "Just this Sunday. Because of the procession, it's at {hour}."
+
+#: data/content.tres
+msgid "E a procissão sai de onde?"
+msgstr "And where does the procession start?"
+
+#: data/content.tres
+msgid "Sai da {street} e vem rezando até a praça."
+msgstr "From {street}, praying all the way to the square."
+
+#: data/content.tres
+msgid "Posso levar vela de casa?"
+msgstr "Can I bring a candle from home?"
+
+#: data/content.tres
+msgid "Pode. E um copinho de papel, pra não pingar na mão."
+msgstr "Yes. And a little paper cup, so it won't drip on your hand."
+
+#: data/content.tres
 msgid "Quero marcar o batizado do meu neto."
 msgstr "I want to schedule my grandson's baptism."
+
+#: data/content.tres
+msgid "Boa noite. Queria marcar o batizado do meu neto."
+msgstr "Good evening. I'd like to book my grandson's baptism."
+
+#: data/content.tres
+msgid "Os batizados são no segundo domingo do mês, depois da missa."
+msgstr "Baptisms are on the second Sunday of the month, after mass."
+
+#: data/content.tres
+msgid "Serve. E os padrinhos precisam fazer o curso?"
+msgstr "That works. And do the godparents need to take the class?"
+
+#: data/content.tres
+msgid "Precisam. É no sábado, às {hour}, aqui no salão."
+msgstr "They do. It's Saturday at {hour}, here in the hall."
+
+#: data/content.tres
+msgid "Vou avisar. O nome dele é Joãozinho, como o avô."
+msgstr "I'll let them know. His name's Joãozinho, after his grandfather."
+
+#: data/content.tres
+msgid "Traz a certidão de nascimento no dia do curso."
+msgstr "Bring the birth certificate on the day of the class."
+
+#: data/content.tres
+msgid "Boa noite. Meu neto nasceu e a família quer batizar logo."
+msgstr "Good evening. My grandson was born and the family wants him baptized soon."
+
+#: data/content.tres
+msgid "Parabéns! Quem vão ser os padrinhos?"
+msgstr "Congratulations! Who'll be the godparents?"
+
+#: data/content.tres
+msgid "Minha filha mais velha e o marido dela."
+msgstr "My eldest daughter and her husband."
+
+#: data/content.tres
+msgid "Tem vaga no domingo que vem, às {hour}. Serve?"
+msgstr "There's an opening next Sunday at {hour}. Does that work?"
+
+#: data/content.tres
+msgid "Serve. Precisa levar alguma coisa?"
+msgstr "It does. Do we need to bring anything?"
+
+#: data/content.tres
+msgid "A vela, a roupinha branca e a certidão."
+msgstr "The candle, the little white outfit and the certificate."
 
 #: data/content.tres
 msgid "Igreja Matriz, secretaria."
@@ -776,8 +1688,104 @@ msgid "Sou parente dela e acabei de chegar de viagem."
 msgstr "I'm family, and I just got back from a trip."
 
 #: data/content.tres
+msgid "Dona Rosa? Sou eu. Acabei de chegar de viagem."
+msgstr "Dona Rosa? It's me. I've just got in from my trip."
+
+#: data/content.tres
+msgid "Ah, chegou! Como foi a viagem?"
+msgstr "Oh, you're here! How was the trip?"
+
+#: data/content.tres
+msgid "Longa. O ônibus quebrou na serra e esperamos {wait}."
+msgstr "Long. The bus broke down in the hills and we waited {wait}."
+
+#: data/content.tres
+msgid "Que coisa. Vem amanhã almoçar aqui, que eu faço frango."
+msgstr "Goodness. Come for lunch tomorrow, I'll make chicken."
+
+#: data/content.tres
+msgid "Vou, sim. Levo as fotos do casamento do primo."
+msgstr "I will. I'll bring the photos from our cousin's wedding."
+
+#: data/content.tres
+msgid "Traz! Quero ver todo mundo."
+msgstr "Do! I want to see everyone."
+
+#: data/content.tres
+msgid "Boa noite, Dona Rosa. Cheguei agora há pouco."
+msgstr "Good evening, Dona Rosa. I got in a little while ago."
+
+#: data/content.tres
+msgid "Que bom! Ficou na casa de quem?"
+msgstr "How nice! Whose house are you staying at?"
+
+#: data/content.tres
+msgid "Na casa da minha prima, na {street}."
+msgstr "At my cousin's, on {street}."
+
+#: data/content.tres
+msgid "Pertinho. Amanhã passa aqui pra um café."
+msgstr "That's close. Come by tomorrow for coffee."
+
+#: data/content.tres
+msgid "Passo, sim. Trouxe o doce de leite que a senhora gosta."
+msgstr "I will. I brought the dulce de leche you like."
+
+#: data/content.tres
+msgid "Ai, que mimo. Te espero depois das {hour}."
+msgstr "Oh, how sweet. I'll expect you after {hour}."
+
+#: data/content.tres
 msgid "Ela pediu pra eu ligar quando chegasse em casa."
 msgstr "She asked me to call when I got home."
+
+#: data/content.tres
+msgid "Dona Rosa, cheguei em casa. Foi a senhora que pediu pra avisar."
+msgstr "Dona Rosa, I'm home. You asked me to let you know."
+
+#: data/content.tres
+msgid "Ah, que bom. Já estava preocupada com essa escuridão."
+msgstr "Oh, good. I was getting worried with all this dark."
+
+#: data/content.tres
+msgid "A rua estava sem luz desde a esquina."
+msgstr "The street had no lights from the corner on."
+
+#: data/content.tres
+msgid "De novo? Amanhã eu reclamo na prefeitura."
+msgstr "Again? Tomorrow I'll complain at the town hall."
+
+#: data/content.tres
+msgid "E o bolo estava uma delícia, viu?"
+msgstr "And the cake was delicious, you know."
+
+#: data/content.tres
+msgid "Da próxima vez eu faço o de fubá."
+msgstr "Next time I'll make the cornmeal one."
+
+#: data/content.tres
+msgid "Oi, Dona Rosa. Cheguei bem, pode ficar sossegada."
+msgstr "Hi, Dona Rosa. I got home fine, you can rest easy."
+
+#: data/content.tres
+msgid "Ainda bem. Você foi a pé?"
+msgstr "Good. Did you walk?"
+
+#: data/content.tres
+msgid "Fui. Peguei o atalho pela praça."
+msgstr "I did. I took the shortcut through the square."
+
+#: data/content.tres
+msgid "Pela praça, de noite? Da próxima vez eu peço um táxi."
+msgstr "Through the square, at night? Next time I'll call you a taxi."
+
+#: data/content.tres
+msgid "Não precisa. Mas eu esqueci o guarda-chuva aí."
+msgstr "No need. But I left my umbrella at your place."
+
+#: data/content.tres
+msgid "O {color}? Está aqui no cabide. Amanhã você pega."
+msgstr "The {color} one? It's here on the rack. Get it tomorrow."
 
 #: data/content.tres
 msgid "da Dona Rosa Lima"
@@ -796,8 +1804,104 @@ msgid "Acabou a vela aqui em casa e faltou luz."
 msgstr "We're out of candles at home and the power's out."
 
 #: data/content.tres
+msgid "Boa noite. Faltou luz aqui e acabou a vela."
+msgstr "Good evening. The power's out here and we're out of candles."
+
+#: data/content.tres
+msgid "Aqui também está escuro. Mas vela eu tenho."
+msgstr "It's dark here too. But I've got candles."
+
+#: data/content.tres
+msgid "Me vende um pacote? E uma caixa de fósforo."
+msgstr "Will you sell me a pack? And a box of matches."
+
+#: data/content.tres
+msgid "Vendo. Vem com lanterna, que a rua está um breu."
+msgstr "Sure. Bring a flashlight, the street's pitch black."
+
+#: data/content.tres
+msgid "Moro na {street}. Chego em {wait}."
+msgstr "I live on {street}. I'll be there in {wait}."
+
+#: data/content.tres
+msgid "Bate na porta do lado, que eu estou na cozinha."
+msgstr "Knock on the side door, I'm in the kitchen."
+
+#: data/content.tres
+msgid "Boa noite. Ainda dá pra comprar vela? Ficamos no escuro."
+msgstr "Good evening. Can I still buy candles? We're in the dark."
+
+#: data/content.tres
+msgid "Dá. Tenho as grossas, que duram a noite toda."
+msgstr "You can. I've the thick ones, they last all night."
+
+#: data/content.tres
+msgid "Quero três. Será que a luz volta hoje?"
+msgstr "I'll take three. Think the power will come back tonight?"
+
+#: data/content.tres
+msgid "Dizem que caiu um galho no fio da {street}."
+msgstr "They say a branch fell on the wire on {street}."
+
+#: data/content.tres
+msgid "Então vai demorar. Estou indo aí."
+msgstr "Then it'll take a while. I'm on my way."
+
+#: data/content.tres
+msgid "Cuidado com as poças. Eu deixo a porta encostada."
+msgstr "Mind the puddles. I'll leave the door ajar."
+
+#: data/content.tres
 msgid "Quero deixar uma encomenda pra amanhã cedo."
 msgstr "I want to place an order for early tomorrow."
+
+#: data/content.tres
+msgid "Boa noite. Queria deixar uma encomenda pra amanhã cedo."
+msgstr "Good evening. I'd like to place an order for early tomorrow."
+
+#: data/content.tres
+msgid "Pode falar, que eu anoto."
+msgstr "Go ahead, I'll write it down."
+
+#: data/content.tres
+msgid "Dois quilos de arroz, um de feijão e uma lata de óleo."
+msgstr "Two kilos of rice, one of beans and a can of oil."
+
+#: data/content.tres
+msgid "Anotado. Busca ou eu mando entregar?"
+msgstr "Got it. Will you pick it up or shall I deliver?"
+
+#: data/content.tres
+msgid "Pode mandar. É na {street}, número {house}."
+msgstr "Please deliver. It's on {street}, number {house}."
+
+#: data/content.tres
+msgid "O menino leva antes das {hour}."
+msgstr "The boy will bring it before {hour}."
+
+#: data/content.tres
+msgid "Boa noite. Amanhã cedo eu preciso de pão e leite."
+msgstr "Good evening. I need bread and milk early tomorrow."
+
+#: data/content.tres
+msgid "O pão chega às {dawn}. Quantos?"
+msgstr "The bread comes in at {dawn}. How many?"
+
+#: data/content.tres
+msgid "Dez pãezinhos e dois litros de leite."
+msgstr "Ten rolls and two liters of milk."
+
+#: data/content.tres
+msgid "Separo. Quer que eu ponha um queijo também?"
+msgstr "I'll set them aside. Want a cheese too?"
+
+#: data/content.tres
+msgid "Pode pôr. Eu pago tudo amanhã."
+msgstr "Go ahead. I'll pay for everything tomorrow."
+
+#: data/content.tres
+msgid "Fica na caderneta. Pode vir buscar quando quiser."
+msgstr "It goes on your tab. Come for it whenever you like."
 
 #: data/content.tres
 msgid "Mercearia Silva, boa noite."
@@ -820,8 +1924,104 @@ msgid "Ele disse que eu podia ligar a qualquer hora."
 msgstr "He said I could call at any hour."
 
 #: data/content.tres
+msgid "Seu Paulo? Desculpa a hora. O senhor disse que eu podia ligar."
+msgstr "Mr. Paulo? Sorry about the hour. You said I could call."
+
+#: data/content.tres
+msgid "Disse, sim. Pode falar. É sobre o serviço?"
+msgstr "I did. Go ahead. Is it about the job?"
+
+#: data/content.tres
+msgid "É. Pensei bem e aceito a vaga no escritório."
+msgstr "Yes. I've thought it over and I'll take the office job."
+
+#: data/content.tres
+msgid "Que ótima notícia. Começa segunda, às {hour}."
+msgstr "Excellent news. You start Monday at {hour}."
+
+#: data/content.tres
+msgid "Preciso levar algum documento?"
+msgstr "Do I need to bring any papers?"
+
+#: data/content.tres
+msgid "A carteira de trabalho e uma foto. O resto a gente vê lá."
+msgstr "Your work card and a photo. We'll sort out the rest there."
+
+#: data/content.tres
+msgid "Boa noite, seu Paulo. O senhor falou pra ligar a qualquer hora..."
+msgstr "Good evening, Mr. Paulo. You said to call any time..."
+
+#: data/content.tres
+msgid "E falei sério. O que houve?"
+msgstr "And I meant it. What's wrong?"
+
+#: data/content.tres
+msgid "A cerca do pasto caiu e as vacas foram pra estrada."
+msgstr "The pasture fence fell and the cows got out on the road."
+
+#: data/content.tres
+msgid "Vou aí com os rapazes. Em {wait} a gente chega."
+msgstr "I'll come with the boys. We'll be there in {wait}."
+
+#: data/content.tres
+msgid "Traz arame, se tiver. O meu acabou."
+msgstr "Bring wire if you've got it. I'm out."
+
+#: data/content.tres
+msgid "Levo um rolo. Segura as vacas no curral até lá."
+msgstr "I'll bring a roll. Keep the cows in the corral till then."
+
+#: data/content.tres
 msgid "É sobre o negócio do terreno."
 msgstr "It's about the land deal."
+
+#: data/content.tres
+msgid "Seu Paulo, boa noite. É sobre o terreno da {street}."
+msgstr "Mr. Paulo, good evening. It's about the lot on {street}."
+
+#: data/content.tres
+msgid "Pois não. O dono baixou o preço?"
+msgstr "Yes? Did the owner lower the price?"
+
+#: data/content.tres
+msgid "Baixou um pouco. Mas quer metade à vista."
+msgstr "A little. But he wants half up front."
+
+#: data/content.tres
+msgid "Metade eu consigo. O resto em quantas vezes?"
+msgstr "I can manage half. And the rest in how many payments?"
+
+#: data/content.tres
+msgid "Em seis. Ele quer assinar no cartório na sexta, às {hour}."
+msgstr "Six. He wants to sign at the notary on Friday at {hour}."
+
+#: data/content.tres
+msgid "Então pode marcar. Eu levo o dinheiro."
+msgstr "Then set it up. I'll bring the money."
+
+#: data/content.tres
+msgid "Boa noite, seu Paulo. Desculpa, mas é sobre o terreno."
+msgstr "Good evening, Mr. Paulo. Sorry, but it's about the lot."
+
+#: data/content.tres
+msgid "Fala. Apareceu outro comprador?"
+msgstr "Go on. Has another buyer turned up?"
+
+#: data/content.tres
+msgid "Apareceu. Um moço de fora, oferecendo mais."
+msgstr "One has. A fellow from out of town, offering more."
+
+#: data/content.tres
+msgid "Então eu cubro a oferta. Quanto ele deu?"
+msgstr "Then I'll match it. How much did he offer?"
+
+#: data/content.tres
+msgid "Não sei ainda. O dono vai dizer amanhã, às {hour}."
+msgstr "I don't know yet. The owner will say tomorrow at {hour}."
+
+#: data/content.tres
+msgid "Então me liga assim que souber. Não deixa escapar."
+msgstr "Then call me as soon as you know. Don't let it slip."
 
 #: data/content.tres
 msgid "do seu Paulo Nogueira"
@@ -960,8 +2160,104 @@ msgid "Quero encomendar pão pra amanhã cedo."
 msgstr "I want to order bread for early tomorrow."
 
 #: data/content.tres
+msgid "Boa noite. Queria encomendar pão pra amanhã cedo."
+msgstr "Good evening. I'd like to order bread for early tomorrow."
+
+#: data/content.tres
+msgid "Quantos? A primeira fornada sai às {dawn}."
+msgstr "How many? The first batch comes out at {dawn}."
+
+#: data/content.tres
+msgid "Trinta pãezinhos. É café da manhã da turma da fábrica."
+msgstr "Thirty rolls. It's breakfast for the factory crew."
+
+#: data/content.tres
+msgid "Trinta. Quer que corte e passe manteiga?"
+msgstr "Thirty. Want them sliced and buttered?"
+
+#: data/content.tres
+msgid "Se não der trabalho, quero."
+msgstr "If it's no trouble, yes."
+
+#: data/content.tres
+msgid "Trabalho nenhum. Busca na porta dos fundos."
+msgstr "No trouble at all. Pick up at the back door."
+
+#: data/content.tres
+msgid "Boa noite. Amanhã tem velório na família e vem muita gente."
+msgstr "Good evening. There's a wake in the family tomorrow, lots of people coming."
+
+#: data/content.tres
+msgid "Sinto muito. Do que vocês precisam?"
+msgstr "I'm sorry. What do you need?"
+
+#: data/content.tres
+msgid "Pão e uma rosca grande, pra servir com café."
+msgstr "Bread and a big sweet ring, to serve with coffee."
+
+#: data/content.tres
+msgid "Faço duas roscas. Entrego na {street}?"
+msgstr "I'll make two rings. Deliver to {street}?"
+
+#: data/content.tres
+msgid "Isso, no número {house}. Até as {hour} está bom."
+msgstr "Yes, number {house}. By {hour} is fine."
+
+#: data/content.tres
+msgid "Chega antes. E não precisa pagar agora."
+msgstr "It'll be there sooner. And no need to pay now."
+
+#: data/content.tres
 msgid "Esqueci o troco lá hoje de manhã."
 msgstr "I forgot my change there this morning."
+
+#: data/content.tres
+msgid "Boa noite. Hoje de manhã eu saí sem pegar o troco."
+msgstr "Good evening. This morning I left without my change."
+
+#: data/content.tres
+msgid "Foi você? A moça do caixa guardou num envelope."
+msgstr "That was you? The cashier kept it in an envelope."
+
+#: data/content.tres
+msgid "Que alívio. Era o dinheiro da feira da semana."
+msgstr "What a relief. It was the week's market money."
+
+#: data/content.tres
+msgid "Está aqui na gaveta, com o seu nome."
+msgstr "It's here in the drawer, with your name on it."
+
+#: data/content.tres
+msgid "Passo amanhã cedo pra pegar."
+msgstr "I'll stop by early tomorrow to get it."
+
+#: data/content.tres
+msgid "Pode vir. Abrimos às {dawn}."
+msgstr "Come by. We open at {dawn}."
+
+#: data/content.tres
+msgid "Boa noite. Acho que esqueci o troco aí no balcão."
+msgstr "Good evening. I think I left my change on your counter."
+
+#: data/content.tres
+msgid "Era uma nota amassada e umas moedas?"
+msgstr "Was it a crumpled bill and some coins?"
+
+#: data/content.tres
+msgid "Isso mesmo! Foi no pão das sete."
+msgstr "That's it! It was with the seven o'clock bread."
+
+#: data/content.tres
+msgid "Está guardado. O padeiro achou quando foi limpar."
+msgstr "It's put away. The baker found it when he was cleaning."
+
+#: data/content.tres
+msgid "Amanhã eu passo e levo um sonho de presente pra ele."
+msgstr "Tomorrow I'll come by and bring him a doughnut as thanks."
+
+#: data/content.tres
+msgid "Sonho ele tem de sobra aqui. Mas ele vai gostar."
+msgstr "He's got plenty of those here. But he'll like it."
 
 #: data/content.tres
 msgid "Padaria Pão Dourado, boa noite."
@@ -984,8 +2280,104 @@ msgid "Ela está esperando minha ligação."
 msgstr "She's waiting for my call."
 
 #: data/content.tres
+msgid "Lúcia? Sou eu. Desculpa a demora pra ligar."
+msgstr "Lúcia? It's me. Sorry it took so long to call."
+
+#: data/content.tres
+msgid "Achei que tinha esquecido. E então, deu certo?"
+msgstr "I thought you'd forgotten. So, did it work out?"
+
+#: data/content.tres
+msgid "Deu! Consegui a vaga na escola da {street}."
+msgstr "It did! I got the job at the school on {street}."
+
+#: data/content.tres
+msgid "Que maravilha! Começa quando?"
+msgstr "Wonderful! When do you start?"
+
+#: data/content.tres
+msgid "Segunda, às {hour}. Já estou com frio na barriga."
+msgstr "Monday at {hour}. I've got butterflies already."
+
+#: data/content.tres
+msgid "Vai dar tudo certo. Sábado a gente comemora."
+msgstr "It'll all go well. We'll celebrate on Saturday."
+
+#: data/content.tres
+msgid "Oi, Lúcia. Você estava esperando eu ligar, né?"
+msgstr "Hi, Lúcia. You were waiting for my call, right?"
+
+#: data/content.tres
+msgid "Estava! Conseguiu falar com o médico?"
+msgstr "I was! Did you manage to see the doctor?"
+
+#: data/content.tres
+msgid "Consegui. Não é nada grave, só preciso de repouso."
+msgstr "I did. It's nothing serious, I just need rest."
+
+#: data/content.tres
+msgid "Ainda bem. Quer que eu leve a janta amanhã?"
+msgstr "Thank goodness. Want me to bring supper tomorrow?"
+
+#: data/content.tres
+msgid "Se não for incômodo, eu aceito."
+msgstr "If it's no bother, I'd love that."
+
+#: data/content.tres
+msgid "Incômodo nenhum. Lá pelas {hour} eu chego."
+msgstr "No bother at all. I'll be there around {hour}."
+
+#: data/content.tres
 msgid "Preciso dar um recado da família."
 msgstr "I need to pass on a family message."
+
+#: data/content.tres
+msgid "Lúcia, boa noite. Tenho um recado da sua mãe."
+msgstr "Lúcia, good evening. I've a message from your mother."
+
+#: data/content.tres
+msgid "Da mamãe? Aconteceu alguma coisa?"
+msgstr "From Mom? Did something happen?"
+
+#: data/content.tres
+msgid "Nada de ruim. Ela pediu pra você ir no domingo, sem falta."
+msgstr "Nothing bad. She asked you to come on Sunday, without fail."
+
+#: data/content.tres
+msgid "Domingo eu vou. Que horas ela quer?"
+msgstr "I'll go Sunday. What time does she want me?"
+
+#: data/content.tres
+msgid "Pro almoço. E é pra levar a receita do bolo de laranja."
+msgstr "For lunch. And bring the orange cake recipe."
+
+#: data/content.tres
+msgid "Levo. Diz pra ela que eu chego cedo."
+msgstr "I will. Tell her I'll be there early."
+
+#: data/content.tres
+msgid "Boa noite, Lúcia. A tia pediu pra te avisar uma coisa."
+msgstr "Evening, Lúcia. Auntie asked me to tell you something."
+
+#: data/content.tres
+msgid "Pode falar. É sobre a festa?"
+msgstr "Go on. Is it about the party?"
+
+#: data/content.tres
+msgid "É. Mudou pro salão da {street}."
+msgstr "Yes. It's moved to the hall on {street}."
+
+#: data/content.tres
+msgid "E o horário continua o mesmo?"
+msgstr "And is the time still the same?"
+
+#: data/content.tres
+msgid "Mudou também. Agora começa às {hour}."
+msgstr "That changed too. It starts at {hour} now."
+
+#: data/content.tres
+msgid "Ainda bem que você avisou. Eu ia chegar cedo demais."
+msgstr "Good thing you told me. I'd have shown up far too early."
 
 #: data/content.tres
 msgid "da Lúcia Pereira"
@@ -1124,8 +2516,104 @@ msgid "Quero pôr um anúncio no jornal de amanhã."
 msgstr "I want to place an ad in tomorrow's paper."
 
 #: data/content.tres
+msgid "Boa noite. Ainda dá pra pôr um anúncio no jornal de amanhã?"
+msgstr "Good evening. Is there still time for an ad in tomorrow's paper?"
+
+#: data/content.tres
+msgid "Dá, se for rápido. A página fecha às {hour}."
+msgstr "Yes, if it's quick. The page closes at {hour}."
+
+#: data/content.tres
+msgid "É curto. Vende-se bicicleta, quase nova, tratar na {street}."
+msgstr "It's short. Bicycle for sale, nearly new, inquire on {street}."
+
+#: data/content.tres
+msgid "Quer pôr o número da casa também?"
+msgstr "Want the house number in too?"
+
+#: data/content.tres
+msgid "Põe, sim. Número {house}."
+msgstr "Yes, please. Number {house}."
+
+#: data/content.tres
+msgid "Anotado. Paga amanhã aqui no balcão."
+msgstr "Got it. Pay tomorrow here at the counter."
+
+#: data/content.tres
+msgid "Boa noite. Queria anunciar que perdi um cachorro."
+msgstr "Good evening. I'd like to place an ad for a lost dog."
+
+#: data/content.tres
+msgid "Pode ditar. Como ele é?"
+msgstr "Go ahead and dictate. What does he look like?"
+
+#: data/content.tres
+msgid "Pequeno, {color}, com uma mancha branca no olho."
+msgstr "Small, {color}, with a white patch over one eye."
+
+#: data/content.tres
+msgid "Atende por que nome?"
+msgstr "What name does he answer to?"
+
+#: data/content.tres
+msgid "Pipoca. Quem achar, é só levar na {street}."
+msgstr "Pipoca. Whoever finds him, bring him to {street}."
+
+#: data/content.tres
+msgid "Sai amanhã cedo, na página dos classificados."
+msgstr "It'll run early tomorrow, on the classifieds page."
+
+#: data/content.tres
 msgid "Saiu meu nome errado na edição de hoje."
 msgstr "They printed my name wrong in today's edition."
+
+#: data/content.tres
+msgid "Boa noite. Meu nome saiu errado no jornal de hoje."
+msgstr "Good evening. My name came out wrong in today's paper."
+
+#: data/content.tres
+msgid "Em que página?"
+msgstr "Which page?"
+
+#: data/content.tres
+msgid "Na lista dos aprovados do concurso. Trocaram uma letra."
+msgstr "In the list of people who passed the exam. They switched a letter."
+
+#: data/content.tres
+msgid "Peço desculpas. Amanhã sai a correção, na página dois."
+msgstr "My apologies. The correction runs tomorrow, on page two."
+
+#: data/content.tres
+msgid "Por favor. Minha mãe já recortou a errada pra guardar."
+msgstr "Please. My mother already clipped the wrong one to keep."
+
+#: data/content.tres
+msgid "Então ela vai ter duas pra guardar."
+msgstr "Then she'll have two to keep."
+
+#: data/content.tres
+msgid "Boa noite. O jornal de hoje errou meu nome na notícia da feira."
+msgstr "Good evening. Today's paper got my name wrong in the fair story."
+
+#: data/content.tres
+msgid "A do concurso de abóbora?"
+msgstr "The pumpkin contest one?"
+
+#: data/content.tres
+msgid "Essa. Eu ganhei o primeiro lugar e saiu o nome do vizinho."
+msgstr "That's it. I won first place and they printed my neighbor's name."
+
+#: data/content.tres
+msgid "Que vergonha. Amanhã a gente corrige com foto e tudo."
+msgstr "How embarrassing. Tomorrow we'll correct it, photo and all."
+
+#: data/content.tres
+msgid "E o vizinho já está se gabando pela rua toda."
+msgstr "And the neighbor's already bragging all down the street."
+
+#: data/content.tres
+msgid "Amanhã ele lê a correção. Venha às {hour} pra foto."
+msgstr "Tomorrow he'll read the correction. Come at {hour} for the photo."
 
 #: data/content.tres
 msgid "Gazeta, redação."
@@ -1268,8 +2756,104 @@ msgid "Somos sócios. É sobre a loja."
 msgstr "We're partners. It's about the store."
 
 #: data/content.tres
+msgid "Alberto, boa noite. É sobre a loja, não dá pra esperar."
+msgstr "Alberto, good evening. It's about the shop, it can't wait."
+
+#: data/content.tres
+msgid "Fala. O fornecedor deu notícia?"
+msgstr "Go on. Did the supplier get in touch?"
+
+#: data/content.tres
+msgid "Deu. A mercadoria chega amanhã, às {hour}."
+msgstr "He did. The goods arrive tomorrow at {hour}."
+
+#: data/content.tres
+msgid "Amanhã? Eu nem tenho lugar no depósito."
+msgstr "Tomorrow? I don't even have room in the storeroom."
+
+#: data/content.tres
+msgid "A gente arruma junto. Chego cedo pra ajudar."
+msgstr "We'll sort it out together. I'll come early to help."
+
+#: data/content.tres
+msgid "Então traz o caderno das contas, que a gente confere tudo."
+msgstr "Then bring the account book, we'll check everything."
+
+#: data/content.tres
+msgid "Boa noite, Alberto. Fechei o caixa e faltou dinheiro."
+msgstr "Evening, Alberto. I closed out the till and money's missing."
+
+#: data/content.tres
+msgid "Faltou quanto?"
+msgstr "How much?"
+
+#: data/content.tres
+msgid "Pouco. Acho que foi troco errado de tarde."
+msgstr "Not much. I think it was wrong change this afternoon."
+
+#: data/content.tres
+msgid "Acontece. Anota no caderno e amanhã a gente vê."
+msgstr "It happens. Write it in the book and we'll look tomorrow."
+
+#: data/content.tres
+msgid "Abro a loja às {hour}. Você vem?"
+msgstr "I open the shop at {hour}. Are you coming?"
+
+#: data/content.tres
+msgid "Vou. Levo a chave da gaveta."
+msgstr "I'll be there. I'll bring the drawer key."
+
+#: data/content.tres
 msgid "Preciso confirmar a viagem de amanhã."
 msgstr "I need to confirm tomorrow's trip."
+
+#: data/content.tres
+msgid "Alberto? A viagem de amanhã está confirmada?"
+msgstr "Alberto? Is tomorrow's trip confirmed?"
+
+#: data/content.tres
+msgid "Está. O ônibus sai às {dawn}, da rodoviária."
+msgstr "It is. The bus leaves at {dawn}, from the bus station."
+
+#: data/content.tres
+msgid "Às {dawn}? Achei que era mais tarde."
+msgstr "At {dawn}? I thought it was later."
+
+#: data/content.tres
+msgid "Mudaram o horário. Leva casaco, que na capital está frio."
+msgstr "They changed the time. Bring a coat, it's cold in the capital."
+
+#: data/content.tres
+msgid "E os papéis do banco, ficam comigo?"
+msgstr "And the bank papers, do I keep them?"
+
+#: data/content.tres
+msgid "Ficam. Não esquece a pasta, senão a viagem é perdida."
+msgstr "Yes. Don't forget the briefcase, or the trip's for nothing."
+
+#: data/content.tres
+msgid "Boa noite, Alberto. Vamos mesmo amanhã pra capital?"
+msgstr "Evening, Alberto. Are we really going to the capital tomorrow?"
+
+#: data/content.tres
+msgid "Vamos. Eu passo aí de carro às {dawn}."
+msgstr "We are. I'll pick you up by car at {dawn}."
+
+#: data/content.tres
+msgid "De carro? E a estrada da serra, está boa?"
+msgstr "By car? And the mountain road, is it all right?"
+
+#: data/content.tres
+msgid "Melhorou. Passaram a máquina na semana passada."
+msgstr "It's better. They graded it last week."
+
+#: data/content.tres
+msgid "Então eu levo o lanche pra viagem."
+msgstr "Then I'll pack food for the trip."
+
+#: data/content.tres
+msgid "Leva, e garrafa de café. Volta só de noite."
+msgstr "Do, and a flask of coffee. We won't be back till night."
 
 #: data/content.tres
 msgid "do seu Alberto Ramos"
@@ -1408,8 +2992,104 @@ msgid "A luz da casa dele tá acesa e ele não atende a porta."
 msgstr "His lights are on and he won't answer the door."
 
 #: data/content.tres
+msgid "Seu Benedito? Bati aí e ninguém abriu. A luz está acesa."
+msgstr "Mr. Benedito? I knocked and nobody answered. The light's on."
+
+#: data/content.tres
+msgid "Ah, era você? Cochilei na poltrona com o rádio ligado."
+msgstr "Oh, that was you? I dozed off in the armchair with the radio on."
+
+#: data/content.tres
+msgid "Que susto o senhor me deu. Está tudo bem mesmo?"
+msgstr "You gave me a fright. Are you really all right?"
+
+#: data/content.tres
+msgid "Tudo. Só a vista que já não é a mesma."
+msgstr "All fine. Just my eyes aren't what they were."
+
+#: data/content.tres
+msgid "Amanhã eu passo pra levar o pão, lá pelas {hour}."
+msgstr "Tomorrow I'll bring your bread, around {hour}."
+
+#: data/content.tres
+msgid "Pode vir. Deixo o portão destrancado."
+msgstr "Come by. I'll leave the gate unlocked."
+
+#: data/content.tres
+msgid "Seu Benedito, boa noite. A luz aí está acesa e o senhor não abriu."
+msgstr "Mr. Benedito, good evening. Your light's on and you didn't answer."
+
+#: data/content.tres
+msgid "Estava no quintal, procurando o gato."
+msgstr "I was out in the yard, looking for the cat."
+
+#: data/content.tres
+msgid "A essa hora? Achou ele?"
+msgstr "At this hour? Did you find him?"
+
+#: data/content.tres
+msgid "Achei. Estava no telhado do vizinho, miando."
+msgstr "I did. He was on the neighbor's roof, mewing."
+
+#: data/content.tres
+msgid "Ainda bem. Quer que eu passe aí?"
+msgstr "Good. Want me to come over?"
+
+#: data/content.tres
+msgid "Não precisa. Vou fazer um chá e deitar."
+msgstr "No need. I'll make some tea and go to bed."
+
+#: data/content.tres
 msgid "Ele ficou de me emprestar a escada."
 msgstr "He was supposed to lend me his ladder."
+
+#: data/content.tres
+msgid "Boa noite, seu Benedito. Amanhã o senhor ainda me empresta a escada?"
+msgstr "Evening, Mr. Benedito. Can I still borrow the ladder tomorrow?"
+
+#: data/content.tres
+msgid "Está aqui encostada no muro. Pra que é?"
+msgstr "It's leaning on the wall here. What's it for?"
+
+#: data/content.tres
+msgid "Pra trocar umas telhas que quebraram no granizo."
+msgstr "To replace some tiles the hail broke."
+
+#: data/content.tres
+msgid "Então leva a corda também, pra amarrar lá em cima."
+msgstr "Then take the rope too, to tie it off up top."
+
+#: data/content.tres
+msgid "Passo aí às {hour} pra buscar."
+msgstr "I'll come get it at {hour}."
+
+#: data/content.tres
+msgid "E toma cuidado. Telhado molhado escorrega."
+msgstr "And be careful. A wet roof is slippery."
+
+#: data/content.tres
+msgid "Seu Benedito, é sobre a escada que o senhor ia me emprestar."
+msgstr "Mr. Benedito, it's about the ladder you were lending me."
+
+#: data/content.tres
+msgid "Ih, emprestei pro Ivo. Ele ainda não devolveu."
+msgstr "Oh, I lent it to Ivo. He hasn't brought it back."
+
+#: data/content.tres
+msgid "E agora? Preciso dela amanhã cedo."
+msgstr "What now? I need it early tomorrow."
+
+#: data/content.tres
+msgid "Eu ligo pra ele de manhã e mando levar aí."
+msgstr "I'll call him in the morning and have him bring it to you."
+
+#: data/content.tres
+msgid "Moro na {street}, número {house}."
+msgstr "I live on {street}, number {house}."
+
+#: data/content.tres
+msgid "Anotei aqui no calendário. Ele leva até as {hour}."
+msgstr "I wrote it on the calendar. He'll bring it by {hour}."
 
 #: data/content.tres
 msgid "do seu Benedito Souza"
@@ -1428,8 +3108,104 @@ msgid "Preciso de um carro até a rodoviária."
 msgstr "I need a car to the bus station."
 
 #: data/content.tres
+msgid "Boa noite. Preciso de um carro até a rodoviária."
+msgstr "Good evening. I need a car to the bus station."
+
+#: data/content.tres
+msgid "Pra agora? De onde?"
+msgstr "For now? From where?"
+
+#: data/content.tres
+msgid "Da {street}, número {house}."
+msgstr "From {street}, number {house}."
+
+#: data/content.tres
+msgid "Tem um carro livre. Chega aí em {wait}."
+msgstr "There's a car free. It'll be there in {wait}."
+
+#: data/content.tres
+msgid "Tenho duas malas grandes. Cabe no porta-malas?"
+msgstr "I've two big suitcases. Will they fit in the trunk?"
+
+#: data/content.tres
+msgid "Cabe. O motorista ajuda a carregar."
+msgstr "They'll fit. The driver will help you load them."
+
+#: data/content.tres
+msgid "Boa noite. Tem carro pra me levar até a rodoviária?"
+msgstr "Good evening. Is there a car to take me to the bus station?"
+
+#: data/content.tres
+msgid "A essa hora só tem um rodando. Onde você está?"
+msgstr "At this hour there's only one out. Where are you?"
+
+#: data/content.tres
+msgid "Na praça, em frente à farmácia."
+msgstr "In the square, across from the pharmacy."
+
+#: data/content.tres
+msgid "Fica embaixo do poste, que ele te acha. Chega em {wait}."
+msgstr "Stand under the streetlight, he'll find you. He'll be there in {wait}."
+
+#: data/content.tres
+msgid "É um carro de que cor?"
+msgstr "What color is the car?"
+
+#: data/content.tres
+msgid "{color}, com a placa de táxi no teto."
+msgstr "{color}, with the taxi sign on the roof."
+
+#: data/content.tres
 msgid "O último ônibus sai às onze e eu não posso perder."
 msgstr "The last bus leaves at eleven and I can't miss it."
+
+#: data/content.tres
+msgid "Boa noite. O último ônibus sai às onze e eu não posso perder."
+msgstr "Good evening. The last bus leaves at eleven and I can't miss it."
+
+#: data/content.tres data/nights/night_01.tres
+msgid "Onde você está?"
+msgstr "Where are you?"
+
+#: data/content.tres
+msgid "Na {street}. Dá tempo?"
+msgstr "On {street}. Will I make it?"
+
+#: data/content.tres
+msgid "Dá, se sair já. O carro chega em {wait}."
+msgstr "If you leave right away. The car will be there in {wait}."
+
+#: data/content.tres
+msgid "Fico esperando no portão, com a mala."
+msgstr "I'll wait at the gate with my bag."
+
+#: data/content.tres
+msgid "O motorista buzina duas vezes quando chegar."
+msgstr "The driver will honk twice when he arrives."
+
+#: data/content.tres
+msgid "Boa noite. Preciso pegar o ônibus das onze. É urgente."
+msgstr "Good evening. I have to catch the eleven o'clock bus. It's urgent."
+
+#: data/content.tres
+msgid "Vai pra capital?"
+msgstr "Going to the capital?"
+
+#: data/content.tres
+msgid "Vou. Começo num serviço novo amanhã cedo."
+msgstr "I am. I start a new job early tomorrow."
+
+#: data/content.tres
+msgid "Então vamos correr. Qual o endereço?"
+msgstr "Then let's hurry. What's the address?"
+
+#: data/content.tres
+msgid "{street}, {house}. A casa da esquina."
+msgstr "{street}, {house}. The house on the corner."
+
+#: data/content.tres
+msgid "Em {wait} o carro está aí. Deixa a mala no portão."
+msgstr "The car will be there in {wait}. Leave the bag at the gate."
 
 #: data/content.tres
 msgid "Ponto de táxi, boa noite."
@@ -1452,8 +3228,104 @@ msgid "Ele ficou de me devolver a furadeira."
 msgstr "He was supposed to give me back my drill."
 
 #: data/content.tres
+msgid "Ivo, boa noite. Lembra da furadeira que eu te emprestei?"
+msgstr "Ivo, good evening. Remember the drill I lent you?"
+
+#: data/content.tres
+msgid "Lembro. Desculpa, está aqui na garagem ainda."
+msgstr "I do. Sorry, it's still here in the garage."
+
+#: data/content.tres
+msgid "Preciso dela amanhã. Vou pendurar as prateleiras."
+msgstr "I need it tomorrow. I'm putting up shelves."
+
+#: data/content.tres
+msgid "Levo aí de manhã, antes das {hour}."
+msgstr "I'll bring it over in the morning, before {hour}."
+
+#: data/content.tres
+msgid "E a broca grande, ainda está inteira?"
+msgstr "And the big bit, is it still in one piece?"
+
+#: data/content.tres
+msgid "Quebrou. Mas eu compro outra e levo junto."
+msgstr "It broke. But I'll buy another and bring it along."
+
+#: data/content.tres
+msgid "Oi, Ivo. Desculpa a hora. É a furadeira."
+msgstr "Hi, Ivo. Sorry about the hour. It's the drill."
+
+#: data/content.tres
+msgid "Ih, eu emprestei pro meu cunhado."
+msgstr "Oh, I lent it to my brother-in-law."
+
+#: data/content.tres
+msgid "Você emprestou o que era meu?"
+msgstr "You lent out something that was mine?"
+
+#: data/content.tres
+msgid "Foi rapidinho. Amanhã ele devolve, lá pelas {hour}."
+msgstr "Just for a bit. He'll give it back tomorrow, around {hour}."
+
+#: data/content.tres
+msgid "Então me leva assim que ele devolver."
+msgstr "Then bring it to me as soon as he does."
+
+#: data/content.tres
+msgid "Levo. E de quebra te dou um vidro de mel."
+msgstr "I will. And I'll throw in a jar of honey."
+
+#: data/content.tres
 msgid "É sobre a pescaria de domingo."
 msgstr "It's about Sunday's fishing trip."
+
+#: data/content.tres
+msgid "Ivo, boa noite. A pescaria de domingo continua de pé?"
+msgstr "Ivo, good evening. Is Sunday's fishing still on?"
+
+#: data/content.tres
+msgid "Continua. Saímos às {dawn}, da ponte velha."
+msgstr "It is. We leave at {dawn}, from the old bridge."
+
+#: data/content.tres
+msgid "Às {dawn}? Vou ter que dormir cedo."
+msgstr "At {dawn}? I'll have to turn in early."
+
+#: data/content.tres
+msgid "E traz minhoca, que a minha horta secou."
+msgstr "And bring worms, my garden's dried up."
+
+#: data/content.tres
+msgid "Levo. E o barco, quem traz?"
+msgstr "I will. And the boat, who's bringing it?"
+
+#: data/content.tres
+msgid "O barco é do meu irmão. Ele encontra a gente lá."
+msgstr "The boat's my brother's. He'll meet us there."
+
+#: data/content.tres
+msgid "Oi, Ivo. Sobre domingo: o rio subiu, viu?"
+msgstr "Hi, Ivo. About Sunday: the river's up, you know."
+
+#: data/content.tres
+msgid "Subiu muito? Dá pra pescar?"
+msgstr "Up a lot? Can we still fish?"
+
+#: data/content.tres
+msgid "Na ponte, não. Mas no remanso do moinho dá."
+msgstr "Not at the bridge. But at the mill pool we can."
+
+#: data/content.tres
+msgid "Então vamos pro moinho. A que horas?"
+msgstr "Then let's go to the mill. What time?"
+
+#: data/content.tres
+msgid "Às {dawn}. Eu levo o café e o pão."
+msgstr "At {dawn}. I'll bring coffee and bread."
+
+#: data/content.tres
+msgid "E eu levo as varas. Até domingo."
+msgstr "And I'll bring the rods. See you Sunday."
 
 #: data/content.tres
 msgid "do seu Ivo Teixeira"
@@ -1472,8 +3344,104 @@ msgid "Ela está esperando notícias minhas."
 msgstr "She's waiting to hear from me."
 
 #: data/content.tres
+msgid "Sônia? Sou eu. Desculpa não ter ligado antes."
+msgstr "Sônia? It's me. Sorry I didn't call sooner."
+
+#: data/content.tres
+msgid "Até que enfim! Como foi lá no hospital?"
+msgstr "At last! How did it go at the hospital?"
+
+#: data/content.tres
+msgid "Foi tudo bem. O médico tirou o gesso hoje."
+msgstr "It all went fine. The doctor took the cast off today."
+
+#: data/content.tres
+msgid "Graças a Deus! E já anda direitinho?"
+msgstr "Thank God! And can you walk properly already?"
+
+#: data/content.tres
+msgid "Ainda mancando, mas sem dor."
+msgstr "Still limping, but no pain."
+
+#: data/content.tres
+msgid "Amanhã eu passo aí com um bolo pra comemorar."
+msgstr "Tomorrow I'll come by with a cake to celebrate."
+
+#: data/content.tres
+msgid "Boa noite, Sônia. Você queria notícias, então liguei."
+msgstr "Good evening, Sônia. You wanted news, so I called."
+
+#: data/content.tres
+msgid "Queria! E a entrevista, como foi?"
+msgstr "I did! And the interview, how did it go?"
+
+#: data/content.tres
+msgid "Me chamaram. Começo na loja da {street} semana que vem."
+msgstr "They called me back. I start at the shop on {street} next week."
+
+#: data/content.tres
+msgid "Que alegria! Vai trabalhar de que horas a que horas?"
+msgstr "How wonderful! What hours will you work?"
+
+#: data/content.tres
+msgid "Das {hour} até as cinco, com uma hora de almoço."
+msgstr "From {hour} until five, with an hour for lunch."
+
+#: data/content.tres
+msgid "Então sábado a gente comemora aqui em casa."
+msgstr "Then on Saturday we'll celebrate here at home."
+
+#: data/content.tres
 msgid "É sobre o aniversário da mãe dela."
 msgstr "It's about her mother's birthday."
+
+#: data/content.tres
+msgid "Sônia, boa noite. É sobre o aniversário da sua mãe."
+msgstr "Sônia, good evening. It's about your mother's birthday."
+
+#: data/content.tres
+msgid "Ah, a festa surpresa? Fala baixo, que ela está aqui."
+msgstr "Oh, the surprise party? Keep your voice down, she's here."
+
+#: data/content.tres
+msgid "Consegui o salão da {street} pro sábado."
+msgstr "I got the hall on {street} for Saturday."
+
+#: data/content.tres
+msgid "Que ótimo. E o bolo, quem faz?"
+msgstr "Great. And the cake, who's making it?"
+
+#: data/content.tres
+msgid "A padaria. Eu busco de manhã."
+msgstr "The bakery. I'll pick it up in the morning."
+
+#: data/content.tres
+msgid "Então eu levo ela pra lá às {hour}, sem ela desconfiar."
+msgstr "Then I'll bring her over at {hour}, without her suspecting."
+
+#: data/content.tres
+msgid "Oi, Sônia. O que a gente dá pra sua mãe no aniversário?"
+msgstr "Hi, Sônia. What shall we give your mother for her birthday?"
+
+#: data/content.tres
+msgid "Ela anda falando de uma máquina de costura nova."
+msgstr "She keeps talking about a new sewing machine."
+
+#: data/content.tres
+msgid "É cara. A gente divide entre os irmãos?"
+msgstr "That's pricey. Shall we split it among the siblings?"
+
+#: data/content.tres
+msgid "Divide. Eu falo com eles amanhã."
+msgstr "Let's. I'll talk to them tomorrow."
+
+#: data/content.tres
+msgid "Tem uma na loja da {street}, de vitrine."
+msgstr "There's one in the window of the shop on {street}."
+
+#: data/content.tres
+msgid "Então amanhã, às {hour}, a gente vai lá ver."
+msgstr "Then tomorrow at {hour} we'll go take a look."
 
 #: data/content.tres
 msgid "da Dona Sônia Vieira"
@@ -1786,10 +3754,6 @@ msgstr "What's your name?"
 #: data/nights/night_01.tres
 msgid "Eu estou tentando descobrir."
 msgstr "I'm trying to find out."
-
-#: data/nights/night_01.tres
-msgid "Onde você está?"
-msgstr "Where are you?"
 
 #: data/nights/night_01.tres
 msgid "Você consegue me dizer alguma rua?"
@@ -2459,6 +4423,30 @@ msgstr "Farmácia Santa Rita"
 msgid "Obrigada, meu filho. Deus te abençoe."
 msgstr "Thank you, dear. God bless you."
 
+#: data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres
+msgid "Boa noite. Meu neto está com febre, e alta."
+msgstr "Good evening. My grandson has a fever, a high one."
+
+#: data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres
+msgid "Quantos anos tem o menino, senhora?"
+msgstr "How old is the boy, ma'am?"
+
+#: data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres
+msgid "Seis. Está mole, não quer nem água."
+msgstr "Six. He's listless, won't even take water."
+
+#: data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres
+msgid "Tenho um antitérmico em gotas. Mando o rapaz levar aí."
+msgstr "I've fever drops. I'll send the boy over with them."
+
+#: data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres
+msgid "Deus lhe pague. E se a febre não baixar?"
+msgstr "Bless you. And if the fever won't come down?"
+
+#: data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres
+msgid "Aí chama o médico. Mas dá banho morno, que ajuda."
+msgstr "Then call the doctor. But a lukewarm bath helps."
+
 #: data/calls/transfer_02_sr_nelson_hotel_estrela.tres
 msgid "Sr. Nelson"
 msgstr "Sr. Nelson"
@@ -2479,6 +4467,26 @@ msgstr "The Hotel Estrela. On the avenue."
 msgid "Muito obrigado."
 msgstr "Thank you very much."
 
+#: data/calls/transfer_02_sr_nelson_hotel_estrela.tres
+msgid "Boa noite. Meu irmão está hospedado aí. Chegou hoje da capital."
+msgstr "Good evening. My brother's staying there. Got in today from the capital."
+
+#: data/calls/transfer_02_sr_nelson_hotel_estrela.tres
+msgid "O moço de terno, do quarto doze? Vou chamar."
+msgstr "The gentleman in the suit, room twelve? I'll fetch him."
+
+#: data/calls/transfer_02_sr_nelson_hotel_estrela.tres
+msgid "Nelson? É você? Fez boa viagem?"
+msgstr "Nelson? Is that you? Good trip?"
+
+#: data/calls/transfer_02_sr_nelson_hotel_estrela.tres
+msgid "Cansativa, mas cheguei. Amanhã cedo passo aí."
+msgstr "Tiring, but I made it. I'll stop by first thing tomorrow."
+
+#: data/calls/transfer_02_sr_nelson_hotel_estrela.tres
+msgid "Vem pro café. A Lourdes vai fazer bolo."
+msgstr "Come for breakfast. Lourdes is making a cake."
+
 #: data/calls/transfer_03_rapaz_taxi_ponto_da_rodoviaria.tres data/calls/transfer_29_rapaz_cine_odeon.tres data/calls/transfer_33_rapaz_paulo_nogueira.tres
 msgid "Rapaz"
 msgstr "Young man"
@@ -2498,6 +4506,30 @@ msgstr "Ponto de Táxi da Rodoviária"
 #: data/calls/transfer_03_rapaz_taxi_ponto_da_rodoviaria.tres data/calls/transfer_29_rapaz_cine_odeon.tres data/content.tres
 msgid "Valeu, central."
 msgstr "Thanks, operator."
+
+#: data/calls/transfer_03_rapaz_taxi_ponto_da_rodoviaria.tres
+msgid "Boa noite. Preciso de um táxi."
+msgstr "Good evening. I need a taxi."
+
+#: data/calls/transfer_03_rapaz_taxi_ponto_da_rodoviaria.tres
+msgid "Pra onde, rapaz?"
+msgstr "Where to, son?"
+
+#: data/calls/transfer_03_rapaz_taxi_ponto_da_rodoviaria.tres
+msgid "Pra Vila Serena, pra casa da minha namorada. Estou atrasado."
+msgstr "To Vila Serena, my girlfriend's house. I'm late."
+
+#: data/calls/transfer_03_rapaz_taxi_ponto_da_rodoviaria.tres
+msgid "O carro está saindo agora. Espera na calçada."
+msgstr "The car's leaving now. Wait on the sidewalk."
+
+#: data/calls/transfer_03_rapaz_taxi_ponto_da_rodoviaria.tres
+msgid "Ele demora muito?"
+msgstr "Will he be long?"
+
+#: data/calls/transfer_03_rapaz_taxi_ponto_da_rodoviaria.tres
+msgid "Dez minutos. Vai arrumando o cabelo."
+msgstr "Ten minutes. Go fix your hair."
 
 #: data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres
 msgid "Dona Zilda"
@@ -2523,6 +4555,26 @@ msgstr "Padaria Pão Dourado"
 msgid "Obrigada, querido."
 msgstr "Thank you, dear."
 
+#: data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres
+msgid "Boa noite, querido. É a Zilda. Quero o pão de amanhã cedo."
+msgstr "Good evening, dear. It's Zilda. I'd like tomorrow's bread."
+
+#: data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres
+msgid "O de sempre, Dona Zilda? Doze pãezinhos?"
+msgstr "The usual, Dona Zilda? A dozen rolls?"
+
+#: data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres
+msgid "Dezoito. Meus netos chegam amanhã."
+msgstr "Eighteen. My grandchildren arrive tomorrow."
+
+#: data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres
+msgid "Então mando uma rosca de presente pra eles."
+msgstr "Then I'll send a sweet ring for them, on the house."
+
+#: data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres
+msgid "Ai, que gentileza. Busco às seis."
+msgstr "Oh, how kind. I'll pick up at six."
+
 #: data/calls/transfer_05_rapaz_apaixonado_radio_serena_am.tres
 msgid "Rapaz apaixonado"
 msgstr "Young man in love"
@@ -2538,6 +4590,30 @@ msgstr "Can you put me through to Rádio Serena? I want to request a song for my
 #: data/calls/transfer_05_rapaz_apaixonado_radio_serena_am.tres
 msgid "Valeu! Ela vai ouvir, tenho certeza."
 msgstr "Thanks! She'll be listening, I'm sure of it."
+
+#: data/calls/transfer_05_rapaz_apaixonado_radio_serena_am.tres
+msgid "Boa noite! Queria pedir uma música pra minha noiva."
+msgstr "Good evening! I'd like to request a song for my fiancée."
+
+#: data/calls/transfer_05_rapaz_apaixonado_radio_serena_am.tres
+msgid "Pois não. Qual música e o nome dela?"
+msgstr "Sure. Which song, and her name?"
+
+#: data/calls/transfer_05_rapaz_apaixonado_radio_serena_am.tres
+msgid "A Valsa da Despedida. Ela se chama Helena."
+msgstr "The Farewell Waltz. Her name is Helena."
+
+#: data/calls/transfer_05_rapaz_apaixonado_radio_serena_am.tres
+msgid "Despedida? Vocês brigaram?"
+msgstr "Farewell? Did you two fight?"
+
+#: data/calls/transfer_05_rapaz_apaixonado_radio_serena_am.tres
+msgid "Não! Ela viaja amanhã pra estudar na capital."
+msgstr "No! She leaves tomorrow to study in the capital."
+
+#: data/calls/transfer_05_rapaz_apaixonado_radio_serena_am.tres
+msgid "Então vai ao ar depois do noticiário. Escuta com ela."
+msgstr "Then it goes on after the news. Listen with her."
 
 #: data/calls/transfer_06_caminhoneiro_oficina_do_tiao.tres
 msgid "Caminhoneiro"
@@ -2563,6 +4639,30 @@ msgstr "Oficina do Tião"
 msgid "Deus lhe pague."
 msgstr "God bless you for it."
 
+#: data/calls/transfer_06_caminhoneiro_oficina_do_tiao.tres
+msgid "Tião? Meu caminhão morreu perto do moinho."
+msgstr "Tião? My truck died near the mill."
+
+#: data/calls/transfer_06_caminhoneiro_oficina_do_tiao.tres
+msgid "Morreu como? Fez barulho antes?"
+msgstr "Died how? Did it make a noise first?"
+
+#: data/calls/transfer_06_caminhoneiro_oficina_do_tiao.tres
+msgid "Tossiu umas três vezes e apagou. Agora nem pega."
+msgstr "Coughed three times and quit. Now it won't even start."
+
+#: data/calls/transfer_06_caminhoneiro_oficina_do_tiao.tres
+msgid "Deve ser o filtro de diesel. Vou aí com a caminhonete."
+msgstr "Probably the diesel filter. I'll come in the pickup."
+
+#: data/calls/transfer_06_caminhoneiro_oficina_do_tiao.tres
+msgid "Estou com o pisca ligado, do lado da ponte."
+msgstr "I've got the hazards on, by the bridge."
+
+#: data/calls/transfer_06_caminhoneiro_oficina_do_tiao.tres
+msgid "Em meia hora chego. Não sai da cabine, que está frio."
+msgstr "Half an hour and I'm there. Stay in the cab, it's cold."
+
 #: data/calls/transfer_07_motorista_posto_sao_cristovao.tres
 msgid "Motorista"
 msgstr "Driver"
@@ -2586,6 +4686,30 @@ msgstr "Posto São Cristóvão"
 #: data/calls/transfer_07_motorista_posto_sao_cristovao.tres data/calls/transfer_36_senhor_alberto_ramos.tres
 msgid "Obrigado, central."
 msgstr "Thank you, operator."
+
+#: data/calls/transfer_07_motorista_posto_sao_cristovao.tres
+msgid "Ainda está aberto? Estou quase sem gasolina."
+msgstr "Are you still open? I'm almost out of gas."
+
+#: data/calls/transfer_07_motorista_posto_sao_cristovao.tres
+msgid "Fecho às dez. Você está onde?"
+msgstr "I close at ten. Where are you?"
+
+#: data/calls/transfer_07_motorista_posto_sao_cristovao.tres
+msgid "Na saída da cidade. O ponteiro já está no vermelho."
+msgstr "At the edge of town. The needle's in the red."
+
+#: data/calls/transfer_07_motorista_posto_sao_cristovao.tres
+msgid "Dá pra chegar. Vem devagar, sem acelerar muito."
+msgstr "You'll make it. Come slow, easy on the gas."
+
+#: data/calls/transfer_07_motorista_posto_sao_cristovao.tres
+msgid "Me espera, pelo amor de Deus."
+msgstr "Wait for me, for heaven's sake."
+
+#: data/calls/transfer_07_motorista_posto_sao_cristovao.tres
+msgid "Espero. Deixo a luz da bomba acesa."
+msgstr "I'll wait. I'll leave the pump light on."
 
 #: data/calls/transfer_08_dona_cida_cine_odeon.tres data/content.tres
 msgid "Dona Cida"
@@ -2611,6 +4735,30 @@ msgstr "Cine Odeon"
 msgid "Obrigada, meu bem."
 msgstr "Thank you, sweetheart."
 
+#: data/calls/transfer_08_dona_cida_cine_odeon.tres
+msgid "Boa noite, meu bem. Que filme passa amanhã?"
+msgstr "Good evening, dear. What film's on tomorrow?"
+
+#: data/calls/transfer_08_dona_cida_cine_odeon.tres
+msgid "Amanhã é um faroeste, na sessão das sete e das nove."
+msgstr "Tomorrow it's a western, at seven and at nine."
+
+#: data/calls/transfer_08_dona_cida_cine_odeon.tres
+msgid "Faroeste? Tem muito tiro?"
+msgstr "A western? Lots of shooting?"
+
+#: data/calls/transfer_08_dona_cida_cine_odeon.tres
+msgid "Alguns. Mas tem um romance no meio."
+msgstr "Some. But there's a romance in the middle."
+
+#: data/calls/transfer_08_dona_cida_cine_odeon.tres
+msgid "Então eu vou na das sete, com a minha irmã."
+msgstr "Then I'll go at seven, with my sister."
+
+#: data/calls/transfer_08_dona_cida_cine_odeon.tres
+msgid "Chega cedo, que as poltronas do meio acabam logo."
+msgstr "Come early, the middle seats go fast."
+
 #: data/calls/transfer_09_senhor_funeraria_paz_eterna.tres data/calls/transfer_36_senhor_alberto_ramos.tres data/calls/emergency_10_invasao_rua_do_moinho_260.tres
 msgid "Senhor"
 msgstr "Gentleman"
@@ -2634,6 +4782,30 @@ msgstr "Funerária Paz Eterna"
 #: data/calls/transfer_09_senhor_funeraria_paz_eterna.tres
 msgid "Obrigado, moço."
 msgstr "Thank you, young man."
+
+#: data/calls/transfer_09_senhor_funeraria_paz_eterna.tres
+msgid "Boa noite... Meu pai faleceu agora há pouco."
+msgstr "Good evening... My father passed away just now."
+
+#: data/calls/transfer_09_senhor_funeraria_paz_eterna.tres
+msgid "Meus sentimentos, senhor. Ele estava em casa?"
+msgstr "My condolences, sir. Was he at home?"
+
+#: data/calls/transfer_09_senhor_funeraria_paz_eterna.tres
+msgid "Estava. Dormiu na poltrona e não acordou."
+msgstr "He was. Fell asleep in his armchair and didn't wake."
+
+#: data/calls/transfer_09_senhor_funeraria_paz_eterna.tres
+msgid "O médico já veio ver?"
+msgstr "Has the doctor seen him yet?"
+
+#: data/calls/transfer_09_senhor_funeraria_paz_eterna.tres
+msgid "Já. Deu o atestado. Agora não sei o que fazer."
+msgstr "Yes. He signed the certificate. Now I don't know what to do."
+
+#: data/calls/transfer_09_senhor_funeraria_paz_eterna.tres
+msgid "Deixa com a gente. Em uma hora estamos aí."
+msgstr "Leave it to us. We'll be there within the hour."
 
 #: data/calls/transfer_10_dona_neide_bar_do_ze.tres
 msgid "Dona Neide"
@@ -2659,6 +4831,30 @@ msgstr "Bar do Zé"
 msgid "Ah, ele vai ver só."
 msgstr "Oh, he's going to get it."
 
+#: data/calls/transfer_10_dona_neide_bar_do_ze.tres
+msgid "Zé, é a Neide. O meu marido ainda está aí?"
+msgstr "Zé, it's Neide. Is my husband still there?"
+
+#: data/calls/transfer_10_dona_neide_bar_do_ze.tres
+msgid "Está, Dona Neide. No dominó, com os amigos."
+msgstr "He is, Dona Neide. Playing dominoes with his friends."
+
+#: data/calls/transfer_10_dona_neide_bar_do_ze.tres
+msgid "Ele disse uma hora. Já faz três!"
+msgstr "He said one hour. It's been three!"
+
+#: data/calls/transfer_10_dona_neide_bar_do_ze.tres
+msgid "Quer que eu chame ele no telefone?"
+msgstr "Want me to put him on the phone?"
+
+#: data/calls/transfer_10_dona_neide_bar_do_ze.tres
+msgid "Não precisa. Fala que a janta está no fogão, fria."
+msgstr "No need. Tell him supper's on the stove, cold."
+
+#: data/calls/transfer_10_dona_neide_bar_do_ze.tres
+msgid "Falo, sim. E fecho a conta dele agora mesmo."
+msgstr "I will. And I'll close his tab right now."
+
 #: data/calls/transfer_11_morador_dr_augusto_almeida.tres data/content.tres
 msgid "Morador"
 msgstr "Resident"
@@ -2678,6 +4874,30 @@ msgstr "Dr. Augusto Almeida"
 #: data/calls/transfer_11_morador_dr_augusto_almeida.tres data/calls/transfer_19_homem_bar_do_ze.tres data/calls/transfer_31_seu_ernesto_celia_rocha_rua_do_sol.tres
 msgid "Obrigado."
 msgstr "Thank you."
+
+#: data/calls/transfer_11_morador_dr_augusto_almeida.tres
+msgid "Doutor, boa noite. Desculpa a hora."
+msgstr "Doctor, good evening. Sorry about the hour."
+
+#: data/calls/transfer_11_morador_dr_augusto_almeida.tres
+msgid "Pode falar. Quem é?"
+msgstr "Go ahead. Who is this?"
+
+#: data/calls/transfer_11_morador_dr_augusto_almeida.tres
+msgid "Aqui é da casa do lado da escola. Minha mulher torceu o pé."
+msgstr "From the house beside the school. My wife twisted her ankle."
+
+#: data/calls/transfer_11_morador_dr_augusto_almeida.tres
+msgid "Inchou muito? Ela consegue apoiar?"
+msgstr "Is it very swollen? Can she put weight on it?"
+
+#: data/calls/transfer_11_morador_dr_augusto_almeida.tres
+msgid "Inchou um pouco. Apoiar, até apoia."
+msgstr "A little swollen. She can stand on it, more or less."
+
+#: data/calls/transfer_11_morador_dr_augusto_almeida.tres
+msgid "Gelo e pé pra cima. Amanhã cedo eu passo aí."
+msgstr "Ice and feet up. I'll come by early tomorrow."
 
 #: data/calls/transfer_12_sra_marta_celia_rocha_rua_do_sol.tres
 msgid "Sra. Marta"
@@ -2703,6 +4923,30 @@ msgstr "Célia Rocha (Rua do Sol)"
 msgid "Obrigada."
 msgstr "Thank you."
 
+#: data/calls/transfer_12_sra_marta_celia_rocha_rua_do_sol.tres
+msgid "Célia? É a Marta. Desculpa a hora."
+msgstr "Célia? It's Marta. Sorry about the hour."
+
+#: data/calls/transfer_12_sra_marta_celia_rocha_rua_do_sol.tres
+msgid "Marta! Aconteceu alguma coisa?"
+msgstr "Marta! Did something happen?"
+
+#: data/calls/transfer_12_sra_marta_celia_rocha_rua_do_sol.tres
+msgid "Nada. Só queria a receita daquele doce de abóbora."
+msgstr "Nothing. I just wanted that pumpkin sweet recipe."
+
+#: data/calls/transfer_12_sra_marta_celia_rocha_rua_do_sol.tres
+msgid "A essa hora? Vai fazer agora?"
+msgstr "At this hour? You're making it now?"
+
+#: data/calls/transfer_12_sra_marta_celia_rocha_rua_do_sol.tres
+msgid "Amanhã cedo. A abóbora já está cortada aqui."
+msgstr "Early tomorrow. The pumpkin's already cut here."
+
+#: data/calls/transfer_12_sra_marta_celia_rocha_rua_do_sol.tres
+msgid "Então pega um papel, que eu vou ditando."
+msgstr "Then grab some paper, I'll dictate."
+
 #: data/calls/transfer_13_sr_ivo_armazem_ferreira.tres
 msgid "Sr. Ivo"
 msgstr "Sr. Ivo"
@@ -2726,6 +4970,26 @@ msgstr "Armazém Ferreira"
 #: data/calls/transfer_13_sr_ivo_armazem_ferreira.tres
 msgid "Tá certo, obrigado."
 msgstr "All right, thanks."
+
+#: data/calls/transfer_13_sr_ivo_armazem_ferreira.tres
+msgid "Joaquim, é o Ivo. Você ainda tem querosene?"
+msgstr "Joaquim, it's Ivo. Do you still have kerosene?"
+
+#: data/calls/transfer_13_sr_ivo_armazem_ferreira.tres
+msgid "Tenho um pouco. Pra que, a essa hora?"
+msgstr "A little. What for, at this hour?"
+
+#: data/calls/transfer_13_sr_ivo_armazem_ferreira.tres
+msgid "Meu lampião secou, e a luz aqui é fraca de noite."
+msgstr "My lamp's dry, and the power's weak here at night."
+
+#: data/calls/transfer_13_sr_ivo_armazem_ferreira.tres
+msgid "Vem pela porta dos fundos. Traz a garrafa."
+msgstr "Come round the back door. Bring a bottle."
+
+#: data/calls/transfer_13_sr_ivo_armazem_ferreira.tres
+msgid "Chego já. E anota na minha conta, viu?"
+msgstr "I'll be right over. And put it on my tab, mind."
 
 #: data/calls/transfer_14_senhora_casa_paroquial.tres data/calls/transfer_50_senhora_otavio_almeida.tres data/calls/emergency_06_outro_rua_do_comercio_71.tres
 msgid "Senhora"
@@ -2751,6 +5015,26 @@ msgstr "Casa Paroquial"
 msgid "Obrigada, meu filho."
 msgstr "Thank you, dear."
 
+#: data/calls/transfer_14_senhora_casa_paroquial.tres
+msgid "Boa noite, padre. É sobre a missa de sétimo dia do meu marido."
+msgstr "Good evening, Father. It's about my husband's seventh-day mass."
+
+#: data/calls/transfer_14_senhora_casa_paroquial.tres
+msgid "Meus pêsames, minha filha. Quer pra quando?"
+msgstr "My condolences, my child. When would you like it?"
+
+#: data/calls/transfer_14_senhora_casa_paroquial.tres
+msgid "Pra sexta. Ele gostava da missa da tarde."
+msgstr "Friday. He liked the afternoon mass."
+
+#: data/calls/transfer_14_senhora_casa_paroquial.tres
+msgid "Sexta, às cinco. Eu mesmo celebro."
+msgstr "Friday at five. I'll say it myself."
+
+#: data/calls/transfer_14_senhora_casa_paroquial.tres
+msgid "Obrigada, padre. Ele ia ficar contente."
+msgstr "Thank you, Father. He'd have been pleased."
+
 #: data/calls/transfer_15_vizinho_otavio_almeida.tres
 msgid "Vizinho"
 msgstr "Neighbor"
@@ -2774,6 +5058,30 @@ msgstr "Otávio Almeida"
 #: data/calls/transfer_15_vizinho_otavio_almeida.tres data/content.tres
 msgid "Isso, obrigado."
 msgstr "That's it, thanks."
+
+#: data/calls/transfer_15_vizinho_otavio_almeida.tres
+msgid "Seu Otávio? É o vizinho da frente. Desculpa a hora."
+msgstr "Mr. Otávio? It's your neighbor across the street. Sorry about the hour."
+
+#: data/calls/transfer_15_vizinho_otavio_almeida.tres
+msgid "Pode falar. Aconteceu alguma coisa?"
+msgstr "Go ahead. Something wrong?"
+
+#: data/calls/transfer_15_vizinho_otavio_almeida.tres
+msgid "Seu portão ficou aberto e o cachorro saiu pra rua."
+msgstr "Your gate was left open and the dog got out."
+
+#: data/calls/transfer_15_vizinho_otavio_almeida.tres
+msgid "O Trovão? De novo? Ele foi pra que lado?"
+msgstr "Trovão? Again? Which way did he go?"
+
+#: data/calls/transfer_15_vizinho_otavio_almeida.tres
+msgid "Pro lado da estação. Correndo atrás de um gato."
+msgstr "Toward the station. Chasing a cat."
+
+#: data/calls/transfer_15_vizinho_otavio_almeida.tres
+msgid "Vou buscar. Obrigado por avisar."
+msgstr "I'll go get him. Thanks for letting me know."
 
 #: data/calls/transfer_16_sobrinha_celia_rocha_av_brasil.tres
 msgid "Sobrinha"
@@ -2799,6 +5107,26 @@ msgstr "Célia Rocha (Av. Brasil)"
 msgid "Obrigada, moço."
 msgstr "Thank you, young man."
 
+#: data/calls/transfer_16_sobrinha_celia_rocha_av_brasil.tres
+msgid "Tia? É a sua sobrinha. Tudo bem por aí?"
+msgstr "Auntie? It's your niece. All well there?"
+
+#: data/calls/transfer_16_sobrinha_celia_rocha_av_brasil.tres
+msgid "Ah, minha querida! Tudo. E sua mãe?"
+msgstr "Oh, my dear! All fine. And your mother?"
+
+#: data/calls/transfer_16_sobrinha_celia_rocha_av_brasil.tres
+msgid "Melhorou. Mandou perguntar se a senhora vem no domingo."
+msgstr "She's better. She asked if you're coming Sunday."
+
+#: data/calls/transfer_16_sobrinha_celia_rocha_av_brasil.tres
+msgid "Vou, sim. Levo o pudim que ela gosta."
+msgstr "I am. I'll bring the pudding she likes."
+
+#: data/calls/transfer_16_sobrinha_celia_rocha_av_brasil.tres
+msgid "Ela vai adorar. Vou buscar a senhora no ponto."
+msgstr "She'll love it. I'll meet you at the bus stop."
+
 #: data/calls/transfer_17_fregues_joaquim_ferreira_residencia.tres
 msgid "Freguês"
 msgstr "Customer"
@@ -2823,6 +5151,30 @@ msgstr "Joaquim Ferreira (residence)"
 msgid "Tá certo."
 msgstr "All right."
 
+#: data/calls/transfer_17_fregues_joaquim_ferreira_residencia.tres
+msgid "Seu Joaquim? Desculpa ligar na sua casa."
+msgstr "Mr. Joaquim? Sorry to call you at home."
+
+#: data/calls/transfer_17_fregues_joaquim_ferreira_residencia.tres
+msgid "Tudo bem. O que foi?"
+msgstr "That's all right. What is it?"
+
+#: data/calls/transfer_17_fregues_joaquim_ferreira_residencia.tres
+msgid "Amanhã eu preciso de dez sacos de cimento logo cedo."
+msgstr "Tomorrow I need ten sacks of cement first thing."
+
+#: data/calls/transfer_17_fregues_joaquim_ferreira_residencia.tres
+msgid "Dez? Eu só tenho seis. O resto chega na quinta."
+msgstr "Ten? I only have six. The rest comes Thursday."
+
+#: data/calls/transfer_17_fregues_joaquim_ferreira_residencia.tres
+msgid "Então separa os seis. A obra não pode parar."
+msgstr "Then set the six aside. The job can't stop."
+
+#: data/calls/transfer_17_fregues_joaquim_ferreira_residencia.tres
+msgid "Abro às sete. Pode mandar a carroça."
+msgstr "I open at seven. Send the cart."
+
 #: data/calls/transfer_18_dona_rute_clinica_sao_lucas.tres
 msgid "Dona Rute"
 msgstr "Dona Rute"
@@ -2843,6 +5195,30 @@ msgstr "The front desk at the Clínica São Lucas."
 msgid "Clínica São Lucas"
 msgstr "Clínica São Lucas"
 
+#: data/calls/transfer_18_dona_rute_clinica_sao_lucas.tres
+msgid "Boa noite. Queria marcar horário com o doutor."
+msgstr "Good evening. I'd like to book an appointment with the doctor."
+
+#: data/calls/transfer_18_dona_rute_clinica_sao_lucas.tres
+msgid "Qual o nome da senhora?"
+msgstr "Your name, ma'am?"
+
+#: data/calls/transfer_18_dona_rute_clinica_sao_lucas.tres
+msgid "Rute Fonseca. É pra ver a pressão, que anda variando."
+msgstr "Rute Fonseca. To check my blood pressure, it's been up and down."
+
+#: data/calls/transfer_18_dona_rute_clinica_sao_lucas.tres
+msgid "Tem quinta, às nove da manhã. Serve?"
+msgstr "There's Thursday at nine in the morning. All right?"
+
+#: data/calls/transfer_18_dona_rute_clinica_sao_lucas.tres
+msgid "Serve. Preciso ir em jejum?"
+msgstr "Fine. Do I need to fast?"
+
+#: data/calls/transfer_18_dona_rute_clinica_sao_lucas.tres
+msgid "Não precisa. Só traz os exames antigos."
+msgstr "No. Just bring your old test results."
+
 #: data/calls/transfer_19_homem_bar_do_ze.tres data/calls/emergency_02_incendio_rua_do_moinho_40.tres
 msgid "Homem"
 msgstr "Man"
@@ -2854,6 +5230,26 @@ msgstr "I'd like to be connected to number 327."
 #: data/calls/transfer_19_homem_bar_do_ze.tres
 msgid "Três, dois, sete."
 msgstr "Three, two, seven."
+
+#: data/calls/transfer_19_homem_bar_do_ze.tres
+msgid "Boa noite. O Antônio está aí?"
+msgstr "Good evening. Is Antônio there?"
+
+#: data/calls/transfer_19_homem_bar_do_ze.tres
+msgid "O do caminhão? Saiu faz meia hora."
+msgstr "The truck driver? Left half an hour ago."
+
+#: data/calls/transfer_19_homem_bar_do_ze.tres
+msgid "Ele deixou um recado pra mim?"
+msgstr "Did he leave a message for me?"
+
+#: data/calls/transfer_19_homem_bar_do_ze.tres
+msgid "Deixou. Disse que amanhã passa às seis pra pegar a carga."
+msgstr "He did. Said he'll come at six tomorrow for the load."
+
+#: data/calls/transfer_19_homem_bar_do_ze.tres
+msgid "Às seis. Está bom, obrigado."
+msgstr "Six. All right, thanks."
 
 #: data/calls/transfer_20_dona_tereza_marta_costa.tres
 msgid "Dona Tereza"
@@ -2874,6 +5270,30 @@ msgstr "Two, two, three. Marta."
 #: data/calls/transfer_20_dona_tereza_marta_costa.tres
 msgid "Marta Costa"
 msgstr "Marta Costa"
+
+#: data/calls/transfer_20_dona_tereza_marta_costa.tres
+msgid "Comadre? É a Tereza."
+msgstr "Comadre? It's Tereza."
+
+#: data/calls/transfer_20_dona_tereza_marta_costa.tres
+msgid "Tereza! Que surpresa boa a essa hora."
+msgstr "Tereza! What a nice surprise at this hour."
+
+#: data/calls/transfer_20_dona_tereza_marta_costa.tres
+msgid "Amanhã é o aniversário do nosso afilhado. Você lembrou?"
+msgstr "Tomorrow's our godson's birthday. Did you remember?"
+
+#: data/calls/transfer_20_dona_tereza_marta_costa.tres
+msgid "Lembrei! Já comprei uma bola pra ele."
+msgstr "I did! I already bought him a ball."
+
+#: data/calls/transfer_20_dona_tereza_marta_costa.tres
+msgid "Eu fiz um bolo de chocolate. A gente vai junto?"
+msgstr "I baked a chocolate cake. Shall we go together?"
+
+#: data/calls/transfer_20_dona_tereza_marta_costa.tres
+msgid "Vamos. Passo aí às três."
+msgstr "Let's. I'll come by at three."
 
 #: data/calls/transfer_21_moca_lucia_pereira.tres data/calls/transfer_27_moca_taxi_ponto_da_rodoviaria.tres data/calls/emergency_03_mal_subito_rua_do_sol_230.tres
 msgid "Moça"
@@ -2899,6 +5319,30 @@ msgstr "Lúcia Pereira"
 msgid "Obrigada!"
 msgstr "Thank you!"
 
+#: data/calls/transfer_21_moca_lucia_pereira.tres
+msgid "Lúcia? Oi, sou eu."
+msgstr "Lúcia? Hi, it's me."
+
+#: data/calls/transfer_21_moca_lucia_pereira.tres
+msgid "Oi! Achei que você não ia ligar."
+msgstr "Hi! I thought you weren't going to call."
+
+#: data/calls/transfer_21_moca_lucia_pereira.tres
+msgid "A mamãe ficou no telefone a noite toda."
+msgstr "Mom was on the phone all night."
+
+#: data/calls/transfer_21_moca_lucia_pereira.tres
+msgid "E aí, você vai no baile de sábado?"
+msgstr "So, are you going to the dance on Saturday?"
+
+#: data/calls/transfer_21_moca_lucia_pereira.tres
+msgid "Vou, se você me emprestar o vestido azul."
+msgstr "I will, if you lend me the blue dress."
+
+#: data/calls/transfer_21_moca_lucia_pereira.tres
+msgid "Empresto. Vem buscar amanhã depois da aula."
+msgstr "Deal. Come get it tomorrow after class."
+
 #: data/calls/transfer_22_seu_anibal_farmacia_central.tres
 msgid "Seu Aníbal"
 msgstr "Seu Aníbal"
@@ -2918,6 +5362,30 @@ msgstr "Farmácia Central"
 #: data/calls/transfer_22_seu_anibal_farmacia_central.tres
 msgid "Obrigado, meu filho."
 msgstr "Thank you, son."
+
+#: data/calls/transfer_22_seu_anibal_farmacia_central.tres
+msgid "Boa noite. Preciso de um remédio pra pressão."
+msgstr "Good evening. I need blood pressure medicine."
+
+#: data/calls/transfer_22_seu_anibal_farmacia_central.tres
+msgid "O senhor já toma algum? Tem a receita?"
+msgstr "Do you already take one, sir? Do you have the prescription?"
+
+#: data/calls/transfer_22_seu_anibal_farmacia_central.tres
+msgid "Tenho, do Dr. Almeida. Acabou ontem e esqueci de comprar."
+msgstr "I do, from Dr. Almeida. Ran out yesterday and I forgot to buy more."
+
+#: data/calls/transfer_22_seu_anibal_farmacia_central.tres
+msgid "Então traz a receita, que eu separo a caixa."
+msgstr "Then bring the prescription, I'll set aside a box."
+
+#: data/calls/transfer_22_seu_anibal_farmacia_central.tres
+msgid "Meu neto vai buscar agora."
+msgstr "My grandson will come get it now."
+
+#: data/calls/transfer_22_seu_anibal_farmacia_central.tres
+msgid "Estou esperando. E nada de sal na janta, hein?"
+msgstr "I'll be here. And no salt at supper, eh?"
 
 #: data/calls/transfer_22_seu_anibal_farmacia_central.tres
 msgid "Ninguém atende. Quer que eu tente a Santa Rita, de plantão?"
@@ -2946,6 +5414,30 @@ msgstr "The Igreja Matriz."
 #: data/calls/transfer_23_dona_aurora_igreja_matriz.tres data/calls/transfer_43_noivo_casa_paroquial.tres
 msgid "Igreja Matriz"
 msgstr "Igreja Matriz"
+
+#: data/calls/transfer_23_dona_aurora_igreja_matriz.tres
+msgid "Boa noite. Queria pedir uma bênção pra minha filha."
+msgstr "Good evening. I'd like to ask a blessing for my daughter."
+
+#: data/calls/transfer_23_dona_aurora_igreja_matriz.tres
+msgid "Pois não. Ela está doente?"
+msgstr "Of course. Is she ill?"
+
+#: data/calls/transfer_23_dona_aurora_igreja_matriz.tres
+msgid "Não, graças a Deus. Viaja amanhã cedo pra capital."
+msgstr "No, thank God. She leaves for the capital early tomorrow."
+
+#: data/calls/transfer_23_dona_aurora_igreja_matriz.tres
+msgid "Ela pode passar antes da missa das seis?"
+msgstr "Can she come by before the six o'clock mass?"
+
+#: data/calls/transfer_23_dona_aurora_igreja_matriz.tres
+msgid "Pode. O ônibus só sai às oito."
+msgstr "She can. The bus doesn't leave till eight."
+
+#: data/calls/transfer_23_dona_aurora_igreja_matriz.tres
+msgid "Então às cinco e meia, na porta da sacristia."
+msgstr "Then half past five, at the sacristy door."
 
 #: data/calls/transfer_23_dona_aurora_igreja_matriz.tres
 msgid "A secretaria da igreja não atende. Quer que eu tente a casa do Padre Anselmo?"
@@ -2979,6 +5471,26 @@ msgstr "Ivo Teixeira"
 msgid "Obrigado. Agora ele não escapa."
 msgstr "Thanks. Now he can't get away."
 
+#: data/calls/transfer_24_seu_benedito_ivo_teixeira.tres
+msgid "Ivo, é o Benedito. E a minha escada?"
+msgstr "Ivo, it's Benedito. What about my ladder?"
+
+#: data/calls/transfer_24_seu_benedito_ivo_teixeira.tres
+msgid "Ih, seu Benedito, esqueci de novo."
+msgstr "Oh, Mr. Benedito, I forgot again."
+
+#: data/calls/transfer_24_seu_benedito_ivo_teixeira.tres
+msgid "Preciso dela amanhã pra limpar a calha."
+msgstr "I need it tomorrow to clean the gutter."
+
+#: data/calls/transfer_24_seu_benedito_ivo_teixeira.tres
+msgid "Levo aí cedinho, antes de ir pro serviço."
+msgstr "I'll bring it first thing, before work."
+
+#: data/calls/transfer_24_seu_benedito_ivo_teixeira.tres
+msgid "Leva, que a chuva está chegando."
+msgstr "Do, the rain's coming."
+
 #: data/calls/transfer_25_seu_jair_mercearia_silva.tres data/content.tres
 msgid "Seu Jair"
 msgstr "Seu Jair"
@@ -2999,6 +5511,26 @@ msgstr "Mercearia Silva"
 msgid "Obrigado. Tá um breu aqui."
 msgstr "Thanks. It's pitch black in here."
 
+#: data/calls/transfer_25_seu_jair_mercearia_silva.tres
+msgid "Silva, boa noite. É o Jair. Acabou a vela aqui."
+msgstr "Silva, good evening. It's Jair. I'm out of candles."
+
+#: data/calls/transfer_25_seu_jair_mercearia_silva.tres
+msgid "Faltou luz aí também, seu Jair?"
+msgstr "Power out there too, Mr. Jair?"
+
+#: data/calls/transfer_25_seu_jair_mercearia_silva.tres
+msgid "Faltou. E eu não enxergo nada no escuro."
+msgstr "It is. And I can't see a thing in the dark."
+
+#: data/calls/transfer_25_seu_jair_mercearia_silva.tres
+msgid "Mando meu filho levar meia dúzia aí."
+msgstr "I'll send my son over with half a dozen."
+
+#: data/calls/transfer_25_seu_jair_mercearia_silva.tres
+msgid "Deus te pague. Ele bate na janela, que eu escuto."
+msgstr "Bless you. Have him knock on the window, I'll hear."
+
 #: data/calls/transfer_26_dona_fatima_hotel_estrela.tres
 msgid "Dona Fátima"
 msgstr "Dona Fátima"
@@ -3015,6 +5547,26 @@ msgstr "The Hotel Estrela, on the avenue."
 msgid "Ai, obrigada. Mãe não dorme, né?"
 msgstr "Oh, thank you. Mothers never sleep, do they?"
 
+#: data/calls/transfer_26_dona_fatima_hotel_estrela.tres
+msgid "Boa noite. Minha filha chegou no ônibus das dez. Ela está aí?"
+msgstr "Good evening. My daughter came in on the ten o'clock bus. Is she there?"
+
+#: data/calls/transfer_26_dona_fatima_hotel_estrela.tres
+msgid "A moça de chapéu? Chegou, sim. Já subiu pro quarto."
+msgstr "The young lady in the hat? Yes, she's here. Gone up to her room."
+
+#: data/calls/transfer_26_dona_fatima_hotel_estrela.tres
+msgid "Ai, que alívio. Ela estava bem?"
+msgstr "Oh, what a relief. Did she seem all right?"
+
+#: data/calls/transfer_26_dona_fatima_hotel_estrela.tres
+msgid "Cansada, mas bem. Pediu um chá e foi deitar."
+msgstr "Tired, but fine. Asked for tea and went to bed."
+
+#: data/calls/transfer_26_dona_fatima_hotel_estrela.tres
+msgid "Então não acorda ela. Amanhã eu ligo de novo."
+msgstr "Then don't wake her. I'll call again tomorrow."
+
 #: data/calls/transfer_27_moca_taxi_ponto_da_rodoviaria.tres
 msgid "Preciso de um carro de praça. O último ônibus sai às onze e eu não posso perder."
 msgstr "I need a cab. The last bus leaves at eleven and I can't miss it."
@@ -3022,6 +5574,30 @@ msgstr "I need a cab. The last bus leaves at eleven and I can't miss it."
 #: data/calls/transfer_27_moca_taxi_ponto_da_rodoviaria.tres
 msgid "O ponto de táxi da rodoviária."
 msgstr "The taxi stand at the bus station."
+
+#: data/calls/transfer_27_moca_taxi_ponto_da_rodoviaria.tres
+msgid "Boa noite. Preciso de um carro. O último ônibus sai às onze."
+msgstr "Good evening. I need a car. The last bus leaves at eleven."
+
+#: data/calls/transfer_27_moca_taxi_ponto_da_rodoviaria.tres
+msgid "Onde a moça está?"
+msgstr "Where are you, miss?"
+
+#: data/calls/transfer_27_moca_taxi_ponto_da_rodoviaria.tres
+msgid "Na casa da minha avó, perto da praça."
+msgstr "At my grandmother's, near the square."
+
+#: data/calls/transfer_27_moca_taxi_ponto_da_rodoviaria.tres
+msgid "Tem um carro voltando pra lá. Chega em dez minutos."
+msgstr "There's a car heading back that way. It'll be there in ten minutes."
+
+#: data/calls/transfer_27_moca_taxi_ponto_da_rodoviaria.tres
+msgid "Dá tempo mesmo?"
+msgstr "Will I really make it?"
+
+#: data/calls/transfer_27_moca_taxi_ponto_da_rodoviaria.tres
+msgid "Dá. O motorista conhece o atalho."
+msgstr "You will. The driver knows the shortcut."
 
 #: data/calls/transfer_28_dona_olga_radio_serena_am.tres data/content.tres
 msgid "Dona Olga"
@@ -3039,6 +5615,30 @@ msgstr "Can you put me through to the radio station? I want to send a message to
 msgid "A Rádio Serena."
 msgstr "Rádio Serena."
 
+#: data/calls/transfer_28_dona_olga_radio_serena_am.tres
+msgid "Boa noite, meu filho. Quero mandar um recado pelo rádio."
+msgstr "Good evening, son. I'd like to send a message over the radio."
+
+#: data/calls/transfer_28_dona_olga_radio_serena_am.tres
+msgid "Pode ditar, senhora. Pra quem é?"
+msgstr "Go ahead and dictate, ma'am. Who's it for?"
+
+#: data/calls/transfer_28_dona_olga_radio_serena_am.tres
+msgid "Pro Zeca, que trabalha na roça do seu Moreira."
+msgstr "For Zeca, who works on Mr. Moreira's farm."
+
+#: data/calls/transfer_28_dona_olga_radio_serena_am.tres
+msgid "E o recado?"
+msgstr "And the message?"
+
+#: data/calls/transfer_28_dona_olga_radio_serena_am.tres
+msgid "Que a irmã dele teve menino. E que venha no domingo."
+msgstr "That his sister had a baby boy. And to come on Sunday."
+
+#: data/calls/transfer_28_dona_olga_radio_serena_am.tres
+msgid "Lido no programa das dez. Parabéns pelo neto!"
+msgstr "It'll be read on the ten o'clock show. Congrats on the grandson!"
+
 #: data/calls/transfer_29_rapaz_cine_odeon.tres
 msgid "Esqueci meu guarda-chuva na sessão das oito. Será que ainda tem alguém no cinema?"
 msgstr "I left my umbrella at the eight o'clock show. Is there still anyone at the cinema?"
@@ -3046,6 +5646,26 @@ msgstr "I left my umbrella at the eight o'clock show. Is there still anyone at t
 #: data/calls/transfer_29_rapaz_cine_odeon.tres
 msgid "O Cine Odeon."
 msgstr "The Cine Odeon."
+
+#: data/calls/transfer_29_rapaz_cine_odeon.tres
+msgid "Boa noite. Esqueci meu guarda-chuva na sessão das oito."
+msgstr "Good evening. I left my umbrella at the eight o'clock show."
+
+#: data/calls/transfer_29_rapaz_cine_odeon.tres
+msgid "Um preto, de cabo de madeira?"
+msgstr "A black one, with a wooden handle?"
+
+#: data/calls/transfer_29_rapaz_cine_odeon.tres
+msgid "Esse mesmo! Estava na fileira do meio."
+msgstr "That's it! It was in the middle row."
+
+#: data/calls/transfer_29_rapaz_cine_odeon.tres
+msgid "O lanterninha achou. Está guardado na bilheteria."
+msgstr "The usher found it. It's in the ticket booth."
+
+#: data/calls/transfer_29_rapaz_cine_odeon.tres
+msgid "Passo amanhã pra pegar. Obrigado!"
+msgstr "I'll pick it up tomorrow. Thanks!"
 
 #: data/calls/transfer_30_dona_elza_dr_augusto_almeida.tres
 msgid "Dona Elza"
@@ -3067,6 +5687,30 @@ msgstr "Doctor Almeida, the physician."
 msgid "Obrigada. Rápido, viu?"
 msgstr "Thank you. Hurry, okay?"
 
+#: data/calls/transfer_30_dona_elza_dr_augusto_almeida.tres
+msgid "Doutor, é a Elza. A pressão do meu marido subiu."
+msgstr "Doctor, it's Elza. My husband's blood pressure went up."
+
+#: data/calls/transfer_30_dona_elza_dr_augusto_almeida.tres
+msgid "Quanto deu?"
+msgstr "How high?"
+
+#: data/calls/transfer_30_dona_elza_dr_augusto_almeida.tres
+msgid "Dezessete por dez. Ele está com dor de cabeça."
+msgstr "Seventeen over ten. He has a headache."
+
+#: data/calls/transfer_30_dona_elza_dr_augusto_almeida.tres
+msgid "Dá o comprimido de baixo da língua que eu deixei."
+msgstr "Give him the under-the-tongue pill I left."
+
+#: data/calls/transfer_30_dona_elza_dr_augusto_almeida.tres
+msgid "E se não baixar?"
+msgstr "And if it doesn't come down?"
+
+#: data/calls/transfer_30_dona_elza_dr_augusto_almeida.tres
+msgid "Mede de novo em meia hora e me liga. Eu vou aí."
+msgstr "Check again in half an hour and call me. I'll come."
+
 #: data/calls/transfer_31_seu_ernesto_celia_rocha_rua_do_sol.tres
 msgid "Boa noite. A Dona Célia Rocha, por favor."
 msgstr "Good evening. Dona Célia Rocha, please."
@@ -3078,6 +5722,26 @@ msgstr "The one who lives near the school."
 #: data/calls/transfer_31_seu_ernesto_celia_rocha_rua_do_sol.tres
 msgid "Célia Rocha. A casa dela é perto da escola."
 msgstr "Célia Rocha. Her house is near the school."
+
+#: data/calls/transfer_31_seu_ernesto_celia_rocha_rua_do_sol.tres
+msgid "Dona Célia? Boa noite, é o Ernesto."
+msgstr "Dona Célia? Good evening, it's Ernesto."
+
+#: data/calls/transfer_31_seu_ernesto_celia_rocha_rua_do_sol.tres
+msgid "Seu Ernesto! A que devo a honra?"
+msgstr "Mr. Ernesto! To what do I owe the honor?"
+
+#: data/calls/transfer_31_seu_ernesto_celia_rocha_rua_do_sol.tres
+msgid "Queria saber se a reunião da escola é amanhã mesmo."
+msgstr "I wanted to check if the school meeting is really tomorrow."
+
+#: data/calls/transfer_31_seu_ernesto_celia_rocha_rua_do_sol.tres
+msgid "É, às sete, na sala da diretora."
+msgstr "It is, at seven, in the principal's office."
+
+#: data/calls/transfer_31_seu_ernesto_celia_rocha_rua_do_sol.tres
+msgid "Então eu levo as cadeiras que prometi."
+msgstr "Then I'll bring the chairs I promised."
 
 #: data/calls/transfer_32_seu_lauro_armazem_ferreira.tres
 msgid "Seu Lauro"
@@ -3099,6 +5763,26 @@ msgstr "Ferreira from the general store. Joaquim."
 msgid "Obrigado, moço. Tomara que ele atenda."
 msgstr "Thanks, young man. I hope he picks up."
 
+#: data/calls/transfer_32_seu_lauro_armazem_ferreira.tres
+msgid "Seu Ferreira, é o Lauro. Deixei minha carteira no balcão."
+msgstr "Mr. Ferreira, it's Lauro. I left my wallet on the counter."
+
+#: data/calls/transfer_32_seu_lauro_armazem_ferreira.tres
+msgid "Uma marrom, gasta? Achei quando fui fechar."
+msgstr "A brown one, worn? I found it when I was closing."
+
+#: data/calls/transfer_32_seu_lauro_armazem_ferreira.tres
+msgid "Essa! Graças a Deus. Tem o meu documento dentro."
+msgstr "That's it! Thank God. My papers are in it."
+
+#: data/calls/transfer_32_seu_lauro_armazem_ferreira.tres
+msgid "Está tudo aí, guardado na gaveta."
+msgstr "It's all there, locked in the drawer."
+
+#: data/calls/transfer_32_seu_lauro_armazem_ferreira.tres
+msgid "Passo amanhã cedo. Você é um homem honesto."
+msgstr "I'll come early tomorrow. You're an honest man."
+
 #: data/calls/transfer_33_rapaz_paulo_nogueira.tres
 msgid "Me liga com o seu Paulo Nogueira? Ele disse que eu podia ligar a qualquer hora."
 msgstr "Can you put me through to Seu Paulo Nogueira? He said I could call at any hour."
@@ -3110,6 +5794,26 @@ msgstr "Paulo Nogueira."
 #: data/calls/transfer_33_rapaz_paulo_nogueira.tres
 msgid "Paulo Nogueira"
 msgstr "Paulo Nogueira"
+
+#: data/calls/transfer_33_rapaz_paulo_nogueira.tres
+msgid "Seu Paulo? Boa noite. O senhor disse que eu podia ligar."
+msgstr "Mr. Paulo? Good evening. You said I could call."
+
+#: data/calls/transfer_33_rapaz_paulo_nogueira.tres
+msgid "Disse. É sobre o serviço na serraria?"
+msgstr "I did. Is it about the job at the sawmill?"
+
+#: data/calls/transfer_33_rapaz_paulo_nogueira.tres
+msgid "É. Quero aceitar, se a vaga ainda existir."
+msgstr "Yes. I'd like to accept, if the job's still open."
+
+#: data/calls/transfer_33_rapaz_paulo_nogueira.tres
+msgid "Existe. Segunda, às seis, com a carteira de trabalho."
+msgstr "It is. Monday at six, with your work card."
+
+#: data/calls/transfer_33_rapaz_paulo_nogueira.tres
+msgid "Estarei lá. Muito obrigado, seu Paulo."
+msgstr "I'll be there. Thank you so much, Mr. Paulo."
 
 #: data/calls/transfer_34_dona_iolanda_rosa_lima.tres
 msgid "Dona Iolanda"
@@ -3126,6 +5830,26 @@ msgstr "Rosa Lima, on Acácias."
 #: data/calls/transfer_34_dona_iolanda_rosa_lima.tres
 msgid "Rosa Lima"
 msgstr "Rosa Lima"
+
+#: data/calls/transfer_34_dona_iolanda_rosa_lima.tres
+msgid "Rosa? É a Iolanda! Da capital."
+msgstr "Rosa? It's Iolanda! From the capital."
+
+#: data/calls/transfer_34_dona_iolanda_rosa_lima.tres
+msgid "Iolanda! Faz quanto tempo, minha irmã!"
+msgstr "Iolanda! It's been so long, sister!"
+
+#: data/calls/transfer_34_dona_iolanda_rosa_lima.tres
+msgid "Vou passar o Natal aí com vocês, se puder."
+msgstr "I'd like to spend Christmas there with you, if I may."
+
+#: data/calls/transfer_34_dona_iolanda_rosa_lima.tres
+msgid "Se pode? Vou arrumar o quarto da frente pra você."
+msgstr "If you may? I'll get the front room ready for you."
+
+#: data/calls/transfer_34_dona_iolanda_rosa_lima.tres
+msgid "Chego no dia vinte, no ônibus da tarde."
+msgstr "I'll arrive on the twentieth, on the afternoon bus."
 
 #: data/calls/transfer_35_seu_valdir_sonia_vieira.tres data/content.tres
 msgid "Seu Valdir"
@@ -3151,6 +5875,26 @@ msgstr "Sônia Vieira"
 msgid "Brigado."
 msgstr "Thanks."
 
+#: data/calls/transfer_35_seu_valdir_sonia_vieira.tres
+msgid "Sônia? É o Valdir, do escritório."
+msgstr "Sônia? It's Valdir, from the office."
+
+#: data/calls/transfer_35_seu_valdir_sonia_vieira.tres
+msgid "Oi, Valdir. Esqueci alguma coisa aí?"
+msgstr "Hi, Valdir. Did I forget something there?"
+
+#: data/calls/transfer_35_seu_valdir_sonia_vieira.tres
+msgid "A chave do arquivo. Ficou na sua bolsa, eu acho."
+msgstr "The filing cabinet key. I think it's in your purse."
+
+#: data/calls/transfer_35_seu_valdir_sonia_vieira.tres
+msgid "Ficou mesmo! Está aqui. Desculpa."
+msgstr "So it did! Here it is. Sorry."
+
+#: data/calls/transfer_35_seu_valdir_sonia_vieira.tres
+msgid "Traz amanhã às oito, que o fiscal chega às nove."
+msgstr "Bring it at eight tomorrow, the inspector comes at nine."
+
 #: data/calls/transfer_36_senhor_alberto_ramos.tres
 msgid "O Alberto Ramos, da Avenida Brasil. Somos sócios."
 msgstr "Alberto Ramos, on Avenida Brasil. We're partners."
@@ -3162,6 +5906,30 @@ msgstr "Alberto Ramos."
 #: data/calls/transfer_36_senhor_alberto_ramos.tres
 msgid "Alberto Ramos"
 msgstr "Alberto Ramos"
+
+#: data/calls/transfer_36_senhor_alberto_ramos.tres
+msgid "Alberto, boa noite. Fechei a loja agora."
+msgstr "Alberto, good evening. I've just closed the shop."
+
+#: data/calls/transfer_36_senhor_alberto_ramos.tres
+msgid "E como foi o dia?"
+msgstr "And how was the day?"
+
+#: data/calls/transfer_36_senhor_alberto_ramos.tres
+msgid "Bom. Vendemos os três rádios da vitrine."
+msgstr "Good. We sold all three radios in the window."
+
+#: data/calls/transfer_36_senhor_alberto_ramos.tres
+msgid "Os três? Então tem que encomendar mais."
+msgstr "All three? Then we need to order more."
+
+#: data/calls/transfer_36_senhor_alberto_ramos.tres
+msgid "Por isso liguei. Você escreve pro fornecedor amanhã?"
+msgstr "That's why I called. Will you write to the supplier tomorrow?"
+
+#: data/calls/transfer_36_senhor_alberto_ramos.tres
+msgid "Escrevo. E vou pedir cinco, que é Natal."
+msgstr "I will. And I'll ask for five, with Christmas coming."
 
 #: data/calls/transfer_37_vizinha_benedito_souza.tres
 msgid "Vizinha"
@@ -3186,6 +5954,26 @@ msgstr "Benedito Souza"
 #: data/calls/transfer_37_vizinha_benedito_souza.tres
 msgid "Obrigada. Deve estar dormindo, né?"
 msgstr "Thank you. He must be asleep, right?"
+
+#: data/calls/transfer_37_vizinha_benedito_souza.tres
+msgid "Seu Benedito? É a vizinha. A luz está acesa e o senhor não atende."
+msgstr "Mr. Benedito? It's your neighbor. Your light's on and you don't answer."
+
+#: data/calls/transfer_37_vizinha_benedito_souza.tres
+msgid "Ah, minha filha, eu estava no banho."
+msgstr "Oh, dear, I was in the bath."
+
+#: data/calls/transfer_37_vizinha_benedito_souza.tres
+msgid "Que susto! Achei que o senhor tinha caído."
+msgstr "What a fright! I thought you'd fallen."
+
+#: data/calls/transfer_37_vizinha_benedito_souza.tres
+msgid "Não, não. Estou firme. Mas obrigado por cuidar de mim."
+msgstr "No, no. I'm steady on my feet. But thanks for looking out for me."
+
+#: data/calls/transfer_37_vizinha_benedito_souza.tres
+msgid "Amanhã eu levo uma sopa pro senhor."
+msgstr "Tomorrow I'll bring you some soup."
 
 #: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
 msgid "Dona Benta"
@@ -3212,6 +6000,30 @@ msgid "Obrigada, meu filho. Boa noite."
 msgstr "Thank you, son. Good night."
 
 #: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
+msgid "Boa noite, moço. Meu filho chegou de viagem e ficou aí."
+msgstr "Good evening, young man. My son got in from a trip and is staying there."
+
+#: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
+msgid "Como ele se chama, senhora?"
+msgstr "What's his name, ma'am?"
+
+#: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
+msgid "Rogério. Um moço alto, de bigode."
+msgstr "Rogério. A tall fellow, with a mustache."
+
+#: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
+msgid "Chegou, sim. Está jantando lá na sala."
+msgstr "Yes, he's here. Having supper in the dining room."
+
+#: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
+msgid "Diz pra ele vir almoçar comigo amanhã."
+msgstr "Tell him to come have lunch with me tomorrow."
+
+#: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
+msgid "Digo, sim. Boa noite, senhora."
+msgstr "I will. Good night, ma'am."
+
+#: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
 msgid "A pensão não atende. Quer que eu tente o Hotel Estrela?"
 msgstr "The boarding house isn't answering. Shall I try the Hotel Estrela?"
 
@@ -3234,6 +6046,30 @@ msgstr "Could you put me through to the Hotel Estrela? I need a room for tonight
 #: data/calls/transfer_39_caixeiro_hotel_estrela.tres
 msgid "Muito obrigado. O senhor me salvou a noite."
 msgstr "Thank you so much. You've saved my night."
+
+#: data/calls/transfer_39_caixeiro_hotel_estrela.tres
+msgid "Boa noite. Perdi o último ônibus. Tem um quarto pra hoje?"
+msgstr "Good evening. I missed the last bus. Do you have a room tonight?"
+
+#: data/calls/transfer_39_caixeiro_hotel_estrela.tres
+msgid "Tem um de solteiro, com banheiro no corredor."
+msgstr "There's a single, with the bathroom down the hall."
+
+#: data/calls/transfer_39_caixeiro_hotel_estrela.tres
+msgid "Serve. Quanto é a diária?"
+msgstr "That'll do. How much a night?"
+
+#: data/calls/transfer_39_caixeiro_hotel_estrela.tres
+msgid "Com café da manhã, o mesmo preço da semana passada."
+msgstr "With breakfast, the same as last week."
+
+#: data/calls/transfer_39_caixeiro_hotel_estrela.tres
+msgid "Estou na rodoviária, com a mala de amostras."
+msgstr "I'm at the bus station, with my sample case."
+
+#: data/calls/transfer_39_caixeiro_hotel_estrela.tres
+msgid "Vem a pé, que é perto. Deixo a porta aberta."
+msgstr "Walk over, it's close. I'll leave the door open."
 
 #: data/calls/transfer_39_caixeiro_hotel_estrela.tres
 msgid "O hotel não atende. Quer que eu tente a Pensão Dona Cota?"
@@ -3268,6 +6104,26 @@ msgid "Valeu, central. Deus te ajude."
 msgstr "Thanks, central. God bless."
 
 #: data/calls/transfer_40_motorista_borracharia_do_neno.tres
+msgid "Boa noite. Furou o pneu do caminhão na entrada da cidade."
+msgstr "Good evening. My truck's got a flat at the edge of town."
+
+#: data/calls/transfer_40_motorista_borracharia_do_neno.tres
+msgid "O estepe também está ruim?"
+msgstr "Is the spare bad too?"
+
+#: data/calls/transfer_40_motorista_borracharia_do_neno.tres
+msgid "Está careca, não aguenta a carga."
+msgstr "It's bald, won't hold the load."
+
+#: data/calls/transfer_40_motorista_borracharia_do_neno.tres
+msgid "Levo um pneu e o macaco grande. Em meia hora estou aí."
+msgstr "I'll bring a tire and the big jack. I'll be there in half an hour."
+
+#: data/calls/transfer_40_motorista_borracharia_do_neno.tres
+msgid "Estou com o pisca ligado, do lado da placa."
+msgstr "I've got the hazards on, by the sign."
+
+#: data/calls/transfer_40_motorista_borracharia_do_neno.tres
 msgid "A borracharia não atende. Quer que eu tente a Oficina do Tião?"
 msgstr "The tyre shop isn't answering. Shall I try the Oficina do Tião?"
 
@@ -3295,6 +6151,30 @@ msgstr "Bilhar do Tonho"
 msgid "Valeu! O senhor é dos bons."
 msgstr "Thanks! You're one of the good ones."
 
+#: data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
+msgid "Tonho? Esqueci meu chapéu aí."
+msgstr "Tonho? I left my hat there."
+
+#: data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
+msgid "Um de palha, com fita preta?"
+msgstr "A straw one, with a black band?"
+
+#: data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
+msgid "Esse! Era do meu avô. Minha mãe vai me matar."
+msgstr "That's it! It was my grandpa's. My mom will kill me."
+
+#: data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
+msgid "Está pendurado atrás do balcão. Vem buscar amanhã."
+msgstr "It's hanging behind the counter. Come get it tomorrow."
+
+#: data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
+msgid "Não dá pra ser hoje? Por favor."
+msgstr "Can't it be tonight? Please."
+
+#: data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
+msgid "Vem rápido, que eu fecho às onze."
+msgstr "Hurry, I close at eleven."
+
 #: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
 msgid "Dona Zefa"
 msgstr "Dona Zefa"
@@ -3314,6 +6194,30 @@ msgstr "The Santa Rita, on Rua do Mercado."
 #: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
 msgid "Ai, obrigada. Agora a casa dorme."
 msgstr "Oh, thank you. Now the house can sleep."
+
+#: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
+msgid "Boa noite. Meu marido está com uma dor de dente horrível."
+msgstr "Good evening. My husband has a horrible toothache."
+
+#: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
+msgid "Inchou o rosto?"
+msgstr "Is his face swollen?"
+
+#: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
+msgid "Um pouco. Ele não para de gemer, ninguém dorme."
+msgstr "A little. He won't stop moaning, nobody can sleep."
+
+#: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
+msgid "Tenho um analgésico forte. E compressa fria no rosto."
+msgstr "I've a strong painkiller. And a cold compress on his face."
+
+#: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
+msgid "Mando meu filho buscar agora."
+msgstr "I'll send my son for it now."
+
+#: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
+msgid "E amanhã leva ele no dentista, sem desculpa."
+msgstr "And take him to the dentist tomorrow, no excuses."
 
 #: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
 msgid "A Santa Rita não atende. Quer que eu tente a Farmácia Central, da praça?"
@@ -3344,6 +6248,30 @@ msgid "Obrigado. Reza por mim, que eu tô nervoso."
 msgstr "Thank you. Say a prayer for me, I'm nervous."
 
 #: data/calls/transfer_43_noivo_casa_paroquial.tres
+msgid "Boa noite. Desculpe a hora. É sobre o meu casamento no sábado."
+msgstr "Good evening. Sorry about the hour. It's about my wedding on Saturday."
+
+#: data/calls/transfer_43_noivo_casa_paroquial.tres
+msgid "Pode falar, meu filho. Algum problema?"
+msgstr "Go ahead, son. Is something wrong?"
+
+#: data/calls/transfer_43_noivo_casa_paroquial.tres
+msgid "A noiva quer mudar pras cinco. Os parentes chegam atrasados."
+msgstr "The bride wants to move it to five. The relatives are arriving late."
+
+#: data/calls/transfer_43_noivo_casa_paroquial.tres
+msgid "Às cinco tem batizado. Pode ser às seis?"
+msgstr "There's a baptism at five. Could it be at six?"
+
+#: data/calls/transfer_43_noivo_casa_paroquial.tres
+msgid "Às seis está ótimo. Ela vai ficar feliz."
+msgstr "Six is perfect. She'll be happy."
+
+#: data/calls/transfer_43_noivo_casa_paroquial.tres
+msgid "Então seis horas. E nada de atraso da noiva, hein?"
+msgstr "Six it is. And no late bride, eh?"
+
+#: data/calls/transfer_43_noivo_casa_paroquial.tres
 msgid "A Casa Paroquial não atende. Quer que eu tente a secretaria da Igreja Matriz?"
 msgstr "The Casa Paroquial isn't answering. Shall I try the office at the Igreja Matriz?"
 
@@ -3371,6 +6299,30 @@ msgstr "The Pão Dourado bakery, on Rua das Acácias."
 msgid "Obrigada, querido. Vou pedir um de coco."
 msgstr "Thank you, dear. I'll ask for a coconut one."
 
+#: data/calls/transfer_44_dona_glorinha_padaria_pao_dourado.tres
+msgid "Boa noite. Quero encomendar o bolo do aniversário da minha neta."
+msgstr "Good evening. I'd like to order my granddaughter's birthday cake."
+
+#: data/calls/transfer_44_dona_glorinha_padaria_pao_dourado.tres
+msgid "Que bom! De que sabor, Dona Glorinha?"
+msgstr "Lovely! What flavor, Dona Glorinha?"
+
+#: data/calls/transfer_44_dona_glorinha_padaria_pao_dourado.tres
+msgid "Chocolate com morango. Ela faz sete anos."
+msgstr "Chocolate with strawberry. She's turning seven."
+
+#: data/calls/transfer_44_dona_glorinha_padaria_pao_dourado.tres
+msgid "Escrevo o nome dela em cima?"
+msgstr "Shall I write her name on top?"
+
+#: data/calls/transfer_44_dona_glorinha_padaria_pao_dourado.tres
+msgid "Escreve: Mariana. Com letra cor-de-rosa."
+msgstr "Yes: Mariana. In pink letters."
+
+#: data/calls/transfer_44_dona_glorinha_padaria_pao_dourado.tres
+msgid "Fica pronto sábado às dez."
+msgstr "It'll be ready Saturday at ten."
+
 #: data/calls/transfer_45_reporter_gazeta.tres
 msgid "Correspondente"
 msgstr "Correspondent"
@@ -3394,6 +6346,30 @@ msgstr "Gazeta de São Sotero"
 #: data/calls/transfer_45_reporter_gazeta.tres
 msgid "Obrigado. Amanhã o senhor lê no jornal."
 msgstr "Thanks. You'll read it in the paper tomorrow."
+
+#: data/calls/transfer_45_reporter_gazeta.tres
+msgid "Redação? É o correspondente. Tenho notícia pra amanhã."
+msgstr "Newsroom? It's your correspondent. I've a story for tomorrow."
+
+#: data/calls/transfer_45_reporter_gazeta.tres
+msgid "Rápido, que a página fecha em vinte minutos."
+msgstr "Quick, the page closes in twenty minutes."
+
+#: data/calls/transfer_45_reporter_gazeta.tres
+msgid "A ponte do rio Claro vai ser reformada. Começa em março."
+msgstr "The Rio Claro bridge is getting repaired. Work starts in March."
+
+#: data/calls/transfer_45_reporter_gazeta.tres
+msgid "Quem confirmou?"
+msgstr "Who confirmed it?"
+
+#: data/calls/transfer_45_reporter_gazeta.tres
+msgid "O engenheiro da estrada. Estive com ele hoje."
+msgstr "The road engineer. I was with him today."
+
+#: data/calls/transfer_45_reporter_gazeta.tres
+msgid "Dita devagar, que eu vou batendo à máquina."
+msgstr "Dictate slowly, I'm typing it up."
 
 #: data/calls/transfer_46_afilhado_geraldo_martins.tres
 msgid "Afilhado"
@@ -3419,6 +6395,26 @@ msgstr "Geraldo Martins"
 msgid "Obrigado, moço. Ele vai gostar da notícia."
 msgstr "Thank you. He'll be glad to hear the news."
 
+#: data/calls/transfer_46_afilhado_geraldo_martins.tres
+msgid "Padrinho? Boa noite. É o seu afilhado."
+msgstr "Godfather? Good evening. It's your godson."
+
+#: data/calls/transfer_46_afilhado_geraldo_martins.tres
+msgid "Rapaz! Que saudade. Está tudo bem?"
+msgstr "My boy! I've missed you. All well?"
+
+#: data/calls/transfer_46_afilhado_geraldo_martins.tres
+msgid "Tudo. Passei no concurso do banco!"
+msgstr "Yes. I passed the bank's exam!"
+
+#: data/calls/transfer_46_afilhado_geraldo_martins.tres
+msgid "Eu sabia! Sua madrinha vai chorar de alegria."
+msgstr "I knew it! Your godmother will cry for joy."
+
+#: data/calls/transfer_46_afilhado_geraldo_martins.tres
+msgid "Domingo eu levo um vinho pra gente comemorar."
+msgstr "Sunday I'll bring wine so we can celebrate."
+
 #: data/calls/transfer_47_veterinario_sitio_boa_esperanca.tres
 msgid "Veterinário"
 msgstr "Vet"
@@ -3443,6 +6439,26 @@ msgstr "Sítio Boa Esperança"
 msgid "Obrigado. Vou ligando a caminhonete."
 msgstr "Thanks. I'll get the pickup started."
 
+#: data/calls/transfer_47_veterinario_sitio_boa_esperanca.tres
+msgid "Boa noite. Aqui é o veterinário. Ainda precisa de mim?"
+msgstr "Good evening. It's the vet. Do you still need me?"
+
+#: data/calls/transfer_47_veterinario_sitio_boa_esperanca.tres
+msgid "Precisa! A vaca está deitada e o bezerro não sai."
+msgstr "We do! The cow's lying down and the calf won't come."
+
+#: data/calls/transfer_47_veterinario_sitio_boa_esperanca.tres
+msgid "Faz quanto tempo que começou?"
+msgstr "How long since it started?"
+
+#: data/calls/transfer_47_veterinario_sitio_boa_esperanca.tres
+msgid "Umas duas horas. Ela está cansando."
+msgstr "About two hours. She's tiring."
+
+#: data/calls/transfer_47_veterinario_sitio_boa_esperanca.tres
+msgid "Estou indo. Deixa água morna e corda limpa no curral."
+msgstr "I'm on my way. Have warm water and clean rope in the corral."
+
 #: data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
 msgid "Dona Mirtes"
 msgstr "Dona Mirtes"
@@ -3463,6 +6479,26 @@ msgstr "Laudelina Prado. On Bela Vista."
 msgid "Laudelina Prado"
 msgstr "Laudelina Prado"
 
+#: data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
+msgid "Dona Laudelina? É a Mirtes. Da forma de pudim."
+msgstr "Dona Laudelina? It's Mirtes. About the pudding mold."
+
+#: data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
+msgid "Ah, Mirtes! E o pudim, deu certo?"
+msgstr "Oh, Mirtes! And the pudding, did it turn out?"
+
+#: data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
+msgid "Ficou lindo. Todo mundo pediu a receita."
+msgstr "It was beautiful. Everyone asked for the recipe."
+
+#: data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
+msgid "Que bom. A forma pode trazer quando quiser."
+msgstr "Good. Bring the mold back whenever you like."
+
+#: data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
+msgid "Levo amanhã cedo, com um pedaço do pudim."
+msgstr "I'll bring it early tomorrow, with a slice of pudding."
+
 #: data/calls/transfer_49_menino_mercearia_silva.tres data/calls/prank_05_menino.tres data/calls/prank_09_menino.tres
 msgid "Menino"
 msgstr "Kid"
@@ -3482,6 +6518,26 @@ msgstr "Seu Silva's grocery!"
 #: data/calls/transfer_49_menino_mercearia_silva.tres
 msgid "Brigado, moço!"
 msgstr "Thanks, mister!"
+
+#: data/calls/transfer_49_menino_mercearia_silva.tres
+msgid "Alô? Moço, minha mãe quer saber se ainda tem leite."
+msgstr "Hello? Mister, my mom wants to know if there's still milk."
+
+#: data/calls/transfer_49_menino_mercearia_silva.tres
+msgid "Tem dois litros. Quem é que está falando?"
+msgstr "There's two liters. Who's this?"
+
+#: data/calls/transfer_49_menino_mercearia_silva.tres
+msgid "É o Tiaguinho, filho da Dona Lurdinha."
+msgstr "It's Tiaguinho, Dona Lurdinha's boy."
+
+#: data/calls/transfer_49_menino_mercearia_silva.tres
+msgid "Diz pra ela que eu guardo. Pode vir buscar."
+msgstr "Tell her I'll keep them. She can come get them."
+
+#: data/calls/transfer_49_menino_mercearia_silva.tres
+msgid "Mãe! Ele disse que tem!"
+msgstr "Mom! He says there is!"
 
 #: data/calls/transfer_49_menino_mercearia_silva.tres
 msgid "A mercearia não atende. Quer que eu tente o Armazém Ferreira?"
@@ -3506,6 +6562,30 @@ msgstr "Otávio Almeida. The one on Estação."
 #: data/calls/transfer_50_senhora_otavio_almeida.tres
 msgid "Esse mesmo. Obrigada."
 msgstr "That's the one. Thank you."
+
+#: data/calls/transfer_50_senhora_otavio_almeida.tres
+msgid "Seu Otávio? Boa noite. É a vizinha da Rua da Estação."
+msgstr "Mr. Otávio? Good evening. It's your neighbor on Rua da Estação."
+
+#: data/calls/transfer_50_senhora_otavio_almeida.tres
+msgid "Boa noite. Aconteceu alguma coisa?"
+msgstr "Good evening. Is something wrong?"
+
+#: data/calls/transfer_50_senhora_otavio_almeida.tres
+msgid "Sua galinha pulou o muro de novo. Está no meu quintal."
+msgstr "Your hen jumped the wall again. She's in my yard."
+
+#: data/calls/transfer_50_senhora_otavio_almeida.tres
+msgid "A pintadinha? Ela gosta da sua horta."
+msgstr "The speckled one? She likes your garden."
+
+#: data/calls/transfer_50_senhora_otavio_almeida.tres
+msgid "Gosta até demais. Vem buscar amanhã cedo?"
+msgstr "A bit too much. Will you come get her early tomorrow?"
+
+#: data/calls/transfer_50_senhora_otavio_almeida.tres
+msgid "Vou, e levo uma dúzia de ovos pra senhora."
+msgstr "I will, and I'll bring you a dozen eggs."
 
 #: data/calls/emergency_01_acidente_de_transito_rua_das_acacias_101.tres
 msgid "Mulher"
@@ -5158,10 +8238,6 @@ msgstr "Central, my son fell into the stream behind the house! The current's car
 #: data/calls/emergency_27_outro_rua_do_moinho_410.tres
 msgid "Ele está segurando em alguma coisa?"
 msgstr "Is he holding on to anything?"
-
-#: data/calls/emergency_27_outro_rua_do_moinho_410.tres
-msgid "Quantos anos ele tem?"
-msgstr "How old is he?"
 
 #: data/calls/emergency_27_outro_rua_do_moinho_410.tres
 msgid "Rua do Moinho, 410! Atrás do moinho velho!"

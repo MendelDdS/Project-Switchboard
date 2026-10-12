@@ -726,3 +726,15 @@ Chaves:
     mesma); depois da última fala escrita os dois se despedem e desligam (a linha fica livre antes); o teste confere as regras de escrita (sem o tipo do lugar, lacunas que existem, falas
     curtas nos três idiomas); lacunas sorteadas por conversa ({hour}, {wait}, {nights}, {street}...), para o que se
     ouve não ser sempre igual; e duas conversas por motivo, sorteadas.
+158. #conversa #consequencias
+    Escuta preparada para as conversas do roteiro: o jogador administra o tempo de escuta para pegar o máximo de
+    palavras-chave (nomes de pessoas e ruas, telefones, horários), que vão para um documento a ser repassado a um
+    interessado (documento e interessado ficam para depois). Palavras marcadas `[tipo:texto]` nas falas escritas;
+    ouvida com todas as letras, a palavra fica guardada (`Eavesdrop.clues`).
+159. #conversa
+    As palavras-chave ouvidas ficam salvas para as noites seguintes (no progresso, com a noite, a hora, quem ligou e
+    para onde).
+160. #conversa #conteudo
+    Mais conversas para escutar: duas por motivo do Centro e do Alto da Serra (como as da Vila Serena, com lacunas) e
+    uma em cada transferência escrita das 50, de todos os setores, todas do cotidiano e sem palavras-chave (essas são
+    para as conversas de roteiro). O teste passou a conferir todos os setores e as transferências escritas.

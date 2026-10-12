@@ -12,3 +12,4 @@ repeat = "O Sítio Boa Esperança, lá no Cruzeiro."
 target = "209"
 destination = "Sítio Boa Esperança"
 thanks = "Obrigado. Vou ligando a caminhonete."
+overheard = PackedStringArray("Boa noite. Aqui é o veterinário. Ainda precisa de mim?", "Precisa! A vaca está deitada e o bezerro não sai.", "Faz quanto tempo que começou?", "Umas duas horas. Ela está cansando.", "Estou indo. Deixa água morna e corda limpa no curral.")

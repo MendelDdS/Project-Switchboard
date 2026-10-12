@@ -15,3 +15,4 @@ alt_target = "312"
 alt_destination = "Pensão Dona Cota"
 alt_ask = "O hotel não atende. Quer que eu tente a Pensão Dona Cota?"
 alt_yes = "Pode ser. Uma cama já está bom."
+overheard = PackedStringArray("Boa noite. Perdi o último ônibus. Tem um quarto pra hoje?", "Tem um de solteiro, com banheiro no corredor.", "Serve. Quanto é a diária?", "Com café da manhã, o mesmo preço da semana passada.", "Estou na rodoviária, com a mala de amostras.", "Vem a pé, que é perto. Deixo a porta aberta.")

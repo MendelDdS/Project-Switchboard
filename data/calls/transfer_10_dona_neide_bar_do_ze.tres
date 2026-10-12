@@ -10,3 +10,4 @@ repeat = "O Bar do Zé! Na Rua da Estação."
 target = "327"
 destination = "Bar do Zé"
 thanks = "Ah, ele vai ver só."
+overheard = PackedStringArray("Zé, é a Neide. O meu marido ainda está aí?", "Está, Dona Neide. No dominó, com os amigos.", "Ele disse uma hora. Já faz três!", "Quer que eu chame ele no telefone?", "Não precisa. Fala que a janta está no fogão, fria.", "Falo, sim. E fecho a conta dele agora mesmo.")

@@ -12,3 +12,4 @@ repeat = "Geraldo Martins, da Rua da Matriz."
 target = "155"
 destination = "Geraldo Martins"
 thanks = "Obrigado, moço. Ele vai gostar da notícia."
+overheard = PackedStringArray("Padrinho? Boa noite. É o seu afilhado.", "Rapaz! Que saudade. Está tudo bem?", "Tudo. Passei no concurso do banco!", "Eu sabia! Sua madrinha vai chorar de alegria.", "Domingo eu levo um vinho pra gente comemorar.")
