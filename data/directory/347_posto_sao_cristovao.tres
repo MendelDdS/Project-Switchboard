@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_41"]
+script = ExtResource("2_motive")
+text = "Tô quase sem gasolina."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Vocês ainda estão abertos? Estou quase sem gasolina.", "Até a meia-noite. De onde você está vindo?", "Da estrada do moinho. O ponteiro já está no fim.", "Então desce devagar, sem acelerar muito, que dá.", "E se não der?", "Se não der, liga de novo que eu levo um galão aí."), PackedStringArray("Boa noite. O carro está na reserva. Dá pra chegar aí?", "De onde você vem?", "Da {street}, lá perto do número {house}.", "Dá, é pertinho. Vem devagar.", "Vocês fecham que horas?", "Hoje eu fico até as {hour}. Depois, só amanhã.")])
+
+[sub_resource type="Resource" id="Motive_42"]
+script = ExtResource("2_motive")
+text = "Quero saber se o posto ainda está aberto."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. O posto ainda está aberto?", "Aberto até a meia-noite, como sempre.", "Ainda bem. Preciso encher o tanque pra viajar amanhã cedo.", "Vem agora, que de manhã a fila é grande.", "Vocês calibram pneu também?", "Tem ar, sim. Fica do lado da bomba, pode usar à vontade."), PackedStringArray("Boa noite. Ainda dá tempo de abastecer?", "Dá. Hoje eu fecho às {hour}.", "Vocês trocam óleo também?", "Troca, mas só de dia. De noite é só a bomba.", "Então amanhã eu passo pra trocar.", "Vem cedo, que de manhã o mecânico está aqui.")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Posto São Cristóvão"
+address = "Rua da Estação, 200"
+number = "347"
+hello = "Posto São Cristóvão, boa noite."
+spoken = "o Posto São Cristóvão"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_41"), SubResource("Motive_42")])

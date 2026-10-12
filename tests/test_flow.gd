@@ -525,7 +525,9 @@ func _initialize() -> void:
 	m.listen()
 	ok(ex.key(el) and m.phone._listen.text == "LISTEN_STOP", "escuta: Z sobe a chave e a tecla vira Soltar")
 	await frames(2)
-	ok(m.eavesdrop.listening(el) and ea.suspicion >= Eavesdrop.CLICK * ed.wary, "escuta: entrar na linha estala (vezes a desconfiança deles)")
+	var place_wary := GameData.entry(str(et)).wary
+	ok(m.eavesdrop.listening(el) and ea.suspicion >= Eavesdrop.CLICK * ed.wary * place_wary,
+		"escuta: entrar na linha estala (vezes a desconfiança de quem ligou e a do lugar)")
 	ed.wary = 0.5   # (ouvindo o cumprimento e as falas de uma vez, a desconfiança comum chega a denunciar)
 	ok(await wait_until(func(): return m.flags.allows(["ouviu_teste"])), "escuta: ouviu as falas escritas e o marcador da ligação liga")
 	ok(m.flags.allows(["ouviu_hora"]), "escuta: e o da fala ouvida")
@@ -535,6 +537,19 @@ func _initialize() -> void:
 	ok([saved.word, saved.kind, saved.night, saved.caller, saved.number] == ["Benedito Souza", "person", m.night_no, ea.caller, str(et)],
 		"escuta: a palavra-chave volta igual do progresso salvo (para as noites seguintes)")
 	ok(m.phone.shown().transcript.all(func(l: Dictionary): return not "[" in l["text"]), "escuta: a marca não aparece na tela")
+	var marked_line: Dictionary = m.phone.shown().transcript.filter(func(l: Dictionary): return l.has("marks")).back()
+	ok(marked_line["marks"].map(func(r: Array): return marked_line["text"].substr(r[0], r[1] - r[0])) == ["oito", "Benedito Souza"]
+		and "[u]oito[/u]" in m.phone._transcript.text, "escuta: a palavra-chave ouvida fica sublinhada na tela")
+	var notes_book: PhoneBook = m.tools.book
+	m.tools.set_tab(Tools.DIRECTORY)
+	notes_book.turn(notes_book._index.size())
+	await frames(2)
+	ok(notes_book._clue_hits.size() == 2 and notes_book._clue_hits[0][1] == m.eavesdrop.clues.back(), "escuta: as palavras-chave vão para a página de anotações da lista, a mais nova em cima")
+	_mouse(notes_book, (notes_book._clue_hits[0][0] as Rect2).get_center(), 1)
+	ok(m.eavesdrop.clues.back().chosen and Clue.from_dict(m.eavesdrop.clues.back().to_dict()).chosen,
+		"escuta: o clique marca a palavra-chave para repassar (e a marca fica salva)")
+	m.tools.close()
+	notes_book.turn(-notes_book._index.size())
 	ok(ea.suspicion > Eavesdrop.CLICK and m.flags.allows(["escutou_%d" % m.night_no]), "escuta: ouvindo, a suspeita sobe e o marcador liga")
 	ok(m.phone.shown() != ea and m.phone.shown().line == el, "escuta: a tela mostra o que se ouve (fora do registro da ligação)")
 	ok(await wait_until(func(): return ex.line(el) == Exchange.Line.DONE), "escuta: depois da última fala escrita, eles se despedem e desligam")
@@ -577,7 +592,7 @@ func _initialize() -> void:
 	await frames(2)
 	_move(0, el)
 	await frames(2)
-	ok(ea.suspicion > s0 + Eavesdrop.CLICK * 0.5, "escuta: o FONE encaixando com a chave em cima também estala")
+	ok(ea.suspicion > s0 + Eavesdrop.CLICK * 0.5 * place_wary, "escuta: o FONE encaixando com a chave em cima também estala")
 	var faults_was := m.report.faults.size()
 	m.eavesdrop.tick(Eavesdrop.LISTEN_SEC)
 	ok(m.report.faults.size() == faults_was and m.report.later[-1]["id"] == "eavesdrop" and m.flags.allows(["denunciado_%d" % m.night_no]),

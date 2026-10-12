@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_03"]
+script = ExtResource("2_motive")
+text = "Preciso dar um recado pra um amigo que tá lá."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite, Zé. O Baixinho ainda está por aí? O de boné.", "Está aqui no balcão. Quer que eu chame?", "Não precisa. Só avisa que amanhã a pescaria mudou pras {dawn}.", "Pras {dawn}. Pode deixar que eu falo.", "E diz pra ele não esquecer as iscas, que da outra vez esqueceu.", "Vou falar. Ele vai reclamar, mas eu falo."), PackedStringArray("Boa noite, Zé. O Alemão passou por aí hoje?", "Está aqui, jogando dominó.", "Diz pra ele que o carro dele está pronto, pode buscar.", "O carro pronto. E ele paga quando?", "Amanhã, até as {hour}, senão eu cobro juros.", "Vou falar exatamente assim.")])
+
+[sub_resource type="Resource" id="Motive_04"]
+script = ExtResource("2_motive")
+text = "Acho que esqueci meu chapéu lá."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Acho que esqueci meu chapéu aí hoje à tarde.", "Chapéu de palha ou de feltro?", "De feltro, {color}, com uma fita escura.", "Tem um desses pendurado aqui atrás do balcão.", "É esse! Guarda pra mim, que amanhã eu passo aí.", "Fica guardado. Ninguém mexe nas coisas daqui."), PackedStringArray("Boa noite. Esqueci meu chapéu aí. Alguém achou?", "Achou, sim. Mas tem dois aqui. Como é o seu?", "Um {color}, com uma pena do lado.", "Esse está aqui comigo. O outro é de um freguês.", "Guarda pra mim? Busco amanhã depois das {hour}.", "Fica atrás do balcão, esperando.")])
+
+[sub_resource type="Resource" id="Motive_05"]
+script = ExtResource("2_motive")
+text = "Quero saber se o jogo ainda tá passando na televisão de lá."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. O jogo ainda está passando aí na televisão?", "Está no segundo tempo. Todo mundo grudado na tela.", "E o placar, como está?", "{score}. Quase saiu um gol agora há pouco.", "Guarda uma cadeira pra mim, que eu estou indo aí.", "Vem logo, que aqui não cabe mais ninguém."), PackedStringArray("Boa noite. O jogo já acabou aí?", "Acabou agora. Ficou {score}.", "E o pessoal, está todo mundo bravo?", "Uns comemorando, outros xingando o juiz.", "Então nem vou aí hoje.", "Faz bem. Hoje a discussão está feia.")])
+
+[resource]
+script = ExtResource("1_entry")
+wary = 0.5
+name = "Bar do Zé"
+address = "Rua da Estação, 140"
+number = "327"
+voice = "m"
+hello = "Bar do Zé, pode falar."
+spoken = "o Bar do Zé"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_03"), SubResource("Motive_04"), SubResource("Motive_05")])

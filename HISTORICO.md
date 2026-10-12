@@ -738,3 +738,14 @@ Chaves:
     Mais conversas para escutar: duas por motivo do Centro e do Alto da Serra (como as da Vila Serena, com lacunas) e
     uma em cada transferência escrita das 50, de todos os setores, todas do cotidiano e sem palavras-chave (essas são
     para as conversas de roteiro). O teste passou a conferir todos os setores e as transferências escritas.
+161. #conversa #conteudo #traducao
+    Melhorias da escuta e do conteúdo: os contatos da lista saíram do `content.tres`, um arquivo cada em
+    `data/directory/`, com os seus motivos e conversas; as traduções podem ser revisadas numa planilha (`--review` e
+    `--apply`); a fala da escuta não cria mais um timer por letra; a palavra-chave pega faz o lápis riscar e fica
+    sublinhada na tela; e as pegas vão para a página de anotações da lista telefônica, onde o jogador marca as que vai
+    repassar (o repasse ao interessado vem depois).
+162. #conversa #conteudo
+    Duas regras para a escuta não virar receita: a palavra-chave aparece em lugares diferentes da conversa (no
+    cumprimento, no meio, na despedida), para o jogador escolher a hora de entrar; e cada contato da lista tem a sua
+    desconfiança (`DirectoryEntry.wary`: a pensão cismada percebe logo, o bar barulhento quase não nota), que vale
+    também nas ligações de molde, para cada lugar pedir uma tática.

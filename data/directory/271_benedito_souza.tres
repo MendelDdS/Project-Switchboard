@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_51"]
+script = ExtResource("2_motive")
+text = "A luz da casa dele tá acesa e ele não atende a porta."
+talks = Array[PackedStringArray]([PackedStringArray("Seu Benedito? Bati aí e ninguém abriu. A luz está acesa.", "Ah, era você? Cochilei na poltrona com o rádio ligado.", "Que susto o senhor me deu. Está tudo bem mesmo?", "Tudo. Só a vista que já não é a mesma.", "Amanhã eu passo pra levar o pão, lá pelas {hour}.", "Pode vir. Deixo o portão destrancado."), PackedStringArray("Seu Benedito, boa noite. A luz aí está acesa e o senhor não abriu.", "Estava no quintal, procurando o gato.", "A essa hora? Achou ele?", "Achei. Estava no telhado do vizinho, miando.", "Ainda bem. Quer que eu passe aí?", "Não precisa. Vou fazer um chá e deitar.")])
+
+[sub_resource type="Resource" id="Motive_52"]
+script = ExtResource("2_motive")
+text = "Ele ficou de me emprestar a escada."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite, seu Benedito. Amanhã o senhor ainda me empresta a escada?", "Está aqui encostada no muro. Pra que é?", "Pra trocar umas telhas que quebraram no granizo.", "Então leva a corda também, pra amarrar lá em cima.", "Passo aí às {hour} pra buscar.", "E toma cuidado. Telhado molhado escorrega."), PackedStringArray("Seu Benedito, é sobre a escada que o senhor ia me emprestar.", "Ih, emprestei pro Ivo. Ele ainda não devolveu.", "E agora? Preciso dela amanhã cedo.", "Eu ligo pra ele de manhã e mando levar aí.", "Moro na {street}, número {house}.", "Anotei aqui no calendário. Ele leva até as {hour}.")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Benedito Souza"
+address = "Rua do Sol, 530"
+number = "271"
+voice = "w"
+spoken = "o seu Benedito Souza"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_51"), SubResource("Motive_52")])

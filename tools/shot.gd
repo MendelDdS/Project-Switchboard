@@ -13,6 +13,7 @@ extends Node
 ##   --news                 o jornal da manhã na mesa
 ##   --listen               a linha 3 conectada, com o FONE nela e a chave de escuta levantada
 ##   --toll                 um interurbano contando no calculógrafo, dois bilhetes na mesa (um carimbado) e três na caixinha
+##   --clues                palavras-chave ouvidas (uma marcada para repassar) e a lista aberta nas anotações
 ##   --hover=id             o mouse em cima do objeto da mesa (os ids de `Tools`): o contorno e o nome
 ##   --zoom=x,y,w,h         o recorte, em px do jogo, ampliado `ZOOM` vezes
 ##   --wait=5               segundos antes de capturar (a luminária esquenta em 4)
@@ -66,6 +67,12 @@ func _ready() -> void:
 		m.board.held = 0   # o FONE na linha dela
 		m.board.place(0, m.live[0].line)
 		m.answer()
+	if _args.has("clues"):
+		for w in [["Benedito Souza", "person", 271], ["Rua do Moinho", "street", 305], ["oito", "time", 305]]:
+			m.eavesdrop.clues.append(Clue.from_dict({"word": w[0], "kind": w[1], "night": 2, "minutes": 190.0, "number": str(w[2])}))
+		m.eavesdrop.clues[1].chosen = true
+		m.tools.set_tab(Tools.DIRECTORY)
+		m.tools.book.turn(99)
 	if _args.has("tool"):
 		m.tools.set_tab(_args["tool"])
 	if _args.has("hover"):

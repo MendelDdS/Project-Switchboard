@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_43"]
+script = ExtResource("2_motive")
+text = "Quero pôr um anúncio no jornal de amanhã."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Ainda dá pra pôr um anúncio no jornal de amanhã?", "Dá, se for rápido. A página fecha às {hour}.", "É curto. Vende-se bicicleta, quase nova, tratar na {street}.", "Quer pôr o número da casa também?", "Põe, sim. Número {house}.", "Anotado. Paga amanhã aqui no balcão."), PackedStringArray("Boa noite. Queria anunciar que perdi um cachorro.", "Pode ditar. Como ele é?", "Pequeno, {color}, com uma mancha branca no olho.", "Atende por que nome?", "Pipoca. Quem achar, é só levar na {street}.", "Sai amanhã cedo, na página dos classificados.")])
+
+[sub_resource type="Resource" id="Motive_44"]
+script = ExtResource("2_motive")
+text = "Saiu meu nome errado na edição de hoje."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Meu nome saiu errado no jornal de hoje.", "Em que página?", "Na lista dos aprovados do concurso. Trocaram uma letra.", "Peço desculpas. Amanhã sai a correção, na página dois.", "Por favor. Minha mãe já recortou a errada pra guardar.", "Então ela vai ter duas pra guardar."), PackedStringArray("Boa noite. O jornal de hoje errou meu nome na notícia da feira.", "A do concurso de abóbora?", "Essa. Eu ganhei o primeiro lugar e saiu o nome do vizinho.", "Que vergonha. Amanhã a gente corrige com foto e tudo.", "E o vizinho já está se gabando pela rua toda.", "Amanhã ele lê a correção. Venha às {hour} pra foto.")])
+
+[resource]
+script = ExtResource("1_entry")
+wary = 1.4
+name = "Gazeta de São Sotero"
+address = "Rua Sete de Setembro, 50"
+number = "101"
+hello = "Gazeta, redação."
+spoken = "a Gazeta"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_43"), SubResource("Motive_44")])

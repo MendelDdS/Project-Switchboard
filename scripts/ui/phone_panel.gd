@@ -167,6 +167,9 @@ func _render_transcript() -> void:
 	if _call != null:
 		for l in _call.transcript.slice(-LINES):
 			var text := String(l["text"]).replace("[", "(")
+			var marks: Array = l.get("marks", [])   # palavras-chave ouvidas, na ordem da fala
+			for k in range(marks.size() - 1, -1, -1):   # do fim para o começo: uma não muda a posição da outra
+				text = text.insert(marks[k][1], "[/u]").insert(marks[k][0], "[u]")
 			match l["cls"]:
 				"sys":
 					_lines.append("[color=#9a917a][font_size=11]%s[/font_size][/color]\n" % text)

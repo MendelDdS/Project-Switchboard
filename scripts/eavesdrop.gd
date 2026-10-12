@@ -113,14 +113,16 @@ func _heard(n: int, c: PhoneCall, ear: PhoneCall) -> void:
 	main.phone.show_call(ear)
 
 
-## A suspeita da linha `n` sobe `by` (vezes a desconfiança deles, `TransferCall.wary`); passando de um limite, eles reagem.
+## A suspeita da linha `n` sobe `by` (vezes a desconfiança deles: a de quem ligou, `TransferCall.wary`, e a de quem
+## atendeu, `DirectoryEntry.wary`); passando de um limite, eles reagem.
 func _raise(n: int, by: float) -> void:
 	var c: PhoneCall = calls[n]
 	var was := c.suspicion
 	if was >= 1.0:
 		return
 	var data := c.data as TransferCall
-	c.suspicion = minf(1.0, was + by * (data.wary if data != null else 1.0))
+	var place := GameData.entry(str(c.dest_num))
+	c.suspicion = minf(1.0, was + by * (data.wary if data != null else 1.0) * (place.wary if place != null else 1.0))
 	if was < HUSH and c.suspicion >= HUSH:
 		_quiet[n] = HUSH_SEC
 		(_ears[n] as PhoneCall).sys(T.text(T.Key.SYS_LINE_SILENT))
@@ -200,9 +202,10 @@ func _talk(c: PhoneCall, ear: PhoneCall) -> void:
 				return
 
 
-## A palavra-chave `word` (`kind`) da conversa da linha `n` foi ouvida inteira.
-func _clue(n: int, word: String, kind: String) -> void:
-	var c: PhoneCall = calls.get(n)
+## A palavra-chave `word` (`kind`) foi ouvida inteira, acabando na fala `li` da transcrição `ear`: o lápis risca e
+## ela fica sublinhada.
+func _clue(ear: PhoneCall, li: int, word: String, kind: String) -> void:
+	var c: PhoneCall = calls.get(ear.line)
 	if c == null or clues.any(func(k: Clue): return k.call == c and k.word == word):
 		return
 	var k := Clue.new()
@@ -214,6 +217,9 @@ func _clue(n: int, word: String, kind: String) -> void:
 	k.caller = c.caller
 	k.number = str(c.dest_num)
 	clues.append(k)
+	if li >= 0:
+		ear.underline(li, word.length())
+	Sfx.play("pencil", -6.0)
 	clue_heard.emit(k)
 
 
@@ -229,6 +235,7 @@ func _say(ear: PhoneCall, text: String, who: String, voice: String, shown: bool)
 	var missed := -1   # a última letra que o operador não ouviu
 	var prev_vowel := false
 	var pitch := Sfx.pitch_of(who)
+	var owe := 0.0   # tempo de fala que ainda falta esperar (`_wait`)
 	for i in text.length():
 		while _quiet.has(ear.line):
 			if ear.ended:
@@ -247,10 +254,20 @@ func _say(ear: PhoneCall, text: String, who: String, voice: String, shown: bool)
 			missed = i
 		for s in parsed[1]:
 			if s[1] - 1 == i and missed < s[0]:
-				_clue(ear.line, text.substr(s[0], s[1] - s[0]), s[2])
-		await get_tree().create_timer((0.09 if text[i] in [",", "."] else 0.028) * Settings.char_delay(), false).timeout
-	await get_tree().create_timer(0.5, false).timeout
+				_clue(ear, li, text.substr(s[0], s[1] - s[0]), s[2])
+		owe = await _wait(owe + (0.09 if text[i] in [",", "."] else 0.028) * Settings.char_delay())
+	await _wait(owe + 0.5)
 	return -1.0 if ear.ended else heard / float(maxi(1, text.length()))
+
+
+## Espera `sec` s de jogo, parando na pausa, e devolve o que passou a mais (negativo), para descontar da próxima
+## letra: num quadro mais longo que uma letra saem várias no mesmo quadro, e nenhuma cria um timer.
+func _wait(sec: float) -> float:
+	while sec > 0.0:
+		await get_tree().process_frame
+		if not get_tree().paused:
+			sec -= get_process_delta_time()
+	return sec
 
 
 ## Quem atendeu do outro lado da linha de `c`.

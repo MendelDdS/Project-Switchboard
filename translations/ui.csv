@@ -189,6 +189,17 @@ BOOK_BACK,◀ Voltar,◀ Back,◀ Atrás
 BOOK_TURN,Virar ▶,Turn ▶,Pasar ▶
 BOOK_NOTES,Anotações,Notes,Notas
 BOOK_NOTE_TEXT,Emergências não se transferem: marque o local no mapa e use o despacho.\n\nFarmácia de plantão nesta semana: Santa Rita.\n\nLinhas 01 a 10 são da mesa 1.,Emergencies are not transferred: mark the location on the map and use dispatch.\n\nPharmacy on duty this week: Santa Rita.\n\nLines 01 to 10 belong to desk 1.,Las emergencias no se transfieren: marque el lugar en el mapa y use el despacho.\n\nFarmacia de turno esta semana: Santa Rita.\n\nLas líneas 01 a 10 son de la mesa 1.
+BOOK_CLUES,Ouvido na linha,Heard on the line,Oído en la línea
+BOOK_CLUES_NONE,Nada anotado ainda.,Nothing noted yet.,Nada anotado todavía.
+CLUE_WHEN,%s · noite %d · %s · nº %s,%s · night %d · %s · no. %s,%s · noche %d · %s · n.º %s
+CLUE_PERSON,pessoa,person,persona
+CLUE_STREET,rua,street,calle
+CLUE_PLACE,lugar,place,lugar
+CLUE_PHONE,telefone,phone,teléfono
+CLUE_TIME,hora,time,hora
+CLUE_DATE,data,date,fecha
+CLUE_NUMBER,número,number,número
+CLUE_OTHER,outro,other,otro
 MAP_SQUARE,Praça da Matriz,Praça da Matriz,Praça da Matriz
 MAP_CLINIC,Clínica,Clinic,Clínica
 MAP_HOSPITAL,Hospital,Hospital,Hospital

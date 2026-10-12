@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_31"]
+script = ExtResource("2_motive")
+text = "Acabou a vela aqui em casa e faltou luz."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Faltou luz aqui e acabou a vela.", "Aqui também está escuro. Mas vela eu tenho.", "Me vende um pacote? E uma caixa de fósforo.", "Vendo. Vem com lanterna, que a rua está um breu.", "Moro na {street}. Chego em {wait}.", "Bate na porta do lado, que eu estou na cozinha."), PackedStringArray("Boa noite. Ainda dá pra comprar vela? Ficamos no escuro.", "Dá. Tenho as grossas, que duram a noite toda.", "Quero três. Será que a luz volta hoje?", "Dizem que caiu um galho no fio da {street}.", "Então vai demorar. Estou indo aí.", "Cuidado com as poças. Eu deixo a porta encostada.")])
+
+[sub_resource type="Resource" id="Motive_32"]
+script = ExtResource("2_motive")
+text = "Quero deixar uma encomenda pra amanhã cedo."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Queria deixar uma encomenda pra amanhã cedo.", "Pode falar, que eu anoto.", "Dois quilos de arroz, um de feijão e uma lata de óleo.", "Anotado. Busca ou eu mando entregar?", "Pode mandar. É na {street}, número {house}.", "O menino leva antes das {hour}."), PackedStringArray("Boa noite. Amanhã cedo eu preciso de pão e leite.", "O pão chega às {dawn}. Quantos?", "Dez pãezinhos e dois litros de leite.", "Separo. Quer que eu ponha um queijo também?", "Pode pôr. Eu pago tudo amanhã.", "Fica na caderneta. Pode vir buscar quando quiser.")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Mercearia Silva"
+address = "Rua do Cruzeiro, 85"
+number = "262"
+hello = "Mercearia Silva, boa noite."
+category = "mercearia"
+spoken = "a Mercearia Silva"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_31"), SubResource("Motive_32")])

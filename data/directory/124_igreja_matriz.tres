@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_27"]
+script = ExtResource("2_motive")
+text = "Quero saber o horário da missa de domingo."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Qual é o horário da missa de domingo?", "Tem às sete e às nove. E a das crianças, às dez.", "E a das sete tem coral?", "O coral canta na das nove. A das sete é mais rezada.", "Então vou na das nove, com a família toda.", "Chegue cedo, que domingo os bancos enchem."), PackedStringArray("Boa noite. A missa de domingo mudou de horário?", "Só neste domingo. Por causa da procissão, vai ser às {hour}.", "E a procissão sai de onde?", "Sai da {street} e vem rezando até a praça.", "Posso levar vela de casa?", "Pode. E um copinho de papel, pra não pingar na mão.")])
+
+[sub_resource type="Resource" id="Motive_28"]
+script = ExtResource("2_motive")
+text = "Quero marcar o batizado do meu neto."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Queria marcar o batizado do meu neto.", "Os batizados são no segundo domingo do mês, depois da missa.", "Serve. E os padrinhos precisam fazer o curso?", "Precisam. É no sábado, às {hour}, aqui no salão.", "Vou avisar. O nome dele é Joãozinho, como o avô.", "Traz a certidão de nascimento no dia do curso."), PackedStringArray("Boa noite. Meu neto nasceu e a família quer batizar logo.", "Parabéns! Quem vão ser os padrinhos?", "Minha filha mais velha e o marido dela.", "Tem vaga no domingo que vem, às {hour}. Serve?", "Serve. Precisa levar alguma coisa?", "A vela, a roupinha branca e a certidão.")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Igreja Matriz"
+note = "secretaria"
+address = "Praça da Matriz, 1"
+number = "124"
+hello = "Igreja Matriz, secretaria."
+category = "igreja"
+spoken = "a Igreja Matriz"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_27"), SubResource("Motive_28")])

@@ -22,7 +22,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`_addr`, espaços que não quebram no bairro e em "rua, número"). A observação (`DirectoryEntry.note`) só diz **quem
   atende quando o nome não diz** ("Pe. Anselmo", "recepção", "secretaria", "use o despacho"); nada de horário ou
   "residência". Todo número da lista serve para alguma coisa: não existe lugar sempre fechado.
-- **Conteúdo em Resources** (`data/content.tres` + um `.tres` por roteiro em `data/calls/`, um por mudança da sala em `data/room/` + um por noite em
+- **Conteúdo em Resources** (`data/content.tres` + um `.tres` por contato da lista em `data/directory/`, com os motivos e as conversas dele, + um `.tres` por roteiro em `data/calls/`, um por mudança da sala em `data/room/` + um por noite em
   `data/nights/`). Nada de falas no código, exceto as do operador.
 - **Endereço por lugar do mapa**: em `GameData.LANDMARK_CHANCE` das emergências de molde, quem liga diz a rua e um lugar
   do mapa em vez do número ("Rua do Sol, perto do posto" / "na frente da escola, na Rua do Sol";
@@ -130,7 +130,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   tools/update_translations.gd` (gera o enum e mescla os .po; campos fora da extração em `SKIP`). `Settings.set_locale`
   troca o idioma (o jogador escolhe em Configurações; padrão pt_BR; `-- --lang=en` força). Em funções estáticas, traduza com `TranslationServer.translate()`.
   Lacunas dos moldes também se traduzem: `tr(spoken)`, `tr("d" + spoken)`, `tr("pr" + spoken)` têm entradas próprias
-  no .po. Texto que já chega traduzido num Button/Label dinâmico: `auto_translate_mode = DISABLED`.
+  no .po. Texto que já chega traduzido num Button/Label dinâmico: `auto_translate_mode = DISABLED`. Revisão em
+  planilha: `-- --review` grava `build/traducoes.csv` (arquivo, pt_BR, en, es) e `-- --apply=<csv>` devolve en e es
+  aos .po (`_fixes`).
 - Entrada: ação `cancel_plug` no Input Map (Esc e botão direito) devolve o plug que está na mão; ação `pause` (Esc, P)
   pausa o turno quando não há plug na mão (`Main._unhandled_input`). Atalhos do telefone: ações `answer_call`
   (Espaço), `transfer_call` (Tab), `listen_call` (Z, a tecla Escutar/Soltar), `hang_up` (X), tratadas em `PhonePanel._input` **antes da interface** (Espaço e
@@ -282,12 +284,18 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `[tipo:texto]` (tipos em `Clue.KINDS`: person, street, place, phone, time...; podem envolver uma lacuna,
   `[time:{hour}]`); a marca some da tela e da voz (`Clue.parse`, no `Eavesdrop._say`), e a palavra ouvida com todas
   as letras (nenhuma perdida com a chave abaixada) entra em `Eavesdrop.clues` (palavra, tipo, noite, hora, quem ligou
-  e para que número; uma vez por conversa) com o sinal `clue_heard`. Ficam as de todas as noites: salvas no
-  `Progress.clues` (em dicionário, `Clue.to_dict`/`from_dict`) no fim do turno e lidas no `Eavesdrop._ready`. É a
-  base do documento que o jogador vai repassar a um interessado (ainda não existe; por ora nada lê `clues`). O teste confere os tipos, as marcas
+  e para que número; uma vez por conversa) com o sinal `clue_heard`: o lápis risca (`pencil`) e ela fica sublinhada
+  na transcrição (`PhoneCall.underline`, as `marks` da fala, `[u]` no `PhonePanel._render_transcript`). Ficam as de
+  todas as noites: salvas no `Progress.clues` (em dicionário, `Clue.to_dict`/`from_dict`) no fim do turno e lidas no
+  `Eavesdrop._ready`. Aparecem na página de anotações da lista telefônica (`PhoneBook.clues`, a mesma lista;
+  `_draw_clues`, a mais nova em cima, só as que cabem), onde um clique marca a que vai ser repassada a um
+  interessado (`Clue.chosen`, salva; o repasse ainda não existe). Captura: `tools/shot.tscn -- --clues`. A fala da
+  escuta anda letra a letra sem um timer por letra (`Eavesdrop._wait`: espera quadros, desconta o que passou a mais e
+  para na pausa). O teste confere os tipos, as marcas
   fechadas e que a tradução mantém os tipos (`_holes`). **A
   suspeita** (`PhoneCall.suspicion`, 0 a 1 em `LISTEN_SEC` ouvindo; cada entrada na linha, pela chave subindo ou pelo
-  FONE encaixando com ela em cima, soma `CLICK`; tudo vezes a desconfiança deles, `TransferCall.wary`; sem ninguém
+  FONE encaixando com ela em cima, soma `CLICK`; tudo vezes a desconfiança deles, a de quem ligou, `TransferCall.wary`,
+  e a do lugar que atendeu, `DirectoryEntry.wary`, também nos moldes e na alternativa; sem ninguém
   ouvindo, baixa em `COOL_SEC`) só aparece na conversa:
   silêncio (`HUSH`, `SYS_LINE_SILENT`), a pergunta (`ASK`, `C.overheard_ask`) e, em 1, a reclamação
   (`C.overheard_caught`) e os dois desligam (`talk_over`). **A denúncia chega no relatório da noite seguinte**

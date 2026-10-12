@@ -7,9 +7,11 @@ Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
 - `scenes/main.tscn` — cena principal (layout em containers); `scenes/ui/` — telefone, rádio, abas de ferramentas
   (lista telefônica, mapa e despacho, ficha de ocorrências), tela inicial e final. Edite a interface no editor do Godot.
 - `themes/main_theme.tres` — tema global (cores, fontes e variações de botão/painel/rótulo).
-- `data/content.tres` — **todo o conteúdo**: lista telefônica (nomes como se fala, "Rosa Lima", "Corpo de
-  Bombeiros"; a lista se ordena sozinha), ruas, falas avulsas, pedidos de informação e as
-  listas de roteiros. Cada roteiro de ligação é um arquivo em `data/calls/` (transferências, emergências, trotes).
+- `data/content.tres` — **todo o conteúdo**: ruas, falas avulsas, pedidos de informação e as listas de roteiros
+  e de contatos.
+- `data/directory/` — **um contato da lista telefônica por arquivo** (`<número>_<nome>.tres`; nomes como se fala,
+  "Rosa Lima", "Corpo de Bombeiros"; a lista se ordena sozinha), com os motivos de quem liga para ele e as conversas
+  que se ouvem na escuta. Contato novo: duplique um arquivo e arraste para `directory` no `content.tres`. Cada roteiro de ligação é um arquivo em `data/calls/` (transferências, emergências, trotes).
   Para criar uma ligação nova: duplique um `.tres` em `data/calls/`, edite no inspetor e arraste para a lista certa
   no `content.tres`.
 - `data/nights/` — **uma noite por arquivo** (ordem em `nights` no `content.tres`): dia da semana, bilhete da tela
@@ -138,7 +140,15 @@ desconhecida são sempre escritos à mão.
   telefones, horários) vai marcado como `[tipo:texto]`: "Ficou pras [time:oito], na casa do [person:Benedito Souza]."
   Tipos: `person` (pessoa), `street` (rua ou endereço), `place` (lugar), `phone` (telefone), `time` (hora), `date`
   (data), `number` (outro número), `other`. A marca não aparece na tela nem na voz, e pode envolver uma lacuna
-  (`[time:{hour}]`). O jogador só pega a palavra se ouvir todas as letras dela. Na tradução, mantenha a marca e o
+  (`[time:{hour}]`). O jogador só pega a palavra se ouvir todas as letras dela: o lápis risca, ela fica sublinhada
+  na tela e vai para a página de anotações da lista telefônica (a última, depois da letra final), onde ele marca as
+  que vai repassar. **Varie onde a palavra-chave aparece**: às vezes no cumprimento ("Oi, [person:Benedito]!"), às
+  vezes no meio, às vezes só na despedida ("Então até as [time:oito]"). Sempre no meio, o jogador aprende uma receita
+  (entrar depois do alô, ouvir duas falas, sair); variando, ele decide a hora de entrar: cedo pega mais, mas a suspeita
+  sobe mais.
+- **Desconfiança de cada lugar** (`wary` no contato, em `data/directory/`): multiplica a velocidade com que a suspeita
+  sobe quando o operador escuta uma conversa com quem atende ali (1 é o normal; a Pensão Dona Cota, 1,6, percebe logo;
+  o Bar do Zé, 0,5, quase não nota). Vale junto com a de quem ligou (`wary` do roteiro escrito). Na tradução, mantenha a marca e o
   tipo e traduza só o texto ("[time:eight]"); nomes próprios ficam iguais.
 - **A voz de quem atende** é a `voice` do contato (`f`, `m`, `w`, `k`); sem ela, uma tirada do nome, sempre a mesma.
 - A primeira letra de cada fala vira maiúscula depois de preenchida (`GameData.fill`).
@@ -167,6 +177,9 @@ Esc, ou na tela inicial), junto com o volume de ambiente, vozes e efeitos e a ve
   partir da planilha e atualiza os `.po` com as falas novas (vazias, mostram o português até serem traduzidas) sem
   perder o que já foi traduzido. O teste de fluxo avisa quantas falas faltam e falha se uma tradução perder uma
   lacuna (`%s`, `{place}`...).
+- **Revisar as traduções numa planilha:** `godot --headless --path . -s tools/update_translations.gd -- --review`
+  grava `build/traducoes.csv` (arquivo, pt_BR, en, es; uma fala por linha). Corrija as colunas en e es e devolva com
+  `-- --apply=build/traducoes.csv` (o pt_BR não volta: ele se corrige no Resource; célula vazia não apaga nada).
 
 ## Ritmo do turno
 

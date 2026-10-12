@@ -23,3 +23,6 @@ extends Resource
 ## A voz de quem atende (`SfxSynth.VOICE`: f, m, k, w), para bater com o nome (a Dona Cota, o Zé). Vazio: uma pelo nome,
 ## sempre a mesma (`GameData.voice_of`).
 @export var voice := ""
+## Quão desconfiado quem atende aqui é da escuta: multiplica a de quem ligou (`TransferCall.wary`) na subida da
+## suspeita (a pensão cismada, 1,6, percebe logo; o bar barulhento, 0,5, quase não nota).
+@export_range(0.0, 3.0, 0.1) var wary := 1.0

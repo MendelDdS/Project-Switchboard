@@ -85,7 +85,7 @@ var chatting := false       ## um assunto em andamento (sendo contado ou esperan
 var chat_asked := false     ## o operador já puxou conversa (só uma vez por ligação)
 var chats: Array[ChatTopic] = []   ## assuntos já puxados nesta ligação (não se repetem)
 var hold_since := 0.0       ## minuto em que ficou em espera
-var transcript: Array[Dictionary] = []   ## {"who", "text", "cls"}; cls: "" / "op" / "sys" / "ghost"
+var transcript: Array[Dictionary] = []   ## {"who", "text", "cls", "marks"}; cls: "" / "op" / "sys" / "ghost"; marks: trechos sublinhados
 var options: Array[Dictionary] = []      ## {"label": String, "fn": Callable}
 var record: Record                       ## linha do caderno gerada quando a ligação termina (nula antes)
 
@@ -184,6 +184,13 @@ func add_line(who: String, text: String, cls := "") -> int:
 
 func append_text(i: int, text: String) -> void:
 	transcript[i]["text"] += text
+	transcript_changed.emit()
+
+
+## Sublinha as últimas `length` letras da fala `i` (a palavra-chave que o operador acabou de ouvir).
+func underline(i: int, length: int) -> void:
+	var end := String(transcript[i]["text"]).length()
+	transcript[i]["marks"] = transcript[i].get("marks", []) + [[end - length, end]]
 	transcript_changed.emit()
 
 

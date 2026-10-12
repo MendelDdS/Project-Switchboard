@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_61"]
+script = ExtResource("2_motive")
+text = "Furou o pneu do carro aqui na estrada."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Furou o pneu, e o estepe também está vazio.", "Os dois? Aí não tem jeito, vou ter que ir até aí.", "Estou na saída da cidade, perto da placa de São Sotero.", "Sei onde é. Levo um pneu e o macaco.", "Quanto tempo, mais ou menos?", "Coisa de {wait}. Liga o pisca, que de noite ninguém enxerga nada."), PackedStringArray("Boa noite. Furou o pneu e eu não tenho macaco.", "Sem macaco não tem jeito. Onde você está?", "Na {street}, quase no número {house}.", "É perto, então. Dá pra ir a pé com o macaco.", "Precisa levar alguma coisa?", "Só a lanterna, se tiver. Chego em {wait}.")])
+
+[sub_resource type="Resource" id="Motive_62"]
+script = ExtResource("2_motive")
+text = "O carro morreu no meio da rua e não pega."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. O carro morreu no meio da rua e não quer pegar.", "Está atrapalhando o trânsito?", "A essa hora não passa ninguém. Mas está bem no meio da rua.", "Empurra pro canto, se conseguir. Tem alguém aí pra ajudar?", "Tem um rapaz aqui me ajudando a empurrar.", "Então empurra e me espera. Em {wait} eu chego."), PackedStringArray("Boa noite. O carro apagou aqui na {street} e não pega mais.", "Fez algum barulho antes de apagar?", "Deu um estouro e saiu fumaça preta.", "Então nem tenta dar partida de novo.", "Tá bom. Fico esperando aqui do lado.", "Chego em {wait}. Deixa o capô aberto pra eu achar.")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Borracharia do Neno"
+address = "Rua das Acácias, 270"
+number = "336"
+voice = "m"
+hello = "Borracharia do Neno, boa noite."
+category = "oficina"
+spoken = "a Borracharia do Neno"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_61"), SubResource("Motive_62")])
