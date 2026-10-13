@@ -38,7 +38,7 @@ func _draw() -> void:
 	var col: Color = COLORS[call.stage]
 	var label := T.text(NAMES[call.stage])
 	draw_string(Pal.ui, Vector2(0, 11), label, HORIZONTAL_ALIGNMENT_LEFT, size.x, 11, col)
-	var r := Rect2(2, 18, size.x - 4, size.y - 20)
+	var r := Rect2(2, 16, size.x - 4, size.y - 18)
 	draw_rect(r.grow(2), Pal.EDGE)
 	var total := e.stage_sec.x + e.stage_sec.y + e.stage_sec.z
 	var x := r.end.x

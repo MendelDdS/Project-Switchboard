@@ -4,7 +4,7 @@ extends "res://tests/test_base.gd"
 ## contorno de cada um como o cenário o desenhou (`Background._occ`, `occ_ids`). A caneca fica na frente do relógio
 ## de propósito.
 
-const WIDTHS := [1280, 1500, 1708]   # o jogo é sempre 1280 (`GameView`); as outras, o `main.tscn` sozinho numa janela larga
+const WIDTHS := [960, 1125, 1281]   # o jogo é sempre 960 (`GameView`); as outras, o `main.tscn` sozinho numa janela larga
 const TOGETHER := [["relogio", "caneca"]]   # os que se encostam de propósito
 const WANT := [Tools.DIRECTORY, Tools.DISPATCH, Tools.LOGBOOK, Tools.CALL_LOG, Tools.NEWS, Tools.TOLL, "relogio", "caneca"]
 
@@ -12,7 +12,7 @@ const WANT := [Tools.DIRECTORY, Tools.DISPATCH, Tools.LOGBOOK, Tools.CALL_LOG, T
 func _initialize() -> void:
 	for w: int in WIDTHS:
 		var vp := SubViewport.new()   # o jogo nessa largura, como o `GameView` o põe na janela
-		vp.size = Vector2i(w, 720)
+		vp.size = Vector2i(w, 540)
 		get_tree().root.add_child(vp)
 		var m: Node = load("res://scenes/main.tscn").instantiate()
 		m.night_no = 1

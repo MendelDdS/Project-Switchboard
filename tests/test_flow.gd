@@ -1059,7 +1059,7 @@ func _initialize() -> void:
 	b._release(hp)
 	ok(b.held == -1 and b.ends[3] == -1, "clique sem arrastar não pega o plug da base")
 	var reach := true   # o plug guardado inteiro aceita o clique (o vão entre o painel e a prateleira também)
-	for y in range(int(b._rest(3).y - 52.0), int(b.hole(3).y + b.HOLE_LIP)):
+	for y in range(int(b._rest(3).y - b.PLUG_H + b.PLUG_SINK), int(b.hole(3).y + b.HOLE_LIP)):
 		reach = reach and b._has_point(Vector2(b._rest(3).x, y)) and b._plug_under(Vector2(b._rest(3).x, y)) == 3
 	ok(reach, "o plug guardado aceita o clique em toda a altura")
 	print("OK 7 clique desconecta / arrastar move")
@@ -1358,14 +1358,14 @@ func _initialize() -> void:
 	d.set_location("comercio", 0, "Rua do Comércio, 1–99")
 	ok(card._refused >= 0.0 and card.serial() == 2 and d._location["label"] == "Rua do Sol, 1–99" and d.city.sel["label"] == "Rua do Sol, 1–99",
 		"com um cartão na mesa, a impressora recusa outro e o mapa volta ao local dele")
-	var table: Vector2 = card._pos + Vector2(-120, -2)
+	var table: Vector2 = card._pos + Vector2(-roundf((card._mouth_x(1) - card._mouth_x(0)) / 2.0), -2)
 	drag.call(table)
 	ok(card.state == card.State.READY and card._pos == table, "solto entre as máquinas, rente à base, o cartão fica onde está")
 	drag.call(Vector2(9000, -9000))
 	ok(card.state == card.State.READY and card._pos == Vector2(card.size.x - card.CARD_W, 0),
 		"o cartão não sai da unidade (e, longe da fenda, não entra na trituradora embaixo dele)")
 	drag.call(Vector2(card._mouth_x(1), 9000))
-	ok(card.state == card.State.READY and card._pos.y + card.card.size.y == card.size.y,
+	ok(card.state == card.State.READY and is_equal_approx(card._pos.y + card.card.size.y, card.size.y),
 		"o cartão vai até a borda de baixo, por cima das máquinas (na impressora, fica)")
 	_click(card, cell.call("Outro"))
 	var faults: int = m.report.faults.size()
@@ -1379,7 +1379,7 @@ func _initialize() -> void:
 	_click(card, cell.call("Mal súbito"))
 	ok(d.occurrence() == "Incêndio", "um tipo só: o primeiro furo vale")
 	ok(d.fleet.available(d.picked()).is_empty() and not d.can_send(), "o tipo não marca unidade")
-	var row: Vector2 = cell.call("amb") + Vector2(120, 20)   # no protocolo, longe do quadradinho
+	var row: Vector2 = cell.call("amb") + Vector2(90, 14)   # no protocolo, longe do quadradinho
 	var held: Vector2 = card._pos
 	_mouse(card, row, 1)   # apertar na linha e arrastar move o cartão sem perfurar
 	_mouse(card, row + Vector2(-40, -2))

@@ -4,11 +4,11 @@ extends "res://scripts/ui/background_view.gd"
 
 const DESK_T := 1.25    ## o fundo do tampo, Z0/DESK_T: a mesa fica afastada da parede (o armário cabe atrás)
 const PLANKS := 6       ## as tábuas do tampo, todas da mesma largura (a câmera as espaça)
-const POOL_R := 150.0   ## o raio da poça de luz da luminária no tampo
+const POOL_R := 112.0   ## o raio da poça de luz da luminária no tampo
 const SHADE_MAX := 0.3   ## o mais escuro que um objeto da mesa fica, longe da poça de luz (`_shade`)
-const EDGE_PAD := 7.0            ## o tanto a mais na fileira da frente: perto, a parede já passou da beira da tela, e o jornal parava fora dela
-const WALL_PAD := 3.0           ## a folga dos objetos da mesa até a parede da direita (x da sala)
-const PROP_K := 93.0 / 66.0   ## a escala dos objetos da mesa: no tamanho de verdade deles na sala (`_cm`; as listas com 21 cm), maiores que o plug em pé (uns 9 cm)
+const EDGE_PAD := 5.0            ## o tanto a mais na fileira da frente: perto, a parede já passou da beira da tela, e o jornal parava fora dela
+const WALL_PAD := 2.0           ## a folga dos objetos da mesa até a parede da direita (x da sala)
+const PROP_K := 0.75 * 93.0 / 66.0   ## a escala dos objetos da mesa: no tamanho de verdade deles na sala (`_cm`; as listas com 21 cm), maiores que o plug em pé (uns 9 cm)
 ## A unidade de despacho (`_draw_dispatch_unit`, na escala dos objetos, `PROP_K`): largura, altura da base e fundo da
 ## base até o painel (fração do tampo); o painel: a altura acima da base, o quanto o alto dele recua (fração do tampo,
 ## para ficar inclinado, de frente para os olhos) e o fundo do móvel todo (fração do tampo).
@@ -25,54 +25,42 @@ const UNIT_D := 0.3
 ## proporção da mesa da ferramenta (`Toll.NOMINAL`).
 const CALC := Vector3(28, 4.6, 0.06)
 const TOLL_BOX_H := 4.5   ## a altura da caixinha dos bilhetes (na sala, uns 2 cm)
-const STAMP_ART := [   ## o carimbo em pé na mesinha, como o da ferramenta (27 × 47 px, uns 6 cm): o cabo de baquelite com o medalhão, a haste, o corpo com a plaqueta, as rodas de latão entre as pernas e a sapata vazada
-	".........kkKKKKKkk.........",
-	".......kKKhhhKKKKKKk.......",
-	"......kKhhgKKmmmKKKKk......",
-	".....kKhgKKmMbMmKKKKKk.....",
-	".....kKhhKKKmmmKKKKKKk.....",
-	".....kkKKKKKKKKKKKKKkk.....",
-	".....kKhKKKKKKKKKKKKKk.....",
-	".....kkKKKKKKKKKKKKKkk.....",
-	"......kkkkkkkkkkkkkkk......",
-	"........kkkkkkkkkkk........",
-	"...........cpcCd...........",
-	"...........cpcCd...........",
-	"...........cpcCd...........",
-	".........ccppcCCdd.........",
-	".........ccppcCCdd.........",
-	"...........cpcCd...........",
-	"...........cpcCd...........",
-	"...........cpcCd...........",
-	"...........cpcCd...........",
-	"...........cpcCd...........",
-	".........ccpccCCdd.........",
-	"..cppppppppppppppppppppCd..",
-	"..cpppppppppppppppppppcCd..",
-	"..CCCCCCCCCCCCCCCCCCCCCCd..",
-	"..cCCCCCCCCCCCCCCCCCCCCCd..",
-	"..cCCpppppppppppppppppCCd..",
-	"..cCCpiiiiiiiiiiiiiiipCCd..",
-	"..cCCpppppppppppppppppCCd..",
-	"..cCCCCCCCCCCCCCCCCCCCCCd..",
-	"..ddddddddddddddddddddddd..",
-	"cCdeeeeeeeeeeeeeeeeeeeeecCd",
-	"cbd.bBbBbBbBbBbBbBbBbBb.cCd",
-	"cCd.BbBbBbBbBbBbBbBbBbB.cCd",
-	"cCd.bBbBbBbBbBbBbBbBbBb.cCd",
-	"cCd.BbBbBbBbBbBbBbBbBbB.cCd",
-	"cCd......bbbbbbbbb......cCd",
-	"cCd......bBBBBBBBb......cCd",
-	"cCd.....................cCd",
-	"cbd.....................cCd",
-	"cCd.....................cCd",
-	"cpppppppppppppppppppppppppd",
-	"cpp.....................ppd",
-	"cpp.....................ppd",
-	"cpp.....................ppd",
-	"cpppppppppppppppppppppppppd",
-	"CCCCCCCCCCCCCCCCCCCCCCCCCCd",
-	"ddddddddddddddddddddddddddd",
+const STAMP_ART := [   ## o carimbo em pé na mesinha, como o da ferramenta (21 × 35 px, uns 6 cm): o cabo de baquelite com o medalhão, a haste, o corpo com a plaqueta, as rodas de latão entre as pernas e a sapata vazada
+	"......kkKKKKKkk......",
+	"....kKKhhKKKKKKKk....",
+	"....kKhgKmMbMmKKk....",
+	"....kKhhKKmmmKKKk....",
+	"....kkKKKKKKKKKkk....",
+	".....kkkkkkkkkkk.....",
+	"........cpcCd........",
+	".......ccpcCdd.......",
+	"........cpcCd........",
+	"........cpcCd........",
+	"........cpcCd........",
+	".......ccpccCdd......",
+	"..cppppppppppppppCd..",
+	"..cpppppppppppppcCd..",
+	"..cCCCCCCCCCCCCCCCd..",
+	"..cCpppppppppppppCd..",
+	"..cCpiiiiiiiiiiipCd..",
+	"..cCpppppppppppppCd..",
+	"..cCCCCCCCCCCCCCCCd..",
+	"..ddddddddddddddddd..",
+	"cCdeeeeeeeeeeeeeeecCd",
+	"cbd.bBbBbBbBbBbBb.cCd",
+	"cCd.BbBbBbBbBbBbB.cCd",
+	"cCd.bBbBbBbBbBbBb.cCd",
+	"cCd....bbbbbbb....cCd",
+	"cCd....bBBBBBb....cCd",
+	"cCd...............cCd",
+	"cbd...............cCd",
+	"cCd...............cCd",
+	"cpppppppppppppppppppd",
+	"cpp...............ppd",
+	"cpp...............ppd",
+	"cpppppppppppppppppppd",
+	"CCCCCCCCCCCCCCCCCCCCd",
+	"ddddddddddddddddddddd",
 ]
 const CLOCK := Vector3(24, 12.5, 14) * PROP_K   ## o relógio de flip da mesa: largura, altura e fundo (na escala da sala; ~15 × 8 × 9 cm, como as listas de 21 cm)
 ## Quanto ele está virado para os olhos do operador (1 = de frente para eles; 0 = reto, para a parede). Reto: virado
@@ -504,6 +492,8 @@ func _clock_face(sz: Vector2i) -> ImageTexture:
 ## de cima de `a` caindo; 1: ela de lado; 2: a metade de baixo de `b` descendo; 3: parada em `b`). Atrás da que cai,
 ## em cima já está `b` e embaixo ainda `a`.
 func _flip_card(img: Image, at: Vector2i, sz: Vector2i, a: String, b: String, step: int) -> void:
+	if sz.y < 2:   # (a tela ainda se arrumando: o relógio minúsculo)
+		return
 	var cb := _card(b, sz)
 	if step >= 3 or a == b:
 		img.blit_rect(cb, Rect2i(Vector2i.ZERO, sz), at)

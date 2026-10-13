@@ -10,8 +10,8 @@ extends Control
 ## contatos vêm de GameData.CONTENT.directory (só os setores atendidos e o despacho).
 
 const TAB_W := 26.0           # largura das abas de índice, na borda direita
-const NAV_H := 56.0           # altura da barra de Voltar/Virar, embaixo do livro
-const TOP := 40.0             # onde começam os contatos da página (abaixo do cabeçalho)
+const NAV_H := 42.0           # altura da barra de Voltar/Virar, embaixo do livro
+const TOP := 32.0             # onde começam os contatos da página (abaixo do cabeçalho)
 const CLUE_H := 34.0          # altura de cada palavra-chave anotada
 const PAPER := Color("e3d6b2")
 const PLAIN := {"á": "a", "à": "a", "â": "a", "ã": "a", "é": "e", "ê": "e", "í": "i", "ó": "o", "ô": "o", "õ": "o", "ú": "u", "ç": "c"}

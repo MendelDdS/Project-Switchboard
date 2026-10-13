@@ -5,6 +5,8 @@ extends CenterContainer
 signal closed
 
 const SEVERITY_COLORS := ["5a4d3a", "8a5a14", "8a1a14", "5a0a40"]
+const MAX_LINES := 20   ## acima disso o texto rola numa altura fixa (`SCROLL_H`), para a folha caber na tela
+const SCROLL_H := 270.0
 
 var C: GameContent = GameData.CONTENT
 
@@ -43,4 +45,7 @@ func show_report(r: ShiftReport) -> void:
 	for d in news:
 		s += "• %s\n" % ShiftReport.headline(d)
 	_body.text = s
+	var long := s.count("\n") > MAX_LINES   # a folha acompanha o texto: com poucas advertências, sem vão
+	_body.fit_content = not long
+	_body.custom_minimum_size.y = SCROLL_H if long else 0.0
 	_verdict.text = tr(C.verdicts[r.verdict()]) if r.verdict() < C.verdicts.size() else ""

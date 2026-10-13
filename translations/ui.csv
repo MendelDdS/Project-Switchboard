@@ -48,15 +48,15 @@ BOARD_TRUNK_3,SUL,SOUTH,SUR
 BOARD_TRUNK_4,LESTE,EAST,ESTE
 BOARD_TRUNK_5,OESTE,WEST,OESTE
 BOARD_TRUNK_6,LITORAL,COAST,LITORAL
-LEGEND_RING,chamando / em linha,ringing / on the line,llamando / en línea
-LEGEND_CONN,conectada,connected,conectada
+LEGEND_RING,chamando / em linha,ringing / on line,llamando / en línea
+LEGEND_CONN,ligada,patched,enlazada
 LEGEND_DONE,desligou: desmonte,hung up: take down,colgó: desarme
 LEGEND_FREE,livre,free,libre
 EX_LINE_FREE,livre,free,libre
 EX_LINE_RING,chamando,ringing,llamando
-EX_LINE_TALK,em linha,on the line,en línea
-EX_LINE_HOLD,em espera,on hold,en espera
-EX_LINE_CONN,conectada,connected,conectada
+EX_LINE_TALK,em linha,on line,en línea
+EX_LINE_HOLD,espera,on hold,espera
+EX_LINE_CONN,ligada,patched,enlazada
 EX_LINE_DONE,desligou,hung up,colgó
 EX_DEST_FREE,livre,free,libre
 EX_DEST_RING,tocando,ringing,sonando
@@ -128,7 +128,7 @@ SYS_YOU_ENDED,(Você encerrou a ligação.),(You ended the call.),(Usted termin�
 SYS_NOBODY_ANSWERED,(Ninguém atendeu. A pessoa desistiu.),(Nobody answered. The caller gave up.),(Nadie contestó. La persona desistió.)
 SYS_TIRED_WAITING,(Cansou de esperar e desligou.),(Got tired of waiting and hung up.),(Se cansó de esperar y colgó.)
 SYS_CALL_DROPPED,(A ligação caiu.),(The call dropped.),(La llamada se cortó.)
-HINT_WAIT_CALLS,"Aguarde as chamadas. A lista, o mapa e despacho, as fichas e o registro das conversas abrem pelos objetos na mesa (ou teclas 1 a 4).","Wait for calls. The directory, map & dispatch, the log sheets and the call log open from the objects on the desk (or keys 1 to 4).","Espere las llamadas. La guía, el mapa y despacho, las fichas y el registro de conversaciones se abren con los objetos de la mesa (o teclas 1 a 4)."
+HINT_WAIT_CALLS,"Aguarde as chamadas. A lista, o mapa e despacho, as fichas e o registro abrem pelos objetos na mesa (ou teclas 1 a 4).","Wait for calls. The directory, map & dispatch, the log sheets and the call log open from the desk (or keys 1 to 4).","Espere las llamadas. La guía, el mapa y despacho, las fichas y el registro se abren desde la mesa (o teclas 1 a 4)."
 HINT_INFO,Pedido de informação: confira a lista telefônica antes de responder.,Information request: check the phone directory before answering.,Pedido de información: revise la guía telefónica antes de responder.
 HINT_EMERGENCY,"A barra mostra a situação piorando e só para com o socorro completo a caminho (fora da linha, o rádio avisa). Mande o que as respostas pedirem: protocolo no despacho.","The bar shows the situation getting worse and only stops once full help is on the way (off the line, the radio warns you). Send what the answers call for: protocol in dispatch.","La barra muestra la situación empeorando y solo se detiene con toda la ayuda en camino (fuera de la línea, la radio avisa). Envíe lo que pidan las respuestas: protocolo en el despacho."
 HINT_WRONG_DEST,Tire a ponta do cabo desse destino. Confira o nome e o endereço na lista: há nomes parecidos.,Pull the cord out of that destination. Check the name and address in the directory: some names are similar.,Quite el cable de ese destino. Revise el nombre y la dirección en la guía: hay nombres parecidos.
@@ -159,7 +159,7 @@ NOTEBOOK_NEW,Nova ocorrência · %s,New entry · %s,Nueva entrada · %s
 NOTEBOOK_QUEUE,(+%d na fila),(+%d in queue),(+%d en cola)
 NOTEBOOK_REGISTER_AS,Registrar como:,Log as:,Registrar como:
 NOTEBOOK_EMPTY,Nenhuma ocorrência registrada neste turno.,No entries logged this shift.,Ninguna entrada registrada en este turno.
-COL_TIME,Horário,Time,Hora
+COL_TIME,Hora,Time,Hora
 COL_CALLER,Solicitante,Caller,Solicitante
 COL_PLACE,Local / destino,Place / destination,Lugar / destino
 COL_TYPE,Tipo,Type,Tipo
@@ -367,9 +367,6 @@ SETTINGS_VOL_EFFECTS,Efeitos,Effects,Efectos
 SETTINGS_DISPLAY,Tela,Display,Pantalla
 DISPLAY_FULLSCREEN,Tela cheia,Fullscreen,Pantalla completa
 DISPLAY_WINDOW,Janela,Windowed,Ventana
-SETTINGS_SCALING,Ampliação,Scaling,Escalado
-SCALING_SMOOTH,"Suave (tela toda)","Smooth (fill screen)","Suave (pantalla completa)"
-SCALING_PIXEL,"Pixels perfeitos (com borda)","Pixel perfect (with border)","Píxeles perfectos (con borde)"
 APPLY,Aplicar,Apply,Aplicar
 END_SHIFT,"Encerrar
 turno","End

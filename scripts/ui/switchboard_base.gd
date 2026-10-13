@@ -4,14 +4,14 @@ extends Control
 ## dividida em camadas por herança: esta, o painel (`switchboard_panel.gd`), os plugs e fios
 ## (`switchboard_plugs.gd`) e a mesa com a entrada, a física e o desenho (`switchboard.gd`); cada uma só usa as de baixo.
 
-const SIZE := Vector2(492, 304)   # era 588 × 362: com as tomadas na medida dos plugs, tudo ficava espaçado e a mesa tomava a sala
+const SIZE := Vector2(369, 228)   # (em 1280 × 720 era 492 × 304; antes, 588 × 362: com as tomadas na medida dos plugs, tudo ficava espaçado)
 const SHELF_SLOTS := 5   # lugares de cabo na prateleira: um por setor ainda não atendido fica tampado, à espera do cabo novo (`patches`)
-const TRUNK_GAP := 8.0      # do último plug guardado até o bloco interurbano (o vão da moldura dos bancos)
-const PAIR_SHIFT := 16.0    # a ponta da frente de um cabo, à esquerda da de trás: encostadas, as duas se leem como um par
-const FONE_HOLE_X := 40.0   # o buraco do FONE, a partir da esquerda do encaixe (o nome gravado embaixo cabe nos três idiomas)
-const SHELF_HOLE_Y := 10.0  # a fileira de trás dos buracos da prateleira (o FONE e a primeira ponta de cada cabo), afastada do rodapé do painel
-const SHELF_FRONT_Y := 29.0 # a fileira da frente (a outra ponta), à frente da de trás, como nas mesas de verdade; o mesmo vão entre as fileiras e até as beiras
-const PLUG_SINK := 14.0  # guardado, o plug entra tanto no buraco (px abaixo dele: a capa de borracha some nele, o corpo fica à mostra)...
+const TRUNK_GAP := 6.0      # do último plug guardado até o bloco interurbano (o vão da moldura dos bancos)
+const PAIR_SHIFT := 12.0    # a ponta da frente de um cabo, à esquerda da de trás: encostadas, as duas se leem como um par
+const FONE_HOLE_X := 30.0   # o buraco do FONE, a partir da esquerda do encaixe (o nome gravado embaixo cabe nos três idiomas)
+const SHELF_HOLE_Y := 8.0  # a fileira de trás dos buracos da prateleira (o FONE e a primeira ponta de cada cabo), afastada do rodapé do painel
+const SHELF_FRONT_Y := 22.0 # a fileira da frente (a outra ponta), à frente da de trás, como nas mesas de verdade; o mesmo vão entre as fileiras e até as beiras
+const PLUG_SINK := 10.0  # guardado, o plug entra tanto no buraco (px abaixo dele: a capa de borracha some nele, o corpo fica à mostra)...
 
 var exchange: Exchange
 var fone_socket: Control       # encaixe do FONE, na prateleira à frente do painel
@@ -21,20 +21,20 @@ var ends: Array = []           # tomada de cada ponta (-1 = na base). 0 = FONE; 
 var patches := 3               # cabos de conexão em uso: cada setor entregue ao operador traz um par (a mesa conta ao montar)
 var held := -1
 ## Os olhos do operador, o ponto de fuga da sala, em px da mesa (medido a cada quadro pela mesa; sem cenário, nos
-## testes, onde eles ficam em 1280 × 720): os plugs encaixados apontam para ele e a prateleira foge para ele.
-const PLUG_EYE := Vector2(SIZE.x + 176, 108)
+## testes, onde eles ficam em 960 × 540): os plugs encaixados apontam para ele e a prateleira foge para ele.
+const PLUG_EYE := Vector2(SIZE.x + 132, 81)
 var _eye := PLUG_EYE
 var trunks := Rect2()   # o bloco interurbano no painel (a mesa o põe ao montar os bancos): os cabos vão até ele
 
-const PLUG_BASE := Vector2(0, 26)   # de onde a mão pega o plug (o meio do corpo) até onde o fio entra nele
-const PLUG_H := 66.0   # a altura do `PLUG_ART`: do bico até onde sai o fio...
-const PLUG_W := 16.0   # ...e a largura dele (o corpo tem 14)
-const JACK := 16.0          # o lugar de cada encaixe (entradas, saídas e destinos; o desenho, `JACK_PX`, é menor)
+const PLUG_BASE := Vector2(0, 20)   # de onde a mão pega o plug (o meio do corpo) até onde o fio entra nele
+const PLUG_H := 51.0   # a altura do `PLUG_ART`: do bico até onde sai o fio...
+const PLUG_W := 12.0   # ...e a largura dele (o corpo tem 10)
+const JACK := 12.0          # o lugar de cada encaixe (entradas, saídas e destinos; o desenho, `JACK_PX`, é menor)
 ## A coluna de cada linha, de cima para baixo: plaquinha com o número (topo e altura), estado (linha de base do texto),
 ## lâmpada, entrada, chave de escuta e saída (centros). O estado fica acima da lâmpada: embaixo da entrada, o plug
 ## encaixado o cobria.
-const ROW_Y := {"plate": 30.0, "plate_h": 15.0, "state": 57.0, "lamp": 68.0, "in": 90.0, "key": 111.0, "out": 132.0}
-const ROOM_LIGHT_R := 900.0   # px: até onde a luz dela chega no painel
+const ROW_Y := {"plate": 22.0, "plate_h": 13.0, "lamp": 52.0, "in": 68.0, "key": 84.0, "out": 100.0}
+const ROOM_LIGHT_R := 675.0   # px: até onde a luz dela chega no painel
 const ROOM_LIT := Color(1.0, 0.88, 0.66, 0.07)   # perto dela, o painel clareia quente...
 const ROOM_DARK := Color(0.012, 0.022, 0.045, 0.36)   # ...e longe, escurece
 
@@ -46,20 +46,20 @@ var _ci: CanvasItem   # onde as funções de desenho desenham: a mesa, ou uma da
 ## Encaixe do FONE em coordenadas da mesa (na prateleira à frente do painel, fora do retângulo dela).
 func socket_rect() -> Rect2:
 	if fone_socket == null:
-		return Rect2(0, SIZE.y + 8.0, 58, 32)
+		return Rect2(0, SIZE.y + 6.0, 44, 24)
 	return Rect2(fone_socket.global_position - global_position, fone_socket.size)
 
 
 ## A faixa dos buracos dos cabos na prateleira, em coordenadas da mesa (também fora do retângulo dela).
 func tray_rect() -> Rect2:
 	if tray == null:
-		return Rect2(70, SIZE.y + 8.0, SIZE.x - 70.0, 32)
+		return Rect2(52, SIZE.y + 6.0, SIZE.x - 52.0, 24)
 	return Rect2(tray.global_position - global_position, tray.size)
 
 
 # Tomadas: 1–10 entradas, 11–20 saídas (linha + 10), destinos pelo próprio número (101–399).
 func col_x(i: int) -> float:
-	return 48.0 + i * 44.0   # 44: o estado mais longo ("ON THE LINE", 43 px na fonte gravada) cabe ao lado do vizinho
+	return 36.0 + i * 33.0
 
 
 func jack_rect(j: int) -> Rect2:
@@ -75,14 +75,14 @@ func jack_rect(j: int) -> Rect2:
 
 func jack_at(pos: Vector2) -> int:
 	for j in _jacks:
-		if jack_rect(j).grow(4).has_point(pos):
+		if jack_rect(j).grow(3).has_point(pos):
 			return j
 	return -1
 
 
 ## A chave de escuta da coluna `i`, entre a entrada e a saída (a alavanca para cima ou para baixo).
 func lever_rect(i: int) -> Rect2:
-	return Rect2(col_x(i) - 6, ROW_Y["key"] - 13, 12, 26)
+	return Rect2(col_x(i) - 5, ROW_Y["key"] - 10, 10, 20)
 
 
 ## A alavanca da linha `n` levantada: a chave de escuta, ou o destino tocando (o operador ouve chamar; quando atendem,
@@ -93,7 +93,7 @@ func lever_up(n: int) -> bool:
 
 
 func top_rect(i: int) -> Rect2:
-	return Rect2(col_x(i) - 20, ROW_Y["plate"] - 2, 40, ROW_Y["lamp"] - ROW_Y["plate"] + 8)
+	return Rect2(col_x(i) - 15, ROW_Y["plate"] - 2, 30, ROW_Y["lamp"] - ROW_Y["plate"] + 6)
 
 
 ## A coluna do cabo de conexão k na prateleira, na fileira de trás. As duas pontas de cada cabo ficam juntas (a da

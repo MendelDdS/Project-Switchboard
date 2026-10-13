@@ -13,16 +13,16 @@ content_margin_top = 4
 content_margin_bottom = 4
 
 [node name="Radio" type="PanelContainer"]
-custom_minimum_size = Vector2(340, 0)
+custom_minimum_size = Vector2(255, 0)
 theme_type_variation = &"HudPanel"
 script = ExtResource("1_radio")
 
 [node name="HBox" type="HBoxContainer" parent="."]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
 [node name="Grill" type="Control" parent="HBox"]
-custom_minimum_size = Vector2(30, 0)
+custom_minimum_size = Vector2(22, 0)
 layout_mode = 2
 mouse_filter = 2
 script = ExtResource("4_grill")
@@ -30,15 +30,15 @@ script = ExtResource("4_grill")
 [node name="Side" type="VBoxContainer" parent="HBox"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 4
+theme_override_constants/separation = 3
 
 [node name="Head" type="HBoxContainer" parent="HBox/Side"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
 
 [node name="Led" type="ColorRect" parent="HBox/Side/Head"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(8, 8)
+custom_minimum_size = Vector2(6, 6)
 layout_mode = 2
 size_flags_vertical = 4
 color = Color(0.2275, 0.102, 0.07059, 1)
@@ -55,7 +55,7 @@ size_flags_horizontal = 3
 
 [node name="Alert" type="ColorRect" parent="HBox/Side/Head"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(8, 8)
+custom_minimum_size = Vector2(6, 6)
 layout_mode = 2
 size_flags_vertical = 4
 color = Color(0.1, 0.09, 0.07, 1)
@@ -90,7 +90,7 @@ theme_override_constants/line_separation = 0
 
 [node name="Screen" type="Label" parent="HBox/Side/ScreenBox/Lines"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 13)
+custom_minimum_size = Vector2(0, 10)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_vt323_regula")
 theme_override_colors/font_color = Color(0.7176, 0.7882, 0.6588, 1)

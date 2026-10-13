@@ -16,9 +16,9 @@ const STAMPS := {
 	T.Key.TYPE_MISSED: Color("5c5a55"),      # grafite: registrada sozinha
 }
 const ROW_H := 50.0                # cada ocorrência: linha principal e, abaixo, unidade e observação
-const X_CALLER := 62.0             # colunas do livro (as legendas acima seguem as mesmas larguras)
-const X_PLACE := 268.0
-const X_STAMP := 438.0
+const X_CALLER := 56.0             # colunas do livro (as legendas acima seguem as mesmas larguras)
+const X_PLACE := 216.0
+const X_STAMP := 360.0
 const RULE := Pal.NOTE_RULE       # a pauta e a margem, as do caderno da mesa
 const MARGIN := Pal.NOTE_MARGIN
 

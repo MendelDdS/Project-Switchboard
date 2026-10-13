@@ -12,20 +12,20 @@ grow_vertical = 2
 script = ExtResource("1_report")
 
 [node name="Paper" type="PanelContainer" parent="."]
-custom_minimum_size = Vector2(660, 0)
+custom_minimum_size = Vector2(495, 0)
 layout_mode = 2
 theme_type_variation = &"PaperPanel"
 
 [node name="Margin" type="MarginContainer" parent="Paper"]
 layout_mode = 2
-theme_override_constants/margin_left = 22
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 22
-theme_override_constants/margin_bottom = 18
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
 
 [node name="VBox" type="VBoxContainer" parent="Paper/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
 [node name="Title" type="Label" parent="Paper/Margin/VBox"]
 layout_mode = 2
@@ -41,14 +41,18 @@ theme_override_font_sizes/font_size = 11
 
 [node name="Body" type="RichTextLabel" parent="Paper/Margin/VBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 360)
 layout_mode = 2
 bbcode_enabled = true
+fit_content = true
 theme_override_colors/default_color = Color(0.1647, 0.1373, 0.09804, 1)
 theme_override_fonts/normal_font = ExtResource("2_vt323")
 theme_override_fonts/bold_font = ExtResource("2_vt323")
 theme_override_font_sizes/normal_font_size = 11
 theme_override_font_sizes/bold_font_size = 11
+
+[node name="Gap" type="Control" parent="Paper/Margin/VBox"]
+custom_minimum_size = Vector2(0, 6)
+layout_mode = 2
 
 [node name="Verdict" type="Label" parent="Paper/Margin/VBox"]
 unique_name_in_owner = true
@@ -59,7 +63,7 @@ autowrap_mode = 3
 
 [node name="Sign" type="Button" parent="Paper/Margin/VBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(160, 34)
+custom_minimum_size = Vector2(120, 26)
 layout_mode = 2
 size_flags_horizontal = 8
 focus_mode = 0

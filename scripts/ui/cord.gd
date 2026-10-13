@@ -8,20 +8,20 @@ extends RefCounted
 ## regra, a mesma em qualquer comprimento (`BEND_MIN`). Solto, o plug é a última conta da corda (cai). Parado por
 ## `SLEEP_STEPS` passos, o fio "dorme" e deixa de ser simulado até algo mexer nele.
 
-const SEG := 16.0                  ## px de fio entre dois pontos (com 22 pontos fixos, o fio longo tinha trechos de 30 px)
+const SEG := 12.0                  ## px de fio entre dois pontos (com 22 pontos fixos, o fio longo tinha trechos de 30 px)
 const MIN_N := 5                   ## pontos, no mínimo (o fio quase todo dentro do buraco)
-const GRAVITY := Vector2(0, 1600)  ## px/s²
+const GRAVITY := Vector2(0, 1200)  ## px/s²
 const DAMPING := 0.985             ## 1 = sem atrito com o ar
 const STIFF_ITER := 16            ## iterações das regras (indo e voltando, alternadas: maior = fio menos elástico)
 const SLEEP_STEPS := 30            ## passos quase parado até dormir
 const SLEEP_MOVE := 0.05           ## px por passo: menos que isso conta como parado
 ## O comprimento dos fios, o mesmo em todos: o do FONE, puxado do encaixe, chega ao meio das listas telefônicas da
-## mesa (659 px em 1280 × 720); a tomada mais longe de um buraco fica a 564. Na mão, o plug não passa dele: a mão
+## mesa (494 px em 960 × 540); a tomada mais longe de um buraco fica a 423. Na mão, o plug não passa dele: a mão
 ## segue e ele para, com o fio esticado (e um tranco, `cord_snag`, ao esticar).
-const MAX := 660.0
+const MAX := 495.0
 const MAX_N := int(MAX / SEG) + 2
 ## A rigidez do pano: cada ponto fica a pelo menos BEND_MIN de dois trechos do ponto dois adiante (o fio não dobra
-## mais que ~50° por ponto, uma curva de uns 18 px de raio), corrigido BEND_K por iteração. Antes era um empurrão
+## mais que ~50° por ponto, uma curva de uns 14 px de raio), corrigido BEND_K por iteração. Antes era um empurrão
 ## nos pontos perto do plug, uma vez por passo, que as outras regras desfaziam: duro no fio longo, gancho no curto.
 const BEND_MIN := 0.9
 const BEND_K := 0.3
@@ -30,14 +30,14 @@ const BEND_K := 0.3
 ## ela, passa por cima e fica no ar até o plug, pendendo com a gravidade. O ponto conta como no ar a AIR_GAP px abaixo
 ## dela, medido antes do passo (o que repousa no tampo, na borda, não cai através dele). Antes, tudo abaixo da prateleira
 ## era um bloco: o fio fazia um nó nela e atravessava o console, ou ficava reto do buraco à mão.
-const AIR_GAP := 4.0
-const RISE := 4.0    # px por passo que um ponto que estava no ar sobe ao voltar para a prateleira ou o tampo
+const AIR_GAP := 3.0
+const RISE := 3.0    # px por passo que um ponto que estava no ar sobe ao voltar para a prateleira ou o tampo
 const LIP_PTS := 2   # quantos pontos antes da beira podem estar no tampo da prateleira, entre os buracos e ela
-const STUB := 6.0   ## encaixado, o fio sai da ponteira no eixo do plug por esses px; a rigidez faz o resto da curva
+const STUB := 5.0   ## encaixado, o fio sai da ponteira por esses px, entre o eixo do plug e a vertical (visto quase de frente, o eixo tem ~3 px na tela, e só nele o fio passava deitado por cima do plug); a rigidez faz o resto da curva
 ## O plug solto quica na mesa: volta com BOUNCE da velocidade com que bateu, enquanto bater a mais de BOUNCE_MIN px/s
 ## (devagar, assenta). Antes, ele grudava na mesa ao cair.
 const BOUNCE := 0.35
-const BOUNCE_MIN := 90.0
+const BOUNCE_MIN := 68.0
 ## Esticado, o fio de pano alisa: a partir de TAUT_FROM do comprimento (`MAX`) entre o buraco e a ponta dele, a tensão
 ## (`taut`) sobe até 1 no fim do fio, TAUT_EASE por passo (sem piscar). O desenho usa: as dobras somem, o trançado se
 ## espaça e ele afina (`Switchboard._draw_rope`).
@@ -60,7 +60,7 @@ var lip_y := INF          ## a beira da frente da prateleira (y): abaixo dela, n
 var free := false         ## solto: o plug é a última conta e cai junto (não segue a ponta)
 var direct := false       ## solto e puxado direto para o buraco: esticado, sem gravidade e quase sem embalo
 var held := false         ## o plug na mão: o mouse não empurra o fio e ele não dorme
-var stub := Vector2.ZERO  ## encaixado: a direção em que o fio sai da ponteira (zero: em pé)
+var stub := Vector2.ZERO  ## encaixado: a direção em que o fio sai da ponteira, para a frente e caindo (zero: em pé)
 var mouse := Vector2.INF
 var nudge := Vector2.ZERO ## quanto o mouse andou no passo: passando por cima do fio, empurra
 
@@ -165,14 +165,14 @@ func step(dt: float, a: Vector2, b: Vector2, want: float) -> bool:
 				tap = v.y
 				tap_at = p[i]
 		# passar o mouse por cima do fio empurra o fio
-		if not held and nudge.length_squared() > 0.5 and p[i].distance_to(mouse) < 16.0:
+		if not held and nudge.length_squared() > 0.5 and p[i].distance_to(mouse) < 12.0:
 			p[i] += nudge * 0.35
 	p[0] = a
 	var pin := last   # daqui até o plug, o fio não se mexe
 	if not free:
 		p[last] = b
 		o[last] = b
-	if stub != Vector2.ZERO:   # encaixado, o fio sai da ponteira no eixo do plug
+	if stub != Vector2.ZERO:   # encaixado, o fio sai da ponteira na direção do `stub`
 		pin = last - 1
 		p[pin] = p[last] + stub * minf(seg, STUB)
 		o[pin] = p[pin]
@@ -214,7 +214,7 @@ func step(dt: float, a: Vector2, b: Vector2, want: float) -> bool:
 		var box := Rect2(p[0], Vector2.ZERO)
 		for q in p:
 			box = box.expand(q)
-		sleep = box.grow(16.0)
+		sleep = box.grow(12.0)
 	return true
 
 

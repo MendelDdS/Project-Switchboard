@@ -69,19 +69,19 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   ligação desconhecida baixa para `HUM_HUSHED` e, depois dela, some); a luminária zumbe bem baixo, seguindo a
   luz dela (`lamp_buzz`, `Sfx.lamp`, `LAMP_BUZZ`), e estala quando pisca (`lamp_tick`); `Background.weather` desenha a janela, `Conversation.topics()` junta os
   assuntos gerais com os do clima (`ChatTopic.weather`).
-- **Resolução: tudo em 1x1 sobre 1280×720, ampliado para qualquer tela sem quebrar os pixels.** A cena principal é
-  `scenes/app.tscn` (`GameView`, `scripts/ui/game_view.gd`): o `main.tscn` dentro de um `SubViewport` de 1280×720 (o
+- **Resolução: tudo em 1x1 sobre 960×540, ampliado só em múltiplos inteiros (pixels perfeitos).** A cena principal é
+  `scenes/app.tscn` (`GameView`, `scripts/ui/game_view.gd`): o `main.tscn` dentro de um `SubViewport` de 960×540 (o
   `View`, "nearest"; o padrão do `SubViewport` é linear e não herda o do projeto), ampliado para a janela pelo `Box`
-  (`SubViewportContainer`) com o filtro de pixel art (`SHARP`, "sharp bilinear"): cada pixel do jogo vira um bloco do
-  mesmo tamanho e só a divisa entre dois blocos, um pixel da tela, mistura as cores. Ampliação inteira (1× em 720p, 2×
-  em 1440p, 3× em 4K) sai perfeita; quebrada (1,5× em 1080p, 1,25× em 1600×900), uniforme e um pouco mais macia. Antes,
-  com o `canvas_items` direto, 1,5× fazia um pixel virar ora 1, ora 2 da tela: linhas, letras e círculos desiguais.
-  O jogo é sempre 1280×720: numa janela de outra proporção (monitor largo), o que sobra é borda escura (antes ganhava
+  (`SubViewportContainer`, "nearest") no maior múltiplo inteiro que cabe (`GameView._fit`): 2× em 1080p, 4× em 4K; o
+  que sobra é borda escura (1× com borda em 720p e 1600×900, 2× com borda em 1440p). Menor que 960×540, reduz. (Antes,
+  em 1280×720, a 1080p era 1,5×, com o filtro "sharp bilinear": uniforme, mas um pouco macio; a pedido, a base virou
+  960×540 e a ampliação quebrada saiu, com a escolha "suave/pixel perfeito" das Configurações. Tudo foi reduzido a 75%,
+  menos o texto, que continua em 11: o que é feito de texto, como o cartão do despacho, o bilhete e o caderno, ocupa
+  mais da tela que antes.) O jogo é sempre 960×540: numa janela de outra proporção (monitor largo), o que sobra é borda escura (antes ganhava
   largura até 21:9 e a sala se esticava, a pedido saiu). A sala ainda se arruma na largura que tiver (abaixo), para o
   `main.tscn` sozinho numa janela larga. O
-  projeto continua em `canvas_items` 1280×720 para o `main.tscn` sozinho e os testes; o `GameView` desliga isso na janela
-  (`content_scale_mode`) e aplica a tela das Configurações (`Settings.fullscreen`: cheia ou janela;
-  `Settings.pixel_perfect`: só ampliação inteira, com borda, sem o filtro; padrão: tela cheia e suave). Na pausa, o `Box` continua processando
+  projeto continua em `canvas_items` 960×540 para o `main.tscn` sozinho e os testes; o `GameView` desliga isso na janela
+  (`content_scale_mode`) e aplica a tela das Configurações (`Settings.fullscreen`: cheia ou janela; padrão: cheia). Na pausa, o `Box` continua processando
   (`process_mode` ALWAYS; o `View` é PAUSABLE): parado, ele não repassava as teclas e o Esc não despausava
   (`tests/test_keys.gd`). O cenário tem a tela própria dele (`SceneView`, `scripts/ui/scene_view.gd`: um `TextureRect`
   com o `SubViewport` `View` na resolução da tela onde ele está: a janela, com o `main.tscn` sozinho, ou 1:1 dentro do
@@ -116,11 +116,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   quadrilátero inteiro; o resto, em triângulos); a sala passava de 2000 chamadas por quadro. **Os materiais dos objetos da mesa** (capa da lista,
   fita e papelão do bloco de fichas, tábua e folhas da prancheta, papel-jornal, papel e tons do mapa, níquel, o vermelho do formulário, o grão e a borda do tampo) são
   constantes do `Pal`, usadas pelo objeto (`Background._art_*`) e pelo papel aberto dele: o que muda numa ponta muda na outra. **Uma fonte só, de pixel: Departure Mono**
-  (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11** (o estado de cada linha na mesa não usa
-  ela: em 11, "conectada" não cabe na coluna, e em 8, fora da grade, borrava; é uma fonte de pixel própria, maiúsculas
-  de 3×5 gravadas no painel, `PixelArt.TINY`/`TINY_ACCENTS`/`tiny`, com os acentos dos três idiomas): 11 (texto, números da lista), 22
+  (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11** (o que é gravado no painel da mesa não usa
+  ela: é uma fonte de pixel própria, maiúsculas de 3×5, `PixelArt.TINY`/`TINY_ACCENTS`/`tiny`, com os acentos dos três
+  idiomas; o estado escrito de cada linha em cima das lâmpadas saiu, a pedido: a lâmpada já diz): 11 (texto, números da lista), 22
   (títulos, visor, bilhete), 33 (títulos de tela). **Em objeto da sala, nada de fonte acima de 11**: em 22/33/44 cada pixel dela vira um bloco de 2/3/4 px ao lado dos de 1 px ("pixels duplos"); use 11 em negrito (a sombra de 1 px ao lado, como a manchete do jornal), a fonte ampliada pelo Scale2x em relevo ou vazada (`PixelArt.big`, `relief`: o nome do jornal) ou letra desenhada à mão (as chapas da mesa, `PLATE_LETTERS`; os algarismos do relógio, `DIGITS`, com barras de 1 px). Importada com suavização (a janela
-  menor que 1280×720 não apaga os traços; sem ela, a 1,5× as letras saíam irregulares), sem hinting e sem sub-pixel. Texto em
+  menor que 960×540 não apaga os traços), sem hinting e sem sub-pixel. Texto em
   desenho com escala (mapa) sai fora da escala (`CityMap._t`).
 - **Idiomas** pt_BR (padrão), en, es. Interface/código: **enum `T.Key`** (`scripts/t.gd`, GERADO) +
   `translations/ui.csv` (`chave,pt_BR,en,es`); use `T.text(T.Key.X)` (com valores: `T.text(T.Key.X) % n`), nunca
@@ -148,7 +148,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `get_tree().paused`. **Todo `create_timer` do jogo leva `false` no 2º argumento** (senão continua contando na pausa);
   o `Sfx` roda sempre (ambiente segue, abafado: `Sfx.muffle`, um passa-baixa e um ganho no Master, `MUFFLE`; nas
   Configurações volta ao normal para o volume se ajustar ouvindo; `Main.pause()` cala a campainha e `_update_bell` a devolve). Configurações no
-  autoload `Settings` (`user://settings.cfg`): `locale`, `volumes` por barramento, `fullscreen` e `pixel_perfect` (a
+  autoload `Settings` (`user://settings.cfg`): `locale`, `volumes` por barramento e `fullscreen` (a
   tela, que o `GameView` aplica; a velocidade do texto saiu, a pedido: o ritmo das falas faz parte do jogo, como o da
   escuta); sinal `changed`. `set_*` vale na hora (prévia) mas só
   `save()` grava (botão Aplicar); Voltar/Esc faz `restore(snapshot)` do estado de quando a tela abriu. Testes (`-- --test=x` ou `-s`) não leem nem gravam o arquivo.
@@ -185,7 +185,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   - `tests/test_base.gd`: base (`ok()` em vez de `assert`, que trava o headless; `wait_until`, `load_main`, `finish`).
   - `tests/test_flow.gd`: cenários dirigidos (transferência, espera, desistência, caderno, destino que não atende, ligar de volta ao desconhecido, cliques, clima do som).
   - `tests/test_keys.gd`: as teclas (1, Espaço, Tab, X, Esc e despausar) entrando pela janela, pelo `GameView`.
-  - `tests/test_layout.gd`: em 1280, 1500 e 1708 px de largura, nenhum objeto da mesa por cima de outro na tela (o
+  - `tests/test_layout.gd`: em 960, 1125 e 1281 px de largura, nenhum objeto da mesa por cima de outro na tela (o
     contorno de cada um como o cenário o desenhou, `Background._occ`/`occ_ids`; a caneca na frente do relógio é de propósito).
     Mexeu na disposição da mesa: rode este.
   - `tests/test_penalties.gd`: consequências (perdida e retorno, número errado, registro, despacho errado,
@@ -225,8 +225,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   estado do Main fica em funções públicas dele (`free_line`, `ring`, `print_ticket`, `set_weather`, `start_ending`, `drop`, `drop_all`,
   `drop_emergency`); dos campos, o painel só lê agenda e ligações para o texto de estado e adianta o relógio (`minutes`), para não quebrar quando o Main mudar.
 - **Captura de tela** (`tools/shot.tscn`, COM tela): `Godot --path . tools/shot.tscn -- --hour=22:30 --weather=rain
-  --tool=despacho --card --emergency --news --toll --width=1500 --zoom=x,y,w,h --out=build/shot.png` grava a tela inteira e o
-  recorte ampliado 4× (`_zoom.png`); `--scale=1.5` grava também a tela como o `GameView` a mostra naquela ampliação, pelo filtro de verdade (`_x1.5.png`: 1080p; 1.25 = 1600×900); `--hover=id` põe o mouse num objeto da mesa (contorno e nome); `--debug=N` abre o painel de debug na aba N; as opções do jogo (`--night`, `--seed`, `--lang`) também valem. Para conferir
+  --tool=despacho --card --emergency --news --toll --width=1125 --zoom=x,y,w,h --out=build/shot.png` grava a tela inteira e o
+  recorte ampliado 4× (`_zoom.png`); `--hover=id` põe o mouse num objeto da mesa (contorno e nome); `--debug=N` abre o painel de debug na aba N; as opções do jogo (`--night`, `--seed`, `--lang`) também valem. Para conferir
   mudança visual medindo, não só olhando a captura.
 - **Sem tela, a vista da janela não é desenhada** (`Background._headless`): com `--fixed-fps` e o tempo acelerado,
   ela era redesenhada a cada quadro e virou 2/3 do tempo de um turno do robô (27 s em vez de 9). Quem acrescentar
@@ -343,7 +343,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   cortada ou fim do turno; `Main._update_line_timers` → `_print_ticket`), imprime o bilhete (`TollTicket`,
   `scripts/ui/toll_ticket.gd`: entrada, cidade e número de lá, horário e minutos, o começado conta inteiro; papel com
   fibras, a beira de baixo serrilhada e, embaixo dos dados, o campo tracejado do carimbo, `FIELD`), que cai na
-  mesa embaixo da fenda (`%Desk`, com a almofada de tinta e a caixinha). A máquina mostra os minutos em contadores de
+  mesa embaixo da fenda (à direita da almofada, para não cobrir o carimbo) (`%Desk`, com a almofada de tinta e a caixinha). A máquina mostra os minutos em contadores de
   tambor, um por entrada (`Toll._counter`: a plaquinha, a lâmpada e os tambores com os algarismos de `DIGITS`, que rolam
   no começo de cada minuto começado, `ROLL`; o visor só se redesenha a cada quadro enquanto um rola, `_rolling`) e fica
   apoiada na mesa pelos pés. O tampo é desenhado pelo próprio `Toll` (`_draw`), até a beira do papel, com o grão e a
@@ -397,7 +397,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   contando acende, `Toll.counters` → `Background.counting`), a plaqueta com a luz e a fenda embaixo, de onde a ponta do
   bilhete esperando (`Toll.in_slot` → `Background.tickets`) desce para a mesinha no tempo do som da impressora
   (`Background._draw_tip`, camada própria, `TIP_SEC`); na frente dela, a mesinha na proporção da mesa aberta
-  (`Toll.NOMINAL`, a de 1280 × 720), com a almofada e a caixinha afastadas dos cantos na mesma medida (`Toll.INSET`), os bilhetes soltos com as marcas, a caixinha com os guardados e o
+  (`Toll.NOMINAL`, a de 960 × 540), com a almofada e a caixinha afastadas dos cantos na mesma medida (`Toll.INSET`), os bilhetes soltos com as marcas, a caixinha com os guardados e o
   carimbo em pé onde o jogador os deixou (`Toll.layout` → `Background.toll_desk`, passado só com a ferramenta fechada:
   aberta, levar um bilhete redesenharia a sala a cada quadro). Dica da
   primeira vez: `HINT_TOLL` (`SAW_TOLL`). Ponytail: não há tecla, e o interurbano ainda contando no fim do turno não
@@ -418,9 +418,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`_box`: sombra, parafusos, placa de latão, luz e saída de ar), com a fenda da largura do cartão (`_mouth_x`): o
   transmissor à esquerda, a impressora no meio e a trituradora à direita, afastadas (com a impressora logo acima da
   trituradora, o cartão solto ali mesmo era triturado; antes, a ficha abria e fechava por cima do mapa, com as máquinas
-  entrando pelas bordas, o × e o botão de reabrir: saíram com a base fixa). O cartão tem `PunchCard.W` = 176 px (o mais estreito em que cabem o tipo
-  mais longo e o protocolo em duas linhas; espaçamentos justos, `ROW`, `TOP`, `FOOT`, `TEXT_X`, e o número sem "Nº"
-  para caber ao lado do título) e as fendas são rasgos finos (`_mouth`). Marcar o local faz a impressora datilografar (`typing`, o local aparece na tira de papel saindo da fenda) e imprimir
+  entrando pelas bordas, o × e o botão de reabrir: saíram com a base fixa). O cartão tem `PunchCard.W` = 132 px (as três fendas lado a lado
+  cabem na unidade; espaçamentos justos, `ROW`, `TOP`, `FOOT`, `TEXT_X`) e **todo o texto dele, e o da tira e dos avisos
+  das máquinas, na fonte miúda do painel** (`PunchCard.small`, `PixelArt.tiny`; protocolo quebrado em `lines_of`): na de
+  11 o local não cabia; as placas das máquinas continuam em 11 (`PunchCard.write`) e as fendas são rasgos finos (`_mouth`). Marcar o local faz a impressora datilografar (`typing`, o local aparece na tira de papel saindo da fenda) e imprimir
   (`printer`, saindo sem parar) um **cartão perfurado** com local, bairro e setor, que sobe pela fenda dela para cima do
   vidro e fica em pé nela (`_rest`); ele anda livre pela unidade toda, por cima da moldura e das máquinas, até a
   borda de baixo (`_clamp`). O cartão é um formulário: impresso na tinta

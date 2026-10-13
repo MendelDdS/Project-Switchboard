@@ -8,7 +8,7 @@ const PX := 0.5          ## um pixel da tela nas unidades da câmera (px de 2x2)
 ## A altura dos olhos acima do fundo do tampo, na tela (px de 2x2): o ponto de fuga, dentro da tela, na altura da
 ## janela. Era 210 (logo acima da tela): a mesa vista mais de cima, mas a parede da janela ficava a 44 cm da cabeça e a
 ## janela, bem abaixo dos olhos, descia uns 40°. Mais baixo, o que fica longe do ponto de fuga entorta mais.
-const EYE := 120.0
+const EYE := 90.0
 # O operador está sentado à mesa e a câmera são os olhos dele: `SEAT_EYE` cm acima do tampo, com o fundo do tampo a
 # `SEAT_BACK` cm (a parte da frente do tampo fica sob o console do painel; a tela mostra a de trás). A tela fixa onde
 # ficam o ponto de fuga e o fundo do tampo (`EYE` px abaixo dele); o que resta é a distância focal, que sai da
@@ -39,7 +39,7 @@ const NEW_MOON := 947182440     ## uma lua nova conhecida (6/1/2000, 18h14 UTC),
 const BOLT_PULSES := [Vector2(0.0, 1.0), Vector2(0.14, 0.55), Vector2(0.42, 0.8)]   ## os clarões dele: quando (s) e a força
 const SIDE_T := 1.06        ## onde a janela começa na parede da direita (escala); termina perto da borda da tela
 const SIDE_W := 150.0       ## a largura do vão, de frente (só a resolução da projeção)
-const WIN_TOP := -28.0      ## o alto do vão (cm a partir dos olhos, para baixo): acima deles
+const WIN_TOP := -12.0      ## o alto do vão (cm a partir dos olhos, para baixo): acima deles
 
 var weather := "rain"
 var _moon_x0 := 0.5   # onde a lua nasce: o x da igreja em fração do vidro (a vista atualiza ao desenhar)

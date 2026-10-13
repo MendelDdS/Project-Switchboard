@@ -6,14 +6,14 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/radio.tscn" id="11_radio"]
 
 [node name="Phone" type="MarginContainer"]
-custom_minimum_size = Vector2(0, 150)
+custom_minimum_size = Vector2(0, 128)
 mouse_filter = 2
 script = ExtResource("1_phone_panel")
 
 [node name="Bar" type="HBoxContainer" parent="."]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 
 [node name="ConvBox" type="PanelContainer" parent="Bar"]
 unique_name_in_owner = true
@@ -23,7 +23,7 @@ theme_type_variation = &"HudPanel"
 
 [node name="ConvV" type="VBoxContainer" parent="Bar/ConvBox"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 3
 
 [node name="Warn" type="Label" parent="Bar/ConvBox/ConvV"]
 unique_name_in_owner = true
@@ -35,7 +35,7 @@ autowrap_mode = 3
 
 [node name="Transcript" type="RichTextLabel" parent="Bar/ConvBox/ConvV"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 48)
+custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 size_flags_vertical = 3
 bbcode_enabled = true
@@ -48,13 +48,13 @@ theme_override_constants/line_separation = 2
 [node name="Choices" type="HFlowContainer" parent="Bar/ConvBox/ConvV"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/h_separation = 6
-theme_override_constants/v_separation = 4
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 3
 
 [node name="Urgency" type="Control" parent="Bar/ConvBox/ConvV"]
 unique_name_in_owner = true
 visible = false
-custom_minimum_size = Vector2(0, 30)
+custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 mouse_filter = 2
 script = ExtResource("9_urgency")
@@ -68,11 +68,11 @@ script = ExtResource("10_glass")
 [node name="Keys" type="HBoxContainer" parent="Bar"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
 
 [node name="Answer" type="Button" parent="Bar/Keys"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(96, 0)
+custom_minimum_size = Vector2(92, 0)
 layout_mode = 2
 focus_mode = 0
 theme_type_variation = &"GreenKey"
@@ -83,10 +83,10 @@ text = "ANSWER"
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 8.0
-offset_top = 6.0
-offset_right = -8.0
-offset_bottom = 20.0
+offset_left = 6.0
+offset_top = 4.0
+offset_right = -6.0
+offset_bottom = 15.0
 grow_horizontal = 2
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.2275, 0.1647, 0.0706, 1)
@@ -97,7 +97,7 @@ vertical_alignment = 1
 
 [node name="Transfer" type="Button" parent="Bar/Keys"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(96, 0)
+custom_minimum_size = Vector2(92, 0)
 layout_mode = 2
 focus_mode = 0
 theme_type_variation = &"AmberKey"
@@ -108,10 +108,10 @@ text = "TRANSFER"
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 8.0
-offset_top = 6.0
-offset_right = -8.0
-offset_bottom = 20.0
+offset_left = 6.0
+offset_top = 4.0
+offset_right = -6.0
+offset_bottom = 15.0
 grow_horizontal = 2
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.2275, 0.1647, 0.0706, 1)
@@ -123,7 +123,7 @@ vertical_alignment = 1
 
 [node name="Listen" type="Button" parent="Bar/Keys"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(96, 0)
+custom_minimum_size = Vector2(92, 0)
 layout_mode = 2
 focus_mode = 0
 theme_type_variation = &"IvoryKey"
@@ -134,10 +134,10 @@ text = "LISTEN"
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 8.0
-offset_top = 6.0
-offset_right = -8.0
-offset_bottom = 20.0
+offset_left = 6.0
+offset_top = 4.0
+offset_right = -6.0
+offset_bottom = 15.0
 grow_horizontal = 2
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.2275, 0.1647, 0.0706, 1)
@@ -149,7 +149,7 @@ vertical_alignment = 1
 
 [node name="Hangup" type="Button" parent="Bar/Keys"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(96, 0)
+custom_minimum_size = Vector2(92, 0)
 layout_mode = 2
 focus_mode = 0
 theme_type_variation = &"RedKey"
@@ -160,10 +160,10 @@ text = "HANG_UP"
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_left = 8.0
-offset_top = 6.0
-offset_right = -8.0
-offset_bottom = 20.0
+offset_left = 6.0
+offset_top = 4.0
+offset_right = -6.0
+offset_bottom = 15.0
 grow_horizontal = 2
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.2275, 0.1647, 0.0706, 1)

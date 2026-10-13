@@ -14,19 +14,19 @@ extends VBoxContainer
 
 signal unstamped(t: TollTicket)
 
-const NOMINAL := Vector2(632, 354)   ## a mesa dela no jogo (1280 × 720): a do calculógrafo da sala tem esta proporção (`layout`)
-const PAD := Vector2(150, 44)   ## a almofada de tinta, embaixo à esquerda da mesa...
-const BOX := Vector2(220, 92)   ## ...e a caixinha dos bilhetes, embaixo à direita, na mesma linha
+const NOMINAL := Vector2(474, 266)   ## a mesa dela no jogo (960 × 540): a do calculógrafo da sala tem esta proporção (`layout`)
+const PAD := Vector2(120, 36)   ## a almofada de tinta, embaixo à esquerda da mesa...
+const BOX := Vector2(204, 72)   ## ...e a caixinha dos bilhetes, embaixo à direita, na mesma linha (mais larga que o bilhete, `TollTicket.SIZE`, que entra nela)
 ## A folga da almofada e da caixinha até a beira dos lados e até a de baixo, a mesma nas duas. Encostadas nos cantos, na
 ## sala elas passavam dos lados da máquina (perto, a mesinha abre mais que ela) e o calculógrafo parecia torto.
-const INSET := Vector2(48, 12)
-const BOX_MOUTH := 30.0         ## da beira de trás da caixinha até a frente dela: a boca, onde o bilhete entra e some
+const INSET := Vector2(36, 9)
+const BOX_MOUTH := 24.0         ## da beira de trás da caixinha até a frente dela: a boca, onde o bilhete entra e some
 const SINK_SEC := 0.3           ## o bilhete descendo para dentro da caixinha
 const OUT_SEC := 0.45           ## o bilhete que esperava na fenda saindo dela quando a ferramenta abre
-const LID := 22.0               ## a tampa da almofada, aberta, de pé atrás dela
+const LID := 17.0               ## a tampa da almofada, aberta, de pé atrás dela
 const WET_SEC := 2.5            ## carimbada, a almofada perde o brilho da tinta no feltro e o recupera nesse tempo
-const PLANK := 56.0             ## a largura das tábuas do tampo
-const EDGE_H := 14.0            ## a borda da frente do tampo, embaixo do papel
+const PLANK := 42.0             ## a largura das tábuas do tampo
+const EDGE_H := 10.0            ## a borda da frente do tampo, embaixo do papel
 ## Os contadores do visor, um por entrada (`Exchange.LINES`), em duas fileiras de `COUNTER_COLS`: tambores de algarismos
 ## claros (`DIGITS`, 5 × 9 px), deste tamanho, que rolam para o algarismo seguinte na primeira fração `ROLL` de cada
 ## minuto começado.
@@ -289,10 +289,12 @@ func _sink(t: TollTicket) -> void:
 
 ## O bilhete desce da fenda da máquina em `sec` (impresso com a ferramenta aberta, no tempo do som da impressora;
 ## esperando na fenda, mais depressa, quando ela abre), depois de `after`, a beira de baixo na frente (recortado pela
-## própria altura, como na caixinha, `_sink`), e cai na mesa embaixo dela, um pouco desencontrado dos outros.
+## própria altura, como na caixinha, `_sink`), e cai na mesa embaixo dela, à direita da almofada (com a mesa a 75%, caía
+## em cima do carimbo), um pouco desencontrado dos outros.
 func _emerge(t: TollTicket, sec: float, after := 0.0) -> void:
 	var i := _tickets.find(t) % 4
-	var rest := Vector2(roundf(_screen().get_center().x - TollTicket.SIZE.x / 2.0) + i * 14.0, 4.0 + i * 12.0)
+	var under := roundf(_screen().get_center().x - TollTicket.SIZE.x / 2.0)   # embaixo da fenda, mas não em cima da almofada
+	var rest := Vector2(maxf(under, _pad().end.x + 8.0) + i * 14.0, 4.0 + i * 12.0)   # (onde o carimbo descansa)
 	var h := TollTicket.SIZE.y
 	var out := func(v: float) -> void:
 		t.top = h - roundf(v)

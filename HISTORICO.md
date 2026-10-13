@@ -807,3 +807,46 @@ Chaves:
     números de dois algarismos se encostavam). E as resoluções: o cursor passou a ter a ampliação do jogo, com o mesmo
     filtro (era sempre 2×: em 1080p, a 1,5×, saía mais grosso que tudo), e a captura ganhou `--scale` para ver o jogo
     como ele aparece em cada tela. (O Scale3x, para as chapas, inventava bicos nas letras e saiu.)
+173. #pixel #tela #interface #mesa-comutadora #saiu
+    Base 960×540 (pedido do usuário, numa branch à parte, `improve/0000-base-960`): em 1280×720, a 1080p ficava em
+    1,5×, macia pelo filtro; em 960×540 a 1080p é 2× exata (e 4K, 4×). Só ampliação inteira: o que não for múltiplo
+    exato fica com borda escura (720p e 1600×900 em 1×, 1440p em 2×). Saíram o filtro "sharp bilinear" e a escolha
+    "suave/pixel perfeito" das Configurações. Tudo foi reduzido a 75% (cenas, mesa comutadora com plugs, tomadas,
+    lâmpadas, alavancas, chapas e carimbo da sala redesenhados, câmera e objetos da sala, física dos fios), menos o
+    texto, que continua em 11: os números dos destinos passaram à fonte gravada, as teclas do telefone ficaram mais
+    largas para "Transferir" caber, o nome do jornal em 2× (4× não cabia) e o painel do telefone um pouco mais alto
+    (as opções da emergência não cabiam).
+    O despacho não cabia (as três fendas da largura do cartão de 176 px passavam da unidade): a pedido, o cartão e
+    as máquinas foram reduzidos na mesma proporção (cartão de 132 px), e o texto do cartão, da tira da impressora e
+    dos avisos das máquinas passou à fonte miúda da mesa (em 11 o local não cabia); a fonte miúda ganhou a vírgula.
+    Ajustes depois da base: as tomadas com 12×12 px, o furo redondo de 4 px (achatado em 10×10); a luva dos plugs
+    centrada (tinha 5 px e pendia meio pixel para a direita) e o pino dourado 1 px mais alto (o plug com 51 px); a
+    vista da janela mais longe (`OUT_F` a 75%: estava ampliada em relação à janela e perdia os detalhes); a janela
+    mais baixa (`WIN_TOP`, `WIN_SILL`), com a persiana à vista abaixo do bilhete do manual, e a vista centrada no vidro
+    abaixo dela (`OUT_DROP`: o horizonte lá fora desce com a janela).
+    Acabamento em 960: o bilhete do MANUAL de espera encurtado nos três idiomas (sobrava "4)." sozinho na terceira
+    linha), a coluna do caderno "Horário" virou "Hora" (passava da margem vermelha) e o texto do registro alinhado ao
+    título e ao fio do cabeçalho (`CallLog.SIDE`).
+    A vinheta da sala acabava 18 px dentro do console (uma faixa escura translúcida por cima das teclas e do rádio):
+    agora acaba na beira de cima dele (`offset_bottom` -142). Os botões de volume da frente do console a 75% e a
+    espaços iguais entre a miniatura do painel e a beira do móvel (passavam dela).
+    Os números das plaquinhas das entradas (01–10) na fonte miúda do painel, no meio da chapa: na de 11 enchiam a
+    chapa de alto a baixo, pareciam grossos e ficavam baixos.
+    Pedido seguinte, o que ele queria: os nomes das seções do painel ("ENTRADAS · FONE", "SAÍDAS · CABO DE CONEXÃO")
+    na fonte miúda gravada, como a legenda, e a faixa das entradas no meio entre a moldura e as plaquinhas (o nome em
+    11 enchia a faixa e encostava nelas). O "·" entrou na fonte miúda. Os números das plaquinhas ficaram miúdos.
+    Espaçamentos, segunda rodada (a pedido, com as pendências): a plaqueta do fabricante no meio entre os parafusos e a
+    miniatura do painel; as teclas do telefone mais largas (92 px, a chapa com 3 px de cada lado: "Transferir" encostava);
+    `DarkButton` com o relevo do âmbar num tom escuro (na pausa e no início eram blocos pretos sumindo no fundo) e, no
+    início, os botões secundários da altura do "Começar turno"; o relatório na altura do texto (rola acima de
+    `ReportView.MAX_LINES`), com um respiro antes do parecer; no calculógrafo, o bilhete cai à direita da almofada, não
+    em cima do carimbo.
+    O plug encaixado com mais detalhe: a beira dourada da luva de latão entre a tomada e o corpo. Um reflexo da
+    luminária no corpo foi testado e saiu (caía no contorno aceso pela lâmpada, que já é o ponto claro dele), e uma
+    bota de borracha em volta da saída do fio também (mais larga que o fio, ele parecia colado num caroço).
+    Correções: o fio saía da ponteira 5 px no eixo do plug, que visto quase de frente tem ~3 px na tela, e passava
+    deitado por cima dele; agora sai entre o eixo e a vertical, já caindo (`Cord.stub`). A caixinha dos bilhetes do
+    calculógrafo mais larga que o bilhete (`Toll.BOX`, 204: na redução ficou com 176 e o bilhete com 190). O MANUAL
+    num lugar fixo de duas linhas (`HintSlot`): com mais linhas, desce por cima das ferramentas em vez de empurrá-las.
+    O estado escrito de cada linha em cima das lâmpadas ("LIVRE", "CHAMANDO") saiu: redundante com a lâmpada e a
+    legenda das cores. (O texto ainda aparece no balão de informação da linha, `Main`.)

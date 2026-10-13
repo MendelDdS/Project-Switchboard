@@ -265,3 +265,18 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
 - **Esperar uma coisa da mesa não é silêncio na linha.** O relógio da conversa fiada seguia correndo com o destino
   chamando; sem resposta, ela entrava junto da opção da alternativa e atrapalhava. Um contador de "tempo parado" tem
   de recomeçar quando a espera do sistema acaba e a vez volta ao jogador.
+- **Mudar a escala não é multiplicar tudo por 0,75.** Na base 960, a vinheta acabava a 124 px do pé (166 × 0,75), mas
+  o console, feito de texto em 11, não encolheu na mesma medida (142 px): ficou uma faixa escura por cima dele. E os
+  botões de volume, desenhados à mão em `background.gd`, ficaram no tamanho antigo e passavam da beira do móvel. O que
+  encosta em outra peça se mede pela peça (onde ela começa, o espaço entre as duas), e cada desenho com medidas em px
+  tem de ser revisto na troca de escala, não só os que aparecem no diff.
+- **No recorte que o usuário manda, pergunte-se qual parte é a queixa antes de mexer.** "As fontes estão grandes,
+  grossas e descentralizadas" num recorte com o título "ENTRADAS" e as plaquinhas: mudei os números das plaquinhas,
+  e a queixa era o título (em 11, encostado nelas). Meça cada candidato no recorte (o que está fora do centro, o que
+  é maior que o resto) e, com dois candidatos, diga qual vai mexer.
+- **Na redução de escala, o que encaixa em outra coisa tem de continuar maior que ela.** A caixinha dos bilhetes foi
+  a 75% (176) e o bilhete ficou com 190: passou a ser mais largo que a caixa onde entra. Depois de reduzir, confira os
+  pares recipiente/conteúdo (caixa e bilhete, furo e plug, fenda e cartão).
+- **Detalhe novo num desenho de poucos pixels: olhe a junção com o que encosta nele.** A bota de borracha no plug
+  encaixado, mais larga que o fio, fez o fio parecer colado de lado num caroço; e o trecho reto do fio, de 5 px no
+  eixo do plug, ficava mais comprido que o próprio plug visto de frente (~3 px), deitado por cima dele.

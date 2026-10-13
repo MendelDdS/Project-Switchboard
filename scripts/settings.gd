@@ -18,7 +18,6 @@ const FOLLOWS := {"Rub": "Effects"}
 var locale := DEFAULT_LOCALE
 var volumes := {"Ambience": 1.0, "Voices": 1.0, "Effects": 1.0}   ## 0..1, linear
 var fullscreen := true                                              ## tela cheia (falso: janela)
-var pixel_perfect := false                                          ## só ampliação inteira, com borda (falso: suave)
 var _persist := true
 
 
@@ -52,11 +51,6 @@ func set_fullscreen(on: bool) -> void:
 	_changed()
 
 
-func set_pixel_perfect(on: bool) -> void:
-	pixel_perfect = on
-	_changed()
-
-
 ## A versão do jogo como ela aparece na tela inicial e na pausa ("v0.4.0 alpha"): o número do projeto
 ## (`application/config/version`, que as exportações usam; veja VERSOES.md) e a fase (`application/config/stage`;
 ## vazia na 1.0).
@@ -67,15 +61,13 @@ static func version_text() -> String:
 
 ## Estado atual, para comparar ou restaurar depois.
 func snapshot() -> Dictionary:
-	return {"locale": locale, "volumes": volumes.duplicate(), "fullscreen": fullscreen,
-		"pixel_perfect": pixel_perfect}
+	return {"locale": locale, "volumes": volumes.duplicate(), "fullscreen": fullscreen}
 
 
 func restore(s: Dictionary) -> void:
 	locale = s["locale"]
 	volumes = s["volumes"].duplicate()
 	fullscreen = s["fullscreen"]
-	pixel_perfect = s["pixel_perfect"]
 	_changed()
 
 
@@ -85,7 +77,6 @@ func save() -> void:
 	var f := ConfigFile.new()
 	f.set_value("settings", "locale", locale)
 	f.set_value("display", "fullscreen", fullscreen)
-	f.set_value("display", "pixel_perfect", pixel_perfect)
 	for bus in BUSES:
 		f.set_value("volume", bus, volumes[bus])
 	f.save(PATH)
@@ -112,7 +103,6 @@ func _load() -> void:
 		return
 	locale = f.get_value("settings", "locale", locale)
 	fullscreen = f.get_value("display", "fullscreen", fullscreen)
-	pixel_perfect = f.get_value("display", "pixel_perfect", pixel_perfect)
 	for bus in BUSES:
 		volumes[bus] = f.get_value("volume", bus, volumes[bus])
 

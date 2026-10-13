@@ -4,8 +4,8 @@ extends Node
 ## a forma conforme o que está sob o mouse (mão aberta para pegar um plug, fechada segurando, proibido numa tomada
 ## que não aceita o plug).
 
-## Na tela, cada pixel do desenho tem o tamanho de um pixel do jogo: o `GameView` passa a ampliação dele (`zoom`).
-## Sozinho (o `main.tscn`, os testes), 2.
+## Na tela, cada pixel do desenho tem o tamanho de um pixel do jogo: o `GameView` passa a ampliação dele (`zoom`,
+## sempre inteira). Sozinho (o `main.tscn`, os testes), 2.
 var scale := 2.0
 const COLORS := {"k": Color("0e0c08"), "w": Color("e8dcbe"), "s": Color("b2a078"), "r": Color("d4553f")}
 
@@ -138,9 +138,9 @@ func _ready() -> void:
 
 
 ## Monta os cursores na ampliação `k` do jogo (pixels da janela por pixel do jogo). Sempre em 2×, eles ficavam
-## grossos demais em 1080p (o jogo em 1,5×) e finos em 4K (em 3×).
+## finos em 4K (o jogo em 4×).
 func zoom(k: float) -> void:
-	k = maxf(1.0, k / DisplayServer.screen_get_scale())   # no Retina do Mac o sistema dobra o cursor
+	k = maxf(1.0, roundf(k / DisplayServer.screen_get_scale()))   # no Retina do Mac o sistema dobra o cursor
 	if not is_equal_approx(k, scale):
 		scale = k
 		_apply()
@@ -165,28 +165,12 @@ func _point(c: Control) -> void:
 
 
 ## Uma Image (e não textura): o Input a guarda até o fim, e textura sobrevivendo ao servidor de renderização vaza.
-## Ampliada como o `GameView` amplia o jogo (o filtro `SHARP`): cada pixel vira um bloco, e só a divisa entre dois
-## blocos, um pixel da tela, mistura as duas cores (em ampliação inteira, blocos exatos).
 func _image(rows: Array) -> Image:
-	var src := []   # as cores com o alfa multiplicado (misturar com o vazio não escurece a beira)
-	for y in 16:
-		for x in 16:
-			var c: Color = COLORS.get(rows[y][x], Color(0, 0, 0, 0))
-			src.append(Color(c.r * c.a, c.g * c.a, c.b * c.a, c.a))
-	var at := func(x: int, y: int) -> Color:
-		return src[clampi(y, 0, 15) * 16 + clampi(x, 0, 15)]
-	var n := ceili(16 * scale)
-	var keep := 0.5 - 0.5 / scale
-	var img := Image.create(n, n, false, Image.FORMAT_RGBA8)
-	for y in n:
-		for x in n:
-			var t := Vector2(x + 0.5, y + 0.5) / scale
-			var d := t - t.floor() - Vector2(0.5, 0.5)
-			var f := (d - d.clamp(Vector2(-keep, -keep), Vector2(keep, keep))) * scale + t.floor()   # o meio de um pixel do desenho fica em +0,5: aqui, em índices
-			var i := Vector2i(f.floor())
-			var w := f - f.floor()
-			var c: Color = (at.call(i.x, i.y) as Color).lerp(at.call(i.x + 1, i.y), w.x).lerp(
-				(at.call(i.x, i.y + 1) as Color).lerp(at.call(i.x + 1, i.y + 1), w.x), w.y)
-			if c.a > 0.0:
-				img.set_pixel(x, y, Color(c.r / c.a, c.g / c.a, c.b / c.a, c.a))
+	var k := int(scale)
+	var img := Image.create(16 * k, 16 * k, false, Image.FORMAT_RGBA8)
+	for y in rows.size():
+		for x in rows[y].length():
+			var ch: String = rows[y][x]
+			if COLORS.has(ch):
+				img.fill_rect(Rect2i(x * k, y * k, k, k), COLORS[ch])
 	return img

@@ -110,7 +110,7 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   teclas ativas acesas; o rádio peça por peça no lugar das do rádio de verdade, `Radio.parts`, com as mesmas linhas da tela quebradas na largura dela, o histórico apagado em cima e a mensagem de agora embaixo, `Radio.lines`, `_wrap`; o painel de baixo é a vista de perto dela). Ela não tem `z_index`
   próprio: a mesa (z 1) desenha o plug e o fio puxados para baixo por cima dela, como faz com o painel de baixo (com z
   1, eles passavam por trás da miniatura, a pedido saiu). A coluna da
-  direita (cresce com a largura) tem a dica do manual no alto (`%Hint`, um papel datilografado colado com fita na parede, `TapedLabel`, com "MANUAL" carimbado em vermelho; sem dica, o papel some mas o lugar fica; no pé, ela ficava em
+  direita (cresce com a largura) tem a dica do manual no alto (`%Hint`, um papel datilografado colado com fita na parede, `TapedLabel`, com "MANUAL" carimbado em vermelho; sem dica, o papel some mas o lugar fica; o lugar, `HintSlot`, tem a altura de duas linhas e a dica mais comprida desce por cima das ferramentas, `z_index` 1, sem empurrar nada; no pé, ela ficava em
   cima dos objetos da mesa) e as ferramentas (`Tools`: no `%Body`, o papel da ferramenta aberta; guardadas, a
   janela aparece; sem abas, a pedido: repetiam os objetos da mesa e tomavam 40 px de altura do papel). O papel sai do objeto da ferramenta na mesa (`Tools.origin` = `Background.prop_rect`: pequeno, em
   cima dele, e cresce até o lugar; ao guardar, volta), tem a forma e o material do objeto (`PaperDeco`, a moldura em pixel art guardada por
@@ -162,9 +162,9 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   guarnição de perto quase pretos, então a luz de fora os clareia por cima do escuro, `_sill_lit`; a ponta de perto da
   tábua tem a face dela; o vaso que ficava nela saiu, a pedido), o vidro fica do lado de fora e o batente de perto esconde uma tira dele; o
   peitoril de dentro é uma tábua saindo para a sala, `SILL_D`; o peitoril fica `WIN_SILL` cm abaixo dos
-  olhos e o alto `WIN_TOP` acima deles, e a travessa do caixilho quase na altura deles; a janela e o armário são medidos
+  olhos e o alto `WIN_TOP` acima deles (baixa o bastante para a persiana aparecer abaixo do bilhete do manual); a janela e o armário são medidos
   em cm a partir dos olhos, `_cm`, e acompanham a câmera quando ela muda; a vista da cidade é desenhada de frente num vidro fora da tela, `_vport`, e só recortada
-  pelo vidro: está longe e não entorta com a janela; o horizonte dela fica na altura dos olhos); a mesa, afastada da
+  pelo vidro: está longe e não entorta com a janela; o horizonte dela fica `OUT_DROP` cm abaixo dos olhos, para os prédios ficarem no meio do vidro, abaixo da persiana); a mesa, afastada da
   parede (`DESK_T`), com o fundo do tampo atrás da mesa comutadora (`BOARD_SINK`; ele não sai do lugar quando o painel recua: o painel se aproxima da parede, e a sala e o ponto de fuga ficam onde estão), a borda da frente logo abaixo da
   faixa de mesa (`Background.desk`) e a ponta na parede da direita, numa
   linha que foge para o ponto de fuga. A luz vem de cima, do meio da tela, de uma luminária que não aparece (o
@@ -402,8 +402,8 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   do `_look`. O trançado do fio é uma chamada de desenho só (`draw_multiline_colors`; um `draw_polyline` por pedaço
   eram dezenas por fio).
 - Layout da mesa (`SIZE` 492×304, também em `main.tscn`; o passo das colunas, 44 px, `col_x`, é o do estado mais longo, e o dos destinos, `DEST_PITCH` 24, o dos números em cima deles): móvel com moldura de madeira (`_draw_cabinet`, `FRAME`,
-  `WOOD`) e faixas gravadas com o nome de cada seção (`_draw_rule`, `RULES`: entradas, saídas, destinos); coluna de cada linha em `ROW_Y` (plaquinha de metal com o número
-  gravado, `_draw_number_plate`; estado; lâmpada; entrada; saída), todos os encaixes com `JACK` px, bancos de destino em
+  `WOOD`) e faixas gravadas com o nome de cada seção na fonte gravada do painel (`_draw_rule`, `RULES`: entradas, saídas, destinos; `tiny`: em 11 o nome enchia a faixa das entradas e encostava nas plaquinhas, e a faixa fica no meio entre a moldura e elas); coluna de cada linha em `ROW_Y` (plaquinha de metal com o número
+  gravado na fonte miúda, `_draw_number_plate`; estado; lâmpada; entrada; saída), todos os encaixes com `JACK` px, bancos de destino em
   `DEST_TOP`/`DEST_ROW` (cada banco com o mesmo vão, 8 px, entre a moldura e os números e entre as tomadas de baixo e a moldura, `_blocks`) e a legenda das lâmpadas na faixa das entradas, à direita, na fonte gravada do painel (`_draw_legend`, `tiny`; no pé do painel, os plugs guardados passavam na frente dela). Mexendo na altura, confira que a coluna da esquerda ainda cabe (até 540).
 - Chapas de metal niquelado (`_draw_metal`: chanfro e rebites) nas plaquinhas dos números. (A "queda" das mesas antigas, a plaquinha que cai quando a
   linha chama, foi testada e saiu a pedido: lâmpada, texto e som já avisam demais.)
@@ -471,8 +471,8 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   do lado esquerdo, virado para a luz (`PixelArt.LIGHT`); girado a ponto de esse lado ficar de costas para ela, vale o
   mapa espelhado (`_plug_art`). Ao encaixar, a passagem para de frente gira a partir do ângulo que ele tinha na mão
   (`_pushed_ang`). O fio e os plugs em pé pegam a luz da sala do painel em `CORD_LIT` da força (`_lit_by`,
-  `_room_tone`: mais escuros e frios longe da luminária). **Todos os fios têm o mesmo comprimento**, `Cord.MAX` (660 px: o do FONE, puxado do
-  encaixe, chega ao meio das listas telefônicas da mesa em 1280 × 720; a tomada mais longe de um buraco fica a 564):
+  `_room_tone`: mais escuros e frios longe da luminária). **Todos os fios têm o mesmo comprimento**, `Cord.MAX` (495 px: o do FONE, puxado do
+  encaixe, chega ao meio das listas telefônicas da mesa em 960 × 540; a tomada mais longe de um buraco fica a 423):
   na mão, o plug para no fim do fio (`_reach`, com um tranco, `cord_snag`) e a mão segue; a velocidade usada no balanço
   e no embalo é a do plug, não a do mouse. **A prateleira acaba** na lateral do console (`Switchboard.shelf` =
   `Background.shelf`: o x do canto da frente do console e o y do tampo ao pé dele; sem cenário, nos testes, não acaba):
@@ -503,7 +503,7 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   as entradas saem quase só para a esquerda, as de baixo também para baixo; era um ponto 600 px acima do painel, e
   todos pareciam vistos de cima) (`_draw_plug_face`: o próprio `PLUG_ART` visto de frente, com os mesmos detalhes: anel e friso claro em cima,
   serrilhado, `_knurled` (as listras verticais; tirado, o plug ficava pobre), anel do meio e capa em gomos afinando até
-  o fio (a aba dourada, mais estreita que o corpo, fica escondida atrás dele); o corpo sai com a beira de todos os
+  o fio (a luva de latão, mais estreita que o corpo, aparece numa beira dourada entre a tomada e ele); o corpo sai com a beira de todos os
   discos antes dos miolos (só o contorno), mas a capa, por cima, disco a disco com a beira de cada um
   (`PLUG_CAPA_ROW`): a beira de cada gomo fica à mostra em volta do seguinte, menor, e os sulcos aparecem em anéis em
   volta da saída do fio (antes, liso, o plug parecia uma bola); pega a luz da sala como o fio que sai
@@ -511,7 +511,7 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   por pixel ao longo do eixo, cada um com a largura e os tons da linha do plug em pé que cai ali, `_face_row`: dela vale
   a que mais se destaca, senão os detalhes sumiam no escorço; primeiro a beira de todos, depois o miolo sombreado; com cápsulas e círculos, saía embolotado); com paralaxe: a ponta se desloca do encaixe mais quanto mais longe dos olhos (`_tilt(j)`, `_eye`, no `_look`;
   `PLUG_EYE` sem cenário; `PLUG_DEPTH` estilizado, a conta daria ~3× mais). O fio sai da ponteira (`_plug_base` = encaixe + `_tilt`; o plug encaixado é desenhado antes do fio,
-  e o miolo da ponteira, `_draw_plug_cap`, depois). Encaixado, o fio sai no eixo do plug por `Cord.STUB` px e faz a curva
+  e o miolo da ponteira, `_draw_plug_cap`, depois). Encaixado, o fio sai entre o eixo do plug e a vertical (`Cord.stub`, já caindo) por `Cord.STUB` px e faz a curva
   aos poucos (o penúltimo ponto da corda fica preso, `pin` em `Cord.step`; a curva sai da rigidez do pano, a mesma no
   fio todo: `Cord.BEND_MIN`; um empurrão nos pontos perto do plug deixava o fio longo duro e o curto com um calombo), a sombra vai do encaixe até `PLUG_SHADE` com uma
   sombra de contato em volta do colar (a do fio sai do fim da do plug e chega a `ROPE_SHADOW` no buraco, `_lift`), a

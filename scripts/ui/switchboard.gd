@@ -22,9 +22,9 @@ signal lever_pressed(line: int)   ## clique na chave de escuta da linha
 ## duas fileiras. A mesa saiu de fábrica assim; a faixa coincide com o setor da cidade (o primeiro dígito), e o banco
 ## de um setor que ainda não é do operador fica tampado por uma chapa com a letra dele (`GameData.sectors`).
 const SECTOR_ORDER := [1, 2, 3]
-const DEST_PITCH := 24.0     # px entre duas tomadas de destino vizinhas (o número em cima, "305", tem 21)
+const DEST_PITCH := 18.0     # px entre duas tomadas de destino vizinhas (o número em cima, "305", tem 11 na fonte gravada)
 const TRUNK_PITCH := 30.0    # px entre dois troncos (o nome em cima, "LITORAL", tem 27 na fonte gravada)
-const BLOCK_GAP := 12.0      # px entre dois blocos
+const BLOCK_GAP := 9.0      # px entre dois blocos
 
 var _pulled := {}   ## ponta -> [segundos desde que saiu do encaixe, onde ele estava]: o plug de frente sumindo
 var dest_nums: Array = []      # destinos em serviço (dos setores atendidos)
@@ -41,13 +41,13 @@ var _levers := []       # a alavanca de cada linha como estava (para cima?), par
 var _flips := {}        # linha -> s desde que a alavanca começou a virar (`LEVER_SEC`)
 const LEVER_SEC := 0.09 # a alavanca virando: passa de frente e bate um pixel além antes de assentar
 
-const CLICK_PX := 6.0   # apertar e soltar mexendo menos que isso, e mais rápido que CLICK_SEC s, é clique: desplugar,
+const CLICK_PX := 5.0   # apertar e soltar mexendo menos que isso, e mais rápido que CLICK_SEC s, é clique: desplugar,
 const CLICK_SEC := 0.25 # não encaixar (segurando parado sobre a tomada de onde o plug saiu, soltar o encaixa de novo)
 const FALL_SEC := 0.35         # o plug solto cai livre antes de o fio começar a recolher
-const NEAR_HOLE := 45.0        # solto acima do buraco (a qualquer altura) e com essa distância na horizontal, o fio puxa o plug direto (sem cair)
-const PULL_SPEED := 480.0      # px/s de fio que entra no buraco
+const NEAR_HOLE := 34.0        # solto acima do buraco (a qualquer altura) e com essa distância na horizontal, o fio puxa o plug direto (sem cair)
+const PULL_SPEED := 360.0      # px/s de fio que entra no buraco
 const SEAT_LEN := 2.0          # com o fio curto assim e a traseira do plug a SEAT_NEAR px da boca do buraco, ele assenta
-const SEAT_NEAR := 4.0         # (o fio acaba antes de a corda alcançar: o plug ainda arrasta até ali, ou por SEAT_WAIT s)
+const SEAT_NEAR := 3.0         # (o fio acaba antes de a corda alcançar: o plug ainda arrasta até ali, ou por SEAT_WAIT s)
 const SEAT_WAIT := 0.25
 ## Solto, o ângulo do plug segue o do fio LOOSE_TURN por passo (aos poucos: de pendurado para deitado, ele vira);
 ## pendurado na quina da prateleira (`Cord.hang_step`), segue o do fio pendurado HANG_TURN por passo.
@@ -58,38 +58,38 @@ const HANG_TURN := 0.25
 ## chegou e acelerando SEAT_ACCEL px/s² até bater no fundo, onde quica SEAT_BOB px por SEAT_BOB_SEC s. (Antes, ele
 ## pulava em 0,1 s, de uma vez e em linha reta, de deitado na mesa para dentro do buraco: parecia travado.)
 const SEAT_TURN := 0.14
-const MAX_FLING := 1800.0      # px/s: o plug solto em movimento sai com o embalo da mão, até esse limite
-const DROP_SPEED := 120.0      # px/s: batendo na mesa mais rápido que isso, faz barulho (mais alto até DROP_FULL)
-const DROP_FULL := 700.0
+const MAX_FLING := 1350.0      # px/s: o plug solto em movimento sai com o embalo da mão, até esse limite
+const DROP_SPEED := 90.0      # px/s: batendo na mesa mais rápido que isso, faz barulho (mais alto até DROP_FULL)
+const DROP_FULL := 525.0
 ## Na mão, o plug balança com o movimento, preso onde a mão o pega: a traseira (com o fio) fica para trás, como um
 ## pêndulo. SWING_K rad por px/s da mão na horizontal, no máximo SWING_MAX; mola e amortecimento em SWING_SPRING.
-const SWING_K := 0.0006
+const SWING_K := 0.0008
 const SWING_MAX := deg_to_rad(20.0)
 const SWING_SPRING := Vector2(160.0, 11.0)
 ## Passando do fim do fio (`Cord.MAX`), o plug na mão se inclina para onde a mão puxa, inteiro a LEAN_PX px além: a
 ## traseira, com o fio, fica virada para o buraco (em pé, com o fio chegando de lado, a junção dobrava e o fio passava
 ## por cima dele).
-const LEAN_PX := 40.0
-const TAP_SPEED := Vector2(150.0, 600.0)   # px/s: o fio batendo na mesa faz "tap" a partir de x; em y, no volume máximo
+const LEAN_PX := 30.0
+const TAP_SPEED := Vector2(112.0, 450.0)   # px/s: o fio batendo na mesa faz "tap" a partir de x; em y, no volume máximo
 const TAP_GAP := 0.12          # s: intervalo mínimo entre dois "taps" do mesmo fio
 ## O puxão da mão, na direção do buraco para fora (`_pull_edges`): o fio parado que sai rápido dá um tranco
 ## (`cord_snag`: parado há SNAG_REST s, passa de SNAG_SPEED px/s até SNAG_WINDOW s depois de começar a andar) e o
 ## puxão rápido que para de repente, um "tsk" de fibra (`cord_snap`: a mão cai para SNAP_DROP do pico, que vale
 ## acima de SNAG_SPEED e é esquecido em SNAP_MEMORY s; parando devagar, o pico desce junto e não toca).
-const SNAG_SPEED := 300.0
+const SNAG_SPEED := 225.0
 const SNAG_REST := 0.15
 const SNAG_WINDOW := 0.12
 const SNAP_DROP := 0.2
 const SNAP_MEMORY := 0.08
-const RUB_STILL := 30.0        # px/s: abaixo disso a mão está parada
+const RUB_STILL := 22.0        # px/s: abaixo disso a mão está parada
 ## Tom do atrito de cada cabo (multiplica o tom e o corte): FONE, vermelho, azul, amarelo. Só uma nuance, para a
 ## mesa não soar como um fio só.
 const CORD_TONE := [1.0, 1.05, 0.95, 1.02, 0.97, 1.04]
 
-const SLACK := 70.0                # folga extra além da distância reta (fio do FONE), no máximo...
+const SLACK := 52.0                # folga extra além da distância reta (fio do FONE), no máximo...
 const SLACK_PER_PX := 0.15         # ...e esta por px de distância na horizontal (logo acima do buraco, sobrava fio deitado na prateleira)
 const SLACK_REACH := 0.08         # e todos, ao menos esta fração da distância do buraco ao plug (sem ela, logo acima do buraco, o fio ficava reto com um gancho na ponteira)
-const CORD_SLACK := 14.0           # idem, fios dos cabos de conexão
+const CORD_SLACK := 10.0           # idem, fios dos cabos de conexão
 const STEP := 1.0 / 90.0
 
 var _acc := 0.0
@@ -168,14 +168,14 @@ func _layout_dests() -> void:
 		var nums: Array = by_sector.get(s, [])
 		nums.sort()
 		for i in nums.size():
-			_slots[nums[i]] = Vector2(x + (i % cols[k]) * DEST_PITCH + DEST_PITCH / 2.0, DEST_TOP + 11.0 + int(i / cols[k]) * DEST_ROW)
-		# em cima, a moldura rente aos números (o vão que sobra fica para o nome das saídas); embaixo, 8 px até as tomadas
-		_blocks[s] = Rect2(x - 3, DEST_TOP - 17, cols[k] * DEST_PITCH + 6, DEST_ROW + JACK + 24)
+			_slots[nums[i]] = Vector2(x + (i % cols[k]) * DEST_PITCH + DEST_PITCH / 2.0, DEST_TOP + 8.0 + int(i / cols[k]) * DEST_ROW)
+		# em cima, a moldura rente aos números (o vão que sobra fica para o nome das saídas); embaixo, 6 px até as tomadas
+		_blocks[s] = Rect2(x - 2, DEST_TOP - 13, cols[k] * DEST_PITCH + 4, DEST_ROW + JACK + 18)
 		x += cols[k] * DEST_PITCH + BLOCK_GAP
-	var tw := GameData.TRUNKS.size() * TRUNK_PITCH + 6.0
-	trunks = Rect2(_blocks[3].end.x - tw, _blocks[3].end.y + 6.0, tw, 38.0)   # embaixo do banco C, alinhado à direita dele (6 px: o pé do painel)
+	var tw := GameData.TRUNKS.size() * TRUNK_PITCH + 4.0
+	trunks = Rect2(_blocks[3].end.x - tw, _blocks[3].end.y + 5.0, tw, 29.0)   # embaixo do banco C, alinhado à direita dele (5 px: o pé do painel)
 	for k in GameData.TRUNKS.size():   # uma tomada por cidade, com o nome dela em cima (`_draw_trunks`)
-		_slots[GameData.TRUNKS[k]] = Vector2(trunks.position.x + 3.0 + (k + 0.5) * TRUNK_PITCH, trunks.position.y + 24.0)
+		_slots[GameData.TRUNKS[k]] = Vector2(trunks.position.x + 2.0 + (k + 0.5) * TRUNK_PITCH, trunks.position.y + 19.0)
 
 
 func _has_point(p: Vector2) -> bool:   # o painel até a prateleira, com o vão entre eles (os plugs guardados passam por ele)
@@ -617,7 +617,7 @@ func _step_rope(e: int, dt: float) -> void:
 	r.free = not an.is_empty()
 	r.direct = r.free and an["direct"]
 	r.held = held == e
-	r.stub = _tilt(int(ends[e])).normalized() if ends[e] != -1 else Vector2.ZERO
+	r.stub = (_tilt(int(ends[e])).normalized() + Vector2.DOWN).normalized() if ends[e] != -1 else Vector2.ZERO   # sai para a frente e já cai
 	r.mouse = get_local_mouse_position()
 	r.nudge = r.mouse - _last_mouse
 	var length := r.length
@@ -677,24 +677,16 @@ func _draw() -> void:
 	_draw_strips()
 	_draw_rule(RULES["in"], T.text(T.Key.BOARD_INPUTS), false)   # os nomes por cima das faixas
 	# o nome das saídas embaixo delas, no vão até os bancos (a faixa entre as entradas e as saídas é das chaves de escuta)
-	_draw_rule(ROW_Y["out"] + JACK / 2.0 + 13.0, T.text(T.Key.BOARD_OUTPUTS), false)
+	_draw_rule(ROW_Y["out"] + JACK / 2.0 + 10.0, T.text(T.Key.BOARD_OUTPUTS), false)
 	_draw_wear()
 	_draw_trunks(trunks)
 
 	# entradas e saídas
 	for i in 10:
 		var n := i + 1
-		var st := exchange.line(n)
 		var cx := col_x(i)
-		_draw_number_plate(Rect2(cx - 14, ROW_Y["plate"], 28, ROW_Y["plate_h"]), "%02d" % n)
+		_draw_number_plate(Rect2(cx - 13, ROW_Y["plate"], 26, ROW_Y["plate_h"]), "%02d" % n)
 		_draw_jack(jack_rect(n))
-		var sc := Pal.DIM
-		if st in [Exchange.Line.RING, Exchange.Line.TALK, Exchange.Line.HOLD]:
-			sc = Pal.AMBER
-		elif st == Exchange.Line.DONE:
-			sc = Pal.RED
-		var label := PixelArt.tiny(exchange.line_label(n))   # as letras vão de 3 a 7 na imagem: o pé delas logo acima de ROW_Y
-		draw_texture(label, Vector2(roundf(cx - label.get_width() / 2.0), ROW_Y["state"] - 8.0), sc)
 		_draw_jack(jack_rect(n + 10), 0.25)
 
 	# destinos: a moldura de cada banco (a faixa de numeração vai nela, por cima da chapa: `_draw_top`)
@@ -703,7 +695,8 @@ func _draw() -> void:
 	for d in dest_nums:
 		if not GameData.is_trunk(d):   # o tronco tem o nome da cidade em cima (`_draw_trunks`)
 			var jr := jack_rect(d)
-			draw_string(Pal.mono, Vector2(jr.get_center().x - 16, jr.position.y - 5), str(d), HORIZONTAL_ALIGNMENT_CENTER, 32, 11,
+			var num := PixelArt.tiny(str(d))   # gravado, como o nome dos troncos (em 11, "305" não cabia entre duas tomadas)
+			draw_texture(num, Vector2(roundf(jr.get_center().x - num.get_width() / 2.0), jr.position.y - 10.0),
 				Color("d8c9a2") if exchange.dest(d) == Exchange.Dest.FREE else Pal.TEXT)
 
 	# legenda das lâmpadas, numa linha no pé do painel
@@ -729,8 +722,8 @@ func _draw_lamps() -> void:
 		var dl: Array = _lit.get("d%d" % d, [LAMP_OFF, 0.0])
 		if dl[1] > 0.02:   # o aro em volta da tomada acende (a tomada, por cima, é da `_top`)
 			var jr := jack_rect(d)
-			PixelArt.sprite(_lamps, PixelArt.disc(JACK_PX + 8, [[JACK_PX / 2.0 + 4.0, Color.WHITE]]), jr.get_center(), Color(dl[0], dl[1]))
-			Bloom.light(_lamps, jr.grow((JACK_PX - JACK) / 2.0 + 3.0), Color(dl[0], dl[1]), 1.0, false, true)
+			PixelArt.sprite(_lamps, PixelArt.disc(JACK_PX + 6, [[JACK_PX / 2.0 + 3.0, Color.WHITE]]), jr.get_center(), Color(dl[0], dl[1]))
+			Bloom.light(_lamps, jr.grow((JACK_PX - JACK) / 2.0 + 2.0), Color(dl[0], dl[1]), 1.0, false, true)
 	for e in ends.size():
 		if ends[e] != -1:
 			Bloom.occlude(_lamps, Transform2D(0.0, jack_rect(int(ends[e])).get_center().round()) * _plug_outline(e, 1.0))
@@ -751,7 +744,7 @@ func _draw_top() -> void:
 	for s in GameData.sectors:   # a faixa de numeração na moldura de cima, à esquerda, como o nome do INTERURBANO (a chapa dispensa)
 		var br: Rect2 = _blocks[s]
 		var cap := PixelArt.tiny("%d-%d" % [s * 100, s * 100 + 99])
-		var at := Vector2(br.position.x + 14.0, br.position.y - 5.0)   # (passando o parafuso da chapa)
+		var at := Vector2(br.position.x + 10.0, br.position.y - 5.0).round()   # (passando o parafuso da chapa)
 		_top.draw_rect(Rect2(at.x - 3.0, br.position.y - 1.0, cap.get_width() + 6.0, 3.0), Pal.PANEL)
 		_top.draw_texture(cap, at, Pal.BRASS)
 	_draw_room_light(Rect2(Vector2.ZERO, size).grow(-FRAME))
@@ -769,7 +762,7 @@ func _draw_cords() -> void:
 		if hj != -1:
 			var ok := refuse(held, hj) == ""
 			var hr := jack_rect(hj)
-			_cords.draw_arc(hr.get_center(), hr.size.x / 2.0 + 4.0, 0.0, TAU, 32, Pal.GLOW if ok else Pal.RED, 2.0)
+			_cords.draw_arc(hr.get_center(), hr.size.x / 2.0 + 3.0, 0.0, TAU, 32, Pal.GLOW if ok else Pal.RED, 2.0)
 			if ok:
 				var gc := Pal.GLOW
 				gc.a = 0.2
@@ -803,15 +796,15 @@ func _draw_cords() -> void:
 	# balão de informação
 	if Time.get_ticks_msec() < info_until and info_line > 0:
 		var jr := jack_rect(info_line)
-		var bw := 200.0
-		var bh := 12.0 + info_lines.size() * 19.0
-		var bx := clampf(jr.get_center().x - bw / 2, 8, size.x - bw - 8)
-		var by := minf(jr.end.y + 8, size.y - bh - 8)
+		var bw := 150.0
+		var bh := 8.0 + info_lines.size() * 14.0
+		var bx := clampf(jr.get_center().x - bw / 2, 6, size.x - bw - 6)
+		var by := minf(jr.end.y + 6, size.y - bh - 6)
 		var bc := Pal.GHOST if info_ghost else Pal.BRASS
 		_cords.draw_rect(Rect2(bx, by, bw, bh), bc)
 		_cords.draw_rect(Rect2(bx + 2, by + 2, bw - 4, bh - 4), Color("0e0c08"))
 		for k in info_lines.size():
-			_cords.draw_string(Pal.mono, Vector2(bx + 10, by + 22 + k * 19), info_lines[k], HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.GHOST if info_ghost else Pal.TEXT)
+			_cords.draw_string(Pal.mono, Vector2(bx + 7, by + 14 + k * 14), info_lines[k], HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.GHOST if info_ghost else Pal.TEXT)
 	_ci = self
 
 

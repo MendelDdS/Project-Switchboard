@@ -5,8 +5,8 @@ extends "res://scripts/ui/switchboard_panel.gd"
 const Cord := preload("res://scripts/ui/cord.gd")   ## a física de cada fio
 ## [cor, brilho] de cada cabo: 0 = FONE (verde), 1..patches = cabos de conexão (vermelho, azul, amarelo, branco, preto).
 ## Mais cabos de conexão pedem mais cores aqui.
-const HOLE_LIP := 3.0    # ...e some abaixo disto (px abaixo do buraco), atrás da beira da frente dele
-const HOLE_SHADE := [[0.0, 5.0, 0.65], [5.0, 10.0, 0.4], [10.0, 16.0, 0.2]]   # o fio entrando no buraco escurece: [de, até (px a partir do buraco), escuro]
+const HOLE_LIP := 2.0    # ...e some abaixo disto (px abaixo do buraco), atrás da beira da frente dele
+const HOLE_SHADE := [[0.0, 4.0, 0.65], [4.0, 8.0, 0.4], [8.0, 12.0, 0.2]]   # o fio entrando no buraco escurece: [de, até (px a partir do buraco), escuro]
 
 var _pushed := {}   ## ponta -> segundos desde que encaixou (a assentada, `PUSH_SEC`, e a passagem para de frente)
 var _pushed_ang := {}   ## ponta -> o ângulo do plug na mão quando encaixou (a passagem para de frente gira dali)
@@ -16,105 +16,90 @@ var _hover := -1               # ponta cujo plug está sob o mouse (pode ser peg
 var _cut := INF   # desenhando o plug em pé: abaixo disto (y dele) está dentro do buraco da prateleira
 var _loose := {}               # ponta solta voltando para o buraco -> {"t": s caindo/recolhendo, "seat": -1 ou s assentando, "direct", "ang", e, assentando, "from", "turn", "v0", "sink", "hit"}
 
-const SEAT_ACCEL := 3000.0
-const SEAT_BOB := 2.0
+const SEAT_ACCEL := 2250.0
+const SEAT_BOB := 1.5
 const SEAT_BOB_SEC := 0.08
-const PLUG_LEN := 42.0   # em pé: do fio até o alto da aba (a ponta de metal passa disso)
+const PLUG_LEN := 33.0   # em pé: do fio até o alto da aba (a ponta de metal passa disso)
 ## Encaixado, de onde fica a tomada até onde o fio entra: a ponta de metal some dentro dela e o anel assenta no buraco.
-const PLUG_FACE_R := 6.0   # encaixado: o raio do corpo (14 px com a beira, como o em pé: cobre o furo da tomada e quase todo o aro)
+const PLUG_FACE_R := 4.5   # encaixado: o raio do corpo (10 px com a beira, como o em pé: cobre o furo da tomada e quase todo o aro)
 const EDGE := 0.65          # a beira do plug e do fio: a cor da peça escurecida assim (contorno preto destoava do cenário)
 ## Encaixado, o plug sai do painel na direção da câmera, a mesma do cenário: a ponta dele se afasta do ponto de fuga
 ## da sala (os olhos do operador, `eye`), mais quanto mais longe dele (paralaxe, `_tilt`). Os olhos ficam à direita da
 ## mesa, na altura das plaquinhas das entradas: os plugs das entradas saem quase só para a esquerda, os de baixo
 ## também para baixo. (Era um ponto fixo 600 px acima do painel: todos pareciam vistos de cima, contra a sala.)
 const PLUG_DEPTH := 0.014   # px de deslocamento da ponta por px de distância do encaixe até os olhos (estilizado: a conta daria ~0,04, de lado demais; menor com o plug mais curto)
-const PLUG_SHADE := Vector2(5, 6)   # encaixado, a sombra vai do encaixe até aqui (luz no alto à esquerda)
-const PLUG_ART := [   ## o plug em pé, de 16 × 66 px (y de -66 a -1; o fio sai de y = 0): `_plug_pal` dá as cores
-	".......bE.......",
-	"......yYbE......",
-	"......yYbE......",
-	"......bBCE......",
-	".......bC.......",
-	".....KKkkkk.....",
-	".....KKkkkk.....",
-	".....yYbbBE.....",
-	".....yYbbBE.....",
-	".....yYbbBE.....",
-	".....yYbbBE.....",
-	".....KKkkkk.....",
-	".....KKkkkk.....",
-	".....yYbbBE.....",
-	".....yYbbBE.....",
-	".....yYbbBE.....",
-	".....yYbbBE.....",
-	".....yYbbBE.....",
-	".....yYbbBE.....",
-	".....yYbbBE.....",
-	".....yYbbBE.....",
-	".....yYbbBE.....",
-	".....yYbbBE.....",
-	".....yYbbBE.....",
-	"...YYYYyybbBE...",
-	"...bybbBBCCCE...",
-	"...bybbBBCCCE...",
-	"..323334445556..",
-	".21222233334456.",
-	".43444455555556.",
-	".21222233334456.",
-	".22323243434556.",
-	".22323243434556.",
-	".22323243434556.",
-	".22323243434556.",
-	".22323243434556.",
-	".22323243434556.",
-	".22323243434556.",
-	".22323243434556.",
-	".22323243434556.",
-	".21222233334456.",
-	".43444455555556.",
-	".43444455555556.",
-	".11111122223346.",
-	".21222233334456.",
-	".21222233334456.",
-	".21222233334456.",
-	".21222233334456.",
-	".21222233334456.",
-	".21222233334456.",
-	".21222233334456.",
-	".21222233334456.",
-	"..323334445556..",
-	"..323334445556..",
-	"..545555555556..",
-	"...3233344556...",
-	"...3233344556...",
-	"...5455555556...",
-	"...3233344556...",
-	"...3233344556...",
-	"....54555556....",
-	"....32334556....",
-	"....32334556....",
-	"....54555556....",
-	"....32334556....",
-	"....32334556....",
+const PLUG_SHADE := Vector2(4, 5)   # encaixado, a sombra vai do encaixe até aqui (luz no alto à esquerda)
+const PLUG_ART := [   ## o plug em pé, de 12 × 51 px (y de -51 a -1; o fio sai de y = 0): `_plug_pal` dá as cores
+	".....bE.....",
+	"....yYbE....",
+	"....bBCE....",
+	".....bC.....",
+	"...KKKkkk...",
+	"...yYbbBE...",
+	"...yYbbBE...",
+	"...yYbbBE...",
+	"...KKKkkk...",
+	"...yYbbBE...",
+	"...yYbbBE...",
+	"...yYbbBE...",
+	"...yYbbBE...",
+	"...yYbbBE...",
+	"...yYbbBE...",
+	"...yYbbBE...",
+	"...yYbbBE...",
+	"...yYbbBE...",
+	"..YYYyybBE..",
+	"..bybbBCCE..",
+	"..bybbBCCE..",
+	"..32334556..",
+	".2122233456.",
+	".4344455556.",
+	".2122233456.",
+	".2232343456.",
+	".2232343456.",
+	".2232343456.",
+	".2232343456.",
+	".2232343456.",
+	".2232343456.",
+	".2232343456.",
+	".2122233456.",
+	".4344455556.",
+	".1111222346.",
+	".2122233456.",
+	".2122233456.",
+	".2122233456.",
+	".2122233456.",
+	".2122233456.",
+	"..32334556..",
+	"..32334556..",
+	"..54555556..",
+	"...323456...",
+	"...323456...",
+	"...545556...",
+	"...323456...",
+	"....3456....",
+	"....5556....",
+	"....3456....",
+	"....3456....",
 ]
-const PLUG_CAPA_ROW := 52   # a linha do `PLUG_ART` onde começa a capa de borracha (os gomos, até o fio)
-const PLUG_ABA_D := 10   # a aba dourada, com a beira (a largura dela no `PLUG_ART`): a luz e a sombra de contato do encaixado
+const PLUG_CAPA_ROW := 40   # a linha do `PLUG_ART` onde começa a capa de borracha (os gomos, até o fio)
+const PLUG_ABA_D := 8   # a aba dourada, com a beira (a largura dela no `PLUG_ART`): a luz e a sombra de contato do encaixado
 const MORPH_SEC := 0.08   # encaixando ou saindo, o plug passa de em pé para de frente (e volta) nesse tempo
-const PUSH_PX := 1.5     # ao encaixar, o plug afunda (o tampo encolhe tanto, px) e volta...
+const PUSH_PX := 1.0     # ao encaixar, o plug afunda (o tampo encolhe tanto, px) e volta...
 const ROT_STEP := deg_to_rad(5.0)   # solto ou na mão, o plug gira em passos assim, cada um montado pixel a pixel (`PixelArt.turned`)
 const PUSH_SEC := 0.14   # ...nesse tempo, como se fosse empurrado para dentro
-const LAMP_ABOVE := 120.0   # px acima da tela: a luminária do teto, que não aparece
+const LAMP_ABOVE := 90.0   # px acima da tela: a luminária do teto, que não aparece
 const CORD_LIT := 0.6   # o fio e os plugs em pé pegam essa parte da luz da sala do painel (estão na frente dele)
-const TAIL_IN := 6.0   # px do fio que entram na traseira do plug em pé (`_draw_tail`)
-const ROPE_W := 7.0   # px: a largura do fio com a beira (o miolo tem 3 a menos; esticado, os dois afinam 1). Era 9, com o plug maior.
-const AIR_LIFT := Vector2(8, 10)   # a sombra do fio no ar, depois da beira da prateleira: longe do console, como a do plug na mão
-const SMOOTH_PX := 4.0   # px: o fio é desenhado em trechos retos deste tamanho, numa curva pelos pontos da corda (`_smooth`)
-const KINK := 1.5   # px: as dobras que o fio de pano guarda, no máximo
-const BRAID := 6.0   # px: o trançado do fio (o brilho dele vem em pedaços desse comprimento)
+const TAIL_IN := 5.0   # px do fio que entram na traseira do plug em pé (`_draw_tail`)
+const ROPE_W := 5.0   # px: a largura do fio com a beira (o miolo tem 2 a menos; esticado, os dois afinam 1). Era 7 em 1280 × 720.
+const AIR_LIFT := Vector2(6, 8)   # a sombra do fio no ar, depois da beira da prateleira: longe do console, como a do plug na mão
+const SMOOTH_PX := 3.0   # px: o fio é desenhado em trechos retos deste tamanho, numa curva pelos pontos da corda (`_smooth`)
+const KINK := 1.0   # px: as dobras que o fio de pano guarda, no máximo
+const BRAID := 5.0   # px: o trançado do fio (o brilho dele vem em pedaços desse comprimento)
 ## Esticado (`Cord.taut`), o fio de pano alisa: as dobras somem aos poucos até o fim do fio, o trançado se espaça até
 ## TAUT_BRAID e, da metade disso em diante, ele afina 1 px; frouxo, volta com as dobras inteiras.
 const TAUT_BRAID := 1.3
-const ROPE_SHADOW := Vector2(3, 4)  # deslocamento da sombra dos fios junto ao buraco; até o plug, cresce como a dele (`_lift`)
+const ROPE_SHADOW := Vector2(2, 3)  # deslocamento da sombra dos fios junto ao buraco; até o plug, cresce como a dele (`_lift`)
 
 var ropes := {}                    # ponta -> Cord (só enquanto o fio está para fora do buraco)
 var _swing := 0.0                 # rad: o balanço do plug na mão (`SWING_*`)
@@ -208,7 +193,7 @@ func _draw_rope(e: int, shadow: bool) -> void:
 	for q in pts:
 		lights.append(_lit_by(q))
 	_ci.draw_polyline_colors(pts, _tinted((col[0] as Color).darkened(EDGE), lights), ROPE_W - thin)
-	_ci.draw_polyline_colors(pts, _tinted(col[0], lights), ROPE_W - 3.0 - thin)
+	_ci.draw_polyline_colors(pts, _tinted(col[0], lights), ROPE_W - 2.0 - thin)
 	if ends[e] == -1:   # em pé (na mão, solto ou guardado): o fio entra na traseira do plug
 		_draw_tail(e, pts[pts.size() - 1], col[0], lights[lights.size() - 1], thin)
 	var pts2 := PackedVector2Array()
@@ -229,11 +214,11 @@ func _draw_rope(e: int, shadow: bool) -> void:
 			tones.append(tone)
 		at += braid
 	if not segs.is_empty():
-		_ci.draw_multiline_colors(segs, tones, 1.5)
+		_ci.draw_multiline_colors(segs, tones, 1.0)
 	for band in HOLE_SHADE:   # perto do buraco, a sombra de dentro dele, em degraus
 		var part := Cord.along(pts, band[0], band[1])
 		if part.size() >= 2:
-			_ci.draw_polyline(part, Color(0, 0, 0, band[2]), ROPE_W - 3.0 - thin)
+			_ci.draw_polyline(part, Color(0, 0, 0, band[2]), ROPE_W - 2.0 - thin)
 
 
 ## O fio entrando na traseira do plug em pé, em `at`: um trecho dele segue TAIL_IN px para dentro do plug, no eixo
@@ -242,9 +227,9 @@ func _draw_rope(e: int, shadow: bool) -> void:
 func _draw_tail(e: int, at: Vector2, c: Color, light: Color, thin: float) -> void:
 	var inside := at + Vector2.UP.rotated(_plug_angle(e)) * TAIL_IN
 	_ci.draw_line(at, inside, c.darkened(EDGE) * light, ROPE_W - thin)
-	_ci.draw_line(at, inside, c * light, ROPE_W - 3.0 - thin)
+	_ci.draw_line(at, inside, c * light, ROPE_W - 2.0 - thin)
 	var w := int(ROPE_W - thin)
-	PixelArt.sprite(_ci, PixelArt.disc(w, [[(w - 3) / 2.0, c], [w / 2.0, c.darkened(EDGE)]]), at, light)
+	PixelArt.sprite(_ci, PixelArt.disc(w, [[(w - 2) / 2.0, c], [w / 2.0, c.darkened(EDGE)]]), at, light)
 
 
 ## A linha `pts` alisada numa curva (Catmull-Rom) que passa pelos mesmos pontos, em trechos de até SMOOTH_PX: com
@@ -344,7 +329,7 @@ func _in_hole(e: int) -> bool:
 ## Desenha o polígono `shape` do plug em pé só até `_cut` (sombra e destaque).
 func _draw_cut(shape: PackedVector2Array, col: Color) -> void:
 	if _cut < INF:
-		var cut := Geometry2D.intersect_polygons(shape, PackedVector2Array([Vector2(-30, -90), Vector2(30, -90), Vector2(30, _cut), Vector2(-30, _cut)]))
+		var cut := Geometry2D.intersect_polygons(shape, PackedVector2Array([Vector2(-30, -70), Vector2(30, -70), Vector2(30, _cut), Vector2(-30, _cut)]))
 		shape = cut[0] if not cut.is_empty() else PackedVector2Array()
 	if shape.size() >= 3:
 		_ci.draw_colored_polygon(shape, col)
@@ -363,8 +348,8 @@ func _lift(e: int) -> Vector2:
 	if ends[e] != -1:
 		return PLUG_SHADE - _tilt(int(ends[e]))
 	if _loose.has(e) and _loose[e]["seat"] >= 0.0:   # afundando, a sombra cola na prateleira
-		return Vector2(4, 5).lerp(Vector2(2, 2), _seat_pose(e)[2])
-	return Vector2(8, 10) if held == e else Vector2(4, 5) if _loose.has(e) else Vector2(2, 2)
+		return Vector2(3, 4).lerp(Vector2(2, 2), _seat_pose(e)[2])
+	return Vector2(6, 8) if held == e else Vector2(3, 4) if _loose.has(e) else Vector2(2, 2)
 
 
 ## A silhueta do plug num polígono só (a sombra não escurece duas vezes onde as partes se sobrepõem), alargada `grow`
@@ -420,7 +405,7 @@ func _tilt_at(p: Vector2) -> Vector2:
 ## fio) visto de frente, em pixel art como as peças redondas: um disco (`disc`) por pixel ao longo do eixo, do painel
 ## para a frente, cada um com a largura, a beira e os tons da linha do plug em pé que cai ali (`_face_row`): o corpo
 ## na cor do cabo com o anel e o friso claro em cima, o serrilhado (discos riscados, `_knurled`) e o anel do meio, e a
-## capa de borracha em gomos afinando até o fio (a aba dourada, mais estreita, fica escondida atrás do corpo). `lit`: a
+## capa de borracha em gomos afinando até o fio (a luva de latão, mais estreita, aparece numa beira entre a tomada e o corpo). `lit`: a
 ## luz da sala ali, como no fio que sai dele. No corpo, primeiro a beira de todos (só o contorno fica à mostra) e
 ## depois o miolo sombreado (luz no alto à esquerda); a capa, disco a disco, mostra os sulcos (`PLUG_CAPA_ROW`).
 ## (Antes eram cápsulas e círculos vetoriais: embolotados.)
@@ -434,6 +419,8 @@ func _draw_plug_face(col: Array, tilt: Vector2, push: float, alpha: float, j := 
 	var n := maxi(1, ceili(t.length()))
 	var mod := Color(lit.r, lit.g, lit.b, alpha)   # a luz da sala, como no fio que sai dele
 	var light := _plug_light(j)
+	PixelArt.sprite(_ci, PixelArt.disc(PLUG_ABA_D, [[PLUG_ABA_D / 2.0 - 1.0, pal["y"], pal["b"], pal["C"]], [PLUG_ABA_D / 2.0, pal["E"]]]),
+		(-t.normalized() * 2.0).round(), mod)   # a luva de latão, que não entra toda: uma beira dourada entre a tomada e o corpo
 	# o corpo: primeiro a beira de todos os discos (só o contorno fica à mostra), depois os miolos; a capa, por
 	# cima, disco a disco com a beira de cada um: ela afina para o fio, e a beira de cada gomo fica à mostra em volta
 	# do seguinte, menor (os sulcos, em anéis em volta da saída do fio)
@@ -510,7 +497,7 @@ func _draw_plug_cap(e: int) -> void:
 	if float(_pushed.get(e, MORPH_SEC)) < MORPH_SEC:
 		return   # ainda entrando: o corpo em pé está por cima
 	var col: Array = _cable_col(e)
-	var w := int(ROPE_W - 3.0)   # na cor e na largura do miolo do fio, sem contorno: o fio continua nela
+	var w := int(ROPE_W - 2.0)   # na cor e na largura do miolo do fio, sem contorno: o fio continua nela
 	PixelArt.sprite(_ci, PixelArt.disc(w, [[1.0, col[1]], [w / 2.0, col[0]]]), _plug_base(e).round(), _lit_by(_plug_base(e)))
 
 
@@ -574,9 +561,9 @@ func _face_rim(t: Vector2, n: int, around: bool) -> Array:
 	return _face_rims[key]
 
 
-## O plug de pé, com o fio saindo de baixo (y = 0), no formato de um P10 e na escala da sala (14 × 66 px, uns 2 × 9 cm
-## no fundo da mesa: menor que o relógio e as listas, `Background.PROP_K`; com 18 × 93 ficava maior que eles; o corpo
-## enche o buraco da prateleira e a luva de 6 entra no furo de 8 da tomada), em pixel art (`PLUG_ART`, no acabamento do relógio da mesa: sombreado de cilindro com o brilho
+## O plug de pé, com o fio saindo de baixo (y = 0), no formato de um P10 e na escala da sala (12 × 51 px, uns 2 × 9 cm
+## no fundo da mesa: menor que o relógio e as listas, `Background.PROP_K`; o corpo enche o buraco da prateleira e a
+## luva entra no furo da tomada), em pixel art (`PLUG_ART`, no acabamento do relógio da mesa: sombreado de cilindro com o brilho
 ## numa coluna só e a beira escura à direita, cantos arredondados), no jeito de um plugue P10 (a referência do
 ## usuário): a capa de borracha em gomos, afinando até o fio; o corpo na cor do cabo (é o que identifica o cabo), com
 ## um anel em cima, o serrilhado em listras finas e um anel no meio; a aba dourada; a ponta de metal dourado, com a luva,
@@ -590,7 +577,7 @@ func _draw_plug_body(col: Array, tip: bool = true, light := Color.WHITE) -> void
 	if _cut < INF:   # entrando no buraco, o plug escurece até a beira dele
 		var none := Color(0, 0, 0, 0)
 		var deep := Color(0, 0, 0, 0.6)
-		_ci.draw_primitive(PackedVector2Array([Vector2(-PLUG_W / 2.0, _cut - 6.0), Vector2(PLUG_W / 2.0, _cut - 6.0), Vector2(PLUG_W / 2.0, _cut), Vector2(-PLUG_W / 2.0, _cut)]),
+		_ci.draw_primitive(PackedVector2Array([Vector2(-PLUG_W / 2.0, _cut - 5.0), Vector2(PLUG_W / 2.0, _cut - 5.0), Vector2(PLUG_W / 2.0, _cut), Vector2(-PLUG_W / 2.0, _cut)]),
 			PackedColorArray([none, none, deep, deep]), PackedVector2Array())
 
 

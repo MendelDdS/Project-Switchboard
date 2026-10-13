@@ -4,7 +4,7 @@ extends Node
 ##   Godot --path . tools/shot.tscn -- --hour=22:30 --weather=rain --tool=despacho --card --zoom=760,420,240,140
 ## Opções (depois do `--`):
 ##   --out=build/shot.png   onde gravar (o recorte vai em <nome>_zoom.png)
-##   --width=1280           a largura do `main.tscn` (720 de altura; o jogo, no `GameView`, é sempre 1280)
+##   --width=960            a largura do `main.tscn` (540 de altura; o jogo, no `GameView`, é sempre 960)
 ##   --hour=20:00           a hora do turno no relógio e lá fora
 ##   --tool=id              abre a ferramenta (os ids de `Tools`: lista, despacho, caderno, registro, jornal, calculografo)
 ##   --debug=N              abre o painel de debug na aba N (0 = Jogo, 1 = Vozes)
@@ -14,10 +14,9 @@ extends Node
 ##   --listen               a linha 3 conectada, com o FONE nela e a chave de escuta levantada
 ##   --toll                 um interurbano contando no calculógrafo, dois bilhetes na mesa (um carimbado) e três na caixinha
 ##   --clues                palavras-chave ouvidas (uma marcada, uma riscada, uma ouvida duas vezes) e a lista nas anotações
+##   --screen=id            uma tela por cima: intro (a de início), pause, settings, report (o relatório com advertências)
 ##   --hover=id             o mouse em cima do objeto da mesa (os ids de `Tools`): o contorno e o nome
 ##   --zoom=x,y,w,h         o recorte, em px do jogo, ampliado `ZOOM` vezes
-##   --scale=1.5            grava também a tela como o `GameView` a mostra nessa ampliação (o filtro `SHARP`;
-##                          1.5 = 1080p, 2 = 1440p, 1.25 = 1600×900), em <nome>_x1.5.png
 ##   --wait=5               segundos antes de capturar (a luminária esquenta em 4)
 ## As do jogo também valem: --weather=rain|fog|clear, --night=N, --seed=N, --lang=en.
 
@@ -31,7 +30,7 @@ func _ready() -> void:
 		var kv := a.trim_prefix("--").split("=", true, 1)
 		_args[kv[0]] = kv[1] if kv.size() > 1 else "1"
 	var vp := SubViewport.new()   # o jogo nessa largura, como o `GameView` o põe na janela
-	vp.size = Vector2i(int(_args.get("width", "1280")), 720)
+	vp.size = Vector2i(int(_args.get("width", "960")), 540)
 	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	add_child(vp)
 	var m: Main = load("res://scenes/main.tscn").instantiate()
@@ -40,6 +39,10 @@ func _ready() -> void:
 	vp.add_child(m)
 	await get_tree().process_frame
 	m.sched.clear()   # nada toca sozinho
+	if _args.get("screen") == "intro":
+		await get_tree().create_timer(float(_args.get("wait", "5")), false).timeout
+		_save(vp)
+		return
 	m._intro.visible = false
 	m._start_shift()
 	var hm: PackedStringArray = _args.get("hour", "20:00").split(":")
@@ -90,33 +93,27 @@ func _ready() -> void:
 		m.dispatch.set_location("sol", 0, "Rua do Sol, 1–99")
 		while m.dispatch.machines.state != CardMachines.State.READY:
 			await get_tree().process_frame
-	await get_tree().create_timer(float(_args.get("wait", "5")), false).timeout
+	match _args.get("screen", ""):
+		"pause":
+			m.pause()
+		"settings":
+			m.pause()
+			m._pause.open_settings()
+		"report":
+			for f in ["missed", "hold", "wrong_number", "eavesdrop", "wrong_info"]:
+				m.report.add(f, "21:%02d" % (f.length() * 3))
+			m._ending.play(m.report, true)
+			await get_tree().create_timer(4.0, false).timeout
+	await get_tree().create_timer(float(_args.get("wait", "5")), true).timeout   # (conta também na pausa)
+	_save(vp)
+
+
+func _save(vp: SubViewport) -> void:
 	var img := vp.get_texture().get_image()
 	var out: String = _args.get("out", "build/shot.png")
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://" + out.get_base_dir()))
 	img.save_png("res://" + out)
 	print("gravado: ", out)
-	if _args.has("scale"):   # o jogo ampliado pelo filtro de verdade do `GameView`
-		var k := float(_args["scale"])
-		var big := SubViewport.new()
-		big.size = Vector2i((Vector2(img.get_size()) * k).ceil())
-		big.render_target_update_mode = SubViewport.UPDATE_ONCE
-		var rect := TextureRect.new()
-		rect.texture = ImageTexture.create_from_image(img)
-		rect.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-		rect.size = Vector2(big.size)
-		rect.stretch_mode = TextureRect.STRETCH_SCALE
-		var shader := Shader.new()
-		shader.code = GameView.SHARP
-		rect.material = ShaderMaterial.new()
-		(rect.material as ShaderMaterial).shader = shader
-		(rect.material as ShaderMaterial).set_shader_parameter("scale", k)
-		big.add_child(rect)
-		add_child(big)
-		await RenderingServer.frame_post_draw
-		var sout := out.get_basename() + "_x%s.png" % _args["scale"]
-		big.get_texture().get_image().save_png("res://" + sout)
-		print("gravado: ", sout)
 	if _args.has("zoom"):
 		var z: PackedStringArray = _args["zoom"].split(",")
 		var r := Rect2i(int(z[0]), int(z[1]), int(z[2]), int(z[3])).intersection(Rect2i(Vector2i.ZERO, img.get_size()))

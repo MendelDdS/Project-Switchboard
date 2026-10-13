@@ -43,22 +43,22 @@ const PROPS := {Tools.DIRECTORY: T.Key.TAB_DIRECTORY, Tools.DISPATCH: T.Key.TAB_
 
 
 const TIP_SEC := 1.3   ## o bilhete subindo na fenda do calculógrafo da mesa: o tempo do som da impressora ("printer")
-const HUNG := Vector2(24, 32)   ## a prancheta do registro pendurada na lateral do painel: funda (z) e alta (y), na sala
+const HUNG := Vector2(18, 24)   ## a prancheta do registro pendurada na lateral do painel: funda (z) e alta (y), na sala
 const HUNG_AT := 0.3   ## onde fica o alto dela, na altura do painel
 const CALENDAR := "calendario"   ## a folhinha do armário: sob o mouse, a data da noite (não abre ferramenta)
 const DETAILS := ["cartaz_quermesse", "numero_anotado", "armario_entreaberto"]   ## o que `RoomChange.detail` pode pedir
-const BOARD_SINK := 14.0   ## o fundo do tampo, em px da tela acima da base do painel: fica atrás da mesa comutadora (o painel recuado para a parede, a prateleira funda)
-const LAMP_Y := -30.0      ## a boca da luminária, acima da tela (px de 2x2): de onde sai a luz e saem as sombras na parede
-const WALL_GAP := 40.0     ## quanto a luminária fica à frente da parede (px de 2x2): abre o arco de luz nela
+const BOARD_SINK := 10.0   ## o fundo do tampo, em px da tela acima da base do painel: fica atrás da mesa comutadora (o painel recuado para a parede, a prateleira funda)
+const LAMP_Y := -22.0      ## a boca da luminária, acima da tela (px de 2x2): de onde sai a luz e saem as sombras na parede
+const WALL_GAP := 30.0     ## quanto a luminária fica à frente da parede (px de 2x2): abre o arco de luz nela
 # A câmera. Medidas da sala na escala da parede do fundo (px de 2x2 lá; ~0,56 cm): x para a direita e y para baixo a
 # partir dos olhos, z a distância deles (a parede fica a `Z0`; mais perto, tudo cresce Z0/z vezes).
 const VP_AT := 0.20     ## o ponto de fuga no espaço da mesa, da mesa comutadora (0) à quina (1): perto dos objetos (longe dele, eles entortam; com os olhos baixos, mais); com 0,32, a lateral da mesa comutadora saía larga e inclinada demais
 const CORNER := 0.64    ## a quina das paredes, na largura da área das ferramentas
-const BOARD_D := 14.0   ## o fundo do painel da mesa comutadora (z), atrás da prateleira: raso, como o das mesas de verdade (o corpo do móvel é o console); a lateral dele foge para o ponto de fuga
+const BOARD_D := 10.0   ## o fundo do painel da mesa comutadora (z), atrás da prateleira: raso, como o das mesas de verdade (o corpo do móvel é o console); a lateral dele foge para o ponto de fuga
 const DUST := 240        ## grãos de poeira na luz da luminária
 const BEADS := 50        ## gotas paradas no vidro, na chuva
 const RAIN := 320        ## pingos caindo lá fora, na chuva
-const RAIN_FALL := Vector2(9.0, 16.0)   ## quanto o pingo cai a cada quadro da vista (px de 2x2), do mais longe ao mais perto: cruza o vidro em meio segundo
+const RAIN_FALL := Vector2(7.0, 12.0)   ## quanto o pingo cai a cada quadro da vista (px de 2x2), do mais longe ao mais perto: cruza o vidro em meio segundo
 const BOLT_RAIN := 0.55
 ## Na noite limpa, nuvens passam pela lua (`CLOUDS`, devagar, `CLOUD_SPEED` da largura do vidro por segundo): coberta,
 ## ela escurece, e o brilho azul da janela na sala junto (até `MOON_DIM` dele).
@@ -69,10 +69,10 @@ const MIST := {"fog": 0.38, "clear": 0.34, "rain": 0.26}
 const MIST_TINT := Color(0.66, 0.72, 0.78)
 const DROP_SHADOW := 1.8   ## a sombra das gotas do vidro na luz da rua na mesa (`_draw_drop_shadows`), em relação à força da luz ali
 const NOIR := Color(0.012, 0.022, 0.045, 0.72)   ## o escuro frio da sala fora da luz da luminária (`_draw_gloom`)
-const GLOOM_R := Vector2(820, 330)   ## até onde vai a luz da luminária antes do escuro todo (px da tela, elipse em volta da poça na mesa: larga, a mesa toda na luz)
+const GLOOM_R := Vector2(615, 248)   ## até onde vai a luz da luminária antes do escuro todo (px da tela, elipse em volta da poça na mesa: larga, a mesa toda na luz)
 const GLOOM_IN := 0.25   ## dentro dessa fração do raio, nada de escuro: dali para fora ele cresce liso
 const WINDOW_GLOW := Color(0.45, 0.62, 1.0, 0.12)   ## o brilho azul da noite entrando pela janela (`_draw_window_glow`)
-const WINDOW_GLOW_R := 420.0   ## até onde ele chega (px da tela, a partir do meio do vidro)
+const WINDOW_GLOW_R := 315.0   ## até onde ele chega (px da tela, a partir do meio do vidro)
 const STREET_LIGHT := 1.15   ## a luz da rua entrando pela janela: quanto ela desce para cada unidade que entra na sala (com 1,6, caía perto da parede, um quadrado pequeno para a janela grande)
 const CAR_EVERY := Vector2(35, 80)   ## de quanto em quanto tempo passa um carro lá fora (s, sorteado)
 const CAR_SEC := 3.2      ## quanto ele leva passando na rua (a ~40 km/h), com os faróis na rua da vista
@@ -98,11 +98,11 @@ const BOLT_LIGHT := Color(0.93, 0.96, 1.0)
 const BOLT_DIR := Vector2(-1.4, 0.45)   ## para onde a luz dele anda a cada unidade para o fundo (x, para a esquerda; y, para baixo): a sombra do armário na parede
 const BOLT_STEEP := 1.2   ## quanto ela desce para cada unidade que entra na sala, até a mesa (a janela desenhada no tampo)
 const SIGN_GLOW := Color(1.0, 0.25, 0.18, 0.05)   ## o reflexo vermelho dele na parede, perto da janela
-const CAB_W := 110.0             ## a largura do armário de aço, encostado na parede (px de 2x2 lá)
-const POSTER_W := 30.0           ## a largura do cartaz da quermesse (px de 2x2)
+const CAB_W := 82.0             ## a largura do armário de aço, encostado na parede (px de 2x2 lá)
+const POSTER_W := 22.0           ## a largura do cartaz da quermesse (px de 2x2)
 const CAB_TOP := -26.0           ## o alto dele (cm a partir dos olhos, para baixo): acima deles, ~1,5 m do chão (o tampo não aparece)
 const CAB_T := 1.15              ## a frente dele (escala): ~35 cm de fundo
-const SILL_D := 12.0        ## quanto o peitoril de dentro sai da parede para a sala
+const SILL_D := 9.0        ## quanto o peitoril de dentro sai da parede para a sala
 const SHIFT_START := 18.0 * 60.0   ## o começo do turno (min do dia): o café da caneca está quente
 const STEAM_FOR := 210.0    ## em quantos minutos de jogo o café esfria e o vapor some (às 21h30)
 const BLIND := 0.12        ## até onde a persiana desce (fração da altura do vão)
@@ -502,7 +502,7 @@ func _draw() -> void:
 	_draw_conduit(b, b.end.x + gap * 0.5)
 	var cab := _draw_steel_cabinet((b.end.x + gap - _vp.x) / CAB_T)
 	if "cartaz_quermesse" in details:
-		_draw_poster(Rect2(floorf(cab.end.x + gap), 34, POSTER_W, 38))
+		_draw_poster(Rect2(floorf(cab.end.x + gap), 26, POSTER_W, 28))
 	_zd = Vector2(Z0 * _yd / (front - _vp.y), Z0 / DESK_T)
 	_draw_desk(Rect2(0, top, w, h - top), front)
 	_draw_switchboard(front)
@@ -759,15 +759,15 @@ func _draw_company_sign(b: Rect2) -> void:
 	draw_set_transform(Vector2.ZERO)
 	var company := T.text(T.Key.SIGN_COMPANY)
 	var tw := Pal.mono.get_string_size(company, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
-	var r := Rect2(roundf(b.position.x + b.size.x * SIGN_AT - (tw + 44.0) / 2.0), b.position.y - 36.0, roundf(tw + 44.0), 24.0)
+	var r := Rect2(roundf(b.position.x + b.size.x * SIGN_AT - (tw + 36.0) / 2.0), b.position.y - 28.0, roundf(tw + 36.0), 20.0)
 	draw_rect(Rect2(r.position + Vector2(2, 3), r.size), Color(0, 0, 0, 0.35))
 	draw_rect(r.grow(1), Switchboard.EDGE_DARK)
 	draw_rect(r, SIGN_ENAMEL)
 	draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), SIGN_ENAMEL.lightened(0.25))   # a luz na beira de cima
 	draw_rect(r.grow(-3), SIGN_INK, false, 1.0)   # o filete
-	for x in [r.position.x + 9.0, r.end.x - 9.0]:
+	for x in [r.position.x + 8.0, r.end.x - 8.0]:
 		_sprite(PixelArt.disc(5, [[1.5, Color("e6cf8e"), Color("c4a35a"), Color("7a6230")], [2.5, Color("3a2a12")]]), Vector2(x, r.get_center().y))
-	draw_string(Pal.mono, Vector2(roundf(r.get_center().x - tw / 2.0), r.position.y + 16.0), company, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, SIGN_INK)
+	draw_string(Pal.mono, Vector2(roundf(r.get_center().x - tw / 2.0), r.position.y + 14.0), company, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, SIGN_INK)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
@@ -1062,14 +1062,15 @@ func _draw_switchboard(front: float) -> void:
 	if radio and radio.visible:   # na frente do console, em volta da miniatura do painel: a plaqueta e os botões dele
 		var rr := Rect2(radio.global_position - global_position, radio.size)
 		var my := roundf((sy + fy) / 2.0)
-		Switchboard.draw_maker_plate(self, Rect2(rr.position.x - 114, my - 13, 96, 26))   # a plaqueta do fabricante
-		for i in 2:   # baquelite: a borda em volta do tampo, os dois com a luz no alto à esquerda
-			var c := Vector2(rr.end.x + 24 + i * 30, my)
-			_sprite(PixelArt.disc(19, [[9.0, Color(0, 0, 0, 0.35)]]), c + Vector2(1, 2))
-			_sprite(PixelArt.disc(17, [[5.5, Color("5a5048"), Color("3a332c"), Color("2a2420")],
-				[7.5, Color("4a4038"), Color("2a2420"), Color("1a1612")], [8.5, Color("120e0a")]]), c)
+		var px := maxf(fx0, 0.0) + 8.0   # a coluna dos parafusos da beira: a plaqueta fica no meio entre ela e a miniatura
+		Switchboard.draw_maker_plate(self, Rect2(roundf((px + rr.position.x - 96.0) / 2.0), my - 13, 96, 26))   # a plaqueta do fabricante
+		for i in 2:   # baquelite: a borda em volta do tampo, os dois com a luz no alto à esquerda, a espaços iguais entre a miniatura e a beira
+			var c := Vector2(rr.end.x + roundf((fx1 - rr.end.x) * (i + 1) / 3.0), my)
+			_sprite(PixelArt.disc(15, [[7.0, Color(0, 0, 0, 0.35)]]), c + Vector2(1, 2))
+			_sprite(PixelArt.disc(13, [[4.0, Color("5a5048"), Color("3a332c"), Color("2a2420")],
+				[5.5, Color("4a4038"), Color("2a2420"), Color("1a1612")], [6.5, Color("120e0a")]]), c)
 			var a := -PI * 0.75 + i * 1.1
-			for j in range(2, 7):   # o risco de posição, pixel a pixel
+			for j in range(2, 5):   # o risco de posição, pixel a pixel
 				draw_rect(Rect2((c + Vector2(cos(a), sin(a)) * j).floor(), Vector2.ONE), Color("d6d1c3"))
 	for p in [Vector2(fx1 - 8, sy + 8), Vector2(fx1 - 8, fy - 10), Vector2(8, sy + 8), Vector2(8, fy - 10)]:   # os parafusos
 		if p.x > fx0 + 4:

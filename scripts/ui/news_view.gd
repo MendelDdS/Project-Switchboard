@@ -40,8 +40,8 @@ func _notification(what: int) -> void:
 func _render() -> void:
 	if _night == null:   # (ainda sem jornal: só da segunda noite em diante)
 		return
-	# o nome do jornal, a fonte ampliada 4× em letra vazada (`PixelArt.big`: na fonte em 44, os pixels dela viravam blocos de 4 px)
-	$Masthead.texture = PixelArt.art(PixelArt.big(T.text(T.Key.NEWS_MASTHEAD), 2), {"u": Pal.INK, "d": Pal.INK, "+": Pal.NEWS_INK})
+	# o nome do jornal, a fonte ampliada 2× em letra vazada (`PixelArt.big`: na fonte em 22, os pixels dela viravam blocos de 2 px; 4× não cabe na página em 960 × 540)
+	$Masthead.texture = PixelArt.art(PixelArt.big(T.text(T.Key.NEWS_MASTHEAD), 1), {"u": Pal.INK, "d": Pal.INK, "+": Pal.NEWS_INK})
 	$Edition.text = T.text(T.Key.NEWS_EDITION) % GameData.date_text(_n)
 	# a primeira em 11 e em negrito (`InkBoldLabel`, a sombra 1 px ao lado): em 22, os pixels da fonte viravam blocos de 2 px
 	$Page/Text/Lead.text = T.text(T.Key.REPORT_QUIET) if _news.is_empty() else ShiftReport.headline(_news[0])

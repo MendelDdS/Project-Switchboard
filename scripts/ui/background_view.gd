@@ -18,7 +18,10 @@ const WALK_STEPS := 2.2   ## passos por segundo (as pernas alternam nesse ritmo)
 ## vertical. Não é a perspectiva da janela (a diagonal dela é só do primeiro plano). Tudo em metros (`_o`: `x` ao longo
 ## da rua, `z` a distância dos olhos, `h` a altura), no tamanho de verdade.
 const OUT_EYE := 4.5      ## os olhos acima da rua (m)
-const OUT_F := 60.0       ## a distância focal (px de 2x2 de um metro a um metro)
+const OUT_F := 45.0       ## a distância focal (px de 2x2 de um metro a um metro)
+## O horizonte lá fora abaixo da altura dos olhos (cm): a janela desceu (`WIN_TOP`, `WIN_SILL`) e a vista desceu com
+## ela, para os prédios ficarem no meio do vidro, abaixo da persiana, em vez de atrás dela.
+const OUT_DROP := 14.0
 ## A rua, de perto para longe (z, m): a nossa fachada, a nossa calçada até o meio-fio, as duas mãos (a faixa no meio),
 ## o meio-fio de lá, a calçada de lá e as fachadas do outro lado, apoiadas nela.
 const STREET := {"curb": 3.2, "lane": 7.2, "far_curb": 11.2, "far": 14.0}
@@ -136,7 +139,7 @@ const FOG_WISPS := 9     ## os fiapos passando pela rua
 ## O peitoril (cm abaixo dos olhos): uns 24 cm acima do tampo, como numa sala de verdade (desce pouco: a parede fica a
 ## uns 70 cm da cabeça). Com os olhos acima da tela e o peitoril 38 cm abaixo deles, a janela descia uns 40° e parecia
 ## vista de cima.
-const WIN_SILL := 21.0
+const WIN_SILL := 33.0
 const WALL_D := 16.0        ## a espessura da parede (para fora, nas unidades da parede do fundo): o vidro fica do lado de fora
 
 var _spray_rng := RandomNumberGenerator.new()   # o sorteio do borrifo dos pneus (`_spray`), sem criar um a cada quadro
@@ -407,9 +410,9 @@ func _draw_fog(g: Rect2) -> void:
 		_light_fan(sc, glow, Color(SIGN_RED, 0.12))
 
 
-## O horizonte da vista `g` (a altura dos olhos).
+## O horizonte da vista `g` (a altura dos olhos, descida em `OUT_DROP`).
 func _hz(g: Rect2) -> float:
-	return g.position.y + _vp.y - _view_at.y
+	return g.position.y + _vp.y + _cm(OUT_DROP) - _view_at.y
 
 
 ## Um ponto lá fora na vista `g`: `x` m ao longo da rua (a partir da frente da janela), a `z` m dos olhos e `h` m acima

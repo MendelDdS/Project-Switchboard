@@ -22,14 +22,14 @@ enum State { IDLE, TYPING, PRINTING, READY, DRAGGING, FEEDING }
 ## As máquinas que puxam o cartão: o transmissor (envia) e a trituradora (descarta).
 enum Machine { SEND, SHRED }
 
-const BEZEL := 12.0         ## a moldura de metal em volta do vidro (px; o mapa, `Dispatch.city`, fica dentro dela)
-const BASE_H := 96.0        ## a altura da base das máquinas, embaixo do vidro
-const STRIP := 14.0         ## a faixa da frente da base, embaixo das máquinas: as luzes e a plaqueta, como na miniatura da mesa
-const TONGUE_H := 22.0      ## a tira de papel saindo da impressora sem cartão (sobe sobre o pé do mapa)
+const BEZEL := 9.0         ## a moldura de metal em volta do vidro (px; o mapa, `Dispatch.city`, fica dentro dela)
+const BASE_H := 72.0        ## a altura da base das máquinas, embaixo do vidro
+const STRIP := 10.0         ## a faixa da frente da base, embaixo das máquinas: as luzes e a plaqueta, como na miniatura da mesa
+const TONGUE_H := 14.0      ## a tira de papel saindo da impressora sem cartão (sobe sobre o pé do mapa)
 const CARD_W := PunchCard.W
-const SLOT := 12.0          # as fendas, a partir do alto da base
+const SLOT := 9.0          # as fendas, a partir do alto da base
 const DRAG_START := 5.0     # px que o mouse anda com o botão apertado até virar arraste (antes disso, é clique)
-const NEAR_SLOT := 24.0     # solto com a borda de baixo até esta distância da fenda (e por cima dela), entra
+const NEAR_SLOT := 18.0     # solto com a borda de baixo até esta distância da fenda (e por cima dela), entra
 const TYPE_SEC := 0.9       # datilografando o local
 const PRINT_SEC := 1.3      # o cartão saindo da impressora, sem parar
 const FEED_SEC := 0.8       # o transmissor puxando o cartão...
@@ -334,15 +334,15 @@ func _draw_strip() -> void:
 	var b := _base()
 	var y := b.end.y - STRIP - 3.0
 	var mid := y + floorf(STRIP / 2.0)
-	led(self, Vector2(b.position.x + 12.0, mid - 2.0), _alert, Pal.RED)
-	led(self, Vector2(b.position.x + 24.0, mid - 2.0), state != State.IDLE, Pal.AMBER)
-	var brass := Rect2(floorf(b.get_center().x - 60.0), mid - 3.0, 120, 7)
+	led(self, Vector2(b.position.x + 9.0, mid - 2.0), _alert, Pal.RED)
+	led(self, Vector2(b.position.x + 18.0, mid - 2.0), state != State.IDLE, Pal.AMBER)
+	var brass := Rect2(floorf(b.get_center().x - 45.0), mid - 2.0, 90, 5)
 	draw_rect(brass, Pal.BRASS.darkened(0.25))
 	draw_rect(brass.grow(-1.0), Pal.BRASS)
 	for x: float in [brass.position.x + 2.0, brass.end.x - 3.0]:   # os parafusos dela
 		draw_rect(Rect2(x, mid, 1, 1), Pal.PANEL_LO)
 	for i in 3:
-		draw_rect(Rect2(b.end.x - 60.0, mid - 3.0 + i * 3, 46, 1), Pal.PANEL_LO)
+		draw_rect(Rect2(b.end.x - 45.0, mid - 3.0 + i * 3, 34, 1), Pal.PANEL_LO)
 
 
 ## Caixa de metal: sombra, borda, luz em cima e à esquerda, sombra embaixo e à direita, parafusos nos cantos.
@@ -384,10 +384,10 @@ static func led(ci: CanvasItem, at: Vector2, on: bool, col: Color) -> void:
 
 ## A placa de latão com o nome da máquina.
 static func plate(ci: CanvasItem, r: Rect2, text: String) -> void:
-	var brass := Rect2(r.position.x + 10.0, r.position.y + 22.0, minf(112.0, r.size.x - 20.0), 18.0)
+	var brass := Rect2(r.position.x + 8.0, r.position.y + 14.0, minf(84.0, r.size.x - 16.0), 15.0)
 	ci.draw_rect(brass, Pal.BRASS)
 	ci.draw_rect(brass.grow(-1.0), Pal.BRASS.darkened(0.25))
-	PunchCard.write(ci, Vector2(brass.position.x, brass.position.y + 13.0), text, Pal.INK, brass.size.x, HORIZONTAL_ALIGNMENT_CENTER)
+	PunchCard.write(ci, Vector2(brass.position.x, brass.position.y + 11.0), text, Pal.INK, brass.size.x, HORIZONTAL_ALIGNMENT_CENTER)
 
 
 ## A impressora, no meio: a fenda por onde o cartão sobe, a placa, a luz (âmbar trabalhando; vermelha piscando com o
@@ -399,22 +399,22 @@ func _draw_printer() -> void:
 	plate(self, r, T.text(T.Key.CARD_PRINTER))
 	var busy := state in [State.TYPING, State.PRINTING]
 	if _refused >= 0.0:   # recusou: luz vermelha piscando e o aviso embaixo da placa
-		led(self, r.position + Vector2(12, 50), fmod(_refused, 0.3) < 0.15, Pal.RED)
-		PunchCard.write(self, Vector2(r.position.x + 24.0, r.position.y + 58.0), T.text(T.Key.CARD_ONE_AT_A_TIME), Pal.RED, r.size.x - 30.0)
+		led(self, r.position + Vector2(9, 36), fmod(_refused, 0.3) < 0.15, Pal.RED)
+		PunchCard.small(self, Vector2(r.position.x + 18.0, r.position.y + 37.0), T.text(T.Key.CARD_ONE_AT_A_TIME), Pal.RED)
 	else:
-		led(self, r.position + Vector2(12, 50), busy and fmod(_t, 0.24) < 0.12, Pal.AMBER)
-	vent(self, Vector2(r.end.x - 44.0, r.position.y + 24.0), 4, 32.0)
+		led(self, r.position + Vector2(9, 36), busy and fmod(_t, 0.24) < 0.12, Pal.AMBER)
+	vent(self, Vector2(r.end.x - 33.0, r.position.y + 16.0), 3, 24.0)
 
 
 ## Sem cartão, uma tira de papel sai da fenda da impressora: o aviso ou, enquanto datilografa, o local aparecendo.
 func _draw_tongue() -> void:
-	var r := Rect2(_mouth_x(1) + 14.0, _printer_slot() - TONGUE_H, CARD_W - 28.0, TONGUE_H)
+	var r := Rect2(_mouth_x(1) + 10.0, _printer_slot() - TONGUE_H, CARD_W - 20.0, TONGUE_H)
 	draw_rect(r, PunchCard.CARD_EDGE)
 	draw_rect(r.grow(-1.0), PunchCard.CARD)
 	var txt := T.text(T.Key.DISPATCH_CLICK_STREET)
 	if state == State.TYPING:
 		txt = card.place.left(ceili(card.place.length() * minf(_t / (TYPE_SEC * 0.85), 1.0)))
-	PunchCard.write(self, Vector2(r.position.x, r.position.y + 15.0), txt, Pal.INK_SOFT, r.size.x, HORIZONTAL_ALIGNMENT_CENTER)
+	PunchCard.small(self, Vector2(r.position.x, r.position.y + 5.0), txt, Pal.INK_SOFT, r.size.x, HORIZONTAL_ALIGNMENT_CENTER)
 
 
 ## O transmissor, à esquerda: a fenda com setas, a placa, a luz de pronto e o aviso e a saída de ar.
@@ -424,17 +424,17 @@ func _draw_sender() -> void:
 	var x0 := _mouth_x(0)
 	var y := _slot(Machine.SEND)
 	mouth(self, x0, y, CARD_W)
-	for side in [x0 - 10.0, x0 + CARD_W + 4.0]:   # setas apontando a fenda
+	for side in [x0 - 9.0, x0 + CARD_W + 3.0]:   # setas apontando a fenda
 		if side > r.position.x and side + 6.0 < r.end.x:
 			draw_primitive(PackedVector2Array([Vector2(side, y - 3.0), Vector2(side + 6.0, y - 3.0), Vector2(side + 3.0, y + 2.0)]),
 				PackedColorArray([Pal.AMBER]), PackedVector2Array())
 	plate(self, r, T.text(T.Key.CARD_SENDER))
 	var feeding := state == State.FEEDING and _into == Machine.SEND
 	var ready := dispatch.can_send()
-	led(self, r.position + Vector2(12, 50), feeding and fmod(_t, 0.2) < 0.1 or not feeding and ready, Pal.AMBER if feeding else Pal.GREEN)
+	led(self, r.position + Vector2(9, 36), feeding and fmod(_t, 0.2) < 0.1 or not feeding and ready, Pal.AMBER if feeding else Pal.GREEN)
 	var msg := T.text(T.Key.CARD_SENDING) if feeding else T.text(T.Key.CARD_INSERT)
-	PunchCard.write(self, Vector2(r.position.x + 24.0, r.position.y + 58.0), msg, Pal.AMBER, r.size.x - 30.0)
-	vent(self, Vector2(r.end.x - 44.0, r.position.y + 24.0), 4, 32.0)
+	PunchCard.small(self, Vector2(r.position.x + 18.0, r.position.y + 37.0), msg, Pal.AMBER)
+	vent(self, Vector2(r.end.x - 33.0, r.position.y + 16.0), 3, 24.0)
 
 
 ## A trituradora, à direita: a fenda com as lâminas, a faixa de perigo, a placa e a luz; treme enquanto tritura.
@@ -447,12 +447,12 @@ func _draw_shredder() -> void:
 	for x in range(int(x0) + 2, int(x0 + CARD_W) - 4, 6):   # as lâminas aparecendo na fenda
 		draw_colored_polygon(PackedVector2Array([Vector2(x, y + 2), Vector2(x + 3, y - 1), Vector2(x + 6, y + 2)]), Pal.DIM)
 	plate(self, r, T.text(T.Key.CARD_SHREDDER))
-	var band := Rect2(r.position.x + 6.0, r.end.y - 16.0, r.size.x - 12.0, 8.0)
+	var band := Rect2(r.position.x + 9.0, r.end.y - 11.0, r.size.x - 18.0, 5.0)
 	draw_rect(band, Color.BLACK)
 	var clip := PackedVector2Array([band.position, Vector2(band.end.x, band.position.y), band.end, Vector2(band.position.x, band.end.y)])
-	for x in range(int(band.position.x) - 8, int(band.end.x), 12):   # faixa amarela e preta
-		var poly := PackedVector2Array([Vector2(x, band.end.y), Vector2(x + 6, band.end.y), Vector2(x + 14, band.position.y), Vector2(x + 8, band.position.y)])
+	for x in range(int(band.position.x) - 6, int(band.end.x), 9):   # faixa amarela e preta
+		var poly := PackedVector2Array([Vector2(x, band.end.y), Vector2(x + 4, band.end.y), Vector2(x + 10, band.position.y), Vector2(x + 6, band.position.y)])
 		for c in Geometry2D.intersect_polygons(poly, clip):
 			draw_colored_polygon(c, HAZARD)
-	led(self, r.position + Vector2(12, 50), state == State.FEEDING and _into == Machine.SHRED, Pal.RED)
-	vent(self, Vector2(r.end.x - 44.0, r.position.y + 24.0), 4, 32.0)
+	led(self, r.position + Vector2(9, 36), state == State.FEEDING and _into == Machine.SHRED, Pal.RED)
+	vent(self, Vector2(r.end.x - 33.0, r.position.y + 16.0), 3, 24.0)

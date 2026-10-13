@@ -32,7 +32,6 @@ func _ready() -> void:
 		s.value_changed.connect(func(v: float): Settings.set_volume(bus, v))
 		s.drag_ended.connect(func(_c: bool): _preview(bus))
 	%Display.item_selected.connect(func(i: int): Settings.set_fullscreen(i == 0))
-	%Scaling.item_selected.connect(func(i: int): Settings.set_pixel_perfect(i == 1))
 	_fill_options()
 
 
@@ -108,7 +107,6 @@ func _show_settings(on: bool) -> void:
 		for bus in BUS_SLIDERS:
 			(get_node(BUS_SLIDERS[bus]) as HSlider).set_value_no_signal(Settings.volumes[bus])
 		%Display.select(0 if Settings.fullscreen else 1)
-		%Scaling.select(1 if Settings.pixel_perfect else 0)
 
 
 ## As opções de texto traduzido (refeitas quando o idioma muda).
@@ -117,10 +115,6 @@ func _fill_options() -> void:
 	for k in [T.Key.DISPLAY_FULLSCREEN, T.Key.DISPLAY_WINDOW]:
 		%Display.add_item(T.text(k))
 	%Display.select(0 if Settings.fullscreen else 1)
-	%Scaling.clear()
-	for k in [T.Key.SCALING_SMOOTH, T.Key.SCALING_PIXEL]:
-		%Scaling.add_item(T.text(k))
-	%Scaling.select(1 if Settings.pixel_perfect else 0)
 
 
 ## Um som de amostra no barramento que acabou de mudar (o ambiente já está tocando).

@@ -23,18 +23,18 @@ grow_vertical = 2
 layout_mode = 1
 
 [node name="Card" type="MarginContainer" parent="Center"]
-custom_minimum_size = Vector2(460, 0)
+custom_minimum_size = Vector2(345, 0)
 layout_mode = 2
-theme_override_constants/margin_left = 40
-theme_override_constants/margin_top = 30
-theme_override_constants/margin_right = 40
-theme_override_constants/margin_bottom = 30
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 22
 script = ExtResource("2_bevel")
 
 [node name="Main" type="VBoxContainer" parent="Center/Card"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 9
 
 [node name="Title" type="Label" parent="Center/Card/Main"]
 layout_mode = 2
@@ -42,12 +42,12 @@ theme_override_font_sizes/font_size = 33
 text = "PAUSE_TITLE"
 
 [node name="Gap" type="Control" parent="Center/Card/Main"]
-custom_minimum_size = Vector2(0, 8)
+custom_minimum_size = Vector2(0, 6)
 layout_mode = 2
 
 [node name="Resume" type="Button" parent="Center/Card/Main"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(0, 33)
 layout_mode = 2
 theme_type_variation = &"AmberButton"
 theme_override_font_sizes/font_size = 22
@@ -55,21 +55,21 @@ text = "RESUME"
 
 [node name="OpenSettings" type="Button" parent="Center/Card/Main"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 38)
+custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 theme_type_variation = &"DarkButton"
 text = "SETTINGS"
 
 [node name="RestartNight" type="Button" parent="Center/Card/Main"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 38)
+custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 theme_type_variation = &"DarkButton"
 text = "RESTART_NIGHT"
 
 [node name="Quit" type="Button" parent="Center/Card/Main"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 38)
+custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 theme_type_variation = &"DarkButton"
 text = "QUIT_GAME"
@@ -78,7 +78,7 @@ text = "QUIT_GAME"
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 9
 
 [node name="Title" type="Label" parent="Center/Card/Settings"]
 layout_mode = 2
@@ -87,8 +87,8 @@ text = "SETTINGS"
 
 [node name="Grid" type="GridContainer" parent="Center/Card/Settings"]
 layout_mode = 2
-theme_override_constants/h_separation = 24
-theme_override_constants/v_separation = 14
+theme_override_constants/h_separation = 18
+theme_override_constants/v_separation = 10
 columns = 2
 
 [node name="LanguageLabel" type="Label" parent="Center/Card/Settings/Grid"]
@@ -97,7 +97,7 @@ text = "SETTINGS_LANGUAGE"
 
 [node name="Language" type="OptionButton" parent="Center/Card/Settings/Grid"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(240, 0)
+custom_minimum_size = Vector2(180, 0)
 layout_mode = 2
 size_flags_horizontal = 3
 
@@ -146,33 +146,24 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="ScalingLabel" type="Label" parent="Center/Card/Settings/Grid"]
-layout_mode = 2
-text = "SETTINGS_SCALING"
-
-[node name="Scaling" type="OptionButton" parent="Center/Card/Settings/Grid"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-
 [node name="Gap" type="Control" parent="Center/Card/Settings"]
-custom_minimum_size = Vector2(0, 8)
+custom_minimum_size = Vector2(0, 6)
 layout_mode = 2
 
 [node name="Buttons" type="HBoxContainer" parent="Center/Card/Settings"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 12
 
 [node name="Apply" type="Button" parent="Center/Card/Settings/Buttons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(160, 38)
+custom_minimum_size = Vector2(120, 28)
 layout_mode = 2
 theme_type_variation = &"AmberButton"
 text = "APPLY"
 
 [node name="Back" type="Button" parent="Center/Card/Settings/Buttons"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(160, 38)
+custom_minimum_size = Vector2(120, 28)
 layout_mode = 2
 theme_type_variation = &"DarkButton"
 text = "BACK"
@@ -184,10 +175,10 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -160.0
-offset_top = -24.0
-offset_right = -10.0
-offset_bottom = -8.0
+offset_left = -120.0
+offset_top = -18.0
+offset_right = -8.0
+offset_bottom = -6.0
 grow_horizontal = 0
 grow_vertical = 0
 mouse_filter = 2
