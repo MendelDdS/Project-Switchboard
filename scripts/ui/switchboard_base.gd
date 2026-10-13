@@ -8,7 +8,8 @@ const SIZE := Vector2(369, 228)   # (em 1280 × 720 era 492 × 304; antes, 588 �
 const SHELF_SLOTS := 5   # lugares de cabo na prateleira: um por setor ainda não atendido fica tampado, à espera do cabo novo (`patches`)
 const TRUNK_GAP := 6.0      # do último plug guardado até o bloco interurbano (o vão da moldura dos bancos)
 const PAIR_SHIFT := 12.0    # a ponta da frente de um cabo, à esquerda da de trás: encostadas, as duas se leem como um par
-const FONE_HOLE_X := 30.0   # o buraco do FONE, a partir da esquerda do encaixe (o nome gravado embaixo cabe nos três idiomas)
+const FONE_HOLE_X := 14.0   # o buraco do FONE, a partir da esquerda do encaixe: perto da beira, para o nome gravado embaixo caber nos três idiomas antes da ponta da frente do primeiro cabo (em 30, "FONE" já passava por baixo dela)
+const CORDS_X := 30.0   # de onde contam os lugares dos cabos de conexão, a partir da esquerda do encaixe (`patch_x`)
 const SHELF_HOLE_Y := 8.0  # a fileira de trás dos buracos da prateleira (o FONE e a primeira ponta de cada cabo), afastada do rodapé do painel
 const SHELF_FRONT_Y := 22.0 # a fileira da frente (a outra ponta), à frente da de trás, como nas mesas de verdade; o mesmo vão entre as fileiras e até as beiras
 const PLUG_SINK := 10.0  # guardado, o plug entra tanto no buraco (px abaixo dele: a capa de borracha some nele, o corpo fica à mostra)...
@@ -30,10 +31,9 @@ const PLUG_BASE := Vector2(0, 20)   # de onde a mão pega o plug (o meio do corp
 const PLUG_H := 51.0   # a altura do `PLUG_ART`: do bico até onde sai o fio...
 const PLUG_W := 12.0   # ...e a largura dele (o corpo tem 10)
 const JACK := 12.0          # o lugar de cada encaixe (entradas, saídas e destinos; o desenho, `JACK_PX`, é menor)
-## A coluna de cada linha, de cima para baixo: plaquinha com o número (topo e altura), estado (linha de base do texto),
-## lâmpada, entrada, chave de escuta e saída (centros). O estado fica acima da lâmpada: embaixo da entrada, o plug
-## encaixado o cobria.
-const ROW_Y := {"plate": 22.0, "plate_h": 13.0, "lamp": 52.0, "in": 68.0, "key": 84.0, "out": 100.0}
+## A coluna de cada linha, de cima para baixo: plaquinha com o número (topo e altura), lâmpada, entrada, chave de
+## escuta e saída (centros). A lâmpada logo embaixo da plaquinha: o estado escrito que ficava entre elas saiu.
+const ROW_Y := {"plate": 22.0, "plate_h": 13.0, "lamp": 46.0, "in": 62.0, "key": 78.0, "out": 94.0}
 const ROOM_LIGHT_R := 675.0   # px: até onde a luz dela chega no painel
 const ROOM_LIT := Color(1.0, 0.88, 0.66, 0.07)   # perto dela, o painel clareia quente...
 const ROOM_DARK := Color(0.012, 0.022, 0.045, 0.36)   # ...e longe, escurece
@@ -100,13 +100,13 @@ func top_rect(i: int) -> Rect2:
 ## frente encostada, `front_of`) e os `SHELF_SLOTS` lugares, a um passo igual, enchem a prateleira até o bloco
 ## interurbano.
 func patch_x(k: int) -> float:
-	return socket_rect().position.x + FONE_HOLE_X + _pitch() * (k + 1)
+	return socket_rect().position.x + CORDS_X + _pitch() * (k + 1)
 
 
 ## De um lugar de cabo ao seguinte.
 func _pitch() -> float:
 	var right := (trunks.position.x if trunks.has_area() else tray_rect().end.x) - TRUNK_GAP - PLUG_W / 2.0 - 2.0   # a metade do plug guardado (`home_rect`)
-	return (right - socket_rect().position.x - FONE_HOLE_X) / SHELF_SLOTS
+	return (right - socket_rect().position.x - CORDS_X) / SHELF_SLOTS
 
 
 ## Onde fica o plug guardado, de pé no buraco dele na prateleira, como nas mesas de verdade (o fio desce por ele).

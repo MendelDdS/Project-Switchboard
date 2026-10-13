@@ -316,7 +316,7 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   da noite 5, 5 da noite 9), e o lugar de cada setor que ainda não é dele fica sob um tampo (`_draw_cover`).
 - `setup(exchange, socket, tray)` liga a mesa ao estado, ao encaixe do FONE e à faixa dos buracos dos cabos (lugares
   na prateleira, fora do retângulo dela: `socket_rect`, `tray_rect`; o clique vale neles, `_has_point`). Os buracos
-  ficam na prateleira em duas fileiras (`hole`, `SHELF_HOLE_Y` atrás, `SHELF_FRONT_Y` na frente, `FONE_HOLE_X`; aro
+  ficam na prateleira em duas fileiras (`hole`, `SHELF_HOLE_Y` atrás, `SHELF_FRONT_Y` na frente, `FONE_HOLE_X`, perto da beira para o nome gravado caber antes da ponta do primeiro cabo, que conta de `CORDS_X`; aro
   de latão achatado pela perspectiva, em pixel art, `HOLE_ART`, `draw_grommet`): o FONE sozinho atrás e as duas pontas de
   cada cabo juntas, como um par, a da frente `PAIR_SHIFT` à esquerda da de trás (`front_of`; sempre o mesmo: pela
   perspectiva exata o desencontro variava a cada coluna e parecia bagunça; alternadas uma a uma, não se via qual ponta

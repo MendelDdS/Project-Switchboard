@@ -25,17 +25,9 @@ theme_type_variation = &"HudPanel"
 layout_mode = 2
 theme_override_constants/separation = 3
 
-[node name="Warn" type="Label" parent="Bar/ConvBox/ConvV"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-theme_type_variation = &"AmberLabel"
-theme_override_font_sizes/font_size = 11
-autowrap_mode = 3
-
 [node name="Transcript" type="RichTextLabel" parent="Bar/ConvBox/ConvV"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 36)
+custom_minimum_size = Vector2(0, 28)
 layout_mode = 2
 size_flags_vertical = 3
 bbcode_enabled = true
@@ -54,7 +46,7 @@ theme_override_constants/v_separation = 3
 [node name="Urgency" type="Control" parent="Bar/ConvBox/ConvV"]
 unique_name_in_owner = true
 visible = false
-custom_minimum_size = Vector2(0, 24)
+custom_minimum_size = Vector2(0, 12)
 layout_mode = 2
 mouse_filter = 2
 script = ExtResource("9_urgency")
@@ -65,15 +57,18 @@ layout_mode = 2
 mouse_filter = 2
 script = ExtResource("10_glass")
 
-[node name="Keys" type="HBoxContainer" parent="Bar"]
+[node name="Keys" type="GridContainer" parent="Bar"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 4
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
+columns = 2
 
 [node name="Answer" type="Button" parent="Bar/Keys"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(92, 0)
 layout_mode = 2
+size_flags_vertical = 3
 focus_mode = 0
 theme_type_variation = &"GreenKey"
 disabled = true
@@ -99,6 +94,7 @@ vertical_alignment = 1
 unique_name_in_owner = true
 custom_minimum_size = Vector2(92, 0)
 layout_mode = 2
+size_flags_vertical = 3
 focus_mode = 0
 theme_type_variation = &"AmberKey"
 disabled = true
@@ -125,6 +121,7 @@ vertical_alignment = 1
 unique_name_in_owner = true
 custom_minimum_size = Vector2(92, 0)
 layout_mode = 2
+size_flags_vertical = 3
 focus_mode = 0
 theme_type_variation = &"IvoryKey"
 disabled = true
@@ -151,6 +148,7 @@ vertical_alignment = 1
 unique_name_in_owner = true
 custom_minimum_size = Vector2(92, 0)
 layout_mode = 2
+size_flags_vertical = 3
 focus_mode = 0
 theme_type_variation = &"RedKey"
 disabled = true

@@ -850,3 +850,14 @@ Chaves:
     num lugar fixo de duas linhas (`HintSlot`): com mais linhas, desce por cima das ferramentas em vez de empurrá-las.
     O estado escrito de cada linha em cima das lâmpadas ("LIVRE", "CHAMANDO") saiu: redundante com a lâmpada e a
     legenda das cores. (O texto ainda aparece no balão de informação da linha, `Main`.)
+    Melhorias da base 960 (a pedido): as teclas do telefone numa grade de 2 × 2, liberando largura para a tela da
+    conversa (numa emergência, a fala, as respostas e a barra não cabiam, o painel crescia e a sala pulava ~20 px
+    para cima); o buraco do FONE perto da beira da prateleira (`FONE_HOLE_X` 14), para o nome gravado caber antes da
+    ponta do primeiro cabo nos três idiomas (até "FONE" passava por baixo dela; os cabos contam de `CORDS_X`); no modo
+    janela, a janela no maior múltiplo inteiro que cabe na tela (abria em 960 × 540 em qualquer monitor); lâmpadas,
+    tomadas e chaves 6 px mais para cima, fechando o vão do estado escrito que saiu, e o título das saídas no meio
+    entre elas e os bancos.
+    O painel ainda crescia numa emergência (aviso, três fileiras de respostas e a barra passavam da altura da tela da
+    conversa). A fonte não pode ser menor (11 é o mínimo da Departure Mono): o aviso virou a última linha das falas, em
+    âmbar, em vez de uma linha à parte, e a barra de agravamento ficou numa linha só, o estágio à esquerda e a barra à
+    direita.

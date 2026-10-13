@@ -81,7 +81,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   largura até 21:9 e a sala se esticava, a pedido saiu). A sala ainda se arruma na largura que tiver (abaixo), para o
   `main.tscn` sozinho numa janela larga. O
   projeto continua em `canvas_items` 960×540 para o `main.tscn` sozinho e os testes; o `GameView` desliga isso na janela
-  (`content_scale_mode`) e aplica a tela das Configurações (`Settings.fullscreen`: cheia ou janela; padrão: cheia). Na pausa, o `Box` continua processando
+  (`content_scale_mode`) e aplica a tela das Configurações (`Settings.fullscreen`: cheia ou janela; padrão: cheia; na janela, o maior múltiplo inteiro que cabe na área livre da tela, `GameView._size_window`). Na pausa, o `Box` continua processando
   (`process_mode` ALWAYS; o `View` é PAUSABLE): parado, ele não repassava as teclas e o Esc não despausava
   (`tests/test_keys.gd`). O cenário tem a tela própria dele (`SceneView`, `scripts/ui/scene_view.gd`: um `TextureRect`
   com o `SubViewport` `View` na resolução da tela onde ele está: a janela, com o `main.tscn` sozinho, ou 1:1 dentro do
@@ -137,7 +137,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   pausa o turno quando não há plug na mão (`Main._unhandled_input`). Atalhos do telefone: ações `answer_call`
   (Espaço), `transfer_call` (Tab), `listen_call` (Z, a tecla Escutar/Soltar), `hang_up` (X), tratadas em `PhonePanel._input` **antes da interface** (Espaço e
   Tab também apertam o botão em foco e passam o foco; por isso não dá para usar `Button.shortcut`). Só com o botão
-  ativo; na pausa não valem; com um campo de texto em foco a tecla fica com ele. Cada tecla é uma chapa de metal
+  ativo; na pausa não valem; com um campo de texto em foco a tecla fica com ele. As quatro teclas ficam numa grade de 2 × 2 (`Keys`, um `GridContainer`: em fila, tomavam a largura da tela da conversa, e numa emergência as respostas não cabiam e o painel crescia, empurrando a sala para cima). Cada tecla é uma chapa de metal
   parafusada com a etiqueta de latão no alto, onde fica o atalho (Label `Key`; "Espaço" traduzido, `KEY_SPACE`), e a
   tecla baixa, em relevo, num poço no meio do espaço embaixo dela (`KeyCapStyle`, `WELL_H`; as margens de conteúdo põem
   o nome no tampo). Ferramentas: ações `tab_directory`/`tab_dispatch`/`tab_logbook`/`tab_call_log` (1 a 4),

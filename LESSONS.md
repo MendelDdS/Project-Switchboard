@@ -280,3 +280,7 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
 - **Detalhe novo num desenho de poucos pixels: olhe a junção com o que encosta nele.** A bota de borracha no plug
   encaixado, mais larga que o fio, fez o fio parecer colado de lado num caroço; e o trecho reto do fio, de 5 px no
   eixo do plug, ficava mais comprido que o próprio plug visto de frente (~3 px), deitado por cima dele.
+- **"Não empurra mais" se mede no pior caso, não numa captura.** Pus as teclas em grade e disse que a sala não pulava
+  mais olhando uma emergência com duas fileiras de respostas; o usuário viu crescer de novo. A altura que uma tela pede
+  é a soma dos mínimos do que pode aparecer junto (aviso, falas, três fileiras de respostas, barra, espaços): some isso,
+  ou meça o maior `get_combined_minimum_size` passando pelos estágios, nos três idiomas, antes de dizer que cabe.

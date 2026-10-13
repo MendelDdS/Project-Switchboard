@@ -1,7 +1,7 @@
 class_name PhonePanel
 extends MarginContainer
 ## Painel de baixo, do operador, em três blocos: a tela da conversa (as últimas falas que couberem, `_fit`; o registro inteiro
-## fica na ferramenta Registro, `CallLog`), com os avisos (`flash`/`warn`), as opções de fala e a barra de agravamento;
+## fica na ferramenta Registro, `CallLog`), com os avisos (`flash`/`warn`, a última linha das falas), as opções de fala e a barra de agravamento;
 ## as teclas (`KeyCapStyle`); e o rádio de despacho (`radio`). A mesa comutadora tem uma miniatura dele
 ## (`ConsoleMini`): este painel é a vista de perto daquela. Mostra uma PhoneCall por vez (`show_call`) e se redesenha
 ## pelos sinais dela. É um console embutido na frente da mesa (`_draw`: a madeira de borda a borda, logo abaixo da
@@ -22,7 +22,6 @@ signal listen_pressed
 @onready var screen: Control = %ConvBox   ## a tela da conversa (a miniatura copia o lugar dela)
 @onready var _transcript: RichTextLabel = %Transcript
 @onready var _choices: HFlowContainer = %Choices
-@onready var _warn: Label = %Warn
 @onready var _answer: Button = %Answer
 @onready var _transfer: Button = %Transfer
 @onready var _hangup: Button = %Hangup
@@ -30,6 +29,7 @@ signal listen_pressed
 @onready var _glass: ScreenGlass = %Glass
 
 var _call: PhoneCall
+var _warn := ""   # o aviso na tela agora, embaixo das falas (numa linha à parte, empurrava o painel para cima)
 var _warn_gen := 0
 var _lines := PackedStringArray()   # as falas prontas para a tela, da mais antiga à mais nova
 var shown_lines := 0   ## quantas falas cabem e aparecem agora (a miniatura mostra as mesmas)
@@ -139,8 +139,8 @@ func keys() -> Array[Button]:
 ## Aviso numa linha da tela da conversa por `ms` milissegundos (enquanto isso a transcrição encolhe): o que acontece
 ## na linha ("Chamando 305...", "número não existe") e os avisos do jogo (`warn`).
 func flash(text: String, ms: int = 2600) -> void:
-	_warn.text = text
-	_warn.visible = text != ""
+	_warn = text
+	_render_transcript()
 	_warn_gen += 1
 	var g := _warn_gen
 	await get_tree().create_timer(ms / 1000.0, false).timeout
@@ -150,12 +150,12 @@ func flash(text: String, ms: int = 2600) -> void:
 
 func clear_flash() -> void:
 	_warn_gen += 1
-	_warn.text = ""
-	_warn.visible = false
+	_warn = ""
+	_render_transcript()
 
 
 func display_text() -> String:
-	return _warn.text
+	return _warn
 
 
 func warn(text: String) -> void:
@@ -179,6 +179,8 @@ func _render_transcript() -> void:
 					_lines.append("[color=#f3a83c]—[/color]  [color=#c6d3c4]%s[/color]\n" % text)
 				_:
 					_lines.append("[color=#f3a83c]%s[/color]  %s\n" % [tr(l["who"]), text])
+	if _warn != "":
+		_lines.append("[color=#f3a83c]%s[/color]\n" % _warn.replace("[", "("))
 	_fit()
 
 

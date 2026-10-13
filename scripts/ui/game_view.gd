@@ -8,6 +8,7 @@ extends Control
 ## Em Configurações (`Settings`): tela cheia ou janela.
 
 const BASE := Vector2i(960, 540)   ## a tela do jogo
+const TITLE_BAR := 40   ## px de tela que a barra de título e as bordas da janela tomam, no modo janela
 
 @onready var _box: SubViewportContainer = $Box
 @onready var _view: SubViewport = $Box/View
@@ -19,6 +20,8 @@ func _ready() -> void:
 	get_viewport().size_changed.connect(_fit)
 	Settings.changed.connect(_apply)
 	_apply()
+	if get_window().mode == Window.MODE_WINDOWED:   # o projeto abre em 960×540: na tela grande, 1× ficava minúsculo
+		_size_window.call_deferred()
 
 
 ## Aplica a tela das configurações: cheia ou janela, e a ampliação.
@@ -26,7 +29,19 @@ func _apply() -> void:
 	var mode := Window.MODE_FULLSCREEN if Settings.fullscreen else Window.MODE_WINDOWED
 	if get_window().mode != mode and not (mode == Window.MODE_WINDOWED and get_window().mode == Window.MODE_MAXIMIZED):
 		get_window().mode = mode
+		if mode == Window.MODE_WINDOWED:
+			_size_window.call_deferred()   # (saindo da tela cheia, o tamanho só pega depois da troca)
 	_fit()
+
+
+## A janela no maior múltiplo inteiro da tela do jogo que cabe na área livre da tela (sem a barra de tarefas e com a
+## barra de título): 2× em 1440p, 3× em 4K; em 1080p, 1× (o 2× é a tela inteira). No meio da tela.
+func _size_window() -> void:
+	var w := get_window()
+	var free := DisplayServer.screen_get_usable_rect(w.current_screen)
+	var k := maxi(1, mini(free.size.x / BASE.x, (free.size.y - TITLE_BAR) / BASE.y))
+	w.size = BASE * k
+	w.position = free.position + (free.size - w.size) / 2
 
 
 func _fit() -> void:

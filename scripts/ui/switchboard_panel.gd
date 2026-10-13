@@ -6,7 +6,7 @@ const DEST_TOP := 141.0      # topo das tomadas da primeira fileira (a segunda f
 const DEST_ROW := 27.0
 const FRAME := 5.0           # a moldura de madeira do móvel, em volta do painel
 ## Faixas gravadas no painel que separam as seções (altura da linha; o nome fica sobre ela, à esquerda).
-const RULES := {"in": 11.0, "out": 84.0}
+const RULES := {"in": 11.0, "out": 78.0}
 const WOOD := [Color("6b4529"), Color("4a2f1c"), Color("2a1a0f")]   # madeira do móvel e da bandeja: luz, meio, sombra
 ## O buraco da prateleira (16×8, achatado pela perspectiva; o vão, 12 de largura, da largura do plug, que entra
 ## nele): b, a beira de trás do aro (na sombra); f e F, a da frente (na luz, com o brilho); w, a parede de dentro do lado
