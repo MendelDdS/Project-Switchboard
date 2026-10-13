@@ -284,3 +284,7 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   mais olhando uma emergência com duas fileiras de respostas; o usuário viu crescer de novo. A altura que uma tela pede
   é a soma dos mínimos do que pode aparecer junto (aviso, falas, três fileiras de respostas, barra, espaços): some isso,
   ou meça o maior `get_combined_minimum_size` passando pelos estágios, nos três idiomas, antes de dizer que cabe.
+- **Pixel perfeito não vale mais que a sensação do objeto.** Tirei o crescimento do cartão, do bilhete e do carimbo
+  na mão (a 1,06, umas fileiras de pixels dobram por um instante) e o usuário preferiu que crescessem: a subida para
+  perto dos olhos pesa mais que a regularidade dos pixels durante o arraste. Em interação (pegar, soltar, apertar),
+  proponha a troca antes de tirar o efeito.

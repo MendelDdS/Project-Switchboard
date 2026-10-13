@@ -676,8 +676,9 @@ func _draw() -> void:
 		return
 	_draw_strips()
 	_draw_rule(RULES["in"], T.text(T.Key.BOARD_INPUTS), false)   # os nomes por cima das faixas
-	# o nome das saídas embaixo delas, no vão até os bancos (a faixa entre as entradas e as saídas é das chaves de escuta)
-	_draw_rule(roundf((ROW_Y["out"] + JACK / 2.0 + DEST_TOP - 13.0) / 2.0), T.text(T.Key.BOARD_OUTPUTS), false)   # no meio entre as saídas e os bancos
+	# o nome das saídas embaixo delas, no meio do vão até os bancos, sobre uma faixa como a das entradas, que separa as
+	# seções (a faixa entre as entradas e as saídas é das chaves de escuta)
+	_draw_rule(roundf((ROW_Y["out"] + JACK / 2.0 + DEST_TOP - 13.0) / 2.0), T.text(T.Key.BOARD_OUTPUTS))
 	_draw_wear()
 	_draw_trunks(trunks)
 

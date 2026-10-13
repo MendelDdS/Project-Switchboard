@@ -1462,6 +1462,33 @@ func _initialize() -> void:
 	await frames(int(60.0 * 60.0 / Engine.time_scale))
 	ok(bg._walkers.is_empty(), "depois das 22h ninguém passa")
 	print("OK 16 pedestres")
+
+	# ---- 17. o painel de baixo não muda de altura: numa emergência com aviso, respostas em quatro fileiras e a barra,
+	# as falas encolhem até a mais nova (antes, o painel crescia e empurrava a sala para cima)
+	var ph: PhonePanel = m.phone
+	var h0 := ph.size.y
+	var pe := PhoneCall.from_emergency(GameData.template_emergency())
+	m.ring(pe)
+	_move(0, pe.line)
+	m.answer()
+	ok(await wait_until(func(): return ph.urgency.visible, 20.0), "emergência na linha, com a barra")
+	var rows := 0.0
+	for st in 3:
+		var many: Array[Dictionary] = []
+		for i in 4:   # uma resposta longa por fileira
+			many.append({"label": "Alguém está ferido, preso ou precisando de ajuda? %d" % i, "fn": func(): pass})
+		pe.set_options(many)
+		ph.warn(T.text(T.Key.WARN_FONE_TO_BLINK))
+		await frames(10)
+		rows = maxf(rows, ph._choices.size.y)
+		ok(ph.size.y == h0, "estágio %d: o painel fica em %d px (está em %d)" % [st, h0, ph.size.y])
+		var e: EmergencyCall = pe.data
+		pe.urgency = [e.stage_sec.x, e.stage_sec.x + e.stage_sec.y, e.stage_sec.x + e.stage_sec.y + e.stage_sec.z][pe.stage]
+		await frames(2)
+	ok(rows >= 4 * 18.0, "o pior caso chegou a quatro fileiras de respostas (%d px)" % rows)
+	m.drop_all()
+	ok(await wait_until(func(): return m.board.ends.all(func(x): return x == -1), 10.0), "cabos na base depois")
+	print("OK 17 altura do painel")
 	finish("fluxo da central")
 
 

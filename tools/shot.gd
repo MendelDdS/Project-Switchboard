@@ -32,6 +32,8 @@ func _ready() -> void:
 	var vp := SubViewport.new()   # o jogo nessa largura, como o `GameView` o põe na janela
 	vp.size = Vector2i(int(_args.get("width", "960")), 540)
 	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	vp.snap_2d_transforms_to_pixel = true   # (como a `View` do `GameView`)
+	vp.snap_2d_vertices_to_pixel = true
 	add_child(vp)
 	var m: Main = load("res://scenes/main.tscn").instantiate()
 	if not _args.has("night"):

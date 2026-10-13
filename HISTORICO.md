@@ -861,3 +861,11 @@ Chaves:
     conversa). A fonte não pode ser menor (11 é o mínimo da Departure Mono): o aviso virou a última linha das falas, em
     âmbar, em vez de uma linha à parte, e a barra de agravamento ficou numa linha só, o estágio à esquerda e a barra à
     direita.
+    Pixels mais definidos (a pedido, das sugestões): a tela do jogo prende o desenho
+    aos pixels (`snap_2d_*` na `View` do `GameView`). A fonte sem suavização foi medida e não muda nada (saiu da lista).
+    A altura do painel de baixo travada: as falas encolhem até a mais nova, para caberem quatro fileiras de respostas
+    com o aviso e a barra, e o teste de fluxo confere o pior caso estágio por estágio.
+    O cartão, o bilhete e o carimbo voltaram a crescer na mão: sem crescer (só a sombra se afastando, para os pixels
+    não dobrarem), o usuário testou e não gostou. #saiu
+    O título das saídas ganhou a mesma faixa gravada do das entradas, de ponta a ponta do painel, separando a seção
+    das saídas da dos bancos.

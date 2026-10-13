@@ -73,7 +73,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `scenes/app.tscn` (`GameView`, `scripts/ui/game_view.gd`): o `main.tscn` dentro de um `SubViewport` de 960×540 (o
   `View`, "nearest"; o padrão do `SubViewport` é linear e não herda o do projeto), ampliado para a janela pelo `Box`
   (`SubViewportContainer`, "nearest") no maior múltiplo inteiro que cabe (`GameView._fit`): 2× em 1080p, 4× em 4K; o
-  que sobra é borda escura (1× com borda em 720p e 1600×900, 2× com borda em 1440p). Menor que 960×540, reduz. (Antes,
+  que sobra é borda escura (1× com borda em 720p e 1600×900, 2× com borda em 1440p). Menor que 960×540, reduz. A `View` prende transformações e vértices aos pixels (`snap_2d_*`: o que anda, como o cartão na mão a meio pixel do mouse a 2×, não cai entre dois pixels; só nela, porque a opção do projeto vale para a tela raiz, e não no cenário, parado e em perspectiva). A fonte continua com suavização: medido, sem ela o texto sai igual, porque já cai inteiro nos pixels. (Antes,
   em 1280×720, a 1080p era 1,5×, com o filtro "sharp bilinear": uniforme, mas um pouco macio; a pedido, a base virou
   960×540 e a ampliação quebrada saiu, com a escolha "suave/pixel perfeito" das Configurações. Tudo foi reduzido a 75%,
   menos o texto, que continua em 11: o que é feito de texto, como o cartão do despacho, o bilhete e o caderno, ocupa
@@ -183,7 +183,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `Engine.time_scale`: 8 nos cenários, 2 no robô (acima disso as falas, letra a letra, ficam presas ao quadro e
   alongam as conversas; a 48× as métricas mudavam muito).
   - `tests/test_base.gd`: base (`ok()` em vez de `assert`, que trava o headless; `wait_until`, `load_main`, `finish`).
-  - `tests/test_flow.gd`: cenários dirigidos (transferência, espera, desistência, caderno, destino que não atende, ligar de volta ao desconhecido, cliques, clima do som).
+  - `tests/test_flow.gd`: cenários dirigidos (transferência, espera, desistência, caderno, destino que não atende, ligar de volta ao desconhecido, cliques, clima do som, a altura do painel de baixo numa emergência com aviso e quatro fileiras de respostas).
   - `tests/test_keys.gd`: as teclas (1, Espaço, Tab, X, Esc e despausar) entrando pela janela, pelo `GameView`.
   - `tests/test_layout.gd`: em 960, 1125 e 1281 px de largura, nenhum objeto da mesa por cima de outro na tela (o
     contorno de cada um como o cenário o desenhou, `Background._occ`/`occ_ids`; a caneca na frente do relógio é de propósito).
