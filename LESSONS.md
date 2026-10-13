@@ -244,3 +244,13 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   respirando" → "Eu também ouvi" como boa, e o usuário lembrou que só faz sentido na boca de quem estava calado (quem
   fala acha que a respiração é do outro); a resposta, de quem falava, tem de mostrar isso ("Achei que era você...").
   Conferindo o código, achei também a vez da conversa trocando de pessoa quando a pergunta ficava sem resposta.
+- **Texto com prazo tem de caber na leitura.** A escuta usava a velocidade da fala com o operador (~36 letras/s), que
+  serve quando o texto fica parado esperando a resposta; com a suspeita contando, o usuário não conseguia ler antes de
+  ser descoberto. Ao pôr um relógio sobre um texto, faça a conta das letras por segundo contra o tempo do relógio.
+- **Pausa nova soma com as que já existem.** A hesitação de 2 s antes da resposta vinha depois do `GAP` de 1 s que toda
+  fala já tem: eram 3 s, e o usuário pediu 1.
+- **Estágios de uma reação param o que corre por baixo.** A desconfiança em estágios (silêncio, pergunta, resposta)
+  rodava por cima da conversa escrita, que seguia andando: ela acabava e eles se despediam antes da pergunta, e o
+  silêncio "não fazia efeito". Tentei primeiro só arrumar a tela (o resto da fala embaixo do aviso), e o usuário
+  apontou a causa: o tempo da conversa normal continuava rolando. Ao montar estados por cima de um fluxo, decida o que
+  acontece com o fluxo em cada estado.

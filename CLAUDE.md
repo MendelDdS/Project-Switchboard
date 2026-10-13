@@ -199,9 +199,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     Com a mesa livre, ele registra no caderno e carimba e guarda os bilhetes (uma ação cada; imprime quantos guardou).
     `--nosy` (no `run.sh`, com `--human`): com a mesa livre, ele escuta as conversas conectadas, solta no silêncio
     deles (`HUSH`) e volta quando a suspeita baixa (`NOSY_BACK`); imprime quanto ouviu e falha se for denunciado.
-    Medido: ~10–15 s ouvidos por conversa (de 45–90 s), nenhuma denúncia e o mesmo ritmo de ligações. Imprime também,
-    por desconfiança do lugar (`DirectoryEntry.wary`), os segundos por entrada na linha: ~8 s no normal, ~5 na pensão
-    (1,6), ~13–16 no bilhar e no bar (0,6 e 0,5), como na conta (de `NOSY_BACK` a `HUSH` em `LISTEN_SEC`, ÷ a desconfiança).
+    Medido: ~17–20 s ouvidos por conversa (de 45–90 s), nenhuma denúncia e o mesmo ritmo de ligações. Imprime também,
+    por desconfiança do lugar (`DirectoryEntry.wary`), os segundos por entrada na linha: ~14–17 s no normal (com
+    `LISTEN_SEC` 25 eram ~8, e a conversa passava antes de dar para ler), menos na pensão (1,6) e mais no bilhar e no
+    bar (0,6 e 0,5), como na conta (de `NOSY_BACK` a `HUSH` em `LISTEN_SEC`, ÷ a desconfiança).
   - Rode depois de qualquer mudança em agenda, fim de ligação, mesa ou cabos. `run.sh` também joga um turno em
     `--lang=en` e outro em `--lang=es`; o teste de fluxo confere chaves, lacunas e cenas (`_check_translations`).
 - Semente fixa: `Godot --path . -- --seed=123` repete a agenda do turno (sem `--seed`, é aleatória).
@@ -296,19 +297,25 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`Clue.chosen`) a riscada (`Clue.struck`) e de volta, na palavra inteira; as duas marcas ficam salvas (o repasse
   ainda não existe). Captura: `tools/shot.tscn -- --clues`. A fala da
   escuta anda letra a letra sem um timer por letra (`Eavesdrop._wait`: espera quadros, desconta o que passou a mais e
-  para na pausa). O teste confere os tipos, as marcas
+  para na pausa), mais devagar que a fala com o operador (`PACE`, e `GAP` entre uma fala e outra), para dar tempo de
+  ler ouvindo; a suspeita (`LISTEN_SEC`) acompanha esse ritmo: mudou um, confira o outro. O teste confere os tipos, as marcas
   fechadas e que a tradução mantém os tipos (`_holes`). **A
   suspeita** (`PhoneCall.suspicion`, 0 a 1 em `LISTEN_SEC` ouvindo; cada entrada na linha, pela chave subindo ou pelo
   FONE encaixando com ela em cima, soma `CLICK`; tudo vezes a desconfiança deles, a de quem ligou, `TransferCall.wary`,
   e a do lugar que atendeu, `DirectoryEntry.wary`, também nos moldes e na alternativa; sem ninguém
   ouvindo, baixa em `COOL_SEC`) só aparece na conversa:
-  perceberam algo e se calam (`HUSH`, `SYS_LINE_SILENT`; com a desconfiança dos dois, `Eavesdrop._wary`, de
-  `SKEPTIC` para cima, não se calam), um pergunta ao outro (`ASK`, `C.overheard_ask`, na vez seguinte da conversa,
-  `_cue`), e, com o operador ainda ouvindo no fim da pergunta, o outro responde e eles sabem (`C.overheard_sure`, a
-  resposta da mesma pergunta; `_knows`, a suspeita pula para `SURE` e antes disso não passa dele; sem ninguém ouvindo,
-  desconversam e ela baixa `SHRUG`, e voltando passa de `ASK` de novo) e, em 1, a reclamação. O jeito de atender de
-  cada lugar dá a pista da desconfiança dele (`hello`: seco na pensão, solto no bar)
-  (`C.overheard_caught`) e os dois desligam (`talk_over`). **A denúncia chega no relatório da noite seguinte**
+  **a conversa normal só anda enquanto eles não desconfiam** (`Eavesdrop._hush`): perceberam algo (`HUSH`) e,
+  terminada a fala, se calam enquanto ele ouvir (`SYS_LINE_SILENT`; sem ninguém ouvindo, a conversa segue: é a melhor
+  hora de baixar a chave); desconfiaram (`ASK`; com a desconfiança dos dois, `Eavesdrop._wary`, de `SKEPTIC` para
+  cima, não se calam e perguntam já em `HUSH`, `_asks_at`) e, depois de uma pausa (`ASK_PAUSE`), um pergunta ao outro
+  (`C.overheard_ask`, `_cue`); com o operador ainda ouvindo no fim da pergunta, o outro responde (depois do `GAP`) e
+  eles sabem (`C.overheard_sure`, a resposta da mesma pergunta; `_knows`, a suspeita pula para `SURE` e antes disso
+  não passa dele; sem ninguém ouvindo, desconversam e ela baixa `SHRUG` abaixo de onde perguntam, e voltando eles
+  perguntam de novo); calados de novo, em 1 a reclamação (`C.overheard_caught`) e os dois desligam (`talk_over`).
+  Depois do silêncio e da resposta, `CALM_SEC` antes da próxima reação (`_calm`: a suspeita para antes do próximo
+  limite), para dar tempo de ler e soltar a chave. (Antes o silêncio durava 3 s e a conversa escrita seguia: acabava
+  e eles se despediam antes de chegar à pergunta.) O jeito de atender de cada lugar dá a pista da desconfiança dele (`hello`: seco na
+  pensão, solto no bar). **A denúncia chega no relatório da noite seguinte**
   (`Supervisor.fault_later` → `ShiftReport.later` → `Progress.later`; lá, a advertência grave `eavesdrop` com a hora
   "ontem, 21:30", `REPORT_YESTERDAY`); sem noite seguinte (a última, noite forçada) entra no de hoje, e a do
   treinamento não vai; as ligações do treinamento não se escutam (`Main._can_listen`). Marcadores `escutou_N` e `denunciado_N` para o roteiro (pedidos de escuta de gente autoritária

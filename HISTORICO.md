@@ -763,3 +763,17 @@ Chaves:
     dele (a pensão seca, o bar solto). Revisadas a pedido: quem pergunta é quem estava calado (a respiração
     só se nota calado; quem falava responde "Achei que era você..."), eco virou voz fraca e o "a essa hora" da rádio saiu
     (o turno começa às 18h).
+165. #conversa
+    Escutando o hotel, tudo passou rápido demais: não dava para ler e já tinham descoberto. A conversa escutada anda
+    mais devagar que a fala com o operador (1,6×, e 1 s entre uma fala e outra) e a suspeita sobe em 40 s em vez de 25,
+    para o silêncio cair no mesmo ponto da conversa.
+166. #conversa
+    Um intervalo entre as reações da desconfiança: depois do silêncio e da resposta, a conversa segue um pouco (6 s)
+    antes da próxima, e o outro hesita 2 s antes de responder à pergunta (soltando a chave aí, eles desconversam). Nos
+    lugares desconfiados as reações vinham coladas, sem tempo de ler e soltar a chave.
+167. #conversa
+    O silêncio parecia não fazer efeito: depois dele a conversa escrita voltava ao normal e eles se despediam antes de
+    chegar à pergunta (a conversa andava enquanto eles desconfiavam). Agora, desconfiados e com o operador ouvindo, a
+    conversa normal não anda: terminada a fala, ficam calados até a pergunta (ou até ele soltar a chave, e aí ela segue);
+    depois da resposta, calados até a reclamação. A pergunta vem depois de uma pausa de 2 s, e a resposta 1 s depois da
+    pergunta (a hesitação de 2 s do item 166 saiu).

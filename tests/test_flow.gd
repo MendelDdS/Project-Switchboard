@@ -600,7 +600,8 @@ func _initialize() -> void:
 	m.eavesdrop.calls.erase(99)
 	ok(is_equal_approx(rises[0], 0.1 * ed.wary * 1.6) and is_equal_approx(rises[1], 0.1 * ed.wary * 0.5),
 		"escuta: a suspeita sobe pela desconfiança de quem ligou e pela do lugar (pensão 1,6, bar 0,5)")
-	var hushed := []   # passando de HUSH: o hotel (1) se cala; a pensão (1,6) não, vai direto à pergunta
+	var calm_held := false
+	var hushed := []   # passando de HUSH: o hotel (1) se cala, ainda sem perguntar; a pensão (1,6) pergunta já
 	var plain_call: TransferCall = ed.duplicate()
 	plain_call.wary = 1.0
 	for num in [305, 312]:
@@ -610,10 +611,17 @@ func _initialize() -> void:
 		m.eavesdrop.calls[99] = probe
 		m.eavesdrop._ears[99] = PhoneCall.new()
 		m.eavesdrop._raise(99, 0.01)
-		hushed.append(m.eavesdrop._quiet.has(99))
-		for d: Dictionary in [m.eavesdrop.calls, m.eavesdrop._ears, m.eavesdrop._quiet, m.eavesdrop._cue]:
+		hushed.append(not m.eavesdrop._cue.has(99))
+		if num == 305:   # logo depois do silêncio, a pergunta espera a folga, por mais que a suspeita suba
+			m.eavesdrop._raise(99, 0.5)
+			calm_held = probe.suspicion < Eavesdrop.ASK and not m.eavesdrop._cue.has(99)
+			m.eavesdrop._calm.erase(99)   # (a folga passou)
+			m.eavesdrop._raise(99, 0.5)
+			calm_held = calm_held and m.eavesdrop._cue.has(99)
+		for d: Dictionary in [m.eavesdrop.calls, m.eavesdrop._ears, m.eavesdrop._cue, m.eavesdrop._calm]:
 			d.erase(99)
 	ok(hushed == [true, false], "escuta: os muito desconfiados não se calam, vão direto à pergunta")
+	ok(calm_held, "escuta: entre uma reação e a próxima, a conversa segue um pouco (CALM_SEC)")
 	ok(ea.suspicion > Eavesdrop.CLICK and m.flags.allows(["escutou_%d" % m.night_no]), "escuta: ouvindo, a suspeita sobe e o marcador liga")
 	ok(m.phone.shown() != ea and m.phone.shown().line == el, "escuta: a tela mostra o que se ouve (fora do registro da ligação)")
 	ok(await wait_until(func(): return ex.line(el) == Exchange.Line.DONE), "escuta: depois da última fala escrita, eles se despedem e desligam")
@@ -672,6 +680,10 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return ear_now.transcript.any(func(l: Dictionary): return GameData.CONTENT.overheard_sure.has(l["text"]))),
 		"escuta: a resposta é a da pergunta e aparece na tela")
 	ok(ea.suspicion >= Eavesdrop.SURE and ea.suspicion < 1.0, "escuta: agora eles sabem (a suspeita pula para SURE)")
+	ok(await wait_until(func(): return ear_now.transcript[-1]["text"] == T.text(T.Key.SYS_LINE_SILENT)), "escuta: depois da resposta, calam-se")
+	var said_before := ear_now.transcript.size()
+	await frames(20)
+	ok(ear_now.transcript.size() == said_before, "escuta: desconfiados e com ele ouvindo, a conversa não anda")
 	var faults_was := m.report.faults.size()
 	m.eavesdrop.tick(Eavesdrop.LISTEN_SEC)
 	ok(m.report.faults.size() == faults_was and m.report.later[-1]["id"] == "eavesdrop" and m.flags.allows(["denunciado_%d" % m.night_no]),

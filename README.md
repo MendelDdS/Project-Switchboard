@@ -151,8 +151,9 @@ desconhecida são sempre escritos à mão.
   sobe quando o operador escuta uma conversa com quem atende ali (1 é o normal; a Pensão Dona Cota, 1,6, percebe logo;
   o Bar do Zé, 0,5, quase não nota). Vale junto com a de quem ligou (`wary` do roteiro escrito). O jeito de atender
   (`hello`) dá a pista: seco e desconfiado nos que percebem logo ("Pensão. Quem é que fala?"), solto nos que não
-  ligam ("Bar do Zé! Fala aí, meu chapa!"). A suspeita aparece em estágios na conversa: eles se calam (perceberam
-  algo; a melhor hora de baixar a chave), um pergunta ao outro (`overheard_ask` no `content.tres`) e, se o operador
+  ligam ("Bar do Zé! Fala aí, meu chapa!"). A suspeita aparece em estágios na conversa, que para enquanto eles
+  desconfiam e o operador ouve: eles se calam (perceberam algo; a melhor hora de baixar a chave, e aí a conversa
+  segue), um pergunta ao outro (`overheard_ask` no `content.tres`) e, se o operador
   continuar ouvindo, o outro responde e os dois ficam sabendo (`overheard_sure`, na mesma ordem: cada resposta é a da
   sua pergunta); depois, reclamam e desligam. Muito desconfiados (1,5 ou mais) não se calam: vão direto à pergunta.
 - **A voz de quem atende** é a `voice` do contato (`f`, `m`, `w`, `k`); sem ela, uma tirada do nome, sempre a mesma.
