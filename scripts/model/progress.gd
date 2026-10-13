@@ -3,7 +3,8 @@ extends RefCounted
 ## O que fica salvo entre as noites (user://progress.cfg): a próxima noite e o ritmo dela, as advertências graves
 ## acumuladas, os marcadores do roteiro (escolhas que mudam as noites seguintes; veja StoryFlags) e o jornal da manhã
 ## seguinte (as manchetes da noite, `ShiftReport.news`, que ficam na mesa na próxima) e as advertências que só chegam
-## nela (`ShiftReport.later`) e as palavras-chave ouvidas na escuta (`Clue`, em dicionário).
+## nela (`ShiftReport.later`) e as palavras-chave ouvidas na escuta (`Clue`, em dicionário) e quantas vezes cada lugar
+## denunciou a telefonista (`Eavesdrop.grudges`).
 
 const PATH := "user://progress.cfg"
 
@@ -14,6 +15,7 @@ var flags := PackedStringArray()
 var news: Array = []
 var later: Array = []
 var clues: Array = []
+var grudges := {}   ## número do lugar -> denúncias
 
 
 static func load_saved() -> Progress:
@@ -27,6 +29,7 @@ static func load_saved() -> Progress:
 		p.news = f.get_value("progress", "news", [])
 		p.later = f.get_value("progress", "later", [])
 		p.clues = f.get_value("progress", "clues", [])
+		p.grudges = f.get_value("progress", "grudges", {})
 	return p
 
 
@@ -39,6 +42,7 @@ func save() -> void:
 	f.set_value("progress", "news", news)
 	f.set_value("progress", "later", later)
 	f.set_value("progress", "clues", clues)
+	f.set_value("progress", "grudges", grudges)
 	f.save(PATH)
 
 

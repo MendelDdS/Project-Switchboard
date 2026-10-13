@@ -31,10 +31,9 @@ func _ready() -> void:
 		var s: HSlider = get_node(BUS_SLIDERS[bus])
 		s.value_changed.connect(func(v: float): Settings.set_volume(bus, v))
 		s.drag_ended.connect(func(_c: bool): _preview(bus))
-	%Speed.item_selected.connect(Settings.set_text_speed)
 	%Display.item_selected.connect(func(i: int): Settings.set_fullscreen(i == 0))
 	%Scaling.item_selected.connect(func(i: int): Settings.set_pixel_perfect(i == 1))
-	_fill_speeds()
+	_fill_options()
 
 
 func _unhandled_input(e: InputEvent) -> void:
@@ -45,7 +44,7 @@ func _unhandled_input(e: InputEvent) -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_TRANSLATION_CHANGED and is_node_ready():
-		_fill_speeds()
+		_fill_options()
 
 
 ## Pausa o jogo e mostra o menu.
@@ -108,17 +107,12 @@ func _show_settings(on: bool) -> void:
 		%Language.select(Settings.LOCALES.find(Settings.locale))
 		for bus in BUS_SLIDERS:
 			(get_node(BUS_SLIDERS[bus]) as HSlider).set_value_no_signal(Settings.volumes[bus])
-		%Speed.select(Settings.text_speed)
 		%Display.select(0 if Settings.fullscreen else 1)
 		%Scaling.select(1 if Settings.pixel_perfect else 0)
 
 
 ## As opções de texto traduzido (refeitas quando o idioma muda).
-func _fill_speeds() -> void:
-	%Speed.clear()
-	for k in [T.Key.SPEED_SLOW, T.Key.SPEED_NORMAL, T.Key.SPEED_FAST]:
-		%Speed.add_item(T.text(k))
-	%Speed.select(Settings.text_speed)
+func _fill_options() -> void:
 	%Display.clear()
 	for k in [T.Key.DISPLAY_FULLSCREEN, T.Key.DISPLAY_WINDOW]:
 		%Display.add_item(T.text(k))

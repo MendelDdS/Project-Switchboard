@@ -150,7 +150,7 @@ func _next() -> void:
 	for i in t.length():
 		_screen.text += t[i]
 		rv = Sfx.speak_char("r", t, i, rv, false, screen_x())
-		await get_tree().create_timer(0.032 * Settings.char_delay(), false).timeout
+		await get_tree().create_timer(0.032, false).timeout
 	Sfx.static_burst(-2.0, screen_x())
 	_last = stamp + t
 	said.emit(t)

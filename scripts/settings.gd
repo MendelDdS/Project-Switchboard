@@ -1,6 +1,6 @@
 extends Node
-## Configurações do jogador (autoload `Settings`), salvas em user://settings.cfg: idioma, volume de cada barramento,
-## velocidade do texto e a tela (cheia ou janela; ampliação suave ou só por inteiro, que o `GameView` aplica). Os `set_*` valem na hora (prévia) mas só ficam salvos com `save()`; `snapshot()`/`restore()`
+## Configurações do jogador (autoload `Settings`), salvas em user://settings.cfg: idioma, volume de cada barramento
+## e a tela (cheia ou janela; ampliação suave ou só por inteiro, que o `GameView` aplica). Os `set_*` valem na hora (prévia) mas só ficam salvos com `save()`; `snapshot()`/`restore()`
 ## permitem descartar. O menu de configurações (PauseMenu) usa os dois: Aplicar salva, Voltar restaura.
 ## `-- --lang=en` força um idioma nesta execução. Testes (`-s`) não leem nem gravam o arquivo do jogador.
 
@@ -14,12 +14,9 @@ const LOCALE_NAMES := {"pt_BR": "Português (Brasil)", "en": "English (US)", "es
 const BUSES := ["Ambience", "Voices", "Effects"]
 ## Barramentos sem controle próprio, que seguem o volume de outro (o atrito do fio vai direto para o Master).
 const FOLLOWS := {"Rub": "Effects"}
-## Quanto cada letra demora, relativo ao normal: lenta, normal, rápida.
-const TEXT_SPEEDS := [1.6, 1.0, 0.55]
 
 var locale := DEFAULT_LOCALE
 var volumes := {"Ambience": 1.0, "Voices": 1.0, "Effects": 1.0}   ## 0..1, linear
-var text_speed := 1                                                 ## índice em TEXT_SPEEDS
 var fullscreen := true                                              ## tela cheia (falso: janela)
 var pixel_perfect := false                                          ## só ampliação inteira, com borda (falso: suave)
 var _persist := true
@@ -50,11 +47,6 @@ func set_volume(bus: String, v: float) -> void:
 	_changed()
 
 
-func set_text_speed(i: int) -> void:
-	text_speed = clampi(i, 0, TEXT_SPEEDS.size() - 1)
-	_changed()
-
-
 func set_fullscreen(on: bool) -> void:
 	fullscreen = on
 	_changed()
@@ -65,7 +57,6 @@ func set_pixel_perfect(on: bool) -> void:
 	_changed()
 
 
-## Multiplicador do tempo de cada letra das falas (conversa e rádio).
 ## A versão do jogo como ela aparece na tela inicial e na pausa ("v0.4.0 alpha"): o número do projeto
 ## (`application/config/version`, que as exportações usam; veja VERSOES.md) e a fase (`application/config/stage`;
 ## vazia na 1.0).
@@ -74,20 +65,15 @@ static func version_text() -> String:
 	return ("v%s %s" % [ProjectSettings.get_setting("application/config/version", ""), stage]).strip_edges()
 
 
-func char_delay() -> float:
-	return TEXT_SPEEDS[text_speed]
-
-
 ## Estado atual, para comparar ou restaurar depois.
 func snapshot() -> Dictionary:
-	return {"locale": locale, "volumes": volumes.duplicate(), "text_speed": text_speed, "fullscreen": fullscreen,
+	return {"locale": locale, "volumes": volumes.duplicate(), "fullscreen": fullscreen,
 		"pixel_perfect": pixel_perfect}
 
 
 func restore(s: Dictionary) -> void:
 	locale = s["locale"]
 	volumes = s["volumes"].duplicate()
-	text_speed = s["text_speed"]
 	fullscreen = s["fullscreen"]
 	pixel_perfect = s["pixel_perfect"]
 	_changed()
@@ -98,7 +84,6 @@ func save() -> void:
 		return
 	var f := ConfigFile.new()
 	f.set_value("settings", "locale", locale)
-	f.set_value("settings", "text_speed", text_speed)
 	f.set_value("display", "fullscreen", fullscreen)
 	f.set_value("display", "pixel_perfect", pixel_perfect)
 	for bus in BUSES:
@@ -126,7 +111,6 @@ func _load() -> void:
 	if f.load(PATH) != OK:
 		return
 	locale = f.get_value("settings", "locale", locale)
-	text_speed = f.get_value("settings", "text_speed", text_speed)
 	fullscreen = f.get_value("display", "fullscreen", fullscreen)
 	pixel_perfect = f.get_value("display", "pixel_perfect", pixel_perfect)
 	for bus in BUSES:

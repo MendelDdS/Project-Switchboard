@@ -783,3 +783,19 @@ Chaves:
     a pergunta, a resposta 1 s depois e, sabendo, ~3 s calados e a reclamação (~12 s em qualquer lugar). Soltando a
     chave no silêncio, a conversa segue; no fim da pergunta, desconversam; depois da resposta, continuam sabendo e
     reclamam da próxima vez que se calarem. Saíram os níveis da pergunta e da certeza e a folga do item 166.
+169. #conversa #interface #som #debug #testes
+    Melhorias da escuta escolhidas pelo usuário: no silêncio dos desconfiados, o chiado da linha aberta sobe (dá
+    para notar de ouvido); o lugar que denunciou fica mais desconfiado nas noites seguintes (+0,3 por denúncia,
+    salvo no progresso); o painel de debug mostra a suspeita de cada conversa e força o silêncio; e um teste confere
+    que, depois de uma pergunta sem resposta, cada fala escrita continua com quem a diz. A velocidade do texto saiu
+    das configurações, a pedido: não faz sentido no jogo (o ritmo das falas é parte dele, como o da escuta).
+170. #conversa
+    Correção: quando o lugar pedido não atende, a conversa fiada começava no mesmo instante em que surgia a opção de
+    oferecer a alternativa e atrasava o jogador. O tempo do destino chamando ("tuuu tuuu") contava como silêncio;
+    agora, sem resposta, o silêncio recomeça dali, e nada de conversa fiada durante a conexão.
+171. #conversa #testes #codigo
+    Melhorias da escuta escolhidas pelo usuário: fechou-se a brecha de soltar a chave depois de eles saberem e nunca
+    mais voltar (a denúncia agora é certa na hora da resposta; a reclamação ao vivo é só o que ele ouve se estiver na
+    linha); o silêncio mostra um ponto por segundo na tela, para ver que é uma janela de tempo; o estado de cada
+    conversa ficou num objeto só (`Eavesdrop.Talk`) em vez de quatro dicionários; e um robô descuidado no `run.sh`
+    (`--careless`) confere que a punição funciona num turno inteiro.

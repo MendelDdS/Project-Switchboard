@@ -6,6 +6,8 @@ extends "res://tests/test_base.gd"
 ## dos retornos (quem liga de novo).
 ## Com `-- --nosy`, com a mesa livre, ele escuta as conversas conectadas: solta quando eles se calam (`Eavesdrop.HUSH`)
 ## e volta quando a suspeita baixa (`NOSY_BACK`). Mede quanto dá para ouvir sem ser denunciado e se atrapalha o ritmo.
+## Com `-- --careless` também, ele não solta no silêncio (só quando alguém chama): mede, por desconfiança do lugar, em
+## quantos segundos ouvindo eles ficam sabendo, e falha se ninguém o denunciar.
 ## Falha se houver travamento: o turno precisa chegar ao final (00:00) depois da ligação desconhecida.
 
 var m: Main
@@ -23,7 +25,9 @@ var human := "--human" in OS.get_cmdline_user_args()
 const HUMAN_STEP := 5.0   ## segundos reais por ação no modo --human
 var nosy := "--nosy" in OS.get_cmdline_user_args()
 const NOSY_BACK := 0.1    ## o curioso volta a uma conversa com a suspeita abaixo disto
+var careless := "--careless" in OS.get_cmdline_user_args()
 var heard := {}           ## cada PhoneCall conectada -> s ouvidos dela (modo --nosy)
+var caught := {}          ## cada PhoneCall conectada que ficou sabendo -> s ouvidos até a denúncia (modo --careless)
 var entered := {}         ## cada PhoneCall conectada -> quantas vezes o curioso entrou na linha dela
 var next_act := 0.0       ## instante (s, na velocidade do jogo) em que a "pessoa" pode agir de novo
 
@@ -68,17 +72,16 @@ func _snoop(b, f: PhoneCall) -> bool:
 	var n: int = b.fone_line()
 	var busy := f != null and f.active or m.live.any(func(c: PhoneCall): return c.ringing or c.active and not c.closing)
 	if m.eavesdrop.listening(n):
-		var c: PhoneCall = m.eavesdrop.calls[n]
-		if not busy and c.suspicion < Eavesdrop.HUSH:
+		var c := m.eavesdrop.call_of(n)
+		if not busy and (careless or c.suspicion < Eavesdrop.HUSH):
 			return true
 		m.listen()
 		_acted()
 		return false
 	if busy:
 		return false
-	for k in m.eavesdrop.calls:
-		var c: PhoneCall = m.eavesdrop.calls[k]
-		if c.suspicion < NOSY_BACK:
+	for k in m.eavesdrop.talks:
+		if m.eavesdrop.call_of(k).suspicion < NOSY_BACK and not m.eavesdrop.knows(k):
 			_fone_to(b, k)
 			m.listen()
 			_acted()
@@ -169,8 +172,11 @@ func _initialize() -> void:
 		if human and f != null and f.kind == PhoneCall.Kind.EMERGENCY and f.talking:
 			next_act = maxf(next_act, _now() + HUMAN_STEP)
 		if nosy:
-			for lc: PhoneCall in m.eavesdrop.calls.values():
-				var on := m.eavesdrop.listening(lc.line)
+			for n: int in m.eavesdrop.talks:
+				var lc := m.eavesdrop.call_of(n)
+				var on := m.eavesdrop.listening(n)
+				if m.eavesdrop.knows(n) and not caught.has(lc):
+					caught[lc] = float(heard.get(lc, 0.0))
 				if on and not lc.get_meta("nosy_on", false):   # entrou agora
 					entered[lc] = int(entered.get(lc, 0)) + 1
 				lc.set_meta("nosy_on", on)
@@ -266,7 +272,15 @@ func _initialize() -> void:
 		print("curioso: ouviu %d de %d conversas conectadas, %.0f s no total (média %.0f s, maior %.0f s), denunciado %d vez(es)" % [secs.size(), heard.size(),
 			secs.reduce(func(a, x): return a + x, 0.0), secs.reduce(func(a, x): return a + x, 0.0) / maxi(secs.size(), 1),
 			secs.reduce(func(a, x): return maxf(a, x), 0.0), told])
-		ok(not secs.is_empty() and told == 0, "o curioso escuta e, soltando no silêncio, não é denunciado")
+		if careless:
+			var by_place := {}   # desconfiança do lugar -> s ouvidos até a denúncia, de cada uma
+			for lc: PhoneCall in caught:
+				var w: float = GameData.entry(str(lc.dest_num)).wary
+				by_place[w] = by_place.get(w, []) + ["%.0f" % caught[lc]]
+			print("descuidado: denunciado %d vez(es); s ouvidos até a denúncia, por desconfiança do lugar: %s" % [told, by_place])
+			ok(told > 0 and told == caught.size(), "o curioso descuidado, sem soltar no silêncio, é denunciado")
+		else:
+			ok(not secs.is_empty() and told == 0, "o curioso escuta e, soltando no silêncio, não é denunciado")
 		var by_wary := {}   # desconfiança do lugar -> [s ouvidos, entradas, conversas]
 		for lc: PhoneCall in heard:
 			if heard[lc] > 0.0:

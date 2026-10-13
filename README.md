@@ -154,8 +154,11 @@ desconhecida são sempre escritos à mão.
   ligam ("Bar do Zé! Fala aí, meu chapa!"). A suspeita aparece na conversa: quando eles percebem algo (mais cedo nos
   lugares desconfiados), a conversa para e eles se calam uns 3 s (a melhor hora de baixar a chave, e aí a conversa
   segue), um pergunta ao outro (`overheard_ask` no `content.tres`) e, se o operador continuar ouvindo, o outro responde
-  e os dois ficam sabendo (`overheard_sure`, na mesma ordem: cada resposta é a da sua pergunta); calados mais uns 3 s,
-  reclamam e desligam. Muito desconfiados (1,5 ou mais) não se calam: vão direto à pergunta.
+  e os dois ficam sabendo (`overheard_sure`, na mesma ordem: cada resposta é a da sua pergunta) e denunciam a
+  telefonista, solte ele a chave ou não; com ele ainda ouvindo, calados mais uns 3 s, reclamam e desligam. Muito
+  desconfiados (1,5 ou mais) não se calam: vão direto à pergunta. No silêncio, o chiado da linha aberta sobe, para
+  notar de ouvido, e a tela marca um ponto por segundo. Cada denúncia soma 0,3 à desconfiança do lugar nas noites
+  seguintes.
 - **A voz de quem atende** é a `voice` do contato (`f`, `m`, `w`, `k`); sem ela, uma tirada do nome, sempre a mesma.
 - A primeira letra de cada fala vira maiúscula depois de preenchida (`GameData.fill`).
 
@@ -170,7 +173,7 @@ salvo): `-- --night=2`.
 ## Tradução
 
 Três idiomas: português (padrão), inglês e espanhol. O jogador escolhe em **Configurações** (no menu de pausa, com
-Esc, ou na tela inicial), junto com o volume de ambiente, vozes e efeitos e a velocidade do texto; tudo fica salvo em
+Esc, ou na tela inicial), junto com o volume de ambiente, vozes e efeitos; tudo fica salvo em
 `user://settings.cfg`. Para testar um idioma: `godot --path . -- --lang=en` (ou `es`).
 
 - **Interface** (botões, dicas, rádio, relatório, falas fixas do operador): planilha `translations/ui.csv`, uma linha

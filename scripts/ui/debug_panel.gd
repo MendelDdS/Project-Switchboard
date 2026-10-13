@@ -1,7 +1,7 @@
 class_name DebugPanel
 extends PanelContainer
 ## Painel de debug (F1; só em build de debug, ou seja, no editor ou num export de debug; no export de release ele
-## se apaga): toca ligações na hora, mexe na barra de agravamento, no relógio, no clima, nas viaturas e no caderno. Cada seção
+## se apaga): toca ligações na hora, mexe na barra de agravamento, na suspeita da escuta, no relógio, no clima, nas viaturas e no caderno. Cada seção
 ## tem um "Limpar" que desfaz o que ela mexe, e "Restaurar tudo" faz todos (o relógio fica onde está).
 ## Limpar não gera advertência nem retorno. Ferramenta de desenvolvimento: textos fixos em português, sem tradução.
 ## A mesa de som toca cada som do `Sfx.VOL` e ajusta o volume dele na hora (`Sfx.vol`); "Copiar VOL" põe na área de
@@ -23,6 +23,7 @@ var C: GameContent = GameData.CONTENT
 
 var _status: Label
 var _bar: Label
+var _ears: Label   ## a suspeita de cada conversa conectada (escuta)
 var _emergency: OptionButton
 var _emergencies: Array[EmergencyCall] = []   ## na ordem do seletor: as escritas e depois os moldes
 var _freeze: CheckButton
@@ -63,6 +64,9 @@ func _ready() -> void:
 	_freeze.focus_mode = Control.FOCUS_NONE
 	_freeze.toggled.connect(func(on: bool): main.urgency.frozen = on)
 	_box.add_child(_freeze)
+	_section("Escuta", func(): main.eavesdrop.calm())
+	_ears = _label("")
+	_row([["Forçar silêncio", func(): main.eavesdrop.force_hush()]])
 	_section("Tempo", func(): Engine.time_scale = 1.0)
 	var speeds := []
 	for s: float in SPEEDS:
@@ -120,7 +124,7 @@ func _speak(text: String) -> void:
 		if me != _speaking:
 			return
 		prev = Sfx.speak_char(voice, text, i, prev, false, -1.0)
-		await get_tree().create_timer((0.09 if text[i] in ",." else 0.028) * Settings.char_delay(), false).timeout
+		await get_tree().create_timer((0.09 if text[i] in ",." else 0.028), false).timeout
 
 
 func _set_weather(w: String) -> void:
@@ -162,6 +166,15 @@ func _process(_delta: float) -> void:
 			e.address, c.stage, c.told, " · socorro completo" if c.secured else "", c.urgency, total,
 			" · congelada" if main.urgency.frozen else "", _units(main.dispatch.fleet.required(e)), _units(e.required(c.stage))])
 	_bar.text = "\n".join(lines) if not lines.is_empty() else "sem emergência em andamento"
+	var ears := PackedStringArray()
+	for n: int in main.eavesdrop.talks:
+		var c := main.eavesdrop.call_of(n)
+		ears.append("linha %d → %s · suspeita %.2f%s%s%s" % [n, c.dest_num, c.suspicion,
+			" · ouvindo" if main.eavesdrop.listening(n) else "", " · calados" if main.eavesdrop.silent == n else "",
+			" · sabem" if main.eavesdrop.knows(n) else ""])
+	if not main.eavesdrop.grudges.is_empty():
+		ears.append("denúncias: %s" % main.eavesdrop.grudges)
+	_ears.text = "\n".join(ears) if not ears.is_empty() else "nenhuma conversa conectada"
 
 
 func _ring(c: PhoneCall) -> void:

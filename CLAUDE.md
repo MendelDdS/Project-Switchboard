@@ -149,8 +149,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   o `Sfx` roda sempre (ambiente segue, abafado: `Sfx.muffle`, um passa-baixa e um ganho no Master, `MUFFLE`; nas
   Configurações volta ao normal para o volume se ajustar ouvindo; `Main.pause()` cala a campainha e `_update_bell` a devolve). Configurações no
   autoload `Settings` (`user://settings.cfg`): `locale`, `volumes` por barramento, `fullscreen` e `pixel_perfect` (a
-  tela, que o `GameView` aplica), `text_speed` (`char_delay()`
-  multiplica o tempo por letra na conversa e no rádio); sinal `changed`. `set_*` vale na hora (prévia) mas só
+  tela, que o `GameView` aplica; a velocidade do texto saiu, a pedido: o ritmo das falas faz parte do jogo, como o da
+  escuta); sinal `changed`. `set_*` vale na hora (prévia) mas só
   `save()` grava (botão Aplicar); Voltar/Esc faz `restore(snapshot)` do estado de quando a tela abriu. Testes (`-- --test=x` ou `-s`) não leem nem gravam o arquivo.
   Textos montados uma vez (botões do despacho, itens do caderno, telas desenhadas) se refazem em
   `NOTIFICATION_TRANSLATION_CHANGED`.
@@ -202,7 +202,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
     Medido: ~17–20 s ouvidos por conversa (de 45–90 s), nenhuma denúncia e o mesmo ritmo de ligações. Imprime também,
     por desconfiança do lugar (`DirectoryEntry.wary`), os segundos por entrada na linha: ~14–17 s no normal (com
     `LISTEN_SEC` 25 eram ~8, e a conversa passava antes de dar para ler), menos na pensão (1,6) e mais no bilhar e no
-    bar (0,6 e 0,5), como na conta (de `NOSY_BACK` a `HUSH` em `LISTEN_SEC`, ÷ a desconfiança).
+    bar (0,6 e 0,5), como na conta (de `NOSY_BACK` a `HUSH` em `LISTEN_SEC`, ÷ a desconfiança). Com `--careless`
+    também (no `run.sh`), ele não solta no silêncio: imprime em quantos segundos ouvindo eles ficaram sabendo, por
+    desconfiança do lugar (~23 s no hotel, 1,0), e falha se ninguém o denunciar.
   - Rode depois de qualquer mudança em agenda, fim de ligação, mesa ou cabos. `run.sh` também joga um turno em
     `--lang=en` e outro em `--lang=es`; o teste de fluxo confere chaves, lacunas e cenas (`_check_translations`).
 - Semente fixa: `Godot --path . -- --seed=123` repete a agenda do turno (sem `--seed`, é aleatória).
@@ -210,7 +212,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   build de debug (editor ou export de debug; no release ele se apaga). Toca ligações na hora (qualquer tipo; emergência
   escolhida, com o caso sorteado; interurbano num tronco que nenhuma ligação da mesa usa), imprime só um bilhete de tarifação,
   sem ligação (de 1 a 12 minutos até agora, numa entrada sem contador; `Main.print_ticket`), pula estágio ou congela a barra (`Urgency.frozen`), mostra o que a emergência
-  exige (contado e real), velocidade 1–8×, pula o relógio, troca o clima na hora (`Main.set_weather`), encerra o turno, troca de noite (`_go_night`: troca o Main por um novo na noite anterior/seguinte, no mesmo pai, dentro da tela do `GameView`; posto na raiz, saía na resolução da janela e quebrava o layout; sem ler nem
+  exige (contado e real), mostra a suspeita de cada conversa conectada e força o silêncio delas (`Eavesdrop.force_hush`; o
+  Limpar é o `calm`, que também apaga as denúncias), velocidade 1–8×, pula o relógio, troca o clima na hora (`Main.set_weather`), encerra o turno, troca de noite (`_go_night`: troca o Main por um novo na noite anterior/seguinte, no mesmo pai, dentro da tela do `GameView`; posto na raiz, saía na resolução da janela e quebrava o layout; sem ler nem
   gravar o progresso, para testar a entrega dos setores), libera viaturas (`Dispatch.reset`; `_gen` cancela
   as viagens em andamento), registra pendências, limpa advertências e apaga o progresso. Mesa de som: toca cada som de `Sfx.VOL` com
   um controle de volume que vale na hora (`Sfx.vol`, a cópia em uso) e "Copiar VOL" põe a constante ajustada na área de
@@ -266,7 +269,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   CONN). A alavanca sobe com o destino tocando e desce quando ele atende (`Switchboard.lever_up`); com o FONE na linha
   conectada, a tecla Escutar (Z, `Main.listen`; levantada, ela diz Soltar, `PhonePanel.set_listen`) ou o clique na
   alavanca (`Main._on_lever`; sem o FONE, `WARN_LISTEN_FONE`) a sobe e desce. Ouvindo (`Eavesdrop.listening`), a tela
-  mostra o que se ouve numa PhoneCall só dela (`_ears`, fora do Registro): quem atende fala primeiro (o lugar com o
+  mostra o que se ouve numa PhoneCall só dela (`Talk.ear`, fora do Registro; cada conversa conectada é um
+  `Eavesdrop.Talk` em `talks`, por linha, com a ligação, o que se ouve, `knows` e `written`, limpo num lugar só): quem atende fala primeiro (o lugar com o
   nome dele, `DirectoryEntry.hello`; a pessoa, um "alô" de `C.overheard_hello`), depois as falas escritas
   (`TransferCall.overheard`, começando por quem ligou, que cumprimenta, e alternando; sem elas, o cumprimento de
   `C.overheard_greet` se atendeu uma pessoa) e depois o murmúrio das vozes sem texto (assuntos da conversa fiada,
@@ -309,10 +313,15 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   segue: a melhor hora; com a desconfiança dos dois, `Eavesdrop._wary`, de `SKEPTIC` para cima, não se calam e
   perguntam depois de `ASK_PAUSE`), um pergunta ao outro (`C.overheard_ask`) e, com ele ainda ouvindo no fim da
   pergunta, o outro responde (depois do `GAP`) e eles sabem (`C.overheard_sure`, a resposta da mesma pergunta;
-  `_knows`; sem ninguém ouvindo, desconversam e a suspeita fica `SHRUG` abaixo de `HUSH`); sabendo, mais `HUSH_SEC`
-  calados com ele ouvindo e a reclamação (`C.overheard_caught`), e os dois desligam (`talk_over`); soltando antes,
-  continuam sabendo e reclamam da próxima vez que se calarem. Do silêncio à reclamação, ~12 s em qualquer lugar; a
-  desconfiança do lugar só muda quando o silêncio começa. (Antes cada estágio esperava a suspeita subir até o
+  `Talk.knows`; sem ninguém ouvindo, desconversam e a suspeita fica `SHRUG` abaixo de `HUSH`). **Sabendo, a
+  denúncia é certa** (`_denounce`, na hora da resposta; soltar a chave depois não a desfaz); com ele ouvindo, mais
+  `HUSH_SEC` calados e a reclamação (`C.overheard_caught`, `_caught`), e os dois desligam (`talk_over`); soltando
+  antes, a conversa segue e eles reclamam da próxima vez que se calarem com ele ouvindo. Do silêncio à reclamação, ~12 s em qualquer lugar; a
+  desconfiança do lugar só muda quando o silêncio começa. No silêncio (`_silence`), a linha "(Silêncio na linha.)" ganha um ponto por segundo
+  (`PhoneCall.set_line_text`) e o chiado da linha sobe (`Eavesdrop.silent`,
+  `SILENT_HISS_DB`, por `Main.refresh_hiss`, que também dá o de sempre da linha do FONE). O lugar que denunciou fica
+  mais desconfiado nas noites seguintes (`Eavesdrop.grudges`, `GRUDGE` somado ao `wary` dele por denúncia; salvo no
+  `Progress.grudges`). (Antes cada estágio esperava a suspeita subir até o
   seguinte: ficavam 6–20 s calados, e antes disso a conversa escrita seguia e acabava antes da pergunta.) O jeito de atender de cada lugar dá a pista da desconfiança dele (`hello`: seco na
   pensão, solto no bar). **A denúncia chega no relatório da noite seguinte**
   (`Supervisor.fault_later` → `ShiftReport.later` → `Progress.later`; lá, a advertência grave `eavesdrop` com a hora
@@ -593,7 +602,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   Um destino (e `alt_target`) por noite: dois pedidos do mesmo número travavam um ao outro.
 - `GIVE_UP_SEC` 60 s (`story` 1,5x, retornos 0,75x); treinamento e desconhecida nunca desistem.
 - Espera na linha (`Main._nag`, silêncio medido em `talk_clock`, que para na pausa): transferência pedida e o
-  operador parado → depois de `SMALLTALK_AFTER` (10 s), com `SMALLTALK_CHANCE` (60%, uma vez por ligação), conversa
+  operador parado → depois de `SMALLTALK_AFTER` (10 s; o destino chamando não conta: sem resposta, o silêncio
+  recomeça, `Main._ring_dest`, para a conversa fiada não vir junto da opção da alternativa), com `SMALLTALK_CHANCE` (60%, uma vez por ligação), conversa
   fiada do cotidiano (`Conversation.smalltalk`). **Cada assunto é um `ChatTopic`** (`scripts/data/chat_topic.gd`,
   `GameContent.smalltalk`): `line`, `weather` (vazio = qualquer), `voices` (quem pode dizer: "Meu marido..." só em voz
   de mulher; `Conversation.topics(voice)`), `requires` (marcadores) e `replies` (`ChatReply`: `text`, `follow`, `tone`, `sets`),

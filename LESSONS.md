@@ -258,3 +258,10 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   nível ao outro, e o silêncio durava 6 a 20 s conforme o lugar: ninguém fica tanto calado numa ligação. Ao ligar um
   estado da ficção a um contador, confira quanto tempo ele dura em cada caso, e prefira o tempo fixo quando a ficção
   pede uma reação ("calam-se, perguntam, respondem").
+- **Teste novo tem de falhar com o erro que ele cobre.** O da pergunta sem resposta passou com o erro de volta: um
+  lambda do teste guardava a conversa anterior (GDScript captura a variável de quando o lambda foi criado), e a chave
+  descia depois de a pergunta acabar, pelo caminho errado. Ao escrever um teste de regressão, ponha o erro de volta e
+  veja o teste falhar.
+- **Esperar uma coisa da mesa não é silêncio na linha.** O relógio da conversa fiada seguia correndo com o destino
+  chamando; sem resposta, ela entrava junto da opção da alternativa e atrapalhava. Um contador de "tempo parado" tem
+  de recomeçar quando a espera do sistema acaba e a vez volta ao jogador.

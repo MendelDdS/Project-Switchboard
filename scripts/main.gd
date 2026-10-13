@@ -517,7 +517,7 @@ func listen() -> void:
 ## A chave de escuta da linha `n` pode virar: a linha conectada e a conversa escutável (a do treinamento e a já
 ## denunciada não são); levantada, sempre desce.
 func _can_listen(n: int) -> bool:
-	return n != -1 and exchange.line(n) == Exchange.Line.CONN and (exchange.key(n) or eavesdrop.calls.has(n))
+	return n != -1 and exchange.line(n) == Exchange.Line.CONN and (exchange.key(n) or eavesdrop.talks.has(n))
 
 
 ## Clique na chave de escuta da linha `n`: só sobe com a linha conectada e o FONE na entrada dela; desce sempre.
@@ -552,6 +552,7 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 		phone.flash(T.text(T.Key.DISPLAY_NO_ANSWER) % d, 3000)
 		c.sys(T.text(T.Key.SYS_NOBODY_ANSWERS) % d)
 		c.no_answer = true
+		c.last_talk = talk_clock   # o silêncio conta daqui: chamando não é silêncio (a conversa fiada não atropela a alternativa)
 		conversation.transfer_choices(c)
 		_update_call_ui()
 		return
@@ -701,11 +702,19 @@ func _refresh_panel() -> void:
 	for c in live:
 		c.on_line = c == f
 	phone.show_call(f if f != null else phone.shown())
-	if f != null and f.active:
+	refresh_hiss()
+	_update_call_ui()
+
+
+## O chiado da linha com o FONE: o de sempre numa ligação, e mais alto no silêncio de quem desconfia da escuta.
+func refresh_hiss() -> void:
+	var f := _focus()
+	if f != null and eavesdrop.silent == f.line and eavesdrop.listening(f.line):
+		Sfx.fade(Sfx.hiss, Eavesdrop.SILENT_HISS_DB, 0.4)
+	elif f != null and f.active:
 		Sfx.fade(Sfx.hiss, -26.0 if f.kind == PhoneCall.Kind.MYSTERY else -36.0, 0.3)
 	else:
 		Sfx.fade(Sfx.hiss, -80.0, 0.2)
-	_update_call_ui()
 
 
 ## Já transferida: o destino na ponta do cabo da saída está tocando ou atendeu.
@@ -1198,6 +1207,7 @@ func start_ending() -> void:
 			progress.news = report.news()
 			progress.later = report.later if later else []
 			progress.clues = eavesdrop.clues.map(func(k: Clue): return k.to_dict())
+			progress.grudges = eavesdrop.grudges
 			progress.save()
 	await get_tree().create_timer(5.0, false).timeout
 	_ending.play(report, not last)

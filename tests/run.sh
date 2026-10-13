@@ -76,6 +76,7 @@ run shift --seed=1 --night=5
 run shift --seed=2 --night=9
 run shift --seed=1 --human
 run shift --seed=2 --human --nosy
+run shift --seed=2 --human --nosy --careless
 run shift --seed=2 --lang=en
 run shift --seed=3 --lang=es
 

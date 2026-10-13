@@ -187,6 +187,12 @@ func append_text(i: int, text: String) -> void:
 	transcript_changed.emit()
 
 
+## Troca o texto da fala `i` (o silêncio da escuta, que vai ganhando pontos).
+func set_line_text(i: int, text: String) -> void:
+	transcript[i]["text"] = text
+	transcript_changed.emit()
+
+
 ## Sublinha as últimas `length` letras da fala `i` (a palavra-chave que o operador acabou de ouvir).
 func underline(i: int, length: int) -> void:
 	var end := String(transcript[i]["text"]).length()
