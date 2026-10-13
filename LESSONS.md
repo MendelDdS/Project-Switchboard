@@ -254,3 +254,7 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   silêncio "não fazia efeito". Tentei primeiro só arrumar a tela (o resto da fala embaixo do aviso), e o usuário
   apontou a causa: o tempo da conversa normal continuava rolando. Ao montar estados por cima de um fluxo, decida o que
   acontece com o fluxo em cada estado.
+- **Cada estado tem de durar o que duraria de verdade.** Os estágios da desconfiança esperavam a suspeita subir de um
+  nível ao outro, e o silêncio durava 6 a 20 s conforme o lugar: ninguém fica tanto calado numa ligação. Ao ligar um
+  estado da ficção a um contador, confira quanto tempo ele dura em cada caso, e prefira o tempo fixo quando a ficção
+  pede uma reação ("calam-se, perguntam, respondem").

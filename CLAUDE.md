@@ -304,17 +304,16 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   FONE encaixando com ela em cima, soma `CLICK`; tudo vezes a desconfiança deles, a de quem ligou, `TransferCall.wary`,
   e a do lugar que atendeu, `DirectoryEntry.wary`, também nos moldes e na alternativa; sem ninguém
   ouvindo, baixa em `COOL_SEC`) só aparece na conversa:
-  **a conversa normal só anda enquanto eles não desconfiam** (`Eavesdrop._hush`): perceberam algo (`HUSH`) e,
-  terminada a fala, se calam enquanto ele ouvir (`SYS_LINE_SILENT`; sem ninguém ouvindo, a conversa segue: é a melhor
-  hora de baixar a chave); desconfiaram (`ASK`; com a desconfiança dos dois, `Eavesdrop._wary`, de `SKEPTIC` para
-  cima, não se calam e perguntam já em `HUSH`, `_asks_at`) e, depois de uma pausa (`ASK_PAUSE`), um pergunta ao outro
-  (`C.overheard_ask`, `_cue`); com o operador ainda ouvindo no fim da pergunta, o outro responde (depois do `GAP`) e
-  eles sabem (`C.overheard_sure`, a resposta da mesma pergunta; `_knows`, a suspeita pula para `SURE` e antes disso
-  não passa dele; sem ninguém ouvindo, desconversam e ela baixa `SHRUG` abaixo de onde perguntam, e voltando eles
-  perguntam de novo); calados de novo, em 1 a reclamação (`C.overheard_caught`) e os dois desligam (`talk_over`).
-  Depois do silêncio e da resposta, `CALM_SEC` antes da próxima reação (`_calm`: a suspeita para antes do próximo
-  limite), para dar tempo de ler e soltar a chave. (Antes o silêncio durava 3 s e a conversa escrita seguia: acabava
-  e eles se despediam antes de chegar à pergunta.) O jeito de atender de cada lugar dá a pista da desconfiança dele (`hello`: seco na
+  passando de `HUSH` com ele ouvindo, a conversa normal para e **o resto anda no tempo, não pela suspeita**
+  (`Eavesdrop._react`): terminada a fala, calam-se `HUSH_SEC` (`SYS_LINE_SILENT`; soltando a chave aí, a conversa
+  segue: a melhor hora; com a desconfiança dos dois, `Eavesdrop._wary`, de `SKEPTIC` para cima, não se calam e
+  perguntam depois de `ASK_PAUSE`), um pergunta ao outro (`C.overheard_ask`) e, com ele ainda ouvindo no fim da
+  pergunta, o outro responde (depois do `GAP`) e eles sabem (`C.overheard_sure`, a resposta da mesma pergunta;
+  `_knows`; sem ninguém ouvindo, desconversam e a suspeita fica `SHRUG` abaixo de `HUSH`); sabendo, mais `HUSH_SEC`
+  calados com ele ouvindo e a reclamação (`C.overheard_caught`), e os dois desligam (`talk_over`); soltando antes,
+  continuam sabendo e reclamam da próxima vez que se calarem. Do silêncio à reclamação, ~12 s em qualquer lugar; a
+  desconfiança do lugar só muda quando o silêncio começa. (Antes cada estágio esperava a suspeita subir até o
+  seguinte: ficavam 6–20 s calados, e antes disso a conversa escrita seguia e acabava antes da pergunta.) O jeito de atender de cada lugar dá a pista da desconfiança dele (`hello`: seco na
   pensão, solto no bar). **A denúncia chega no relatório da noite seguinte**
   (`Supervisor.fault_later` → `ShiftReport.later` → `Progress.later`; lá, a advertência grave `eavesdrop` com a hora
   "ontem, 21:30", `REPORT_YESTERDAY`); sem noite seguinte (a última, noite forçada) entra no de hoje, e a do

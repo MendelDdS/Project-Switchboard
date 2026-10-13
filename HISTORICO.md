@@ -777,3 +777,9 @@ Chaves:
     conversa normal não anda: terminada a fala, ficam calados até a pergunta (ou até ele soltar a chave, e aí ela segue);
     depois da resposta, calados até a reclamação. A pergunta vem depois de uma pausa de 2 s, e a resposta 1 s depois da
     pergunta (a hesitação de 2 s do item 166 saiu).
+168. #conversa
+    6 a 20 s calados numa ligação não fazem sentido: cada estágio esperava a suspeita subir até o seguinte. Agora a
+    suspeita só decide quando eles percebem algo; dali em diante, com o operador ouvindo, anda no tempo: ~3 s calados,
+    a pergunta, a resposta 1 s depois e, sabendo, ~3 s calados e a reclamação (~12 s em qualquer lugar). Soltando a
+    chave no silêncio, a conversa segue; no fim da pergunta, desconversam; depois da resposta, continuam sabendo e
+    reclamam da próxima vez que se calarem. Saíram os níveis da pergunta e da certeza e a folga do item 166.
