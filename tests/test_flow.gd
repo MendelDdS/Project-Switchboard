@@ -1306,7 +1306,7 @@ func _initialize() -> void:
 	pj.position = (m.background._props[Tools.NEWS] as Rect2).get_center()
 	m.background.pointer(pj)
 	ok(m.tools.open and m.tools.tab == Tools.NEWS, "o jornal na mesa abre")
-	ok(m.tools.news.get_node("Page/Text/Headlines").text.contains("Rua do Sol"), "o jornal traz as manchetes da noite anterior")
+	ok(m.tools.news.get_node("Page/Text/Lead").text.contains("Rua do Sol"), "o jornal traz as manchetes da noite anterior")
 	m.tools.close()
 	# a sala muda pelos marcadores do roteiro, a partir da noite de cada mudança
 	for r in GameData.CONTENT.room:

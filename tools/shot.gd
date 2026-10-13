@@ -16,6 +16,8 @@ extends Node
 ##   --clues                palavras-chave ouvidas (uma marcada, uma riscada, uma ouvida duas vezes) e a lista nas anotações
 ##   --hover=id             o mouse em cima do objeto da mesa (os ids de `Tools`): o contorno e o nome
 ##   --zoom=x,y,w,h         o recorte, em px do jogo, ampliado `ZOOM` vezes
+##   --scale=1.5            grava também a tela como o `GameView` a mostra nessa ampliação (o filtro `SHARP`;
+##                          1.5 = 1080p, 2 = 1440p, 1.25 = 1600×900), em <nome>_x1.5.png
 ##   --wait=5               segundos antes de capturar (a luminária esquenta em 4)
 ## As do jogo também valem: --weather=rain|fog|clear, --night=N, --seed=N, --lang=en.
 
@@ -94,6 +96,27 @@ func _ready() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://" + out.get_base_dir()))
 	img.save_png("res://" + out)
 	print("gravado: ", out)
+	if _args.has("scale"):   # o jogo ampliado pelo filtro de verdade do `GameView`
+		var k := float(_args["scale"])
+		var big := SubViewport.new()
+		big.size = Vector2i((Vector2(img.get_size()) * k).ceil())
+		big.render_target_update_mode = SubViewport.UPDATE_ONCE
+		var rect := TextureRect.new()
+		rect.texture = ImageTexture.create_from_image(img)
+		rect.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		rect.size = Vector2(big.size)
+		rect.stretch_mode = TextureRect.STRETCH_SCALE
+		var shader := Shader.new()
+		shader.code = GameView.SHARP
+		rect.material = ShaderMaterial.new()
+		(rect.material as ShaderMaterial).shader = shader
+		(rect.material as ShaderMaterial).set_shader_parameter("scale", k)
+		big.add_child(rect)
+		add_child(big)
+		await RenderingServer.frame_post_draw
+		var sout := out.get_basename() + "_x%s.png" % _args["scale"]
+		big.get_texture().get_image().save_png("res://" + sout)
+		print("gravado: ", sout)
 	if _args.has("zoom"):
 		var z: PackedStringArray = _args["zoom"].split(",")
 		var r := Rect2i(int(z[0]), int(z[1]), int(z[2]), int(z[3])).intersection(Rect2i(Vector2i.ZERO, img.get_size()))

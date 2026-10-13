@@ -74,12 +74,10 @@ layout_mode = 2
 theme_override_constants/separation = 6
 script = ExtResource("7_news")
 
-[node name="Masthead" type="Label" parent="Body/Paper/Margin/News"]
+[node name="Masthead" type="TextureRect" parent="Body/Paper/Margin/News"]
+custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
-theme_type_variation = &"InkLabel"
-theme_override_font_sizes/font_size = 44
-text = "NEWS_MASTHEAD"
-horizontal_alignment = 1
+stretch_mode = 3
 
 [node name="Edition" type="Label" parent="Body/Paper/Margin/News"]
 layout_mode = 2
@@ -101,6 +99,12 @@ theme_override_constants/separation = 16
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 10
+
+[node name="Lead" type="Label" parent="Body/Paper/Margin/News/Page/Text"]
+layout_mode = 2
+theme_type_variation = &"InkBoldLabel"
+autowrap_mode = 2
+auto_translate_mode = 2
 
 [node name="Headlines" type="RichTextLabel" parent="Body/Paper/Margin/News/Page/Text"]
 layout_mode = 2

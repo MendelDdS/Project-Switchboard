@@ -164,6 +164,88 @@ static func turned(rows: Array, angle: float, pivot: Vector2) -> Array:
 	return res
 
 
+## O texto `text` na fonte do jogo (`Pal.mono`, lida em 11, onde cada pixel dela é um pixel) ampliado 2^`passes`
+## vezes pelo Scale2x, recortado à tinta e em relevo (`relief`). Na fonte em 22 ou 44 cada pixel dela vira um bloco
+## de 2 ou 4 px ao lado dos de 1 px da sala; aqui a diagonal sai em degrau de 1 px e a beira e o miolo pintados à
+## parte dão o detalhe de 1 px. (O Scale3x, para 3×, inventava bicos nas letras de traço fino e saiu.) Guardado.
+static var _texts := {}
+static func big(text: String, passes: int) -> Array:
+	var key := [text, passes]
+	if _texts.has(key):
+		return _texts[key]
+	if _texts.size() > CACHE_MAX:
+		_texts.clear()
+	var ts := TextServerManager.get_primary_interface()
+	var rid: RID = Pal.mono.get_rids()[0]
+	var asc := int(Pal.mono.get_ascent(11))
+	var h := asc + int(Pal.mono.get_descent(11))
+	var glyphs := []   # [contornos, x]
+	var w := 0.0
+	for ch in text:
+		var g := ts.font_get_glyph_index(rid, 11, ch.unicode_at(0), 0)
+		var d: Dictionary = ts.font_get_glyph_contours(rid, 11, g)
+		var polys := []
+		var start := 0
+		for end: int in d.get("contours", PackedInt32Array()):
+			var p := PackedVector2Array()
+			for i in range(start, end + 1):
+				p.append(Vector2(d["points"][i].x, d["points"][i].y))
+			polys.append(p)
+			start = end + 1
+		glyphs.append([polys, w])
+		w += ts.font_get_glyph_advance(rid, 11, g).x
+	var bw := int(w)
+	var buf := PackedByteArray()
+	buf.resize(bw * h)
+	buf.fill(46)   # "."
+	for e: Array in glyphs:   # o pixel é tinta se o meio dele fica dentro de um número ímpar de contornos
+		for y in h:
+			for x in range(maxi(0, int(e[1])), mini(bw, int(e[1]) + 11)):
+				var inside := false
+				for p: PackedVector2Array in e[0]:
+					if Geometry2D.is_point_in_polygon(Vector2(x + 0.5 - e[1], y + 0.5 - asc), p):
+						inside = not inside
+				if inside:
+					buf[y * bw + x] = 35   # "#"
+	for i in passes:
+		buf = _scale2x(buf, bw << i, h << i)
+	bw <<= passes
+	h <<= passes
+	var ink := Rect2i()
+	for y in h:
+		for x in bw:
+			if buf[y * bw + x] == 35:
+				ink = Rect2i(x, y, 1, 1) if ink.size == Vector2i.ZERO else ink.expand(Vector2i(x, y)).expand(Vector2i(x + 1, y + 1))
+	var rows := []
+	for y in range(ink.position.y, ink.end.y):
+		rows.append(buf.slice(y * bw + ink.position.x, y * bw + ink.end.x).get_string_from_ascii())
+	_texts[key] = relief(rows)
+	return _texts[key]
+
+
+## O mapa `rows` ("#" é tinta) em relevo, como mapa de `art`: "u" na beira com vazio em cima ou à esquerda (a luz),
+## "d" no resto da beira e "+" no miolo.
+static func relief(rows: Array) -> Array:
+	var h := rows.size()
+	var w := (rows[0] as String).length()
+	var ink := func(x: int, y: int) -> bool:
+		return x >= 0 and y >= 0 and x < w and y < h and rows[y][x] == "#"
+	var out := []
+	for y in h:
+		var line := ""
+		for x in w:
+			if not ink.call(x, y):
+				line += "."
+			elif not ink.call(x, y - 1) or not ink.call(x - 1, y) or not ink.call(x - 1, y - 1):
+				line += "u"
+			elif not (ink.call(x + 1, y) and ink.call(x, y + 1) and ink.call(x + 1, y + 1) and ink.call(x + 1, y - 1) and ink.call(x - 1, y + 1)):
+				line += "d"
+			else:
+				line += "+"
+		out.append(line)
+	return out
+
+
 ## Scale2x (EPX) de um mapa de caracteres `w` × `h`, um byte por pixel: cada pixel vira quatro, e o canto que fica
 ## entre dois vizinhos iguais toma a cor deles (a diagonal sai em degrau de meio pixel, sem borrar).
 static func _scale2x(src: PackedByteArray, w: int, h: int) -> PackedByteArray:

@@ -40,12 +40,16 @@ func _notification(what: int) -> void:
 func _render() -> void:
 	if _night == null:   # (ainda sem jornal: só da segunda noite em diante)
 		return
+	# o nome do jornal, a fonte ampliada 4× em letra vazada (`PixelArt.big`: na fonte em 44, os pixels dela viravam blocos de 4 px)
+	$Masthead.texture = PixelArt.art(PixelArt.big(T.text(T.Key.NEWS_MASTHEAD), 2), {"u": Pal.INK, "d": Pal.INK, "+": Pal.NEWS_INK})
 	$Edition.text = T.text(T.Key.NEWS_EDITION) % GameData.date_text(_n)
-	var s := "[font_size=22]%s[/font_size]" % T.text(T.Key.REPORT_QUIET) if _news.is_empty() else ""
-	for i in _news.size():
-		var h := ShiftReport.headline(_news[i]).replace("[", "(")
-		s += ("[font_size=22]%s[/font_size]\n\n" if i == 0 else "• %s\n\n") % h
+	# a primeira em 11 e em negrito (`InkBoldLabel`, a sombra 1 px ao lado): em 22, os pixels da fonte viravam blocos de 2 px
+	$Page/Text/Lead.text = T.text(T.Key.REPORT_QUIET) if _news.is_empty() else ShiftReport.headline(_news[0])
+	var s := ""
+	for i in range(1, _news.size()):
+		s += "• %s\n\n" % ShiftReport.headline(_news[i]).replace("[", "(")
 	$Page/Text/Headlines.text = s.strip_edges()
+	$Page/Text/Headlines.visible = not s.is_empty()
 	$Page/Text/Columns.queue_redraw()
 	$Page/Photo.queue_redraw()
 

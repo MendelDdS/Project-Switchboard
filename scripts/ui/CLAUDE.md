@@ -93,7 +93,7 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   olhos uma fração do ângulo até eles, `_yaw`; foi 0,5: certo na conta, mas a frente descia uns 5° entre as horizontais
   da sala e o lado sumia, e parecia um relógio inclinado numa mesa plana; `_clock_box` desenha as faces viradas para os olhos, `_clock_xz`/
   `_clock_pt` giram os pontos), com fendas e botão niquelado do alarme no tampo, a
-  rodinha de acertar no lado e duas plaquetas (horas e minutos, algarismos de 9×19 desenhados à mão numa folha de
+  rodinha de acertar no lado e duas plaquetas (horas e minutos, algarismos de 9×19 desenhados à mão, hastes de 2 px e barras de 1, numa folha de
   fonte, `DIGITS`) que viram quando a hora muda
   (`Background.minutes`, o Main atualiza; `_flip_step`, `FLIP_SEC`). A frente é montada reta numa imagem
   (`_clock_face`, `_flip_card`, `_card`) e posta coluna a coluna na perspectiva exata: cada coluna da tela é um raio
@@ -307,7 +307,7 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   exceto 190/192/193, que vão pelo despacho). Destinos em três bancos de fábrica, A | B | C, rotulados pela faixa de
   numeração (100–199 | 200–299 | 300–399, `SECTOR_ORDER`, duas fileiras cada, `_layout_dests`/`_slots`; a mesa não
   fala em setor). O banco de um setor que ainda não é do operador fica sob uma chapa com a letra dele (`_draw_plate`:
-  A e B; o C, do setor 3, nunca é tampado; chapa lisa (o escovado saiu a pedido), a letra estampada em relevo, o aviso `BOARD_PLATE_NOTICE`
+  A e B; o C, do setor 3, nunca é tampado; chapa lisa (o escovado saiu a pedido), a letra estampada em relevo, desenhada à mão em `PLATE_LETTERS` com luz e sombra de 1 px, `PixelArt.relief` (na fonte em 33 os pixels viravam blocos de 3), o aviso `BOARD_PLATE_NOTICE`
   pintado com estêncil e riscos de chave de fenda em volta dos parafusos) e as tomadas dele não existem para o clique.
 - `ends[]`: tomada de cada ponta (-1 = na base). **Ponta 0 = FONE** (cabo verde, encaixe `FoneSocket` na prateleira, só
   entra em entradas). **Pontas 1..2*patches = cabos de conexão** (vermelho, azul, amarelo, branco e preto em `CORD_COLORS`; independentes; `mate(e)`

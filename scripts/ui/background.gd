@@ -912,17 +912,17 @@ func _draw_calendar(r: Rect2) -> void:
 	var cells := {}
 	for day in range(1, days + 1):
 		var k: int = first + day - 1
-		var c := o + Vector2(2 + (k % 7) * 9, 14 + (k / 7) * 8)
+		var c := o + Vector2(2 + (k % 7) * 10, 14 + (k / 7) * 8)   # 10 px: com 9, os números de dois algarismos se encostavam
 		cells[day] = c
 		var tex := PixelArt.tiny(str(day))
-		_ci.draw_texture(tex, (c + Vector2(5 - tex.get_width() / 2.0, -2)).floor(), Color("a8382c") if k % 7 == 6 else Color("4e4636"))
+		_ci.draw_texture(tex, (c + Vector2(5.5 - tex.get_width() / 2.0, -2)).floor(), Color("a8382c") if k % 7 == 6 else Color("4e4636"))
 	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 	for day: int in cells:
 		var c: Vector2 = cells[day]
 		if day < today.day:   # já passou: riscado de vermelho
-			_ci.draw_line((c + Vector2(1, 7)) * PX, (c + Vector2(9, 0)) * PX, Color("b03a2e", 0.85), PX)
+			_ci.draw_line((c + Vector2(1, 7)) * PX, (c + Vector2(10, 0)) * PX, Color("b03a2e", 0.85), PX)
 		elif day == today.day:   # hoje: circulado
-			_ci.draw_rect(Rect2((c + Vector2(0, -1)) * PX, Vector2(10, 9) * PX), Color("b03a2e"), false, PX)
+			_ci.draw_rect(Rect2((c + Vector2(0, -1)) * PX, Vector2(11, 9) * PX), Color("b03a2e"), false, PX)
 	_p(o.x + r.size.x - 1, o.y - 2, 2, 2, Color("3a3a3a"))   # o prego
 
 
@@ -1456,7 +1456,7 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 		var rod := d1.lerp(d0, 0.3)   # a haste da fechadura
 		draw_line(rod + Vector2(0, 30), rod + Vector2(0, 52), Color("8e897c"), PX)
 	else:
-		_draw_calendar(Rect2(mid + 11, doors + 44, 33, 28))   # preso com ímã
+		_draw_calendar(Rect2(mid + 10, doors + 44, 37, 28))   # preso com ímã
 	if "numero_anotado" in details:   # o número de quem ligou, anotado num bilhete e colado com fita
 		var n := Rect2(f.position.x + 10, doors + 52, 26, 14)
 		_cast(n, 1.01)

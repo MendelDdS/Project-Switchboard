@@ -58,3 +58,4 @@ func _fit() -> void:
 	_box.scale = Vector2(k, k)
 	_box.position = ((win - _box.size * k) / 2.0).floor()
 	(_box.material as ShaderMaterial).set_shader_parameter("scale", k)
+	Cursors.zoom(k)

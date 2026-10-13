@@ -507,6 +507,21 @@ func _draw_number_plate(r: Rect2, text: String) -> void:
 	_ci.draw_string(Pal.mono, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color("1d1a14"))
 
 
+## As letras estampadas nas chapas dos bancos, 13×19, desenhadas à mão (traço de 3 px e cantos em degrau de 1 px): na
+## fonte em 33, cada pixel dela virava um bloco de 3 px ao lado dos de 1 px do painel.
+const PLATE_LETTERS := {
+	"A": ["...#######...", "..#########..", ".####...####.", "###.......###", "###.......###", "###.......###",
+		"###.......###", "###.......###", "###.......###", "#############", "#############", "###.......###",
+		"###.......###", "###.......###", "###.......###", "###.......###", "###.......###", "###.......###", "###.......###"],
+	"B": ["##########...", "###########..", "###.....####.", "###......###.", "###......###.", "###......###.",
+		"###.....####.", "###########..", "##########...", "###########..", "###......####", "###.......###",
+		"###.......###", "###.......###", "###.......###", "###.......###", "###......####", "############.", "###########.."],
+	"C": ["...#######...", "..#########..", ".####...####.", "###.......###", "###..........", "###..........",
+		"###..........", "###..........", "###..........", "###..........", "###..........", "###..........",
+		"###..........", "###..........", "###..........", "###.......###", ".####...####.", "..#########..", "...#######..."],
+}
+
+
 ## Chapa de metal parafusada sobre um banco que ainda não está em uso (lisa: o escovado saiu, a pedido): a letra do
 ## banco estampada em relevo (luz em cima à esquerda, sombra embaixo à direita), o aviso
 ## pintado com estêncil embaixo e, em volta dos parafusos, os riscos da chave de fenda que escorregou. Sempre os mesmos.
@@ -525,9 +540,9 @@ func _draw_plate(r: Rect2, letter: String) -> void:
 			_ci.draw_line(from.round() + Vector2(0.5, 0.5), to.round() + Vector2(0.5, 0.5), PLATE.lightened(0.3), 1.0)
 		PixelArt.sprite(_ci, PixelArt.disc(7, [[2.5, PLATE.lightened(0.35), PLATE.lightened(0.15), PLATE.darkened(0.2)], [3.5, PLATE.darkened(0.5)]]), c)
 		_ci.draw_rect(Rect2((c - Vector2(2, 1)).floor(), Vector2(3, 1)), PLATE.darkened(0.5))   # fenda do parafuso
-	var at := Vector2(r.position.x, r.get_center().y + 8.0)   # a letra estampada
-	_ci.draw_string(Pal.mono, at + Vector2(1, 1), letter, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 33, PLATE.darkened(0.45))
-	_ci.draw_string(Pal.mono, at - Vector2(0, 1), letter, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 33, PLATE.lightened(0.35))
-	_ci.draw_string(Pal.mono, at, letter, HORIZONTAL_ALIGNMENT_CENTER, r.size.x, 33, PLATE.lightened(0.15))
+	var rows := PixelArt.relief(PLATE_LETTERS[letter])   # a letra estampada
+	var at := r.get_center() - Vector2(0, 5)
+	PixelArt.sprite(_ci, PixelArt.art(rows, {"*": PLATE.darkened(0.45)}), at + Vector2(1, 1))
+	PixelArt.sprite(_ci, PixelArt.art(rows, {"u": PLATE.lightened(0.35), "d": PLATE.darkened(0.2), "+": PLATE.lightened(0.15)}), at)
 	var notice := PixelArt.tiny(T.text(T.Key.BOARD_PLATE_NOTICE))   # pintado com estêncil, já gasto
 	_ci.draw_texture(notice, Vector2(roundf(r.get_center().x - notice.get_width() / 2.0), r.get_center().y + 13.0), Color("c9b98f", 0.6))

@@ -799,3 +799,11 @@ Chaves:
     linha); o silêncio mostra um ponto por segundo na tela, para ver que é uma janela de tempo; o estado de cada
     conversa ficou num objeto só (`Eavesdrop.Talk`) em vez de quatro dicionários; e um robô descuidado no `run.sh`
     (`--careless`) confere que a punição funciona num turno inteiro.
+172. #pixel #tela #relogio #jornal #mesa-comutadora #interface
+    "Pixels duplos" (pedido do usuário, a começar pelo relógio): o que tinha pixel de 2 px ou mais ao lado dos de 1 px
+    da sala ganhou detalhe de 1 px. Os algarismos do relógio com barras de 1 px (eram de traço de 2 px); as letras das
+    chapas A/B desenhadas à mão em relevo (eram a fonte em 33); o nome do jornal na fonte ampliada pelo Scale2x em
+    letra vazada (`PixelArt.big`; em 44) e a manchete em 11 em negrito (em 22); a folhinha do calendário mais larga (os
+    números de dois algarismos se encostavam). E as resoluções: o cursor passou a ter a ampliação do jogo, com o mesmo
+    filtro (era sempre 2×: em 1080p, a 1,5×, saía mais grosso que tudo), e a captura ganhou `--scale` para ver o jogo
+    como ele aparece em cada tela. (O Scale3x, para as chapas, inventava bicos nas letras e saiu.)

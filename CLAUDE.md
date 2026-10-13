@@ -12,7 +12,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   Estilo visual no tema global `themes/main_theme.tres` (variações de tipo: `GreenButton`, `AmberButton`,
   `RedButton`, `InkButton`, `DarkButton`, `ChoiceButton`, `HudPanel`, `GreenKey`, `AmberKey`, `IvoryKey`, `RedKey` (teclas do console:
   `KeyCapStyle`, um StyleBox em script, `scripts/ui/key_cap_style.gd`), `PaperToggle`, `PaperInk`, `LetterButton`,
-  `DarkPanel`, `PaperPanel`, `NotePanel`, `FormPanel`, `SlipPanel`, `InkLabel`, `InkSoftLabel`, `DimLabel`, `AmberLabel`,
+  `DarkPanel`, `PaperPanel`, `NotePanel`, `FormPanel`, `SlipPanel`, `InkLabel`, `InkSoftLabel`, `InkBoldLabel` (11 em negrito: a sombra de 1 px ao lado), `DimLabel`, `AmberLabel`,
   `MonoLabel`, `InkMonoLabel`, `TapedNote`/`TapedLabel`: papel preso com fita, `TapedPaperStyle`). Prefira variação de tema a override por nó.
 - Nomes de pessoas e lugares na ordem natural, "Nome Sobrenome" (nunca "Sobrenome, Nome"); a lista telefônica
   ordena pelo nome como aparece, sem acento (`PhoneBook._entries`, `_plain`). **Uma letra por página dupla**: a aba de
@@ -51,10 +51,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `AudioStreamPlayer2D`, `PAN`); a mesa usa para os sons dela (`Switchboard._sfx`, `screen_x`) e o rádio para a voz,
   o chiado e os bipes (`Radio.screen_x()`; `speak_char`, `syllable` e `static_burst` aceitam `at`). O toque da mesa
   (bipes suaves, `BEEP`; `ring_start(bells)`: linha -> lugar da tomada) reveza entre as linhas chamando, cada uma no seu tom (`BELL_STEP`).
-- Cursores próprios no autoload `Cursors` (`scripts/cursors.gd`): pixel art 16×16 em texto (×`SCALE`), uma por forma
+- Cursores próprios no autoload `Cursors` (`scripts/cursors.gd`): pixel art 16×16 em texto, uma por forma
   `Control.CURSOR_*` (seta, dedo, mão aberta = `MOVE`, mão fechada = `DRAG`, proibido, I-beam). Botões e sliders
   ganham o dedo sozinhos (`node_added`, troca adiada em `_point` para não esbarrar em nó fora da árvore); quem quer outra forma define `mouse_default_cursor_shape` (a mesa troca a
-  dela a cada quadro). Passe `Image`, não textura, ao `Input` (textura vaza ao fechar).
+  dela a cada quadro). **Na ampliação do jogo**: o `GameView` passa a dele (`Cursors.zoom`) e o cursor é montado com o mesmo filtro (`_image`), para o pixel dele ser o do jogo (sempre 2×, ficava grosso em 1080p). Passe `Image`, não textura, ao `Input` (textura vaza ao fechar).
 - **Volume de som muda só por `Sfx.fade`/`Sfx._tween`: uma mudança nova cancela a anterior do mesmo volume.** Com
   duas ao mesmo tempo, a mais longa terminava por último e ganhava: o cenário avisa a hora (`set_late`) desde a
   introdução, e a mistura do clima padrão (chuva, em 8 s) terminava depois da da noite (em 2 s), trocando os grilos
@@ -119,7 +119,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11** (o estado de cada linha na mesa não usa
   ela: em 11, "conectada" não cabe na coluna, e em 8, fora da grade, borrava; é uma fonte de pixel própria, maiúsculas
   de 3×5 gravadas no painel, `PixelArt.TINY`/`TINY_ACCENTS`/`tiny`, com os acentos dos três idiomas): 11 (texto, números da lista), 22
-  (títulos, visor, bilhete), 33 (títulos de tela), 44 (relógio). Importada com suavização (a janela
+  (títulos, visor, bilhete), 33 (títulos de tela). **Em objeto da sala, nada de fonte acima de 11**: em 22/33/44 cada pixel dela vira um bloco de 2/3/4 px ao lado dos de 1 px ("pixels duplos"); use 11 em negrito (a sombra de 1 px ao lado, como a manchete do jornal), a fonte ampliada pelo Scale2x em relevo ou vazada (`PixelArt.big`, `relief`: o nome do jornal) ou letra desenhada à mão (as chapas da mesa, `PLATE_LETTERS`; os algarismos do relógio, `DIGITS`, com barras de 1 px). Importada com suavização (a janela
   menor que 1280×720 não apaga os traços; sem ela, a 1,5× as letras saíam irregulares), sem hinting e sem sub-pixel. Texto em
   desenho com escala (mapa) sai fora da escala (`CityMap._t`).
 - **Idiomas** pt_BR (padrão), en, es. Interface/código: **enum `T.Key`** (`scripts/t.gd`, GERADO) +
@@ -226,7 +226,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `drop_emergency`); dos campos, o painel só lê agenda e ligações para o texto de estado e adianta o relógio (`minutes`), para não quebrar quando o Main mudar.
 - **Captura de tela** (`tools/shot.tscn`, COM tela): `Godot --path . tools/shot.tscn -- --hour=22:30 --weather=rain
   --tool=despacho --card --emergency --news --toll --width=1500 --zoom=x,y,w,h --out=build/shot.png` grava a tela inteira e o
-  recorte ampliado 4× (`_zoom.png`); `--hover=id` põe o mouse num objeto da mesa (contorno e nome); `--debug=N` abre o painel de debug na aba N; as opções do jogo (`--night`, `--seed`, `--lang`) também valem. Para conferir
+  recorte ampliado 4× (`_zoom.png`); `--scale=1.5` grava também a tela como o `GameView` a mostra naquela ampliação, pelo filtro de verdade (`_x1.5.png`: 1080p; 1.25 = 1600×900); `--hover=id` põe o mouse num objeto da mesa (contorno e nome); `--debug=N` abre o painel de debug na aba N; as opções do jogo (`--night`, `--seed`, `--lang`) também valem. Para conferir
   mudança visual medindo, não só olhando a captura.
 - **Sem tela, a vista da janela não é desenhada** (`Background._headless`): com `--fixed-fps` e o tempo acelerado,
   ela era redesenhada a cada quadro e virou 2/3 do tempo de um turno do robô (27 s em vez de 9). Quem acrescentar
