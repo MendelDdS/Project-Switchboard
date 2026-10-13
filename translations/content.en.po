@@ -288,8 +288,8 @@ msgid "Faz bem. Hoje a discussão está feia."
 msgstr "Wise. The arguing's ugly tonight."
 
 #: data/directory/327_bar_do_ze.tres
-msgid "Bar do Zé, pode falar."
-msgstr "Zé's Bar, go ahead."
+msgid "Bar do Zé! Fala aí, meu chapa!"
+msgstr "Zé's Bar! Go ahead, pal!"
 
 #: data/directory/327_bar_do_ze.tres
 msgid "do Bar do Zé"
@@ -2616,8 +2616,8 @@ msgid "Amanhã ele lê a correção. Venha às {hour} pra foto."
 msgstr "Tomorrow he'll read the correction. Come at {hour} for the photo."
 
 #: data/directory/101_gazeta_de_sao_sotero.tres
-msgid "Gazeta, redação."
-msgstr "Gazeta, newsroom."
+msgid "Gazeta, redação. Quem fala?"
+msgstr "Gazeta, newsroom. Who's calling?"
 
 #: data/directory/101_gazeta_de_sao_sotero.tres
 msgid "da Gazeta"
@@ -2736,8 +2736,8 @@ msgid "Vai ao ar às {hour}, depois das notícias."
 msgstr "It goes out at {hour}, after the news."
 
 #: data/directory/390_radio_serena_am.tres
-msgid "Rádio Serena, boa noite."
-msgstr "Radio Serena, good evening."
+msgid "Rádio Serena. Quem fala, e do que se trata?"
+msgstr "Radio Serena. Who's speaking, and what's it about?"
 
 #: data/directory/390_radio_serena_am.tres
 msgid "da Rádio Serena"
@@ -2972,8 +2972,8 @@ msgid "Pode deixar. Falo agora mesmo."
 msgstr "Leave it to me. I'll tell him right now."
 
 #: data/directory/355_bilhar_do_tonho.tres
-msgid "Bilhar do Tonho, pode falar."
-msgstr "Tonho's Pool Hall, go ahead."
+msgid "Bilhar do Tonho! Opa, pode falar!"
+msgstr "Tonho's Pool Hall! Hey, go ahead!"
 
 #: data/directory/355_bilhar_do_tonho.tres
 msgid "do Bilhar do Tonho"
@@ -3560,8 +3560,8 @@ msgid "Vou deixar a luz da frente acesa pra vocês."
 msgstr "I'll leave the front light on for you."
 
 #: data/directory/312_pensao_dona_cota.tres
-msgid "Pensão Dona Cota, pois não?"
-msgstr "Dona Cota's Boarding House, yes?"
+msgid "Pensão. Quem é que fala?"
+msgstr "Boarding house. Who's this?"
 
 #: data/directory/312_pensao_dona_cota.tres
 msgid "da Pensão Dona Cota"
@@ -10880,16 +10880,52 @@ msgid "Boa noite. Vai com Deus."
 msgstr "Good night. God bless."
 
 #: data/content.tres
-msgid "Peraí... Alô? Tem alguém na linha?"
-msgstr "Hang on... Hello? Is someone on the line?"
+msgid "Peraí... Tem mais alguém aí com você?"
+msgstr "Hold on... Is someone there with you?"
 
 #: data/content.tres
-msgid "Você ouviu esse estalo? Parece que tem gente ouvindo."
-msgstr "Did you hear that click? Sounds like someone's listening."
+msgid "Ouviu esse estalo? Parece que alguém pegou a extensão."
+msgstr "Did you hear that click? Sounds like someone picked up an extension."
 
 #: data/content.tres
-msgid "Psiu. Tem alguém escutando a gente?"
-msgstr "Shh. Is somebody listening to us?"
+msgid "Psiu. Acho que ouvi alguém respirando."
+msgstr "Shh. I think I heard someone breathing."
+
+#: data/content.tres
+msgid "Sua voz ficou fraquinha de repente..."
+msgstr "Your voice just went all faint..."
+
+#: data/content.tres
+msgid "Alô? Tem mais alguém nessa linha?"
+msgstr "Hello? Is anyone else on this line?"
+
+#: data/content.tres
+msgid "Fala baixo. Acho que não tamo sozinhos na linha."
+msgstr "Keep it down. I don't think we're alone on this line."
+
+#: data/content.tres
+msgid "Não tem ninguém aqui, não. Então é alguém na linha."
+msgstr "No, there's nobody here. So it's someone on the line."
+
+#: data/content.tres
+msgid "Ouvi. Aqui não tem extensão... tem gente na linha."
+msgstr "I did. There's no extension here... someone's on the line."
+
+#: data/content.tres
+msgid "Achei que era você... Tem alguém escutando a gente."
+msgstr "I thought it was you... Someone's listening to us."
+
+#: data/content.tres
+msgid "A sua também. Alguém pegou essa linha."
+msgstr "Yours too. Someone picked up this line."
+
+#: data/content.tres
+msgid "Ninguém respondeu... mas que tem, tem."
+msgstr "Nobody answered... but someone's there, all right."
+
+#: data/content.tres
+msgid "Também acho. Melhor a gente não falar nada demais."
+msgstr "Me neither. Better not say anything we shouldn't."
 
 #: data/content.tres
 msgid "Tem gente ouvindo, sim! Amanhã eu reclamo na companhia."

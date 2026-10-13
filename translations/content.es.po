@@ -288,8 +288,8 @@ msgid "Faz bem. Hoje a discussão está feia."
 msgstr "Hace bien. Hoy la discusión está fea."
 
 #: data/directory/327_bar_do_ze.tres
-msgid "Bar do Zé, pode falar."
-msgstr "Bar de Zé, diga."
+msgid "Bar do Zé! Fala aí, meu chapa!"
+msgstr "¡Bar de Zé! ¡Dale, compadre!"
 
 #: data/directory/327_bar_do_ze.tres
 msgid "do Bar do Zé"
@@ -2616,8 +2616,8 @@ msgid "Amanhã ele lê a correção. Venha às {hour} pra foto."
 msgstr "Mañana lee la corrección. Venga a las {hour} para la foto."
 
 #: data/directory/101_gazeta_de_sao_sotero.tres
-msgid "Gazeta, redação."
-msgstr "Gaceta, redacción."
+msgid "Gazeta, redação. Quem fala?"
+msgstr "Gaceta, redacción. ¿Quién habla?"
 
 #: data/directory/101_gazeta_de_sao_sotero.tres
 msgid "da Gazeta"
@@ -2736,8 +2736,8 @@ msgid "Vai ao ar às {hour}, depois das notícias."
 msgstr "Sale al aire a las {hour}, después de las noticias."
 
 #: data/directory/390_radio_serena_am.tres
-msgid "Rádio Serena, boa noite."
-msgstr "Radio Serena, buenas noches."
+msgid "Rádio Serena. Quem fala, e do que se trata?"
+msgstr "Radio Serena. ¿Quién habla y de qué se trata?"
 
 #: data/directory/390_radio_serena_am.tres
 msgid "da Rádio Serena"
@@ -2972,8 +2972,8 @@ msgid "Pode deixar. Falo agora mesmo."
 msgstr "Déjelo. Le digo ahora mismo."
 
 #: data/directory/355_bilhar_do_tonho.tres
-msgid "Bilhar do Tonho, pode falar."
-msgstr "Billar de Tonho, diga."
+msgid "Bilhar do Tonho! Opa, pode falar!"
+msgstr "¡Billar de Tonho! ¡Epa, diga nomás!"
 
 #: data/directory/355_bilhar_do_tonho.tres
 msgid "do Bilhar do Tonho"
@@ -3560,8 +3560,8 @@ msgid "Vou deixar a luz da frente acesa pra vocês."
 msgstr "Les dejo la luz de adelante prendida."
 
 #: data/directory/312_pensao_dona_cota.tres
-msgid "Pensão Dona Cota, pois não?"
-msgstr "Pensión Doña Cota, ¿dígame?"
+msgid "Pensão. Quem é que fala?"
+msgstr "Pensión. ¿Quién habla?"
 
 #: data/directory/312_pensao_dona_cota.tres
 msgid "da Pensão Dona Cota"
@@ -10880,16 +10880,52 @@ msgid "Boa noite. Vai com Deus."
 msgstr "Buenas noches. Vaya con Dios."
 
 #: data/content.tres
-msgid "Peraí... Alô? Tem alguém na linha?"
-msgstr "Espera... ¿Aló? ¿Hay alguien en la línea?"
+msgid "Peraí... Tem mais alguém aí com você?"
+msgstr "Espera... ¿Hay alguien más ahí contigo?"
 
 #: data/content.tres
-msgid "Você ouviu esse estalo? Parece que tem gente ouvindo."
-msgstr "¿Oíste ese chasquido? Parece que alguien está escuchando."
+msgid "Ouviu esse estalo? Parece que alguém pegou a extensão."
+msgstr "¿Oíste ese clic? Parece que alguien levantó otro aparato."
 
 #: data/content.tres
-msgid "Psiu. Tem alguém escutando a gente?"
-msgstr "Shh. ¿Hay alguien escuchándonos?"
+msgid "Psiu. Acho que ouvi alguém respirando."
+msgstr "Shh. Creo que oí a alguien respirar."
+
+#: data/content.tres
+msgid "Sua voz ficou fraquinha de repente..."
+msgstr "Tu voz se puso muy bajita de repente..."
+
+#: data/content.tres
+msgid "Alô? Tem mais alguém nessa linha?"
+msgstr "¿Aló? ¿Hay alguien más en esta línea?"
+
+#: data/content.tres
+msgid "Fala baixo. Acho que não tamo sozinhos na linha."
+msgstr "Habla bajo. Creo que no estamos solos en la línea."
+
+#: data/content.tres
+msgid "Não tem ninguém aqui, não. Então é alguém na linha."
+msgstr "No, aquí no hay nadie. Entonces es alguien en la línea."
+
+#: data/content.tres
+msgid "Ouvi. Aqui não tem extensão... tem gente na linha."
+msgstr "Sí. Aquí no hay otro aparato... hay alguien en la línea."
+
+#: data/content.tres
+msgid "Achei que era você... Tem alguém escutando a gente."
+msgstr "Pensé que eras tú... Alguien nos está escuchando."
+
+#: data/content.tres
+msgid "A sua também. Alguém pegou essa linha."
+msgstr "La tuya también. Alguien tomó esta línea."
+
+#: data/content.tres
+msgid "Ninguém respondeu... mas que tem, tem."
+msgstr "Nadie contestó... pero haberlo, lo hay."
+
+#: data/content.tres
+msgid "Também acho. Melhor a gente não falar nada demais."
+msgstr "Yo tampoco. Mejor no decir nada de más."
 
 #: data/content.tres
 msgid "Tem gente ouvindo, sim! Amanhã eu reclamo na companhia."

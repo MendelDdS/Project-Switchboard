@@ -19,6 +19,6 @@ wary = 1.3
 name = "Rádio Serena AM"
 address = "Rua do Sol, 199"
 number = "390"
-hello = "Rádio Serena, boa noite."
+hello = "Rádio Serena. Quem fala, e do que se trata?"
 spoken = "a Rádio Serena"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_45"), SubResource("Motive_46")])

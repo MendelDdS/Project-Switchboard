@@ -20,6 +20,6 @@ name = "Bilhar do Tonho"
 address = "Rua do Comércio, 260"
 number = "355"
 voice = "m"
-hello = "Bilhar do Tonho, pode falar."
+hello = "Bilhar do Tonho! Opa, pode falar!"
 spoken = "o Bilhar do Tonho"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_49"), SubResource("Motive_50")])

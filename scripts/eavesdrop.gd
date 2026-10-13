@@ -6,9 +6,13 @@ extends Node
 ## vozes, sem texto. A tela da conversa mostra o que ele ouve (`_ears`: uma PhoneCall só para isso, fora do Registro).
 ## É proibido: ouvindo, a suspeita dos dois sobe (`PhoneCall.suspicion`, em `LISTEN_SEC` chega a 1; cada vez que ele
 ## entra na linha, pela chave subindo ou pelo FONE encaixando com ela em cima, o estalo soma `CLICK`) e, sem ninguém
-## ouvindo, baixa devagar (`COOL_SEC`). Só se nota pela conversa: eles se calam um instante (`HUSH`), um pergunta se tem
-## alguém na linha (`ASK`) e, em 1, desligam para denunciar a telefonista: a companhia cobra no relatório da noite
-## seguinte (`Supervisor.fault_later`, advertência grave `eavesdrop`). Marcadores para o roteiro: `escutou_N` (ouviu
+## ouvindo, baixa devagar (`COOL_SEC`). Só se nota pela conversa, em estágios: perceberam algo e se calam um instante
+## (`HUSH`; a melhor hora de baixar a chave; os muito desconfiados, `SKEPTIC`, não se calam e vão direto à pergunta),
+## desconfiaram e um pergunta ao outro (`ASK`, `C.overheard_ask`), e, se o operador continuar ouvindo, o outro
+## responde e os dois ficam sabendo (`SURE`, `C.overheard_sure`, a resposta da mesma pergunta; antes dela a suspeita
+## não passa daí; sem ninguém ouvindo no fim da pergunta, o outro desconversa e ela baixa `SHRUG`); em 1, desligam para
+## denunciar a telefonista: a companhia cobra no relatório da noite seguinte (`Supervisor.fault_later`, advertência
+## grave `eavesdrop`). Marcadores para o roteiro: `escutou_N` (ouviu
 ## alguma conversa na noite N), `denunciado_N` e os da ligação ouvida inteira (`TransferCall.overheard_sets`).
 ## Palavras-chave (`Clue`, `[tipo:texto]` nas falas escritas): ouvida inteira, entra em `clues` (`clue_heard`).
 
@@ -18,7 +22,10 @@ const LISTEN_SEC := 25.0   # segundos ouvindo até a suspeita chegar a 1 (a conv
 const CLICK := 0.08        # o estalo de cada vez que a chave sobe
 const HUSH := 0.5          # daqui, eles se calam um instante...
 const HUSH_SEC := 3.0
-const ASK := 0.8           # ...e daqui, um pergunta se tem alguém na linha
+const ASK := 0.75          # ...daqui, um pergunta ao outro se tem alguém na linha...
+const SURE := 0.85         # ...e, ouvindo a resposta, os dois sabem (a suspeita pula para cá)
+const SHRUG := 0.1         # ninguém ouviu a resposta: o outro desconversa e a suspeita baixa isto
+const SKEPTIC := 1.5       # desconfiados assim (quem ligou vezes o lugar) não se calam: vão direto à pergunta
 const COOL_SEC := 45.0     # sem ninguém ouvindo, segundos para a suspeita baixar de 1 a 0
 const HEARD_SHARE := 0.75  # quanto de uma fala escrita o operador precisa ouvir para contar como ouvida
 const MURMUR_DB := -7.0    # o murmúrio, mais baixo que uma fala para o operador (eles não falam com ele)
@@ -26,8 +33,9 @@ const MURMUR_DB := -7.0    # o murmúrio, mais baixo que uma fala para o operado
 var C: GameContent = GameData.CONTENT
 var calls := {}   ## linha -> a PhoneCall conectada nela (a transferência completada)
 var _ears := {}   ## linha -> o que o operador ouve dela (a transcrição da tela)
-var _cue := {}    ## linha -> fala que um deles diz na próxima vez (a pergunta da suspeita)
+var _cue := {}    ## linha -> a pergunta da suspeita (índice em `C.overheard_ask`) que um deles faz na próxima vez
 var _quiet := {}  ## linha -> s de silêncio que faltam (`HUSH`)
+var _knows := {}  ## linhas em que os dois já sabem (ouviram a resposta): só então a suspeita passa de `SURE`
 var _written := {}  ## linhas cuja conversa ainda tem falas escritas por dizer (`speaking`)
 var clues: Array[Clue] = []   ## as palavras-chave ouvidas, desta noite e das anteriores (`Progress.clues`), na ordem
 
@@ -58,6 +66,7 @@ func connected(c: PhoneCall) -> void:
 	_ears[c.line] = ear
 	_cue.erase(c.line)
 	_quiet.erase(c.line)
+	_knows.erase(c.line)
 	_talk(c, ear)
 
 
@@ -85,6 +94,7 @@ func tick(delta: float) -> void:
 			calls.erase(n)
 			_ears.erase(n)
 			_written.erase(n)
+			_knows.erase(n)
 			continue
 		if _quiet.has(n):
 			_quiet[n] -= delta
@@ -103,6 +113,8 @@ func tick(delta: float) -> void:
 		else:
 			var c: PhoneCall = calls[n]
 			c.suspicion = maxf(0.0, c.suspicion - delta / COOL_SEC)
+			if c.suspicion < ASK:
+				_knows.erase(n)   # passou: se ele voltar, perguntam de novo
 
 
 ## O operador começou a ouvir a linha `n`: a tela mostra a conversa.
@@ -113,21 +125,26 @@ func _heard(n: int, c: PhoneCall, ear: PhoneCall) -> void:
 	main.phone.show_call(ear)
 
 
-## A suspeita da linha `n` sobe `by` (vezes a desconfiança deles: a de quem ligou, `TransferCall.wary`, e a de quem
-## atendeu, `DirectoryEntry.wary`); passando de um limite, eles reagem.
+## A desconfiança dos dois na conversa `c`: a de quem ligou (`TransferCall.wary`) vezes a de quem atendeu
+## (`DirectoryEntry.wary`).
+func _wary(c: PhoneCall) -> float:
+	var data := c.data as TransferCall
+	var place := GameData.entry(str(c.dest_num))
+	return (data.wary if data != null else 1.0) * (place.wary if place != null else 1.0)
+
+
+## A suspeita da linha `n` sobe `by` (vezes a desconfiança deles, `_wary`); passando de um limite, eles reagem.
 func _raise(n: int, by: float) -> void:
 	var c: PhoneCall = calls[n]
 	var was := c.suspicion
 	if was >= 1.0:
 		return
-	var data := c.data as TransferCall
-	var place := GameData.entry(str(c.dest_num))
-	c.suspicion = minf(1.0, was + by * (data.wary if data != null else 1.0) * (place.wary if place != null else 1.0))
-	if was < HUSH and c.suspicion >= HUSH:
+	c.suspicion = minf(1.0 if _knows.has(n) else SURE, was + by * _wary(c))
+	if was < HUSH and c.suspicion >= HUSH and _wary(c) < SKEPTIC:
 		_quiet[n] = HUSH_SEC
 		(_ears[n] as PhoneCall).sys(T.text(T.Key.SYS_LINE_SILENT))
-	if was < ASK and c.suspicion >= ASK:
-		_cue[n] = GameData.pick(C.overheard_ask)
+	if was < ASK and c.suspicion >= ASK and not _cue.has(n):
+		_cue[n] = randi() % C.overheard_ask.size()
 	if c.suspicion >= 1.0:
 		_caught(n, c, _ears[n])
 
@@ -138,6 +155,7 @@ func _caught(n: int, c: PhoneCall, ear: PhoneCall) -> void:
 	main.flags.apply("denunciado_%d" % main.night_no)
 	_cue.erase(n)
 	_quiet.erase(n)
+	_knows.erase(n)
 	calls.erase(n)   # a conversa deles acabou: a suspeita não anda mais
 	_written.erase(n)
 	ear.ended = true   # a fala de antes para; a reclamação vem a seguir
@@ -177,13 +195,24 @@ func _talk(c: PhoneCall, ear: PhoneCall) -> void:
 	if not written.is_empty():
 		_written[c.line] = true
 	while not ear.ended:
-		var cue: String = _cue.get(c.line, "")
-		_cue.erase(c.line)
+		var ask: int = _cue.get(c.line, -1)   # (sai da fila só depois de dita: enquanto isso, não se pergunta de novo)
+		var cue: String = C.overheard_ask[ask] if ask >= 0 else ""
 		var text := cue if cue != "" else (GameData.fill(lines[k], vars) if k < lines.size() else tr((main.conversation.topics().pick_random() as ChatTopic).line))
 		var got := await _say(ear, text, who[turn % 2], voices[turn % 2], cue != "" or k < lines.size())
 		if got < 0.0:
 			return
 		turn += 1
+		if cue != "":
+			_cue.erase(c.line)
+		if cue != "" and listening(c.line) and calls.has(c.line):   # ainda na linha: o outro responde e agora eles sabem
+			_knows[c.line] = true
+			c.suspicion = maxf(c.suspicion, SURE)
+			if await _say(ear, C.overheard_sure[ask], who[turn % 2], voices[turn % 2], true) < 0.0:
+				return
+			turn += 1
+		elif cue != "":
+			c.suspicion = minf(c.suspicion, ASK - SHRUG)
+			turn += 1   # a resposta que ninguém ouviu: as falas escritas seguem com quem as diz
 		if cue != "" or k >= lines.size():
 			continue
 		var j := k - 1   # a fala escrita (antes dela, o "alô")
@@ -216,6 +245,10 @@ func _clue(ear: PhoneCall, li: int, word: String, kind: String) -> void:
 	k.minutes = main.minutes
 	k.caller = c.caller
 	k.number = str(c.dest_num)
+	for old in clues:   # a mesma palavra já anotada: fica com a marca que o operador deu a ela
+		if old.kind == k.kind and old.word.to_lower() == k.word.to_lower():
+			k.chosen = old.chosen
+			k.struck = old.struck
 	clues.append(k)
 	if li >= 0:
 		ear.underline(li, word.length())

@@ -749,3 +749,17 @@ Chaves:
     cumprimento, no meio, na despedida), para o jogador escolher a hora de entrar; e cada contato da lista tem a sua
     desconfiança (`DirectoryEntry.wary`: a pensão cismada percebe logo, o bar barulhento quase não nota), que vale
     também nas ligações de molde, para cada lugar pedir uma tática.
+163. #conversa
+    As anotações das palavras-chave: a mesma palavra ouvida de novo fica numa linha só ("×2") e herda a marca; o
+    clique passa de normal a marcada para repassar, a riscada (vai para o fim) e de volta; o que não cabe segue nas
+    páginas seguintes; só as palavras-chave do roteiro são guardadas, não a conversa. O teste confere a desconfiança
+    por lugar, e o robô curioso mede quanto se ouve por entrada em cada uma.
+164. #conversa
+    A desconfiança na conversa escutada em estágios, não só o silêncio: conversa normal (sem desconfiança), silêncio
+    (perceberam algo; a melhor hora de baixar a chave), a pergunta de um ao outro (desconfiaram) e, ouvindo até o fim,
+    a resposta do outro (agora sabem que estão sendo ouvidos), antes da reclamação. Perguntas e respostas em pares
+    convincentes (estalo da extensão, respiração, a voz ficando fraca; nada de chiado "da telefonia", específico demais). Lugar muito
+    desconfiado pula o silêncio e vai direto à pergunta. E o jeito de atender de cada lugar dá a pista da desconfiança
+    dele (a pensão seca, o bar solto). Revisadas a pedido: quem pergunta é quem estava calado (a respiração
+    só se nota calado; quem falava responde "Achei que era você..."), eco virou voz fraca e o "a essa hora" da rádio saiu
+    (o turno começa às 18h).

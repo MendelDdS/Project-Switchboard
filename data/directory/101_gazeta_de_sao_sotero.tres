@@ -19,6 +19,6 @@ wary = 1.4
 name = "Gazeta de São Sotero"
 address = "Rua Sete de Setembro, 50"
 number = "101"
-hello = "Gazeta, redação."
+hello = "Gazeta, redação. Quem fala?"
 spoken = "a Gazeta"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_43"), SubResource("Motive_44")])

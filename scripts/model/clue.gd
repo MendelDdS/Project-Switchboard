@@ -4,7 +4,8 @@ extends RefCounted
 ## `Motive.talks`) ela vai marcada como `[tipo:texto]` ("na [street:Rua do Sol], às [time:{hour}]"; a marca some da
 ## tela e da voz); o operador a pega se ouvir todas as letras dela. As pegas ficam em `Eavesdrop.clues`, de todas as
 ## noites (salvas no `Progress`, `to_dict`/`from_dict`), anotadas na página de anotações da lista telefônica
-## (`PhoneBook`), onde o operador marca as que vai repassar a um interessado (o repasse ainda está por fazer).
+## (`PhoneBook`), onde o operador marca as que vai repassar a um interessado (o repasse ainda está por fazer) e risca
+## as que não interessam. A mesma palavra ouvida de novo herda a marca (`Eavesdrop._clue`).
 
 ## Os tipos (em inglês, como as lacunas): pessoa, rua ou endereço, lugar, telefone, hora, data, outro número, outro.
 const KINDS := ["person", "street", "place", "phone", "time", "date", "number", "other"]
@@ -18,12 +19,14 @@ var minutes := 0.0  ## a hora do turno (`Main.minutes`)
 var caller := ""    ## quem ligou (o nome original; `tr` para mostrar)
 var number := ""    ## o número para onde ligou (`GameData.entry` dá o lugar)
 var chosen := false ## marcada para repassar (na página de anotações)
+var struck := false ## riscada (não interessa; vai para o fim da página)
 var call: PhoneCall ## a conversa em que foi ouvida; só na noite dela (não se salva)
 
 
 ## Para salvar (`Progress.clues`).
 func to_dict() -> Dictionary:
-	return {"word": word, "kind": kind, "night": night, "minutes": minutes, "caller": caller, "number": number, "chosen": chosen}
+	return {"word": word, "kind": kind, "night": night, "minutes": minutes, "caller": caller, "number": number, "chosen": chosen,
+		"struck": struck}
 
 
 static func from_dict(d: Dictionary) -> Clue:

@@ -150,7 +150,8 @@ func _ready() -> void:
 			_teach(SAW_SLIPS, T.Key.HINT_DESK_SLIPS))
 	toll.unstamped.connect(func(t: TollTicket): supervisor.fault("toll_unstamped", t.detail()))
 	tools.book.clues = eavesdrop.clues   # as palavras-chave ouvidas vão para a página de anotações da lista
-	eavesdrop.clue_heard.connect(func(_k: Clue): tools.book.queue_redraw())
+	tools.book.notes_changed()
+	eavesdrop.clue_heard.connect(func(_k: Clue): tools.book.notes_changed())
 	tools.call_log.unread_changed.connect(func(on: bool):
 		background.unread = on
 		if on:

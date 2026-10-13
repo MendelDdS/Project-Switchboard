@@ -25,6 +25,6 @@ name = "Bar do Zé"
 address = "Rua da Estação, 140"
 number = "327"
 voice = "m"
-hello = "Bar do Zé, pode falar."
+hello = "Bar do Zé! Fala aí, meu chapa!"
 spoken = "o Bar do Zé"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_03"), SubResource("Motive_04"), SubResource("Motive_05")])

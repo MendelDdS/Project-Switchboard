@@ -24,6 +24,7 @@ const HUMAN_STEP := 5.0   ## segundos reais por ação no modo --human
 var nosy := "--nosy" in OS.get_cmdline_user_args()
 const NOSY_BACK := 0.1    ## o curioso volta a uma conversa com a suspeita abaixo disto
 var heard := {}           ## cada PhoneCall conectada -> s ouvidos dela (modo --nosy)
+var entered := {}         ## cada PhoneCall conectada -> quantas vezes o curioso entrou na linha dela
 var next_act := 0.0       ## instante (s, na velocidade do jogo) em que a "pessoa" pode agir de novo
 
 
@@ -169,7 +170,11 @@ func _initialize() -> void:
 			next_act = maxf(next_act, _now() + HUMAN_STEP)
 		if nosy:
 			for lc: PhoneCall in m.eavesdrop.calls.values():
-				heard[lc] = float(heard.get(lc, 0.0)) + (m.get_process_delta_time() if m.eavesdrop.listening(lc.line) else 0.0)
+				var on := m.eavesdrop.listening(lc.line)
+				if on and not lc.get_meta("nosy_on", false):   # entrou agora
+					entered[lc] = int(entered.get(lc, 0)) + 1
+				lc.set_meta("nosy_on", on)
+				heard[lc] = float(heard.get(lc, 0.0)) + (m.get_process_delta_time() if on else 0.0)
 		if _now() < next_act:
 			continue
 		if nosy and _snoop(b, f):
@@ -262,6 +267,17 @@ func _initialize() -> void:
 			secs.reduce(func(a, x): return a + x, 0.0), secs.reduce(func(a, x): return a + x, 0.0) / maxi(secs.size(), 1),
 			secs.reduce(func(a, x): return maxf(a, x), 0.0), told])
 		ok(not secs.is_empty() and told == 0, "o curioso escuta e, soltando no silêncio, não é denunciado")
+		var by_wary := {}   # desconfiança do lugar -> [s ouvidos, entradas, conversas]
+		for lc: PhoneCall in heard:
+			if heard[lc] > 0.0:
+				var w: float = GameData.entry(str(lc.dest_num)).wary
+				var acc: Array = by_wary.get(w, [0.0, 0, 0])
+				by_wary[w] = [acc[0] + heard[lc], acc[1] + int(entered.get(lc, 1)), acc[2] + 1]
+		var keys := by_wary.keys()
+		keys.sort()
+		print("curioso por desconfiança do lugar: " + "  ".join(keys.map(func(w: float):
+			var a: Array = by_wary[w]
+			return "%.1f: %.0f s por entrada, %.0f s por conversa (%d)" % [w, a[0] / maxi(a[1], 1), a[0] / a[2], a[2]])))
 	max_quiet = maxf(max_quiet, m.minutes - last_ring)
 	print("desconhecida tocou às %s, atendidas depois=%d, fim às %s | máx=%d  2+=%d%%  3+=%d%%  sem_cabo=%d%%  perdidas=%d  ligações=%d (emerg=%d trotes=%d)  maior_silêncio=%d min  mesa_vazia=%d min" % [
 		myst_at, post, m.fmt(m.minutes), max_live, 100 * f2 / maxi(fall, 1), 100 * f3 / maxi(fall, 1),

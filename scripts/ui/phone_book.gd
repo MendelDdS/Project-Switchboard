@@ -3,10 +3,11 @@ extends Control
 ## Lista telefônica em páginas duplas, uma letra por vez: os contatos que começam com a letra aberta, em ordem
 ## alfabética do nome (como aparece: "Nome Sobrenome"), começam na página da esquerda e, se não couberem, seguem na da
 ## direita. Na borda direita, os cortes de índice (uma aba por letra; a da letra aberta fica destacada). Voltar e
-## Virar passam de letra em letra; depois da última vem a página de anotações: à esquerda, os avisos da central; à
-## direita, as palavras-chave ouvidas na escuta (`clues`), cada uma com um quadradinho para marcar as que vão ser
-## repassadas (`Clue.chosen`). Clique num contato para marcá-lo com o dedo. Os contatos vêm de
-## GameData.CONTENT.directory (só os setores atendidos e o despacho).
+## Virar passam de letra em letra; depois da última vêm as anotações: à esquerda, os avisos da central; à direita, e
+## nas páginas seguintes se não couberem, as palavras-chave ouvidas na escuta (`clues`), uma linha por palavra (ouvida
+## mais de uma vez, com quantas), as riscadas por último. Clicar numa palavra a marca para repassar (`Clue.chosen`),
+## clicar de novo a risca (`Clue.struck`) e de novo a volta ao normal. Clique num contato para marcá-lo com o dedo. Os
+## contatos vêm de GameData.CONTENT.directory (só os setores atendidos e o despacho).
 
 const TAB_W := 26.0           # largura das abas de índice, na borda direita
 const NAV_H := 56.0           # altura da barra de Voltar/Virar, embaixo do livro
@@ -17,12 +18,12 @@ const PLAIN := {"á": "a", "à": "a", "â": "a", "ã": "a", "é": "e", "ê": "e"
 
 var marked := -1
 var clues: Array[Clue] = []   ## as palavras-chave ouvidas (a lista do `Eavesdrop`, a mesma)
-var _clue_hits: Array = []    ## [Rect2, Clue] de cada uma desenhada
+var _clue_hits: Array = []    ## [Rect2, as Clue da palavra] de cada uma desenhada
 var hover := -1
 var _hits: Array = []
 var _entries: Array = []      ## contatos em ordem alfabética do nome
 var _index: Array = []        ## letras que têm contato (uma aba cada)
-var _letter := 0              ## letra aberta (índice em `_index`); `_index.size()` = página de anotações
+var _letter := 0              ## letra aberta (índice em `_index`); daí em diante, as páginas de anotações
 var _hover_tab := -1
 var book := Rect2()           ## o livro acompanha o tamanho da aba (`NOTIFICATION_RESIZED`)
 var bottom := 0.0             ## até onde vão os contatos
@@ -73,7 +74,40 @@ func pages() -> Array:
 
 
 func turn(dir: int) -> void:
-	_open(clampi(_letter + dir, 0, _index.size()))
+	_open(clampi(_letter + dir, 0, _index.size() + notes_spreads() - 1))
+
+
+## Ouviu-se uma palavra-chave: pode ter aberto uma página de anotações a mais.
+func notes_changed() -> void:
+	_update_nav()
+	queue_redraw()
+
+
+## As palavras-chave por palavra (cada grupo, as Clue dela, da mais antiga à mais nova): a ouvida por último em cima e
+## as riscadas por último.
+func clue_groups() -> Array:
+	var by := {}
+	for k in clues:
+		var key := k.kind + ":" + k.word.to_lower()
+		if not by.has(key):
+			by[key] = []
+		by[key].append(k)
+	var out := by.values()
+	out.sort_custom(func(a: Array, b: Array):
+		if a[0].struck != b[0].struck:
+			return b[0].struck
+		return clues.find(a.back()) > clues.find(b.back()))
+	return out
+
+
+## Quantas palavras cabem numa página.
+func _per_page() -> int:
+	return maxi(1, int((bottom - TOP - 4.0) / CLUE_H))
+
+
+## Páginas duplas de anotações: a primeira tem os avisos à esquerda; as seguintes, palavras nas duas páginas.
+func notes_spreads() -> int:
+	return 1 + ceili(maxf(0.0, clue_groups().size() - _per_page()) / (2.0 * _per_page()))
 
 
 ## Abre a página dupla da letra.
@@ -91,7 +125,7 @@ func _open(i: int) -> void:
 
 func _update_nav() -> void:
 	_prev.disabled = _letter == 0
-	_next.disabled = _letter >= _index.size()
+	_next.disabled = _letter >= _index.size() + notes_spreads() - 1
 
 
 ## Aba de índice da letra `i`, na borda direita (a da letra aberta sai mais para fora).
@@ -112,7 +146,7 @@ func _gui_input(e: InputEvent) -> void:
 		var h := _hit(e.position)
 		var t := _tab_at(e.position)
 		var k := _clue_at(e.position)
-		mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if h >= 0 or t >= 0 or k != null else Control.CURSOR_ARROW
+		mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if h >= 0 or t >= 0 or not k.is_empty() else Control.CURSOR_ARROW
 		if h != hover or t != _hover_tab:
 			hover = h
 			_hover_tab = t
@@ -123,8 +157,12 @@ func _gui_input(e: InputEvent) -> void:
 			_open(t)
 			return
 		var k := _clue_at(e.position)
-		if k != null:
-			k.chosen = not k.chosen
+		if not k.is_empty():   # normal -> marcada -> riscada -> normal, a palavra inteira
+			var chosen: bool = not k[0].chosen and not k[0].struck
+			var struck: bool = k[0].chosen
+			for c: Clue in k:
+				c.chosen = chosen
+				c.struck = struck
 			Sfx.play("pencil")
 			queue_redraw()
 			return
@@ -135,11 +173,11 @@ func _gui_input(e: InputEvent) -> void:
 			queue_redraw()
 
 
-func _clue_at(pos: Vector2) -> Clue:
+func _clue_at(pos: Vector2) -> Array:
 	for hit in _clue_hits:
 		if (hit[0] as Rect2).has_point(pos):
 			return hit[1]
-	return null
+	return []
 
 
 func _hit(pos: Vector2) -> int:
@@ -163,9 +201,17 @@ func _draw() -> void:
 	var left := 14.0
 	var right := 14.0 + mid
 	if current_letter() == "":   # depois da última letra: anotações
-		_page_head(left, T.text(T.Key.BOOK_NOTES))
-		draw_multiline_string(Pal.ui, Vector2(left, 58), T.text(T.Key.BOOK_NOTE_TEXT), HORIZONTAL_ALIGNMENT_LEFT, page_w, 11, -1, Pal.INK_SOFT)
-		_draw_clues(right)
+		var groups := clue_groups()
+		var per := _per_page()
+		var s := _letter - _index.size()
+		if s == 0:
+			_page_head(left, T.text(T.Key.BOOK_NOTES))
+			draw_multiline_string(Pal.ui, Vector2(left, 58), T.text(T.Key.BOOK_NOTE_TEXT), HORIZONTAL_ALIGNMENT_LEFT, page_w, 11, -1, Pal.INK_SOFT)
+			_draw_clues(right, groups.slice(0, per), groups.is_empty())
+			return
+		var at := per * (2 * s - 1)
+		_draw_clues(left, groups.slice(at, at + per))
+		_draw_clues(right, groups.slice(at + per, at + 2 * per))
 		return
 	var pg := pages()
 	_page_letter(left, current_letter())
@@ -212,27 +258,27 @@ func _page_letter(x0: float, letter: String) -> void:
 	draw_rect(Rect2(x0 + 30, 29, page_w - 30, 2), Pal.INK_SOFT)
 
 
-## As palavras-chave ouvidas, a mais nova em cima: o quadradinho (vermelho, marcada para repassar), a palavra e,
-## embaixo, o tipo, a noite, a hora e o número da conversa.
-func _draw_clues(x0: float) -> void:
+## Uma página de palavras-chave (`groups`, de `clue_groups`): o quadradinho (vermelho, marcada para repassar), a
+## palavra (riscada, apagada) com quantas vezes foi ouvida e, embaixo, o tipo, a noite, a hora e o número da última vez.
+func _draw_clues(x0: float, groups: Array, none := false) -> void:
 	_page_head(x0, T.text(T.Key.BOOK_CLUES))
-	if clues.is_empty():
+	if none:
 		draw_string(Pal.ui, Vector2(x0, 58), T.text(T.Key.BOOK_CLUES_NONE), HORIZONTAL_ALIGNMENT_LEFT, page_w, 11, Pal.INK_SOFT)
 		return
 	var mono := Pal.mono
 	var y := TOP + 4.0
-	# ponytail: só as mais novas que cabem na página; quando o documento do interessado existir, ele terá as suas
-	for i in range(clues.size() - 1, -1, -1):
-		if y + CLUE_H > bottom:
-			break
-		var k := clues[i]
+	for g: Array in groups:
+		var k: Clue = g.back()
 		var base := y + 4 + mono.get_ascent(11)
-		_clue_hits.append([Rect2(x0 - 6, y, page_w + 12, CLUE_H), k])
+		_clue_hits.append([Rect2(x0 - 6, y, page_w + 12, CLUE_H), g])
 		var box := Rect2(x0, base - 9, 9, 9)
 		draw_rect(box, Pal.INK_SOFT, false, 1.0)
 		if k.chosen:
 			draw_rect(box.grow(-2), Pal.FORM_RED)
-		draw_string(mono, Vector2(x0 + 16, base), k.word, HORIZONTAL_ALIGNMENT_LEFT, page_w - 16, 11, Color.BLACK)
+		var word := k.word if g.size() == 1 else "%s ×%d" % [k.word, g.size()]
+		draw_string(mono, Vector2(x0 + 16, base), word, HORIZONTAL_ALIGNMENT_LEFT, page_w - 16, 11, Pal.INK_SOFT if k.struck else Color.BLACK)
+		if k.struck:
+			draw_rect(Rect2(x0 + 14, base - 4, minf(mono.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x + 4, page_w - 14), 1), Pal.INK_SOFT)
 		var kind := T.text(T.Key["CLUE_" + k.kind.to_upper()])
 		draw_string(mono, Vector2(x0 + 16, base + 14), T.text(T.Key.CLUE_WHEN) % [kind, k.night, Main.fmt(k.minutes), k.number],
 			HORIZONTAL_ALIGNMENT_LEFT, page_w - 16, 11, Pal.INK_SOFT)
@@ -307,6 +353,8 @@ func _notification(what: int) -> void:
 		book = Rect2(0, 0, size.x - TAB_W, size.y - NAV_H)
 		bottom = book.size.y - 6
 		page_w = book.size.x / 2.0 - 28
+		if is_node_ready():   # a altura muda quantas palavras cabem por página
+			_update_nav()
 		queue_redraw()
 	elif what == NOTIFICATION_MOUSE_EXIT and (hover != -1 or _hover_tab != -1):
 		hover = -1

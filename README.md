@@ -141,15 +141,20 @@ desconhecida são sempre escritos à mão.
   Tipos: `person` (pessoa), `street` (rua ou endereço), `place` (lugar), `phone` (telefone), `time` (hora), `date`
   (data), `number` (outro número), `other`. A marca não aparece na tela nem na voz, e pode envolver uma lacuna
   (`[time:{hour}]`). O jogador só pega a palavra se ouvir todas as letras dela: o lápis risca, ela fica sublinhada
-  na tela e vai para a página de anotações da lista telefônica (a última, depois da letra final), onde ele marca as
-  que vai repassar. **Varie onde a palavra-chave aparece**: às vezes no cumprimento ("Oi, [person:Benedito]!"), às
+  na tela e vai para as anotações da lista telefônica (depois da letra final, seguindo nas páginas seguintes se não
+  couberem), uma linha por palavra (ouvida de novo, "×2"). Um clique a marca para repassar, outro a risca (vai para
+  o fim) e outro a volta ao normal. **Varie onde a palavra-chave aparece**: às vezes no cumprimento ("Oi, [person:Benedito]!"), às
   vezes no meio, às vezes só na despedida ("Então até as [time:oito]"). Sempre no meio, o jogador aprende uma receita
   (entrar depois do alô, ouvir duas falas, sair); variando, ele decide a hora de entrar: cedo pega mais, mas a suspeita
-  sobe mais.
+  sobe mais. Na tradução, mantenha a marca e o tipo e traduza só o texto ("[time:eight]"); nomes próprios ficam iguais.
 - **Desconfiança de cada lugar** (`wary` no contato, em `data/directory/`): multiplica a velocidade com que a suspeita
   sobe quando o operador escuta uma conversa com quem atende ali (1 é o normal; a Pensão Dona Cota, 1,6, percebe logo;
-  o Bar do Zé, 0,5, quase não nota). Vale junto com a de quem ligou (`wary` do roteiro escrito). Na tradução, mantenha a marca e o
-  tipo e traduza só o texto ("[time:eight]"); nomes próprios ficam iguais.
+  o Bar do Zé, 0,5, quase não nota). Vale junto com a de quem ligou (`wary` do roteiro escrito). O jeito de atender
+  (`hello`) dá a pista: seco e desconfiado nos que percebem logo ("Pensão. Quem é que fala?"), solto nos que não
+  ligam ("Bar do Zé! Fala aí, meu chapa!"). A suspeita aparece em estágios na conversa: eles se calam (perceberam
+  algo; a melhor hora de baixar a chave), um pergunta ao outro (`overheard_ask` no `content.tres`) e, se o operador
+  continuar ouvindo, o outro responde e os dois ficam sabendo (`overheard_sure`, na mesma ordem: cada resposta é a da
+  sua pergunta); depois, reclamam e desligam. Muito desconfiados (1,5 ou mais) não se calam: vão direto à pergunta.
 - **A voz de quem atende** é a `voice` do contato (`f`, `m`, `w`, `k`); sem ela, uma tirada do nome, sempre a mesma.
 - A primeira letra de cada fala vira maiúscula depois de preenchida (`GameData.fill`).
 

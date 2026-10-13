@@ -90,6 +90,9 @@ func _check_talks() -> void:
 			ok(_holes(line).all(known), "lacuna ou tipo de palavra-chave que não existe: " + line)
 			var plain: String = Clue.parse(line)[0]
 			ok(not "[" in plain and not "]" in plain, "palavra-chave mal marcada: " + line)
+	var sus := GameData.CONTENT
+	ok(sus.overheard_ask.size() >= 3 and sus.overheard_ask.size() == sus.overheard_sure.size(), "cada pergunta da suspeita tem a sua resposta")
+	talks.append([DirectoryEntry.new(), sus.overheard_ask + sus.overheard_sure, false])
 	ok(Clue.parse("[time:{hour}]. Na [street:Rua do Sol].") == ["{hour}. Na Rua do Sol.", [[0, 6, "time"], [11, 21, "street"]]],
 		"palavras-chave: a fala sem as marcas e onde fica cada uma")
 	var all_holes := " ".join(GameData.talk_holes().map(func(h: String): return "{%s}" % h))
@@ -544,12 +547,73 @@ func _initialize() -> void:
 	m.tools.set_tab(Tools.DIRECTORY)
 	notes_book.turn(notes_book._index.size())
 	await frames(2)
-	ok(notes_book._clue_hits.size() == 2 and notes_book._clue_hits[0][1] == m.eavesdrop.clues.back(), "escuta: as palavras-chave vão para a página de anotações da lista, a mais nova em cima")
-	_mouse(notes_book, (notes_book._clue_hits[0][0] as Rect2).get_center(), 1)
-	ok(m.eavesdrop.clues.back().chosen and Clue.from_dict(m.eavesdrop.clues.back().to_dict()).chosen,
-		"escuta: o clique marca a palavra-chave para repassar (e a marca fica salva)")
+	var heard_clues := m.eavesdrop.clues
+	var n0 := heard_clues.size()
+	var newest: Clue = heard_clues.back()
+	ok(notes_book._clue_hits.size() == 2 and notes_book._clue_hits[0][1] == [newest], "escuta: as palavras-chave vão para a página de anotações da lista, a mais nova em cima")
+	var click_on := func(k: Clue):   # clica na linha da palavra de `k`
+		for h: Array in notes_book._clue_hits:
+			if k in h[1]:
+				_mouse(notes_book, (h[0] as Rect2).get_center(), 1)
+	click_on.call(newest)
+	await frames(1)
+	ok(newest.chosen and Clue.from_dict(newest.to_dict()).chosen, "escuta: o clique marca a palavra-chave para repassar (e a marca fica salva)")
+	click_on.call(newest)
+	await frames(1)
+	ok(newest.struck and not newest.chosen and Clue.from_dict(newest.to_dict()).struck and notes_book._clue_hits.back()[1] == [newest],
+		"escuta: o segundo clique a risca (salvo) e ela vai para o fim da página")
+	click_on.call(newest)
+	await frames(1)
+	ok(not newest.struck and not newest.chosen, "escuta: o terceiro volta ao normal")
+	# a mesma palavra ouvida de novo, noutra conversa: herda a marca e fica numa linha só, com quantas vezes
+	heard_clues[0].chosen = true
+	heard_clues[0].call = null   # (como se fosse de outra conversa)
+	m.eavesdrop._clue(m.eavesdrop._ears[el], -1, heard_clues[0].word, heard_clues[0].kind)
+	await frames(1)
+	var groups := notes_book.clue_groups()
+	ok(heard_clues.size() == n0 + 1 and heard_clues.back().chosen and groups.size() == 2 and groups[0].size() == 2,
+		"escuta: a palavra ouvida de novo herda a marca e se junta à anotada (uma linha, ×2)")
+	# muitas palavras: as anotações continuam nas páginas seguintes, cada palavra uma vez
+	for i in 30:
+		heard_clues.append(Clue.from_dict({"word": "palavra %d" % i, "kind": "other", "night": 1, "minutes": 0.0, "number": "305"}))
+	notes_book.notes_changed()
+	var shown_groups := []
+	for sp in notes_book.notes_spreads():
+		notes_book._open(notes_book._index.size() + sp)
+		await frames(1)
+		shown_groups.append_array(notes_book._clue_hits.map(func(h: Array): return h[1]))
+	ok(notes_book.notes_spreads() > 1 and notes_book._next.disabled and shown_groups.size() == notes_book.clue_groups().size()
+		and notes_book.clue_groups().all(func(g: Array): return shown_groups.count(g) == 1), "escuta: anotações demais seguem nas páginas seguintes")
+	heard_clues.resize(n0)
+	heard_clues[0].chosen = false
+	notes_book.notes_changed()
 	m.tools.close()
-	notes_book.turn(-notes_book._index.size())
+	notes_book.turn(-notes_book._index.size() - 9)
+	# a desconfiança do lugar multiplica a subida da suspeita: a pensão cismada percebe mais que o bar barulhento
+	var rises := []
+	for num in [312, 327]:
+		var probe := PhoneCall.from_transfer(ed)
+		probe.dest_num = num
+		m.eavesdrop.calls[99] = probe
+		m.eavesdrop._raise(99, 0.1)
+		rises.append(probe.suspicion)
+	m.eavesdrop.calls.erase(99)
+	ok(is_equal_approx(rises[0], 0.1 * ed.wary * 1.6) and is_equal_approx(rises[1], 0.1 * ed.wary * 0.5),
+		"escuta: a suspeita sobe pela desconfiança de quem ligou e pela do lugar (pensão 1,6, bar 0,5)")
+	var hushed := []   # passando de HUSH: o hotel (1) se cala; a pensão (1,6) não, vai direto à pergunta
+	var plain_call: TransferCall = ed.duplicate()
+	plain_call.wary = 1.0
+	for num in [305, 312]:
+		var probe := PhoneCall.from_transfer(plain_call)
+		probe.dest_num = num
+		probe.suspicion = Eavesdrop.HUSH - 0.001
+		m.eavesdrop.calls[99] = probe
+		m.eavesdrop._ears[99] = PhoneCall.new()
+		m.eavesdrop._raise(99, 0.01)
+		hushed.append(m.eavesdrop._quiet.has(99))
+		for d: Dictionary in [m.eavesdrop.calls, m.eavesdrop._ears, m.eavesdrop._quiet, m.eavesdrop._cue]:
+			d.erase(99)
+	ok(hushed == [true, false], "escuta: os muito desconfiados não se calam, vão direto à pergunta")
 	ok(ea.suspicion > Eavesdrop.CLICK and m.flags.allows(["escutou_%d" % m.night_no]), "escuta: ouvindo, a suspeita sobe e o marcador liga")
 	ok(m.phone.shown() != ea and m.phone.shown().line == el, "escuta: a tela mostra o que se ouve (fora do registro da ligação)")
 	ok(await wait_until(func(): return ex.line(el) == Exchange.Line.DONE), "escuta: depois da última fala escrita, eles se despedem e desligam")
@@ -593,6 +657,21 @@ func _initialize() -> void:
 	_move(0, el)
 	await frames(2)
 	ok(ea.suspicion > s0 + Eavesdrop.CLICK * 0.5 * place_wary, "escuta: o FONE encaixando com a chave em cima também estala")
+	# a pergunta: soltando a chave antes da resposta, o outro desconversa; ouvindo até o fim, ele responde e eles sabem
+	var ear_now: PhoneCall = m.eavesdrop._ears[el]
+	ea.suspicion = Eavesdrop.ASK - 0.001
+	m.eavesdrop.tick(0.1)
+	ok(m.eavesdrop._cue.has(el), "escuta: passando de ASK, um vai perguntar")
+	m.listen()
+	ok(await wait_until(func(): return not m.eavesdrop._cue.has(el)), "escuta: a pergunta foi feita")
+	ok(ea.suspicion < Eavesdrop.ASK and not m.eavesdrop._knows.has(el), "escuta: sem ninguém ouvindo a resposta, eles desconversam")
+	m.listen()
+	ea.suspicion = Eavesdrop.ASK - 0.001
+	m.eavesdrop.tick(0.1)
+	ok(await wait_until(func(): return m.eavesdrop._knows.has(el)), "escuta: ouvindo até o fim da pergunta, vem a resposta")
+	ok(await wait_until(func(): return ear_now.transcript.any(func(l: Dictionary): return GameData.CONTENT.overheard_sure.has(l["text"]))),
+		"escuta: a resposta é a da pergunta e aparece na tela")
+	ok(ea.suspicion >= Eavesdrop.SURE and ea.suspicion < 1.0, "escuta: agora eles sabem (a suspeita pula para SURE)")
 	var faults_was := m.report.faults.size()
 	m.eavesdrop.tick(Eavesdrop.LISTEN_SEC)
 	ok(m.report.faults.size() == faults_was and m.report.later[-1]["id"] == "eavesdrop" and m.flags.allows(["denunciado_%d" % m.night_no]),

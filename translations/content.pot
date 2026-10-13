@@ -287,7 +287,7 @@ msgid "Faz bem. Hoje a discussão está feia."
 msgstr ""
 
 #: data/directory/327_bar_do_ze.tres
-msgid "Bar do Zé, pode falar."
+msgid "Bar do Zé! Fala aí, meu chapa!"
 msgstr ""
 
 #: data/directory/327_bar_do_ze.tres
@@ -2615,7 +2615,7 @@ msgid "Amanhã ele lê a correção. Venha às {hour} pra foto."
 msgstr ""
 
 #: data/directory/101_gazeta_de_sao_sotero.tres
-msgid "Gazeta, redação."
+msgid "Gazeta, redação. Quem fala?"
 msgstr ""
 
 #: data/directory/101_gazeta_de_sao_sotero.tres
@@ -2735,7 +2735,7 @@ msgid "Vai ao ar às {hour}, depois das notícias."
 msgstr ""
 
 #: data/directory/390_radio_serena_am.tres
-msgid "Rádio Serena, boa noite."
+msgid "Rádio Serena. Quem fala, e do que se trata?"
 msgstr ""
 
 #: data/directory/390_radio_serena_am.tres
@@ -2971,7 +2971,7 @@ msgid "Pode deixar. Falo agora mesmo."
 msgstr ""
 
 #: data/directory/355_bilhar_do_tonho.tres
-msgid "Bilhar do Tonho, pode falar."
+msgid "Bilhar do Tonho! Opa, pode falar!"
 msgstr ""
 
 #: data/directory/355_bilhar_do_tonho.tres
@@ -3559,7 +3559,7 @@ msgid "Vou deixar a luz da frente acesa pra vocês."
 msgstr ""
 
 #: data/directory/312_pensao_dona_cota.tres
-msgid "Pensão Dona Cota, pois não?"
+msgid "Pensão. Quem é que fala?"
 msgstr ""
 
 #: data/directory/312_pensao_dona_cota.tres
@@ -10879,15 +10879,51 @@ msgid "Boa noite. Vai com Deus."
 msgstr ""
 
 #: data/content.tres
-msgid "Peraí... Alô? Tem alguém na linha?"
+msgid "Peraí... Tem mais alguém aí com você?"
 msgstr ""
 
 #: data/content.tres
-msgid "Você ouviu esse estalo? Parece que tem gente ouvindo."
+msgid "Ouviu esse estalo? Parece que alguém pegou a extensão."
 msgstr ""
 
 #: data/content.tres
-msgid "Psiu. Tem alguém escutando a gente?"
+msgid "Psiu. Acho que ouvi alguém respirando."
+msgstr ""
+
+#: data/content.tres
+msgid "Sua voz ficou fraquinha de repente..."
+msgstr ""
+
+#: data/content.tres
+msgid "Alô? Tem mais alguém nessa linha?"
+msgstr ""
+
+#: data/content.tres
+msgid "Fala baixo. Acho que não tamo sozinhos na linha."
+msgstr ""
+
+#: data/content.tres
+msgid "Não tem ninguém aqui, não. Então é alguém na linha."
+msgstr ""
+
+#: data/content.tres
+msgid "Ouvi. Aqui não tem extensão... tem gente na linha."
+msgstr ""
+
+#: data/content.tres
+msgid "Achei que era você... Tem alguém escutando a gente."
+msgstr ""
+
+#: data/content.tres
+msgid "A sua também. Alguém pegou essa linha."
+msgstr ""
+
+#: data/content.tres
+msgid "Ninguém respondeu... mas que tem, tem."
+msgstr ""
+
+#: data/content.tres
+msgid "Também acho. Melhor a gente não falar nada demais."
 msgstr ""
 
 #: data/content.tres

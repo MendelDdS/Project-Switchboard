@@ -240,3 +240,7 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
 - **Ação nova ganha tecla própria, não carona numa existente.** A chave de escuta foi posta no Tab, que vira outra coisa
   conforme a linha (Transferir ou escutar), e o usuário pediu a tecla Z, separada, com o nome dela no console. Uma
   tecla que muda de sentido pelo estado pega o jogador de surpresa (Tab apertado para transferir abria a escuta).
+- **Fala ouvida se confere por quem a diz e pelo que essa pessoa pode ter ouvido.** Avaliei "Psiu. Acho que ouvi alguém
+  respirando" → "Eu também ouvi" como boa, e o usuário lembrou que só faz sentido na boca de quem estava calado (quem
+  fala acha que a respiração é do outro); a resposta, de quem falava, tem de mostrar isso ("Achei que era você...").
+  Conferindo o código, achei também a vez da conversa trocando de pessoa quando a pergunta ficava sem resposta.
