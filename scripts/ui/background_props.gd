@@ -10,6 +10,7 @@ const POOL_R := 112.0   ## o raio da poça de luz da luminária no tampo
 const POOL_HOT := Vector2(0.42, 0.16)
 const SHADE_MAX := 0.3   ## o mais escuro que um objeto da mesa fica, longe da poça de luz (`_shade`)
 const FRONT_LIGHT := 1.6   ## da poça para a frente da mesa, a luz vai essa vez mais longe (`_shade`, `_draw_gloom`): a fileira da frente ficava escura demais
+const DESK_RAG := 0.16     ## o quanto a borda de cada faixa de luz do tampo anda de uma linha para outra, em raios da poça (`_desk_row`)
 const WALL_PAD := 2.0           ## a folga dos objetos da mesa até a parede da direita (x da sala)
 const MUG_ID := "caneca"   ## a caneca: sob o mouse se ergue como os objetos das ferramentas; clicada, um gole (`Background.sip`)
 const MUG_SIPS := 5       ## os goles do café da caneca
@@ -139,29 +140,46 @@ func _flip_step() -> int:
 
 ## Tampo de madeira visto de cima e da frente, de `r.position.y` (o fundo dele) até `front` (a borda da frente,
 ## com a espessura do tampo embaixo): tábuas compridas de um lado ao outro, sem juntas (com juntas parecia assoalho),
-## com as emendas mais juntas no fundo e mais espaçadas na frente, e o fundo mais escuro. Por cima, a poça de luz quente
-## da luminária, que escurece para longe dela (a luz da janela, de lado, vem com a parede da direita).
+## com as emendas mais juntas no fundo e mais espaçadas na frente, e o fundo mais escuro. A madeira escolhe o tom pela
+## luz de cada lugar (`Pal.desk`, `_shade`), em faixas em volta da poça: quente embaixo da luminária e fria longe dela,
+## e os veios, a beira e a emenda de cada tábua acima e abaixo do tom do lugar. Por cima, a poça de luz quente da
+## luminária, lisa (a luz da janela, de lado, vem com a parede da direita).
 func _draw_desk(r: Rect2, front: float) -> void:
 	var depth := front - r.position.y
 	var w2 := r.size.x * 2.0
+	var zf := _desk_z(front * 2.0)
 	if desk_art:
 		_ci.draw_texture_rect(desk_art, Rect2(r.position, Vector2(r.size.x, depth)), true)
 	else:
-		_r(r.position.x, r.position.y, r.size.x, depth, Pal.DESK)
+		var wood := _bands(func(lit: float) -> Color: return Pal.desk(lit))
+		var tones := func(step: int) -> PackedColorArray:
+			var out := PackedColorArray()
+			for b: Array in wood:
+				out.append(Pal.desk(b[1], step))
+			return out
+		var base: PackedColorArray = tones.call(0)
+		var bright: PackedColorArray = tones.call(1)
+		var seam: PackedColorArray = tones.call(-2)
+		var under: PackedColorArray = tones.call(-1)
+		_r(r.position.x, r.position.y, r.size.x, depth, base[0])
+		for y in range(int(r.position.y * 2.0), int(front * 2.0)):   # as faixas de dentro, linha a linha
+			_desk_row(y, 1, 0, w2, _desk_z(y), wood, base, 1)
 		# as emendas: tábuas da mesma largura, espaçadas pela câmera (mais juntas no fundo)
 		var zb := Z0 / DESK_T
-		var zf := Z0 * _yd / (front - _vp.y)
 		for k in PLANKS:
-			var y0 := roundf(_proj(0, _yd, lerpf(zb, zf, float(k) / PLANKS)).y * 2.0)
-			var y1 := roundf(_proj(0, _yd, lerpf(zb, zf, float(k + 1) / PLANKS)).y * 2.0)
-			_p(0, y1 - 1, w2, 1, Pal.DESK_GRAIN[0])
-			_p(0, y0, w2, 1, Pal.DESK_GRAIN[1])   # a beira de cada tábua pega luz
+			var za := lerpf(zb, zf, float(k) / PLANKS)
+			var zc := lerpf(zb, zf, float(k + 1) / PLANKS)
+			var y0 := roundf(_proj(0, _yd, za).y * 2.0)
+			var y1 := roundf(_proj(0, _yd, zc).y * 2.0)
+			_desk_row(y1 - 1, 1, 0, w2, zc, wood, seam)
+			_desk_row(y0, 1, 0, w2, za, wood, bright)   # a beira de cada tábua pega luz
 			for i in int(w2 / 60.0):   # os veios, mais compridos na frente (mais perto)
 				var gx := fmod(i * 197.0 + k * 61.0, w2)
 				var gy := roundf(y0 + (y1 - y0) * (0.25 + 0.5 * ((i * 7 + k) % 5) / 4.0))
 				var gl := 16.0 + (i % 4) * 10.0 + k * 10.0
-				_p(gx, gy, gl, 1, Pal.DESK_GRAIN[2])
-				_p(gx + gl * 0.3, gy + 1, gl * 0.5, 1, Pal.DESK_GRAIN[3])
+				var gz := _desk_z(gy)
+				_desk_row(gy, 1, gx, gx + gl, gz, wood, bright)
+				_desk_row(gy + 1, 1, gx + gl * 0.3, gx + gl * 0.8, gz, wood, under)   # e a sombra dele
 		for k in 2:   # o fundo escurece de leve (sem linha na quina: com ela parecia o rodapé de um chão)
 			_r(r.position.x, r.position.y, r.size.x, depth * (0.16 - k * 0.08), Color(0, 0, 0, 0.04))
 	# a luz da luminária: um círculo no tampo, embaixo dela (que fica um pouco à frente do fundo da mesa), liso e mais
@@ -173,14 +191,14 @@ func _draw_desk(r: Rect2, front: float) -> void:
 			var a := TAU * i / 32.0
 			pts.append(_proj(pool.x + cos(a) * POOL_R * ring.x, _yd, clampf(pool.y + sin(a) * POOL_R * 0.5 * ring.x, 40.0, Z0 / DESK_T)))
 		_light_fan(_proj(pool.x, _yd, pool.y), pts, Color(1.0, 0.78 + 0.08 * ring.z, 0.48 + 0.12 * ring.z, ring.y * lamp_level))
-	# a borda da frente: o canto arredondado do tampo pega a luz, a espessura dele e, embaixo, o escuro sob a mesa
-	var f := front * 2.0
-	_p(0, f - 2, w2, 1, Pal.DESK_EDGE[0])
-	_p(0, f - 1, w2, 1, Pal.DESK_EDGE[1])
-	_p(0, f, w2, 2, Pal.DESK_EDGE[2])
-	_p(0, f + 2, w2, 8, Pal.DESK_EDGE[3])
-	_p(0, f + 4, w2, 1, Pal.DESK_EDGE[4])   # um friso na espessura
-	_p(0, f + 10, w2, 2, Pal.DESK_GRAIN[0])
+	# a borda da frente (`Pal.DESK_EDGE_ROWS`): o canto arredondado do tampo pega a luz, a espessura dele com um friso e,
+	# embaixo, o escuro sob a mesa; cada faixa no tom da luz ali (`Pal.desk_edge`)
+	var edge := _bands(func(lit: float) -> Color: return Pal.desk_edge(lit))
+	for row: Array in Pal.DESK_EDGE_ROWS:
+		var cols := PackedColorArray()
+		for b: Array in edge:
+			cols.append(Pal.desk_edge(b[1], row[2]))
+		_desk_row(front * 2.0 - 2.0 + row[0], row[1], 0, w2, zf, edge, cols)
 	_r(r.position.x, front + 6, r.size.x, r.end.y - front - 6, Color("0a0705"))
 
 
@@ -666,8 +684,74 @@ func _pool() -> Vector2:
 func _shade(x: float, z: float) -> float:
 	var p := _pool()
 	var v := Vector2((x - p.x) / POOL_R, (z - p.y) / (POOL_R * 0.5))
-	var d := v.length() / lerpf(1.0, FRONT_LIGHT, smoothstep(0.0, 0.5, -v.y))
+	return _dark(v.length() / _reach(v.y))
+
+
+## O escuro (`_shade`) pela distância `d` à poça, em raios dela, já com o alcance da luz (`_reach`).
+func _dark(d: float) -> float:
 	return clampf((d - 0.35) * 0.5, 0.0, SHADE_MAX) + (1.0 - lamp_level) * 0.3
+
+
+## Quantas vezes a luz da poça vai mais longe na direção `vy` (na distância, em meios raios dela; negativo é para a
+## frente da mesa, onde ela vai `FRONT_LIGHT` vezes mais longe).
+static func _reach(vy: float) -> float:
+	return lerpf(1.0, FRONT_LIGHT, smoothstep(0.0, 0.5, -vy))
+
+
+## As faixas de luz do tampo em volta da poça para a rampa `tone` (a luz, de 0 a 1, para o tom em degraus: `Pal.desk`,
+## `Pal.desk_edge`), de fora para dentro: [até que distância da poça ela vai (`_dark`), uma luz dentro dela]. A de
+## fora vai até longe (`INF`).
+func _bands(tone: Callable) -> Array:
+	const FAR := 2.0   # daí para fora, o escuro já é o maior
+	const N := 48
+	var out := [[INF, 1.0 - _dark(FAR)]]
+	var prev: Color = tone.call(1.0 - _dark(FAR))
+	for i in range(N - 1, -1, -1):
+		var a := FAR * i / N
+		var c: Color = tone.call(1.0 - _dark(a))
+		if c == prev:
+			continue
+		var b := FAR * (i + 1) / N   # o tom muda entre a (dentro) e b (fora): a troca, ao meio pixel
+		for k in 8:
+			var m := (a + b) / 2.0
+			if tone.call(1.0 - _dark(m)) == c:
+				a = m
+			else:
+				b = m
+		out.append([b, 1.0 - _dark(a)])
+		prev = c
+	return out
+
+
+## Uma linha do tampo (px da tela: `y`, a altura `h`, de `x0` a `x1`) na distância `z` da sala, cada trecho no tom da
+## faixa de luz em que cai (`bands`, de `_bands`; `cols`, o tom de cada uma): a de fora inteira e, por cima, as de
+## dentro até onde elas chegam nessa linha (a partir da `first`).
+func _desk_row(y: float, h: float, x0: float, x1: float, z: float, bands: Array, cols: PackedColorArray, first := 0) -> void:
+	var p := _pool()
+	var vy := (z - p.y) / (POOL_R * 0.5)
+	var k := _reach(vy)
+	var cx := (_vp.x + p.x * Z0 / z) * 2.0   # o meio da poça nessa linha
+	var u := POOL_R * Z0 / z * 2.0           # um raio da poça nessa linha
+	for i in range(first, bands.size()):
+		var half := INF
+		var rag := Vector2.ZERO
+		if not is_inf(bands[i][0]):
+			var q: float = pow(bands[i][0] * k, 2) - vy * vy
+			if q <= 0.0:
+				return   # as de dentro são menores: nenhuma chega a esta linha
+			half = sqrt(q) * u
+			# a troca de tom anda um pouco em cada linha, para os dois lados, como um veio pegando a luz: numa curva lisa,
+			# a borda da faixa parecia o contorno de uma luz em degraus
+			rag = (Vector2(fposmod(sin(y * 12.9898 + i) * 43758.55, 1.0), fposmod(sin(y * 78.233 + i) * 43758.55, 1.0)) - Vector2(0.5, 0.5)) * DESK_RAG * u
+		var a := maxf(x0, roundf(cx - half + rag.x))
+		var b := minf(x1, roundf(cx + half + rag.y))
+		if b > a:
+			_p(a, y, b - a, h, cols[i])
+
+
+## A distância na sala da linha `y` (px da tela) do tampo.
+func _desk_z(y: float) -> float:
+	return Z0 * _yd / (y / 2.0 - _vp.y)
 
 
 ## Escurece o polígono `pts` (px da tela) longe da luz, ponto a ponto: `xz` são os mesmos pontos na sala (x, z), e o

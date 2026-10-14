@@ -266,7 +266,11 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   tampo dele aparece. (Antes eram caixas soltas na frente do painel, com
   tampos enormes que cobriam o pé dele: parecia fora da mesa e desalinhado.) O tampo (`_draw_desk`): `PLANKS` tábuas
   da mesma largura espaçadas pela câmera, sem juntas (com juntas parecia assoalho), a borda da frente com a
-  espessura dele e a poça de luz da luminária, um círculo de `POOL_R` no tampo embaixo dela (com o miolo mais quente,
+  espessura dele (as faixas em `Pal.DESK_EDGE_ROWS`) e a madeira escolhendo o tom pela luz de cada lugar (`Pal.desk`,
+  `Pal.desk_edge`, pela conta de `_shade`): em faixas em volta da poça (`_bands`, desenhadas linha a linha,
+  `_desk_row`), quente embaixo da luminária e fria longe dela, com os veios e a beira de cada tábua um tom acima e a
+  emenda dois abaixo; a borda de cada faixa anda um pouco de uma linha para outra (`DESK_RAG`), como um veio pegando a
+  luz (numa curva lisa, parecia o contorno de uma luz em degraus). Por cima, a poça de luz da luminária, um círculo de `POOL_R` no tampo embaixo dela (com o miolo mais quente,
   `POOL_HOT`: só o meio clareia, para o olho cair nos objetos) que treme com ela
   (`lamp_level`, como o arco na parede e a luz no armário). **O estado do jogo nos objetos**, para ler de relance: uma
   tira de papel saindo do caderno por registro pendente (`pending`) e uma folha nova na

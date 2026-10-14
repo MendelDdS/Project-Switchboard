@@ -53,11 +53,6 @@ const MAP_FURROWS: Array[Color] = [Color("8f9a63"), Color("a8956a")]   ## ...e o
 const MAP_DIRT := Color("b49d72")    ## as estradas de terra
 const MAP_RIVER := Color("6f8fa0")   ## o rio
 const SEAL := Color("8e2a22")        ## o vermelho do selo do mapa (e da capa da lista de baixo)
-const DESK := Color("241a12")   ## o tampo da mesa (a madeira escura), no cenário e no calculógrafo aberto
-## O grão do tampo (`DESK`): a emenda das tábuas, a beira de cada uma na luz, o veio e a sombra dele...
-const DESK_GRAIN: Array[Color] = [Color("1a120c"), Color("2b2016"), Color("2e2219"), Color("20170f")]
-## ...e a borda da frente, de cima para baixo: a quina arredondada pegando a luz (três tons), a espessura e o friso nela.
-const DESK_EDGE: Array[Color] = [Color("5a4030"), Color("7a5434"), Color("6b4529"), Color("3a2616"), Color("442c1a")]
 const NICKEL: Array[Color] = [Color("f4f0e6"), Color("d6d1c3"), Color("8e897c"), Color("45413a")]   ## o níquel (brilho, luz, meio, sombra): o prendedor da prancheta, o aro das lâmpadas
 
 ## Rampas de material: do mais escuro ao mais claro, a sombra puxando para o frio (o azul da noite na sala) e a luz para
@@ -65,11 +60,33 @@ const NICKEL: Array[Color] = [Color("f4f0e6"), Color("d6d1c3"), Color("8e897c"),
 const MUG_ENAMEL: Array[Color] = [Color("34363f"), Color("47494f"), Color("5e5e60"), Color("787670"), Color("938f84"),
 	Color("aea797"), Color("c7bea9"), Color("ddd2b8")]   ## o esmalte branco-gelo da caneca (o mais claro, um tom abaixo do branco)
 const MUG_RIM: Array[Color] = [Color("141626"), Color("1d2640"), Color("293858"), Color("3b4d72"), Color("56678a")]   ## a borda azul-marinho dela
+## A madeira escura do tampo, no cenário e no calculógrafo aberto (`desk`): o tom de cada lugar, e os veios e a beira
+## de cada tábua um acima dele, as emendas dois abaixo...
+const DESK_WOOD: Array[Color] = [Color("100e11"), Color("161216"), Color("1d1715"), Color("221915"), Color("2b1f15"),
+	Color("332417"), Color("3c2a19"), Color("47311c")]
+const DESK_LIT := 0.86   ## onde a luz toda cai na rampa da madeira: um tom abaixo do último, para os veios clarearem nela
+const DESK := Color("3c2a19")   ## o tampo embaixo da luminária (`desk(1.0)`): o papel do calculógrafo aberto
+## ...e a borda da frente (`desk_edge`), com as faixas dela de cima para baixo, [de, altura, tons acima do da luz dela]:
+## a quina arredondada pegando a luz (três), a espessura, o friso nela e a sombra embaixo.
+const DESK_EDGE: Array[Color] = [Color("1d1614"), Color("2b1f18"), Color("3a2616"), Color("442c1a"), Color("5a4030"),
+	Color("6b4529"), Color("7a5434"), Color("8d6239")]
+const DESK_EDGE_ROWS := [[0, 1, 2], [1, 1, 4], [2, 2, 3], [4, 8, 0], [6, 1, 1], [12, 2, -2]]
 
 
-## O tom da rampa `tones` (de `Pal`, do escuro ao claro) para o nível de luz `lit` (0 a 1), em degraus, sem pontilhado.
-static func ramp(tones: Array[Color], lit: float) -> Color:
-	return tones[clampi(int(lit * tones.size()), 0, tones.size() - 1)]
+## O tom da rampa `tones` (de `Pal`, do escuro ao claro) para o nível de luz `lit` (0 a 1), em degraus, sem pontilhado;
+## `step` tons acima (ou abaixo) dele.
+static func ramp(tones: Array[Color], lit: float, step := 0) -> Color:
+	return tones[clampi(int(lit * tones.size()) + step, 0, tones.size() - 1)]
+
+
+## A madeira do tampo na luz `lit` (0 a 1: 1 embaixo da luminária acesa), `step` tons acima ou abaixo.
+static func desk(lit: float, step := 0) -> Color:
+	return ramp(DESK_WOOD, lit * DESK_LIT, step)
+
+
+## A borda da frente do tampo na luz `lit`: longe da luminária, os tons de antes da rampa; embaixo dela, um acima.
+static func desk_edge(lit: float, step := 0) -> Color:
+	return ramp(DESK_EDGE, 0.25 + (lit - 0.5) * 0.45, step)
 
 ## Uma fonte só, de pixel: Departure Mono (SIL OFL). Fica nítida só em múltiplos de 11 (11, 22, 33, 44); fora deles os
 ## pixels saem desiguais. Importada com suavização (para a janela menor que 1280×720 não apagar os traços), sem

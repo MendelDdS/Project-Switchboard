@@ -125,10 +125,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `draw_polygon`**: cada `draw_polygon`/`draw_colored_polygon` é uma chamada de desenho (e cria um polígono a cada
   redesenho); `draw_primitive` (até 4 pontos) seguidos viram uma só. O cenário tem `Background._fill`/`_poly` (o
   quadrilátero inteiro; o resto, em triângulos); a sala passava de 2000 chamadas por quadro. **Os materiais dos objetos da mesa** (capa da lista,
-  fita e papelão do bloco de fichas, tábua e folhas da prancheta, papel-jornal, papel e tons do mapa, níquel, o vermelho do formulário, o grão e a borda do tampo) são
+  fita e papelão do bloco de fichas, tábua e folhas da prancheta, papel-jornal, papel e tons do mapa, níquel, o vermelho do formulário, a madeira e a borda do tampo) são
   constantes do `Pal`, usadas pelo objeto (`Background._art_*`) e pelo papel aberto dele: o que muda numa ponta muda na outra. **Rampas de material** (plano hi-bit, `PLANO_HIBIT.md`): `Array[Color]` no `Pal`, do escuro ao claro, a sombra
   puxando para o frio e a luz para o quente; o desenho escolhe o tom pelo nível de luz com `Pal.ramp(tons, luz)`, em
-  degraus, no lugar de escurecer por cima (por ora, a caneca e o aro das tomadas, `JACK_METAL`). **Uma fonte só, de pixel: Departure Mono**
+  degraus, no lugar de escurecer por cima (por ora, a caneca, o aro das tomadas, `JACK_METAL`, e a madeira do tampo,
+  `Pal.desk`; `step` pega o tom acima ou abaixo, para veios e beiras). **Uma fonte só, de pixel: Departure Mono**
   (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11** (o que é gravado no painel da mesa não usa
   ela: é uma fonte de pixel própria, maiúsculas de 3×5, `PixelArt.TINY`/`TINY_ACCENTS`/`tiny`, com os acentos dos três
   idiomas; o estado escrito de cada linha em cima das lâmpadas saiu, a pedido: a lâmpada já diz): 11 (texto, números da lista), 22
@@ -360,7 +361,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   tambor, um por entrada (`Toll._counter`: a plaquinha, a lâmpada e os tambores com os algarismos de `DIGITS`, que rolam
   no começo de cada minuto começado, `ROLL`; o visor só se redesenha a cada quadro enquanto um rola, `_rolling`) e fica
   apoiada na mesa pelos pés. O tampo é desenhado pelo próprio `Toll` (`_draw`), até a beira do papel, com o grão e a
-  borda da frente da mesa da sala (`Pal.DESK_GRAIN`, `Pal.DESK_EDGE`). A almofada tem a tampa aberta atrás e o brilho
+  borda da frente da mesa da sala, no tom de embaixo da luminária (`Pal.desk(1.0)`, `Pal.desk_edge(1.0)`; o papel
+  dela é `Pal.DESK`). A almofada tem a tampa aberta atrás e o brilho
   da tinta no feltro, que some quando ela é carimbada e volta (`_wet`, `WET_SEC`); na caixinha, a beira de cada bilhete
   guardado mostra a faixa do formulário e, nos carimbados, a ponta da marca (`_filed`). **Bilhetes e carimbo são soltos**: o
   jogador pega qualquer um, leva para onde quiser e ele fica onde foi solto (`Toll._on_desk_input`, um arrastar próprio

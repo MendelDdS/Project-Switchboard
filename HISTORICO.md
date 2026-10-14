@@ -1033,3 +1033,10 @@ Chaves:
     camada do copo não poderia ficar na frente da camada da luz?"), as camadas: os objetos da mesa foram para uma camada
     só deles, por cima da sala e da persiana e por baixo do escuro, e a luz do peitoril foi para a sala, antes deles,
     mais forte na medida do escuro que cai por cima; nada é recortado (só o relâmpago, que é somado por cima de tudo).
+190. #sala #luz #pixel
+    Plano hi-bit, sub-etapa 1.2 (começada em outra sessão, que deixou as rampas no `Pal`): a madeira do tampo escolhe o
+    tom pela luz de cada lugar (`Pal.desk`, oito tons do quase preto frio ao castanho quente; `Pal.desk_edge` para a
+    borda da frente), em faixas em volta da poça, com os veios e a beira de cada tábua um tom acima e a emenda dois
+    abaixo, no lugar de um tom só com a poça e o escuro da sala por cima; a mesinha do calculógrafo aberto fica no tom
+    de embaixo da luminária. As faixas em curva lisa deixavam a borda delas à vista, como uma luz em degraus (que já
+    tinha saído a pedido): a troca de tom anda um pouco em cada linha, como um veio pegando a luz.

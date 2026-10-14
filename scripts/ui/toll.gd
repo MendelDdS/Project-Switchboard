@@ -126,8 +126,8 @@ func _ready() -> void:
 
 
 ## O tampo da mesa por baixo de tudo, até a beira do papel (a borda dele, do tema): as tábuas de um lado ao outro, com
-## as emendas e os veios, e embaixo a borda da frente, de frente, com a quina arredondada na luz; os da mesa da sala
-## (`Pal.DESK_GRAIN`, `Pal.DESK_EDGE`).
+## as emendas e os veios, e embaixo a borda da frente, de frente, com a quina arredondada na luz; os da mesa da sala,
+## no tom de embaixo da luminária (`Pal.desk`, `Pal.desk_edge`; o papel, `Pal.DESK`, é o tom do lugar).
 func _draw() -> void:
 	var paper := get_parent_control()
 	if paper == null:
@@ -137,17 +137,16 @@ func _draw() -> void:
 	for k in int(ceilf((edge - r.position.y) / PLANK)):
 		var y0 := r.position.y + k * PLANK
 		var y1 := minf(y0 + PLANK, edge)
-		draw_rect(Rect2(r.position.x, y0, r.size.x, 1), Pal.DESK_GRAIN[1])   # a beira da tábua, na luz...
-		draw_rect(Rect2(r.position.x, y1 - 1.0, r.size.x, 1), Pal.DESK_GRAIN[0])   # ...e a emenda
+		draw_rect(Rect2(r.position.x, y0, r.size.x, 1), Pal.desk(1.0, 1))   # a beira da tábua, na luz...
+		draw_rect(Rect2(r.position.x, y1 - 1.0, r.size.x, 1), Pal.desk(1.0, -2))   # ...e a emenda
 		for i in int(r.size.x / 60.0):
 			var gx := r.position.x + fmod(i * 197.0 + k * 61.0, r.size.x - 40.0)
 			var gy := roundf(y0 + (y1 - y0) * (0.25 + 0.5 * ((i * 7 + k) % 5) / 4.0))
 			var gl := 24.0 + (i % 4) * 12.0
-			draw_rect(Rect2(gx, gy, minf(gl, r.end.x - gx), 1), Pal.DESK_GRAIN[2])
-			draw_rect(Rect2(gx + roundf(gl * 0.3), gy + 1.0, roundf(gl * 0.5), 1), Pal.DESK_GRAIN[3])
-	for row: Array in [[0, 1, 0], [1, 1, 1], [2, 2, 2], [4, 8, 3], [6, 1, 4]]:   # [de, altura, cor]: a quina, a espessura e o friso
-		draw_rect(Rect2(r.position.x, edge + row[0], r.size.x, row[1]), Pal.DESK_EDGE[row[2]])
-	draw_rect(Rect2(r.position.x, edge + 12.0, r.size.x, 2), Pal.DESK_GRAIN[0])
+			draw_rect(Rect2(gx, gy, minf(gl, r.end.x - gx), 1), Pal.desk(1.0, 1))
+			draw_rect(Rect2(gx + roundf(gl * 0.3), gy + 1.0, roundf(gl * 0.5), 1), Pal.desk(1.0, -1))
+	for row: Array in Pal.DESK_EDGE_ROWS:   # a quina, a espessura, o friso e o escuro embaixo
+		draw_rect(Rect2(r.position.x, edge + row[0], r.size.x, row[1]), Pal.desk_edge(1.0, row[2]))
 
 
 ## O carimbo subindo ou caindo (chegando na mesa, o som), o aperto (no fim da descida, a batida, `_touch`) e a mesa
