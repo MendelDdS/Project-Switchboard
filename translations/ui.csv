@@ -17,15 +17,19 @@ DIGIT_7,sete,seven,siete
 DIGIT_8,oito,eight,ocho
 DIGIT_9,nove,nine,nueve
 INTRO_NIGHT,Noite %d · %s · %s,Night %d · %s · %s,Noche %d · %s · %s
-INTRO_INFO,"Tudo acontece na sua mesa. Use o mouse para levar os plugues até as tomadas e para consultar a lista, o mapa e o caderno. Mais de uma linha pode tocar ao mesmo tempo. Use fones de ouvido.","Everything happens at your desk. Use the mouse to move the plugs to the jacks and to check the directory, the map and the logbook. More than one line can ring at the same time. Use headphones.","Todo sucede en su mesa. Use el mouse para llevar los conectores a las tomas y para consultar la guía, el mapa y el cuaderno. Puede sonar más de una línea a la vez. Use audífonos."
+INTRO_TRAINING,Treinamento · %s · %s,Training · %s · %s,Entrenamiento · %s · %s
+INTRO_INFO,"Tudo acontece na sua mesa. Use o mouse para levar os plugues até as tomadas e para consultar a lista, o mapa e a ficha de ocorrências. Mais de uma linha pode tocar ao mesmo tempo. Use fones de ouvido.","Everything happens at your desk. Use the mouse to move the plugs to the jacks and to check the directory, the map and the log sheet. More than one line can ring at the same time. Use headphones.","Todo sucede en su mesa. Use el mouse para llevar los conectores a las tomas y para consultar la guía, el mapa y la ficha de llamadas. Puede sonar más de una línea a la vez. Use audífonos."
 START_SHIFT,Começar turno,Start shift,Comenzar turno
-RESTART_FIRST_NIGHT,Recomeçar da primeira noite,Start over from the first night,Empezar de nuevo desde la primera noche
+RESTART_FIRST_NIGHT,Recomeçar do treinamento,Start over from the training,Empezar de nuevo desde el entrenamiento
+SKIP_TRAINING,Pular o treinamento,Skip the training,Saltar el entrenamiento
 END_DEMO_TITLE,Fim da demonstração,End of demo,Fin de la demostración
 END_DEMO_QUESTION,Você atenderia novamente?,Would you answer again?,¿Volvería a contestar?
 END_FIRED_TITLE,Você foi demitido.,You've been fired.,Usted fue despedido.
 END_FIRED_TEXT,A companhia telefônica agradece seus serviços.,The telephone company thanks you for your service.,La compañía telefónica le agradece sus servicios.
 END_NIGHT_TITLE,Fim da noite %d,End of night %d,Fin de la noche %d
 END_NIGHT_TEXT,"Amanhã, às 18:00, a central é sua de novo.","Tomorrow at 18:00, the switchboard is yours again.","Mañana, a las 18:00, la central es suya otra vez."
+END_TRAINING_TITLE,Fim do treinamento,End of training,Fin del entrenamiento
+END_TRAINING_TEXT,"Na segunda-feira, às 18:00, a central é sua.","On Monday at 18:00, the switchboard is yours.","El lunes, a las 18:00, la central es suya."
 NEXT_NIGHT,Próxima noite,Next night,Siguiente noche
 SHIFT_HOURS,"Turno
 18:00–00:00","Shift
@@ -37,15 +41,22 @@ CONSOLE_IDLE,Aguardando chamada,Waiting for a call,Esperando llamada
 SIGN_COMPANY,COMPANHIA TELEFÔNICA DE SÃO SOTERO,SÃO SOTERO TELEPHONE COMPANY,COMPAÑÍA TELEFÓNICA DE SÃO SOTERO
 BOARD_MAKER,CENTRAL TELEFÔNICA,TELEPHONE EXCHANGE,CENTRAL TELEFÓNICA
 BOARD_PLATE_NOTICE,SETOR NÃO ATENDIDO,SECTOR NOT IN SERVICE,SECTOR SIN SERVICIO
-LEGEND_RING,chamando / em linha,ringing / on the line,llamando / en línea
-LEGEND_CONN,conectada,connected,conectada
+BOARD_TRUNKS,INTERURBANO,LONG DISTANCE,LARGA DISTANCIA
+BOARD_TRUNK_1,CAPITAL,CAPITAL,CAPITAL
+BOARD_TRUNK_2,NORTE,NORTH,NORTE
+BOARD_TRUNK_3,SUL,SOUTH,SUR
+BOARD_TRUNK_4,LESTE,EAST,ESTE
+BOARD_TRUNK_5,OESTE,WEST,OESTE
+BOARD_TRUNK_6,LITORAL,COAST,LITORAL
+LEGEND_RING,chamando / em linha,ringing / on line,llamando / en línea
+LEGEND_CONN,ligada,patched,enlazada
 LEGEND_DONE,desligou: desmonte,hung up: take down,colgó: desarme
 LEGEND_FREE,livre,free,libre
 EX_LINE_FREE,livre,free,libre
 EX_LINE_RING,chamando,ringing,llamando
-EX_LINE_TALK,em linha,on the line,en línea
-EX_LINE_HOLD,em espera,on hold,en espera
-EX_LINE_CONN,conectada,connected,conectada
+EX_LINE_TALK,em linha,on line,en línea
+EX_LINE_HOLD,espera,on hold,espera
+EX_LINE_CONN,ligada,patched,enlazada
 EX_LINE_DONE,desligou,hung up,colgó
 EX_DEST_FREE,livre,free,libre
 EX_DEST_RING,tocando,ringing,sonando
@@ -68,6 +79,8 @@ INFO_FONE_CONNECTED,FONE CONECTADO,HEADSET CONNECTED,AURICULAR CONECTADO
 ANSWER,Atender,Answer,Contestar
 TRANSFER,Transferir,Transfer,Transferir
 HANG_UP,Desligar,Hang up,Colgar
+LISTEN,Escutar,Listen,Escuchar
+LISTEN_STOP,Soltar,Release,Soltar
 KEY_SPACE,Espaço,Space,Espacio
 STATUS_LINE,Linha %02d,Line %02d,Línea %02d
 STATUS_ON_HOLD,em espera,on hold,en espera
@@ -77,12 +90,17 @@ DISPLAY_CONNECTED,%d CONECTADO,%d CONNECTED,%d CONECTADO
 DISPLAY_LINE_DOTS,LINHA %02d…,LINE %02d…,LÍNEA %02d…
 DISPLAY_NO_NUMBER,NÚMERO NÃO EXISTE,NUMBER DOES NOT EXIST,EL NÚMERO NO EXISTE
 WARN_FONE_TO_TRANSFER,Leve o FONE até a entrada da ligação que você quer transferir.,Bring the HEADSET to the input of the call you want to transfer.,Lleve el AURICULAR a la entrada de la llamada que quiere transferir.
+WARN_LISTEN_FONE,"Para escutar a linha %02d, leve o FONE até a entrada dela.","To listen in on line %02d, bring the HEADSET to its input.","Para escuchar la línea %02d, lleve el AURICULAR a su entrada."
 WARN_NOT_TRANSFER,Esse solicitante não pediu transferência.,This caller didn't ask for a transfer.,Esta persona no pidió una transferencia.
 WARN_LISTEN_FIRST,Ouça o pedido do solicitante antes de transferir.,Hear the caller's request before transferring.,Escuche el pedido antes de transferir.
 WARN_PLUG_OUTPUT,Ligue um cabo de conexão da SAÍDA %02d até o número de destino.,Connect a patch cord from OUTPUT %02d to the destination number.,Conecte un cable de conexión de la SALIDA %02d al número de destino.
 WARN_DEST_BUSY,O %d já está tocando ou em conversa.,%d is already ringing or on a call.,El %d ya está sonando o en conversación.
 WARN_PHONE_RINGING,O telefone está tocando.,The phone is ringing.,El teléfono está sonando.
 WARN_FONE_TO_BLINK,Leve o FONE até a entrada que está piscando.,Bring the HEADSET to the blinking input.,Lleve el AURICULAR a la entrada que parpadea.
+WARN_TRAINING_HANG_UP,%s ainda está explicando: ela desliga quando terminar.,%s is still explaining: she will hang up when she is done.,%s todavía está explicando: ella cuelga cuando termine.
+WARN_TRAINING_WRONG,"O cabo está no %d, que não é o número pedido.","The cord is on %d, which is not the number asked for.","El cable está en el %d, que no es el número pedido."
+HINT_TRAINING_BACK,"%s está em espera e não ouve nada: volte o [b]FONE[/b] para a [b]entrada %d[/b].","%s is on hold and cannot hear you: put the [b]HEADSET[/b] back on [b]input %d[/b].","%s está en espera y no oye nada: vuelva a poner el [b]AURICULAR[/b] en la [b]entrada %d[/b]."
+HINT_TRAINING_UNITS_AWAY,"Os [b]bombeiros[/b] ainda estão fora, voltando de outro cartão: espere chegarem à base para perfurá-los.","The [b]fire brigade[/b] is still out, coming back from another card: wait for them to reach the station before punching them.","Los [b]bomberos[/b] todavía están fuera, volviendo de otra tarjeta: espere a que lleguen a la base para perforarlos."
 OP_CONNECT_WAIT,"Um momento, vou conectar.","One moment, I'll put you through.","Un momento, lo comunico."
 OP_REPEAT,"Pode repetir, por favor?","Could you repeat that, please?","¿Puede repetir, por favor?"
 OP_SMALLTALK,"E aí, como vai a noite?","So, how's your night going?","¿Y qué tal la noche?"
@@ -98,6 +116,9 @@ SYS_OTHER_SIDE_ENDED,(A ligação foi encerrada do outro lado.),(The call was en
 SYS_ON_HOLD,(Em espera.),(On hold.),(En espera.)
 SYS_CALL_TO_CANCELLED,(Chamada para %d cancelada.),(Call to %d canceled.),(Llamada al %d cancelada.)
 SYS_DISCONNECTED,(%d desconectado.),(%d disconnected.),(%d desconectado.)
+SYS_LISTENING,(Escutando a linha %02d: %s e %s.),(Listening in on line %02d: %s and %s.),(Escuchando la línea %02d: %s y %s.)
+SYS_LINE_SILENT,(Silêncio na linha.),(Silence on the line.),(Silencio en la línea.)
+SYS_BOTH_HUNG_UP,(Os dois desligaram.),(Both hung up.),(Los dos colgaron.)
 SYS_NOBODY_ANSWERS,(Ninguém atende no %d.),(Nobody answers at %d.),(Nadie contesta en el %d.)
 SYS_ANSWERED,(%s atendeu.),(%s answered.),(%s contestó.)
 SYS_WRONG_PERSON,(Atendeu: %s. Não é quem o solicitante pediu.),(Answered: %s. Not who the caller asked for.),(Contestó: %s. No es a quien pidió la persona.)
@@ -107,35 +128,38 @@ SYS_YOU_ENDED,(Você encerrou a ligação.),(You ended the call.),(Usted termin�
 SYS_NOBODY_ANSWERED,(Ninguém atendeu. A pessoa desistiu.),(Nobody answered. The caller gave up.),(Nadie contestó. La persona desistió.)
 SYS_TIRED_WAITING,(Cansou de esperar e desligou.),(Got tired of waiting and hung up.),(Se cansó de esperar y colgó.)
 SYS_CALL_DROPPED,(A ligação caiu.),(The call dropped.),(La llamada se cortó.)
-HINT_WAIT_CALLS,"Aguarde as chamadas. A lista, o mapa e despacho, o caderno e o registro das conversas abrem pelos objetos na mesa (ou teclas 1 a 4).","Wait for calls. The directory, map & dispatch, the logbook and the call log open from the objects on the desk (or keys 1 to 4).","Espere las llamadas. La guía, el mapa y despacho, el cuaderno y el registro de conversaciones se abren con los objetos de la mesa (o teclas 1 a 4)."
+HINT_WAIT_CALLS,"Aguarde as chamadas. A lista, o mapa e despacho, as fichas e o registro abrem pelos objetos na mesa (ou teclas 1 a 4).","Wait for calls. The directory, map & dispatch, the log sheets and the call log open from the desk (or keys 1 to 4).","Espere las llamadas. La guía, el mapa y despacho, las fichas y el registro se abren desde la mesa (o teclas 1 a 4)."
 HINT_INFO,Pedido de informação: confira a lista telefônica antes de responder.,Information request: check the phone directory before answering.,Pedido de información: revise la guía telefónica antes de responder.
 HINT_EMERGENCY,"A barra mostra a situação piorando e só para com o socorro completo a caminho (fora da linha, o rádio avisa). Mande o que as respostas pedirem: protocolo no despacho.","The bar shows the situation getting worse and only stops once full help is on the way (off the line, the radio warns you). Send what the answers call for: protocol in dispatch.","La barra muestra la situación empeorando y solo se detiene con toda la ayuda en camino (fuera de la línea, la radio avisa). Envíe lo que pidan las respuestas: protocolo en el despacho."
 HINT_WRONG_DEST,Tire a ponta do cabo desse destino. Confira o nome e o endereço na lista: há nomes parecidos.,Pull the cord out of that destination. Check the name and address in the directory: some names are similar.,Quite el cable de ese destino. Revise el nombre y la dirección en la guía: hay nombres parecidos.
 HINT_WRONG_UNATTENDED,"Sem o FONE na linha, uma conexão errada cai. A pessoa vai ligar de novo: confira o número na lista antes de transferir.","Without the HEADSET on the line, a wrong connection drops. The caller will call back: check the number in the directory before transferring.","Sin el AURICULAR en la línea, una conexión equivocada se cae. La persona volverá a llamar: revise el número en la guía antes de transferir."
 HINT_RED_LAMPS,Lâmpadas vermelhas: a conversa terminou. Tire as duas pontas do cabo de conexão para liberar a linha e o cabo.,Red lamps: the conversation is over. Pull both ends of the patch cord to free the line and the cord.,Lámparas rojas: la conversación terminó. Quite las dos puntas del cable de conexión para liberar la línea y el cable.
-HINT_TUT_PLUG,"A lâmpada da entrada %02d está piscando. Arraste o [b]FONE[/b] (cabo verde, no telefone) até a tomada dessa entrada.","The lamp on input %02d is blinking. Drag the [b]HEADSET[/b] (green cord, on the phone) to that input's jack.","La lámpara de la entrada %02d está parpadeando. Arrastre el [b]AURICULAR[/b] (cable verde, en el teléfono) hasta la toma de esa entrada."
 HINT_ANOTHER_CALL,"Outra entrada chamando! Leve o [b]FONE[/b] até ela: a ligação atual fica em espera. Para voltar, leve o FONE de volta à entrada dela.","Another input is ringing! Take the [b]HEADSET[/b] to it: the current call goes on hold. To go back, return the HEADSET to its input.","¡Otra entrada está llamando! Lleve el [b]AURICULAR[/b] hasta ella: la llamada actual queda en espera. Para volver, lleve el AURICULAR de nuevo a su entrada."
 HINT_REMEMBER,"Lembre: FONE na entrada que pisca, depois Atender.","Remember: HEADSET on the blinking input, then Answer.","Recuerde: AURICULAR en la entrada que parpadea, luego Contestar."
 HINT_TUT_ANSWER,Agora clique em [b]Atender[/b] para falar com quem ligou.,Now click [b]Answer[/b] to talk to the caller.,Ahora haga clic en [b]Contestar[/b] para hablar con quien llamó.
-HINT_TUT_FIND,"Procure [b]%s[/b] na lista. Pegue um [b]cabo de conexão[/b] na base e ligue uma ponta na [b]SAÍDA %02d[/b], logo abaixo da entrada.","Find [b]%s[/b] in the directory. Take a [b]patch cord[/b] from the base and plug one end into [b]OUTPUT %02d[/b], just below the input.","Busque [b]%s[/b] en la guía. Tome un [b]cable de conexión[/b] de la base y conecte una punta en la [b]SALIDA %02d[/b], justo debajo de la entrada."
-HINT_TUT_OTHER_END,"Leve a outra ponta desse cabo até o número de [b]%s[/b], na fileira de destinos.","Take the other end of that cord to the number for [b]%s[/b], in the destination row.","Lleve la otra punta de ese cable al número de [b]%s[/b], en la fila de destinos."
-HINT_TUT_TRANSFER,Clique em [b]Transferir[/b] para chamar o destino.,Click [b]Transfer[/b] to ring the destination.,Haga clic en [b]Transferir[/b] para llamar al destino.
-HINT_TUT_DEST_RINGING,O destino está tocando. Aguarde atender.,The destination is ringing. Wait for an answer.,El destino está sonando. Espere a que contesten.
 OP_TRY_OTHER,Ninguém atende. Quer que eu tente %s?,Nobody's answering. Want me to try %s?,Nadie contesta. ¿Quiere que intente con %s?
-HINT_TUT_CONNECTED,O destino atendeu e a ligação já segue pelo cabo de conexão. Tire o [b]FONE[/b] da entrada quando quiser (devolva ao telefone).,The destination answered and the call already goes through the patch cord. Pull the [b]HEADSET[/b] out of the input whenever you like (return it to the phone).,El destino contestó y la llamada ya sigue por el cable de conexión. Quite el [b]AURICULAR[/b] de la entrada cuando quiera (devuélvalo al teléfono).
 HINT_NO_CORDS,Não há cabos de conexão livres. Desmonte uma conexão encerrada (lâmpadas vermelhas).,No free patch cords. Take down a finished connection (red lamps).,No hay cables de conexión libres. Desarme una conexión terminada (lámparas rojas).
-HINT_DESK_SLIPS,"Cada tira saindo do caderno, na mesa, é uma ocorrência esperando registro (tecla 3).","Each slip sticking out of the logbook on the desk is a call waiting to be logged (key 3).","Cada tira que sale del cuaderno, en la mesa, es una llamada esperando registro (tecla 3)."
+HINT_DESK_SLIPS,"Cada tira saindo do bloco de fichas, na mesa, é uma ocorrência esperando registro (tecla 3).","Each slip sticking out of the pad of log sheets on the desk is a call waiting to be logged (key 3).","Cada tira que sale del bloque de fichas, en la mesa, es una llamada esperando registro (tecla 3)."
 HINT_DESK_SHEET,Folha nova na prancheta: uma conversa terminou e foi para o registro (tecla 4).,New sheet on the clipboard: a conversation ended and went to the call log (key 4).,Hoja nueva en la tablilla: una conversación terminó y pasó al registro (tecla 4).
 HINT_CHECK_LIST,Consulte a lista. Confira o nome e o endereço.,Check the directory. Confirm the name and address.,Consulte la guía. Revise el nombre y la dirección.
-HINT_REGISTER,Registre a ocorrência no caderno.,Log the call in the logbook.,Registre la llamada en el cuaderno.
-HINT_REGISTER_LATER,Há ocorrências para registrar no caderno quando der tempo.,There are calls to log in the logbook when you have time.,Hay llamadas para registrar en el cuaderno cuando tenga tiempo.
-NOTEBOOK_TITLE,Caderno de ocorrências,Call logbook,Cuaderno de llamadas
-NOTEBOOK_DATE,Noite de 14 para 15,Night of the 14th to the 15th,Noche del 14 al 15
+HINT_REGISTER,Registre a ocorrência na ficha.,Log the call on the log sheet.,Registre la llamada en la ficha.
+HINT_REGISTER_LATER,Há ocorrências para registrar na ficha quando der tempo.,There are calls to log on the log sheet when you have time.,Hay llamadas para registrar en la ficha cuando tenga tiempo.
+NOTEBOOK_TITLE,Ficha de ocorrências,Shift log sheet,Ficha de llamadas
+NOTEBOOK_DATE,Noite de %d para %d,Night of the %d–%d,Noche del %d al %d
+DATE_LONG,"%s, %d de outubro de %d","%s, October %d, %d","%s, %d de octubre de %d"
+CALENDAR_MONTH,OUT,OCT,OCT
+DAY_SUN,Domingo,Sunday,Domingo
+DAY_MON,Segunda-feira,Monday,Lunes
+DAY_TUE,Terça-feira,Tuesday,Martes
+DAY_WED,Quarta-feira,Wednesday,Miércoles
+DAY_THU,Quinta-feira,Thursday,Jueves
+DAY_FRI,Sexta-feira,Friday,Viernes
+DAY_SAT,Sábado,Saturday,Sábado
 NOTEBOOK_NEW,Nova ocorrência · %s,New entry · %s,Nueva entrada · %s
 NOTEBOOK_QUEUE,(+%d na fila),(+%d in queue),(+%d en cola)
 NOTEBOOK_REGISTER_AS,Registrar como:,Log as:,Registrar como:
 NOTEBOOK_EMPTY,Nenhuma ocorrência registrada neste turno.,No entries logged this shift.,Ninguna entrada registrada en este turno.
-COL_TIME,Horário,Time,Hora
+COL_TIME,Hora,Time,Hora
 COL_CALLER,Solicitante,Caller,Solicitante
 COL_PLACE,Local / destino,Place / destination,Lugar / destino
 COL_TYPE,Tipo,Type,Tipo
@@ -152,17 +176,36 @@ OBS_NOT_ANSWERED,Não atendida.,Not answered.,No contestada.
 OBS_GAVE_UP,Desistiu na espera.,Gave up on hold.,Desistió en espera.
 OBS_NOT_CONNECTED,Não conectada.,Not connected.,No conectada.
 OBS_CALL_DROPPED,A ligação caiu.,The call dropped.,La llamada se cortó.
+OBS_TRAINING,Treinamento (não conta).,Training (does not count).,Entrenamiento (no cuenta).
 TAB_DIRECTORY,Lista telefônica,Phone directory,Guía telefónica
 TAB_DISPATCH,Mapa e despacho,Map & dispatch,Mapa y despacho
-TAB_LOGBOOK,Caderno,Logbook,Cuaderno
+TAB_LOGBOOK,Fichas,Log sheets,Fichas
 TAB_CALL_LOG,Registro,Call log,Registro
 TAB_NEWS,Jornal da manhã,Morning paper,Diario de la mañana
+TAB_TOLL,Calculógrafo,Toll timer,Tarificador
+BLIND_CLOSE,Fechar a persiana,Close the blind,Bajar la persiana
+BLIND_OPEN,Abrir a persiana,Open the blind,Subir la persiana
+CABINET_OPEN,Abrir o armário,Open the locker,Abrir el armario
+CABINET_CLOSE,Fechar o armário,Close the locker,Cerrar el armario
+MUG_SIP,Tomar um gole,Take a sip,Tomar un sorbo
+MUG_EMPTY,O café acabou,The coffee is gone,Se acabó el café
 NEWS_MASTHEAD,Gazeta de São Sotero,Gazeta de São Sotero,Gazeta de São Sotero
 NEWS_EDITION,Edição da manhã · %s,Morning edition · %s,Edición de la mañana · %s
 BOOK_BACK,◀ Voltar,◀ Back,◀ Atrás
 BOOK_TURN,Virar ▶,Turn ▶,Pasar ▶
 BOOK_NOTES,Anotações,Notes,Notas
 BOOK_NOTE_TEXT,Emergências não se transferem: marque o local no mapa e use o despacho.\n\nFarmácia de plantão nesta semana: Santa Rita.\n\nLinhas 01 a 10 são da mesa 1.,Emergencies are not transferred: mark the location on the map and use dispatch.\n\nPharmacy on duty this week: Santa Rita.\n\nLines 01 to 10 belong to desk 1.,Las emergencias no se transfieren: marque el lugar en el mapa y use el despacho.\n\nFarmacia de turno esta semana: Santa Rita.\n\nLas líneas 01 a 10 son de la mesa 1.
+BOOK_CLUES,Ouvido na linha,Heard on the line,Oído en la línea
+BOOK_CLUES_NONE,Nada anotado ainda.,Nothing noted yet.,Nada anotado todavía.
+CLUE_WHEN,%s · noite %d · %s · nº %s,%s · night %d · %s · no. %s,%s · noche %d · %s · n.º %s
+CLUE_PERSON,pessoa,person,persona
+CLUE_STREET,rua,street,calle
+CLUE_PLACE,lugar,place,lugar
+CLUE_PHONE,telefone,phone,teléfono
+CLUE_TIME,hora,time,hora
+CLUE_DATE,data,date,fecha
+CLUE_NUMBER,número,number,número
+CLUE_OTHER,outro,other,otro
 MAP_SQUARE,Praça da Matriz,Praça da Matriz,Praça da Matriz
 MAP_CLINIC,Clínica,Clinic,Clínica
 MAP_HOSPITAL,Hospital,Hospital,Hospital
@@ -233,8 +276,18 @@ CARD_SECTOR,SETOR,SECTOR,SECTOR
 CARD_SENDER,TRANSMISSOR,TRANSMITTER,TRANSMISOR
 CARD_SENDING,TRANSMITINDO...,SENDING...,TRANSMITIENDO...
 CARD_SHREDDER,TRITURADOR,SHREDDER,TRITURADORA
+TOLL_MACHINE,CALCULÓGRAFO,TOLL TIMER,TARIFICADOR
+TOLL_TICKET,BILHETE DE TARIFAÇÃO,TOLL TICKET,BOLETA DE TARIFA
+TOLL_LINE,ENTRADA,LINE,LÍNEA
+TOLL_TO,PARA,TO,PARA
+TOLL_TIME,HORÁRIO,TIME,HORARIO
+TOLL_MINUTES,MINUTOS,MINUTES,MINUTOS
+TOLL_STAMP,TARIFADO,CHARGED,TARIFADO
+TOLL_FIELD,CARIMBO,STAMP,SELLO
+TOLL_BOX,BILHETES,TICKETS,BOLETAS
 CARD_ONE_AT_A_TIME,UM CARTÃO POR VEZ,ONE CARD AT A TIME,UNA TARJETA A LA VEZ
 NOTEBOOK_CARD,Ficha nº %04d,Card no. %04d,Ficha n.º %04d
+NOTEBOOK_TICKET,Bilhete nº %04d,Ticket no. %04d,Boleta n.º %04d
 CARD_INSERT,INSIRA O CARTÃO,INSERT THE CARD,INSERTE LA TARJETA
 DISPATCH_OPEN,Abrir ficha,Open slip,Abrir ficha
 DISPATCH_WHY_POL,"crime, briga, arma, rua bloqueada","crime, fight, weapon, blocked road","delito, pelea, arma, calle bloqueada"
@@ -259,8 +312,11 @@ RADIO_NEED,"Central, precisamos de %s aqui na %s.","Dispatch, we need %s here on
 RADIO_UNDER_CONTROL,"Central, equipe no local. Vítimas atendidas, situação sob controle.","Dispatch, team on site. Victims treated, situation under control.","Central, equipo en el lugar. Víctimas atendidas, situación bajo control."
 RADIO_NOT_NEEDED,"Central, aqui não precisa de %s. Liberando.","Dispatch, no need for %s here. Releasing.","Central, aquí no hace falta %s. Liberando."
 REPORT_TITLE,Relatório do supervisor,Supervisor's report,Informe del supervisor
+REPORT_DEPARTMENT,Supervisão do tráfego noturno,Night traffic supervision,Supervisión del tráfico nocturno
+REPORT_SIGNATURE,Supervisor de tráfego,Traffic supervisor,Supervisor de tráfico
 REPORT_SIGN,Assinar e sair,Sign and leave,Firmar y salir
 REPORT_NIGHT,Noite %d · turno das %s às %s,Night %d · shift from %s to %s,Noche %d · turno de %s a %s
+REPORT_TRAINING,Treinamento · turno das %s às %s,Training · shift from %s to %s,Entrenamiento · turno de %s a %s
 REPORT_WARNINGS,ADVERTÊNCIAS,WARNINGS,ADVERTENCIAS
 REPORT_NONE,Nenhuma.,None.,Ninguna.
 REPORT_CRITICAL,Gravíssimas,Critical,Gravísimas
@@ -268,7 +324,6 @@ REPORT_SEVERE,Graves,Severe,Graves
 REPORT_MEDIUM,Médias,Moderate,Medias
 REPORT_LIGHT,Leves,Minor,Leves
 REPORT_ACCUMULATED,"Advertências graves acumuladas (gravíssima conta 2): %d de %d","Accumulated severe warnings (critical counts as 2): %d of %d","Advertencias graves acumuladas (gravísima cuenta 2): %d de %d"
-REPORT_NEWS,JORNAL DA MANHÃ,MORNING PAPER,DIARIO DE LA MAÑANA
 REPORT_QUIET,Noite tranquila em São Sotero.,A quiet night in São Sotero.,Noche tranquila en São Sotero.
 REPORT_INCIDENT,Ocorrência,Incident,Incidente
 SEV_LIGHT,leve,minor,leve
@@ -281,9 +336,13 @@ FAULT_MISSED,Ligação não atendida,Call not answered,Llamada no contestada
 FAULT_HOLD,Solicitante desistiu na espera,Caller gave up on hold,La persona desistió en espera
 FAULT_WRONG_NUMBER,Conectou o número errado,Connected the wrong number,Conectó el número equivocado
 FAULT_CUT_CALL,Conversa cortada no meio,Conversation cut off,Conversación cortada a la mitad
+REPORT_YESTERDAY,"ontem, %s","yesterday, %s","ayer, %s"
+FAULT_EAVESDROP,Assinante denunciou que a conversa foi ouvida,A subscriber reported the conversation was listened in on,Un abonado denunció que escucharon su conversación
 FAULT_WRONG_INFO,Informação errada,Wrong information,Información equivocada
 FAULT_REGISTER_WRONG,Registro com o tipo errado,Logged with the wrong type,Registro con el tipo equivocado
 FAULT_REGISTER_MISSING,Ocorrência sem registro,Call not logged,Llamada sin registrar
+FAULT_TOLL_UNSTAMPED,Bilhete de tarifação guardado sem carimbo,Toll ticket filed without the stamp,Boleta de tarifa guardada sin sello
+FAULT_TOLL_FORGOTTEN,Bilhete de tarifação esquecido na mesa,Toll ticket left on the desk,Boleta de tarifa olvidada en la mesa
 FAULT_DISPATCH_WRONG_PLACE,Unidades enviadas ao endereço errado,Units sent to the wrong address,Unidades enviadas a la dirección equivocada
 FAULT_DISPATCH_MISSING,Faltaram unidades no despacho,Not enough units dispatched,Faltaron unidades en el despacho
 FAULT_DISPATCH_IDLE,Unidades enviadas sem ocorrência,Units sent with no emergency,Unidades enviadas sin emergencia
@@ -312,16 +371,9 @@ SETTINGS_LANGUAGE,Idioma,Language,Idioma
 SETTINGS_VOL_AMBIENCE,Ambiente,Ambience,Ambiente
 SETTINGS_VOL_VOICES,Vozes,Voices,Voces
 SETTINGS_VOL_EFFECTS,Efeitos,Effects,Efectos
-SETTINGS_TEXT_SPEED,Velocidade do texto,Text speed,Velocidad del texto
-SPEED_SLOW,Lenta,Slow,Lenta
-SPEED_NORMAL,Normal,Normal,Normal
-SPEED_FAST,Rápida,Fast,Rápida
 SETTINGS_DISPLAY,Tela,Display,Pantalla
 DISPLAY_FULLSCREEN,Tela cheia,Fullscreen,Pantalla completa
 DISPLAY_WINDOW,Janela,Windowed,Ventana
-SETTINGS_SCALING,Ampliação,Scaling,Escalado
-SCALING_SMOOTH,"Suave (tela toda)","Smooth (fill screen)","Suave (pantalla completa)"
-SCALING_PIXEL,"Pixels perfeitos (com borda)","Pixel perfect (with border)","Píxeles perfectos (con borde)"
 APPLY,Aplicar,Apply,Aplicar
 END_SHIFT,"Encerrar
 turno","End
@@ -329,6 +381,9 @@ shift","Terminar
 turno"
 FAULT_SHIFT_HUNG_UP,Encerrou o turno com alguém na linha,Ended the shift with someone on the line,Terminó el turno con alguien en la línea
 OBS_SHIFT_ENDED,Turno encerrado durante a ligação.,Shift ended during the call.,Turno terminado durante la llamada.
-HINT_MIDNIGHT,"Meia-noite. Registre o que falta no caderno ou encerre o turno.","Midnight. Log what's left in the logbook or end the shift.","Medianoche. Registre lo que falta en el cuaderno o termine el turno."
-
+HINT_MIDNIGHT,"Meia-noite. Registre o que falta na ficha e guarde os bilhetes, ou encerre o turno.","Midnight. Log what's left on the log sheet and file the tickets, or end the shift.","Medianoche. Registre lo que falta en la ficha y guarde las boletas, o termine el turno."
 CALL_LOG_EMPTY,Nenhuma conversa ainda. Tudo o que for dito com o FONE na linha fica registrado aqui.,No conversations yet. Everything said with the HEADSET on the line is logged here.,Ninguna conversación todavía. Todo lo que se diga con el AURICULAR en la línea queda registrado aquí.
+TRUNK_OPERATOR,Telefonista (%s),Operator (%s),Operadora (%s)
+OP_TRUNK_NUMBER,"Aqui é São Sotero. O número %s, por favor.","São Sotero calling. Number %s, please.","Aquí São Sotero. El número %s, por favor."
+HINT_TRUNK,"Interurbano: ligue a SAÍDA na tomada da cidade, no banco INTERURBANO, e Transfira. Com o FONE na linha, passe o número à telefonista de lá.","Long distance: plug the OUTPUT into the city's jack in the LONG DISTANCE bank and Transfer. With the HEADSET on the line, give the number to the operator there.","Larga distancia: conecte la SALIDA en la toma de la ciudad, en el banco LARGA DISTANCIA, y Transfiera. Con el AURICULAR en la línea, dé el número a la operadora de allá."
+HINT_TOLL,"Interurbano encerrado: o calculógrafo, na mesa, imprimiu o bilhete. Abra-o, ponha o carimbo em cima do bilhete, clique nele para carimbar e depois arraste o bilhete até a caixinha. Se o carimbo secar, carimbe a almofada.","Long distance call over: the toll timer on the desk printed the ticket. Open it, put the stamp on the ticket, click it to stamp and then drag the ticket into the box. If the stamp runs dry, stamp the ink pad.","Larga distancia terminada: el tarificador, en la mesa, imprimió la boleta. Ábralo, ponga el sello sobre la boleta, haga clic en él para sellar y después arrastre la boleta hasta la cajita. Si el sello se seca, selle la almohadilla."

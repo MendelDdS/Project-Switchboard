@@ -8,24 +8,34 @@ extends SceneTree
 ##    translations/content.pot e atualiza translations/content.<idioma>.po mantendo o que já foi traduzido.
 ##    Falas novas entram com msgstr vazio (o jogo mostra o português até alguém traduzir); as que sumiram saem.
 ##    Todo campo de texto dos Resources entra, exceto os de SKIP (nomes próprios, números, ids, marcadores).
+## 3. Revisão: `-- --review` grava também build/traducoes.csv, uma fala por linha (arquivo, pt_BR, en, es), para
+##    abrir numa planilha; corrigida, `-- --apply=build/traducoes.csv` devolve as colunas en e es aos .po (o pt_BR
+##    não volta: ele mora nos Resources; célula vazia não apaga a tradução).
 
 const UI_CSV := "res://translations/ui.csv"
 const ENUM_SCRIPT := "res://scripts/t.gd"
 const POT := "res://translations/content.pot"
 const LANGS := ["en", "es"]
+const REVIEW := "res://build/traducoes.csv"
 ## Campos que não se traduzem: nomes próprios (contatos, ruas, endereços) e dados internos.
-const SKIP := ["name", "address", "number", "category", "target", "alt_target", "street", "id", "voice", "voices", "effect", "weather",
-	"fake_address", "block_labels", "units", "worsening_units", "critical_units", "lost_units", "requires", "sets", "detail", "news_photo", "resource_name", "resource_path", "resource_scene_unique_id"]
+const SKIP := ["name", "address", "number", "category", "target", "alt_target", "street", "id", "voice", "voices", "effect", "weather", "teacher", "teacher_voice", "until",
+	"fake_address", "block_labels", "units", "worsening_units", "critical_units", "lost_units", "requires", "sets", "overheard_sets", "overheard_flags", "key", "detail", "news_photo", "resource_name", "resource_path", "resource_scene_unique_id"]
 
 var _ids := {}   ## msgid -> Array de arquivos onde aparece (em ordem de descoberta)
+var _fixes := {}  ## idioma -> {msgid: tradução} da tabela de revisão (`--apply`)
 
 
 func _initialize() -> void:
 	_write_enum()
 	_visit(load("res://data/content.tres"), "res://data/content.tres", {})
 	_write_pot()
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--apply="):
+			_read_review(arg.trim_prefix("--apply="))
 	for lang in LANGS:
 		_merge_po(lang)
+	if "--review" in OS.get_cmdline_user_args():
+		_write_review()
 	quit(0)
 
 
@@ -81,6 +91,9 @@ func _visit(r: Resource, src: String, seen: Dictionary) -> void:
 				for item in v:
 					if item is Resource:
 						_visit(item, src, seen)
+					elif item is PackedStringArray:   # Motive.talks
+						for t in item:
+							_add(t, src)
 	# "o Hotel Estrela" também aparece como "do Hotel Estrela" e "pro Hotel Estrela" (lacunas dos moldes)
 	if r is DirectoryEntry and r.spoken != "":
 		_add("d" + r.spoken, src)
@@ -110,7 +123,7 @@ func _merge_po(lang: String) -> void:
 	var s := _header(lang)
 	var missing := 0
 	for id in _ids:
-		var tr_text: String = old.get(id, "")
+		var tr_text: String = _fixes.get(lang, {}).get(id, old.get(id, ""))
 		if tr_text == "":
 			missing += 1
 		s += _entry(id, tr_text)
@@ -134,6 +147,40 @@ func _entry(id: String, text: String) -> String:
 
 func _quote(t: String) -> String:
 	return "\"%s\"" % t.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").replace("\t", "\\t")
+
+
+# ---------------------------------------------------------------- revisão em planilha
+
+func _write_review() -> void:
+	DirAccess.make_dir_recursive_absolute(REVIEW.get_base_dir())
+	var tr_by := LANGS.map(func(l): return _read_po("res://translations/content.%s.po" % l))
+	var f := FileAccess.open(REVIEW, FileAccess.WRITE)
+	f.store_string("\uFEFF")   # a planilha reconhece os acentos (UTF-8)
+	f.store_csv_line(PackedStringArray(["arquivo", "pt_BR"] + LANGS))
+	for id in _ids:
+		f.store_csv_line(PackedStringArray([_ids[id][0].trim_prefix("res://"), id] + tr_by.map(func(d): return d.get(id, ""))))
+	print("revisão: %s (%d falas)" % [REVIEW.trim_prefix("res://"), _ids.size()])
+
+
+func _read_review(path: String) -> void:
+	var f := FileAccess.open(path if path.is_absolute_path() else "res://" + path, FileAccess.READ)
+	if f == null:
+		push_error("tabela de revisão não encontrada: " + path)
+		return
+	var head := f.get_csv_line()
+	var cols := LANGS.map(func(l): return head.find(l))
+	for l in LANGS:
+		_fixes[l] = {}
+	var changed := 0
+	while not f.eof_reached():
+		var row := f.get_csv_line()
+		if row.size() < head.size() or not _ids.has(row[1]):
+			continue
+		for i in LANGS.size():
+			if row[cols[i]] != "":
+				_fixes[LANGS[i]][row[1]] = row[cols[i]]
+				changed += 1
+	print("revisão aplicada: %d traduções lidas de %s" % [changed, path])
 
 
 ## msgid -> msgstr de um .po (aceita strings em várias linhas).

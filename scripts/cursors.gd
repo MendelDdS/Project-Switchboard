@@ -4,7 +4,9 @@ extends Node
 ## a forma conforme o que está sob o mouse (mão aberta para pegar um plug, fechada segurando, proibido numa tomada
 ## que não aceita o plug).
 
-const SCALE := 2   # cada pixel do desenho vira SCALE×SCALE na tela
+## Na tela, cada pixel do desenho tem o tamanho de um pixel do jogo: o `GameView` passa a ampliação dele (`zoom`,
+## sempre inteira). Sozinho (o `main.tscn`, os testes), 2.
+var scale := 2.0
 const COLORS := {"k": Color("0e0c08"), "w": Color("e8dcbe"), "s": Color("b2a078"), "r": Color("d4553f")}
 
 const ARROW := [
@@ -132,8 +134,21 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	_apply()
+
+
+## Monta os cursores na ampliação `k` do jogo (pixels da janela por pixel do jogo). Sempre em 2×, eles ficavam
+## finos em 4K (o jogo em 4×).
+func zoom(k: float) -> void:
+	k = maxf(1.0, roundf(k / DisplayServer.screen_get_scale()))   # no Retina do Mac o sistema dobra o cursor
+	if not is_equal_approx(k, scale):
+		scale = k
+		_apply()
+
+
+func _apply() -> void:
 	for shape in SHAPES:
-		Input.set_custom_mouse_cursor(_image(SHAPES[shape][0]), shape, SHAPES[shape][1] * SCALE)
+		Input.set_custom_mouse_cursor(_image(SHAPES[shape][0]), shape, (SHAPES[shape][1] * scale).floor())
 
 
 ## Tudo que se clica para escolher (botões, listas, controles deslizantes) mostra a mão com o dedo.
@@ -151,10 +166,11 @@ func _point(c: Control) -> void:
 
 ## Uma Image (e não textura): o Input a guarda até o fim, e textura sobrevivendo ao servidor de renderização vaza.
 func _image(rows: Array) -> Image:
-	var img := Image.create(16 * SCALE, 16 * SCALE, false, Image.FORMAT_RGBA8)
+	var k := int(scale)
+	var img := Image.create(16 * k, 16 * k, false, Image.FORMAT_RGBA8)
 	for y in rows.size():
 		for x in rows[y].length():
 			var ch: String = rows[y][x]
 			if COLORS.has(ch):
-				img.fill_rect(Rect2i(x * SCALE, y * SCALE, SCALE, SCALE), COLORS[ch])
+				img.fill_rect(Rect2i(x * k, y * k, k, k), COLORS[ch])
 	return img

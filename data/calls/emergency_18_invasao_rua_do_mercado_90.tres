@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_emerg"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("pol")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "", "O balconista levou uma coronhada na cabeça! Tá sangrando!")
+units = PackedStringArray("pol", "amb")
+
+[resource]
+script = ExtResource("1_emerg")
+voice = "m"
+caller = "Farmacêutico"
+opening = "Central, acabaram de assaltar a farmácia! O homem levou o dinheiro do caixa!"
+questions = PackedStringArray("Qual é o endereço?", "A pessoa está armada?", "Alguém está ferido?")
+answers = PackedStringArray("Rua do Mercado, 90. A Farmácia Santa Rita.", "Tava! Com um revólver! Saiu correndo pra praça.", "Não, ninguém. Só o susto.")
+street = "mercado"
+block = 0
+address = "Rua do Mercado, 90"
+occurrence = "Invasão / roubo"
+units = PackedStringArray("pol")
+after = "Tá bom. Eu vou fechar a porta e esperar aqui dentro."
+stage_sec = Vector3(45, 22, 22)
+worsening = "Ele voltou! Tá rondando a praça, olhando pra cá!"
+worsening_units = PackedStringArray()
+worsening_question = "Ele está sozinho?"
+worsening_answer = "Acho que tem outro esperando numa bicicleta."
+critical = "Ele deu um tiro pro alto! O povo tá correndo!"
+critical_units = PackedStringArray()
+critical_question = "Alguém foi atingido?"
+critical_answer = "Acho que não... mas uma senhora caiu correndo."
+lost = "Eles fugiram... sumiram pela estrada. Ninguém apareceu."
+lost_answer = "A senhora que caiu quebrou o braço. Tá aqui no banco, chorando de dor."
+lost_units = PackedStringArray("amb")
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2")])

@@ -31,15 +31,16 @@ func _initialize() -> void:
 	await _key(KEY_1)
 	ok(not m.tools.open, "a tecla 1 de novo guarda a lista")
 	var got := []
-	for sig in ["answer_pressed", "transfer_pressed", "hangup_pressed"]:
+	for sig in ["answer_pressed", "transfer_pressed", "listen_pressed", "hangup_pressed"]:
 		for c in m.phone.get_signal_connection_list(sig):
 			m.phone.disconnect(sig, c["callable"])
 		m.phone.connect(sig, func(): got.append(sig))
 	m.phone.set_buttons(true, true, true)
+	m.phone.set_listen(true, false)
 	await frames(2)
-	for k in [KEY_SPACE, KEY_TAB, KEY_X]:
+	for k in [KEY_SPACE, KEY_TAB, KEY_Z, KEY_X]:
 		await _key(k)
-	ok(got == ["answer_pressed", "transfer_pressed", "hangup_pressed"], "Espaço, Tab e X apertam os botões (%s)" % [got])
+	ok(got == ["answer_pressed", "transfer_pressed", "listen_pressed", "hangup_pressed"], "Espaço, Tab, Z e X apertam os botões (%s)" % [got])
 	await _key(KEY_ESCAPE)
 	ok(get_tree().paused and not m.can_process(), "Esc pausa e o jogo para")
 	await _key(KEY_ESCAPE)

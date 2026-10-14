@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_29"]
+script = ExtResource("2_motive")
+text = "Sou parente dela e acabei de chegar de viagem."
+talks = Array[PackedStringArray]([PackedStringArray("Dona Rosa? Sou eu. Acabei de chegar de viagem.", "Ah, chegou! Como foi a viagem?", "Longa. O ônibus quebrou na serra e esperamos {wait}.", "Que coisa. Vem amanhã almoçar aqui, que eu faço frango.", "Vou, sim. Levo as fotos do casamento do primo.", "Traz! Quero ver todo mundo."), PackedStringArray("Boa noite, Dona Rosa. Cheguei agora há pouco.", "Que bom! Ficou na casa de quem?", "Na casa da minha prima, na {street}.", "Pertinho. Amanhã passa aqui pra um café.", "Passo, sim. Trouxe o doce de leite que a senhora gosta.", "Ai, que mimo. Te espero depois das {hour}.")])
+
+[sub_resource type="Resource" id="Motive_30"]
+script = ExtResource("2_motive")
+text = "Ela pediu pra eu ligar quando chegasse em casa."
+talks = Array[PackedStringArray]([PackedStringArray("Dona Rosa, cheguei em casa. Foi a senhora que pediu pra avisar.", "Ah, que bom. Já estava preocupada com essa escuridão.", "A rua estava sem luz desde a esquina.", "De novo? Amanhã eu reclamo na prefeitura.", "E o bolo estava uma delícia, viu?", "Da próxima vez eu faço o de fubá."), PackedStringArray("Oi, Dona Rosa. Cheguei bem, pode ficar sossegada.", "Ainda bem. Você foi a pé?", "Fui. Peguei o atalho pela praça.", "Pela praça, de noite? Da próxima vez eu peço um táxi.", "Não precisa. Mas eu esqueci o guarda-chuva aí.", "O {color}? Está aqui no cabide. Amanhã você pega.")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Rosa Lima"
+address = "Rua do Cruzeiro, 177"
+number = "296"
+voice = "f"
+spoken = "a Dona Rosa Lima"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_29"), SubResource("Motive_30")])

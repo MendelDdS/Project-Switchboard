@@ -41,7 +41,7 @@ Só olha as linhas acrescentadas e aponta o que as convenções já proíbem, in
 ## 3. Leitura do diff
 
 Leia `git diff HEAD` (ou desde a base) e, só nas linhas alteradas, confira o que pede julgamento. As regras vêm do
-`CLAUDE.md` e do `LESSONS.md`; na dúvida, eles valem mais que esta lista.
+`CLAUDE.md` (o da raiz e o `scripts/ui/CLAUDE.md`) e do `LESSONS.md`; na dúvida, eles valem mais que esta lista.
 
 **Desempenho** (a análise de 10/2026 achou engasgos de ~20 ms 3 a 4 vezes por segundo; ver a história 84 do
 `CLAUDE.md`):
@@ -90,7 +90,7 @@ Leia `git diff HEAD` (ou desde a base) e, só nas linhas alteradas, confira o qu
 - Comentários e documentação (`##`) em português, na densidade do arquivo.
 - Código enxuto, sem código morto, `print` de depuração ou testes temporários (`tests/test_zz_*`) esquecidos.
 - Atalho deliberado com comentário `ponytail:`.
-- Mudança de comportamento ou de convenção registrada no `CLAUDE.md` (e no histórico, quando foi pedido do usuário).
+- Mudança de comportamento ou de convenção registrada no `CLAUDE.md` (e no `HISTORICO.md`, quando foi pedido do usuário).
 
 ## 4. Medir (só quando a mudança mexe em desenho ou em algo que roda a cada quadro)
 

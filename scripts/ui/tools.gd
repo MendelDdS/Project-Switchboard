@@ -1,28 +1,37 @@
 class_name Tools
 extends VBoxContainer
-## Ferramentas à direita da mesa: lista telefônica, mapa e despacho (a unidade de despacho), caderno e o registro das
-## conversas. Ficam guardadas e a janela aparece no lugar delas; os objetos da mesa (`Background.prop_clicked`) ou as
+## Ferramentas à direita da mesa: lista telefônica, mapa e despacho (a unidade de despacho), caderno, o registro das
+## conversas e o calculógrafo dos interurbanos. Ficam guardadas e a janela aparece no lugar delas; os objetos da mesa (`Background.prop_clicked`) ou as
 ## teclas 1 a 4 (Main.TAB_KEYS) abrem a ferramenta: o papel sai do objeto dela na mesa (`origin`) e vem para a frente do
 ## operador, com a forma do objeto (`PaperDeco`), e volta para ele ao guardar. Sem abas: para trocar, o objeto da mesa
 ## ou a tecla (as abas repetiam os objetos e tomavam altura do papel). A tecla da aberta ou Esc guardam. O jornal da
 ## manhã (`news`) também abre aqui, só pelo objeto da mesa.
 
+## O id de cada ferramenta: o mesmo nos objetos da mesa (`Background.PROPS`), nas teclas (`Main.TAB_KEYS`) e no papel
+## aberto (`PaperDeco.kind`). Use as constantes, nunca o texto.
+const DIRECTORY := "lista"
+const DISPATCH := "despacho"
+const LOGBOOK := "caderno"
+const CALL_LOG := "registro"
+const NEWS := "jornal"   ## o jornal da manhã: só pelo objeto da mesa, sem tecla
+const TOLL := "calculografo"   ## o calculógrafo dos interurbanos e os bilhetes de tarifação: só pelo objeto da mesa, sem tecla
 const SLIDE_SEC := 0.2
 ## A cor do papel de cada ferramenta, a mesma do objeto dela na mesa (as outras, `Pal.PAPER`); a unidade de despacho é
-## de metal (a moldura do vidro e a base das máquinas).
-const PAPER := {"caderno": Pal.NOTE_PAGE, "registro": Pal.SHEET, "jornal": Pal.NEWSPRINT, "despacho": Pal.PANEL}
+## de metal (a moldura do vidro e a base das máquinas) e o calculógrafo fica no tampo da mesa.
+const PAPER := {LOGBOOK: Pal.NOTE_PAGE, CALL_LOG: Pal.SHEET, NEWS: Pal.NEWSPRINT, DISPATCH: Pal.PANEL, TOLL: Pal.DESK}
 
 @onready var book: PhoneBook = %PhoneBook
 @onready var dispatch: Dispatch = %Dispatch
 @onready var notebook: Notebook = %Notebook
 @onready var call_log: CallLog = %CallLog
 @onready var news: NewsView = %News
+@onready var toll: Toll = %Toll
 @onready var body: Control = %Body   ## onde a ferramenta aberta fica (e, guardada, a janela aparece)
 @onready var _paper: Control = %Paper
 @onready var _deco: PaperDeco = %Deco
-@onready var _views := {"lista": book, "despacho": dispatch, "caderno": notebook, "registro": call_log, "jornal": news}
+@onready var _views := {DIRECTORY: book, DISPATCH: dispatch, LOGBOOK: notebook, CALL_LOG: call_log, NEWS: news, TOLL: toll}
 
-var tab := "lista"   ## a última aberta
+var tab := DIRECTORY   ## a última aberta
 var open := false
 var origin: Callable   ## id -> Rect2 global do objeto da mesa daquela ferramenta (o Main liga; vazio: desliza da direita)
 var light := 1.0:   ## a luz da luminária (o Main atualiza): cai também no papel aberto (`PaperDeco.light`)
@@ -45,7 +54,7 @@ func set_tab(id: String) -> void:
 	if id == tab and open:
 		_apply()
 		return
-	Sfx.play("unroll" if id == "despacho" else "page")   # o mapa é uma folha grande desenrolada
+	Sfx.play("unroll" if id == DISPATCH else "page")   # o mapa é uma folha grande desenrolada
 	tab = id
 	if not open:
 		open = true

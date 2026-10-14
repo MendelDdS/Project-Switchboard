@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_57"]
+script = ExtResource("2_motive")
+text = "Ela está esperando notícias minhas."
+talks = Array[PackedStringArray]([PackedStringArray("Sônia? Sou eu. Desculpa não ter ligado antes.", "Até que enfim! Como foi lá no hospital?", "Foi tudo bem. O médico tirou o gesso hoje.", "Graças a Deus! E já anda direitinho?", "Ainda mancando, mas sem dor.", "Amanhã eu passo aí com um bolo pra comemorar."), PackedStringArray("Boa noite, Sônia. Você queria notícias, então liguei.", "Queria! E a entrevista, como foi?", "Me chamaram. Começo na loja da {street} semana que vem.", "Que alegria! Vai trabalhar de que horas a que horas?", "Das {hour} até as cinco, com uma hora de almoço.", "Então sábado a gente comemora aqui em casa.")])
+
+[sub_resource type="Resource" id="Motive_58"]
+script = ExtResource("2_motive")
+text = "É sobre o aniversário da mãe dela."
+talks = Array[PackedStringArray]([PackedStringArray("Sônia, boa noite. É sobre o aniversário da sua mãe.", "Ah, a festa surpresa? Fala baixo, que ela está aqui.", "Consegui o salão da {street} pro sábado.", "Que ótimo. E o bolo, quem faz?", "A padaria. Eu busco de manhã.", "Então eu levo ela pra lá às {hour}, sem ela desconfiar."), PackedStringArray("Oi, Sônia. O que a gente dá pra sua mãe no aniversário?", "Ela anda falando de uma máquina de costura nova.", "É cara. A gente divide entre os irmãos?", "Divide. Eu falo com eles amanhã.", "Tem uma na loja da {street}, de vitrine.", "Então amanhã, às {hour}, a gente vai lá ver.")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Sônia Vieira"
+address = "Rua do Comércio, 420"
+number = "237"
+voice = "f"
+spoken = "a Dona Sônia Vieira"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_57"), SubResource("Motive_58")])

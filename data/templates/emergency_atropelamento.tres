@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_emerg"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[resource]
+script = ExtResource("1_emerg")
+opening = "Central, um carro atropelou um rapaz aqui na {street} e fugiu!"
+questions = PackedStringArray("Qual é o endereço?", "Ele está acordado?", "Ele está no meio da rua?")
+answers = PackedStringArray("{address}! Na esquina!", "Tá, mas a perna tá toda torta.", "Tá! A gente tá desviando os carros com a mão.")
+occurrence = "Acidente de trânsito"
+units = PackedStringArray("pol", "amb")
+after = "Tá bom. A gente fica aqui com ele."
+stage_sec = Vector3(40, 20, 20)
+worsening = "A perna dele tá sangrando muito!"
+worsening_units = PackedStringArray()
+worsening_question = "Dá pra apertar o machucado com um pano?"
+worsening_answer = "Tô apertando com a minha camisa."
+critical = "Ele tá fechando o olho! Tá gelado!"
+critical_units = PackedStringArray()
+critical_question = "Ele ainda responde?"
+critical_answer = "Só aperta a minha mão."
+lost = "Ele desmaiou... a gente esperou e ninguém veio."
+lost_answer = "Ele respira, mas não acorda, e a camisa tá encharcada de sangue."
+lost_units = PackedStringArray("amb")

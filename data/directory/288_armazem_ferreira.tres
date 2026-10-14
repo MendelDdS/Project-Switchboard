@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_01"]
+script = ExtResource("2_motive")
+text = "Quero comprar fósforo e querosene ainda hoje."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Ainda dá pra comprar fósforo e querosene hoje?", "A porta já fechou, mas eu atendo pela janela do lado.", "Ótimo. Quero um litro de querosene e duas caixas de fósforo.", "Traz a garrafa, que o querosene eu vendo a granel.", "Chego em {wait}. Pode ser?", "Pode. Só não passa das {hour}, que eu vou deitar."), PackedStringArray("Boa noite. Faltou luz aqui e o lampião está seco.", "Querosene eu tenho. Quanto você precisa?", "Meio litro basta. E uma caixa de fósforo, que a minha molhou.", "Pode vir. Bate na porta dos fundos, que eu escuto.", "Pago amanhã? Hoje estou sem dinheiro trocado.", "Anoto na caderneta. Paga no fim do mês.")])
+
+[sub_resource type="Resource" id="Motive_02"]
+script = ExtResource("2_motive")
+text = "Quero saber se amanhã chega querosene."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. O querosene chega amanhã?", "O caminhão vem amanhã cedo, se a estrada deixar.", "Então separa cinco litros pra mim?", "Separo. Passa depois das {hour}, que até lá já descarregou.", "Levo o galão vazio. Quanto está o litro?", "Subiu um pouco. Amanhã eu te digo o preço certo."), PackedStringArray("Boa noite. O querosene já acabou aí?", "Acabou hoje à tarde. Chega mais amanhã, no caminhão.", "Que horas o caminhão costuma chegar?", "Lá pelas {dawn} da manhã. Ele sai da capital de madrugada.", "Então eu passo cedo, antes de ir pro serviço.", "Vem, que eu guardo um galão no seu nome.")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Armazém Ferreira"
+note = "Joaquim Ferreira"
+address = "Rua Bela Vista, 230"
+number = "288"
+voice = "m"
+hello = "Armazém Ferreira, boa noite."
+category = "mercearia"
+spoken = "o Armazém Ferreira"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_01"), SubResource("Motive_02")])

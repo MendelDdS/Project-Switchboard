@@ -40,6 +40,7 @@ function warn(msg) { printf "%s:%d: %s\n    %s\n", file, line, msg, text; n++ }
 	if (code ~ /draw_(colored_)?polygon\(/ && code !~ /get_texture|uv/) warn("área cheia com draw_polygon: cada um é uma chamada de desenho; use draw_primitive (no cenário, _fill/_poly)")
 	if (code ~ /draw_circle\(/) warn("peça redonda com draw_circle: use PixelArt.disc (pixel a pixel)")
 	if (code ~ /volume_db[ \t]*=/ && file !~ /sfx\.gd$/) warn("volume mudado direto: só por Sfx.fade/Sfx._tween")
+	if (file !~ /scripts\/ui\/tools\.gd$/ && code ~ /"(lista|despacho|caderno|registro|jornal)"/) warn("id de ferramenta em texto: use Tools.DIRECTORY, DISPATCH, LOGBOOK, CALL_LOG ou NEWS")
 	if (code ~ /randomize\(\)/) warn("randomize() anula a semente dos testes (-- --seed=N)")
 	if (code ~ /^class_name /) warn("class_name novo: só existe depois de reimportar (com o editor aberto, dê foco a ele)")
 	if (file ~ /^tests\// && code ~ /(^|[^a-z_.])assert\(/) warn("assert trava o headless: use ok()")

@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_20"]
+script = ExtResource("2_motive")
+text = "Meu neto está com febre."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Meu neto está com febre desde a tarde.", "Quantos anos ele tem?", "Quatro. Está quente e não quer comer nada.", "Tenho um antitérmico em gotas. Dez gotas a cada seis horas.", "Mando o meu genro buscar em {wait}.", "Está bem. E põe um pano úmido na testa dele."), PackedStringArray("Boa noite. Meu neto acordou ardendo em febre.", "Já mediu? Quanto deu?", "Trinta e oito e meio. Ele está chorando muito.", "Dá um banho morno e eu separo o xarope pra febre.", "Moro na {street}. Vocês entregam?", "Meu filho leva de bicicleta. Chega em {wait}.")])
+
+[sub_resource type="Resource" id="Motive_21"]
+script = ExtResource("2_motive")
+text = "Preciso de um remédio pra dor de dente."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Estou com uma dor de dente que não aguento.", "É no dente de cima ou de baixo? Está inchado?", "De baixo, no fundo. Inchou um pouco o rosto.", "Tenho um comprimido pra dor. Mas amanhã procura o dentista.", "Vou, sim. Posso passar aí agora?", "Pode. E enquanto isso, compressa fria no rosto."), PackedStringArray("Boa noite. Lá em casa ninguém dorme por causa de uma dor de dente.", "Já tentou cravo? Põe um no dente que alivia.", "Já, e não adiantou. Precisa de remédio mesmo.", "Então eu separo um analgésico. Vem buscar até as {hour}.", "Chego em {wait}. Deus lhe pague.", "Vem pela porta do lado, que a da frente já fechou.")])
+
+[sub_resource type="Resource" id="Motive_22"]
+script = ExtResource("2_motive")
+text = "Quero saber se tem xarope pra tosse."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Vocês têm xarope pra tosse?", "Tenho de dois tipos. É tosse seca ou com catarro?", "Seca. Não para nem de noite.", "Então é o de mel e agrião. Uma colher antes de dormir.", "Posso pegar amanhã cedo, antes das {hour}?", "Pode. Deixo separado no balcão com o seu nome."), PackedStringArray("Boa noite. Minha filha está tossindo a noite inteira.", "Tem febre junto?", "Um pouco. Ela pegou chuva voltando da escola.", "Tenho um xarope infantil. Uma colherinha de seis em seis horas.", "Vou buscar agora. Chego em {wait}.", "Vem com casaco, que a noite esfriou.")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Farmácia Santa Rita"
+address = "Rua do Mercado, 90"
+number = "162"
+hello = "Farmácia Santa Rita, boa noite."
+category = "farmácia"
+spoken = "a Farmácia Santa Rita"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_20"), SubResource("Motive_21"), SubResource("Motive_22")])

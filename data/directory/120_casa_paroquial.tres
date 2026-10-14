@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_08"]
+script = ExtResource("2_motive")
+text = "Preciso marcar uma missa de sétimo dia."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Queria marcar uma missa de sétimo dia.", "Meus pêsames. Pra quando seria?", "Pra quinta-feira. Pode ser na missa das sete?", "Pode. Qual o nome do falecido, pra ler no altar?", "Teodoro Bastos. Era meu avô.", "Anotado. Quinta, às sete, pelo Teodoro Bastos."), PackedStringArray("Boa noite. Minha tia faleceu e a família quer a missa de sétimo dia.", "Sinto muito. Domingo tem missa às oito e às dez.", "Às dez é melhor, que vem gente de fora.", "Então fica às dez. Vão querer o coral?", "Se puder, sim. Ela cantava no coral quando era moça.", "Eu falo com as moças do coral amanhã cedo.")])
+
+[sub_resource type="Resource" id="Motive_09"]
+script = ExtResource("2_motive")
+text = "Quero pedir uma visita do padre pra minha mãe, que está de cama."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Minha mãe está de cama e queria uma visita do padre.", "Ela está muito mal?", "Não, graças a Deus. Mas não sai de casa faz um mês e sente falta da missa.", "Amanhã, depois da missa das sete, alguém leva a comunhão.", "Ela mora na {street}, número {house}.", "Anotado. Deixa o portão aberto, por favor."), PackedStringArray("Boa noite. Dá pra pedir que o padre passe lá em casa? Minha mãe pediu.", "Ela está doente?", "Quebrou a perna e está de cama. Queria se confessar.", "Sábado de manhã dá. Lá pelas {hour}, depois das visitas do hospital.", "Está ótimo. Ela vai ficar tão contente.", "Diga a ela que vamos rezar por ela.")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Casa Paroquial"
+note = "Pe. Anselmo"
+address = "Praça da Matriz, 1"
+number = "120"
+voice = "w"
+hello = "Casa Paroquial, boa noite."
+category = "igreja"
+spoken = "a Casa Paroquial"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_08"), SubResource("Motive_09")])

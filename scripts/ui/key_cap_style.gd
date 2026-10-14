@@ -7,11 +7,11 @@ extends StyleBox
 ## tampo desce e a frente quase some. Apagada (desabilitada), a cor escurece. As margens de conteúdo põem o texto no
 ## tampo (na apertada, mais embaixo).
 
-const SKIRT := 6.0   ## px da frente da tecla à mostra, solta
+const SKIRT := 5.0   ## px da frente da tecla à mostra, solta
 const SUNK := 2.0    ## apertada
-const SIDE := 8.0    ## px da chapa de cada lado da etiqueta e do poço
+const SIDE := 3.0    ## px da chapa de cada lado da etiqueta e do poço
 const PLATE := Rect2(0, 6, 0, 14)   ## a etiqueta: y e altura (a largura vem da tecla)
-const WELL_H := 60.0   ## a altura máxima do poço da tecla
+const WELL_H := 45.0   ## a altura máxima do poço da tecla
 const METAL := [Color("d6d1c3"), Color("8e897c"), Color("45413a")]   ## a chapa niquelada: luz, meio, sombra
 const BRASS := [Color("e6cf8e"), Color("b0904c"), Color("7a6230"), Color("3a2a12")]   ## latão: luz, meio, sombra, beira
 
@@ -53,7 +53,7 @@ func _draw(to: RID, rect: Rect2) -> void:
 	var key := Rect2(area.position.x, top, area.size.x, area.end.y - top)
 	rs.canvas_item_add_rect(to, key, Color.BLACK)
 	rs.canvas_item_add_rect(to, key.grow(-1), c.darkened(0.5))   # a saia
-	var face := Rect2(key.position.x + 3, key.position.y + 1, key.size.x - 6, key.size.y - 2 - front)
+	var face := Rect2(key.position.x + 2, key.position.y + 1, key.size.x - 4, key.size.y - 2 - front)
 	rs.canvas_item_add_rect(to, face, c)   # o tampo
 	rs.canvas_item_add_rect(to, Rect2(face.position, Vector2(face.size.x, 1)), c.lightened(0.3))   # luz no alto à esquerda
 	rs.canvas_item_add_rect(to, Rect2(face.position, Vector2(1, face.size.y)), c.lightened(0.15))

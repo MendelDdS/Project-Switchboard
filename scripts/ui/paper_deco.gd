@@ -2,13 +2,14 @@ class_name PaperDeco
 extends Control
 ## O que faz o papel da ferramenta aberta parecer o objeto dela na mesa (`kind`, o id da ferramenta), desenhado por
 ## cima, na faixa da margem do papel e nos materiais do objeto (`Pal`): a lista é um livro (a capa de papelão mostarda
-## com o grão e o friso, como a da mesa, e a sombra da lombada), o caderno é um livro-ata de capa de couro, com as tiras
-## dos registros pendentes saindo de cima (`pending`), o registro fica preso na prancheta (a tábua, o prendedor
+## com o grão e o friso, como a da mesa, e a sombra da lombada), o caderno é o bloco de fichas de ocorrência (a fita de
+## pano da colagem no alto, a beira das folhas de baixo e o papelão em volta), com as tiras dos registros pendentes
+## saindo de cima (`pending`), o registro fica preso na prancheta (a tábua, o prendedor
 ## niquelado e o cabeçalho datilografado com o fio vermelho, como as folhas da mesa), o jornal tem o vinco do meio e o
 ## despacho é a unidade de despacho de perto (a moldura do vidro e a base com as máquinas são do `CardMachines`, por baixo
 ## do cartão, que pode passar por cima delas). Por cima de tudo, a luz da luminária (`light`, `_draw_light`).
 
-const COVER := 7     ## a largura da capa em volta do papel, na lista e no caderno (px)
+const COVER := 7     ## a largura da capa em volta do papel, na lista e no bloco de fichas (px)
 const BOARD_W := 10  ## a da tábua da prancheta
 const HEAD_Y := 34   ## o fio vermelho do cabeçalho do registro (o texto do `CallLog` começa abaixo dele, `CallLog.HEAD`)
 const CLIP := Vector2i(76, 24)   ## o prendedor da prancheta
@@ -23,7 +24,7 @@ var kind := "":
 	set(v):
 		kind = v
 		queue_redraw()
-var pending := 0:   ## registros esperando no caderno: uma tira de papel saindo de cima dele por registro (até seis)
+var pending := 0:   ## registros esperando no bloco de fichas: uma tira de papel saindo de cima dele por registro (até seis)
 	set(v):
 		pending = v
 		queue_redraw()
@@ -46,14 +47,14 @@ func _draw() -> void:
 	if sz.x < CLIP.x + BOARD_W * 2 or sz.y < BOARD_W * 4:   # (o papel ainda sem tamanho)
 		return
 	match kind:
-		"lista":
+		Tools.DIRECTORY:
 			draw_texture(_skin(kind, sz), Vector2.ZERO)
 			var cx := floorf((size.x - PhoneBook.TAB_W) / 2.0)   # o meio do livro (as abas ficam à direita dele)
 			for i in 6:   # a lombada: a sombra das páginas entrando no miolo
 				draw_rect(Rect2(cx - 3 + i, COVER, 1, size.y - COVER * 2), Color(0, 0, 0, 0.16 - absf(i - 2.5) * 0.04))
-		"caderno":
+		Tools.LOGBOOK:
 			draw_texture(_skin(kind, sz), Vector2.ZERO)
-			for i in mini(pending, 6):   # as tiras, saindo de cima do caderno (como no da mesa)
+			for i in mini(pending, 6):   # as tiras, saindo de baixo do bloco, por cima da fita (como no da mesa)
 				var x := floorf(size.x * 0.56) + i * 26.0
 				var col: Color = Pal.PENDING[i % 2]
 				var h := COVER + 12.0 + (i * 5) % 4
@@ -61,7 +62,7 @@ func _draw() -> void:
 				draw_rect(Rect2(x, 0, 12, h), col)
 				draw_rect(Rect2(x + 11, 0, 1, h), col.darkened(0.2))   # o lado na sombra
 				draw_rect(Rect2(x + 3, 3, 6, 2), Pal.FORM_RED)
-		"registro":
+		Tools.CALL_LOG:
 			draw_texture(_skin(kind, sz), Vector2.ZERO)
 			var x0 := BOARD_W + 12.0
 			var x1 := size.x - BOARD_W - 12.0
@@ -72,7 +73,7 @@ func _draw() -> void:
 			var at := Vector2(floorf((size.x - CLIP.x) / 2.0), 1)
 			draw_texture(_skin("prendedor", CLIP), at + Vector2(2, 3), Color(0, 0, 0, 0.35))   # a sombra dele na folha
 			draw_texture(_skin("prendedor", CLIP), at)
-		"jornal":
+		Tools.NEWS:
 			crease(self, Vector2(0, size.y / 2.0), Vector2(size.x, size.y / 2.0))
 	_draw_light()
 
@@ -110,21 +111,22 @@ static func _skin(k: String, sz: Vector2i) -> ImageTexture:
 
 
 ## A capa em volta do papel, no material do objeto da mesa: o grão dele, a beira na luz no alto e à esquerda e na
-## sombra embaixo e à direita, a sombra do papel por dentro e os cantos (gastos no papelão e no couro, cortados na
-## tábua). A lista tem o friso em baixo-relevo, como a capa da mesa.
+## sombra embaixo e à direita, a sombra do papel por dentro e os cantos (gastos no papelão da lista, cortados na
+## tábua). A lista tem o friso em baixo-relevo, como a capa da mesa; o bloco de fichas, a fita da colagem no alto e,
+## dos lados e embaixo, a beira das folhas de baixo, entre a de cima e o papelão.
 static func _cover(k: String, sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	var w := BOARD_W if k == "registro" else COVER
-	var c: Color = {"lista": Pal.BOOK.darkened(0.15), "caderno": Pal.LEATHER[1], "registro": Pal.BOARD[1]}[k]
-	var hi: Color = {"lista": c.lightened(0.22), "caderno": Pal.LEATHER[0], "registro": Pal.BOARD[0]}[k]
-	var lo: Color = {"lista": c.darkened(0.25), "caderno": Pal.LEATHER[2], "registro": Pal.BOARD[2]}[k]
+	var w := BOARD_W if k == Tools.CALL_LOG else COVER
+	var c: Color = {Tools.DIRECTORY: Pal.BOOK.darkened(0.15), Tools.LOGBOOK: Pal.PAD_BACK[1], Tools.CALL_LOG: Pal.BOARD[1]}[k]
+	var hi: Color = {Tools.DIRECTORY: c.lightened(0.22), Tools.LOGBOOK: Pal.PAD_BACK[0], Tools.CALL_LOG: Pal.BOARD[0]}[k]
+	var lo: Color = {Tools.DIRECTORY: c.darkened(0.25), Tools.LOGBOOK: Pal.PAD_BACK[2], Tools.CALL_LOG: Pal.BOARD[2]}[k]
 	for y in sz.y:
 		var band := y < w or y >= sz.y - w
 		for x in (range(sz.x) if band else range(w) + range(sz.x - w, sz.x)):
 			img.set_pixel(x, y, _grain(k, c, x, y))
 	var fr := func(x: int, y: int, ww: int, hh: int, col: Color) -> void:
 		img.fill_rect(Rect2i(x, y, ww, hh), col)
-	if k == "lista":   # o friso: a sombra em cima e à esquerda, a luz embaixo e à direita
+	if k == Tools.DIRECTORY:   # o friso: a sombra em cima e à esquerda, a luz embaixo e à direita
 		fr.call(2, 2, sz.x - 4, 1, c.darkened(0.16))
 		fr.call(2, 2, 1, sz.y - 4, c.darkened(0.16))
 		fr.call(2, sz.y - 3, sz.x - 4, 1, c.lightened(0.1))
@@ -137,37 +139,42 @@ static func _cover(k: String, sz: Vector2i) -> Image:
 	fr.call(w - 1, w - 1, 1, sz.y - w * 2 + 2, c.darkened(0.3))
 	fr.call(w - 1, sz.y - w, sz.x - w * 2 + 2, 1, c.lightened(0.12))   # ...e a luz na de baixo e na da direita
 	fr.call(sz.x - w, w - 1, 1, sz.y - w * 2 + 2, c.lightened(0.12))
+	if k == Tools.LOGBOOK:
+		for i in w - 2:   # a beira da de cima e a das folhas de baixo, uma por pixel, mais escuras para fora (o papelão fica nos 2 de fora)
+			var sheet := Pal.NOTE_PAGE.darkened(0.3 if i == 0 else 0.06 + 0.07 * i)
+			fr.call(w - 1 - i, w - 1, 1, sz.y - w * 2 + 2 + i, sheet)
+			fr.call(sz.x - w + i, w - 1, 1, sz.y - w * 2 + 2 + i, sheet)
+			fr.call(w - 1 - i, sz.y - w + i, sz.x - w * 2 + 2 + i * 2, 1, sheet)
+		for y in w:   # a fita de pano, dobrada sobre a colagem: a beira de cima na luz, a trama e a de baixo na sombra
+			for x in sz.x:
+				var t: Color = Pal.PAD_TAPE[0] if y == 0 else (Pal.PAD_TAPE[2] if y == w - 1 else Pal.PAD_TAPE[1])
+				img.set_pixel(x, y, t.lightened(0.05) if y > 0 and y < w - 1 and (x + y * 2) % 5 == 0 else t)
+		fr.call(w - 1, w, sz.x - w * 2 + 2, 1, Color(0, 0, 0, 0.18))   # a sombra da fita na folha
 	for p: Vector2i in [Vector2i(0, 0), Vector2i(sz.x - 1, 0), Vector2i(0, sz.y - 1), sz - Vector2i.ONE]:
 		var d := Vector2i(1 if p.x == 0 else -1, 1 if p.y == 0 else -1)
-		if k == "registro":   # o canto cortado
+		if k == Tools.CALL_LOG:   # o canto cortado
 			img.set_pixel(p.x, p.y, Color(0, 0, 0, 0))
-		else:   # gasto: mais claro, e o couro arredondado
+		elif k == Tools.DIRECTORY:   # gasto: mais claro
 			for i in 3:
 				for j in 3 - i:
-					img.set_pixel(p.x + d.x * i, p.y + d.y * j, c.lightened(0.3 if k == "lista" else 0.18))
-			if k == "caderno":
-				img.set_pixel(p.x, p.y, Color(0, 0, 0, 0))
+					img.set_pixel(p.x + d.x * i, p.y + d.y * j, c.lightened(0.3))
 	return img
 
 
-## O grão de cada material, sempre o mesmo em cada ponto: o papelão com pontos mais escuros e mais claros (o da capa da
-## mesa), o couro manchado e a tábua, quase lisa, com fibras ao comprido.
+## O grão de cada material, sempre o mesmo em cada ponto: o papelão (o da capa da lista e o de trás do bloco de
+## fichas) com pontos mais escuros e mais claros e a tábua, quase lisa, com fibras ao comprido.
 static func _grain(k: String, c: Color, x: int, y: int) -> Color:
 	match k:
-		"lista":
+		Tools.DIRECTORY, Tools.LOGBOOK:
 			var g := (x * 73 + y * 151 + x * y * 7) % 97
 			return c.darkened(0.07) if g < 6 else (c.lightened(0.05) if g > 92 else c)
-		"caderno":
-			var g := (x * 31 + y * 57 + (x * y) % 13 * 11) % 41
-			var blot := sin(x * 0.11 + y * 0.07) * sin(x * 0.05 - y * 0.13)   # manchas largas, do uso
-			return c.darkened(0.12) if g < 3 else (c.lightened(0.07) if g == 3 or blot > 0.7 else c)
 		_:
 			var g := (y * 37 + (x / 9) * 11 + x % 3) % 53
 			return c.darkened(0.06) if g < 4 else c
 
 
-## O prendedor da prancheta, de pé na beira de cima, no níquel da mesa (o mesmo desenho do `Background.CLIP_ART`,
-## maior): a alavanca em arco por cima e o corpo com a luz no alto, a sombra embaixo e os rebites nas pontas.
+## O prendedor da prancheta, de pé na beira de cima, no níquel da mesa (o da prancheta da sala,
+## de frente): a alavanca em arco por cima e o corpo com a luz no alto, a sombra embaixo e os rebites nas pontas.
 static func _clip(sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
 	var edge := Color("2a2620")

@@ -125,8 +125,7 @@ replies = Array[ExtResource("9_reply")]([SubResource("ChatReply_01_0"), SubResou
 
 [resource]
 script = ExtResource("1_night")
-weekday = "Quarta-feira"
-note = "O supervisor deixou um recado: \"Ontem a linha ficou com chiado depois das dez. A companhia vai olhar. Se acontecer de novo, anote no caderno.\""
+note = "O supervisor deixou um recado: \"Ontem a linha ficou com chiado depois das dez. A companhia vai olhar. Se acontecer de novo, anote na ficha.\""
 story = Array[ExtResource("3_story")]([SubResource("Story_01")])
 mystery = Array[ExtResource("2_step")]([SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09"), SubResource("Step_10"), SubResource("Step_11"), SubResource("Step_12"), SubResource("Step_13"), SubResource("Step_14"), SubResource("Step_15")])
 smalltalk = Array[ExtResource("8_chat")]([SubResource("ChatTopic_00"), SubResource("ChatTopic_01")])

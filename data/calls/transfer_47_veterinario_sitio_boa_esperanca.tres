@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_tr"]
+
+[resource]
+script = ExtResource("1_tr")
+group = 2
+voice = "m"
+caller = "Veterinário"
+opening = PackedStringArray("Central, boa noite. Me liga com o Sítio Boa Esperança?", "Me chamaram por causa de uma vaca pra parir. Quero saber se ainda precisa.")
+repeat = "O Sítio Boa Esperança, lá no Cruzeiro."
+target = "209"
+destination = "Sítio Boa Esperança"
+thanks = "Obrigado. Vou ligando a caminhonete."
+overheard = PackedStringArray("Boa noite. Aqui é o veterinário. Ainda precisa de mim?", "Precisa! A vaca está deitada e o bezerro não sai.", "Faz quanto tempo que começou?", "Umas duas horas. Ela está cansando.", "Estou indo. Deixa água morna e corda limpa no curral.")

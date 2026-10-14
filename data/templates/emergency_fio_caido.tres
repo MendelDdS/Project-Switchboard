@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_emerg"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("pol", "bomb")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "", "Um senhor encostou nele sem ver e caiu duro na calçada!")
+units = PackedStringArray("pol", "bomb", "amb")
+
+[resource]
+script = ExtResource("1_emerg")
+opening = "Central, caiu um fio de luz no meio da {street}! Tá soltando faísca!"
+questions = PackedStringArray("Qual é o endereço?", "O fio está fechando a rua?", "Alguém se machucou?")
+answers = PackedStringArray("{address}! Bem na frente de casa!", "Tá, de ponta a ponta. Os carros tão parando.", "Não, ainda não.")
+occurrence = "Outro"
+units = PackedStringArray("pol", "bomb")
+after = "Tá. Vou segurar o povo longe."
+stage_sec = Vector3(40, 20, 20)
+worsening = "A faísca pegou fogo no mato da calçada!"
+worsening_units = PackedStringArray()
+worsening_question = "O fogo está perto de alguma casa?"
+worsening_answer = "Do muro do vizinho. Ainda dá pra apagar com balde."
+critical = "Um menino de bicicleta passou por cima do fio! Tá caído!"
+critical_units = PackedStringArray("amb")
+critical_question = "Ele está acordado?"
+critical_answer = "Não! E a mão dele tá preta!"
+lost = "O fogo pegou a casa do vizinho... e ninguém veio."
+lost_answer = "O menino da bicicleta não acorda, e o vizinho queimou o braço."
+lost_units = PackedStringArray("amb")
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2")])

@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_emerg"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("bomb")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "Tem! A dona da casa tá lá dentro e não atende!", "")
+units = PackedStringArray("bomb", "amb")
+
+[resource]
+script = ExtResource("1_emerg")
+opening = "Central, tá um cheiro forte de gás na casa do lado, aqui na {street}!"
+questions = PackedStringArray("Qual é o endereço?", "Tem alguém dentro?", "Alguém está passando mal?")
+answers = PackedStringArray("{address}! A casa de muro azul!", "Acho que não, tá tudo apagado.", "Não, só a gente aqui fora com o nariz ardendo.")
+occurrence = "Outro"
+units = PackedStringArray("bomb")
+after = "Tá. Ninguém vai acender nada aqui."
+stage_sec = Vector3(35, 18, 18)
+worsening = "O cheiro tá chegando na rua toda!"
+worsening_units = PackedStringArray()
+worsening_question = "Os vizinhos saíram de casa?"
+worsening_answer = "Quase todos. Tô batendo nas portas."
+critical = "Uma senhora da casa de trás desmaiou no portão!"
+critical_units = PackedStringArray("amb")
+critical_question = "Ela está respirando?"
+critical_answer = "Tá, mas tá roxinha."
+lost = "Teve um estouro! As janelas voaram longe!"
+lost_answer = "A senhora não acorda, e um rapaz cortou o rosto no vidro."
+lost_units = PackedStringArray("amb")
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2")])

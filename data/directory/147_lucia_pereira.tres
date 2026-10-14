@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_39"]
+script = ExtResource("2_motive")
+text = "Ela está esperando minha ligação."
+talks = Array[PackedStringArray]([PackedStringArray("Lúcia? Sou eu. Desculpa a demora pra ligar.", "Achei que tinha esquecido. E então, deu certo?", "Deu! Consegui a vaga na escola da {street}.", "Que maravilha! Começa quando?", "Segunda, às {hour}. Já estou com frio na barriga.", "Vai dar tudo certo. Sábado a gente comemora."), PackedStringArray("Oi, Lúcia. Você estava esperando eu ligar, né?", "Estava! Conseguiu falar com o médico?", "Consegui. Não é nada grave, só preciso de repouso.", "Ainda bem. Quer que eu leve a janta amanhã?", "Se não for incômodo, eu aceito.", "Incômodo nenhum. Lá pelas {hour} eu chego.")])
+
+[sub_resource type="Resource" id="Motive_40"]
+script = ExtResource("2_motive")
+text = "Preciso dar um recado da família."
+talks = Array[PackedStringArray]([PackedStringArray("Lúcia, boa noite. Tenho um recado da sua mãe.", "Da mamãe? Aconteceu alguma coisa?", "Nada de ruim. Ela pediu pra você ir no domingo, sem falta.", "Domingo eu vou. Que horas ela quer?", "Pro almoço. E é pra levar a receita do bolo de laranja.", "Levo. Diz pra ela que eu chego cedo."), PackedStringArray("Boa noite, Lúcia. A tia pediu pra te avisar uma coisa.", "Pode falar. É sobre a festa?", "É. Mudou pro salão da {street}.", "E o horário continua o mesmo?", "Mudou também. Agora começa às {hour}.", "Ainda bem que você avisou. Eu ia chegar cedo demais.")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Lúcia Pereira"
+address = "Rua das Flores, 390"
+number = "147"
+voice = "f"
+spoken = "a Lúcia Pereira"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_39"), SubResource("Motive_40")])

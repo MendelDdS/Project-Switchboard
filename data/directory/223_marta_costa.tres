@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_14"]
+script = ExtResource("2_motive")
+text = "Ela é minha comadre. Quero saber como ela está."
+talks = Array[PackedStringArray]([PackedStringArray("Comadre, boa noite! Liguei pra saber como você está.", "Ah, que bom ouvir sua voz. Estou melhor da gripe.", "E a tosse, passou?", "Quase. Estou tomando chá de limão com mel toda noite.", "Amanhã eu levo uma canja aí, lá pelas {hour}.", "Vem, sim. E traz o afilhado, que estou com saudade."), PackedStringArray("Boa noite, comadre. Fiquei sabendo que você caiu no quintal.", "Caí, mas foi só o tornozelo. Já está enfaixado.", "E quem está cuidando de você?", "Minha sobrinha vem de manhã. De noite fico com o rádio.", "Amanhã eu passo aí e faço o almoço.", "Não precisa, mas eu aceito. Traz o pão da padaria.")])
+
+[sub_resource type="Resource" id="Motive_15"]
+script = ExtResource("2_motive")
+text = "Ela ficou de me devolver uma panela."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite, Marta. Lembra da panela de pressão que eu te emprestei?", "Lembro! Está aqui lavadinha, esperando você.", "Preciso dela amanhã. Vou cozinhar feijão pra festa.", "Eu levo aí de manhã, lá pelas {hour}.", "E a borracha da tampa, ainda está boa?", "Troquei. A outra estava gasta, pus uma nova."), PackedStringArray("Oi, Marta. Desculpa a hora. É por causa da panela grande.", "Ai, eu esqueci! Usei no domingo e ficou aqui.", "Não tem pressa. Mas amanhã vou fazer doce de goiaba.", "Então eu levo cedo. E quero provar o doce, viu?", "Separo um pote pra você.", "Lá pelas {hour} eu passo aí.")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Marta Costa"
+address = "Rua do Sol, 354"
+number = "223"
+voice = "f"
+spoken = "a Dona Marta Costa"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_14"), SubResource("Motive_15")])

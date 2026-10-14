@@ -26,7 +26,7 @@ func _step(kind: PrankStep.Kind, text := "", requires := PackedStringArray()) ->
 
 ## Lacunas de um texto (%s, %02d, {place}...), para comparar entre idiomas.
 func _holes(s: String) -> Array:
-	var re := RegEx.create_from_string("%[0-9]*[sd]|\\{[a-z_]+\\}")
+	var re := RegEx.create_from_string("%[0-9]*[sd]|\\{[a-z_]+\\}|\\[[a-z]+:")   # [tipo: a marca da palavra-chave (`Clue`)
 	var out := re.search_all(s).map(func(m: RegExMatch): return m.get_string())
 	out.sort()
 	return out
@@ -66,6 +66,45 @@ func _check_translations() -> void:
 	TranslationServer.set_locale("pt_BR")   # o padrão do jogo (Settings não existe ao compilar um teste)
 
 
+## As regras de escrita das conversas escutadas (README, "Cada motivo traz a conversa"): num lugar com ramo que pode
+## ser trocado pela alternativa, a conversa não diz o tipo do lugar (`KIND_WORDS`; ramo novo entra nela); só lacunas
+## que existem; palavras-chave (`Clue`) bem marcadas e de tipo conhecido; cada fala num fôlego (`TALK_MAX` letras,
+## sem as marcas) nos três idiomas.
+const KIND_WORDS := {"hospedagem": ["hotel", "pensão", "pousada"], "oficina": ["oficina", "borracharia"],
+	"farmácia": ["farmácia", "drogaria"], "igreja": ["igreja", "paróquia", "paroquial"], "mercearia": ["mercearia", "armazém"]}
+const TALK_MAX := 90
+func _check_talks() -> void:
+	var talks := []   # [contato, falas, se a alternativa pode atender no lugar]
+	for d: DirectoryEntry in GameData.CONTENT.directory:
+		ok(d.category == "" or KIND_WORDS.has(d.category), "ramo sem as palavras do tipo em KIND_WORDS: " + d.category)
+		for mo: Motive in d.motives:
+			for talk in mo.talks:
+				talks.append([d, talk, true])
+	for t: TransferCall in GameData.CONTENT.transfers:
+		talks.append([GameData.entry(t.target), t.overheard, t.alt_target != ""])
+	for x in talks:
+		var words: Array = KIND_WORDS.get(x[0].category, []) if x[2] else []
+		for line: String in x[1]:
+			ok(not words.any(func(w: String): return w in line.to_lower()), "a conversa diz o tipo do lugar (%s): %s" % [x[0].name, line])
+			var known := func(h: String): return h.trim_prefix("{").trim_suffix("}") in GameData.talk_holes() or h.trim_prefix("[").trim_suffix(":") in Clue.KINDS
+			ok(_holes(line).all(known), "lacuna ou tipo de palavra-chave que não existe: " + line)
+			var plain: String = Clue.parse(line)[0]
+			ok(not "[" in plain and not "]" in plain, "palavra-chave mal marcada: " + line)
+	var sus := GameData.CONTENT
+	ok(sus.overheard_ask.size() >= 3 and sus.overheard_ask.size() == sus.overheard_sure.size(), "cada pergunta da suspeita tem a sua resposta")
+	talks.append([DirectoryEntry.new(), sus.overheard_ask + sus.overheard_sure, false])
+	ok(Clue.parse("[time:{hour}]. Na [street:Rua do Sol].") == ["{hour}. Na Rua do Sol.", [[0, 6, "time"], [11, 21, "street"]]],
+		"palavras-chave: a fala sem as marcas e onde fica cada uma")
+	var all_holes := " ".join(GameData.talk_holes().map(func(h: String): return "{%s}" % h))
+	ok(not "{" in GameData.fill(all_holes, GameData.talk_vars()), "toda lacuna da conversa escutada é preenchida")
+	for lang in ["pt_BR", "en", "es"]:
+		TranslationServer.set_locale(lang)
+		for x in talks:
+			for line: String in x[1]:
+				ok(Clue.parse(tr(line))[0].length() <= TALK_MAX, "fala escutada longa demais (%s): %s" % [lang, tr(line)])
+	TranslationServer.set_locale("pt_BR")
+
+
 func _extra(t: TransferCall) -> PhoneCall:
 	return PhoneCall.from_transfer(t)
 
@@ -78,6 +117,60 @@ func _mouse(n: Control, p: Vector2, pressed := -1) -> void:
 		e.pressed = pressed == 1
 	e.position = p
 	n._gui_input(e)
+
+
+## Arrasta com o mouse de `a` até `b` (coordenadas da tela): aperta, anda em 8 passos com o botão apertado e solta.
+## Um interurbano de um minuto na entrada `n`, já encerrado: o bilhete impresso.
+func _ticket(n: int) -> TollTicket:
+	m.toll.start(n, "Capital", "45-12", m.minutes)
+	return m.toll.stop(n, m.minutes + 1.0)
+
+
+func _drag_mouse(a: Vector2, b: Vector2) -> void:
+	var vp := get_viewport()
+	var e := InputEventMouseButton.new()
+	e.button_index = MOUSE_BUTTON_LEFT
+	e.pressed = true
+	e.position = a
+	vp.push_input(e)
+	for i in 8:
+		var mm := InputEventMouseMotion.new()
+		mm.button_mask = MOUSE_BUTTON_MASK_LEFT
+		mm.position = a.lerp(b, (i + 1) / 8.0)
+		mm.relative = (b - a) / 8.0
+		vp.push_input(mm)
+		await frames(1)
+	var u := e.duplicate()
+	u.pressed = false
+	u.position = b
+	vp.push_input(u)
+	await frames(2)
+
+
+## Aperta e solta o mouse em `p` (coordenadas da tela), pela janela.
+func _tap_mouse(p: Vector2) -> void:
+	var e := InputEventMouseButton.new()
+	e.button_index = MOUSE_BUTTON_LEFT
+	e.pressed = true
+	e.position = p
+	get_viewport().push_input(e)
+	var u := e.duplicate()
+	u.pressed = false
+	get_viewport().push_input(u)
+	await frames(2)
+
+
+## Onde pegar o carimbo do calculógrafo (o meio dele cai na caixa).
+func _grip() -> Vector2:
+	var s: Control = m.toll._stamp
+	return s.global_position + s.size / 2.0
+
+
+## Leva o carimbo com o meio do fundo em `p` (na tela) e clica nele: carimba o que estiver embaixo.
+func _stamp_at(p: Vector2) -> void:
+	await _drag_mouse(_grip(), p - Toll.RUBBER_MID + m.toll._stamp.size / 2.0)
+	await _tap_mouse(_grip())
+	await frames(int(Toll.PRESS_SEC * 60.0) + 2)   # (carimba quando as rodas encostam, no fim da descida)
 
 
 ## Clique (aperta e solta no mesmo lugar) sobre o nó `n`.
@@ -109,6 +202,7 @@ func _initialize() -> void:
 	m.running = true
 	b = m.board
 	ex = m.exchange
+	ok(b.patches == b.SHELF_SLOTS, "com os três setores, os cinco cabos (um par por setor novo)")
 
 	# ---- 0. conteúdo: todo roteiro aponta para números, ruas e unidades que existem
 	var C: GameContent = GameData.CONTENT
@@ -169,7 +263,7 @@ func _initialize() -> void:
 	ok(per_sector == {"3": 12, "1": 12, "2": 12}, "lista: 12 números em cada setor: %s" % per_sector)
 	GameData.sectors = [3]
 	ok(GameData.board_numbers().size() == 12 and GameData.board_numbers().all(func(n): return str(n).begins_with("3")), "noite 1: mesa só com o setor 3")
-	ok(not GameData.transfers(TransferCall.Group.ESTABLISHMENT).is_empty(), "setor 3 tem estabelecimento para o tutorial")
+	ok(not GameData.transfers(TransferCall.Group.ESTABLISHMENT).is_empty(), "setor 3 tem estabelecimento")
 	var used: Array = []
 	var tpl := GameData.template_transfer(used)
 	while tpl != null:
@@ -179,7 +273,7 @@ func _initialize() -> void:
 	ok(not used.is_empty(), "moldes até acabarem os lugares, sem repetir")
 	var sector3 := func(c: PhoneCall) -> bool:
 		if c.kind == PhoneCall.Kind.TRANSFER:
-			return c.target.begins_with("3")
+			return c.target.begins_with("3") or GameData.is_trunk(c.target)   # os troncos são da cidade toda
 		return c.kind != PhoneCall.Kind.INFO or c.answer.begins_with("3")
 	for s in 5:
 		ok(Schedule.build(C.nights[0], C.paces[0], m.LAST_CALL).calls.all(sector3), "agenda da noite 1 só pede números do setor 3")
@@ -195,11 +289,11 @@ func _initialize() -> void:
 	var trip_c: float = city.trip("pol", {"street": "brasil", "block": 4})
 	var trip_3: float = city.trip("pol", {"street": "comercio", "block": 2})
 	var trip_2: float = city.trip("pol", {"street": "cruzeiro", "block": 0})
-	var going: Dictionary = city.trips[0]
-	await wait_until(func(): return going["t"] >= going["dur"], 15.0)
-	var site: Vector2 = going["pts"][-1]
-	ok(is_equal_approx(city.go_home("pol"), trip_2) and going["back"] and going["t"] == 0.0 and going["pts"][-1] == city.STATION["pol"]["p"]
-		and going["pts"][0] == site, "a viatura volta do local para a base pelo mesmo caminho, no mesmo tempo")
+	var going := city.trips[0]
+	await wait_until(func(): return going.t >= going.dur, 15.0)
+	var site: Vector2 = going.pts[-1]
+	ok(is_equal_approx(city.go_home("pol"), trip_2) and going.back and going.t == 0.0 and going.pts[-1] == city.STATION["pol"]["p"]
+		and going.pts[0] == site, "a viatura volta do local para a base pelo mesmo caminho, no mesmo tempo")
 	city.remove_units(["pol"])
 	ok(trip_c < trip_3 and trip_3 < trip_2, "viagem do Centro: %.1f s no Centro, %.1f s no setor 3, %.1f s no setor 2" % [trip_c, trip_3, trip_2])
 	# viaturas e emergência (`Fleet`, sem tela nem tempo): completo só com tudo a caminho do lugar certo; a chegada diz
@@ -208,25 +302,41 @@ func _initialize() -> void:
 	var em: EmergencyCall = GameData.CONTENT.emergencies.filter(func(x: EmergencyCall): return Array(x.required(0)) == ["amb"])[0]
 	var fl_here := {"street": em.street, "block": em.block}
 	var fl_away := {"street": em.street, "block": em.block + 1}
-	ok(not frota.send(["pol"], fl_here) and frota.arrive(["pol"], fl_here)["result"] == Fleet.Result.IDLE and frota.leave(["pol"]) == ["pol"],
-		"frota: sem emergência, a chegada não encontra nada")
+	ok(frota.target_of(fl_here) == null and not frota.send(["pol"], fl_here, null) and frota.arrive(["pol"], fl_here, null).result == Fleet.Result.IDLE \
+		and frota.leave(["pol"]) == ["pol"], "frota: sem emergência, a chegada não encontra nada")
 	frota.home(["pol"])
 	frota.set_incident(em)
-	ok(not frota.send(["pol"], fl_here) and frota.available(["pol", "amb"]) == ["amb"] and frota.en_route(), "frota: polícia a caminho, incompleto")
-	var fl_got := frota.arrive(["pol"], fl_here)
-	ok(fl_got["result"] == Fleet.Result.MISSING and fl_got["missing"] == ["amb"] and fl_got["extra"] == ["pol"] and fl_got["unneeded"] == ["pol"],
+	var inc := frota.target_of(fl_here)
+	ok(not frota.send(["pol"], fl_here, inc) and frota.available(["pol", "amb"]) == ["amb"] and frota.en_route(), "frota: polícia a caminho, incompleto")
+	var fl_got := frota.arrive(["pol"], fl_here, inc)
+	ok(fl_got.result == Fleet.Result.MISSING and fl_got.missing == ["amb"] and fl_got.extra == ["pol"] and fl_got.unneeded == ["pol"],
 		"frota: faltou a ambulância e a polícia sobrou")
-	frota.send(["amb"], fl_away)
-	fl_got = frota.arrive(["amb"], fl_away)
-	ok(fl_got["result"] == Fleet.Result.WRONG_PLACE and fl_got["unneeded"] == ["amb"], "frota: endereço errado")
+	ok(frota.target_of(fl_away) == inc, "frota: cartão fora de todas vai para a única emergência")
+	frota.send(["amb"], fl_away, inc)
+	fl_got = frota.arrive(["amb"], fl_away, inc)
+	ok(fl_got.result == Fleet.Result.WRONG_PLACE and fl_got.unneeded == ["amb"], "frota: endereço errado")
 	ok(frota.leave(["pol", "amb"]) == ["pol", "amb"] and frota.busy() == ["pol", "amb"], "frota: as duas voltando")
 	frota.home(["pol", "amb"])
-	ok(frota.busy().is_empty() and frota.send(["amb"], fl_here), "frota: a ambulância no lugar certo completa o socorro")
-	ok(frota.arrive(["amb"], fl_here)["result"] == Fleet.Result.OK and frota.arrive([], fl_here)["result"] == Fleet.Result.IDLE,
+	ok(frota.busy().is_empty() and frota.send(["amb"], fl_here, inc), "frota: a ambulância no lugar certo completa o socorro")
+	ok(frota.arrive(["amb"], fl_here, inc).result == Fleet.Result.OK and frota.arrive([], fl_here, inc).result == Fleet.Result.IDLE,
 		"frota: resolvida, e depois não há mais nada lá")
+	# duas ao mesmo tempo: o cartão vai para a do lugar marcado; fora de todas, para a que está sendo atendida
+	var em2: EmergencyCall = GameData.CONTENT.emergencies.filter(func(x: EmergencyCall): return x.street != em.street)[0]
+	frota.set_incident(em2)
+	var fl_two := {"street": em2.street, "block": em2.block}
+	ok(frota.target_of(fl_two).call == em2 and frota.target_of(fl_here).call == em and frota.target_of(fl_away, em).call == em \
+		and frota.target_of(fl_away).call == em2 and frota.required(em2) == Array(em2.required(0)), "frota: duas emergências, cada cartão na sua")
+	# a viatura de reserva só sai com duas emergências: com uma, quem errou espera a outra voltar
+	frota.send(frota.crew(["pol"]), fl_here, null)
+	ok(not frota.is_free("pol") and frota.crew(["pol"]).is_empty(), "frota: sem reserva, a polícia fora deixa o tipo ocupado")
+	frota.spare = true
+	var fl_crew := frota.crew(["pol"])
+	frota.send(fl_crew, fl_two, frota.target_of(fl_two))
+	ok(fl_crew == ["pol" + Fleet.SPARE] and Fleet.kind(fl_crew[0]) == "pol" and not frota.is_free("pol")
+		and frota.target_of(fl_two).going == ["pol"], "frota: com duas emergências, sai a de reserva, e conta como polícia")
 	var fl_gen := frota.gen
 	frota.reset(true)
-	ok(frota.gen == fl_gen + 1 and frota.busy().is_empty() and frota.required().is_empty(), "frota: reset libera tudo e esquece a emergência")
+	ok(frota.gen == fl_gen + 1 and frota.busy().is_empty() and frota.incidents.is_empty(), "frota: reset libera tudo e esquece as emergências")
 	# lista telefônica: cada aba abre só a sua letra, com todos os contatos dela nas duas páginas; Virar passa de letra
 	# em letra até as anotações, Voltar volta até a primeira
 	var book: PhoneBook = m.tools.find_child("PhoneBook", true, false)
@@ -254,7 +364,7 @@ func _initialize() -> void:
 		ok(st != null and e.address.get_slice(",", 0) == st.name and int(e.address.get_slice(",", 1)) / 100 == e.block,
 			"emergência no trecho certo: " + e.address)
 	ok([1, 2].all(func(sec): return C.emergencies.any(func(e): return GameData.street(e.street).block_sector(e.block) == sec)), "Centro e Alto da Serra têm emergências escritas")
-	# dica do banco novo: só para o setor entregue na noite (o 3 o tutorial apresenta)
+	# dica do banco novo: só para o setor entregue na noite (o 3 o treinamento apresenta)
 	m.night_no = 5
 	ok(m._new_sector("142") and not m._new_sector("305") and not m._new_sector("237") and not m._new_sector(""), "banco novo na noite 5: o A")
 	m.night_no = 1
@@ -285,7 +395,6 @@ func _initialize() -> void:
 		ok(ats == in_order and ats.all(func(a): return a >= 0.0 and a < m.SHIFT_END), "agenda em ordem: " + n.resource_path)
 		ok(plan.calls.all(func(c: PhoneCall): return c.story or c.kind == PhoneCall.Kind.MYSTERY or c.at < m.LAST_CALL),
 			"sorteadas antes da última ligação: " + n.resource_path)
-		ok((plan.tut != null) == n.tutorial and (plan.tut == null or plan.tut == plan.calls[0]), "tutorial é a primeira: " + n.resource_path)
 		ok((plan.mystery_at == INF) == n.mystery.is_empty(), "ligação desconhecida conforme a noite: " + n.resource_path)
 		ok(plan.calls.all(func(c: PhoneCall): return c.kind != PhoneCall.Kind.MYSTERY or c.latest <= m.LAST_CALL - Schedule.MYSTERY_MARGIN),
 			"desconhecida toca antes da última ligação: " + n.resource_path)
@@ -312,6 +421,11 @@ func _initialize() -> void:
 			"molde: alternativa do mesmo ramo")
 		ok(GameData.entry(t.target).category == "" or t.alt_target != "", "molde: estabelecimento com ramo tem alternativa")
 		ok(not holes.call(Array(t.opening) + [t.repeat, t.thanks]) and t.caller != "", "molde de transferência preenchido: " + " / ".join(t.opening))
+		ok(GameData.entry(t.target).motives.any(func(mo: Motive): return (t.overheard in mo.talks or mo.talks.is_empty() and t.overheard.is_empty()) and tr(mo.text) in "".join(t.opening + PackedStringArray([t.repeat]))),
+			"molde: a conversa escutada é a do motivo pedido")
+		var tt := GameData.trunk_transfer()
+		ok(GameData.is_trunk(tt.target) and tt.far_number != "" and not holes.call(Array(tt.opening) + [tt.repeat]),
+			"molde de interurbano preenchido: " + " / ".join(tt.opening))
 		var e := GameData.template_emergency()
 		var house := int(e.address.get_slice(", ", 1))
 		if house > 0:
@@ -323,15 +437,23 @@ func _initialize() -> void:
 		ok(not holes.call(Array(e.answers) + [e.opening, e.after]), "molde de emergência preenchido: " + e.opening)
 	ok(landmarks > 60 and landmarks < 180, "às vezes quem liga diz um lugar do mapa: %d de 300" % landmarks)
 	_check_translations()
+	_check_talks()
 	for c in m.find_children("*", "Control", true, false):
 		if c is BaseButton or c is Slider:
 			ok(c.mouse_default_cursor_shape == Control.CURSOR_POINTING_HAND, "sem cursor de dedo: %s" % m.get_path_to(c))
-	var places := C.directory.filter(func(d): return not d.reasons.is_empty())
+	var places := C.directory.filter(func(d): return not d.motives.is_empty())
+	for d: DirectoryEntry in places:
+		ok(d.motives.all(func(mo: Motive): return mo.talks.size() >= 2 and mo.talks.all(func(k: PackedStringArray): return k.size() >= 4)), "duas conversas escutadas de cada motivo: " + d.name)
+	for t: TransferCall in C.transfers:
+		ok(t.overheard.size() >= 4, "conversa escutada da ligação escrita: " + t.caller + " -> " + t.destination)
 	print("OK 0 conteúdo (%d transferências, %d emergências, %d trotes; moldes: %d de transferência para %d contatos, %d de emergência)" % [
 		C.transfers.size(), C.emergencies.size(), C.pranks.size(), C.transfer_templates.size(), places.size(), C.emergency_templates.size()])
 
 	# ---- 1. transferência completa; tirar o FONE não derruba a conversa
-	var a: PhoneCall = m.tut
+	var quiet: TransferCall = GameData.transfers(TransferCall.Group.ESTABLISHMENT)[0].duplicate()
+	quiet.overheard = PackedStringArray()   # falas escritas seguram a linha até a última (cenário 1a)
+	var a := _extra(quiet)
+	a.away = false
 	m.ring(a)
 	var ln := a.line
 	b.held = 0
@@ -370,8 +492,377 @@ func _initialize() -> void:
 	_move(1, -1)
 	ok(ex.line(ln) == Exchange.Line.FREE, "linha liberada")
 	_move(2, -1)
-	ok(ex.dest(tgt) == Exchange.Dest.FREE and b.free_patches() == 3, "destino e cabo liberados")
+	ok(ex.dest(tgt) == Exchange.Dest.FREE and b.free_patches() == b.patches, "destino e cabo liberados")
 	print("OK 1 transferência completa / tirar o FONE mantém a ligação")
+
+	# ---- 1a. escuta: a chave sobe com o destino tocando e desce quando atendem; a tecla Escutar (Z) ou a alavanca a
+	# sobe com o FONE na linha conectada; entrar na linha estala; ouvindo, a suspeita sobe (sem ouvir, baixa) e, em 1,
+	# eles desligam e denunciam (advertência grave no relatório da noite seguinte)
+	var ed: TransferCall = GameData.transfers(TransferCall.Group.ESTABLISHMENT)[1].duplicate()
+	ed.overheard = ["Liguei pra saber da reunião de amanhã.", "Ficou pras [time:oito], na casa do [person:Benedito Souza]."]
+	ed.overheard_sets = ["ouviu_teste"]
+	ed.overheard_flags = ["", "ouviu_hora"]
+	ed.wary = 1.5
+	var ea := _extra(ed)
+	ea.away = false
+	m.ring(ea)
+	var el := ea.line
+	var et := int(ea.target)
+	_move(0, el)
+	m.answer()
+	ok(await wait_until(_awaiting(ea)), "escuta: pedido de transferência")
+	_move(1, el + 10)
+	_move(2, et)
+	m.transfer()
+	ok(b.lever_up(el) and not ex.key(el), "escuta: a alavanca sobe com o destino tocando")
+	ok(await wait_until(func(): return ea.connected), "escuta: conectada")
+	ok(not b.lever_up(el), "escuta: o destino atendeu e a alavanca desceu sozinha")
+	var m0 := m.minutes
+	m.minutes = ex.line_until(el) + 1.0
+	await frames(1)
+	ok(ex.line(el) == Exchange.Line.CONN and m.eavesdrop.speaking(el), "escuta: a conversa não acaba antes das falas escritas")
+	m.minutes = m0
+	ex.set_line(el, Exchange.Line.CONN, m.minutes + 200.0)   # (uma conversa longa: o TALK_LEN sorteado curto acabava no meio do cenário)
+	ok(m.phone._transfer.disabled and not m.phone._listen.disabled and m.phone._listen.text == "LISTEN",
+		"escuta: com o FONE na linha conectada, a tecla Escutar vale")
+	m.listen()
+	ok(ex.key(el) and m.phone._listen.text == "LISTEN_STOP", "escuta: Z sobe a chave e a tecla vira Soltar")
+	await frames(2)
+	var place_wary := GameData.entry(str(et)).wary
+	ok(m.eavesdrop.listening(el) and ea.suspicion >= Eavesdrop.CLICK * ed.wary * place_wary,
+		"escuta: entrar na linha estala (vezes a desconfiança de quem ligou e a do lugar)")
+	ed.wary = 0.5   # (ouvindo o cumprimento e as falas de uma vez, a desconfiança comum chega a denunciar)
+	ok(await wait_until(func(): return m.flags.allows(["ouviu_teste"])), "escuta: ouviu as falas escritas e o marcador da ligação liga")
+	ok(m.flags.allows(["ouviu_hora"]), "escuta: e o da fala ouvida")
+	ok(m.eavesdrop.clues.map(func(k: Clue): return [k.word, k.kind, k.call]) == [["oito", "time", ea], ["Benedito Souza", "person", ea]],
+		"escuta: as palavras-chave ouvidas inteiras ficam guardadas, sem as marcas")
+	var saved := Clue.from_dict(m.eavesdrop.clues[1].to_dict())
+	ok([saved.word, saved.kind, saved.night, saved.caller, saved.number] == ["Benedito Souza", "person", m.night_no, ea.caller, str(et)],
+		"escuta: a palavra-chave volta igual do progresso salvo (para as noites seguintes)")
+	ok(m.phone.shown().transcript.all(func(l: Dictionary): return not "[" in l["text"]), "escuta: a marca não aparece na tela")
+	var marked_line: Dictionary = m.phone.shown().transcript.filter(func(l: Dictionary): return l.has("marks")).back()
+	ok(marked_line["marks"].map(func(r: Array): return marked_line["text"].substr(r[0], r[1] - r[0])) == ["oito", "Benedito Souza"]
+		and "[u]oito[/u]" in m.phone._transcript.text, "escuta: a palavra-chave ouvida fica sublinhada na tela")
+	var notes_book: PhoneBook = m.tools.book
+	m.tools.set_tab(Tools.DIRECTORY)
+	notes_book.turn(notes_book._index.size())
+	await frames(2)
+	var heard_clues := m.eavesdrop.clues
+	var n0 := heard_clues.size()
+	var newest: Clue = heard_clues.back()
+	ok(notes_book._clue_hits.size() == 2 and notes_book._clue_hits[0][1] == [newest], "escuta: as palavras-chave vão para a página de anotações da lista, a mais nova em cima")
+	var click_on := func(k: Clue):   # clica na linha da palavra de `k`
+		for h: Array in notes_book._clue_hits:
+			if k in h[1]:
+				_mouse(notes_book, (h[0] as Rect2).get_center(), 1)
+	click_on.call(newest)
+	await frames(1)
+	ok(newest.chosen and Clue.from_dict(newest.to_dict()).chosen, "escuta: o clique marca a palavra-chave para repassar (e a marca fica salva)")
+	click_on.call(newest)
+	await frames(1)
+	ok(newest.struck and not newest.chosen and Clue.from_dict(newest.to_dict()).struck and notes_book._clue_hits.back()[1] == [newest],
+		"escuta: o segundo clique a risca (salvo) e ela vai para o fim da página")
+	click_on.call(newest)
+	await frames(1)
+	ok(not newest.struck and not newest.chosen, "escuta: o terceiro volta ao normal")
+	# a mesma palavra ouvida de novo, noutra conversa: herda a marca e fica numa linha só, com quantas vezes
+	heard_clues[0].chosen = true
+	heard_clues[0].call = null   # (como se fosse de outra conversa)
+	m.eavesdrop._clue(m.eavesdrop.talks[el].ear, -1, heard_clues[0].word, heard_clues[0].kind)
+	await frames(1)
+	var groups := notes_book.clue_groups()
+	ok(heard_clues.size() == n0 + 1 and heard_clues.back().chosen and groups.size() == 2 and groups[0].size() == 2,
+		"escuta: a palavra ouvida de novo herda a marca e se junta à anotada (uma linha, ×2)")
+	# muitas palavras: as anotações continuam nas páginas seguintes, cada palavra uma vez
+	for i in 30:
+		heard_clues.append(Clue.from_dict({"word": "palavra %d" % i, "kind": "other", "night": 1, "minutes": 0.0, "number": "305"}))
+	notes_book.notes_changed()
+	var shown_groups := []
+	for sp in notes_book.notes_spreads():
+		notes_book._open(notes_book._index.size() + sp)
+		await frames(1)
+		shown_groups.append_array(notes_book._clue_hits.map(func(h: Array): return h[1]))
+	ok(notes_book.notes_spreads() > 1 and notes_book._next.disabled and shown_groups.size() == notes_book.clue_groups().size()
+		and notes_book.clue_groups().all(func(g: Array): return shown_groups.count(g) == 1), "escuta: anotações demais seguem nas páginas seguintes")
+	heard_clues.resize(n0)
+	heard_clues[0].chosen = false
+	notes_book.notes_changed()
+	m.tools.close()
+	notes_book.turn(-notes_book._index.size() - 9)
+	# a desconfiança do lugar multiplica a subida da suspeita: a pensão cismada percebe mais que o bar barulhento
+	var rises := []
+	for num in [312, 327]:
+		var probe := PhoneCall.from_transfer(ed)
+		probe.dest_num = num
+		m.eavesdrop._raise(probe, 0.1)
+		rises.append(probe.suspicion)
+	ok(is_equal_approx(rises[0], 0.1 * ed.wary * 1.6) and is_equal_approx(rises[1], 0.1 * ed.wary * 0.5),
+		"escuta: a suspeita sobe pela desconfiança de quem ligou e pela do lugar (pensão 1,6, bar 0,5)")
+	var plain_call: TransferCall = ed.duplicate()   # o hotel (1) se cala antes de perguntar; a pensão (1,6) pergunta já
+	plain_call.wary = 1.0
+	var skeptic := [305, 312].map(func(num: int):
+		var probe := PhoneCall.from_transfer(plain_call)
+		probe.dest_num = num
+		return m.eavesdrop._wary(probe) >= Eavesdrop.SKEPTIC)
+	ok(skeptic == [false, true], "escuta: os muito desconfiados não se calam, vão direto à pergunta")
+	ok(ea.suspicion > Eavesdrop.CLICK and m.flags.allows(["escutou_%d" % m.night_no]), "escuta: ouvindo, a suspeita sobe e o marcador liga")
+	ok(m.phone.shown() != ea and m.phone.shown().line == el, "escuta: a tela mostra o que se ouve (fora do registro da ligação)")
+	ok(await wait_until(func(): return ex.line(el) == Exchange.Line.DONE), "escuta: depois da última fala escrita, eles se despedem e desligam")
+	ok(not ex.key(el) and not b.lever_up(el), "escuta: a conversa acabou e a chave desceu")
+	_move(0, -1)
+	_move(1, -1)
+	_move(2, -1)
+	ok(ex.line(el) == Exchange.Line.FREE and ex.dest(et) == Exchange.Dest.FREE, "escuta: linha e destino liberados")
+	# a mesma ligação sem falas escritas (só o murmúrio, até o fim do TALK_LEN): alavanca, estalo e denúncia
+	ed.overheard = []
+	ed.wary = 1.0
+	ea = _extra(ed)
+	ea.away = false
+	m.ring(ea)
+	el = ea.line
+	et = int(ea.target)
+	_move(0, el)
+	m.answer()
+	ok(await wait_until(_awaiting(ea)), "escuta: pedido de transferência de novo")
+	_move(1, el + 10)
+	_move(2, et)
+	m.transfer()
+	ok(await wait_until(func(): return ea.connected), "escuta: conectada de novo")
+	ex.set_line(el, Exchange.Line.CONN, m.minutes + 200.0)
+	m.listen()
+	await frames(30)
+	var heard := ea.suspicion
+	m.listen()
+	await frames(10)
+	ok(not ex.key(el) and ea.suspicion < heard, "escuta: a chave desce e a suspeita baixa devagar")
+	_move(0, -1)
+	_click(b, b.lever_rect(el - 1).get_center())
+	ok(not ex.key(el), "escuta: sem o FONE na linha, a alavanca não sobe")
+	_move(0, el)
+	_click(b, b.lever_rect(el - 1).get_center())
+	ok(ex.key(el), "escuta: com o FONE, o clique na alavanca a sobe")
+	await frames(2)
+	var s0 := ea.suspicion
+	_move(0, -1)
+	await frames(2)
+	_move(0, el)
+	await frames(2)
+	ok(ea.suspicion > s0 + Eavesdrop.CLICK * 0.5 * place_wary, "escuta: o FONE encaixando com a chave em cima também estala")
+	# a reação, no tempo: passando de HUSH com ele ouvindo, calam-se; soltando no silêncio, a conversa segue; ouvindo,
+	# um pergunta; soltando no fim da pergunta, desconversam; ouvindo, o outro responde, eles sabem e, calados, reclamam
+	var ear_now: PhoneCall = m.eavesdrop.talks[el].ear
+	var hush_text := T.text(T.Key.SYS_LINE_SILENT)
+	var silent := func(): return str(ear_now.transcript[-1]["text"]).begins_with(hush_text)
+	var ask_heard := func(): return ear_now.transcript.any(func(l: Dictionary): return GameData.CONTENT.overheard_ask.has(l["text"]))
+	ea.suspicion = Eavesdrop.HUSH
+	ok(await wait_until(silent), "escuta: passando de HUSH com ele ouvindo, calam-se")
+	ok(m.eavesdrop.silent == el, "escuta: no silêncio, o chiado da linha sobe")
+	ok(await wait_until(func(): return str(ear_now.transcript[-1]["text"]).count("·") == 2), "escuta: no silêncio, um ponto a cada segundo")
+	var said_before := ear_now.transcript.size()
+	await frames(10)
+	ok(ear_now.transcript.size() == said_before, "escuta: calados, a conversa não anda")
+	m.listen()
+	await frames(int(Eavesdrop.HUSH_SEC * 60 / Engine.time_scale) + 10)
+	ok(not ask_heard.call() and not m.eavesdrop.knows(el) and ex.line(el) == Exchange.Line.CONN,
+		"escuta: soltando a chave no silêncio, ninguém pergunta e a conversa segue")
+	ok(m.eavesdrop.silent == -1, "escuta: acabado o silêncio, o chiado volta ao de sempre")
+	m.listen()
+	ea.suspicion = Eavesdrop.HUSH
+	ok(await wait_until(silent), "escuta: de novo, calam-se")
+	ok(await wait_until(func(): return ear_now.transcript[-1]["who"] != ""), "escuta: depois do silêncio, um pergunta")
+	m.listen()
+	await frames(int(4.0 * 60 / Engine.time_scale))
+	ok(ea.suspicion < Eavesdrop.HUSH and not m.eavesdrop.knows(el), "escuta: sem ninguém ouvindo o fim da pergunta, desconversam")
+	m.listen()
+	ea.suspicion = Eavesdrop.HUSH
+	var faults_was := m.report.faults.size()
+	var later_was := m.report.later.size()
+	ok(await wait_until(func(): return m.eavesdrop.knows(el)), "escuta: ouvindo até o fim da pergunta, vem a resposta")
+	ok(m.report.later.size() == later_was + 1 and m.report.faults.size() == faults_was and m.report.later[-1]["id"] == "eavesdrop"
+		and m.flags.allows(["denunciado_%d" % m.night_no]), "escuta: sabendo, a denúncia é certa (fica para o relatório de amanhã), e o marcador")
+	ok(await wait_until(func(): return ear_now.transcript.any(func(l: Dictionary): return GameData.CONTENT.overheard_sure.has(l["text"]))),
+		"escuta: a resposta é a da pergunta e aparece na tela")
+	ok(await wait_until(silent), "escuta: sabendo, calam-se de novo")
+	m.listen()   # soltar a chave agora não desfaz a denúncia; a conversa segue
+	await frames(int((Eavesdrop.HUSH_SEC + 1.0) * 60 / Engine.time_scale))
+	ok(ex.line(el) == Exchange.Line.CONN and m.eavesdrop.knows(el) and m.report.later.size() == later_was + 1,
+		"escuta: soltando a chave sabendo, a conversa segue e a denúncia continua de pé")
+	m.listen()
+	ea.suspicion = Eavesdrop.HUSH
+	var hung_up := func(): return ear_now.transcript.any(func(l: Dictionary): return GameData.CONTENT.overheard_caught.has(l["text"]))
+	ok(await wait_until(hung_up), "escuta: sabendo e com ele ouvindo, calam-se e reclamam")
+	ok(m.report.later.size() == later_was + 1, "escuta: a reclamação não denuncia duas vezes")
+	m.report.later.clear()
+	ok(await wait_until(func(): return ex.line(el) == Exchange.Line.DONE), "escuta: os dois desligam")
+	ok(not ex.key(el) and not b.lever_up(el), "escuta: a conversa acabou e a chave desceu")
+	_move(0, -1)
+	_move(1, -1)
+	_move(2, -1)
+	ok(ex.line(el) == Exchange.Line.FREE and ex.dest(et) == Exchange.Dest.FREE, "escuta: linha e destino liberados")
+	var grudged: DirectoryEntry = GameData.entry(str(ea.dest_num))
+	ok(m.eavesdrop.grudges.get(str(ea.dest_num), 0) == 1 and is_equal_approx(m.eavesdrop._wary(ea), ed.wary * (grudged.wary + Eavesdrop.GRUDGE)),
+		"escuta: o lugar que denunciou fica mais desconfiado")
+	m.eavesdrop.calm()
+	# a pergunta que ninguém ouviu acabar: as falas escritas seguem com quem as diz (A, quem ligou; B, o lugar)
+	ed.overheard = ["Fala A0", "Fala B1", "Fala A2", "Fala B3"]
+	ea = _extra(ed)
+	ea.away = false
+	m.ring(ea)
+	el = ea.line
+	et = int(ea.target)
+	_move(0, el)
+	m.answer()
+	ok(await wait_until(_awaiting(ea)), "escuta: pedido de transferência, falas de teste")
+	_move(1, el + 10)
+	_move(2, et)
+	m.transfer()
+	ok(await wait_until(func(): return ea.connected), "escuta: conectada, falas de teste")
+	m.listen()
+	var ear2: PhoneCall = m.eavesdrop.talks[el].ear   # (os lambdas guardam a variável de quando foram criados)
+	ok(await wait_until(func(): return ear2.transcript.any(func(l: Dictionary): return str(l["text"]).ends_with("A0"))), "escuta: a primeira fala escrita")
+	ea.suspicion = Eavesdrop.HUSH
+	ok(await wait_until(func(): return str(ear2.transcript[-1]["text"]).begins_with(hush_text)), "escuta: calados, falas de teste")
+	ok(await wait_until(func(): return ear2.transcript[-1]["who"] != ""), "escuta: a pergunta começa")
+	m.listen()
+	await frames(int(4.0 * 60 / Engine.time_scale))
+	ok(not m.eavesdrop.knows(el), "escuta: a pergunta sem ninguém ouvindo o fim fica sem resposta")
+	m.listen()
+	ea.suspicion = 0.0
+	ok(await wait_until(func(): return ex.line(el) == Exchange.Line.DONE), "escuta: as falas de teste acabam")
+	var speakers := {}
+	for l: Dictionary in ear2.transcript:   # pelo número no fim: entrando no meio, a fala começa com "…"
+		for t in ["0", "1", "2", "3"]:
+			if str(l["text"]).ends_with(t):
+				speakers[t] = l["who"]
+	ok(speakers.get("2") == tr(ea.caller) and speakers.get("3") == m.eavesdrop._other(ea) and speakers.get("1") != tr(ea.caller),
+		"escuta: depois da pergunta sem resposta, cada fala escrita fica com quem a diz")
+	_move(0, -1)
+	_move(1, -1)
+	_move(2, -1)
+	var lesson := _extra(GameData.transfers(TransferCall.Group.ESTABLISHMENT)[0])
+	lesson.line = el
+	lesson.lesson = true
+	m.eavesdrop.connected(lesson)
+	ok(not m.eavesdrop.talks.has(el), "escuta: a conversa do treinamento não se escuta")
+	print("OK 1a escuta")
+
+	# ---- 1b. interurbano: a saída no tronco da cidade; a telefonista de lá pede o número e completa
+	ok(GameData.TRUNKS.size() == C.trunk_to.size() and GameData.TRUNKS.all(func(d): return ex.has_dest(d) and b.jack_at(b.jack_rect(d).get_center()) == d),
+		"os troncos são tomadas de destino da mesa")
+	var lt := GameData.trunk_transfer()
+	var lc := _extra(lt)
+	m.ring(lc)
+	ln = lc.line
+	_move(0, ln)
+	m.answer()
+	ok(await wait_until(_awaiting(lc)), "pedido de interurbano")
+	tgt = int(lt.target)
+	var wrong_trunk: int = GameData.TRUNKS.filter(func(d): return d != tgt)[0]
+	_move(1, ln + 10)
+	_move(2, wrong_trunk)
+	m.transfer()
+	ok(await wait_until(func(): return lc.wrong == 1 and ex.dest(wrong_trunk) == Exchange.Dest.FREE and not lc.talking), "tronco errado: o número não é de lá")
+	ok(not lc.options.is_empty() and not lc.ended, "tronco errado: a transferência volta")
+	_move(2, tgt)
+	m.transfer()
+	ok(await wait_until(func(): return lc.connected), "tronco certo: a telefonista de lá completa")
+	ok(lc.transcript.any(func(l): return lt.far_number in String(l["text"])), "o operador passou o número de lá")
+	ok(ex.line(ln) == Exchange.Line.CONN and ex.dest(tgt) == Exchange.Dest.CONN, "interurbano conectado")
+	ok(m.toll.counting(ln) and m.toll.tickets().is_empty(), "o calculógrafo conta o interurbano")
+	await frames(1)
+	ok(m.background.counting == 1 << ln, "no calculógrafo da sala, o contador da entrada acende")
+	m.minutes = ex.line_until(ln) + 1.0
+	await frames(1)
+	var tk: TollTicket = m.toll.tickets()[0] if m.toll.tickets().size() == 1 else null
+	ok(tk != null and not m.toll.counting(ln) and tk.line == ln and tk.city == GameData.trunk_city(tgt) and tk.far == lt.far_number
+		and tk.minutes() >= 1, "a conversa acabou: o calculógrafo imprimiu o bilhete")
+	ok(lc.record != null and lc.record.ticket == tk.serial, "o número do bilhete vai para o caderno")
+	for e in [0, 1, 2]:
+		_move(e, -1)
+	ok(ex.line(ln) == Exchange.Line.FREE and ex.dest(tgt) == Exchange.Dest.FREE, "interurbano encerrado")
+	var toll_faults := m.report.faults.size()
+	m.toll.file(tk)
+	ok(m.report.faults.size() == toll_faults + 1 and m.report.faults[-1]["id"] == "toll_unstamped" and m.toll.tickets().is_empty(),
+		"bilhete sem carimbo na caixinha: advertência leve")
+	m.toll.start(5, "Capital", "45-12", m.minutes)
+	var tk2 := m.toll.stop(5, m.minutes + 3.2)
+	await frames(1)
+	ok(m.background.tickets == 1, "impresso com ele fechado, na sala a ponta sai da fenda")
+	m.tools.set_tab(Tools.TOLL)
+	await frames(2)
+	ok(tk2.clip_contents, "impresso com o calculógrafo fechado, o bilhete sai da fenda quando ele abre")
+	await frames(28)
+	var stamp: Control = m.toll._stamp
+	await _drag_mouse(_grip(), tk2.get_global_rect().get_center() - Toll.RUBBER_MID + stamp.size / 2.0)
+	ok(not tk2.stamped and (stamp.get_global_position() + Toll.RUBBER_MID).distance_to(tk2.get_global_rect().get_center()) < 1.5, "carimbo levado até o bilhete: ainda não carimba")
+	var desk_at := m.toll._desk.position
+	await _tap_mouse(_grip())
+	await frames(int(Toll.PRESS_SEC * 60.0) + 2)
+	var mark := tk2.mark
+	ok(tk2.stamped and (stamp.get_global_position() + Toll.RUBBER_MID).distance_to(tk2.get_global_rect().get_center()) < 1.5, "clicado em cima do bilhete, carimba (e fica no lugar)")
+	ok(m.toll._desk.position == desk_at, "a mesa sacudida pela batida volta ao lugar")
+	await _stamp_at(tk2.get_global_rect().get_center() + Vector2(24, 6))
+	ok(tk2.mark == mark and tk2.minutes() == 4, "uma marca só; o minuto começado conta inteiro")
+	var desk: Control = m.toll._desk
+	var press := InputEventMouseButton.new()
+	press.button_index = MOUSE_BUTTON_LEFT
+	press.pressed = true
+	press.position = tk2.get_global_position() + Vector2(10, 80)
+	get_viewport().push_input(press)
+	await frames(2)
+	var was_held := tk2.held
+	m.tools.close()
+	var release := press.duplicate()
+	release.pressed = false
+	get_viewport().push_input(release)
+	await frames(2)
+	ok(was_held and not tk2.held and m.toll._held == null, "guardou a ferramenta com o bilhete na mão: ele fica na mesa")
+	m.tools.set_tab(Tools.TOLL)
+	await frames(30)
+	await _drag_mouse(tk2.get_global_position() + Vector2(10, 80), desk.get_global_position() + m.toll._box().get_center())
+	m.tools.close()
+	ok(m.report.faults.size() == toll_faults + 1 and m.toll.filed == 2 and m.toll.tickets().is_empty(), "carimbado, arrastado até a caixinha sem advertência")
+	ok(is_instance_valid(tk2) and tk2.clip_contents, "o bilhete desce para dentro da caixinha")
+	await frames(20)
+	ok(not is_instance_valid(tk2), "e some lá dentro")
+	m.tools.set_tab(Tools.TOLL)
+	await frames(2)
+	var tk3 := _ticket(6)
+	ok(tk3.clip_contents and m.toll._piece_at(tk3.get_rect().get_center()) != tk3, "com o calculógrafo aberto, o bilhete sai da fenda (e não se pega antes)")
+	await frames(20)
+	ok(not tk3.clip_contents and tk3.position.y >= 0.0, "e cai na mesa")
+	var aside := Vector2(roundf(desk.size.x / 2.0 - stamp.size.x / 2.0), desk.size.y - stamp.size.y - 6.0)   # o bilhete novo cai por cima do carimbo
+	stamp.position = aside
+	await _stamp_at(tk3.get_global_rect().get_center())
+	ok(tk3.stamped and tk3.ink == 0.5, "a segunda batida sai mais fraca")
+	var tk4 := _ticket(7)
+	await frames(20)
+	stamp.position = aside
+	await _stamp_at(tk4.get_global_rect().get_center())
+	ok(not tk4.stamped and tk4.ink == 0.0, "com a borracha seca, fica só o vulto e não vale")
+	await _drag_mouse(_grip(), desk.get_global_position() + m.toll._pad().get_center() - Toll.RUBBER_MID + stamp.size / 2.0)
+	await _stamp_at(tk4.get_global_rect().get_center())
+	ok(not tk4.stamped, "solto na almofada sem apertar, não ganha tinta")
+	await _stamp_at(desk.get_global_position() + m.toll._pad().get_center())
+	await _stamp_at(tk4.get_global_rect().get_center())
+	ok(tk4.stamped and tk4.ink == 1.0, "passado na almofada, volta a marcar")
+	var pad := desk.get_global_position() + m.toll._pad().get_center()
+	await _stamp_at(pad)
+	var tk5 := _ticket(8)
+	await frames(20)
+	await _stamp_at(tk5.get_global_rect().position + Vector2(10, 60))
+	ok(tk5.stamped and tk5.mark.distance_to(Vector2(10, 60)) < 1.5, "na beira, a marca fica onde bateu (cortada no papel) e vale com mais da metade dentro")
+	var tk6 := _ticket(9)
+	await frames(20)
+	await _stamp_at(tk6.get_global_rect().position + Vector2(-10, 60))
+	ok(not tk6.stamped and tk6.ink > 0.0 and tk6.mark.x < 0.0, "com menos da metade no papel, é borrão: com tinta e não vale")
+	await _stamp_at(pad)
+	await _stamp_at(tk6.get_global_rect().get_center())
+	ok(tk6.stamped and tk6.marks.size() == 2, "carimbado de novo, vale, e o borrão continua no papel")
+	m.tools.close()
+	ok(await wait_until(func(): return m.background.toll_desk.size() == 4 + m.toll.tickets().size()) and m.background.toll_desk[-1][1].size() == 2,
+		"guardado, o calculógrafo da sala mostra os bilhetes soltos com as marcas")
+	print("OK 1b interurbano pelo tronco da cidade")
 
 	# ---- 2. três ligações ao mesmo tempo, com espera
 	var t1 := _extra(GameData.transfers(TransferCall.Group.ESTABLISHMENT)[1])
@@ -412,24 +903,26 @@ func _initialize() -> void:
 
 	# ---- 3. t3 desiste; caderno em fila
 	ok(await wait_until(func(): return t3.ended, 10.0), "t3 desistiu")
-	ok(t3.record["obs"] == T.text(T.Key.OBS_NOT_ANSWERED), "registro de não atendida")
+	ok(t3.record.obs == T.text(T.Key.OBS_NOT_ANSWERED), "registro de não atendida")
 	var nb = m.notebook
-	ok(nb.entries.back()["type"] == T.Key.TYPE_MISSED and not nb.queue.any(func(r): return r["missed"]), "não atendida registrada sozinha")
+	ok(nb.entries.back().type == T.Key.TYPE_MISSED and not nb.queue.any(func(r): return r.missed), "não atendida registrada sozinha")
 	ok(nb.queue.size() >= 1, "ocorrências em fila")
 	var before: int = nb.queue.size()
+	var wrote: int = m.background.written
 	nb.register(T.Key.TYPE_COMMON)
 	ok(nb.queue.size() == before - 1 and nb.has_pending(), "registrou uma, a próxima veio da fila")
+	ok(m.background.written == wrote + 1, "o lápis do bloco da mesa muda de lugar a cada registro")
 	ok(m.background.pending == nb.pending_count(), "o caderno da mesa mostra quantas faltam")
 	ok(nb.entries.back()["type"] == T.Key.TYPE_COMMON, "registrada com o tipo do clique")
 	# as ocorrências chegaram com a aba fechada: aberta, a página do livro ocupa toda a área (com e sem a ficha)
-	m.tools.set_tab("caderno")
+	m.tools.set_tab(Tools.LOGBOOK)
 	await frames(3)
 	ok(nb._page.size.y >= nb._scroll.size.y - 1, "página do caderno preenche a área (com ficha)")
 	while nb.has_pending():
 		nb.register(T.Key.TYPE_COMMON)
 	await frames(3)
 	ok(not nb._form.visible and nb._page.size.y >= nb._scroll.size.y - 1 and nb._scroll.size.y > 300, "sem ficha, a página cresce até embaixo")
-	m.tools.set_tab("lista")
+	m.tools.set_tab(Tools.DIRECTORY)
 	print("OK 3 desistência / fila do caderno")
 
 	# ---- 4. o lugar pedido não atende (sorteado) e o operador sugere a alternativa
@@ -448,6 +941,7 @@ func _initialize() -> void:
 	_move(4, 118)
 	m.transfer()
 	ok(await wait_until(func(): return fa.no_answer), "ninguém atende")
+	ok(m.talk_clock - fa.last_talk < 1.0 and fa.chat == null, "chamando não conta como silêncio: a conversa fiada não vem junto da alternativa")
 	_pick(fa, "Ninguém atende")
 	ok(fa.target == "162", "trocou para a de plantão")
 	_move(4, 162)
@@ -456,7 +950,7 @@ func _initialize() -> void:
 	_move(0, -1)              # tira o FONE com o destino ainda tocando
 	ok(ex.line(fl) == Exchange.Line.HOLD and not fa.ended, "em espera durante o toque")
 	ok(await wait_until(func(): return fa.connected), "completa sozinha quando o destino atende")
-	ok(fa.record["where"] == "Farmácia Santa Rita" and fa.record["obs"] == "", "registro com o destino novo")
+	ok(fa.record.where == "Farmácia Santa Rita" and fa.record.obs == "", "registro com o destino novo")
 	print("OK 4 não atende / alternativa / FONE fora durante o toque")
 
 	# ---- 5. cortar uma conversa em andamento puxando a SAÍDA
@@ -477,6 +971,38 @@ func _initialize() -> void:
 	# ---- 7. clicar num plug encaixado devolve à base (com animação); arrastar move
 	var c7 := _extra(GameData.transfers(TransferCall.Group.ESTABLISHMENT)[0])
 	m.after = false
+	# o fio sozinho (`Switchboard.Cord`, sem mesa): preso nas duas pontas, com folga, deita na prateleira e dorme;
+	# solto, o plug cai, bate nela e quica
+	var cord := Switchboard.Cord.new(Vector2.ZERO, Vector2(200, 0))
+	cord.floor_y = 40.0
+	for _i in 400:
+		cord.step(b.STEP, Vector2.ZERO, Vector2(200, 0), 260.0)
+	var lowest := 0.0
+	for q in cord.pts:
+		lowest = maxf(lowest, q.y)
+	ok(is_equal_approx(lowest, 40.0) and cord.asleep() and not cord.step(b.STEP, Vector2.ZERO, Vector2(200, 0), 260.0),
+		"fio: deita na prateleira (%.1f) e dorme parado" % lowest)
+	cord.free = true
+	var bounced := false
+	for _i in 200:
+		cord.step(b.STEP, Vector2.ZERO, Vector2.ZERO, 260.0)
+		bounced = bounced or cord.drop > Switchboard.Cord.BOUNCE_MIN
+	ok(bounced and cord.tip().y <= 40.0 + 0.01, "fio: o plug solto cai, quica e para na prateleira")
+	# a forma do fio encaixado: saindo da ponteira na horizontal, ele faz a curva e cai, sem subir acima do plug
+	# (o calombo de quando a curva era um empurrão nos pontos), e o comprimento quase não estica
+	for want: float in [440.0, 540.0, 640.0]:   # do buraco ao plug são 424 px
+		var hung := Switchboard.Cord.new(Vector2(0, 300), Vector2(300, 0))
+		hung.stub = Vector2.LEFT
+		for _i in 600:
+			hung.step(b.STEP, Vector2(0, 300), Vector2(300, 0), want)
+		var high := INF
+		var long := 0.0
+		for i in hung.pts.size():
+			high = minf(high, hung.pts[i].y)
+			if i > 0:
+				long += hung.pts[i].distance_to(hung.pts[i - 1])
+		ok(high >= -1.0, "fio: com %d px, não sobe acima do plug (%.1f)" % [want, high])
+		ok(long <= want * 1.02, "fio: com %d px, estica menos de 2%% (%.0f)" % [want, long])
 	m.ring(c7)
 	var l7 := c7.line
 	_move(0, -1)
@@ -493,7 +1019,7 @@ func _initialize() -> void:
 	b.cursor = Vector2(400, 200)   # longe do encaixe: cai antes de recolher
 	b._mouse_vel = Vector2(1200, 0)
 	b.go_home(0)
-	ok(not b._loose[0]["direct"] and b.ropes[0]["old"][b.ROPE_N - 1].x < 400 - 5, "sai com o embalo da mão")
+	ok(not b._loose[0]["direct"] and b.ropes[0].old[b.ropes[0].pts.size() - 1].x < 400 - 5, "sai com o embalo da mão")
 	ok(await wait_until(func(): return not b._loose.has(0), 5.0), "o fio recolheu o FONE")
 	ok(not b.ropes.has(0), "fio do FONE todo dentro do encaixe")
 	_move(1, l7 + 10)
@@ -502,7 +1028,7 @@ func _initialize() -> void:
 	b._press(jd)
 	b._release(jd)
 	ok(b.ends[2] == -1 and b.ends[1] == l7 + 10, "só a ponta clicada volta")
-	ok(b.free_patches() < 3, "o cabo só volta à base com as duas pontas")
+	ok(b.free_patches() < b.patches, "o cabo só volta à base com as duas pontas")
 	var js: Vector2 = b.jack_rect(l7 + 10).get_center()
 	# tirado da tomada e devolvido a ela no mesmo arraste: soltava perto de onde apertou, contava como clique e caía
 	_mouse(b, js, 1)
@@ -519,23 +1045,23 @@ func _initialize() -> void:
 	b._release(js)
 	ok(b.ends[1] == -1, "a outra ponta também voltou")
 	ok(await wait_until(func(): return b._loose.is_empty(), 5.0), "animações terminaram")
-	ok(b.free_patches() == 3, "cabo de volta à base")
+	ok(b.free_patches() == b.patches, "cabo de volta à base")
 	_move(0, l7)
 	var other_in := 1 if l7 != 1 else 2
 	b._press(jc)
 	b._release(b.jack_rect(other_in).get_center())
 	ok(b.ends[0] == other_in, "arrastar move o FONE")
 	ok(b._order.back() == 0, "o último plug mexido fica por cima")
-	ok(await wait_until(func(): return b.ropes.has(0) and b.ropes[0].has("sleep"), 10.0), "fio parado deixa de ser simulado")
+	ok(await wait_until(func(): return b.ropes.has(0) and b.ropes[0].asleep(), 10.0), "fio parado deixa de ser simulado")
 	_move(0, l7)
 	await frames(1)
-	ok(not b.ropes[0].has("sleep") and b.ropes[0]["pts"][b.ROPE_N - 1] == b._plug_base(0), "mexer no plug acorda o fio")
+	ok(not b.ropes[0].asleep() and b.ropes[0].tip() == b._plug_base(0), "mexer no plug acorda o fio")
 	var hp: Vector2 = b.home_pos(3)
 	b._press(hp)
 	b._release(hp)
 	ok(b.held == -1 and b.ends[3] == -1, "clique sem arrastar não pega o plug da base")
 	var reach := true   # o plug guardado inteiro aceita o clique (o vão entre o painel e a prateleira também)
-	for y in range(int(b._rest(3).y - 52.0), int(b.hole(3).y + b.HOLE_LIP)):
+	for y in range(int(b._rest(3).y - b.PLUG_H + b.PLUG_SINK), int(b.hole(3).y + b.HOLE_LIP)):
 		reach = reach and b._has_point(Vector2(b._rest(3).x, y)) and b._plug_under(Vector2(b._rest(3).x, y)) == 3
 	ok(reach, "o plug guardado aceita o clique em toda a altura")
 	print("OK 7 clique desconecta / arrastar move")
@@ -591,6 +1117,7 @@ func _initialize() -> void:
 	ok(m.flags.has("disse_sim") and "Que bom." in lines and not "Que pena." in lines, "a escolha ligou o marcador e mudou a fala")
 	_move(0, -1)
 	var sc := PhoneCall.from_transfer(GameData.transfers(TransferCall.Group.EXTRA)[1])
+	m.minutes = minf(m.minutes, Main.LAST_CALL - 60.0)   # o relógio andou com os cenários de antes; depois de LAST_CALL nada toca
 	sc.requires = PackedStringArray(["!disse_sim"])
 	sc.at = m.minutes
 	m.sched.push_front(sc)
@@ -641,9 +1168,6 @@ func _initialize() -> void:
 	Settings.set_volume("Effects", 0.5)
 	ok(absf(AudioServer.get_bus_volume_db(AudioServer.get_bus_index("Effects")) - linear_to_db(0.5)) < 0.01, "volume do barramento")
 	Settings.set_volume("Effects", 1.0)
-	Settings.set_text_speed(2)
-	ok(Settings.char_delay() < 1.0, "texto mais rápido")
-	Settings.set_text_speed(1)
 	print("OK 10 pausa e configurações")
 
 	# ---- 11. esperando a transferência: às vezes conversa fiada depois de um tempo; se demorar mais, reclama
@@ -751,21 +1275,21 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return not kc.active, 5.0), "X desliga")
 	_move(1, -1)
 	_move(2, -1)
-	for pair in [[KEY_2, "despacho"], [KEY_3, "caderno"], [KEY_1, "lista"]]:
+	for pair in [[KEY_2, Tools.DISPATCH], [KEY_3, Tools.LOGBOOK], [KEY_1, Tools.DIRECTORY]]:
 		_key(pair[0])
 		await frames(2)
 		ok(m.tools.tab == pair[1], "tecla abre a aba " + pair[1])
 	ok(m.background.unread, "a conversa encerrada vira folha nova na prancheta da mesa")
 	_key(KEY_4)
 	await frames(2)
-	ok(m.tools.tab == "registro" and m.tools.open, "tecla 4 abre o registro das conversas")
+	ok(m.tools.tab == Tools.CALL_LOG and m.tools.open, "tecla 4 abre o registro das conversas")
 	ok(not m.background.unread, "aberto o registro, a folha deixa de ser nova")
 	ok(kc in m.tools.call_log._calls and m.tools.call_log.text.contains(kc.transcript[0]["text"].left(12)), "o registro tem a conversa")
 	_key(KEY_4)
 	await frames(2)
 	ok(not m.tools.open, "a mesma tecla guarda a ferramenta (a janela aparece)")
 	await frames(2)   # o cenário se redesenha e guarda onde ficou cada objeto
-	for id in ["lista", "despacho", "caderno", "registro"]:   # objetos da cena abrem as ferramentas
+	for id in [Tools.DIRECTORY, Tools.DISPATCH, Tools.LOGBOOK, Tools.CALL_LOG]:   # objetos da cena abrem as ferramentas
 		m.tools.close()
 		await frames(12)
 		var pe := InputEventMouseButton.new()
@@ -781,11 +1305,36 @@ func _initialize() -> void:
 	var pj := InputEventMouseButton.new()
 	pj.button_index = MOUSE_BUTTON_LEFT
 	pj.pressed = true
-	pj.position = (m.background._props["jornal"] as Rect2).get_center()
+	pj.position = (m.background._props[Tools.NEWS] as Rect2).get_center()
 	m.background.pointer(pj)
-	ok(m.tools.open and m.tools.tab == "jornal", "o jornal na mesa abre")
-	ok(m.tools.news.get_node("Page/Text/Headlines").text.contains("Rua do Sol"), "o jornal traz as manchetes da noite anterior")
+	ok(m.tools.open and m.tools.tab == Tools.NEWS, "o jornal na mesa abre")
+	ok(m.background.news_read, "lido, ele volta à mesa dobrado de outro jeito")
+	ok(m.tools.news.get_node("Page/Text/Lead").text.contains("Rua do Sol"), "o jornal traz as manchetes da noite anterior")
 	m.tools.close()
+	# a persiana: clicada, desce até o peitoril e tampa o vidro; clicada de novo, sobe
+	await frames(12)
+	var room := m.background
+	var pb := InputEventMouseButton.new()
+	pb.button_index = MOUSE_BUTTON_LEFT
+	pb.pressed = true
+	pb.position = room._bounds(room._blind_poly).get_center()
+	ok(room.prop_at(pb.position) == Background.BLIND_ID and room.pointer(pb) and room._shut_to == 1.0, "o clique na persiana a fecha")
+	await wait_until(func() -> bool: return room._shut == 1.0, 10.0)
+	ok(room._glass.is_empty(), "fechada, ela tampa o vidro")
+	pb.position = room._bounds(room._blind_poly).get_center()
+	room.pointer(pb)
+	await wait_until(func() -> bool: return room._shut == 0.0, 10.0)
+	ok(not room._glass.is_empty(), "clicada de novo, ela sobe")
+	# a caneca: cada clique, um gole, até acabar o café; o armário: o clique abre e fecha a porta
+	pb.position = (room._props[Background.MUG_ID] as Rect2).get_center()
+	for i in Background.MUG_SIPS + 2:
+		room.pointer(pb)
+	ok(room.sips == Background.MUG_SIPS, "a caneca dá %d goles e acaba" % Background.MUG_SIPS)
+	var cab := room._props[Background.CABINET_ID] as Rect2
+	pb.position = cab.position + Vector2(cab.size.x / 2.0, 30.0)
+	ok(room.prop_at(pb.position) == Background.CABINET_ID and room.pointer(pb) and room.cab_open, "o clique no armário abre a porta")
+	room.pointer(pb)
+	ok(not room.cab_open, "e outro a fecha")
 	# a sala muda pelos marcadores do roteiro, a partir da noite de cada mudança
 	for r in GameData.CONTENT.room:
 		ok(r.detail in Background.DETAILS, "detalhe da sala conhecido: " + r.detail)
@@ -803,7 +1352,7 @@ func _initialize() -> void:
 	#          envia (em branco também: ninguém sai e o supervisor anota) e tudo limpa; a ficha não mexe no mapa
 	var d := m.dispatch
 	var card := d.machines
-	m.tools.set_tab("despacho")
+	m.tools.set_tab(Tools.DISPATCH)
 	await frames(2)
 	d.set_occurrence("")
 	ok(not d.can_send(), "despacho vazio não envia")
@@ -836,14 +1385,14 @@ func _initialize() -> void:
 	d.set_location("comercio", 0, "Rua do Comércio, 1–99")
 	ok(card._refused >= 0.0 and card.serial() == 2 and d._location["label"] == "Rua do Sol, 1–99" and d.city.sel["label"] == "Rua do Sol, 1–99",
 		"com um cartão na mesa, a impressora recusa outro e o mapa volta ao local dele")
-	var table: Vector2 = card._pos + Vector2(-120, -2)
+	var table: Vector2 = card._pos + Vector2(-roundf((card._mouth_x(1) - card._mouth_x(0)) / 2.0), -2)
 	drag.call(table)
 	ok(card.state == card.State.READY and card._pos == table, "solto entre as máquinas, rente à base, o cartão fica onde está")
 	drag.call(Vector2(9000, -9000))
 	ok(card.state == card.State.READY and card._pos == Vector2(card.size.x - card.CARD_W, 0),
 		"o cartão não sai da unidade (e, longe da fenda, não entra na trituradora embaixo dele)")
 	drag.call(Vector2(card._mouth_x(1), 9000))
-	ok(card.state == card.State.READY and card._pos.y + card.card.size.y == card.size.y,
+	ok(card.state == card.State.READY and is_equal_approx(card._pos.y + card.card.size.y, card.size.y),
 		"o cartão vai até a borda de baixo, por cima das máquinas (na impressora, fica)")
 	_click(card, cell.call("Outro"))
 	var faults: int = m.report.faults.size()
@@ -857,7 +1406,7 @@ func _initialize() -> void:
 	_click(card, cell.call("Mal súbito"))
 	ok(d.occurrence() == "Incêndio", "um tipo só: o primeiro furo vale")
 	ok(d.fleet.available(d.picked()).is_empty() and not d.can_send(), "o tipo não marca unidade")
-	var row: Vector2 = cell.call("amb") + Vector2(120, 20)   # no protocolo, longe do quadradinho
+	var row: Vector2 = cell.call("amb") + Vector2(90, 14)   # no protocolo, longe do quadradinho
 	var held: Vector2 = card._pos
 	_mouse(card, row, 1)   # apertar na linha e arrastar move o cartão sem perfurar
 	_mouse(card, row + Vector2(-40, -2))
@@ -873,7 +1422,7 @@ func _initialize() -> void:
 	ok(not d.fleet.is_free("amb"), "ambulância a caminho fica indisponível")
 	await frames(2)
 	ok(d.get_node("%Fleet").visible and d.get_node("%Report").text.contains(T.text(T.Key.UNIT_AMBULANCE)), "a faixa das viaturas mostra quem saiu")
-	m.tools.set_tab("lista")
+	m.tools.set_tab(Tools.DIRECTORY)
 	print("OK 13 mapa e despacho")
 
 	# ---- 14. painel de debug (F1): toca uma emergência, pula estágio, registra as pendências
@@ -883,7 +1432,7 @@ func _initialize() -> void:
 	ok(dbg.visible, "F1 abre o painel de debug")
 	dbg._emergency.select(0)
 	dbg._ring_emergency()
-	var de: PhoneCall = m.em_call
+	var de: PhoneCall = m.emergencies.back()
 	ok(de != null and de.ringing and de.data.street == C.emergencies[0].street, "painel toca a emergência escolhida")
 	_move(0, de.line)
 	m.answer()
@@ -894,13 +1443,25 @@ func _initialize() -> void:
 	var live_before: int = m.live.size()   # um retorno de cenário anterior pode estar tocando
 	dbg._ring_transfer(false)
 	ok(m.live.size() == live_before + 1, "painel toca uma transferência junto")
-	m.notebook.add({"time": "18:00", "who": "x", "where": "—", "unit": "—", "obs": "", "kind": PhoneCall.Kind.TRANSFER, "missed": false, "tut": false})
+	dbg._emergency.select(1)
+	dbg._ring_emergency()
+	dbg._ring_emergency()
+	ok(m.in_progress().size() == Main.MAX_EMERGENCIES and m.dispatch.fleet.incidents.size() == Main.MAX_EMERGENCIES,
+		"duas emergências ao mesmo tempo, e não uma terceira")
+	m.urgency.tick(0.0)
+	var de2: PhoneCall = m.emergencies.back()
+	_move(0, de2.line)
+	m.answer()
+	await frames(2)
+	m.urgency.tick(0.0)
+	ok(m.phone.urgency.call == de2 and m.radio._away != "", "a barra é a da linha do FONE; o rádio avisa da outra")
+	m.notebook.add(PhoneCall.Record.new())
 	dbg._restore_all()
 	await frames(2)
-	ok(m.live.is_empty() and m.em_call == null and not de.urgent() and m.radio._alert == -1, "restaurar: ligações e emergência somem")
+	ok(m.live.is_empty() and m.emergencies.is_empty() and not de.urgent() and m.radio._alert == -1, "restaurar: ligações e emergência somem")
 	ok(range(1, Exchange.LINES + 1).all(func(n): return m.exchange.line(n) == Exchange.Line.FREE), "restaurar: linhas livres")
 	ok(await wait_until(func(): return m.board.ends.all(func(e): return e == -1), 10.0), "restaurar: cabos na base")
-	ok(m.dispatch.fleet.units.values().all(func(s): return s == 0) and m.dispatch.fleet.required().is_empty(), "restaurar: despacho livre")
+	ok(m.dispatch.fleet.units.values().all(func(s): return s == 0) and m.dispatch.fleet.incidents.is_empty(), "restaurar: despacho livre")
 	ok(not m.notebook.has_pending() and m.report.faults.is_empty() and Engine.time_scale == 1.0, "restaurar: caderno, relatório e tempo zerados")
 	ok(not m.sched.any(func(c): return c.retry != PhoneCall.Retry.NONE), "restaurar: ninguém liga de novo")
 	Engine.time_scale = 8.0
@@ -928,6 +1489,33 @@ func _initialize() -> void:
 	await frames(int(60.0 * 60.0 / Engine.time_scale))
 	ok(bg._walkers.is_empty(), "depois das 22h ninguém passa")
 	print("OK 16 pedestres")
+
+	# ---- 17. o painel de baixo não muda de altura: numa emergência com aviso, respostas em quatro fileiras e a barra,
+	# as falas encolhem até a mais nova (antes, o painel crescia e empurrava a sala para cima)
+	var ph: PhonePanel = m.phone
+	var h0 := ph.size.y
+	var pe := PhoneCall.from_emergency(GameData.template_emergency())
+	m.ring(pe)
+	_move(0, pe.line)
+	m.answer()
+	ok(await wait_until(func(): return ph.urgency.visible, 20.0), "emergência na linha, com a barra")
+	var rows := 0.0
+	for st in 3:
+		var many: Array[Dictionary] = []
+		for i in 4:   # uma resposta longa por fileira
+			many.append({"label": "Alguém está ferido, preso ou precisando de ajuda? %d" % i, "fn": func(): pass})
+		pe.set_options(many)
+		ph.warn(T.text(T.Key.WARN_FONE_TO_BLINK))
+		await frames(10)
+		rows = maxf(rows, ph._choices.size.y)
+		ok(ph.size.y == h0, "estágio %d: o painel fica em %d px (está em %d)" % [st, h0, ph.size.y])
+		var e: EmergencyCall = pe.data
+		pe.urgency = [e.stage_sec.x, e.stage_sec.x + e.stage_sec.y, e.stage_sec.x + e.stage_sec.y + e.stage_sec.z][pe.stage]
+		await frames(2)
+	ok(rows >= 4 * 18.0, "o pior caso chegou a quatro fileiras de respostas (%d px)" % rows)
+	m.drop_all()
+	ok(await wait_until(func(): return m.board.ends.all(func(x): return x == -1), 10.0), "cabos na base depois")
+	print("OK 17 altura do painel")
 	finish("fluxo da central")
 
 

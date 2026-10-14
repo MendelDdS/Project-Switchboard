@@ -10,3 +10,4 @@ repeat = "O Cine Odeon, na avenida."
 target = "344"
 destination = "Cine Odeon"
 thanks = "Obrigada, meu bem."
+overheard = PackedStringArray("Boa noite, meu bem. Que filme passa amanhã?", "Amanhã é um faroeste, na sessão das sete e das nove.", "Faroeste? Tem muito tiro?", "Alguns. Mas tem um romance no meio.", "Então eu vou na das sete, com a minha irmã.", "Chega cedo, que as poltronas do meio acabam logo.")

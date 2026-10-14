@@ -11,3 +11,4 @@ repeat = "A rádio. A Serena AM."
 target = "390"
 destination = "Rádio Serena AM"
 thanks = "Valeu! Ela vai ouvir, tenho certeza."
+overheard = PackedStringArray("Boa noite! Queria pedir uma música pra minha noiva.", "Pois não. Qual música e o nome dela?", "A Valsa da Despedida. Ela se chama Helena.", "Despedida? Vocês brigaram?", "Não! Ela viaja amanhã pra estudar na capital.", "Então vai ao ar depois do noticiário. Escuta com ela.")

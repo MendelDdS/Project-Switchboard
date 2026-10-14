@@ -16,6 +16,8 @@ extends Resource
 @export_group("Noites")
 ## Em ordem; cada uma com o bilhete e o roteiro fixo dela (data/nights/).
 @export var nights: Array[Night] = []
+## A noite 0, antes da primeira: o treinamento (`Night.lesson`) e um turno calmo. Fica fora de `nights`.
+@export var training: Night
 ## Níveis de ritmo das ligações sorteadas, do mais calmo ao limite (veja Pace): o 1 é o da primeira noite e o último
 ## vale para todas as noites depois de chegar nele.
 @export var paces: Array[Pace] = []
@@ -32,10 +34,16 @@ extends Resource
 @export_group("Moldes")
 ## Transferências com lacunas: {place} "o Hotel Estrela", {of_place} "do Hotel Estrela", {to_place} "pro Hotel Estrela",
 ## {street} rua do contato, {number} "305", {digits} "três, zero, cinco", {reason} um dos motivos do contato.
-## Só vão para contatos com `spoken` e `reasons` que atendem à noite. Quem liga sai de `callers`.
+## Só vão para contatos com `spoken` e `motives` que atendem à noite (a conversa depois de conectados vem do motivo).
+## Quem liga sai de `callers`.
 @export var transfer_templates: Array[TransferCall] = []
 ## Agradecimento de quem foi transferido por molde (sem gênero: quem liga é sorteado).
 @export var transfer_thanks: PackedStringArray = []
+## Interurbanos com lacunas: {to_city} "pra Capital" (`trunk_to`) e {far} o número na outra cidade. Vão para um
+## tronco sorteado (`GameData.trunk_transfer`).
+@export var trunk_templates: Array[TransferCall] = []
+## "pra Capital", "pro Norte"...: uma por tronco, na ordem de `GameData.TRUNKS`.
+@export var trunk_to: PackedStringArray = []
 ## Emergências com lacunas: {street} "Rua do Sol", {house} "145", {address} "Rua do Sol, 145" (rua e número sorteados).
 ## Rua, trecho e endereço do molde são ignorados; ocorrência e unidades valem.
 @export var emergency_templates: Array[EmergencyCall] = []
@@ -61,6 +69,13 @@ extends Resource
 ## Quando o destino errado atende.
 @export var wrong_destination: PackedStringArray = []
 
+## A telefonista da outra cidade atende o tronco (o operador então passa o número)...
+@export var trunk_hello: PackedStringArray = []
+## ...e vai chamar lá.
+@export var trunk_wait: PackedStringArray = []
+## No tronco errado, o número não é de lá.
+@export var trunk_unknown: PackedStringArray = []
+
 ## Quem liga nos pedidos de informação e nos moldes: "voz:nome", ex.: "f:Moradora".
 @export var callers: PackedStringArray = []
 
@@ -79,6 +94,22 @@ extends Resource
 @export var woken_up: PackedStringArray = []
 ## Solicitante que desiste depois da segunda conexão errada.
 @export var gave_up: PackedStringArray = []
+## Escuta (`Eavesdrop`): o "alô" de quem atende sem `DirectoryEntry.hello` (as pessoas)...
+@export var overheard_hello: PackedStringArray = []
+## ...e o cumprimento de quem ligou, quando a conversa não tem falas escritas...
+@export var overheard_greet: PackedStringArray = []
+## ...as lacunas das falas escritas ({hour}, {wait}...; `TalkFill`; {street} e {house} vêm do mapa)...
+@export var talk_fills: Array[TalkFill] = []
+## ...a despedida de quem fala depois da última fala escrita e a resposta do outro (servem para os dois lados)...
+@export var overheard_bye: PackedStringArray = []
+@export var overheard_bye_back: PackedStringArray = []
+## ...um desconfia que tem alguém na linha e pergunta ao outro...
+@export var overheard_ask: PackedStringArray = []
+## ...e, com o operador ainda ouvindo, o outro responde e os dois ficam sabendo (na mesma ordem de `overheard_ask`:
+## cada resposta é a da sua pergunta)...
+@export var overheard_sure: PackedStringArray = []
+## ...e, tendo certeza, desliga para denunciar a telefonista.
+@export var overheard_caught: PackedStringArray = []
 ## Manchetes do jornal da manhã: {occurrence} e {address}.
 @export var news_ok: PackedStringArray = []
 @export var news_late: PackedStringArray = []

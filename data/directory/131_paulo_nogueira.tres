@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_33"]
+script = ExtResource("2_motive")
+text = "Ele disse que eu podia ligar a qualquer hora."
+talks = Array[PackedStringArray]([PackedStringArray("Seu Paulo? Desculpa a hora. O senhor disse que eu podia ligar.", "Disse, sim. Pode falar. É sobre o serviço?", "É. Pensei bem e aceito a vaga no escritório.", "Que ótima notícia. Começa segunda, às {hour}.", "Preciso levar algum documento?", "A carteira de trabalho e uma foto. O resto a gente vê lá."), PackedStringArray("Boa noite, seu Paulo. O senhor falou pra ligar a qualquer hora...", "E falei sério. O que houve?", "A cerca do pasto caiu e as vacas foram pra estrada.", "Vou aí com os rapazes. Em {wait} a gente chega.", "Traz arame, se tiver. O meu acabou.", "Levo um rolo. Segura as vacas no curral até lá.")])
+
+[sub_resource type="Resource" id="Motive_34"]
+script = ExtResource("2_motive")
+text = "É sobre o negócio do terreno."
+talks = Array[PackedStringArray]([PackedStringArray("Seu Paulo, boa noite. É sobre o terreno da {street}.", "Pois não. O dono baixou o preço?", "Baixou um pouco. Mas quer metade à vista.", "Metade eu consigo. O resto em quantas vezes?", "Em seis. Ele quer assinar no cartório na sexta, às {hour}.", "Então pode marcar. Eu levo o dinheiro."), PackedStringArray("Boa noite, seu Paulo. Desculpa, mas é sobre o terreno.", "Fala. Apareceu outro comprador?", "Apareceu. Um moço de fora, oferecendo mais.", "Então eu cubro a oferta. Quanto ele deu?", "Não sei ainda. O dono vai dizer amanhã, às {hour}.", "Então me liga assim que souber. Não deixa escapar.")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Paulo Nogueira"
+address = "Rua das Acácias, 318"
+number = "131"
+voice = "m"
+spoken = "o seu Paulo Nogueira"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_33"), SubResource("Motive_34")])

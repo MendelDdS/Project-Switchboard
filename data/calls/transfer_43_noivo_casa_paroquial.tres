@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_tr"]
+
+[resource]
+script = ExtResource("1_tr")
+voice = "m"
+caller = "Noivo"
+opening = PackedStringArray("Boa noite. Desculpe ligar tarde.", "Preciso falar com o padre Anselmo, na Casa Paroquial. É sobre o meu casamento no sábado.")
+repeat = "A Casa Paroquial. O padre Anselmo."
+target = "120"
+destination = "Casa Paroquial"
+thanks = "Obrigado. Reza por mim, que eu tô nervoso."
+alt_target = "124"
+alt_destination = "Igreja Matriz"
+alt_ask = "A Casa Paroquial não atende. Quer que eu tente a secretaria da Igreja Matriz?"
+alt_yes = "Pode ser. Alguém lá deve dar o recado."
+overheard = PackedStringArray("Boa noite. Desculpe a hora. É sobre o meu casamento no sábado.", "Pode falar, meu filho. Algum problema?", "A noiva quer mudar pras cinco. Os parentes chegam atrasados.", "Às cinco tem batizado. Pode ser às seis?", "Às seis está ótimo. Ela vai ficar feliz.", "Então seis horas. E nada de atraso da noiva, hein?")

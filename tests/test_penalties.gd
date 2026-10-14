@@ -104,7 +104,7 @@ func _initialize() -> void:
 	_move(0, -1)              # tira o FONE com o destino errado ainda tocando
 	ok(await wait_until(func(): return c2b.ended), "desligaram")
 	ok(not c2b.connected and ex.dest(142) == Exchange.Dest.DONE and _faults("wrong_number") == 3, "não completa com o número errado")
-	ok(c2b.record["obs"] == T.text(T.Key.OBS_WRONG_NUMBER), "caderno: número errado")
+	ok(c2b.record.obs == T.text(T.Key.OBS_WRONG_NUMBER), "caderno: número errado")
 	var r2b := _ring_retry(PhoneCall.Retry.WRONG_NUMBER)
 	_clear_board()
 	_answer(r2b)
@@ -114,10 +114,10 @@ func _initialize() -> void:
 	_clear_board()
 	print("OK 2b número errado com o FONE fora / liga de novo")
 
-	# ---- 2c. o mesmo fluxo liga de novo também na ligação do tutorial, numa ligação que já era um retorno
-	#          e perto do fim do turno (o retorno nunca fica para depois da meia-noite)
-	for kind in ["tutorial", "retorno", "fim do turno"]:
-		var cc: PhoneCall = m.tut if kind == "tutorial" else PhoneCall.from_transfer(load("res://data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres"))
+	# ---- 2c. o mesmo fluxo liga de novo também numa ligação que já era um retorno e perto do fim do turno (o
+	#          retorno nunca fica para depois da meia-noite)
+	for kind in ["retorno", "fim do turno"]:
+		var cc := PhoneCall.from_transfer(load("res://data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres"))
 		if kind == "retorno":
 			cc.retry = PhoneCall.Retry.MISSED
 			cc.retried.append(PhoneCall.Retry.MISSED)
@@ -138,19 +138,23 @@ func _initialize() -> void:
 		m.sched.erase(again[0])
 		_clear_board()
 	m.minutes = 0.0
-	print("OK 2c número errado com o FONE fora: tutorial, retorno e fim do turno")
+	print("OK 2c número errado com o FONE fora: retorno e fim do turno")
 
 	# ---- 3. registro com tipo errado
 	var nb = m.notebook
 	while nb.has_pending():
 		nb.register(T.Key.TYPE_COMMON)
 	var before := _faults("register_wrong")
-	var prank := {"time": "23:00", "who": "Garoto (linha 01)", "where": "—", "unit": "—", "obs": "",
-		"kind": PhoneCall.Kind.PRANK, "missed": false, "tut": false}
-	nb.add(prank.duplicate())
+	var prank := func() -> PhoneCall.Record:
+		var r := PhoneCall.Record.new()
+		r.time = "23:00"
+		r.who = "Garoto (linha 01)"
+		r.kind = PhoneCall.Kind.PRANK
+		return r
+	nb.add(prank.call())
 	nb.register(T.Key.TYPE_COMMON)
 	ok(_faults("register_wrong") == before + 1, "trote registrado como ligação comum")
-	nb.add(prank.duplicate())
+	nb.add(prank.call())
 	nb.register(T.Key.TYPE_PRANK)
 	ok(_faults("register_wrong") == before + 1, "tipo certo não gera advertência")
 	print("OK 3 registro errado")
@@ -246,7 +250,7 @@ func _initialize() -> void:
 	for u in ["amb", "bomb"]:
 		m.dispatch.punch_unit(u)
 	m.dispatch._send()
-	ok(m._record(c8, PhoneCall.End.CALLER)["card"] == m.dispatch.machines.serial() and m.dispatch.machines.serial() > 0, "o registro leva o número do cartão enviado")
+	ok(m._record(c8, PhoneCall.End.CALLER).card == m.dispatch.machines.serial() and m.dispatch.machines.serial() > 0, "o registro leva o número do cartão enviado")
 	ok(await wait_until(func(): return m.report.is_resolved(e8), 20.0), "resolvida mesmo com unidade a mais e sem tipo")
 	ok(_faults("dispatch_extra") == 1 and _faults("dispatch_type") == 1, "advertências: unidade a mais e sem tipo")
 	ok(m.report.faults.any(func(f): return f["id"] == "dispatch_type" and f["detail"] == T.text(T.Key.FAULT_DETAIL_UNCLASSIFIED) % tr(e8.occurrence)),
@@ -260,9 +264,14 @@ func _initialize() -> void:
 	# ---- 9. relatório do supervisor
 	var view = m._ending._report
 	view.show_report(m.report)
-	var text: String = view._body.get_parsed_text()
-	ok(T.text(T.Key.REPORT_WARNINGS) in text and T.text(T.Key.REPORT_NEWS) in text and e4.address in text and e5.address in text, "relatório com advertências e jornal")
-	ok(m.report.verdict() == 2 and view._verdict.text == C.verdicts[2], "parecer: turno ruim")
+	var text := ""   # o memorando: uma linha datilografada por nó
+	for l in view._body.find_children("*", "RichTextLabel", true, false):
+		text += (l as RichTextLabel).get_parsed_text() + "\n"
+	ok(T.text(T.Key.REPORT_WARNINGS) in text, "relatório com as advertências")
+	var heads := " ".join(m.report.news().map(func(d: Dictionary) -> String: return ShiftReport.headline(d)))
+	ok(e4.address in heads and e5.address in heads, "as emergências no jornal da noite seguinte (não no relatório: o jornal já vem na mesa)")
+	ok(view._body.find_children("*", "HBoxContainer", true, false).size() == m.report.faults.size(), "uma linha com carimbo por advertência")
+	ok(m.report.verdict() == 2 and view._verdict.get_parsed_text() == tr(C.verdicts[2]), "parecer: turno ruim")
 	var sev: int = m.report.count(ShiftReport.Severity.SEVERE)
 	m.report.severe_before = ShiftReport.SEVERE_LIMIT - sev - 1
 	ok(not m.report.fired(), "ainda não foi demitido")
@@ -288,9 +297,9 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return not c10.asking), "respondeu")
 	m.urgency.tick(e10.stage_sec.x)
 	ok(Sfx.pool_2d.any(func(p): return p.playing and p.stream == Sfx.streams["radio_alert"]), "mudou de estágio: o rádio apita")
-	ok(c10.stage == 1 and Array(m.dispatch.fleet.required()) == Array(e10.required(0)), "agravando: ainda não exige o que ninguém contou")
+	ok(c10.stage == 1 and Array(m.dispatch.fleet.required(e10)) == Array(e10.required(0)), "agravando: ainda não exige o que ninguém contou")
 	ok(await wait_until(func(): return c10.transcript.any(func(l): return l["text"] == e10.worsening)), "contou o que piorou")
-	ok(await wait_until(func(): return Array(m.dispatch.fleet.required()) == Array(e10.required(1))), "depois de contar, passa a exigir mais unidades")
+	ok(await wait_until(func(): return Array(m.dispatch.fleet.required(e10)) == Array(e10.required(1))), "depois de contar, passa a exigir mais unidades")
 	ok(await wait_until(func(): return c10.options.any(func(o): return o["label"] == e10.worsening_question)), "pergunta nova sobre o que mudou")
 	c10.last_talk = m.talk_clock - 100.0
 	m._nag()
@@ -300,7 +309,7 @@ func _initialize() -> void:
 	await wait_until(func(): return m.dispatch.fleet.units.values().all(func(s): return s == 0), 30.0)
 	m.urgency.tick(0.0)
 	ok(m.radio._alert == 1, "luz de ocorrência no rádio, na cor do estágio")
-	var need: Array = m.dispatch.fleet.required()
+	var need: Array = m.dispatch.fleet.required(e10)
 	ok(need.size() >= 2, "o caso testado precisa de duas unidades")
 	# só uma unidade: a pessoa desliga, mas a barra continua (e o rádio segue com a luz acesa)
 	m.dispatch.set_location(e10.street, e10.block, e10.address)
@@ -317,12 +326,12 @@ func _initialize() -> void:
 	m.urgency.tick(e10.stage_sec.y)
 	var more := Array(e10.required(2)).filter(func(u): return not u in e10.required(1))
 	var said := T.text(T.Key.RADIO_WORSE) % e10.address + " " + T.text(T.Key.RADIO_SEND_MORE) % " e ".join(more.map(func(u): return T.text({"pol": T.Key.UNIT_POLICE, "bomb": T.Key.UNIT_FIRE, "amb": T.Key.UNIT_AMBULANCE}[u]).to_lower()))
-	ok(c10.stage == 2 and Array(m.dispatch.fleet.required()) == Array(e10.required(2)), "agravada: exige o que o rádio contou")
-	ok(await wait_until(func(): return m.radio._screen.text == said, 30.0), "o rádio avisa: " + said)
-	await wait_until(func(): return m.dispatch.fleet.required().all(func(u): return u == need[0] or m.dispatch.fleet.units[u] == 0), 30.0)
+	ok(c10.stage == 2 and Array(m.dispatch.fleet.required(e10)) == Array(e10.required(2)), "agravada: exige o que o rádio contou")
+	ok(await wait_until(func(): return m.radio._screen.text.ends_with(said), 30.0), "o rádio avisa: " + said)
+	await wait_until(func(): return m.dispatch.fleet.required(e10).all(func(u): return u == need[0] or m.dispatch.fleet.units[u] == 0), 30.0)
 	m.dispatch.set_location(e10.street, e10.block, e10.address)
 	m.dispatch.set_occurrence(e10.occurrence)
-	for u in m.dispatch.fleet.required():
+	for u in m.dispatch.fleet.required(e10):
 		if u != need[0]:
 			m.dispatch.punch_unit(u)
 	m.dispatch._send()
@@ -348,11 +357,11 @@ func _initialize() -> void:
 		"perdida: só o endereço e \"Tem alguém ferido?\"")
 	c11.options[1]["fn"].call()
 	ok(await wait_until(func(): return c11.transcript.any(func(l): return l["text"] == e11.lost_answer) and not c11.asking), "contou quem se feriu")
-	ok(Array(e11.lost_units).all(func(u): return u in m.dispatch.fleet.required()), "o ferido passa a exigir unidade")
+	ok(Array(e11.lost_units).all(func(u): return u in m.dispatch.fleet.required(e11)), "o ferido passa a exigir unidade")
 	var faults11: int = m.report.faults.size()
 	m.dispatch.set_location(e11.street, e11.block, e11.address)
 	m.dispatch.set_occurrence(e11.occurrence)
-	for u in m.dispatch.fleet.required():
+	for u in m.dispatch.fleet.required(e11):
 		m.dispatch.punch_unit(u)
 	m.dispatch._send()
 	ok(await wait_until(func(): return c11.ended, 20.0) and m.report.faults.size() == faults11, "despachou depois: nenhuma advertência a mais")
@@ -395,8 +404,12 @@ func _initialize() -> void:
 	ok(await wait_until(awaiting.bind(sc)), "pedido feito")
 	var hung := _faults("shift_hung_up")
 	var unreg := _faults("register_missing")
+	var forgot := _faults("toll_forgotten")
+	m.toll.start(4, "Capital", "45-12", m.minutes - 2.0)
+	m.toll.stop(4, m.minutes)
 	m._end_shift.pressed.emit()
 	ok(m.ending and sc.ended and _faults("shift_hung_up") == hung + 1, "encerrou com alguém na linha: advertência")
 	ok(_faults("register_missing") == unreg + 1, "sem registro só a que já tinha acabado")
+	ok(_faults("toll_forgotten") == forgot + 1, "bilhete esquecido na mesa: advertência leve")
 	print("OK 11 fim do turno")
 	finish("consequências e relatório")

@@ -1,25 +1,36 @@
 class_name DebugPanel
 extends PanelContainer
 ## Painel de debug (F1; só em build de debug, ou seja, no editor ou num export de debug; no export de release ele
-## se apaga): toca ligações na hora, mexe na barra de agravamento, no relógio, no clima, nas viaturas e no caderno. Cada seção
+## se apaga): toca ligações na hora, mexe na barra de agravamento, na suspeita da escuta, no relógio, no clima, nas viaturas e no caderno. Cada seção
 ## tem um "Limpar" que desfaz o que ela mexe, e "Restaurar tudo" faz todos (o relógio fica onde está).
 ## Limpar não gera advertência nem retorno. Ferramenta de desenvolvimento: textos fixos em português, sem tradução.
 ## A mesa de som toca cada som do `Sfx.VOL` e ajusta o volume dele na hora (`Sfx.vol`); "Copiar VOL" põe na área de
-## transferência a constante pronta para colar em `sfx.gd`.
+## transferência a constante pronta para colar em `sfx.gd`. A aba Vozes fala cada letra (pelo nome dela, "bê", "efe")
+## ou um texto digitado, na voz escolhida, como numa ligação.
 
 const SPEEDS := [1.0, 2.0, 4.0, 8.0]
 const MIX_DB := Vector2(-40.0, 0.0)   ## faixa do controle de volume da mesa de som
 const LOOP_PREVIEW := 1.5             ## segundos que um som em loop (o atrito do fio) toca na mesa de som
+## O nome de cada letra, como se fala (a aba Vozes fala a letra por ele; vogal fala ela mesma).
+const LETTERS := {"a": "a", "b": "bê", "c": "cê", "d": "dê", "e": "é", "f": "efe", "g": "gê", "h": "agá", "i": "i",
+	"j": "jota", "k": "cá", "l": "ele", "m": "eme", "n": "ene", "o": "ó", "p": "pê", "q": "quê", "r": "erre", "s": "esse",
+	"t": "tê", "u": "u", "v": "vê", "w": "dáblio", "x": "xis", "y": "ípsilon", "z": "zê", "ç": "cê cedilha", "á": "á",
+	"â": "â", "ã": "ã", "é": "é", "ê": "ê", "í": "í", "ó": "ó", "ô": "ô", "õ": "õ", "ú": "ú"}
+const LETTERS_PER_ROW := 10
 const KIND_NAMES := ["transferência", "emergência", "trote", "informação", "desconhecida"]   # PhoneCall.Kind
 
 var C: GameContent = GameData.CONTENT
 
 var _status: Label
 var _bar: Label
+var _ears: Label   ## a suspeita de cada conversa conectada (escuta)
 var _emergency: OptionButton
 var _emergencies: Array[EmergencyCall] = []   ## na ordem do seletor: as escritas e depois os moldes
 var _freeze: CheckButton
 var _mix := {}   ## id do som -> [controle, rótulo do volume]
+var _voice: OptionButton   ## a voz da aba Vozes (as chaves de `SfxSynth.VOICE`)
+var _say: LineEdit
+var _speaking := 0   ## a fala da aba Vozes em andamento (uma nova corta a anterior)
 var _weather0 := ""   ## o clima sorteado da noite, antes de o painel trocar (o "Limpar" volta para ele)
 
 @onready var main: Main = get_parent()
@@ -32,9 +43,9 @@ func _ready() -> void:
 		return
 	_status = _label("")
 	_row([["Restaurar tudo", _restore_all]])
-	_section("Ligações e mesa", _clear_calls)
-	_row([["Transferência", _ring_transfer.bind(false)], ["Molde", _ring_transfer.bind(true)], ["Informação", func(): _ring(Schedule.info_call())]])
-	_row([["Trote", func(): _ring(PhoneCall.from_prank(C.pranks.pick_random()))], ["Desconhecida", func(): _ring(PhoneCall.mystery())]])
+	_section("Ligações e mesa", main.drop_all)
+	_row([["Transferência", _ring_transfer.bind(false)], ["Molde", _ring_transfer.bind(true)], ["Interurbano", _ring_trunk], ["Informação", func(): _ring(Schedule.info_call())]])
+	_row([["Trote", func(): _ring(PhoneCall.from_prank(C.pranks.pick_random()))], ["Desconhecida", func(): _ring(PhoneCall.mystery())], ["Imprimir bilhete", _print_ticket]])
 	_emergency = OptionButton.new()
 	_emergency.focus_mode = Control.FOCUS_NONE
 	for e in C.emergencies:
@@ -47,12 +58,15 @@ func _ready() -> void:
 	_row([["Tocar emergência (caso sorteado)", _ring_emergency]])
 	_section("Barra de agravamento", _clear_bar)
 	_bar = _label("")
-	_row([["Próximo estágio", _next_stage], ["Encerrar emergência", _clear_emergency]])
+	_row([["Próximo estágio", _next_stage], ["Encerrar emergência", main.drop_emergency]])
 	_freeze = CheckButton.new()
 	_freeze.text = "Congelar a barra"
 	_freeze.focus_mode = Control.FOCUS_NONE
 	_freeze.toggled.connect(func(on: bool): main.urgency.frozen = on)
 	_box.add_child(_freeze)
+	_section("Escuta", func(): main.eavesdrop.calm())
+	_ears = _label("")
+	_row([["Forçar silêncio", func(): main.eavesdrop.force_hush()]])
 	_section("Tempo", func(): Engine.time_scale = 1.0)
 	var speeds := []
 	for s: float in SPEEDS:
@@ -62,6 +76,15 @@ func _ready() -> void:
 		["Ir para 23:50", func(): main.minutes = maxf(main.minutes, Main.SHIFT_END - 10.0)], ["Encerrar turno", func(): main.start_ending()]])
 	_section("Clima", func(): if _weather0 != "": main.set_weather(_weather0))
 	_row([["Chuva", _set_weather.bind("rain")], ["Névoa", _set_weather.bind("fog")], ["Limpo", _set_weather.bind("clear")]])
+	var car := OptionButton.new()   # o modelo do carro que passa lá fora
+	car.focus_mode = Control.FOCUS_NONE
+	car.add_item("carro sorteado")
+	for k: String in Background.CAR_KINDS:
+		car.add_item(k)
+	_box.add_child(car)
+	var kind := func() -> String: return "" if car.selected <= 0 else car.get_item_text(car.selected)
+	_row([["Carro na mão de lá", func(): main.background.pass_car(0, kind.call())],
+		["Carro na mão de cá", func(): main.background.pass_car(1, kind.call())]])
 	_section("Noites", func(): _go_night(1))
 	_row([["◀ Noite anterior", func(): _go_night(main.night_no - 1)], ["Próxima noite ▶", func(): _go_night(main.night_no + 1)]])
 	_section("Viaturas e caderno", _clear_units_notebook)
@@ -71,6 +94,46 @@ func _ready() -> void:
 	_row([["Copiar VOL", _copy_mix]])
 	for id: String in Sfx.VOL:
 		_mixer(id)
+	_box = %Voices
+	_voices()
+
+
+## A aba Vozes: a voz, o alfabeto (cada letra fala o nome dela) e uma caixa de texto.
+func _voices() -> void:
+	_voice = OptionButton.new()
+	_voice.focus_mode = Control.FOCUS_NONE
+	_voice.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	for v: String in SfxSynth.VOICE:
+		_voice.add_item("%s · %d Hz" % [v, SfxSynth.VOICE[v]["f0"]])
+	_box.add_child(_voice)
+	var row := []
+	for ch: String in LETTERS:
+		row.append([ch.to_upper(), _speak.bind(LETTERS[ch])])
+		if row.size() == LETTERS_PER_ROW:
+			_row(row)
+			row = []
+	if not row.is_empty():
+		_row(row)
+	_say = LineEdit.new()
+	_say.placeholder_text = "Texto para falar (Enter)"
+	_say.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	_say.add_theme_font_size_override("font_size", 11)
+	_say.text_submitted.connect(func(t: String): _speak(t))
+	_box.add_child(_say)
+	_row([["Falar", func(): _speak(_say.text)]])
+
+
+## Fala `text` na voz escolhida, no ritmo de `Conversation.say` (letra a letra; mais devagar na pontuação).
+func _speak(text: String) -> void:
+	_speaking += 1
+	var me := _speaking
+	var voice: String = SfxSynth.VOICE.keys()[_voice.selected]
+	var prev := false
+	for i in text.length():
+		if me != _speaking:
+			return
+		prev = Sfx.speak_char(voice, text, i, prev, false, -1.0)
+		await get_tree().create_timer((0.09 if text[i] in ",." else 0.028), false).timeout
 
 
 func _set_weather(w: String) -> void:
@@ -87,7 +150,7 @@ func _go_night(n: int) -> void:
 	Sfx.ring_stop()
 	Sfx.stop_ambience(0.0)
 	var next: Node = load("res://scenes/main.tscn").instantiate()
-	next.night_no = clampi(n, 1, C.nights.size())
+	next.night_no = clampi(n, 0, C.nights.size())
 	# no lugar do Main de agora, no mesmo pai: no jogo ele fica dentro da tela do `GameView` (posto na raiz, saía fora
 	# dela, na resolução da janela, e quebrava o layout); sozinho, ele é a cena atual
 	main.get_parent().add_child(next)
@@ -104,15 +167,23 @@ func _process(_delta: float) -> void:
 		next = "\npróxima: %s %s" % [Main.fmt(main.sched[0].at), KIND_NAMES[main.sched[0].kind]]
 	_status.text = "%s · noite %d · %s · %.0f×\nligações ativas: %d · advertências: %d%s" % [Main.fmt(main.minutes), main.night_no,
 		main.weather, Engine.time_scale, main.live.size(), main.report.faults.size(), next]
-	var c: PhoneCall = main.em_call
-	if c == null or c.ended and not c.urgent():
-		_bar.text = "sem emergência em andamento"
-		return
-	var e: EmergencyCall = c.data
-	var total := e.stage_sec.x + e.stage_sec.y + e.stage_sec.z
-	_bar.text = "%s · estágio %d (contado: %d)%s\nbarra: %.0f de %.0f s%s\nexige agora: %s\nreal (sem ouvir): %s" % [
-		e.address, c.stage, c.told, " · socorro completo" if c.secured else "", c.urgency, total,
-		" · congelada" if main.urgency.frozen else "", _units(main.dispatch.fleet.required()), _units(e.required(c.stage))]
+	var lines := PackedStringArray()
+	for c: PhoneCall in main.in_progress():
+		var e: EmergencyCall = c.data
+		var total := e.stage_sec.x + e.stage_sec.y + e.stage_sec.z
+		lines.append("%s · estágio %d (contado: %d)%s\nbarra: %.0f de %.0f s%s\nexige agora: %s\nreal (sem ouvir): %s" % [
+			e.address, c.stage, c.told, " · socorro completo" if c.secured else "", c.urgency, total,
+			" · congelada" if main.urgency.frozen else "", _units(main.dispatch.fleet.required(e)), _units(e.required(c.stage))])
+	_bar.text = "\n".join(lines) if not lines.is_empty() else "sem emergência em andamento"
+	var ears := PackedStringArray()
+	for n: int in main.eavesdrop.talks:
+		var c := main.eavesdrop.call_of(n)
+		ears.append("linha %d → %s · suspeita %.2f%s%s%s" % [n, c.dest_num, c.suspicion,
+			" · ouvindo" if main.eavesdrop.listening(n) else "", " · calados" if main.eavesdrop.silent == n else "",
+			" · sabem" if main.eavesdrop.knows(n) else ""])
+	if not main.eavesdrop.grudges.is_empty():
+		ears.append("denúncias: %s" % main.eavesdrop.grudges)
+	_ears.text = "\n".join(ears) if not ears.is_empty() else "nenhuma conversa conectada"
 
 
 func _ring(c: PhoneCall) -> void:
@@ -128,16 +199,45 @@ func _ring_transfer(template: bool) -> void:
 	_ring(PhoneCall.from_transfer(GameData.template_transfer() if template else C.transfers.filter(GameData.serves).pick_random()))
 
 
+## Um interurbano de molde, num tronco que nenhuma ligação da mesa esteja usando (dois no mesmo travavam um ao outro).
+func _ring_trunk() -> void:
+	var used := main.live.filter(func(x: PhoneCall): return x.data is TransferCall).map(func(x: PhoneCall): return (x.data as TransferCall).target)
+	var t := GameData.trunk_transfer(used)
+	if t == null:
+		main.warn("Debug: todos os troncos estão em uso.")
+	else:
+		_ring(PhoneCall.from_transfer(t))
+
+
+## Só o bilhete, sem ligação: um interurbano de molde que teria falado de 1 a 12 minutos até agora, numa entrada sem
+## contador; o calculógrafo imprime como no fim de uma conversa (o som e, da primeira vez, a dica).
+func _print_ticket() -> void:
+	var free := range(1, Exchange.LINES + 1).filter(func(n: int): return not main.toll.counting(n))
+	var t := GameData.trunk_transfer()
+	if free.is_empty() or t == null:
+		main.warn("Debug: nenhuma entrada sem contador.")
+		return
+	var n: int = free.pick_random()
+	main.toll.start(n, GameData.trunk_city(int(t.target)), t.far_number, maxf(main.minutes - randf_range(1.0, 12.0), 0.0))
+	main.print_ticket(n)
+
+
 func _ring_emergency() -> void:
+	if main.in_progress().size() >= Main.MAX_EMERGENCIES:
+		main.warn("Debug: já há %d emergências em andamento." % Main.MAX_EMERGENCIES)
+		return
 	var e := _emergencies[_emergency.selected]
 	_ring(PhoneCall.from_emergency(GameData.template_emergency(e) if e in C.emergency_templates else GameData.with_case(e)))
 
 
-## Pula para o fim do estágio atual (Urgency.tick muda de estágio no próximo quadro, mesmo com a barra congelada).
+## Pula para o fim do estágio atual da emergência na linha do FONE (sem ela, da primeira em andamento; Urgency.tick
+## muda de estágio no próximo quadro, mesmo com a barra congelada).
 func _next_stage() -> void:
-	var c: PhoneCall = main.em_call
-	if c == null or not c.urgent():
+	var urgent := main.emergencies.filter(func(x: PhoneCall): return x.urgent())
+	if urgent.is_empty():
 		return
+	var on: Array = urgent.filter(func(x: PhoneCall): return x.on_line)
+	var c: PhoneCall = on[0] if not on.is_empty() else urgent[0]
 	var e: EmergencyCall = c.data
 	c.urgency = [e.stage_sec.x, e.stage_sec.x + e.stage_sec.y, e.stage_sec.x + e.stage_sec.y + e.stage_sec.z][c.stage]
 
@@ -145,52 +245,15 @@ func _next_stage() -> void:
 # ---------------------------------------------------------------- limpar
 
 func _restore_all() -> void:
-	_clear_calls()
+	main.drop_all()
 	_clear_bar()
 	Engine.time_scale = 1.0
 	_clear_units_notebook()
 
 
-## Encerra todas as ligações ativas sem consequência, zera a mesa (linhas e destinos livres antes de tirar os cabos:
-## assim nada conta como conversa cortada) e tira da agenda quem ia ligar de novo.
-func _clear_calls() -> void:
-	_clear_emergency()
-	for c in main.live.duplicate():
-		main.drop(c)
-	for c in main.sched.duplicate():
-		if c.retry != PhoneCall.Retry.NONE:
-			main.sched.erase(c)
-	for n in range(1, Exchange.LINES + 1):
-		main.exchange.set_line(n, Exchange.Line.FREE)
-	for d in GameData.board_numbers():
-		main.exchange.set_dest(d, Exchange.Dest.FREE)
-		main.cancel_dest_ring(d)   # toques de destino pendentes não valem mais
-	for e in main.board.ends.size():
-		if main.board.ends[e] != -1:
-			main.board.pick_up(e)
-			main.board.go_home(e)
-
-
-## A emergência em andamento some sem consequência: a ligação cai, a barra e a luz do rádio apagam, as viaturas
-## voltam, o jornal esquece dela e ela não liga de novo.
-func _clear_emergency() -> void:
-	var c: PhoneCall = main.em_call
-	if c == null:
-		return
-	if c in main.live:
-		main.drop(c)
-		main.exchange.set_line(c.line, Exchange.Line.FREE)
-	for r in main.sched.duplicate():
-		if r.data == c.data:
-			main.sched.erase(r)
-	main.em_call = null
-	main.dispatch.reset(true)
-	main.report.forget(c.data)
-
-
 func _clear_bar() -> void:
 	_freeze.button_pressed = false
-	_clear_emergency()
+	main.drop_emergency()
 
 
 func _clear_units_notebook() -> void:
@@ -203,7 +266,7 @@ func _clear_units_notebook() -> void:
 ## Registra todas as pendências do caderno com o tipo certo (sem advertência).
 func _register_all() -> void:
 	while main.notebook.has_pending():
-		main.notebook.register(Supervisor.TYPE_OF.get(main.notebook.pending["kind"], T.Key.TYPE_COMMON))
+		main.notebook.register(Supervisor.TYPE_OF.get(main.notebook.pending.kind, T.Key.TYPE_COMMON))
 
 
 func _units(us: Array) -> String:

@@ -11,3 +11,4 @@ repeat = "A recepção da Clínica São Lucas."
 target = "213"
 destination = "Clínica São Lucas"
 thanks = "Obrigada."
+overheard = PackedStringArray("Boa noite. Queria marcar horário com o doutor.", "Qual o nome da senhora?", "Rute Fonseca. É pra ver a pressão, que anda variando.", "Tem quinta, às nove da manhã. Serve?", "Serve. Preciso ir em jejum?", "Não precisa. Só traz os exames antigos.")

@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_emerg"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("amb")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "", "Disse que o peito apertava... e quando caiu derrubou a lenha, tá pegando fogo nos sacos de farinha!")
+units = PackedStringArray("amb", "bomb")
+
+[resource]
+script = ExtResource("1_emerg")
+voice = "m"
+caller = "Ajudante de padeiro"
+opening = "Central, o padeiro caiu do lado do forno! Tá passando muito mal!"
+questions = PackedStringArray("Qual é o endereço?", "Ele está respirando?", "Ele reclamou de alguma dor?")
+answers = PackedStringArray("Rua das Acácias, 450! A Padaria Pão Dourado, pelos fundos!", "Tá, mas tá suando frio.", "Disse que o peito tava apertando e o braço formigando.")
+street = "acacias"
+block = 4
+address = "Rua das Acácias, 450"
+occurrence = "Mal súbito"
+units = PackedStringArray("amb")
+after = "Tá bom. Vou abrir a porta da frente pra eles."
+stage_sec = Vector3(35, 18, 18)
+worsening = "Ele tá ficando roxo! Tá com falta de ar!"
+worsening_units = PackedStringArray()
+worsening_question = "Ele toma algum remédio?"
+worsening_answer = "Toma um do coração, mas esqueceu em casa."
+critical = "Ele parou de responder! Tô sacudindo ele e nada!"
+critical_units = PackedStringArray()
+critical_question = "Ele ainda respira?"
+critical_answer = "Bem pouquinho... de vez em quando."
+lost = "Ele não respira mais... a gente tá tentando, mas demorou demais."
+lost_answer = "O padeiro tá desacordado, e o outro ajudante tá apertando o peito dele."
+lost_units = PackedStringArray("amb")
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2")])

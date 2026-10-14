@@ -15,6 +15,7 @@ const PAPER_LINE := Color("b3a37a")
 const INK := Color("2a2319")
 const INK_SOFT := Color("5a4d3a")
 const INK_RED := Color("6e1a12")
+const PEN := Color("2b3f78")       ## a caneta azul do supervisor: o parecer do relatório e o bilhete da noite (`PaperInk`, `[hand]`)
 const AMBER := Color("f3a83c")
 const GREEN := Color("8dbb6c")
 const RED := Color("d4553f")
@@ -27,11 +28,12 @@ const GLOW := Color("ffd183")
 ## ferramentas): o que muda numa ponta muda na outra.
 const BOOK := Color("b48c1c")   ## a capa da lista telefônica de cima (mostarda; as outras duas, vermelha e azul)
 const GOLD := Color("e0c07a")   ## o dourado das letras e dos filetes das listas
-const LEATHER: Array[Color] = [Color("6b4529"), Color("4a2f1c"), Color("2e1c10")]   ## o couro do caderno: a beira na luz, a capa, a beira na sombra
-const NOTE_PAGE := Color("d2c5a0")     ## a folha do caderno...
+const PAD_BACK: Array[Color] = [Color("8a7f6c"), Color("6c6253"), Color("463f35")]   ## o papelão de trás do bloco de fichas: a beira na luz, o papelão, a beira na sombra
+const PAD_TAPE: Array[Color] = [Color("7c3a2c"), Color("5c2a20"), Color("3c1a14")]   ## a fita de pano da colagem, no alto do bloco
+const NOTE_PAGE := Color("d2c5a0")     ## a ficha de ocorrências (o bloco de fichas)...
 const NOTE_RULE := Color("bfb38e")     ## ...a pauta...
 const NOTE_MARGIN := Color("b07060")   ## ...e a margem vermelha
-const PENDING: Array[Color] = [Color("d4c084"), Color("cdbda4")]   ## as tiras dos registros pendentes saindo do caderno
+const PENDING: Array[Color] = [Color("d4c084"), Color("cdbda4")]   ## as tiras dos registros pendentes saindo do bloco de fichas
 const BOARD: Array[Color] = [Color("8a5e3a"), Color("6e4a2c"), Color("4a3018")]   ## a tábua da prancheta: a beira na luz, a tábua, a beira na sombra
 const SHEET := Color("cdc09c")       ## a folha da prancheta (a nova, ainda não lida: SHEET_NEW)
 const SHEET_NEW := Color("e0d5b4")
@@ -51,6 +53,11 @@ const MAP_FURROWS: Array[Color] = [Color("8f9a63"), Color("a8956a")]   ## ...e o
 const MAP_DIRT := Color("b49d72")    ## as estradas de terra
 const MAP_RIVER := Color("6f8fa0")   ## o rio
 const SEAL := Color("8e2a22")        ## o vermelho do selo do mapa (e da capa da lista de baixo)
+const DESK := Color("241a12")   ## o tampo da mesa (a madeira escura), no cenário e no calculógrafo aberto
+## O grão do tampo (`DESK`): a emenda das tábuas, a beira de cada uma na luz, o veio e a sombra dele...
+const DESK_GRAIN: Array[Color] = [Color("1a120c"), Color("2b2016"), Color("2e2219"), Color("20170f")]
+## ...e a borda da frente, de cima para baixo: a quina arredondada pegando a luz (três tons), a espessura e o friso nela.
+const DESK_EDGE: Array[Color] = [Color("5a4030"), Color("7a5434"), Color("6b4529"), Color("3a2616"), Color("442c1a")]
 const NICKEL: Array[Color] = [Color("f4f0e6"), Color("d6d1c3"), Color("8e897c"), Color("45413a")]   ## o níquel (brilho, luz, meio, sombra): o prendedor da prancheta, o aro das lâmpadas
 
 ## Uma fonte só, de pixel: Departure Mono (SIL OFL). Fica nítida só em múltiplos de 11 (11, 22, 33, 44); fora deles os

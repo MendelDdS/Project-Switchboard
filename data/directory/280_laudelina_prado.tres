@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_16"]
+script = ExtResource("2_motive")
+text = "Ela está costurando o vestido de noiva da minha filha."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite, Dona Laudelina. Como está o vestido da minha filha?", "Falta a barra e os botões das costas. Quase pronto.", "O casamento é sábado. Dá tempo?", "Dá. Mas ela precisa vir provar amanhã, às {hour}.", "Ela vai. E o véu, a senhora também faz?", "Faço, se trouxer a renda. Eu não tenho mais aqui."), PackedStringArray("Boa noite. Desculpa ligar tarde, é sobre o vestido de noiva.", "Pode falar. Estou aqui mesmo com ele na máquina.", "Minha filha emagreceu. Acho que vai ficar largo.", "Então eu aperto na cintura. Ela vem provar quando?", "Amanhã, depois do serviço. Lá pelas {hour}?", "Pode vir. Deixo a luz da varanda acesa.")])
+
+[sub_resource type="Resource" id="Motive_17"]
+script = ExtResource("2_motive")
+text = "Ela pediu pra eu ligar quando chegasse."
+talks = Array[PackedStringArray]([PackedStringArray("Dona Laudelina? Cheguei. A senhora pediu pra eu avisar.", "Graças a Deus. Com essa estrada escura eu fico aflita.", "O ônibus atrasou {wait}, mas chegou.", "E o pacote que eu mandei, entregou?", "Entreguei, e sua irmã mandou um beijo.", "Ah, que bom. Agora vai descansar."), PackedStringArray("Boa noite, Dona Laudelina. Só pra avisar que cheguei bem.", "Ah, que alívio. Choveu muito na serra?", "Bastante. A estrada tinha barro até o meio da roda.", "E você trouxe o tecido que eu pedi?", "Trouxe. Três metros de cetim, {color}.", "Que maravilha. Amanhã cedo eu passo aí pra buscar.")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Laudelina Prado"
+address = "Rua Bela Vista, 160"
+number = "280"
+voice = "f"
+spoken = "a Dona Laudelina Prado"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_16"), SubResource("Motive_17")])

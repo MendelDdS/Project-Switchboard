@@ -1,0 +1,45 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_emerg"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("pol", "amb")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "Não, o motorista saiu andando. Só o muro que foi.", "")
+units = PackedStringArray("pol")
+
+[sub_resource type="Resource" id="Case_3"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "O motorista tá preso, a porta amassou toda! E tá sangrando!", "")
+units = PackedStringArray("pol", "amb", "bomb")
+
+[resource]
+script = ExtResource("1_emerg")
+voice = "f"
+caller = "Moradora"
+opening = "Central, um carro desceu a ladeira sem freio e entrou no muro da minha casa!"
+questions = PackedStringArray("Qual é o endereço?", "Alguém está ferido?", "O carro está no meio da rua?")
+answers = PackedStringArray("Rua das Palmeiras, 140! No fim da ladeira!", "O motorista tá com a cabeça sangrando no volante!", "Tá! Metade na rua, metade no muro. Ninguém passa.")
+street = "palmeiras"
+block = 1
+address = "Rua das Palmeiras, 140"
+occurrence = "Acidente de trânsito"
+units = PackedStringArray("pol", "amb")
+after = "Tá. Vou pôr uma lanterna na ladeira pra ninguém bater."
+stage_sec = Vector3(45, 22, 22)
+worsening = "Tá saindo fumaça do motor! Tá pingando gasolina!"
+worsening_units = PackedStringArray("bomb")
+worsening_question = "O fogo já começou?"
+worsening_answer = "Ainda não, só a fumaça e o cheiro."
+critical = "Pegou fogo embaixo do carro!"
+critical_units = PackedStringArray("amb")
+critical_question = "Tem alguém perto do carro?"
+critical_answer = "Meu marido tá tentando apagar com terra e queimou a mão!"
+lost = "O carro tá todo em chamas... e o muro desabou. Por que não vieram?"
+lost_answer = "Tiramos o motorista, mas ele tá desmaiado, e meu marido tá com a mão em carne viva!"
+lost_units = PackedStringArray("amb")
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2"), SubResource("Case_3")])

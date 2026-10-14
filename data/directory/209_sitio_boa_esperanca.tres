@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_06"]
+script = ExtResource("2_motive")
+text = "Quero encomendar leite e queijo pra amanhã."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Queria encomendar leite e queijo pra amanhã.", "Quanto de leite? A ordenha é às {dawn}.", "Três litros. E um queijo fresco, dos grandes.", "O fresco só fica pronto de tarde. Serve o curado?", "Serve. Vocês entregam na {street}?", "Entrega a carroça, lá pelas sete. Deixo no portão."), PackedStringArray("Boa noite. Amanhã é aniversário lá em casa. Preciso de leite e queijo.", "Quanto vai ser?", "Cinco litros de leite e dois queijos. Vou fazer pão de queijo.", "Dá. Mas o queijo eu só entrego depois das {hour}.", "Está ótimo. A festa é de tarde.", "Então fica combinado. Acerta comigo na entrega.")])
+
+[sub_resource type="Resource" id="Motive_07"]
+script = ExtResource("2_motive")
+text = "Meu filho trabalha lá e ainda não voltou pra casa."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Meu filho trabalha aí e ainda não voltou pra casa.", "O rapaz do curral? Ficou até mais tarde por causa de uma vaca.", "Ai, que susto. Está tudo bem com ele?", "Está, sim. A vaca pariu agora há pouco e ele ajudou.", "E como ele volta a essa hora? A estrada está escura.", "Levo ele de charrete daqui a {wait}."), PackedStringArray("Boa noite. Meu filho ainda está aí no sítio?", "Está. Ficou consertando a cerca que o boi derrubou.", "A janta dele está esfriando. Ele demora?", "Falta pouco. Ele disse que chega antes das {hour}.", "Pede pra ele vir pela estrada, não pelo mato.", "Pode deixar. Empresto a lanterna pra ele.")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Sítio Boa Esperança"
+address = "Rua do Cruzeiro, 260"
+number = "209"
+hello = "Sítio Boa Esperança, pois não?"
+spoken = "o Sítio Boa Esperança"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_06"), SubResource("Motive_07")])

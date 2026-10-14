@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_tr"]
+
+[resource]
+script = ExtResource("1_tr")
+group = 2
+opening = PackedStringArray("Central? Preciso ligar {to_city}, é sobre um negócio.", "Anota aí: {far}.")
+repeat = "{to_city}, moço. O número é {far}."

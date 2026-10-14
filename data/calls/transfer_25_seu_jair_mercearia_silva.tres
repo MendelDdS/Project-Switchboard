@@ -11,3 +11,4 @@ repeat = "A Mercearia Silva, na Rua do Cruzeiro."
 target = "262"
 destination = "Mercearia Silva"
 thanks = "Obrigado. Tá um breu aqui."
+overheard = PackedStringArray("Silva, boa noite. É o Jair. Acabou a vela aqui.", "Faltou luz aí também, seu Jair?", "Faltou. E eu não enxergo nada no escuro.", "Mando meu filho levar meia dúzia aí.", "Deus te pague. Ele bate na janela, que eu escuto.")

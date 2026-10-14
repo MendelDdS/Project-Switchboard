@@ -30,7 +30,7 @@ func _draw() -> void:
 	# o console: a madeira, com a beira escura e a quina de cima pegando a luz
 	var body := Rect2(o - Vector2(4, 3), src.size * k + Vector2(8, 6)).abs()
 	draw_rect(Rect2(body.position + Vector2(1, 2), body.size), Color(0, 0, 0, 0.35))
-	draw_rect(body.grow(1), Switchboard.EDGE_DARK)
+	Switchboard.rim(self, body, WOOD[3], WOOD[3].darkened(0.4))
 	draw_rect(body, WOOD[3])
 	draw_rect(Rect2(body.position, Vector2(body.size.x, 1)), WOOD[0])
 	_screen(at.call(phone.screen))

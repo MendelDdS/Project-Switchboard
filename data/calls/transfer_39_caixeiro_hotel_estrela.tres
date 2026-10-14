@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_tr"]
+
+[resource]
+script = ExtResource("1_tr")
+voice = "m"
+caller = "Caixeiro-viajante"
+opening = PackedStringArray("Boa noite. Estou na rodoviária e perdi o último ônibus.", "Me liga com o Hotel Estrela? Preciso de um quarto pra hoje.")
+repeat = "O Hotel Estrela, na avenida."
+target = "305"
+destination = "Hotel Estrela"
+thanks = "Muito obrigado. O senhor me salvou a noite."
+alt_target = "312"
+alt_destination = "Pensão Dona Cota"
+alt_ask = "O hotel não atende. Quer que eu tente a Pensão Dona Cota?"
+alt_yes = "Pode ser. Uma cama já está bom."
+overheard = PackedStringArray("Boa noite. Perdi o último ônibus. Tem um quarto pra hoje?", "Tem um de solteiro, com banheiro no corredor.", "Serve. Quanto é a diária?", "Com café da manhã, o mesmo preço da semana passada.", "Estou na rodoviária, com a mala de amostras.", "Vem a pé, que é perto. Deixo a porta aberta.")

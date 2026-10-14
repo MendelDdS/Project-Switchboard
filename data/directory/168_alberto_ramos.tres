@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_47"]
+script = ExtResource("2_motive")
+text = "Somos sócios. É sobre a loja."
+talks = Array[PackedStringArray]([PackedStringArray("Alberto, boa noite. É sobre a loja, não dá pra esperar.", "Fala. O fornecedor deu notícia?", "Deu. A mercadoria chega amanhã, às {hour}.", "Amanhã? Eu nem tenho lugar no depósito.", "A gente arruma junto. Chego cedo pra ajudar.", "Então traz o caderno das contas, que a gente confere tudo."), PackedStringArray("Boa noite, Alberto. Fechei o caixa e faltou dinheiro.", "Faltou quanto?", "Pouco. Acho que foi troco errado de tarde.", "Acontece. Anota no caderno e amanhã a gente vê.", "Abro a loja às {hour}. Você vem?", "Vou. Levo a chave da gaveta.")])
+
+[sub_resource type="Resource" id="Motive_48"]
+script = ExtResource("2_motive")
+text = "Preciso confirmar a viagem de amanhã."
+talks = Array[PackedStringArray]([PackedStringArray("Alberto? A viagem de amanhã está confirmada?", "Está. O ônibus sai às {dawn}, da rodoviária.", "Às {dawn}? Achei que era mais tarde.", "Mudaram o horário. Leva casaco, que na capital está frio.", "E os papéis do banco, ficam comigo?", "Ficam. Não esquece a pasta, senão a viagem é perdida."), PackedStringArray("Boa noite, Alberto. Vamos mesmo amanhã pra capital?", "Vamos. Eu passo aí de carro às {dawn}.", "De carro? E a estrada da serra, está boa?", "Melhorou. Passaram a máquina na semana passada.", "Então eu levo o lanche pra viagem.", "Leva, e garrafa de café. Volta só de noite.")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Alberto Ramos"
+address = "Avenida Brasil, 480"
+number = "168"
+voice = "m"
+spoken = "o seu Alberto Ramos"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_47"), SubResource("Motive_48")])

@@ -12,3 +12,4 @@ repeat = "O Ferreira do armazém. O Joaquim."
 target = "288"
 destination = "Armazém Ferreira"
 thanks = "Obrigado, moço. Tomara que ele atenda."
+overheard = PackedStringArray("Seu Ferreira, é o Lauro. Deixei minha carteira no balcão.", "Uma marrom, gasta? Achei quando fui fechar.", "Essa! Graças a Deus. Tem o meu documento dentro.", "Está tudo aí, guardado na gaveta.", "Passo amanhã cedo. Você é um homem honesto.")

@@ -16,10 +16,13 @@ const FAULTS := {
 	"hold": [Severity.MEDIUM, T.Key.FAULT_HOLD],
 	"wrong_number": [Severity.MEDIUM, T.Key.FAULT_WRONG_NUMBER],
 	"cut_call": [Severity.MEDIUM, T.Key.FAULT_CUT_CALL],
+	"eavesdrop": [Severity.SEVERE, T.Key.FAULT_EAVESDROP],   # a escuta notada: os dois denunciam a telefonista
 	"shift_hung_up": [Severity.MEDIUM, T.Key.FAULT_SHIFT_HUNG_UP],
 	"wrong_info": [Severity.LIGHT, T.Key.FAULT_WRONG_INFO],
 	"register_wrong": [Severity.LIGHT, T.Key.FAULT_REGISTER_WRONG],
 	"register_missing": [Severity.LIGHT, T.Key.FAULT_REGISTER_MISSING],
+	"toll_unstamped": [Severity.LIGHT, T.Key.FAULT_TOLL_UNSTAMPED],
+	"toll_forgotten": [Severity.LIGHT, T.Key.FAULT_TOLL_FORGOTTEN],
 	"dispatch_wrong_place": [Severity.SEVERE, T.Key.FAULT_DISPATCH_WRONG_PLACE],
 	"dispatch_missing": [Severity.MEDIUM, T.Key.FAULT_DISPATCH_MISSING],
 	"dispatch_idle": [Severity.MEDIUM, T.Key.FAULT_DISPATCH_IDLE],
@@ -36,6 +39,7 @@ const FAULTS := {
 var night := 1
 var severe_before := 0               ## advertências graves das noites anteriores
 var faults: Array[Dictionary] = []   ## {"id", "time", "detail"}, em ordem
+var later: Array = []                ## as que só chegam no relatório da noite seguinte (`Supervisor.fault_later`)
 var _incidents := {}                 ## EmergencyCall -> {"trouble": bool, "outcome": Outcome ou -1}
 var _picked := {}                    ## EmergencyCall -> [Outcome, molde da manchete]: sorteada uma vez só
 
@@ -56,8 +60,9 @@ func severe_total() -> int:
 	return severe_before + count(Severity.SEVERE) + CRITICAL_WEIGHT * count(Severity.CRITICAL)
 
 
+## Demitido: graves demais (o treinamento, noite 0, nunca demite).
 func fired() -> bool:
-	return severe_total() >= SEVERE_LIMIT
+	return night > 0 and severe_total() >= SEVERE_LIMIT
 
 
 ## Emergência que teve problema (não atendida, sem despacho, endereço errado): se for resolvida, foi com atraso.
@@ -89,8 +94,8 @@ func outcomes() -> Dictionary:
 
 
 ## O jornal da manhã: uma manchete por emergência do turno, {"outcome", "template", "occurrence", "address"} (molde e
-## ocorrência no original; `headline` traduz na hora de mostrar). O relatório e o jornal da noite seguinte, na mesa,
-## dizem a mesma: o molde é sorteado uma vez por desfecho.
+## ocorrência no original; `headline` traduz na hora de mostrar). Chamado de novo, diz a mesma: o molde é sorteado uma
+## vez por desfecho (é o jornal da noite seguinte, na mesa, que o `Progress` guarda).
 func news() -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	var all := outcomes()

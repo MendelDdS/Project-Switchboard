@@ -38,8 +38,8 @@ func _initialize() -> void:
 
 	_section("MESA")
 	_add(PixelArt.art(S.HOLE_ART, S.HOLE_PAL), "BURACO")
-	_add(PixelArt.art(S.JACK_ART, sb._jack_pal(0.0)), "ENTRADA")
-	_add(PixelArt.art(S.JACK_ART, sb._jack_pal(0.25)), "SAÍDA")
+	_add(sb._jack_tex(0.0), "ENTRADA")
+	_add(sb._jack_tex(0.25), "SAÍDA")
 	for i in S.CORD_COLORS.size():
 		_add(PixelArt.art(S.PLUG_ART, sb._plug_pal(S.CORD_COLORS[i])), "FONE" if i == 0 else "CABO %d" % i)
 	_section("RELÓGIO")

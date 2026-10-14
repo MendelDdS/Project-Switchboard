@@ -4,5 +4,4 @@
 
 [resource]
 script = ExtResource("1_night")
-weekday = "Domingo"
-note = "O supervisor deixou um recado: \"Domingo é mais calmo, mas o Centro tem a igreja e a praça. Fique atento.\""
+note = "O supervisor deixou um recado: \"Sábado o Centro tem baile e a praça cheia. Fique atento.\""

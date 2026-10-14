@@ -4,16 +4,17 @@ extends RefCounted
 ## ligação desconhecida e as sorteadas. Não depende da cena: noite + semente → as mesmas ligações.
 ## Quando cada uma toca de fato (mesa cheia, emergência em curso...) é decidido pelo Main (`_run_schedule`).
 
-const EMERGENCY_GAP := 60.0     # minutos de jogo entre duas emergências (o despacho cuida de uma por vez)
+const EMERGENCY_GAP := 60.0     # minutos de jogo entre duas emergências sorteadas (em andamento, no máximo `Main.MAX_EMERGENCIES`)
 const STORY_GAP := 8.0          # as ligações sorteadas ficam a tantos minutos das do roteiro
+const STORY_WAIT := 30.0        # a do roteiro espera a mesa silenciar por no máximo tantos minutos (toca sozinha)
 const TEMPLATE_CHANCE := 0.5    # chance de uma transferência ou emergência vir de um molde e não de um roteiro escrito
 const TRANSFER_SHARE := 0.65    # das ligações comuns, quantas são transferências (o resto, pedidos de informação)
+const TRUNK_SHARE := 0.2        # das transferências, quantas são interurbanos (pelo banco INTERURBANO; nunca no treinamento)
 const MYSTERY_WAIT := 30.0      # a ligação desconhecida espera a mesa silenciar por no máximo tantos minutos...
 const MYSTERY_MARGIN := 10.0    # ...e toca no máximo tantos minutos antes da última ligação, para acabar antes do
                                 # botão Encerrar turno (que só aparece depois dela)
 
 var calls: Array[PhoneCall] = []   ## em ordem de horário
-var tut: PhoneCall                 ## primeira ligação da noite com tutorial (guiada passo a passo)
 var mystery_at := INF              ## horário sorteado da ligação desconhecida (INF = não toca nesta noite)
 
 
@@ -26,6 +27,7 @@ static func build(night: Night, pace: Pace, last_call: float) -> Schedule:
 		c.at = st.at
 		c.story = true
 		c.requires = st.requires
+		c.latest = minf(st.at + STORY_WAIT, last_call)
 		fixed.append(c)
 	if not night.mystery.is_empty():
 		var myst := PhoneCall.mystery()
@@ -42,7 +44,7 @@ static func build(night: Night, pace: Pace, last_call: float) -> Schedule:
 ## Ligações sorteadas pelo turno todo: entre uma e a próxima, `Pace.call_gap` minutos (o máximo é o maior
 ## silêncio possível); de vez em quando (`Pace.peak_chance`) a próxima vem logo em seguida. O tipo também é sorteado:
 ## `Pace.emergencies` emergências (espaçadas por EMERGENCY_GAP), `Pace.pranks` trotes, e o resto
-## transferências ou pedidos de informação. Na noite com tutorial, a primeira é uma transferência guiada.
+## transferências ou pedidos de informação.
 func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[PhoneCall]) -> Array[PhoneCall]:
 	var C := GameData.CONTENT
 	var ats := []
@@ -53,7 +55,7 @@ func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[Phon
 		t += randf_range(2.0, 6.0) if randf() < pace.peak_chance else randf_range(pace.call_gap.x, pace.call_gap.y)
 	var kinds := []
 	kinds.resize(ats.size())
-	var free := range(1 if night.tutorial else 0, ats.size())
+	var free := range(ats.size())
 	free.shuffle()
 	var em_ats := []
 	var em_count := randi_range(pace.emergencies.x, pace.emergencies.y)
@@ -74,14 +76,7 @@ func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[Phon
 	var out: Array[PhoneCall] = []
 	for i in ats.size():
 		var c: PhoneCall
-		if i == 0 and night.tutorial:
-			var first: TransferCall = GameData.transfers(TransferCall.Group.ESTABLISHMENT).pick_random()
-			transfers.erase(first)
-			c = PhoneCall.from_transfer(first)
-			c.away = false   # no tutorial o destino sempre atende
-			targets.append(first.alt_target)
-			tut = c
-		elif kinds[i] == PhoneCall.Kind.EMERGENCY:
+		if kinds[i] == PhoneCall.Kind.EMERGENCY:
 			var written := randf() >= TEMPLATE_CHANCE and not emergencies.is_empty()
 			c = PhoneCall.from_emergency(GameData.with_case(emergencies.pop_back()) if written else GameData.template_emergency())
 		elif kinds[i] == PhoneCall.Kind.PRANK and not pranks.is_empty():
@@ -89,11 +84,13 @@ func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[Phon
 		elif randf() < TRANSFER_SHARE:
 			# um número por noite: duas pessoas pedindo o mesmo destino ficariam esperando uma pela outra
 			var fresh := transfers.filter(func(x: TransferCall): return not x.target in targets and not x.alt_target in targets)
-			var tc: TransferCall = fresh.back() if randf() >= TEMPLATE_CHANCE and not fresh.is_empty() else GameData.template_transfer(targets)
+			var tc: TransferCall = GameData.trunk_transfer(targets) if night.lesson.is_empty() and randf() < TRUNK_SHARE else null
+			if tc == null:
+				tc = fresh.back() if randf() >= TEMPLATE_CHANCE and not fresh.is_empty() else GameData.template_transfer(targets)
 			if tc == null and not fresh.is_empty():
 				tc = fresh.back()
 			if tc != null:
-				transfers.erase(tc)
+				transfers.erase(tc)   # (o interurbano nem está na lista)
 				c = PhoneCall.from_transfer(tc)
 				targets.append(tc.alt_target)
 		if c == null:   # pedido de informação (ou nenhum número livre para transferir nesta noite)

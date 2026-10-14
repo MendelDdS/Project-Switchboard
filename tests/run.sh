@@ -63,8 +63,10 @@ if [ $# -gt 0 ]; then   # tests/run.sh flow penalties: só esses (sem argumentos
 	exit $fails
 fi
 run flow
+run training
 run penalties
 run keys
+run layout
 for s in 1 2 3; do
 	run shift --seed=$s
 done
@@ -73,6 +75,8 @@ run shift --seed=2 --night=2
 run shift --seed=1 --night=5
 run shift --seed=2 --night=9
 run shift --seed=1 --human
+run shift --seed=2 --human --nosy
+run shift --seed=2 --human --nosy --careless
 run shift --seed=2 --lang=en
 run shift --seed=3 --lang=es
 

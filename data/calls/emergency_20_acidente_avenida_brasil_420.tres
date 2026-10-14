@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_emerg"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("pol", "bomb")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "Uma passageira bateu a testa no banco da frente! Tá sangrando!", "")
+units = PackedStringArray("pol", "bomb", "amb")
+
+[resource]
+script = ExtResource("1_emerg")
+voice = "m"
+caller = "Cobrador"
+opening = "Central, o ônibus da linha bateu num poste aqui na avenida! O fio caiu na rua!"
+questions = PackedStringArray("Qual é o endereço?", "Alguém está ferido?", "O fio está soltando faísca?")
+answers = PackedStringArray("Avenida Brasil, 420! Perto da delegacia!", "Não, todo mundo desceu andando. Só o susto.", "Tá! E tá atravessado na rua, ninguém passa!")
+street = "brasil"
+block = 4
+address = "Avenida Brasil, 420"
+occurrence = "Acidente de trânsito"
+units = PackedStringArray("pol", "bomb")
+after = "Tá bom. Eu seguro o povo longe do fio."
+stage_sec = Vector3(40, 20, 20)
+worsening = "O fio encostou no ônibus! Tem gente ainda pegando as malas lá dentro!"
+worsening_units = PackedStringArray()
+worsening_question = "Quantas pessoas ainda estão no ônibus?"
+worsening_answer = "Duas. Eu gritei pra elas não encostarem em nada."
+critical = "O motorista desceu pela porta e levou um choque! Tá caído na calçada!"
+critical_units = PackedStringArray("amb")
+critical_question = "Ele está respirando?"
+critical_answer = "Tá, mas não acorda. A mão dele tá queimada."
+lost = "O ônibus pegou fogo... A gente tirou o pessoal como deu. Por que demoraram?"
+lost_answer = "O motorista ainda não acordou, e um rapaz queimou as mãos ajudando."
+lost_units = PackedStringArray("amb")
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2")])
