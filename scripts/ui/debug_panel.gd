@@ -76,6 +76,15 @@ func _ready() -> void:
 		["Ir para 23:50", func(): main.minutes = maxf(main.minutes, Main.SHIFT_END - 10.0)], ["Encerrar turno", func(): main.start_ending()]])
 	_section("Clima", func(): if _weather0 != "": main.set_weather(_weather0))
 	_row([["Chuva", _set_weather.bind("rain")], ["Névoa", _set_weather.bind("fog")], ["Limpo", _set_weather.bind("clear")]])
+	var car := OptionButton.new()   # o modelo do carro que passa lá fora
+	car.focus_mode = Control.FOCUS_NONE
+	car.add_item("carro sorteado")
+	for k: String in Background.CAR_KINDS:
+		car.add_item(k)
+	_box.add_child(car)
+	var kind := func() -> String: return "" if car.selected <= 0 else car.get_item_text(car.selected)
+	_row([["Carro na mão de lá", func(): main.background.pass_car(0, kind.call())],
+		["Carro na mão de cá", func(): main.background.pass_car(1, kind.call())]])
 	_section("Noites", func(): _go_night(1))
 	_row([["◀ Noite anterior", func(): _go_night(main.night_no - 1)], ["Próxima noite ▶", func(): _go_night(main.night_no + 1)]])
 	_section("Viaturas e caderno", _clear_units_notebook)

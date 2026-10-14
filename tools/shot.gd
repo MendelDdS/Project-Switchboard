@@ -17,6 +17,7 @@ extends Node
 ##   --screen=id            uma tela por cima: intro (a de início), pause, settings, report (o relatório com advertências)
 ##   --hover=id             o mouse em cima do objeto da mesa (os ids de `Tools`): o contorno e o nome
 ##   --zoom=x,y,w,h         o recorte, em px do jogo, ampliado `ZOOM` vezes
+##   --car=fusca            um carro de cada modelo dado (vírgulas) parado na rua lá fora, um em cada mão (--car_t=0.45: onde, de 0 a 1)
 ##   --wait=5               segundos antes de capturar (a luminária esquenta em 4)
 ## As do jogo também valem: --weather=rain|fog|clear, --night=N, --seed=N, --lang=en.
 
@@ -107,6 +108,17 @@ func _ready() -> void:
 			m._ending.play(m.report, true)
 			await get_tree().create_timer(4.0, false).timeout
 	await get_tree().create_timer(float(_args.get("wait", "5")), true).timeout   # (conta também na pausa)
+	if _args.has("car"):   # (depois da espera: em `CAR_SEC` ele já teria passado)
+		var kinds: PackedStringArray = _args["car"].split(",")
+		m.background._car_in = [INF, INF]
+		for f in 12:   # posto de novo a cada quadro: um quadro demorado o levava para fora da vista
+			m.background._cars.clear()
+			for lane in 2:
+				if not Background.CAR_KINDS.has(kinds[lane % kinds.size()]):   # (--car=picape,- : só o de lá)
+					continue
+				m.background._cars.append({"t": float(_args.get("car_t", "0.45")), "lane": lane, "kind": kinds[lane % kinds.size()],
+					"col": Background.CAR_COLORS[lane + 1], "taxi": false})
+			await get_tree().process_frame
 	_save(vp)
 
 

@@ -54,7 +54,8 @@ const WALL_GAP := 30.0     ## quanto a luminária fica à frente da parede (px d
 # partir dos olhos, z a distância deles (a parede fica a `Z0`; mais perto, tudo cresce Z0/z vezes).
 const VP_AT := 0.20     ## o ponto de fuga no espaço da mesa, da mesa comutadora (0) à quina (1): perto dos objetos (longe dele, eles entortam; com os olhos baixos, mais); com 0,32, a lateral da mesa comutadora saía larga e inclinada demais
 const CORNER := 0.64    ## a quina das paredes, na largura da área das ferramentas
-const BOARD_D := 10.0   ## o fundo do painel da mesa comutadora (z), atrás da prateleira: raso, como o das mesas de verdade (o corpo do móvel é o console); a lateral dele foge para o ponto de fuga
+const BOARD_GAP := 6.0  ## o vão entre o fundo da mesa comutadora e o fundo do tampo (z, ~4 cm): o móvel vai quase até ele (raso, o tampo atrás dela sobrava); a lateral foge para o ponto de fuga
+const DESK_LIP := 2.5   ## o tampo na frente do console (px de 2x2): a borda da frente fica um pouco abaixo da faixa de mesa
 const DUST := 240        ## grãos de poeira na luz da luminária
 const BEADS := 50        ## gotas paradas no vidro, na chuva
 const RAIN := 320        ## pingos caindo lá fora, na chuva
@@ -106,6 +107,7 @@ const SILL_D := 9.0        ## quanto o peitoril de dentro sai da parede para a s
 const SHIFT_START := 18.0 * 60.0   ## o começo do turno (min do dia): o café da caneca está quente
 const STEAM_FOR := 210.0    ## em quantos minutos de jogo o café esfria e o vapor some (às 21h30)
 const BLIND := 0.12        ## até onde a persiana desce (fração da altura do vão)
+const TRANSOM := 0.27      ## a travessa do caixilho (fração da altura do vão), alta como a de uma bandeira: no horizonte, ela escondia o fim da rua do cruzamento e a igreja
 const X2 := Transform2D(Vector2(2, 0), Vector2(0, 2), Vector2.ZERO)   ## a escala dos px de 2x2 (`_sprite` volta a ela)
 
 @export var window: Control   ## a área das ferramentas: a quina e a janela ficam na parede dela
@@ -149,6 +151,7 @@ var _sill_lit: Array = []   # o peitoril na luz de fora: [polígono (px da tela)
 var _glass := PackedVector2Array()   # o vidro da janela abaixo da persiana (px da tela): o escuro da sala não passa nele
 var _sign_px := Vector2.ZERO   # onde o letreiro aparece no vidro (px da tela; zero = fora do vidro)
 var _car_in := [20.0, 32.0]          # quanto falta para o próximo de cada mão (s)
+var _car_next := ["", ""]            # o modelo do próximo de cada mão (vazio: sorteado; o painel de debug escolhe)
 var _walk_in := 3.0      # quanto falta para o próximo (s)
 var _dog_in := randf_range(15.0, 50.0)   # quanto falta para o próximo latido, contado a partir de `DOG_FROM` (s)
 var _dog_reply := -1.0   # quanto falta para o cachorro que responde (-1 = nenhum)
@@ -159,7 +162,6 @@ var _warm_t := -1.0   # s desde que a luminária acendeu (`warm_up`; -1 = já qu
 var _lamp_dim := false   # a luminária estava baixa no quadro anterior (ao piscar, estala)
 var _rain_sent := -1.0   # a força da chuva já passada ao `Sfx`
 var _street_map := []   # a conta da luz da rua na mesa (`_draw_street_light`): [x da quina, alturas, fundos, força]
-var _sign_was := true    # o letreiro estava aceso no quadro anterior (ao falhar, estala)
 var _bolt_in := 30.0     # quanto falta para o próximo (s)
 var _thunder_at := 2.0   # quando, depois dele, vem o trovão (s)
 
@@ -375,7 +377,8 @@ func _events(delta: float) -> void:
 	for lane in CAR_LANES.size():   # um carro por vez em cada mão, cada uma no seu tempo
 		_car_in[lane] -= delta
 		if _car_in[lane] <= 0.0:
-			var kind := _car_kind()
+			var kind: String = _car_next[lane] if _car_next[lane] != "" else _car_kind()
+			_car_next[lane] = ""
 			_cars.append({"t": 0.0, "lane": lane, "kind": kind, "col": CAR_COLORS.pick_random(),
 				"taxi": kind in TAXI_KINDS and randf() < TAXI})
 			_car_in[lane] = INF   # o próximo desta mão é sorteado quando este sair
@@ -402,10 +405,6 @@ func _events(delta: float) -> void:
 		w["t"] += delta / w["sec"]
 		if w["t"] >= 1.0:
 			_walkers.remove_at(i)
-	var lit := _sign_on()
-	if _sign_was and not lit and _sign_px != Vector2.ZERO:
-		Sfx.play_at("neon", x)
-	_sign_was = lit
 	_bolt_in -= delta
 	if weather == "rain" and rain_level() != _rain_sent:   # a chuva engrossa e afina: o som acompanha
 		_rain_sent = rain_level()
@@ -422,6 +421,13 @@ func _events(delta: float) -> void:
 				Sfx.play_at("rattle", x, -6.0 * (_thunder_at - THUNDER_AFTER.x) / (RATTLE_NEAR - THUNDER_AFTER.x))
 			_bolt = -1.0
 			_bolt_in = randf_range(BOLT_EVERY.x, BOLT_EVERY.y)
+
+
+## Faz passar agora um carro na mão `lane` (0: a de lá), do modelo `kind` (vazio: sorteado), se ela estiver livre (debug).
+func pass_car(lane: int, kind := "") -> void:
+	if _cars.all(func(c: Dictionary) -> bool: return c["lane"] != lane):
+		_car_in[lane] = 0.0
+		_car_next[lane] = kind
 
 
 ## Um modelo de carro sorteado pelo quanto ele passa (`CAR_KINDS`, `weight`).
@@ -480,8 +486,8 @@ func _draw() -> void:
 	var h := ceilf(size.y / 2.0)
 	# o fundo do tampo: atrás da mesa comutadora, que fica de pé nele
 	var top := floorf((board.global_position.y - global_position.y + board.size.y - BOARD_SINK) / 2.0) if board else 200.0
-	# a borda da frente do tampo: logo abaixo da faixa de mesa (o painel do operador cobre o resto)
-	var front := floorf((desk.global_position.y - global_position.y + desk.size.y) / 2.0) + 1.0 if desk else h - 20.0
+	# a borda da frente do tampo: um pouco abaixo da faixa de mesa, a frente do console (o painel do operador cobre o resto)
+	var front := floorf((desk.global_position.y - global_position.y + desk.size.y) / 2.0) + 1.0 + DESK_LIP if desk else h - 20.0
 	_lamp_x = floorf(w / 2.0)
 	var area := Rect2((window.global_position - global_position) / 2.0, window.size / 2.0) if window else Rect2(320, 26, 300, 180)
 	_yd = EYE / DESK_T
@@ -505,7 +511,7 @@ func _draw() -> void:
 		_draw_poster(Rect2(floorf(cab.end.x + gap), 26, POSTER_W, 28))
 	_zd = Vector2(Z0 * _yd / (front - _vp.y), Z0 / DESK_T)
 	_draw_desk(Rect2(0, top, w, h - top), front)
-	_draw_switchboard(front)
+	_draw_switchboard()
 	_draw_side_wall(top, front, w)
 	_draw_hung_clipboard()
 	_draw_desk_props()
@@ -609,7 +615,7 @@ func _bolt_build(top: float) -> void:
 	# do fundo do tampo fica fora
 	var gh := _cm(WIN_SILL - WIN_TOP)
 	var y0 := _cm(WIN_TOP)
-	var ty := floorf(gh * 0.55) - 1.0
+	var ty := floorf(gh * TRANSOM) - 1.0
 	var zfar := Z0 / SIDE_T   # a janela ao longo da parede: do lado da quina...
 	var znear := Z0 / _t2     # ...ao de perto
 	var zb := Z0 / DESK_T
@@ -1010,19 +1016,19 @@ func _draw_reflection(g: Rect2) -> void:
 ## rádio embutido) e cujo alto é a prateleira, onde ficam o encaixe do FONE e os buracos dos cabos com os plugs em pé
 ## (a mesa desenha); no fundo da prateleira, o painel (`board`). A interface é a frente do painel e do rádio; aqui
 ## ficam a frente do console em volta dele, a prateleira com o rodapé e a sombra do painel, a lateral em L virada para o ponto de fuga (o console até o fundo do móvel,
-## `BOARD_D`, e o painel em cima dele) e, com os olhos acima dele, o tampo do painel. Painel e console têm a mesma
+## quase até o fundo do tampo, `BOARD_GAP`, e o painel em cima dele) e, com os olhos acima dele, o tampo do painel. Painel e console têm a mesma
 ## largura na sala: o console, mais perto, sai mais largo na tela (a esquerda passa da borda). Em px da tela (1x1).
-func _draw_switchboard(front: float) -> void:
+func _draw_switchboard() -> void:
 	if not (board and desk):
 		return
 	draw_set_transform(Vector2.ZERO)
 	var vp := _vp * 2.0
 	var b := Rect2(board.global_position - global_position, board.size)
 	var sy := desk.global_position.y - global_position.y   # a prateleira, no alto da faixa de mesa
-	var fy := front * 2.0                                  # o pé do console, na borda da frente do tampo
+	var fy := sy + desk.size.y                             # o pé do console, no tampo, `DESK_LIP` atrás da borda
 	var k := (b.end.y - vp.y) / maxf(1.0, sy - vp.y)       # quanto o painel encolhe visto da frente do console
-	var zp := _zd.x / k                                    # o painel (z): o console começa na frente do tampo
-	var kb := zp / (zp + BOARD_D)
+	var zp := Z0 * _yd / (fy / 2.0 - _vp.y) / k            # o painel (z), a partir do pé do console
+	var kb := zp / (Z0 / DESK_T - BOARD_GAP)
 	_panel_z = zp
 	_side_x = (b.end.x / 2.0 - _vp.x) * zp / Z0
 	var near := func(p: Vector2) -> Vector2: return vp + (p - vp) / k    # da linha do painel para a frente
@@ -1147,7 +1153,12 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	_view_at = view.position
 	# o vidro que aparece começa abaixo da persiana (e da borda de cima da tela): as gotas ficam dali para baixo
 	_glass_from = clampf((maxf(0.0, _side_pt(Vector2(gw * 0.5, blind)).y) - view.position.y) / view.size.y, 0.0, 0.95)
-	if _vport.size != Vector2i(view.size * 2.0):   # o vidro em px da tela: a vista também é desenhada em 1x1
+	var mx := gw / 2.0
+	var ty := floorf(gh * TRANSOM) - 1
+	var near_x := minf(_side_pt(Vector2(gw, ty)).x, w)   # o batente de perto, ou a borda da tela
+	var out_x := roundf(lerpf(_side_pt(Vector2(mx + 1, ty), WALL_D).x, near_x, OUT_AT) - view.position.x)
+	if _vport.size != Vector2i(view.size * 2.0) or out_x != _out_x:   # o vidro em px da tela: a vista também é desenhada em 1x1
+		_out_x = out_x
 		_vport.size = Vector2i(view.size * 2.0)
 		_back.queue_redraw()   # já, e não no próximo quadro dela: na pausa (a janela mudando de tamanho), ficava vazia
 		_view.queue_redraw()
@@ -1160,7 +1171,7 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	var cg := Rect2(view.position, view.size - Vector2(0, _near))   # a cidade, como `_draw_city` a vê
 	var face := _church_pos(cg) - Vector2(0, 40 * CHURCH_K)
 	if Geometry2D.is_point_in_polygon(face, q):
-		_light(Rect2(face * 2.0 - Vector2(2.6, 2.6), Vector2(5.2, 5.2)), Color("e2b25a"), 0.5, true)
+		_light(Rect2(Vector2(floorf(face.x * 2.0) - 1.0, roundf(face.y * 2.0) - 1.0), Vector2(3, 3)), Color("e2b25a"), 0.25, true)   # (do tamanho dele, 3 px; `_draw_church`)
 	var sign := _hotel_pos(cg) + Vector2(2, 8)
 	_sign_px = sign * 2.0 if Geometry2D.is_point_in_polygon(sign, q) else Vector2.ZERO
 	_sign_glow = Rect2(_sign_px - Vector2(4, 16), Vector2(8, 32)) if _sign_px != Vector2.ZERO else Rect2()
@@ -1172,8 +1183,6 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	var bar := func(poly: PackedVector2Array, col: Color) -> void:
 		for part in Geometry2D.intersect_polygons(poly, inner):
 			_poly(part, col)
-	var mx := gw / 2.0
-	var ty := floorf(gh * 0.55) - 1
 	var f := WALL_D - 3.0
 	bar.call(PackedVector2Array([_side_pt(Vector2(0, ty), f), _side_pt(Vector2(gw, ty), f), _side_pt(Vector2(gw, ty), WALL_D),
 		_side_pt(Vector2(0, ty), WALL_D)]), WOOD[0])

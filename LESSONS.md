@@ -288,3 +288,25 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   na mão (a 1,06, umas fileiras de pixels dobram por um instante) e o usuário preferiu que crescessem: a subida para
   perto dos olhos pesa mais que a regularidade dos pixels durante o arraste. Em interação (pegar, soltar, apertar),
   proponha a troca antes de tirar o efeito.
+- **Encolheu a escala de um desenho, confira o que tem tamanho fixo nele.** Com a câmera da vista recuada (`OUT_F`) e a
+  igreja diminuída (`CHURCH_K`), a cruz, o relógio e o brilho dele (em px, fora da escala) ficaram maiores que a torre e
+  pareciam um poste aceso; e o facho dos faróis, inteiro até a ponta, virou uma laje cinza que alargava os carros.
+  Detalhes soltos ao acaso numa área pequena (as janelas da rua do cruzamento) parecem ruído: ponha-os numa grade.
+- **Não compare `Vector2.x` (32 bits) com um `float` (64 bits) com `==`.** O carro guardava a posição da frente num
+  `Vector2` e depois perguntava `face.x == x` para saber se era a frente: dava falso, e a frente dos carros vindo na
+  nossa direção acendia as lanternas vermelhas. Guarde a decisão num `bool`.
+- **A silhueta é o que se lê, não a medida.** A perua tinha a proporção certa e parecia baixa: os vidros quase pretos
+  sumiam no asfalto escuro atrás, e só a lataria (0,7 m de altura) aparecia. Antes de mexer na medida, veja se cada
+  parte se separa do fundo.
+- **Peça de poucos pixels precisa de tom próprio.** O teto da picape, visto de viés, vira uma tira de 1–2 px entre o
+  para-brisa e a parede de trás; no mesmo tom dos vidros, a cabine parecia quebrada. Para achar o defeito, desenhe a
+  geometria ampliada fora do jogo (as mesmas contas de `_o`, em Python): na captura, 8 px não dizem o que é cada peça.
+- **Desenho por camadas (pintor) sem descartar a face de trás mostra o que devia estar escondido.** O para-brisa do
+  fusca saía visto por trás, por cima do teto. Superfície inclinada desenhada por cima das outras precisa conferir se
+  está virada para os olhos (`faces`, em `_draw_car`). E a silhueta tem de fechar: degrau sem chapa vira buraco.
+  Corrigiu um modelo de carro, confira todos nas duas mãos, indo e vindo (a geometria ampliada fora do jogo mostra
+  todos de uma vez).
+- **Grande-angular estica a profundidade longe do meio.** Fachadas paralelas à janela não mostram isso, mas o carro,
+  a 60° do eixo, se inclinava para o ponto de fuga até parecer ter metade da largura do comprimento. Perspectiva certa
+  não é o que se lê: encolha a profundidade só no que tem volume (`CAR_DEPTH`). E forma recuada da beira para "parecer
+  arredondada" deixa fresta onde nada a cobre.

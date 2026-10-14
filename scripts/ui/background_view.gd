@@ -13,15 +13,18 @@ const WALK_STEPS := 2.2   ## passos por segundo (as pernas alternam nesse ritmo)
 ## A vista é uma cena 3D simples projetada para o vidro (pensada antes, não elemento por elemento): uma câmera dentro
 ## do prédio, na altura de quem está na janela (`OUT_EYE` m acima da rua: o horizonte passa ali), olhando para fora,
 ## de frente para uma rua que passa ao lado do prédio e continua para os dois lados. Um ponto de fuga só, no meio do
-## horizonte, que é o da sala (a altura dos olhos, `_vp`: uma câmera só para o cenário inteiro): para ele fogem só as linhas que vão para longe (a rua do cruzamento,
+## horizonte (`OUT_AT`, ao lado do montante), na altura do da sala (a altura dos olhos, `_vp`: uma câmera só para o cenário inteiro): para ele fogem só as linhas que vão para longe (a rua do cruzamento,
 ## as laterais dos prédios); a rua, os meios-fios e as fachadas de frente ficam na horizontal, e as paredes na
 ## vertical. Não é a perspectiva da janela (a diagonal dela é só do primeiro plano). Tudo em metros (`_o`: `x` ao longo
 ## da rua, `z` a distância dos olhos, `h` a altura), no tamanho de verdade.
 const OUT_EYE := 4.5      ## os olhos acima da rua (m)
-const OUT_F := 45.0       ## a distância focal (px de 2x2 de um metro a um metro)
+const OUT_F := 32.0       ## a distância focal (px de 2x2 de um metro a um metro): com 45, a vista ficava perto e o vidro mostrava pouco da rua
+## O ponto de fuga lá fora, de lado a lado do vidro de perto (do montante, 0, ao batente de perto, 1): no meio da vista,
+## a rua do cruzamento e a igreja ficavam atrás do montante.
+const OUT_AT := 0.4
 ## O horizonte lá fora abaixo da altura dos olhos (cm): a janela desceu (`WIN_TOP`, `WIN_SILL`) e a vista desceu com
 ## ela, para os prédios ficarem no meio do vidro, abaixo da persiana, em vez de atrás dela.
-const OUT_DROP := 14.0
+const OUT_DROP := 18.0
 ## A rua, de perto para longe (z, m): a nossa fachada, a nossa calçada até o meio-fio, as duas mãos (a faixa no meio),
 ## o meio-fio de lá, a calçada de lá e as fachadas do outro lado, apoiadas nela.
 const STREET := {"curb": 3.2, "lane": 7.2, "far_curb": 11.2, "far": 14.0}
@@ -62,7 +65,8 @@ const CAR_KINDS := {
 		"pillars": [1.95],
 		"tops": [Vector3(0.2, 0.95, 0.82), Vector3(1.55, 2.4, 1.48), Vector3(3.1, 3.75, 0.78)],
 		"glass": [Vector4(0.95, 0.86, 1.3, 1.4), Vector4(1.3, 1.4, 1.55, 1.48)],
-		"slopes": [Vector4(2.4, 1.48, 2.75, 1.36), Vector4(2.75, 1.36, 3.0, 1.1), Vector4(3.0, 1.1, 3.1, 0.88)],
+		"slopes": [Vector4(0.0, 0.78, 0.2, 0.82), Vector4(2.4, 1.48, 2.75, 1.36), Vector4(2.75, 1.36, 3.0, 1.1), Vector4(3.0, 1.1, 3.1, 0.78),
+			Vector4(3.75, 0.78, 4.05, 0.72)],   # fechando com o capô, a tampa do motor e a frente e a traseira (com degraus, via-se a rua por cima dele)
 		"front": 0.78, "back": 0.72, "trim": [0.86], "doors": [2.0], "wheels": [0.7, 3.15], "wheel": 0.32},
 	"brasilia": {"weight": 2.0, "pitch": 1.05, "len": 4.0, "wide": 1.6, "belt": 0.85, "lamp": 0.66,
 		"body": [Vector2(0, 0.3), Vector2(0, 0.7), Vector2(0.08, 0.82), Vector2(3.95, 0.86), Vector2(4.0, 0.75), Vector2(4.0, 0.3)],
@@ -75,11 +79,11 @@ const CAR_KINDS := {
 		"tops": [Vector3(0.0, 1.1, 0.95), Vector3(1.6, 3.2, 1.45), Vector3(3.6, 4.5, 0.95)],
 		"glass": [Vector4(1.1, 0.95, 1.6, 1.45), Vector4(3.6, 0.95, 3.2, 1.45)],
 		"front": 0.95, "back": 0.95, "trim": [0.95, 0.4], "doors": [2.3], "wheels": [0.8, 3.6], "wheel": 0.31},
-	"perua": {"weight": 1.5, "pitch": 1.0, "len": 4.4, "wide": 1.75, "belt": 0.93, "lamp": 0.68,
-		"body": [Vector2(0, 0.3), Vector2(0, 0.8), Vector2(0.1, 0.93), Vector2(4.35, 0.93), Vector2(4.4, 0.8), Vector2(4.4, 0.3)],
-		"win": [Vector2(1.1, 0.95), Vector2(1.6, 1.4), Vector2(4.25, 1.4), Vector2(4.3, 0.95)], "pillars": [2.35, 3.4],
-		"tops": [Vector3(0.0, 1.1, 0.93), Vector3(1.6, 4.3, 1.42)], "glass": [Vector4(1.1, 0.93, 1.6, 1.42)],
-		"front": 0.93, "back": 1.4, "back_glass": Vector2(0.95, 1.35), "trim": [0.93], "doors": [2.3], "wheels": [0.8, 3.5], "wheel": 0.31},
+	"perua": {"weight": 1.5, "pitch": 1.0, "len": 4.0, "wide": 1.55, "belt": 1.0, "lamp": 0.72,   # (4,4 por 1,75 e 1,42 de altura, saía larga e baixa)
+		"body": [Vector2(0, 0.3), Vector2(0, 0.88), Vector2(0.1, 1.0), Vector2(3.95, 1.0), Vector2(4.0, 0.88), Vector2(4.0, 0.3)],
+		"win": [Vector2(0.95, 1.02), Vector2(1.4, 1.57), Vector2(3.85, 1.57), Vector2(3.9, 1.02)], "pillars": [2.1, 3.05],
+		"tops": [Vector3(0.0, 0.95, 1.0), Vector3(1.4, 3.9, 1.6)], "glass": [Vector4(0.95, 1.0, 1.4, 1.6)],
+		"front": 1.0, "back": 1.6, "back_glass": Vector2(1.05, 1.52), "trim": [1.0], "doors": [2.05], "wheels": [0.72, 3.25], "wheel": 0.32},
 	"kombi": {"weight": 1.3, "pitch": 0.9, "len": 4.3, "wide": 1.75, "belt": 1.1, "lamp": 0.8,
 		"body": [Vector2(0, 0.3), Vector2(0, 1.85), Vector2(0.12, 1.95), Vector2(4.2, 1.95), Vector2(4.3, 1.8), Vector2(4.3, 0.3)],
 		"upper": [Vector2(0, 1.1), Vector2(0, 1.85), Vector2(0.12, 1.95), Vector2(4.2, 1.95), Vector2(4.3, 1.8), Vector2(4.3, 1.1)],
@@ -112,6 +116,11 @@ const CAR_HEAD := Color("fff1c8")   ## os faróis
 const TAXI_SIGN := Color("f0d88a")   ## a placa acesa do táxi
 const CAR_SPRAY := 14   ## os pontos do borrifo atrás de cada roda, na chuva
 const CAR_TAIL := Color("8a1e14")   ## as lanternas
+const CANYON_WIN := Vector2(2.6, 0.5)   ## as janelas das paredes da rua do cruzamento: de quantos em quantos metros e quantas acesas
+const BEAM := 5.0   ## até onde vai o facho dos faróis no asfalto (m)
+## Quanto da profundidade do carro (a largura dele, de um lado ao outro da mão) entra no recuo para o ponto de fuga: a
+## vista é grande-angular, e longe do meio o carro se inclinava tanto que parecia ter metade da largura do comprimento.
+const CAR_DEPTH := 0.4
 ## O arbusto plantado junto da nossa parede, embaixo da janela: é do primeiro plano, como a janela, e fica no plano da
 ## parede dela (não na vista). O meio e a meia largura (fração da largura do vão) e quanto a copa sobe acima do
 ## peitoril (fração da altura).
@@ -130,7 +139,7 @@ const OVERCAST_SPEED := 0.012
 const OVERCAST_LIT := Color("3e3733")    ## a nuvem clareada por baixo pelas luzes da cidade (perto do horizonte)
 const OVERCAST_DARK := Color("0d1216")   ## os vãos mais escuros entre elas
 const OVERCAST_DECK := Color("1b1e23")   ## o fundo de nuvem no alto (no horizonte, `OVERCAST_LIT`)
-const CHURCH_K := 0.45    ## a escala da igreja (desenhada em px de 2x2), no fim da rua do cruzamento
+const CHURCH_K := 0.32    ## a escala da igreja (desenhada em px de 2x2), no fim da rua do cruzamento (na distância focal, `OUT_F`)
 const SIGN_RED := Color("ff4a3a")    ## o neon dele aceso (apagado, quase preto)
 const FOG := Color(0.55, 0.62, 0.66)   ## a cor da névoa (`_draw_fog`)
 const FOG_VEIL := 0.2    ## o véu dela por cima de tudo lá fora (o longe some nele)
@@ -159,6 +168,8 @@ var _canyon: Array = []        # as paredes da rua do cruzamento: {x, z0, z1, h,
 var _city: Array = []          # a cidade no fundo: {x, w, h, row, lit: [Vector3...]} (px do vidro; z: o minuto em que a janela apaga)
 var _city_for := Vector2.ZERO  # tamanho do vidro para o qual `_city` foi montada
 var _view_at := Vector2.ZERO   # onde a vista começa na tela (px de 2x2): o arbusto é posto pela parede da sala
+var _out_x := 38.0   # o ponto de fuga lá fora, a partir da esquerda da vista (px de 2x2; `OUT_AT`)
+var _car_z := 0.0   # desenhando um carro: o meio da mão dele (m), onde a profundidade se encolhe (`CAR_DEPTH`); 0 = fora dele
 var _near := 0.0         # a vista passa do peitoril de longe para baixo (px de 2x2): a parte de perto da janela, mais alta na tela, mostra a calçada embaixo dela
 var _cars: Array[Dictionary] = []   # os carros passando lá fora: {"t": de 0 a 1, "lane": em `CAR_LANES`, "kind": em `CAR_KINDS`, "col", "taxi"}
 var _walkers: Array = []   # quem está passando na calçada de lá (`_walker`), na ordem do desenho: os de mais longe primeiro
@@ -217,8 +228,9 @@ func _draw_city(g: Rect2) -> void:
 	if weather == "rain":
 		_draw_wet(g)
 	# o outro lado: as paredes da rua do cruzamento (de longe para perto) e as fachadas de frente, apoiadas na calçada
+	var taken := {}   # os pixels das janelas finas já acesos
 	for i in range(_canyon.size() - 1, -1, -1):
-		_draw_canyon_wall(g, _canyon[i], hz)
+		_draw_canyon_wall(g, _canyon[i], hz, taken)
 	# a névoa da noite na rua do cruzamento, clareando lisa para o fundo (a igreja aparece nela)
 	var ff: float = STREET["far"]
 	var mouth := PackedVector2Array([_o(g, CROSSING.x, ff), _o(g, CROSSING.y, ff), _o(g, CROSSING.y, ff, 16.0), _o(g, CROSSING.x, ff, 16.0)])
@@ -352,7 +364,9 @@ func _draw_city_front(g: Rect2) -> void:
 	for c in _cars:
 		if weather == "rain":
 			_draw_wet(g, c)
+		_car_z = CAR_LANES[c["lane"]].x
 		_draw_car(g, c)
+		_car_z = 0.0
 	if weather == "fog":
 		_draw_fog(g)
 
@@ -419,7 +433,8 @@ func _hz(g: Rect2) -> float:
 ## da rua. A câmera olha de frente para a rua: a linha que vai para longe foge para o meio do horizonte.
 func _o(g: Rect2, x: float, z: float, h := 0.0) -> Vector2:
 	z = maxf(0.3, z)
-	return Vector2(g.position.x + g.size.x * 0.5 + OUT_F * x / z, _hz(g) + OUT_F * (OUT_EYE - h) / z)
+	var zx := z if _car_z == 0.0 else _car_z + (z - _car_z) * CAR_DEPTH
+	return Vector2(g.position.x + _out_x + OUT_F * x / zx, _hz(g) + OUT_F * (OUT_EYE - h) / z)
 
 
 ## Um retângulo no chão (ou na altura `h`) de `x0` a `x1` ao longo da rua e de `z0` a `z1` de distância.
@@ -559,8 +574,9 @@ func _draw_wet(g: Rect2, car: Dictionary = {}) -> void:
 		if lamp_level > 0.5:
 			for i in FAR_LAMPS.size():
 				lights.append([_lamp_heads(g)[i], _o(g, FAR_LAMPS[i], STREET["far_curb"] - 0.5), Color(1.0, 0.85, 0.55)])
-		if _sign_on():
-			lights.append([_hotel_pos(g), _o(g, HOTEL_X, STREET["far_curb"] - 0.5), SIGN_RED])
+		if _sign_on():   # embaixo das letras (o meio delas fica 2,25 px de 2x2 dentro da caixa; o risco tem 1,5 de largura)
+			var s := _hotel_pos(g) + Vector2(2.25, 0.0)
+			lights.append([s, Vector2(s.x - 0.75, _o(g, HOTEL_X, STREET["far_curb"] - 0.5).y), SIGN_RED])
 	for l: Array in lights:
 		_wet_streak(l[0], l[1], l[2])
 
@@ -576,8 +592,8 @@ func _wet_streak(head: Vector2, foot: Vector2, col: Color) -> void:
 
 
 ## Uma parede da rua do cruzamento (`w`: o lado `x`, de `z0` a `z1`, `h` m), indo embora para o ponto de fuga, com
-## algumas janelas acesas.
-func _draw_canyon_wall(g: Rect2, w: Dictionary, hz: Color) -> void:
+## janelas em andares (acesas ou não) e a laje de cada andar. `taken`: os pixels das janelas finas já acesos.
+func _draw_canyon_wall(g: Rect2, w: Dictionary, hz: Color, taken: Dictionary) -> void:
 	var x: float = w["x"]
 	var z0: float = w["z0"]
 	var z1: float = w["z1"]
@@ -585,10 +601,22 @@ func _draw_canyon_wall(g: Rect2, w: Dictionary, hz: Color) -> void:
 	var col: Color = (w["col"] as Color).lerp(hz, clampf((z0 - 14.0) / 160.0, 0.0, 0.5))
 	_poly(PackedVector2Array([_o(g, x, z0), _o(g, x, z1), _o(g, x, z1, ht), _o(g, x, z0, ht)]), col)
 	_ci.draw_line(_o(g, x, z0), _o(g, x, z0, ht), col.darkened(0.4), PX)   # a quina
-	for wv: Vector3 in w["wins"]:   # (z, altura, hora de apagar)
-		if wv.z > minutes:
-			var p := _o(g, x, wv.x, wv.y)
-			_r(p.x, p.y, PX, maxf(PX, 1.2 * OUT_F / wv.x), LIT[int(wv.x) % LIT.size()])
+	_ci.draw_line(_o(g, x, z0, ht), _o(g, x, z1, ht), col.lightened(0.12), PX)   # a cornija
+	for f in range(1, int((ht - 0.8) / 3.2)):   # a laje de cada andar, fugindo para o ponto de fuga com as janelas
+		_ci.draw_line(_o(g, x, z0, f * 3.2), _o(g, x, z1, f * 3.2), col.lightened(0.06), PX)
+	var dark := col.darkened(0.5)
+	for wv: Vector3 in w["wins"]:   # (z do meio, altura do peitoril, hora de apagar), 1 m por 1,4 m
+		var lit := wv.z > minutes
+		var a := _o(g, x, wv.x - 0.5, wv.y + 1.4)
+		var b := _o(g, x, wv.x + 0.5, wv.y)
+		var col_w: Color = LIT[int(wv.x) % LIT.size()] if lit else dark
+		if absf(b.x - a.x) >= PX:
+			_poly(PackedVector2Array([a, _o(g, x, wv.x + 0.5, wv.y + 1.4), b, _o(g, x, wv.x - 0.5, wv.y)]), col_w)
+		elif lit:   # mais fina que um pixel: 1 px, com um vazio ao lado (juntas, as de longe viravam um borrão amarelo)
+			var at := Vector2i(floori(a.x), floori(wv.y / 3.2))   # (px de 2x2: um vazio de 1 px da tela entre elas)
+			if not taken.has(at):
+				taken[at] = true
+				_r(roundf(a.x * 2.0) / 2.0, a.y, PX, maxf(PX, b.y - a.y), col_w)
 
 
 ## Um prédio do outro lado da rua, de frente (`b`: de `x0` a `x1`, `h` m, andares de 3,2 m), apoiado na calçada de lá:
@@ -844,7 +872,7 @@ func _add_walker(w: Dictionary) -> void:
 func _draw_walker(g: Rect2, w: Dictionary) -> void:
 	var z: float = w["z"]
 	var x: float = lerpf(-16.0, 16.0, w["t"]) * w["dir"]
-	if absf(x) > g.size.x * 0.5 * z / OUT_F + 1.0:
+	if absf(_out_x + OUT_F * x / z - g.size.x * 0.5) > g.size.x * 0.5 + OUT_F / z:
 		return
 	var steps := int(w["t"] * w["sec"] * WALK_STEPS)
 	var foot := (_o(g, x, z) * 2.0).floor() - Vector2(0, posmod(steps, 2))
@@ -885,47 +913,65 @@ func _draw_car(g: Rect2, c: Dictionary) -> void:
 	var body: Color = c["col"]
 	var wet := weather == "rain"
 	var top := body.darkened(0.3).lerp(CAR_SKY, 0.3 if wet else 0.15)   # molhado, espelha mais o céu
-	var glass := Color("0b1218")
+	var roof := top.lerp(CAR_SKY, 0.1).lightened(0.12)   # o teto, mais claro que os vidros (no mesmo tom, a cabine parecia quebrada)
+	var glass := Color("0b1218").lerp(CAR_SKY, 0.45)   # o céu refletido: quase preto, o vidro sumia no asfalto atrás e o carro parecia só a lataria, baixo
 	var chrome := Color("5a6670")
 	var all: Vector2 = span.call(-0.2, L + 0.2)
 	_poly(_patch(g, all.x, all.y, z0 - 0.15, z1 + 0.15), Color(0, 0, 0, 0.55))   # o contato com o asfalto
-	_poly(PackedVector2Array([_o(g, x, z0 + 0.2), _o(g, x, z1 - 0.2), _o(g, x + d * 8.0, z1 + 0.6), _o(g, x + d * 8.0, z0 - 0.6)]),
-		Color(1.0, 0.95, 0.8, 0.12))   # o facho dos faróis
+	var beam := Color(1.0, 0.95, 0.8, 0.12)   # o facho dos faróis, sumindo à frente (inteiro, era uma laje cinza colada no carro)
+	_fill(PackedVector2Array([_o(g, x, z0 + 0.2), _o(g, x, z1 - 0.2), _o(g, x + d * BEAM, z1 + 0.5), _o(g, x + d * BEAM, z0 - 0.5)]),
+		PackedColorArray([beam, beam, Color(beam, 0.0), Color(beam, 0.0)]))
 	if m.has("bed"):   # a caçamba: o fundo dela, mais escuro, entre as paredes
 		var bed: Vector2 = m["bed"]
 		var bs: Vector2 = span.call(bed.x, bed.y)
 		_poly(_patch(g, bs.x, bs.y, z0 + 0.08, z1 - 0.08, 0.75), body.darkened(0.45))
 		_poly(PackedVector2Array([_o(g, bs.x, z1 - 0.08, 0.75), _o(g, bs.y, z1 - 0.08, 0.75), _o(g, bs.y, z1 - 0.08, m["belt"]),
 			_o(g, bs.x, z1 - 0.08, m["belt"])]), body.darkened(0.3))   # a parede de lá, por dentro
-		_poly(_patch(g, bs.x, bs.y, z1 - 0.08, z1, m["belt"]), top.lightened(0.1))   # a beira dela
+		_poly(_patch(g, bs.x, bs.y, z1 - 0.08, z1, m["belt"]), top.lightened(0.1))   # as beiras dela, a de lá e a de cá
+		_poly(_patch(g, bs.x, bs.y, z0, z0 + 0.08, m["belt"]), top.lightened(0.1))
 		var back: float = at.call(m["cab"][3].x)   # a parede de trás da cabine, virada para a caçamba
 		if d * back > 0.0:
 			_poly(PackedVector2Array([_o(g, back, z0, 0.75), _o(g, back, z1, 0.75), _o(g, back, z1, 1.75), _o(g, back, z0, 1.75)]),
 				body.darkened(0.25))
-			_poly(PackedVector2Array([_o(g, back, z0 + 0.4, 1.2), _o(g, back, z1 - 0.4, 1.2), _o(g, back, z1 - 0.4, 1.6),
-				_o(g, back, z0 + 0.4, 1.6)]), glass)   # o vidro de trás
+			var gl := PackedVector2Array([_o(g, back, z0 + 0.4, 1.2), _o(g, back, z1 - 0.4, 1.2), _o(g, back, z1 - 0.4, 1.6),
+				_o(g, back, z0 + 0.4, 1.6)])
+			if gl[1].distance_to(gl[0]) >= 3.0 * PX:   # o vidro de trás (de viés, mais estreito que isso, era um borrão no teto)
+				_poly(gl, glass)
 	var box: Color = m.get("box_col", body)
+	if m.has("box") and d * x < 0.0:   # a parede da frente do baú, acima da cabine, enquanto ele vem
+		var bx: float = at.call(m["box"][0].x)
+		var bh: float = m["box"][1].y
+		_poly(PackedVector2Array([_o(g, bx, z0, m["belt"]), _o(g, bx, z1, m["belt"]), _o(g, bx, z1, bh), _o(g, bx, z0, bh)]),
+			box.darkened(0.15))
 	for t: Vector3 in m["tops"]:   # o que se vê de cima: capô, teto, porta-malas (e o teto do baú)
 		var ts: Vector2 = span.call(t.x, t.y)
-		var tc := box.darkened(0.3) if m.has("box") and t.x >= m["box"][0].x else (top.lerp(CAR_SKY, 0.1) if t.z > 1.3 else top)
-		_poly(_patch(g, ts.x, ts.y, z0 + 0.1, z1 - 0.1, t.z), tc)
+		var tc := box.darkened(0.3) if m.has("box") and t.x >= m["box"][0].x else (roof if t.z > 1.3 else top)
+		_poly(_patch(g, ts.x, ts.y, z0, z1, t.z), tc)
+	var faces := func(q: Vector4) -> bool:   # a chapa inclinada de (q.x, q.y) a (q.z, q.w) está virada para os olhos? (por trás, o para-brisa sumia atrás do teto e saía como um borrão preto)
+		var xa: float = at.call(q.x)
+		var xb: float = at.call(q.z)
+		var n := Vector2(q.y - q.w, xb - xa) * signf(xb - xa)   # a normal, para cima
+		return n.dot(Vector2(-xa, OUT_EYE - q.y)) > 0.0
 	for q: Vector4 in m["glass"]:   # os vidros inclinados (para-brisa, vigia)
-		_poly(PackedVector2Array([_o(g, at.call(q.x), z0 + 0.1, q.y), _o(g, at.call(q.z), z0 + 0.15, q.w),
-			_o(g, at.call(q.z), z1 - 0.15, q.w), _o(g, at.call(q.x), z1 - 0.1, q.y)]), glass)
-	for q: Vector4 in m.get("slopes", []):   # as chapas inclinadas (a traseira arredondada do Fusca)
-		_poly(PackedVector2Array([_o(g, at.call(q.x), z0 + 0.1, q.y), _o(g, at.call(q.z), z0 + 0.1, q.w),
-			_o(g, at.call(q.z), z1 - 0.1, q.w), _o(g, at.call(q.x), z1 - 0.1, q.y)]), top)
+		if faces.call(q):
+			_poly(PackedVector2Array([_o(g, at.call(q.x), z0, q.y), _o(g, at.call(q.z), z0, q.w),
+				_o(g, at.call(q.z), z1, q.w), _o(g, at.call(q.x), z1, q.y)]), glass)
+	for q: Vector4 in m.get("slopes", []):   # as chapas inclinadas (a traseira arredondada do Fusca), as do teto no tom dele
+		if faces.call(q):
+			_poly(PackedVector2Array([_o(g, at.call(q.x), z0, q.y), _o(g, at.call(q.z), z0, q.w),
+				_o(g, at.call(q.z), z1, q.w), _o(g, at.call(q.x), z1, q.y)]), roof if maxf(q.y, q.w) > 1.3 else top)
 	var rear: float = at.call(L)
 	var face := Vector2.ZERO   # a frente ou a traseira virada para nós: onde (x) e até que altura
+	var front := d * x < 0.0   # a frente, enquanto ele vem (comparar `face.x` com `x` falhava: o Vector2 é de 32 bits)
 	var face_glass := Vector2.ZERO
-	if d * x < 0.0:   # a frente, enquanto ele vem
+	if front:
 		face = Vector2(x, m["front"])
 		face_glass = m.get("front_glass", Vector2.ZERO)
 	elif d * rear > 0.0:   # a traseira, quando ele já passou
 		face = Vector2(rear, m["back"])
 		face_glass = m.get("back_glass", Vector2.ZERO)
 	if face.y > 0.0:
-		var fc := box if m.has("box") and face.x == rear else body
+		var fc := box if m.has("box") and not front else body
 		_poly(PackedVector2Array([_o(g, face.x, z0, 0.3), _o(g, face.x, z1, 0.3), _o(g, face.x, z1, face.y), _o(g, face.x, z0, face.y)]),
 			fc.darkened(0.2))
 		if face_glass != Vector2.ZERO:
@@ -963,11 +1009,11 @@ func _draw_car(g: Rect2, c: Dictionary) -> void:
 	for h: float in m["trim"]:   # e nos frisos
 		_sheen(g, at.call(0.05), at.call(L - 0.05), z0, h, 0.35 * shine, shine)
 	if c.get("taxi", false):   # o táxi: a placa acesa no teto
-		var roof: Vector3 = m["tops"][1]
-		var tx: float = at.call((roof.x + roof.y) / 2.0)
-		_poly(PackedVector2Array([_o(g, tx - 0.25, z0 + 0.6, roof.z), _o(g, tx + 0.25, z0 + 0.6, roof.z),
-			_o(g, tx + 0.25, z0 + 0.6, roof.z + 0.16), _o(g, tx - 0.25, z0 + 0.6, roof.z + 0.16)]), TAXI_SIGN)
-		var tc := _o(g, tx, z0 + 0.6, roof.z + 0.08)
+		var cab: Vector3 = m["tops"][1]
+		var tx: float = at.call((cab.x + cab.y) / 2.0)
+		_poly(PackedVector2Array([_o(g, tx - 0.25, z0 + 0.6, cab.z), _o(g, tx + 0.25, z0 + 0.6, cab.z),
+			_o(g, tx + 0.25, z0 + 0.6, cab.z + 0.16), _o(g, tx - 0.25, z0 + 0.6, cab.z + 0.16)]), TAXI_SIGN)
+		var tc := _o(g, tx, z0 + 0.6, cab.z + 0.08)
 		_light_fan(tc, _ring(tc, 0.5 * OUT_F / z0), Color(TAXI_SIGN, 0.3))
 	var r: float = m["wheel"]
 	_ci.draw_set_transform(Vector2.ZERO)   # as rodas em pixel art, em px da tela
@@ -993,7 +1039,6 @@ func _draw_car(g: Rect2, c: Dictionary) -> void:
 	_r(tl.x - tw if d < 0.0 else tl.x, tl.y - 0.08 * k, tw, maxf(1.0, 0.16 * k), CAR_TAIL)   # a lanterna
 	_light_fan(tl, _ring(tl, 0.25 * k), Color(CAR_TAIL.lightened(0.3), 0.3))
 	if face.y > 0.0:   # de frente (ou de costas) para nós, o par de faróis (ou de lanternas) acesos, com o halo
-		var front := face.x == x
 		for zl: float in [z0 + 0.3, z1 - 0.3]:
 			var p := _o(g, face.x, zl, m["lamp"] + (0.0 if front else 0.05))
 			var kk := OUT_F / zl
@@ -1162,10 +1207,12 @@ func _build_city(gs: Vector2) -> void:
 				for b: Dictionary in _houses:
 					if is_equal_approx(b["x1"], side) or is_equal_approx(b["x0"], side):
 						ht = b["h"]
-			var wins: Array[Vector3] = []
-			for i in 6:
-				if rng.randf() < 0.4:
-					wins.append(Vector3(rng.randf_range(z + 1.0, z + d - 1.0), rng.randf_range(2.0, ht - 1.5), off.call()))
+			var wins: Array[Vector3] = []   # em andares e colunas (soltas ao acaso, pareciam pontos sem prédio)
+			var cols := int((d - 1.0) / CANYON_WIN.x)
+			var z1 := z + (d - (cols - 1) * CANYON_WIN.x) / 2.0   # as colunas centradas na parede
+			for f in range(1, int((ht - 0.8) / 3.2)):   # o térreo sem janelas
+				for c in cols:
+					wins.append(Vector3(z1 + c * CANYON_WIN.x, f * 3.2 + 0.9, off.call() if rng.randf() < CANYON_WIN.y else 0.0))
 			_canyon.append({"x": side, "z0": z, "z1": z + d, "h": ht, "col": tones[rng.randi_range(0, 3)], "wins": wins})
 			z += d
 	_canyon.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a["z0"] < b["z0"])
@@ -1175,16 +1222,21 @@ func _build_city(gs: Vector2) -> void:
 ## alto; a porta acesa até `CHURCH_DARK`.
 func _draw_church(base: Vector2, col: Color) -> void:
 	var k := CHURCH_K
+	base.x = floorf(base.x / PX) * PX + PX / 2.0   # o eixo no meio de um pixel: a torre, a ponta e a cruz simétricas nele
+	var half := func(w: float) -> float: return (roundf(w / PX - 0.5) + 0.5) * PX   # meia largura de um número ímpar de pixels
 	_r(base.x - 12 * k, base.y - 18 * k, 24 * k, 18 * k, col)
 	_poly(PackedVector2Array([base + Vector2(-13, -18) * k, base + Vector2(0, -26) * k, base + Vector2(13, -18) * k]), col)
-	_r(base.x - 4 * k, base.y - 48 * k, 8 * k, 30 * k, col)
-	_poly(PackedVector2Array([base + Vector2(-5, -48) * k, base + Vector2(0, -60) * k, base + Vector2(5, -48) * k]), col)
-	var top := Vector2(roundf(base.x / PX) * PX, roundf((base.y - 60 * k) / PX) * PX)   # a ponta da torre, presa ao pixel
-	_r(top.x - PX, top.y - 3.5, 2 * PX, 4.0, col)   # a cruz: a haste entra na ponta, e os braços ficam no alto dela
-	_r(top.x - 1.5, top.y - 2.5, 3.0, PX, col)
-	var face := base + Vector2(0, -40 * k)
-	_ci.draw_circle(face, 1.3, Color("e2b25a"))
-	_r(face.x - PX, face.y - 1, PX, 1, Color("2a2016"))   # os ponteiros
+	var tw: float = half.call(4 * k)
+	_r(base.x - tw, base.y - 48 * k, 2 * tw, 30 * k, col)
+	var sw: float = half.call(5 * k)
+	var top := Vector2(base.x, roundf((base.y - 60 * k) / PX) * PX)   # a ponta da torre, presa ao pixel
+	_poly(PackedVector2Array([Vector2(base.x - sw, base.y - 48 * k), top, Vector2(base.x + sw, base.y - 48 * k)]), col)
+	# a cruz e o relógio em pixels, do tamanho da torre (maiores que ela, com a igreja diminuída, viravam um poste aceso)
+	_r(top.x - PX / 2.0, top.y - 2.5, PX, 3.0, col)   # a cruz: a haste entra na ponta, e os braços ficam no alto dela
+	_r(top.x - 2.5 * PX, top.y - 1.5, 5 * PX, PX, col)
+	var face := Vector2(top.x, roundf((base.y - 40 * k) / PX) * PX)
+	_r(face.x - 1.5 * PX, face.y - PX, 3 * PX, 3 * PX, Color("e2b25a"))
+	_r(face.x - PX / 2.0, face.y - PX, PX, 2 * PX, Color("2a2016"))   # os ponteiros
 	if minutes < CHURCH_DARK:
 		_r(base.x - 1, base.y - 4, 2, 4, Color(LIT[1], 0.8))   # a porta, com luz dentro (o relógio fica aceso)
 

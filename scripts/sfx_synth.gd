@@ -46,7 +46,7 @@ const WET_NEAR := 1.25   ## o carro da mão de cá: o chiado e o corte dos agudo
 const CAR_NEAR_SHARP := 1.8   ## o carro da mão de cá: a passagem mais concentrada no meio (expoente da curva)
 const CAR_TAKES := 3   ## versões de cada carro, cada uma com o seu sorteio
 const PARTS := [["_build_basic"], ["_build_ring"], ["_build_clock"], ["_build_rub"], ["_build_unroll"], ["_build_card"],
-	["_build_thunder"], ["_build_neon"], ["_build_bell"], ["_build_dog"], ["_build_dog", true], ["_build_outside"],
+	["_build_thunder"], ["_build_bell"], ["_build_dog"], ["_build_dog", true], ["_build_outside"],
 	["_build_lamp"], ["_build_rain"], ["_build_breeze"], ["_build_crickets"]]
 
 var streams := {}   ## id -> AudioStreamWAV
@@ -448,25 +448,6 @@ func _wet_tires(env: PackedFloat32Array) -> PackedFloat32Array:
 				out[at + i] += burst[i] * amp * minf(t / 0.025, 1.0) * exp(-t / 0.07)
 	var top := WET_TOP * (WET_NEAR if _near else 1.0)
 	return _biquad(_biquad(out, "lp", top, 0.7), "lp", top, 0.7)
-
-
-## O neon do hotel falhando, do outro lado da rua: o estalo do reator e o zumbido de 120 Hz, abafados pela distância
-## (sem os agudos, com o ataque macio) e com o eco curto das fachadas da rua chegando depois.
-func _build_neon() -> void:
-	_begin(0.4)
-	var n := _w.size()
-	var dry := PackedFloat32Array()
-	dry.resize(n)
-	dry.fill(0.0)
-	for i in int(0.16 * RATE):
-		var t := float(i) / RATE
-		var env := (1.0 - exp(-t / 0.008)) * exp(-t / 0.05)
-		dry[i] = (_rng.randf_range(-1.0, 1.0) * 0.6 + _wave("saw", 120.0 * t) * 0.5) * env
-	dry = _biquad(_biquad(dry, "lp", 900.0, 0.7), "lp", 900.0, 0.7)
-	var echo := int(0.085 * RATE)   # o eco nas fachadas (~15 m de ida e volta)
-	for i in n:
-		_w[i] = dry[i] + (dry[i - echo] * 0.35 if i >= echo else 0.0) + (dry[i - echo * 2] * 0.12 if i >= echo * 2 else 0.0)
-	_end("neon")
 
 
 ## O sino da igreja, no fim da rua: os parciais de um sino de bronze (o "hum" uma oitava abaixo, o principal, a terça

@@ -40,9 +40,8 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   clarão (`_cut`). E o trovão vem depois
   (`THUNDER_AFTER`, mais fraco quanto mais longe, som `thunder`; perto, o vidro e a persiana chocalham, `RATTLE_NEAR`,
   som `rattle`); e um letreiro de neon HOTEL (a palavra é a mesma nos
-  três idiomas) na vista, na fonte gravada da mesa, que falha de vez em quando (`_sign_on`; o T falha sozinho; ao falhar, estala baixinho, som `neon`, abafado pela
-  distância e com o eco das fachadas), com o
-  halo sem miolo para as letras aparecerem (`_light(..., core = false)`), o reflexo na rua molhada e um reflexo
+  três idiomas) na vista, na fonte gravada da mesa, que falha de vez em quando (`_sign_on`; o T falha sozinho; sem som: o estalo dele saiu a pedido), com o
+  halo sem miolo para as letras aparecerem (`_light(..., core = false)`), o reflexo na rua molhada (embaixo das letras, não da beira da caixa) e um reflexo
   vermelho fraco na parede perto da janela (`SIGN_GLOW`). Os três entram no `_state`. O prédio de tijolos da esquina é
   de apartamentos: no 3º andar, uma varanda (`APT`; porta, vasos, laje vista de baixo e gradil) com a janela da sala,
   onde a TV pisca azul (`_draw_balcony_back`/`_front`; a luz da sala apaga em `APT_DARK` e a TV em `TV_OFF`). Janelas que já
@@ -156,6 +155,8 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   cima mostrando o lado de baixo e as de baixo o tampo, e pastas em pé, e a porta aberta mostra o painel de dentro e a espessura); a parede da direita, entrando para o fundo
   a partir da quina (`CORNER` da área das ferramentas, `Background.window`), mais clara (virada para a luminária),
   com a janela vista de lado (`_draw_side_wall`, `_side_pt`: guarnição, caixilho e persiana na perspectiva da parede;
+  a travessa do caixilho alta, como a de uma bandeira, acima dos prédios, `TRANSOM`: no horizonte, ela escondia o fim
+  da rua do cruzamento e a igreja;
   o vão tem a espessura dela, `WALL_D`: sair da parede é andar na horizontal da tela, então aparecem o lado de dentro
   do batente de longe e o fundo do vão (a tábua do peitoril indo até o trilho de baixo do caixilho; escuro, parecia
   um buraco; o que passa do batente de perto é cortado; fora do vidro, o escuro da sala deixava o peitoril e a
@@ -214,8 +215,10 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   a prateleira tem veios e o friso de latão na beira) e cujo alto é a prateleira, com o FONE e os cabos em pé nos buracos (a mesa desenha); no fundo dela, num rodapé e com a sombra
   de contato, o painel (`Background.board`). Painel e console têm a mesma largura na sala, então o console, mais
   perto, sai mais largo na tela (a esquerda passa da borda): é o que os alinha na câmera. A lateral em L (o console
-  até o fundo do móvel e o painel em cima, raso como nas mesas de verdade, `BOARD_D`: fundo, ele mostrava uma lateral
-  e um tampo grandes demais para quem senta logo na frente) foge para o ponto de fuga; com os olhos acima do painel, o
+  até o fundo do móvel e o painel em cima) foge para o ponto de fuga; o móvel fica um pouco atrás da borda do tampo
+  (`DESK_LIP`: aparece o tampo na frente do console, entre a faixa de mesa e a borda) e vai quase até o fundo dele
+  (`BOARD_GAP`, um vão pequeno atrás; raso, com o painel de ~6 cm, `BOARD_D`, sobrava tampo vazio atrás dele, e a
+  pedido o móvel recuou e ficou fundo); com os olhos acima do painel, o
   tampo dele aparece. (Antes eram caixas soltas na frente do painel, com
   tampos enormes que cobriam o pé dele: parecia fora da mesa e desalinhado.) O tampo (`_draw_desk`): `PLANKS` tábuas
   da mesma largura espaçadas pela câmera, sem juntas (com juntas parecia assoalho), a borda da frente com a
@@ -262,7 +265,9 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   chuva. **A vista: uma cena 3D simples projetada no vidro** (pedido do usuário: pensar a cena antes,
   nunca a perspectiva elemento por elemento; `OUT_*`): uma câmera dentro do prédio, na altura de quem está na janela
   (`OUT_EYE` m acima da rua; o horizonte passa ali; não é vista aérea), olhando de frente para uma rua que passa ao
-  lado do prédio e continua para os dois lados. Um ponto de fuga só, no meio do horizonte: para ele fogem só as linhas
+  lado do prédio e continua para os dois lados, de longe (`OUT_F` 32: com 45 ela ficava perto e o vidro mostrava pouco). Um
+  ponto de fuga só, no horizonte, no vidro de perto, ao lado do montante (`OUT_AT`, `_out_x`; no meio da vista, a rua
+  do cruzamento e a igreja ficavam atrás dele): para ele fogem só as linhas
   que vão para longe (a rua do cruzamento e as paredes dela); a rua, os meios-fios e as fachadas de frente ficam na
   horizontal e as paredes na vertical, com a base apoiada na calçada. A diagonal da janela é só do primeiro plano (o arbusto plantado junto da nossa parede também: a copa sobe do
   peitoril posta pela parede da sala, `_side_pt`, não pela câmera da vista, `SHRUB`, `_draw_shrub`) e não
@@ -275,15 +280,16 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   vitrine acesa de um bar (`_draw_shopfront`), os prédios de frente
   (`_houses`, `_draw_far_house`: o de tijolos na esquina, à direita do cruzamento, `CROSSING`; o hotel com o letreiro e a marquise acesa
   sobre a porta, `HOTEL_X`, `_draw_marquee`, do outro lado; janelas fundas, com a sombra da verga e o peitoril, e a
-  luz dos postes lavando as fachadas), a rua do cruzamento indo embora entre paredes (`_canyon`, `_draw_canyon_wall`, com os
-  postes dela diminuindo e a névoa clareando para o fundo) até a igreja no fim (`_church_pos`, `CHURCH_K`) e, bem longe, a cidade em duas fileiras na
+  luz dos postes lavando as fachadas), a rua do cruzamento indo embora entre paredes (`_canyon`, `_draw_canyon_wall`: janelas em andares e colunas, `CANYON_WIN`, e a
+  laje de cada andar; mais finas que um pixel, só as acesas, com 1 px vazio entre elas, senão viravam um borrão; com os
+  postes dela diminuindo e a névoa clareando para o fundo) até a igreja no fim (`_church_pos`, `CHURCH_K`; a cruz e o relógio aceso em pixels do tamanho da torre, e o brilho do relógio também) e, bem longe, a cidade em duas fileiras na
   névoa. Na chuva, o asfalto molhado espelha as luzes em riscos verticais (`_draw_wet`). Na névoa (`_draw_fog`, por cima da rua e do
   outro lado, atrás do arbusto): um véu liso mais grosso rente ao chão (`FOG_VEIL`, `FOG_GROUND`), fiapos largos e lisos
   atravessando a rua com o vento (`FOG_WISPS`) e as luzes espalhando nela (halo e cone de laterais lisas em cada poste, o
   vermelho do neon); as faixas retangulares que havia no vidro pareciam defeito. Os carros (`_draw_car`, um por
   vez em cada mão; modelos de 1973 sorteados pelo quanto passam, `CAR_KINDS`: Fusca, sedã, perua, Kombi em duas cores e
   picape com caçamba, cada um com o seu tom de motor, `pitch`, e uma cor escura da noite, `CAR_COLORS`; `_car_kind`; o teto e o capô mais escuros que o
-  lado, com um pouco do céu, `CAR_SKY`; rodas redondas em pixel art nos arcos dos para-lamas; a luz dos postes correndo
+  lado, com um pouco do céu, `CAR_SKY`, e os vidros também, senão sumiam no asfalto e o carro parecia baixo; o teto mais claro que os vidros; vidros e chapas inclinadas só saem virados para os olhos (`faces`: por trás, o para-brisa saía por cima do teto); capô, teto, vidros e chapas de um lado ao outro do carro (com 10 cm para dentro, ficavam frestas); a profundidade do carro encolhida no recuo para o ponto de fuga (`CAR_DEPTH`, `_car_z` no `_o`: a vista é grande-angular e, longe do meio, ele parecia ter metade da largura do comprimento); rodas redondas em pixel art nos arcos dos para-lamas; a luz dos postes correndo
   pela beira do teto e pelos frisos quando ele passa embaixo deles, `_sheen`, `CAR_SHEEN`; faróis e lanternas acesos, com halo (o par
   deles com a frente ou a traseira virada para nós) e espelhados na rua molhada; Brasília e caminhão de baú entre os
   modelos, o Fusca com os para-lamas saltados e os faróis neles, a caçamba da picape com a parede de dentro; táxis
@@ -292,7 +298,7 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   foram testadas e saíram a pedido), cada mão no seu sorteio, `_cars`) passam pelas duas mãos (`CAR_LANES`, `_car_x`): pela de lá, da
   direita para a esquerda; pela de cá, voltando, da esquerda para a direita, mais perto da faixa do meio que do nosso
   meio-fio (rente a ele, ficava tão perto e de cima que virava uma mancha escura cortada pelo peitoril), apoiados no
-  asfalto: sombra de contato, facho dos faróis no chão, lado,
+  asfalto: sombra de contato, facho dos faróis no chão (sumindo em `BEAM`; inteiro, era uma laje cinza que fazia o carro parecer largo), lado,
   teto e capô vistos um pouco de cima, a frente ou a traseira virada para nós. O brilho da luz de cima (`%Glow`, centrado no alto, liso) fica dentro da tela do cenário, logo depois do
   `Background`: ilumina a sala, não a interface; acompanha o tremor dela. **Para trocar por PNG**: `wall_art`, `window_art` e `desk_art` entram no lugar do desenho daquela camada
   (o clima continua por cima da janela). As ferramentas não têm abas: abrem pelos objetos da mesa ou pelas teclas 1 a 4. O caderno da mesa mostra o selo dos registros pendentes (`Background.pending`). Nos testes, o clique num objeto da

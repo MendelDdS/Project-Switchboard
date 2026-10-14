@@ -869,3 +869,32 @@ Chaves:
     não dobrarem), o usuário testou e não gostou. #saiu
     O título das saídas ganhou a mesma faixa gravada do das entradas, de ponta a ponta do painel, separando a seção
     das saídas da dos bancos.
+    A mesa comutadora recuou e ficou funda: o console um pouco atrás da borda do tampo (aparece um friso de tampo na
+    frente dele) e o móvel indo quase até o fundo do tampo, com um vão pequeno atrás (o tampo vazio atrás dela sobrava).
+    A vista da janela mais longe e sem nada importante escondido pela madeira: a câmera de fora recuou (a rua inteira
+    cabe no vidro), o ponto de fuga dela foi para o vidro de perto, ao lado do montante (a rua do cruzamento e a igreja
+    ficavam atrás dele), e a travessa do caixilho subiu para o alto, como uma bandeira (no horizonte, cobria o fim da
+    rua e o pé da igreja). #janela #vista
+    Os carros pareciam largos: o facho dos faróis era uma laje cinza de 8 m colada na frente deles; agora some aos
+    poucos, em 5 m. A vista desceu um pouco (a rua parecia alta, perto do peitoril). A rua do cruzamento estava pobre e
+    com janelas soltas ao acaso: agora as paredes têm andares, com a laje de cada um e as janelas em colunas, e as de
+    longe não se amontoam num borrão; a cruz e o relógio da igreja ficaram do tamanho da torre (o relógio, com o
+    brilho de antes, parecia um poste aceso). A cruz da igreja saía meio pixel fora do eixo da torre: a torre, a ponta e a cruz agora são
+    simétricas num eixo de pixel. A frente dos carros vindo na nossa direção acendia lanternas vermelhas em vez de
+    faróis (a caminhonete do outro lado parecia quebrada). #vista
+    No painel de debug (seção Clima), fazer um carro passar lá fora, na mão de lá ou na de cá, sorteado ou do modelo
+    escolhido. #vista
+    A perua estava larga e baixa: mais curta (4,0 m) e mais alta (1,6 m), e o vidro de todos os carros reflete um pouco
+    do céu (quase preto, sumia no asfalto atrás e o carro parecia só a lataria). #vista
+    A picape do outro lado, passada a placa do hotel, saía com o teto quebrado: de viés, a parede de trás da cabine
+    fica maior que o teto, e teto e vidros tinham quase o mesmo tom. O teto dos carros ficou mais claro que os
+    vidros, a parede de trás da cabine tem a largura do teto e o vidro dela some quando fica estreito demais. #vista
+    O fusca, quase passando, ficava com um borrão preto no alto e um buraco em cima: o para-brisa era desenhado
+    também visto por trás (agora vidros e chapas inclinadas só saem virados para os olhos), a traseira do teto tinha o
+    tom escuro do capô e havia degraus sem chapa entre a traseira, a tampa do motor e a frente. #vista
+    Os carros ainda pareciam largos demais longe do meio da janela: a vista é grande-angular e a largura do carro se
+    inclinava para o ponto de fuga; agora só 40% dela entra nesse recuo (`CAR_DEPTH`). As formas não se encontravam
+    (capô, teto e vidros 10 cm para dentro da lateral deixavam frestas): agora vão de um lado ao outro. O baú do
+    caminhão ganhou a parede da frente, acima da cabine, e a caçamba da picape a beira do lado de cá. #vista
+    O estalo do letreiro de neon ao falhar saiu, a pedido (som `neon`). O reflexo dele na rua molhada saía embaixo
+    da beira esquerda da caixa, e não das letras. #vista #saiu
