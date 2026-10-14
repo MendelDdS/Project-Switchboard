@@ -43,9 +43,16 @@ const LEVER_SEC := 0.09 # a alavanca virando: passa de frente e bate um pixel al
 
 const CLICK_PX := 5.0   # apertar e soltar mexendo menos que isso, e mais rápido que CLICK_SEC s, é clique: desplugar,
 const CLICK_SEC := 0.25 # não encaixar (segurando parado sobre a tomada de onde o plug saiu, soltar o encaixa de novo)
-const FALL_SEC := 0.35         # o plug solto cai livre antes de o fio começar a recolher
 const NEAR_HOLE := 34.0        # solto acima do buraco (a qualquer altura) e com essa distância na horizontal, o fio puxa o plug direto (sem cair)
-const PULL_SPEED := 360.0      # px/s de fio que entra no buraco
+## O contrapeso de cada fio, numa roldana embaixo da prateleira, como nas mesas de verdade, puxa o fio para dentro do
+## buraco o tempo todo. Solto, o plug volta na hora, o fio acelerando (`WEIGHT_ACCEL`) até `PULL_SPEED` (antes ele caía
+## 0,35 s sem nada puxar e o fio recolhia sempre na mesma marcha); encaixado ou na mão, a folga volta para o buraco mais
+## depressa do que sai (`WEIGHT_TAKE` por passo, contra `HAND_FEED`) e o fio fica quase reto, com a barriga do peso
+## dele (`SAG`, `BEND_SLACK`).
+const WEIGHT_ACCEL := 1400.0   # px/s²
+const PULL_SPEED := 360.0      # px/s de fio que entra no buraco, no máximo (o atrito na roldana)
+const WEIGHT_TAKE := 0.2
+const HAND_FEED := 0.08
 const SEAT_LEN := 2.0          # com o fio curto assim e a traseira do plug a SEAT_NEAR px da boca do buraco, ele assenta
 const SEAT_NEAR := 3.0         # (o fio acaba antes de a corda alcançar: o plug ainda arrasta até ali, ou por SEAT_WAIT s)
 const SEAT_WAIT := 0.25
@@ -86,10 +93,13 @@ const RUB_STILL := 22.0        # px/s: abaixo disso a mão está parada
 ## mesa não soar como um fio só.
 const CORD_TONE := [1.0, 1.05, 0.95, 1.02, 0.97, 1.04]
 
-const SLACK := 52.0                # folga extra além da distância reta (fio do FONE), no máximo...
-const SLACK_PER_PX := 0.15         # ...e esta por px de distância na horizontal (logo acima do buraco, sobrava fio deitado na prateleira)
-const SLACK_REACH := 0.08         # e todos, ao menos esta fração da distância do buraco ao plug (sem ela, logo acima do buraco, o fio ficava reto com um gancho na ponteira)
-const CORD_SLACK := 10.0           # idem, fios dos cabos de conexão
+## A folga do fio esticado pelo contrapeso, além da distância do buraco ao plug: só a barriga do peso dele, que cresce
+## com o cubo do vão (SAG × vão³: ~5 px em 330, ~18 no fio todo), e nunca menos que BEND_SLACK, a curva macia saindo
+## da ponteira (com menos, a tomada logo acima do buraco ficava com um gancho nela). (Antes, uma folga fixa, maior no
+## FONE, até 52 px: o fio ficava mole, deitava na prateleira e passava por cima dos plugs guardados antes de subir.)
+const SAG := 1.5e-7
+const BEND_SLACK := 10.0
+const CORD_SLACK := 10.0           # no ar, na frente do console: o peso do fio pendurado puxa a folga pela beira
 const STEP := 1.0 / 90.0
 
 var _acc := 0.0
@@ -247,7 +257,7 @@ func go_home(e: int) -> void:
 		# acima do buraco o fio já puxa, esticado, e o plug vai direto para ele (sem cair no chão antes);
 		# fora disso ele cai, com o embalo da mão, antes de o fio recolher
 		var direct := from.y < hole(e).y and absf(from.x - hole(e).x) < NEAR_HOLE
-		_loose[e] = {"t": FALL_SEC if direct else 0.0, "seat": -1.0, "direct": direct, "ang": ang}
+		_loose[e] = {"v": 0.0, "seat": -1.0, "direct": direct, "ang": ang}
 		var r: Cord = ropes[e]
 		if direct:
 			r.length = minf(r.length, from.distance_to(hole(e)))
@@ -623,23 +633,22 @@ func _step_rope(e: int, dt: float) -> void:
 	var length := r.length
 	var b := Vector2.ZERO
 	if r.free:
-		an["t"] += dt
-		if an["t"] > FALL_SEC:
-			length = maxf(length - PULL_SPEED * dt, 0.0)
-			if r.hang_step(dt, a, length):   # pendurado na quina da prateleira
-				if not is_nan(r.swing):
-					an["ang"] = lerp_angle(float(an["ang"]), r.swing, HANG_TURN)
-				_count_rub(e, r.pulled)
-				_count_rub(e, r.over, r.over_at)
-				return
+		an["v"] = minf(float(an["v"]) + WEIGHT_ACCEL * dt, PULL_SPEED)   # o contrapeso puxa desde que ele saiu da mão
+		length = maxf(length - float(an["v"]) * dt, 0.0)
+		if r.hang_step(dt, a, length):   # pendurado na quina da prateleira
+			if not is_nan(r.swing):
+				an["ang"] = lerp_angle(float(an["ang"]), r.swing, HANG_TURN)
+			_count_rub(e, r.pulled)
+			_count_rub(e, r.over, r.over_at)
+			return
 	else:
 		b = _plug_base(e)
 		var reach := a.distance_to(b)
-		var slack := clampf(absf(b.x - a.x) * SLACK_PER_PX, CORD_SLACK, SLACK) if e == 0 else CORD_SLACK
-		slack = maxf(slack, reach * SLACK_REACH)
+		var slack := maxf(BEND_SLACK, SAG * reach * reach * reach)
 		if r.air >= 1:   # no ar, o peso do fio pendurado puxa a folga pela beira (sobrava em laço na prateleira)
 			slack = CORD_SLACK
-		length = lerpf(length, minf(reach + slack, Cord.MAX), 0.08)
+		var target := minf(reach + slack, Cord.MAX)
+		length = lerpf(length, target, WEIGHT_TAKE if target < length else HAND_FEED)   # o contrapeso recolhe; a mão puxa
 	if not r.step(dt, a, b, length):
 		return   # dormindo
 	_count_rub(e, r.pulled)

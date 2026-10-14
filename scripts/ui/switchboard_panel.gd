@@ -25,15 +25,18 @@ const HOLE_PAL := {"b": Color("7a6230"), "f": Color("c4a35a"), "F": Color("e6cf8
 
 var _lit := {}   ## lâmpada ("l3" linha, "d312" destino) -> [cor, quanto está acesa 0..1]; a cor fica enquanto apaga
 
-## O encaixe (12×12, o `JACK`; par, para o meio dele cair entre dois pixels, como o das plaquinhas e das lâmpadas), na
-## medida do plug, um disco (`_jack_tex`) de dentro para fora: o furo (4 px, a largura da luva), a parede da bucha
-## (côncava: a luz bate nela do lado oposto, embaixo à esquerda), a face do aro, chata, e a quina de 1 px. A face tem
-## três tons quase iguais e só a quina marca a luz e a sombra (um fio claro no alto à direita, um escuro embaixo à
-## esquerda): com a face indo do claro ao escuro, ou com a quina toda mais escura que ela, o aro parecia uma cúpula
-## saltando do painel; num tom só, sem a quina, perdia os detalhes. O brilho do níquel é um pixel por cima da luz da
-## sala (`_draw_glints`).
-const JACK_NICKEL := {"edge": [Color("bdb29c"), Color("8a8070"), Color("4d473d")], "face": [Color("a59a86"), Color("9a8f7c"), Color("8e8371")],
-	"wall": [Color("5c5448"), Color("27231e"), Color("27231e")], "hole": Color("070605")}
+## O encaixe (12×12, o `JACK`; par, para o meio dele cair entre dois pixels, como o das plaquinhas e das lâmpadas),
+## pela referência do usuário: um aro de metal abaulado em volta de um furo preto largo (`_jack_tex`). De dentro para
+## fora, nos raios de `JACK_RINGS`: o furo (6 px); a parede da bucha, côncava (a luz bate nela do lado oposto, embaixo
+## à esquerda); a face do aro, abaulada (clara no alto à direita, virada para a luminária, e escura embaixo à
+## esquerda); e a descida dela até o painel, dois tons mais escura (o aro recortado no painel, sem beira preta). Cada
+## pixel do aro escolhe o tom pela luz numa rampa de cinco (`JACK_METAL`, do claro ao escuro), em degraus: com três
+## tons por anel ele parecia chato, e com o furo de 4 px e a face cinza, estranho; com uma beira escura em volta, o aro
+## ficava fino demais. O brilho do níquel é um pixel por cima da luz da sala (`_draw_glints`).
+const JACK_RINGS := [3.0, 4.0, 5.0, 5.8]   # até onde vão o furo, a parede da bucha, a face e a descida (px do meio)
+const JACK_METAL := {"face": [Color("fff2d8"), Color("e4c9a0"), Color("c3a37c"), Color("98785a"), Color("6a503a")],
+	"wall": [Color("ddd2b6"), Color("a69072"), Color("735e47"), Color("4a3b2d"), Color("2e251c")]}
+const JACK_HOLE := Color("070605")
 const JACK_GLINT := Vector2(3, -4)   # o brilho do níquel, do meio do encaixe: na face, no alto à direita, virado para a luz
 const JACK_GLINT_COLOR := Color(1.0, 0.96, 0.86, 0.85)
 const JACK_PX := 12   # o lado do desenho do encaixe, em pixels
@@ -171,11 +174,28 @@ func _jack_px(jr: Rect2) -> Rect2:
 	return Rect2(jr.get_center() - Vector2(JACK_PX, JACK_PX) / 2.0, Vector2(JACK_PX, JACK_PX))
 
 
-## O desenho do encaixe (`JACK_NICKEL`; `dim` escurece o metal: as saídas, para não se confundirem com as entradas).
-## Os raios dão as larguras de linha de um círculo de pixel art.
+## O desenho do encaixe (`JACK_RINGS`, `JACK_METAL`; `dim` escurece o metal: as saídas, para não se confundirem com
+## as entradas), pixel a pixel. Guardado (um por `dim`).
+static var _jack_arts := {}
+
+
 static func _jack_tex(dim: float) -> ImageTexture:
-	var t := func(k: String) -> Array: return (JACK_NICKEL[k] as Array).map(func(c: Color) -> Color: return c.darkened(dim))
-	return _disc(JACK_PX, [[2.0, JACK_NICKEL["hole"]], [3.0] + t.call("wall") + [true], [5.0] + t.call("face"), [6.0] + t.call("edge")])
+	if not _jack_arts.has(dim):
+		var img := Image.create(JACK_PX, JACK_PX, false, Image.FORMAT_RGBA8)
+		for y in JACK_PX:
+			for x in JACK_PX:
+				var o := Vector2(x + 0.5, y + 0.5) - Vector2(JACK_PX, JACK_PX) / 2.0
+				var r := o.length()
+				if r <= JACK_RINGS[0]:
+					img.set_pixel(x, y, JACK_HOLE)
+				elif r <= JACK_RINGS[3]:
+					var face: bool = r > JACK_RINGS[1]
+					var ramp: Array = JACK_METAL["face" if face else "wall"]
+					var lit := o.normalized().dot(LIGHT) * (1.0 if face else -1.0)   # (a parede, côncava, pega a luz do outro lado)
+					var k := int((1.0 - lit) / 2.0 * ramp.size()) + (2 if r > JACK_RINGS[2] else 0)   # (a descida, dois tons abaixo)
+					img.set_pixel(x, y, (ramp[clampi(k, 0, ramp.size() - 1)] as Color).darkened(dim))
+		_jack_arts[dim] = ImageTexture.create_from_image(img)
+	return _jack_arts[dim]
 
 
 ## O brilho do níquel de cada encaixe `jacks` ([retângulo, força]), por cima da luz da sala, que o apagava.
@@ -187,7 +207,7 @@ func _draw_glints(jacks: Array) -> void:
 ## A luz de uma lâmpada batendo no aro do encaixe logo abaixo dela (o lado de cima, virado para a luz).
 func _reflect(jr: Rect2, col: Color, level: float) -> void:
 	if level > 0.02:
-		_ci.draw_texture_rect(PixelArt.disc(JACK_PX, [[3.0, Color.TRANSPARENT], [6.0, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]], Vector2.UP), _jack_px(jr), false, Color(col, 0.55 * level))
+		_ci.draw_texture_rect(PixelArt.disc(JACK_PX, [[JACK_RINGS[0], Color.TRANSPARENT], [JACK_RINGS[2], Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]], Vector2.UP), _jack_px(jr), false, Color(col, 0.55 * level))
 
 
 ## O móvel da mesa: a moldura de madeira (`_wood_frame`), com o brilho da luminária do teto na quina de cima, mais

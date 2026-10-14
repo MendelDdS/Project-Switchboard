@@ -12,6 +12,7 @@ extends Node
 ##   --emergency            toca uma emergência e atende (a luz vermelha da unidade, a barra, o rádio)
 ##   --news                 o jornal da manhã na mesa · --read: já lido, dobrado de outro jeito
 ##   --listen               a linha 3 conectada, com o FONE nela e a chave de escuta levantada
+##   --patch=312,4          um cabo de conexão da saída da linha 4 (o padrão) ao destino dado, conectado (o aro aceso)
 ##   --toll                 um interurbano contando no calculógrafo, dois bilhetes na mesa (um carimbado) e três na caixinha
 ##   --clues                palavras-chave ouvidas (uma marcada, uma riscada, uma ouvida duas vezes) e a lista nas anotações
 ##   --screen=id            uma tela por cima: intro (a de início), pause, settings, report (o relatório com advertências)
@@ -80,6 +81,11 @@ func _ready() -> void:
 		m.exchange.set_line(3, Exchange.Line.CONN, m.minutes + 60.0)
 		m.board.plugged(0, 3)
 		m.listen()
+	if _args.has("patch"):
+		var pa := (_args["patch"] as String).split(",")
+		m.board.plugged(1, 10 + (int(pa[1]) if pa.size() > 1 else 4))
+		m.board.plugged(2, int(pa[0]))
+		m.exchange.set_dest(int(pa[0]), Exchange.Dest.CONN)
 	if _args.has("emergency"):
 		m.ring(PhoneCall.from_emergency(GameData.template_emergency()))
 		await get_tree().create_timer(0.5, false).timeout

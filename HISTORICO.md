@@ -996,3 +996,21 @@ Chaves:
     cada tomada, por cima da luz da sala. Sem o contorno preto, a tomada voltou a parecer uma cúpula saltando do painel
     (o usuário notou): a face do aro ficou chata, em três tons quase iguais, e só a quina de 1 px marca a luz e a sombra.
     A tomada virou um disco (`_jack_tex`) no lugar do mapa de pixels.
+186. #mesa-comutadora #cabos #pixel #luz
+    As tomadas pela referência do usuário (o visual do item 55 de volta: aro fino e furo preto largo): um aro de metal quente e abaulado em volta de
+    um furo preto largo (6 px; era 4, e o aro de níquel cinza parecia chato e estranho), cada pixel do aro no tom da
+    luz numa rampa de cinco, a luz vindo da luminária, à direita (a referência tem a luz à esquerda), e a descida até o
+    painel mais escura no lugar da beira preta da referência (nesse tamanho, o aro ficava fino demais). No plug
+    encaixado saiu a beira dourada entre a tomada e o corpo (a luva de latão, que o usuário não reconheceu), e a luz da
+    lâmpada ou do aro aceso no plug desce da beira em degraus, em vez de só a beira acesa tomar o plug de uma vez.
+    `--patch` no `shot` (um cabo encaixado no destino com o aro aceso).
+187. #cabos #mesa-comutadora #saiu
+    Um contrapeso em cada fio, como nas mesas de verdade (numa roldana embaixo da prateleira), puxando o fio para o
+    buraco dele: encaixado ou na mão, a folga volta para dentro e o fio fica esticado, entrando no buraco na própria
+    linha, só com a barriga do peso dele (maior quanto mais longe a tomada) e as dobras do pano quase alisadas (antes,
+    com uma folga fixa, até 52 px no FONE, o fio ficava mole, deitava na prateleira e passava por cima dos plugs
+    guardados); solto, o plug volta na hora, o fio acelerando (antes ele caía 0,35 s sem nada puxar e o fio recolhia
+    sempre na mesma marcha; de longe, volta em 1,5 s, era 1,8). A primeira versão forçava o fio a sair do buraco para
+    cima e com folga ainda grande: o usuário viu "um fio mole com uma parte dura perto do slot, deixando um bucho", e
+    saiu. O brilho do trançado do fio passou para o lado virado para a luz da mesa, à direita (ficou do outro lado
+    quando a luz das peças mudou, no item 185).

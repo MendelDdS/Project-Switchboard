@@ -83,7 +83,10 @@ const PLUG_ART := [   ## o plug em pé, de 12 × 51 px (y de -51 a -1; o fio sai
 	"....3456....",
 ]
 const PLUG_CAPA_ROW := 40   # a linha do `PLUG_ART` onde começa a capa de borracha (os gomos, até o fio)
-const PLUG_ABA_D := 8   # a aba dourada, com a beira (a largura dela no `PLUG_ART`): a luz e a sombra de contato do encaixado
+const PLUG_ABA_D := 8   # a aba dourada, com a beira (a largura dela no `PLUG_ART`): a sombra de contato do encaixado
+## A luz da lâmpada ou do aro aceso no plug encaixado, pixel a pixel a partir da beira virada para ela (`_face_rim`):
+## cheia na beira e sumindo para dentro em degraus. Com a beira acesa e o resto apagado, a luz tomava o plug de uma vez.
+const RIM_FALL := [0.75, 0.4, 0.16]
 const MORPH_SEC := 0.08   # encaixando ou saindo, o plug passa de em pé para de frente (e volta) nesse tempo
 const PUSH_PX := 1.0     # ao encaixar, o plug afunda (o tampo encolhe tanto, px) e volta...
 const ROT_STEP := deg_to_rad(5.0)   # solto ou na mão, o plug gira em passos assim, cada um montado pixel a pixel (`PixelArt.turned`)
@@ -95,6 +98,7 @@ const ROPE_W := 5.0   # px: a largura do fio com a beira (o miolo tem 2 a menos;
 const AIR_LIFT := Vector2(-6, 8)   # a sombra do fio no ar, depois da beira da prateleira: longe do console, como a do plug na mão
 const SMOOTH_PX := 3.0   # px: o fio é desenhado em trechos retos deste tamanho, numa curva pelos pontos da corda (`_smooth`)
 const KINK := 1.0   # px: as dobras que o fio de pano guarda, no máximo
+const KINK_PULLED := 0.4   # esticado pelo contrapeso, o pano alisa: as dobras ficam nessa parte (inteiras, num fio reto viravam degraus)
 const BRAID := 5.0   # px: o trançado do fio (o brilho dele vem em pedaços desse comprimento)
 ## Esticado (`Cord.taut`), o fio de pano alisa: as dobras somem aos poucos até o fim do fio, o trançado se espaça até
 ## TAUT_BRAID e, da metade disso em diante, ele afina 1 px; frouxo, volta com as dobras inteiras.
@@ -188,7 +192,7 @@ func _draw_rope(e: int, shadow: bool) -> void:
 		_ci.draw_polyline(_smooth(sh), SHADOW, ROPE_W - 1.0 - thin)
 		return
 	var col: Array = _cable_col(e)
-	pts = _smooth(_kinked(e, pts, 1.0 - taut))
+	pts = _smooth(_kinked(e, pts, (1.0 - taut) * KINK_PULLED))
 	var lights := PackedColorArray()   # a luz da sala ao longo do fio
 	for q in pts:
 		lights.append(_lit_by(q))
@@ -196,10 +200,11 @@ func _draw_rope(e: int, shadow: bool) -> void:
 	_ci.draw_polyline_colors(pts, _tinted(col[0], lights), ROPE_W - 2.0 - thin)
 	if ends[e] == -1:   # em pé (na mão, solto ou guardado): o fio entra na traseira do plug
 		_draw_tail(e, pts[pts.size() - 1], col[0], lights[lights.size() - 1], thin)
-	var pts2 := PackedVector2Array()
+	var pts2 := PackedVector2Array()   # o brilho, 1 px para o lado do fio virado para a luz (`LIGHT`, alto à direita)
 	var length := 0.0
 	for i in pts.size():
-		pts2.append(pts[i] + Vector2(-1, -1))
+		var side := (pts[mini(i + 1, pts.size() - 1)] - pts[maxi(i - 1, 0)]).orthogonal().normalized()
+		pts2.append(pts[i] + (side if side.dot(LIGHT) > 0.0 else -side).round())
 		if i > 0:
 			length += pts[i].distance_to(pts[i - 1])
 	var at := 0.0
@@ -405,22 +410,21 @@ func _tilt_at(p: Vector2) -> Vector2:
 ## fio) visto de frente, em pixel art como as peças redondas: um disco (`disc`) por pixel ao longo do eixo, do painel
 ## para a frente, cada um com a largura, a beira e os tons da linha do plug em pé que cai ali (`_face_row`): o corpo
 ## na cor do cabo com o anel e o friso claro em cima, o serrilhado (discos riscados, `_knurled`) e o anel do meio, e a
-## capa de borracha em gomos afinando até o fio (a luva de latão, mais estreita, aparece numa beira entre a tomada e o corpo). `lit`: a
+## capa de borracha em gomos afinando até o fio (a luva de latão fica toda dentro da tomada: à mostra, numa beira
+## dourada entre ela e o corpo, ninguém sabia o que era). `lit`: a
 ## luz da sala ali, como no fio que sai dele. No corpo, primeiro a beira de todos (só o contorno fica à mostra) e
 ## depois o miolo sombreado (luz no alto à direita); a capa, disco a disco, mostra os sulcos (`PLUG_CAPA_ROW`).
 ## (Antes eram cápsulas e círculos vetoriais: embolotados.)
 ## O fio sai do meio da capa, por cima (desenhado depois). `push`: a assentada, o plug afunda tantos px. `j`: o
-## encaixe, para a luz que bate no plug (`_plug_light`): no fim, o contorno do plug inteiro acende (`_face_rim`), só
-## em cima (a lâmpada logo acima) ou em volta toda (o aro aceso do destino). (Um anel solto por cima, antes, flutuava
-## sobre a capa e a luz vinha do lado; uma beira acesa por disco listrava o plug todo.)
+## encaixe, para a luz que bate no plug (`_plug_light`): no fim, o plug acende a partir da beira (`_face_rim`), a de
+## cima (a lâmpada logo acima) ou a toda volta (o aro aceso do destino), sumindo para dentro. (Um anel solto por cima,
+## antes, flutuava sobre a capa e a luz vinha do lado; uma beira acesa por disco listrava o plug todo.)
 func _draw_plug_face(col: Array, tilt: Vector2, push: float, alpha: float, j := -1, lit := Color.WHITE) -> void:
 	var pal := _plug_pal(col)
 	var t := tilt - tilt.normalized() * push
 	var n := maxi(1, ceili(t.length()))
 	var mod := Color(lit.r, lit.g, lit.b, alpha)   # a luz da sala, como no fio que sai dele
 	var light := _plug_light(j)
-	PixelArt.sprite(_ci, _disc(PLUG_ABA_D, [[PLUG_ABA_D / 2.0 - 1.0, pal["y"], pal["b"], pal["C"]], [PLUG_ABA_D / 2.0, pal["E"]]]),
-		(-t.normalized() * 2.0).round(), mod)   # a luva de latão, que não entra toda: uma beira dourada entre a tomada e o corpo
 	# o corpo: primeiro a beira de todos os discos (só o contorno fica à mostra), depois os miolos; a capa, por
 	# cima, disco a disco com a beira de cada um: ela afina para o fio, e a beira de cada gomo fica à mostra em volta
 	# do seguinte, menor (os sulcos, em anéis em volta da saída do fio)
@@ -437,7 +441,7 @@ func _draw_plug_face(col: Array, tilt: Vector2, push: float, alpha: float, j := 
 				PixelArt.sprite(_ci, _knurled(d, tones) if r[5] else _disc(d, [[d / 2.0, tones[0], tones[1], tones[2]]]), t * float(k) / n, mod)
 	if light[1] > 0.02:
 		var rim: Array = _face_rim(t, n, light[2])
-		_ci.draw_texture(rim[0], rim[1], Color((light[0] as Color).lightened(0.35), light[1] * 0.8 * alpha))
+		_ci.draw_texture(rim[0], rim[1], Color((light[0] as Color).lightened(0.2), light[1] * 0.65 * alpha))
 
 
 ## A linha do `PLUG_ART` que aparece no passo `k` de `n` do plug encaixado, como [diâmetro com a beira, beira, luz,
@@ -514,9 +518,10 @@ func _plug_light(j: int) -> Array:
 	return [LAMP_OFF, 0.0, false]
 
 
-## O contorno aceso do plug encaixado que sai até `t` em `n` passos: a silhueta dos discos juntos (os mesmos lugares
-## de `PixelArt.sprite`), e dela só os pixels da beira de cima, com o de baixo deles mais fraco, ou a beira toda
-## (`around`). Devolve [textura, onde desenhar]. Guardado (enquanto o plug assenta, `t` muda a cada quadro: limitado).
+## A luz no plug encaixado que sai até `t` em `n` passos: a silhueta dos discos juntos (os mesmos lugares de
+## `PixelArt.sprite`), cada pixel dela aceso pela distância à beira de cima, contada para baixo, ou à beira mais perto
+## (`around`), em `RIM_FALL`. Devolve [textura, onde desenhar]. Guardado (enquanto o plug assenta, `t` muda a cada
+## quadro: limitado).
 static var _face_rims := {}
 
 
@@ -545,18 +550,26 @@ func _face_rim(t: Vector2, n: int, around: bool) -> Array:
 						mask.set_pixel(at.x + x, at.y + y, Color.WHITE)
 		var inside := func(x: int, y: int) -> bool:
 			return x >= 0 and y >= 0 and x < size.x and y < size.y and mask.get_pixel(x, y).a > 0.5
+		var far := RIM_FALL.size()
+		var dist := PackedInt32Array()   # quantos pixels da beira acesa (`far`: longe dela, ou fora)
+		dist.resize(size.x * size.y)
+		dist.fill(far)
+		var dirs := [Vector2i(0, -1), Vector2i(0, 1), Vector2i(-1, 0), Vector2i(1, 0)] if around else [Vector2i(0, -1)]
+		for d in far:   # a beira e, camada a camada, para dentro (a de cima, só para baixo)
+			for y in size.y:
+				for x in size.x:
+					if dist[y * size.x + x] < far or not inside.call(x, y):
+						continue
+					for v: Vector2i in dirs:
+						var q := Vector2i(x, y) + v
+						var out: bool = not inside.call(q.x, q.y)
+						if (d == 0 and out) or (d > 0 and not out and dist[q.y * size.x + q.x] == d - 1):
+							dist[y * size.x + x] = d
+							break
 		var img := Image.create(size.x, size.y, false, Image.FORMAT_RGBA8)
-		for y in size.y:
-			for x in size.x:
-				if not inside.call(x, y):
-					continue
-				if around:
-					if not (inside.call(x - 1, y) and inside.call(x + 1, y) and inside.call(x, y - 1) and inside.call(x, y + 1)):
-						img.set_pixel(x, y, Color.WHITE)
-				elif not inside.call(x, y - 1):
-					img.set_pixel(x, y, Color.WHITE)
-				elif not inside.call(x, y - 2):
-					img.set_pixel(x, y, Color(1, 1, 1, 0.35))
+		for i in dist.size():
+			if dist[i] < far:
+				img.set_pixel(i % size.x, i / size.x, Color(1, 1, 1, RIM_FALL[dist[i]]))
 		_face_rims[key] = [ImageTexture.create_from_image(img), lo - Vector2.ONE]
 	return _face_rims[key]
 

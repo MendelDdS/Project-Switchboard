@@ -380,8 +380,9 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
 - `refuse(e, j)` decide compatibilidade (e o destaque amarelo/vermelho). `_has_point` estende o clique ao encaixe
   do FONE; por isso o telefone e seus containers acima do encaixe têm `mouse_filter = IGNORE`, e a mesa tem
   `z_index = 1` (desenha plug e fio por cima do telefone). Overlays têm z 2, intro/final z 3.
-- Clique num plug encaixado → solta o plug (`go_home`, `_loose`): ele vira a última conta da corda e cai (`FALL_SEC`)
-  e o fio encolhe (`PULL_SPEED`); solto acima do buraco, a qualquer altura (`NEAR_HOLE` na horizontal), não cai: vem reto, fio esticado e sem gravidade. Com o fio todo
+- Clique num plug encaixado → solta o plug (`go_home`, `_loose`): ele vira a última conta da corda e o contrapeso
+  o puxa de volta na hora, o fio acelerando (`WEIGHT_ACCEL`) até `PULL_SPEED` (antes ele caía 0,35 s sem nada puxar e o
+  fio recolhia sempre na mesma marcha); solto acima do buraco, a qualquer altura (`NEAR_HOLE` na horizontal), não cai: vem reto, fio esticado e sem gravidade. Com o fio todo
   recolhido e a traseira do plug na boca do buraco (`SEAT_LEN`, `SEAT_NEAR`), ele assenta (`_seat`, `_seat_pose`): o
   fio some (já entrou), o plug gira até ficar em pé com a traseira presa na boca (`SEAT_TURN`, macio; vindo de cima,
   já em pé, não gira) e afunda puxado pelo fio, acelerando (`SEAT_ACCEL`; vindo de cima, no embalo dele), e quica ao
@@ -419,11 +420,17 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   ficam o buraco e o plug, quanto fio está para fora e a prateleira, e lê do passo os sons e o plug solto), presas no buraco (`hole(e)`: o do FONE no encaixe, dois
   por cabo de conexão) e na traseira do plug (`_plug_base`); só existem com o fio para fora. No desenho, o fio de pano
   velho guarda dobras (`_kinked`, `KINK`: cada ponto da corda um pouco para um lado, sempre o mesmo, nada nas pontas; a
-  física segue lisa) e o brilho vem em pedaços, como trançado (`BRAID`). Desenhado numa curva pelos pontos da corda (`_smooth`, Catmull-Rom em
+  física segue lisa) e o brilho vem em pedaços, como trançado (`BRAID`), 1 px para o lado virado para a luz da mesa
+  (`LIGHT`). Desenhado numa curva pelos pontos da corda (`_smooth`, Catmull-Rom em
   trechos de `SMOOTH_PX`; ligados por retas, o fio longo virava uma linha quebrada).
-  Folga: `CORD_SLACK` (conexão); a do FONE cresce com a distância na horizontal (`SLACK_PER_PX`, até `SLACK`: fixa, o
-  fio de uma entrada logo acima do buraco deitava na prateleira e fazia um "Z"). Todos têm ao menos `SLACK_REACH` da distância do buraco ao plug (com
-  a folga mínima, o fio de uma tomada logo acima do buraco ficava reto, com um gancho na ponteira). Fio parado por `Cord.SLEEP_STEPS` passos "dorme" (`Cord.sleep` =
+  **O contrapeso** (numa roldana embaixo da prateleira, como nas mesas de verdade) puxa cada fio para dentro do buraco
+  o tempo todo: encaixado ou na mão, a folga volta mais depressa do que sai (`WEIGHT_TAKE`, contra `HAND_FEED`) e o fio
+  fica esticado, entrando no buraco na própria linha, só com a barriga do peso dele, que cresce com o cubo do vão
+  (`SAG`), nunca menos que `BEND_SLACK` (a curva macia saindo da ponteira: com menos, a tomada logo acima do buraco
+  ficava com um gancho nela); no ar, na frente do console, `CORD_SLACK`. Esticado, as dobras do pano ficam em
+  `KINK_PULLED` (inteiras, num fio reto viravam degraus). (Antes, uma folga fixa, maior no FONE, até 52 px: o fio ficava
+  mole, deitava na prateleira e passava por cima dos plugs guardados. Uma saída do buraco forçada para cima saiu a
+  pedido: o pedaço preso ficava duro e fazia uma barriga logo acima do buraco.) Fio parado por `Cord.SLEEP_STEPS` passos "dorme" (`Cord.sleep` =
   área onde o mouse o acorda) e deixa de ser simulado até a ponta, o buraco ou o mouse mexerem nele.
 - Sob o mouse: `_plug_under` (plug que dá para pegar → `_hover`, desenhado com contorno claro) e `_cursor_shape`
   (mão aberta, mão fechada segurando, proibido sobre tomada que recusa, dedo em tomada/plaqueta que informa).
@@ -488,13 +495,14 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   nenhuma peça**: a beira é o tom da própria peça, na luz em cima e à esquerda e na sombra embaixo e à direita
   (`Switchboard.rim`; o níquel em `NICKEL_EDGE`; num rebaixo, ao contrário); escuro só o que é buraco, rebaixo ou
   material preto (`EDGE_DARK` ficou só no furo da porca da chave). Os plugs também são pixel art, no acabamento do relógio
-  da mesa (abaixo). **O encaixe é um disco** (`_jack_tex`, 12×12, com o furo de 4 px, a largura da luva do plug, e o aro da largura do
-  corpo dele; antes um mapa de pixels, `JACK_ART`, com o mesmo desenho): o furo, a parede da bucha (côncava, a luz
-  embaixo à esquerda), a face do aro, chata, em três tons quase iguais, e a quina de 1 px, clara no alto à direita e
-  escura embaixo à esquerda (`JACK_NICKEL`); por cima da luz da sala, um pixel de brilho do níquel (`_draw_glints`,
-  `JACK_GLINT`; a luz da sala o apagava). Com a face indo do claro ao escuro, ou com a quina toda mais escura que ela
-  (depois de sair o contorno preto), parecia uma cúpula saltando do painel; num tom só, chato, perdia os detalhes: os
-  dois saíram a pedido. As saídas no níquel mais escuro (`dim`). Largura par e o meio num pixel inteiro (`jack_rect`
+  da mesa (abaixo). **O encaixe** (`_jack_tex`, 12×12, pixel a pixel e guardado, pela referência do usuário): um aro de metal abaulado
+  em volta de um furo preto largo, de 6 px (`JACK_RINGS`: o furo, a parede da bucha, côncava, com a luz embaixo à
+  esquerda, a face, clara no alto à direita, virada para a luminária, e a descida dela até o painel, dois tons mais
+  escura); cada pixel do aro escolhe o tom pela luz numa rampa de cinco (`JACK_METAL`, metal quente); por cima da luz
+  da sala, um pixel de brilho (`_draw_glints`, `JACK_GLINT`; a luz da sala o apagava). (Antes: furo de 4 px, a largura
+  da luva, e o aro de níquel cinza em três tons por anel, chato e estranho; com a face indo do claro ao escuro, ou com
+  a quina toda mais escura que ela, parecia uma cúpula saltando do painel; com uma beira escura em volta, como na
+  referência, o aro ficava fino demais nesse tamanho.) As saídas no metal mais escuro (`dim`). Largura par e o meio num pixel inteiro (`jack_rect`
   arredonda o dos destinos), para ficar no eixo da plaquinha e da lâmpada. (Uma versão em `_disc` com a bucha de latão
   saiu com o furo maior e foi rejeitada.)
 - Encaixes redondos (`_draw_jack`: o aro niquelado e o furo, com a sombra no painel); lâmpadas de vidro leitoso abaulado num aro
@@ -553,7 +561,7 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   as entradas saem quase só para a esquerda, as de baixo também para baixo; era um ponto 600 px acima do painel, e
   todos pareciam vistos de cima) (`_draw_plug_face`: o próprio `PLUG_ART` visto de frente, com os mesmos detalhes: anel e friso claro em cima,
   serrilhado, `_knurled` (as listras verticais; tirado, o plug ficava pobre), anel do meio e capa em gomos afinando até
-  o fio (a luva de latão, mais estreita que o corpo, aparece numa beira dourada entre a tomada e ele); o corpo sai com a beira de todos os
+  o fio (a luva de latão fica toda dentro da tomada: à mostra, numa beira dourada entre ela e o corpo, ninguém sabia o que era); o corpo sai com a beira de todos os
   discos antes dos miolos (só o contorno), mas a capa, por cima, disco a disco com a beira de cada um
   (`PLUG_CAPA_ROW`): a beira de cada gomo fica à mostra em volta do seguinte, menor, e os sulcos aparecem em anéis em
   volta da saída do fio (antes, liso, o plug parecia uma bola); pega a luz da sala como o fio que sai
@@ -565,9 +573,11 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   aos poucos (o penúltimo ponto da corda fica preso, `pin` em `Cord.step`; a curva sai da rigidez do pano, a mesma no
   fio todo: `Cord.BEND_MIN`; um empurrão nos pontos perto do plug deixava o fio longo duro e o curto com um calombo), a sombra vai do encaixe até `PLUG_SHADE` com uma
   sombra de contato em volta do colar (a do fio sai do fim da do plug e chega a `ROPE_SHADOW` no buraco, `_lift`), a
-  luz bate no contorno do plug encaixado (`_plug_light`, `_face_rim`: a silhueta dos discos juntos; na entrada, a
-  lâmpada da linha acende só a beira de cima; no destino, o aro aceso acende a beira toda; clareada na cor da luz. Um
-  anel solto por cima flutuava sobre a capa, e uma beira por disco listrava o plug), o corpo em pé entra girando para o
+  luz bate no plug encaixado (`_plug_light`, `_face_rim`: a silhueta dos discos juntos, cada pixel aceso pela
+  distância à beira virada para a luz, em degraus, `RIM_FALL`; na entrada, a lâmpada da linha acende a partir da beira
+  de cima; no destino, o aro aceso, a partir da beira toda; clareada na cor da luz. Com só a beira acesa, a luz tomava
+  o plug de uma vez; mais funda, a luz verde do aro sujava o plug vermelho. Um anel solto por cima flutuava sobre a
+  capa, e uma beira por disco listrava o plug), o corpo em pé entra girando para o
   eixo do encaixado, sem a ponta de metal (`_draw_plug_body(col, false)`). Ao encaixar, o corpo em pé entra no encaixe enquanto a
   vista de frente cresce, e ao sair a vista de frente some no encaixe (`MORPH_SEC`, `_pulled`, `_unseat`); ao encaixar, o tampo encolhe `PUSH_PX`
   e volta em `PUSH_SEC` (`_pushed`, `_push`). Destaque e sombra seguem a silhueta (`_plug_outline`: as partes unidas
