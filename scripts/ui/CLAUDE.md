@@ -125,7 +125,7 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   apaga sem ligação, `ScreenGlass`, mas fica esperando como um terminal antigo: "Aguardando chamada" bem apagado
   e o cursor piscando, `idle`, `CONSOLE_IDLE`; o rádio mostra acima da mensagem de agora as anteriores, cada uma mais
   apagada, `Radio.HISTORY`, `_archive`, as que couberem; cada uma com a hora em que chegou na frente, `Radio.minutes`, posto pelo Main). A altura útil é 706 px: as colunas pedem 546 (a da esquerda, exata) e o
-  painel 150; passando, a tela inteira sobe e a plaqueta sai por cima. O `Background` (cenário em camadas, em pixels de 1x1 como a interface: as contas em unidades de 2 px e os detalhes finos em `PX`/`_p`; desenhado no `SceneView`, uma tela própria na resolução da janela, que repassa o mouse a ele, `pointer`/`prop_at`/`leave`, e desenha por cima o contorno e o nome do objeto sob o mouse, `draw_hover`) estica
+  painel 150; passando, a tela inteira sobe e a plaqueta sai por cima. O `Background` (cenário em camadas, em pixels de 1x1 como a interface: as contas em unidades de 2 px e os detalhes finos em `PX`/`_p`; desenhado no `SceneView`, uma tela própria na resolução da janela, que repassa o mouse a ele, `pointer`/`prop_at`/`leave`, e desenha por cima a etiqueta com o nome do objeto sob o mouse, `draw_hover`: uma tira de fita crepe reta, `TapedLabel`, acima dele; era uma caixa preta com o contorno amarelo, e torta saiu a pedido. **O objeto sob o mouse se ergue** 2 px, `LIFT_PX`, no tempo do `Lift`, com a sombra ficando na mesa e se afastando, e, quando o mouse sai, assenta com a batidinha do material, `SET_SOUND`, `set_paper`/`set_metal`; a prancheta pendurada sai 2 px da lateral para a frente. Ele vai para uma camada só dele, `_lifted` (`_lift_step`, `_draw_lifted`), que anda sem redesenhar a sala: a sala o tira quando ele sobe e o devolve quando assenta (`_up_id`, `_here`), guardando o lugar dele para o mouse e o relâmpago (`_mark`), e a camada se redesenha a cada pixel e quando a sala muda; por isso o desenho dos objetos vai sempre para `_ci`) estica
   parede e mesa até a borda, como o canto de uma sala visto de quem está sentado à mesa. **Uma câmera só**, em
   perspectiva de um ponto: o ponto de fuga (`_vp`) fica em `VP_AT` do espaço da mesa, da mesa comutadora à
   quina (perto dos objetos: a inclinação deles cresce com a distância a ele; preso à largura da tela, numa janela
@@ -155,8 +155,8 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   cima mostrando o lado de baixo e as de baixo o tampo, e pastas em pé, e a porta aberta mostra o painel de dentro e a espessura); a parede da direita, entrando para o fundo
   a partir da quina (`CORNER` da área das ferramentas, `Background.window`), mais clara (virada para a luminária),
   com a janela vista de lado (`_draw_side_wall`, `_side_pt`: guarnição, caixilho e persiana na perspectiva da parede;
-  a travessa do caixilho alta, como a de uma bandeira, acima dos prédios, `TRANSOM`: no horizonte, ela escondia o fim
-  da rua do cruzamento e a igreja;
+  só o montante no caixilho: a travessa saiu, a pedido; a janela começa quase na quina, `SIDE_T`, e vai até perto da
+  borda da tela;
   o vão tem a espessura dela, `WALL_D`: sair da parede é andar na horizontal da tela, então aparecem o lado de dentro
   do batente de longe e o fundo do vão (a tábua do peitoril indo até o trilho de baixo do caixilho; escuro, parecia
   um buraco; o que passa do batente de perto é cortado; fora do vidro, o escuro da sala deixava o peitoril e a
@@ -238,7 +238,7 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   longo das noites**: `GameContent.room` (`RoomChange`, `data/room/`: `detail`, `requires`, `from_night`) liga
   detalhes do cenário (`Background.details`, `DETAILS`: cartaz da quermesse, número anotado colado no armário, armário
   entreaberto com as pastas) pelos marcadores do roteiro, já no meio da noite (`Main._update_room`, refeito a cada
-  `flags.changed`; o setter de `Main.flags` religa); o calendário do armário é a data do jogo (`GameData.date_of`/`date_text`: a noite 1 é segunda-feira, 8 de outubro de
+  `flags.changed`; o setter de `Main.flags` religa); a folhinha na parede, entre o armário e a quina, é a data do jogo (`GameData.date_of`/`date_text`: a noite 1 é segunda-feira, 8 de outubro de
   1973, e cada noite um dia depois; o dia da semana sai da data, não da `Night`): a folhinha de outubro com a semana
   começando na segunda, domingos em vermelho, os dias passados riscados e o de hoje circulado; sob o mouse, a data por
   extenso (`Background.CALENDAR`, sem abrir ferramenta nem trocar o cursor). A mesma data vai na introdução, no jornal
@@ -265,7 +265,7 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   chuva. **A vista: uma cena 3D simples projetada no vidro** (pedido do usuário: pensar a cena antes,
   nunca a perspectiva elemento por elemento; `OUT_*`): uma câmera dentro do prédio, na altura de quem está na janela
   (`OUT_EYE` m acima da rua; o horizonte passa ali; não é vista aérea), olhando de frente para uma rua que passa ao
-  lado do prédio e continua para os dois lados, de longe (`OUT_F` 32: com 45 ela ficava perto e o vidro mostrava pouco). Um
+  lado do prédio e continua para os dois lados, perto o bastante para quem passa ter ~15 px (`OUT_F` 38 e a calçada de lá a 7,6–9,4 m, `STREET`: com 32 e a rua de 14 m, era um palito de 8 px; com 45 e a rua larga, o vidro mostrava pouco; `OUT_EYE` 3,8 m: a 4,5, o carro da mão de cá, perto, virava o teto, uma laje cortada pelo peitoril; os lugares ao longo da rua, `CROSSING`, `HOTEL_X`, `MAN_X`, `APT`, `FAR_LAMPS`, encolheram junto, para caberem). Um
   ponto de fuga só, no horizonte, no vidro de perto, ao lado do montante (`OUT_AT`, `_out_x`; no meio da vista, a rua
   do cruzamento e a igreja ficavam atrás dele): para ele fogem só as linhas
   que vão para longe (a rua do cruzamento e as paredes dela); a rua, os meios-fios e as fachadas de frente ficam na

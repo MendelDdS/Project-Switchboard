@@ -37,13 +37,13 @@ const MOON_DRIFT := -0.04
 const SYNODIC := 29.530588853   ## o mês da lua, de uma lua nova à outra (dias)
 const NEW_MOON := 947182440     ## uma lua nova conhecida (6/1/2000, 18h14 UTC), de onde se conta a fase
 const BOLT_PULSES := [Vector2(0.0, 1.0), Vector2(0.14, 0.55), Vector2(0.42, 0.8)]   ## os clarões dele: quando (s) e a força
-const SIDE_T := 1.06        ## onde a janela começa na parede da direita (escala); termina perto da borda da tela
+const SIDE_T := 1.03        ## onde a janela começa na parede da direita (escala; 1 é a quina); termina perto da borda da tela
 const SIDE_W := 150.0       ## a largura do vão, de frente (só a resolução da projeção)
 const WIN_TOP := -12.0      ## o alto do vão (cm a partir dos olhos, para baixo): acima deles
 
 var weather := "rain"
 var _moon_x0 := 0.5   # onde a lua nasce: o x da igreja em fração do vidro (a vista atualiza ao desenhar)
-var night := 1   ## a noite do jogo (o Main atualiza): a data do calendário do armário e a fase da lua
+var night := 1   ## a noite do jogo (o Main atualiza): a data da folhinha na parede e a fase da lua
 var minutes := 18 * 60.0:   ## a hora do jogo (minutos do dia; o Main atualiza): o relógio de flip da mesa
 	set(v):
 		if int(v) != int(minutes):   # a plaqueta vira
@@ -60,6 +60,7 @@ var _yd := 0.0         # a altura do tampo (y da sala, abaixo dos olhos)
 var _cx := 0.0         # a quina das paredes (px de 2x2, na tela)
 var _t2 := 1.6         # onde a janela termina na parede da direita (escala)
 var _ci: CanvasItem    # onde a vista da janela é desenhada: aqui, ou no vidro fora da tela
+var _lifted: Control   # o objeto da mesa erguido sob o mouse, numa camada só dele (`Background._draw_lifted`)
 var _glows: Array = []  # as luzes da sala para o brilho (`_light`): [retângulo, cor, halo, miolo, redonda]
 var _rain_phase := Vector2(randf() * TAU, randf() * TAU)   # as fases das ondas da chuva nesta noite
 var _clouds: Array[Vector3] = []   # as nuvens da noite limpa: x (fração do vidro, sem o vento), altura (fração do céu à vista), tamanho
@@ -142,6 +143,8 @@ func _sign_on() -> bool:
 func _light(r: Rect2, col: Color, halo: float, round := false, core := true) -> void:
 	if _ci == self:   # a vista da janela: as luzes dela vêm de `_draw_side_wall`, que sabe onde o vidro está
 		_glows.append([r, col, halo, core, round])   # a camada de cima as acende, cortadas onde o papel está
+	elif _ci == _lifted:   # o objeto erguido: a luz sobe com a camada dele
+		Bloom.light(_lifted, r, col, halo, core, round)
 
 
 func _r(x: float, y: float, w: float, h: float, c: Color) -> void:
@@ -157,7 +160,7 @@ func _p(x: float, y: float, w: float, h: float, c: Color) -> void:
 ## serrilhava): um pixel por passo na direção mais longa e, na outra, a espessura em `cols` (de cima para baixo, ou da
 ## esquerda para a direita). Depois volta a valer `back` (a transformação de quem chamou).
 func _pixel_line(a: Vector2, b: Vector2, cols: Array, back := Transform2D.IDENTITY) -> void:
-	draw_set_transform(Vector2.ZERO)
+	_ci.draw_set_transform(Vector2.ZERO)
 	var d := b - a
 	var n := maxi(1, roundi(maxf(absf(d.x), absf(d.y))))
 	var flat := absf(d.x) >= absf(d.y)
@@ -165,16 +168,16 @@ func _pixel_line(a: Vector2, b: Vector2, cols: Array, back := Transform2D.IDENTI
 	for i in n + 1:
 		var p := (a + d * i / n).floor()
 		for k in cols.size():
-			draw_rect(Rect2(p + (Vector2(0, k - o) if flat else Vector2(k - o, 0)), Vector2.ONE), cols[k])
-	draw_set_transform_matrix(back)
+			_ci.draw_rect(Rect2(p + (Vector2(0, k - o) if flat else Vector2(k - o, 0)), Vector2.ONE), cols[k])
+	_ci.draw_set_transform_matrix(back)
 
 
 ## Uma peça redonda em pixel art (`PixelArt.disc`; como círculo, saía embolotada) centrada em `c` (px da tela),
 ## presa aos pixels, fora da escala e da perspectiva; depois volta a valer `back` (a transformação de quem chamou).
 func _sprite(tex: Texture2D, c: Vector2, mod := Color.WHITE, back := Transform2D.IDENTITY) -> void:
-	draw_set_transform(Vector2.ZERO)
-	PixelArt.sprite(self, tex, c, mod)
-	draw_set_transform_matrix(back)
+	_ci.draw_set_transform(Vector2.ZERO)
+	PixelArt.sprite(_ci, tex, c, mod)
+	_ci.draw_set_transform_matrix(back)
 
 
 ## Um círculo de raio `r` em volta de `c` (a borda de uma luz lisa, `_light_fan`).

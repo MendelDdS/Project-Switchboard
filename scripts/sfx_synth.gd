@@ -314,6 +314,10 @@ func _build_basic() -> void:
 	_begin(0.09); _noise(0, 0.03, "lp", 700, 0.7, 1.0); _tone(0, 110, 0.05, "sine", 0.5); _end("cord_tap")
 	# plug solto batendo na mesa
 	_begin(0.14); _noise(0, 0.05, "lp", 1800, 0.7, 1.0); _tone(0, 150, 0.1, "sine", 0.6); _tone(0.005, 2100, 0.015, "square", 0.06); _end("drop")
+	# o objeto da mesa assentando depois de erguido sob o mouse: o papel, um "fft" curto e abafado...
+	_begin(0.09); _noise(0, 0.05, "bp", 2600, 0.7, 0.7); _noise(0.01, 0.05, "lp", 500, 0.7, 1.0); _end("set_paper")
+	# ...e o metal, um "tim" de chapa abafado
+	_begin(0.16); _noise(0, 0.012, "bp", 3000, 1.2, 0.6); _tone(0, 1230, 0.12, "sine", 0.3); _tone(0, 2950, 0.05, "sine", 0.12); _tone(0, 130, 0.05, "sine", 0.5); _end("set_metal")
 	_begin(0.55)
 	for k in 12:
 		if _rng.randf() < 0.7:

@@ -104,6 +104,7 @@ var toll_desk := []  ## o que está na mesinha do calculógrafo e onde (`Toll.la
 var clock_x := 0.0   ## onde o relógio está na tela (x global): de lá vêm a badalada das horas e a campainha do turno
 var _yaw := 0.0   # quanto o relógio da mesa está girado (rad; `_draw_flip_clock`)
 var _props := {}       # objeto que abre ferramenta -> retângulo dele (px da tela), do último desenho
+var _up_id := ""       # o objeto erguido sob o mouse, subindo ou assentando ("" = nenhum): fica na camada dele (`_lifted`), não na sala
 var _lamp_x := 0.0     # onde está a luminária, no meio da tela (px de 2x2): a luz na mesa e a sombra dos objetos dependem dela
 var _zd := Vector2.ZERO   # a frente e o fundo do tampo (z)
 var _side_x := 0.0     # a lateral da mesa comutadora na sala (x): os objetos da mesa ficam à direita dela
@@ -131,7 +132,7 @@ func _draw_desk(r: Rect2, front: float) -> void:
 	var depth := front - r.position.y
 	var w2 := r.size.x * 2.0
 	if desk_art:
-		draw_texture_rect(desk_art, Rect2(r.position, Vector2(r.size.x, depth)), true)
+		_ci.draw_texture_rect(desk_art, Rect2(r.position, Vector2(r.size.x, depth)), true)
 	else:
 		_r(r.position.x, r.position.y, r.size.x, depth, Pal.DESK)
 		# as emendas: tábuas da mesma largura, espaçadas pela câmera (mais juntas no fundo)
@@ -173,7 +174,7 @@ func _draw_desk(r: Rect2, front: float) -> void:
 ## calculógrafo e a unidade de despacho, do fundo para a frente (quem está mais perto é desenhado por cima). Cada um
 ## fica num lugar da sala (x a partir dos olhos, z a distância; ver `Z0`) e é desenhado em px da tela (1x1).
 func _draw_desk_props() -> void:
-	draw_set_transform(Vector2.ZERO)
+	_ci.draw_set_transform(Vector2.ZERO)
 	# em duas fileiras, distribuídas de ponta a ponta entre a lateral da mesa comutadora e a parede da direita, com a
 	# mesma folga entre eles e antes do primeiro (encostado na mesa comutadora, parecia apertado), em qualquer largura de
 	# janela: presos a uma ponta só, sobrava mesa vazia na outra, e presos a pontas diferentes, eles se trombavam. Atrás,
@@ -190,18 +191,23 @@ func _draw_desk_props() -> void:
 	var back := _row(_side_x - 4.0, r, [0.0, UNIT.x * k, BOOKS_SPAN * k, cw + mr]).slice(1)   # (o 0: a mesma folga antes do primeiro)
 	var cx: float = back[0] + (UNIT.x - CALC.x) * k / 2.0   # o calculógrafo no meio da unidade de despacho, logo atrás dele
 	var near := _row(cx + CALC.x * k, r - EDGE_PAD, [0.0, PAD_W * k, NEWS_W * k]).slice(1)   # e os outros dois depois dele
-	_draw_dispatch_unit(back[0], _at(0.6), UNIT.x * k)   # recuada: a máquina do calculógrafo, na frente dela, não tampa a base
-	_draw_books(back[1], _at(0.54), 31 * k, _deep(0.3 * k))
-	_flat(Tools.LOGBOOK, near[0], _at(0.06), PAD_W * k, _deep(0.26 * k), 2 * k, Pal.NOTE_PAGE.darkened(0.25), _art_pad, [], deg_to_rad(-2.0),
-		_pad_marks)
-	_draw_flip_clock(back[2] + cw / 2.0, _at(0.72))   # logo atrás da caneca (desenhado antes dela)
-	_draw_mug(back[2] + cw, _at(0.46), mr, 13 * k)   # mais larga que alta, como as esmaltadas
-	_draw_calculograph(cx, _at(0.06))   # na linha do bloco de fichas
+	if _here(Tools.DISPATCH):
+		_draw_dispatch_unit(back[0], _at(0.6), UNIT.x * k)   # recuada: a máquina do calculógrafo, na frente dela, não tampa a base
+	if _here(Tools.DIRECTORY):
+		_draw_books(back[1], _at(0.54), 31 * k, _deep(0.3 * k))
+	if _here(Tools.LOGBOOK):
+		_flat(Tools.LOGBOOK, near[0], _at(0.06), PAD_W * k, _deep(0.26 * k), 2 * k, Pal.NOTE_PAGE.darkened(0.25), _art_pad, [], deg_to_rad(-2.0),
+			_pad_marks)
+	if _here("relogio"):
+		_draw_flip_clock(back[2] + cw / 2.0, _at(0.72))   # logo atrás da caneca (desenhado antes dela)
+		_draw_mug(back[2] + cw, _at(0.46), mr, 13 * k)   # mais larga que alta, como as esmaltadas
+	if _here(Tools.TOLL):
+		_draw_calculograph(cx, _at(0.06))   # na linha do bloco de fichas
 	# papel tem 1 px de beira (mais grosso, parecia tábua)
-	if news:
+	if news and _here(Tools.NEWS):
 		_flat(Tools.NEWS, near[1], _at(0.07), NEWS_W * k, _deep(0.19 * k), 0.5, Color("a89c78"), _art_newspaper, [], deg_to_rad(6.0),
 			_newspaper_print)
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
 ## O calculógrafo, que abre a tarifação (`x0`, a frente em `zf`; medidas em `CALC`), como a ferramenta aberta. Atrás, a
@@ -233,29 +239,29 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 		var win := Rect2(f.position.x + 3.0, f.position.y + 2.0, roundf(f.size.x * 0.76) - 3.0, 0)   # o visor, como o da aberta (`Toll._screen`)
 		var cell := Vector2(floorf(win.size.x / 5.0), maxf(floorf((f.size.y - 7.0) / 2.0), 1.0))   # (sem tela, no primeiro desenho, a frente tem 1 px)
 		win.size.y = cell.y * 2.0
-		draw_rect(win, Pal.PANEL_LO.darkened(dark))
+		_ci.draw_rect(win, Pal.PANEL_LO.darkened(dark))
 		for n in range(1, Exchange.LINES + 1):
 			var o := win.position + Vector2((n - 1) % 5, (n - 1) / 5) * cell + Vector2(0, roundf(cell.y / 2.0) - 1.0)
 			var on := (counting & (1 << n)) != 0
-			draw_rect(Rect2(o + Vector2(1, 0), Vector2(2, 2)), Pal.BRASS.darkened(dark))   # a plaquinha da entrada
-			draw_rect(Rect2(o + Vector2(4, 0), Vector2(cell.x - 8.0, 2)), (Pal.SHEET_NEW if on else Pal.PANEL_HI).darkened(dark))   # os tambores
+			_ci.draw_rect(Rect2(o + Vector2(1, 0), Vector2(2, 2)), Pal.BRASS.darkened(dark))   # a plaquinha da entrada
+			_ci.draw_rect(Rect2(o + Vector2(4, 0), Vector2(cell.x - 8.0, 2)), (Pal.SHEET_NEW if on else Pal.PANEL_HI).darkened(dark))   # os tambores
 			var led := Rect2(o + Vector2(cell.x - 3.0, 0), Vector2(2, 2))
-			draw_rect(led, Pal.AMBER if on else Pal.AMBER.darkened(0.75))
+			_ci.draw_rect(led, Pal.AMBER if on else Pal.AMBER.darkened(0.75))
 			if on:
 				_light(led, Pal.AMBER, 0.4, true)
 		var side := Rect2(win.end.x + 3.0, f.position.y + 2.0, f.end.x - win.end.x - 6.0, f.size.y)
-		draw_rect(Rect2(side.position, Vector2(side.size.x, 3)), Pal.BRASS.darkened(0.25 + dark))   # a plaqueta
-		draw_rect(Rect2(side.position + Vector2(1, 1), Vector2(side.size.x - 2.0, 1)), Pal.BRASS.darkened(dark))
+		_ci.draw_rect(Rect2(side.position, Vector2(side.size.x, 3)), Pal.BRASS.darkened(0.25 + dark))   # a plaqueta
+		_ci.draw_rect(Rect2(side.position + Vector2(1, 1), Vector2(side.size.x - 2.0, 1)), Pal.BRASS.darkened(dark))
 		var lamp := Rect2(side.position + Vector2(0, 6), Vector2(2, 2))
-		draw_rect(lamp, Pal.AMBER if counting else Pal.AMBER.darkened(0.75))
+		_ci.draw_rect(lamp, Pal.AMBER if counting else Pal.AMBER.darkened(0.75))
 		if counting:
 			_light(lamp, Pal.AMBER, 0.6, true)
 		for i in 3:   # a saída de ar
-			draw_rect(Rect2(side.position.x + 4.0, side.position.y + 6.0 + i * 2.0, side.size.x - 4.0, 1), Pal.PANEL_LO.darkened(dark))
+			_ci.draw_rect(Rect2(side.position.x + 4.0, side.position.y + 6.0 + i * 2.0, side.size.x - 4.0, 1), Pal.PANEL_LO.darkened(dark))
 		var mw := roundf(f.size.x * TollTicket.SIZE.x / Toll.NOMINAL.x)   # a fenda, embaixo do meio dos contadores
 		var mouth := Rect2(roundf(win.get_center().x - mw / 2.0), f.end.y - 3.0, mw, 1)
-		draw_rect(mouth, Pal.EDGE)
-		draw_rect(Rect2(mouth.position + Vector2(0, 1), mouth.size), Pal.PANEL_HI.darkened(dark))
+		_ci.draw_rect(mouth, Pal.EDGE)
+		_ci.draw_rect(Rect2(mouth.position + Vector2(0, 1), mouth.size), Pal.PANEL_HI.darkened(dark))
 		# a ponta do bilhete saindo dela para a mesinha fica com a camada dela, que a faz descer sem redesenhar a sala
 		_tip = Rect2(mouth.position + Vector2(1, 1), Vector2(mw - 2.0, 6))
 		_tip_dark = dark
@@ -305,7 +311,7 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 					[TollTicket.PAPER.darkened(0.3 + dark)])
 			if faces.has("front"):
 				var bf := _bounds(faces["front"])
-				draw_rect(Rect2(roundf(bf.get_center().x - bf.size.x * 0.22), roundf(bf.get_center().y - 1.0), roundf(bf.size.x * 0.44), 2),
+				_ci.draw_rect(Rect2(roundf(bf.get_center().x - bf.size.x * 0.22), roundf(bf.get_center().y - 1.0), roundf(bf.size.x * 0.44), 2),
 					Pal.BRASS.darkened(0.15 + dark))
 			var out := PackedVector2Array()
 			for g: PackedVector2Array in faces.values():
@@ -322,9 +328,7 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 		var near: Array = [draw_box, draw_stamp] if shoe.end.y >= bx.end.y else [draw_stamp, draw_box]   # quem está mais perto vai por cima
 		for draw_it: Callable in near:
 			hull.append_array(draw_it.call())
-	_props[Tools.TOLL] = _bounds(hull)
-	_occ.append(Geometry2D.convex_hull(hull))
-	occ_ids.append(Tools.TOLL)
+	_mark(Tools.TOLL, _bounds(hull), Geometry2D.convex_hull(hull))
 
 
 ## O carimbo da mesinha do calculógrafo (`STAMP_ART`), nas cores do da ferramenta.
@@ -368,9 +372,9 @@ func _draw_flip_clock(xc: float, zc: float) -> void:
 	if box.has("left"):   # a rodinha serrilhada de acertar a hora, saindo do lado
 		var a := _clock_pt(xc, zc, -hw - 0.8, hd * 0.3, y1 + CLOCK.y * 0.5 - 2.4).round()
 		var b := _clock_pt(xc, zc, -hw - 0.8, hd * 0.3, y1 + CLOCK.y * 0.5 + 2.4).round()
-		draw_rect(Rect2(a.x + 2, a.y + 1, 1, b.y - a.y), Color(0, 0, 0, 0.35))   # a sombra no lado
+		_ci.draw_rect(Rect2(a.x + 2, a.y + 1, 1, b.y - a.y), Color(0, 0, 0, 0.35))   # a sombra no lado
 		for y in range(int(a.y), int(b.y)):
-			draw_rect(Rect2(a.x - 1, y, 3, 1), (Color("b8b2a2") if int(y - a.y) % 2 == 0 else Color("5a574e")).darkened(dark))
+			_ci.draw_rect(Rect2(a.x - 1, y, 3, 1), (Color("b8b2a2") if int(y - a.y) % 2 == 0 else Color("5a574e")).darkened(dark))
 	if not box.has("front"):
 		return
 	# a frente: montada reta, pixel a pixel (`_clock_face`), e posta coluna a coluna na perspectiva (como imagem torta
@@ -393,7 +397,7 @@ func _draw_flip_clock(xc: float, zc: float) -> void:
 		var y2 := roundf(_p3(0, y1 + CLOCK.y, p.y).y)
 		var sh := _shade(p.x, p.y)   # longe da luz, coluna a coluna
 		draw_texture_rect_region(face, Rect2(x0 + i, y0, 1, y2 - y0), Rect2(floorf(a * w), 0, 1, h), Color.WHITE.darkened(sh))
-		draw_rect(Rect2(x0 + i, y0 - 1, 1, 1), Color("dccfa8").darkened(sh))   # a quina com o tampo (sem ela, sobravam furos)
+		_ci.draw_rect(Rect2(x0 + i, y0 - 1, 1, 1), Color("dccfa8").darkened(sh))   # a quina com o tampo (sem ela, sobravam furos)
 
 
 ## Onde fica na sala (x, z) o ponto do relógio a `u` na largura e `v` no fundo, a partir do centro (`xc`, `zc`), girado
@@ -435,9 +439,9 @@ func _clock_box(xc: float, zc: float, hw: float, hd: float, y0: float, h: float,
 			var b := _clock_xz(xc, zc, f[3].x, f[3].y)
 			_shaded(q, [a, b, b, a], col)
 			if f[0] == "left":   # a quina com a frente pega a luz
-				draw_line(q[1], q[2], col.lightened(0.15).darkened(_shade(b.x, b.y)), 1.0)
+				_ci.draw_line(q[1], q[2], col.lightened(0.15).darkened(_shade(b.x, b.y)), 1.0)
 			elif f[0] == "right":
-				draw_line(q[0], q[3], col.lightened(0.15).darkened(_shade(a.x, a.y)), 1.0)
+				_ci.draw_line(q[0], q[3], col.lightened(0.15).darkened(_shade(a.x, a.y)), 1.0)
 	out["top"] = PackedVector2Array([_clock_pt(xc, zc, -hw, hd, y1), _clock_pt(xc, zc, hw, hd, y1), _clock_pt(xc, zc, hw, -hd, y1), _clock_pt(xc, zc, -hw, -hd, y1)])
 	_shaded(out["top"], [_clock_xz(xc, zc, -hw, hd), _clock_xz(xc, zc, hw, hd), _clock_xz(xc, zc, hw, -hd), _clock_xz(xc, zc, -hw, -hd)], top)
 	return out
@@ -594,17 +598,43 @@ func _top_xf(q: PackedVector2Array) -> Array:
 
 ## Sombra de um objeto na mesa (`foot`, a marca dele no tampo), apontando para longe da luminária, em degraus: a
 ## penumbra em volta, a sombra e, colado na base, o escuro de onde ele encosta na mesa (sem ele, os objetos pareciam
-## pousados por cima do tampo).
+## pousados por cima do tampo). Erguido (`_raised`), a sombra fica na mesa, se afasta um pouco e o escuro da base some.
 func _desk_shadow(foot: PackedVector2Array) -> void:
 	var off := Vector2(clampf((_bounds(foot).get_center().x - _lamp_x * 2.0) / 60.0, -6.0, 8.0), 4.0).round()
+	var up := _raised()
+	off += up + (off.normalized() * up.length() * 0.5).round()
 	var pts := PackedVector2Array()
 	for p in foot:
 		pts.append(p + off)
 	for g in Geometry2D.offset_polygon(pts, 1.5, Geometry2D.JOIN_MITER):
 		_poly(g, Color(0, 0, 0, 0.15))
 	_poly(pts, Color(0, 0, 0, 0.3))
-	for g in Geometry2D.offset_polygon(foot, 1.0, Geometry2D.JOIN_MITER):
-		_poly(g, Color(0, 0, 0, 0.45))
+	if up == Vector2.ZERO:
+		for g in Geometry2D.offset_polygon(foot, 1.0, Geometry2D.JOIN_MITER):
+			_poly(g, Color(0, 0, 0, 0.45))
+
+
+## Se o objeto `id` entra neste desenho: na sala, todos menos o erguido sob o mouse (`_up_id`); na camada dele
+## (`_lifted`), só ele.
+func _here(id: String) -> bool:
+	return (id == _up_id) == (_ci == _lifted)
+
+
+## Quanto o objeto sendo desenhado saiu do lugar (px da tela): a camada dele anda inteira, e a sombra volta isso para
+## ficar onde estava (na mesa, na lateral da mesa comutadora).
+func _raised() -> Vector2:
+	return -_lifted.position if _ci == _lifted else Vector2.ZERO
+
+
+## Guarda onde ficou o objeto `id` que abre ferramenta (px da tela): o retângulo do mouse (`_props`) e o contorno (`_occ`).
+func _mark(id: String, rect: Rect2, hull: PackedVector2Array) -> void:
+	_props[id] = rect
+	var i := occ_ids.find(id)
+	if i >= 0:
+		_occ[i] = hull
+	else:
+		_occ.append(hull)
+		occ_ids.append(id)
 
 
 ## Onde fica a poça de luz da luminária no tampo (x, z da sala): embaixo dela, um pouco à frente do fundo da mesa.
@@ -683,9 +713,7 @@ func _flat(id: String, x0: float, zf: float, wx: float, dz: float, h: float, edg
 		if post.is_valid():
 			post.call(sz)
 	_dim(top, xz)   # longe da luz, ponto a ponto
-	_props[id] = _bounds(foot + top)
-	_occ.append(Geometry2D.convex_hull(foot + top))
-	occ_ids.append(id)
+	_mark(id, _bounds(foot + top), Geometry2D.convex_hull(foot + top))
 	return top
 
 
@@ -761,7 +789,7 @@ func _project(key: Array, art: Callable, q: PackedVector2Array, sz: Vector2i) ->
 				if u >= 0.0 and u < 1.0 and v >= 0.0 and v < 1.0:
 					out.set_pixel(x, y, img.get_pixel(int(u * sz.x), int(v * sz.y)))
 		_projected[full] = ImageTexture.create_from_image(out)
-	draw_texture(_projected[full], Vector2(at))
+	_ci.draw_texture(_projected[full], Vector2(at))
 
 
 ## Um retângulo cheio na imagem `img`, cortado na borda dela.
@@ -824,9 +852,9 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 					for m: Vector2 in [[Vector2(0.72, 0.0)], [Vector2(0.3, 1.0), Vector2(0.82, 0.0)], [Vector2(0.55, 1.0)]][b]:
 						var p: Vector2 = (at.call(m.x, 0.55) as Vector2).round()   # deitada entre as folhas: uma aba fina, com a sombra embaixo
 						var col := Pal.FORM_RED if m.y == 0.0 else Pal.STRIP
-						draw_rect(Rect2(p - Vector2(3, 0), Vector2(6, 2)), col)
-						draw_rect(Rect2(p - Vector2(3, 0), Vector2(6, 1)), col.lightened(0.15))
-						draw_rect(Rect2(p + Vector2(-3, 2), Vector2(6, 1)), Color(0, 0, 0, 0.35))
+						_ci.draw_rect(Rect2(p - Vector2(3, 0), Vector2(6, 2)), col)
+						_ci.draw_rect(Rect2(p - Vector2(3, 0), Vector2(6, 1)), col.lightened(0.15))
+						_ci.draw_rect(Rect2(p + Vector2(-3, 2), Vector2(6, 1)), Color(0, 0, 0, 0.35))
 			_dim(q, [xz[i], xz[(i + 1) % 4], xz[(i + 1) % 4], xz[i]])
 			all.append_array(q)
 		var top := PackedVector2Array()
@@ -841,9 +869,7 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 			_hom_sz = Vector2(sz)
 			_project([Tools.DIRECTORY, sz], _art_book_cover.bind(cover), top, sz)
 		_dim(top, xz)   # longe da luz, ponto a ponto: cada volume logo depois de desenhado (os de cima cobrem os de baixo)
-	_props[Tools.DIRECTORY] = _bounds(all)
-	_occ.append(Geometry2D.convex_hull(all))
-	occ_ids.append(Tools.DIRECTORY)
+	_mark(Tools.DIRECTORY, _bounds(all), Geometry2D.convex_hull(all))
 
 
 ## A caneca de café em pé na mesa (centro `xc`, `zc`; raio `rr`, altura `hh`): uma caneca esmaltada de época,
@@ -861,7 +887,7 @@ func _draw_mug(xc: float, zc: float, rr: float, hh: float) -> void:
 	_desk_shadow(PackedVector2Array([body.position + Vector2(0, body.size.y - rb), body.end - Vector2(0, rb), body.end + Vector2(0, rb),
 		Vector2(body.position.x, body.end.y + rb)]))
 	var img := _mug_art(int(body.size.x), int(body.size.y), int(ry), int(rb))
-	draw_texture(img, body.position - Vector2(0, ry), Color.WHITE.darkened(_shade(xc, zc)))
+	_ci.draw_texture(img, body.position - Vector2(0, ry), Color.WHITE.darkened(_shade(xc, zc)))
 	var hull := PackedVector2Array()
 	for p in _mug_hulls[Vector4i(int(body.size.x), int(body.size.y), int(ry), int(rb))]:
 		hull.append(p + body.position - Vector2(0, ry))
@@ -1153,26 +1179,24 @@ func _draw_dispatch_unit(x0: float, zf: float, wx: float) -> void:
 		_poly(card, PunchCard.CARD.darkened(dark))
 		_pixel_line(_tex_pt(sz * Vector2(0.39, 0.15)), _tex_pt(sz * Vector2(0.61, 0.15)), [Pal.FORM_RED.darkened(dark)])
 	var front := Rect2(_p3(x0, yd, zf).round(), Vector2.ZERO).expand(_p3(x1, _yd, zf).round())   # a frente da base
-	draw_rect(front, Pal.PANEL.darkened(dark))
-	draw_rect(Rect2(front.position, Vector2(front.size.x, 1)), Pal.PANEL_HI.darkened(dark))
-	draw_rect(Rect2(front.position.x, front.end.y - 1, front.size.x, 1), Pal.EDGE)
+	_ci.draw_rect(front, Pal.PANEL.darkened(dark))
+	_ci.draw_rect(Rect2(front.position, Vector2(front.size.x, 1)), Pal.PANEL_HI.darkened(dark))
+	_ci.draw_rect(Rect2(front.position.x, front.end.y - 1, front.size.x, 1), Pal.EDGE)
 	var mid := front.position.y + floorf(front.size.y / 2.0)
 	var plate := Rect2(front.position.x + roundf(front.size.x * 0.36), mid - 2, roundf(front.size.x * 0.28), 4)
-	draw_rect(plate, Pal.BRASS.darkened(0.25 + dark))   # a plaqueta do fabricante
-	draw_rect(plate.grow(-1), Pal.BRASS.darkened(dark))
+	_ci.draw_rect(plate, Pal.BRASS.darkened(0.25 + dark))   # a plaqueta do fabricante
+	_ci.draw_rect(plate.grow(-1), Pal.BRASS.darkened(dark))
 	for i in 3:   # a saída de ar, à direita
-		draw_rect(Rect2(front.end.x - roundf(front.size.x * 0.22), mid - 2 + i * 2, roundf(front.size.x * 0.16), 1), Pal.PANEL_LO)
+		_ci.draw_rect(Rect2(front.end.x - roundf(front.size.x * 0.22), mid - 2 + i * 2, roundf(front.size.x * 0.16), 1), Pal.PANEL_LO)
 	for l: Array in [[0.06, alert, Pal.RED], [0.14, card_out, Pal.AMBER]]:   # as luzes: ocorrência e cartão na mesa
 		var lr := Rect2(front.position.x + roundf(front.size.x * l[0]), mid - 1, 3, 3)
-		draw_rect(lr.grow(1), Pal.EDGE)
-		draw_rect(lr, l[2] if l[1] else (l[2] as Color).darkened(0.75))
+		_ci.draw_rect(lr.grow(1), Pal.EDGE)
+		_ci.draw_rect(lr, l[2] if l[1] else (l[2] as Color).darkened(0.75))
 		if l[1]:
 			_light(lr, l[2], 0.6, true)
 	all.append_array(top + glass + deck)
 	all.append_array(PackedVector2Array([front.position, front.end, Vector2(front.position.x, front.end.y)]))
-	_props[Tools.DISPATCH] = _bounds(all)
-	_occ.append(Geometry2D.convex_hull(all))
-	occ_ids.append(Tools.DISPATCH)
+	_mark(Tools.DISPATCH, _bounds(all), Geometry2D.convex_hull(all))
 
 
 ## O desenho de frente `art` (com `key`) posto no quadrilátero `q` da tela pixel a pixel (`_project`), escurecido
@@ -1312,11 +1336,11 @@ func _pad_marks(sz: Vector2i) -> void:
 		var p := _tex_pt(Vector2(5 + i * floorf((sz.x - 12) / 6.0), 0)).round()
 		var up := 6.0 + (i * 5) % 4
 		var col := Pal.PENDING[i % 2]
-		draw_rect(Rect2(p.x, p.y - up, 6, up + 2), col)
-		draw_rect(Rect2(p.x + 5, p.y - up, 1, up + 2), col.darkened(0.2))   # o lado na sombra
-		draw_rect(Rect2(p.x, p.y - up, 5, 1), col.lightened(0.12))   # a beira de cima, na luz
-		draw_rect(Rect2(p.x + 1, p.y - up + 2, 3, 1), Pal.FORM_RED)
-		draw_rect(Rect2(p.x, p.y + 1, 6, 1), Color(0, 0, 0, 0.3))   # onde ela entra embaixo do bloco
+		_ci.draw_rect(Rect2(p.x, p.y - up, 6, up + 2), col)
+		_ci.draw_rect(Rect2(p.x + 5, p.y - up, 1, up + 2), col.darkened(0.2))   # o lado na sombra
+		_ci.draw_rect(Rect2(p.x, p.y - up, 5, 1), col.lightened(0.12))   # a beira de cima, na luz
+		_ci.draw_rect(Rect2(p.x + 1, p.y - up + 2, 3, 1), Pal.FORM_RED)
+		_ci.draw_rect(Rect2(p.x, p.y + 1, 6, 1), Color(0, 0, 0, 0.3))   # onde ela entra embaixo do bloco
 	var a := _tex_pt(Vector2(sz.x * 0.5, sz.y - 4)).round()
 	var b := _tex_pt(Vector2(sz.x - 5, t + 5)).round()
 	var d := (b - a).normalized()

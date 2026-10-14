@@ -8,7 +8,7 @@ const CHURCH_DARK := 22 * 60   ## a porta da igreja apaga
 const SKY := {"rain": Color("0b141c"), "fog": Color("1b252b"), "clear": Color("0a1422")}
 const RAIN_STREAK := Vector2(6.0, 14.0) ## o comprimento do risco (px da tela), do mais longe ao mais perto: o rastro do quadro
 const RAIN_SLANT := 0.18 ## o vento: quanto o pingo anda para a esquerda a cada px que cai
-const WALK_SEC := 18.0    ## quanto leva atravessando a vista (~1,8 m/s, de 16 m a 16 m; cada um ±20%)
+const WALK_SEC := 12.0    ## quanto leva atravessando a vista (~1,8 m/s, de 11 m a 11 m; cada um ±20%)
 const WALK_STEPS := 2.2   ## passos por segundo (as pernas alternam nesse ritmo)
 ## A vista é uma cena 3D simples projetada para o vidro (pensada antes, não elemento por elemento): uma câmera dentro
 ## do prédio, na altura de quem está na janela (`OUT_EYE` m acima da rua: o horizonte passa ali), olhando para fora,
@@ -17,8 +17,8 @@ const WALK_STEPS := 2.2   ## passos por segundo (as pernas alternam nesse ritmo)
 ## as laterais dos prédios); a rua, os meios-fios e as fachadas de frente ficam na horizontal, e as paredes na
 ## vertical. Não é a perspectiva da janela (a diagonal dela é só do primeiro plano). Tudo em metros (`_o`: `x` ao longo
 ## da rua, `z` a distância dos olhos, `h` a altura), no tamanho de verdade.
-const OUT_EYE := 4.5      ## os olhos acima da rua (m)
-const OUT_F := 32.0       ## a distância focal (px de 2x2 de um metro a um metro): com 45, a vista ficava perto e o vidro mostrava pouco da rua
+const OUT_EYE := 3.8      ## os olhos acima da rua (m)
+const OUT_F := 38.0       ## a distância focal (px de 2x2 de um metro a um metro): com 45, a vista ficava perto e o vidro mostrava pouco da rua; com 32 e a rua mais larga, quem passava era um palito
 ## O ponto de fuga lá fora, de lado a lado do vidro de perto (do montante, 0, ao batente de perto, 1): no meio da vista,
 ## a rua do cruzamento e a igreja ficavam atrás do montante.
 const OUT_AT := 0.4
@@ -27,17 +27,17 @@ const OUT_AT := 0.4
 const OUT_DROP := 18.0
 ## A rua, de perto para longe (z, m): a nossa fachada, a nossa calçada até o meio-fio, as duas mãos (a faixa no meio),
 ## o meio-fio de lá, a calçada de lá e as fachadas do outro lado, apoiadas nela.
-const STREET := {"curb": 3.2, "lane": 7.2, "far_curb": 11.2, "far": 14.0}
-const CROSSING := Vector2(-6.0, 2.0)   ## a rua do cruzamento, indo embora entre os prédios de lá (x, m)
-const FAR_LAMPS := [2.6, -17.0, 19.0]  ## os postes da calçada de lá (x, m): o primeiro na esquina do prédio de tijolos, com o homem
-const MAN_X := 3.4        ## onde o homem fica, embaixo do poste da esquina
-const MAN_FROM := 16.0    ## de onde ele vem pela calçada (x, m; fora da vista) e para onde volta
+const STREET := {"curb": 2.8, "lane": 5.2, "far_curb": 7.6, "far": 9.4}   # (era de 14 m: quem passava tinha 8 px)
+const CROSSING := Vector2(-3.7, 1.2)   ## a rua do cruzamento, indo embora entre os prédios de lá (x, m)
+const FAR_LAMPS := [1.6, -10.4, 11.6]  ## os postes da calçada de lá (x, m): o primeiro na esquina do prédio de tijolos, com o homem
+const MAN_X := 2.1        ## onde o homem fica, embaixo do poste da esquina
+const MAN_FROM := 10.0    ## de onde ele vem pela calçada (x, m; fora da vista) e para onde volta
 const MAN_WALK := 6.0     ## quanto ele leva andando de lá até o poste (min de jogo: ~8 s, ~1,6 m/s)
 const MAN_STRIDE := 0.75  ## o passo dele (m)
-const HOTEL_X := -9.5     ## o letreiro do hotel, no prédio do outro lado da esquina
+const HOTEL_X := -5.8     ## o letreiro do hotel, no prédio do outro lado da esquina
 ## O prédio de tijolos da esquina é de apartamentos: no 3º andar (de `floor` m), uma varanda de `x0` a `x1` (m ao longo
 ## da rua), saindo `deep` m da fachada, com a porta (`door`, de x a y) e a janela da sala (`win`), onde a TV fica ligada.
-const APT := {"x0": 2.7, "x1": 7.6, "floor": 6.5, "deep": 1.0, "door": Vector2(3.2, 4.3), "win": Vector2(5.3, 6.9)}
+const APT := {"x0": 1.9, "x1": 4.9, "floor": 6.5, "deep": 1.0, "door": Vector2(2.2, 2.9), "win": Vector2(3.4, 4.6)}
 const APT_DARK := 21 * 60 + 40   ## a luz da sala do apartamento apaga: dali em diante, só a TV
 const TV_OFF := 23 * 60 + 35     ## e a TV também (alguém dormiu na frente dela)
 const TV_BLUE := Color(0.42, 0.58, 0.95)   ## a luz da TV no vidro
@@ -48,7 +48,7 @@ const WAKE_FROM := 21 * 60 + 30
 const WAKE_FOR := Vector2(4, 14)
 ## As duas mãos da rua: [o meio do carro (z, m), o sentido (-1: para a esquerda)]. Pela mão de lá, da direita para a
 ## esquerda; pela de cá, entre o nosso meio-fio e a faixa do meio, voltando, da esquerda para a direita.
-const CAR_LANES := [Vector2(9.2, -1.0), Vector2(6.4, 1.0)]
+const CAR_LANES := [Vector2(6.4, -1.0), Vector2(4.5, 1.0)]
 ## Os carros da rua, os de 1973 (em metros, a partir da frente: `along`, altura): o comprimento e a largura, o lado
 ## de cá (`body`, e a cabine da picape, `cab`), os vidros do lado (`win`: os quatro cantos, de baixo da frente ao de
 ## baixo de trás) e as colunas entre eles, o que se vê de cima (`tops`: de, até, altura), os vidros inclinados (`glass`:
@@ -148,7 +148,7 @@ const FOG_WISPS := 9     ## os fiapos passando pela rua
 ## O peitoril (cm abaixo dos olhos): uns 24 cm acima do tampo, como numa sala de verdade (desce pouco: a parede fica a
 ## uns 70 cm da cabeça). Com os olhos acima da tela e o peitoril 38 cm abaixo deles, a janela descia uns 40° e parecia
 ## vista de cima.
-const WIN_SILL := 33.0
+const WIN_SILL := 36.0
 const WALL_D := 16.0        ## a espessura da parede (para fora, nas unidades da parede do fundo): o vidro fica do lado de fora
 
 var _spray_rng := RandomNumberGenerator.new()   # o sorteio do borrifo dos pneus (`_spray`), sem criar um a cada quadro
@@ -858,7 +858,7 @@ func _draw_stranger(g: Rect2, x: float) -> void:
 ## Alguém novo na calçada de lá, indo de um lado ao outro: cada um com o seu passo, a sua altura, a sua distância das
 ## fachadas e, sem chuva, de chapéu ou não. `t` vai de 0 a 1 (negativo: ainda não entrou na rua).
 func _walker() -> Dictionary:
-	return {"t": 0.0, "dir": 1.0 if randf() < 0.5 else -1.0, "sec": WALK_SEC * randf_range(0.8, 1.2), "z": randf_range(12.4, 13.6),
+	return {"t": 0.0, "dir": 1.0 if randf() < 0.5 else -1.0, "sec": WALK_SEC * randf_range(0.8, 1.2), "z": randf_range(STREET["far_curb"] + 0.5, STREET["far"] - 0.4),
 		"h": randf_range(0.92, 1.06), "hat": randf() < 0.5}
 
 
@@ -871,7 +871,7 @@ func _add_walker(w: Dictionary) -> void:
 ## alternando a cada passo, com um balanço leve, e de guarda-chuva aberto na chuva. Em px da tela, como o homem.
 func _draw_walker(g: Rect2, w: Dictionary) -> void:
 	var z: float = w["z"]
-	var x: float = lerpf(-16.0, 16.0, w["t"]) * w["dir"]
+	var x: float = lerpf(-11.0, 11.0, w["t"]) * w["dir"]
 	if absf(_out_x + OUT_F * x / z - g.size.x * 0.5) > g.size.x * 0.5 + OUT_F / z:
 		return
 	var steps := int(w["t"] * w["sec"] * WALK_STEPS)

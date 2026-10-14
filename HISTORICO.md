@@ -898,3 +898,19 @@ Chaves:
     caminhão ganhou a parede da frente, acima da cabine, e a caçamba da picape a beira do lado de cá. #vista
     O estalo do letreiro de neon ao falhar saiu, a pedido (som `neon`). O reflexo dele na rua molhada saía embaixo
     da beira esquerda da caixa, e não das letras. #vista #saiu
+174. #objetos #interface #som #desempenho #saiu
+    No lugar do contorno amarelo e da caixa preta com o nome, sob o mouse: o objeto se ergue 2 px (no tempo do `Lift`,
+    a sombra fica na mesa e se afasta) e, quando o mouse sai, assenta com uma batidinha bem baixa do material (papel
+    nas listas, no bloco de fichas, no jornal e na prancheta; metal na unidade de despacho e no calculógrafo); o nome
+    numa etiqueta de fita crepe (`TapedLabel`) acima dele. A pedido, o objeto vai para uma camada só dele: a sala
+    continua se redesenhando só ao entrar e sair, e o hover medido ficou igual ao de antes. A etiqueta torta, com a
+    letra subindo e descendo à mão, saiu a pedido (reta); a prancheta pendurada, em vez de subir, sai 2 px da lateral
+    para a frente.
+175. #janela #vista #sala #saiu
+    Quem passava na calçada de lá tinha 8 px, um palito: a janela ficou maior (começa quase na quina, vai até perto da
+    borda da tela e o peitoril desceu 3 cm) e o outro lado da rua veio para perto (calçada de lá a 7,6–9,4 m, era a
+    11,2–14; `OUT_F` 38, era 32): quem passa tem ~15 px, com cabeça, chapéu e casaco. Os lugares ao longo da rua (o
+    cruzamento, o hotel, o homem, o poste, a varanda) encolheram junto, para a vista continuar com os mesmos. A 3,6 m,
+    o carro da mão de cá virava uma laje (o teto, de cima, cortado pelo peitoril): a nossa calçada ficou mais larga e
+    os olhos lá fora desceram de 4,5 para 3,8 m. A travessa do caixilho saiu (fica só o montante), o peitoril de dentro
+    ficou mais estreito (`SILL_D` 5, era 9) e a folhinha saiu da porta do armário para a parede, entre ele e a quina.

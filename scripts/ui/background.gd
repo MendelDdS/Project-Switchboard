@@ -40,12 +40,16 @@ const SIGN_INK := Color("d8cfae")   ## ...e o creme das letras e do filete
 const SIGN_AT := 0.62   ## onde fica o meio dela, na largura da mesa comutadora (à direita do horário do turno)
 const PROPS := {Tools.DIRECTORY: T.Key.TAB_DIRECTORY, Tools.DISPATCH: T.Key.TAB_DISPATCH, Tools.LOGBOOK: T.Key.TAB_LOGBOOK, Tools.CALL_LOG: T.Key.TAB_CALL_LOG,
 	Tools.NEWS: T.Key.TAB_NEWS, Tools.TOLL: T.Key.TAB_TOLL}
+## Sob o mouse, o objeto se ergue LIFT_PX (no tempo do `Lift`, como o cartão e o bilhete; a prancheta pendurada sai
+## da lateral para a frente) e, quando o mouse sai, assenta com a batidinha do material dele (`SET_SOUND`; sem ele, papel).
+const LIFT_PX := 2
+const SET_SOUND := {Tools.DISPATCH: "set_metal", Tools.TOLL: "set_metal"}
 
 
 const TIP_SEC := 1.3   ## o bilhete subindo na fenda do calculógrafo da mesa: o tempo do som da impressora ("printer")
 const HUNG := Vector2(18, 24)   ## a prancheta do registro pendurada na lateral do painel: funda (z) e alta (y), na sala
 const HUNG_AT := 0.3   ## onde fica o alto dela, na altura do painel
-const CALENDAR := "calendario"   ## a folhinha do armário: sob o mouse, a data da noite (não abre ferramenta)
+const CALENDAR := "calendario"   ## a folhinha na parede, ao lado do armário: sob o mouse, a data da noite (não abre ferramenta)
 const DETAILS := ["cartaz_quermesse", "numero_anotado", "armario_entreaberto"]   ## o que `RoomChange.detail` pode pedir
 const BOARD_SINK := 10.0   ## o fundo do tampo, em px da tela acima da base do painel: fica atrás da mesa comutadora (o painel recuado para a parede, a prateleira funda)
 const LAMP_Y := -22.0      ## a boca da luminária, acima da tela (px de 2x2): de onde sai a luz e saem as sombras na parede
@@ -103,11 +107,10 @@ const CAB_W := 82.0             ## a largura do armário de aço, encostado na p
 const POSTER_W := 22.0           ## a largura do cartaz da quermesse (px de 2x2)
 const CAB_TOP := -26.0           ## o alto dele (cm a partir dos olhos, para baixo): acima deles, ~1,5 m do chão (o tampo não aparece)
 const CAB_T := 1.15              ## a frente dele (escala): ~35 cm de fundo
-const SILL_D := 9.0        ## quanto o peitoril de dentro sai da parede para a sala
+const SILL_D := 5.0        ## quanto o peitoril de dentro sai da parede para a sala (com 9, largo demais)
 const SHIFT_START := 18.0 * 60.0   ## o começo do turno (min do dia): o café da caneca está quente
 const STEAM_FOR := 210.0    ## em quantos minutos de jogo o café esfria e o vapor some (às 21h30)
 const BLIND := 0.12        ## até onde a persiana desce (fração da altura do vão)
-const TRANSOM := 0.27      ## a travessa do caixilho (fração da altura do vão), alta como a de uma bandeira: no horizonte, ela escondia o fim da rua do cruzamento e a igreja
 const X2 := Transform2D(Vector2(2, 0), Vector2(0, 2), Vector2.ZERO)   ## a escala dos px de 2x2 (`_sprite` volta a ela)
 
 @export var window: Control   ## a área das ferramentas: a quina e a janela ficam na parede dela
@@ -125,6 +128,7 @@ var _top := 200.0        # o fundo do tampo (px de 2x2), do último desenho: ond
 var _win := Vector2(104, 38)   # a vista da janela, em pixels de 2x2 (do último desenho)
 var _acc := 0.0
 var _hot := ""         # objeto sob o mouse
+var _lift := Lift.new()   # o objeto erguido (`_up_id`) subindo e assentando
 var _shelf := Vector2(INF, INF)   # `shelf()`, em px do cenário
 var _view: Control     # desenha a vista da janela no `_vport`: a frente dela, a cada quadro da vista
 var _back: Control     # a parte de trás da vista, embaixo da `_view`: só se redesenha quando muda (`_back_state`)
@@ -180,6 +184,12 @@ func _ready() -> void:
 	_view.draw.connect(_draw_view)
 	_vport.add_child(_view)
 	add_child(_vport)
+	_lifted = Control.new()
+	_lifted.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_lifted.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_lifted.visible = false
+	_lifted.draw.connect(_draw_lifted)
+	add_child(_lifted)
 	_tip_layer = Control.new()
 	_tip_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_tip_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -224,10 +234,12 @@ func _ready() -> void:
 ## quadros por segundo no vidro fora da tela, sem redesenhar a sala.
 func _process(delta: float) -> void:
 	_events(delta)
+	_lift_step(delta)
 	var st := _state()
 	if st != _drawn:
 		_drawn = st
 		queue_redraw()
+		_lifted.queue_redraw()   # (o objeto erguido muda com a sala: a luz, o lugar)
 		_over.queue_redraw()   # (depois da sala: usa o vidro e a poça de luz que ela acabou de medir)
 		_bolt_layer.queue_redraw()
 		_tip_layer.queue_redraw()
@@ -319,6 +331,46 @@ func _process(delta: float) -> void:
 	_show()
 
 
+## O objeto sob o mouse (sem o papel de uma ferramenta por cima) se ergue e, quando o mouse sai, assenta com a batidinha
+## dele. Ele vai para a camada dele (`_lifted`), que sobe sem redesenhar a sala: ela só se redesenha quando ele sai da
+## sala e quando volta, e a camada a cada pixel que ele sobe ou desce (a sombra fica na mesa).
+func _lift_step(delta: float) -> void:
+	var want := _hot if _hot in PROPS and not _cover.has_area() else ""
+	if _up_id != "" and want != "" and want != _up_id:   # ponytail: o anterior assenta de uma vez; uma camada por objeto se os dois tiverem de se ver
+		_land()
+	if _up_id == "" and want != "":
+		_up_id = want
+		_lifted.visible = true
+		_lifted.queue_redraw()
+		queue_redraw()   # a sala, sem ele
+		_show()
+	if _up_id == "":
+		return
+	_lift.held = want == _up_id
+	var moving := _lift.step(delta)
+	var at := (Vector2.RIGHT if _up_id == Tools.CALL_LOG else Vector2.UP) * roundi(_lift.height * LIFT_PX)
+	if at != _lifted.position:
+		_lifted.position = at
+		_tip_layer.position = at if _up_id == Tools.TOLL else Vector2.ZERO   # a ponta do bilhete sai da fenda dele
+		_lifted.queue_redraw()
+		_show()
+	if not moving and not _lift.held:
+		_land()
+
+
+## O objeto erguido volta para a mesa e para a sala, com o som do material dele (sem o papel de uma ferramenta por cima).
+func _land() -> void:
+	if not _cover.has_area():
+		Sfx.play_at(SET_SOUND.get(_up_id, "set_paper"), _props.get(_up_id, Rect2()).get_center().x / maxf(1.0, size.x))
+	_up_id = ""
+	_lift = Lift.new()
+	_lifted.position = Vector2.ZERO
+	_tip_layer.position = Vector2.ZERO
+	_lifted.visible = false
+	queue_redraw()
+	_show()
+
+
 ## A luminária acende agora (começo do turno): fraca e alaranjada, esquentando até a luz inteira (`WARM`).
 func warm_up() -> void:
 	_warm_t = 0.0
@@ -398,7 +450,7 @@ func _events(delta: float) -> void:
 		_add_walker(w)
 		if randf() < WALK_PAIR:   # dois juntos: lado a lado, o de trás um passo atrás
 			var w2 := _walker()
-			w2.merge({"t": -1.0 / 32.0, "dir": w["dir"], "sec": w["sec"], "z": w["z"] + (0.5 if w["z"] < 13.0 else -0.5)}, true)
+			w2.merge({"t": -1.0 / 32.0, "dir": w["dir"], "sec": w["sec"], "z": w["z"] + (0.5 if w["z"] < (STREET["far_curb"] + STREET["far"]) / 2.0 else -0.5)}, true)
 			_add_walker(w2)
 	for i in range(_walkers.size() - 1, -1, -1):
 		var w: Dictionary = _walkers[i]
@@ -476,10 +528,14 @@ func prop_rect(id: String) -> Rect2:
 
 
 func _draw() -> void:
+	var i := occ_ids.find(_up_id)
+	var kept := [_props.get(_up_id), _occ[i] if i >= 0 else null]
 	_glows.clear()
 	_props.clear()
 	_occ.clear()
 	occ_ids.clear()
+	if kept[1] != null:   # o objeto erguido fica na camada dele: o lugar dele continua valendo para o mouse e o relâmpago
+		_mark(_up_id, kept[0], kept[1])
 	_side_faces.clear()
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 	var w := ceilf(size.x / 2.0)
@@ -506,6 +562,8 @@ func _draw() -> void:
 	# armário e o lugar do cartaz (guardado mesmo sem ele, para o armário não mudar de lugar de uma noite para outra)
 	var gap := (_cx - b.end.x - CAB_W * CAB_T - POSTER_W) / 3.0
 	_draw_conduit(b, b.end.x + gap * 0.5)
+	var cab_end := b.end.x + gap + CAB_W * CAB_T   # (antes dele: a sombra dele e a porta entreaberta ficam por cima da folhinha)
+	_draw_calendar(Rect2(floorf((cab_end + _cx) / 2.0 - 18.5), 62, 37, 28))   # na parede, entre o armário e a quina, embaixo do cartaz
 	var cab := _draw_steel_cabinet((b.end.x + gap - _vp.x) / CAB_T)
 	if "cartaz_quermesse" in details:
 		_draw_poster(Rect2(floorf(cab.end.x + gap), 26, POSTER_W, 28))
@@ -543,6 +601,19 @@ func _draw_over() -> void:
 	_ci = self
 
 
+## O objeto erguido sob o mouse (`_up_id`), na camada dele: o mesmo desenho da sala, com as luzes dele no brilho.
+func _draw_lifted() -> void:
+	Bloom.clear(_lifted)
+	if _up_id == "":
+		return
+	_ci = _lifted
+	if _up_id == Tools.CALL_LOG:
+		_draw_hung_clipboard()
+	else:
+		_draw_desk_props()
+	_ci = self
+
+
 ## A ponta do bilhete de tarifação saindo da fenda do calculógrafo da mesa para a mesinha dele (`_tip`, `_tip_layer`),
 ## a beira serrilhada na frente, como sai na ferramenta, descendo pixel a pixel enquanto ele é impresso (`TIP_SEC`; na
 ## sala, ela se redesenhava a cada um).
@@ -569,7 +640,7 @@ func _draw_bolt() -> void:
 ## O que o clarão do relâmpago acende (`_bolt_lit`, px da tela), só o que a janela alcança: a parede do fundo, mais
 ## forte perto da quina, menos a sombra do armário (a caixa dele levada até a parede pela luz, `BOLT_DIR`); a frente do
 ## armário (e o lado dele, se for o virado para a janela); a lateral da mesa comutadora; e, no tampo, a janela abaixo
-## da persiana com a cruz do caixilho, nítida, e um halo em volta (`BOLT_STEEP`). O que fica na frente da parede e do
+## da persiana com o montante do caixilho, nítida, e um halo em volta (`BOLT_STEEP`). O que fica na frente da parede e do
 ## armário (a mesa comutadora, os objetos da mesa, o tampo) sai do clarão; a frente da mesa comutadora fica no escuro.
 func _bolt_build(top: float) -> void:
 	_bolt_lit.clear()
@@ -610,12 +681,10 @@ func _bolt_build(top: float) -> void:
 			back.end * 2.0, front.end * 2.0]), func(_p: Vector2) -> float: return 0.42, _occ)
 	for face: PackedVector2Array in _side_faces:
 		lit.call(face, func(_p: Vector2) -> float: return 0.4, _occ)
-	# no tampo: a janela abaixo da persiana, entrando na sala e descendo (`BOLT_STEEP`), com a cruz do caixilho (a
-	# travessa e o montante, como em `_draw_side_wall`); ao longo da parede, z é linear (`_side_pt`); o que cairia atrás
-	# do fundo do tampo fica fora
+	# no tampo: a janela abaixo da persiana, entrando na sala e descendo (`BOLT_STEEP`), com o montante do caixilho
+	# (como em `_draw_side_wall`); ao longo da parede, z é linear (`_side_pt`); o que cairia atrás do fundo do tampo fica fora
 	var gh := _cm(WIN_SILL - WIN_TOP)
 	var y0 := _cm(WIN_TOP)
-	var ty := floorf(gh * TRANSOM) - 1.0
 	var zfar := Z0 / SIDE_T   # a janela ao longo da parede: do lado da quina...
 	var znear := Z0 / _t2     # ...ao de perto
 	var zb := Z0 / DESK_T
@@ -623,13 +692,12 @@ func _bolt_build(top: float) -> void:
 	var e := (zfar - znear) / SIDE_W   # meia largura do montante
 	var land := func(y: float) -> float: return xc - (_yd - y) / BOLT_STEEP   # onde o raio que passa na altura `y` cai
 	var pane := Color(BOLT_LIGHT, 0.5)
-	for r: Vector2 in [Vector2(y0 + floorf(gh * BLIND), y0 + ty), Vector2(y0 + ty + 2.0, y0 + gh)]:
-		for c: Vector2 in [Vector2(minf(zfar, zb), zm + e), Vector2(minf(zm - e, zb), znear)]:
-			if c.x > c.y:
-				var a: float = land.call(r.x)
-				var b: float = land.call(r.y)
-				_bolt_lit.append([PackedVector2Array([_p3(a, _yd, c.x), _p3(b, _yd, c.x), _p3(b, _yd, c.y), _p3(a, _yd, c.y)]),
-					PackedColorArray([pane])])
+	var a: float = land.call(y0 + floorf(gh * BLIND))
+	var b: float = land.call(y0 + gh)
+	for c: Vector2 in [Vector2(minf(zfar, zb), zm + e), Vector2(minf(zm - e, zb), znear)]:
+		if c.x > c.y:
+			_bolt_lit.append([PackedVector2Array([_p3(a, _yd, c.x), _p3(b, _yd, c.x), _p3(b, _yd, c.y), _p3(a, _yd, c.y)]),
+				PackedColorArray([pane])])
 	var za := minf(zfar, zb)
 	if za > znear:   # o halo em volta, sumindo
 		var xa: float = land.call(y0 + floorf(gh * BLIND))
@@ -777,21 +845,23 @@ func _draw_company_sign(b: Rect2) -> void:
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
-## O objeto sob o mouse: contorno e o nome da ferramenta que ele abre, desenhados em `ci` (o `SceneView`, por cima do
-## cenário e na resolução da interface: o texto fica nítido).
-func draw_hover(ci: CanvasItem) -> void:
+## O nome do objeto sob o mouse (a ferramenta que ele abre; na folhinha, a data) numa etiqueta de fita crepe colada
+## acima dele (`TapedLabel`), desenhada em `ci` (o `SceneView`, por cima do cenário e na resolução da interface: o
+## texto fica nítido).
+func draw_hover(ci: Control) -> void:
 	if _hot == "" or not _props.has(_hot):
 		return
 	var hr: Rect2 = _props[_hot]
-	ci.draw_rect(hr.grow(2), Color(Pal.GLOW, 0.8), false, 2.0)
 	var cap := GameData.date_text(night) if _hot == CALENDAR else T.text(PROPS[_hot])
-	var cw := Pal.ui.get_string_size(cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
-	var at := Vector2(clampf(hr.get_center().x - cw / 2.0 - 5, 4, size.x - cw - 14), hr.position.y - 22)
+	var tape := ci.get_theme_stylebox("normal", "TapedLabel")
+	var ts := (Pal.ui.get_string_size(cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11) + tape.get_minimum_size()).round()
+	var at := Vector2(clampf(hr.get_center().x - ts.x / 2.0, 6, size.x - ts.x - 6), hr.position.y - ts.y - 6).round()
 	var b := Rect2(board.global_position - global_position, board.size) if board else Rect2()
 	if hr.get_center().x > b.end.x and at.x < b.end.x:   # a mesa comutadora fica por cima do cenário: o nome da prancheta, na lateral dela, vai todo para fora
-		at.x = b.end.x + 2.0
-	ci.draw_rect(Rect2(at, Vector2(cw + 10, 16)), Color(0, 0, 0, 0.8))
-	ci.draw_string(Pal.ui, at + Vector2(5, 12), cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.TEXT)
+		at.x = b.end.x + 4.0
+	tape.draw(ci.get_canvas_item(), Rect2(at, ts))
+	ci.draw_string(Pal.ui, at + Vector2(tape.content_margin_left, tape.content_margin_top + Pal.ui.get_ascent(11)), cap,
+		HORIZONTAL_ALIGNMENT_LEFT, -1, 11, ci.get_theme_color("default_color", "TapedLabel"))
 
 
 ## O objeto da cena em `p` (px da tela), ou "" (nenhum, ou o papel de uma ferramenta por cima).
@@ -808,10 +878,7 @@ func prop_at(p: Vector2) -> String:
 ## Devolve se o evento foi usado (o clique num objeto).
 func pointer(e: InputEvent) -> bool:
 	if e is InputEventMouseMotion:
-		var id := prop_at(e.position)
-		if id != _hot:
-			_hot = id
-			queue_redraw()
+		_hot = prop_at(e.position)   # (o objeto se ergue no `_lift_step`)
 	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
 		var id := prop_at(e.position)
 		if id in PROPS:
@@ -827,9 +894,7 @@ func hot() -> String:
 
 ## O mouse saiu de cima do cenário.
 func leave() -> void:
-	if _hot != "":
-		_hot = ""
-		queue_redraw()
+	_hot = ""
 
 
 ## Papel de parede verde-escuro com listras e um friso de losangos (sem rodapé: embaixo dela é a mesa, não o chão).
@@ -879,22 +944,21 @@ func _cast(r: Rect2, s: float) -> void:
 ## a ela e na perspectiva dela (`HUNG`, na sala; mais funda que o painel, passa um pouco da quina de trás): o mesmo
 ## desenho da que ficava na mesa (`_art_clipboard`, `_clipboard_print`), com a sombra na lateral.
 func _draw_hung_clipboard() -> void:
-	if _side_faces.size() < 2:
+	if _side_faces.size() < 2 or not _here(Tools.CALL_LOG):
 		return
-	draw_set_transform(Vector2.ZERO)
+	_ci.draw_set_transform(Vector2.ZERO)
 	var b := Rect2(board.global_position - global_position, board.size)
 	var y0 := ((b.position.y + b.size.y * HUNG_AT) / 2.0 - _vp.y) * _panel_z / Z0
 	var at := func(dz: float, dy: float) -> Vector2: return _p3(_side_x, y0 + dy, _panel_z + 1.5 + dz)
 	var q := PackedVector2Array([at.call(0, 0), at.call(HUNG.x, 0), at.call(HUNG.x, HUNG.y), at.call(0, HUNG.y)])
 	var drop := PackedVector2Array([at.call(1, 1.5), at.call(HUNG.x + 1, 1.5), at.call(HUNG.x + 1, HUNG.y + 1.5), at.call(1, HUNG.y + 1.5)])
+	drop = Transform2D(0.0, _raised()) * drop   # saindo da lateral, a sombra fica nela
 	for s: PackedVector2Array in Geometry2D.intersect_polygons(drop, _side_faces[1]):   # a sombra: só onde há lateral atrás
 		_poly(s, Color(0, 0, 0, 0.3))
 	_flat_art(Tools.CALL_LOG, q, _art_clipboard, [unread], 0.12)
 	_clipboard_print(Vector2i(_hom_sz))
-	_props[Tools.CALL_LOG] = _bounds(q)
-	_occ.append(q)
-	occ_ids.append(Tools.CALL_LOG)
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	_mark(Tools.CALL_LOG, _bounds(q), q)
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
 ## Calendário de folhinha: o mês da noite (`GameData.date_of`) com o cabeçalho vermelho e a semana começando na
@@ -1106,7 +1170,7 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	var te := (w - _vp.x) / xc   # a escala na borda da tela
 	var j := _vp + Vector2(xc, _yd) * te
 	var d := _vp + Vector2(xc, _yd) * DESK_T
-	_t2 = (w - 14.0 - _vp.x) / xc
+	_t2 = (w - 6.0 - _vp.x) / xc
 	var wall := Color("202d30")   # virada para a luminária: mais clara que a do fundo (é o que mostra a quina)
 	_poly(PackedVector2Array([Vector2(_cx, 0), Vector2(w, 0), j, d, Vector2(_cx, top)]), wall)
 	var k := 1
@@ -1154,9 +1218,9 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	# o vidro que aparece começa abaixo da persiana (e da borda de cima da tela): as gotas ficam dali para baixo
 	_glass_from = clampf((maxf(0.0, _side_pt(Vector2(gw * 0.5, blind)).y) - view.position.y) / view.size.y, 0.0, 0.95)
 	var mx := gw / 2.0
-	var ty := floorf(gh * TRANSOM) - 1
-	var near_x := minf(_side_pt(Vector2(gw, ty)).x, w)   # o batente de perto, ou a borda da tela
-	var out_x := roundf(lerpf(_side_pt(Vector2(mx + 1, ty), WALL_D).x, near_x, OUT_AT) - view.position.x)
+	var hy := -_cm(WIN_TOP)   # o horizonte no vão: o ponto de fuga lá fora fica nele
+	var near_x := minf(_side_pt(Vector2(gw, hy)).x, w)   # o batente de perto, ou a borda da tela
+	var out_x := roundf(lerpf(_side_pt(Vector2(mx + 1, hy), WALL_D).x, near_x, OUT_AT) - view.position.x)
 	if _vport.size != Vector2i(view.size * 2.0) or out_x != _out_x:   # o vidro em px da tela: a vista também é desenhada em 1x1
 		_out_x = out_x
 		_vport.size = Vector2i(view.size * 2.0)
@@ -1178,15 +1242,12 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	for lamp: Vector2 in _lamp_heads(cg):   # os postes de lá
 		if lamp_level > 0.5 and Geometry2D.is_point_in_polygon(lamp, q):
 			_light(Rect2((lamp + Vector2(-1.5, 0)) * 2.0, Vector2(6, 3)), Color("ffd88a"), 0.8)
-	# o caixilho em cruz, no vidro: a frente dele e, por estar abaixo e ao lado dos olhos, o alto da travessa e o lado
-	# de perto do montante; o que passa do vão fica atrás do batente
+	# o montante do caixilho, no vidro: a frente dele e, por estar ao lado dos olhos, o lado de perto; o que passa do vão
+	# fica atrás do batente (a travessa saiu, a pedido)
 	var bar := func(poly: PackedVector2Array, col: Color) -> void:
 		for part in Geometry2D.intersect_polygons(poly, inner):
 			_poly(part, col)
 	var f := WALL_D - 3.0
-	bar.call(PackedVector2Array([_side_pt(Vector2(0, ty), f), _side_pt(Vector2(gw, ty), f), _side_pt(Vector2(gw, ty), WALL_D),
-		_side_pt(Vector2(0, ty), WALL_D)]), WOOD[0])
-	bar.call(_side_quad(Rect2(0, ty, gw, 2), f), WOOD[1])
 	bar.call(PackedVector2Array([_side_pt(Vector2(mx + 1, 0), f), _side_pt(Vector2(mx + 1, 0), WALL_D), _side_pt(Vector2(mx + 1, gh), WALL_D),
 		_side_pt(Vector2(mx + 1, gh), f)]), WOOD[2])
 	bar.call(_side_quad(Rect2(mx - 1, 0, 2, gh), f), WOOD[1])
@@ -1465,8 +1526,6 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 		draw_line(d1 + Vector2(1, 0), d2 + Vector2(1, 0), steel.darkened(0.45), PX)
 		var rod := d1.lerp(d0, 0.3)   # a haste da fechadura
 		draw_line(rod + Vector2(0, 30), rod + Vector2(0, 52), Color("8e897c"), PX)
-	else:
-		_draw_calendar(Rect2(mid + 10, doors + 44, 37, 28))   # preso com ímã
 	if "numero_anotado" in details:   # o número de quem ligou, anotado num bilhete e colado com fita
 		var n := Rect2(f.position.x + 10, doors + 52, 26, 14)
 		_cast(n, 1.01)
