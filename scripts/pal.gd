@@ -60,6 +60,17 @@ const DESK_GRAIN: Array[Color] = [Color("1a120c"), Color("2b2016"), Color("2e221
 const DESK_EDGE: Array[Color] = [Color("5a4030"), Color("7a5434"), Color("6b4529"), Color("3a2616"), Color("442c1a")]
 const NICKEL: Array[Color] = [Color("f4f0e6"), Color("d6d1c3"), Color("8e897c"), Color("45413a")]   ## o níquel (brilho, luz, meio, sombra): o prendedor da prancheta, o aro das lâmpadas
 
+## Rampas de material: do mais escuro ao mais claro, a sombra puxando para o frio (o azul da noite na sala) e a luz para
+## o quente (a da luminária), não só mais escuro e mais claro. O desenho escolhe o tom pelo nível de luz (`ramp`).
+const MUG_ENAMEL: Array[Color] = [Color("34363f"), Color("47494f"), Color("5e5e60"), Color("787670"), Color("938f84"),
+	Color("aea797"), Color("c7bea9"), Color("ddd2b8")]   ## o esmalte branco-gelo da caneca (o mais claro, um tom abaixo do branco)
+const MUG_RIM: Array[Color] = [Color("141626"), Color("1d2640"), Color("293858"), Color("3b4d72"), Color("56678a")]   ## a borda azul-marinho dela
+
+
+## O tom da rampa `tones` (de `Pal`, do escuro ao claro) para o nível de luz `lit` (0 a 1), em degraus, sem pontilhado.
+static func ramp(tones: Array[Color], lit: float) -> Color:
+	return tones[clampi(int(lit * tones.size()), 0, tones.size() - 1)]
+
 ## Uma fonte só, de pixel: Departure Mono (SIL OFL). Fica nítida só em múltiplos de 11 (11, 22, 33, 44); fora deles os
 ## pixels saem desiguais. Importada com suavização (para a janela menor que 1280×720 não apagar os traços), sem
 ## hinting e sem sub-pixel (para os pixels caírem inteiros na tela). `ui` e `mono` continuam separadas pelo papel.

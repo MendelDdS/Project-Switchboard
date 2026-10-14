@@ -187,7 +187,8 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   com a janela vista de lado (`_draw_side_wall`, `_side_pt`: guarnição, caixilho e persiana na perspectiva da parede;
   **a persiana fecha e abre com um clique** (`toggle_blind`, `BLIND_ID`, a etiqueta diz "Fechar/Abrir a persiana"),
   descendo lâmina a lâmina até o peitoril em `BLIND_SEC`, com o barulho das lâminas, som `blind`; ela fica numa
-  camada só dela, `_blind_layer`, `_draw_blind`, e a cada lâmina (`_blind_shape`) a camada de cima se redesenha: o
+  camada só dela, `_blind_layer`, `_draw_blind`, com os objetos da mesa na camada de cima dela (`_props_layer`;
+  antes as lâminas passavam por cima da borda da caneca), e a cada lâmina (`_blind_shape`) a camada de cima se redesenha: o
   vidro que aparece, `_glass`, encolhe, o brilho azul da janela some e as luzes de lá atrás dela não brilham,
   `_behind_blind`; a sala, só em quatro passos, para a luz da rua na mesa e o relâmpago, `_state`; fechada, o
   relâmpago entra 85% mais fraco;
@@ -196,7 +197,9 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   o vão tem a espessura dela, `WALL_D`: sair da parede é andar na horizontal da tela, então aparecem o lado de dentro
   do batente de longe e o fundo do vão (a tábua do peitoril indo até o trilho de baixo do caixilho; escuro, parecia
   um buraco; o que passa do batente de perto é cortado; fora do vidro, o escuro da sala deixava o peitoril e a
-  guarnição de perto quase pretos, então a luz de fora os clareia por cima do escuro, `_sill_lit`; a ponta de perto da
+  guarnição de perto quase pretos, então a luz de fora os clareia, `_sill_lit`, desenhada na sala antes dos objetos da mesa e mais forte na
+  medida do escuro que cai por cima dela depois (`_draw_sill_light`, `_gloom`): pintada por cima do escuro, ela
+  atravessava a caneca e o relógio, e recortada pelo contorno deles ficava com o vão da alça escuro; a ponta de perto da
   tábua tem a face dela; o vaso que ficava nela saiu, a pedido), o vidro fica do lado de fora e o batente de perto esconde uma tira dele; o
   peitoril de dentro é uma tábua saindo para a sala, `SILL_D`; o peitoril fica `WIN_SILL` cm abaixo dos
   olhos e o alto `WIN_TOP` acima deles (baixa o bastante para a persiana aparecer abaixo do bilhete do manual); a janela e o armário são medidos
@@ -210,7 +213,12 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   a partir da luminária (`_cast`); a luz da rua entra pela janela e cai na mesa (`_draw_street_light`): o vão abaixo da
   persiana projetado no tampo, descendo para dentro da sala (`STREET_LIGHT`; mais inclinada, era um quadrado pequeno
   para a janela grande), um pouco longe da parede (o peitoril faz sombra) e só onde há mesa; grande, bem lisa e
-  espalhada além da janela, e por cima dos objetos (eles ficam na luz também). Na mesa, ao alcance do
+  espalhada além da janela, desenhada antes dos objetos da mesa (depois deles, a mancha do tampo passava por
+  cima dos que ficam em pé e a caneca parecia transparente; o bloco e o jornal ficam fora do alcance dela). **Os
+  objetos da mesa ficam numa camada só deles** (`_props_layer`, `_draw_props_layer`): por cima da sala e da persiana,
+  por baixo da camada de cima (o escuro); redesenhada sempre logo depois da sala (ligada ao `draw` dela), porque usa o
+  que ela mede, e é ela que monta o que o relâmpago acende (`_bolt_build`, que precisa do contorno deles: o relâmpago,
+  somado por cima de tudo, continua recortado por eles, `_behind`, inclusive no peitoril e na janela no tampo). Na mesa, ao alcance do
   operador, os objetos que abrem as ferramentas (`prop_clicked(id)` → `Tools.set_tab`; `_props`, `_has_point`: o
   clique só vale sobre eles e não com papel por cima): listas telefônicas (1: três volumes desencontrados, a lombada com os filetes dourados e a etiqueta do volume,
   o miolo com as folhas em linhas finas, posto pixel a pixel como a capa, `_art_pages`, mais sujo junto das capas, e tiras
@@ -487,7 +495,9 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   apagado e o aceso por cima com `level` na transparência). **Nenhuma peça redonda
   com `draw_circle`**: o cenário usa o mesmo `disc` (`Background._sprite`, fora da escala e da perspectiva: botões do
   rádio, parafusos do console, alfinete do mapa, emblemas, rebites, tachinha, fechadura); a caneca é uma caneca esmaltada montada pixel a pixel numa imagem (`_mug_art`: o
-  cilindro em tons fixos pela luz do alto à esquerda, a borda azul-marinho, a boca e o pé em elipses pela câmera, o
+  cilindro pela luz do alto à esquerda, cada tom tirado das rampas do esmalte e da borda, `Pal.MUG_ENAMEL`/`MUG_RIM`,
+  pela luz dele vezes a do lugar, `1 - _shade`: longe da poça, mais escura e mais fria; guardada por essa luz, em
+  degraus de 0,05, a borda azul-marinho, a boca e o pé em elipses pela câmera, o
   café com a luz refletida, a alça em C do lado da sombra e lascas no esmalte), com o vapor subindo na camada da poeira
   (`_draw_steam`), que some com as horas porque o café esfria (`STEAM_FOR`); sob o mouse ela se ergue como os objetos
   das ferramentas e, clicada, é um gole (`Background.sip`, som `gulp`): o café baixa (`sips`, `MUG_SIPS`) e, acabado,

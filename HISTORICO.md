@@ -1018,3 +1018,18 @@ Chaves:
     O contrapeso mais forte: o fio ainda ficava solto, encaixado e na mão. A folga caiu para poucos px (~1 a 4, pelo
     vão; era ~10 a 18: a barriga de uma corda presa nas duas pontas cresce com a raiz da folga vezes o vão) e a folga
     volta para o buraco mais depressa; o fio fica quase reto do buraco ao plug.
+189. #objetos #luz #pixel
+    Plano hi-bit (`PLANO_HIBIT.md`), dividido em sub-etapas para o usuário ver cada mudança antes da etapa inteira; a
+    etapa 0 gravou as capturas e as medições de referência. Sub-etapa 1.1: as rampas de material no `Pal` (do escuro
+    ao claro, a sombra fria e a luz quente; `Pal.ramp` escolhe o tom pela luz) e a caneca nelas: o esmalte branco-gelo
+    em oito tons e a borda azul-marinho em cinco, cada pixel pela luz do cilindro vezes a do lugar (longe da poça, mais
+    escura e mais fria, no lugar da imagem escurecida por cima). A primeira rampa, fria até o meio, deixava a caneca
+    com cara de aço: só o fim escuro ficou frio. O usuário perguntou se a caneca estava transparente (já era assim; os
+    tons novos deixaram à mostra): o que vem da janela era desenhado por cima dos objetos da mesa. Primeiro saiu a luz
+    da rua no tampo (passou a ser desenhada antes dos objetos; um recorte em volta de cada um custava 2,2 ms a cada
+    redesenho da sala) e a persiana descida (atrás dos objetos); o usuário mostrou que ainda sobrava o principal, a luz
+    no peitoril, uma faixa clara atravessando a borda da caneca e o canto do relógio. Recortada pelo contorno (convexo)
+    dos objetos, ficou pior: a luz aparecia recortada no formato da caneca, com o vão da alça escuro. A pedido ("a
+    camada do copo não poderia ficar na frente da camada da luz?"), as camadas: os objetos da mesa foram para uma camada
+    só deles, por cima da sala e da persiana e por baixo do escuro, e a luz do peitoril foi para a sala, antes deles,
+    mais forte na medida do escuro que cai por cima; nada é recortado (só o relâmpago, que é somado por cima de tudo).

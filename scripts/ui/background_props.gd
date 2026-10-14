@@ -413,7 +413,7 @@ func _draw_flip_clock(xc: float, zc: float) -> void:
 		var y0 := roundf(_p3(0, y1, p.y).y)
 		var y2 := roundf(_p3(0, y1 + CLOCK.y, p.y).y)
 		var sh := _shade(p.x, p.y)   # longe da luz, coluna a coluna
-		draw_texture_rect_region(face, Rect2(x0 + i, y0, 1, y2 - y0), Rect2(floorf(a * w), 0, 1, h), Color.WHITE.darkened(sh))
+		_ci.draw_texture_rect_region(face, Rect2(x0 + i, y0, 1, y2 - y0), Rect2(floorf(a * w), 0, 1, h), Color.WHITE.darkened(sh))
 		_ci.draw_rect(Rect2(x0 + i, y0 - 1, 1, 1), Color("dccfa8").darkened(sh))   # a quina com o tampo (sem ela, sobravam furos)
 
 
@@ -891,8 +891,9 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 
 
 ## A caneca de café em pé na mesa (centro `xc`, `zc`; raio `rr`, altura `hh`): uma caneca esmaltada de época,
-## branco-gelo com a borda azul-marinho, montada pixel a pixel numa imagem do tamanho dela na tela (`_mug_art`) e
-## escurecida longe da luz. A boca e o pé saem da câmera (elipses mais ou menos abertas pela altura de cada um).
+## branco-gelo com a borda azul-marinho, montada pixel a pixel numa imagem do tamanho dela na tela (`_mug_art`), nos
+## tons das rampas do esmalte e da borda pela luz no lugar dela (`_shade`): longe da poça, mais escura e mais fria (antes
+## era a mesma imagem escurecida por cima). A boca e o pé saem da câmera (elipses mais ou menos abertas pela altura).
 func _draw_mug(xc: float, zc: float, rr: float, hh: float) -> void:
 	var a := _p3(xc - rr, _yd - hh, zc).round()
 	var body := Rect2(a, _p3(xc + rr, _yd, zc).round() - a)
@@ -904,8 +905,9 @@ func _draw_mug(xc: float, zc: float, rr: float, hh: float) -> void:
 	_mug_w = body.size.x
 	_desk_shadow(PackedVector2Array([body.position + Vector2(0, body.size.y - rb), body.end - Vector2(0, rb), body.end + Vector2(0, rb),
 		Vector2(body.position.x, body.end.y + rb)]))
-	var img := _mug_art(int(body.size.x), int(body.size.y), int(ry), int(rb), sips)
-	_ci.draw_texture(img, body.position - Vector2(0, ry), Color.WHITE.darkened(_shade(xc, zc)))
+	var place := snappedf(1.0 - _shade(xc, zc), 0.05)   # a luz no lugar dela, em degraus (a imagem é guardada por ela)
+	var img := _mug_art(int(body.size.x), int(body.size.y), int(ry), int(rb), sips, place)
+	_ci.draw_texture(img, body.position - Vector2(0, ry))
 	var hull := PackedVector2Array()
 	for p in _mug_hulls[Vector4i(int(body.size.x), int(body.size.y), int(ry), int(rb))]:
 		hull.append(p + body.position - Vector2(0, ry))
@@ -914,37 +916,39 @@ func _draw_mug(xc: float, zc: float, rr: float, hh: float) -> void:
 
 ## A caneca esmaltada de frente, com `w` de largura e `h` da boca ao pé (px), a boca e o pé em elipses de meia altura
 ## `ry` e `rb`: o corpo sombreado como um cilindro pela luz da luminária (do alto à esquerda: o brilho numa coluna, a
-## sombra à direita, em tons fixos de pixel art), a borda azul-marinho em volta da boca e o filete dela no pé, o lado de
-## dentro com o café embaixo (a luz da luminária refletida nele), a alça em C do lado da sombra e duas lascas no esmalte
-## mostrando o ferro. Guardada por tamanho e pelos goles já tomados (`drunk`: o café mais baixo; acabado, só a borra no fundo).
+## sombra à direita), cada tom tirado das rampas `Pal.MUG_ENAMEL` e `Pal.MUG_RIM` pela luz dele vezes a do lugar
+## (`place`, 0 a 1), a borda azul-marinho em volta da boca e o filete dela no pé, o lado de dentro com o café embaixo (a
+## luz da luminária refletida nele), a alça em C do lado da sombra e duas lascas no esmalte mostrando o ferro. Guardada
+## por tamanho, pelos goles já tomados (`drunk`: o café mais baixo; acabado, só a borra no fundo) e pela luz.
 static var _mugs := {}
 static var _mug_hulls := {}   # o contorno de cada caneca (px dela), da mesma chave
 
 
-func _mug_art(w: int, h: int, ry: int, rb: int, drunk: int) -> ImageTexture:
-	var key := [w, h, ry, rb, drunk]
+func _mug_art(w: int, h: int, ry: int, rb: int, drunk: int, place: float) -> ImageTexture:
+	var key := [w, h, ry, rb, drunk, place]
 	if _mugs.has(key):
 		return _mugs[key]
+	if _mugs.size() > 48:   # (a janela mudou de tamanho, ou a luminária piscou por todos os degraus)
+		_mugs.clear()
 	var low := float(drunk) / MUG_SIPS   # o quanto o café já baixou
 	var hw := 9   # a alça, para fora do lado direito
 	var img := Image.create(w + hw, h + ry + rb + 1, false, Image.FORMAT_RGBA8)
-	var ramp := [Color("e2dbca"), Color("d3cbb7"), Color("bfb69f"), Color("a49b83"), Color("857c66"), Color("5e5848")]
-	var navy := [Color("4a608a"), Color("34486c"), Color("243452"), Color("18223a")]
+	var enamel := func(lit: float) -> Color: return Pal.ramp(Pal.MUG_ENAMEL, lit * place)
+	var rim := func(lit: float) -> Color: return Pal.ramp(Pal.MUG_RIM, lit * place)
 	var light := Vector2(-0.6, 0.8).normalized()   # (x de lado, z para os olhos): a luz vem do alto à esquerda
 	var top := float(ry)   # o centro da boca na imagem
 	for x in w:   # o corpo, coluna a coluna
 		var nx := (x + 0.5) / w * 2.0 - 1.0
 		var nz := sqrt(maxf(0.0, 1.0 - nx * nx))
-		var d := clampf(Vector2(nx, nz).dot(light), 0.0, 1.0)
-		var tone: Color = ramp[clampi(int((1.0 - d) * 5.99), 0, 5)]
+		var d := 0.25 + 0.75 * clampf(Vector2(nx, nz).dot(light), 0.0, 1.0)   # (o lado de lá ainda pega a luz da sala)
 		var y0 := int(top + nz * ry)   # a beira da frente da boca
 		var y1 := int(top + h + nz * rb)   # a beira da frente do pé
-		_fr(img, x, y0, 1, y1 - y0, tone)
-		_fr(img, x, y0, 1, 2, navy[clampi(int((1.0 - d) * 3.99), 0, 3)])   # a borda
-		_fr(img, x, y1 - 1, 1, 1, navy[mini(3, clampi(int((1.0 - d) * 3.99), 0, 3) + 1)])   # o filete do pé
+		_fr(img, x, y0, 1, y1 - y0, enamel.call(d))
+		_fr(img, x, y0, 1, 2, rim.call(d))   # a borda
+		_fr(img, x, y1 - 1, 1, 1, rim.call(d - 0.2))   # o filete do pé
 	var gx := int(w * 0.28)   # o brilho do esmalte: uma coluna clara no alto do lado da luz
-	_fr(img, gx, int(top + ry) + 3, 1, int(h * 0.55), Color("eee8da"))
-	_fr(img, gx + 1, int(top + ry) + 4, 1, int(h * 0.3), Color("e8e2d2"))
+	_fr(img, gx, int(top + ry) + 3, 1, int(h * 0.55), (enamel.call(1.0) as Color).lightened(0.12))
+	_fr(img, gx + 1, int(top + ry) + 4, 1, int(h * 0.3), (enamel.call(1.0) as Color).lightened(0.06))
 	# a boca: o aro azul, o lado de dentro esmaltado (a parede de trás aparece acima do café) e o café com a luz nele
 	for y in range(0, ry * 2 + 1):
 		for x in w:
@@ -952,18 +956,18 @@ func _mug_art(w: int, h: int, ry: int, rb: int, drunk: int) -> ImageTexture:
 			var r2 := e.length_squared()
 			if r2 > 1.0:
 				continue
-			var c: Color = navy[1]
+			var c: Color = rim.call(0.45)
 			if r2 < 0.72:   # dentro do aro
-				c = Color("c9c1ab") if e.x < 0.3 else Color("aea690")   # a parede de dentro, mais escura do lado da sombra
+				c = enamel.call(0.8 if e.x < 0.3 else 0.68)   # a parede de dentro, mais escura do lado da sombra
 				var f := Vector2(e.x / (0.78 - low * 0.2), (e.y - 0.3 - low * 0.4) / (0.62 - low * 0.3))   # o café, mais baixo que a boca
 				if low >= 1.0:
 					f = Vector2(e.x / 0.4, (e.y - 0.68) / 0.16)   # acabado: a borra no fundo
 				if f.length_squared() < 1.0:
 					c = Color("2e1c10") if low < 1.0 else Color("3a2618")
 					if low < 1.0 and f.y > -0.55 and f.y < -0.2 and f.x > -0.55 and f.x < -0.05:
-						c = Color("4a301c")   # a luz da luminária refletida no café: um risco do lado dela
+						c = Color("2e1c10").lerp(Color("4a301c"), place)   # a luz da luminária refletida no café: um risco do lado dela
 			elif e.y < -0.2:
-				c = navy[0]   # o aro, mais claro atrás (pega a luz por cima)
+				c = rim.call(0.85)   # o aro, mais claro atrás (pega a luz por cima)
 			img.set_pixel(x, y, c)
 	var hy0 := top + ry + 2.0   # a alça em C, do lado da sombra: um anel grosso com o furo (fina, parecia arame), a
 	var hy1 := top + ry + h * 0.66   # beira de cima pegando a luz e a volta de fora na sombra
@@ -976,11 +980,11 @@ func _mug_art(w: int, h: int, ry: int, rb: int, drunk: int) -> ImageTexture:
 			var out := (q / ho).length_squared()
 			if out > 1.0 or (q / hi).length_squared() < 1.0:
 				continue
-			var c := Color("bfb69f")
+			var c: Color = enamel.call(0.68)
 			if q.y < -ho.y * 0.4:
-				c = Color("d3cbb7")   # o alto, na luz
+				c = enamel.call(0.8)   # o alto, na luz
 			elif out > 0.8 and (q.x > hw * 0.4 or q.y > 0.0):
-				c = Color("958c76")   # a volta de fora e o pé, na sombra (mais escura, sumia na parede escura)
+				c = enamel.call(0.55)   # a volta de fora e o pé, na sombra (mais escura, sumia na parede escura)
 			img.set_pixel(x, y, c)
 	for p in [Vector2i(int(w * 0.62), int(top + ry) + 1), Vector2i(int(w * 0.18), int(top + h) - 3)]:   # as lascas no esmalte
 		_fr(img, p.x, p.y, 2, 1, Color("2a2620"))

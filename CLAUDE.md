@@ -126,7 +126,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   redesenho); `draw_primitive` (até 4 pontos) seguidos viram uma só. O cenário tem `Background._fill`/`_poly` (o
   quadrilátero inteiro; o resto, em triângulos); a sala passava de 2000 chamadas por quadro. **Os materiais dos objetos da mesa** (capa da lista,
   fita e papelão do bloco de fichas, tábua e folhas da prancheta, papel-jornal, papel e tons do mapa, níquel, o vermelho do formulário, o grão e a borda do tampo) são
-  constantes do `Pal`, usadas pelo objeto (`Background._art_*`) e pelo papel aberto dele: o que muda numa ponta muda na outra. **Uma fonte só, de pixel: Departure Mono**
+  constantes do `Pal`, usadas pelo objeto (`Background._art_*`) e pelo papel aberto dele: o que muda numa ponta muda na outra. **Rampas de material** (plano hi-bit, `PLANO_HIBIT.md`): `Array[Color]` no `Pal`, do escuro ao claro, a sombra
+  puxando para o frio e a luz para o quente; o desenho escolhe o tom pelo nível de luz com `Pal.ramp(tons, luz)`, em
+  degraus, no lugar de escurecer por cima (por ora, a caneca e o aro das tomadas, `JACK_METAL`). **Uma fonte só, de pixel: Departure Mono**
   (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11** (o que é gravado no painel da mesa não usa
   ela: é uma fonte de pixel própria, maiúsculas de 3×5, `PixelArt.TINY`/`TINY_ACCENTS`/`tiny`, com os acentos dos três
   idiomas; o estado escrito de cada linha em cima das lâmpadas saiu, a pedido: a lâmpada já diz): 11 (texto, números da lista), 22
