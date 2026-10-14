@@ -25,28 +25,22 @@ const HOLE_PAL := {"b": Color("7a6230"), "f": Color("c4a35a"), "F": Color("e6cf8
 
 var _lit := {}   ## lâmpada ("l3" linha, "d312" destino) -> [cor, quanto está acesa 0..1]; a cor fica enquanto apaga
 
-## O encaixe, pixel a pixel (12×12, o `JACK`; par, para o meio dele cair entre dois pixels, como o das
-## plaquinhas e das lâmpadas), na medida do plug: o furo escuro tem 4 px, com a beira, a largura da luva, e o aro, a do
-## corpo. O aro niquelado com a beira escura por fora, em volta do furo. A luz (alto à esquerda) bate na face do aro
-## desse lado, com um fio de brilho, e, por dentro, na parede do furo do lado oposto (embaixo à direita); os tons do aro
-## ficam perto uns dos outros (`_jack_pal`): com o contraste inteiro, ele parecia uma cúpula saltando do painel, e num
-## tom só perdia os detalhes. A beira e o chanfro têm sempre 1 pixel. As cores vêm de `_jack_pal`.
-const JACK_ART := [
-	"....eeee....",
-	"..eeLLMMee..",
-	".eLLlLMMMDe.",
-	".eLlkkkkMDe.",
-	"eLlkkhhkkMDe",
-	"eLlkhhhhkWDe",
-	"eMLkhhhhkWde",
-	"eMLkkhhkkWde",
-	".eMLkkkkWde.",
-	".eDMMDWWdde.",
-	"..eeDDddee..",
-	"....eeee....",
-]
-const JACK_PX := 12   # o lado do `JACK_ART`, em pixels
-const EDGE_DARK := Color("1c130b")   # a beira das peças: marrom quase preto, não preto puro
+## O encaixe (12×12, o `JACK`; par, para o meio dele cair entre dois pixels, como o das plaquinhas e das lâmpadas), na
+## medida do plug, um disco (`_jack_tex`) de dentro para fora: o furo (4 px, a largura da luva), a parede da bucha
+## (côncava: a luz bate nela do lado oposto, embaixo à esquerda), a face do aro, chata, e a quina de 1 px. A face tem
+## três tons quase iguais e só a quina marca a luz e a sombra (um fio claro no alto à direita, um escuro embaixo à
+## esquerda): com a face indo do claro ao escuro, ou com a quina toda mais escura que ela, o aro parecia uma cúpula
+## saltando do painel; num tom só, sem a quina, perdia os detalhes. O brilho do níquel é um pixel por cima da luz da
+## sala (`_draw_glints`).
+const JACK_NICKEL := {"edge": [Color("bdb29c"), Color("8a8070"), Color("4d473d")], "face": [Color("a59a86"), Color("9a8f7c"), Color("8e8371")],
+	"wall": [Color("5c5448"), Color("27231e"), Color("27231e")], "hole": Color("070605")}
+const JACK_GLINT := Vector2(3, -4)   # o brilho do níquel, do meio do encaixe: na face, no alto à direita, virado para a luz
+const JACK_GLINT_COLOR := Color(1.0, 0.96, 0.86, 0.85)
+const JACK_PX := 12   # o lado do desenho do encaixe, em pixels
+const EDGE_DARK := Color("1c130b")   # o fundo do furo da porca da chave: marrom quase preto
+## A quina do níquel descendo até o painel: na luz, no meio e na sombra. No lugar da beira quase preta (`EDGE_DARK`),
+## que em volta das tomadas, das lâmpadas, das alavancas e das plaquinhas parecia um contorno preto.
+const NICKEL_EDGE := [Color("6e675a"), Color("514b40"), Color("3a352d")]
 const SHADOW := Color(0, 0, 0, 0.35)
 const PLATE := Color("4d483d")   # chapa sobre o banco que ainda não está em uso
 const LAMP_R := 2.5         # o raio da luz da lâmpada de cada linha, no `Bloom` (o vidro tem 4; o aro de metal fica em volta)
@@ -57,7 +51,7 @@ const WEAR := [0.5, 0.3, 0.15]   # o painel gasto em volta das tomadas: do perto
 const LAMP_ON_SEC := 0.06    # a lâmpada (de filamento) acende quase na hora...
 const LAMP_OFF_SEC := 0.18   # ...e apaga mais devagar, o filamento esfriando: a linha tocando pulsa em vez de piscar seco
 ## A alavanca da chave de escuta para baixo, do eixo (no meio da porca) à ponta: um bastão que engrossa até a ponta
-## arredondada, a luz à esquerda e a ponta, virada para baixo, na sombra. Cabe entre a entrada e a saída.
+## arredondada, a luz à direita e a ponta, virada para baixo, na sombra. Cabe entre a entrada e a saída.
 const CORD_COLORS := [
 	[Color("3d6e34"), Color("6c9e58")],
 	[Color("8e2a22"), Color("c4493b")],
@@ -67,17 +61,17 @@ const CORD_COLORS := [
 	[Color("2a2723"), Color("57524a")],   # preto: o brilho mais claro, senão o trançado some
 ]
 const LEVER_ART := [   # para baixo: a haste curta de metal (L, D) saindo da porca e, na ponta, o pino comprido de baquelite preta (l, w, m, d)
-	".eLDe.",
-	".eLDe.",
-	".eLDe.",
-	"ellmde",
-	"ewlmde",
-	"ellmde",
-	"elmmde",
-	".edde.",
+	".eDLE.",   # a beira de cada peça no tom dela, na luz à direita e na sombra à esquerda (E, e no metal; P, p no pino)
+	".eDLE.",
+	".eDLE.",
+	"pdmllP",
+	"pdmlwP",
+	"pdmllP",
+	"pdmmlP",
+	".pddp.",
 ]
 ## Para cima: o pino visto mais de frente (a ponta redonda) e a haste embaixo dele.
-const LEVER_UP := [".elle.", "elmmde", "ewlmde", "ellmde", "elmmde", ".eLDe.", ".eLDe.", ".eLDe."]
+const LEVER_UP := [".PllP.", "pdmmlP", "pdmlwP", "pdmllP", "pdmmlP", ".eDLE.", ".eDLE.", ".eDLE."]
 
 
 ## Cor da lâmpada de uma linha (Exchange.Line) e quanto ela quer estar acesa (0..1); `_fade` chega lá aos poucos.
@@ -122,39 +116,40 @@ func _fade(key: String, want: Array, delta: float) -> void:
 ## preto, ela parecia mais uma tomada). Apagada, o vidro fica leitoso (`LAMP_OFF`); acesa, toma a cor da linha, o aro
 ## pega a cor dela e o centro estoura para o branco (o halo é do `Bloom`). A luz da sala brilha no alto do vidro.
 func _draw_lamp(c: Vector2, col: Color, level: float) -> void:
-	PixelArt.sprite(_ci, PixelArt.disc(10, [[4.0, BEZEL[0], BEZEL[1], BEZEL[2]], [5.0, EDGE_DARK]]), c)   # o aro, do tamanho da tomada
+	PixelArt.sprite(_ci, _disc(10, [[4.0, BEZEL[0], BEZEL[1], BEZEL[2]], [5.0, NICKEL_EDGE[0], NICKEL_EDGE[1], NICKEL_EDGE[2]]]), c)   # o aro, do tamanho da tomada
 	if level > 0.02:
-		PixelArt.sprite(_ci, PixelArt.disc(10, [[3.0, Color.TRANSPARENT], [4.0, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), c, Color(col, 0.35 * level))   # a luz no aro
-	# o vidro abaulado (luz no alto à esquerda): o aceso por cima do apagado, com `level` no modulate (uma cor por quadro
+		PixelArt.sprite(_ci, _disc(10, [[3.0, Color.TRANSPARENT], [4.0, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), c, Color(col, 0.35 * level))   # a luz no aro
+	# o vidro abaulado (luz no alto à direita): o aceso por cima do apagado, com `level` no modulate (uma cor por quadro
 	# na chave do `disc` guardava uma textura nova a cada quadro da lâmpada pulsando)
-	PixelArt.sprite(_ci, PixelArt.disc(6, [[3.0, LAMP_OFF.lightened(0.3), LAMP_OFF, LAMP_OFF.darkened(0.4)]]), c)
+	PixelArt.sprite(_ci, _disc(6, [[3.0, LAMP_OFF.lightened(0.3), LAMP_OFF, LAMP_OFF.darkened(0.4)]]), c)
 	if level > 0.02:   # acesa: o centro estoura para o branco (o halo é do Bloom; o miolo nítido, daqui)
-		PixelArt.sprite(_ci, PixelArt.disc(6, [[3.0, col.lightened(0.3), col, col.darkened(0.4)]]), c, Color(1, 1, 1, level))
-		PixelArt.sprite(_ci, PixelArt.disc(2, [[1.0, Color.WHITE]]), c, Color(Color.WHITE.lerp(col, Bloom.HOT_TINT), level))
+		PixelArt.sprite(_ci, _disc(6, [[3.0, col.lightened(0.3), col, col.darkened(0.4)]]), c, Color(1, 1, 1, level))
+		PixelArt.sprite(_ci, _disc(2, [[1.0, Color.WHITE]]), c, Color(Color.WHITE.lerp(col, Bloom.HOT_TINT), level))
 		Bloom.light(_ci, Rect2(c - Vector2(LAMP_R, LAMP_R), Vector2(LAMP_R, LAMP_R) * 2.0), Color(col, level), 1.0, false, true)
-	_ci.draw_rect(Rect2(c + Vector2(-2, -2), Vector2(1, 1)), Color(1, 1, 1, 0.5))   # o brilho da sala no vidro
+	_ci.draw_rect(Rect2(c + Vector2(1, -2), Vector2(1, 1)), Color(1, 1, 1, 0.5))   # o brilho da sala no vidro
 
 
 ## As chaves de escuta, como as das mesas de verdade: a porca niquelada no painel e a alavanca de bastão (`LEVER_ART`).
 ## Cada uma em `levers` é [centro, direção, px além]: para cima (-1), para baixo (1) ou, virando, de frente (0: só a
-## ponta, virada para os olhos), `over` px além, na batida. A sombra cai embaixo à direita (a luz vem do alto à
-## esquerda). Em passadas, todas as sombras, as porcas e as alavancas, para cada textura ser uma chamada de desenho só.
+## ponta, virada para os olhos), `over` px além, na batida. A sombra cai embaixo à esquerda (a luz vem do alto à
+## direita, `LIGHT`). Em passadas, todas as sombras, as porcas e as alavancas, para cada textura ser uma chamada de desenho só.
 func _draw_levers(levers: Array) -> void:
 	var b: Color = CORD_COLORS[5][0]   # o pino da ponta, de baquelite preta, como os cabos pretos; a haste é de metal
 	var hi: Color = CORD_COLORS[5][1]
-	var shade := {"e": SHADOW, "L": SHADOW, "M": SHADOW, "D": SHADOW, "l": SHADOW, "w": SHADOW, "m": SHADOW, "d": SHADOW}
-	var tones := {"e": EDGE_DARK, "L": BEZEL[0], "M": BEZEL[1], "D": BEZEL[2], "l": b.lerp(hi, 0.6), "w": hi.lightened(0.25), "m": b,
-		"d": b.darkened(0.4)}
+	var shade := {"E": SHADOW, "e": SHADOW, "P": SHADOW, "p": SHADOW, "L": SHADOW, "D": SHADOW, "l": SHADOW, "w": SHADOW,
+		"m": SHADOW, "d": SHADOW}
+	var tones := {"E": NICKEL_EDGE[0], "e": NICKEL_EDGE[2], "P": b, "p": b.darkened(0.25), "L": BEZEL[0], "D": BEZEL[2],
+		"l": b.lerp(hi, 0.6), "w": hi.lightened(0.25), "m": b, "d": b.darkened(0.4)}
 	for v in levers:
-		PixelArt.sprite(_ci, PixelArt.disc(8, [[4.0, SHADOW]]), v[0] + Vector2(1, 1))
+		PixelArt.sprite(_ci, _disc(8, [[4.0, SHADOW]]), v[0] + Vector2(-1, 1))
 	for v in levers:
 		if v[1] != 0:
-			_ci.draw_texture(PixelArt.art(LEVER_ART if v[1] > 0 else LEVER_UP, shade), _lever_corner(v) + Vector2(1, 1))
+			_ci.draw_texture(PixelArt.art(LEVER_ART if v[1] > 0 else LEVER_UP, shade), _lever_corner(v) + Vector2(-1, 1))
 	for v in levers:   # a porca (pequena: a haste aparece além dela)
-		PixelArt.sprite(_ci, PixelArt.disc(8, [[1.5, EDGE_DARK], [3.0, BEZEL[0], BEZEL[1], BEZEL[2]], [4.0, EDGE_DARK]]), v[0])
+		PixelArt.sprite(_ci, _disc(8, [[1.5, EDGE_DARK], [3.0, BEZEL[0], BEZEL[1], BEZEL[2]], [4.0, NICKEL_EDGE[0], NICKEL_EDGE[1], NICKEL_EDGE[2]]]), v[0])
 	for v in levers:
 		if v[1] == 0:
-			PixelArt.sprite(_ci, PixelArt.disc(6, [[2.0, b.lerp(hi, 0.6), b, b.darkened(0.4)], [3.0, EDGE_DARK]]), v[0])
+			PixelArt.sprite(_ci, _disc(6, [[2.0, b.lerp(hi, 0.6), b, b.darkened(0.4)], [3.0, b, b, b.darkened(0.25)]]), v[0])
 		else:
 			_ci.draw_texture(PixelArt.art(LEVER_ART if v[1] > 0 else LEVER_UP, tones), _lever_corner(v))
 
@@ -164,12 +159,11 @@ static func _lever_corner(v: Array) -> Vector2:
 	return v[0] + Vector2(-LEVER_ART[0].length() / 2.0, (0.0 if v[1] > 0 else 1.0 - LEVER_ART.size()) + v[1] * v[2])
 
 
-## Encaixe redondo como os das mesas antigas, pixel a pixel (`JACK_ART`), com a sombra no painel. `dim`: o metal mais
-## escuro (`_jack_pal`).
+## Encaixe redondo como os das mesas antigas (`_jack_tex`), com a sombra curta no painel. `dim`: o metal mais escuro.
 func _draw_jack(jr: Rect2, dim := 0.0) -> void:
 	var r := _jack_px(jr)
-	_ci.draw_texture_rect(PixelArt.art(JACK_ART, {"*": Color(0, 0, 0, 0.25)}), Rect2(r.position + Vector2.ONE, r.size), false)   # rente ao painel: sombra curta
-	_ci.draw_texture_rect(PixelArt.art(JACK_ART, _jack_pal(dim)), r, false)
+	_ci.draw_texture_rect(_disc(JACK_PX, [[JACK_PX / 2.0, Color(0, 0, 0, 0.25)]]), Rect2(r.position + Vector2(-1, 1), r.size), false)   # rente ao painel: sombra curta
+	_ci.draw_texture_rect(_jack_tex(dim), r, false)
 
 
 ## Onde o desenho do encaixe `jr` fica (`JACK_PX` em volta do meio dele).
@@ -177,21 +171,23 @@ func _jack_px(jr: Rect2) -> Rect2:
 	return Rect2(jr.get_center() - Vector2(JACK_PX, JACK_PX) / 2.0, Vector2(JACK_PX, JACK_PX))
 
 
-## As cores do encaixe: níquel (`dim` escurece o metal: as saídas, para não se confundirem com as entradas).
-func _jack_pal(dim: float) -> Dictionary:
-	# os tons do aro a 60% do caminho de f3eee0…35302a até o meio deles: com o contraste inteiro, saltava do painel
-	var pal := {"l": Color("d7d0bf"), "L": Color("c2b69e"), "M": Color("9b8f7d"), "D": Color("756c5f"),
-		"d": Color("655e52"), "W": Color("e0d6c0")}
-	for k in pal:
-		pal[k] = (pal[k] as Color).darkened(dim)
-	pal.merge({"e": Color("0b0907"), "h": Color("050403"), "k": Color("1e1b17")})
-	return pal
+## O desenho do encaixe (`JACK_NICKEL`; `dim` escurece o metal: as saídas, para não se confundirem com as entradas).
+## Os raios dão as larguras de linha de um círculo de pixel art.
+static func _jack_tex(dim: float) -> ImageTexture:
+	var t := func(k: String) -> Array: return (JACK_NICKEL[k] as Array).map(func(c: Color) -> Color: return c.darkened(dim))
+	return _disc(JACK_PX, [[2.0, JACK_NICKEL["hole"]], [3.0] + t.call("wall") + [true], [5.0] + t.call("face"), [6.0] + t.call("edge")])
+
+
+## O brilho do níquel de cada encaixe `jacks` ([retângulo, força]), por cima da luz da sala, que o apagava.
+func _draw_glints(jacks: Array) -> void:
+	for j in jacks:
+		_ci.draw_rect(Rect2(((j[0] as Rect2).get_center() + JACK_GLINT).floor(), Vector2.ONE), Color(JACK_GLINT_COLOR, JACK_GLINT_COLOR.a * j[1]))
 
 
 ## A luz de uma lâmpada batendo no aro do encaixe logo abaixo dela (o lado de cima, virado para a luz).
 func _reflect(jr: Rect2, col: Color, level: float) -> void:
 	if level > 0.02:
-		_ci.draw_texture_rect(PixelArt.art(JACK_ART, {"l": Color.WHITE, "L": Color.WHITE}), _jack_px(jr), false, Color(col, 0.55 * level))
+		_ci.draw_texture_rect(PixelArt.disc(JACK_PX, [[3.0, Color.TRANSPARENT], [6.0, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]], Vector2.UP), _jack_px(jr), false, Color(col, 0.55 * level))
 
 
 ## O móvel da mesa: a moldura de madeira (`_wood_frame`), com o brilho da luminária do teto na quina de cima, mais
@@ -205,7 +201,7 @@ func _draw_cabinet(r: Rect2) -> void:
 	_ci.draw_primitive(PackedVector2Array([Vector2(r.position.x + 1, top), Vector2(r.end.x - 1, top), Vector2(r.end.x - 1, top + 1), Vector2(r.position.x + 1, top + 1)]),
 		PackedColorArray([glint.call(r.position.x), glint.call(r.end.x), glint.call(r.end.x), glint.call(r.position.x)]), PackedVector2Array())
 	var p := r.grow(-FRAME)
-	_ci.draw_rect(p.grow(1), EDGE_DARK)
+	rim(_ci, p, WOOD[2], WOOD[1])   # a fresta entre a madeira e o painel: na sombra em cima, na luz embaixo
 	_ci.draw_rect(p, Pal.PANEL)
 	_ci.draw_rect(Rect2(p.position, Vector2(p.size.x, 2)), Pal.PANEL_LO)   # rebaixado: a sombra fica em cima à esquerda
 	_ci.draw_rect(Rect2(p.position, Vector2(2, p.size.y)), Pal.PANEL_LO)
@@ -246,7 +242,7 @@ func _draw_strips() -> void:
 func _draw_wear() -> void:
 	for j in _jacks:
 		var use := _use(j)
-		PixelArt.sprite(_ci, PixelArt.disc(20, [[7.0, Color(Pal.PANEL_HI, WEAR[0])], [8.5, Color(Pal.PANEL_HI, WEAR[1])], [10.0, Color(Pal.PANEL_HI, WEAR[2])]]),
+		PixelArt.sprite(_ci, _disc(20, [[7.0, Color(Pal.PANEL_HI, WEAR[0])], [8.5, Color(Pal.PANEL_HI, WEAR[1])], [10.0, Color(Pal.PANEL_HI, WEAR[2])]]),
 			jack_rect(j).get_center(), Color(1, 1, 1, use))
 		var rng := RandomNumberGenerator.new()
 		rng.seed = j
@@ -273,7 +269,7 @@ static func draw_maker_plate(ci: CanvasItem, r: Rect2) -> void:
 	var pal := HOLE_PAL
 	var cx := r.get_center().x
 	ci.draw_rect(Rect2(r.position + Vector2(1, 2), r.size), SHADOW)
-	ci.draw_rect(r.grow(1), EDGE_DARK)
+	rim(ci, r, pal["b"], pal["b"].darkened(0.35))
 	ci.draw_rect(r, Color("b0904c"))
 	ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), pal["F"])
 	ci.draw_rect(Rect2(r.position, Vector2(1, r.size.y)), pal["f"])
@@ -281,7 +277,7 @@ static func draw_maker_plate(ci: CanvasItem, r: Rect2) -> void:
 	ci.draw_rect(Rect2(r.end.x - 1, r.position.y, 1, r.size.y), pal["b"])
 	ci.draw_rect(r.grow(-3), pal["b"], false, 1.0)   # o friso gravado em volta
 	for x in [r.position.x + 7.0, r.end.x - 7.0]:
-		PixelArt.sprite(ci, PixelArt.disc(5, [[1.5, pal["F"], pal["f"], pal["b"]], [2.5, pal["w"]]]), Vector2(x, r.get_center().y))
+		PixelArt.sprite(ci, _disc(5, [[1.5, pal["F"], pal["f"], pal["b"]], [2.5, pal["w"]]]), Vector2(x, r.get_center().y))
 		ci.draw_rect(Rect2(x - 1.0, r.get_center().y, 3, 1), pal["w"])   # a fenda
 	var maker := PixelArt.tiny(T.text(T.Key.BOARD_MAKER))
 	var at := Vector2(roundf(cx - maker.get_width() / 2.0), r.position.y + 2.0)
@@ -344,8 +340,10 @@ func _wood_frame(sz: Vector2) -> ImageTexture:
 					c = WOOD[2]   # a emenda do canto
 				var corner := Vector2(mini(x, w - 1 - x), mini(y, h - 1 - y)).length()
 				c = c.lerp(WOOD[0].lightened(0.15), 0.45 * clampf(1.0 - corner / 10.0, 0.0, 1.0))   # quina gasta
-				if ex == 0 or ey == 0:
-					c = EDGE_DARK
+				if x == 0 or y == 0:
+					c = WOOD[1]   # a quina de fora, arredondada: no tom da madeira (escura, parecia um contorno)
+				elif x == w - 1 or y == h - 1:
+					c = WOOD[2].darkened(0.2)
 				elif (x == 1 or y == 1) and x < w - 2 and y < h - 2:
 					c = WOOD[0]   # a luz em cima e à esquerda
 				elif x == w - 2 or y == h - 2:
@@ -369,8 +367,8 @@ func _draw_legend() -> void:
 	var x := floorf(size.x - FRAME - 14.0 - width)
 	_ci.draw_rect(Rect2(x - 4, y - 6, width + 8, 12), Pal.PANEL)   # tampa a faixa, como o nome dela
 	for k in leg.size():
-		PixelArt.sprite(_ci, PixelArt.disc(7, [[2.0, Color.WHITE], [3.5, EDGE_DARK]]), Vector2(x + 3.5, y), leg[k][0])   # lâmpadas redondas, como as da mesa
-		PixelArt.sprite(_ci, PixelArt.disc(7, [[2.0, Color.TRANSPARENT], [3.5, EDGE_DARK]]), Vector2(x + 3.5, y))
+		PixelArt.sprite(_ci, _disc(7, [[2.0, Color.WHITE], [3.5, Color.TRANSPARENT]]), Vector2(x + 3.5, y), leg[k][0])   # lâmpadas redondas, como as da mesa
+		PixelArt.sprite(_ci, _disc(7, [[2.0, Color.TRANSPARENT], [3.5, NICKEL_EDGE[0], NICKEL_EDGE[1], NICKEL_EDGE[2]]]), Vector2(x + 3.5, y))
 		_ci.draw_texture(texts[k], Vector2(x + 10.0, y - 5.0), Pal.DIM)
 		x += 7.0 + 3.0 + (texts[k] as Texture2D).get_width() + 8.0
 
@@ -414,13 +412,13 @@ func _draw_cover(k: int) -> void:
 	for y in range(int(y0), int(y1) + 1):
 		var x: float = at.call(y)
 		_ci.draw_rect(Rect2(x - COVER_W / 2.0 + 1.0, y + 2.0, COVER_W, 1), SHADOW)
-		_ci.draw_rect(Rect2(x - COVER_W / 2.0 - 1.0, y, COVER_W + 2.0, 1), EDGE_DARK)
+		_ci.draw_rect(Rect2(x - COVER_W / 2.0 - 1.0, y, COVER_W + 2.0, 1), Pal.PANEL.darkened(0.3))   # a beira do tampo
 		var c: Color = Pal.PANEL_HI if y == int(y0) else (Pal.PANEL_LO if y == int(y1) else Pal.PANEL.lightened(0.06))
 		_ci.draw_rect(Rect2(x - COVER_W / 2.0, y, COVER_W, 1), c)
 	for sy in [y0 + 3.0, y1 - 3.0]:   # um parafuso de latão em cada canto, com a fenda
 		for dx in [-COVER_W / 2.0 + 4.0, COVER_W / 2.0 - 4.0]:
 			var sp := Vector2(at.call(sy) + dx, sy)
-			PixelArt.sprite(_ci, PixelArt.disc(5, [[1.5, HOLE_PAL["F"], HOLE_PAL["f"], HOLE_PAL["b"]], [2.5, HOLE_PAL["w"]]]), sp)
+			PixelArt.sprite(_ci, _disc(5, [[1.5, HOLE_PAL["F"], HOLE_PAL["f"], HOLE_PAL["b"]], [2.5, HOLE_PAL["w"]]]), sp)
 			_ci.draw_rect(Rect2(sp.x - 1.0, sy, 3, 1), HOLE_PAL["w"])
 
 
@@ -438,13 +436,15 @@ func _draw_fone_tag() -> void:
 	_ci.draw_texture(tag, (c - Vector2(tag.get_size()) / 2.0 - Vector2(0.5, 0)).round())   # o plug vai de x - 10 a x + 9
 
 
-## A plaquinha: beira escura, latão com a quina de cima pegando a luz e as letras gravadas.
+## A plaquinha: latão com a quina de cima pegando a luz, a beira no tom dele e as letras gravadas.
 static func _fone_tag(text: String) -> Texture2D:
 	var letters := PixelArt.tiny(text).get_image()
 	var w := letters.get_width() + 6   # beira de 1 e 2 de margem de cada lado...
 	w += w % 2   # ...e largura par, como o plug: com o meio entre dois pixels, a placa fica bem embaixo dele
 	var out := Image.create(w, 9, false, Image.FORMAT_RGBA8)
-	out.fill(EDGE_DARK)
+	out.fill(HOLE_PAL["b"].darkened(0.35))   # a beira: no tom do latão, na sombra embaixo e à direita...
+	out.fill_rect(Rect2i(0, 0, w - 1, 1), HOLE_PAL["b"])   # ...e na luz em cima e à esquerda
+	out.fill_rect(Rect2i(0, 0, 1, 8), HOLE_PAL["b"])
 	out.fill_rect(Rect2i(1, 1, w - 2, 7), HOLE_PAL["f"])
 	out.fill_rect(Rect2i(1, 1, w - 2, 1), HOLE_PAL["F"])
 	for y in range(3, 8):   # as letras ocupam as linhas 3 a 7 da imagem
@@ -473,7 +473,7 @@ static func _hole_px(c: Vector2) -> Rect2:
 
 ## Chapa de metal niquelado: chanfro claro em cima e escuro embaixo, e um rebite em cada ponta.
 func _draw_metal(r: Rect2) -> void:
-	_ci.draw_rect(r.grow(1), EDGE_DARK)
+	rim(_ci, r, NICKEL_EDGE[0], NICKEL_EDGE[2])
 	_ci.draw_rect(r, BEZEL[1])
 	_ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), BEZEL[0])
 	_ci.draw_rect(Rect2(r.position, Vector2(1, r.size.y)), BEZEL[0].darkened(0.1))
@@ -483,6 +483,14 @@ func _draw_metal(r: Rect2) -> void:
 		var rv := Vector2(x, floorf(r.get_center().y - 1.5))
 		_ci.draw_rect(Rect2(rv, Vector2(3, 3)), BEZEL[2])
 		_ci.draw_rect(Rect2(rv, Vector2(1, 1)), BEZEL[0])
+
+
+## A beira de 1 px em volta de `r`, no tom da própria peça: `lit` em cima e à esquerda, `shade` embaixo e à direita (a
+## beira quase preta em volta, `EDGE_DARK`, parecia um contorno de desenho). Num rebaixo, ao contrário: escura em cima.
+static func rim(ci: CanvasItem, r: Rect2, lit: Color, shade: Color) -> void:
+	ci.draw_rect(r.grow(1), shade)
+	ci.draw_rect(Rect2(r.position - Vector2.ONE, Vector2(r.size.x + 1, 1)), lit)
+	ci.draw_rect(Rect2(r.position - Vector2.ONE, Vector2(1, r.size.y + 1)), lit)
 
 
 ## Plaquinha de metal com o número da linha gravado (escuro, com o brilho embaixo de quem foi rebaixado), na fonte
@@ -513,7 +521,7 @@ const PLATE_LETTERS := {
 func _draw_plate(r: Rect2, letter: String) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(letter)
-	_ci.draw_rect(r.grow(1), EDGE_DARK)
+	rim(_ci, r, PLATE.darkened(0.15), PLATE.darkened(0.5))
 	_ci.draw_rect(r, PLATE)
 	_ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 2)), PLATE.lightened(0.18))
 	_ci.draw_rect(Rect2(r.position.x, r.end.y - 2, r.size.x, 2), PLATE.darkened(0.35))
@@ -523,7 +531,7 @@ func _draw_plate(r: Rect2, letter: String) -> void:
 			var from: Vector2 = c + Vector2.from_angle(a) * 3.0
 			var to := from + Vector2.from_angle(a + rng.randf_range(-0.3, 0.3)) * rng.randf_range(2.0, 4.0)
 			_ci.draw_line(from.round() + Vector2(0.5, 0.5), to.round() + Vector2(0.5, 0.5), PLATE.lightened(0.3), 1.0)
-		PixelArt.sprite(_ci, PixelArt.disc(5, [[1.5, PLATE.lightened(0.35), PLATE.lightened(0.15), PLATE.darkened(0.2)], [2.5, PLATE.darkened(0.5)]]), c)
+		PixelArt.sprite(_ci, _disc(5, [[1.5, PLATE.lightened(0.35), PLATE.lightened(0.15), PLATE.darkened(0.2)], [2.5, PLATE.darkened(0.5)]]), c)
 		_ci.draw_rect(Rect2((c - Vector2(2, 1)).floor(), Vector2(3, 1)), PLATE.darkened(0.5))   # fenda do parafuso
 	var rows := PixelArt.relief(PLATE_LETTERS[letter])   # a letra estampada
 	var at := (r.get_center() - Vector2(0, 4)).round()

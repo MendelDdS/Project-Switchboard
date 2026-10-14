@@ -76,12 +76,12 @@ static func art(rows: Array, pal: Dictionary) -> ImageTexture:
 
 
 ## Peça redonda em pixel art, pixel a pixel (desenhada como círculo, saía embolotada): `d` pixels de diâmetro;
-## `layers` de dentro para fora, [raio em pixels, cor] ou [raio, luz, meio, sombra] (a luz vem de `LIGHT`) ou
+## `layers` de dentro para fora, [raio em pixels, cor] ou [raio, luz, meio, sombra] (a luz vem de `light`) ou
 ## [raio, luz, meio, sombra, true] (côncava: a luz bate do lado oposto, como no fundo de um furo). Guardada. Toda peça
 ## redonda do jogo sai daqui (o mesmo acabamento em todas).
 static var _discs := {}
-static func disc(d: int, layers: Array) -> ImageTexture:
-	var key := str(d, layers)
+static func disc(d: int, layers: Array, light := LIGHT) -> ImageTexture:
+	var key := str(d, layers, light)
 	if _discs.has(key):
 		return _discs[key]
 	if _discs.size() > CACHE_MAX:
@@ -95,7 +95,7 @@ static func disc(d: int, layers: Array) -> ImageTexture:
 				if o.length() <= l[0]:
 					var col: Color = l[1]
 					if l.size() >= 4:
-						var t := o.normalized().dot(LIGHT) if o.length() > 0.01 else 0.0
+						var t := o.normalized().dot(light) if o.length() > 0.01 else 0.0
 						if l.size() >= 5 and l[4]:
 							t = -t
 						col = l[1] if t > 0.38 else (l[3] if t < -0.38 else l[2])

@@ -28,7 +28,7 @@ const EDGE := 0.65          # a beira do plug e do fio: a cor da peça escurecid
 ## mesa, na altura das plaquinhas das entradas: os plugs das entradas saem quase só para a esquerda, os de baixo
 ## também para baixo. (Era um ponto fixo 600 px acima do painel: todos pareciam vistos de cima, contra a sala.)
 const PLUG_DEPTH := 0.014   # px de deslocamento da ponta por px de distância do encaixe até os olhos (estilizado: a conta daria ~0,04, de lado demais; menor com o plug mais curto)
-const PLUG_SHADE := Vector2(4, 5)   # encaixado, a sombra vai do encaixe até aqui (luz no alto à esquerda)
+const PLUG_SHADE := Vector2(-4, 5)   # encaixado, a sombra vai do encaixe até aqui (luz no alto à direita, `LIGHT`)
 const PLUG_ART := [   ## o plug em pé, de 12 × 51 px (y de -51 a -1; o fio sai de y = 0): `_plug_pal` dá as cores
 	".....bE.....",
 	"....yYbE....",
@@ -92,14 +92,14 @@ const LAMP_ABOVE := 90.0   # px acima da tela: a luminária do teto, que não ap
 const CORD_LIT := 0.6   # o fio e os plugs em pé pegam essa parte da luz da sala do painel (estão na frente dele)
 const TAIL_IN := 5.0   # px do fio que entram na traseira do plug em pé (`_draw_tail`)
 const ROPE_W := 5.0   # px: a largura do fio com a beira (o miolo tem 2 a menos; esticado, os dois afinam 1). Era 7 em 1280 × 720.
-const AIR_LIFT := Vector2(6, 8)   # a sombra do fio no ar, depois da beira da prateleira: longe do console, como a do plug na mão
+const AIR_LIFT := Vector2(-6, 8)   # a sombra do fio no ar, depois da beira da prateleira: longe do console, como a do plug na mão
 const SMOOTH_PX := 3.0   # px: o fio é desenhado em trechos retos deste tamanho, numa curva pelos pontos da corda (`_smooth`)
 const KINK := 1.0   # px: as dobras que o fio de pano guarda, no máximo
 const BRAID := 5.0   # px: o trançado do fio (o brilho dele vem em pedaços desse comprimento)
 ## Esticado (`Cord.taut`), o fio de pano alisa: as dobras somem aos poucos até o fim do fio, o trançado se espaça até
 ## TAUT_BRAID e, da metade disso em diante, ele afina 1 px; frouxo, volta com as dobras inteiras.
 const TAUT_BRAID := 1.3
-const ROPE_SHADOW := Vector2(2, 3)  # deslocamento da sombra dos fios junto ao buraco; até o plug, cresce como a dele (`_lift`)
+const ROPE_SHADOW := Vector2(-2, 3)  # deslocamento da sombra dos fios junto ao buraco; até o plug, cresce como a dele (`_lift`)
 
 var ropes := {}                    # ponta -> Cord (só enquanto o fio está para fora do buraco)
 var _swing := 0.0                 # rad: o balanço do plug na mão (`SWING_*`)
@@ -229,7 +229,7 @@ func _draw_tail(e: int, at: Vector2, c: Color, light: Color, thin: float) -> voi
 	_ci.draw_line(at, inside, c.darkened(EDGE) * light, ROPE_W - thin)
 	_ci.draw_line(at, inside, c * light, ROPE_W - 2.0 - thin)
 	var w := int(ROPE_W - thin)
-	PixelArt.sprite(_ci, PixelArt.disc(w, [[(w - 2) / 2.0, c], [w / 2.0, c.darkened(EDGE)]]), at, light)
+	PixelArt.sprite(_ci, _disc(w, [[(w - 2) / 2.0, c], [w / 2.0, c.darkened(EDGE)]]), at, light)
 
 
 ## A linha `pts` alisada numa curva (Catmull-Rom) que passa pelos mesmos pontos, em trechos de até SMOOTH_PX: com
@@ -288,7 +288,7 @@ func _draw_plug(e: int, shadow: bool) -> void:
 	_cut = hole(e).y + HOLE_LIP - at.round().y if _in_hole(e) else INF
 	if shadow and seated:   # do encaixe até onde a luz joga a ponta, no painel
 		_ci.draw_colored_polygon(Geometry2D.convex_hull(_circle(Vector2.ZERO, PLUG_FACE_R + 1.0) + _circle(PLUG_SHADE, PLUG_FACE_R)), SHADOW)
-		PixelArt.sprite(_ci, PixelArt.disc(PLUG_ABA_D + 2, [[PLUG_ABA_D / 2.0 + 1.0, Color.WHITE]]), Vector2.ZERO, SHADOW)   # sombra de contato: a aba presa no encaixe
+		PixelArt.sprite(_ci, _disc(PLUG_ABA_D + 2, [[PLUG_ABA_D / 2.0 + 1.0, Color.WHITE]]), Vector2.ZERO, SHADOW)   # sombra de contato: a aba presa no encaixe
 	elif shadow:
 		_draw_cut(_plug_outline(e, 0.0), SHADOW)
 	else:
@@ -348,8 +348,8 @@ func _lift(e: int) -> Vector2:
 	if ends[e] != -1:
 		return PLUG_SHADE - _tilt(int(ends[e]))
 	if _loose.has(e) and _loose[e]["seat"] >= 0.0:   # afundando, a sombra cola na prateleira
-		return Vector2(3, 4).lerp(Vector2(2, 2), _seat_pose(e)[2])
-	return Vector2(6, 8) if held == e else Vector2(3, 4) if _loose.has(e) else Vector2(2, 2)
+		return Vector2(-3, 4).lerp(Vector2(-2, 2), _seat_pose(e)[2])
+	return Vector2(-6, 8) if held == e else Vector2(-3, 4) if _loose.has(e) else Vector2(-2, 2)
 
 
 ## A silhueta do plug num polígono só (a sombra não escurece duas vezes onde as partes se sobrepõem), alargada `grow`
@@ -407,7 +407,7 @@ func _tilt_at(p: Vector2) -> Vector2:
 ## na cor do cabo com o anel e o friso claro em cima, o serrilhado (discos riscados, `_knurled`) e o anel do meio, e a
 ## capa de borracha em gomos afinando até o fio (a luva de latão, mais estreita, aparece numa beira entre a tomada e o corpo). `lit`: a
 ## luz da sala ali, como no fio que sai dele. No corpo, primeiro a beira de todos (só o contorno fica à mostra) e
-## depois o miolo sombreado (luz no alto à esquerda); a capa, disco a disco, mostra os sulcos (`PLUG_CAPA_ROW`).
+## depois o miolo sombreado (luz no alto à direita); a capa, disco a disco, mostra os sulcos (`PLUG_CAPA_ROW`).
 ## (Antes eram cápsulas e círculos vetoriais: embolotados.)
 ## O fio sai do meio da capa, por cima (desenhado depois). `push`: a assentada, o plug afunda tantos px. `j`: o
 ## encaixe, para a luz que bate no plug (`_plug_light`): no fim, o contorno do plug inteiro acende (`_face_rim`), só
@@ -419,7 +419,7 @@ func _draw_plug_face(col: Array, tilt: Vector2, push: float, alpha: float, j := 
 	var n := maxi(1, ceili(t.length()))
 	var mod := Color(lit.r, lit.g, lit.b, alpha)   # a luz da sala, como no fio que sai dele
 	var light := _plug_light(j)
-	PixelArt.sprite(_ci, PixelArt.disc(PLUG_ABA_D, [[PLUG_ABA_D / 2.0 - 1.0, pal["y"], pal["b"], pal["C"]], [PLUG_ABA_D / 2.0, pal["E"]]]),
+	PixelArt.sprite(_ci, _disc(PLUG_ABA_D, [[PLUG_ABA_D / 2.0 - 1.0, pal["y"], pal["b"], pal["C"]], [PLUG_ABA_D / 2.0, pal["E"]]]),
 		(-t.normalized() * 2.0).round(), mod)   # a luva de latão, que não entra toda: uma beira dourada entre a tomada e o corpo
 	# o corpo: primeiro a beira de todos os discos (só o contorno fica à mostra), depois os miolos; a capa, por
 	# cima, disco a disco com a beira de cada um: ela afina para o fio, e a beira de cada gomo fica à mostra em volta
@@ -430,11 +430,11 @@ func _draw_plug_face(col: Array, tilt: Vector2, push: float, alpha: float, j := 
 			if (layer == 2) != r[6]:
 				continue
 			if layer != 1:
-				PixelArt.sprite(_ci, PixelArt.disc(r[0], [[r[0] / 2.0, pal[r[1]]]]), t * float(k) / n, mod)
+				PixelArt.sprite(_ci, _disc(r[0], [[r[0] / 2.0, pal[r[1]]]]), t * float(k) / n, mod)
 			if layer != 0:
 				var d: int = r[0] - 2
 				var tones := [pal[r[2]], pal[r[3]], pal[r[4]]]
-				PixelArt.sprite(_ci, _knurled(d, tones) if r[5] else PixelArt.disc(d, [[d / 2.0, tones[0], tones[1], tones[2]]]), t * float(k) / n, mod)
+				PixelArt.sprite(_ci, _knurled(d, tones) if r[5] else _disc(d, [[d / 2.0, tones[0], tones[1], tones[2]]]), t * float(k) / n, mod)
 	if light[1] > 0.02:
 		var rim: Array = _face_rim(t, n, light[2])
 		_ci.draw_texture(rim[0], rim[1], Color((light[0] as Color).lightened(0.35), light[1] * 0.8 * alpha))
@@ -481,7 +481,7 @@ static var _knurls := {}
 func _knurled(d: int, tones: Array) -> ImageTexture:
 	var key := str(d, tones)
 	if not _knurls.has(key):
-		var img := PixelArt.disc(d, [[d / 2.0, tones[0], tones[1], tones[2]]]).get_image()
+		var img := _disc(d, [[d / 2.0, tones[0], tones[1], tones[2]]]).get_image()
 		for y in d:
 			for x in d:
 				var c := img.get_pixel(x, y)
@@ -498,7 +498,7 @@ func _draw_plug_cap(e: int) -> void:
 		return   # ainda entrando: o corpo em pé está por cima
 	var col: Array = _cable_col(e)
 	var w := int(ROPE_W - 2.0)   # na cor e na largura do miolo do fio, sem contorno: o fio continua nela
-	PixelArt.sprite(_ci, PixelArt.disc(w, [[1.0, col[1]], [w / 2.0, col[0]]]), _plug_base(e).round(), _lit_by(_plug_base(e)))
+	PixelArt.sprite(_ci, _disc(w, [[1.0, col[1]], [w / 2.0, col[0]]]), _plug_base(e).round(), _lit_by(_plug_base(e)))
 
 
 ## A luz que bate no plug encaixado em `j`, como [cor, nível, de todos os lados]: na entrada, a lâmpada da linha,
@@ -531,7 +531,7 @@ func _face_rim(t: Vector2, n: int, around: bool) -> Array:
 		for k in n + 1:
 			var d: int = _face_row(n, k)[0]
 			var p := (t * float(k) / n - Vector2(d, d) / 2.0).floor()
-			spots.append([p, PixelArt.disc(d, [[d / 2.0, Color.WHITE]]).get_image()])
+			spots.append([p, _disc(d, [[d / 2.0, Color.WHITE]]).get_image()])
 			lo = lo.min(p)
 			hi = hi.max(p + Vector2(d, d))
 		var size := Vector2i(hi - lo) + Vector2i(2, 2)
@@ -564,7 +564,7 @@ func _face_rim(t: Vector2, n: int, around: bool) -> Array:
 ## O plug de pé, com o fio saindo de baixo (y = 0), no formato de um P10 e na escala da sala (12 × 51 px, uns 2 × 9 cm
 ## no fundo da mesa: menor que o relógio e as listas, `Background.PROP_K`; o corpo enche o buraco da prateleira e a
 ## luva entra no furo da tomada), em pixel art (`PLUG_ART`, no acabamento do relógio da mesa: sombreado de cilindro com o brilho
-## numa coluna só e a beira escura à direita, cantos arredondados), no jeito de um plugue P10 (a referência do
+## numa coluna só e a beira escura do lado da sombra, cantos arredondados), no jeito de um plugue P10 (a referência do
 ## usuário): a capa de borracha em gomos, afinando até o fio; o corpo na cor do cabo (é o que identifica o cabo), com
 ## um anel em cima, o serrilhado em listras finas e um anel no meio; a aba dourada; a ponta de metal dourado, com a luva,
 ## um isolante preto, o anel, outro isolante e o bico em ponta com a bolinha. `tip`
@@ -573,7 +573,7 @@ func _draw_plug_body(col: Array, tip: bool = true, light := Color.WHITE) -> void
 	var top := -PLUG_H if tip else -PLUG_LEN
 	var bottom := minf(0.0, _cut)
 	if bottom > top:
-		_ci.draw_texture_rect_region(PixelArt.art(PLUG_ART, _plug_pal(col)), Rect2(-PLUG_W / 2.0, top, PLUG_W, bottom - top), Rect2(0, top + PLUG_H, PLUG_W, bottom - top), light)
+		_ci.draw_texture_rect_region(PixelArt.art(_plug_art(0.0), _plug_pal(col)), Rect2(-PLUG_W / 2.0, top, PLUG_W, bottom - top), Rect2(0, top + PLUG_H, PLUG_W, bottom - top), light)
 	if _cut < INF:   # entrando no buraco, o plug escurece até a beira dele
 		var none := Color(0, 0, 0, 0)
 		var deep := Color(0, 0, 0, 0.6)
@@ -581,14 +581,14 @@ func _draw_plug_body(col: Array, tip: bool = true, light := Color.WHITE) -> void
 			PackedColorArray([none, none, deep, deep]), PackedVector2Array())
 
 
-## O mapa do plug para o ângulo `ang`: o brilho dele fica do lado esquerdo, virado para a luz (`PixelArt.LIGHT`, alto
-## à esquerda); girado a ponto de esse lado ficar de costas para ela, vale o mapa espelhado, com o brilho do outro
-## lado (sem isso, o plug deitado com a ponta para a esquerda tinha a luz vindo de baixo).
+## O mapa do plug para o ângulo `ang`: o brilho do `PLUG_ART` fica do lado esquerdo; com esse lado de costas para a
+## luz (`LIGHT`, alto à direita: em pé, por exemplo), vale o mapa espelhado, com o brilho do outro lado (sem isso, o
+## plug deitado com a ponta para a esquerda tinha a luz vindo de baixo).
 static var _plug_flipped: Array = []
 
 
 func _plug_art(ang: float) -> Array:
-	if Vector2.LEFT.rotated(ang).dot(PixelArt.LIGHT) >= 0.0:
+	if Vector2.LEFT.rotated(ang).dot(LIGHT) >= 0.0:
 		return PLUG_ART
 	if _plug_flipped.is_empty():
 		for row: String in PLUG_ART:

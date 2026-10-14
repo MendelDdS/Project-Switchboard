@@ -471,7 +471,8 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   e presa aos pixels. **Folha de prévia**: `Godot --headless --path . -s tools/sprite_sheet.gd` grava
   `build/sprites.png` com tudo ampliado 8× (os mapas com nome; depois o que a mesa e o cenário montaram na noite 1).
 - **Peças redondas pixel a pixel** (`PixelArt.disc`: imagem guardada por diâmetro e camadas, com luz, meio-tom e sombra vindos de
-  `LIGHT`, alto à esquerda, e camadas côncavas; `PixelArt.sprite` desenha presa aos pixels; desenhadas como círculo saíam
+  `light`, por padrão `LIGHT`, alto à esquerda, e camadas côncavas; as da mesa comutadora, por `Switchboard._disc`, na
+  luz dela, `Switchboard.LIGHT`, alto à direita, de onde vem a luminária, com as sombras caindo embaixo à esquerda; `PixelArt.sprite` desenha presa aos pixels; desenhadas como círculo saíam
   embolotadas): lâmpadas, aro aceso do destino, lâmpadas da legenda e parafusos das chapas. **Cor que muda a cada
   quadro vai no `modulate` do desenho, nunca nas cores de um `disc`/`art`** (o cache guarda uma textura por cor e não
   esvazia: o vidro da lâmpada pulsando com a cor no `disc` criava ~38 texturas por segundo; a lâmpada desenha o vidro
@@ -482,15 +483,17 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   café com a luz refletida, a alça em C do lado da sombra e lascas no esmalte), com o vapor subindo na camada da poeira
   (`_draw_steam`), que some com as horas porque o café esfria (`STEAM_FOR`); sob o mouse ela se ergue como os objetos
   das ferramentas e, clicada, é um gole (`Background.sip`, som `gulp`): o café baixa (`sips`, `MUG_SIPS`) e, acabado,
-  fica a borra no fundo e o vapor some; o painel do operador nos parafusos e o `Bloom` no miolo das luzes redondas. Beira das peças e do
-  móvel em `EDGE_DARK` (marrom quase preto), não preto. Os plugs também são pixel art, no acabamento do relógio
-  da mesa (abaixo). **O encaixe é um mapa de pixels** (`JACK_ART`, 14×14, menor que o `JACK`, com o furo escuro de 6 px, a largura da luva do plug, e o aro da largura do corpo dele: com 16 e o furo de 8, na medida do plug antigo, ficava grande; com 12, o níquel de 2 px era fino demais; `art`: um caractere por pixel e a
-  paleta, `_jack_pal`; o mesmo da branch 2×2, pela referência do usuário): aro niquelado de 3 pixels com os tons
-  perto uns dos outros e a sombra curta (com o contraste inteiro, claro no alto à esquerda e escuro do outro lado,
-  parecia uma cúpula saltando do painel; num tom só, chato, perdia os detalhes: os dois saíram a pedido; os raios dão
-  as larguras de linha de um círculo de pixel art, senão saía octogonal), com a beira
-  escura em volta do furo escuro, a luz na face do aro no alto à esquerda (com um fio de brilho) e na parede do
-  furo embaixo à direita; as saídas no níquel mais escuro (`dim`). Largura par e o meio num pixel inteiro (`jack_rect`
+  fica a borra no fundo e o vapor some; o painel do operador nos parafusos e o `Bloom` no miolo das luzes redondas. **Sem contorno preto em
+  nenhuma peça**: a beira é o tom da própria peça, na luz em cima e à esquerda e na sombra embaixo e à direita
+  (`Switchboard.rim`; o níquel em `NICKEL_EDGE`; num rebaixo, ao contrário); escuro só o que é buraco, rebaixo ou
+  material preto (`EDGE_DARK` ficou só no furo da porca da chave). Os plugs também são pixel art, no acabamento do relógio
+  da mesa (abaixo). **O encaixe é um disco** (`_jack_tex`, 12×12, com o furo de 4 px, a largura da luva do plug, e o aro da largura do
+  corpo dele; antes um mapa de pixels, `JACK_ART`, com o mesmo desenho): o furo, a parede da bucha (côncava, a luz
+  embaixo à esquerda), a face do aro, chata, em três tons quase iguais, e a quina de 1 px, clara no alto à direita e
+  escura embaixo à esquerda (`JACK_NICKEL`); por cima da luz da sala, um pixel de brilho do níquel (`_draw_glints`,
+  `JACK_GLINT`; a luz da sala o apagava). Com a face indo do claro ao escuro, ou com a quina toda mais escura que ela
+  (depois de sair o contorno preto), parecia uma cúpula saltando do painel; num tom só, chato, perdia os detalhes: os
+  dois saíram a pedido. As saídas no níquel mais escuro (`dim`). Largura par e o meio num pixel inteiro (`jack_rect`
   arredonda o dos destinos), para ficar no eixo da plaquinha e da lâmpada. (Uma versão em `_disc` com a bucha de latão
   saiu com o furo maior e foi rejeitada.)
 - Encaixes redondos (`_draw_jack`: o aro niquelado e o furo, com a sombra no painel); lâmpadas de vidro leitoso abaulado num aro
@@ -514,7 +517,7 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   desenho, serrilhava, e o passo era de 15°). Na mão, ele balança com o movimento como um pêndulo preso onde a mão
   pega (`_swing_step`, `SWING_*`; a traseira com o fio fica para trás) e, solto, sai com esse ângulo; caindo, quica
   na mesa (`Cord.BOUNCE`, `BOUNCE_MIN`; o `drop` mais alto quanto mais forte a batida, até `DROP_FULL`). O brilho do mapa fica
-  do lado esquerdo, virado para a luz (`PixelArt.LIGHT`); girado a ponto de esse lado ficar de costas para ela, vale o
+  do lado esquerdo; com esse lado de costas para a luz (`Switchboard.LIGHT`, alto à direita: em pé, por exemplo), vale o
   mapa espelhado (`_plug_art`). Ao encaixar, a passagem para de frente gira a partir do ângulo que ele tinha na mão
   (`_pushed_ang`). O fio e os plugs em pé pegam a luz da sala do painel em `CORD_LIT` da força (`_lit_by`,
   `_room_tone`: mais escuros e frios longe da luminária). **Todos os fios têm o mesmo comprimento**, `Cord.MAX` (495 px: o do FONE, puxado do

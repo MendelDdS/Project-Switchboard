@@ -298,8 +298,7 @@ func _draw() -> void:
 	_draw_bezel()
 	var b := _base()
 	draw_rect(Rect2(BEZEL, b.position.y - 3.0, b.size.x - BEZEL * 2.0, 3), Color(0, 0, 0, 0.3))   # a sombra da base no vidro
-	draw_rect(b, Pal.EDGE)
-	draw_rect(b.grow(-1.0), Pal.PANEL_LO)
+	draw_rect(b, Pal.PANEL_LO)
 	_draw_sender()
 	_draw_printer()
 	_draw_shredder()
@@ -345,11 +344,11 @@ func _draw_strip() -> void:
 		draw_rect(Rect2(b.end.x - 45.0, mid - 3.0 + i * 3, 34, 1), Pal.PANEL_LO)
 
 
-## Caixa de metal: sombra, borda, luz em cima e à esquerda, sombra embaixo e à direita, parafusos nos cantos.
+## Caixa de metal: sombra, luz em cima e à esquerda, sombra embaixo e à direita, parafusos nos cantos (sem a borda
+## preta em volta: parecia contorno).
 static func box(ci: CanvasItem, r: Rect2) -> void:
 	ci.draw_rect(Rect2(r.position + Vector2(2, 2), r.size), Color(0, 0, 0, 0.35))
-	ci.draw_rect(r, Pal.EDGE)
-	var b := r.grow(-1.0)
+	var b := r
 	ci.draw_rect(b, Pal.PANEL)
 	ci.draw_rect(Rect2(b.position, Vector2(b.size.x, 1)), Pal.PANEL_HI)
 	ci.draw_rect(Rect2(b.position, Vector2(1, b.size.y)), Pal.PANEL_HI)
@@ -375,7 +374,7 @@ static func mouth(ci: CanvasItem, x: float, y: float, w: float) -> void:
 
 
 static func led(ci: CanvasItem, at: Vector2, on: bool, col: Color) -> void:
-	ci.draw_rect(Rect2(at - Vector2(1, 1), Vector2(7, 7)), Pal.EDGE)
+	Switchboard.rim(ci, Rect2(at, Vector2(5, 5)), Pal.PANEL_LO, Pal.PANEL_HI)   # rebaixada: a sombra em cima, a luz embaixo
 	ci.draw_rect(Rect2(at, Vector2(5, 5)), col if on else Pal.PANEL_LO)
 	if on:
 		ci.draw_rect(Rect2(at + Vector2(1, 1), Vector2(1, 1)), Color(1, 1, 1, 0.6))   # o brilho da lâmpada

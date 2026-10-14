@@ -1030,7 +1030,7 @@ func _draw_company_sign(b: Rect2) -> void:
 	var tw := Pal.mono.get_string_size(company, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
 	var r := Rect2(roundf(b.position.x + b.size.x * SIGN_AT - (tw + 36.0) / 2.0), b.position.y - 28.0, roundf(tw + 36.0), 20.0)
 	draw_rect(Rect2(r.position + Vector2(2, 3), r.size), Color(0, 0, 0, 0.35))
-	draw_rect(r.grow(1), Switchboard.EDGE_DARK)
+	Switchboard.rim(self, r, SIGN_ENAMEL.darkened(0.2), SIGN_ENAMEL.darkened(0.5))
 	draw_rect(r, SIGN_ENAMEL)
 	draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), SIGN_ENAMEL.lightened(0.25))   # a luz na beira de cima
 	draw_rect(r.grow(-3), SIGN_INK, false, 1.0)   # o filete

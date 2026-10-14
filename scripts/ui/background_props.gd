@@ -1204,7 +1204,7 @@ func _draw_dispatch_unit(x0: float, zf: float, wx: float) -> void:
 	var front := Rect2(_p3(x0, yd, zf).round(), Vector2.ZERO).expand(_p3(x1, _yd, zf).round())   # a frente da base
 	_ci.draw_rect(front, Pal.PANEL.darkened(dark))
 	_ci.draw_rect(Rect2(front.position, Vector2(front.size.x, 1)), Pal.PANEL_HI.darkened(dark))
-	_ci.draw_rect(Rect2(front.position.x, front.end.y - 1, front.size.x, 1), Pal.EDGE)
+	_ci.draw_rect(Rect2(front.position.x, front.end.y - 1, front.size.x, 1), Pal.PANEL_LO.darkened(dark))
 	var mid := front.position.y + floorf(front.size.y / 2.0)
 	var plate := Rect2(front.position.x + roundf(front.size.x * 0.36), mid - 2, roundf(front.size.x * 0.28), 4)
 	_ci.draw_rect(plate, Pal.BRASS.darkened(0.25 + dark))   # a plaqueta do fabricante
@@ -1213,7 +1213,7 @@ func _draw_dispatch_unit(x0: float, zf: float, wx: float) -> void:
 		_ci.draw_rect(Rect2(front.end.x - roundf(front.size.x * 0.22), mid - 2 + i * 2, roundf(front.size.x * 0.16), 1), Pal.PANEL_LO)
 	for l: Array in [[0.06, alert, Pal.RED], [0.14, card_out, Pal.AMBER]]:   # as luzes: ocorrência e cartão na mesa
 		var lr := Rect2(front.position.x + roundf(front.size.x * l[0]), mid - 1, 3, 3)
-		_ci.draw_rect(lr.grow(1), Pal.EDGE)
+		_ci.draw_rect(lr.grow(1), Pal.PANEL_LO.darkened(dark))
 		_ci.draw_rect(lr, l[2] if l[1] else (l[2] as Color).darkened(0.75))
 		if l[1]:
 			_light(lr, l[2], 0.6, true)

@@ -30,6 +30,9 @@ var trunks := Rect2()   # o bloco interurbano no painel (a mesa o põe ao montar
 const PLUG_BASE := Vector2(0, 20)   # de onde a mão pega o plug (o meio do corpo) até onde o fio entra nele
 const PLUG_H := 51.0   # a altura do `PLUG_ART`: do bico até onde sai o fio...
 const PLUG_W := 12.0   # ...e a largura dele (o corpo tem 10)
+## A luminária do teto fica à direita do painel, no alto: a luz das peças dele vem dali (a das peças da mesa da sala,
+## `PixelArt.LIGHT`, do alto à esquerda). A sombra delas cai embaixo à esquerda.
+const LIGHT := Vector2(0.7071, -0.7071)
 const JACK := 12.0          # o lugar de cada encaixe (entradas, saídas e destinos; o desenho, `JACK_PX`, é menor)
 ## A coluna de cada linha, de cima para baixo: plaquinha com o número (topo e altura), lâmpada, entrada, chave de
 ## escuta e saída (centros). A lâmpada logo embaixo da plaquinha: o estado escrito que ficava entre elas saiu.
@@ -193,3 +196,8 @@ func refuse(e: int, j: int) -> String:
 func _room_tone(p: Vector2) -> Color:
 	var k := clampf(1.0 - p.distance_to(_lamp_at) / ROOM_LIGHT_R, 0.0, 1.0)
 	return ROOM_DARK.lerp(ROOM_LIT, k * k)
+
+
+## Peça redonda da mesa (`PixelArt.disc`) na luz dela (`LIGHT`).
+static func _disc(d: int, layers: Array) -> ImageTexture:
+	return PixelArt.disc(d, layers, LIGHT)

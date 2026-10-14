@@ -310,3 +310,11 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   a 60° do eixo, se inclinava para o ponto de fuga até parecer ter metade da largura do comprimento. Perspectiva certa
   não é o que se lê: encolha a profundidade só no que tem volume (`CAR_DEPTH`). E forma recuada da beira para "parecer
   arredondada" deixa fresta onde nada a cobre.
+- **"Escuro porque é buraco" não vale para o anel em volta.** Disse que as tomadas ficavam como estavam por serem
+  furo; o usuário mostrou o anel preto por fora do aro niquelado, a plaquinha e a alavanca com a mesma beira. Ao
+  separar contorno de buraco, olhe cada pixel escuro da peça ampliada: só o que fica **dentro** da abertura é buraco;
+  o fio escuro **em volta** da silhueta é contorno, mesmo numa peça que tem furo.
+- **Tirar o contorno muda a leitura do volume.** O anel preto em volta da tomada achatava o aro; sem ele, a quina mais
+  escura que a face e a face indo do claro ao escuro fizeram o aro voltar a ser uma cúpula, defeito já corrigido antes.
+  Ao tirar ou trocar uma beira, compare com o que o HISTORICO diz da peça (`#mesa-comutadora`) e confira a forma de
+  novo, não só a cor da beira. Peça chata: face quase num tom só, a luz e a sombra só na quina.

@@ -723,7 +723,7 @@ func _draw_lamps() -> void:
 		var dl: Array = _lit.get("d%d" % d, [LAMP_OFF, 0.0])
 		if dl[1] > 0.02:   # o aro em volta da tomada acende (a tomada, por cima, é da `_top`)
 			var jr := jack_rect(d)
-			PixelArt.sprite(_lamps, PixelArt.disc(JACK_PX + 6, [[JACK_PX / 2.0 + 3.0, Color.WHITE]]), jr.get_center(), Color(dl[0], dl[1]))
+			PixelArt.sprite(_lamps, _disc(JACK_PX + 6, [[JACK_PX / 2.0 + 3.0, Color.WHITE]]), jr.get_center(), Color(dl[0], dl[1]))
 			Bloom.light(_lamps, jr.grow((JACK_PX - JACK) / 2.0 + 2.0), Color(dl[0], dl[1]), 1.0, false, true)
 	for e in ends.size():
 		if ends[e] != -1:
@@ -732,7 +732,7 @@ func _draw_lamps() -> void:
 
 
 ## Por cima das lâmpadas: as tomadas dos destinos (o aro aceso fica em volta delas), as chapas dos bancos que ainda não
-## são do operador e a luz da sala, que cai em tudo o que é do painel.
+## são do operador, a luz da sala, que cai em tudo o que é do painel, e, por cima dela, o brilho do níquel das tomadas.
 func _draw_top() -> void:
 	if exchange == null:
 		return
@@ -749,6 +749,12 @@ func _draw_top() -> void:
 		_top.draw_rect(Rect2(at.x - 3.0, br.position.y - 1.0, cap.get_width() + 6.0, 3.0), Pal.PANEL)
 		_top.draw_texture(cap, at, Pal.BRASS)
 	_draw_room_light(Rect2(Vector2.ZERO, size).grow(-FRAME))
+	var jacks := []
+	for n in 20:
+		jacks.append([jack_rect(n + 1), 1.0 if n < 10 else 0.6])   # nas saídas, de metal mais escuro, mais fraco
+	for d in dest_nums:
+		jacks.append([jack_rect(d), 1.0])
+	_draw_glints(jacks)
 	_ci = self
 
 

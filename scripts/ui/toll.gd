@@ -493,7 +493,7 @@ func _draw_machine() -> void:
 	var r := Rect2(Vector2.ZERO, ci.size - Vector2(2, 2)).abs()
 	CardMachines.box(ci, r)
 	var screen := _screen()
-	ci.draw_rect(screen.grow(1.0), Pal.EDGE)
+	Switchboard.rim(ci, screen, Pal.PANEL_LO, Pal.PANEL_HI)   # rebaixado
 	ci.draw_rect(screen, Pal.PANEL_LO)
 	var cell := (screen.size / Vector2(COUNTER_COLS, ceilf(float(Exchange.LINES) / COUNTER_COLS))).floor()
 	for n in range(1, Exchange.LINES + 1):
