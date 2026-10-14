@@ -970,3 +970,29 @@ Chaves:
 182. #consequencias #jornal #saiu
     O jornal da manhã saiu do relatório do supervisor: o jornal já vem na mesa na noite seguinte, com as mesmas
     manchetes, e repeti-las no memorando era redundante.
+183. #vista
+    Quem passava na calçada de lá era sempre a mesma silhueta preta, só com ou sem chapéu: cada um ganhou a sua roupa
+    (`_walker`), em cores apagadas pela noite como o pelo do vira-lata (`WALK_COATS`, `WALK_DRESSES`, `WALK_LEGS`,
+    `WALK_SKIN`, `WALK_UMBRELLAS`), que esquentam um pouco embaixo dos postes: de vestido ou de calça, de casaco curto
+    ou comprido, de chapéu, de boina com pala, de lenço na cabeça ou sem nada, às vezes com bolsa no ombro ou pasta na
+    mão, e o guarda-chuva de cada um na sua cor. O homem do mistério continua preto.
+184. #pixel #mesa-comutadora #cabos #despacho #calculografo #sala
+    Sem contorno preto nos objetos (pedido do usuário, antes do plano hi-bit: "seguindo uma linha mais realista, linhas
+    pretas tiram essa sensação"). A beira quase preta (`EDGE_DARK`, `Pal.EDGE`) em volta das peças virou o tom da
+    própria peça, na luz em cima e à esquerda e na sombra embaixo e à direita (`Switchboard.rim`): o aro das tomadas e
+    das lâmpadas e a porca das chaves na quina do níquel (`NICKEL_EDGE`), a alavanca com a beira do metal e da
+    baquelite, as plaquinhas dos números, as chapas A/B e as tampas da prateleira, a plaquinha do FONE, a plaqueta do
+    fabricante, a placa da companhia, a moldura de madeira do móvel e a fresta dela com o painel, a miniatura do
+    console, a legenda das lâmpadas, as caixas das máquinas do despacho e do calculógrafo (sem a borda), os visores e
+    as luzes delas (rebaixados: a sombra em cima, a luz embaixo) e a miniatura do despacho na mesa. O que fica escuro
+    é buraco ou rebaixo (o furo das tomadas, as fendas, o rebaixo do vidro do mapa, as telas apagadas, os frisos
+    gravados do painel) ou material preto (a baquelite, os pés de borracha). A interface (painel de baixo, bilhete
+    do manual, quadro do turno) ainda não foi decidida.
+185. #pixel #mesa-comutadora #cabos #luz
+    As peças da mesa comutadora na luz da luminária, que fica à direita dela e no alto (antes a luz das peças redondas
+    vinha do alto à esquerda, ao contrário da luz da sala no painel): tomadas, lâmpadas, porcas e alavancas das chaves,
+    plugs em pé e encaixados, com as sombras dos plugs, dos fios e das tomadas caindo embaixo à esquerda
+    (`Switchboard.LIGHT`, `_disc`). As peças da mesa da sala continuam com a luz delas. Um pixel de brilho do níquel em
+    cada tomada, por cima da luz da sala. Sem o contorno preto, a tomada voltou a parecer uma cúpula saltando do painel
+    (o usuário notou): a face do aro ficou chata, em três tons quase iguais, e só a quina de 1 px marca a luz e a sombra.
+    A tomada virou um disco (`_jack_tex`) no lugar do mapa de pixels.

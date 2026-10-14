@@ -67,6 +67,15 @@ const GUEST := Vector3(0.5, 1.2, 3.6)
 ## Escuro, sumia na calçada: o pelo caramelo, apagado pela noite, aparece contra ela.
 const STRAY_SEC := 22.0   ## quanto ele leva de um lado ao outro (~1,5 m/s; cada um ±15%)
 const STRAY_COAT := Color("4e3218")
+## As roupas de quem passa na calçada de lá (`_walker` sorteia), em cores apagadas pela noite, como o pelo do
+## vira-lata: aparecem contra a calçada e acendem embaixo dos postes. Casacos e paletós; vestidos e saias; calças;
+## a pele; os guarda-chuvas.
+const WALK_COATS := [Color("4a3020"), Color("2c3448"), Color("444232"), Color("4e2426"), Color("5e5440"), Color("38383c"),
+	Color("1c1c20"), Color("3e2c3a")]
+const WALK_DRESSES := [Color("5e2a34"), Color("2a4452"), Color("6a5c30"), Color("365032"), Color("4c3050"), Color("5a4a44")]
+const WALK_LEGS := [Color("18181c"), Color("26221c"), Color("262a34"), Color("3a342a")]
+const WALK_SKIN := [Color("b08868"), Color("8a5e40"), Color("62422c"), Color("44302a")]
+const WALK_UMBRELLAS := [Color("121318"), Color("121318"), Color("4e1a1e"), Color("1c2640"), Color("2a3426")]
 const STRAY_ART := [["......#...", "#.....###.", ".#########", ".######...", "#..#.#..#.", "#..#.#..#."],
 	["......#...", "#.....###.", ".#########", ".######...", ".##...##..", ".##...##.."]]
 ## As mariposas em volta das cabeças acesas dos postes, nas noites limpas: quantas por poste e a cor delas na luz.
@@ -1159,10 +1168,16 @@ func _draw_stranger(g: Rect2, x: float) -> void:
 
 
 ## Alguém novo na calçada de lá, indo de um lado ao outro: cada um com o seu passo, a sua altura, a sua distância das
-## fachadas e, sem chuva, de chapéu ou não. `t` vai de 0 a 1 (negativo: ainda não entrou na rua).
+## fachadas e a sua roupa: de vestido ou de calça (`dress`), o casaco curto ou comprido (`long`), as cores
+## (`WALK_*`), o chapéu, a boina, o lenço ou nada (`hat`, sem chuva) e às vezes uma bolsa ou uma pasta (`bag`).
+## `t` vai de 0 a 1 (negativo: ainda não entrou na rua).
 func _walker() -> Dictionary:
+	var dress := randf() < 0.4
 	return {"t": 0.0, "dir": 1.0 if randf() < 0.5 else -1.0, "sec": WALK_SEC * randf_range(0.8, 1.2), "z": randf_range(STREET["far_curb"] + 0.5, STREET["far"] - 0.4),
-		"h": randf_range(0.92, 1.06), "hat": randf() < 0.5}
+		"h": randf_range(0.88, 0.98) if dress else randf_range(0.94, 1.06), "dress": dress, "long": randf() < 0.35,
+		"coat": (WALK_DRESSES if dress else WALK_COATS).pick_random(), "legs": WALK_LEGS.pick_random(), "skin": WALK_SKIN.pick_random(),
+		"umbrella": WALK_UMBRELLAS.pick_random(), "hat": ["", "", "scarf"].pick_random() if dress else ["", "fedora", "fedora", "cap"].pick_random(),
+		"bag": randf() < 0.3}
 
 
 ## Põe `w` na calçada, na ordem do desenho (os de mais longe primeiro).
@@ -1190,12 +1205,31 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 	var k: float = OUT_F / z * 2.0 * w["h"]   # px da tela por metro (na altura dele)
 	var dark := Color("07090c")
 	_poly(PackedVector2Array([_o(g, x - 0.3, z), _o(g, x + 0.3, z), _o(g, x + 0.3, z + 0.2), _o(g, x - 0.3, z + 0.2)]), Color(0, 0, 0, 0.35))
-	var parts: Array[Rect2] = [Rect2(-0.2, 0.75, 0.4, 0.68), Rect2(-0.1, 1.43, 0.2, 0.22)]   # o casaco e a cabeça
-	parts.append_array([Rect2(-0.22, 0.0, 0.13, 0.8), Rect2(0.09, 0.0, 0.13, 0.8)] if posmod(steps, 2) == 0 else [Rect2(-0.07, 0.0, 0.14, 0.8)])
+	var s: float = w["dir"]   # (o que tem frente, a aba da boina e a bolsa, vira para onde ele vai)
+	var coat: Color = w["coat"]
+	var legs: Color = w["legs"]
+	var parts: Array = []   # [peça, cor], de trás para a frente
+	var apart := posmod(steps, 2) == 0
+	if w["dress"]:   # as pernas finas embaixo da saia, o vestido e o casaquinho por cima
+		parts.append_array([[Rect2(-0.16, 0.0, 0.1, 0.5), legs], [Rect2(0.06, 0.0, 0.1, 0.5), legs]] if apart else [[Rect2(-0.06, 0.0, 0.12, 0.5), legs]])
+		parts.append_array([[Rect2(-0.24, 0.42, 0.48, 0.5), coat], [Rect2(-0.18, 0.9, 0.36, 0.53), coat.darkened(0.25) if w["long"] else coat]])
+	else:
+		parts.append_array([[Rect2(-0.22, 0.0, 0.13, 0.8), legs], [Rect2(0.09, 0.0, 0.13, 0.8), legs]] if apart else [[Rect2(-0.07, 0.0, 0.14, 0.8), legs]])
+		parts.append([Rect2(-0.21, 0.45, 0.42, 0.98) if w["long"] else Rect2(-0.2, 0.75, 0.4, 0.68), coat])
+	parts.append([Rect2(-0.1, 1.43, 0.2, 0.22), w["skin"]])   # a cabeça
+	if w["bag"]:   # a bolsa no ombro, ou a pasta na mão
+		parts.append([Rect2(0.14 * s - 0.06, 0.82, 0.12, 0.16), coat.darkened(0.45)] if w["dress"] else [Rect2(0.16 * s - 0.08, 0.3, 0.16, 0.24), Color("2a1a10")])
 	if weather == "rain":   # o guarda-chuva: a cúpula, a beira e o cabo
-		parts.append_array([Rect2(-0.55, 1.74, 1.1, 0.1), Rect2(-0.42, 1.84, 0.84, 0.1), Rect2(-0.2, 1.94, 0.4, 0.05), Rect2(-0.02, 1.4, 0.04, 0.36)])
-	elif w["hat"]:
-		parts.append_array([Rect2(-0.18, 1.63, 0.36, 0.04), Rect2(-0.1, 1.66, 0.2, 0.1)])
+		var u: Color = w["umbrella"]
+		parts.append_array([[Rect2(-0.55, 1.74, 1.1, 0.1), u], [Rect2(-0.42, 1.84, 0.84, 0.1), u], [Rect2(-0.2, 1.94, 0.4, 0.05), u], [Rect2(-0.02, 1.4, 0.04, 0.36), dark]])
+	else:
+		match w["hat"]:
+			"fedora":
+				parts.append_array([[Rect2(-0.18, 1.63, 0.36, 0.04), dark], [Rect2(-0.1, 1.66, 0.2, 0.1), dark]])
+			"cap":   # a boina, com a pala para a frente
+				parts.append_array([[Rect2(-0.11, 1.62, 0.22, 0.07), legs], [Rect2(0.13 * s - 0.05, 1.62, 0.1, 0.03), legs]])
+			"scarf":   # o lenço amarrado na cabeça
+				parts.append([Rect2(-0.12, 1.52, 0.24, 0.16), coat.lightened(0.15)])
 	var glow := 0.0   # o poste mais perto: até 3 m dele
 	var side := 1.0
 	for lx: float in FAR_LAMPS:
@@ -1204,11 +1238,12 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 			glow = near
 			side = 1.0 if lx >= x else -1.0
 	var rim := Color(dark.lerp(RIM, 0.45), glow * 0.8)
-	for part in parts:
+	for pc: Array in parts:
+		var part: Rect2 = pc[0]
 		var a := Vector2(roundf(part.position.x * k), -roundf((part.position.y + part.size.y) * k))
 		var b := Vector2(roundf(part.end.x * k), -roundf(part.position.y * k))
 		var sz := Vector2(maxf(1.0, b.x - a.x), maxf(1.0, b.y - a.y))
-		_p(foot.x + a.x, foot.y + a.y, sz.x, sz.y, dark)
+		_p(foot.x + a.x, foot.y + a.y, sz.x, sz.y, (pc[1] as Color).lerp(RIM, 0.15 * glow))
 		if glow > 0.0:
 			if sz.y > 2.0:   # (as peças finas, como o guarda-chuva e a aba, só no lado: no alto, ficavam acesas inteiras)
 				_p(foot.x + a.x, foot.y + a.y, sz.x, 1, rim)

@@ -161,8 +161,8 @@ func _ready() -> void:
 			if _args.has("walk"):
 				bg._walkers.clear()
 				for x in (_args["walk"] as String).split(","):
-					bg._walkers.append({"t": (float(x) + Background.WALK_SPAN) / (2.0 * Background.WALK_SPAN), "dir": 1.0, "sec": 1e9, "z": Background.STREET["far_curb"] + 1.0,
-						"h": 1.0, "hat": true})
+					bg._walkers.append(bg._walker().merged({"t": (float(x) + Background.WALK_SPAN) / (2.0 * Background.WALK_SPAN), "dir": 1.0, "sec": 1e9,
+						"z": Background.STREET["far_curb"] + 1.0}, true))
 			if _args.has("bike"):
 				bg._walkers.append({"t": (float(_args["bike"]) + Background.WALK_SPAN) / (2.0 * Background.WALK_SPAN), "dir": 1.0, "sec": 1e9,
 					"z": Background.STREET["far_curb"] - 0.6, "h": 1.0, "hat": false, "bike": true})

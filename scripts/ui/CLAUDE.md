@@ -20,8 +20,9 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   some rápido, `_passes`, `CAR_PEAK`; o chiado que pulsava 6 vezes por segundo soava como motor e saiu; o da mão de
   cá, `car_near`/`car_wet_near`, mais claro, com mais Doppler e a passagem mais concentrada, `WET_NEAR`,
   `CAR_NEAR_SHARP`; cada um em `CAR_TAKES` versões, `id~1`..., sorteadas ao tocar, `Sfx._take`); gente passa a pé pela calçada de lá, várias ao mesmo tempo e às vezes
-  em dupla (`_walkers`, `_walker`: cada um com o seu passo, altura e distância das fachadas; guarda-chuva na chuva e,
-  sem ela, de chapéu ou não), em silhueta contra as luzes (`WALK_*`, `WALK_STEPS`, `_draw_walker`; perto de um poste,
+  em dupla (`_walkers`, `_walker`: cada um com o seu passo, altura e distância das fachadas; a roupa: vestido ou calça,
+  casaco curto ou comprido, bolsa ou pasta, nas cores apagadas da noite, `WALK_COATS`...; guarda-chuva na chuva e, sem ela,
+  chapéu, boina, lenço ou nada; o homem do mistério continua preto), contra as luzes (`WALK_*`, `WALK_STEPS`, `_draw_walker`; perto de um poste,
   a luz dele acende a beira de cima e o lado virado para ele, `RIM`, só o lado nas peças finas; na chuva, eles se
   espelham na calçada molhada, apagados e sumindo para baixo; de vez em quando alguém sai do bar: a porta ao lado da
   vitrine abre, a luz do salão sai pela calçada e a pessoa segue junto das fachadas, `BAR_*`, `_bar_t`, `_draw_bar_door`;
