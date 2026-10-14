@@ -10,7 +10,7 @@ extends Node
 ##   --debug=N              abre o painel de debug na aba N (0 = Jogo, 1 = Vozes)
 ##   --card                 marca um local no mapa e espera o cartão sair impresso
 ##   --emergency            toca uma emergência e atende (a luz vermelha da unidade, a barra, o rádio)
-##   --news                 o jornal da manhã na mesa
+##   --news                 o jornal da manhã na mesa · --read: já lido, dobrado de outro jeito
 ##   --listen               a linha 3 conectada, com o FONE nela e a chave de escuta levantada
 ##   --toll                 um interurbano contando no calculógrafo, dois bilhetes na mesa (um carimbado) e três na caixinha
 ##   --clues                palavras-chave ouvidas (uma marcada, uma riscada, uma ouvida duas vezes) e a lista nas anotações
@@ -27,6 +27,7 @@ extends Node
 ##   --damp=4               a mancha de umidade de 4 noites de chuva
 ##   --phones=2,1           os telefones da vista (hotel, bar): 1 tocando, 2 na linha
 ##   --sips=3               goles tomados do café · --cabinet: a porta do armário aberta
+##   --written=2            fichas registradas (o lugar do lápis no bloco)
 ##   --wait=5               segundos antes de capturar (a luminária esquenta em 4)
 ## As do jogo também valem: --weather=rain|fog|clear, --night=N, --seed=N, --lang=en.
 
@@ -139,6 +140,9 @@ func _ready() -> void:
 		room.damp = int(_args["damp"])
 	if _args.has("sips"):
 		room.sips = int(_args["sips"])
+	if _args.has("written"):
+		room.written = int(_args["written"])
+	room.news_read = _args.has("read")
 	if _args.has("cabinet"):
 		room.cab_open = true
 	if _args.has("cat"):

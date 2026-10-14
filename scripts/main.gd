@@ -144,6 +144,7 @@ func _ready() -> void:
 	dispatch.arrived.connect(supervisor.on_arrived)
 	dispatch.blank_card.connect(func(loc: String): supervisor.fault("dispatch_blank", loc))
 	notebook.registered.connect(supervisor.on_registered)
+	notebook.registered.connect(func(_r: PhoneCall.Record, _t: T.Key): background.written += 1)   # o lápis muda de lugar
 	notebook.pending_changed.connect(func(n: int):
 		tools.set_pending(n)
 		background.pending = n

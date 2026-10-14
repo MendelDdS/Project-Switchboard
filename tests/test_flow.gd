@@ -908,8 +908,10 @@ func _initialize() -> void:
 	ok(nb.entries.back().type == T.Key.TYPE_MISSED and not nb.queue.any(func(r): return r.missed), "não atendida registrada sozinha")
 	ok(nb.queue.size() >= 1, "ocorrências em fila")
 	var before: int = nb.queue.size()
+	var wrote: int = m.background.written
 	nb.register(T.Key.TYPE_COMMON)
 	ok(nb.queue.size() == before - 1 and nb.has_pending(), "registrou uma, a próxima veio da fila")
+	ok(m.background.written == wrote + 1, "o lápis do bloco da mesa muda de lugar a cada registro")
 	ok(m.background.pending == nb.pending_count(), "o caderno da mesa mostra quantas faltam")
 	ok(nb.entries.back()["type"] == T.Key.TYPE_COMMON, "registrada com o tipo do clique")
 	# as ocorrências chegaram com a aba fechada: aberta, a página do livro ocupa toda a área (com e sem a ficha)
@@ -1306,6 +1308,7 @@ func _initialize() -> void:
 	pj.position = (m.background._props[Tools.NEWS] as Rect2).get_center()
 	m.background.pointer(pj)
 	ok(m.tools.open and m.tools.tab == Tools.NEWS, "o jornal na mesa abre")
+	ok(m.background.news_read, "lido, ele volta à mesa dobrado de outro jeito")
 	ok(m.tools.news.get_node("Page/Text/Lead").text.contains("Rua do Sol"), "o jornal traz as manchetes da noite anterior")
 	m.tools.close()
 	# a persiana: clicada, desce até o peitoril e tampa o vidro; clicada de novo, sobe

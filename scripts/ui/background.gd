@@ -490,7 +490,7 @@ func _show() -> void:
 func _state() -> Array:
 	return [size, board.get_global_rect() if board else Rect2(), desk.get_global_rect() if desk else Rect2(),
 		window.get_global_rect() if window else Rect2(), lamp_level, pending, unread, alert, card_out, news, counting, toll_desk, details, night, weather,
-		snappedf(_shut, 0.25), cab_open, sips, damp,   # (a luz da rua na mesa e o relâmpago acompanham a persiana em 4 passos)
+		snappedf(_shut, 0.25), cab_open, sips, damp, written, news_read,   # (a luz da rua na mesa e o relâmpago acompanham a persiana em 4 passos)
 		TranslationServer.get_locale()]
 
 
@@ -890,7 +890,8 @@ func _draw_gloom() -> void:
 	var pool := _pool()
 	var c := _proj(pool.x, _yd, pool.y) * 2.0
 	var dark := func(p: Vector2) -> Color:
-		var k := smoothstep(GLOOM_IN, 1.0, ((p - c) / GLOOM_R).length())
+		var q := (p - c) / GLOOM_R
+		var k := smoothstep(GLOOM_IN, 1.0, q.length() / lerpf(1.0, FRONT_LIGHT, smoothstep(0.0, 0.5, q.y)))
 		return Color(NOIR, clampf(NOIR.a * k + (1.0 - lamp_level) * 0.3 + (1.0 - warm) * WARM_DARK, 0.0, 0.9))
 	var glass := _bounds(_glass) if _glass.size() > 2 else Rect2()
 	var n := Vector2i(40, 24)
@@ -1041,6 +1042,7 @@ func pointer(e: InputEvent) -> bool:
 	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
 		var id := prop_at(e.position)
 		if id in PROPS:
+			news_read = news_read or id == Tools.NEWS   # aberto, o jornal volta dobrado de outro jeito
 			prop_clicked.emit(id)
 			return true
 		match id:

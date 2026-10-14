@@ -6,6 +6,7 @@ const DESK_T := 1.25    ## o fundo do tampo, Z0/DESK_T: a mesa fica afastada da 
 const PLANKS := 6       ## as tábuas do tampo, todas da mesma largura (a câmera as espaça)
 const POOL_R := 112.0   ## o raio da poça de luz da luminária no tampo
 const SHADE_MAX := 0.3   ## o mais escuro que um objeto da mesa fica, longe da poça de luz (`_shade`)
+const FRONT_LIGHT := 1.6   ## da poça para a frente da mesa, a luz vai essa vez mais longe (`_shade`, `_draw_gloom`): a fileira da frente ficava escura demais
 const WALL_PAD := 2.0           ## a folga dos objetos da mesa até a parede da direita (x da sala)
 const MUG_ID := "caneca"   ## a caneca: sob o mouse se ergue como os objetos das ferramentas; clicada, um gole (`Background.sip`)
 const MUG_SIPS := 5       ## os goles do café da caneca
@@ -18,6 +19,10 @@ const UNIT := Vector3(39, 6, 0.17)
 const BOOKS_SPAN := 40.0   ## o lugar das listas na fileira (na escala dos objetos): os 31 delas mais os volumes desencontrados e a lombada
 const UNIT_PANEL := 16.0
 const PAD_W := 26.0    ## a largura do bloco de fichas (na escala dos objetos, uns 18 cm; o caderno aberto, com 46, tomava a fileira da frente)
+## Onde o lápis fica largado no bloco de fichas, um lugar a cada ficha registrada (`written`): [a ponta, a borracha],
+## em fração da folha abaixo da fita (x da largura, y da altura dela).
+const PENCIL := [[Vector2(0.5, 0.88), Vector2(0.96, 0.18)], [Vector2(0.28, 0.82), Vector2(0.8, 0.5)],
+	[Vector2(0.9, 0.86), Vector2(0.44, 0.2)], [Vector2(0.14, 0.3), Vector2(0.64, 0.9)]]
 const NEWS_W := 25.0   ## a largura do jornal dobrado (na escala dos objetos, uns 16 cm): com 32, o calculógrafo não cabia do lado
 const UNIT_TILT := 0.11
 const UNIT_D := 0.3
@@ -101,6 +106,8 @@ var unread := false  ## o registro das conversas tem fala nova: uma folha nova p
 var alert := false     ## há uma emergência em andamento: a luz vermelha da unidade de despacho (o Main atualiza)
 var card_out := false  ## há um cartão perfurado na mesa: ele sai da fenda da impressora da unidade, com a luz âmbar
 var news := false    ## o jornal da manhã está na mesa (da segunda noite em diante; `Main.set_news`)
+var news_read := false   ## o jornal já foi aberto: volta à mesa dobrado de outro jeito, a última página para cima
+var written := 0     ## fichas registradas na noite: o lápis fica num lugar do bloco a cada uma (`PENCIL`)
 var counting := 0    ## as entradas contando um interurbano, um bit cada (`Toll.counters`): os contadores acesos do calculógrafo
 var toll_desk := []  ## o que está na mesinha do calculógrafo e onde (`Toll.layout`; o Main só passa com a ferramenta fechada)
 var clock_x := 0.0   ## onde o relógio está na tela (x global): de lá vêm a badalada das horas e a campainha do turno
@@ -209,9 +216,10 @@ func _draw_desk_props() -> void:
 	if _here(Tools.TOLL):
 		_draw_calculograph(cx, _at(0.06))   # na linha do bloco de fichas
 	# papel tem 1 px de beira (mais grosso, parecia tábua)
-	if news and _here(Tools.NEWS):
-		_flat(Tools.NEWS, near[1], _at(0.07), NEWS_W * k, _deep(0.19 * k), 0.5, Color("a89c78"), _art_newspaper, [], deg_to_rad(6.0),
-			_newspaper_print)
+	if news and _here(Tools.NEWS):   # lido, volta dobrado mais uma vez, na metade da altura, e girado para o outro lado
+		var nd := _deep(0.19 * k) * (0.5 if news_read else 1.0)
+		_flat(Tools.NEWS, near[1], _at(0.07) + (_deep(0.19 * k) - nd) / 2.0, NEWS_W * k, nd, 0.5, Color("a89c78"),
+			_art_newspaper.bind(news_read), [news_read], deg_to_rad(-9.0 if news_read else 6.0), _newspaper_print.bind(news_read))
 	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
@@ -653,7 +661,8 @@ func _pool() -> Vector2:
 ## pareciam soltos da luz da sala). Contínuo: cada objeto escurece ponto a ponto (`_dim`), não de um tom só.
 func _shade(x: float, z: float) -> float:
 	var p := _pool()
-	var d := Vector2((x - p.x) / POOL_R, (z - p.y) / (POOL_R * 0.5)).length()
+	var v := Vector2((x - p.x) / POOL_R, (z - p.y) / (POOL_R * 0.5))
+	var d := v.length() / lerpf(1.0, FRONT_LIGHT, smoothstep(0.0, 0.5, -v.y))
 	return clampf((d - 0.35) * 0.5, 0.0, SHADE_MAX) + (1.0 - lamp_level) * 0.3
 
 
@@ -1317,7 +1326,7 @@ func _pad_tape(sz: Vector2i) -> int:
 ## da ficha aberta), a pauta a 3 px da tela uma linha da outra (`_rows`) com a margem vermelha, a letra de mão (a hora
 ## antes da margem e umas palavras depois, linha sim, linha não: cheia, era ruído), as tiras dos registros pendentes
 ## saindo de baixo dele, por trás (uma por registro, até seis), e o lápis apoiado na folha, em pixel art na tela (torto
-## pela perspectiva, serrilhava).
+## pela perspectiva, serrilhava), largado num lugar a cada ficha registrada (`PENCIL`).
 func _pad_marks(sz: Vector2i) -> void:
 	var t := _pad_tape(sz)
 	var rows := _rows(t + 2.0, sz.y - 3.0, 3.0)
@@ -1351,8 +1360,11 @@ func _pad_marks(sz: Vector2i) -> void:
 		_ci.draw_rect(Rect2(p.x, p.y - up, 5, 1), col.lightened(0.12))   # a beira de cima, na luz
 		_ci.draw_rect(Rect2(p.x + 1, p.y - up + 2, 3, 1), Pal.FORM_RED)
 		_ci.draw_rect(Rect2(p.x, p.y + 1, 6, 1), Color(0, 0, 0, 0.3))   # onde ela entra embaixo do bloco
-	var a := _tex_pt(Vector2(sz.x * 0.5, sz.y - 4)).round()
-	var b := _tex_pt(Vector2(sz.x - 5, t + 5)).round()
+	var at: Array = PENCIL[written % PENCIL.size()]
+	var page := func(f: Vector2) -> Vector2:   # a fração da folha abaixo da fita, na tela
+		return _tex_pt(Vector2(lerpf(4.0, sz.x - 4.0, f.x), lerpf(t + 3.0, sz.y - 3.0, f.y))).round()
+	var a: Vector2 = page.call(at[0])
+	var b: Vector2 = page.call(at[1])
 	var d := (b - a).normalized()
 	_pixel_line(a + Vector2(2, 2), b + d * 7 + Vector2(2, 2), [Color(0, 0, 0, 0.3), Color(0, 0, 0, 0.3)])
 	_pixel_line(a, b, [Color("c4a042"), Color("957622"), Color("67521a")])   # o corpo, amarelo de lápis gasto
@@ -1473,13 +1485,16 @@ func _clipboard_print(sz: Vector2i) -> void:
 
 ## O jornal da manhã dobrado ao meio: papel-jornal amarelado com a foto da primeira página (o céu claro em cima, o
 ## escuro embaixo). O que é risco (o nome, a data, a manchete, as colunas e o vinco) vai por cima, na tela
-## (`_newspaper_print`); a foto era um xadrez em retícula, que a perspectiva virava moiré.
-func _art_newspaper(sz: Vector2i) -> Image:
+## (`_newspaper_print`); a foto era um xadrez em retícula, que a perspectiva virava moiré. Lido (`read`), a última
+## página para cima, sem foto: os classificados e os anúncios em caixa.
+func _art_newspaper(sz: Vector2i, read := false) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
 	img.fill(Pal.NEWSPRINT)   # papel-jornal amarelado (cinza, longe da luz, sumia no escuro)
 	_fr(img, 0, 0, sz.x, 1, Color("e2d6b2"))
 	_fr(img, sz.x - 1, 0, 1, sz.y, Color("a89c78"))
 	_fr(img, 0, sz.y - 1, sz.x, 1, Color("a89c78"))
+	if read:
+		return img
 	var photo := _news_photo(sz)
 	_fr(img, photo.position.x - 1, photo.position.y - 1, photo.size.x + 2, photo.size.y + 2, Color("3e382e"))
 	_fr(img, photo.position.x, photo.position.y, photo.size.x, photo.size.y, Color("938767"))
@@ -1494,7 +1509,11 @@ func _news_photo(sz: Vector2i) -> Rect2i:
 
 ## Por cima do jornal, na tela: o nome numa faixa escura, a linha da data, a manchete grossa em duas linhas, as
 ## colunas de texto miúdo (a da direita embaixo da foto) e o vinco da dobra, cada risco com 1 px da tela (`_rows`).
-func _newspaper_print(sz: Vector2i) -> void:
+## Lido (`read`): o título da seção e os classificados em quatro colunas, com os anúncios em caixa.
+func _newspaper_print(sz: Vector2i, read := false) -> void:
+	if read:
+		_classifieds(sz)
+		return
 	var rows := _rows(2.0, sz.y - 2.0, 1.0)   # a altura no papel de cada px da tela, a partir do nome
 	if rows.size() < 16:
 		return
@@ -1518,3 +1537,30 @@ func _newspaper_print(sz: Vector2i) -> void:
 				w = photo.size.x - (k * 3) % 4
 			_ink(x0, x0 + w - 1.0, y, [Pal.NEWS_INK])
 	_ink(0, sz.x - 1, sz.y / 2.0, [Color("a89c78"), Color("dccfa8")])   # o vinco
+
+
+## A última página do jornal lido (`_newspaper_print`): o título da seção, o fio e quatro colunas de classificados, em
+## linhas de 1 px da tela, uma sim, uma não; em duas delas, um anúncio em caixa.
+func _classifieds(sz: Vector2i) -> void:
+	var rows := _rows(2.0, sz.y - 2.0, 1.0)
+	if rows.size() < 8:
+		return
+	var ink := Color("3a3630")
+	_ink(2, 2 + sz.x * 0.45, rows[1], [ink, ink])   # o título da seção
+	_ink(2, sz.x - 3, rows[4], [ink])
+	var cw := (sz.x - 10) / 4.0
+	for col in 4:
+		var x0 := 2.0 + col * (cw + 2.0)
+		var box: Array = range(7 + col * 3, 11 + col * 3) if col % 2 == 1 else []   # o anúncio em caixa
+		for k in range(6, rows.size() - 1, 2):
+			if k in box:
+				continue
+			_ink(x0, x0 + cw - 1.0 - (k * 5 + col) % 3, rows[k], [Pal.NEWS_INK])
+		if not box.is_empty() and box[-1] < rows.size() - 1:
+			var y0: float = rows[box[0] - 1]
+			var y1: float = rows[box[-1]]
+			_ink(x0, x0 + cw - 1.0, y0, [ink])
+			_ink(x0, x0 + cw - 1.0, y1, [ink])
+			_pixel_line(_tex_pt(Vector2(x0, y0)), _tex_pt(Vector2(x0, y1)), [ink])
+			_pixel_line(_tex_pt(Vector2(x0 + cw - 1.0, y0)), _tex_pt(Vector2(x0 + cw - 1.0, y1)), [ink])
+			_ink(x0 + 2.0, x0 + cw - 3.0, (y0 + y1) / 2.0, [ink, ink])   # o nome do anúncio, em letra grossa

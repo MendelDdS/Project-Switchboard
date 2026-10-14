@@ -943,3 +943,13 @@ Chaves:
     o armário clicável, abrindo e fechando a porta (o guarda-chuva vai com ela); e quem atende os telefones da vista:
     transferida a ligação para o Hotel Estrela ou o Bar do Zé, alguém vai até o telefone e fica nele enquanto a
     conversa dura (a ligação não sabe o número de quem liga: só o lado de quem atende aparece).
+180. #objetos #luz #despacho #calculografo #setores #pixel #saiu
+    Correção do usuário: a entrega dos setores vai ser consequência da história, então nada na mesa anuncia ou data a
+    abertura de um banco (um aviso colado com a data foi sugerido e recusado). Das sugestões revistas: o lápis do bloco
+    de fichas muda de lugar a cada ficha registrada; o jornal, depois de aberto, volta à mesa dobrado mais uma vez, com
+    os classificados para cima e girado para o outro lado; e a fileira da frente da mesa ganhou luz (da poça para a
+    frente, a luz da luminária vai mais longe, no escuro da sala e no de cada objeto). O cartão do despacho na mão
+    entorta os pixels (ampliado 6% por escala, repete uma coluna a cada 16), e as correções foram testadas e saíram:
+    só a sombra se afastando, sem crescer (estranho: puxado para cima, um cartão chega perto); redesenhado 6% maior com
+    as letras do mesmo tamanho; e redesenhado 25% maior com a fonte miúda um pixel maior (4×6). A pedido, ficou a
+    escala de antes, com os pixels tortos na mão.
