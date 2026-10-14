@@ -426,8 +426,8 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   **O contrapeso** (numa roldana embaixo da prateleira, como nas mesas de verdade) puxa cada fio para dentro do buraco
   o tempo todo: encaixado ou na mão, a folga volta mais depressa do que sai (`WEIGHT_TAKE`, contra `HAND_FEED`) e o fio
   fica esticado, entrando no buraco na própria linha, só com a barriga do peso dele, que cresce com o cubo do vão
-  (`SAG`), nunca menos que `BEND_SLACK` (a curva macia saindo da ponteira: com menos, a tomada logo acima do buraco
-  ficava com um gancho nela); no ar, na frente do console, `CORD_SLACK`. Esticado, as dobras do pano ficam em
+  (`SAG`), nunca menos que `BEND_SLACK` (a curva saindo da ponteira), poucos px: a barriga cresce com a raiz da folga
+  vezes o vão (com 10 px, o fio parecia solto, encaixado e na mão); no ar, na frente do console, `CORD_SLACK`. Esticado, as dobras do pano ficam em
   `KINK_PULLED` (inteiras, num fio reto viravam degraus). (Antes, uma folga fixa, maior no FONE, até 52 px: o fio ficava
   mole, deitava na prateleira e passava por cima dos plugs guardados. Uma saída do buraco forçada para cima saiu a
   pedido: o pedaço preso ficava duro e fazia uma barriga logo acima do buraco.) Fio parado por `Cord.SLEEP_STEPS` passos "dorme" (`Cord.sleep` =

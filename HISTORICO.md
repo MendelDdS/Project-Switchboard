@@ -1014,3 +1014,7 @@ Chaves:
     cima e com folga ainda grande: o usuário viu "um fio mole com uma parte dura perto do slot, deixando um bucho", e
     saiu. O brilho do trançado do fio passou para o lado virado para a luz da mesa, à direita (ficou do outro lado
     quando a luz das peças mudou, no item 185).
+188. #cabos
+    O contrapeso mais forte: o fio ainda ficava solto, encaixado e na mão. A folga caiu para poucos px (~1 a 4, pelo
+    vão; era ~10 a 18: a barriga de uma corda presa nas duas pontas cresce com a raiz da folga vezes o vão) e a folga
+    volta para o buraco mais depressa; o fio fica quase reto do buraco ao plug.

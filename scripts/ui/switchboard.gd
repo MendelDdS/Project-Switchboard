@@ -51,7 +51,7 @@ const NEAR_HOLE := 34.0        # solto acima do buraco (a qualquer altura) e com
 ## dele (`SAG`, `BEND_SLACK`).
 const WEIGHT_ACCEL := 1400.0   # px/s²
 const PULL_SPEED := 360.0      # px/s de fio que entra no buraco, no máximo (o atrito na roldana)
-const WEIGHT_TAKE := 0.2
+const WEIGHT_TAKE := 0.35
 const HAND_FEED := 0.08
 const SEAT_LEN := 2.0          # com o fio curto assim e a traseira do plug a SEAT_NEAR px da boca do buraco, ele assenta
 const SEAT_NEAR := 3.0         # (o fio acaba antes de a corda alcançar: o plug ainda arrasta até ali, ou por SEAT_WAIT s)
@@ -94,11 +94,12 @@ const RUB_STILL := 22.0        # px/s: abaixo disso a mão está parada
 const CORD_TONE := [1.0, 1.05, 0.95, 1.02, 0.97, 1.04]
 
 ## A folga do fio esticado pelo contrapeso, além da distância do buraco ao plug: só a barriga do peso dele, que cresce
-## com o cubo do vão (SAG × vão³: ~5 px em 330, ~18 no fio todo), e nunca menos que BEND_SLACK, a curva macia saindo
-## da ponteira (com menos, a tomada logo acima do buraco ficava com um gancho nela). (Antes, uma folga fixa, maior no
+## com o cubo do vão (SAG × vão³: ~1 px em 330, ~4 no fio todo), e nunca menos que BEND_SLACK, para a curva saindo da
+## ponteira. Pouca: a barriga de uma corda presa nas duas pontas cresce com a raiz da folga vezes o vão (10 px de folga
+## em 200 de vão já são ~27 de barriga, e o fio parecia solto, encaixado e na mão). (Antes, uma folga fixa, maior no
 ## FONE, até 52 px: o fio ficava mole, deitava na prateleira e passava por cima dos plugs guardados antes de subir.)
-const SAG := 1.5e-7
-const BEND_SLACK := 10.0
+const SAG := 3e-8
+const BEND_SLACK := 3.0
 const CORD_SLACK := 10.0           # no ar, na frente do console: o peso do fio pendurado puxa a folga pela beira
 const STEP := 1.0 / 90.0
 
