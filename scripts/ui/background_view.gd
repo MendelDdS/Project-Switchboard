@@ -41,6 +41,20 @@ const BAR_DOOR := Vector2(3.85, 4.65)
 const BAR_SWING := 0.3
 const BAR_SEC := 2.4
 const RIM := Color(1.0, 0.8, 0.5)   ## a luz dos postes na beira de quem passa embaixo deles
+## Alguém fuma na varanda do apartamento de vez em quando (`_smoke_t`, posto pelo `Background`): sai pela porta, fica
+## SMOKE_SEC s no gradil, na frente da janela da TV, com a brasa acendendo a cada tragada (`PUFF_EVERY`), e volta.
+const SMOKE_SEC := 40.0
+const PUFF_EVERY := 7.0
+const EMBER := Color(1.0, 0.45, 0.15)
+## O gato de algumas noites (`CAT_NIGHTS` delas, sorteado pela noite, `_cat_plan`): sentado na marquise do hotel ou no
+## gradil da varanda por um tempo, piscando os olhos acesos e mexendo o rabo.
+const CAT_NIGHTS := 0.5
+const CAT_EYES := Color(0.85, 0.9, 0.35)
+const BIKE_SEC := 7.0     ## quanto quem passa de bicicleta leva de um lado ao outro (~4,5 m/s; cada um ±15%)
+## Os telefones da lista que se veem do outro lado da rua (`phones`, posto pelo Main): o Hotel Estrela, no saguão, pela
+## porta embaixo da marquise, e o Bar do Zé, atrás da vitrine. Transferida a ligação para um deles, alguém vem atender.
+const CALLED := [305, 327]
+const PHONE_WALK := 1.6   ## quanto a pessoa leva até o telefone (s)
 const HOTEL_X := -5.8     ## o letreiro do hotel, no prédio do outro lado da esquina
 ## O prédio de tijolos da esquina é de apartamentos: no 3º andar (de `floor` m), uma varanda de `x0` a `x1` (m ao longo
 ## da rua), saindo `deep` m da fachada, com a porta (`door`, de x a y) e a janela da sala (`win`), onde a TV fica ligada.
@@ -110,6 +124,13 @@ const CAR_KINDS := {
 		"win": [Vector2(1.55, 1.45), Vector2(1.7, 2.15), Vector2(2.6, 2.15), Vector2(2.6, 1.45)], "pillars": [],
 		"tops": [Vector3(0.0, 1.4, 1.32), Vector3(1.6, 2.8, 2.3), Vector3(2.95, 6.5, 3.0)], "glass": [Vector4(1.4, 1.4, 1.6, 2.28)],
 		"front": 1.32, "back": 3.0, "trim": [], "doors": [2.55], "wheels": [1.0, 5.3], "wheel": 0.48},
+	# o ônibus da linha da cidade: nunca sorteado, passa nos horários dele (`Background.BUS_TIMES`), mais devagar (`sec`)
+	"onibus": {"weight": 0.0, "sec": 5.0, "pitch": 0.62, "len": 10.5, "wide": 2.5, "belt": 1.5, "lamp": 0.9,
+		"body": [Vector2(0, 0.35), Vector2(0, 2.95), Vector2(0.2, 3.1), Vector2(10.3, 3.1), Vector2(10.5, 2.95), Vector2(10.5, 0.35)],
+		"upper": [Vector2(0, 1.55), Vector2(0, 2.95), Vector2(0.2, 3.1), Vector2(10.3, 3.1), Vector2(10.5, 2.95), Vector2(10.5, 1.55)],
+		"win": [Vector2(0.9, 1.65), Vector2(0.9, 2.7), Vector2(10.1, 2.7), Vector2(10.1, 1.65)], "pillars": [2.15, 3.4, 4.65, 5.9, 7.15, 8.4],
+		"tops": [Vector3(0.1, 10.4, 3.1)], "glass": [],
+		"front": 3.0, "front_glass": Vector2(1.5, 2.75), "back": 2.95, "trim": [1.5], "doors": [1.0, 5.6], "wheels": [2.0, 8.3], "wheel": 0.5},
 }
 ## As cores dos carros, de noite (escurecidas): azul, vinho, bege, verde, branco, cinza, mostarda.
 const CAR_COLORS := [Color("1b2530"), Color("2e1816"), Color("35312a"), Color("18261d"), Color("3c403f"), Color("222228"), Color("362b16")]
@@ -182,6 +203,14 @@ var _near := 0.0         # a vista passa do peitoril de longe para baixo (px de 
 var _cars: Array[Dictionary] = []   # os carros passando lá fora: {"t": de 0 a 1, "lane": em `CAR_LANES`, "kind": em `CAR_KINDS`, "col", "taxi"}
 var _walkers: Array = []   # quem está passando na calçada de lá (`_walker`), na ordem do desenho: os de mais longe primeiro
 var _bar_t := -1.0   # há quanto tempo a porta do bar abriu (s; -1 = fechada)
+var _smoke_t := -1.0   # há quanto tempo alguém saiu para fumar na varanda (s; -1 = ninguém)
+var _cat_for := -1     # a noite do `_cat_plan`
+var _cat_plan := Vector4.ZERO   # o gato desta noite: x 1 se vier, y onde (0 marquise, 1 gradil), de z a w (min do dia)
+var cat_here := false  ## o gato aparece já, a noite toda (a captura de tela)
+var phones := [0, 0]   ## o estado dos telefones de `CALLED`: 0 quieto, 1 tocando (alguém vai atender), 2 na linha
+var _phone_seen := [0, 0]
+var _phone_from := [0, 0]   # o estado de antes (saindo do telefone, a pessoa vai embora)
+var _phone_at := [0.0, 0.0]   # quando o estado mudou (s)
 
 
 ## A vista: céu do clima, morros ao fundo, casas e a igreja com o relógio aceso, a rua com o poste (a silhueta do
@@ -363,6 +392,8 @@ func _draw_city_front(g: Rect2) -> void:
 	_draw_hotel_sign(_hotel_pos(g))
 	_draw_balcony_front(g)
 	_draw_bar_door(g)
+	_draw_phones(g)
+	_draw_cat(g)
 	for w: Dictionary in _walkers:   # passam atrás dos postes e do homem
 		_draw_walker(g, w)
 	for x: float in FAR_LAMPS:
@@ -478,7 +509,7 @@ func _post(g: Rect2) -> Vector2:
 ## Onde está a frente do carro `c` (x, m): entra por um lado da vista e sai pelo outro, no sentido da mão dele.
 func _car_x(c: Dictionary) -> float:
 	var d: float = CAR_LANES[c["lane"]].y
-	return lerpf(16.0, -21.0, c["t"]) * -d
+	return lerpf(16.0, -21.0 - maxf(0.0, CAR_KINDS[c["kind"]]["len"] - 4.5), c["t"]) * -d   # (o comprido sai inteiro da vista)
 
 
 ## O chão: a rua do cruzamento indo embora (com as calçadas e os postes dela, menores com a distância), a nossa calçada
@@ -701,6 +732,148 @@ func _draw_shopfront(g: Rect2) -> void:
 	_light_fan(c, rim, Color(1.0, 0.75, 0.4, 0.2))
 
 
+## Uma silhueta (`parts`: retângulos em metros a partir dos pés, x para o lado e y para cima) em `foot` (px da tela),
+## `k` px por metro, na cor `col`, recortada em `clip` (px da tela; vazio = sem recorte).
+func _figure(foot: Vector2, k: float, parts: Array, col: Color, clip := Rect2()) -> void:
+	for part: Rect2 in parts:
+		var a := Vector2(roundf(part.position.x * k), -roundf((part.position.y + part.size.y) * k))
+		var b := Vector2(roundf(part.end.x * k), -roundf(part.position.y * k))
+		var r := Rect2(foot + a, Vector2(maxf(1.0, b.x - a.x), maxf(1.0, b.y - a.y)))
+		if clip.has_area():
+			r = r.intersection(clip)
+		if r.has_area():
+			_p(r.position.x, r.position.y, r.size.x, r.size.y, col)
+
+
+## As peças de alguém de pé (m, a partir dos pés): andando (as pernas abertas no passo `step` ímpar) ou parado, com o
+## braço do lado de `side` levantado até a orelha (`up`: o fone, o cigarro) ou caído.
+func _body(step: int, walking: bool, up: bool, side := 1.0) -> Array:
+	var parts: Array = [Rect2(-0.2, 0.75, 0.4, 0.68), Rect2(-0.1, 1.43, 0.2, 0.22)]   # o casaco e a cabeça
+	if walking and step % 2 == 0:
+		parts.append_array([Rect2(-0.22, 0.0, 0.13, 0.8), Rect2(0.09, 0.0, 0.13, 0.8)])
+	else:
+		parts.append(Rect2(-0.13, 0.0, 0.26, 0.8))
+	if up:
+		parts.append(Rect2(0.12 * side - 0.04, 1.2, 0.09, 0.42))
+	return parts
+
+
+## Quem atende o telefone do outro lado da rua (`CALLED`, `phones`): enquanto ele toca (só se for atender), a pessoa
+## chega até ele; atendido, fica com o fone na orelha enquanto a conversa dura; desligado, vai embora. No hotel, no
+## saguão, pela porta acesa embaixo da marquise; no bar, atrás da vitrine, contra a luz do salão.
+func _draw_phones(g: Rect2) -> void:
+	var ff: float = STREET["far"]
+	var now := Time.get_ticks_msec() / 1000.0
+	for i in CALLED.size():
+		var st: int = phones[i] if i < phones.size() else 0
+		if st != _phone_seen[i]:
+			_phone_from[i] = _phone_seen[i]
+			_phone_seen[i] = st
+			_phone_at[i] = now
+		var t: float = now - _phone_at[i]
+		var away := 0.0   # 0 no telefone, 1 fora da vista, do lado
+		if st == 1:
+			away = 1.0 - clampf(t / PHONE_WALK, 0.0, 1.0)
+		elif st == 0:
+			if _phone_from[i] == 0 or t > PHONE_WALK:
+				continue
+			away = t / PHONE_WALK
+		var spot := Vector2(HOTEL_X + 0.15, ff + 1.2) if i == 0 else Vector2(CROSSING.y + 2.1, ff + 1.5)   # o telefone (x na fachada, z lá dentro)
+		var clip := Rect2(_o(g, HOTEL_X - 0.6, ff, 2.3) * 2.0, (_o(g, HOTEL_X + 0.6, ff) - _o(g, HOTEL_X - 0.6, ff, 2.3)) * 2.0) if i == 0 \
+			else Rect2(_o(g, CROSSING.y + 0.5, ff, 2.5) * 2.0, (_o(g, CROSSING.y + 2.5, ff, 0.4) - _o(g, CROSSING.y + 0.5, ff, 2.5)) * 2.0)
+		var x := spot.x * spot.y / ff + away * 1.4   # (lá dentro, o x que cai na porta ou na vitrine: mais longe, tudo vai para o ponto de fuga)
+		var foot := (_o(g, x, spot.y) * 2.0).floor()
+		var walking := away > 0.0
+		var parts := _body(int(t * WALK_STEPS * 2.0), walking, st == 2 and not walking, -1.0)
+		_figure(foot, OUT_F / spot.y * 2.0, parts, Color("120a06") if i == 0 else Color(0.17, 0.09, 0.04, 0.9), clip)
+
+
+## O gato da noite (`_cat_plan`, sorteado pela noite: em metade delas, `CAT_NIGHTS`): sentado de frente na marquise do
+## hotel ou no gradil da varanda, os olhos acesos na luz da rua piscando de vez em quando e o rabo mexendo. Uns pixels
+## a mais que no tamanho de verdade (com 3 px, não se via que era um gato).
+func _draw_cat(g: Rect2) -> void:
+	if _cat_for != night:
+		_cat_for = night
+		var rng := RandomNumberGenerator.new()
+		rng.seed = night * 7919 + 13
+		var from := 18 * 60 + rng.randf_range(15.0, 220.0)
+		_cat_plan = Vector4(1.0 if rng.randf() < CAT_NIGHTS else 0.0, float(rng.randi() % 2), from, from + rng.randf_range(40.0, 110.0))
+	if not cat_here and (_cat_plan.x == 0.0 or minutes < _cat_plan.z or minutes > _cat_plan.w):
+		return
+	var at := _o(g, HOTEL_X + 1.1, STREET["far"] - 0.5, 3.0) if _cat_plan.y == 0.0 \
+		else _o(g, APT["x0"] + 0.5, STREET["far"] - APT["deep"], APT["floor"] + 1.05)
+	var o := (at * 2.0).floor() - Vector2(2, 5)   # (px da tela: o canto de cima do desenho, sentado em `at`)
+	var t := Time.get_ticks_msec() / 1000.0
+	var dark := Color("0b0c0f")
+	for p: Vector2i in [Vector2i(0, 0), Vector2i(3, 0), Vector2i(0, 1), Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 1), Vector2i(1, 2), Vector2i(2, 2),
+			Vector2i(0, 3), Vector2i(1, 3), Vector2i(2, 3), Vector2i(3, 3), Vector2i(0, 4), Vector2i(1, 4), Vector2i(2, 4), Vector2i(3, 4)]:
+		_p(o.x + p.x, o.y + p.y, 1, 1, dark)
+	var tail := Vector2(4, 4) if fmod(t, 2.4) < 1.6 else Vector2(4, 3)   # o rabo, mexendo de vez em quando
+	_p(o.x + tail.x, o.y + tail.y, 1, 1, dark)
+	_p(o.x + 5, o.y + tail.y - 1, 1, 1, dark)
+	if fmod(t + _cat_plan.z, 4.3) > 0.15:   # os olhos, piscando
+		_p(o.x + 1, o.y + 1, 1, 1, CAT_EYES)
+		_p(o.x + 2, o.y + 1, 1, 1, CAT_EYES)
+
+
+## Quem fuma na varanda do apartamento (`_smoke_t`): sai pela porta, anda até o gradil, na frente da janela da TV, e
+## fica ali, levando o cigarro à boca a cada `PUFF_EVERY` s (a brasa acende e a fumaça sobe e some), até voltar para
+## dentro. Atrás do gradil (desenhado antes dele).
+func _draw_smoker(g: Rect2) -> void:
+	if _smoke_t < 0.0:
+		return
+	var dz: float = STREET["far"] - APT["deep"]
+	var z := dz + 0.35
+	var door: Vector2 = APT["door"]
+	var spot := (APT["win"] as Vector2).x + 0.4
+	var walk := 2.5
+	var away := 1.0 - clampf(minf(_smoke_t, SMOKE_SEC - _smoke_t) / walk, 0.0, 1.0)   # 1 na porta, 0 no gradil
+	var x := lerpf(spot, (door.x + door.y) / 2.0, away)
+	var k := OUT_F / z * 2.0
+	var foot := (_o(g, x, z, APT["floor"]) * 2.0).floor()
+	var puff := fmod(_smoke_t, PUFF_EVERY)
+	var up := away == 0.0 and puff < 1.2
+	_figure(foot, k, _body(int(_smoke_t * WALK_STEPS * 2.0), away > 0.0, up), Color("07090c"))
+	var ember := foot + (Vector2(0.14, -1.55) if up else Vector2(0.24, -0.85)) * k
+	_p(roundf(ember.x), roundf(ember.y), 1, 1, EMBER if up else EMBER.darkened(0.45))
+	_p(roundf(ember.x) - 1, roundf(ember.y) - 1, 3, 3, Color(EMBER, 0.25 if up else 0.1))
+	if away == 0.0 and puff > 1.2 and puff < 4.0:   # a fumaça da tragada, subindo devagar e sumindo
+		var f := (puff - 1.2) / 2.8
+		for j in 3:
+			var q := foot + Vector2(0.05 + j * 0.06 + f * 0.25, -1.6 - j * 0.08 - f * 0.5) * k
+			_p(roundf(q.x), roundf(q.y), 1, 1, Color(0.7, 0.72, 0.76, 0.35 * (1.0 - f)))
+
+
+## Quem passa de bicicleta (`w`, de `_walker`, com "bike"; `x` onde está): as rodas, o quadro, o ciclista pedalando
+## (as pernas giram com o pé de vela) e a luz fraca do farol na frente. Em px da tela; virado para onde vai.
+func _draw_bike(g: Rect2, w: Dictionary, x: float) -> void:
+	var z: float = w["z"]
+	var k := OUT_F / z * 2.0
+	var s: float = w["dir"]
+	var foot := (_o(g, x, z) * 2.0).floor()
+	var at := func(p: Vector2) -> Vector2: return (foot + Vector2(p.x * s, -p.y) * k).floor()
+	var dark := Color("07090c")
+	var a: float = w["t"] * w["sec"] * TAU * 1.2   # o pé de vela
+	_ci.draw_set_transform(Vector2.ZERO)
+	for wx in [-0.5, 0.5]:   # as rodas
+		_ci.draw_arc(at.call(Vector2(wx, 0.33)), 0.33 * k, 0.0, TAU, 14, dark, 1.0)
+	for seg: Array in [[Vector2(-0.5, 0.33), Vector2(-0.18, 0.85)], [Vector2(-0.18, 0.85), Vector2(0.38, 0.92)], [Vector2(0.38, 0.92), Vector2(0.5, 0.33)],
+			[Vector2(0.0, 0.33), Vector2(-0.18, 0.85)], [Vector2(0.0, 0.33), Vector2(0.38, 0.92)]]:   # o quadro
+		_ci.draw_line(at.call(seg[0]), at.call(seg[1]), dark, 1.0)
+	var hip := Vector2(-0.18, 0.92)
+	var shoulder := Vector2(0.12, 1.45)
+	_ci.draw_line(at.call(hip), at.call(shoulder), dark, maxf(2.0, 0.3 * k))   # o tronco, inclinado
+	_ci.draw_rect(Rect2(at.call(shoulder + Vector2(0.0, 0.25)) - Vector2(0.1, 0.0) * k, Vector2(0.2, 0.22) * k), dark)   # a cabeça
+	_ci.draw_line(at.call(shoulder), at.call(Vector2(0.38, 0.95)), dark, maxf(1.0, 0.08 * k))   # o braço
+	for ph in [0.0, PI]:   # as pernas, cada uma num pedal
+		var pedal := Vector2(0.0, 0.33) + Vector2(cos(a + ph), sin(a + ph)) * 0.17
+		_ci.draw_line(at.call(hip), at.call(pedal), dark, maxf(1.0, 0.12 * k))
+	var lamp: Vector2 = at.call(Vector2(0.42, 0.9))
+	_ci.draw_rect(Rect2(lamp, Vector2.ONE), Color(1.0, 0.9, 0.6, 0.9))
+	_light_fan(lamp, _ring(lamp, 0.25 * k), Color(1.0, 0.85, 0.55, 0.1))
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+
+
 ## A porta do bar, ao lado da vitrine (`BAR_DOOR`): fechada, a madeira com o vidro aceso no alto; quando alguém sai
 ## (`_bar_t`), ela abre para dentro, a luz do salão aparece no vão e sai pela calçada, e ela fecha de novo.
 func _draw_bar_door(g: Rect2) -> void:
@@ -814,6 +987,7 @@ func _draw_balcony_front(g: Rect2) -> void:
 		_r(wa.x, wa.y, we.x - wa.x, we.y - wa.y, glass)
 		_r(we.x - (we.x - wa.x) * 0.25, wa.y, (we.x - wa.x) * 0.25, we.y - wa.y, glass.darkened(0.45))   # a cortina
 		_r(wa.x, wa.y, we.x - wa.x, maxf(PX, 0.15 * OUT_F / ff), glass.darkened(0.5))   # a sombra da verga
+	_draw_smoker(g)
 	var iron := Color("15191c")
 	var x0: float = APT["x0"]
 	var x1: float = APT["x1"]
@@ -908,7 +1082,10 @@ func _add_walker(w: Dictionary) -> void:
 func _draw_walker(g: Rect2, w: Dictionary) -> void:
 	var z: float = w["z"]
 	var x: float = lerpf(-WALK_SPAN, WALK_SPAN, w["t"]) * w["dir"]
-	if absf(_out_x + OUT_F * x / z - g.size.x * 0.5) > g.size.x * 0.5 + OUT_F / z:
+	if absf(_out_x + OUT_F * x / z - g.size.x * 0.5) > g.size.x * 0.5 + OUT_F / z * 2.0:
+		return
+	if w.get("bike", false):
+		_draw_bike(g, w, x)
 		return
 	var steps := int(w["t"] * w["sec"] * WALK_STEPS)
 	var foot := (_o(g, x, z) * 2.0).floor() - Vector2(0, posmod(steps, 2))

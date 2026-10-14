@@ -87,6 +87,10 @@ const WALK_UNTIL := 22.0 * 60.0  ## ...até ninguém mais passar (só o homem do
 const WALK_PAIR := 0.2    ## a chance de virem dois juntos
 const BAR_EVERY := Vector2(25, 70)   ## de quanto em quanto tempo alguém sai do bar (s, sorteado; só enquanto há gente na rua)
 const BAR_OUT := 0.5      ## quando, depois de a porta abrir, a pessoa sai por ela (s)
+const SMOKE_EVERY := Vector2(60, 150)   ## de quanto em quanto tempo alguém sai para fumar na varanda (s; só com o apartamento acordado)
+const BIKE_EVERY := Vector2(70, 160)    ## e alguém passa de bicicleta (só enquanto há gente na rua)
+const BIKE_BELL := 0.4    ## a chance de tocar a campainha
+const BUS_TIMES := [19 * 60 + 5, 20 * 60 + 35, 22 * 60 + 5, 23 * 60 + 20]   ## o ônibus da linha passa nessas horas (min do dia), pela mão de lá
 const LATE_FROM := 22.0 * 60.0   ## a partir de que hora (min do dia) a cidade começa a se calar: menos carros e pedestres
 const LATE_TO := 24.0 * 60.0     ## até quando (aí, os intervalos entre eles chegam a `LATE_EVERY` vezes)
 const LATE_EVERY := 3.0
@@ -118,6 +122,11 @@ const BLIND := 0.12        ## até onde a persiana desce aberta (fração da alt
 ## fechada, tampa a rua, a luz dela na sala e o brilho das luzes de lá.
 const BLIND_SEC := 1.3
 const BLIND_ID := "persiana"
+const CABINET_ID := "armario"   ## o armário: clicado, a porta da direita abre (ou fecha: `cab_open`)
+## A mancha de umidade na quina (`damp`): uma marca de água a mais por noite de chuva, até DAMP_MAX; o alto dela fica
+## DAMP_TOP px abaixo do alto da tela (acima, o bilhete do manual a tampava).
+const DAMP_MAX := 8
+const DAMP_TOP := 40.0
 const X2 := Transform2D(Vector2(2, 0), Vector2(0, 2), Vector2.ZERO)   ## a escala dos px de 2x2 (`_sprite` volta a ela)
 
 @export var window: Control   ## a área das ferramentas: a quina e a janela ficam na parede dela
@@ -137,6 +146,8 @@ var _acc := 0.0
 var _hot := ""         # objeto sob o mouse
 var _lift := Lift.new()   # o objeto erguido (`_up_id`) subindo e assentando
 var _shut := 0.0          # a persiana: 0 aberta, 1 fechada (andando para `_shut_to`)
+var cab_open := false     ## o operador abriu (ou, com ela entreaberta pelo roteiro, fechou) a porta do armário
+var damp := 0             ## as noites de chuva que já passaram (o Main põe, de `Progress.rains`): a mancha de umidade da quina
 var _shut_to := 0.0
 var _blind_rows := -1     # as lâminas desenhadas (`_blind_layer`)
 var _blind_layer: Control   # a persiana, numa camada só dela: desce sem redesenhar a sala
@@ -171,6 +182,9 @@ var _car_in := [20.0, 32.0]          # quanto falta para o próximo de cada mão
 var _car_next := ["", ""]            # o modelo do próximo de cada mão (vazio: sorteado; o painel de debug escolhe)
 var _walk_in := 3.0      # quanto falta para o próximo (s)
 var _bar_in := 12.0      # quanto falta para alguém sair do bar (s)
+var _smoke_in := 40.0    # para alguém sair para fumar (s)
+var _bike_in := 45.0     # para passar uma bicicleta (s)
+var _buses := -1         # quantos horários do ônibus já passaram (-1: ainda não contado)
 var _dog_in := randf_range(15.0, 50.0)   # quanto falta para o próximo latido, contado a partir de `DOG_FROM` (s)
 var _dog_reply := -1.0   # quanto falta para o cachorro que responde (-1 = nenhum)
 var _tolls := 0          # badaladas do sino que faltam bater
@@ -356,7 +370,7 @@ func _process(delta: float) -> void:
 ## dele. Ele vai para a camada dele (`_lifted`), que sobe sem redesenhar a sala: ela só se redesenha quando ele sai da
 ## sala e quando volta, e a camada a cada pixel que ele sobe ou desce (a sombra fica na mesa).
 func _lift_step(delta: float) -> void:
-	var want := _hot if _hot in PROPS and not _cover.has_area() else ""
+	var want := _hot if (_hot in PROPS or _hot == MUG_ID) and not _cover.has_area() else ""
 	if _up_id != "" and want != "" and want != _up_id:   # ponytail: o anterior assenta de uma vez; uma camada por objeto se os dois tiverem de se ver
 		_land()
 	if _up_id == "" and want != "":
@@ -476,7 +490,7 @@ func _show() -> void:
 func _state() -> Array:
 	return [size, board.get_global_rect() if board else Rect2(), desk.get_global_rect() if desk else Rect2(),
 		window.get_global_rect() if window else Rect2(), lamp_level, pending, unread, alert, card_out, news, counting, toll_desk, details, night, weather,
-		snappedf(_shut, 0.25),   # (a luz da rua na mesa e o relâmpago acompanham a persiana em 4 passos)
+		snappedf(_shut, 0.25), cab_open, sips, damp,   # (a luz da rua na mesa e o relâmpago acompanham a persiana em 4 passos)
 		TranslationServer.get_locale()]
 
 
@@ -524,7 +538,7 @@ func _events(delta: float) -> void:
 				CAR_KINDS[kind]["pitch"] * randf_range(0.97, 1.03))   # o de cá, mais perto; cada modelo no tom dele
 	for i in range(_cars.size() - 1, -1, -1):
 		var c := _cars[i]
-		c["t"] += delta / CAR_SEC
+		c["t"] += delta / (CAR_KINDS[c["kind"]] as Dictionary).get("sec", CAR_SEC)
 		if c["t"] >= 1.0:
 			_car_in[c["lane"]] = randf_range(CAR_EVERY.x, CAR_EVERY.y) * rare
 			_cars.remove_at(i)
@@ -538,6 +552,30 @@ func _events(delta: float) -> void:
 			var w2 := _walker()
 			w2.merge({"t": -1.0 / 32.0, "dir": w["dir"], "sec": w["sec"], "z": w["z"] + (0.5 if w["z"] < (STREET["far_curb"] + STREET["far"]) / 2.0 else -0.5)}, true)
 			_add_walker(w2)
+	_smoke_in -= delta
+	if _smoke_in <= 0.0:
+		_smoke_in = randf_range(SMOKE_EVERY.x, SMOKE_EVERY.y)
+		if minutes < TV_OFF and _smoke_t < 0.0:
+			_smoke_t = 0.0
+	if _smoke_t >= 0.0:
+		_smoke_t += delta
+		if _smoke_t >= SMOKE_SEC:
+			_smoke_t = -1.0
+	_bike_in -= delta
+	if _bike_in <= 0.0:
+		_bike_in = randf_range(BIKE_EVERY.x, BIKE_EVERY.y)
+		if crowd > 0.0:   # junto do meio-fio de lá, nos dois sentidos
+			var b := _walker()
+			b.merge({"bike": true, "sec": BIKE_SEC * randf_range(0.85, 1.15), "z": STREET["far_curb"] - 0.6}, true)
+			_add_walker(b)
+			if randf() < BIKE_BELL:
+				Sfx.play_at("bike_bell", x, -4.0)
+	var buses := BUS_TIMES.filter(func(b: int) -> bool: return minutes >= b).size()
+	if buses > _buses and _buses >= 0:   # a hora do ônibus: ele é o próximo da mão de lá (com ela livre, já)
+		_car_next[0] = "onibus"
+		if _cars.all(func(c: Dictionary) -> bool: return c["lane"] != 0):
+			_car_in[0] = 0.0
+	_buses = buses
 	_bar_in -= delta
 	if _bar_in <= 0.0:
 		_bar_in = randf_range(BAR_EVERY.x, BAR_EVERY.y)
@@ -665,6 +703,7 @@ func _draw() -> void:
 	var free := _cx - b.end.x - CAB_W * CAB_T
 	var cab_x := b.end.x + free * CAB_AT
 	_draw_conduit(b, b.end.x + free * CAB_AT * 0.5)
+	_draw_damp()
 	var after := (cab_x + CAB_W * CAB_T + _cx) / 2.0   # o meio do vão depois do armário
 	_draw_calendar(Rect2(floorf(after - 18.5), 62, 37, 28))   # (antes dele: a sombra dele e a porta entreaberta ficam por cima)
 	_draw_steel_cabinet((cab_x - _vp.x) / CAB_T)
@@ -955,13 +994,25 @@ func draw_hover(ci: Control) -> void:
 	if _hot != BLIND_ID and not _props.has(_hot):
 		return
 	var hr: Rect2 = _bounds(_blind_poly) if _hot == BLIND_ID else _props[_hot]
-	var cap := T.text(T.Key.BLIND_OPEN if _shut_to > 0.0 else T.Key.BLIND_CLOSE) if _hot == BLIND_ID \
-		else GameData.date_text(night) if _hot == CALENDAR else T.text(PROPS[_hot])
+	var cap: String
+	match _hot:
+		BLIND_ID:
+			cap = T.text(T.Key.BLIND_OPEN if _shut_to > 0.0 else T.Key.BLIND_CLOSE)
+		CABINET_ID:
+			cap = T.text(T.Key.CABINET_CLOSE if ("armario_entreaberto" in details) != cab_open else T.Key.CABINET_OPEN)
+		MUG_ID:
+			cap = T.text(T.Key.MUG_SIP if sips < MUG_SIPS else T.Key.MUG_EMPTY)
+		CALENDAR:
+			cap = GameData.date_text(night)
+		_:
+			cap = T.text(PROPS[_hot])
 	var tape := ci.get_theme_stylebox("normal", "TapedLabel")
 	var ts := (Pal.ui.get_string_size(cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11) + tape.get_minimum_size()).round()
 	var at := Vector2(clampf(hr.get_center().x - ts.x / 2.0, 6, size.x - ts.x - 6), hr.position.y - ts.y - 6).round()
 	if _hot == BLIND_ID:   # embaixo dela: em cima, o bilhete do manual na parede a tampava
 		at.y = roundf(hr.end.y + 6.0)
+	elif at.y < DAMP_TOP:   # (o armário, alto: a etiqueta vai nele, abaixo do bilhete do manual)
+		at.y = DAMP_TOP
 	var b := Rect2(board.global_position - global_position, board.size) if board else Rect2()
 	if hr.get_center().x > b.end.x and at.x < b.end.x:   # a mesa comutadora fica por cima do cenário: o nome da prancheta, na lateral dela, vai todo para fora
 		at.x = b.end.x + 4.0
@@ -974,10 +1025,12 @@ func draw_hover(ci: Control) -> void:
 func prop_at(p: Vector2) -> String:
 	if _cover.has_point(p):
 		return ""
-	for id in _props:
-		if (_props[id] as Rect2).grow(2).has_point(p):
+	for id in _props:   # o armário por último: os objetos da mesa ficam na frente dele
+		if id != CABINET_ID and (_props[id] as Rect2).grow(2).has_point(p):
 			return id
-	return BLIND_ID if Geometry2D.is_point_in_polygon(p, _blind_poly) else ""
+	if Geometry2D.is_point_in_polygon(p, _blind_poly):
+		return BLIND_ID
+	return CABINET_ID if _props.has(CABINET_ID) and (_props[CABINET_ID] as Rect2).has_point(p) else ""
 
 
 ## O mouse no cenário (o `SceneView` repassa: o cenário fica numa tela própria, fora da árvore da interface).
@@ -990,10 +1043,31 @@ func pointer(e: InputEvent) -> bool:
 		if id in PROPS:
 			prop_clicked.emit(id)
 			return true
-		if id == BLIND_ID:
-			toggle_blind()
-			return true
+		match id:
+			BLIND_ID:
+				toggle_blind()
+			CABINET_ID:
+				cab_open = not cab_open
+				Sfx.play_at("locker", (_props[id] as Rect2).get_center().x / maxf(1.0, size.x))
+			MUG_ID:
+				sip()
+			_:
+				return false
+		return true
 	return false
+
+
+## Um gole do café da caneca, se ainda houver (`sips`): o café baixa e, no último, o vapor some.
+func sip() -> void:
+	if sips < MUG_SIPS:
+		sips += 1
+		Sfx.play_at("gulp", (_props[MUG_ID] as Rect2).get_center().x / maxf(1.0, size.x) if _props.has(MUG_ID) else 0.9)
+
+
+## Se o objeto sob o mouse faz alguma coisa clicado (o cursor vira o dedo): as ferramentas, a persiana, o armário e a
+## caneca com café.
+func pointing() -> bool:
+	return _hot in PROPS or _hot == BLIND_ID or _hot == CABINET_ID or (_hot == MUG_ID and sips < MUG_SIPS)
 
 
 ## O objeto sob o mouse ("" = nenhum).
@@ -1573,7 +1647,8 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 	# o puxador e a fechadura, junto da fresta, na altura da mão
 	var hy := floorf((doors + low) / 2.0)   # na altura da mão: no meio da porta
 	_umbrella = Rect2()
-	if not "armario_entreaberto" in details:   # (antes do puxador: o gancho passa por trás dele) ponytail: com a porta aberta, sem o puxador, o guarda-chuva fica de fora
+	var ajar := ("armario_entreaberto" in details) != cab_open
+	if not ajar:   # (antes do puxador: o gancho passa por trás dele)
 		_draw_umbrella((Vector2(mid + 5.25, hy + 15.5) * 2.0).floor())
 	_r(mid + 4, hy, 2.5, 16, Color("3a3d33"))
 	_r(mid + 4, hy, 2, 15.5, Color("b8b2a2"))
@@ -1585,7 +1660,7 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 			_r(x, y, 1.5, 7, Color("8e897c"))
 			_r(x, y, PX, 7, Color("c9c4b5"))
 			_r(x, y + 3.5, 1.5, PX, Color("4a4840"))
-	if "armario_entreaberto" in details:   # a porta da direita aberta: o vão com as prateleiras e as pastas, a porta de lado
+	if ajar:   # a porta da direita aberta: o vão com as prateleiras e as pastas, a porta de lado
 		var inside := Rect2(mid + 1, doors, f.end.x - mid - 1, f.end.y - doors)
 		var bk := func(p: Vector2) -> Vector2: return _vp + (p - _vp) / CAB_T   # o fundo do armário, na parede
 		var tl := inside.position
@@ -1630,6 +1705,8 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 		draw_line(d1 + Vector2(1, 0), d2 + Vector2(1, 0), steel.darkened(0.45), PX)
 		var rod := d1.lerp(d0, 0.3)   # a haste da fechadura
 		draw_line(rod + Vector2(0, 30), rod + Vector2(0, 52), Color("8e897c"), PX)
+		_draw_umbrella((Vector2(d1.x + 4.0, hy + 15.5) * 2.0).floor())   # o guarda-chuva veio com a porta, pendurado no puxador do lado de fora
+	_props[CABINET_ID] = Rect2(f.position * 2.0, Vector2(f.size.x, _top - f.position.y) * 2.0)   # (o que aparece acima da mesa)
 	if "numero_anotado" in details:   # o número de quem ligou, anotado num bilhete e colado com fita
 		var n := Rect2(f.position.x + 10, doors + 52, 26, 14)
 		_cast(n, 1.01)
@@ -1655,6 +1732,50 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 		_r(n.position.x - 2, n.position.y - 1, 6, 3, Color(1, 1, 1, 0.35))   # a fita
 		_r(n.end.x - 4, n.position.y - 1, 6, 3, Color(1, 1, 1, 0.35))
 	return f
+
+
+## A mancha de umidade na quina, perto da janela, na parede do fundo (o que passa da quina fica atrás da parede da
+## direita): a água entra pela janela e desce pelo canto. Cresce com as noites de chuva que já passaram (`damp`): uma
+## marca de água a mais em volta a cada uma, mais clara (o sal que a água deixa ao secar), e o corpo mais escuro;
+## chovendo hoje, o meio fica molhado, escuro e com uns brilhos. Montada pixel a pixel e guardada (`_damps`).
+func _draw_damp() -> void:
+	var tex := _damp_art(mini(damp, DAMP_MAX), weather == "rain")
+	_ci.draw_set_transform(Vector2.ZERO)
+	_ci.draw_texture(tex, Vector2(floorf(_cx * 2.0) - tex.get_width() + 8.0, DAMP_TOP))
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+
+
+static var _damps := {}
+
+
+func _damp_art(n: int, wet: bool) -> ImageTexture:
+	var key := Vector2i(n, int(wet))
+	if _damps.has(key):
+		return _damps[key]
+	var r := Vector2(12 + n * 4, 18 + n * 7)   # meia largura e meia altura (px)
+	var img := Image.create(int(r.x * 2.0), int(r.y * 2.0), false, Image.FORMAT_RGBA8)
+	var noise := FastNoiseLite.new()
+	noise.seed = 7
+	noise.frequency = 0.06
+	noise.fractal_type = FastNoiseLite.FRACTAL_NONE   # liso: com as oitavas, as marcas viravam pontilhado
+	var body := 0.18 + 0.03 * n   # o corpo da mancha: mais escuro a cada noite
+	for y in img.get_height():
+		for x in img.get_width():
+			var p := Vector2((x - r.x) / r.x, (y - r.y * 0.7) / r.y)   # (mais embaixo do que em cima: a água desce)
+			var d := p.length() + noise.get_noise_2d(x, y) * 0.18
+			if d > 1.0:
+				continue
+			var c := Color(0.03, 0.04, 0.02, body * (0.6 + 0.4 * (1.0 - d)))
+			for k in mini(n + 1, 4):   # as marcas de água, uma por noite, juntas na beira (a de cada noite um pouco mais para dentro; com mais de 4, viravam uma faixa granulada)
+				if absf(d - (1.0 - k * 0.1)) < 0.025:
+					c = Color(0.78, 0.7, 0.5, 0.42)   # (no escuro da quina, só a marca clara aparece)
+			if wet and d < 0.55:   # molhada hoje: o meio escuro, com uns brilhos da luz da janela
+				c = Color(0.0, 0.02, 0.03, 0.5)
+				if noise.get_noise_2d(x * 4.0 + 300.0, y * 4.0) > 0.6:
+					c = Color(0.6, 0.72, 0.85, 0.55)
+			img.set_pixel(x, y, c)
+	_damps[key] = ImageTexture.create_from_image(img)
+	return _damps[key]
 
 
 ## O guarda-chuva do operador pendurado pelo cabo no puxador do armário (`o`: o pé do puxador, px da tela; desenhado
@@ -1749,7 +1870,7 @@ func _draw_dust() -> void:
 ## segundo fio primeiro. Mais visível na luz da luminária.
 func _draw_steam() -> void:
 	var heat := 1.0 - clampf((minutes - SHIFT_START) / STEAM_FOR, 0.0, 1.0)
-	if heat <= 0.0 or _mug_w <= 0.0:
+	if heat <= 0.0 or _mug_w <= 0.0 or sips >= MUG_SIPS:   # (o café acabou)
 		return
 	var t := Time.get_ticks_msec() / 1000.0
 	var rise := _mug_w * 1.6

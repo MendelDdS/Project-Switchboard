@@ -7,6 +7,8 @@ const PLANKS := 6       ## as tábuas do tampo, todas da mesma largura (a câmer
 const POOL_R := 112.0   ## o raio da poça de luz da luminária no tampo
 const SHADE_MAX := 0.3   ## o mais escuro que um objeto da mesa fica, longe da poça de luz (`_shade`)
 const WALL_PAD := 2.0           ## a folga dos objetos da mesa até a parede da direita (x da sala)
+const MUG_ID := "caneca"   ## a caneca: sob o mouse se ergue como os objetos das ferramentas; clicada, um gole (`Background.sip`)
+const MUG_SIPS := 5       ## os goles do café da caneca
 const EDGE_PX := 8.0            ## e a da fileira da frente até a beira da tela (px de 2x2): perto, a parede já passou dela, e o jornal saía cortado
 const PROP_K := 0.75 * 93.0 / 66.0   ## a escala dos objetos da mesa: no tamanho de verdade deles na sala (`_cm`; as listas com 21 cm), maiores que o plug em pé (uns 9 cm)
 ## A unidade de despacho (`_draw_dispatch_unit`, na escala dos objetos, `PROP_K`): largura, altura da base e fundo da
@@ -104,6 +106,7 @@ var toll_desk := []  ## o que está na mesinha do calculógrafo e onde (`Toll.la
 var clock_x := 0.0   ## onde o relógio está na tela (x global): de lá vêm a badalada das horas e a campainha do turno
 var _yaw := 0.0   # quanto o relógio da mesa está girado (rad; `_draw_flip_clock`)
 var _props := {}       # objeto que abre ferramenta -> retângulo dele (px da tela), do último desenho
+var sips := 0   ## os goles já tomados do café: ele baixa na caneca (`_mug_art`) e, acabado, o vapor some
 var _up_id := ""       # o objeto erguido sob o mouse, subindo ou assentando ("" = nenhum): fica na camada dele (`_lifted`), não na sala
 var _lamp_x := 0.0     # onde está a luminária, no meio da tela (px de 2x2): a luz na mesa e a sombra dos objetos dependem dela
 var _zd := Vector2.ZERO   # a frente e o fundo do tampo (z)
@@ -201,6 +204,7 @@ func _draw_desk_props() -> void:
 			_pad_marks)
 	if _here("relogio"):
 		_draw_flip_clock(back[2] + cw / 2.0, _at(0.72))   # logo atrás da caneca (desenhado antes dela)
+	if _here(MUG_ID):
 		_draw_mug(back[2] + cw, _at(0.46), mr, 13 * k)   # mais larga que alta, como as esmaltadas
 	if _here(Tools.TOLL):
 		_draw_calculograph(cx, _at(0.06))   # na linha do bloco de fichas
@@ -887,28 +891,28 @@ func _draw_mug(xc: float, zc: float, rr: float, hh: float) -> void:
 	_mug_w = body.size.x
 	_desk_shadow(PackedVector2Array([body.position + Vector2(0, body.size.y - rb), body.end - Vector2(0, rb), body.end + Vector2(0, rb),
 		Vector2(body.position.x, body.end.y + rb)]))
-	var img := _mug_art(int(body.size.x), int(body.size.y), int(ry), int(rb))
+	var img := _mug_art(int(body.size.x), int(body.size.y), int(ry), int(rb), sips)
 	_ci.draw_texture(img, body.position - Vector2(0, ry), Color.WHITE.darkened(_shade(xc, zc)))
 	var hull := PackedVector2Array()
 	for p in _mug_hulls[Vector4i(int(body.size.x), int(body.size.y), int(ry), int(rb))]:
 		hull.append(p + body.position - Vector2(0, ry))
-	_occ.append(hull)
-	occ_ids.append("caneca")
+	_mark(MUG_ID, _bounds(hull), hull)
 
 
 ## A caneca esmaltada de frente, com `w` de largura e `h` da boca ao pé (px), a boca e o pé em elipses de meia altura
 ## `ry` e `rb`: o corpo sombreado como um cilindro pela luz da luminária (do alto à esquerda: o brilho numa coluna, a
 ## sombra à direita, em tons fixos de pixel art), a borda azul-marinho em volta da boca e o filete dela no pé, o lado de
 ## dentro com o café embaixo (a luz da luminária refletida nele), a alça em C do lado da sombra e duas lascas no esmalte
-## mostrando o ferro. Guardada por tamanho.
+## mostrando o ferro. Guardada por tamanho e pelos goles já tomados (`drunk`: o café mais baixo; acabado, só a borra no fundo).
 static var _mugs := {}
 static var _mug_hulls := {}   # o contorno de cada caneca (px dela), da mesma chave
 
 
-func _mug_art(w: int, h: int, ry: int, rb: int) -> ImageTexture:
-	var key := Vector4i(w, h, ry, rb)
+func _mug_art(w: int, h: int, ry: int, rb: int, drunk: int) -> ImageTexture:
+	var key := [w, h, ry, rb, drunk]
 	if _mugs.has(key):
 		return _mugs[key]
+	var low := float(drunk) / MUG_SIPS   # o quanto o café já baixou
 	var hw := 9   # a alça, para fora do lado direito
 	var img := Image.create(w + hw, h + ry + rb + 1, false, Image.FORMAT_RGBA8)
 	var ramp := [Color("e2dbca"), Color("d3cbb7"), Color("bfb69f"), Color("a49b83"), Color("857c66"), Color("5e5848")]
@@ -938,10 +942,12 @@ func _mug_art(w: int, h: int, ry: int, rb: int) -> ImageTexture:
 			var c: Color = navy[1]
 			if r2 < 0.72:   # dentro do aro
 				c = Color("c9c1ab") if e.x < 0.3 else Color("aea690")   # a parede de dentro, mais escura do lado da sombra
-				var f := Vector2(e.x / 0.78, (e.y - 0.3) / 0.62)   # o café, mais baixo que a boca
+				var f := Vector2(e.x / (0.78 - low * 0.2), (e.y - 0.3 - low * 0.4) / (0.62 - low * 0.3))   # o café, mais baixo que a boca
+				if low >= 1.0:
+					f = Vector2(e.x / 0.4, (e.y - 0.68) / 0.16)   # acabado: a borra no fundo
 				if f.length_squared() < 1.0:
-					c = Color("2e1c10")
-					if f.y > -0.55 and f.y < -0.2 and f.x > -0.55 and f.x < -0.05:
+					c = Color("2e1c10") if low < 1.0 else Color("3a2618")
+					if low < 1.0 and f.y > -0.55 and f.y < -0.2 and f.x > -0.55 and f.x < -0.05:
 						c = Color("4a301c")   # a luz da luminária refletida no café: um risco do lado dela
 			elif e.y < -0.2:
 				c = navy[0]   # o aro, mais claro atrás (pega a luz por cima)
@@ -968,12 +974,15 @@ func _mug_art(w: int, h: int, ry: int, rb: int) -> ImageTexture:
 		img.set_pixel(p.x, p.y + 1, Color("4a443c"))
 	var tex := ImageTexture.create_from_image(img)
 	_mugs[key] = tex
+	var hk := Vector4i(w, h, ry, rb)   # (o contorno não muda com o café)
+	if _mug_hulls.has(hk):
+		return tex
 	var bm := BitMap.new()   # o contorno dela, pelo que não é transparente (o relâmpago não passa por ela)
 	bm.create_from_image_alpha(img)
 	var pts := PackedVector2Array()
 	for poly in bm.opaque_to_polygons(Rect2i(Vector2i.ZERO, img.get_size()), 1.0):
 		pts.append_array(poly)
-	_mug_hulls[key] = Geometry2D.convex_hull(pts)
+	_mug_hulls[hk] = Geometry2D.convex_hull(pts)
 	return tex
 
 

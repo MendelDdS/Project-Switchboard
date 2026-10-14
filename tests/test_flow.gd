@@ -1322,6 +1322,16 @@ func _initialize() -> void:
 	room.pointer(pb)
 	await wait_until(func() -> bool: return room._shut == 0.0, 10.0)
 	ok(not room._glass.is_empty(), "clicada de novo, ela sobe")
+	# a caneca: cada clique, um gole, até acabar o café; o armário: o clique abre e fecha a porta
+	pb.position = (room._props[Background.MUG_ID] as Rect2).get_center()
+	for i in Background.MUG_SIPS + 2:
+		room.pointer(pb)
+	ok(room.sips == Background.MUG_SIPS, "a caneca dá %d goles e acaba" % Background.MUG_SIPS)
+	var cab := room._props[Background.CABINET_ID] as Rect2
+	pb.position = cab.position + Vector2(cab.size.x / 2.0, 30.0)
+	ok(room.prop_at(pb.position) == Background.CABINET_ID and room.pointer(pb) and room.cab_open, "o clique no armário abre a porta")
+	room.pointer(pb)
+	ok(not room.cab_open, "e outro a fecha")
 	# a sala muda pelos marcadores do roteiro, a partir da noite de cada mudança
 	for r in GameData.CONTENT.room:
 		ok(r.detail in Background.DETAILS, "detalhe da sala conhecido: " + r.detail)

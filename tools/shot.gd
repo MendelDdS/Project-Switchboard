@@ -21,6 +21,12 @@ extends Node
 ##   --walk=2,-4            gente parada na calçada de lá, em cada x dado (m ao longo da rua; o 1º poste fica em 1,6)
 ##   --bar                  a porta do bar aberta, com a luz saindo
 ##   --blind=1              a persiana descida (de 0, aberta, a 1, fechada)
+##   --smoke                alguém fumando na varanda (com a tragada a cada `PUFF_EVERY` s)
+##   --cat                  o gato da noite (na marquise ou no gradil, pela noite)
+##   --bike=-2              alguém de bicicleta parado nesse x (m)
+##   --damp=4               a mancha de umidade de 4 noites de chuva
+##   --phones=2,1           os telefones da vista (hotel, bar): 1 tocando, 2 na linha
+##   --sips=3               goles tomados do café · --cabinet: a porta do armário aberta
 ##   --wait=5               segundos antes de capturar (a luminária esquenta em 4)
 ## As do jogo também valem: --weather=rain|fog|clear, --night=N, --seed=N, --lang=en.
 
@@ -128,17 +134,37 @@ func _ready() -> void:
 		m.background._blind_shape()
 		for f in 4:   # (o brilho das luzes vem um quadro depois da camada de cima)
 			await get_tree().process_frame
-	if _args.has("walk") or _args.has("bar"):   # posto de novo a cada quadro, como o carro
+	var room := m.background
+	if _args.has("damp"):
+		room.damp = int(_args["damp"])
+	if _args.has("sips"):
+		room.sips = int(_args["sips"])
+	if _args.has("cabinet"):
+		room.cab_open = true
+	if _args.has("cat"):
+		room.cat_here = true
+	if _args.has("phones"):
+		var st: PackedStringArray = _args["phones"].split(",")
+		for i in st.size():
+			m.exchange.set_dest(Background.CALLED[i], int(st[i]))
+	for f in 12:   # (a sala se redesenha no quadro seguinte; a camada da poeira, a 30 por segundo)
+		await get_tree().process_frame
+	if _args.has("walk") or _args.has("bar") or _args.has("smoke") or _args.has("bike") or _args.has("phones"):   # posto de novo a cada quadro, como o carro
 		var bg := m.background
 		bg._walk_in = INF
-		for f in 12:
+		for f in 60:
 			if _args.has("walk"):
 				bg._walkers.clear()
 				for x in (_args["walk"] as String).split(","):
 					bg._walkers.append({"t": (float(x) + Background.WALK_SPAN) / (2.0 * Background.WALK_SPAN), "dir": 1.0, "sec": 1e9, "z": Background.STREET["far_curb"] + 1.0,
 						"h": 1.0, "hat": true})
+			if _args.has("bike"):
+				bg._walkers.append({"t": (float(_args["bike"]) + Background.WALK_SPAN) / (2.0 * Background.WALK_SPAN), "dir": 1.0, "sec": 1e9,
+					"z": Background.STREET["far_curb"] - 0.6, "h": 1.0, "hat": false, "bike": true})
 			if _args.has("bar"):
 				bg._bar_t = 1.0
+			if _args.has("smoke"):
+				bg._smoke_t = 10.5
 			await get_tree().process_frame
 	_save(vp)
 

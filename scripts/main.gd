@@ -54,6 +54,7 @@ var ending := false
 var flick := false
 
 var _dgen := {}                    ## número -> geração do toque (invalida toques quando o cabo sai)
+var _quiet := {}                   ## número -> o toque dele não vai ser atendido (o lugar fechado): na vista, ninguém vem
 var _sent := {}                    ## EmergencyCall -> último despacho para ela: loc, units, card
 ## Marcadores do "já viu" das dicas de primeira vez (`_teach`); o treinamento os liga quando ensina o mesmo.
 const SAW_SLIPS := "viu_tiras_caderno"
@@ -163,6 +164,8 @@ func _ready() -> void:
 		board.plugged(0, 1)
 	if progress != null and night_no > 1:   # o jornal da manhã, com o que aconteceu na noite anterior
 		set_news(progress.news)
+	if progress != null:
+		background.damp = progress.rains   # a mancha de umidade da sala, das noites de chuva
 	# noite de entrega de um setor: o mapa se abre para o bairro novo na primeira vez que aparece
 	var before := GameData.sectors_for(night_no - 1)
 	if force_sectors.is_empty() and night_no > 1 and before.size() < GameData.sectors.size():
@@ -315,6 +318,7 @@ func _process(delta: float) -> void:
 	background.card_out = not dispatch.machines.can_print()
 	background.tickets = toll.in_slot()   # o calculógrafo da mesa: o bilhete saindo da fenda, os contadores e a mesinha dele
 	background.counting = toll.counters()
+	background.phones = Background.CALLED.map(_phone_state)   # os telefones que se veem do outro lado da rua
 	if not toll.is_visible_in_tree():   # (aberta, ela cobre o da sala, que se redesenharia a cada quadro com um bilhete na mão)
 		background.toll_desk = toll.layout()
 	toll.now = minutes
@@ -531,11 +535,23 @@ func _on_lever(n: int) -> void:
 	_update_call_ui()
 
 
+## O que se vê do telefone `d` do outro lado da rua (`Background.CALLED`): 1 tocando, com alguém indo atender; 2 na
+## linha; 0 quieto (ou tocando num lugar fechado: ninguém vem).
+func _phone_state(d: int) -> int:
+	match exchange.dest(d):
+		Exchange.Dest.RING:
+			return 0 if _quiet.get(d, false) else 1
+		Exchange.Dest.CONN:
+			return 2
+	return 0
+
+
 ## O destino toca; se o cabo sair da tomada ou a chamada cair, para de tocar.
 func _ring_dest(c: PhoneCall, d: int) -> void:
 	var g := cancel_dest_ring(d)
 	var right := str(d) == c.target
 	var closed := right and c.away   # ninguém atende: o operador pode sugerir a alternativa
+	_quiet[d] = closed
 	exchange.set_dest(d, Exchange.Dest.RING)
 	c.set_options([])   # a conversa agora é com o destino; as opções voltam se a transferência for desfeita
 	phone.flash(T.text(T.Key.DISPLAY_RINGING) % d, 60000)
@@ -1208,6 +1224,7 @@ func start_ending() -> void:
 			progress.later = report.later if later else []
 			progress.clues = eavesdrop.clues.map(func(k: Clue): return k.to_dict())
 			progress.grudges = eavesdrop.grudges
+			progress.rains += 1 if weather == "rain" else 0
 			progress.save()
 	await get_tree().create_timer(5.0, false).timeout
 	_ending.play(report, not last)

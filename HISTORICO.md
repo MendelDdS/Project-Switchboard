@@ -932,3 +932,14 @@ Chaves:
 178. #sala
     O gancho do guarda-chuva ficava por cima do puxador do armário: agora passa por trás dele (o guarda-chuva é
     desenhado antes do puxador).
+179. #vista #sala #objetos #som #interface
+    Das sugestões, o usuário quis: alguém fumando na varanda do apartamento de vez em quando (a brasa acende a cada
+    tragada, na frente da janela da TV); um gato em metade das noites, na marquise do hotel ou no gradil da varanda
+    (uns pixels maior que o de verdade: com 3 px não se via que era gato); bicicletas passando junto do meio-fio de lá,
+    às vezes com a campainha, e o ônibus da linha nos horários dele (19h05, 20h35, 22h05, 23h20; sorteado, raro como
+    foi pensado, quase nunca apareceria num turno de 8 minutos); a mancha de umidade na quina, que cresce com as
+    noites de chuva (salvas no progresso) e fica molhada nas noites de chuva (no escuro da quina, só as marcas claras
+    da água aparecem: o corpo escuro sumia); a caneca clicável, um gole por clique até a borra, com o vapor sumindo;
+    o armário clicável, abrindo e fechando a porta (o guarda-chuva vai com ela); e quem atende os telefones da vista:
+    transferida a ligação para o Hotel Estrela ou o Bar do Zé, alguém vai até o telefone e fica nele enquanto a
+    conversa dura (a ligação não sabe o número de quem liga: só o lado de quem atende aparece).

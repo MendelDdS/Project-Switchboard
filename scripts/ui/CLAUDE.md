@@ -24,7 +24,17 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   sem ela, de chapéu ou não), em silhueta contra as luzes (`WALK_*`, `WALK_STEPS`, `_draw_walker`; perto de um poste,
   a luz dele acende a beira de cima e o lado virado para ele, `RIM`, só o lado nas peças finas; na chuva, eles se
   espelham na calçada molhada, apagados e sumindo para baixo; de vez em quando alguém sai do bar: a porta ao lado da
-  vitrine abre, a luz do salão sai pela calçada e a pessoa segue junto das fachadas, `BAR_*`, `_bar_t`, `_draw_bar_door`; sem som: os
+  vitrine abre, a luz do salão sai pela calçada e a pessoa segue junto das fachadas, `BAR_*`, `_bar_t`, `_draw_bar_door`;
+  de vez em quando alguém fuma na varanda do apartamento, na frente da janela da TV, com a brasa acendendo a cada
+  tragada, `SMOKE_*`, `_smoke_t`, `_draw_smoker`; em metade das noites, sorteadas pela noite, um gato sentado na
+  marquise do hotel ou no gradil da varanda, piscando os olhos, `CAT_NIGHTS`, `_draw_cat`, uns pixels a mais que o
+  tamanho de verdade; bicicletas junto do meio-fio de lá, às vezes com a campainha, `BIKE_*`, `_draw_bike`, nos
+  `_walkers` com "bike"; o ônibus da linha passa nos horários dele, `BUS_TIMES`, pela mão de lá, um modelo de
+  `CAR_KINDS` nunca sorteado e mais lento, `sec`; **a vista mostra os telefones da lista** que se veem dela,
+  `CALLED`: transferida a ligação para o Hotel Estrela ou o Bar do Zé, alguém vai até o telefone enquanto ele toca
+  (num lugar fechado ninguém vem, `Main._quiet`) e fica com o fone na orelha enquanto a conversa dura, no saguão,
+  pela porta, e atrás da vitrine do bar, `phones`, `Main._phone_state`, `_draw_phones`; a ligação não sabe o número de
+  quem liga, então só o lado de quem atende aparece; sem som: os
   passos, de dentro do prédio, não se ouviriam, e saíram a pedido), cada vez menos das 18h às 22h (`WALK_FROM`/`WALK_UNTIL`) e, daí em diante,
   ninguém; **o homem do mistério chega andando** pela calçada (`MAN_FROM`), fica parado embaixo do poste da esquina
   15 min de jogo (de `Main.SHADOW_LEAD` a `SHADOW_LEAVE` antes da ligação desconhecida: sai para ir ligar;
@@ -135,7 +145,9 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   larga ele fugia dos objetos e as listas apareciam bem de lado; no meio exato das fileiras, a parede da janela
   entrava pela mesa e espremia os objetos). **A sala se distribui na largura que tiver**: entre a mesa comutadora e a
   quina, o armário (`CAB_W`; `CAB_AT` da parede livre antes dele, com o conduíte no meio desse vão) e, depois dele, a
-  folhinha com o lugar do cartaz em cima (`POSTER_W`), no meio do vão até a quina; os objetos da mesa em duas
+  folhinha com o lugar do cartaz em cima (`POSTER_W`), no meio do vão até a quina; na quina, a mancha de umidade,
+  que cresce com as noites de chuva (`damp`, de `Progress.rains`; uma marca de água clara por noite na beira, até 4;
+  chovendo, o meio molhado e com brilhos; `_draw_damp`, `_damp_art`); os objetos da mesa em duas
   fileiras de ponta a ponta entre a lateral da mesa comutadora e a parede da direita (`_row`, `WALL_PAD`; a da frente
   para na beira da tela, `EDGE_PX`, porque perto a parede já passou dela e o jornal saía cortado), com a mesma folga entre eles e antes do primeiro
   (encostados na mesa comutadora, pareciam apertados); na da frente, o calculógrafo fica no meio da unidade de despacho,
@@ -155,7 +167,9 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   linha escura embaixo: com elas parecia um chão), com um conduíte de ferro levando os fios do alto do painel da mesa comutadora
   para o teto, com a caixa de passagem (`_draw_conduit`, no vão entre ela e o armário), e um armário
   de aço de chão (`_draw_steel_cabinet`, `CAB_*`; com o guarda-chuva do operador pendurado pelo cabo no puxador,
-  `_draw_umbrella`, molhado na chuva, com a água escorrendo na camada da poeira, `_draw_drips`; um casaco não cabe na
+  `_draw_umbrella`, molhado na chuva, com a água escorrendo na camada da poeira, `_draw_drips`; clicado, a porta da
+  direita abre e fecha, `CABINET_ID`, `cab_open`, ao contrário do que o roteiro deixou, e o guarda-chuva vai com ela,
+  pendurado do lado de fora; um casaco não cabe na
   escala da sala: tem a largura do armário; a mesa esconde a base; ~1,5 m, o alto acima dos olhos, então o tampo
   não aparece; venezianas em cima e embaixo, o puxador no meio da altura, um amassado e riscos perto do pé; entreaberto, o vão tem fundo, a parede de dentro virada para quem olha, prateleiras até a mesa, as de
   cima mostrando o lado de baixo e as de baixo o tampo, e pastas em pé, e a porta aberta mostra o painel de dentro e a espessura); a parede da direita, entrando para o fundo
@@ -455,7 +469,9 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   rádio, parafusos do console, alfinete do mapa, emblemas, rebites, tachinha, fechadura); a caneca é uma caneca esmaltada montada pixel a pixel numa imagem (`_mug_art`: o
   cilindro em tons fixos pela luz do alto à esquerda, a borda azul-marinho, a boca e o pé em elipses pela câmera, o
   café com a luz refletida, a alça em C do lado da sombra e lascas no esmalte), com o vapor subindo na camada da poeira
-  (`_draw_steam`), que some com as horas porque o café esfria (`STEAM_FOR`); o painel do operador nos parafusos e o `Bloom` no miolo das luzes redondas. Beira das peças e do
+  (`_draw_steam`), que some com as horas porque o café esfria (`STEAM_FOR`); sob o mouse ela se ergue como os objetos
+  das ferramentas e, clicada, é um gole (`Background.sip`, som `gulp`): o café baixa (`sips`, `MUG_SIPS`) e, acabado,
+  fica a borra no fundo e o vapor some; o painel do operador nos parafusos e o `Bloom` no miolo das luzes redondas. Beira das peças e do
   móvel em `EDGE_DARK` (marrom quase preto), não preto. Os plugs também são pixel art, no acabamento do relógio
   da mesa (abaixo). **O encaixe é um mapa de pixels** (`JACK_ART`, 14×14, menor que o `JACK`, com o furo escuro de 6 px, a largura da luva do plug, e o aro da largura do corpo dele: com 16 e o furo de 8, na medida do plug antigo, ficava grande; com 12, o níquel de 2 px era fino demais; `art`: um caractere por pixel e a
   paleta, `_jack_pal`; o mesmo da branch 2×2, pela referência do usuário): aro niquelado de 3 pixels com os tons
