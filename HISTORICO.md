@@ -914,3 +914,21 @@ Chaves:
     o carro da mão de cá virava uma laje (o teto, de cima, cortado pelo peitoril): a nossa calçada ficou mais larga e
     os olhos lá fora desceram de 4,5 para 3,8 m. A travessa do caixilho saiu (fica só o montante), o peitoril de dentro
     ficou mais estreito (`SILL_D` 5, era 9) e a folhinha saiu da porta do armário para a parede, entre ele e a quina.
+176. #sala #objetos #vista #janela #interface #som #saiu
+    As sugestões do cenário: quem passa embaixo de um poste ganha a luz dele na beira (cima e o lado virado para ele;
+    no guarda-chuva, que é fino, só o lado: aceso no alto, virava um bloco bege), na chuva quem passa se espelha na
+    calçada molhada, a porta do bar ao lado da vitrine abre de vez em quando, com a luz do salão saindo pela calçada,
+    e alguém sai por ela; e o guarda-chuva do operador pendurado pelo cabo no puxador do armário, molhado e escorrendo
+    nas noites de chuva. O casaco da sugestão ficou de fora: na escala da sala ele tem a largura do armário e cobriria
+    a folhinha, a janela ou o próprio armário. Ajustes: o armário e o conduíte mais para a direita (longe da mesa
+    comutadora), o jornal mais para a esquerda e inteiro na tela (a fileira da frente para na beira dela), a janela
+    mais alta (o peitoril desceu mais 3 cm) e a rua vazia embaixo do arbusto coberta por uma cerca viva até o batente.
+    Extra: um clique na persiana a fecha, descendo lâmina a lâmina até o peitoril, e outro a abre; fechada, ela tampa
+    a rua, a luz dela na sala e o brilho das luzes de lá.
+177. #vista
+    Quem passava aparecia e sumia de uma vez na beira esquerda do vidro: com a rua mais perto, o vidro mostra uns 11,5 m
+    para cada lado, e eles andavam só de -11 a 11 m. Voltaram a andar de -16 a 16 m (`WALK_SPAN`), entrando e saindo
+    por trás dos batentes; o homem do mistério também vem de mais longe (`MAN_FROM` 14).
+178. #sala
+    O gancho do guarda-chuva ficava por cima do puxador do armário: agora passa por trás dele (o guarda-chuva é
+    desenhado antes do puxador).

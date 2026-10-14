@@ -21,7 +21,10 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   cá, `car_near`/`car_wet_near`, mais claro, com mais Doppler e a passagem mais concentrada, `WET_NEAR`,
   `CAR_NEAR_SHARP`; cada um em `CAR_TAKES` versões, `id~1`..., sorteadas ao tocar, `Sfx._take`); gente passa a pé pela calçada de lá, várias ao mesmo tempo e às vezes
   em dupla (`_walkers`, `_walker`: cada um com o seu passo, altura e distância das fachadas; guarda-chuva na chuva e,
-  sem ela, de chapéu ou não), em silhueta contra as luzes (`WALK_*`, `WALK_STEPS`, `_draw_walker`; sem som: os
+  sem ela, de chapéu ou não), em silhueta contra as luzes (`WALK_*`, `WALK_STEPS`, `_draw_walker`; perto de um poste,
+  a luz dele acende a beira de cima e o lado virado para ele, `RIM`, só o lado nas peças finas; na chuva, eles se
+  espelham na calçada molhada, apagados e sumindo para baixo; de vez em quando alguém sai do bar: a porta ao lado da
+  vitrine abre, a luz do salão sai pela calçada e a pessoa segue junto das fachadas, `BAR_*`, `_bar_t`, `_draw_bar_door`; sem som: os
   passos, de dentro do prédio, não se ouviriam, e saíram a pedido), cada vez menos das 18h às 22h (`WALK_FROM`/`WALK_UNTIL`) e, daí em diante,
   ninguém; **o homem do mistério chega andando** pela calçada (`MAN_FROM`), fica parado embaixo do poste da esquina
   15 min de jogo (de `Main.SHADOW_LEAD` a `SHADOW_LEAVE` antes da ligação desconhecida: sai para ir ligar;
@@ -131,9 +134,10 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   quina (perto dos objetos: a inclinação deles cresce com a distância a ele; preso à largura da tela, numa janela
   larga ele fugia dos objetos e as listas apareciam bem de lado; no meio exato das fileiras, a parede da janela
   entrava pela mesa e espremia os objetos). **A sala se distribui na largura que tiver**: entre a mesa comutadora e a
-  quina, o armário (`CAB_W`) e o lugar do cartaz (`POSTER_W`) com a mesma folga entre eles; os objetos da mesa em duas
-  fileiras de ponta a ponta entre a lateral da mesa comutadora e a parede da direita (`_row`, `WALL_PAD`; a da frente para
-  `EDGE_PAD` antes, porque perto a parede já passou da beira da tela), com a mesma folga entre eles e antes do primeiro
+  quina, o armário (`CAB_W`; `CAB_AT` da parede livre antes dele, com o conduíte no meio desse vão) e, depois dele, a
+  folhinha com o lugar do cartaz em cima (`POSTER_W`), no meio do vão até a quina; os objetos da mesa em duas
+  fileiras de ponta a ponta entre a lateral da mesa comutadora e a parede da direita (`_row`, `WALL_PAD`; a da frente
+  para na beira da tela, `EDGE_PX`, porque perto a parede já passou dela e o jornal saía cortado), com a mesma folga entre eles e antes do primeiro
   (encostados na mesa comutadora, pareciam apertados); na da frente, o calculógrafo fica no meio da unidade de despacho,
   alinhado com ela, e o bloco de fichas e o jornal se distribuem do fim dele até a parede. Os lugares do cartaz e do jornal ficam guardados mesmo sem eles, para nada mudar entre as noites.
   (Presos a uma ponta só, sobrava mesa vazia numa janela larga; presos a pontas diferentes, o relógio caía em cima do
@@ -150,11 +154,19 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   deles na sala ficaram as de verdade (a prancheta mais funda que larga). Na sala: a parede do fundo (sem rodapé nem
   linha escura embaixo: com elas parecia um chão), com um conduíte de ferro levando os fios do alto do painel da mesa comutadora
   para o teto, com a caixa de passagem (`_draw_conduit`, no vão entre ela e o armário), e um armário
-  de aço de chão (`_draw_steel_cabinet`, `CAB_*`; a mesa esconde a base; ~1,5 m, o alto acima dos olhos, então o tampo
+  de aço de chão (`_draw_steel_cabinet`, `CAB_*`; com o guarda-chuva do operador pendurado pelo cabo no puxador,
+  `_draw_umbrella`, molhado na chuva, com a água escorrendo na camada da poeira, `_draw_drips`; um casaco não cabe na
+  escala da sala: tem a largura do armário; a mesa esconde a base; ~1,5 m, o alto acima dos olhos, então o tampo
   não aparece; venezianas em cima e embaixo, o puxador no meio da altura, um amassado e riscos perto do pé; entreaberto, o vão tem fundo, a parede de dentro virada para quem olha, prateleiras até a mesa, as de
   cima mostrando o lado de baixo e as de baixo o tampo, e pastas em pé, e a porta aberta mostra o painel de dentro e a espessura); a parede da direita, entrando para o fundo
   a partir da quina (`CORNER` da área das ferramentas, `Background.window`), mais clara (virada para a luminária),
   com a janela vista de lado (`_draw_side_wall`, `_side_pt`: guarnição, caixilho e persiana na perspectiva da parede;
+  **a persiana fecha e abre com um clique** (`toggle_blind`, `BLIND_ID`, a etiqueta diz "Fechar/Abrir a persiana"),
+  descendo lâmina a lâmina até o peitoril em `BLIND_SEC`, com o barulho das lâminas, som `blind`; ela fica numa
+  camada só dela, `_blind_layer`, `_draw_blind`, e a cada lâmina (`_blind_shape`) a camada de cima se redesenha: o
+  vidro que aparece, `_glass`, encolhe, o brilho azul da janela some e as luzes de lá atrás dela não brilham,
+  `_behind_blind`; a sala, só em quatro passos, para a luz da rua na mesa e o relâmpago, `_state`; fechada, o
+  relâmpago entra 85% mais fraco;
   só o montante no caixilho: a travessa saiu, a pedido; a janela começa quase na quina, `SIDE_T`, e vai até perto da
   borda da tela;
   o vão tem a espessura dela, `WALL_D`: sair da parede é andar na horizontal da tela, então aparecem o lado de dentro
@@ -270,7 +282,8 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   do cruzamento e a igreja ficavam atrás dele): para ele fogem só as linhas
   que vão para longe (a rua do cruzamento e as paredes dela); a rua, os meios-fios e as fachadas de frente ficam na
   horizontal e as paredes na vertical, com a base apoiada na calçada. A diagonal da janela é só do primeiro plano (o arbusto plantado junto da nossa parede também: a copa sobe do
-  peitoril posta pela parede da sala, `_side_pt`, não pela câmera da vista, `SHRUB`, `_draw_shrub`) e não
+  peitoril posta pela parede da sala, `_side_pt`, não pela câmera da vista, `SHRUB`, `_draw_shrub`, com a cerca viva
+  embaixo, até o batente de perto, `HEDGE`: sem ela sobrava a rua vazia entre a copa e o peitoril) e não
   entra na conta, e nada da vista encosta no nosso prédio: a nossa calçada, o nosso meio-fio e uma faixa de pedestres
 saindo deles diziam para que lado a nossa parede vai, contra a sala (a parede parecia torta); perto, a rua some na
 sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x, z, h)`: `x` ao longo da rua, `z` a distância dos

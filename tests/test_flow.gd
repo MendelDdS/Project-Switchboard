@@ -1308,6 +1308,20 @@ func _initialize() -> void:
 	ok(m.tools.open and m.tools.tab == Tools.NEWS, "o jornal na mesa abre")
 	ok(m.tools.news.get_node("Page/Text/Lead").text.contains("Rua do Sol"), "o jornal traz as manchetes da noite anterior")
 	m.tools.close()
+	# a persiana: clicada, desce até o peitoril e tampa o vidro; clicada de novo, sobe
+	await frames(12)
+	var room := m.background
+	var pb := InputEventMouseButton.new()
+	pb.button_index = MOUSE_BUTTON_LEFT
+	pb.pressed = true
+	pb.position = room._bounds(room._blind_poly).get_center()
+	ok(room.prop_at(pb.position) == Background.BLIND_ID and room.pointer(pb) and room._shut_to == 1.0, "o clique na persiana a fecha")
+	await wait_until(func() -> bool: return room._shut == 1.0, 10.0)
+	ok(room._glass.is_empty(), "fechada, ela tampa o vidro")
+	pb.position = room._bounds(room._blind_poly).get_center()
+	room.pointer(pb)
+	await wait_until(func() -> bool: return room._shut == 0.0, 10.0)
+	ok(not room._glass.is_empty(), "clicada de novo, ela sobe")
 	# a sala muda pelos marcadores do roteiro, a partir da noite de cada mudança
 	for r in GameData.CONTENT.room:
 		ok(r.detail in Background.DETAILS, "detalhe da sala conhecido: " + r.detail)

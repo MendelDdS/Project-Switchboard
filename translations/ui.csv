@@ -183,6 +183,8 @@ TAB_LOGBOOK,Fichas,Log sheets,Fichas
 TAB_CALL_LOG,Registro,Call log,Registro
 TAB_NEWS,Jornal da manhã,Morning paper,Diario de la mañana
 TAB_TOLL,Calculógrafo,Toll timer,Tarificador
+BLIND_CLOSE,Fechar a persiana,Close the blind,Bajar la persiana
+BLIND_OPEN,Abrir a persiana,Open the blind,Subir la persiana
 NEWS_MASTHEAD,Gazeta de São Sotero,Gazeta de São Sotero,Gazeta de São Sotero
 NEWS_EDITION,Edição da manhã · %s,Morning edition · %s,Edición de la mañana · %s
 BOOK_BACK,◀ Voltar,◀ Back,◀ Atrás

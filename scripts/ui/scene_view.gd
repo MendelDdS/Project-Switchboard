@@ -33,7 +33,8 @@ func _has_point(p: Vector2) -> bool:
 func _gui_input(e: InputEvent) -> void:
 	if _bg.pointer(e):
 		accept_event()
-	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if _bg.hot() in Background.PROPS else Control.CURSOR_ARROW
+	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if _bg.hot() in Background.PROPS or _bg.hot() == Background.BLIND_ID \
+		else Control.CURSOR_ARROW
 	queue_redraw()
 
 

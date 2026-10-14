@@ -15,9 +15,12 @@ extends Node
 ##   --toll                 um interurbano contando no calculógrafo, dois bilhetes na mesa (um carimbado) e três na caixinha
 ##   --clues                palavras-chave ouvidas (uma marcada, uma riscada, uma ouvida duas vezes) e a lista nas anotações
 ##   --screen=id            uma tela por cima: intro (a de início), pause, settings, report (o relatório com advertências)
-##   --hover=id             o mouse em cima do objeto da mesa (os ids de `Tools`): o contorno e o nome
+##   --hover=id             o mouse em cima do objeto da mesa (os ids de `Tools`): ele erguido e a etiqueta com o nome
 ##   --zoom=x,y,w,h         o recorte, em px do jogo, ampliado `ZOOM` vezes
 ##   --car=fusca            um carro de cada modelo dado (vírgulas) parado na rua lá fora, um em cada mão (--car_t=0.45: onde, de 0 a 1)
+##   --walk=2,-4            gente parada na calçada de lá, em cada x dado (m ao longo da rua; o 1º poste fica em 1,6)
+##   --bar                  a porta do bar aberta, com a luz saindo
+##   --blind=1              a persiana descida (de 0, aberta, a 1, fechada)
 ##   --wait=5               segundos antes de capturar (a luminária esquenta em 4)
 ## As do jogo também valem: --weather=rain|fog|clear, --night=N, --seed=N, --lang=en.
 
@@ -118,6 +121,24 @@ func _ready() -> void:
 					continue
 				m.background._cars.append({"t": float(_args.get("car_t", "0.45")), "lane": lane, "kind": kinds[lane % kinds.size()],
 					"col": Background.CAR_COLORS[lane + 1], "taxi": false})
+			await get_tree().process_frame
+	if _args.has("blind"):
+		m.background._shut = float(_args["blind"])
+		m.background._shut_to = m.background._shut
+		m.background._blind_shape()
+		for f in 4:   # (o brilho das luzes vem um quadro depois da camada de cima)
+			await get_tree().process_frame
+	if _args.has("walk") or _args.has("bar"):   # posto de novo a cada quadro, como o carro
+		var bg := m.background
+		bg._walk_in = INF
+		for f in 12:
+			if _args.has("walk"):
+				bg._walkers.clear()
+				for x in (_args["walk"] as String).split(","):
+					bg._walkers.append({"t": (float(x) + Background.WALK_SPAN) / (2.0 * Background.WALK_SPAN), "dir": 1.0, "sec": 1e9, "z": Background.STREET["far_curb"] + 1.0,
+						"h": 1.0, "hat": true})
+			if _args.has("bar"):
+				bg._bar_t = 1.0
 			await get_tree().process_frame
 	_save(vp)
 

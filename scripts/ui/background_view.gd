@@ -8,7 +8,8 @@ const CHURCH_DARK := 22 * 60   ## a porta da igreja apaga
 const SKY := {"rain": Color("0b141c"), "fog": Color("1b252b"), "clear": Color("0a1422")}
 const RAIN_STREAK := Vector2(6.0, 14.0) ## o comprimento do risco (px da tela), do mais longe ao mais perto: o rastro do quadro
 const RAIN_SLANT := 0.18 ## o vento: quanto o pingo anda para a esquerda a cada px que cai
-const WALK_SEC := 12.0    ## quanto leva atravessando a vista (~1,8 m/s, de 11 m a 11 m; cada um ±20%)
+const WALK_SPAN := 16.0   ## de onde a onde quem passa anda (m dos dois lados do meio): fora do vidro, para entrar e sair pelas beiras dele (com 11, nascia e sumia no vidro)
+const WALK_SEC := 18.0    ## quanto leva atravessando (~1,8 m/s, de 16 m a 16 m; cada um ±20%)
 const WALK_STEPS := 2.2   ## passos por segundo (as pernas alternam nesse ritmo)
 ## A vista é uma cena 3D simples projetada para o vidro (pensada antes, não elemento por elemento): uma câmera dentro
 ## do prédio, na altura de quem está na janela (`OUT_EYE` m acima da rua: o horizonte passa ali), olhando para fora,
@@ -31,9 +32,15 @@ const STREET := {"curb": 2.8, "lane": 5.2, "far_curb": 7.6, "far": 9.4}   # (era
 const CROSSING := Vector2(-3.7, 1.2)   ## a rua do cruzamento, indo embora entre os prédios de lá (x, m)
 const FAR_LAMPS := [1.6, -10.4, 11.6]  ## os postes da calçada de lá (x, m): o primeiro na esquina do prédio de tijolos, com o homem
 const MAN_X := 2.1        ## onde o homem fica, embaixo do poste da esquina
-const MAN_FROM := 10.0    ## de onde ele vem pela calçada (x, m; fora da vista) e para onde volta
+const MAN_FROM := 14.0    ## de onde ele vem pela calçada (x, m; fora do vidro) e para onde volta
 const MAN_WALK := 6.0     ## quanto ele leva andando de lá até o poste (min de jogo: ~8 s, ~1,6 m/s)
 const MAN_STRIDE := 0.75  ## o passo dele (m)
+## A porta do bar, ao lado da vitrine (de x a y, m): de vez em quando alguém sai por ela (`_bar_t`, posto pelo
+## `Background`); ela abre em BAR_SWING s, fica aberta e fecha, em BAR_SEC s ao todo.
+const BAR_DOOR := Vector2(3.85, 4.65)
+const BAR_SWING := 0.3
+const BAR_SEC := 2.4
+const RIM := Color(1.0, 0.8, 0.5)   ## a luz dos postes na beira de quem passa embaixo deles
 const HOTEL_X := -5.8     ## o letreiro do hotel, no prédio do outro lado da esquina
 ## O prédio de tijolos da esquina é de apartamentos: no 3º andar (de `floor` m), uma varanda de `x0` a `x1` (m ao longo
 ## da rua), saindo `deep` m da fachada, com a porta (`door`, de x a y) e a janela da sala (`win`), onde a TV fica ligada.
@@ -125,6 +132,7 @@ const CAR_DEPTH := 0.4
 ## parede dela (não na vista). O meio e a meia largura (fração da largura do vão) e quanto a copa sobe acima do
 ## peitoril (fração da altura).
 const SHRUB := Vector3(0.62, 0.15, 0.11)
+const HEDGE := 110   ## as folhas da cerca viva embaixo dela, até o batente de perto (sem ela, sobrava a rua vazia entre a copa e o peitoril)
 ## As rajadas de vento no arbusto: as duas ondas lentas que as fazem (rad/s) e quanto elas empurram a copa para a
 ## esquerda (px da tela no alto dela).
 const GUST := Vector3(0.23, 0.071, 2.5)
@@ -148,7 +156,7 @@ const FOG_WISPS := 9     ## os fiapos passando pela rua
 ## O peitoril (cm abaixo dos olhos): uns 24 cm acima do tampo, como numa sala de verdade (desce pouco: a parede fica a
 ## uns 70 cm da cabeça). Com os olhos acima da tela e o peitoril 38 cm abaixo deles, a janela descia uns 40° e parecia
 ## vista de cima.
-const WIN_SILL := 36.0
+const WIN_SILL := 39.0
 const WALL_D := 16.0        ## a espessura da parede (para fora, nas unidades da parede do fundo): o vidro fica do lado de fora
 
 var _spray_rng := RandomNumberGenerator.new()   # o sorteio do borrifo dos pneus (`_spray`), sem criar um a cada quadro
@@ -173,6 +181,7 @@ var _car_z := 0.0   # desenhando um carro: o meio da mão dele (m), onde a profu
 var _near := 0.0         # a vista passa do peitoril de longe para baixo (px de 2x2): a parte de perto da janela, mais alta na tela, mostra a calçada embaixo dela
 var _cars: Array[Dictionary] = []   # os carros passando lá fora: {"t": de 0 a 1, "lane": em `CAR_LANES`, "kind": em `CAR_KINDS`, "col", "taxi"}
 var _walkers: Array = []   # quem está passando na calçada de lá (`_walker`), na ordem do desenho: os de mais longe primeiro
+var _bar_t := -1.0   # há quanto tempo a porta do bar abriu (s; -1 = fechada)
 
 
 ## A vista: céu do clima, morros ao fundo, casas e a igreja com o relógio aceso, a rua com o poste (a silhueta do
@@ -353,6 +362,7 @@ func _draw_city_front(g: Rect2) -> void:
 		return
 	_draw_hotel_sign(_hotel_pos(g))
 	_draw_balcony_front(g)
+	_draw_bar_door(g)
 	for w: Dictionary in _walkers:   # passam atrás dos postes e do homem
 		_draw_walker(g, w)
 	for x: float in FAR_LAMPS:
@@ -691,6 +701,30 @@ func _draw_shopfront(g: Rect2) -> void:
 	_light_fan(c, rim, Color(1.0, 0.75, 0.4, 0.2))
 
 
+## A porta do bar, ao lado da vitrine (`BAR_DOOR`): fechada, a madeira com o vidro aceso no alto; quando alguém sai
+## (`_bar_t`), ela abre para dentro, a luz do salão aparece no vão e sai pela calçada, e ela fecha de novo.
+func _draw_bar_door(g: Rect2) -> void:
+	var ff: float = STREET["far"]
+	var a := _o(g, BAR_DOOR.x, ff, 2.2)
+	var e := _o(g, BAR_DOOR.y, ff)
+	var open := 0.0
+	if _bar_t >= 0.0:
+		open = clampf(minf(_bar_t, BAR_SEC - _bar_t) / BAR_SWING, 0.0, 1.0)
+	_r(a.x - PX, a.y - PX, e.x - a.x + PX * 2.0, e.y - a.y + PX, Color("1a0f0a"))   # o batente
+	_fill(PackedVector2Array([a, Vector2(e.x, a.y), e, Vector2(a.x, e.y)]),
+		PackedColorArray([Color("c98a3e"), Color("c98a3e"), Color("f0c070"), Color("f0c070")]))   # o salão aceso
+	var leaf := (e.x - a.x) * (1.0 - open * 0.8)   # a folha girando para dentro, cada vez mais estreita
+	_r(a.x, a.y, leaf, e.y - a.y, Color("3a2414"))
+	_r(a.x + leaf * 0.2, a.y + (e.y - a.y) * 0.12, leaf * 0.6, (e.y - a.y) * 0.3, Color("8a5a2a"))   # o vidro, com a luz de dentro
+	if open > 0.0:   # a luz saindo pela calçada
+		var c := _o(g, (BAR_DOOR.x + BAR_DOOR.y) / 2.0, ff - 0.1)
+		var rim := PackedVector2Array()
+		for i in 20:
+			var an := TAU * i / 20.0
+			rim.append(_o(g, (BAR_DOOR.x + BAR_DOOR.y) / 2.0 + cos(an) * 1.4, ff - 0.9 + sin(an) * 0.9))
+		_light_fan(c, rim, Color(1.0, 0.75, 0.4, 0.3 * open))
+
+
 ## A marquise do hotel sobre a porta (embaixo do letreiro): saindo 1,2 m da fachada, o alto visto de cima (os olhos
 ## ficam acima), a beira da frente e a luz quente embaixo dela, na porta e na calçada.
 func _draw_marquee(g: Rect2) -> void:
@@ -868,10 +902,12 @@ func _add_walker(w: Dictionary) -> void:
 
 
 ## Alguém passando pela calçada de lá (`w`, de `_walker`; fora da vista, não desenha): silhueta escura de 1,7 m contra as luzes, as pernas
-## alternando a cada passo, com um balanço leve, e de guarda-chuva aberto na chuva. Em px da tela, como o homem.
+## alternando a cada passo, com um balanço leve, e de guarda-chuva aberto na chuva. Perto de um poste, a luz dele
+## acende a beira de cima e o lado virado para ele (`RIM`); na chuva, ele se espelha na calçada molhada, apagado e
+## sumindo para baixo. Em px da tela, como o homem.
 func _draw_walker(g: Rect2, w: Dictionary) -> void:
 	var z: float = w["z"]
-	var x: float = lerpf(-11.0, 11.0, w["t"]) * w["dir"]
+	var x: float = lerpf(-WALK_SPAN, WALK_SPAN, w["t"]) * w["dir"]
 	if absf(_out_x + OUT_F * x / z - g.size.x * 0.5) > g.size.x * 0.5 + OUT_F / z:
 		return
 	var steps := int(w["t"] * w["sec"] * WALK_STEPS)
@@ -885,10 +921,25 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 		parts.append_array([Rect2(-0.55, 1.74, 1.1, 0.1), Rect2(-0.42, 1.84, 0.84, 0.1), Rect2(-0.2, 1.94, 0.4, 0.05), Rect2(-0.02, 1.4, 0.04, 0.36)])
 	elif w["hat"]:
 		parts.append_array([Rect2(-0.18, 1.63, 0.36, 0.04), Rect2(-0.1, 1.66, 0.2, 0.1)])
+	var glow := 0.0   # o poste mais perto: até 3 m dele
+	var side := 1.0
+	for lx: float in FAR_LAMPS:
+		var near := clampf(1.0 - absf(x - lx) / 3.0, 0.0, 1.0)
+		if near > glow:
+			glow = near
+			side = 1.0 if lx >= x else -1.0
+	var rim := Color(dark.lerp(RIM, 0.45), glow * 0.8)
 	for part in parts:
 		var a := Vector2(roundf(part.position.x * k), -roundf((part.position.y + part.size.y) * k))
 		var b := Vector2(roundf(part.end.x * k), -roundf(part.position.y * k))
-		_p(foot.x + a.x, foot.y + a.y, maxf(1.0, b.x - a.x), maxf(1.0, b.y - a.y), dark)
+		var sz := Vector2(maxf(1.0, b.x - a.x), maxf(1.0, b.y - a.y))
+		_p(foot.x + a.x, foot.y + a.y, sz.x, sz.y, dark)
+		if glow > 0.0:
+			if sz.y > 2.0:   # (as peças finas, como o guarda-chuva e a aba, só no lado: no alto, ficavam acesas inteiras)
+				_p(foot.x + a.x, foot.y + a.y, sz.x, 1, rim)
+			_p(foot.x + (a.x + sz.x - 1.0 if side > 0.0 else a.x), foot.y + a.y, 1, sz.y, rim)
+		if weather == "rain":   # o reflexo, de cabeça para baixo a partir dos pés: mais fraco quanto mais longe deles
+			_p(foot.x + a.x, foot.y - a.y - sz.y, sz.x, sz.y, Color(0, 0, 0, 0.35 * (1.0 - (-a.y) / (2.2 * k))))
 
 
 ## O carro `c` passando pela mão dele (`CAR_LANES`), apoiado no asfalto, na forma do modelo dele (`CAR_KINDS`) e na cor
@@ -1078,8 +1129,8 @@ func _sheen(g: Rect2, x0: float, x1: float, z: float, h: float, alpha: float, sp
 			_p(roundf(q.x * 2.0), roundf(q.y * 2.0), 1, 1, Color(1.0, 0.85, 0.55, alpha * minf(lit, 1.0)))
 
 
-## O arbusto plantado junto da nossa parede, embaixo da janela (`SHRUB`): só a copa aparece, subindo do peitoril
-## atrás do vidro, posta pela parede da sala (`_side_pt`) e não pela câmera da vista. Folhas em quatro tons (as de
+## O arbusto plantado junto da nossa parede, embaixo da janela (`SHRUB`, com a cerca viva embaixo, `HEDGE`): só a copa
+## aparece, subindo do peitoril atrás do vidro, posta pela parede da sala (`_side_pt`) e não pela câmera da vista. Folhas em quatro tons (as de
 ## cima pegando a luz da rua), maiores do lado de perto, mexendo com o vento.
 func _draw_shrub() -> void:
 	var rng := RandomNumberGenerator.new()
@@ -1093,15 +1144,19 @@ func _draw_shrub() -> void:
 	_ci.draw_set_transform(Vector2.ZERO)   # as folhas em px da tela
 	var gw := SIDE_W
 	var gh := _cm(WIN_SILL - WIN_TOP)
-	for i in 360:
-		var hgt := pow(rng.randf(), 0.7) * SHRUB.z
-		var r := SHRUB.y * sqrt(maxf(0.0, 1.0 - pow(hgt / SHRUB.z, 2.0)))   # a copa: redonda, mais larga embaixo
+	for i in 360 + HEDGE:
+		var hgt := lerpf(-0.06, SHRUB.z, pow(rng.randf(), 0.8))   # (abaixo de 0, atrás do peitoril: o vidro corta)
+		var r := SHRUB.y * sqrt(maxf(0.0, 1.0 - pow(maxf(hgt, 0.0) / SHRUB.z, 2.0)))   # a copa: redonda, mais larga embaixo
 		var dx := rng.randf_range(-r, r)
+		if i >= 360:   # a cerca viva embaixo dela, até o batente de perto
+			hgt = rng.randf_range(-0.08, 0.035)
+			r = SHRUB.y
+			dx = rng.randf_range(-r, 1.05 - SHRUB.x)
 		var w := Vector2((SHRUB.x + dx) * gw, gh * (1.0 - hgt) + rng.randf_range(-1.0, 1.0))
 		var p := (_side_pt(w, WALL_D + 8.0) - _view_at) * 2.0   # do lado de fora, atrás do vidro
 		var k := clampf(_side_pt(w + Vector2(0, 1)).y - _side_pt(w).y, 0.8, 1.6)   # a escala da parede ali
-		var sway := roundf((sin(t * (1.4 + gust) + i * 0.7) * (1.0 + gust) - gust * GUST.z) * wind * hgt / SHRUB.z * 1.5)
-		var lit := clampf(hgt / SHRUB.z * 0.7 + (dx / maxf(0.01, r)) * 0.15 + rng.randf_range(-0.25, 0.2), 0.0, 0.99)
+		var sway := roundf((sin(t * (1.4 + gust) + i * 0.7) * (1.0 + gust) - gust * GUST.z) * wind * maxf(hgt, 0.0) / SHRUB.z * 1.5)
+		var lit := clampf(maxf(hgt, 0.0) / SHRUB.z * 0.7 + (dx / maxf(0.01, r)) * 0.15 + rng.randf_range(-0.25, 0.2), 0.0, 0.99)
 		var c: Color = (tones[int(lit * tones.size())] as Color).lerp(Color("5a7090"), f * 0.5)
 		var px := p.floor() + Vector2(sway, 0)
 		var lw := roundf(5.0 * k)

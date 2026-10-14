@@ -318,6 +318,13 @@ func _build_basic() -> void:
 	_begin(0.09); _noise(0, 0.05, "bp", 2600, 0.7, 0.7); _noise(0.01, 0.05, "lp", 500, 0.7, 1.0); _end("set_paper")
 	# ...e o metal, um "tim" de chapa abafado
 	_begin(0.16); _noise(0, 0.012, "bp", 3000, 1.2, 0.6); _tone(0, 1230, 0.12, "sine", 0.3); _tone(0, 2950, 0.05, "sine", 0.12); _tone(0, 130, 0.05, "sine", 0.5); _end("set_metal")
+	# a persiana descendo: as lâminas batendo umas nas outras, cada vez mais juntas, e o trilho de baixo no peitoril
+	_begin(1.45)
+	for k in 22:
+		var at := 1.3 * sqrt(k / 22.0)
+		_noise(at, 0.02, "bp", _rng.randf_range(2200, 3600), 1.4, 0.35 + 0.4 * k / 22.0)
+		_tone(at, _rng.randf_range(800, 1000), 0.015, "sine", 0.12)
+	_noise(1.3, 0.06, "lp", 700, 0.7, 1.0); _tone(1.3, 120, 0.1, "sine", 0.6); _end("blind")
 	_begin(0.55)
 	for k in 12:
 		if _rng.randf() < 0.7:

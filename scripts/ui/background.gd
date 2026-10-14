@@ -85,6 +85,8 @@ const WALK_EVERY := Vector2(2, 5)    ## de quanto em quanto tempo alguém passa 
 const WALK_FROM := 18.0 * 60.0   ## ...e daí (min do dia) o intervalo cresce, cada vez menos gente...
 const WALK_UNTIL := 22.0 * 60.0  ## ...até ninguém mais passar (só o homem do mistério)
 const WALK_PAIR := 0.2    ## a chance de virem dois juntos
+const BAR_EVERY := Vector2(25, 70)   ## de quanto em quanto tempo alguém sai do bar (s, sorteado; só enquanto há gente na rua)
+const BAR_OUT := 0.5      ## quando, depois de a porta abrir, a pessoa sai por ela (s)
 const LATE_FROM := 22.0 * 60.0   ## a partir de que hora (min do dia) a cidade começa a se calar: menos carros e pedestres
 const LATE_TO := 24.0 * 60.0     ## até quando (aí, os intervalos entre eles chegam a `LATE_EVERY` vezes)
 const LATE_EVERY := 3.0
@@ -104,13 +106,18 @@ const BOLT_DIR := Vector2(-1.4, 0.45)   ## para onde a luz dele anda a cada unid
 const BOLT_STEEP := 1.2   ## quanto ela desce para cada unidade que entra na sala, até a mesa (a janela desenhada no tampo)
 const SIGN_GLOW := Color(1.0, 0.25, 0.18, 0.05)   ## o reflexo vermelho dele na parede, perto da janela
 const CAB_W := 82.0             ## a largura do armário de aço, encostado na parede (px de 2x2 lá)
+const CAB_AT := 0.37            ## quanto da parede livre entre a mesa comutadora e a quina fica antes dele (com 0,24, ele e o conduíte ficavam colados na mesa)
 const POSTER_W := 22.0           ## a largura do cartaz da quermesse (px de 2x2)
 const CAB_TOP := -26.0           ## o alto dele (cm a partir dos olhos, para baixo): acima deles, ~1,5 m do chão (o tampo não aparece)
 const CAB_T := 1.15              ## a frente dele (escala): ~35 cm de fundo
 const SILL_D := 5.0        ## quanto o peitoril de dentro sai da parede para a sala (com 9, largo demais)
 const SHIFT_START := 18.0 * 60.0   ## o começo do turno (min do dia): o café da caneca está quente
 const STEAM_FOR := 210.0    ## em quantos minutos de jogo o café esfria e o vapor some (às 21h30)
-const BLIND := 0.12        ## até onde a persiana desce (fração da altura do vão)
+const BLIND := 0.12        ## até onde a persiana desce aberta (fração da altura do vão)
+## Clicada, a persiana desce até o peitoril (`toggle_blind`) em BLIND_SEC s, lâmina a lâmina, e clicada de novo sobe;
+## fechada, tampa a rua, a luz dela na sala e o brilho das luzes de lá.
+const BLIND_SEC := 1.3
+const BLIND_ID := "persiana"
 const X2 := Transform2D(Vector2(2, 0), Vector2(0, 2), Vector2.ZERO)   ## a escala dos px de 2x2 (`_sprite` volta a ela)
 
 @export var window: Control   ## a área das ferramentas: a quina e a janela ficam na parede dela
@@ -129,6 +136,11 @@ var _win := Vector2(104, 38)   # a vista da janela, em pixels de 2x2 (do último
 var _acc := 0.0
 var _hot := ""         # objeto sob o mouse
 var _lift := Lift.new()   # o objeto erguido (`_up_id`) subindo e assentando
+var _shut := 0.0          # a persiana: 0 aberta, 1 fechada (andando para `_shut_to`)
+var _shut_to := 0.0
+var _blind_rows := -1     # as lâminas desenhadas (`_blind_layer`)
+var _blind_layer: Control   # a persiana, numa camada só dela: desce sem redesenhar a sala
+var _blind_poly := PackedVector2Array()   # o que ela tampa da janela (px da tela): o clique e o brilho das luzes de lá
 var _shelf := Vector2(INF, INF)   # `shelf()`, em px do cenário
 var _view: Control     # desenha a vista da janela no `_vport`: a frente dela, a cada quadro da vista
 var _back: Control     # a parte de trás da vista, embaixo da `_view`: só se redesenha quando muda (`_back_state`)
@@ -146,6 +158,7 @@ var _side_faces: Array = []  # a lateral da mesa comutadora (px da tela), virada
 var _panel_z := 0.0  # a frente do painel da mesa comutadora (z)
 var tickets := 0          ## bilhetes de tarifação esperando na fenda do calculógrafo (impressos com a ferramenta fechada): a ponta de um saindo dela
 var _tip_layer: Control   # a ponta do bilhete no calculógrafo da mesa (`_draw_tip`)
+var _umbrella := Rect2()  # a cobertura do guarda-chuva pendurado no armário, até a mesa (px da tela): a água escorre nela (`_draw_drips`)
 var _tip_n := 0           # quantos bilhetes ela mostrava
 var _tip_t := TIP_SEC     # desde que o último saiu (s)
 var _tip_h := 0           # a altura dela, desenhada (px)
@@ -157,6 +170,7 @@ var _sign_px := Vector2.ZERO   # onde o letreiro aparece no vidro (px da tela; z
 var _car_in := [20.0, 32.0]          # quanto falta para o próximo de cada mão (s)
 var _car_next := ["", ""]            # o modelo do próximo de cada mão (vazio: sorteado; o painel de debug escolhe)
 var _walk_in := 3.0      # quanto falta para o próximo (s)
+var _bar_in := 12.0      # quanto falta para alguém sair do bar (s)
 var _dog_in := randf_range(15.0, 50.0)   # quanto falta para o próximo latido, contado a partir de `DOG_FROM` (s)
 var _dog_reply := -1.0   # quanto falta para o cachorro que responde (-1 = nenhum)
 var _tolls := 0          # badaladas do sino que faltam bater
@@ -184,6 +198,11 @@ func _ready() -> void:
 	_view.draw.connect(_draw_view)
 	_vport.add_child(_view)
 	add_child(_vport)
+	_blind_layer = Control.new()
+	_blind_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_blind_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_blind_layer.draw.connect(_draw_blind)
+	add_child(_blind_layer)
 	_lifted = Control.new()
 	_lifted.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_lifted.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -235,11 +254,13 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	_events(delta)
 	_lift_step(delta)
+	_blind_step(delta)
 	var st := _state()
 	if st != _drawn:
 		_drawn = st
 		queue_redraw()
 		_lifted.queue_redraw()   # (o objeto erguido muda com a sala: a luz, o lugar)
+		_blind_layer.queue_redraw()
 		_over.queue_redraw()   # (depois da sala: usa o vidro e a poça de luz que ela acabou de medir)
 		_bolt_layer.queue_redraw()
 		_tip_layer.queue_redraw()
@@ -253,14 +274,14 @@ func _process(delta: float) -> void:
 		_tip_h = tip
 		_tip_layer.queue_redraw()
 		_show()
-	var f := snappedf(_flash(), 0.02)
+	var f := snappedf(_flash() * (1.0 - 0.85 * _shut), 0.02)   # (a persiana fechada tampa o clarão)
 	if f != _bolt_layer.modulate.a:   # o relâmpago: o desenho dele fica; só a força muda
 		_bolt_layer.modulate.a = f
 		if f > 0.0 and not _bolt_layer.visible:
 			_bolt_layer.queue_redraw()
 		_bolt_layer.visible = f > 0.0
 		_show()
-	var ov := [size, _paper(), lamp_level, _sign_on(), _moon_glow(), _mist_force()]
+	var ov := [size, _paper(), lamp_level, _sign_on(), _moon_glow(), _mist_force(), _blind_rows]
 	if ov != _over_drawn:   # (o papel deslizando entra aqui: o corte do brilho acompanha já neste quadro)
 		_over_drawn = ov
 		_over.queue_redraw()
@@ -371,6 +392,70 @@ func _land() -> void:
 	_show()
 
 
+## A persiana desce ou sobe (`toggle_blind`), lâmina a lâmina: a camada dela e a de cima (o escuro da sala e o brilho
+## das luzes de lá) se redesenham a cada lâmina, e a sala só em quatro passos (a luz da rua na mesa, `_state`).
+func _blind_step(delta: float) -> void:
+	if _shut == _shut_to:
+		return
+	_shut = move_toward(_shut, _shut_to, delta / BLIND_SEC)
+	_blind_shape()
+
+
+## Desce a persiana, se estiver aberta, ou sobe, com o barulho das lâminas vindo da janela.
+func toggle_blind() -> void:
+	_shut_to = 1.0 - _shut_to
+	Sfx.play_at("blind", _bounds(_blind_poly).get_center().x / maxf(1.0, size.x) if _blind_poly.size() > 2 else 0.9, 0.0,
+		1.0 if _shut_to > 0.0 else 1.15)
+
+
+## Até onde a persiana desce agora (fração da altura do vão): de `BLIND` (aberta) ao peitoril, mais devagar nas pontas.
+func _blind_frac() -> float:
+	return lerpf(BLIND, 1.0, smoothstep(0.0, 1.0, _shut))
+
+
+## Onde está a persiana e o vidro que aparece embaixo dela (`_blind_poly`, `_glass`, px da tela), pela fração de agora;
+## mudou de lâmina, redesenha a camada dela e a de cima.
+func _blind_shape() -> void:
+	var gh := _cm(WIN_SILL - WIN_TOP)
+	var y := floorf(gh * _blind_frac())
+	_blind_poly = X2 * _side_quad(Rect2(0, 0, SIDE_W, y))
+	_glass = PackedVector2Array()
+	if y < gh - 1.0:
+		var below := Geometry2D.intersect_polygons(_side_quad(Rect2(0, y, SIDE_W, gh - y)), _side_quad(Rect2(0, y, SIDE_W, gh - y), WALL_D))
+		if not below.is_empty():
+			_glass = X2 * below[0]
+	var rows := int(y / 2.0)
+	if rows != _blind_rows:
+		_blind_rows = rows
+		_blind_layer.queue_redraw()
+		_over.queue_redraw()
+		_show()
+
+
+## Se o retângulo `r` (px da tela; uma luz de lá fora) fica atrás da persiana.
+func _behind_blind(r: Rect2) -> bool:
+	return _shut > 0.0 and Geometry2D.is_point_in_polygon(r.get_center(), _blind_poly)
+
+
+## A persiana, presa no lado de dentro do vão (na camada dela): as lâminas até onde ela desceu (a face clara, o fio de luz
+## na beira e a sombra embaixo), o cordão e o puxador pendurados embaixo.
+func _draw_blind() -> void:
+	if _cx - _vp.x < 20.0:   # (a tela ainda não se arrumou)
+		return
+	_ci = _blind_layer
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	var gw := SIDE_W
+	var y := floorf(_cm(WIN_SILL - WIN_TOP) * _blind_frac())
+	for k in range(0, int(y), 2):
+		_poly(_side_quad(Rect2(0, k, gw, 1.5)), Color("8a8070"))
+		_poly(_side_quad(Rect2(0, k, gw, PX)), Color("a89e8a"))
+		_poly(_side_quad(Rect2(0, k + 1.5, gw, PX)), Color("3a352c"))
+	var cord := minf(8.0, _cm(WIN_SILL - WIN_TOP) - y)   # fechada, o puxador fica no peitoril
+	_ci.draw_line(_side_pt(Vector2(gw * 0.8, y)), _side_pt(Vector2(gw * 0.8, y + cord)), Color("8a8070"), PX)
+	_poly(_side_quad(Rect2(gw * 0.8 - 1, y + cord - 2.0 if cord < 8.0 else y + cord, 2, 2)), Color("6b5f4c"))
+	_ci = self
+
+
 ## A luminária acende agora (começo do turno): fraca e alaranjada, esquentando até a luz inteira (`WARM`).
 func warm_up() -> void:
 	_warm_t = 0.0
@@ -391,6 +476,7 @@ func _show() -> void:
 func _state() -> Array:
 	return [size, board.get_global_rect() if board else Rect2(), desk.get_global_rect() if desk else Rect2(),
 		window.get_global_rect() if window else Rect2(), lamp_level, pending, unread, alert, card_out, news, counting, toll_desk, details, night, weather,
+		snappedf(_shut, 0.25),   # (a luz da rua na mesa e o relâmpago acompanham a persiana em 4 passos)
 		TranslationServer.get_locale()]
 
 
@@ -452,6 +538,21 @@ func _events(delta: float) -> void:
 			var w2 := _walker()
 			w2.merge({"t": -1.0 / 32.0, "dir": w["dir"], "sec": w["sec"], "z": w["z"] + (0.5 if w["z"] < (STREET["far_curb"] + STREET["far"]) / 2.0 else -0.5)}, true)
 			_add_walker(w2)
+	_bar_in -= delta
+	if _bar_in <= 0.0:
+		_bar_in = randf_range(BAR_EVERY.x, BAR_EVERY.y)
+		if crowd > 0.0 and _bar_t < 0.0:
+			_bar_t = 0.0
+	if _bar_t >= 0.0:   # a porta do bar aberta: a pessoa sai e segue pela calçada, junto das fachadas
+		var was := _bar_t
+		_bar_t += delta
+		if was < BAR_OUT and _bar_t >= BAR_OUT:
+			var w := _walker()
+			w["z"] = STREET["far"] - 0.5
+			w["t"] = ((BAR_DOOR.x + BAR_DOOR.y) / 2.0 * w["dir"] + WALK_SPAN) / (2.0 * WALK_SPAN)   # (x vai de um lado ao outro pelo t, vezes o sentido)
+			_add_walker(w)
+		if _bar_t >= BAR_SEC:
+			_bar_t = -1.0
 	for i in range(_walkers.size() - 1, -1, -1):
 		var w: Dictionary = _walkers[i]
 		w["t"] += delta / w["sec"]
@@ -558,15 +659,17 @@ func _draw() -> void:
 	if board:   # a mesa comutadora, de pé na frente da parede, faz sombra nela (o tampo cobre a parte de baixo)
 		_cast(b, 1.1)
 		_draw_company_sign(Rect2(b.position * 2.0, b.size * 2.0))
-	# na parede, entre a mesa comutadora e a quina, com a mesma folga entre eles em qualquer largura de janela: o
-	# armário e o lugar do cartaz (guardado mesmo sem ele, para o armário não mudar de lugar de uma noite para outra)
-	var gap := (_cx - b.end.x - CAB_W * CAB_T - POSTER_W) / 3.0
-	_draw_conduit(b, b.end.x + gap * 0.5)
-	var cab_end := b.end.x + gap + CAB_W * CAB_T   # (antes dele: a sombra dele e a porta entreaberta ficam por cima da folhinha)
-	_draw_calendar(Rect2(floorf((cab_end + _cx) / 2.0 - 18.5), 62, 37, 28))   # na parede, entre o armário e a quina, embaixo do cartaz
-	var cab := _draw_steel_cabinet((b.end.x + gap - _vp.x) / CAB_T)
+	# na parede, entre a mesa comutadora e a quina, em qualquer largura de janela: o conduíte no meio do vão até o
+	# armário (`CAB_AT` do que sobra fica antes dele) e, depois dele, a folhinha e o lugar do cartaz em cima (guardado
+	# mesmo sem ele, para nada mudar de lugar de uma noite para outra)
+	var free := _cx - b.end.x - CAB_W * CAB_T
+	var cab_x := b.end.x + free * CAB_AT
+	_draw_conduit(b, b.end.x + free * CAB_AT * 0.5)
+	var after := (cab_x + CAB_W * CAB_T + _cx) / 2.0   # o meio do vão depois do armário
+	_draw_calendar(Rect2(floorf(after - 18.5), 62, 37, 28))   # (antes dele: a sombra dele e a porta entreaberta ficam por cima)
+	_draw_steel_cabinet((cab_x - _vp.x) / CAB_T)
 	if "cartaz_quermesse" in details:
-		_draw_poster(Rect2(floorf(cab.end.x + gap), 26, POSTER_W, 28))
+		_draw_poster(Rect2(floorf(after - POSTER_W / 2.0), 26, POSTER_W, 28))
 	_zd = Vector2(Z0 * _yd / (front - _vp.y), Z0 / DESK_T)
 	_draw_desk(Rect2(0, top, w, h - top), front)
 	_draw_switchboard()
@@ -587,9 +690,9 @@ func _draw_over() -> void:
 	_cover = _paper()   # o papel da ferramenta aberta (ou deslizando) cobre o cenário por estar na frente
 	Bloom.clear(_over)
 	for l: Array in _glows:
-		if not _cover.intersects(l[0]):
+		if not _cover.intersects(l[0]) and not _behind_blind(l[0]):
 			Bloom.light(_over, l[0], l[1], l[2], l[3], l[4])
-	if _sign_glow.has_area() and _sign_on() and not _cover.intersects(_sign_glow):   # só o halo: as letras ficam à vista
+	if _sign_glow.has_area() and _sign_on() and not _cover.intersects(_sign_glow) and not _behind_blind(_sign_glow):   # só o halo: as letras ficam à vista
 		Bloom.light(_over, _sign_glow, SIGN_RED, 0.5, false, false)
 	_draw_gloom()
 	_draw_window_glow()
@@ -692,7 +795,7 @@ func _bolt_build(top: float) -> void:
 	var e := (zfar - znear) / SIDE_W   # meia largura do montante
 	var land := func(y: float) -> float: return xc - (_yd - y) / BOLT_STEEP   # onde o raio que passa na altura `y` cai
 	var pane := Color(BOLT_LIGHT, 0.5)
-	var a: float = land.call(y0 + floorf(gh * BLIND))
+	var a: float = land.call(y0 + floorf(gh * _blind_frac()))
 	var b: float = land.call(y0 + gh)
 	for c: Vector2 in [Vector2(minf(zfar, zb), zm + e), Vector2(minf(zm - e, zb), znear)]:
 		if c.x > c.y:
@@ -700,7 +803,7 @@ func _bolt_build(top: float) -> void:
 				PackedColorArray([pane])])
 	var za := minf(zfar, zb)
 	if za > znear:   # o halo em volta, sumindo
-		var xa: float = land.call(y0 + floorf(gh * BLIND))
+		var xa: float = land.call(y0 + floorf(gh * _blind_frac()))
 		var xb: float = land.call(y0 + gh)
 		var m := 10.0
 		var inner := [_p3(xa, _yd, za), _p3(xb, _yd, za), _p3(xb, _yd, znear), _p3(xa, _yd, znear)]
@@ -782,8 +885,8 @@ func _draw_window_glow() -> void:
 	_ci.draw_set_transform(Vector2.ZERO)
 	var c := _bounds(_glass).get_center()
 	var strength: float = WINDOW_GLOW.a * {"clear": 1.0, "rain": 0.8, "fog": 1.2}.get(weather, 1.0) * lerpf(MOON_DIM, 1.0, _moon_glow())
-	_light_fan(c, _ring(c, WINDOW_GLOW_R), Color(WINDOW_GLOW, strength))
-	if _sign_px != Vector2.ZERO and _sign_on():
+	_light_fan(c, _ring(c, WINDOW_GLOW_R), Color(WINDOW_GLOW, strength * (1.0 - _shut)))
+	if _sign_px != Vector2.ZERO and _sign_on() and not _behind_blind(Rect2(_sign_px, Vector2.ONE)):
 		_light_fan(_sign_px, _ring(_sign_px, WINDOW_GLOW_R * 0.6), SIGN_GLOW)
 	var sill := Color(0.42, 0.52, 0.66)
 	for part: Array in _sill_lit:   # o peitoril na luz de fora
@@ -849,13 +952,16 @@ func _draw_company_sign(b: Rect2) -> void:
 ## acima dele (`TapedLabel`), desenhada em `ci` (o `SceneView`, por cima do cenário e na resolução da interface: o
 ## texto fica nítido).
 func draw_hover(ci: Control) -> void:
-	if _hot == "" or not _props.has(_hot):
+	if _hot != BLIND_ID and not _props.has(_hot):
 		return
-	var hr: Rect2 = _props[_hot]
-	var cap := GameData.date_text(night) if _hot == CALENDAR else T.text(PROPS[_hot])
+	var hr: Rect2 = _bounds(_blind_poly) if _hot == BLIND_ID else _props[_hot]
+	var cap := T.text(T.Key.BLIND_OPEN if _shut_to > 0.0 else T.Key.BLIND_CLOSE) if _hot == BLIND_ID \
+		else GameData.date_text(night) if _hot == CALENDAR else T.text(PROPS[_hot])
 	var tape := ci.get_theme_stylebox("normal", "TapedLabel")
 	var ts := (Pal.ui.get_string_size(cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11) + tape.get_minimum_size()).round()
 	var at := Vector2(clampf(hr.get_center().x - ts.x / 2.0, 6, size.x - ts.x - 6), hr.position.y - ts.y - 6).round()
+	if _hot == BLIND_ID:   # embaixo dela: em cima, o bilhete do manual na parede a tampava
+		at.y = roundf(hr.end.y + 6.0)
 	var b := Rect2(board.global_position - global_position, board.size) if board else Rect2()
 	if hr.get_center().x > b.end.x and at.x < b.end.x:   # a mesa comutadora fica por cima do cenário: o nome da prancheta, na lateral dela, vai todo para fora
 		at.x = b.end.x + 4.0
@@ -871,7 +977,7 @@ func prop_at(p: Vector2) -> String:
 	for id in _props:
 		if (_props[id] as Rect2).grow(2).has_point(p):
 			return id
-	return ""
+	return BLIND_ID if Geometry2D.is_point_in_polygon(p, _blind_poly) else ""
 
 
 ## O mouse no cenário (o `SceneView` repassa: o cenário fica numa tela própria, fora da árvore da interface).
@@ -883,6 +989,9 @@ func pointer(e: InputEvent) -> bool:
 		var id := prop_at(e.position)
 		if id in PROPS:
 			prop_clicked.emit(id)
+			return true
+		if id == BLIND_ID:
+			toggle_blind()
 			return true
 	return false
 
@@ -1265,18 +1374,7 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 			_side_pt(Vector2(gw, gh - 2.5), WALL_D - 1.0)]), inner):
 		draw_polyline(part, WOOD[0], PX)
 	_poly(PackedVector2Array([inner[0], inner[1], outer[1], outer[0]]), Color("0d1315"))
-	# a persiana meio baixada, presa no lado de dentro do vão
-	_glass = PackedVector2Array()
-	var below := Geometry2D.intersect_polygons(_side_quad(Rect2(0, blind, gw, gh - blind)), _side_quad(Rect2(0, blind, gw, gh - blind), WALL_D))
-	if not below.is_empty():
-		for p in below[0]:
-			_glass.append(p * 2.0)
-	for y in range(0, int(blind), 2):   # as lâminas: a face clara, o fio de luz na beira e a sombra embaixo
-		_poly(_side_quad(Rect2(0, y, gw, 1.5)), Color("8a8070"))
-		_poly(_side_quad(Rect2(0, y, gw, PX)), Color("a89e8a"))
-		_poly(_side_quad(Rect2(0, y + 1.5, gw, PX)), Color("3a352c"))
-	draw_line(_side_pt(Vector2(gw * 0.8, blind)), _side_pt(Vector2(gw * 0.8, blind + 8)), Color("8a8070"), PX)   # o cordão
-	_poly(_side_quad(Rect2(gw * 0.8 - 1, blind + 8, 2, 2)), Color("6b5f4c"))   # o puxador dele
+	_blind_shape()   # (a persiana fica na camada dela, `_draw_blind`)
 	# o peitoril de dentro: uma tábua saindo da parede para a sala (`SILL_D`), com o tampo à vista (fica abaixo dos
 	# olhos), a beira da frente e a sombra dela na parede
 	var s0 := Vector2(-5, gh)   # do tamanho da guarnição (passando dela, saía da janela)
@@ -1356,7 +1454,10 @@ func _draw_street_light(w: float) -> void:
 	var te := (w - _vp.x) / xc
 	var cool: float = {"clear": 0.05, "rain": 0.035, "fog": 0.02}.get(weather, 0.035)
 	var gh := _cm(WIN_SILL - WIN_TOP)
-	var hs: Array[float] = [_cm(WIN_SILL), _cm(WIN_TOP) + floorf(gh * BLIND)]   # do peitoril ao pé da persiana
+	var hs: Array[float] = [_cm(WIN_SILL), _cm(WIN_TOP) + floorf(gh * _blind_frac())]   # do peitoril ao pé da persiana
+	if hs[1] >= hs[0] - 1.0:   # fechada: nada entra
+		_street_map = []
+		return
 	var ts: Array[float] = [maxf(SIDE_T, DESK_T), minf(_t2, te)]
 	if ts[1] < ts[0] + 0.02:   # (com a tela mudando de tamanho, a janela pode ainda não chegar à mesa)
 		return
@@ -1471,6 +1572,9 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 		_r(lab.position.x + 2.5, lab.position.y + 2.5 + i * 2.5, lab.size.x - 5 - i * 4, PX, Color("4a4438"))
 	# o puxador e a fechadura, junto da fresta, na altura da mão
 	var hy := floorf((doors + low) / 2.0)   # na altura da mão: no meio da porta
+	_umbrella = Rect2()
+	if not "armario_entreaberto" in details:   # (antes do puxador: o gancho passa por trás dele) ponytail: com a porta aberta, sem o puxador, o guarda-chuva fica de fora
+		_draw_umbrella((Vector2(mid + 5.25, hy + 15.5) * 2.0).floor())
 	_r(mid + 4, hy, 2.5, 16, Color("3a3d33"))
 	_r(mid + 4, hy, 2, 15.5, Color("b8b2a2"))
 	_r(mid + 4, hy, PX, 15.5, Color("ece7da"))
@@ -1553,6 +1657,54 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 	return f
 
 
+## O guarda-chuva do operador pendurado pelo cabo no puxador do armário (`o`: o pé do puxador, px da tela; desenhado
+## antes dele, que fica na frente do gancho): o cabo de madeira em gancho, a haste e a cobertura fechada, presa pela tira, descendo até atrás da mesa, com a luz da luminária
+## do lado esquerdo e a sombra na porta. Na chuva, molhado: brilhos na cobertura e a água escorrendo (`_draw_drips`).
+func _draw_umbrella(o: Vector2) -> void:
+	_ci.draw_set_transform(Vector2.ZERO)
+	var wood := [Color("6b4529"), Color("4a2c18"), Color("2a1a0f")]
+	var cloth := Color("1b1d24")
+	var x := o.x - 6.0   # a haste, do lado esquerdo do puxador
+	var c0 := o.y + 12.0   # onde a cobertura começa
+	var bottom := _top * 2.0   # (a mesa esconde o resto)
+	var canopy := PackedVector2Array([Vector2(x - 1, c0), Vector2(x + 2, c0), Vector2(x + 5, c0 + 12), Vector2(x + 5, bottom),
+		Vector2(x - 4, bottom), Vector2(x - 4, c0 + 12)])
+	_poly(Transform2D(0.0, Vector2(2, 2)) * canopy, Color(0, 0, 0, 0.3))   # a sombra na porta
+	_ci.draw_rect(Rect2(o.x - 5, o.y - 4, 9, 2), wood[1])   # o gancho, por cima do pé do puxador
+	_ci.draw_rect(Rect2(o.x - 4, o.y - 4, 7, 1), wood[0])
+	_ci.draw_rect(Rect2(o.x - 6, o.y - 3, 1, 1), wood[1])
+	_ci.draw_rect(Rect2(o.x + 4, o.y - 3, 1, 1), wood[1])
+	_ci.draw_rect(Rect2(o.x - 7, o.y - 2, 2, 8), wood[1])
+	_ci.draw_rect(Rect2(o.x - 7, o.y - 2, 1, 8), wood[0])
+	_ci.draw_rect(Rect2(o.x + 4, o.y - 2, 2, 4), wood[2])
+	_ci.draw_rect(Rect2(o.x - 7, o.y + 6, 2, 1), Color("8e897c"))   # a ponteira de metal
+	_ci.draw_rect(Rect2(x, o.y + 7, 1, 5), Color("b8b2a2"))   # a haste
+	_poly(canopy, cloth)
+	_ci.draw_rect(Rect2(x - 4, c0 + 12, 1, bottom - c0 - 12), cloth.lightened(0.18))   # a beira na luz
+	for fx in [x - 1, x + 2]:   # as dobras
+		_ci.draw_rect(Rect2(fx, c0 + 6, 1, bottom - c0 - 6), cloth.darkened(0.5))
+	_ci.draw_rect(Rect2(x - 5, c0 + 20, 11, 2), cloth.lightened(0.12))   # a tira, com o botão de pressão
+	_ci.draw_rect(Rect2(x + 3, c0 + 20, 1, 1), Color("8e897c"))
+	if weather == "rain":   # molhado: a luz pegando na água
+		for k in 6:
+			_ci.draw_rect(Rect2(x - 3 + (k * 3) % 8, c0 + 15 + k * 7, 1, 2), Color(0.55, 0.62, 0.75, 0.5))
+	_umbrella = Rect2(x - 4, c0 + 12, 9, bottom - c0 - 12)
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+
+
+## Na chuva, a água escorrendo pela cobertura do guarda-chuva pendurado no armário (`_umbrella`), gota a gota: cada uma
+## parada um instante e depois descendo cada vez mais depressa, até sumir atrás da mesa. Na camada da poeira.
+func _draw_drips() -> void:
+	if weather != "rain" or not _umbrella.has_area():
+		return
+	var t := Time.get_ticks_msec() / 1000.0
+	for i in 3:
+		var f := fmod(t * 0.35 + i * 0.37, 1.0)
+		var p := (_umbrella.position + Vector2([1.0, 4.0, 7.0][i], _umbrella.size.y * f * f)).floor()
+		if not _cover.has_point(p):
+			_dust.draw_rect(Rect2(p, Vector2(1, 2)), Color(0.62, 0.7, 0.82, 0.55 * lamp_level))
+
+
 ## O cartaz da quermesse preso na parede (a pessoa prometeu ir): papel creme com bandeirinhas coloridas em zigue-zague,
 ## a fogueira e as linhas do convite.
 func _draw_poster(r: Rect2) -> void:
@@ -1580,6 +1732,7 @@ func _draw_poster(r: Rect2) -> void:
 ## poeira que passa na frente dela); o papel de uma ferramenta fica na frente, e ela não desce abaixo do fundo do tampo.
 func _draw_dust() -> void:
 	_draw_steam()
+	_draw_drips()
 	_draw_drop_shadows()
 	var k := lamp_level * (0.5 if _cover.has_area() else 1.0)
 	var c := Vector2(_lamp_x * 2.0, 0.0)   # px da tela

@@ -6,8 +6,8 @@ const DESK_T := 1.25    ## o fundo do tampo, Z0/DESK_T: a mesa fica afastada da 
 const PLANKS := 6       ## as tábuas do tampo, todas da mesma largura (a câmera as espaça)
 const POOL_R := 112.0   ## o raio da poça de luz da luminária no tampo
 const SHADE_MAX := 0.3   ## o mais escuro que um objeto da mesa fica, longe da poça de luz (`_shade`)
-const EDGE_PAD := 5.0            ## o tanto a mais na fileira da frente: perto, a parede já passou da beira da tela, e o jornal parava fora dela
 const WALL_PAD := 2.0           ## a folga dos objetos da mesa até a parede da direita (x da sala)
+const EDGE_PX := 8.0            ## e a da fileira da frente até a beira da tela (px de 2x2): perto, a parede já passou dela, e o jornal saía cortado
 const PROP_K := 0.75 * 93.0 / 66.0   ## a escala dos objetos da mesa: no tamanho de verdade deles na sala (`_cm`; as listas com 21 cm), maiores que o plug em pé (uns 9 cm)
 ## A unidade de despacho (`_draw_dispatch_unit`, na escala dos objetos, `PROP_K`): largura, altura da base e fundo da
 ## base até o painel (fração do tampo); o painel: a altura acima da base, o quanto o alto dele recua (fração do tampo,
@@ -190,7 +190,8 @@ func _draw_desk_props() -> void:
 	# delas, com os volumes desencontrados, `BOOKS_SPAN`: sem isso, o relógio encostava na pilha)
 	var back := _row(_side_x - 4.0, r, [0.0, UNIT.x * k, BOOKS_SPAN * k, cw + mr]).slice(1)   # (o 0: a mesma folga antes do primeiro)
 	var cx: float = back[0] + (UNIT.x - CALC.x) * k / 2.0   # o calculógrafo no meio da unidade de despacho, logo atrás dele
-	var near := _row(cx + CALC.x * k, r - EDGE_PAD, [0.0, PAD_W * k, NEWS_W * k]).slice(1)   # e os outros dois depois dele
+	var edge := (size.x / 2.0 - EDGE_PX - _vp.x) * _at(0.06) / Z0   # perto, a parede já passou da beira da tela: o jornal vai até ela
+	var near := _row(cx + CALC.x * k, minf(r, edge), [0.0, PAD_W * k, NEWS_W * k]).slice(1)   # e os outros dois depois dele
 	if _here(Tools.DISPATCH):
 		_draw_dispatch_unit(back[0], _at(0.6), UNIT.x * k)   # recuada: a máquina do calculógrafo, na frente dela, não tampa a base
 	if _here(Tools.DIRECTORY):
