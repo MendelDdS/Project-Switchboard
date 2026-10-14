@@ -91,6 +91,8 @@ const SMOKE_EVERY := Vector2(60, 150)   ## de quanto em quanto tempo alguém sai
 const BIKE_EVERY := Vector2(70, 160)    ## e alguém passa de bicicleta (só enquanto há gente na rua)
 const BIKE_BELL := 0.4    ## a chance de tocar a campainha
 const BUS_TIMES := [19 * 60 + 5, 20 * 60 + 35, 22 * 60 + 5, 23 * 60 + 20]   ## o ônibus da linha passa nessas horas (min do dia), pela mão de lá
+const TAXI_STOPS := 2   ## quantas vezes por noite um táxi para no hotel (nas horas sorteadas pela noite, antes das 22h, `_taxi_times`; ver `TAXI_STOP`)
+const STRAY_EVERY := Vector2(80, 200)   ## de quanto em quanto tempo um vira-lata passa pela calçada de lá (s, sorteado; com chuva ou depois das 22h, não)
 const LATE_FROM := 22.0 * 60.0   ## a partir de que hora (min do dia) a cidade começa a se calar: menos carros e pedestres
 const LATE_TO := 24.0 * 60.0     ## até quando (aí, os intervalos entre eles chegam a `LATE_EVERY` vezes)
 const LATE_EVERY := 3.0
@@ -112,6 +114,9 @@ const SIGN_GLOW := Color(1.0, 0.25, 0.18, 0.05)   ## o reflexo vermelho dele na 
 const CAB_W := 82.0             ## a largura do armário de aço, encostado na parede (px de 2x2 lá)
 const CAB_AT := 0.37            ## quanto da parede livre entre a mesa comutadora e a quina fica antes dele (com 0,24, ele e o conduíte ficavam colados na mesa)
 const POSTER_W := 22.0           ## a largura do cartaz da quermesse (px de 2x2)
+const WALL_PAINT := Color("172023")   ## a tinta da parede do fundo
+const STAIN := 0.75      ## o quanto as manchas do reboco mudam o tom da parede do fundo, para mais claro e mais escuro (`_stain_art`)
+const OUTLET_UP := 30.0   ## a tomada da parede do fundo, acima do tampo (px de 2x2; ~17 cm), logo embaixo da folhinha e acima das listas (`_draw_wall_marks`)
 const CAB_TOP := -26.0           ## o alto dele (cm a partir dos olhos, para baixo): acima deles, ~1,5 m do chão (o tampo não aparece)
 const CAB_T := 1.15              ## a frente dele (escala): ~35 cm de fundo
 const SILL_D := 5.0        ## quanto o peitoril de dentro sai da parede para a sala (com 9, largo demais)
@@ -185,6 +190,11 @@ var _bar_in := 12.0      # quanto falta para alguém sair do bar (s)
 var _smoke_in := 40.0    # para alguém sair para fumar (s)
 var _bike_in := 45.0     # para passar uma bicicleta (s)
 var _buses := -1         # quantos horários do ônibus já passaram (-1: ainda não contado)
+var _taxis := -1         # quantos táxis da noite já pararam no hotel (-1: ainda não contado)
+var _taxi_next := false  # o próximo da mão de lá é o táxi que para no hotel
+var _taxi_at: Array[float] = []   # as horas deles nesta noite (min do dia; `_taxi_times`)
+var _taxi_for := -1      # a noite delas
+var _stray_in := 60.0    # para passar um vira-lata (s)
 var _dog_in := randf_range(15.0, 50.0)   # quanto falta para o próximo latido, contado a partir de `DOG_FROM` (s)
 var _dog_reply := -1.0   # quanto falta para o cachorro que responde (-1 = nenhum)
 var _tolls := 0          # badaladas do sino que faltam bater
@@ -530,15 +540,31 @@ func _events(delta: float) -> void:
 		_car_in[lane] -= delta
 		if _car_in[lane] <= 0.0:
 			var kind: String = _car_next[lane] if _car_next[lane] != "" else _car_kind()
+			var stop: bool = lane == 0 and _taxi_next and _car_next[lane] == ""   # (o ônibus na hora dele passa antes)
+			if stop:
+				kind = TAXI_KINDS.pick_random()
+				_taxi_next = false
 			_car_next[lane] = ""
 			_cars.append({"t": 0.0, "lane": lane, "kind": kind, "col": CAR_COLORS.pick_random(),
-				"taxi": kind in TAXI_KINDS and randf() < TAXI})
+				"taxi": stop or (kind in TAXI_KINDS and randf() < TAXI)})
+			if stop:
+				_cars[-1].merge({"stop": true, "s": 0.0})
 			_car_in[lane] = INF   # o próximo desta mão é sorteado quando este sair
 			Sfx.play_at(("car_wet" if weather == "rain" else "car") + ("_near" if lane == 1 else ""), x, 0.0,
 				CAR_KINDS[kind]["pitch"] * randf_range(0.97, 1.03))   # o de cá, mais perto; cada modelo no tom dele
 	for i in range(_cars.size() - 1, -1, -1):
 		var c := _cars[i]
-		c["t"] += delta / (CAR_KINDS[c["kind"]] as Dictionary).get("sec", CAR_SEC)
+		if c.has("stop"):   # o táxi do hotel: a porta bate quando o passageiro desce e, parado, ele sai de novo
+			var was: float = c["s"] - TAXI_STOP.x
+			c["s"] += delta
+			var p: float = c["s"] - TAXI_STOP.x
+			if was < GUEST.y and p >= GUEST.y:
+				Sfx.play_at("car_door", x)
+			if was < TAXI_STOP.y and p >= TAXI_STOP.y:
+				Sfx.play_at("car_wet" if weather == "rain" else "car", x, -3.0, CAR_KINDS[c["kind"]]["pitch"] * 0.9)
+			c["t"] = c["s"] / (TAXI_STOP.x + TAXI_STOP.y + TAXI_STOP.z)
+		else:
+			c["t"] += delta / (CAR_KINDS[c["kind"]] as Dictionary).get("sec", CAR_SEC)
 		if c["t"] >= 1.0:
 			_car_in[c["lane"]] = randf_range(CAR_EVERY.x, CAR_EVERY.y) * rare
 			_cars.remove_at(i)
@@ -576,6 +602,19 @@ func _events(delta: float) -> void:
 		if _cars.all(func(c: Dictionary) -> bool: return c["lane"] != 0):
 			_car_in[0] = 0.0
 	_buses = buses
+	var taxis := _taxi_times().filter(func(t: float) -> bool: return minutes >= t).size()
+	if taxis > _taxis and _taxis >= 0:   # a hora de um táxi parar no hotel: ele é o próximo da mão de lá
+		_taxi_next = true
+		if _cars.all(func(c: Dictionary) -> bool: return c["lane"] != 0):
+			_car_in[0] = 0.0
+	_taxis = taxis
+	_stray_in -= delta
+	if _stray_in <= 0.0:
+		_stray_in = randf_range(STRAY_EVERY.x, STRAY_EVERY.y)
+		if weather != "rain" and crowd > 0.0:   # (depois das 22h a rua fica vazia: só o homem do mistério)
+			var dog := _walker()
+			dog.merge({"dog": true, "sec": STRAY_SEC * randf_range(0.85, 1.15)}, true)
+			_add_walker(dog)
 	_bar_in -= delta
 	if _bar_in <= 0.0:
 		_bar_in = randf_range(BAR_EVERY.x, BAR_EVERY.y)
@@ -612,6 +651,18 @@ func _events(delta: float) -> void:
 				Sfx.play_at("rattle", x, -6.0 * (_thunder_at - THUNDER_AFTER.x) / (RATTLE_NEAR - THUNDER_AFTER.x))
 			_bolt = -1.0
 			_bolt_in = randf_range(BOLT_EVERY.x, BOLT_EVERY.y)
+
+
+## As horas (min do dia) em que um táxi para no hotel nesta noite (`TAXI_STOPS`), sorteadas pela noite: sempre as mesmas.
+func _taxi_times() -> Array[float]:
+	if _taxi_for != night:
+		_taxi_for = night
+		_taxi_at.clear()
+		var rng := RandomNumberGenerator.new()
+		rng.seed = night * 4271 + 5
+		for i in TAXI_STOPS:
+			_taxi_at.append(rng.randf_range(18 * 60 + 25, WALK_UNTIL - 15.0))   # (o passageiro anda na calçada: antes de ela esvaziar)
+	return _taxi_at
 
 
 ## Faz passar agora um carro na mão `lane` (0: a de lá), do modelo `kind` (vazio: sorteado), se ela estiver livre (debug).
@@ -706,6 +757,7 @@ func _draw() -> void:
 	_draw_damp()
 	var after := (cab_x + CAB_W * CAB_T + _cx) / 2.0   # o meio do vão depois do armário
 	_draw_calendar(Rect2(floorf(after - 18.5), 62, 37, 28))   # (antes dele: a sombra dele e a porta entreaberta ficam por cima)
+	_draw_wall_marks(after, top)
 	_draw_steel_cabinet((cab_x - _vp.x) / CAB_T)
 	if "cartaz_quermesse" in details:
 		_draw_poster(Rect2(floorf(after - POSTER_W / 2.0), 26, POSTER_W, 28))
@@ -1087,7 +1139,7 @@ func _draw_wall(r: Rect2) -> void:
 	if wall_art:
 		draw_texture_rect(wall_art, r, true)
 		return
-	_r(r.position.x, r.position.y, r.size.x, r.size.y, Color("172023"))
+	_r(r.position.x, r.position.y, r.size.x, r.size.y, WALL_PAINT)
 	var h := r.size.y * 2.0
 	for x in range(0, int(r.size.x) * 2, 44):   # as listras: a larga com o fio de luz e, no meio, a fina
 		_p(x, 0, 3, h, Color("141c1f"))
@@ -1100,6 +1152,60 @@ func _draw_wall(r: Rect2) -> void:
 		for i in 5:
 			var half := 2 - absi(i - 2)
 			_p(x + 9 - half, 10 + i, half * 2 + 1, 1, frieze)
+	_ci.draw_set_transform(Vector2.ZERO)   # as manchas do reboco, por cima das listras
+	_ci.draw_texture(_stain_art(Vector2i(ceili(r.size.x * 2.0), ceili(r.size.y * 2.0))), Vector2.ZERO, Color(WALL_PAINT * 2.0, STAIN))
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+
+
+## As manchas do reboco da parede do fundo, do tamanho dela (px da tela): o ruído em cinza, que o `_draw_wall` põe por
+## cima no tom da tinta, clareando e escurecendo em volta dele (`STAIN`), liso e sem padrão. Guardada por tamanho.
+static var _stains := {}
+
+
+func _stain_art(sz: Vector2i) -> ImageTexture:
+	if not _stains.has(sz):
+		if _stains.size() > 4:   # (a janela mudou de tamanho)
+			_stains.clear()
+		var noise := FastNoiseLite.new()
+		noise.seed = 31
+		noise.frequency = 0.007
+		var img := noise.get_image(maxi(1, sz.x), maxi(1, sz.y))
+		img.adjust_bcs(1.0, 2.2, 1.0)   # mais contraste: manchas, não um véu
+		_stains[sz] = ImageTexture.create_from_image(img)
+	return _stains[sz]
+
+
+## O uso de anos na parede do fundo, no vão depois do armário (`x`, o meio dele; `top`, o fundo do tampo; px de 2x2):
+## no lugar do cartaz, a marca de um quadro que foi tirado (a tinta mais limpa onde ele ficava, o encardido em volta)
+## com o prego ainda lá; e, embaixo da folhinha, uma tomada de baquelite com o plugue e o fio caindo para trás da mesa.
+func _draw_wall_marks(x: float, top: float) -> void:
+	_ci.draw_set_transform(Vector2.ZERO)
+	if not "cartaz_quermesse" in details:   # (o cartaz fica pendurado ali)
+		var r := Rect2(floorf(x - POSTER_W / 2.0) * 2.0, 52.0, POSTER_W * 2.0, 56.0)
+		_ci.draw_rect(r.grow(1.0), Color(0, 0, 0, 0.12))   # o encardido em volta
+		_ci.draw_rect(r, Color(0.9, 0.82, 0.7, 0.12))   # a tinta mais limpa onde ele ficava, na luz quente da luminária
+		var n := Vector2(r.get_center().x - 1.0, r.position.y - 7.0)   # o prego
+		_ci.draw_rect(Rect2(n + Vector2(1, 1), Vector2(2, 2)), Color(0, 0, 0, 0.45))
+		_ci.draw_rect(Rect2(n, Vector2(2, 2)), Color("5a534a"))
+		_ci.draw_rect(Rect2(n, Vector2.ONE), Color("e0d6c4"))   # a cabeça dele pegando a luz
+	var o := Vector2(floorf(x * 2.0) - 4.0, (top - OUTLET_UP) * 2.0)
+	var plate := Rect2(o, Vector2(9, 13))   # o espelho, de baquelite creme
+	_ci.draw_rect(Rect2(o + Vector2(1, 1), plate.size), Color(0, 0, 0, 0.35))   # a sombra na parede
+	_ci.draw_rect(plate, Color("6e6450"))
+	_ci.draw_rect(plate.grow(-1.0), Color("b3a689"))
+	_ci.draw_rect(Rect2(o + Vector2(1, 1), Vector2(7, 1)), Color("cfc3a2"))   # a beira de cima, na luz
+	_ci.draw_rect(Rect2(o + Vector2(4, 2), Vector2.ONE), Color("6e6450"))   # o parafuso
+	var plug := Rect2(o + Vector2(2, 5), Vector2(5, 4))   # o plugue encaixado
+	_ci.draw_rect(plug, Color("1a1612"))
+	_ci.draw_rect(Rect2(plug.position, Vector2(plug.size.x, 1)), Color("3a342c"))
+	var prev := plug.position + Vector2(2, 4)   # o fio, com uma barriga para a esquerda, até sumir atrás do tampo
+	var from := prev
+	for i in range(1, 9):
+		var u := i / 8.0
+		var p := Vector2(from.x - 6.0 * sin(u * PI * 0.9) - 2.0 * u, lerpf(from.y, top * 2.0 + 2.0, u)).round()
+		_pixel_line(prev, p, [Color("1a1612"), Color("3a3028")])
+		prev = p
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
 ## A luz da luminária na parede, atrás dela: o cone que desce da boca corta a parede num arco (alto no meio, descendo

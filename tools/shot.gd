@@ -23,7 +23,8 @@ extends Node
 ##   --blind=1              a persiana descida (de 0, aberta, a 1, fechada)
 ##   --smoke                alguém fumando na varanda (com a tragada a cada `PUFF_EVERY` s)
 ##   --cat                  o gato da noite (na marquise ou no gradil, pela noite)
-##   --bike=-2              alguém de bicicleta parado nesse x (m)
+##   --bike=-2              alguém de bicicleta parado nesse x (m) · --dog=3: um vira-lata nesse x
+##   --taxi=4.5             o táxi que para no hotel, tantos segundos depois de aparecer (parado de 3,2 a 9,7; o passageiro de 3,7 a 7,3)
 ##   --damp=4               a mancha de umidade de 4 noites de chuva
 ##   --phones=2,1           os telefones da vista (hotel, bar): 1 tocando, 2 na linha
 ##   --sips=3               goles tomados do café · --cabinet: a porta do armário aberta
@@ -153,7 +154,7 @@ func _ready() -> void:
 			m.exchange.set_dest(Background.CALLED[i], int(st[i]))
 	for f in 12:   # (a sala se redesenha no quadro seguinte; a camada da poeira, a 30 por segundo)
 		await get_tree().process_frame
-	if _args.has("walk") or _args.has("bar") or _args.has("smoke") or _args.has("bike") or _args.has("phones"):   # posto de novo a cada quadro, como o carro
+	if _args.has("walk") or _args.has("bar") or _args.has("smoke") or _args.has("bike") or _args.has("phones") or _args.has("dog") or _args.has("taxi"):   # posto de novo a cada quadro, como o carro
 		var bg := m.background
 		bg._walk_in = INF
 		for f in 60:
@@ -165,6 +166,12 @@ func _ready() -> void:
 			if _args.has("bike"):
 				bg._walkers.append({"t": (float(_args["bike"]) + Background.WALK_SPAN) / (2.0 * Background.WALK_SPAN), "dir": 1.0, "sec": 1e9,
 					"z": Background.STREET["far_curb"] - 0.6, "h": 1.0, "hat": false, "bike": true})
+			if _args.has("dog"):
+				bg._walkers.append({"t": (float(_args["dog"]) + Background.WALK_SPAN) / (2.0 * Background.WALK_SPAN), "dir": 1.0, "sec": 1e9,
+					"z": Background.STREET["far_curb"] + 1.0, "h": 1.0, "hat": false, "dog": true})
+			if _args.has("taxi"):
+				bg._car_in = [INF, INF]
+				bg._cars.assign([{"t": 0.5, "lane": 0, "kind": "fusca", "col": Background.CAR_COLORS[2], "taxi": true, "stop": true, "s": float(_args["taxi"])}])
 			if _args.has("bar"):
 				bg._bar_t = 1.0
 			if _args.has("smoke"):

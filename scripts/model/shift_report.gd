@@ -94,8 +94,8 @@ func outcomes() -> Dictionary:
 
 
 ## O jornal da manhã: uma manchete por emergência do turno, {"outcome", "template", "occurrence", "address"} (molde e
-## ocorrência no original; `headline` traduz na hora de mostrar). O relatório e o jornal da noite seguinte, na mesa,
-## dizem a mesma: o molde é sorteado uma vez por desfecho.
+## ocorrência no original; `headline` traduz na hora de mostrar). Chamado de novo, diz a mesma: o molde é sorteado uma
+## vez por desfecho (é o jornal da noite seguinte, na mesa, que o `Progress` guarda).
 func news() -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	var all := outcomes()

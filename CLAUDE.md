@@ -13,7 +13,18 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `RedButton`, `InkButton`, `DarkButton`, `ChoiceButton`, `HudPanel`, `GreenKey`, `AmberKey`, `IvoryKey`, `RedKey` (teclas do console:
   `KeyCapStyle`, um StyleBox em script, `scripts/ui/key_cap_style.gd`), `PaperToggle`, `PaperInk`, `LetterButton`,
   `DarkPanel`, `PaperPanel`, `NotePanel`, `FormPanel`, `SlipPanel`, `InkLabel`, `InkSoftLabel`, `InkBoldLabel` (11 em negrito: a sombra de 1 px ao lado), `DimLabel`, `AmberLabel`,
-  `MonoLabel`, `InkMonoLabel`, `TapedNote`/`TapedLabel`: papel preso com fita, `TapedPaperStyle`). Prefira variação de tema a override por nó.
+  `MonoLabel`, `InkMonoLabel`, `TapedNote`/`TapedLabel`: papel preso com fita, `TapedPaperStyle`, `MemoPanel`: o papel do
+  memorando do supervisor, com a sombra na mesa, `LetterheadLabel`: o nome da companhia no timbre, `TypedText`/`HandText`:
+  a tinta do datilografado e a caneta azul dos papéis escritos). Prefira variação de tema a override por nó. **Papéis escritos**: a
+  tinta das letras é um efeito de RichTextLabel (`scripts/ui/paper_ink.gd`, sem `class_name`: `preload` e
+  `install_effect`, um por `bbcode`): `[typed]`, datilografado (a fita mais fraca ou mais forte em cada letra, uma ou
+  outra um pixel mais baixa), e `[hand]`, à mão (a linha subindo e descendo devagar, na caneta azul, `Pal.PEN`). Telas
+  fora do turno no papel: a abertura da noite é o recado do supervisor num bilhete com fita preso no painel da mesa
+  comutadora (`Intro`, `over`; a sala escurecida atrás e, ao começar, o bilhete some e ela clareia, `FADE_SEC`; como se
+  joga, num papel de MANUAL como o da dica da parede), a pausa e as configurações num papel com fita (rótulos em
+  `InkLabel`) e o relatório é um memorando (`ReportView`: timbre com o fone e o nome da companhia, fio duplo, dobras em
+  três, texto datilografado, cada advertência com o carimbo da gravidade, `SEVERITY_COLORS`, a borracha falhando, o
+  parecer à mão e a rubrica do supervisor; a sala fica à vista, escura, atrás dele, `Ending.REPORT_DIM`).
 - Nomes de pessoas e lugares na ordem natural, "Nome Sobrenome" (nunca "Sobrenome, Nome"); a lista telefônica
   ordena pelo nome como aparece, sem acento (`PhoneBook._entries`, `_plain`). **Uma letra por página dupla**: a aba de
   índice na borda direita (`_index`, `_tab_rect`; a da letra aberta fica destacada) abre só os contatos daquela letra
@@ -34,7 +45,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `EmergencyCall` com lacunas **em inglês** (`{place}`, `{reason}`, `{street}`, `{house}`...), preenchidas por
   `GameData.template_transfer()`/`template_emergency()`. Motivos em `DirectoryEntry.motives` (`Motive`: o pedido e a conversa que vem depois). `TEMPLATE_CHANCE`
   (`Schedule`) mistura moldes e roteiros escritos (híbrido: treinamento, trotes e roteiro da noite sempre escritos).
-- Todo o áudio é sintetizado ao iniciar por `SfxSynth.build()` (`scripts/sfx_synth.gd`: as receitas, 263 sons, 6,5 MB;
+- Todo o áudio é sintetizado ao iniciar por `SfxSynth.build()` (`scripts/sfx_synth.gd`: as receitas, 264 sons, 6,5 MB;
   sem cache; em pedaços, `PARTS` e uma voz por pedaço, montados ao mesmo tempo nos núcleos, `WorkerThreadPool` em alta
   prioridade (a de baixa usa só ~30% deles): ~0,4 s num Mac recente pelo editor, ~0,9 s um depois do outro; cada
   pedaço numa instância com o seu sorteio, `_rng`, porque o `randf` global não é seguro entre linhas de execução); **nada de chamar função a cada amostra** num laço de som (do
@@ -226,7 +237,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `drop_emergency`); dos campos, o painel só lê agenda e ligações para o texto de estado e adianta o relógio (`minutes`), para não quebrar quando o Main mudar.
 - **Captura de tela** (`tools/shot.tscn`, COM tela): `Godot --path . tools/shot.tscn -- --hour=22:30 --weather=rain
   --tool=despacho --card --emergency --news --toll --width=1125 --zoom=x,y,w,h --out=build/shot.png` grava a tela inteira e o
-  recorte ampliado 4× (`_zoom.png`); `--hover=id` põe o mouse num objeto da mesa (ele erguido e a etiqueta com o nome); `--debug=N` abre o painel de debug na aba N; `--car=fusca,sedan` põe um carro de cada modelo parado na rua da vista, o de lá e o de cá (`-` deixa a mão vazia; `--car_t=0.45` onde, de 0 a 1); `--walk=2,-4` gente parada na calçada de lá nesses x (m); `--bar` a porta do bar aberta; `--blind=1` a persiana descida (0 a 1); `--smoke`, `--cat`, `--bike=x`, `--damp=N`, `--phones=2,1`, `--sips=N`, `--cabinet`, `--written=N`, `--read` (quem fuma na varanda, o gato, a bicicleta, a mancha de umidade, os telefones da vista, os goles da caneca, o armário aberto, o lugar do lápis no bloco, o jornal já lido); as opções do jogo (`--night`, `--seed`, `--lang`) também valem. Para conferir
+  recorte ampliado 4× (`_zoom.png`); `--hover=id` põe o mouse num objeto da mesa (ele erguido e a etiqueta com o nome); `--debug=N` abre o painel de debug na aba N; `--car=fusca,sedan` põe um carro de cada modelo parado na rua da vista, o de lá e o de cá (`-` deixa a mão vazia; `--car_t=0.45` onde, de 0 a 1); `--walk=2,-4` gente parada na calçada de lá nesses x (m); `--bar` a porta do bar aberta; `--blind=1` a persiana descida (0 a 1); `--smoke`, `--cat`, `--bike=x`, `--damp=N`, `--phones=2,1`, `--sips=N`, `--cabinet`, `--written=N`, `--read`, `--taxi=s`, `--dog=x` (quem fuma na varanda, o gato, a bicicleta, a mancha de umidade, os telefones da vista, os goles da caneca, o armário aberto, o lugar do lápis no bloco, o jornal já lido, o táxi parando no hotel a `s` segundos de aparecer, o vira-lata); `--screen=intro|pause|settings|report` as telas fora do turno; as opções do jogo (`--night`, `--seed`, `--lang`) também valem. Para conferir
   mudança visual medindo, não só olhando a captura.
 - **Sem tela, a vista da janela não é desenhada** (`Background._headless`): com `--fixed-fps` e o tempo acelerado,
   ela era redesenhada a cada quadro e virou 2/3 do tempo de um turno do robô (27 s em vez de 9). Quem acrescentar

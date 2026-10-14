@@ -953,3 +953,20 @@ Chaves:
     só a sombra se afastando, sem crescer (estranho: puxado para cima, um cartão chega perto); redesenhado 6% maior com
     as letras do mesmo tamanho; e redesenhado 25% maior com a fonte miúda um pixel maior (4×6). A pedido, ficou a
     escala de antes, com os pixels tortos na mão.
+181. #interface #consequencias #luz #sala #vista #som
+    Das sugestões de visual, o usuário quis: o relatório do supervisor como um memorando de verdade (papel timbrado com o
+    fone e o nome da companhia, o fio duplo, as dobras em três e as fibras; o texto datilografado, com a tinta da fita
+    variando de letra em letra; cada advertência com o carimbo da gravidade na cor dela, como os do caderno, a borracha
+    falhando; o parecer escrito à mão na caneta azul, com a linha subindo e descendo, e a rubrica do supervisor; a sala
+    escura à vista atrás dele, não mais o preto); a abertura da noite como o recado do supervisor num bilhete com fita
+    preso no painel da mesa comutadora, a sala escurecida atrás e clareando quando o turno começa (como se joga, num
+    papel de MANUAL como o da parede: em cima do painel, o texto solto não se lia); a pausa e as configurações num papel
+    com fita; o miolo da poça de luz da luminária mais quente (só o meio clareia); na parede do fundo, manchas leves no
+    reboco, a marca de um quadro tirado com o prego e uma tomada de baquelite com o fio (embaixo dela, ficava atrás das
+    listas); um táxi parando no hotel duas vezes por noite, com o passageiro descendo com a mala e entrando, e a porta do
+    carro batendo (parado na frente da porta, metade dele ficava atrás do montante: para um pouco antes); um vira-lata
+    caramelo trotando pela calçada de lá (escuro, sumia nela; ele e o passageiro do táxi só até as 22h, quando a rua
+    esvazia para o homem do mistério); e mariposas em volta dos postes nas noites limpas.
+182. #consequencias #jornal #saiu
+    O jornal da manhã saiu do relatório do supervisor: o jornal já vem na mesa na noite seguinte, com as mesmas
+    manchetes, e repeti-las no memorando era redundante.

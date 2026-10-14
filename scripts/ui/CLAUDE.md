@@ -30,7 +30,13 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   marquise do hotel ou no gradil da varanda, piscando os olhos, `CAT_NIGHTS`, `_draw_cat`, uns pixels a mais que o
   tamanho de verdade; bicicletas junto do meio-fio de lá, às vezes com a campainha, `BIKE_*`, `_draw_bike`, nos
   `_walkers` com "bike"; o ônibus da linha passa nos horários dele, `BUS_TIMES`, pela mão de lá, um modelo de
-  `CAR_KINDS` nunca sorteado e mais lento, `sec`; **a vista mostra os telefones da lista** que se veem dela,
+  `CAR_KINDS` nunca sorteado e mais lento, `sec`; duas vezes por noite, nas horas sorteadas pela noite, antes das 22h (`TAXI_STOPS`,
+  `_taxi_times`), um táxi da mão de lá freia e para um pouco antes da porta do hotel (na frente dela, metade ficava
+  atrás do montante; `_taxi_x`, `_taxi_mid`, `TAXI_STOP`), o passageiro desce do lado da calçada e vai com a mala até a
+  porta acesa, sumindo nela (`_draw_guest`, `GUEST`), a porta do carro bate (som `car_door`) e ele sai acelerando; de
+  vez em quando um vira-lata caramelo trota pela calçada de lá (sem chuva e só até as 22h, como os pedestres; `STRAY_*`, `_draw_stray`, nos `_walkers`
+  com "dog": escuro, sumia na calçada); nas noites limpas, mariposas em volta das cabeças acesas dos postes, pontos de
+  1 px em voltas tortas (`MOTHS`, `_draw_moths`); **a vista mostra os telefones da lista** que se veem dela,
   `CALLED`: transferida a ligação para o Hotel Estrela ou o Bar do Zé, alguém vai até o telefone enquanto ele toca
   (num lugar fechado ninguém vem, `Main._quiet`) e fica com o fone na orelha enquanto a conversa dura, no saguão,
   pela porta, e atrás da vitrine do bar, `phones`, `Main._phone_state`, `_draw_phones`; a ligação não sabe o número de
@@ -165,7 +171,10 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   objetos chatos têm a profundidade em fração do tampo (`_deep`) e não mudam na tela; com a focal certa, as medidas
   deles na sala ficaram as de verdade (a prancheta mais funda que larga). Na sala: a parede do fundo (sem rodapé nem
   linha escura embaixo: com elas parecia um chão), com um conduíte de ferro levando os fios do alto do painel da mesa comutadora
-  para o teto, com a caixa de passagem (`_draw_conduit`, no vão entre ela e o armário), e um armário
+  para o teto, com a caixa de passagem (`_draw_conduit`, no vão entre ela e o armário), e, no vão depois do armário, o uso de anos: no lugar do cartaz, a marca de um quadro tirado (a tinta mais limpa,
+  o encardido em volta) com o prego, e, embaixo da folhinha, uma tomada de baquelite com o plugue e o fio caindo para
+  trás do tampo (`_draw_wall_marks`, `OUTLET_UP`); a parede inteira com manchas leves no reboco (`_stain_art`: o ruído
+  em cinza posto no tom da tinta, `STAIN`, guardado por tamanho); e um armário
   de aço de chão (`_draw_steel_cabinet`, `CAB_*`; com o guarda-chuva do operador pendurado pelo cabo no puxador,
   `_draw_umbrella`, molhado na chuva, com a água escorrendo na camada da poeira, `_draw_drips`; clicado, a porta da
   direita abre e fecha, `CABINET_ID`, `cab_open`, ao contrário do que o roteiro deixou, e o guarda-chuva vai com ela,
@@ -248,7 +257,8 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   tampo dele aparece. (Antes eram caixas soltas na frente do painel, com
   tampos enormes que cobriam o pé dele: parecia fora da mesa e desalinhado.) O tampo (`_draw_desk`): `PLANKS` tábuas
   da mesma largura espaçadas pela câmera, sem juntas (com juntas parecia assoalho), a borda da frente com a
-  espessura dele e a poça de luz da luminária, um círculo de `POOL_R` no tampo embaixo dela que treme com ela
+  espessura dele e a poça de luz da luminária, um círculo de `POOL_R` no tampo embaixo dela (com o miolo mais quente,
+  `POOL_HOT`: só o meio clareia, para o olho cair nos objetos) que treme com ela
   (`lamp_level`, como o arco na parede e a luz no armário). **O estado do jogo nos objetos**, para ler de relance: uma
   tira de papel saindo do caderno por registro pendente (`pending`) e uma folha nova na
   prancheta quando uma conversa termina com o registro guardado (`unread`; `CallLog.filed`/`unread_changed`, o Main
@@ -258,7 +268,7 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   `Main.set_news`; depois de aberto, volta dobrado mais uma vez, os classificados para cima e girado para o outro
   lado, `news_read`, `_classifieds`) abre a primeira página na área das ferramentas (`NewsView`, `Tools.news`, id "jornal", sem aba) com
   as manchetes da noite anterior; `ShiftReport.news()` sorteia a manchete de cada emergência uma vez (o relatório do
-  fim da noite e o jornal dizem a mesma; `headline` traduz na hora) e o `Progress` a guarda (`news`). A página é a do jornal da mesa de perto
+  fim da noite não as repete: o jornal já vem na mesa; `headline` traduz na hora) e o `Progress` a guarda (`news`). A página é a do jornal da mesa de perto
   (o papel-jornal, o fio duplo, as colunas de letra miúda, `_greek`, e a foto da cidade em retícula, `_photo`); cada noite
   pode trazer a foto, a legenda e as matérias das colunas dela (`Night.news_photo`, `news_caption`, `news_stories`: uma por
   coluna, a primeira linha é o título), e o que ela não trouxer sai como sempre. **A sala muda ao

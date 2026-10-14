@@ -341,6 +341,8 @@ func _build_basic() -> void:
 	for at in [0.0, 0.16]:
 		_tone(at, 2650, 0.14, "sine", 0.35); _tone(at, 3950, 0.08, "sine", 0.15); _noise(at, 0.01, "bp", 4000, 1.5, 0.3)
 	_end("bike_bell")
+	# a porta do táxi batendo do outro lado da rua, pela janela fechada: um baque surdo e o trinco
+	_begin(0.3); _noise(0, 0.06, "lp", 600, 0.7, 1.0); _tone(0, 92, 0.13, "sine", 0.6); _noise(0.008, 0.02, "bp", 1700, 1.3, 0.22); _end("car_door")
 	_begin(0.55)
 	for k in 12:
 		if _rng.randf() < 0.7:

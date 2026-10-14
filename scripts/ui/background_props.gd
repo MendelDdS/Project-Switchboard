@@ -5,6 +5,9 @@ extends "res://scripts/ui/background_view.gd"
 const DESK_T := 1.25    ## o fundo do tampo, Z0/DESK_T: a mesa fica afastada da parede (o armário cabe atrás)
 const PLANKS := 6       ## as tábuas do tampo, todas da mesma largura (a câmera as espaça)
 const POOL_R := 112.0   ## o raio da poça de luz da luminária no tampo
+## O miolo quente da poça (a fração do raio dela e a força): só clareia o meio da mesa, para o olho cair nos objetos;
+## as pontas, com o relógio, ficam na luz de sempre.
+const POOL_HOT := Vector2(0.42, 0.16)
 const SHADE_MAX := 0.3   ## o mais escuro que um objeto da mesa fica, longe da poça de luz (`_shade`)
 const FRONT_LIGHT := 1.6   ## da poça para a frente da mesa, a luz vai essa vez mais longe (`_shade`, `_draw_gloom`): a fileira da frente ficava escura demais
 const WALL_PAD := 2.0           ## a folga dos objetos da mesa até a parede da direita (x da sala)
@@ -164,11 +167,12 @@ func _draw_desk(r: Rect2, front: float) -> void:
 	# a luz da luminária: um círculo no tampo, embaixo dela (que fica um pouco à frente do fundo da mesa), liso e mais
 	# forte no meio; o que passaria do fundo do tampo fica na parede (o arco de `_draw_wall_light`)
 	var pool := _pool()
-	var pts := PackedVector2Array()
-	for i in 32:
-		var a := TAU * i / 32.0
-		pts.append(_proj(pool.x + cos(a) * POOL_R, _yd, clampf(pool.y + sin(a) * POOL_R * 0.5, 40.0, Z0 / DESK_T)))
-	_light_fan(_proj(pool.x, _yd, pool.y), pts, Color(1.0, 0.78, 0.48, 0.22 * lamp_level))
+	for ring: Vector3 in [Vector3(1.0, 0.22, 0.0), Vector3(POOL_HOT.x, POOL_HOT.y, 1.0)]:   # a poça e, por cima, o miolo dela, mais quente
+		var pts := PackedVector2Array()
+		for i in 32:
+			var a := TAU * i / 32.0
+			pts.append(_proj(pool.x + cos(a) * POOL_R * ring.x, _yd, clampf(pool.y + sin(a) * POOL_R * 0.5 * ring.x, 40.0, Z0 / DESK_T)))
+		_light_fan(_proj(pool.x, _yd, pool.y), pts, Color(1.0, 0.78 + 0.08 * ring.z, 0.48 + 0.12 * ring.z, ring.y * lamp_level))
 	# a borda da frente: o canto arredondado do tampo pega a luz, a espessura dele e, embaixo, o escuro sob a mesa
 	var f := front * 2.0
 	_p(0, f - 2, w2, 1, Pal.DESK_EDGE[0])

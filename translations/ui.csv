@@ -312,6 +312,8 @@ RADIO_NEED,"Central, precisamos de %s aqui na %s.","Dispatch, we need %s here on
 RADIO_UNDER_CONTROL,"Central, equipe no local. Vítimas atendidas, situação sob controle.","Dispatch, team on site. Victims treated, situation under control.","Central, equipo en el lugar. Víctimas atendidas, situación bajo control."
 RADIO_NOT_NEEDED,"Central, aqui não precisa de %s. Liberando.","Dispatch, no need for %s here. Releasing.","Central, aquí no hace falta %s. Liberando."
 REPORT_TITLE,Relatório do supervisor,Supervisor's report,Informe del supervisor
+REPORT_DEPARTMENT,Supervisão do tráfego noturno,Night traffic supervision,Supervisión del tráfico nocturno
+REPORT_SIGNATURE,Supervisor de tráfego,Traffic supervisor,Supervisor de tráfico
 REPORT_SIGN,Assinar e sair,Sign and leave,Firmar y salir
 REPORT_NIGHT,Noite %d · turno das %s às %s,Night %d · shift from %s to %s,Noche %d · turno de %s a %s
 REPORT_TRAINING,Treinamento · turno das %s às %s,Training · shift from %s to %s,Entrenamiento · turno de %s a %s
@@ -322,7 +324,6 @@ REPORT_SEVERE,Graves,Severe,Graves
 REPORT_MEDIUM,Médias,Moderate,Medias
 REPORT_LIGHT,Leves,Minor,Leves
 REPORT_ACCUMULATED,"Advertências graves acumuladas (gravíssima conta 2): %d de %d","Accumulated severe warnings (critical counts as 2): %d of %d","Advertencias graves acumuladas (gravísima cuenta 2): %d de %d"
-REPORT_NEWS,JORNAL DA MANHÃ,MORNING PAPER,DIARIO DE LA MAÑANA
 REPORT_QUIET,Noite tranquila em São Sotero.,A quiet night in São Sotero.,Noche tranquila en São Sotero.
 REPORT_INCIDENT,Ocorrência,Incident,Incidente
 SEV_LIGHT,leve,minor,leve

@@ -264,9 +264,14 @@ func _initialize() -> void:
 	# ---- 9. relatório do supervisor
 	var view = m._ending._report
 	view.show_report(m.report)
-	var text: String = view._body.get_parsed_text()
-	ok(T.text(T.Key.REPORT_WARNINGS) in text and T.text(T.Key.REPORT_NEWS) in text and e4.address in text and e5.address in text, "relatório com advertências e jornal")
-	ok(m.report.verdict() == 2 and view._verdict.text == C.verdicts[2], "parecer: turno ruim")
+	var text := ""   # o memorando: uma linha datilografada por nó
+	for l in view._body.find_children("*", "RichTextLabel", true, false):
+		text += (l as RichTextLabel).get_parsed_text() + "\n"
+	ok(T.text(T.Key.REPORT_WARNINGS) in text, "relatório com as advertências")
+	var heads := " ".join(m.report.news().map(func(d: Dictionary) -> String: return ShiftReport.headline(d)))
+	ok(e4.address in heads and e5.address in heads, "as emergências no jornal da noite seguinte (não no relatório: o jornal já vem na mesa)")
+	ok(view._body.find_children("*", "HBoxContainer", true, false).size() == m.report.faults.size(), "uma linha com carimbo por advertência")
+	ok(m.report.verdict() == 2 and view._verdict.get_parsed_text() == tr(C.verdicts[2]), "parecer: turno ruim")
 	var sev: int = m.report.count(ShiftReport.Severity.SEVERE)
 	m.report.severe_before = ShiftReport.SEVERE_LIMIT - sev - 1
 	ok(not m.report.fired(), "ainda não foi demitido")

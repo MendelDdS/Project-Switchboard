@@ -56,6 +56,22 @@ const BIKE_SEC := 7.0     ## quanto quem passa de bicicleta leva de um lado ao o
 const CALLED := [305, 327]
 const PHONE_WALK := 1.6   ## quanto a pessoa leva até o telefone (s)
 const HOTEL_X := -5.8     ## o letreiro do hotel, no prédio do outro lado da esquina
+## O táxi que para na marquise do hotel (`Background.TAXI_STOPS` por noite): pela mão de lá, chega freando em
+## `TAXI_STOP.x` s com o meio na porta, fica parado `TAXI_STOP.y` s e sai acelerando em `TAXI_STOP.z` s (`_taxi_x`).
+## O passageiro (`GUEST`) desce do lado da calçada `x` s depois de parar, a porta bate em `y` e ele leva `z` s com a
+## mala até a porta do hotel, onde some (`_draw_guest`).
+const TAXI_STOP := Vector3(3.2, 6.5, 3.0)
+const GUEST := Vector3(0.5, 1.2, 3.6)
+## Um vira-lata caramelo trotando pela calçada de lá de vez em quando (`Background.STRAY_EVERY`; com chuva, não): em
+## pixel art, dois quadros do trote (`STRAY_ART`), virado para onde vai; uns pixels maior que o de verdade, como o gato.
+## Escuro, sumia na calçada: o pelo caramelo, apagado pela noite, aparece contra ela.
+const STRAY_SEC := 22.0   ## quanto ele leva de um lado ao outro (~1,5 m/s; cada um ±15%)
+const STRAY_COAT := Color("4e3218")
+const STRAY_ART := [["......#...", "#.....###.", ".#########", ".######...", "#..#.#..#.", "#..#.#..#."],
+	["......#...", "#.....###.", ".#########", ".######...", ".##...##..", ".##...##.."]]
+## As mariposas em volta das cabeças acesas dos postes, nas noites limpas: quantas por poste e a cor delas na luz.
+const MOTHS := 5
+const MOTH := Color(1.0, 0.94, 0.78)
 ## O prédio de tijolos da esquina é de apartamentos: no 3º andar (de `floor` m), uma varanda de `x0` a `x1` (m ao longo
 ## da rua), saindo `deep` m da fachada, com a porta (`door`, de x a y) e a janela da sala (`win`), onde a TV fica ligada.
 const APT := {"x0": 1.9, "x1": 4.9, "floor": 6.5, "deep": 1.0, "door": Vector2(2.2, 2.9), "win": Vector2(3.4, 4.6)}
@@ -394,10 +410,13 @@ func _draw_city_front(g: Rect2) -> void:
 	_draw_bar_door(g)
 	_draw_phones(g)
 	_draw_cat(g)
+	_draw_guest(g)
 	for w: Dictionary in _walkers:   # passam atrás dos postes e do homem
 		_draw_walker(g, w)
 	for x: float in FAR_LAMPS:
 		_draw_lamp_post(g, x, STREET["far_curb"] + 0.4)
+	if weather == "clear" and lamp_level > 0.5:
+		_draw_moths(g)
 	var mx := _man_x()
 	if not is_nan(mx):
 		_draw_stranger(g, mx)
@@ -508,8 +527,31 @@ func _post(g: Rect2) -> Vector2:
 
 ## Onde está a frente do carro `c` (x, m): entra por um lado da vista e sai pelo outro, no sentido da mão dele.
 func _car_x(c: Dictionary) -> float:
+	if c.has("stop"):
+		return _taxi_x(c)
 	var d: float = CAR_LANES[c["lane"]].y
 	return lerpf(16.0, -21.0 - maxf(0.0, CAR_KINDS[c["kind"]]["len"] - 4.5), c["t"]) * -d   # (o comprido sai inteiro da vista)
+
+
+## Onde está a frente do táxi que para no hotel (`c`, com "stop"; x, m), pelos segundos dele (`s`): chegando,
+## freando; parado com o meio na porta; saindo, acelerando (`TAXI_STOP`).
+func _taxi_x(c: Dictionary) -> float:
+	var stop: float = _taxi_mid() - CAR_KINDS[c["kind"]]["len"] / 2.0   # (a frente vai para a esquerda)
+	var s: float = c["s"]
+	if s < TAXI_STOP.x:
+		var u := 1.0 - s / TAXI_STOP.x
+		return lerpf(stop, 16.0, u * u)
+	s -= TAXI_STOP.x + TAXI_STOP.y
+	if s < 0.0:
+		return stop
+	var u := s / TAXI_STOP.z
+	return lerpf(stop, -21.0, u * u)
+
+
+## Onde o meio do táxi parado fica (x, m): um pouco antes da porta do hotel, vista daqui (mais perto, o x que cai nela
+## é menor: tudo vai para o ponto de fuga); na frente dela, metade dele ficava atrás do montante da janela.
+func _taxi_mid() -> float:
+	return (HOTEL_X - 1.4) * CAR_LANES[0].x / STREET["far"]
 
 
 ## O chão: a rua do cruzamento indo embora (com as calçadas e os postes dela, menores com a distância), a nossa calçada
@@ -786,6 +828,59 @@ func _draw_phones(g: Rect2) -> void:
 		var walking := away > 0.0
 		var parts := _body(int(t * WALK_STEPS * 2.0), walking, st == 2 and not walking, -1.0)
 		_figure(foot, OUT_F / spot.y * 2.0, parts, Color("120a06") if i == 0 else Color(0.17, 0.09, 0.04, 0.9), clip)
+
+
+## O passageiro do táxi parado no hotel (`_taxi_x`, `GUEST`): desce do lado da calçada, atrás do carro, e anda com a
+## mala até a porta acesa embaixo da marquise, sumindo nela. Antes dos carros (o táxi fica na frente dele).
+func _draw_guest(g: Rect2) -> void:
+	var ff: float = STREET["far"]
+	for c in _cars:
+		var p: float = c.get("s", 0.0) - TAXI_STOP.x - GUEST.x
+		if not c.has("stop") or p < 0.0 or p > GUEST.z:
+			continue
+		var u := p / GUEST.z
+		var z0: float = CAR_LANES[0].x + 1.0   # da porta de trás do táxi, do lado da calçada...
+		var z := lerpf(z0, ff + 0.8, u)
+		var clip := Rect2()   # passando da fachada, só pela porta
+		if z > ff:
+			var a := _o(g, HOTEL_X - 0.6, ff, 2.3)
+			clip = Rect2(a * 2.0, (_o(g, HOTEL_X + 0.6, ff) - a) * 2.0)
+		var parts := _body(int(p * WALK_STEPS * 2.0), true, false)
+		parts.append(Rect2(0.2, 0.08, 0.3, 0.34))   # a mala
+		var x := lerpf((_taxi_mid() + 0.6) * z0 / CAR_LANES[0].x, HOTEL_X * (ff + 0.8) / ff, u)   # ...até a porta do hotel
+		_figure((_o(g, x, z) * 2.0).floor(), OUT_F / z * 2.0, parts, Color("07090c"), clip)
+
+
+## O vira-lata trotando pela calçada de lá (`w`, de `_walker`, com "dog"; `x` onde está): o desenho do quadro do trote
+## (`STRAY_ART`), virado para onde vai, apoiado na calçada; perto de um poste, a beira de cima pega a luz dele.
+func _draw_stray(g: Rect2, w: Dictionary, x: float) -> void:
+	var foot := (_o(g, x, w["z"]) * 2.0).floor()
+	var rows: Array = STRAY_ART[int(w["t"] * w["sec"] * WALK_STEPS * 2.0) % 2]
+	var lit := 0.0
+	for lx: float in FAR_LAMPS:
+		lit = maxf(lit, clampf(1.0 - absf(x - lx) / 3.0, 0.0, 1.0))
+	for y in rows.size():
+		var row: String = rows[y]
+		for i in row.length():
+			if row[i] == "#":
+				var px := foot.x + (i - 5 if w["dir"] > 0.0 else 4 - i)
+				var top := y == 0 or (rows[y - 1] as String)[i] != "#"   # a beira de cima
+				_p(px, foot.y - rows.size() + y, 1, 1, STRAY_COAT.lerp(RIM, 0.2 + 0.4 * lit) if top else STRAY_COAT.darkened(0.25 if y > 3 else 0.0))
+
+
+## As mariposas da noite limpa em volta da luz de cada poste (`MOTHS`): pontos de 1 px voando em voltas tortas, cada uma
+## no seu raio e na sua velocidade, as asas piscando na luz.
+func _draw_moths(g: Rect2) -> void:
+	var t := Time.get_ticks_msec() / 1000.0
+	var heads := _lamp_heads(g)
+	for l in heads.size():
+		var c: Vector2 = (heads[l] as Vector2) * 2.0 + Vector2(0, 2)
+		for i in MOTHS:
+			var ph := i * 1.7 + l * 3.1
+			var a := t * (2.0 + i * 0.45) + ph + sin(t * 3.3 + ph) * 0.9
+			var r := 5.0 + (i % 3) * 2.5 + sin(t * 1.3 + ph) * 1.5   # (rente à cabeça, sumiam no brilho dela)
+			var at := (c + Vector2(cos(a) * r, sin(a * 1.6) * r * 0.6 - 1.0)).round()
+			_p(at.x, at.y, 1, 1, Color(MOTH, 0.9 if fmod(t * 11.0 + i * 0.37, 1.0) < 0.6 else 0.45))
 
 
 ## O gato da noite (`_cat_plan`, sorteado pela noite: em metade delas, `CAT_NIGHTS`): sentado de frente na marquise do
@@ -1086,6 +1181,9 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 		return
 	if w.get("bike", false):
 		_draw_bike(g, w, x)
+		return
+	if w.get("dog", false):
+		_draw_stray(g, w, x)
 		return
 	var steps := int(w["t"] * w["sec"] * WALK_STEPS)
 	var foot := (_o(g, x, z) * 2.0).floor() - Vector2(0, posmod(steps, 2))
