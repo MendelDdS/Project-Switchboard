@@ -318,3 +318,8 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   escura que a face e a face indo do claro ao escuro fizeram o aro voltar a ser uma cúpula, defeito já corrigido antes.
   Ao tirar ou trocar uma beira, compare com o que o HISTORICO diz da peça (`#mesa-comutadora`) e confira a forma de
   novo, não só a cor da beira. Peça chata: face quase num tom só, a luz e a sombra só na quina.
+- **O `_ready` do pai vem depois do dos filhos.** O `GameView` punha a gradação de cor no `_ready` dele, e o `Main`,
+  filho dele, pedia a do clima da noite no `_ready` próprio, antes: não havia material, a noite ficava na gradação de
+  sempre e a troca de clima falhava ("shader_parameter/... does not exist"). A captura montava a tela em outra ordem e
+  saía certa, então a aprovação foi pela captura e o jogo estava errado. O que um filho usa no `_ready` vai no
+  `_enter_tree` do pai; e confira no jogo (`app.tscn`), não só na captura, o que depende da ordem dos nós.

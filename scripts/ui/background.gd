@@ -34,7 +34,7 @@ const WARM := Vector2(0.55, 4.0)
 const WARM_STEP := 0.05
 const WARM_DARK := 0.3   ## o escuro a mais na sala com a luminária ainda fria (`_draw_gloom`)
 const FLICK := [1.0, 0.2, 1.0, 1.0, 0.5, 1.0, 1.0, 0.1, 1.0, 1.0, 1.0, 0.4, 1.0, 1.0, 1.0, 1.0, 0.2, 1.0, 1.0, 0.6, 1.0, 1.0, 1.0]
-const WOOD := [Color("6b4529"), Color("4a2f1c"), Color("2a1a0f")]   ## madeira (luz, meio, sombra), a mesma do móvel
+const WOOD := [Pal.CABINET_WOOD[6], Pal.CABINET_WOOD[4], Pal.CABINET_WOOD[2]]   ## madeira (luz, meio, sombra), a mesma do móvel
 const SIGN_ENAMEL := Color("1f3b35")   ## a placa da companhia telefônica: o esmalte verde-escuro...
 const SIGN_INK := Color("d8cfae")   ## ...e o creme das letras e do filete
 const SIGN_AT := 0.62   ## onde fica o meio dela, na largura da mesa comutadora (à direita do horário do turno)
@@ -1330,7 +1330,7 @@ func _draw_hung_clipboard() -> void:
 	drop = Transform2D(0.0, _raised()) * drop   # saindo da lateral, a sombra fica nela
 	for s: PackedVector2Array in Geometry2D.intersect_polygons(drop, _side_faces[1]):   # a sombra: só onde há lateral atrás
 		_poly(s, Color(0, 0, 0, 0.3))
-	_flat_art(Tools.CALL_LOG, q, _art_clipboard, [unread], 0.0, PackedFloat32Array([HUNG_LIGHT, HUNG_LIGHT, HUNG_LIGHT, HUNG_LIGHT]))
+	_flat_art(Tools.CALL_LOG, q, _art_clipboard, [unread], PackedFloat32Array([HUNG_LIGHT, HUNG_LIGHT, HUNG_LIGHT, HUNG_LIGHT]))
 	_clipboard_print(Vector2i(_hom_sz))
 	_hom_light = PackedFloat32Array()
 	_mark(Tools.CALL_LOG, _bounds(q), q)
@@ -1498,12 +1498,12 @@ func _draw_switchboard() -> void:
 	_r(fx0, sy, fx1 - fx0, 2, WOOD[0])
 	_r(fx0, fy - 3, fx1 - fx0, 3, WOOD[2])
 	# a prateleira: o painel pousa no fundo dela, num rodapé, com a sombra de contato na frente
-	_poly(PackedVector2Array([Vector2(fx0, sy), Vector2(fx1, sy), b.end, Vector2(b.position.x, b.end.y)]), Color("5a3a22"))
+	_poly(PackedVector2Array([Vector2(fx0, sy), Vector2(fx1, sy), b.end, Vector2(b.position.x, b.end.y)]), Pal.SHELF_WOOD[1])
 	for t in [0.3, 0.55, 0.8]:   # os veios da prateleira, de lado a lado
 		var y := roundf(lerpf(sy, b.end.y, t))
-		_r(lerpf(fx0, b.position.x, t), y, lerpf(fx1, b.end.x, t) - lerpf(fx0, b.position.x, t), 1, Color("4e321d"))
-	_r(fx0, sy - 1, fx1 - fx0, 2, Color("8a6a2e"))   # o friso de latão na beira
-	_r(fx0, sy - 1, fx1 - fx0, 1, Color("c4a35a"))
+		_r(lerpf(fx0, b.position.x, t), y, lerpf(fx1, b.end.x, t) - lerpf(fx0, b.position.x, t), 1, Pal.SHELF_WOOD[0])
+	_r(fx0, sy - 1, fx1 - fx0, 2, Pal.BRASS_PLATE[3])   # o friso de latão na beira
+	_r(fx0, sy - 1, fx1 - fx0, 1, Pal.BRASS_PLATE[5])
 	var radio := desk.get_node_or_null("Mini") as Control
 	if radio and radio.visible:   # na frente do console, em volta da miniatura do painel: a plaqueta e os botões dele
 		var rr := Rect2(radio.global_position - global_position, radio.size)
@@ -1513,15 +1513,15 @@ func _draw_switchboard() -> void:
 		for i in 2:   # baquelite: a borda em volta do tampo, os dois com a luz no alto à esquerda, a espaços iguais entre a miniatura e a beira
 			var c := Vector2(rr.end.x + roundf((fx1 - rr.end.x) * (i + 1) / 3.0), my)
 			_sprite(PixelArt.disc(15, [[7.0, Color(0, 0, 0, 0.35)]]), c + Vector2(1, 2))
-			_sprite(PixelArt.disc(13, [[4.0, Color("5a5048"), Color("3a332c"), Color("2a2420")],
-				[5.5, Color("4a4038"), Color("2a2420"), Color("1a1612")], [6.5, Color("120e0a")]]), c)
+			var bk := Pal.BAKELITE
+			_sprite(PixelArt.disc(13, [[4.0, bk[5], bk[3], bk[2]], [5.5, bk[4], bk[2], bk[1]], [6.5, bk[0]]]), c)
 			var a := -PI * 0.75 + i * 1.1
 			for j in range(2, 5):   # o risco de posição, pixel a pixel
-				draw_rect(Rect2((c + Vector2(cos(a), sin(a)) * j).floor(), Vector2.ONE), Color("d6d1c3"))
+				draw_rect(Rect2((c + Vector2(cos(a), sin(a)) * j).floor(), Vector2.ONE), Pal.NICKEL[1])
 	for p in [Vector2(fx1 - 8, sy + 8), Vector2(fx1 - 8, fy - 10), Vector2(8, sy + 8), Vector2(8, fy - 10)]:   # os parafusos
 		if p.x > fx0 + 4:
-			_sprite(PixelArt.disc(5, [[2.5, Color("4a3a24"), Color("2a1a0f"), Color("1a0f08")]]), p)
-			draw_rect(Rect2(p.floor() - Vector2(1, 0), Vector2(3, 1)), Color("8e7a5a"))   # a fenda
+			_sprite(PixelArt.disc(5, [[2.5, Pal.SCREW[2], Pal.SCREW[1], Pal.SCREW[0]]]), p)
+			draw_rect(Rect2(p.floor() - Vector2(1, 0), Vector2(3, 1)), Pal.SCREW[3])   # a fenda
 	draw_rect(Rect2(b.position.x, b.end.y, b.size.x, 3), WOOD[2])
 	_poly(PackedVector2Array([Vector2(b.position.x, b.end.y + 3), Vector2(b.end.x, b.end.y + 3),
 		Vector2(b.end.x + 2, b.end.y + 7), Vector2(b.position.x - 3, b.end.y + 7)]), Color(0, 0, 0, 0.3))

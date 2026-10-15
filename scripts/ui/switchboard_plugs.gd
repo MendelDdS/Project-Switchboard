@@ -631,6 +631,6 @@ func _plug_pal(col: Array) -> Dictionary:
 	if not _plug_pals.has(c):
 		var h: Color = col[1]
 		_plug_pals[c] = {"1": h.lightened(0.15), "2": h, "3": c, "4": c.darkened(0.25), "5": c.darkened(0.45), "6": c.darkened(EDGE),
-			"Y": Color("ecd29a"), "y": Color("e0c07a"), "b": Color("b8924e"), "B": Color("7a5a24"), "C": Color("5a4218"), "E": Color("3a2810"),
-			"K": Color("2a2622"), "k": Color("141210")}
+			"Y": Pal.BRASS_PLUG[5], "y": Pal.BRASS_PLUG[4], "b": Pal.BRASS_PLUG[3], "B": Pal.BRASS_PLUG[2], "C": Pal.BRASS_PLUG[1],
+			"E": Pal.BRASS_PLUG[0], "K": Pal.PLUG_INSULATOR[1], "k": Pal.PLUG_INSULATOR[0]}
 	return _plug_pals[c]

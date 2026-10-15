@@ -1077,3 +1077,18 @@ Chaves:
     rampas dos papéis (`Pal.lit`: três degraus de sombra mais frios e um de luz mais quente), no lugar do preto
     translúcido por cima; a troca de degrau anda de uma linha do papel para outra, como no tampo. O papel aberto das
     ferramentas fica no tom de sempre, e o piscar da luminária continua escurecendo por cima, na mesma medida.
+197. #despacho #mapa #objetos #pixel
+    Plano hi-bit, sub-etapa 3.2a: as cores do mapa (o local marcado, a etiqueta do trecho), do cartão perfurado (o
+    papel, a beira, a pauta, o furo, a unidade ocupada; o formulário é a tinta do carimbo de emergência do caderno) e
+    das faixas de perigo da trituradora saíram do código para o `Pal`, com as capturas idênticas pixel a pixel. 3.2b:
+    a unidade de despacho da mesa (o metal, o mapa sob o vidro, a base e o cartão saindo) no tom da luz parada, na
+    rampa do metal e na do cartão, no lugar do preto translúcido por cima, num degrau só para o objeto inteiro (a
+    troca de degrau andando de linha em linha, como nos papéis, listrava o metal como escovado); nas máquinas abertas
+    do despacho e do calculógrafo, a beira das chapas em dois tons da rampa do metal de cada lado. O cartão, o mapa e
+    os papéis abertos ficam no tom de sempre.
+198. #mesa-comutadora #cabos #carimbo #painel #pixel
+    Plano hi-bit, sub-etapa 3.3a: as cores dos metais e da baquelite da mesa comutadora saíram do código para o `Pal`,
+    com as capturas idênticas pixel a pixel: o latão em duas rampas (o das plaquetas, dos aros da prateleira, do friso
+    e das etiquetas das teclas; o dos plugs), a baquelite dos botões do console, os isolantes dos plugs, os parafusos,
+    o níquel, os cabos, o aro das tomadas, a chapa do banco, o vidro da lâmpada, os números gravados e pintados, o
+    estêncil, o balão, o poço das teclas, o carimbo do calculógrafo e a boca da caixinha.

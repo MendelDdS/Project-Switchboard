@@ -21,8 +21,13 @@ const GRADES := {
 @onready var _view: SubViewport = $Box/View
 
 
+## A gradação entra antes do `_ready` do `Main` (o dos filhos vem antes do deste), que põe a do clima da noite: posta
+## no `_ready`, ela não existia ainda, a noite ficava na gradação de sempre e a troca de clima não achava o que mudar.
+func _enter_tree() -> void:
+	$Box.material = grade_material()
+
+
 func _ready() -> void:
-	_box.material = grade_material()
 	# o projeto amplia a 960×540 (para o `main.tscn` sozinho e os testes); aqui, a janela fica em pixels da tela
 	get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
 	get_viewport().size_changed.connect(_fit)

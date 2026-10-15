@@ -12,8 +12,8 @@ const SUNK := 2.0    ## apertada
 const SIDE := 3.0    ## px da chapa de cada lado da etiqueta e do poço
 const PLATE := Rect2(0, 6, 0, 14)   ## a etiqueta: y e altura (a largura vem da tecla)
 const WELL_H := 45.0   ## a altura máxima do poço da tecla
-const METAL := [Color("d6d1c3"), Color("8e897c"), Color("45413a")]   ## a chapa niquelada: luz, meio, sombra
-const BRASS := [Color("e6cf8e"), Color("b0904c"), Color("7a6230"), Color("3a2a12")]   ## latão: luz, meio, sombra, beira
+const METAL := [Pal.NICKEL[1], Pal.NICKEL[2], Pal.NICKEL[3]]   ## a chapa niquelada: luz, meio, sombra
+const BRASS := [Pal.BRASS_PLATE[6], Pal.BRASS_PLATE[4], Pal.BRASS_PLATE[2], Pal.BRASS_PLATE[1]]   ## latão: luz, meio, sombra, beira
 
 @export var color := Color.WHITE
 @export var pressed := false
@@ -43,7 +43,7 @@ func _draw(to: RID, rect: Rect2) -> void:
 	var room := Rect2(rect.position.x, plate.end.y + 6.0, rect.size.x, rect.end.y - plate.end.y - 12.0)   # embaixo da etiqueta
 	var wh := minf(room.size.y, WELL_H)   # baixa, no meio do espaço (o texto, pelas margens, fica no meio dela)
 	var well := Rect2(rect.position.x + SIDE - 2.0, roundf(room.get_center().y - wh / 2.0), rect.size.x - (SIDE - 2.0) * 2.0, wh)
-	rs.canvas_item_add_rect(to, well, Color("0b0907"))
+	rs.canvas_item_add_rect(to, well, Pal.KEY_WELL)
 	rs.canvas_item_add_rect(to, Rect2(well.position.x, well.end.y, well.size.x, 1), METAL[0].darkened(0.2))   # a beira de baixo pega a luz
 	# a tecla, dentro dele
 	var area := well.grow(-2)

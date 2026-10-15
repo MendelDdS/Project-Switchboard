@@ -8,7 +8,8 @@ extends Node
 ##   --hour=20:00           a hora do turno no relógio e lá fora
 ##   --tool=id              abre a ferramenta (os ids de `Tools`: lista, despacho, caderno, registro, jornal, calculografo)
 ##   --debug=N              abre o painel de debug na aba N (0 = Jogo, 1 = Vozes)
-##   --card                 marca um local no mapa e espera o cartão sair impresso
+##   --card                 marca um local no mapa e espera o cartão sair impresso (--card=closed: e guarda o despacho)
+##   --punch                com --card: o cartão perfurado, uma unidade fora e a etiqueta de um trecho no mapa
 ##   --emergency            toca uma emergência e atende (a luz vermelha da unidade, a barra, o rádio)
 ##   --news                 o jornal da manhã na mesa · --read: já lido, dobrado de outro jeito
 ##   --listen               a linha 3 conectada, com o FONE nela e a chave de escuta levantada
@@ -128,6 +129,14 @@ func _ready() -> void:
 		m.dispatch.set_location("sol", 0, "Rua do Sol, 1–99")
 		while m.dispatch.machines.state != CardMachines.State.READY:
 			await get_tree().process_frame
+		if _args.has("punch"):   # o cartão perfurado (o tipo e a ambulância), os bombeiros fora e a etiqueta do mapa
+			m.dispatch.fleet.units["bomb"] = Fleet.Unit.EN_ROUTE
+			m.dispatch.set_occurrence(GameData.CONTENT.occurrences[0])
+			m.dispatch.punch_unit("amb")
+			m.dispatch.city.hover = {"street": "sol", "block": 1, "label": "Rua do Sol, 100–199"}
+			m.dispatch.city.queue_redraw()
+		if _args["card"] == "closed":   # o cartão na mesa e o despacho guardado: a unidade da mesa com o cartão saindo
+			m.tools.close()
 	match _args.get("screen", ""):
 		"pause":
 			m.pause()

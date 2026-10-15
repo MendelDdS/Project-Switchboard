@@ -74,7 +74,60 @@ const MAP_FURROWS: Array[Color] = [Color("8f9a63"), Color("a8956a")]   ## ...e o
 const MAP_DIRT := Color("b49d72")    ## as estradas de terra
 const MAP_RIVER := Color("6f8fa0")   ## o rio
 const SEAL := Color("8e2a22")        ## o vermelho do selo do mapa (e da capa da lista de baixo)
+const MAP_MARK := Color("8e2a17")    ## o local marcado no mapa: o trecho tracejado e o quadradinho no meio dele
+const MAP_TAG := Color("f4ecd2")     ## a etiqueta de papel com o nome do trecho sob o mouse
+## O cartão perfurado do despacho (`PunchCard`; a ponta dele saindo da impressora, na unidade da mesa).
+const CARD := Color("e9dcb4")
+const CARD_EDGE := Color("a8966b")   ## a beira dele (e a espessura, mais escura)
+const CARD_FORM := LOG_STAMPS[1]     ## o formulário, impresso na tinta vermelha das emergências (o carimbo do caderno)
+const CARD_RULE := Color(0.35, 0.43, 0.55, 0.3)   ## a pauta, como a do caderno
+const CARD_HOLE := Color("17110b")   ## o furo
+const CARD_BUSY := Color("8a3a14")   ## a unidade ocupada: o nome e o estado dela
+const HAZARD := Color("d9a521")      ## as faixas de perigo da trituradora, no despacho aberto e na unidade da mesa
 const NICKEL: Array[Color] = [Color("f4f0e6"), Color("d6d1c3"), Color("8e897c"), Color("45413a")]   ## o níquel (brilho, luz, meio, sombra): o prendedor da prancheta, o aro das lâmpadas
+
+## Os metais e a baquelite da mesa comutadora, do escuro ao claro.
+## A quina do níquel descendo até o painel (`Switchboard.NICKEL_EDGE`): na luz, no meio e na sombra.
+const NICKEL_EDGE: Array[Color] = [Color("6e675a"), Color("514b40"), Color("3a352d")]
+## O latão das plaquetas, dos aros dos buracos da prateleira e do friso na beira dela, e das etiquetas das teclas: a
+## beira funda, a beira, a sombra, o friso, o meio, a luz e o brilho.
+const BRASS_PLATE: Array[Color] = [Color("140d06"), Color("3a2a12"), Color("7a6230"), Color("8a6a2e"), Color("b0904c"),
+	Color("c4a35a"), Color("e6cf8e")]
+## O latão dos plugs (a aba e a ponta): da beira escura ao brilho, com o de sempre (`BRASS`) e o dourado (`GOLD`).
+const BRASS_PLUG: Array[Color] = [Color("3a2810"), Color("5a4218"), Color("7a5a24"), BRASS, GOLD, Color("ecd29a")]
+const PLUG_INSULATOR: Array[Color] = [Color("141210"), Color("2a2622")]   ## os isolantes pretos da ponta do plug
+## A baquelite preta dos botões do console: a beira, a sombra e o meio da saia, e a sombra, o meio e a luz do tampo.
+const BAKELITE: Array[Color] = [Color("120e0a"), Color("1a1612"), Color("2a2420"), Color("3a332c"), Color("4a4038"),
+	Color("5a5048")]
+const SCREW: Array[Color] = [Color("1a0f08"), Color("2a1a0f"), Color("4a3a24"), Color("8e7a5a")]   ## os parafusos do console: sombra, meio, luz e a fenda
+## Os cabos (`Switchboard.CORD_COLORS`): o pano de cada um e o brilho dele; o corpo do plug na mesma cor.
+const CORDS := [
+	[Color("3d6e34"), Color("6c9e58")],
+	[Color("8e2a22"), Color("c4493b")],
+	[Color("2a4a7c"), Color("4f7bb6")],
+	[Color("b48c1c"), Color("e6c24c")],
+	[Color("b8b2a2"), Color("e4dfd0")],   # branco de pano velho, puxado para o creme
+	[Color("2a2723"), Color("57524a")],   # preto: o brilho mais claro, senão o trançado some
+]
+## O aro das tomadas (`Switchboard.JACK_METAL`), do claro ao escuro, cada pixel no tom da luz dele: a face e a parede
+## da bucha; e o furo.
+const JACK_METAL := {"face": [Color("fff2d8"), Color("e4c9a0"), Color("c3a37c"), Color("98785a"), Color("6a503a")],
+	"wall": [Color("ddd2b6"), Color("a69072"), Color("735e47"), Color("4a3b2d"), Color("2e251c")]}
+const JACK_HOLE := Color("070605")
+const NUT_HOLE := Color("1c130b")      ## o fundo do furo da porca da chave de escuta: marrom quase preto
+const BANK_PLATE := Color("4d483d")    ## a chapa sobre o banco que ainda não está em uso
+const LAMP_GLASS := Color("6b6556")    ## o vidro leitoso da lâmpada apagada (escuro, parecia o furo de uma tomada)
+const ENGRAVED := Color("1d1a14")      ## o número gravado nas plaquinhas das linhas
+const NUMBER_PAINT := Color("d8c9a2")  ## os números pintados em cima dos destinos livres
+const STENCIL := Color("c9b98f")       ## o aviso pintado com estêncil na chapa do banco
+const BALLOON := Color("0e0c08")       ## o fundo do balão com a informação de uma tomada
+const KEY_WELL := Color("0b0907")      ## o poço das teclas do console, embaixo da tecla
+const SHELF_WOOD: Array[Color] = [Color("4e321d"), Color("5a3a22")]   ## a prateleira do console, na sala: o veio e a tábua
+## O carimbo do calculógrafo: o reflexo quente da luminária no cromado e na baquelite, do lado da luz, e a borracha
+## sem tinta; e o fundo da caixinha dos bilhetes.
+const GLINT := Color("d9a35f")
+const RUBBER_DRY := Color("3a302a")
+const TOLL_BOX_MOUTH := Color("140e09")
 
 ## Rampas de material: do mais escuro ao mais claro, a sombra puxando para o frio (o azul da noite na sala) e a luz para
 ## o quente (a da luminária), não só mais escuro e mais claro. O desenho escolhe o tom pelo nível de luz (`ramp`).
@@ -103,30 +156,32 @@ const PANEL_METAL: Array[Color] = [Color("101013"), Color("18150f"), Color("221f
 
 
 ## As rampas dos papéis da mesa (`lit`): três degraus de sombra, cada vez mais escuros e frios, o tom de sempre do
-## papel e um degrau de luz, mais quente (embaixo da luminária). O papel aberto das ferramentas fica no tom de sempre.
+## papel (o 4º) e um degrau de luz, mais quente (embaixo da luminária). O papel aberto das ferramentas fica no tom de
+## sempre.
 const NEWSPRINT_TONES: Array[Color] = [Color("959489"), Color("aaa490"), Color("beb598"), NEWSPRINT, Color("deca99")]
 const NOTE_PAGE_TONES: Array[Color] = [Color("94938a"), Color("a9a491"), Color("bdb499"), NOTE_PAGE, Color("dcc99a")]
 const SHEET_TONES: Array[Color] = [Color("918f86"), Color("a59f8d"), Color("b9b095"), SHEET, Color("d7c496")]
 const SHEET_NEW_TONES: Array[Color] = [Color("9e9f9b"), Color("b4b1a3"), Color("cac3ac"), SHEET_NEW, Color("ebd9ad")]
 const BOOK_LEAVES_TONES: Array[Color] = [Color("8c8a7f"), Color("9f9a86"), Color("b3a98d"), BOOK_LEAVES, Color("d0bd8e")]
 const TICKET_TONES: Array[Color] = [Color("a1a4a5"), Color("b7b7ae"), Color("cec9b7"), TICKET, Color("efe0b8")]
-const PAPER_RAMPS := [NEWSPRINT_TONES, NOTE_PAGE_TONES, SHEET_TONES, SHEET_NEW_TONES, BOOK_LEAVES_TONES, TICKET_TONES]
-const LIT_BASE := 3   ## onde fica o tom de sempre nas rampas dos papéis
-static var _lit_of := {}   ## o tom de sempre de cada rampa dos papéis (rgba32) -> a rampa (`lit`)
+const CARD_TONES: Array[Color] = [Color("a4a49b"), Color("bbb7a3"), Color("d2c8ab"), CARD, Color("f5e0ad")]
+const PAPER_RAMPS := [NEWSPRINT_TONES, NOTE_PAGE_TONES, SHEET_TONES, SHEET_NEW_TONES, BOOK_LEAVES_TONES, TICKET_TONES, CARD_TONES]
+static var _lit_of := {}   ## cada tom das rampas que `lit` percorre (rgba32) -> [a rampa, o lugar dele nela]
 
 
-## O tom `c` `step` degraus acima (na luz da luminária) ou abaixo (na sombra): na rampa do papel, se ele for o tom de
-## sempre de uma (`PAPER_RAMPS`); senão (as tintas, as capas, o lápis), mais escuro e frio na sombra (o vermelho caindo
-## mais que o azul) e mais claro e quente na luz, na medida dos degraus das rampas.
+## O tom `c` `step` degraus acima (na luz da luminária) ou abaixo (na sombra): na rampa dele, se for um tom de uma
+## (`PAPER_RAMPS`; `PANEL_METAL`, o metal das máquinas e do painel); senão (as tintas, as capas, o lápis), mais escuro e
+## frio na sombra (o vermelho caindo mais que o azul) e mais claro e quente na luz, na medida dos degraus das rampas.
 static func lit(c: Color, step: int) -> Color:
 	if step == 0:
 		return c
 	if _lit_of.is_empty():
-		for r: Array in PAPER_RAMPS:
-			_lit_of[(r[LIT_BASE] as Color).to_rgba32()] = r
-	var r: Array = _lit_of.get(c.to_rgba32(), [])
-	if not r.is_empty():
-		return r[clampi(LIT_BASE + step, 0, r.size() - 1)]
+		for r: Array in PAPER_RAMPS + [PANEL_METAL]:
+			for i in r.size():
+				_lit_of[(r[i] as Color).to_rgba32()] = [r, i]
+	var at: Array = _lit_of.get(c.to_rgba32(), [])
+	if not at.is_empty():
+		return at[0][clampi(at[1] + step, 0, at[0].size() - 1)]
 	if step > 0:
 		return Color(minf(c.r * 1.05, 1.0), minf(c.g * 1.02, 1.0), c.b * 0.96, c.a)
 	var k := 0.085 * mini(-step, 3)

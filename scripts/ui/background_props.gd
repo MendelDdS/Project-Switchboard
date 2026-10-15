@@ -342,7 +342,7 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 			var y1 := _yd - TOLL_BOX_H
 			var e := 0.5
 			_poly(PackedVector2Array([_clock_pt(bc.x, bc.y, -bh.x + e, bh.y - e, y1), _clock_pt(bc.x, bc.y, bh.x - e, bh.y - e, y1),
-				_clock_pt(bc.x, bc.y, bh.x - e, -bh.y + e, y1), _clock_pt(bc.x, bc.y, -bh.x + e, -bh.y + e, y1)]), Color("140e09"))
+				_clock_pt(bc.x, bc.y, bh.x - e, -bh.y + e, y1), _clock_pt(bc.x, bc.y, -bh.x + e, -bh.y + e, y1)]), Pal.TOLL_BOX_MOUTH)
 			for i in mini(toll_desk[2], 3):
 				var v := lerpf(bh.y - e * 3.0, -bh.y + e * 3.0, 0.3 + i * 0.25)
 				_pixel_line(_clock_pt(bc.x, bc.y, -bh.x + e * 3.0, v, y1 + 0.4), _clock_pt(bc.x, bc.y, bh.x - e * 3.0, v, y1 + 0.4),
@@ -683,7 +683,7 @@ func _pool() -> Vector2:
 
 ## Quanto o ponto (`x`, `z`) da mesa fica no escuro: nada embaixo da luminária e mais longe da poça de luz, até
 ## `SHADE_MAX`; a luminária piscando escurece tudo junto (os objetos tinham a mesma cor em qualquer lugar da mesa e
-## pareciam soltos da luz da sala). Contínuo: cada objeto escurece ponto a ponto (`_dim`), não de um tom só.
+## pareciam soltos da luz da sala). Contínuo: cada objeto escurece ponto a ponto (`_shaded`), não de um tom só.
 func _shade(x: float, z: float) -> float:
 	return _dark(_pool_d(x, z))
 
@@ -812,15 +812,6 @@ func _desk_row(y: float, h: float, x0: float, x1: float, z: float, bands: Array,
 ## A distância na sala da linha `y` (px da tela) do tampo.
 func _desk_z(y: float) -> float:
 	return Z0 * _yd / (y / 2.0 - _vp.y)
-
-
-## Escurece o polígono `pts` (px da tela) longe da luz, ponto a ponto: `xz` são os mesmos pontos na sala (x, z), e o
-## escuro de cada um (`_shade`) varia liso entre eles.
-func _dim(pts: PackedVector2Array, xz: Array) -> void:
-	var cols := PackedColorArray()
-	for p in xz:
-		cols.append(Color(0, 0, 0, _shade(p.x, p.y)))
-	_fill(pts, cols)
 
 
 ## Os cantos no tampo (x, z da sala) de um objeto de `wx` por `dz` com o meio em (`cx`, `cz`), girado `yaw` (rad):
@@ -1331,10 +1322,11 @@ func _art_map(sz: Vector2i) -> Image:
 
 
 ## A unidade de despacho, que abre o despacho (`x0`, a frente em `zf`, `wx` de largura; medidas em `UNIT`): um móvel
-## de metal no material das máquinas da ficha (`Pal.PANEL`), como um terminal antigo. Embaixo, a base, com as três
-## máquinas embutidas no tampo, na mesma disposição do despacho aberto (`_art_deck`: o transmissor à esquerda, a
-## impressora no meio e o triturador à direita) e, na frente, a plaqueta de latão e as luzes; em
-## cima, atrás, o painel inclinado com o mapa de papel sob o vidro (`_art_glass`). O estado do
+## de metal no material das máquinas da ficha (`Pal.PANEL`), como um terminal antigo, todo no degrau da luz parada no
+## meio dele, na rampa do metal e na do cartão (`Pal.lit`, `_lit_image`), e o piscar da luminária por cima. Embaixo,
+## a base, com as três máquinas embutidas no tampo, na mesma disposição do despacho aberto (`_art_deck`: o
+## transmissor à esquerda, a impressora no meio e o triturador à direita) e, na frente, a plaqueta de latão e as luzes;
+## em cima, atrás, o painel inclinado com o mapa de papel sob o vidro (`_art_glass`). O estado do
 ## jogo nela: a luz vermelha com uma emergência em andamento (`alert`) e o cartão saindo da impressora enquanto há um
 ## na mesa (`card_out`), com a luz âmbar.
 func _draw_dispatch_unit(x0: float, zf: float, wx: float) -> void:
@@ -1347,41 +1339,44 @@ func _draw_dispatch_unit(x0: float, zf: float, wx: float) -> void:
 	var yd := _yd - UNIT.y * k   # o tampo da base
 	var yt := yd - UNIT_PANEL * k   # o alto do painel
 	_desk_shadow(PackedVector2Array([_p3(x0, _yd, ze), _p3(x1, _yd, ze), _p3(x1, _yd, zf), _p3(x0, _yd, zf)]))
-	var dark := _shade(x0 + wx / 2.0, (zf + ze) / 2.0)
+	var step := _paper_step(_still(x0 + wx / 2.0, (zf + ze) / 2.0))
+	var tone := func(c: Color) -> Color: return Pal.lit(c, step).darkened(_flick())
 	var all := PackedVector2Array()
 	var sx := x0 if x0 > 0.0 else x1   # o lado virado para o ponto de fuga (atravessando-o, nenhum)
 	if x0 > 0.0 or x1 < 0.0:
 		var base := PackedVector2Array([_p3(sx, yd, ze), _p3(sx, yd, zf), _p3(sx, _yd, zf), _p3(sx, _yd, ze)])
-		_poly(base, Pal.PANEL_LO.darkened(dark))
+		_poly(base, tone.call(Pal.PANEL_LO))
 		var side := PackedVector2Array([_p3(sx, yt, zt), _p3(sx, yt, ze), _p3(sx, yd, ze), _p3(sx, yd, zb)])
-		_poly(side, Pal.PANEL_LO.lightened(0.04).darkened(dark))
+		_poly(side, tone.call(Pal.PANEL_METAL[2]))
 		all.append_array(base + side)
 	var top := PackedVector2Array([_p3(x0, yt, ze), _p3(x1, yt, ze), _p3(x1, yt, zt), _p3(x0, yt, zt)])   # o alto do painel
-	_poly(top, Pal.PANEL_HI.darkened(dark))
-	_dim(top, [Vector2(x0, ze), Vector2(x1, ze), Vector2(x1, zt), Vector2(x0, zt)])
+	_poly(top, tone.call(Pal.PANEL_HI))
 	var glass := PackedVector2Array([_p3(x0, yt, zt), _p3(x1, yt, zt), _p3(x1, yd, zb), _p3(x0, yd, zb)])
-	_flat_art("despacho_vidro", glass, _art_glass, [GameData.sectors.duplicate()], dark)
+	_flat_art("despacho_vidro", glass, func(sz: Vector2i) -> Image: return _lit_image(_art_glass(sz), step),
+		[GameData.sectors.duplicate(), step])
+	_flicker(glass)
 	var deck := PackedVector2Array([_p3(x0, yd, zb), _p3(x1, yd, zb), _p3(x1, yd, zf), _p3(x0, yd, zf)])
-	_flat_art("despacho_base", deck, _art_deck, [], dark)
+	_flat_art("despacho_base", deck, func(sz: Vector2i) -> Image: return _lit_image(_art_deck(sz), step), [step])
+	_flicker(deck)
 	if card_out:   # o cartão saindo da fenda da impressora, no meio, para trás (para cima do vidro)
 		var sz := _hom_sz
 		var card := PackedVector2Array([_tex_pt(sz * Vector2(0.38, 0.0)), _tex_pt(sz * Vector2(0.62, 0.0)),
 			_tex_pt(sz * Vector2(0.62, 0.46)), _tex_pt(sz * Vector2(0.38, 0.46))])
-		_poly(card, PunchCard.CARD.darkened(dark))
-		_pixel_line(_tex_pt(sz * Vector2(0.39, 0.15)), _tex_pt(sz * Vector2(0.61, 0.15)), [Pal.FORM_RED.darkened(dark)])
+		_poly(card, tone.call(Pal.CARD))
+		_pixel_line(_tex_pt(sz * Vector2(0.39, 0.15)), _tex_pt(sz * Vector2(0.61, 0.15)), [tone.call(Pal.CARD_FORM)])
 	var front := Rect2(_p3(x0, yd, zf).round(), Vector2.ZERO).expand(_p3(x1, _yd, zf).round())   # a frente da base
-	_ci.draw_rect(front, Pal.PANEL.darkened(dark))
-	_ci.draw_rect(Rect2(front.position, Vector2(front.size.x, 1)), Pal.PANEL_HI.darkened(dark))
-	_ci.draw_rect(Rect2(front.position.x, front.end.y - 1, front.size.x, 1), Pal.PANEL_LO.darkened(dark))
+	_ci.draw_rect(front, tone.call(Pal.PANEL))
+	_ci.draw_rect(Rect2(front.position, Vector2(front.size.x, 1)), tone.call(Pal.PANEL_HI))
+	_ci.draw_rect(Rect2(front.position.x, front.end.y - 1, front.size.x, 1), tone.call(Pal.PANEL_LO))
 	var mid := front.position.y + floorf(front.size.y / 2.0)
 	var plate := Rect2(front.position.x + roundf(front.size.x * 0.36), mid - 2, roundf(front.size.x * 0.28), 4)
-	_ci.draw_rect(plate, Pal.BRASS.darkened(0.25 + dark))   # a plaqueta do fabricante
-	_ci.draw_rect(plate.grow(-1), Pal.BRASS.darkened(dark))
+	_ci.draw_rect(plate, tone.call(Pal.BRASS.darkened(0.25)))   # a plaqueta do fabricante
+	_ci.draw_rect(plate.grow(-1), tone.call(Pal.BRASS))
 	for i in 3:   # a saída de ar, à direita
-		_ci.draw_rect(Rect2(front.end.x - roundf(front.size.x * 0.22), mid - 2 + i * 2, roundf(front.size.x * 0.16), 1), Pal.PANEL_LO)
+		_ci.draw_rect(Rect2(front.end.x - roundf(front.size.x * 0.22), mid - 2 + i * 2, roundf(front.size.x * 0.16), 1), tone.call(Pal.PANEL_LO))
 	for l: Array in [[0.06, alert, Pal.RED], [0.14, card_out, Pal.AMBER]]:   # as luzes: ocorrência e cartão na mesa
 		var lr := Rect2(front.position.x + roundf(front.size.x * l[0]), mid - 1, 3, 3)
-		_ci.draw_rect(lr.grow(1), Pal.PANEL_LO.darkened(dark))
+		_ci.draw_rect(lr.grow(1), tone.call(Pal.PANEL_LO))
 		_ci.draw_rect(lr, l[2] if l[1] else (l[2] as Color).darkened(0.75))
 		if l[1]:
 			_light(lr, l[2], 0.6, true)
@@ -1390,18 +1385,33 @@ func _draw_dispatch_unit(x0: float, zf: float, wx: float) -> void:
 	_mark(Tools.DISPATCH, _bounds(all), Geometry2D.convex_hull(all))
 
 
-## O desenho de frente `art` (com `key`) posto no quadrilátero `q` da tela pixel a pixel (`_project`), escurecido
-## `dark` longe da luz; deixa `_hom` dele para o que vai por cima (`_tex_pt`).
-func _flat_art(id: String, q: PackedVector2Array, art: Callable, key: Array, dark: float, light := PackedFloat32Array()) -> void:
+## O desenho de frente `art` (com `key`) posto no quadrilátero `q` da tela pixel a pixel (`_project`), cada pixel no
+## tom da luz parada `light` (nos cantos de `q`, `_still_at`; sem ela, como o desenho vem); deixa `_hom` dele para o
+## que vai por cima (`_tex_pt`).
+func _flat_art(id: String, q: PackedVector2Array, art: Callable, key: Array, light := PackedFloat32Array()) -> void:
 	var sz := Vector2i(_top_xf(q)[1])
 	if sz.x < 8 or sz.y < 3:   # (a tela ainda se arrumando)
 		return
 	_hom = _homography(q)
 	_hom_sz = Vector2(sz)
-	_hom_light = light   # um papel: cada pixel no tom da luz parada (quem chama zera depois do que desenha por cima)
+	_hom_light = light   # cada pixel no tom da luz parada (quem chama zera depois do que desenha por cima)
 	_project([id, sz, key], art, q, sz)
-	if dark > 0.0:
-		_poly(q, Color(0, 0, 0, dark))
+
+
+## A imagem `img` no degrau `step` da luz parada (`Pal.lit`, pixel a pixel), por inteiro: um objeto pequeno de metal num
+## tom só, sem a troca de degrau andando de uma linha para outra, como nos papéis (no metal, parecia escovado).
+static func _lit_image(img: Image, step: int) -> Image:
+	if step == 0:
+		return img
+	var tones := {}
+	for y in img.get_height():
+		for x in img.get_width():
+			var c := img.get_pixel(x, y)
+			var k := c.to_rgba32()
+			if not tones.has(k):
+				tones[k] = Pal.lit(c, step)
+			img.set_pixel(x, y, tones[k])
+	return img
 
 
 ## O tampo da base da unidade de despacho, de cima (o alto do desenho é o fundo): a chapa com a beira clara e as três
@@ -1425,7 +1435,7 @@ func _art_deck(sz: Vector2i) -> Image:
 	slot.call(0.365, 0.45, 0.27)   # a impressora
 	var sh: Vector2i = slot.call(0.68, 0.45, 0.27)   # o triturador
 	for i in range(0, roundi(0.27 * sz.x), 4):
-		_fr(img, sh.x + i, sh.y + 3, 2, 1, CardMachines.HAZARD)
+		_fr(img, sh.x + i, sh.y + 3, 2, 1, Pal.HAZARD)
 	return img
 
 

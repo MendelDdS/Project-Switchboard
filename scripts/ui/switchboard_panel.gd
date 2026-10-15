@@ -21,7 +21,7 @@ const HOLE_ART := [
 	"..ffFffffffFff..",
 	"....FFFFFFFF....",
 ]
-const HOLE_PAL := {"b": Color("7a6230"), "f": Color("c4a35a"), "F": Color("e6cf8e"), "w": Color("3a2a12"), "h": Color("140d06")}
+const HOLE_PAL := {"b": Pal.BRASS_PLATE[2], "f": Pal.BRASS_PLATE[5], "F": Pal.BRASS_PLATE[6], "w": Pal.BRASS_PLATE[1], "h": Pal.BRASS_PLATE[0]}
 
 var _lit := {}   ## lâmpada ("l3" linha, "d312" destino) -> [cor, quanto está acesa 0..1]; a cor fica enquanto apaga
 
@@ -34,35 +34,27 @@ var _lit := {}   ## lâmpada ("l3" linha, "d312" destino) -> [cor, quanto está 
 ## tons por anel ele parecia chato, e com o furo de 4 px e a face cinza, estranho; com uma beira escura em volta, o aro
 ## ficava fino demais. O brilho do níquel é um pixel por cima da luz da sala (`_draw_glints`).
 const JACK_RINGS := [3.0, 4.0, 5.0, 5.8]   # até onde vão o furo, a parede da bucha, a face e a descida (px do meio)
-const JACK_METAL := {"face": [Color("fff2d8"), Color("e4c9a0"), Color("c3a37c"), Color("98785a"), Color("6a503a")],
-	"wall": [Color("ddd2b6"), Color("a69072"), Color("735e47"), Color("4a3b2d"), Color("2e251c")]}
-const JACK_HOLE := Color("070605")
+const JACK_METAL := Pal.JACK_METAL
+const JACK_HOLE := Pal.JACK_HOLE
 const JACK_GLINT := Vector2(3, -4)   # o brilho do níquel, do meio do encaixe: na face, no alto à direita, virado para a luz
 const JACK_GLINT_COLOR := Color(1.0, 0.96, 0.86, 0.85)
 const JACK_PX := 12   # o lado do desenho do encaixe, em pixels
-const EDGE_DARK := Color("1c130b")   # o fundo do furo da porca da chave: marrom quase preto
+const EDGE_DARK := Pal.NUT_HOLE   # o fundo do furo da porca da chave: marrom quase preto
 ## A quina do níquel descendo até o painel: na luz, no meio e na sombra. No lugar da beira quase preta (`EDGE_DARK`),
 ## que em volta das tomadas, das lâmpadas, das alavancas e das plaquinhas parecia um contorno preto.
-const NICKEL_EDGE := [Color("6e675a"), Color("514b40"), Color("3a352d")]
+const NICKEL_EDGE := Pal.NICKEL_EDGE
 const SHADOW := Color(0, 0, 0, 0.35)
-const PLATE := Color("4d483d")   # chapa sobre o banco que ainda não está em uso
+const PLATE := Pal.BANK_PLATE   # chapa sobre o banco que ainda não está em uso
 const LAMP_R := 2.5         # o raio da luz da lâmpada de cada linha, no `Bloom` (o vidro tem 4; o aro de metal fica em volta)
-const BEZEL := [Color("d6d1c3"), Color("8e897c"), Color("45413a")]   # aro niquelado: luz, meio, sombra
-const LAMP_OFF := Color("6b6556")   # o vidro leitoso da lâmpada apagada (escuro, parecia o furo de uma tomada)
+const BEZEL := [Pal.NICKEL[1], Pal.NICKEL[2], Pal.NICKEL[3]]   # aro niquelado: luz, meio, sombra
+const LAMP_OFF := Pal.LAMP_GLASS
 const STRIP_W := 18.0   # a faixa rebaixada de cada linha, da plaquinha à saída
 const WEAR := [0.5, 0.3, 0.15]   # o painel gasto em volta das tomadas: do perto ao longe (o quanto clareia)
 const LAMP_ON_SEC := 0.06    # a lâmpada (de filamento) acende quase na hora...
 const LAMP_OFF_SEC := 0.18   # ...e apaga mais devagar, o filamento esfriando: a linha tocando pulsa em vez de piscar seco
 ## A alavanca da chave de escuta para baixo, do eixo (no meio da porca) à ponta: um bastão que engrossa até a ponta
 ## arredondada, a luz à direita e a ponta, virada para baixo, na sombra. Cabe entre a entrada e a saída.
-const CORD_COLORS := [
-	[Color("3d6e34"), Color("6c9e58")],
-	[Color("8e2a22"), Color("c4493b")],
-	[Color("2a4a7c"), Color("4f7bb6")],
-	[Color("b48c1c"), Color("e6c24c")],
-	[Color("b8b2a2"), Color("e4dfd0")],   # branco de pano velho, puxado para o creme
-	[Color("2a2723"), Color("57524a")],   # preto: o brilho mais claro, senão o trançado some
-]
+const CORD_COLORS := Pal.CORDS
 const LEVER_ART := [   # para baixo: a haste curta de metal (L, D) saindo da porca e, na ponta, o pino comprido de baquelite preta (l, w, m, d)
 	".eDLE.",   # a beira de cada peça no tom dela, na luz à direita e na sombra à esquerda (E, e no metal; P, p no pino)
 	".eDLE.",
@@ -316,7 +308,7 @@ static func draw_maker_plate(ci: CanvasItem, r: Rect2) -> void:
 	var cx := r.get_center().x
 	ci.draw_rect(Rect2(r.position + Vector2(1, 2), r.size), SHADOW)
 	rim(ci, r, pal["b"], pal["b"].darkened(0.35))
-	ci.draw_rect(r, Color("b0904c"))
+	ci.draw_rect(r, Pal.BRASS_PLATE[4])
 	ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), pal["F"])
 	ci.draw_rect(Rect2(r.position, Vector2(1, r.size.y)), pal["f"])
 	ci.draw_rect(Rect2(r.position.x, r.end.y - 1, r.size.x, 1), pal["b"])
@@ -353,7 +345,7 @@ func _draw_trunks(br: Rect2) -> void:
 		var label := PixelArt.tiny(T.text(GameData.TRUNK_NAMES[k]))
 		var x := jack_rect(d).get_center().x
 		_ci.draw_texture(label, Vector2(roundf(x - label.get_width() / 2.0), br.position.y + 4.0),
-			Color("d8c9a2") if exchange.dest(d) == Exchange.Dest.FREE else Pal.TEXT)
+			Pal.NUMBER_PAINT if exchange.dest(d) == Exchange.Dest.FREE else Pal.TEXT)
 
 
 ## A moldura de madeira do móvel, pixel a pixel e guardada: quatro trilhos com os cantos em meia-esquadria (uma
@@ -552,7 +544,7 @@ func _draw_number_plate(r: Rect2, text: String) -> void:
 	var tex := PixelArt.tiny(text)
 	var at := (r.get_center() - Vector2(tex.get_width() / 2.0, 3.0 + 2.5)).round()   # as letras ficam nas linhas 3 a 7 da imagem
 	_ci.draw_texture(tex, at + Vector2(0, 1), BEZEL[0])   # o brilho do rebaixo
-	_ci.draw_texture(tex, at, Color("1d1a14"))
+	_ci.draw_texture(tex, at, Pal.ENGRAVED)
 
 
 ## As letras estampadas nas chapas dos bancos, 10×14, desenhadas à mão (traço de 2 px e cantos em degrau de 1 px): na
@@ -590,4 +582,4 @@ func _draw_plate(r: Rect2, letter: String) -> void:
 	PixelArt.sprite(_ci, PixelArt.art(rows, {"*": PLATE.darkened(0.45)}), at + Vector2(1, 1))
 	PixelArt.sprite(_ci, PixelArt.art(rows, {"u": PLATE.lightened(0.35), "d": PLATE.darkened(0.2), "+": PLATE.lightened(0.15)}), at)
 	var notice := PixelArt.tiny(T.text(T.Key.BOARD_PLATE_NOTICE))   # pintado com estêncil, já gasto
-	_ci.draw_texture(notice, Vector2(roundf(r.get_center().x - notice.get_width() / 2.0), roundf(r.get_center().y + 10.0)), Color("c9b98f", 0.6))
+	_ci.draw_texture(notice, Vector2(roundf(r.get_center().x - notice.get_width() / 2.0), roundf(r.get_center().y + 10.0)), Color(Pal.STENCIL, 0.6))

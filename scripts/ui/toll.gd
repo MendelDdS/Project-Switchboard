@@ -58,7 +58,7 @@ const RUBBER_MID := Vector2(44, 178)         ## o meio da janela: onde ele carim
 const FOOT := Rect2(0, 127, 88, 74)          ## a armação na mesa: fica dentro dela (`_inside`); o resto pode passar por cima da máquina
 const SELECTOR := Rect2(26, 140, 36, 10)     ## o seletor, entre as pernas: a plaqueta de latão com os riscos gravados e a alavanca serrilhada
 const BRAND := "NUMEX"                       ## o fabricante (inventado), no medalhão de latão do tampo do cabo
-const GLINT := Color("d9a35f")               ## o reflexo quente da luminária no cromado e na baquelite, do lado da luz
+const GLINT := Pal.GLINT               ## o reflexo quente da luminária no cromado e na baquelite, do lado da luz
 const SHADOW_NEAR := Vector2(1, 2)           ## a sombra curta e escura da armação encostada na mesa (some na mão)...
 const SHADOW_NEAR_A := 0.3
 const SHADOW_FAR_A := 0.22                   ## ...e a longa e fraca de tudo (`Lift.shadow`)
@@ -66,7 +66,7 @@ const SHADOW_FAR_A := 0.22                   ## ...e a longa e fraca de tudo (`L
 ## (`BAND_U`, na largura) e o tom dela (`BANDS`, de 0, a sombra, a 4, o brilho).
 const BAND_U := [0.07, 0.2, 0.3, 0.45, 0.62, 0.85, 0.95, 2.0]
 const BANDS := [2, 3, 4, 3, 2, 1, 0, 1]
-const DRY := Color("3a302a")    ## a borracha sem tinta
+const DRY := Pal.RUBBER_DRY    ## a borracha sem tinta
 const INK := 2                  ## batidas depois de passar na almofada: a primeira cheia, a outra mais fraca; depois, seca
 const PRESS := 57.0       ## clicado, cabo, corpo e rodas descem pelas pernas até as rodas encostarem no fundo da janela, tampando-a (px)...
 const PRESS_DOWN := 0.07  ## ...acelerando, nesse tempo; batem (`_touch`), ficam no papel...
@@ -826,7 +826,7 @@ func _draw_desk() -> void:
 	ci.draw_rect(Rect2(r.position + Vector2(3, 4), r.size), Color(0, 0, 0, 0.35))
 	ci.draw_rect(r, Pal.BOARD[2])
 	var inside := Rect2(r.position + Vector2(5, 4), Vector2(r.size.x - 10.0, BOX_MOUTH - 4.0))
-	ci.draw_rect(inside, Color("140e09"))
+	ci.draw_rect(inside, Pal.TOLL_BOX_MOUTH)
 	for i in range(mini(_filed.size(), 10) - 1, -1, -1):   # os bilhetes de pé lá dentro, do fundo para a frente (o último na frente)
 		var tk := Rect2(inside.position.x + 4.0 + (i * 5) % 9, inside.end.y - 5.0 - i * 2.0, inside.size.x - 16.0, 2)
 		var k := 0.15 + i * 0.03

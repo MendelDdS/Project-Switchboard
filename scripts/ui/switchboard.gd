@@ -708,7 +708,7 @@ func _draw() -> void:
 			var jr := jack_rect(d)
 			var num := PixelArt.tiny(str(d))   # gravado, como o nome dos troncos (em 11, "305" não cabia entre duas tomadas)
 			draw_texture(num, Vector2(roundf(jr.get_center().x - num.get_width() / 2.0), jr.position.y - 10.0),
-				Color("d8c9a2") if exchange.dest(d) == Exchange.Dest.FREE else Pal.TEXT)
+				Pal.NUMBER_PAINT if exchange.dest(d) == Exchange.Dest.FREE else Pal.TEXT)
 
 	# legenda das lâmpadas, numa linha no pé do painel
 	_draw_legend()
@@ -819,7 +819,7 @@ func _draw_cords() -> void:
 		var by := minf(jr.end.y + 6, size.y - bh - 6)
 		var bc := Pal.GHOST if info_ghost else Pal.BRASS
 		_cords.draw_rect(Rect2(bx, by, bw, bh), bc)
-		_cords.draw_rect(Rect2(bx + 2, by + 2, bw - 4, bh - 4), Color("0e0c08"))
+		_cords.draw_rect(Rect2(bx + 2, by + 2, bw - 4, bh - 4), Pal.BALLOON)
 		for k in info_lines.size():
 			_cords.draw_string(Pal.mono, Vector2(bx + 7, by + 14 + k * 14), info_lines[k], HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Pal.GHOST if info_ghost else Pal.TEXT)
 	_ci = self

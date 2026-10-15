@@ -36,7 +36,6 @@ const FEED_SEC := 0.8       # o transmissor puxando o cartão...
 const READ_SEC := 0.35      # ...e ainda lendo os furos, com ele já dentro, antes de enviar
 const SHRED_SEC := 1.2      # a trituradora engolindo o cartão
 const REFUSE_SEC := 1.6     # a impressora avisando que já há um cartão na mesa
-const HAZARD := Color("d9a521")
 
 var dispatch: Dispatch:
 	set(v):
@@ -314,9 +313,7 @@ func _draw_bezel() -> void:
 	var glass := Rect2(w, w, size.x - w * 2.0, size.y - w - BASE_H)
 	for r: Rect2 in [Rect2(0, 0, size.x, w), Rect2(0, 0, w, glass.end.y), Rect2(glass.end.x, 0, w, glass.end.y)]:
 		draw_rect(r, Pal.PANEL)
-	draw_rect(Rect2(0, 0, size.x, 1), Pal.PANEL_HI)
-	draw_rect(Rect2(0, 0, 1, glass.end.y), Pal.PANEL_HI)
-	draw_rect(Rect2(size.x - 1, 0, 1, glass.end.y), Pal.PANEL_LO)
+	bevel(self, Rect2(0, 0, size.x, glass.end.y + 2.0))   # (embaixo fica a base, por cima da beira de baixo)
 	draw_rect(Rect2(w - 1, w - 1, glass.size.x + 2, 1), Pal.EDGE)   # o rebaixo
 	draw_rect(Rect2(w - 1, w - 1, 1, glass.size.y + 1), Pal.EDGE)
 	draw_rect(Rect2(glass.end.x, w - 1, 1, glass.size.y + 1), Pal.EDGE)
@@ -348,22 +345,32 @@ func _draw_strip() -> void:
 ## preta em volta: parecia contorno).
 static func box(ci: CanvasItem, r: Rect2) -> void:
 	ci.draw_rect(Rect2(r.position + Vector2(2, 2), r.size), Color(0, 0, 0, 0.35))
-	var b := r
-	ci.draw_rect(b, Pal.PANEL)
-	ci.draw_rect(Rect2(b.position, Vector2(b.size.x, 1)), Pal.PANEL_HI)
-	ci.draw_rect(Rect2(b.position, Vector2(1, b.size.y)), Pal.PANEL_HI)
-	ci.draw_rect(Rect2(b.position.x, b.end.y - 2.0, b.size.x, 2), Pal.PANEL_LO)
-	ci.draw_rect(Rect2(b.end.x - 2.0, b.position.y, 2, b.size.y), Pal.PANEL_LO)
+	ci.draw_rect(r, Pal.PANEL)
+	bevel(ci, r)
 	for c in [Vector2(4, 4), Vector2(r.size.x - 7, 4), Vector2(4, r.size.y - 7), Vector2(r.size.x - 7, r.size.y - 7)]:
 		ci.draw_rect(Rect2(r.position + c, Vector2(3, 3)), Pal.BRASS)
 		ci.draw_rect(Rect2(r.position + c + Vector2(1, 1), Vector2(1, 1)), Pal.PANEL_LO)   # a fenda do parafuso
+
+
+## A beira da chapa `r` em dois tons da rampa do metal de cada lado (`Pal.PANEL_METAL`, com o campo em `Pal.PANEL`, o
+## tom do meio dela): na luz, em cima e à esquerda; na sombra, embaixo e à direita, a de fora mais escura.
+static func bevel(ci: CanvasItem, r: Rect2) -> void:
+	const M := Pal.PANEL_METAL
+	ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), M[6])
+	ci.draw_rect(Rect2(r.position + Vector2(1, 1), Vector2(r.size.x - 2.0, 1)), M[4])
+	ci.draw_rect(Rect2(r.position + Vector2(0, 1), Vector2(1, r.size.y - 1.0)), M[5])
+	ci.draw_rect(Rect2(r.position + Vector2(1, 2), Vector2(1, r.size.y - 3.0)), M[4])
+	ci.draw_rect(Rect2(r.position.x + 1.0, r.end.y - 2.0, r.size.x - 2.0, 1), M[2])
+	ci.draw_rect(Rect2(r.end.x - 2.0, r.position.y + 2.0, 1, r.size.y - 3.0), M[2])
+	ci.draw_rect(Rect2(r.position.x + 1.0, r.end.y - 1.0, r.size.x - 1.0, 1), M[1])
+	ci.draw_rect(Rect2(r.end.x - 1.0, r.position.y + 1.0, 1, r.size.y - 1.0), M[1])
 
 
 ## Saída de ar: `n` riscos escuros com o brilho embaixo.
 static func vent(ci: CanvasItem, at: Vector2, n: int, w: float) -> void:
 	for i in n:
 		ci.draw_rect(Rect2(at + Vector2(0, i * 4), Vector2(w, 2)), Pal.PANEL_LO)
-		ci.draw_rect(Rect2(at + Vector2(0, i * 4 + 2), Vector2(w, 1)), Color(Pal.PANEL_HI, 0.5))
+		ci.draw_rect(Rect2(at + Vector2(0, i * 4 + 2), Vector2(w, 1)), Pal.PANEL_METAL[4])
 
 
 ## Fenda de entrada ou saída: um rasgo fino, com a beira de metal na luz embaixo dele.
@@ -408,8 +415,8 @@ func _draw_printer() -> void:
 ## Sem cartão, uma tira de papel sai da fenda da impressora: o aviso ou, enquanto datilografa, o local aparecendo.
 func _draw_tongue() -> void:
 	var r := Rect2(_mouth_x(1) + 10.0, _printer_slot() - TONGUE_H, CARD_W - 20.0, TONGUE_H)
-	draw_rect(r, PunchCard.CARD_EDGE)
-	draw_rect(r.grow(-1.0), PunchCard.CARD)
+	draw_rect(r, Pal.CARD_EDGE)
+	draw_rect(r.grow(-1.0), Pal.CARD)
 	var txt := T.text(T.Key.DISPATCH_CLICK_STREET)
 	if state == State.TYPING:
 		txt = card.place.left(ceili(card.place.length() * minf(_t / (TYPE_SEC * 0.85), 1.0)))
@@ -452,6 +459,6 @@ func _draw_shredder() -> void:
 	for x in range(int(band.position.x) - 6, int(band.end.x), 9):   # faixa amarela e preta
 		var poly := PackedVector2Array([Vector2(x, band.end.y), Vector2(x + 4, band.end.y), Vector2(x + 10, band.position.y), Vector2(x + 6, band.position.y)])
 		for c in Geometry2D.intersect_polygons(poly, clip):
-			draw_colored_polygon(c, HAZARD)
+			draw_colored_polygon(c, Pal.HAZARD)
 	led(self, r.position + Vector2(9, 36), state == State.FEEDING and _into == Machine.SHRED, Pal.RED)
 	vent(self, Vector2(r.end.x - 33.0, r.position.y + 16.0), 3, 24.0)

@@ -337,10 +337,10 @@ func _draw() -> void:
 		var b: Vector2 = g[1]
 		var n := int(a.distance_to(b) / 15.0)
 		for i in n:
-			draw_line(a.lerp(b, float(i) / n), a.lerp(b, (i + 0.66) / n), Color("8e2a17"), 7.0)
+			draw_line(a.lerp(b, float(i) / n), a.lerp(b, (i + 0.66) / n), Pal.MAP_MARK, 7.0)
 		var m: Vector2 = g[2]
 		draw_rect(Rect2(m.x - 8, m.y - 8, 16, 16), Color.BLACK)
-		draw_rect(Rect2(m.x - 6, m.y - 6, 12, 12), Color("8e2a17"))
+		draw_rect(Rect2(m.x - 6, m.y - 6, 12, 12), Pal.MAP_MARK)
 	_draw_names(_k >= NAMES_K)
 	if _reveal >= 0.0:   # o bairro entregue aparece aos poucos
 		for s in SHEETS:
@@ -595,7 +595,7 @@ func _tag(p: Vector2, txt: String) -> void:
 	at = Vector2(clampf(at.x, 2, _seen().end.x - w - 12), maxf(at.y, 2))
 	draw_set_transform(Vector2.ZERO)
 	draw_rect(Rect2(at, Vector2(w + 10, 20)), LINE)
-	draw_rect(Rect2(at + Vector2.ONE, Vector2(w + 8, 18)), Color("f4ecd2"))
+	draw_rect(Rect2(at + Vector2.ONE, Vector2(w + 8, 18)), Pal.MAP_TAG)
 	draw_string(Pal.ui, at + Vector2(5, 15), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, LINE)
 	draw_set_transform_matrix(_tf)
 
