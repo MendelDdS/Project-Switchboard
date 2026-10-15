@@ -194,8 +194,14 @@ func refuse(e: int, j: int) -> String:
 
 ## O tom da luz da sala no ponto p da mesa: a cor e, no alfa, quanto ela pesa.
 func _room_tone(p: Vector2) -> Color:
+	return ROOM_DARK.lerp(ROOM_LIT, _room_lit(p))
+
+
+## Quanto da luz da luminária do teto chega ao ponto p da mesa: 1 embaixo dela, caindo até 0 em `ROOM_LIGHT_R` (no
+## painel, de 0 no canto de baixo à esquerda a ~0,6 no de cima à direita).
+func _room_lit(p: Vector2) -> float:
 	var k := clampf(1.0 - p.distance_to(_lamp_at) / ROOM_LIGHT_R, 0.0, 1.0)
-	return ROOM_DARK.lerp(ROOM_LIT, k * k)
+	return k * k
 
 
 ## Peça redonda da mesa (`PixelArt.disc`) na luz dela (`LIGHT`).

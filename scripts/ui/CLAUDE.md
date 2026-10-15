@@ -450,7 +450,10 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   cada ponta desenha fio e plug juntos, para o fio mais recente passar por cima dos plugs das outras.
 - A luz da luminária do teto também cai no painel (`_draw_room_light`, `ROOM_LIT`/`ROOM_DARK`, `LAMP_ABOVE`): liso,
   mais claro e quente no alto à direita, mais escuro nos cantos de baixo; por cima de tudo que é do painel e por
-  baixo dos plugs e fios.
+  baixo dos plugs e fios. A mesma luz (`_room_lit`) escolhe o tom do relevo do painel na rampa do metal
+  (`Pal.panel_metal`, `_lit_rect`: os filetes gravados das faixas, a beira rebaixada e a das faixas de cada linha,
+  trecho a trecho) e o da moldura na da madeira (`Pal.cabinet`); o campo do painel fica liso, em `Pal.PANEL` (em
+  faixas, pareceria luz em degraus ou metal escovado, que saíram a pedido, e as legendas o tampam com essa cor).
 - **A mesa é desenhada em quatro camadas, e cada uma só se redesenha quando o que ela mostra muda** (`_layers`; `_look`
   devolve o estado de cada uma, comparado no `_process`): o painel parado (a própria mesa, `_draw`: móvel, faixas,
   plaquinhas, tomadas das linhas, estados e numeração; muda com os estados e os setores), as lâmpadas (`_lamps`,
@@ -472,8 +475,9 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
 - Chapas de metal niquelado (`_draw_metal`: chanfro e rebites) nas plaquinhas dos números. (A "queda" das mesas antigas, a plaquinha que cai quando a
   linha chama, foi testada e saiu a pedido: lâmpada, texto e som já avisam demais.)
 - Moldura de madeira pixel a pixel e guardada (`_wood_frame`): trilhos em meia-esquadria com emenda na diagonal,
-  veios ondulando ao longo de cada um, quinas gastas mais claras; o brilho da luminária na quina de cima, mais forte
-  do lado dela (`_draw_cabinet`).
+  veios ondulando ao longo de cada um, quinas gastas mais claras, cada pixel no tom da madeira pela luz da sala ali
+  (`Pal.cabinet`; a troca de tom anda de um veio para outro, `CABINET_RAG`), guardada por tamanho e lugar da luminária;
+  o brilho da luminária na quina de cima, mais forte do lado dela (`_draw_cabinet`).
 - Cada linha tem uma faixa rebaixada e discreta da plaquinha à saída (`_draw_strips`, `STRIP_W`; sem ela a saída
   parecia solta); as faixas gravadas passam por baixo e o nome delas por cima (`_draw_rule(y, nome, false)`).
 - Uso de anos (`_draw_wear`, sempre o mesmo): o painel clareado em volta das tomadas (`WEAR`, pelo quanto cada uma é

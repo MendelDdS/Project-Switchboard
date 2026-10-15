@@ -71,6 +71,14 @@ const DESK := Color("3c2a19")   ## o tampo embaixo da luminária (`desk(1.0)`): 
 const DESK_EDGE: Array[Color] = [Color("1d1614"), Color("2b1f18"), Color("3a2616"), Color("442c1a"), Color("5a4030"),
 	Color("6b4529"), Color("7a5434"), Color("8d6239")]
 const DESK_EDGE_ROWS := [[0, 1, 2], [1, 1, 4], [2, 2, 3], [4, 8, 0], [6, 1, 1], [12, 2, -2]]
+## A madeira do móvel da mesa comutadora, a moldura em volta do painel (`cabinet`); no meio, os tons de sempre dela
+## (a sombra, o meio e a luz, que a sala e o console repetem no `WOOD` deles).
+const CABINET_WOOD: Array[Color] = [Color("151215"), Color("201813"), Color("2a1a0f"), Color("3a2516"), Color("4a2f1c"),
+	Color("5b3a22"), Color("6b4529"), Color("845733")]
+## O metal escuro do painel da mesa comutadora, para o relevo dele (`panel_metal`: os filetes gravados, a beira
+## rebaixada, as faixas das linhas); o campo liso fica em `PANEL`, o tom do meio, com a luz da sala por cima.
+const PANEL_METAL: Array[Color] = [Color("101013"), Color("18150f"), Color("221f1b"), Color("2f2a21"), Color("3c3529"),
+	Color("4b4332"), Color("5e533c"), Color("756646")]
 
 
 ## O tom da rampa `tones` (de `Pal`, do escuro ao claro) para o nível de luz `lit` (0 a 1), em degraus, sem pontilhado;
@@ -87,6 +95,17 @@ static func desk(lit: float, step := 0) -> Color:
 ## A borda da frente do tampo na luz `lit`: longe da luminária, os tons de antes da rampa; embaixo dela, um acima.
 static func desk_edge(lit: float, step := 0) -> Color:
 	return ramp(DESK_EDGE, 0.25 + (lit - 0.5) * 0.45, step)
+
+
+## A madeira do móvel da mesa comutadora na luz da sala `lit` (`Switchboard._room_lit`: de 0 longe da luminária a ~0,6
+## perto dela), `step` tons acima ou abaixo: no meio do painel, o tom de sempre (`CABINET_WOOD[4]`).
+static func cabinet(lit: float, step := 0) -> Color:
+	return ramp(CABINET_WOOD, 0.33 + lit * 0.84, step)
+
+
+## O metal do painel da mesa comutadora na luz da sala `lit` (como em `cabinet`): no meio do painel, `PANEL`.
+static func panel_metal(lit: float, step := 0) -> Color:
+	return ramp(PANEL_METAL, 0.25 + lit * 0.6, step)
 
 ## Uma fonte só, de pixel: Departure Mono (SIL OFL). Fica nítida só em múltiplos de 11 (11, 22, 33, 44); fora deles os
 ## pixels saem desiguais. Importada com suavização (para a janela menor que 1280×720 não apagar os traços), sem

@@ -1040,3 +1040,16 @@ Chaves:
     abaixo, no lugar de um tom só com a poça e o escuro da sala por cima; a mesinha do calculógrafo aberto fica no tom
     de embaixo da luminária. As faixas em curva lisa deixavam a borda delas à vista, como uma luz em degraus (que já
     tinha saído a pedido): a troca de tom anda um pouco em cada linha, como um veio pegando a luz.
+191. #mesa-comutadora #luz #pixel
+    Plano hi-bit, sub-etapa 1.3, o móvel da mesa comutadora pela luz que a mesa já tem (a da luminária do teto, mais
+    forte no alto à direita): a moldura de madeira, que não recebia luz nenhuma, escolhe o tom de cada pixel numa rampa
+    (`Pal.cabinet`, com os três tons de sempre no meio), escura e fria no canto de baixo à esquerda e quente perto da
+    luminária; no painel, o relevo (os filetes gravados, a beira rebaixada, as faixas de cada linha) pega o tom na
+    rampa do metal (`Pal.panel_metal`) trecho a trecho. O campo do painel continua liso, com a luz da sala por cima:
+    em faixas, pareceria luz em degraus ou metal escovado, os dois já recusados.
+192. #luz #tela #pixel
+    Plano hi-bit, sub-etapa 2.1: a gradação de cor do jogo inteiro, um shader na tela que mostra o jogo (o `Box` do
+    `GameView`), suave: as sombras puxando para o azul da noite, as luzes para o quente e um pouco mais de contraste,
+    ponto a ponto no pixel já ampliado (o pixel perfect continua). Uma conta com parâmetros no shader, em vez da tabela
+    numa textura do plano: dá o mesmo e troca por clima e pela hora do mesmo jeito. A captura passa por ela
+    (`--grade=0` sem) e o painel de debug a liga e desliga na hora, para comparar no jogo.

@@ -7,7 +7,7 @@ const DEST_ROW := 27.0
 const FRAME := 5.0           # a moldura de madeira do móvel, em volta do painel
 ## Faixas gravadas no painel que separam as seções (altura da linha; o nome fica sobre ela, à esquerda).
 const RULES := {"in": 11.0, "out": 78.0}
-const WOOD := [Color("6b4529"), Color("4a2f1c"), Color("2a1a0f")]   # madeira do móvel e da bandeja: luz, meio, sombra
+const CABINET_RAG := 0.05    # o quanto a troca de tom da madeira da moldura anda de um veio para outro, na luz (`_wood_frame`)
 ## O buraco da prateleira (16×8, achatado pela perspectiva; o vão, 12 de largura, da largura do plug, que entra
 ## nele): b, a beira de trás do aro (na sombra); f e F, a da frente (na luz, com o brilho); w, a parede de dentro do lado
 ## de trás; h, o vão. As linhas são de elipses de pixel art (`draw_grommet`).
@@ -211,21 +211,47 @@ func _reflect(jr: Rect2, col: Color, level: float) -> void:
 
 
 ## O móvel da mesa: a moldura de madeira (`_wood_frame`), com o brilho da luminária do teto na quina de cima, mais
-## forte do lado dela (no meio da tela, à direita da mesa), e o painel de metal escuro dentro, rebaixado.
+## forte do lado dela (no meio da tela, à direita da mesa), e o painel de metal escuro dentro, rebaixado, com a beira
+## no tom da luz da sala ali (`_lit_rect`).
 func _draw_cabinet(r: Rect2) -> void:
 	_ci.draw_texture(_wood_frame(r.size), r.position)
 	var lamp := get_viewport_rect().size.x / 2.0 - global_position.x
 	var glint := func(x: float) -> Color:
-		return Color(WOOD[0].lightened(0.45), 0.6 * clampf(1.0 - absf(x - lamp) / 525.0, 0.0, 1.0))
+		return Color(Pal.CABINET_WOOD[6].lightened(0.45), 0.6 * clampf(1.0 - absf(x - lamp) / 525.0, 0.0, 1.0))
 	var top := r.position.y + 1.0
 	_ci.draw_primitive(PackedVector2Array([Vector2(r.position.x + 1, top), Vector2(r.end.x - 1, top), Vector2(r.end.x - 1, top + 1), Vector2(r.position.x + 1, top + 1)]),
 		PackedColorArray([glint.call(r.position.x), glint.call(r.end.x), glint.call(r.end.x), glint.call(r.position.x)]), PackedVector2Array())
 	var p := r.grow(-FRAME)
-	rim(_ci, p, WOOD[2], WOOD[1])   # a fresta entre a madeira e o painel: na sombra em cima, na luz embaixo
+	var g := p.grow(1)   # a fresta entre a madeira e o painel: na sombra em cima e à esquerda, na luz embaixo e à direita
+	var wood := func(step: int) -> Callable: return func(lit: float) -> Color: return Pal.cabinet(lit, step)
+	_lit_rect(Rect2(g.position.x, g.end.y - 1, g.size.x, 1), wood.call(0))
+	_lit_rect(Rect2(g.end.x - 1, g.position.y, 1, g.size.y), wood.call(0))
+	_lit_rect(Rect2(g.position, Vector2(g.size.x, 1)), wood.call(-2))
+	_lit_rect(Rect2(g.position, Vector2(1, g.size.y)), wood.call(-2))
 	_ci.draw_rect(p, Pal.PANEL)
-	_ci.draw_rect(Rect2(p.position, Vector2(p.size.x, 2)), Pal.PANEL_LO)   # rebaixado: a sombra fica em cima à esquerda
-	_ci.draw_rect(Rect2(p.position, Vector2(2, p.size.y)), Pal.PANEL_LO)
-	_ci.draw_rect(Rect2(p.position.x, p.end.y - 1, p.size.x, 1), Pal.PANEL_HI)
+	_lit_rect(Rect2(p.position, Vector2(p.size.x, 2)), _metal(-2))   # rebaixado: a sombra fica em cima à esquerda
+	_lit_rect(Rect2(p.position, Vector2(2, p.size.y)), _metal(-2))
+	_lit_rect(Rect2(p.position.x, p.end.y - 1, p.size.x, 1), _metal(2))
+
+
+## O metal do painel `step` tons acima ou abaixo do tom do lugar (`Pal.panel_metal`), para o `_lit_rect`.
+static func _metal(step: int) -> Callable:
+	return func(lit: float) -> Color: return Pal.panel_metal(lit, step)
+
+
+## Um filete do painel ou da moldura (`r`, na horizontal ou na vertical), cada trecho no tom de `tone` (a luz da sala,
+## `_room_lit`, para o tom, em degraus) pela luz ali: mais claro e quente perto da luminária, frio longe dela.
+func _lit_rect(r: Rect2, tone: Callable) -> void:
+	var along := Vector2.RIGHT if r.size.x >= r.size.y else Vector2.DOWN
+	var n := int(r.size.dot(along))
+	var from := 0
+	var col: Color = tone.call(_room_lit(r.position))
+	for i in range(1, n + 1):
+		var c: Color = col if i == n else tone.call(_room_lit(r.position + along * i))
+		if c != col or i == n:
+			_ci.draw_rect(Rect2(r.position + along * from, r.size * (Vector2.ONE - along) + along * (i - from)), col)
+			from = i
+			col = c
 
 
 ## A luz da luminária do teto no painel (`lamp`, nas coordenadas da mesa: no meio da tela, acima dela): lisa, ponto a
@@ -251,10 +277,10 @@ func _draw_strips() -> void:
 	for i in 10:
 		var r := Rect2(col_x(i) - STRIP_W / 2.0, ROW_Y["plate"] + 3.0, STRIP_W, ROW_Y["out"] + JACK / 2.0 - ROW_Y["plate"])
 		_ci.draw_rect(r, Pal.PANEL.darkened(0.05))
-		_ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), Color(Pal.PANEL_LO, 0.6))   # rebaixada: a sombra em cima e à esquerda
-		_ci.draw_rect(Rect2(r.position, Vector2(1, r.size.y)), Color(Pal.PANEL_LO, 0.6))
-		_ci.draw_rect(Rect2(r.position.x, r.end.y - 1, r.size.x, 1), Color(Pal.PANEL_HI, 0.5))
-		_ci.draw_rect(Rect2(r.end.x - 1, r.position.y, 1, r.size.y), Color(Pal.PANEL_HI, 0.5))
+		_lit_rect(Rect2(r.position, Vector2(r.size.x, 1)), _metal(-1))   # rebaixada: a sombra em cima e à esquerda
+		_lit_rect(Rect2(r.position, Vector2(1, r.size.y)), _metal(-1))
+		_lit_rect(Rect2(r.position.x, r.end.y - 1, r.size.x, 1), _metal(1))
+		_lit_rect(Rect2(r.end.x - 1, r.position.y, 1, r.size.y), _metal(1))
 
 
 ## O uso de anos: o painel gasto em volta das tomadas (claro liso, mais nas entradas, onde o FONE entra a noite toda,
@@ -310,11 +336,7 @@ static func draw_maker_plate(ci: CanvasItem, r: Rect2) -> void:
 	ci.draw_string(Pal.mono, np, town, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, pal["w"])
 
 
-## A moldura de madeira do móvel, pixel a pixel e guardada: quatro trilhos com os cantos em meia-esquadria (uma
-## emenda escura na diagonal), cada um com os veios ao longo dele, ondulando (os de cima e de baixo deitados, os dos
-## lados em pé); a beira escura por fora, a luz em cima e à esquerda, a sombra embaixo e à direita, e as quinas gastas,
-## mais claras, de anos de mãos.
-static var _woods := {}
+static var _woods := {}   # as molduras guardadas, por tamanho e lugar da luminária (`_wood_frame`)
 
 
 ## Os troncos interurbanos, no canto de baixo à direita do painel, em `br` (a largura de um banco de destino): um
@@ -334,8 +356,17 @@ func _draw_trunks(br: Rect2) -> void:
 			Color("d8c9a2") if exchange.dest(d) == Exchange.Dest.FREE else Pal.TEXT)
 
 
+## A moldura de madeira do móvel, pixel a pixel e guardada: quatro trilhos com os cantos em meia-esquadria (uma
+## emenda escura na diagonal), cada um com os veios ao longo dele, ondulando (os de cima e de baixo deitados, os dos
+## lados em pé); a beira escura por fora, a luz em cima e à esquerda, a sombra embaixo e à direita, e as quinas gastas,
+## mais claras, de anos de mãos. Cada pixel no tom da madeira pela luz da sala ali (`Pal.cabinet`, `_room_lit`):
+## quente perto da luminária e escura e fria no canto longe dela; a troca de tom anda um pouco de um veio para outro
+## (`CABINET_RAG`), como na madeira do tampo.
 func _wood_frame(sz: Vector2) -> ImageTexture:
-	if not _woods.has(sz):
+	var key := Rect2(_lamp_at, sz)
+	if not _woods.has(key):
+		if _woods.size() >= 8:
+			_woods.clear()
 		var w := int(sz.x)
 		var h := int(sz.y)
 		var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
@@ -351,26 +382,27 @@ func _wood_frame(sz: Vector2) -> ImageTexture:
 				var along := float(y if upright else x)
 				var across := float(ex if upright else ey)
 				var g := fposmod(across + 1.4 * sin(along * 0.035 + rail * 2.1) + 0.7 * sin(along * 0.11 + rail * 4.3), 3.0)
-				var c: Color = WOOD[1]
+				var step := 0   # tons acima ou abaixo do tom da madeira ali
 				if g < 0.55:
-					c = WOOD[2].lightened(0.12)   # o veio escuro
+					step = -1   # o veio escuro
 				elif g > 1.6 and g < 1.9:
-					c = WOOD[1].lightened(0.08)   # o claro entre os veios
+					step = 1    # o claro entre os veios
 				if ex == ey and ex < f:
-					c = WOOD[2]   # a emenda do canto
+					step = -2   # a emenda do canto
 				var corner := Vector2(mini(x, w - 1 - x), mini(y, h - 1 - y)).length()
-				c = c.lerp(WOOD[0].lightened(0.15), 0.45 * clampf(1.0 - corner / 10.0, 0.0, 1.0))   # quina gasta
+				step += 2 if corner < 3.0 else (1 if corner < 7.0 else 0)   # quina gasta
 				if x == 0 or y == 0:
-					c = WOOD[1]   # a quina de fora, arredondada: no tom da madeira (escura, parecia um contorno)
+					step = 0    # a quina de fora, arredondada: no tom da madeira (escura, parecia um contorno)
 				elif x == w - 1 or y == h - 1:
-					c = WOOD[2].darkened(0.2)
+					step = -3
 				elif (x == 1 or y == 1) and x < w - 2 and y < h - 2:
-					c = WOOD[0]   # a luz em cima e à esquerda
+					step = 2    # a luz em cima e à esquerda
 				elif x == w - 2 or y == h - 2:
-					c = WOOD[2]
-				img.set_pixel(x, y, c)
-		_woods[sz] = ImageTexture.create_from_image(img)
-	return _woods[sz]
+					step = -2
+				var rag := fposmod(sin(across * 12.9898 + rail * 7.13 + floorf(along / 11.0) * 3.71) * 43758.55, 1.0) - 0.5
+				img.set_pixel(x, y, Pal.cabinet(_room_lit(Vector2(x, y)) + rag * CABINET_RAG, step))
+		_woods[key] = ImageTexture.create_from_image(img)
+	return _woods[key]
 
 
 ## A legenda das lâmpadas, na faixa das entradas, alinhada à direita e logo acima das lâmpadas que ela explica, na
@@ -398,8 +430,8 @@ func _draw_legend() -> void:
 ## `line`, só o nome).
 func _draw_rule(y: float, caption: String, line := true) -> void:
 	if line:
-		_ci.draw_rect(Rect2(FRAME + 5, y, size.x - FRAME * 2 - 10, 1), Pal.PANEL_LO)
-		_ci.draw_rect(Rect2(FRAME + 5, y + 1, size.x - FRAME * 2 - 10, 1), Pal.PANEL_HI)
+		_lit_rect(Rect2(FRAME + 5, y, size.x - FRAME * 2 - 10, 1), _metal(-2))
+		_lit_rect(Rect2(FRAME + 5, y + 1, size.x - FRAME * 2 - 10, 1), _metal(2))
 	if caption != "":
 		var t := PixelArt.tiny(caption)
 		_ci.draw_rect(Rect2(FRAME + 10, y - 5, t.get_width() + 8, 12), Pal.PANEL)   # como a da legenda

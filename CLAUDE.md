@@ -99,7 +99,12 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `GameView`). (Testados e descartados: o cenário em 2x2 numa tela de metade da resolução; o jogo todo em 2x2 com a fonte
   Tiny5, branch `improve/0000-pixel-2x`; o jogo todo ampliado como imagem com "nearest", que deixava o texto feio a 1,5×;
   e um filtro de 2x2 por cima do cenário, com média, que borrava.) Sem linhas de
-  varredura.
+  varredura. **Gradação de cor** (plano hi-bit): o `Box` mostra o jogo por um shader (`scripts/ui/grade.gdshader`,
+  `GameView.grade_material`) que passa cada pixel por uma conta de cor (as sombras puxando para o azul da noite, as
+  luzes para o quente, um pouco mais de contraste; parâmetros no shader, em vez de uma tabela numa textura), ponto a
+  ponto no pixel já ampliado: o pixel perfect continua. A captura passa por ela também (`tools/shot.gd`; `--grade=0`
+  sem); o painel de debug liga e desliga na hora (seção Clima, `GameView.set_grade`); o `main.tscn` sozinho e os
+  testes ficam sem.
 - **O cenário (`Background`) e a mesa comutadora (`Switchboard`) estão descritos em `scripts/ui/CLAUDE.md`** (lido
   ao mexer em `scripts/ui/`). Regras gerais deles: **o cenário e a mesa só se redesenham quando o que mostram muda**
   (estado comparado no `_process`: `Background._state`, a camada `_over`, o `_back_state` da vista, o `_look` de cada
@@ -128,8 +133,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   fita e papelão do bloco de fichas, tábua e folhas da prancheta, papel-jornal, papel e tons do mapa, níquel, o vermelho do formulário, a madeira e a borda do tampo) são
   constantes do `Pal`, usadas pelo objeto (`Background._art_*`) e pelo papel aberto dele: o que muda numa ponta muda na outra. **Rampas de material** (plano hi-bit, `PLANO_HIBIT.md`): `Array[Color]` no `Pal`, do escuro ao claro, a sombra
   puxando para o frio e a luz para o quente; o desenho escolhe o tom pelo nível de luz com `Pal.ramp(tons, luz)`, em
-  degraus, no lugar de escurecer por cima (por ora, a caneca, o aro das tomadas, `JACK_METAL`, e a madeira do tampo,
-  `Pal.desk`; `step` pega o tom acima ou abaixo, para veios e beiras). **Uma fonte só, de pixel: Departure Mono**
+  degraus, no lugar de escurecer por cima (por ora, a caneca, o aro das tomadas, `JACK_METAL`, a madeira do tampo,
+  `Pal.desk`, e o móvel da mesa comutadora, `Pal.cabinet` e `Pal.panel_metal`; `step` pega o tom acima ou abaixo,
+  para veios e beiras). **Uma fonte só, de pixel: Departure Mono**
   (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11** (o que é gravado no painel da mesa não usa
   ela: é uma fonte de pixel própria, maiúsculas de 3×5, `PixelArt.TINY`/`TINY_ACCENTS`/`tiny`, com os acentos dos três
   idiomas; o estado escrito de cada linha em cima das lâmpadas saiu, a pedido: a lâmpada já diz): 11 (texto, números da lista), 22
@@ -227,7 +233,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   escolhida, com o caso sorteado; interurbano num tronco que nenhuma ligação da mesa usa), imprime só um bilhete de tarifação,
   sem ligação (de 1 a 12 minutos até agora, numa entrada sem contador; `Main.print_ticket`), pula estágio ou congela a barra (`Urgency.frozen`), mostra o que a emergência
   exige (contado e real), mostra a suspeita de cada conversa conectada e força o silêncio delas (`Eavesdrop.force_hush`; o
-  Limpar é o `calm`, que também apaga as denúncias), velocidade 1–8×, pula o relógio, troca o clima na hora (`Main.set_weather`), faz passar um carro lá fora, na mão de lá ou na de cá e do modelo escolhido (`Background.pass_car`), encerra o turno, troca de noite (`_go_night`: troca o Main por um novo na noite anterior/seguinte, no mesmo pai, dentro da tela do `GameView`; posto na raiz, saía na resolução da janela e quebrava o layout; sem ler nem
+  Limpar é o `calm`, que também apaga as denúncias), velocidade 1–8×, pula o relógio, troca o clima na hora (`Main.set_weather`), liga e desliga a gradação de cor (`GameView.set_grade`), faz passar um carro lá fora, na mão de lá ou na de cá e do modelo escolhido (`Background.pass_car`), encerra o turno, troca de noite (`_go_night`: troca o Main por um novo na noite anterior/seguinte, no mesmo pai, dentro da tela do `GameView`; posto na raiz, saía na resolução da janela e quebrava o layout; sem ler nem
   gravar o progresso, para testar a entrega dos setores), libera viaturas (`Dispatch.reset`; `_gen` cancela
   as viagens em andamento), registra pendências, limpa advertências e apaga o progresso. Mesa de som: toca cada som de `Sfx.VOL` com
   um controle de volume que vale na hora (`Sfx.vol`, a cópia em uso) e "Copiar VOL" põe a constante ajustada na área de
@@ -240,7 +246,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `drop_emergency`); dos campos, o painel só lê agenda e ligações para o texto de estado e adianta o relógio (`minutes`), para não quebrar quando o Main mudar.
 - **Captura de tela** (`tools/shot.tscn`, COM tela): `Godot --path . tools/shot.tscn -- --hour=22:30 --weather=rain
   --tool=despacho --card --emergency --news --toll --width=1125 --zoom=x,y,w,h --out=build/shot.png` grava a tela inteira e o
-  recorte ampliado 4× (`_zoom.png`); `--hover=id` põe o mouse num objeto da mesa (ele erguido e a etiqueta com o nome); `--debug=N` abre o painel de debug na aba N; `--car=fusca,sedan` põe um carro de cada modelo parado na rua da vista, o de lá e o de cá (`-` deixa a mão vazia; `--car_t=0.45` onde, de 0 a 1); `--walk=2,-4` gente parada na calçada de lá nesses x (m); `--bar` a porta do bar aberta; `--blind=1` a persiana descida (0 a 1); `--smoke`, `--cat`, `--bike=x`, `--damp=N`, `--phones=2,1`, `--sips=N`, `--cabinet`, `--written=N`, `--read`, `--taxi=s`, `--dog=x`, `--patch=312,4` (quem fuma na varanda, o gato, a bicicleta, a mancha de umidade, os telefones da vista, os goles da caneca, o armário aberto, o lugar do lápis no bloco, o jornal já lido, o táxi parando no hotel a `s` segundos de aparecer, o vira-lata, um cabo de conexão da saída da linha 4 encaixado no destino, com o aro aceso); `--screen=intro|pause|settings|report` as telas fora do turno; as opções do jogo (`--night`, `--seed`, `--lang`) também valem. Para conferir
+  recorte ampliado 4× (`_zoom.png`); `--hover=id` põe o mouse num objeto da mesa (ele erguido e a etiqueta com o nome); `--debug=N` abre o painel de debug na aba N; `--car=fusca,sedan` põe um carro de cada modelo parado na rua da vista, o de lá e o de cá (`-` deixa a mão vazia; `--car_t=0.45` onde, de 0 a 1); `--walk=2,-4` gente parada na calçada de lá nesses x (m); `--bar` a porta do bar aberta; `--blind=1` a persiana descida (0 a 1); `--smoke`, `--cat`, `--bike=x`, `--damp=N`, `--phones=2,1`, `--sips=N`, `--cabinet`, `--written=N`, `--read`, `--taxi=s`, `--dog=x`, `--patch=312,4` (quem fuma na varanda, o gato, a bicicleta, a mancha de umidade, os telefones da vista, os goles da caneca, o armário aberto, o lugar do lápis no bloco, o jornal já lido, o táxi parando no hotel a `s` segundos de aparecer, o vira-lata, um cabo de conexão da saída da linha 4 encaixado no destino, com o aro aceso); `--screen=intro|pause|settings|report` as telas fora do turno; `--grade=0` sem a gradação de cor; as opções do jogo (`--night`, `--seed`, `--lang`) também valem. Para conferir
   mudança visual medindo, não só olhando a captura.
 - **Sem tela, a vista da janela não é desenhada** (`Background._headless`): com `--fixed-fps` e o tempo acelerado,
   ela era redesenhada a cada quadro e virou 2/3 do tempo de um turno do robô (27 s em vez de 9). Quem acrescentar

@@ -76,6 +76,12 @@ func _ready() -> void:
 		["Ir para 23:50", func(): main.minutes = maxf(main.minutes, Main.SHIFT_END - 10.0)], ["Encerrar turno", func(): main.start_ending()]])
 	_section("Clima", func(): if _weather0 != "": main.set_weather(_weather0))
 	_row([["Chuva", _set_weather.bind("rain")], ["Névoa", _set_weather.bind("fog")], ["Limpo", _set_weather.bind("clear")]])
+	var grade := CheckButton.new()   # a gradação de cor do jogo inteiro (`GameView`), para comparar com e sem
+	grade.text = "Gradação de cor"
+	grade.focus_mode = Control.FOCUS_NONE
+	grade.button_pressed = true
+	grade.toggled.connect(func(on: bool): GameView.set_grade(self, on))
+	_box.add_child(grade)
 	var car := OptionButton.new()   # o modelo do carro que passa lá fora
 	car.focus_mode = Control.FOCUS_NONE
 	car.add_item("carro sorteado")

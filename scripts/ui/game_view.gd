@@ -15,6 +15,7 @@ const TITLE_BAR := 40   ## px de tela que a barra de título e as bordas da jane
 
 
 func _ready() -> void:
+	_box.material = grade_material()
 	# o projeto amplia a 960×540 (para o `main.tscn` sozinho e os testes); aqui, a janela fica em pixels da tela
 	get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
 	get_viewport().size_changed.connect(_fit)
@@ -22,6 +23,22 @@ func _ready() -> void:
 	_apply()
 	if get_window().mode == Window.MODE_WINDOWED:   # o projeto abre em 960×540: na tela grande, 1× ficava minúsculo
 		_size_window.call_deferred()
+
+
+## A gradação de cor do jogo inteiro (`grade.gdshader`), posta na tela que mostra o jogo: o `Box` aqui e a da
+## captura (`tools/shot.gd`).
+static func grade_material() -> ShaderMaterial:
+	var m := ShaderMaterial.new()
+	m.shader = preload("res://scripts/ui/grade.gdshader")
+	return m
+
+
+## Liga ou desliga a gradação na tela que mostra o jogo de `node` (o painel de debug compara na hora); com o
+## `main.tscn` sozinho não há gradação, e nada muda.
+static func set_grade(node: Node, on: bool) -> void:
+	var box := node.get_viewport().get_parent() as CanvasItem
+	if box and box.material is ShaderMaterial:
+		(box.material as ShaderMaterial).set_shader_parameter("strength", 1.0 if on else 0.0)
 
 
 ## Aplica a tela das configurações: cheia ou janela, e a ampliação.

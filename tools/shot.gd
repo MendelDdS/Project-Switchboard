@@ -31,6 +31,7 @@ extends Node
 ##   --sips=3               goles tomados do café · --cabinet: a porta do armário aberta
 ##   --written=2            fichas registradas (o lugar do lápis no bloco)
 ##   --wait=5               segundos antes de capturar (a luminária esquenta em 4)
+##   --grade=0              sem a gradação de cor do `GameView` (a captura passa por ela, como a janela do jogo)
 ## As do jogo também valem: --weather=rain|fog|clear, --night=N, --seed=N, --lang=en.
 
 const ZOOM := 4
@@ -47,7 +48,17 @@ func _ready() -> void:
 	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	vp.snap_2d_transforms_to_pixel = true   # (como a `View` do `GameView`)
 	vp.snap_2d_vertices_to_pixel = true
-	add_child(vp)
+	var out := SubViewport.new()   # a tela que mostra o jogo com a gradação de cor, como o `Box` do `GameView`
+	out.size = vp.size
+	out.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	add_child(out)
+	var box := SubViewportContainer.new()
+	box.size = Vector2(vp.size)
+	box.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	box.material = GameView.grade_material()
+	out.add_child(box)
+	box.add_child(vp)
+	GameView.set_grade(vp, _args.get("grade", "1") != "0")
 	var m: Main = load("res://scenes/main.tscn").instantiate()
 	if not _args.has("night"):
 		m.night_no = 1   # não lê nem grava o progresso salvo
@@ -56,7 +67,7 @@ func _ready() -> void:
 	m.sched.clear()   # nada toca sozinho
 	if _args.get("screen") == "intro":
 		await get_tree().create_timer(float(_args.get("wait", "5")), false).timeout
-		_save(vp)
+		_save(out)
 		return
 	m._intro.visible = false
 	m._start_shift()
@@ -183,7 +194,7 @@ func _ready() -> void:
 			if _args.has("smoke"):
 				bg._smoke_t = 10.5
 			await get_tree().process_frame
-	_save(vp)
+	_save(out)
 
 
 func _save(vp: SubViewport) -> void:
