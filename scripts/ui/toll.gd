@@ -619,7 +619,7 @@ func _draw_stamp() -> void:
 	var rows: Array[Color] = [b.darkened(0.55), b.lightened(0.25), b.lightened(0.1), b, b, b, b.darkened(0.2), b.darkened(0.2), b.darkened(0.4), b.darkened(0.55), b.darkened(0.55)]
 	for i in rows.size():
 		ci.draw_rect(Rect2(wheels.position.x, wheels.position.y + i, wheels.size.x, 1), rows[i])
-	var ink := TollTicket.MARK.darkened(0.25).lerp(DRY, 1.0 - float(_ink) / INK)
+	var ink := Pal.TOLL_INK.darkened(0.25).lerp(DRY, 1.0 - float(_ink) / INK)
 	for i in 8:
 		var x := wheels.position.x + i * 8.0
 		ci.draw_rect(Rect2(x + 7.0, wheels.position.y + 1.0, 1, wheels.size.y - 2.0), b.darkened(0.55))
@@ -787,7 +787,7 @@ static func _rounded(ci: CanvasItem, r: Rect2, c: Color) -> void:
 static func _felt(sz: Vector2i) -> ImageTexture:
 	if not _felts.has(sz):
 		var img := Image.create(maxi(sz.x, 1), maxi(sz.y, 1), false, Image.FORMAT_RGBA8)
-		var c := TollTicket.MARK.darkened(0.55)
+		var c := Pal.TOLL_INK.darkened(0.55)
 		for y in sz.y:
 			for x in sz.x:
 				var g := (x * 73 + y * 151 + x * y * 7) % 37
@@ -818,8 +818,8 @@ func _draw_desk() -> void:
 		ci.draw_rect(Rect2(x + 1.0, pad.position.y - 1.0, 12, 1), Pal.NICKEL[1])
 	var felt := pad.grow(-5.0)
 	ci.draw_texture(_felt(Vector2i(felt.size)), felt.position)
-	ci.draw_rect(Rect2(felt.position, Vector2(felt.size.x, 1)), TollTicket.MARK.darkened(0.35))
-	var sheen := Color(TollTicket.MARK.lightened(0.35), 0.5 * _wet)   # a tinta molhada
+	ci.draw_rect(Rect2(felt.position, Vector2(felt.size.x, 1)), Pal.TOLL_INK.darkened(0.35))
+	var sheen := Color(Pal.TOLL_INK.lightened(0.35), 0.5 * _wet)   # a tinta molhada
 	for line: Rect2 in [Rect2(12, 5, 46, 1), Rect2(20, 7, 24, 1), Rect2(84, 21, 30, 1), Rect2(92, 23, 12, 1)]:
 		ci.draw_rect(Rect2(felt.position + line.position, line.size), sheen)
 	var r := _box()
@@ -830,10 +830,10 @@ func _draw_desk() -> void:
 	for i in range(mini(_filed.size(), 10) - 1, -1, -1):   # os bilhetes de pé lá dentro, do fundo para a frente (o último na frente)
 		var tk := Rect2(inside.position.x + 4.0 + (i * 5) % 9, inside.end.y - 5.0 - i * 2.0, inside.size.x - 16.0, 2)
 		var k := 0.15 + i * 0.03
-		ci.draw_rect(Rect2(tk.position, Vector2(tk.size.x, 1)), TollTicket.FORM.darkened(k))   # a beira de cima: a faixa do formulário
-		ci.draw_rect(Rect2(tk.position.x, tk.position.y + 1.0, tk.size.x, 1), TollTicket.PAPER.darkened(k))
+		ci.draw_rect(Rect2(tk.position, Vector2(tk.size.x, 1)), Pal.TICKET_FORM.darkened(k))   # a beira de cima: a faixa do formulário
+		ci.draw_rect(Rect2(tk.position.x, tk.position.y + 1.0, tk.size.x, 1), Pal.TICKET.darkened(k))
 		if _filed[_filed.size() - 1 - i]:
-			ci.draw_rect(Rect2(tk.position.x + roundf(tk.size.x * 0.55), tk.position.y + 1.0, 5, 1), TollTicket.MARK.darkened(k))   # a ponta da marca
+			ci.draw_rect(Rect2(tk.position.x + roundf(tk.size.x * 0.55), tk.position.y + 1.0, 5, 1), Pal.TOLL_INK.darkened(k))   # a ponta da marca
 	var front := Rect2(r.position.x, inside.end.y, r.size.x, r.end.y - inside.end.y)
 	ci.draw_rect(front, Pal.BOARD[1])
 	ci.draw_rect(Rect2(front.position, Vector2(front.size.x, 2)), Pal.BOARD[0])

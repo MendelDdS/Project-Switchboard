@@ -1063,3 +1063,17 @@ Chaves:
     Plano hi-bit, sub-etapa 2.3: uma gradação de cor por clima, trocada aos poucos (2 s) quando o clima muda: a noite
     limpa fica com a aprovada na 2.2 (mais contraste, luzes mais quentes), a chuva mais fria (as sombras mais azuis, a
     madeira menos alaranjada) e a névoa mais lavada, com menos contraste.
+195. #pixel #objetos
+    Plano hi-bit reordenado a pedido, pela recomendação e pelo que cada etapa precisa das outras: depois das feitas, as
+    cores para o `Pal` e as rampas no resto do jogo (a etapa que mais muda a imagem e da qual as outras dependem), o
+    movimento secundário, a luz da luminária num shader (menor depois das rampas, decidida pela lista da primeira
+    sub-etapa), as outras luzes, o amanhecer e o fechamento. Sub-etapa 3.1a: as cores dos papéis (a lista, o bloco de
+    fichas com o lápis, a prancheta, o jornal, os bilhetes e o carimbo do calculógrafo), no objeto da mesa e no papel
+    aberto, saíram do código para o `Pal`, sem mudar nenhum tom: as capturas saem idênticas pixel a pixel
+    (`tools/diff_shots.gd`, com as capturas em `--still`, sem a poeira do feixe, que muda a cada uma).
+196. #objetos #luz #pixel
+    Plano hi-bit, sub-etapa 3.1b: os papéis da mesa (as listas, o bloco de fichas com o lápis, o jornal, a prancheta
+    pendurada e os bilhetes na mesinha do calculógrafo) trocam de tom pela luz parada no lugar de cada pixel, nas
+    rampas dos papéis (`Pal.lit`: três degraus de sombra mais frios e um de luz mais quente), no lugar do preto
+    translúcido por cima; a troca de degrau anda de uma linha do papel para outra, como no tampo. O papel aberto das
+    ferramentas fica no tom de sempre, e o piscar da luminária continua escurecendo por cima, na mesma medida.

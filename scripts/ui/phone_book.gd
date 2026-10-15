@@ -13,7 +13,6 @@ const TAB_W := 26.0           # largura das abas de índice, na borda direita
 const NAV_H := 42.0           # altura da barra de Voltar/Virar, embaixo do livro
 const TOP := 32.0             # onde começam os contatos da página (abaixo do cabeçalho)
 const CLUE_H := 34.0          # altura de cada palavra-chave anotada
-const PAPER := Color("e3d6b2")
 const PLAIN := {"á": "a", "à": "a", "â": "a", "ã": "a", "é": "e", "ê": "e", "í": "i", "ó": "o", "ô": "o", "õ": "o", "ú": "u", "ç": "c"}
 
 var marked := -1
@@ -192,7 +191,7 @@ func _draw() -> void:
 	_clue_hits.clear()
 	_draw_tabs()
 	draw_rect(book, Pal.INK_SOFT)
-	draw_rect(book.grow(-2), PAPER)
+	draw_rect(book.grow(-2), Pal.BOOK_PAGE)
 	var mid := book.size.x / 2.0
 	var y := 6.0
 	while y < book.size.y - 4:
@@ -254,7 +253,7 @@ func _page_head(x0: float, txt: String) -> void:
 ## Cabeçalho da página de uma letra: a letra num quadrado de tinta e o fio até a margem.
 func _page_letter(x0: float, letter: String) -> void:
 	draw_rect(Rect2(x0, 6, 24, 24), Pal.INK_SOFT)
-	draw_string(Pal.mono, Vector2(x0, 6 + Pal.mono.get_ascent(22)), letter, HORIZONTAL_ALIGNMENT_CENTER, 24, 22, PAPER)
+	draw_string(Pal.mono, Vector2(x0, 6 + Pal.mono.get_ascent(22)), letter, HORIZONTAL_ALIGNMENT_CENTER, 24, 22, Pal.BOOK_PAGE)
 	draw_rect(Rect2(x0 + 30, 29, page_w - 30, 2), Pal.INK_SOFT)
 
 

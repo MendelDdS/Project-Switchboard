@@ -10,10 +10,10 @@ signal registered(rec: PhoneCall.Record, type: T.Key)
 
 ## Cor do carimbo de cada tipo no livro.
 const STAMPS := {
-	T.Key.TYPE_COMMON: Color("3a4f7a"),      # tinta azul
-	T.Key.TYPE_EMERGENCY: Color("8a2a1c"),   # vermelho
-	T.Key.TYPE_PRANK: Color("7a5214"),       # sépia
-	T.Key.TYPE_MISSED: Color("5c5a55"),      # grafite: registrada sozinha
+	T.Key.TYPE_COMMON: Pal.LOG_STAMPS[0],
+	T.Key.TYPE_EMERGENCY: Pal.LOG_STAMPS[1],
+	T.Key.TYPE_PRANK: Pal.LOG_STAMPS[2],
+	T.Key.TYPE_MISSED: Pal.LOG_STAMPS[3],
 }
 const ROW_H := 50.0                # cada ocorrência: linha principal e, abaixo, unidade e observação
 const X_CALLER := 56.0             # colunas do livro (as legendas acima seguem as mesmas larguras)

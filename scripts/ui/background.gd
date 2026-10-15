@@ -49,6 +49,7 @@ const SET_SOUND := {Tools.DISPATCH: "set_metal", Tools.TOLL: "set_metal"}
 const TIP_SEC := 1.3   ## o bilhete subindo na fenda do calculógrafo da mesa: o tempo do som da impressora ("printer")
 const HUNG := Vector2(18, 24)   ## a prancheta do registro pendurada na lateral do painel: funda (z) e alta (y), na sala
 const HUNG_AT := 0.3   ## onde fica o alto dela, na altura do painel
+const HUNG_LIGHT := 0.4   ## a luz parada nela (`_still`): na lateral do painel, um degrau abaixo do tom de sempre (era o papel com 12% de preto por cima)
 const CALENDAR := "calendario"   ## a folhinha na parede, ao lado do armário: sob o mouse, a data da noite (não abre ferramenta)
 const DETAILS := ["cartaz_quermesse", "numero_anotado", "armario_entreaberto"]   ## o que `RoomChange.detail` pode pedir
 const BOARD_SINK := 10.0   ## o fundo do tampo, em px da tela acima da base do painel: fica atrás da mesa comutadora (o painel recuado para a parede, a prateleira funda)
@@ -892,9 +893,9 @@ func _draw_tip() -> void:
 	if _tip_h <= 0:
 		return
 	var r := Rect2(_tip.position, Vector2(_tip.size.x, _tip_h))
-	_tip_layer.draw_rect(r, TollTicket.PAPER.darkened(_tip_dark))
+	_tip_layer.draw_rect(r, Pal.TICKET.darkened(_tip_dark))
 	for x in range(0, int(r.size.x), 2):
-		_tip_layer.draw_rect(Rect2(r.position.x + x, r.end.y - 1.0, 1, 1), TollTicket.EDGE.darkened(_tip_dark))
+		_tip_layer.draw_rect(Rect2(r.position.x + x, r.end.y - 1.0, 1, 1), Pal.TICKET_EDGE.darkened(_tip_dark))
 	if not _tip_cover.is_empty() and Rect2(_tip_cover[1] - _tip_cover[0].get_size() / 2.0, _tip_cover[0].get_size()).intersects(r):
 		PixelArt.sprite(_tip_layer, _tip_cover[0], _tip_cover[1], _tip_cover[2])   # o carimbo em pé na frente da fenda tampa a ponta
 
@@ -1329,8 +1330,9 @@ func _draw_hung_clipboard() -> void:
 	drop = Transform2D(0.0, _raised()) * drop   # saindo da lateral, a sombra fica nela
 	for s: PackedVector2Array in Geometry2D.intersect_polygons(drop, _side_faces[1]):   # a sombra: só onde há lateral atrás
 		_poly(s, Color(0, 0, 0, 0.3))
-	_flat_art(Tools.CALL_LOG, q, _art_clipboard, [unread], 0.12)
+	_flat_art(Tools.CALL_LOG, q, _art_clipboard, [unread], 0.0, PackedFloat32Array([HUNG_LIGHT, HUNG_LIGHT, HUNG_LIGHT, HUNG_LIGHT]))
 	_clipboard_print(Vector2i(_hom_sz))
+	_hom_light = PackedFloat32Array()
 	_mark(Tools.CALL_LOG, _bounds(q), q)
 	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 

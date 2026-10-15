@@ -7,10 +7,6 @@ extends Control
 ## vermelha onde a janela dele estava (`stamp`), mais fraca com a borracha secando e cortada na beira do papel.
 
 const SIZE := Vector2(190, 140)   ## o título e o número lado a lado na faixa (em 176, encostavam); embaixo, o campo do carimbo
-const PAPER := Color("e4dcc0")
-const EDGE := Color("a89c78")
-const FORM := Color("34507e")   ## o formulário vem impresso em azul (o cartão do despacho, em vermelho)
-const MARK := Color("b03a2e")   ## a tinta do carimbo
 const MARK_SIZE := Vector2(64, 34)   ## a janela da sapata do carimbo (`Toll.WINDOW`): a moldura e as três linhas
 const MARK_VALID := 0.5   ## a parte da marca que tem que cair no papel para valer; menos é borrão
 const BAND := 16.0   ## a faixa do formulário, em cima, com o título e o número
@@ -88,7 +84,7 @@ func _draw_mark(at: Vector2, k: float, vary: int) -> void:
 	var o := (at - MARK_SIZE / 2.0).round()
 	var w := int(MARK_SIZE.x)
 	var h := int(MARK_SIZE.y)
-	var tint := Color(MARK, lerpf(0.15, 0.85, k))
+	var tint := Color(Pal.TOLL_INK, lerpf(0.15, 0.85, k))
 	var gaps := 1 + roundi((1.0 - k) * 5.0)   # de cada 13 pontos dos fios, quantos falham (no lado fraco, mais dois)
 	var weak := vary % 2 == 0   # o lado fraco: a direita ou a esquerda
 	var dot := func(x: int, y: int) -> void:
@@ -146,38 +142,38 @@ func _notification(what: int) -> void:
 func _draw() -> void:
 	draw_set_transform(Vector2(0, -top))
 	draw_rect(Rect2(_lift.shadow(), SIZE - Vector2(0, 1)), Lift.SHADOW)   # a sombra na mesa
-	draw_rect(Rect2(0, 0, SIZE.x, SIZE.y - 2.0), PAPER)
+	draw_rect(Rect2(0, 0, SIZE.x, SIZE.y - 2.0), Pal.TICKET)
 	if _specks.is_empty():
 		var rng := RandomNumberGenerator.new()
 		rng.seed = serial
 		for i in 40:
 			_specks.append(Vector2(rng.randi_range(2, int(SIZE.x) - 4), rng.randi_range(18, int(SIZE.y) - 5)))
 	for sp in _specks:
-		draw_rect(Rect2(sp, Vector2(2 if int(sp.x) % 3 == 0 else 1, 1)), PAPER.darkened(0.1))
-	draw_rect(Rect2(0, 0, SIZE.x, BAND), FORM)
-	PunchCard.write(self, Vector2(6, 12), T.text(T.Key.TOLL_TICKET), PAPER)
-	PunchCard.write(self, Vector2(6, 12), "%04d" % serial, PAPER, SIZE.x - 12.0, HORIZONTAL_ALIGNMENT_RIGHT)
+		draw_rect(Rect2(sp, Vector2(2 if int(sp.x) % 3 == 0 else 1, 1)), Pal.TICKET.darkened(0.1))
+	draw_rect(Rect2(0, 0, SIZE.x, BAND), Pal.TICKET_FORM)
+	PunchCard.write(self, Vector2(6, 12), T.text(T.Key.TOLL_TICKET), Pal.TICKET)
+	PunchCard.write(self, Vector2(6, 12), "%04d" % serial, Pal.TICKET, SIZE.x - 12.0, HORIZONTAL_ALIGNMENT_RIGHT)
 	var rows := [[T.Key.TOLL_LINE, "%02d" % line], [T.Key.TOLL_TO, "%s %s" % [city.to_upper(), far]],
 		[T.Key.TOLL_TIME, "%s–%s" % [Main.fmt(start), Main.fmt(end)]], [T.Key.TOLL_MINUTES, str(minutes())]]
 	for i in rows.size():
 		var y := 31.0 + i * 16.0
-		PunchCard.write(self, Vector2(6, y), T.text(rows[i][0]), FORM)
+		PunchCard.write(self, Vector2(6, y), T.text(rows[i][0]), Pal.TICKET_FORM)
 		PunchCard.write(self, Vector2(VALUE_X, y), rows[i][1], Pal.INK)
 		for x in range(int(VALUE_X), int(SIZE.x) - 6, 3):   # a linha de preencher
-			draw_rect(Rect2(x, y + 3.0, 1, 1), Color(FORM, 0.6))
+			draw_rect(Rect2(x, y + 3.0, 1, 1), Color(Pal.TICKET_FORM, 0.6))
 	for x in range(int(FIELD.position.x), int(FIELD.end.x), 3):   # o campo do carimbo
 		for y: float in [FIELD.position.y, FIELD.end.y - 1.0]:
-			draw_rect(Rect2(x, y, 2, 1), Color(FORM, 0.6))
+			draw_rect(Rect2(x, y, 2, 1), Color(Pal.TICKET_FORM, 0.6))
 	for y in range(int(FIELD.position.y), int(FIELD.end.y), 3):
 		for x: float in [FIELD.position.x, FIELD.end.x - 1.0]:
-			draw_rect(Rect2(x, y, 1, 2), Color(FORM, 0.6))
+			draw_rect(Rect2(x, y, 1, 2), Color(Pal.TICKET_FORM, 0.6))
 	var label := PixelArt.tiny(T.text(T.Key.TOLL_FIELD))
-	draw_texture(label, FIELD.position + Vector2(0, -9), FORM)
+	draw_texture(label, FIELD.position + Vector2(0, -9), Pal.TICKET_FORM)
 	var bottom := SIZE.y - 2.0
-	draw_rect(Rect2(0, 0, SIZE.x, 1), EDGE)   # a beira: em cima e dos lados...
+	draw_rect(Rect2(0, 0, SIZE.x, 1), Pal.TICKET_EDGE)   # a beira: em cima e dos lados...
 	for x: float in [0.0, SIZE.x - 1.0]:
-		draw_rect(Rect2(x, 0, 1, bottom), EDGE)
+		draw_rect(Rect2(x, 0, 1, bottom), Pal.TICKET_EDGE)
 	for x in range(0, int(SIZE.x), int(TEETH)):   # ...e os dentes embaixo
-		draw_rect(Rect2(x, bottom, TEETH - 1.0, 1), PAPER)
-		draw_rect(Rect2(x + TEETH - 1.0, bottom, 1, 1), EDGE)
-		draw_rect(Rect2(x, bottom + 1.0, TEETH - 1.0, 1), EDGE)
+		draw_rect(Rect2(x, bottom, TEETH - 1.0, 1), Pal.TICKET)
+		draw_rect(Rect2(x + TEETH - 1.0, bottom, 1, 1), Pal.TICKET_EDGE)
+		draw_rect(Rect2(x, bottom + 1.0, TEETH - 1.0, 1), Pal.TICKET_EDGE)

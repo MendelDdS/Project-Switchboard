@@ -81,7 +81,7 @@ func _draw_photo() -> void:
 		var k := minf(box.size.x / pic.get_width(), box.size.y / pic.get_height())
 		box = Rect2(Vector2(floorf((box.size.x - pic.get_width() * k) / 2.0), 0), (pic.get_size() * k).floor())
 		c.draw_texture_rect(pic, box, false)
-		c.draw_rect(box, Color("3e382e"), false, 1.0)
+		c.draw_rect(box, Pal.NEWS_PHOTO[0], false, 1.0)
 	else:
 		c.draw_texture(_photo(Vector2i(int(box.size.x), PHOTO_H)), Vector2.ZERO)
 	var y := box.end.y + 4.0
@@ -140,7 +140,7 @@ static func _photo(sz: Vector2i) -> ImageTexture:
 	if _photos.has(sz):
 		return _photos[sz]
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	var ink := Color("3e382e")
+	var ink := Pal.NEWS_PHOTO[0]
 	var hz := int(sz.y * 0.66)   # a rua
 	var church := int(sz.x * 0.64)
 	for y in sz.y:

@@ -32,6 +32,8 @@ extends Node
 ##   --written=2            fichas registradas (o lugar do lápis no bloco)
 ##   --wait=5               segundos antes de capturar (a luminária esquenta em 4)
 ##   --grade=0              sem a gradação de cor do `GameView` (a captura passa por ela, como a janela do jogo)
+##   --still                sem a poeira do feixe da luminária, que muda a cada captura (para comparar capturas pixel a
+##                          pixel, `tools/diff_shots.gd`)
 ## As do jogo também valem: --weather=rain|fog|clear, --night=N, --seed=N, --lang=en.
 
 const ZOOM := 4
@@ -112,6 +114,8 @@ func _ready() -> void:
 		m.tools.book.turn(99)
 	if _args.has("tool"):
 		m.tools.set_tab(_args["tool"])
+	if _args.has("still"):
+		m.background.dust.visible = false
 	if _args.has("hover"):
 		m.background._hot = _args["hover"]
 		m.get_node("Scene").queue_redraw()

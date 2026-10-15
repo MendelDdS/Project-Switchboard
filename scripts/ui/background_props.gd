@@ -11,6 +11,7 @@ const POOL_HOT := Vector2(0.42, 0.16)
 const SHADE_MAX := 0.3   ## o mais escuro que um objeto da mesa fica, longe da poça de luz (`_shade`)
 const FRONT_LIGHT := 1.6   ## da poça para a frente da mesa, a luz vai essa vez mais longe (`_shade`, `_draw_gloom`): a fileira da frente ficava escura demais
 const DESK_RAG := 0.16     ## o quanto a borda de cada faixa de luz do tampo anda de uma linha para outra, em raios da poça (`_desk_row`)
+const PAPER_RAG := 0.12    ## o mesmo nos papéis da mesa, na luz parada (`_lit_at`)
 const WALL_PAD := 2.0           ## a folga dos objetos da mesa até a parede da direita (x da sala)
 const MUG_ID := "caneca"   ## a caneca: sob o mouse se ergue como os objetos das ferramentas; clicada, um gole (`Background.sip`)
 const MUG_SIPS := 5       ## os goles do café da caneca
@@ -127,6 +128,7 @@ var _tip_dark := 0.0
 var _tip_cover: Array = []   # o carimbo em pé na mesinha [textura, meio, cor]: fica na frente da fenda, e a camada da ponta o desenha de novo por cima dela
 var _hom := Basis()          # a perspectiva do objeto chato sendo desenhado (`_flat`, `_homography`): o que vai por cima dele, na tela
 var _hom_sz := Vector2.ONE   # o tamanho do desenho de frente dele (px)
+var _hom_light := PackedFloat32Array()   # a luz parada nos cantos dele (`_still`; fundo-esq, fundo-dir, frente-dir, frente-esq), se for papel: cada pixel troca de tom por ela (`_lit_at`)
 var _occ: Array = []         # os objetos da mesa (px da tela, convexos): o que fica na frente da parede e do armário
 var occ_ids := PackedStringArray()   # quem é cada um de `_occ` (o id da ferramenta, "relogio", "caneca"; o teste da mesa usa)
 var _mug_mouth := Vector2.ZERO   # o meio do café na caneca (px da tela), de onde sobe o vapor
@@ -240,7 +242,7 @@ func _draw_desk_props() -> void:
 	# papel tem 1 px de beira (mais grosso, parecia tábua)
 	if news and _here(Tools.NEWS):   # lido, volta dobrado mais uma vez, na metade da altura, e girado para o outro lado
 		var nd := _deep(0.19 * k) * (0.5 if news_read else 1.0)
-		_flat(Tools.NEWS, near[1], _at(0.07) + (_deep(0.19 * k) - nd) / 2.0, NEWS_W * k, nd, 0.5, Color("a89c78"),
+		_flat(Tools.NEWS, near[1], _at(0.07) + (_deep(0.19 * k) - nd) / 2.0, NEWS_W * k, nd, 0.5, Pal.NEWS_FOLD[1],
 			_art_newspaper.bind(news_read), [news_read], deg_to_rad(-9.0 if news_read else 6.0), _newspaper_print.bind(news_read))
 	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
@@ -308,13 +310,14 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 	hull.append_array(quad.call(Rect2(0, 0, 1, 1)))
 	if toll_desk.size() >= 4:
 		dark = _shade(xc, zf + d / 2.0)
+		var paper := _paper_step(_still(xc, zf + d / 2.0))   # os bilhetes no tom da luz parada ali, e o piscar por cima
 		var pad: Rect2 = toll_desk[0]
 		var lid := Toll.LID / Toll.NOMINAL.x * w
 		_poly(PackedVector2Array([pt.call(pad.position, lid), pt.call(Vector2(pad.end.x, pad.position.y), lid),
 			pt.call(Vector2(pad.end.x, pad.position.y), 0.0), pt.call(pad.position, 0.0)]), Pal.NICKEL[3].darkened(dark))   # a tampa aberta, de costas
 		_poly(quad.call(pad), Pal.NICKEL[2].darkened(dark))
 		var rim := Vector2(5, 5) / Toll.NOMINAL
-		_poly(quad.call(Rect2(pad.position + rim, pad.size - rim * 2.0)), TollTicket.MARK.darkened(0.5 + dark))   # o feltro
+		_poly(quad.call(Rect2(pad.position + rim, pad.size - rim * 2.0)), Pal.TOLL_INK.darkened(0.5 + dark))   # o feltro
 		for i in range(4, toll_desk.size()):   # os bilhetes soltos, na ordem em que estão empilhados
 			var r: Rect2 = toll_desk[i][0]
 			var q: PackedVector2Array = quad.call(r)
@@ -322,13 +325,13 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 			for p in q:
 				sh.append(p + Vector2(1, 1))
 			_poly(sh, Lift.SHADOW)
-			_poly(q, TollTicket.PAPER.darkened(dark))
-			_poly(quad.call(Rect2(r.position, Vector2(r.size.x, r.size.y * TollTicket.BAND / TollTicket.SIZE.y))), TollTicket.FORM.darkened(dark))
+			_poly(q, Pal.lit(Pal.TICKET, paper).darkened(_flick()))
+			_poly(quad.call(Rect2(r.position, Vector2(r.size.x, r.size.y * TollTicket.BAND / TollTicket.SIZE.y))), Pal.lit(Pal.TICKET_FORM, paper).darkened(_flick()))
 			var half := TollTicket.MARK_SIZE / TollTicket.SIZE / 2.0
 			for m: Vector3 in toll_desk[i][1]:   # as marcas, cortadas no papel
 				var mr := Rect2(Vector2(m.x, m.y) - half, half * 2.0).intersection(Rect2(0, 0, 1, 1))
 				if mr.has_area():
-					_poly(quad.call(Rect2(r.position + mr.position * r.size, mr.size * r.size)), Color(TollTicket.MARK, lerpf(0.25, 0.75, m.z)).darkened(dark))
+					_poly(quad.call(Rect2(r.position + mr.position * r.size, mr.size * r.size)), Color(Pal.lit(Pal.TOLL_INK, paper), lerpf(0.25, 0.75, m.z)).darkened(_flick()))
 		var bx: Rect2 = toll_desk[1]
 		var shoe: Rect2 = toll_desk[3]
 		var draw_box := func() -> PackedVector2Array:   # a caixinha: a madeira, a boca escura com os guardados de pé e a plaqueta na frente
@@ -343,7 +346,7 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 			for i in mini(toll_desk[2], 3):
 				var v := lerpf(bh.y - e * 3.0, -bh.y + e * 3.0, 0.3 + i * 0.25)
 				_pixel_line(_clock_pt(bc.x, bc.y, -bh.x + e * 3.0, v, y1 + 0.4), _clock_pt(bc.x, bc.y, bh.x - e * 3.0, v, y1 + 0.4),
-					[TollTicket.PAPER.darkened(0.3 + dark)])
+					[Pal.lit(Pal.TICKET, paper).darkened(0.3 + _flick())])
 			if faces.has("front"):
 				var bf := _bounds(faces["front"])
 				_ci.draw_rect(Rect2(roundf(bf.get_center().x - bf.size.x * 0.22), roundf(bf.get_center().y - 1.0), roundf(bf.size.x * 0.44), 2),
@@ -682,14 +685,71 @@ func _pool() -> Vector2:
 ## `SHADE_MAX`; a luminária piscando escurece tudo junto (os objetos tinham a mesma cor em qualquer lugar da mesa e
 ## pareciam soltos da luz da sala). Contínuo: cada objeto escurece ponto a ponto (`_dim`), não de um tom só.
 func _shade(x: float, z: float) -> float:
+	return _dark(_pool_d(x, z))
+
+
+## A distância do ponto (`x`, `z`) da mesa à poça de luz, em raios dela, já com o alcance da luz (`_reach`).
+func _pool_d(x: float, z: float) -> float:
 	var p := _pool()
 	var v := Vector2((x - p.x) / POOL_R, (z - p.y) / (POOL_R * 0.5))
-	return _dark(v.length() / _reach(v.y))
+	return v.length() / _reach(v.y)
 
 
-## O escuro (`_shade`) pela distância `d` à poça, em raios dela, já com o alcance da luz (`_reach`).
+## O escuro (`_shade`) pela distância `d` à poça (`_pool_d`), com o piscar da luminária.
 func _dark(d: float) -> float:
-	return clampf((d - 0.35) * 0.5, 0.0, SHADE_MAX) + (1.0 - lamp_level) * 0.3
+	return _spread(d) + _flick()
+
+
+## O escuro pela distância `d` à poça, sem o piscar: nada perto dela e mais longe, até `SHADE_MAX`.
+static func _spread(d: float) -> float:
+	return clampf((d - 0.35) * 0.5, 0.0, SHADE_MAX)
+
+
+## O escuro da luminária piscando ou ainda esquentando, por igual na mesa toda (`_shade`).
+func _flick() -> float:
+	return (1.0 - lamp_level) * 0.3
+
+
+## A luz parada no ponto (`x`, `z`) da mesa (`_shade` sem o piscar da luminária), de 0, embaixo dela, a 1, longe da
+## poça (`SHADE_MAX`): a que os papéis guardam no desenho, em degraus (`_paper_step`); o piscar escurece por cima.
+func _still(x: float, z: float) -> float:
+	return _spread(_pool_d(x, z)) / SHADE_MAX
+
+
+## O degrau da rampa do papel (`Pal.lit`) na luz parada `t` (`_still`): um acima bem embaixo da luminária, o tom de
+## sempre perto dela e até três abaixo longe.
+static func _paper_step(t: float) -> int:
+	return 1 if t <= 0.0 else -mini(3, int(t * 4.0))
+
+
+## A luz parada (`_still`) no ponto `p` do desenho de frente do papel sendo desenhado (px do desenho; `_hom_light`), com
+## a troca de degrau andando um pouco de uma linha do papel para outra (`PAPER_RAG`), como a borda das faixas do tampo.
+func _lit_at(p: Vector2) -> float:
+	var u := clampf(p.x / _hom_sz.x, 0.0, 1.0)
+	var v := clampf(p.y / _hom_sz.y, 0.0, 1.0)
+	var l := _hom_light
+	var t := lerpf(lerpf(l[0], l[1], u), lerpf(l[3], l[2], u), v)
+	return t + (fposmod(sin(floorf(p.y) * 12.9898) * 43758.55, 1.0) - 0.5) * PAPER_RAG
+
+
+## O tom `c` no ponto `p` do desenho de frente do papel sendo desenhado, pela luz parada ali (`Pal.lit`); fora de um
+## papel, `c`.
+func _tone(c: Color, p: Vector2) -> Color:
+	return c if _hom_light.is_empty() else Pal.lit(c, _paper_step(_lit_at(p)))
+
+
+## A luz parada nos cantos `xz` (da sala) de um papel, para o `_hom_light`.
+func _still_at(xz: Array) -> PackedFloat32Array:
+	var out := PackedFloat32Array()
+	for p: Vector2 in xz:
+		out.append(_still(p.x, p.y))
+	return out
+
+
+## O escuro do piscar da luminária por cima do papel `q` (px da tela): a luz parada fica no desenho dele.
+func _flicker(q: PackedVector2Array) -> void:
+	if _flick() > 0.0:
+		_poly(q, Color(0, 0, 0, _flick()))
 
 
 ## Quantas vezes a luz da poça vai mais longe na direção `vy` (na distância, em meios raios dela; negativo é para a
@@ -804,17 +864,19 @@ func _flat(id: String, x0: float, zf: float, wx: float, dz: float, h: float, edg
 		foot.append(_p3(p.x, _yd, p.y))
 		top.append(_p3(p.x, _yd - h, p.y))
 	_desk_shadow(foot)
-	var dark := _shade(x0 + wx / 2.0, zf + dz / 2.0)
+	var step := _paper_step(_still(x0 + wx / 2.0, zf + dz / 2.0))
 	for f: Array in _faces(xz, _yd, _yd - h):
-		_poly(f[0], edge.darkened(0.35 * absf((f[2] as Vector2).x)).darkened(dark))
+		_poly(f[0], Pal.lit(edge, step).darkened(0.35 * absf((f[2] as Vector2).x)).darkened(_flick()))
 	var sz := Vector2i(_top_xf(top)[1])
 	if sz.x >= 8 and sz.y >= 4:   # (a tela ainda se arrumando)
 		_hom = _homography(top)
 		_hom_sz = Vector2(sz)
+		_hom_light = _still_at(xz)   # cada pixel no tom da luz parada dele, e o que vai por cima também (`_tone`)
 		_project([id, sz, key], art, top, sz)
 		if post.is_valid():
 			post.call(sz)
-	_dim(top, xz)   # longe da luz, ponto a ponto
+		_hom_light = PackedFloat32Array()
+	_flicker(top)
 	_mark(id, _bounds(foot + top), Geometry2D.convex_hull(foot + top))
 	return top
 
@@ -864,7 +926,10 @@ func _rows(y0: float, y1: float, step: float) -> Array:
 ## Um risco de tinta no objeto chato sendo desenhado, de `x0` a `x1` na altura `y` do desenho de frente, posto na
 ## tela em pixel art (`cols`: a espessura, de cima para baixo), como o lápis do caderno.
 func _ink(x0: float, x1: float, y: float, cols: Array) -> void:
-	_pixel_line(_tex_pt(Vector2(x0, y)), _tex_pt(Vector2(x1, y)), cols)
+	var lit := []
+	for c: Color in cols:
+		lit.append(_tone(c, Vector2((x0 + x1) / 2.0, y)))
+	_pixel_line(_tex_pt(Vector2(x0, y)), _tex_pt(Vector2(x1, y)), lit)
 
 
 ## O desenho de frente de um objeto chato posto no quadrilátero `q` da tela pixel a pixel, como a frente do relógio:
@@ -876,20 +941,29 @@ static var _projected := {}
 func _project(key: Array, art: Callable, q: PackedVector2Array, sz: Vector2i) -> void:
 	var box := _bounds(q)
 	var at := Vector2i(floori(box.position.x), floori(box.position.y))
-	var full := [key, at, Vector2i(ceili(box.end.x), ceili(box.end.y))]
+	var full := [key, at, Vector2i(ceili(box.end.x), ceili(box.end.y)), _hom_light]
 	if not _projected.has(full):
 		if _projected.size() > 40:   # a tela mudou de tamanho: tudo muda junto
 			_projected.clear()
 		var img: Image = art.call(sz)
 		var inv := _hom.inverse()
 		var out := Image.create(maxi(1, ceili(box.end.x) - at.x), maxi(1, ceili(box.end.y) - at.y), false, Image.FORMAT_RGBA8)
+		var tones := {}   # num papel, (tom, degrau) -> o tom na luz (`Pal.lit`), uma conta por par
 		for y in out.get_height():
 			for x in out.get_width():
 				var r := inv * Vector3(at.x + x + 0.5, at.y + y + 0.5, 1.0)
 				var u := r.x / r.z
 				var v := r.y / r.z
 				if u >= 0.0 and u < 1.0 and v >= 0.0 and v < 1.0:
-					out.set_pixel(x, y, img.get_pixel(int(u * sz.x), int(v * sz.y)))
+					var tex := Vector2i(int(u * sz.x), int(v * sz.y))
+					var c := img.get_pixel(tex.x, tex.y)
+					if not _hom_light.is_empty():
+						var step := _paper_step(_lit_at(Vector2(tex)))
+						var k := c.to_rgba32() * 8 + step + 4
+						if not tones.has(k):
+							tones[k] = Pal.lit(c, step)
+						c = tones[k]
+					out.set_pixel(x, y, c)
 		_projected[full] = ImageTexture.create_from_image(out)
 	_ci.draw_texture(_projected[full], Vector2(at))
 
@@ -916,7 +990,7 @@ func _fl(img: Image, a: Vector2, b: Vector2, c: Color) -> void:
 ## ponto de fuga, com os filetes dourados; na frente, o miolo de papel com as folhas marcadas entre as capas; e, no de
 ## cima, o tampo com a faixa do título e o emblema da central.
 func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
-	var cols := [Pal.SEAL, Color("2a4a7c"), Pal.BOOK]
+	var cols := [Pal.SEAL, Pal.BOOK_BLUE, Pal.BOOK]
 	var offs := [Vector2(1, 0) * PROP_K, Vector2(3, 2) * PROP_K, Vector2(0, 1) * PROP_K]   # meio tortos: x e z de cada volume
 	var yaws := [deg_to_rad(-3.0), deg_to_rad(3.5), deg_to_rad(-1.0)]   # e cada um girado para um lado
 	var bh := 5.5 * PROP_K
@@ -935,12 +1009,14 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 			var q: PackedVector2Array = f[0]
 			var i: int = f[1]
 			var at := func(u: float, v: float) -> Vector2: return q[0].lerp(q[1], u).lerp(q[3].lerp(q[2], u), v)   # um ponto da face
+			var ends: Array = [xz[i], xz[(i + 1) % 4], xz[(i + 1) % 4], xz[i]]   # os cantos da face no tampo (em cima e embaixo, os mesmos)
 			if i == spine:   # a lombada: os filetes dourados e, entre eles, a etiqueta escura do volume com o número
-				_poly(q, c.darkened(0.2))
-				_pixel_line(at.call(0.0, 0.2), at.call(1.0, 0.2), [Pal.GOLD])
-				_pixel_line(at.call(0.0, 0.8), at.call(1.0, 0.8), [Pal.GOLD])
-				_poly(PackedVector2Array([at.call(0.32, 0.34), at.call(0.68, 0.34), at.call(0.68, 0.66), at.call(0.32, 0.66)]), c.darkened(0.5))
-				_pixel_line(at.call(0.44, 0.5), at.call(0.56, 0.5), [Pal.GOLD])
+				var step := _paper_step(_still((ends[0].x + ends[1].x) / 2.0, (ends[0].y + ends[1].y) / 2.0))
+				_poly(q, Pal.lit(c.darkened(0.2), step))
+				_pixel_line(at.call(0.0, 0.2), at.call(1.0, 0.2), [Pal.lit(Pal.GOLD, step)])
+				_pixel_line(at.call(0.0, 0.8), at.call(1.0, 0.8), [Pal.lit(Pal.GOLD, step)])
+				_poly(PackedVector2Array([at.call(0.32, 0.34), at.call(0.68, 0.34), at.call(0.68, 0.66), at.call(0.32, 0.66)]), Pal.lit(c.darkened(0.5), step))
+				_pixel_line(at.call(0.44, 0.5), at.call(0.56, 0.5), [Pal.lit(Pal.GOLD, step)])
 			else:
 				# o miolo entre as capas, com as folhas em linhas finas: numa imagem posta pixel a pixel, como a capa (em
 				# linhas tortas desenhadas na tela, elas viravam degraus quebrados e faixas)
@@ -949,28 +1025,32 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 					_hom = _homography(q)
 					_hom_sz = Vector2(fs)
 					var dk := 0.15 * absf((f[2] as Vector2).x)
+					_hom_light = _still_at(ends)
 					_project(["folhas", b, i, fs], _art_pages.bind(c, dk), q, fs)
 				if i == 2:   # tiras de papel marcando páginas, saindo da frente (cada volume as dele)
 					for m: Vector2 in [[Vector2(0.72, 0.0)], [Vector2(0.3, 1.0), Vector2(0.82, 0.0)], [Vector2(0.55, 1.0)]][b]:
 						var p: Vector2 = (at.call(m.x, 0.55) as Vector2).round()   # deitada entre as folhas: uma aba fina, com a sombra embaixo
-						var col := Pal.FORM_RED if m.y == 0.0 else Pal.STRIP
+						var col := _tone(Pal.FORM_RED if m.y == 0.0 else Pal.STRIP, Vector2(m.x, 0.55) * Vector2(fs))
 						_ci.draw_rect(Rect2(p - Vector2(3, 0), Vector2(6, 2)), col)
 						_ci.draw_rect(Rect2(p - Vector2(3, 0), Vector2(6, 1)), col.lightened(0.15))
 						_ci.draw_rect(Rect2(p + Vector2(-3, 2), Vector2(6, 1)), Color(0, 0, 0, 0.35))
-			_dim(q, [xz[i], xz[(i + 1) % 4], xz[(i + 1) % 4], xz[i]])
+				_hom_light = PackedFloat32Array()
+			_flicker(q)
 			all.append_array(q)
 		var top := PackedVector2Array()
 		for p: Vector2 in xz:
 			top.append(_p3(p.x, y0 - bh, p.y))
 		var cover := c.darkened(0.15)   # a capa, que pega a luz de cima de chapa, um tom abaixo da cor do cabo
-		_poly(top, cover)
+		_poly(top, Pal.lit(cover, _paper_step(_still(cx, zf + offs[b].y + dz / 2.0))))
 		all.append_array(top)
 		var sz := Vector2i(_top_xf(top)[1])
 		if b == 2 and sz.x >= 8 and sz.y >= 4:   # a capa do volume de cima, pixel a pixel como os objetos chatos
 			_hom = _homography(top)
 			_hom_sz = Vector2(sz)
+			_hom_light = _still_at(xz)
 			_project([Tools.DIRECTORY, sz], _art_book_cover.bind(cover), top, sz)
-		_dim(top, xz)   # longe da luz, ponto a ponto: cada volume logo depois de desenhado (os de cima cobrem os de baixo)
+			_hom_light = PackedFloat32Array()
+		_flicker(top)   # cada volume logo depois de desenhado (os de cima cobrem os de baixo)
 	_mark(Tools.DIRECTORY, _bounds(all), Geometry2D.convex_hull(all))
 
 
@@ -1091,7 +1171,7 @@ func _mug_art(w: int, h: int, ry: int, rb: int, drunk: int, place: float) -> Ima
 ## em 2 px, umas mais escuras que as outras, mais sujas junto das capas; `dk` escurece o lado que não está de frente.
 func _art_pages(sz: Vector2i, c: Color, dk: float) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	var paper := Color("c6b994").darkened(dk)
+	var paper := Pal.BOOK_LEAVES.darkened(dk)
 	img.fill(paper)
 	for y in range(2, sz.y - 2, 2):   # as folhas
 		var line := paper.darkened(0.05 if (y * 7) % 5 < 3 else 0.09)
@@ -1149,8 +1229,8 @@ func _art_book_cover(sz: Vector2i, c: Color) -> Image:
 	var tag := Rect2i(4, sz.y - 7, 13, 5)   # a etiqueta colada com o ano
 	if tag.position.y > band.end.y + 1:
 		_fr(img, tag.position.x + 1, tag.position.y + 1, tag.size.x, tag.size.y, c.darkened(0.35))
-		_fr(img, tag.position.x, tag.position.y, tag.size.x, tag.size.y, Color("e2d7b6"))
-		_fr(img, tag.position.x + 2, tag.position.y + 2, tag.size.x - 4, 1, Color("4a4038"))
+		_fr(img, tag.position.x, tag.position.y, tag.size.x, tag.size.y, Pal.BOOK_TAG[0])
+		_fr(img, tag.position.x + 2, tag.position.y + 2, tag.size.x - 4, 1, Pal.BOOK_TAG[1])
 	var ring := Vector2(sz.x * 0.72, sz.y * 0.68)   # a marca da caneca: um anel mais escuro, aberto de um lado
 	for k in 28:
 		var an := TAU * k / 28.0
@@ -1161,7 +1241,7 @@ func _art_book_cover(sz: Vector2i, c: Color) -> Image:
 			img.set_pixel(int(p.x), int(p.y), c.darkened(0.22))
 	for y in 5:   # a ponta da frente dobrada: a folha à mostra e a aba virada por cima, com a dobra
 		for xx in 5 - y:
-			img.set_pixel(sz.x - 1 - xx, sz.y - 5 + y + xx, Color("d8cba6"))
+			img.set_pixel(sz.x - 1 - xx, sz.y - 5 + y + xx, Pal.BOOK_TAG[2])
 	for k in 5:
 		img.set_pixel(sz.x - 1 - k, sz.y - 5 + k - (1 if k > 0 else 0), c.lightened(0.25) if k < 4 else c.darkened(0.3))
 	return img
@@ -1312,12 +1392,13 @@ func _draw_dispatch_unit(x0: float, zf: float, wx: float) -> void:
 
 ## O desenho de frente `art` (com `key`) posto no quadrilátero `q` da tela pixel a pixel (`_project`), escurecido
 ## `dark` longe da luz; deixa `_hom` dele para o que vai por cima (`_tex_pt`).
-func _flat_art(id: String, q: PackedVector2Array, art: Callable, key: Array, dark: float) -> void:
+func _flat_art(id: String, q: PackedVector2Array, art: Callable, key: Array, dark: float, light := PackedFloat32Array()) -> void:
 	var sz := Vector2i(_top_xf(q)[1])
 	if sz.x < 8 or sz.y < 3:   # (a tela ainda se arrumando)
 		return
 	_hom = _homography(q)
 	_hom_sz = Vector2(sz)
+	_hom_light = light   # um papel: cada pixel no tom da luz parada (quem chama zera depois do que desenha por cima)
 	_project([id, sz, key], art, q, sz)
 	if dark > 0.0:
 		_poly(q, Color(0, 0, 0, dark))
@@ -1432,25 +1513,26 @@ func _pad_marks(sz: Vector2i) -> void:
 		_ink(2.0, sz.x - 2.0, y, [Pal.FORM_RED if row == 1 else Pal.NOTE_RULE])
 		if row < 2 or row % 2 == 1 or row > rows.size() - 3:
 			continue
-		_ink(3.0, mx - 3.0, y - 1.0, [Color("6a6474")])   # a hora
+		_ink(3.0, mx - 3.0, y - 1.0, [Pal.NOTE_HAND])   # a hora
 		var a := _tex_pt(Vector2(mx + 3.0, y)) - Vector2(0, 1)   # as palavras, logo acima da pauta
 		var b := _tex_pt(Vector2(mx + 3.0 + (sz.x - mx - 8.0) * (0.45 + 0.1 * ((row * 3) % 5)), y)) - Vector2(0, 1)
 		var w := 0.0
 		var span := a.distance_to(b)
 		while w < span:
 			var n := 3.0 + (int(w) * 3 + row * 5) % 4
-			_pixel_line(a.lerp(b, w / span), a.lerp(b, minf(w + n - 1.0, span) / span), [Color("6a6474")])
+			_pixel_line(a.lerp(b, w / span), a.lerp(b, minf(w + n - 1.0, span) / span), [Pal.NOTE_HAND])
 			w += n + 2.0
 	if rows.size() > 1:   # a margem vermelha, impressa, do fio do cabeçalho para baixo
-		_pixel_line(_tex_pt(Vector2(mx, rows[1])), _tex_pt(Vector2(mx, sz.y - 2)), [Pal.NOTE_MARGIN])
+		_pixel_line(_tex_pt(Vector2(mx, rows[1])), _tex_pt(Vector2(mx, sz.y - 2)), [_tone(Pal.NOTE_MARGIN, Vector2(mx, sz.y / 2.0))])
 	for i in mini(pending, 6):
 		var p := _tex_pt(Vector2(5 + i * floorf((sz.x - 12) / 6.0), 0)).round()
 		var up := 6.0 + (i * 5) % 4
-		var col := Pal.PENDING[i % 2]
+		var spot := Vector2(5 + i * floorf((sz.x - 12) / 6.0), 0)
+		var col := _tone(Pal.PENDING[i % 2], spot)
 		_ci.draw_rect(Rect2(p.x, p.y - up, 6, up + 2), col)
 		_ci.draw_rect(Rect2(p.x + 5, p.y - up, 1, up + 2), col.darkened(0.2))   # o lado na sombra
 		_ci.draw_rect(Rect2(p.x, p.y - up, 5, 1), col.lightened(0.12))   # a beira de cima, na luz
-		_ci.draw_rect(Rect2(p.x + 1, p.y - up + 2, 3, 1), Pal.FORM_RED)
+		_ci.draw_rect(Rect2(p.x + 1, p.y - up + 2, 3, 1), _tone(Pal.FORM_RED, spot))
 		_ci.draw_rect(Rect2(p.x, p.y + 1, 6, 1), Color(0, 0, 0, 0.3))   # onde ela entra embaixo do bloco
 	var at: Array = PENCIL[written % PENCIL.size()]
 	var page := func(f: Vector2) -> Vector2:   # a fração da folha abaixo da fita, na tela
@@ -1458,12 +1540,14 @@ func _pad_marks(sz: Vector2i) -> void:
 	var a: Vector2 = page.call(at[0])
 	var b: Vector2 = page.call(at[1])
 	var d := (b - a).normalized()
+	var mid: Vector2 = (at[0] + at[1]) / 2.0 * Vector2(sz)   # a luz do lápis: a do meio dele na folha
+	var lit := func(cols: Array) -> Array: return cols.map(func(c: Color) -> Color: return _tone(c, mid))
 	_pixel_line(a + Vector2(2, 2), b + d * 7 + Vector2(2, 2), [Color(0, 0, 0, 0.3), Color(0, 0, 0, 0.3)])
-	_pixel_line(a, b, [Color("c4a042"), Color("957622"), Color("67521a")])   # o corpo, amarelo de lápis gasto
-	_pixel_line(a - d * 4, a, [Color("c8aa80"), Color("b0926a"), Color("8a7050")])   # a madeira apontada
-	_pixel_line(a - d * 6, a - d * 4, [Color("2a2620")])   # o grafite
+	_pixel_line(a, b, lit.call(Pal.PENCIL_BODY))   # o corpo, amarelo de lápis gasto
+	_pixel_line(a - d * 4, a, lit.call(Pal.PENCIL_WOOD))   # a madeira apontada
+	_pixel_line(a - d * 6, a - d * 4, lit.call([Pal.PENCIL_LEAD]))   # o grafite
 	_pixel_line(b, b + d * 4, Pal.NICKEL.slice(1))   # a ponteira, no níquel da mesa
-	_pixel_line(b + d * 4, b + d * 7, [Color("c08a80"), Color("a86a62"), Color("7a4a44")])   # a borracha
+	_pixel_line(b + d * 4, b + d * 7, lit.call(Pal.PENCIL_ERASER))   # a borracha
 
 
 const SHEET_TURN := 3.5   ## graus que a folha nova da prancheta fica girada (reta, lia como um risco no meio da de baixo)
@@ -1476,7 +1560,7 @@ func _art_clipboard(sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
 	img.fill(Pal.BOARD[1])
 	_fr(img, 0, 0, sz.x, 1, Pal.BOARD[0])
-	_fr(img, 0, 0, 1, sz.y, Color("7e5634"))
+	_fr(img, 0, 0, 1, sz.y, Pal.BOARD[3])
 	_fr(img, sz.x - 1, 0, 1, sz.y, Pal.BOARD[2])
 	_fr(img, 0, sz.y - 1, sz.x, 1, Pal.BOARD[2])
 	for c in [Vector2i(0, 0), Vector2i(sz.x - 2, 0), Vector2i(0, sz.y - 2), Vector2i(sz.x - 2, sz.y - 2)]:   # os cantos cortados
@@ -1551,14 +1635,14 @@ func _clipboard_print(sz: Vector2i) -> void:
 				if i == 1:
 					pa = _turn(pa, r)
 					pb = _turn(pb, r)
-				_pixel_line(_tex_pt(pa), _tex_pt(pb), [col])
+				_pixel_line(_tex_pt(pa), _tex_pt(pb), [_tone(col, pa)])
 			if k == 0:
-				line.call(x0 + 2, x0 + 2 + (w - 4) / 2.0 - 1, Color("5a5448"))   # o título
+				line.call(x0 + 2, x0 + 2 + (w - 4) / 2.0 - 1, Pal.SHEET_INK[0])   # o título
 			elif k == 1:
 				line.call(x0 + 2, x0 + w - 3, Pal.FORM_RED)   # o fio vermelho do cabeçalho
 			elif k >= 4 and (k - 4) % 3 == 0 and n < sheets[i][2]:
-				line.call(x0 + 2, x0 + 4, Color("6a6458"))   # a hora
-				line.call(x0 + 7, x0 + w - 3 - (k * 7) % 9 - (6 if i == 1 else 0), Color("6a6458"))
+				line.call(x0 + 2, x0 + 4, Pal.SHEET_INK[1])   # a hora
+				line.call(x0 + 7, x0 + w - 3 - (k * 7) % 9 - (6 if i == 1 else 0), Pal.SHEET_INK[1])
 				n += 1
 	# o prendedor de níquel na beira de cima, na perspectiva da prancheta: o corpo (a luz no alto, a sombra embaixo e
 	# a da folha), a alavanca por cima e o prego no furo dela
@@ -1582,15 +1666,15 @@ func _clipboard_print(sz: Vector2i) -> void:
 func _art_newspaper(sz: Vector2i, read := false) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
 	img.fill(Pal.NEWSPRINT)   # papel-jornal amarelado (cinza, longe da luz, sumia no escuro)
-	_fr(img, 0, 0, sz.x, 1, Color("e2d6b2"))
-	_fr(img, sz.x - 1, 0, 1, sz.y, Color("a89c78"))
-	_fr(img, 0, sz.y - 1, sz.x, 1, Color("a89c78"))
+	_fr(img, 0, 0, sz.x, 1, Pal.NEWS_FOLD[0])
+	_fr(img, sz.x - 1, 0, 1, sz.y, Pal.NEWS_FOLD[1])
+	_fr(img, 0, sz.y - 1, sz.x, 1, Pal.NEWS_FOLD[1])
 	if read:
 		return img
 	var photo := _news_photo(sz)
-	_fr(img, photo.position.x - 1, photo.position.y - 1, photo.size.x + 2, photo.size.y + 2, Color("3e382e"))
-	_fr(img, photo.position.x, photo.position.y, photo.size.x, photo.size.y, Color("938767"))
-	_fr(img, photo.position.x, photo.position.y + photo.size.y * 0.45, photo.size.x, photo.size.y * 0.55 + 1, Color("675f4c"))
+	_fr(img, photo.position.x - 1, photo.position.y - 1, photo.size.x + 2, photo.size.y + 2, Pal.NEWS_PHOTO[0])
+	_fr(img, photo.position.x, photo.position.y, photo.size.x, photo.size.y, Pal.NEWS_PHOTO[1])
+	_fr(img, photo.position.x, photo.position.y + photo.size.y * 0.45, photo.size.x, photo.size.y * 0.55 + 1, Pal.NEWS_PHOTO[2])
 	return img
 
 
@@ -1609,10 +1693,10 @@ func _newspaper_print(sz: Vector2i, read := false) -> void:
 	var rows := _rows(2.0, sz.y - 2.0, 1.0)   # a altura no papel de cada px da tela, a partir do nome
 	if rows.size() < 16:
 		return
-	var ink := Color("2a2620")
-	var head := Color("3a3630")
+	var ink := Pal.NEWS_TYPE[0]
+	var head := Pal.NEWS_TYPE[1]
 	_ink(2, sz.x - 2, rows[2], [ink, ink, ink])   # o nome do jornal (afastado da beira: colado, ela saía picotada)
-	_ink(2, sz.x - 2, rows[5], [Color("8a8068")])   # a data
+	_ink(2, sz.x - 2, rows[5], [Pal.NEWS_TYPE[2]])   # a data
 	_ink(2, 2 + sz.x * 0.72, rows[8], [head, head])   # a manchete
 	_ink(2, 2 + sz.x * 0.5, rows[11], [head, head])
 	var photo := _news_photo(sz)
@@ -1628,7 +1712,7 @@ func _newspaper_print(sz: Vector2i, read := false) -> void:
 				x0 = photo.position.x
 				w = photo.size.x - (k * 3) % 4
 			_ink(x0, x0 + w - 1.0, y, [Pal.NEWS_INK])
-	_ink(0, sz.x - 1, sz.y / 2.0, [Color("a89c78"), Color("dccfa8")])   # o vinco
+	_ink(0, sz.x - 1, sz.y / 2.0, [Pal.NEWS_FOLD[1], Pal.NEWS_FOLD[2]])   # o vinco
 
 
 ## A última página do jornal lido (`_newspaper_print`): o título da seção, o fio e quatro colunas de classificados, em
@@ -1637,7 +1721,7 @@ func _classifieds(sz: Vector2i) -> void:
 	var rows := _rows(2.0, sz.y - 2.0, 1.0)
 	if rows.size() < 8:
 		return
-	var ink := Color("3a3630")
+	var ink := Pal.NEWS_TYPE[1]
 	_ink(2, 2 + sz.x * 0.45, rows[1], [ink, ink])   # o título da seção
 	_ink(2, sz.x - 3, rows[4], [ink])
 	var cw := (sz.x - 10) / 4.0
