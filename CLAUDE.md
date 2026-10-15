@@ -100,9 +100,12 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   Tiny5, branch `improve/0000-pixel-2x`; o jogo todo ampliado como imagem com "nearest", que deixava o texto feio a 1,5×;
   e um filtro de 2x2 por cima do cenário, com média, que borrava.) Sem linhas de
   varredura. **Gradação de cor** (plano hi-bit): o `Box` mostra o jogo por um shader (`scripts/ui/grade.gdshader`,
-  `GameView.grade_material`) que passa cada pixel por uma conta de cor (as sombras puxando para o azul da noite, as
-  luzes para o quente, um pouco mais de contraste; parâmetros no shader, em vez de uma tabela numa textura), ponto a
-  ponto no pixel já ampliado: o pixel perfect continua. A captura passa por ela também (`tools/shot.gd`; `--grade=0`
+  `GameView.grade_material`) que passa cada pixel por uma conta de cor (as sombras puxando para o azul da noite, sem
+  clarear, os tons médios na luz, a madeira e as lâmpadas, para o quente, `warm`, e um pouco mais de contraste;
+  parâmetros no shader, em vez de uma tabela numa textura), ponto a ponto no pixel já ampliado: o pixel perfect
+  continua. Os tons claros ficam como são (`spare`): aquecidos, o papel das ferramentas e do relatório amarelava.
+  Cada clima tem a sua (`GameView.GRADES`: a noite limpa com mais contraste, a chuva mais fria, a névoa mais lavada),
+  posta pelo Main quando o clima é definido e trocada aos poucos quando ele muda (`GameView.grade_weather`). A captura passa por ela também (`tools/shot.gd`; `--grade=0`
   sem); o painel de debug liga e desliga na hora (seção Clima, `GameView.set_grade`); o `main.tscn` sozinho e os
   testes ficam sem.
 - **O cenário (`Background`) e a mesa comutadora (`Switchboard`) estão descritos em `scripts/ui/CLAUDE.md`** (lido

@@ -113,6 +113,7 @@ func _ready() -> void:
 		if a.begins_with("--weather=") and a.get_slice("=", 1) in WEATHERS:
 			weather = a.get_slice("=", 1)
 	background.weather = weather
+	GameView.grade_weather(self, weather)
 	background.night = night_no
 	notebook.night = night_no
 	toll.night = night_no
@@ -240,10 +241,12 @@ func warn(t: String) -> void:
 	phone.warn(t)
 
 
-## Troca o clima na hora (painel de debug): a janela, o ambiente (se a noite já começou) e a conversa fiada.
+## Troca o clima na hora (painel de debug): a janela, a gradação de cor (aos poucos), o ambiente (se a noite já
+## começou) e a conversa fiada.
 func set_weather(w: String) -> void:
 	weather = w
 	background.weather = w
+	GameView.grade_weather(self, w, 2.0)
 	if running:
 		Sfx.set_weather(w, 2.0)
 

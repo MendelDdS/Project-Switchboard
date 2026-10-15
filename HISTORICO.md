@@ -1053,3 +1053,13 @@ Chaves:
     ponto a ponto no pixel já ampliado (o pixel perfect continua). Uma conta com parâmetros no shader, em vez da tabela
     numa textura do plano: dá o mesmo e troca por clima e pela hora do mesmo jeito. A captura passa por ela
     (`--grade=0` sem) e o painel de debug a liga e desliga na hora, para comparar no jogo.
+193. #luz #tela #pixel
+    Plano hi-bit, sub-etapa 2.2: o usuário não notou a gradação da 2.1, então ela ficou forte o bastante para se ver
+    (as sombras visivelmente azuis, sem clarear, a madeira e as lâmpadas mais quentes, mais contraste). Forte por
+    igual, o papel da lista e do relatório amarelava e a beira mais escura do papel ficava laranja: o calor ficou nos
+    tons médios e os tons claros (o papel, o texto claro) ficam como são. Conferidos com e sem: as ferramentas abertas,
+    o painel de baixo numa emergência, o bilhete da noite e o relatório. A pedido, o amarelado um pouco mais fraco.
+194. #luz #clima #tela
+    Plano hi-bit, sub-etapa 2.3: uma gradação de cor por clima, trocada aos poucos (2 s) quando o clima muda: a noite
+    limpa fica com a aprovada na 2.2 (mais contraste, luzes mais quentes), a chuva mais fria (as sombras mais azuis, a
+    madeira menos alaranjada) e a névoa mais lavada, com menos contraste.

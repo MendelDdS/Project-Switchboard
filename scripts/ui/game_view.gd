@@ -9,6 +9,13 @@ extends Control
 
 const BASE := Vector2i(960, 540)   ## a tela do jogo
 const TITLE_BAR := 40   ## px de tela que a barra de título e as bordas da janela tomam, no modo janela
+## A gradação de cor de cada clima (`grade.gdshader`, `grade_weather`): a noite limpa com mais contraste e luzes mais
+## quentes, a chuva mais fria e a névoa mais lavada, com menos contraste.
+const GRADES := {
+	"clear": {"shadow_lift": Vector3(-0.012, 0.002, 0.035), "light_tint": Vector3(1.06, 1.0, 0.9), "contrast": 1.1},
+	"rain": {"shadow_lift": Vector3(-0.016, 0.004, 0.045), "light_tint": Vector3(1.03, 1.0, 0.94), "contrast": 1.06},
+	"fog": {"shadow_lift": Vector3(-0.008, 0.006, 0.03), "light_tint": Vector3(1.04, 1.0, 0.93), "contrast": 1.02},
+}
 
 @onready var _box: SubViewportContainer = $Box
 @onready var _view: SubViewport = $Box/View
@@ -36,9 +43,29 @@ static func grade_material() -> ShaderMaterial:
 ## Liga ou desliga a gradação na tela que mostra o jogo de `node` (o painel de debug compara na hora); com o
 ## `main.tscn` sozinho não há gradação, e nada muda.
 static func set_grade(node: Node, on: bool) -> void:
+	var m := _grade_of(node)
+	if m:
+		m.set_shader_parameter("strength", 1.0 if on else 0.0)
+
+
+## A gradação do clima `weather` (`GRADES`) na tela que mostra o jogo de `node`, aos poucos em `sec` segundos (0: na
+## hora).
+static func grade_weather(node: Node, weather: String, sec := 0.0) -> void:
+	var m := _grade_of(node)
+	if m == null:
+		return
+	var t := node.create_tween().set_parallel() if sec > 0.0 else null
+	for k: String in GRADES[weather]:
+		if t:
+			t.tween_property(m, "shader_parameter/" + k, GRADES[weather][k], sec)
+		else:
+			m.set_shader_parameter(k, GRADES[weather][k])
+
+
+## A gradação da tela que mostra o jogo de `node` (o `Box`, ou a da captura); nula com o `main.tscn` sozinho.
+static func _grade_of(node: Node) -> ShaderMaterial:
 	var box := node.get_viewport().get_parent() as CanvasItem
-	if box and box.material is ShaderMaterial:
-		(box.material as ShaderMaterial).set_shader_parameter("strength", 1.0 if on else 0.0)
+	return box.material as ShaderMaterial if box else null
 
 
 ## Aplica a tela das configurações: cheia ou janela, e a ampliação.
