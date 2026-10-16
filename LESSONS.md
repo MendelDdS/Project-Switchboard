@@ -358,3 +358,15 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
 - **Texto mudado no `ui.csv` com o editor aberto: as `.translation` (no git) só se refazem na importação.** Sem ela, o
   jogo e as capturas usam o texto antigo (a plaqueta do turno continuou "18:00–00:00" e o `%` deu erro de formatação).
   Sem `--import` no projeto, gere num worktree (copie o csv, importe lá, traga as `ui.*.translation`).
+- **Raio de luz em pixel art: leque liso, não fatias finas de força sorteada.** Os raios crepusculares em 160 cunhas,
+  cada uma com a sua força ao acaso, riscavam o céu de linhas (o usuário achou estranho). A cor vai em cada beira das
+  fatias, variando devagar com o ângulo, e o desenho interpola entre elas. E um halo grande num pedaço pequeno de céu à
+  vista cobre o degradê todo: o azul do dia que "não melhorava" estava embaixo do halo do sol; meça os pixels da
+  captura antes de mexer na paleta.
+- **Luz translúcida laranja por cima de céu azul dá cinza.** O clarão do horizonte e o halo do sol, quentes, ficavam
+  de dia e deixavam o céu atrás da igreja cinza (o usuário viu): o que é do nascer some ou troca para branco quando o
+  céu fica azul. E a ordem de desenho decide quem corta quem: as nuvens, desenhadas depois dos raios, picotavam a
+  sombra da igreja.
+- **Brilho somado por cima da cidade apaga silhueta fina.** O risco da lente, na camada `_rays` (ADD), passava na
+  altura do braço da cruz às 5h45 e o desbotava (o usuário viu): efeito de luz que corta a vista na horizontal vai no
+  céu, embaixo da cidade. Capture os minutos em que o efeito anda por cima de detalhe de 1 px, não só os redondos.

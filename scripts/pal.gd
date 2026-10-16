@@ -180,13 +180,25 @@ const STARS: Array[Color] = [Color("56606c"), Color("c9d2dc")]   ## as estrelas:
 const MOON := Color("d8d0a8")       ## a lua no alto...
 const MOON_LOW := Color("e0a868")   ## ...e perto do horizonte (o ar mais grosso avermelha)
 const CLOUD_RIM := Color("8a8f8a")  ## a beira das nuvens na frente da lua
-## O amanhecer da última noite (`Background.dawn`: 0 às 4h05, 1 às 6h): [quando, o céu no alto, no horizonte], da noite
-## limpa (o horizonte dela é o `SKY` clareado) ao dia, passando pelo azul-escuro e pelo rosa-alaranjado no horizonte.
-const DAWN_SKY := [[0.0, Color("0a1422"), Color("27303c")], [0.22, Color("111d36"), Color("2e2c4a")],
-	[0.48, Color("26416c"), Color("a0605c")], [0.7, Color("4a74a6"), Color("eb9a5e")], [1.0, Color("80a8d0"), Color("f0d2a0")]]
+## O amanhecer da última noite (`Background.dawn`: 0 às 4h05, 1 às 6h): [quando, os quatro tons do céu do alto ao
+## horizonte, em `DAWN_STOPS`], da noite limpa ao dia: o azul-escuro, o violeta, o rosa e o laranja forte com o sol
+## nascendo e, passado o crepúsculo, o azul no alto clareando liso até o horizonte.
+const DAWN_SKY := [[0.0, [Color("0a1422"), Color("0c1626"), Color("151e2e"), Color("27303c")]],
+	[0.22, [Color("0e1832"), Color("18213f"), Color("2c2a4c"), Color("4c3552")]],
+	[0.48, [Color("1c3260"), Color("5a4a80"), Color("c0607a"), Color("f08c5a")]],
+	[0.68, [Color("3a6898"), Color("d07088"), Color("f89858"), Color("ffcc60")]],
+	[0.84, [Color("4a88bc"), Color("e0988c"), Color("ffb868"), Color("ffe090")]],
+	[1.0, [Color("2460b4"), Color("4a86cc"), Color("9cc0e0"), Color("e8ecdc")]]]
+const DAWN_STOPS := [0.0, 0.32, 0.62, 1.0]   ## onde fica cada tom, do alto do céu à vista (0) ao horizonte (1)
 const DAWN_GLOW := Color("ffb070")    ## o clarão do lado onde o sol nasce
-const DAWN_CLOUD := Color("e8a088")   ## as nuvens pegando a luz dele por baixo
-const SUN := Color("fff2d0")          ## o sol, baixo
+const DAWN_CLOUD := Color("f0a890")   ## as nuvens pegando a luz do sol por baixo...
+const DAY_CLOUD := Color("eef0f0")    ## ...e já de dia
+const SUN_CORE := Color("fffcf0")     ## o sol: o miolo quase branco...
+const SUN := Color("ffe68c")          ## ...o disco...
+const SUN_RIM := Color("ffb050")      ## ...a beira dele e o halo
+const SUN_RAY := Color("fff0c8")      ## os raios crepusculares...
+const RAY_SHADOW := Color("1a1620")   ## ...e a sombra da igreja no meio deles
+const FLARE: Array[Color] = [Color("ff9a50"), Color("70c8c0"), Color("ffe080"), Color("b080d0")]   ## os reflexos da lente
 const OVERCAST_LIT := Color("3e3733")    ## a nuvem da chuva clareada por baixo pelas luzes da cidade (perto do horizonte)
 const OVERCAST_DARK := Color("0d1216")   ## os vãos mais escuros entre elas
 const OVERCAST_DECK := Color("1b1e23")   ## o fundo de nuvem no alto (no horizonte, `OVERCAST_LIT`)

@@ -1229,3 +1229,19 @@ Chaves:
 221. #debug #noites
     Um botão no painel de debug para ir direto às 4h da última noite, o começo do amanhecer ("Amanhecer (última
     noite, 4h)"), sem jogar o turno até lá.
+222. #janela #luz #clima
+    O amanhecer, como fim do jogo, mais bonito: o crepúsculo num degradê forte de faixas enquanto o sol nasce (azul-
+    esverdeado no alto, rosa, laranja e amarelo no horizonte, como a referência em pixel art que o usuário mandou); o
+    sol aparecendo mais, com luz forte e reflexos de lente, nascendo atrás da igreja, com raios crepusculares em que a
+    torre e a cruz deixam a sombra; depois do crepúsculo, o céu azul em cima e claro embaixo, também em degradê.
+223. #janela #luz
+    Ajustes do amanhecer: os raios do sol lisos (as muitas linhas finas ficavam estranhas), o miolo do sol branco (não
+    parecia um sol), a sombra da igreja nos raios puxando para o preto em vez do vermelho e o céu de dia mais azul em
+    cima (o halo grande do sol cobria quase todo o céu à vista e o deixava clarinho).
+224. #janela #luz
+    A sombra da igreja nos raios cortada por manchas (as nuvens, desenhadas por cima dos raios) e o céu atrás da igreja
+    cinza às 6h (o clarão laranja do horizonte e o halo laranja do sol por cima do azul): os raios passam por cima das
+    nuvens, o clarão some de dia e o halo fica branco.
+225. #janela #luz
+    Com o sol subindo atrás da igreja, num trecho (5h45) o braço da cruz perdia a cor: o risco da lente, somado por
+    cima da cidade, passava na altura dele. O risco foi para o céu, embaixo da cidade.

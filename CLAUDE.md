@@ -666,10 +666,19 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   meia-noite): a chuva afina até a garoa e o véu da névoa some nos `CLEAR_SPAN` min antes (`Background._clearing`) e,
   na hora, a noite fica limpa (`Main.set_weather` em `CLEAR_SEC`). **O amanhecer** (a vista; a sala é a 7.3), pelas
   horas de verdade de 22/10/1973 a ~22° S (`Background.DAWN`, `SUNRISE`, `STREET_OFF`, `MORNING`): o céu, numa camada
-  própria embaixo da cidade (`_sky`, `_draw_sky`; o vidro, `_pane`, por cima: o reflexo some com o dia), vai do
-  azul-escuro ao rosa-alaranjado no horizonte e ao dia (`Pal.DAWN_SKY`, `_sky_tones`), as estrelas somem até 4h30, a
-  lua empalidece e o sol nasce às 5h25 no fundo da rua do cruzamento, um pouco à direita da igreja (a janela olha
-  para o leste; `_draw_dawn`, `SUN_DX`). A cidade clareia pelo `modulate` da `_back` e da `_view` (`DAY_GAIN`; um
+  própria embaixo da cidade (`_sky`, `_draw_sky`; o vidro, `_pane`, por cima: o reflexo some com o dia), é um
+  degradê de quatro tons do alto à vista até o horizonte (`Pal.DAWN_SKY`, quadros de 4 cores, e `DAWN_STOPS`;
+  `_sky_stops`, `_sky_tones`): do azul-escuro ao azul-esverdeado no alto, rosa, laranja e amarelo embaixo enquanto o
+  sol nasce, e de dia azul em cima e claro embaixo; as nuvens tingem junto. As estrelas somem até 4h30, a lua
+  empalidece e o sol nasce às 5h25 **atrás da igreja**, no eixo dela (a janela olha para o leste; `_sun_at`,
+  `_draw_dawn`: o disco com o miolo branco, `Pal.SUN_CORE`, o amarelo e a beira laranja, e o halo, que encolhe e branqueia com o
+  dia, como o clarão do horizonte some, para o azul não ficar cinza), e passa da cruz às 6h (`SUN_ABOVE`). Os raios
+  crepusculares saem dele num leque liso, por cima das nuvens (`_draw_crepuscular`: `RAYS` fatias, a cor em cada beira, a força variando
+  devagar com o ângulo; fatias finas de força sorteada riscavam o céu), e onde a igreja tapa o sol a sombra dela,
+  quase preta, vira um feixe escuro (`_church_cover`, `_church_parts`, os polígonos que `_draw_church` desenha; `RAY_SHADOW`).
+  Na frente da cidade, numa camada somada (`_rays`, `_draw_rays`), com o sol à vista (`_sun_seen`): o brilho e
+  os reflexos na linha do sol ao meio da vista (`FLARES`, `Pal.FLARE`); o risco horizontal da lente fica no céu, embaixo
+  da cidade (somado por cima, ele apagava o braço da cruz quando passava na altura dela). A cidade clareia pelo `modulate` da `_back` e da `_view` (`DAY_GAIN`; um
   shader nelas desfazia o lote das chamadas de desenho), postes e neon apagam às 5h15 (`_posts_on`, `_sign_on`),
   janelas acendem de madrugada e ficam (`WAKE_DAWN`) e a rua volta a ter gente e carro das 5h às 6h (`morning`).
 - **Fim do turno**: nada novo toca depois de `last_call` (`LAST_CALL_BEFORE` antes do fim, 23:40; sorteadas param ali e `_run_schedule` descarta

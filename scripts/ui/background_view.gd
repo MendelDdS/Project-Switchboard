@@ -172,8 +172,15 @@ const HEDGE := 110   ## as folhas da cerca viva embaixo dela, até o batente de 
 ## esquerda (px da tela no alto dela).
 const GUST := Vector3(0.23, 0.071, 2.5)
 const DAY_GAIN := 2.2    ## de dia, o quanto a cor da cidade cresce, vezes a do céu (o `modulate` dela, `_process`)
-const SUN_DX := 0.03      ## onde o sol nasce: tanto da largura da vista à direita da igreja (a lua nasce atrás dela)
-const SUN_RISE := 0.3     ## até onde ele sobe, das 5h25 às 6h (fração do céu à vista)
+const SUN_R := 7.0        ## o raio do sol (px de 2x2; o disco, `_sun_at`)...
+const SUN_ABOVE := 1.6    ## ...e às 6h, o meio dele tantos raios acima da cruz da igreja
+const RAYS := 160         ## as fatias do leque dos raios crepusculares em volta do sol (`_draw_crepuscular`)...
+const COVER_STEPS := 12   ## ...os pontos de cada um conferidos contra a igreja (`_church_cover`)...
+const RAY_A := 0.55       ## ...a força deles...
+const CHURCH_SHADOW := 0.6   ## ...e a da sombra da igreja neles
+## Os reflexos da lente na linha do sol ao meio da vista: Vector3(onde, de 0 no sol a 1 no meio e além; o raio, px de
+## 2x2; a força), cada um na sua cor (`Pal.FLARE`).
+const FLARES: Array[Vector3] = [Vector3(0.45, 2.0, 0.22), Vector3(0.8, 4.5, 0.1), Vector3(1.2, 1.5, 0.25), Vector3(1.6, 7.0, 0.07)]
 const MOON_BIG := 1.6     ## a lua no horizonte, maior (a ilusão da lua no horizonte); volta a 1 ao subir
 const MOON_SHRINK := 0.4  ## até onde da subida (`_moon_t`) ela ainda está encolhendo
 ## Na névoa, a lua espalhada: o raio do clarão em volta (vezes o halo de sempre), a força dele, a do miolo e a do
@@ -225,11 +232,11 @@ var _phone_from := [0, 0]   # o estado de antes (saindo do telefone, a pessoa va
 var _phone_at := [0.0, 0.0]   # quando o estado mudou (s)
 
 
-## O céu agora, no alto e no horizonte: o do clima (o horizonte um pouco mais claro) ou, na última noite, o do
-## amanhecer (`Pal.DAWN_SKY`, pelo `dawn`); clareado pelo relâmpago.
-func _sky_tones() -> Array[Color]:
+## Os tons do céu agora, do alto ao horizonte (em `Pal.DAWN_STOPS`): o do clima (o horizonte um pouco mais claro) ou,
+## na última noite, o do amanhecer (`Pal.DAWN_SKY`, pelo `dawn`); clareados pelo relâmpago.
+func _sky_stops() -> Array[Color]:
 	var top: Color = Pal.SKY.get(weather, Pal.SKY["rain"])
-	var low := top.lightened(0.12)
+	var out: Array[Color] = [top, top, top.lightened(0.04), top.lightened(0.12)]
 	var d := dawn()
 	if d > 0.0:
 		var keys := Pal.DAWN_SKY
@@ -237,29 +244,40 @@ func _sky_tones() -> Array[Color]:
 		while i < keys.size() - 1 and d > keys[i][0]:
 			i += 1
 		var k := smoothstep(keys[i - 1][0], keys[i][0], d)
-		top = (keys[i - 1][1] as Color).lerp(keys[i][1], k)
-		low = (keys[i - 1][2] as Color).lerp(keys[i][2], k)
+		for j in out.size():
+			out[j] = (keys[i - 1][1][j] as Color).lerp(keys[i][1][j], k)
 	var f := _flash()
-	return [top.lerp(Pal.FLASH, f), low.lerp(Pal.FLASH, f)]
+	for j in out.size():
+		out[j] = out[j].lerp(Pal.FLASH, f)
+	return out
+
+
+## O céu agora, no alto e no horizonte (`_sky_stops`).
+func _sky_tones() -> Array[Color]:
+	var s := _sky_stops()
+	return [s[0], s[3]]
 
 
 ## O céu da vista (na camada `_sky`, embaixo da cidade, fora da luz do dia dela): do alto ao horizonte, liso (em faixas,
-## pareciam camadas; amanhecendo, o degradê desce o céu todo), as estrelas, a lua e as nuvens, o nublado da chuva e,
-## no amanhecer, o clarão e o sol.
+## pareciam camadas; de noite, só perto do horizonte; amanhecendo, nos quatro tons pelo céu todo), as estrelas, a lua e
+## as nuvens, o nublado da chuva e, no amanhecer, o clarão e o sol.
 func _draw_sky(g: Rect2) -> void:
 	var wx := g.position.x
 	var wy := g.position.y
 	var ww := g.size.x
 	var wh := g.size.y
 	var hzy := _hz(g)
-	var tones := _sky_tones()
-	var sky := tones[0]
-	var hz := tones[1]
+	var stops := _sky_stops()
+	var sky := stops[0]
 	var d := dawn()
 	_r(wx, wy, ww, wh, sky)
-	var band := lerpf(50.0, hzy - wy, smoothstep(0.0, 0.3, d))
-	_fill(PackedVector2Array([Vector2(wx, hzy - band), Vector2(wx + ww, hzy - band), Vector2(wx + ww, hzy), Vector2(wx, hzy)]),
-		PackedColorArray([sky, sky, hz, hz]))
+	var seen_top := wy + (wh + _near) * _glass_from   # o alto do céu à vista (acima, o vidro acaba)
+	var from := lerpf(hzy - 50.0, seen_top, smoothstep(0.0, 0.3, d))   # (de noite, o degradê só nos 50 de baixo)
+	for j in 3:
+		var y0 := lerpf(from, hzy, Pal.DAWN_STOPS[j])
+		var y1 := lerpf(from, hzy, Pal.DAWN_STOPS[j + 1])
+		_fill(PackedVector2Array([Vector2(wx, y0), Vector2(wx + ww, y0), Vector2(wx + ww, y1), Vector2(wx, y1)]),
+			PackedColorArray([stops[j], stops[j], stops[j + 1], stops[j + 1]]))
 	if weather == "clear":
 		var tw := Time.get_ticks_msec() / 700.0
 		var fade := smoothstep(0.0, 0.22, d)   # às 4h30 já não há estrelas
@@ -270,30 +288,155 @@ func _draw_sky(g: Rect2) -> void:
 				_r(wx + floorf(s.x * ww), wy + floorf(s.y * (hzy - wy)), PX, PX, star.lerp(sky, fade))
 		_draw_dawn(g, hzy)
 		_draw_moon(g, sky, hzy)
+		_draw_crepuscular(g, _sun_at(g), hzy)   # (por cima das nuvens: elas cortavam a sombra da igreja)
 	elif weather == "fog":
 		_draw_moon(g, sky, hzy)   # difusa: a névoa espalha a luz dela
 	elif weather == "rain":
 		_draw_overcast(g, sky, hzy)
 
 
-## O amanhecer no lado do sol (a janela olha para o leste: ele nasce um pouco à direita da igreja, `SUN_DX`): o clarão
-## no horizonte crescendo antes dele e, das 5h25, o disco subindo de trás da cidade, com o halo (`SUN_RISE`).
+## Onde está o sol (na vista `g`), ou um ponto fora dela antes de ele nascer: a janela olha para o leste e ele nasce às
+## 5h25 bem atrás da torre da igreja (a lua também nasce atrás dela), sobe por trás dela e, perto das 6h, já está acima
+## da cruz (`SUN_R`, `SUN_ABOVE`).
+func _sun_at(g: Rect2) -> Vector2:
+	var church := _church_pos(g)
+	church.x = floorf(church.x / PX) * PX + PX / 2.0   # (no eixo da torre, como `_draw_church`)
+	var up := (minutes - SUNRISE) / (DAWN.y - SUNRISE)
+	var top := church.y - 62.0 * CHURCH_K   # a ponta da cruz
+	return Vector2(church.x, lerpf(_hz(g) + SUN_R * 0.6, top - SUN_R * SUN_ABOVE, up))
+
+
+## O amanhecer no lado do sol: o clarão no horizonte crescendo antes dele e, das 5h25, o disco subindo de trás da
+## igreja, com o halo (na frente da cidade, os raios e os reflexos da lente ficam na camada `_rays`, `_draw_rays`).
 func _draw_dawn(g: Rect2, hzy: float) -> void:
 	var d := dawn()
 	if d <= 0.0:
 		return
-	var sx := _church_pos(g).x + g.size.x * SUN_DX
+	var sun := _sun_at(g)
 	var sky_h := hzy - g.position.y
-	var glow := smoothstep(0.25, 0.7, d) * (1.0 - 0.3 * smoothstep(0.75, 1.0, d))
-	var low := Vector2(sx, hzy)
+	var glow := smoothstep(0.25, 0.7, d) * (1.0 - smoothstep(0.8, 1.0, d))   # (o laranja por cima do azul do dia o deixava cinza)
+	var low := Vector2(sun.x, hzy)
 	_light_fan(low, PackedVector2Array(Array(_ring(Vector2.ZERO, 1.0)).map(func(p: Vector2) -> Vector2: return low + p * Vector2(g.size.x * 0.7, sky_h * 0.8))),
-		Color(Pal.DAWN_GLOW, 0.45 * glow))
-	var up := clampf((minutes - SUNRISE) / (DAWN.y - SUNRISE), 0.0, 1.0)
+		Color(Pal.DAWN_GLOW, 0.55 * glow))
+	if minutes >= SUNRISE - 2.0:
+		var day := smoothstep(SUNRISE + 10.0, DAWN.y, minutes)   # (de dia, o halo encolhe e o céu fica azul em volta)
+		_light_fan(sun, _ring(sun, SUN_R * lerpf(5.0, 3.0, day)), Color(Pal.SUN_RIM.lerp(Pal.SUN_CORE, day), lerpf(0.5, 0.3, day)))
+		_light_fan(sun, _ring(sun, SUN_R * 2.2), Color(Pal.SUN, 0.55))
 	if minutes < SUNRISE - 2.0:
 		return
-	var sun := Vector2(sx, lerpf(hzy + 1.0, hzy - sky_h * SUN_RISE, up))
-	_light_fan(sun, _ring(sun, 26.0), Color(Pal.SUN, 0.55))
-	PixelArt.sprite(_ci, PixelArt.disc(8, [[4.0, Pal.SUN]]), sun)
+	var d2 := int(SUN_R * 4.0)   # o disco em px da tela (1x1): o miolo branco, o amarelo e a beira de 1 px
+	_ci.draw_set_transform(Vector2.ZERO)
+	PixelArt.sprite(_ci, PixelArt.disc(d2, [[d2 * 0.3, Pal.SUN_CORE], [d2 * 0.4, Pal.SUN_CORE.lerp(Pal.SUN, 0.5)],
+		[d2 * 0.5 - 1.0, Pal.SUN], [d2 * 0.5, Pal.SUN_RIM]]), (sun * 2.0).round())
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	# o risco da lente, no céu: somado por cima da cidade, ele apagava o braço da cruz quando passava nela
+	var streak := Color(Pal.SUN_RIM, 0.3)
+	var sw := g.size.x * 0.45
+	_fill(PackedVector2Array([sun + Vector2(-sw, -PX), sun + Vector2(0, -PX), sun + Vector2(0, PX), sun + Vector2(-sw, PX)]),
+		PackedColorArray([Color(streak, 0.0), streak, streak, Color(streak, 0.0)]))
+	_fill(PackedVector2Array([sun + Vector2(0, -PX), sun + Vector2(sw, -PX), sun + Vector2(sw, PX), sun + Vector2(0, PX)]),
+		PackedColorArray([streak, Color(streak, 0.0), Color(streak, 0.0), streak]))
+
+
+## Na frente da vista, somados (na camada `_rays`, `_draw_view_rays`): com o sol à vista (`_sun_seen`), o brilho dele
+## por cima da beira da igreja e os reflexos na linha do sol ao meio da vista.
+func _draw_rays(g: Rect2) -> void:
+	if dawn() <= 0.0 or weather != "clear" or minutes < SUNRISE - 2.0:
+		return
+	var sun := _sun_at(g)
+	var hzy := _hz(g)
+	var parts := _church_parts(_church_pos(g))
+	var seen := _sun_seen(parts, sun, hzy)
+	if seen <= 0.0:
+		return
+	_light_fan(sun, _ring(sun, SUN_R * 3.0), Color(Pal.SUN_RIM, 0.18 * seen))
+	var mid := g.get_center()
+	_ci.draw_set_transform(Vector2.ZERO)
+	for k in FLARES.size():   # os reflexos: discos lisos na linha do sol ao meio da vista e além
+		var f: Vector3 = FLARES[k]
+		var at := sun + (mid - sun) * f.x
+		var d := int(f.y * 2.0) * 2
+		PixelArt.sprite(_ci, PixelArt.disc(d, [[d / 2.0, Color(Pal.FLARE[k % Pal.FLARE.size()], f.z * seen)]]), (at * 2.0).round())
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+
+
+## Os raios crepusculares no céu (embaixo da cidade, por cima do halo do sol): feixes largos e lisos saindo do sol,
+## a força variando devagar com o ângulo, e onde a igreja tapa o sol (`_church_cover`) a sombra dela, escura (`Pal.RAY_SHADOW`,
+## `CHURCH_SHADOW`): com o sol atrás da torre, a ponta e a cruz deixam feixes escuros no meio dos claros, a forma da
+## igreja nos raios. Fracos antes de o sol nascer, fortes com ele atrás dela e quase sumindo quando ele passa da cruz.
+func _draw_crepuscular(g: Rect2, sun: Vector2, hzy: float) -> void:
+	var parts := _church_parts(_church_pos(g))
+	var force := smoothstep(SUNRISE - 20.0, SUNRISE + 5.0, minutes) * (1.0 - 0.9 * smoothstep(SUNRISE + 20.0, DAWN.y, minutes))
+	if force <= 0.0:
+		return
+	var far := (hzy - g.position.y) * 1.6
+	var r0 := SUN_R   # (da beira do disco: por cima dele, a sombra o manchava)
+	var step := (PI + 0.4) / RAYS
+	var cover := PackedFloat32Array()
+	for i in RAYS + 1:
+		cover.append(_church_cover(parts, sun, -PI - 0.2 + i * step))
+	var near := PackedVector2Array()
+	var ends := PackedVector2Array()
+	var cols := PackedColorArray()
+	for i in RAYS + 1:   # um leque de fatias, cada beira com a sua cor: o raio vai clareando e escurecendo sem riscas
+		var a := -PI - 0.2 + i * step
+		var dark := (cover[maxi(i - 1, 0)] + cover[i] * 2.0 + cover[mini(i + 1, RAYS)]) / 4.0   # (alisada)
+		var shine := clampf(0.5 + 0.32 * sin(a * 11.0 + 0.7) + 0.18 * sin(a * 27.0 + 2.3), 0.0, 1.0)
+		shine *= shine   # (feixes largos com vãos entre eles)
+		near.append(sun + Vector2.from_angle(a) * r0)
+		ends.append(sun + Vector2.from_angle(a) * far * lerpf(0.55, 1.0, shine))
+		cols.append(Color(Pal.SUN_RAY, RAY_A * force * shine).lerp(Color(Pal.RAY_SHADOW, CHURCH_SHADOW * force), dark))
+	for i in RAYS:
+		_fill(PackedVector2Array([near[i], near[i + 1], ends[i + 1], ends[i]]),
+			PackedColorArray([cols[i], cols[i + 1], Color(cols[i + 1], 0.0), Color(cols[i], 0.0)]))
+
+
+## Quanto do sol está à vista (0 escondido atrás da igreja ou do horizonte, 1 inteiro): pontos do disco fora dela.
+func _sun_seen(parts: Array, sun: Vector2, hzy: float) -> float:
+	var n := 0
+	for i in 12:
+		var p := sun + Vector2.from_angle(TAU * i / 12.0) * SUN_R * 0.8
+		if p.y < hzy and not _in_church(parts, p):
+			n += 1
+	return n / 12.0
+
+
+## Quanto do sol a igreja tapa na direção `a` (0 nada, 1 tudo): os pontos do meio dele até a beira do halo, nessa
+## direção, que caem nela. Como o desfoque radial dos raios de luz dos jogos: a torre e a cruz, na frente do disco,
+## tapam a luz que sai para cima, e para os lados ela passa.
+func _church_cover(parts: Array, sun: Vector2, a: float) -> float:
+	var dir := Vector2.from_angle(a)
+	var n := 0
+	for k in COVER_STEPS:
+		if _in_church(parts, sun + dir * SUN_R * 1.5 * (k + 0.5) / COVER_STEPS):
+			n += 1
+	return float(n) / COVER_STEPS
+
+
+func _in_church(parts: Array, p: Vector2) -> bool:
+	for part: PackedVector2Array in parts:
+		if Geometry2D.is_point_in_polygon(p, part):
+			return true
+	return false
+
+
+## A silhueta da igreja de pé em `base` (na escala dela, `CHURCH_K`): nave, telhado, torre, ponta e cruz, como
+## polígonos (desenhados por `_draw_church` e usados pelos raios do amanhecer, `_church_cover`).
+func _church_parts(base: Vector2) -> Array:
+	var k := CHURCH_K
+	base.x = floorf(base.x / PX) * PX + PX / 2.0   # o eixo no meio de um pixel: a torre, a ponta e a cruz simétricas nele
+	var half := func(w: float) -> float: return (roundf(w / PX - 0.5) + 0.5) * PX   # meia largura de um número ímpar de pixels
+	var box := func(x: float, y: float, w: float, h: float) -> PackedVector2Array:
+		return PackedVector2Array([Vector2(x, y), Vector2(x + w, y), Vector2(x + w, y + h), Vector2(x, y + h)])
+	var tw: float = half.call(4 * k)
+	var sw: float = half.call(5 * k)
+	var top := Vector2(base.x, roundf((base.y - 60 * k) / PX) * PX)   # a ponta da torre, presa ao pixel
+	return [box.call(base.x - 12 * k, base.y - 18 * k, 24 * k, 18 * k),
+		PackedVector2Array([base + Vector2(-13, -18) * k, base + Vector2(0, -26) * k, base + Vector2(13, -18) * k]),
+		box.call(base.x - tw, base.y - 48 * k, 2 * tw, 30 * k),
+		PackedVector2Array([Vector2(base.x - sw, base.y - 48 * k), top, Vector2(base.x + sw, base.y - 48 * k)]),
+		box.call(top.x - PX / 2.0, top.y - 2.5, PX, 3.0),   # a cruz: a haste entra na ponta, e os braços ficam no alto dela
+		box.call(top.x - 2.5 * PX, top.y - 1.5, 5 * PX, PX)]
 
 
 ## A cidade lá fora (na camada `_back`, por cima do céu, `_draw_sky`): a de longe, a igreja, a rua, as paredes da rua do
@@ -388,6 +531,7 @@ func _draw_moon(g: Rect2, sky: Color, hzy: float) -> void:
 		var r := Vector2(0.16 * c.z * g.size.x, 0.09 * c.z * sh)
 		var lit := 1.0 - smoothstep(0.0, 1.6, ((at - moon) / r).length())   # na frente da lua, a beira pega a luz dela
 		var col := sky.lightened(0.1).lerp(Pal.CLOUD_RIM, 0.12 * lit * light)
+		col = col.lerp(Pal.DAWN_CLOUD.lerp(Pal.DAY_CLOUD, smoothstep(0.8, 1.0, dawn())), smoothstep(0.2, 0.6, dawn()))   # (o sol por baixo)
 		for k in 3:   # três manchas juntas, a do meio maior
 			var o := at + Vector2((k - 1) * r.x * 0.55, (k % 2) * -r.y * 0.25)
 			var rim := PackedVector2Array()
@@ -1684,18 +1828,10 @@ func _build_city(gs: Vector2) -> void:
 ## alto; a porta acesa até `CHURCH_DARK`.
 func _draw_church(base: Vector2, col: Color) -> void:
 	var k := CHURCH_K
-	base.x = floorf(base.x / PX) * PX + PX / 2.0   # o eixo no meio de um pixel: a torre, a ponta e a cruz simétricas nele
-	var half := func(w: float) -> float: return (roundf(w / PX - 0.5) + 0.5) * PX   # meia largura de um número ímpar de pixels
-	_r(base.x - 12 * k, base.y - 18 * k, 24 * k, 18 * k, col)
-	_poly(PackedVector2Array([base + Vector2(-13, -18) * k, base + Vector2(0, -26) * k, base + Vector2(13, -18) * k]), col)
-	var tw: float = half.call(4 * k)
-	_r(base.x - tw, base.y - 48 * k, 2 * tw, 30 * k, col)
-	var sw: float = half.call(5 * k)
-	var top := Vector2(base.x, roundf((base.y - 60 * k) / PX) * PX)   # a ponta da torre, presa ao pixel
-	_poly(PackedVector2Array([Vector2(base.x - sw, base.y - 48 * k), top, Vector2(base.x + sw, base.y - 48 * k)]), col)
-	# a cruz e o relógio em pixels, do tamanho da torre (maiores que ela, com a igreja diminuída, viravam um poste aceso)
-	_r(top.x - PX / 2.0, top.y - 2.5, PX, 3.0, col)   # a cruz: a haste entra na ponta, e os braços ficam no alto dela
-	_r(top.x - 2.5 * PX, top.y - 1.5, 5 * PX, PX, col)
+	for part: PackedVector2Array in _church_parts(base):
+		_poly(part, col)
+	base.x = floorf(base.x / PX) * PX + PX / 2.0
+	var top := Vector2(base.x, roundf((base.y - 60 * k) / PX) * PX)
 	var face := Vector2(top.x, roundf((base.y - 40 * k) / PX) * PX)
 	_r(face.x - 1.5 * PX, face.y - PX, 3 * PX, 3 * PX, Pal.CHURCH_CLOCK[1])
 	_r(face.x - PX / 2.0, face.y - PX, PX, 2 * PX, Pal.CHURCH_CLOCK[0])   # os ponteiros

@@ -171,6 +171,7 @@ var _shelf := Vector2(INF, INF)   # `shelf()`, em px do cenário
 var _view: Control     # desenha a vista da janela no `_vport`: a frente dela, a cada quadro da vista
 var _back: Control     # a parte de trás da vista, embaixo da `_view`: só se redesenha quando muda (`_back_state`)
 var _sky: Control      # o céu da vista, embaixo da `_back` e fora da luz do dia da cidade (`DAY_GAIN`): redesenhado com ela
+var _rays: Control     # os raios do sol nascendo e os reflexos da lente, somados por cima da vista (`_draw_rays`): redesenhados com o céu
 var _pane: Control     # o vidro da vista, por cima da `_view`: o reflexo da sala e a chuva nele, fora da luz do dia
 var _back_drawn := []
 var _vport: SubViewport
@@ -242,6 +243,11 @@ func _ready() -> void:
 	_view = Control.new()
 	_view.draw.connect(_draw_view)
 	_vport.add_child(_view)
+	_rays = Control.new()
+	_rays.material = CanvasItemMaterial.new()
+	(_rays.material as CanvasItemMaterial).blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	_rays.draw.connect(_draw_view_rays)
+	_vport.add_child(_rays)
 	_pane = Control.new()
 	_pane.draw.connect(_draw_view_glass)
 	_vport.add_child(_pane)
@@ -439,6 +445,7 @@ func _process(delta: float) -> void:
 		_back_drawn = bs
 		_sky.queue_redraw()
 		_back.queue_redraw()
+		_rays.queue_redraw()
 	var tones := _sky_tones()   # a luz do dia na cidade: o céu clareando, no `modulate` (acima de 1 clareia; um shader
 	var day := Color.WHITE + tones[0].lerp(tones[1], 0.4) * DAY_GAIN * smoothstep(0.1, 1.0, dawn())   # nelas desfazia o lote das chamadas)
 	day.a = 1.0
@@ -1594,6 +1601,17 @@ func _draw_view_glass() -> void:
 	_ci = self
 
 
+## Os raios do sol e os reflexos da lente (`_rays`), somados por cima da vista: redesenhados com o céu.
+func _draw_view_rays() -> void:
+	if window_art:
+		return
+	_ci = _rays
+	_rays.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	var g := Rect2(Vector2.ZERO, Vector2(_vport.size) / 2.0)
+	_draw_rays(Rect2(g.position, g.size - Vector2(0, _near)))
+	_ci = self
+
+
 ## O céu da vista (`_sky`), embaixo da cidade: redesenhado com ela (`_back_state`).
 func _draw_view_sky() -> void:
 	if window_art:
@@ -1814,6 +1832,7 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 		_out_x = out_x
 		_vport.size = Vector2i(view.size * 2.0)
 		_sky.queue_redraw()
+		_rays.queue_redraw()
 		_back.queue_redraw()   # já, e não no próximo quadro dela: na pausa (a janela mudando de tamanho), ficava vazia
 		_view.queue_redraw()
 		_pane.queue_redraw()
