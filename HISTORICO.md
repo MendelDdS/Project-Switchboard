@@ -1245,3 +1245,12 @@ Chaves:
 225. #janela #luz
     Com o sol subindo atrás da igreja, num trecho (5h45) o braço da cruz perdia a cor: o risco da lente, somado por
     cima da cidade, passava na altura dele. O risco foi para o céu, embaixo da cidade.
+226. #janela #luz #rua
+    Pedido de melhorias do sol e do amanhecer (sugeridas por mim, escolhidas pelo usuário; a sala fica para a 7.3): a beira
+    da igreja acesa contra o sol, a franja de 1 px (`_draw_church_rim`); luz de lado, quente no alto da parede da
+    esquerda da rua do cruzamento e na quina da esquina dela, e as fachadas de lá, de costas para o sol, na luz fria do
+    céu, com a cornija acesa (`_sunlit`, `Pal.DAWN_SHADE`; a 25% o tijolo ficava lilás); a faixa de sol que entra pela
+    rua do cruzamento e atravessa a nossa, com as sombras compridas de quem passa, dos carros e dos postes de lá dentro
+    dela (`_sun_shadow`, `_shadow_k`); a neblina baixa no fundo da rua, dourada do lado do sol, sumindo até as 6h
+    (`_draw_dawn_mist`); as nuvens acesas por baixo (`Pal.DAWN_CLOUD_TOP`); e passarinhos: dois bandos em V e os pombos
+    saindo da torre logo depois de o sol nascer (`FLOCKS`, `_draw_birds`).

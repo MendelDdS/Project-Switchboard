@@ -678,7 +678,13 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   quase preta, vira um feixe escuro (`_church_cover`, `_church_parts`, os polígonos que `_draw_church` desenha; `RAY_SHADOW`).
   Na frente da cidade, numa camada somada (`_rays`, `_draw_rays`), com o sol à vista (`_sun_seen`): o brilho e
   os reflexos na linha do sol ao meio da vista (`FLARES`, `Pal.FLARE`); o risco horizontal da lente fica no céu, embaixo
-  da cidade (somado por cima, ele apagava o braço da cruz quando passava na altura dela). A cidade clareia pelo `modulate` da `_back` e da `_view` (`DAY_GAIN`; um
+  da cidade (somado por cima, ele apagava o braço da cruz quando passava na altura dela). A beira da igreja se acende contra o sol (`_draw_church_rim`: a silhueta repetida um pixel para cada lado, no céu, embaixo dela). Com o
+  sol (`_sunlit`), a parede da esquerda da rua do cruzamento pega a luz quente de raspão, mais no alto, e as fachadas
+  de lá, de costas para ele, a luz fria do céu (`Pal.DAWN_SHADE`), com a cornija acesa; a faixa de sol entra pela rua
+  do cruzamento e atravessa a nossa (`STRIP_A`), e só nela quem passa, os carros e os postes de lá deixam as sombras
+  compridas, encurtando com o sol subindo (`_sun_shadow`, `_shadow_k`). A neblina baixa no fundo da rua some até as 6h
+  (`_draw_dawn_mist`), as nuvens se acendem por baixo (`Pal.DAWN_CLOUD_TOP` no alto) e passam passarinhos: bandos em V
+  e os pombos saindo da torre (`FLOCKS`, `_draw_birds`, na frente da vista, no tempo do jogo). A cidade clareia pelo `modulate` da `_back` e da `_view` (`DAY_GAIN`; um
   shader nelas desfazia o lote das chamadas de desenho), postes e neon apagam às 5h15 (`_posts_on`, `_sign_on`),
   janelas acendem de madrugada e ficam (`WAKE_DAWN`) e a rua volta a ter gente e carro das 5h às 6h (`morning`).
 - **Fim do turno**: nada novo toca depois de `last_call` (`LAST_CALL_BEFORE` antes do fim, 23:40; sorteadas param ali e `_run_schedule` descarta
