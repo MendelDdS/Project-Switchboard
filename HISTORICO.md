@@ -1158,3 +1158,13 @@ Chaves:
     Hi-bit 4.4: a luz da luminária refletida no café da caneca, que era um risco parado na imagem dela, treme: dois
     pontos claros correm devagar ao longo do risco, acendendo e apagando fora de tempo, na camada da poeira (sem
     redesenhar a sala), seguindo a luminária; acabado o café, somem.
+210. #vista #janela #luz
+    Hi-bit 4.5: o letreiro do hotel refletido no vidro da janela da sala, como o fantasma dele (as letras de novo,
+    fracas e deslocadas, a outra face do vidro), apagando com o neon e com o T falhando junto; na chuva, as gotas no
+    vidro perto dele pegam o vermelho. Uma mancha vermelha lisa no vidro foi tentada antes e sumia debaixo do halo do
+    letreiro.
+211. #sala #som #pixel
+    Hi-bit 4.6: a ponta de baixo da folhinha, do lado da janela, dobra em orelha (o canto vira a parede na sombra e a
+    aba, o verso do papel) nas rajadas da brisa da noite limpa, no tempo exato do som: a força da rajada é a mesma
+    onda gravada na brisa, lida pela posição em que ela toca (`Sfx.gust`). Levantando a ponta para a frente, só a
+    sombra mudava, e ela caía na parede já escura; com a conta ao quadrado a orelha quase nunca passava de 1 px.

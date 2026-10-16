@@ -140,6 +140,11 @@ func _sign_on() -> bool:
 	return not (int(Time.get_ticks_msec() / 110.0) % 97 in [40, 42, 43, 71])
 
 
+## O T do letreiro aceso: com ele aceso (`_sign_on`), o T falha sozinho, em rajadas.
+func _sign_t_on() -> bool:
+	return _sign_on() and not (int(Time.get_ticks_msec() / 70.0) % 23 in [3, 4, 9, 15, 16, 17])
+
+
 ## Uma luz do cenário (`r` em px da tela) que brilha, a não ser que o papel de uma ferramenta esteja por cima dela.
 func _light(r: Rect2, col: Color, halo: float, round := false, core := true) -> void:
 	if _ci == self or _ci == _props_layer:   # a vista da janela: as luzes dela vêm de `_draw_side_wall`, que sabe onde o vidro está

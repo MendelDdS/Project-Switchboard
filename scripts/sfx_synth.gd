@@ -643,7 +643,7 @@ func _build_breeze() -> void:
 	hiss = _biquad(hiss, "bp", 900.0, 3.0)
 	for i in n:
 		var t := float(i) / RATE
-		var gust := 0.55 + 0.3 * sin(TAU * t / 8.0) + 0.15 * sin(TAU * t * 3.0 / 8.0 + 1.3)
+		var gust := 0.55 + 0.3 * sin(TAU * t / 8.0) + 0.15 * sin(TAU * t * 3.0 / 8.0 + 1.3)   # (a mesma conta de `Sfx.gust`)
 		_w[i] = _w[i] * gust + hiss[i] * 0.05 * gust * gust
 	_loopify(0.6)
 	_end("breeze", false, true, 0.6)

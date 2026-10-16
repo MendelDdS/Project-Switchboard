@@ -62,9 +62,11 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   clarão (`_cut`). E o trovão vem depois
   (`THUNDER_AFTER`, mais fraco quanto mais longe, som `thunder`; perto, o vidro e a persiana chocalham, `RATTLE_NEAR`,
   som `rattle`); e um letreiro de neon HOTEL (a palavra é a mesma nos
-  três idiomas) na vista, na fonte gravada da mesa, que falha de vez em quando (`_sign_on`; o T falha sozinho; sem som: o estalo dele saiu a pedido), com o
+  três idiomas) na vista, na fonte gravada da mesa, que falha de vez em quando (`_sign_on`; o T falha sozinho, `_sign_t_on`; sem som: o estalo dele saiu a pedido), com o
   halo sem miolo para as letras aparecerem (`_light(..., core = false)`), o reflexo na rua molhada (embaixo das letras, não da beira da caixa) e um reflexo
-  vermelho fraco na parede perto da janela (`SIGN_GLOW`). Os três entram no `_state`. O prédio de tijolos da esquina é
+  vermelho fraco na parede perto da janela (`SIGN_GLOW`). Os três entram no `_state`. No vidro da janela, o fantasma
+  dele: as letras de novo, fracas e deslocadas (`_draw_neon_glass`, `NEON_GHOST`, `NEON_SHIFT`), com o T falhando junto,
+  e, na chuva, as gotas perto dele vermelhas (`NEON_BEADS`); desenhados na vista, que já se redesenha. O prédio de tijolos da esquina é
   de apartamentos: no 3º andar, uma varanda (`APT`; porta, vasos, laje vista de baixo e gradil) com a janela da sala,
   onde a TV pisca azul (`_draw_balcony_back`/`_front`; a luz da sala apaga em `APT_DARK` e a TV em `TV_OFF`). Janelas que já
   apagaram acendem de novo de madrugada, uns minutos (`WAKE`, `b["wake"]`). Na chuva, a força muda durante a noite
@@ -302,7 +304,9 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   `flags.changed`; o setter de `Main.flags` religa); a folhinha na parede, entre o armário e a quina, é a data do jogo (`GameData.date_of`/`date_text`: a noite 1 é segunda-feira, 8 de outubro de
   1973, e cada noite um dia depois; o dia da semana sai da data, não da `Night`): a folhinha de outubro com a semana
   começando na segunda, domingos em vermelho, os dias passados riscados e o de hoje circulado; sob o mouse, a data por
-  extenso (`Background.CALENDAR`, sem abrir ferramenta nem trocar o cursor). A mesma data vai na introdução, no jornal
+  extenso (`Background.CALENDAR`, sem abrir ferramenta nem trocar o cursor); presa só pelo prego, a ponta de baixo do
+  lado da janela dobra em orelha nas rajadas da brisa que se ouve (`_draw_curl`, `CURL_PX`, na camada da poeira; a
+  rajada é `Sfx.gust`, a mesma onda gravada no som, lida pela posição em que ele toca). A mesma data vai na introdução, no jornal
   (`NEWS_EDITION`) e no caderno ("Noite de 8 para 9", `Notebook.night`). Na
   primeira vez que cada sinal da mesa aparece (tiras, folha nova), uma dica do manual explica, uma vez no
   jogo todo (`Main._teach`: o "já viu" fica nos marcadores salvos; espera o treinamento acabar). Sob o

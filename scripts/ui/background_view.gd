@@ -46,6 +46,10 @@ const SMOKE_SEC := 40.0
 const PUFF_EVERY := 7.0
 const SMOKE_LIT := 6.0   ## até quantos metros da cabeça do poste ela pega a luz dele (`RIM`)
 const SMOKE_PUFF := 6.0  ## quanto o sopro da tragada leva para sumir (s)
+const NEON_GHOST := 0.16     ## o letreiro refletido no vidro da sala (`_draw_neon_glass`): a força das letras...
+const NEON_SHIFT := Vector2(5, 3)   ## ...e quanto elas ficam deslocadas das de verdade (px da tela)
+const NEON_T_OFF := 0.7      ## a força do reflexo com o T apagado
+const NEON_BEADS := 22.0     ## até onde as gotas no vidro pegam o vermelho dele (px de 2x2)
 const EMBER := Color(1.0, 0.45, 0.15)
 ## O gato de algumas noites (`CAT_NIGHTS` delas, sorteado pela noite, `_cat_plan`): sentado na marquise do hotel ou no
 ## gradil da varanda por um tempo, piscando os olhos acesos e mexendo o rabo.
@@ -1508,7 +1512,7 @@ func _draw_hotel_sign(o: Vector2) -> void:
 	var on := _sign_on()
 	_r(o.x, o.y, 5, 31 * PX, Pal.SIGN_BOX[1 if on else 0])   # a caixa: a beira pega o vermelho do neon
 	_r(o.x + PX, o.y + PX, 5 - 2 * PX, 29 * PX, Pal.SIGN_BOX[0])
-	var buzz := on and not (int(Time.get_ticks_msec() / 70.0) % 23 in [3, 4, 9, 15, 16, 17])
+	var buzz := _sign_t_on()
 	_ci.draw_set_transform(Vector2.ZERO)
 	for i in 5:
 		var lit := buzz if i == 2 else on
@@ -1631,6 +1635,26 @@ func _draw_church(base: Vector2, col: Color) -> void:
 		_r(base.x - 1, base.y - 4, 2, 4, Color(Pal.CITY_LIT[1], 0.8))   # a porta, com luz dentro (o relógio fica aceso)
 
 
+## O letreiro do hotel refletido no vidro da janela da sala: o fantasma dele, as letras de novo, fracas e um pouco
+## deslocadas (a outra face do vidro), acesas como as de verdade: apaga com o neon e o T falha junto. Na chuva, as gotas
+## perto dele pegam o vermelho (`_draw_glass_weather`).
+func _draw_neon_glass(g: Rect2) -> void:
+	if not _sign_on():
+		return
+	var o := _hotel_pos(Rect2(g.position, g.size - Vector2(0, _near)))
+	var t := _sign_t_on()
+	_ci.draw_set_transform(Vector2.ZERO)
+	for i in 5:
+		if i != 2 or t:
+			_ci.draw_texture(PixelArt.tiny("HOTEL"[i]), (o * 2.0 + Vector2(3, i * 6 - 2) + NEON_SHIFT).floor(), Color(Pal.SIGN_RED, NEON_GHOST))
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+
+
+## A força do letreiro no vidro: 1 aceso, menos com o T falhando (uma letra de cinco), 0 apagado.
+func _neon_on_glass() -> float:
+	return 0.0 if not _sign_on() else (1.0 if _sign_t_on() else NEON_T_OFF)
+
+
 ## O clima no vidro: a chuva passando e as gotas paradas no vidro, que às vezes escorrem (chuva), e um reflexo na
 ## diagonal (a névoa fica na vista, `_draw_fog`).
 func _draw_glass_weather(g: Rect2) -> void:
@@ -1657,6 +1681,8 @@ func _draw_glass_weather(g: Rect2) -> void:
 		# as gotas no vidro, só na parte dele que aparece: escuras, com um brilho, quente perto do poste (`_draw_city`)
 		var top := g.position.y + g.size.y * _glass_from
 		var post := _post(Rect2(g.position, g.size - Vector2(0, _near)))
+		var sign := _hotel_pos(Rect2(g.position, g.size - Vector2(0, _near))) + Vector2(2.5, 31 * PX / 2.0)
+		var neon := _neon_on_glass()
 		for b in _beads:
 			var p := Vector2(g.position.x + floorf(b.x * g.size.x * 2.0) * PX, top + floorf(b.y * (g.end.y - top) * 2.0) * PX)
 			if b.w > 0.0:   # escorrendo: o rastro molhado acima dela
@@ -1664,6 +1690,8 @@ func _draw_glass_weather(g: Rect2) -> void:
 					_r(p.x, p.y - (k + 1) * PX, PX, PX, Color(0.55, 0.66, 0.74, 0.2 - k * 0.045))
 			_r(p.x, p.y, b.z * PX, b.z * PX, Pal.RAIN_BEAD[0])
 			var warm := clampf(1.0 - p.distance_to(post) / 30.0, 0.0, 1.0) if lamp_level > 0.5 else 0.0
-			_r(p.x, p.y, PX, PX, Pal.RAIN_BEAD[1].lerp(Pal.STREET_LAMP, warm))
+			var red := clampf(1.0 - p.distance_to(sign) / NEON_BEADS, 0.0, 1.0) * neon   # e vermelho perto do letreiro
+			_r(p.x, p.y, PX, PX, Pal.RAIN_BEAD[1].lerp(Pal.STREET_LAMP, warm).lerp(Pal.SIGN_RED, red * 0.8))
+	_draw_neon_glass(g)
 	_poly(PackedVector2Array([g.position + Vector2(g.size.x * 0.12, 0), g.position + Vector2(g.size.x * 0.22, 0),
 		g.position + Vector2(g.size.x * 0.02, g.size.y * 0.5), g.position + Vector2(0, g.size.y * 0.5)]), Color(1, 1, 1, 0.03))

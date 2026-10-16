@@ -296,6 +296,16 @@ func set_late(k: float) -> void:
 	_apply_mix(8.0)
 
 
+## A rajada da brisa agora (0..1): a onda de 8 s gravada nela (`SfxSynth._build_breeze`, a mesma conta; o laço fecha
+## na onda), pela posição em que ela toca, vezes o volume dela (calada, 0). A ponta da folhinha da parede dobra com ela.
+func gust() -> float:
+	if not breeze.playing:
+		return 0.0
+	var t := breeze.get_playback_position()
+	var g := 0.55 + 0.3 * sin(TAU * t / 8.0) + 0.15 * sin(TAU * t * 3.0 / 8.0 + 1.3)
+	return clampf((g - 0.1) / 0.9, 0.0, 1.0) * clampf(db_to_linear(breeze.volume_db - WEATHER_MIX["clear"]["breeze"]), 0.0, 1.0)
+
+
 ## A luz da luminária (0..1): o zumbido acompanha, e some com ela apagada.
 func lamp(level: float) -> void:
 	if _lamp_on:

@@ -56,6 +56,7 @@ const WALL_GAP := 30.0     ## quanto a luminária fica à frente da parede (px d
 const CONE_M := 0.75       ## a inclinação do cone de luz da luminária na parede (`_draw_wall_light`)
 const LAMP_BEAM := 0.16    ## o feixe da luminária no ar (`_draw_beam`): a força dele no alto da tela, sumindo até o tampo...
 const LAMP_BEAM_CORE := 0.5   ## ...e a largura dele, em frações do cone (o miolo, mais denso, no meio; sem bordas marcadas)
+const CURL_PX := 4          ## o tamanho da orelha da folhinha na rajada mais forte (px da tela; `_draw_curl`)
 const WALL_BANDS := [0.8, 0.45]   ## as faixas de luz na parede, de fora para dentro, em frações do cone em volta da boca dele (`_wall_runs`)
 # A câmera. Medidas da sala na escala da parede do fundo (px de 2x2 lá; ~0,56 cm): x para a direita e y para baixo a
 # partir dos olhos, z a distância deles (a parede fica a `Z0`; mais perto, tudo cresce Z0/z vezes).
@@ -2153,6 +2154,7 @@ func _draw_poster(r: Rect2) -> void:
 func _draw_dust() -> void:
 	_draw_steam()
 	_draw_glint()
+	_draw_curl()
 	_draw_drips()
 	_draw_drop_shadows()
 	var k := lamp_level * (0.5 if _cover.has_area() else 1.0)
@@ -2163,6 +2165,24 @@ func _draw_dust() -> void:
 		var a := (1.0 - minf(1.0, p.distance_to(c) / reach)) * (0.5 + 0.5 * sin(m.z)) * 0.6 * k
 		if a > 0.02 and not _cover.has_point(p):
 			_dust.draw_rect(Rect2(p.floor(), Vector2.ONE), Color(1.0, 0.9, 0.7, a))
+
+
+## A ponta solta da folhinha (presa só pelo prego, no meio do alto): a de baixo, do lado da janela, dobra para a
+## frente até `CURL_PX` com a rajada da brisa que se ouve (`Sfx.gust`, no tempo do som), como uma orelha: o canto vira
+## a parede na sombra da aba e a aba, por dentro, o verso do papel, ambos no escuro da sala ali (`_gloom`). Na camada
+## da poeira (sem redesenhar a sala); sem brisa, parada.
+func _draw_curl() -> void:
+	var r: Rect2 = _props.get(CALENDAR, Rect2())
+	var leg := roundi(clampf(Sfx.gust() * 2.0 - 1.0, 0.0, 1.0) * CURL_PX)   # (só na metade de cima da rajada)
+	if leg <= 0 or not r.has_area() or _cover.intersects(r):
+		return
+	var c := r.end.floor()
+	var g := _gloom(c, _gloom_center())
+	var under := Pal.WALL_TONES[0].darkened(0.35).lerp(Color(NOIR, 1.0), g)
+	var flap := Pal.CALENDAR_PAPER.darkened(0.5).lerp(Color(NOIR, 1.0), g)
+	for dy in leg:   # de baixo para cima, cada linha: a aba (o canto espelhado na dobra, que passa pela diagonal) e o canto aberto
+		_dust.draw_rect(Rect2(c.x - leg, c.y - 1 - dy, dy + 1, 1), flap)
+		_dust.draw_rect(Rect2(c.x - leg + dy + 1, c.y - 1 - dy, leg - 1 - dy, 1), under)
 
 
 ## A luz da luminária refletida no café tremendo (na camada da poeira): dois pontos claros que correm devagar ao longo
