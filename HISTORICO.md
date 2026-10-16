@@ -1105,3 +1105,17 @@ Chaves:
     as lascas da caneca, o escuro embaixo do tampo) saíram do código para o `Pal`, com as capturas idênticas pixel a
     pixel (na noite limpa com a persiana fechada: a lua passando nas nuvens muda o brilho da janela na sala a cada
     captura). As duas luzes da vista que brilham no vidro ficam para a vista.
+201. #sala #luz #pixel
+    Plano hi-bit, sub-etapa 3.4b: a parede do fundo, o conduíte e o armário escolhem o tom pela luz da luminária na
+    parede, em faixas em volta da boca do cone dela: mais frios longe, mais quentes e um degrau mais claros perto. Como a
+    sala já escurece por cima com o escuro dela, a rampa só muda a cor e quase não muda o brilho (escolher o tom pela
+    luz e ainda escurecer por cima dobraria o escuro). O armário fica num degrau só, com as sombras e as luzes do aço
+    numa rampa fria e quente no lugar dele escurecido e clareado; o conduíte troca de tom onde a faixa o atravessa; a
+    sombra entre as lâminas da persiana ficou fria. A pedido, as manchas do reboco ficaram mais fracas (`STAIN` de 0,75
+    para 0,35). O peitoril e o vão da janela ficaram como estavam: já vão da luz fria da rua à madeira com a beira quente.
+202. #vista #pixel
+    Hi-bit 3.5a: as cores da vista (o céu de cada clima, o relâmpago, as estrelas, a lua e as nuvens, a cidade de
+    longe e as janelas acesas, as fachadas e o prédio de tijolos, o asfalto, a calçada, o meio-fio e os postes, o bar,
+    a porta e a marquise do hotel, a varanda, o relógio da igreja, o arbusto e as gotas no vidro) saíram do código
+    para o `Pal`, sem mudar nenhum tom: os 54 tons tirados estão todos lá, e as capturas antes e depois ficam dentro
+    do que a vista já muda sozinha (estrelas, nuvens, chuva). Carros, gente e o letreiro ficam para a 3.6.

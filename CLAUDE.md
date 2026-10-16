@@ -133,7 +133,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `draw_polygon`**: cada `draw_polygon`/`draw_colored_polygon` é uma chamada de desenho (e cria um polígono a cada
   redesenho); `draw_primitive` (até 4 pontos) seguidos viram uma só. O cenário tem `Background._fill`/`_poly` (o
   quadrilátero inteiro; o resto, em triângulos); a sala passava de 2000 chamadas por quadro. **Os materiais dos objetos da mesa** (capas, miolo, página e etiqueta da lista,
-  fita e papelão do bloco de fichas, a letra a lápis e o lápis dele, os carimbos do caderno, tábua, folhas e letra da prancheta, papel-jornal com a tinta, a beira e a foto, o bilhete de tarifação com o formulário e a tinta do carimbo, papel e tons do mapa, o cartão do despacho, níquel, latão (o das plaquetas e o dos plugs), a baquelite, os cabos, o vermelho do formulário, a madeira e a borda do tampo, o relógio de flip e o café da caneca; e os da sala: a parede, o vão da janela, a persiana, o armário de aço com o cromado, o conduíte, a folhinha e o cartaz) são
+  fita e papelão do bloco de fichas, a letra a lápis e o lápis dele, os carimbos do caderno, tábua, folhas e letra da prancheta, papel-jornal com a tinta, a beira e a foto, o bilhete de tarifação com o formulário e a tinta do carimbo, papel e tons do mapa, o cartão do despacho, níquel, latão (o das plaquetas e o dos plugs), a baquelite, os cabos, o vermelho do formulário, a madeira e a borda do tampo, o relógio de flip e o café da caneca; e os da sala: a parede, o vão da janela, a persiana, o armário de aço com o cromado, o conduíte, a folhinha e o cartaz; e os da vista: o céu, a lua e as nuvens, a cidade de longe, as fachadas, a rua com os postes, o bar, o hotel, a varanda, a igreja e o arbusto) são
   constantes do `Pal`, usadas pelo objeto (`Background._art_*`) e pelo papel aberto dele: o que muda numa ponta muda na outra. **Rampas de material** (plano hi-bit, `PLANO_HIBIT.md`): `Array[Color]` no `Pal`, do escuro ao claro, a sombra
   puxando para o frio e a luz para o quente; o desenho escolhe o tom pelo nível de luz com `Pal.ramp(tons, luz)`, em
   degraus, no lugar de escurecer por cima (por ora, a caneca, o aro das tomadas, `JACK_METAL`, a madeira do tampo,
@@ -145,7 +145,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `CardMachines.bevel`; as peças de metal paradas do painel da mesa comutadora, num degrau da luz da sala no meio
   delas, `Pal.panel_step`, o mesmo do relevo; a máquina do calculógrafo da mesa, a mesinha, o carimbo e a caixinha
   num degrau só, `_clock_box` com `tone`; os plugs e os fios, que andam, continuam na luz multiplicada, `_lit_by`,
-  porque uma paleta por degrau, por ângulo e por cabo encheria o cache do `PixelArt`; `step` pega o tom acima ou
+  porque uma paleta por degrau, por ângulo e por cabo encheria o cache do `PixelArt`; a parede do fundo, o conduíte e o
+  armário pela luz da luminária na parede, só na cor, `Pal.WALL_TONES`, `CONDUIT`, `STEEL_TONES`, porque o escuro
+  pela distância já é o da sala, `_draw_gloom`, e dobraria; `step` pega o tom acima ou
   abaixo, para veios e beiras). **Uma fonte só, de pixel: Departure Mono**
   (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11** (o que é gravado no painel da mesa não usa
   ela: é uma fonte de pixel própria, maiúsculas de 3×5, `PixelArt.TINY`/`TINY_ACCENTS`/`tiny`, com os acentos dos três

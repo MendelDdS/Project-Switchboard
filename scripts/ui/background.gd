@@ -53,6 +53,8 @@ const DETAILS := ["cartaz_quermesse", "numero_anotado", "armario_entreaberto"]  
 const BOARD_SINK := 10.0   ## o fundo do tampo, em px da tela acima da base do painel: fica atrás da mesa comutadora (o painel recuado para a parede, a prateleira funda)
 const LAMP_Y := -22.0      ## a boca da luminária, acima da tela (px de 2x2): de onde sai a luz e saem as sombras na parede
 const WALL_GAP := 30.0     ## quanto a luminária fica à frente da parede (px de 2x2): abre o arco de luz nela
+const CONE_M := 0.75       ## a inclinação do cone de luz da luminária na parede (`_draw_wall_light`)
+const WALL_BANDS := [0.8, 0.45]   ## as faixas de luz na parede, de fora para dentro, em frações do cone em volta da boca dele (`_wall_runs`)
 # A câmera. Medidas da sala na escala da parede do fundo (px de 2x2 lá; ~0,56 cm): x para a direita e y para baixo a
 # partir dos olhos, z a distância deles (a parede fica a `Z0`; mais perto, tudo cresce Z0/z vezes).
 const VP_AT := 0.20     ## o ponto de fuga no espaço da mesa, da mesa comutadora (0) à quina (1): perto dos objetos (longe dele, eles entortam; com os olhos baixos, mais); com 0,32, a lateral da mesa comutadora saía larga e inclinada demais
@@ -113,7 +115,7 @@ const SIGN_GLOW := Color(1.0, 0.25, 0.18, 0.05)   ## o reflexo vermelho dele na 
 const CAB_W := 82.0             ## a largura do armário de aço, encostado na parede (px de 2x2 lá)
 const CAB_AT := 0.37            ## quanto da parede livre entre a mesa comutadora e a quina fica antes dele (com 0,24, ele e o conduíte ficavam colados na mesa)
 const POSTER_W := 22.0           ## a largura do cartaz da quermesse (px de 2x2)
-const STAIN := 0.75      ## o quanto as manchas do reboco mudam o tom da parede do fundo, para mais claro e mais escuro (`_stain_art`)
+const STAIN := 0.35      ## o quanto as manchas do reboco mudam o tom da parede do fundo, para mais claro e mais escuro (`_stain_art`)
 const OUTLET_UP := 30.0   ## a tomada da parede do fundo, acima do tampo (px de 2x2; ~17 cm), logo embaixo da folhinha e acima das listas (`_draw_wall_marks`)
 const CAB_TOP := -26.0           ## o alto dele (cm a partir dos olhos, para baixo): acima deles, ~1,5 m do chão (o tampo não aparece)
 const CAB_T := 1.15              ## a frente dele (escala): ~35 cm de fundo
@@ -1220,7 +1222,11 @@ func _draw_wall(r: Rect2) -> void:
 	if wall_art:
 		draw_texture_rect(wall_art, r, true)
 		return
-	_r(r.position.x, r.position.y, r.size.x, r.size.y, Pal.WALL_PAINT)
+	var runs := _wall_runs(r.size.x * 2.0, r.size.y)
+	_ci.draw_set_transform(Vector2.ZERO)   # a tinta, no tom da faixa de luz em que cai
+	for run: Array in runs:
+		_ci.draw_rect(run[0], Pal.WALL_TONES[run[1]])
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 	var h := r.size.y * 2.0
 	for x in range(0, int(r.size.x) * 2, 44):   # as listras: a larga com o fio de luz e, no meio, a fina
 		_p(x, 0, 3, h, Pal.WALL_LINES[0])
@@ -1233,9 +1239,60 @@ func _draw_wall(r: Rect2) -> void:
 		for i in 5:
 			var half := 2 - absi(i - 2)
 			_p(x + 9 - half, 10 + i, half * 2 + 1, 1, frieze)
-	_ci.draw_set_transform(Vector2.ZERO)   # as manchas do reboco, por cima das listras
-	_ci.draw_texture(_stain_art(Vector2i(ceili(r.size.x * 2.0), ceili(r.size.y * 2.0))), Vector2.ZERO, Color(Pal.WALL_PAINT * 2.0, STAIN))
+	_ci.draw_set_transform(Vector2.ZERO)   # as manchas do reboco, por cima das listras, no tom de cada faixa
+	var stain := _stain_art(Vector2i(ceili(r.size.x * 2.0), ceili(r.size.y * 2.0)))
+	for run: Array in runs:
+		_ci.draw_texture_rect_region(stain, run[0], run[0], Color(Pal.WALL_TONES[run[1]] * 2.0, STAIN))
 	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+
+
+## A luz da luminária na parede do fundo (de `w` px da tela até o tampo, em `top`), para a rampa da tinta
+## (`Pal.WALL_TONES`): as faixas de `WALL_BANDS` em volta da boca do cone (`_draw_wall_light`, na quina com o tampo),
+## em trechos de cada linha, [o retângulo (px da tela), o tom], sem se cobrir (a mancha do reboco, translúcida, vai por
+## cima de cada um no tom dele). Guardados pela largura, pela luminária e pelo tampo.
+var _runs_key := []
+var _runs := []
+
+
+func _wall_runs(w: float, top: float) -> Array:
+	var key := [w, _lamp_x, top]
+	if key == _runs_key:
+		return _runs
+	_runs_key = key
+	_runs = []
+	var cx := _lamp_x * 2.0
+	var rx := sqrt(pow((top - LAMP_Y) / CONE_M, 2.0) - WALL_GAP * WALL_GAP) * 2.0   # a largura do cone no tampo...
+	var ry := (top - LAMP_Y - WALL_GAP * CONE_M) * 2.0   # ...e a altura dele no meio
+	for y in int(top * 2.0):
+		var dy := (top * 2.0 - y - 0.5) / ry
+		var segs := [[0.0, w, 0]]   # de fora para dentro: cada faixa corta o trecho do meio
+		for i in WALL_BANDS.size():
+			var b: float = WALL_BANDS[i]
+			if b <= dy:
+				break
+			var hw := roundf(rx * sqrt(b * b - dy * dy))
+			var mid: Array = segs.pop_at(i)
+			var a := clampf(cx - hw, mid[0], mid[1])
+			var e := clampf(cx + hw, mid[0], mid[1])
+			segs.insert(i, [e, mid[1], mid[2]])
+			segs.insert(i, [a, e, i + 1])
+			segs.insert(i, [mid[0], a, mid[2]])
+		for s: Array in segs:
+			if s[1] > s[0]:
+				_runs.append([Rect2(s[0], y, s[1] - s[0], 1), s[2]])
+	return _runs
+
+
+## O degrau da luz da luminária no ponto `p` da parede do fundo (px de 2x2, com o tampo em `_top`), o das faixas da
+## tinta (`_wall_runs`): -1 longe, 0 no meio, +1 perto da boca do cone.
+func _wall_step(p: Vector2) -> int:
+	var rx := sqrt(pow((_top - LAMP_Y) / CONE_M, 2.0) - WALL_GAP * WALL_GAP)
+	var t := Vector2((p.x - _lamp_x) / rx, (_top - p.y) / (_top - LAMP_Y - WALL_GAP * CONE_M)).length()
+	var step := -1
+	for b: float in WALL_BANDS:
+		if t < b:
+			step += 1
+	return step
 
 
 ## As manchas do reboco da parede do fundo, do tamanho dela (px da tela): o ruído em cinza, que o `_draw_wall` põe por
@@ -1293,7 +1350,7 @@ func _draw_wall_marks(x: float, top: float) -> void:
 ## para os lados) e acaba no tampo, onde vira a poça de `_draw_desk`; a dobra na quina mostra que são dois planos.
 ## Lisa: mais forte embaixo da luminária, na quina com o tampo, e sumindo até o arco (`_light_fan`).
 func _draw_wall_light(top: float) -> void:
-	var m := 0.75
+	var m := CONE_M
 	var w := sqrt(pow((top - LAMP_Y) / m, 2.0) - WALL_GAP * WALL_GAP)
 	var pts := PackedVector2Array()
 	for i in 25:
@@ -1675,23 +1732,34 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 ## e entra numa caixa de passagem na parede, de onde um conduíte de ferro sobe até o teto (em `x`, no vão entre a mesa
 ## comutadora e o armário), preso por braçadeiras. A mesa esconde o pé dele.
 func _draw_conduit(b: Rect2, x: float) -> void:
-	var pipe := Pal.CONDUIT[0]
-	_r(x - 2, 0, 4, _top, pipe)
-	_r(x - 2, 0, 1, _top, pipe.lightened(0.3))   # a luz da luminária do lado de cá
-	_r(x + 2 - PX, 0, PX, _top, pipe.darkened(0.45))
+	var iron := func(k: int, step: int) -> Color: return Pal.CONDUIT[clampi(2 + step + k, 0, Pal.CONDUIT.size() - 1)]
+	var y0 := 0.0   # o cano, em trechos: cada um no degrau da faixa de luz da parede em que cai (`_wall_step`)
+	var step := _wall_step(Vector2(x, PX / 2.0))
+	for i in range(1, int(_top / PX) + 1):
+		var y := i * PX
+		var s := _wall_step(Vector2(x, y + PX / 2.0)) if y < _top else 99
+		if s == step:
+			continue
+		_r(x - 2, y0, 4, y - y0, iron.call(0, step))
+		_r(x - 2, y0, 1, y - y0, iron.call(4, step))   # a luz da luminária do lado de cá
+		_r(x + 2 - PX, y0, PX, y - y0, iron.call(-2, step))
+		y0 = y
+		step = s
 	_r(x + 2, 0, 1.5, _top, Color(0, 0, 0, 0.25))   # a sombra na parede
 	var y := 6.0
 	while y < _top:   # as braçadeiras
-		_r(x - 3, y, 6, 1.5, pipe.lightened(0.15))
-		_r(x - 3, y + 1.5, 6, PX, pipe.darkened(0.35))
+		var s := _wall_step(Vector2(x, y))
+		_r(x - 3, y, 6, 1.5, iron.call(2, s))
+		_r(x - 3, y + 1.5, 6, PX, iron.call(-1, s))
 		y += 36.0
 	var box := Rect2(x - 6, b.position.y - 34, 12, 14)   # a caixa de passagem, com a tampa parafusada
+	var s := _wall_step(box.get_center())
 	_r(box.position.x + 1, box.position.y + 1, box.size.x, box.size.y, Color(0, 0, 0, 0.25))
-	_r(box.position.x, box.position.y, box.size.x, box.size.y, Pal.CONDUIT[0])
-	_r(box.position.x, box.position.y, box.size.x, PX, Pal.CONDUIT[2])
-	_r(box.position.x + 1, box.position.y + 1, box.size.x - 2, box.size.y - 2, Pal.CONDUIT[1])
+	_r(box.position.x, box.position.y, box.size.x, box.size.y, iron.call(0, s))
+	_r(box.position.x, box.position.y, box.size.x, PX, iron.call(2, s))
+	_r(box.position.x + 1, box.position.y + 1, box.size.x - 2, box.size.y - 2, iron.call(1, s))
 	for c in [Vector2(1.5, 1.5), Vector2(box.size.x - 2.5, 1.5), Vector2(1.5, box.size.y - 2.5), Vector2(box.size.x - 2.5, box.size.y - 2.5)]:
-		_r(box.position.x + c.x, box.position.y + c.y, 1, 1, Pal.CONDUIT[3])
+		_r(box.position.x + c.x, box.position.y + c.y, 1, 1, iron.call(3, s))
 	# os cabos: da boca de baixo da caixa até o alto do painel, um pouco caídos, cada um num pano velho
 	var cloth := Pal.CONDUIT_CABLES
 	for i in cloth.size():
@@ -1792,43 +1860,44 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 	_cast(back, 1.05)
 	var f := Rect2((_vp + Vector2(x0, _cm(CAB_TOP)) * CAB_T).round(), (Vector2(CAB_W, 400) * CAB_T).round())
 	_cab = [back, f]
-	var steel := Pal.STEEL
+	var step := _wall_step(Vector2(f.get_center().x, (f.position.y + _top) / 2.0))   # num degrau só da luz no meio do que aparece, como as peças de metal
+	var steel := func(k: int) -> Color: return Pal.STEEL_TONES[clampi(3 + step + k, 0, Pal.STEEL_TONES.size() - 1)]
 	if back.position.x < f.position.x:   # à direita do ponto de fuga: aparece o lado esquerdo, fugindo para a parede
 		_poly(PackedVector2Array([back.position, f.position, Vector2(f.position.x, f.end.y), Vector2(back.position.x, back.end.y)]),
-			steel.darkened(0.45))
+			steel.call(-3))
 	elif back.end.x > f.end.x:   # à esquerda: o lado direito
 		_poly(PackedVector2Array([Vector2(f.end.x, f.position.y), Vector2(back.end.x, back.position.y), back.end, f.end]),
-			steel.darkened(0.3))
+			steel.call(-2))
 	if CAB_TOP > 0.0:   # os olhos acima dele: o tampo aparece, fugindo para a parede
 		_poly(PackedVector2Array([back.position + Vector2(-2, 0), Vector2(back.end.x + 2, back.position.y),
-			Vector2(f.end.x + 2, f.position.y - 1), Vector2(f.position.x - 2, f.position.y - 1)]), steel.darkened(0.2))
-	_r(f.position.x, f.position.y, f.size.x, f.size.y, steel)
+			Vector2(f.end.x + 2, f.position.y - 1), Vector2(f.position.x - 2, f.position.y - 1)]), steel.call(-1))
+	_r(f.position.x, f.position.y, f.size.x, f.size.y, steel.call(0))
 	for i in 36:   # a luz da luminária, mais forte do lado dela, caindo pixel a pixel (em faixas largas, pareciam camadas)
 		_r(f.position.x + i * PX, f.position.y, PX, f.size.y, Color(1.0, 0.85, 0.6, 0.09 * (1.0 - i / 36.0) * lamp_level))
-	_r(f.position.x - 2, f.position.y - 1, f.size.x + 4, 5, steel.darkened(0.15))   # a cornija, com o friso
-	_r(f.position.x - 2, f.position.y - 1, f.size.x + 4, PX, steel.lightened(0.3))
-	_r(f.position.x - 2, f.position.y + 1.5, f.size.x + 4, PX, steel.darkened(0.3))
+	_r(f.position.x - 2, f.position.y - 1, f.size.x + 4, 5, steel.call(-1))   # a cornija, com o friso
+	_r(f.position.x - 2, f.position.y - 1, f.size.x + 4, PX, steel.call(3))
+	_r(f.position.x - 2, f.position.y + 1.5, f.size.x + 4, PX, steel.call(-2))
 	_r(f.position.x - 2, f.position.y + 4, f.size.x + 4, 1, Pal.STEEL_DARK[4])
-	_r(f.position.x, f.position.y + 5, PX, f.size.y, steel.lightened(0.15))   # a luz à esquerda, a sombra à direita
-	_r(f.end.x - PX, f.position.y + 5, PX, f.size.y, steel.darkened(0.3))
+	_r(f.position.x, f.position.y + 5, PX, f.size.y, steel.call(1))   # a luz à esquerda, a sombra à direita
+	_r(f.end.x - PX, f.position.y + 5, PX, f.size.y, steel.call(-2))
 	var mid := floorf(f.get_center().x)
 	var doors := f.position.y + 8
 	_r(mid - PX, doors, PX, f.size.y, Pal.STEEL_DARK[4])   # a fresta entre as portas
-	_r(mid, doors, PX, f.size.y, steel.lightened(0.12))
+	_r(mid, doors, PX, f.size.y, steel.call(1))
 	var low := _top - 30.0   # a parte de baixo que aparece, logo acima da mesa (ela esconde o pé)
 	for door in [Rect2(f.position.x + 3, doors, mid - f.position.x - 5, 60), Rect2(mid + 2, doors, f.end.x - mid - 5, 60)]:
 		for y0 in [door.position.y + 4, low]:   # as venezianas, no alto e embaixo de cada porta: a fenda e a aba que pega a luz
 			for i in 6:
 				_r(door.position.x + 6, y0 + i * 4, door.size.x - 12, 1.5, Pal.STEEL_DARK[5])
-				_r(door.position.x + 6, y0 + 1.5 + i * 4, door.size.x - 12, PX, steel.lightened(0.25))
-				_r(door.position.x + 6, y0 + i * 4, PX, 2, steel.darkened(0.2))
+				_r(door.position.x + 6, y0 + 1.5 + i * 4, door.size.x - 12, PX, steel.call(2))
+				_r(door.position.x + 6, y0 + i * 4, PX, 2, steel.call(-1))
 	# um amassado antigo na porta da esquerda, perto de baixo: a sombra em cima e a luz embaixo
 	var dent := Vector2(f.position.x + 30, low - 16)
-	_r(dent.x, dent.y, 9, PX, steel.darkened(0.3))
-	_r(dent.x + 1, dent.y + PX, 7, PX, steel.darkened(0.18))
-	_r(dent.x + 1, dent.y + 2, 7, PX, steel.lightened(0.15))
+	_r(dent.x, dent.y, 9, PX, steel.call(-2))
+	_r(dent.x + 1, dent.y + PX, 7, PX, steel.call(-1))
+	_r(dent.x + 1, dent.y + 2, 7, PX, steel.call(1))
 	for i in 5:   # riscos de chave e de sapato na beira de baixo
-		_r(f.position.x + 8 + i * 13.0 + (i * 7) % 5, low - 4 - (i % 3), 3 + i % 2, PX, steel.lightened(0.22))
+		_r(f.position.x + 8 + i * 13.0 + (i * 7) % 5, low - 4 - (i % 3), 3 + i % 2, PX, steel.call(2))
 	# o porta-etiqueta na porta da esquerda, com o cartão datilografado
 	var lab := Rect2(f.position.x + 12, doors + 34, 24, 11)
 	_r(lab.position.x - PX, lab.position.y - PX, lab.size.x + 1, lab.size.y + 1, Pal.CHROME[3])
@@ -1869,8 +1938,8 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 			var c := Vector2(inside.end.x, sy)
 			if absf(sy - _vp.y) > 2.0:   # (na altura dos olhos a prateleira é só a beira)
 				_poly(PackedVector2Array([a, c, bk.call(c), bk.call(a)]), Pal.STEEL_DARK[6] if sy > _vp.y else Pal.STEEL_DARK[2])
-			_r(a.x, sy, inside.size.x, 1.5, steel.darkened(0.2))   # a beira da prateleira
-			_r(a.x, sy, inside.size.x, PX, steel.lightened(0.1))
+			_r(a.x, sy, inside.size.x, 1.5, steel.call(-1))   # a beira da prateleira
+			_r(a.x, sy, inside.size.x, PX, steel.call(1))
 			var px := inside.position.x + 3
 			var n := k * 3   # a próxima pasta (a cor e o tamanho variam por ela)
 			var base: float = sy - 1.0 + minf(0.0, (bk.call(a) as Vector2).y - sy) * 0.4   # em pé um pouco para dentro (acima dos olhos, o tampo não aparece)
@@ -1889,12 +1958,12 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 		var d1 := Vector2(f.end.x + 16, doors - 6)
 		var d2 := Vector2(f.end.x + 16, f.end.y + 8)
 		var d3 := Vector2(f.end.x, f.end.y)
-		_poly(PackedVector2Array([d0, d1, d2, d3]), steel.darkened(0.1))
+		_poly(PackedVector2Array([d0, d1, d2, d3]), steel.call(-1))
 		_poly(PackedVector2Array([d0.lerp(d1, 0.25) + Vector2(0, 8), d1.lerp(d0, 0.25) + Vector2(0, 8),
-			d2.lerp(d3, 0.25) - Vector2(0, 10), d3.lerp(d2, 0.25) - Vector2(0, 10)]), steel.darkened(0.25))
-		draw_line(d1, d2, steel.lightened(0.25), PX)
-		draw_line(d1 + Vector2(PX, 0), d2 + Vector2(PX, 0), steel.lightened(0.05), PX)
-		draw_line(d1 + Vector2(1, 0), d2 + Vector2(1, 0), steel.darkened(0.45), PX)
+			d2.lerp(d3, 0.25) - Vector2(0, 10), d3.lerp(d2, 0.25) - Vector2(0, 10)]), steel.call(-2))
+		draw_line(d1, d2, steel.call(2), PX)
+		draw_line(d1 + Vector2(PX, 0), d2 + Vector2(PX, 0), steel.call(0), PX)
+		draw_line(d1 + Vector2(1, 0), d2 + Vector2(1, 0), steel.call(-3), PX)
 		var rod := d1.lerp(d0, 0.3)   # a haste da fechadura
 		draw_line(rod + Vector2(0, 30), rod + Vector2(0, 52), Pal.CHROME[3], PX)
 		_draw_umbrella((Vector2(d1.x + 4.0, hy + 15.5) * 2.0).floor())   # o guarda-chuva veio com a porta, pendurado no puxador do lado de fora

@@ -70,13 +70,13 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   vento no arbusto e os relâmpagos (só acima de `BOLT_RAIN`); as poças crescem com a noite (`_soaked`). O arbusto
   balança em rajadas (`GUST`). Na noite limpa, a lua sobe (`_draw_moon`, `_moon_at`, `MOON_RISE`, `MOON_PATH`, `MOON_DRIFT`):
   nasce às 18h atrás da igreja, grande e alaranjada no horizonte (a ilusão da lua no horizonte, `MOON_BIG`,
-  `MOON_LOW`), volta ao tamanho dela ao subir (`MOON_SHRINK`) pelo vão entre os prédios da esquina e some atrás da
+  `Pal.MOON_LOW`), volta ao tamanho dela ao subir (`MOON_SHRINK`) pelo vão entre os prédios da esquina e some atrás da
   persiana (alta, `BLIND`) às 22h15; desenhada antes da cidade, que a cobre. Nuvens passam por ela (`CLOUDS`), e
   coberta ou já sumida ela apaga junto o brilho azul da janela na sala (`_moon_light`, `_moon_glow`, `MOON_DIM`). Na
   névoa ela também sobe, mas difusa: o disco quase apagado e um clarão largo e liso por cima do véu da névoa
   (`_fog_moon`, desenhado em `_draw_fog`; `FOG_MOON`). Na chuva, o céu é nublado (`_draw_overcast`): um fundo de nuvem
-  clareando para o horizonte pela luz da cidade (`OVERCAST_DECK`, `OVERCAST_LIT`), nuvens grandes e vãos escuros
-  (`OVERCAST_DARK`) passando com o vento (`OVERCAST_SPEED`, `_overcast_x`, no `_back_state`), acesas pelo relâmpago. A fase é a do calendário de verdade na data do jogo (`_moon_age`, `SYNODIC`, `NEW_MOON`:
+  clareando para o horizonte pela luz da cidade (`Pal.OVERCAST_DECK`, `Pal.OVERCAST_LIT`), nuvens grandes e vãos escuros
+  (`Pal.OVERCAST_DARK`) passando com o vento (`OVERCAST_SPEED`, `_overcast_x`, no `_back_state`), acesas pelo relâmpago. A fase é a do calendário de verdade na data do jogo (`_moon_age`, `SYNODIC`, `NEW_MOON`:
   crescente quase cheia na noite 1, cheia no dia 11, minguante até a noite 15), com a luz do lado do hemisfério sul
   (`_moon_art`, guardada por idade); o brilho da janela na sala segue o quanto ela está acesa (`_moon_lit`). O vidro embaça nos cantos e no pé, liso
   (`_draw_mist`, `MIST`, na camada de cima; menos na chuva forte). Na chuva, as gotas do vidro fazem sombra na luz
@@ -175,7 +175,13 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   para o teto, com a caixa de passagem (`_draw_conduit`, no vão entre ela e o armário), e, no vão depois do armário, o uso de anos: no lugar do cartaz, a marca de um quadro tirado (a tinta mais limpa,
   o encardido em volta) com o prego, e, embaixo da folhinha, uma tomada de baquelite com o plugue e o fio caindo para
   trás do tampo (`_draw_wall_marks`, `OUTLET_UP`); a parede inteira com manchas leves no reboco (`_stain_art`: o ruído
-  em cinza posto no tom da tinta, `STAIN`, guardado por tamanho); e um armário
+  em cinza posto no tom da tinta, `STAIN`, guardado por tamanho; a 0,75 pareciam sujeira, a pedido ficaram em 0,35).
+  **A tinta pela luz** (plano hi-bit): em faixas em volta da boca do cone da luminária (`WALL_BANDS`, `_wall_runs`,
+  trechos de linha guardados pela largura), na rampa `Pal.WALL_TONES`, mais fria longe e mais quente perto, quase sem
+  mudar o brilho: o escuro pela distância é só o da sala (`_draw_gloom`), senão escureceria duas vezes; as manchas vão
+  por cima de cada trecho no tom dele. O conduíte troca de tom onde a faixa o atravessa e o armário fica num degrau só
+  da luz no meio dele (`_wall_step`), com as sombras e as luzes do aço na rampa `Pal.STEEL_TONES` (era o aço escurecido
+  e clareado). E um armário
   de aço de chão (`_draw_steel_cabinet`, `CAB_*`; com o guarda-chuva do operador pendurado pelo cabo no puxador,
   `_draw_umbrella`, molhado na chuva, com a água escorrendo na camada da poeira, `_draw_drips`; clicado, a porta da
   direita abre e fecha, `CABINET_ID`, `cab_open`, ao contrário do que o roteiro deixou, e o guarda-chuva vai com ela,

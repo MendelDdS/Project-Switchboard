@@ -128,7 +128,7 @@ const WALL_PAINT := Color("172023")   ## a tinta da parede do fundo...
 const WALL_LINES: Array[Color] = [Color("141c1f"), Color("1b2629"), Color("1a2427"), Color("1e2a2d")]   ## ...e nela a listra larga, o fio de luz dela, a listra fina e o friso
 const SIDE_WALL: Array[Color] = [Color("202d30"), Color("1b2629"), Color("24323a"), Color("26353a")]   ## a parede da direita, virada para a luminária: a tinta, a listra, o fio de luz e o friso
 const REVEAL: Array[Color] = [Color("0d1315"), Color("223033"), Color("3a5263")]   ## o vão da janela: a verga e as faces de dentro, longe e perto da rua
-const BLIND: Array[Color] = [Color("3a352c"), Color("6b5f4c"), Color("8a8070"), Color("a89e8a")]   ## a persiana: a sombra embaixo da lâmina, o puxador, a lâmina (e o cordão) e a beira na luz
+const BLIND: Array[Color] = [Color("30343a"), Color("6b5f4c"), Color("8a8070"), Color("a89e8a")]   ## a persiana: a sombra embaixo da lâmina, o puxador, a lâmina (e o cordão) e a beira na luz
 const SIGN_ENAMEL := Color("1f3b35")   ## a placa da companhia telefônica: o esmalte verde-escuro...
 const SIGN_INK := Color("d8cfae")      ## ...e o creme das letras e do filete
 const NAIL: Array[Color] = [Color("5a534a"), Color("e0d6c4")]   ## o prego do quadro tirado: o ferro e a cabeça na luz
@@ -139,9 +139,20 @@ const CALENDAR_HEAD: Array[Color] = [Color("8e2a22"), Color("b04a3e")]   ## ...o
 const CALENDAR_INK: Array[Color] = [Color("4e4636"), Color("a8382c")]   ## ...os dias e os domingos...
 const CALENDAR_NAIL := Color("3a3a3a")    ## ...e o prego
 const RED_PEN := Color("b03a2e")   ## a caneta vermelha: os dias riscados da folhinha e o sublinhado do bilhete no armário
-const CONDUIT: Array[Color] = [Color("4a5256"), Color("545c60"), Color("6e777b"), Color("7a8286")]   ## o ferro do conduíte e da caixa de passagem: o cano e a caixa, a tampa, a beira na luz e os parafusos
+## O ferro do conduíte e da caixa de passagem, uma rampa (`Background._draw_conduit`): a sombra do cano e das
+## braçadeiras, frias; o cano e a caixa (o 2), a tampa, a beira das braçadeiras e da caixa, os parafusos e o lado do
+## cano virado para a luminária, quentes.
+const CONDUIT: Array[Color] = [Color("282f37"), Color("313940"), Color("4a5256"), Color("545c60"), Color("6f7672"),
+	Color("7e8380"), Color("8e8e84")]
 const CONDUIT_CABLES: Array[Color] = [Color("4a3a2c"), Color("5a3428"), Color("37403f"), Color("524430")]   ## os cabos de pano do painel até ela
-const STEEL := Color("566052")   ## o aço pintado do armário (a sombra e a luz são ele escurecido e clareado)
+const STEEL := Color("566052")   ## o aço pintado do armário...
+## ...e a rampa dele (`STEEL_TONES[3]` é o `STEEL`): as faces e as beiras na sombra mais frias, as que pegam a luz mais
+## quentes, no lugar dele escurecido e clareado.
+const STEEL_TONES: Array[Color] = [Color("2a3433"), Color("394341"), Color("464f48"), STEEL, Color("6a705e"),
+	Color("7f836c"), Color("939379")]
+## A tinta da parede do fundo pela luz da luminária nela (`Background._wall_runs`): longe, mais fria; no meio, a de
+## sempre; perto da boca do cone, mais quente. O brilho quase não muda: o escuro é o da sala (`_draw_gloom`), por cima.
+const WALL_TONES: Array[Color] = [Color("12202c"), WALL_PAINT, Color("2a2a20")]
 ## O escuro do armário, do mais fundo ao menos: o vão aberto, o fundo dele, o lado de baixo das prateleiras, a parede
 ## de dentro, as frestas, as fendas das venezianas e o tampo das prateleiras.
 const STEEL_DARK: Array[Color] = [Color("0d110d"), Color("151a14"), Color("1c211b"), Color("1d241c"), Color("23281f"),
@@ -162,6 +173,42 @@ const POSTER_INK := Color("5a4d3a")  ## ...o barbante e as linhas do convite...
 const POSTER_FLAGS: Array[Color] = [Color("b03a2e"), Color("e0b040"), Color("3a6aa0"), Color("4a8a4a")]   ## ...as bandeirinhas...
 const POSTER_FIRE: Array[Color] = [Color("e07a2a"), Color("f0c040"), Color("6b4529"), Color("4a2f1c"), Color("8a5a36")]   ## ...a fogueira: o fogo, a chama de dentro, as toras e a luz nelas...
 const POSTER_TACK: Array[Color] = [Color("e07060"), Color("b03a2e"), Color("7a2418")]   ## ...e a tachinha
+## A vista da janela (`Background`, `background_view.gd`): o céu, a cidade de longe, os prédios de lá, a rua e o arbusto.
+const SKY := {"rain": Color("0b141c"), "fog": Color("1b252b"), "clear": Color("0a1422")}   ## o céu de cada clima
+const FLASH := Color("a2acbc")   ## o céu e as nuvens clareados pelo relâmpago
+const STARS: Array[Color] = [Color("56606c"), Color("c9d2dc")]   ## as estrelas: piscando e acesas
+const MOON := Color("d8d0a8")       ## a lua no alto...
+const MOON_LOW := Color("e0a868")   ## ...e perto do horizonte (o ar mais grosso avermelha)
+const CLOUD_RIM := Color("8a8f8a")  ## a beira das nuvens na frente da lua
+const OVERCAST_LIT := Color("3e3733")    ## a nuvem da chuva clareada por baixo pelas luzes da cidade (perto do horizonte)
+const OVERCAST_DARK := Color("0d1216")   ## os vãos mais escuros entre elas
+const OVERCAST_DECK := Color("1b1e23")   ## o fundo de nuvem no alto (no horizonte, `OVERCAST_LIT`)
+const CITY_FAR: Array[Color] = [Color("070b10"), Color("141c22")]   ## a cidade no fim da rua e a igreja: na noite e na névoa
+const CITY_LIT: Array[Color] = [Color("d59a3d"), Color("b38a3c"), Color("e2b25a")]   ## as janelas acesas da cidade
+const WINDOW_DARK := Color("080b0e")   ## o vidro das janelas apagadas
+const FACADES: Array[Color] = [Color("1c1714"), Color("13171b"), Color("1a1512"), Color("171a1d")]   ## as fachadas de lá e as paredes da rua do cruzamento...
+const BRICK := Color("3a2219")   ## ...e o prédio de tijolos da esquina
+const ASPHALT: Array[Color] = [Color("090c10"), Color("141a1f")]    ## o asfalto: na noite e na névoa
+const SIDEWALK: Array[Color] = [Color("1b2227"), Color("232b31")]   ## a calçada de lá: na noite e na névoa
+const CURB: Array[Color] = [Color("2a3237"), Color("4a555c")]   ## o meio-fio de lá: a face e a quina
+const LAMP_POST := Color("1d262c")    ## os postes...
+const STREET_LAMP := Color("ffd88a")  ## ...e a luz deles (também nos pingos e nas gotas do vidro perto deles)
+const BAR_JAMB := Color("1a0f0a")   ## o bar: o batente da vitrine e da porta...
+const BAR_LIGHT: Array[Color] = [Color("c98a3e"), Color("f0c070")]   ## ...o salão aceso, no alto e embaixo...
+const BAR_WOOD := Color("3a2414")   ## ...o caixilho e a folha da porta...
+const BAR_GLASS := Color("8a5a2a")  ## ...o vidro dela, com a luz de dentro...
+const BAR_LETTERING := Color("7a3a1a")   ## ...e o letreiro pintado na vitrine
+const HOTEL_DOOR: Array[Color] = [BAR_GLASS, Color("e0a858")]   ## a porta aberta do hotel, com a luz do saguão: no alto e embaixo
+const MARQUEE: Array[Color] = [Color("2a1c16"), Color("6a1e18")]   ## a marquise dele: o alto e a beira vermelha
+const BALCONY_POT := Color("4a2a1c")   ## a varanda do apartamento: os vasos...
+const BALCONY_PLANT: Array[Color] = [Color("142219"), Color("1c2e22")]   ## ...as plantas...
+const BALCONY_ROOM := Color("0b1018")   ## ...a sala escura atrás do vidro, com a luz da TV...
+const BALCONY_IRON := Color("15191c")   ## ...o gradil de ferro...
+const BALCONY_SLAB := Color("2a1a14")   ## ...e a beira da laje
+const CHURCH_CLOCK: Array[Color] = [Color("2a2016"), Color("e2b25a")]   ## o relógio da torre: os ponteiros e o mostrador aceso
+const SHRUB: Array[Color] = [Color("08120c"), Color("0f2016"), Color("193323"), Color("2a4a33")]   ## as folhas do arbusto, do escuro ao claro...
+const SHRUB_FLASH := Color("5a7090")   ## ...e acesas pelo relâmpago
+const RAIN_BEAD: Array[Color] = [Color("1c2a32"), Color("7f98a8")]   ## as gotas paradas no vidro: a gota e o brilho
 const DESK_UNDER := Color("0a0705")   ## embaixo da borda da frente do tampo
 ## O relógio de flip da mesa, de baquelite creme numa base escura: a base (o lado, a frente e o tampo)...
 const CLOCK_BASE: Array[Color] = [Color("2a1d13"), Color("3a2a1c"), Color("4e3a28")]
