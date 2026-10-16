@@ -1092,3 +1092,16 @@ Chaves:
     e das etiquetas das teclas; o dos plugs), a baquelite dos botões do console, os isolantes dos plugs, os parafusos,
     o níquel, os cabos, o aro das tomadas, a chapa do banco, o vidro da lâmpada, os números gravados e pintados, o
     estêncil, o balão, o poço das teclas, o carimbo do calculógrafo e a boca da caixinha.
+199. #mesa-comutadora #calculografo #carimbo #luz #pixel
+    Plano hi-bit, sub-etapa 3.3b: as peças de metal paradas do painel da mesa comutadora (as plaquinhas de níquel, o
+    aro das lâmpadas, as porcas e as alavancas das chaves, as chapas dos bancos) num degrau da luz da sala no meio de
+    cada uma, como o relevo: mais claras e quentes perto da luminária, mais escuras e frias longe dela. A máquina do
+    calculógrafo da mesa, a mesinha, o carimbo em pé e a caixinha num degrau só da luz parada, no lugar do preto
+    translúcido, como a unidade de despacho. Os plugs e os fios, que andam, continuam na luz multiplicada.
+200. #sala #janela #objetos #relogio #pixel
+    Plano hi-bit, sub-etapa 3.4a: as cores da sala (a parede e a da direita, o vão da janela, a persiana, a placa da
+    companhia, o prego e a tomada, a folhinha, o conduíte com os cabos, o armário de aço com o cromado, as pastas, a
+    etiqueta e o bilhete, o guarda-chuva e o cartaz) e as que sobravam nos objetos da mesa (o relógio de flip, o café e
+    as lascas da caneca, o escuro embaixo do tampo) saíram do código para o `Pal`, com as capturas idênticas pixel a
+    pixel (na noite limpa com a persiana fechada: a lua passando nas nuvens muda o brilho da janela na sala a cada
+    captura). As duas luzes da vista que brilham no vidro ficam para a vista.

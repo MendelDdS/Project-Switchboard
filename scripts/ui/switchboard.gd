@@ -473,7 +473,7 @@ func _look() -> Array:
 		for j in ends:
 			if j != -1:
 				plugs.append(_plug_light(j))
-	return [[size, states, GameData.sectors.duplicate()], [size, levels, ends.duplicate(), _eye, poses],
+	return [[size, states, GameData.sectors.duplicate(), _lamp_at], [size, levels, ends.duplicate(), _eye, poses, _lamp_at],
 		[size, GameData.sectors.duplicate(), _lamp_at],
 		[size, ends.duplicate(), _hover, plugs, Time.get_ticks_msec() < info_until, info_line, _eye, _lamp_at]]
 

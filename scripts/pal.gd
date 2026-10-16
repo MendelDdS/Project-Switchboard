@@ -123,6 +123,55 @@ const STENCIL := Color("c9b98f")       ## o aviso pintado com estêncil na chapa
 const BALLOON := Color("0e0c08")       ## o fundo do balão com a informação de uma tomada
 const KEY_WELL := Color("0b0907")      ## o poço das teclas do console, embaixo da tecla
 const SHELF_WOOD: Array[Color] = [Color("4e321d"), Color("5a3a22")]   ## a prateleira do console, na sala: o veio e a tábua
+## A sala (`Background`): a parede, o vão da janela e a persiana, o armário de aço, o conduíte e o que fica na parede.
+const WALL_PAINT := Color("172023")   ## a tinta da parede do fundo...
+const WALL_LINES: Array[Color] = [Color("141c1f"), Color("1b2629"), Color("1a2427"), Color("1e2a2d")]   ## ...e nela a listra larga, o fio de luz dela, a listra fina e o friso
+const SIDE_WALL: Array[Color] = [Color("202d30"), Color("1b2629"), Color("24323a"), Color("26353a")]   ## a parede da direita, virada para a luminária: a tinta, a listra, o fio de luz e o friso
+const REVEAL: Array[Color] = [Color("0d1315"), Color("223033"), Color("3a5263")]   ## o vão da janela: a verga e as faces de dentro, longe e perto da rua
+const BLIND: Array[Color] = [Color("3a352c"), Color("6b5f4c"), Color("8a8070"), Color("a89e8a")]   ## a persiana: a sombra embaixo da lâmina, o puxador, a lâmina (e o cordão) e a beira na luz
+const SIGN_ENAMEL := Color("1f3b35")   ## a placa da companhia telefônica: o esmalte verde-escuro...
+const SIGN_INK := Color("d8cfae")      ## ...e o creme das letras e do filete
+const NAIL: Array[Color] = [Color("5a534a"), Color("e0d6c4")]   ## o prego do quadro tirado: o ferro e a cabeça na luz
+const OUTLET: Array[Color] = [Color("6e6450"), Color("b3a689"), Color("cfc3a2")]   ## a tomada de baquelite creme: a beira e o parafuso, o espelho e a beira de cima na luz
+const OUTLET_PLUG: Array[Color] = [Color("1a1612"), Color("3a342c"), Color("3a3028")]   ## o plugue nela: a baquelite preta, a luz no alto dele e a do fio
+const CALENDAR_PAPER := Color("e3d6b2")   ## a folhinha: o papel...
+const CALENDAR_HEAD: Array[Color] = [Color("8e2a22"), Color("b04a3e")]   ## ...o cabeçalho vermelho e a beira de cima dele...
+const CALENDAR_INK: Array[Color] = [Color("4e4636"), Color("a8382c")]   ## ...os dias e os domingos...
+const CALENDAR_NAIL := Color("3a3a3a")    ## ...e o prego
+const RED_PEN := Color("b03a2e")   ## a caneta vermelha: os dias riscados da folhinha e o sublinhado do bilhete no armário
+const CONDUIT: Array[Color] = [Color("4a5256"), Color("545c60"), Color("6e777b"), Color("7a8286")]   ## o ferro do conduíte e da caixa de passagem: o cano e a caixa, a tampa, a beira na luz e os parafusos
+const CONDUIT_CABLES: Array[Color] = [Color("4a3a2c"), Color("5a3428"), Color("37403f"), Color("524430")]   ## os cabos de pano do painel até ela
+const STEEL := Color("566052")   ## o aço pintado do armário (a sombra e a luz são ele escurecido e clareado)
+## O escuro do armário, do mais fundo ao menos: o vão aberto, o fundo dele, o lado de baixo das prateleiras, a parede
+## de dentro, as frestas, as fendas das venezianas e o tampo das prateleiras.
+const STEEL_DARK: Array[Color] = [Color("0d110d"), Color("151a14"), Color("1c211b"), Color("1d241c"), Color("23281f"),
+	Color("2e342b"), Color("3a4236")]
+## O cromado do armário, do relógio e do guarda-chuva (o puxador, as dobradiças, o porta-etiqueta, a rodinha, a haste),
+## da sombra ao brilho.
+const CHROME: Array[Color] = [Color("3a3d33"), Color("4a4840"), Color("5a574e"), Color("8e897c"), Color("b8b2a2"),
+	Color("c9c4b5"), Color("ece7da")]
+const FOLDERS: Array[Color] = [Color("6e5a3a"), Color("8a7a5a"), Color("4a5a6a"), Color("7a3a2a")]   ## as pastas nas prateleiras do armário
+const LABEL_PAPER := Color("e3d6b2")   ## o cartão do porta-etiqueta do armário e as etiquetas das pastas...
+const LABEL_INK := Color("4a4438")     ## ...e a letra datilografada no cartão
+const NOTE_PAPER := Color("efe6cc")  ## o bilhete com o número anotado, colado no armário...
+const NOTE_INK := Color("2a2a4a")    ## ...e a caneta dele
+const UMBRELLA_WOOD: Array[Color] = [Color("6b4529"), Color("4a2c18"), Color("2a1a0f")]   ## o cabo do guarda-chuva: luz, meio, sombra...
+const UMBRELLA_CLOTH := Color("1b1d24")   ## ...e o pano
+const POSTER := Color("e8dcc0")      ## o cartaz da quermesse: o papel...
+const POSTER_INK := Color("5a4d3a")  ## ...o barbante e as linhas do convite...
+const POSTER_FLAGS: Array[Color] = [Color("b03a2e"), Color("e0b040"), Color("3a6aa0"), Color("4a8a4a")]   ## ...as bandeirinhas...
+const POSTER_FIRE: Array[Color] = [Color("e07a2a"), Color("f0c040"), Color("6b4529"), Color("4a2f1c"), Color("8a5a36")]   ## ...a fogueira: o fogo, a chama de dentro, as toras e a luz nelas...
+const POSTER_TACK: Array[Color] = [Color("e07060"), Color("b03a2e"), Color("7a2418")]   ## ...e a tachinha
+const DESK_UNDER := Color("0a0705")   ## embaixo da borda da frente do tampo
+## O relógio de flip da mesa, de baquelite creme numa base escura: a base (o lado, a frente e o tampo)...
+const CLOCK_BASE: Array[Color] = [Color("2a1d13"), Color("3a2a1c"), Color("4e3a28")]
+## ...a caixa (o lado e o rebaixo da janela, as fendas, a frente, o tampo e a beira de cima da frente)...
+const CLOCK_CASE: Array[Color] = [Color("998a66"), Color("a89a76"), Color("c9bb92"), Color("dccfa8"), Color("e4d8b4")]
+const CLOCK_WINDOW := Color("0e0c0a")   ## ...a janela...
+const FLIP_CARD: Array[Color] = [Color("060505"), Color("1e1b17"), Color("3a352e"), Color("efe4c4")]   ## ...e as plaquetas: a divisa, a plaqueta, a beira e os algarismos
+const COFFEE: Array[Color] = [Color("2e1c10"), Color("3a2618"), Color("4a301c")]   ## o café da caneca: o fundo, a superfície e a luz da luminária refletida
+const MUG_CHIP: Array[Color] = [Color("2a2620"), Color("4a443c")]   ## as lascas no esmalte da caneca: o ferro e a beira
+
 ## O carimbo do calculógrafo: o reflexo quente da luminária no cromado e na baquelite, do lado da luz, e a borracha
 ## sem tinta; e o fundo da caixinha dos bilhetes.
 const GLINT := Color("d9a35f")
@@ -212,7 +261,14 @@ static func cabinet(lit: float, step := 0) -> Color:
 
 ## O metal do painel da mesa comutadora na luz da sala `lit` (como em `cabinet`): no meio do painel, `PANEL`.
 static func panel_metal(lit: float, step := 0) -> Color:
-	return ramp(PANEL_METAL, 0.25 + lit * 0.6, step)
+	return PANEL_METAL[clampi(3 + panel_step(lit) + step, 0, PANEL_METAL.size() - 1)]
+
+
+## O degrau da luz da sala `lit` no painel da mesa comutadora (`Switchboard._room_lit`): -1 longe da luminária, 0 no
+## meio do painel e +1 perto dela. O relevo do painel (`panel_metal`) e as peças de metal paradas nele (pelo `lit`)
+## escolhem o tom por ele.
+static func panel_step(lit: float) -> int:
+	return int((0.25 + lit * 0.6) * PANEL_METAL.size()) - 3
 
 ## Uma fonte só, de pixel: Departure Mono (SIL OFL). Fica nítida só em múltiplos de 11 (11, 22, 33, 44); fora deles os
 ## pixels saem desiguais. Importada com suavização (para a janela menor que 1280×720 não apagar os traços), sem

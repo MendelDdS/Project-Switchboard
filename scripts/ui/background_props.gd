@@ -124,7 +124,7 @@ var _lamp_x := 0.0     # onde está a luminária, no meio da tela (px de 2x2): a
 var _zd := Vector2.ZERO   # a frente e o fundo do tampo (z)
 var _side_x := 0.0     # a lateral da mesa comutadora na sala (x): os objetos da mesa ficam à direita dela
 var _tip := Rect2()   # a ponta do bilhete saindo da fenda do calculógrafo, inteira (px da tela; a camada dela a desenha)
-var _tip_dark := 0.0
+var _tip_tones: Array = [Pal.TICKET, Pal.TICKET_EDGE]   # o bilhete e a beira dele na luz da fenda
 var _tip_cover: Array = []   # o carimbo em pé na mesinha [textura, meio, cor]: fica na frente da fenda, e a camada da ponta o desenha de novo por cima dela
 var _hom := Basis()          # a perspectiva do objeto chato sendo desenhado (`_flat`, `_homography`): o que vai por cima dele, na tela
 var _hom_sz := Vector2.ONE   # o tamanho do desenho de frente dele (px)
@@ -201,7 +201,7 @@ func _draw_desk(r: Rect2, front: float) -> void:
 		for b: Array in edge:
 			cols.append(Pal.desk_edge(b[1], row[2]))
 		_desk_row(front * 2.0 - 2.0 + row[0], row[1], 0, w2, zf, edge, cols)
-	_r(r.position.x, front + 6, r.size.x, r.end.y - front - 6, Color("0a0705"))
+	_r(r.position.x, front + 6, r.size.x, r.end.y - front - 6, Pal.DESK_UNDER)
 
 
 ## Na mesa, embaixo da janela, ao alcance do operador: as listas telefônicas, o bloco de fichas, a caneca de café, o
@@ -265,43 +265,44 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 	var zc := zb + hd
 	_desk_shadow(PackedVector2Array([_clock_pt(xc, zc, -hw, hd, _yd), _clock_pt(xc, zc, hw, hd, _yd), _clock_pt(xc, zc, hw, -hd, _yd),
 		_clock_pt(xc, zc, -hw, -hd, _yd)]))
-	var box := _clock_box(xc, zc, hw, hd, _yd, CALC.y * PROP_K, Pal.PANEL_HI, Pal.PANEL_LO, Pal.PANEL)
+	var step := _paper_step(_still(xc, zb))   # a máquina num degrau só da luz parada, como a unidade de despacho
+	var tone := func(c: Color) -> Color: return Pal.lit(c, step).darkened(_flick())
+	var box := _clock_box(xc, zc, hw, hd, _yd, CALC.y * PROP_K, Pal.PANEL_HI, Pal.PANEL_LO, Pal.PANEL, tone)
 	var hull := PackedVector2Array()
 	for f: PackedVector2Array in box.values():
 		hull.append_array(f)
-	var dark := _shade(xc, zb)
 	if box.has("front"):
 		var f := _bounds(box["front"])
 		f = Rect2(f.position.round(), f.size.round())
 		var win := Rect2(f.position.x + 3.0, f.position.y + 2.0, roundf(f.size.x * 0.76) - 3.0, 0)   # o visor, como o da aberta (`Toll._screen`)
 		var cell := Vector2(floorf(win.size.x / 5.0), maxf(floorf((f.size.y - 7.0) / 2.0), 1.0))   # (sem tela, no primeiro desenho, a frente tem 1 px)
 		win.size.y = cell.y * 2.0
-		_ci.draw_rect(win, Pal.PANEL_LO.darkened(dark))
+		_ci.draw_rect(win, tone.call(Pal.PANEL_LO))
 		for n in range(1, Exchange.LINES + 1):
 			var o := win.position + Vector2((n - 1) % 5, (n - 1) / 5) * cell + Vector2(0, roundf(cell.y / 2.0) - 1.0)
 			var on := (counting & (1 << n)) != 0
-			_ci.draw_rect(Rect2(o + Vector2(1, 0), Vector2(2, 2)), Pal.BRASS.darkened(dark))   # a plaquinha da entrada
-			_ci.draw_rect(Rect2(o + Vector2(4, 0), Vector2(cell.x - 8.0, 2)), (Pal.SHEET_NEW if on else Pal.PANEL_HI).darkened(dark))   # os tambores
+			_ci.draw_rect(Rect2(o + Vector2(1, 0), Vector2(2, 2)), tone.call(Pal.BRASS))   # a plaquinha da entrada
+			_ci.draw_rect(Rect2(o + Vector2(4, 0), Vector2(cell.x - 8.0, 2)), tone.call(Pal.SHEET_NEW if on else Pal.PANEL_HI))   # os tambores
 			var led := Rect2(o + Vector2(cell.x - 3.0, 0), Vector2(2, 2))
 			_ci.draw_rect(led, Pal.AMBER if on else Pal.AMBER.darkened(0.75))
 			if on:
 				_light(led, Pal.AMBER, 0.4, true)
 		var side := Rect2(win.end.x + 3.0, f.position.y + 2.0, f.end.x - win.end.x - 6.0, f.size.y)
-		_ci.draw_rect(Rect2(side.position, Vector2(side.size.x, 3)), Pal.BRASS.darkened(0.25 + dark))   # a plaqueta
-		_ci.draw_rect(Rect2(side.position + Vector2(1, 1), Vector2(side.size.x - 2.0, 1)), Pal.BRASS.darkened(dark))
+		_ci.draw_rect(Rect2(side.position, Vector2(side.size.x, 3)), tone.call(Pal.BRASS.darkened(0.25)))   # a plaqueta
+		_ci.draw_rect(Rect2(side.position + Vector2(1, 1), Vector2(side.size.x - 2.0, 1)), tone.call(Pal.BRASS))
 		var lamp := Rect2(side.position + Vector2(0, 6), Vector2(2, 2))
 		_ci.draw_rect(lamp, Pal.AMBER if counting else Pal.AMBER.darkened(0.75))
 		if counting:
 			_light(lamp, Pal.AMBER, 0.6, true)
 		for i in 3:   # a saída de ar
-			_ci.draw_rect(Rect2(side.position.x + 4.0, side.position.y + 6.0 + i * 2.0, side.size.x - 4.0, 1), Pal.PANEL_LO.darkened(dark))
+			_ci.draw_rect(Rect2(side.position.x + 4.0, side.position.y + 6.0 + i * 2.0, side.size.x - 4.0, 1), tone.call(Pal.PANEL_LO))
 		var mw := roundf(f.size.x * TollTicket.SIZE.x / Toll.NOMINAL.x)   # a fenda, embaixo do meio dos contadores
 		var mouth := Rect2(roundf(win.get_center().x - mw / 2.0), f.end.y - 3.0, mw, 1)
 		_ci.draw_rect(mouth, Pal.EDGE)
-		_ci.draw_rect(Rect2(mouth.position + Vector2(0, 1), mouth.size), Pal.PANEL_HI.darkened(dark))
+		_ci.draw_rect(Rect2(mouth.position + Vector2(0, 1), mouth.size), tone.call(Pal.PANEL_HI))
 		# a ponta do bilhete saindo dela para a mesinha fica com a camada dela, que a faz descer sem redesenhar a sala
 		_tip = Rect2(mouth.position + Vector2(1, 1), Vector2(mw - 2.0, 6))
-		_tip_dark = dark
+		_tip_tones = [tone.call(Pal.TICKET), tone.call(Pal.TICKET_EDGE)]
 		hull.append_array(PackedVector2Array([_tip.position, _tip.end]))
 	var pt := func(p: Vector2, y: float) -> Vector2: return _p3(x0 + p.x * w, _yd - y, zb - p.y * d)   # um ponto da mesinha (fração dela), `y` acima
 	var quad := func(r: Rect2) -> PackedVector2Array:
@@ -309,15 +310,15 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 			pt.call(Vector2(r.position.x, r.end.y), 0.0)])
 	hull.append_array(quad.call(Rect2(0, 0, 1, 1)))
 	if toll_desk.size() >= 4:
-		dark = _shade(xc, zf + d / 2.0)
-		var paper := _paper_step(_still(xc, zf + d / 2.0))   # os bilhetes no tom da luz parada ali, e o piscar por cima
+		var paper := _paper_step(_still(xc, zf + d / 2.0))   # a mesinha no tom da luz parada ali, e o piscar por cima
+		var desk := func(c: Color) -> Color: return Pal.lit(c, paper).darkened(_flick())
 		var pad: Rect2 = toll_desk[0]
 		var lid := Toll.LID / Toll.NOMINAL.x * w
 		_poly(PackedVector2Array([pt.call(pad.position, lid), pt.call(Vector2(pad.end.x, pad.position.y), lid),
-			pt.call(Vector2(pad.end.x, pad.position.y), 0.0), pt.call(pad.position, 0.0)]), Pal.NICKEL[3].darkened(dark))   # a tampa aberta, de costas
-		_poly(quad.call(pad), Pal.NICKEL[2].darkened(dark))
+			pt.call(Vector2(pad.end.x, pad.position.y), 0.0), pt.call(pad.position, 0.0)]), desk.call(Pal.NICKEL[3]))   # a tampa aberta, de costas
+		_poly(quad.call(pad), desk.call(Pal.NICKEL[2]))
 		var rim := Vector2(5, 5) / Toll.NOMINAL
-		_poly(quad.call(Rect2(pad.position + rim, pad.size - rim * 2.0)), Pal.TOLL_INK.darkened(0.5 + dark))   # o feltro
+		_poly(quad.call(Rect2(pad.position + rim, pad.size - rim * 2.0)), desk.call(Pal.TOLL_INK.darkened(0.5)))   # o feltro
 		for i in range(4, toll_desk.size()):   # os bilhetes soltos, na ordem em que estão empilhados
 			var r: Rect2 = toll_desk[i][0]
 			var q: PackedVector2Array = quad.call(r)
@@ -338,7 +339,7 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 			var bc := Vector2(x0 + bx.get_center().x * w, zb - bx.get_center().y * d)
 			var bh := bx.size * Vector2(w, d) / 2.0
 			_desk_shadow(quad.call(bx))
-			var faces := _clock_box(bc.x, bc.y, bh.x, bh.y, _yd, TOLL_BOX_H, Pal.BOARD[0], Pal.BOARD[2], Pal.BOARD[1])
+			var faces := _clock_box(bc.x, bc.y, bh.x, bh.y, _yd, TOLL_BOX_H, Pal.BOARD[0], Pal.BOARD[2], Pal.BOARD[1], desk)
 			var y1 := _yd - TOLL_BOX_H
 			var e := 0.5
 			_poly(PackedVector2Array([_clock_pt(bc.x, bc.y, -bh.x + e, bh.y - e, y1), _clock_pt(bc.x, bc.y, bh.x - e, bh.y - e, y1),
@@ -350,18 +351,18 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 			if faces.has("front"):
 				var bf := _bounds(faces["front"])
 				_ci.draw_rect(Rect2(roundf(bf.get_center().x - bf.size.x * 0.22), roundf(bf.get_center().y - 1.0), roundf(bf.size.x * 0.44), 2),
-					Pal.BRASS.darkened(0.15 + dark))
+					desk.call(Pal.BRASS.darkened(0.15)))
 			var out := PackedVector2Array()
 			for g: PackedVector2Array in faces.values():
 				out.append_array(g)
 			return out
 		var draw_stamp := func() -> PackedVector2Array:   # o carimbo, em pé onde a sapata está
 			_desk_shadow(quad.call(shoe))
-			var tex := _stamp_art()
+			var tex := _stamp_art(paper)
 			var foot: Vector2 = pt.call(Vector2(shoe.get_center().x, shoe.end.y), 0.0)
 			var c := foot.round() - Vector2(0, tex.get_height() / 2.0)
-			_sprite(tex, c, Color.WHITE.darkened(dark))
-			_tip_cover = [tex, c, Color.WHITE.darkened(dark)]
+			_sprite(tex, c, Color.WHITE.darkened(_flick()))
+			_tip_cover = [tex, c, Color.WHITE.darkened(_flick())]
 			return PackedVector2Array([c - tex.get_size() / 2.0, c + tex.get_size() / 2.0])
 		var near: Array = [draw_box, draw_stamp] if shoe.end.y >= bx.end.y else [draw_stamp, draw_box]   # quem está mais perto vai por cima
 		for draw_it: Callable in near:
@@ -369,13 +370,17 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 	_mark(Tools.TOLL, _bounds(hull), Geometry2D.convex_hull(hull))
 
 
-## O carimbo da mesinha do calculógrafo (`STAMP_ART`), nas cores do da ferramenta.
-func _stamp_art() -> ImageTexture:
+## O carimbo da mesinha do calculógrafo (`STAMP_ART`), nas cores do da ferramenta, no degrau `step` da luz parada ali
+## (`Pal.lit`).
+func _stamp_art(step: int) -> ImageTexture:
 	var k: Color = Switchboard.CORD_COLORS[5][0]
 	var n := Pal.NICKEL
-	return PixelArt.art(STAMP_ART, {"k": k.darkened(0.5), "K": k, "h": k.lerp(Switchboard.CORD_COLORS[5][1], 0.6), "g": Toll.GLINT,
+	var cols := {"k": k.darkened(0.5), "K": k, "h": k.lerp(Switchboard.CORD_COLORS[5][1], 0.6), "g": Toll.GLINT,
 		"m": Pal.BRASS, "M": Pal.BRASS.darkened(0.3), "c": n[1], "C": n[2], "d": n[3], "p": n[0], "i": Pal.INK, "b": Pal.BRASS,
-		"B": Pal.BRASS.darkened(0.3), "e": Pal.EDGE})
+		"B": Pal.BRASS.darkened(0.3), "e": Pal.EDGE}
+	for key: String in cols:
+		cols[key] = Pal.lit(cols[key], step)
+	return PixelArt.art(STAMP_ART, cols)
 
 
 ## O relógio da sala: um relógio de flip na mesa (centro `xc`, `zc`; medidas em `CLOCK`), meio virado para o operador
@@ -391,8 +396,8 @@ func _draw_flip_clock(xc: float, zc: float) -> void:
 		_clock_pt(xc, zc, hw + 1, -hd - 1, _yd), _clock_pt(xc, zc, -hw - 1, -hd - 1, _yd)]))
 	var dark := _shade(xc, zc)
 	var lit := Color.WHITE.darkened(dark)   # longe da luz
-	var base := _clock_box(xc, zc, hw + 0.8, hd + 0.8, _yd, bh, Color("4e3a28"), Color("2a1d13"), Color("3a2a1c"))
-	var box := _clock_box(xc, zc, hw, hd, _yd - bh, CLOCK.y, Color("dccfa8"), Color("998a66"), Color.TRANSPARENT)
+	var base := _clock_box(xc, zc, hw + 0.8, hd + 0.8, _yd, bh, Pal.CLOCK_BASE[2], Pal.CLOCK_BASE[0], Pal.CLOCK_BASE[1])
+	var box := _clock_box(xc, zc, hw, hd, _yd - bh, CLOCK.y, Pal.CLOCK_CASE[3], Pal.CLOCK_CASE[0], Color.TRANSPARENT)
 	var hull := PackedVector2Array()
 	for faces: Dictionary in [base, box]:
 		for q: PackedVector2Array in faces.values():
@@ -403,16 +408,16 @@ func _draw_flip_clock(xc: float, zc: float) -> void:
 	clock_x = global_position.x + _bounds(box["top"]).get_center().x
 	for i in 4:   # as fendas do alarme, no fundo do tampo
 		var v := hd - 1.6 - i * 1.1
-		_pixel_line(_clock_pt(xc, zc, -hw * 0.75, v, y1), _clock_pt(xc, zc, 0.0, v, y1), [Color("a89a76").darkened(dark)])
+		_pixel_line(_clock_pt(xc, zc, -hw * 0.75, v, y1), _clock_pt(xc, zc, 0.0, v, y1), [Pal.CLOCK_CASE[1].darkened(dark)])
 	var bt := _clock_pt(xc, zc, hw * 0.55, hd * 0.3, y1)   # o botão niquelado do alarme
 	_sprite(PixelArt.disc(7, [[3.5, Color(0, 0, 0, 0.3)]]), bt + Vector2(1, 0))
-	_sprite(PixelArt.disc(6, [[1.2, Color("f4f0e6")], [3.0, Color("d6d1c3"), Color("8e897c"), Color("45413a")]]), bt - Vector2(0, 2), lit)
+	_sprite(PixelArt.disc(6, [[1.2, Pal.NICKEL[0]], [3.0, Pal.NICKEL[1], Pal.NICKEL[2], Pal.NICKEL[3]]]), bt - Vector2(0, 2), lit)
 	if box.has("left"):   # a rodinha serrilhada de acertar a hora, saindo do lado
 		var a := _clock_pt(xc, zc, -hw - 0.8, hd * 0.3, y1 + CLOCK.y * 0.5 - 2.4).round()
 		var b := _clock_pt(xc, zc, -hw - 0.8, hd * 0.3, y1 + CLOCK.y * 0.5 + 2.4).round()
 		_ci.draw_rect(Rect2(a.x + 2, a.y + 1, 1, b.y - a.y), Color(0, 0, 0, 0.35))   # a sombra no lado
 		for y in range(int(a.y), int(b.y)):
-			_ci.draw_rect(Rect2(a.x - 1, y, 3, 1), (Color("b8b2a2") if int(y - a.y) % 2 == 0 else Color("5a574e")).darkened(dark))
+			_ci.draw_rect(Rect2(a.x - 1, y, 3, 1), (Pal.CHROME[4] if int(y - a.y) % 2 == 0 else Pal.CHROME[2]).darkened(dark))
 	if not box.has("front"):
 		return
 	# a frente: montada reta, pixel a pixel (`_clock_face`), e posta coluna a coluna na perspectiva (como imagem torta
@@ -435,7 +440,7 @@ func _draw_flip_clock(xc: float, zc: float) -> void:
 		var y2 := roundf(_p3(0, y1 + CLOCK.y, p.y).y)
 		var sh := _shade(p.x, p.y)   # longe da luz, coluna a coluna
 		_ci.draw_texture_rect_region(face, Rect2(x0 + i, y0, 1, y2 - y0), Rect2(floorf(a * w), 0, 1, h), Color.WHITE.darkened(sh))
-		_ci.draw_rect(Rect2(x0 + i, y0 - 1, 1, 1), Color("dccfa8").darkened(sh))   # a quina com o tampo (sem ela, sobravam furos)
+		_ci.draw_rect(Rect2(x0 + i, y0 - 1, 1, 1), Pal.CLOCK_CASE[3].darkened(sh))   # a quina com o tampo (sem ela, sobravam furos)
 
 
 ## Onde fica na sala (x, z) o ponto do relógio a `u` na largura e `v` no fundo, a partir do centro (`xc`, `zc`), girado
@@ -452,9 +457,10 @@ func _clock_pt(xc: float, zc: float, u: float, v: float, y: float) -> Vector2:
 
 ## Uma caixa do relógio, girada como ele (meia largura `hw`, meio fundo `hd`, de `y0` até `h` acima): só as faces
 ## viradas para os olhos, as de pé em `side` (a da frente em `front`; transparente, quem chama a desenha) e o tampo em
-## `top`, escurecendo ponto a ponto longe da luz (`_shade`). Devolve as faces que apareceram ("front", "right", "back",
-## "left", "top").
-func _clock_box(xc: float, zc: float, hw: float, hd: float, y0: float, h: float, top: Color, side: Color, front: Color) -> Dictionary:
+## `top`, escurecendo ponto a ponto longe da luz (`_shade`); com `tone` (a cor -> o tom na luz parada, `Pal.lit`), cada
+## face num tom só, como as peças de metal. Devolve as faces que apareceram ("front", "right", "back", "left", "top").
+func _clock_box(xc: float, zc: float, hw: float, hd: float, y0: float, h: float, top: Color, side: Color, front: Color,
+		tone := Callable()) -> Dictionary:
 	var cs := cos(_yaw)
 	var sn := sin(_yaw)
 	var y1 := y0 - h
@@ -475,13 +481,19 @@ func _clock_box(xc: float, zc: float, hw: float, hd: float, y0: float, h: float,
 		if col.a > 0.0:
 			var a := _clock_xz(xc, zc, f[2].x, f[2].y)
 			var b := _clock_xz(xc, zc, f[3].x, f[3].y)
-			_shaded(q, [a, b, b, a], col)
+			if tone.is_valid():
+				_poly(q, tone.call(col))
+			else:
+				_shaded(q, [a, b, b, a], col)
 			if f[0] == "left":   # a quina com a frente pega a luz
-				_ci.draw_line(q[1], q[2], col.lightened(0.15).darkened(_shade(b.x, b.y)), 1.0)
+				_ci.draw_line(q[1], q[2], tone.call(col.lightened(0.15)) if tone.is_valid() else col.lightened(0.15).darkened(_shade(b.x, b.y)), 1.0)
 			elif f[0] == "right":
-				_ci.draw_line(q[0], q[3], col.lightened(0.15).darkened(_shade(a.x, a.y)), 1.0)
+				_ci.draw_line(q[0], q[3], tone.call(col.lightened(0.15)) if tone.is_valid() else col.lightened(0.15).darkened(_shade(a.x, a.y)), 1.0)
 	out["top"] = PackedVector2Array([_clock_pt(xc, zc, -hw, hd, y1), _clock_pt(xc, zc, hw, hd, y1), _clock_pt(xc, zc, hw, -hd, y1), _clock_pt(xc, zc, -hw, -hd, y1)])
-	_shaded(out["top"], [_clock_xz(xc, zc, -hw, hd), _clock_xz(xc, zc, hw, hd), _clock_xz(xc, zc, hw, -hd), _clock_xz(xc, zc, -hw, -hd)], top)
+	if tone.is_valid():
+		_poly(out["top"], tone.call(top))
+	else:
+		_shaded(out["top"], [_clock_xz(xc, zc, -hw, hd), _clock_xz(xc, zc, hw, hd), _clock_xz(xc, zc, hw, -hd), _clock_xz(xc, zc, -hw, -hd)], top)
 	return out
 
 
@@ -509,16 +521,16 @@ func _clock_face(sz: Vector2i) -> ImageTexture:
 	if key == _face_key:
 		return _face
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	img.fill(Color("c9bb92"))   # um creme envelhecido: mais claro, puxava o olho mais que os outros objetos
-	img.fill_rect(Rect2i(0, 0, sz.x, 1), Color("e4d8b4"))
-	img.fill_rect(Rect2i(0, sz.y - 1, sz.x, 1), Color("998a66"))
+	img.fill(Pal.CLOCK_CASE[2])   # um creme envelhecido: mais claro, puxava o olho mais que os outros objetos
+	img.fill_rect(Rect2i(0, 0, sz.x, 1), Pal.CLOCK_CASE[4])
+	img.fill_rect(Rect2i(0, sz.y - 1, sz.x, 1), Pal.CLOCK_CASE[0])
 	var win := Rect2i(3, 3, sz.x - 6, sz.y - 8)
-	img.fill_rect(win.grow(1), Color("998a66"))   # o rebaixo em volta do aro
-	img.fill_rect(win, Color("b8b2a2"))   # o aro niquelado: claro em cima, escuro embaixo
-	img.fill_rect(Rect2i(win.position.x, win.end.y - 1, win.size.x, 1), Color("5a574e"))
-	img.fill_rect(win.grow(-1), Color("0e0c0a"))
-	img.fill_rect(Rect2i(sz.x / 2 - 6, sz.y - 4, 12, 2), Color("8a6a2e"))   # a plaquinha da marca, embaixo da janela
-	img.fill_rect(Rect2i(sz.x / 2 - 6, sz.y - 4, 12, 1), Color("c4a35a"))
+	img.fill_rect(win.grow(1), Pal.CLOCK_CASE[0])   # o rebaixo em volta do aro
+	img.fill_rect(win, Pal.CHROME[4])   # o aro niquelado: claro em cima, escuro embaixo
+	img.fill_rect(Rect2i(win.position.x, win.end.y - 1, win.size.x, 1), Pal.CHROME[2])
+	img.fill_rect(win.grow(-1), Pal.CLOCK_WINDOW)
+	img.fill_rect(Rect2i(sz.x / 2 - 6, sz.y - 4, 12, 2), Pal.BRASS_PLATE[3])   # a plaquinha da marca, embaixo da janela
+	img.fill_rect(Rect2i(sz.x / 2 - 6, sz.y - 4, 12, 1), Pal.BRASS_PLATE[5])
 	var card := Vector2i((win.size.x - 5) / 2, win.size.y - 4)
 	_flip_card(img, Vector2i(win.position.x + 2, win.position.y + 2), card, "%02d" % (was / 60), "%02d" % (m / 60), step)
 	_flip_card(img, Vector2i(win.end.x - 2 - card.x, win.position.y + 2), card, "%02d" % (was % 60), "%02d" % (m % 60), step)
@@ -545,7 +557,7 @@ func _flip_card(img: Image, at: Vector2i, sz: Vector2i, a: String, b: String, st
 	img.blit_rect(cb, Rect2i(0, 0, sz.x, h), at)
 	img.blit_rect(ca, Rect2i(0, h, sz.x, sz.y - h), at + Vector2i(0, h))
 	if step == 1:   # de lado: só a espessura dela
-		img.fill_rect(Rect2i(at.x, at.y + h - 1, sz.x, 2), Color("3a352e"))
+		img.fill_rect(Rect2i(at.x, at.y + h - 1, sz.x, 2), Pal.FLIP_CARD[2])
 		return
 	var flap := (ca if step == 0 else cb).get_region(Rect2i(0, 0, sz.x, h) if step == 0 else Rect2i(0, h, sz.x, sz.y - h))
 	flap.resize(sz.x, maxi(1, flap.get_height() / 2), Image.INTERPOLATE_NEAREST)   # inclinada, encurta
@@ -565,16 +577,16 @@ func _card(text: String, sz: Vector2i) -> Image:
 	if _cards.size() > 200:   # a tela mudou de tamanho: o relógio também
 		_cards.clear()
 	var img := Image.create(maxi(1, sz.x), maxi(1, sz.y), false, Image.FORMAT_RGBA8)
-	img.fill(Color("1e1b17"))
-	img.fill_rect(Rect2i(0, 0, sz.x, 1), Color("3a352e"))
-	img.fill_rect(Rect2i(0, sz.y / 2, sz.x, 1), Color("060505"))   # a divisa (por baixo dos algarismos: cortados, não se liam)
+	img.fill(Pal.FLIP_CARD[1])
+	img.fill_rect(Rect2i(0, 0, sz.x, 1), Pal.FLIP_CARD[2])
+	img.fill_rect(Rect2i(0, sz.y / 2, sz.x, 1), Pal.FLIP_CARD[0])   # a divisa (por baixo dos algarismos: cortados, não se liam)
 	var ink := Image.create(21, 19, false, Image.FORMAT_RGBA8)   # os dois algarismos, com 3 px entre eles
 	for i in 2:
 		for r in 19:
 			var row: String = DIGITS[r].substr(int(text[i]) * 10, 9)
 			for c in 9:
 				if row[c] == "#":
-					ink.set_pixel(i * 12 + c, r, Color("efe4c4"))
+					ink.set_pixel(i * 12 + c, r, Pal.FLIP_CARD[3])
 	var fit := minf(1.0, minf((sz.x - 2) / 21.0, (sz.y - 4) / 19.0))
 	if fit < 1.0:
 		ink.resize(maxi(1, int(21 * fit)), maxi(1, int(19 * fit)), Image.INTERPOLATE_NEAREST)
@@ -1118,9 +1130,9 @@ func _mug_art(w: int, h: int, ry: int, rb: int, drunk: int, place: float) -> Ima
 				if low >= 1.0:
 					f = Vector2(e.x / 0.4, (e.y - 0.68) / 0.16)   # acabado: a borra no fundo
 				if f.length_squared() < 1.0:
-					c = Color("2e1c10") if low < 1.0 else Color("3a2618")
+					c = Pal.COFFEE[0] if low < 1.0 else Pal.COFFEE[1]
 					if low < 1.0 and f.y > -0.55 and f.y < -0.2 and f.x > -0.55 and f.x < -0.05:
-						c = Color("2e1c10").lerp(Color("4a301c"), place)   # a luz da luminária refletida no café: um risco do lado dela
+						c = Pal.COFFEE[0].lerp(Pal.COFFEE[2], place)   # a luz da luminária refletida no café: um risco do lado dela
 			elif e.y < -0.2:
 				c = rim.call(0.85)   # o aro, mais claro atrás (pega a luz por cima)
 			img.set_pixel(x, y, c)
@@ -1142,8 +1154,8 @@ func _mug_art(w: int, h: int, ry: int, rb: int, drunk: int, place: float) -> Ima
 				c = enamel.call(0.55)   # a volta de fora e o pé, na sombra (mais escura, sumia na parede escura)
 			img.set_pixel(x, y, c)
 	for p in [Vector2i(int(w * 0.62), int(top + ry) + 1), Vector2i(int(w * 0.18), int(top + h) - 3)]:   # as lascas no esmalte
-		_fr(img, p.x, p.y, 2, 1, Color("2a2620"))
-		img.set_pixel(p.x, p.y + 1, Color("4a443c"))
+		_fr(img, p.x, p.y, 2, 1, Pal.MUG_CHIP[0])
+		img.set_pixel(p.x, p.y + 1, Pal.MUG_CHIP[1])
 	var tex := ImageTexture.create_from_image(img)
 	_mugs[key] = tex
 	var hk := Vector4i(w, h, ry, rb)   # (o contorno não muda com o café)

@@ -452,7 +452,7 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   mais claro e quente no alto à direita, mais escuro nos cantos de baixo; por cima de tudo que é do painel e por
   baixo dos plugs e fios. A mesma luz (`_room_lit`) escolhe o tom do relevo do painel na rampa do metal
   (`Pal.panel_metal`, `_lit_rect`: os filetes gravados das faixas, a beira rebaixada e a das faixas de cada linha,
-  trecho a trecho) e o da moldura na da madeira (`Pal.cabinet`); o campo do painel fica liso, em `Pal.PANEL` (em
+  trecho a trecho) e o da moldura na da madeira (`Pal.cabinet`); as peças de metal paradas (as plaquinhas de níquel, o aro das lâmpadas, as porcas e as alavancas, as chapas dos bancos) ficam num degrau dessa luz no meio delas (`_step_at`, `Pal.panel_step`, `_nickel`, `Pal.lit`); o campo do painel fica liso, em `Pal.PANEL` (em
   faixas, pareceria luz em degraus ou metal escovado, que saíram a pedido, e as legendas o tampam com essa cor).
 - **A mesa é desenhada em quatro camadas, e cada uma só se redesenha quando o que ela mostra muda** (`_layers`; `_look`
   devolve o estado de cada uma, comparado no `_process`): o painel parado (a própria mesa, `_draw`: móvel, faixas,

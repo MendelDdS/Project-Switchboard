@@ -111,12 +111,15 @@ func _fade(key: String, want: Array, delta: float) -> void:
 ## preto, ela parecia mais uma tomada). Apagada, o vidro fica leitoso (`LAMP_OFF`); acesa, toma a cor da linha, o aro
 ## pega a cor dela e o centro estoura para o branco (o halo é do `Bloom`). A luz da sala brilha no alto do vidro.
 func _draw_lamp(c: Vector2, col: Color, level: float) -> void:
-	PixelArt.sprite(_ci, _disc(10, [[4.0, BEZEL[0], BEZEL[1], BEZEL[2]], [5.0, NICKEL_EDGE[0], NICKEL_EDGE[1], NICKEL_EDGE[2]]]), c)   # o aro, do tamanho da tomada
+	var s := _step_at(c)
+	var n := _nickel(s)
+	PixelArt.sprite(_ci, _disc(10, [[4.0, n[0], n[1], n[2]], [5.0, n[3], n[4], n[5]]]), c)   # o aro, do tamanho da tomada
 	if level > 0.02:
 		PixelArt.sprite(_ci, _disc(10, [[3.0, Color.TRANSPARENT], [4.0, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), c, Color(col, 0.35 * level))   # a luz no aro
 	# o vidro abaulado (luz no alto à direita): o aceso por cima do apagado, com `level` no modulate (uma cor por quadro
 	# na chave do `disc` guardava uma textura nova a cada quadro da lâmpada pulsando)
-	PixelArt.sprite(_ci, _disc(6, [[3.0, LAMP_OFF.lightened(0.3), LAMP_OFF, LAMP_OFF.darkened(0.4)]]), c)
+	var glass := Pal.lit(LAMP_OFF, s)
+	PixelArt.sprite(_ci, _disc(6, [[3.0, glass.lightened(0.3), glass, glass.darkened(0.4)]]), c)
 	if level > 0.02:   # acesa: o centro estoura para o branco (o halo é do Bloom; o miolo nítido, daqui)
 		PixelArt.sprite(_ci, _disc(6, [[3.0, col.lightened(0.3), col, col.darkened(0.4)]]), c, Color(1, 1, 1, level))
 		PixelArt.sprite(_ci, _disc(2, [[1.0, Color.WHITE]]), c, Color(Color.WHITE.lerp(col, Bloom.HOT_TINT), level))
@@ -133,20 +136,29 @@ func _draw_levers(levers: Array) -> void:
 	var hi: Color = CORD_COLORS[5][1]
 	var shade := {"E": SHADOW, "e": SHADOW, "P": SHADOW, "p": SHADOW, "L": SHADOW, "D": SHADOW, "l": SHADOW, "w": SHADOW,
 		"m": SHADOW, "d": SHADOW}
-	var tones := {"E": NICKEL_EDGE[0], "e": NICKEL_EDGE[2], "P": b, "p": b.darkened(0.25), "L": BEZEL[0], "D": BEZEL[2],
-		"l": b.lerp(hi, 0.6), "w": hi.lightened(0.25), "m": b, "d": b.darkened(0.4)}
+	var tones := {}   # o degrau da luz da sala (`_step_at`) -> as cores da alavanca nele
+	for v in levers:
+		var s := _step_at(v[0])
+		if tones.has(s):
+			continue
+		var n := _nickel(s)
+		var k := Pal.lit(b, s)
+		tones[s] = {"E": n[3], "e": n[5], "P": k, "p": k.darkened(0.25), "L": n[0], "D": n[2], "l": Pal.lit(b.lerp(hi, 0.6), s),
+			"w": Pal.lit(hi.lightened(0.25), s), "m": k, "d": k.darkened(0.4)}
 	for v in levers:
 		PixelArt.sprite(_ci, _disc(8, [[4.0, SHADOW]]), v[0] + Vector2(-1, 1))
 	for v in levers:
 		if v[1] != 0:
 			_ci.draw_texture(PixelArt.art(LEVER_ART if v[1] > 0 else LEVER_UP, shade), _lever_corner(v) + Vector2(-1, 1))
 	for v in levers:   # a porca (pequena: a haste aparece além dela)
-		PixelArt.sprite(_ci, _disc(8, [[1.5, EDGE_DARK], [3.0, BEZEL[0], BEZEL[1], BEZEL[2]], [4.0, NICKEL_EDGE[0], NICKEL_EDGE[1], NICKEL_EDGE[2]]]), v[0])
+		var n := _nickel(_step_at(v[0]))
+		PixelArt.sprite(_ci, _disc(8, [[1.5, EDGE_DARK], [3.0, n[0], n[1], n[2]], [4.0, n[3], n[4], n[5]]]), v[0])
 	for v in levers:
+		var t: Dictionary = tones[_step_at(v[0])]
 		if v[1] == 0:
-			PixelArt.sprite(_ci, _disc(6, [[2.0, b.lerp(hi, 0.6), b, b.darkened(0.4)], [3.0, b, b, b.darkened(0.25)]]), v[0])
+			PixelArt.sprite(_ci, _disc(6, [[2.0, t["l"], t["m"], t["d"]], [3.0, t["m"], t["m"], t["p"]]]), v[0])
 		else:
-			_ci.draw_texture(PixelArt.art(LEVER_ART if v[1] > 0 else LEVER_UP, tones), _lever_corner(v))
+			_ci.draw_texture(PixelArt.art(LEVER_ART if v[1] > 0 else LEVER_UP, t), _lever_corner(v))
 
 
 ## Onde vai o canto da alavanca [centro, direção, px além] de `_draw_levers`.
@@ -515,18 +527,35 @@ static func _hole_px(c: Vector2) -> Rect2:
 	return Rect2((c - size / 2.0).round(), size)
 
 
-## Chapa de metal niquelado: chanfro claro em cima e escuro embaixo, e um rebite em cada ponta.
+## Chapa de metal niquelado: chanfro claro em cima e escuro embaixo, e um rebite em cada ponta; no tom da luz da sala
+## no meio dela (`_nickel`).
 func _draw_metal(r: Rect2) -> void:
-	rim(_ci, r, NICKEL_EDGE[0], NICKEL_EDGE[2])
-	_ci.draw_rect(r, BEZEL[1])
-	_ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), BEZEL[0])
-	_ci.draw_rect(Rect2(r.position, Vector2(1, r.size.y)), BEZEL[0].darkened(0.1))
-	_ci.draw_rect(Rect2(r.position.x, r.end.y - 1, r.size.x, 1), BEZEL[2])
-	_ci.draw_rect(Rect2(r.end.x - 1, r.position.y, 1, r.size.y), BEZEL[2].lightened(0.1))
+	var n := _nickel(_step_at(r.get_center()))
+	rim(_ci, r, n[3], n[5])
+	_ci.draw_rect(r, n[1])
+	_ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), n[0])
+	_ci.draw_rect(Rect2(r.position, Vector2(1, r.size.y)), n[0].darkened(0.1))
+	_ci.draw_rect(Rect2(r.position.x, r.end.y - 1, r.size.x, 1), n[2])
+	_ci.draw_rect(Rect2(r.end.x - 1, r.position.y, 1, r.size.y), n[2].lightened(0.1))
 	for x in [r.position.x + 2.0, r.end.x - 5.0]:   # rebites: um pixel claro no alto de um escuro
 		var rv := Vector2(x, floorf(r.get_center().y - 1.5))
-		_ci.draw_rect(Rect2(rv, Vector2(3, 3)), BEZEL[2])
-		_ci.draw_rect(Rect2(rv, Vector2(1, 1)), BEZEL[0])
+		_ci.draw_rect(Rect2(rv, Vector2(3, 3)), n[2])
+		_ci.draw_rect(Rect2(rv, Vector2(1, 1)), n[0])
+
+
+## O degrau da luz da sala no ponto `p` do painel (`Pal.panel_step`), o mesmo do relevo: as peças de metal paradas
+## escolhem o tom por ele, no meio delas.
+func _step_at(p: Vector2) -> int:
+	return Pal.panel_step(_room_lit(p))
+
+
+## O níquel das peças paradas do painel no degrau `s` da luz da sala (`_step_at`): o aro (`BEZEL`: luz, meio, sombra) e
+## a quina (`NICKEL_EDGE`), mais claros e quentes perto da luminária e mais escuros e frios longe dela (`Pal.lit`).
+static func _nickel(s: int) -> Array:
+	var out := []
+	for c: Color in [BEZEL[0], BEZEL[1], BEZEL[2], NICKEL_EDGE[0], NICKEL_EDGE[1], NICKEL_EDGE[2]]:
+		out.append(Pal.lit(c, s))
+	return out
 
 
 ## A beira de 1 px em volta de `r`, no tom da própria peça: `lit` em cima e à esquerda, `shade` embaixo e à direita (a
@@ -541,10 +570,11 @@ static func rim(ci: CanvasItem, r: Rect2, lit: Color, shade: Color) -> void:
 ## miúda do painel (`PixelArt.tiny`), no meio dela: na de 11 o número enchia a chapa de alto a baixo e parecia grosso.
 func _draw_number_plate(r: Rect2, text: String) -> void:
 	_draw_metal(r)
+	var s := _step_at(r.get_center())
 	var tex := PixelArt.tiny(text)
 	var at := (r.get_center() - Vector2(tex.get_width() / 2.0, 3.0 + 2.5)).round()   # as letras ficam nas linhas 3 a 7 da imagem
-	_ci.draw_texture(tex, at + Vector2(0, 1), BEZEL[0])   # o brilho do rebaixo
-	_ci.draw_texture(tex, at, Pal.ENGRAVED)
+	_ci.draw_texture(tex, at + Vector2(0, 1), Pal.lit(BEZEL[0], s))   # o brilho do rebaixo
+	_ci.draw_texture(tex, at, Pal.lit(Pal.ENGRAVED, s))
 
 
 ## As letras estampadas nas chapas dos bancos, 10×14, desenhadas à mão (traço de 2 px e cantos em degrau de 1 px): na
@@ -565,21 +595,22 @@ const PLATE_LETTERS := {
 func _draw_plate(r: Rect2, letter: String) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(letter)
-	rim(_ci, r, PLATE.darkened(0.15), PLATE.darkened(0.5))
-	_ci.draw_rect(r, PLATE)
-	_ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 2)), PLATE.lightened(0.18))
-	_ci.draw_rect(Rect2(r.position.x, r.end.y - 2, r.size.x, 2), PLATE.darkened(0.35))
+	var plate := Pal.lit(PLATE, _step_at(r.get_center()))   # no tom da luz da sala no meio dela
+	rim(_ci, r, plate.darkened(0.15), plate.darkened(0.5))
+	_ci.draw_rect(r, plate)
+	_ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 2)), plate.lightened(0.18))
+	_ci.draw_rect(Rect2(r.position.x, r.end.y - 2, r.size.x, 2), plate.darkened(0.35))
 	for c in [r.position + Vector2(5, 5), Vector2(r.end.x - 5, r.position.y + 5), Vector2(r.position.x + 5, r.end.y - 5), r.end - Vector2(5, 5)]:
 		for k in 2:   # a chave de fenda escorregou, sempre para dentro da chapa (para fora, o risco passava da borda)
 			var a: float = (r.get_center() - c).angle() + rng.randf_range(-0.6, 0.6)
 			var from: Vector2 = c + Vector2.from_angle(a) * 3.0
 			var to := from + Vector2.from_angle(a + rng.randf_range(-0.3, 0.3)) * rng.randf_range(2.0, 4.0)
-			_ci.draw_line(from.round() + Vector2(0.5, 0.5), to.round() + Vector2(0.5, 0.5), PLATE.lightened(0.3), 1.0)
-		PixelArt.sprite(_ci, _disc(5, [[1.5, PLATE.lightened(0.35), PLATE.lightened(0.15), PLATE.darkened(0.2)], [2.5, PLATE.darkened(0.5)]]), c)
-		_ci.draw_rect(Rect2((c - Vector2(2, 1)).floor(), Vector2(3, 1)), PLATE.darkened(0.5))   # fenda do parafuso
+			_ci.draw_line(from.round() + Vector2(0.5, 0.5), to.round() + Vector2(0.5, 0.5), plate.lightened(0.3), 1.0)
+		PixelArt.sprite(_ci, _disc(5, [[1.5, plate.lightened(0.35), plate.lightened(0.15), plate.darkened(0.2)], [2.5, plate.darkened(0.5)]]), c)
+		_ci.draw_rect(Rect2((c - Vector2(2, 1)).floor(), Vector2(3, 1)), plate.darkened(0.5))   # fenda do parafuso
 	var rows := PixelArt.relief(PLATE_LETTERS[letter])   # a letra estampada
 	var at := (r.get_center() - Vector2(0, 4)).round()
-	PixelArt.sprite(_ci, PixelArt.art(rows, {"*": PLATE.darkened(0.45)}), at + Vector2(1, 1))
-	PixelArt.sprite(_ci, PixelArt.art(rows, {"u": PLATE.lightened(0.35), "d": PLATE.darkened(0.2), "+": PLATE.lightened(0.15)}), at)
+	PixelArt.sprite(_ci, PixelArt.art(rows, {"*": plate.darkened(0.45)}), at + Vector2(1, 1))
+	PixelArt.sprite(_ci, PixelArt.art(rows, {"u": plate.lightened(0.35), "d": plate.darkened(0.2), "+": plate.lightened(0.15)}), at)
 	var notice := PixelArt.tiny(T.text(T.Key.BOARD_PLATE_NOTICE))   # pintado com estêncil, já gasto
 	_ci.draw_texture(notice, Vector2(roundf(r.get_center().x - notice.get_width() / 2.0), roundf(r.get_center().y + 10.0)), Color(Pal.STENCIL, 0.6))
