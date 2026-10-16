@@ -334,3 +334,8 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   vezes a cor do desenho: parta dele, não de `texture(TEXTURE, UV)`; multiplicando os dois, a cor sai ao quadrado e o
   cenário inteiro escureceu (o usuário viu). Depois de pôr um material, compare a captura com e sem ele
   (`--lamp=0`) e confira com o mouse sobre um objeto (`--hover=id`).
+- **Shader com parâmetro só atualizado quando muda: compare tudo o que ele lê.** As luzes de fora pela janela
+  (`_window_lights`) só recebiam parâmetros quando a lista de luzes mudava, mas o shader também lê o vidro (`_glass`),
+  que muda com a persiana andando: fechada e aberta, o shader ficava com o vidro velho e pintava de vermelho o pedaço
+  descoberto (o usuário viu). O estado comparado leva todo parâmetro que o shader usa; capturas com a persiana parada
+  não mostram isso: conferir mexendo nela.

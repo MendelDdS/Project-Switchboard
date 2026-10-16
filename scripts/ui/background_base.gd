@@ -63,6 +63,7 @@ var _ci: CanvasItem    # onde a vista da janela é desenhada: aqui, ou no vidro 
 var _lifted: Control   # o objeto da mesa erguido sob o mouse, numa camada só dele (`Background._draw_lifted`)
 var _props_layer: Control   # os objetos da mesa, numa camada por cima da persiana e da luz do peitoril (`Background._draw_props_layer`)
 var _glows: Array = []  # as luzes da sala para o brilho (`_light`): [retângulo, cor, halo, miolo, redonda]
+var _posts: Array[Rect2] = []   # as cabeças dos postes de lá à vista, para o brilho (acesas só com a luminária acesa: `_draw_over`)
 var _rain_phase := Vector2(randf() * TAU, randf() * TAU)   # as fases das ondas da chuva nesta noite
 var _clouds: Array[Vector3] = []   # as nuvens da noite limpa: x (fração do vidro, sem o vento), altura (fração do céu à vista), tamanho
 var _bolt := -1.0        # há quanto tempo caiu o relâmpago (s; -1 = nenhum)

@@ -32,7 +32,8 @@ signal prop_clicked(id: String)
 ## apagar o que segue a luminária piscando (a luz dos postes lavando as fachadas).
 const WARM := Vector2(0.55, 4.0)
 const WARM_STEP := 0.05
-const WARM_DARK := 0.3   ## o escuro a mais na sala com a luminária ainda fria (`_draw_gloom`)
+const WARM_DARK := 0.3   ## o escuro a mais na sala com a luminária ainda fria (`_noir_params`)
+const FLICK_DARK := 0.45   ## o escuro a mais na sala com a luminária apagada no piscar (`_noir_params`; os objetos escureciam por conta própria, `_flick`, e a soma dos dois dava isso)
 const FLICK := [1.0, 0.2, 1.0, 1.0, 0.5, 1.0, 1.0, 0.1, 1.0, 1.0, 1.0, 0.4, 1.0, 1.0, 1.0, 1.0, 0.2, 1.0, 1.0, 0.6, 1.0, 1.0, 1.0]
 const WOOD := [Pal.CABINET_WOOD[6], Pal.CABINET_WOOD[4], Pal.CABINET_WOOD[2]]   ## madeira (luz, meio, sombra), a mesma do móvel
 const SIGN_AT := 0.62   ## onde fica o meio dela, na largura da mesa comutadora (à direita do horário do turno)
@@ -77,7 +78,7 @@ const MOON_DIM := 0.45
 const MIST := {"fog": 0.38, "clear": 0.34, "rain": 0.26}
 const MIST_TINT := Color(0.66, 0.72, 0.78)
 const DROP_SHADOW := 1.8   ## a sombra das gotas do vidro na luz da rua na mesa (`_draw_drop_shadows`), em relação à força da luz ali
-const NOIR := Color(0.012, 0.022, 0.045, 0.72)   ## o escuro frio da sala fora da luz da luminária (`_draw_gloom`)
+const NOIR := Color(0.012, 0.022, 0.045, 0.72)   ## o escuro frio da sala fora da luz da luminária (`_noir_params`)
 const GLOOM_R := Vector2(615, 248)   ## até onde vai a luz da luminária antes do escuro todo (px da tela, elipse em volta da poça na mesa: larga, a mesa toda na luz)
 const GLOOM_IN := 0.25   ## dentro dessa fração do raio, nada de escuro: dali para fora ele cresce liso
 const LAMP_LIGHT := Vector3(0.6, 0.5, 0.03)   ## a luz da luminária no shader do `SceneView` (`light`): o raio em fração de `GLOOM_R`, o quanto a cor cresce no meio e a cor pura somada
@@ -115,7 +116,11 @@ const THUNDER_AFTER := Vector2(1.2, 3.5)   ## o trovão vem depois (s, sorteado:
 const BOLT_LIGHT := Color(0.93, 0.96, 1.0)
 const BOLT_DIR := Vector2(-1.4, 0.45)   ## para onde a luz dele anda a cada unidade para o fundo (x, para a esquerda; y, para baixo): a sombra do armário na parede
 const BOLT_STEEP := 1.2   ## quanto ela desce para cada unidade que entra na sala, até a mesa (a janela desenhada no tampo)
-const SIGN_GLOW := Color(1.0, 0.25, 0.18, 0.05)   ## o reflexo vermelho dele na parede, perto da janela
+## A luz vermelha dele no vão, no peitoril e na parede perto da janela (`_window_lights`): até onde chega (px) e a força.
+## Forte porque o escuro da sala (`_noir`) passa por cima e deixa ~1/5 dela perto da janela; a camada fica embaixo dele
+## para os objetos da mesa ficarem na frente.
+const SIGN_LIGHT := Vector2(190, 1.2)
+const POST_LIGHT := Vector2(150, 0.6)   ## e a de cada poste de lá à vista, amarela
 const CAB_W := 82.0             ## a largura do armário de aço, encostado na parede (px de 2x2 lá)
 const CAB_AT := 0.37            ## quanto da parede livre entre a mesa comutadora e a quina fica antes dele (com 0,24, ele e o conduíte ficavam colados na mesa)
 const POSTER_W := 22.0           ## a largura do cartaz da quermesse (px de 2x2)
@@ -168,6 +173,11 @@ var _back_drawn := []
 var _vport: SubViewport
 var _cover := Rect2()   # onde está o papel da ferramenta aberta (px da tela, não de 2x2): luz embaixo dele não brilha
 var _drawn := []        # o `_state` do último desenho da sala
+var lamp_hold := -1.0   ## a luminária presa nesse nível (a captura, `--dim`); negativo: solta
+var _window_lights: ColorRect   # as luzes de fora pela janela, num shader (`window_lights.gdshader`): entre a persiana e os objetos da mesa
+var _window_set := []   # o que ela recebeu da última vez (`_window_light_params`)
+var _noir: ColorRect    # o escuro da sala, num shader (`room_noir.gdshader`): logo abaixo da `_over`
+var _noir_set := []     # o que ele recebeu da última vez (`_noir_params`)
 var _over: Control      # por cima da sala, o que muda sozinho sem mexer nela (`_draw_over`)
 var _over_drawn := []   # o estado do último desenho dela
 var _sign_glow := Rect2()   # o halo do letreiro no vidro (vazio = fora do vidro); brilha só aceso
@@ -232,6 +242,12 @@ func _ready() -> void:
 	_blind_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_blind_layer.draw.connect(_draw_blind)
 	add_child(_blind_layer)
+	_window_lights = ColorRect.new()
+	_window_lights.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_window_lights.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_window_lights.material = ShaderMaterial.new()
+	(_window_lights.material as ShaderMaterial).shader = preload("res://scripts/ui/window_lights.gdshader")
+	add_child(_window_lights)
 	_props_layer = Control.new()
 	_props_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_props_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -257,6 +273,12 @@ func _ready() -> void:
 	_beam.material = glow
 	_beam.draw.connect(_draw_beam)
 	add_child(_beam)
+	_noir = ColorRect.new()
+	_noir.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_noir.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_noir.material = ShaderMaterial.new()
+	(_noir.material as ShaderMaterial).shader = preload("res://scripts/ui/room_noir.gdshader")
+	add_child(_noir)
 	_over = Control.new()
 	_over.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_over.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -329,7 +351,17 @@ func _process(delta: float) -> void:
 			_bolt_layer.queue_redraw()
 		_bolt_layer.visible = f > 0.0
 		_show()
-	var ov := [size, _paper(), lamp_level, _sign_on(), _moon_glow(), _mist_force(), _blind_rows]
+	var wl := [_window_light_list(), _glass]   # (o vidro muda com a persiana andando)
+	if wl != _window_set:   # as luzes de fora: só os parâmetros do shader mudam
+		_window_set = wl
+		_window_light_params(wl[0])
+		_show()
+	var dk := [size, _gloom_center(), lamp_level, warm, _glass]
+	if dk != _noir_set:   # o escuro da sala: só os parâmetros do shader mudam, nada se redesenha
+		_noir_set = dk
+		_noir_params()
+		_show()
+	var ov := [size, _paper(), lamp_level > 0.5, _sign_on(), _moon_glow(), _mist_force(), _blind_rows]
 	if ov != _over_drawn:   # (o papel deslizando entra aqui: o corte do brilho acompanha já neste quadro)
 		_over_drawn = ov
 		_over.queue_redraw()
@@ -384,6 +416,8 @@ func _process(delta: float) -> void:
 		lamp_level = FLICK[int(Time.get_ticks_msec() / 90.0) % FLICK.size()] * base
 	else:
 		lamp_level = base
+	if lamp_hold >= 0.0:
+		lamp_level = lamp_hold
 	var dim := lamp_level < 0.75
 	if dim != _lamp_dim:   # a luminária piscando estala
 		_lamp_dim = dim
@@ -568,7 +602,7 @@ func _show() -> void:
 ## luminária e o estado do jogo nos objetos.
 func _state() -> Array:
 	return [size, board.get_global_rect() if board else Rect2(), desk.get_global_rect() if desk else Rect2(),
-		window.get_global_rect() if window else Rect2(), lamp_level, pending, unread, alert, card_out, news, counting, toll_desk, details, night, weather,
+		window.get_global_rect() if window else Rect2(), pending, unread, alert, card_out, news, counting, toll_desk, details, night, weather,
 		snappedf(_shut, 0.25), cab_open, sips, damp, written, news_read,   # (a luz da rua na mesa e o relâmpago acompanham a persiana em 4 passos)
 		TranslationServer.get_locale()]
 
@@ -790,6 +824,7 @@ func _draw() -> void:
 	var i := occ_ids.find(_up_id)
 	var kept := [_props.get(_up_id), _occ[i] if i >= 0 else null]
 	_glows.clear()
+	_posts.clear()
 	_props.clear()
 	_occ.clear()
 	occ_ids.clear()
@@ -861,13 +896,13 @@ func _draw_sill_light() -> void:
 		var cols := PackedColorArray()
 		var pts: PackedVector2Array = part[0]
 		for i in pts.size():
-			cols.append(Color(sill, minf(1.0, (part[1][i] as Color).a * 0.35 / (1.0 - _gloom(pts[i], c)))))
+			cols.append(Color(sill, minf(1.0, (part[1][i] as Color).a * 0.35 / (1.0 - _gloom(pts[i], c, true)))))
 		_fill(pts, cols)
 	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
-## A camada por cima da sala (`_over`), com o que muda sozinho sem mexer nela: o escuro (`_draw_gloom`, que segue a
-## luminária), o que entra pela janela (o relâmpago e o neon, `_draw_window_glow`), o escuro e a sombra atrás do papel
+## A camada por cima da sala (`_over`, logo acima do escuro dela, `_noir`), com o que muda sozinho sem mexer nela: o
+## que entra pela janela (o relâmpago e o neon, `_draw_window_glow`), o escuro e a sombra atrás do papel
 ## de uma ferramenta aberta e as luzes da sala no brilho (`Bloom`), cortadas onde o papel está. (Tudo na sala, ela se
 ## redesenhava 3 a 4 vezes por segundo parada e a cada quadro do relâmpago e do papel deslizando, ~20 ms cada vez.)
 ## O relâmpago tem a camada dele (`_bolt_layer`).
@@ -878,9 +913,12 @@ func _draw_over() -> void:
 	for l: Array in _glows:
 		if not _cover.intersects(l[0]) and not _behind_blind(l[0]):
 			Bloom.light(_over, l[0], l[1], l[2], l[3], l[4])
+	if lamp_level > 0.5:   # os postes de lá, que apagam com a luminária piscando (a ligação desconhecida)
+		for r: Rect2 in _posts:
+			if not _cover.intersects(r) and not _behind_blind(r):
+				Bloom.light(_over, r, Pal.STREET_LAMP, 0.8, true, false)
 	if _sign_glow.has_area() and _sign_on() and not _cover.intersects(_sign_glow) and not _behind_blind(_sign_glow):   # só o halo: as letras ficam à vista
 		Bloom.light(_over, _sign_glow, Pal.SIGN_RED, 0.5, false, false)
-	_draw_gloom()
 	_draw_window_glow()
 	_draw_mist()
 	if _cover.has_area():   # uma ferramenta na frente do operador: o cenário atrás escurece e o papel faz sombra nele
@@ -1030,49 +1068,43 @@ func _cut(poly: PackedVector2Array, occ: Array) -> Array:
 	return parts
 
 
-## O escuro da sala (noir): tudo o que a luz da luminária não alcança fica frio e escuro (`NOIR`), liso, crescendo da
-## luz para fora (`GLOOM_IN`, `GLOOM_R`; com uma borda marcada, parecia um recorte). O vidro da janela fica de fora: a
-## rua tem a luz dela. A luminária piscando ou ainda esquentando (`warm`) escurece tudo junto.
-func _draw_gloom() -> void:
-	_ci.draw_set_transform(Vector2.ZERO)
-	var c := _gloom_center()
-	var dark := func(p: Vector2) -> Color:
-		return Color(NOIR, _gloom(p, c))
-	var glass := _bounds(_glass) if _glass.size() > 2 else Rect2()
-	var n := Vector2i(40, 24)
-	var cell := size / Vector2(n)
-	var at := PackedColorArray()   # a cor em cada vértice da grade (cada um é de quatro células)
-	for j in n.y + 1:
-		for i in n.x + 1:
-			at.append(dark.call(cell * Vector2(i, j)))
-	for j in n.y:
-		for i in n.x:
-			var a := cell * Vector2(i, j)
-			var quad := PackedVector2Array([a, a + Vector2(cell.x, 0), a + cell, a + Vector2(0, cell.y)])
-			if not glass.intersects(Rect2(a, cell)):
-				var k := j * (n.x + 1) + i
-				_fill(quad, PackedColorArray([at[k], at[k + 1], at[k + n.x + 2], at[k + n.x + 1]]))
-				continue
-			for poly: PackedVector2Array in Geometry2D.clip_polygons(quad, _glass):
-				var cols := PackedColorArray()
-				for p in poly:
-					cols.append(dark.call(p))
-				_fill(poly, cols)
-	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+## O escuro da sala (noir) no shader da camada `_noir` (`room_noir.gdshader`): tudo o que a luz da luminária não
+## alcança fica frio e escuro (`NOIR`), liso, crescendo da luz para fora (`GLOOM_IN`, `GLOOM_R`; com uma borda marcada,
+## parecia um recorte), com o vidro da janela de fora. A luminária piscando ou ainda esquentando (`warm`) escurece tudo
+## junto (`extra`). A conta é a do `_gloom`: mudou uma, mude a outra.
+func _noir_params() -> void:
+	var m := _noir.material as ShaderMaterial
+	m.set_shader_parameter("center", _gloom_center())
+	m.set_shader_parameter("radius", GLOOM_R)
+	m.set_shader_parameter("inner", GLOOM_IN)
+	m.set_shader_parameter("front", FRONT_LIGHT)
+	m.set_shader_parameter("noir", NOIR)
+	m.set_shader_parameter("extra", lamp_dark())
+	m.set_shader_parameter("glass", _glass)
+	m.set_shader_parameter("glass_n", _glass.size())
 
 
-## O meio do escuro da sala (`_draw_gloom`): a poça de luz na mesa, em px da tela.
+## O escuro a mais da luminária piscando ou ainda fria, por igual: na sala (`_noir_params`) e na mesa comutadora
+## (`Switchboard.dim`, pelo Main).
+func lamp_dark() -> float:
+	return (1.0 - lamp_level) * FLICK_DARK + (1.0 - warm) * WARM_DARK
+
+
+## O meio do escuro da sala (`_noir_params`): a poça de luz na mesa, em px da tela.
 func _gloom_center() -> Vector2:
 	var pool := _pool()
 	return _proj(pool.x, _yd, pool.y) * 2.0
 
 
 ## O quanto o escuro da sala cobre o ponto `p` (px da tela; `c`, de `_gloom_center`): nada perto da poça de luz e
-## crescendo liso para fora, mais com a luminária piscando ou ainda esquentando.
-func _gloom(p: Vector2, c: Vector2) -> float:
+## crescendo liso para fora, mais com a luminária piscando ou ainda esquentando (`steady`: com ela acesa, para o que
+## fica no desenho da sala, que não se redesenha quando ela pisca).
+func _gloom(p: Vector2, c: Vector2, steady := false) -> float:
 	var q := (p - c) / GLOOM_R
 	var k := smoothstep(GLOOM_IN, 1.0, q.length() / lerpf(1.0, FRONT_LIGHT, smoothstep(0.0, 0.5, q.y)))
-	return clampf(NOIR.a * k + (1.0 - lamp_level) * 0.3 + (1.0 - warm) * WARM_DARK, 0.0, 0.9)
+	if steady:
+		return clampf(NOIR.a * k, 0.0, 0.9)
+	return clampf(NOIR.a * k + lamp_dark(), 0.0, 0.9)
 
 
 ## A luz da luminária no shader do `SceneView` (`lamp_light.gdshader`, plano hi-bit, etapa 5): a poça no meio do
@@ -1099,9 +1131,36 @@ func _draw_window_glow() -> void:
 	var c := _bounds(_glass).get_center()
 	var strength: float = WINDOW_GLOW.a * {"clear": 1.0, "rain": 0.8, "fog": 1.2}.get(weather, 1.0) * lerpf(MOON_DIM, 1.0, _moon_glow())
 	_light_fan(c, _ring(c, WINDOW_GLOW_R), Color(WINDOW_GLOW, strength * (1.0 - _shut)))
-	if _sign_px != Vector2.ZERO and _sign_on() and not _behind_blind(Rect2(_sign_px, Vector2.ONE)):
-		_light_fan(_sign_px, _ring(_sign_px, WINDOW_GLOW_R * 0.6), SIGN_GLOW)
 	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+
+
+## As luzes de fora que entram pela janela agora, até 8 (`window_lights.gdshader`): o letreiro aceso e os postes de lá
+## acesos (apagam com a luminária piscando), os que aparecem abaixo da persiana; cada uma [onde, até onde, força, cor].
+func _window_light_list() -> Array:
+	var out := []
+	if _sign_px != Vector2.ZERO and _sign_on() and not _behind_blind(Rect2(_sign_px, Vector2.ONE)):
+		out.append([_sign_px, SIGN_LIGHT, Pal.SIGN_RED])
+	if lamp_level > 0.5:
+		for r: Rect2 in _posts:
+			if out.size() < 8 and not _behind_blind(r):
+				out.append([r.get_center(), POST_LIGHT, Pal.STREET_LAMP])
+	return out
+
+
+func _window_light_params(list: Array) -> void:
+	var m := _window_lights.material as ShaderMaterial
+	var lights := PackedVector4Array()
+	var colors := PackedColorArray()
+	for l: Array in list:
+		var at: Vector2 = l[0]
+		var k: Vector2 = l[1]
+		lights.append(Vector4(at.x, at.y, k.x, k.y))
+		colors.append(l[2])
+	m.set_shader_parameter("count", list.size())
+	m.set_shader_parameter("lights", lights)
+	m.set_shader_parameter("colors", colors)
+	m.set_shader_parameter("glass", _glass)
+	m.set_shader_parameter("glass_n", _glass.size())
 
 
 ## O vidro embaçado do lado de dentro: liso, nos cantos e no pé dele (onde a água junta), só na parte que aparece
@@ -1388,7 +1447,7 @@ func _draw_wall_light(top: float) -> void:
 	for i in 25:
 		var x := _lamp_x - w + w * 2.0 * i / 24.0
 		pts.append(Vector2(x, minf(top, LAMP_Y + sqrt(pow(x - _lamp_x, 2.0) + WALL_GAP * WALL_GAP) * m)))
-	_light_fan(Vector2(_lamp_x, top), pts, Color(1.0, 0.8, 0.52, 0.15 * lamp_level))
+	_light_fan(Vector2(_lamp_x, top), pts, Color(1.0, 0.8, 0.52, 0.15))
 
 
 ## O feixe da luminária no ar, na frente da parede: desce da boca dela, mais denso no meio e sumindo para os lados e
@@ -1724,8 +1783,8 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	_sign_px = sign * 2.0 if Geometry2D.is_point_in_polygon(sign, q) else Vector2.ZERO
 	_sign_glow = Rect2(_sign_px - Vector2(4, 16), Vector2(8, 32)) if _sign_px != Vector2.ZERO else Rect2()
 	for lamp: Vector2 in _lamp_heads(cg):   # os postes de lá
-		if lamp_level > 0.5 and Geometry2D.is_point_in_polygon(lamp, q):
-			_light(Rect2((lamp + Vector2(-1.5, 0)) * 2.0, Vector2(6, 3)), Color("ffd88a"), 0.8)
+		if Geometry2D.is_point_in_polygon(lamp, q):   # (acesos ou não, na camada de cima: apagam no piscar, sem redesenhar a sala)
+			_posts.append(Rect2((lamp + Vector2(-1.5, 0)) * 2.0, Vector2(6, 3)))
 	# o montante do caixilho, no vidro: a frente dele e, por estar ao lado dos olhos, o lado de perto; o que passa do vão
 	# fica atrás do batente (a travessa saiu, a pedido)
 	var bar := func(poly: PackedVector2Array, col: Color) -> void:
@@ -1927,7 +1986,7 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 			Vector2(f.end.x + 2, f.position.y - 1), Vector2(f.position.x - 2, f.position.y - 1)]), steel.call(-1))
 	_r(f.position.x, f.position.y, f.size.x, f.size.y, steel.call(0))
 	for i in 36:   # a luz da luminária, mais forte do lado dela, caindo pixel a pixel (em faixas largas, pareciam camadas)
-		_r(f.position.x + i * PX, f.position.y, PX, f.size.y, Color(1.0, 0.85, 0.6, 0.09 * (1.0 - i / 36.0) * lamp_level))
+		_r(f.position.x + i * PX, f.position.y, PX, f.size.y, Color(1.0, 0.85, 0.6, 0.09 * (1.0 - i / 36.0)))
 	_r(f.position.x - 2, f.position.y - 1, f.size.x + 4, 5, steel.call(-1))   # a cornija, com o friso
 	_r(f.position.x - 2, f.position.y - 1, f.size.x + 4, PX, steel.call(3))
 	_r(f.position.x - 2, f.position.y + 1.5, f.size.x + 4, PX, steel.call(-2))

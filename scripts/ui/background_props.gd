@@ -9,7 +9,7 @@ const POOL_R := 112.0   ## o raio da poça de luz da luminária no tampo
 ## as pontas, com o relógio, ficam na luz de sempre.
 const POOL_HOT := Vector2(0.42, 0.16)
 const SHADE_MAX := 0.3   ## o mais escuro que um objeto da mesa fica, longe da poça de luz (`_shade`)
-const FRONT_LIGHT := 1.6   ## da poça para a frente da mesa, a luz vai essa vez mais longe (`_shade`, `_draw_gloom`): a fileira da frente ficava escura demais
+const FRONT_LIGHT := 1.6   ## da poça para a frente da mesa, a luz vai essa vez mais longe (`_shade`, `_noir_params`): a fileira da frente ficava escura demais
 const DESK_RAG := 0.16     ## o quanto a borda de cada faixa de luz do tampo anda de uma linha para outra, em raios da poça (`_desk_row`)
 const PAPER_RAG := 0.12    ## o mesmo nos papéis da mesa, na luz parada (`_lit_at`)
 const WALL_PAD := 2.0           ## a folga dos objetos da mesa até a parede da direita (x da sala)
@@ -193,7 +193,7 @@ func _draw_desk(r: Rect2, front: float) -> void:
 		for i in 32:
 			var a := TAU * i / 32.0
 			pts.append(_proj(pool.x + cos(a) * POOL_R * ring.x, _yd, clampf(pool.y + sin(a) * POOL_R * 0.5 * ring.x, 40.0, Z0 / DESK_T)))
-		_light_fan(_proj(pool.x, _yd, pool.y), pts, Color(1.0, 0.78 + 0.08 * ring.z, 0.48 + 0.12 * ring.z, ring.y * lamp_level))
+		_light_fan(_proj(pool.x, _yd, pool.y), pts, Color(1.0, 0.78 + 0.08 * ring.z, 0.48 + 0.12 * ring.z, ring.y))
 	# a borda da frente (`Pal.DESK_EDGE_ROWS`): o canto arredondado do tampo pega a luz, a espessura dele com um friso e,
 	# embaixo, o escuro sob a mesa; cada faixa no tom da luz ali (`Pal.desk_edge`)
 	var edge := _bands(func(lit: float) -> Color: return Pal.desk_edge(lit))
@@ -267,7 +267,7 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 	_desk_shadow(PackedVector2Array([_clock_pt(xc, zc, -hw, hd, _yd), _clock_pt(xc, zc, hw, hd, _yd), _clock_pt(xc, zc, hw, -hd, _yd),
 		_clock_pt(xc, zc, -hw, -hd, _yd)]))
 	var step := _paper_step(_still(xc, zb))   # a máquina num degrau só da luz parada, como a unidade de despacho
-	var tone := func(c: Color) -> Color: return Pal.lit(c, step).darkened(_flick())
+	var tone := func(c: Color) -> Color: return Pal.lit(c, step)
 	var box := _clock_box(xc, zc, hw, hd, _yd, CALC.y * PROP_K, Pal.PANEL_HI, Pal.PANEL_LO, Pal.PANEL, tone)
 	var hull := PackedVector2Array()
 	for f: PackedVector2Array in box.values():
@@ -311,8 +311,8 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 			pt.call(Vector2(r.position.x, r.end.y), 0.0)])
 	hull.append_array(quad.call(Rect2(0, 0, 1, 1)))
 	if toll_desk.size() >= 4:
-		var paper := _paper_step(_still(xc, zf + d / 2.0))   # a mesinha no tom da luz parada ali, e o piscar por cima
-		var desk := func(c: Color) -> Color: return Pal.lit(c, paper).darkened(_flick())
+		var paper := _paper_step(_still(xc, zf + d / 2.0))   # a mesinha no tom da luz parada ali
+		var desk := func(c: Color) -> Color: return Pal.lit(c, paper)
 		var pad: Rect2 = toll_desk[0]
 		var lid := Toll.LID / Toll.NOMINAL.x * w
 		_poly(PackedVector2Array([pt.call(pad.position, lid), pt.call(Vector2(pad.end.x, pad.position.y), lid),
@@ -327,13 +327,13 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 			for p in q:
 				sh.append(p + Vector2(1, 1))
 			_poly(sh, Lift.SHADOW)
-			_poly(q, Pal.lit(Pal.TICKET, paper).darkened(_flick()))
-			_poly(quad.call(Rect2(r.position, Vector2(r.size.x, r.size.y * TollTicket.BAND / TollTicket.SIZE.y))), Pal.lit(Pal.TICKET_FORM, paper).darkened(_flick()))
+			_poly(q, Pal.lit(Pal.TICKET, paper))
+			_poly(quad.call(Rect2(r.position, Vector2(r.size.x, r.size.y * TollTicket.BAND / TollTicket.SIZE.y))), Pal.lit(Pal.TICKET_FORM, paper))
 			var half := TollTicket.MARK_SIZE / TollTicket.SIZE / 2.0
 			for m: Vector3 in toll_desk[i][1]:   # as marcas, cortadas no papel
 				var mr := Rect2(Vector2(m.x, m.y) - half, half * 2.0).intersection(Rect2(0, 0, 1, 1))
 				if mr.has_area():
-					_poly(quad.call(Rect2(r.position + mr.position * r.size, mr.size * r.size)), Color(Pal.lit(Pal.TOLL_INK, paper), lerpf(0.25, 0.75, m.z)).darkened(_flick()))
+					_poly(quad.call(Rect2(r.position + mr.position * r.size, mr.size * r.size)), Color(Pal.lit(Pal.TOLL_INK, paper), lerpf(0.25, 0.75, m.z)))
 		var bx: Rect2 = toll_desk[1]
 		var shoe: Rect2 = toll_desk[3]
 		var draw_box := func() -> PackedVector2Array:   # a caixinha: a madeira, a boca escura com os guardados de pé e a plaqueta na frente
@@ -348,7 +348,7 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 			for i in mini(toll_desk[2], 3):
 				var v := lerpf(bh.y - e * 3.0, -bh.y + e * 3.0, 0.3 + i * 0.25)
 				_pixel_line(_clock_pt(bc.x, bc.y, -bh.x + e * 3.0, v, y1 + 0.4), _clock_pt(bc.x, bc.y, bh.x - e * 3.0, v, y1 + 0.4),
-					[Pal.lit(Pal.TICKET, paper).darkened(0.3 + _flick())])
+					[Pal.lit(Pal.TICKET, paper).darkened(0.3)])
 			if faces.has("front"):
 				var bf := _bounds(faces["front"])
 				_ci.draw_rect(Rect2(roundf(bf.get_center().x - bf.size.x * 0.22), roundf(bf.get_center().y - 1.0), roundf(bf.size.x * 0.44), 2),
@@ -362,8 +362,8 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 			var tex := _stamp_art(paper)
 			var foot: Vector2 = pt.call(Vector2(shoe.get_center().x, shoe.end.y), 0.0)
 			var c := foot.round() - Vector2(0, tex.get_height() / 2.0)
-			_sprite(tex, c, Color.WHITE.darkened(_flick()))
-			_tip_cover = [tex, c, Color.WHITE.darkened(_flick())]
+			_sprite(tex, c, Color.WHITE)
+			_tip_cover = [tex, c, Color.WHITE]
 			return PackedVector2Array([c - tex.get_size() / 2.0, c + tex.get_size() / 2.0])
 		var near: Array = [draw_box, draw_stamp] if shoe.end.y >= bx.end.y else [draw_stamp, draw_box]   # quem está mais perto vai por cima
 		for draw_it: Callable in near:
@@ -695,10 +695,10 @@ func _pool() -> Vector2:
 
 
 ## Quanto o ponto (`x`, `z`) da mesa fica no escuro: nada embaixo da luminária e mais longe da poça de luz, até
-## `SHADE_MAX`; a luminária piscando escurece tudo junto (os objetos tinham a mesma cor em qualquer lugar da mesa e
-## pareciam soltos da luz da sala). Contínuo: cada objeto escurece ponto a ponto (`_shaded`), não de um tom só.
+## `SHADE_MAX` (os objetos tinham a mesma cor em qualquer lugar da mesa e pareciam soltos da luz da sala); a luminária
+## piscando escurece tudo junto no shader do escuro da sala (`_noir`), sem redesenhar. Contínuo: cada objeto escurece ponto a ponto (`_shaded`), não de um tom só.
 func _shade(x: float, z: float) -> float:
-	return _dark(_pool_d(x, z))
+	return _spread(_pool_d(x, z))
 
 
 ## A distância do ponto (`x`, `z`) da mesa à poça de luz, em raios dela, já com o alcance da luz (`_reach`).
@@ -708,23 +708,13 @@ func _pool_d(x: float, z: float) -> float:
 	return v.length() / _reach(v.y)
 
 
-## O escuro (`_shade`) pela distância `d` à poça (`_pool_d`), com o piscar da luminária.
-func _dark(d: float) -> float:
-	return _spread(d) + _flick()
-
-
-## O escuro pela distância `d` à poça, sem o piscar: nada perto dela e mais longe, até `SHADE_MAX`.
+## O escuro pela distância `d` à poça: nada perto dela e mais longe, até `SHADE_MAX`.
 static func _spread(d: float) -> float:
 	return clampf((d - 0.35) * 0.5, 0.0, SHADE_MAX)
 
 
-## O escuro da luminária piscando ou ainda esquentando, por igual na mesa toda (`_shade`).
-func _flick() -> float:
-	return (1.0 - lamp_level) * 0.3
-
-
-## A luz parada no ponto (`x`, `z`) da mesa (`_shade` sem o piscar da luminária), de 0, embaixo dela, a 1, longe da
-## poça (`SHADE_MAX`): a que os papéis guardam no desenho, em degraus (`_paper_step`); o piscar escurece por cima.
+## A luz parada no ponto (`x`, `z`) da mesa (`_shade` de 0 a 1), de 0, embaixo dela, a 1, longe da poça
+## (`SHADE_MAX`): a que os papéis guardam no desenho, em degraus (`_paper_step`).
 func _still(x: float, z: float) -> float:
 	return _spread(_pool_d(x, z)) / SHADE_MAX
 
@@ -759,12 +749,6 @@ func _still_at(xz: Array) -> PackedFloat32Array:
 	return out
 
 
-## O escuro do piscar da luminária por cima do papel `q` (px da tela): a luz parada fica no desenho dele.
-func _flicker(q: PackedVector2Array) -> void:
-	if _flick() > 0.0:
-		_poly(q, Color(0, 0, 0, _flick()))
-
-
 ## Quantas vezes a luz da poça vai mais longe na direção `vy` (na distância, em meios raios dela; negativo é para a
 ## frente da mesa, onde ela vai `FRONT_LIGHT` vezes mais longe).
 static func _reach(vy: float) -> float:
@@ -777,21 +761,21 @@ static func _reach(vy: float) -> float:
 func _bands(tone: Callable) -> Array:
 	const FAR := 2.0   # daí para fora, o escuro já é o maior
 	const N := 48
-	var out := [[INF, 1.0 - _dark(FAR)]]
-	var prev: Color = tone.call(1.0 - _dark(FAR))
+	var out := [[INF, 1.0 - _spread(FAR)]]
+	var prev: Color = tone.call(1.0 - _spread(FAR))
 	for i in range(N - 1, -1, -1):
 		var a := FAR * i / N
-		var c: Color = tone.call(1.0 - _dark(a))
+		var c: Color = tone.call(1.0 - _spread(a))
 		if c == prev:
 			continue
 		var b := FAR * (i + 1) / N   # o tom muda entre a (dentro) e b (fora): a troca, ao meio pixel
 		for k in 8:
 			var m := (a + b) / 2.0
-			if tone.call(1.0 - _dark(m)) == c:
+			if tone.call(1.0 - _spread(m)) == c:
 				a = m
 			else:
 				b = m
-		out.append([b, 1.0 - _dark(a)])
+		out.append([b, 1.0 - _spread(a)])
 		prev = c
 	return out
 
@@ -870,7 +854,7 @@ func _flat(id: String, x0: float, zf: float, wx: float, dz: float, h: float, edg
 	_desk_shadow(foot)
 	var step := _paper_step(_still(x0 + wx / 2.0, zf + dz / 2.0))
 	for f: Array in _faces(xz, _yd, _yd - h):
-		_poly(f[0], Pal.lit(edge, step).darkened(0.35 * absf((f[2] as Vector2).x)).darkened(_flick()))
+		_poly(f[0], Pal.lit(edge, step).darkened(0.35 * absf((f[2] as Vector2).x)))
 	var sz := Vector2i(_top_xf(top)[1])
 	if sz.x >= 8 and sz.y >= 4:   # (a tela ainda se arrumando)
 		_hom = _homography(top)
@@ -880,7 +864,6 @@ func _flat(id: String, x0: float, zf: float, wx: float, dz: float, h: float, edg
 		if post.is_valid():
 			post.call(sz)
 		_hom_light = PackedFloat32Array()
-	_flicker(top)
 	_mark(id, _bounds(foot + top), Geometry2D.convex_hull(foot + top))
 	return top
 
@@ -1039,7 +1022,6 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 						_ci.draw_rect(Rect2(p - Vector2(3, 0), Vector2(6, 1)), col.lightened(0.15))
 						_ci.draw_rect(Rect2(p + Vector2(-3, 2), Vector2(6, 1)), Color(0, 0, 0, 0.35))
 				_hom_light = PackedFloat32Array()
-			_flicker(q)
 			all.append_array(q)
 		var top := PackedVector2Array()
 		for p: Vector2 in xz:
@@ -1054,7 +1036,6 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 			_hom_light = _still_at(xz)
 			_project([Tools.DIRECTORY, sz], _art_book_cover.bind(cover), top, sz)
 			_hom_light = PackedFloat32Array()
-		_flicker(top)   # cada volume logo depois de desenhado (os de cima cobrem os de baixo)
 	_mark(Tools.DIRECTORY, _bounds(all), Geometry2D.convex_hull(all))
 
 
@@ -1340,7 +1321,7 @@ func _art_map(sz: Vector2i) -> Image:
 
 ## A unidade de despacho, que abre o despacho (`x0`, a frente em `zf`, `wx` de largura; medidas em `UNIT`): um móvel
 ## de metal no material das máquinas da ficha (`Pal.PANEL`), como um terminal antigo, todo no degrau da luz parada no
-## meio dele, na rampa do metal e na do cartão (`Pal.lit`, `_lit_image`), e o piscar da luminária por cima. Embaixo,
+## meio dele, na rampa do metal e na do cartão (`Pal.lit`, `_lit_image`). Embaixo,
 ## a base, com as três máquinas embutidas no tampo, na mesma disposição do despacho aberto (`_art_deck`: o
 ## transmissor à esquerda, a impressora no meio e o triturador à direita) e, na frente, a plaqueta de latão e as luzes;
 ## em cima, atrás, o painel inclinado com o mapa de papel sob o vidro (`_art_glass`). O estado do
@@ -1357,7 +1338,7 @@ func _draw_dispatch_unit(x0: float, zf: float, wx: float) -> void:
 	var yt := yd - UNIT_PANEL * k   # o alto do painel
 	_desk_shadow(PackedVector2Array([_p3(x0, _yd, ze), _p3(x1, _yd, ze), _p3(x1, _yd, zf), _p3(x0, _yd, zf)]))
 	var step := _paper_step(_still(x0 + wx / 2.0, (zf + ze) / 2.0))
-	var tone := func(c: Color) -> Color: return Pal.lit(c, step).darkened(_flick())
+	var tone := func(c: Color) -> Color: return Pal.lit(c, step)
 	var all := PackedVector2Array()
 	var sx := x0 if x0 > 0.0 else x1   # o lado virado para o ponto de fuga (atravessando-o, nenhum)
 	if x0 > 0.0 or x1 < 0.0:
@@ -1371,10 +1352,8 @@ func _draw_dispatch_unit(x0: float, zf: float, wx: float) -> void:
 	var glass := PackedVector2Array([_p3(x0, yt, zt), _p3(x1, yt, zt), _p3(x1, yd, zb), _p3(x0, yd, zb)])
 	_flat_art("despacho_vidro", glass, func(sz: Vector2i) -> Image: return _lit_image(_art_glass(sz), step),
 		[GameData.sectors.duplicate(), step])
-	_flicker(glass)
 	var deck := PackedVector2Array([_p3(x0, yd, zb), _p3(x1, yd, zb), _p3(x1, yd, zf), _p3(x0, yd, zf)])
 	_flat_art("despacho_base", deck, func(sz: Vector2i) -> Image: return _lit_image(_art_deck(sz), step), [step])
-	_flicker(deck)
 	if card_out:   # o cartão saindo da fenda da impressora, no meio, para trás (para cima do vidro)
 		var sz := _hom_sz
 		var card := PackedVector2Array([_tex_pt(sz * Vector2(0.38, 0.0)), _tex_pt(sz * Vector2(0.62, 0.0)),

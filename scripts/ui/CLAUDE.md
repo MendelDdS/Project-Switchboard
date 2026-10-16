@@ -8,7 +8,8 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   fica aceso). **Luz e vinheta lisas, sem camadas** (em degraus pareciam artificiais, a pedido do usuário): o brilho
   (`%Glow`) e a vinheta são degradês contínuos com filtro linear; o arco na parede e a poça na mesa são desenhados com
   a cor variando ponto a ponto (`Background._light_fan`), não em polígonos empilhados; **Clima noir**: fora da luz da luminária a sala fica fria e
-  escura (`_draw_gloom`, `NOIR`: liso, crescendo da poça de luz na mesa para fora numa elipse larga, `GLOOM_IN`/
+  escura (`NOIR`, num shader na camada `_noir`, logo abaixo da `_over`, `room_noir.gdshader`, `_noir_params`: a luminária
+  piscando ou esquentando só muda um parâmetro, sem redesenhar; liso, crescendo da poça de luz na mesa para fora numa elipse larga, `GLOOM_IN`/
   `GLOOM_R`, sem borda marcada, a pedido: a mesa toda, com o relógio, fica na luz e a parede do fundo mais escura; o
   vidro da janela abaixo da persiana fica de fora, `_glass`), a luminária é mais forte no centro (arco, poça e `%Glow`) e
   da janela vem um brilho azul bem fraco (`_draw_window_glow`, `WINDOW_GLOW`; as faixas de luz da persiana na parede
@@ -63,8 +64,11 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   (`THUNDER_AFTER`, mais fraco quanto mais longe, som `thunder`; perto, o vidro e a persiana chocalham, `RATTLE_NEAR`,
   som `rattle`); e um letreiro de neon HOTEL (a palavra é a mesma nos
   três idiomas) na vista, na fonte gravada da mesa, que falha de vez em quando (`_sign_on`; o T falha sozinho, `_sign_t_on`; sem som: o estalo dele saiu a pedido), com o
-  halo sem miolo para as letras aparecerem (`_light(..., core = false)`), o reflexo na rua molhada (embaixo das letras, não da beira da caixa) e um reflexo
-  vermelho fraco na parede perto da janela (`SIGN_GLOW`). Os três entram no `_state`. No vidro da janela, o fantasma
+  halo sem miolo para as letras aparecerem (`_light(..., core = false)`), o reflexo na rua molhada (embaixo das letras, não da beira da caixa) e a luz
+  vermelha dele no vão, no peitoril e na persiana, com a dos postes de lá acesos (`_window_lights`, num shader,
+  `window_lights.gdshader`, até 8 luzes, `SIGN_LIGHT`, `POST_LIGHT`: entre a persiana e os objetos da mesa, que ficam na
+  frente; o vidro de fora; só os parâmetros mudam, `_window_light_list`, sem redesenhar a sala). Os dois primeiros
+  entram no `_state`. No vidro da janela, o fantasma
   dele: as letras de novo, fracas e deslocadas (`_draw_neon_glass`, `NEON_GHOST`, `NEON_SHIFT`), com o T falhando junto,
   e, na chuva, as gotas perto dele vermelhas (`NEON_BEADS`); desenhados na vista, que já se redesenha. O prédio de tijolos da esquina é
   de apartamentos: no 3º andar, uma varanda (`APT`; porta, vasos, laje vista de baixo e gradil) com a janela da sala,
@@ -185,7 +189,7 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   em cinza posto no tom da tinta, `STAIN`, guardado por tamanho; a 0,75 pareciam sujeira, a pedido ficaram em 0,35).
   **A tinta pela luz** (plano hi-bit): em faixas em volta da boca do cone da luminária (`WALL_BANDS`, `_wall_runs`,
   trechos de linha guardados pela largura), na rampa `Pal.WALL_TONES`, mais fria longe e mais quente perto, quase sem
-  mudar o brilho: o escuro pela distância é só o da sala (`_draw_gloom`), senão escureceria duas vezes; as manchas vão
+  mudar o brilho: o escuro pela distância é só o da sala (`_noir`), senão escureceria duas vezes; as manchas vão
   por cima de cada trecho no tom dele. O conduíte troca de tom onde a faixa o atravessa e o armário fica num degrau só
   da luz no meio dele (`_wall_step`), com as sombras e as luzes do aço na rampa `Pal.STEEL_TONES` (era o aço escurecido
   e clareado). E um armário
@@ -266,7 +270,7 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   moiré e zigue-zague na perspectiva; área cheia, como a foto do jornal, pode ficar no desenho; papel tem 1 px de beira
   e a prancheta, 2 (com mais, pareciam tábuas); os desenhos são `_art_*`), **cada um girado uns graus, como largado na mesa**
   (`_turned` gira os cantos em volta do meio, `_faces` dá as faces de pé viradas para os olhos; o `yaw` de cada um em
-  `_flat` e nas listas, cada volume para um lado: todos retos e em fileira, a mesa parecia montada), desenhados em 1x1 (sem contorno preto: torto pela perspectiva, serrilhava; as faces se separam pela luz, `_poly`; sombra apontando para longe da luminária, em degraus: penumbra, sombra e o contato escuro colado na base, `_desk_shadow`; e cada um escurece ponto a ponto quanto mais longe da poça de luz (para a frente da mesa, a luz vai `FRONT_LIGHT` vezes mais longe, no escuro de cada objeto e no da sala, `_draw_gloom`: a fileira da frente ficava escura demais), liso dentro do próprio objeto (os cantos de cada face pela distância deles, `_shade`, `_shaded`, `_pool`, `SHADE_MAX`; com um tom só por objeto, a troca entre eles era brusca), também quando a luminária pisca; **os papéis** (as listas, o bloco de fichas, o jornal, a prancheta pendurada, os bilhetes na mesinha do calculógrafo) não escurecem por cima: cada pixel troca de tom pela luz parada no lugar dele (`_still`, `_hom_light`, `_lit_at`, em `_project`: até três degraus de sombra mais frios e um de luz mais quente, `_paper_step`, na rampa do papel, `Pal.lit`, ou, nas tintas e capas, numa conta que escurece esfriando), a troca de degrau andando de uma linha do papel para outra (`PAPER_RAG`), e o que vai por cima na tela (as linhas, o lápis, as tiras) pega o degrau do lugar onde cai (`_tone`); o piscar da luminária escurece por cima, por igual (`_flicker`), para o desenho guardado não mudar a cada piscada), do fundo para a frente; a legenda sob o mouse é do `SceneView`, na resolução da interface. **A mesa comutadora é um móvel só** (`_draw_switchboard`,
+  `_flat` e nas listas, cada volume para um lado: todos retos e em fileira, a mesa parecia montada), desenhados em 1x1 (sem contorno preto: torto pela perspectiva, serrilhava; as faces se separam pela luz, `_poly`; sombra apontando para longe da luminária, em degraus: penumbra, sombra e o contato escuro colado na base, `_desk_shadow`; e cada um escurece ponto a ponto quanto mais longe da poça de luz (para a frente da mesa, a luz vai `FRONT_LIGHT` vezes mais longe, no escuro de cada objeto e no da sala, `_noir`: a fileira da frente ficava escura demais), liso dentro do próprio objeto (os cantos de cada face pela distância deles, `_shade`, `_shaded`, `_pool`, `SHADE_MAX`; com um tom só por objeto, a troca entre eles era brusca); **os papéis** (as listas, o bloco de fichas, o jornal, a prancheta pendurada, os bilhetes na mesinha do calculógrafo) não escurecem por cima: cada pixel troca de tom pela luz parada no lugar dele (`_still`, `_hom_light`, `_lit_at`, em `_project`: até três degraus de sombra mais frios e um de luz mais quente, `_paper_step`, na rampa do papel, `Pal.lit`, ou, nas tintas e capas, numa conta que escurece esfriando), a troca de degrau andando de uma linha do papel para outra (`PAPER_RAG`), e o que vai por cima na tela (as linhas, o lápis, as tiras) pega o degrau do lugar onde cai (`_tone`); a luminária piscando ou esquentando não entra no desenho: escurece a sala toda no shader do escuro, `_noir`, `FLICK_DARK`, sem redesenhar), do fundo para a frente; a legenda sob o mouse é do `SceneView`, na resolução da interface. **A mesa comutadora é um móvel só** (`_draw_switchboard`,
   como uma mesa telefônica de verdade): embaixo, o console, cuja frente é a faixa da miniatura do painel (a
   madeira em volta dela, com a plaqueta de latão de um lado, os botões de volume e sintonia do outro e os parafusos;
   a prateleira tem veios e o friso de latão na beira) e cujo alto é a prateleira, com o FONE e os cabos em pé nos buracos (a mesa desenha); no fundo dela, num rodapé e com a sombra
@@ -284,8 +288,9 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   `_desk_row`), quente embaixo da luminária e fria longe dela, com os veios e a beira de cada tábua um tom acima e a
   emenda dois abaixo; a borda de cada faixa anda um pouco de uma linha para outra (`DESK_RAG`), como um veio pegando a
   luz (numa curva lisa, parecia o contorno de uma luz em degraus). Por cima, a poça de luz da luminária, um círculo de `POOL_R` no tampo embaixo dela (com o miolo mais quente,
-  `POOL_HOT`: só o meio clareia, para o olho cair nos objetos) que treme com ela
-  (`lamp_level`, como o arco na parede e a luz no armário). **O estado do jogo nos objetos**, para ler de relance: uma
+  `POOL_HOT`: só o meio clareia, para o olho cair nos objetos) desenhada sempre
+  com a luminária acesa, como o arco na parede e a luz no armário (o piscar e o esquentar ficam nos shaders, `_noir` e
+  o do `SceneView`; os postes de lá, que apagam no piscar, acendem no brilho pela camada de cima, `_posts`). **O estado do jogo nos objetos**, para ler de relance: uma
   tira de papel saindo do caderno por registro pendente (`pending`) e uma folha nova na
   prancheta quando uma conversa termina com o registro guardado (`unread`; `CallLog.filed`/`unread_changed`, o Main
   chama `filed` em `end_call`); na unidade de despacho, a luz vermelha com uma emergência em andamento (`alert`) e,
@@ -370,7 +375,9 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   andamento): o `SceneView` mostra o cenário por `lamp_light.gdshader`, que soma a poça quente, lisa, em volta do meio
   do escuro da sala (`_gloom_center`), com o vidro de fora (`_glass`) e a luz do dia (`daylight`, 0 até a etapa 7); o
   `Background.light` passa os parâmetros a cada quadro, sem redesenhar a sala; `SceneView.lamp_light` (a chave do
-  painel de debug, `--lamp=0` na captura) desliga. **Para trocar por PNG**: `wall_art`, `window_art` e `desk_art` entram no lugar do desenho daquela camada
+  painel de debug, `--lamp=0` na captura) desliga. O escuro da sala também é shader, mas numa camada no meio do
+  cenário (`_noir`), para o que entra pela janela e o relâmpago continuarem por cima dele; o vidro dos dois shaders
+  vem de `glass.gdshaderinc`. **Para trocar por PNG**: `wall_art`, `window_art` e `desk_art` entram no lugar do desenho daquela camada
   (o clima continua por cima da janela). As ferramentas não têm abas: abrem pelos objetos da mesa ou pelas teclas 1 a 4. O caderno da mesa mostra o selo dos registros pendentes (`Background.pending`). Nos testes, o clique num objeto da
   mesa é `background.pointer(evento)`.
 
@@ -469,7 +476,8 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   cada ponta desenha fio e plug juntos, para o fio mais recente passar por cima dos plugs das outras.
 - A luz da luminária do teto também cai no painel (`_draw_room_light`, `ROOM_LIT`/`ROOM_DARK`, `LAMP_ABOVE`): liso,
   mais claro e quente no alto à direita, mais escuro nos cantos de baixo; por cima de tudo que é do painel e por
-  baixo dos plugs e fios. A mesma luz (`_room_lit`) escolhe o tom do relevo do painel na rampa do metal
+  baixo dos plugs e fios. Ela pisca e esquenta com a da sala no `modulate` da mesa (`Switchboard.dim`, com o
+  `Background.lamp_dark` posto pelo Main): escurece tudo o que a mesa desenha, onde estiver, sem redesenhar. A mesma luz (`_room_lit`) escolhe o tom do relevo do painel na rampa do metal
   (`Pal.panel_metal`, `_lit_rect`: os filetes gravados das faixas, a beira rebaixada e a das faixas de cada linha,
   trecho a trecho) e o da moldura na da madeira (`Pal.cabinet`); as peças de metal paradas (as plaquinhas de níquel, o aro das lâmpadas, as porcas e as alavancas, as chapas dos bancos) ficam num degrau dessa luz no meio delas (`_step_at`, `Pal.panel_step`, `_nickel`, `Pal.lit`); o campo do painel fica liso, em `Pal.PANEL` (em
   faixas, pareceria luz em degraus ou metal escovado, que saíram a pedido, e as legendas o tampam com essa cor).

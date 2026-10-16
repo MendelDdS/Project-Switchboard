@@ -88,6 +88,12 @@ func _ready() -> void:
 	lamp.button_pressed = SceneView.lamp_light
 	lamp.toggled.connect(func(on: bool): SceneView.lamp_light = on)
 	_box.add_child(lamp)
+	var flick := CheckButton.new()   # a luminária piscando, como na ligação desconhecida (`Main.flick`; ela também liga e desliga)
+	flick.text = "Luminária piscando"
+	flick.focus_mode = Control.FOCUS_NONE
+	flick.button_pressed = main.flick
+	flick.toggled.connect(func(on: bool): main.flick = on)
+	_box.add_child(flick)
 	var car := OptionButton.new()   # o modelo do carro que passa lá fora
 	car.focus_mode = Control.FOCUS_NONE
 	car.add_item("carro sorteado")

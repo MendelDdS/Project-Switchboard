@@ -151,7 +151,7 @@ const STEEL := Color("566052")   ## o aço pintado do armário...
 const STEEL_TONES: Array[Color] = [Color("2a3433"), Color("394341"), Color("464f48"), STEEL, Color("6a705e"),
 	Color("7f836c"), Color("939379")]
 ## A tinta da parede do fundo pela luz da luminária nela (`Background._wall_runs`): longe, mais fria; no meio, a de
-## sempre; perto da boca do cone, mais quente. O brilho quase não muda: o escuro é o da sala (`_draw_gloom`), por cima.
+## sempre; perto da boca do cone, mais quente. O brilho quase não muda: o escuro é o da sala (`_noir_params`), por cima.
 const WALL_TONES: Array[Color] = [Color("12202c"), WALL_PAINT, Color("2a2a20")]
 ## O escuro do armário, do mais fundo ao menos: o vão aberto, o fundo dele, o lado de baixo das prateleiras, a parede
 ## de dentro, as frestas, as fendas das venezianas e o tampo das prateleiras.

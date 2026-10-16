@@ -2,6 +2,7 @@ shader_type canvas_item;
 // A luz da luminária por cima do cenário pronto (`SceneView`, plano hi-bit, etapa 5): a poça quente que soma cor,
 // caindo lisa a partir do meio dela (sem degraus), e de fora o vidro da janela (a vista tem a luz dela). Os
 // parâmetros vêm do `Background` a cada quadro (`SceneView._process`), sem redesenhar a sala.
+#include "res://scripts/ui/glass.gdshaderinc"
 
 uniform vec2 size = vec2(960.0, 540.0);       // o cenário, em px (o `UV` vezes ele: px da tela)
 uniform vec2 center = vec2(480.0, 400.0);     // o meio da poça no tampo (px)
@@ -10,25 +11,7 @@ uniform float level = 1.0;                    // a luminária: 1 acesa, menos pi
 uniform vec3 tint : source_color = vec3(1.0, 0.78, 0.5);   // a cor dela (mais laranja esquentando)
 uniform float gain = 0.5;                     // o quanto a cor de cada pixel cresce no meio da poça...
 uniform float add = 0.03;                     // ...e a cor pura somada (pouca: muita lavava o escuro)
-uniform vec2 glass[8];                        // o vidro da janela abaixo da persiana (convexo, até 8 cantos), sem luz...
-uniform int glass_n = 0;                      // ...e quantos cantos ele tem (0: persiana fechada)
 uniform vec4 daylight = vec4(1.0, 0.95, 0.85, 0.0);   // a luz do dia pela janela (cor, força): a etapa 7; 0 por ora
-
-bool in_glass(vec2 p) {   // dentro do polígono convexo: do mesmo lado de todas as beiras
-	if (glass_n < 3) {
-		return false;
-	}
-	bool pos = false;
-	bool neg = false;
-	for (int i = 0; i < glass_n; i++) {
-		vec2 a = glass[i];
-		vec2 b = glass[(i + 1) % glass_n];
-		float s = (b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x);
-		pos = pos || s > 0.0;
-		neg = neg || s < 0.0;
-	}
-	return !(pos && neg);
-}
 
 void fragment() {
 	vec4 c = COLOR;   // (no Godot 4, já é a textura vezes a cor do desenho)

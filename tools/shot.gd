@@ -32,6 +32,7 @@ extends Node
 ##   --sips=3               goles tomados do café · --cabinet: a porta do armário aberta
 ##   --written=2            fichas registradas (o lugar do lápis no bloco)
 ##   --wait=5               segundos antes de capturar (a luminária esquenta em 4)
+##   --dim=N                a luminária presa no nível N (0 a 1), como no meio de uma piscada
 ##   --lamp=0               sem a luz da luminária no shader do cenário (`SceneView.lamp_light`)
 ##   --grade=0              sem a gradação de cor do `GameView` (a captura passa por ela, como a janela do jogo)
 ##   --still                sem a poeira do feixe da luminária, que muda a cada captura (para comparar capturas pixel a
@@ -68,6 +69,7 @@ func _ready() -> void:
 	if not _args.has("night"):
 		m.night_no = 1   # não lê nem grava o progresso salvo
 	vp.add_child(m)
+	m.background.lamp_hold = float(_args.get("dim", "-1"))
 	await get_tree().process_frame
 	m.sched.clear()   # nada toca sozinho
 	if _args.get("screen") == "intro":

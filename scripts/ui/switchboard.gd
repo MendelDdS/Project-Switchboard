@@ -153,6 +153,14 @@ func _ready() -> void:
 		_order.append(i)
 
 
+## A luminária piscando ou ainda fria escurece a mesa como escurece a sala (`Background.lamp_dark`, posto pelo Main a
+## cada quadro), no `modulate`: tudo o que ela desenha, onde estiver (os plugs na prateleira, o fio arrastado até o
+## painel de baixo), e nada se redesenha. (Uma camada por cima, com o shader do escuro da sala, só cobria o retângulo
+## dela; estendida até a prateleira, escurecia duas vezes a madeira, que é do cenário.)
+func dim(extra: float) -> void:
+	modulate = Color.WHITE.darkened(extra)
+
+
 func setup(ex: Exchange, socket: Control, cord_tray: Control) -> void:
 	exchange = ex
 	fone_socket = socket

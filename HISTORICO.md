@@ -1174,3 +1174,31 @@ Chaves:
     (`Background.light`, `LAMP_LIGHT`, `Pal.LAMP_POOL`), com o vidro da janela de fora e o parâmetro da luz do dia
     (0 até a etapa 7). Uma chave no painel de debug ("Luz da luminária (shader)") e `--lamp=0` na captura comparam
     com e sem.
+213. #luz
+    Hi-bit 5.3: o escuro da sala (noir) saiu do desenho (`_draw_gloom`, uma grade de 40 × 24 na camada de cima) para um
+    shader numa camada própria logo abaixo dela (`_noir`, `room_noir.gdshader`, `_noir_params`), com a mesma conta,
+    agora ponto a ponto, e o vidro da janela de fora; a luminária piscando ou esquentando muda só um parâmetro. Não foi
+    para o shader do `SceneView`, que vale por cima de tudo: o reflexo da janela, o embaçado do vidro e o relâmpago,
+    desenhados depois do escuro, escureceriam junto. A sala saiu igual ao pixel nas três horas e nos três climas.
+214. #luz
+    Hi-bit 5.4: a luminária piscando ou esquentando saiu do desenho da sala: os objetos não escurecem mais por conta
+    própria (`_flick`, `_flicker`), a poça, o arco na parede e a luz no armário ficam sempre no nível cheio, e o
+    `lamp_level` saiu do `_state`; quem escurece é o shader do escuro da sala, com o escuro a mais do piscar maior
+    (`FLICK_DARK` 0,45, a soma dos dois de antes). Os postes de lá, que apagam no piscar, foram para a camada de cima
+    (`_posts`). Piscando, a sala parou de se redesenhar (eram 6 vezes por segundo). Acesa, a sala saiu igual ao
+    pixel; numa piscada, o brilho médio é o mesmo, a parede um pouco mais escura e os objetos um pouco menos.
+    `--dim=N` na captura prende a luminária num nível.
+215. #luz #mesa-comutadora
+    Hi-bit 5.5: a mesa comutadora passou a piscar e esquentar com a luminária, como a sala (antes, só a sala
+    escurecia), no `modulate` dela (`Switchboard.dim`, `Background.lamp_dark`): tudo o que ela desenha escurece, os
+    plugs na prateleira e o fio arrastado também, e nada se redesenha. O véu da luz pela distância
+    (`_draw_room_light`), o `_lit_by` dos fios e o degrau dos metais ficam no desenho: são parados. Uma camada por cima
+    com o shader do escuro da sala só cobria o retângulo dela (os plugs guardados ficavam claros) e, estendida até a
+    prateleira, escurecia duas vezes a madeira, que é do cenário.
+216. #luz #janela
+    Hi-bit 6.1: as luzes de fora entram pela janela num shader (`window_lights.gdshader`, a camada `_window_lights`
+    do `Background`, até 8 luzes por parâmetro): o vermelho do letreiro aceso e o amarelo dos postes de lá tingem o vão,
+    o peitoril e a persiana, sem passar pelo vidro; o relógio e a caneca ficam na frente, porque a camada fica embaixo
+    dos objetos da mesa. No lugar do reflexo vermelho fraco desenhado (`SIGN_GLOW`). Ligar e desligar uma luz (o
+    letreiro falhando, os postes apagando com a luminária) só muda os parâmetros: a sala não se redesenha. Fica
+    embaixo do escuro da sala, que deixa ~1/5 dela perto da janela, por isso a força alta (`SIGN_LIGHT`, `POST_LIGHT`).
