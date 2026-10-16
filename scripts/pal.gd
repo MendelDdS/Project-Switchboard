@@ -180,6 +180,13 @@ const STARS: Array[Color] = [Color("56606c"), Color("c9d2dc")]   ## as estrelas:
 const MOON := Color("d8d0a8")       ## a lua no alto...
 const MOON_LOW := Color("e0a868")   ## ...e perto do horizonte (o ar mais grosso avermelha)
 const CLOUD_RIM := Color("8a8f8a")  ## a beira das nuvens na frente da lua
+## O amanhecer da última noite (`Background.dawn`: 0 às 4h05, 1 às 6h): [quando, o céu no alto, no horizonte], da noite
+## limpa (o horizonte dela é o `SKY` clareado) ao dia, passando pelo azul-escuro e pelo rosa-alaranjado no horizonte.
+const DAWN_SKY := [[0.0, Color("0a1422"), Color("27303c")], [0.22, Color("111d36"), Color("2e2c4a")],
+	[0.48, Color("26416c"), Color("a0605c")], [0.7, Color("4a74a6"), Color("eb9a5e")], [1.0, Color("80a8d0"), Color("f0d2a0")]]
+const DAWN_GLOW := Color("ffb070")    ## o clarão do lado onde o sol nasce
+const DAWN_CLOUD := Color("e8a088")   ## as nuvens pegando a luz dele por baixo
+const SUN := Color("fff2d0")          ## o sol, baixo
 const OVERCAST_LIT := Color("3e3733")    ## a nuvem da chuva clareada por baixo pelas luzes da cidade (perto do horizonte)
 const OVERCAST_DARK := Color("0d1216")   ## os vãos mais escuros entre elas
 const OVERCAST_DECK := Color("1b1e23")   ## o fundo de nuvem no alto (no horizonte, `OVERCAST_LIT`)

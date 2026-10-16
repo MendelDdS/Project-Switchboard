@@ -1213,3 +1213,19 @@ Chaves:
     contando) iluminam o tampo em volta, na cor delas, pela mesma camada das luzes de fora (`window_lights.gdshader`,
     embaixo dos objetos: eles ficam na frente). Quem declara a luz ao brilho (`_light`) diz até onde ela cai no tampo
     (`spill`). A tela do rádio não entrou: ele fica no painel de baixo, fora da sala.
+219. #turno #relogio #clima #noites
+    Hi-bit 7.1: a última noite (a 15) vai das 18h às 6h, sem parar à meia-noite, para o dia nascer no fim da história.
+    O fim do turno virou campo da noite (`Night.shift_end`), não um caso especial; a última ligação, o botão Encerrar
+    turno, a plaqueta do turno ("18:00–06:00") e o relatório seguem ele. Decidido com o usuário: o Esc continua
+    pausando, a janela olha para o leste (o sol entra na sala), o relógio anda no ritmo de sempre (12 h ≈ 16 min) e o
+    clima é sorteado, mas a chuva ou a névoa param aos poucos perto da meia-noite (`Night.clears_at`), para o
+    amanhecer ser de céu aberto. Por ora a névoa some de uma vez; o véu dela indo embora aos poucos fica com o céu (7.2).
+220. #janela #clima #luz #noites
+    Hi-bit 7.2: o amanhecer na vista da janela, na última noite. O céu clareia às 4h05, passa pelo rosa-alaranjado no
+    horizonte e às 6h é dia; as estrelas somem às 4h30 e a lua empalidece. A janela olha para o leste, onde a lua
+    nasce atrás da igreja, então o sol nasce às 5h25 no fundo da rua do cruzamento, perto dela: a cidade fica contra a
+    luz, e não a "primeira luz no alto da igreja" do plano. Postes e neon apagam às 5h15, janelas acendem com gente
+    acordando e a rua volta a ter gente e carros. A névoa que abre à meia-noite some aos poucos nos 40 min antes.
+221. #debug #noites
+    Um botão no painel de debug para ir direto às 4h da última noite, o começo do amanhecer ("Amanhecer (última
+    noite, 4h)"), sem jogar o turno até lá.

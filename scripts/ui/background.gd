@@ -170,6 +170,8 @@ var _blind_poly := PackedVector2Array()   # o que ela tampa da janela (px da tel
 var _shelf := Vector2(INF, INF)   # `shelf()`, em px do cenário
 var _view: Control     # desenha a vista da janela no `_vport`: a frente dela, a cada quadro da vista
 var _back: Control     # a parte de trás da vista, embaixo da `_view`: só se redesenha quando muda (`_back_state`)
+var _sky: Control      # o céu da vista, embaixo da `_back` e fora da luz do dia da cidade (`DAY_GAIN`): redesenhado com ela
+var _pane: Control     # o vidro da vista, por cima da `_view`: o reflexo da sala e a chuva nele, fora da luz do dia
 var _back_drawn := []
 var _vport: SubViewport
 var _cover := Rect2()   # onde está o papel da ferramenta aberta (px da tela, não de 2x2): luz embaixo dele não brilha
@@ -231,12 +233,18 @@ func _ready() -> void:
 	_vport = SubViewport.new()
 	_vport.size = Vector2i(64, 64)
 	_vport.render_target_update_mode = SubViewport.UPDATE_ONCE   # a cada quadro da vista (`_process`)
+	_sky = Control.new()
+	_sky.draw.connect(_draw_view_sky)
+	_vport.add_child(_sky)
 	_back = Control.new()
 	_back.draw.connect(_draw_view_back)
 	_vport.add_child(_back)
 	_view = Control.new()
 	_view.draw.connect(_draw_view)
 	_vport.add_child(_view)
+	_pane = Control.new()
+	_pane.draw.connect(_draw_view_glass)
+	_vport.add_child(_pane)
 	add_child(_vport)
 	_blind_layer = Control.new()
 	_blind_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -362,7 +370,7 @@ func _process(delta: float) -> void:
 		_noir_set = dk
 		_noir_params()
 		_show()
-	var ov := [size, _paper(), lamp_level > 0.5, _sign_on(), _moon_glow(), _mist_force(), _blind_rows]
+	var ov := [size, _paper(), lamp_level > 0.5, _posts_on(), _sign_on(), _moon_glow(), _mist_force(), _blind_rows]
 	if ov != _over_drawn:   # (o papel deslizando entra aqui: o corte do brilho acompanha já neste quadro)
 		_over_drawn = ov
 		_over.queue_redraw()
@@ -429,8 +437,15 @@ func _process(delta: float) -> void:
 	var bs := _back_state()
 	if bs != _back_drawn:
 		_back_drawn = bs
+		_sky.queue_redraw()
 		_back.queue_redraw()
+	var tones := _sky_tones()   # a luz do dia na cidade: o céu clareando, no `modulate` (acima de 1 clareia; um shader
+	var day := Color.WHITE + tones[0].lerp(tones[1], 0.4) * DAY_GAIN * smoothstep(0.1, 1.0, dawn())   # nelas desfazia o lote das chamadas)
+	day.a = 1.0
+	_back.modulate = day   # (o céu, embaixo, e o vidro, por cima, ficam de fora)
+	_view.modulate = day
 	_view.queue_redraw()
+	_pane.queue_redraw()
 	_vport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	_show()
 
@@ -621,7 +636,7 @@ func _events(delta: float) -> void:
 	if late != _late_sent:   # a cidade se calando: grilos mais presentes, menos gente e carro
 		_late_sent = late
 		Sfx.set_late(late)
-	var rare := lerpf(1.0, LATE_EVERY, late)
+	var rare := lerpf(1.0, LATE_EVERY, late * (1.0 - morning()))   # (de manhã, os carros voltam)
 	if _tolls > 0:   # o sino da igreja batendo a hora
 		_toll_in -= delta
 		if _toll_in <= 0.0:
@@ -672,7 +687,7 @@ func _events(delta: float) -> void:
 		if c["t"] >= 1.0:
 			_car_in[c["lane"]] = randf_range(CAR_EVERY.x, CAR_EVERY.y) * rare
 			_cars.remove_at(i)
-	var crowd := 1.0 - clampf((minutes - WALK_FROM) / (WALK_UNTIL - WALK_FROM), 0.0, 1.0)
+	var crowd := maxf(1.0 - clampf((minutes - WALK_FROM) / (WALK_UNTIL - WALK_FROM), 0.0, 1.0), morning())
 	_walk_in -= delta
 	if _walk_in <= 0.0 and crowd > 0.0:
 		_walk_in = randf_range(WALK_EVERY.x, WALK_EVERY.y) / maxf(crowd, 0.05)
@@ -917,7 +932,7 @@ func _draw_over() -> void:
 	for l: Array in _glows:
 		if not _cover.intersects(l[0]) and not _behind_blind(l[0]):
 			Bloom.light(_over, l[0], l[1], l[2], l[3], l[4])
-	if lamp_level > 0.5:   # os postes de lá, que apagam com a luminária piscando (a ligação desconhecida)
+	if _posts_on():   # os postes de lá, que apagam com a luminária piscando (a ligação desconhecida) e de manhã
 		for r: Rect2 in _posts:
 			if not _cover.intersects(r) and not _behind_blind(r):
 				Bloom.light(_over, r, Pal.STREET_LAMP, 0.8, true, false)
@@ -1148,7 +1163,7 @@ func _window_light_list() -> Array:
 		out.append([(l[0] as Rect2).get_center(), Vector2(l[2], DESK_LIGHT), l[1]])
 	if _sign_px != Vector2.ZERO and _sign_on() and not _behind_blind(Rect2(_sign_px, Vector2.ONE)):
 		out.append([_sign_px, SIGN_LIGHT, Pal.SIGN_RED])
-	if lamp_level > 0.5:
+	if _posts_on():
 		for r: Rect2 in _posts:
 			if out.size() < 8 and not _behind_blind(r):
 				out.append([r.get_center(), POST_LIGHT, Pal.STREET_LAMP])
@@ -1564,8 +1579,29 @@ func _draw_view() -> void:
 	if not window_art:
 		_draw_city_front(Rect2(g.position, g.size - Vector2(0, _near)))
 		_draw_shrub()
+	_ci = self
+
+
+## O vidro da vista (`_pane`), por cima dela e fora da luz do dia: o reflexo da sala, sumindo com o dia lá fora, e a
+## chuva no vidro.
+func _draw_view_glass() -> void:
+	_ci = _pane
+	_pane.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	var g := Rect2(Vector2.ZERO, Vector2(_vport.size) / 2.0)
+	_pane.modulate.a = 1.0 - dawn()   # (de dia, a rua clara apaga o reflexo; o tempo do vidro já parou)
 	_draw_reflection(g)
 	_draw_glass_weather(g)
+	_ci = self
+
+
+## O céu da vista (`_sky`), embaixo da cidade: redesenhado com ela (`_back_state`).
+func _draw_view_sky() -> void:
+	if window_art:
+		return
+	_ci = _sky
+	_sky.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	var g := Rect2(Vector2.ZERO, Vector2(_vport.size) / 2.0)
+	_draw_sky(Rect2(g.position, g.size - Vector2(0, _near)))
 	_ci = self
 
 
@@ -1598,7 +1634,8 @@ func _back_state() -> Array:
 	elif weather == "rain":
 		clouds = int(_overcast_x(0) * _vport.size.x)
 	return [_vport.size, _near, weather, window_art, int(minutes), flick, lamp_level > 0.5, snappedf(_flash(), 0.02),
-		_sign_on(), stars, clouds, _moon_light(), snappedf(minutes, 0.5) if weather != "rain" and _moon_t() < 1.0 else 0.0]   # (a lua subindo: meio minuto, ~0,6 px)
+		_sign_on(), stars, clouds, _moon_light(), snappedf(minutes, 0.5) if weather != "rain" and _moon_t() < 1.0 else 0.0,
+		snappedf(dawn(), 0.005), _posts_on()]   # (a lua e o sol subindo: meio minuto, ~0,6 px)
 
 
 ## À noite, com a sala acesa, o vidro reflete um pouco dela, por cima da cidade (e da silhueta, que fica atrás do
@@ -1776,8 +1813,10 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	if _vport.size != Vector2i(view.size * 2.0) or out_x != _out_x:   # o vidro em px da tela: a vista também é desenhada em 1x1
 		_out_x = out_x
 		_vport.size = Vector2i(view.size * 2.0)
+		_sky.queue_redraw()
 		_back.queue_redraw()   # já, e não no próximo quadro dela: na pausa (a janela mudando de tamanho), ficava vazia
 		_view.queue_redraw()
+		_pane.queue_redraw()
 		_vport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	var uv := PackedVector2Array()
 	for p in q:

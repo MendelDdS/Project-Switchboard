@@ -32,9 +32,9 @@ END_TRAINING_TITLE,Fim do treinamento,End of training,Fin del entrenamiento
 END_TRAINING_TEXT,"Na segunda-feira, às 18:00, a central é sua.","On Monday at 18:00, the switchboard is yours.","El lunes, a las 18:00, la central es suya."
 NEXT_NIGHT,Próxima noite,Next night,Siguiente noche
 SHIFT_HOURS,"Turno
-18:00–00:00","Shift
-18:00–00:00","Turno
-18:00–00:00"
+%s–%s","Shift
+%s–%s","Turno
+%s–%s"
 BOARD_INPUTS,ENTRADAS · FONE,INPUTS · HEADSET,ENTRADAS · AURICULAR
 BOARD_OUTPUTS,SAÍDAS · CABO DE CONEXÃO,OUTPUTS · PATCH CORD,SALIDAS · CABLE DE CONEXIÓN
 CONSOLE_IDLE,Aguardando chamada,Waiting for a call,Esperando llamada
@@ -381,7 +381,7 @@ shift","Terminar
 turno"
 FAULT_SHIFT_HUNG_UP,Encerrou o turno com alguém na linha,Ended the shift with someone on the line,Terminó el turno con alguien en la línea
 OBS_SHIFT_ENDED,Turno encerrado durante a ligação.,Shift ended during the call.,Turno terminado durante la llamada.
-HINT_MIDNIGHT,"Meia-noite. Registre o que falta na ficha e guarde os bilhetes, ou encerre o turno.","Midnight. Log what's left on the log sheet and file the tickets, or end the shift.","Medianoche. Registre lo que falta en la ficha y guarde las boletas, o termine el turno."
+HINT_MIDNIGHT,"Fim do turno. Registre o que falta na ficha e guarde os bilhetes, ou encerre o turno.","End of shift. Log what's left on the log sheet and file the tickets, or end the shift.","Fin del turno. Registre lo que falta en la ficha y guarde las boletas, o termine el turno."
 CALL_LOG_EMPTY,Nenhuma conversa ainda. Tudo o que for dito com o FONE na linha fica registrado aqui.,No conversations yet. Everything said with the HEADSET on the line is logged here.,Ninguna conversación todavía. Todo lo que se diga con el AURICULAR en la línea queda registrado aquí.
 TRUNK_OPERATOR,Telefonista (%s),Operator (%s),Operadora (%s)
 OP_TRUNK_NUMBER,"Aqui é São Sotero. O número %s, por favor.","São Sotero calling. Number %s, please.","Aquí São Sotero. El número %s, por favor."

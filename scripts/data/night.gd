@@ -8,6 +8,11 @@ extends Resource
 @export_multiline var note := ""
 ## Clima fixo da noite; vazio ("Sorteado") = sorteado.
 @export_enum("Sorteado:", "rain", "fog", "clear") var weather := ""
+## O fim do turno (minutos depois do início, às 18h): 360 = meia-noite; a última noite vai até as 6h (720).
+@export var shift_end := 360.0
+## A chuva ou a névoa vão parando até esta hora (minutos depois do início) e a noite fica limpa (-1 = nunca): na
+## última noite, para o dia nascer de céu aberto.
+@export var clears_at := -1.0
 
 @export_group("Roteiro")
 ## Ligações do roteiro: sempre as mesmas, no horário marcado.

@@ -355,3 +355,6 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   despacho, ela sumia (o usuário viu). E a lista do erguido se esvazia quando ele assenta (no desenho dos objetos, com
   `_up_id` vazio): esquecida, a luz contava em dobro depois de o mouse sair. Quem acrescenta algo que o objeto declara ao desenhar (luz, brilho, contorno)
   confere com `--hover=id`.
+- **Texto mudado no `ui.csv` com o editor aberto: as `.translation` (no git) só se refazem na importação.** Sem ela, o
+  jogo e as capturas usam o texto antigo (a plaqueta do turno continuou "18:00–00:00" e o `%` deu erro de formatação).
+  Sem `--import` no projeto, gere num worktree (copie o csv, importe lá, traga as `ui.*.translation`).

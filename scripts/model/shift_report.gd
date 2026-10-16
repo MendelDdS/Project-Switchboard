@@ -37,6 +37,7 @@ const FAULTS := {
 }
 
 var night := 1
+var end := 360.0                     ## o fim do turno (minutos depois do início, `Night.shift_end`)
 var severe_before := 0               ## advertências graves das noites anteriores
 var faults: Array[Dictionary] = []   ## {"id", "time", "detail"}, em ordem
 var later: Array = []                ## as que só chegam no relatório da noite seguinte (`Supervisor.fault_later`)

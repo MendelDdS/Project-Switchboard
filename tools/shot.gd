@@ -80,7 +80,7 @@ func _ready() -> void:
 	m._intro.visible = false
 	m._start_shift()
 	var hm: PackedStringArray = _args.get("hour", "20:00").split(":")
-	m.minutes = (int(hm[0]) - Main.SHIFT_START_HOUR) * 60.0 + (int(hm[1]) if hm.size() > 1 else 0)
+	m.minutes = (posmod(int(hm[0]) - Main.SHIFT_START_HOUR, 24)) * 60.0 + (int(hm[1]) if hm.size() > 1 else 0)   # (05:30 é depois da meia-noite)
 	if _args.has("news"):
 		m.set_news([{"outcome": 0, "template": GameData.CONTENT.news_ok[0], "occurrence": "Outro", "address": "Rua do Sol, 10"}])
 	if _args.has("toll"):

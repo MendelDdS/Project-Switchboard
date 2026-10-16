@@ -51,9 +51,9 @@ func show_report(r: ShiftReport) -> void:
 	for n in _body.get_children():
 		n.queue_free()
 	if r.night == 0:
-		_night.text = _ink(T.text(T.Key.REPORT_TRAINING) % [Main.fmt(0.0), Main.fmt(Main.SHIFT_END)])
+		_night.text = _ink(T.text(T.Key.REPORT_TRAINING) % [Main.fmt(0.0), Main.fmt(r.end)])
 	else:
-		_night.text = _ink(T.text(T.Key.REPORT_NIGHT) % [r.night, Main.fmt(0.0), Main.fmt(Main.SHIFT_END)])
+		_night.text = _ink(T.text(T.Key.REPORT_NIGHT) % [r.night, Main.fmt(0.0), Main.fmt(r.end)])
 	var lines := 0
 	_line("[u]%s[/u]" % T.text(T.Key.REPORT_WARNINGS))
 	if r.faults.is_empty():

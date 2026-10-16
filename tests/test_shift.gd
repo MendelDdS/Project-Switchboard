@@ -300,5 +300,5 @@ func _initialize() -> void:
 	print("despachos (estágio e barra corrida): ", ", ".join(stages))
 	print("bilhetes guardados=%d, esquecidos na mesa=%d" % [m.toll.filed, m.toll.waiting()])
 	ok(myst_at != "" or m.night.mystery.is_empty(), "a ligação desconhecida tocou")
-	ok(m.ending and m.minutes >= m.SHIFT_END, "o turno terminou no horário")
+	ok(m.ending and m.minutes >= m.shift_end, "o turno terminou no horário")
 	finish("turno completo")

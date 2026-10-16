@@ -7,9 +7,9 @@ extends Control
 
 const GAME_MIN_PER_SEC := 0.75          # 360 minutos de turno ≈ 8 minutos reais
 const SHIFT_START_HOUR := 18            # o turno vai das 18:00...
-const SHIFT_END := 360.0                # ...até 00:00 (minutos depois do início)
-const LAST_CALL := 340.0                # 23:40: nada novo toca depois (a desconhecida tem regra própria) e aparece
-										# o botão Encerrar turno; quem está na linha à meia-noite é atendido até o fim
+const LAST_CALL_BEFORE := 20.0          # ...até `Night.shift_end`; tantos minutos antes dele, nada novo toca (a desconhecida
+										# tem regra própria) e aparece o botão Encerrar turno; quem está na linha no fim é atendido até o fim
+const CLEAR_SEC := 40.0                 # o som e a cor indo para a noite limpa quando a chuva ou a névoa param (`Night.clears_at`)
 const SHADOW_LEAD := 25.0               # minutos antes da ligação desconhecida em que o homem para embaixo do poste (chega andando)...
 const SHADOW_LEAVE := 10.0              # ...e em que vai embora andando (para ir ligar): fica 15 minutos
 const WEATHERS := ["rain", "fog", "clear"]   # clima sorteado no começo do turno (`-- --weather=fog` força um)
@@ -27,6 +27,8 @@ const TAB_KEYS := {Tools.DIRECTORY: "tab_directory", Tools.DISPATCH: "tab_dispat
 var C: GameContent = GameData.CONTENT
 
 var exchange: Exchange
+var shift_end := 360.0             ## o fim do turno (minutos depois do início; o da noite, `Night.shift_end`)
+var last_call := 340.0             ## nada novo toca depois (`LAST_CALL_BEFORE` antes do fim)
 var night_no := -1                 ## número da noite (0 = o treinamento, 1 = a primeira); -1 = a salva (`-- --night=N` força uma, sem salvar)
 var night: Night                   ## roteiro fixo da noite
 var pace_level := 1                ## nível de ritmo desta noite (GameContent.paces)
@@ -108,12 +110,16 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
 	_apply_seed()
+	_shift_hours.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED   # (as horas da noite: a última vai até as 6h)
+	_shift_hours.text = T.text(T.Key.SHIFT_HOURS) % [fmt(0.0), fmt(shift_end)]
 	weather = night.weather if night.weather != "" else WEATHERS.pick_random()
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--weather=") and a.get_slice("=", 1) in WEATHERS:
 			weather = a.get_slice("=", 1)
 	background.weather = weather
 	GameView.grade_weather(self, weather)
+	if night.clears_at >= 0.0:
+		background.clears_at = SHIFT_START_HOUR * 60 + night.clears_at
 	background.night = night_no
 	notebook.night = night_no
 	toll.night = night_no
@@ -122,8 +128,8 @@ func _ready() -> void:
 	board.setup(exchange, %FoneSocket, %CordTray)
 	board.shelf = background.shelf   # onde a prateleira acaba: além dela, o plug solto cai até o tampo
 	board.eye = background.eye   # os olhos do operador: a paralaxe dos plugs encaixados
-	var plan := Schedule.build(night, pace, LAST_CALL)
-	sched = plan.calls
+	var plan := Schedule.build(night, pace, last_call)
+	sched = plan.calls.filter(func(c: PhoneCall) -> bool: return c.at >= minutes)   # (o debug pode começar mais tarde)
 	myst_plan = plan.mystery_at
 	after = night.mystery.is_empty()   # noite sem ligação desconhecida: o turno fecha à meia-noite
 	board.end_changed.connect(_on_end_changed)
@@ -205,6 +211,9 @@ func _load_night() -> void:
 	pace_level = clampi(forced_pace if forced_pace > 0 else pace_level, 1, C.paces.size())
 	pace = C.paces[pace_level - 1]
 	report.night = night_no
+	shift_end = night.shift_end
+	last_call = shift_end - LAST_CALL_BEFORE
+	report.end = shift_end
 
 
 ## `godot -- --seed=123` repete a mesma agenda de ligações (útil para reproduzir bugs).
@@ -221,6 +230,11 @@ static func fmt(m: float) -> String:
 	if t < 0:
 		t += 1440
 	return "%02d:%02d" % [t / 60, t % 60]
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED and _shift_hours:
+		_shift_hours.text = T.text(T.Key.SHIFT_HOURS) % [fmt(0.0), fmt(shift_end)]
 
 
 func hint(t: String) -> void:
@@ -243,12 +257,12 @@ func warn(t: String) -> void:
 
 ## Troca o clima na hora (painel de debug): a janela, a gradação de cor (aos poucos), o ambiente (se a noite já
 ## começou) e a conversa fiada.
-func set_weather(w: String) -> void:
+func set_weather(w: String, sec := 2.0) -> void:
 	weather = w
 	background.weather = w
-	GameView.grade_weather(self, w, 2.0)
+	GameView.grade_weather(self, w, sec)
 	if running:
-		Sfx.set_weather(w, 2.0)
+		Sfx.set_weather(w, sec)
 
 
 # ================================================================ laço principal
@@ -285,9 +299,9 @@ func _across(x: float) -> float:
 func _process(delta: float) -> void:
 	talk_clock += delta
 	if running:
-		# à meia-noite o relógio para, a não ser que ainda haja alguém na linha (o turno se estende até resolver)
+		# no fim do turno o relógio para, a não ser que ainda haja alguém na linha (o turno se estende até resolver)
 		# no treinamento, o relógio só anda depois que a veterana termina (e nada da agenda toca antes)
-		if (minutes < SHIFT_END or not live.is_empty()) and not training.active:
+		if (minutes < shift_end or not live.is_empty()) and not training.active:
 			minutes += delta * GAME_MIN_PER_SEC
 		if int(minutes) != _minute:   # a plaqueta do relógio de flip vira: o "tic" quando ela bate, vindo do relógio
 			if _minute >= 0:   # (no começo do turno, nada vira)
@@ -296,15 +310,17 @@ func _process(delta: float) -> void:
 			_minute = int(minutes)
 		_run_schedule()
 		_update_line_timers()
-		# o turno fecha depois da meia-noite, da ligação desconhecida, da última ligação e do último registro
+		# o turno fecha depois do fim do turno, da ligação desconhecida, da última ligação e do último registro
 		# (com registro pendente ou bilhete na mesa, espera o operador registrar e guardar ou encerrar pelo botão)
-		if minutes >= SHIFT_END and after and live.is_empty():
+		if minutes >= shift_end and after and live.is_empty():
 			if not _unregistered():
 				start_ending()
 			elif not _taught_midnight:
 				_taught_midnight = true
 				hint(T.text(T.Key.HINT_MIDNIGHT))
-		var can_end := after and minutes >= LAST_CALL and not ending
+		var can_end := after and minutes >= last_call and not ending
+		if night.clears_at >= 0.0 and minutes >= night.clears_at and weather != "clear":   # a chuva ou a névoa pararam
+			set_weather("clear", CLEAR_SEC)
 		if can_end and not _end_shift.visible:   # a campainha da plaqueta: o turno já pode ser encerrado
 			Sfx.play_at("shift_bell", _across(_shift_hours.get_global_rect().get_center().x))
 		_end_shift.visible = can_end
@@ -781,8 +797,8 @@ func _run_schedule() -> void:
 	var c := sched[0]
 	if minutes < c.at:
 		return
-	# depois da última ligação (LAST_CALL) não toca mais nada, nem retorno nem quem estava esperando a vez
-	if minutes >= LAST_CALL and c.kind != PhoneCall.Kind.MYSTERY:
+	# depois da última ligação (`last_call`) não toca mais nada, nem retorno nem quem estava esperando a vez
+	if minutes >= last_call and c.kind != PhoneCall.Kind.MYSTERY:
 		sched.pop_front()
 		return
 	# ligação do roteiro cuja condição não bate (os marcadores podem ter mudado durante a noite)
@@ -822,7 +838,7 @@ func _scripted(c: PhoneCall) -> bool:
 ## hora). Não com uma do roteiro para tocar (elas pedem a mesa em silêncio) nem depois da última ligação.
 func _fill_quiet() -> void:
 	_quiet_from = minutes
-	if minutes >= LAST_CALL or sched.any(func(x: PhoneCall): return x.at < minutes + Schedule.STORY_GAP):
+	if minutes >= last_call or sched.any(func(x: PhoneCall): return x.at < minutes + Schedule.STORY_GAP):
 		return
 	var c := Schedule.info_call()
 	c.at = minutes
@@ -1206,7 +1222,7 @@ func _unregistered() -> bool:
 	return notebook.has_pending() or not notebook.queue.is_empty() or toll.waiting() > 0
 
 
-## Botão Encerrar turno (a partir de LAST_CALL): quem ainda está na linha ou tocando fica sem resposta, como se o
+## Botão Encerrar turno (a partir de `last_call`): quem ainda está na linha ou tocando fica sem resposta, como se o
 ## operador desligasse (advertência, `Supervisor.call_ended`); o que falta registrar conta como sem registro.
 func end_shift() -> void:
 	if ending:

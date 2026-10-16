@@ -4,4 +4,6 @@
 
 [resource]
 script = ExtResource("1_night")
+shift_end = 720.0
+clears_at = 360.0
 note = "O supervisor deixou um recado: \"Última noite do período. O relatório de hoje vai para a diretoria.\""

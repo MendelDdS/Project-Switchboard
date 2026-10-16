@@ -276,8 +276,8 @@ func _initialize() -> void:
 			return c.target.begins_with("3") or GameData.is_trunk(c.target)   # os troncos são da cidade toda
 		return c.kind != PhoneCall.Kind.INFO or c.answer.begins_with("3")
 	for s in 5:
-		ok(Schedule.build(C.nights[0], C.paces[0], m.LAST_CALL).calls.all(sector3), "agenda da noite 1 só pede números do setor 3")
-	var em_streets := func(): return Schedule.build(C.nights[0], C.paces[4], m.LAST_CALL).calls.filter(func(c: PhoneCall): return c.kind == PhoneCall.Kind.EMERGENCY).map(func(c: PhoneCall): return GameData.street(c.data.street).block_sector(c.data.block))
+		ok(Schedule.build(C.nights[0], C.paces[0], m.last_call).calls.all(sector3), "agenda da noite 1 só pede números do setor 3")
+	var em_streets := func(): return Schedule.build(C.nights[0], C.paces[4], m.last_call).calls.filter(func(c: PhoneCall): return c.kind == PhoneCall.Kind.EMERGENCY).map(func(c: PhoneCall): return GameData.street(c.data.street).block_sector(c.data.block))
 	for s in 5:
 		ok(em_streets.call().all(func(x): return x == 3), "emergências só nas ruas do setor 3")
 	# mapa: setor sombreado não responde; a viagem do Centro é mais longa quanto mais longe
@@ -388,15 +388,16 @@ func _initialize() -> void:
 	ok(range(1, top).all(func(i): return C.paces[i].call_gap.x <= C.paces[i - 1].call_gap.x), "o ritmo só aperta de um nível para o outro")
 	# agenda: montada sem a cena (noite → ligações em ordem, espaçadas das do roteiro e entre emergências)
 	for n in C.nights:
-		var plan := Schedule.build(n, m.pace, m.LAST_CALL)
+		var last := n.shift_end - Main.LAST_CALL_BEFORE   # (a última noite vai até as 6h)
+		var plan := Schedule.build(n, m.pace, last)
 		var ats: Array = plan.calls.map(func(c: PhoneCall): return c.at)
 		var in_order := ats.duplicate()
 		in_order.sort()
-		ok(ats == in_order and ats.all(func(a): return a >= 0.0 and a < m.SHIFT_END), "agenda em ordem: " + n.resource_path)
-		ok(plan.calls.all(func(c: PhoneCall): return c.story or c.kind == PhoneCall.Kind.MYSTERY or c.at < m.LAST_CALL),
+		ok(ats == in_order and ats.all(func(a): return a >= 0.0 and a < n.shift_end), "agenda em ordem: " + n.resource_path)
+		ok(plan.calls.all(func(c: PhoneCall): return c.story or c.kind == PhoneCall.Kind.MYSTERY or c.at < last),
 			"sorteadas antes da última ligação: " + n.resource_path)
 		ok((plan.mystery_at == INF) == n.mystery.is_empty(), "ligação desconhecida conforme a noite: " + n.resource_path)
-		ok(plan.calls.all(func(c: PhoneCall): return c.kind != PhoneCall.Kind.MYSTERY or c.latest <= m.LAST_CALL - Schedule.MYSTERY_MARGIN),
+		ok(plan.calls.all(func(c: PhoneCall): return c.kind != PhoneCall.Kind.MYSTERY or c.latest <= last - Schedule.MYSTERY_MARGIN),
 			"desconhecida toca antes da última ligação: " + n.resource_path)
 		var fixed := plan.calls.filter(func(c: PhoneCall): return c.story or c.kind == PhoneCall.Kind.MYSTERY)
 		ok(fixed.size() == n.story.size() + (0 if n.mystery.is_empty() else 1), "roteiro inteiro na agenda: " + n.resource_path)
@@ -1117,7 +1118,7 @@ func _initialize() -> void:
 	ok(m.flags.has("disse_sim") and "Que bom." in lines and not "Que pena." in lines, "a escolha ligou o marcador e mudou a fala")
 	_move(0, -1)
 	var sc := PhoneCall.from_transfer(GameData.transfers(TransferCall.Group.EXTRA)[1])
-	m.minutes = minf(m.minutes, Main.LAST_CALL - 60.0)   # o relógio andou com os cenários de antes; depois de LAST_CALL nada toca
+	m.minutes = minf(m.minutes, m.last_call - 60.0)   # o relógio andou com os cenários de antes; depois de `last_call` nada toca
 	sc.requires = PackedStringArray(["!disse_sim"])
 	sc.at = m.minutes
 	m.sched.push_front(sc)

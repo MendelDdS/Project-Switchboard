@@ -229,7 +229,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   - `run.sh` começa com `--import`: **`class_name` novo só existe depois de reimportar** (sem isso, parse error).
   - `tests/test_shift.gd`: robô que joga o turno inteiro e imprime métricas (máx. simultâneas, % com 2+/3+,
     % sem cabo livre, perdidas, maior silêncio); `run.sh` roda com `--seed=1..3`, um turno `--clumsy` (deixa de atender 1 em 3),
-    a noite 2 (`--night=2`) e um turno `--human` (5 s de jogo por ação, como uma pessoa: **é este que mede se o ritmo
+    a noite 2 (`--night=2`), a 15 (`--night=15`, até as 6h) e um turno `--human` (5 s de jogo por ação, como uma pessoa: **é este que mede se o ritmo
     cabe**; o robô normal é rápido demais). No `--human` o despacho passa pelo cartão (`_card_step`: pensar, marcar,
     esperar imprimir, perfurar, levar ao transmissor e esperar a leitura), e o estágio anotado é o da hora do envio.
     Com a mesa livre, ele registra no caderno e carimba e guarda os bilhetes (uma ação cada; imprime quantos guardou).
@@ -250,7 +250,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   sem ligação (de 1 a 12 minutos até agora, numa entrada sem contador; `Main.print_ticket`), pula estágio ou congela a barra (`Urgency.frozen`), mostra o que a emergência
   exige (contado e real), mostra a suspeita de cada conversa conectada e força o silêncio delas (`Eavesdrop.force_hush`; o
   Limpar é o `calm`, que também apaga as denúncias), velocidade 1–8×, pula o relógio, troca o clima na hora (`Main.set_weather`), liga e desliga a gradação de cor (`GameView.set_grade`), a luz da luminária no shader do cenário (`SceneView.lamp_light`) e a luminária piscando (`Main.flick`), faz passar um carro lá fora, na mão de lá ou na de cá e do modelo escolhido (`Background.pass_car`), encerra o turno, troca de noite (`_go_night`: troca o Main por um novo na noite anterior/seguinte, no mesmo pai, dentro da tela do `GameView`; posto na raiz, saía na resolução da janela e quebrava o layout; sem ler nem
-  gravar o progresso, para testar a entrega dos setores), libera viaturas (`Dispatch.reset`; `_gen` cancela
+  gravar o progresso, para testar a entrega dos setores; o "Amanhecer" abre a última noite já às 4h, com o relógio
+  no `minutes` do Main novo e a agenda de antes dela descartada no `_ready`), libera viaturas (`Dispatch.reset`; `_gen` cancela
   as viagens em andamento), registra pendências, limpa advertências e apaga o progresso. Mesa de som: toca cada som de `Sfx.VOL` com
   um controle de volume que vale na hora (`Sfx.vol`, a cópia em uso) e "Copiar VOL" põe a constante ajustada na área de
   transferência, para colar em `sfx.gd`. A aba Vozes (o painel tem duas abas, Jogo e Vozes) fala cada letra pelo nome
@@ -628,11 +629,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 ## Agenda e ritmo (constantes no topo de main.gd e schedule.gd; por noite em `Night`)
 - Ligação desconhecida (`MYSTERY`, entrada livre sorteada, guardada em `myst_line`) entre `Night.mystery_from` e `mystery_to` (22:00–23:30), só
   toca com a mesa em silêncio, por no máximo 30 min de jogo (`latest`, `Schedule.MYSTERY_WAIT`), e nunca depois de
-  `LAST_CALL - MYSTERY_MARGIN` (23:30): o botão Encerrar turno só aparece depois dela.
+  `last_call - MYSTERY_MARGIN` (23:30): o botão Encerrar turno só aparece depois dela.
 - **Ligação do roteiro toca sozinha** (`Main._scripted`: `story` ou a desconhecida): espera a mesa em silêncio por até
   `Schedule.STORY_WAIT` (30 min, `latest`) e, enquanto ela está na mesa, nenhuma outra toca (o robô confere).
 - **Mesa parada demais**: vazia por `QUIET_SHARE` do maior `Pace.call_gap`, toca um pedido de informação a mais
-  (`Main._fill_quiet`; não com uma do roteiro a menos de `STORY_GAP`, nem depois de `LAST_CALL`). O robô mede a maior
+  (`Main._fill_quiet`; não com uma do roteiro a menos de `STORY_GAP`, nem depois de `last_call`). O robô mede a maior
   mesa vazia (`mesa_vazia`, além do `maior_silêncio` entre toques).
 - Sorteadas: `Schedule._random_calls` — intervalo `Pace.call_gap` (nível 1: 45–60 … nível 5: 28–38; medido com `--human`) entre uma e a
   próxima, `Pace.peak_chance` de vir logo em seguida, no máximo `Pace.max_live` pedindo atenção (`_run_schedule`), a `STORY_GAP` das fixas. Tipos: `Pace.emergencies` (a `EMERGENCY_GAP` uma da outra; no laço, com
@@ -657,12 +658,25 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `EMERGENCY_NAG_AFTER`, só no estágio inicial da barra (depois, a fala de cada estágio já cobra a demora). A conversa fiada não vem mais logo depois do pedido. Conversa fiada só do cotidiano (nada
   que lembre o mistério: luzes piscando, carros parados, chiado na linha).
 - Conversas transferidas duram `TALK_LEN` (34–68 min de jogo ≈ 45–90 s reais).
-- Turno das 18:00 (`SHIFT_START_HOUR`) às 00:00 (`SHIFT_END` = 360 min); fim **depois** da ligação desconhecida ter caído (`start_ending`).
-- **Fim do turno**: nada novo toca depois de `LAST_CALL` (23:40; sorteadas param ali e `_run_schedule` descarta
+- Turno das 18:00 (`SHIFT_START_HOUR`) até o fim da noite (`Night.shift_end`, minutos depois do início, no
+  `Main.shift_end`: 360, a meia-noite; a última noite, a 15, vai até as 6h, 720, para o dia nascer); fim **depois** da
+  ligação desconhecida ter caído (`start_ending`). A plaqueta do turno, o relatório e o painel de debug leem o fim
+  dela; os horários passam da meia-noite pelo `Main.fmt`. A hora do dia no cenário (`Background.minutes`) passa de
+  1440 depois da meia-noite: o que compara com ela continua valendo. **O clima que abre** (`Night.clears_at`, a 15 à
+  meia-noite): a chuva afina até a garoa e o véu da névoa some nos `CLEAR_SPAN` min antes (`Background._clearing`) e,
+  na hora, a noite fica limpa (`Main.set_weather` em `CLEAR_SEC`). **O amanhecer** (a vista; a sala é a 7.3), pelas
+  horas de verdade de 22/10/1973 a ~22° S (`Background.DAWN`, `SUNRISE`, `STREET_OFF`, `MORNING`): o céu, numa camada
+  própria embaixo da cidade (`_sky`, `_draw_sky`; o vidro, `_pane`, por cima: o reflexo some com o dia), vai do
+  azul-escuro ao rosa-alaranjado no horizonte e ao dia (`Pal.DAWN_SKY`, `_sky_tones`), as estrelas somem até 4h30, a
+  lua empalidece e o sol nasce às 5h25 no fundo da rua do cruzamento, um pouco à direita da igreja (a janela olha
+  para o leste; `_draw_dawn`, `SUN_DX`). A cidade clareia pelo `modulate` da `_back` e da `_view` (`DAY_GAIN`; um
+  shader nelas desfazia o lote das chamadas de desenho), postes e neon apagam às 5h15 (`_posts_on`, `_sign_on`),
+  janelas acendem de madrugada e ficam (`WAKE_DAWN`) e a rua volta a ter gente e carro das 5h às 6h (`morning`).
+- **Fim do turno**: nada novo toca depois de `last_call` (`LAST_CALL_BEFORE` antes do fim, 23:40; sorteadas param ali e `_run_schedule` descarta
   retornos e atrasadas; a desconhecida tem regra própria). A partir daí, com a desconhecida já passada, o botão
   **Encerrar turno** (`%EndShift`, no lugar do texto do turno ao lado do relógio) fecha a noite: quem está na linha ou
   tocando termina com `End.SHIFT_OVER` (advertência média `shift_hung_up`; emergência sem despacho vira
-  `emergency_dropped`; já resolvida, `closing`, não conta; o registro dela não conta como sem registro). À meia-noite
+  `emergency_dropped`; já resolvida, `closing`, não conta; o registro dela não conta como sem registro). No fim
   ninguém é cortado: com alguém na linha o relógio continua até ela acabar; com a mesa vazia ele para, e o turno fecha
   sozinho quando não falta registrar nada nem bilhete na mesa (senão, `HINT_MIDNIGHT` e espera registrar e guardar ou
   o botão).

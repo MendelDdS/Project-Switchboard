@@ -72,8 +72,8 @@ func _ready() -> void:
 	for s: float in SPEEDS:
 		speeds.append(["%d×" % s, func(): Engine.time_scale = s])
 	_row(speeds)
-	_row([["+30 min", func(): main.minutes = minf(main.minutes + 30.0, Main.SHIFT_END - 1.0)],
-		["Ir para 23:50", func(): main.minutes = maxf(main.minutes, Main.SHIFT_END - 10.0)], ["Encerrar turno", func(): main.start_ending()]])
+	_row([["+30 min", func(): main.minutes = minf(main.minutes + 30.0, main.shift_end - 1.0)],
+		["Ir para o fim", func(): main.minutes = maxf(main.minutes, main.shift_end - 10.0)], ["Encerrar turno", func(): main.start_ending()]])
 	_section("Clima", func(): if _weather0 != "": main.set_weather(_weather0))
 	_row([["Chuva", _set_weather.bind("rain")], ["Névoa", _set_weather.bind("fog")], ["Limpo", _set_weather.bind("clear")]])
 	var grade := CheckButton.new()   # a gradação de cor do jogo inteiro (`GameView`), para comparar com e sem
@@ -105,6 +105,7 @@ func _ready() -> void:
 		["Carro na mão de cá", func(): main.background.pass_car(1, kind.call())]])
 	_section("Noites", func(): _go_night(1))
 	_row([["◀ Noite anterior", func(): _go_night(main.night_no - 1)], ["Próxima noite ▶", func(): _go_night(main.night_no + 1)]])
+	_row([["Amanhecer (última noite, 4h)", func(): _go_night(C.nights.size(), 10 * 60.0)]])
 	_section("Viaturas e caderno", _clear_units_notebook)
 	_row([["Viaturas livres", func(): main.dispatch.reset()], ["Registrar pendências", _register_all]])
 	_row([["Limpar advertências", func(): main.report.faults.clear()], ["Apagar progresso", Progress.clear]])
@@ -161,14 +162,16 @@ func _set_weather(w: String) -> void:
 
 
 ## Recomeça o jogo na noite `n` (setores, ritmo e roteiro dela), sem ler nem gravar o progresso salvo (como
-## `-- --night=N`). "Limpar" volta para a noite 1.
-func _go_night(n: int) -> void:
+## `-- --night=N`), com o relógio em `at` (min do turno; o amanhecer da última noite começa às 4h). "Limpar" volta
+## para a noite 1.
+func _go_night(n: int, at := 0.0) -> void:
 	var tree := get_tree()
 	tree.paused = false
 	Sfx.ring_stop()
 	Sfx.stop_ambience(0.0)
 	var next: Node = load("res://scenes/main.tscn").instantiate()
 	next.night_no = clampi(n, 0, C.nights.size())
+	next.minutes = at
 	# no lugar do Main de agora, no mesmo pai: no jogo ele fica dentro da tela do `GameView` (posto na raiz, saía fora
 	# dela, na resolução da janela, e quebrava o layout); sozinho, ele é a cena atual
 	main.get_parent().add_child(next)

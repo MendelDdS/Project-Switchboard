@@ -57,7 +57,7 @@ func call_ended(c: PhoneCall, reason: PhoneCall.End) -> void:
 
 ## A mesma pessoa liga de novo mais tarde, irritada e com menos paciência (no máximo uma vez por motivo).
 ## Vale também para a ligação do treinamento (que só não gera advertência). Nunca depois da última ligação
-## (`Main.LAST_CALL`): se não couber, o Main a descarta.
+## (`Main.last_call`): se não couber, o Main a descarta.
 func call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
 	if why in c.retried:
 		return
@@ -79,7 +79,7 @@ func call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
 	n.retried = c.retried.duplicate()
 	n.retried.append(why)
 	var now := main.minutes
-	n.at = minf(now + randf_range(RETRY_AFTER.x, RETRY_AFTER.y), maxf(now + 2.0, Main.LAST_CALL - 4.0))
+	n.at = minf(now + randf_range(RETRY_AFTER.x, RETRY_AFTER.y), maxf(now + 2.0, main.last_call - 4.0))
 	n.latest = n.at + RETRY_WAIT
 	main.sched.append(n)
 	main.sched.sort_custom(func(a: PhoneCall, b: PhoneCall): return a.at < b.at)

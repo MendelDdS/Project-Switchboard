@@ -122,7 +122,7 @@ func _initialize() -> void:
 			cc.retry = PhoneCall.Retry.MISSED
 			cc.retried.append(PhoneCall.Retry.MISSED)
 		if kind == "fim do turno":
-			m.minutes = m.SHIFT_END - 3.0
+			m.minutes = m.shift_end - 3.0
 		m.ring(cc)
 		_answer(cc)
 		ok(await wait_until(func(): return cc.phase == PhoneCall.Phase.AWAIT and not cc.talking), "pedido: " + kind)
@@ -134,7 +134,7 @@ func _initialize() -> void:
 		ok(await wait_until(func(): return cc.ended), "desligaram: " + kind)
 		var again: Array = m.sched.filter(func(r): return r.retry == PhoneCall.Retry.WRONG_NUMBER and r.caller == cc.caller)
 		ok(again.size() == 1, "vai ligar de novo: " + kind)
-		ok(again[0].at <= m.SHIFT_END, "liga de novo antes do fim do turno: " + kind)
+		ok(again[0].at <= m.shift_end, "liga de novo antes do fim do turno: " + kind)
 		m.sched.erase(again[0])
 		_clear_board()
 	m.minutes = 0.0
@@ -375,21 +375,21 @@ func _initialize() -> void:
 	m.notebook.reset()
 	var awaiting := func(c: PhoneCall): return c.phase == PhoneCall.Phase.AWAIT and not c.talking
 	m.after = true
-	m.minutes = m.LAST_CALL - 1.0
+	m.minutes = m.last_call - 1.0
 	m.running = true
 	await frames(2)
 	ok(not m._end_shift.visible, "antes das 23:40: sem o botão Encerrar")
 	var late := PhoneCall.from_transfer(GameData.transfers(TransferCall.Group.EXTRA)[2])
-	late.at = m.LAST_CALL + 0.5
+	late.at = m.last_call + 0.5
 	m.sched.append(late)
-	ok(await wait_until(func(): return m.minutes > m.LAST_CALL + 1.0), "relógio andou")
+	ok(await wait_until(func(): return m.minutes > m.last_call + 1.0), "relógio andou")
 	ok(m._end_shift.visible and not late in m.live and not late in m.sched, "23:40: o botão aparece e nada novo toca")
 	var lc := PhoneCall.from_transfer(GameData.transfers(TransferCall.Group.EXTRA)[2])
 	m.ring(lc)
 	_answer(lc)
 	ok(await wait_until(awaiting.bind(lc)), "pedido feito")
-	m.minutes = m.SHIFT_END - 0.5
-	ok(await wait_until(func(): return m.minutes > m.SHIFT_END + 1.0), "com alguém na linha, o relógio passa da meia-noite")
+	m.minutes = m.shift_end - 0.5
+	ok(await wait_until(func(): return m.minutes > m.shift_end + 1.0), "com alguém na linha, o relógio passa da meia-noite")
 	ok(not m.ending, "o turno espera a ligação acabar")
 	m.hangup()
 	ok(await wait_until(func(): return m.live.is_empty()), "desligou")

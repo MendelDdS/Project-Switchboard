@@ -25,6 +25,14 @@ const Z0 := EYE * SEAT_BACK / SEAT_EYE   ## a distância dos olhos à parede do 
 const RAIN_LEVEL := Vector2(0.15, 1.0)
 const RAIN_SPAN := Vector2(95.0, 37.0)
 const RAIN_STEP := 0.05
+## O amanhecer da última noite (o céu de verdade em 22/10/1973, a ~22° S, sem horário de verão): começa a clarear às
+## 4h05, o sol nasce às 5h25 e às 6h já é dia (min do dia, depois da meia-noite); os postes e o neon apagam às 5h15 e a
+## rua acorda das 5h às 6h.
+const DAWN := Vector2(28 * 60 + 5, 30 * 60)
+const SUNRISE := 29 * 60 + 25
+const STREET_OFF := 29 * 60 + 15
+const MORNING := Vector2(29 * 60, 30 * 60)
+const CLEAR_SPAN := 40.0   ## minutos em que a chuva afina até a garoa antes de parar (`clears_at`)
 const SOAK_MIN := 150.0
 const CLOUD_SPEED := 0.004
 ## A lua sobe durante a noite (`_moon_at`): nasce atrás da igreja (`MOON_RISE.x`, minutos do dia), anda `MOON_DRIFT`
@@ -42,6 +50,7 @@ const SIDE_W := 150.0       ## a largura do vão, de frente (só a resolução d
 const WIN_TOP := -12.0      ## o alto do vão (cm a partir dos olhos, para baixo): acima deles
 
 var weather := "rain"
+var clears_at := INF   ## a hora (minutos do dia) em que a chuva para na noite (`Night.clears_at`; o Main atualiza)
 var _moon_x0 := 0.5   # onde a lua nasce: o x da igreja em fração do vidro (a vista atualiza ao desenhar)
 var night := 1   ## a noite do jogo (o Main atualiza): a data da folhinha na parede e a fase da lua
 var minutes := 18 * 60.0:   ## a hora do jogo (minutos do dia; o Main atualiza): o relógio de flip da mesa
@@ -84,7 +93,23 @@ func _flash() -> float:
 ## A força da chuva agora (`RAIN_LEVEL.x` = garoa, 1 = forte), pela hora: duas ondas lentas com as fases da noite.
 func rain_level() -> float:
 	var k := 0.55 + 0.3 * sin(TAU * minutes / RAIN_SPAN.x + _rain_phase.x) + 0.2 * sin(TAU * minutes / RAIN_SPAN.y + _rain_phase.y)
+	k = lerpf(RAIN_LEVEL.x, k, _clearing())   # parando: afina até a garoa
 	return snappedf(clampf(k, RAIN_LEVEL.x, RAIN_LEVEL.y), RAIN_STEP)
+
+
+## O quanto da chuva ou da névoa ainda há (1; 0 quando elas param, `clears_at`, afinando nos `CLEAR_SPAN` min antes).
+func _clearing() -> float:
+	return 1.0 - clampf((minutes - clears_at + CLEAR_SPAN) / CLEAR_SPAN, 0.0, 1.0)
+
+
+## O quanto já amanheceu (0 até as 4h05, 1 às 6h; `DAWN`): só na última noite o turno chega lá.
+func dawn() -> float:
+	return clampf((minutes - DAWN.x) / (DAWN.y - DAWN.x), 0.0, 1.0)
+
+
+## O quanto a rua já acordou (0 às 5h, 1 às 6h; `MORNING`): mais gente e carro.
+func morning() -> float:
+	return clampf((minutes - MORNING.x) / (MORNING.y - MORNING.x), 0.0, 1.0)
 
 
 ## O quanto a rua já está molhada (0..1): cresce com a noite de chuva, até `SOAK_MIN` min.
@@ -140,7 +165,7 @@ func _moon_light() -> float:
 
 ## O letreiro aceso: quase sempre; de vez em quando apaga um instante, como neon velho.
 func _sign_on() -> bool:
-	return not (int(Time.get_ticks_msec() / 110.0) % 97 in [40, 42, 43, 71])
+	return minutes < STREET_OFF and not (int(Time.get_ticks_msec() / 110.0) % 97 in [40, 42, 43, 71])
 
 
 ## O T do letreiro aceso: com ele aceso (`_sign_on`), o T falha sozinho, em rajadas.
