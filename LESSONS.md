@@ -327,3 +327,10 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   ou a traseira virada para nós, o par de faróis ou de lanternas dela: a do lado e a do par na mesma quina eram a mesma
   lâmpada vista duas vezes, e a traseira do Fusca tinha três lanternas (o usuário mostrou ampliado). Quando duas vistas
   do mesmo objeto se juntam (lado e frente), cada peça entra numa só; confira contando as peças na captura ampliada.
+- **Shader num nó vale também para o que ele mesmo desenha.** O shader da luz posto no `SceneView` (o `TextureRect`
+  do cenário) lia a textura e ignorava a cor do desenho; a etiqueta do objeto sob o mouse, desenhada no `_draw` dele,
+  saiu como um retângulo branco (o usuário mostrou). Shader de efeito vai num nó que só mostra a imagem; o que é
+  interface por cima fica num nó filho sem o material. E no Godot 4 o `COLOR` do `fragment` já chega como a textura
+  vezes a cor do desenho: parta dele, não de `texture(TEXTURE, UV)`; multiplicando os dois, a cor sai ao quadrado e o
+  cenário inteiro escureceu (o usuário viu). Depois de pôr um material, compare a captura com e sem ele
+  (`--lamp=0`) e confira com o mouse sobre um objeto (`--hover=id`).

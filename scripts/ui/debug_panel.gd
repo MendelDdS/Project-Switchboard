@@ -82,6 +82,12 @@ func _ready() -> void:
 	grade.button_pressed = true
 	grade.toggled.connect(func(on: bool): GameView.set_grade(self, on))
 	_box.add_child(grade)
+	var lamp := CheckButton.new()   # a luz da luminária no shader do cenário (`SceneView`, plano hi-bit), para comparar com e sem
+	lamp.text = "Luz da luminária (shader)"
+	lamp.focus_mode = Control.FOCUS_NONE
+	lamp.button_pressed = SceneView.lamp_light
+	lamp.toggled.connect(func(on: bool): SceneView.lamp_light = on)
+	_box.add_child(lamp)
 	var car := OptionButton.new()   # o modelo do carro que passa lá fora
 	car.focus_mode = Control.FOCUS_NONE
 	car.add_item("carro sorteado")

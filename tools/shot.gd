@@ -32,6 +32,7 @@ extends Node
 ##   --sips=3               goles tomados do café · --cabinet: a porta do armário aberta
 ##   --written=2            fichas registradas (o lugar do lápis no bloco)
 ##   --wait=5               segundos antes de capturar (a luminária esquenta em 4)
+##   --lamp=0               sem a luz da luminária no shader do cenário (`SceneView.lamp_light`)
 ##   --grade=0              sem a gradação de cor do `GameView` (a captura passa por ela, como a janela do jogo)
 ##   --still                sem a poeira do feixe da luminária, que muda a cada captura (para comparar capturas pixel a
 ##                          pixel, `tools/diff_shots.gd`)
@@ -62,6 +63,7 @@ func _ready() -> void:
 	out.add_child(box)
 	box.add_child(vp)
 	GameView.set_grade(vp, _args.get("grade", "1") != "0")
+	SceneView.lamp_light = _args.get("lamp", "1") != "0"
 	var m: Main = load("res://scenes/main.tscn").instantiate()
 	if not _args.has("night"):
 		m.night_no = 1   # não lê nem grava o progresso salvo

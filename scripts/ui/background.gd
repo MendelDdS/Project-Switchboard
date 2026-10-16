@@ -80,6 +80,7 @@ const DROP_SHADOW := 1.8   ## a sombra das gotas do vidro na luz da rua na mesa 
 const NOIR := Color(0.012, 0.022, 0.045, 0.72)   ## o escuro frio da sala fora da luz da luminária (`_draw_gloom`)
 const GLOOM_R := Vector2(615, 248)   ## até onde vai a luz da luminária antes do escuro todo (px da tela, elipse em volta da poça na mesa: larga, a mesa toda na luz)
 const GLOOM_IN := 0.25   ## dentro dessa fração do raio, nada de escuro: dali para fora ele cresce liso
+const LAMP_LIGHT := Vector3(0.6, 0.5, 0.03)   ## a luz da luminária no shader do `SceneView` (`light`): o raio em fração de `GLOOM_R`, o quanto a cor cresce no meio e a cor pura somada
 const WINDOW_GLOW := Color(0.45, 0.62, 1.0, 0.12)   ## o brilho azul da noite entrando pela janela (`_draw_window_glow`)
 const WINDOW_GLOW_R := 315.0   ## até onde ele chega (px da tela, a partir do meio do vidro)
 const STREET_LIGHT := 1.15   ## a luz da rua entrando pela janela: quanto ela desce para cada unidade que entra na sala (com 1,6, caía perto da parede, um quadrado pequeno para a janela grande)
@@ -1072,6 +1073,20 @@ func _gloom(p: Vector2, c: Vector2) -> float:
 	var q := (p - c) / GLOOM_R
 	var k := smoothstep(GLOOM_IN, 1.0, q.length() / lerpf(1.0, FRONT_LIGHT, smoothstep(0.0, 0.5, q.y)))
 	return clampf(NOIR.a * k + (1.0 - lamp_level) * 0.3 + (1.0 - warm) * WARM_DARK, 0.0, 0.9)
+
+
+## A luz da luminária no shader do `SceneView` (`lamp_light.gdshader`, plano hi-bit, etapa 5): a poça no meio do
+## escuro da sala, a força dela e o vidro de fora; posta a cada quadro, sem redesenhar a sala.
+func light(m: ShaderMaterial) -> void:
+	m.set_shader_parameter("size", size)
+	m.set_shader_parameter("center", _gloom_center())
+	m.set_shader_parameter("radius", GLOOM_R * LAMP_LIGHT.x)
+	m.set_shader_parameter("gain", LAMP_LIGHT.y)
+	m.set_shader_parameter("add", LAMP_LIGHT.z)
+	m.set_shader_parameter("tint", Pal.LAMP_POOL)
+	m.set_shader_parameter("level", lamp_level)
+	m.set_shader_parameter("glass", _glass)
+	m.set_shader_parameter("glass_n", _glass.size())
 
 
 ## O que entra pela janela, por cima do escuro da sala: um brilho azul bem fraco (a noite lá fora; liso, sumindo em

@@ -1168,3 +1168,9 @@ Chaves:
     aba, o verso do papel) nas rajadas da brisa da noite limpa, no tempo exato do som: a força da rajada é a mesma
     onda gravada na brisa, lida pela posição em que ela toca (`Sfx.gust`). Levantando a ponta para a frente, só a
     sombra mudava, e ela caía na parede já escura; com a conta ao quadrado a orelha quase nunca passava de 1 px.
+212. #luz
+    Hi-bit 5.2: a luz da luminária começa a ir para um shader no `TextureRect` do `SceneView`
+    (`lamp_light.gdshader`): por enquanto só a poça quente que soma cor, lisa, por cima do desenho de hoje
+    (`Background.light`, `LAMP_LIGHT`, `Pal.LAMP_POOL`), com o vidro da janela de fora e o parâmetro da luz do dia
+    (0 até a etapa 7). Uma chave no painel de debug ("Luz da luminária (shader)") e `--lamp=0` na captura comparam
+    com e sem.

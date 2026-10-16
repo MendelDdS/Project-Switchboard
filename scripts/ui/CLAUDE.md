@@ -366,7 +366,11 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   meio-fio (rente a ele, ficava tão perto e de cima que virava uma mancha escura cortada pelo peitoril), apoiados no
   asfalto: sombra de contato, facho dos faróis no chão (sumindo em `BEAM`; inteiro, era uma laje cinza que fazia o carro parecer largo), lado,
   teto e capô vistos um pouco de cima, a frente ou a traseira virada para nós. O brilho da luz de cima (`%Glow`, centrado no alto, liso) fica dentro da tela do cenário, logo depois do
-  `Background`: ilumina a sala, não a interface; acompanha o tremor dela. **Para trocar por PNG**: `wall_art`, `window_art` e `desk_art` entram no lugar do desenho daquela camada
+  `Background`: ilumina a sala, não a interface; acompanha o tremor dela. **A luz da luminária num shader** (plano hi-bit, etapa 5, em
+  andamento): o `SceneView` mostra o cenário por `lamp_light.gdshader`, que soma a poça quente, lisa, em volta do meio
+  do escuro da sala (`_gloom_center`), com o vidro de fora (`_glass`) e a luz do dia (`daylight`, 0 até a etapa 7); o
+  `Background.light` passa os parâmetros a cada quadro, sem redesenhar a sala; `SceneView.lamp_light` (a chave do
+  painel de debug, `--lamp=0` na captura) desliga. **Para trocar por PNG**: `wall_art`, `window_art` e `desk_art` entram no lugar do desenho daquela camada
   (o clima continua por cima da janela). As ferramentas não têm abas: abrem pelos objetos da mesa ou pelas teclas 1 a 4. O caderno da mesa mostra o selo dos registros pendentes (`Background.pending`). Nos testes, o clique num objeto da
   mesa é `background.pointer(evento)`.
 

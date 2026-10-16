@@ -274,6 +274,7 @@ const FLIP_CARD: Array[Color] = [Color("060505"), Color("1e1b17"), Color("3a352e
 const COFFEE: Array[Color] = [Color("2e1c10"), Color("3a2618"), Color("4a301c")]   ## o café da caneca: o fundo, a superfície e a luz da luminária refletida
 const COFFEE_GLINT := Color("c8a47a")   ## a luz da luminária tremendo no café (`Background._draw_glint`)
 const LAMP_BEAM := Color(1.0, 0.86, 0.62)   ## o feixe da luminária no ar (`Background._draw_beam`), somado à sala
+const LAMP_POOL := Color(1.0, 0.78, 0.5)   ## a luz da luminária somada à sala no shader do `SceneView` (`Background.light`)
 const MUG_CHIP: Array[Color] = [Color("2a2620"), Color("4a443c")]   ## as lascas no esmalte da caneca: o ferro e a beira
 
 ## O carimbo do calculógrafo: o reflexo quente da luminária no cromado e na baquelite, do lado da luz, e a borracha
