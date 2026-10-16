@@ -21,13 +21,15 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   cá, `car_near`/`car_wet_near`, mais claro, com mais Doppler e a passagem mais concentrada, `WET_NEAR`,
   `CAR_NEAR_SHARP`; cada um em `CAR_TAKES` versões, `id~1`..., sorteadas ao tocar, `Sfx._take`); gente passa a pé pela calçada de lá, várias ao mesmo tempo e às vezes
   em dupla (`_walkers`, `_walker`: cada um com o seu passo, altura e distância das fachadas; a roupa: vestido ou calça,
-  casaco curto ou comprido, bolsa ou pasta, nas cores apagadas da noite, `WALK_COATS`...; guarda-chuva na chuva e, sem ela,
+  casaco curto ou comprido, bolsa ou pasta, nas cores apagadas da noite, `Pal.WALK_COATS`...; guarda-chuva na chuva e, sem ela,
   chapéu, boina, lenço ou nada; o homem do mistério continua preto), contra as luzes (`WALK_*`, `WALK_STEPS`, `_draw_walker`; perto de um poste,
   a luz dele acende a beira de cima e o lado virado para ele, `RIM`, só o lado nas peças finas; na chuva, eles se
   espelham na calçada molhada, apagados e sumindo para baixo; de vez em quando alguém sai do bar: a porta ao lado da
   vitrine abre, a luz do salão sai pela calçada e a pessoa segue junto das fachadas, `BAR_*`, `_bar_t`, `_draw_bar_door`;
   de vez em quando alguém fuma na varanda do apartamento, na frente da janela da TV, com a brasa acendendo a cada
-  tragada, `SMOKE_*`, `_smoke_t`, `_draw_smoker`; em metade das noites, sorteadas pela noite, um gato sentado na
+  tragada, `SMOKE_*`, `_smoke_t`, `_draw_smoker`, e a fumaça (`_draw_smoke`): o fio da brasa com o cigarro na mão e o
+  sopro da tragada, uma nuvenzinha de grãos que sobe até a parede escura acima da janela (na frente da janela acesa
+  ela sumia), abre e vai com o vento (`GUST`), pegando a luz quente do poste da esquina perto dele (`SMOKE_LIT`); em metade das noites, sorteadas pela noite, um gato sentado na
   marquise do hotel ou no gradil da varanda, piscando os olhos, `CAT_NIGHTS`, `_draw_cat`, uns pixels a mais que o
   tamanho de verdade; bicicletas junto do meio-fio de lá, às vezes com a campainha, `BIKE_*`, `_draw_bike`, nos
   `_walkers` com "bike"; o ônibus da linha passa nos horários dele, `BUS_TIMES`, pela mão de lá, um modelo de
@@ -97,7 +99,10 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   mesa comutadora; o arco na parede é estreito no alto e deixava sem poeira a parede acima dela), mais claros perto
   dela. Ficam na camada `%Dust` do Main (`Background.dust`, z 1, depois do
   `Layout`): acima da mesa comutadora (no cenário, ela cobria a poeira que passa na frente dela), fora do papel das
-  ferramentas e nunca abaixo do fundo do tampo (o painel de baixo fica fora da sala). **Pingos** na chuva (`_drops`, `RAIN`): riscos de 1 px inclinados pelo vento (`RAIN_SLANT`)
+  ferramentas e nunca abaixo do fundo do tampo (o painel de baixo fica fora da sala). **O feixe da luminária no ar**
+  (`_beam`, `_draw_beam`, `LAMP_BEAM`, `LAMP_BEAM_CORE`): uma faixa lisa, somada (blend ADD), descendo da boca dela,
+  mais densa no meio e sumindo para os lados e até o fundo do tampo, onde a poeira mora; na sala, atrás da mesa
+  comutadora, que fica na frente dele. Desenhado com a sala; piscar e esquentar só no `modulate` (com `_show`). **Pingos** na chuva (`_drops`, `RAIN`): riscos de 1 px inclinados pelo vento (`RAIN_SLANT`)
   que cruzam o vidro em meio segundo (`RAIN_FALL`; o risco é o rastro do quadro, `RAIN_STREAK`), mais longos e claros os
   de perto e acesos perto dos postes (eram traços de 2 px que levavam 5 s para cair, como neve). **Gotas no vidro** na chuva (`_beads`, `BEADS`): paradas, de vez
   em quando pesam e escorrem com um rastro; o brilho delas é quente perto do poste. Só na parte do vidro que aparece
@@ -345,8 +350,8 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   atravessando a rua com o vento (`FOG_WISPS`) e as luzes espalhando nela (halo e cone de laterais lisas em cada poste, o
   vermelho do neon); as faixas retangulares que havia no vidro pareciam defeito. Os carros (`_draw_car`, um por
   vez em cada mão; modelos de 1973 sorteados pelo quanto passam, `CAR_KINDS`: Fusca, sedã, perua, Kombi em duas cores e
-  picape com caçamba, cada um com o seu tom de motor, `pitch`, e uma cor escura da noite, `CAR_COLORS`; `_car_kind`; o teto e o capô mais escuros que o
-  lado, com um pouco do céu, `CAR_SKY`, e os vidros também, senão sumiam no asfalto e o carro parecia baixo; o teto mais claro que os vidros; vidros e chapas inclinadas só saem virados para os olhos (`faces`: por trás, o para-brisa saía por cima do teto); capô, teto, vidros e chapas de um lado ao outro do carro (com 10 cm para dentro, ficavam frestas); a profundidade do carro encolhida no recuo para o ponto de fuga (`CAR_DEPTH`, `_car_z` no `_o`: a vista é grande-angular e, longe do meio, ele parecia ter metade da largura do comprimento); rodas redondas em pixel art nos arcos dos para-lamas; a luz dos postes correndo
+  picape com caçamba, cada um com o seu tom de motor, `pitch`, e uma cor escura da noite, em rampa, `Pal.CAR_TONES`, com o arco da roda, o fundo da caçamba, a frente e a traseira na sombra fria dela e a beira do para-lama na luz quente; `_car_kind`; o teto e o capô mais escuros que o
+  lado, com um pouco do céu, `Pal.CAR_SKY`, e os vidros também, senão sumiam no asfalto e o carro parecia baixo; o teto mais claro que os vidros; vidros e chapas inclinadas só saem virados para os olhos (`faces`: por trás, o para-brisa saía por cima do teto); capô, teto, vidros e chapas de um lado ao outro do carro (com 10 cm para dentro, ficavam frestas); a profundidade do carro encolhida no recuo para o ponto de fuga (`CAR_DEPTH`, `_car_z` no `_o`: a vista é grande-angular e, longe do meio, ele parecia ter metade da largura do comprimento); rodas redondas em pixel art nos arcos dos para-lamas; a luz dos postes correndo
   pela beira do teto e pelos frisos quando ele passa embaixo deles, `_sheen`, `CAR_SHEEN`; faróis e lanternas acesos, com halo (o par
   deles com a frente ou a traseira virada para nós) e espelhados na rua molhada; Brasília e caminhão de baú entre os
   modelos, o Fusca com os para-lamas saltados e os faróis neles, a caçamba da picape com a parede de dentro; táxis
@@ -512,7 +517,8 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   cilindro pela luz do alto à esquerda, cada tom tirado das rampas do esmalte e da borda, `Pal.MUG_ENAMEL`/`MUG_RIM`,
   pela luz dele vezes a do lugar, `1 - _shade`: longe da poça, mais escura e mais fria; guardada por essa luz, em
   degraus de 0,05, a borda azul-marinho, a boca e o pé em elipses pela câmera, o
-  café com a luz refletida, a alça em C do lado da sombra e lascas no esmalte), com o vapor subindo na camada da poeira
+  café com a luz refletida, a alça em C do lado da sombra e lascas no esmalte), com a luz da luminária tremendo no café (dois pontos
+  correndo pelo risco de luz da imagem, `_mug_glint`, `_draw_glint`, `Pal.COFFEE_GLINT`) e o vapor subindo na camada da poeira
   (`_draw_steam`), que some com as horas porque o café esfria (`STEAM_FOR`); sob o mouse ela se ergue como os objetos
   das ferramentas e, clicada, é um gole (`Background.sip`, som `gulp`): o café baixa (`sips`, `MUG_SIPS`) e, acabado,
   fica a borra no fundo e o vapor some; o painel do operador nos parafusos e o `Bloom` no miolo das luzes redondas. **Sem contorno preto em

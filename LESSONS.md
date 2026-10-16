@@ -323,3 +323,7 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   sempre e a troca de clima falhava ("shader_parameter/... does not exist"). A captura montava a tela em outra ordem e
   saía certa, então a aprovação foi pela captura e o jogo estava errado. O que um filho usa no `_ready` vai no
   `_enter_tree` do pai; e confira no jogo (`app.tscn`), não só na captura, o que depende da ordem dos nós.
+- **Luz que aparece de dois lados é uma luz só.** O carro desenhava o farol e a lanterna do lado de cá e, com a frente
+  ou a traseira virada para nós, o par de faróis ou de lanternas dela: a do lado e a do par na mesma quina eram a mesma
+  lâmpada vista duas vezes, e a traseira do Fusca tinha três lanternas (o usuário mostrou ampliado). Quando duas vistas
+  do mesmo objeto se juntam (lado e frente), cada peça entra numa só; confira contando as peças na captura ampliada.

@@ -186,12 +186,25 @@ const OVERCAST_DECK := Color("1b1e23")   ## o fundo de nuvem no alto (no horizon
 const CITY_FAR: Array[Color] = [Color("070b10"), Color("141c22")]   ## a cidade no fim da rua e a igreja: na noite e na névoa
 const CITY_LIT: Array[Color] = [Color("d59a3d"), Color("b38a3c"), Color("e2b25a")]   ## as janelas acesas da cidade
 const WINDOW_DARK := Color("080b0e")   ## o vidro das janelas apagadas
-const FACADES: Array[Color] = [Color("1c1714"), Color("13171b"), Color("1a1512"), Color("171a1d")]   ## as fachadas de lá e as paredes da rua do cruzamento...
-const BRICK := Color("3a2219")   ## ...e o prédio de tijolos da esquina
-const ASPHALT: Array[Color] = [Color("090c10"), Color("141a1f")]    ## o asfalto: na noite e na névoa
-const SIDEWALK: Array[Color] = [Color("1b2227"), Color("232b31")]   ## a calçada de lá: na noite e na névoa
-const CURB: Array[Color] = [Color("2a3237"), Color("4a555c")]   ## o meio-fio de lá: a face e a quina
-const LAMP_POST := Color("1d262c")    ## os postes...
+## As fachadas de lá e as paredes da rua do cruzamento, uma rampa por tinta (o tom dela em `FACADE_MID`): a quina, o
+## vão e a verga descem para o azul da noite, a cornija e o peitoril sobem para o quente dos postes...
+const FACADE_TONES := [
+	[Color("080b11"), Color("090b0e"), Color("0c0c0d"), Color("100e0e"), Color("1c1714"), Color("2c241d"), Color("403529"), Color("554635")],
+	[Color("070b12"), Color("070b10"), Color("090c10"), Color("0b0e12"), Color("13171b"), Color("242424"), Color("39352f"), Color("4e463b")],
+	[Color("080b10"), Color("090b0e"), Color("0c0b0c"), Color("0f0d0c"), Color("1a1512"), Color("2a221c"), Color("3f3328"), Color("534434")],
+	[Color("070c12"), Color("080c11"), Color("0a0d11"), Color("0e1013"), Color("171a1d"), Color("272726"), Color("3c3731"), Color("51483c")]]
+## ...e o prédio de tijolos da esquina
+const BRICK_TONES: Array[Color] = [Color("0d0d12"), Color("110e10"), Color("18100f"), Color("211410"), Color("3a2219"),
+	Color("482e22"), Color("5a3e2e"), Color("6b4e39")]
+const FACADE_MID := 4
+## O asfalto, na noite e na névoa, em rampa (o tom dele em `STREET_MID`): as manchas, os remendos e o grão...
+const ASPHALT_TONES := [[Color("05080c"), Color("06080c"), Color("090c10"), Color("101214"), Color("1a1a1a")],
+	[Color("090d11"), Color("0c1114"), Color("141a1f"), Color("1b2023"), Color("242728")]]
+## ...e a calçada de lá, com as juntas das lajotas
+const SIDEWALK_TONES := [[Color("0b1014"), Color("101418"), Color("1b2227")], [Color("0e1318"), Color("141a1e"), Color("232b31")]]
+const STREET_MID := 2
+const CURB: Array[Color] = [Color("2a3237"), Color("4a555c"), Color("606463")]   ## o meio-fio de lá: a face, a quina e a quina embaixo de um poste
+const LAMP_POST := Color("1d262c")    ## os postes (e o braço do letreiro do hotel)...
 const STREET_LAMP := Color("ffd88a")  ## ...e a luz deles (também nos pingos e nas gotas do vidro perto deles)
 const BAR_JAMB := Color("1a0f0a")   ## o bar: o batente da vitrine e da porta...
 const BAR_LIGHT: Array[Color] = [Color("c98a3e"), Color("f0c070")]   ## ...o salão aceso, no alto e embaixo...
@@ -209,6 +222,48 @@ const CHURCH_CLOCK: Array[Color] = [Color("2a2016"), Color("e2b25a")]   ## o rel
 const SHRUB: Array[Color] = [Color("08120c"), Color("0f2016"), Color("193323"), Color("2a4a33")]   ## as folhas do arbusto, do escuro ao claro...
 const SHRUB_FLASH := Color("5a7090")   ## ...e acesas pelo relâmpago
 const RAIN_BEAD: Array[Color] = [Color("1c2a32"), Color("7f98a8")]   ## as gotas paradas no vidro: a gota e o brilho
+## Quem passa na vista (`background_view.gd`): o vira-lata caramelo, apagado pela noite...
+const STRAY_COAT := Color("4e3218")
+## ...as roupas de quem passa na calçada de lá (`_walker` sorteia), em cores apagadas pela noite, como o pelo do
+## vira-lata: aparecem contra a calçada e acendem embaixo dos postes. Casacos e paletós; vestidos e saias; calças;
+## a pele; os guarda-chuvas...
+const WALK_COATS: Array[Color] = [Color("4a3020"), Color("2c3448"), Color("444232"), Color("4e2426"), Color("5e5440"),
+	Color("38383c"), Color("1c1c20"), Color("3e2c3a")]
+const WALK_DRESSES: Array[Color] = [Color("5e2a34"), Color("2a4452"), Color("6a5c30"), Color("365032"), Color("4c3050"), Color("5a4a44")]
+const WALK_LEGS: Array[Color] = [Color("18181c"), Color("26221c"), Color("262a34"), Color("3a342a")]
+const WALK_SKIN: Array[Color] = [Color("b08868"), Color("8a5e40"), Color("62422c"), Color("44302a")]
+const WALK_UMBRELLAS: Array[Color] = [Color("121318"), Color("121318"), Color("4e1a1e"), Color("1c2640"), Color("2a3426")]
+const BRIEFCASE := Color("2a1a10")   ## ...a pasta na mão...
+const SILHOUETTE := Color("07090c")  ## ...quem fica em silhueta (o homem do mistério, o passageiro do táxi, quem fuma na varanda, o ciclista)...
+const CLERK := Color("120a06")       ## ...o recepcionista no telefone do hotel, contra a porta acesa...
+const CAT := Color("0b0c0f")         ## ...e o gato preto
+## Os carros: uma rampa por cor de lataria, de noite (escurecida; o tom dela em `CAR_MID`): a sombra fria embaixo e
+## dentro (o arco da roda, o fundo da caçamba, a frente e a traseira), a luz quente na beira do para-lama...
+const CAR_TONES := [
+	[Color("080e15"), Color("090f15"), Color("0c1218"), Color("10161d"), Color("1b2530"), Color("2b3137"), Color("3f4141"), Color("54504a")],   # azul
+	[Color("0b0c11"), Color("0e0b0f"), Color("130c0e"), Color("1a0f0f"), Color("2e1816"), Color("3d251f"), Color("4f362b"), Color("624637")],   # vinho
+	[Color("0c1014"), Color("101214"), Color("161616"), Color("1e1d1a"), Color("35312a"), Color("433c32"), Color("554b3c"), Color("685946")],   # bege
+	[Color("070e12"), Color("080f11"), Color("0b1211"), Color("0e1713"), Color("18261d"), Color("283226"), Color("3d4231"), Color("52513c")],   # verde
+	[Color("0d1218"), Color("111519"), Color("191c1e"), Color("222526"), Color("3c403f"), Color("4a4a45"), Color("5b574e"), Color("6d6456")],   # branco
+	[Color("090d14"), Color("0b0e13"), Color("0f1015"), Color("141419"), Color("222228"), Color("312e30"), Color("453e3a"), Color("594e44")],   # cinza
+	[Color("0c0f11"), Color("10100f"), Color("16140e"), Color("1f1a0f"), Color("362b16"), Color("44371f"), Color("56462b"), Color("685537")],   # mostarda
+]
+const CAR_MID := 4
+const CAR_UPPER := Color("4a4c48")   ## ...a parte de cima da Kombi, clara...
+const TRUCK_BOX: Array[Color] = [Color("0d1115"), Color("121415"), Color("1a1a18"), Color("23221d"), Color("3e3a30"), Color("4c4537"), Color("5d5241"), Color("6e604a")]   ## ...o baú do caminhão...
+const CAR_SKY := Color("2a3440")     ## ...o céu refletido no teto e no capô (de noite, a luz que vem de cima)...
+const CAR_GLASS := Color("0b1218")   ## ...os vidros (com o céu refletido) e o reflexo neles...
+const CAR_GLINT := Color("3a4a58")
+const CAR_CHROME := Color("5a6670")  ## ...o cromado...
+const CAR_HUBCAP: Array[Color] = [Color("22292e"), Color("3a444b"), Color("4a545b")]   ## ...a calota, da sombra à luz...
+const CAR_TYRE: Array[Color] = [Color("030506"), Color("0a0d0f"), Color("14181b")]     ## ...e o pneu
+const CAR_HEAD := Color("fff1c8")   ## os faróis...
+const CAR_TAIL := Color("8a1e14")   ## ...as lanternas...
+const TAXI_SIGN := Color("f0d88a")  ## ...e a placa acesa do táxi
+const SMOKE := Color(0.7, 0.72, 0.76)   ## a fumaça do cigarro na varanda, no escuro (`Background._draw_smoke`; perto do poste, esquenta)
+const SIGN_RED := Color("ff4a3a")   ## o letreiro de neon do hotel: aceso...
+const SIGN_OFF := Color("3a1512")   ## ...apagado...
+const SIGN_BOX: Array[Color] = [Color("0a0d10"), Color("361818")]   ## ...e a caixa dele, com a beira tingida pelo neon aceso (o braço é o dos postes, `LAMP_POST`)
 const DESK_UNDER := Color("0a0705")   ## embaixo da borda da frente do tampo
 ## O relógio de flip da mesa, de baquelite creme numa base escura: a base (o lado, a frente e o tampo)...
 const CLOCK_BASE: Array[Color] = [Color("2a1d13"), Color("3a2a1c"), Color("4e3a28")]
@@ -217,6 +272,8 @@ const CLOCK_CASE: Array[Color] = [Color("998a66"), Color("a89a76"), Color("c9bb9
 const CLOCK_WINDOW := Color("0e0c0a")   ## ...a janela...
 const FLIP_CARD: Array[Color] = [Color("060505"), Color("1e1b17"), Color("3a352e"), Color("efe4c4")]   ## ...e as plaquetas: a divisa, a plaqueta, a beira e os algarismos
 const COFFEE: Array[Color] = [Color("2e1c10"), Color("3a2618"), Color("4a301c")]   ## o café da caneca: o fundo, a superfície e a luz da luminária refletida
+const COFFEE_GLINT := Color("c8a47a")   ## a luz da luminária tremendo no café (`Background._draw_glint`)
+const LAMP_BEAM := Color(1.0, 0.86, 0.62)   ## o feixe da luminária no ar (`Background._draw_beam`), somado à sala
 const MUG_CHIP: Array[Color] = [Color("2a2620"), Color("4a443c")]   ## as lascas no esmalte da caneca: o ferro e a beira
 
 ## O carimbo do calculógrafo: o reflexo quente da luminária no cromado e na baquelite, do lado da luz, e a borracha

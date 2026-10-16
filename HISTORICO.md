@@ -1119,3 +1119,42 @@ Chaves:
     a porta e a marquise do hotel, a varanda, o relógio da igreja, o arbusto e as gotas no vidro) saíram do código
     para o `Pal`, sem mudar nenhum tom: os 54 tons tirados estão todos lá, e as capturas antes e depois ficam dentro
     do que a vista já muda sozinha (estrelas, nuvens, chuva). Carros, gente e o letreiro ficam para a 3.6.
+203. #vista #luz #pixel
+    Hi-bit 3.5b: as fachadas de lá, o prédio de tijolos com a varanda e as paredes da rua do cruzamento ganharam uma
+    rampa por tinta: a quina, a divisa, o vão das janelas, a verga e as fiadas de tijolo descem para o azul da noite,
+    e a cornija, as lajes e o peitoril sobem para o quente dos postes (antes, escurecidos para o preto e clareados
+    para o branco). Na rua, as manchas, os remendos e o grão do asfalto e as juntas da calçada viraram tons das
+    rampas deles, no lugar do preto e do branco translúcidos por cima, e a quina do meio-fio fica acesa e quente
+    embaixo de cada poste (a face, de costas para ele, não). O céu, liso, e as janelas acesas, que são luz, ficaram.
+204. #vista #pixel
+    Hi-bit 3.6a: as cores dos carros (a lataria, o baú do caminhão, o céu refletido, os vidros, o cromado, a calota, o
+    pneu, os faróis, as lanternas e a placa do táxi), de quem passa (as roupas, a pele, os guarda-chuvas, a pasta, as
+    silhuetas e o recepcionista do hotel), do gato, do vira-lata e do letreiro do hotel saíram do código para o `Pal`,
+    sem mudar nenhum tom: os 57 tons tirados estão todos lá, e as capturas ficam dentro do que a vista e a luminária já
+    mudam sozinhas. Os tons escritos por números (a beira acesa de quem passa, a brasa, os olhos do gato, as mariposas,
+    a luz da TV, a névoa) são luz e ficaram.
+205. #vista #pixel
+    Hi-bit 3.6b: a lataria dos carros e o baú do caminhão em rampas (`Pal.CAR_TONES`, `TRUCK_BOX`, o tom dela em
+    `CAR_MID`): o arco da roda, o fundo e a parede da caçamba, a frente e a traseira, a parede do baú e o teto na sombra
+    fria dela, a beira do para-lama do Fusca na luz quente, no lugar de escurecer e clarear por igual; as roupas de
+    quem passa e o pelo do vira-lata escurecem pela sombra fria do `Pal.lit`; a caixa do letreiro do hotel ganha a
+    beira tingida pelo neon quando ele está aceso. Sutil, como pedia o plano.
+206. #vista #carros
+    Os faróis e as lanternas dos carros: com a frente ou a traseira virada para nós, o farol (ou a lanterna) do lado de
+    cá saía junto com o par daquela ponta, e a traseira do Fusca tinha três lanternas. A do lado só aparece na ponta
+    que não está virada para nós (`_draw_car`).
+207. #luz #sala #pixel
+    Hi-bit 4.1 e 4.2: das cinco propostas de movimento (o feixe da luminária, a fumaça do cigarro na luz do poste, o
+    reflexo da luminária no café, o neon do hotel no vidro, a ponta solta do cartaz com o vento), o usuário quis
+    todas, uma por vez. O feixe da luminária no ar: uma faixa lisa e somada descendo da boca dela, mais densa no meio,
+    sumindo para os lados e até o tampo, atrás da mesa comutadora, para a poeira ter onde aparecer; pisca e esquenta
+    com ela. Com a força de 0,07 somava 1 ou 2 níveis por canal e não se via; ficou em 0,16.
+208. #vista #pixel
+    Hi-bit 4.3: a fumaça de quem fuma na varanda, que eram três pixels soltos na frente da janela acesa da TV (não se
+    viam), virou o fio da brasa com o cigarro na mão e o sopro da tragada: uma nuvenzinha de grãos que sai da boca,
+    sobe até a parede escura acima da janela, abre e vai com o vento, como o arbusto, mais quente perto do poste da
+    esquina. Os grãos espalhados por uma conta só saíam numa linha reta; cada um ganhou o seu sorteio fixo.
+209. #mesa #luz #pixel
+    Hi-bit 4.4: a luz da luminária refletida no café da caneca, que era um risco parado na imagem dela, treme: dois
+    pontos claros correm devagar ao longo do risco, acendendo e apagando fora de tempo, na camada da poeira (sem
+    redesenhar a sala), seguindo a luminária; acabado o café, somem.

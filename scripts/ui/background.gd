@@ -54,6 +54,8 @@ const BOARD_SINK := 10.0   ## o fundo do tampo, em px da tela acima da base do p
 const LAMP_Y := -22.0      ## a boca da luminária, acima da tela (px de 2x2): de onde sai a luz e saem as sombras na parede
 const WALL_GAP := 30.0     ## quanto a luminária fica à frente da parede (px de 2x2): abre o arco de luz nela
 const CONE_M := 0.75       ## a inclinação do cone de luz da luminária na parede (`_draw_wall_light`)
+const LAMP_BEAM := 0.16    ## o feixe da luminária no ar (`_draw_beam`): a força dele no alto da tela, sumindo até o tampo...
+const LAMP_BEAM_CORE := 0.5   ## ...e a largura dele, em frações do cone (o miolo, mais denso, no meio; sem bordas marcadas)
 const WALL_BANDS := [0.8, 0.45]   ## as faixas de luz na parede, de fora para dentro, em frações do cone em volta da boca dele (`_wall_runs`)
 # A câmera. Medidas da sala na escala da parede do fundo (px de 2x2 lá; ~0,56 cm): x para a direita e y para baixo a
 # partir dos olhos, z a distância deles (a parede fica a `Z0`; mais perto, tudo cresce Z0/z vezes).
@@ -174,6 +176,7 @@ var _side_faces: Array = []  # a lateral da mesa comutadora (px da tela), virada
 var _panel_z := 0.0  # a frente do painel da mesa comutadora (z)
 var tickets := 0          ## bilhetes de tarifação esperando na fenda do calculógrafo (impressos com a ferramenta fechada): a ponta de um saindo dela
 var _tip_layer: Control   # a ponta do bilhete no calculógrafo da mesa (`_draw_tip`)
+var _beam: Control   # o feixe da luminária no ar, somado: desenhado com a sala; a força dela só no `modulate`
 var _umbrella := Rect2()  # a cobertura do guarda-chuva pendurado no armário, até a mesa (px da tela): a água escorre nela (`_draw_drips`)
 var _tip_n := 0           # quantos bilhetes ela mostrava
 var _tip_t := TIP_SEC     # desde que o último saiu (s)
@@ -244,6 +247,14 @@ func _ready() -> void:
 	_tip_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_tip_layer.draw.connect(_draw_tip)
 	add_child(_tip_layer)
+	_beam = Control.new()
+	_beam.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_beam.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var glow := CanvasItemMaterial.new()
+	glow.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD   # luz: soma, não cobre
+	_beam.material = glow
+	_beam.draw.connect(_draw_beam)
+	add_child(_beam)
 	_over = Control.new()
 	_over.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_over.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -294,6 +305,11 @@ func _process(delta: float) -> void:
 		_over.queue_redraw()   # (depois da sala: usa o vidro e a poça de luz que ela acabou de medir)
 		_bolt_layer.queue_redraw()
 		_tip_layer.queue_redraw()
+		_beam.queue_redraw()
+		_show()
+	var beam := lamp_level * lerpf(0.35, 1.0, warm)   # piscando ou esquentando, sem redesenhar
+	if beam != _beam.modulate.a:
+		_beam.modulate.a = beam
 		_show()
 	if tickets > _tip_n:   # saiu um bilhete: a ponta desce da fenda de novo, no tempo da impressora
 		_tip_t = 0.0
@@ -596,7 +612,7 @@ func _events(delta: float) -> void:
 				kind = TAXI_KINDS.pick_random()
 				_taxi_next = false
 			_car_next[lane] = ""
-			_cars.append({"t": 0.0, "lane": lane, "kind": kind, "col": CAR_COLORS.pick_random(),
+			_cars.append({"t": 0.0, "lane": lane, "kind": kind, "tones": Pal.CAR_TONES.pick_random(),
 				"taxi": stop or (kind in TAXI_KINDS and randf() < TAXI)})
 			if stop:
 				_cars[-1].merge({"stop": true, "s": 0.0})
@@ -861,7 +877,7 @@ func _draw_over() -> void:
 		if not _cover.intersects(l[0]) and not _behind_blind(l[0]):
 			Bloom.light(_over, l[0], l[1], l[2], l[3], l[4])
 	if _sign_glow.has_area() and _sign_on() and not _cover.intersects(_sign_glow) and not _behind_blind(_sign_glow):   # só o halo: as letras ficam à vista
-		Bloom.light(_over, _sign_glow, SIGN_RED, 0.5, false, false)
+		Bloom.light(_over, _sign_glow, Pal.SIGN_RED, 0.5, false, false)
 	_draw_gloom()
 	_draw_window_glow()
 	_draw_mist()
@@ -1357,6 +1373,28 @@ func _draw_wall_light(top: float) -> void:
 		var x := _lamp_x - w + w * 2.0 * i / 24.0
 		pts.append(Vector2(x, minf(top, LAMP_Y + sqrt(pow(x - _lamp_x, 2.0) + WALL_GAP * WALL_GAP) * m)))
 	_light_fan(Vector2(_lamp_x, top), pts, Color(1.0, 0.8, 0.52, 0.15 * lamp_level))
+
+
+## O feixe da luminária no ar, na frente da parede: desce da boca dela, mais denso no meio e sumindo para os lados e
+## até o fundo do tampo, onde a luz vira a poça (`_draw_desk`), para a poeira ter onde aparecer. Liso, em faixas com a
+## cor nos cantos; a mesa comutadora fica na frente dele. Só se redesenha com a sala: piscar e esquentar vão no
+## `modulate` (`_process`).
+func _draw_beam() -> void:
+	_ci = _beam
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	var rows := 8
+	var cols := 6
+	var at := func(i: int, j: int) -> Vector2:   # a linha `i` (do alto ao tampo) e a coluna `j` (-cols a cols)
+		var y := lerpf(0.0, _top, float(i) / rows)
+		return Vector2(_lamp_x + (y - LAMP_Y) / CONE_M * LAMP_BEAM_CORE * j / cols, y)
+	var tone := func(i: int, j: int) -> Color:
+		var across := 1.0 - absf(float(j)) / cols
+		return Color(Pal.LAMP_BEAM, LAMP_BEAM * across * across * pow(1.0 - float(i) / rows, 1.5))
+	for i in rows:
+		for j in range(-cols, cols):
+			_fill(PackedVector2Array([at.call(i, j), at.call(i, j + 1), at.call(i + 1, j + 1), at.call(i + 1, j)]),
+				PackedColorArray([tone.call(i, j), tone.call(i, j + 1), tone.call(i + 1, j + 1), tone.call(i + 1, j)]))
+	_ci = self
 
 
 ## Sombra na parede de um objeto à frente dela (`r` em px de 2x2): a silhueta ampliada a partir da luminária, `s` vezes
@@ -2114,6 +2152,7 @@ func _draw_poster(r: Rect2) -> void:
 ## poeira que passa na frente dela); o papel de uma ferramenta fica na frente, e ela não desce abaixo do fundo do tampo.
 func _draw_dust() -> void:
 	_draw_steam()
+	_draw_glint()
 	_draw_drips()
 	_draw_drop_shadows()
 	var k := lamp_level * (0.5 if _cover.has_area() else 1.0)
@@ -2124,6 +2163,23 @@ func _draw_dust() -> void:
 		var a := (1.0 - minf(1.0, p.distance_to(c) / reach)) * (0.5 + 0.5 * sin(m.z)) * 0.6 * k
 		if a > 0.02 and not _cover.has_point(p):
 			_dust.draw_rect(Rect2(p.floor(), Vector2.ONE), Color(1.0, 0.9, 0.7, a))
+
+
+## A luz da luminária refletida no café tremendo (na camada da poeira): dois pontos claros que correm devagar ao longo
+## do risco de luz da imagem da caneca (`_mug_glint`), acendendo e apagando fora de tempo, como a superfície mexendo
+## com a mesa; seguem a luminária (`lamp_level`). Acabado o café, nada.
+func _draw_glint() -> void:
+	if _mug_glint.size.x < 1.0 or sips >= MUG_SIPS:
+		return
+	var t := Time.get_ticks_msec() / 1000.0
+	var r := _mug_glint
+	for i in 2:
+		var x := r.position.x + (0.5 + 0.45 * sin(t * (0.9 + i * 0.37) + i * 2.1)) * r.size.x
+		var y := r.position.y + (0.5 + 0.4 * sin(t * (1.3 + i * 0.5) + i)) * r.size.y
+		var a := clampf(0.55 + 0.45 * sin(t * (2.3 + i * 1.1) + i * 1.7), 0.0, 1.0) * lamp_level
+		var p := Vector2(x, y).floor()
+		if a > 0.05 and not _cover.has_point(p):
+			_dust.draw_rect(Rect2(p, Vector2(2 - i, 1)), Color(Pal.COFFEE_GLINT, a))
 
 
 ## O vapor do café subindo da caneca, na camada da poeira (anda sem redesenhar a sala): dois fios grossos ondulando

@@ -23,7 +23,7 @@ extends Node
 ##   --walk=2,-4            gente parada na calçada de lá, em cada x dado (m ao longo da rua; o 1º poste fica em 1,6)
 ##   --bar                  a porta do bar aberta, com a luz saindo
 ##   --blind=1              a persiana descida (de 0, aberta, a 1, fechada)
-##   --smoke                alguém fumando na varanda (com a tragada a cada `PUFF_EVERY` s)
+##   --smoke[=s]            alguém fumando na varanda, `s` segundos depois de sair (10,5: no meio do sopro da tragada)
 ##   --cat                  o gato da noite (na marquise ou no gradil, pela noite)
 ##   --bike=-2              alguém de bicicleta parado nesse x (m) · --dog=3: um vira-lata nesse x
 ##   --taxi=4.5             o táxi que para no hotel, tantos segundos depois de aparecer (parado de 3,2 a 9,7; o passageiro de 3,7 a 7,3)
@@ -158,7 +158,7 @@ func _ready() -> void:
 				if not Background.CAR_KINDS.has(kinds[lane % kinds.size()]):   # (--car=picape,- : só o de lá)
 					continue
 				m.background._cars.append({"t": float(_args.get("car_t", "0.45")), "lane": lane, "kind": kinds[lane % kinds.size()],
-					"col": Background.CAR_COLORS[lane + 1], "taxi": false})
+					"tones": Pal.CAR_TONES[lane + 1], "taxi": false})
 			await get_tree().process_frame
 	if _args.has("blind"):
 		m.background._shut = float(_args["blind"])
@@ -201,11 +201,11 @@ func _ready() -> void:
 					"z": Background.STREET["far_curb"] + 1.0, "h": 1.0, "hat": false, "dog": true})
 			if _args.has("taxi"):
 				bg._car_in = [INF, INF]
-				bg._cars.assign([{"t": 0.5, "lane": 0, "kind": "fusca", "col": Background.CAR_COLORS[2], "taxi": true, "stop": true, "s": float(_args["taxi"])}])
+				bg._cars.assign([{"t": 0.5, "lane": 0, "kind": "fusca", "tones": Pal.CAR_TONES[2], "taxi": true, "stop": true, "s": float(_args["taxi"])}])
 			if _args.has("bar"):
 				bg._bar_t = 1.0
 			if _args.has("smoke"):
-				bg._smoke_t = 10.5
+				bg._smoke_t = 10.5 if _args["smoke"] == "1" else float(_args["smoke"])
 			await get_tree().process_frame
 	_save(out)
 

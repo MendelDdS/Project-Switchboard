@@ -133,6 +133,7 @@ var _occ: Array = []         # os objetos da mesa (px da tela, convexos): o que 
 var occ_ids := PackedStringArray()   # quem é cada um de `_occ` (o id da ferramenta, "relogio", "caneca"; o teste da mesa usa)
 var _mug_mouth := Vector2.ZERO   # o meio do café na caneca (px da tela), de onde sobe o vapor
 var _mug_w := 0.0               # a largura da caneca na tela (px; 0 = ainda não desenhada)
+var _mug_glint := Rect2()       # o risco da luz da luminária no café (px da tela), onde ela treme (`_draw_glint`)
 
 
 ## Em que passo da virada está a plaqueta do relógio (0 a 2; 3 = parada).
@@ -1070,6 +1071,10 @@ func _draw_mug(xc: float, zc: float, rr: float, hh: float) -> void:
 		return
 	_mug_mouth = body.position + Vector2(body.size.x / 2.0, ry * 0.3)   # o vapor sai do café (`_draw_steam`)
 	_mug_w = body.size.x
+	var low := float(sips) / MUG_SIPS   # o risco de luz no café (`_mug_art`), na tela: o brilho tremendo vai em cima dele
+	var e := Vector2(-0.3 * (0.78 - low * 0.2), -0.375 * (0.62 - low * 0.3) + 0.3 + low * 0.4)
+	var half := Vector2(0.25 * (0.78 - low * 0.2) * body.size.x / 2.0, 0.175 * (0.62 - low * 0.3) * ry)
+	_mug_glint = Rect2(body.position + Vector2(body.size.x / 2.0 + e.x * body.size.x / 2.0, e.y * ry) - half, half * 2.0)
 	_desk_shadow(PackedVector2Array([body.position + Vector2(0, body.size.y - rb), body.end - Vector2(0, rb), body.end + Vector2(0, rb),
 		Vector2(body.position.x, body.end.y + rb)]))
 	var place := snappedf(1.0 - _shade(xc, zc), 0.05)   # a luz no lugar dela, em degraus (a imagem é guardada por ela)
