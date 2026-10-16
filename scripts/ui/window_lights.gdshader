@@ -1,7 +1,7 @@
 shader_type canvas_item;
 render_mode blend_add;
-// As luzes de fora que entram pela janela (plano hi-bit, etapa 6): o letreiro de neon e os postes da rua, cada um
-// tingindo em volta dele o vão, o peitoril, a persiana e a parede perto da janela. Na camada `_window_lights` do
+// As luzes que caem na sala (plano hi-bit, etapa 6): o letreiro de neon e os postes da rua, cada um tingindo em volta
+// dele o vão, o peitoril, a persiana e a parede perto da janela, e as lâmpadas acesas dos objetos da mesa no tampo. Na camada `_window_lights` do
 // `Background`, entre a persiana e os objetos da mesa: eles ficam na frente da luz pela ordem das camadas (a caneca e
 // o relógio não são pintados). Soma cor; o vidro fica de fora (a vista tem a luz dela). Os parâmetros mudam sem
 // redesenhar a sala (`Background._window_light_params`).

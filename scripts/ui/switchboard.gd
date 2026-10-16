@@ -129,6 +129,7 @@ var _layers: Array[CanvasItem] = []   # a mesa (o painel parado) e as camadas po
 var _lamps: Control
 var _top: Control
 var _cords: Control
+var _glow: ColorRect   # a luz das lâmpadas acesas no painel em volta, num shader (`board_glow.gdshader`): por cima da luz da sala, por baixo dos fios
 var _drawn := [[], [], [], []]   # o que cada uma mostrava no último desenho (`_look`)
 
 
@@ -148,6 +149,13 @@ func _ready() -> void:
 	_lamps = _layers[1]
 	_top = _layers[2]
 	_cords = _layers[3]
+	_glow = ColorRect.new()
+	_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_glow.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_glow.material = ShaderMaterial.new()
+	(_glow.material as ShaderMaterial).shader = preload("res://scripts/ui/board_glow.gdshader")
+	add_child(_glow)
+	move_child(_glow, _cords.get_index())
 	for i in 1 + patches * 2:
 		ends.append(-1)
 		_order.append(i)
@@ -747,6 +755,24 @@ func _draw_lamps() -> void:
 		if ends[e] != -1:
 			Bloom.occlude(_lamps, Transform2D(0.0, jack_rect(int(ends[e])).get_center().round()) * _plug_outline(e, 1.0))
 	_ci = self
+	_glow_params()
+
+
+## As luzes que as lâmpadas acabaram de declarar ao `Bloom` vão também para o brilho no painel (`_glow`), com o fim do
+## halo delas: só parâmetros, nada se redesenha por isso.
+func _glow_params() -> void:
+	var lights := PackedVector4Array()
+	var colors := PackedColorArray()
+	for l: Array in Bloom.lights_of(_lamps):
+		var r: Rect2 = l[0]
+		var col: Color = l[1]
+		if lights.size() < 16:
+			lights.append(Vector4(r.get_center().x, r.get_center().y, r.size.x / 2.0 + Bloom.SPREAD, col.a))
+			colors.append(Color(col, 1.0))
+	var m := _glow.material as ShaderMaterial
+	m.set_shader_parameter("count", lights.size())
+	m.set_shader_parameter("lights", lights)
+	m.set_shader_parameter("colors", colors)
 
 
 ## Por cima das lâmpadas: as tomadas dos destinos (o aro aceso fica em volta delas), as chapas dos bancos que ainda não

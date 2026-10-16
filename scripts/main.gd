@@ -319,7 +319,7 @@ func _process(delta: float) -> void:
 		_nag()
 		supervisor.check_hold()
 	background.flick = flick
-	background.alert = not dispatch.fleet.incidents.is_empty()   # o estado do despacho na unidade da mesa
+	background.alert = _alert()   # o estado do despacho na unidade da mesa
 	background.card_out = not dispatch.machines.can_print()
 	background.tickets = toll.in_slot()   # o calculógrafo da mesa: o bilhete saindo da fenda, os contadores e a mesinha dele
 	background.counting = toll.counters()
@@ -938,6 +938,7 @@ func answer() -> void:
 		Sfx.play("click")
 		return
 	c.ringing = false
+	c.answered = true
 	c.active = true
 	c.last_talk = talk_clock
 	_update_bell()
@@ -1113,6 +1114,16 @@ func _on_dispatched(loc: String, units_text: String, complete: bool, card: int, 
 ## As emergências em andamento: na linha, tocando ou com a barra ainda correndo.
 func in_progress() -> Array:
 	return emergencies.filter(func(c: PhoneCall): return not c.ended or c.urgent())
+
+
+## A luz vermelha da unidade de despacho: uma emergência aberta já atendida (tocando, ninguém sabe dela ainda; a do
+## treinamento não toca pela agenda e já chega atendida).
+func _alert() -> bool:
+	for inc in dispatch.fleet.incidents:
+		var c := emergency_of(inc.call)
+		if c == null or c.answered:
+			return true
+	return false
 
 
 ## A ligação mais recente da emergência `e` (nula se ela não tocou).

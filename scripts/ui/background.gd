@@ -121,6 +121,7 @@ const BOLT_STEEP := 1.2   ## quanto ela desce para cada unidade que entra na sal
 ## para os objetos da mesa ficarem na frente.
 const SIGN_LIGHT := Vector2(190, 1.2)
 const POST_LIGHT := Vector2(150, 0.6)   ## e a de cada poste de lá à vista, amarela
+const DESK_LIGHT := 0.5   ## a força da luz das lâmpadas dos objetos da mesa no tampo em volta (`DESK_SPILL`)
 const CAB_W := 82.0             ## a largura do armário de aço, encostado na parede (px de 2x2 lá)
 const CAB_AT := 0.37            ## quanto da parede livre entre a mesa comutadora e a quina fica antes dele (com 0,24, ele e o conduíte ficavam colados na mesa)
 const POSTER_W := 22.0           ## a largura do cartaz da quermesse (px de 2x2)
@@ -283,6 +284,7 @@ func _ready() -> void:
 	_over.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_over.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_over.draw.connect(_draw_over)
+	_props_layer.draw.connect(_over.queue_redraw)   # (sempre depois da sala e dos objetos: usa o vidro e a poça de luz que ela mediu e as luzes que os dois declararam; antes dos objetos, as luzes deles ficavam de fora e a lâmpada acendia sem o brilho)
 	add_child(_over)
 	_bolt_layer = Control.new()
 	_bolt_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -326,7 +328,6 @@ func _process(delta: float) -> void:
 		queue_redraw()
 		_lifted.queue_redraw()   # (o objeto erguido muda com a sala: a luz, o lugar)
 		_blind_layer.queue_redraw()
-		_over.queue_redraw()   # (depois da sala: usa o vidro e a poça de luz que ela acabou de medir)
 		_bolt_layer.queue_redraw()
 		_tip_layer.queue_redraw()
 		_beam.queue_redraw()
@@ -881,6 +882,9 @@ func _draw_props_layer() -> void:
 	if _drawn.is_empty():   # (a sala ainda não se desenhou: nada medido)
 		return
 	_ci = _props_layer
+	_spills.clear()
+	if _up_id == "":   # o objeto que estava erguido assentou: a luz dele volta para cá (ficando lá também, contava em dobro)
+		_lifted_spills.clear()
 	_draw_desk_props()
 	_ci = self
 	_bolt_build(_top)
@@ -931,6 +935,7 @@ func _draw_over() -> void:
 ## O objeto erguido sob o mouse (`_up_id`), na camada dele: o mesmo desenho da sala, com as luzes dele no brilho.
 func _draw_lifted() -> void:
 	Bloom.clear(_lifted)
+	_lifted_spills.clear()
 	if _up_id == "":
 		return
 	_ci = _lifted
@@ -1134,10 +1139,13 @@ func _draw_window_glow() -> void:
 	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
-## As luzes de fora que entram pela janela agora, até 8 (`window_lights.gdshader`): o letreiro aceso e os postes de lá
-## acesos (apagam com a luminária piscando), os que aparecem abaixo da persiana; cada uma [onde, até onde, força, cor].
+## As luzes que caem na sala agora, até 8 (`window_lights.gdshader`): as lâmpadas acesas dos objetos da mesa no tampo
+## em volta (`_spills`), o letreiro aceso e os postes de lá acesos (apagam com a luminária piscando), os que aparecem
+## abaixo da persiana; cada uma [onde, até onde e força, cor].
 func _window_light_list() -> Array:
 	var out := []
+	for l: Array in _spills + _lifted_spills:
+		out.append([(l[0] as Rect2).get_center(), Vector2(l[2], DESK_LIGHT), l[1]])
 	if _sign_px != Vector2.ZERO and _sign_on() and not _behind_blind(Rect2(_sign_px, Vector2.ONE)):
 		out.append([_sign_px, SIGN_LIGHT, Pal.SIGN_RED])
 	if lamp_level > 0.5:
@@ -1148,6 +1156,7 @@ func _window_light_list() -> Array:
 
 
 func _window_light_params(list: Array) -> void:
+	list = list.slice(0, 8)   # (o shader tem lugar para 8)
 	var m := _window_lights.material as ShaderMaterial
 	var lights := PackedVector4Array()
 	var colors := PackedColorArray()

@@ -67,7 +67,9 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   halo sem miolo para as letras aparecerem (`_light(..., core = false)`), o reflexo na rua molhada (embaixo das letras, não da beira da caixa) e a luz
   vermelha dele no vão, no peitoril e na persiana, com a dos postes de lá acesos (`_window_lights`, num shader,
   `window_lights.gdshader`, até 8 luzes, `SIGN_LIGHT`, `POST_LIGHT`: entre a persiana e os objetos da mesa, que ficam na
-  frente; o vidro de fora; só os parâmetros mudam, `_window_light_list`, sem redesenhar a sala). Os dois primeiros
+  frente; o vidro de fora; só os parâmetros mudam, `_window_light_list`, sem redesenhar a sala). Na mesma camada, as
+  lâmpadas acesas dos objetos da mesa (a ocorrência e o cartão na unidade de despacho, a do calculógrafo) iluminam o
+  tampo em volta (`_light` com `spill`, `_spills`, `DESK_SPILL`, `DESK_LIGHT`). Os dois primeiros
   entram no `_state`. No vidro da janela, o fantasma
   dele: as letras de novo, fracas e deslocadas (`_draw_neon_glass`, `NEON_GHOST`, `NEON_SHIFT`), com o T falhando junto,
   e, na chuva, as gotas perto dele vermelhas (`NEON_BEADS`); desenhados na vista, que já se redesenha. O prédio de tijolos da esquina é
@@ -477,7 +479,10 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
 - A luz da luminária do teto também cai no painel (`_draw_room_light`, `ROOM_LIT`/`ROOM_DARK`, `LAMP_ABOVE`): liso,
   mais claro e quente no alto à direita, mais escuro nos cantos de baixo; por cima de tudo que é do painel e por
   baixo dos plugs e fios. Ela pisca e esquenta com a da sala no `modulate` da mesa (`Switchboard.dim`, com o
-  `Background.lamp_dark` posto pelo Main): escurece tudo o que a mesa desenha, onde estiver, sem redesenhar. A mesma luz (`_room_lit`) escolhe o tom do relevo do painel na rampa do metal
+  `Background.lamp_dark` posto pelo Main): escurece tudo o que a mesa desenha, onde estiver, sem redesenhar. Por cima dela e por baixo dos fios, a luz das
+  lâmpadas acesas no painel em volta (`_glow`, `board_glow.gdshader`, até 16): um brilho fraco da cor de cada uma,
+  que começa onde o halo do `Bloom` acaba; as luzes são as que a camada das lâmpadas declara ao `Bloom`
+  (`Bloom.lights_of`), passadas como parâmetros no fim do desenho dela (`_glow_params`). A mesma luz (`_room_lit`) escolhe o tom do relevo do painel na rampa do metal
   (`Pal.panel_metal`, `_lit_rect`: os filetes gravados das faixas, a beira rebaixada e a das faixas de cada linha,
   trecho a trecho) e o da moldura na da madeira (`Pal.cabinet`); as peças de metal paradas (as plaquinhas de níquel, o aro das lâmpadas, as porcas e as alavancas, as chapas dos bancos) ficam num degrau dessa luz no meio delas (`_step_at`, `Pal.panel_step`, `_nickel`, `Pal.lit`); o campo do painel fica liso, em `Pal.PANEL` (em
   faixas, pareceria luz em degraus ou metal escovado, que saíram a pedido, e as legendas o tampam com essa cor).

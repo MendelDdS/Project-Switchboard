@@ -72,6 +72,7 @@ var too_late := false       ## emergência que liga de novo: já não adianta de
 var line := 0
 var time := ""
 var ringing := false
+var answered := false       ## o operador atendeu (fica, mesmo depois de ela acabar)
 var active := false
 var ended := false
 var on_line := false        ## o FONE está na entrada desta ligação (só ela fala)

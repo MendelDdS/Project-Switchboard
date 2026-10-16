@@ -61,6 +61,12 @@ static func light(owner: CanvasItem, r: Rect2, col: Color, halo := 1.0, core := 
 	_lights[id].append([r, col, halo, core, round])
 
 
+## As luzes que `owner` declarou no último desenho dele ([Rect2, Color, halo, core, round] nas coordenadas dele): a
+## mesa as manda também ao shader do brilho no painel.
+static func lights_of(owner: CanvasItem) -> Array:
+	return _lights.get(owner.get_instance_id(), [])
+
+
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST   # os blocos do halo ficam retos

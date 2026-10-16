@@ -63,6 +63,8 @@ var _ci: CanvasItem    # onde a vista da janela é desenhada: aqui, ou no vidro 
 var _lifted: Control   # o objeto da mesa erguido sob o mouse, numa camada só dele (`Background._draw_lifted`)
 var _props_layer: Control   # os objetos da mesa, numa camada por cima da persiana e da luz do peitoril (`Background._draw_props_layer`)
 var _glows: Array = []  # as luzes da sala para o brilho (`_light`): [retângulo, cor, halo, miolo, redonda]
+var _spills: Array = []  # as luzes dos objetos da mesa que caem no tampo em volta (`_light` com `spill`): [retângulo, cor, alcance]
+var _lifted_spills: Array = []  # as do objeto erguido pelo mouse, que se desenha na camada dele (`_lifted`)
 var _posts: Array[Rect2] = []   # as cabeças dos postes de lá à vista, para o brilho (acesas só com a luminária acesa: `_draw_over`)
 var _rain_phase := Vector2(randf() * TAU, randf() * TAU)   # as fases das ondas da chuva nesta noite
 var _clouds: Array[Vector3] = []   # as nuvens da noite limpa: x (fração do vidro, sem o vento), altura (fração do céu à vista), tamanho
@@ -147,11 +149,16 @@ func _sign_t_on() -> bool:
 
 
 ## Uma luz do cenário (`r` em px da tela) que brilha, a não ser que o papel de uma ferramenta esteja por cima dela.
-func _light(r: Rect2, col: Color, halo: float, round := false, core := true) -> void:
+## `spill`: até onde ela ilumina o tampo em volta (px; 0 = não ilumina), só nos objetos da mesa (`_window_lights`).
+func _light(r: Rect2, col: Color, halo: float, round := false, core := true, spill := 0.0) -> void:
 	if _ci == self or _ci == _props_layer:   # a vista da janela: as luzes dela vêm de `_draw_side_wall`, que sabe onde o vidro está
 		_glows.append([r, col, halo, core, round])   # a camada de cima as acende, cortadas onde o papel está
+		if spill > 0.0 and _ci == _props_layer:
+			_spills.append([r, col, spill])
 	elif _ci == _lifted:   # o objeto erguido: a luz sobe com a camada dele
 		Bloom.light(_lifted, r, col, halo, core, round)
+		if spill > 0.0:   # (e continua caindo no tampo: sem isso, ela sumia com o mouse em cima)
+			_lifted_spills.append([r, col, spill])
 
 
 func _r(x: float, y: float, w: float, h: float, c: Color) -> void:

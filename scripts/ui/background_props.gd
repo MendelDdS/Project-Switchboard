@@ -5,6 +5,7 @@ extends "res://scripts/ui/background_view.gd"
 const DESK_T := 1.25    ## o fundo do tampo, Z0/DESK_T: a mesa fica afastada da parede (o armário cabe atrás)
 const PLANKS := 6       ## as tábuas do tampo, todas da mesma largura (a câmera as espaça)
 const POOL_R := 112.0   ## o raio da poça de luz da luminária no tampo
+const DESK_SPILL := 30.0   ## até onde as luzes acesas dos objetos (a unidade de despacho, o calculógrafo) iluminam o tampo em volta (px)
 ## O miolo quente da poça (a fração do raio dela e a força): só clareia o meio da mesa, para o olho cair nos objetos;
 ## as pontas, com o relógio, ficam na luz de sempre.
 const POOL_HOT := Vector2(0.42, 0.16)
@@ -294,7 +295,7 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 		var lamp := Rect2(side.position + Vector2(0, 6), Vector2(2, 2))
 		_ci.draw_rect(lamp, Pal.AMBER if counting else Pal.AMBER.darkened(0.75))
 		if counting:
-			_light(lamp, Pal.AMBER, 0.6, true)
+			_light(lamp, Pal.AMBER, 0.6, true, true, DESK_SPILL)
 		for i in 3:   # a saída de ar
 			_ci.draw_rect(Rect2(side.position.x + 4.0, side.position.y + 6.0 + i * 2.0, side.size.x - 4.0, 1), tone.call(Pal.PANEL_LO))
 		var mw := roundf(f.size.x * TollTicket.SIZE.x / Toll.NOMINAL.x)   # a fenda, embaixo do meio dos contadores
@@ -1375,7 +1376,7 @@ func _draw_dispatch_unit(x0: float, zf: float, wx: float) -> void:
 		_ci.draw_rect(lr.grow(1), tone.call(Pal.PANEL_LO))
 		_ci.draw_rect(lr, l[2] if l[1] else (l[2] as Color).darkened(0.75))
 		if l[1]:
-			_light(lr, l[2], 0.6, true)
+			_light(lr, l[2], 0.6, true, true, DESK_SPILL)
 	all.append_array(top + glass + deck)
 	all.append_array(PackedVector2Array([front.position, front.end, Vector2(front.position.x, front.end.y)]))
 	_mark(Tools.DISPATCH, _bounds(all), Geometry2D.convex_hull(all))

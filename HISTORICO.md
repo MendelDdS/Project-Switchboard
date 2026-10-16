@@ -1202,3 +1202,14 @@ Chaves:
     dos objetos da mesa. No lugar do reflexo vermelho fraco desenhado (`SIGN_GLOW`). Ligar e desligar uma luz (o
     letreiro falhando, os postes apagando com a luminária) só muda os parâmetros: a sala não se redesenha. Fica
     embaixo do escuro da sala, que deixa ~1/5 dela perto da janela, por isso a força alta (`SIGN_LIGHT`, `POST_LIGHT`).
+217. #luz #mesa-comutadora
+    Hi-bit 6.2: as lâmpadas acesas da mesa comutadora deixam um brilho fraco da cor delas no painel em volta (nas
+    plaquinhas e nos aros das tomadas), num shader da mesa (`board_glow.gdshader`, a camada `_glow`, entre a luz da
+    sala e os fios), começando onde o halo do `Bloom` acaba, para a luz não somar duas vezes. As luzes vêm da lista
+    que a mesa já declara ao `Bloom` (`Bloom.lights_of`): nada se redesenha por elas. `--lines=1:ring,4:conn` na
+    captura acende lâmpadas sem ligação.
+218. #luz #mesa
+    Hi-bit 6.3: as lâmpadas acesas dos objetos da mesa (ocorrência e cartão na unidade de despacho, a do calculógrafo
+    contando) iluminam o tampo em volta, na cor delas, pela mesma camada das luzes de fora (`window_lights.gdshader`,
+    embaixo dos objetos: eles ficam na frente). Quem declara a luz ao brilho (`_light`) diz até onde ela cai no tampo
+    (`spill`). A tela do rádio não entrou: ele fica no painel de baixo, fora da sala.

@@ -339,3 +339,19 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   que muda com a persiana andando: fechada e aberta, o shader ficava com o vidro velho e pintava de vermelho o pedaço
   descoberto (o usuário viu). O estado comparado leva todo parâmetro que o shader usa; capturas com a persiana parada
   não mostram isso: conferir mexendo nela.
+- **Camada que lê o que outra desenhou precisa saber quando isso mudou.** A camada de cima (`_over`) acende no brilho
+  as luzes que a sala declara ao se desenhar (`_glows`), mas só se redesenhava pelo estado dela: uma luz que acendia
+  (a ocorrência na unidade de despacho) ficava um quadradinho chapado, sem o brilho e o centro claro, até o mouse
+  passar e a redesenhar (o usuário viu). Ela era pedida junto com a sala, e o pedido dos objetos (feito durante o
+  desenho da sala) ia depois: desenhava antes de eles declararem as luzes. Agora o desenho dos objetos é que a pede
+  (`_props_layer.draw` → `_over.queue_redraw`). Um primeiro conserto pelo estado (`hash(_glows)`) a redesenhava um
+  quadro depois, e a luz piscava ao erguer o objeto com o mouse. Capturas esperam a sala assentar e não mostram nada
+  disso: conferir quadro a quadro (um teste temporário que anota a lista de luzes) com o jogo correndo.
+- **Luz de estado acende pelo que o operador sabe, não pelo que o jogo já sabe.** A luz de ocorrência da unidade de
+  despacho seguia `Fleet.incidents`, que recebe a emergência quando ela toca: acendia antes de alguém atender (o
+  usuário viu). Agora só com uma ligação dela atendida (`PhoneCall.answered`, `Main._alert`).
+- **O objeto erguido pelo mouse se desenha em outra camada (`_lifted`): o que ele declara precisa ir junto.** A luz das
+  lâmpadas dos objetos no tampo (`_spills`) só era recolhida da camada dos objetos; com o mouse em cima da unidade de
+  despacho, ela sumia (o usuário viu). E a lista do erguido se esvazia quando ele assenta (no desenho dos objetos, com
+  `_up_id` vazio): esquecida, a luz contava em dobro depois de o mouse sair. Quem acrescenta algo que o objeto declara ao desenhar (luz, brilho, contorno)
+  confere com `--hover=id`.
