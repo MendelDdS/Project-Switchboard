@@ -106,6 +106,13 @@ const DOG_FROM := 21.0 * 60.0   ## a partir de que hora (min do dia) cachorros l
 const DOG_EVERY := Vector2(45, 120)   ## de quanto em quanto tempo (s, sorteado)
 const DOG_REPLY := 0.45   ## a chance de outro cachorro responder, mais longe, `DOG_REPLY_AFTER` s depois (sorteado)
 const DOG_REPLY_AFTER := Vector2(1.8, 3.5)
+## O amanhecer da última noite (min do dia, passando de 1440): os grilos param aos poucos entre `CRICKETS_QUIET.x` e
+## `.y`; o sabiá-laranjeira canta ainda no escuro, a partir de `SABIA_FROM`, uma frase a cada `SABIA_EVERY` s (sorteado);
+## e o primeiro caminhão passa na mão de cá em `FIRST_TRUCK`. O sino que bate as 6h fecha o turno.
+const CRICKETS_QUIET := Vector2(28 * 60 + 30, 29 * 60 + 30)
+const SABIA_FROM := 28 * 60 + 30
+const SABIA_EVERY := Vector2(4.0, 10.0)
+const FIRST_TRUCK := 29 * 60 + 8
 const BELL_AFTER := 1.6   ## o sino da igreja começa a bater a hora depois do gongo da mesa (s), uma badalada a cada `BELL_GAP`
 const BELL_GAP := 2.3
 const RATTLE_NEAR := 2.0  ## trovão que vem até esse tempo depois do clarão (s) é perto: o vidro e a persiana chocalham
@@ -116,11 +123,25 @@ const THUNDER_AFTER := Vector2(1.2, 3.5)   ## o trovão vem depois (s, sorteado:
 const BOLT_LIGHT := Color(0.93, 0.96, 1.0)
 const BOLT_DIR := Vector2(-1.4, 0.45)   ## para onde a luz dele anda a cada unidade para o fundo (x, para a esquerda; y, para baixo): a sombra do armário na parede
 const BOLT_STEEP := 1.2   ## quanto ela desce para cada unidade que entra na sala, até a mesa (a janela desenhada no tampo)
+## O sol do amanhecer entrando direto pela janela (`_sun_layer`, `_draw_sun`): quanto o raio desce para cada unidade
+## que entra na sala, logo depois de o sol nascer e às 6h (baixo, a janela se estica no tampo; subindo, ela encolhe para
+## junto da parede, como as sombras da rua, `_shadow_k`), a força da luz, e a da sombra comprida dos objetos da mesa
+## (o comprimento dela por altura do objeto).
+const SUN_STEEP := Vector2(1.1, 2.6)
+const SUN_ROOM_A := 0.4
+## Com o sol baixo, a luz dele na sala é fraca e difusa e fica mais forte e nítida com ele subindo (`_draw_sun`): a
+## força logo depois de nascer (fração da toda) e até onde a beira se espalha (unidades da sala).
+const SUN_FAINT := 0.35
+const SUN_SOFT := 14.0
+const SUN_CAST := 1.1
 ## A luz vermelha dele no vão, no peitoril e na parede perto da janela (`_window_lights`): até onde chega (px) e a força.
 ## Forte porque o escuro da sala (`_noir`) passa por cima e deixa ~1/5 dela perto da janela; a camada fica embaixo dele
 ## para os objetos da mesa ficarem na frente.
 const SIGN_LIGHT := Vector2(190, 1.2)
 const POST_LIGHT := Vector2(150, 0.6)   ## e a de cada poste de lá à vista, amarela
+## A luz do dia na sala, no amanhecer da última noite (`daylight`): a força dela às 6h, até onde ela chega a partir do
+## meio da janela (px) e o quanto a persiana descida a tampa.
+const DAY_ROOM := Vector3(0.7, 1000.0, 0.7)
 const DESK_LIGHT := 0.5   ## a força da luz das lâmpadas dos objetos da mesa no tampo em volta (`DESK_SPILL`)
 const CAB_W := 82.0             ## a largura do armário de aço, encostado na parede (px de 2x2 lá)
 const CAB_AT := 0.37            ## quanto da parede livre entre a mesa comutadora e a quina fica antes dele (com 0,24, ele e o conduíte ficavam colados na mesa)
@@ -186,6 +207,9 @@ var _over: Control      # por cima da sala, o que muda sozinho sem mexer nela (`
 var _over_drawn := []   # o estado do último desenho dela
 var _sign_glow := Rect2()   # o halo do letreiro no vidro (vazio = fora do vidro); brilha só aceso
 var _bolt_layer: Control   # o clarão do relâmpago, por cima de tudo e somado: só a força muda, no `modulate`
+var _sun_layer: Control    # o sol entrando pela janela, somado, embaixo dos objetos da mesa: a força no `modulate`
+var _sun_occ: Array = []    # os objetos da mesa medidos da última vez (`_occ`), para as sombras deles no sol
+var _sun_geo := []          # o que o desenho dele usou
 var _bolt_lit: Array = []    # o que ele acende: [polígono (px da tela), cores], medido com a sala (`_bolt_build`)
 var _occ_board := PackedVector2Array()   # a mesa comutadora inteira (px da tela)
 var _side_faces: Array = []  # a lateral da mesa comutadora (px da tela), virada para a janela: [o console, o painel]
@@ -217,6 +241,9 @@ var _stray_in := 60.0    # para passar um vira-lata (s)
 var _dog_in := randf_range(15.0, 50.0)   # quanto falta para o próximo latido, contado a partir de `DOG_FROM` (s)
 var _dog_reply := -1.0   # quanto falta para o cachorro que responde (-1 = nenhum)
 var _tolls := 0          # badaladas do sino que faltam bater
+var _dawn_sent := -1.0   # o quanto o dia já nasceu da última vez que o som soube (`Sfx.set_dawn`)
+var _sabia_in := 0.0     # quanto falta para a próxima frase do sabiá (s)
+var _truck := false      # o primeiro caminhão da manhã já passou
 var _toll_in := 0.0      # quanto falta para a próxima (s)
 var _late_sent := -1.0   # o quanto da noite avançada já foi passado ao `Sfx`
 var _warm_t := -1.0   # s desde que a luminária acendeu (`warm_up`; -1 = já quente)
@@ -263,6 +290,15 @@ func _ready() -> void:
 	_window_lights.material = ShaderMaterial.new()
 	(_window_lights.material as ShaderMaterial).shader = preload("res://scripts/ui/window_lights.gdshader")
 	add_child(_window_lights)
+	_sun_layer = Control.new()
+	_sun_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_sun_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var sun_add := CanvasItemMaterial.new()
+	sun_add.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	_sun_layer.material = sun_add
+	_sun_layer.visible = false
+	_sun_layer.draw.connect(_draw_sun)
+	add_child(_sun_layer)
 	_props_layer = Control.new()
 	_props_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_props_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -371,7 +407,16 @@ func _process(delta: float) -> void:
 		_window_set = wl
 		_window_light_params(wl[0])
 		_show()
-	var dk := [size, _gloom_center(), lamp_level, warm, _glass]
+	var sk := snappedf(_sunlit() * lerpf(SUN_FAINT, 1.0, _sun_up()) * (1.0 - _shut), 0.02)   # o sol entrando: a força no `modulate`, o desenho só quando muda
+	var sg := [_blind_frac(), _sun_occ, _drawn, floorf(_cm(WIN_SILL) / _sun_steep()), snappedf(_sun_up(), 0.05)] if sk > 0.0 else _sun_geo   # (redesenha quando a beira anda)
+	if sk != _sun_layer.modulate.a or sg != _sun_geo:
+		_sun_layer.modulate.a = sk
+		_sun_layer.visible = sk > 0.0
+		if sg != _sun_geo:
+			_sun_geo = sg
+			_sun_layer.queue_redraw()
+		_show()
+	var dk := [size, _gloom_center(), lamp_level, warm, _glass, daylight()]
 	if dk != _noir_set:   # o escuro da sala: só os parâmetros do shader mudam, nada se redesenha
 		_noir_set = dk
 		_noir_params()
@@ -636,7 +681,8 @@ func _state() -> Array:
 ## relâmpago com o trovão depois (`BOLT_*`, `THUNDER_AFTER`; perto, a janela chocalha, `RATTLE_NEAR`); o neon do
 ## hotel estala quando falha, o sino da igreja bate as horas (`toll`) e, das 21h em diante, cachorros latem bem longe
 ## (`DOG_*`; calados antes da ligação desconhecida, `Sfx.hushed`). Das 22h à meia-noite a cidade se cala: carros
-## cada vez mais raros (`LATE_*`) e os grilos mais presentes (`Sfx.set_late`). Os sons vêm da janela.
+## cada vez mais raros (`LATE_*`) e os grilos mais presentes (`Sfx.set_late`); no amanhecer da última noite, os grilos
+## param, o sabiá canta e passa o primeiro caminhão (`CRICKETS_QUIET`...). Os sons vêm da janela.
 func _events(delta: float) -> void:
 	var x := _bounds(_glass).get_center().x / maxf(1.0, size.x) if _glass.size() > 2 else 0.9
 	var late := snappedf(clampf((minutes - LATE_FROM) / (LATE_TO - LATE_FROM), 0.0, 1.0), 0.1)
@@ -644,6 +690,19 @@ func _events(delta: float) -> void:
 		_late_sent = late
 		Sfx.set_late(late)
 	var rare := lerpf(1.0, LATE_EVERY, late * (1.0 - morning()))   # (de manhã, os carros voltam)
+	var dawn := snappedf(clampf((minutes - CRICKETS_QUIET.x) / (CRICKETS_QUIET.y - CRICKETS_QUIET.x), 0.0, 1.0), 0.1)
+	if dawn != _dawn_sent:   # o dia nascendo: os grilos param
+		_dawn_sent = dawn
+		Sfx.set_dawn(dawn)
+	if minutes >= SABIA_FROM:   # o sabiá cantando ainda no escuro, frase atrás de frase
+		_sabia_in -= delta
+		if _sabia_in <= 0.0:
+			_sabia_in = randf_range(SABIA_EVERY.x, SABIA_EVERY.y)
+			Sfx.play_at("sabia", x, 0.0, randf_range(0.96, 1.04))
+	if minutes >= FIRST_TRUCK and not _truck:   # o primeiro caminhão da manhã: o próximo da mão de cá (com ela livre, já)
+		_truck = true
+		pass_car(1, "caminhao")
+		_car_next[1] = "caminhao"
 	if _tolls > 0:   # o sino da igreja batendo a hora
 		_toll_in -= delta
 		if _toll_in <= 0.0:
@@ -910,6 +969,8 @@ func _draw_props_layer() -> void:
 	_draw_desk_props()
 	_ci = self
 	_bolt_build(_top)
+	if _sun_layer.visible and _occ != _sun_occ:   # (a camada do sol vem antes desta: as sombras ficam para o quadro seguinte)
+		_sun_occ = _occ.duplicate()
 
 
 ## A luz de fora no peitoril e na guarnição (`_sill_lit`), na sala, antes dos objetos da mesa: mais forte na medida do
@@ -1072,6 +1133,76 @@ func _bolt_build(top: float) -> void:
 		_bolt_lit.append_array(_behind(part[0], cols, _occ, rects))
 
 
+## O sol baixo do amanhecer entrando direto pela janela (`_sun_layer`, somado, embaixo dos objetos da mesa): a janela
+## abaixo da persiana desenhada no tampo, nítida, com o montante do caixilho (a mesma conta do relâmpago, com o raio
+## mais baixo e subindo, `_sun_steep`), e o fundo do vão e o tampo do peitoril, mais fortes junto do vidro (a frente
+## dele fica na sombra); dentro dela, a sombra comprida de cada objeto da mesa, saindo do pé dele para longe da janela
+## (`SUN_CAST`).
+func _draw_sun() -> void:
+	var xc := _cx - _vp.x
+	if xc < 20.0 or _sill_lit.size() < 2:
+		return
+	_ci = _sun_layer
+	var col := Color(Pal.SUN_ROOM, SUN_ROOM_A)
+	for i in _sill_lit.size() - 1:   # o fundo do vão e o tampo do peitoril (`_draw_side_wall`; a guarnição de perto, a última, fica na sombra)
+		var cols := PackedColorArray()
+		for k: Color in _sill_lit[i][1]:
+			cols.append(Color(col, col.a * k.a / 0.7))
+		_fill(_sill_lit[i][0], cols)
+	var steep := _sun_steep()
+	var shadows := []
+	for o: PackedVector2Array in _sun_occ:
+		var ob := _bounds(o)
+		var foot := Rect2(ob.position.x - 1.0, ob.end.y - ob.size.y * 0.25, ob.size.x + 2.0, ob.size.y * 0.25 + 1.0)
+		for part: PackedVector2Array in Geometry2D.intersect_polygons(o, PackedVector2Array([foot.position,
+				Vector2(foot.end.x, foot.position.y), foot.end, Vector2(foot.position.x, foot.end.y)])):
+			var cast := Vector2(-ob.size.y * SUN_CAST / steep, ob.size.y * 0.1)
+			var pts := part.duplicate()
+			for p in part:
+				pts.append(p + cast)
+			shadows.append(Geometry2D.convex_hull(pts))
+	var gh := _cm(WIN_SILL - WIN_TOP)
+	var y0 := _cm(WIN_TOP)
+	var zfar := Z0 / SIDE_T
+	var znear := Z0 / _t2
+	var zb := Z0 / DESK_T
+	var zm := lerpf(zfar, znear, 0.5)
+	var e := (zfar - znear) / SIDE_W   # meia largura do montante
+	var a := xc - (_yd - (y0 + floorf(gh * _blind_frac()))) / steep
+	var b := xc - (_yd - (y0 + gh)) / steep
+	# com o sol baixo, uma parte da luz vai por igual na janela toda (o montante e as sombras quase somem nela) e se
+	# espalha em volta (`SUN_SOFT`); com ele subindo, ela passa toda para a parte nítida
+	var up := _sun_up()
+	var soft := Color(col, col.a * 0.6 * (1.0 - up))
+	var sharp := Color(col, col.a - soft.a)
+	var za := minf(zfar, zb)
+	if soft.a > 0.0 and za > znear:
+		var m := SUN_SOFT * (1.0 - up)
+		var inner := [_p3(a, _yd, za), _p3(b, _yd, za), _p3(b, _yd, znear), _p3(a, _yd, znear)]
+		var outer := [_p3(a - m, _yd, minf(za + m, zb)), _p3(minf(b + m, xc), _yd, minf(za + m, zb)),
+			_p3(minf(b + m, xc), _yd, znear - m), _p3(a - m, _yd, znear - m)]
+		_poly(PackedVector2Array(inner), soft)
+		for i in 4:
+			_fill(PackedVector2Array([inner[i], inner[(i + 1) % 4], outer[(i + 1) % 4], outer[i]]),
+				PackedColorArray([soft, soft, Color(soft, 0.0), Color(soft, 0.0)]))
+	for c: Vector2 in [Vector2(za, zm + e), Vector2(minf(zm - e, zb), znear)]:
+		if c.x > c.y:
+			for part: PackedVector2Array in _cut(PackedVector2Array([_p3(a, _yd, c.x), _p3(b, _yd, c.x), _p3(b, _yd, c.y),
+					_p3(a, _yd, c.y)]), shadows):
+				_poly(part, sharp)
+	_ci = self
+
+
+## Quanto o raio do sol desce para cada unidade que entra na sala agora (`SUN_STEEP`): cresce com ele subindo.
+func _sun_steep() -> float:
+	return lerpf(SUN_STEEP.x, SUN_STEEP.y, _sun_up())
+
+
+## O quanto o sol já subiu, de quando nasce (0) às 6h (1), na curva das sombras da rua (`_shadow_k`).
+func _sun_up() -> float:
+	return smoothstep(SUNRISE, DAWN.y, minutes)
+
+
 ## `poly` sem o que fica na frente dele (`occ`, polígonos convexos): os pedaços que sobram. Antes de recortar, cada
 ## pedaço que encosta num deles é partido ao meio dele, na vertical: assim ele nunca fica inteiro dentro de um pedaço
 ## (o recorte viraria um buraco, que `_fill` pintaria cheio).
@@ -1109,6 +1240,22 @@ func _noir_params() -> void:
 	m.set_shader_parameter("extra", lamp_dark())
 	m.set_shader_parameter("glass", _glass)
 	m.set_shader_parameter("glass_n", _glass.size())
+	_day_params(m)
+
+
+## A luz do dia vinda da janela nos shaders da sala (`room_noir`, `lamp_light`): a cor, a força e de onde ela vem.
+func _day_params(m: ShaderMaterial) -> void:
+	m.set_shader_parameter("daylight", daylight())
+	m.set_shader_parameter("window_at", _bounds(_glass).get_center() if _glass.size() > 2 else Vector2(size.x, 0.0))
+	m.set_shader_parameter("reach", DAY_ROOM.y)
+
+
+## A luz do dia entrando pela janela no amanhecer (a cor, e a força em `a`; 0 de noite): a do céu, fria, clareando a
+## partir das 4h30 e, com o sol, a dele, quente; menor com o céu fechado e com a persiana descida. Em degraus de 1%,
+## para os shaders não mudarem a cada quadro.
+func daylight() -> Color:
+	var k := DAY_ROOM.x * smoothstep(0.15, 1.0, dawn()) * (1.0 if weather == "clear" else 0.6) * (1.0 - DAY_ROOM.z * _shut)
+	return Color(Pal.DAYLIGHT_DAWN.lerp(Pal.DAYLIGHT_SUN, snappedf(_sunlit(), 0.05)), snappedf(k, 0.01))
 
 
 ## O escuro a mais da luminária piscando ou ainda fria, por igual: na sala (`_noir_params`) e na mesa comutadora
@@ -1146,6 +1293,7 @@ func light(m: ShaderMaterial) -> void:
 	m.set_shader_parameter("level", lamp_level)
 	m.set_shader_parameter("glass", _glass)
 	m.set_shader_parameter("glass_n", _glass.size())
+	_day_params(m)
 
 
 ## O que entra pela janela, por cima do escuro da sala: um brilho azul bem fraco (a noite lá fora; liso, sumindo em

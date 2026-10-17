@@ -25,6 +25,7 @@ const SECTOR_ORDER := [1, 2, 3]
 const DEST_PITCH := 18.0     # px entre duas tomadas de destino vizinhas (o número em cima, "305", tem 11 na fonte gravada)
 const TRUNK_PITCH := 30.0    # px entre dois troncos (o nome em cima, "LITORAL", tem 27 na fonte gravada)
 const BLOCK_GAP := 9.0      # px entre dois blocos
+const DAY_LIFT := 0.35       # no amanhecer da última noite, o quanto a luz do dia clareia a mesa, na força toda (`dim`)
 
 var _pulled := {}   ## ponta -> [segundos desde que saiu do encaixe, onde ele estava]: o plug de frente sumindo
 var dest_nums: Array = []      # destinos em serviço (dos setores atendidos)
@@ -165,8 +166,9 @@ func _ready() -> void:
 ## cada quadro), no `modulate`: tudo o que ela desenha, onde estiver (os plugs na prateleira, o fio arrastado até o
 ## painel de baixo), e nada se redesenha. (Uma camada por cima, com o shader do escuro da sala, só cobria o retângulo
 ## dela; estendida até a prateleira, escurecia duas vezes a madeira, que é do cenário.)
-func dim(extra: float) -> void:
-	modulate = Color.WHITE.darkened(extra)
+func dim(extra: float, day := Color(1, 1, 1, 0)) -> void:
+	var lift := 1.0 + DAY_LIFT * day.a   # (de dia, a luz da janela chega fraca até ela)
+	modulate = Color.WHITE.darkened(extra) * Color(lerpf(1.0, lift, day.r), lerpf(1.0, lift, day.g), lerpf(1.0, lift, day.b))
 
 
 func setup(ex: Exchange, socket: Control, cord_tray: Control) -> void:

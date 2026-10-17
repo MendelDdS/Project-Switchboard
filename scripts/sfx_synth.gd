@@ -47,7 +47,11 @@ const CAR_NEAR_SHARP := 1.8   ## o carro da mão de cá: a passagem mais concent
 const CAR_TAKES := 3   ## versões de cada carro, cada uma com o seu sorteio
 const PARTS := [["_build_basic"], ["_build_ring"], ["_build_clock"], ["_build_rub"], ["_build_unroll"], ["_build_card"],
 	["_build_thunder"], ["_build_bell"], ["_build_dog"], ["_build_dog", true], ["_build_outside"],
-	["_build_lamp"], ["_build_rain"], ["_build_breeze"], ["_build_crickets"]]
+	["_build_lamp"], ["_build_rain"], ["_build_breeze"], ["_build_crickets"], ["_build_sabia"]]
+## O sabiá-laranjeira do amanhecer (`_build_sabia`): quantas frases diferentes (cada uma uma versão do som, `sabia~N`),
+## e o tom das notas (Hz, do mais grave ao mais agudo).
+const SABIA_TAKES := 4
+const SABIA_HZ := Vector2(1700.0, 3300.0)
 
 var streams := {}   ## id -> AudioStreamWAV
 var _w := PackedFloat32Array()   ## o som sendo montado (`_begin` ... `_end`)
@@ -694,6 +698,41 @@ func _cricket_syllable(at: float, f: float, dur: float, g: float) -> void:
 		ph += f * (1.01 - 0.02 * k) / RATE
 		var env := minf(1.0, t / 0.003) * pow(1.0 - k, 0.8)
 		_w[s0 + i] += sin(TAU * ph) * env * g
+
+
+## O sabiá-laranjeira cantando no escuro, antes de o sol nascer (`SABIA_TAKES` frases, cada uma uma versão do som):
+## notas de flauta (o seno com um pouco da oitava), umas retas, outras subindo ou descendo e umas em trinado,
+## cada uma entrando e saindo devagar (nada de estalo: batida solta soa como "tic"), longe, com o eco da rua.
+func _build_sabia() -> void:
+	for take in SABIA_TAKES:
+		_begin(2.8)
+		var at := 0.05
+		for n in _rng.randi_range(4, 7):
+			var d := _rng.randf_range(0.09, 0.28)
+			var f0 := _rng.randf_range(SABIA_HZ.x, SABIA_HZ.y)
+			var f1 := f0 * _rng.randf_range(0.8, 1.25)   # para onde a nota vai (subindo ou descendo)
+			var trill := _rng.randf() < 0.25   # o trinado: o tom indo e vindo depressa
+			var s0 := int(at * RATE)
+			var ph := 0.0
+			for i in int(d * RATE):
+				if s0 + i >= _w.size():
+					break
+				var t := float(i) / RATE
+				var u := t / d
+				var f := lerpf(f0, f1, u * u * (3.0 - 2.0 * u))
+				if trill:
+					f *= 1.0 + 0.12 * sin(TAU * 22.0 * t)
+				ph += f * (1.0 + 0.01 * sin(TAU * 31.0 * t)) / RATE
+				var env := minf(1.0, minf(t / 0.018, (d - t) / 0.03))
+				_w[s0 + i] += (sin(TAU * ph) + 0.15 * sin(TAU * 2.0 * ph)) * env
+			at += d + _rng.randf_range(0.03, 0.14)
+			if at > 2.4:
+				break
+		_w = _biquad(_w, "lp", 4500.0, 0.7)
+		var echo := int(0.11 * RATE)
+		for i in range(_w.size() - 1, echo - 1, -1):
+			_w[i] += _w[i - echo] * 0.2
+		_end("sabia" if take == 0 else "sabia~%d" % take, false, false, 0.7)
 
 
 ## Mapa de papel desenrolando (ao abrir a aba do mapa): estalinhos do papel se soltando, cada vez mais espaçados,

@@ -12,7 +12,7 @@ const VOL := {
 	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "set_paper": -27.0, "set_metal": -27.0, "blind": -17.0, "gulp": -19.0, "locker": -15.0, "bike_bell": -24.0, "car_door": -21.0, "rub": -13.0, "cord_stop": -16.0, "cord_tap": -17.0, "cord_snag": -18.0, "cord_snap": -21.0, "unroll": -8.0,
 	"typing": -13.0, "printer": -14.0, "punch": -8.0, "feed": -11.0, "read": -14.0, "shred": -10.0, "deny": -14.0,
 	"chime": -11.0, "shift_bell": -13.0, "car": -15.0, "car_near": -13.0, "car_wet": -14.0, "car_wet_near": -12.0, "thunder": -8.0,
-	"bell": -15.0, "rattle": -17.0, "dog": -27.0, "dog_low": -28.0, "lamp_tick": -27.0,
+	"bell": -15.0, "sabia": -24.0, "rattle": -17.0, "dog": -27.0, "dog_low": -28.0, "lamp_tick": -27.0,
 }
 ## Volume (dB) dos sons de ambiente em cada clima; o que não aparece fica mudo.
 const WEATHER_MIX := {
@@ -127,6 +127,7 @@ var _rain_db := -80.0             # o volume da chuva pedido pelo clima, antes d
 var _rain_gain := 0.0             # e o tanto a mais (ou a menos) pela força dela agora (`set_rain`)
 var _lamp_on := false            # o ambiente da sala está tocando (o zumbido segue a luminária)
 var _late := 0.0                  # quanto a noite já avançou (0..1): a cidade se calando
+var _dawn := 0.0                  # quanto o dia já nasceu (0..1, na última noite): os grilos parando
 var _t := 0.0
 var rub: AudioStreamPlayer        # atrito do fio no buraco, em loop: o fio (agarra e solta, corpo), rápido
 var rub_slow: AudioStreamPlayer   # o mesmo devagar, com os estalos esparsos
@@ -296,6 +297,12 @@ func set_late(k: float) -> void:
 	_apply_mix(8.0)
 
 
+## Quanto o dia já nasceu (0..1, na última noite): os grilos param aos poucos e a brisa volta ao normal.
+func set_dawn(k: float) -> void:
+	_dawn = k
+	_apply_mix(8.0)
+
+
 ## A rajada da brisa agora (0..1): a onda de 8 s gravada nela (`SfxSynth._build_breeze`, a mesma conta; o laço fecha
 ## na onda), pela posição em que ela toca, vezes o volume dela (calada, 0). A ponta da folhinha da parede dobra com ela.
 func gust() -> float:
@@ -336,7 +343,9 @@ func _apply_mix(sec: float) -> void:
 	for id in ["rain", "breeze", "crickets"]:
 		var db: float = mix.get(id, -80.0)
 		if db > -80.0:
-			db += {"crickets": LATE_CRICKETS, "breeze": LATE_BREEZE}.get(id, 0.0) * _late
+			db += {"crickets": LATE_CRICKETS, "breeze": LATE_BREEZE * (1.0 - _dawn)}.get(id, 0.0) * _late
+			if id == "crickets":
+				db += linear_to_db(maxf(1.0 - _dawn, 0.0001))
 		if _hushed:
 			db = -80.0 if id == "crickets" else db - 10.0
 		if id == "rain":   # a chuva tem as ondas por cima (`_process`)

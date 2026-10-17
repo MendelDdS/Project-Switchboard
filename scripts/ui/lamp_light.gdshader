@@ -11,7 +11,10 @@ uniform float level = 1.0;                    // a luminária: 1 acesa, menos pi
 uniform vec3 tint : source_color = vec3(1.0, 0.78, 0.5);   // a cor dela (mais laranja esquentando)
 uniform float gain = 0.5;                     // o quanto a cor de cada pixel cresce no meio da poça...
 uniform float add = 0.03;                     // ...e a cor pura somada (pouca: muita lavava o escuro)
-uniform vec4 daylight = vec4(1.0, 0.95, 0.85, 0.0);   // a luz do dia pela janela (cor, força): a etapa 7; 0 por ora
+uniform vec4 daylight = vec4(1.0, 0.95, 0.85, 0.0);   // a luz do dia pela janela (cor, força; 0 de noite)...
+uniform vec2 window_at;                       // ...vindo do meio dela (px)...
+uniform float reach = 1000.0;                 // ...e chegando até essa distância...
+uniform vec2 day = vec2(0.55, 0.05);          // ...a cor de cada pixel crescendo e a cor pura somada, perto dela
 
 void fragment() {
 	vec4 c = COLOR;   // (no Godot 4, já é a textura vezes a cor do desenho)
@@ -19,8 +22,11 @@ void fragment() {
 	if (!in_glass(p)) {
 		float d = length((p - center) / radius);
 		float f = 1.0 - smoothstep(0.0, 1.0, d);   // liso até a beira
-		f *= f * level * (1.0 - daylight.a);       // o dia enfraquece a luminária
+		f *= f * level * (1.0 - 0.5 * daylight.a);   // o dia enfraquece a luminária (que continua acesa)
 		c.rgb = c.rgb * (1.0 + tint * f * gain) + tint * f * add;
+		float n = 1.0 - smoothstep(0.0, 1.0, distance(p, window_at) / reach);
+		n *= n * daylight.a;                       // a luz do dia, mais forte perto da janela
+		c.rgb = c.rgb * (1.0 + daylight.rgb * n * day.x) + daylight.rgb * n * day.y;
 	}
 	COLOR = c;
 }

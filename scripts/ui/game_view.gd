@@ -16,6 +16,8 @@ const GRADES := {
 	"rain": {"shadow_lift": Vector3(-0.016, 0.004, 0.045), "light_tint": Vector3(1.03, 1.0, 0.94), "contrast": 1.06},
 	"fog": {"shadow_lift": Vector3(-0.008, 0.006, 0.03), "light_tint": Vector3(1.04, 1.0, 0.93), "contrast": 1.02},
 }
+## A do dia, para onde a do clima vai no amanhecer da última noite (`grade_day`): as sombras quase sem o azul da noite.
+const DAY_GRADE := {"shadow_lift": Vector3(-0.004, 0.002, 0.012), "light_tint": Vector3(1.03, 1.0, 0.96), "contrast": 1.04}
 
 @onready var _box: SubViewportContainer = $Box
 @onready var _view: SubViewport = $Box/View
@@ -65,6 +67,14 @@ static func grade_weather(node: Node, weather: String, sec := 0.0) -> void:
 			t.tween_property(m, "shader_parameter/" + k, GRADES[weather][k], sec)
 		else:
 			m.set_shader_parameter(k, GRADES[weather][k])
+
+
+## A gradação do clima `weather` indo para a do dia (`DAY_GRADE`) até `k` (0 a 1), na hora.
+static func grade_day(node: Node, weather: String, k: float) -> void:
+	var m := _grade_of(node)
+	if m:
+		for key: String in DAY_GRADE:
+			m.set_shader_parameter(key, lerp(GRADES[weather][key], DAY_GRADE[key], k))
 
 
 ## A gradação da tela que mostra o jogo de `node` (o `Box`, ou a da captura); nula com o `main.tscn` sozinho.

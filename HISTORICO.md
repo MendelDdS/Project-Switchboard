@@ -1267,3 +1267,32 @@ Chaves:
     com a linha dela descendo do alto até o térreo entre o nascer e as 6h (`FACADE_SHADE`), os peitoris acesos só
     acima dela; e a faixa de sol no chão reta e de beira nítida, um pouco mais estreita que a rua do cruzamento
     (`STRIP_EDGE`): com as beiras sumindo até as paredes, ela se abria em cunhas perto da janela, como um leque.
+229. #vista #janela #luz #saiu
+    Plano da etapa 9 (`PLANO_HIBIT.md`): a vista da janela segundo uma imagem de referência (sol laranja com sombra fria,
+    céu em camadas, vários prédios no fundo, fachadas com cortina e luz por dentro, rua com sombras, gente e carro,
+    arbusto denso, borda de luz na moldura). Aceitos: detalhes em todas as noites e vários prédios altos atrás da
+    igreja. Recusados: faixa de pedestres no cruzamento e fios de poste atravessando a rua.
+229. #luz #janela #mesa-comutadora
+    Seguindo o plano hi-bit, a 7.3: a sala no amanhecer da última noite, só por parâmetros, sem redesenhar a sala. A
+    luz do dia entra pela janela (fria, do céu, e quente depois que o sol nasce), o escuro da sala recua a partir dela,
+    a luminária perde força (continua acesa), o sol baixo acende o vão e o peitoril (a sugestão 8 da referência do
+    usuário), a mesa comutadora clareia de leve, o brilho da luminária e o halo das lâmpadas enfraquecem e a gradação
+    de cor vai da noite ao dia.
+230. #luz #janela #mesa
+    O sol entrando pela sala estava "muito ruim": uma mancha redonda laranja no pé do vidro, que acendia a mesa em volta
+    da caneca e do relógio sem eles terem sombra (parecia uma lâmpada atrás deles). Trocada pela janela desenhada no
+    tampo, nítida e com o montante, o fundo do vão e o tampo do peitoril acesos (a frente dele na sombra), a sombra
+    comprida da caneca e do relógio dentro dela e uma cor mais clara, dourada, também na luz do dia da sala.
+231. #luz #janela #mesa
+    O sol na mesa deixou de ser parado: anda com o sol subindo, comprido logo depois de nascer e encolhendo para junto
+    da parede até as 6h, com as sombras da caneca e do relógio encurtando junto (como as da rua). A pedido, com o sol
+    baixo a luz é fraca e de beira espalhada, e fica mais forte e nítida à medida que ele sobe.
+232. #som #vista
+    Hi-bit 7.4, o som do amanhecer da última noite: os grilos param aos poucos das 4h30 às 5h30 (e a brisa volta ao
+    normal), o sabiá-laranjeira canta ainda no escuro a partir das 4h30 (frases de flauta sintetizadas, quatro
+    versões, notas entrando e saindo devagar, sem estalo), um galo canta longe, na zona rural, a partir das 4h40, o
+    primeiro caminhão da manhã passa na mão de cá às 5h08 e o sino da igreja bate as 6h fechando o turno (as
+    badaladas seguem por baixo do relatório).
+233. #som #saiu
+    O galo cantando longe no amanhecer saiu, a pedido (o "barulho do galo"): ficam os grilos parando, o sabiá, o
+    primeiro caminhão e o sino das 6h.

@@ -22,6 +22,7 @@ const NAG_AFTER := 22.0                 # segundos de silêncio até reclamar da
 const EMERGENCY_NAG_AFTER := 26.0
 const MAX_EMERGENCIES := 2              # emergências em andamento ao mesmo tempo (a próxima espera; o debug recusa)
 ## Atalhos das ferramentas (Input Map): aba -> ação.
+const DAY_DIM := 0.5   # o quanto o dia enfraquece o brilho da luminária e o halo das luzes (`Bloom`), na força toda
 const WARM_TINT := Color(1.0, 0.62, 0.36, 0.35)   # a luminária recém-acesa: o brilho dela nesse tom e nessa fração da força
 const TAB_KEYS := {Tools.DIRECTORY: "tab_directory", Tools.DISPATCH: "tab_dispatch", Tools.LOGBOOK: "tab_logbook", Tools.CALL_LOG: "tab_call_log"}
 var C: GameContent = GameData.CONTENT
@@ -74,6 +75,7 @@ var _calling_back := false
 var _minute := -1   # o minuto que o relógio de flip mostra (o "tic" quando a plaqueta vira)
 var _taught_midnight := false
 var _taught_bank := false
+var _day := 0.0   ## a luz do dia da última gradação posta (`GameView.grade_day`)
 var _hour := 0   ## a última hora cheia em que o relógio bateu (horas desde o começo do turno)
 var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o silêncio na linha (PhoneCall.last_talk)
 
@@ -94,6 +96,7 @@ var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o
 @onready var training: Training = %Training
 @onready var _hint: RichTextLabel = %Hint
 @onready var _glow: CanvasItem = %Glow
+@onready var _bloom: CanvasItem = $Bloom
 @onready var _intro: Intro = %Intro
 @onready var _ending: Ending = %Ending
 @onready var _pause: PauseMenu = %PauseMenu
@@ -344,9 +347,15 @@ func _process(delta: float) -> void:
 		background.toll_desk = toll.layout()
 	toll.now = minutes
 	var w := background.warm   # esquentando, o brilho é mais fraco e alaranjado (`Background.warm_up`)
-	_glow.modulate = Color(1.0, lerpf(WARM_TINT.g, 1.0, w), lerpf(WARM_TINT.b, 1.0, w), background.lamp_level * lerpf(WARM_TINT.a, 1.0, w))
+	var day := background.daylight()   # o amanhecer: o brilho da luminária e o halo das luzes perdem força
+	_glow.modulate = Color(1.0, lerpf(WARM_TINT.g, 1.0, w), lerpf(WARM_TINT.b, 1.0, w),
+		background.lamp_level * lerpf(WARM_TINT.a, 1.0, w) * (1.0 - DAY_DIM * day.a))
+	_bloom.modulate = Color.WHITE.darkened(DAY_DIM * day.a)
+	if day.a != _day:   # e a gradação vai para a do dia
+		_day = day.a
+		GameView.grade_day(self, weather, day.a / Background.DAY_ROOM.x)
 	tools.light = background.lamp_level
-	board.dim(background.lamp_dark())
+	board.dim(background.lamp_dark(), day)
 
 
 ## Quem está na linha esperando o operador: na transferência, às vezes puxa conversa fiada depois de um tempo e,

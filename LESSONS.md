@@ -372,3 +372,10 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   céu, embaixo da cidade. Capture os minutos em que o efeito anda por cima de detalhe de 1 px, não só os redondos.
 - **Ponto solto de 1 px no chão parece sujeira, claro ou escuro.** Os brilhos de sol no grão da faixa de luz (e antes
   os pontos escuros) saíram a pedido: na vista em 2×, textura de chão vai em faixas e degradês, não em pixels soltos.
+- **Sol entrando por uma janela tem forma, não é brilho.** Uma mancha redonda e lisa no pé do vidro, acendendo a mesa
+  em volta dos objetos sem sombra deles, pareceu uma lâmpada atrás da caneca (o usuário: "muito ruim"). Luz direta =
+  a abertura projetada, de beira nítida, com o caixilho e as sombras compridas do que estiver nela; o liso fica para a
+  luz difusa.
+- **Voz de bicho sintetizada com fonte áspera soa como barulho.** O galo (dente de serra com aspereza e ruído, filtrado
+  para soar longe) saiu a pedido como "barulho"; o sabiá, de senos limpos com entrada e saída lentas, ficou. Bicho só
+  entra se der para fazer com tom limpo; o que pede timbre rouco (galo, cachorro de perto) fica de fora ou bem longe.

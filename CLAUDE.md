@@ -45,7 +45,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `EmergencyCall` com lacunas **em inglês** (`{place}`, `{reason}`, `{street}`, `{house}`...), preenchidas por
   `GameData.template_transfer()`/`template_emergency()`. Motivos em `DirectoryEntry.motives` (`Motive`: o pedido e a conversa que vem depois). `TEMPLATE_CHANCE`
   (`Schedule`) mistura moldes e roteiros escritos (híbrido: treinamento, trotes e roteiro da noite sempre escritos).
-- Todo o áudio é sintetizado ao iniciar por `SfxSynth.build()` (`scripts/sfx_synth.gd`: as receitas, 264 sons, 6,5 MB;
+- Todo o áudio é sintetizado ao iniciar por `SfxSynth.build()` (`scripts/sfx_synth.gd`: as receitas, 268 sons, 7,1 MB;
   sem cache; em pedaços, `PARTS` e uma voz por pedaço, montados ao mesmo tempo nos núcleos, `WorkerThreadPool` em alta
   prioridade (a de baixa usa só ~30% deles): ~0,4 s num Mac recente pelo editor, ~0,9 s um depois do outro; cada
   pedaço numa instância com o seu sorteio, `_rng`, porque o `randf` global não é seguro entre linhas de execução); **nada de chamar função a cada amostra** num laço de som (do
@@ -76,7 +76,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   mais do lado da janela (`SfxSynth.RAIN_LEFT`: o lado esquerdo mais baixo), e cresce e diminui em ondas lentas
   (`RAIN_WAVES`, sobre `_rain_db`). **Nada de gota solta na chuva**: batidas, bolhas de poça, gotas no vidro e o pingo da
   calha soavam como "tic" e saíram a pedido; das
-  22h à meia-noite os grilos sobem e a brisa baixa (`Sfx.set_late`, `LATE_*`); o zumbido elétrico de 60 Hz da sala fica baixo (`Sfx.HUM_DB`; a -29 e a -37 dB cansava, sobretudo em fone; antes da
+  22h à meia-noite os grilos sobem e a brisa baixa (`Sfx.set_late`, `LATE_*`); no amanhecer da última noite os grilos
+  param (`Sfx.set_dawn`, `Background.CRICKETS_QUIET`), o sabiá-laranjeira canta ainda no escuro (`sabia`, frases de
+  flauta, `SABIA_TAKES` versões, `SABIA_FROM`; o galo saiu, a pedido), passa o primeiro
+  caminhão (`FIRST_TRUCK`) e o sino que bate as 6h fecha o turno (segue por baixo do relatório); o zumbido elétrico de 60 Hz da sala fica baixo (`Sfx.HUM_DB`; a -29 e a -37 dB cansava, sobretudo em fone; antes da
   ligação desconhecida baixa para `HUM_HUSHED` e, depois dela, some); a luminária zumbe bem baixo, seguindo a
   luz dela (`lamp_buzz`, `Sfx.lamp`, `LAMP_BUZZ`), e estala quando pisca (`lamp_tick`); `Background.weather` desenha a janela, `Conversation.topics()` junta os
   assuntos gerais com os do clima (`ChatTopic.weather`).
@@ -664,7 +667,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   dela; os horários passam da meia-noite pelo `Main.fmt`. A hora do dia no cenário (`Background.minutes`) passa de
   1440 depois da meia-noite: o que compara com ela continua valendo. **O clima que abre** (`Night.clears_at`, a 15 à
   meia-noite): a chuva afina até a garoa e o véu da névoa some nos `CLEAR_SPAN` min antes (`Background._clearing`) e,
-  na hora, a noite fica limpa (`Main.set_weather` em `CLEAR_SEC`). **O amanhecer** (a vista; a sala é a 7.3), pelas
+  na hora, a noite fica limpa (`Main.set_weather` em `CLEAR_SEC`). **O amanhecer**, pelas
   horas de verdade de 22/10/1973 a ~22° S (`Background.DAWN`, `SUNRISE`, `STREET_OFF`, `MORNING`): o céu, numa camada
   própria embaixo da cidade (`_sky`, `_draw_sky`; o vidro, `_pane`, por cima: o reflexo some com o dia), é um
   degradê de quatro tons do alto à vista até o horizonte (`Pal.DAWN_SKY`, quadros de 4 cores, e `DAWN_STOPS`;
@@ -692,7 +695,18 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   alto), fiapos de nuvem cobrem o céu (`_draw_cirrus`, `CIRRUS`) e passam passarinhos: bandos em V e os pombos saindo
   da torre (`FLOCKS`, `_draw_birds`, na frente da vista, no tempo do jogo). A cidade clareia pelo `modulate` da `_back` e da `_view` (`DAY_GAIN`; um
   shader nelas desfazia o lote das chamadas de desenho), postes e neon apagam às 5h15 (`_posts_on`, `_sign_on`),
-  janelas acendem de madrugada e ficam (`WAKE_DAWN`) e a rua volta a ter gente e carro das 5h às 6h (`morning`).
+  janelas acendem de madrugada e ficam (`WAKE_DAWN`) e a rua volta a ter gente e carro das 5h às 6h (`morning`). Na sala, a luz do dia entra pela janela só por
+  parâmetros (`Background.daylight`: a cor do céu, fria, e com o sol a dele, quente, `Pal.DAYLIGHT_*`; a força em
+  `DAY_ROOM`, em degraus de 1%, menor com a persiana descida): o escuro da sala recua a partir da janela
+  (`room_noir.gdshader`), a luz dela clareia o que está perto e a luminária perde metade da força
+  (`lamp_light.gdshader`, `window_at`, `reach`), o sol baixo entra direto (`_sun_layer`, `_draw_sun`, somado,
+  embaixo dos objetos da mesa, a força no `modulate`): o fundo do vão e o tampo do peitoril acesos e a janela desenhada
+  no tampo, nítida, com o montante (a conta do relâmpago com o raio mais baixo, `SUN_STEEP`, subindo com o sol, `_sun_up`: logo depois de nascer ela é
+  comprida, fraca e de beira espalhada, `SUN_FAINT`, `SUN_SOFT`, e encolhe para junto da parede ficando forte e nítida), e nela a sombra
+  comprida da caneca e do relógio (`SUN_CAST`, pelos contornos `_occ` da última vez; uma mancha redonda de luz parecia
+  lâmpada), a mesa comutadora clareia de leve (`Switchboard.dim`,
+  `DAY_LIFT`), o brilho da luminária e o halo do `Bloom` enfraquecem (`Main.DAY_DIM`) e a gradação vai para a do dia
+  (`GameView.DAY_GRADE`, `grade_day`). Nada disso redesenha a sala.
 - **Fim do turno**: nada novo toca depois de `last_call` (`LAST_CALL_BEFORE` antes do fim, 23:40; sorteadas param ali e `_run_schedule` descarta
   retornos e atrasadas; a desconhecida tem regra própria). A partir daí, com a desconhecida já passada, o botão
   **Encerrar turno** (`%EndShift`, no lugar do texto do turno ao lado do relógio) fecha a noite: quem está na linha ou
