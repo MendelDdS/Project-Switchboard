@@ -97,7 +97,7 @@ Leia `git diff HEAD` (ou desde a base) e, só nas linhas alteradas, confira o qu
 ## 4. Medir (só quando a mudança mexe em desenho ou em algo que roda a cada quadro)
 
 Mudou um `_draw`, um `_process`, o estado de redesenho, a vista da janela, a mesa comutadora, o `Bloom` ou um
-SubViewport? Meça uma vez, com tela (fecha sozinho em ~30 s):
+SubViewport? Meça uma vez, com tela (fecha sozinho em ~40 s; os últimos cenários são o amanhecer da última noite):
 
 ```sh
 cp .claude/skills/revisar-mudancas/medir.gd tests/test_zz_medir.gd
@@ -105,16 +105,22 @@ cp .claude/skills/revisar-mudancas/medir.gd tests/test_zz_medir.gd
 rm -f tests/test_zz_medir.gd tests/test_zz_medir.gd.uid
 ```
 
-Referência neste Mac (10/2026, depois da análise de desempenho):
+Referência neste Mac (10/2026, depois do plano hi-bit; os números variam de uma medição para outra, ±1 ms):
 
-- **Quadro:** ~2 ms em todos os cenários, nenhum acima de 8 ms.
-- **Chamadas de desenho:** ~340 quando o cenário não se redesenha.
+- **Quadro:** 2–4 ms em média; o pior 1% até ~10 ms e uns poucos quadros acima de 8 ms, nenhum acima de 16 ms
+  (o sol a 8× pode dar um).
+- **Chamadas de desenho:** ~380 quando o cenário não se redesenha; ~400–450 abrindo uma ferramenta; no amanhecer
+  ~380–1000 (o céu em degradê, os fiapos de nuvem e os raios).
 - **Parado:**
   - a sala 0 vezes por segundo;
   - a camada de cima 0–1;
   - a vista ~30;
-  - o fundo da vista ~1 (~11 na noite limpa, pelas estrelas).
+  - o fundo da vista ~3 (~11 na noite limpa, pelas estrelas).
 - **Relâmpago ou papel deslizando:** a camada de cima ~40–55 por segundo, sem a sala.
+- **Amanhecer:** a camada do sol (`sol`) ~2 por segundo parada e ~11 com o sol a 8×; a sala não se redesenha.
+
+Chamadas na casa dos milhares: procure primitivos seguidos com número de pontos diferente (o lote só junta os
+iguais) ou uma troca de transformação dentro de um laço; esconda uma camada por vez para achar qual.
 
 Bem pior que isso: aponte com os números. Na dúvida se a piora é da mudança, meça a versão anterior (`git stash`,
 medir, `git stash pop`).

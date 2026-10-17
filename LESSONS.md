@@ -390,3 +390,9 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   Para clarear, escurecer ou tingir uma camada inteira, `modulate` antes de shader.
 - **Captura de um worktree com `--out` absoluto vai parar dentro dele** (`<worktree>/Users/...`): o `shot.gd` trata o
   caminho como do projeto. Use pasta relativa (o `hibit_shots.sh` recusa a absoluta) e traga os arquivos depois.
+- **Primitivos alternando triângulo e quadrilátero não entram no mesmo lote.** O `_light_fan` desenhava, por fatia, o
+  triângulo do miolo e o quadrilátero da beira: cada um virava uma chamada de desenho, e os 22 fiapos de nuvem do
+  amanhecer (2 camadas × 32 fatias × 2) passavam de 5000 chamadas por quadro na vista; as nuvens da lua davam os ~1850
+  "intermitentes" ao abrir a lista. Agrupar os de mesmo número de pontos (os triângulos todos, depois os
+  quadriláteros) deu os mesmos pixels e ~380 chamadas. Cenário novo entra no `medir.gd`: o amanhecer nunca tinha sido
+  medido e o problema passou despercebido por três sub-etapas.

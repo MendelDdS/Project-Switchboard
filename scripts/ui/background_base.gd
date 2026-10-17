@@ -250,10 +250,12 @@ func _bounds(pts: PackedVector2Array) -> Rect2:
 func _light_fan(c: Vector2, rim: PackedVector2Array, col: Color) -> void:
 	var mid := Color(col, col.a * 0.35)
 	var out := Color(col, 0.0)
-	for i in rim.size():
+	var n := rim.size()
+	for i in n:   # (os triângulos todos e depois os quadriláteros: o lote só junta primitivos com o mesmo número de pontos)
+		_ci.draw_primitive(PackedVector2Array([c, c.lerp(rim[i], 0.5), c.lerp(rim[(i + 1) % n], 0.5)]), PackedColorArray([col, mid, mid]), PackedVector2Array())
+	for i in n:
 		var a := rim[i]
-		var b := rim[(i + 1) % rim.size()]
-		_ci.draw_primitive(PackedVector2Array([c, c.lerp(a, 0.5), c.lerp(b, 0.5)]), PackedColorArray([col, mid, mid]), PackedVector2Array())
+		var b := rim[(i + 1) % n]
 		_fill(PackedVector2Array([c.lerp(a, 0.5), a, b, c.lerp(b, 0.5)]), PackedColorArray([mid, out, out, mid]))
 
 

@@ -1301,3 +1301,8 @@ Chaves:
     cada uma mora e como acrescentar uma nova, sem `PointLight2D`), os horários que ainda diziam meia-noite onde vale o
     fim do turno, as lições do caminho e duas verificações novas no `check.sh` (cor escrita direto fora do `Pal` e luz
     do Godot no lugar dos shaders); o `hibit_shots.sh` ficou, com o amanhecer da noite 15.
+235. #desempenho #testes
+    Hi-bit 8.2: o `medir.gd` passou a medir o amanhecer da última noite (5:15, 5:40 e o sol andando a 8×) e mostrou
+    ~5200 chamadas de desenho na vista: os fiapos de nuvem (`_light_fan`) alternavam triângulo e quadrilátero, e o lote
+    do Godot só junta primitivos com o mesmo número de pontos. Agrupados, os pixels são os mesmos e ficam ~380–1000
+    chamadas (e sumiram as ~1850 que apareciam às vezes ao abrir a lista, das nuvens da lua). Referências novas na skill.

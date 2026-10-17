@@ -148,7 +148,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   velho), e a cor dela vai no `Pal`.
 - Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`). **Área cheia em `draw_primitive`, não em
   `draw_polygon`**: cada `draw_polygon`/`draw_colored_polygon` é uma chamada de desenho (e cria um polígono a cada
-  redesenho); `draw_primitive` (até 4 pontos) seguidos viram uma só. O cenário tem `Background._fill`/`_poly` (o
+  redesenho); `draw_primitive` (até 4 pontos) seguidos **com o mesmo número de pontos** viram uma só (triângulo e quadrilátero
+  alternados quebram o lote a cada um: os fiapos de nuvem do amanhecer davam 2900 chamadas; `_light_fan` desenha os
+  triângulos todos e depois os quadriláteros). O cenário tem `Background._fill`/`_poly` (o
   quadrilátero inteiro; o resto, em triângulos); a sala passava de 2000 chamadas por quadro. **Os materiais dos objetos da mesa** (capas, miolo, página e etiqueta da lista,
   fita e papelão do bloco de fichas, a letra a lápis e o lápis dele, os carimbos do caderno, tábua, folhas e letra da prancheta, papel-jornal com a tinta, a beira e a foto, o bilhete de tarifação com o formulário e a tinta do carimbo, papel e tons do mapa, o cartão do despacho, níquel, latão (o das plaquetas e o dos plugs), a baquelite, os cabos, o vermelho do formulário, a madeira e a borda do tampo, o relógio de flip e o café da caneca; e os da sala: a parede, o vão da janela, a persiana, o armário de aço com o cromado, o conduíte, a folhinha e o cartaz; e os da vista: o céu, a lua e as nuvens, a cidade de longe, as fachadas, a rua com os postes, o bar, o hotel, a varanda, a igreja, o arbusto, os carros, quem passa, os bichos e o letreiro) são
   constantes do `Pal`, usadas pelo objeto (`Background._art_*`) e pelo papel aberto dele: o que muda numa ponta muda na outra. **Rampas de material** (plano hi-bit, `PLANO_HIBIT.md`): `Array[Color]` no `Pal`, do escuro ao claro, a sombra
