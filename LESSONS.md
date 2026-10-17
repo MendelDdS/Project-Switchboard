@@ -370,3 +370,5 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
 - **Brilho somado por cima da cidade apaga silhueta fina.** O risco da lente, na camada `_rays` (ADD), passava na
   altura do braço da cruz às 5h45 e o desbotava (o usuário viu): efeito de luz que corta a vista na horizontal vai no
   céu, embaixo da cidade. Capture os minutos em que o efeito anda por cima de detalhe de 1 px, não só os redondos.
+- **Ponto solto de 1 px no chão parece sujeira, claro ou escuro.** Os brilhos de sol no grão da faixa de luz (e antes
+  os pontos escuros) saíram a pedido: na vista em 2×, textura de chão vai em faixas e degradês, não em pixels soltos.

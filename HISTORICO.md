@@ -1254,3 +1254,16 @@ Chaves:
     dela (`_sun_shadow`, `_shadow_k`); a neblina baixa no fundo da rua, dourada do lado do sol, sumindo até as 6h
     (`_draw_dawn_mist`); as nuvens acesas por baixo (`Pal.DAWN_CLOUD_TOP`); e passarinhos: dois bandos em V e os pombos
     saindo da torre logo depois de o sol nascer (`FLOCKS`, `_draw_birds`).
+227. #janela #luz #rua
+    Melhorias de luz do amanhecer seguindo uma imagem de referência do usuário (a sala, a luz entrando pela janela,
+    fica para a 7.3): as duas paredes da rua do cruzamento douradas no fundo; os prédios à direita dela laranja, com
+    peitoris e faixas acesos, e os da esquerda frios (`Pal.SUN_LOW`; com o laranja claro do sol, o tijolo saía bege:
+    a luz do dia azulada por cima desbota); o resto da rua na sombra dos prédios de lá e a faixa de sol mais estreita,
+    com o miolo dourado (pontos claros ou escuros no grão pareciam sujeira e saíram; num laranja claro ela saía cinza); as
+    sombras de quem passa mais escuras; o teto e os vidros dos carros e a copa do arbusto pegando o sol; a luz das
+    vitrines na calçada com os postes apagados; e fiapos de nuvem rosa e dourados pelo céu (`_draw_cirrus`).
+228. #janela #luz #rua
+    Duas das sugestões seguintes: nas fachadas de lá viradas para o sol, a sombra dos prédios do outro lado embaixo,
+    com a linha dela descendo do alto até o térreo entre o nascer e as 6h (`FACADE_SHADE`), os peitoris acesos só
+    acima dela; e a faixa de sol no chão reta e de beira nítida, um pouco mais estreita que a rua do cruzamento
+    (`STRIP_EDGE`): com as beiras sumindo até as paredes, ela se abria em cunhas perto da janela, como um leque.
