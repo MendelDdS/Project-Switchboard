@@ -121,6 +121,8 @@ var _yaw := 0.0   # quanto o relógio da mesa está girado (rad; `_draw_flip_clo
 var _props := {}       # objeto que abre ferramenta -> retângulo dele (px da tela), do último desenho
 var sips := 0   ## os goles já tomados do café: ele baixa na caneca (`_mug_art`) e, acabado, o vapor some
 var _up_id := ""       # o objeto erguido sob o mouse, subindo ou assentando ("" = nenhum): fica na camada dele (`_lifted`), não na sala
+var _mug_rim := []     # a caneca na tela (o corpo e a meia altura da boca), para a beira acesa pelo sol (`Background._draw_sun_edge`)
+var _clock_rim := {}   # as faces do relógio na tela (`_clock_box`), para o mesmo
 var _lamp_x := 0.0     # onde está a luminária, no meio da tela (px de 2x2): a luz na mesa e a sombra dos objetos dependem dela
 var _zd := Vector2.ZERO   # a frente e o fundo do tampo (z)
 var _side_x := 0.0     # a lateral da mesa comutadora na sala (x): os objetos da mesa ficam à direita dela
@@ -400,6 +402,7 @@ func _draw_flip_clock(xc: float, zc: float) -> void:
 	var lit := Color.WHITE.darkened(dark)   # longe da luz
 	var base := _clock_box(xc, zc, hw + 0.8, hd + 0.8, _yd, bh, Pal.CLOCK_BASE[2], Pal.CLOCK_BASE[0], Pal.CLOCK_BASE[1])
 	var box := _clock_box(xc, zc, hw, hd, _yd - bh, CLOCK.y, Pal.CLOCK_CASE[3], Pal.CLOCK_CASE[0], Color.TRANSPARENT)
+	_clock_rim = box
 	var hull := PackedVector2Array()
 	for faces: Dictionary in [base, box]:
 		for q: PackedVector2Array in faces.values():
@@ -1052,13 +1055,16 @@ func _draw_mug(xc: float, zc: float, rr: float, hh: float) -> void:
 	if body.size.x < 10.0 or body.size.y < 10.0:   # (a tela ainda se arrumando)
 		return
 	_mug_mouth = body.position + Vector2(body.size.x / 2.0, ry * 0.3)   # o vapor sai do café (`_draw_steam`)
+	_mug_rim = [body, ry]
 	_mug_w = body.size.x
 	var low := float(sips) / MUG_SIPS   # o risco de luz no café (`_mug_art`), na tela: o brilho tremendo vai em cima dele
 	var e := Vector2(-0.3 * (0.78 - low * 0.2), -0.375 * (0.62 - low * 0.3) + 0.3 + low * 0.4)
 	var half := Vector2(0.25 * (0.78 - low * 0.2) * body.size.x / 2.0, 0.175 * (0.62 - low * 0.3) * ry)
 	_mug_glint = Rect2(body.position + Vector2(body.size.x / 2.0 + e.x * body.size.x / 2.0, e.y * ry) - half, half * 2.0)
-	_desk_shadow(PackedVector2Array([body.position + Vector2(0, body.size.y - rb), body.end - Vector2(0, rb), body.end + Vector2(0, rb),
-		Vector2(body.position.x, body.end.y + rb)]))
+	var foot := PackedVector2Array()   # o pé é redondo: num retângulo, a sombra virava um quadrado escuro no sol do amanhecer
+	for p in _ring(Vector2.ZERO, 1.0):
+		foot.append(Vector2(body.get_center().x, body.end.y) + p * Vector2(body.size.x / 2.0, rb))
+	_desk_shadow(foot)
 	var place := snappedf(1.0 - _shade(xc, zc), 0.05)   # a luz no lugar dela, em degraus (a imagem é guardada por ela)
 	var img := _mug_art(int(body.size.x), int(body.size.y), int(ry), int(rb), sips, place)
 	_ci.draw_texture(img, body.position - Vector2(0, ry))

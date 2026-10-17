@@ -416,3 +416,14 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   na passagem é técnica básica de pixel art. Na beira de toda luz que bate numa superfície, um ou dois degraus com a
   cor da sombra e a da luz misturadas (por fora, do lado da sombra: mais escuros que a luz no meio dela viraram a
   "faixa escura" recusada antes).
+- **O contorno `_occ` dos objetos da mesa é convexo, não a silhueta.** Uma beira de luz posta nele (o sol na caneca
+  e no relógio) passava fora da alça e cortava o ar ao lado do relógio. Luz que segue a forma de um objeto vai no
+  desenho dele (a imagem da caneca sabe onde está cada lado), não no contorno.
+- **A luz e a sombra que ela faz saem do mesmo raio.** A janela de sol no tampo ia reta para a esquerda e a sombra
+  dos objetos tinha a direção dela, à parte; e, com o sol à vista na janela, quem olha espera a luz vindo para ele. Um
+  raio só (`_sun_ray`) para a mancha de luz, as sombras e o teste de quem está no sol; e o pé de um objeto junto da
+  parede fica na sombra do peitoril mesmo com o alto dele no sol: teste pelo alto.
+- **Detalhe miúdo no fundo da vista custa a cada redesenho dele** (~11 por segundo no amanhecer e na noite limpa):
+  centenas de `_r` com `_o` chamado em cada um puseram ~1,5 ms nele. Numa superfície plana a tela anda por igual
+  (calcule o passo uma vez); muitas linhas iguais vão num `draw_multiline` só. E tirar as juntas para economizar
+  transformou o tijolo em tábua: o detalhe que dá a forma fica, o que se corta é o custo dele.

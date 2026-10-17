@@ -703,10 +703,17 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   sol (`_sunlit`; a referência é uma imagem do usuário), a parede da esquerda da rua do cruzamento pega a luz quente de
   raspão, mais no alto, e as duas somem no ar dourado no fundo; os prédios de lá, de costas para o sol, ficam todos na
   luz fria do céu (`Pal.DAWN_SHADE`), com a cornija acesa (a luz quente e uma sombra descendo nas fachadas da direita
-  saíram, a pedido: não tinham de onde vir). O resto da rua fica na sombra dos
+  saíram, a pedido: não tinham de onde vir); o alto delas clareia na luz do céu (`SKY_TOP`) e, junto da boca do
+  cruzamento, embaixo, pega o rebatido quente da faixa de sol (`BOUNCE`). **Textura com forma, não grão** (pedido
+  244; pontos soltos pareciam sujeira): em todas as noites, as fachadas de lá têm o uso de anos (`_draw_facade_wear`:
+  tijolo a tijolo, `BRICK_VARY`, com as juntas de pé num `draw_multiline` só, e a tela andando por igual na fachada,
+  sem `_o` a cada peça, porque o fundo da vista redesenha ~11 vezes por segundo; frisos, pilastras, molduras e
+  remendos no reboco, rodapé de pedra, encardido, cano de descida, escorridos embaixo dos peitoris) e as paredes da
+  rua do cruzamento as fiadas e os remendos translúcidos por cima do degradê da luz (`CANYON_GRAIN`). O resto da rua fica na sombra dos
   prédios de lá (`STREET_SHADE`, em `Pal.DAWN_SHADOW`, azul-violeta) e a faixa de sol entra pela rua do cruzamento e atravessa a nossa (`STRIP_A`, numa
   cor só; reta, a `STRIP_EDGE` das paredes, e passando da sombra a ela em dois degraus com os tons das duas misturados,
-  `STRIP_BLEND`: direto do violeta ao laranja, as cores não se misturavam; desenhada antes do grão, das manchas e das
+  `STRIP_BLEND`: direto do violeta ao laranja, as cores não se misturavam; mais vermelha para cá, `STRIP_NEAR`,
+  `Pal.SUN_DEEP`: amarela no fundo, por cima do violeta, ficava cáqui; desenhada antes do grão, das manchas e das
   juntas, que vão por cima em escuro ou claro translúcido, para a textura da rua aparecer na luz, `_draw_sun_strip`), e só nela quem passa, os carros e os postes de lá deixam as sombras
   compridas, encurtando com o sol subindo (`_sun_shadow`, `_shadow_k`). O teto e os vidros dos carros e a beira de cima de cada
   tufo do arbusto pegam o sol; o asfalto úmido do sereno espelha de leve os faróis e as lanternas (`DAMP`); de manhã
@@ -728,7 +735,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   até a parede, parecia o sol já a pino; logo depois de nascer ela é fraca e de beira espalhada, `SUN_FAINT`,
   `SUN_SOFT`, e fica forte e nítida com o sol subindo, `_sun_up`), e nela a sombra
   comprida da caneca e do relógio (`SUN_CAST`, pelos contornos `_occ` da última vez; uma mancha redonda de luz parecia
-  lâmpada), a mesa comutadora clareia de leve (`Switchboard.dim`,
+  lâmpada); o raio, a janela no tampo e as sombras vêm da janela para a esquerda e para os olhos, como o sol que se vê
+  nela (`SUN_TOWARD`, `_sun_ray`; reto para a esquerda, a sombra não batia com a luz), e a beira da caneca e do relógio
+  virada para ele acende, quente, numa camada somada por cima deles (`_sun_edge`, `_draw_sun_edge`, `SUN_EDGE_A`:
+  tirada do desenho de cada um, `_mug_rim`, `_clock_rim`, só se o raio pelo alto deles cai na janela do tampo), a mesa comutadora clareia de leve (`Switchboard.dim`,
   `DAY_LIFT`), o brilho da luminária e o halo do `Bloom` enfraquecem (`Main.DAY_DIM`) e a gradação vai para a do dia
   (`GameView.DAY_GRADE`, `grade_day`: mais contraste e saturação, `saturation` no `grade.gdshader`), e a luz do sol
   nascendo acende a moldura, o peitoril e o arbusto (`SUN_LIGHT`, a primeira de `_window_light_list`). Nada disso redesenha a sala.

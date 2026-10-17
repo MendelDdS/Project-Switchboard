@@ -164,7 +164,11 @@ const CAR_WET := 1.6   ## na chuva, a lataria molhada: a luz dos postes nela mai
 const TAXI := 0.15   ## dos Fuscas e sedãs, quantos são táxi (com a placa acesa no teto)
 const TAXI_KINDS := ["fusca", "sedan"]
 const CAR_SPRAY := 14   ## os pontos do borrifo atrás de cada roda, na chuva
-const CANYON_WIN := Vector2(2.6, 0.5)   ## as janelas das paredes da rua do cruzamento: de quantos em quantos metros e quantas acesas
+const BRICK_VARY := Vector2(0.16, 0.28)   ## dos tijolos da fachada, quantos mais claros (até x) e mais escuros (até y)
+const BOUNCE := Vector3(3.0, 2.6, 0.22)   ## de manhã, o rebatido da faixa de sol nas fachadas da boca do cruzamento: até onde para o lado e para cima (m) e a força
+const SKY_TOP := 0.35   ## de manhã, o quanto o alto das fachadas de lá clareia na luz do céu
+const CANYON_WIN := Vector2(2.6, 0.5)
+const CANYON_GRAIN := 0.12   ## a força da textura das paredes da rua do cruzamento (as fiadas e os remendos, translúcidos)   ## as janelas das paredes da rua do cruzamento: de quantos em quantos metros e quantas acesas
 const BEAM := 5.0   ## até onde vai o facho dos faróis no asfalto (m)
 ## Quanto da profundidade do carro (a largura dele, de um lado ao outro da mão) entra no recuo para o ponto de fuga: a
 ## vista é grande-angular, e longe do meio o carro se inclinava tanto que parecia ter metade da largura do comprimento.
@@ -191,6 +195,7 @@ const STRIP_A := 0.65     ## a faixa de sol que entra pela rua do cruzamento e a
 const STREET_SHADE := 0.62 ## ...a sombra dos prédios de lá no resto da rua...
 const SHADOW_A := 0.75    ## ...e as sombras compridas nela (`_sun_shadow`)
 const STRIP_EDGE := 0.5   ## a faixa de sol: a sombra das paredes nas beiras dela (m)
+const STRIP_NEAR := 0.6   ## ...o quanto ela avermelha para cá (`Pal.SUN_DEEP`)...
 const STRIP_BLEND := 0.14  ## ...e a largura de cada degrau entre ela e a sombra, nos tons das duas misturados (m)
 const CIRRUS := 22        ## os fiapos de nuvem do céu do amanhecer (`_draw_cirrus`)
 const SHOP_POOL := 0.3   ## com os postes apagados, a luz das vitrines acesas na calçada
@@ -874,8 +879,11 @@ func _draw_sun_strip(g: Rect2, wide: float, ff: float) -> void:
 	var lit := Color(_sunny(Pal.SUN_RIM), STRIP_A * sun)
 	var a := cx0 + STRIP_EDGE
 	var b := cx1 - STRIP_EDGE
+	# a cor anda ao longo dela: laranja no fundo, perto do sol, e mais vermelha para cá (numa cor só, era uma massa; o
+	# amarelo no fundo, por cima do violeta, ficava cáqui)
 	var band := func(x0: float, x1: float, c: Color) -> void:
-		_fill(_patch(g, x0, x1, 1.0, ff), PackedColorArray([Color(c, c.a * 0.4), Color(c, c.a * 0.4), c, c]))   # mais fraca para cá...
+		var near := Color(c.lerp(_sunny(Pal.SUN_DEEP), STRIP_NEAR), c.a * 0.4)
+		_fill(_patch(g, x0, x1, 1.0, ff), PackedColorArray([near, near, c, c]))   # mais fraca para cá...
 		_fill(_patch(g, x0, x1, ff, 130.0), PackedColorArray([c, c, Color(c, 0.0), Color(c, 0.0)]))   # ...e sumindo no longe
 	# entre a sombra e a luz, os tons das duas misturados, em degraus (`STRIP_BLEND`): direto do violeta ao laranja, as
 	# cores não se misturavam e a faixa parecia pintada por cima do asfalto
@@ -1077,6 +1085,22 @@ func _draw_canyon_wall(g: Rect2, w: Dictionary, hz: Color, taken: Dictionary) ->
 	var gold := func(z: float) -> float: return 0.6 * sun * clampf((z - 20.0) / 90.0, 0.0, 1.0)   # e as duas, no fundo, somem no ar dourado do sol
 	_fill(PackedVector2Array([_o(g, x, z0), _o(g, x, z1), _o(g, x, z1, ht), _o(g, x, z0, ht)]), PackedColorArray([low.lerp(rim, gold.call(z0)),
 		low.lerp(rim, gold.call(z1)), high.lerp(rim, gold.call(z1)), high.lerp(rim, gold.call(z0))]))
+	# a textura por cima da luz, translúcida para o degradê dela continuar: as fiadas fugindo para o fundo e os
+	# remendos, mais escuros (no frio da sombra) ou mais claros
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(z0 * 31.0) + (7 if x < 0.0 else 3)
+	var course := Color(tone.call(-3), CANYON_GRAIN)
+	var hc := 0.8
+	while hc < ht:
+		_ci.draw_line(_o(g, x, z0, hc), _o(g, x, z1, hc), course, PX)
+		hc += 0.8
+	for i in rng.randi_range(3, 5):
+		var za := rng.randf_range(z0, z1 - 2.0)
+		var zb := za + rng.randf_range(1.5, 4.0)
+		var ha := rng.randf_range(0.5, ht - 2.0)
+		var hb := ha + rng.randf_range(0.8, 2.0)
+		var c := Color(tone.call(-3), 2.0 * CANYON_GRAIN) if rng.randf() < 0.6 else Color(tone.call(3).lerp(rim, sun if x < 0.0 else 0.0), CANYON_GRAIN)
+		_poly(PackedVector2Array([_o(g, x, za, ha), _o(g, x, zb, ha), _o(g, x, zb, hb), _o(g, x, za, hb)]), c)
 	_ci.draw_line(_o(g, x, z0), _o(g, x, z0, ht), tone.call(-2).lerp(rim, 0.5 * sun) if x < 0.0 else tone.call(-2), PX)   # a quina
 	_ci.draw_line(_o(g, x, z0, ht), _o(g, x, z1, ht), tone.call(2), PX)   # a cornija
 	for f in range(1, int((ht - 0.8) / 3.2)):   # a laje de cada andar, fugindo para o ponto de fuga com as janelas
@@ -1089,6 +1113,9 @@ func _draw_canyon_wall(g: Rect2, w: Dictionary, hz: Color, taken: Dictionary) ->
 		var col_w: Color = _sunny(Pal.CITY_LIT[int(wv.x) % Pal.CITY_LIT.size()]) if lit else dark
 		if absf(b.x - a.x) >= PX:
 			_poly(PackedVector2Array([a, _o(g, x, wv.x + 0.5, wv.y + 1.4), b, _o(g, x, wv.x - 0.5, wv.y)]), col_w)
+			# o peitoril, com o alto pegando a luz de raspão (o sol vem do fundo da rua) e a sombra dele embaixo
+			_ci.draw_line(_o(g, x, wv.x - 0.65, wv.y - 0.05), _o(g, x, wv.x + 0.65, wv.y - 0.05), tone.call(3).lerp(rim, 0.7 * sun if x < 0.0 else 0.0), PX)
+			_ci.draw_line(_o(g, x, wv.x - 0.6, wv.y - 0.25), _o(g, x, wv.x + 0.6, wv.y - 0.25), Color(tone.call(-3), 0.5), PX)
 		elif lit:   # mais fina que um pixel: 1 px, com um vazio ao lado (juntas, as de longe viravam um borrão amarelo)
 			var at := Vector2i(floori(a.x), floori(wv.y / 3.2))   # (px de 2x2: um vazio de 1 px da tela entre elas)
 			if not taken.has(at):
@@ -1115,11 +1142,7 @@ func _draw_far_house(g: Rect2, b: Dictionary, hz: Color) -> void:
 	var e := _o(g, x1, ff)
 	var k := OUT_F / ff   # px de 2x2 por metro na fachada
 	_r(a.x, a.y, e.x - a.x, e.y - a.y, col)
-	if b["brick"]:   # as fiadas de tijolo, de meio em meio metro
-		var hb := 0.5
-		while hb < ht:
-			_r(a.x, _o(g, x0, ff, hb).y, e.x - a.x, PX, tone.call(-1))
-			hb += 0.5
+	_draw_facade_wear(g, b, tone)
 	_r(a.x - PX, a.y - 1, e.x - a.x + PX * 2.0, 1, tone.call(2))   # a cornija, com a sombra embaixo
 	if sun > 0.0:
 		_r(a.x - PX, a.y - 1, e.x - a.x + PX * 2.0, PX, tone.call(2).lerp(rim, 0.6 * sun))
@@ -1138,6 +1161,8 @@ func _draw_far_house(g: Rect2, b: Dictionary, hz: Color) -> void:
 		var variety := int(absf(wv.x) * 7.0 + wv.y * 3.0)
 		var h := (2.6 if ground else 1.5) * k
 		var p := Vector2(top.x - w / 2.0, top.y)
+		if not b["brick"] and not ground:   # a moldura da janela, saliente
+			_r(p.x - PX * 3.0, p.y - PX * 3.0, w + PX * 6.0, h + PX * 3.0, col.lerp(tone.call(1), 0.6))
 		_r(p.x - PX, p.y - PX, w + PX * 2.0, h + PX, tone.call(-3))   # o vão
 		var woke: Vector2 = wake.get(j, Vector2.ZERO)
 		if wv.z > minutes or (minutes >= woke.x and minutes < woke.y):
@@ -1178,8 +1203,114 @@ func _draw_far_house(g: Rect2, b: Dictionary, hz: Color) -> void:
 			_r(p.x - PX * 2.0, p.y + h, w + PX * 4.0, PX, tone.call(3))   # o peitoril, saindo da parede, e a sombra dele
 			_r(p.x - PX, p.y + h + PX, w + PX * 2.0, PX, tone.call(-2))
 			_r(p.x - PX * 2.0, p.y - PX * 2.0, w + PX * 4.0, PX, tone.call(-1))   # a verga
+			if variety % 3 != 1:   # o escorrido da chuva embaixo do peitoril, sumindo para baixo
+				_r(p.x + w * 0.1, p.y + h + PX * 2.0, w * 0.8, 0.35 * k, col.lerp(tone.call(-2), 0.4))
+				_r(p.x + w * 0.25, p.y + h + PX * 2.0 + 0.35 * k, w * 0.5, 0.6 * k, col.lerp(tone.call(-2), 0.2))
 	if b["brick"]:
 		_draw_balcony_back(g, tone)
+	if sun > 0.0:   # o rebatido quente da faixa de sol da rua, embaixo, junto da boca do cruzamento (as cores se misturam)
+		for side: float in [CROSSING.x, CROSSING.y]:
+			if is_equal_approx(x1, side) or is_equal_approx(x0, side):
+				var out := -BOUNCE.x if is_equal_approx(x1, side) else BOUNCE.x
+				var warm := Color(_sunny(Pal.SUN_RIM), BOUNCE.z * sun)
+				var c := _o(g, side, ff)
+				var prev := _o(g, side, ff, BOUNCE.y)
+				for i in range(1, 9):   # um quarto de elipse, da quina para cima e para o lado
+					var t := PI / 2.0 * i / 8.0
+					var p := _o(g, side + out * sin(t), ff, BOUNCE.y * cos(t))
+					_ci.draw_primitive(PackedVector2Array([c, prev, p]), PackedColorArray([warm, Color(warm, 0.0), Color(warm, 0.0)]), PackedVector2Array())
+					prev = p
+
+
+## O uso de anos numa fachada de lá (`b`), por cima da tinta e embaixo das janelas, sempre o mesmo (sorteio pelo
+## lugar): nas de reboco, os remendos num tom vizinho, com a beira desencontrada; nas de tijolo, as fiadas
+## desencontradas, cada tijolo no seu tom; o rodapé de pedra com as juntas e o encardido de respingo em cima, o cano
+## de descida com as braçadeiras e, de manhã, o alto na luz do céu. Num tom só, a fachada era uma massa.
+func _draw_facade_wear(g: Rect2, b: Dictionary, tone: Callable) -> void:
+	var ff: float = STREET["far"]
+	var x0: float = b["x0"]
+	var x1: float = b["x1"]
+	var ht: float = b["h"]
+	var col: Color = tone.call(0)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = int(absf(x0) * 97.0) + 5
+	# a fachada está toda na mesma distância: a tela anda por igual nela (`ox` + m × `kx`), sem chamar `_o` a cada peça
+	var o := _o(g, x0, ff)
+	var kx := _o(g, x0 + 1.0, ff).x - o.x
+	var ky := _o(g, x0, ff, 1.0).y - o.y
+	var y := func(h: float) -> float: return o.y + h * ky
+	var xs := func(x: float) -> float: return o.x + (x - x0) * kx
+	var span := Rect2(o.x, o.y + ht * ky, (x1 - x0) * kx, -ht * ky)
+	if b["brick"]:   # as fiadas de meio em meio metro, desencontradas, e um tijolo em cada tanto mais claro ou mais escuro
+		var light: Color = col.lerp(tone.call(1), 0.5)
+		var dark: Color = col.lerp(tone.call(-1), 0.5)
+		var joints := PackedVector2Array()   # as juntas de pé, todas numa chamada só
+		var row := 0
+		var hb := 0.0
+		while hb < ht:
+			var yb := o.y + hb * ky
+			var yt := o.y + minf(hb + 0.5, ht) * ky
+			_r(span.position.x, yt, span.size.x, PX, tone.call(-1))
+			var bx := x0 - (0.5 if row % 2 else 0.0)
+			while bx < x1:
+				var v := rng.randf()
+				var l := o.x + (maxf(bx, x0) - x0) * kx
+				var r := o.x + (minf(bx + 1.0, x1) - x0) * kx
+				if v < BRICK_VARY.y:
+					_r(l, yt + PX, r - l - PX, yb - yt - PX, light if v < BRICK_VARY.x else dark)
+				var jx := floorf(r * 2.0) * PX - PX / 2.0   # (no meio do pixel, para a linha de 1 px não se espalhar)
+				joints.append_array([Vector2(jx, yt), Vector2(jx, yb)])
+				bx += 1.0
+			hb += 0.5
+			row += 1
+		_ci.draw_multiline(joints, col.lerp(tone.call(-1), 0.7), PX)
+	else:   # o reboco: o friso de cada andar, as pilastras entre as janelas (em metade dos prédios) e os remendos
+		var floors := int((ht - 0.8) / 3.2)
+		for f in range(1, floors):
+			var fy: float = y.call(f * 3.2 + 0.5)
+			_r(span.position.x, fy, span.size.x, PX, tone.call(1))
+			_r(span.position.x, fy + PX, span.size.x, PX, tone.call(-1))
+		if rng.randf() < 0.5:
+			var px0 := x0 + 3.0
+			while px0 < x1 - 0.8:
+				var l: float = xs.call(px0 - 0.25)
+				var r: float = xs.call(px0 + 0.25)
+				_r(l, y.call(ht - 0.4), r - l, y.call(3.4) - y.call(ht - 0.4), col.lerp(tone.call(1), 0.45))
+				_r(r, y.call(ht - 0.4), PX, y.call(3.4) - y.call(ht - 0.4), tone.call(-1))
+				px0 += 3.0
+		for i in rng.randi_range(4, 7):
+			var pw := rng.randf_range(1.2, 3.0)
+			var pv := rng.randf_range(0.5, 1.4)
+			var px := rng.randf_range(x0 + 0.4, maxf(x0 + 0.4, x1 - pw - 0.4))
+			var ph := rng.randf_range(1.2, maxf(1.2, ht - pv - 1.2))
+			var c: Color = col.lerp(tone.call(1 if rng.randf() < 0.5 else -1), 0.65)
+			_r(xs.call(px), y.call(ph + pv), xs.call(px + pw) - xs.call(px), y.call(ph) - y.call(ph + pv), c)
+			_r(xs.call(px), y.call(ph + pv), xs.call(px + pw) - xs.call(px), PX, col.lerp(tone.call(-2), 0.5))   # a beira de cima, descascando
+			var dx := rng.randf_range(0.2, pw * 0.5)   # a beira desencontrada: um pedaço a mais, por cima ou por baixo
+			var up := rng.randf() < 0.5
+			var h0 := ph + pv if up else ph - 0.3
+			_r(xs.call(px + dx), y.call(h0 + 0.3), xs.call(px + dx + pw * 0.4) - xs.call(px + dx), y.call(h0) - y.call(h0 + 0.3), c)
+	# o rodapé de pedra, com a beira de cima na luz e as juntas, e o encardido do respingo em cima dele
+	_r(span.position.x, y.call(1.3), span.size.x, y.call(0.6) - y.call(1.3), col.lerp(tone.call(-1), 0.35))
+	_r(span.position.x, y.call(0.6), span.size.x, y.call(0.0) - y.call(0.6), tone.call(-1))
+	_r(span.position.x, y.call(0.6), span.size.x, PX, tone.call(1))
+	var jx := x0 + 1.1
+	while jx < x1:
+		_r(xs.call(jx), y.call(0.6) + PX, PX, y.call(0.0) - y.call(0.6) - PX, tone.call(-2))
+		jx += 1.1
+	# o cano de descida, do alto ao chão, com o lado da rua do cruzamento na luz e as braçadeiras
+	var dp: float = xs.call(x1 - 0.45 if rng.randf() < 0.5 else x0 + 0.45)
+	_r(dp, span.position.y + PX * 2.0, PX * 2.0, span.size.y - PX * 2.0, tone.call(-2))
+	_r(dp, span.position.y + PX * 2.0, PX, span.size.y - PX * 2.0, tone.call(1))
+	var bh := 1.6
+	while bh < ht - 0.5:
+		_r(dp - PX, y.call(bh), PX * 4.0, PX, tone.call(-3))
+		bh += 3.2
+	var sun := _sunlit()
+	if sun > 0.0:   # de manhã, o alto na luz do céu (vê mais céu que a parte de baixo, que vê a rua)
+		var sky := Color(tone.call(2).lerp(Pal.DAWN_SHADE, 0.4), SKY_TOP * sun)
+		_fill(PackedVector2Array([span.position, Vector2(span.end.x, span.position.y), Vector2(span.end.x, y.call(ht * 0.4)),
+			Vector2(span.position.x, y.call(ht * 0.4))]), PackedColorArray([sky, sky, Color(sky, 0.0), Color(sky, 0.0)]))
 
 
 ## A vitrine acesa de um bar no térreo do prédio de tijolos, logo atrás do homem (`MAN_X`): ele fica em silhueta contra

@@ -1370,3 +1370,23 @@ Chaves:
     Hi-bit 9.6: o arbusto em tufos (`CLUMPS`, `CLUMP_LEAVES`), cada um mais claro no alto e mais escuro embaixo, o de
     cima cobrindo a beira do outro; com o sol, só a beira de cima de cada tufo acende, mais nos do alto. E a poeira
     dourada no feixe do sol, da janela à mesa, bem de leve (`SUN_DUST`, `_sunbeam`, na camada da poeira).
+
+244. #janela #amanhecer #vista #sala #textura
+    "Sinto que não há textura, as cores estão opacas e massenta nas superfícies" (a referência tinha muita textura e
+    detalhes simples); depois, "implemente todas as melhorias ... em sequência" com o usuário dormindo (etapa 10 do
+    plano hi-bit). A beira do sol no tampo em degraus de 1 px, também na beira das sombras (`_draw_sun`); as fachadas
+    de lá com o uso de anos (`_draw_facade_wear`: tijolo a tijolo com as juntas, frisos, pilastras, molduras e
+    remendos no reboco, rodapé de pedra, encardido, cano de descida, escorridos embaixo dos peitoris; de manhã o alto
+    na luz do céu, `SKY_TOP`, e o rebatido quente da faixa de sol junto da boca do cruzamento, `BOUNCE`); as paredes da
+    rua do cruzamento com fiadas e remendos e os peitoris acesos de raspão (`CANYON_GRAIN`); a faixa de sol mais
+    vermelha para cá (`STRIP_NEAR`, `Pal.SUN_DEEP`); o batente do vão com remendos e uma rachadura (`REVEAL_GRAIN`); o
+    armário com a tinta gasta junto do puxador. Sem grão de pontos soltos (já tinha saído). Testados e tirados na
+    mesma sessão: lascas e ferrugem no armário e a beira acesa pelo sol na caneca e no relógio.
+245. #janela #amanhecer #sala #luz
+    A luz do sol nos objetos da mesa (o item 10.7, refeito) e a direção das sombras deles: o sol entrava pela janela e
+    a sombra ia para outro lado (reta para a esquerda, enquanto o sol aparece na janela, vindo para os olhos). Agora o
+    raio anda para a esquerda e para os olhos (`SUN_TOWARD`): a janela no tampo e as sombras da caneca e do relógio
+    descem para a frente, juntas. A beira virada para o sol acende, quente, tirada do desenho de cada um (a coluna da
+    direita da caneca, a volta de fora da alça e o aro de trás; o tampo, a beira de trás e a quina da direita do
+    relógio), só quando eles estão no sol (`_draw_sun_edge`). Depois: um quadrado escuro embaixo da caneca, no sol; era a
+    sombra de contato dela, num retângulo, e virou a elipse do pé.

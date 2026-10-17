@@ -136,6 +136,12 @@ const SUN_ROOM_A := 0.4
 const SUN_FAINT := 0.35
 const SUN_SOFT := 14.0
 const SUN_CAST := 1.1
+## Como o sol aparece na janela, o raio dele anda para a esquerda e também para os olhos: quanto ele chega mais perto
+## para cada unidade que anda para a esquerda (a janela no tampo e as sombras, `_draw_sun`; reto para a esquerda, a
+## sombra não batia com a luz que se via entrando).
+const SUN_TOWARD := 0.6
+## A beira dos objetos da mesa virada para o sol, acesa por trás (`_draw_sun_edge`): a força dela e a do tampo do relógio.
+const SUN_EDGE_A := Vector2(0.75, 0.22)
 ## A luz vermelha dele no vão, no peitoril e na parede perto da janela (`_window_lights`): até onde chega (px) e a força.
 ## Forte porque o escuro da sala (`_noir`) passa por cima e deixa ~1/5 dela perto da janela; a camada fica embaixo dele
 ## para os objetos da mesa ficarem na frente.
@@ -154,6 +160,7 @@ const OUTLET_UP := 30.0   ## a tomada da parede do fundo, acima do tampo (px de 
 const CAB_TOP := -26.0           ## o alto dele (cm a partir dos olhos, para baixo): acima deles, ~1,5 m do chão (o tampo não aparece)
 const CAB_T := 1.15              ## a frente dele (escala): ~35 cm de fundo
 const SILL_D := 5.0        ## quanto o peitoril de dentro sai da parede para a sala (com 9, largo demais)
+const REVEAL_GRAIN := 0.25   ## a força dos remendos no reboco do batente de longe
 const SHIFT_START := 18.0 * 60.0   ## o começo do turno (min do dia): o café da caneca está quente
 const STEAM_FOR := 210.0    ## em quantos minutos de jogo o café esfria e o vapor some (às 21h30)
 const BLIND := 0.12        ## até onde a persiana desce aberta (fração da altura do vão)
@@ -214,6 +221,8 @@ var _sun_layer: Control    # o sol entrando pela janela, somado, embaixo dos obj
 var _sunbeam := PackedVector2Array()   # o feixe do sol no ar, da janela à mesa (px da tela; `_draw_sun`), onde a poeira dourada aparece
 var _sun_occ: Array = []    # os objetos da mesa medidos da última vez (`_occ`), para as sombras deles no sol
 var _sun_geo := []          # o que o desenho dele usou
+var _sun_edge: Control     # a beira dos objetos virada para o sol, somada, por cima deles (`_draw_sun_edge`)
+var _sun_spots := []       # a janela desenhada no tampo, nítida (px da tela; `_draw_sun`): o que está nela pega o sol
 var _bolt_lit: Array = []    # o que ele acende: [polígono (px da tela), cores], medido com a sala (`_bolt_build`)
 var _occ_board := PackedVector2Array()   # a mesa comutadora inteira (px da tela)
 var _side_faces: Array = []  # a lateral da mesa comutadora (px da tela), virada para a janela: [o console, o painel]
@@ -310,6 +319,13 @@ func _ready() -> void:
 	_props_layer.draw.connect(_draw_props_layer)
 	add_child(_props_layer)
 	draw.connect(_props_layer.queue_redraw)   # (sempre logo depois da sala: usa o que ela acabou de medir)
+	_sun_edge = Control.new()
+	_sun_edge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_sun_edge.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_sun_edge.material = sun_add
+	_sun_edge.visible = false
+	_sun_edge.draw.connect(_draw_sun_edge)
+	add_child(_sun_edge)
 	_lifted = Control.new()
 	_lifted.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_lifted.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -413,13 +429,16 @@ func _process(delta: float) -> void:
 		_window_light_params(wl[0])
 		_show()
 	var sk := snappedf(_sunlit() * lerpf(SUN_FAINT, 1.0, _sun_up()) * (1.0 - _shut), 0.02)   # o sol entrando: a força no `modulate`, o desenho só quando muda
-	var sg := [_blind_frac(), _sun_occ, _drawn, floorf(_cm(WIN_SILL) / _sun_steep()), snappedf(_sun_up(), 0.05)] if sk > 0.0 else _sun_geo   # (redesenha quando a beira anda)
+	var sg := [_blind_frac(), _sun_occ, _drawn, floorf(_cm(WIN_SILL) / _sun_steep()), snappedf(_sun_up(), 0.05), _up_id] if sk > 0.0 else _sun_geo   # (redesenha quando a beira anda)
 	if sk != _sun_layer.modulate.a or sg != _sun_geo:
 		_sun_layer.modulate.a = sk
 		_sun_layer.visible = sk > 0.0
+		_sun_edge.modulate.a = sk
+		_sun_edge.visible = sk > 0.0
 		if sg != _sun_geo:
 			_sun_geo = sg
 			_sun_layer.queue_redraw()
+			_sun_edge.queue_redraw()   # (depois dela: usa a janela que ela desenhou no tampo)
 		_show()
 	var dk := [size, _gloom_center(), lamp_level, warm, _glass, daylight()]
 	if dk != _noir_set:   # o escuro da sala: só os parâmetros do shader mudam, nada se redesenha
@@ -1157,14 +1176,13 @@ func _draw_sun() -> void:
 		for k: Color in _sill_lit[i][1]:
 			cols.append(Color(col, col.a * k.a / 0.7))
 		_fill(_sill_lit[i][0], cols)
-	var steep := _sun_steep()
 	var shadows := []
 	for o: PackedVector2Array in _sun_occ:
 		var ob := _bounds(o)
 		var foot := Rect2(ob.position.x - 1.0, ob.end.y - ob.size.y * 0.25, ob.size.x + 2.0, ob.size.y * 0.25 + 1.0)
+		var cast := _sun_ray(Vector2(ob.get_center().x, ob.end.y), ob.size.y * SUN_CAST)
 		for part: PackedVector2Array in Geometry2D.intersect_polygons(o, PackedVector2Array([foot.position,
 				Vector2(foot.end.x, foot.position.y), foot.end, Vector2(foot.position.x, foot.end.y)])):
-			var cast := Vector2(-ob.size.y * SUN_CAST / steep, ob.size.y * 0.1)
 			var pts := part.duplicate()
 			for p in part:
 				pts.append(p + cast)
@@ -1176,29 +1194,62 @@ func _draw_sun() -> void:
 	var zb := Z0 / DESK_T
 	var zm := lerpf(zfar, znear, 0.5)
 	var e := (zfar - znear) / SIDE_W   # meia largura do montante
+	var steep := _sun_steep()
 	var a := xc - (_yd - (y0 + floorf(gh * _blind_frac()))) / steep
 	var b := xc - (_yd - (y0 + gh)) / steep
-	_sunbeam = PackedVector2Array([_p3(xc, y0 + floorf(gh * _blind_frac()), zm), _p3(xc, y0 + gh, zm), _p3(b, _yd, zm), _p3(a, _yd, zm)])
+	# o ponto do vão a `zw` de fundo, levado pelo raio até o tampo em `x` (`SUN_TOWARD`); e o pedaço do vão entre `z1` e
+	# `z2` caindo no tampo, cortado no fundo dele (px da tela)
+	var land := func(x: float, zw: float) -> Vector2: return Vector2(x, zw - (xc - x) * SUN_TOWARD)
+	var desk := PackedVector2Array([Vector2(a - 1e3, znear * 0.3), Vector2(xc, znear * 0.3), Vector2(xc, zb), Vector2(a - 1e3, zb)])
+	var on_desk := func(z1: float, z2: float) -> Array:
+		var out := []
+		for part: PackedVector2Array in Geometry2D.intersect_polygons(PackedVector2Array([land.call(a, z1), land.call(b, z1),
+				land.call(b, z2), land.call(a, z2)]), desk):
+			var q := PackedVector2Array()
+			for d in part:
+				q.append(_p3(d.x, _yd, d.y))
+			out.append(q)
+		return out
+	var la: Vector2 = land.call(a, zm)
+	var lb: Vector2 = land.call(b, zm)
+	_sunbeam = PackedVector2Array([_p3(xc, y0 + floorf(gh * _blind_frac()), zm), _p3(xc, y0 + gh, zm), _p3(lb.x, _yd, lb.y), _p3(la.x, _yd, la.y)])
 	# com o sol baixo, uma parte da luz vai por igual na janela toda (o montante e as sombras quase somem nela) e se
 	# espalha em volta (`SUN_SOFT`); com ele subindo, ela passa toda para a parte nítida
 	var up := _sun_up()
 	var soft := Color(col, col.a * 0.6 * (1.0 - up))
 	var sharp := Color(col, col.a - soft.a)
-	var za := minf(zfar, zb)
-	if soft.a > 0.0 and za > znear:
+	if soft.a > 0.0:
 		var m := SUN_SOFT * (1.0 - up)
-		var inner := [_p3(a, _yd, za), _p3(b, _yd, za), _p3(b, _yd, znear), _p3(a, _yd, znear)]
-		var outer := [_p3(a - m, _yd, minf(za + m, zb)), _p3(minf(b + m, xc), _yd, minf(za + m, zb)),
-			_p3(minf(b + m, xc), _yd, znear - m), _p3(a - m, _yd, znear - m)]
-		_poly(PackedVector2Array(inner), soft)
+		var ring := func(g: float) -> PackedVector2Array:   # a janela no tampo, `g` maior para cada lado (cortada no fundo da mesa só nos cantos)
+			var out := PackedVector2Array()
+			for c: Vector2 in [Vector2(a - g, zfar + g), Vector2(minf(b + g, xc), zfar + g), Vector2(minf(b + g, xc), znear - g), Vector2(a - g, znear - g)]:
+				var d: Vector2 = land.call(c.x, c.y)
+				out.append(_p3(d.x, _yd, minf(d.y, zb)))
+			return out
+		var inner: PackedVector2Array = ring.call(0.0)
+		var outer: PackedVector2Array = ring.call(m)
+		_poly(inner, soft)
 		for i in 4:
 			_fill(PackedVector2Array([inner[i], inner[(i + 1) % 4], outer[(i + 1) % 4], outer[i]]),
 				PackedColorArray([soft, soft, Color(soft, 0.0), Color(soft, 0.0)]))
-	for c: Vector2 in [Vector2(za, zm + e), Vector2(minf(zm - e, zb), znear)]:
-		if c.x > c.y:
-			for part: PackedVector2Array in _cut(PackedVector2Array([_p3(a, _yd, c.x), _p3(b, _yd, c.x), _p3(b, _yd, c.y),
-					_p3(a, _yd, c.y)]), shadows):
-				_poly(part, sharp)
+	# a beira passa da mesa à luz em degraus de 1 px (um quarto, metade, inteira: a luz é somada), para as cores se
+	# misturarem; num degrau só, a janela parecia recortada e colada no tampo. A beira das sombras também: o degrau de
+	# fora entra 1 px nelas e o de dentro para 1 px antes
+	var shade_at := func(d: float) -> Array:
+		var out := []
+		for s: PackedVector2Array in shadows:
+			var o: Array = Geometry2D.offset_polygon(s, d, Geometry2D.JOIN_MITER)
+			if not o.is_empty():
+				out.append(o[0])
+		return out
+	_sun_spots.clear()
+	for c: Vector2 in [Vector2(zfar, zm + e), Vector2(zm - e, znear)]:
+		for quad: PackedVector2Array in on_desk.call(c.x, c.y):
+			_sun_spots.append(quad)
+			for step: Vector3 in [Vector3(2.0, 0.25, -1.0), Vector3(1.0, 0.25, 0.0), Vector3(0.0, 0.5, 1.0)]:
+				var grown: Array = Geometry2D.offset_polygon(quad, step.x, Geometry2D.JOIN_MITER) if step.x > 0.0 else [quad]
+				for part: PackedVector2Array in _cut(grown[0], shade_at.call(step.z)):
+					_poly(part, Color(sharp, sharp.a * step.y))
 	_ci = self
 
 
@@ -1211,6 +1262,60 @@ func _sun_steep() -> float:
 ## O quanto o sol já subiu, de quando nasce (0) às 6h (1), na curva das sombras da rua (`_shadow_k`).
 func _sun_up() -> float:
 	return smoothstep(SUNRISE, DAWN.y, minutes)
+
+
+## Onde o raio do sol que passa a `h` px (da tela) acima do ponto `p` do tampo cai nele, a partir de `p` (px da tela):
+## a sombra do alto de quem está em `p`.
+func _sun_ray(p: Vector2, h: float) -> Vector2:
+	var z := _yd * Z0 / maxf(p.y / 2.0 - _vp.y, 1.0)   # (o `_p3` ao contrário, na altura da mesa)
+	var x := (p.x / 2.0 - _vp.x) * z / Z0
+	var run := h / 2.0 * z / Z0 / _sun_steep()
+	return _p3(x - run, _yd, z - run * SUN_TOWARD) - _p3(x, _yd, z)
+
+
+## A beira dos objetos da mesa virada para o sol (`_sun_edge`, somada, por cima deles, a força no `modulate` como a do
+## `_sun_layer`): o sol baixo vem da janela, de trás deles, e acende a beira do lado dela, quente (`SUN_EDGE_A`), tirada
+## do desenho de cada um (pelo contorno `_occ`, que não é a silhueta, ela passava fora da alça e do lado do relógio): na
+## caneca, a coluna da direita do corpo, a volta de fora da alça e o aro do lado de trás; no relógio, o tampo de leve,
+## a beira de trás e a da direita dele e a quina da direita. Só o que está no sol: o raio pelo alto dele cai na janela
+## desenhada no tampo (`_sun_spots`; o pé fica na sombra da parede embaixo do peitoril).
+func _draw_sun_edge() -> void:
+	var lit := func(p: Vector2, h: float) -> bool:
+		var at := p + _sun_ray(p, h)
+		return _sun_spots.any(func(q: PackedVector2Array) -> bool: return Geometry2D.is_point_in_polygon(at, q))
+	var hot := Color(Pal.SUN_RIM, SUN_EDGE_A.x)
+	var dim := Color(hot, hot.a * 0.45)
+	var dots := {}   # (px da tela -> cor: cada ponto uma vez, o mais forte)
+	if _mug_rim.size() == 2 and _up_id != MUG_ID and lit.call((_mug_rim[0] as Rect2).end - Vector2(1, 0), (_mug_rim[0] as Rect2).size.y * 0.8):
+		var body: Rect2 = _mug_rim[0]
+		var ry: float = _mug_rim[1]
+		var x := body.end.x - 1.0
+		var hy := Vector2(body.position.y + ry + 2.0, body.position.y + ry + body.size.y * 0.66)   # a alça (como no `_mug_art`)
+		for y in range(int(body.position.y) + 1, int(body.end.y)):
+			if y < hy.x or y > hy.y:
+				dots[Vector2(x, y)] = hot
+				dots[Vector2(x - 1, y)] = dim
+		var hc := Vector2(x - 1.0, (hy.x + hy.y) / 2.0)   # a volta de fora da alça, a metade de cima mais forte
+		var ho := Vector2(9.5, (hy.y - hy.x) / 2.0)
+		for y in range(int(hy.x), int(hy.y) + 1):
+			var dy := (y + 0.5 - hc.y) / ho.y
+			if absf(dy) < 1.0:
+				dots[Vector2(floorf(hc.x + ho.x * sqrt(1.0 - dy * dy) - 0.5), y)] = hot if dy < 0.3 else dim
+		var mc := Vector2(body.position.x + body.size.x / 2.0, body.position.y)   # o aro do lado de trás, da direita ao alto
+		var n := int(body.size.x + ry)   # (um ponto por pixel do arco: espaçados, salpicavam)
+		for i in n + 1:
+			var t := lerpf(-PI / 2.0, -0.15, float(i) / n)
+			dots[(mc + Vector2(cos(t) * (body.size.x / 2.0 - 0.5), sin(t) * (ry - 0.5))).floor()] = hot if i > n / 2 else dim
+	var front: PackedVector2Array = _clock_rim.get("front", PackedVector2Array())
+	if front.size() == 4 and _up_id != "relogio" and lit.call(front[2], front[2].y - front[1].y):
+		var top: PackedVector2Array = _clock_rim["top"]
+		var wash := Color(hot, SUN_EDGE_A.y)
+		_sun_edge.draw_primitive(top, PackedColorArray([wash, wash, wash, wash]), PackedVector2Array())
+		_sun_edge.draw_line(top[0], top[1], dim, 1.0)   # a beira de trás
+		_sun_edge.draw_line(top[1], top[2], hot, 1.0)   # a da direita
+		_sun_edge.draw_line(front[1], front[2], hot, 1.0)   # a quina da direita, de pé
+	for p: Vector2 in dots:
+		_sun_edge.draw_rect(Rect2(p, Vector2.ONE), dots[p])
 
 
 ## `poly` sem o que fica na frente dele (`occ`, polígonos convexos): os pedaços que sobram. Antes de recortar, cada
@@ -2029,6 +2134,24 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	var lit := Pal.REVEAL[2]
 	var dim := Pal.REVEAL[1]
 	_fill(PackedVector2Array([inner[0], outer[0], outer[3], inner[3]]), PackedColorArray([dim, lit, lit, dim]))   # o batente de longe
+	# o reboco dele, por cima da luz e translúcido: remendos, uma rachadura descendo da verga e o canto escuro junto do
+	# caixilho (liso, era uma massa cinza no meio da janela)
+	var jamb := func(o: float, y: float) -> Vector2: return _side_pt(Vector2(0, y), o)
+	var rough := RandomNumberGenerator.new()
+	rough.seed = 404
+	for i in 5:
+		var o := rough.randf_range(1.0, WALL_D - 5.0)
+		var y := rough.randf_range(4.0, gh - 14.0)
+		var ow := rough.randf_range(2.0, 4.0)
+		var yh := rough.randf_range(5.0, 12.0)
+		_poly(PackedVector2Array([jamb.call(o, y), jamb.call(o + ow, y), jamb.call(o + ow, y + yh), jamb.call(o, y + yh)]),
+			Color(Pal.REVEAL[0], REVEAL_GRAIN) if i % 2 else Color(Pal.REVEAL[2], REVEAL_GRAIN))
+	var crack := PackedVector2Array([jamb.call(WALL_D * 0.6, 0.0)])
+	for i in range(1, 8):
+		crack.append(jamb.call(WALL_D * 0.6 + rough.randf_range(-1.5, 1.5), gh * 0.06 * i))
+	draw_polyline(crack, Color(Pal.REVEAL[0], 0.5), PX)
+	_fill(PackedVector2Array([jamb.call(WALL_D - 2.0, 0.0), outer[0], outer[3], jamb.call(WALL_D - 2.0, gh)]),
+		PackedColorArray([Color(Pal.REVEAL[0], 0.0), Color(Pal.REVEAL[0], 0.5), Color(Pal.REVEAL[0], 0.5), Color(Pal.REVEAL[0], 0.0)]))
 	# o fundo do vão: a tábua do peitoril vai da sala até o caixilho, na mesma madeira (escura, parecia um buraco), com
 	# o trilho de baixo do caixilho no pé do vidro; o que passa do batente de perto fica atrás da parede
 	for part in Geometry2D.intersect_polygons(PackedVector2Array([inner[3], inner[2], outer[2], outer[3]]), inner):
@@ -2242,6 +2365,14 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 	_r(dent.x + 1, dent.y + 2, 7, PX, steel.call(1))
 	for i in 5:   # riscos de chave e de sapato na beira de baixo
 		_r(f.position.x + 8 + i * 13.0 + (i * 7) % 5, low - 4 - (i % 3), 3 + i % 2, PX, steel.call(2))
+	# o uso de anos: a tinta gasta, mais clara e lisa, na beira das portas onde a mão abre (mais junto do puxador,
+	# sumindo para cima e para baixo), e o encardido em volta da fechadura
+	var hand := floorf((doors + low) / 2.0)
+	for i in 6:
+		var a := 0.35 * (1.0 - absf(i - 2.5) / 3.0)
+		_r(mid - 3.0, hand - 9.0 + i * 5.0, 2.5, 5.0, Color(steel.call(2), a))
+		_r(mid + 1.0, hand - 9.0 + i * 5.0, 2.0, 5.0, Color(steel.call(2), a * 0.7))
+	_r(mid + 3.0, floorf((doors + low) / 2.0) - 8.0, 5.0, 26.0, Color(Pal.STEEL_DARK[4], 0.12))
 	# o porta-etiqueta na porta da esquerda, com o cartão datilografado
 	var lab := Rect2(f.position.x + 12, doors + 34, 24, 11)
 	_r(lab.position.x - PX, lab.position.y - PX, lab.size.x + 1, lab.size.y + 1, Pal.CHROME[3])
