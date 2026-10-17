@@ -379,3 +379,14 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
 - **Voz de bicho sintetizada com fonte áspera soa como barulho.** O galo (dente de serra com aspereza e ruído, filtrado
   para soar longe) saiu a pedido como "barulho"; o sabiá, de senos limpos com entrada e saída lentas, ficou. Bicho só
   entra se der para fazer com tom limpo; o que pede timbre rouco (galo, cachorro de perto) fica de fora ou bem longe.
+- **`PackedFloat32Array + PackedFloat32Array` emenda, não soma.** Para juntar dois filtros do mesmo som (`_biquad` de
+  cada ressoar) o `+` devolveu o dobro do comprimento, com um depois do outro; somar amostra a amostra é um laço.
+- **Sorteio por amostra no volume de um tom vira chiado.** O sabiá com o volume variando 3% a cada amostra ganhou um
+  ruído de fundo em todas as frequências (visto no espectro), e o trinado em degraus (`signf`) abria o espectro em
+  cada troca. Variação de som anda devagar (por nota ou numa onda lenta); confira o espectro do som novo, já que não
+  dá para ouvir daqui.
+- **Shader nas camadas grandes do cenário desfaz o lote das chamadas de desenho.** A cidade clareando no amanhecer
+  por um shader na `_back` e na `_view` multiplicou as chamadas; a mesma conta no `modulate` delas não custa nada.
+  Para clarear, escurecer ou tingir uma camada inteira, `modulate` antes de shader.
+- **Captura de um worktree com `--out` absoluto vai parar dentro dele** (`<worktree>/Users/...`): o `shot.gd` trata o
+  caminho como do projeto. Use pasta relativa (o `hibit_shots.sh` recusa a absoluta) e traga os arquivos depois.

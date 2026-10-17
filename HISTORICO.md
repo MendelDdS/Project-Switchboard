@@ -1296,3 +1296,8 @@ Chaves:
 233. #som #saiu
     O galo cantando longe no amanhecer saiu, a pedido (o "barulho do galo"): ficam os grilos parando, o sabiá, o
     primeiro caminhão e o sino das 6h.
+234. #luz #testes
+    Hi-bit 8.1, o fechamento da documentação: o quadro de todas as luzes num lugar só do `CLAUDE.md` ("A luz": onde
+    cada uma mora e como acrescentar uma nova, sem `PointLight2D`), os horários que ainda diziam meia-noite onde vale o
+    fim do turno, as lições do caminho e duas verificações novas no `check.sh` (cor escrita direto fora do `Pal` e luz
+    do Godot no lugar dos shaders); o `hibit_shots.sh` ficou, com o amanhecer da noite 15.

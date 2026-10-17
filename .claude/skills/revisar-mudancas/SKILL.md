@@ -33,7 +33,9 @@ Só olha as linhas acrescentadas e aponta o que as convenções já proíbem, in
 - `queue_redraw` ou procura na árvore no `_process`;
 - imagem montada a cada quadro ou desenho;
 - SubViewport em `UPDATE_ALWAYS`;
-- tarefa em thread em prioridade baixa.
+- tarefa em thread em prioridade baixa;
+- cor escrita direto (`Color("…")`) fora do `Pal`;
+- `PointLight2D` (ou outra luz do Godot) no lugar dos shaders da luz.
 
 É um filtro grosso: confira cada apontamento no código antes de repassar (um `draw_polygon` com textura, ou um
 `queue_redraw` depois de comparar o estado, são legítimos).

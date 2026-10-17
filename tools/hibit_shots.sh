@@ -20,3 +20,4 @@ shot --hour=21:00 --weather=clear --tool=despacho --card --out=$O/despacho.png
 shot --hour=21:00 --weather=clear --toll --tool=calculografo --out=$O/calculografo.png
 shot --hour=21:00 --weather=clear --listen --patch=312 --zoom=40,60,380,280 --out=$O/mesa_comutadora.png
 shot --hour=21:00 --weather=clear --zoom=420,290,320,110 --out=$O/tampo.png
+for h in 04:30 05:30 06:00; do "$G" --path . tools/shot.tscn -- --night=15 --seed=1 --wait=5 --hour=$h --weather=clear --out=$O/amanhecer_${h/:/}.png >/dev/null 2>&1; done

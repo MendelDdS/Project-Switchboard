@@ -1,7 +1,7 @@
 # Project Switchboard — memória do projeto
 
 Jogo em Godot 4.6 (GDScript, renderer GL Compatibility), a caminho da versão definitiva. O jogador é o operador
-noturno da central telefônica de São Sotero, cidade pequena (18:00–00:00). Mecânica: atender e transferir ligações numa
+noturno da central telefônica de São Sotero, cidade pequena (18:00–00:00; a última noite vai até as 6h). Mecânica: atender e transferir ligações numa
 mesa comutadora com cabos físicos; ao fundo, uma ligação misteriosa de número desconhecido (terror leve), por uma entrada sorteada.
 O README.md descreve o jogo para quem joga/edita conteúdo; este arquivo é o mapa para quem mexe no código.
 Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
@@ -132,6 +132,20 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   O que fica na frente das luzes de quem desenha (os plugs encaixados da mesa) entra com `Bloom.occlude(self, polígono)`:
   os blocos do halo cobertos por ele somem (`_cut`, guardado; plug parado não refaz). A máscara só vale para as luzes
   do mesmo dono: na mesa, a camada das lâmpadas registra as duas.
+- **A luz** (plano hi-bit, `PLANO_HIBIT.md`): **nada de `PointLight2D`** (dentro do `SceneView` ela obrigaria a
+  redesenhar a sala a cada mudança da luz; o `check.sh` acusa). O cenário é desenhado sem as luzes que mudam, e elas
+  entram depois, por parâmetros: a luminária no shader do `SceneView` (`lamp_light.gdshader`, a poça somada;
+  `Background.light` passa os parâmetros a cada quadro), o escuro da sala numa camada no meio dele (`_noir`,
+  `room_noir.gdshader`, `_noir_params`), as luzes de fora e as lâmpadas dos objetos no tampo (`_window_lights`,
+  `window_lights.gdshader`, até 8, `_window_light_list`), as lâmpadas da mesa comutadora no painel (`_glow`,
+  `board_glow.gdshader`, até 16, pelo `Bloom.lights_of`), a luz do dia nos shaders da sala (`Background.daylight`) e a
+  gradação do jogo inteiro no `GameView`. Luz com forma (o relâmpago, `_bolt_layer`; o sol, `_sun_layer`) é uma
+  camada somada (ADD), com a força no `modulate` e o desenho refeito só quando a geometria muda. **Para acrescentar uma
+  luz**: só o ponto aceso brilhando, `Bloom.light` no `_draw` de quem a desenha; acendendo em volta no cenário, uma
+  entrada em `_window_light_list` (lugar, alcance e força, cor; as de dentro primeiro, até 8); no painel da mesa
+  comutadora, declarada ao `Bloom` na camada das lâmpadas (o `_glow` pega); com forma (uma abertura projetada), uma
+  camada somada como a do sol. Todo parâmetro que o shader lê entra no estado comparado (senão ele fica com o valor
+  velho), e a cor dela vai no `Pal`.
 - Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`). **Área cheia em `draw_primitive`, não em
   `draw_polygon`**: cada `draw_polygon`/`draw_colored_polygon` é uma chamada de desenho (e cria um polígono a cada
   redesenho); `draw_primitive` (até 4 pontos) seguidos viram uma só. O cenário tem `Background._fill`/`_poly` (o
@@ -267,7 +281,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - **Captura de tela** (`tools/shot.tscn`, COM tela): `Godot --path . tools/shot.tscn -- --hour=22:30 --weather=rain
   --tool=despacho --card --emergency --news --toll --width=1125 --zoom=x,y,w,h --out=build/shot.png` grava a tela inteira e o
   recorte ampliado 4× (`_zoom.png`); `--hover=id` põe o mouse num objeto da mesa (ele erguido e a etiqueta com o nome); `--debug=N` abre o painel de debug na aba N; `--punch`, com `--card`, perfura o cartão, põe uma unidade fora e a etiqueta de um trecho no mapa, e `--card=closed` guarda o despacho com o cartão na mesa; `--car=fusca,sedan` põe um carro de cada modelo parado na rua da vista, o de lá e o de cá (`-` deixa a mão vazia; `--car_t=0.45` onde, de 0 a 1); `--walk=2,-4` gente parada na calçada de lá nesses x (m); `--bar` a porta do bar aberta; `--blind=1` a persiana descida (0 a 1); `--smoke[=s]`, `--cat`, `--bike=x`, `--damp=N`, `--phones=2,1`, `--sips=N`, `--cabinet`, `--written=N`, `--read`, `--taxi=s`, `--dog=x`, `--patch=312,4` (quem fuma na varanda, `s` segundos depois de sair, o gato, a bicicleta, a mancha de umidade, os telefones da vista, os goles da caneca, o armário aberto, o lugar do lápis no bloco, o jornal já lido, o táxi parando no hotel a `s` segundos de aparecer, o vira-lata, um cabo de conexão da saída da linha 4 encaixado no destino, com o aro aceso); `--lines=2:ring,4:conn` as lâmpadas dessas linhas nesse estado, sem ligação; `--screen=intro|pause|settings|report` as telas fora do turno; `--grade=0` sem a gradação de cor; `--lamp=0` sem a luz da luminária no shader do cenário; `--dim=0.2` a luminária presa nesse nível, como no meio de uma piscada; `--still` sem a poeira do feixe, que muda a cada captura (para comparar pixel a pixel: `tools/diff_shots.gd` compara duas pastas de capturas, imagem por imagem, ignorando os retângulos dados, como a vista da janela e a fala na miniatura do painel, que também mudam sozinhas); as opções do jogo (`--night`, `--seed`, `--lang`) também valem. Para conferir
-  mudança visual medindo, não só olhando a captura.
+  mudança visual medindo, não só olhando a captura. `tools/hibit_shots.sh build/hibit/<pasta>` grava o conjunto de
+  capturas do plano hi-bit (sala nos três climas em três horas, a caneca, a mesa comutadora, o tampo, as ferramentas
+  e o amanhecer da noite 15), para comparar com `tools/diff_shots.gd`; a pasta tem que ser relativa ao projeto.
 - **Sem tela, a vista da janela não é desenhada** (`Background._headless`): com `--fixed-fps` e o tempo acelerado,
   ela era redesenhada a cada quadro e virou 2/3 do tempo de um turno do robô (27 s em vez de 9). Quem acrescentar
   desenho pesado que roda a cada quadro, meça um turno (`--test=shift --seed=1`).
@@ -430,7 +446,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   sumindo atrás da frente dela (`_sink`: a altura dele encolhe até a boca, `BOX_MOUTH`, com `clip_contents`; por isso o
   `TollTicket` desenha sempre em `SIZE`); sem o carimbo, ela aceita e vem a advertência leve
   `toll_unstamped` (`Toll.unstamped`). O número do bilhete é reservado quando começa a contar (`Toll.ticket_of`) e vai
-  para a ficha do caderno ("Bilhete nº 0002", `PhoneCall.Record.ticket`). Bilhete esquecido na mesa: à meia-noite o turno
+  para a ficha do caderno ("Bilhete nº 0002", `PhoneCall.Record.ticket`). Bilhete esquecido na mesa: no fim do turno ele
   espera guardar, como o registro (`Main._unregistered`), e no fim é advertência leve `toll_forgotten`
   (`Supervisor.shift_over`). **Na mesa da sala, o calculógrafo é a ferramenta aberta em miniatura** (antes era uma
   caixa com a fenda no tampo e um visor, e não batia com ela): a máquina atrás, na proporção da aberta (`CALC`), sem
@@ -562,7 +578,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `REDISPATCH_CHANCE`). `check_hold()` encerra quem passou de `HOLD_GIVE_UP` em espera (`End.GAVE_UP`).
 - Treinamento (`PhoneCall.lesson`), trotes e ligação desconhecida não geram advertência. Falas de retorno, manchetes e pareceres
   ficam no content (grupo "Supervisor e consequências").
-- À meia-noite, `start_ending` (`Supervisor.shift_over`) soma o que ficou sem registro e passa o relatório para `Ending.play(report)`, que mostra
+- No fim do turno (`Main.shift_end`), `start_ending` (`Supervisor.shift_over`) soma o que ficou sem registro e passa o relatório para `Ending.play(report)`, que mostra
   `ReportView` antes do título final.
 
 ## Setores (a cidade em três partes)
