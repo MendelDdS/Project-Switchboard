@@ -380,11 +380,18 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   luz dos postes lavando as fachadas), a rua do cruzamento indo embora entre paredes (`CROSSING`, 10 m, pedidos 253 e 254: com 4,9, era um corredor, e com 8, estreita; o hotel
   foi um pouco para a esquerda e o lado da direita andou junto, do prédio de tijolos ao bar, à varanda, ao homem e ao poste
   dele; `_canyon`, `_draw_canyon_wall`: janelas em andares e colunas, `CANYON_WIN`, e a
-  laje de cada andar; mais finas que um pixel, só as acesas, com 1 px vazio entre elas, senão viravam um borrão; o
-  térreo com portas de madeira e lojas, abertas até a hora delas ou com a porta de enrolar, até `SHOP_Z`; os postes
+  laje de cada andar; mais finas que um pixel, só as acesas, com 1 px vazio entre elas, senão viravam um borrão; a
+  lateral do prédio da esquina na tinta da fachada dele, a de tijolos nas fiadas, sem as lajes; o cano de descida na
+  divisa; o térreo, desenhado de longe para perto, com portas de madeira e lojas, abertas até a hora delas ou com a
+  porta de enrolar e a caixa dela, até `SHOP_Z`: cada loja com a tábua da placa e o toldo de lona saindo da parede, com
+  a franja e a aba de cá, numa em quatro a placa de bandeira de frente para cá, com as letras em traços (`_strokes`, as
+  mesmas das lojas de lá), e, até `SHOP_DETAIL`, a mureta e a mercadoria na vitrine, as listras do toldo
+  (`Pal.SHOP_PAINT`), as almofadas da porta, o degrau de pedra e, numa em duas, a laje de concreto por cima dela, na
+  pedra da calçada (pedido 277); os postes
   dela, desenhados depois das paredes, que antes os cobriam, diminuindo; um carro estacionado de traseira, `PARKED`,
   `_draw_parked`; quem vira a esquina por ela, `WALK_CORNER`, `TURN_Z`, `_walk_at`; e a névoa clareando para o fundo) até a igreja no fim (`_church_pos`, `CHURCH_K`; a cruz e o relógio aceso em pixels do tamanho da torre, e o brilho do relógio também) e, bem longe, a cidade em duas fileiras na
-  névoa. Na chuva, o asfalto molhado espelha as luzes em riscos verticais (`_draw_wet`). Na névoa (`_draw_fog`, por cima da rua e do
+  névoa. Na chuva, o asfalto molhado espelha as luzes em riscos verticais (`_draw_wet`), na frente da vista, tapados
+  pelos carros (`_car_cuts`, `_uncovered`). Na névoa (`_draw_fog`, por cima da rua e do
   outro lado, atrás do arbusto): um véu liso mais grosso rente ao chão (`FOG_VEIL`, `FOG_GROUND`), fiapos largos e lisos
   atravessando a rua com o vento (`FOG_WISPS`) e as luzes espalhando nela (halo e cone de laterais lisas em cada poste, o
   vermelho do neon); as faixas retangulares que havia no vidro pareciam defeito. Os carros (`_draw_car`, um por

@@ -2077,6 +2077,9 @@ func _draw_reflection(g: Rect2) -> void:
 	var zw := Z0 * WALL_K
 	_fill(PackedVector2Array([m.call(lx, y0, zw), m.call(xc, y0, zw), m.call(xc, y1, zw), m.call(lx, y1, zw)]),
 		PackedColorArray([lamp, Color(lamp, lamp.a * 0.3), none, Color(lamp, lamp.a * 0.4)]))
+	var far := 2.0 * lx - xc   # o arco segue do outro lado da luminária, sumindo (cortado nela, era uma linha no vidro)
+	_fill(PackedVector2Array([m.call(far, y0, zw), m.call(lx, y0, zw), m.call(lx, y1, zw), m.call(far, y1, zw)]),
+		PackedColorArray([none, lamp, Color(lamp, lamp.a * 0.4), none]))
 	var zf := zw / CAB_T   # a frente do armário: clara no meio (a luz da luminária), sumindo para baixo
 	var steel := Color(0.75, 0.8, 0.65, 0.07 * lamp_level)
 	var ct := _cm(CAB_TOP)

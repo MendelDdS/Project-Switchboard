@@ -750,8 +750,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   lote, de 380 para 870 chamadas; retas, a faixa de sol virava uma colcha). O teto e os vidros dos carros pegam o sol, e a copa da
   árvore acende de verde-amarelo, mais no alto e na beira de cima de cada tufo (`Pal.LEAF_SUN`); o asfalto úmido do sereno espelha de leve os faróis e as lanternas (`DAMP`) e, mais, a vitrine
   do bar, a porta do hotel e as vitrines acesas do térreo (`_mirror`, `MIRROR_A`, retas embaixo delas, como na chuva; na frente da vista e
-  cortadas pelo chão dos carros, `_car_ground`: no chão, apareciam numa listra de luz pela sombra do táxi parado no
-  hotel, pedido 276),
+  cortadas pelo chão dos carros, `_car_ground`, como os riscos dos postes e do letreiro, `_car_cuts`: no chão,
+  apareciam numa listra de luz pela sombra do táxi parado no hotel, pedido 276),
   e as poças da chuva da noite espelham o céu (`_draw_puddles`, `PUDDLES`); de manhã mais gente vira a esquina, vindo
   de mais longe pela rua do cruzamento (`WALK_CORNER_DAWN`, `TURN_FAR`), e lá, contra o sol, quase em silhueta
   (`Pal.BACKLIT`), com a beira acesa só na faixa de sol e de perto; o porteiro fica na porta do hotel; de manhã

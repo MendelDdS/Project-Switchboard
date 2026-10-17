@@ -1589,3 +1589,17 @@ Chaves:
     da porta e o reflexo aparecia pela sombra de contato dele, que é translúcida. Os dois reflexos foram para a frente
     da vista, antes dos carros, e cada carro os corta da beira de lá do chão dele para cá (`_car_ground`, `_mirror`),
     também na chuva.
+277. #vista #cidade #luz #carros #testes
+    "Faça isso. Também queria adicionar detalhes na lateral dos prédios, adicionar toldo, portas, vitrines." Feito o
+    que eu tinha sugerido: a bateria inteira (18 de 18) e os reflexos dos postes, do letreiro e das vitrines de lá no
+    asfalto molhado levados para a frente da vista, tapados pelos carros como o da porta do hotel (as das vitrines,
+    no chão, ficavam cortadas onde o carro estava quando o chão se redesenhou). Nas paredes da rua do cruzamento
+    (`_draw_canyon_wall`): toldo de lona em cada loja, listrado perto, com a franja e a aba; a placa em cima e, numa em
+    quatro, a placa de bandeira de frente para cá; a vitrine com a mureta, a mercadoria e o caixilho da porta; a caixa
+    da porta de enrolar; as portas com as almofadas, o degrau de pedra e, numa em duas, a laje de concreto; o cano de
+    descida; e a lateral do prédio da esquina na tinta da fachada dele (a do prédio de tijolos ficou de tijolos).
+278. #janela #luz
+    "Ficou uma linha vertical no canto direito da janela." Era o reflexo da sala no vidro (`_draw_reflection`): o arco
+    da luz da luminária na parede do fundo, espelhado, acabava seco na própria luminária; com a parede mais longe e a
+    janela maior (plano da janela), esse corte, antes fora do vidro, caiu dentro dele. O arco agora segue do outro lado
+    da luminária, sumindo.

@@ -175,13 +175,16 @@ const CAR_SPRAY := 14   ## os pontos do borrifo atrás de cada roda, na chuva
 const BRICK_VARY := Vector2(0.16, 0.28)   ## dos tijolos da fachada, quantos mais claros (até x) e mais escuros (até y)
 const BOUNCE := Vector3(3.0, 2.6, 0.22)   ## de manhã, o rebatido da faixa de sol nas fachadas da boca do cruzamento: até onde para o lado e para cima (m) e a força
 const SKY_TOP := 0.35   ## de manhã, o quanto o alto das fachadas de lá clareia na luz do céu
-const CANYON_WIN := Vector2(2.6, 0.5)
+const CANYON_WIN := Vector2(2.6, 0.5)   ## as janelas das paredes da rua do cruzamento: de quantos em quantos metros e quantas acesas
 const PARKED := Vector3(2.4, 13.0, 4.0)   ## o carro estacionado na rua do cruzamento, junto do meio-fio da direita: x do lado de fora, z da traseira e o comprimento (m)
 const SHOP_Z := 60.0   ## até onde (z, m) o térreo das paredes da rua do cruzamento tem portas e lojas (depois, menores que um pixel)
+## até onde (z, m) as lojas e as portas das paredes da rua do cruzamento têm o miúdo: a mercadoria e a mureta da vitrine,
+## as almofadas da porta, o degrau e as listras do toldo (depois, menores que um pixel, borravam)
+const SHOP_DETAIL := 24.0
 ## com o sol, a parede da esquerda da rua do cruzamento acesa de raspão (`_draw_canyon_wall`): fraca, porque o sol está
 ## quase no eixo da rua e a luz chega muito deitada nela (~1/4 da do chão; com 0,45, tão dourada quanto a faixa)
 const WALL_LIT := 0.2
-const CANYON_GRAIN := 0.12   ## a força da textura das paredes da rua do cruzamento (as fiadas e os remendos, translúcidos)   ## as janelas das paredes da rua do cruzamento: de quantos em quantos metros e quantas acesas
+const CANYON_GRAIN := 0.12   ## a força da textura das paredes da rua do cruzamento (as fiadas e os remendos, translúcidos)
 const BEAM := 5.0   ## até onde vai o facho dos faróis no asfalto (m)
 ## Quanto da profundidade do carro (a largura dele, de um lado ao outro da mão) entra no recuo para o ponto de fuga: a
 ## vista é grande-angular, e longe do meio o carro se inclinava tanto que parecia ter metade da largura do comprimento.
@@ -701,7 +704,7 @@ func _draw_city(g: Rect2) -> void:
 
 
 ## O que fica em pé na cidade (na camada `_upright`, por cima da luz do sol no chão, `_draw_sun_strip`): os postes da
-## rua do cruzamento, a sombra do nosso prédio na rua de perto, a chuva e a neblina no chão, as paredes da rua do
+## rua do cruzamento, a sombra do nosso prédio na rua de perto, as poças e a neblina no chão, as paredes da rua do
 ## cruzamento e as fachadas de lá.
 func _draw_city_upright(g: Rect2) -> void:
 	if _city_for != g.size:   # (`_draw_city` ainda não montou a cidade)
@@ -712,8 +715,6 @@ func _draw_city_upright(g: Rect2) -> void:
 	# perto, embaixo da janela, a rua some na sombra do nosso prédio, lisa e sem nenhuma linha
 	var dark := Color(0, 0, 0, 0.6)
 	_fill(_patch(g, -80.0, 80.0, 0.3, STREET["curb"] + 1.5), PackedColorArray([dark, dark, Color(dark, 0.0), Color(dark, 0.0)]))
-	if weather == "rain" or morning() > 0.0:   # (de manhã, o asfalto úmido do sereno; as vitrines, na frente da vista, `_draw_city_front`)
-		_draw_wet(g, {}, 1.0 if weather == "rain" else 2.0 * DAMP)
 	if dawn() > 0.0 and weather == "clear":
 		_draw_puddles(g)
 	_draw_dawn_mist(g)
@@ -849,13 +850,22 @@ func _moon_art(age: float, size: int) -> Texture2D:
 
 
 ## A frente da vista, por cima da de trás (`_draw_city`) e redesenhada a cada quadro dela: o letreiro (o T falha
-## sozinho), quem passa, os postes, o homem, o carro (na chuva, com o farol espelhado na rua) e a névoa.
+## sozinho), o que está aceso espelhado no asfalto molhado, quem passa, os postes, o homem, o carro (na chuva, com o
+## farol espelhado na rua) e a névoa.
 func _draw_city_front(g: Rect2) -> void:
 	if _hz(g) - g.position.y < 40.0:   # (a tela ainda não se arrumou: o vidro ainda não tem o tamanho dele)
 		return
-	if weather == "rain" or morning() > 0.0:   # a vitrine do bar e a porta do hotel, sempre acesas, no asfalto molhado: aqui, e não no chão, porque o carro passando na frente as tapa (`_mirror`)
+	# o que está aceso lá, no asfalto molhado (de manhã, úmido do sereno: as vitrines, grandes e paradas, mais que os
+	# faróis): aqui, e não no chão, porque o carro passando na frente tapa (`_mirror`, `_wet_streak`)
+	if weather == "rain" or morning() > 0.0:
 		var a := 1.0 if weather == "rain" else 2.0 * DAMP
-		_mirror(g, CROSSING.y + 0.5, CROSSING.y + 2.5, 2.5, _sunny(Pal.BAR_LIGHT[1]), a)
+		_draw_wet(g, {}, a)
+		for b: Dictionary in _houses:   # as vitrines acesas do térreo
+			for j in b["wins"].size():
+				var wv: Vector3 = b["wins"][j]
+				if wv.y == 0.0 and _win_lit(b, j):
+					_mirror(g, wv.x - 0.9, wv.x + 0.9, 2.6, _sunny(Pal.CITY_LIT[int(wv.x + wv.y) % Pal.CITY_LIT.size()]), a)
+		_mirror(g, CROSSING.y + 0.5, CROSSING.y + 2.5, 2.5, _sunny(Pal.BAR_LIGHT[1]), a)   # a vitrine do bar e a porta do hotel, sempre acesas
 		_mirror(g, HOTEL_X - 0.6, HOTEL_X + 0.6, 2.3, _sunny(Pal.HOTEL_DOOR[1]), a)
 	_draw_hotel_sign(_hotel_pos(g))
 	_draw_balcony_front(g)
@@ -1493,8 +1503,8 @@ func _blot(g: Rect2, x0: float, x1: float, z0: float, z1: float, rng: RandomNumb
 
 
 ## A chuva no chão: o asfalto molhado espelha as luzes em riscos verticais, quebrados, embaixo de cada uma (os postes
-## e o letreiro; com `car`, só o farol e a lanterna daquele carro, que anda: vai na frente da vista), mais fracos para
-## baixo.
+## e o letreiro, tapados pelos carros; com `car`, só o farol e a lanterna daquele carro), mais fracos para baixo. Na
+## frente da vista (`_draw_city_front`), que se redesenha com os carros.
 func _draw_wet(g: Rect2, car: Dictionary = {}, a := 1.0) -> void:
 	var lights := []   # [cabeça, pé, cor]
 	if not car.is_empty():
@@ -1510,18 +1520,53 @@ func _draw_wet(g: Rect2, car: Dictionary = {}, a := 1.0) -> void:
 		if _sign_on():   # embaixo das letras (no meio da caixa; o risco tem 1,5 de largura)
 			var s := _hotel_pos(g) + Vector2(SIGN.x / 2.0 - 0.25, 0.0)
 			lights.append([s, Vector2(s.x - 0.75, _o(g, HOTEL_X, STREET["far_curb"] - 0.5).y), Pal.SIGN_RED])
+	var cuts: Array[Vector3] = []   # (o do farol não some embaixo do próprio carro)
+	if car.is_empty():
+		cuts = _car_cuts(g)
 	for l: Array in lights:
-		_wet_streak(l[0], l[1], l[2], a)
+		_wet_streak(l[0], l[1], l[2], a, cuts)
 
 
-## O reflexo da luz `col` (que fica em `head`) no asfalto molhado, um risco vertical quebrado descendo de `foot`.
-func _wet_streak(head: Vector2, foot: Vector2, col: Color, a := 1.0) -> void:
+## O reflexo da luz `col` (que fica em `head`) no asfalto molhado, um risco vertical quebrado descendo de `foot`, tapado
+## pelos carros em `cuts` (`_car_cuts`).
+func _wet_streak(head: Vector2, foot: Vector2, col: Color, a: float, cuts: Array[Vector3]) -> void:
 	var length := (foot.y - head.y) * 0.9
 	var n := maxi(3, int(length / 1.5))
 	for k in n:
 		if k % 3 == 2:
 			continue   # quebrado pelas poças e pelos pingos
-		_r(foot.x - PX * (k % 2), foot.y + length * k / n, maxf(PX, 1.5 - k * 0.05), PX, Color(col, 0.32 * a * (1.0 - float(k) / n)))
+		var x := foot.x - PX * (k % 2)
+		var y := foot.y + length * k / n
+		for s in _uncovered(cuts, x, x + maxf(PX, 1.5 - k * 0.05), y):
+			if s.y > s.x:
+				_r(s.x, y, s.y - s.x, PX, Color(col, 0.32 * a * (1.0 - float(k) / n)))
+
+
+## O chão de cada carro na rua (`_car_ground`), para tapar o que está espelhado no asfalto: [de x, até x, a beira de lá]
+## (px de 2x2).
+func _car_cuts(g: Rect2) -> Array[Vector3]:
+	var cuts: Array[Vector3] = []
+	for c in _cars:
+		var q := _car_ground(g, c)
+		cuts.append(Vector3(minf(q[0].x, q[3].x), maxf(q[1].x, q[2].x), q[3].y))
+	return cuts
+
+
+## Os trechos da linha `y` de `x0` a `x1` (px de 2x2) que nenhum carro tapa (`cuts`): ele tapa da beira de lá do chão
+## dele para cá.
+func _uncovered(cuts: Array[Vector3], x0: float, x1: float, y: float) -> Array[Vector2]:
+	var segs: Array[Vector2] = [Vector2(x0, x1)]
+	for v in cuts:
+		if y + PX <= v.z:
+			continue
+		var rest: Array[Vector2] = []
+		for s in segs:
+			if v.x > s.x:
+				rest.append(Vector2(s.x, minf(s.y, v.x)))
+			if v.y < s.y:
+				rest.append(Vector2(maxf(s.x, v.y), s.y))
+		segs = rest
+	return segs
 
 
 ## O reflexo de uma abertura acesa no térreo da fachada de lá (de `x0` a `x1` m, `h` m de altura) no asfalto molhado:
@@ -1534,26 +1579,12 @@ func _mirror(g: Rect2, x0: float, x1: float, h: float, col: Color, a: float) -> 
 	var right := _o(g, x1, ff).x
 	var y := _o(g, x0, STREET["far_curb"] - 0.3).y
 	var n := int((_o(g, x0, ff).y - _o(g, x0, ff, h).y) * 0.8 / PX)
-	var cuts: Array[Vector3] = []   # [de x, até x, a beira de lá] de cada carro
-	for c in _cars:
-		var q := _car_ground(g, c)
-		cuts.append(Vector3(minf(q[0].x, q[3].x), maxf(q[1].x, q[2].x), q[3].y))
+	var cuts := _car_cuts(g)
 	for k in n:
 		if k % 3 == 2:   # (quebrado pelas poças e pelo vento na água)
 			continue
 		var at := y + k * PX
-		var segs: Array[Vector2] = [Vector2(left, right - PX) + Vector2.ONE * PX * (k % 2)]
-		for v in cuts:
-			if at + PX <= v.z:
-				continue
-			var rest: Array[Vector2] = []
-			for s in segs:
-				if v.x > s.x:
-					rest.append(Vector2(s.x, minf(s.y, v.x)))
-				if v.y < s.y:
-					rest.append(Vector2(maxf(s.x, v.y), s.y))
-			segs = rest
-		for s in segs:
+		for s in _uncovered(cuts, left + PX * (k % 2), right - PX + PX * (k % 2), at):
 			if s.y > s.x:
 				_r(s.x, at, s.y - s.x, PX, Color(col, MIRROR_A * a * (1.0 - float(k) / n)))
 
@@ -1573,7 +1604,8 @@ func _draw_canyon_wall(g: Rect2, w: Dictionary, hz: Color, taken: Dictionary) ->
 	# beira de cima acesa (a cornija); a da esquerda, virada para ele, pega a luz de raspão inteira, junto com o chão:
 	# a sombra da parede da frente no chão nunca chega até ela (`_draw_sun_strip` deixa a faixa desse lado)
 	var sun := _sunlit()
-	var face := col.lerp(rim, WALL_LIT * sun) if x < 0.0 else col.lerp(Pal.DAWN_SHADE, 0.3 * sun)
+	var shade := func(c: Color) -> Color: return c.lerp(rim, WALL_LIT * sun) if x < 0.0 else c.lerp(Pal.DAWN_SHADE, 0.3 * sun)
+	var face: Color = shade.call(col)
 	var far := face.lerp(rim, 0.6 * sun * clampf((z1 - 20.0) / 90.0, 0.0, 1.0))   # e as duas, no fundo, somem no ar dourado do sol
 	face = face.lerp(rim, 0.6 * sun * clampf((z0 - 20.0) / 90.0, 0.0, 1.0))
 	_fill(PackedVector2Array([_o(g, x, z0), _o(g, x, z1), _o(g, x, z1, ht), _o(g, x, z0, ht)]), PackedColorArray([face, far, far, face]))
@@ -1585,7 +1617,7 @@ func _draw_canyon_wall(g: Rect2, w: Dictionary, hz: Color, taken: Dictionary) ->
 	var hc := 0.8
 	while hc < ht:
 		_ci.draw_line(_o(g, x, z0, hc), _o(g, x, z1, hc), course, PX)
-		hc += 0.8
+		hc += 0.3 if w["brick"] else 0.8   # (a de tijolos, nas fiadas deles)
 	for i in rng.randi_range(3, 5):
 		var za := rng.randf_range(z0, z1 - 2.0)
 		var zb := za + rng.randf_range(1.5, 4.0)
@@ -1594,8 +1626,9 @@ func _draw_canyon_wall(g: Rect2, w: Dictionary, hz: Color, taken: Dictionary) ->
 		var c := Color(tone.call(-3), 2.0 * CANYON_GRAIN) if rng.randf() < 0.6 else Color(tone.call(3), CANYON_GRAIN)
 		_poly(PackedVector2Array([_o(g, x, za, ha), _o(g, x, zb, ha), _o(g, x, zb, hb), _o(g, x, za, hb)]), c)
 	_ci.draw_line(_o(g, x, z0), _o(g, x, z0, ht), tone.call(-2), PX)   # a quina
+	_ci.draw_line(_o(g, x, z1 - 0.3), _o(g, x, z1 - 0.3, ht), tone.call(-2), PX)   # o cano de descida, na divisa com o vizinho
 	_ci.draw_line(_o(g, x, z0, ht), _o(g, x, z1, ht), tone.call(2).lerp(rim, 0.85 * sun), PX)   # a cornija, acesa pelo sol
-	for f in range(1, int((ht - 0.8) / 3.2)):   # a laje de cada andar, fugindo para o ponto de fuga com as janelas
+	for f in range(1, 0 if w["brick"] else int((ht - 0.8) / 3.2)):   # a laje de cada andar, fugindo com as janelas (a de tijolos tem as fiadas)
 		_ci.draw_line(_o(g, x, z0, f * 3.2), _o(g, x, z1, f * 3.2), tone.call(1), PX)
 	var dark: Color = tone.call(-3)
 	for wv: Vector3 in w["wins"]:   # (z do meio, altura do peitoril, hora de apagar), 1 m por 1,4 m
@@ -1613,28 +1646,87 @@ func _draw_canyon_wall(g: Rect2, w: Dictionary, hz: Color, taken: Dictionary) ->
 			if not taken.has(at):
 				taken[at] = true
 				_r(roundf(a.x * 2.0) / 2.0, a.y, PX, maxf(PX, b.y - a.y), col_w)
-	# o térreo: as lojas abertas, com a vitrine acesa e a luz dela na calçada, e as fechadas com a porta de enrolar
-	# (as ripas fugindo para o fundo), e as portas de madeira com a bandeira de vidro acesa em cima
-	for sv: Vector3 in w.get("shops", []):
+	# o térreo, de longe para perto (o toldo e a placa de uma cobrem a parede atrás dela): as lojas abertas, com a
+	# vitrine acesa, e as fechadas com a porta de enrolar, e as portas de madeira com a bandeira de vidro acesa em cima
+	var out := 1.0 if x < 0.0 else -1.0   # da parede para a rua
+	var shops: Array = w.get("shops", [])
+	for i in range(shops.size() - 1, -1, -1):
+		var sv: Vector3 = shops[i]
 		var za := sv.x - sv.y / 2.0
 		var zb := sv.x + sv.y / 2.0
-		var top := 2.4 if sv.y > 1.0 else 2.2
+		var wide := sv.y > 1.0
+		var top := 2.4 if wide else 2.2
 		var open := sv.z > minutes
+		var near := sv.x < SHOP_DETAIL
+		var variety := int(sv.x * 7.0)
 		var lc: Color = _sunny(Pal.CITY_LIT[int(sv.x) % Pal.CITY_LIT.size()]).lerp(hz, haze)
-		var quad := func(h0: float, h1: float) -> PackedVector2Array:
-			return PackedVector2Array([_o(g, x, za, h0), _o(g, x, zb, h0), _o(g, x, zb, h1), _o(g, x, za, h1)])
-		_poly(quad.call(0.0, top + 0.15), dark)   # o vão
-		if sv.y > 1.0:
+		var quad := func(q0: float, q1: float, h0: float, h1: float, d: float) -> PackedVector2Array:   # na parede, ou `d` m para a rua
+			return PackedVector2Array([_o(g, x + d, q0, h0), _o(g, x + d, q1, h0), _o(g, x + d, q1, h1), _o(g, x + d, q0, h1)])
+		_poly(quad.call(za, zb, 0.0, top + 0.15, 0.0), dark)   # o vão
+		if wide:
+			var door := za + 0.9   # a porta da loja, na ponta de cá, e a vitrine depois dela
 			if open:
-				_poly(quad.call(0.05, top), lc)
-				_ci.draw_line(_o(g, x, za, 1.0), _o(g, x, zb, 1.0), lc.darkened(0.55), PX)   # o balcão contra a luz
+				_poly(quad.call(za, zb, 0.05, top, 0.0), lc)
+				var frame := lc.darkened(0.6)
+				if near:
+					_poly(quad.call(door, zb, 0.05, 0.55, 0.0), tone.call(-2))   # a mureta embaixo do vidro
+					for hs: float in [1.0, 1.55]:   # a mercadoria nas prateleiras, contra a luz
+						var zs := door + 0.2
+						while zs < zb - 0.2:
+							_ci.draw_line(_o(g, x, zs, hs), _o(g, x, zs, hs + 0.2 + 0.1 * ((variety + int(zs * 5.0)) % 3)), lc.darkened(0.5), PX)
+							zs += 0.45
+					_ci.draw_line(_o(g, x, door, 0.05), _o(g, x, door, top), frame, PX)   # o caixilho da porta
+				_ci.draw_line(_o(g, x, za, top - 0.45), _o(g, x, zb, top - 0.45), frame, PX)   # e a bandeira em cima
 			else:
-				_poly(quad.call(0.05, top), tone.call(-1))
-				for i in range(1, 6):
-					_ci.draw_line(_o(g, x, za, top * i / 6.0), _o(g, x, zb, top * i / 6.0), Color(dark, 0.7), PX)
+				_poly(quad.call(za, zb, 0.05, top, 0.0), tone.call(-1))
+				for k in range(1, 6):
+					_ci.draw_line(_o(g, x, za, top * k / 6.0), _o(g, x, zb, top * k / 6.0), Color(dark, 0.7), PX)
+			_poly(quad.call(za - 0.05, zb + 0.05, top, top + 0.3, 0.0), tone.call(-2))   # a caixa da porta de enrolar
+			_poly(quad.call(za, zb, top + 0.5, top + 0.9, 0.0), Pal.SHOP_BOARD.lerp(hz, haze))   # a tábua da placa
+			_ci.draw_line(_o(g, x, za, top + 0.9), _o(g, x, zb, top + 0.9), tone.call(2), PX)
 		else:
-			_poly(quad.call(0.05, top - 0.4), Pal.BAR_WOOD.lerp(hz, haze))
-			_poly(quad.call(top - 0.3, top), lc if open else dark)   # a bandeira
+			var wood := Pal.BAR_WOOD.lerp(hz, haze)
+			var stone: Array = Pal.SIDEWALK_TONES[1 if weather == "fog" else 0]   # (o degrau e a laje, na pedra da calçada: no tom da parede, a de tijolos os deixava laranja)
+			_poly(quad.call(za, zb, 0.05, top - 0.4, 0.0), wood)
+			_poly(quad.call(za, zb, top - 0.3, top, 0.0), lc if open else dark)   # a bandeira
+			if near:
+				for hp: Vector2 in [Vector2(0.35, 0.9), Vector2(1.1, top - 0.6)]:   # as almofadas da folha
+					_poly(quad.call(za + 0.2, zb - 0.2, hp.x, hp.y, 0.0), wood.darkened(0.35))
+				# o degrau de pedra na calçada: a face e o piso
+				_poly(quad.call(za - 0.15, zb + 0.15, 0.0, 0.15, out * 0.35), (stone[0] as Color).lerp(hz, haze))
+				_poly(PackedVector2Array([_o(g, x, za - 0.15, 0.15), _o(g, x, zb + 0.15, 0.15), _o(g, x + out * 0.35, zb + 0.15, 0.15),
+					_o(g, x + out * 0.35, za - 0.15, 0.15)]), (stone[2] as Color).lerp(hz, haze))
+			if variety % 2 == 0:   # a laje de concreto por cima da porta: a face e o tampo
+				_poly(quad.call(za - 0.3, zb + 0.3, top + 0.3, top + 0.42, out * 0.6), (stone[0] as Color).lerp(hz, haze))
+				_poly(PackedVector2Array([_o(g, x, za - 0.3, top + 0.42), _o(g, x, zb + 0.3, top + 0.42), _o(g, x + out * 0.6, zb + 0.3, top + 0.42),
+					_o(g, x + out * 0.6, za - 0.3, top + 0.42)]), (stone[2] as Color).lerp(hz, haze))
+		if wide:   # o toldo de lona, saindo da parede por cima da loja, listrado
+			var cloth: Color = (shade.call(Pal.AWNINGS[variety % Pal.AWNINGS.size()]) as Color).lerp(hz, haze)
+			var pale: Color = (shade.call(Pal.SHOP_PAINT) as Color).lerp(hz, haze)
+			var a0 := za - 0.1
+			var a1 := zb + 0.1
+			var d := out * 1.1
+			var ha := top + 0.4   # na parede
+			var hb := top + 0.05   # na beira, com a franja embaixo
+			_poly(quad.call(za, zb, top - 0.35, top, 0.0), Color(0, 0, 0, 0.25))   # a sombra dele na loja
+			var n := maxi(2, int((a1 - a0) / 0.35)) if near else 1   # (longe, as listras borravam)
+			for j in n:
+				var s0 := lerpf(a0, a1, float(j) / n)
+				var s1 := lerpf(a0, a1, float(j + 1) / n)
+				var c := cloth if j % 2 == 0 else pale
+				_poly(PackedVector2Array([_o(g, x, s0, ha), _o(g, x, s1, ha), _o(g, x + d, s1, hb), _o(g, x + d, s0, hb)]), c)   # a lona, vista de cima
+				_poly(quad.call(s0, s1, hb - 0.25, hb, d), c.darkened(0.3))   # a franja
+			_poly(PackedVector2Array([_o(g, x, a0, ha), _o(g, x + d, a0, hb), _o(g, x + d, a0, hb - 0.25), _o(g, x, a0, ha - 0.05)]),
+				cloth.darkened(0.45))   # a aba de cá
+		if wide and variety % 4 == 1:   # a placa de bandeira, para fora da parede: de frente para cá, com as letras em traços
+			var hi := top + 1.6
+			var p0 := _o(g, x + out * 0.15, za, hi)
+			var p1 := _o(g, x + out * 1.0, za, hi - 0.55)
+			var board := Rect2(minf(p0.x, p1.x), p0.y, absf(p1.x - p0.x), p1.y - p0.y)
+			_ci.draw_line(_o(g, x, za, hi + 0.1), _o(g, x + out * 1.05, za, hi + 0.1), Pal.SILHOUETTE.lerp(hz, haze), PX)   # o braço de ferro
+			_r(board.position.x, board.position.y, board.size.x, board.size.y, tone.call(2))
+			_r(board.position.x + PX, board.position.y + PX, board.size.x - 2.0 * PX, board.size.y - 2.0 * PX, Pal.SHOP_BOARD.lerp(hz, haze))
+			_strokes(board, Pal.SHOP_PAINT.lerp(hz, haze), variety)
 
 
 ## O vidro da janela `wv` de um prédio de lá (`_houses`, fora do térreo) na tela (px de 2x2), como `_draw_far_house` a desenha.
@@ -1736,8 +1828,6 @@ func _draw_far_house(g: Rect2, b: Dictionary, hz: Color) -> void:
 				for i in 16:
 					pool.append(_o(g, wv.x + cos(TAU * i / 16.0) * 1.8, ff - 0.6 + sin(TAU * i / 16.0) * 1.0))
 				_light_fan(c, pool, Color(lc, SHOP_POOL))
-			if ground and (weather == "rain" or morning() > 0.0):   # e ela espelhada no asfalto molhado (`_draw_wet`)
-				_mirror(g, wv.x - 0.9, wv.x + 0.9, 2.6, lc, 1.0 if weather == "rain" else 2.0 * DAMP)
 		else:
 			_r(p.x, p.y, w, h, Pal.WINDOW_DARK)
 			if variety % 3 == 0:   # a cortina fechada, mal vista no escuro
@@ -1786,14 +1876,7 @@ func _draw_shop_trim(p: Vector2, w: float, h: float, k: float, variety: int, lit
 	_r(p.x + w + PX, p.y - PX, PX, h + PX, tone.call(-2))
 	var board := Rect2(p.x - PX, p.y - 0.55 * k, w + PX * 2.0, 0.4 * k)
 	_r(board.position.x, board.position.y, board.size.x, board.size.y, Pal.SHOP_BOARD)
-	var ink: Color = Pal.CITY_LIT[2] if lit else tone.call(-1)   # as letras, pintadas: acesas pela vitrine
-	var lx := board.position.x + 2.0 * PX
-	var r := variety * 7
-	while lx < board.end.x - 3.0 * PX:   # uma palavra ou duas: traços de 1 a 3 px com um vão entre elas
-		var lw := PX * (1 + (r % 3))
-		_r(lx, board.position.y + board.size.y * 0.35, lw, maxf(PX, board.size.y * 0.3), Color(ink, 0.8))
-		lx += lw + PX * (3.0 if r % 5 == 0 else 1.0)
-		r = r * 13 + 7
+	_strokes(board, Pal.CITY_LIT[2] if lit else tone.call(-1), variety)   # as letras, pintadas: acesas pela vitrine
 	if variety % 2 == 0:   # o toldo, inclinado para a rua: a lona, a franja recortada e a sombra na vitrine
 		var cloth: Color = Pal.AWNINGS[variety % Pal.AWNINGS.size()]
 		var top := p.y - 0.12 * k
@@ -1810,6 +1893,18 @@ func _draw_shop_trim(p: Vector2, w: float, h: float, k: float, variety: int, lit
 			_r(gx, p.y, PX, h, Color(Pal.SILHOUETTE, 0.6))
 			gx += maxf(PX * 2.0, 0.22 * k)
 		_r(p.x, p.y + h * 0.5, w, PX, Color(Pal.SILHOUETTE, 0.6))
+
+
+## As letras de uma placa (`board`, px de 2x2), só sugeridas (nada de fonte): uma palavra ou duas, em traços de 1 a 3
+## px com um vão entre elas, cada placa do seu jeito (`variety`).
+func _strokes(board: Rect2, ink: Color, variety: int) -> void:
+	var lx := board.position.x + 2.0 * PX
+	var r := variety * 7
+	while lx < board.end.x - 3.0 * PX:
+		var lw := PX * (1 + (r % 3))
+		_r(lx, board.position.y + board.size.y * 0.35, lw, maxf(PX, board.size.y * 0.3), Color(ink, 0.8))
+		lx += lw + PX * (3.0 if r % 5 == 0 else 1.0)
+		r = r * 13 + 7
 
 
 ## O uso de anos numa fachada de lá (`b`), por cima da tinta e embaixo das janelas, sempre o mesmo (sorteio pelo
@@ -2905,9 +3000,11 @@ func _build_city(gs: Vector2) -> void:
 		while z < 118.0:
 			var d := rng.randf_range(10.0, 22.0)
 			var ht := rng.randf_range(7.0, 16.0)
-			if z == STREET["far"]:   # a lateral do prédio da esquina: a altura da fachada dele
+			var corner := {}
+			if z == STREET["far"]:   # a lateral do prédio da esquina: a altura e a tinta da fachada dele
 				for b: Dictionary in _houses:
 					if is_equal_approx(b["x1"], side) or is_equal_approx(b["x0"], side):
+						corner = b
 						ht = b["h"]
 			var wins: Array[Vector3] = []   # em andares e colunas (soltas ao acaso, pareciam pontos sem prédio)
 			var cols := int((d - 1.0) / CANYON_WIN.x)
@@ -2922,7 +3019,9 @@ func _build_city(gs: Vector2) -> void:
 				var open := rng.randf() < 0.45
 				shops.append(Vector3(zs + (1.0 if wide else 0.5), 2.0 if wide else 1.0, rng.randf_range(19 * 60, 23 * 60 + 50) if open else -1.0))
 				zs += (2.0 if wide else 1.0) + rng.randf_range(1.2, 3.5)
-			_canyon.append({"x": side, "z0": z, "z1": z + d, "h": ht, "tones": tones[rng.randi_range(0, 3)], "wins": wins, "shops": shops})
+			var look: Array = tones[rng.randi_range(0, 3)]   # (sorteada sempre: o sorteio do resto da cidade fica o mesmo)
+			_canyon.append({"x": side, "z0": z, "z1": z + d, "h": ht, "tones": corner.get("tones", look), "brick": corner.get("brick", false),
+				"wins": wins, "shops": shops})
 			z += d
 	_canyon.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a["z0"] < b["z0"])
 

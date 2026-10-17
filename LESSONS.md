@@ -499,3 +499,10 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
 - **Luz no chão embaixo de algo que anda vai na camada dele, cortada por ele.** O reflexo da porta do hotel ficava no
   chão da vista, que não se redesenha com os carros, e aparecia pela sombra translúcida do táxi parado em cima dele.
   Quem passa na frente de uma luz no chão precisa tapá-la, e isso só dá na camada que se redesenha com ele.
+- **Ternário com `[]` não tem tipo.** `var x: Array[Vector3] = f() if c else []` estoura na hora em que cai no `[]`
+  ("Trying to assign an array of type Array"), e só no caminho que o teste sem tela não desenha (a vista, com um carro
+  na chuva). Declare vazia e atribua no `if`; e meça com tela (`medir.gd`) depois de mexer na vista.
+- **Mexeu na geometria da sala, confira as beiras do que é espelhado ou recortado nela.** O arco da luminária
+  refletido no vidro terminava seco na luminária; enquanto esse corte ficava fora do vidro ninguém via, e o plano da
+  janela (parede mais longe, vidro maior) o trouxe para dentro como uma linha vertical (pedido 278). Luz desenhada
+  termina sumindo, nunca numa beira, a não ser que algo de verdade a corte ali.
