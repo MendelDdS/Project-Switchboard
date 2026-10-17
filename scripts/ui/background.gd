@@ -66,6 +66,7 @@ const CORNER := 0.64    ## a quina das paredes, na largura da área das ferramen
 const BOARD_GAP := 6.0  ## o vão entre o fundo da mesa comutadora e o fundo do tampo (z, ~4 cm): o móvel vai quase até ele (raso, o tampo atrás dela sobrava); a lateral foge para o ponto de fuga
 const DESK_LIP := 2.5   ## o tampo na frente do console (px de 2x2): a borda da frente fica um pouco abaixo da faixa de mesa
 const DUST := 240        ## grãos de poeira na luz da luminária
+const SUN_DUST := 0.3    ## o quanto brilha a poeira dourada no feixe do sol do amanhecer (bem pouco)
 const BEADS := 50        ## gotas paradas no vidro, na chuva
 const RAIN := 320        ## pingos caindo lá fora, na chuva
 const RAIN_FALL := Vector2(7.0, 12.0)   ## quanto o pingo cai a cada quadro da vista (px de 2x2), do mais longe ao mais perto: cruza o vidro em meio segundo
@@ -96,6 +97,7 @@ const BAR_OUT := 0.5      ## quando, depois de a porta abrir, a pessoa sai por e
 const SMOKE_EVERY := Vector2(60, 150)   ## de quanto em quanto tempo alguém sai para fumar na varanda (s; só com o apartamento acordado)
 const BIKE_EVERY := Vector2(70, 160)    ## e alguém passa de bicicleta (só enquanto há gente na rua)
 const BIKE_BELL := 0.4    ## a chance de tocar a campainha
+const PAPERBOY := 0.6     ## de manhã, quantos de bicicleta são o menino do jornal
 const BUS_TIMES := [19 * 60 + 5, 20 * 60 + 35, 22 * 60 + 5, 23 * 60 + 20]   ## o ônibus da linha passa nessas horas (min do dia), pela mão de lá
 const TAXI_STOPS := 2   ## quantas vezes por noite um táxi para no hotel (nas horas sorteadas pela noite, antes das 22h, `_taxi_times`; ver `TAXI_STOP`)
 const STRAY_EVERY := Vector2(80, 200)   ## de quanto em quanto tempo um vira-lata passa pela calçada de lá (s, sorteado; com chuva ou depois das 22h, não)
@@ -209,6 +211,7 @@ var _over_drawn := []   # o estado do último desenho dela
 var _sign_glow := Rect2()   # o halo do letreiro no vidro (vazio = fora do vidro); brilha só aceso
 var _bolt_layer: Control   # o clarão do relâmpago, por cima de tudo e somado: só a força muda, no `modulate`
 var _sun_layer: Control    # o sol entrando pela janela, somado, embaixo dos objetos da mesa: a força no `modulate`
+var _sunbeam := PackedVector2Array()   # o feixe do sol no ar, da janela à mesa (px da tela; `_draw_sun`), onde a poeira dourada aparece
 var _sun_occ: Array = []    # os objetos da mesa medidos da última vez (`_occ`), para as sombras deles no sol
 var _sun_geo := []          # o que o desenho dele usou
 var _bolt_lit: Array = []    # o que ele acende: [polígono (px da tela), cores], medido com a sala (`_bolt_build`)
@@ -734,7 +737,8 @@ func _events(delta: float) -> void:
 				_taxi_next = false
 			_car_next[lane] = ""
 			_cars.append({"t": 0.0, "lane": lane, "kind": kind, "tones": Pal.CAR_TONES.pick_random(),
-				"taxi": stop or (kind in TAXI_KINDS and randf() < TAXI)})
+				"taxi": stop or (kind in TAXI_KINDS and randf() < TAXI),
+				"rack": not stop and kind in RACK_KINDS and randf() < lerpf(RACK.x, RACK.y, morning())})
 			if stop:
 				_cars[-1].merge({"stop": true, "s": 0.0})
 			_car_in[lane] = INF   # o próximo desta mão é sorteado quando este sair
@@ -780,7 +784,8 @@ func _events(delta: float) -> void:
 		_bike_in = randf_range(BIKE_EVERY.x, BIKE_EVERY.y)
 		if crowd > 0.0:   # junto do meio-fio de lá, nos dois sentidos
 			var b := _walker()
-			b.merge({"bike": true, "sec": BIKE_SEC * randf_range(0.85, 1.15), "z": STREET["far_curb"] - 0.6}, true)
+			b.merge({"bike": true, "sec": BIKE_SEC * randf_range(0.85, 1.15), "z": STREET["far_curb"] - 0.6,
+				"papers": morning() > 0.0 and randf() < PAPERBOY}, true)   # (de manhã, o menino do jornal)
 			_add_walker(b)
 			if randf() < BIKE_BELL:
 				Sfx.play_at("bike_bell", x, -4.0)
@@ -1173,6 +1178,7 @@ func _draw_sun() -> void:
 	var e := (zfar - znear) / SIDE_W   # meia largura do montante
 	var a := xc - (_yd - (y0 + floorf(gh * _blind_frac()))) / steep
 	var b := xc - (_yd - (y0 + gh)) / steep
+	_sunbeam = PackedVector2Array([_p3(xc, y0 + floorf(gh * _blind_frac()), zm), _p3(xc, y0 + gh, zm), _p3(b, _yd, zm), _p3(a, _yd, zm)])
 	# com o sol baixo, uma parte da luz vai por igual na janela toda (o montante e as sombras quase somem nela) e se
 	# espalha em volta (`SUN_SOFT`); com ele subindo, ela passa toda para a parte nítida
 	var up := _sun_up()
@@ -2464,6 +2470,14 @@ func _draw_dust() -> void:
 		var a := (1.0 - minf(1.0, p.distance_to(c) / reach)) * (0.5 + 0.5 * sin(m.z)) * 0.6 * k
 		if a > 0.02 and not _cover.has_point(p):
 			_dust.draw_rect(Rect2(p.floor(), Vector2.ONE), Color(1.0, 0.9, 0.7, a))
+	var sun := _sun_layer.modulate.a if _sun_layer.visible and _sunbeam.size() == 4 else 0.0
+	for i in range(0, _motes.size() if sun > 0.0 else 0, 3):   # e, de leve, a dourada no feixe do sol (um grão em cada três)
+		var m: Vector3 = _motes[i]
+		var u := (m.x + 1.0) / 2.0
+		var p := _sunbeam[0].lerp(_sunbeam[1], u).lerp(_sunbeam[3].lerp(_sunbeam[2], u), m.y)
+		var a := (0.5 + 0.5 * sin(m.z)) * SUN_DUST * sun
+		if a > 0.02 and not _cover.has_point(p):
+			_dust.draw_rect(Rect2(p.floor(), Vector2.ONE), Color(Pal.SUN_ROOM, a))
 
 
 ## A ponta solta da folhinha (presa só pelo prego, no meio do alto): a de baixo, do lado da janela, dobra para a

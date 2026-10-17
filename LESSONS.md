@@ -411,3 +411,8 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   foi lida como as manchas do asfalto, que também escureciam; era a beira da própria luz, num laranja mais escuro que
   o miolo, e o usuário teve de mandar um recorte. Recortar o lugar e listar o que pode ser (a direção da faixa, o
   tamanho) e, na dúvida entre dois, corrigir os dois ou perguntar.
+- **Luz e sombra se encontram em tons misturados, não num degrau só.** A faixa de sol do amanhecer ia direto do
+  violeta da sombra ao laranja da luz e parecia pintada por cima do asfalto; o usuário lembrou que misturar as cores
+  na passagem é técnica básica de pixel art. Na beira de toda luz que bate numa superfície, um ou dois degraus com a
+  cor da sombra e a da luz misturadas (por fora, do lado da sombra: mais escuros que a luz no meio dela viraram a
+  "faixa escura" recusada antes).

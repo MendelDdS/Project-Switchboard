@@ -1348,3 +1348,25 @@ Chaves:
     A igreja com menos contraste ainda (o ar dourado em 30% dela com o sol; os prédios altos atrás seguem mais
     apagados, a 50%) e os passarinhos do amanhecer saíram, a pedido (os bandos em V e os pombos saindo da torre,
     `FLOCKS`, `WINGS`, `_draw_birds`).
+
+240. #janela #amanhecer #rua
+    Hi-bit 9.4, a rua (em todas as noites): remendos de asfalto de beira reta, com a junta de lá pegando a luz; a
+    tampa de ferro do bueiro na faixa de sol (`MANHOLE`); rachaduras finas em zigue-zague na mão de cá; a sarjeta
+    translúcida e as bocas de lobo no meio-fio de lá (`DRAINS`); os traços da faixa do meio gastos, cada um do seu
+    jeito; de manhã, as poças com o céu claro. Sem faixa de pedestres, fios, semáforo nem chaminé (já saíram).
+
+241. #janela #amanhecer #luz
+    "As cores não estão se misturando. Quando a luz do sol bate nas superfícies, as cores deveriam se misturar": a faixa
+    de sol passava direto do violeta da sombra ao laranja. Entre as duas, dois degraus com os tons misturados
+    (`STRIP_BLEND`, nas beiras de fora, não no meio da luz).
+
+242. #janela #amanhecer #vista
+    Hi-bit 9.5, a vida na rua de manhã: carros com o bagageiro e a carga embaixo da lona no teto (`RACK_KINDS`, mais
+    comuns perto das 6h, `RACK`), faróis e lanternas espelhados de leve no asfalto úmido do sereno (`DAMP`); o menino
+    do jornal de bicicleta, de boné e com a sacola cheia na garupa (`PAPERBOY`), e a sombra comprida do ciclista; às
+    5h30 o dono abre o bar e fica no vão da porta, em silhueta contra o salão aceso (`BAR_OPENS`).
+
+243. #janela #amanhecer #sala
+    Hi-bit 9.6: o arbusto em tufos (`CLUMPS`, `CLUMP_LEAVES`), cada um mais claro no alto e mais escuro embaixo, o de
+    cima cobrindo a beira do outro; com o sol, só a beira de cima de cada tufo acende, mais nos do alto. E a poeira
+    dourada no feixe do sol, da janela à mesa, bem de leve (`SUN_DUST`, `_sunbeam`, na camada da poeira).

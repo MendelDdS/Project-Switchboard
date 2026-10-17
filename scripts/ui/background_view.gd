@@ -29,6 +29,8 @@ const OUT_DROP := 18.0
 const STREET := {"curb": 2.8, "lane": 5.2, "far_curb": 7.6, "far": 9.4}   # (era de 14 m: quem passava tinha 8 px)
 const CROSSING := Vector2(-3.7, 1.2)   ## a rua do cruzamento, indo embora entre os prédios de lá (x, m)
 const CURB_LIT := 2.5   ## até onde dos dois lados do pé de cada poste (m) a quina do meio-fio fica na luz dele
+const MANHOLE := Vector2(-0.6, 4.8)   ## a tampa do bueiro no asfalto (x, z em m)
+const DRAINS := [-8.6, 6.4]          ## as bocas de lobo no meio-fio de lá (x, m)
 const FAR_LAMPS := [1.6, -10.4, 11.6]  ## os postes da calçada de lá (x, m): o primeiro na esquina do prédio de tijolos, com o homem
 const MAN_X := 2.1        ## onde o homem fica, embaixo do poste da esquina
 const MAN_FROM := 14.0    ## de onde ele vem pela calçada (x, m; fora do vidro) e para onde volta
@@ -39,6 +41,10 @@ const MAN_STRIDE := 0.75  ## o passo dele (m)
 const BAR_DOOR := Vector2(3.85, 4.65)
 const BAR_SWING := 0.3
 const BAR_SEC := 2.4
+const BAR_OPENS := 29 * 60 + 30   ## de manhã, o dono abre o bar (min do dia, depois da meia-noite) e fica na porta, olhando a rua
+const RACK_KINDS := ["fusca", "brasilia", "sedan", "perua"]   ## os carros que podem vir com o bagageiro no teto...
+const RACK := Vector2(0.08, 0.35)   ## ...e quantos vêm, de noite e às 6h (quem pega a estrada cedo)
+const DAMP := 0.4    ## de manhã, o asfalto úmido do sereno espelha os faróis e as lanternas, fraco (na chuva, 1)
 const RIM := Color(1.0, 0.8, 0.5)   ## a luz dos postes na beira de quem passa embaixo deles
 ## Alguém fuma na varanda do apartamento de vez em quando (`_smoke_t`, posto pelo `Background`): sai pela porta, fica
 ## SMOKE_SEC s no gradil, na frente da janela da TV, com a brasa acendendo a cada tragada (`PUFF_EVERY`), e volta.
@@ -167,6 +173,8 @@ const CAR_DEPTH := 0.4
 ## parede dela (não na vista). O meio e a meia largura (fração da largura do vão) e quanto a copa sobe acima do
 ## peitoril (fração da altura).
 const SHRUB := Vector3(0.62, 0.15, 0.11)
+const CLUMPS := 12        ## os tufos de folhas da copa do arbusto...
+const CLUMP_LEAVES := 34  ## ...e as folhas de cada um
 const HEDGE := 110   ## as folhas da cerca viva embaixo dela, até o batente de perto (sem ela, sobrava a rua vazia entre a copa e o peitoril)
 ## As rajadas de vento no arbusto: as duas ondas lentas que as fazem (rad/s) e quanto elas empurram a copa para a
 ## esquerda (px da tela no alto dela).
@@ -183,6 +191,7 @@ const STRIP_A := 0.65     ## a faixa de sol que entra pela rua do cruzamento e a
 const STREET_SHADE := 0.62 ## ...a sombra dos prédios de lá no resto da rua...
 const SHADOW_A := 0.75    ## ...e as sombras compridas nela (`_sun_shadow`)
 const STRIP_EDGE := 0.5   ## a faixa de sol: a sombra das paredes nas beiras dela (m)
+const STRIP_BLEND := 0.14  ## ...e a largura de cada degrau entre ela e a sombra, nos tons das duas misturados (m)
 const CIRRUS := 22        ## os fiapos de nuvem do céu do amanhecer (`_draw_cirrus`)
 const SHOP_POOL := 0.3   ## com os postes apagados, a luz das vitrines acesas na calçada
 const MIST_A := 0.45      ## a neblina baixa no fundo da rua, de madrugada (`_draw_dawn_mist`)
@@ -711,8 +720,8 @@ func _draw_city_front(g: Rect2) -> void:
 		_draw_stranger(g, mx)
 	_cars.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a["lane"] < b["lane"])   # o de lá primeiro
 	for c in _cars:
-		if weather == "rain":
-			_draw_wet(g, c)
+		if weather == "rain" or morning() > 0.0:
+			_draw_wet(g, c, 1.0 if weather == "rain" else DAMP)
 		var cx := _car_x(c)   # a sombra comprida dele, na faixa de sol
 		var back: float = cx - CAR_LANES[c["lane"]].y * CAR_KINDS[c["kind"]]["len"]
 		_sun_shadow(g, minf(cx, back), maxf(cx, back), CAR_LANES[c["lane"]].x - 0.8, 1.4)
@@ -865,14 +874,23 @@ func _draw_sun_strip(g: Rect2, wide: float, ff: float) -> void:
 	var lit := Color(_sunny(Pal.SUN_RIM), STRIP_A * sun)
 	var a := cx0 + STRIP_EDGE
 	var b := cx1 - STRIP_EDGE
-	_fill(_patch(g, a, b, 1.0, ff), PackedColorArray([Color(lit, lit.a * 0.4), Color(lit, lit.a * 0.4), lit, lit]))   # mais fraca para cá...
-	_fill(_patch(g, a, b, ff, 130.0), PackedColorArray([lit, lit, Color(lit, 0.0), Color(lit, 0.0)]))   # ...e sumindo no longe
+	var band := func(x0: float, x1: float, c: Color) -> void:
+		_fill(_patch(g, x0, x1, 1.0, ff), PackedColorArray([Color(c, c.a * 0.4), Color(c, c.a * 0.4), c, c]))   # mais fraca para cá...
+		_fill(_patch(g, x0, x1, ff, 130.0), PackedColorArray([c, c, Color(c, 0.0), Color(c, 0.0)]))   # ...e sumindo no longe
+	# entre a sombra e a luz, os tons das duas misturados, em degraus (`STRIP_BLEND`): direto do violeta ao laranja, as
+	# cores não se misturavam e a faixa parecia pintada por cima do asfalto
+	for i in 2:
+		var t := (i + 1.0) / 3.0
+		var c := Color(Pal.DAWN_SHADOW.lerp(lit, t), lerpf(shade.a, lit.a, t))
+		band.call(a + i * STRIP_BLEND, a + (i + 1) * STRIP_BLEND, c)
+		band.call(b - (i + 1) * STRIP_BLEND, b - i * STRIP_BLEND, c)
+	band.call(a + 2.0 * STRIP_BLEND, b - 2.0 * STRIP_BLEND, lit)
 
 
 ## O chão: a rua do cruzamento indo embora (com as calçadas e os postes dela, menores com a distância), a nossa calçada
-## de lajotas até o meio-fio, o asfalto da rua (manchas, desgaste dos pneus nas duas mãos, grão perto, poças espelhando o
-## céu, a faixa tracejada no meio e a faixa de pedestres na boca do cruzamento), o meio-fio de lá com a face virada para
-## nós, a calçada de lá e a luz dos postes no chão. Tudo no mesmo plano horizontal; só a perspectiva inclina as linhas
+## de lajotas até o meio-fio, o asfalto da rua (manchas, remendos, a tampa do bueiro, rachaduras, desgaste dos pneus nas
+## duas mãos, grão perto, poças espelhando o céu e a faixa tracejada no meio, gasta), a sarjeta e o meio-fio de lá com
+## a face virada para nós e as bocas de lobo, a calçada de lá e a luz dos postes no chão. Tudo no mesmo plano horizontal; só a perspectiva inclina as linhas
 ## que vão para longe.
 func _draw_street(g: Rect2, hz: Color) -> void:
 	var fog := weather == "fog"
@@ -910,6 +928,27 @@ func _draw_street(g: Rect2, hz: Color) -> void:
 		var a := rng.randf_range(0.015, 0.035) if light else rng.randf_range(0.1, 0.22)   # (o sorteio de sempre: as mesmas manchas)
 		var tone: Color = road[Pal.STREET_MID + (1 if light else (-1 if a < 0.16 else -2))]
 		_poly(_patch(g, x, x + rng.randf_range(1.0, 5.0), z, z + rng.randf_range(0.3, 1.2)), tone)
+	var fix := RandomNumberGenerator.new()   # os remendos, de beira reta, e o resto (no sorteio deles: as manchas ficam as mesmas)
+	fix.seed = 708
+	var fresh: Color = road[Pal.STREET_MID - 2]
+	var seam: Color = road[Pal.STREET_MID + 1]
+	for i in 5:
+		var x := fix.randf_range(-12.0, 12.0)
+		var z := fix.randf_range(cu + 0.6, fc - 1.2)
+		var r := _patch(g, x, x + fix.randf_range(1.2, 3.0), z, z + fix.randf_range(0.5, 1.0))
+		_poly(r, fresh)
+		_poly(PackedVector2Array([r[0], r[1], r[1] + Vector2(0, PX), r[0] + Vector2(0, PX)]), seam)   # a junta da beira de lá, que pega a luz
+	var lid := PackedVector2Array()   # a tampa de ferro do bueiro, na mão de cá, com o aro e a grade em cruz
+	var hole := PackedVector2Array()
+	for i in 8:
+		var a := TAU * (i + 0.5) / 8.0
+		lid.append(_o(g, MANHOLE.x + cos(a) * 0.4, MANHOLE.y + sin(a) * 0.4))
+		hole.append(_o(g, MANHOLE.x + cos(a) * 0.32, MANHOLE.y + sin(a) * 0.32))
+	_poly(lid, seam)
+	_poly(hole, fresh)
+	for k in 3:
+		var x := MANHOLE.x + (k - 1) * 0.14
+		_poly(_patch(g, x - 0.02, x + 0.02, MANHOLE.y - 0.24, MANHOLE.y + 0.24), seam)
 	_draw_sun_strip(g, wide, ff)
 	for i in 6:   # os postes dela, menores e mais juntos com a distância
 		var z := 24.0 + i * 16.0
@@ -936,14 +975,23 @@ func _draw_street(g: Rect2, hz: Color) -> void:
 		var x := rng.randf_range(-14.0, 14.0)
 		var z := rng.randf_range(cu + 0.4, fc - 0.8)
 		var puddle := _patch(g, x, x + rng.randf_range(1.0, 2.6), z, z + rng.randf_range(0.4, 0.9))
-		_poly(puddle, Color(0.45, 0.55, 0.7, 0.05 * wet))
+		_poly(puddle, Color(Color(0.45, 0.55, 0.7).lerp(_sunny(Pal.DAWN_CLOUD), 0.5 * _sunlit()), (0.05 + 0.05 * _sunlit()) * wet))   # (de manhã, o céu claro nelas: a rua ainda úmida da noite)
 		_ci.draw_line(puddle[2], puddle[3], Color(0.6, 0.7, 0.85, 0.08 * wet), PX)
+	for i in 6:   # as rachaduras: finas, em zigue-zague, mais na mão de cá, onde o caminhão pesa
+		var c := Vector2(fix.randf_range(-12.0, 12.0), fix.randf_range(cu + 0.4, STREET["lane"]))
+		var crack: Color = over.call(fresh)
+		for k in fix.randi_range(3, 5):
+			var n := c + Vector2(fix.randf_range(0.3, 0.8) * (1.0 if i % 2 else -1.0), fix.randf_range(-0.2, 0.2))
+			var a := _o(g, c.x, c.y)
+			var b := _o(g, n.x, n.y)
+			_poly(PackedVector2Array([a, b, b + Vector2(0, PX), a + Vector2(0, PX)]), crack)
+			c = n
 	for i in 240:
 		var gp := _o(g, rng.randf_range(-8.0, 8.0), rng.randf_range(cu + 0.5, 6.5))
 		_r(floorf(gp.x * 2.0) * PX, floorf(gp.y * 2.0) * PX, PX, PX, over.call(road[Pal.STREET_MID + (1 if i % 2 else -1)]))
 	var x0 := -wide   # a faixa tracejada no meio
 	while x0 < wide:
-		_poly(_patch(g, x0, x0 + 3.0, STREET["lane"] - 0.08, STREET["lane"] + 0.08), Color(0.75, 0.72, 0.6, 0.3))
+		_poly(_patch(g, x0, x0 + 3.0, STREET["lane"] - 0.08, STREET["lane"] + 0.08), Color(0.75, 0.72, 0.6, 0.3 * fix.randf_range(0.5, 1.0)))   # (cada traço gasto do seu jeito)
 		x0 += 9.0
 	# as juntas das lajotas de lá: ao longo da rua (na horizontal) e para longe (para o ponto de fuga)
 	var joint: Color = walks[Pal.STREET_MID - 1]
@@ -957,8 +1005,9 @@ func _draw_street(g: Rect2, hz: Color) -> void:
 	# perto, embaixo da janela, a rua some na sombra do nosso prédio, lisa e sem nenhuma linha
 	var dark := Color(0, 0, 0, 0.6)
 	_fill(_patch(g, -wide, wide, 0.3, cu + 1.5), PackedColorArray([dark, dark, Color(dark, 0.0), Color(dark, 0.0)]))
-	# o meio-fio de lá, com a face virada para nós e a quina
+	# a sarjeta e o meio-fio de lá, com a face virada para nós, a quina e as bocas de lobo
 	for seg: Vector2 in [Vector2(-wide, cx0), Vector2(cx1, wide)]:
+		_poly(_patch(g, seg.x, seg.y, fc - 0.35, fc), over.call(walks[Pal.STREET_MID - 1]))   # (translúcida: o sol passa por ela)
 		_poly(PackedVector2Array([_o(g, seg.x, fc), _o(g, seg.y, fc), _o(g, seg.y, fc, 0.15), _o(g, seg.x, fc, 0.15)]), Pal.CURB[0])
 		_ci.draw_line(_o(g, seg.x, fc, 0.15), _o(g, seg.y, fc, 0.15), Pal.CURB[1], PX)
 		if _posts_on():   # a quina pega a luz de cada poste em volta do pé dele (a face fica de costas para ele)
@@ -967,6 +1016,8 @@ func _draw_street(g: Rect2, hz: Color) -> void:
 				var e := minf(seg.y, x + CURB_LIT)
 				if e > a:
 					_ci.draw_line(_o(g, a, fc, 0.15), _o(g, e, fc, 0.15), Pal.CURB[2], PX)
+	for x: float in DRAINS:
+		_poly(PackedVector2Array([_o(g, x, fc, 0.02), _o(g, x + 0.9, fc, 0.02), _o(g, x + 0.9, fc, 0.12), _o(g, x, fc, 0.12)]), Color(0, 0, 0, 0.8))
 	if _posts_on():   # a luz de cada poste de lá no chão, em volta do pé dele
 		for x: float in FAR_LAMPS:
 			var c := _o(g, x, fc - 0.2)
@@ -980,7 +1031,7 @@ func _draw_street(g: Rect2, hz: Color) -> void:
 ## A chuva no chão: o asfalto molhado espelha as luzes em riscos verticais, quebrados, embaixo de cada uma (os postes
 ## e o letreiro; com `car`, só o farol e a lanterna daquele carro, que anda: vai na frente da vista), mais fracos para
 ## baixo.
-func _draw_wet(g: Rect2, car: Dictionary = {}) -> void:
+func _draw_wet(g: Rect2, car: Dictionary = {}, a := 1.0) -> void:
 	var lights := []   # [cabeça, pé, cor]
 	if not car.is_empty():
 		var z: float = CAR_LANES[car["lane"]].x
@@ -996,17 +1047,17 @@ func _draw_wet(g: Rect2, car: Dictionary = {}) -> void:
 			var s := _hotel_pos(g) + Vector2(2.25, 0.0)
 			lights.append([s, Vector2(s.x - 0.75, _o(g, HOTEL_X, STREET["far_curb"] - 0.5).y), Pal.SIGN_RED])
 	for l: Array in lights:
-		_wet_streak(l[0], l[1], l[2])
+		_wet_streak(l[0], l[1], l[2], a)
 
 
 ## O reflexo da luz `col` (que fica em `head`) no asfalto molhado, um risco vertical quebrado descendo de `foot`.
-func _wet_streak(head: Vector2, foot: Vector2, col: Color) -> void:
+func _wet_streak(head: Vector2, foot: Vector2, col: Color, a := 1.0) -> void:
 	var length := (foot.y - head.y) * 0.9
 	var n := maxi(3, int(length / 1.5))
 	for k in n:
 		if k % 3 == 2:
 			continue   # quebrado pelas poças e pelos pingos
-		_r(foot.x - PX * (k % 2), foot.y + length * k / n, maxf(PX, 1.5 - k * 0.05), PX, Color(col, 0.32 * (1.0 - float(k) / n)))
+		_r(foot.x - PX * (k % 2), foot.y + length * k / n, maxf(PX, 1.5 - k * 0.05), PX, Color(col, 0.32 * a * (1.0 - float(k) / n)))
 
 
 ## Uma parede da rua do cruzamento (`w`: o lado `x`, de `z0` a `z1`, `h` m), indo embora para o ponto de fuga, com
@@ -1352,6 +1403,7 @@ func _draw_bike(g: Rect2, w: Dictionary, x: float) -> void:
 	var at := func(p: Vector2) -> Vector2: return (foot + Vector2(p.x * s, -p.y) * k).floor()
 	var dark := Pal.SILHOUETTE
 	var a: float = w["t"] * w["sec"] * TAU * 1.2   # o pé de vela
+	_sun_shadow(g, x - 0.6, x + 0.6, z, 1.6)
 	_ci.draw_set_transform(Vector2.ZERO)
 	for wx in [-0.5, 0.5]:   # as rodas
 		_ci.draw_arc(at.call(Vector2(wx, 0.33)), 0.33 * k, 0.0, TAU, 14, dark, 1.0)
@@ -1362,6 +1414,11 @@ func _draw_bike(g: Rect2, w: Dictionary, x: float) -> void:
 	var shoulder := Vector2(0.12, 1.45)
 	_ci.draw_line(at.call(hip), at.call(shoulder), dark, maxf(2.0, 0.3 * k))   # o tronco, inclinado
 	_ci.draw_rect(Rect2(at.call(shoulder + Vector2(0.0, 0.25)) - Vector2(0.1, 0.0) * k, Vector2(0.2, 0.22) * k), dark)   # a cabeça
+	if w.get("papers", false):   # o menino do jornal: o boné com a pala para a frente e a sacola cheia na garupa
+		_ci.draw_rect(Rect2(at.call(shoulder + Vector2(-0.12 if s > 0.0 else 0.12, 0.3)), Vector2(0.34, 0.06) * k).abs(), dark)
+		var bag := Rect2(at.call(Vector2(-0.78 if s > 0.0 else -0.28, 0.9)), Vector2(0.5, 0.36) * k)
+		_ci.draw_rect(bag, Pal.PAPERBOY[0])
+		_ci.draw_rect(Rect2(bag.position + Vector2(1, -maxf(1.0, 0.06 * k)), Vector2(bag.size.x - 2, maxf(1.0, 0.06 * k))), Pal.PAPERBOY[1])   # os jornais dobrados, saindo dela
 	_ci.draw_line(at.call(shoulder), at.call(Vector2(0.38, 0.95)), dark, maxf(1.0, 0.08 * k))   # o braço
 	for ph in [0.0, PI]:   # as pernas, cada uma num pedal
 		var pedal := Vector2(0.0, 0.33) + Vector2(cos(a + ph), sin(a + ph)) * 0.17
@@ -1381,12 +1438,18 @@ func _draw_bar_door(g: Rect2) -> void:
 	var open := 0.0
 	if _bar_t >= 0.0:
 		open = clampf(minf(_bar_t, BAR_SEC - _bar_t) / BAR_SWING, 0.0, 1.0)
+	var owner := clampf((minutes - BAR_OPENS) / 2.0, 0.0, 1.0)   # (a porta abre em 2 min de jogo e fica aberta)
+	open = maxf(open, owner)
 	_r(a.x - PX, a.y - PX, e.x - a.x + PX * 2.0, e.y - a.y + PX, Pal.BAR_JAMB)   # o batente
 	_fill(PackedVector2Array([a, Vector2(e.x, a.y), e, Vector2(a.x, e.y)]),
 		PackedColorArray([Pal.BAR_LIGHT[0], Pal.BAR_LIGHT[0], Pal.BAR_LIGHT[1], Pal.BAR_LIGHT[1]]))   # o salão aceso
 	var leaf := (e.x - a.x) * (1.0 - open * 0.8)   # a folha girando para dentro, cada vez mais estreita
 	_r(a.x, a.y, leaf, e.y - a.y, Pal.BAR_WOOD)
 	_r(a.x + leaf * 0.2, a.y + (e.y - a.y) * 0.12, leaf * 0.6, (e.y - a.y) * 0.3, Pal.BAR_GLASS)   # o vidro, com a luz de dentro
+	if owner >= 1.0:   # o dono no vão, em silhueta contra o salão aceso, com a mão no batente
+		var z := ff + 0.4
+		var x := BAR_DOOR.y - 0.3
+		_figure((_o(g, x, z) * 2.0).floor(), OUT_F / z * 2.0, _body(0, false, true, 1.0), Pal.SILHOUETTE, Rect2(a * 2.0, (e - a) * 2.0))
 	if open > 0.0:   # a luz saindo pela calçada
 		var c := _o(g, (BAR_DOOR.x + BAR_DOOR.y) / 2.0, ff - 0.1)
 		var rim := PackedVector2Array()
@@ -1732,6 +1795,18 @@ func _draw_car(g: Rect2, c: Dictionary) -> void:
 		var ts: Vector2 = span.call(t.x, t.y)
 		var tc: Color = boxes[Pal.CAR_MID - 2] if m.has("box") and t.x >= m["box"][0].x else (roof if t.z > 1.3 else top)
 		_poly(_patch(g, ts.x, ts.y, z0, z1, t.z), tc)
+	if c.get("rack", false):   # o bagageiro no teto: a grade cromada e a carga embaixo da lona amarrada
+		var rt: Vector3 = (m["tops"] as Array).filter(func(t: Vector3) -> bool: return t.z > 1.3)[0]
+		var rs: Vector2 = span.call(rt.x + 0.05, rt.y - 0.05)
+		var ls: Vector2 = span.call(rt.x + 0.2, rt.y - 0.25)
+		var lh := rt.z + 0.38
+		_poly(_patch(g, ls.x, ls.y, z0 + 0.22, z1 - 0.22, lh), Pal.CAR_LOAD[1])
+		_poly(PackedVector2Array([_o(g, ls.x, z0 + 0.22, rt.z), _o(g, ls.y, z0 + 0.22, rt.z), _o(g, ls.y, z0 + 0.22, lh), _o(g, ls.x, z0 + 0.22, lh)]), Pal.CAR_LOAD[0])
+		for u in [0.33, 0.66]:   # as cordas
+			var ux := lerpf(ls.x, ls.y, u)
+			_poly(PackedVector2Array([_o(g, ux - 0.03, z0 + 0.2, rt.z), _o(g, ux + 0.03, z0 + 0.2, rt.z), _o(g, ux + 0.03, z0 + 0.2, lh), _o(g, ux - 0.03, z0 + 0.2, lh)]), tone.call(-3))
+		_poly(PackedVector2Array([_o(g, rs.x, z0 + 0.1, rt.z + 0.06), _o(g, rs.y, z0 + 0.1, rt.z + 0.06), _o(g, rs.y, z0 + 0.1, rt.z + 0.14),
+			_o(g, rs.x, z0 + 0.1, rt.z + 0.14)]), chrome)   # a grade do lado de cá, na frente da carga
 	var faces := func(q: Vector4) -> bool:   # a chapa inclinada de (q.x, q.y) a (q.z, q.w) está virada para os olhos? (por trás, o para-brisa sumia atrás do teto e saía como um borrão preto)
 		var xa: float = at.call(q.x)
 		var xb: float = at.call(q.z)
@@ -1883,21 +1958,35 @@ func _draw_shrub() -> void:
 	_ci.draw_set_transform(Vector2.ZERO)   # as folhas em px da tela
 	var gw := SIDE_W
 	var gh := _cm(WIN_SILL - WIN_TOP)
-	for i in 360 + HEDGE:
-		var hgt := lerpf(-0.06, SHRUB.z, pow(rng.randf(), 0.8))   # (abaixo de 0, atrás do peitoril: o vidro corta)
-		var r := SHRUB.y * sqrt(maxf(0.0, 1.0 - pow(maxf(hgt, 0.0) / SHRUB.z, 2.0)))   # a copa: redonda, mais larga embaixo
-		var dx := rng.randf_range(-r, r)
-		if i >= 360:   # a cerca viva embaixo dela, até o batente de perto
+	var clumps: Array[Vector3] = []   # os tufos da copa (x, altura, raio em px), de baixo para cima: o de cima cobre a beira de baixo do outro
+	for j in CLUMPS:
+		var ch := lerpf(0.0, SHRUB.z * 0.85, pow(rng.randf(), 0.7))
+		var cr := SHRUB.y * sqrt(maxf(0.0, 1.0 - pow(ch / SHRUB.z, 2.0)))   # a copa: redonda, mais larga embaixo
+		clumps.append(Vector3(rng.randf_range(-cr, cr) * 0.75, ch, rng.randf_range(5.0, 9.0)))
+	clumps.sort_custom(func(p: Vector3, q: Vector3) -> bool: return p.y < q.y)
+	for i in CLUMPS * CLUMP_LEAVES + HEDGE:
+		var hgt := 0.0
+		var r := SHRUB.y
+		var dx := 0.0
+		var up := 0.0   # onde a folha fica no tufo dela: 1 no alto, -1 embaixo (o volume e a beira acesa)
+		if i < CLUMPS * CLUMP_LEAVES:
+			var cl := clumps[floori(float(i) / CLUMP_LEAVES)]
+			var o := Vector2.from_angle(rng.randf() * TAU) * sqrt(rng.randf()) * Vector2(cl.z, cl.z * 0.7)
+			dx = cl.x + o.x / gw
+			hgt = cl.y - o.y / gh
+			r = absf(cl.x) + cl.z / gw
+			up = -o.y / (cl.z * 0.7)
+		else:   # a cerca viva embaixo dela, até o batente de perto
 			hgt = rng.randf_range(-0.08, 0.035)
-			r = SHRUB.y
 			dx = rng.randf_range(-r, 1.05 - SHRUB.x)
 		var w := Vector2((SHRUB.x + dx) * gw, gh * (1.0 - hgt) + rng.randf_range(-1.0, 1.0))
 		var p := (_side_pt(w, WALL_D + 8.0) - _view_at) * 2.0   # do lado de fora, atrás do vidro
 		var k := clampf(_side_pt(w + Vector2(0, 1)).y - _side_pt(w).y, 0.8, 1.6)   # a escala da parede ali
 		var sway := roundf((sin(t * (1.4 + gust) + i * 0.7) * (1.0 + gust) - gust * GUST.z) * wind * maxf(hgt, 0.0) / SHRUB.z * 1.5)
-		var lit := clampf(maxf(hgt, 0.0) / SHRUB.z * 0.7 + (dx / maxf(0.01, r)) * 0.15 + rng.randf_range(-0.25, 0.2), 0.0, 0.99)
+		var lit := clampf(maxf(hgt, 0.0) / SHRUB.z * 0.5 + up * 0.25 + 0.15 + (dx / maxf(0.01, r)) * 0.1 + rng.randf_range(-0.2, 0.15), 0.0, 0.99)
 		var c: Color = (tones[int(lit * tones.size())] as Color).lerp(Pal.SHRUB_FLASH, f * 0.5)
-		c = c.lerp(_sunny(Pal.SUN_RIM), 0.45 * sun * smoothstep(0.55, 0.95, lit))
+		# o sol de frente, atrás dela: só a beira de cima de cada tufo acende, mais nos do alto, e o resto mal esquenta
+		c = c.lerp(_sunny(Pal.SUN_RIM), sun * (0.55 * smoothstep(0.55, 0.9, up) * (0.5 + 0.5 * hgt / SHRUB.z) + 0.08 * lit))
 		var px := p.floor() + Vector2(sway, 0)
 		var lw := roundf(5.0 * k)
 		var lh := roundf(3.0 * k)

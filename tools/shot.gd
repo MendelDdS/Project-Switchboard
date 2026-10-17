@@ -20,13 +20,13 @@ extends Node
 ##   --screen=id            uma tela por cima: intro (a de início), pause, settings, report (o relatório com advertências)
 ##   --hover=id             o mouse em cima do objeto da mesa (os ids de `Tools`): ele erguido e a etiqueta com o nome
 ##   --zoom=x,y,w,h         o recorte, em px do jogo, ampliado `ZOOM` vezes
-##   --car=fusca            um carro de cada modelo dado (vírgulas) parado na rua lá fora, um em cada mão (--car_t=0.45: onde, de 0 a 1)
+##   --car=fusca            um carro de cada modelo dado (vírgulas) parado na rua lá fora, um em cada mão (--car_t=0.45: onde, de 0 a 1; --rack: com o bagageiro)
 ##   --walk=2,-4            gente parada na calçada de lá, em cada x dado (m ao longo da rua; o 1º poste fica em 1,6)
 ##   --bar                  a porta do bar aberta, com a luz saindo
 ##   --blind=1              a persiana descida (de 0, aberta, a 1, fechada)
 ##   --smoke[=s]            alguém fumando na varanda, `s` segundos depois de sair (10,5: no meio do sopro da tragada)
 ##   --cat                  o gato da noite (na marquise ou no gradil, pela noite)
-##   --bike=-2              alguém de bicicleta parado nesse x (m) · --dog=3: um vira-lata nesse x
+##   --bike=-2              alguém de bicicleta parado nesse x (m; --papers: o menino do jornal) · --dog=3: um vira-lata nesse x
 ##   --taxi=4.5             o táxi que para no hotel, tantos segundos depois de aparecer (parado de 3,2 a 9,7; o passageiro de 3,7 a 7,3)
 ##   --damp=4               a mancha de umidade de 4 noites de chuva
 ##   --phones=2,1           os telefones da vista (hotel, bar): 1 tocando, 2 na linha
@@ -167,7 +167,7 @@ func _ready() -> void:
 				if not Background.CAR_KINDS.has(kinds[lane % kinds.size()]):   # (--car=picape,- : só o de lá)
 					continue
 				m.background._cars.append({"t": float(_args.get("car_t", "0.45")), "lane": lane, "kind": kinds[lane % kinds.size()],
-					"tones": Pal.CAR_TONES[lane + 1], "taxi": false})
+					"tones": Pal.CAR_TONES[lane + 1], "taxi": false, "rack": _args.has("rack")})
 			await get_tree().process_frame
 	if _args.has("blind"):
 		m.background._shut = float(_args["blind"])
@@ -204,7 +204,7 @@ func _ready() -> void:
 						"z": Background.STREET["far_curb"] + 1.0}, true))
 			if _args.has("bike"):
 				bg._walkers.append({"t": (float(_args["bike"]) + Background.WALK_SPAN) / (2.0 * Background.WALK_SPAN), "dir": 1.0, "sec": 1e9,
-					"z": Background.STREET["far_curb"] - 0.6, "h": 1.0, "hat": false, "bike": true})
+					"z": Background.STREET["far_curb"] - 0.6, "h": 1.0, "hat": false, "bike": true, "papers": _args.has("papers")})
 			if _args.has("dog"):
 				bg._walkers.append({"t": (float(_args["dog"]) + Background.WALK_SPAN) / (2.0 * Background.WALK_SPAN), "dir": 1.0, "sec": 1e9,
 					"z": Background.STREET["far_curb"] + 1.0, "h": 1.0, "hat": false, "dog": true})
