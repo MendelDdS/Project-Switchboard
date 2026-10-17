@@ -64,6 +64,7 @@ var minutes := 18 * 60.0:   ## a hora do jogo (minutos do dia; o Main atualiza):
 var _flip_from := -1   # o minuto que a plaqueta mostrava antes de virar
 var _flip_at := -100000   # quando ela começou a virar (ms)
 var _mist := 0.0
+var _day := Color.WHITE   # a luz do dia na cidade: o `modulate` da `_back` e da `_view` (`Background._process`)
 var _vp := Vector2.ZERO   # o ponto de fuga (px de 2x2)
 var _yd := 0.0         # a altura do tampo (y da sala, abaixo dos olhos)
 var _cx := 0.0         # a quina das paredes (px de 2x2, na tela)

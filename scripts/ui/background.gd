@@ -124,10 +124,10 @@ const BOLT_LIGHT := Color(0.93, 0.96, 1.0)
 const BOLT_DIR := Vector2(-1.4, 0.45)   ## para onde a luz dele anda a cada unidade para o fundo (x, para a esquerda; y, para baixo): a sombra do armário na parede
 const BOLT_STEEP := 1.2   ## quanto ela desce para cada unidade que entra na sala, até a mesa (a janela desenhada no tampo)
 ## O sol do amanhecer entrando direto pela janela (`_sun_layer`, `_draw_sun`): quanto o raio desce para cada unidade
-## que entra na sala, logo depois de o sol nascer e às 6h (baixo, a janela se estica no tampo; subindo, ela encolhe para
-## junto da parede, como as sombras da rua, `_shadow_k`), a força da luz, e a da sombra comprida dos objetos da mesa
+## que entra na sala, logo depois de o sol nascer e às 6h (baixo, a janela se estica no tampo e, até as 6h, mal sai do
+## lugar: encolhendo até a parede, parecia o sol já a pino), a força da luz, e a da sombra comprida dos objetos da mesa
 ## (o comprimento dela por altura do objeto).
-const SUN_STEEP := Vector2(1.1, 2.6)
+const SUN_STEEP := Vector2(1.1, 1.25)
 const SUN_ROOM_A := 0.4
 ## Com o sol baixo, a luz dele na sala é fraca e difusa e fica mais forte e nítida com ele subindo (`_draw_sun`): a
 ## força logo depois de nascer (fração da toda) e até onde a beira se espalha (unidades da sala).
@@ -139,6 +139,7 @@ const SUN_CAST := 1.1
 ## para os objetos da mesa ficarem na frente.
 const SIGN_LIGHT := Vector2(190, 1.2)
 const POST_LIGHT := Vector2(150, 0.6)   ## e a de cada poste de lá à vista, amarela
+const SUN_LIGHT := Vector2(220, 0.8)    ## e a do sol nascendo, quente, na moldura, no peitoril e no arbusto (no vidro, da altura dele)
 ## A luz do dia na sala, no amanhecer da última noite (`daylight`): a força dela às 6h, até onde ela chega a partir do
 ## meio da janela (px) e o quanto a persiana descida a tampa.
 const DAY_ROOM := Vector3(0.7, 1000.0, 0.7)
@@ -226,6 +227,7 @@ var _headless := false   # sem tela (os testes): a vista da janela não é desen
 var _sill_lit: Array = []   # o peitoril na luz de fora: [polígono (px da tela), a força relativa em cada ponto] (`_draw_sill_light`)
 var _glass := PackedVector2Array()   # o vidro da janela abaixo da persiana (px da tela): o escuro da sala não passa nele
 var _sign_px := Vector2.ZERO   # onde o letreiro aparece no vidro (px da tela; zero = fora do vidro)
+var _city_rect := Rect2()   # a cidade no vidro, como `_draw_city` a vê (px de 2x2): onde o sol aparece (`_window_light_list`)
 var _car_in := [20.0, 32.0]          # quanto falta para o próximo de cada mão (s)
 var _car_next := ["", ""]            # o modelo do próximo de cada mão (vazio: sorteado; o painel de debug escolhe)
 var _walk_in := 3.0      # quanto falta para o próximo (s)
@@ -492,8 +494,9 @@ func _process(delta: float) -> void:
 		_back.queue_redraw()
 		_rays.queue_redraw()
 	var tones := _sky_tones()   # a luz do dia na cidade: o céu clareando, no `modulate` (acima de 1 clareia; um shader
-	var day := Color.WHITE + tones[0].lerp(tones[1], 0.4) * DAY_GAIN * smoothstep(0.1, 1.0, dawn())   # nelas desfazia o lote das chamadas)
+	var day := Color.WHITE + tones[0].lerp(tones[1], DAY_WARM) * DAY_GAIN * smoothstep(0.1, 1.0, dawn())   # nelas desfazia o lote das chamadas)
 	day.a = 1.0
+	_day = day
 	_back.modulate = day   # (o céu, embaixo, e o vidro, por cima, ficam de fora)
 	_view.modulate = day
 	_view.queue_redraw()
@@ -1193,9 +1196,10 @@ func _draw_sun() -> void:
 	_ci = self
 
 
-## Quanto o raio do sol desce para cada unidade que entra na sala agora (`SUN_STEEP`): cresce com ele subindo.
+## Quanto o raio do sol desce para cada unidade que entra na sala agora (`SUN_STEEP`): cresce devagar e por igual com
+## ele subindo (na curva do `_sun_up`, ela andava depressa no meio).
 func _sun_steep() -> float:
-	return lerpf(SUN_STEEP.x, SUN_STEEP.y, _sun_up())
+	return lerpf(SUN_STEEP.x, SUN_STEEP.y, clampf(inverse_lerp(SUNRISE, DAWN.y, minutes), 0.0, 1.0))
 
 
 ## O quanto o sol já subiu, de quando nasce (0) às 6h (1), na curva das sombras da rua (`_shadow_k`).
@@ -1314,6 +1318,11 @@ func _draw_window_glow() -> void:
 ## abaixo da persiana; cada uma [onde, até onde e força, cor].
 func _window_light_list() -> Array:
 	var out := []
+	var sun := snappedf(_sunlit() * (1.0 - _shut), 0.05)
+	if sun > 0.0 and not _glass.is_empty():   # o sol: do ponto do vidro mais perto dele (acima da persiana, da beira de baixo dela)
+		var b := _bounds(_glass)
+		var at := (_sun_at(_city_rect) * 2.0).clamp(b.position, b.end)
+		out.append([(at / 4.0).round() * 4.0, Vector2(SUN_LIGHT.x, SUN_LIGHT.y * sun), Pal.SUN_RIM])
 	for l: Array in _spills + _lifted_spills:
 		out.append([(l[0] as Rect2).get_center(), Vector2(l[2], DESK_LIGHT), l[1]])
 	if _sign_px != Vector2.ZERO and _sign_on() and not _behind_blind(Rect2(_sign_px, Vector2.ONE)):
@@ -1991,6 +2000,7 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	draw_polygon(q, PackedColorArray([Color.WHITE]), uv, _vport.get_texture())
 	# as luzes da vista brilham onde aparecem no vidro: o relógio da igreja e o poste
 	var cg := Rect2(view.position, view.size - Vector2(0, _near))   # a cidade, como `_draw_city` a vê
+	_city_rect = cg
 	var face := _church_pos(cg) - Vector2(0, 40 * CHURCH_K)
 	if Geometry2D.is_point_in_polygon(face, q):
 		_light(Rect2(Vector2(floorf(face.x * 2.0) - 1.0, roundf(face.y * 2.0) - 1.0), Vector2(3, 3)), Color("e2b25a"), 0.25, true)   # (do tamanho dele, 3 px; `_draw_church`)

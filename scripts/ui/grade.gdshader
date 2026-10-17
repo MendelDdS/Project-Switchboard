@@ -11,6 +11,7 @@ uniform vec3 light_tint = vec3(1.06, 1.0, 0.9);         // as luzes, mais quente
 uniform vec2 warm = vec2(0.18, 0.42);                   // ...a partir desse brilho (de um ao outro, aos poucos)
 uniform float contrast = 1.1;                           // em volta de `pivot`: abaixo dele escurece, acima clareia
 uniform float pivot = 0.2;
+uniform float saturation = 1.0;                       // 1 as cores como são; acima, mais vivas (o amanhecer)
 uniform vec2 spare = vec2(0.48, 0.7);                   // daí para cima a gradação some aos poucos: o papel
 
 void fragment() {
@@ -19,6 +20,7 @@ void fragment() {
 	vec3 g = c + shadow_lift * (1.0 - smoothstep(0.0, 0.35, l));
 	g *= mix(vec3(1.0), light_tint, smoothstep(warm.x, warm.y, l));
 	g = (g - pivot) * contrast + pivot;
+	g = mix(vec3(dot(g, vec3(0.2126, 0.7152, 0.0722))), g, saturation);
 	g = mix(g, c, smoothstep(spare.x, spare.y, l));
 	COLOR.rgb = mix(c, clamp(g, 0.0, 1.0), strength);
 }

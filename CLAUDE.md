@@ -697,21 +697,23 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   crepusculares saem dele num leque liso, por cima das nuvens (`_draw_crepuscular`: `RAYS` fatias, a cor em cada beira, a força variando
   devagar com o ângulo; fatias finas de força sorteada riscavam o céu), e onde a igreja tapa o sol a sombra dela,
   quase preta, vira um feixe escuro (`_church_cover`, `_church_parts`, os polígonos que `_draw_church` desenha; `RAY_SHADOW`).
-  Na frente da cidade, numa camada somada (`_rays`, `_draw_rays`), com o sol à vista (`_sun_seen`): o brilho e
+  Na frente da cidade, numa camada somada (`_rays`, `_draw_rays`), com o sol à vista (`_sun_seen`):
   os reflexos na linha do sol ao meio da vista (`FLARES`, `Pal.FLARE`); o risco horizontal da lente fica no céu, embaixo
-  da cidade (somado por cima, ele apagava o braço da cruz quando passava na altura dela). A beira da igreja se acende contra o sol (`_draw_church_rim`: a silhueta repetida um pixel para cada lado, no céu, embaixo dela). Com o
+  da cidade (somado por cima, ele apagava o braço da cruz quando passava na altura dela). A igreja fica escura contra o sol, e nada de luz na frente dela (a beira acesa em volta, o brilho do sol somado por cima e o clarão e a neblina dourada na boca da rua saíram, a pedido: a luz parecia atravessá-la). Com o
   sol (`_sunlit`; a referência é uma imagem do usuário), a parede da esquerda da rua do cruzamento pega a luz quente de
-  raspão, mais no alto, e as duas somem no ar dourado no fundo; os prédios de lá à direita dela ficam laranja, com
-  peitoris e faixas acesos (`Pal.SUN_LOW`, saturada: a luz do dia no `modulate`, azulada, desbota os tons quentes)
-  acima da sombra dos prédios do outro lado, cuja linha desce por elas com o sol subindo (`FACADE_SHADE`), e
-  os da esquerda na luz fria do céu (`Pal.DAWN_SHADE`), todos com a cornija acesa. O resto da rua fica na sombra dos
-  prédios de lá (`STREET_SHADE`) e a faixa de sol entra pela rua do cruzamento e atravessa a nossa (`STRIP_A`, o miolo
-  em `STRIP_CORE`; reta, com a beira nítida a `STRIP_EDGE` das paredes), e só nela quem passa, os carros e os postes de lá deixam as sombras
+  raspão, mais no alto, e as duas somem no ar dourado no fundo; os prédios de lá, de costas para o sol, ficam todos na
+  luz fria do céu (`Pal.DAWN_SHADE`), com a cornija acesa (a luz quente e uma sombra descendo nas fachadas da direita
+  saíram, a pedido: não tinham de onde vir). O resto da rua fica na sombra dos
+  prédios de lá (`STREET_SHADE`, em `Pal.DAWN_SHADOW`, azul-violeta) e a faixa de sol entra pela rua do cruzamento e atravessa a nossa (`STRIP_A`, numa
+  cor só; reta, com a beira nítida a `STRIP_EDGE` das paredes; desenhada antes do grão, das manchas e das
+  juntas, que vão por cima em escuro ou claro translúcido, para a textura da rua aparecer na luz, `_draw_sun_strip`), e só nela quem passa, os carros e os postes de lá deixam as sombras
   compridas, encurtando com o sol subindo (`_sun_shadow`, `_shadow_k`). O teto e os vidros dos carros e a copa do
   arbusto pegam o sol; com os postes apagados, as vitrines acesas deixam a luz na calçada (`SHOP_POOL`). A neblina
-  baixa no fundo da rua some até as 6h (`_draw_dawn_mist`), as nuvens se acendem por baixo (`Pal.DAWN_CLOUD_TOP` no
-  alto), fiapos de nuvem cobrem o céu (`_draw_cirrus`, `CIRRUS`) e passam passarinhos: bandos em V e os pombos saindo
-  da torre (`FLOCKS`, `_draw_birds`, na frente da vista, no tempo do jogo). A cidade clareia pelo `modulate` da `_back` e da `_view` (`DAY_GAIN`; um
+  baixa no fundo da rua some com o sol nascendo (`_draw_dawn_mist`), as nuvens se acendem por baixo (`Pal.DAWN_CLOUD_TOP` no
+  alto), fiapos de nuvem cobrem o céu (`_draw_cirrus`, `CIRRUS`) (os passarinhos, bandos em V e os pombos saindo da
+  torre, saíram, a pedido). A cidade clareia pelo `modulate` da `_back` e da `_view` (`DAY_GAIN`, `DAY_WARM`; a cor das luzes do sol na
+  cidade sai dele, `_sunny`, senão o laranja estourava no amarelo-cáqui; atrás da igreja, prédios altos num terceiro
+  plano no ar dourado, `FAR_ROWS`; um
   shader nelas desfazia o lote das chamadas de desenho), postes e neon apagam às 5h15 (`_posts_on`, `_sign_on`),
   janelas acendem de madrugada e ficam (`WAKE_DAWN`) e a rua volta a ter gente e carro das 5h às 6h (`morning`). Na sala, a luz do dia entra pela janela só por
   parâmetros (`Background.daylight`: a cor do céu, fria, e com o sol a dele, quente, `Pal.DAYLIGHT_*`; a força em
@@ -719,12 +721,14 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`room_noir.gdshader`), a luz dela clareia o que está perto e a luminária perde metade da força
   (`lamp_light.gdshader`, `window_at`, `reach`), o sol baixo entra direto (`_sun_layer`, `_draw_sun`, somado,
   embaixo dos objetos da mesa, a força no `modulate`): o fundo do vão e o tampo do peitoril acesos e a janela desenhada
-  no tampo, nítida, com o montante (a conta do relâmpago com o raio mais baixo, `SUN_STEEP`, subindo com o sol, `_sun_up`: logo depois de nascer ela é
-  comprida, fraca e de beira espalhada, `SUN_FAINT`, `SUN_SOFT`, e encolhe para junto da parede ficando forte e nítida), e nela a sombra
+  no tampo, nítida, com o montante (a conta do relâmpago com o raio mais baixo, `SUN_STEEP`, que mal muda até as 6h e por igual, `_sun_steep`: encolhendo
+  até a parede, parecia o sol já a pino; logo depois de nascer ela é fraca e de beira espalhada, `SUN_FAINT`,
+  `SUN_SOFT`, e fica forte e nítida com o sol subindo, `_sun_up`), e nela a sombra
   comprida da caneca e do relógio (`SUN_CAST`, pelos contornos `_occ` da última vez; uma mancha redonda de luz parecia
   lâmpada), a mesa comutadora clareia de leve (`Switchboard.dim`,
   `DAY_LIFT`), o brilho da luminária e o halo do `Bloom` enfraquecem (`Main.DAY_DIM`) e a gradação vai para a do dia
-  (`GameView.DAY_GRADE`, `grade_day`). Nada disso redesenha a sala.
+  (`GameView.DAY_GRADE`, `grade_day`: mais contraste e saturação, `saturation` no `grade.gdshader`), e a luz do sol
+  nascendo acende a moldura, o peitoril e o arbusto (`SUN_LIGHT`, a primeira de `_window_light_list`). Nada disso redesenha a sala.
 - **Fim do turno**: nada novo toca depois de `last_call` (`LAST_CALL_BEFORE` antes do fim, 23:40; sorteadas param ali e `_run_schedule` descarta
   retornos e atrasadas; a desconhecida tem regra própria). A partir daí, com a desconhecida já passada, o botão
   **Encerrar turno** (`%EndShift`, no lugar do texto do turno ao lado do relógio) fecha a noite: quem está na linha ou

@@ -1306,3 +1306,45 @@ Chaves:
     ~5200 chamadas de desenho na vista: os fiapos de nuvem (`_light_fan`) alternavam triângulo e quadrilátero, e o lote
     do Godot só junta primitivos com o mesmo número de pontos. Agrupados, os pixels são os mesmos e ficam ~380–1000
     chamadas (e sumiram as ~1850 que apareciam às vezes ao abrir a lista, das nuvens da lua). Referências novas na skill.
+
+236. #janela #amanhecer #luz #cores #cidade
+    Hi-bit 9.1–9.3, a vista do amanhecer da noite 15 pela imagem de referência do usuário. 9.1: o céu mais quente até
+    as 6h (`Pal.DAWN_SKY`, os tons quentes mais para cima, `DAWN_STOPS`), o sol pequeno e nítido (o halo mais curto),
+    a sombra da rua em azul-violeta (`Pal.DAWN_SHADOW`; preta, apagava a rua), o clarão no fim da rua quente e mais
+    fraco, e a luz quente do sol na moldura, no peitoril e no arbusto (`SUN_LIGHT` em `_window_light_list`). No meio,
+    o usuário achou as cores do amanhecer "muito opacas" e a faixa de sol "pouco transparente", sem deixar ver a
+    textura da rua: a faixa passou a ser desenhada antes do grão, das manchas, das juntas e dos postes
+    (`_draw_sun_strip`), com as manchas e o grão como escuro ou claro translúcido sobre ela (na cor do asfalto, ficavam
+    blocos azuis na luz), e a sombra só fora dela; as luzes do sol na cidade saem da luz do dia (`_sunny`: o laranja
+    vezes o `modulate` ~2 virava amarelo-cáqui e, misturado ao asfalto azul, verde); a luz do dia na cidade ficou mais
+    baixa e menos azul (`DAY_GAIN` 1,5, `DAY_WARM`), e a gradação do dia ganhou contraste e saturação
+    (`GameView.DAY_GRADE`, o `saturation` novo do `grade.gdshader`; com o contraste de 1,04, o amanhecer saía chapado).
+    9.2: um terceiro plano de prédios altos atrás da igreja (`FAR_ROWS`, sorteio à parte para as outras casas ficarem
+    as mesmas), cada plano mais apagado no ar dourado. 9.3: as janelas cada uma de um jeito (cortina de um lado, das
+    duas, persiana descida, um móvel contra a luz; apagadas com a cortina ou o caixilho), as lojas com balcão, mesa,
+    cadeiras e prateleira, a porta de vidro do hotel com o caixilho e o balcão do saguão, a sombra e a franja da
+    marquise, e o varal com roupa na varanda (`Pal.LAUNDRY`), em todas as noites.
+
+237. #janela #amanhecer #luz #cidade #saiu
+    Ajustes da vista do amanhecer pedidos pelo usuário: (1) blocos escuros no meio da faixa de sol, "sem sentido":
+    eram as manchas do asfalto em preto translúcido por cima da luz; voltaram a ser opacas, embaixo dela, e só o grão
+    fica por cima; (2) a igreja sumia na frente dos prédios altos novos: ela fica escura contra o sol e eles mais
+    apagados no ar; (3) a luz em volta da igreja com o sol nascendo saiu (`_draw_church_rim`); (4) a fachada da
+    direita tinha uma sombra que subia e descia com o sol, e o prédio está de costas para ele: as fachadas de lá ficam
+    todas na luz fria do céu, sem a luz quente nem a sombra andando (`FACADE_SHADE` saiu); (5) a luz do sol no tampo
+    encolhia depressa até a parede e às 6h parecia meio-dia: ela mal sai do lugar até as 6h, por igual
+    (`SUN_STEEP` 1,1–1,25, sem a curva do `_sun_up`).
+    Depois, o usuário mostrou que a faixa escura continuava: era a beira da própria faixa de sol, num laranja mais
+    escuro que o miolo claro (`STRIP_CORE`); a faixa ficou numa cor só (`Pal.SUN_RIM`, `STRIP_A` 0,65) e o
+    `Pal.SUN_LOW` saiu.
+
+238. #janela #amanhecer #luz #saiu
+    A igreja um pouco menos escura contra o sol (o ar dourado em 12% dela, não 0%), e "se a igreja está na frente do
+    sol, por que a luz fica atravessando?": o clarão da boca da rua do cruzamento, a neblina baixa dourada e o brilho
+    do sol na camada somada eram desenhados na frente dela; com o sol nascido, saem (a neblina some com ele nascendo, e
+    o brilho somado saiu do `_draw_rays`). O ar dourado fica atrás dela, no céu e nos prédios do fundo.
+
+239. #janela #amanhecer #saiu
+    A igreja com menos contraste ainda (o ar dourado em 30% dela com o sol; os prédios altos atrás seguem mais
+    apagados, a 50%) e os passarinhos do amanhecer saíram, a pedido (os bandos em V e os pombos saindo da torre,
+    `FLOCKS`, `WINGS`, `_draw_birds`).

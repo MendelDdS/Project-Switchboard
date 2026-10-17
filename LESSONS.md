@@ -396,3 +396,18 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   "intermitentes" ao abrir a lista. Agrupar os de mesmo número de pontos (os triângulos todos, depois os
   quadriláteros) deu os mesmos pixels e ~380 chamadas. Cenário novo entra no `medir.gd`: o amanhecer nunca tinha sido
   medido e o problema passou despercebido por três sub-etapas.
+- **Luz por cima de textura, em mistura comum, apaga a textura e suja a cor.** A faixa de sol do amanhecer, laranja
+  com alfa alto por cima do asfalto já texturizado, escondia o grão e, misturada ao azul-violeta da sombra e do asfalto,
+  saía cáqui ou verde; o usuário achou "opaca". Luz que tinge o chão vai embaixo da textura (desenhada antes dela), a
+  textura em escuro/claro translúcido (não na cor do material), e a cor de uma luz numa camada com `modulate` acima de 1
+  é dividida por ele (`_sunny`). E "mais vivo" se mede: subir o ganho da luz do dia só lavou as sombras; o que faltava
+  era contraste e saturação na gradação do dia.
+- **Luz tem de vir de algum lugar e fazer sentido na hora toda.** No amanhecer, a sombra subindo numa fachada de
+  costas para o sol, o contorno aceso em volta da igreja e a janela de sol no tampo encolhendo até a parede (às 6h,
+  parecia meio-dia) foram todos recusados. Antes de pôr luz ou sombra, conferir de onde ela vem (o sol está atrás das
+  fachadas de lá e da igreja: brilho, clarão ou neblina acesa desenhados na frente da igreja parecem atravessá-la) e quanto ela anda no tempo real da cena (meia hora de sol baixo mal mexe na luz). E a textura por
+  cima da luz é o grão miúdo: manchas grandes em escuro translúcido no laranja viram blocos de sombra.
+- **Queixa visual ambígua: achar o defeito na imagem antes de corrigir.** "Faixa escura no meio da faixa de sol"
+  foi lida como as manchas do asfalto, que também escureciam; era a beira da própria luz, num laranja mais escuro que
+  o miolo, e o usuário teve de mandar um recorte. Recortar o lugar e listar o que pode ser (a direção da faixa, o
+  tamanho) e, na dúvida entre dois, corrigir os dois ou perguntar.

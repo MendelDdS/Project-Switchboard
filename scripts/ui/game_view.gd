@@ -12,12 +12,13 @@ const TITLE_BAR := 40   ## px de tela que a barra de título e as bordas da jane
 ## A gradação de cor de cada clima (`grade.gdshader`, `grade_weather`): a noite limpa com mais contraste e luzes mais
 ## quentes, a chuva mais fria e a névoa mais lavada, com menos contraste.
 const GRADES := {
-	"clear": {"shadow_lift": Vector3(-0.012, 0.002, 0.035), "light_tint": Vector3(1.06, 1.0, 0.9), "contrast": 1.1},
-	"rain": {"shadow_lift": Vector3(-0.016, 0.004, 0.045), "light_tint": Vector3(1.03, 1.0, 0.94), "contrast": 1.06},
-	"fog": {"shadow_lift": Vector3(-0.008, 0.006, 0.03), "light_tint": Vector3(1.04, 1.0, 0.93), "contrast": 1.02},
+	"clear": {"shadow_lift": Vector3(-0.012, 0.002, 0.035), "light_tint": Vector3(1.06, 1.0, 0.9), "contrast": 1.1, "saturation": 1.0},
+	"rain": {"shadow_lift": Vector3(-0.016, 0.004, 0.045), "light_tint": Vector3(1.03, 1.0, 0.94), "contrast": 1.06, "saturation": 1.0},
+	"fog": {"shadow_lift": Vector3(-0.008, 0.006, 0.03), "light_tint": Vector3(1.04, 1.0, 0.93), "contrast": 1.02, "saturation": 1.0},
 }
-## A do dia, para onde a do clima vai no amanhecer da última noite (`grade_day`): as sombras quase sem o azul da noite.
-const DAY_GRADE := {"shadow_lift": Vector3(-0.004, 0.002, 0.012), "light_tint": Vector3(1.03, 1.0, 0.96), "contrast": 1.04}
+## A do dia, para onde a do clima vai no amanhecer da última noite (`grade_day`): as sombras quase sem o azul da noite,
+## mais contraste e as cores mais vivas (com o contraste de 1,04, o amanhecer saía opaco, sem a força da luz baixa).
+const DAY_GRADE := {"shadow_lift": Vector3(-0.004, 0.002, 0.012), "light_tint": Vector3(1.06, 1.0, 0.92), "contrast": 1.16, "saturation": 1.25}
 
 @onready var _box: SubViewportContainer = $Box
 @onready var _view: SubViewport = $Box/View

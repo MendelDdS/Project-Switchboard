@@ -182,27 +182,27 @@ const MOON_LOW := Color("e0a868")   ## ...e perto do horizonte (o ar mais grosso
 const CLOUD_RIM := Color("8a8f8a")  ## a beira das nuvens na frente da lua
 ## O amanhecer da última noite (`Background.dawn`: 0 às 4h05, 1 às 6h): [quando, os quatro tons do céu do alto ao
 ## horizonte, em `DAWN_STOPS`], da noite limpa ao dia: o azul-escuro, o violeta, o rosa e o laranja forte com o sol
-## nascendo e, passado o crepúsculo, o azul no alto clareando liso até o horizonte.
+## nascendo e, até as 6h (o fim do jogo), o azul-lavanda no alto com o rosa, o laranja e o dourado embaixo.
 const DAWN_SKY := [[0.0, [Color("0a1422"), Color("0c1626"), Color("151e2e"), Color("27303c")]],
 	[0.22, [Color("0e1832"), Color("18213f"), Color("2c2a4c"), Color("4c3552")]],
 	[0.48, [Color("1c3260"), Color("5a4a80"), Color("c0607a"), Color("f08c5a")]],
-	[0.68, [Color("3a6898"), Color("d07088"), Color("f89858"), Color("ffcc60")]],
-	[0.84, [Color("4a88bc"), Color("e0988c"), Color("ffb868"), Color("ffe090")]],
-	[1.0, [Color("2460b4"), Color("4a86cc"), Color("9cc0e0"), Color("e8ecdc")]]]
-const DAWN_STOPS := [0.0, 0.32, 0.62, 1.0]   ## onde fica cada tom, do alto do céu à vista (0) ao horizonte (1)
+	[0.68, [Color("34508c"), Color("b06890"), Color("f08458"), Color("ffc458")]],
+	[0.84, [Color("4a6aa8"), Color("d07c94"), Color("ff9c5c"), Color("ffd070")]],
+	[1.0, [Color("5682bc"), Color("c890a4"), Color("ffb070"), Color("ffe098")]]]
+const DAWN_STOPS := [0.0, 0.22, 0.5, 1.0]   ## onde fica cada tom, do alto do céu à vista (0) ao horizonte (1)
 const DAWN_GLOW := Color("ffb070")    ## o clarão do lado onde o sol nasce
 const DAWN_CLOUD := Color("f0a890")   ## as nuvens pegando a luz do sol por baixo...
 const DAY_CLOUD := Color("eef0f0")    ## ...e já de dia
 const DAWN_CLOUD_TOP := Color("6c6894")   ## o alto delas, ainda na sombra, enquanto a beira de baixo pega o sol
 const DAWN_MIST := Color("b8b0c4")   ## a neblina baixa da madrugada no fundo da rua (dourada perto do sol)
-const DAWN_SHADE := Color("3c4c80")  ## a luz fria do céu nas faces de costas para o sol (as fachadas de lá)
+const DAWN_SHADE := Color("3c4c80")
+const DAWN_SHADOW := Color("201c40")  ## a sombra no chão e nas fachadas longe do sol: azul-violeta, nunca preta  ## a luz fria do céu nas faces de costas para o sol (as fachadas de lá)
 const SUN_CORE := Color("fffcf0")     ## o sol: o miolo quase branco...
 const SUN := Color("ffe68c")          ## ...o disco...
 const SUN_RIM := Color("ffb050")      ## ...a beira dele e o halo
 const DAYLIGHT_DAWN := Color("7a88b8")   ## a luz do dia entrando pela janela na sala: a do céu antes do sol, fria...
 const DAYLIGHT_SUN := Color("f0d8b8")    ## ...e a do sol, quente (`Background.daylight`)...
 const SUN_ROOM := Color("ffc070")        ## ...e o sol entrando direto, a janela desenhada no peitoril e no tampo: dourado claro (`_draw_sun`)
-const SUN_LOW := Color("c8501c")      ## ...e a luz dele, baixo, nas fachadas viradas para ele (forte: a luz do dia por cima a desbota)
 const SUN_RAY := Color("fff0c8")      ## os raios crepusculares...
 const RAY_SHADOW := Color("1a1620")   ## ...e a sombra da igreja no meio deles
 const FLARE: Array[Color] = [Color("ff9a50"), Color("70c8c0"), Color("ffe080"), Color("b080d0")]   ## os reflexos da lente
@@ -243,7 +243,8 @@ const BALCONY_POT := Color("4a2a1c")   ## a varanda do apartamento: os vasos...
 const BALCONY_PLANT: Array[Color] = [Color("142219"), Color("1c2e22")]   ## ...as plantas...
 const BALCONY_ROOM := Color("0b1018")   ## ...a sala escura atrás do vidro, com a luz da TV...
 const BALCONY_IRON := Color("15191c")   ## ...o gradil de ferro...
-const BALCONY_SLAB := Color("2a1a14")   ## ...e a beira da laje
+const BALCONY_SLAB := Color("2a1a14")   ## ...a beira da laje...
+const LAUNDRY: Array[Color] = [Color("9a948a"), Color("6a2e2c"), Color("3a4e66")]   ## ...e a roupa no varal
 const CHURCH_CLOCK: Array[Color] = [Color("2a2016"), Color("e2b25a")]   ## o relógio da torre: os ponteiros e o mostrador aceso
 const SHRUB: Array[Color] = [Color("08120c"), Color("0f2016"), Color("193323"), Color("2a4a33")]   ## as folhas do arbusto, do escuro ao claro...
 const SHRUB_FLASH := Color("5a7090")   ## ...e acesas pelo relâmpago
