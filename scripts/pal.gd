@@ -188,7 +188,7 @@ const DAWN_SKY := [[0.0, [Color("0a1422"), Color("0c1626"), Color("151e2e"), Col
 	[0.48, [Color("1c3260"), Color("5a4a80"), Color("c0607a"), Color("f08c5a")]],
 	[0.68, [Color("34508c"), Color("b06890"), Color("f08458"), Color("ffc458")]],
 	[0.84, [Color("4a6aa8"), Color("d07c94"), Color("ff9c5c"), Color("ffd070")]],
-	[1.0, [Color("5682bc"), Color("c890a4"), Color("ffb070"), Color("ffe098")]]]
+	[1.0, [Color("5476b2"), Color("cc8498"), Color("ffa062"), Color("ffd47c")]]]
 const DAWN_STOPS := [0.0, 0.22, 0.5, 1.0]   ## onde fica cada tom, do alto do céu à vista (0) ao horizonte (1)
 const DAWN_GLOW := Color("ffb070")    ## o clarão do lado onde o sol nasce
 const DAWN_CLOUD := Color("f0a890")   ## as nuvens pegando a luz do sol por baixo...
@@ -212,6 +212,8 @@ const OVERCAST_LIT := Color("3e3733")    ## a nuvem da chuva clareada por baixo 
 const OVERCAST_DARK := Color("0d1216")   ## os vãos mais escuros entre elas
 const OVERCAST_DECK := Color("1b1e23")   ## o fundo de nuvem no alto (no horizonte, `OVERCAST_LIT`)
 const CITY_FAR: Array[Color] = [Color("070b10"), Color("141c22")]   ## a cidade no fim da rua e a igreja: na noite e na névoa
+const CHURCH_DAWN := Color("5a4456")   ## a igreja contra o sol: escura, arroxeada (no ar dourado, ficava cáqui)
+const BACKLIT := Color("2c2232")   ## quem passa na rua do cruzamento contra o sol: quase em silhueta, quente
 const CITY_LIT: Array[Color] = [Color("d59a3d"), Color("b38a3c"), Color("e2b25a")]   ## as janelas acesas da cidade
 const WINDOW_DARK := Color("080b0e")   ## o vidro das janelas apagadas
 ## As fachadas de lá e as paredes da rua do cruzamento, uma rampa por tinta (o tom dela em `FACADE_MID`): a quina, o
@@ -248,7 +250,7 @@ const BALCONY_IRON := Color("15191c")   ## ...o gradil de ferro...
 const BALCONY_SLAB := Color("2a1a14")   ## ...a beira da laje...
 const LAUNDRY: Array[Color] = [Color("9a948a"), Color("6a2e2c"), Color("3a4e66")]   ## ...e a roupa no varal
 const PAPERBOY: Array[Color] = [Color("4e4230"), Color("a89c78")]   ## o menino do jornal: a sacola de lona na garupa e os jornais nela
-const CHURCH_CLOCK: Array[Color] = [Color("2a2016"), Color("e2b25a")]   ## o relógio da torre: os ponteiros e o mostrador aceso
+const CHURCH_CLOCK := Color("2a2016")   ## os ponteiros do relógio da torre (o mostrador, apagado, é a torre mais clara)
 const SHRUB: Array[Color] = [Color("08120c"), Color("0f2016"), Color("193323"), Color("2a4a33")]   ## as folhas do arbusto, do escuro ao claro...
 const SHRUB_FLASH := Color("5a7090")   ## ...e acesas pelo relâmpago
 const LEAF_SUN: Array[Color] = [Color("5e7a26"), Color("c8c050")]   ## ...e no sol do amanhecer: o verde aceso e a beira verde-amarela

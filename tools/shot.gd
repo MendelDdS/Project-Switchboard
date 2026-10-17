@@ -22,6 +22,7 @@ extends Node
 ##   --zoom=x,y,w,h         o recorte, em px do jogo, ampliado `ZOOM` vezes
 ##   --car=fusca            um carro de cada modelo dado (vírgulas) parado na rua lá fora, um em cada mão (--car_t=0.45: onde, de 0 a 1; --rack: com o bagageiro)
 ##   --walk=2,-4            gente parada na calçada de lá, em cada x dado (m ao longo da rua; o 1º poste fica em 1,6)
+##   --walk_z=20,45         e na calçada da direita da rua do cruzamento, em cada distância dada (m)
 ##   --bar                  a porta do bar aberta, com a luz saindo
 ##   --behind=0.5           alguém passando atrás da última janela acesa do prédio de tijolos (de 0 a 1 do caminho)
 ##   --blind=1              a persiana descida (de 0, aberta, a 1, fechada)
@@ -200,15 +201,18 @@ func _ready() -> void:
 		room._thunder_at = INF
 		for f in 2:
 			await get_tree().process_frame
-	if _args.has("walk") or _args.has("bar") or _args.has("smoke") or _args.has("bike") or _args.has("phones") or _args.has("dog") or _args.has("taxi") or _args.has("behind"):   # posto de novo a cada quadro, como o carro
+	if _args.has("walk") or _args.has("walk_z") or _args.has("bar") or _args.has("smoke") or _args.has("bike") or _args.has("phones") or _args.has("dog") or _args.has("taxi") or _args.has("behind"):   # posto de novo a cada quadro, como o carro
 		var bg := m.background
 		bg._walk_in = INF
 		for f in 60:
-			if _args.has("walk"):
+			if _args.has("walk") or _args.has("walk_z"):
 				bg._walkers.clear()
-				for x in (_args["walk"] as String).split(","):
+				for x in (_args.get("walk", "") as String).split(",", false):
 					bg._walkers.append(bg._walker().merged({"t": (float(x) + Background.WALK_SPAN) / (2.0 * Background.WALK_SPAN), "dir": 1.0, "sec": 1e9,
 						"z": Background.STREET["far_curb"] + 1.0}, true))
+				for z in (_args.get("walk_z", "") as String).split(",", false):
+					bg._walkers.append(bg._walker().merged({"t": 0.0, "dir": 1.0, "sec": 1e9, "z": Background.STREET["far_curb"] + 1.0,
+						"corner": Background.CROSSING.y - 0.9, "out": true, "turn": float(z)}, true))
 			if _args.has("bike"):
 				bg._walkers.append({"t": (float(_args["bike"]) + Background.WALK_SPAN) / (2.0 * Background.WALK_SPAN), "dir": 1.0, "sec": 1e9,
 					"z": Background.STREET["far_curb"] - 0.6, "h": 1.0, "hat": false, "bike": true, "papers": _args.has("papers")})

@@ -93,7 +93,8 @@ const WALK_FROM := 18.0 * 60.0   ## ...e daí (min do dia) o intervalo cresce, c
 const WALK_UNTIL := 22.0 * 60.0  ## ...até ninguém mais passar (só o homem do mistério)
 const WALK_PAIR := 0.2    ## a chance de virem dois juntos
 const BEHIND_EVERY := Vector2(12, 35)   ## de quanto em quanto tempo alguém passa atrás de uma janela acesa do prédio de tijolos (s, sorteado)
-const WALK_CORNER := 0.3  ## e a de quem vem sozinho virar a esquina, entrando ou saindo da rua do cruzamento (`_walk_at`)
+const WALK_CORNER := 0.3  ## e a de quem vem sozinho virar a esquina, entrando ou saindo da rua do cruzamento (`_walk_at`)...
+const WALK_CORNER_DAWN := 0.6   ## ...que cresce até esta às 6h (gente subindo e descendo a rua contra o sol, como na referência)
 const BAR_EVERY := Vector2(25, 70)   ## de quanto em quanto tempo alguém sai do bar (s, sorteado; só enquanto há gente na rua)
 const BAR_OUT := 0.5      ## quando, depois de a porta abrir, a pessoa sai por ela (s)
 const SMOKE_EVERY := Vector2(60, 150)   ## de quanto em quanto tempo alguém sai para fumar na varanda (s; só com o apartamento acordado)
@@ -818,8 +819,11 @@ func _events(delta: float) -> void:
 		_walk_in = randf_range(WALK_EVERY.x, WALK_EVERY.y) / maxf(crowd, 0.05)
 		var w := _walker()
 		var pair := randf() < WALK_PAIR
-		if not pair and randf() < WALK_CORNER:   # (o caminho é ~1,5 vez o de lado a lado)
+		if not pair and randf() < lerpf(WALK_CORNER, WALK_CORNER_DAWN, morning()):   # (o caminho é ~1,5 vez o de lado a lado)
 			w.merge({"corner": CROSSING.x + 0.9 if randf() < 0.5 else CROSSING.y - 0.9, "out": randf() < 0.5, "sec": w["sec"] * 1.5}, true)
+			if morning() > 0.0:   # de manhã, vindo de mais longe pela rua do cruzamento (o tempo pelo tamanho do caminho)
+				var turn := randf_range(TURN_Z, lerpf(TURN_Z, TURN_FAR, morning()))
+				w.merge({"turn": turn, "sec": w["sec"] * (turn - w["z"] + WALK_SPAN) / (TURN_Z - w["z"] + WALK_SPAN)}, true)
 		_add_walker(w)
 		if pair:   # dois juntos: lado a lado, o de trás um passo atrás
 			var w2 := _walker()
@@ -2239,12 +2243,9 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	for p in q:
 		uv.append((p - view.position) / view.size)
 	draw_polygon(q, PackedColorArray([Color.WHITE]), uv, _vport.get_texture())
-	# as luzes da vista brilham onde aparecem no vidro: o relógio da igreja e o poste
+	# as luzes da vista brilham onde aparecem no vidro: o letreiro
 	var cg := Rect2(view.position, view.size - Vector2(0, _near))   # a cidade, como `_draw_city` a vê
 	_city_rect = cg
-	var face := _church_pos(cg) - Vector2(0, CHURCH_TOWER.z * CHURCH_K)
-	if Geometry2D.is_point_in_polygon(face, q):
-		_light(Rect2(Vector2(floorf(face.x * 2.0) - 1.0, roundf(face.y * 2.0) - 1.0), Vector2(3, 3)), Color("e2b25a"), 0.25, true)   # (do tamanho dele, 3 px; `_draw_church`)
 	var sign := _hotel_pos(cg) + SIGN / 2.0
 	_sign_px = sign * 2.0 if Geometry2D.is_point_in_polygon(sign, q) else Vector2.ZERO
 	_sign_glow = Rect2(_sign_px - SIGN, SIGN * 2.0) if _sign_px != Vector2.ZERO else Rect2()

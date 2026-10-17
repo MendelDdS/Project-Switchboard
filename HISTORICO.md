@@ -1512,3 +1512,28 @@ Chaves:
     o sol no eixo da rua; logo depois, a sombra da parede da frente subia por ela sem o limite que a faixa do chão
     tem). Ela passou a pegar a luz inteira sempre que o chão pega; a sombra subindo por ela (`_canyon_lit`) saiu.
 
+267. #janela #amanhecer #rua #luz #cidade
+    O usuário pediu uma análise do nascer do sol com correções e melhorias e depois "siga o que você sugeriu"; no meio,
+    "diminua a altura da igreja também, está muito alta". Correções: às 6h o céu ficava de dia, branco e azul, e o sol
+    sumia no horizonte claro (o céu passou a ficar quente até o fim, `DAY_SKY`, `_day_sky`); o sol é desenhado por
+    cima dos bancos de nuvem (um deles o apagava) e os reflexos da lente somem perto dele (pareciam um segundo sol); a
+    igreja contra o sol, arroxeada (`Pal.CHURCH_DAWN`; no ar dourado, cáqui); as manchas do asfalto de beira torta
+    (`_blot`, em quadriláteros, `_convex`; retas, a faixa de sol virava uma colcha); a sombra dos postes até
+    `POST_UMBRA` m e só na faixa de sol (`_strip_end`, `_wall_shade`; inteiras, viravam uma listra); a face do meio-fio
+    da esquerda com 1 px no longe (saía serrilhada); os brilhos de longe mais fracos (confete). Melhorias: a vitrine
+    do bar, a porta do hotel e as vitrines do térreo espelhadas na rua úmida (`_mirror`; de manhã, o sereno, e na
+    chuva) e as poças do amanhecer espelhando o céu (`_draw_puddles`); de manhã, mais gente virando a esquina, vindo
+    de mais longe (`WALK_CORNER_DAWN`, `TURN_FAR`), em silhueta contra o sol na rua do cruzamento (`Pal.BACKLIT`), com
+    a beira acesa só na faixa de sol e de perto, e o porteiro na porta do hotel; o campanário vazado, com o céu atrás
+    e o sino, e o relógio mais baixo; a escadaria da igreja (dois degraus); o salão do bar à vista pela vitrine (a
+    prateleira com as garrafas e o balcão), e a vitrine e a porta do hotel na cor delas de dia (estouravam no amarelo).
+    A torre ficou mais baixa (`CHURCH_TOWER` 46/62/34, era 60/78/38) e o sol, às 6h, mais baixo junto dela (`SUN_LOW`).
+268. #janela #cidade #amanhecer
+    "Embaixo da igreja há um espaço preto, o que seria?": era o asfalto de base do chão, posto do horizonte para baixo
+    depois da igreja, cobrindo o pé dela e a escadaria (uma faixa de 3 px entre o fim da rua do cruzamento e o
+    horizonte, em todas as horas). O asfalto de base agora vem antes da cidade de longe e da igreja (`_draw_city`), e os
+    degraus aparecem (a igreja depois da rua inteira quebrava o lote: de 380 para 860 chamadas por quadro).
+269. #janela #cidade #saiu
+    "Remova essa 'porta' e essa luz da igreja": a porta acesa no alto da escadaria (apagava às 22h, `CHURCH_DARK`) e
+    o relógio da torre aceso, com o brilho dele no `Bloom`, saíram. O relógio fica, apagado (o mostrador um tom mais
+    claro que a torre e os ponteiros, `Pal.CHURCH_CLOCK`).

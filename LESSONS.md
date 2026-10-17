@@ -462,3 +462,10 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   A parede da esquerda tinha a conta própria da sombra subindo por ela, sem o limite e a rampa da faixa do chão, e
   das 5h15 às 5h30 ficava escura com o chão aceso; eu só tinha capturado as 5h40 e as 6h. Com o tempo mexendo na luz,
   capture a faixa toda (a cada poucos minutos) antes de dizer que está pronto.
+- **Proporção pela cena, não pelo quadro da referência.** A torre da igreja foi alongada até parecer a da referência
+  do usuário e ele achou alta demais. Ao copiar uma forma de uma referência, compare a altura dela com o que está em
+  volta na nossa cena (os prédios da rua do cruzamento, o vão do céu) antes de dar por pronto.
+- **Mancha que não se explica: ache a camada antes de dar nome a ela.** A faixa escura embaixo da igreja foi vista
+  numa captura e chamada de "a sombra da igreja" sem conferir; era o asfalto de base do chão pintado por cima do pé
+  dela (a ordem de desenho), e escondia a escadaria acabada de pôr. Para saber de onde vem um pixel, pinte a suspeita
+  de magenta ou pule a camada numa captura e leia o pixel; só depois diga o que é.

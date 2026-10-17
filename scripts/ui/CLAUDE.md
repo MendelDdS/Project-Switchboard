@@ -4,8 +4,8 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
 
 ## O cenário (`Background`, a sala e a vista da janela)
 - A vista da janela muda com a noite: cada janela acesa da cidade apaga numa hora sorteada,
-  sempre a mesma (`SLEEP`; algumas ficam acesas), e a porta da igreja apaga às 22h (`CHURCH_DARK`; o relógio da torre
-  fica aceso). **Luz e vinheta lisas, sem camadas** (em degraus pareciam artificiais, a pedido do usuário): o brilho
+  sempre a mesma (`SLEEP`; algumas ficam acesas); a igreja não tem luz (a porta e o relógio da torre acesos saíram, a
+  pedido). **Luz e vinheta lisas, sem camadas** (em degraus pareciam artificiais, a pedido do usuário): o brilho
   (`%Glow`) e a vinheta são degradês contínuos com filtro linear; o arco na parede e a poça na mesa são desenhados com
   a cor variando ponto a ponto (`Background._light_fan`), não em polígonos empilhados; **Clima noir**: fora da luz da luminária a sala fica fria e
   escura (`NOIR`, num shader na camada `_noir`, logo abaixo da `_over`, `room_noir.gdshader`, `_noir_params`: a luminária
