@@ -139,7 +139,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `room_noir.gdshader`, `_noir_params`), as luzes de fora e as lâmpadas dos objetos no tampo (`_window_lights`,
   `window_lights.gdshader`, até 8, `_window_light_list`), as lâmpadas da mesa comutadora no painel (`_glow`,
   `board_glow.gdshader`, até 16, pelo `Bloom.lights_of`), a luz do dia nos shaders da sala (`Background.daylight`) e a
-  gradação do jogo inteiro no `GameView`. Luz com forma (o relâmpago, `_bolt_layer`; o sol, `_sun_layer`) é uma
+  gradação do jogo inteiro no `GameView`; na vista, a luz do sol no chão em duas camadas, uma que multiplica e uma
+  somada, entre o chão e o que fica em pé (`_draw_sun_strip`, `_lit`). Luz com forma (o relâmpago, `_bolt_layer`; o sol, `_sun_layer`) é uma
   camada somada (ADD), com a força no `modulate` e o desenho refeito só quando a geometria muda. **Para acrescentar uma
   luz**: só o ponto aceso brilhando, `Bloom.light` no `_draw` de quem a desenha; acendendo em volta no cenário, uma
   entrada em `_window_light_list` (lugar, alcance e força, cor; as de dentro primeiro, até 8); no painel da mesa
@@ -713,8 +714,14 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   prédios de lá (`STREET_SHADE`, em `Pal.DAWN_SHADOW`, azul-violeta) e a faixa de sol entra pela rua do cruzamento e atravessa a nossa (`STRIP_A`, numa
   cor só; reta, a `STRIP_EDGE` das paredes, e passando da sombra a ela em dois degraus com os tons das duas misturados,
   `STRIP_BLEND`: direto do violeta ao laranja, as cores não se misturavam; mais vermelha para cá, `STRIP_NEAR`,
-  `Pal.SUN_DEEP`: amarela no fundo, por cima do violeta, ficava cáqui; desenhada antes do grão, das manchas e das
-  juntas, que vão por cima em escuro ou claro translúcido, para a textura da rua aparecer na luz, `_draw_sun_strip`), e só nela quem passa, os carros e os postes de lá deixam as sombras
+  `Pal.SUN_DEEP`: amarela no fundo, por cima do violeta, ficava cáqui; e mais clara e dourada na boca do cruzamento,
+  mais cheia ali, `STRIP_MOUTH`). **A sombra e a faixa são luz, não tinta** (`_draw_sun_strip`): a vista
+  de trás é desenhada em três camadas, o chão (`_back`), a luz nele e o que fica em pé (`_upright`, `_draw_city_upright`:
+  os postes da rua do cruzamento, a sombra do nosso prédio, as paredes e as fachadas); a sombra multiplica o chão
+  (`_street_mul`, `BLEND_MODE_MUL`, sem a luz do dia) e a faixa soma (`_street_add`, com ela), as cores escritas como
+  a pintura ajustada à vista e passadas a luz por `_lit` (no tom do asfalto dá a mesma cor, e as manchas, o grão e as
+  rachaduras continuam embaixo); pintadas por cima, cobriam a textura (a faixa ficava chapada, só com as rachaduras
+  riscando) e cada superfície acesa pedia um remendo; luz nova no chão da vista entra nessas camadas; e só nela quem passa, os carros e os postes de lá deixam as sombras
   compridas, encurtando com o sol subindo (`_sun_shadow`, `_shadow_k`). O teto e os vidros dos carros e a beira de cima de cada
   tufo do arbusto pegam o sol; o asfalto úmido do sereno espelha de leve os faróis e as lanternas (`DAMP`); de manhã
   mais carros vêm com o bagageiro (`RACK`), passa o menino do jornal de bicicleta (`PAPERBOY`) e às 5h30 o dono abre o
@@ -730,7 +737,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `DAY_ROOM`, em degraus de 1%, menor com a persiana descida): o escuro da sala recua a partir da janela
   (`room_noir.gdshader`), a luz dela clareia o que está perto e a luminária perde metade da força
   (`lamp_light.gdshader`, `window_at`, `reach`), o sol baixo entra direto (`_sun_layer`, `_draw_sun`, somado,
-  embaixo dos objetos da mesa, a força no `modulate`): o fundo do vão e o tampo do peitoril acesos e a janela desenhada
+  embaixo dos objetos da mesa, a força no `modulate`): o fundo do vão e o tampo do peitoril acesos, com a sombra do
+  montante e a do batente de longe atravessando-os na direção do raio e a beira delas em degraus de 1 px
+  (`_draw_sun_sill`; as quinas do peitoril e do vão ficam nítidas), e a janela desenhada
   no tampo, nítida, com o montante (a conta do relâmpago com o raio mais baixo, `SUN_STEEP`, que mal muda até as 6h e por igual, `_sun_steep`: encolhendo
   até a parede, parecia o sol já a pino; logo depois de nascer ela é fraca e de beira espalhada, `SUN_FAINT`,
   `SUN_SOFT`, e fica forte e nítida com o sol subindo, `_sun_up`), e nela a sombra

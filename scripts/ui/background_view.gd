@@ -196,6 +196,9 @@ const STREET_SHADE := 0.62 ## ...a sombra dos prédios de lá no resto da rua...
 const SHADOW_A := 0.75    ## ...e as sombras compridas nela (`_sun_shadow`)
 const STRIP_EDGE := 0.5   ## a faixa de sol: a sombra das paredes nas beiras dela (m)
 const STRIP_NEAR := 0.6   ## ...o quanto ela avermelha para cá (`Pal.SUN_DEEP`)...
+## ...e, na boca do cruzamento, o quanto ela clareia para o dourado (`Pal.SUN_ROOM`) e o quanto fica mais cheia (a
+## força vezes isto: translúcido por cima do asfalto, o amarelo ficava cáqui)...
+const STRIP_MOUTH := Vector2(0.45, 1.35)
 const STRIP_BLEND := 0.14  ## ...e a largura de cada degrau entre ela e a sombra, nos tons das duas misturados (m)
 const CIRRUS := 22        ## os fiapos de nuvem do céu do amanhecer (`_draw_cirrus`)
 const SHOP_POOL := 0.3   ## com os postes apagados, a luz das vitrines acesas na calçada
@@ -570,6 +573,21 @@ func _draw_city(g: Rect2) -> void:
 	_draw_church(_church_pos(g), house.lerp(air, lerpf(0.25, 0.3, _sunlit())))   # (contra o sol, mais escura: no ar dourado, sumia nos prédios atrás)
 	# o chão (a rua do cruzamento indo embora, a rua passando na frente, as calçadas e os meios-fios), as luzes nele
 	_draw_street(g, hz)
+
+
+## O que fica em pé na cidade (na camada `_upright`, por cima da luz do sol no chão, `_draw_sun_strip`): os postes da
+## rua do cruzamento, a sombra do nosso prédio na rua de perto, a chuva e a neblina no chão, as paredes da rua do
+## cruzamento e as fachadas de lá.
+func _draw_city_upright(g: Rect2) -> void:
+	if _city_for != g.size:   # (`_draw_city` ainda não montou a cidade)
+		return
+	var fog := weather == "fog"
+	var hz := _sky_tones()[1]
+	var ff: float = STREET["far"]
+	_draw_crossing_posts(g, hz)
+	# perto, embaixo da janela, a rua some na sombra do nosso prédio, lisa e sem nenhuma linha
+	var dark := Color(0, 0, 0, 0.6)
+	_fill(_patch(g, -80.0, 80.0, 0.3, STREET["curb"] + 1.5), PackedColorArray([dark, dark, Color(dark, 0.0), Color(dark, 0.0)]))
 	if weather == "rain":
 		_draw_wet(g)
 	_draw_dawn_mist(g)
@@ -578,7 +596,6 @@ func _draw_city(g: Rect2) -> void:
 	for i in range(_canyon.size() - 1, -1, -1):
 		_draw_canyon_wall(g, _canyon[i], hz, taken)
 	# a névoa da noite na rua do cruzamento, clareando lisa para o fundo (a igreja aparece nela)
-	var ff: float = STREET["far"]
 	var mouth := PackedVector2Array([_o(g, CROSSING.x, ff), _o(g, CROSSING.y, ff), _o(g, CROSSING.y, ff, 16.0), _o(g, CROSSING.x, ff, 16.0)])
 	var sunk := _sunlit()   # com o sol atrás da igreja, o clarão some: por cima dela, a luz parecia atravessá-la
 	if sunk < 1.0:
@@ -861,17 +878,23 @@ func _taxi_mid() -> float:
 	return (HOTEL_X - 1.4) * CAR_LANES[0].x / STREET["far"]
 
 
-## A rua toda na sombra dos prédios de lá e o sol entrando pela rua do cruzamento e atravessando a nossa, numa faixa
-## (`_draw_street`, antes do grão, das manchas, das juntas e dos postes: a textura da rua fica por cima da luz).
-func _draw_sun_strip(g: Rect2, wide: float, ff: float) -> void:
+## A rua toda na sombra dos prédios de lá e o sol entrando pela rua do cruzamento e atravessando a nossa, numa faixa,
+## como luz e não como tinta: a sombra na camada que multiplica (`add` falso, `_street_mul`) e a faixa na somada
+## (`_street_add`), entre o chão (`_draw_street`) e o que fica em pé nele (`_draw_city_upright`). Pintadas por cima, elas
+## cobriam a textura da rua (a faixa ficava chapada, só com as rachaduras riscando) e o amarelo translúcido ficava
+## cáqui. As cores são as da pintura que foi ajustada à vista, passadas a luz por `_lit`.
+func _draw_sun_strip(g: Rect2, add: bool) -> void:
 	var sun := _sunlit()
 	if sun <= 0.0:
 		return
+	var base: Color = Pal.ASPHALT_TONES[1 if weather == "fog" else 0][Pal.STREET_MID]
+	var wide := 80.0
+	var ff: float = STREET["far"]
 	var cx0 := CROSSING.x
 	var cx1 := CROSSING.y
 	var shade := Color(Pal.DAWN_SHADOW, STREET_SHADE * sun)   # (azul-violeta: preta, apagava a rua)
-	_poly(_patch(g, -wide, cx0 + STRIP_EDGE, 0.3, ff), shade)   # (só fora da faixa: o laranja por cima do violeta saía verde)
-	_poly(_patch(g, cx1 - STRIP_EDGE, wide, 0.3, ff), shade)
+	_lit(_patch(g, -wide, cx0 + STRIP_EDGE, 0.3, ff), PackedColorArray([shade]), base, add)   # (só fora da faixa)
+	_lit(_patch(g, cx1 - STRIP_EDGE, wide, 0.3, ff), PackedColorArray([shade]), base, add)
 	# uma faixa reta, da largura da rua do cruzamento menos a sombra das paredes, com a beira nítida (sumindo até as
 	# paredes, as beiras se abriam em cunhas para cá, como um leque) e numa cor só (com o miolo mais claro, as beiras
 	# pareciam uma faixa escura dentro da luz); a cor é a da luz já sem a luz do dia por cima (`_sunny`), que a levava
@@ -879,20 +902,52 @@ func _draw_sun_strip(g: Rect2, wide: float, ff: float) -> void:
 	var lit := Color(_sunny(Pal.SUN_RIM), STRIP_A * sun)
 	var a := cx0 + STRIP_EDGE
 	var b := cx1 - STRIP_EDGE
-	# a cor anda ao longo dela: laranja no fundo, perto do sol, e mais vermelha para cá (numa cor só, era uma massa; o
-	# amarelo no fundo, por cima do violeta, ficava cáqui)
+	# a cor anda ao longo dela: mais clara e dourada na boca do cruzamento, onde o sol bate em cheio (`STRIP_MOUTH`), e
+	# mais vermelha e mais fraca para cá, sumindo no longe
 	var band := func(x0: float, x1: float, c: Color) -> void:
 		var near := Color(c.lerp(_sunny(Pal.SUN_DEEP), STRIP_NEAR), c.a * 0.4)
-		_fill(_patch(g, x0, x1, 1.0, ff), PackedColorArray([near, near, c, c]))   # mais fraca para cá...
-		_fill(_patch(g, x0, x1, ff, 130.0), PackedColorArray([c, c, Color(c, 0.0), Color(c, 0.0)]))   # ...e sumindo no longe
-	# entre a sombra e a luz, os tons das duas misturados, em degraus (`STRIP_BLEND`): direto do violeta ao laranja, as
-	# cores não se misturavam e a faixa parecia pintada por cima do asfalto
+		var mouth := Color(c.lerp(_sunny(Pal.SUN_ROOM), STRIP_MOUTH.x), minf(1.0, c.a * STRIP_MOUTH.y))
+		_lit(_patch(g, x0, x1, 1.0, ff), PackedColorArray([near, near, mouth, mouth]), base, add)
+		_lit(_patch(g, x0, x1, ff, 130.0), PackedColorArray([mouth, mouth, Color(c, 0.0), Color(c, 0.0)]), base, add)
+	# entre a sombra e a luz, os tons das duas misturados, em degraus (`STRIP_BLEND`): direto do violeta ao laranja, a
+	# beira parecia recortada
 	for i in 2:
 		var t := (i + 1.0) / 3.0
 		var c := Color(Pal.DAWN_SHADOW.lerp(lit, t), lerpf(shade.a, lit.a, t))
 		band.call(a + i * STRIP_BLEND, a + (i + 1) * STRIP_BLEND, c)
 		band.call(b - (i + 1) * STRIP_BLEND, b - i * STRIP_BLEND, c)
 	band.call(a + 2.0 * STRIP_BLEND, b - 2.0 * STRIP_BLEND, lit)
+
+
+## Uma pintura (`cols`: a cor e a força com que ela iria por cima de `base`) passada a luz: o quanto ela multiplica o que
+## está embaixo (na camada que multiplica) ou o quanto soma (`add`, na somada), para dar a mesma cor em cima de `base` e
+## manter as manchas e o grão de baixo. Por canal: a pintura dá b(1 - a) + c·a = b·L; até 1, L multiplica, e o que
+## passa de 1 é somado, b(L - 1) = a(c - b) (a somada leva a luz do dia, como o chão).
+func _lit(pts: PackedVector2Array, cols: PackedColorArray, base: Color, add: bool) -> void:
+	var out := PackedColorArray()
+	for c in cols:
+		if add:
+			out.append(Color(maxf(c.a * (c.r - base.r), 0.0), maxf(c.a * (c.g - base.g), 0.0), maxf(c.a * (c.b - base.b), 0.0)))
+		else:
+			out.append(Color(minf(1.0 - c.a + c.a * c.r / base.r, 1.0), minf(1.0 - c.a + c.a * c.g / base.g, 1.0),
+				minf(1.0 - c.a + c.a * c.b / base.b, 1.0)))
+	_fill(pts, out)
+
+
+## Os postes da rua do cruzamento, menores e mais juntos com a distância, com a sombra comprida no sol.
+func _draw_crossing_posts(g: Rect2, hz: Color) -> void:
+	for i in 6:
+		var z := 24.0 + i * 16.0
+		for x in [CROSSING.x + 1.4, CROSSING.y - 1.4]:
+			var foot := _o(g, x, z)
+			var head := _o(g, x, z, 5.0)
+			var near := clampf(24.0 / z, 0.0, 1.0)
+			_r(foot.x, head.y, PX, foot.y - head.y, Pal.LAMP_POST.lerp(hz, 1.0 - near))
+			if _sunlit() > 0.0:   # a sombra comprida dele, vindo para cá pela rua
+				_ci.draw_line(foot, _o(g, x, maxf(z - 5.0 * _shadow_k(), STREET["far"])), Color(Pal.RAY_SHADOW, 0.6 * SHADOW_A * _sunlit()), PX)
+			if _posts_on():
+				_r(head.x - PX, head.y - PX, maxf(PX, 1.5 * near), maxf(PX, near), Pal.STREET_LAMP.lerp(hz, (1.0 - near) * 0.6))
+				_r(foot.x - 2.0 * near, foot.y - PX, 4.0 * near + PX, PX, Color(1.0, 0.85, 0.55, 0.2 * near))
 
 
 ## O chão: a rua do cruzamento indo embora (com as calçadas e os postes dela, menores com a distância), a nossa calçada
@@ -957,21 +1012,7 @@ func _draw_street(g: Rect2, hz: Color) -> void:
 	for k in 3:
 		var x := MANHOLE.x + (k - 1) * 0.14
 		_poly(_patch(g, x - 0.02, x + 0.02, MANHOLE.y - 0.24, MANHOLE.y + 0.24), seam)
-	_draw_sun_strip(g, wide, ff)
-	for i in 6:   # os postes dela, menores e mais juntos com a distância
-		var z := 24.0 + i * 16.0
-		for x in [cx0 + 1.4, cx1 - 1.4]:
-			var foot := _o(g, x, z)
-			var head := _o(g, x, z, 5.0)
-			var near := clampf(24.0 / z, 0.0, 1.0)
-			_r(foot.x, head.y, PX, foot.y - head.y, Pal.LAMP_POST.lerp(hz, 1.0 - near))
-			if _sunlit() > 0.0:   # a sombra comprida dele, vindo para cá pela rua
-				_ci.draw_line(foot, _o(g, x, maxf(z - 5.0 * _shadow_k(), ff)), Color(Pal.RAY_SHADOW, 0.6 * SHADOW_A * _sunlit()), PX)
-			if _posts_on():
-				_r(head.x - PX, head.y - PX, maxf(PX, 1.5 * near), maxf(PX, near), Pal.STREET_LAMP.lerp(hz, (1.0 - near) * 0.6))
-				_r(foot.x - 2.0 * near, foot.y - PX, 4.0 * near + PX, PX, Color(1.0, 0.85, 0.55, 0.2 * near))
-	# o grão perto e as juntas, por cima da luz do sol, entram como escuro ou claro translúcido sobre o asfalto (`over`):
-	# na cor, um tom dele ficava azul por cima da faixa de sol
+	# o grão perto e as juntas entram como escuro ou claro translúcido sobre o asfalto (`over`)
 	var lum := asphalt.get_luminance()
 	var over := func(c: Color) -> Color:
 		var l := c.get_luminance()
@@ -1010,9 +1051,6 @@ func _draw_street(g: Rect2, hz: Color) -> void:
 		if xj < cx0 or xj > cx1:
 			_ci.draw_line(_o(g, xj, fc), _o(g, xj, ff), joint, PX)
 		xj += 1.5
-	# perto, embaixo da janela, a rua some na sombra do nosso prédio, lisa e sem nenhuma linha
-	var dark := Color(0, 0, 0, 0.6)
-	_fill(_patch(g, -wide, wide, 0.3, cu + 1.5), PackedColorArray([dark, dark, Color(dark, 0.0), Color(dark, 0.0)]))
 	# a sarjeta e o meio-fio de lá, com a face virada para nós, a quina e as bocas de lobo
 	for seg: Vector2 in [Vector2(-wide, cx0), Vector2(cx1, wide)]:
 		_poly(_patch(g, seg.x, seg.y, fc - 0.35, fc), over.call(walks[Pal.STREET_MID - 1]))   # (translúcida: o sol passa por ela)

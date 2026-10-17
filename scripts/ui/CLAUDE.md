@@ -187,7 +187,8 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   linha escura embaixo: com elas parecia um chão), com um conduíte de ferro levando os fios do alto do painel da mesa comutadora
   para o teto, com a caixa de passagem (`_draw_conduit`, no vão entre ela e o armário), e, no vão depois do armário, o uso de anos: no lugar do cartaz, a marca de um quadro tirado (a tinta mais limpa,
   o encardido em volta) com o prego, e, embaixo da folhinha, uma tomada de baquelite com o plugue e o fio caindo para
-  trás do tampo (`_draw_wall_marks`, `OUTLET_UP`); a parede inteira com manchas leves no reboco (`_stain_art`: o ruído
+  trás do tampo, com o encardido da mão em volta, a faixa encardida rente ao tampo de ponta a ponta e uma rachadura
+  fina descendo do friso entre a folhinha e a quina (`_draw_wall_marks`, `OUTLET_UP`, `WALL_GRIME`, `WALL_CRACK`); a parede inteira com manchas leves no reboco (`_stain_art`: o ruído
   em cinza posto no tom da tinta, `STAIN`, guardado por tamanho; a 0,75 pareciam sujeira, a pedido ficaram em 0,35).
   **A tinta pela luz** (plano hi-bit): em faixas em volta da boca do cone da luminária (`WALL_BANDS`, `_wall_runs`,
   trechos de linha guardados pela largura), na rampa `Pal.WALL_TONES`, mais fria longe e mais quente perto, quase sem
@@ -326,9 +327,10 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   cortadas onde o papel está, quadro a quadro, `_paper`, `_light`); a do relâmpago (`_bolt_layer`: o que ele acende é
   medido com a sala e só a força muda, no `modulate`); a frente do relógio, uma textura trocada no lugar
   (`_clock_face`: a sala desenhada com ela mostra a hora nova sem se redesenhar); e a vista da janela, a 30 quadros por
-  segundo no vidro (`_vport`, `UPDATE_ONCE` a cada quadro dela), em duas camadas: a de trás (`_back`,
-  `_draw_view_back`: céu, cidade, rua, fachadas) só quando muda (`_back_state`: a hora, a luminária, o neon, o
-  relâmpago, as estrelas piscando) e a da frente (`_draw_city_front`: o letreiro, quem passa, os postes, o homem, o
+  segundo no vidro (`_vport`, `UPDATE_ONCE` a cada quadro dela), em duas partes: a de trás só quando muda (`_back_state`: a hora, a luminária, o neon, o
+  relâmpago, as estrelas piscando), em camadas, o céu (`_sky`), o chão e a cidade de longe (`_back`,
+  `_draw_view_back`), a luz do sol no chão (`_street_mul`, que multiplica, e `_street_add`, somada, `_draw_sun_strip`)
+  e o que fica em pé (`_upright`, `_draw_city_upright`: postes da rua do cruzamento, paredes, fachadas), e a da frente (`_draw_city_front`: o letreiro, quem passa, os postes, o homem, o
   carro, a névoa; depois o arbusto, o reflexo e a chuva) a cada quadro. A tela do cenário (o `View` do `SceneView`) só
   é desenhada quando algo nela muda (`Background._show`) ou de tamanho (`SceneView._fit`). Quem acrescentar ao desenho
   algo que muda precisa pôr isso no estado da camada certa (e, na sala, no `_state`). Lá fora (`_draw_city`): céu do clima, morros, casas

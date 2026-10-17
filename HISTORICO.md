@@ -1390,3 +1390,19 @@ Chaves:
     direita da caneca, a volta de fora da alça e o aro de trás; o tampo, a beira de trás e a quina da direita do
     relógio), só quando eles estão no sol (`_draw_sun_edge`). Depois: um quadrado escuro embaixo da caneca, no sol; era a
     sombra de contato dela, num retângulo, e virou a elipse do pé.
+246. #janela #amanhecer #sala #luz #textura
+    "Commit e implemente 10.6, 10.5 e 10.1 logo em seguida" (o que faltava da etapa 10 do plano hi-bit). A parede do
+    fundo com uma rachadura fina descendo do friso e o encardido rente ao tampo e em volta da tomada (`WALL_CRACK`,
+    `WALL_GRIME`; o amassado do armário já existia); a faixa de sol mais clara e dourada na boca do cruzamento, mais
+    cheia ali para não ficar cáqui (`STRIP_MOUTH`); e o sol no peitoril e no fundo do vão com a sombra do montante e a
+    do batente de longe, na direção do raio, a beira em degraus de 1 px (`_draw_sun_sill`).
+247. #janela #amanhecer #rua #luz #textura
+    "A luz que o sol faz na rua ainda não se mistura com as cores da rua, tem linhas escuras, a textura da rua não tem
+    mais forma, a luz do sol está chapada nela." A faixa cobria as manchas e os remendos (desenhados embaixo dela, na
+    cor) e sobravam só o grão e as rachaduras, riscando. Eles voltam por cima dela, só dentro, como escuro ou claro
+    translúcido na força dela (`_draw_strip_marks`): o tom deles vezes a luz.
+248. #janela #amanhecer #rua #luz #textura
+    "A atual implementação é a melhor forma e melhor prática?" e "pode fazer". A luz do sol no chão da vista deixou de
+    ser tinta por cima: a vista de trás em três camadas (o chão, a luz, o que fica em pé), a sombra dos prédios
+    multiplicando e a faixa somada, com as cores da pintura que já estava ajustada passadas a luz (`_lit`: no asfalto, a
+    mesma cor). A textura da rua continua embaixo da luz sem remendo; saiu o `_draw_strip_marks` do pedido 247.

@@ -427,3 +427,8 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   centenas de `_r` com `_o` chamado em cada um puseram ~1,5 ms nele. Numa superfície plana a tela anda por igual
   (calcule o passo uma vez); muitas linhas iguais vão num `draw_multiline` só. E tirar as juntas para economizar
   transformou o tijolo em tábua: o detalhe que dá a forma fica, o que se corta é o custo dele.
+- **Luz por cima de textura não pode cobrir a textura.** A faixa de sol na rua, quase opaca, cobria as manchas e os
+  remendos desenhados embaixo e ficava chapada, com só as rachaduras riscando (o usuário notou). O que forma a
+  superfície volta por cima da luz como escuro ou claro translúcido relativo ao tom de base (o tom vezes a luz), na
+  força da luz naquele ponto; na cor, por cima, vira bloco de outro tom. Melhor ainda (pedido 248): luz numa camada
+  própria que multiplica ou soma, entre o chão e o que fica em pé nele, como a da sala; aí não há o que repassar.

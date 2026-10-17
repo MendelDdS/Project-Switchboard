@@ -156,6 +156,10 @@ const CAB_W := 82.0             ## a largura do armário de aço, encostado na p
 const CAB_AT := 0.37            ## quanto da parede livre entre a mesa comutadora e a quina fica antes dele (com 0,24, ele e o conduíte ficavam colados na mesa)
 const POSTER_W := 22.0           ## a largura do cartaz da quermesse (px de 2x2)
 const STAIN := 0.35      ## o quanto as manchas do reboco mudam o tom da parede do fundo, para mais claro e mais escuro (`_stain_art`)
+## O uso da parede do fundo (`_draw_wall_marks`): a força do encardido rente ao tampo, onde os papéis e a mão
+## esfregam, e em volta da tomada, e a da rachadura fina descendo do friso.
+const WALL_GRIME := Vector2(0.3, 0.3)
+const WALL_CRACK := 0.7
 const OUTLET_UP := 30.0   ## a tomada da parede do fundo, acima do tampo (px de 2x2; ~17 cm), logo embaixo da folhinha e acima das listas (`_draw_wall_marks`)
 const CAB_TOP := -26.0           ## o alto dele (cm a partir dos olhos, para baixo): acima deles, ~1,5 m do chão (o tampo não aparece)
 const CAB_T := 1.15              ## a frente dele (escala): ~35 cm de fundo
@@ -201,6 +205,9 @@ var _blind_poly := PackedVector2Array()   # o que ela tampa da janela (px da tel
 var _shelf := Vector2(INF, INF)   # `shelf()`, em px do cenário
 var _view: Control     # desenha a vista da janela no `_vport`: a frente dela, a cada quadro da vista
 var _back: Control     # a parte de trás da vista, embaixo da `_view`: só se redesenha quando muda (`_back_state`)
+var _street_mul: Control   # a sombra dos prédios de lá na rua, multiplicando o chão da `_back` (`_draw_sun_strip`)...
+var _street_add: Control   # ...e a faixa de sol, somada a ele; as duas embaixo da `_upright` e redesenhadas com a `_back`
+var _upright: Control  # o que fica em pé na cidade, por cima da luz no chão (`_draw_city_upright`): redesenhado com a `_back`
 var _sky: Control      # o céu da vista, embaixo da `_back` e fora da luz do dia da cidade (`DAY_GAIN`): redesenhado com ela
 var _rays: Control     # os raios do sol nascendo e os reflexos da lente, somados por cima da vista (`_draw_rays`): redesenhados com o céu
 var _pane: Control     # o vidro da vista, por cima da `_view`: o reflexo da sala e a chuva nele, fora da luz do dia
@@ -281,6 +288,19 @@ func _ready() -> void:
 	_back = Control.new()
 	_back.draw.connect(_draw_view_back)
 	_vport.add_child(_back)
+	_street_mul = Control.new()
+	_street_mul.material = CanvasItemMaterial.new()
+	(_street_mul.material as CanvasItemMaterial).blend_mode = CanvasItemMaterial.BLEND_MODE_MUL
+	_street_mul.draw.connect(_draw_view_light.bind(false))
+	_vport.add_child(_street_mul)
+	_street_add = Control.new()
+	_street_add.material = CanvasItemMaterial.new()
+	(_street_add.material as CanvasItemMaterial).blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	_street_add.draw.connect(_draw_view_light.bind(true))
+	_vport.add_child(_street_add)
+	_upright = Control.new()
+	_upright.draw.connect(_draw_view_upright)
+	_vport.add_child(_upright)
 	_view = Control.new()
 	_view.draw.connect(_draw_view)
 	_vport.add_child(_view)
@@ -514,12 +534,17 @@ func _process(delta: float) -> void:
 		_back_drawn = bs
 		_sky.queue_redraw()
 		_back.queue_redraw()
+		_street_mul.queue_redraw()
+		_street_add.queue_redraw()
+		_upright.queue_redraw()
 		_rays.queue_redraw()
 	var tones := _sky_tones()   # a luz do dia na cidade: o céu clareando, no `modulate` (acima de 1 clareia; um shader
 	var day := Color.WHITE + tones[0].lerp(tones[1], DAY_WARM) * DAY_GAIN * smoothstep(0.1, 1.0, dawn())   # nelas desfazia o lote das chamadas)
 	day.a = 1.0
 	_day = day
-	_back.modulate = day   # (o céu, embaixo, e o vidro, por cima, ficam de fora)
+	_back.modulate = day   # (o céu, embaixo, e o vidro, por cima, ficam de fora; a sombra multiplica, sem ela)
+	_street_add.modulate = day
+	_upright.modulate = day
 	_view.modulate = day
 	_view.queue_redraw()
 	_pane.queue_redraw()
@@ -1171,11 +1196,6 @@ func _draw_sun() -> void:
 		return
 	_ci = _sun_layer
 	var col := Color(Pal.SUN_ROOM, SUN_ROOM_A)
-	for i in _sill_lit.size() - 1:   # o fundo do vão e o tampo do peitoril (`_draw_side_wall`; a guarnição de perto, a última, fica na sombra)
-		var cols := PackedColorArray()
-		for k: Color in _sill_lit[i][1]:
-			cols.append(Color(col, col.a * k.a / 0.7))
-		_fill(_sill_lit[i][0], cols)
 	var shadows := []
 	for o: PackedVector2Array in _sun_occ:
 		var ob := _bounds(o)
@@ -1194,6 +1214,8 @@ func _draw_sun() -> void:
 	var zb := Z0 / DESK_T
 	var zm := lerpf(zfar, znear, 0.5)
 	var e := (zfar - znear) / SIDE_W   # meia largura do montante
+	var up := _sun_up()
+	_draw_sun_sill(xc, y0 + gh, Vector3(zfar, zm, e), up)
 	var steep := _sun_steep()
 	var a := xc - (_yd - (y0 + floorf(gh * _blind_frac()))) / steep
 	var b := xc - (_yd - (y0 + gh)) / steep
@@ -1215,7 +1237,6 @@ func _draw_sun() -> void:
 	_sunbeam = PackedVector2Array([_p3(xc, y0 + floorf(gh * _blind_frac()), zm), _p3(xc, y0 + gh, zm), _p3(lb.x, _yd, lb.y), _p3(la.x, _yd, la.y)])
 	# com o sol baixo, uma parte da luz vai por igual na janela toda (o montante e as sombras quase somem nela) e se
 	# espalha em volta (`SUN_SOFT`); com ele subindo, ela passa toda para a parte nítida
-	var up := _sun_up()
 	var soft := Color(col, col.a * 0.6 * (1.0 - up))
 	var sharp := Color(col, col.a - soft.a)
 	if soft.a > 0.0:
@@ -1251,6 +1272,47 @@ func _draw_sun() -> void:
 				for part: PackedVector2Array in _cut(grown[0], shade_at.call(step.z)):
 					_poly(part, Color(sharp, sharp.a * step.y))
 	_ci = self
+
+
+## O sol no fundo do vão e no tampo do peitoril (os de `_sill_lit`; a guarnição de perto, a última, fica na sombra),
+## mais forte junto do vidro, com a sombra do montante (`z.y`, meia largura `z.z`) e a do batente de longe (`z.x`)
+## atravessando os dois na direção do raio (`SUN_TOWARD`), no plano `ys` (a altura deles). Como na mesa, com o sol
+## baixo parte da luz vai por igual (`up`), e a beira das sombras passa à luz em degraus de 1 px; a beira do peitoril
+## e a do vão são quinas de verdade e ficam nítidas.
+func _draw_sun_sill(xc: float, ys: float, z: Vector3, up: float) -> void:
+	var col := Color(Pal.SUN_ROOM, SUN_ROOM_A)
+	var xg := xc + WALL_D   # o vidro, do lado de fora da parede
+	var run := (WALL_D + SILL_D) * SUN_TOWARD   # o quanto o raio chega mais perto do vidro à beira do peitoril
+	var xs := xc - SILL_D
+	var dark := []
+	for poly: PackedVector2Array in [
+			PackedVector2Array([Vector2(xg, z.y - z.z), Vector2(xg, z.y + z.z), Vector2(xs, z.y + z.z - run), Vector2(xs, z.y - z.z - run)]),
+			PackedVector2Array([Vector2(xg, z.x), Vector2(xg, z.x + 99.0), Vector2(xs, z.x + 99.0), Vector2(xs, z.x - run)])]:
+		var q := PackedVector2Array()
+		for d in poly:
+			q.append(_p3(d.x, ys, d.y))
+		dark.append(q)
+	var strength := func(p: Vector2) -> float:   # a força em `p` (px da tela), pelo quanto ele sai da parede
+		var at := (p.x / 2.0 - _vp.x) * ys / (p.y / 2.0 - _vp.y) - xc
+		return 0.7 if at >= 0.0 else lerpf(0.6, 0.15, clampf(-at / SILL_D, 0.0, 1.0))
+	var paint := func(part: PackedVector2Array, k: float) -> void:
+		var cols := PackedColorArray()
+		for p in part:
+			cols.append(Color(col, col.a * k * strength.call(p) / 0.7))
+		_fill(part, cols)
+	var soft := 0.6 * (1.0 - up)
+	for i in _sill_lit.size() - 1:
+		var face: PackedVector2Array = _sill_lit[i][0]
+		if soft > 0.0:
+			paint.call(face, soft)
+		for step: Vector2 in [Vector2(0.25, -1.0), Vector2(0.25, 0.0), Vector2(0.5, 1.0)]:
+			var occ := []
+			for d: PackedVector2Array in dark:
+				var o: Array = Geometry2D.offset_polygon(d, step.y, Geometry2D.JOIN_MITER) if step.y != 0.0 else [d]
+				if not o.is_empty():
+					occ.append(o[0])
+			for part: PackedVector2Array in _cut(face, occ):
+				paint.call(part, (1.0 - soft) * step.x)
 
 
 ## Quanto o raio do sol desce para cada unidade que entra na sala agora (`SUN_STEEP`): cresce devagar e por igual com
@@ -1705,9 +1767,35 @@ func _stain_art(sz: Vector2i) -> ImageTexture:
 
 ## O uso de anos na parede do fundo, no vão depois do armário (`x`, o meio dele; `top`, o fundo do tampo; px de 2x2):
 ## no lugar do cartaz, a marca de um quadro que foi tirado (a tinta mais limpa onde ele ficava, o encardido em volta)
-## com o prego ainda lá; e, embaixo da folhinha, uma tomada de baquelite com o plugue e o fio caindo para trás da mesa.
+## com o prego ainda lá; embaixo da folhinha, uma tomada de baquelite com o plugue e o fio caindo para trás da mesa, o
+## encardido da mão em volta dela; a faixa encardida rente ao tampo, de ponta a ponta (`WALL_GRIME`); e uma rachadura
+## fina descendo do friso entre a folhinha e a quina, com a beira de baixo pegando a luz (`WALL_CRACK`).
 func _draw_wall_marks(x: float, top: float) -> void:
 	_ci.draw_set_transform(Vector2.ZERO)
+	var floor_y := top * 2.0
+	var clear := Color(0, 0, 0, 0.0)
+	var grime := Color(0, 0, 0, WALL_GRIME.x)
+	_fill(PackedVector2Array([Vector2(0, floor_y - 12.0), Vector2(_cx * 2.0, floor_y - 12.0), Vector2(_cx * 2.0, floor_y), Vector2(0, floor_y)]),
+		PackedColorArray([clear, clear, grime, grime]))
+	var hand := Vector2(floorf(x * 2.0) + 1.0, (top - OUTLET_UP) * 2.0 + 7.0)   # o meio da tomada
+	var ring := _ring(Vector2.ZERO, 1.0)
+	for k in 3:   # mais forte perto do espelho, sumindo em volta (a mão pega mais embaixo e do lado do fio)
+		var rim := PackedVector2Array()
+		for p in ring:
+			rim.append(hand + Vector2(1.0, 2.0) + p * Vector2(9.0, 12.0) * (1.0 - k * 0.3))
+		_poly(rim, Color(0, 0, 0, WALL_GRIME.y / 3.0))
+	var crack := PackedVector2Array([Vector2(floorf((x + _cx) * 1.0) + 6.0, 36.0)])   # (entre a folhinha e a quina)
+	var rough := RandomNumberGenerator.new()
+	rough.seed = 77
+	for i in 9:
+		crack.append(crack[-1] + Vector2(rough.randi_range(-2, 1), rough.randi_range(4, 7)))
+	_ci.draw_polyline(crack, Color(0, 0, 0, WALL_CRACK), 1.0)
+	var lip := PackedVector2Array()
+	for p in crack:
+		lip.append(p + Vector2(1, 1))
+	_ci.draw_polyline(lip, Color(Pal.WALL_LINES[1], WALL_CRACK * 0.6), 1.0)
+	var fork := crack[4]   # um galho curto
+	_ci.draw_polyline(PackedVector2Array([fork, fork + Vector2(-4, 3), fork + Vector2(-7, 4)]), Color(0, 0, 0, WALL_CRACK * 0.7), 1.0)
 	if not "cartaz_quermesse" in details:   # (o cartaz fica pendurado ali)
 		var r := Rect2(floorf(x - POSTER_W / 2.0) * 2.0, 52.0, POSTER_W * 2.0, 56.0)
 		_ci.draw_rect(r.grow(1.0), Color(0, 0, 0, 0.12))   # o encardido em volta
@@ -1903,6 +1991,30 @@ func _draw_view_back() -> void:
 		_back.draw_texture_rect(window_art, g, false)
 	else:
 		_draw_city(Rect2(g.position, g.size - Vector2(0, _near)))   # a cidade até o peitoril de longe; embaixo, a rua de perto
+	_ci = self
+
+
+## A luz do sol no chão da vista (`_draw_sun_strip`): a sombra, que multiplica (`_street_mul`), ou a faixa, somada
+## (`add`, `_street_add`).
+func _draw_view_light(add: bool) -> void:
+	if window_art:
+		return
+	var ci := _street_add if add else _street_mul
+	_ci = ci
+	ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	var g := Rect2(Vector2.ZERO, Vector2(_vport.size) / 2.0)
+	_draw_sun_strip(Rect2(g.position, g.size - Vector2(0, _near)), add)
+	_ci = self
+
+
+## O que fica em pé na parte de trás da vista (`_upright`), por cima da luz no chão.
+func _draw_view_upright() -> void:
+	if window_art:
+		return
+	_ci = _upright
+	_upright.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	var g := Rect2(Vector2.ZERO, Vector2(_vport.size) / 2.0)
+	_draw_city_upright(Rect2(g.position, g.size - Vector2(0, _near)))
 	_ci = self
 
 
