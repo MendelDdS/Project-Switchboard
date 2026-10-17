@@ -2242,7 +2242,7 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	# as luzes da vista brilham onde aparecem no vidro: o relógio da igreja e o poste
 	var cg := Rect2(view.position, view.size - Vector2(0, _near))   # a cidade, como `_draw_city` a vê
 	_city_rect = cg
-	var face := _church_pos(cg) - Vector2(0, 40 * CHURCH_K)
+	var face := _church_pos(cg) - Vector2(0, CHURCH_TOWER.z * CHURCH_K)
 	if Geometry2D.is_point_in_polygon(face, q):
 		_light(Rect2(Vector2(floorf(face.x * 2.0) - 1.0, roundf(face.y * 2.0) - 1.0), Vector2(3, 3)), Color("e2b25a"), 0.25, true)   # (do tamanho dele, 3 px; `_draw_church`)
 	var sign := _hotel_pos(cg) + SIGN / 2.0

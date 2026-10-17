@@ -442,3 +442,23 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   circunferência do sol e aumente sem brilho interno" era "aumente seu brilho interno"; lido ao pé da letra, o sol
   saiu maior e liso, o contrário do pedido. Com "diminua" logo antes, "aumente" não podia ser do disco. Na dúvida,
   diga a leitura escolhida na resposta, em uma linha.
+- **Luz de sol baixo na rua: beira esmaecida, não recortada.** A faixa de sol no amanhecer tinha a beira nítida (pedido
+  228) e depois dois degraus de tom; o usuário a achou "chapada, sem esmaecimento": num nascer do sol a sombra não faz
+  linha reta. A luz de um sol baixo chega espalhada, e a sombra que vem de mais alto é mais larga e mais mole na beira
+  (`STRIP_SOFT`, o degradê crescendo com a largura da sombra da parede). Sombra de um sol baixo, faça a beira dela
+  macia e na altura do que a faz, não uma régua.
+- **Luz no chão da rua precisa de algo que a quebre, senão vira vidro colorido.** A faixa de sol, uma cor só com as
+  beiras macias e a textura do asfalto por baixo, ainda pareceu ao usuário "um vidro amarelo por cima da rua". Na
+  referência, o que dá textura à luz é a rua úmida espelhando o sol: uma coluna de reflexo embaixo dele, quebrada em
+  faixas. Compare com a referência pelo que a luz faz no material (reflexo, umidade), não só pela cor e pela beira.
+- **Luz de um lado só não existe: se o chão está aceso, confira as paredes viradas para o sol.** A faixa de sol cobria
+  o chão da rua do cruzamento, e as duas paredes dela estavam na sombra (uma sugestão minha, aceita no pedido 258); o
+  usuário viu na hora que a parede da esquerda, virada para o sol, tinha de pegar a luz. Antes de sugerir sombra ou
+  luz numa superfície, ponha o sol e a normal dela na conta e confira com o que está aceso em volta.
+- **Ao sugerir melhorias, olhe primeiro os defeitos à vista na captura, não só o que falta da referência.** O usuário
+  pediu sugestões e recebeu ideias novas (o céu, as poças) enquanto o chão atrás do carro estacionado continuava liso
+  e as paredes sem luz; os defeitos vêm antes dos acréscimos.
+- **O que tem de bater (a parede e o chão acesos) sai da mesma conta, e confere-se em todas as horas, não em duas.**
+  A parede da esquerda tinha a conta própria da sombra subindo por ela, sem o limite e a rampa da faixa do chão, e
+  das 5h15 às 5h30 ficava escura com o chão aceso; eu só tinha capturado as 5h40 e as 6h. Com o tempo mexendo na luz,
+  capture a faixa toda (a cada poucos minutos) antes de dizer que está pronto.

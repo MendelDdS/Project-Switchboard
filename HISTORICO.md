@@ -1456,3 +1456,59 @@ Chaves:
     Etapa 8 do plano da janela: o detalhe na escala nova. Quem passa ganhou os braços balançando com o passo, a mão,
     os sapatos, a barra e a gola do casaco e o cabelo (1 px cada, sem virar sprite); o térreo das lojas de lá, o
     batente, a placa com as letras em traços, o toldo com a franja e a grade nas fechadas (`_draw_shop_trim`).
+258. #janela #amanhecer #vista #luz
+    Com a imagem de referência do amanhecer (`private/referencia_janela.png`), o usuário escolheu três diferenças
+    para aproximar: (1) a igreja alta e fina em silhueta e o sol ainda baixo às 6h, ao lado da torre e meio atrás dela
+    (`SUN_LOW`, `CHURCH_TOWER`; os prédios altos do fundo abrem um vão onde ele nasce; antes ele passava da cruz); (3)
+    as paredes da rua do cruzamento na sombra, só com a cornija acesa (a da esquerda pegava a luz de raspão); (7) a
+    copa da árvore acesa de verde-amarelo pelo sol (`Pal.LEAF_SUN`).
+259. #janela #amanhecer #vista
+    O céu do amanhecer mais perto da referência (o item 1 das sugestões depois do plano da janela): bancos de nuvem
+    em faixas largas de gomos achatados, de beira nítida em degraus, o corpo na sombra e a beira de baixo acesa rosa
+    antes do sol e laranja com ele, descendo até o vão da rua do cruzamento; de dia, brancos e fracos (`_draw_banks`,
+    `BANKS`).
+260. #janela #amanhecer #rua #luz
+    O usuário perguntou se a faixa de sol na avenida estava certa. Com o sol posto ao lado da torre (pedido 258),
+    ele fica à direita do eixo da rua do cruzamento, e a parede da direita deveria jogar sombra na faixa: ela agora
+    perde o lado direito na sombra dessa parede (`_wall_shade`, a altura dela vezes o desvio do sol pela altura dele),
+    quase toda logo depois de o sol nascer e menos com ele subindo, sem pulo. Ficaram de fora, como licença: o sol
+    alto na tela para a hora, e a cor da faixa mudando ao longo dela.
+261. #janela #amanhecer #rua #luz
+    A faixa de sol "muito chapada, sem textura, sem esmaecimento": num nascer do sol a luz não faz a sombra reta, ela
+    esmaece. As beiras agora passam da sombra à luz num degradê liso, a da sombra da parede mais larga quanto mais
+    comprida ela é (`STRIP_SOFT`; desfaz a beira nítida do pedido 228 e os degraus de `STRIP_BLEND`), e a sombra da
+    parede da direita segue a altura de cada prédio da rua do cruzamento, então a beira muda de um para outro.
+262. #janela #amanhecer #rua #luz
+    "Não tem textura, basicamente parece um vidro amarelo por cima da rua que simula a luz", diferente da referência
+    (lá a rua está úmida e o sol se espelha nela). A faixa ficou mais fraca (`STRIP_A` 0,5) e ganhou o sol espelhado
+    no asfalto úmido: uma coluna de reflexo dourada embaixo do sol na tela, forte no fundo e mais fraca perto, quebrada
+    em faixas pela rua e esmaecendo de lado, só onde a faixa está acesa (`_draw_glints`). Testados e trocados no
+    caminho: brilhos curtos sorteados, que saíam como confete branco.
+263. #janela #amanhecer #rua #luz
+    O reflexo em manchas ovais não agradou ("a parte escura se mantém com aquela textura chapada"); pedidas sugestões,
+    o usuário aceitou as três primeiras: marcas de pneu nas duas mãos, mais escuras e lisas, ao longo da nossa rua e
+    indo embora pela do cruzamento, em todas as noites (`TRACKS_NEAR`, `TRACKS_FAR`); o sol espelhado nelas, em fios
+    quebrados onde o asfalto secou, no lugar das ovais (`_draw_glints`); e a sombra variando: mais escura perto e mais
+    clara no longe, quente junto da faixa de sol e mais escura junto dos meios-fios (`SHADE_DEPTH`, `BOUNCE_SHADE`,
+    `SHADE_CORNER`). Ficaram para depois o céu espelhado na sombra úmida e as poças maiores.
+264. #janela #amanhecer #rua #luz #cidade
+    O usuário apontou dois problemas que as sugestões ignoravam: (1) "as paredes do prédio não recebem luz, o chão
+    inteiro recebe mas as paredes não": com o sol à direita do eixo da rua do cruzamento, a parede da esquerda, virada
+    para ele, pega a luz de raspão (`_canyon_lit`, `WALL_LIT`), menos embaixo quando a sombra da parede da frente
+    atravessa a rua; a da direita continua na sombra (desfaz em parte o item 3 do pedido 258, sugestão minha); (2) o
+    trecho atrás do carro estacionado "continua sem textura nenhuma": o chão da rua do cruzamento ganhou manchas,
+    remendos, tampa de bueiro, rachaduras, a mancha de óleo do carro, sarjeta, a face dos meios-fios e as juntas das
+    calçadas (`_draw_crossing_ground`).
+265. #janela #amanhecer #rua #luz
+    O usuário perguntou se fazia sentido a luz pegar daquele lado: sim (o sol ~6° à direita do eixo da rua do
+    cruzamento acende a face virada para a direita, a parede da esquerda), mas forte demais, quase no eixo a luz chega
+    deitada (~1/4 da do chão): `WALL_LIT` de 0,45 para 0,2. E pediu a luz do sol na rua e nos prédios mais alaranjada,
+    não amarela: `Pal.SUN_STREET` na faixa, na parede de raspão, na face do meio-fio, nas cornijas, no rebatido e no
+    teto do carro estacionado; a boca do cruzamento clareia para `SUN_RIM`, não para o dourado. O sol, o céu, as nuvens
+    e a luz na sala ficam como estavam.
+266. #janela #amanhecer #luz #cidade
+    O usuário perguntou se a parede da esquerda da rua do cruzamento pegava o sol em todas as horas em que devia. Não:
+    das 5h15 até perto das 5h30 o chão já estava aceso e ela escura (antes do sol sair de trás da igreja, a conta dava
+    o sol no eixo da rua; logo depois, a sombra da parede da frente subia por ela sem o limite que a faixa do chão
+    tem). Ela passou a pegar a luz inteira sempre que o chão pega; a sombra subindo por ela (`_canyon_lit`) saiu.
+

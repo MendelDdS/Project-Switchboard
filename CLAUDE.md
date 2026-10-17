@@ -692,17 +692,21 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   degradê de quatro tons do alto à vista até o horizonte (`Pal.DAWN_SKY`, quadros de 4 cores, e `DAWN_STOPS`;
   `_sky_stops`, `_sky_tones`): do azul-escuro ao azul-esverdeado no alto, rosa, laranja e amarelo embaixo enquanto o
   sol nasce, e de dia azul em cima e claro embaixo; as nuvens tingem junto. As estrelas somem até 4h30, a lua
-  empalidece e o sol nasce às 5h25 **atrás da igreja**, no eixo dela (a janela olha para o leste; `_sun_at`,
+  empalidece e o sol nasce às 5h25 **atrás da igreja**, no fundo da rua do cruzamento (a janela olha para o leste; `_sun_at`,
   `_draw_dawn`: o disco, pequeno, `SUN_DISC` raios (pedido 256), quase todo miolo branco, `Pal.SUN_CORE`, o amarelo, sem beira, e
-  por cima o brilho branco saindo dele e esmaecendo, `SUN_GLOW`, e o halo amarelo, sem laranja, que encolhe e branqueia com o dia, como o clarão do horizonte some, para o azul não ficar cinza), e passa da cruz às 6h (`SUN_ABOVE`). Os raios
+  por cima o brilho branco saindo dele e esmaecendo, `SUN_GLOW`, e o halo amarelo, sem laranja, que encolhe e branqueia com o dia, como o clarão do horizonte some, para o azul não ficar cinza), e sobe devagar ao lado da torre, meio atrás dela e ainda baixo às 6h, como na referência
+  do usuário (`SUN_LOW`; os prédios altos do fundo abrem um vão ali; a torre alta e fina, `CHURCH_TOWER`). Os raios
   crepusculares saem dele num leque liso, por cima das nuvens (`_draw_crepuscular`: `RAYS` fatias, a cor em cada beira, a força variando
   devagar com o ângulo; fatias finas de força sorteada riscavam o céu), e onde a igreja tapa o sol a sombra dela,
   quase preta, vira um feixe escuro (`_church_cover`, `_church_parts`, os polígonos que `_draw_church` desenha; `RAY_SHADOW`).
   Na frente da cidade, numa camada somada (`_rays`, `_draw_rays`), com o sol à vista (`_sun_seen`):
   os reflexos na linha do sol ao meio da vista (`FLARES`, `Pal.FLARE`; o risco horizontal da lente, cortando o sol, saiu, a
   pedido). A igreja fica escura contra o sol, e nada de luz na frente dela (a beira acesa em volta, o brilho do sol somado por cima e o clarão e a neblina dourada na boca da rua saíram, a pedido: a luz parecia atravessá-la). Com o
-  sol (`_sunlit`; a referência é uma imagem do usuário), a parede da esquerda da rua do cruzamento pega a luz quente de
-  raspão, mais no alto, e as duas somem no ar dourado no fundo; os prédios de lá, de costas para o sol, ficam todos na
+  sol (`_sunlit`; a referência é uma imagem do usuário), a parede da direita da rua do cruzamento, de costas para
+  ele, fica na sombra, só com a cornija acesa, e a da esquerda, virada para ele, pega a luz de raspão, fraca, porque o sol está quase no eixo da
+  rua (`WALL_LIT` 0,2, ~1/4 da do chão), inteira e sempre que o chão pega, das 5h15 às 6h: a sombra da parede da frente
+  no chão nunca chega até ela (pedido 264: as duas na sombra, pedido 258, deixavam o chão aceso e as paredes não;
+  pedido 266: uma sombra subindo por ela, pela conta do sol, a escurecia até as 5h30 com o chão ainda aceso), e as duas somem no ar dourado no fundo; os prédios de lá, de costas para o sol, ficam todos na
   luz fria do céu (`Pal.DAWN_SHADE`), com a cornija acesa (a luz quente e uma sombra descendo nas fachadas da direita
   saíram, a pedido: não tinham de onde vir); o alto delas clareia na luz do céu (`SKY_TOP`) e, junto da boca do
   cruzamento, embaixo, pega o rebatido quente da faixa de sol (`BOUNCE`). **Textura com forma, não grão** (pedido
@@ -712,22 +716,35 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   remendos no reboco, rodapé de pedra, encardido, cano de descida, escorridos embaixo dos peitoris) e as paredes da
   rua do cruzamento as fiadas e os remendos translúcidos por cima do degradê da luz (`CANYON_GRAIN`). O resto da rua fica na sombra dos
   prédios de lá (`STREET_SHADE`, em `Pal.DAWN_SHADOW`, azul-violeta) e a faixa de sol entra pela rua do cruzamento e atravessa a nossa (`STRIP_A`, numa
-  cor só; reta, a `STRIP_EDGE` das paredes, e passando da sombra a ela em dois degraus com os tons das duas misturados,
-  `STRIP_BLEND`: direto do violeta ao laranja, as cores não se misturavam; mais vermelha para cá, `STRIP_NEAR`,
+  cor só, alaranjada, `Pal.SUN_STREET`, a mesma da luz do sol nos prédios, na parede de raspão, nas cornijas e no
+  rebatido; com `SUN_RIM` saía amarela, pedido 265; reta, a `STRIP_EDGE` das paredes, e as beiras esmaecendo da sombra à luz sem degrau, a da sombra da parede
+  mais larga quanto mais comprida ela é, `STRIP_SOFT`, pedido 261; antes, dois degraus com os tons misturados e, antes
+  deles, direto do violeta ao laranja, as cores não se misturavam; mais vermelha para cá, `STRIP_NEAR`,
   `Pal.SUN_DEEP`: amarela no fundo, por cima do violeta, ficava cáqui; e mais clara e dourada na boca do cruzamento,
-  mais cheia ali, `STRIP_MOUTH`). **A sombra e a faixa são luz, não tinta** (`_draw_sun_strip`): a vista
+  mais cheia ali, `STRIP_MOUTH`; com o sol à direita do eixo da rua, `SUN_LOW`, a parede da direita deixa a sombra
+  dela no lado direito da faixa, prédio por prédio da rua do cruzamento, cada um na altura dele, `_wall_ratio`: quase toda logo depois de ele nascer, rente ao horizonte, e menos com ele
+  subindo; pedido 260; e nela o sol espelhado no asfalto úmido, embaixo dele na tela, nas marcas dos pneus, lisas e
+  úmidas, em fios quebrados onde o asfalto secou, e no resto do asfalto só de leve, `_draw_glints`, `GLINT*`: sem ele a
+  faixa parecia um vidro amarelo, pedido 262; em brilhos curtos sorteados, saía um confete branco, e numa coluna
+  quebrada em faixas, manchas ovais; pedido 263). As marcas dos pneus ficam em todas as noites, ao longo da nossa rua
+  e indo embora pela do cruzamento (`TRACKS_NEAR`, `TRACKS_FAR`, no `_draw_street`); o chão da rua do cruzamento tem o detalhe do da nossa, até
+  `CROSS_DETAIL`: manchas, remendos, a tampa do bueiro, rachaduras, a mancha de óleo do carro estacionado, a sarjeta, a
+  face dos meios-fios, a da esquerda acesa pelo sol, e as juntas das calçadas, `_draw_crossing_ground`, pedido 264). A sombra da rua não é por igual
+  (pedido 263): mais escura perto e mais clara no longe (`SHADE_DEPTH`), quente junto da faixa, a luz rebatida dela
+  (`BOUNCE_SHADE`), e mais escura junto dos meios-fios (`SHADE_CORNER`). **A sombra e a faixa são luz, não tinta** (`_draw_sun_strip`): a vista
   de trás é desenhada em três camadas, o chão (`_back`), a luz nele e o que fica em pé (`_upright`, `_draw_city_upright`:
   os postes da rua do cruzamento, a sombra do nosso prédio, as paredes e as fachadas); a sombra multiplica o chão
   (`_street_mul`, `BLEND_MODE_MUL`, sem a luz do dia) e a faixa soma (`_street_add`, com ela), as cores escritas como
   a pintura ajustada à vista e passadas a luz por `_lit` (no tom do asfalto dá a mesma cor, e as manchas, o grão e as
   rachaduras continuam embaixo); pintadas por cima, cobriam a textura (a faixa ficava chapada, só com as rachaduras
   riscando) e cada superfície acesa pedia um remendo; luz nova no chão da vista entra nessas camadas; e só nela quem passa, os carros e os postes de lá deixam as sombras
-  compridas, encurtando com o sol subindo (`_sun_shadow`, `_shadow_k`). O teto e os vidros dos carros e a beira de cima de cada
-  tufo do arbusto pegam o sol; o asfalto úmido do sereno espelha de leve os faróis e as lanternas (`DAMP`); de manhã
+  compridas, encurtando com o sol subindo (`_sun_shadow`, `_shadow_k`). O teto e os vidros dos carros pegam o sol, e a copa da
+  árvore acende de verde-amarelo, mais no alto e na beira de cima de cada tufo (`Pal.LEAF_SUN`); o asfalto úmido do sereno espelha de leve os faróis e as lanternas (`DAMP`); de manhã
   mais carros vêm com o bagageiro (`RACK`), passa o menino do jornal de bicicleta (`PAPERBOY`) e às 5h30 o dono abre o
   bar e fica no vão da porta (`BAR_OPENS`); na sala, a poeira dourada no feixe do sol (`SUN_DUST`, `_sunbeam`); com os postes apagados, as vitrines acesas deixam a luz na calçada (`SHOP_POOL`). A neblina
   baixa no fundo da rua some com o sol nascendo (`_draw_dawn_mist`), as nuvens se acendem por baixo (`Pal.DAWN_CLOUD_TOP` no
-  alto), fiapos de nuvem cobrem o céu (`_draw_cirrus`, `CIRRUS`) (os passarinhos, bandos em V e os pombos saindo da
+  alto), fiapos de nuvem cobrem o céu (`_draw_cirrus`, `CIRRUS`) e bancos de nuvem em faixas largas, de beira nítida, com a beira de baixo acesa
+  rosa e, com o sol, laranja, descem até o vão da rua do cruzamento (`_draw_banks`, `BANKS`; pedido 259, como na referência) (os passarinhos, bandos em V e os pombos saindo da
   torre, saíram, a pedido). A cidade clareia pelo `modulate` da `_back` e da `_view` (`DAY_GAIN`, `DAY_WARM`; a cor das luzes do sol na
   cidade sai dele, `_sunny`, senão o laranja estourava no amarelo-cáqui; atrás da igreja, prédios altos num terceiro
   plano no ar dourado, `FAR_ROWS`; um
