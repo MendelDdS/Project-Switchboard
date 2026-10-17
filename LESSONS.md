@@ -469,3 +469,33 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   numa captura e chamada de "a sombra da igreja" sem conferir; era o asfalto de base do chão pintado por cima do pé
   dela (a ordem de desenho), e escondia a escadaria acabada de pôr. Para saber de onde vem um pixel, pinte a suspeita
   de magenta ou pule a camada numa captura e leia o pixel; só depois diga o que é.
+- **A sombra vem de onde o sol aparece.** As sombras da mesa já tinham sido viradas "para os olhos" (pedido 245), mas
+  com pouca força: ainda iam mais de lado que para a frente, e o usuário pediu de novo. Com o sol quase de frente na
+  janela, compare o ângulo da sombra na tela com o lugar do sol na vista, e tente valores bem diferentes lado a lado
+  antes de escolher um.
+- **Luz que anda com o tempo anda num sentido só, e toda beira de sombra tem quem a projete.** No sol do amanhecer:
+  um `smoothstep` de entrada multiplicado por uma razão que diminui fazia a sombra da rua ir e voltar; a janela de luz
+  no tampo, projetada de um x só numa parede em ângulo, parava numa linha que nenhum objeto projetava; e um cache
+  copiado só com a camada à vista deixava a luz sem sombras até a sala se redesenhar. Conferir: a beira medida em
+  várias horas (só cresce ou só encolhe), cada beira de sombra ligada a uma quina de verdade, e o que a camada usa
+  sempre em dia, à vista ou não.
+- **Sombras de um sol quase de frente: paralelas na tela, não a perspectiva certa.** Com o ponto de fuga das sombras
+  caindo no meio da mesa, cada objeto tinha a sua de um lado (a do relógio torta, a da caneca contra as outras), e o
+  usuário leu como erro, duas vezes. Quando a conta física dá um leque perto da câmera, troque por uma direção só na
+  tela e confira as sombras de todos os objetos juntas, não uma de cada vez.
+- **Luz que muda com a hora não fica parada no fim dela.** O sol das 6h ficou no laranja do nascer (céu, faixa na rua)
+  e a sombra da luminária na força da noite com o dia já claro: cada luz foi ajustada no momento que se olhava, e o fim
+  do amanhecer herdou o meio dele. Ao mexer numa luz do amanhecer, olhe a mesma cena às 5h30, 5h50 e 6h, e veja o que
+  as outras luzes (a luminária, o céu) fazem quando ela cresce.
+- **Medir na hora e no lugar que o usuário mostrou, separando as camadas.** Na "sombra dupla" do relógio, comparei
+  com e sem a sombra da luminária às 6h04, vi diferença e dei como causa; a imagem dele era das 5h38 e a causa era
+  outra (a beira da luz espalhada do sol cortando a sombra). O que achou foi subtrair capturas na hora dele (sem o sol,
+  sem as sombras dos objetos) e desenhar os polígonos por cima: cada faixa ficou com dono.
+- **Rampa em degraus numa superfície grande e lisa vira um desenho.** Na parede do fundo, os degraus de tinta pela luz
+  da luminária (plano hi-bit) deram um arco nítido ao lado do armário, que lia como uma forma sem sentido; e, sendo
+  tinta, ficava igual com a sala clareando no amanhecer. Degrau de rampa serve a peças pequenas (metal, papel, um
+  objeto num degrau só); em parede, chão ou céu, a luz vai lisa, e a que muda com a hora vai num shader ou numa
+  camada com `modulate`, não na tinta.
+- **Luz no chão embaixo de algo que anda vai na camada dele, cortada por ele.** O reflexo da porta do hotel ficava no
+  chão da vista, que não se redesenha com os carros, e aparecia pela sombra translúcida do táxi parado em cima dele.
+  Quem passa na frente de uma luz no chão precisa tapá-la, e isso só dá na camada que se redesenha com ele.

@@ -137,6 +137,7 @@ var occ_ids := PackedStringArray()   # quem é cada um de `_occ` (o id da ferram
 var _mug_mouth := Vector2.ZERO   # o meio do café na caneca (px da tela), de onde sobe o vapor
 var _mug_w := 0.0               # a largura da caneca na tela (px; 0 = ainda não desenhada)
 var _mug_glint := Rect2()       # o risco da luz da luminária no café (px da tela), onde ela treme (`_draw_glint`)
+var _lamp_shades: Array[PackedVector2Array] = []   # as sombras da luminária no tampo (`_desk_shadow`), para a camada delas
 
 
 ## Em que passo da virada está a plaqueta do relógio (0 a 2; 3 = parada).
@@ -342,7 +343,7 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 		var draw_box := func() -> PackedVector2Array:   # a caixinha: a madeira, a boca escura com os guardados de pé e a plaqueta na frente
 			var bc := Vector2(x0 + bx.get_center().x * w, zb - bx.get_center().y * d)
 			var bh := bx.size * Vector2(w, d) / 2.0
-			_desk_shadow(quad.call(bx))
+			_desk_shadow(quad.call(bx), false)
 			var faces := _clock_box(bc.x, bc.y, bh.x, bh.y, _yd, TOLL_BOX_H, Pal.BOARD[0], Pal.BOARD[2], Pal.BOARD[1], desk)
 			var y1 := _yd - TOLL_BOX_H
 			var e := 0.5
@@ -361,7 +362,7 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 				out.append_array(g)
 			return out
 		var draw_stamp := func() -> PackedVector2Array:   # o carimbo, em pé onde a sapata está
-			_desk_shadow(quad.call(shoe))
+			_desk_shadow(quad.call(shoe), false)
 			var tex := _stamp_art(paper)
 			var foot: Vector2 = pt.call(Vector2(shoe.get_center().x, shoe.end.y), 0.0)
 			var c := foot.round() - Vector2(0, tex.get_height() / 2.0)
@@ -654,19 +655,29 @@ func _top_xf(q: PackedVector2Array) -> Array:
 ## Sombra de um objeto na mesa (`foot`, a marca dele no tampo), apontando para longe da luminária, em degraus: a
 ## penumbra em volta, a sombra e, colado na base, o escuro de onde ele encosta na mesa (sem ele, os objetos pareciam
 ## pousados por cima do tampo). Erguido (`_raised`), a sombra fica na mesa, se afasta um pouco e o escuro da base some.
-func _desk_shadow(foot: PackedVector2Array) -> void:
+## A da luminária, caindo no tampo (`on_desk`; não na mesinha do calculógrafo), vai para a camada dela
+## (`_lamp_shades`), embaixo do sol, que a apaga com o dia (`Background.LAMP_SHADE`).
+func _desk_shadow(foot: PackedVector2Array, on_desk := true) -> void:
 	var off := Vector2(clampf((_bounds(foot).get_center().x - _lamp_x * 2.0) / 60.0, -6.0, 8.0), 4.0).round()
 	var up := _raised()
 	off += up + (off.normalized() * up.length() * 0.5).round()
 	var pts := PackedVector2Array()
 	for p in foot:
 		pts.append(p + off)
-	for g in Geometry2D.offset_polygon(pts, 1.5, Geometry2D.JOIN_MITER):
-		_poly(g, Color(0, 0, 0, 0.15))
-	_poly(pts, Color(0, 0, 0, 0.3))
+	if on_desk and up == Vector2.ZERO and _ci == _props_layer:
+		_lamp_shades.append(pts)
+	else:
+		_lamp_shade(pts)
 	if up == Vector2.ZERO:
 		for g in Geometry2D.offset_polygon(foot, 1.0, Geometry2D.JOIN_MITER):
 			_poly(g, Color(0, 0, 0, 0.45))
+
+
+## A sombra da luminária de um objeto (`_desk_shadow`): a penumbra em volta e a sombra.
+func _lamp_shade(pts: PackedVector2Array) -> void:
+	for g in Geometry2D.offset_polygon(pts, 1.5, Geometry2D.JOIN_MITER):
+		_poly(g, Color(0, 0, 0, 0.15))
+	_poly(pts, Color(0, 0, 0, 0.3))
 
 
 ## Se o objeto `id` entra neste desenho: na sala, todos menos o erguido sob o mouse (`_up_id`); na camada dele

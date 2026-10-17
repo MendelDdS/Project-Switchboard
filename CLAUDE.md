@@ -166,7 +166,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   delas, `Pal.panel_step`, o mesmo do relevo; a máquina do calculógrafo da mesa, a mesinha, o carimbo e a caixinha
   num degrau só, `_clock_box` com `tone`; os plugs e os fios, que andam, continuam na luz multiplicada, `_lit_by`,
   porque uma paleta por degrau, por ângulo e por cabo encheria o cache do `PixelArt`; a parede do fundo, o conduíte e o
-  armário pela luz da luminária na parede, só na cor, `Pal.WALL_TONES`, `CONDUIT`, `STEEL_TONES`, porque o escuro
+  armário pela luz da luminária na parede, só na cor, `CONDUIT`, `STEEL_TONES` (a parede, num tom só: em faixas, a
+  beira delas fazia um arco duro ao lado do armário, pedido 275), porque o escuro
   pela distância já é o da sala, `_noir`, e dobraria; na vista, as fachadas e as paredes da rua do cruzamento,
   `Pal.FACADE_TONES` e `BRICK_TONES`, o asfalto e a calçada, `ASPHALT_TONES` e `SIDEWALK_TONES`, e a quina do
   meio-fio, acesa embaixo de cada poste, `CURB_LIT`, a lataria dos carros e o baú, `CAR_TONES` e `TRUCK_BOX`, e a
@@ -691,8 +692,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   própria embaixo da cidade (`_sky`, `_draw_sky`; o vidro, `_pane`, por cima: o reflexo some com o dia), é um
   degradê de quatro tons do alto à vista até o horizonte (`Pal.DAWN_SKY`, quadros de 4 cores, e `DAWN_STOPS`;
   `_sky_stops`, `_sky_tones`): do azul-escuro ao azul-esverdeado no alto, rosa, laranja e amarelo embaixo enquanto o
-  sol nasce, e às 6h ainda quente (o quadro das 6h e `DAY_SKY`, `_day_sky`, o quanto as nuvens, o clarão e o halo já
-  são de dia: de dia, branco e azul, o sol sumia no horizonte claro, pedido 267); as nuvens tingem junto. As estrelas somem até 4h30, a lua
+  sol nasce, e às 6h o azul do dia no alto e só o horizonte num dourado claro (o quadro das 6h, pedido 273: laranja até
+  o fim parecia o sol ainda nascendo; e `DAY_SKY`, `_day_sky`, o quanto as nuvens, o clarão e o halo já são de dia: de
+  dia, branco e azul até embaixo, o sol sumia no horizonte claro, pedido 267); as nuvens tingem junto. As estrelas somem até 4h30, a lua
   empalidece e o sol nasce às 5h25 **atrás da igreja**, no fundo da rua do cruzamento (a janela olha para o leste; `_sun_at`,
   `_draw_dawn`: o disco, pequeno, `SUN_DISC` raios (pedido 256), quase todo miolo branco, `Pal.SUN_CORE`, o amarelo, sem beira, e
   por cima o brilho branco saindo dele e esmaecendo, `SUN_GLOW`, e o halo amarelo, sem laranja, que encolhe e branqueia com o dia, como o clarão do horizonte some, para o azul não ficar cinza; desenhado por cima das nuvens: um banco passando o apagava), e sobe devagar ao lado da torre, meio atrás dela e ainda baixo às 6h, como na referência
@@ -719,13 +721,15 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   rua do cruzamento as fiadas e os remendos translúcidos por cima do degradê da luz (`CANYON_GRAIN`). O resto da rua fica na sombra dos
   prédios de lá (`STREET_SHADE`, em `Pal.DAWN_SHADOW`, azul-violeta) e a faixa de sol entra pela rua do cruzamento e atravessa a nossa (`STRIP_A`, numa
   cor só, alaranjada, `Pal.SUN_STREET`, a mesma da luz do sol nos prédios, na parede de raspão, nas cornijas e no
-  rebatido; com `SUN_RIM` saía amarela, pedido 265; reta, a `STRIP_EDGE` das paredes, e as beiras esmaecendo da sombra à luz sem degrau, a da sombra da parede
+  rebatido; com `SUN_RIM` saía amarela, pedido 265; com o sol subindo, toda essa luz clareia para a do dia,
+  `Pal.SUN_HIGH`, `_sun_tint`, `SUN_PALE`, e a faixa e a sombra da rua se apagam, `SUN_FADE`: laranja e forte até as
+  6h, pedido 273; reta, a `STRIP_EDGE` das paredes, e as beiras esmaecendo da sombra à luz sem degrau, a da sombra da parede
   mais larga quanto mais comprida ela é, `STRIP_SOFT`, pedido 261; antes, dois degraus com os tons misturados e, antes
   deles, direto do violeta ao laranja, as cores não se misturavam; mais vermelha para cá, `STRIP_NEAR`,
   `Pal.SUN_DEEP`: amarela no fundo, por cima do violeta, ficava cáqui; e mais clara e dourada na boca do cruzamento,
   mais cheia ali, `STRIP_MOUTH`; com o sol à direita do eixo da rua, `SUN_LOW`, a parede da direita deixa a sombra
-  dela no lado direito da faixa, prédio por prédio da rua do cruzamento, cada um na altura dele, `_wall_ratio`: quase toda logo depois de ele nascer, rente ao horizonte, e menos com ele
-  subindo; pedido 260; e nela o sol espelhado no asfalto úmido, embaixo dele na tela, nas marcas dos pneus, lisas e
+  dela no lado direito da faixa, prédio por prédio da rua do cruzamento, cada um na altura dele, `_wall_ratio`: quase toda logo depois de ele nascer, rente ao horizonte, e só encolhendo com ele
+  subindo, o lado do sol fixo no das 6h (ia e voltava, pedido 271); pedido 260; e nela o sol espelhado no asfalto úmido, embaixo dele na tela, nas marcas dos pneus, lisas e
   úmidas, em fios quebrados onde o asfalto secou, e no resto do asfalto só de leve, `_draw_glints`, `GLINT*`: sem ele a
   faixa parecia um vidro amarelo, pedido 262; em brilhos curtos sorteados, saía um confete branco, e numa coluna
   quebrada em faixas, manchas ovais; pedido 263). As marcas dos pneus ficam em todas as noites, ao longo da nossa rua
@@ -745,7 +749,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   numa listra). As manchas do asfalto têm a beira torta (`_blot`, em quadriláteros, `_convex`: em triângulos quebravam o
   lote, de 380 para 870 chamadas; retas, a faixa de sol virava uma colcha). O teto e os vidros dos carros pegam o sol, e a copa da
   árvore acende de verde-amarelo, mais no alto e na beira de cima de cada tufo (`Pal.LEAF_SUN`); o asfalto úmido do sereno espelha de leve os faróis e as lanternas (`DAMP`) e, mais, a vitrine
-  do bar, a porta do hotel e as vitrines acesas do térreo (`_mirror`, `MIRROR_A`, retas embaixo delas, como na chuva),
+  do bar, a porta do hotel e as vitrines acesas do térreo (`_mirror`, `MIRROR_A`, retas embaixo delas, como na chuva; na frente da vista e
+  cortadas pelo chão dos carros, `_car_ground`: no chão, apareciam numa listra de luz pela sombra do táxi parado no
+  hotel, pedido 276),
   e as poças da chuva da noite espelham o céu (`_draw_puddles`, `PUDDLES`); de manhã mais gente vira a esquina, vindo
   de mais longe pela rua do cruzamento (`WALK_CORNER_DAWN`, `TURN_FAR`), e lá, contra o sol, quase em silhueta
   (`Pal.BACKLIT`), com a beira acesa só na faixa de sol e de perto; o porteiro fica na porta do hotel; de manhã
@@ -767,12 +773,18 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   embaixo dos objetos da mesa, a força no `modulate`): o fundo do vão e o tampo do peitoril acesos, com a sombra
   do batente de longe atravessando-os na direção do raio e a beira delas em degraus de 1 px
   (`_draw_sun_sill`; as quinas do peitoril e do vão ficam nítidas), e a janela desenhada
-  no tampo, nítida, um retângulo só (a conta do relâmpago com o raio mais baixo, `SUN_STEEP`, que mal muda até as 6h e por igual, `_sun_steep`: encolhendo
+  no tampo, nítida, um retângulo só, saindo da parede em ângulo (`_wall_x`; com um x só, a beira da luz não acompanhava o peitoril, pedido 271) (a conta do relâmpago com o raio mais baixo, `SUN_STEEP`, que mal muda até as 6h e por igual, `_sun_steep`: encolhendo
   até a parede, parecia o sol já a pino; logo depois de nascer ela é fraca e de beira espalhada, `SUN_FAINT`,
-  `SUN_SOFT`, e fica forte e nítida com o sol subindo, `_sun_up`), e nela a sombra
+  `SUN_SOFT`, cortada no fundo da mesa reto na tela como a nítida, `_below`: com o canto preso nele, a beira dela
+  atravessava a sombra do relógio e parecia uma segunda sombra, pedido 274, e fica forte e nítida com o sol subindo, `_sun_up`), e nela a sombra
   comprida da caneca e do relógio (`SUN_CAST`, pelos contornos `_occ` da última vez; uma mancha redonda de luz parecia
-  lâmpada); o raio, a janela no tampo e as sombras vêm da janela para a esquerda e para os olhos, como o sol que se vê
-  nela (`SUN_TOWARD`, `_sun_ray`; reto para a esquerda, a sombra não batia com a luz), e a beira da caneca e do relógio
+  lâmpada), com a da luminária, que continua acesa, sumindo: ela fica numa camada embaixo do sol (`_shade_layer`,
+  `_lamp_shades`, do `_desk_shadow`), apagada pelo dia no `modulate` (`LAMP_SHADE`; às 6h o relógio tinha duas
+  sombras, pedido 273); o raio, a janela no tampo e as sombras vão todos na mesma direção na tela, para a esquerda e para baixo,
+  na linha que o usuário traçou da quina de baixo da janela à frente da mesa (`SUN_SHIFT`, `_sun_ray`, pela altura na
+  tela, pedido 272: em perspectiva, com o sol quase de frente, saíam em leque e cada uma ia para um lado; antes, reto
+  para a esquerda, a sombra não batia com a luz), a beira da luz de longe passa pela quina do batente no vidro, e a de
+  perto é a sombra da parede depois da janela, e a beira da caneca e do relógio
   virada para ele acende, quente, numa camada somada por cima deles (`_sun_edge`, `_draw_sun_edge`, `SUN_EDGE_A`:
   tirada do desenho de cada um, `_mug_rim`, `_clock_rim`, só se o raio pelo alto deles cai na janela do tampo), a mesa comutadora clareia de leve (`Switchboard.dim`,
   `DAY_LIFT`), o brilho da luminária e o halo do `Bloom` enfraquecem (`Main.DAY_DIM`) e a gradação vai para a do dia

@@ -150,9 +150,6 @@ const STEEL := Color("566052")   ## o aço pintado do armário...
 ## quentes, no lugar dele escurecido e clareado.
 const STEEL_TONES: Array[Color] = [Color("2a3433"), Color("394341"), Color("464f48"), STEEL, Color("6a705e"),
 	Color("7f836c"), Color("939379")]
-## A tinta da parede do fundo pela luz da luminária nela (`Background._wall_runs`): longe, mais fria; no meio, a de
-## sempre; perto da boca do cone, mais quente. O brilho quase não muda: o escuro é o da sala (`_noir_params`), por cima.
-const WALL_TONES: Array[Color] = [Color("12202c"), WALL_PAINT, Color("2a2a20")]
 ## O escuro do armário, do mais fundo ao menos: o vão aberto, o fundo dele, o lado de baixo das prateleiras, a parede
 ## de dentro, as frestas, as fendas das venezianas e o tampo das prateleiras.
 const STEEL_DARK: Array[Color] = [Color("0d110d"), Color("151a14"), Color("1c211b"), Color("1d241c"), Color("23281f"),
@@ -182,13 +179,14 @@ const MOON_LOW := Color("e0a868")   ## ...e perto do horizonte (o ar mais grosso
 const CLOUD_RIM := Color("8a8f8a")  ## a beira das nuvens na frente da lua
 ## O amanhecer da última noite (`Background.dawn`: 0 às 4h05, 1 às 6h): [quando, os quatro tons do céu do alto ao
 ## horizonte, em `DAWN_STOPS`], da noite limpa ao dia: o azul-escuro, o violeta, o rosa e o laranja forte com o sol
-## nascendo e, até as 6h (o fim do jogo), o azul-lavanda no alto com o rosa, o laranja e o dourado embaixo.
+## nascendo e, às 6h (o fim do jogo), o azul do dia no alto e só o horizonte num dourado claro (laranja até o fim,
+## parecia o sol ainda nascendo, pedido 273; branco embaixo, o sol sumia nele, pedido 267).
 const DAWN_SKY := [[0.0, [Color("0a1422"), Color("0c1626"), Color("151e2e"), Color("27303c")]],
 	[0.22, [Color("0e1832"), Color("18213f"), Color("2c2a4c"), Color("4c3552")]],
 	[0.48, [Color("1c3260"), Color("5a4a80"), Color("c0607a"), Color("f08c5a")]],
 	[0.68, [Color("34508c"), Color("b06890"), Color("f08458"), Color("ffc458")]],
 	[0.84, [Color("4a6aa8"), Color("d07c94"), Color("ff9c5c"), Color("ffd070")]],
-	[1.0, [Color("5476b2"), Color("cc8498"), Color("ffa062"), Color("ffd47c")]]]
+	[1.0, [Color("5a84c4"), Color("8c9cc8"), Color("e0b4a4"), Color("ffd890")]]]
 const DAWN_STOPS := [0.0, 0.22, 0.5, 1.0]   ## onde fica cada tom, do alto do céu à vista (0) ao horizonte (1)
 const DAWN_GLOW := Color("ffb070")    ## o clarão do lado onde o sol nasce
 const DAWN_CLOUD := Color("f0a890")   ## as nuvens pegando a luz do sol por baixo...
@@ -202,6 +200,7 @@ const SUN := Color("ffe68c")          ## ...o disco...
 const SUN_RIM := Color("ffb050")      ## ...a beira dele e o halo
 const SUN_STREET := Color("ff8438")   ## a luz do sol lá fora, na rua e nos prédios (a faixa, a parede de raspão, as cornijas): alaranjada (com `SUN_RIM`, saía amarela)
 const SUN_DEEP := Color("f06a3c")     ## a faixa de sol na rua, perto de nós: mais vermelha que no fundo
+const SUN_HIGH := Color("ffd49c")     ## a luz do sol lá fora já mais alto, às 6h: clareando o dia (`Background._sun_tint`)
 const DAYLIGHT_DAWN := Color("7a88b8")   ## a luz do dia entrando pela janela na sala: a do céu antes do sol, fria...
 const DAYLIGHT_SUN := Color("f0d8b8")    ## ...e a do sol, quente (`Background.daylight`)...
 const SUN_ROOM := Color("ffc070")        ## ...e o sol entrando direto, a janela desenhada no peitoril e no tampo: dourado claro (`_draw_sun`)

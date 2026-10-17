@@ -1537,3 +1537,55 @@ Chaves:
     "Remova essa 'porta' e essa luz da igreja": a porta acesa no alto da escadaria (apagava às 22h, `CHURCH_DARK`) e
     o relógio da torre aceso, com o brilho dele no `Bloom`, saíram. O relógio fica, apagado (o mostrador um tom mais
     claro que a torre e os ponteiros, `Pal.CHURCH_CLOCK`).
+270. #janela #amanhecer #sala #luz
+    "Essas sombras dos itens na mesa estão erradas, deveria estar vindo mais em direção à câmera": o raio do sol na
+    sala anda mais para os olhos (`SUN_TOWARD` 1,2, era 0,6): as sombras da caneca e do relógio descem na diagonal para
+    a frente, e a janela de luz no tampo vem junto. Com 2, quase retas para baixo, a luz no tampo virava uma faixa
+    estreita.
+271. #janela #amanhecer #sala #luz #cidade
+    Três problemas no sol do amanhecer: (1) "a sombra se desencontra com a janela": a janela de luz no tampo saía de um
+    x só, o do meio do vão, mas a parede da direita fica em ângulo; à direita da caneca, a luz parava numa linha reta
+    que ninguém projetava. Agora cada ponto do vão sai da parede onde ele está (`_wall_x`), e o tampo pega o sol até
+    a parede. (2) "As sombras dos itens estão aparecendo instantaneamente": os contornos dos objetos (`_sun_occ`) só
+    eram copiados com a camada do sol já à vista, e a sala, parada no amanhecer, não se redesenhava: a luz entrava sem
+    sombras e elas apareciam de uma vez na próxima vez que a sala se redesenhasse. Agora ficam sempre em dia. (3) "A
+    sombra na rua está indo e voltando, como se o sol estivesse dando curva": a sombra da parede da direita na faixa
+    de sol crescia de nenhuma até quase toda nos primeiros minutos (`rise`) e depois encolhia. Agora começa quase toda,
+    rente ao horizonte, e só encolhe, com o lado do sol fixo no das 6h (`_wall_ratio`); a sombra de quem passa vai
+    junto.
+272. #janela #amanhecer #sala #luz
+    "Gostaria que a iluminação do sol seguisse essa linha vermelha, e lembre-se de projetar as sombras. Outra coisa, a
+    sombra do relógio está torta e a da caneca está em desacordo com a do relógio e da lista telefônica": a linha ia da
+    quina de baixo da janela, passando pela lista, até a frente da mesa, perto da caixinha. O raio do sol na sala
+    deixou a perspectiva e virou um passo só na tela (`SUN_SHIFT`, por px de altura): a beira de longe da luz no tampo
+    sai da quina do batente no vidro e segue a linha, a parede depois da janela faz a sombra da beira de perto, e as
+    sombras da lista, do relógio e da caneca ficam paralelas a ela (em perspectiva, com o sol quase de frente, elas
+    saíam em leque do ponto de fuga dele, entre o relógio e a caneca: a do relógio torta, a da caneca para o outro
+    lado). Mais curtas (`SUN_CAST` 0,8).
+273. #janela #amanhecer #vista #cidade #sala #luz #objetos
+    "Quando bate 6h, o céu deveria estar tão laranja ainda? A luz do sol às 6h está muito laranja na rua, deveria estar
+    apenas clareando o dia e essa luz deveria ir sumindo também. O relógio está com duas sombras, o que é?" O quadro
+    das 6h do céu ficou com o azul do dia no alto e só o horizonte num dourado claro (o sol continua à vista: sem o
+    branco embaixo do pedido 267). A luz do sol lá fora (faixa, paredes, cornijas, rebatido, brilhos) clareia do laranja
+    para a do dia com o sol subindo (`Pal.SUN_HIGH`, `_sun_tint`, `SUN_PALE`) e a faixa e a sombra da rua se apagam até
+    as 6h (`SUN_FADE`). A sombra da luminária, que continua acesa e deixava a dela para a direita ao lado da do sol, foi
+    para uma camada embaixo do sol (`_shade_layer`) que o dia apaga (`LAMP_SHADE`); a sombra dupla mesmo era outra coisa
+    (pedido 274).
+274. #janela #amanhecer #sala #luz #objetos
+    "A sombra dupla continua!" (5h38). Não era a luminária: era a luz espalhada do sol baixo (a parte que vai por
+    igual na janela toda, por cima das sombras, `SUN_SOFT`), que tinha os cantos presos ao fundo da mesa só pela
+    profundidade; o de trás escorregava para o lado e a beira dela cortava a sombra do relógio em diagonal, um lado sem
+    ela e o outro com ela. Agora ela é cortada no fundo da mesa reto na tela, como a janela nítida (`_below`).
+275. #sala #luz #amanhecer #saiu
+    O arco ao lado do armário: "está feio e sem sentido também, pois se a sala clareou com o amanhecer, essa luz
+    chapada não deveria estar aí". Era a beira das faixas de tinta da parede do fundo pela luz da luminária (pedido
+    201, plano hi-bit 3.4b: mais quente perto da boca do cone, mais fria longe), que davam um degrau de cor do
+    verde-acinzentado ao azul numa linha só, pintado na parede e por isso igual de noite e de dia. A parede voltou a um
+    tom só (`Pal.WALL_PAINT`); a luz da luminária nela fica a lisa, a do shader, que perde força com o dia, e o leque
+    de `_draw_wall_light`. O conduíte e o armário continuam escolhendo o tom pelo degrau da luz (`_wall_step`).
+276. #vista #amanhecer #carros #luz
+    "Quando o carro para, está ficando uma listra de luz em cima da sombra do carro." Era o reflexo da porta do hotel
+    (e, no bar, da vitrine) no asfalto úmido, desenhado no chão, embaixo da camada dos carros: o táxi para bem na frente
+    da porta e o reflexo aparecia pela sombra de contato dele, que é translúcida. Os dois reflexos foram para a frente
+    da vista, antes dos carros, e cada carro os corta da beira de lá do chão dele para cá (`_car_ground`, `_mirror`),
+    também na chuva.

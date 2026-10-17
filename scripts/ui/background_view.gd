@@ -214,6 +214,11 @@ const RAYS := 160         ## as fatias do leque dos raios crepusculares em volta
 const COVER_STEPS := 12   ## ...os pontos de cada um conferidos contra a igreja (`_church_cover`)...
 const RAY_A := 0.55       ## ...a força deles...
 const CHURCH_SHADOW := 0.6   ## ...e a da sombra da igreja neles
+## Com o sol subindo, a luz dele lá fora clareia do laranja para a do dia (`Pal.SUN_HIGH`, o quanto às 6h, `_sun_tint`)
+## e a faixa dele na rua e a sombra em volta dela se apagam no dia (o quanto fica delas às 6h; laranja e forte até o
+## fim, parecia o sol ainda nascendo, pedido 273).
+const SUN_PALE := 0.75
+const SUN_FADE := Vector2(0.65, 0.45)
 const STRIP_A := 0.5      ## a faixa de sol que entra pela rua do cruzamento e atravessa a nossa (`_draw_street`)...
 const STREET_SHADE := 0.62 ## ...a sombra dos prédios de lá no resto da rua...
 const SHADOW_A := 0.75    ## ...e as sombras compridas nela (`_sun_shadow`)
@@ -499,6 +504,11 @@ func _sunny(c: Color) -> Color:
 	return Color(c.r / _day.r, c.g / _day.g, c.b / _day.b, c.a)
 
 
+## A luz do sol `c` lá fora agora (`_sunny`): a do nascer, clareando com ele subindo para a do dia (`SUN_PALE`).
+func _sun_tint(c: Color) -> Color:
+	return _sunny(c.lerp(Pal.SUN_HIGH, SUN_PALE * smoothstep(SUNRISE, DAWN.y, minutes)))
+
+
 ## Onde começa o degradê do céu (`_draw_sky`): no alto do céu à vista (acima, o vidro acaba) ou, de noite, só nos 50 de
 ## baixo.
 func _sky_from(g: Rect2) -> float:
@@ -702,7 +712,7 @@ func _draw_city_upright(g: Rect2) -> void:
 	# perto, embaixo da janela, a rua some na sombra do nosso prédio, lisa e sem nenhuma linha
 	var dark := Color(0, 0, 0, 0.6)
 	_fill(_patch(g, -80.0, 80.0, 0.3, STREET["curb"] + 1.5), PackedColorArray([dark, dark, Color(dark, 0.0), Color(dark, 0.0)]))
-	if weather == "rain" or morning() > 0.0:   # (de manhã, o asfalto úmido do sereno: as vitrines, grandes e paradas, mais que os faróis)
+	if weather == "rain" or morning() > 0.0:   # (de manhã, o asfalto úmido do sereno; as vitrines, na frente da vista, `_draw_city_front`)
 		_draw_wet(g, {}, 1.0 if weather == "rain" else 2.0 * DAMP)
 	if dawn() > 0.0 and weather == "clear":
 		_draw_puddles(g)
@@ -843,6 +853,10 @@ func _moon_art(age: float, size: int) -> Texture2D:
 func _draw_city_front(g: Rect2) -> void:
 	if _hz(g) - g.position.y < 40.0:   # (a tela ainda não se arrumou: o vidro ainda não tem o tamanho dele)
 		return
+	if weather == "rain" or morning() > 0.0:   # a vitrine do bar e a porta do hotel, sempre acesas, no asfalto molhado: aqui, e não no chão, porque o carro passando na frente as tapa (`_mirror`)
+		var a := 1.0 if weather == "rain" else 2.0 * DAMP
+		_mirror(g, CROSSING.y + 0.5, CROSSING.y + 2.5, 2.5, _sunny(Pal.BAR_LIGHT[1]), a)
+		_mirror(g, HOTEL_X - 0.6, HOTEL_X + 0.6, 2.3, _sunny(Pal.HOTEL_DOOR[1]), a)
 	_draw_hotel_sign(_hotel_pos(g))
 	_draw_balcony_front(g)
 	_draw_bar_door(g)
@@ -1009,16 +1023,17 @@ func _draw_sun_strip(g: Rect2, add: bool) -> void:
 	var base: Color = Pal.ASPHALT_TONES[1 if weather == "fog" else 0][Pal.STREET_MID]
 	var wide := 80.0
 	var ff: float = STREET["far"]
-	var shade := Color(Pal.DAWN_SHADOW, STREET_SHADE * sun)   # (azul-violeta: preta, apagava a rua)
+	var high := smoothstep(SUNRISE, DAWN.y, minutes)   # (o sol subindo: o céu enche a sombra e a faixa se apaga no dia, `SUN_FADE`)
+	var shade := Color(Pal.DAWN_SHADOW, STREET_SHADE * sun * lerpf(1.0, SUN_FADE.y, high))   # (azul-violeta: preta, apagava a rua)
 	var shade_at := func(z: float) -> Color:
 		var k := lerpf(SHADE_DEPTH.x, 1.0, z / ff) if z <= ff else lerpf(1.0, SHADE_DEPTH.y, smoothstep(ff, 130.0, z))
 		return Color(shade, minf(1.0, shade.a * k))
 	# a luz é a da cor já sem a luz do dia por cima (`_sunny`), que a levava ao amarelo-cáqui; ao longo da faixa, mais
 	# clara e dourada na boca do cruzamento, onde o sol bate em cheio (`STRIP_MOUTH`), e mais vermelha e mais fraca para
 	# cá, sumindo no longe
-	var lit := Color(_sunny(Pal.SUN_STREET), STRIP_A * sun)
-	var near := Color(lit.lerp(_sunny(Pal.SUN_DEEP), STRIP_NEAR), lit.a * 0.4)
-	var mouth := Color(lit.lerp(_sunny(Pal.SUN_RIM), STRIP_MOUTH.x), minf(1.0, lit.a * STRIP_MOUTH.y))
+	var lit := Color(_sun_tint(Pal.SUN_STREET), STRIP_A * sun * lerpf(1.0, SUN_FADE.x, high))
+	var near := Color(lit.lerp(_sun_tint(Pal.SUN_DEEP), STRIP_NEAR), lit.a * 0.4)
+	var mouth := Color(lit.lerp(_sun_tint(Pal.SUN_RIM), STRIP_MOUTH.x), minf(1.0, lit.a * STRIP_MOUTH.y))
 	var light_at := func(z: float) -> Color:
 		if z <= ff:
 			return near.lerp(mouth, clampf((z - 1.0) / (ff - 1.0), 0.0, 1.0))
@@ -1058,7 +1073,7 @@ func _draw_sun_strip(g: Rect2, add: bool) -> void:
 				var sh: Color = shade_at.call(z)
 				var c: Color = light_at.call(z)
 				if t == 2.0:
-					c = Color(sh.lerp(_sunny(Pal.SUN_DEEP), BOUNCE_SHADE.y), sh.a * 0.8)
+					c = Color(sh.lerp(_sun_tint(Pal.SUN_DEEP), BOUNCE_SHADE.y), sh.a * 0.8)
 				else:
 					c = Color(sh.lerp(c, t), lerpf(sh.a, c.a, t))
 				cols.append(c)
@@ -1087,7 +1102,7 @@ func _draw_glints(g: Rect2, segs: Array[Vector3], sun: float) -> void:
 	var hz := _hz(g)
 	var y1 := _o(g, 0.0, 1.0).y
 	var hot := _sunny(Pal.SUN_CORE)
-	var warm := _sunny(Pal.SUN_RIM)
+	var warm := _sun_tint(Pal.SUN_RIM)
 	var fc: float = STREET["far_curb"]
 	var tw := TRACK_W / 2.0
 	var shades: Array[float] = []   # (uma vez por trecho: a cada linha, a conta do sol pesava no redesenho)
@@ -1136,23 +1151,23 @@ func _draw_glints(g: Rect2, segs: Array[Vector3], sun: float) -> void:
 
 ## A sombra da parede da direita da rua do cruzamento na faixa de sol, em m de lado por m de altura dela: o sol fica um
 ## pouco à direita do eixo da rua (`SUN_LOW`), e a luz, vindo de lado, deixa o alto da parede no chão, para a esquerda.
-## Por um ponto a h m do chão, a sombra anda h·dx/dy de lado (dx e dy: o sol na tela a partir do ponto de fuga da rua).
+## Por um ponto a h m do chão, a sombra anda h·dx/dy de lado (dx e dy: o sol na tela a partir do ponto de fuga da rua;
+## dx o das 6h: com o de agora, que sai do eixo da rua, a sombra crescia logo depois de ele nascer e depois voltava).
 ## ponytail: na nossa rua, a beira devia ir um pouco para a esquerda, vindo para cá.
 func _wall_ratio(g: Rect2) -> float:
-	var sun := _sun_at(g)
 	var vp := _o(g, 0.0, 1.0e4)
-	var dx := sun.x - vp.x
-	var dy := vp.y - sun.y
+	var dx := _church_pos(g).x + SUN_R * SUN_LOW.x - vp.x
+	var dy := vp.y - _sun_at(g).y
 	if dx <= 0.0:
 		return 0.0
 	return 1.0e3 if dy <= 0.0 else dx / dy
 
 
-## A sombra no chão de algo de `h` m de pé na rua do cruzamento (m para a esquerda, `_wall_ratio`): nascendo no eixo
-## da rua, nenhuma, e crescendo sem pulo; sobra sempre 1 m de faixa de sol (rente ao horizonte, a parede cobriria tudo).
+## A sombra no chão de algo de `h` m de pé na rua do cruzamento (m para a esquerda, `_wall_ratio`): rente ao
+## horizonte, quase a faixa toda (sobra 1 m de sol), e só encolhendo com o sol subindo (crescendo antes, a partir de
+## nenhuma, ela ia e voltava).
 func _wall_shade(g: Rect2, h: float) -> float:
-	var rise := smoothstep(0.0, 0.3, (minutes - SUNRISE) / (DAWN.y - SUNRISE))
-	return minf(h * _wall_ratio(g), CROSSING.y - CROSSING.x - 2.0 * STRIP_EDGE - 1.0) * rise
+	return minf(h * _wall_ratio(g), CROSSING.y - CROSSING.x - 2.0 * STRIP_EDGE - 1.0)
 
 
 ## Onde a faixa de sol acaba, à direita, em `z` (m): na sombra da parede da direita que está ali (num vão, a de antes).
@@ -1250,7 +1265,7 @@ func _draw_crossing_ground(g: Rect2, road: Array, walks: Array, hz: Color) -> vo
 		_fill(_patch(g, side.x, side.x + 0.35 * side.y, fc, 130.0), PackedColorArray([gut, Color(gut, 0.0), Color(gut, 0.0), Color(air.call(gut, 130.0), 0.4)]))
 		var face: Color = Pal.CURB[0]
 		if side.y > 0.0:
-			face = face.lerp(_sunny(Pal.SUN_STREET), WALL_LIT * _sunlit())
+			face = face.lerp(_sun_tint(Pal.SUN_STREET), WALL_LIT * _sunlit())
 		var foot := _o(g, side.x, 130.0)   # (no longe, com 1 px de altura: mais fina, saía tracejada)
 		_fill(PackedVector2Array([_o(g, side.x, ff), foot, foot - Vector2(0, PX), _o(g, side.x, ff, 0.15)]),
 			PackedColorArray([face, air.call(face, 130.0), air.call(face, 130.0), face]))
@@ -1277,7 +1292,7 @@ func _draw_parked(g: Rect2, hz: Color) -> void:
 	var tones: Array = Pal.CAR_TONES[1]
 	var tone := func(k: int) -> Color: return (tones[Pal.CAR_MID + k] as Color).lerp(hz, haze)
 	var sun := _sunlit()
-	var top: Color = (tone.call(1) as Color).lerp(Pal.CAR_SKY, 0.3).lerp(_sunny(Pal.SUN_STREET), 0.25 * sun)
+	var top: Color = (tone.call(1) as Color).lerp(Pal.CAR_SKY, 0.3).lerp(_sun_tint(Pal.SUN_STREET), 0.25 * sun)
 	var side := func(x: float, za: float, zb: float, h0: float, h1: float) -> PackedVector2Array:
 		return PackedVector2Array([_o(g, x, za, h0), _o(g, x, zb, h0), _o(g, x, zb, h1), _o(g, x, za, h1)])
 	var flat := func(xa: float, xb: float, za: float, zb: float, h: float) -> PackedVector2Array:
@@ -1495,8 +1510,6 @@ func _draw_wet(g: Rect2, car: Dictionary = {}, a := 1.0) -> void:
 		if _sign_on():   # embaixo das letras (no meio da caixa; o risco tem 1,5 de largura)
 			var s := _hotel_pos(g) + Vector2(SIGN.x / 2.0 - 0.25, 0.0)
 			lights.append([s, Vector2(s.x - 0.75, _o(g, HOTEL_X, STREET["far_curb"] - 0.5).y), Pal.SIGN_RED])
-		_mirror(g, CROSSING.y + 0.5, CROSSING.y + 2.5, 2.5, _sunny(Pal.BAR_LIGHT[1]), a)   # a vitrine do bar e a porta do hotel, sempre acesas
-		_mirror(g, HOTEL_X - 0.6, HOTEL_X + 0.6, 2.3, _sunny(Pal.HOTEL_DOOR[1]), a)
 	for l: Array in lights:
 		_wet_streak(l[0], l[1], l[2], a)
 
@@ -1513,16 +1526,36 @@ func _wet_streak(head: Vector2, foot: Vector2, col: Color, a := 1.0) -> void:
 
 ## O reflexo de uma abertura acesa no térreo da fachada de lá (de `x0` a `x1` m, `h` m de altura) no asfalto molhado:
 ## da largura dela, descendo reto do meio-fio (não para o ponto de fuga), em linhas quebradas que somem para baixo
-## (num risco fino, como o dos postes, de manhã quase não se via).
+## (num risco fino, como o dos postes, de manhã quase não se via). O carro na rua tapa o reflexo da beira de lá do chão
+## dele para cá (`_car_ground`): por baixo da sombra dele, aparecia uma listra de luz (pedido 276).
 func _mirror(g: Rect2, x0: float, x1: float, h: float, col: Color, a: float) -> void:
 	var ff: float = STREET["far"]
 	var left := _o(g, x0, ff).x
 	var right := _o(g, x1, ff).x
 	var y := _o(g, x0, STREET["far_curb"] - 0.3).y
 	var n := int((_o(g, x0, ff).y - _o(g, x0, ff, h).y) * 0.8 / PX)
+	var cuts: Array[Vector3] = []   # [de x, até x, a beira de lá] de cada carro
+	for c in _cars:
+		var q := _car_ground(g, c)
+		cuts.append(Vector3(minf(q[0].x, q[3].x), maxf(q[1].x, q[2].x), q[3].y))
 	for k in n:
-		if k % 3 != 2:   # (quebrado pelas poças e pelo vento na água)
-			_r(left + PX * (k % 2), y + k * PX, right - left - PX, PX, Color(col, MIRROR_A * a * (1.0 - float(k) / n)))
+		if k % 3 == 2:   # (quebrado pelas poças e pelo vento na água)
+			continue
+		var at := y + k * PX
+		var segs: Array[Vector2] = [Vector2(left, right - PX) + Vector2.ONE * PX * (k % 2)]
+		for v in cuts:
+			if at + PX <= v.z:
+				continue
+			var rest: Array[Vector2] = []
+			for s in segs:
+				if v.x > s.x:
+					rest.append(Vector2(s.x, minf(s.y, v.x)))
+				if v.y < s.y:
+					rest.append(Vector2(maxf(s.x, v.y), s.y))
+			segs = rest
+		for s in segs:
+			if s.y > s.x:
+				_r(s.x, at, s.y - s.x, PX, Color(col, MIRROR_A * a * (1.0 - float(k) / n)))
 
 
 ## Uma parede da rua do cruzamento (`w`: o lado `x`, de `z0` a `z1`, `h` m), indo embora para o ponto de fuga, com
@@ -1535,7 +1568,7 @@ func _draw_canyon_wall(g: Rect2, w: Dictionary, hz: Color, taken: Dictionary) ->
 	var haze := clampf((z0 - 14.0) / 160.0, 0.0, 0.5)
 	var tone := func(k: int) -> Color: return (w["tones"][Pal.FACADE_MID + k] as Color).lerp(hz, haze)   # o tom da rampa, no ar da distância
 	var col: Color = tone.call(0)
-	var rim := _sunny(Pal.SUN_STREET)
+	var rim := _sun_tint(Pal.SUN_STREET)
 	# o sol baixo no fundo da rua, um pouco à direita do eixo: a parede da direita, de costas para ele, na sombra, só a
 	# beira de cima acesa (a cornija); a da esquerda, virada para ele, pega a luz de raspão inteira, junto com o chão:
 	# a sombra da parede da frente no chão nunca chega até ela (`_draw_sun_strip` deixa a faixa desse lado)
@@ -1648,7 +1681,7 @@ func _draw_far_house(g: Rect2, b: Dictionary, hz: Color) -> void:
 	# com o sol, as fachadas de lá, de costas para ele, ficam na luz fria do céu (uma sombra andando nelas não tinha de
 	# onde vir), com a beira de cima acesa contra ele
 	var sun := _sunlit()
-	var rim := _sunny(Pal.SUN_STREET)
+	var rim := _sun_tint(Pal.SUN_STREET)
 	var tone := func(k: int) -> Color: return (tones[Pal.FACADE_MID + k] as Color).lerp(Pal.DAWN_SHADE, 0.12 * sun)
 	var col: Color = tone.call(0)
 	var a := _o(g, x0, ff, ht)
@@ -1735,7 +1768,7 @@ func _draw_far_house(g: Rect2, b: Dictionary, hz: Color) -> void:
 		for side: float in [CROSSING.x, CROSSING.y]:
 			if is_equal_approx(x1, side) or is_equal_approx(x0, side):
 				var out := -BOUNCE.x if is_equal_approx(x1, side) else BOUNCE.x
-				var warm := Color(_sunny(Pal.SUN_STREET), BOUNCE.z * sun)
+				var warm := Color(_sun_tint(Pal.SUN_STREET), BOUNCE.z * sun)
 				var c := _o(g, side, ff)
 				var prev := _o(g, side, ff, BOUNCE.y)
 				for i in range(1, 9):   # um quarto de elipse, da quina para cima e para o lado
@@ -2465,7 +2498,7 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 		edge = back * smoothstep(3.0, 8.0, k) * float(x > CROSSING.x + STRIP_EDGE and x < _strip_end(g, z))
 		top = 0.0
 		side = 1.0   # (o sol um pouco à direita do eixo da rua)
-		rim = Color(_sunny(Pal.SUN_STREET), edge * 0.6)
+		rim = Color(_sun_tint(Pal.SUN_STREET), edge * 0.6)
 	var against := _sunny(Pal.BACKLIT)
 	for pc: Array in parts:
 		var part: Rect2 = pc[0]
@@ -2490,6 +2523,16 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 ## com halo (o par deles quando a frente ou a traseira está virada para nós), a placa do táxi (`taxi`) e, na chuva, o
 ## borrifo dos pneus (`_spray`). Posto a partir da frente (`_car_x`), no sentido em que
 ## anda: o de lá vai para a esquerda, o de cá volta para a direita.
+## O chão embaixo do carro `c`, na tela: a sombra de contato dele.
+func _car_ground(g: Rect2, c: Dictionary) -> PackedVector2Array:
+	var m: Dictionary = CAR_KINDS[c["kind"]]
+	var lane: Vector2 = CAR_LANES[c["lane"]]
+	var x := _car_x(c)
+	var back: float = x - lane.y * (m["len"] + 0.2)
+	var front := x + lane.y * 0.2
+	return _patch(g, minf(front, back), maxf(front, back), lane.x - m["wide"] / 2.0 - 0.15, lane.x + m["wide"] / 2.0 + 0.15)
+
+
 func _draw_car(g: Rect2, c: Dictionary) -> void:
 	var m: Dictionary = CAR_KINDS[c["kind"]]
 	var lane: Vector2 = CAR_LANES[c["lane"]]
@@ -2510,8 +2553,7 @@ func _draw_car(g: Rect2, c: Dictionary) -> void:
 	roof = roof.lerp(Pal.SUN_RIM, 0.25 * _sunlit())   # (com o sol, o teto e os vidros espelham o céu dourado)
 	glass = glass.lerp(Pal.DAWN_CLOUD, 0.3 * _sunlit())
 	var chrome := Pal.CAR_CHROME
-	var all: Vector2 = span.call(-0.2, L + 0.2)
-	_poly(_patch(g, all.x, all.y, z0 - 0.15, z1 + 0.15), Color(0, 0, 0, 0.55))   # o contato com o asfalto
+	_poly(_car_ground(g, c), Color(0, 0, 0, 0.55))   # o contato com o asfalto
 	var beam := Color(1.0, 0.95, 0.8, 0.12)   # o facho dos faróis, sumindo à frente (inteiro, era uma laje cinza colada no carro)
 	_fill(PackedVector2Array([_o(g, x, z0 + 0.2), _o(g, x, z1 - 0.2), _o(g, x + d * BEAM, z1 + 0.5), _o(g, x + d * BEAM, z0 - 0.5)]),
 		PackedColorArray([beam, beam, Color(beam, 0.0), Color(beam, 0.0)]))

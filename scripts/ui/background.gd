@@ -58,7 +58,7 @@ const CONE_M := 0.75       ## a inclinação do cone de luz da luminária na par
 const LAMP_BEAM := 0.16    ## o feixe da luminária no ar (`_draw_beam`): a força dele no alto da tela, sumindo até o tampo...
 const LAMP_BEAM_CORE := 0.5   ## ...e a largura dele, em frações do cone (o miolo, mais denso, no meio; sem bordas marcadas)
 const CURL_PX := 4          ## o tamanho da orelha da folhinha na rajada mais forte (px da tela; `_draw_curl`)
-const WALL_BANDS := [0.8, 0.45]   ## as faixas de luz na parede, de fora para dentro, em frações do cone em volta da boca dele (`_wall_runs`)
+const WALL_BANDS := [0.8, 0.45]   ## as faixas de luz na parede, de fora para dentro, em frações do cone em volta da boca dele (`_wall_step`)
 # A câmera. Medidas da sala na escala da parede do fundo (px de 2x2 lá; ~0,56 cm): x para a direita e y para baixo a
 # partir dos olhos, z a distância deles (a parede fica a `Z0`; mais perto, tudo cresce Z0/z vezes).
 const VP_AT := 0.20     ## o ponto de fuga no espaço da mesa, da mesa comutadora (0) à quina (1): perto dos objetos (longe dele, eles entortam; com os olhos baixos, mais); com 0,32, a lateral da mesa comutadora saía larga e inclinada demais
@@ -128,21 +128,22 @@ const THUNDER_AFTER := Vector2(1.2, 3.5)   ## o trovão vem depois (s, sorteado:
 const BOLT_LIGHT := Color(0.93, 0.96, 1.0)
 const BOLT_DIR := Vector2(-1.4, 0.45)   ## para onde a luz dele anda a cada unidade para o fundo (x, para a esquerda; y, para baixo): a sombra do armário na parede
 const BOLT_STEEP := 1.2   ## quanto ela desce para cada unidade que entra na sala, até a mesa (a janela desenhada no tampo)
-## O sol do amanhecer entrando direto pela janela (`_sun_layer`, `_draw_sun`): quanto o raio desce para cada unidade
-## que entra na sala, logo depois de o sol nascer e às 6h (baixo, a janela se estica no tampo e, até as 6h, mal sai do
-## lugar: encolhendo até a parede, parecia o sol já a pino), a força da luz, e a da sombra comprida dos objetos da mesa
-## (o comprimento dela por altura do objeto).
+## O sol do amanhecer entrando direto pela janela (`_sun_layer`, `_draw_sun`): o quanto ele está alto logo depois de
+## nascer e às 6h (a janela no tampo e as sombras encurtam na razão de um para o outro, `_sun_ray`; até as 6h mal saem
+## do lugar: encolhendo até a parede, parecia o sol já a pino), a força da luz, e o comprimento da sombra comprida dos
+## objetos da mesa pela altura do contorno deles na tela (que conta o tampo visto de cima).
 const SUN_STEEP := Vector2(1.1, 1.25)
 const SUN_ROOM_A := 0.4
 ## Com o sol baixo, a luz dele na sala é fraca e difusa e fica mais forte e nítida com ele subindo (`_draw_sun`): a
 ## força logo depois de nascer (fração da toda) e até onde a beira se espalha (unidades da sala).
 const SUN_FAINT := 0.35
 const SUN_SOFT := 14.0
-const SUN_CAST := 1.1
-## Como o sol aparece na janela, o raio dele anda para a esquerda e também para os olhos: quanto ele chega mais perto
-## para cada unidade que anda para a esquerda (a janela no tampo e as sombras, `_draw_sun`; reto para a esquerda, a
-## sombra não batia com a luz que se via entrando).
-const SUN_TOWARD := 0.6
+const SUN_CAST := 0.8
+## Para onde o sol leva até o tampo cada px de altura (na tela), às 6h: para a esquerda e para baixo, na linha que o
+## usuário traçou da quina de baixo da janela, no vidro, à frente da mesa (pedido 272). Em paralelo na tela, não em
+## perspectiva: com o sol quase de frente, as sombras saíam em leque do ponto de fuga dele, entre o relógio e a caneca,
+## cada uma para um lado, e pareciam erradas.
+const SUN_SHIFT := Vector2(-0.93, 1.07)
 ## A beira dos objetos da mesa virada para o sol, acesa por trás (`_draw_sun_edge`): a força dela e a do tampo do relógio.
 const SUN_EDGE_A := Vector2(0.75, 0.22)
 ## A luz vermelha dele no vão, no peitoril e na parede perto da janela (`_window_lights`): até onde chega (px) e a força.
@@ -154,6 +155,9 @@ const SUN_LIGHT := Vector2(220, 0.8)    ## e a do sol nascendo, quente, na moldu
 ## A luz do dia na sala, no amanhecer da última noite (`daylight`): a força dela às 6h, até onde ela chega a partir do
 ## meio da janela (px) e o quanto a persiana descida a tampa.
 const DAY_ROOM := Vector3(0.7, 1000.0, 0.7)
+## O quanto a sombra da luminária no tampo some com a luz do dia toda (`_shade_layer`): às 6h a luminária ainda acesa
+## deixava uma segunda sombra ao lado da do sol (pedido 273).
+const LAMP_SHADE := 0.85
 const DESK_LIGHT := 0.5   ## a força da luz das lâmpadas dos objetos da mesa no tampo em volta (`DESK_SPILL`)
 const CAB_W := 82.0             ## a largura do armário de aço, encostado na parede (px de 2x2 lá)
 const CAB_AT := 0.25            ## quanto da parede livre entre a mesa comutadora e a quina fica antes dele (com 0,24, ele e o conduíte ficavam colados na mesa; com a parede mais longe, `WALL_K`, 0,25 deixa a folhinha caber até a quina)
@@ -227,6 +231,7 @@ var _over: Control      # por cima da sala, o que muda sozinho sem mexer nela (`
 var _over_drawn := []   # o estado do último desenho dela
 var _sign_glow := Rect2()   # o halo do letreiro no vidro (vazio = fora do vidro); brilha só aceso
 var _bolt_layer: Control   # o clarão do relâmpago, por cima de tudo e somado: só a força muda, no `modulate`
+var _shade_layer: Control  # as sombras da luminária no tampo (`_lamp_shades`), embaixo do sol: a força no `modulate`, que o dia apaga
 var _sun_layer: Control    # o sol entrando pela janela, somado, embaixo dos objetos da mesa: a força no `modulate`
 var _sunbeam := PackedVector2Array()   # o feixe do sol no ar, da janela à mesa (px da tela; `_draw_sun`), onde a poeira dourada aparece
 var _sun_occ: Array = []    # os objetos da mesa medidos da última vez (`_occ`), para as sombras deles no sol
@@ -329,6 +334,11 @@ func _ready() -> void:
 	_window_lights.material = ShaderMaterial.new()
 	(_window_lights.material as ShaderMaterial).shader = preload("res://scripts/ui/window_lights.gdshader")
 	add_child(_window_lights)
+	_shade_layer = Control.new()
+	_shade_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_shade_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_shade_layer.draw.connect(_draw_shade_layer)
+	add_child(_shade_layer)
 	_sun_layer = Control.new()
 	_sun_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_sun_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -344,6 +354,7 @@ func _ready() -> void:
 	_props_layer.draw.connect(_draw_props_layer)
 	add_child(_props_layer)
 	draw.connect(_props_layer.queue_redraw)   # (sempre logo depois da sala: usa o que ela acabou de medir)
+	_props_layer.draw.connect(_shade_layer.queue_redraw)   # (as sombras que os objetos deixaram)
 	_sun_edge = Control.new()
 	_sun_edge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_sun_edge.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -469,6 +480,7 @@ func _process(delta: float) -> void:
 	if dk != _noir_set:   # o escuro da sala: só os parâmetros do shader mudam, nada se redesenha
 		_noir_set = dk
 		_noir_params()
+		_shade_layer.modulate.a = 1.0 - LAMP_SHADE * (dk[5] as Color).a / DAY_ROOM.x
 		_show()
 	var flats := 0   # as janelas acesas do prédio de tijolos
 	for i in _flats.size():
@@ -1046,13 +1058,23 @@ func _draw_props_layer() -> void:
 		return
 	_ci = _props_layer
 	_spills.clear()
+	_lamp_shades.clear()
 	if _up_id == "":   # o objeto que estava erguido assentou: a luz dele volta para cá (ficando lá também, contava em dobro)
 		_lifted_spills.clear()
 	_draw_desk_props()
 	_ci = self
 	_bolt_build(_top)
-	if _sun_layer.visible and _occ != _sun_occ:   # (a camada do sol vem antes desta: as sombras ficam para o quadro seguinte)
+	if _occ != _sun_occ:   # (a camada do sol vem antes desta: as sombras ficam para o quadro seguinte; só com ela à vista, a sala parada no amanhecer deixava a luz sem sombras até se redesenhar, e elas apareciam de uma vez)
 		_sun_occ = _occ.duplicate()
+
+
+## As sombras da luminária no tampo que os objetos deixaram (`_lamp_shades`), na camada delas.
+func _draw_shade_layer() -> void:
+	_ci = _shade_layer
+	_ci.draw_set_transform(Vector2.ZERO)
+	for pts in _lamp_shades:
+		_lamp_shade(pts)
+	_ci = self
 
 
 ## A luz de fora no peitoril e na guarnição (`_sill_lit`), na sala, antes dos objetos da mesa: mais forte na medida do
@@ -1229,7 +1251,7 @@ func _draw_sun() -> void:
 	for o: PackedVector2Array in _sun_occ:
 		var ob := _bounds(o)
 		var foot := Rect2(ob.position.x - 1.0, ob.end.y - ob.size.y * 0.25, ob.size.x + 2.0, ob.size.y * 0.25 + 1.0)
-		var cast := _sun_ray(Vector2(ob.get_center().x, ob.end.y), ob.size.y * SUN_CAST)
+		var cast := _sun_ray(ob.size.y * SUN_CAST)
 		for part: PackedVector2Array in Geometry2D.intersect_polygons(o, PackedVector2Array([foot.position,
 				Vector2(foot.end.x, foot.position.y), foot.end, Vector2(foot.position.x, foot.end.y)])):
 			var pts := part.duplicate()
@@ -1244,43 +1266,41 @@ func _draw_sun() -> void:
 	var zm := lerpf(zfar, znear, 0.5)
 	var up := _sun_up()
 	_draw_sun_sill(_wall_x(zfar), y0 + gh, zfar, up)
-	var steep := _sun_steep()
-	var a := xc - (_yd - (y0 + floorf(gh * _blind_frac()))) / steep
-	var b := xc - (_yd - (y0 + gh)) / steep
-	# o ponto do vão a `zw` de fundo, levado pelo raio até o tampo em `x` (`SUN_TOWARD`); e o pedaço do vão entre `z1` e
-	# `z2` caindo no tampo, cortado no fundo dele (px da tela)
-	var land := func(x: float, zw: float) -> Vector2: return Vector2(x, zw - (xc - x) * SUN_TOWARD)
-	var desk := PackedVector2Array([Vector2(a - 1e3, znear * 0.3), Vector2(xc, znear * 0.3), Vector2(xc, zb), Vector2(a - 1e3, zb)])
-	var on_desk := func(z1: float, z2: float) -> Array:
-		var out := []
-		for part: PackedVector2Array in Geometry2D.intersect_polygons(PackedVector2Array([land.call(a, z1), land.call(b, z1),
-				land.call(b, z2), land.call(a, z2)]), desk):
-			var q := PackedVector2Array()
-			for d in part:
-				q.append(_p3(d.x, _yd, d.y))
-			out.append(q)
-		return out
-	var la: Vector2 = land.call(a, zm)
-	var lb: Vector2 = land.call(b, zm)
-	_sunbeam = PackedVector2Array([_p3(xc, y0 + floorf(gh * _blind_frac()), zm), _p3(xc, y0 + gh, zm), _p3(lb.x, _yd, lb.y), _p3(la.x, _yd, la.y)])
+	var top := y0 + floorf(gh * _blind_frac())
+	var bot := y0 + gh
+	var xf := _wall_x(zfar) + WALL_D   # as quinas que cortam a luz: o batente de longe e o alto no vidro, o de perto na parede
+	var xn := _wall_x(znear)
+	# o ponto do vão em `x`, `zw`, a `y`, levado até o tampo pelo raio (`_sun_ray`, pela altura dele na tela acima do pé)
+	var land := func(x: float, zw: float, y: float) -> Vector2:
+		var foot := _p3(x, _yd, zw)
+		var at := foot + _sun_ray(foot.y - _p3(x, y, zw).y)
+		var z := _desk_z(at.y)
+		return Vector2((at.x / 2.0 - _vp.x) * z / Z0, z)
+	var desk := PackedVector2Array([Vector2(xc - 1e3, znear * 0.3), Vector2(_wall_x(znear * 0.3), znear * 0.3), Vector2(_wall_x(zb), zb), Vector2(xc - 1e3, zb)])
+	var la: Vector2 = land.call(_wall_x(zm), zm, top)
+	var lb: Vector2 = land.call(_wall_x(zm), zm, bot)
+	_sunbeam = PackedVector2Array([_p3(_wall_x(zm), top, zm), _p3(_wall_x(zm), bot, zm), _p3(lb.x, _yd, lb.y), _p3(la.x, _yd, la.y)])
 	# com o sol baixo, uma parte da luz vai por igual na janela toda (as sombras quase somem nela) e se
 	# espalha em volta (`SUN_SOFT`); com ele subindo, ela passa toda para a parte nítida
 	var soft := Color(col, col.a * 0.6 * (1.0 - up))
 	var sharp := Color(col, col.a - soft.a)
 	if soft.a > 0.0:
 		var m := SUN_SOFT * (1.0 - up)
-		var ring := func(g: float) -> PackedVector2Array:   # a janela no tampo, `g` maior para cada lado (cortada no fundo da mesa só nos cantos)
+		var ring := func(g: float) -> PackedVector2Array:   # a janela no tampo, `g` maior para cada lado
 			var out := PackedVector2Array()
-			for c: Vector2 in [Vector2(a - g, zfar + g), Vector2(minf(b + g, xc), zfar + g), Vector2(minf(b + g, xc), znear - g), Vector2(a - g, znear - g)]:
-				var d: Vector2 = land.call(c.x, c.y)
-				out.append(_p3(d.x, _yd, minf(d.y, zb)))
+			for c: Vector3 in [Vector3(xf, zfar + g, top - g), Vector3(xf, zfar + g, minf(bot + g, _yd)), Vector3(xn, znear - g, minf(bot + g, _yd)), Vector3(xn, znear - g, top - g)]:
+				var d: Vector2 = land.call(c.x, c.y, c.z)
+				out.append(_p3(d.x, _yd, d.y))
 			return out
+		# cortada no fundo da mesa, reto na tela, como a janela nítida; com o canto preso nele (só o `z`), ele escorregava
+		# para o lado, e a beira dela atravessava a sombra do relógio em diagonal: parecia uma segunda sombra (pedido 274)
+		var back := _p3(0.0, _yd, zb).y
 		var inner: PackedVector2Array = ring.call(0.0)
 		var outer: PackedVector2Array = ring.call(m)
-		_poly(inner, soft)
+		_below(inner, PackedColorArray([soft, soft, soft, soft]), back)
 		for i in 4:
-			_fill(PackedVector2Array([inner[i], inner[(i + 1) % 4], outer[(i + 1) % 4], outer[i]]),
-				PackedColorArray([soft, soft, Color(soft, 0.0), Color(soft, 0.0)]))
+			_below(PackedVector2Array([inner[i], inner[(i + 1) % 4], outer[(i + 1) % 4], outer[i]]),
+				PackedColorArray([soft, soft, Color(soft, 0.0), Color(soft, 0.0)]), back)
 	# a beira passa da mesa à luz em degraus de 1 px (um quarto, metade, inteira: a luz é somada), para as cores se
 	# misturarem; num degrau só, a janela parecia recortada e colada no tampo. A beira das sombras também: o degrau de
 	# fora entra 1 px nelas e o de dentro para 1 px antes
@@ -1292,7 +1312,11 @@ func _draw_sun() -> void:
 				out.append(o[0])
 		return out
 	_sun_spots.clear()
-	for quad: PackedVector2Array in on_desk.call(zfar, znear):
+	for on_desk: PackedVector2Array in Geometry2D.intersect_polygons(PackedVector2Array([land.call(xf, zfar, top), land.call(xf, zfar, bot),
+			land.call(xn, znear, bot), land.call(xn, znear, top)]), desk):   # (cortada no fundo da mesa)
+		var quad := PackedVector2Array()
+		for d in on_desk:
+			quad.append(_p3(d.x, _yd, d.y))
 		_sun_spots.append(quad)
 		for step: Vector3 in [Vector3(2.0, 0.25, -1.0), Vector3(1.0, 0.25, 0.0), Vector3(0.0, 0.5, 1.0)]:
 			var grown: Array = Geometry2D.offset_polygon(quad, step.x, Geometry2D.JOIN_MITER) if step.x > 0.0 else [quad]
@@ -1302,13 +1326,16 @@ func _draw_sun() -> void:
 
 
 ## O sol no fundo do vão e no tampo do peitoril (os de `_sill_lit`; a guarnição de perto, a última, fica na sombra),
-## mais forte junto do vidro, com a sombra do batente de longe (`zfar`) atravessando os dois na direção do raio (`SUN_TOWARD`), no plano `ys` (a altura deles). Como na mesa, com o sol
+## mais forte junto do vidro, com a sombra do batente de longe (`zfar`) atravessando os dois na direção do raio (`_sun_ray`), no plano `ys` (a altura deles). Como na mesa, com o sol
 ## baixo parte da luz vai por igual (`up`), e a beira das sombras passa à luz em degraus de 1 px; a beira do peitoril
 ## e a do vão são quinas de verdade e ficam nítidas.
 func _draw_sun_sill(xc: float, ys: float, zfar: float, up: float) -> void:
 	var col := Color(Pal.SUN_ROOM, SUN_ROOM_A)
 	var xg := xc + WALL_D   # o vidro, do lado de fora da parede
-	var run := (WALL_D + SILL_D) * SUN_TOWARD   # o quanto o raio chega mais perto do vidro à beira do peitoril
+	var g0 := _p3(xg, ys, zfar)
+	var g1 := g0 + _sun_ray(8.0)   # (um pouco adiante na linha da sombra do batente, no plano do peitoril)
+	var z1 := ys * Z0 / (g1.y / 2.0 - _vp.y)
+	var run := (WALL_D + SILL_D) * (zfar - z1) / (xg - (g1.x / 2.0 - _vp.x) * z1 / Z0)   # o quanto o raio chega mais perto do vidro à beira do peitoril
 	var xs := xc - SILL_D
 	var q := PackedVector2Array()
 	for d in [Vector2(xg, zfar), Vector2(xg, zfar + 99.0), Vector2(xs, zfar + 99.0), Vector2(xs, zfar - run)]:
@@ -1348,13 +1375,10 @@ func _sun_up() -> float:
 	return smoothstep(SUNRISE, DAWN.y, minutes)
 
 
-## Onde o raio do sol que passa a `h` px (da tela) acima do ponto `p` do tampo cai nele, a partir de `p` (px da tela):
-## a sombra do alto de quem está em `p`.
-func _sun_ray(p: Vector2, h: float) -> Vector2:
-	var z := _yd * Z0 / maxf(p.y / 2.0 - _vp.y, 1.0)   # (o `_p3` ao contrário, na altura da mesa)
-	var x := (p.x / 2.0 - _vp.x) * z / Z0
-	var run := h / 2.0 * z / Z0 / _sun_steep()
-	return _p3(x - run, _yd, z - run * SUN_TOWARD) - _p3(x, _yd, z)
+## Onde o raio do sol que passa a `h` px (da tela) acima de um ponto do tampo cai nele, a partir do ponto (px da tela):
+## a sombra do alto de quem está ali. Igual em toda a mesa (`SUN_SHIFT`), mais comprida com o sol mais baixo.
+func _sun_ray(h: float) -> Vector2:
+	return SUN_SHIFT * h * SUN_STEEP.y / _sun_steep()
 
 
 ## A beira dos objetos da mesa virada para o sol (`_sun_edge`, somada, por cima deles, a força no `modulate` como a do
@@ -1365,7 +1389,7 @@ func _sun_ray(p: Vector2, h: float) -> Vector2:
 ## desenhada no tampo (`_sun_spots`; o pé fica na sombra da parede embaixo do peitoril).
 func _draw_sun_edge() -> void:
 	var lit := func(p: Vector2, h: float) -> bool:
-		var at := p + _sun_ray(p, h)
+		var at := p + _sun_ray(h)
 		return _sun_spots.any(func(q: PackedVector2Array) -> bool: return Geometry2D.is_point_in_polygon(at, q))
 	var hot := Color(Pal.SUN_RIM, SUN_EDGE_A.x)
 	var dim := Color(hot, hot.a * 0.45)
@@ -1400,6 +1424,24 @@ func _draw_sun_edge() -> void:
 		_sun_edge.draw_line(front[1], front[2], hot, 1.0)   # a quina da direita, de pé
 	for p: Vector2 in dots:
 		_sun_edge.draw_rect(Rect2(p, Vector2.ONE), dots[p])
+
+
+## Um polígono cheio com a cor de cada ponto (`_fill`), só o que fica abaixo de `y` na tela, com as cores seguindo
+## pelas beiras cortadas.
+func _below(pts: PackedVector2Array, cols: PackedColorArray, y: float) -> void:
+	var out := PackedVector2Array()
+	var oc := PackedColorArray()
+	for i in pts.size():
+		var j := (i + 1) % pts.size()
+		if pts[i].y >= y:
+			out.append(pts[i])
+			oc.append(cols[i])
+		if (pts[i].y >= y) != (pts[j].y >= y):
+			var t := (y - pts[i].y) / (pts[j].y - pts[i].y)
+			out.append(pts[i].lerp(pts[j], t))
+			oc.append(cols[i].lerp(cols[j], t))
+	if out.size() >= 3:
+		_fill(out, oc)
 
 
 ## `poly` sem o que fica na frente dele (`occ`, polígonos convexos): os pedaços que sobram. Antes de recortar, cada
@@ -1696,11 +1738,7 @@ func _draw_wall(r: Rect2) -> void:
 	if wall_art:
 		draw_texture_rect(wall_art, r, true)
 		return
-	var runs := _wall_runs(r.size.x * 2.0, r.size.y)
-	_ci.draw_set_transform(Vector2.ZERO)   # a tinta, no tom da faixa de luz em que cai
-	for run: Array in runs:
-		_ci.draw_rect(run[0], Pal.WALL_TONES[run[1]])
-	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	_p(0, 0, r.size.x * 2.0, r.size.y * 2.0, Pal.WALL_PAINT)   # num tom só: a luz da luminária nela é lisa (`_draw_wall_light`)
 	var h := r.size.y * 2.0
 	for x in range(0, int(r.size.x) * 2, 44):   # as listras: a larga com o fio de luz e, no meio, a fina
 		_p(x, 0, 3, h, Pal.WALL_LINES[0])
@@ -1713,52 +1751,14 @@ func _draw_wall(r: Rect2) -> void:
 		for i in 5:
 			var half := 2 - absi(i - 2)
 			_p(x + 9 - half, 10 + i, half * 2 + 1, 1, frieze)
-	_ci.draw_set_transform(Vector2.ZERO)   # as manchas do reboco, por cima das listras, no tom de cada faixa
+	_ci.draw_set_transform(Vector2.ZERO)   # as manchas do reboco, por cima das listras
 	var stain := _stain_art(Vector2i(ceili(r.size.x * 2.0), ceili(r.size.y * 2.0)))
-	for run: Array in runs:
-		_ci.draw_texture_rect_region(stain, run[0], run[0], Color(Pal.WALL_TONES[run[1]] * 2.0, STAIN))
+	_ci.draw_texture_rect(stain, Rect2(Vector2.ZERO, stain.get_size()), false, Color(Pal.WALL_PAINT * 2.0, STAIN))
 	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
-## A luz da luminária na parede do fundo (de `w` px da tela até o tampo, em `top`), para a rampa da tinta
-## (`Pal.WALL_TONES`): as faixas de `WALL_BANDS` em volta da boca do cone (`_draw_wall_light`, na quina com o tampo),
-## em trechos de cada linha, [o retângulo (px da tela), o tom], sem se cobrir (a mancha do reboco, translúcida, vai por
-## cima de cada um no tom dele). Guardados pela largura, pela luminária e pelo tampo.
-var _runs_key := []
-var _runs := []
-
-
-func _wall_runs(w: float, top: float) -> Array:
-	var key := [w, _lamp_x, top]
-	if key == _runs_key:
-		return _runs
-	_runs_key = key
-	_runs = []
-	var cx := _lamp_x * 2.0
-	var rx := sqrt(pow((top - LAMP_Y) / CONE_M, 2.0) - WALL_GAP * WALL_GAP) * 2.0   # a largura do cone no tampo...
-	var ry := (top - LAMP_Y - WALL_GAP * CONE_M) * 2.0   # ...e a altura dele no meio
-	for y in int(top * 2.0):
-		var dy := (top * 2.0 - y - 0.5) / ry
-		var segs := [[0.0, w, 0]]   # de fora para dentro: cada faixa corta o trecho do meio
-		for i in WALL_BANDS.size():
-			var b: float = WALL_BANDS[i]
-			if b <= dy:
-				break
-			var hw := roundf(rx * sqrt(b * b - dy * dy))
-			var mid: Array = segs.pop_at(i)
-			var a := clampf(cx - hw, mid[0], mid[1])
-			var e := clampf(cx + hw, mid[0], mid[1])
-			segs.insert(i, [e, mid[1], mid[2]])
-			segs.insert(i, [a, e, i + 1])
-			segs.insert(i, [mid[0], a, mid[2]])
-		for s: Array in segs:
-			if s[1] > s[0]:
-				_runs.append([Rect2(s[0], y, s[1] - s[0], 1), s[2]])
-	return _runs
-
-
-## O degrau da luz da luminária no ponto `p` da parede do fundo (px de 2x2, com o tampo em `_top`), o das faixas da
-## tinta (`_wall_runs`): -1 longe, 0 no meio, +1 perto da boca do cone.
+## O degrau da luz da luminária no ponto `p` da parede do fundo (px de 2x2, com o tampo em `_top`), para o tom do
+## conduíte e do armário: -1 longe, 0 no meio, +1 perto da boca do cone.
 func _wall_step(p: Vector2) -> int:
 	var rx := sqrt(pow((_top - LAMP_Y) / CONE_M, 2.0) - WALL_GAP * WALL_GAP)
 	var t := Vector2((p.x - _lamp_x) / rx, (_top - p.y) / (_top - LAMP_Y - WALL_GAP * CONE_M)).length()
@@ -2750,7 +2750,7 @@ func _draw_curl() -> void:
 		return
 	var c := r.end.floor()
 	var g := _gloom(c, _gloom_center())
-	var under := Pal.WALL_TONES[0].darkened(0.35).lerp(Color(NOIR, 1.0), g)
+	var under := Pal.WALL_PAINT.darkened(0.35).lerp(Color(NOIR, 1.0), g)
 	var flap := Pal.CALENDAR_PAPER.darkened(0.5).lerp(Color(NOIR, 1.0), g)
 	for dy in leg:   # de baixo para cima, cada linha: a aba (o canto espelhado na dobra, que passa pela diagonal) e o canto aberto
 		_dust.draw_rect(Rect2(c.x - leg, c.y - 1 - dy, dy + 1, 1), flap)
