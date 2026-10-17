@@ -21,7 +21,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   outra um pixel mais baixa), e `[hand]`, à mão (a linha subindo e descendo devagar, na caneta azul, `Pal.PEN`). Telas
   fora do turno no papel: a abertura da noite é o recado do supervisor num bilhete com fita preso no painel da mesa
   comutadora (`Intro`, `over`; a sala escurecida atrás e, ao começar, o bilhete some e ela clareia, `FADE_SEC`; como se
-  joga, num papel de MANUAL como o da dica da parede), a pausa e as configurações num papel com fita (rótulos em
+  joga, num papel de MANUAL como o da dica da parede, hoje escondida: `scripts/ui/CLAUDE.md`), a pausa e as configurações num papel com fita (rótulos em
   `InkLabel`) e o relatório é um memorando (`ReportView`: timbre com o fone e o nome da companhia, fio duplo, dobras em
   três, texto datilografado, cada advertência com o carimbo da gravidade, `SEVERITY_COLORS`, a borracha falhando, o
   parecer à mão e a rubrica do supervisor; a sala fica à vista, escura, atrás dele, `Ending.REPORT_DIM`).
@@ -132,7 +132,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   O que fica na frente das luzes de quem desenha (os plugs encaixados da mesa) entra com `Bloom.occlude(self, polígono)`:
   os blocos do halo cobertos por ele somem (`_cut`, guardado; plug parado não refaz). A máscara só vale para as luzes
   do mesmo dono: na mesa, a camada das lâmpadas registra as duas.
-- **A luz** (plano hi-bit, `PLANO_HIBIT.md`): **nada de `PointLight2D`** (dentro do `SceneView` ela obrigaria a
+- **A luz** (plano hi-bit): **nada de `PointLight2D`** (dentro do `SceneView` ela obrigaria a
   redesenhar a sala a cada mudança da luz; o `check.sh` acusa). O cenário é desenhado sem as luzes que mudam, e elas
   entram depois, por parâmetros: a luminária no shader do `SceneView` (`lamp_light.gdshader`, a poça somada;
   `Background.light` passa os parâmetros a cada quadro), o escuro da sala numa camada no meio dele (`_noir`,
@@ -154,7 +154,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   triângulos todos e depois os quadriláteros). O cenário tem `Background._fill`/`_poly` (o
   quadrilátero inteiro; o resto, em triângulos); a sala passava de 2000 chamadas por quadro. **Os materiais dos objetos da mesa** (capas, miolo, página e etiqueta da lista,
   fita e papelão do bloco de fichas, a letra a lápis e o lápis dele, os carimbos do caderno, tábua, folhas e letra da prancheta, papel-jornal com a tinta, a beira e a foto, o bilhete de tarifação com o formulário e a tinta do carimbo, papel e tons do mapa, o cartão do despacho, níquel, latão (o das plaquetas e o dos plugs), a baquelite, os cabos, o vermelho do formulário, a madeira e a borda do tampo, o relógio de flip e o café da caneca; e os da sala: a parede, o vão da janela, a persiana, o armário de aço com o cromado, o conduíte, a folhinha e o cartaz; e os da vista: o céu, a lua e as nuvens, a cidade de longe, as fachadas, a rua com os postes, o bar, o hotel, a varanda, a igreja, o arbusto, os carros, quem passa, os bichos e o letreiro) são
-  constantes do `Pal`, usadas pelo objeto (`Background._art_*`) e pelo papel aberto dele: o que muda numa ponta muda na outra. **Rampas de material** (plano hi-bit, `PLANO_HIBIT.md`): `Array[Color]` no `Pal`, do escuro ao claro, a sombra
+  constantes do `Pal`, usadas pelo objeto (`Background._art_*`) e pelo papel aberto dele: o que muda numa ponta muda na outra. **Rampas de material** (plano hi-bit): `Array[Color]` no `Pal`, do escuro ao claro, a sombra
   puxando para o frio e a luz para o quente; o desenho escolhe o tom pelo nível de luz com `Pal.ramp(tons, luz)`, em
   degraus, no lugar de escurecer por cima (por ora, a caneca, o aro das tomadas, `JACK_METAL`, a madeira do tampo,
   `Pal.desk`, o móvel da mesa comutadora, `Pal.cabinet` e `Pal.panel_metal`, os papéis da mesa e a unidade de
@@ -283,7 +283,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `drop_emergency`); dos campos, o painel só lê agenda e ligações para o texto de estado e adianta o relógio (`minutes`), para não quebrar quando o Main mudar.
 - **Captura de tela** (`tools/shot.tscn`, COM tela): `Godot --path . tools/shot.tscn -- --hour=22:30 --weather=rain
   --tool=despacho --card --emergency --news --toll --width=1125 --zoom=x,y,w,h --out=build/shot.png` grava a tela inteira e o
-  recorte ampliado 4× (`_zoom.png`); `--hover=id` põe o mouse num objeto da mesa (ele erguido e a etiqueta com o nome); `--debug=N` abre o painel de debug na aba N; `--punch`, com `--card`, perfura o cartão, põe uma unidade fora e a etiqueta de um trecho no mapa, e `--card=closed` guarda o despacho com o cartão na mesa; `--car=fusca,sedan` põe um carro de cada modelo parado na rua da vista, o de lá e o de cá (`-` deixa a mão vazia; `--car_t=0.45` onde, de 0 a 1; `--rack` com o bagageiro); `--walk=2,-4` gente parada na calçada de lá nesses x (m); `--bar` a porta do bar aberta; `--blind=1` a persiana descida (0 a 1); `--smoke[=s]`, `--cat`, `--bike=x` (`--papers`: o menino do jornal), `--damp=N`, `--phones=2,1`, `--sips=N`, `--cabinet`, `--written=N`, `--read`, `--taxi=s`, `--dog=x`, `--patch=312,4` (quem fuma na varanda, `s` segundos depois de sair, o gato, a bicicleta, a mancha de umidade, os telefones da vista, os goles da caneca, o armário aberto, o lugar do lápis no bloco, o jornal já lido, o táxi parando no hotel a `s` segundos de aparecer, o vira-lata, um cabo de conexão da saída da linha 4 encaixado no destino, com o aro aceso); `--lines=2:ring,4:conn` as lâmpadas dessas linhas nesse estado, sem ligação; `--screen=intro|pause|settings|report` as telas fora do turno; `--grade=0` sem a gradação de cor; `--lamp=0` sem a luz da luminária no shader do cenário; `--dim=0.2` a luminária presa nesse nível, como no meio de uma piscada; `--still` sem a poeira do feixe, que muda a cada captura (para comparar pixel a pixel: `tools/diff_shots.gd` compara duas pastas de capturas, imagem por imagem, ignorando os retângulos dados, como a vista da janela e a fala na miniatura do painel, que também mudam sozinhas); as opções do jogo (`--night`, `--seed`, `--lang`) também valem. Para conferir
+  recorte ampliado 4× (`_zoom.png`); `--hover=id` põe o mouse num objeto da mesa (ele erguido e a etiqueta com o nome); `--debug=N` abre o painel de debug na aba N; `--punch`, com `--card`, perfura o cartão, põe uma unidade fora e a etiqueta de um trecho no mapa, e `--card=closed` guarda o despacho com o cartão na mesa; `--car=fusca,sedan` põe um carro de cada modelo parado na rua da vista, o de lá e o de cá (`-` deixa a mão vazia; `--car_t=0.45` onde, de 0 a 1; `--rack` com o bagageiro); `--walk=2,-4` gente parada na calçada de lá nesses x (m); `--bar` a porta do bar aberta; `--blind=1` a persiana descida (0 a 1); `--bolt` um relâmpago caindo na hora da captura; `--smoke[=s]`, `--cat`, `--bike=x` (`--papers`: o menino do jornal), `--damp=N`, `--phones=2,1`, `--sips=N`, `--cabinet`, `--written=N`, `--read`, `--taxi=s`, `--dog=x`, `--patch=312,4` (quem fuma na varanda, `s` segundos depois de sair, o gato, a bicicleta, a mancha de umidade, os telefones da vista, os goles da caneca, o armário aberto, o lugar do lápis no bloco, o jornal já lido, o táxi parando no hotel a `s` segundos de aparecer, o vira-lata, um cabo de conexão da saída da linha 4 encaixado no destino, com o aro aceso); `--lines=2:ring,4:conn` as lâmpadas dessas linhas nesse estado, sem ligação; `--screen=intro|pause|settings|report` as telas fora do turno; `--grade=0` sem a gradação de cor; `--lamp=0` sem a luz da luminária no shader do cenário; `--dim=0.2` a luminária presa nesse nível, como no meio de uma piscada; `--still` sem a poeira do feixe, que muda a cada captura (para comparar pixel a pixel: `tools/diff_shots.gd` compara duas pastas de capturas, imagem por imagem, ignorando os retângulos dados, como a vista da janela e a fala na miniatura do painel, que também mudam sozinhas); as opções do jogo (`--night`, `--seed`, `--lang`) também valem. Para conferir
   mudança visual medindo, não só olhando a captura. `tools/hibit_shots.sh build/hibit/<pasta>` grava o conjunto de
   capturas do plano hi-bit (sala nos três climas em três horas, a caneca, a mesa comutadora, o tampo, as ferramentas
   e o amanhecer da noite 15), para comparar com `tools/diff_shots.gd`; a pasta tem que ser relativa ao projeto.
@@ -693,14 +693,14 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `_sky_stops`, `_sky_tones`): do azul-escuro ao azul-esverdeado no alto, rosa, laranja e amarelo embaixo enquanto o
   sol nasce, e de dia azul em cima e claro embaixo; as nuvens tingem junto. As estrelas somem até 4h30, a lua
   empalidece e o sol nasce às 5h25 **atrás da igreja**, no eixo dela (a janela olha para o leste; `_sun_at`,
-  `_draw_dawn`: o disco com o miolo branco, `Pal.SUN_CORE`, o amarelo e a beira laranja, e o halo, que encolhe e branqueia com o
-  dia, como o clarão do horizonte some, para o azul não ficar cinza), e passa da cruz às 6h (`SUN_ABOVE`). Os raios
+  `_draw_dawn`: o disco, pequeno, `SUN_DISC` raios (pedido 256), quase todo miolo branco, `Pal.SUN_CORE`, o amarelo, sem beira, e
+  por cima o brilho branco saindo dele e esmaecendo, `SUN_GLOW`, e o halo amarelo, sem laranja, que encolhe e branqueia com o dia, como o clarão do horizonte some, para o azul não ficar cinza), e passa da cruz às 6h (`SUN_ABOVE`). Os raios
   crepusculares saem dele num leque liso, por cima das nuvens (`_draw_crepuscular`: `RAYS` fatias, a cor em cada beira, a força variando
   devagar com o ângulo; fatias finas de força sorteada riscavam o céu), e onde a igreja tapa o sol a sombra dela,
   quase preta, vira um feixe escuro (`_church_cover`, `_church_parts`, os polígonos que `_draw_church` desenha; `RAY_SHADOW`).
   Na frente da cidade, numa camada somada (`_rays`, `_draw_rays`), com o sol à vista (`_sun_seen`):
-  os reflexos na linha do sol ao meio da vista (`FLARES`, `Pal.FLARE`); o risco horizontal da lente fica no céu, embaixo
-  da cidade (somado por cima, ele apagava o braço da cruz quando passava na altura dela). A igreja fica escura contra o sol, e nada de luz na frente dela (a beira acesa em volta, o brilho do sol somado por cima e o clarão e a neblina dourada na boca da rua saíram, a pedido: a luz parecia atravessá-la). Com o
+  os reflexos na linha do sol ao meio da vista (`FLARES`, `Pal.FLARE`; o risco horizontal da lente, cortando o sol, saiu, a
+  pedido). A igreja fica escura contra o sol, e nada de luz na frente dela (a beira acesa em volta, o brilho do sol somado por cima e o clarão e a neblina dourada na boca da rua saíram, a pedido: a luz parecia atravessá-la). Com o
   sol (`_sunlit`; a referência é uma imagem do usuário), a parede da esquerda da rua do cruzamento pega a luz quente de
   raspão, mais no alto, e as duas somem no ar dourado no fundo; os prédios de lá, de costas para o sol, ficam todos na
   luz fria do céu (`Pal.DAWN_SHADE`), com a cornija acesa (a luz quente e uma sombra descendo nas fachadas da direita
@@ -737,10 +737,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `DAY_ROOM`, em degraus de 1%, menor com a persiana descida): o escuro da sala recua a partir da janela
   (`room_noir.gdshader`), a luz dela clareia o que está perto e a luminária perde metade da força
   (`lamp_light.gdshader`, `window_at`, `reach`), o sol baixo entra direto (`_sun_layer`, `_draw_sun`, somado,
-  embaixo dos objetos da mesa, a força no `modulate`): o fundo do vão e o tampo do peitoril acesos, com a sombra do
-  montante e a do batente de longe atravessando-os na direção do raio e a beira delas em degraus de 1 px
+  embaixo dos objetos da mesa, a força no `modulate`): o fundo do vão e o tampo do peitoril acesos, com a sombra
+  do batente de longe atravessando-os na direção do raio e a beira delas em degraus de 1 px
   (`_draw_sun_sill`; as quinas do peitoril e do vão ficam nítidas), e a janela desenhada
-  no tampo, nítida, com o montante (a conta do relâmpago com o raio mais baixo, `SUN_STEEP`, que mal muda até as 6h e por igual, `_sun_steep`: encolhendo
+  no tampo, nítida, um retângulo só (a conta do relâmpago com o raio mais baixo, `SUN_STEEP`, que mal muda até as 6h e por igual, `_sun_steep`: encolhendo
   até a parede, parecia o sol já a pino; logo depois de nascer ela é fraca e de beira espalhada, `SUN_FAINT`,
   `SUN_SOFT`, e fica forte e nítida com o sol subindo, `_sun_up`), e nela a sombra
   comprida da caneca e do relógio (`SUN_CAST`, pelos contornos `_occ` da última vez; uma mancha redonda de luz parecia

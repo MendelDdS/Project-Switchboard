@@ -432,3 +432,13 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   superfície volta por cima da luz como escuro ou claro translúcido relativo ao tom de base (o tom vezes a luz), na
   força da luz naquele ponto; na cor, por cima, vira bloco de outro tom. Melhor ainda (pedido 248): luz numa camada
   própria que multiplica ou soma, entre o chão e o que fica em pé nele, como a da sala; aí não há o que repassar.
+- **Ângulo de uma linha da sala não se ajusta sozinho: ela passa pelo ponto de fuga.** O usuário pediu o peitoril mais
+  reto, saindo do mesmo canto (pedido 252). Numa sala retangular, toda linha da parede da direita vai para o ponto de
+  fuga da sala, então mudar a inclinação mantendo um ponto dela só dá mudando o plano: a parede em ângulo, com o ponto
+  de fuga dela (`SIDE_VP`). Antes de mexer numa medida da perspectiva, confira o que ela arrasta junto (aqui, a quina
+  e as contas em 3D da luz da janela).
+
+- **Pedido com palavra estranha: leia como o erro de digitação mais provável e confira o resto da frase.** "diminua a
+  circunferência do sol e aumente sem brilho interno" era "aumente seu brilho interno"; lido ao pé da letra, o sol
+  saiu maior e liso, o contrário do pedido. Com "diminua" logo antes, "aumente" não podia ser do disco. Na dúvida,
+  diga a leitura escolhida na resposta, em uma linha.

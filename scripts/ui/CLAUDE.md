@@ -23,7 +23,8 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   `CAR_NEAR_SHARP`; cada um em `CAR_TAKES` versões, `id~1`..., sorteadas ao tocar, `Sfx._take`); gente passa a pé pela calçada de lá, várias ao mesmo tempo e às vezes
   em dupla (`_walkers`, `_walker`: cada um com o seu passo, altura e distância das fachadas; a roupa: vestido ou calça,
   casaco curto ou comprido, bolsa ou pasta, nas cores apagadas da noite, `Pal.WALK_COATS`...; guarda-chuva na chuva e, sem ela,
-  chapéu, boina, lenço ou nada; o homem do mistério continua preto), contra as luzes (`WALK_*`, `WALK_STEPS`, `_draw_walker`; perto de um poste,
+  chapéu, boina, lenço ou nada; na escala nova, pedido 257, os braços balançando com o passo, a mão, os sapatos, a barra e a
+  gola do casaco e o cabelo, uma peça de 1 px cada; o homem do mistério continua preto), contra as luzes (`WALK_*`, `WALK_STEPS`, `_draw_walker`; perto de um poste,
   a luz dele acende a beira de cima e o lado virado para ele, `RIM`, só o lado nas peças finas; na chuva, eles se
   espelham na calçada molhada, apagados e sumindo para baixo; de vez em quando alguém sai do bar: a porta ao lado da
   vitrine abre, a luz do salão sai pela calçada e a pessoa segue junto das fachadas, `BAR_*`, `_bar_t`, `_draw_bar_door`;
@@ -35,8 +36,7 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   tamanho de verdade; bicicletas junto do meio-fio de lá, às vezes com a campainha, `BIKE_*`, `_draw_bike`, nos
   `_walkers` com "bike"; o ônibus da linha passa nos horários dele, `BUS_TIMES`, pela mão de lá, um modelo de
   `CAR_KINDS` nunca sorteado e mais lento, `sec`; duas vezes por noite, nas horas sorteadas pela noite, antes das 22h (`TAXI_STOPS`,
-  `_taxi_times`), um táxi da mão de lá freia e para um pouco antes da porta do hotel (na frente dela, metade ficava
-  atrás do montante; `_taxi_x`, `_taxi_mid`, `TAXI_STOP`), o passageiro desce do lado da calçada e vai com a mala até a
+  `_taxi_times`), um táxi da mão de lá freia e para um pouco antes da porta do hotel (`_taxi_x`, `_taxi_mid`, `TAXI_STOP`), o passageiro desce do lado da calçada e vai com a mala até a
   porta acesa, sumindo nela (`_draw_guest`, `GUEST`), a porta do carro bate (som `car_door`) e ele sai acelerando; de
   vez em quando um vira-lata caramelo trota pela calçada de lá (sem chuva e só até as 22h, como os pedestres; `STRAY_*`, `_draw_stray`, nos `_walkers`
   com "dog": escuro, sumia na calçada); nas noites limpas, mariposas em volta das cabeças acesas dos postes, pontos de
@@ -63,7 +63,8 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   clarão (`_cut`). E o trovão vem depois
   (`THUNDER_AFTER`, mais fraco quanto mais longe, som `thunder`; perto, o vidro e a persiana chocalham, `RATTLE_NEAR`,
   som `rattle`); e um letreiro de neon HOTEL (a palavra é a mesma nos
-  três idiomas) na vista, na fonte gravada da mesa, que falha de vez em quando (`_sign_on`; o T falha sozinho, `_sign_t_on`; sem som: o estalo dele saiu a pedido), com o
+  três idiomas) na vista, as letras na fonte de 11, uma embaixo da outra, numa caixa de `SIGN` (`_sign_letters`; na fonte
+  gravada da mesa, com a vista mais perto, ficavam perdidas na caixa), que falha de vez em quando (`_sign_on`; o T falha sozinho, `_sign_t_on`; sem som: o estalo dele saiu a pedido), com o
   halo sem miolo para as letras aparecerem (`_light(..., core = false)`), o reflexo na rua molhada (embaixo das letras, não da beira da caixa) e a luz
   vermelha dele no vão, no peitoril e na persiana, com a dos postes de lá acesos (`_window_lights`, num shader,
   `window_lights.gdshader`, até 8 luzes, `SIGN_LIGHT`, `POST_LIGHT`: entre a persiana e os objetos da mesa, que ficam na
@@ -75,7 +76,13 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   e, na chuva, as gotas perto dele vermelhas (`NEON_BEADS`); desenhados na vista, que já se redesenha. O prédio de tijolos da esquina é
   de apartamentos: no 3º andar, uma varanda (`APT`; porta, vasos, laje vista de baixo e gradil) com a janela da sala,
   onde a TV pisca azul (`_draw_balcony_back`/`_front`; a luz da sala apaga em `APT_DARK` e a TV em `TV_OFF`). Janelas que já
-  apagaram acendem de novo de madrugada, uns minutos (`WAKE`, `b["wake"]`). Na chuva, a força muda durante a noite
+  apagaram acendem de novo de madrugada, uns minutos (`WAKE`, `b["wake"]`). O térreo das lojas de lá (fora do bar e da marquise do hotel) tem o batente, a tábua da placa
+  com as letras só em traços (`Pal.SHOP_BOARD`), o toldo de lona com a franja numa em cada duas (`Pal.AWNINGS`) e, fechada,
+  a grade na frente do vidro (`_draw_shop_trim`). No de tijolos, mais janelas acesas até depois das 22h
+  (`BRICK_LIT`, num sorteio à parte), vasos no peitoril e uma gaiola numa acesa, alguém passando atrás de uma delas de vez em
+  quando (`_indoor`, `BEHIND_EVERY`, `BEHIND_SEC`, `_draw_behind`, na frente da vista) e as acesas no `Bloom`, fracas e sem
+  miolo (`_flats`, medidas pela sala no vidro, que se redesenha uma vez quando a cidade é montada, `_city_for` no `_state`;
+  na camada de cima, com as acesas no estado dela). `_win_lit`/`_win_rect` dizem se uma janela de lá está acesa e onde. Na chuva, a força muda durante a noite
   (`rain_level`, `RAIN_*`: garoa a forte, em ondas lentas): o som (`Sfx.set_rain`), a quantidade de pingos no vidro, o
   vento no arbusto e os relâmpagos (só acima de `BOLT_RAIN`); as poças crescem com a noite (`_soaked`). O arbusto
   balança em rajadas (`GUST`). Na noite limpa, a lua sobe (`_draw_moon`, `_moon_at`, `MOON_RISE`, `MOON_PATH`, `MOON_DRIFT`):
@@ -142,7 +149,9 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   teclas ativas acesas; o rádio peça por peça no lugar das do rádio de verdade, `Radio.parts`, com as mesmas linhas da tela quebradas na largura dela, o histórico apagado em cima e a mensagem de agora embaixo, `Radio.lines`, `_wrap`; o painel de baixo é a vista de perto dela). Ela não tem `z_index`
   próprio: a mesa (z 1) desenha o plug e o fio puxados para baixo por cima dela, como faz com o painel de baixo (com z
   1, eles passavam por trás da miniatura, a pedido saiu). A coluna da
-  direita (cresce com a largura) tem a dica do manual no alto (`%Hint`, um papel datilografado colado com fita na parede, `TapedLabel`, com "MANUAL" carimbado em vermelho; sem dica, o papel some mas o lugar fica; o lugar, `HintSlot`, tem a altura de duas linhas e a dica mais comprida desce por cima das ferramentas, `z_index` 1, sem empurrar nada; no pé, ela ficava em
+  direita (cresce com a largura) tem a dica do manual no alto, **escondida** (`HintSlot` com `visible = false`, pedido 249:
+  ocupava o alto da parede e da janela e quase ninguém olhava; o `Main.hint()` continua escrevendo nela, e as dicas do
+  treinamento e da primeira vez não aparecem até decidir onde elas vão) (`%Hint`, um papel datilografado colado com fita na parede, `TapedLabel`, com "MANUAL" carimbado em vermelho; sem dica, o papel some mas o lugar fica; o lugar, `HintSlot`, tem a altura de duas linhas e a dica mais comprida desce por cima das ferramentas, `z_index` 1, sem empurrar nada; no pé, ela ficava em
   cima dos objetos da mesa) e as ferramentas (`Tools`: no `%Body`, o papel da ferramenta aberta; guardadas, a
   janela aparece; sem abas, a pedido: repetiam os objetos da mesa e tomavam 40 px de altura do papel). O papel sai do objeto da ferramenta na mesa (`Tools.origin` = `Background.prop_rect`: pequeno, em
   cima dele, e cresce até o lugar; ao guardar, volta), tem a forma e o material do objeto (`PaperDeco`, a moldura em pixel art guardada por
@@ -177,7 +186,15 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   da tela: a mesa vista mais de cima, mas a parede da janela ficava a 44 cm da cabeça e a janela descia uns 40°; com
   os olhos mais baixos, o que fica longe do ponto entorta mais: a inclinação de um lado que foge é a distância ao
   ponto na horizontal dividida pela distância na vertical, e só depende da tela); `_proj`/`_p3` levam um ponto da sala (x, y a
-  partir dos olhos, z a distância; a parede do fundo a `Z0`) para a tela. **A câmera são os olhos do operador
+  partir dos olhos, z a distância) para a tela. **A parede do fundo fica a `Z0` × `WALL_K`** (1,4; pedido 249): o que está
+  nela encolhe em volta do ponto de fuga (o armário; folhinha, conduíte e marcas, em pixel art, ficam do tamanho deles) e
+  a quina na tela (`_qx`) anda para perto dele; o plano da parede da direita continua em `_cx` (onde ele estaria em
+  `Z0`), e com ele a mesa, os objetos e a janela: afastar a parede só alarga a parede da direita na tela. **A parede da direita fica em ângulo** (pedido 252): ela tem
+  o ponto de fuga dela, `SIDE_VP` px à esquerda do da sala (`_svp`, `_sx`; `_side_pt` e as listras e o friso dela), e
+  vai para fora vindo para a frente a partir da quina, que não muda; assim o peitoril e o alto da janela ficam mais
+  retos (no ponto de fuga da sala, o peitoril descia 0,54 px por px; agora 0,31). Numa sala retangular não dava: toda
+  linha da parede passa pelo ponto de fuga, então só subindo o peitoril (e o canto de longe dele junto). As contas em
+  3D da luz que entra pela janela (relâmpago, sol, luz da rua) pegam a parede no meio do vão (`_wall_x`). **A câmera são os olhos do operador
   sentado**: `SEAT_EYE` (45 cm acima do tampo) e `SEAT_BACK` (110 cm até o fundo do tampo; a frente do tampo fica sob o
   console) dão a distância focal, `Z0 = EYE × SEAT_BACK / SEAT_EYE` (a tela já fixa o ponto de fuga e o fundo do tampo;
   só a focal estava livre). Com o antigo 330 a mesa era vista de cima como por alguém em pé (~38° para baixo; sentado,
@@ -203,7 +220,7 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   escala da sala: tem a largura do armário; a mesa esconde a base; ~1,5 m, o alto acima dos olhos, então o tampo
   não aparece; venezianas em cima e embaixo, o puxador no meio da altura, um amassado e riscos perto do pé; entreaberto, o vão tem fundo, a parede de dentro virada para quem olha, prateleiras até a mesa, as de
   cima mostrando o lado de baixo e as de baixo o tampo, e pastas em pé, e a porta aberta mostra o painel de dentro e a espessura); a parede da direita, entrando para o fundo
-  a partir da quina (`CORNER` da área das ferramentas, `Background.window`), mais clara (virada para a luminária),
+  a partir da quina (`_qx`; o plano dela em `CORNER` da área das ferramentas, `Background.window`), mais clara (virada para a luminária),
   com a janela vista de lado (`_draw_side_wall`, `_side_pt`: guarnição, caixilho e persiana na perspectiva da parede;
   **a persiana fecha e abre com um clique** (`toggle_blind`, `BLIND_ID`, a etiqueta diz "Fechar/Abrir a persiana"),
   descendo lâmina a lâmina até o peitoril em `BLIND_SEC`, com o barulho das lâminas, som `blind`; ela fica numa
@@ -212,8 +229,9 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   vidro que aparece, `_glass`, encolhe, o brilho azul da janela some e as luzes de lá atrás dela não brilham,
   `_behind_blind`; a sala, só em quatro passos, para a luz da rua na mesa e o relâmpago, `_state`; fechada, o
   relâmpago entra 85% mais fraco;
-  só o montante no caixilho: a travessa saiu, a pedido; a janela começa quase na quina, `SIDE_T`, e vai até perto da
-  borda da tela;
+  sem montante nem travessa no caixilho (saíram, a pedido: o vidro é um só); a janela começa logo depois da quina,
+  `SIDE_T`, vai até perto da borda da tela e do alto da tela (`WIN_TOP`) ao peitoril (`WIN_SILL`), que fica à vista
+  acima do relógio e da caneca;
   o vão tem a espessura dela, `WALL_D`: sair da parede é andar na horizontal da tela, então aparecem o lado de dentro
   do batente de longe e o fundo do vão (a tábua do peitoril indo até o trilho de baixo do caixilho; escuro, parecia
   um buraco; o que passa do batente de perto é cortado; fora do vidro, o escuro da sala deixava o peitoril e a
@@ -339,13 +357,17 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   chuva. **A vista: uma cena 3D simples projetada no vidro** (pedido do usuário: pensar a cena antes,
   nunca a perspectiva elemento por elemento; `OUT_*`): uma câmera dentro do prédio, na altura de quem está na janela
   (`OUT_EYE` m acima da rua; o horizonte passa ali; não é vista aérea), olhando de frente para uma rua que passa ao
-  lado do prédio e continua para os dois lados, perto o bastante para quem passa ter ~15 px (`OUT_F` 38 e a calçada de lá a 7,6–9,4 m, `STREET`: com 32 e a rua de 14 m, era um palito de 8 px; com 45 e a rua larga, o vidro mostrava pouco; `OUT_EYE` 3,8 m: a 4,5, o carro da mão de cá, perto, virava o teto, uma laje cortada pelo peitoril; os lugares ao longo da rua, `CROSSING`, `HOTEL_X`, `MAN_X`, `APT`, `FAR_LAMPS`, encolheram junto, para caberem). Um
-  ponto de fuga só, no horizonte, no vidro de perto, ao lado do montante (`OUT_AT`, `_out_x`; no meio da vista, a rua
-  do cruzamento e a igreja ficavam atrás dele): para ele fogem só as linhas
+  lado do prédio e continua para os dois lados, perto o bastante para quem passa ter ~18 px (`OUT_F` 48, pedidos 252 e 254; com 64 e 54, perto demais, e a calçada de lá a 7,6–9,4 m, `STREET`; o que
+  é desenhado em px fixos, a igreja, o sol, a lua, o letreiro e o voo das mariposas, cresce por `OUT_K`, e quem passa
+  anda só um pouco além das beiras do vidro, `WALK_SPAN` 12 m, `MAN_FROM`; o horizonte `OUT_DROP` 10 cm abaixo dos olhos:
+  neles, a rua enchia o vidro e o alto dos prédios saía por cima; com 38, ~13 px; com 32 e a rua de 14 m, era um palito de 8 px; com 45 e a rua larga, o vidro mostrava pouco; `OUT_EYE` 3,8 m: a 4,5, o carro da mão de cá, perto, virava o teto, uma laje cortada pelo peitoril; os lugares ao longo da rua, `CROSSING`, `HOTEL_X`, `MAN_X`, `APT`, `FAR_LAMPS`, encolheram junto, para caberem). Um
+  ponto de fuga só, no horizonte, no meio do vidro, do batente de longe ao de perto (`OUT_AT`, `_out_x`): para ele fogem só as linhas
   que vão para longe (a rua do cruzamento e as paredes dela); a rua, os meios-fios e as fachadas de frente ficam na
-  horizontal e as paredes na vertical, com a base apoiada na calçada. A diagonal da janela é só do primeiro plano (o arbusto plantado junto da nossa parede também: a copa sobe do
-  peitoril posta pela parede da sala, `_side_pt`, não pela câmera da vista, `SHRUB`, `_draw_shrub`, com a cerca viva
-  embaixo, até o batente de perto, `HEDGE`: sem ela sobrava a rua vazia entre a copa e o peitoril) e não
+  horizontal e as paredes na vertical, com a base apoiada na calçada. A diagonal da janela é só do primeiro plano (a árvore nova da nossa calçada também, pedido 256, antes um
+  arbusto: a copa larga e baixa, em tufos maiores, `CLUMP_R`, sobe do peitoril posta pela parede da sala, `_side_pt`, não
+  pela câmera da vista, `SHRUB`, `_draw_shrub`, sem passar da nossa calçada para não esconder o outro lado da rua, a
+  pedido; os galhos do tronco ao meio de alguns tufos, `BRANCHES`, `Pal.TREE_BARK`; com a cerca viva embaixo, até o
+  batente de perto, `HEDGE`: sem ela sobrava a rua vazia entre a copa e o peitoril) e não
   entra na conta, e nada da vista encosta no nosso prédio: a nossa calçada, o nosso meio-fio e uma faixa de pedestres
 saindo deles diziam para que lado a nossa parede vai, contra a sala (a parede parecia torta); perto, a rua some na
 sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x, z, h)`: `x` ao longo da rua, `z` a distância dos
@@ -355,9 +377,13 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   vitrine acesa de um bar (`_draw_shopfront`), os prédios de frente
   (`_houses`, `_draw_far_house`: o de tijolos na esquina, à direita do cruzamento, `CROSSING`; o hotel com o letreiro e a marquise acesa
   sobre a porta, `HOTEL_X`, `_draw_marquee`, do outro lado; janelas fundas, com a sombra da verga e o peitoril, e a
-  luz dos postes lavando as fachadas), a rua do cruzamento indo embora entre paredes (`_canyon`, `_draw_canyon_wall`: janelas em andares e colunas, `CANYON_WIN`, e a
-  laje de cada andar; mais finas que um pixel, só as acesas, com 1 px vazio entre elas, senão viravam um borrão; com os
-  postes dela diminuindo e a névoa clareando para o fundo) até a igreja no fim (`_church_pos`, `CHURCH_K`; a cruz e o relógio aceso em pixels do tamanho da torre, e o brilho do relógio também) e, bem longe, a cidade em duas fileiras na
+  luz dos postes lavando as fachadas), a rua do cruzamento indo embora entre paredes (`CROSSING`, 10 m, pedidos 253 e 254: com 4,9, era um corredor, e com 8, estreita; o hotel
+  foi um pouco para a esquerda e o lado da direita andou junto, do prédio de tijolos ao bar, à varanda, ao homem e ao poste
+  dele; `_canyon`, `_draw_canyon_wall`: janelas em andares e colunas, `CANYON_WIN`, e a
+  laje de cada andar; mais finas que um pixel, só as acesas, com 1 px vazio entre elas, senão viravam um borrão; o
+  térreo com portas de madeira e lojas, abertas até a hora delas ou com a porta de enrolar, até `SHOP_Z`; os postes
+  dela, desenhados depois das paredes, que antes os cobriam, diminuindo; um carro estacionado de traseira, `PARKED`,
+  `_draw_parked`; quem vira a esquina por ela, `WALK_CORNER`, `TURN_Z`, `_walk_at`; e a névoa clareando para o fundo) até a igreja no fim (`_church_pos`, `CHURCH_K`; a cruz e o relógio aceso em pixels do tamanho da torre, e o brilho do relógio também) e, bem longe, a cidade em duas fileiras na
   névoa. Na chuva, o asfalto molhado espelha as luzes em riscos verticais (`_draw_wet`). Na névoa (`_draw_fog`, por cima da rua e do
   outro lado, atrás do arbusto): um véu liso mais grosso rente ao chão (`FOG_VEIL`, `FOG_GROUND`), fiapos largos e lisos
   atravessando a rua com o vento (`FOG_WISPS`) e as luzes espalhando nela (halo e cone de laterais lisas em cada poste, o

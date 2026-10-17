@@ -23,6 +23,7 @@ extends Node
 ##   --car=fusca            um carro de cada modelo dado (vírgulas) parado na rua lá fora, um em cada mão (--car_t=0.45: onde, de 0 a 1; --rack: com o bagageiro)
 ##   --walk=2,-4            gente parada na calçada de lá, em cada x dado (m ao longo da rua; o 1º poste fica em 1,6)
 ##   --bar                  a porta do bar aberta, com a luz saindo
+##   --behind=0.5           alguém passando atrás da última janela acesa do prédio de tijolos (de 0 a 1 do caminho)
 ##   --blind=1              a persiana descida (de 0, aberta, a 1, fechada)
 ##   --smoke[=s]            alguém fumando na varanda, `s` segundos depois de sair (10,5: no meio do sopro da tragada)
 ##   --cat                  o gato da noite (na marquise ou no gradil, pela noite)
@@ -32,6 +33,7 @@ extends Node
 ##   --phones=2,1           os telefones da vista (hotel, bar): 1 tocando, 2 na linha
 ##   --sips=3               goles tomados do café · --cabinet: a porta do armário aberta
 ##   --written=2            fichas registradas (o lugar do lápis no bloco)
+##   --bolt                 um relâmpago caindo na hora da captura (o primeiro clarão)
 ##   --wait=5               segundos antes de capturar (a luminária esquenta em 4)
 ##   --dim=N                a luminária presa no nível N (0 a 1), como no meio de uma piscada
 ##   --lamp=0               sem a luz da luminária no shader do cenário (`SceneView.lamp_light`)
@@ -193,7 +195,12 @@ func _ready() -> void:
 			m.exchange.set_dest(Background.CALLED[i], int(st[i]))
 	for f in 12:   # (a sala se redesenha no quadro seguinte; a camada da poeira, a 30 por segundo)
 		await get_tree().process_frame
-	if _args.has("walk") or _args.has("bar") or _args.has("smoke") or _args.has("bike") or _args.has("phones") or _args.has("dog") or _args.has("taxi"):   # posto de novo a cada quadro, como o carro
+	if _args.has("bolt"):   # um relâmpago caindo agora (no primeiro clarão)
+		room._bolt = 0.0
+		room._thunder_at = INF
+		for f in 2:
+			await get_tree().process_frame
+	if _args.has("walk") or _args.has("bar") or _args.has("smoke") or _args.has("bike") or _args.has("phones") or _args.has("dog") or _args.has("taxi") or _args.has("behind"):   # posto de novo a cada quadro, como o carro
 		var bg := m.background
 		bg._walk_in = INF
 		for f in 60:
@@ -213,6 +220,10 @@ func _ready() -> void:
 				bg._cars.assign([{"t": 0.5, "lane": 0, "kind": "fusca", "tones": Pal.CAR_TONES[2], "taxi": true, "stop": true, "s": float(_args["taxi"])}])
 			if _args.has("bar"):
 				bg._bar_t = 1.0
+			if _args.has("behind") and not bg._flats.is_empty():   # na última janela acesa à vista (a mais alta)
+				var lit := bg._flats.filter(func(f: Array) -> bool: return bg._win_lit(bg._houses[0], f[1]))
+				if not lit.is_empty():
+					bg._indoor = Vector3(Background.BEHIND_SEC * float(_args["behind"]), lit[-1][1], 1.0)
 			if _args.has("smoke"):
 				bg._smoke_t = 10.5 if _args["smoke"] == "1" else float(_args["smoke"])
 			await get_tree().process_frame

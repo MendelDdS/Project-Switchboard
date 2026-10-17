@@ -18,6 +18,8 @@ const EYE := 90.0
 const SEAT_EYE := 45.0    ## a altura dos olhos acima do tampo (cm), sentado
 const SEAT_BACK := 110.0  ## dos olhos ao fundo do tampo (cm), na horizontal
 const Z0 := EYE * SEAT_BACK / SEAT_EYE   ## a distância dos olhos à parede do fundo (e a distância focal, em px de 2x2)
+const WALL_K := 1.4   ## a parede do fundo fica a `Z0` × isto: afastada, o que está nela encolhe em volta do ponto de fuga e a quina
+## anda para perto dele (a parede da direita, e com ela a janela, ganha a largura; o plano dela e a mesa não mudam)
 ## A chuva muda de força durante a noite (`rain_level`: de garoa, `RAIN_LEVEL.x`, a forte, 1), em ondas lentas de
 ## `RAIN_SPAN` min de jogo (duas, cada noite com as suas fases), em degraus de `RAIN_STEP`: o som (`Sfx.set_rain`), os
 ## pingos no vidro, o vento no arbusto e os relâmpagos (só com ela acima de `BOLT_RAIN`) seguem. A rua vai ficando mais
@@ -45,9 +47,13 @@ const MOON_DRIFT := -0.04
 const SYNODIC := 29.530588853   ## o mês da lua, de uma lua nova à outra (dias)
 const NEW_MOON := 947182440     ## uma lua nova conhecida (6/1/2000, 18h14 UTC), de onde se conta a fase
 const BOLT_PULSES := [Vector2(0.0, 1.0), Vector2(0.14, 0.55), Vector2(0.42, 0.8)]   ## os clarões dele: quando (s) e a força
-const SIDE_T := 1.03        ## onde a janela começa na parede da direita (escala; 1 é a quina); termina perto da borda da tela
+const SIDE_T := 1.03 / WALL_K   ## onde a janela começa na parede da direita (escala, a da parede em `Z0`; a quina fica em 1/`WALL_K`): logo depois dela; termina perto da borda da tela
+## O ponto de fuga da parede da direita, à esquerda do da sala (px de 2x2): ela fica em ângulo, abrindo para a frente
+## a partir da quina, que não muda, e o peitoril e o alto da janela ficam mais retos (no da sala, o peitoril descia
+## demais). Só as linhas dela usam este (`_side_pt`); a mesa e a parede do fundo continuam no da sala.
+const SIDE_VP := -73.0
 const SIDE_W := 150.0       ## a largura do vão, de frente (só a resolução da projeção)
-const WIN_TOP := -12.0      ## o alto do vão (cm a partir dos olhos, para baixo): acima deles
+const WIN_TOP := -40.0      ## o alto do vão (cm a partir dos olhos, para baixo): acima deles
 
 var weather := "rain"
 var clears_at := INF   ## a hora (minutos do dia) em que a chuva para na noite (`Night.clears_at`; o Main atualiza)
@@ -67,7 +73,10 @@ var _mist := 0.0
 var _day := Color.WHITE   # a luz do dia na cidade: o `modulate` da `_back` e da `_view` (`Background._process`)
 var _vp := Vector2.ZERO   # o ponto de fuga (px de 2x2)
 var _yd := 0.0         # a altura do tampo (y da sala, abaixo dos olhos)
-var _cx := 0.0         # a quina das paredes (px de 2x2, na tela)
+var _cx := 0.0         # o plano da parede da direita, na tela onde ele estaria em `Z0` (px de 2x2): a mesa vai até ele
+var _svp := Vector2.ZERO   # o ponto de fuga da parede da direita (`SIDE_VP`)
+var _sx := 0.0         # a parede da direita a partir dele, na escala da parede em `Z0` (a quina fica em t = 1/`WALL_K`)
+var _qx := 0.0         # a quina das paredes na tela (px de 2x2): o plano da direita na parede do fundo, `WALL_K` mais longe
 var _t2 := 1.6         # onde a janela termina na parede da direita (escala)
 var _ci: CanvasItem    # onde a vista da janela é desenhada: aqui, ou no vidro fora da tela
 var _lifted: Control   # o objeto da mesa erguido sob o mouse, numa camada só dele (`Background._draw_lifted`)
@@ -270,7 +279,13 @@ func _cm(v: float) -> float:
 ## `out`: para fora da parede (negativo: para dentro da sala), na mesma profundidade.
 func _side_pt(p: Vector2, out := 0.0) -> Vector2:
 	var t := 1.0 / lerpf(1.0 / SIDE_T, 1.0 / _t2, p.x / SIDE_W)
-	return _vp + Vector2(_cx - _vp.x + out, _cm(WIN_TOP) + p.y) * t
+	return _svp + Vector2(_sx + out, _cm(WIN_TOP) + p.y) * t
+
+
+## A parede da direita a `z` de fundo, para as contas em 3D (`_p3`, a partir do ponto de fuga da sala): em ângulo
+## (`SIDE_VP`), ela vai para fora vindo para a frente.
+func _wall_x(z: float) -> float:
+	return _sx + SIDE_VP * z / Z0
 
 
 ## Uma face de objeto (sem contorno: um fio preto torto pela perspectiva serrilhava e parecia desenho mal feito; as

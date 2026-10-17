@@ -92,6 +92,8 @@ const WALK_EVERY := Vector2(2, 5)    ## de quanto em quanto tempo alguém passa 
 const WALK_FROM := 18.0 * 60.0   ## ...e daí (min do dia) o intervalo cresce, cada vez menos gente...
 const WALK_UNTIL := 22.0 * 60.0  ## ...até ninguém mais passar (só o homem do mistério)
 const WALK_PAIR := 0.2    ## a chance de virem dois juntos
+const BEHIND_EVERY := Vector2(12, 35)   ## de quanto em quanto tempo alguém passa atrás de uma janela acesa do prédio de tijolos (s, sorteado)
+const WALK_CORNER := 0.3  ## e a de quem vem sozinho virar a esquina, entrando ou saindo da rua do cruzamento (`_walk_at`)
 const BAR_EVERY := Vector2(25, 70)   ## de quanto em quanto tempo alguém sai do bar (s, sorteado; só enquanto há gente na rua)
 const BAR_OUT := 0.5      ## quando, depois de a porta abrir, a pessoa sai por ela (s)
 const SMOKE_EVERY := Vector2(60, 150)   ## de quanto em quanto tempo alguém sai para fumar na varanda (s; só com o apartamento acordado)
@@ -153,7 +155,7 @@ const SUN_LIGHT := Vector2(220, 0.8)    ## e a do sol nascendo, quente, na moldu
 const DAY_ROOM := Vector3(0.7, 1000.0, 0.7)
 const DESK_LIGHT := 0.5   ## a força da luz das lâmpadas dos objetos da mesa no tampo em volta (`DESK_SPILL`)
 const CAB_W := 82.0             ## a largura do armário de aço, encostado na parede (px de 2x2 lá)
-const CAB_AT := 0.37            ## quanto da parede livre entre a mesa comutadora e a quina fica antes dele (com 0,24, ele e o conduíte ficavam colados na mesa)
+const CAB_AT := 0.25            ## quanto da parede livre entre a mesa comutadora e a quina fica antes dele (com 0,24, ele e o conduíte ficavam colados na mesa; com a parede mais longe, `WALL_K`, 0,25 deixa a folhinha caber até a quina)
 const POSTER_W := 22.0           ## a largura do cartaz da quermesse (px de 2x2)
 const STAIN := 0.35      ## o quanto as manchas do reboco mudam o tom da parede do fundo, para mais claro e mais escuro (`_stain_art`)
 ## O uso da parede do fundo (`_draw_wall_marks`): a força do encardido rente ao tampo, onde os papéis e a mão
@@ -189,7 +191,7 @@ const X2 := Transform2D(Vector2(2, 0), Vector2(0, 2), Vector2.ZERO)   ## a escal
 var details := PackedStringArray()
 var _dust: Control       # a poeira no feixe da luminária (`dust`): desenhada à parte, a 30 quadros por segundo, sem redesenhar a sala
 var _motes: Array = []   # os grãos: Vector3(x de -1 a 1 na largura da luz, y de 0 a 1 do alto da tela ao fundo do tampo, fase do brilho)
-var _cab_x0 := 0.0       # o armário na parede do fundo (x a partir do ponto de fuga, px de 2x2): o reflexo no vidro o espelha
+var _cab_x0 := 0.0       # o armário na parede do fundo (x da sala a partir do ponto de fuga): o reflexo no vidro o espelha
 var _top := 200.0        # o fundo do tampo (px de 2x2), do último desenho: onde o feixe da luminária acaba
 var _win := Vector2(104, 38)   # a vista da janela, em pixels de 2x2 (do último desenho)
 var _acc := 0.0
@@ -251,6 +253,8 @@ var _car_in := [20.0, 32.0]          # quanto falta para o próximo de cada mão
 var _car_next := ["", ""]            # o modelo do próximo de cada mão (vazio: sorteado; o painel de debug escolhe)
 var _walk_in := 3.0      # quanto falta para o próximo (s)
 var _bar_in := 12.0      # quanto falta para alguém sair do bar (s)
+var _behind_in := 8.0    # quanto falta para alguém passar atrás de uma janela acesa do prédio de tijolos (s)
+var _flats: Array = []   # as janelas do prédio de tijolos à vista ([px da tela, índice]), para o brilho das acesas (`_draw_over`)
 var _smoke_in := 40.0    # para alguém sair para fumar (s)
 var _bike_in := 45.0     # para passar uma bicicleta (s)
 var _buses := -1         # quantos horários do ônibus já passaram (-1: ainda não contado)
@@ -465,7 +469,11 @@ func _process(delta: float) -> void:
 		_noir_set = dk
 		_noir_params()
 		_show()
-	var ov := [size, _paper(), lamp_level > 0.5, _posts_on(), _sign_on(), _moon_glow(), _mist_force(), _blind_rows]
+	var flats := 0   # as janelas acesas do prédio de tijolos
+	for i in _flats.size():
+		if _win_lit(_houses[0], _flats[i][1]):
+			flats |= 1 << i
+	var ov := [size, _paper(), lamp_level > 0.5, _posts_on(), _sign_on(), _moon_glow(), _mist_force(), _blind_rows, flats]
 	if ov != _over_drawn:   # (o papel deslizando entra aqui: o corte do brilho acompanha já neste quadro)
 		_over_drawn = ov
 		_over.queue_redraw()
@@ -722,7 +730,7 @@ func _state() -> Array:
 	return [size, board.get_global_rect() if board else Rect2(), desk.get_global_rect() if desk else Rect2(),
 		window.get_global_rect() if window else Rect2(), pending, unread, alert, card_out, news, counting, toll_desk, details, night, weather,
 		snappedf(_shut, 0.25), cab_open, sips, damp, written, news_read,   # (a luz da rua na mesa e o relâmpago acompanham a persiana em 4 passos)
-		TranslationServer.get_locale()]
+		TranslationServer.get_locale(), _city_for]   # (a cidade montada: as janelas do prédio de tijolos que brilham, `_flats`)
 
 
 ## Os acontecimentos lá fora, cada um na hora sorteada: um carro passando (`CAR_*`; na chuva, com o chiado da água),
@@ -809,8 +817,11 @@ func _events(delta: float) -> void:
 	if _walk_in <= 0.0 and crowd > 0.0:
 		_walk_in = randf_range(WALK_EVERY.x, WALK_EVERY.y) / maxf(crowd, 0.05)
 		var w := _walker()
+		var pair := randf() < WALK_PAIR
+		if not pair and randf() < WALK_CORNER:   # (o caminho é ~1,5 vez o de lado a lado)
+			w.merge({"corner": CROSSING.x + 0.9 if randf() < 0.5 else CROSSING.y - 0.9, "out": randf() < 0.5, "sec": w["sec"] * 1.5}, true)
 		_add_walker(w)
-		if randf() < WALK_PAIR:   # dois juntos: lado a lado, o de trás um passo atrás
+		if pair:   # dois juntos: lado a lado, o de trás um passo atrás
 			var w2 := _walker()
 			w2.merge({"t": -1.0 / 32.0, "dir": w["dir"], "sec": w["sec"], "z": w["z"] + (0.5 if w["z"] < (STREET["far_curb"] + STREET["far"]) / 2.0 else -0.5)}, true)
 			_add_walker(w2)
@@ -867,6 +878,16 @@ func _events(delta: float) -> void:
 			_add_walker(w)
 		if _bar_t >= BAR_SEC:
 			_bar_t = -1.0
+	_behind_in -= delta
+	if _behind_in <= 0.0 and _indoor.x < 0.0:   # alguém passa dentro de casa, atrás de uma das janelas acesas à vista
+		_behind_in = randf_range(BEHIND_EVERY.x, BEHIND_EVERY.y)
+		var lit := _flats.filter(func(f: Array) -> bool: return _win_lit(_houses[0], f[1]))
+		if not lit.is_empty():
+			_indoor = Vector3(0.0, lit.pick_random()[1], 1.0 if randf() < 0.5 else -1.0)
+	if _indoor.x >= 0.0:
+		_indoor.x += delta
+		if _indoor.x >= BEHIND_SEC:
+			_indoor.x = -1.0
 	for i in range(_walkers.size() - 1, -1, -1):
 		var w: Dictionary = _walkers[i]
 		w["t"] += delta / w["sec"]
@@ -959,6 +980,7 @@ func _draw() -> void:
 	var kept := [_props.get(_up_id), _occ[i] if i >= 0 else null]
 	_glows.clear()
 	_posts.clear()
+	_flats.clear()
 	_props.clear()
 	_occ.clear()
 	occ_ids.clear()
@@ -980,6 +1002,9 @@ func _draw() -> void:
 	# o ponto de fuga fica na mesma fração do espaço da mesa (da mesa comutadora à quina) em qualquer largura: preso
 	# à largura da tela, numa janela larga ele fugia dos objetos e os da ponta apareciam bem de lado
 	_vp = Vector2(floorf(lerpf(b.end.x, _cx, VP_AT)), top - EYE)
+	_qx = floorf(_vp.x + (_cx - _vp.x) / WALL_K)
+	_svp = _vp + Vector2(SIDE_VP, 0)
+	_sx = _cx - _vp.x - SIDE_VP * WALL_K   # (na quina, a mesma do plano da sala)
 	_top = top
 	_draw_wall(Rect2(0, 0, w, top))
 	_draw_wall_light(top)
@@ -989,14 +1014,15 @@ func _draw() -> void:
 	# na parede, entre a mesa comutadora e a quina, em qualquer largura de janela: o conduíte no meio do vão até o
 	# armário (`CAB_AT` do que sobra fica antes dele) e, depois dele, a folhinha e o lugar do cartaz em cima (guardado
 	# mesmo sem ele, para nada mudar de lugar de uma noite para outra)
-	var free := _cx - b.end.x - CAB_W * CAB_T
+	var cab_w := CAB_W * CAB_T / WALL_K   # a frente do armário na tela
+	var free := _qx - b.end.x - cab_w
 	var cab_x := b.end.x + free * CAB_AT
 	_draw_conduit(b, b.end.x + free * CAB_AT * 0.5)
 	_draw_damp()
-	var after := (cab_x + CAB_W * CAB_T + _cx) / 2.0   # o meio do vão depois do armário
+	var after := (cab_x + cab_w + _qx) / 2.0   # o meio do vão depois do armário
 	_draw_calendar(Rect2(floorf(after - 18.5), 62, 37, 28))   # (antes dele: a sombra dele e a porta entreaberta ficam por cima)
 	_draw_wall_marks(after, top)
-	_draw_steel_cabinet((cab_x - _vp.x) / CAB_T)
+	_draw_steel_cabinet((cab_x - _vp.x) * WALL_K / CAB_T)
 	if "cartaz_quermesse" in details:
 		_draw_poster(Rect2(floorf(after - POSTER_W / 2.0), 26, POSTER_W, 28))
 	_zd = Vector2(Z0 * _yd / (front - _vp.y), Z0 / DESK_T)
@@ -1056,6 +1082,9 @@ func _draw_over() -> void:
 		for r: Rect2 in _posts:
 			if not _cover.intersects(r) and not _behind_blind(r):
 				Bloom.light(_over, r, Pal.STREET_LAMP, 0.8, true, false)
+	for f: Array in _flats:   # as janelas acesas do prédio de tijolos, fraco e sem miolo (as cortinas ficam à vista)
+		if _win_lit(_houses[0], f[1]) and not _cover.intersects(f[0]) and not _behind_blind(f[0]):
+			Bloom.light(_over, f[0], Pal.CITY_LIT[0], 0.3, false, false)
 	if _sign_glow.has_area() and _sign_on() and not _cover.intersects(_sign_glow) and not _behind_blind(_sign_glow):   # só o halo: as letras ficam à vista
 		Bloom.light(_over, _sign_glow, Pal.SIGN_RED, 0.5, false, false)
 	_draw_window_glow()
@@ -1107,15 +1136,15 @@ func _draw_bolt() -> void:
 ## O que o clarão do relâmpago acende (`_bolt_lit`, px da tela), só o que a janela alcança: a parede do fundo, mais
 ## forte perto da quina, menos a sombra do armário (a caixa dele levada até a parede pela luz, `BOLT_DIR`); a frente do
 ## armário (e o lado dele, se for o virado para a janela); a lateral da mesa comutadora; e, no tampo, a janela abaixo
-## da persiana com o montante do caixilho, nítida, e um halo em volta (`BOLT_STEEP`). O que fica na frente da parede e do
+## da persiana, nítida, e um halo em volta (`BOLT_STEEP`). O que fica na frente da parede e do
 ## armário (a mesa comutadora, os objetos da mesa, o tampo) sai do clarão; a frente da mesa comutadora fica no escuro.
 func _bolt_build(top: float) -> void:
 	_bolt_lit.clear()
-	var xc := _cx - _vp.x
+	var xc := _wall_x(Z0 * 2.0 / (SIDE_T + _t2))   # (a parede no meio do vão: ela fica em ângulo, `SIDE_VP`)
 	if xc < 20.0 or _cab[1].size.x <= 0.0:
 		return
 	var rects := _occ.map(func(o: PackedVector2Array) -> Rect2: return _bounds(o))
-	var wall := Rect2(0, 0, _cx * 2.0, top * 2.0)   # a parede do fundo à vista, acima do tampo
+	var wall := Rect2(0, 0, _qx * 2.0, top * 2.0)   # a parede do fundo à vista, acima do tampo
 	var lit := func(poly: PackedVector2Array, force: Callable, occ: Array) -> void:
 		for part: PackedVector2Array in _cut(poly, occ):
 			var cols := PackedColorArray()
@@ -1149,25 +1178,21 @@ func _bolt_build(top: float) -> void:
 			back.end * 2.0, front.end * 2.0]), func(_p: Vector2) -> float: return 0.42, _occ)
 	for face: PackedVector2Array in _side_faces:
 		lit.call(face, func(_p: Vector2) -> float: return 0.4, _occ)
-	# no tampo: a janela abaixo da persiana, entrando na sala e descendo (`BOLT_STEEP`), com o montante do caixilho
-	# (como em `_draw_side_wall`); ao longo da parede, z é linear (`_side_pt`); o que cairia atrás do fundo do tampo fica fora
+	# no tampo: a janela abaixo da persiana, entrando na sala e descendo (`BOLT_STEEP`); ao longo da parede, z é linear
+	# (`_side_pt`); o que cairia atrás do fundo do tampo fica fora
 	var gh := _cm(WIN_SILL - WIN_TOP)
 	var y0 := _cm(WIN_TOP)
 	var zfar := Z0 / SIDE_T   # a janela ao longo da parede: do lado da quina...
 	var znear := Z0 / _t2     # ...ao de perto
 	var zb := Z0 / DESK_T
-	var zm := lerpf(zfar, znear, 0.5)
-	var e := (zfar - znear) / SIDE_W   # meia largura do montante
 	var land := func(y: float) -> float: return xc - (_yd - y) / BOLT_STEEP   # onde o raio que passa na altura `y` cai
-	var pane := Color(BOLT_LIGHT, 0.5)
 	var a: float = land.call(y0 + floorf(gh * _blind_frac()))
 	var b: float = land.call(y0 + gh)
-	for c: Vector2 in [Vector2(minf(zfar, zb), zm + e), Vector2(minf(zm - e, zb), znear)]:
-		if c.x > c.y:
-			_bolt_lit.append([PackedVector2Array([_p3(a, _yd, c.x), _p3(b, _yd, c.x), _p3(b, _yd, c.y), _p3(a, _yd, c.y)]),
-				PackedColorArray([pane])])
 	var za := minf(zfar, zb)
-	if za > znear:   # o halo em volta, sumindo
+	if za > znear:
+		_bolt_lit.append([PackedVector2Array([_p3(a, _yd, za), _p3(b, _yd, za), _p3(b, _yd, znear), _p3(a, _yd, znear)]),
+			PackedColorArray([Color(BOLT_LIGHT, 0.5)])])
+		# o halo em volta, sumindo
 		var xa: float = land.call(y0 + floorf(gh * _blind_frac()))
 		var xb: float = land.call(y0 + gh)
 		var m := 10.0
@@ -1186,12 +1211,12 @@ func _bolt_build(top: float) -> void:
 
 
 ## O sol baixo do amanhecer entrando direto pela janela (`_sun_layer`, somado, embaixo dos objetos da mesa): a janela
-## abaixo da persiana desenhada no tampo, nítida, com o montante do caixilho (a mesma conta do relâmpago, com o raio
+## abaixo da persiana desenhada no tampo, nítida (a mesma conta do relâmpago, com o raio
 ## mais baixo e subindo, `_sun_steep`), e o fundo do vão e o tampo do peitoril, mais fortes junto do vidro (a frente
 ## dele fica na sombra); dentro dela, a sombra comprida de cada objeto da mesa, saindo do pé dele para longe da janela
 ## (`SUN_CAST`).
 func _draw_sun() -> void:
-	var xc := _cx - _vp.x
+	var xc := _wall_x(Z0 * 2.0 / (SIDE_T + _t2))   # (a parede no meio do vão: ela fica em ângulo, `SIDE_VP`)
 	if xc < 20.0 or _sill_lit.size() < 2:
 		return
 	_ci = _sun_layer
@@ -1213,9 +1238,8 @@ func _draw_sun() -> void:
 	var znear := Z0 / _t2
 	var zb := Z0 / DESK_T
 	var zm := lerpf(zfar, znear, 0.5)
-	var e := (zfar - znear) / SIDE_W   # meia largura do montante
 	var up := _sun_up()
-	_draw_sun_sill(xc, y0 + gh, Vector3(zfar, zm, e), up)
+	_draw_sun_sill(_wall_x(zfar), y0 + gh, zfar, up)
 	var steep := _sun_steep()
 	var a := xc - (_yd - (y0 + floorf(gh * _blind_frac()))) / steep
 	var b := xc - (_yd - (y0 + gh)) / steep
@@ -1235,7 +1259,7 @@ func _draw_sun() -> void:
 	var la: Vector2 = land.call(a, zm)
 	var lb: Vector2 = land.call(b, zm)
 	_sunbeam = PackedVector2Array([_p3(xc, y0 + floorf(gh * _blind_frac()), zm), _p3(xc, y0 + gh, zm), _p3(lb.x, _yd, lb.y), _p3(la.x, _yd, la.y)])
-	# com o sol baixo, uma parte da luz vai por igual na janela toda (o montante e as sombras quase somem nela) e se
+	# com o sol baixo, uma parte da luz vai por igual na janela toda (as sombras quase somem nela) e se
 	# espalha em volta (`SUN_SOFT`); com ele subindo, ela passa toda para a parte nítida
 	var soft := Color(col, col.a * 0.6 * (1.0 - up))
 	var sharp := Color(col, col.a - soft.a)
@@ -1264,34 +1288,28 @@ func _draw_sun() -> void:
 				out.append(o[0])
 		return out
 	_sun_spots.clear()
-	for c: Vector2 in [Vector2(zfar, zm + e), Vector2(zm - e, znear)]:
-		for quad: PackedVector2Array in on_desk.call(c.x, c.y):
-			_sun_spots.append(quad)
-			for step: Vector3 in [Vector3(2.0, 0.25, -1.0), Vector3(1.0, 0.25, 0.0), Vector3(0.0, 0.5, 1.0)]:
-				var grown: Array = Geometry2D.offset_polygon(quad, step.x, Geometry2D.JOIN_MITER) if step.x > 0.0 else [quad]
-				for part: PackedVector2Array in _cut(grown[0], shade_at.call(step.z)):
-					_poly(part, Color(sharp, sharp.a * step.y))
+	for quad: PackedVector2Array in on_desk.call(zfar, znear):
+		_sun_spots.append(quad)
+		for step: Vector3 in [Vector3(2.0, 0.25, -1.0), Vector3(1.0, 0.25, 0.0), Vector3(0.0, 0.5, 1.0)]:
+			var grown: Array = Geometry2D.offset_polygon(quad, step.x, Geometry2D.JOIN_MITER) if step.x > 0.0 else [quad]
+			for part: PackedVector2Array in _cut(grown[0], shade_at.call(step.z)):
+				_poly(part, Color(sharp, sharp.a * step.y))
 	_ci = self
 
 
 ## O sol no fundo do vão e no tampo do peitoril (os de `_sill_lit`; a guarnição de perto, a última, fica na sombra),
-## mais forte junto do vidro, com a sombra do montante (`z.y`, meia largura `z.z`) e a do batente de longe (`z.x`)
-## atravessando os dois na direção do raio (`SUN_TOWARD`), no plano `ys` (a altura deles). Como na mesa, com o sol
+## mais forte junto do vidro, com a sombra do batente de longe (`zfar`) atravessando os dois na direção do raio (`SUN_TOWARD`), no plano `ys` (a altura deles). Como na mesa, com o sol
 ## baixo parte da luz vai por igual (`up`), e a beira das sombras passa à luz em degraus de 1 px; a beira do peitoril
 ## e a do vão são quinas de verdade e ficam nítidas.
-func _draw_sun_sill(xc: float, ys: float, z: Vector3, up: float) -> void:
+func _draw_sun_sill(xc: float, ys: float, zfar: float, up: float) -> void:
 	var col := Color(Pal.SUN_ROOM, SUN_ROOM_A)
 	var xg := xc + WALL_D   # o vidro, do lado de fora da parede
 	var run := (WALL_D + SILL_D) * SUN_TOWARD   # o quanto o raio chega mais perto do vidro à beira do peitoril
 	var xs := xc - SILL_D
-	var dark := []
-	for poly: PackedVector2Array in [
-			PackedVector2Array([Vector2(xg, z.y - z.z), Vector2(xg, z.y + z.z), Vector2(xs, z.y + z.z - run), Vector2(xs, z.y - z.z - run)]),
-			PackedVector2Array([Vector2(xg, z.x), Vector2(xg, z.x + 99.0), Vector2(xs, z.x + 99.0), Vector2(xs, z.x - run)])]:
-		var q := PackedVector2Array()
-		for d in poly:
-			q.append(_p3(d.x, ys, d.y))
-		dark.append(q)
+	var q := PackedVector2Array()
+	for d in [Vector2(xg, zfar), Vector2(xg, zfar + 99.0), Vector2(xs, zfar + 99.0), Vector2(xs, zfar - run)]:
+		q.append(_p3(d.x, ys, d.y))
+	var dark := [q]
 	var strength := func(p: Vector2) -> float:   # a força em `p` (px da tela), pelo quanto ele sai da parede
 		var at := (p.x / 2.0 - _vp.x) * ys / (p.y / 2.0 - _vp.y) - xc
 		return 0.7 if at >= 0.0 else lerpf(0.6, 0.15, clampf(-at / SILL_D, 0.0, 1.0))
@@ -1775,7 +1793,7 @@ func _draw_wall_marks(x: float, top: float) -> void:
 	var floor_y := top * 2.0
 	var clear := Color(0, 0, 0, 0.0)
 	var grime := Color(0, 0, 0, WALL_GRIME.x)
-	_fill(PackedVector2Array([Vector2(0, floor_y - 12.0), Vector2(_cx * 2.0, floor_y - 12.0), Vector2(_cx * 2.0, floor_y), Vector2(0, floor_y)]),
+	_fill(PackedVector2Array([Vector2(0, floor_y - 12.0), Vector2(_qx * 2.0, floor_y - 12.0), Vector2(_qx * 2.0, floor_y), Vector2(0, floor_y)]),
 		PackedColorArray([clear, clear, grime, grime]))
 	var hand := Vector2(floorf(x * 2.0) + 1.0, (top - OUTLET_UP) * 2.0 + 7.0)   # o meio da tomada
 	var ring := _ring(Vector2.ZERO, 1.0)
@@ -1784,7 +1802,7 @@ func _draw_wall_marks(x: float, top: float) -> void:
 		for p in ring:
 			rim.append(hand + Vector2(1.0, 2.0) + p * Vector2(9.0, 12.0) * (1.0 - k * 0.3))
 		_poly(rim, Color(0, 0, 0, WALL_GRIME.y / 3.0))
-	var crack := PackedVector2Array([Vector2(floorf((x + _cx) * 1.0) + 6.0, 36.0)])   # (entre a folhinha e a quina)
+	var crack := PackedVector2Array([Vector2(floorf(x + _qx) + 6.0, 36.0)])   # (entre a folhinha e a quina)
 	var rough := RandomNumberGenerator.new()
 	rough.seed = 77
 	for i in 9:
@@ -2048,13 +2066,14 @@ func _draw_reflection(g: Rect2) -> void:
 	var m := func(x: float, y: float, z: float) -> Vector2: return _proj(2.0 * xg - x, y, z) - _view_at
 	var lamp := Color(1.0, 0.82, 0.55, 0.1 * lamp_level)
 	var none := Color(lamp, 0.0)
-	var lx := _lamp_x - _vp.x
+	var lx := (_lamp_x - _vp.x) * WALL_K
 	var xc := _cx - _vp.x
-	var y0 := LAMP_Y - _vp.y
-	var y1 := _top - _vp.y
-	_fill(PackedVector2Array([m.call(lx, y0, Z0), m.call(xc, y0, Z0), m.call(xc, y1, Z0), m.call(lx, y1, Z0)]),
+	var y0 := (LAMP_Y - _vp.y) * WALL_K   # (a parede a `WALL_K`: o ponto da sala que aparece ali)
+	var y1 := (_top - _vp.y) * WALL_K
+	var zw := Z0 * WALL_K
+	_fill(PackedVector2Array([m.call(lx, y0, zw), m.call(xc, y0, zw), m.call(xc, y1, zw), m.call(lx, y1, zw)]),
 		PackedColorArray([lamp, Color(lamp, lamp.a * 0.3), none, Color(lamp, lamp.a * 0.4)]))
-	var zf := Z0 / CAB_T   # a frente do armário: clara no meio (a luz da luminária), sumindo para baixo
+	var zf := zw / CAB_T   # a frente do armário: clara no meio (a luz da luminária), sumindo para baixo
 	var steel := Color(0.75, 0.8, 0.65, 0.07 * lamp_level)
 	var ct := _cm(CAB_TOP)
 	var cx0 := _cab_x0
@@ -2145,7 +2164,7 @@ func _draw_switchboard() -> void:
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
-## A parede da direita, entrando para o fundo a partir da quina (`_cx`): cobre o que fica atrás dela (a mesa termina
+## A parede da direita, entrando para o fundo a partir da quina (`_qx`): cobre o que fica atrás dela (a mesa termina
 ## nela, numa linha que foge para o ponto de fuga; entre a quina e o fundo do tampo ela desce atrás da mesa), com as
 ## listras do papel de parede alargando para a frente, o friso subindo para fora da tela e a janela vista de lado:
 ## batente, o lado de dentro do vão perto da quina, a vista (reta: está longe) recortada pelo vidro, o caixilho e a
@@ -2154,19 +2173,19 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	var xc := _cx - _vp.x
 	if xc < 20.0:   # a tela ainda não se arrumou (primeiro quadro)
 		return
-	var te := (w - _vp.x) / xc   # a escala na borda da tela
-	var j := _vp + Vector2(xc, _yd) * te
-	var d := _vp + Vector2(xc, _yd) * DESK_T
-	_t2 = (w - 6.0 - _vp.x) / xc
+	var te := (w - _svp.x) / _sx   # a escala na borda da tela
+	var j := _svp + Vector2(_sx, _yd) * te
+	var d := _svp + Vector2(_sx, _yd) * DESK_T
+	_t2 = (w - 6.0 - _svp.x) / _sx
 	var wall := Pal.SIDE_WALL[0]   # virada para a luminária: mais clara que a do fundo (é o que mostra a quina)
-	_poly(PackedVector2Array([Vector2(_cx, 0), Vector2(w, 0), j, d, Vector2(_cx, top)]), wall)
+	_poly(PackedVector2Array([Vector2(_qx, 0), Vector2(w, 0), j, d, Vector2(_qx, top)]), wall)
 	var k := 1
-	while true:   # as listras: passos iguais na parede são passos iguais em 1/t
-		var inv := 1.0 - k * 0.04
+	while true:   # as listras, da quina (1/t = `WALL_K`) para cá: passos iguais na parede são passos iguais em 1/t
+		var inv := WALL_K - k * 0.04
 		if inv <= 0.0:
 			break
 		var t := 1.0 / inv
-		var x := _vp.x + xc * t
+		var x := _svp.x + _sx * t
 		if x >= w:
 			break
 		var bottom := top if t < DESK_T else _vp.y + _yd * t
@@ -2174,10 +2193,10 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 		_p(roundf(x * 2.0), 0, sw, roundf(bottom * 2.0), Pal.SIDE_WALL[1])
 		_p(roundf(x * 2.0) + sw, 0, 1, roundf(bottom * 2.0), Pal.SIDE_WALL[2])
 		k += 1
-	for fy in [3.5, 8.5]:   # o friso: os dois fios, subindo para fora da tela
-		draw_line(Vector2(_cx, fy), Vector2(w, _vp.y + (fy - _vp.y) * te), Pal.SIDE_WALL[3], PX)
+	for fy in [3.5, 8.5]:   # o friso: os dois fios, da altura do da parede do fundo na quina, subindo para fora da tela
+		draw_line(Vector2(_qx, fy), Vector2(w, _svp.y + (fy - _svp.y) * (w - _svp.x) / (_qx - _svp.x)), Pal.SIDE_WALL[3], PX)
 	for i in 3:   # a quina: a parede da direita escurece de leve perto dela
-		_r(_cx, 0, 6 - i * 2, top, Color(0, 0, 0, 0.06))
+		_r(_qx, 0, 6 - i * 2, top, Color(0, 0, 0, 0.06))
 	# o vão tem a espessura da parede (`WALL_D`): a guarnição fica na parede, o vidro do lado de fora. Sair da parede é
 	# andar na horizontal da tela (a mesma profundidade, mais longe de lado): aparecem o lado de dentro do batente de
 	# longe (perto da quina) e o fundo do vão embaixo, e o batente de perto esconde uma tira do vidro
@@ -2204,10 +2223,9 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	_view_at = view.position
 	# o vidro que aparece começa abaixo da persiana (e da borda de cima da tela): as gotas ficam dali para baixo
 	_glass_from = clampf((maxf(0.0, _side_pt(Vector2(gw * 0.5, blind)).y) - view.position.y) / view.size.y, 0.0, 0.95)
-	var mx := gw / 2.0
 	var hy := -_cm(WIN_TOP)   # o horizonte no vão: o ponto de fuga lá fora fica nele
 	var near_x := minf(_side_pt(Vector2(gw, hy)).x, w)   # o batente de perto, ou a borda da tela
-	var out_x := roundf(lerpf(_side_pt(Vector2(mx + 1, hy), WALL_D).x, near_x, OUT_AT) - view.position.x)
+	var out_x := roundf(lerpf(_side_pt(Vector2(0, hy), WALL_D).x, near_x, OUT_AT) - view.position.x)
 	if _vport.size != Vector2i(view.size * 2.0) or out_x != _out_x:   # o vidro em px da tela: a vista também é desenhada em 1x1
 		_out_x = out_x
 		_vport.size = Vector2i(view.size * 2.0)
@@ -2227,21 +2245,18 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	var face := _church_pos(cg) - Vector2(0, 40 * CHURCH_K)
 	if Geometry2D.is_point_in_polygon(face, q):
 		_light(Rect2(Vector2(floorf(face.x * 2.0) - 1.0, roundf(face.y * 2.0) - 1.0), Vector2(3, 3)), Color("e2b25a"), 0.25, true)   # (do tamanho dele, 3 px; `_draw_church`)
-	var sign := _hotel_pos(cg) + Vector2(2, 8)
+	var sign := _hotel_pos(cg) + SIGN / 2.0
 	_sign_px = sign * 2.0 if Geometry2D.is_point_in_polygon(sign, q) else Vector2.ZERO
-	_sign_glow = Rect2(_sign_px - Vector2(4, 16), Vector2(8, 32)) if _sign_px != Vector2.ZERO else Rect2()
+	_sign_glow = Rect2(_sign_px - SIGN, SIGN * 2.0) if _sign_px != Vector2.ZERO else Rect2()
+	if not _houses.is_empty():   # as janelas do prédio de tijolos (as acesas brilham na camada de cima, sem redesenhar a sala)
+		var wins: Array = _houses[0]["wins"]
+		for n in wins.size():
+			var r := _win_rect(cg, wins[n])
+			if (wins[n] as Vector3).y > 0.0 and Geometry2D.is_point_in_polygon(r.get_center(), q):
+				_flats.append([Rect2(r.position * 2.0, r.size * 2.0), n])
 	for lamp: Vector2 in _lamp_heads(cg):   # os postes de lá
 		if Geometry2D.is_point_in_polygon(lamp, q):   # (acesos ou não, na camada de cima: apagam no piscar, sem redesenhar a sala)
 			_posts.append(Rect2((lamp + Vector2(-1.5, 0)) * 2.0, Vector2(6, 3)))
-	# o montante do caixilho, no vidro: a frente dele e, por estar ao lado dos olhos, o lado de perto; o que passa do vão
-	# fica atrás do batente (a travessa saiu, a pedido)
-	var bar := func(poly: PackedVector2Array, col: Color) -> void:
-		for part in Geometry2D.intersect_polygons(poly, inner):
-			_poly(part, col)
-	var f := WALL_D - 3.0
-	bar.call(PackedVector2Array([_side_pt(Vector2(mx + 1, 0), f), _side_pt(Vector2(mx + 1, 0), WALL_D), _side_pt(Vector2(mx + 1, gh), WALL_D),
-		_side_pt(Vector2(mx + 1, gh), f)]), WOOD[2])
-	bar.call(_side_quad(Rect2(mx - 1, 0, 2, gh), f), WOOD[1])
 	# as faces do vão: frias de fora (a rua) para dentro; o alto dele (a verga) passa da borda de cima da tela
 	var lit := Pal.REVEAL[2]
 	var dim := Pal.REVEAL[1]
@@ -2361,10 +2376,10 @@ func _draw_conduit(b: Rect2, x: float) -> void:
 ## fileira da frente. Grande e bem lisa: sobe devagar do lado do peitoril e do fundo do tampo, some devagar para longe e
 ## para a frente, espalhando-se além da janela (a luz da noite é difusa).
 func _draw_street_light(w: float) -> void:
-	var xc := _cx - _vp.x
+	var xc := _wall_x(Z0 * 2.0 / (SIDE_T + _t2))   # (a parede no meio do vão)
 	if xc < 20.0:
 		return
-	var te := (w - _vp.x) / xc
+	var te := (w - _svp.x) / _sx
 	var cool: float = {"clear": 0.05, "rain": 0.035, "fog": 0.02}.get(weather, 0.035)
 	var gh := _cm(WIN_SILL - WIN_TOP)
 	var hs: Array[float] = [_cm(WIN_SILL), _cm(WIN_TOP) + floorf(gh * _blind_frac())]   # do peitoril ao pé da persiana
@@ -2435,9 +2450,9 @@ func _draw_drop_shadows() -> void:
 ## niquelado, o puxador com a fechadura, as dobradiças e um calendário preso com ímã. Devolve a frente (px de 2x2).
 func _draw_steel_cabinet(x0: float) -> Rect2:
 	_cab_x0 = x0
-	var back := Rect2(_vp + Vector2(x0, _cm(CAB_TOP)), Vector2(CAB_W, 400))
+	var back := Rect2(_vp + Vector2(x0, _cm(CAB_TOP)) / WALL_K, Vector2(CAB_W, 400) / WALL_K)
 	_cast(back, 1.05)
-	var f := Rect2((_vp + Vector2(x0, _cm(CAB_TOP)) * CAB_T).round(), (Vector2(CAB_W, 400) * CAB_T).round())
+	var f := Rect2((_vp + Vector2(x0, _cm(CAB_TOP)) * CAB_T / WALL_K).round(), (Vector2(CAB_W, 400) * CAB_T / WALL_K).round())
 	_cab = [back, f]
 	var step := _wall_step(Vector2(f.get_center().x, (f.position.y + _top) / 2.0))   # num degrau só da luz no meio do que aparece, como as peças de metal
 	var steel := func(k: int) -> Color: return Pal.STEEL_TONES[clampi(3 + step + k, 0, Pal.STEEL_TONES.size() - 1)]
@@ -2471,12 +2486,12 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 				_r(door.position.x + 6, y0 + 1.5 + i * 4, door.size.x - 12, PX, steel.call(2))
 				_r(door.position.x + 6, y0 + i * 4, PX, 2, steel.call(-1))
 	# um amassado antigo na porta da esquerda, perto de baixo: a sombra em cima e a luz embaixo
-	var dent := Vector2(f.position.x + 30, low - 16)
+	var dent := Vector2(floorf(mid - 13.0), low - 16)
 	_r(dent.x, dent.y, 9, PX, steel.call(-2))
 	_r(dent.x + 1, dent.y + PX, 7, PX, steel.call(-1))
 	_r(dent.x + 1, dent.y + 2, 7, PX, steel.call(1))
 	for i in 5:   # riscos de chave e de sapato na beira de baixo
-		_r(f.position.x + 8 + i * 13.0 + (i * 7) % 5, low - 4 - (i % 3), 3 + i % 2, PX, steel.call(2))
+		_r(f.position.x + 6 + i * (f.size.x - 14.0) / 5.0 + (i * 7) % 5, low - 4 - (i % 3), 3 + i % 2, PX, steel.call(2))
 	# o uso de anos: a tinta gasta, mais clara e lisa, na beira das portas onde a mão abre (mais junto do puxador,
 	# sumindo para cima e para baixo), e o encardido em volta da fechadura
 	var hand := floorf((doors + low) / 2.0)
@@ -2486,7 +2501,7 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 		_r(mid + 1.0, hand - 9.0 + i * 5.0, 2.0, 5.0, Color(steel.call(2), a * 0.7))
 	_r(mid + 3.0, floorf((doors + low) / 2.0) - 8.0, 5.0, 26.0, Color(Pal.STEEL_DARK[4], 0.12))
 	# o porta-etiqueta na porta da esquerda, com o cartão datilografado
-	var lab := Rect2(f.position.x + 12, doors + 34, 24, 11)
+	var lab := Rect2(floorf((f.position.x + mid) / 2.0) - 10.0, doors + 34, 20, 11)
 	_r(lab.position.x - PX, lab.position.y - PX, lab.size.x + 1, lab.size.y + 1, Pal.CHROME[3])
 	_r(lab.position.x - PX, lab.position.y - PX, lab.size.x + 1, PX, Pal.CHROME[5])
 	_r(lab.position.x, lab.position.y, lab.size.x, lab.size.y, Pal.LABEL_PAPER)
@@ -2556,7 +2571,7 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 		_draw_umbrella((Vector2(d1.x + 4.0, hy + 15.5) * 2.0).floor())   # o guarda-chuva veio com a porta, pendurado no puxador do lado de fora
 	_props[CABINET_ID] = Rect2(f.position * 2.0, Vector2(f.size.x, _top - f.position.y) * 2.0)   # (o que aparece acima da mesa)
 	if "numero_anotado" in details:   # o número de quem ligou, anotado num bilhete e colado com fita
-		var n := Rect2(f.position.x + 10, doors + 52, 26, 14)
+		var n := Rect2(f.position.x + 3, doors + 52, 26, 14)
 		_cast(n, 1.01)
 		_r(n.position.x, n.position.y, n.size.x, n.size.y, Pal.NOTE_PAPER)
 		var ink := Pal.NOTE_INK
@@ -2589,7 +2604,7 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 func _draw_damp() -> void:
 	var tex := _damp_art(mini(damp, DAMP_MAX), weather == "rain")
 	_ci.draw_set_transform(Vector2.ZERO)
-	_ci.draw_texture(tex, Vector2(floorf(_cx * 2.0) - tex.get_width() + 8.0, DAMP_TOP))
+	_ci.draw_texture(tex, Vector2(floorf(_qx * 2.0) - tex.get_width() + 8.0, DAMP_TOP))
 	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 

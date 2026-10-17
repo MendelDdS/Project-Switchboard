@@ -1406,3 +1406,53 @@ Chaves:
     ser tinta por cima: a vista de trás em três camadas (o chão, a luz, o que fica em pé), a sombra dos prédios
     multiplicando e a faixa somada, com as cores da pintura que já estava ajustada passadas a luz (`_lit`: no asfalto, a
     mesma cor). A textura da rua continua embaixo da luz sem remendo; saiu o `_draw_strip_marks` do pedido 247.
+249. #janela #vista #sala #interface
+    O plano da janela maior (`PLANO_JANELA.md`): o bilhete do MANUAL escondido (o código fica), a parede do armário
+    mais longe e a quina para a esquerda, a janela mais alta e mais larga e sem o montante, a vista mais perto (mais
+    detalhe em quem passa e nos prédios; o carro da mão de cá pode ficar cortado), a rua do cruzamento mais larga, a
+    árvore mais perto, o prédio da direita com duas colunas de janelas e a impressão de segundo andar mantida. O
+    plano hi-bit e as capturas dele foram apagados.
+250. #janela #sala #camera
+    Etapas 1 e 2 do plano da janela: o bilhete do MANUAL escondido (o `HintSlot` invisível; as dicas do treinamento e
+    da primeira vez não aparecem por ora) e a parede do fundo mais longe (`WALL_K` 1,4): o armário encolhe, a quina anda
+    para a esquerda (~765 → ~679 px) e a parede da direita ganha a largura que a janela vai usar; a mesa e os objetos não
+    mudam. O armário mais perto do conduíte (`CAB_AT` 0,25) para a folhinha caber até a quina.
+251. #janela #sala #saiu
+    Etapa 3 do plano da janela: a janela maior, do alto da tela (`WIN_TOP` −40) a um peitoril mais baixo (`WIN_SILL`
+    46), começando logo depois da quina nova (`SIDE_T` 1,03/`WALL_K`), e sem o montante (saiu do vidro e das luzes no
+    tampo e no peitoril: o sol e o relâmpago entram por um vão só). O ponto de fuga de fora no meio do vidro inteiro
+    (`OUT_AT` 0,5); a vista ainda não mudou.
+252. #janela #sala #camera #vista
+    Etapa 4 do plano da janela: a vista mais perto (`OUT_F` 38 → 64; quem passa na calçada de lá com ~22 px), o
+    horizonte 10 cm abaixo dos olhos (`OUT_DROP`; nos olhos, os prédios saíam por cima do vidro), o que é desenhado em
+    px fixos crescendo junto (`OUT_K`: igreja, sol, lua, mariposas; o letreiro do hotel numa caixa maior, com as letras
+    na fonte de 11, `SIGN`) e quem passa andando só um pouco além das beiras do vidro (`WALK_SPAN` 10, `MAN_FROM` 10).
+    No meio, a pedido, com uma linha vermelha na captura: o peitoril mais reto, saindo do mesmo canto de longe; a parede
+    da direita ganhou um ponto de fuga próprio, mais à esquerda (`SIDE_VP`), e fica em ângulo, abrindo para a frente.
+    Depois, a pedido: o zoom grande demais; `OUT_F` 54 (quem passa com ~20 px) e o caminho dele até 11 m.
+253. #janela #vista
+    Etapa 5 do plano da janela, sem a imagem de referência: a rua do cruzamento com 8 m (era 4,9), a esquina do hotel no
+    lugar e o lado da direita andando junto (o prédio de tijolos agora mostra duas colunas de janelas no vidro); no
+    térreo das paredes dela, portas de madeira e lojas, acesas ou com a porta de enrolar; os postes dela à vista (as
+    paredes os cobriam); um carro estacionado de traseira; e quem vira a esquina, entrando ou saindo por ela. Com a rua
+    larga, a nave da igreja aparece inteira embaixo da torre.
+254. #janela #vista #camera
+    A pedido, a vista um pouco mais longe (`OUT_F` 54 → 48; quem passa com ~18 px) e a rua do cruzamento mais larga
+    (8 → 10 m, de −4,2 a 5,8): o hotel 0,5 m para a esquerda, o lado da direita mais 1,5 m, e o carro estacionado
+    junto do meio-fio novo. Quem passa anda até 12 m para cada lado.
+255. #janela #vista
+    Etapa 6 do plano da janela: o prédio de tijolos com mais vida. Mais janelas acesas até depois das 22h (`BRICK_LIT`),
+    vasos no peitoril e uma gaiola numa janela acesa, alguém passando atrás de uma janela acesa de vez em quando
+    (`_draw_behind`) e o brilho fraco das janelas acesas dele no `Bloom`. As duas colunas já cabiam depois da etapa 5.
+256. #janela #vista #amanhecer
+    Etapa 7 do plano da janela: o arbusto vira uma árvore nova da nossa calçada, mais perto, com a copa larga e baixa
+    em tufos maiores e os galhos entre eles; a pedido, sem subir a ponto de esconder o outro lado da rua. Pedido
+    extra: o sol menor (`SUN_DISC`) e com o brilho de dentro mais forte, o miolo branco mais largo. (Lido antes como
+    "sem brilho interno": o disco saiu maior e liso, e foi desfeito.) Depois, a pedido, menor ainda (`SUN_DISC` 0,55)
+    e com mais brilho: quase todo branco, sem a beira laranja, e um brilho saindo dele por cima da beira e
+    esmaecendo (`SUN_GLOW`). Depois, o halo sem o laranja, o miolo e o brilho mais fortes e sem o risco
+    horizontal da lente cortando o sol.
+257. #janela #vista
+    Etapa 8 do plano da janela: o detalhe na escala nova. Quem passa ganhou os braços balançando com o passo, a mão,
+    os sapatos, a barra e a gola do casaco e o cabelo (1 px cada, sem virar sprite); o térreo das lojas de lá, o
+    batente, a placa com as letras em traços, o toldo com a franja e a grade nas fechadas (`_draw_shop_trim`).

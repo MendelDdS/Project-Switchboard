@@ -1,5 +1,5 @@
 #!/bin/bash
-# As capturas do plano hi-bit (PLANO_HIBIT.md), o mesmo conjunto da linha de base, numa pasta relativa ao projeto:
+# As capturas de referência da sala (as do plano hi-bit), numa pasta relativa ao projeto:
 #   tools/hibit_shots.sh build/hibit/1.2
 # Em bash, com os argumentos numa lista: no zsh, "$B" sem aspas não se separa em palavras e a captura perdia a semente.
 # A pasta tem que ser relativa: com um caminho absoluto, o --out do shot.gd criava a pasta dentro do projeto.

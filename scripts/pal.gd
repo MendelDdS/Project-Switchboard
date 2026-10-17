@@ -250,6 +250,7 @@ const PAPERBOY: Array[Color] = [Color("4e4230"), Color("a89c78")]   ## o menino 
 const CHURCH_CLOCK: Array[Color] = [Color("2a2016"), Color("e2b25a")]   ## o relógio da torre: os ponteiros e o mostrador aceso
 const SHRUB: Array[Color] = [Color("08120c"), Color("0f2016"), Color("193323"), Color("2a4a33")]   ## as folhas do arbusto, do escuro ao claro...
 const SHRUB_FLASH := Color("5a7090")   ## ...e acesas pelo relâmpago
+const TREE_BARK: Array[Color] = [Color("0c0a08"), Color("1c1813")]   ## o tronco e os galhos da árvore da calçada, na sombra e na luz da rua
 const RAIN_BEAD: Array[Color] = [Color("1c2a32"), Color("7f98a8")]   ## as gotas paradas no vidro: a gota e o brilho
 ## Quem passa na vista (`background_view.gd`): o vira-lata caramelo, apagado pela noite...
 const STRAY_COAT := Color("4e3218")
@@ -263,6 +264,8 @@ const WALK_LEGS: Array[Color] = [Color("18181c"), Color("26221c"), Color("262a34
 const WALK_SKIN: Array[Color] = [Color("b08868"), Color("8a5e40"), Color("62422c"), Color("44302a")]
 const WALK_UMBRELLAS: Array[Color] = [Color("121318"), Color("121318"), Color("4e1a1e"), Color("1c2640"), Color("2a3426")]
 const BRIEFCASE := Color("2a1a10")   ## ...a pasta na mão...
+const AWNINGS: Array[Color] = [Color("4a1c1c"), Color("1e3a2c"), Color("2a3048")]   ## os toldos de lona das lojas de lá (desbotados pela noite)
+const SHOP_BOARD := Color("1a1410")   ## a tábua da placa em cima da vitrine, com as letras só sugeridas (`_draw_far_house`)
 const SILHOUETTE := Color("07090c")  ## ...quem fica em silhueta (o homem do mistério, o passageiro do táxi, quem fuma na varanda, o ciclista)...
 const CLERK := Color("120a06")       ## ...o recepcionista no telefone do hotel, contra a porta acesa...
 const CAT := Color("0b0c0f")         ## ...e o gato preto
