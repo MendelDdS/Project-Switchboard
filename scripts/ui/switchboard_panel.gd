@@ -313,8 +313,9 @@ func _use(j: int) -> float:
 	return 0.35
 
 
-## A plaqueta de latão do fabricante em `r` (96×26), desenhada pelo cenário na frente do console, ao lado da miniatura
-## do painel: o nome da central gravado (escuro, com o brilho embaixo) e um parafuso em cada ponta.
+## A plaqueta de latão do fabricante em `r` (96×32), desenhada pelo cenário na frente do console, ao lado da miniatura
+## do painel: o nome da central gravado (escuro, com o brilho embaixo) e um parafuso em cada ponta. Com 26 de altura,
+## o acento do Ô caía no friso e o til de "SÃO" encostava no pé da linha de cima: agora há 1 px livre entre eles.
 static func draw_maker_plate(ci: CanvasItem, r: Rect2) -> void:
 	var pal := HOLE_PAL
 	var cx := r.get_center().x
@@ -330,7 +331,7 @@ static func draw_maker_plate(ci: CanvasItem, r: Rect2) -> void:
 		PixelArt.sprite(ci, _disc(5, [[1.5, pal["F"], pal["f"], pal["b"]], [2.5, pal["w"]]]), Vector2(x, r.get_center().y))
 		ci.draw_rect(Rect2(x - 1.0, r.get_center().y, 3, 1), pal["w"])   # a fenda
 	var maker := PixelArt.tiny(T.text(T.Key.BOARD_MAKER))
-	var at := Vector2(roundf(cx - maker.get_width() / 2.0), r.position.y + 2.0)
+	var at := Vector2(roundf(cx - maker.get_width() / 2.0), r.position.y + 5.0)   # o acento 2 px abaixo do friso
 	ci.draw_texture(maker, at + Vector2(0, 1), pal["F"])
 	ci.draw_texture(maker, at, pal["w"])
 	var town := "SÃO SOTERO"

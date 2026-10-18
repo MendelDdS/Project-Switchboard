@@ -307,7 +307,9 @@ func _use(xf: Transform2D) -> void:
 
 func _draw() -> void:
 	_view()
+	var seal := Rect2(_seen().end - Vector2(124, 40), Vector2(118, 34))   # o selo, no canto da vista: nenhum nome embaixo dele
 	_boxes = blocked.duplicate()
+	_boxes.append(seal)
 	_places.clear()
 	var xf := Transform2D(0.0, Vector2(_k, _k), 0.0, _off)
 	draw_rect(Rect2(Vector2.ZERO, size), Pal.INK_SOFT)
@@ -347,8 +349,7 @@ func _draw() -> void:
 			if shown(s) and not SHEET_SECTOR[s] in _before:
 				draw_rect(Rect2(SHEETS[s], SHEET), Color(Pal.INK_SOFT, 1.0 - smoothstep(0.0, 1.0, _reveal)))
 	_use(Transform2D.IDENTITY)
-	# o selo, no canto da vista (o mesmo do mapa da mesa): a moldura vermelha, a rosa dos ventos e o nome da cidade
-	var seal := Rect2(_seen().end - Vector2(124, 40), Vector2(118, 34))
+	# o selo (o mesmo do mapa da mesa): a moldura vermelha, a rosa dos ventos e o nome da cidade
 	draw_rect(seal, Pal.SEAL)
 	draw_rect(seal.grow(-2), PAPER)
 	draw_rect(seal.grow(-4), Pal.SEAL, false, 1.0)
@@ -412,15 +413,16 @@ func _street_name(o: Vector2, st: Street) -> void:
 				return
 
 
-## Nome do lugar no quarteirão `r` (coordenadas do mapa): numa linha, em duas ("Hotel / Estrela") ou em pé no
-## quarteirão estreito; se não couber, só aproximando.
+## Nome do lugar dentro de `r` (coordenadas do mapa: o telhado do prédio, a faixa da praça), com 1 px livre de cada
+## lado (a largura do texto já traz 1 px de ar depois da última letra): numa linha, em duas ("Hotel / Estrela") ou em
+## pé no prédio estreito; se não couber, só aproximando.
 func _place_name(r: Rect2, txt: String, up: bool) -> void:
 	var c := r.get_center()
 	if up:
-		if _width(txt, 11) <= r.size.y * _k - 6:
+		if _width(txt, 11) <= r.size.y * _k - 1:
 			_label(c + Vector2(5, 0), txt, 11, LINE, Color.TRANSPARENT, true)
 		return
-	var room := r.size.x * _k - 6
+	var room := r.size.x * _k - 1
 	if _width(txt, 11) <= room:
 		_label(c + Vector2(0, 6), txt, 11)
 		return
@@ -453,14 +455,14 @@ func _draw_blocks(sector: int) -> void:
 			draw_rect(r.grow(-2), Pal.MAP_PLAZA if lm == T.Key.MAP_SQUARE else tint)
 			if lm == T.Key.MAP_SQUARE:
 				_draw_square(r.grow(-2))
-				_places.append([Rect2(o.x + r.position.x, o.y + r.end.y - 30, r.size.x, 30), T.text(lm), false])
+				_places.append([Rect2(o.x + r.position.x + 4, o.y + r.end.y - 30, r.size.x - 8, 30), T.text(lm), false])
 			elif lm != -1:   # o lugar: um prédio só, de duas águas como as casas, com o terreno em volta
 				var b := r.grow(-8)
 				draw_rect(b, LINE)
 				draw_rect(b.grow(-2), Pal.MAP_LANDMARK)
 				var lit := Rect2(b.position + Vector2(2, 2), (b.size - Vector2(4, 4)) * (Vector2(1, 0.5) if b.size.x >= b.size.y else Vector2(0.5, 1)))
 				draw_rect(lit.abs(), Pal.MAP_LANDMARK.lightened(0.12))
-				_places.append([Rect2(o + r.position, r.size), T.text(lm), r.size.x < 60])
+				_places.append([Rect2(o + b.position, b.size).grow(-2), T.text(lm), r.size.x < 60])   # no telhado: medido no quarteirão, vazava do prédio
 			else:
 				_houses(r.grow(-4), sector * 31 + ci * 7 + ri * 3, tint)
 

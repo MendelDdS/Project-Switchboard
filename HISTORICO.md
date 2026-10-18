@@ -1768,3 +1768,12 @@ Chaves:
     "Aumente um pixel de largura no prédio da esquerda" e "diminua mais 4px de altura": o prédio da camada de trás
     logo à esquerda da torre (o 11 do sorteio de `_build_city`) ficou 1 px mais largo, crescendo para a esquerda para
     o vão até o vizinho continuar, e 4 px mais baixo que o sorteado.
+
+302. #mesa-comutadora #mapa #despacho #pixel #fonte
+    "Análise o visual do jogo e sugira melhorias" e "corrija os três primeiros" (os defeitos de pixel):
+    - Na plaqueta do fabricante, na frente do console, o til de "SÃO" encostava na linha de cima e o acento do Ô caía
+      no friso. Ela passou de 26 para 32 px de altura, com 1 px livre entre as duas linhas (`draw_maker_plate`).
+    - O nome de cada lugar do mapa do despacho era medido pelo quarteirão, e Bilhar e Funerária vazavam do prédio. Agora
+      é medido pelo telhado, com 1 px livre de cada lado (`_place_name`); o que não cabe só aparece aproximando o mapa.
+      A faixa do nome da praça foi recuada 4 de cada lado para continuar como estava.
+    - O selo do canto cobria os nomes, porque não entrava na conta das sobreposições. Agora entra (`_boxes`).
