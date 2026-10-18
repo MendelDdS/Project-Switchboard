@@ -296,7 +296,13 @@ const BANKS := Vector3(10, 6, 0.8)
 const SHOP_POOL := 0.3   ## com os postes apagados, a luz das vitrines acesas na calçada
 const PUDDLES := 7       ## as poças do amanhecer, espelhando o céu (`_draw_puddles`)...
 const PUDDLE_A := 0.5    ## ...e a força delas
-const MIST_A := 0.45      ## a neblina baixa no fundo da rua, de madrugada (`_draw_dawn_mist`)
+const MIST_A := 0.3       ## a neblina baixa no fundo da rua, de madrugada (`_draw_dawn_mist`; a 0,45, um véu claro, parecia luz)
+## O sol saindo de trás da igreja (min): a luz dele lá fora e na sala cresce daí até o fim (`_sunlit`). Ele nasce às
+## 5h25 (`SUNRISE`), mas atrás do telhado da nave; com a luz cheia às 5h40 e começando às 5h15, o fundo da rua do
+## cruzamento já estava aceso com ele escondido (pedido 292)
+const SUN_OUT := Vector2(29 * 60 + 30, 29 * 60 + 50)
+const FAR_DETAIL := 40.0   ## até onde, dos dois lados da igreja (px de 2x2), os prédios de longe têm as janelas apagadas: o resto fica atrás das fachadas
+const AIR_SHADE := 0.75   ## de madrugada, antes do sol sair, o quanto o ar da distância fica na luz fria do céu, e não no clarão do horizonte (`_air`)
 ## Os reflexos da lente na linha do sol ao meio da vista: Vector3(onde, de 0 no sol a 1 no meio e além; o raio, px de
 ## 2x2; a força), cada um na sua cor (`Pal.FLARE`).
 const FLARES: Array[Vector3] = [Vector3(0.45, 2.0, 0.22), Vector3(0.8, 4.5, 0.1), Vector3(1.2, 1.5, 0.25), Vector3(1.6, 7.0, 0.07)]
@@ -460,10 +466,17 @@ func _sun_glass(g: Rect2, wv: Vector3, y: float, c: Color, hot: float) -> Color:
 	return Color(c + _sunny(Pal.SUN_RAY) * (WALL_GLINT.y * glint), glint)   # (somado: misturado ao vidro escuro, acinzentava; no alfa, o quanto o sol brilha nela, para o halo, `_glints`)
 
 
-## O quanto o sol já ilumina a cidade (0 até pouco antes de ele nascer, 1 logo depois; só no céu limpo): a luz quente
-## de lado nas paredes, a faixa de sol na rua e as sombras compridas nela.
+## O quanto o sol já ilumina a cidade (0 até ele sair de trás da igreja, 1 já fora dela, `SUN_OUT`; só no céu limpo):
+## a luz quente de lado nas paredes, a faixa de sol na rua e as sombras compridas nela, e o sol na sala.
 func _sunlit() -> float:
-	return smoothstep(SUNRISE - 10.0, SUNRISE + 15.0, minutes) if weather == "clear" else 0.0
+	return smoothstep(SUN_OUT.x, SUN_OUT.y, minutes) if weather == "clear" else 0.0
+
+
+## O ar entre a central e o longe, onde o que está longe some (a cor do horizonte); de madrugada, até o sol sair de trás
+## da igreja, na luz fria do céu (`AIR_SHADE`): no clarão do horizonte, a igreja, os prédios do fim da rua do cruzamento
+## e o chão de lá pareciam acesos antes da hora (pedido 292).
+func _air() -> Color:
+	return _sky_tones()[1].lerp(Pal.DAWN_SHADE, AIR_SHADE * smoothstep(DAWN.x, DAWN.x + 40.0, minutes) * (1.0 - _sunlit()))
 
 
 ## O quanto o céu já é de dia (0 no amanhecer, `DAY_SKY` às 6h): as nuvens branqueando, o clarão do horizonte e o
@@ -556,8 +569,9 @@ func _draw_dawn_mist(g: Rect2) -> void:
 		return
 	var hzy := _hz(g)
 	var sx := _sun_at(g).x
-	var cool := Color(Pal.DAWN_MIST, m)
-	var warm := Color(Pal.DAWN_MIST.lerp(Pal.SUN_RIM, 0.7 * smoothstep(SUNRISE - 30.0, SUNRISE + 5.0, minutes)), m)
+	var mist := _air().lerp(Pal.DAWN_MIST, 0.2)   # na luz do céu: na cor dela, clara, parecia acesa
+	var cool := Color(mist, m)
+	var warm := Color(mist.lerp(Pal.SUN_RIM, 0.7 * _sunlit()), m)
 	for side: float in [g.position.x, g.end.x]:   # do alto, sumindo para cima, ao horizonte e dele ao chão, sumindo para baixo
 		_fill(PackedVector2Array([Vector2(side, hzy - 12.0), Vector2(sx, hzy - 12.0), Vector2(sx, hzy), Vector2(side, hzy)]),
 			PackedColorArray([Color(cool, 0.0), Color(warm, 0.0), warm, cool]))
@@ -727,6 +741,29 @@ func _church_parts(base: Vector2) -> Array:
 		box.call(top.x - 2.5 * PX, top.y - 1.5, 5 * PX, PX)]
 
 
+## O que fica em cima de um prédio de longe de largura `w` (px de 2x2), sorteado por `rng`: em px inteiros, a partir do
+## canto de cima à esquerda dele, [Rect2]: o andar recuado (mais nos altos, `tall`), a casa de máquinas ou a caixa
+## d'água e a antena, no recorte contra o céu perto da igreja (retângulos lisos, o fundo parecia de papelão).
+func _far_roof(rng: RandomNumberGenerator, w: float, tall: bool) -> Array[Rect2]:
+	var out: Array[Rect2] = []
+	var cols := int(w / PX)
+	if cols < 3:
+		return out
+	var lift := 0.0   # o alto do que já está em cima (px de 2x2, para cima)
+	if rng.randf() < (0.55 if tall else 0.25):   # o andar recuado
+		var n := rng.randi_range(maxi(2, int(cols / 2.0)), cols - 1)
+		lift = PX * rng.randi_range(1, 3)
+		out.append(Rect2(PX * rng.randi_range(0, cols - n), -lift, PX * n, lift))
+	if rng.randf() < 0.5:   # a casa de máquinas ou a caixa d'água
+		var n := rng.randi_range(1, mini(3, cols - 2))
+		var h := PX * rng.randi_range(1, 2)
+		out.append(Rect2(PX * rng.randi_range(1, cols - 1 - n), -lift - h, PX * n, h))
+	if rng.randf() < 0.35:   # a antena, um risco fino
+		var h := PX * rng.randi_range(2, 4)
+		out.append(Rect2(PX * rng.randi_range(1, cols - 2), -lift - h, PX, h))
+	return out
+
+
 ## A cidade lá fora (na camada `_back`, por cima do céu, `_draw_sky`): a de longe, a igreja, a rua, as paredes da rua do
 ## cruzamento e os prédios de lá, com as luzes deles.
 func _draw_city(g: Rect2) -> void:
@@ -734,7 +771,7 @@ func _draw_city(g: Rect2) -> void:
 	var wy := g.position.y
 	var fog := weather == "fog"
 	var hzy := _hz(g)
-	var hz := _sky_tones()[1]
+	var hz := _air()
 	if hzy - wy < 40.0:   # (a tela ainda não se arrumou: o vidro ainda não tem o tamanho dele)
 		return
 	if _city_for != g.size:
@@ -750,16 +787,28 @@ func _draw_city(g: Rect2) -> void:
 	_poly(PackedVector2Array([Vector2(wx, hzy), Vector2(g.end.x, hzy), Vector2(g.end.x, g.end.y + _near), Vector2(wx, g.end.y + _near)]),
 		(Pal.ASPHALT_TONES[1 if fog else 0] as Array)[Pal.STREET_MID])
 	var flicked := 0
-	var gap := Vector2.ONE * _church_pos(g).x + SUN_R * Vector2(0.3, SUN_LOW.x + 1.2)   # os prédios altos abrem um vão onde o sol nasce, ao lado da torre
+	var church := _church_pos(g).x
+	var gap := Vector2.ONE * church + SUN_R * Vector2(0.3, SUN_LOW.x + 1.2)   # os prédios altos abrem um vão onde o sol nasce, ao lado da torre
 	for r in [0, 2, 1]:
 		var z: float = FAR_ROWS[r].x
 		var haze: float = minf(1.0, FAR_ROWS[r].y * (1.4 if fog else 1.0) + 0.15 * _sunlit())
 		var base := _o(g, 0.0, z).y
 		var col := house.lerp(air, haze)
+		var glass := house.lerp(air, haze * 0.6)   # as janelas apagadas, mais escuras que a parede no ar
 		for b in _city:
 			if b["row"] != r or (r == 2 and wx + b["x"] < gap.y and wx + b["x"] + b["w"] > gap.x):
 				continue
 			_r(wx + b["x"], base - b["h"], b["w"], b["h"], col)
+			for t: Rect2 in b["top"]:
+				_r(wx + b["x"] + t.position.x, base - b["h"] + t.position.y, t.size.x, t.size.y, col)
+			if absf(wx + b["x"] + b["w"] / 2.0 - church) < FAR_DETAIL:   # (na grade das acesas, `_build_city`)
+				var yy := 1.5
+				while yy < b["h"] - 1.0:
+					var xx := 1.0
+					while xx < b["w"] - 1.0:
+						_r(wx + b["x"] + xx, base - b["h"] + yy, PX, PX, glass)
+						xx += 2.0
+					yy += 2.0
 			for p in b["lit"]:
 				if minutes >= p.z:
 					continue
@@ -780,7 +829,7 @@ func _draw_city_upright(g: Rect2) -> void:
 	if _city_for != g.size:   # (`_draw_city` ainda não montou a cidade)
 		return
 	var fog := weather == "fog"
-	var hz := _sky_tones()[1]
+	var hz := _air()
 	var ff: float = STREET["far"]
 	# perto, embaixo da janela, a rua some na sombra do nosso prédio, lisa e sem nenhuma linha
 	var dark := Color(0, 0, 0, 0.6)
@@ -3322,6 +3371,8 @@ func _build_city(gs: Vector2) -> void:
 		return INF if sleep.randf() < SLEEP.z else sleep.randf_range(SLEEP.x, SLEEP.y)
 	var tall := RandomNumberGenerator.new()   # os prédios altos atrás da igreja, também à parte
 	tall.seed = 1960
+	var roofs := RandomNumberGenerator.new()   # o que fica em cima deles, também à parte
+	roofs.seed = 1961
 	for r in [0, 1, 2]:
 		var k: float = OUT_F / FAR_ROWS[r].x
 		var rr := tall if r == 2 else rng
@@ -3338,7 +3389,7 @@ func _build_city(gs: Vector2) -> void:
 						lit.append(Vector3(xx, yy, off.call() if r < 2 else rr.randf_range(SLEEP.x, SLEEP.y)))   # (o sorteio das outras fica o mesmo)
 					xx += 2.0
 				yy += 2.0
-			_city.append({"x": x, "w": bw, "h": bh, "row": r, "lit": lit})
+			_city.append({"x": x, "w": bw, "h": bh, "row": r, "lit": lit, "top": _far_roof(roofs, bw, r == 2)})
 			x += bw + rr.randf_range(0.0, 1.5)
 	_houses.clear()
 	var tones := Pal.FACADE_TONES

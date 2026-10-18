@@ -1697,3 +1697,14 @@ Chaves:
     acesas todo dia até as 21h; no frontão, um vitral de cada lado dela, em quatro cores, aceso a noite toda nos dias
     de missa e apagando com os postes (no amanhecer da noite 15, uma segunda, a igreja fica sem luz contra o sol, como
     no pedido 269). Na fachada, embaixo, os prédios do fim da rua do cruzamento tapavam os vitrais.
+292. #vista #cidade #amanhecer #luz
+    "melhore os detalhes no fundo do cenário próximo da igreja. Além disso, veja se a iluminação do amanhecer está
+    correta nesse pequeno espaço, a impressão que dá é que há muita luz sendo recebida nesse espaço mesmo quando a luz
+    ainda não está pegando". Três coisas acendiam o fundo antes do sol: o ar da distância era a cor do horizonte, o
+    clarão amarelo (a igreja cáqui, os prédios de longe e o fim das paredes e do chão da rua do cruzamento claros); a
+    neblina baixa era um véu claro, lavanda e depois amarelo antes de ele nascer; e a luz do sol na cidade e na sala
+    começava às 5h15, dez minutos antes de ele nascer e quinze antes de sair de trás do telhado da nave. O ar fica na
+    luz fria do céu até o sol sair (`_air`, `AIR_SHADE`), a neblina na cor dele, mais fraca (`MIST_A` 0,3) e quente só
+    com o sol fora, e a luz do sol vai das 5h30 às 5h50 (`SUN_OUT`). No fundo, os prédios de longe em volta da igreja
+    ganharam as janelas apagadas (`FAR_DETAIL`) e, em cima, o andar recuado, a casa de máquinas ou a caixa d'água e a
+    antena (`_far_roof`): eram blocos lisos.

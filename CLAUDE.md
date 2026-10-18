@@ -712,9 +712,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   Na frente da cidade, numa camada somada (`_rays`, `_draw_rays`), com o sol à vista (`_sun_seen`):
   os reflexos na linha do sol ao meio da vista (`FLARES`, `Pal.FLARE`, somindo perto do sol, onde pareciam um segundo
   sol; o risco horizontal da lente, cortando o sol, saiu, a pedido). A igreja fica escura contra o sol, arroxeada (`Pal.CHURCH_DAWN`), e nada de luz na frente dela (a beira acesa em volta, o brilho do sol somado por cima e o clarão e a neblina dourada na boca da rua saíram, a pedido: a luz parecia atravessá-la). Com o
-  sol (`_sunlit`; a referência é uma imagem do usuário), a parede da direita da rua do cruzamento, de costas para
+  sol (`_sunlit`, só depois de ele sair de trás do telhado da igreja, das 5h30 às 5h50, `SUN_OUT`: com a luz das 5h15,
+  o fundo da rua já estava aceso com ele escondido, pedido 292; a referência é uma imagem do usuário), a parede da direita da rua do cruzamento, de costas para
   ele, fica na sombra, só com a cornija acesa, e a da esquerda, virada para ele, pega a luz de raspão, fraca, porque o sol está quase no eixo da
-  rua (`WALL_LIT` 0,2, ~1/4 da do chão), inteira e sempre que o chão pega, das 5h15 às 6h: a sombra da parede da frente
+  rua (`WALL_LIT` 0,2, ~1/4 da do chão), inteira e sempre que o chão pega, até as 6h: a sombra da parede da frente
   no chão nunca chega até ela (pedido 264: as duas na sombra, pedido 258, deixavam o chão aceso e as paredes não;
   pedido 266: uma sombra subindo por ela, pela conta do sol, a escurecia até as 5h30 com o chão ainda aceso), e as duas somem no ar dourado no fundo.
   Os vidros dela espelham o dia (`_sun_glass`, pedido 279): o céu na altura de cada janela (a reflexão numa parede de
@@ -771,7 +772,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   mais carros vêm com o bagageiro (`RACK`), passa o menino do jornal de bicicleta (`PAPERBOY`) e às 5h30 o dono abre o
   bar e fica no vão da porta (`BAR_OPENS`; pela vitrine, a prateleira com as garrafas e o balcão; ela e a porta do
   hotel no `_sunny`, sem a luz do dia por cima, que as estourava); na sala, a poeira dourada no feixe do sol (`SUN_DUST`, `_sunbeam`); com os postes apagados, as vitrines acesas deixam a luz na calçada (`SHOP_POOL`). A neblina
-  baixa no fundo da rua some com o sol nascendo (`_draw_dawn_mist`), as nuvens se acendem por baixo (`Pal.DAWN_CLOUD_TOP` no
+  baixa no fundo da rua some com o sol nascendo (`_draw_dawn_mist`, na cor do ar, fraca, e quente só com o sol fora), o ar
+  da distância (`_air`: a igreja, os prédios de longe, o fim das paredes e do chão da rua do cruzamento somem nele) fica na luz
+  fria do céu até o sol sair, `AIR_SHADE` (no clarão do horizonte, tudo lá parecia aceso antes da hora, pedido 292), os
+  prédios de longe em volta da igreja têm as janelas apagadas e o que fica em cima deles (`FAR_DETAIL`, `_far_roof`), as nuvens se acendem por baixo (`Pal.DAWN_CLOUD_TOP` no
   alto), fiapos de nuvem cobrem o céu (`_draw_cirrus`, `CIRRUS`) e bancos de nuvem em faixas largas, de beira nítida, com a beira de baixo acesa
   rosa e, com o sol, laranja, descem até o vão da rua do cruzamento (`_draw_banks`, `BANKS`; pedido 259, como na referência) (os passarinhos, bandos em V e os pombos saindo da
   torre, saíram, a pedido). A cidade clareia pelo `modulate` da `_back` e da `_view` (`DAY_GAIN`, `DAY_WARM`; a cor das luzes do sol na

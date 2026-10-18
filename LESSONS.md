@@ -537,3 +537,8 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   num vermelho-escuro, e a lua amarela acesa virava vermelha apagada; o halo do bloom era o retângulo dele e saía
   quadrado (pedido 289). Apagado, cada tubo no tom dele, sem a luz; o halo pelas peças (`Bloom.light` com `parts`).
   E a caixa de um letreiro é metal pintado, cinza-escuro: escura e tingida de vermelho, parecia vinho.
+- **Antes do sol, o longe não brilha.** O ar da distância e a neblina usavam a cor do horizonte, que de madrugada é o
+  clarão amarelo; tudo o que sumia nele (a igreja, os prédios de longe, o fim da rua) parecia aceso antes da hora, e a
+  luz do sol começava antes de ele aparecer atrás da igreja (pedido 292). O que está entre nós e o clarão fica na luz
+  fria do céu, contra ele; a luz do sol na cidade começa quando o disco sai de trás do que o tapa, medido na captura
+  (`_sun_seen`), não na hora em que ele nasce.
