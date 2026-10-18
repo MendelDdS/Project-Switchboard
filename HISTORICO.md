@@ -1689,3 +1689,11 @@ Chaves:
     "Remova essa borda vermelha do letreiro tbm, vamos ganhar mais espaço". Saiu o friso de neon na beira das caixas;
     as letras ficam a um pixel da beira, e o letreiro diminuiu (a bandeira de 11 × 47 para 9 × 45 px, a caixa do HOTEL
     de 25 × 11 para 23 × 9).
+291. #vista #cidade #luz
+    "queria que você subisse mais o telhado da igreja e desenhasse uns vitrais e duas janelinhas na Torres. As luzes
+    da janelinha se acendem todos os dias e se apagam sempre às 21h, os vitrais só se acendem às quartas, sextas e
+    domingos". O telhado da nave subiu (a parede de 18 para 20 e o alto de 26 para 32, `CHURCH_NAVE`), e a torre ficou
+    na frente da fachada, com a sombra dela dos dois lados até sair do telhado. Na torre, duas janelinhas lado a lado,
+    acesas todo dia até as 21h; no frontão, um vitral de cada lado dela, em quatro cores, aceso a noite toda nos dias
+    de missa e apagando com os postes (no amanhecer da noite 15, uma segunda, a igreja fica sem luz contra o sol, como
+    no pedido 269). Na fachada, embaixo, os prédios do fim da rua do cruzamento tapavam os vitrais.

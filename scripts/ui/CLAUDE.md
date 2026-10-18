@@ -4,8 +4,12 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
 
 ## O cenário (`Background`, a sala e a vista da janela)
 - A vista da janela muda com a noite: cada janela acesa da cidade apaga numa hora sorteada,
-  sempre a mesma (`SLEEP`; algumas ficam acesas); a igreja não tem luz (a porta e o relógio da torre acesos saíram, a
-  pedido). **Luz e vinheta lisas, sem camadas** (em degraus pareciam artificiais, a pedido do usuário): o brilho
+  sempre a mesma (`SLEEP`; algumas ficam acesas); a igreja só tem as duas janelinhas da torre, acesas todo dia até
+  as 21h (`CHURCH_DARK`), e um vitral de cada lado dela no frontão (`Pal.STAINED_GLASS`), aceso a noite toda nos dias
+  de missa, domingo, quarta e sexta (`CHURCH_MASS`, `weekday`; apaga com os postes), pedido 291 (a porta e o relógio
+  da torre acesos saíram, a pedido; da fachada, só o frontão aparece por cima dos prédios do fim da rua do
+  cruzamento); a torre fica na frente da fachada, com a sombra dela dos dois lados, e o telhado da nave subiu
+  (`CHURCH_NAVE`). **Luz e vinheta lisas, sem camadas** (em degraus pareciam artificiais, a pedido do usuário): o brilho
   (`%Glow`) e a vinheta são degradês contínuos com filtro linear; o arco na parede e a poça na mesa são desenhados com
   a cor variando ponto a ponto (`Background._light_fan`), não em polígonos empilhados; **Clima noir**: fora da luz da luminária a sala fica fria e
   escura (`NOIR`, num shader na camada `_noir`, logo abaixo da `_over`, `room_noir.gdshader`, `_noir_params`: a luminária
@@ -418,7 +422,7 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   (`NEWSSTAND`, `_draw_newsstand`, sem as lojas atrás dela: fechada das 19h às 5h10, `NEWSSTAND_SHUT`, com os vincos
   das portas arriadas; aberta, as portas de cima levantadas, as revistas penduradas, `Pal.MAGAZINES`, e os jornais no
   balcão; pedido 281); quem vira a esquina por ela, `WALK_CORNER`, `TURN_Z`, `_walk_at`, do lado da banca por fora
-  dela, `WALK_RIGHT`; e a névoa clareando para o fundo) até a igreja no fim (`_church_pos`, `CHURCH_K`; a cruz e o relógio aceso em pixels do tamanho da torre, e o brilho do relógio também) e, bem longe, a cidade em duas fileiras na
+  dela, `WALK_RIGHT`; e a névoa clareando para o fundo) até a igreja no fim (`_church_pos`, `CHURCH_K`; a cruz e o relógio em pixels do tamanho da torre) e, bem longe, a cidade em duas fileiras na
   névoa. Na chuva, o asfalto molhado espelha as luzes em riscos verticais (`_draw_wet`), na frente da vista, tapados
   pelos carros (`_car_cuts`, `_uncovered`). Na névoa (`_draw_fog`, por cima da rua e do
   outro lado, atrás do arbusto): um véu liso mais grosso rente ao chão (`FOG_VEIL`, `FOG_GROUND`), fiapos largos e lisos

@@ -247,7 +247,7 @@ const SUN_R := 7.0 * OUT_K        ## o raio do sol (px de 2x2; o disco, `_sun_at
 const SUN_DISC := 0.55   ## ...o do disco, em raios dele (pequeno, a pedido, quase todo miolo branco e com o brilho forte em volta, `_draw_dawn`)...
 const SUN_GLOW := Vector2(3.4, 1.0)   ## ...o brilho que sai dele, por cima da beira: até quantos raios do disco e a força no meio...
 ## ...e onde ele está às 6h, ainda baixo, ao lado da torre (como na referência): x, raios dele à direita do eixo; y, a
-## altura em unidades da igreja (`CHURCH_K`; o telhado da nave fica em 26)
+## altura em unidades da igreja (`CHURCH_K`; o alto do telhado da nave, `CHURCH_NAVE`)
 const SUN_LOW := Vector2(0.5, 36.0)
 const RAYS := 160         ## as fatias do leque dos raios crepusculares em volta do sol (`_draw_crepuscular`)...
 const COVER_STEPS := 12   ## ...os pontos de cada um conferidos contra a igreja (`_church_cover`)...
@@ -314,6 +314,10 @@ const CHURCH_K := 0.4 * OUT_K    ## a escala da igreja (desenhada em px de 2x2),
 ## ...e a torre, fina como a da referência (em unidades de `CHURCH_K`): o alto dela, a ponta e o relógio (com 60 e 78,
 ## alta demais, a pedido)
 const CHURCH_TOWER := Vector3(46.0, 62.0, 34.0)
+## A nave: a altura da parede e a do alto do telhado (com 18 e 26, o telhado ficava baixo, a pedido)
+const CHURCH_NAVE := Vector2(20.0, 32.0)
+const CHURCH_DARK := 21 * 60   ## a hora (min) em que as duas janelinhas da torre apagam (acendem todo dia)...
+const CHURCH_MASS := [0, 3, 5]   ## ...e os dias de missa, com os vitrais da nave acesos a noite toda (domingo, quarta e sexta, `weekday`)
 const FOG := Color(0.55, 0.62, 0.66)   ## a cor da névoa (`_draw_fog`)
 const FOG_VEIL := 0.2    ## o véu dela por cima de tudo lá fora (o longe some nele)
 const FOG_GROUND := 0.2  ## o tanto a mais rente ao chão, sumindo até 3 m de altura
@@ -715,9 +719,9 @@ func _church_parts(base: Vector2) -> Array:
 	var top := Vector2(base.x, roundf((base.y - CHURCH_TOWER.y * k) / PX) * PX)   # a ponta da torre, presa ao pixel
 	return [box.call(base.x - 17 * k, base.y - 2 * PX, 34 * k, 2 * PX),   # o adro: a escadaria, dois degraus
 		box.call(base.x - 14 * k, base.y - 4 * PX, 28 * k, 2 * PX),
-		box.call(base.x - 12 * k, base.y - 18 * k, 24 * k, 18 * k),
-		PackedVector2Array([base + Vector2(-13, -18) * k, base + Vector2(0, -26) * k, base + Vector2(13, -18) * k]),
-		box.call(base.x - tw, base.y - tower, 2 * tw, tower - 18 * k),
+		box.call(base.x - 12 * k, base.y - CHURCH_NAVE.x * k, 24 * k, CHURCH_NAVE.x * k),
+		PackedVector2Array([base + Vector2(-13, -CHURCH_NAVE.x) * k, base + Vector2(0, -CHURCH_NAVE.y) * k, base + Vector2(13, -CHURCH_NAVE.x) * k]),
+		box.call(base.x - tw, base.y - tower, 2 * tw, tower - CHURCH_NAVE.x * k),
 		PackedVector2Array([Vector2(base.x - sw, base.y - tower), top, Vector2(base.x + sw, base.y - tower)]),
 		box.call(top.x - PX / 2.0, top.y - 2.5, PX, 3.0),   # a cruz: a haste entra na ponta, e os braços ficam no alto dela
 		box.call(top.x - 2.5 * PX, top.y - 1.5, 5 * PX, PX)]
@@ -764,7 +768,7 @@ func _draw_city(g: Rect2) -> void:
 					continue
 				_r(wx + b["x"] + p.x, base - b["h"] + p.y, PX, PX, (Pal.CITY_LIT[int(p.x + p.y) % Pal.CITY_LIT.size()] as Color).lerp(air, haze * 0.7))
 	# o chão (a rua do cruzamento indo embora, a rua passando na frente, as calçadas e os meios-fios), as luzes nele
-	_draw_church(g, house.lerp(air, 0.25).lerp(_sunny(Pal.CHURCH_DAWN), _sunlit()))   # (contra o sol, arroxeada e da força de antes: mais escura, sumia nos prédios atrás)
+	_draw_church(g, house.lerp(air, 0.25).lerp(_sunny(Pal.CHURCH_DAWN), _sunlit()), air)   # (contra o sol, arroxeada e da força de antes: mais escura, sumia nos prédios atrás)
 	_draw_street(g, hz)
 
 
@@ -3448,16 +3452,36 @@ func _roof_items(rng: RandomNumberGenerator, at: Callable, base: float) -> Array
 	return items
 
 
-## A igreja no fim da rua do cruzamento (na escala dela, `CHURCH_K`): nave, torre com a ponta e o relógio no alto, sem
-## luz nenhuma (a porta e o relógio acesos saíram, a pedido).
-func _draw_church(g: Rect2, col: Color) -> void:
+## A igreja no fim da rua do cruzamento (na escala dela, `CHURCH_K`): nave, torre com a ponta e o relógio no alto (a
+## porta e o relógio acesos saíram, a pedido), as duas janelinhas da torre, acesas todo dia até as 21h
+## (`CHURCH_DARK`), e um vitral de cada lado dela no frontão, aceso a noite toda nos dias de missa (`CHURCH_MASS`;
+## apaga com os postes); a luz deles some no ar (`air`) como a igreja.
+func _draw_church(g: Rect2, col: Color, air: Color) -> void:
 	var k := CHURCH_K
 	var base := _church_pos(g)
-	for part: PackedVector2Array in _church_parts(base):
+	var parts := _church_parts(base)
+	for part: PackedVector2Array in parts:
 		_poly(part, col)
 	base.x = floorf(base.x / PX) * PX + PX / 2.0
 	for i in 2:   # a beira de cada degrau, pegando a luz do céu
 		_r(base.x - (17 - 3 * i) * k, base.y - (2 + 2 * i) * PX, (34 - 6 * i) * k, PX, col.lightened(0.12))
+	var gy := roundf(base.y / PX) * PX   # o chão, no pixel
+	var dark := col.darkened(0.35)   # vidro apagado
+	# a torre fica na frente da fachada: a sombra dela dos dois lados, do adro até onde ela sai do telhado
+	var tw: float = parts[4][1].x - base.x   # a meia largura dela
+	var roof := (CHURCH_NAVE.x + (CHURCH_NAVE.y - CHURCH_NAVE.x) * (1.0 - (tw + PX) / (13.0 * k))) * k
+	var up := roundf(roof / PX) * PX - 4 * PX
+	for x: float in [base.x - tw - PX, base.x + tw]:
+		_r(x, gy - 4 * PX - up, PX, up, col.darkened(0.25))
+	var lamp := Pal.CHURCH_WINDOW.lerp(air, 0.25) if minutes < CHURCH_DARK else dark
+	for x: float in [base.x - 2.5 * PX, base.x + 0.5 * PX]:   # as janelinhas, lado a lado, com a coluna do meio entre elas
+		_r(x, gy - 27 * PX, 2 * PX, 3 * PX, lamp)
+	var mass := weekday() in CHURCH_MASS and minutes < STREET_OFF
+	for s: float in [-1.0, 1.0]:   # os vitrais, 2 × 4 px em quatro cores, no frontão (mais embaixo, na fachada, os prédios da rua do cruzamento os tapam)
+		for r in 4:
+			for c in 2:
+				var glass: Color = (Pal.STAINED_GLASS[(r + c) % 4] as Color).lerp(air, 0.25) if mass else dark
+				_r(base.x + s * (5 + c) * PX - PX / 2.0, gy - (22 + r) * PX, PX, PX, glass)
 	var face := Vector2(base.x, roundf((base.y - CHURCH_TOWER.z * k) / PX) * PX)
 	_r(face.x - 1.5 * PX, face.y - PX, 3 * PX, 3 * PX, col.lightened(0.15))   # o mostrador, apagado
 	_r(face.x - PX / 2.0, face.y - PX, PX, 2 * PX, Pal.CHURCH_CLOCK)   # os ponteiros
