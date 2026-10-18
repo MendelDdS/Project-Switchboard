@@ -422,8 +422,9 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   (`NEWSSTAND`, `_draw_newsstand`, sem as lojas atrás dela: fechada das 19h às 5h10, `NEWSSTAND_SHUT`, com os vincos
   das portas arriadas; aberta, as portas de cima levantadas, as revistas penduradas, `Pal.MAGAZINES`, e os jornais no
   balcão; pedido 281); quem vira a esquina por ela, `WALK_CORNER`, `TURN_Z`, `_walk_at`, do lado da banca por fora
-  dela, `WALK_RIGHT`; e a névoa clareando para o fundo) até a igreja no fim (`_church_pos`, `CHURCH_K`; a cruz e o relógio em pixels do tamanho da torre) e, bem longe, a cidade em duas fileiras na
-  névoa. Na chuva, o asfalto molhado espelha as luzes em riscos verticais (`_draw_wet`), na frente da vista, tapados
+  dela, `WALK_RIGHT`; e a névoa clareando para o fundo) até a igreja no fim, na praça dela (`_church_pos`, `CHURCH_Z`, `CHURCH_K`; a cruz e o relógio em pixels do tamanho da torre; a rua do cruzamento acaba
+  antes dela e, depois das esquinas, são sobrados, `SQUARE`, para os lados dela aparecerem: o que os escondia eram as paredes entre 25 e 50 m, pelo
+  ângulo, pedido 298) e, atrás dela, a cidade numa camada no ar (`CITY_BACK`). Na chuva, o asfalto molhado espelha as luzes em riscos verticais (`_draw_wet`), na frente da vista, tapados
   pelos carros (`_car_cuts`, `_uncovered`). Na névoa (`_draw_fog`, por cima da rua e do
   outro lado, atrás do arbusto): um véu liso mais grosso rente ao chão (`FOG_VEIL`, `FOG_GROUND`), fiapos largos e lisos
   atravessando a rua com o vento (`FOG_WISPS`) e as luzes espalhando nela (halo e cone de laterais lisas em cada poste, o

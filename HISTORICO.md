@@ -1743,3 +1743,28 @@ Chaves:
     menos saturado, na beira de lá (`PUDDLE`); (3) o sol às vezes sumia às 5h55: as nuvens que passam com o vento,
     desenhadas com a lua, iam por cima dele (e os reflexos da lente ficavam); o sol agora vai por cima delas, como já ia
     por cima dos bancos de nuvem.
+298. #vista #cidade #igreja #saiu
+    Experimento na branch `improve/0000-igreja-fundo`: "remova os prédios imperceptíveis no fundo do cenário; os
+    espaços que sobrarem nas laterais servirão para adicionar prédios no fundo, numa camada atrás da igreja; traga a
+    igreja um pouco para frente, mas sem esconder tanto as laterais dela". As três fileiras de longe (`FAR_ROWS`, a
+    250, 320 e 400 m) ficavam quase inteiras atrás das paredes da rua do cruzamento: saíram (o sorteio das duas que
+    dividiam o das fachadas fica, para elas continuarem as mesmas), e no lugar uma camada só, a 180 m, com prédios de
+    45 a 100 m que passam do telhado da nave ao lado da torre (`CITY_BACK`), na cor da igreja e mais apagados no ar
+    (contra o sol, arroxeados como ela: no ar dourado, ficavam bege, como acesos); no vão do sol, só os baixos, até a
+    parede da nave. A igreja veio de 120 para 96 m (`CHURCH_Z`, a escala pela distância, `CHURCH_K`), 25% maior. Quem
+    escondia os lados dela eram as paredes da rua do cruzamento entre 25 e 50 m (pelo ângulo, a qualquer distância):
+    a rua agora acaba na praça dela, aos 80 m, e depois das esquinas são sobrados de 6,5 a 9,5 m (`SQUARE`). Efeito:
+    com as paredes mais baixas, a sombra da da direita na faixa de sol da nossa rua encurta.
+299. #vista #cidade #igreja
+    "Os prédios mais afastados ficaram com altura baixa, pode aumentar, mesmo que precise afastar um pouco mais a
+    igreja": os da camada atrás da igreja (`CITY_BACK`) passaram de 45–100 para 80–160 m, até acima da torre, e a
+    igreja foi de 96 para 104 m (`CHURCH_Z`, 8% menor). No vão do sol continuam só os baixos. De noite, a lua nasce
+    atrás deles e da torre e aparece inteira por volta das 20h.
+300. #vista #cidade #igreja
+    "Gostei da largura dos prédios, mas não deveria ser arranha céu, diminua a altura": os da camada atrás da igreja
+    (`CITY_BACK`) foram de 80–160 para 60–105 m, com a mesma largura: acima do telhado da nave e abaixo da ponta da
+    torre. Com eles mais baixos, a lua das 19h30 volta a aparecer inteira, cortada só pela torre.
+301. #vista #cidade #igreja
+    "Aumente um pixel de largura no prédio da esquerda" e "diminua mais 4px de altura": o prédio da camada de trás
+    logo à esquerda da torre (o 11 do sorteio de `_build_city`) ficou 1 px mais largo, crescendo para a esquerda para
+    o vão até o vizinho continuar, e 4 px mais baixo que o sorteado.

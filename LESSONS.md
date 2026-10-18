@@ -552,3 +552,8 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   captura eram um retângulo de cor chapada com uma grade de janelas, sem silhueta, e saíram (pedido 296). Quando o
   pedido não cabe no espaço da tela como foi imaginado, mostre a captura do que deu e diga o limite antes de forçar uma
   versão que só lembra a ideia.
+- **Prédio "alto" atrás de um marco tem que passar dele.** Os prédios atrás da igreja (pedido 298) mal passavam do
+  telhado da nave e ficavam abaixo da torre: na tela, pareciam baixos (pedido 299). A altura que conta é a da tela,
+  ao lado do que está na frente: confira na captura se a silhueta deles sobe acima do que os encobre, não só os metros.
+  E "mais alto" não é "o dobro": de 80 a 160 m, passando da ponta da torre, viraram arranha-céus numa cidade pequena
+  (pedido 300). Suba o bastante para resolver a queixa, guardando a escala do lugar, e mostre antes de exagerar.

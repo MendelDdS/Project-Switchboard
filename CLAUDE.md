@@ -779,14 +779,15 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   fria do céu até o sol sair, `AIR_SHADE` (no clarão do horizonte, tudo lá parecia aceso antes da hora, pedido 292), arroxeada
   (`Pal.DAWN_AIR`: na azul, o amarelo do horizonte passava por um cáqui às 5h35, pedido 295), os
   prédios de longe em volta da igreja têm as janelas apagadas (uma ou outra espelhando o céu frio de cá, de manhã) e o que
-  fica em cima deles, sem antena (`FAR_DETAIL`, `_far_roof`; uma fileira de prédios mais baixos na frente deles, com o
-  alto logo acima do telhado da nave, saiu, pedido 296), e de noite o clarão da cidade no céu atrás da igreja a recorta (`CITY_GLOW`,
+  fica em cima deles, sem antena (`FAR_DETAIL`, `_far_roof`), e de noite o clarão da cidade no céu atrás da igreja a recorta (`CITY_GLOW`,
   `Pal.CITY_GLOW`, somindo no amanhecer), as nuvens se acendem por baixo (`Pal.DAWN_CLOUD_TOP` no
   alto), fiapos de nuvem cobrem o céu (`_draw_cirrus`, `CIRRUS`) e bancos de nuvem em faixas largas, de beira nítida, com a beira de baixo acesa
   rosa e, com o sol, laranja, descem até o vão da rua do cruzamento (`_draw_banks`, `BANKS`; pedido 259, como na referência) (os passarinhos, bandos em V e os pombos saindo da
   torre, saíram, a pedido). A cidade clareia pelo `modulate` da `_back` e da `_view` (`DAY_GAIN`, `DAY_WARM`; a cor das luzes do sol na
-  cidade sai dele, `_sunny`, senão o laranja estourava no amarelo-cáqui; atrás da igreja, prédios altos num terceiro
-  plano no ar dourado, `FAR_ROWS`; um
+  cidade sai dele, `_sunny`, senão o laranja estourava no amarelo-cáqui; atrás da igreja, nos lados dela, uma camada de prédios
+  de altura média, acima do telhado da nave e abaixo da ponta da torre, na cor dela e mais apagados no ar, `CITY_BACK`
+  (eram três fileiras quase inteiras atrás das paredes da rua do cruzamento, pedido 298; a igreja a 104 m, pedido 299,
+  e eles de 60 a 105 m: de 45 a 100 pareciam baixos, pedido 299, e de 80 a 160, arranha-céus, pedido 300); um
   shader nelas desfazia o lote das chamadas de desenho), postes e neon apagam às 5h15 (`_posts_on`, `_sign_on`),
   janelas acendem de madrugada e ficam (`WAKE_DAWN`) e a rua volta a ter gente e carro das 5h às 6h (`morning`). Na sala, a luz do dia entra pela janela só por
   parâmetros (`Background.daylight`: a cor do céu, fria, e com o sol a dele, quente, `Pal.DAYLIGHT_*`; a força em

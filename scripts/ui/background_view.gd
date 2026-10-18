@@ -314,12 +314,17 @@ const MOON_SHRINK := 0.4  ## até onde da subida (`_moon_t`) ela ainda está enc
 const FOG_MOON := Vector4(6.0, 0.3, 0.55, 0.3)
 const OVERCAST := 14      ## as nuvens do céu da chuva (`_draw_overcast`)
 const OVERCAST_SPEED := 0.012
-## Os planos da cidade de longe, no fim da rua do cruzamento: a distância (m) e o quanto cada um some no ar. O 2, entre
-## os outros, são os prédios altos atrás da igreja, como os da referência do amanhecer (uma fileira mais baixa na
-## frente deles, perto dela, saiu, pedido 296).
-const FAR_ROWS := [Vector2(400.0, 0.55), Vector2(250.0, 0.35), Vector2(320.0, 0.5)]
+## A cidade atrás da igreja, nos lados dela, como os prédios altos da referência do amanhecer: a distância (m), o quanto
+## ela some no ar e a altura dos prédios, de quanto a quanto (m; de 45 a 100, ficavam baixos, pedido 299, e de 80 a 160,
+## arranha-céus, pedido 300). Eram três fileiras, a 250, 320 e 400 m, quase inteiras atrás das paredes da rua do
+## cruzamento (pedido 298; uma mais baixa, na frente, saiu antes, pedido 296).
+const CITY_BACK := Vector4(180.0, 0.3, 60.0, 105.0)
 const CITY_GLOW := Vector3(90.0, 55.0, 0.6)   ## o clarão da cidade no céu, de noite (`Pal.CITY_GLOW`): a meia largura e a altura (px de 2x2) e a força
-const CHURCH_K := 0.4 * OUT_K    ## a escala da igreja (desenhada em px de 2x2), no fim da rua do cruzamento (na distância focal, `OUT_F`)...
+const CHURCH_Z := 104.0   ## a distância da igreja (m), no fim da rua do cruzamento (a 120, as paredes escondiam os lados dela, pedido 298; a 96, os prédios atrás dela pareciam baixos, pedido 299)...
+const CHURCH_K := OUT_F / CHURCH_Z * OUT_K    ## ...e a escala dela (desenhada em px de 2x2: uma unidade dela, `OUT_K` m)...
+## ...e a praça na frente dela: onde a rua do cruzamento acaba (m) e a altura das paredes dela depois das esquinas, de
+## quanto a quanto (m): sobrados, para ela aparecer com os lados (os prédios de 7 a 16 m escondiam a nave)
+const SQUARE := Vector3(80.0, 6.5, 9.5)
 ## ...e a torre, fina como a da referência (em unidades de `CHURCH_K`): o alto dela, a ponta e o relógio (com 60 e 78,
 ## alta demais, a pedido)
 const CHURCH_TOWER := Vector3(46.0, 62.0, 34.0)
@@ -353,7 +358,7 @@ var _houses: Array = []        # os prédios do outro lado da rua, de frente: {x
 var _glints: Array[Vector3] = []   # as janelas da parede acesa brilhando com o sol (o meio, px de 2x2, e a força), do último desenho da `_upright`: o halo delas vai na `_rays`, que vem depois
 var _sign_parts: Array = []   # o desenho do letreiro do hotel, em px a partir da parede (`_sign_layout`; feito uma vez)
 var _canyon: Array = []        # as paredes da rua do cruzamento: {x, z0, z1, h, col, wins: [Vector3(z, altura, hora de apagar)]} (m)
-var _city: Array = []          # a cidade no fundo: {x, w, h, row, lit: [Vector3...]} (px do vidro; z: o minuto em que a janela apaga)
+var _city: Array = []          # a cidade no fundo: {x, w, h, lit: [Vector3...], top} (px do vidro; z: o minuto em que a janela apaga)
 var _city_for := Vector2.ZERO  # tamanho do vidro para o qual `_city` foi montada
 var _view_at := Vector2.ZERO   # onde a vista começa na tela (px de 2x2): o arbusto é posto pela parede da sala
 var _out_x := 38.0   # o ponto de fuga lá fora, a partir da esquerda da vista (px de 2x2; `OUT_AT`)
@@ -754,16 +759,16 @@ func _church_parts(base: Vector2) -> Array:
 
 
 ## O que fica em cima de um prédio de longe de largura `w` (px de 2x2), sorteado por `rng`: em px inteiros, a partir do
-## canto de cima à esquerda dele, [Rect2]: o andar recuado (mais nos altos, `tall`) e a casa de máquinas ou a caixa
+## canto de cima à esquerda dele, [Rect2]: o andar recuado e a casa de máquinas ou a caixa
 ## d'água, no recorte contra o céu perto da igreja (retângulos lisos, o fundo parecia de papelão; a antena, um risco de
 ## 1 px, saiu, pedido 293).
-func _far_roof(rng: RandomNumberGenerator, w: float, tall: bool) -> Array[Rect2]:
+func _far_roof(rng: RandomNumberGenerator, w: float) -> Array[Rect2]:
 	var out: Array[Rect2] = []
 	var cols := int(w / PX)
 	if cols < 3:
 		return out
 	var lift := 0.0   # o alto do que já está em cima (px de 2x2, para cima)
-	if rng.randf() < (0.55 if tall else 0.25):   # o andar recuado
+	if rng.randf() < 0.55:   # o andar recuado
 		var n := rng.randi_range(maxi(2, int(cols / 2.0)), cols - 1)
 		lift = PX * rng.randi_range(1, 3)
 		out.append(Rect2(PX * rng.randi_range(0, cols - n), -lift, PX * n, lift))
@@ -787,9 +792,8 @@ func _draw_city(g: Rect2) -> void:
 	if _city_for != g.size:
 		_build_city(g.size)
 	var house := Pal.CITY_FAR[1] if fog else Pal.CITY_FAR[0]
-	# bem longe: a cidade no fim da rua do cruzamento (os prédios de lá escondem o resto), em três planos na névoa, do
-	# mais longe ao mais perto (`FAR_ROWS`), cada um mais apagado no ar (a cor do horizonte; de dia, sem a luz do dia
-	# por cima, para o de longe sumir no céu de verdade)
+	# bem longe: a cidade atrás da igreja (`CITY_BACK`; os prédios de lá escondem o resto), apagada no ar (a cor do
+	# horizonte; de dia, sem a luz do dia por cima, para ela sumir no céu de verdade)
 	var air := _sunny(hz)
 	# o chão, do horizonte para baixo, antes do que fica de pé nele (depois, cobria o pé da igreja e a escadaria: uma
 	# faixa escura entre o fim da rua do cruzamento e o horizonte; desenhar a igreja depois da rua quebrava o lote, de
@@ -798,37 +802,39 @@ func _draw_city(g: Rect2) -> void:
 		(Pal.ASPHALT_TONES[1 if fog else 0] as Array)[Pal.STREET_MID])
 	var flicked := 0
 	var church := _church_pos(g).x
-	var gap := Vector2.ONE * church + SUN_R * Vector2(0.3, SUN_LOW.x + 1.2)   # os prédios altos abrem um vão onde o sol nasce, ao lado da torre
-	for r in [0, 2, 1]:
-		var z: float = FAR_ROWS[r].x
-		var haze: float = minf(1.0, FAR_ROWS[r].y * (1.4 if fog else 1.0) + 0.15 * _sunlit())
-		var base := _o(g, 0.0, z).y
-		var col := house.lerp(air, haze)
-		var glass := house.lerp(air, haze * 0.6)   # as janelas apagadas, mais escuras que a parede no ar...
-		var shine := house.lerp(_sunny(_sky_tones()[0]), 0.35 * smoothstep(0.6, 1.0, dawn())).lerp(air, haze * 0.6)   # ...e uma ou outra espelhando o céu frio de cá, de manhã (de costas para o sol)
-		for b in _city:
-			if b["row"] != r or (r == 2 and wx + b["x"] < gap.y and wx + b["x"] + b["w"] > gap.x):
+	var gap := Vector2.ONE * church + SUN_R * Vector2(0.3, SUN_LOW.x + 1.2)   # onde o sol nasce, ao lado da torre, só os baixos, até a parede da nave (sem eles, um vazio no céu)
+	var haze: float = minf(1.0, CITY_BACK.y * (1.4 if fog else 1.0) * (1.0 - 0.7 * _sunlit()))   # (com o sol, menos ar: no ar dourado, ficavam bege, pareciam acesos)
+	var base := _o(g, 0.0, CITY_BACK.x).y
+	var back := house.lerp(air, 0.25).lerp(_sunny(Pal.CHURCH_DAWN), _sunlit())   # a cor da igreja (contra o sol, arroxeada e da força de antes: mais escura, sumia nos prédios atrás)...
+	var col := back.lerp(air, haze)   # ...e eles, atrás dela, mais apagados no ar
+	var glass := back.lerp(air, haze * 0.6)   # as janelas apagadas, mais escuras que a parede no ar...
+	var shine := back.lerp(_sunny(_sky_tones()[0]), 0.35 * smoothstep(0.6, 1.0, dawn())).lerp(air, haze * 0.6)   # ...e uma ou outra espelhando o céu frio de cá, de manhã (de costas para o sol)
+	for b in _city:
+		var bx: float = wx + b["x"]
+		var bh: float = b["h"]
+		if bx < gap.y and bx + b["w"] > gap.x:
+			bh = minf(bh, roundf(CHURCH_NAVE.x * CHURCH_K / PX) * PX)
+		var top := base - bh
+		_r(bx, top, b["w"], bh, col)
+		for t: Rect2 in b["top"]:
+			_r(bx + t.position.x, top + t.position.y, t.size.x, t.size.y, col)
+		if absf(bx + b["w"] / 2.0 - church) < FAR_DETAIL:   # (na grade das acesas, `_build_city`)
+			var yy := 1.5
+			while yy < bh - 1.0:
+				var xx := 1.0
+				while xx < b["w"] - 1.0:
+					_r(bx + xx, top + yy, PX, PX, shine if (int(xx) * 7 + int(yy) * 3 + int(b["x"])) % 5 == 0 else glass)
+					xx += 2.0
+				yy += 2.0
+		for p in b["lit"]:
+			if minutes >= p.z or p.y >= bh - 1.0:
 				continue
-			_r(wx + b["x"], base - b["h"], b["w"], b["h"], col)
-			for t: Rect2 in b["top"]:
-				_r(wx + b["x"] + t.position.x, base - b["h"] + t.position.y, t.size.x, t.size.y, col)
-			if absf(wx + b["x"] + b["w"] / 2.0 - church) < FAR_DETAIL:   # (na grade das acesas, `_build_city`)
-				var yy := 1.5
-				while yy < b["h"] - 1.0:
-					var xx := 1.0
-					while xx < b["w"] - 1.0:
-						_r(wx + b["x"] + xx, base - b["h"] + yy, PX, PX, shine if (int(xx) * 7 + int(yy) * 3 + int(b["x"])) % 5 == 0 else glass)
-						xx += 2.0
-					yy += 2.0
-			for p in b["lit"]:
-				if minutes >= p.z:
-					continue
-				flicked += 1
-				if flick and flicked % 3 == 0:
-					continue
-				_r(wx + b["x"] + p.x, base - b["h"] + p.y, PX, PX, (Pal.CITY_LIT[int(p.x + p.y) % Pal.CITY_LIT.size()] as Color).lerp(air, haze * 0.7))
+			flicked += 1
+			if flick and flicked % 3 == 0:
+				continue
+			_r(bx + p.x, top + p.y, PX, PX, (Pal.CITY_LIT[int(p.x + p.y) % Pal.CITY_LIT.size()] as Color).lerp(air, haze * 0.7))
 	# o chão (a rua do cruzamento indo embora, a rua passando na frente, as calçadas e os meios-fios), as luzes nele
-	_draw_church(g, house.lerp(air, 0.25).lerp(_sunny(Pal.CHURCH_DAWN), _sunlit()), air)   # (contra o sol, arroxeada e da força de antes: mais escura, sumia nos prédios atrás)
+	_draw_church(g, back, air)
 	_draw_street(g, hz)
 
 
@@ -1106,7 +1112,7 @@ func _patch(g: Rect2, x0: float, x1: float, z0: float, z1: float, h := 0.0) -> P
 
 ## O pé da igreja, no fim da rua do cruzamento.
 func _church_pos(g: Rect2) -> Vector2:
-	return _o(g, (CROSSING.x + CROSSING.y) / 2.0, 120.0)
+	return _o(g, (CROSSING.x + CROSSING.y) / 2.0, CHURCH_Z)
 
 
 ## O retângulo das letras acesas do letreiro do hotel na vista `g` (px de 2x2): o halo, o brilho no vidro e a luz dele
@@ -3390,32 +3396,50 @@ func _build_city(gs: Vector2) -> void:
 	up.seed = 1959
 	var off := func() -> float:
 		return INF if sleep.randf() < SLEEP.z else sleep.randf_range(SLEEP.x, SLEEP.y)
-	var tall := RandomNumberGenerator.new()   # os prédios altos atrás da igreja, também à parte
-	tall.seed = 1960
-	var roofs := RandomNumberGenerator.new()   # o que fica em cima deles, também à parte
-	roofs.seed = 1961
-	for r in [0, 1, 2]:
-		var k: float = OUT_F / FAR_ROWS[r].x
-		var rr := tall if r == 2 else rng
-		var x := -rr.randf() * 4.0
+	for r in 2:   # as duas fileiras mais longe, que nem apareciam, saíram (pedido 298); o sorteio delas fica, para o das fachadas de lá continuar o mesmo
+		var k := OUT_F / (400.0 if r == 0 else 250.0)
+		var x := -rng.randf() * 4.0
 		while x < gs.x:
-			var bw := rr.randf_range(15.0, 35.0) * k if r < 2 else rr.randf_range(12.0, 22.0) * k
-			var bh := (rng.randf_range(30.0, 80.0) if r == 0 else rng.randf_range(15.0, 45.0) if r == 1 else rr.randf_range(90.0, 170.0)) * k
-			var lit: Array[Vector3] = []
+			var bw := rng.randf_range(15.0, 35.0) * k
+			var bh := (rng.randf_range(30.0, 80.0) if r == 0 else rng.randf_range(15.0, 45.0)) * k
 			var yy := 1.5
 			while yy < bh - 1.0:
 				var xx := 1.0
 				while xx < bw - 1.0:
-					if rr.randf() < 0.2:
-						lit.append(Vector3(xx, yy, off.call() if r < 2 else rr.randf_range(SLEEP.x, SLEEP.y)))   # (o sorteio das outras fica o mesmo)
+					if rng.randf() < 0.2:
+						off.call()
 					xx += 2.0
 				yy += 2.0
-			_city.append({"x": x, "w": bw, "h": bh, "row": r, "lit": lit, "top": _far_roof(roofs, bw, r == 2)})
-			x += bw + rr.randf_range(0.0, 1.5)
+			x += bw + rng.randf_range(0.0, 1.5)
+	var tall := RandomNumberGenerator.new()   # a cidade atrás da igreja, à parte
+	tall.seed = 1960
+	var roofs := RandomNumberGenerator.new()   # o que fica em cima dos prédios dela, também à parte
+	roofs.seed = 1961
+	var k := OUT_F / CITY_BACK.x
+	var x := -tall.randf() * 4.0
+	while x < gs.x:
+		var bw := tall.randf_range(10.0, 20.0) * k
+		var bh := tall.randf_range(CITY_BACK.z, CITY_BACK.w) * k
+		var lit: Array[Vector3] = []
+		var yy := 1.5
+		while yy < bh - 1.0:
+			var xx := 1.0
+			while xx < bw - 1.0:
+				if tall.randf() < 0.2:
+					lit.append(Vector3(xx, yy, tall.randf_range(SLEEP.x, SLEEP.y)))
+				xx += 2.0
+			yy += 2.0
+		_city.append({"x": x, "w": bw, "h": bh, "lit": lit, "top": _far_roof(roofs, bw)})
+		x += bw + tall.randf_range(0.0, 1.5)
+	# ponytail: o da esquerda da torre (o 11 do sorteio, na vista de 960) 1 px mais largo, para a esquerda, para o vão
+	# até o do lado ficar, e 4 px mais baixo (pedido 301); mudou o sorteio, confira qual é
+	_city[11]["x"] -= PX
+	_city[11]["w"] += PX
+	_city[11]["h"] -= 4.0 * PX
 	_houses.clear()
 	var tones := Pal.FACADE_TONES
 	var spans := [Vector2(CROSSING.y, CROSSING.y + 15.0)]   # o de tijolos, na esquina
-	var x := CROSSING.y + 15.0
+	x = CROSSING.y + 15.0
 	while x < 40.0:
 		var w := rng.randf_range(9.0, 14.0)
 		spans.append(Vector2(x, x + w))
@@ -3490,6 +3514,17 @@ func _build_city(gs: Vector2) -> void:
 			_canyon.append({"x": side, "z0": z, "z1": z + d, "h": ht, "tones": corner.get("tones", look), "brick": corner.get("brick", false),
 				"wins": wins, "shops": shops, "balcony": balcony})
 			z += d
+	# a rua do cruzamento acaba na praça da igreja, e depois das esquinas são sobrados (`SQUARE`): cortadas depois do
+	# sorteio, até os 118 m de antes, para o dele continuar o mesmo
+	_canyon.assign(_canyon.filter(func(w: Dictionary) -> bool: return w["z0"] < SQUARE.x - 4.0))
+	for w: Dictionary in _canyon:
+		var z1 := minf(w["z1"], SQUARE.x)
+		w["z1"] = z1
+		if w["z0"] > STREET["far"]:
+			w["h"] = remap(w["h"], 7.0, 16.0, SQUARE.y, SQUARE.z)
+		var top: float = w["h"] - 1.8   # (a janela tem 1,4 m, e a cornija em cima)
+		w["wins"] = w["wins"].filter(func(v: Vector3) -> bool: return v.y < top and v.x < z1 - 0.8)
+		w["shops"] = w["shops"].filter(func(v: Vector3) -> bool: return v.x + v.y / 2.0 < z1 - 0.5)
 	_canyon.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a["z0"] < b["z0"])
 	var roof := RandomNumberGenerator.new()   # o que fica nos telhados, também à parte
 	roof.seed = 1961
