@@ -10,6 +10,9 @@ const WANT := [Tools.DIRECTORY, Tools.DISPATCH, Tools.LOGBOOK, Tools.CALL_LOG, T
 
 
 func _initialize() -> void:
+	# a vista no amanhecer desenha ~17 mil itens por quadro: acima do buffer do renderizador, ele às vezes trava
+	# (`project.godot`; o editor aberto pode regravá-lo sem a linha)
+	ok(int(ProjectSettings.get_setting("rendering/gl_compatibility/item_buffer_size")) >= 32768, "item_buffer_size abaixo de 32768")
 	for w: int in WIDTHS:
 		var vp := SubViewport.new()   # o jogo nessa largura, como o `GameView` o põe na janela
 		vp.size = Vector2i(w, 540)

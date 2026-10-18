@@ -107,6 +107,7 @@ const STRAY_EVERY := Vector2(80, 200)   ## de quanto em quanto tempo um vira-lat
 const LATE_FROM := 22.0 * 60.0   ## a partir de que hora (min do dia) a cidade começa a se calar: menos carros e pedestres
 const LATE_TO := 24.0 * 60.0     ## até quando (aí, os intervalos entre eles chegam a `LATE_EVERY` vezes)
 const LATE_EVERY := 3.0
+const BUSY := [0.6, 0.9, 0.9, 1.0, 1.0, 1.5, 1.6]   ## quanta gente e carro passa em cada dia da semana (domingo a sábado, `weekday`), vezes o normal
 const DOG_FROM := 21.0 * 60.0   ## a partir de que hora (min do dia) cachorros latem bem longe, de vez em quando
 const DOG_EVERY := Vector2(45, 120)   ## de quanto em quanto tempo (s, sorteado)
 const DOG_REPLY := 0.45   ## a chance de outro cachorro responder, mais longe, `DOG_REPLY_AFTER` s depois (sorteado)
@@ -156,7 +157,7 @@ const SUN_LIGHT := Vector2(220, 0.8)    ## e a do sol nascendo, quente, na moldu
 ## meio da janela (px) e o quanto a persiana descida a tampa.
 const DAY_ROOM := Vector3(0.7, 1000.0, 0.7)
 ## O quanto a sombra da luminária no tampo some com a luz do dia toda (`_shade_layer`): às 6h a luminária ainda acesa
-## deixava uma segunda sombra ao lado da do sol (pedido 273).
+## deixava uma segunda sombra ao lado da do sol (pedido 273). A luz dela na parede some junto (`_wall_glow`).
 const LAMP_SHADE := 0.85
 const DESK_LIGHT := 0.5   ## a força da luz das lâmpadas dos objetos da mesa no tampo em volta (`DESK_SPILL`)
 const CAB_W := 82.0             ## a largura do armário de aço, encostado na parede (px de 2x2 lá)
@@ -229,8 +230,10 @@ var _noir: ColorRect    # o escuro da sala, num shader (`room_noir.gdshader`): l
 var _noir_set := []     # o que ele recebeu da última vez (`_noir_params`)
 var _over: Control      # por cima da sala, o que muda sozinho sem mexer nela (`_draw_over`)
 var _over_drawn := []   # o estado do último desenho dela
-var _sign_glow := Rect2()   # o halo do letreiro no vidro (vazio = fora do vidro); brilha só aceso
+var _sign_glow: Array[Rect2] = []   # o halo do letreiro no vidro, nas formas dele (as caixas e, por último, a lua; vazio = fora do vidro); brilha só aceso
 var _bolt_layer: Control   # o clarão do relâmpago, por cima de tudo e somado: só a força muda, no `modulate`
+var _wall_layer: Control   # a parede do fundo, embaixo da sala (`show_behind_parent`): o que fica na frente dela é a sala, por cima
+var _wall_glow: Control    # a luz da luminária na parede (`_draw_wall_light`), entre ela e a sala: a força no `modulate`, que o dia apaga
 var _shade_layer: Control  # as sombras da luminária no tampo (`_lamp_shades`), embaixo do sol: a força no `modulate`, que o dia apaga
 var _sun_layer: Control    # o sol entrando pela janela, somado, embaixo dos objetos da mesa: a força no `modulate`
 var _sunbeam := PackedVector2Array()   # o feixe do sol no ar, da janela à mesa (px da tela; `_draw_sun`), onde a poeira dourada aparece
@@ -334,6 +337,15 @@ func _ready() -> void:
 	_window_lights.material = ShaderMaterial.new()
 	(_window_lights.material as ShaderMaterial).shader = preload("res://scripts/ui/window_lights.gdshader")
 	add_child(_window_lights)
+	_wall_layer = Control.new()
+	_wall_glow = Control.new()
+	for layer: Control in [_wall_layer, _wall_glow]:
+		layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+		layer.show_behind_parent = true
+		layer.draw.connect(_draw_wall_layer.bind(layer))
+		draw.connect(layer.queue_redraw)   # (logo depois da sala: usa o tampo que ela mediu)
+		add_child(layer)
 	_shade_layer = Control.new()
 	_shade_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_shade_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -439,7 +451,7 @@ func _process(delta: float) -> void:
 		_tip_layer.queue_redraw()
 		_beam.queue_redraw()
 		_show()
-	var beam := lamp_level * lerpf(0.35, 1.0, warm)   # piscando ou esquentando, sem redesenhar
+	var beam := lamp_level * lerpf(0.35, 1.0, warm) * _wall_glow.modulate.a   # piscando, esquentando ou sumindo com o dia, sem redesenhar
 	if beam != _beam.modulate.a:
 		_beam.modulate.a = beam
 		_show()
@@ -481,6 +493,7 @@ func _process(delta: float) -> void:
 		_noir_set = dk
 		_noir_params()
 		_shade_layer.modulate.a = 1.0 - LAMP_SHADE * (dk[5] as Color).a / DAY_ROOM.x
+		_wall_glow.modulate.a = _shade_layer.modulate.a
 		_show()
 	var flats := 0   # as janelas acesas do prédio de tijolos
 	for i in _flats.size():
@@ -760,7 +773,7 @@ func _events(delta: float) -> void:
 	if late != _late_sent:   # a cidade se calando: grilos mais presentes, menos gente e carro
 		_late_sent = late
 		Sfx.set_late(late)
-	var rare := lerpf(1.0, LATE_EVERY, late * (1.0 - morning()))   # (de manhã, os carros voltam)
+	var rare: float = lerpf(1.0, LATE_EVERY, late * (1.0 - morning())) / BUSY[weekday()]   # (de manhã, os carros voltam)
 	var dawn := snappedf(clampf((minutes - CRICKETS_QUIET.x) / (CRICKETS_QUIET.y - CRICKETS_QUIET.x), 0.0, 1.0), 0.1)
 	if dawn != _dawn_sent:   # o dia nascendo: os grilos param
 		_dawn_sent = dawn
@@ -828,11 +841,11 @@ func _events(delta: float) -> void:
 	var crowd := maxf(1.0 - clampf((minutes - WALK_FROM) / (WALK_UNTIL - WALK_FROM), 0.0, 1.0), morning())
 	_walk_in -= delta
 	if _walk_in <= 0.0 and crowd > 0.0:
-		_walk_in = randf_range(WALK_EVERY.x, WALK_EVERY.y) / maxf(crowd, 0.05)
+		_walk_in = randf_range(WALK_EVERY.x, WALK_EVERY.y) / maxf(crowd * BUSY[weekday()], 0.05)
 		var w := _walker()
 		var pair := randf() < WALK_PAIR
 		if not pair and randf() < lerpf(WALK_CORNER, WALK_CORNER_DAWN, morning()):   # (o caminho é ~1,5 vez o de lado a lado)
-			w.merge({"corner": CROSSING.x + 0.9 if randf() < 0.5 else CROSSING.y - 0.9, "out": randf() < 0.5, "sec": w["sec"] * 1.5}, true)
+			w.merge({"corner": CROSSING.x + 0.9 if randf() < 0.5 else WALK_RIGHT, "out": randf() < 0.5, "sec": w["sec"] * 1.5}, true)
 			if morning() > 0.0:   # de manhã, vindo de mais longe pela rua do cruzamento (o tempo pelo tamanho do caminho)
 				var turn := randf_range(TURN_Z, lerpf(TURN_Z, TURN_FAR, morning()))
 				w.merge({"turn": turn, "sec": w["sec"] * (turn - w["z"] + WALK_SPAN) / (TURN_Z - w["z"] + WALK_SPAN)}, true)
@@ -881,7 +894,7 @@ func _events(delta: float) -> void:
 			_add_walker(dog)
 	_bar_in -= delta
 	if _bar_in <= 0.0:
-		_bar_in = randf_range(BAR_EVERY.x, BAR_EVERY.y)
+		_bar_in = randf_range(BAR_EVERY.x, BAR_EVERY.y) / BUSY[weekday()]
 		if crowd > 0.0 and _bar_t < 0.0:
 			_bar_t = 0.0
 	if _bar_t >= 0.0:   # a porta do bar aberta: a pessoa sai e segue pela calçada, junto das fachadas
@@ -1022,8 +1035,6 @@ func _draw() -> void:
 	_svp = _vp + Vector2(SIDE_VP, 0)
 	_sx = _cx - _vp.x - SIDE_VP * WALL_K   # (na quina, a mesma do plano da sala)
 	_top = top
-	_draw_wall(Rect2(0, 0, w, top))
-	_draw_wall_light(top)
 	if board:   # a mesa comutadora, de pé na frente da parede, faz sombra nela (o tampo cobre a parte de baixo)
 		_cast(b, 1.1)
 		_draw_company_sign(Rect2(b.position * 2.0, b.size * 2.0))
@@ -1077,6 +1088,17 @@ func _draw_shade_layer() -> void:
 	_ci = self
 
 
+## A parede do fundo (`_wall_layer`) ou a luz da luminária nela (`_wall_glow`), embaixo da sala.
+func _draw_wall_layer(layer: Control) -> void:
+	_ci = layer
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	if layer == _wall_layer:
+		_draw_wall(Rect2(0, 0, ceilf(size.x / 2.0), _top))
+	else:
+		_draw_wall_light(_top)
+	_ci = self
+
+
 ## A luz de fora no peitoril e na guarnição (`_sill_lit`), na sala, antes dos objetos da mesa: mais forte na medida do
 ## escuro da sala que cai por cima dela depois (`_gloom`), para chegar ao mesmo tom de quando era pintada por cima dele.
 func _draw_sill_light() -> void:
@@ -1111,8 +1133,14 @@ func _draw_over() -> void:
 	for f: Array in _flats:   # as janelas acesas do prédio de tijolos, fraco e sem miolo (as cortinas ficam à vista)
 		if _win_lit(_houses[0], f[1]) and not _cover.intersects(f[0]) and not _behind_blind(f[0]):
 			Bloom.light(_over, f[0], Pal.CITY_LIT[0], 0.3, false, false)
-	if _sign_glow.has_area() and _sign_on() and not _cover.intersects(_sign_glow) and not _behind_blind(_sign_glow):   # só o halo: as letras ficam à vista
-		Bloom.light(_over, _sign_glow, Pal.SIGN_RED, 0.5, false, false)
+	if not _sign_glow.is_empty() and _sign_on():   # só o halo, na forma do letreiro (num retângulo, ficava quadrado): as letras ficam à vista
+		var boxes := _sign_glow.slice(0, -1)
+		var all: Rect2 = _sign_glow.back()
+		for r in boxes:
+			all = all.merge(r)
+		if not _cover.intersects(all) and not _behind_blind(all):
+			Bloom.light(_over, all, Pal.SIGN_RED, 0.5, false, false, boxes)   # as caixas, em T, num halo só
+			Bloom.light(_over, _sign_glow.back(), Pal.SIGN_MOON, 0.5, false, true)   # e a lua, amarela
 	_draw_window_glow()
 	_draw_mist()
 	if _cover.has_area():   # uma ferramenta na frente do operador: o cenário atrás escurece e o papel faz sombra nele
@@ -1736,7 +1764,7 @@ func leave() -> void:
 ## Papel de parede verde-escuro com listras e um friso de losangos (sem rodapé: embaixo dela é a mesa, não o chão).
 func _draw_wall(r: Rect2) -> void:
 	if wall_art:
-		draw_texture_rect(wall_art, r, true)
+		_ci.draw_texture_rect(wall_art, r, true)
 		return
 	_p(0, 0, r.size.x * 2.0, r.size.y * 2.0, Pal.WALL_PAINT)   # num tom só: a luz da luminária nela é lisa (`_draw_wall_light`)
 	var h := r.size.y * 2.0
@@ -2249,9 +2277,12 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	# as luzes da vista brilham onde aparecem no vidro: o letreiro
 	var cg := Rect2(view.position, view.size - Vector2(0, _near))   # a cidade, como `_draw_city` a vê
 	_city_rect = cg
-	var sign := _hotel_pos(cg) + SIGN / 2.0
-	_sign_px = sign * 2.0 if Geometry2D.is_point_in_polygon(sign, q) else Vector2.ZERO
-	_sign_glow = Rect2(_sign_px - SIGN, SIGN * 2.0) if _sign_px != Vector2.ZERO else Rect2()
+	var sign := _sign_box(cg)
+	_sign_px = sign.get_center() * 2.0 if Geometry2D.is_point_in_polygon(sign.get_center(), q) else Vector2.ZERO
+	_sign_glow.clear()
+	if _sign_px != Vector2.ZERO:
+		for r in _sign_shapes(cg):
+			_sign_glow.append(Rect2(r.position * 2.0, r.size * 2.0))
 	if not _houses.is_empty():   # as janelas do prédio de tijolos (as acesas brilham na camada de cima, sem redesenhar a sala)
 		var wins: Array = _houses[0]["wins"]
 		for n in wins.size():
@@ -2330,34 +2361,24 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 ## e entra numa caixa de passagem na parede, de onde um conduíte de ferro sobe até o teto (em `x`, no vão entre a mesa
 ## comutadora e o armário), preso por braçadeiras. A mesa esconde o pé dele.
 func _draw_conduit(b: Rect2, x: float) -> void:
-	var iron := func(k: int, step: int) -> Color: return Pal.CONDUIT[clampi(2 + step + k, 0, Pal.CONDUIT.size() - 1)]
-	var y0 := 0.0   # o cano, em trechos: cada um no degrau da faixa de luz da parede em que cai (`_wall_step`)
-	var step := _wall_step(Vector2(x, PX / 2.0))
-	for i in range(1, int(_top / PX) + 1):
-		var y := i * PX
-		var s := _wall_step(Vector2(x, y + PX / 2.0)) if y < _top else 99
-		if s == step:
-			continue
-		_r(x - 2, y0, 4, y - y0, iron.call(0, step))
-		_r(x - 2, y0, 1, y - y0, iron.call(4, step))   # a luz da luminária do lado de cá
-		_r(x + 2 - PX, y0, PX, y - y0, iron.call(-2, step))
-		y0 = y
-		step = s
+	var s := _wall_step(Vector2(x, _top / 2.0))   # num degrau só da luz no meio dele, como o armário (em trechos, um por faixa de luz da parede, a beira deles era um degrau no cano)
+	var iron := func(k: int) -> Color: return Pal.CONDUIT[clampi(2 + s + k, 0, Pal.CONDUIT.size() - 1)]
+	_r(x - 2, 0, 4, _top, iron.call(0))
+	_r(x - 2, 0, 1, _top, iron.call(4))   # a luz da luminária do lado de cá
+	_r(x + 2 - PX, 0, PX, _top, iron.call(-2))
 	_r(x + 2, 0, 1.5, _top, Color(0, 0, 0, 0.25))   # a sombra na parede
 	var y := 6.0
 	while y < _top:   # as braçadeiras
-		var s := _wall_step(Vector2(x, y))
-		_r(x - 3, y, 6, 1.5, iron.call(2, s))
-		_r(x - 3, y + 1.5, 6, PX, iron.call(-1, s))
+		_r(x - 3, y, 6, 1.5, iron.call(2))
+		_r(x - 3, y + 1.5, 6, PX, iron.call(-1))
 		y += 36.0
 	var box := Rect2(x - 6, b.position.y - 34, 12, 14)   # a caixa de passagem, com a tampa parafusada
-	var s := _wall_step(box.get_center())
 	_r(box.position.x + 1, box.position.y + 1, box.size.x, box.size.y, Color(0, 0, 0, 0.25))
-	_r(box.position.x, box.position.y, box.size.x, box.size.y, iron.call(0, s))
-	_r(box.position.x, box.position.y, box.size.x, PX, iron.call(2, s))
-	_r(box.position.x + 1, box.position.y + 1, box.size.x - 2, box.size.y - 2, iron.call(1, s))
+	_r(box.position.x, box.position.y, box.size.x, box.size.y, iron.call(0))
+	_r(box.position.x, box.position.y, box.size.x, PX, iron.call(2))
+	_r(box.position.x + 1, box.position.y + 1, box.size.x - 2, box.size.y - 2, iron.call(1))
 	for c in [Vector2(1.5, 1.5), Vector2(box.size.x - 2.5, 1.5), Vector2(1.5, box.size.y - 2.5), Vector2(box.size.x - 2.5, box.size.y - 2.5)]:
-		_r(box.position.x + c.x, box.position.y + c.y, 1, 1, iron.call(3, s))
+		_r(box.position.x + c.x, box.position.y + c.y, 1, 1, iron.call(3))
 	# os cabos: da boca de baixo da caixa até o alto do painel, um pouco caídos, cada um num pano velho
 	var cloth := Pal.CONDUIT_CABLES
 	for i in cloth.size():

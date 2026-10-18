@@ -160,6 +160,14 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
 - **O `_ready` do `FoneSocket` sobrescreve o `custom_minimum_size` da cena**: mudar só o `.tscn` não muda nada.
 - **O `test_flow` é uma função só, enorme**: um nome de variável repetido (`other`) é erro de análise e nenhum
   cenário roda. Use nomes específicos.
+- **Travou no `RasterizerCanvasGLES3::_render_batch` ("Index p_index = 1 is out of bounds (size() = 1)")?** É o buffer
+  de itens do renderizador de compatibilidade estourando (`item_buffer_size`): a vista no amanhecer passava de 16384 e
+  travava às vezes, conforme o comando que caía na virada; uma mudança pequena que só muda a ordem dos desenhos
+  (o reflexo nas janelas, pedido 279) já fazia travar 4 em 5 vezes. Conte os itens (`RENDER_INFO_OBJECTS_IN_FRAME`)
+  antes de procurar o erro no seu código; com 4096 ele trava sempre, um bom jeito de reproduzir.
+- **O `hash()` de um `Vector2` não serve de sorteio**: os últimos algarismos seguem os números de entrada (o resto
+  por 1000 do hash da janela crescia com a altura dela, e só o primeiro andar brilhava). Para um número por objeto,
+  `rand_from_seed(hash(x))[0]`.
 
 ## Ferramentas e testes
 
@@ -506,3 +514,26 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   refletido no vidro terminava seco na luminária; enquanto esse corte ficava fora do vidro ninguém via, e o plano da
   janela (parede mais longe, vidro maior) o trouxe para dentro como uma linha vertical (pedido 278). Luz desenhada
   termina sumindo, nunca numa beira, a não ser que algo de verdade a corte ali.
+- **Mudou o tamanho de algo, confira as cópias dele.** O reflexo do letreiro no vidro foi medido para as letras miúdas
+  (5 px de deslocamento, longe delas); quando elas passaram para a fonte de 11, ninguém voltou ao reflexo, que caiu em
+  cima das letras e fez o letreiro parecer quebrado (pedido 282). Reflexo, sombra, halo ou fantasma de um desenho
+  guardam medidas dele: mudou o desenho, refaça a conta deles.
+- **Objeto preso numa fachada vai onde ele estaria de verdade.** O letreiro de bandeira ficou no x de antes, em cima
+  de uma coluna de janelas, e as tampava (pedido 284): ninguém pendura uma placa na frente da janela. Tire o lugar das
+  janelas sorteadas (`_sign_x`), não de uma constante que cai onde calhar.
+- **Texto em pixel art fica em pé mesmo numa face em perspectiva.** As letras entortadas pela conta da perspectiva
+  (cada coluna descendo) estavam certas e ficaram feias: vistas de baixo, as do alto viraram garranchos (pedido 284).
+  As letras, um pixel da fonte por pixel da tela, em pé; e, numa placa vista quase de lado, a caixa também (pedido 286:
+  só com as letras em pé, a caixa em perspectiva ainda era uma faixa estreita de beira inclinada): a perspectiva fica
+  na posição dela.
+- **Texto dentro de uma moldura: centre pela medida, e confira na captura.** As letras do letreiro começavam a um tanto
+  fixo do alto e, mais altas que a face, encostavam embaixo (pedido 285). Some a altura do texto, centre no espaço da
+  face e meça os vãos de cada lado nos pixels da captura antes de mostrar.
+- **Na vista, o tamanho na tela vem da fonte, não da distância.** Com um pixel da letra por pixel da tela, afastar o
+  letreiro só o faz maior em metros; na tela ele continua do mesmo tamanho. O de neon tinha medidas de um de verdade
+  e ainda assim ficou grande demais (pedido 288). Antes de mostrar, compare a altura em px com a dos andares do
+  prédio ao lado.
+- **Luz apagada continua da cor dela; o halo segue a forma da luz.** O letreiro de neon apagado tinha os tubos todos
+  num vermelho-escuro, e a lua amarela acesa virava vermelha apagada; o halo do bloom era o retângulo dele e saía
+  quadrado (pedido 289). Apagado, cada tubo no tom dele, sem a luz; o halo pelas peças (`Bloom.light` com `parts`).
+  E a caixa de um letreiro é metal pintado, cinza-escuro: escura e tingida de vermelho, parecia vinho.

@@ -50,7 +50,8 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   15 min de jogo (de `Main.SHADOW_LEAD` a `SHADOW_LEAVE` antes da ligação desconhecida: sai para ir ligar;
   `Background.stranger`, na hora do dia) e volta andando por onde veio (`_man_x`, `MAN_WALK`; sai da
   hora do jogo, então pausa e pulo do relógio valem para ele); das 22h à meia-noite os carros ficam cada vez mais
-  raros (`LATE_FROM`/`LATE_TO`, `LATE_EVERY`); o sino da
+  raros (`LATE_FROM`/`LATE_TO`, `LATE_EVERY`); gente, carros e o vaivém do bar seguem o dia da semana da noite
+  (`BUSY`, `weekday`: mais na sexta e no sábado, menos no domingo; pedido 281); o sino da
   igreja bate as horas de longe, logo depois do gongo da mesa (`toll`, `BELL_AFTER`, `BELL_GAP`, som `bell`); das 21h em diante,
   cachorros latem bem longe, de vez em quando, e às vezes outro responde (`DOG_*`, sons `dog` e `dog_low`, abafados e com
   o eco dos morros; calados antes da ligação desconhecida, `Sfx.hushed`); na
@@ -62,9 +63,22 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   (`BOLT_STEEP`); o que fica na frente (a mesa comutadora, os objetos da mesa: `_occ`, `_occ_board`; o tampo) sai do
   clarão (`_cut`). E o trovão vem depois
   (`THUNDER_AFTER`, mais fraco quanto mais longe, som `thunder`; perto, o vidro e a persiana chocalham, `RATTLE_NEAR`,
-  som `rattle`); e um letreiro de neon HOTEL (a palavra é a mesma nos
-  três idiomas) na vista, as letras na fonte de 11, uma embaixo da outra, numa caixa de `SIGN` (`_sign_letters`; na fonte
-  gravada da mesa, com a vista mais perto, ficavam perdidas na caixa), que falha de vez em quando (`_sign_on`; o T falha sozinho, `_sign_t_on`; sem som: o estalo dele saiu a pedido), com o
+  som `rattle`); e um letreiro de neon do Hotel Serena (o nome e a palavra são os mesmos nos
+  três idiomas) na vista, de bandeira, no estilo dos letreiros de neon antigos (pedido 287, pela referência do
+  usuário): pendurado por três suportes na lateral do prédio do hotel, na rua do cruzamento, antes da primeira coluna
+  de janelas (`SIGN_Z`, `SIGN_GAP`), e de frente para a central; na face de frente, um plano de z constante, ele sai
+  reto sem trapaça. Peças em `_sign_layout` (`Neon`; feito uma vez, em px a partir da parede, `_sign_parts`, e posto
+  na vista por `_sign_cells`): a bandeira de metal cinza-escuro (`Pal.SIGN_BOX`; vermelho-escura parecia vinho, pedido 289) com SERENA de cima para baixo, em 5 × 6
+  (`SIGN_GLYPHS`; nas de 5 × 8, as da fonte de 11, ficava grande demais, pedido 288), a caixa mais larga em cima com HOTEL deitado, na fonte miúda da mesa
+  (`PixelArt.TINY`), e a lua crescente em cima dela (`SIGN_MOON`); cada letra com o tubo quase branco (`Pal.SIGN_HOT`)
+  e o brilho em volta, num vermelho mais escuro (`Pal.SIGN_GLOW`: no da luz, a caixa toda parecia vermelha), a um
+  pixel da beira da caixa (o friso de neon na beira saiu, pedido 290, e o letreiro ficou menor), e, à direita, a
+  grossura na sombra; apagados, os tubos ficam no tom deles, sem a luz (`SIGN_HOT_OFF`, `SIGN_MOON_OFF`). Antes ele ficou
+  na fachada, virado para a rua do cruzamento (pedidos 283 a 286): visto quase de lado, era uma faixa estreita de beira
+  inclinada; reto, sem perspectiva, não agradou. O halo do `Bloom` tem a forma dele (`_sign_shapes`: as caixas, em
+  T, num halo só, `Bloom.light` com `parts`, e a lua num halo amarelo, redondo; num retângulo, ficava quadrado,
+  pedido 289); o resto da luz dele sai do retângulo das peças (`_sign_box`), e a lateral do prédio, onde ele está
+  pendurado, fica vermelha em volta dele (`_draw_sign_wash`, `SIGN_WASH`); no vidro, só os tubos se refletem. Falha de vez em quando (`_sign_on`; uma letra, o R, falha sozinha, `SIGN_BUZZ`, `_sign_buzz_on`; sem som: o estalo dele saiu a pedido), com o
   halo sem miolo para as letras aparecerem (`_light(..., core = false)`), o reflexo na rua molhada (embaixo das letras, não da beira da caixa) e a luz
   vermelha dele no vão, no peitoril e na persiana, com a dos postes de lá acesos (`_window_lights`, num shader,
   `window_lights.gdshader`, até 8 luzes, `SIGN_LIGHT`, `POST_LIGHT`: entre a persiana e os objetos da mesa, que ficam na
@@ -72,7 +86,8 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   lâmpadas acesas dos objetos da mesa (a ocorrência e o cartão na unidade de despacho, a do calculógrafo) iluminam o
   tampo em volta (`_light` com `spill`, `_spills`, `DESK_SPILL`, `DESK_LIGHT`). Os dois primeiros
   entram no `_state`. No vidro da janela, o fantasma
-  dele: as letras de novo, fracas e deslocadas (`_draw_neon_glass`, `NEON_GHOST`, `NEON_SHIFT`), com o T falhando junto,
+  dele: as letras de novo, fracas e 1 px deslocadas (`_draw_neon_glass`, `NEON_GHOST`, `NEON_SHIFT`; com 5 px, nas
+  letras da fonte de 11, caíam em cima das de verdade e o letreiro parecia escrito duas vezes), com a letra que falha junto,
   e, na chuva, as gotas perto dele vermelhas (`NEON_BEADS`); desenhados na vista, que já se redesenha. O prédio de tijolos da esquina é
   de apartamentos: no 3º andar, uma varanda (`APT`; porta, vasos, laje vista de baixo e gradil) com a janela da sala,
   onde a TV pisca azul (`_draw_balcony_back`/`_front`; a luz da sala apaga em `APT_DARK` e a TV em `TV_OFF`). Janelas que já
@@ -117,7 +132,7 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   ferramentas e nunca abaixo do fundo do tampo (o painel de baixo fica fora da sala). **O feixe da luminária no ar**
   (`_beam`, `_draw_beam`, `LAMP_BEAM`, `LAMP_BEAM_CORE`): uma faixa lisa, somada (blend ADD), descendo da boca dela,
   mais densa no meio e sumindo para os lados e até o fundo do tampo, onde a poeira mora; na sala, atrás da mesa
-  comutadora, que fica na frente dele. Desenhado com a sala; piscar e esquentar só no `modulate` (com `_show`). **Pingos** na chuva (`_drops`, `RAIN`): riscos de 1 px inclinados pelo vento (`RAIN_SLANT`)
+  comutadora, que fica na frente dele. Desenhado com a sala; piscar, esquentar e sumir com o dia (como a luz dela na parede, pedido 279) só no `modulate` (com `_show`). **Pingos** na chuva (`_drops`, `RAIN`): riscos de 1 px inclinados pelo vento (`RAIN_SLANT`)
   que cruzam o vidro em meio segundo (`RAIN_FALL`; o risco é o rastro do quadro, `RAIN_STREAK`), mais longos e claros os
   de perto e acesos perto dos postes (eram traços de 2 px que levavam 5 s para cair, como neve). **Gotas no vidro** na chuva (`_beads`, `BEADS`): paradas, de vez
   em quando pesam e escorrem com um rastro; o brilho delas é quente perto do poste. Só na parte do vidro que aparece
@@ -209,9 +224,12 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   em cinza posto no tom da tinta, `STAIN`, guardado por tamanho; a 0,75 pareciam sujeira, a pedido ficaram em 0,35).
   **A tinta num tom só** (`Pal.WALL_PAINT`): a luz da luminária nela é lisa, a do shader e o leque de `_draw_wall_light`
   (no plano hi-bit ela ia em faixas em volta da boca do cone, mais fria longe e mais quente perto, e a beira da de fora
-  fazia um arco duro ao lado do armário, que ficava chapado no amanhecer, com a sala clara: saiu, pedido 275). O
-  conduíte troca de tom onde a faixa o atravessa e o armário fica num degrau só
-  da luz no meio dele (`_wall_step`), com as sombras e as luzes do aço na rampa `Pal.STEEL_TONES` (era o aço escurecido
+  fazia um arco duro ao lado do armário, que ficava chapado no amanhecer, com a sala clara: saiu, pedido 275). A
+  parede e o leque ficam em camadas embaixo da sala (`_wall_layer`, `_wall_glow`, `show_behind_parent`), para o que
+  está na frente da parede ficar por cima e o leque sumir com o dia no `modulate`, como as sombras da luminária no
+  tampo (`LAMP_SHADE`; desenhado na sala, ele ficava aceso às 6h, pedido 279). O conduíte e o armário ficam cada um
+  num degrau só da luz no meio dele (`_wall_step`; o conduíte, em trechos, um por faixa, tinha um degrau no cano,
+  pedido 279), com as sombras e as luzes do aço na rampa `Pal.STEEL_TONES` (era o aço escurecido
   e clareado). E um armário
   de aço de chão (`_draw_steel_cabinet`, `CAB_*`; com o guarda-chuva do operador pendurado pelo cabo no puxador,
   `_draw_umbrella`, molhado na chuva, com a água escorrendo na camada da poeira, `_draw_drips`; clicado, a porta da
@@ -348,7 +366,10 @@ Complemento do `CLAUDE.md` da raiz, lido ao mexer nos arquivos desta pasta.
   segundo no vidro (`_vport`, `UPDATE_ONCE` a cada quadro dela), em duas partes: a de trás só quando muda (`_back_state`: a hora, a luminária, o neon, o
   relâmpago, as estrelas piscando), em camadas, o céu (`_sky`), o chão e a cidade de longe (`_back`,
   `_draw_view_back`), a luz do sol no chão (`_street_mul`, que multiplica, e `_street_add`, somada, `_draw_sun_strip`)
-  e o que fica em pé (`_upright`, `_draw_city_upright`: postes da rua do cruzamento, paredes, fachadas), e a da frente (`_draw_city_front`: o letreiro, quem passa, os postes, o homem, o
+  e o que fica em pé (`_upright`, `_draw_city_upright`: postes da rua do cruzamento, paredes, fachadas, e o que fica
+  nos telhados, caixas d'água na casa da escada ou de cimento-amianto num cavalete e antenas de TV de espinha de peixe,
+  `ROOF`, `_roof_items`, `_draw_roof`, desenhados antes das paredes, que cobrem o que o parapeito tapa vendo de baixo;
+  em pixels inteiros, contra o céu, com a beira acesa pelo sol como a cornija; pedido 281), e a da frente (`_draw_city_front`: o letreiro, quem passa, os postes, o homem, o
   carro, a névoa; depois o arbusto, o reflexo e a chuva) a cada quadro. A tela do cenário (o `View` do `SceneView`) só
   é desenhada quando algo nela muda (`Background._show`) ou de tamanho (`SceneView._fit`). Quem acrescentar ao desenho
   algo que muda precisa pôr isso no estado da camada certa (e, na sala, no `_state`). Lá fora (`_draw_city`): céu do clima, morros, casas
@@ -374,14 +395,18 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   olhos, `h` a altura; `_patch` um retângulo no chão). De perto para longe (`STREET`): o
   asfalto (manchas, desgaste dos pneus, grão, poças espelhando o céu e a faixa tracejada), o meio-fio de lá (com a face virada para nós), a calçada de lá com os postes (`FAR_LAMPS`, a luz deles
   no chão) e o homem embaixo do da esquina (`MAN_X`, `_draw_stranger`: 1,8 m, chapéu e casaco; chega e sai andando), em silhueta contra a
-  vitrine acesa de um bar (`_draw_shopfront`), os prédios de frente
+  vitrine acesa de um bar (`_draw_shopfront`; quem bebe no balcão, em pé, de costas para a vitrine, quantos pelo dia da
+  semana, `BAR_PATRONS`, indo embora das 22h à meia-noite, `BAR_EMPTIES`), os prédios de frente
   (`_houses`, `_draw_far_house`: o de tijolos na esquina, à direita do cruzamento, `CROSSING`; o hotel com o letreiro e a marquise acesa
   sobre a porta, `HOTEL_X`, `_draw_marquee`, do outro lado; janelas fundas, com a sombra da verga e o peitoril, e a
   luz dos postes lavando as fachadas), a rua do cruzamento indo embora entre paredes (`CROSSING`, 10 m, pedidos 253 e 254: com 4,9, era um corredor, e com 8, estreita; o hotel
   foi um pouco para a esquerda e o lado da direita andou junto, do prédio de tijolos ao bar, à varanda, ao homem e ao poste
   dele; `_canyon`, `_draw_canyon_wall`: janelas em andares e colunas, `CANYON_WIN`, e a
-  laje de cada andar; mais finas que um pixel, só as acesas, com 1 px vazio entre elas, senão viravam um borrão; a
-  lateral do prédio da esquina na tinta da fachada dele, a de tijolos nas fiadas, sem as lajes; o cano de descida na
+  laje de cada andar; mais finas que um pixel, só as acesas (e, com o sol, as da esquerda), com 1 px vazio entre elas, senão viravam um borrão; a
+  lateral do prédio da esquina na tinta da fachada dele, a de tijolos nas fiadas, sem as lajes, com as venezianas verdes
+  de madeira (`_draw_side_window`, `Pal.SHUTTER`: abertas, encostadas na parede dos dois lados, ou fechadas, com as
+  lâminas), vasos em alguns peitoris e uma varanda no lugar de uma janela (`SIDE_BALCONY`, `_draw_side_balcony`: a
+  porta acesa até as 23h, a laje vista de baixo, os vasos e o gradil, barra por barra do lado de cá; pedido 280); o cano de descida na
   divisa; o térreo, desenhado de longe para perto, com portas de madeira e lojas, abertas até a hora delas ou com a
   porta de enrolar e a caixa dela, até `SHOP_Z`: cada loja com a tábua da placa e o toldo de lona saindo da parede, com
   a franja e a aba de cá, numa em quatro a placa de bandeira de frente para cá, com as letras em traços (`_strokes`, as
@@ -389,7 +414,11 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   (`Pal.SHOP_PAINT`), as almofadas da porta, o degrau de pedra e, numa em duas, a laje de concreto por cima dela, na
   pedra da calçada (pedido 277); os postes
   dela, desenhados depois das paredes, que antes os cobriam, diminuindo; um carro estacionado de traseira, `PARKED`,
-  `_draw_parked`; quem vira a esquina por ela, `WALK_CORNER`, `TURN_Z`, `_walk_at`; e a névoa clareando para o fundo) até a igreja no fim (`_church_pos`, `CHURCH_K`; a cruz e o relógio aceso em pixels do tamanho da torre, e o brilho do relógio também) e, bem longe, a cidade em duas fileiras na
+  `_draw_parked`; a banca de jornal de chapa verde encostada na lateral do prédio de tijolos, na ponta de cá
+  (`NEWSSTAND`, `_draw_newsstand`, sem as lojas atrás dela: fechada das 19h às 5h10, `NEWSSTAND_SHUT`, com os vincos
+  das portas arriadas; aberta, as portas de cima levantadas, as revistas penduradas, `Pal.MAGAZINES`, e os jornais no
+  balcão; pedido 281); quem vira a esquina por ela, `WALK_CORNER`, `TURN_Z`, `_walk_at`, do lado da banca por fora
+  dela, `WALK_RIGHT`; e a névoa clareando para o fundo) até a igreja no fim (`_church_pos`, `CHURCH_K`; a cruz e o relógio aceso em pixels do tamanho da torre, e o brilho do relógio também) e, bem longe, a cidade em duas fileiras na
   névoa. Na chuva, o asfalto molhado espelha as luzes em riscos verticais (`_draw_wet`), na frente da vista, tapados
   pelos carros (`_car_cuts`, `_uncovered`). Na névoa (`_draw_fog`, por cima da rua e do
   outro lado, atrás do arbusto): um véu liso mais grosso rente ao chão (`FOG_VEIL`, `FOG_GROUND`), fiapos largos e lisos

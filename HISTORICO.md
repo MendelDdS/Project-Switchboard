@@ -1603,3 +1603,89 @@ Chaves:
     da luz da luminária na parede do fundo, espelhado, acabava seco na própria luminária; com a parede mais longe e a
     janela maior (plano da janela), esse corte, antes fora do vidro, caiu dentro dele. O arco agora segue do outro lado
     da luminária, sumindo.
+279. #sala #luz #amanhecer #vista #janela #cidade #testes
+    "Faça 1, 2 e 3. Aí tem mais uma coisa para fazer: Adicionar algum reflexo brilhante nas janelas laterais dos
+    prédios que recebem a luz do sol". 1: o commit do 277 e do 278. 2: o leque da luz da luminária na parede do fundo
+    ficava aceso às 6h, desenhado na sala; a parede e ele foram para camadas embaixo dela (`_wall_layer`, `_wall_glow`)
+    e ele some com o dia como as sombras da luminária (`LAMP_SHADE`), e o feixe dela no ar também. 3: o conduíte, em
+    trechos, um por faixa de luz da parede (`_wall_step`), tinha um degrau no cano; ficou num degrau só, como o
+    armário. O reflexo: os vidros da parede da esquerda da rua do cruzamento espelham o céu (mais de raspão) e o sol,
+    de onde ele volta para cá e nas folhas abertas, cada uma na sua hora, com um halo nas de perto (`_sun_glass`). Com
+    ele, a captura das 5h45 travava: a vista no amanhecer já passava do buffer de itens do renderizador (16384), e o
+    `item_buffer_size` foi para 32768.
+280. #vista #cidade #janela
+    "Coloque mais detalhes na parede lateral do prédio da direita, como outra varanda por exemplo". Na lateral do
+    prédio de tijolos (a parede da direita da rua do cruzamento, perto): uma varanda no 2º andar, na 2ª coluna, no
+    lugar da janela (porta acesa até as 23h, laje, vasos e gradil, como a da frente; no 1º andar, na altura dos olhos,
+    lia pior), venezianas verdes de madeira em todas as janelas dela (abertas nas acesas e em parte das apagadas,
+    fechadas nas outras) e vasos em alguns peitoris; o gradil de ferro fica preto de manhã (puxado para o frio da
+    sombra, clareava e parecia azul).
+281. #vista #cidade #janela #amanhecer
+    "Pronto, pode começar pelo 1 e 3, o 4 é interessante e pode ficar no prédio da direita, na lateral" (das sugestões
+    para a vista). 1: nos telhados de lá, caixas d'água (na casa da escada, a caixa um pouco mais larga em cima; ou de
+    cimento-amianto num cavalete) e antenas de TV de espinha de peixe, deitadas, com os elementos em traços (de pé, com
+    as barras empilhadas, pareciam um poste de luz); vistas de baixo, o parapeito tapa o que fica recuado, então
+    aparecem as de perto da beira, mais na rua do cruzamento. 3: gente, carros e o vaivém do bar pelo dia da semana
+    (mais na sexta e no sábado, menos no domingo) e, no balcão do bar, de pé contra o salão aceso, de um a quatro
+    fregueses, saindo das 22h à meia-noite (sentados, viravam blocos). 4: a banca de jornal verde encostada na lateral
+    do prédio de tijolos, na ponta de cá da rua do cruzamento, no lugar das primeiras lojas; aberta até as 19h e de
+    novo a partir das 5h10 (revistas penduradas, jornais no balcão), fechada no resto; quem vira a esquina por ali passa
+    por fora dela.
+282. #vista #luz #janela
+    "Conserte a placa do Hotel, aproveite e adiciona o nome, que é Hotel Serena". O reflexo do letreiro no vidro da
+    sala (o fantasma dele, pedido 210) ficava 5 px deslocado, medida das letras miúdas de antes; com as da fonte de 11
+    (pedido 252), caía em cima das de verdade e o letreiro parecia escrito duas vezes, passando da caixa embaixo. Ficou
+    1 px, como a outra face do vidro. As letras também saíam 1 px fora do meio (a caixa em meio pixel e as letras
+    arredondadas para baixo). O letreiro agora diz SERENA, de cima para baixo, e HOTEL deitado numa coroa em cima,
+    na fonte miúda da mesa; a letra que falha sozinha é o R.
+283. #vista #luz
+    "Vamos melhorar essa placa, ela pode ficar virada para o prédio da direita ao invés de virada para o prédio da
+    telefonia?" O letreiro do hotel virou de bandeira: preso de lado na fachada por dois suportes (o braço saiu), com a
+    face acesa virada para a direita, para a rua do cruzamento, vista de lado em perspectiva, com a ponta de frente para
+    cá e o fundo visto de baixo; dentro da calçada, e a coroa com HOTEL saindo um pouco mais. As letras continuam em
+    pixels inteiros, cada coluna descendo com a perspectiva (vistas de baixo, as do alto entortam mais).
+284. #vista #saiu
+    "Não ficou com uma perspectiva muito legal e o letreiro poderia ficar mais pro lado direito para não tampar as
+    janelas, pela lógica não deveria ser assim". O letreiro foi para a parede sem janela entre a última coluna de
+    janelas do hotel e a esquina (tirado das janelas, para nenhuma ficar tampada) e começa na altura dos olhos, longe da
+    marquise. Saíram as letras entortadas pela perspectiva (vistas de baixo, as do alto viravam garranchos, e HOTEL,
+    miúdo, ficava ilegível) e a coroa com HOTEL deitado, que saía mais da fachada e virava uma diagonal comprida: as
+    letras ficam em pé, de cima para baixo, HOTEL miúdo em cima e SERENA embaixo, na caixa ainda em perspectiva.
+285. #vista
+    "A placa não ficou como eu havia pedido. O texto do neon não tá centralizado". As letras começavam a um tanto fixo
+    do alto e passavam da face (o A encostava embaixo, com o vão grande em cima); agora ficam centradas na coluna do
+    meio da face, na largura e na altura, e a caixa subiu até 12,4 m para caberem com folga. O halo vermelho, que era
+    um retângulo em volta da caixa toda (mais larga e com a beira de cima inclinada), agora sai das letras.
+286. #vista #saiu
+    "Nao gostei, o que você sugere ?" e, das três sugestões, "Vamos testar o 1": o letreiro deixou a perspectiva (a
+    faixa estreita com a beira de cima inclinada, passando do telhado) e virou um retângulo em pé, um pouco mais largo,
+    abaixo do telhado, com a grossura à esquerda, os suportes até a fachada e um friso de neon em volta das letras; a
+    perspectiva fica só na posição, no meio da parede sem janela. As outras duas, não testadas: só SERENA na placa e
+    HOTEL na marquise, ou "HOTEL SERENA" de frente, acima da marquise.
+287. #vista #saiu
+    "Poderia fazer um leiteiro nesse estilo? Em que o letreiro ficará suspenso na lateral do prédio, virado para frente
+    (em direção a telefonia)", com a imagem de um letreiro de neon antigo (HOTEL deitado numa caixa em cima, o nome de
+    cima para baixo na bandeira, um enfeite no alto, letras brancas com o brilho vermelho e a beira acesa). O letreiro
+    saiu da fachada e foi para a lateral do hotel, na rua do cruzamento, pendurado por suportes e de frente para a
+    central: a bandeira vermelho-escura com SERENA, a caixa de cima com HOTEL, a lua crescente no alto (o enfeite),
+    letras com o tubo quase branco e o brilho vermelho, e o friso de neon na beira. Saiu a placa reta do pedido 286.
+288. #vista
+    "O que melhoraria? O letreiro está proporcional?" e "É porque eu achei o letreiro grande demais". Na conta, ele
+    tinha o tamanho de um letreiro de verdade (1,4 × 8,5 m), mas na tela ocupava três andares. Como cada pixel da
+    letra é um pixel da tela, o tamanho vem da fonte, não da distância: SERENA passou de 5 × 8 para 5 × 6 e a folga
+    da bandeira, de 2 px para 1 (a bandeira de 13 × 61 para 11 × 47 px, o letreiro todo de 81 para 66 px de altura).
+    A caixa do HOTEL ficou com a folga de 1 px: sem ela, o brilho das letras encostava no friso e virava um bloco
+    vermelho.
+289. #vista #luz
+    "O fundo desse letreiro é preto (melhor um cinza escuro para ficar mais realista), não vinho com esta agora. Se a
+    lua acesa é amarela, então desliga seria amarela também. O glow do letreiro aceso está quadrado, seria melhor
+    fazer a forma do letreiro. A luz do leiteiro também projeta a luz na parede." A caixa ficou de metal cinza-escuro;
+    apagados, os tubos ficam no tom deles, sem a luz (a lua num amarelo apagado e, pela mesma lógica, as letras num
+    branco apagado); o brilho vermelho em volta das letras, mais escuro, para a caixa cinza aparecer. O halo do bloom,
+    que era o retângulo do letreiro, segue a forma dele: as duas caixas em T, num halo só (em luzes separadas, os
+    halos somavam no cruzamento), e a lua num halo amarelo. E a lateral do hotel, onde ele está pendurado, fica
+    vermelha em volta dele, sumindo para as beiras.
+290. #vista #saiu
+    "Remova essa borda vermelha do letreiro tbm, vamos ganhar mais espaço". Saiu o friso de neon na beira das caixas;
+    as letras ficam a um pixel da beira, e o letreiro diminuiu (a bandeira de 11 × 47 para 9 × 45 px, a caixa do HOTEL
+    de 25 × 11 para 23 × 9).

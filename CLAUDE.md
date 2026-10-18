@@ -124,7 +124,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   tamanho); por cima, a própria luz nítida com o centro indo, em degraus, para um branco tingido pela cor dela (`HOT`,
   `HOT_TINT`; sem isso o halo parecia uma fumaça). Só brilha o que se declara luz, porque pela cor não dá (o plug
   vermelho tem o tom da lâmpada vermelha; um bloom de tela por cor foi testado e descartado): quem desenha luzes chama
-  `Bloom.clear(self)` no começo do `_draw` e `Bloom.light(self, rect, cor, halo, core, round)` por luz acesa (lâmpadas
+  `Bloom.clear(self)` no começo do `_draw` e `Bloom.light(self, rect, cor, halo, core, round)` por luz acesa (`parts`:
+  a luz é a junção de vários retângulos e o halo, um só, segue a forma dela, como o letreiro do hotel, em T) (lâmpadas
   redondas da mesa, `Switchboard._draw_lamp`, com aro niquelado, `BEZEL`; aro da tomada de destino, sem miolo;
   luzes das máquinas do cartão; barra de agravamento; janelas acesas do `Background`, que desenha em 2×). ColorRect e
   Label no grupo "bloom" brilham na cor deles (luzes do rádio). Luz
@@ -167,7 +168,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   num degrau só, `_clock_box` com `tone`; os plugs e os fios, que andam, continuam na luz multiplicada, `_lit_by`,
   porque uma paleta por degrau, por ângulo e por cabo encheria o cache do `PixelArt`; a parede do fundo, o conduíte e o
   armário pela luz da luminária na parede, só na cor, `CONDUIT`, `STEEL_TONES` (a parede, num tom só: em faixas, a
-  beira delas fazia um arco duro ao lado do armário, pedido 275), porque o escuro
+  beira delas fazia um arco duro ao lado do armário, pedido 275; o conduíte e o armário, num degrau só cada um, pedido 279), porque o escuro
   pela distância já é o da sala, `_noir`, e dobraria; na vista, as fachadas e as paredes da rua do cruzamento,
   `Pal.FACADE_TONES` e `BRICK_TONES`, o asfalto e a calçada, `ASPHALT_TONES` e `SIDEWALK_TONES`, e a quina do
   meio-fio, acesa embaixo de cada poste, `CURB_LIT`, a lataria dos carros e o baú, `CAR_TONES` e `TRUCK_BOX`, e a
@@ -288,6 +289,11 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   mudança visual medindo, não só olhando a captura. `tools/hibit_shots.sh build/hibit/<pasta>` grava o conjunto de
   capturas do plano hi-bit (sala nos três climas em três horas, a caneca, a mesa comutadora, o tampo, as ferramentas
   e o amanhecer da noite 15), para comparar com `tools/diff_shots.gd`; a pasta tem que ser relativa ao projeto.
+- **A vista no amanhecer desenha ~17 mil itens por quadro** (a fachada tijolo a tijolo, o chão da rua do cruzamento):
+  acima do buffer do renderizador de compatibilidade (`rendering/gl_compatibility/item_buffer_size`, 16384 no padrão),
+  o Godot 4.6 às vezes trava (`_render_batch`, "Index p_index = 1 is out of bounds", conforme o comando que cai na
+  virada). O `project.godot` o põe em 32768 e o `test_layout` confere (o editor aberto pode regravar o arquivo sem a
+  linha). Quem acrescentar muito desenho à vista, meça os itens (`Viewport.get_render_info`, `RENDER_INFO_OBJECTS_IN_FRAME`).
 - **Sem tela, a vista da janela não é desenhada** (`Background._headless`): com `--fixed-fps` e o tempo acelerado,
   ela era redesenhada a cada quadro e virou 2/3 do tempo de um turno do robô (27 s em vez de 9). Quem acrescentar
   desenho pesado que roda a cada quadro, meça um turno (`--test=shift --seed=1`).
@@ -710,7 +716,14 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   ele, fica na sombra, só com a cornija acesa, e a da esquerda, virada para ele, pega a luz de raspão, fraca, porque o sol está quase no eixo da
   rua (`WALL_LIT` 0,2, ~1/4 da do chão), inteira e sempre que o chão pega, das 5h15 às 6h: a sombra da parede da frente
   no chão nunca chega até ela (pedido 264: as duas na sombra, pedido 258, deixavam o chão aceso e as paredes não;
-  pedido 266: uma sombra subindo por ela, pela conta do sol, a escurecia até as 5h30 com o chão ainda aceso), e as duas somem no ar dourado no fundo; os prédios de lá, de costas para o sol, ficam todos na
+  pedido 266: uma sombra subindo por ela, pela conta do sol, a escurecia até as 5h30 com o chão ainda aceso), e as duas somem no ar dourado no fundo.
+  Os vidros dela espelham o dia (`_sun_glass`, pedido 279): o céu na altura de cada janela (a reflexão numa parede de
+  pé não muda a altura do raio), tanto mais quanto mais de raspão (o Fresnel, `WIN_SKY`; a do primeiro andar espelha
+  a parede da frente, na sombra, e fica escura), e o sol, somado, de onde ele volta para cá (`_glint_z`: vem do fundo
+  da rua e chega mais perto com ele indo para a direita do eixo, `WALL_GLINT`) e das folhas abertas, cada uma na sua
+  hora (`WIN_OPEN`; o sorteio de cada janela por `rand_from_seed`: o `hash` dela sozinho seguia a altura e só o
+  primeiro andar brilhava); as de perto que brilham mais ganham um halo na `_rays` (`_glints`, `GLINT_HALO`; o das de
+  longe, juntos, faziam um clarão no fim da rua, como um segundo sol). Os prédios de lá, de costas para o sol, ficam todos na
   luz fria do céu (`Pal.DAWN_SHADE`), com a cornija acesa (a luz quente e uma sombra descendo nas fachadas da direita
   saíram, a pedido: não tinham de onde vir); o alto delas clareia na luz do céu (`SKY_TOP`) e, junto da boca do
   cruzamento, embaixo, pega o rebatido quente da faixa de sol (`BOUNCE`). **Textura com forma, não grão** (pedido

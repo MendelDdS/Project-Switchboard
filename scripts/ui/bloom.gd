@@ -27,7 +27,7 @@ const GLASS_SHADE := 0.3  # a borda de baixo do vidro, mais escura
 const HOT_TINT := 0.35    # quanto da cor da luz fica no branco do centro (âmbar → amarelo-claro, verde → menta)
 const BAYER := [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5]   # pontilhado ordenado 4×4
 
-static var _lights := {}  # instance_id de quem desenha -> [[Rect2 nas coordenadas dele, Color, halo, core, round], ...]
+static var _lights := {}  # instance_id de quem desenha -> [[Rect2 nas coordenadas dele, Color, halo, core, round, parts], ...]
 static var _masks := {}   # instance_id de quem desenha -> [PackedVector2Array nas coordenadas dele]: o que fica na frente das luzes dele
 
 var _cores := Control.new()   ## as luzes nítidas, por cima dos halos (sem o blend ADD)
@@ -53,15 +53,17 @@ static func occlude(owner: CanvasItem, shape: PackedVector2Array) -> void:
 
 ## Uma luz acesa de `owner`: `r` nas coordenadas dele, na cor `col` (o alpha também vale para a luz nítida);
 ## `halo` (0..1) atenua só o halo; `core` falso deixa só o halo (luz em forma de aro, que cobriria o que está dentro);
-## `round`: a luz é o círculo inscrito em `r`.
-static func light(owner: CanvasItem, r: Rect2, col: Color, halo := 1.0, core := true, round := false) -> void:
+## `round`: a luz é o círculo inscrito em `r`; `parts`: a luz é a junção desses retângulos (nas coordenadas dele, dentro
+## de `r`) e o halo, um só, segue a forma dela (o letreiro do hotel, em T: em luzes separadas, os halos somavam onde se
+## cruzam).
+static func light(owner: CanvasItem, r: Rect2, col: Color, halo := 1.0, core := true, round := false, parts: Array[Rect2] = []) -> void:
 	var id := owner.get_instance_id()
 	if not _lights.has(id):
 		_lights[id] = []
-	_lights[id].append([r, col, halo, core, round])
+	_lights[id].append([r, col, halo, core, round, parts])
 
 
-## As luzes que `owner` declarou no último desenho dele ([Rect2, Color, halo, core, round] nas coordenadas dele): a
+## As luzes que `owner` declarou no último desenho dele ([Rect2, Color, halo, core, round, parts] nas coordenadas dele): a
 ## mesa as manda também ao shader do brilho no painel.
 static func lights_of(owner: CanvasItem) -> Array:
 	return _lights.get(owner.get_instance_id(), [])
@@ -100,7 +102,10 @@ func _draw() -> void:
 				if o is Control and (o as Control).clip_contents:   # quem recorta o que desenha recorta a luz também
 					r = r.intersection(Rect2(Vector2.ZERO, (o as Control).size))
 				if r.has_area():
-					_glow(xf * r, l[1], l[2], l[3], l[4], masks)
+					var parts: Array[Rect2] = []
+					for q: Rect2 in l[5]:
+						parts.append(xf * q)
+					_glow(xf * r, l[1], l[2], l[3], l[4], masks, parts)
 	for n in get_tree().get_nodes_in_group("bloom"):
 		var c: Control = n
 		var col: Color = (c as ColorRect).color if c is ColorRect else c.get_theme_color("font_color")
@@ -109,8 +114,11 @@ func _draw() -> void:
 				float(c.get_meta("bloom", 1.0)), c is ColorRect, false)
 
 
-func _glow(r: Rect2, col: Color, halo: float, core: bool, round: bool, masks := []) -> void:
-	var tex := _halo_for(r.size, round, not core)
+func _glow(r: Rect2, col: Color, halo: float, core: bool, round: bool, masks := [], parts: Array[Rect2] = []) -> void:
+	var rel: Array[Rect2] = []   # (as partes em relação à luz: o halo guardado vale onde ela estiver)
+	for q in parts:
+		rel.append(Rect2(q.position - r.position, q.size))
+	var tex := _halo_for(r.size, round, not core, rel)
 	var at := ((r.position - Vector2(SPREAD, SPREAD)) / BLOCK).floor() * BLOCK   # na grade dos pixels do cenário
 	var area := Rect2(at, Vector2(tex.get_size()) * BLOCK)
 	var hit := masks.filter(func(m: PackedVector2Array) -> bool: return area.intersects(_bounds(m)))
@@ -151,9 +159,10 @@ func _bounds(m: PackedVector2Array) -> Rect2:
 
 
 ## O halo de uma luz do tamanho `size` (guardado por tamanho): branco, em blocos, das duas camadas. `hollow`: fraco
-## dentro da luz (ela não tem miolo para cobrir o halo, e o que está dentro dela não é luz).
-func _halo_for(size: Vector2, round: bool, hollow: bool) -> ImageTexture:
-	var key := "%d×%d×%s×%s" % [roundi(size.x), roundi(size.y), round, hollow]
+## dentro da luz (ela não tem miolo para cobrir o halo, e o que está dentro dela não é luz). `parts`: a luz é a junção
+## desses retângulos (em relação a ela), e a distância é até o mais perto.
+func _halo_for(size: Vector2, round: bool, hollow: bool, parts: Array[Rect2] = []) -> ImageTexture:
+	var key := "%d×%d×%s×%s×%d" % [roundi(size.x), roundi(size.y), round, hollow, hash(parts)]
 	if _halos.has(key):
 		return _halos[key]
 	if _halos.size() > 128:   # a barra de agravamento muda de largura: não guarda todas
@@ -168,6 +177,11 @@ func _halo_for(size: Vector2, round: bool, hollow: bool) -> ImageTexture:
 			var d: float   # px fora da luz
 			if round:
 				d = maxf(0.0, p.distance_to(inside.get_center()) - radius)
+			elif not parts.is_empty():
+				d = INF
+				for q in parts:
+					var b := Rect2(q.position + inside.position, q.size)
+					d = minf(d, Vector2(maxf(maxf(b.position.x - p.x, p.x - b.end.x), 0.0), maxf(maxf(b.position.y - p.y, p.y - b.end.y), 0.0)).length())
 			else:
 				d = Vector2(maxf(maxf(inside.position.x - p.x, p.x - inside.end.x), 0.0),
 					maxf(maxf(inside.position.y - p.y, p.y - inside.end.y), 0.0)).length()

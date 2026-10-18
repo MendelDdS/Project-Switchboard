@@ -122,6 +122,11 @@ func morning() -> float:
 	return clampf((minutes - MORNING.x) / (MORNING.y - MORNING.x), 0.0, 1.0)
 
 
+## O dia da semana da noite (0 = domingo): na sexta e no sábado a rua tem mais gente, no domingo menos.
+func weekday() -> int:
+	return GameData.date_of(night).weekday
+
+
 ## O quanto a rua já está molhada (0..1): cresce com a noite de chuva, até `SOAK_MIN` min.
 func _soaked() -> float:
 	return clampf((minutes - 18 * 60.0) / SOAK_MIN, 0.0, 1.0) if weather == "rain" else 0.0
@@ -178,8 +183,8 @@ func _sign_on() -> bool:
 	return minutes < STREET_OFF and not (int(Time.get_ticks_msec() / 110.0) % 97 in [40, 42, 43, 71])
 
 
-## O T do letreiro aceso: com ele aceso (`_sign_on`), o T falha sozinho, em rajadas.
-func _sign_t_on() -> bool:
+## A letra do letreiro que falha (`SIGN_BUZZ`) acesa: com ele aceso (`_sign_on`), ela falha sozinha, em rajadas.
+func _sign_buzz_on() -> bool:
 	return _sign_on() and not (int(Time.get_ticks_msec() / 70.0) % 23 in [3, 4, 9, 15, 16, 17])
 
 

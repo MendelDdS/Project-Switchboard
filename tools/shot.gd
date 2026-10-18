@@ -212,7 +212,7 @@ func _ready() -> void:
 						"z": Background.STREET["far_curb"] + 1.0}, true))
 				for z in (_args.get("walk_z", "") as String).split(",", false):
 					bg._walkers.append(bg._walker().merged({"t": 0.0, "dir": 1.0, "sec": 1e9, "z": Background.STREET["far_curb"] + 1.0,
-						"corner": Background.CROSSING.y - 0.9, "out": true, "turn": float(z)}, true))
+						"corner": Background.WALK_RIGHT, "out": true, "turn": float(z)}, true))
 			if _args.has("bike"):
 				bg._walkers.append({"t": (float(_args["bike"]) + Background.WALK_SPAN) / (2.0 * Background.WALK_SPAN), "dir": 1.0, "sec": 1e9,
 					"z": Background.STREET["far_curb"] - 0.6, "h": 1.0, "hat": false, "bike": true, "papers": _args.has("papers")})
