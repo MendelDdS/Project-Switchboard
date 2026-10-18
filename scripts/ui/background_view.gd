@@ -252,7 +252,7 @@ const SUN_LOW := Vector2(0.5, 36.0)
 const RAYS := 160         ## as fatias do leque dos raios crepusculares em volta do sol (`_draw_crepuscular`)...
 const COVER_STEPS := 12   ## ...os pontos de cada um conferidos contra a igreja (`_church_cover`)...
 const RAY_A := 0.55       ## ...a força deles...
-const CHURCH_SHADOW := 0.6   ## ...e a da sombra da igreja neles
+const CHURCH_SHADOW := 0.3   ## ...e a da sombra da igreja neles (a 0,6, uma faixa escura e larga subindo pelo céu, parecia fumaça, pedido 294)
 ## Com o sol subindo, a luz dele lá fora clareia do laranja para a do dia (`Pal.SUN_HIGH`, o quanto às 6h, `_sun_tint`)
 ## e a faixa dele na rua e a sombra em volta dela se apagam no dia (o quanto fica delas às 6h; laranja e forte até o
 ## fim, parecia o sol ainda nascendo, pedido 273).
@@ -295,7 +295,8 @@ const CIRRUS := 22        ## os fiapos de nuvem do céu do amanhecer (`_draw_cir
 const BANKS := Vector3(10, 6, 0.8)
 const SHOP_POOL := 0.3   ## com os postes apagados, a luz das vitrines acesas na calçada
 const PUDDLES := 7       ## as poças do amanhecer, espelhando o céu (`_draw_puddles`)...
-const PUDDLE_A := 0.5    ## ...e a força delas
+const PUDDLE_A := 0.5    ## ...a força delas...
+const PUDDLE := Vector2(0.6, 0.5)   ## ...e a saturação do céu nelas e o quanto a beira de cá escurece (`_draw_puddles`)
 const MIST_A := 0.3       ## a neblina baixa no fundo da rua, de madrugada (`_draw_dawn_mist`; a 0,45, um véu claro, parecia luz)
 ## O sol saindo de trás da igreja (min): a luz dele lá fora e na sala cresce daí até o fim (`_sunlit`). Ele nasce às
 ## 5h25 (`SUNRISE`), mas atrás do telhado da nave; com a luz cheia às 5h40 e começando às 5h15, o fundo da rua do
@@ -314,8 +315,10 @@ const FOG_MOON := Vector4(6.0, 0.3, 0.55, 0.3)
 const OVERCAST := 14      ## as nuvens do céu da chuva (`_draw_overcast`)
 const OVERCAST_SPEED := 0.012
 ## Os planos da cidade de longe, no fim da rua do cruzamento: a distância (m) e o quanto cada um some no ar. O 2, entre
-## os outros, são os prédios altos atrás da igreja, como os da referência do amanhecer.
+## os outros, são os prédios altos atrás da igreja, como os da referência do amanhecer (uma fileira mais baixa na
+## frente deles, perto dela, saiu, pedido 296).
 const FAR_ROWS := [Vector2(400.0, 0.55), Vector2(250.0, 0.35), Vector2(320.0, 0.5)]
+const CITY_GLOW := Vector3(90.0, 55.0, 0.6)   ## o clarão da cidade no céu, de noite (`Pal.CITY_GLOW`): a meia largura e a altura (px de 2x2) e a força
 const CHURCH_K := 0.4 * OUT_K    ## a escala da igreja (desenhada em px de 2x2), no fim da rua do cruzamento (na distância focal, `OUT_F`)...
 ## ...e a torre, fina como a da referência (em unidades de `CHURCH_K`): o alto dela, a ponta e o relógio (com 60 e 78,
 ## alta demais, a pedido)
@@ -415,6 +418,14 @@ func _draw_sky(g: Rect2) -> void:
 		var y1 := lerpf(from, hzy, Pal.DAWN_STOPS[j + 1])
 		_fill(PackedVector2Array([Vector2(wx, y0), Vector2(wx + ww, y0), Vector2(wx + ww, y1), Vector2(wx, y1)]),
 			PackedColorArray([stops[j], stops[j], stops[j + 1], stops[j + 1]]))
+	var glow := CITY_GLOW.z * (1.0 - smoothstep(0.0, 0.3, d))   # de noite, o clarão da cidade atrás da igreja: ela e os prédios de lá recortados nele (sumiam no escuro)
+	if glow > 0.0:
+		var c := Vector2(_church_pos(g).x, hzy)
+		var on := Color(Pal.CITY_GLOW, glow)
+		var off := Color(on, 0.0)
+		for side in [-1.0, 1.0]:
+			_fill(PackedVector2Array([c, c + Vector2(side * CITY_GLOW.x, 0.0), c + Vector2(side * CITY_GLOW.x, -CITY_GLOW.y), c + Vector2(0.0, -CITY_GLOW.y)]),
+				PackedColorArray([on, off, off, off]))
 	if weather == "clear":
 		var tw := Time.get_ticks_msec() / 700.0
 		var fade := smoothstep(0.0, 0.22, d)   # às 4h30 já não há estrelas
@@ -425,8 +436,8 @@ func _draw_sky(g: Rect2) -> void:
 				_r(wx + floorf(s.x * ww), wy + floorf(s.y * (hzy - wy)), PX, PX, star.lerp(sky, fade))
 		_draw_cirrus(g, hzy)
 		_draw_banks(g, hzy)
-		_draw_dawn(g, hzy)   # (por cima das nuvens: um banco passando na frente apagava o sol)
-		_draw_moon(g, sky, hzy)
+		_draw_moon(g, sky, hzy)   # (com as nuvens que passam)
+		_draw_dawn(g, hzy)   # (por cima das nuvens: um banco ou uma nuvem passando na frente apagava o sol, e os reflexos dele ficavam)
 		_draw_crepuscular(g, _sun_at(g), hzy)   # (por cima das nuvens: elas cortavam a sombra da igreja)
 	elif weather == "fog":
 		_draw_moon(g, sky, hzy)   # difusa: a névoa espalha a luz dela
@@ -474,9 +485,10 @@ func _sunlit() -> float:
 
 ## O ar entre a central e o longe, onde o que está longe some (a cor do horizonte); de madrugada, até o sol sair de trás
 ## da igreja, na luz fria do céu (`AIR_SHADE`): no clarão do horizonte, a igreja, os prédios do fim da rua do cruzamento
-## e o chão de lá pareciam acesos antes da hora (pedido 292).
+## e o chão de lá pareciam acesos antes da hora (pedido 292); arroxeada (`Pal.DAWN_AIR`): na luz azul das fachadas,
+## o amarelo do horizonte passava por um cinza-cáqui com o sol saindo, às 5h35 (pedido 295).
 func _air() -> Color:
-	return _sky_tones()[1].lerp(Pal.DAWN_SHADE, AIR_SHADE * smoothstep(DAWN.x, DAWN.x + 40.0, minutes) * (1.0 - _sunlit()))
+	return _sky_tones()[1].lerp(Pal.DAWN_AIR, AIR_SHADE * smoothstep(DAWN.x, DAWN.x + 40.0, minutes) * (1.0 - _sunlit()))
 
 
 ## O quanto o céu já é de dia (0 no amanhecer, `DAY_SKY` às 6h): as nuvens branqueando, o clarão do horizonte e o
@@ -742,8 +754,9 @@ func _church_parts(base: Vector2) -> Array:
 
 
 ## O que fica em cima de um prédio de longe de largura `w` (px de 2x2), sorteado por `rng`: em px inteiros, a partir do
-## canto de cima à esquerda dele, [Rect2]: o andar recuado (mais nos altos, `tall`), a casa de máquinas ou a caixa
-## d'água e a antena, no recorte contra o céu perto da igreja (retângulos lisos, o fundo parecia de papelão).
+## canto de cima à esquerda dele, [Rect2]: o andar recuado (mais nos altos, `tall`) e a casa de máquinas ou a caixa
+## d'água, no recorte contra o céu perto da igreja (retângulos lisos, o fundo parecia de papelão; a antena, um risco de
+## 1 px, saiu, pedido 293).
 func _far_roof(rng: RandomNumberGenerator, w: float, tall: bool) -> Array[Rect2]:
 	var out: Array[Rect2] = []
 	var cols := int(w / PX)
@@ -758,9 +771,6 @@ func _far_roof(rng: RandomNumberGenerator, w: float, tall: bool) -> Array[Rect2]
 		var n := rng.randi_range(1, mini(3, cols - 2))
 		var h := PX * rng.randi_range(1, 2)
 		out.append(Rect2(PX * rng.randi_range(1, cols - 1 - n), -lift - h, PX * n, h))
-	if rng.randf() < 0.35:   # a antena, um risco fino
-		var h := PX * rng.randi_range(2, 4)
-		out.append(Rect2(PX * rng.randi_range(1, cols - 2), -lift - h, PX, h))
 	return out
 
 
@@ -794,7 +804,8 @@ func _draw_city(g: Rect2) -> void:
 		var haze: float = minf(1.0, FAR_ROWS[r].y * (1.4 if fog else 1.0) + 0.15 * _sunlit())
 		var base := _o(g, 0.0, z).y
 		var col := house.lerp(air, haze)
-		var glass := house.lerp(air, haze * 0.6)   # as janelas apagadas, mais escuras que a parede no ar
+		var glass := house.lerp(air, haze * 0.6)   # as janelas apagadas, mais escuras que a parede no ar...
+		var shine := house.lerp(_sunny(_sky_tones()[0]), 0.35 * smoothstep(0.6, 1.0, dawn())).lerp(air, haze * 0.6)   # ...e uma ou outra espelhando o céu frio de cá, de manhã (de costas para o sol)
 		for b in _city:
 			if b["row"] != r or (r == 2 and wx + b["x"] < gap.y and wx + b["x"] + b["w"] > gap.x):
 				continue
@@ -806,7 +817,7 @@ func _draw_city(g: Rect2) -> void:
 				while yy < b["h"] - 1.0:
 					var xx := 1.0
 					while xx < b["w"] - 1.0:
-						_r(wx + b["x"] + xx, base - b["h"] + yy, PX, PX, glass)
+						_r(wx + b["x"] + xx, base - b["h"] + yy, PX, PX, shine if (int(xx) * 7 + int(yy) * 3 + int(b["x"])) % 5 == 0 else glass)
 						xx += 2.0
 					yy += 2.0
 			for p in b["lit"]:
@@ -1352,7 +1363,7 @@ func _draw_crossing_posts(g: Rect2, hz: Color) -> void:
 				_fill(PackedVector2Array([foot, tip, tip + Vector2(PX, 0), foot + Vector2(PX, 0)]),
 					PackedColorArray([dark, Color(dark, 0.0), Color(dark, 0.0), dark]))
 			if _posts_on():
-				_r(head.x - PX, head.y - PX, maxf(PX, 1.5 * near), maxf(PX, near), Pal.STREET_LAMP.lerp(hz, (1.0 - near) * 0.6))
+				_r(head.x - PX, head.y - PX, maxf(PX, roundf(2.0 * near) * PX), PX, Pal.STREET_LAMP.lerp(hz, 0.2 + (1.0 - near) * 0.5))   # (de 3 por 2 px, perto da igreja pareciam placas soltas no ar, pedido 295)
 				_r(foot.x - 2.0 * near, foot.y - PX, 4.0 * near + PX, PX, Color(1.0, 0.85, 0.55, 0.2 * near))
 
 
@@ -1375,7 +1386,7 @@ func _draw_crossing_ground(g: Rect2, road: Array, walks: Array, hz: Color) -> vo
 		var x := rng.randf_range(l0, l1 - 0.6)
 		var light := rng.randf() < 0.4
 		var tone: Color = road[Pal.STREET_MID + (1 if light else -1 - rng.randi_range(0, 1))]
-		_convex(_blot(g, x, minf(x + rng.randf_range(0.5, 1.6), l1), z, z + rng.randf_range(1.5, 5.0), cut), Color(air.call(tone, z), rng.randf_range(0.5, 0.9)))
+		_convex(_blot(g, x, minf(x + rng.randf_range(0.5, 1.6), l1), z, z + rng.randf_range(1.5, 5.0), cut), PackedColorArray([Color(air.call(tone, z), rng.randf_range(0.5, 0.9))]))
 	var fresh: Color = road[Pal.STREET_MID - 2]
 	var seam: Color = road[Pal.STREET_MID + 1]
 	for i in 4:   # os remendos, com a junta de cá acesa
@@ -1494,7 +1505,7 @@ func _draw_street(g: Rect2, hz: Color) -> void:
 		var light := rng.randf() < 0.5
 		var a := rng.randf_range(0.015, 0.035) if light else rng.randf_range(0.1, 0.22)   # (o sorteio de sempre: as mesmas manchas)
 		var tone: Color = road[Pal.STREET_MID + (1 if light else (-1 if a < 0.16 else -2))]
-		_convex(_blot(g, x, x + rng.randf_range(1.0, 5.0), z, z + rng.randf_range(0.3, 1.2), cut), tone)
+		_convex(_blot(g, x, x + rng.randf_range(1.0, 5.0), z, z + rng.randf_range(0.3, 1.2), cut), PackedColorArray([tone]))
 	var fix := RandomNumberGenerator.new()   # os remendos, de beira reta, e o resto (no sorteio deles: as manchas ficam as mesmas)
 	fix.seed = 708
 	var fresh: Color = road[Pal.STREET_MID - 2]
@@ -1606,15 +1617,24 @@ func _draw_puddles(g: Rect2) -> void:
 		var z := rng.randf_range(STREET["far"] + 2.0, 24.0) if cross else rng.randf_range(STREET["curb"] + 1.6, fc - 0.9)
 		var p := _blot(g, x, x + rng.randf_range(0.8, 1.4) if cross else x + rng.randf_range(1.2, 3.2), z, z + (rng.randf_range(2.0, 5.0) if cross else rng.randf_range(0.4, 0.9)), rng)
 		var sky := stops[1].lerp(stops[2], clampf(z / fc, 0.0, 1.0)) if not cross else stops[2].lerp(stops[3], 0.5)
-		_convex(p, Color(_sunny(sky), a))
+		sky = Color.from_hsv(sky.h, sky.s * PUDDLE.x, sky.v)
+		var near := Color(_sunny(stops[0].darkened(PUDDLE.y)), a)   # de cá, a água espelha o alto do céu, escuro, por cima do asfalto molhado...
+		var far := Color(_sunny(sky), a)   # ...e na beira de lá, de raspão, o céu baixo (por igual, eram tábuas rosa no asfalto)
+		var top := p[5].y
+		var cols := PackedColorArray()
+		for q in p:
+			cols.append(near.lerp(far, clampf((p[1].y - q.y) / maxf(PX, p[1].y - top), 0.0, 1.0)))
+		_convex(p, cols)
 		_ci.draw_line(p[5], p[6], Color(_sunny(stops[3]), a), PX)
 
 
-## Um polígono convexo (`pts`, como o de `_blot`) em quadriláteros em leque: em triângulos, como o `_poly` faz com mais
-## de quatro pontos, cada mancha quebrava o lote das chamadas de desenho (a rua passava de 380 para 870 por quadro).
-func _convex(pts: PackedVector2Array, col: Color) -> void:
+## Um polígono convexo (`pts`, como o de `_blot`) em quadriláteros em leque, com a cor de cada ponto (`cols`, ou uma só
+## para tudo, como no `_fill`): em triângulos, como o `_poly` faz com mais de quatro pontos, cada mancha quebrava o lote
+## das chamadas de desenho (a rua passava de 380 para 870 por quadro).
+func _convex(pts: PackedVector2Array, cols: PackedColorArray) -> void:
 	for i in range(1, pts.size() - 2, 2):
-		_poly(PackedVector2Array([pts[0], pts[i], pts[i + 1], pts[i + 2]]), col)
+		_fill(PackedVector2Array([pts[0], pts[i], pts[i + 1], pts[i + 2]]),
+			cols if cols.size() == 1 else PackedColorArray([cols[0], cols[i], cols[i + 1], cols[i + 2]]))
 
 
 ## Uma mancha no chão de `x0` a `x1` e de `z0` a `z1` (m), de beira torta: o retângulo com cada canto cortado do seu
@@ -1768,11 +1788,11 @@ func _draw_canyon_wall(g: Rect2, w: Dictionary, hz: Color, taken: Dictionary) ->
 		var lit := wv.z > minutes
 		var a := _o(g, x, wv.x - 0.5, wv.y + 1.4)
 		var b := _o(g, x, wv.x + 0.5, wv.y)
-		var col_w: Color = _sunny(Pal.CITY_LIT[int(wv.x) % Pal.CITY_LIT.size()]) if lit else dark
-		if hot > 0.0:
+		var col_w: Color = _sunny(Pal.CITY_LIT[int(wv.x) % Pal.CITY_LIT.size()]).lerp(hz, haze) if lit else dark   # (no ar, como a parede: acesas por igual até o fundo, eram muitos riscos amarelos fortes em volta da igreja, pedido 294)
+		if hot > 0.0 and absf(b.x - a.x) >= PX:   # (as mais finas que um pixel não: lá no fundo, todas brilhando juntas, faziam uma coluna de riscos brancos, pedido 294)
 			var glass := _sun_glass(g, wv, (a.y + b.y) / 2.0, col_w, hot)
 			col_w = col_w.lerp(Color(glass, 1.0), sun)
-			if glass.a * sun > GLINT_HALO.x and absf(b.x - a.x) >= PX:   # (só as de perto: as de longe, juntas, faziam um clarão no fim da rua)
+			if glass.a * sun > GLINT_HALO.x:   # (só as de perto: as de longe, juntas, faziam um clarão no fim da rua)
 				_glints.append(Vector3((a.x + b.x) / 2.0, (a.y + b.y) / 2.0, (glass.a * sun - GLINT_HALO.x) / (1.0 - GLINT_HALO.x)))
 		if absf(b.x - a.x) >= PX:
 			_poly(PackedVector2Array([a, _o(g, x, wv.x + 0.5, wv.y + 1.4), b, _o(g, x, wv.x - 0.5, wv.y)]), col_w)
@@ -1781,7 +1801,7 @@ func _draw_canyon_wall(g: Rect2, w: Dictionary, hz: Color, taken: Dictionary) ->
 			_ci.draw_line(_o(g, x, wv.x - 0.6, wv.y - 0.25), _o(g, x, wv.x + 0.6, wv.y - 0.25), Color(tone.call(-3), 0.5), PX)
 			if w["brick"]:
 				_draw_side_window(g, x, wv, lit, shade)
-		elif lit or hot > 0.0:   # mais fina que um pixel: 1 px, com um vazio ao lado (juntas, as de longe viravam um borrão amarelo)
+		elif lit:   # mais fina que um pixel: 1 px, com um vazio ao lado (juntas, as de longe viravam um borrão amarelo)
 			var at := Vector2i(floori(a.x), floori(wv.y / 3.2))   # (px de 2x2: um vazio de 1 px da tela entre elas)
 			if not taken.has(at):
 				taken[at] = true
@@ -2667,11 +2687,12 @@ func _draw_marquee(g: Rect2) -> void:
 	_r(shade.x, shade.y, _o(g, x1, ff).x - shade.x, (_o(g, x0, ff, 2.4).y - shade.y), Color(0, 0, 0, 0.3))
 	var top := PackedVector2Array([_o(g, x0, ff, 3.0), _o(g, x1, ff, 3.0), _o(g, x1, ff - 1.2, 3.0), _o(g, x0, ff - 1.2, 3.0)])
 	_poly(top, Pal.MARQUEE[0])
-	_poly(PackedVector2Array([top[3], top[2], _o(g, x1, ff - 1.2, 2.75), _o(g, x0, ff - 1.2, 2.75)]), Pal.MARQUEE[1])   # a beira, vermelha
+	var red := _sunny(Pal.MARQUEE[1].lerp(Pal.MARQUEE_DAY, smoothstep(0.1, 1.0, dawn())))   # (de dia, desbotada: o vermelho da noite, clareado pela luz do dia, `_day`, virava neon)
+	_poly(PackedVector2Array([top[3], top[2], _o(g, x1, ff - 1.2, 2.75), _o(g, x0, ff - 1.2, 2.75)]), red)   # a beira, vermelha
 	var fl := _o(g, x0, ff - 1.2, 2.75)   # a franja: os dentes da beira, um pixel sim, outro não
 	var fx := fl.x
 	while fx < _o(g, x1, ff - 1.2).x:
-		_r(fx, fl.y, PX, PX, Pal.MARQUEE[1].darkened(0.3))
+		_r(fx, fl.y, PX, PX, red.darkened(0.3))
 		fx += PX * 2.0
 	_ci.draw_line(_o(g, x0, ff - 1.2, 2.75), _o(g, x1, ff - 1.2, 2.75), Color(1.0, 0.8, 0.5, 0.6), PX)   # a luz embaixo dela
 

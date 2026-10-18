@@ -402,7 +402,7 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   vitrine acesa de um bar (`_draw_shopfront`; quem bebe no balcão, em pé, de costas para a vitrine, quantos pelo dia da
   semana, `BAR_PATRONS`, indo embora das 22h à meia-noite, `BAR_EMPTIES`), os prédios de frente
   (`_houses`, `_draw_far_house`: o de tijolos na esquina, à direita do cruzamento, `CROSSING`; o hotel com o letreiro e a marquise acesa
-  sobre a porta, `HOTEL_X`, `_draw_marquee`, do outro lado; janelas fundas, com a sombra da verga e o peitoril, e a
+  sobre a porta, `HOTEL_X`, `_draw_marquee`, do outro lado, a beira vermelha desbotando de dia, `Pal.MARQUEE_DAY`: o vermelho escuro da noite, clareado pela luz do dia, virava neon, pedido 297; janelas fundas, com a sombra da verga e o peitoril, e a
   luz dos postes lavando as fachadas), a rua do cruzamento indo embora entre paredes (`CROSSING`, 10 m, pedidos 253 e 254: com 4,9, era um corredor, e com 8, estreita; o hotel
   foi um pouco para a esquerda e o lado da direita andou junto, do prédio de tijolos ao bar, à varanda, ao homem e ao poste
   dele; `_canyon`, `_draw_canyon_wall`: janelas em andares e colunas, `CANYON_WIN`, e a

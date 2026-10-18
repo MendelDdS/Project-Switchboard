@@ -1139,8 +1139,8 @@ func _draw_over() -> void:
 		for r in boxes:
 			all = all.merge(r)
 		if not _cover.intersects(all) and not _behind_blind(all):
-			Bloom.light(_over, all, Pal.SIGN_RED, 0.5, false, false, boxes)   # as caixas, em T, num halo só
-			Bloom.light(_over, _sign_glow.back(), Pal.SIGN_MOON, 0.5, false, true)   # e a lua, amarela
+			Bloom.light(_over, all, Pal.SIGN_RED, 0.35, false, false, boxes)   # as caixas, em T, num halo só
+			Bloom.light(_over, _sign_glow.back(), Pal.SIGN_MOON, 0.2, false, true)   # e a lua, amarela (a 0,5, o halo redondo dela cobria metade da torre da igreja, pedido 294)
 	_draw_window_glow()
 	_draw_mist()
 	if _cover.has_area():   # uma ferramenta na frente do operador: o cenário atrás escurece e o papel faz sombra nele

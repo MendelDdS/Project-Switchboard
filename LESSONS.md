@@ -542,3 +542,13 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   luz do sol começava antes de ele aparecer atrás da igreja (pedido 292). O que está entre nós e o clarão fica na luz
   fria do céu, contra ele; a luz do sol na cidade começa quando o disco sai de trás do que o tapa, medido na captura
   (`_sun_seen`), não na hora em que ele nasce.
+- **Tire só o que foi apontado.** "As antenas dos prédios mais distantes" eram os riscos de 1 px nos prédios de longe,
+  atrás da igreja; tirei também as de espinha de peixe dos telhados da rua do cruzamento perto dela, e na vista não
+  sobrou antena nenhuma (pedido 293). Num pedido para tirar algo de um grupo, ache na captura o que corresponde à
+  descrição ("mais distantes", "com poucos detalhes") e tire só isso; se outra coisa parecida também incomoda, diga e
+  pergunte, em vez de tirar junto.
+- **Prédio que só aparece como bloco não acrescenta.** Os prédios baixos atrás da igreja (pedido 295) só podiam
+  aparecer como uma faixa acima do telhado da nave (baixos de verdade, ficavam todos atrás dela e das paredes); na
+  captura eram um retângulo de cor chapada com uma grade de janelas, sem silhueta, e saíram (pedido 296). Quando o
+  pedido não cabe no espaço da tela como foi imaginado, mostre a captura do que deu e diga o limite antes de forçar uma
+  versão que só lembra a ideia.

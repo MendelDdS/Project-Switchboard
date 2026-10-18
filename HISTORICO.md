@@ -1708,3 +1708,38 @@ Chaves:
     com o sol fora, e a luz do sol vai das 5h30 às 5h50 (`SUN_OUT`). No fundo, os prédios de longe em volta da igreja
     ganharam as janelas apagadas (`FAR_DETAIL`) e, em cima, o andar recuado, a casa de máquinas ou a caixa d'água e a
     antena (`_far_roof`): eram blocos lisos.
+293. #vista #cidade #saiu
+    "Remova as antenas dos prédios mais distantes, está meio bagunçado": saiu o risco de 1 px das antenas nos
+    prédios de longe, atrás da igreja (`_far_roof`). Tirei também as antenas de TV dos telhados da rua do cruzamento a
+    mais de 15 m, e o usuário corrigiu: "Mas aí você tirou todas as antenas! Era só remover as antenas dos mais
+    distantes que tinham poucos detalhes!!". As da rua do cruzamento voltaram, todas.
+294. #vista #cidade #amanhecer #luz
+    "Conserte as bagunças sugeridas" (as que apontei no fim da rua do cruzamento): (1) às 5h45, os vidros do fundo da
+    parede da esquerda, mais finos que um pixel, brilhavam todos com o sol, uma coluna de riscos brancos: só os de mais
+    de um pixel espelham o sol, e os finos aparecem só acesos; (2) a sombra da igreja nos raios crepusculares, uma
+    faixa escura e larga subindo pelo céu como fumaça, ficou fraca (`CHURCH_SHADOW` 0,3, era 0,6), sem sair (pedidos
+    222 e 223); (3) o halo redondo da lua do letreiro cobria metade da torre: o da lua a 0,2 e o das caixas a 0,35 (eram
+    0,5); (4) as janelas acesas da rua do cruzamento tinham o mesmo amarelo forte até o fundo, muitos riscos em volta
+    da igreja: somem no ar da distância como a parede.
+295. #vista #cidade #amanhecer #luz #igreja
+    "Pode fazer isso. Inclusive, adicione prédios baixos atrás da igreja, com uma névoa causada pela distância" (as
+    melhorias que sugeri): as lâmpadas dos postes da rua do cruzamento de 1 ou 2 px por 1, mais apagadas no ar (de 3 por
+    2 px, perto da igreja pareciam placas soltas); de noite, o clarão da cidade no céu atrás da igreja, que a recorta
+    (`CITY_GLOW`; luz atrás dela, não na frente, pedido 269), somindo no amanhecer; o ar da distância de madrugada
+    arroxeado (`Pal.DAWN_AIR`): às 5h35, o amarelo do horizonte misturado à luz azul dava um cinza-cáqui; nos prédios
+    de longe perto da igreja, uma ou outra janela apagada espelhando o céu frio de cá, de manhã. Os prédios baixos
+    (`FAR_ROWS` 3): baixos de verdade ficavam todos atrás da nave e das paredes da rua do cruzamento (sobram 3 px de cada
+    lado), então são uma fileira mais baixa que a dos altos, na frente deles e só perto da igreja, com o alto logo acima
+    do telhado da nave, no céu atrás deles (no clarão dourado do horizonte saíam cáqui) e com a névoa do chão clareando
+    o pé (`LOW_MIST`), poucas janelas acesas de noite. Conferidos chuva e névoa de noite.
+296. #vista #cidade #igreja #saiu
+    "Nao gostei desse prédio. Remova-o": a fileira de prédios mais baixos atrás da igreja (`FAR_ROWS` 3, `LOW_MIST`,
+    pedido 295), o bloco de cor com a grade de janelas à esquerda da torre, logo acima do telhado da nave, saiu
+    inteira. O resto do pedido 295 ficou (as lâmpadas dos postes, o clarão da cidade, `DAWN_AIR`, os vidros espelhando).
+297. #vista #amanhecer #luz #cidade
+    "Faça os 3 pontos" (as melhorias que sugeri): (1) a beira vermelha da marquise do hotel virava um vermelho de neon
+    de manhã (o vermelho escuro da noite multiplicado pela luz do dia): desbota para `Pal.MARQUEE_DAY`; (2) as poças do
+    amanhecer eram tiras rosa de uma cor só, como tábuas no asfalto: escuras de cá, com o alto do céu, e o céu baixo,
+    menos saturado, na beira de lá (`PUDDLE`); (3) o sol às vezes sumia às 5h55: as nuvens que passam com o vento,
+    desenhadas com a lua, iam por cima dele (e os reflexos da lente ficavam); o sol agora vai por cima delas, como já ia
+    por cima dos bancos de nuvem.
