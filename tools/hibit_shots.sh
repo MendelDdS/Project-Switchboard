@@ -9,7 +9,7 @@ O=${1:?uso: tools/hibit_shots.sh build/hibit/<sub-etapa>}
 G=/Applications/Godot.app/Contents/MacOS/Godot
 B=(--night=2 --seed=1 --wait=5)
 mkdir -p "$O"
-shot() { "$G" --path . tools/shot.tscn -- "${B[@]}" "$@" >/dev/null 2>&1; }
+shot() { "$G" --resolution 160x90 --position 0,0 --path . tools/shot.tscn -- "${B[@]}" "$@" >/dev/null 2>&1; }   # (a janela pequena no canto: a imagem sai da SubViewport)
 for h in 18:30 21:00 23:30; do for w in rain fog clear; do shot --hour=$h --weather=$w --out=$O/sala_${h/:/}_$w.png; done; done
 shot --hour=21:00 --weather=clear --hover=caneca --zoom=840,260,110,100 --out=$O/hover_caneca.png
 shot --hour=21:00 --weather=clear --zoom=840,260,110,100 --out=$O/caneca.png
@@ -20,4 +20,4 @@ shot --hour=21:00 --weather=clear --tool=despacho --card --out=$O/despacho.png
 shot --hour=21:00 --weather=clear --toll --tool=calculografo --out=$O/calculografo.png
 shot --hour=21:00 --weather=clear --listen --patch=312 --zoom=40,60,380,280 --out=$O/mesa_comutadora.png
 shot --hour=21:00 --weather=clear --zoom=420,290,320,110 --out=$O/tampo.png
-for h in 04:30 05:30 06:00; do "$G" --path . tools/shot.tscn -- --night=15 --seed=1 --wait=5 --hour=$h --weather=clear --out=$O/amanhecer_${h/:/}.png >/dev/null 2>&1; done
+for h in 04:30 05:30 06:00; do "$G" --resolution 160x90 --position 0,0 --path . tools/shot.tscn -- --night=15 --seed=1 --wait=5 --hour=$h --weather=clear --out=$O/amanhecer_${h/:/}.png >/dev/null 2>&1; done

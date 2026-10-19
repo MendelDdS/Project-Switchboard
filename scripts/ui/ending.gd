@@ -17,7 +17,7 @@ func _ready() -> void:
 	for n in [_title, _question, _restart]:
 		n.modulate.a = 0.0
 	_restart.visible = false
-	_restart.pressed.connect(func(): get_tree().reload_current_scene())
+	_restart.pressed.connect(Main.restart)
 
 
 ## `more`: ainda há uma próxima noite (o progresso já foi salvo pelo Main).

@@ -228,6 +228,19 @@ func _apply_seed() -> void:
 	randomize()
 
 
+## Recomeça o jogo (a cena atual de novo, lendo o progresso), no lugar do `reload_current_scene`: depois do clique
+## que pediu, e liberando a cena velha de uma vez. Ele a tirava da árvore no meio do clique (a `SubViewport` do
+## `GameView` seguia entregando o evento fora dela) e só a liberava no fim do quadro: nesse meio-tempo, as esperas por
+## quadro (`await get_tree().process_frame`, como a da escuta) acordavam sem árvore. Liberada, elas somem junto.
+static func restart() -> void:   # (não `reload`: em `Main.reload()` vale o do `Script`, que recarrega o código)
+	var tree := Engine.get_main_loop() as SceneTree
+	var scene := tree.current_scene
+	var path := scene.scene_file_path
+	(func() -> void:
+		scene.free()
+		tree.change_scene_to_file(path)).call_deferred()
+
+
 static func fmt(m: float) -> String:
 	var t := (SHIFT_START_HOUR * 60 + int(floor(m))) % 1440
 	if t < 0:
@@ -290,7 +303,7 @@ func is_training() -> bool:
 func _skip_training() -> void:
 	progress.night = 1
 	progress.save()
-	get_tree().reload_current_scene()
+	restart()
 
 
 ## O ponto x da tela (px) como `Sfx.play_at` o quer: de 0 (borda esquerda) a 1 (direita). Em px, a badalada e a

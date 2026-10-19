@@ -1785,6 +1785,14 @@ Chaves:
     camada do céu: o sol e o halo dele, as nuvens e, de noite, o clarão da cidade (antes o vão ficava num azul um
     pouco diferente do céu ao lado). Os prédios do fundo atrás da torre ficam abaixo do vão, sem nada do telhado
     entrando nele (o 13 do sorteio aparecia na metade de baixo; fora da torre, ele baixou 1 px).
+304. #interface #turno #codigo #testes
+    Erros logo depois de terminar o turno do amanhecer, no Recomeçar (`is_input_handled: !is_inside_tree()`,
+    `Eavesdrop._wait: data.tree is null`). O `reload_current_scene()` tirava a cena da árvore no meio do clique (a
+    `SubViewport` do `GameView` seguia entregando o evento a ela) e só a liberava no fim do quadro: as esperas por
+    quadro pendentes acordavam sem árvore. Agora os quatro recomeços (pausa, fim, tela inicial e pular o treinamento)
+    passam por `Main.restart()`, que espera o clique acabar, libera a cena velha (as esperas somem junto) e carrega a
+    nova; o `test_keys` aperta o Recomeçar da pausa com uma espera pendente. E "notei que você está abrindo várias
+    instancias pra tirar print do jogo": as capturas, uma de cada vez e com a janela pequena no canto.
 305. #voz #som "Você consegue criar um código em python que gere sons baseados em palavras digitadas como está hoje no
     jogo? Irei usar esse código para gerar falas e adicionar efeitos sonoros por fora": `tools/voz.py`, só com a
     biblioteca padrão, porta das sílabas do `SfxSynth` e da entonação do `Sfx.speak_char` (tônica, pergunta, exclamação,

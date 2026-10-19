@@ -29,7 +29,7 @@ func _ready() -> void:
 	%Skip.pressed.connect(skip_pressed.emit)
 	%Reset.pressed.connect(func():
 		Progress.clear()
-		get_tree().reload_current_scene())
+		Main.restart())
 
 
 ## O bilhete preso no painel da mesa comutadora, no meio dele, e os botões logo embaixo (a mesa se arruma na tela).

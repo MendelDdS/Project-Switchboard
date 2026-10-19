@@ -169,13 +169,25 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   por 1000 do hash da janela crescia com a altura dela, e só o primeiro andar brilhava). Para um número por objeto,
   `rand_from_seed(hash(x))[0]`.
 
+- **Função estática de classe não pode ter nome de método do `Script`.** `Main.reload()` chamava o
+  `GDScript.reload()` (recarregar o código: "Cannot reload script while instances exist"), não a função do Main; o
+  mesmo vale para `new`, `get_base_script`, `can_instantiate`... Escolha outro nome (`Main.restart`).
+- **Trocar de cena no meio de um clique deixa a cena velha fora da árvore e viva até o fim do quadro.** O
+  `reload_current_scene()` a tira na hora: a `SubViewport` do `GameView` seguia entregando o evento fora da árvore
+  (`is_input_handled: !is_inside_tree()`) e as esperas por quadro (`await get_tree().process_frame`) acordavam sem
+  árvore (`get_tree()` nulo). Recomece por `Main.restart`: depois do clique, libera a cena velha de uma vez (as esperas
+  pendentes somem junto, sem erro) e só então carrega a nova.
+
 ## Ferramentas e testes
 
 - **`assert` que falha em script `-s` não fecha o Godot**: o processo trava. Rode com limite de tempo
   (processo em segundo plano + `kill` depois de N s) e leia o log inteiro.
 - **Não passe a saída do Godot direto por `grep`/`head`**: o buffer esconde tudo até o fim, e o teste parece
   travado. Grave em arquivo e filtre depois.
-- **Captura de tela precisa de janela**: rode sem `--headless`.
+- **Captura de tela precisa de janela**: rode sem `--headless`. **Uma de cada vez, e a janela pequena no canto**
+  (`--resolution 160x90 --position 0,0`, antes do `--path`): a imagem sai da `SubViewport` do `shot.gd`, não da
+  janela, e saem iguais. Várias em paralelo (`&` num laço) abriam uma janela de Godot atrás da outra na tela de quem
+  está trabalhando, e o usuário notou. Capture só o que a conferência precisa.
 - **Arquivo editado por `sed`/python fica "modificado desde a leitura"** para a ferramenta de edição: releia
   antes de usar Write/Edit.
 - **O visualizador de imagens pode mostrar uma versão antiga de um PNG com o mesmo nome.** Ao comparar

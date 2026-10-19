@@ -19,7 +19,7 @@ func _ready() -> void:
 	%RestartNight.pressed.connect(func():
 		Sfx.muffle(false)
 		get_tree().paused = false
-		get_tree().reload_current_scene())
+		Main.restart())
 	%Quit.pressed.connect(func(): get_tree().quit())
 	%Back.pressed.connect(_back)
 	%Apply.pressed.connect(_apply_settings)

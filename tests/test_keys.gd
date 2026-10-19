@@ -45,6 +45,12 @@ func _initialize() -> void:
 	ok(get_tree().paused and not m.can_process(), "Esc pausa e o jogo para")
 	await _key(KEY_ESCAPE)
 	ok(not get_tree().paused, "Esc de novo despausa")
-	get_tree().root.remove_child(app)
-	app.free()
+	# Recomeçar da pausa (`Main.restart`) com uma espera por quadro pendente, como a da conversa ouvida: recarregada no
+	# meio do evento, a cena saía da árvore antes de a SubViewport acabar de entregá-lo, e a espera acordava sem árvore
+	m.eavesdrop._wait(100.0)
+	await _key(KEY_ESCAPE)
+	(m.find_child("RestartNight", true, false) as Button).grab_focus()
+	await _key(KEY_ENTER)
+	ok(not is_instance_valid(app) and get_tree().current_scene.scene_file_path == "res://scenes/app.tscn", "Recomeçar troca a cena")
+	get_tree().current_scene.free()
 	finish("teclas pelo GameView")
