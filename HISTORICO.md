@@ -1830,3 +1830,9 @@ Chaves:
     energia acima de 2,5 kHz dobrou (3–4% para 6–8%). A vogal entra no filtro no pico de antes (`SfxSynth.LEVEL`, 0,4),
     e o rádio voltou ao brilho antigo (centroide ~1000–1100 Hz); as outras vozes não mudam (os filtros delas são
     lineares). O `voz.py` tinha o mesmo problema e levou a mesma correção.
+308. #codigo "Antes de criar arquivo: procurar componente que já existe (`graphify query "<componente>"`). Reaproveitar >
+    criar": regra nas convenções do `CLAUDE.md`. O `graphify update .` (só código) foi testado e desfeito: sem leitor de
+    GDScript, não muda nenhum `.gd` e apaga as ligações semânticas do grafo (1574 para 1474); o grafo voltou à cópia
+    de 09/10, e atualizá-lo de verdade é pelo `/graphify . --update`, com leitura semântica. Rodado depois: a detecção
+    do graphify também ignora os `.gd`, e os 75 que mudaram entraram à mão nos subagentes (~1,05 milhão de tokens);
+    o grafo foi de 907 nós e 1574 ligações para 2867 e 6292.
