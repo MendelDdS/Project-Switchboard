@@ -809,15 +809,20 @@ func _draw_city(g: Rect2) -> void:
 	var col := back.lerp(air, haze)   # ...e eles, atrás dela, mais apagados no ar
 	var glass := back.lerp(air, haze * 0.6)   # as janelas apagadas, mais escuras que a parede no ar...
 	var shine := back.lerp(_sunny(_sky_tones()[0]), 0.35 * smoothstep(0.6, 1.0, dawn())).lerp(air, haze * 0.6)   # ...e uma ou outra espelhando o céu frio de cá, de manhã (de costas para o sol)
+	var arch := _belfry(g)
 	for b in _city:
 		var bx: float = wx + b["x"]
 		var bh: float = b["h"]
 		if bx < gap.y and bx + b["w"] > gap.x:
 			bh = minf(bh, roundf(CHURCH_NAVE.x * CHURCH_K / PX) * PX)
+		if bx < arch.end.x and bx + b["w"] > arch.position.x:   # atrás do campanário, abaixo do vão: por ele, o céu (e o sol)
+			bh = minf(bh, base - arch.end.y)
 		var top := base - bh
 		_r(bx, top, b["w"], bh, col)
 		for t: Rect2 in b["top"]:
-			_r(bx + t.position.x, top + t.position.y, t.size.x, t.size.y, col)
+			var piece := Rect2(bx + t.position.x, top + t.position.y, t.size.x, t.size.y)
+			if not piece.intersects(arch):
+				_r(piece.position.x, piece.position.y, piece.size.x, piece.size.y, col)
 		if absf(bx + b["w"] / 2.0 - church) < FAR_DETAIL:   # (na grade das acesas, `_build_city`)
 			var yy := 1.5
 			while yy < bh - 1.0:
@@ -3567,9 +3572,21 @@ func _draw_church(g: Rect2, col: Color, air: Color) -> void:
 	var k := CHURCH_K
 	var base := _church_pos(g)
 	var parts := _church_parts(base)
-	for part: PackedVector2Array in parts:
-		_poly(part, col)
+	for i in parts.size():
+		if i != 4:   # (a torre, a 5ª peça de `_church_parts`, vai em faixas, em volta do campanário)
+			_poly(parts[i], col)
 	base.x = floorf(base.x / PX) * PX + PX / 2.0
+	# o campanário vazado, acima do relógio (`_belfry`): o arco aberto na torre, com o céu de trás (a camada `_sky`) à
+	# vista, e o sino pendurado nele (lisa, a torre era só uma mancha; pintado da cor do céu, o sol passava atrás dele
+	# sem aparecer)
+	var arch := _belfry(g)
+	var mid := arch.get_center().x
+	var t: PackedVector2Array = parts[4]
+	for band: Vector3 in [Vector3(t[0].y, arch.position.y, 0.0), Vector3(arch.position.y, arch.position.y + PX, 0.5 * PX),
+			Vector3(arch.position.y + PX, arch.end.y, 1.5 * PX), Vector3(arch.end.y, t[2].y, 0.0)]:
+		_r(t[0].x, band.x, mid - band.z - t[0].x, band.y - band.x, col)   # (de cada lado do vão, de `z` de meia largura)
+		_r(mid + band.z, band.x, t[2].x - mid - band.z, band.y - band.x, col)
+	_r(mid - 0.5 * PX, arch.position.y + PX, PX, 3 * PX, col)   # o sino
 	for i in 2:   # a beira de cada degrau, pegando a luz do céu
 		_r(base.x - (17 - 3 * i) * k, base.y - (2 + 2 * i) * PX, (34 - 6 * i) * k, PX, col.lightened(0.12))
 	var gy := roundf(base.y / PX) * PX   # o chão, no pixel
@@ -3592,13 +3609,14 @@ func _draw_church(g: Rect2, col: Color, air: Color) -> void:
 	var face := Vector2(base.x, roundf((base.y - CHURCH_TOWER.z * k) / PX) * PX)
 	_r(face.x - 1.5 * PX, face.y - PX, 3 * PX, 3 * PX, col.lightened(0.15))   # o mostrador, apagado
 	_r(face.x - PX / 2.0, face.y - PX, PX, 2 * PX, Pal.CHURCH_CLOCK)   # os ponteiros
-	# o campanário vazado, acima do relógio: o arco com o céu atrás e o sino pendurado nele (lisa, a torre era só uma
-	# mancha; o céu de trás, não luz na frente dela)
-	var bell := Vector2(base.x, roundf((base.y - (CHURCH_TOWER.x - 2.0) * k) / PX) * PX)
-	var sky := _sunny(_sky_at(g, bell.y))
-	_r(bell.x - 1.5 * PX, bell.y, 3 * PX, 5 * PX, sky)
-	_r(bell.x - 0.5 * PX, bell.y - PX, PX, PX, sky)
-	_r(bell.x - 0.5 * PX, bell.y, PX, 3 * PX, col)
+
+
+## O vão do campanário da igreja (`_draw_church`), do alto do arco ao peitoril: por ele se vê o céu de trás, e os
+## prédios atrás da torre ficam abaixo dele (`_draw_city`).
+func _belfry(g: Rect2) -> Rect2:
+	var base := _church_pos(g)
+	var y := roundf((base.y - (CHURCH_TOWER.x - 2.0) * CHURCH_K) / PX) * PX
+	return Rect2(floorf(base.x / PX) * PX - PX, y - PX, 3 * PX, 6 * PX)   # (no eixo da torre, no meio de um pixel)
 
 
 ## O letreiro do hotel refletido no vidro da janela da sala: o fantasma dele, as letras de novo, fracas e um pouco

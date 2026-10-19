@@ -1777,6 +1777,14 @@ Chaves:
       é medido pelo telhado, com 1 px livre de cada lado (`_place_name`); o que não cabe só aparece aproximando o mapa.
       A faixa do nome da praça foi recuada 4 de cada lado para continuar como estava.
     - O selo do canto cobria os nomes, porque não entrava na conta das sobreposições. Agora entra (`_boxes`).
+
+303. #vista #igreja #luz
+    "Parte do sol está passando pelo espaço vazio do sino da igreja, mas não está aparecendo": o vão do campanário era
+    pintado com a cor lisa do céu naquela altura (`_sky_at`), por cima da torre, e o sol passava atrás dele sem
+    aparecer. Agora o vão é aberto na torre (ela é desenhada em faixas em volta dele, `_belfry`), e por ele se vê a
+    camada do céu: o sol e o halo dele, as nuvens e, de noite, o clarão da cidade (antes o vão ficava num azul um
+    pouco diferente do céu ao lado). Os prédios do fundo atrás da torre ficam abaixo do vão, sem nada do telhado
+    entrando nele (o 13 do sorteio aparecia na metade de baixo; fora da torre, ele baixou 1 px).
 305. #voz #som "Você consegue criar um código em python que gere sons baseados em palavras digitadas como está hoje no
     jogo? Irei usar esse código para gerar falas e adicionar efeitos sonoros por fora": `tools/voz.py`, só com a
     biblioteca padrão, porta das sílabas do `SfxSynth` e da entonação do `Sfx.speak_char` (tônica, pergunta, exclamação,

@@ -705,7 +705,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `_draw_dawn`: o disco, pequeno, `SUN_DISC` raios (pedido 256), quase todo miolo branco, `Pal.SUN_CORE`, o amarelo, sem beira, e
   por cima o brilho branco saindo dele e esmaecendo, `SUN_GLOW`, e o halo amarelo, sem laranja, que encolhe e branqueia com o dia, como o clarão do horizonte some, para o azul não ficar cinza; desenhado por cima das nuvens: um banco passando o apagava, e as nuvens que passam com o vento, desenhadas com a lua, também, e os reflexos dele ficavam, pedido 297), e sobe devagar ao lado da torre, meio atrás dela e ainda baixo às 6h, como na referência
   do usuário (`SUN_LOW`; os prédios altos do fundo abrem um vão ali; a torre fina, `CHURCH_TOWER`, mais baixa a pedido, 267, o telhado da nave mais alto, `CHURCH_NAVE`, 291, com
-  o campanário vazado, o céu atrás do arco e o sino, `_sky_at`, e a escadaria no pé da igreja). Os raios
+  o campanário vazado, aberto na torre para a camada do céu, por onde o sol passa, com os prédios de trás abaixo dele, `_belfry`, e a escadaria no pé da igreja). Os raios
   crepusculares saem dele num leque liso, por cima das nuvens (`_draw_crepuscular`: `RAYS` fatias, a cor em cada beira, a força variando
   devagar com o ângulo; fatias finas de força sorteada riscavam o céu), e onde a igreja tapa o sol a sombra dela,
   quase preta, vira um feixe escuro, fraco (`_church_cover`, `_church_parts`, os polígonos que `_draw_church` desenha; `RAY_SHADOW`,
