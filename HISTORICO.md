@@ -1777,3 +1777,40 @@ Chaves:
       é medido pelo telhado, com 1 px livre de cada lado (`_place_name`); o que não cabe só aparece aproximando o mapa.
       A faixa do nome da praça foi recuada 4 de cada lado para continuar como estava.
     - O selo do canto cobria os nomes, porque não entrava na conta das sobreposições. Agora entra (`_boxes`).
+305. #voz #som "Você consegue criar um código em python que gere sons baseados em palavras digitadas como está hoje no
+    jogo? Irei usar esse código para gerar falas e adicionar efeitos sonoros por fora": `tools/voz.py`, só com a
+    biblioteca padrão, porta das sílabas do `SfxSynth` e da entonação do `Sfx.speak_char` (tônica, pergunta, exclamação,
+    nasal, ataque da consoante, altura pelo nome com o hash do Godot, agitação) no ritmo do `Conversation.say`; grava
+    um .wav com a banda do telefone (`--seco` sem). Mudou a voz no jogo, mude lá também.
+    Depois ele o levou para fora do projeto (`~/Documents/voz.py`). "As palavras estão saindo uma atrás da outra, sem
+    pausa": as sílabas andam mais devagar que as letras e o espaço sumia no atraso; agora, no espaço e na pontuação,
+    a próxima espera a última acabar de soar e mais a pausa (`PAUSE`: 0,08 s entre palavras, 0,25 na vírgula, 0,45
+    no ponto; `--pausa` multiplica, 0 = como no jogo).
+    "As palavras podem ser ditas um pouco mais rápido, porém deve haver pausas entre elas": as sílabas dentro da
+    palavra 1,3 vez mais rápidas (`WORD_RATE`, `--rapidez`: o tempo da letra e a espera entre sílabas), as pausas iguais.
+    "No jogo parece melhor": o balbucio emendado do jogo é o que soa como fala; o padrão voltou ao ritmo dele
+    (`--pausa` e `--rapidez` só como opção), com `--chiado` (o da linha, -36 dB, -26 na desconhecida) e a banda do
+    telefone em dois estágios por filtro, como o "12 dB" do Godot.
+    "Melhorar a voz gerada, dar mais clareza": a voz do script ficou refinada além da do jogo (`--jogo` volta à dele,
+    para comparar): cada sílaba sintetizada na altura dela, sem acelerar o som (no jogo, o `pitch_scale` sobe junto
+    as ressonâncias: 30% mais aguda levava o F2 do "e" de 1780 a 2320 Hz; refinada fica em ~1870), com a altura
+    deslizando até a próxima sílaba e as ressonâncias pelo tamanho da boca de cada voz (`TRACT`); três formantes
+    por vogal em cadeia de Klatt (`FORMANTS`, `BANDWIDTHS`, F4); a tônica 1,3 e a última da frase 1,4 vez mais
+    longas; o pulso glotal de Rosenberg com variação por ciclo (`GLOTTIS`, jitter e shimmer). Se ficar melhor, dá
+    para levar ao `SfxSynth` (menos a altura sem acelerar, que pediria sintetizar durante o jogo).
+306. #voz #som "No caso, esses pontos melhoraria o áudio do jogo? então eu aceito": os refinamentos do `voz.py` no
+    `SfxSynth`. Cada sílaba é o pulso glotal de Rosenberg, com variação por ciclo e o sopro mais forte com a glote
+    aberta (`GLOTTIS`, `CYCLE_JITTER`, `CYCLE_SHIMMER`; o ruído no próprio laço, sem chamar o sorteio a cada amostra),
+    passando por três formantes por vogal em cadeia e um quarto comum (`VOWEL` em `Vector3`, `BANDWIDTHS`, `F4`,
+    `_formant`, sobre o `_resonator` que já existia; antes eram F1 e F2 em paralelo e um 2600 Hz fixo), no tamanho
+    da boca de cada voz (`tract` no `VOICE`: mulher 1,15, criança 1,25; antes todas com os formantes do homem). A
+    tônica e a última da frase tocam a versão longa da sílaba (`LONG` 1,35, ids com "l"; `Sfx._long`), e a próxima
+    espera pela duração dela (`_spoke` guarda o começo e quando a próxima pode vir). A altura sem acelerar o som (o
+    item 1 do script) não entrou: pediria sintetizar durante o jogo. Medido: de 268 sons e 7,1 MB para 448 e 9,2 MB
+    (vozes de 1,8 para 3,9 MB), montagem de 424 para ~490 ms (cada voz em dois pedaços, curtas e longas); o volume
+    de cada vogal mudou até ±2,4 dB. O `voz.py` acompanhou: `--jogo` agora são essas sílabas aceleradas.
+307. #voz #radio "A voz do rádio está mais estridente": a cadeia de formantes do item 306 entregava a sílaba 100 a
+    250 vezes mais forte ao filtro da voz, e a saturação do rádio (vezes 40 e corte) virava uma onda quadrada: a
+    energia acima de 2,5 kHz dobrou (3–4% para 6–8%). A vogal entra no filtro no pico de antes (`SfxSynth.LEVEL`, 0,4),
+    e o rádio voltou ao brilho antigo (centroide ~1000–1100 Hz); as outras vozes não mudam (os filtros delas são
+    lineares). O `voz.py` tinha o mesmo problema e levou a mesma correção.

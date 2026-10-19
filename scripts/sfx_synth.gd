@@ -7,22 +7,40 @@ extends RefCounted
 
 const RATE := 22050
 # Vozes: cada vogal vira uma sílaba sintetizada (fonte glotal + formantes).
-# f0 = altura, breath = sopro, dur = duração da sílaba, bus = por onde toca. As do telefone (bus "Phone") ganham a
-# banda da linha no barramento (default_bus_layout.tres: distorção do microfone de carvão, 300–3400 Hz, pico em 2 kHz);
-# as outras levam o filtro na própria sílaba: muffle = corte do passa-baixa (quanto menor, mais abafado).
+# f0 = altura, breath = sopro, dur = duração da sílaba, bus = por onde toca, tract = o tamanho da boca (os formantes
+# multiplicados: a mulher e a criança com as ressonâncias mais altas que as do homem; antes todas iguais às dele).
+# As do telefone (bus "Phone") ganham a banda da linha no barramento (default_bus_layout.tres: distorção do microfone
+# de carvão, 300–3400 Hz, pico em 2 kHz); as outras levam o filtro na própria sílaba: muffle = corte do passa-baixa
+# (quanto menor, mais abafado).
 const VOICE := {
-	"f": {"f0": 225.0, "breath": 0.10, "dur": 0.13, "db": -7.0, "bus": &"Phone"},
-	"m": {"f0": 118.0, "breath": 0.08, "dur": 0.14, "db": -6.0, "bus": &"Phone"},
-	"k": {"f0": 320.0, "breath": 0.06, "dur": 0.11, "db": -9.0, "bus": &"Phone"},
-	"w": {"f0": 140.0, "breath": 0.45, "dur": 0.14, "db": -8.0, "bus": &"Phone"},
-	"g": {"f0": 92.0, "breath": 0.30, "muffle": 700.0, "dur": 0.21, "db": -5.0, "bus": &"Voices"},
-	"r": {"f0": 135.0, "breath": 0.18, "muffle": 2300.0, "dur": 0.12, "db": -11.0, "bus": &"Voices"},
+	"f": {"f0": 225.0, "breath": 0.10, "dur": 0.13, "tract": 1.15, "db": -7.0, "bus": &"Phone"},
+	"m": {"f0": 118.0, "breath": 0.08, "dur": 0.14, "tract": 1.0, "db": -6.0, "bus": &"Phone"},
+	"k": {"f0": 320.0, "breath": 0.06, "dur": 0.11, "tract": 1.25, "db": -9.0, "bus": &"Phone"},
+	"w": {"f0": 140.0, "breath": 0.45, "dur": 0.14, "tract": 0.97, "db": -8.0, "bus": &"Phone"},
+	"g": {"f0": 92.0, "breath": 0.30, "muffle": 700.0, "dur": 0.21, "tract": 0.92, "db": -5.0, "bus": &"Voices"},
+	"r": {"f0": 135.0, "breath": 0.18, "muffle": 2300.0, "dur": 0.12, "tract": 1.0, "db": -11.0, "bus": &"Voices"},
 }
-# Formantes (F1, F2) aproximados das vogais do português.
-const VOWEL := {"a": Vector2(780, 1250), "e": Vector2(480, 1850), "i": Vector2(310, 2250), "o": Vector2(500, 880), "u": Vector2(350, 720)}
-## Vogal nasal ("ã", "õ", "am", "em"...): o F1 vezes `f1` e com o ganho `f1_gain`, e o ressoar do nariz em `hz` (logo
-## acima do corte de 300 Hz do telefone) com o ganho `gain`.
-const NASAL := {"f1": 0.8, "f1_gain": 0.5, "hz": 320.0, "gain": 0.6}
+## Formantes (F1, F2, F3) aproximados das vogais do português, em cadeia (`_formant`, como os sintetizadores de
+## formantes), com as larguras de banda (Hz) da fala, e F4 (Hz, largura) igual em todas, o brilho. (Antes eram F1 e F2
+## em paralelo e um 2600 Hz fixo: o "e" e o "i", o "o" e o "u" se confundiam.)
+const VOWEL := {"a": Vector3(780, 1250, 2600), "e": Vector3(480, 1850, 2550), "i": Vector3(310, 2250, 3000),
+	"o": Vector3(500, 880, 2500), "u": Vector3(350, 720, 2400)}
+const BANDWIDTHS := Vector3(90, 110, 170)
+const F4 := Vector2(3500, 250)
+## Vogal nasal ("ã", "õ", "am", "em"...): o F1 vezes `f1` e com a largura vezes `f1_width`, e o ressoar do nariz em
+## `hz` (logo acima do corte de 300 Hz do telefone) com o ganho `gain`.
+const NASAL := {"f1": 0.8, "f1_width": 2.0, "hz": 320.0, "gain": 0.6}
+## A fonte da voz: o pulso glotal de Rosenberg (fração do período abrindo, x, e fechando, y; a derivada, como sai da
+## boca) e o quanto cada ciclo varia de período e de força (jitter e shimmer), como uma garganta e não um oscilador.
+## O sopro é mais forte com a glote aberta.
+const GLOTTIS := Vector2(0.4, 0.16)
+const CYCLE_JITTER := 0.01
+const CYCLE_SHIMMER := 0.06
+## O pico da vogal entrando no filtro da voz (`_voice_line`), o nível que a sílaba tinha antes da cadeia de formantes:
+## a saturação do rádio depende dele (100 vezes mais forte, cortava tudo numa onda quadrada e a voz ficava estridente).
+const LEVEL := 0.4
+## A tônica e a última sílaba da frase mais longas (cada vogal também gravada com a duração vezes LONG, `Sfx._long`).
+const LONG := 1.35
 ## O silêncio antes de cada vogal, onde entra o ataque da consoante (`_attack`), e o pico de cada ataque (a vogal tem 0,8).
 const LEAD := 0.045
 const ATTACKS := {"stop": 0.35, "fric": 0.2, "nasal": 0.3}
@@ -69,7 +87,8 @@ static func build() -> Dictionary:
 				jobs.append(["_build_car", wet, near, take])
 	jobs.append_array(PARTS)
 	for v in VOICE:
-		jobs.append(["_build_voice", v])
+		for long in [false, true]:   # (as curtas e as longas em pedaços próprios: as vozes são dos mais demorados)
+			jobs.append(["_build_voice", v, long])
 	var parts: Array[SfxSynth] = []
 	for i in jobs.size():
 		parts.append(SfxSynth.new())
@@ -199,41 +218,83 @@ func _end(id: String, tel: bool = false, loop: bool = false, peak: float = 0.8, 
 	streams[id] = s
 
 
-## A vogal `vw` da voz `v` (`nasal`: "ã", "õ", "am", "em"...), com a curva de entonação `contour`. Começa depois de
-## LEAD s de silêncio, o lugar do ataque da consoante (`_attack`), que toca junto com ela.
-func _syllable(v: String, vw: String, nasal: bool, contour: float) -> void:
+## A vogal `vw` da voz `v` (`nasal`: "ã", "õ", "am", "em"...), com a curva de entonação `contour` (`long`: a duração
+## vezes LONG). Começa depois de LEAD s de silêncio, o lugar do ataque da consoante (`_attack`), que toca junto com ela.
+## A fonte é o pulso glotal (GLOTTIS) e o sopro, passando pelos formantes em cadeia (VOWEL, `_formant`).
+func _syllable(v: String, vw: String, nasal: bool, contour: float, long: bool) -> void:
 	var p: Dictionary = VOICE[v]
 	var f0: float = p["f0"]
-	var dur: float = p["dur"]
+	var dur: float = p["dur"] * (LONG if long else 1.0)
 	var breath: float = p["breath"]
-	var fm: Vector2 = VOWEL[vw]
+	var tract: float = p["tract"]
+	var fm: Vector3 = VOWEL[vw] * tract
 	var n := int(dur * RATE)
-	var src := PackedFloat32Array()
+	var src := PackedFloat32Array()   # o pulso (a derivada do fluxo pela glote)
 	src.resize(n)
+	var air := PackedFloat32Array()   # o sopro
+	air.resize(n)
 	var ph := _rng.randf()
+	var r := _rng.randi()   # o ruído e a variação de cada ciclo sorteados aqui mesmo (ver `_passes`)
+	var jit := 1.0
+	var amp := 1.0
+	var flow := 0.0
+	var src_sq := 0.0
+	var air_sq := 0.0
 	for i in n:
 		var t := float(i) / RATE
-		var k := t / dur
-		var f := f0 * (1.0 + contour * k) * (1.0 + 0.015 * sin(TAU * 5.5 * t))
-		ph += f / RATE
-		var g := ph - floorf(ph)
-		var s := (1.0 - g) * (1.0 - g) * 2.0 - 1.0   # pulso glotal suave
-		s = s * (1.0 - breath) + _rng.randf_range(-1.0, 1.0) * breath
-		var env := pow(sin(PI * k), 0.7)
-		src[i] = s * env
-	# nasal: o F1 mais baixo e fraco e o ressoar do nariz embaixo (NASAL)
-	var a := _biquad(src, "bp", fm.x * (NASAL["f1"] if nasal else 1.0), 4.0)
-	var b := _biquad(src, "bp", fm.y, 6.0)
-	var c := _biquad(src, "bp", 2600.0, 7.0)
-	var m := _biquad(src, "bp", NASAL["hz"], 3.0) if nasal else PackedFloat32Array()
-	var ga: float = NASAL["f1_gain"] if nasal else 1.0
+		ph += f0 * (1.0 + contour * t / dur) * jit * (1.0 + 0.015 * sin(TAU * 5.5 * t)) / RATE
+		if ph >= 1.0:   # um ciclo novo, um pouco diferente do anterior
+			ph -= 1.0
+			r = (r * 1103515245 + 12345) & 0x7fffffff
+			jit = 1.0 + (r / 1073741823.5 - 1.0) * CYCLE_JITTER
+			r = (r * 1103515245 + 12345) & 0x7fffffff
+			amp = 1.0 + (r / 1073741823.5 - 1.0) * CYCLE_SHIMMER
+		var g := 0.0
+		if ph < GLOTTIS.x:
+			g = 0.5 * (1.0 - cos(PI * ph / GLOTTIS.x))
+		elif ph < GLOTTIS.x + GLOTTIS.y:
+			g = cos(PI * (ph - GLOTTIS.x) / (2.0 * GLOTTIS.y))
+		src[i] = g * amp - flow
+		flow = g * amp
+		r = (r * 1103515245 + 12345) & 0x7fffffff
+		air[i] = (r / 1073741823.5 - 1.0) * (0.4 + g)
+		src_sq += src[i] * src[i]
+		air_sq += air[i] * air[i]
+	var ks := (1.0 - breath) / sqrt(maxf(src_sq / n, 1e-12))   # os dois na mesma força média antes de misturar
+	var ka := breath / sqrt(maxf(air_sq / n, 1e-12))
+	for i in n:
+		src[i] = (src[i] * ks + air[i] * ka) * pow(sin(PI * float(i) / n), 0.7)
+	# nasal: o F1 mais baixo e largo e o ressoar do nariz embaixo (NASAL)
+	var y := _formant(src, fm.x * (NASAL["f1"] if nasal else 1.0), BANDWIDTHS.x * (NASAL["f1_width"] if nasal else 1.0))
+	y = _formant(_formant(_formant(y, fm.y, BANDWIDTHS.y), fm.z, BANDWIDTHS.z), F4.x * tract, F4.y)
+	var m := PackedFloat32Array()
+	var km := 0.0
+	if nasal:
+		m = _formant(src, NASAL["hz"], 100.0)
+		km = NASAL["gain"] * _peak(y) / _peak(m)
 	_begin(LEAD + dur + 0.04)
 	var off := int(LEAD * RATE)
 	for i in n:
-		if off + i < _w.size():
-			_w[off + i] = a[i] * ga + b[i] * 0.55 + c[i] * 0.18 + (m[i] * NASAL["gain"] if nasal else 0.0)
+		_w[off + i] = y[i] + (m[i] * km if nasal else 0.0)
+	var k := LEVEL / _peak(_w)   # (a cadeia de formantes ganha 100 vezes ou mais)
+	for i in _w.size():
+		_w[i] *= k
 	_voice_line(v)
-	_end("s_%s_%s%s_%d" % [v, vw, "n" if nasal else "", [-0.12, 0.0, 0.10].find(contour)], false, false, 0.8)
+	_end("s_%s_%s%s_%d%s" % [v, vw, "n" if nasal else "", [-0.12, 0.0, 0.10].find(contour), "l" if long else ""], false,
+		false, 0.8)
+
+
+## Um formante em `f` Hz com a largura de banda `bw` Hz: o `_resonator`, que decai em 1/(π·bw) s. Em cadeia, a
+## força de cada formante sai como na fala, sem acertar ganhos à mão.
+func _formant(x: PackedFloat32Array, f: float, bw: float) -> PackedFloat32Array:
+	return _resonator(x, f, 1.0 / (PI * bw))
+
+
+static func _peak(x: PackedFloat32Array) -> float:
+	var m := 0.0001
+	for v in x:
+		m = maxf(m, absf(v))
+	return m
 
 
 ## O ataque da consoante antes da vogal (`ATTACKS`), na voz `v`: termina em LEAD s, quando a vogal começa.
@@ -370,15 +431,16 @@ func _build_basic() -> void:
 	_end("hiss", false, true, 0.6)
 
 
-## A voz `v` por sílaba: cada vogal, oral e nasal, em 3 entonações (descendo, reta, subindo), e os ataques das
-## consoantes.
-func _build_voice(v: String) -> void:
+## A voz `v` por sílaba: cada vogal, oral e nasal, em 3 entonações (descendo, reta, subindo), curta ou longa (`long`,
+## LONG); com as curtas, os ataques das consoantes.
+func _build_voice(v: String, long: bool) -> void:
 	for vw in VOWEL:
 		for nasal in [false, true]:
 			for k in 3:
-				_syllable(v, vw, nasal, [-0.12, 0.0, 0.10][k])
-	for kind in ATTACKS:
-		_attack(v, kind)
+				_syllable(v, vw, nasal, [-0.12, 0.0, 0.10][k], long)
+	if not long:
+		for kind in ATTACKS:
+			_attack(v, kind)
 
 
 # ------------------------------------------------------------------ ambientes e campainhas

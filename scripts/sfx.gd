@@ -112,7 +112,9 @@ const VMAP := {"a": "a", "á": "a", "à": "a", "â": "a", "ã": "a", "e": "e", "
 
 var streams: Dictionary = {}
 var _temper_rng := RandomNumberGenerator.new()   ## o temperamento das emergências (`agitation`), fora do sorteio global
-var _spoke := {}   ## voz -> ms (Time.get_ticks_msec) em que a última sílaba começa (no futuro, se está esperando)
+## voz -> ms (Time.get_ticks_msec) em que a última sílaba começa (x; no futuro, se está esperando) e em que a próxima
+## pode começar (y)
+var _spoke := {}
 var _takes := {}   # id -> quantas versões ele tem (`_take`), dos sons com "~1", "~2"...
 var vol := VOL.duplicate()   ## o volume em uso; a mesa de som do debug mexe nele (o `VOL` é o padrão)
 var pool: Array[AudioStreamPlayer] = []
@@ -494,7 +496,8 @@ func speak_char(voice: String, text: String, i: int, prev_vowel: bool, laugh: bo
 		return false
 	if prev_vowel:
 		return true
-	var wait := _syllable_wait(voice)
+	var long := _long(text, i)
+	var wait := _syllable_wait(voice, long)
 	if wait < 0.0:
 		return true
 	var t := _tone(text, i)
@@ -502,7 +505,7 @@ func speak_char(voice: String, text: String, i: int, prev_vowel: bool, laugh: bo
 		t = [2, 1.13, 0.0]
 	pitch *= 1.0 + agitated * (AGITATION["pitch"] + randf_range(-1.0, 1.0) * AGITATION["shake"])
 	var sound := syllable.bind(voice, VMAP[lc] + ("n" if _nasal(text, i) else ""), _onset(text, i), t[0], pitch * t[1],
-		t[2] + agitated * AGITATION["db"] + db, at)
+		t[2] + agitated * AGITATION["db"] + db, at, long)
 	if wait == 0.0:
 		sound.call()
 	else:   # em tempo real, como `_syllable_wait` mede
@@ -547,19 +550,29 @@ func _onset(text: String, i: int) -> String:
 	return ""
 
 
-## Quantos segundos a próxima sílaba da voz `v` espera: a anterior precisa ter tocado SYLLABLE_GAP da duração dela. A
-## fala anda no ritmo das letras (`Conversation.say`), e duas vogais a duas letras uma da outra ("Alô", "sei o") vinham
-## quase juntas, atropeladas. A que chega cedo espera a vez (0 = toca já); se já houver uma esperando, ela não toca
-## (-1), para a fala não ir acumulando atraso. Marca o começo da nova.
-func _syllable_wait(v: String) -> float:
+## Quantos segundos a próxima sílaba da voz `v` espera: a anterior precisa ter tocado SYLLABLE_GAP da duração dela
+## (`long`: a desta, que vale para a próxima). A fala anda no ritmo das letras (`Conversation.say`), e duas vogais a
+## duas letras uma da outra ("Alô", "sei o") vinham quase juntas, atropeladas. A que chega cedo espera a vez (0 = toca
+## já); se já houver uma esperando, ela não toca (-1), para a fala não ir acumulando atraso. Marca o começo da nova.
+func _syllable_wait(v: String, long := false) -> float:
 	var now := Time.get_ticks_msec()
-	var last := int(_spoke.get(v, -100000))   # o começo da última, que pode estar esperando (no futuro)
-	if last > now:
+	var last: Vector2i = _spoke.get(v, Vector2i(-100000, -100000))   # a última, que pode estar esperando (no futuro)
+	if last.x > now:
 		return -1.0
-	var dur: float = SfxSynth.VOICE.get(v, SfxSynth.VOICE["m"])["dur"]
-	var start := maxi(now, last + int(dur * SYLLABLE_GAP * 1000.0))
-	_spoke[v] = start
+	var dur: float = SfxSynth.VOICE.get(v, SfxSynth.VOICE["m"])["dur"] * (SfxSynth.LONG if long else 1.0)
+	var start := maxi(now, last.y)
+	_spoke[v] = Vector2i(start, start + int(dur * SYLLABLE_GAP * 1000.0))
 	return (start - now) / 1000.0
+
+
+## Se a sílaba que começa em `i` se alonga (`SfxSynth.LONG`): a tônica da palavra e a última da frase.
+func _long(text: String, i: int) -> bool:
+	if _stressed(text, i):
+		return true
+	var b := i
+	while b < text.length() and not text[b] in ".!?":
+		b += 1
+	return _syllables(text, i + 1, b) == 0
 
 
 ## A altura de cada pessoa, pelo nome: a mesma pessoa sempre com a mesma voz (também quando liga de novo), e duas
@@ -649,12 +662,14 @@ static func _letter(ch: String) -> bool:
 
 
 ## Toca uma sílaba: a vogal `vowel` ("a", "an" nasal...) com o ataque da consoante `onset` (`SfxSynth.ATTACKS`; ""
-## sem). `contour`: a curva gravada (0 descendo, 1 reta, 2 subindo); `pitch` e `db` somam ao timbre.
-func syllable(v: String, vowel: String, onset: String, contour: int, pitch := 1.0, db := 0.0, at := -1.0) -> void:
+## sem). `contour`: a curva gravada (0 descendo, 1 reta, 2 subindo); `pitch` e `db` somam ao timbre; `long`: a
+## vogal gravada mais longa (`SfxSynth.LONG`).
+func syllable(v: String, vowel: String, onset: String, contour: int, pitch := 1.0, db := 0.0, at := -1.0,
+		long := false) -> void:
 	if not SfxSynth.VOICE.has(v):
 		v = "m"
 	var vol := float(SfxSynth.VOICE[v]["db"]) + VOICE_GAIN + db + float(VOWEL_DB.get(vowel[0], 0.0))
-	_sound("s_%s_%s_%d" % [v, vowel, contour], at, vol, pitch)
+	_sound("s_%s_%s_%d%s" % [v, vowel, contour, "l" if long else ""], at, vol, pitch)
 	if onset != "":
 		_sound("s_%s_%s" % [v, onset], at, vol, pitch)
 	if v == "g" and randf() < 0.3:
