@@ -6,18 +6,44 @@ extends RefCounted
 ## Mac recente um depois do outro).
 
 const RATE := 22050
-# Vozes abafadas: cada vogal vira uma sílaba sintetizada (fonte glotal + formantes + filtro abafado).
-# f0 = altura, breath = sopro, muffle = corte do filtro (quanto menor, mais abafado), dur = duração da sílaba.
+# Vozes: cada vogal vira uma sílaba sintetizada (fonte glotal + formantes).
+# f0 = altura, breath = sopro, dur = duração da sílaba, bus = por onde toca, tract = o tamanho da boca (os formantes
+# multiplicados: a mulher e a criança com as ressonâncias mais altas que as do homem; antes todas iguais às dele).
+# As do telefone (bus "Phone") ganham a banda da linha no barramento (default_bus_layout.tres: distorção do microfone
+# de carvão, 300–3400 Hz, pico em 2 kHz); as outras levam o filtro na própria sílaba: muffle = corte do passa-baixa
+# (quanto menor, mais abafado).
 const VOICE := {
-	"f": {"f0": 225.0, "breath": 0.10, "muffle": 1250.0, "dur": 0.13, "db": -7.0},
-	"m": {"f0": 118.0, "breath": 0.08, "muffle": 1000.0, "dur": 0.14, "db": -6.0},
-	"k": {"f0": 320.0, "breath": 0.06, "muffle": 1500.0, "dur": 0.11, "db": -9.0},
-	"w": {"f0": 140.0, "breath": 0.45, "muffle": 950.0, "dur": 0.14, "db": -8.0},
-	"g": {"f0": 92.0, "breath": 0.30, "muffle": 700.0, "dur": 0.21, "db": -5.0},
-	"r": {"f0": 135.0, "breath": 0.18, "muffle": 2300.0, "dur": 0.12, "db": -11.0},
+	"f": {"f0": 225.0, "breath": 0.10, "dur": 0.13, "tract": 1.15, "db": -7.0, "bus": &"Phone"},
+	"m": {"f0": 118.0, "breath": 0.08, "dur": 0.14, "tract": 1.0, "db": -6.0, "bus": &"Phone"},
+	"k": {"f0": 320.0, "breath": 0.06, "dur": 0.11, "tract": 1.25, "db": -9.0, "bus": &"Phone"},
+	"w": {"f0": 140.0, "breath": 0.45, "dur": 0.14, "tract": 0.97, "db": -8.0, "bus": &"Phone"},
+	"g": {"f0": 92.0, "breath": 0.30, "muffle": 700.0, "dur": 0.21, "tract": 0.92, "db": -5.0, "bus": &"Voices"},
+	"r": {"f0": 135.0, "breath": 0.18, "muffle": 2300.0, "dur": 0.12, "tract": 1.0, "db": -11.0, "bus": &"Voices"},
 }
-# Formantes (F1, F2) aproximados das vogais do português.
-const VOWEL := {"a": Vector2(780, 1250), "e": Vector2(480, 1850), "i": Vector2(310, 2250), "o": Vector2(500, 880), "u": Vector2(350, 720)}
+## Formantes (F1, F2, F3) aproximados das vogais do português, em cadeia (`_formant`, como os sintetizadores de
+## formantes), com as larguras de banda (Hz) da fala, e F4 (Hz, largura) igual em todas, o brilho. (Antes eram F1 e F2
+## em paralelo e um 2600 Hz fixo: o "e" e o "i", o "o" e o "u" se confundiam.)
+const VOWEL := {"a": Vector3(780, 1250, 2600), "e": Vector3(480, 1850, 2550), "i": Vector3(310, 2250, 3000),
+	"o": Vector3(500, 880, 2500), "u": Vector3(350, 720, 2400)}
+const BANDWIDTHS := Vector3(90, 110, 170)
+const F4 := Vector2(3500, 250)
+## Vogal nasal ("ã", "õ", "am", "em"...): o F1 vezes `f1` e com a largura vezes `f1_width`, e o ressoar do nariz em
+## `hz` (logo acima do corte de 300 Hz do telefone) com o ganho `gain`.
+const NASAL := {"f1": 0.8, "f1_width": 2.0, "hz": 320.0, "gain": 0.6}
+## A fonte da voz: o pulso glotal de Rosenberg (fração do período abrindo, x, e fechando, y; a derivada, como sai da
+## boca) e o quanto cada ciclo varia de período e de força (jitter e shimmer), como uma garganta e não um oscilador.
+## O sopro é mais forte com a glote aberta.
+const GLOTTIS := Vector2(0.4, 0.16)
+const CYCLE_JITTER := 0.01
+const CYCLE_SHIMMER := 0.06
+## O pico da vogal entrando no filtro da voz (`_voice_line`), o nível que a sílaba tinha antes da cadeia de formantes:
+## a saturação do rádio depende dele (100 vezes mais forte, cortava tudo numa onda quadrada e a voz ficava estridente).
+const LEVEL := 0.4
+## A tônica e a última sílaba da frase mais longas (cada vogal também gravada com a duração vezes LONG, `Sfx._long`).
+const LONG := 1.35
+## O silêncio antes de cada vogal, onde entra o ataque da consoante (`_attack`), e o pico de cada ataque (a vogal tem 0,8).
+const LEAD := 0.045
+const ATTACKS := {"stop": 0.35, "fric": 0.2, "nasal": 0.3}
 ## Toque da mesa: "bi-bip" suave (a campainha de metal antiga incomodava). Frequência (Hz), duração e intervalo
 ## de cada bipe (s), quantos bipes.
 const BEEP := {"f": 740.0, "dur": 0.13, "gap": 0.09, "count": 2}
@@ -30,21 +56,39 @@ const RAIN_LEFT := 0.4
 ## Os pedaços das receitas ([função, argumentos...]), cada um montado sozinho numa instância (`build`; mais as vozes,
 ## uma por pedaço); os mais pesados (a chuva, a brisa, o fio, os grilos, os carros, o sino) ficam em pedaços próprios
 ## para se dividirem entre os núcleos.
+const CAR_PEAK := 0.58   ## onde fica o mais alto da passagem do carro (fração da duração): chega devagar, some rápido
+const WET_SWEEP := Vector2(3000, 1000)   ## o chiado do pneu molhado, chegando e indo embora (Hz, o centro do filtro)
+const WET_TOP := 4000.0   ## acima disso, a janela fechada abafa (como na chuva)
+const WET_SPLASHES := Vector2i(2, 3)   ## as poças por onde o pneu passa (respingos)
+const WET_NEAR := 1.25   ## o carro da mão de cá: o chiado e o corte dos agudos mais altos (mais claro)
+const CAR_NEAR_SHARP := 1.8   ## o carro da mão de cá: a passagem mais concentrada no meio (expoente da curva)
+const CAR_TAKES := 3   ## versões de cada carro, cada uma com o seu sorteio
 const PARTS := [["_build_basic"], ["_build_ring"], ["_build_clock"], ["_build_rub"], ["_build_unroll"], ["_build_card"],
-	["_build_car"], ["_build_car", true], ["_build_thunder"], ["_build_neon"], ["_build_bell"], ["_build_dog"], ["_build_dog", true], ["_build_outside"],
-	["_build_lamp"], ["_build_rain"], ["_build_breeze"], ["_build_crickets"]]
+	["_build_thunder"], ["_build_bell"], ["_build_dog"], ["_build_dog", true], ["_build_outside"],
+	["_build_lamp"], ["_build_rain"], ["_build_breeze"], ["_build_crickets"], ["_build_sabia"]]
+## O sabiá-laranjeira do amanhecer (`_build_sabia`): quantas frases diferentes (cada uma uma versão do som, `sabia~N`),
+## e o tom das notas (Hz, do mais grave ao mais agudo).
+const SABIA_TAKES := 4
+const SABIA_HZ := Vector2(1700.0, 3300.0)
 
 var streams := {}   ## id -> AudioStreamWAV
 var _w := PackedFloat32Array()   ## o som sendo montado (`_begin` ... `_end`)
+var _near := false   # o carro sendo montado é o da mão de cá (`_build_car`)
 var _rng := RandomNumberGenerator.new()   ## o sorteio desta instância (o global não é seguro entre linhas de execução)
 
 
 ## Todos os sons, por id. Cada pedaço (`PARTS`) numa instância própria, ao mesmo tempo (`WorkerThreadPool`); espera
 ## todos.
 static func build() -> Dictionary:
-	var jobs := PARTS.duplicate()
+	var jobs := []
+	for take in CAR_TAKES:   # os carros, cada versão num pedaço, primeiro (são dos mais demorados)
+		for wet in [false, true]:
+			for near in [false, true]:
+				jobs.append(["_build_car", wet, near, take])
+	jobs.append_array(PARTS)
 	for v in VOICE:
-		jobs.append(["_build_voice", v])
+		for long in [false, true]:   # (as curtas e as longas em pedaços próprios: as vozes são dos mais demorados)
+			jobs.append(["_build_voice", v, long])
 	var parts: Array[SfxSynth] = []
 	for i in jobs.size():
 		parts.append(SfxSynth.new())
@@ -174,44 +218,125 @@ func _end(id: String, tel: bool = false, loop: bool = false, peak: float = 0.8, 
 	streams[id] = s
 
 
-func _syllable(v: String, vw: String, contour: float, consonant: bool) -> void:
+## A vogal `vw` da voz `v` (`nasal`: "ã", "õ", "am", "em"...), com a curva de entonação `contour` (`long`: a duração
+## vezes LONG). Começa depois de LEAD s de silêncio, o lugar do ataque da consoante (`_attack`), que toca junto com ela.
+## A fonte é o pulso glotal (GLOTTIS) e o sopro, passando pelos formantes em cadeia (VOWEL, `_formant`).
+func _syllable(v: String, vw: String, nasal: bool, contour: float, long: bool) -> void:
 	var p: Dictionary = VOICE[v]
 	var f0: float = p["f0"]
-	var dur: float = p["dur"]
+	var dur: float = p["dur"] * (LONG if long else 1.0)
 	var breath: float = p["breath"]
-	var fm: Vector2 = VOWEL[vw]
+	var tract: float = p["tract"]
+	var fm: Vector3 = VOWEL[vw] * tract
 	var n := int(dur * RATE)
-	var src := PackedFloat32Array()
+	var src := PackedFloat32Array()   # o pulso (a derivada do fluxo pela glote)
 	src.resize(n)
+	var air := PackedFloat32Array()   # o sopro
+	air.resize(n)
 	var ph := _rng.randf()
+	var r := _rng.randi()   # o ruído e a variação de cada ciclo sorteados aqui mesmo (ver `_passes`)
+	var jit := 1.0
+	var amp := 1.0
+	var flow := 0.0
+	var src_sq := 0.0
+	var air_sq := 0.0
 	for i in n:
 		var t := float(i) / RATE
-		var k := t / dur
-		var f := f0 * (1.0 + contour * k) * (1.0 + 0.015 * sin(TAU * 5.5 * t))
-		ph += f / RATE
-		var g := ph - floorf(ph)
-		var s := (1.0 - g) * (1.0 - g) * 2.0 - 1.0   # pulso glotal suave
-		s = s * (1.0 - breath) + _rng.randf_range(-1.0, 1.0) * breath
-		var env := pow(sin(PI * k), 0.7)
-		src[i] = s * env
-	var a := _biquad(src, "bp", fm.x, 4.0)
-	var b := _biquad(src, "bp", fm.y, 6.0)
-	var c := _biquad(src, "bp", 2600.0, 7.0)
-	_begin(dur + 0.04)
-	var off := int(0.025 * RATE) if consonant else 0
+		ph += f0 * (1.0 + contour * t / dur) * jit * (1.0 + 0.015 * sin(TAU * 5.5 * t)) / RATE
+		if ph >= 1.0:   # um ciclo novo, um pouco diferente do anterior
+			ph -= 1.0
+			r = (r * 1103515245 + 12345) & 0x7fffffff
+			jit = 1.0 + (r / 1073741823.5 - 1.0) * CYCLE_JITTER
+			r = (r * 1103515245 + 12345) & 0x7fffffff
+			amp = 1.0 + (r / 1073741823.5 - 1.0) * CYCLE_SHIMMER
+		var g := 0.0
+		if ph < GLOTTIS.x:
+			g = 0.5 * (1.0 - cos(PI * ph / GLOTTIS.x))
+		elif ph < GLOTTIS.x + GLOTTIS.y:
+			g = cos(PI * (ph - GLOTTIS.x) / (2.0 * GLOTTIS.y))
+		src[i] = g * amp - flow
+		flow = g * amp
+		r = (r * 1103515245 + 12345) & 0x7fffffff
+		air[i] = (r / 1073741823.5 - 1.0) * (0.4 + g)
+		src_sq += src[i] * src[i]
+		air_sq += air[i] * air[i]
+	var ks := (1.0 - breath) / sqrt(maxf(src_sq / n, 1e-12))   # os dois na mesma força média antes de misturar
+	var ka := breath / sqrt(maxf(air_sq / n, 1e-12))
 	for i in n:
-		if off + i < _w.size():
-			_w[off + i] = a[i] + b[i] * 0.55 + c[i] * 0.18
-	if consonant:
-		_noise(0.0, 0.035, "hp", 2800.0, 0.7, 0.05)
-	# abafado: dois passa-baixas + corte de graves (como se viesse do outro lado de um vidro / fone)
-	var mf: float = p["muffle"]
-	_w = _biquad(_biquad(_biquad(_w, "lp", mf, 0.7), "lp", mf * 1.2, 0.7), "hp", 160.0, 0.7)
+		src[i] = (src[i] * ks + air[i] * ka) * pow(sin(PI * float(i) / n), 0.7)
+	# nasal: o F1 mais baixo e largo e o ressoar do nariz embaixo (NASAL)
+	var y := _formant(src, fm.x * (NASAL["f1"] if nasal else 1.0), BANDWIDTHS.x * (NASAL["f1_width"] if nasal else 1.0))
+	y = _formant(_formant(_formant(y, fm.y, BANDWIDTHS.y), fm.z, BANDWIDTHS.z), F4.x * tract, F4.y)
+	var m := PackedFloat32Array()
+	var km := 0.0
+	if nasal:
+		m = _formant(src, NASAL["hz"], 100.0)
+		km = NASAL["gain"] * _peak(y) / _peak(m)
+	_begin(LEAD + dur + 0.04)
+	var off := int(LEAD * RATE)
+	for i in n:
+		_w[off + i] = y[i] + (m[i] * km if nasal else 0.0)
+	var k := LEVEL / _peak(_w)   # (a cadeia de formantes ganha 100 vezes ou mais)
+	for i in _w.size():
+		_w[i] *= k
+	_voice_line(v)
+	_end("s_%s_%s%s_%d%s" % [v, vw, "n" if nasal else "", [-0.12, 0.0, 0.10].find(contour), "l" if long else ""], false,
+		false, 0.8)
+
+
+## Um formante em `f` Hz com a largura de banda `bw` Hz: o `_resonator`, que decai em 1/(π·bw) s. Em cadeia, a
+## força de cada formante sai como na fala, sem acertar ganhos à mão.
+func _formant(x: PackedFloat32Array, f: float, bw: float) -> PackedFloat32Array:
+	return _resonator(x, f, 1.0 / (PI * bw))
+
+
+static func _peak(x: PackedFloat32Array) -> float:
+	var m := 0.0001
+	for v in x:
+		m = maxf(m, absf(v))
+	return m
+
+
+## O ataque da consoante antes da vogal (`ATTACKS`), na voz `v`: termina em LEAD s, quando a vogal começa.
+## "stop" (p, t, b, d...): a boca fechada e o estalo; "fric" (s, f, ch, j...): o chiado; "nasal" (m, n): o zumbido
+## de boca fechada.
+func _attack(v: String, kind: String) -> void:
+	var f0: float = VOICE[v]["f0"]
+	_begin(LEAD + 0.01)
+	var n := int(LEAD * RATE)
+	match kind:
+		"stop":
+			_noise(LEAD - 0.014, 0.014, "bp", 2000.0, 0.9, 1.0)
+		"fric":
+			var x := PackedFloat32Array()
+			x.resize(n)
+			for i in n:
+				x[i] = _rng.randf_range(-1.0, 1.0) * sin(PI * float(i) / n)
+			x = _biquad(x, "bp", 2900.0, 1.2)
+			for i in n:
+				_w[i] = x[i]
+		"nasal":
+			var ph := 0.0
+			for i in n:
+				ph += f0 / RATE
+				_w[i] = sin(TAU * ph) * minf(1.0, float(i) / (n * 0.3))
+			_w = _biquad(_w, "lp", 450.0, 0.7)
+	_voice_line(v)
+	_end("s_%s_%s" % [v, kind], false, false, ATTACKS[kind])
+
+
+## O filtro de cada voz sobre `_w`: o abafado das que não vão pelo telefone (a voz do outro lado e o rádio: dois
+## passa-baixas), o corte dos graves e o rádio saturado.
+func _voice_line(v: String) -> void:
+	var p: Dictionary = VOICE[v]
+	if p.has("muffle"):
+		var mf: float = p["muffle"]
+		_w = _biquad(_biquad(_w, "lp", mf, 0.7), "lp", mf * 1.2, 0.7)
+	_w = _biquad(_w, "hp", 160.0, 0.7)
 	if v == "r":
 		for i in _w.size():
 			_w[i] = clampf(_w[i] * 40.0, -1.0, 1.0)
 		_w = _biquad(_w, "bp", 1600.0, 0.9)
-	_end("s_%s_%s_%d" % [v, vw, [-0.12, 0.0, 0.10].find(contour)], false, false, 0.8)
 
 
 ## Os sons da interface e da mesa, o chiado e o zumbido da sala.
@@ -254,6 +379,35 @@ func _build_basic() -> void:
 	_begin(0.09); _noise(0, 0.03, "lp", 700, 0.7, 1.0); _tone(0, 110, 0.05, "sine", 0.5); _end("cord_tap")
 	# plug solto batendo na mesa
 	_begin(0.14); _noise(0, 0.05, "lp", 1800, 0.7, 1.0); _tone(0, 150, 0.1, "sine", 0.6); _tone(0.005, 2100, 0.015, "square", 0.06); _end("drop")
+	# o objeto da mesa assentando depois de erguido sob o mouse: o papel, um "fft" curto e abafado...
+	_begin(0.09); _noise(0, 0.05, "bp", 2600, 0.7, 0.7); _noise(0.01, 0.05, "lp", 500, 0.7, 1.0); _end("set_paper")
+	# ...e o metal, um "tim" de chapa abafado
+	_begin(0.16); _noise(0, 0.012, "bp", 3000, 1.2, 0.6); _tone(0, 1230, 0.12, "sine", 0.3); _tone(0, 2950, 0.05, "sine", 0.12); _tone(0, 130, 0.05, "sine", 0.5); _end("set_metal")
+	# a persiana descendo: as lâminas batendo umas nas outras, cada vez mais juntas, e o trilho de baixo no peitoril
+	_begin(1.45)
+	for k in 22:
+		var at := 1.3 * sqrt(k / 22.0)
+		_noise(at, 0.02, "bp", _rng.randf_range(2200, 3600), 1.4, 0.35 + 0.4 * k / 22.0)
+		_tone(at, _rng.randf_range(800, 1000), 0.015, "sine", 0.12)
+	_noise(1.3, 0.06, "lp", 700, 0.7, 1.0); _tone(1.3, 120, 0.1, "sine", 0.6); _end("blind")
+	# um gole de café: dois "glup" baixos e a caneca de volta na mesa, um tim de louça
+	_begin(0.62)
+	for at in [0.0, 0.2]:
+		_tone(at, 240, 0.05, "sine", 0.45); _tone(at + 0.04, 170, 0.06, "sine", 0.35); _noise(at, 0.07, "lp", 500, 0.7, 0.3)
+	_noise(0.5, 0.012, "bp", 2600, 1.4, 0.5); _tone(0.5, 2350, 0.08, "sine", 0.12); _tone(0.5, 3700, 0.04, "sine", 0.06); _end("gulp")
+	# a porta do armário de aço: o trinco, a dobradiça rangendo um pouco e a chapa batendo de leve
+	_begin(0.55)
+	_noise(0, 0.015, "bp", 3200, 1.5, 0.8); _tone(0, 900, 0.03, "sine", 0.25)
+	for k in 5:
+		_noise(0.08 + k * 0.05, 0.04, "bp", 1100 + k * 160, 3.0, 0.25)
+	_noise(0.42, 0.05, "lp", 900, 0.7, 0.7); _tone(0.42, 180, 0.08, "sine", 0.4); _tone(0.42, 1400, 0.06, "sine", 0.08); _end("locker")
+	# a campainha de bicicleta, de longe: duas batidas, "trim-trim"
+	_begin(0.5)
+	for at in [0.0, 0.16]:
+		_tone(at, 2650, 0.14, "sine", 0.35); _tone(at, 3950, 0.08, "sine", 0.15); _noise(at, 0.01, "bp", 4000, 1.5, 0.3)
+	_end("bike_bell")
+	# a porta do táxi batendo do outro lado da rua, pela janela fechada: um baque surdo e o trinco
+	_begin(0.3); _noise(0, 0.06, "lp", 600, 0.7, 1.0); _tone(0, 92, 0.13, "sine", 0.6); _noise(0.008, 0.02, "bp", 1700, 1.3, 0.22); _end("car_door")
 	_begin(0.55)
 	for k in 12:
 		if _rng.randf() < 0.7:
@@ -277,63 +431,118 @@ func _build_basic() -> void:
 	_end("hiss", false, true, 0.6)
 
 
-## A voz `v` por sílaba: 3 variações de entonação por vogal (descendo, reta, subindo).
-func _build_voice(v: String) -> void:
+## A voz `v` por sílaba: cada vogal, oral e nasal, em 3 entonações (descendo, reta, subindo), curta ou longa (`long`,
+## LONG); com as curtas, os ataques das consoantes.
+func _build_voice(v: String, long: bool) -> void:
 	for vw in VOWEL:
-		for k in 3:
-			_syllable(v, vw, [-0.12, 0.0, 0.10][k], k == 0)
+		for nasal in [false, true]:
+			for k in 3:
+				_syllable(v, vw, nasal, [-0.12, 0.0, 0.10][k], long)
+	if not long:
+		for kind in ATTACKS:
+			_attack(v, kind)
 
 
 # ------------------------------------------------------------------ ambientes e campainhas
 
 ## Um carro passando lá fora: o motor grave caindo de tom ao passar (efeito Doppler) e o chiado dos pneus no asfalto,
-## crescendo e sumindo. `wet`: na chuva, os pneus jogam água, um chiado agudo que ondula por cima de tudo.
-func _build_car(wet := false) -> void:
+## crescendo e sumindo. `wet`: na chuva, o pneu no molhado (`_wet_tires`) no lugar do pneu seco. `near`: pela mão de
+## cá, mais perto (`_near`): mais claro, com mais Doppler e a passagem mais concentrada no meio. `take`: uma das
+## `CAR_TAKES` versões, cada uma num pedaço (`build`) com o seu sorteio (`Sfx._take` toca uma delas): a primeira com
+## o id, as outras com "~1", "~2"...
+func _build_car(wet: bool, near: bool, take: int) -> void:
+	_near = near
+	var id := ("car_wet" if wet else "car") + ("_near" if near else "")
 	var L := 3.2
 	_begin(L)
 	var n := _w.size()
 	var tires := PackedFloat32Array()
 	tires.resize(n)
 	var ph := 0.0
+	var r := _rng.randi()   # o ruído sorteado aqui mesmo (ver `_passes`)
+	var hz := 52.0 * _rng.randf_range(0.85, 1.2)   # cada carro com o seu motor
+	var doppler := 0.24 if near else 0.16
 	for i in n:
 		var t := float(i) / RATE
-		ph += 52.0 * (1.08 - 0.16 * t / L) / RATE
-		_w[i] = _wave("saw", ph) * 0.6 + sin(TAU * ph * 2.0) * 0.3
-		tires[i] = _rng.randf_range(-1.0, 1.0)
-	_w = _biquad(_w, "lp", 380.0, 0.7)
-	tires = _biquad(_biquad(tires, "lp", 1400.0, 0.7), "hp", 200.0, 0.7)
-	var water := PackedFloat32Array()
-	if wet:
-		water.resize(n)
-		for i in n:
-			water[i] = _rng.randf_range(-1.0, 1.0)
-		water = _biquad(_biquad(water, "hp", 1800.0, 0.7), "lp", 7000.0, 0.7)
+		ph += hz * (1.0 + doppler / 2.0 - doppler * smoothstep(CAR_PEAK - 0.3, CAR_PEAK + 0.2, t / L)) / RATE
+		_w[i] = ((ph - floorf(ph)) * 2.0 - 1.0) * 0.6 + sin(TAU * ph * 2.0) * 0.3   # (o dente de serra aqui mesmo: ver `_passes`)
+		r = (r * 1103515245 + 12345) & 0x7fffffff
+		tires[i] = r / 1073741823.5 - 1.0
+	_w = _biquad(_w, "lp", 480.0 if near else 380.0, 0.7)
+	tires = _biquad(_biquad(tires, "lp", 2000.0 if near else 1400.0, 0.7), "hp", 200.0, 0.7)
+	var env := _passes(n)
+	var water := _wet_tires(env) if wet else PackedFloat32Array()
 	for i in n:
-		var env := pow(sin(PI * float(i) / n), 2.0)
-		_w[i] = (_w[i] * 0.7 + tires[i] * 0.9) * env
-		if wet:
+		_w[i] = _w[i] * 0.45 * env[i] + water[i] if wet else (_w[i] * 0.7 + tires[i] * 0.9) * env[i]
+	_end(id + ("~%d" % take if take > 0 else ""))
+
+
+## A força da passagem do carro em cada uma das `n` amostras: chega aos poucos, mais alto um pouco depois do meio
+## (`CAR_PEAK`) e some mais rápido, atrás do prédio; o de perto, mais concentrado no meio (`CAR_NEAR_SHARP`). Numa
+## lista, não numa função por amostra: chamar função a cada amostra (do próprio script ou de um objeto, como o
+## `_rng`) trava as linhas de execução umas nas outras (8 carros ao mesmo tempo levavam 10 vezes o tempo de um); o
+## ruído dos carros sai de um sorteio simples escrito no laço.
+func _passes(n: int) -> PackedFloat32Array:
+	var k := CAR_NEAR_SHARP if _near else 1.0
+	var env := PackedFloat32Array()
+	env.resize(n)
+	for i in n:
+		var u := float(i) / n
+		env[i] = pow(sin(PI / 2.0 * u / CAR_PEAK), 2.4 * k) if u < CAR_PEAK \
+			else pow(cos(PI / 2.0 * (u - CAR_PEAK) / (1.0 - CAR_PEAK)), 1.6 * k)
+	return env
+
+
+## O pneu no asfalto molhado, ouvido pela janela fechada: um chiado liso ("chhhh") que fica mais claro chegando e
+## mais escuro indo embora (o filtro desce de `WET_SWEEP.x` a `WET_SWEEP.y` Hz na passagem, como o tom do motor),
+## o chapinhar grave da água embaixo e, no meio, os respingos de duas ou três poças (`WET_SPLASHES`: lufadas de
+## ~0,2 s, não estalos). Sem os agudos acima de `WET_TOP` Hz, como a chuva.
+func _wet_tires(env: PackedFloat32Array) -> PackedFloat32Array:
+	var n := env.size()
+	var out := PackedFloat32Array()
+	out.resize(n)
+	var low := 0.0   # o filtro que varre (estado variável: passa-banda largo)
+	var band := 0.0
+	var drift := 0.0   # uma oscilação lenta e irregular da força (o pneu passando por mais ou menos água)
+	var drift_to := 1.0
+	var sweep := WET_SWEEP * (WET_NEAR if _near else 1.0)
+	var r := _rng.randi()   # o ruído sorteado aqui mesmo (ver `_passes`)
+	for i in n:
+		var u := float(i) / n
+		var f := lerpf(sweep.x, sweep.y, smoothstep(CAR_PEAK - 0.25, CAR_PEAK + 0.15, u))
+		var k := 2.0 * sin(PI * f / RATE)
+		r = (r * 1103515245 + 12345) & 0x7fffffff
+		var high := r / 1073741823.5 - 1.0 - low - 1.2 * band
+		band += k * high
+		low += k * band
+		if i % 2205 == 0:
+			drift_to = _rng.randf_range(0.8, 1.0)
+		drift += (drift_to - drift) * 0.0004
+		out[i] = band * 0.9 * drift * env[i]
+	var slosh := PackedFloat32Array()
+	slosh.resize(n)
+	for i in n:
+		r = (r * 1103515245 + 12345) & 0x7fffffff
+		slosh[i] = r / 1073741823.5 - 1.0
+	slosh = _biquad(_biquad(slosh, "lp", 420.0, 0.7), "hp", 90.0, 0.7)
+	for i in n:
+		out[i] += slosh[i] * 0.8 * env[i]
+	for s in _rng.randi_range(WET_SPLASHES.x, WET_SPLASHES.y):
+		var at := int(_rng.randf_range(CAR_PEAK - 0.15, CAR_PEAK + 0.1) * n)
+		var len := int(_rng.randf_range(0.16, 0.28) * RATE)
+		var burst := PackedFloat32Array()
+		burst.resize(len)
+		for i in len:
+			r = (r * 1103515245 + 12345) & 0x7fffffff
+			burst[i] = r / 1073741823.5 - 1.0
+		burst = _biquad(burst, "bp", _rng.randf_range(1300.0, 2100.0), 0.9)
+		var amp := _rng.randf_range(0.5, 0.8)
+		for i in len:
 			var t := float(i) / RATE
-			_w[i] = _w[i] * 0.7 + water[i] * 1.1 * pow(sin(PI * float(i) / n), 1.5) * (0.7 + 0.3 * sin(TAU * 6.0 * t + sin(TAU * 1.3 * t)))
-	_end("car_wet" if wet else "car")
-
-
-## O neon do hotel falhando, do outro lado da rua: o estalo do reator e o zumbido de 120 Hz, abafados pela distância
-## (sem os agudos, com o ataque macio) e com o eco curto das fachadas da rua chegando depois.
-func _build_neon() -> void:
-	_begin(0.4)
-	var n := _w.size()
-	var dry := PackedFloat32Array()
-	dry.resize(n)
-	dry.fill(0.0)
-	for i in int(0.16 * RATE):
-		var t := float(i) / RATE
-		var env := (1.0 - exp(-t / 0.008)) * exp(-t / 0.05)
-		dry[i] = (_rng.randf_range(-1.0, 1.0) * 0.6 + _wave("saw", 120.0 * t) * 0.5) * env
-	dry = _biquad(_biquad(dry, "lp", 900.0, 0.7), "lp", 900.0, 0.7)
-	var echo := int(0.085 * RATE)   # o eco nas fachadas (~15 m de ida e volta)
-	for i in n:
-		_w[i] = dry[i] + (dry[i - echo] * 0.35 if i >= echo else 0.0) + (dry[i - echo * 2] * 0.12 if i >= echo * 2 else 0.0)
-	_end("neon")
+			if at + i < n:
+				out[at + i] += burst[i] * amp * minf(t / 0.025, 1.0) * exp(-t / 0.07)
+	var top := WET_TOP * (WET_NEAR if _near else 1.0)
+	return _biquad(_biquad(out, "lp", top, 0.7), "lp", top, 0.7)
 
 
 ## O sino da igreja, no fim da rua: os parciais de um sino de bronze (o "hum" uma oitava abaixo, o principal, a terça
@@ -500,7 +709,7 @@ func _build_breeze() -> void:
 	hiss = _biquad(hiss, "bp", 900.0, 3.0)
 	for i in n:
 		var t := float(i) / RATE
-		var gust := 0.55 + 0.3 * sin(TAU * t / 8.0) + 0.15 * sin(TAU * t * 3.0 / 8.0 + 1.3)
+		var gust := 0.55 + 0.3 * sin(TAU * t / 8.0) + 0.15 * sin(TAU * t * 3.0 / 8.0 + 1.3)   # (a mesma conta de `Sfx.gust`)
 		_w[i] = _w[i] * gust + hiss[i] * 0.05 * gust * gust
 	_loopify(0.6)
 	_end("breeze", false, true, 0.6)
@@ -551,6 +760,41 @@ func _cricket_syllable(at: float, f: float, dur: float, g: float) -> void:
 		ph += f * (1.01 - 0.02 * k) / RATE
 		var env := minf(1.0, t / 0.003) * pow(1.0 - k, 0.8)
 		_w[s0 + i] += sin(TAU * ph) * env * g
+
+
+## O sabiá-laranjeira cantando no escuro, antes de o sol nascer (`SABIA_TAKES` frases, cada uma uma versão do som):
+## notas de flauta (o seno com um pouco da oitava), umas retas, outras subindo ou descendo e umas em trinado,
+## cada uma entrando e saindo devagar (nada de estalo: batida solta soa como "tic"), longe, com o eco da rua.
+func _build_sabia() -> void:
+	for take in SABIA_TAKES:
+		_begin(2.8)
+		var at := 0.05
+		for n in _rng.randi_range(4, 7):
+			var d := _rng.randf_range(0.09, 0.28)
+			var f0 := _rng.randf_range(SABIA_HZ.x, SABIA_HZ.y)
+			var f1 := f0 * _rng.randf_range(0.8, 1.25)   # para onde a nota vai (subindo ou descendo)
+			var trill := _rng.randf() < 0.25   # o trinado: o tom indo e vindo depressa
+			var s0 := int(at * RATE)
+			var ph := 0.0
+			for i in int(d * RATE):
+				if s0 + i >= _w.size():
+					break
+				var t := float(i) / RATE
+				var u := t / d
+				var f := lerpf(f0, f1, u * u * (3.0 - 2.0 * u))
+				if trill:
+					f *= 1.0 + 0.12 * sin(TAU * 22.0 * t)
+				ph += f * (1.0 + 0.01 * sin(TAU * 31.0 * t)) / RATE
+				var env := minf(1.0, minf(t / 0.018, (d - t) / 0.03))
+				_w[s0 + i] += (sin(TAU * ph) + 0.15 * sin(TAU * 2.0 * ph)) * env
+			at += d + _rng.randf_range(0.03, 0.14)
+			if at > 2.4:
+				break
+		_w = _biquad(_w, "lp", 4500.0, 0.7)
+		var echo := int(0.11 * RATE)
+		for i in range(_w.size() - 1, echo - 1, -1):
+			_w[i] += _w[i - echo] * 0.2
+		_end("sabia" if take == 0 else "sabia~%d" % take, false, false, 0.7)
 
 
 ## Mapa de papel desenrolando (ao abrir a aba do mapa): estalinhos do papel se soltando, cada vez mais espaçados,

@@ -24,6 +24,8 @@ const CONFIDENCE_NIGHTS := 3
 
 ## Nível da noite `night + 1`, depois de jogar a noite `night` no nível `level` com o parecer `verdict`.
 static func next(level: int, night: int, verdict: int) -> int:
+	if night < 1:   # o treinamento não conta: a noite 1 é sempre no primeiro nível
+		return 1
 	var hold := night + 1 <= CONFIDENCE_NIGHTS and verdict == 2   # ainda sem confiança: repete o ritmo
 	hold = hold or night + 1 > 1 and night + 1 in GameData.SECTOR_NIGHTS.values()   # noite de bairro novo
 	return clampi(level + (0 if hold else 1), 1, GameData.CONTENT.paces.size())

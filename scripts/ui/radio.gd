@@ -4,7 +4,8 @@ extends PanelContainer
 ## vidro): mostra as mensagens das viaturas uma por vez, com voz de rádio. A luz de ocorrência mostra a emergência em
 ## andamento; com o operador fora da linha dela, o rádio inteiro acende (`alert`). A miniatura da mesa comutadora
 ## copia as luzes e a tela (`lamps`, `screen_text`). Acima da mensagem de agora ficam as anteriores (`HISTORY`), cada
-## uma mais apagada que a seguinte: dá para reler o que a viatura disse sem abrir o mapa.
+## uma mais apagada que a seguinte: dá para reler o que a viatura disse sem abrir o mapa. Cada mensagem leva a hora
+## em que chegou, como a do relógio.
 
 @onready var _led: ColorRect = %Led
 @onready var _screen: Label = %Screen
@@ -33,6 +34,7 @@ var _screen_color: Color
 var _history: Array[String] = []
 var _last := ""   ## a mensagem que está na tela (vai para o histórico quando outra chega)
 var _shown := 0   # quantas do histórico couberam
+var minutes := 0.0   ## o relógio do turno (o Main põe a cada quadro): a hora de cada mensagem
 
 
 func _ready() -> void:
@@ -142,14 +144,15 @@ func _next() -> void:
 	_led.color = Pal.RED
 	Sfx.static_burst(0.0, screen_x())
 	await get_tree().create_timer(0.45, false).timeout
-	_screen.text = ""
+	var stamp := "[%s] " % Main.fmt(minutes)
+	_screen.text = stamp
 	var rv := false
 	for i in t.length():
 		_screen.text += t[i]
 		rv = Sfx.speak_char("r", t, i, rv, false, screen_x())
-		await get_tree().create_timer(0.032 * Settings.char_delay(), false).timeout
+		await get_tree().create_timer(0.032, false).timeout
 	Sfx.static_burst(-2.0, screen_x())
-	_last = t
+	_last = stamp + t
 	said.emit(t)
 	await get_tree().create_timer(1.6, false).timeout
 	_led.color = LED_OFF
@@ -173,7 +176,7 @@ func _show_history() -> void:
 	while true:
 		var s := ""
 		for i in range(_history.size() - n, _history.size()):
-			s += "[color=#%s]%s[/color]\n" % [_history_color(i).to_html(), _history[i]]
+			s += "[color=#%s]%s[/color]\n" % [_history_color(i).to_html(), _history[i].replace("[", "[lb]")]   # a hora entre colchetes não é tag
 		_history_label.text = s.trim_suffix("\n")
 		if n == 0 or _history_label.get_content_height() <= _history_label.size.y:
 			break

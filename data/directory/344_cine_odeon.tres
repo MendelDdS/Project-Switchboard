@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_10"]
+script = ExtResource("2_motive")
+text = "Quero saber que filme passa amanhã."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Que filme passa amanhã?", "Amanhã passa {film}, na sessão das {hour}.", "Lá em casa todo mundo vai gostar.", "Chega cedo, que a sala enche.", "Precisa comprar o ingresso antes?", "A bilheteria abre meia hora antes da sessão."), PackedStringArray("Boa noite. Amanhã tem matinê?", "Tem, às três da tarde. É {film}.", "Criança pode entrar?", "Pode, acompanhada de um adulto.", "Então vou levar meus sobrinhos.", "Chega cedo, que matinê lota.")])
+
+[sub_resource type="Resource" id="Motive_11"]
+script = ExtResource("2_motive")
+text = "Esqueci meu guarda-chuva na sessão das oito."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Esqueci um guarda-chuva na sessão das oito.", "O lanterninha recolheu uns três hoje. Como é o seu?", "{color}, com o cabo de madeira curvado.", "Tem um assim aqui na bilheteria.", "Ainda bem. Posso buscar amanhã?", "Pode. É só pedir na bilheteria."), PackedStringArray("Boa noite. Deixei meu guarda-chuva na poltrona, na sessão das oito.", "Em que fileira você sentou?", "Lá no fundo, perto da porta.", "O lanterninha achou um {color} lá atrás.", "Deve ser o meu. Posso buscar amanhã?", "Pode. Fica guardado na bilheteria.")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Cine Odeon"
+address = "Avenida Brasil, 95"
+number = "344"
+hello = "Cine Odeon, boa noite."
+spoken = "o Cine Odeon"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_10"), SubResource("Motive_11")])

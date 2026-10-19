@@ -6,3 +6,9 @@
 
 # Executáveis exportados
 build/
+
+# graphify knowledge graph — regenerable, large JSON, not source of truth
+graphify-out/
+
+# Referências e rascunhos locais
+private/

@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_37"]
+script = ExtResource("2_motive")
+text = "Quero encomendar pão pra amanhã cedo."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Queria encomendar pão pra amanhã cedo.", "Quantos? A primeira fornada sai às {dawn}.", "Trinta pãezinhos. É café da manhã da turma da fábrica.", "Trinta. Quer que corte e passe manteiga?", "Se não der trabalho, quero.", "Trabalho nenhum. Busca na porta dos fundos."), PackedStringArray("Boa noite. Amanhã tem velório na família e vem muita gente.", "Sinto muito. Do que vocês precisam?", "Pão e uma rosca grande, pra servir com café.", "Faço duas roscas. Entrego na {street}?", "Isso, no número {house}. Até as {hour} está bom.", "Chega antes. E não precisa pagar agora.")])
+
+[sub_resource type="Resource" id="Motive_38"]
+script = ExtResource("2_motive")
+text = "Esqueci o troco lá hoje de manhã."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Hoje de manhã eu saí sem pegar o troco.", "Foi você? A moça do caixa guardou num envelope.", "Que alívio. Era o dinheiro da feira da semana.", "Está aqui na gaveta, com o seu nome.", "Passo amanhã cedo pra pegar.", "Pode vir. Abrimos às {dawn}."), PackedStringArray("Boa noite. Acho que esqueci o troco aí no balcão.", "Era uma nota amassada e umas moedas?", "Isso mesmo! Foi no pão das sete.", "Está guardado. O padeiro achou quando foi limpar.", "Amanhã eu passo e levo um sonho de presente pra ele.", "Sonho ele tem de sobra aqui. Mas ele vai gostar.")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Padaria Pão Dourado"
+address = "Rua das Acácias, 450"
+number = "142"
+hello = "Padaria Pão Dourado, boa noite."
+spoken = "a Padaria Pão Dourado"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_37"), SubResource("Motive_38")])

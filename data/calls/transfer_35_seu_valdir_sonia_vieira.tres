@@ -12,3 +12,4 @@ repeat = "Três, oito, quatro."
 target = "237"
 destination = "Sônia Vieira"
 thanks = "Brigado."
+overheard = PackedStringArray("Sônia? É o Valdir, do escritório.", "Oi, Valdir. Esqueci alguma coisa aí?", "A chave do arquivo. Ficou na sua bolsa, eu acho.", "Ficou mesmo! Está aqui. Desculpa.", "Traz amanhã às oito, que o fiscal chega às nove.")

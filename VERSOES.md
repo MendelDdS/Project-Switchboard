@@ -30,3 +30,29 @@ Commit `4e515f9` · macOS e Windows
 ### Correções
 - O cartão impresso, solto logo abaixo da impressora, caía na trituradora.
 - O relógio da mesa ficava por cima da pilha de listas.
+
+## v0.5.0-alpha — 10/10/2026
+
+Commit `8732b9a` · macOS, Windows e Linux
+
+### Novidades
+- Interurbanos: o banco INTERURBANO com seis cidades; quem liga pede a cidade e o número de lá, o operador liga no
+  tronco, passa o número à telefonista da outra cidade e ela completa. Tronco errado conta como número errado.
+- Noite de treinamento: a Cecília, telefonista veterana, ensina transferir, registrar, despachar, a espera e o fim do
+  turno. A tela inicial tem Pular o treinamento.
+- Até duas emergências ao mesmo tempo, cada uma com a sua barra; o rádio avisa da que está fora da linha, e as
+  viaturas de reserva saem só com duas em andamento.
+- Mais ligações: 13 transferências e 14 emergências escritas, 3 moldes de transferência, 5 de emergência, 10 trotes
+  e 13 assuntos novos de conversa fiada.
+- Vozes de telefone: a banda do telefone, a altura de cada pessoa, a entonação da frase, vogais nasais e consoantes.
+- Mensagens do rádio com a hora em que chegaram ([21:04]).
+- A prateleira em duas fileiras, mais funda, com os pares de cabos juntos, tampas nos buracos dos cabos que cada setor
+  vai trazer e a plaqueta de latão do FONE.
+- Carros variados: sete modelos de 1973, faróis acesos, táxis e lataria molhada na chuva; o pneu molhado refeito.
+- A lua nasce atrás da igreja, na fase real de 1973.
+- O jogo começa em 8 de outubro de 1973 e é sempre 1280×720, ampliado para a tela sem quebrar os pixels (Configurações:
+  tela cheia ou janela, e ampliação só inteira).
+- As ligações do roteiro tocam sozinhas, e a mesa parada demais ganha um pedido de informação.
+
+### Correções
+- O fio pendurado na beira da prateleira e o plug encaixado na paralaxe.

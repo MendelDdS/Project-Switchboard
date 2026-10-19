@@ -12,3 +12,4 @@ repeat = "Otávio Almeida. Rua da Estação."
 target = "251"
 destination = "Otávio Almeida"
 thanks = "Isso, obrigado."
+overheard = PackedStringArray("Seu Otávio? É o vizinho da frente. Desculpa a hora.", "Pode falar. Aconteceu alguma coisa?", "Seu portão ficou aberto e o cachorro saiu pra rua.", "O Trovão? De novo? Ele foi pra que lado?", "Pro lado da estação. Correndo atrás de um gato.", "Vou buscar. Obrigado por avisar.")

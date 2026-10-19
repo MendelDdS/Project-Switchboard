@@ -2,16 +2,17 @@ extends Node
 ## Autoload `Sfx`: toca, mixa e cuida do ambiente de todos os sons do jogo, sintetizados ao iniciar por `SfxSynth`
 ## (nenhum arquivo de áudio).
 ## Para trocar por gravações reais, substitua as entradas de `streams` por AudioStreams importados.
-## Barramentos (default_bus_layout.tres): Ambience (clima, zumbido, chiado), Voices (sílabas), Effects (o resto).
+## Barramentos (default_bus_layout.tres): Ambience (clima, zumbido, chiado), Voices (sílabas), Effects (o resto); Phone
+## (a banda da linha telefônica) vai para Voices e leva as vozes de quem liga (`SfxSynth.VOICE`, "bus").
 ## Clima (`set_weather`): "rain" só chuva; "fog" grilos; "clear" brisa e grilos.
 
 const VOL := {
 	"click": -14.0, "sw": -10.0, "plug_in": -3.0, "plug_out": -9.0, "key": -13.0, "page": -11.0,
 	"tick": -24.0, "pencil": -13.0, "ring": -9.0, "pulse": -10.0, "ringback": -13.0, "sit": -13.0,
-	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "rub": -13.0, "cord_stop": -16.0, "cord_tap": -17.0, "cord_snag": -18.0, "cord_snap": -21.0, "unroll": -8.0,
+	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "set_paper": -27.0, "set_metal": -27.0, "blind": -17.0, "gulp": -19.0, "locker": -15.0, "bike_bell": -24.0, "car_door": -21.0, "rub": -13.0, "cord_stop": -16.0, "cord_tap": -17.0, "cord_snag": -18.0, "cord_snap": -21.0, "unroll": -8.0,
 	"typing": -13.0, "printer": -14.0, "punch": -8.0, "feed": -11.0, "read": -14.0, "shred": -10.0, "deny": -14.0,
-	"chime": -11.0, "shift_bell": -13.0, "car": -15.0, "car_wet": -14.0, "neon": -29.0, "thunder": -8.0,
-	"bell": -15.0, "rattle": -17.0, "dog": -27.0, "dog_low": -28.0, "lamp_tick": -27.0,
+	"chime": -11.0, "shift_bell": -13.0, "car": -15.0, "car_near": -13.0, "car_wet": -14.0, "car_wet_near": -12.0, "thunder": -8.0,
+	"bell": -15.0, "sabia": -24.0, "rattle": -17.0, "dog": -27.0, "dog_low": -28.0, "lamp_tick": -27.0,
 }
 ## Volume (dB) dos sons de ambiente em cada clima; o que não aparece fica mudo.
 const WEATHER_MIX := {
@@ -53,7 +54,7 @@ const BELL_STEP := 0.006
 
 ## Sons mecânicos que se repetem muito (plugs, fios): cada vez sai com o tom e o volume levemente diferentes
 ## (± VARY_PITCH, ± VARY_DB), para a mesa cheia não soar como uma máquina.
-const VARIED := ["plug_in", "plug_out", "thump", "drop", "cord_stop", "cord_tap", "cord_snag", "cord_snap", "click", "punch", "neon", "lamp_tick"]
+const VARIED := ["plug_in", "plug_out", "thump", "drop", "cord_stop", "cord_tap", "cord_snag", "cord_snap", "click", "punch", "lamp_tick"]
 ## O zumbido da luminária acesa (dB; era -40, alto demais).
 const LAMP_BUZZ := -44.0
 ## O zumbido elétrico de 60 Hz da sala, a noite toda (dB; era -29, depois -37: tom grave e constante, cansava, sobretudo em fone),
@@ -75,9 +76,46 @@ const MUFFLE_OPEN := 20500.0
 const VARY_PITCH := 0.06
 const VARY_DB := 1.5
 
+## Entonação das falas (`_tone`): a altura cai DECLINE do começo ao fim da frase, com JITTER de sorteio por sílaba;
+## a tônica de cada palavra sobe STRESS e STRESS_DB dB; a última sílaba da afirmação cai (FINAL_FALL).
+## Pergunta ("?"): a frase fica reta (sem a queda) e as últimas QUESTION_TAIL sílabas sobem, em rampa, até QUESTION_RISE.
+## Exclamação ("!"): a frase toda mais aguda e mais alta (EXCLAIM), a tônica com EXCLAIM_STRESS vezes a ênfase e o fim
+## caindo mais (EXCLAIM_FALL). Cada pessoa tem a sua altura, até PERSON_PITCH acima ou abaixo da voz (`pitch_of`).
+const DECLINE := 0.04
+const JITTER := 0.02
+const STRESS := 0.06
+const STRESS_DB := 2.0
+const FINAL_FALL := 0.95
+const QUESTION_RISE := 1.12
+const QUESTION_TAIL := 3
+const EXCLAIM := {"pitch": 1.08, "db": 3.0}
+const EXCLAIM_STRESS := 1.8
+const EXCLAIM_FALL := 0.88
+const PERSON_PITCH := 0.08
+## Emergência: quem liga se agita com a barra de agravamento (`agitation`), cada um do seu jeito (`PhoneCall.temper`).
+## No máximo, a voz sobe `pitch`, treme `shake` (sorteio por sílaba), fica `db` mais alta e fala `speed` mais rápido
+## (`Conversation.say`). AGITATION_STAGE: quanto do máximo em cada estágio (`PhoneCall.stage`), vezes o temperamento.
+const AGITATION := {"pitch": 0.12, "shake": 0.04, "db": 2.0, "speed": 0.25}
+const AGITATION_STAGE := [0.3, 0.65, 1.0, 1.0]
+## Fração da duração da sílaba (`SfxSynth.VOICE`, "dur") que precisa passar antes da próxima da mesma voz (`_syllable_wait`).
+const SYLLABLE_GAP := 0.7
+const ACCENTED := "áàâãéêíóôõú"
+const OXYTONE := "rlzuix"
+## dB a mais em todas as falas, sobre o `db` de cada voz (`SfxSynth.VOICE`; era 10). As mais fortes (a tônica de uma
+## exclamação) passam de 0 dB: o barramento Voices tem um limitador (`default_bus_layout.tres`) para não estourar.
+const VOICE_GAIN := 12.0
+## dB a mais em cada vogal (a vogal aberta, "a", saía forte demais).
+const VOWEL_DB := {"a": -2.5}
+## As consoantes de cada ataque (`_onset`); as que não aparecem ("l", o "r" fraco) não têm ataque.
+const ONSETS := {"stop": "ptkbdgcq", "fric": "szfvxjç", "nasal": "mn"}
 const VMAP := {"a": "a", "á": "a", "à": "a", "â": "a", "ã": "a", "e": "e", "é": "e", "ê": "e", "i": "i", "í": "i", "o": "o", "ó": "o", "ô": "o", "õ": "o", "u": "u", "ú": "u"}
 
 var streams: Dictionary = {}
+var _temper_rng := RandomNumberGenerator.new()   ## o temperamento das emergências (`agitation`), fora do sorteio global
+## voz -> ms (Time.get_ticks_msec) em que a última sílaba começa (x; no futuro, se está esperando) e em que a próxima
+## pode começar (y)
+var _spoke := {}
+var _takes := {}   # id -> quantas versões ele tem (`_take`), dos sons com "~1", "~2"...
 var vol := VOL.duplicate()   ## o volume em uso; a mesa de som do debug mexe nele (o `VOL` é o padrão)
 var pool: Array[AudioStreamPlayer] = []
 var pool_2d: Array[AudioStreamPlayer2D] = []   # para `play_at` (som que vem de um lugar da tela)
@@ -91,6 +129,7 @@ var _rain_db := -80.0             # o volume da chuva pedido pelo clima, antes d
 var _rain_gain := 0.0             # e o tanto a mais (ou a menos) pela força dela agora (`set_rain`)
 var _lamp_on := false            # o ambiente da sala está tocando (o zumbido segue a luminária)
 var _late := 0.0                  # quanto a noite já avançou (0..1): a cidade se calando
+var _dawn := 0.0                  # quanto o dia já nasceu (0..1, na última noite): os grilos parando
 var _t := 0.0
 var rub: AudioStreamPlayer        # atrito do fio no buraco, em loop: o fio (agarra e solta, corpo), rápido
 var rub_slow: AudioStreamPlayer   # o mesmo devagar, com os estalos esparsos
@@ -119,6 +158,10 @@ var _ring_turn := 0
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS   # o ambiente e os sons do menu seguem durante a pausa
 	streams = SfxSynth.build()
+	for key: String in streams:
+		if "~" in key:
+			var base := key.get_slice("~", 0)
+			_takes[base] = maxi(int(_takes.get(base, 1)), int(key.get_slice("~", 1)) + 1)
 	for i in 20:
 		var p := AudioStreamPlayer.new()
 		add_child(p)
@@ -158,6 +201,17 @@ func _ready() -> void:
 
 # ------------------------------------------------------------------ reprodução
 
+## Ao fechar o jogo: para todos os sons, solta as gravações e dá ao áudio um instante para largar as reproduções
+## paradas (fechando com som tocando, elas e os sons vazavam na saída: "ObjectDB instances leaked").
+func _exit_tree() -> void:
+	for p in get_children():
+		if p is AudioStreamPlayer or p is AudioStreamPlayer2D:
+			p.stop()
+			p.stream = null
+	streams.clear()
+	OS.delay_msec(50)   # ponytail: o servidor de áudio só solta a reprodução parada no próximo passo da mixagem
+
+
 func play(id: String, db: float = 0.0, pitch: float = 1.0) -> AudioStreamPlayer:
 	if not streams.has(id):
 		return null
@@ -187,8 +241,8 @@ func _free(players: Array) -> Node:
 
 ## `p`: AudioStreamPlayer ou AudioStreamPlayer2D.
 func _start(p: Node, id: String, db: float, pitch: float) -> void:
-	p.stream = streams[id]
-	p.bus = &"Voices" if id.begins_with("s_") or id == "crackle" else &"Effects"
+	p.stream = streams[_take(id)]
+	p.bus = SfxSynth.VOICE[id[2]]["bus"] if id.begins_with("s_") else (&"Voices" if id == "crackle" else &"Effects")
 	if id in VARIED:
 		db += randf_range(-VARY_DB, VARY_DB)
 		pitch *= 1.0 + randf_range(-VARY_PITCH, VARY_PITCH)
@@ -197,6 +251,12 @@ func _start(p: Node, id: String, db: float, pitch: float) -> void:
 	p.play()
 	if id == "cord_tap":
 		_rub_duck = RUB_DUCK.y
+
+
+## Uma das versões do som, sorteada: `id`, `id~1`, `id~2`... (as do carro, `SfxSynth.CAR_TAKES`; contadas em `_takes`).
+func _take(id: String) -> String:
+	var k := randi() % int(_takes.get(id, 1))
+	return id if k == 0 else "%s~%d" % [id, k]
 
 
 func later(t: float, id: String, db: float = 0.0) -> void:
@@ -239,6 +299,22 @@ func set_late(k: float) -> void:
 	_apply_mix(8.0)
 
 
+## Quanto o dia já nasceu (0..1, na última noite): os grilos param aos poucos e a brisa volta ao normal.
+func set_dawn(k: float) -> void:
+	_dawn = k
+	_apply_mix(8.0)
+
+
+## A rajada da brisa agora (0..1): a onda de 8 s gravada nela (`SfxSynth._build_breeze`, a mesma conta; o laço fecha
+## na onda), pela posição em que ela toca, vezes o volume dela (calada, 0). A ponta da folhinha da parede dobra com ela.
+func gust() -> float:
+	if not breeze.playing:
+		return 0.0
+	var t := breeze.get_playback_position()
+	var g := 0.55 + 0.3 * sin(TAU * t / 8.0) + 0.15 * sin(TAU * t * 3.0 / 8.0 + 1.3)
+	return clampf((g - 0.1) / 0.9, 0.0, 1.0) * clampf(db_to_linear(breeze.volume_db - WEATHER_MIX["clear"]["breeze"]), 0.0, 1.0)
+
+
 ## A luz da luminária (0..1): o zumbido acompanha, e some com ela apagada.
 func lamp(level: float) -> void:
 	if _lamp_on:
@@ -269,7 +345,9 @@ func _apply_mix(sec: float) -> void:
 	for id in ["rain", "breeze", "crickets"]:
 		var db: float = mix.get(id, -80.0)
 		if db > -80.0:
-			db += {"crickets": LATE_CRICKETS, "breeze": LATE_BREEZE}.get(id, 0.0) * _late
+			db += {"crickets": LATE_CRICKETS, "breeze": LATE_BREEZE * (1.0 - _dawn)}.get(id, 0.0) * _late
+			if id == "crickets":
+				db += linear_to_db(maxf(1.0 - _dawn, 0.0001))
 		if _hushed:
 			db = -80.0 if id == "crickets" else db - 10.0
 		if id == "rain":   # a chuva tem as ondas por cima (`_process`)
@@ -407,26 +485,193 @@ func ringback(times: int) -> float:
 	return times * 2.0
 
 
-## Fala o caractere i de `text`: cada grupo de vogais dispara uma sílaba abafada (ritmo de fala,
-## estilo Papers, Please). Devolve se o caractere é vogal (passe de volta em `prev_vowel`).
-## `at`: de que lugar da tela vem a voz (como em `play_at`; -1 = do centro, como o fone).
-func speak_char(voice: String, text: String, i: int, prev_vowel: bool, laugh: bool = false, at := -1.0) -> bool:
+## Fala o caractere i de `text`: cada grupo de vogais dispara uma sílaba (ritmo de fala, estilo Papers, Please), com
+## a entonação da frase (`_tone`). Devolve se o caractere é vogal (passe de volta em `prev_vowel`).
+## `at`: de que lugar da tela vem a voz (como em `play_at`; -1 = do centro, como o fone). `pitch`: a altura da pessoa
+## (`pitch_of`). `agitated`: de 0 a 1, o nervoso de quem liga numa emergência (`agitation`). `db`: mais baixa (a escuta).
+func speak_char(voice: String, text: String, i: int, prev_vowel: bool, laugh: bool = false, at := -1.0, pitch := 1.0,
+		agitated := 0.0, db := 0.0) -> bool:
 	var lc := text[i].to_lower()
 	if not VMAP.has(lc):
 		return false
-	if not prev_vowel:
-		var rise := laugh or (text.strip_edges().ends_with("?") and i > text.length() - 9)
-		syllable(voice, VMAP[lc], rise, at)
+	if prev_vowel:
+		return true
+	var long := _long(text, i)
+	var wait := _syllable_wait(voice, long)
+	if wait < 0.0:
+		return true
+	var t := _tone(text, i)
+	if laugh:
+		t = [2, 1.13, 0.0]
+	pitch *= 1.0 + agitated * (AGITATION["pitch"] + randf_range(-1.0, 1.0) * AGITATION["shake"])
+	var sound := syllable.bind(voice, VMAP[lc] + ("n" if _nasal(text, i) else ""), _onset(text, i), t[0], pitch * t[1],
+		t[2] + agitated * AGITATION["db"] + db, at, long)
+	if wait == 0.0:
+		sound.call()
+	else:   # em tempo real, como `_syllable_wait` mede
+		get_tree().create_timer(wait, false, false, true).timeout.connect(sound)
 	return true
 
 
-## Toca uma sílaba abafada. `rise` sobe a entonação (perguntas, risadas).
-func syllable(v: String, vowel: String, rise: bool = false, at := -1.0) -> void:
+## Se a sílaba que começa em `i` é nasal: tem "ã"/"õ" ("não", "irmã") ou termina em "m"/"n" sem vogal depois
+## ("também", "campo", "central"; "Benedito" não).
+func _nasal(text: String, i: int) -> bool:
+	var g := i
+	while g < text.length() and VMAP.has(text[g].to_lower()):
+		if text[g].to_lower() in "ãõ":
+			return true
+		g += 1
+	if g >= text.length() or not text[g].to_lower() in "mn":
+		return false
+	return g + 1 >= text.length() or not VMAP.has(text[g + 1].to_lower()) and text[g + 1].to_lower() != "h"
+
+
+## A consoante antes da sílaba que começa em `i`, pelo ataque (`SfxSynth.ATTACKS`): "stop", "fric", "nasal" ou ""
+## (vogal sozinha, "l" e o "r" fraco). Nos encontros ("pr", "bl", "tr") vale a primeira; "ch" e "j" chiam, "nh" é
+## nasal, "lh" é como "l", o "r" do começo da palavra e o "rr" chiam ("rua"), "c" e "g" antes de "e"/"i" também.
+func _onset(text: String, i: int) -> String:
+	var v := text[i].to_lower()
+	var j := i - 1
+	var c := text[j].to_lower() if j >= 0 else ""
+	if c in ["r", "l"] and j > 0 and text[j - 1].to_lower() in ONSETS["stop"] + "fv":   # encontro: "pr", "bl", "fr"
+		c = text[j - 1].to_lower()
+		v = ""
+	elif c == "h" and j > 0:   # "ch", "nh", "lh"
+		return {"c": "fric", "n": "nasal"}.get(text[j - 1].to_lower(), "")
+	elif c == "r" and (j == 0 or not _letter(text[j - 1]) or text[j - 1].to_lower() == "r"):
+		return "fric"
+	if c == "":
+		return ""
+	if c in "cg" and v != "" and v in "eiéêí":
+		return "fric"
+	for kind in ONSETS:
+		if c in ONSETS[kind]:
+			return kind
+	return ""
+
+
+## Quantos segundos a próxima sílaba da voz `v` espera: a anterior precisa ter tocado SYLLABLE_GAP da duração dela
+## (`long`: a desta, que vale para a próxima). A fala anda no ritmo das letras (`Conversation.say`), e duas vogais a
+## duas letras uma da outra ("Alô", "sei o") vinham quase juntas, atropeladas. A que chega cedo espera a vez (0 = toca
+## já); se já houver uma esperando, ela não toca (-1), para a fala não ir acumulando atraso. Marca o começo da nova.
+func _syllable_wait(v: String, long := false) -> float:
+	var now := Time.get_ticks_msec()
+	var last: Vector2i = _spoke.get(v, Vector2i(-100000, -100000))   # a última, que pode estar esperando (no futuro)
+	if last.x > now:
+		return -1.0
+	var dur: float = SfxSynth.VOICE.get(v, SfxSynth.VOICE["m"])["dur"] * (SfxSynth.LONG if long else 1.0)
+	var start := maxi(now, last.y)
+	_spoke[v] = Vector2i(start, start + int(dur * SYLLABLE_GAP * 1000.0))
+	return (start - now) / 1000.0
+
+
+## Se a sílaba que começa em `i` se alonga (`SfxSynth.LONG`): a tônica da palavra e a última da frase.
+func _long(text: String, i: int) -> bool:
+	if _stressed(text, i):
+		return true
+	var b := i
+	while b < text.length() and not text[b] in ".!?":
+		b += 1
+	return _syllables(text, i + 1, b) == 0
+
+
+## A altura de cada pessoa, pelo nome: a mesma pessoa sempre com a mesma voz (também quando liga de novo), e duas
+## pessoas da mesma voz (`SfxSynth.VOICE`) soando diferentes (até PERSON_PITCH para cima ou para baixo).
+static func pitch_of(who: String) -> float:
+	return 1.0 + (float(hash(who) % 1001) / 500.0 - 1.0) * PERSON_PITCH
+
+
+## O nervoso de quem liga na ligação `c`, de 0 a 1: só na emergência, pelo estágio da barra e o temperamento dela
+## (`PhoneCall.temper`, sorteado na primeira fala: de 0, tranquila, a voz quase não muda, a 1, se agita toda). Sorteio
+## próprio (`_temper_rng`), para não mudar a agenda de quem joga com `--seed`.
+func agitation(c: PhoneCall) -> float:
+	if c.kind != PhoneCall.Kind.EMERGENCY:
+		return 0.0
+	if c.temper < 0.0:
+		c.temper = _temper_rng.randf()
+	return AGITATION_STAGE[clampi(c.stage, 0, AGITATION_STAGE.size() - 1)] * c.temper
+
+
+## A entonação da sílaba que começa em `i`: [curva (0 descendo, 1 reta, 2 subindo), altura, dB a mais], pelo jeito
+## da frase (afirmação, pergunta ou exclamação; ver DECLINE). As do meio da frase sorteiam a curva.
+func _tone(text: String, i: int) -> Array:
+	var a := i   # a frase: do último ponto antes de i até o próximo
+	while a > 0 and not text[a - 1] in ".!?":
+		a -= 1
+	var b := i
+	while b < text.length() and not text[b] in ".!?":
+		b += 1
+	var end := text[b] if b < text.length() else "."
+	var before := _syllables(text, a, i)
+	var after := _syllables(text, i + 1, b)
+	var pitch := 1.0 + randf_range(-JITTER, JITTER)
+	if end != "?":
+		pitch += DECLINE * (1.0 - 2.0 * before / maxf(1.0, before + after))
+	var db := 0.0
+	var stress := EXCLAIM_STRESS if end == "!" else 1.0
+	if _stressed(text, i):
+		pitch += STRESS * stress
+		db = STRESS_DB * stress
+	if end == "!":
+		pitch *= EXCLAIM["pitch"]
+		db += EXCLAIM["db"]
+	if end == "?" and after < QUESTION_TAIL:
+		var k := float(QUESTION_TAIL - after) / QUESTION_TAIL   # 1/3, 2/3, 1 na última
+		return [2, pitch * lerpf(1.0, QUESTION_RISE, k), db]
+	if after > 0:
+		return [randi() % 3, pitch, db]
+	return [0, pitch * (EXCLAIM_FALL if end == "!" else FINAL_FALL), db]
+
+
+## Quantos grupos de vogais (sílabas faladas) começam em text[from, to); o que já vinha de antes de `from` não conta.
+func _syllables(text: String, from: int, to: int) -> int:
+	var n := 0
+	var prev := from > 0 and VMAP.has(text[from - 1].to_lower())
+	for j in range(from, to):
+		var v := VMAP.has(text[j].to_lower())
+		if v and not prev:
+			n += 1
+		prev = v
+	return n
+
+
+## Se a sílaba que começa em `i` é a tônica da palavra: a do acento, se houver; senão a última nas palavras
+## terminadas em OXYTONE ("falar", "aqui") e a penúltima nas outras. Palavra de uma sílaba sem acento ("de", "o") é átona.
+func _stressed(text: String, i: int) -> bool:
+	var a := i
+	while a > 0 and _letter(text[a - 1]):
+		a -= 1
+	var b := i
+	while b < text.length() and _letter(text[b]):
+		b += 1
+	var word := text.substr(a, b - a).to_lower()
+	var g := i   # o fim do grupo de vogais que começa em i
+	while g < b and VMAP.has(text[g].to_lower()):
+		g += 1
+	for ch in word:
+		if ch in ACCENTED:
+			return text.substr(i, g - i).to_lower().contains(ch)
+	var after := _syllables(text, g, b)
+	if _syllables(text, a, b) < 2:
+		return false
+	return after == (0 if word.right(1) in OXYTONE else 1)
+
+
+static func _letter(ch: String) -> bool:
+	return ch.to_lower() != ch.to_upper()
+
+
+## Toca uma sílaba: a vogal `vowel` ("a", "an" nasal...) com o ataque da consoante `onset` (`SfxSynth.ATTACKS`; ""
+## sem). `contour`: a curva gravada (0 descendo, 1 reta, 2 subindo); `pitch` e `db` somam ao timbre; `long`: a
+## vogal gravada mais longa (`SfxSynth.LONG`).
+func syllable(v: String, vowel: String, onset: String, contour: int, pitch := 1.0, db := 0.0, at := -1.0,
+		long := false) -> void:
 	if not SfxSynth.VOICE.has(v):
 		v = "m"
-	var id := "s_%s_%s_%d" % [v, vowel, randi() % 3]
-	var pitch := randf_range(0.95, 1.05) * (1.13 if rise else 1.0)
-	_sound(id, at, float(SfxSynth.VOICE[v]["db"]) + 10.0, pitch)
+	var vol := float(SfxSynth.VOICE[v]["db"]) + VOICE_GAIN + db + float(VOWEL_DB.get(vowel[0], 0.0))
+	_sound("s_%s_%s_%d%s" % [v, vowel, contour, "l" if long else ""], at, vol, pitch)
+	if onset != "":
+		_sound("s_%s_%s" % [v, onset], at, vol, pitch)
 	if v == "g" and randf() < 0.3:
 		_sound("crackle", at, -4.0)
 

@@ -24,6 +24,7 @@ function warn(msg) { printf "%s:%d: %s\n    %s\n", file, line, msg, text; n++ }
 	if (file ~ /\.tscn$/) {
 		if (code ~ /theme_override_/) warn("override de tema no nó: prefira uma variação de tema em themes/main_theme.tres")
 		if (code ~ /render_target_update_mode = 4/) warn("SubViewport desenhado a todo quadro (UPDATE_ALWAYS): dá para ser só quando muda (UPDATE_ONCE)?")
+		if (code ~ /type="(Point|Directional)Light2D"|type="LightOccluder2D"/) warn("luz do Godot no cenário: a luz vai nos shaders (CLAUDE.md, \"A luz\")")
 		next
 	}
 	if (file !~ /\.gd$/) next
@@ -40,6 +41,10 @@ function warn(msg) { printf "%s:%d: %s\n    %s\n", file, line, msg, text; n++ }
 	if (code ~ /draw_(colored_)?polygon\(/ && code !~ /get_texture|uv/) warn("área cheia com draw_polygon: cada um é uma chamada de desenho; use draw_primitive (no cenário, _fill/_poly)")
 	if (code ~ /draw_circle\(/) warn("peça redonda com draw_circle: use PixelArt.disc (pixel a pixel)")
 	if (code ~ /volume_db[ \t]*=/ && file !~ /sfx\.gd$/) warn("volume mudado direto: só por Sfx.fade/Sfx._tween")
+	if (file !~ /scripts\/ui\/tools\.gd$/ && code ~ /"(lista|despacho|caderno|registro|jornal)"/) warn("id de ferramenta em texto: use Tools.DIRECTORY, DISPATCH, LOGBOOK, CALL_LOG ou NEWS")
+	if (code ~ /(Point|Directional)Light2D|LightOccluder2D/) warn("luz do Godot no cenário: a luz vai nos shaders (CLAUDE.md, \"A luz\")")
+	if (code ~ /reload_current_scene|change_scene_to/ && file !~ /scripts\/main\.gd$/) warn("troca de cena fora do Main.restart: no meio de um clique, as esperas por quadro acordam sem árvore")
+	if (file ~ /^scripts\// && file !~ /pal\.gd$/ && code ~ /Color\("/) warn("cor literal fora do Pal: ponha a cor em scripts/pal.gd, com o nome do material")
 	if (code ~ /randomize\(\)/) warn("randomize() anula a semente dos testes (-- --seed=N)")
 	if (code ~ /^class_name /) warn("class_name novo: só existe depois de reimportar (com o editor aberto, dê foco a ele)")
 	if (file ~ /^tests\// && code ~ /(^|[^a-z_.])assert\(/) warn("assert trava o headless: use ok()")

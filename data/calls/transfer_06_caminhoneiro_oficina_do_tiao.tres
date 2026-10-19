@@ -11,3 +11,4 @@ repeat = "A oficina do Tião. Na Rua do Moinho."
 target = "318"
 destination = "Oficina do Tião"
 thanks = "Deus lhe pague."
+overheard = PackedStringArray("Tião? Meu caminhão morreu perto do moinho.", "Morreu como? Fez barulho antes?", "Tossiu umas três vezes e apagou. Agora nem pega.", "Deve ser o filtro de diesel. Vou aí com a caminhonete.", "Estou com o pisca ligado, do lado da ponte.", "Em meia hora chego. Não sai da cabine, que está frio.")

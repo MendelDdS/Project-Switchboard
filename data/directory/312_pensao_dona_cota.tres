@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_59"]
+script = ExtResource("2_motive")
+text = "Preciso de um quarto barato pra esta noite."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Tem quarto pra hoje? Coisa simples, só pra dormir.", "Tem uma cama no quarto dos fundos. O banheiro é no corredor.", "Tá ótimo. E quanto fica?", "Com café é um pouco mais. Sem café sai mais em conta.", "Sem café, então. Daqui a {wait} eu chego.", "Bate na janela do lado, que a porta da frente já está trancada."), PackedStringArray("Boa noite. Tem cama pra hoje? Não posso pagar muito.", "Tem a do quarto coletivo. Divide com mais dois.", "Serve. Eles roncam?", "Um ronca, o outro fala dormindo. Mas são gente boa.", "Tá bom. Chego em {wait}.", "Traz cobertor, se tiver. A noite aqui esfria.")])
+
+[sub_resource type="Resource" id="Motive_60"]
+script = ExtResource("2_motive")
+text = "Quero saber se tem vaga pra dois pernoitarem."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Tem vaga pra duas pessoas? É só pra pernoitar.", "Pra dois tem o quarto da frente, com duas camas.", "Ótimo. A gente chegou no último ônibus e não tem onde ficar.", "Então venham logo, que a rua aqui fica escura depois das {hour}.", "Precisa levar alguma coisa? Documento?", "Só o documento, pra anotar no livro de hóspedes."), PackedStringArray("Boa noite. Tem quarto pra duas pessoas, só esta noite?", "Tem, mas só com uma cama de casal.", "Somos dois irmãos. Não tem com duas camas?", "Posso pôr um colchão no chão. Serve?", "Serve, sim. Chegamos em {wait}.", "Vou deixar a luz da frente acesa pra vocês.")])
+
+[resource]
+script = ExtResource("1_entry")
+wary = 1.6
+name = "Pensão Dona Cota"
+address = "Rua da Estação, 40"
+number = "312"
+voice = "f"
+hello = "Pensão. Quem é que fala?"
+category = "hospedagem"
+spoken = "a Pensão Dona Cota"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_59"), SubResource("Motive_60")])

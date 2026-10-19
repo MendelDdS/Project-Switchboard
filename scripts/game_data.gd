@@ -14,12 +14,33 @@ const SECTOR_NIGHTS := {3: 1, 1: 5, 2: 9}
 static var sectors: Array = [1, 2, 3]
 
 
+## O primeiro dia do jogo: a noite 1 é a de segunda-feira, 8 de outubro de 1973; cada noite, um dia depois. O
+## treinamento (noite 0) é na sexta antes, dia 5 (`TRAINING_DAYS` antes da noite 1).
+const START := {"year": 1973, "month": 10, "day": 8, "hour": 12}
+const TRAINING_DAYS := 3
+const WEEKDAYS := [T.Key.DAY_SUN, T.Key.DAY_MON, T.Key.DAY_TUE, T.Key.DAY_WED, T.Key.DAY_THU, T.Key.DAY_FRI, T.Key.DAY_SAT]
+
+
+## A data da noite `night` (o dia em que o turno começa), mais `plus` dias: year, month, day e weekday (0 = domingo).
+static func date_of(night: int, plus := 0) -> Dictionary:
+	var days := (night - 1 if night > 0 else -TRAINING_DAYS) + plus
+	return Time.get_datetime_dict_from_unix_time(Time.get_unix_time_from_datetime_dict(START) + days * 86400)
+
+
+## A data por extenso ("Segunda-feira, 8 de outubro de 1973").
+## ponytail: o mês é o do texto (`DATE_LONG`): as 15 noites ficam em outubro (8 a 22).
+static func date_text(night: int) -> String:
+	var d := date_of(night)
+	return T.text(T.Key.DATE_LONG) % [T.text(WEEKDAYS[d.weekday]), d.day, d.year]
+
+
+## O treinamento (noite 0) já é no setor da primeira noite.
 static func sectors_for(night: int) -> Array:
-	return SECTOR_NIGHTS.keys().filter(func(s): return night >= SECTOR_NIGHTS[s])
+	return SECTOR_NIGHTS.keys().filter(func(s): return maxi(night, 1) >= SECTOR_NIGHTS[s])
 
 
 static func in_service(number: String) -> bool:
-	return number != "" and int(number.left(1)) in sectors
+	return number != "" and (int(number.left(1)) in sectors or is_trunk(number))
 
 
 ## A transferência pede só números dos setores atendidos (o pedido e a alternativa).
@@ -39,12 +60,58 @@ static func street(id: String) -> Street:
 	return null
 
 
-## Contato da lista telefônica pelo número (nulo se não existir).
+## Contato da lista telefônica pelo número (nulo se não existir); num tronco, a telefonista da cidade dele.
 static func entry(number: String) -> DirectoryEntry:
 	for e in CONTENT.directory:
 		if e.number == number:
 			return e
+	if is_trunk(number):
+		var t := DirectoryEntry.new()
+		t.number = number
+		t.name = T.text(T.Key.TRUNK_OPERATOR) % trunk_city(int(number))
+		t.voice = "f"
+		return t
 	return null
+
+
+## Os troncos interurbanos, um por cidade (o banco INTERURBANO da mesa): tomadas de destino fora da lista e de todos
+## os setores, ligadas à central da outra cidade, onde outra telefonista completa a ligação.
+const TRUNKS := [901, 902, 903, 904, 905, 906]
+const TRUNK_NAMES := [T.Key.BOARD_TRUNK_1, T.Key.BOARD_TRUNK_2, T.Key.BOARD_TRUNK_3, T.Key.BOARD_TRUNK_4, T.Key.BOARD_TRUNK_5, T.Key.BOARD_TRUNK_6]
+
+
+static func is_trunk(number: Variant) -> bool:
+	return str(number).is_valid_int() and int(str(number)) in TRUNKS
+
+
+## O nome da cidade do tronco `d` ("Capital"), o da chapa sem as maiúsculas.
+static func trunk_city(d: int) -> String:
+	return T.text(TRUNK_NAMES[TRUNKS.find(d)]).capitalize()
+
+
+## Interurbano montado a partir de um molde (`trunk_templates`), para um tronco fora de `exclude`: quem liga pede a
+## cidade ({to_city}, `trunk_to`) e diz o número de lá ({far}); nulo se todos os troncos já foram pedidos.
+static func trunk_transfer(exclude: Array = []) -> TransferCall:
+	var free := range(TRUNKS.size()).filter(func(k: int): return not str(TRUNKS[k]) in exclude)
+	if free.is_empty() or CONTENT.trunk_templates.is_empty():
+		return null
+	var k: int = free.pick_random()
+	var who := pick(CONTENT.callers).split(":")
+	var far := "%d%d-%02d" % [randi_range(2, 9), randi_range(0, 9), randi_range(0, 99)]
+	var vars := {"to_city": String(TranslationServer.translate(CONTENT.trunk_to[k])), "far": far}
+	var tpl: TransferCall = CONTENT.trunk_templates.pick_random()
+	var t := TransferCall.new()
+	t.group = TransferCall.Group.EXTRA
+	t.voice = who[0]
+	t.caller = who[1]
+	for l in tpl.opening:
+		t.opening.append(fill(l, vars))
+	t.repeat = fill(tpl.repeat, vars)
+	t.target = str(TRUNKS[k])
+	t.far_number = far
+	t.destination = "%s (%s)" % [far, trunk_city(TRUNKS[k])]
+	t.thanks = pick(CONTENT.transfer_thanks)
+	return t
 
 
 const LANDMARK_CHANCE := 0.4   # emergência de molde em que quem liga diz a rua e um lugar do mapa em vez do número
@@ -63,16 +130,17 @@ static func fill(template: String, vars: Dictionary) -> String:
 ## usados no turno). Nulo se não sobrar nenhum.
 static func template_transfer(exclude: Array = []) -> TransferCall:
 	var places := CONTENT.directory.filter(func(d: DirectoryEntry):
-		return d.spoken != "" and not d.reasons.is_empty() and not d.dispatch_only and in_service(d.number))
+		return d.spoken != "" and not d.motives.is_empty() and not d.dispatch_only and in_service(d.number))
 	var fresh := places.filter(func(d: DirectoryEntry): return not d.number in exclude)
 	if fresh.is_empty():
 		return null   # todos os lugares já foram pedidos nesta noite
 	var e: DirectoryEntry = fresh.pick_random()
+	var motive: Motive = e.motives.pick_random()
 	var vars := {
 		"place": e.spoken, "of_place": "d" + e.spoken, "to_place": "pr" + e.spoken,
 		"street": e.address.get_slice(",", 0), "number": e.number,
 		"digits": ", ".join(Array(e.number.split("")).map(func(ch: String): return DIGITS[int(ch)])),
-		"reason": String(TranslationServer.translate(pick(e.reasons))),
+		"reason": String(TranslationServer.translate(motive.text)),
 	}
 	var tpl: TransferCall = CONTENT.transfer_templates.pick_random()
 	var who := pick(CONTENT.callers).split(":")
@@ -86,6 +154,7 @@ static func template_transfer(exclude: Array = []) -> TransferCall:
 	t.target = e.number
 	t.destination = e.name
 	t.thanks = pick(CONTENT.transfer_thanks)
+	t.overheard = motive.talks.pick_random() if not motive.talks.is_empty() else PackedStringArray()
 	var alt := alternative(e, exclude)
 	if alt != null:   # às vezes não atende (`PhoneCall.away`): o operador oferece outro do mesmo ramo
 		t.alt_target = alt.number
@@ -108,14 +177,9 @@ static func alternative(e: DirectoryEntry, exclude: Array = []) -> DirectoryEntr
 ## às vezes (`LANDMARK_CHANCE`) quem liga diz a rua e um lugar do mapa em vez do número (`MapGrid.landmark_spots`).
 static func template_emergency(from: EmergencyCall = null) -> EmergencyCall:
 	var tpl := with_case(from if from != null else CONTENT.emergency_templates.pick_random())
-	var spots := []   # [rua, trecho] dos setores atendidos
-	for s: Street in CONTENT.streets:
-		for b in s.blocks():
-			if s.block_sector(b) in sectors:
-				spots.append([s, b])
-	var spot: Array = spots.pick_random()
+	var spot := random_address()
 	var st: Street = spot[0]
-	var house := int(spot[1]) * 100 + randi_range(1 if spot[1] == 0 else 0, 99)
+	var house: int = spot[1]
 	var vars := {"street": st.name, "house": house, "address": "%s, %d" % [st.name, house]}
 	var near := MapGrid.landmark_spots()
 	if not near.is_empty() and randf() < LANDMARK_CHANCE:
@@ -175,6 +239,36 @@ static func with_case(e: EmergencyCall) -> EmergencyCall:
 
 static func transfers(group: int) -> Array:
 	return CONTENT.transfers.filter(func(t): return t.group == group and serves(t))
+
+
+## Uma rua e um número sorteados nos setores atendidos: [Street, número].
+static func random_address() -> Array:
+	var spots := []   # [rua, trecho] dos setores atendidos
+	for s: Street in CONTENT.streets:
+		for b in s.blocks():
+			if s.block_sector(b) in sectors:
+				spots.append([s, b])
+	var spot: Array = spots.pick_random()
+	return [spot[0], int(spot[1]) * 100 + randi_range(1 if spot[1] == 0 else 0, 99)]
+
+
+## As lacunas que as conversas escutadas podem usar (sem as chaves): as do mapa e as de `GameContent.talk_fills`.
+static func talk_holes() -> Array:
+	return ["street", "house"] + CONTENT.talk_fills.map(func(f: TalkFill): return f.key)
+
+
+## Os valores das lacunas de uma conversa escutada, sorteados e já traduzidos (`TalkFill`).
+static func talk_vars() -> Dictionary:
+	var spot := random_address()
+	var vars := {"street": (spot[0] as Street).name, "house": spot[1]}
+	for f: TalkFill in CONTENT.talk_fills:
+		vars[f.key] = String(TranslationServer.translate(pick(f.values)))
+	return vars
+
+
+## A voz de quem atende o contato `e` (`DirectoryEntry.voice`; sem ela, uma pelo nome, sempre a mesma).
+static func voice_of(e: DirectoryEntry) -> String:
+	return e.voice if e.voice != "" else ["m", "f", "w"][absi(hash(e.name)) % 3]
 
 
 ## Números com tomada na mesa (polícia, bombeiros e hospital vão pelo despacho).

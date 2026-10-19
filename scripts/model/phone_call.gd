@@ -8,6 +8,32 @@ signal options_changed
 signal state_changed
 
 enum Kind { TRANSFER, EMERGENCY, PRANK, INFO, MYSTERY }
+
+## Uma linha do caderno: o que se sabe da ligação quando ela termina (`Main._record`) e, depois de registrada, o tipo
+## que o jogador carimbou.
+class Record:
+	var time := ""
+	var who := ""
+	var where := "—"
+	var unit := "—"
+	var card := 0              ## o número do cartão de despacho enviado (emergência)
+	var ticket := 0            ## o número do bilhete de tarifação (interurbano)
+	var obs := ""
+	var kind := PhoneCall.Kind.TRANSFER
+	var missed := false        ## não atendida: entra no livro sozinha
+	var tut := false           ## da veterana do treinamento (sem advertência)
+	var shift := false         ## cortada pelo fim do turno (já teve a advertência)
+	var type: int = -1         ## o carimbo (`T.Key.TYPE_*`), depois de registrada
+
+	## A linha no livro: esta, com o carimbo `t` e a observação `note`.
+	func stamped(t: T.Key, note: String) -> Record:
+		var r := Record.new()
+		for k: String in ["time", "who", "where", "unit", "card", "ticket", "kind", "missed", "tut", "shift"]:
+			r.set(k, get(k))
+		r.obs = note
+		r.type = t
+		return r
+
 enum Phase { NONE, AWAIT, EMERGENCY, INFO }
 enum End {
 	OPERATOR,   ## o operador desligou (botão Desligar)
@@ -33,10 +59,12 @@ var kind := Kind.TRANSFER
 var data: Resource          ## roteiro (TransferCall, EmergencyCall ou PrankCall); nulo para informação e ligação desconhecida
 var voice := "m"
 var caller := ""
+var lesson := false         ## da veterana do treinamento (`Training`): fala pelo roteiro dela, não desiste nem gera advertência
+var speech := 1.0           ## o tempo de cada letra falada, multiplicado (a veterana do treinamento fala mais devagar)
 var story := false          ## ligação do roteiro da noite (horário fixo; aguenta mais tempo tocando)
 var requires := PackedStringArray()   ## marcadores que precisam bater na hora de tocar (StoryFlags.allows)
 var at := 0.0               ## minuto previsto (depois do início do turno)
-var latest := INF           ## ligação desconhecida e retornos: a partir daqui toca mesmo com a mesa ocupada
+var latest := INF           ## roteiro, ligação desconhecida e retornos: a partir daqui toca mesmo com a mesa ocupada
 var retry := Retry.NONE
 var retried: Array[Retry] = []   ## motivos pelos quais esta pessoa já ligou de novo
 var too_late := false       ## emergência que liga de novo: já não adianta despachar
@@ -44,6 +72,7 @@ var too_late := false       ## emergência que liga de novo: já não adianta de
 var line := 0
 var time := ""
 var ringing := false
+var answered := false       ## o operador atendeu (fica, mesmo depois de ela acabar)
 var active := false
 var ended := false
 var on_line := false        ## o FONE está na entrada desta ligação (só ela fala)
@@ -57,9 +86,9 @@ var chatting := false       ## um assunto em andamento (sendo contado ou esperan
 var chat_asked := false     ## o operador já puxou conversa (só uma vez por ligação)
 var chats: Array[ChatTopic] = []   ## assuntos já puxados nesta ligação (não se repetem)
 var hold_since := 0.0       ## minuto em que ficou em espera
-var transcript: Array[Dictionary] = []   ## {"who", "text", "cls"}; cls: "" / "op" / "sys" / "ghost"
+var transcript: Array[Dictionary] = []   ## {"who", "text", "cls", "marks"}; cls: "" / "op" / "sys" / "ghost"; marks: trechos sublinhados
 var options: Array[Dictionary] = []      ## {"label": String, "fn": Callable}
-var record: Dictionary = {}              ## linha do caderno gerada quando a ligação termina
+var record: Record                       ## linha do caderno gerada quando a ligação termina (nula antes)
 
 # transferência (o destino pode mudar quando o pedido não atende à noite)
 var target := ""
@@ -71,6 +100,7 @@ var no_answer := false
 var alt_done := false
 var connected := false
 var dest_num := 0
+var suspicion := 0.0        ## conectada e escutada: de 0 a 1, o quanto os dois desconfiam (`Eavesdrop`; em 1, denunciam)
 var wrong := 0              ## quantas vezes foi conectada ao número errado
 # emergência
 var asked: Array[int] = []
@@ -80,6 +110,7 @@ var stage := 0              ## barra de agravamento: 0 inicial, 1 agravando, 2 a
 var told := 0               ## até que estágio a pessoa já contou o que mudou (libera as perguntas daquele estágio)
 var urgency := 0.0          ## segundos que a barra já correu
 var asking := false         ## pergunta e resposta em andamento: a barra para
+var temper := -1.0          ## de 0 (tranquila) a 1 (se agita toda) com a barra; -1 = ainda não sorteado (`Sfx.agitation`)
 # pedido de informação
 var ask := ""
 var about := ""             ## de quem pediu o número: "o Hotel Estrela"
@@ -154,6 +185,19 @@ func add_line(who: String, text: String, cls := "") -> int:
 
 func append_text(i: int, text: String) -> void:
 	transcript[i]["text"] += text
+	transcript_changed.emit()
+
+
+## Troca o texto da fala `i` (o silêncio da escuta, que vai ganhando pontos).
+func set_line_text(i: int, text: String) -> void:
+	transcript[i]["text"] = text
+	transcript_changed.emit()
+
+
+## Sublinha as últimas `length` letras da fala `i` (a palavra-chave que o operador acabou de ouvir).
+func underline(i: int, length: int) -> void:
+	var end := String(transcript[i]["text"]).length()
+	transcript[i]["marks"] = transcript[i].get("marks", []) + [[end - length, end]]
 	transcript_changed.emit()
 
 

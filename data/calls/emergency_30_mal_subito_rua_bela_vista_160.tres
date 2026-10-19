@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_emerg"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("amb")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "Ela se trancou no banheiro e caiu lá dentro! A porta não abre!", "")
+units = PackedStringArray("amb", "bomb")
+
+[resource]
+script = ExtResource("1_emerg")
+voice = "f"
+caller = "Neta"
+opening = "Central, a minha avó tá passando mal! A fala dela tá esquisita!"
+questions = PackedStringArray("Qual é o endereço?", "Onde ela está?", "Ela consegue levantar os dois braços?")
+answers = PackedStringArray("Rua Bela Vista, 160! A casa da Dona Laudelina Prado!", "Sentada na cozinha. Eu tô do lado dela.", "Só o esquerdo. O direito cai sozinho.")
+street = "belavista"
+block = 1
+address = "Rua Bela Vista, 160"
+occurrence = "Mal súbito"
+units = PackedStringArray("amb")
+after = "Tá. Vou ficar segurando a mão dela."
+stage_sec = Vector3(35, 18, 18)
+worsening = "Agora ela não fala mais nada! Só olha pra mim!"
+worsening_units = PackedStringArray()
+worsening_question = "Ela está respirando bem?"
+worsening_answer = "Tá, mas fazendo um barulho no peito."
+critical = "Ela caiu da cadeira! Bateu a cabeça na quina da mesa!"
+critical_units = PackedStringArray()
+critical_question = "A cabeça está sangrando?"
+critical_answer = "Um pouco. Tô apertando com o pano de prato."
+lost = "Ela não acorda mais... eu chamo, chamo... Vocês demoraram demais."
+lost_answer = "Ela respira bem fraquinho, e a mão direita tá gelada."
+lost_units = PackedStringArray("amb")
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2")])

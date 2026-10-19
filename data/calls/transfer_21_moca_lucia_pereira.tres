@@ -11,3 +11,4 @@ repeat = "Três, três, seis."
 target = "147"
 destination = "Lúcia Pereira"
 thanks = "Obrigada!"
+overheard = PackedStringArray("Lúcia? Oi, sou eu.", "Oi! Achei que você não ia ligar.", "A mamãe ficou no telefone a noite toda.", "E aí, você vai no baile de sábado?", "Vou, se você me emprestar o vestido azul.", "Empresto. Vem buscar amanhã depois da aula.")

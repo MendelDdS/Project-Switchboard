@@ -11,3 +11,4 @@ repeat = "O ponto de táxi. Da rodoviária."
 target = "176"
 destination = "Ponto de Táxi da Rodoviária"
 thanks = "Valeu, central."
+overheard = PackedStringArray("Boa noite. Preciso de um táxi.", "Pra onde, rapaz?", "Pra Vila Serena, pra casa da minha namorada. Estou atrasado.", "O carro está saindo agora. Espera na calçada.", "Ele demora muito?", "Dez minutos. Vai arrumando o cabelo.")

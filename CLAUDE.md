@@ -1,7 +1,7 @@
 # Project Switchboard — memória do projeto
 
 Jogo em Godot 4.6 (GDScript, renderer GL Compatibility), a caminho da versão definitiva. O jogador é o operador
-noturno da central telefônica de São Sotero, cidade pequena (18:00–00:00). Mecânica: atender e transferir ligações numa
+noturno da central telefônica de São Sotero, cidade pequena (18:00–00:00; a última noite vai até as 6h). Mecânica: atender e transferir ligações numa
 mesa comutadora com cabos físicos; ao fundo, uma ligação misteriosa de número desconhecido (terror leve), por uma entrada sorteada.
 O README.md descreve o jogo para quem joga/edita conteúdo; este arquivo é o mapa para quem mexe no código.
 Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
@@ -10,10 +10,21 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 - Tudo em português: textos da interface, falas, comentários (`##` para doc de função) e mensagens ao usuário.
 - **Interface em cenas** (`scenes/`), com Containers; scripts de interface em `scripts/ui/`. Lógica em `scripts/`.
   Estilo visual no tema global `themes/main_theme.tres` (variações de tipo: `GreenButton`, `AmberButton`,
-  `RedButton`, `InkButton`, `DarkButton`, `ChoiceButton`, `HudPanel`, `GreenKey`, `AmberKey`, `RedKey` (teclas do console:
+  `RedButton`, `InkButton`, `DarkButton`, `ChoiceButton`, `HudPanel`, `GreenKey`, `AmberKey`, `IvoryKey`, `RedKey` (teclas do console:
   `KeyCapStyle`, um StyleBox em script, `scripts/ui/key_cap_style.gd`), `PaperToggle`, `PaperInk`, `LetterButton`,
-  `DarkPanel`, `PaperPanel`, `NotePanel`, `FormPanel`, `SlipPanel`, `InkLabel`, `InkSoftLabel`, `DimLabel`, `AmberLabel`,
-  `MonoLabel`, `InkMonoLabel`, `TapedNote`/`TapedLabel`: papel preso com fita, `TapedPaperStyle`). Prefira variação de tema a override por nó.
+  `DarkPanel`, `PaperPanel`, `NotePanel`, `FormPanel`, `SlipPanel`, `InkLabel`, `InkSoftLabel`, `InkBoldLabel` (11 em negrito: a sombra de 1 px ao lado), `DimLabel`, `AmberLabel`,
+  `MonoLabel`, `InkMonoLabel`, `TapedNote`/`TapedLabel`: papel preso com fita, `TapedPaperStyle`, `MemoPanel`: o papel do
+  memorando do supervisor, com a sombra na mesa, `LetterheadLabel`: o nome da companhia no timbre, `TypedText`/`HandText`:
+  a tinta do datilografado e a caneta azul dos papéis escritos). Prefira variação de tema a override por nó. **Papéis escritos**: a
+  tinta das letras é um efeito de RichTextLabel (`scripts/ui/paper_ink.gd`, sem `class_name`: `preload` e
+  `install_effect`, um por `bbcode`): `[typed]`, datilografado (a fita mais fraca ou mais forte em cada letra, uma ou
+  outra um pixel mais baixa), e `[hand]`, à mão (a linha subindo e descendo devagar, na caneta azul, `Pal.PEN`). Telas
+  fora do turno no papel: a abertura da noite é o recado do supervisor num bilhete com fita preso no painel da mesa
+  comutadora (`Intro`, `over`; a sala escurecida atrás e, ao começar, o bilhete some e ela clareia, `FADE_SEC`; como se
+  joga, num papel de MANUAL como o da dica da parede, hoje escondida: `scripts/ui/CLAUDE.md`), a pausa e as configurações num papel com fita (rótulos em
+  `InkLabel`) e o relatório é um memorando (`ReportView`: timbre com o fone e o nome da companhia, fio duplo, dobras em
+  três, texto datilografado, cada advertência com o carimbo da gravidade, `SEVERITY_COLORS`, a borracha falhando, o
+  parecer à mão e a rubrica do supervisor; a sala fica à vista, escura, atrás dele, `Ending.REPORT_DIM`).
 - Nomes de pessoas e lugares na ordem natural, "Nome Sobrenome" (nunca "Sobrenome, Nome"); a lista telefônica
   ordena pelo nome como aparece, sem acento (`PhoneBook._entries`, `_plain`). **Uma letra por página dupla**: a aba de
   índice na borda direita (`_index`, `_tab_rect`; a da letra aberta fica destacada) abre só os contatos daquela letra
@@ -22,7 +33,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   (`_addr`, espaços que não quebram no bairro e em "rua, número"). A observação (`DirectoryEntry.note`) só diz **quem
   atende quando o nome não diz** ("Pe. Anselmo", "recepção", "secretaria", "use o despacho"); nada de horário ou
   "residência". Todo número da lista serve para alguma coisa: não existe lugar sempre fechado.
-- **Conteúdo em Resources** (`data/content.tres` + um `.tres` por roteiro em `data/calls/`, um por mudança da sala em `data/room/` + um por noite em
+- **Conteúdo em Resources** (`data/content.tres` + um `.tres` por contato da lista em `data/directory/`, com os motivos e as conversas dele, + um `.tres` por roteiro em `data/calls/`, um por mudança da sala em `data/room/` + um por noite em
   `data/nights/`). Nada de falas no código, exceto as do operador.
 - **Endereço por lugar do mapa**: em `GameData.LANDMARK_CHANCE` das emergências de molde, quem liga diz a rua e um lugar
   do mapa em vez do número ("Rua do Sol, perto do posto" / "na frente da escola, na Rua do Sol";
@@ -32,23 +43,29 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   desenha); lugar novo no mapa precisa de `MAP_X` e `MAP_X_OF` e fica num quarteirão que bata com o endereço da lista.
 - **Moldes** (`data/templates/`, listas `transfer_templates`/`emergency_templates` no content): `TransferCall`/
   `EmergencyCall` com lacunas **em inglês** (`{place}`, `{reason}`, `{street}`, `{house}`...), preenchidas por
-  `GameData.template_transfer()`/`template_emergency()`. Motivos em `DirectoryEntry.reasons`. `TEMPLATE_CHANCE`
-  (`Schedule`) mistura moldes e roteiros escritos (híbrido: tutorial, trotes e roteiro da noite sempre escritos).
-- Todo o áudio é sintetizado ao iniciar por `SfxSynth.build()` (`scripts/sfx_synth.gd`: as receitas, 140 sons, 3,7 MB;
+  `GameData.template_transfer()`/`template_emergency()`. Motivos em `DirectoryEntry.motives` (`Motive`: o pedido e a conversa que vem depois). `TEMPLATE_CHANCE`
+  (`Schedule`) mistura moldes e roteiros escritos (híbrido: treinamento, trotes e roteiro da noite sempre escritos).
+- Todo o áudio é sintetizado ao iniciar por `SfxSynth.build()` (`scripts/sfx_synth.gd`: as receitas, 448 sons, 9,2 MB;
   sem cache; em pedaços, `PARTS` e uma voz por pedaço, montados ao mesmo tempo nos núcleos, `WorkerThreadPool` em alta
-  prioridade (a de baixa usa só ~30% deles): ~0,35 s num Mac recente pelo editor, ~0,9 s um depois do outro; cada
-  pedaço numa instância com o seu sorteio, `_rng`, porque o `randf` global não é seguro entre linhas de execução) e tocado pelo autoload `Sfx` (`scripts/sfx.gd`: tocar, mixar, ambiente), inclusive as "vozes" por sílaba
-  (`Sfx.speak_char`). Barramentos em `default_bus_layout.tres`: Ambience, Voices, Effects (e Rub, o atrito do fio: vai direto para o Master, com uma reverberação mais seca que a do Effects, e segue o volume dele, `Settings.FOLLOWS`).
+  prioridade (a de baixa usa só ~30% deles): ~0,5 s num Mac recente pelo editor, ~0,9 s um depois do outro; cada
+  pedaço numa instância com o seu sorteio, `_rng`, porque o `randf` global não é seguro entre linhas de execução); **nada de chamar função a cada amostra** num laço de som (do
+  próprio script ou de objeto, como `_rng.randf_range`): as linhas de execução travam umas nas outras, e 8 carros ao
+  mesmo tempo levavam 10 vezes o tempo de um; a curva vai numa lista e o ruído num sorteio escrito no laço (`_build_car`) e tocado pelo autoload `Sfx` (`scripts/sfx.gd`: tocar, mixar, ambiente), inclusive as "vozes" por sílaba
+  (`Sfx.speak_char`: entonação da frase em `_tone`, a tônica e a última da frase com a sílaba longa, `_long`, `SfxSynth.LONG`; cada sílaba é o pulso glotal passando por três formantes em cadeia, `_formant`, no tamanho da boca da voz, `tract`; altura da pessoa pelo nome em `pitch_of`; vogal nasal em `_nasal` e ataque da consoante em `_onset`, tocado junto com a vogal; na emergência, o nervoso pelo estágio da barra e o temperamento sorteado, `agitation`; as de quem liga tocam
+  no barramento Phone, a banda do telefone, que vai para o Voices; desconhecida e rádio levam o filtro na sílaba). Ao fechar, o `Sfx` para os sons e espera um instante (`_exit_tree`): fechando com som tocando,
+  as gravações vazavam ("ObjectDB instances leaked"). O aviso pequeno que ainda sai fechando no meio de uma conversa
+  (um `GDScript`, um `SceneTreeTimer`, "N resources still in use") é do Godot: um `await` de `create_timer` pendente
+  ao fechar sempre vaza (reproduzido num projeto mínimo; retomar as esperas na saída rodaria o jogo). Barramentos em `default_bus_layout.tres`: Ambience, Voices, Effects (e Rub, o atrito do fio: vai direto para o Master, com uma reverberação mais seca que a do Effects, e segue o volume dele, `Settings.FOLLOWS`).
   Ambience tem um compressor com sidechain em Voices (o ambiente baixa enquanto alguém fala); Effects, uma
   reverberação leve de sala. `Sfx.play_at(id, screen_x)` toca um som vindo de um lugar da tela (`screen_x` em fração da largura, de 0 a 1;
   de px, converta, como `Main._across`) (pool de
   `AudioStreamPlayer2D`, `PAN`); a mesa usa para os sons dela (`Switchboard._sfx`, `screen_x`) e o rádio para a voz,
   o chiado e os bipes (`Radio.screen_x()`; `speak_char`, `syllable` e `static_burst` aceitam `at`). O toque da mesa
   (bipes suaves, `BEEP`; `ring_start(bells)`: linha -> lugar da tomada) reveza entre as linhas chamando, cada uma no seu tom (`BELL_STEP`).
-- Cursores próprios no autoload `Cursors` (`scripts/cursors.gd`): pixel art 16×16 em texto (×`SCALE`), uma por forma
+- Cursores próprios no autoload `Cursors` (`scripts/cursors.gd`): pixel art 16×16 em texto, uma por forma
   `Control.CURSOR_*` (seta, dedo, mão aberta = `MOVE`, mão fechada = `DRAG`, proibido, I-beam). Botões e sliders
   ganham o dedo sozinhos (`node_added`, troca adiada em `_point` para não esbarrar em nó fora da árvore); quem quer outra forma define `mouse_default_cursor_shape` (a mesa troca a
-  dela a cada quadro). Passe `Image`, não textura, ao `Input` (textura vaza ao fechar).
+  dela a cada quadro). **Na ampliação do jogo**: o `GameView` passa a dele (`Cursors.zoom`) e o cursor é montado com o mesmo filtro (`_image`), para o pixel dele ser o do jogo (sempre 2×, ficava grosso em 1080p). Passe `Image`, não textura, ao `Input` (textura vaza ao fechar).
 - **Volume de som muda só por `Sfx.fade`/`Sfx._tween`: uma mudança nova cancela a anterior do mesmo volume.** Com
   duas ao mesmo tempo, a mais longa terminava por último e ganhava: o cenário avisa a hora (`set_late`) desde a
   introdução, e a mistura do clima padrão (chuva, em 8 s) terminava depois da da noite (em 2 s), trocando os grilos
@@ -59,286 +76,47 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   mais do lado da janela (`SfxSynth.RAIN_LEFT`: o lado esquerdo mais baixo), e cresce e diminui em ondas lentas
   (`RAIN_WAVES`, sobre `_rain_db`). **Nada de gota solta na chuva**: batidas, bolhas de poça, gotas no vidro e o pingo da
   calha soavam como "tic" e saíram a pedido; das
-  22h à meia-noite os grilos sobem e a brisa baixa (`Sfx.set_late`, `LATE_*`); o zumbido elétrico de 60 Hz da sala fica baixo (`Sfx.HUM_DB`; a -29 e a -37 dB cansava, sobretudo em fone; antes da
+  22h à meia-noite os grilos sobem e a brisa baixa (`Sfx.set_late`, `LATE_*`); no amanhecer da última noite os grilos
+  param (`Sfx.set_dawn`, `Background.CRICKETS_QUIET`), o sabiá-laranjeira canta ainda no escuro (`sabia`, frases de
+  flauta, `SABIA_TAKES` versões, `SABIA_FROM`; o galo saiu, a pedido), passa o primeiro
+  caminhão (`FIRST_TRUCK`) e o sino que bate as 6h fecha o turno (segue por baixo do relatório); o zumbido elétrico de 60 Hz da sala fica baixo (`Sfx.HUM_DB`; a -29 e a -37 dB cansava, sobretudo em fone; antes da
   ligação desconhecida baixa para `HUM_HUSHED` e, depois dela, some); a luminária zumbe bem baixo, seguindo a
   luz dela (`lamp_buzz`, `Sfx.lamp`, `LAMP_BUZZ`), e estala quando pisca (`lamp_tick`); `Background.weather` desenha a janela, `Conversation.topics()` junta os
   assuntos gerais com os do clima (`ChatTopic.weather`).
-- **Resolução: tudo em 1x1 sobre 1280×720, ampliado para qualquer tela sem quebrar os pixels.** A cena principal é
-  `scenes/app.tscn` (`GameView`, `scripts/ui/game_view.gd`): o `main.tscn` dentro de um `SubViewport` de 1280×720 (o
+- **Resolução: tudo em 1x1 sobre 960×540, ampliado só em múltiplos inteiros (pixels perfeitos).** A cena principal é
+  `scenes/app.tscn` (`GameView`, `scripts/ui/game_view.gd`): o `main.tscn` dentro de um `SubViewport` de 960×540 (o
   `View`, "nearest"; o padrão do `SubViewport` é linear e não herda o do projeto), ampliado para a janela pelo `Box`
-  (`SubViewportContainer`) com o filtro de pixel art (`SHARP`, "sharp bilinear"): cada pixel do jogo vira um bloco do
-  mesmo tamanho e só a divisa entre dois blocos, um pixel da tela, mistura as cores. Ampliação inteira (1× em 720p, 2×
-  em 1440p, 3× em 4K) sai perfeita; quebrada (1,5× em 1080p, 1,25× em 1600×900), uniforme e um pouco mais macia. Antes,
-  com o `canvas_items` direto, 1,5× fazia um pixel virar ora 1, ora 2 da tela: linhas, letras e círculos desiguais.
-  Janela mais larga que 16:9 dá largura ao jogo (até `MAX_W`, 21:9), nunca altura; o que sobra é borda escura (a barra de título do Mac já deixa a janela um pouco mais larga). A sala se arruma na largura que tiver (abaixo). O
-  projeto continua em `canvas_items` 1280×720 para o `main.tscn` sozinho e os testes; o `GameView` desliga isso na janela
-  (`content_scale_mode`) e aplica a tela das Configurações (`Settings.fullscreen`: cheia ou janela;
-  `Settings.pixel_perfect`: só ampliação inteira, com borda, sem o filtro; padrão: tela cheia e suave). Na pausa, o `Box` continua processando
+  (`SubViewportContainer`, "nearest") no maior múltiplo inteiro que cabe (`GameView._fit`): 2× em 1080p, 4× em 4K; o
+  que sobra é borda escura (1× com borda em 720p e 1600×900, 2× com borda em 1440p). Menor que 960×540, reduz. A `View` prende transformações e vértices aos pixels (`snap_2d_*`: o que anda, como o cartão na mão a meio pixel do mouse a 2×, não cai entre dois pixels; só nela, porque a opção do projeto vale para a tela raiz, e não no cenário, parado e em perspectiva). A fonte continua com suavização: medido, sem ela o texto sai igual, porque já cai inteiro nos pixels. (Antes,
+  em 1280×720, a 1080p era 1,5×, com o filtro "sharp bilinear": uniforme, mas um pouco macio; a pedido, a base virou
+  960×540 e a ampliação quebrada saiu, com a escolha "suave/pixel perfeito" das Configurações. Tudo foi reduzido a 75%,
+  menos o texto, que continua em 11: o que é feito de texto, como o cartão do despacho, o bilhete e o caderno, ocupa
+  mais da tela que antes.) O jogo é sempre 960×540: numa janela de outra proporção (monitor largo), o que sobra é borda escura (antes ganhava
+  largura até 21:9 e a sala se esticava, a pedido saiu). A sala ainda se arruma na largura que tiver (abaixo), para o
+  `main.tscn` sozinho numa janela larga. O
+  projeto continua em `canvas_items` 960×540 para o `main.tscn` sozinho e os testes; o `GameView` desliga isso na janela
+  (`content_scale_mode`) e aplica a tela das Configurações (`Settings.fullscreen`: cheia ou janela; padrão: cheia; na janela, o maior múltiplo inteiro que cabe na área livre da tela, `GameView._size_window`). Na pausa, o `Box` continua processando
   (`process_mode` ALWAYS; o `View` é PAUSABLE): parado, ele não repassava as teclas e o Esc não despausava
   (`tests/test_keys.gd`). O cenário tem a tela própria dele (`SceneView`, `scripts/ui/scene_view.gd`: um `TextureRect`
   com o `SubViewport` `View` na resolução da tela onde ele está: a janela, com o `main.tscn` sozinho, ou 1:1 dentro do
   `GameView`). (Testados e descartados: o cenário em 2x2 numa tela de metade da resolução; o jogo todo em 2x2 com a fonte
   Tiny5, branch `improve/0000-pixel-2x`; o jogo todo ampliado como imagem com "nearest", que deixava o texto feio a 1,5×;
   e um filtro de 2x2 por cima do cenário, com média, que borrava.) Sem linhas de
-  varredura. A vista da janela muda com a noite: cada janela acesa da cidade apaga numa hora sorteada,
-  sempre a mesma (`SLEEP`; algumas ficam acesas), e a porta da igreja apaga às 22h (`CHURCH_DARK`; o relógio da torre
-  fica aceso). **Luz e vinheta lisas, sem camadas** (em degraus pareciam artificiais, a pedido do usuário): o brilho
-  (`%Glow`) e a vinheta são degradês contínuos com filtro linear; o arco na parede e a poça na mesa são desenhados com
-  a cor variando ponto a ponto (`Background._light_fan`), não em polígonos empilhados; **Clima noir**: fora da luz da luminária a sala fica fria e
-  escura (`_draw_gloom`, `NOIR`: liso, crescendo da poça de luz na mesa para fora numa elipse larga, `GLOOM_IN`/
-  `GLOOM_R`, sem borda marcada, a pedido: a mesa toda, com o relógio, fica na luz e a parede do fundo mais escura; o
-  vidro da janela abaixo da persiana fica de fora, `_glass`), a luminária é mais forte no centro (arco, poça e `%Glow`) e
-  da janela vem um brilho azul bem fraco (`_draw_window_glow`, `WINDOW_GLOW`; as faixas de luz da persiana na parede
-  foram testadas e saíram a pedido). **Lá fora acontece coisa** (`Background._events`, tempos sorteados, sons vindo
-  da janela): um carro passa na rua da vista com os faróis (`CAR_*`, som `car`; a luz deles varrendo a sala
-  saiu a pedido, não parecia luz; na
-  chuva, `car_wet`, com o chiado da água); gente passa a pé pela calçada de lá, várias ao mesmo tempo e às vezes
-  em dupla (`_walkers`, `_walker`: cada um com o seu passo, altura e distância das fachadas; guarda-chuva na chuva e,
-  sem ela, de chapéu ou não), em silhueta contra as luzes (`WALK_*`, `WALK_STEPS`, `_draw_walker`; sem som: os
-  passos, de dentro do prédio, não se ouviriam, e saíram a pedido), cada vez menos das 18h às 22h (`WALK_FROM`/`WALK_UNTIL`) e, daí em diante,
-  ninguém; **o homem do mistério chega andando** pela calçada (`MAN_FROM`), fica parado embaixo do poste da esquina
-  15 min de jogo (de `Main.SHADOW_LEAD` a `SHADOW_LEAVE` antes da ligação desconhecida: sai para ir ligar;
-  `Background.stranger`, na hora do dia) e volta andando por onde veio (`_man_x`, `MAN_WALK`; sai da
-  hora do jogo, então pausa e pulo do relógio valem para ele); das 22h à meia-noite os carros ficam cada vez mais
-  raros (`LATE_FROM`/`LATE_TO`, `LATE_EVERY`); o sino da
-  igreja bate as horas de longe, logo depois do gongo da mesa (`toll`, `BELL_AFTER`, `BELL_GAP`, som `bell`); das 21h em diante,
-  cachorros latem bem longe, de vez em quando, e às vezes outro responde (`DOG_*`, sons `dog` e `dog_low`, abafados e com
-  o eco dos morros; calados antes da ligação desconhecida, `Sfx.hushed`); na
-  chuva, o relâmpago clareia o céu e a vista em pulsos (`BOLT_*`, `_flash`) e acende na sala só o que a janela alcança,
-  numa camada somada por cima de tudo (`_bolt_layer`, `_bolt_build`; a força é o `modulate`, o desenho fica): quase
-  branco (`BOLT_LIGHT`; era um véu azul na tela inteira, até na frente da mesa comutadora), na parede do fundo, mais
-  forte perto da quina, com a sombra do armário à esquerda dele (a caixa dele levada até a parede, `BOLT_DIR`), na
-  frente do armário, na lateral da mesa comutadora e no tampo, a janela desenhada nítida com a cruz do caixilho
-  (`BOLT_STEEP`); o que fica na frente (a mesa comutadora, os objetos da mesa: `_occ`, `_occ_board`; o tampo) sai do
-  clarão (`_cut`). E o trovão vem depois
-  (`THUNDER_AFTER`, mais fraco quanto mais longe, som `thunder`; perto, o vidro e a persiana chocalham, `RATTLE_NEAR`,
-  som `rattle`); e um letreiro de neon HOTEL (a palavra é a mesma nos
-  três idiomas) na vista, na fonte gravada da mesa, que falha de vez em quando (`_sign_on`; o T falha sozinho; ao falhar, estala baixinho, som `neon`, abafado pela
-  distância e com o eco das fachadas), com o
-  halo sem miolo para as letras aparecerem (`_light(..., core = false)`), o reflexo na rua molhada e um reflexo
-  vermelho fraco na parede perto da janela (`SIGN_GLOW`). Os três entram no `_state`. O prédio de tijolos da esquina é
-  de apartamentos: no 3º andar, uma varanda (`APT`; porta, vasos, laje vista de baixo e gradil) com a janela da sala,
-  onde a TV pisca azul (`_draw_balcony_back`/`_front`; a luz da sala apaga em `APT_DARK` e a TV em `TV_OFF`). Janelas que já
-  apagaram acendem de novo de madrugada, uns minutos (`WAKE`, `b["wake"]`). Na chuva, a força muda durante a noite
-  (`rain_level`, `RAIN_*`: garoa a forte, em ondas lentas): o som (`Sfx.set_rain`), a quantidade de pingos no vidro, o
-  vento no arbusto e os relâmpagos (só acima de `BOLT_RAIN`); as poças crescem com a noite (`_soaked`). O arbusto
-  balança em rajadas (`GUST`). Na noite limpa, nuvens passam pela lua (`_draw_moon`, `CLOUDS`, `MOON`), e coberta ela
-  apaga junto o brilho azul da janela na sala (`_moon_light`, `MOON_DIM`). O vidro embaça nos cantos e no pé, liso
-  (`_draw_mist`, `MIST`, na camada de cima; menos na chuva forte). Na chuva, as gotas do vidro fazem sombra na luz
-  da rua na mesa, só manchinhas sem borda, porque a luz é fraca (`_draw_drop_shadows`, `DROP_SHADOW`, na camada da poeira). No começo do turno a
-  luminária esquenta (`warm_up`, `WARM`): acende fraca, a sala mais escura (`WARM_DARK`) e o brilho alaranjado
-  (`Main.WARM_TINT`), e chega à luz inteira em 4 s. O painel da mesa comutadora escurece frio nos cantos
-  (`ROOM_DARK`); interface, papéis e painel de baixo não escurecem (precisam ser lidos); o céu da vista clareia liso
-  para o horizonte e a luz do poste atrás da silhueta também é lisa. **O vidro da janela reflete a sala**
-  (`_draw_reflection`, por cima da cidade e da silhueta, antes da chuva): a sala espelhada no plano do vidro e vista
-  pela mesma câmera (`_proj` com x espelhado); de lado como ele está, só aparecem o canto da parede do fundo perto da
-  quina, com o fim do arco de luz, e o armário se cair ali (`_cab_x0`); a luminária e a mesa ficam fora. Liso e
-  acompanhando a luminária. A vista passa da borda de cima da tela e só aparece do horizonte (58%
-  dela) para baixo: o que for desenhado nela tem que ficar ali. **Traços dos objetos em pixel art** (`_pixel_line`:
-  um pixel por passo, com a espessura empilhada em cores, desenhado na tela e não na perspectiva torta do tampo): o
-  lápis do caderno, o rio do mapa, as fendas do relógio e os filetes das listas. **Poeira no feixe da luminária**
-  (`_motes`, `DUST`; desenhada a 30 quadros por segundo sem redesenhar a sala): grãos de um pixel em toda a área que a
-  luminária ilumina (a do brilho `%Glow`, um círculo largo a partir do alto do meio da tela, que passa por cima da
-  mesa comutadora; o arco na parede é estreito no alto e deixava sem poeira a parede acima dela), mais claros perto
-  dela. Ficam na camada `%Dust` do Main (`Background.dust`, z 1, depois do
-  `Layout`): acima da mesa comutadora (no cenário, ela cobria a poeira que passa na frente dela), fora do papel das
-  ferramentas e nunca abaixo do fundo do tampo (o painel de baixo fica fora da sala). **Pingos** na chuva (`_drops`, `RAIN`): riscos de 1 px inclinados pelo vento (`RAIN_SLANT`)
-  que cruzam o vidro em meio segundo (`RAIN_FALL`; o risco é o rastro do quadro, `RAIN_STREAK`), mais longos e claros os
-  de perto e acesos perto dos postes (eram traços de 2 px que levavam 5 s para cair, como neve). **Gotas no vidro** na chuva (`_beads`, `BEADS`): paradas, de vez
-  em quando pesam e escorrem com um rastro; o brilho delas é quente perto do poste. Só na parte do vidro que aparece
-  (`_glass_from`: abaixo da persiana e da borda de cima da tela). **O painel de baixo fica fora da luz da sala**: é um
-  menu, não parte do cenário; a vinheta (`Vignette`) termina onde ele começa (`offset_bottom`), e o brilho da luz de
-  teto já fica só na tela do cenário. Não troque a base para 1920×1080 (tudo fica 2/3 do tamanho).
-  **Disposição (cena + painel)**: a tela é uma mesa de trabalho. No alto da esquerda, o horário do turno num
-  papel colado com fita na parede (`ShiftPlate`, variação `TapedNote`, com o horário e o botão Encerrar turno; era uma
-  plaqueta de latão; a faixa dele, `TopLeft`, tem 52 px fixos) e, à direita dele, na parede acima da mesa
-  comutadora, a placa esmaltada da companhia telefônica (`Background._draw_company_sign`, `SIGN_COMPANY`). O relógio da sala é um **relógio de flip na mesa** (`Background._draw_flip_clock`, o único da tela):
-  caixa de baquelite creme numa base escura, reta, com a frente paralela à tela (`CLOCK`; `CLOCK_TURN` gira para os
-  olhos uma fração do ângulo até eles, `_yaw`; foi 0,5: certo na conta, mas a frente descia uns 5° entre as horizontais
-  da sala e o lado sumia, e parecia um relógio inclinado numa mesa plana; `_clock_box` desenha as faces viradas para os olhos, `_clock_xz`/
-  `_clock_pt` giram os pontos), com fendas e botão niquelado do alarme no tampo, a
-  rodinha de acertar no lado e duas plaquetas (horas e minutos, algarismos de 9×19 desenhados à mão numa folha de
-  fonte, `DIGITS`) que viram quando a hora muda
-  (`Background.minutes`, o Main atualiza; `_flip_step`, `FLIP_SEC`). A frente é montada reta numa imagem
-  (`_clock_face`, `_flip_card`, `_card`) e posta coluna a coluna na perspectiva exata: cada coluna da tela é um raio
-  dos olhos que acerta a frente num ponto e numa distância, e a coluna vai da altura de cima à de baixo ali (torta por
-  transformação, os algarismos quebravam; um paralelogramo não batia com a caixa). Ao ouvido: o "tic" de cada plaqueta que vira, quando ela bate (`tick`, `Main._minute`, `FLIP_SEC` depois de
-  começar a virar; era um tique-taque a cada segundo real, do relógio de ponteiros, e não batia com as plaquetas, que
-  viram a cada 1,33 s), e a badalada de gongo a cada hora cheia (`chime`, `Main._hour`) vêm do relógio
-  (`Background.clock_x`) e a campainha de latão quando o turno pode ser encerrado (`shift_bell`), da plaqueta; embaixo
-  dela a mesa comutadora (588×362), a faixa da prateleira (`Shelf`, 16 px: o encaixe do FONE, `%FoneSocket`, e os
-  buracos dos cabos, `%CordTray`, com os plugs guardados em pé neles, na frente do painel, como numa mesa telefônica
-  de verdade; os fios repousam na linha dos buracos, `Switchboard._floor`) e a faixa da frente do console (`%Desk`), com a
-  **miniatura do painel de baixo** no meio (`%Mini`, `ConsoleMini`: a tela da conversa, as teclas e o rádio na
-  disposição e proporção de verdade dos blocos do `PhonePanel`, copiando o estado: tela acesa com as falas em traços,
-  teclas ativas acesas; o rádio peça por peça no lugar das do rádio de verdade, `Radio.parts`, com as mesmas linhas da tela quebradas na largura dela, o histórico apagado em cima e a mensagem de agora embaixo, `Radio.lines`, `_wrap`; o painel de baixo é a vista de perto dela). Ela não tem `z_index`
-  próprio: a mesa (z 1) desenha o plug e o fio puxados para baixo por cima dela, como faz com o painel de baixo (com z
-  1, eles passavam por trás da miniatura, a pedido saiu). A coluna da
-  direita (cresce com a largura) tem a dica do manual no alto (`%Hint`, um papel datilografado colado com fita na parede, `TapedLabel`, com "MANUAL" carimbado em vermelho; sem dica, o papel some mas o lugar fica; no pé, ela ficava em
-  cima dos objetos da mesa) e as ferramentas (`Tools`: no `%Body`, o papel da ferramenta aberta; guardadas, a
-  janela aparece; sem abas, a pedido: repetiam os objetos da mesa e tomavam 40 px de altura do papel). O papel sai do objeto da ferramenta na mesa (`Tools.origin` = `Background.prop_rect`: pequeno, em
-  cima dele, e cresce até o lugar; ao guardar, volta), tem a forma e o material do objeto (`PaperDeco`, a moldura em pixel art guardada por
-  tamanho, `_cover`: a capa de papelão mostarda da lista com o grão e o friso, como a da mesa; a capa de couro do caderno, com as
-  tiras dos registros pendentes saindo de cima, `pending`; a tábua da prancheta com o prendedor niquelado, `_clip`, e o cabeçalho
-  datilografado com o fio vermelho, `HEAD_Y`/`CallLog.HEAD`; o vinco do jornal; no despacho, nada: a moldura de metal da unidade em volta do vidro
-  do mapa e a base das máquinas são do `CardMachines`, por baixo do cartão), o papel na cor do objeto (`Tools.PAPER`) e a luz
-  da luminária por cima, lisa, mais clara perto dela e escurecendo quando ela pisca (`PaperDeco.light`, `LIGHT_*`; o Main
-  passa `Tools.light`); as abas de índice da lista são tiras de papel como as que marcam páginas nas listas da mesa
-  (creme; a aberta, vermelha) e o caderno tem a pauta e a margem do caderno da mesa. Aberto, o cenário atrás escurece e ganha a sombra dele (a mesa comutadora e o painel não). Embaixo de tudo, na
-  largura toda, o painel do operador (`PhonePanel`, 150 px: a tela da conversa, as teclas e o rádio, nessa ordem), um console embutido na frente da mesa (a madeira de borda a borda logo abaixo
-  do tampo, `PhonePanel._draw`; os blocos `HudPanel` são telas e chapas encaixadas; a tela da conversa tem vidro e
-  apaga sem ligação, `ScreenGlass`, mas fica esperando como um terminal antigo: "Aguardando chamada" bem apagado
-  e o cursor piscando, `idle`, `CONSOLE_IDLE`; o rádio mostra acima da mensagem de agora as anteriores, cada uma mais
-  apagada, `Radio.HISTORY`, `_archive`, as que couberem). A altura útil é 700 px: as colunas pedem 540 (a da esquerda, exata) e o
-  painel 150; passando, a tela inteira sobe e a plaqueta sai por cima. O `Background` (cenário em camadas, em pixels de 1x1 como a interface: as contas em unidades de 2 px e os detalhes finos em `PX`/`_p`; desenhado no `SceneView`, uma tela própria na resolução da janela, que repassa o mouse a ele, `pointer`/`prop_at`/`leave`, e desenha por cima o contorno e o nome do objeto sob o mouse, `draw_hover`) estica
-  parede e mesa até a borda, como o canto de uma sala visto de quem está sentado à mesa. **Uma câmera só**, em
-  perspectiva de um ponto: o ponto de fuga (`_vp`) fica em `VP_AT` do espaço da mesa, da mesa comutadora à
-  quina (perto dos objetos: a inclinação deles cresce com a distância a ele; preso à largura da tela, numa janela
-  larga ele fugia dos objetos e as listas apareciam bem de lado; no meio exato das fileiras, a parede da janela
-  entrava pela mesa e espremia os objetos). **A sala se distribui na largura que tiver**: entre a mesa comutadora e a
-  quina, o armário (`CAB_W`) e o lugar do cartaz (`POSTER_W`) com a mesma folga entre eles; os objetos da mesa em duas
-  fileiras de ponta a ponta entre a lateral da mesa comutadora e a parede da direita (`_row`, `WALL_PAD`), com a mesma
-  folga entre eles. Os lugares do cartaz e do jornal ficam guardados mesmo sem eles, para nada mudar entre as noites.
-  (Presos a uma ponta só, sobrava mesa vazia numa janela larga; presos a pontas diferentes, o relógio caía em cima do
-  jornal em 1280 e o armário entrava atrás da mesa comutadora.) e `EYE` acima do fundo do tampo, dentro da tela, na altura da janela (era logo acima
-  da tela: a mesa vista mais de cima, mas a parede da janela ficava a 44 cm da cabeça e a janela descia uns 40°; com
-  os olhos mais baixos, o que fica longe do ponto entorta mais: a inclinação de um lado que foge é a distância ao
-  ponto na horizontal dividida pela distância na vertical, e só depende da tela); `_proj`/`_p3` levam um ponto da sala (x, y a
-  partir dos olhos, z a distância; a parede do fundo a `Z0`) para a tela. **A câmera são os olhos do operador
-  sentado**: `SEAT_EYE` (45 cm acima do tampo) e `SEAT_BACK` (110 cm até o fundo do tampo; a frente do tampo fica sob o
-  console) dão a distância focal, `Z0 = EYE × SEAT_BACK / SEAT_EYE` (a tela já fixa o ponto de fuga e o fundo do tampo;
-  só a focal estava livre). Com o antigo 330 a mesa era vista de cima como por alguém em pé (~38° para baixo; sentado,
-  ~22–29°), e toda profundidade absoluta saía exagerada (o relógio torto, a lateral da mesa comutadora larga). Os
-  objetos chatos têm a profundidade em fração do tampo (`_deep`) e não mudam na tela; com a focal certa, as medidas
-  deles na sala ficaram as de verdade (a prancheta mais funda que larga). Na sala: a parede do fundo (sem rodapé nem
-  linha escura embaixo: com elas parecia um chão), com um conduíte de ferro levando os fios do alto do painel da mesa comutadora
-  para o teto, com a caixa de passagem (`_draw_conduit`, no vão entre ela e o armário), e um armário
-  de aço de chão (`_draw_steel_cabinet`, `CAB_*`; a mesa esconde a base; ~1,5 m, o alto acima dos olhos, então o tampo
-  não aparece; venezianas em cima e embaixo, o puxador no meio da altura, um amassado e riscos perto do pé; entreaberto, o vão tem fundo, a parede de dentro virada para quem olha, prateleiras até a mesa, as de
-  cima mostrando o lado de baixo e as de baixo o tampo, e pastas em pé, e a porta aberta mostra o painel de dentro e a espessura); a parede da direita, entrando para o fundo
-  a partir da quina (`CORNER` da área das ferramentas, `Background.window`), mais clara (virada para a luminária),
-  com a janela vista de lado (`_draw_side_wall`, `_side_pt`: guarnição, caixilho e persiana na perspectiva da parede;
-  o vão tem a espessura dela, `WALL_D`: sair da parede é andar na horizontal da tela, então aparecem o lado de dentro
-  do batente de longe e o fundo do vão (a tábua do peitoril indo até o trilho de baixo do caixilho; escuro, parecia
-  um buraco; o que passa do batente de perto é cortado; fora do vidro, o escuro da sala deixava o peitoril e a
-  guarnição de perto quase pretos, então a luz de fora os clareia por cima do escuro, `_sill_lit`; a ponta de perto da
-  tábua tem a face dela; o vaso que ficava nela saiu, a pedido), o vidro fica do lado de fora e o batente de perto esconde uma tira dele; o
-  peitoril de dentro é uma tábua saindo para a sala, `SILL_D`; o peitoril fica `WIN_SILL` cm abaixo dos
-  olhos e o alto `WIN_TOP` acima deles, e a travessa do caixilho quase na altura deles; a janela e o armário são medidos
-  em cm a partir dos olhos, `_cm`, e acompanham a câmera quando ela muda; a vista da cidade é desenhada de frente num vidro fora da tela, `_vport`, e só recortada
-  pelo vidro: está longe e não entorta com a janela; o horizonte dela fica na altura dos olhos); a mesa, afastada da
-  parede (`DESK_T`), com o fundo do tampo atrás da mesa comutadora (`BOARD_SINK`), a borda da frente logo abaixo da
-  faixa de mesa (`Background.desk`) e a ponta na parede da direita, numa
-  linha que foge para o ponto de fuga. A luz vem de cima, do meio da tela, de uma luminária que não aparece (o
-  desenho dela foi tirado a pedido do usuário: `_lamp_x` no meio, `LAMP_Y` acima da tela); ela dobra na quina: na
-  parede é o arco do cone (`_draw_wall_light`, `WALL_GAP`), na mesa a poça; o que está na frente da parede faz sombra nela, ampliada
-  a partir da luminária (`_cast`); a luz da rua entra pela janela e cai na mesa (`_draw_street_light`): o vão abaixo da
-  persiana projetado no tampo, descendo para dentro da sala (`STREET_LIGHT`; mais inclinada, era um quadrado pequeno
-  para a janela grande), um pouco longe da parede (o peitoril faz sombra) e só onde há mesa; grande, bem lisa e
-  espalhada além da janela, e por cima dos objetos (eles ficam na luz também). Na mesa, ao alcance do
-  operador, os objetos que abrem as ferramentas (`prop_clicked(id)` → `Tools.set_tab`; `_props`, `_has_point`: o
-  clique só vale sobre eles e não com papel por cima): listas telefônicas (1: três volumes desencontrados, a lombada com os filetes dourados e a etiqueta do volume,
-  o miolo com as folhas em linhas finas, posto pixel a pixel como a capa, `_art_pages`, mais sujo junto das capas, e tiras
-  de papel marcando páginas; a capa de cima com o título dourado em
-  baixo-relevo, o fone da companhia, a etiqueta com o ano, a marca de uma caneca e a ponta dobrada, `_art_book_cover`), a unidade de despacho (2: `_draw_dispatch_unit`, `UNIT*`: um móvel de metal no
-  material das máquinas da ficha, como um terminal antigo; embaixo, a base com as três máquinas no tampo, na disposição
-  da ficha aberta, `_art_deck`, e na frente a plaqueta e as luzes; em cima, o painel inclinado com o mapa de papel sob
-  o vidro, `_art_glass`: o mapa aberto em miniatura, `_art_map`, com as mesmas folhas, as dos bairros atendidos, na
-  proporção delas: quarteirões no tom do bairro, casas e árvores, lugares de telhado de barro, praça, zona rural,
-  divisas e o selo; sem nomes, que nesse tamanho seriam ruído; papel sob a luz da sala, não tela acesa, a pedido),
-  caderno aberto (3) e
-  prancheta do registro (4), mais a caneca, postos por fração da profundidade do tampo (`_at`, `_deep`: ficam no
-  tampo seja qual for a câmera) e, na largura, a partir da lateral da mesa comutadora (`_side_x`), em duas fileiras
-  com folga entre eles: atrás, o que é alto: a unidade de despacho, as listas e o relógio de flip com a caneca na
-  frente dele; na frente, o que é chato: prancheta, caderno e jornal (as listas na frente tampavam o caderno inteiro) (numa tela mais larga, a folga sobra perto da janela). **Cada um fica num lugar da sala e passa pela câmera** (`_draw_desk_props`:
-  tamanho, escorço e o lado que aparece saem da conta; `_box` dá os cantos; nos objetos chatos (caderno,
-  prancheta, jornal e a capa da lista de cima), `_flat` desenha o tampo de frente numa imagem do tamanho que ele tem na
-  tela, `_top_xf`, e `_project` o põe na perspectiva pixel a pixel pela homografia, `_homography`, como a frente do
-  relógio, guardado até o desenho mudar; torto por transformação, o desenho esticava e entortava os pixels, uma linha
-  de 1 px virava 0 ou 2, e destoava do resto do jogo; o que não pode entortar, como o lápis, o alfinete e as tiras do
-  caderno, vai por cima já na tela, `_tex_pt`; **risco fino também vai na tela**: texto, pauta, colunas e vincos do
-  jornal, da prancheta e do caderno (`_newspaper_print`, `_clipboard_print`, `_notebook_marks`) com `_ink` (um risco
-  em pixel art) nas alturas de `_rows` (a cada N px da tela, não do papel): no papel, linhas de 1 px a cada 2 viravam
-  moiré e zigue-zague na perspectiva; área cheia, como a foto do jornal, pode ficar no desenho; papel tem 1 px de beira
-  e a prancheta, 2 (com mais, pareciam tábuas); os desenhos são `_art_*`), **cada um girado uns graus, como largado na mesa**
-  (`_turned` gira os cantos em volta do meio, `_faces` dá as faces de pé viradas para os olhos; o `yaw` de cada um em
-  `_flat` e nas listas, cada volume para um lado: todos retos e em fileira, a mesa parecia montada), desenhados em 1x1 (sem contorno preto: torto pela perspectiva, serrilhava; as faces se separam pela luz, `_poly`; sombra apontando para longe da luminária, em degraus: penumbra, sombra e o contato escuro colado na base, `_desk_shadow`; e cada um escurece ponto a ponto quanto mais longe da poça de luz, liso dentro do próprio objeto (os cantos de cada face pela distância deles, `_shade`, `_dim`, `_shaded`, `_pool`, `SHADE_MAX`; com um tom só por objeto, a troca entre eles era brusca), também quando a luminária pisca), do fundo para a frente; a legenda sob o mouse é do `SceneView`, na resolução da interface. **A mesa comutadora é um móvel só** (`_draw_switchboard`,
-  como uma mesa telefônica de verdade): embaixo, o console, cuja frente é a faixa da miniatura do painel (a
-  madeira em volta dela, com a plaqueta de latão de um lado, os botões de volume e sintonia do outro e os parafusos;
-  a prateleira tem veios e o friso de latão na beira) e cujo alto é a prateleira, com o FONE e os cabos em pé nos buracos (a mesa desenha); no fundo dela, num rodapé e com a sombra
-  de contato, o painel (`Background.board`). Painel e console têm a mesma largura na sala, então o console, mais
-  perto, sai mais largo na tela (a esquerda passa da borda): é o que os alinha na câmera. A lateral em L (o console
-  até o fundo do móvel e o painel em cima, raso como nas mesas de verdade, `BOARD_D`: fundo, ele mostrava uma lateral
-  e um tampo grandes demais para quem senta logo na frente) foge para o ponto de fuga; com os olhos acima do painel, o
-  tampo dele aparece. (Antes eram caixas soltas na frente do painel, com
-  tampos enormes que cobriam o pé dele: parecia fora da mesa e desalinhado.) O tampo (`_draw_desk`): `PLANKS` tábuas
-  da mesma largura espaçadas pela câmera, sem juntas (com juntas parecia assoalho), a borda da frente com a
-  espessura dele e a poça de luz da luminária, um círculo de `POOL_R` no tampo embaixo dela que treme com ela
-  (`lamp_level`, como o arco na parede e a luz no armário). **O estado do jogo nos objetos**, para ler de relance: uma
-  tira de papel saindo do caderno por registro pendente (`pending`) e uma folha nova na
-  prancheta quando uma conversa termina com o registro guardado (`unread`; `CallLog.filed`/`unread_changed`, o Main
-  chama `filed` em `end_call`); na unidade de despacho, a luz vermelha com uma emergência em andamento (`alert`) e,
-  com um cartão perfurado na mesa, a luz âmbar e o cartão saindo da fenda da impressora (`card_out`; o Main atualiza
-  os dois a cada quadro). (O alfinete do mapa dobrado, que piscava com emergência, saiu com ele.) **Jornal da manhã** (da segunda noite em diante): o jornal dobrado na mesa (`news`,
-  `Main.set_news`) abre a primeira página na área das ferramentas (`NewsView`, `Tools.news`, id "jornal", sem aba) com
-  as manchetes da noite anterior; `ShiftReport.news()` sorteia a manchete de cada emergência uma vez (o relatório do
-  fim da noite e o jornal dizem a mesma; `headline` traduz na hora) e o `Progress` a guarda (`news`). A página é a do jornal da mesa de perto
-  (o papel-jornal, o fio duplo, as colunas de letra miúda, `_greek`, e a foto da cidade em retícula, `_photo`); cada noite
-  pode trazer a foto, a legenda e as matérias das colunas dela (`Night.news_photo`, `news_caption`, `news_stories`: uma por
-  coluna, a primeira linha é o título), e o que ela não trouxer sai como sempre. **A sala muda ao
-  longo das noites**: `GameContent.room` (`RoomChange`, `data/room/`: `detail`, `requires`, `from_night`) liga
-  detalhes do cenário (`Background.details`, `DETAILS`: cartaz da quermesse, número anotado colado no armário, armário
-  entreaberto com as pastas) pelos marcadores do roteiro, já no meio da noite (`Main._update_room`, refeito a cada
-  `flags.changed`; o setter de `Main.flags` religa); o calendário do armário risca um dia por noite (`night`). Na
-  primeira vez que cada sinal da mesa aparece (tiras, folha nova), uma dica do manual explica, uma vez no
-  jogo todo (`Main._teach`: o "já viu" fica nos marcadores salvos; espera o tutorial acabar). Sob o
-  mouse: contorno, o nome da ferramenta e o dedo. **O cenário só se redesenha quando algo que ele mostra
-  muda**, e o que muda sozinho fica fora do desenho da sala (redesenhá-la custava ~20 ms e ela se redesenhava 3 a 4
-  vezes por segundo parada; ver a história 84): a sala (`Background._state`: o lugar das peças da interface, a
-  luminária, o estado nos objetos, o clima; parado, fica o desenho guardado); por cima dela, a camada `_over`
-  (`_draw_over`, com o estado dela no `_process`: o escuro da sala, o que entra pela janela, o neon, o
-  escuro e a sombra atrás do papel e as luzes da sala no `Bloom`, que a sala junta em `_glows` e a camada acende
-  cortadas onde o papel está, quadro a quadro, `_paper`, `_light`); a do relâmpago (`_bolt_layer`: o que ele acende é
-  medido com a sala e só a força muda, no `modulate`); a frente do relógio, uma textura trocada no lugar
-  (`_clock_face`: a sala desenhada com ela mostra a hora nova sem se redesenhar); e a vista da janela, a 30 quadros por
-  segundo no vidro (`_vport`, `UPDATE_ONCE` a cada quadro dela), em duas camadas: a de trás (`_back`,
-  `_draw_view_back`: céu, cidade, rua, fachadas) só quando muda (`_back_state`: a hora, a luminária, o neon, o
-  relâmpago, as estrelas piscando) e a da frente (`_draw_city_front`: o letreiro, quem passa, os postes, o homem, o
-  carro, a névoa; depois o arbusto, o reflexo e a chuva) a cada quadro. A tela do cenário (o `View` do `SceneView`) só
-  é desenhada quando algo nela muda (`Background._show`) ou de tamanho (`SceneView._fit`). Quem acrescentar ao desenho
-  algo que muda precisa pôr isso no estado da camada certa (e, na sala, no `_state`). Lá fora (`_draw_city`): céu do clima, morros, casas
-  sorteadas sempre iguais (`_build_city`, semente fixa),
-  a igreja com o relógio aceso, a rua com o poste (a silhueta do mistério fica contra a luz dele) e o chão molhado na
-  chuva. **A vista: uma cena 3D simples projetada no vidro** (pedido do usuário: pensar a cena antes,
-  nunca a perspectiva elemento por elemento; `OUT_*`): uma câmera dentro do prédio, na altura de quem está na janela
-  (`OUT_EYE` m acima da rua; o horizonte passa ali; não é vista aérea), olhando de frente para uma rua que passa ao
-  lado do prédio e continua para os dois lados. Um ponto de fuga só, no meio do horizonte: para ele fogem só as linhas
-  que vão para longe (a rua do cruzamento e as paredes dela); a rua, os meios-fios e as fachadas de frente ficam na
-  horizontal e as paredes na vertical, com a base apoiada na calçada. A diagonal da janela é só do primeiro plano (o arbusto plantado junto da nossa parede também: a copa sobe do
-  peitoril posta pela parede da sala, `_side_pt`, não pela câmera da vista, `SHRUB`, `_draw_shrub`) e não
-  entra na conta, e nada da vista encosta no nosso prédio: a nossa calçada, o nosso meio-fio e uma faixa de pedestres
-saindo deles diziam para que lado a nossa parede vai, contra a sala (a parede parecia torta); perto, a rua some na
-sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x, z, h)`: `x` ao longo da rua, `z` a distância dos
-  olhos, `h` a altura; `_patch` um retângulo no chão). De perto para longe (`STREET`): o
-  asfalto (manchas, desgaste dos pneus, grão, poças espelhando o céu e a faixa tracejada), o meio-fio de lá (com a face virada para nós), a calçada de lá com os postes (`FAR_LAMPS`, a luz deles
-  no chão) e o homem embaixo do da esquina (`MAN_X`, `_draw_stranger`: 1,8 m, chapéu e casaco; chega e sai andando), em silhueta contra a
-  vitrine acesa de um bar (`_draw_shopfront`), os prédios de frente
-  (`_houses`, `_draw_far_house`: o de tijolos na esquina, à direita do cruzamento, `CROSSING`; o hotel com o letreiro e a marquise acesa
-  sobre a porta, `HOTEL_X`, `_draw_marquee`, do outro lado; janelas fundas, com a sombra da verga e o peitoril, e a
-  luz dos postes lavando as fachadas), a rua do cruzamento indo embora entre paredes (`_canyon`, `_draw_canyon_wall`, com os
-  postes dela diminuindo e a névoa clareando para o fundo) até a igreja no fim (`_church_pos`, `CHURCH_K`) e, bem longe, a cidade em duas fileiras na
-  névoa. Na chuva, o asfalto molhado espelha as luzes em riscos verticais (`_draw_wet`). Na névoa (`_draw_fog`, por cima da rua e do
-  outro lado, atrás do arbusto): um véu liso mais grosso rente ao chão (`FOG_VEIL`, `FOG_GROUND`), fiapos largos e lisos
-  atravessando a rua com o vento (`FOG_WISPS`) e as luzes espalhando nela (halo e cone de laterais lisas em cada poste, o
-  vermelho do neon); as faixas retangulares que havia no vidro pareciam defeito. Os carros (`_draw_car`, um por
-  vez em cada mão, cada mão no seu sorteio, `_cars`) passam pelas duas mãos (`CAR_LANES`, `_car_x`): pela de lá, da
-  direita para a esquerda; pela de cá, voltando, da esquerda para a direita, mais perto da faixa do meio que do nosso
-  meio-fio (rente a ele, ficava tão perto e de cima que virava uma mancha escura cortada pelo peitoril), apoiados no
-  asfalto: sombra de contato, facho dos faróis no chão, lado,
-  teto e capô vistos um pouco de cima, a frente ou a traseira virada para nós. O brilho da luz de cima (`%Glow`, centrado no alto, liso) fica dentro da tela do cenário, logo depois do
-  `Background`: ilumina a sala, não a interface; acompanha o tremor dela. **Para trocar por PNG**: `wall_art`, `window_art` e `desk_art` entram no lugar do desenho daquela camada
-  (o clima continua por cima da janela). As ferramentas não têm abas: abrem pelos objetos da mesa ou pelas teclas 1 a 4. O caderno da mesa mostra o selo dos registros pendentes (`Background.pending`). Nos testes, o clique num objeto da
-  mesa é `background.pointer(evento)`.
+  varredura. **Gradação de cor** (plano hi-bit): o `Box` mostra o jogo por um shader (`scripts/ui/grade.gdshader`,
+  `GameView.grade_material`) que passa cada pixel por uma conta de cor (as sombras puxando para o azul da noite, sem
+  clarear, os tons médios na luz, a madeira e as lâmpadas, para o quente, `warm`, e um pouco mais de contraste;
+  parâmetros no shader, em vez de uma tabela numa textura), ponto a ponto no pixel já ampliado: o pixel perfect
+  continua. Os tons claros ficam como são (`spare`): aquecidos, o papel das ferramentas e do relatório amarelava.
+  Cada clima tem a sua (`GameView.GRADES`: a noite limpa com mais contraste, a chuva mais fria, a névoa mais lavada),
+  posta pelo Main quando o clima é definido e trocada aos poucos quando ele muda (`GameView.grade_weather`). A captura passa por ela também (`tools/shot.gd`; `--grade=0`
+  sem); o painel de debug liga e desliga na hora (seção Clima, `GameView.set_grade`); o `main.tscn` sozinho e os
+  testes ficam sem.
+- **O cenário (`Background`) e a mesa comutadora (`Switchboard`) estão descritos em `scripts/ui/CLAUDE.md`** (lido
+  ao mexer em `scripts/ui/`). Regras gerais deles: **o cenário e a mesa só se redesenham quando o que mostram muda**
+  (estado comparado no `_process`: `Background._state`, a camada `_over`, o `_back_state` da vista, o `_look` de cada
+  camada da mesa: painel, lâmpadas, tomadas com a luz da sala e fios);
+  quem acrescentar ao desenho algo que muda precisa pôr isso no estado da camada certa. Sem tela, a vista da janela
+  não é desenhada (`Background._headless`).
 - **Bloom das luzes** (`Bloom`, `scripts/ui/bloom.gd`, nó `Bloom` do Main, z 2: acima da mesa e dos painéis, abaixo dos
   menus), no estilo do glow de cinema e em pixel art: halo somado à tela (blend ADD) em duas camadas (curta e forte,
   longa e fraca), desenhado em blocos de `BLOCK` px (1, como o resto) com poucos degraus lisos (`DITHER` liga o pontilhado ordenado entre eles; desligado, a pedido, porque salpicava
@@ -346,24 +124,61 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   tamanho); por cima, a própria luz nítida com o centro indo, em degraus, para um branco tingido pela cor dela (`HOT`,
   `HOT_TINT`; sem isso o halo parecia uma fumaça). Só brilha o que se declara luz, porque pela cor não dá (o plug
   vermelho tem o tom da lâmpada vermelha; um bloom de tela por cor foi testado e descartado): quem desenha luzes chama
-  `Bloom.clear(self)` no começo do `_draw` e `Bloom.light(self, rect, cor, halo, core, round)` por luz acesa (lâmpadas
+  `Bloom.clear(self)` no começo do `_draw` e `Bloom.light(self, rect, cor, halo, core, round)` por luz acesa (`parts`:
+  a luz é a junção de vários retângulos e o halo, um só, segue a forma dela, como o letreiro do hotel, em T) (lâmpadas
   redondas da mesa, `Switchboard._draw_lamp`, com aro niquelado, `BEZEL`; aro da tomada de destino, sem miolo;
   luzes das máquinas do cartão; barra de agravamento; janelas acesas do `Background`, que desenha em 2×). ColorRect e
   Label no grupo "bloom" brilham na cor deles (luzes do rádio). Luz
   sem miolo tem o halo fraco por dentro (`HOLLOW`); luz de quem recorta o conteúdo (`clip_contents`) é recortada também.
   O que fica na frente das luzes de quem desenha (os plugs encaixados da mesa) entra com `Bloom.occlude(self, polígono)`:
-  os blocos do halo cobertos por ele somem (`_cut`, guardado; plug parado não refaz).
+  os blocos do halo cobertos por ele somem (`_cut`, guardado; plug parado não refaz). A máscara só vale para as luzes
+  do mesmo dono: na mesa, a camada das lâmpadas registra as duas.
+- **A luz** (plano hi-bit): **nada de `PointLight2D`** (dentro do `SceneView` ela obrigaria a
+  redesenhar a sala a cada mudança da luz; o `check.sh` acusa). O cenário é desenhado sem as luzes que mudam, e elas
+  entram depois, por parâmetros: a luminária no shader do `SceneView` (`lamp_light.gdshader`, a poça somada;
+  `Background.light` passa os parâmetros a cada quadro), o escuro da sala numa camada no meio dele (`_noir`,
+  `room_noir.gdshader`, `_noir_params`), as luzes de fora e as lâmpadas dos objetos no tampo (`_window_lights`,
+  `window_lights.gdshader`, até 8, `_window_light_list`), as lâmpadas da mesa comutadora no painel (`_glow`,
+  `board_glow.gdshader`, até 16, pelo `Bloom.lights_of`), a luz do dia nos shaders da sala (`Background.daylight`) e a
+  gradação do jogo inteiro no `GameView`; na vista, a luz do sol no chão em duas camadas, uma que multiplica e uma
+  somada, entre o chão e o que fica em pé (`_draw_sun_strip`, `_lit`). Luz com forma (o relâmpago, `_bolt_layer`; o sol, `_sun_layer`) é uma
+  camada somada (ADD), com a força no `modulate` e o desenho refeito só quando a geometria muda. **Para acrescentar uma
+  luz**: só o ponto aceso brilhando, `Bloom.light` no `_draw` de quem a desenha; acendendo em volta no cenário, uma
+  entrada em `_window_light_list` (lugar, alcance e força, cor; as de dentro primeiro, até 8); no painel da mesa
+  comutadora, declarada ao `Bloom` na camada das lâmpadas (o `_glow` pega); com forma (uma abertura projetada), uma
+  camada somada como a do sol. Todo parâmetro que o shader lê entra no estado comparado (senão ele fica com o valor
+  velho), e a cor dela vai no `Pal`.
 - Pixel art desenhada em `_draw()`; cores e fontes em `pal.gd` (`Pal.*`). **Área cheia em `draw_primitive`, não em
   `draw_polygon`**: cada `draw_polygon`/`draw_colored_polygon` é uma chamada de desenho (e cria um polígono a cada
-  redesenho); `draw_primitive` (até 4 pontos) seguidos viram uma só. O cenário tem `Background._fill`/`_poly` (o
-  quadrilátero inteiro; o resto, em triângulos); a sala passava de 2000 chamadas por quadro. **Os materiais dos objetos da mesa** (capa da lista,
-  couro do caderno, tábua e folhas da prancheta, papel-jornal, papel e tons do mapa, níquel, o vermelho do formulário) são
-  constantes do `Pal`, usadas pelo objeto (`Background._art_*`) e pelo papel aberto dele: o que muda numa ponta muda na outra. **Uma fonte só, de pixel: Departure Mono**
-  (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11** (o estado de cada linha na mesa não usa
-  ela: em 11, "conectada" não cabe na coluna, e em 8, fora da grade, borrava; é uma fonte de pixel própria, maiúsculas
-  de 3×5 gravadas no painel, `PixelArt.TINY`/`TINY_ACCENTS`/`tiny`, com os acentos dos três idiomas): 11 (texto, números da lista), 22
-  (títulos, visor, bilhete), 33 (títulos de tela), 44 (relógio). Importada com suavização (a janela
-  menor que 1280×720 não apaga os traços; sem ela, a 1,5× as letras saíam irregulares), sem hinting e sem sub-pixel. Texto em
+  redesenho); `draw_primitive` (até 4 pontos) seguidos **com o mesmo número de pontos** viram uma só (triângulo e quadrilátero
+  alternados quebram o lote a cada um: os fiapos de nuvem do amanhecer davam 2900 chamadas; `_light_fan` desenha os
+  triângulos todos e depois os quadriláteros). O cenário tem `Background._fill`/`_poly` (o
+  quadrilátero inteiro; o resto, em triângulos); a sala passava de 2000 chamadas por quadro. **Os materiais dos objetos da mesa** (capas, miolo, página e etiqueta da lista,
+  fita e papelão do bloco de fichas, a letra a lápis e o lápis dele, os carimbos do caderno, tábua, folhas e letra da prancheta, papel-jornal com a tinta, a beira e a foto, o bilhete de tarifação com o formulário e a tinta do carimbo, papel e tons do mapa, o cartão do despacho, níquel, latão (o das plaquetas e o dos plugs), a baquelite, os cabos, o vermelho do formulário, a madeira e a borda do tampo, o relógio de flip e o café da caneca; e os da sala: a parede, o vão da janela, a persiana, o armário de aço com o cromado, o conduíte, a folhinha e o cartaz; e os da vista: o céu, a lua e as nuvens, a cidade de longe, as fachadas, a rua com os postes, o bar, o hotel, a varanda, a igreja, o arbusto, os carros, quem passa, os bichos e o letreiro) são
+  constantes do `Pal`, usadas pelo objeto (`Background._art_*`) e pelo papel aberto dele: o que muda numa ponta muda na outra. **Rampas de material** (plano hi-bit): `Array[Color]` no `Pal`, do escuro ao claro, a sombra
+  puxando para o frio e a luz para o quente; o desenho escolhe o tom pelo nível de luz com `Pal.ramp(tons, luz)`, em
+  degraus, no lugar de escurecer por cima (por ora, a caneca, o aro das tomadas, `JACK_METAL`, a madeira do tampo,
+  `Pal.desk`, o móvel da mesa comutadora, `Pal.cabinet` e `Pal.panel_metal`, os papéis da mesa e a unidade de
+  despacho dela, `Pal.lit`, que leva um tom degraus acima ou abaixo na rampa em que ele está, a de um papel,
+  `PAPER_RAMPS`, ou a do metal, `PANEL_METAL`; a unidade de despacho, pequena e de metal, fica toda no degrau da luz
+  no meio dela, `Background._lit_image`, porque a troca de degrau andando de uma linha para outra, a dos papéis,
+  listrava o metal como escovado; nas máquinas abertas, a beira das chapas em dois tons dela de cada lado,
+  `CardMachines.bevel`; as peças de metal paradas do painel da mesa comutadora, num degrau da luz da sala no meio
+  delas, `Pal.panel_step`, o mesmo do relevo; a máquina do calculógrafo da mesa, a mesinha, o carimbo e a caixinha
+  num degrau só, `_clock_box` com `tone`; os plugs e os fios, que andam, continuam na luz multiplicada, `_lit_by`,
+  porque uma paleta por degrau, por ângulo e por cabo encheria o cache do `PixelArt`; a parede do fundo, o conduíte e o
+  armário pela luz da luminária na parede, só na cor, `CONDUIT`, `STEEL_TONES` (a parede, num tom só: em faixas, a
+  beira delas fazia um arco duro ao lado do armário, pedido 275; o conduíte e o armário, num degrau só cada um, pedido 279), porque o escuro
+  pela distância já é o da sala, `_noir`, e dobraria; na vista, as fachadas e as paredes da rua do cruzamento,
+  `Pal.FACADE_TONES` e `BRICK_TONES`, o asfalto e a calçada, `ASPHALT_TONES` e `SIDEWALK_TONES`, e a quina do
+  meio-fio, acesa embaixo de cada poste, `CURB_LIT`, a lataria dos carros e o baú, `CAR_TONES` e `TRUCK_BOX`, e a
+  beira do letreiro, tingida pelo neon, `SIGN_BOX`; `step` pega o tom acima ou
+  abaixo, para veios e beiras). **Uma fonte só, de pixel: Departure Mono**
+  (`Pal.ui` e `Pal.mono` são a mesma; continuam separadas pelo papel), **só em múltiplos de 11** (o que é gravado no painel da mesa não usa
+  ela: é uma fonte de pixel própria, maiúsculas de 3×5, `PixelArt.TINY`/`TINY_ACCENTS`/`tiny`, com os acentos dos três
+  idiomas; o estado escrito de cada linha em cima das lâmpadas saiu, a pedido: a lâmpada já diz): 11 (texto, números da lista), 22
+  (títulos, visor, bilhete), 33 (títulos de tela). **Em objeto da sala, nada de fonte acima de 11**: em 22/33/44 cada pixel dela vira um bloco de 2/3/4 px ao lado dos de 1 px ("pixels duplos"); use 11 em negrito (a sombra de 1 px ao lado, como a manchete do jornal), a fonte ampliada pelo Scale2x em relevo ou vazada (`PixelArt.big`, `relief`: o nome do jornal) ou letra desenhada à mão (as chapas da mesa, `PLATE_LETTERS`; os algarismos do relógio, `DIGITS`, com barras de 1 px). Importada com suavização (a janela
+  menor que 960×540 não apaga os traços), sem hinting e sem sub-pixel. Texto em
   desenho com escala (mapa) sai fora da escala (`CityMap._t`).
 - **Idiomas** pt_BR (padrão), en, es. Interface/código: **enum `T.Key`** (`scripts/t.gd`, GERADO) +
   `translations/ui.csv` (`chave,pt_BR,en,es`); use `T.text(T.Key.X)` (com valores: `T.text(T.Key.X) % n`), nunca
@@ -373,30 +188,39 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   tools/update_translations.gd` (gera o enum e mescla os .po; campos fora da extração em `SKIP`). `Settings.set_locale`
   troca o idioma (o jogador escolhe em Configurações; padrão pt_BR; `-- --lang=en` força). Em funções estáticas, traduza com `TranslationServer.translate()`.
   Lacunas dos moldes também se traduzem: `tr(spoken)`, `tr("d" + spoken)`, `tr("pr" + spoken)` têm entradas próprias
-  no .po. Texto que já chega traduzido num Button/Label dinâmico: `auto_translate_mode = DISABLED`.
+  no .po. Texto que já chega traduzido num Button/Label dinâmico: `auto_translate_mode = DISABLED`. Revisão em
+  planilha: `-- --review` grava `build/traducoes.csv` (arquivo, pt_BR, en, es) e `-- --apply=<csv>` devolve en e es
+  aos .po (`_fixes`).
 - Entrada: ação `cancel_plug` no Input Map (Esc e botão direito) devolve o plug que está na mão; ação `pause` (Esc, P)
   pausa o turno quando não há plug na mão (`Main._unhandled_input`). Atalhos do telefone: ações `answer_call`
-  (Espaço), `transfer_call` (Tab), `hang_up` (X), tratadas em `PhonePanel._input` **antes da interface** (Espaço e
+  (Espaço), `transfer_call` (Tab), `listen_call` (Z, a tecla Escutar/Soltar), `hang_up` (X), tratadas em `PhonePanel._input` **antes da interface** (Espaço e
   Tab também apertam o botão em foco e passam o foco; por isso não dá para usar `Button.shortcut`). Só com o botão
-  ativo; na pausa não valem; com um campo de texto em foco a tecla fica com ele. Cada tecla é uma chapa de metal
+  ativo; na pausa não valem; com um campo de texto em foco a tecla fica com ele. As quatro teclas ficam numa grade de 2 × 2 (`Keys`, um `GridContainer`: em fila, tomavam a largura da tela da conversa, e numa emergência as respostas não cabiam e o painel crescia, empurrando a sala para cima). Cada tecla é uma chapa de metal
   parafusada com a etiqueta de latão no alto, onde fica o atalho (Label `Key`; "Espaço" traduzido, `KEY_SPACE`), e a
   tecla baixa, em relevo, num poço no meio do espaço embaixo dela (`KeyCapStyle`, `WELL_H`; as margens de conteúdo põem
   o nome no tampo). Ferramentas: ações `tab_directory`/`tab_dispatch`/`tab_logbook`/`tab_call_log` (1 a 4),
   tratadas em `Main._unhandled_input` só durante o turno (`Main.TAB_KEYS`, `Tools.toggle`: a tecla da ferramenta aberta a
-  guarda; Esc também guarda, antes de pausar). No código, `Tools.set_tab(id)` abre.
+  guarda; Esc também guarda, antes de pausar). No código, `Tools.set_tab(id)` abre; os ids são as constantes `Tools.DIRECTORY`, `DISPATCH`, `LOGBOOK`,
+  `CALL_LOG`, `NEWS` e `TOLL` (nunca o texto: o `check.sh` acusa).
 - **Pausa e configurações**: `PauseMenu` (`scenes/ui/pause_menu.tscn`, z 4, `process_mode` ALWAYS) usa
-  `get_tree().paused`. **Todo `create_timer` do jogo leva `false` no 2º argumento** (senão continua contando na pausa);
+  `get_tree().paused`. **Recomeçar (a noite, o jogo, depois do fim) é sempre `Main.restart()`, nunca
+  `reload_current_scene()`**: chamado num clique, ele tirava a cena da árvore no meio do evento e as esperas por quadro
+  acordavam sem ela (`test_keys` confere). **Todo `create_timer` do jogo leva `false` no 2º argumento** (senão continua contando na pausa);
   o `Sfx` roda sempre (ambiente segue, abafado: `Sfx.muffle`, um passa-baixa e um ganho no Master, `MUFFLE`; nas
   Configurações volta ao normal para o volume se ajustar ouvindo; `Main.pause()` cala a campainha e `_update_bell` a devolve). Configurações no
-  autoload `Settings` (`user://settings.cfg`): `locale`, `volumes` por barramento, `fullscreen` e `pixel_perfect` (a
-  tela, que o `GameView` aplica), `text_speed` (`char_delay()`
-  multiplica o tempo por letra na conversa e no rádio); sinal `changed`. `set_*` vale na hora (prévia) mas só
+  autoload `Settings` (`user://settings.cfg`): `locale`, `volumes` por barramento e `fullscreen` (a
+  tela, que o `GameView` aplica; a velocidade do texto saiu, a pedido: o ritmo das falas faz parte do jogo, como o da
+  escuta); sinal `changed`. `set_*` vale na hora (prévia) mas só
   `save()` grava (botão Aplicar); Voltar/Esc faz `restore(snapshot)` do estado de quando a tela abriu. Testes (`-- --test=x` ou `-s`) não leem nem gravam o arquivo.
   Textos montados uma vez (botões do despacho, itens do caderno, telas desenhadas) se refazem em
   `NOTIFICATION_TRANSLATION_CHANGED`.
 - Git: branch principal `development`; commits no padrão `tipo(#0000): descrição`. `.godot/` fica fora do git.
   Só faça commit quando o usuário pedir (na reestruturação ele autorizou um commit por etapa em `refactor/definitive`).
 - Comentário `ponytail:` marca um atalho deliberado; mantenha o código enxuto e no estilo do arquivo.
+- **Antes de criar arquivo (ou função, cena, recurso): procurar o componente que já existe** (`graphify query
+  "<componente>"`, o grafo em `graphify-out/`). **Reaproveitar > criar.** O grafo envelhece: confira no código com `grep`
+  antes de concluir que não existe, e atualize-o com `python -m graphify update <projeto>` (o graphify-godot, que lê os
+  `.gd`), conferindo antes e depois que as ligações dos documentos não sumiram.
 - **Quando o usuário pedir commit, rode antes a skill `revisar-mudancas`** (`.claude/skills/revisar-mudancas/`; só
   então, não depois de cada mudança): uma passada rápida de boas práticas e desempenho só no código alterado.
   - O `check.sh` acha o óbvio nas linhas acrescentadas do `git diff`.
@@ -423,257 +247,79 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   `Engine.time_scale`: 8 nos cenários, 2 no robô (acima disso as falas, letra a letra, ficam presas ao quadro e
   alongam as conversas; a 48× as métricas mudavam muito).
   - `tests/test_base.gd`: base (`ok()` em vez de `assert`, que trava o headless; `wait_until`, `load_main`, `finish`).
-  - `tests/test_flow.gd`: cenários dirigidos (transferência, espera, desistência, caderno, destino que não atende, ligar de volta ao desconhecido, cliques, clima do som).
+  - `tests/test_flow.gd`: cenários dirigidos (transferência, espera, desistência, caderno, destino que não atende, ligar de volta ao desconhecido, cliques, clima do som, a altura do painel de baixo numa emergência com aviso e quatro fileiras de respostas).
   - `tests/test_keys.gd`: as teclas (1, Espaço, Tab, X, Esc e despausar) entrando pela janela, pelo `GameView`.
+  - `tests/test_layout.gd`: em 960, 1125 e 1281 px de largura, nenhum objeto da mesa por cima de outro na tela (o
+    contorno de cada um como o cenário o desenhou, `Background._occ`/`occ_ids`; a caneca na frente do relógio é de propósito).
+    Mexeu na disposição da mesa: rode este.
   - `tests/test_penalties.gd`: consequências (perdida e retorno, número errado, registro, despacho errado,
     emergência sem despacho, espera longa, informação errada) e o relatório. Relógio parado; retornos tocados à mão.
   - `run.sh` começa com `--import`: **`class_name` novo só existe depois de reimportar** (sem isso, parse error).
   - `tests/test_shift.gd`: robô que joga o turno inteiro e imprime métricas (máx. simultâneas, % com 2+/3+,
     % sem cabo livre, perdidas, maior silêncio); `run.sh` roda com `--seed=1..3`, um turno `--clumsy` (deixa de atender 1 em 3),
-    a noite 2 (`--night=2`) e um turno `--human` (5 s de jogo por ação, como uma pessoa: **é este que mede se o ritmo
+    a noite 2 (`--night=2`), a 15 (`--night=15`, até as 6h) e um turno `--human` (5 s de jogo por ação, como uma pessoa: **é este que mede se o ritmo
     cabe**; o robô normal é rápido demais). No `--human` o despacho passa pelo cartão (`_card_step`: pensar, marcar,
     esperar imprimir, perfurar, levar ao transmissor e esperar a leitura), e o estágio anotado é o da hora do envio.
+    Com a mesa livre, ele registra no caderno e carimba e guarda os bilhetes (uma ação cada; imprime quantos guardou).
+    `--nosy` (no `run.sh`, com `--human`): com a mesa livre, ele escuta as conversas conectadas, solta no silêncio
+    deles (`HUSH`) e volta quando a suspeita baixa (`NOSY_BACK`); imprime quanto ouviu e falha se for denunciado.
+    Medido: ~17–20 s ouvidos por conversa (de 45–90 s), nenhuma denúncia e o mesmo ritmo de ligações. Imprime também,
+    por desconfiança do lugar (`DirectoryEntry.wary`), os segundos por entrada na linha: ~14–17 s no normal (com
+    `LISTEN_SEC` 25 eram ~8, e a conversa passava antes de dar para ler), menos na pensão (1,6) e mais no bilhar e no
+    bar (0,6 e 0,5), como na conta (de `NOSY_BACK` a `HUSH` em `LISTEN_SEC`, ÷ a desconfiança). Com `--careless`
+    também (no `run.sh`), ele não solta no silêncio: imprime em quantos segundos ouvindo eles ficaram sabendo, por
+    desconfiança do lugar (~23 s no hotel, 1,0), e falha se ninguém o denunciar.
   - Rode depois de qualquer mudança em agenda, fim de ligação, mesa ou cabos. `run.sh` também joga um turno em
     `--lang=en` e outro em `--lang=es`; o teste de fluxo confere chaves, lacunas e cenas (`_check_translations`).
 - Semente fixa: `Godot --path . -- --seed=123` repete a agenda do turno (sem `--seed`, é aleatória).
 - **Painel de debug** (F1, ação `debug`; `DebugPanel`, `scenes/ui/debug_panel.tscn`, nó `%Debug` do Main, z 5): só em
   build de debug (editor ou export de debug; no release ele se apaga). Toca ligações na hora (qualquer tipo; emergência
-  escolhida, com o caso sorteado), pula estágio ou congela a barra (`Urgency.frozen`), mostra o que a emergência
-  exige (contado e real), velocidade 1–8×, pula o relógio, troca o clima na hora (`Main.set_weather`), encerra o turno, troca de noite (`_go_night`: troca o Main por um novo na noite anterior/seguinte, no mesmo pai, dentro da tela do `GameView`; posto na raiz, saía na resolução da janela e quebrava o layout; sem ler nem
-  gravar o progresso, para testar a entrega dos setores), libera viaturas (`Dispatch.reset`; `_gen` cancela
+  escolhida, com o caso sorteado; interurbano num tronco que nenhuma ligação da mesa usa), imprime só um bilhete de tarifação,
+  sem ligação (de 1 a 12 minutos até agora, numa entrada sem contador; `Main.print_ticket`), pula estágio ou congela a barra (`Urgency.frozen`), mostra o que a emergência
+  exige (contado e real), mostra a suspeita de cada conversa conectada e força o silêncio delas (`Eavesdrop.force_hush`; o
+  Limpar é o `calm`, que também apaga as denúncias), velocidade 1–8×, pula o relógio, troca o clima na hora (`Main.set_weather`), liga e desliga a gradação de cor (`GameView.set_grade`), a luz da luminária no shader do cenário (`SceneView.lamp_light`) e a luminária piscando (`Main.flick`), faz passar um carro lá fora, na mão de lá ou na de cá e do modelo escolhido (`Background.pass_car`), encerra o turno, troca de noite (`_go_night`: troca o Main por um novo na noite anterior/seguinte, no mesmo pai, dentro da tela do `GameView`; posto na raiz, saía na resolução da janela e quebrava o layout; sem ler nem
+  gravar o progresso, para testar a entrega dos setores; o "Amanhecer" abre a última noite já às 4h, com o relógio
+  no `minutes` do Main novo e a agenda de antes dela descartada no `_ready`), libera viaturas (`Dispatch.reset`; `_gen` cancela
   as viagens em andamento), registra pendências, limpa advertências e apaga o progresso. Mesa de som: toca cada som de `Sfx.VOL` com
   um controle de volume que vale na hora (`Sfx.vol`, a cópia em uso) e "Copiar VOL" põe a constante ajustada na área de
-  transferência, para colar em `sfx.gd`. Cada seção tem "Limpar" e o
-  topo tem "Restaurar tudo" (`Main.drop` tira uma ligação sem caderno, advertência nem retorno; a mesa é zerada antes de
-  tirar os cabos para nada contar como conversa cortada; `Notebook.reset`). Textos fixos em português (ferramenta, não interface). Ele só usa funções públicas do Main (`free_line`, `set_weather`,
-  `start_ending`, `cancel_dest_ring`, `drop`) e do relatório (`ShiftReport.forget`), para não quebrar quando o Main mudar.
-- Captura de tela: rodar SEM `--headless` e salvar `root.get_texture().get_image()`.
+  transferência, para colar em `sfx.gd`. A aba Vozes (o painel tem duas abas, Jogo e Vozes) fala cada letra pelo nome
+  dela ("bê", "efe") ou um texto digitado, na voz escolhida (`_voices`, `_speak`). Cada seção tem "Limpar" e o
+  topo tem "Restaurar tudo" (`Main.drop` tira uma ligação sem caderno, advertência nem retorno; `Main.drop_all` tira
+  todas e zera a mesa antes de tirar os cabos, para nada contar como conversa cortada; `Main.drop_emergency` apaga as
+  emergências em andamento; tocar uma terceira emergência é recusado; `Notebook.reset`). Textos fixos em português (ferramenta, não interface). O que mexe no
+  estado do Main fica em funções públicas dele (`free_line`, `ring`, `print_ticket`, `set_weather`, `start_ending`, `drop`, `drop_all`,
+  `drop_emergency`); dos campos, o painel só lê agenda e ligações para o texto de estado e adianta o relógio (`minutes`), para não quebrar quando o Main mudar.
+- **Captura de tela** (`tools/shot.tscn`, COM tela; **uma de cada vez, com a janela pequena no canto**,
+  `Godot --resolution 160x90 --position 0,0 --path . tools/shot.tscn -- ...`: a imagem sai da `SubViewport` dele, não da
+  janela; várias em paralelo enchem de janelas a tela de quem trabalha): `Godot --path . tools/shot.tscn -- --hour=22:30 --weather=rain
+  --tool=despacho --card --emergency --news --toll --width=1125 --zoom=x,y,w,h --out=build/shot.png` grava a tela inteira e o
+  recorte ampliado 4× (`_zoom.png`); `--hover=id` põe o mouse num objeto da mesa (ele erguido e a etiqueta com o nome); `--debug=N` abre o painel de debug na aba N; `--punch`, com `--card`, perfura o cartão, põe uma unidade fora e a etiqueta de um trecho no mapa, e `--card=closed` guarda o despacho com o cartão na mesa; `--car=fusca,sedan` põe um carro de cada modelo parado na rua da vista, o de lá e o de cá (`-` deixa a mão vazia; `--car_t=0.45` onde, de 0 a 1; `--rack` com o bagageiro); `--walk=2,-4` gente parada na calçada de lá nesses x (m) e `--walk_z=20,45` na da rua do cruzamento, a essas distâncias; `--bar` a porta do bar aberta; `--blind=1` a persiana descida (0 a 1); `--bolt` um relâmpago caindo na hora da captura; `--smoke[=s]`, `--cat`, `--bike=x` (`--papers`: o menino do jornal), `--damp=N`, `--phones=2,1`, `--sips=N`, `--cabinet`, `--written=N`, `--read`, `--taxi=s`, `--dog=x`, `--patch=312,4` (quem fuma na varanda, `s` segundos depois de sair, o gato, a bicicleta, a mancha de umidade, os telefones da vista, os goles da caneca, o armário aberto, o lugar do lápis no bloco, o jornal já lido, o táxi parando no hotel a `s` segundos de aparecer, o vira-lata, um cabo de conexão da saída da linha 4 encaixado no destino, com o aro aceso); `--lines=2:ring,4:conn` as lâmpadas dessas linhas nesse estado, sem ligação; `--screen=intro|pause|settings|report` as telas fora do turno; `--grade=0` sem a gradação de cor; `--lamp=0` sem a luz da luminária no shader do cenário; `--dim=0.2` a luminária presa nesse nível, como no meio de uma piscada; `--still` sem a poeira do feixe, que muda a cada captura (para comparar pixel a pixel: `tools/diff_shots.gd` compara duas pastas de capturas, imagem por imagem, ignorando os retângulos dados, como a vista da janela e a fala na miniatura do painel, que também mudam sozinhas); as opções do jogo (`--night`, `--seed`, `--lang`) também valem. Para conferir
+  mudança visual medindo, não só olhando a captura. `tools/hibit_shots.sh build/hibit/<pasta>` grava o conjunto de
+  capturas do plano hi-bit (sala nos três climas em três horas, a caneca, a mesa comutadora, o tampo, as ferramentas
+  e o amanhecer da noite 15), para comparar com `tools/diff_shots.gd`; a pasta tem que ser relativa ao projeto.
+- **A vista no amanhecer desenha ~17 mil itens por quadro** (a fachada tijolo a tijolo, o chão da rua do cruzamento):
+  acima do buffer do renderizador de compatibilidade (`rendering/gl_compatibility/item_buffer_size`, 16384 no padrão),
+  o Godot 4.6 às vezes trava (`_render_batch`, "Index p_index = 1 is out of bounds", conforme o comando que cai na
+  virada). O `project.godot` o põe em 32768 e o `test_layout` confere (o editor aberto pode regravar o arquivo sem a
+  linha). Quem acrescentar muito desenho à vista, meça os itens (`Viewport.get_render_info`, `RENDER_INFO_OBJECTS_IN_FRAME`).
 - **Sem tela, a vista da janela não é desenhada** (`Background._headless`): com `--fixed-fps` e o tempo acelerado,
   ela era redesenhada a cada quadro e virou 2/3 do tempo de um turno do robô (27 s em vez de 9). Quem acrescentar
   desenho pesado que roda a cada quadro, meça um turno (`--test=shift --seed=1`).
 
-## Exportar (executáveis para testar fora do editor)
-- **Toda build nova incrementa a versão** (`0.MENOR.CORREÇÃO-fase`, regras no `VERSOES.md`): antes de exportar, sobe
-  `application/config/version` (e, ao mudar de fase, `application/config/stage`) no `project.godot`; depois, uma
-  entrada no fim do `VERSOES.md` (versão, data, commit, sistemas, Novidades e Correções) e a tag `v<versão>-<fase>` no
-  commit de onde a build saiu. A versão aparece no canto da tela inicial e da pausa (`Settings.version_text`). Os
-  campos de versão do preset do macOS ficam vazios (ele usa a do projeto); o `.exe` do Windows mostra a do motor
-  (`modify_resources=false`, sem o rcedit).
-- Presets em `export_presets.cfg`: Windows, macOS (universal, assinatura ad-hoc, sem notarização) e Linux; saída em
-  `build/` (fora do git). Templates do Godot 4.6.2 ficam em `~/Library/Application Support/Godot/export_templates/`.
-- `Godot --headless --path . --import` e depois `Godot --headless --path . --export-release "Windows" build/windows/ProjectSwitchboard.exe`
-  (idem "macOS" → `build/macos/ProjectSwitchboard.zip`, "Linux" → `build/linux/ProjectSwitchboard.x86_64`).
-- **`editor/export/convert_text_resources_to_binary=false`**: a conversão para binário esvaziava todo `PackedStringArray`
-  do conteúdo (falas, motivos, quem liga) e o jogo exportado quebrava ao montar a agenda. Não religue sem testar.
-- Teste o exportado: `Godot --headless --path . --export-pack "macOS" x.pck` e `Godot --headless --main-pack x.pck --quit-after 600`
-  (zero `ERROR` no log). Os testes normais rodam pelo projeto e não pegam problema de exportação.
+## Exportar
+- Builds e versões: skill `exportar-build` (`.claude/skills/exportar-build/`).
 
 ## Arquivos
-- `scenes/main.tscn` + `scripts/main.gd` (`Main`) — orquestra o turno: relógio, quando cada ligação da agenda toca
-  (`_run_schedule`), o que cada plug significa para as ligações, fim de ligação, ligação desconhecida e final.
-  Constantes de ritmo no topo.
-- `scripts/schedule.gd` (`Schedule`, RefCounted, sem cena) — monta a agenda da noite (`Schedule.build(night, LAST_CALL)`:
-  roteiro, desconhecida e sorteadas; `info_call()`); o teste de fluxo confere a montagem sem jogar o turno.
-- `scripts/urgency.gd` (`Urgency`, nó filho de Main) — a barra de agravamento da emergência em andamento (`tick`, `told`).
-- `scripts/supervisor.gd` (`Supervisor`, nó filho de Main) — consequências: advertências no `Main.report`, retornos,
-  desistência em espera, conferência do despacho e do caderno. O Main só avisa o que aconteceu.
-- `scripts/conversation.gd` (`Conversation`, nó filho de Main) — como cada tipo de ligação se desenrola:
-  `say`/`op`/`choose`/`wait` e os roteiros de transferência, informação, emergência, trote e ligação desconhecida.
-- `scripts/model/fleet.gd` (`Fleet`) — viaturas e emergência em andamento (regras do despacho, sem tela).
-- `scripts/model/phone_call.gd` (`PhoneCall`) — uma ligação: roteiro (`data`) + estado; emite sinais que o telefone
-  escuta. `scripts/model/exchange.gd` (`Exchange`) — **dono único** do estado das linhas e destinos (enums `Line`, `Dest`).
-- `scripts/data/*.gd` — classes de Resource do conteúdo; `scripts/game_data.gd` (`GameData`) — acesso ao
-  `content.tres` (`CONTENT`, `entry()`, `street()`, `transfers()`, `pick()`...).
-- `scenes/ui/*.tscn` + `scripts/ui/*.gd` — painel do operador (`PhonePanel`, blocos `HudPanel`: a tela da conversa,
-  com as últimas falas que couberem, `_fit`, `shown_lines`, o aviso, `%Warn`, que também recebe o que ia no visor,
-  `flash`, as opções e a barra de agravamento; as teclas; e o rádio, `PhonePanel.radio`. O bloco da ligação em foco
-  com o visor e o do destino e das outras linhas saíram a pedido: a mesa já mostra), `FoneSocket`, registro das conversas
-  (`CallLog`, ferramenta 4: tudo o que foi dito com o FONE na linha, por ligação; o Main chama `track` quando ela toca), rádio, abas (`Tools`) com lista
-  (`PhoneBook`), mapa e despacho (`Dispatch` + `CityMap`, dono das unidades e da ocorrência) e caderno
-  (`Notebook`, fila de ocorrências); `Intro`, `Ending`; widgets desenhados (`Switchboard`,
-  `Background`, `Bevel`).
-
-## Modelo da mesa (scripts/ui/switchboard.gd)
-- Tomadas por id inteiro: **1–10 entradas**, **11–20 saídas** (linha + 10), **destinos = o próprio número** (101–399,
-  exceto 190/192/193, que vão pelo despacho). Destinos em três bancos de fábrica, A | B | C, rotulados pela faixa de
-  numeração (100–199 | 200–299 | 300–399, `SECTOR_ORDER`, duas fileiras cada, `_layout_dests`/`_slots`; a mesa não
-  fala em setor). O banco de um setor que ainda não é do operador fica sob uma chapa com a letra dele (`_draw_plate`:
-  A e B; o C, do setor 3, nunca é tampado; chapa lisa (o escovado saiu a pedido), a letra estampada em relevo, o aviso `BOARD_PLATE_NOTICE`
-  pintado com estêncil e riscos de chave de fenda em volta dos parafusos) e as tomadas dele não existem para o clique.
-- `ends[]`: tomada de cada ponta (-1 = na base). **Ponta 0 = FONE** (cabo verde, encaixe `FoneSocket` na prateleira, só
-  entra em entradas). **Pontas 1..2*PATCHES = cabos de conexão** (vermelho, azul, amarelo em `CORD_COLORS`; independentes; `mate(e)`
-  dá a outra ponta; uma ponta na saída, a outra no destino). `PATCHES = 3`.
-- `setup(exchange, socket, tray)` liga a mesa ao estado, ao encaixe do FONE e à faixa dos buracos dos cabos (lugares
-  na prateleira, fora do retângulo dela: `socket_rect`, `tray_rect`; o clique vale neles, `_has_point`). Os buracos
-  ficam no alto da prateleira (`hole`, `SHELF_HOLE_Y`, `FONE_HOLE_X`; aro de latão achatado pela perspectiva,
-  em pixel art, `HOLE_ART`, `draw_grommet`; dois por cabo, a 30 px um do outro), os plugs guardados em pé neles (`home_pos`) e, só embaixo do encaixe do FONE, o nome
-  gravado na madeira (`engrave`, `FoneSocket`; os "CABO 1/2/3" saíram a pedido: a cor diz qual é o cabo); o buraco é mais largo que o plug, que entra nele (`PLUG_SINK`: abaixo
-  de `HOLE_LIP` o plug não é desenhado, `_cut`/`_pr`, e a beira da frente do buraco passa por cima dele e dos fios
-  que saem dali, `draw_lip`), sem contorno preto; fio e plug escurecem em degraus ao entrar nele (`HOLE_SHADE`,
-  `_along`), senão pareciam flutuar. As pontas dos plugs em pé passam na frente do pé do painel, logo abaixo da
-  legenda. `dest_of_output(n)` segue o cabo da saída n.
-- `refuse(e, j)` decide compatibilidade (e o destaque amarelo/vermelho). `_has_point` estende o clique ao encaixe
-  do FONE; por isso o telefone e seus containers acima do encaixe têm `mouse_filter = IGNORE`, e a mesa tem
-  `z_index = 1` (desenha plug e fio por cima do telefone). Overlays têm z 2, intro/final z 3.
-- Clique num plug encaixado → solta o plug (`go_home`, `_loose`): ele vira a última conta da corda e cai (`FALL_SEC`)
-  e o fio encolhe (`PULL_SPEED`); solto acima do buraco, a qualquer altura (`NEAR_HOLE` na horizontal), não cai: vem reto, fio esticado e sem gravidade. Com o fio todo
-  recolhido e a traseira do plug na boca do buraco (`SEAT_LEN`, `SEAT_NEAR`), ele assenta (`_seat`, `_seat_pose`): o
-  fio some (já entrou), o plug gira até ficar em pé com a traseira presa na boca (`SEAT_TURN`, macio; vindo de cima,
-  já em pé, não gira) e afunda puxado pelo fio, acelerando (`SEAT_ACCEL`; vindo de cima, no embalo dele), e quica ao
-  bater no fundo (`SEAT_BOB`, com o `thump`). O corte do buraco só vale com ele em pé (`_in_hole`). (Antes, ele pulava
-  em 0,1 s de deitado para dentro do buraco, e o fio ficava desenhado por cima da prateleira.) Com o fio curto, as
-  dobras do desenho encolhem com os trechos (`_kinked`), senão viravam um rabisco na boca do buraco; solto, ele gira com o fio
-  (`_plug_angle`), sai com o embalo da mão (`_mouse_vel`, `MAX_FLING`) e dá para pegá-lo no ar (`_plug_hit`). Sons:
-  `drop` (bate na mesa, `DROP_SPEED`), `thump` (assentou) e o atrito contínuo do fio no buraco: a mesa soma
-  quanto fio entrou ou saiu (`_rubbed`, variação do comprimento) e passa a velocidade a `Sfx.cord_rub` a cada quadro
-  (volume e tom entre `RUB_MIN` e `RUB_FULL`; sem chamada, cala). Três loops com o mesmo ganho: o fio (agarra e solta
-  + corpo), em dois, `rub_slow` com os estalos esparsos e `rub` com eles juntos, cruzados pela velocidade
-  (`RUB_DENSE`; o tom sobe pouco, `RUB_PITCH`: subindo só o tom, soava como fita acelerada), e `rub_hi` (o agudo:
-  fibras + rangido), mudo devagar (`RUB_HI_FROM`), normal no médio (`RUB_HI_NORMAL`) e `RUB_HI_BOOST` dB a mais
-  rápido. Todos passam
-  pelo barramento `Rub` (direto para o Master, quase seco; passa-baixa que abre de `RUB_LP.x` a `RUB_LP.y` com a velocidade, e
-  panorama). A mesa também informa onde fica o buraco na tela (o som vem daquele lado, `RUB_PAN`), quanto do fio está
-  saindo ou entrando (`_count_rub`; entrando é mais liso, `RUB_IN`) e quanto é o do FONE (mais macio, `RUB_FONE`; a diferença some
-  quase toda puxando rápido, `fast`), quanto é de plug solto (sem mão puxando: frouxo, grave e quase sem agudo,
-  `RUB_LOOSE`) e o tom médio dos cabos (cada um levemente diferente, `Switchboard.CORD_TONE`);
-  Por baixo do atrito, a madeira do móvel soando a cada agarra e solta (`_build_rub`, `WOOD`); cada `cord_tap`
-  abaixa o atrito um instante (`Sfx.RUB_DUCK`).
-  `cord_stop` ("tec") quando o fio termina de entrar; no plug na mão, pela velocidade da mão para longe do buraco
-  (`_pull_edges`), `cord_snag` (o tranco do fio parado que sai rápido, `SNAG_*`) e `cord_snap` (o "tsk" do puxão
-  rápido que para de repente, `SNAP_*`; parando devagar, não toca); `cord_tap` quando o fio bate na mesa (`TAP_SPEED`,
-  no máximo um a cada `TAP_GAP` por fio). Sons mecânicos repetidos (`Sfx.VARIED`) saem com tom e volume levemente
-  sorteados. Plug só se move arrastando
-  (clicar e segurar); clique sem arrastar só serve para desplugar. Clique é apertar e soltar em menos de `CLICK_SEC`
-  sem a mão se afastar `CLICK_PX` de onde apertou (`_dragged`, tempo real), não só soltar perto dele: segurado parado,
-  ou tirado da tomada e devolvido a ela no mesmo arraste, o plug encaixa de novo (antes, caía). Enquanto ainda é
-  clique, a tomada sob o plug não ganha o destaque (soltar ali desencaixa).
-- Fios são cordas de Verlet (`_step_rope`), **uma por ponta**, presas no buraco (`hole(e)`: o do FONE no encaixe, dois
-  por cabo de conexão) e na traseira do plug (`_plug_base`); só existem com o fio para fora. No desenho, o fio de pano
-  velho guarda dobras (`_kinked`, `KINK`: cada ponto da corda um pouco para um lado, sempre o mesmo, nada nas pontas; a
-  física segue lisa) e o brilho vem em pedaços, como trançado (`BRAID`).
-  Folga: `CORD_SLACK` (conexão); a do FONE cresce com a distância na horizontal (`SLACK_PER_PX`, até `SLACK`: fixa, o
-  fio de uma entrada logo acima do buraco deitava na prateleira e fazia um "Z"). Fio parado por `SLEEP_STEPS` passos "dorme" (`ropes[e]["sleep"]` =
-  área onde o mouse o acorda) e deixa de ser simulado até a ponta, o buraco ou o mouse mexerem nele.
-- Sob o mouse: `_plug_under` (plug que dá para pegar → `_hover`, desenhado com contorno claro) e `_cursor_shape`
-  (mão aberta, mão fechada segurando, proibido sobre tomada que recusa, dedo em tomada/plaqueta que informa).
-  Desenho na ordem `_order`: a ponta pega ou encaixada por último (`_raise`) fica por cima (e é a primeira no clique);
-  cada ponta desenha fio e plug juntos, para o fio mais recente passar por cima dos plugs das outras.
-- A luz da luminária do teto também cai no painel (`_draw_room_light`, `ROOM_LIT`/`ROOM_DARK`, `LAMP_ABOVE`): liso,
-  mais claro e quente no alto à direita, mais escuro nos cantos de baixo; por cima de tudo que é do painel e por
-  baixo dos plugs e fios.
-- **A mesa só se redesenha quando algo que ela mostra muda** (`_look`: lâmpadas, estados das linhas e destinos,
-  pontas, plug sob o mouse, balão, setores) ou com algo se mexendo (plug na mão, solto, encaixando ou saindo, fio
-  acordado), e mais uma vez no quadro em que tudo para (o lugar final; sem isso, o plug que assentava ficava desenhado torto, meio fora do buraco); parada, fica o desenho guardado (o `Bloom` guarda as luzes de quem desenha). Quem acrescentar ao desenho
-  algo que muda precisa pôr isso no `_look`.
-- Layout da mesa (`SIZE` 588×362, também em `main.tscn`): móvel com moldura de madeira (`_draw_cabinet`, `FRAME`,
-  `WOOD`) e faixas gravadas com o nome de cada seção (`_draw_rule`, `RULES`: entradas, saídas, destinos); coluna de cada linha em `ROW_Y` (plaquinha de metal com o número
-  gravado, `_draw_number_plate`; estado; lâmpada; entrada; saída), todos os encaixes com `JACK` px, bancos de destino em
-  `DEST_TOP`/`DEST_ROW` (cada banco com o mesmo vão, 8 px, entre a moldura e os números e entre as tomadas de baixo e a moldura, `_blocks`) e a legenda das lâmpadas na faixa das entradas, à direita, na fonte gravada do painel (`_draw_legend`, `tiny`; no pé do painel, os plugs guardados passavam na frente dela). Mexendo na altura, confira que a coluna da esquerda ainda cabe (até 540).
-- Chapas de metal niquelado (`_draw_metal`: chanfro e rebites) nas plaquinhas dos números. (A "queda" das mesas antigas, a plaquinha que cai quando a
-  linha chama, foi testada e saiu a pedido: lâmpada, texto e som já avisam demais.)
-- Moldura de madeira pixel a pixel e guardada (`_wood_frame`): trilhos em meia-esquadria com emenda na diagonal,
-  veios ondulando ao longo de cada um, quinas gastas mais claras; o brilho da luminária na quina de cima, mais forte
-  do lado dela (`_draw_cabinet`).
-- Cada linha tem uma faixa rebaixada e discreta da plaquinha à saída (`_draw_strips`, `STRIP_W`; sem ela a saída
-  parecia solta); as faixas gravadas passam por baixo e o nome delas por cima (`_draw_rule(y, nome, false)`).
-- Uso de anos (`_draw_wear`, sempre o mesmo): o painel clareado em volta das tomadas (`WEAR`, pelo quanto cada uma é
-  usada, `_use`: entradas mais, das primeiras linhas para as últimas) e riscos finos de plug que errou o furo.
-- Plaqueta de latão do fabricante no pé do painel, no vão entre os dois primeiros pares de buracos da prateleira (ali
-  nenhum plug guardado fica na frente; `_draw_maker_plate`: `BOARD_MAKER` na fonte gravada e "SÃO SOTERO").
-- **Pixel art em código, sem arquivos de imagem** (decisão do usuário): `PixelArt` (`scripts/ui/pixel_art.gd`, só
-  funções estáticas, usadas pela mesa, pelo cenário, pelo painel e pelo bloom) monta e guarda as texturas: mapas de
-  texto (`art`), peças redondas (`disc`), a fonte gravada do painel (`tiny`) e `sprite`, que desenha uma delas centrada
-  e presa aos pixels. **Folha de prévia**: `Godot --headless --path . -s tools/sprite_sheet.gd` grava
-  `build/sprites.png` com tudo ampliado 8× (os mapas com nome; depois o que a mesa e o cenário montaram na noite 1).
-- **Peças redondas pixel a pixel** (`PixelArt.disc`: imagem guardada por diâmetro e camadas, com luz, meio-tom e sombra vindos de
-  `LIGHT`, alto à esquerda, e camadas côncavas; `PixelArt.sprite` desenha presa aos pixels; desenhadas como círculo saíam
-  embolotadas): lâmpadas, aro aceso do destino, lâmpadas da legenda e parafusos das chapas. **Cor que muda a cada
-  quadro vai no `modulate` do desenho, nunca nas cores de um `disc`/`art`** (o cache guarda uma textura por cor e não
-  esvazia: o vidro da lâmpada pulsando com a cor no `disc` criava ~38 texturas por segundo; a lâmpada desenha o vidro
-  apagado e o aceso por cima com `level` na transparência). **Nenhuma peça redonda
-  com `draw_circle`**: o cenário usa o mesmo `disc` (`Background._sprite`, fora da escala e da perspectiva: botões do
-  rádio, parafusos do console, alfinete do mapa, emblemas, rebites, tachinha, fechadura); a caneca é uma caneca esmaltada montada pixel a pixel numa imagem (`_mug_art`: o
-  cilindro em tons fixos pela luz do alto à esquerda, a borda azul-marinho, a boca e o pé em elipses pela câmera, o
-  café com a luz refletida, a alça em C do lado da sombra e lascas no esmalte), com o vapor subindo na camada da poeira
-  (`_draw_steam`), que some com as horas porque o café esfria (`STEAM_FOR`); o painel do operador nos parafusos e o `Bloom` no miolo das luzes redondas. Beira das peças e do
-  móvel em `EDGE_DARK` (marrom quase preto), não preto. Os plugs também são pixel art, no acabamento do relógio
-  da mesa (abaixo). **O encaixe é um mapa de pixels** (`JACK_ART`, 16×16, menor que o `JACK`, com o furo preto de 8 px, a largura da luva do plug: com 20, a tomada ficava grande demais para a ponta de metal; com 24, passava das linhas do banco; `art`: um caractere por pixel e a
-  paleta, `_jack_pal`; o mesmo da branch 2×2, pela referência do usuário, com mais tons): aro niquelado fino (2 a 3
-  pixels; mais grosso, destoava da referência; os raios dão as larguras de linha de um círculo de pixel art, senão
-  saía octogonal) com a beira
-  escura em volta do furo preto e largo, a luz na face do aro no alto à esquerda (com um fio de brilho) e na parede do
-  furo embaixo à direita; as saídas no níquel mais escuro (`dim`). Largura par e o meio num pixel inteiro (`jack_rect`
-  arredonda o dos destinos), para ficar no eixo da plaquinha e da lâmpada. (Uma versão em `_disc` com a bucha de latão
-  saiu com o furo maior e foi rejeitada.)
-- Encaixes redondos (`_draw_jack`: o aro niquelado e o furo, com a sombra no painel); lâmpadas de vidro leitoso abaulado num aro
-  fino de níquel, sem furo (`_draw_lamp`, `BEZEL`, `LAMP_OFF`: com o assento preto pareciam mais uma tomada) que acendem rápido e apagam devagar, como
-  filamento (`_lamp`/`_dest_lamp` dizem cor e nível desejado, `_fade` chega lá em `LAMP_ON_SEC`/`LAMP_OFF_SEC`, estado em
-  `_lit`; a linha tocando pulsa). A luz acesa tinge o aro dela e o alto do aro do encaixe logo abaixo (`_reflect`).
-- Plug (`_draw_plug`): de pé (comprido, `PLUG_LEN` do fio à aba; guardado, afunda `PLUG_SINK` = 22 px no buraco: a capa
-  de borracha some nele e o corpo fica à mostra, sem esconder metade do plug) (solto, na mão, na bandeja; `_draw_plug_body`) é um mapa de pixels (`PLUG_ART`, 20×93, cores
-  por cabo em `_plug_pal`; sombreado de cilindro com o brilho numa coluna só e a beira escura à direita, cantos
-  arredondados; contido como o relógio: brilho largo e colar claro destoavam), no jeito de um plugue P10 (referência
-  do usuário): a capa de borracha em gomos afinando até o fio (termina em 10 px, a largura do fio, `ROPE_W`), o corpo na cor do cabo (identifica o cabo) com anel em
-  cima, serrilhado em listras finas e anel no meio, a aba dourada e a ponta de metal dourado (luva, isolante preto,
-  anel, outro isolante e o bico em ponta com a bolinha); comprido e fino como o P10 e **na escala das tomadas** (18 ×
-  93 px, `PLUG_H`, `PLUG_LEN` até a aba: o corpo enche o buraco da prateleira, `HOLE_ART` 28 × 14, e a luva de 8 entra
-  no furo de 8 da tomada; o encaixado na mesma proporção, `PLUG_FACE_R`, 18 px de corpo com a beira, cobrindo a tomada); para o plug não ficar maior que o
-  relógio e o caderno (um P10 tem uns 10 cm), **os objetos da mesa crescem na mesma proporção** (`Background.PROP_K` =
-  93/66, a caneca na frente do relógio para caberem em 1280); a área de clique do plug guardado sai da altura dele
-  (`home_rect`); gira com o fio em passos de
-  `ROT_STEP` (5°), cada passo montado pixel a pixel como no RotSprite (`PixelArt.turned`: o mapa ampliado 8× pelo
-  Scale2x e lido de volta girado, guardado por ângulo e servindo a qualquer cabo; girado pela transformação do
-  desenho, serrilhava, e o passo era de 15°). Na mão, ele balança com o movimento como um pêndulo preso onde a mão
-  pega (`_swing_step`, `SWING_*`; a traseira com o fio fica para trás) e, solto, sai com esse ângulo; caindo, quica
-  na mesa (`BOUNCE`, `BOUNCE_MIN`; o `drop` mais alto quanto mais forte a batida, até `DROP_FULL`). O brilho do mapa fica
-  do lado esquerdo, virado para a luz (`PixelArt.LIGHT`); girado a ponto de esse lado ficar de costas para ela, vale o
-  mapa espelhado (`_plug_art`). Ao encaixar, a passagem para de frente gira a partir do ângulo que ele tinha na mão
-  (`_pushed_ang`). O fio e os plugs em pé pegam a luz da sala do painel em `CORD_LIT` da força (`_lit_by`,
-  `_room_tone`: mais escuros e frios longe da luminária). **Todos os fios têm o mesmo comprimento**, `CORD_MAX` (660 px: o do FONE, puxado do
-  encaixe, chega ao meio das listas telefônicas da mesa em 1280 × 720; a tomada mais longe de um buraco fica a 564):
-  na mão, o plug para no fim do fio (`_reach`, com um tranco, `cord_snag`) e a mão segue; a velocidade usada no balanço
-  e no embalo é a do plug, não a do mouse. **A prateleira acaba** na lateral do console (`Switchboard.shelf` =
-  `Background.shelf`: o x do canto da frente do console e o y do tampo ao pé dele; sem cenário, nos testes, não acaba):
-  além dela o plug solto cai até o tampo (`_surface`) e quem vem de fora bate na lateral, sem subir na prateleira.
-  Recolhendo, pendurado ao lado do console, a quina é uma roldana (`_hang_step`): o fio vai reto do buraco à quina e
-  dela ao plug, que balança preso nela, sobe pendurado (ponta para baixo, `HANG_TURN`) e, na quina, volta para cima
-  da prateleira e para a corda de sempre (com a corda solta contra a quina, ele ficava preso, laçava ou era
-  arremessado). O ângulo do plug solto segue o do fio aos poucos (`LOOSE_TURN`). Esticado, o fio de pano alisa: pela distância do buraco à ponta
-  (no pendurado, o caminho pela quina) a partir de `TAUT_FROM` do `CORD_MAX`, as dobras somem aos poucos, o trançado se
-  espaça (`TAUT_BRAID`) e, da metade em diante, ele e a sombra afinam 1 px (`_tension`, `ropes[e]["taut"]`, suavizada
-  em `TAUT_EASE`); frouxo, volta com as dobras inteiras. (Pela folga não dava: os cabos de conexão têm sempre ~14 px
-  dela, perto ou longe.) Esticado, o fio também fica reto no desenho (vai para a reta do buraco à ponta; a física
-  deixava uma barriga, porque a gravidade puxa o meio a cada passo; pendurado na quina, `ropes[e]["hang"]`, não). Puxando
-  além do fim do fio, o plug na mão se inclina para o lado do puxão, inteiro a `LEAN_PX` além (a mesma mola do
-  balanço), com a traseira virada para o buraco; o limite vale para a traseira girada (`_reach`). (Em pé, com o fio
-  chegando de lado, a junção dobrava e o fio passava por cima dele.) Encaixado, sai do painel em direção à câmera, vista de cima e da
-  direita (`_draw_plug_face`: o próprio `PLUG_ART` visto de frente, com os mesmos detalhes: anel e friso claro em cima,
-  serrilhado, `_knurled` (as listras verticais; tirado, o plug ficava pobre), anel do meio e capa em gomos afinando até
-  o fio (a aba dourada, mais estreita que o corpo, fica escondida atrás dele); o corpo sai com a beira de todos os
-  discos antes dos miolos (só o contorno), mas a capa, por cima, disco a disco com a beira de cada um
-  (`PLUG_CAPA_ROW`): a beira de cada gomo fica à mostra em volta do seguinte, menor, e os sulcos aparecem em anéis em
-  volta da saída do fio (antes, liso, o plug parecia uma bola); pega a luz da sala como o fio que sai
-  dele (`_lit_by`, também a ponteira, `_draw_plug_cap`, na largura do miolo do fio); montado com discos de pixel art, `disc`, um
-  por pixel ao longo do eixo, cada um com a largura e os tons da linha do plug em pé que cai ali, `_face_row`: dela vale
-  a que mais se destaca, senão os detalhes sumiam no escorço; primeiro a beira de todos, depois o miolo sombreado; com cápsulas e círculos, saía embolotado); com paralaxe: a ponta se desloca do encaixe mais quanto mais longe de `PLUG_EYE` (`_tilt(j)`,
-  `PLUG_DEPTH`). O fio sai da ponteira (`_plug_base` = encaixe + `_tilt`; o plug encaixado é desenhado antes do fio,
-  e o miolo da ponteira, `_draw_plug_cap`, depois). Encaixado, o fio sai no eixo do plug por `CORD_STUB` px e faz a curva
-  aos poucos (o penúltimo ponto da corda fica preso, `pin` em `_step_rope`; os seguintes tendem a continuar a direção,
-  `CORD_BEND`, uma vez por passo: por iteração endurecia o fio), a sombra vai do encaixe até `PLUG_SHADE` com uma
-  sombra de contato em volta do colar (a do fio sai do fim da do plug e chega a `ROPE_SHADOW` no buraco, `_lift`), a
-  luz bate no contorno do plug encaixado (`_plug_light`, `_face_rim`: a silhueta dos discos juntos; na entrada, a
-  lâmpada da linha acende só a beira de cima; no destino, o aro aceso acende a beira toda; clareada na cor da luz. Um
-  anel solto por cima flutuava sobre a capa, e uma beira por disco listrava o plug), o corpo em pé entra girando para o
-  eixo do encaixado, sem a ponta de metal (`_draw_plug_body(col, false)`). Ao encaixar, o corpo em pé entra no encaixe enquanto a
-  vista de frente cresce, e ao sair a vista de frente some no encaixe (`MORPH_SEC`, `_pulled`, `_unseat`); ao encaixar, o tampo encolhe `PUSH_PX`
-  e volta em `PUSH_SEC` (`_pushed`, `_push`). Destaque e sombra seguem a silhueta (`_plug_outline`: as partes unidas
-  num polígono, guardado; o destaque é ele alargado); `_plug_rect(seated)` é o retângulo do clique.
-  No plug em pé (na mão, solto, guardado), o fio entra `TAIL_IN` px na traseira dele, no eixo, e uma junta redonda
-  fecha a dobra (`_draw_tail`): chegando de lado, ele terminava num corte reto no meio da ponta e deixava um vão.
-  O fio tem `ROPE_W` (9 px com a beira; o miolo, 3 a menos; era 8, engrossou para o esticado, 1 px mais fino, se ler).
-  Sombras (`SHADOW`): fios deslocados `ROPE_SHADOW`; plug mais longe quanto mais sai do painel (solto, na mão).
-  Sem contorno preto em plug e fio: a beira é a cor da própria peça escurecida (`EDGE`; o metal, `BEZEL[2]`), como no
-  cenário. Encaixado, o corpo (`PLUG_FACE_R`) cobre a tomada e a aba de latão; a aba só aparece na sombra de contato.
+- `scripts/model/exchange.gd` (`Exchange`) é o **dono único** do estado das linhas e destinos (enums `Line`, `Dest`);
+  o Main só avisa o que aconteceu ao `Supervisor` (consequências).
+- **`Background` e `Switchboard` em camadas por herança** (`extends "res://..."`, sem `class_name` nas de baixo;
+  cada camada só usa as de baixo, e cada constante ou variável fica na mais baixa que a usa; `Background.X` e
+  `Switchboard.X` continuam valendo para tudo): `background_base.gd` (estado em comum, câmera, `_fill`/`_poly`/`_p`,
+  clima) → `background_view.gd` (a vista da janela) → `background_props.gd` (o tampo e os objetos da mesa) →
+  `background.gd` (a sala, as camadas, o mouse); `switchboard_base.gd` (geometria e ligações) →
+  `switchboard_panel.gd` (o móvel, lâmpadas, tomadas, chapas, prateleira) → `switchboard_plugs.gd` (plugs e fios) →
+  `switchboard.gd` (entrada, física, sons e o `_draw`). Função nova vai na camada do que ela desenha; se uma de baixo
+  precisar dela, ela desce.
 
 ## Modelo das ligações
 - `live`: ligações tocando ou em andamento (várias ao mesmo tempo). O painel mostra `phone.shown()`.
@@ -682,7 +328,7 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   (`c.closing`: informação respondida, emergência despachada) não entra em espera; a pessoa termina de falar sozinha
   e desliga, sem som e sem texto na transcrição (só o que for dito com o FONE na linha aparece).
 - Destino que não atende: pedido com alternativa (`TransferCall.alt_target`) sorteia ao ser criado se o lugar pedido
-  atende (`PhoneCall.away`, `AWAY_CHANCE`; nunca no tutorial); se não, toca sem resposta e o operador pode sugerir a
+  atende (`PhoneCall.away`, `AWAY_CHANCE`); se não, toca sem resposta e o operador pode sugerir a
   alternativa (`alt_ask`, `Conversation._transfer_alt`), que sempre atende. **A alternativa é do mesmo ramo**
   (`DirectoryEntry.category`: farmácia, igreja, mercearia, hospedagem, oficina; o teste confere; a
   Vila Serena tem hospedagem e oficina, então a mecânica aparece desde a noite 1): os moldes a escolhem sozinhos
@@ -692,7 +338,146 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   → `_ring_dest` → destino atende (com o FONE na linha, quem ligou agradece) → `_try_complete` na hora, com ou sem o
   FONE na entrada (o operador não ouve a conversa dos dois) → linha e destino CONN por `TALK_LEN`
   → DONE (vermelho) até o jogador tirar as pontas. `_dgen` invalida toques de destino quando o cabo sai.
-- Fim de ligação: `end_call(c, PhoneCall.End.*)` gera `c.record` e manda para `Notebook.add()` (fila; não trava o turno; não atendida vai
+- **Escuta** (`Eavesdrop`, `scripts/eavesdrop.gd`, nó filho do Main): cada linha tem uma chave de escuta na mesa,
+  entre a entrada e a saída (`Exchange.key`/`set_key`; só sobe com a linha CONN e desce sozinha quando ela sai de
+  CONN). A alavanca sobe com o destino tocando e desce quando ele atende (`Switchboard.lever_up`); com o FONE na linha
+  conectada, a tecla Escutar (Z, `Main.listen`; levantada, ela diz Soltar, `PhonePanel.set_listen`) ou o clique na
+  alavanca (`Main._on_lever`; sem o FONE, `WARN_LISTEN_FONE`) a sobe e desce. Ouvindo (`Eavesdrop.listening`), a tela
+  mostra o que se ouve numa PhoneCall só dela (`Talk.ear`, fora do Registro; cada conversa conectada é um
+  `Eavesdrop.Talk` em `talks`, por linha, com a ligação, o que se ouve, `knows` e `written`, limpo num lugar só): quem atende fala primeiro (o lugar com o
+  nome dele, `DirectoryEntry.hello`; a pessoa, um "alô" de `C.overheard_hello`), depois as falas escritas
+  (`TransferCall.overheard`, começando por quem ligou, que cumprimenta, e alternando; sem elas, o cumprimento de
+  `C.overheard_greet` se atendeu uma pessoa) e depois o murmúrio das vozes sem texto (assuntos da conversa fiada,
+  `MURMUR_DB`). **Nos moldes, a conversa vem do motivo** (`Motive`, `scripts/data/motive.gd`: `DirectoryEntry.motives`,
+  cada um com o `text` que vira o {reason} e as `talks`, uma sorteada, que vira o `overheard`), para nunca sair do
+  assunto do pedido. Lacunas sorteadas por conversa (`TalkFill`, `GameContent.talk_fills`: {hour}, {wait},
+  {nights}...; {street} e {house} do mapa; `GameData.talk_vars`, preenchidas no `Eavesdrop._talk`) mudam o que se
+  ouve. Quem atende tem a voz do contato (`DirectoryEntry.voice`; sem ela, uma pelo nome, `GameData.voice_of`).
+  Depois da última fala escrita, os dois se despedem (`C.overheard_bye`/`overheard_bye_back`) e desligam
+  (`Main.talk_over`). Regras de escrita conferidas no teste de fluxo (`_check_talks`): sem o tipo do lugar num
+  lugar com ramo (a alternativa pode atender; `KIND_WORDS`), só lacunas que existem, cada fala até `TALK_MAX` letras
+  nos três idiomas. Todo motivo tem duas conversas e toda transferência escrita tem a sua (`overheard`; o teste
+  confere); só os roteiros da noite (`story`) ainda murmuram. **A conversa anda ouvindo ou não**: o que ele não ouviu, perdeu (entrando
+  no meio, a fala começa com "…"), mas com falas escritas ela não acaba antes da última (`Eavesdrop.speaking`, no
+  `Main._update_line_timers`). Cada escrita ouvida (`HEARD_SHARE` dela) liga o marcador dela
+  (`TransferCall.overheard_flags`, na mesma ordem: o roteiro sabe se ele pegou o nome, a hora); ouvidas todas, os da
+  ligação (`overheard_sets`). **Palavras-chave** (`Clue`, `scripts/model/clue.gd`): nas falas escritas, marcadas
+  `[tipo:texto]` (tipos em `Clue.KINDS`: person, street, place, phone, time...; podem envolver uma lacuna,
+  `[time:{hour}]`); a marca some da tela e da voz (`Clue.parse`, no `Eavesdrop._say`), e a palavra ouvida com todas
+  as letras (nenhuma perdida com a chave abaixada) entra em `Eavesdrop.clues` (palavra, tipo, noite, hora, quem ligou
+  e para que número; uma vez por conversa) com o sinal `clue_heard`: o lápis risca (`pencil`) e ela fica sublinhada
+  na transcrição (`PhoneCall.underline`, as `marks` da fala, `[u]` no `PhonePanel._render_transcript`). Ficam as de
+  todas as noites: salvas no `Progress.clues` (em dicionário, `Clue.to_dict`/`from_dict`) no fim do turno e lidas no
+  `Eavesdrop._ready`. Aparecem nas anotações da lista telefônica (`PhoneBook.clues`, a mesma lista; `_draw_clues`),
+  uma linha por palavra (`clue_groups`: a ouvida de novo junta-se à anotada, "×2", e herda a marca dela no
+  `Eavesdrop._clue`), a mais nova em cima e as riscadas no fim, seguindo nas páginas duplas depois da primeira
+  (`notes_spreads`, `notes_changed` a cada palavra nova). O clique passa de normal a marcada para repassar
+  (`Clue.chosen`) a riscada (`Clue.struck`) e de volta, na palavra inteira; as duas marcas ficam salvas (o repasse
+  ainda não existe). Captura: `tools/shot.tscn -- --clues`. A fala da
+  escuta anda letra a letra sem um timer por letra (`Eavesdrop._wait`: espera quadros, desconta o que passou a mais e
+  para na pausa), mais devagar que a fala com o operador (`PACE`, e `GAP` entre uma fala e outra), para dar tempo de
+  ler ouvindo; a suspeita (`LISTEN_SEC`) acompanha esse ritmo: mudou um, confira o outro. O teste confere os tipos, as marcas
+  fechadas e que a tradução mantém os tipos (`_holes`). **A
+  suspeita** (`PhoneCall.suspicion`, 0 a 1 em `LISTEN_SEC` ouvindo; cada entrada na linha, pela chave subindo ou pelo
+  FONE encaixando com ela em cima, soma `CLICK`; tudo vezes a desconfiança deles, a de quem ligou, `TransferCall.wary`,
+  e a do lugar que atendeu, `DirectoryEntry.wary`, também nos moldes e na alternativa; sem ninguém
+  ouvindo, baixa em `COOL_SEC`) só aparece na conversa:
+  passando de `HUSH` com ele ouvindo, a conversa normal para e **o resto anda no tempo, não pela suspeita**
+  (`Eavesdrop._react`): terminada a fala, calam-se `HUSH_SEC` (`SYS_LINE_SILENT`; soltando a chave aí, a conversa
+  segue: a melhor hora; com a desconfiança dos dois, `Eavesdrop._wary`, de `SKEPTIC` para cima, não se calam e
+  perguntam depois de `ASK_PAUSE`), um pergunta ao outro (`C.overheard_ask`) e, com ele ainda ouvindo no fim da
+  pergunta, o outro responde (depois do `GAP`) e eles sabem (`C.overheard_sure`, a resposta da mesma pergunta;
+  `Talk.knows`; sem ninguém ouvindo, desconversam e a suspeita fica `SHRUG` abaixo de `HUSH`). **Sabendo, a
+  denúncia é certa** (`_denounce`, na hora da resposta; soltar a chave depois não a desfaz); com ele ouvindo, mais
+  `HUSH_SEC` calados e a reclamação (`C.overheard_caught`, `_caught`), e os dois desligam (`talk_over`); soltando
+  antes, a conversa segue e eles reclamam da próxima vez que se calarem com ele ouvindo. Do silêncio à reclamação, ~12 s em qualquer lugar; a
+  desconfiança do lugar só muda quando o silêncio começa. No silêncio (`_silence`), a linha "(Silêncio na linha.)" ganha um ponto por segundo
+  (`PhoneCall.set_line_text`) e o chiado da linha sobe (`Eavesdrop.silent`,
+  `SILENT_HISS_DB`, por `Main.refresh_hiss`, que também dá o de sempre da linha do FONE). O lugar que denunciou fica
+  mais desconfiado nas noites seguintes (`Eavesdrop.grudges`, `GRUDGE` somado ao `wary` dele por denúncia; salvo no
+  `Progress.grudges`). (Antes cada estágio esperava a suspeita subir até o
+  seguinte: ficavam 6–20 s calados, e antes disso a conversa escrita seguia e acabava antes da pergunta.) O jeito de atender de cada lugar dá a pista da desconfiança dele (`hello`: seco na
+  pensão, solto no bar). **A denúncia chega no relatório da noite seguinte**
+  (`Supervisor.fault_later` → `ShiftReport.later` → `Progress.later`; lá, a advertência grave `eavesdrop` com a hora
+  "ontem, 21:30", `REPORT_YESTERDAY`); sem noite seguinte (a última, noite forçada) entra no de hoje, e a do
+  treinamento não vai; as ligações do treinamento não se escutam (`Main._can_listen`). Marcadores `escutou_N` e `denunciado_N` para o roteiro (pedidos de escuta de gente autoritária
+  virão com a história). Captura: `tools/shot.tscn -- --listen`.
+- **Interurbano** (`GameData.TRUNKS`, 901–906: uma tomada por cidade no banco INTERURBANO da mesa, destinos do
+  `Exchange` fora da lista e de todos os setores; `GameData.entry` devolve a telefonista de lá, `TRUNK_OPERATOR`):
+  transferência cujo `target` é um tronco e `TransferCall.far_number` o número na outra cidade, montada por molde
+  (`GameData.trunk_transfer`, `trunk_templates`, lacunas {to_city} = `trunk_to` e {far}; `Schedule.TRUNK_SHARE` das
+  transferências, nunca no treinamento; um tronco por noite, como os destinos). Saída no tronco → Transferir → toca →
+  a telefonista de lá atende (`trunk_hello`), o operador passa o número (`OP_TRUNK_NUMBER`), ela chama (`trunk_wait`,
+  mais toques) e só então conecta (`Main._trunk`; ela só fala com o FONE na linha). No tronco errado o número não é de
+  lá (`trunk_unknown`, dest livre de novo, conta como número errado; na segunda, quem ligou desiste). Dica da primeira
+  vez: `HINT_TRUNK` (`SAW_TRUNK`). Ponytail: sem tronco ocupado na outra ponta nem ligação a cobrar.
+- **Bilhete de tarifação** (o calculógrafo, `Toll`, `scripts/ui/toll.gd`, a ferramenta `Tools.TOLL`, só pelo objeto da
+  mesa, no lugar onde ficava a prancheta, que agora fica pendurada na lateral do painel da mesa comutadora): começa a contar sozinho
+  quando a telefonista de lá completa (`Main._try_complete` → `Toll.start`) e, quando a linha sai de conectada (acabou,
+  cortada ou fim do turno; `Main._update_line_timers` → `_print_ticket`), imprime o bilhete (`TollTicket`,
+  `scripts/ui/toll_ticket.gd`: entrada, cidade e número de lá, horário e minutos, o começado conta inteiro; papel com
+  fibras, a beira de baixo serrilhada e, embaixo dos dados, o campo tracejado do carimbo, `FIELD`), que cai na
+  mesa embaixo da fenda (à direita da almofada, para não cobrir o carimbo) (`%Desk`, com a almofada de tinta e a caixinha). A máquina mostra os minutos em contadores de
+  tambor, um por entrada (`Toll._counter`: a plaquinha, a lâmpada e os tambores com os algarismos de `DIGITS`, que rolam
+  no começo de cada minuto começado, `ROLL`; o visor só se redesenha a cada quadro enquanto um rola, `_rolling`) e fica
+  apoiada na mesa pelos pés. O tampo é desenhado pelo próprio `Toll` (`_draw`), até a beira do papel, com o grão e a
+  borda da frente da mesa da sala, no tom de embaixo da luminária (`Pal.desk(1.0)`, `Pal.desk_edge(1.0)`; o papel
+  dela é `Pal.DESK`). A almofada tem a tampa aberta atrás e o brilho
+  da tinta no feltro, que some quando ela é carimbada e volta (`_wet`, `WET_SEC`); na caixinha, a beira de cada bilhete
+  guardado mostra a faixa do formulário e, nos carimbados, a ponta da marca (`_filed`). **Bilhetes e carimbo são soltos**: o
+  jogador pega qualquer um, leva para onde quiser e ele fica onde foi solto (`Toll._on_desk_input`, um arrastar próprio
+  como o do cartão do despacho, não o do Godot; o de cima é o pego, `_piece_at`; na mão sobem e, soltos, caem, como o
+  cartão, `Lift`; guardar a ferramenta com um deles na mão o deixa onde estava). O carimbo é visto de cima, inclinado, como
+  da cadeira, no modelo do numerador automático de escritório (a referência do usuário, em pixel art), fino (88 px):
+  o cabo de baquelite preta em cogumelo (o preto dos cabos), com o tampo oval e o brilho, a haste cromada e o anel,
+  fatias redondas deitadas uma por cima da outra (`_knob`, `_knob_r`, `_knob_tone`, `SQUASH`; o desenho em texto de
+  28 px saía achatado), com o medalhão de latão do fabricante (inventado, `BRAND`) no tampo e o reflexo quente da
+  luminária do lado da luz (`GLINT`); o corpo de níquel com o tampo à vista e a plaqueta "TARIFADO"; embaixo, o eixo
+  com as pontas e as rodas de algarismos de latão, da largura da janela, com os tipos na cor da tinta; e a armação
+  parada, as pernas com o rasgo do eixo e os parafusos de latão, descendo até o fundo da sapata, o seletor de latão
+  com riscos gravados e a alavanca serrilhada (`SELECTOR`; sem letras nem números: "0 1 2 D", o modo de repetição dos
+  numeradores de verdade, ninguém entendia; molas de retorno à vista também saíram, a pedido), e a sapata entre elas, vista de cima, com a janela (`WINDOW`, do tamanho da marca,
+  `TollTicket.MARK_SIZE`, 64×34: a moldura grossa de cantos redondos com um fio fino por dentro, a data da noite,
+  miúda, `PixelArt.tiny`, entre dois traços, "TARIFADO" na fonte de 11 em negrito e "SÃO SOTERO" miúdo,
+  `CityMap.CITY`, entre estrelinhas; a tinta falha nos fios, cada bilhete do seu jeito, mais de um lado e mais com a
+  borracha secando; a data pela noite, `TollTicket.night`, que o Main passa ao `Toll`), por onde se vê onde ele vai
+  carimbar (`Toll.STAMP`, `_draw_stamp`). A sombra da armação tem duas camadas, a curta e escura de quem encosta na
+  mesa (`SHADOW_NEAR`, some na mão) e a longa e fraca, como a do corpo e do cabo; a longa da armação não passa onde
+  cai a do corpo (`_minus`): sombras translúcidas somadas escurecem o dobro (o `modulate` vale por desenho); só a armação
+  fica dentro da mesa (`FOOT`, `_inside`): o resto passa por cima da máquina para alcançar o bilhete embaixo da
+  fenda, e o mouse ali chega pelo próprio carimbo (`mouse_filter` PASS). Levar e soltar não carimba: **posto em cima do
+  bilhete, um clique nele** (apertar e soltar sem andar `CardMachines.DRAG_START` px) o aperta (`_stamp_down`): o
+  corpo desce pelas pernas acelerando, até as rodas de latão encostarem no fundo da janela, tampando-a toda (`PRESS`;
+  parando no meio dela, o papel à vista embaixo das rodas, parecia não encostar), fica no papel um instante e volta
+  freando (`_press_k`, `PRESS_DOWN`, `PRESS_HOLD`, `PRESS_SEC`), e a sombra do que desce encurta perto do papel; na
+  batida (`_touch`: o baque e o estalo do metal, `thump` e `punch`) a mesa sacode, o que está nela pula e assenta
+  (`SHAKE_SEC`, `SHAKE_PX`, a posição do `%Desk` volta a `_desk_at`), e ele carimba o bilhete de
+  cima que estiver embaixo da janela, nem que só a beira (`_ticket_under`; um que já tem marca que vale não recebe
+  outra): **a marca sai onde a janela estava** (o meio em `RUBBER_MID`, `stamp`), recortada no papel (`TollTicket._inked`,
+  `clip_contents`; antes era empurrada para dentro e saía longe de onde bateu); com menos da metade no papel é borrão e
+  não vale (`MARK_VALID`), e as que não valem continuam no papel (`_marks`) quando ele é carimbado de novo; a borracha seca a cada batida (`Toll.INK`: a primeira cheia, a outra mais fraca e, depois, só o vulto, que
+  não vale como carimbo, `TollTicket.ink`) e volta a ter tinta apertado na almofada (a borracha muda de cor). Com a
+  ferramenta aberta, o bilhete impresso sai da fenda da máquina no tempo do som da impressora, a beira de baixo na
+  frente, e cai na mesa (`_emerge`: `TollTicket.top` sobe o desenho; saindo, não se pega); impresso com ela fechada
+  (o comum), espera na fenda (`_fresh`; na sala, a ponta de pé) e sai dela quando a ferramenta abre, mais depressa
+  (`OUT_SEC`, um depois do outro; `_arrange`, chamado também quando ela fica visível). O bilhete solto com o mouse na caixinha vai para ela (`file`; conta na hora) e desce para dentro,
+  sumindo atrás da frente dela (`_sink`: a altura dele encolhe até a boca, `BOX_MOUTH`, com `clip_contents`; por isso o
+  `TollTicket` desenha sempre em `SIZE`); sem o carimbo, ela aceita e vem a advertência leve
+  `toll_unstamped` (`Toll.unstamped`). O número do bilhete é reservado quando começa a contar (`Toll.ticket_of`) e vai
+  para a ficha do caderno ("Bilhete nº 0002", `PhoneCall.Record.ticket`). Bilhete esquecido na mesa: no fim do turno ele
+  espera guardar, como o registro (`Main._unregistered`), e no fim é advertência leve `toll_forgotten`
+  (`Supervisor.shift_over`). **Na mesa da sala, o calculógrafo é a ferramenta aberta em miniatura** (antes era uma
+  caixa com a fenda no tampo e um visor, e não batia com ela): a máquina atrás, na proporção da aberta (`CALC`), sem
+  relógio, nem nela nem na aberta (o de flip, ao lado, já dá a hora), os dez contadores (o da entrada
+  contando acende, `Toll.counters` → `Background.counting`), a plaqueta com a luz e a fenda embaixo, de onde a ponta do
+  bilhete esperando (`Toll.in_slot` → `Background.tickets`) desce para a mesinha no tempo do som da impressora
+  (`Background._draw_tip`, camada própria, `TIP_SEC`); na frente dela, a mesinha na proporção da mesa aberta
+  (`Toll.NOMINAL`, a de 960 × 540), com a almofada e a caixinha afastadas dos cantos na mesma medida (`Toll.INSET`), os bilhetes soltos com as marcas, a caixinha com os guardados e o
+  carimbo em pé onde o jogador os deixou (`Toll.layout` → `Background.toll_desk`, passado só com a ferramenta fechada:
+  aberta, levar um bilhete redesenharia a sala a cada quadro). Dica da
+  primeira vez: `HINT_TOLL` (`SAW_TOLL`). Ponytail: não há tecla, e o interurbano ainda contando no fim do turno não
+  imprime.
+- Fim de ligação: `end_call(c, PhoneCall.End.*)` gera `c.record` (um `PhoneCall.Record`, nulo antes; no livro, `stamped` com o carimbo) e manda para `Notebook.add()` (fila; não trava o turno; não atendida vai
   direto para o livro com o carimbo `TYPE_MISSED`, sem escolher tipo).
   O caderno registra com **um clique no tipo** (`register(T.Key.TYPE_*)`: Comum, Emergência, Trote; o resto da linha
   vem do `record`), mostra a pendente numa ficha só de leitura e desenha o livro como página pautada (`_draw_page`,
@@ -708,15 +493,16 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   (`_box`: sombra, parafusos, placa de latão, luz e saída de ar), com a fenda da largura do cartão (`_mouth_x`): o
   transmissor à esquerda, a impressora no meio e a trituradora à direita, afastadas (com a impressora logo acima da
   trituradora, o cartão solto ali mesmo era triturado; antes, a ficha abria e fechava por cima do mapa, com as máquinas
-  entrando pelas bordas, o × e o botão de reabrir: saíram com a base fixa). O cartão tem `PunchCard.W` = 176 px (o mais estreito em que cabem o tipo
-  mais longo e o protocolo em duas linhas; espaçamentos justos, `ROW`, `TOP`, `FOOT`, `TEXT_X`, e o número sem "Nº"
-  para caber ao lado do título) e as fendas são rasgos finos (`_mouth`). Marcar o local faz a impressora datilografar (`typing`, o local aparece na tira de papel saindo da fenda) e imprimir
+  entrando pelas bordas, o × e o botão de reabrir: saíram com a base fixa). O cartão tem `PunchCard.W` = 132 px (as três fendas lado a lado
+  cabem na unidade; espaçamentos justos, `ROW`, `TOP`, `FOOT`, `TEXT_X`) e **todo o texto dele, e o da tira e dos avisos
+  das máquinas, na fonte miúda do painel** (`PunchCard.small`, `PixelArt.tiny`; protocolo quebrado em `lines_of`): na de
+  11 o local não cabia; as placas das máquinas continuam em 11 (`PunchCard.write`) e as fendas são rasgos finos (`_mouth`). Marcar o local faz a impressora datilografar (`typing`, o local aparece na tira de papel saindo da fenda) e imprimir
   (`printer`, saindo sem parar) um **cartão perfurado** com local, bairro e setor, que sobe pela fenda dela para cima do
   vidro e fica em pé nela (`_rest`); ele anda livre pela unidade toda, por cima da moldura e das máquinas, até a
   borda de baixo (`_clamp`). O cartão é um formulário: impresso na tinta
-  vermelha das emergências (`FORM`, a do carimbo do caderno: faixa com o número, rótulos, posições de furo, fio duplo,
+  vermelha das emergências (`Pal.CARD_FORM`, a do carimbo do caderno: faixa com o número, rótulos, posições de furo, fio duplo,
   rodapé com o nome da central, marcas de coluna na borda) com os dados datilografados em preto sobre linhas
-  pontilhadas, pauta como a do caderno, fibras no papel e sombra na mesa (na mão ele sobe: cresce `HELD_SCALE` em volta de onde foi pego e a sombra se afasta; solto, cai acelerando, `DROP_SEC`; parado, escala 1 exata para o texto ficar nítido). O jogador perfura
+  pontilhadas, pauta como a do caderno, fibras no papel e sombra na mesa (na mão ele sobe: cresce em volta de onde foi pego e a sombra se afasta; solto, cai acelerando; parado, escala 1 exata para o texto ficar nítido; `Lift`, `scripts/ui/lift.gd`, o mesmo do bilhete e do carimbo do calculógrafo). O jogador perfura
   o tipo de ocorrência (um só) e as unidades (protocolo impresso embaixo de cada uma, `DISPATCH_WHY_*`; ocupada sai
   riscada) em posições fixas (`punch`, picote caindo; clicar em qualquer ponto da linha perfura o quadradinho dela, e a
   linha sob o mouse fica realçada se der para perfurar). Furo não se desfaz. **Um cartão por vez, de qualquer tipo**
@@ -763,17 +549,18 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   a numeração delas fica na beira da quadra, fora da rua. Abaixo
   de `NAMES_K`, só os bairros, no meio da folha. Delegacia, bombeiros e hospital
   no Centro (`STATION`); a viagem dura pela distância (`trip` devolve os segundos, `UNIT_SPEED`, `MIN_TRIP`; anda no tempo do jogo,
-  `trips[i]["t"]`, parando na pausa) e o despacho espera a mais demorada. Depois de um tempo no local (`Dispatch._return`,
+  `CityMap.Trip`, `trips[i].t`, parando na pausa) e o despacho espera a mais demorada. Depois de um tempo no local (`Dispatch._return`,
   `STAY`), a viatura volta para a base pelo mesmo caminho (`CityMap.go_home`), e só fica disponível quando chega. As viaturas
   não aparecem em nenhum dos mapas (testado e saiu, a pedido: num mapa de papel sob o vidro, um pontinho andando dava
   impressão de monitor); a viagem só conta o tempo (`trips`), e quem está fora aparece na faixa `%Fleet`.
   Quem não era necessária (a mais, endereço errado ou nada lá) volta logo depois de o rádio dizer isso (`Radio.said`,
   `QUICK_STAY`), ou no máximo `QUICK_WAIT` s depois de chegar se o rádio ainda estiver ocupado. Emergências escritas e moldes só nas ruas dos setores atendidos.
   **Regras das viaturas no `Fleet`** (`scripts/model/fleet.gd`, `Dispatch.fleet`; sem tela nem tempo, testado direto no
-  teste de fluxo): estado de cada uma (`Fleet.Unit`, `IDS`, `NAMES`, `STATUS`), a emergência em andamento (`incident`,
-  `required`, `require`) e a ordem `send` (devolve se o socorro ficou completo) → `arrive` (`Fleet.Result` OK, MISSING,
+  teste de fluxo): estado de cada uma (`Fleet.Unit`, `IDS`, `NAMES`, `STATUS`), as emergências em andamento (`incidents`, cada uma um `Fleet.Incident`;
+  `incident_of`, `required(e)`, `require(e, …)`, `close`), de qual é o cartão (`target_of`: a do lugar marcado; fora de
+  todas, a da linha do FONE, `Dispatch.attending`; sem ela, a primeira sem socorro) e a ordem `send` (devolve se o socorro ficou completo) → `arrive` (um `Fleet.Arrival`: `Fleet.Result` OK, MISSING,
   WRONG_PLACE, IDLE; o que falta, o que sobrou, quem volta logo) → `leave` → `home`; `gen` invalida viagens depois do
-  `reset`. O `Dispatch` fica com cartão, ficha, mapa, rádio e a espera entre os passos. `Dispatch.set_incident()` quando a emergência toca; `Dispatch.sent` → `Main._on_dispatched` →
+  `reset`. O `Dispatch` fica com cartão, ficha, mapa, rádio e a espera entre os passos. `Dispatch.set_incident()` quando a emergência toca; `Dispatch.sent` (com a emergência do cartão) → `Main._on_dispatched` →
   `Conversation.emergency_dispatched`. Na chegada,
   `Dispatch.arrived(e, result, occurrence, extra)` (`Fleet.Result`; tipo marcado; unidades
   que não eram necessárias) → `Supervisor.on_arrived`.
@@ -788,7 +575,7 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   inteiro acende: `Radio.alert(stage, away)`, moldura pulsando e aviso na tela; a luz "Ocorrência" acende sempre;
   a cada troca de estágio, `Radio.chirp` toca `radio_alert` vindo do rádio, mais agudo quanto pior): corre desde o atendimento, também em espera e depois de a pessoa desligar; para durante
   pergunta e resposta (`Conversation._em_ask`) e na pausa; para de vez só quando o socorro completo sai para o lugar
-  certo (`Dispatch.sent(..., complete)`, conta envios anteriores em `Fleet.incident["going"]`). Estágios por
+  certo (`Dispatch.sent(..., complete)`, conta envios anteriores em `Fleet.Incident.going`). Estágios por
   `EmergencyCall.stage_sec`; cada um chama `Conversation.emergency_worse` (fala `worsening`/`critical`/`lost`; com a
   pessoa já desligada, `RADIO_WORSE`/`RADIO_LOST`; depois de dita, `Urgency.told` atualiza `PhoneCall.told`, e só então `Fleet.require(e.required(told))`
   passa a exigir as unidades do estágio; com a pessoa já desligada ou se despedindo, o rádio diz também o que mandar,
@@ -796,14 +583,20 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   `Conversation._qa`, índices depois das do roteiro; perdida = só o endereço e `OP_ANYONE_HURT` → `lost_answer`). Advertência pelo estágio
   quando o socorro completo sai (`_on_dispatched` → `Supervisor.secured`: `emergency_worse` média, `emergency_critical` grave + jornal LATE);
   perdida = `emergency_lost` gravíssima na hora (`Supervisor.lost`) + jornal BAD (sem `emergency_dropped` nem retorno). Retornos não têm
-  barra (herdam `stage` e `told`: as unidades e as perguntas de quando a ligação caiu). A próxima emergência espera a barra da anterior parar.
+  barra (herdam `stage` e `told`: as unidades e as perguntas de quando a ligação caiu). **Até duas emergências ao mesmo tempo**
+  (`Main.MAX_EMERGENCIES`, `Main.emergencies`, `in_progress()`: tocando, na linha ou com a barra correndo; `emergency_of(e)`):
+  cada uma com a sua barra; o painel mostra a da linha do FONE, e o rádio acende na pior e avisa da que está fora da linha.
+  A terceira espera uma delas desligar e ter o socorro. **Viaturas**: cada tipo tem duas (`Fleet.units`: "pol" e a
+  de reserva "pol2", `Fleet.SPARE`, `Fleet.kind`); a de reserva só sai com duas emergências em andamento (`Fleet.spare`,
+  posto pelo `Urgency` via `Dispatch.set_spare`; `Fleet.vehicle`/`crew` escolhem quem sai). Com uma, quem errou espera
+  a viatura voltar. O cartão perfura o tipo; o `Incident` conta tipos; viagens, `leave` e `home` são por viatura.
 - O Main chama `supervisor.fault()` onde a falha acontece (cabo cortado, número errado); `Supervisor.call_ended()`
   (chamado em `end_call`) decide advertência e retorno; `call_again()` agenda a mesma pessoa de novo (`PhoneCall.retry`; uma vez por motivo, `retried`;
-  também no tutorial; nunca depois do fim do turno; `too_late` sorteado com
+  nunca depois do fim do turno; `too_late` sorteado com
   `REDISPATCH_CHANCE`). `check_hold()` encerra quem passou de `HOLD_GIVE_UP` em espera (`End.GAVE_UP`).
-- Tutorial (`tut`), trotes e ligação desconhecida não geram advertência. Falas de retorno, manchetes e pareceres
+- Treinamento (`PhoneCall.lesson`), trotes e ligação desconhecida não geram advertência. Falas de retorno, manchetes e pareceres
   ficam no content (grupo "Supervisor e consequências").
-- À meia-noite, `start_ending` (`Supervisor.shift_over`) soma o que ficou sem registro e passa o relatório para `Ending.play(report)`, que mostra
+- No fim do turno (`Main.shift_end`), `start_ending` (`Supervisor.shift_over`) soma o que ficou sem registro e passa o relatório para `Ending.play(report)`, que mostra
   `ReportView` antes do título final.
 
 ## Setores (a cidade em três partes)
@@ -814,7 +607,7 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   que devolve nulo quando acabam os lugares e a agenda troca por pedido de informação) e os pedidos de informação.
   Polícia, bombeiros e hospital (despacho) valem para a cidade toda. Testes de cenário usam `load_main([1, 2, 3])`.
 - Bairros: setor 1 **Centro**, setor 2 **Alto da Serra** (com a zona rural), setor 3 **Vila Serena** (`MAP_DISTRICT_*`,
-  nome no rodapé de cada folha do mapa). Cada um tem emergências escritas (Centro: 11–13; Alto da Serra: 14–16, a 14
+  nome no rodapé de cada folha do mapa). Cada um tem dez emergências escritas (Vila Serena: 01–10; Centro: 11–13 e 17–23; Alto da Serra: 14–16 e 24–30, a 14
   na casa do Benedito Souza, endereço dele na lista). Na noite da entrega: a primeira transferência para o banco novo
   mostra `HINT_NEW_BANK` (`Main._new_sector`), e na primeira vez que o mapa aparece ele sai do enquadramento antigo e
   se abre para o bairro novo (`CityMap.pending_reveal`, `REVEAL_SEC`; o bairro novo aparece aos poucos).
@@ -822,8 +615,35 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
 ## Noites (roteiro fixo)
 - 15 noites; as 3–15 ainda são genéricas (dia da semana e bilhete, sem roteiro nem ligação desconhecida).
 - `GameContent.nights` (ordem) → `Night` (`scripts/data/night.gd`, `data/nights/night_NN.tres`): dia da semana, bilhete
-  da intro, clima fixo (vazio = sorteado), `tutorial` (só a 1ª), a primeira página do jornal (`news_*`, opcional), `story` (`StoryCall`: roteiro escrito + horário fixo) e `mystery` (passos `PrankStep`; vazio = sem
+  da intro, clima fixo (vazio = sorteado), a primeira página do jornal (`news_*`, opcional), `story` (`StoryCall`: roteiro escrito + horário fixo) e `mystery` (passos `PrankStep`; vazio = sem
   ligação desconhecida naquela noite). **Só `story` e `mystery` são fixos; não existem ligações "principais".**
+- **Noite 0, o treinamento** (`GameContent.training`, `data/nights/night_00.tres`, fora de `nights`): sexta-feira, 5 de
+  outubro (`GameData.TRAINING_DAYS` antes da noite 1), setor 3, nível 1. `Main.night_no` 0 = treinamento e -1 = a
+  salva; o jogo novo começa nela (`Progress.night` 0), e a tela inicial tem **Pular o treinamento** (`Intro.skip_pressed`
+  → `Main._skip_training`: grava a noite 1 e recarrega). Ela não leva graves para a noite 1 e o `Pace.next` dela dá
+  sempre o nível 1 ("é o treinamento" = `Main.is_training()`: a noite tem lição). Começa com o FONE já na entrada 1 (`Switchboard.plugged`). A telefonista veterana (`Night.teacher`,
+  a Cecília, do Alto da Serra) liga e ensina como colega, pelos passos `Night.lesson` (`LessonStep`: RING por uma entrada
+  certa, com ou sem pedido de transferência, `call`; SAY; OPERATOR; WAIT por `until`, com a dica do manual, `hint`, as
+  falas de demora, `nudges` a cada `seconds`, e a do erro, `wrong`, com %d = a tomada errada; PAUSE; HANG_UP),
+  conduzidos pelo nó `Training` (`scripts/training.gd`). Ela fala devagar, uma frase curta por SAY
+  (`Training.SPEECH` no `PhoneCall.speech`): rápida, o texto se acumulava na tela. Erro e demora: ela comenta só se estiver na linha e calada;
+  senão, fica a dica. Enquanto ela ensina (`Training.active`) o relógio fica parado e nada da agenda toca; depois,
+  segue o turno calmo. As ligações dela são transferências com `PhoneCall.lesson` (o `Conversation` não as roda; o
+  Main não deixa desligar nelas nem transferir para o número errado, `Training.wrong_number`; a conversa dela com o
+  destino acaba em `Training.TALK_SEC`, `Main.talk_over`). Atender pisca enquanto ela chama com o FONE na entrada
+  (`PhonePanel.blink_answer`). Na última ligação ela ensina o caderno (as tiras, registrar as duas dela como
+  Comum; outro tipo, ela comenta, `Training._on_registered`), a prancheta e, só de boca, o calculógrafo (carimbar e
+  guardar o bilhete); abrir os dois primeiros liga o "já viu" das dicas de
+  primeira vez (`Main.SAW_SLIPS`/`SAW_SHEET`). Depois ela liga pela entrada 3 fingindo uma emergência de treino
+  (`LessonStep.emergency`, `Training.drill`, posta no `Dispatch.set_incident`): marcar o local, triturar o cartão
+  quando ela corrige o endereço, marcar de novo, perfurar, transmitir e ouvir o rádio (passos "dispatch", "card",
+  "shred", "punched", "sent", "arrived"; `Dispatch.location()`). A chegada dela não vai para o relatório nem para o
+  jornal (`Supervisor.on_arrived`; só a chegada ao lugar certo cumpre "arrived"), e o `Supervisor.fault` não anota
+  nada durante o treinamento. As esperas dela não contam na pausa; com o FONE fora da linha dela, o manual diz para
+  voltar (`HINT_TRAINING_BACK`). As fichas dela dizem "Treinamento" (`OBS_TRAINING`; a da emergência, `drill_call`,
+  leva o local e o cartão). A noite 0 nunca demite (`ShiftReport.fired`) e fecha com "Fim do treinamento". Por fim, a espera
+  (o jogador tira o FONE da entrada dela e volta: "hold", "resume") e, só de boca, o fim do turno (23:40, Encerrar
+  turno, registrar antes, meia-noite). Teste: `tests/test_training.gd`.
 - **Ritmo por nível, não por noite** (`Pace`, `scripts/data/pace.gd`; `GameContent.paces`, 5 níveis; `Main.pace`):
   `call_gap`, `peak_chance`, `max_live`, `emergencies`, `pranks`. Noite 1 = nível 1; `Pace.next` decide o da próxima
   (salvo em `Progress.pace`): até a noite `CONFIDENCE_NIGHTS` (3) só sobe se a noite anterior não foi ruim
@@ -840,20 +660,26 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   Para um recurso novo usar marcadores: exporte `requires`/`sets` e chame `allows`/`apply`. Testar um ramo:
   `-- --night=2 --flags=a,b`.
 - `Progress` (`scripts/model/progress.gd`, `user://progress.cfg`): próxima noite e graves acumuladas
-  (`ShiftReport.severe_before`/`severe_total()`/`fired()`) e marcadores. Main salva em `start_ending` (última
+  (`ShiftReport.severe_before`/`severe_total()`/`fired()`), marcadores e as palavras-chave ouvidas (`clues`). Main salva em `start_ending` (última
   noite ou demissão limpa o save). `-- --night=N` força uma noite **sem ler nem gravar** o save; `test_base.load_main` força a noite 1.
 
 ## Agenda e ritmo (constantes no topo de main.gd e schedule.gd; por noite em `Night`)
 - Ligação desconhecida (`MYSTERY`, entrada livre sorteada, guardada em `myst_line`) entre `Night.mystery_from` e `mystery_to` (22:00–23:30), só
   toca com a mesa em silêncio, por no máximo 30 min de jogo (`latest`, `Schedule.MYSTERY_WAIT`), e nunca depois de
-  `LAST_CALL - MYSTERY_MARGIN` (23:30): o botão Encerrar turno só aparece depois dela.
+  `last_call - MYSTERY_MARGIN` (23:30): o botão Encerrar turno só aparece depois dela.
+- **Ligação do roteiro toca sozinha** (`Main._scripted`: `story` ou a desconhecida): espera a mesa em silêncio por até
+  `Schedule.STORY_WAIT` (30 min, `latest`) e, enquanto ela está na mesa, nenhuma outra toca (o robô confere).
+- **Mesa parada demais**: vazia por `QUIET_SHARE` do maior `Pace.call_gap`, toca um pedido de informação a mais
+  (`Main._fill_quiet`; não com uma do roteiro a menos de `STORY_GAP`, nem depois de `last_call`). O robô mede a maior
+  mesa vazia (`mesa_vazia`, além do `maior_silêncio` entre toques).
 - Sorteadas: `Schedule._random_calls` — intervalo `Pace.call_gap` (nível 1: 45–60 … nível 5: 28–38; medido com `--human`) entre uma e a
-  próxima, `Pace.peak_chance` de vir logo em seguida, no máximo `Pace.max_live` pedindo atenção (`_run_schedule`), a `STORY_GAP` das fixas. Tipos: `Pace.emergencies` (a `EMERGENCY_GAP` uma da outra; no laço, a
-  emergência espera a anterior acabar e `Fleet.en_route()`), `Pace.pranks`, resto transferência/informação.
+  próxima, `Pace.peak_chance` de vir logo em seguida, no máximo `Pace.max_live` pedindo atenção (`_run_schedule`), a `STORY_GAP` das fixas. Tipos: `Pace.emergencies` (a `EMERGENCY_GAP` uma da outra; no laço, com
+  `MAX_EMERGENCIES` em andamento a próxima espera), `Pace.pranks`, resto transferência/informação.
   Um destino (e `alt_target`) por noite: dois pedidos do mesmo número travavam um ao outro.
-- `GIVE_UP_SEC` 60 s (`story` 1,5x, retornos 0,75x); tutorial (`tut`) e desconhecida nunca desistem.
+- `GIVE_UP_SEC` 60 s (`story` 1,5x, retornos 0,75x); treinamento e desconhecida nunca desistem.
 - Espera na linha (`Main._nag`, silêncio medido em `talk_clock`, que para na pausa): transferência pedida e o
-  operador parado → depois de `SMALLTALK_AFTER` (10 s), com `SMALLTALK_CHANCE` (60%, uma vez por ligação), conversa
+  operador parado → depois de `SMALLTALK_AFTER` (10 s; o destino chamando não conta: sem resposta, o silêncio
+  recomeça, `Main._ring_dest`, para a conversa fiada não vir junto da opção da alternativa), com `SMALLTALK_CHANCE` (60%, uma vez por ligação), conversa
   fiada do cotidiano (`Conversation.smalltalk`). **Cada assunto é um `ChatTopic`** (`scripts/data/chat_topic.gd`,
   `GameContent.smalltalk`): `line`, `weather` (vazio = qualquer), `voices` (quem pode dizer: "Meu marido..." só em voz
   de mulher; `Conversation.topics(voice)`), `requires` (marcadores) e `replies` (`ChatReply`: `text`, `follow`, `tone`, `sets`),
@@ -869,300 +695,149 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   `EMERGENCY_NAG_AFTER`, só no estágio inicial da barra (depois, a fala de cada estágio já cobra a demora). A conversa fiada não vem mais logo depois do pedido. Conversa fiada só do cotidiano (nada
   que lembre o mistério: luzes piscando, carros parados, chiado na linha).
 - Conversas transferidas duram `TALK_LEN` (34–68 min de jogo ≈ 45–90 s reais).
-- Turno das 18:00 (`SHIFT_START_HOUR`) às 00:00 (`SHIFT_END` = 360 min); fim **depois** da ligação desconhecida ter caído (`start_ending`).
-- **Fim do turno**: nada novo toca depois de `LAST_CALL` (23:40; sorteadas param ali e `_run_schedule` descarta
+- Turno das 18:00 (`SHIFT_START_HOUR`) até o fim da noite (`Night.shift_end`, minutos depois do início, no
+  `Main.shift_end`: 360, a meia-noite; a última noite, a 15, vai até as 6h, 720, para o dia nascer); fim **depois** da
+  ligação desconhecida ter caído (`start_ending`). A plaqueta do turno, o relatório e o painel de debug leem o fim
+  dela; os horários passam da meia-noite pelo `Main.fmt`. A hora do dia no cenário (`Background.minutes`) passa de
+  1440 depois da meia-noite: o que compara com ela continua valendo. **O clima que abre** (`Night.clears_at`, a 15 à
+  meia-noite): a chuva afina até a garoa e o véu da névoa some nos `CLEAR_SPAN` min antes (`Background._clearing`) e,
+  na hora, a noite fica limpa (`Main.set_weather` em `CLEAR_SEC`). **O amanhecer**, pelas
+  horas de verdade de 22/10/1973 a ~22° S (`Background.DAWN`, `SUNRISE`, `STREET_OFF`, `MORNING`): o céu, numa camada
+  própria embaixo da cidade (`_sky`, `_draw_sky`; o vidro, `_pane`, por cima: o reflexo some com o dia), é um
+  degradê de quatro tons do alto à vista até o horizonte (`Pal.DAWN_SKY`, quadros de 4 cores, e `DAWN_STOPS`;
+  `_sky_stops`, `_sky_tones`): do azul-escuro ao azul-esverdeado no alto, rosa, laranja e amarelo embaixo enquanto o
+  sol nasce, e às 6h o azul do dia no alto e só o horizonte num dourado claro (o quadro das 6h, pedido 273: laranja até
+  o fim parecia o sol ainda nascendo; e `DAY_SKY`, `_day_sky`, o quanto as nuvens, o clarão e o halo já são de dia: de
+  dia, branco e azul até embaixo, o sol sumia no horizonte claro, pedido 267); as nuvens tingem junto. As estrelas somem até 4h30, a lua
+  empalidece e o sol nasce às 5h25 **atrás da igreja**, no fundo da rua do cruzamento (a janela olha para o leste; `_sun_at`,
+  `_draw_dawn`: o disco, pequeno, `SUN_DISC` raios (pedido 256), quase todo miolo branco, `Pal.SUN_CORE`, o amarelo, sem beira, e
+  por cima o brilho branco saindo dele e esmaecendo, `SUN_GLOW`, e o halo amarelo, sem laranja, que encolhe e branqueia com o dia, como o clarão do horizonte some, para o azul não ficar cinza; desenhado por cima das nuvens: um banco passando o apagava, e as nuvens que passam com o vento, desenhadas com a lua, também, e os reflexos dele ficavam, pedido 297), e sobe devagar ao lado da torre, meio atrás dela e ainda baixo às 6h, como na referência
+  do usuário (`SUN_LOW`; os prédios altos do fundo abrem um vão ali; a torre fina, `CHURCH_TOWER`, mais baixa a pedido, 267, o telhado da nave mais alto, `CHURCH_NAVE`, 291, com
+  o campanário vazado, aberto na torre para a camada do céu, por onde o sol passa, com os prédios de trás abaixo dele, `_belfry`, e a escadaria no pé da igreja). Os raios
+  crepusculares saem dele num leque liso, por cima das nuvens (`_draw_crepuscular`: `RAYS` fatias, a cor em cada beira, a força variando
+  devagar com o ângulo; fatias finas de força sorteada riscavam o céu), e onde a igreja tapa o sol a sombra dela,
+  quase preta, vira um feixe escuro, fraco (`_church_cover`, `_church_parts`, os polígonos que `_draw_church` desenha; `RAY_SHADOW`,
+  `CHURCH_SHADOW`: forte, era uma faixa larga subindo pelo céu como fumaça, pedido 294).
+  Na frente da cidade, numa camada somada (`_rays`, `_draw_rays`), com o sol à vista (`_sun_seen`):
+  os reflexos na linha do sol ao meio da vista (`FLARES`, `Pal.FLARE`, somindo perto do sol, onde pareciam um segundo
+  sol; o risco horizontal da lente, cortando o sol, saiu, a pedido). A igreja fica escura contra o sol, arroxeada (`Pal.CHURCH_DAWN`), e nada de luz na frente dela (a beira acesa em volta, o brilho do sol somado por cima e o clarão e a neblina dourada na boca da rua saíram, a pedido: a luz parecia atravessá-la). Com o
+  sol (`_sunlit`, só depois de ele sair de trás do telhado da igreja, das 5h30 às 5h50, `SUN_OUT`: com a luz das 5h15,
+  o fundo da rua já estava aceso com ele escondido, pedido 292; a referência é uma imagem do usuário), a parede da direita da rua do cruzamento, de costas para
+  ele, fica na sombra, só com a cornija acesa, e a da esquerda, virada para ele, pega a luz de raspão, fraca, porque o sol está quase no eixo da
+  rua (`WALL_LIT` 0,2, ~1/4 da do chão), inteira e sempre que o chão pega, até as 6h: a sombra da parede da frente
+  no chão nunca chega até ela (pedido 264: as duas na sombra, pedido 258, deixavam o chão aceso e as paredes não;
+  pedido 266: uma sombra subindo por ela, pela conta do sol, a escurecia até as 5h30 com o chão ainda aceso), e as duas somem no ar dourado no fundo.
+  Os vidros dela espelham o dia (`_sun_glass`, pedido 279; só os de mais de um pixel: os do fundo, todos brilhando
+  juntos, eram uma coluna de riscos brancos, pedido 294): o céu na altura de cada janela (a reflexão numa parede de
+  pé não muda a altura do raio), tanto mais quanto mais de raspão (o Fresnel, `WIN_SKY`; a do primeiro andar espelha
+  a parede da frente, na sombra, e fica escura), e o sol, somado, de onde ele volta para cá (`_glint_z`: vem do fundo
+  da rua e chega mais perto com ele indo para a direita do eixo, `WALL_GLINT`) e das folhas abertas, cada uma na sua
+  hora (`WIN_OPEN`; o sorteio de cada janela por `rand_from_seed`: o `hash` dela sozinho seguia a altura e só o
+  primeiro andar brilhava); as de perto que brilham mais ganham um halo na `_rays` (`_glints`, `GLINT_HALO`; o das de
+  longe, juntos, faziam um clarão no fim da rua, como um segundo sol). Os prédios de lá, de costas para o sol, ficam todos na
+  luz fria do céu (`Pal.DAWN_SHADE`), com a cornija acesa (a luz quente e uma sombra descendo nas fachadas da direita
+  saíram, a pedido: não tinham de onde vir); o alto delas clareia na luz do céu (`SKY_TOP`) e, junto da boca do
+  cruzamento, embaixo, pega o rebatido quente da faixa de sol (`BOUNCE`). **Textura com forma, não grão** (pedido
+  244; pontos soltos pareciam sujeira): em todas as noites, as fachadas de lá têm o uso de anos (`_draw_facade_wear`:
+  tijolo a tijolo, `BRICK_VARY`, com as juntas de pé num `draw_multiline` só, e a tela andando por igual na fachada,
+  sem `_o` a cada peça, porque o fundo da vista redesenha ~11 vezes por segundo; frisos, pilastras, molduras e
+  remendos no reboco, rodapé de pedra, encardido, cano de descida, escorridos embaixo dos peitoris) e as paredes da
+  rua do cruzamento as fiadas e os remendos translúcidos por cima do degradê da luz (`CANYON_GRAIN`). O resto da rua fica na sombra dos
+  prédios de lá (`STREET_SHADE`, em `Pal.DAWN_SHADOW`, azul-violeta) e a faixa de sol entra pela rua do cruzamento e atravessa a nossa (`STRIP_A`, numa
+  cor só, alaranjada, `Pal.SUN_STREET`, a mesma da luz do sol nos prédios, na parede de raspão, nas cornijas e no
+  rebatido; com `SUN_RIM` saía amarela, pedido 265; com o sol subindo, toda essa luz clareia para a do dia,
+  `Pal.SUN_HIGH`, `_sun_tint`, `SUN_PALE`, e a faixa e a sombra da rua se apagam, `SUN_FADE`: laranja e forte até as
+  6h, pedido 273; reta, a `STRIP_EDGE` das paredes, e as beiras esmaecendo da sombra à luz sem degrau, a da sombra da parede
+  mais larga quanto mais comprida ela é, `STRIP_SOFT`, pedido 261; antes, dois degraus com os tons misturados e, antes
+  deles, direto do violeta ao laranja, as cores não se misturavam; mais vermelha para cá, `STRIP_NEAR`,
+  `Pal.SUN_DEEP`: amarela no fundo, por cima do violeta, ficava cáqui; e mais clara e dourada na boca do cruzamento,
+  mais cheia ali, `STRIP_MOUTH`; com o sol à direita do eixo da rua, `SUN_LOW`, a parede da direita deixa a sombra
+  dela no lado direito da faixa, prédio por prédio da rua do cruzamento, cada um na altura dele, `_wall_ratio`: quase toda logo depois de ele nascer, rente ao horizonte, e só encolhendo com ele
+  subindo, o lado do sol fixo no das 6h (ia e voltava, pedido 271); pedido 260; e nela o sol espelhado no asfalto úmido, embaixo dele na tela, nas marcas dos pneus, lisas e
+  úmidas, em fios quebrados onde o asfalto secou, e no resto do asfalto só de leve, `_draw_glints`, `GLINT*`: sem ele a
+  faixa parecia um vidro amarelo, pedido 262; em brilhos curtos sorteados, saía um confete branco, e numa coluna
+  quebrada em faixas, manchas ovais; pedido 263). As marcas dos pneus ficam em todas as noites, ao longo da nossa rua
+  e indo embora pela do cruzamento (`TRACKS_NEAR`, `TRACKS_FAR`, no `_draw_street`); o chão da rua do cruzamento tem o detalhe do da nossa, até
+  `CROSS_DETAIL`: manchas, remendos, a tampa do bueiro, rachaduras, a mancha de óleo do carro estacionado, a sarjeta, a
+  face dos meios-fios, a da esquerda acesa pelo sol, e as juntas das calçadas, `_draw_crossing_ground`, pedido 264). A sombra da rua não é por igual
+  (pedido 263): mais escura perto e mais clara no longe (`SHADE_DEPTH`), quente junto da faixa, a luz rebatida dela
+  (`BOUNCE_SHADE`), e mais escura junto dos meios-fios (`SHADE_CORNER`). **A sombra e a faixa são luz, não tinta** (`_draw_sun_strip`): a vista
+  de trás é desenhada em três camadas, o chão (`_back`), a luz nele e o que fica em pé (`_upright`, `_draw_city_upright`:
+  os postes da rua do cruzamento, a lâmpada deles de 1 ou 2 px, a sombra do nosso prédio, as paredes e as fachadas); a sombra multiplica o chão
+  (`_street_mul`, `BLEND_MODE_MUL`, sem a luz do dia) e a faixa soma (`_street_add`, com ela), as cores escritas como
+  a pintura ajustada à vista e passadas a luz por `_lit` (no tom do asfalto dá a mesma cor, e as manchas, o grão e as
+  rachaduras continuam embaixo); pintadas por cima, cobriam a textura (a faixa ficava chapada, só com as rachaduras
+  riscando) e cada superfície acesa pedia um remendo; luz nova no chão da vista entra nessas camadas; e só nela quem passa, os carros e os postes de lá deixam as sombras
+  compridas, encurtando com o sol subindo (`_sun_shadow`, `_shadow_k`), só dentro da faixa de sol (`_strip_end`; a
+  sombra da parede da direita pela altura dela, `_wall_shade`); a dos postes some a `POST_UMBRA` m (inteiras, emendavam
+  numa listra). As manchas do asfalto têm a beira torta (`_blot`, em quadriláteros, `_convex`: em triângulos quebravam o
+  lote, de 380 para 870 chamadas; retas, a faixa de sol virava uma colcha). O teto e os vidros dos carros pegam o sol, e a copa da
+  árvore acende de verde-amarelo, mais no alto e na beira de cima de cada tufo (`Pal.LEAF_SUN`); o asfalto úmido do sereno espelha de leve os faróis e as lanternas (`DAMP`) e, mais, a vitrine
+  do bar, a porta do hotel e as vitrines acesas do térreo (`_mirror`, `MIRROR_A`, retas embaixo delas, como na chuva; na frente da vista e
+  cortadas pelo chão dos carros, `_car_ground`, como os riscos dos postes e do letreiro, `_car_cuts`: no chão,
+  apareciam numa listra de luz pela sombra do táxi parado no hotel, pedido 276),
+  e as poças da chuva da noite espelham o céu, escuras de cá, com o alto do céu, e o céu baixo, menos saturado, na beira de lá (`_draw_puddles`, `PUDDLES`, `PUDDLE`; de uma cor só, eram tábuas rosa no asfalto, pedido 297); de manhã mais gente vira a esquina, vindo
+  de mais longe pela rua do cruzamento (`WALK_CORNER_DAWN`, `TURN_FAR`), e lá, contra o sol, quase em silhueta
+  (`Pal.BACKLIT`), com a beira acesa só na faixa de sol e de perto; o porteiro fica na porta do hotel; de manhã
+  mais carros vêm com o bagageiro (`RACK`), passa o menino do jornal de bicicleta (`PAPERBOY`) e às 5h30 o dono abre o
+  bar e fica no vão da porta (`BAR_OPENS`; pela vitrine, a prateleira com as garrafas e o balcão; ela e a porta do
+  hotel no `_sunny`, sem a luz do dia por cima, que as estourava); na sala, a poeira dourada no feixe do sol (`SUN_DUST`, `_sunbeam`); com os postes apagados, as vitrines acesas deixam a luz na calçada (`SHOP_POOL`). A neblina
+  baixa no fundo da rua some com o sol nascendo (`_draw_dawn_mist`, na cor do ar, fraca, e quente só com o sol fora), o ar
+  da distância (`_air`: a igreja, os prédios de longe, o fim das paredes e do chão da rua do cruzamento somem nele) fica na luz
+  fria do céu até o sol sair, `AIR_SHADE` (no clarão do horizonte, tudo lá parecia aceso antes da hora, pedido 292), arroxeada
+  (`Pal.DAWN_AIR`: na azul, o amarelo do horizonte passava por um cáqui às 5h35, pedido 295), os
+  prédios de longe em volta da igreja têm as janelas apagadas (uma ou outra espelhando o céu frio de cá, de manhã) e o que
+  fica em cima deles, sem antena (`FAR_DETAIL`, `_far_roof`), e de noite o clarão da cidade no céu atrás da igreja a recorta (`CITY_GLOW`,
+  `Pal.CITY_GLOW`, somindo no amanhecer), as nuvens se acendem por baixo (`Pal.DAWN_CLOUD_TOP` no
+  alto), fiapos de nuvem cobrem o céu (`_draw_cirrus`, `CIRRUS`) e bancos de nuvem em faixas largas, de beira nítida, com a beira de baixo acesa
+  rosa e, com o sol, laranja, descem até o vão da rua do cruzamento (`_draw_banks`, `BANKS`; pedido 259, como na referência) (os passarinhos, bandos em V e os pombos saindo da
+  torre, saíram, a pedido). A cidade clareia pelo `modulate` da `_back` e da `_view` (`DAY_GAIN`, `DAY_WARM`; a cor das luzes do sol na
+  cidade sai dele, `_sunny`, senão o laranja estourava no amarelo-cáqui; atrás da igreja, nos lados dela, uma camada de prédios
+  de altura média, acima do telhado da nave e abaixo da ponta da torre, na cor dela e mais apagados no ar, `CITY_BACK`
+  (eram três fileiras quase inteiras atrás das paredes da rua do cruzamento, pedido 298; a igreja a 104 m, pedido 299,
+  e eles de 60 a 105 m: de 45 a 100 pareciam baixos, pedido 299, e de 80 a 160, arranha-céus, pedido 300); um
+  shader nelas desfazia o lote das chamadas de desenho), postes e neon apagam às 5h15 (`_posts_on`, `_sign_on`),
+  janelas acendem de madrugada e ficam (`WAKE_DAWN`) e a rua volta a ter gente e carro das 5h às 6h (`morning`). Na sala, a luz do dia entra pela janela só por
+  parâmetros (`Background.daylight`: a cor do céu, fria, e com o sol a dele, quente, `Pal.DAYLIGHT_*`; a força em
+  `DAY_ROOM`, em degraus de 1%, menor com a persiana descida): o escuro da sala recua a partir da janela
+  (`room_noir.gdshader`), a luz dela clareia o que está perto e a luminária perde metade da força
+  (`lamp_light.gdshader`, `window_at`, `reach`), o sol baixo entra direto (`_sun_layer`, `_draw_sun`, somado,
+  embaixo dos objetos da mesa, a força no `modulate`): o fundo do vão e o tampo do peitoril acesos, com a sombra
+  do batente de longe atravessando-os na direção do raio e a beira delas em degraus de 1 px
+  (`_draw_sun_sill`; as quinas do peitoril e do vão ficam nítidas), e a janela desenhada
+  no tampo, nítida, um retângulo só, saindo da parede em ângulo (`_wall_x`; com um x só, a beira da luz não acompanhava o peitoril, pedido 271) (a conta do relâmpago com o raio mais baixo, `SUN_STEEP`, que mal muda até as 6h e por igual, `_sun_steep`: encolhendo
+  até a parede, parecia o sol já a pino; logo depois de nascer ela é fraca e de beira espalhada, `SUN_FAINT`,
+  `SUN_SOFT`, cortada no fundo da mesa reto na tela como a nítida, `_below`: com o canto preso nele, a beira dela
+  atravessava a sombra do relógio e parecia uma segunda sombra, pedido 274, e fica forte e nítida com o sol subindo, `_sun_up`), e nela a sombra
+  comprida da caneca e do relógio (`SUN_CAST`, pelos contornos `_occ` da última vez; uma mancha redonda de luz parecia
+  lâmpada), com a da luminária, que continua acesa, sumindo: ela fica numa camada embaixo do sol (`_shade_layer`,
+  `_lamp_shades`, do `_desk_shadow`), apagada pelo dia no `modulate` (`LAMP_SHADE`; às 6h o relógio tinha duas
+  sombras, pedido 273); o raio, a janela no tampo e as sombras vão todos na mesma direção na tela, para a esquerda e para baixo,
+  na linha que o usuário traçou da quina de baixo da janela à frente da mesa (`SUN_SHIFT`, `_sun_ray`, pela altura na
+  tela, pedido 272: em perspectiva, com o sol quase de frente, saíam em leque e cada uma ia para um lado; antes, reto
+  para a esquerda, a sombra não batia com a luz), a beira da luz de longe passa pela quina do batente no vidro, e a de
+  perto é a sombra da parede depois da janela, e a beira da caneca e do relógio
+  virada para ele acende, quente, numa camada somada por cima deles (`_sun_edge`, `_draw_sun_edge`, `SUN_EDGE_A`:
+  tirada do desenho de cada um, `_mug_rim`, `_clock_rim`, só se o raio pelo alto deles cai na janela do tampo), a mesa comutadora clareia de leve (`Switchboard.dim`,
+  `DAY_LIFT`), o brilho da luminária e o halo do `Bloom` enfraquecem (`Main.DAY_DIM`) e a gradação vai para a do dia
+  (`GameView.DAY_GRADE`, `grade_day`: mais contraste e saturação, `saturation` no `grade.gdshader`), e a luz do sol
+  nascendo acende a moldura, o peitoril e o arbusto (`SUN_LIGHT`, a primeira de `_window_light_list`). Nada disso redesenha a sala.
+- **Fim do turno**: nada novo toca depois de `last_call` (`LAST_CALL_BEFORE` antes do fim, 23:40; sorteadas param ali e `_run_schedule` descarta
   retornos e atrasadas; a desconhecida tem regra própria). A partir daí, com a desconhecida já passada, o botão
   **Encerrar turno** (`%EndShift`, no lugar do texto do turno ao lado do relógio) fecha a noite: quem está na linha ou
   tocando termina com `End.SHIFT_OVER` (advertência média `shift_hung_up`; emergência sem despacho vira
-  `emergency_dropped`; já resolvida, `closing`, não conta; o registro dela não conta como sem registro). À meia-noite
+  `emergency_dropped`; já resolvida, `closing`, não conta; o registro dela não conta como sem registro). No fim
   ninguém é cortado: com alguém na linha o relógio continua até ela acabar; com a mesa vazia ele para, e o turno fecha
-  sozinho quando não falta registrar nada (senão, `HINT_MIDNIGHT` e espera registrar ou o botão).
+  sozinho quando não falta registrar nada nem bilhete na mesa (senão, `HINT_MIDNIGHT` e espera registrar e guardar ou
+  o botão).
 - Relógio: 0,75 min de jogo por segundo real (`GAME_MIN_PER_SEC`): 6 h de turno ≈ 8 min reais.
 
-## Histórico das decisões de design (o que o usuário pediu, em ordem)
-1. Mesa com entradas + destinos; cabos limitados; desmontar conexões encerradas.
-2. Teclado de discagem removido; ligações simultâneas; caderno em fila; mais variedade de conversas.
-3. Menos simultaneidade (extras espaçadas, pico raro).
-4. Conversas conectadas mais longas (45–90 min de jogo).
-5. Modelo de cabos refeito: pares com chaves FALAR/TOCAR foram **substituídos** por FONE + saídas + cabos de
-   conexão + botão Transferir (o usuário considera o vermelho "o cabo do fone"; depois o FONE passou a branco, depois a verde, e os
-   cabos de conexão a vermelho/azul/amarelo).
-6. Ligações continuam depois da linha 07; linha 07 em horário aleatório após 02:00; final às 06:00;
-   clique devolve o plug à base com animação.
-7. Reestruturação para a versão definitiva (branch `refactor/definitive`): testes no projeto, semente fixa,
-   conteúdo em Resources, `PhoneCall`/`Exchange` tipados, interface em cenas com Containers e tema, autoload
-   `Sfx` com barramentos, Input Map e `tr()`.
-8. Anotação "NÃO ATENDER NOVAMENTE" removida (o mistério será roteirizado depois); a ligação desconhecida vem
-   de qualquer entrada, não só da 07.
-9. Mais roteiros escritos e conversas híbridas: moldes com lacunas (nomes em inglês) para extras e emergência.
-10. Consequências + relatório do supervisor no fim do turno, pensado para as próximas noites. Despacho errado: a pessoa
-    agradece na hora, o rádio diz que não havia nada e as unidades voltam; ela liga de novo dizendo que piorou e,
-    em alguns casos, dá para despachar de novo (a advertência fica).
-11. Turno passou a ser 18:00–00:00 (desconhecida entre 22:00 e 23:30; extras 4–6). Número errado com o FONE fora:
-    não completa; foi engano, os dois desligam e o solicitante liga de novo pedindo o certo. Clique que mexe
-    uns pixels conta como clique.
-12. Sons: campainha antiga (martelinho + ressonadores de metal; depois trocada por bipes suaves, jogadores acharam irritante) e "tuuuu" (o filtro de caixa oca foi testado e removido a pedido do usuário), chuva e grilos (chirps + trilos) refeitos. Clima sorteado por
-    noite: chuva (só chuva), névoa (grilos), limpo (brisa e grilos). A coruja que havia foi removida a pedido do usuário.
-13. Rádio mais largo e alto (3 linhas); abas 24 px mais baixas (mapa se ajusta à altura). Silhueta na janela
-    `SHADOW_LEAD` (15 min) antes da ligação desconhecida (`Background.shadow`), sai `SHADOW_LEAVE` (10 min) antes
-    (foi ligar); segue o horário sorteado (`myst_plan`), mesmo que a ligação atrase.
-14. Ligações demais ao mesmo tempo depois do turno de 6 h: relógio a 0,75 min/s (turno volta a ~8 min reais) e
-    retornos esperam a mesa esvaziar (`RETRY_WAIT`). Medido com o robô desastrado (`--clumsy`).
-15. Várias noites com roteiro fixo por noite (`Night`), progresso salvo e demissão com 3 graves acumuladas.
-16. **Nada fixo além do roteiro**: as 4 "principais" com horário fixo foram removidas; tudo é sorteado com intervalo
-    máximo (`call_gap`), o que também acabou com silêncios de ~1 h. O primeiro valor (12–32 min) era rápido demais
-    para uma pessoa; passou a 28–42 (noite 2: 26–40), medido com o robô `--human`. Silhueta sai 10 min antes de ligar, preta e
-    contra a luz de um poste.
-17. Três idiomas (pt_BR, en, es): enum `T.Key` + CSV para a interface, .po para as falas.
-18. Menu de pausa (Esc) com Configurações (idioma, volumes, velocidade do texto), também na tela inicial.
-19. Fios saem de buracos (dois por cabo de conexão, um por ponta; o do FONE no encaixe); plug solto cai e o fio o
-    recolhe para o buraco (substituiu a volta em arco e o cabo enrolado na base). Plug só se move arrastando
-    (o modo "clique no plug e depois na tomada" foi removido); clique sem arrastar desconecta.
-20. Cursores próprios (botões de cena também: `node_added` ligado em `_enter_tree`) (seta, dedo, mão aberta/fechada, proibido, I-beam), plug sob o mouse com destaque, fio mexido
-    por último por cima e fios parados sem simulação. Plug com ponta de metal maior, que entra na tomada; sombras.
-21. Caderno: registro com um clique no tipo ("Outro" e os campos editáveis saíram), contador na aba no lugar do
-    ponto e da troca automática de aba, livro redesenhado como página pautada com carimbos.
-22. Menos burocracia no despacho: mapa e despacho numa aba só (sem "Abrir mapa"/"Usar no despacho"), o tipo marca as
-    unidades de costume, conferência sempre à vista com Enviar só quando pronto, limpa depois de enviar, etiqueta com
-    a faixa de números ao passar o mouse, som de papel desenrolando ao abrir. Marcar o mapa sozinho pelo endereço
-    dito na ligação ficou de fora de propósito (tira o desafio; no máximo, um modo fácil).
-23. Turno caótico: noite 1 calma (7–9 ligações, máx. 2 pedindo atenção, sem picos) e ritmo subindo noite a noite.
-    O tipo da ocorrência deixou de marcar unidades: a conversa revela os fatos e o protocolo (polícia: crime, briga,
-    arma, rua bloqueada; bombeiros: fogo, fumaça, fio/gás, alguém preso; ambulância: ferido, passando mal ou preso) diz
-    o que mandar. Cartão do protocolo na aba, respostas decisivas sem ambiguidade, moldes e roteiros com casos sorteados.
-24. Barra de agravamento da emergência (abaixo do chat, dentro da caixa): inicial → agravando (média) → agravada
-    (grave, jornal com atraso) → perdida (gravíssima, nova gravidade). Para enquanto o operador pergunta e a pessoa
-    responde; corre em espera. Cada estágio tem fala própria e pode exigir unidades novas. Depois: a barra só para
-    com o socorro completo no lugar certo (chutar e completar não adianta), ficou mais rápida (45/40/35 s no 1º
-    estágio) e some fora da linha; aí o rádio inteiro acende (moldura pulsando e aviso na tela) na cor do estágio.
-    Cada estágio libera uma pergunta sobre o que mudou; na perdida, só "Tem alguém ferido?" (e o endereço). A unidade
-    nova só conta depois de alguém contar (a pessoa ou o rádio). O telefone passou a ocupar o que sobra da tela e o
-    chat encolhe quando as opções ganham fileiras (antes, o painel passava até 13 px da tela e cortava os botões).
-25. Ritmo separado das noites (`Pace`, níveis 1–5): segunda emergência só a partir do nível 3; nas 3 primeiras noites o
-    ritmo só sobe se a noite anterior não foi ruim; depois sobe sempre, até o nível 5 (limite medido com `--human`).
-    Última ligação às 23:40 e botão Encerrar turno; à meia-noite ninguém é cortado.
-26. Setores: a cidade em três bairros (Vila Serena, Centro, Alto da Serra), entregues nas noites 5 e 9 (15 noites).
-    Mesa com bancos A/B/C (faixas 100–199…), tampados por chapa até a entrega; mapa só com os bairros atendidos, ruas
-    que continuam com o mesmo nome e a numeração seguindo, nomes sem sobreposição; revelação do bairro novo no mapa,
-    dica do banco novo e ritmo que não sobe na noite da entrega. Lista telefônica refeita: uma letra por página dupla, abas de
-    índice na borda em vez da barra de letras, ordem sem acento e bairro no endereço.
-27. Ligação não atendida entra sozinha no caderno (carimbo "Não atendida", sem escolher tipo). Uma fala por vez em cada
-    ligação (`Conversation.say` espera a anterior; o assunto não atropela mais o "Obrigado, Central") e nada de conversa
-    fiada com o destino tocando. Fontes trocadas por IBM Plex e, a pedido do usuário, por Departure
-    Mono em tudo (nítida em 1280×720; o texto de 11 px borra em janela bem menor).
-28. Aba do despacho refeita: mapa na aba inteira e a ficha de despacho por cima, à direita (abre ao marcar o local
-    ou com emergência, recolhe depois do envio), com o protocolo junto de cada unidade; viaturas num canto do mapa.
-29. Ficha de despacho como cartão perfurado: marcar o local imprime o cartão (digitação e impressora antiga), o
-    jogador perfura tipo e unidades em posições fixas e leva o cartão ao transmissor (canto de baixo à esquerda), que o puxa e
-    envia, mesmo incompleto (o supervisor pune); a trituradora, embaixo da impressora, descarta o cartão.
-30. Plug encaixado em perspectiva (visto de cima e da direita, com paralaxe por encaixe), com as peças do plug em pé,
-    sombra pela profundidade, fio saindo no eixo e furos vazios com a mesma paralaxe. Janela maior, ao lado do rádio,
-    no alto da direita (abas mais baixas), preparando mais detalhes na janela e na mesa.
-31. Telefone como console em cunha (tela embutida na carcaça, fenda da barra de agravamento, teclas de verdade no deck)
-    e rádio ao lado do relógio; a janela ocupa todo o alto da direita e as abas (o mapa) ficaram mais altas. O título
-    "Central de São Sotero · Operador noturno" saiu da tela (a introdução da noite já mostra).
-32. A tela vira uma mesa de trabalho (referência visual do usuário): mesa comutadora à esquerda, de pé sobre a mesa,
-    com o FONE e o rádio na frente dela; ferramentas guardadas, que deslizam sobre a janela quando abertas (como um
-    papel posto na mesa); painel do operador embaixo, na largura toda, com só as últimas 3 falas, e o registro inteiro
-    das conversas numa quarta ferramenta. O cenário segue desenhado em código, mas pode virar PNG por camada depois.
-33. Mesa comutadora refeita: móvel de madeira, seções com faixas gravadas, mais espaço entre as fileiras e legenda no
-    pé; a base dos cabos virou uma bandeja na mesa, à frente do painel, de onde os fios sobem; relógio mais compacto.
-34. Cenário: a janela deixou de ocupar a área das ferramentas inteira (parecia uma aba a mais) e virou um objeto na
-    parede, com persiana, peitoril, vaso e a cidade lá fora (igreja com relógio, casas, poste, chão molhado); relógio de
-    parede com a hora do jogo, papéis presos, tábuas na mesa, listas e caneca. Cada camada aceita um PNG depois.
-35. Objetos da cena abrem as ferramentas: ficam na mesa, ao alcance do operador (na parede só ficaria o que parecesse
-    perto dele), desenhados no mesmo detalhe da mesa comutadora. A legenda do rádio ficou de fora: o rádio já tem tela.
-36. Mesa de madeira: a dica do manual subiu para o alto da direita (liberou a mesa), objetos maiores e em fileiras,
-    tábuas em perspectiva com a borda da frente, luz da luminária e da janela na mesa e sombras saindo da luminária.
-37. A mesa parecia o piso: a mesa comutadora passou a ficar de pé no tampo (o fundo dele atrás dela), sem rodapé na
-    parede nem juntas de assoalho nas tábuas, com a borda da frente mais grossa. As abas das ferramentas somem quando
-    estão guardadas (eram informação duplicada dos objetos da mesa); o selo do caderno foi para o caderno da mesa.
-38. Ainda parecia chão (as duas linhas escuras da quina): perspectiva de um ponto, com o ponto de fuga na altura dos
-    olhos; luz da luminária dobrando na quina (arco na parede, poça na mesa), sombras projetadas na parede, janela
-    embutida com a espessura da parede e objetos da mesa com lado e espessura no rumo do ponto de fuga.
-39. Canto da sala: a janela foi para a parede da direita, vista de lado (a vista da cidade fica reta, só recortada
-    pelo vidro: entortada com a janela parecia um quadro), e no lugar dela, na parede do fundo, um armário de aço de
-    chão atrás da mesa. Uma câmera só para a sala inteira, com os objetos da mesa postos nela em 3D (antes misturavam
-    vista de frente e de cima, sem escorço) e o ponto de fuga perto deles.
-40. Rádio, encaixe do FONE e bandeja dos cabos como caixas na câmera (tampo, lado e sombra); tábuas e poça de luz
-    calculadas pela câmera, e a luz da luminária na mesa e no armário tremendo com ela.
-41. Game design na mesa: os objetos mostram o estado do jogo (tiras no caderno, alfinete piscando, folha nova na
-    prancheta); o jornal da manhã com as consequências da noite anterior fica na mesa; a sala muda pelos marcadores
-    do roteiro (o mistério e as escolhas também moram no cenário).
-42. Ferramentas como objetos (o papel sai do objeto na mesa, com a forma dele, e o cenário escurece atrás); um relógio
-    só, analógico, na parede acima da mesa comutadora (o painel digital destoava e repetia a hora do relógio de
-    parede), com o turno numa plaqueta de latão; o painel do operador virou um console embutido na frente da mesa.
-43. Dicas da primeira vez para os sinais da mesa; a lateral da mesa comutadora na câmera; o relógio bate as horas e
-    uma campainha avisa quando o turno pode ser encerrado.
-44. Desempenho do cenário: ele só se redesenha quando algo que mostra muda; a vista da janela anda sozinha no vidro.
-45. A mesa comutadora parecia fora da mesa e desalinhada com as peças de baixo, e a perspectiva estava exagerada para
-    quem senta perto da mesa: a mesa comutadora virou um móvel só (painel na prateleira de um console, com a faixa de
-    mesa embutida na frente dele) e os olhos subiram (ponto de fuga logo acima da tela), entortando bem menos.
-46. O FONE e os cabos foram para a prateleira, na frente do painel e acima do rádio, como numa mesa telefônica de
-    verdade: os plugs ficam em pé em buracos no tampo e os fios sobem deles até as tomadas; nomes gravados na madeira.
-47. Acabamentos: os objetos da mesa reorganizados a partir da mesa comutadora (sem encostar uns nos outros), o
-    interior do armário com profundidade, detalhes no console, relógio mais legível e, a pedido do usuário, a
-    luminária saiu da tela: só a luz, vinda de cima e do meio.
-48. Uma densidade de pixel só: o cenário passou a ter os detalhes em 1x1, como a interface (a mistura com 2x2
-    incomodava; as contas da câmera seguem em unidades de 2 px), e os objetos perderam o contorno preto (serrilhava).
-49. O 1x1 ficou "pixels pequenos e definidos demais", e um filtro de 2x2 com média borrou tudo: o cenário inteiro
-    passou a 2x2 de verdade (arte na grade de 2 px e filtro que pega um pixel por bloco), ainda em prova (caderno e
-    prancheta redesenhados; listas, mapa, jornal e caneca não). Para acabar com os borrões, como no Papers, Please: o
-    jogo é ampliado como imagem (`viewport`, "nearest"), a fonte sem suavização, sem linhas de varredura e com vinheta
-    e brilho em degraus.
-50. O jogo todo ampliado como imagem deixou o texto feio a 1,5× (1080p): híbrido. A interface volta a ser desenhada na
-    resolução da tela, com a fonte suavizada; só o cenário vai numa tela de metade da resolução ampliada com "nearest"
-    (`SceneView`), que dá pixels quadrados e inteiros nas telas comuns. O filtro de 2x2 saiu.
-51. Os objetos da mesa todos na grade de 2 px (listas, mapa, jornal e caneca redesenhados em blocos), o brilho da luz
-    só na sala (antes passava em anéis por cima da mesa comutadora e dos textos) e os halos do bloom na mesma grade.
-52. O brilho das lâmpadas e dos aros não passa mais por cima do plug encaixado; plug em pé mais comprido, com a ponta
-    de metal mais longa; buracos da prateleira maiores, sem contorno preto, com o plug guardado entrando neles (antes
-    parecia equilibrado em cima do buraco); os fios também saem de dentro do buraco, e o do FONE não deita mais na
-    prateleira. Perto do buraco, fio e plug escurecem (a sombra de dentro dele).
-53. Plugs e fios sem contorno preto (a beira na cor da peça, mais escura), como o cenário; o plug encaixado mais fino,
-    deixando a aba da tomada à vista (dá para ver que entrou nela).
-54. Prova de tudo em 2x2 com a fonte Tiny5 (branch `improve/0000-pixel-2x`, em espera): o texto ficava pior. A pedido
-    do usuário, o jogo todo ficou em 1x1: o cenário voltou aos detalhes de 1 px (da história 48), numa tela na
-    resolução da janela, o bloom em blocos de 1 px, e da prova vieram as peças redondas da mesa comutadora pixel a pixel
-    (lâmpadas com aro, vidro e centro aceso). Os encaixes e o plug encaixado ficaram como estavam (o usuário os preferia).
-55. O encaixe redesenhado pela referência do usuário (a mesma da branch 2×2), em 1x1: aro niquelado fino e furo preto
-    largo, em pixel art.
-56. Em telas maiores que 1280×720 os pixels "quebravam" (1,5× em 1080p): o jogo passou a ser desenhado sempre em
-    1280×720 e ampliado com um filtro de pixel art (`GameView`, "sharp bilinear"), que deixa todos os pixels do mesmo
-    tamanho em qualquer resolução (perfeitos nas ampliações inteiras).
-57. Os plugs em pé na escala das tomadas novas (a ponta de metal da largura do furo, o cabo quase do tamanho do aro),
-    os buracos da prateleira em pixel art (elipse com a beira de trás na sombra, a da frente na luz e a parede de
-    dentro) e a tela em Configurações (cheia ou janela; ampliação suave ou pixels perfeitos com borda).
-58. O relógio de parede analógico virou um relógio de flip na mesa, meio virado para o operador (depois com
-    algarismos grandes desenhados à mão, base, rodinha, alarme e um creme menos claro); as outras peças
-    redondas (botões do rádio, caneca, alfinete, parafusos) em pixel art como as tomadas; halo das luzes em degraus
-    lisos, sem o pontilhado.
-59. A perspectiva estava errada (o relógio torto): a câmera passou a sair de um operador sentado (altura dos olhos e
-    distância ao tampo dão a distância focal), o relógio gira para os olhos por um cálculo e a frente dele é projetada
-    de verdade.
-60. Tomadas menores, com o furo da largura da ponta do plug, e o plug encaixado na proporção do em pé, com os mesmos
-    detalhes. Mesa comutadora: lâmpadas de vidro leitoso (não pareciam mais tomadas), faixa ligando a coluna de cada
-    linha, plaqueta de latão do fabricante no pé do painel, desgaste em volta das tomadas, chapas A/B com a letra
-    estampada e o aviso pintado, fios de pano com dobras e trançado e a moldura com veios de verdade (a plaquinha que
-    cai quando a linha chama foi testada e saiu: informação demais). O cartão de despacho sobe na mão e cai ao soltar.
-61. Painel de baixo enxuto: saíram o bloco da ligação em foco e o do destino e das outras linhas (inúteis: a mesa já
-    mostra); ficaram a tela da conversa (com a barra de agravamento e os avisos do visor), as teclas e o rádio,
-    reestilizado como uma tela do console. Onde ficava o rádio, na frente da mesa comutadora, uma miniatura desse
-    painel: o de baixo é a vista de perto dela. A conversa mostra as últimas falas que couberem, não só 3. O rádio
-    guarda as mensagens anteriores na tela, a tela da conversa espera com o cursor piscando e a mesa comutadora só se
-    redesenha quando algo muda.
-62. A sala viva: a cidade vai apagando as luzes com a noite, a luz da luminária cai no painel da mesa comutadora, as
-    teclas do console viraram teclas de verdade (chapa de metal, etiqueta de latão com o atalho, tecla baixa em
-    relevo), a dica do manual e o horário do turno são papéis colados com fita (a plaqueta do turno saiu; na parede, a
-    placa esmaltada da companhia telefônica) e o rádio ganhou um alto-falante perfurado na altura toda.
-63. Clima noir: a sala fria e escura fora da luz da luminária (borda lisa, sem recorte), a luz dela mais forte e
-    concentrada na mesa (o relógio ficava no escuro) e um brilho azul fraco vindo da janela (as faixas da persiana saíram).
-64. A noite lá fora: carros passando com a luz dos faróis atravessando a sala, relâmpago e trovão na chuva e um
-    letreiro de neon de hotel falhando, com o reflexo vermelho na parede.
-65. A vista da janela pela referência do usuário: a telefonia no alto do morro, a rua dela com os carros passando e a
-    esquina, a calçada, a mureta de tijolos com a escada descendo para a rua da cidade (no lugar do arbusto). Depois,
-    profundidade: a cidade em camadas na névoa, a avenida fugindo para o horizonte e a luz e as sombras no chão; a
-    esquina foi para a direita e, no lugar da escada, prédios de perto com o poste e o homem na frente; volume e
-    escala nas coisas de perto; o homem e o carro na proporção da porta e dos andares dos prédios. Por fim, a vista
-    passou a ter uma câmera de verdade (a sala no segundo andar, tudo em metros e na distância), e o carro é visto de cima.
-66. A vista virou uma rua de verdade passando ao lado do prédio (referência do usuário). Primeiro com a câmera de lado
-    e o ponto de fuga à esquerda (a rua parecia uma rampa vista de cima e os prédios, tortos); depois, a pedido, como
-    uma cena 3D pensada antes: câmera na altura de quem está na janela, de frente para a rua, que passa na horizontal e
-    continua para os dois lados, prédios verticais apoiados na calçada de lá, o cruzamento indo embora para o único
-    ponto de fuga com a igreja no fim, o homem embaixo do poste da esquina, um carro passando e o arbusto plantado na
-    nossa calçada. A mureta saiu. Depois, a nossa calçada, o nosso meio-fio e a faixa de pedestres saíram da vista (diziam
-    que a nossa parede ia de frente, contra a diagonal da sala) e o arbusto passou para o primeiro plano, com a janela.
-67. A janela parecia vista de cima: pela câmera, a parede dela fica a uns 44 cm da cabeça do operador, e o peitoril
-    estava 38 cm abaixo dos olhos. O peitoril subiu (menos inclinado, a persiana subiu junto) e o vão ganhou a espessura
-    da parede (o lado de dentro do batente, o fundo do vão, o vidro recuado com o caixilho de verdade) e um peitoril de
-    dentro com o vaso.
-68. Os olhos desceram para dentro da tela (`EYE`), na altura da janela: ela ficou reta, com a travessa no horizonte,
-    o peitoril descendo pouco e a parede dela mais longe da cabeça. A vista da janela passou a usar o horizonte da sala
-    (uma câmera só para o cenário inteiro). Em janela larga, os objetos da ponta entortam mais. Depois os olhos desceram
-    mais (a janela e a vista juntas) e o armário cresceu para ~1,5 m, com prateleiras até a mesa.
-69. Acabamentos da câmera nova: o ponto de fuga foi para o meio dos objetos da mesa (entortavam), o armário alto ganhou
-    venezianas embaixo, puxador no meio e desgaste, um conduíte com a caixa de passagem leva os fios da mesa comutadora
-    para o teto, o reflexo no vidro passou a ser a sala espelhada pela câmera e a vista ficou mais noir (asfalto escuro
-    com as poças de luz dos postes, a vitrine do bar atrás do homem, a marquise do hotel, janelas fundas e névoa no
-    fundo). O aquecedor embaixo da janela ficou de fora: com o peitoril a 24 cm do tampo, ele ficaria atrás da mesa.
-70. A luz da rua na mesa passou a sair da janela de verdade (o vão projetado no tampo); um pedestre passa de vez em
-    quando pela calçada de lá; o carro na chuva chia na água e o neon do hotel estala quando falha (abafado, de longe).
-    A luz dos faróis varrendo a sala saiu; o peitoril e a guarnição de perto, que pareciam um buraco escuro, ficaram na
-    luz de fora; a vitrine do bar ficou com duas divisões, longe da porta.
-71. Sons da noite: o sino da igreja bate as horas de longe, a chuva cresce e diminui em ondas com as gotas no vidro e
-    a calha pingando, a cidade se cala depois das 22h (menos carros e pedestres, grilos mais presentes), a luminária
-    zumbe e estala quando pisca, a janela chocalha no trovão perto e os passos de quem passa soam de longe.
-72. Os objetos da mesa girados uns graus, como largados (a pilha de listas desencontrada) em vez de retos e em
-    fileira, e o mapa redesenhado como mapa de verdade (lia como papel quadriculado com um gráfico).
-73. Os objetos da mesa redesenhados na identidade do jogo: o tampo dos objetos chatos posto pixel a pixel na
-    perspectiva (torto por transformação, os pixels esticavam), cores de papel envelhecido em vez de branco, menos
-    ruído (letra de mão espaçada, miolo das listas liso), a capa da lista com o título em baixo-relevo; menores, menos
-    girados e com mais folga (estavam apertados e se encostando). Os testes voltaram ao tempo de antes (a vista da
-    janela não é mais desenhada sem tela).
-74. O relógio de flip ficou reto: meio virado para o operador, estava certo na perspectiva, mas parecia inclinado
-    numa mesa plana (a única caixa alta girada entre as horizontais da sala).
-75. A caneca redesenhada (parecia um balde): esmaltada de época, branco-gelo com a borda azul-marinho, alça em C e
-    lascas, e o vapor do café subindo, que some com as horas porque o café esfria.
-76. O alfinete do mapa parou de piscar e brilhar com emergência (um alfinete não acende; a dica dele saiu) e as listas
-    telefônicas ganharam detalhes: na capa, o título dourado, o fone, a etiqueta do ano, a marca de caneca e a ponta
-    dobrada; nas lombadas, a etiqueta do volume; no miolo, as folhas em linhas finas (numa imagem posta pixel a pixel:
-    desenhadas tortas na tela, viravam degraus e faixas), as beiras sujas e tiras marcando páginas.
-77. O vaso da janela foi refeito (um vaso de barro no tamanho dele na sala, posto pela câmera, com uma
-    espada-de-são-jorge) e depois saiu, a pedido, com a planta: o peitoril fica vazio.
-78. Os objetos da mesa na identidade da mesa comutadora (referência do usuário): o risco fino (texto, pauta, colunas)
-    desenhado na tela em pixel art, não no papel em perspectiva (virava moiré); papel com 1 px de beira; os mais claros
-    da tela (caneca, miolo das listas, capa) um tom abaixo; a capa das listas com o grão do papelão e o friso; o
-    prendedor da prancheta em mapa de pixels niquelado, de pé (`CLIP_ART`), e a folha nova girada com a ponta dobrada
-    (`SHEET_TURN`); a alça da caneca mais grossa; o lápis e as tiras do caderno com luz e sombra; o mapa e o jornal na
-    paleta de papel envelhecido. Uma plaqueta de latão gravada no relógio foi testada e saiu (não combinava).
-79. A chuva mais realista: o som em estéreo, com corpo grave (era um chiado agudo e parado) e vindo mais da janela, à
-    direita; os pingos na janela caindo rápido, em riscos, e em maior quantidade. Gotas soltas (batidas, bolhas de poça,
-    gotas no vidro, o pingo da calha) foram testadas e saíram: soavam como "tic".
-80. A névoa de verdade: um véu liso que esconde o longe e engrossa rente ao chão, fiapos passando pela rua e as luzes dos
-    postes e do neon espalhando nela (eram faixas retangulares no vidro, com a rua tão nítida quanto numa noite limpa).
-81. A cidade mais viva: mais gente na calçada, às vezes em dupla, rareando até as 22h, quando ninguém mais passa; o
-    homem do mistério chega andando, fica 15 min embaixo do poste e volta andando antes de ligar (antes, aparecia e
-    sumia parado, por 5 min). Os passos de quem passa saíram: de dentro do prédio não se ouviriam.
-82. As ferramentas abertas no material dos objetos da mesa (as cores em comum no `Pal`): a lista com a capa de papelão
-    e as abas em tiras de papel, o caderno em couro (no lugar do pano verde, para se diferenciar das listas coloridas)
-    com as tiras dos pendentes, o registro na tábua com o prendedor niquelado e o cabeçalho com o fio vermelho, o jornal
-    no papel-jornal com a foto e as colunas (e aberto para ter arte e textos por noite) e a luz da luminária no papel.
-    O mapa aberto deixou de parecer um diagrama: ruas de papel, bairros nos tons do mapa da mesa, casas e quintais,
-    lugares de telhado de barro, a praça, a sanfona e o selo.
-83. O mapa da mesa virou a miniatura fiel do mapa aberto (as mesmas folhas, quarteirões, casas, lugares, praça, zona
-    rural e selo; o papel na proporção dos bairros atendidos). Antes, era uma cidade inventada, com rio e trem que o
-    mapa aberto não tem.
-84. Desempenho (medido com tela e sem vsync): a sala parada engasgava 3 a 4 vezes por segundo (o relógio virando e o
-    neon a redesenhavam inteira, ~20 ms cada vez), e a cada quadro com a luminária piscando, no relâmpago e com o papel
-    de uma ferramenta deslizando; eram ~2200 chamadas de desenho por quadro, mil delas do escuro da sala. Polígonos
-    viraram primitivos, o que muda sozinho saiu da sala (a camada de cima, a textura do relógio, as duas camadas da
-    vista), a tela do cenário só se desenha quando muda e os sons são sintetizados nos núcleos todos: na chuva, de 7,6
-    para 2,0 ms por quadro, sem nenhum acima de 8 ms, e a abertura 0,6 s mais rápida.
-85. A luz da rua na mesa maior e mais suave (era um quadrado pequeno perto da parede) e o relâmpago só no que a janela
-    alcança, quase branco e nítido: a parede do fundo com a sombra do armário, a frente do armário, a lateral da mesa
-    comutadora e a janela com a cruz do caixilho no tampo (era um véu azul e liso na tela inteira, até na frente da
-    mesa comutadora).
-86. Ambiente melancólico, noir e aconchegante: a luminária esquenta no começo do turno, a pausa abafa o som, o prédio
-    da esquina virou apartamentos com varanda e a TV piscando na janela, janelas acendem de madrugada, a chuva muda de força durante a noite (com as poças crescendo), nuvens passam pela
-    lua, o arbusto balança em rajadas, o vidro embaça nos cantos e as
-    gotas do vidro fazem manchinhas de sombra na luz da rua na mesa. O semáforo do cruzamento foi testado e saiu. Ficaram de fora a pedido: chaminés (raras no
-    Brasil), o vento na fresta, o prédio estalando e o grão de filme; a sirene das viaturas fica para depois.
-87. As máquinas do despacho (impressora, triturador e transmissor) não apareciam em lugar nenhum da sala: o mapa
-    dobrado deu lugar a uma unidade de despacho na mesa, como um terminal antigo, com as três máquinas na base e o mapa
-    de papel aberto sob o vidro no painel (um monitor foi descartado: fora de época e o mapa é de papel). As listas
-    ficaram atrás, ao lado dela, e o caderno veio para a frente (as listas na frente o tampavam).
-88. O despacho aberto passou a ser a unidade de despacho de perto: o mapa sob o vidro na moldura de metal (sem a
-    sanfona) e, embaixo, a base fixa com as três máquinas lado a lado, como na miniatura: transmissor à esquerda,
-    impressora no meio (o cartão sobe dela para cima do vidro) e trituradora à direita. Antes o cartão saía da
-    impressora logo acima da trituradora e, solto ali, era triturado. A ficha deixou de abrir e fechar (o × e o botão de
-    reabrir saíram). As abas das ferramentas saíram, a pedido, para o papel ganhar altura: abrem pelos objetos da mesa
-    e pelas teclas 1 a 4. Ficaram de fora: a área de descanso do cartão, a fenda só pela mão, a confirmação no
-    triturador e o desfazer do arraste. Depois: o cartão menor (176 px) e as fendas finas, o cartão livre até a borda
-    de baixo (por cima das máquinas), a moldura do vidro sem o fio de baixo (riscava a tira da impressora) e, na mesa,
-    a unidade e as listas mais para a esquerda (o relógio encostava na pilha, `BOOKS_SPAN`; conferido pelos limites
-    na tela, não só pela captura). Por fim: as luzes de emergência e de cartão e a plaqueta numa faixa embaixo das
-    máquinas (`CardMachines._draw_strip`, `STRIP`, como na frente da miniatura) e o mapa enquadrado acima da tira da
-    impressora (`CityMap.bottom_inset`), com o nome do bairro à vista.
+## Histórico das decisões de design
+- O que o usuário pediu, em ordem, e por quê, fica em [HISTORICO.md](HISTORICO.md): consulte antes de refazer ou
+  desfazer algo visual ou de mecânica (muita coisa foi testada e saiu a pedido) e acrescente ali cada pedido novo do
+  usuário, com as chaves do assunto. **Não leia tudo**: cada item tem chaves (`#camera`, `#cabos`, `#saiu`..., a lista
+  fica no alto do arquivo) e só os itens com as chaves do pedido interessam:
+  `awk -v t='camera|janela|saiu' '/^[0-9]+\. /{p = $0 ~ "#(" t ")( |$)"} p' HISTORICO.md`.
 
 ## Sobre o usuário
 - Escreve em português do Brasil e pede ajustes de design iterativos, em listas curtas.

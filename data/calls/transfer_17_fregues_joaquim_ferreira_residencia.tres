@@ -12,3 +12,4 @@ repeat = "Na casa do Joaquim Ferreira. Não no armazém."
 target = "291"
 destination = "Joaquim Ferreira (residência)"
 thanks = "Tá certo."
+overheard = PackedStringArray("Seu Joaquim? Desculpa ligar na sua casa.", "Tudo bem. O que foi?", "Amanhã eu preciso de dez sacos de cimento logo cedo.", "Dez? Eu só tenho seis. O resto chega na quinta.", "Então separa os seis. A obra não pode parar.", "Abro às sete. Pode mandar a carroça.")

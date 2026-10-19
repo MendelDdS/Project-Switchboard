@@ -12,3 +12,4 @@ repeat = "Três, dois, sete."
 target = "327"
 destination = "Bar do Zé"
 thanks = "Obrigado."
+overheard = PackedStringArray("Boa noite. O Antônio está aí?", "O do caminhão? Saiu faz meia hora.", "Ele deixou um recado pra mim?", "Deixou. Disse que amanhã passa às seis pra pegar a carga.", "Às seis. Está bom, obrigado.")

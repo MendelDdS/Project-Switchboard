@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_53"]
+script = ExtResource("2_motive")
+text = "Preciso de um carro até a rodoviária."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Preciso de um carro até a rodoviária.", "Pra agora? De onde?", "Da {street}, número {house}.", "Tem um carro livre. Chega aí em {wait}.", "Tenho duas malas grandes. Cabe no porta-malas?", "Cabe. O motorista ajuda a carregar."), PackedStringArray("Boa noite. Tem carro pra me levar até a rodoviária?", "A essa hora só tem um rodando. Onde você está?", "Na praça, em frente à farmácia.", "Fica embaixo do poste, que ele te acha. Chega em {wait}.", "É um carro de que cor?", "{color}, com a placa de táxi no teto.")])
+
+[sub_resource type="Resource" id="Motive_54"]
+script = ExtResource("2_motive")
+text = "O último ônibus sai às onze e eu não posso perder."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. O último ônibus sai às onze e eu não posso perder.", "Onde você está?", "Na {street}. Dá tempo?", "Dá, se sair já. O carro chega em {wait}.", "Fico esperando no portão, com a mala.", "O motorista buzina duas vezes quando chegar."), PackedStringArray("Boa noite. Preciso pegar o ônibus das onze. É urgente.", "Vai pra capital?", "Vou. Começo num serviço novo amanhã cedo.", "Então vamos correr. Qual o endereço?", "{street}, {house}. A casa da esquina.", "Em {wait} o carro está aí. Deixa a mala no portão.")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Ponto de Táxi da Rodoviária"
+address = "Avenida Brasil, 590"
+number = "176"
+hello = "Ponto de táxi, boa noite."
+spoken = "o ponto de táxi da rodoviária"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_53"), SubResource("Motive_54")])

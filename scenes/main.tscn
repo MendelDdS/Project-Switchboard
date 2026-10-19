@@ -10,6 +10,8 @@
 [ext_resource type="Script" path="res://scripts/supervisor.gd" id="22_supervisor"]
 [ext_resource type="Script" path="res://scripts/ui/fone_socket.gd" id="25_fone_socket"]
 [ext_resource type="Script" path="res://scripts/urgency.gd" id="23_urgency"]
+[ext_resource type="Script" path="res://scripts/eavesdrop.gd" id="25_eavesdrop"]
+[ext_resource type="Script" path="res://scripts/training.gd" id="24_training"]
 [ext_resource type="Script" path="res://scripts/ui/bloom.gd" id="24_bloom"]
 [ext_resource type="PackedScene" path="res://scenes/ui/intro.tscn" id="11_intro"]
 [ext_resource type="PackedScene" path="res://scenes/ui/ending.tscn" id="12_ending"]
@@ -69,7 +71,7 @@ script = ExtResource("41_scene_view")
 disable_3d = true
 handle_input_locally = false
 size = Vector2i(640, 360)
-size_2d_override = Vector2i(1280, 720)
+size_2d_override = Vector2i(960, 540)
 size_2d_override_stretch = true
 render_target_update_mode = 4
 
@@ -96,42 +98,48 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 6
 
 [node name="Rows" type="VBoxContainer" parent="Layout"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 
 [node name="Columns" type="HBoxContainer" parent="Layout/Rows" unique_id=1923831319]
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
-theme_override_constants/separation = 24
+theme_override_constants/separation = 18
+
+[node name="Gutter" type="Control" parent="Layout/Rows/Columns"]
+custom_minimum_size = Vector2(12, 0)
+layout_mode = 2
+mouse_filter = 2
 
 [node name="Left" type="VBoxContainer" parent="Layout/Rows/Columns" unique_id=2075594968]
-custom_minimum_size = Vector2(588, 0)
+custom_minimum_size = Vector2(369, 0)
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
 [node name="TopLeft" type="HBoxContainer" parent="Layout/Rows/Columns/Left" unique_id=1593524455]
-custom_minimum_size = Vector2(0, 52)
+custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
+size_flags_vertical = 3
 mouse_filter = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 9
 
 [node name="ShiftPlate" type="PanelContainer" parent="Layout/Rows/Columns/Left/TopLeft"]
 layout_mode = 2
-size_flags_vertical = 4
+size_flags_vertical = 0
 theme_type_variation = &"TapedNote"
 
 [node name="HBox" type="HBoxContainer" parent="Layout/Rows/Columns/Left/TopLeft/ShiftPlate"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 
 [node name="ShiftHours" type="Label" parent="Layout/Rows/Columns/Left/TopLeft/ShiftPlate/HBox"]
 unique_name_in_owner = true
@@ -152,19 +160,19 @@ text = "END_SHIFT"
 [node name="Board" type="Control" parent="Layout/Rows/Columns/Left" unique_id=995017339]
 unique_name_in_owner = true
 z_index = 1
-custom_minimum_size = Vector2(588, 362)
+custom_minimum_size = Vector2(369, 228)
 layout_mode = 2
 script = ExtResource("5_switchboard")
 
 [node name="Shelf" type="HBoxContainer" parent="Layout/Rows/Columns/Left"]
-custom_minimum_size = Vector2(0, 16)
+custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 9
 
 [node name="FoneSocket" type="Control" parent="Layout/Rows/Columns/Left/Shelf"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 16)
+custom_minimum_size = Vector2(44, 24)
 layout_mode = 2
 mouse_filter = 2
 script = ExtResource("25_fone_socket")
@@ -183,7 +191,7 @@ alignment = 1
 
 [node name="Mini" type="Control" parent="Layout/Rows/Columns/Left/Desk"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(300, 86)
+custom_minimum_size = Vector2(225, 64)
 layout_mode = 2
 mouse_filter = 2
 script = ExtResource("22_mini")
@@ -192,17 +200,27 @@ script = ExtResource("22_mini")
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
 
-[node name="Hint" type="RichTextLabel" parent="Layout/Rows/Columns/Right" unique_id=932627705]
+[node name="HintSlot" type="Control" parent="Layout/Rows/Columns/Right"]
+visible = false
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Hint" type="RichTextLabel" parent="Layout/Rows/Columns/Right/HintSlot" unique_id=932627705]
 unique_name_in_owner = true
 self_modulate = Color(1, 1, 1, 0)
-custom_minimum_size = Vector2(0, 32)
-layout_mode = 2
+z_index = 1
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+grow_horizontal = 2
 mouse_filter = 2
 theme_type_variation = &"TapedLabel"
 theme_override_font_sizes/normal_font_size = 11
 bbcode_enabled = true
+fit_content = true
 scroll_active = false
 
 [node name="Tools" parent="Layout/Rows/Columns/Right" unique_id=343385558 instance=ExtResource("8_tools")]
@@ -245,7 +263,7 @@ layout_mode = 1
 anchors_preset = -1
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_bottom = -166.0
+offset_bottom = -142.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
@@ -273,6 +291,14 @@ script = ExtResource("22_supervisor")
 [node name="Urgency" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("23_urgency")
+
+[node name="Eavesdrop" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("25_eavesdrop")
+
+[node name="Training" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("24_training")
 
 [node name="Intro" parent="." unique_id=2147120183 instance=ExtResource("11_intro")]
 unique_name_in_owner = true

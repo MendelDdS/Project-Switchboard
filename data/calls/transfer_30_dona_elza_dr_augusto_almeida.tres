@@ -11,3 +11,4 @@ repeat = "O Doutor Almeida, o médico."
 target = "214"
 destination = "Dr. Augusto Almeida"
 thanks = "Obrigada. Rápido, viu?"
+overheard = PackedStringArray("Doutor, é a Elza. A pressão do meu marido subiu.", "Quanto deu?", "Dezessete por dez. Ele está com dor de cabeça.", "Dá o comprimido de baixo da língua que eu deixei.", "E se não baixar?", "Mede de novo em meia hora e me liga. Eu vou aí.")

@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_emerg"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("pol")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "Meu filho foi segurar ele e levou um talho no braço!", "")
+units = PackedStringArray("pol", "amb")
+
+[resource]
+script = ExtResource("1_emerg")
+voice = "w"
+caller = "Senhor"
+opening = "Central, o vizinho tá aqui no meu portão com uma foice, ameaçando por causa do muro!"
+questions = PackedStringArray("Qual é o endereço?", "Alguém está ferido?", "Ele está bêbado?")
+answers = PackedStringArray("Rua Tiradentes, 250! A casa de muro amarelo!", "Ainda não. Eu tranquei o portão.", "Tá. Tá gritando que o muro é dele.")
+street = "tiradentes"
+block = 2
+address = "Rua Tiradentes, 250"
+occurrence = "Outro"
+units = PackedStringArray("pol")
+after = "Tá. Vou ficar aqui dentro com a porta trancada."
+stage_sec = Vector3(45, 22, 22)
+worsening = "Ele tá derrubando o muro com a foice! A rua tá cheia de gente olhando!"
+worsening_units = PackedStringArray()
+worsening_question = "Tem mais alguém com ele?"
+worsening_answer = "O irmão dele chegou agora, com um pedaço de pau."
+critical = "Os dois pularam o muro! Tão batendo no meu genro!"
+critical_units = PackedStringArray("amb")
+critical_question = "Onde ele está ferido?"
+critical_answer = "Na cabeça! Tá caído no quintal, sangrando!"
+lost = "Eles foram embora... deixaram meu genro no chão. Ninguém veio ajudar."
+lost_answer = "Meu genro não acorda, e minha filha machucou a mão tentando separar."
+lost_units = PackedStringArray("amb")
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2")])

@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_23"]
+script = ExtResource("2_motive")
+text = "Meu tio faleceu agora há pouco."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Meu tio faleceu agora há pouco, em casa.", "Meus sentimentos. O médico já veio atestar?", "Já veio. Disse que foi o coração.", "Então eu mando o carro buscar. Qual é o endereço?", "{street}, {house}. A casa do portão {color}.", "Chegamos em {wait}. Separe uma roupa pra ele."), PackedStringArray("Boa noite. Minha avó faleceu agora há pouco.", "Meus sentimentos. Foi em casa ou no hospital?", "Em casa, dormindo. O médico já veio.", "Vocês querem o velório em casa ou na capela?", "Em casa. Ela morava na {street}, {house}.", "Então levo as coisas pra lá em {wait}.")])
+
+[sub_resource type="Resource" id="Motive_24"]
+script = ExtResource("2_motive")
+text = "Preciso acertar o velório de amanhã."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Preciso acertar as coisas do velório de amanhã.", "Pois não. Vai ser na capela ou em casa?", "Na capela. A família quer de manhã, cedo.", "Às oito a capela está livre. Precisa de flores?", "Uma coroa só, simples. Com o nome da família.", "Anotado. Às sete eu abro a capela."), PackedStringArray("Boa noite. Queria saber o preço do caixão e do velório.", "Depende da madeira. Tem o simples e o envernizado.", "O simples. A família não tem muito.", "O simples já vem com as velas e o pano.", "E a coroa de flores, vocês fazem também?", "Faço. Passa aqui amanhã que a gente acerta tudo.")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Funerária Paz Eterna"
+address = "Rua das Acácias, 250"
+number = "399"
+hello = "Funerária Paz Eterna, boa noite."
+spoken = "a Funerária Paz Eterna"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_23"), SubResource("Motive_24")])

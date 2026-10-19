@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_35"]
+script = ExtResource("2_motive")
+text = "Meu carro atolou na estrada do moinho."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. O carro atolou na estrada do moinho. A roda afundou toda.", "Na estrada de terra? Aquele trecho depois da ponte?", "Isso, logo depois da ponte. Não vai nem pra frente nem pra trás.", "Vou ter que ir com a caminhonete e a corda. Chego em {wait}.", "Eu espero aqui no carro, com o pisca ligado.", "Não sai de perto. Já estou pegando a lanterna."), PackedStringArray("Boa noite. Atolei o carro na estrada do moinho.", "De novo aquele barro? Em que altura?", "Perto da porteira da fazenda, depois da curva grande.", "Sei onde é. Tem alguém aí com você?", "Não, só eu. E está escuro demais.", "Fica dentro do carro. Chego em {wait}.")])
+
+[sub_resource type="Resource" id="Motive_36"]
+script = ExtResource("2_motive")
+text = "O caminhão não quer pegar de jeito nenhum."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. O caminhão não pega. Gira, gira e não pega.", "Faz barulho de quê? Estala, ou nem isso?", "Estala e morre. As luzes acendem, a bateria parece boa.", "Pode ser o combustível. Tem óleo no tanque?", "Tem, enchi hoje de manhã no posto.", "Então vou aí dar uma olhada. Me diz direitinho onde você está."), PackedStringArray("Boa noite. Meu caminhão parou e não pega mais.", "Parou como? Foi morrendo aos poucos?", "Foi engasgando e apagou. Agora nem tenta pegar.", "Pode ser a correia. Onde ele está?", "Na {street}, perto do número {house}.", "Vou aí com a caixa de ferramentas. Chego em {wait}.")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Oficina do Tião"
+address = "Rua do Moinho, 44"
+number = "318"
+voice = "m"
+hello = "Oficina do Tião, boa noite."
+category = "oficina"
+spoken = "a Oficina do Tião"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_35"), SubResource("Motive_36")])

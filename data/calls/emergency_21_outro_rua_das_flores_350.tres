@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_emerg"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("bomb", "amb")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "Atendeu agora, toda tonta. Disse que o fogão apagou e ela dormiu. Tá bem, só zonza.", "")
+units = PackedStringArray("bomb")
+
+[resource]
+script = ExtResource("1_emerg")
+voice = "f"
+caller = "Vizinha do prédio"
+opening = "Central, tá um cheiro forte de gás no corredor do prédio! Vem do apartamento da Dona Ilda!"
+questions = PackedStringArray("Qual é o endereço?", "Ela atende a porta?", "Alguém acendeu alguma luz ou fósforo?")
+answers = PackedStringArray("Rua das Flores, 350! O prédio de três andares!", "Não! A gente bate e nada! Ela deve ter passado mal com o gás!", "Não, ninguém. Abri as janelas do corredor.")
+street = "flores"
+block = 3
+address = "Rua das Flores, 350"
+occurrence = "Outro"
+units = PackedStringArray("bomb", "amb")
+after = "Tá. Vou tirar todo mundo do prédio."
+stage_sec = Vector3(35, 18, 18)
+worsening = "O cheiro tá chegando no andar de baixo! Tem criança lá!"
+worsening_units = PackedStringArray()
+worsening_question = "As crianças já saíram?"
+worsening_answer = "Já! A mãe levou elas pra calçada."
+critical = "O vizinho de baixo tá com dor de cabeça e vomitando!"
+critical_units = PackedStringArray("amb")
+critical_question = "Ele consegue andar?"
+critical_answer = "Consegue, apoiado. Tá sentado no meio-fio."
+lost = "Teve um estouro no apartamento dela! Quebrou as janelas todas!"
+lost_answer = "A Dona Ilda ainda tá lá dentro, e o vizinho levou um corte de vidro no rosto!"
+lost_units = PackedStringArray("amb")
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2")])

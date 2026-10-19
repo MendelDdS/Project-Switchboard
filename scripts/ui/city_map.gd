@@ -46,7 +46,15 @@ const ROADS_H := [90.0, 225.0, 360.0]
 
 var sel: Dictionary = {}
 var hover: Dictionary = {}
-var trips: Array = []
+## Uma viagem de viatura: o caminho e quanto dele já foi, no tempo do jogo.
+class Trip:
+	var u: String              ## a unidade (`Fleet.IDS`)
+	var pts: PackedVector2Array   ## o caminho (px do mapa), da saída à chegada
+	var t := 0.0               ## segundos andados
+	var dur := 0.0             ## segundos até chegar
+	var back := false          ## voltando para a base
+
+var trips: Array[Trip] = []
 var _k := 0.96
 var _off := Vector2.ZERO   ## mapa -> tela: tela = mapa * _k + _off
 var _tf := Transform2D.IDENTITY   ## transformação em uso no desenho (os textos a seguem só na posição)
@@ -197,7 +205,7 @@ func _gui_input(e: InputEvent) -> void:
 
 
 func route(u: String, target: Dictionary) -> PackedVector2Array:
-	var st: Vector2 = STATION[u]["p"]
+	var st: Vector2 = STATION[Fleet.kind(u)]["p"]   # a de reserva sai da mesma base
 	var s := GameData.street(target["street"])
 	var g := seg_geom(s, target["block"])
 	var m: Vector2 = g[2]
@@ -224,8 +232,12 @@ func trip(u: String, target: Dictionary) -> float:
 	for i in range(1, pts.size()):
 		dist += pts[i].distance_to(pts[i - 1])
 	var sec := maxf(MIN_TRIP, dist / UNIT_SPEED)
-	trips = trips.filter(func(t): return t["u"] != u)
-	trips.append({"u": u, "pts": pts, "t": 0.0, "dur": sec, "back": false})
+	trips = trips.filter(func(t: Trip): return t.u != u)
+	var tr := Trip.new()
+	tr.u = u
+	tr.pts = pts
+	tr.dur = sec
+	trips.append(tr)
 	return sec
 
 
@@ -233,16 +245,16 @@ func trip(u: String, target: Dictionary) -> float:
 ## não aparecem no mapa: de papel sob o vidro, ele não mostra nada andando; a viagem só conta o tempo.)
 func go_home(u: String) -> float:
 	for tr in trips:
-		if tr["u"] == u:
-			var pts: PackedVector2Array = tr["pts"].duplicate()
-			pts.reverse()
-			tr.merge({"pts": pts, "t": 0.0, "back": true}, true)
-			return tr["dur"]
+		if tr.u == u:
+			tr.pts.reverse()
+			tr.t = 0.0
+			tr.back = true
+			return tr.dur
 	return 0.0
 
 
 func remove_units(us: Array) -> void:
-	trips = trips.filter(func(t): return not (t["u"] in us))
+	trips = trips.filter(func(t: Trip): return not (t.u in us))
 	queue_redraw()
 
 
@@ -254,7 +266,7 @@ func _process(d: float) -> void:
 			_reveal = -1.0
 		queue_redraw()
 	for tr in trips:   # no tempo do jogo: para na pausa e acompanha a velocidade
-		tr["t"] = minf(tr["t"] + d, tr["dur"])
+		tr.t = minf(tr.t + d, tr.dur)
 
 
 func _width(txt: String, sz: int) -> float:
@@ -295,7 +307,9 @@ func _use(xf: Transform2D) -> void:
 
 func _draw() -> void:
 	_view()
+	var seal := Rect2(_seen().end - Vector2(124, 40), Vector2(118, 34))   # o selo, no canto da vista: nenhum nome embaixo dele
 	_boxes = blocked.duplicate()
+	_boxes.append(seal)
 	_places.clear()
 	var xf := Transform2D(0.0, Vector2(_k, _k), 0.0, _off)
 	draw_rect(Rect2(Vector2.ZERO, size), Pal.INK_SOFT)
@@ -325,18 +339,17 @@ func _draw() -> void:
 		var b: Vector2 = g[1]
 		var n := int(a.distance_to(b) / 15.0)
 		for i in n:
-			draw_line(a.lerp(b, float(i) / n), a.lerp(b, (i + 0.66) / n), Color("8e2a17"), 7.0)
+			draw_line(a.lerp(b, float(i) / n), a.lerp(b, (i + 0.66) / n), Pal.MAP_MARK, 7.0)
 		var m: Vector2 = g[2]
 		draw_rect(Rect2(m.x - 8, m.y - 8, 16, 16), Color.BLACK)
-		draw_rect(Rect2(m.x - 6, m.y - 6, 12, 12), Color("8e2a17"))
+		draw_rect(Rect2(m.x - 6, m.y - 6, 12, 12), Pal.MAP_MARK)
 	_draw_names(_k >= NAMES_K)
 	if _reveal >= 0.0:   # o bairro entregue aparece aos poucos
 		for s in SHEETS:
 			if shown(s) and not SHEET_SECTOR[s] in _before:
 				draw_rect(Rect2(SHEETS[s], SHEET), Color(Pal.INK_SOFT, 1.0 - smoothstep(0.0, 1.0, _reveal)))
 	_use(Transform2D.IDENTITY)
-	# o selo, no canto da vista (o mesmo do mapa da mesa): a moldura vermelha, a rosa dos ventos e o nome da cidade
-	var seal := Rect2(_seen().end - Vector2(124, 40), Vector2(118, 34))
+	# o selo (o mesmo do mapa da mesa): a moldura vermelha, a rosa dos ventos e o nome da cidade
 	draw_rect(seal, Pal.SEAL)
 	draw_rect(seal.grow(-2), PAPER)
 	draw_rect(seal.grow(-4), Pal.SEAL, false, 1.0)
@@ -400,15 +413,16 @@ func _street_name(o: Vector2, st: Street) -> void:
 				return
 
 
-## Nome do lugar no quarteirão `r` (coordenadas do mapa): numa linha, em duas ("Hotel / Estrela") ou em pé no
-## quarteirão estreito; se não couber, só aproximando.
+## Nome do lugar dentro de `r` (coordenadas do mapa: o telhado do prédio, a faixa da praça), com 1 px livre de cada
+## lado (a largura do texto já traz 1 px de ar depois da última letra): numa linha, em duas ("Hotel / Estrela") ou em
+## pé no prédio estreito; se não couber, só aproximando.
 func _place_name(r: Rect2, txt: String, up: bool) -> void:
 	var c := r.get_center()
 	if up:
-		if _width(txt, 11) <= r.size.y * _k - 6:
+		if _width(txt, 11) <= r.size.y * _k - 1:
 			_label(c + Vector2(5, 0), txt, 11, LINE, Color.TRANSPARENT, true)
 		return
-	var room := r.size.x * _k - 6
+	var room := r.size.x * _k - 1
 	if _width(txt, 11) <= room:
 		_label(c + Vector2(0, 6), txt, 11)
 		return
@@ -441,14 +455,14 @@ func _draw_blocks(sector: int) -> void:
 			draw_rect(r.grow(-2), Pal.MAP_PLAZA if lm == T.Key.MAP_SQUARE else tint)
 			if lm == T.Key.MAP_SQUARE:
 				_draw_square(r.grow(-2))
-				_places.append([Rect2(o.x + r.position.x, o.y + r.end.y - 30, r.size.x, 30), T.text(lm), false])
+				_places.append([Rect2(o.x + r.position.x + 4, o.y + r.end.y - 30, r.size.x - 8, 30), T.text(lm), false])
 			elif lm != -1:   # o lugar: um prédio só, de duas águas como as casas, com o terreno em volta
 				var b := r.grow(-8)
 				draw_rect(b, LINE)
 				draw_rect(b.grow(-2), Pal.MAP_LANDMARK)
 				var lit := Rect2(b.position + Vector2(2, 2), (b.size - Vector2(4, 4)) * (Vector2(1, 0.5) if b.size.x >= b.size.y else Vector2(0.5, 1)))
 				draw_rect(lit.abs(), Pal.MAP_LANDMARK.lightened(0.12))
-				_places.append([Rect2(o + r.position, r.size), T.text(lm), r.size.x < 60])
+				_places.append([Rect2(o + b.position, b.size).grow(-2), T.text(lm), r.size.x < 60])   # no telhado: medido no quarteirão, vazava do prédio
 			else:
 				_houses(r.grow(-4), sector * 31 + ci * 7 + ri * 3, tint)
 
@@ -583,7 +597,7 @@ func _tag(p: Vector2, txt: String) -> void:
 	at = Vector2(clampf(at.x, 2, _seen().end.x - w - 12), maxf(at.y, 2))
 	draw_set_transform(Vector2.ZERO)
 	draw_rect(Rect2(at, Vector2(w + 10, 20)), LINE)
-	draw_rect(Rect2(at + Vector2.ONE, Vector2(w + 8, 18)), Color("f4ecd2"))
+	draw_rect(Rect2(at + Vector2.ONE, Vector2(w + 8, 18)), Pal.MAP_TAG)
 	draw_string(Pal.ui, at + Vector2(5, 15), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, LINE)
 	draw_set_transform_matrix(_tf)
 

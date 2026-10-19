@@ -1,8 +1,6 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/intro.gd" id="1_intro"]
-[ext_resource type="Script" path="res://scripts/ui/bevel.gd" id="2_bevel"]
-[ext_resource type="FontFile" uid="uid://bixnphjx77akg" path="res://fonts/DepartureMono-Regular.otf" id="3_vt323_regula"]
 
 [node name="Intro" type="ColorRect"]
 anchors_preset = 15
@@ -10,99 +8,109 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.01961, 0.02353, 0.02745, 0.92)
+color = Color(0.01961, 0.02353, 0.02745, 0.66)
 script = ExtResource("1_intro")
 
-[node name="Center" type="CenterContainer" parent="."]
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-layout_mode = 1
+[node name="Note" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(384, 0)
+layout_mode = 0
+theme_type_variation = &"TapedNote"
 
-[node name="Card" type="MarginContainer" parent="Center"]
-custom_minimum_size = Vector2(560, 420)
+[node name="Margin" type="MarginContainer" parent="Note"]
 layout_mode = 2
-theme_override_constants/margin_left = 40
-theme_override_constants/margin_top = 30
-theme_override_constants/margin_right = 40
-theme_override_constants/margin_bottom = 30
-script = ExtResource("2_bevel")
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
 
-[node name="VBox" type="VBoxContainer" parent="Center/Card"]
+[node name="VBox" type="VBoxContainer" parent="Note/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 4
 
-[node name="Title" type="Label" parent="Center/Card/VBox"]
+[node name="Title" type="Label" parent="Note/Margin/VBox"]
 layout_mode = 2
 text = "GAME_TITLE"
-theme_override_font_sizes/font_size = 33
+theme_type_variation = &"LetterheadLabel"
 
-[node name="Date" type="Label" parent="Center/Card/VBox"]
+[node name="Date" type="RichTextLabel" parent="Note/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-text = ""
-theme_override_fonts/font = ExtResource("3_vt323_regula")
-theme_override_colors/font_color = Color(0.9529, 0.6588, 0.2353, 1)
-theme_override_font_sizes/font_size = 22
+bbcode_enabled = true
+fit_content = true
+auto_translate_mode = 2
+theme_type_variation = &"TypedText"
 
-[node name="Note" type="PanelContainer" parent="Center/Card/VBox"]
+[node name="Rule" type="ColorRect" parent="Note/Margin/VBox"]
+custom_minimum_size = Vector2(0, 1)
 layout_mode = 2
-theme_type_variation = &"NotePanel"
+mouse_filter = 2
+color = Color(0.43137255, 0.101960786, 0.07058824, 0.5)
 
-[node name="Text" type="Label" parent="Center/Card/VBox/Note"]
+[node name="Text" type="RichTextLabel" parent="Note/Margin/VBox"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 0)
 layout_mode = 2
-text = ""
-theme_type_variation = &"InkMonoLabel"
-theme_override_font_sizes/font_size = 22
-autowrap_mode = 3
-custom_minimum_size = Vector2(448, 0)
+bbcode_enabled = true
+fit_content = true
+auto_translate_mode = 2
+theme_type_variation = &"HandText"
+theme_override_constants/line_separation = 3
 
-[node name="Info" type="Label" parent="Center/Card/VBox"]
-layout_mode = 2
-text = "INTRO_INFO"
-theme_type_variation = &"DimLabel"
-theme_override_font_sizes/font_size = 11
-autowrap_mode = 3
-custom_minimum_size = Vector2(480, 0)
-
-[node name="Gap" type="Control" parent="Center/Card/VBox"]
-custom_minimum_size = Vector2(0, 28)
-layout_mode = 2
-
-[node name="Buttons" type="HBoxContainer" parent="Center/Card/VBox"]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="Start" type="Button" parent="Center/Card/VBox/Buttons"]
+[node name="Bottom" type="VBoxContainer" parent="."]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(180, 44)
+layout_mode = 0
+theme_override_constants/separation = 10
+
+[node name="Buttons" type="HBoxContainer" parent="Bottom"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Start" type="Button" parent="Bottom/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(135, 33)
 layout_mode = 2
 size_flags_horizontal = 0
 theme_type_variation = &"AmberButton"
 theme_override_font_sizes/font_size = 22
 text = "START_SHIFT"
 
-[node name="Settings" type="Button" parent="Center/Card/VBox/Buttons"]
+[node name="Settings" type="Button" parent="Bottom/Buttons"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 0
-size_flags_vertical = 4
 focus_mode = 0
 theme_type_variation = &"DarkButton"
 text = "SETTINGS"
 
-[node name="Reset" type="Button" parent="Center/Card/VBox/Buttons"]
+[node name="Skip" type="Button" parent="Bottom/Buttons"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 size_flags_horizontal = 0
-size_flags_vertical = 4
+focus_mode = 0
+theme_type_variation = &"DarkButton"
+text = "SKIP_TRAINING"
+
+[node name="Reset" type="Button" parent="Bottom/Buttons"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 0
 focus_mode = 0
 theme_type_variation = &"DarkButton"
 text = "RESTART_FIRST_NIGHT"
+
+[node name="Info" type="RichTextLabel" parent="Bottom"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(384, 0)
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"TapedLabel"
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+auto_translate_mode = 2
 
 [node name="Version" type="Label" parent="."]
 layout_mode = 1
@@ -111,10 +119,10 @@ anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -160.0
-offset_top = -24.0
-offset_right = -10.0
-offset_bottom = -8.0
+offset_left = -120.0
+offset_top = -18.0
+offset_right = -8.0
+offset_bottom = -6.0
 grow_horizontal = 0
 grow_vertical = 0
 mouse_filter = 2

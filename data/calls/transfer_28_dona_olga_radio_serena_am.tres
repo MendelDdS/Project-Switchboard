@@ -10,3 +10,4 @@ repeat = "A Rádio Serena."
 target = "390"
 destination = "Rádio Serena AM"
 thanks = "Deus lhe pague."
+overheard = PackedStringArray("Boa noite, meu filho. Quero mandar um recado pelo rádio.", "Pode ditar, senhora. Pra quem é?", "Pro Zeca, que trabalha na roça do seu Moreira.", "E o recado?", "Que a irmã dele teve menino. E que venha no domingo.", "Lido no programa das dez. Parabéns pelo neto!")

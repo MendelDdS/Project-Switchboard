@@ -18,7 +18,16 @@ const TYPE_OF := {
 
 
 func fault(id: String, detail := "") -> void:
+	if main.training.active:   # o treinamento não gera advertência
+		return
 	main.report.add(id, Main.fmt(main.minutes), detail)
+
+
+## Advertência que o supervisor só fica sabendo depois (a denúncia de um assinante): vai para o relatório da noite
+## seguinte, com a hora de hoje (sem noite seguinte, para o de hoje; `Main.start_ending`).
+func fault_later(id: String, detail := "") -> void:
+	if not main.training.active:
+		main.report.later.append({"id": id, "time": Main.fmt(main.minutes), "detail": detail})
 
 
 func who(c: PhoneCall) -> String:
@@ -27,11 +36,11 @@ func who(c: PhoneCall) -> String:
 
 ## O que o supervisor vai anotar e quem vai ligar de novo por causa de como a ligação terminou.
 func call_ended(c: PhoneCall, reason: PhoneCall.End) -> void:
-	if c == main.tut or c.kind in [PhoneCall.Kind.PRANK, PhoneCall.Kind.MYSTERY]:
+	if c.lesson or c.kind in [PhoneCall.Kind.PRANK, PhoneCall.Kind.MYSTERY]:
 		return
 	var e: EmergencyCall = c.data if c.kind == PhoneCall.Kind.EMERGENCY else null
 	if reason in [PhoneCall.End.MISSED, PhoneCall.End.GAVE_UP]:
-		fault("missed" if reason == PhoneCall.End.MISSED else "hold", String(c.record["who"]))
+		fault("missed" if reason == PhoneCall.End.MISSED else "hold", c.record.who)
 		if e != null:
 			main.report.trouble(e)
 		call_again(c, PhoneCall.Retry.MISSED)
@@ -47,8 +56,8 @@ func call_ended(c: PhoneCall, reason: PhoneCall.End) -> void:
 
 
 ## A mesma pessoa liga de novo mais tarde, irritada e com menos paciência (no máximo uma vez por motivo).
-## Vale também para a ligação do tutorial (que só não gera advertência). Nunca depois da última ligação
-## (`Main.LAST_CALL`): se não couber, o Main a descarta.
+## Vale também para a ligação do treinamento (que só não gera advertência). Nunca depois da última ligação
+## (`Main.last_call`): se não couber, o Main a descarta.
 func call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
 	if why in c.retried:
 		return
@@ -60,6 +69,7 @@ func call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
 			n = PhoneCall.from_emergency(c.data)
 			n.stage = c.stage   # a situação não melhora: valem as unidades (e as perguntas) de quando a ligação caiu
 			n.told = c.told
+			n.temper = c.temper   # a mesma pessoa, do mesmo jeito
 			n.too_late = why == PhoneCall.Retry.WORSE and randf() >= REDISPATCH_CHANCE
 		PhoneCall.Kind.INFO:
 			n = PhoneCall.info(c.voice, c.caller, c.ask, c.about, c.answer)
@@ -69,7 +79,7 @@ func call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
 	n.retried = c.retried.duplicate()
 	n.retried.append(why)
 	var now := main.minutes
-	n.at = minf(now + randf_range(RETRY_AFTER.x, RETRY_AFTER.y), maxf(now + 2.0, Main.LAST_CALL - 4.0))
+	n.at = minf(now + randf_range(RETRY_AFTER.x, RETRY_AFTER.y), maxf(now + 2.0, main.last_call - 4.0))
 	n.latest = n.at + RETRY_WAIT
 	main.sched.append(n)
 	main.sched.sort_custom(func(a: PhoneCall, b: PhoneCall): return a.at < b.at)
@@ -78,7 +88,7 @@ func call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
 ## Quem fica em espera tempo demais desiste.
 func check_hold() -> void:
 	for c in main.live.duplicate():
-		if c.active and c != main.tut and c.kind != PhoneCall.Kind.MYSTERY and main.exchange.line(c.line) == Exchange.Line.HOLD \
+		if c.active and not c.lesson and c.kind != PhoneCall.Kind.MYSTERY and main.exchange.line(c.line) == Exchange.Line.HOLD \
 				and main.minutes - c.hold_since > HOLD_GIVE_UP:
 			main.end_call(c, PhoneCall.End.GAVE_UP)
 
@@ -102,6 +112,8 @@ func lost(c: PhoneCall) -> void:
 
 ## As unidades chegaram ao local marcado no despacho.
 func on_arrived(e: EmergencyCall, result: Fleet.Result, occurrence: String, extra: Array) -> void:
+	if e != null and e == main.training.drill:   # a emergência de treino não conta (nem vai para o jornal)
+		return
 	if e != null and occurrence == "":   # cartão sem o tipo perfurado
 		fault("dispatch_type", T.text(T.Key.FAULT_DETAIL_UNCLASSIFIED) % tr(e.occurrence))
 	elif e != null and occurrence != e.occurrence:
@@ -119,23 +131,26 @@ func on_arrived(e: EmergencyCall, result: Fleet.Result, occurrence: String, extr
 		Fleet.Result.WRONG_PLACE:
 			fault("dispatch_wrong_place", e.address)
 			main.report.trouble(e)
-			if main.em_call != null and main.em_call.data == e:
-				call_again(main.em_call, PhoneCall.Retry.WORSE)
+			var c := main.emergency_of(e)
+			if c != null:
+				call_again(c, PhoneCall.Retry.WORSE)
 
 
 ## O supervisor confere o tipo registrado (não dá para saber o tipo de quem não foi atendido).
-func on_registered(rec: Dictionary, type: T.Key) -> void:
-	if rec["tut"] or rec["missed"] or not TYPE_OF.has(rec["kind"]):
+func on_registered(rec: PhoneCall.Record, type: T.Key) -> void:
+	if rec.tut or rec.missed or not TYPE_OF.has(rec.kind):
 		return
-	if type != TYPE_OF[rec["kind"]]:
-		main.report.add("register_wrong", rec["time"], rec["who"])
+	if type != TYPE_OF[rec.kind]:
+		main.report.add("register_wrong", rec.time, rec.who)
 
 
-## Fim do turno: o que ficou sem registro no caderno.
+## Fim do turno: o que ficou sem registro no caderno e os bilhetes esquecidos na mesa do calculógrafo.
 func shift_over() -> void:
-	var left: Array = main.notebook.queue.duplicate()
+	for t in main.toll.tickets():
+		main.report.add("toll_forgotten", Main.fmt(t.end), t.detail())
+	var left: Array[PhoneCall.Record] = main.notebook.queue.duplicate()
 	if main.notebook.has_pending():
 		left.append(main.notebook.pending)
 	for rec in left:
-		if not rec["tut"] and not rec.get("shift", false):   # cortada pelo fim do turno já teve a advertência
-			main.report.add("register_missing", rec["time"], rec["who"])
+		if not rec.tut and not rec.shift:   # cortada pelo fim do turno já teve a advertência
+			main.report.add("register_missing", rec.time, rec.who)

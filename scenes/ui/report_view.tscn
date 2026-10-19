@@ -1,7 +1,6 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/report_view.gd" id="1_report"]
-[ext_resource type="FontFile" uid="uid://bixnphjx77akg" path="res://fonts/DepartureMono-Regular.otf" id="2_vt323"]
 
 [node name="ReportView" type="CenterContainer"]
 anchors_preset = 15
@@ -12,20 +11,50 @@ grow_vertical = 2
 script = ExtResource("1_report")
 
 [node name="Paper" type="PanelContainer" parent="."]
-custom_minimum_size = Vector2(660, 0)
+unique_name_in_owner = true
+custom_minimum_size = Vector2(520, 0)
 layout_mode = 2
-theme_type_variation = &"PaperPanel"
+theme_type_variation = &"MemoPanel"
 
 [node name="Margin" type="MarginContainer" parent="Paper"]
 layout_mode = 2
-theme_override_constants/margin_left = 22
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 22
-theme_override_constants/margin_bottom = 18
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 14
 
 [node name="VBox" type="VBoxContainer" parent="Paper/Margin"]
 layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Head" type="HBoxContainer" parent="Paper/Margin/VBox"]
+layout_mode = 2
 theme_override_constants/separation = 8
+
+[node name="Emblem" type="Control" parent="Paper/Margin/VBox/Head"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(24, 24)
+layout_mode = 2
+
+[node name="HeadText" type="VBoxContainer" parent="Paper/Margin/VBox/Head"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 0
+
+[node name="Company" type="Label" parent="Paper/Margin/VBox/Head/HeadText"]
+layout_mode = 2
+text = "SIGN_COMPANY"
+theme_type_variation = &"LetterheadLabel"
+
+[node name="Department" type="Label" parent="Paper/Margin/VBox/Head/HeadText"]
+layout_mode = 2
+text = "REPORT_DEPARTMENT"
+theme_type_variation = &"InkSoftLabel"
+
+[node name="Rule" type="Control" parent="Paper/Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 5)
+layout_mode = 2
 
 [node name="Title" type="Label" parent="Paper/Margin/VBox"]
 layout_mode = 2
@@ -33,35 +62,72 @@ text = "REPORT_TITLE"
 theme_type_variation = &"InkLabel"
 theme_override_font_sizes/font_size = 22
 
-[node name="Night" type="Label" parent="Paper/Margin/VBox"]
+[node name="Night" type="RichTextLabel" parent="Paper/Margin/VBox"]
 unique_name_in_owner = true
-layout_mode = 2
-theme_type_variation = &"InkSoftLabel"
-theme_override_font_sizes/font_size = 11
-
-[node name="Body" type="RichTextLabel" parent="Paper/Margin/VBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 360)
 layout_mode = 2
 bbcode_enabled = true
-theme_override_colors/default_color = Color(0.1647, 0.1373, 0.09804, 1)
-theme_override_fonts/normal_font = ExtResource("2_vt323")
-theme_override_fonts/bold_font = ExtResource("2_vt323")
-theme_override_font_sizes/normal_font_size = 11
-theme_override_font_sizes/bold_font_size = 11
+fit_content = true
+auto_translate_mode = 2
+theme_type_variation = &"TypedText"
 
-[node name="Verdict" type="Label" parent="Paper/Margin/VBox"]
+[node name="Gap" type="Control" parent="Paper/Margin/VBox"]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+
+[node name="Scroll" type="ScrollContainer" parent="Paper/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_type_variation = &"InkLabel"
-theme_override_font_sizes/font_size = 11
-autowrap_mode = 3
+horizontal_scroll_mode = 0
 
-[node name="Sign" type="Button" parent="Paper/Margin/VBox"]
+[node name="Body" type="VBoxContainer" parent="Paper/Margin/VBox/Scroll"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(160, 34)
 layout_mode = 2
-size_flags_horizontal = 8
+size_flags_horizontal = 3
+theme_override_constants/separation = 2
+
+[node name="Gap2" type="Control" parent="Paper/Margin/VBox"]
+custom_minimum_size = Vector2(0, 6)
+layout_mode = 2
+
+[node name="Verdict" type="RichTextLabel" parent="Paper/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+auto_translate_mode = 2
+theme_type_variation = &"HandText"
+
+[node name="Foot" type="HBoxContainer" parent="Paper/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Sign" type="Button" parent="Paper/Margin/VBox/Foot"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 26)
+layout_mode = 2
+size_flags_horizontal = 2
+size_flags_vertical = 8
 focus_mode = 0
 theme_type_variation = &"InkButton"
 text = "REPORT_SIGN"
+
+[node name="Signed" type="VBoxContainer" parent="Paper/Margin/VBox/Foot"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Scribble" type="Control" parent="Paper/Margin/VBox/Foot/Signed"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 22)
+layout_mode = 2
+
+[node name="Line" type="ColorRect" parent="Paper/Margin/VBox/Foot/Signed"]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.16470589, 0.13725491, 0.09803922, 0.7)
+
+[node name="Who" type="Label" parent="Paper/Margin/VBox/Foot/Signed"]
+layout_mode = 2
+text = "REPORT_SIGNATURE"
+theme_type_variation = &"InkSoftLabel"
+horizontal_alignment = 1

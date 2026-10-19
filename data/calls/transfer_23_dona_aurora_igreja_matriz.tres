@@ -15,3 +15,4 @@ alt_target = "120"
 alt_destination = "Casa Paroquial"
 alt_ask = "A secretaria da igreja não atende. Quer que eu tente a casa do Padre Anselmo?"
 alt_yes = "Isso, na casa do padre. Obrigada."
+overheard = PackedStringArray("Boa noite. Queria pedir uma bênção pra minha filha.", "Pois não. Ela está doente?", "Não, graças a Deus. Viaja amanhã cedo pra capital.", "Ela pode passar antes da missa das seis?", "Pode. O ônibus só sai às oito.", "Então às cinco e meia, na porta da sacristia.")

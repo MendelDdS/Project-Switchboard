@@ -70,6 +70,7 @@ func _initialize() -> void:
 	_count("vista", bg._view)
 	_count("fundo", bg._back)
 	_count("mesa", m.board)
+	_count("sol", bg._sun_layer)
 	await frames(240)   # (os primeiros quadros pagam o que é feito uma vez só: shaders, imagens guardadas)
 	for w in ["clear", "fog", "rain"]:
 		m.set_weather(w)
@@ -84,4 +85,13 @@ func _initialize() -> void:
 		await _measure("abrindo " + id, 1.0, 0)
 		m.tools.close()
 		await _measure("guardando " + id, 1.0, 0)
+	m.shift_end = 720.0   # o amanhecer da última noite: só o relógio, sem trocar de noite
+	m.set_weather("clear")
+	for h in [11 * 60 + 15.0, 11 * 60 + 40.0]:
+		m.minutes = h
+		await _measure("amanhecer %d:%02d" % [int(h / 60.0) - 6, int(h) % 60])
+	m.minutes = 11 * 60 + 25.0   # o sol subindo depressa: a luz dele na mesa andando
+	Engine.time_scale = 8.0
+	await _measure("amanhecer, sol a 8×", 3.0, 1)
+	Engine.time_scale = 1.0
 	finish("medir")

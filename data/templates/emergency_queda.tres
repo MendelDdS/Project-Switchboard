@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_emerg"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_1"]
+script = ExtResource("2_case")
+units = PackedStringArray("amb")
+
+[sub_resource type="Resource" id="Case_2"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "", "Mexe... mas ele caiu em cima do muro e ficou preso entre o muro e a grade!")
+units = PackedStringArray("amb", "bomb")
+
+[resource]
+script = ExtResource("1_emerg")
+opening = "Central, um homem caiu do telhado aqui na {street}!"
+questions = PackedStringArray("Qual é o endereço?", "Ele está acordado?", "Ele mexe as pernas?")
+answers = PackedStringArray("{address}! Ele tava arrumando as telhas!", "Tá, mas gemendo muito.", "Mexe, mas o braço tá torto.")
+occurrence = "Outro"
+units = PackedStringArray("amb")
+after = "Tá. A gente não vai mexer nele."
+stage_sec = Vector3(40, 20, 20)
+worsening = "Ele tá ficando pálido e com frio!"
+worsening_units = PackedStringArray()
+worsening_question = "Ele bateu a cabeça?"
+worsening_answer = "Acho que sim. Tem sangue atrás da orelha."
+critical = "Ele apagou! Não responde mais!"
+critical_units = PackedStringArray()
+critical_question = "Ele está respirando?"
+critical_answer = "Tá, mas bem curtinho."
+lost = "Ele não acorda mais... e ninguém veio."
+lost_answer = "Ele respira bem fraco, e a cabeça não para de sangrar."
+lost_units = PackedStringArray("amb")
+cases = Array[ExtResource("2_case")]([SubResource("Case_1"), SubResource("Case_2")])

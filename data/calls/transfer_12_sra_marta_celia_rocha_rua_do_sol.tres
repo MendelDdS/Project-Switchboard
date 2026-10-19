@@ -11,3 +11,4 @@ repeat = "Célia Rocha, a da Rua do Sol."
 target = "367"
 destination = "Célia Rocha (Rua do Sol)"
 thanks = "Obrigada."
+overheard = PackedStringArray("Célia? É a Marta. Desculpa a hora.", "Marta! Aconteceu alguma coisa?", "Nada. Só queria a receita daquele doce de abóbora.", "A essa hora? Vai fazer agora?", "Amanhã cedo. A abóbora já está cortada aqui.", "Então pega um papel, que eu vou ditando.")

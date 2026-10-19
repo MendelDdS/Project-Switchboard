@@ -11,3 +11,4 @@ repeat = "O seu Benedito Souza, da Rua do Sol."
 target = "271"
 destination = "Benedito Souza"
 thanks = "Obrigada. Deve estar dormindo, né?"
+overheard = PackedStringArray("Seu Benedito? É a vizinha. A luz está acesa e o senhor não atende.", "Ah, minha filha, eu estava no banho.", "Que susto! Achei que o senhor tinha caído.", "Não, não. Estou firme. Mas obrigado por cuidar de mim.", "Amanhã eu levo uma sopa pro senhor.")

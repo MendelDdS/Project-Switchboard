@@ -7,9 +7,10 @@
 [ext_resource type="Script" path="res://scripts/ui/call_log.gd" id="6_call_log"]
 [ext_resource type="Script" path="res://scripts/ui/news_view.gd" id="7_news"]
 [ext_resource type="Script" path="res://scripts/ui/paper_deco.gd" id="8_deco"]
+[ext_resource type="PackedScene" path="res://scenes/ui/toll.tscn" id="9_toll"]
 
 [node name="Tools" type="VBoxContainer"]
-custom_minimum_size = Vector2(620, 0)
+custom_minimum_size = Vector2(465, 0)
 mouse_filter = 2
 theme_override_constants/separation = 0
 script = ExtResource("1_tools")
@@ -17,7 +18,7 @@ script = ExtResource("1_tools")
 [node name="Body" type="Control" parent="."]
 unique_name_in_owner = true
 clip_contents = true
-custom_minimum_size = Vector2(0, 460)
+custom_minimum_size = Vector2(0, 345)
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
@@ -35,10 +36,10 @@ theme_type_variation = &"PaperPanel"
 
 [node name="Margin" type="MarginContainer" parent="Body/Paper"]
 layout_mode = 2
-theme_override_constants/margin_left = 22
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 22
-theme_override_constants/margin_bottom = 18
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 14
 
 [node name="PhoneBook" parent="Body/Paper/Margin" instance=ExtResource("2_phone_book")]
 unique_name_in_owner = true
@@ -62,19 +63,21 @@ theme_override_font_sizes/normal_font_size = 11
 theme_override_constants/line_separation = 3
 script = ExtResource("6_call_log")
 
+[node name="Toll" parent="Body/Paper/Margin" instance=ExtResource("9_toll")]
+unique_name_in_owner = true
+layout_mode = 2
+
 [node name="News" type="VBoxContainer" parent="Body/Paper/Margin"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 4
 script = ExtResource("7_news")
 
-[node name="Masthead" type="Label" parent="Body/Paper/Margin/News"]
+[node name="Masthead" type="TextureRect" parent="Body/Paper/Margin/News"]
+custom_minimum_size = Vector2(0, 39)
 layout_mode = 2
-theme_type_variation = &"InkLabel"
-theme_override_font_sizes/font_size = 44
-text = "NEWS_MASTHEAD"
-horizontal_alignment = 1
+stretch_mode = 3
 
 [node name="Edition" type="Label" parent="Body/Paper/Margin/News"]
 layout_mode = 2
@@ -84,18 +87,24 @@ horizontal_alignment = 1
 auto_translate_mode = 2
 
 [node name="Rule" type="Control" parent="Body/Paper/Margin/News"]
-custom_minimum_size = Vector2(0, 6)
+custom_minimum_size = Vector2(0, 4)
 layout_mode = 2
 
 [node name="Page" type="HBoxContainer" parent="Body/Paper/Margin/News"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 16
+theme_override_constants/separation = 12
 
 [node name="Text" type="VBoxContainer" parent="Body/Paper/Margin/News/Page"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
+
+[node name="Lead" type="Label" parent="Body/Paper/Margin/News/Page/Text"]
+layout_mode = 2
+theme_type_variation = &"InkBoldLabel"
+autowrap_mode = 2
+auto_translate_mode = 2
 
 [node name="Headlines" type="RichTextLabel" parent="Body/Paper/Margin/News/Page/Text"]
 layout_mode = 2
@@ -110,7 +119,7 @@ layout_mode = 2
 size_flags_vertical = 3
 
 [node name="Photo" type="Control" parent="Body/Paper/Margin/News/Page"]
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 
 [node name="Deco" type="Control" parent="Body/Paper"]

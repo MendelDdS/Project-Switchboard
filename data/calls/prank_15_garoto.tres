@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_prank"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_1"]
+script = ExtResource("2_step")
+text = "Central? Eu tenho um recado muito importante pro senhor."
+
+[sub_resource type="Resource" id="Step_2"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Pois não?")
+
+[sub_resource type="Resource" id="Step_3"]
+script = ExtResource("2_step")
+kind = 2
+seconds = 0.8
+
+[sub_resource type="Resource" id="Step_4"]
+script = ExtResource("2_step")
+text = "(um arroto enorme)"
+
+[sub_resource type="Resource" id="Step_5"]
+script = ExtResource("2_step")
+text = "(risadas abafadas)"
+
+[sub_resource type="Resource" id="Step_6"]
+script = ExtResource("2_step")
+kind = 3
+
+[resource]
+script = ExtResource("1_prank")
+voice = "k"
+caller = "Garoto"
+steps = Array[ExtResource("2_step")]([SubResource("Step_1"), SubResource("Step_2"), SubResource("Step_3"), SubResource("Step_4"), SubResource("Step_5"), SubResource("Step_6")])

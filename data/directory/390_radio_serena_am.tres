@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Motive_45"]
+script = ExtResource("2_motive")
+text = "Quero pedir uma música."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Queria pedir uma música pro programa da noite.", "Pode pedir. Qual é a música?", "Uma valsa antiga, aquela que tocava nos bailes do clube.", "Tem várias. Sabe o nome de alguma?", "O nome eu não lembro. Mas é a que todo mundo dançava no fim.", "Já sei qual é. Toca às {hour}. Ofereço pra quem?"), PackedStringArray("Boa noite. Queria oferecer uma música pra uma pessoa especial.", "Pode falar. Qual música?", "Uma moda de viola, daquelas bem antigas.", "Tenho umas três aqui. Ofereço em nome de quem?", "Diz só que é de alguém que não esqueceu.", "Vai ao ar às {hour}, no programa dos pedidos.")])
+
+[sub_resource type="Resource" id="Motive_46"]
+script = ExtResource("2_motive")
+text = "Quero mandar um recado pra um parente que trabalha na roça."
+talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Queria mandar um recado pelo rádio.", "Recado pra quem, e de quem?", "Pro meu primo, que trabalha na colheita. Diz que a família está bem.", "Só isso? Que a família está bem?", "E que é pra ele descer no fim do mês, que a gente espera.", "Vai ao ar às {hour}, no quadro dos recados."), PackedStringArray("Boa noite. Dá pra mandar um recado pra roça pelo programa?", "Dá. Pra quem é o recado?", "Pro meu tio, que está no sítio. Diz pra ele descer na feira.", "Na feira de quando?", "Na de sábado. Tem gente esperando por ele.", "Vai ao ar às {hour}, depois das notícias.")])
+
+[resource]
+script = ExtResource("1_entry")
+wary = 1.3
+name = "Rádio Serena AM"
+address = "Rua do Sol, 199"
+number = "390"
+hello = "Rádio Serena. Quem fala, e do que se trata?"
+spoken = "a Rádio Serena"
+motives = Array[ExtResource("2_motive")]([SubResource("Motive_45"), SubResource("Motive_46")])

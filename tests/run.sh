@@ -63,8 +63,10 @@ if [ $# -gt 0 ]; then   # tests/run.sh flow penalties: só esses (sem argumentos
 	exit $fails
 fi
 run flow
+run training
 run penalties
-run keys
+run keys --night=1   # (a noite também para a cena recarregada pelo Recomeçar, que não lê o progresso salvo)
+run layout
 for s in 1 2 3; do
 	run shift --seed=$s
 done
@@ -72,7 +74,10 @@ run shift --seed=3 --clumsy
 run shift --seed=2 --night=2
 run shift --seed=1 --night=5
 run shift --seed=2 --night=9
+run shift --seed=1 --night=15   # a última noite vai até as 6h (`Night.shift_end`)
 run shift --seed=1 --human
+run shift --seed=2 --human --nosy
+run shift --seed=2 --human --nosy --careless
 run shift --seed=2 --lang=en
 run shift --seed=3 --lang=es
 

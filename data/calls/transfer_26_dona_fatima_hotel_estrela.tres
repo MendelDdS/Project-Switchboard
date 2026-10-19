@@ -10,3 +10,4 @@ repeat = "O Hotel Estrela, na avenida."
 target = "305"
 destination = "Hotel Estrela"
 thanks = "Ai, obrigada. Mãe não dorme, né?"
+overheard = PackedStringArray("Boa noite. Minha filha chegou no ônibus das dez. Ela está aí?", "A moça de chapéu? Chegou, sim. Já subiu pro quarto.", "Ai, que alívio. Ela estava bem?", "Cansada, mas bem. Pediu um chá e foi deitar.", "Então não acorda ela. Amanhã eu ligo de novo.")

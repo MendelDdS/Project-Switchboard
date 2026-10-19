@@ -12,6 +12,7 @@ const DEST_LABEL := [T.Key.EX_DEST_FREE, T.Key.EX_DEST_RING, T.Key.EX_DEST_CONN,
 
 var _lines: Array[int] = []
 var _until: Array[float] = []   ## fim da conversa conectada (minuto de jogo); -1 = sem prazo
+var _keys: Array[bool] = []     ## a chave de escuta da linha levantada: com o FONE nela, o operador ouve a conversa conectada
 var _dests := {}                ## número (int) -> Dest
 
 
@@ -20,6 +21,7 @@ func _init(numbers: Array) -> void:
 	for i in LINES:
 		_lines.append(Line.FREE)
 		_until.append(-1.0)
+		_keys.append(false)
 	for n in numbers:
 		_dests[int(n)] = Dest.FREE
 
@@ -31,6 +33,17 @@ func line(n: int) -> int:
 func set_line(n: int, st: int, until := -1.0) -> void:
 	_lines[n - 1] = st
 	_until[n - 1] = until
+	if st != Line.CONN:   # a conversa acabou ou caiu: a chave desce
+		_keys[n - 1] = false
+
+
+## A chave de escuta da linha `n` (só sobe com a linha conectada).
+func key(n: int) -> bool:
+	return _keys[n - 1]
+
+
+func set_key(n: int, up: bool) -> void:
+	_keys[n - 1] = up and line(n) == Line.CONN
 
 
 func line_until(n: int) -> float:
