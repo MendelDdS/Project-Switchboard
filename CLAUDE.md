@@ -218,8 +218,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   Só faça commit quando o usuário pedir (na reestruturação ele autorizou um commit por etapa em `refactor/definitive`).
 - Comentário `ponytail:` marca um atalho deliberado; mantenha o código enxuto e no estilo do arquivo.
 - **Antes de criar arquivo (ou função, cena, recurso): procurar o componente que já existe** (`graphify query
-  "<componente>"`, o grafo em `graphify-out/`). **Reaproveitar > criar.** O grafo não lê GDScript sozinho (as funções
-  entraram pela leitura semântica) e envelhece: confira no código com `grep` antes de concluir que não existe.
+  "<componente>"`, o grafo em `graphify-out/`). **Reaproveitar > criar.** O grafo envelhece: confira no código com `grep`
+  antes de concluir que não existe, e atualize-o com `python -m graphify update <projeto>` (o graphify-godot, que lê os
+  `.gd`), conferindo antes e depois que as ligações dos documentos não sumiram.
 - **Quando o usuário pedir commit, rode antes a skill `revisar-mudancas`** (`.claude/skills/revisar-mudancas/`; só
   então, não depois de cada mudança): uma passada rápida de boas práticas e desempenho só no código alterado.
   - O `check.sh` acha o óbvio nas linhas acrescentadas do `git diff`.

@@ -1836,3 +1836,5 @@ Chaves:
     de 09/10, e atualizá-lo de verdade é pelo `/graphify . --update`, com leitura semântica. Rodado depois: a detecção
     do graphify também ignora os `.gd`, e os 75 que mudaram entraram à mão nos subagentes (~1,05 milhão de tokens);
     o grafo foi de 907 nós e 1574 ligações para 2867 e 6292.
+309. #codigo "Eu instalei o graphify-godot para conseguir mapear .gd": o grafo se atualiza com `python -m graphify update
+    <projeto>` (no `CLAUDE.md`, na regra de reaproveitar), no lugar do `graphify update .`, que não lia GDScript.
