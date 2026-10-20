@@ -109,6 +109,7 @@ func _ready() -> void:
 	_section("Viaturas e caderno", _clear_units_notebook)
 	_row([["Viaturas livres", func(): main.dispatch.reset()], ["Registrar pendências", _register_all]])
 	_row([["Limpar advertências", func(): main.report.faults.clear()], ["Apagar progresso", Progress.clear]])
+	_row([["Marcar noite insuficiente (a próxima demite)", func(): main.report.low_before = ShiftReport.LOW_LIMIT - 1]])
 	_section("Mesa de som", _reset_mix)
 	_row([["Copiar VOL", _copy_mix]])
 	for id: String in Sfx.VOL:
@@ -186,8 +187,10 @@ func _process(_delta: float) -> void:
 	var next := ""
 	if not main.sched.is_empty():
 		next = "\npróxima: %s %s" % [Main.fmt(main.sched[0].at), KIND_NAMES[main.sched[0].kind]]
-	_status.text = "%s · noite %d · %s · %.0f×\nligações ativas: %d · advertências: %d%s" % [Main.fmt(main.minutes), main.night_no,
-		main.weather, Engine.time_scale, main.live.size(), main.report.faults.size(), next]
+	var r := main.report
+	_status.text = "%s · noite %d · %s · %.0f×\nligações ativas: %d · advertências: %d%s\neficiência %.0f%% (+%d −%d) · %s · noites abaixo antes: %d" % [
+		Main.fmt(main.minutes), main.night_no, main.weather, Engine.time_scale, main.live.size(), r.faults.size(), next,
+		100.0 * r.efficiency(), r.positives(), r.negatives(), T.text(ShiftReport.GRADE_NAMES[r.grade()]), r.low_before]
 	var lines := PackedStringArray()
 	for c: PhoneCall in main.in_progress():
 		var e: EmergencyCall = c.data
@@ -281,6 +284,7 @@ func _clear_units_notebook() -> void:
 	main.dispatch.reset()
 	main.notebook.reset()
 	main.report.faults.clear()
+	main.report.credits.clear()
 	main.report.forget()
 
 

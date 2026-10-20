@@ -25,7 +25,7 @@ SKIP_TRAINING,Pular o treinamento,Skip the training,Saltar el entrenamiento
 END_DEMO_TITLE,Fim da demonstração,End of demo,Fin de la demostración
 END_DEMO_QUESTION,Você atenderia novamente?,Would you answer again?,¿Volvería a contestar?
 END_FIRED_TITLE,Você foi demitido.,You've been fired.,Usted fue despedido.
-END_FIRED_TEXT,A companhia telefônica agradece seus serviços.,The telephone company thanks you for your service.,La compañía telefónica le agradece sus servicios.
+END_FIRED_TEXT,Duas noites seguidas com conceito insuficiente. A companhia telefônica agradece seus serviços.,Two consecutive nights rated unsatisfactory. The telephone company thanks you for your service.,Dos noches seguidas con calificación insuficiente. La compañía telefónica le agradece sus servicios.
 END_NIGHT_TITLE,Fim da noite %d,End of night %d,Fin de la noche %d
 END_NIGHT_TEXT,"Amanhã, às 18:00, a central é sua de novo.","Tomorrow at 18:00, the switchboard is yours again.","Mañana, a las 18:00, la central es suya otra vez."
 END_TRAINING_TITLE,Fim do treinamento,End of training,Fin del entrenamiento
@@ -323,7 +323,6 @@ REPORT_CRITICAL,Gravíssimas,Critical,Gravísimas
 REPORT_SEVERE,Graves,Severe,Graves
 REPORT_MEDIUM,Médias,Moderate,Medias
 REPORT_LIGHT,Leves,Minor,Leves
-REPORT_ACCUMULATED,"Advertências graves acumuladas (gravíssima conta 2): %d de %d","Accumulated severe warnings (critical counts as 2): %d of %d","Advertencias graves acumuladas (gravísima cuenta 2): %d de %d"
 REPORT_QUIET,Noite tranquila em São Sotero.,A quiet night in São Sotero.,Noche tranquila en São Sotero.
 REPORT_INCIDENT,Ocorrência,Incident,Incidente
 SEV_LIGHT,leve,minor,leve
@@ -337,6 +336,22 @@ FAULT_HOLD,Solicitante desistiu na espera,Caller gave up on hold,La persona desi
 FAULT_WRONG_NUMBER,Conectou o número errado,Connected the wrong number,Conectó el número equivocado
 FAULT_CUT_CALL,Conversa cortada no meio,Conversation cut off,Conversación cortada a la mitad
 REPORT_YESTERDAY,"ontem, %s","yesterday, %s","ayer, %s"
+REPORT_SERVICES,SERVIÇOS PRESTADOS,SERVICES RENDERED,SERVICIOS PRESTADOS
+REPORT_NONE_SERVICES,Nenhum.,None.,Ninguno.
+REPORT_TRANSFERS,Ligações completadas: %d,Calls connected: %d,Llamadas completadas: %d
+REPORT_TRUNKS,Interurbanos completados: %d,Long-distance calls connected: %d,Interurbanas completadas: %d
+REPORT_INFOS,Informações prestadas: %d,Information given: %d,Informaciones dadas: %d
+REPORT_EMERGENCIES,Emergências atendidas: %d,Emergencies handled: %d,Emergencias atendidas: %d
+REPORT_OCCURRENCES,Ocorrências classificadas: %d,Incidents classified: %d,Incidentes clasificados: %d
+REPORT_PRANKS,Trotes identificados: %d,Prank calls identified: %d,Bromas identificadas: %d
+REPORT_GOAL,Conceito mínimo exigido: %s,Minimum rating required: %s,Calificación mínima exigida: %s
+REPORT_LOW,Noites seguidas com conceito insuficiente: %d de %d,Consecutive nights rated unsatisfactory: %d of %d,Noches seguidas con calificación insuficiente: %d de %d
+REPORT_GRADE,CONCEITO,RATING,CALIFICACIÓN
+REPORT_STAMP_DEPT,SUPERVISÃO,SUPERVISION,SUPERVISIÓN
+GRADE_GREAT,Ótimo,Excellent,Óptimo
+GRADE_GOOD,Bom,Good,Bueno
+GRADE_FAIR,Regular,Fair,Regular
+GRADE_POOR,Insuficiente,Unsatisfactory,Insuficiente
 FAULT_EAVESDROP,Assinante denunciou que a conversa foi ouvida,A subscriber reported the conversation was listened in on,Un abonado denunció que escucharon su conversación
 FAULT_WRONG_INFO,Informação errada,Wrong information,Información equivocada
 FAULT_REGISTER_WRONG,Registro com o tipo errado,Logged with the wrong type,Registro con el tipo equivocado

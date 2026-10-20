@@ -16,6 +16,7 @@ const INK := preload("res://scripts/ui/paper_ink.gd")
 var over: Control   ## onde o bilhete fica preso: a mesa comutadora (o Main põe)
 var _n := 0
 var _night: Night
+var _warned := false
 
 
 func _ready() -> void:
@@ -43,9 +44,11 @@ func _process(_delta: float) -> void:
 
 
 ## `can_skip`: jogo salvo (não uma noite forçada); no treinamento, dá para pular direto para a noite 1.
-func setup(n: int, night: Night, can_reset: bool, can_skip: bool) -> void:
+## `warned`: a noite anterior foi Insuficiente, e o bilhete lembra que esta decide.
+func setup(n: int, night: Night, can_reset: bool, can_skip: bool, warned := false) -> void:
 	_n = n
 	_night = night
+	_warned = warned
 	%Reset.visible = can_reset
 	%Skip.visible = can_skip and n == 0
 	_texts()
@@ -80,5 +83,8 @@ func _texts() -> void:
 	else:
 		date = T.text(T.Key.INTRO_NIGHT) % [n, GameData.date_text(n), Main.fmt(0.0)]
 	%Date.text = "[typed]%s[/typed]" % date
-	%Text.text = "[hand]%s[/hand]" % tr(night.note)
+	var note := tr(night.note)
+	if _warned:
+		note += "\n\n" + tr(GameData.CONTENT.low_warning)
+	%Text.text = "[hand]%s[/hand]" % note
 	%Info.text = "[color=#8a2a1c]%s[/color]  %s" % [T.text(T.Key.HINT_BADGE), T.text(T.Key.INTRO_INFO)]   # como a dica do manual na parede

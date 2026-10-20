@@ -432,7 +432,7 @@ func _draw_sky(g: Rect2) -> void:
 			_fill(PackedVector2Array([c, c + Vector2(side * CITY_GLOW.x, 0.0), c + Vector2(side * CITY_GLOW.x, -CITY_GLOW.y), c + Vector2(0.0, -CITY_GLOW.y)]),
 				PackedColorArray([on, off, off, off]))
 	if weather == "clear":
-		var tw := Time.get_ticks_msec() / 700.0
+		var tw := PixelArt.ms() / 700.0
 		var fade := smoothstep(0.0, 0.22, d)   # às 4h30 já não há estrelas
 		if fade < 1.0:
 			for i in _stars.size():
@@ -2447,7 +2447,7 @@ func _body(step: int, walking: bool, up: bool, side := 1.0) -> Array:
 ## saguão, pela porta acesa embaixo da marquise; no bar, atrás da vitrine, contra a luz do salão.
 func _draw_phones(g: Rect2) -> void:
 	var ff: float = STREET["far"]
-	var now := Time.get_ticks_msec() / 1000.0
+	var now := PixelArt.ms() / 1000.0
 	for i in CALLED.size():
 		var st: int = phones[i] if i < phones.size() else 0
 		if st != _phone_seen[i]:
@@ -2513,7 +2513,7 @@ func _draw_stray(g: Rect2, w: Dictionary, x: float) -> void:
 ## As mariposas da noite limpa em volta da luz de cada poste (`MOTHS`): pontos de 1 px voando em voltas tortas, cada uma
 ## no seu raio e na sua velocidade, as asas piscando na luz.
 func _draw_moths(g: Rect2) -> void:
-	var t := Time.get_ticks_msec() / 1000.0
+	var t := PixelArt.ms() / 1000.0
 	var heads := _lamp_heads(g)
 	for l in heads.size():
 		var c: Vector2 = (heads[l] as Vector2) * 2.0 + Vector2(0, 2)
@@ -2540,7 +2540,7 @@ func _draw_cat(g: Rect2) -> void:
 	var at := _o(g, HOTEL_X + 1.1, STREET["far"] - 0.5, 3.0) if _cat_plan.y == 0.0 \
 		else _o(g, APT["x0"] + 0.5, STREET["far"] - APT["deep"], APT["floor"] + 1.05)
 	var o := (at * 2.0).floor() - Vector2(2, 5)   # (px da tela: o canto de cima do desenho, sentado em `at`)
-	var t := Time.get_ticks_msec() / 1000.0
+	var t := PixelArt.ms() / 1000.0
 	var dark := Pal.CAT
 	for p: Vector2i in [Vector2i(0, 0), Vector2i(3, 0), Vector2i(0, 1), Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 1), Vector2i(1, 2), Vector2i(2, 2),
 			Vector2i(0, 3), Vector2i(1, 3), Vector2i(2, 3), Vector2i(3, 3), Vector2i(0, 4), Vector2i(1, 4), Vector2i(2, 4), Vector2i(3, 4)]:
@@ -2582,7 +2582,7 @@ func _draw_smoker(g: Rect2) -> void:
 ## boca, sobe, abre e vai com o vento (`GUST`, como o arbusto), sumindo em `SMOKE_PUFF` s. Cinza, pegando a luz quente
 ## do poste da esquina, logo abaixo da varanda, quanto mais perto da cabeça dele (`SMOKE_LIT`): é ali que ela aparece.
 func _draw_smoke(g: Rect2, foot: Vector2, k: float, ember: Vector2, thread: bool, after: float) -> void:
-	var t := Time.get_ticks_msec() / 1000.0
+	var t := PixelArt.ms() / 1000.0
 	var gust := pow(maxf(0.0, sin(t * GUST.x) * sin(t * GUST.y + 1.3)), 0.6)
 	var drift := -(0.25 + gust) * k   # para onde o vento leva (o mesmo lado do arbusto)
 	var head := _post(g) * 2.0
@@ -2762,7 +2762,7 @@ func _draw_balcony_front(g: Rect2) -> void:
 	var dz: float = ff - APT["deep"]
 	var tv := Color(0, 0, 0, 0)
 	if minutes < TV_OFF:
-		var t := Time.get_ticks_msec() / 1000.0
+		var t := PixelArt.ms() / 1000.0
 		var cut := floorf(t * 0.8 + sin(t * 0.31) * 0.7)   # cada cena, um brilho e um tom
 		var lv := 0.45 + 0.45 * fposmod(sin(cut * 12.9898) * 43758.5453, 1.0) + 0.05 * sin(t * 17.0)
 		var tint := TV_BLUE.lerp(Color(0.8, 0.88, 1.0), fposmod(sin(cut * 78.233) * 12345.6, 1.0) * 0.5)
@@ -3183,7 +3183,7 @@ func _draw_car(g: Rect2, c: Dictionary) -> void:
 ## tremendo a cada quadro (os pontos sorteados pelo tempo).
 func _spray(g: Rect2, c: Dictionary, m: Dictionary, at: Callable, z0: float) -> void:
 	var rng := _spray_rng
-	rng.seed = int(Time.get_ticks_msec() / 60)
+	rng.seed = int(PixelArt.ms() / 60)
 	var r: float = m["wheel"]
 	for wx2: float in m["wheels"]:
 		for i in CAR_SPRAY:
@@ -3217,7 +3217,7 @@ func _sheen(g: Rect2, x0: float, x1: float, z: float, h: float, alpha: float, sp
 func _draw_shrub() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 4242
-	var t := Time.get_ticks_msec() / 1000.0
+	var t := PixelArt.ms() / 1000.0
 	var wind := {"rain": 0.5 + rain_level(), "clear": 0.6, "fog": 0.3}.get(weather, 0.6) as float
 	# as rajadas: o vento cresce e some em ondas lentas e empurra a copa para um lado (`GUST`)
 	var gust := pow(maxf(0.0, sin(t * GUST.x) * sin(t * GUST.y + 1.3)), 0.6)

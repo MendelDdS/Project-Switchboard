@@ -50,11 +50,12 @@ func _initialize() -> void:
 	var d := GameData.date_of(0)
 	ok(d.day == 5 and d.weekday == 5, "o treinamento é na sexta, 5 de outubro")
 	ok(GameData.sectors_for(0) == [3], "o treinamento é no setor 3")
-	ok(Pace.next(3, 0, 2) == 1, "a noite 1 começa no primeiro nível depois do treinamento")
+	ok(Pace.next(3, 0, ShiftReport.Grade.POOR) == 1, "a noite 1 começa no primeiro nível depois do treinamento")
 	ok(GameData.date_of(0, 1).day == 6, "o caderno do treinamento é da noite de 5 para 6")
 	var r := ShiftReport.new()
 	r.night = 0
-	r.severe_before = ShiftReport.SEVERE_LIMIT
+	r.low_before = ShiftReport.LOW_LIMIT
+	r.add("emergency_lost", "18:00")
 	ok(not r.fired(), "o treinamento não demite")
 	m = load("res://scenes/main.tscn").instantiate()
 	m.night_no = 0

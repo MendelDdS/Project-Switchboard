@@ -551,7 +551,7 @@ func _process(delta: float) -> void:
 			_warm_t = -1.0
 	var base := lerpf(WARM.x, 1.0, warm)
 	if flick:
-		lamp_level = FLICK[int(Time.get_ticks_msec() / 90.0) % FLICK.size()] * base
+		lamp_level = FLICK[int(PixelArt.ms() / 90.0) % FLICK.size()] * base
 	else:
 		lamp_level = base
 	if lamp_hold >= 0.0:
@@ -2072,7 +2072,7 @@ func _draw_view_upright() -> void:
 func _back_state() -> Array:
 	var stars := 0   # as estrelas acesas agora (elas piscam)
 	if weather == "clear":
-		var tw := Time.get_ticks_msec() / 700.0
+		var tw := PixelArt.ms() / 700.0
 		for i in _stars.size():
 			if sin(tw + i * 1.7) > -0.6:
 				stars |= 1 << i
@@ -2706,7 +2706,7 @@ func _draw_umbrella(o: Vector2) -> void:
 func _draw_drips() -> void:
 	if weather != "rain" or not _umbrella.has_area():
 		return
-	var t := Time.get_ticks_msec() / 1000.0
+	var t := PixelArt.ms() / 1000.0
 	for i in 3:
 		var f := fmod(t * 0.35 + i * 0.37, 1.0)
 		var p := (_umbrella.position + Vector2([1.0, 4.0, 7.0][i], _umbrella.size.y * f * f)).floor()
@@ -2787,7 +2787,7 @@ func _draw_curl() -> void:
 func _draw_glint() -> void:
 	if _mug_glint.size.x < 1.0 or sips >= MUG_SIPS:
 		return
-	var t := Time.get_ticks_msec() / 1000.0
+	var t := PixelArt.ms() / 1000.0
 	var r := _mug_glint
 	for i in 2:
 		var x := r.position.x + (0.5 + 0.45 * sin(t * (0.9 + i * 0.37) + i * 2.1)) * r.size.x
@@ -2805,7 +2805,7 @@ func _draw_steam() -> void:
 	var heat := 1.0 - clampf((minutes - SHIFT_START) / STEAM_FOR, 0.0, 1.0)
 	if heat <= 0.0 or _mug_w <= 0.0 or sips >= MUG_SIPS:   # (o café acabou)
 		return
-	var t := Time.get_ticks_msec() / 1000.0
+	var t := PixelArt.ms() / 1000.0
 	var rise := _mug_w * 1.6
 	for wisp in 2:
 		var hot := heat if wisp == 0 else clampf(heat * 2.0 - 1.0, 0.0, 1.0)

@@ -5,6 +5,14 @@ class_name PixelArt
 ## `CACHE_MAX`): cor que muda a cada quadro vai no `modulate` do desenho, nunca nas cores daqui.
 ## `tools/sprite_sheet.gd` mostra tudo ampliado.
 
+## O relógio das animações do desenho (o piscar, a chuva, quem passa na rua), em ms, no lugar do
+## `Time.get_ticks_msec()`. Nas capturas com `--still` (`tools/shot.gd`) fica parado em `frozen_ms`: duas capturas
+## iguais saem idênticas, pixel a pixel (`tools/visual.sh`). O som segue o relógio real.
+static var frozen_ms := -1
+static func ms() -> int:
+	return Time.get_ticks_msec() if frozen_ms < 0 else frozen_ms
+
+
 const LIGHT := Vector2(-0.7071, -0.7071)   # de onde vem a luz das peças redondas (alto à esquerda)
 ## Rede de segurança: um cache que passa disto foi usado com cor de cada quadro (contra a regra acima) e é esvaziado. No uso
 ## certo o jogo fica bem abaixo (umas 40 peças redondas numa noite); esvaziar só custa remontar o que estiver na tela.

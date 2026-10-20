@@ -1,14 +1,12 @@
 class_name ShiftReport
 extends RefCounted
-## O que o supervisor confere no fim do turno: as advertências do turno e como terminou cada emergência.
-## `SEVERE_LIMIT` advertências graves somadas entre as noites (`severe_before` vem do Progress) significam demissão;
-## uma gravíssima conta como `CRITICAL_WEIGHT` graves.
+## O que o supervisor confere no fim do turno: as advertências e os acertos do turno, o conceito que eles dão e como
+## terminou cada emergência. `LOW_LIMIT` noites seguidas abaixo do conceito mínimo (`low_before` vem do Progress)
+## significam demissão.
 
 enum Severity { LIGHT, MEDIUM, SEVERE, CRITICAL }
 enum Outcome { OK, LATE, BAD }
 
-const SEVERE_LIMIT := 3
-const CRITICAL_WEIGHT := 2
 const SEVERITY_NAMES := [T.Key.SEV_LIGHT, T.Key.SEV_MEDIUM, T.Key.SEV_SEVERE, T.Key.SEV_CRITICAL]
 ## id -> [gravidade, descrição (T.Key)]
 const FAULTS := {
@@ -35,11 +33,32 @@ const FAULTS := {
 	"emergency_critical": [Severity.SEVERE, T.Key.FAULT_EMERGENCY_CRITICAL],
 	"emergency_lost": [Severity.CRITICAL, T.Key.FAULT_EMERGENCY_LOST],
 }
+## Os pontos que cada gravidade tira da eficiência (a gravíssima vale duas graves). A média pesa mais que um acerto: a
+## não atendida liga de novo e, com 8, o crédito do retorno a apagava (o robô que deixa tocar 1 em 3 passava sempre).
+const POINTS := [3, 15, 30, 60]
+## Os acertos: id -> pontos. Só as decisões do operador; registrar e guardar o bilhete já têm a advertência quando faltam.
+const CREDITS := {
+	"transfer": 10,         # transferência completada
+	"trunk": 12,            # interurbano completado (no lugar do "transfer")
+	"info": 5,              # informação certa
+	"emergency_ok": 20,     # emergência resolvida no estágio inicial
+	"emergency_late": 10,   # resolvida com a situação piorando (a média do estágio já desconta); no crítico, nada
+	"occurrence": 3,        # tipo de ocorrência perfurado certo
+	"prank": 5,             # trote reconhecido
+}
+
+## O conceito do turno, pela eficiência (`GRADE_MIN`, o mínimo de cada um, do Ótimo ao Regular).
+enum Grade { GREAT, GOOD, FAIR, POOR }
+const GRADE_NAMES := [T.Key.GRADE_GREAT, T.Key.GRADE_GOOD, T.Key.GRADE_FAIR, T.Key.GRADE_POOR]
+const GRADE_MIN := [0.90, 0.75, 0.60]
+const GOAL := Grade.FAIR               ## o conceito mínimo que a companhia exige
+const LOW_LIMIT := 2                   ## noites seguidas abaixo do mínimo que demitem
 
 var night := 1
 var end := 360.0                     ## o fim do turno (minutos depois do início, `Night.shift_end`)
-var severe_before := 0               ## advertências graves das noites anteriores
+var low_before := 0                  ## noites seguidas abaixo do mínimo antes desta
 var faults: Array[Dictionary] = []   ## {"id", "time", "detail"}, em ordem
+var credits: Array[Dictionary] = []  ## os acertos, {"id", "time"}, em ordem
 var later: Array = []                ## as que só chegam no relatório da noite seguinte (`Supervisor.fault_later`)
 var _incidents := {}                 ## EmergencyCall -> {"trouble": bool, "outcome": Outcome ou -1}
 var _picked := {}                    ## EmergencyCall -> [Outcome, molde da manchete]: sorteada uma vez só
@@ -57,13 +76,43 @@ func count(sev: Severity) -> int:
 	return faults.filter(func(f): return severity(f["id"]) == sev).size()
 
 
-func severe_total() -> int:
-	return severe_before + count(Severity.SEVERE) + CRITICAL_WEIGHT * count(Severity.CRITICAL)
+func credit(id: String, time: String) -> void:
+	credits.append({"id": id, "time": time})
 
 
-## Demitido: graves demais (o treinamento, noite 0, nunca demite).
+func positives() -> int:
+	return credits.reduce(func(s, c): return s + CREDITS[c["id"]], 0)
+
+
+func negatives() -> int:
+	return faults.reduce(func(s, f): return s + POINTS[severity(f["id"])], 0)
+
+
+## A parte certa de tudo o que o supervisor anotou, de 0 a 1 (1 sem advertência, também sem acerto nenhum).
+func efficiency() -> float:
+	var neg := negatives()
+	return 1.0 if neg == 0 else float(positives()) / (positives() + neg)
+
+
+## O conceito do turno; uma emergência perdida é Insuficiente, seja qual for a eficiência.
+func grade() -> Grade:
+	if count(Severity.CRITICAL) > 0:
+		return Grade.POOR
+	var e := efficiency()
+	for g in GRADE_MIN.size():
+		if e >= GRADE_MIN[g]:
+			return g as Grade
+	return Grade.POOR
+
+
+## Noites seguidas abaixo do mínimo, contando esta (uma no mínimo ou acima zera).
+func low_nights() -> int:
+	return low_before + 1 if grade() > GOAL else 0
+
+
+## Demitido: noites seguidas demais abaixo do mínimo (o treinamento, noite 0, nunca demite).
 func fired() -> bool:
-	return night > 0 and severe_total() >= SEVERE_LIMIT
+	return night > 0 and low_nights() >= LOW_LIMIT
 
 
 ## Emergência que teve problema (não atendida, sem despacho, endereço errado): se for resolvida, foi com atraso.
@@ -117,13 +166,6 @@ static func headline(d: Dictionary) -> String:
 ## "Invasão / roubo" -> "Invasão"; "Outro" -> "Ocorrência".
 static func occurrence_name(o: String) -> String:
 	return T.text(T.Key.REPORT_INCIDENT) if o == "Outro" else String(TranslationServer.translate(o)).get_slice(" /", 0)
-
-
-## 0 = bom turno, 1 = atenção, 2 = turno ruim.
-func verdict() -> int:
-	if count(Severity.SEVERE) + count(Severity.CRITICAL) > 0:
-		return 2
-	return 1 if count(Severity.MEDIUM) >= 3 or count(Severity.LIGHT) >= 5 else 0
 
 
 ## Debug: esquece a emergência `e` (ou todas, sem `e`), como se não tivesse acontecido.

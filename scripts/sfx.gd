@@ -111,6 +111,10 @@ const ONSETS := {"stop": "ptkbdgcq", "fric": "szfvxjç", "nasal": "mn"}
 const VMAP := {"a": "a", "á": "a", "à": "a", "â": "a", "ã": "a", "e": "e", "é": "e", "ê": "e", "i": "i", "í": "i", "o": "o", "ó": "o", "ô": "o", "õ": "o", "u": "u", "ú": "u"}
 
 var streams: Dictionary = {}
+## O sorteio do som (variações, versões, sílabas), fora do global: as vozes andam pelo relógio real, e sortear no
+## global num quadro ou no seguinte, conforme a máquina, mudava tudo o que vem depois (quem passa na rua, a agenda)
+## e o `--seed` deixava de repetir a noite.
+var _rng := RandomNumberGenerator.new()
 var _temper_rng := RandomNumberGenerator.new()   ## o temperamento das emergências (`agitation`), fora do sorteio global
 ## voz -> ms (Time.get_ticks_msec) em que a última sílaba começa (x; no futuro, se está esperando) e em que a próxima
 ## pode começar (y)
@@ -244,8 +248,8 @@ func _start(p: Node, id: String, db: float, pitch: float) -> void:
 	p.stream = streams[_take(id)]
 	p.bus = SfxSynth.VOICE[id[2]]["bus"] if id.begins_with("s_") else (&"Voices" if id == "crackle" else &"Effects")
 	if id in VARIED:
-		db += randf_range(-VARY_DB, VARY_DB)
-		pitch *= 1.0 + randf_range(-VARY_PITCH, VARY_PITCH)
+		db += _rng.randf_range(-VARY_DB, VARY_DB)
+		pitch *= 1.0 + _rng.randf_range(-VARY_PITCH, VARY_PITCH)
 	p.volume_db = vol.get(id, -10.0) + db
 	p.pitch_scale = pitch
 	p.play()
@@ -255,7 +259,7 @@ func _start(p: Node, id: String, db: float, pitch: float) -> void:
 
 ## Uma das versões do som, sorteada: `id`, `id~1`, `id~2`... (as do carro, `SfxSynth.CAR_TAKES`; contadas em `_takes`).
 func _take(id: String) -> String:
-	var k := randi() % int(_takes.get(id, 1))
+	var k := _rng.randi() % int(_takes.get(id, 1))
 	return id if k == 0 else "%s~%d" % [id, k]
 
 
@@ -386,7 +390,7 @@ func _process(delta: float) -> void:
 		return
 	if not rub.playing:   # cada arrasto começa num trecho diferente do loop
 		for p in _rub_loops:
-			p.play(randf() * p.stream.get_length())
+			p.play(_rng.randf() * p.stream.get_length())
 	var smooth := 1.0 - _rub_mood.y   # parte recolhendo
 	var soft := _rub_mood.z * lerpf(1.0, RUB_FONE["fast"], level)
 	var loose := _rub_feel.x
@@ -503,7 +507,7 @@ func speak_char(voice: String, text: String, i: int, prev_vowel: bool, laugh: bo
 	var t := _tone(text, i)
 	if laugh:
 		t = [2, 1.13, 0.0]
-	pitch *= 1.0 + agitated * (AGITATION["pitch"] + randf_range(-1.0, 1.0) * AGITATION["shake"])
+	pitch *= 1.0 + agitated * (AGITATION["pitch"] + _rng.randf_range(-1.0, 1.0) * AGITATION["shake"])
 	var sound := syllable.bind(voice, VMAP[lc] + ("n" if _nasal(text, i) else ""), _onset(text, i), t[0], pitch * t[1],
 		t[2] + agitated * AGITATION["db"] + db, at, long)
 	if wait == 0.0:
@@ -604,7 +608,7 @@ func _tone(text: String, i: int) -> Array:
 	var end := text[b] if b < text.length() else "."
 	var before := _syllables(text, a, i)
 	var after := _syllables(text, i + 1, b)
-	var pitch := 1.0 + randf_range(-JITTER, JITTER)
+	var pitch := 1.0 + _rng.randf_range(-JITTER, JITTER)
 	if end != "?":
 		pitch += DECLINE * (1.0 - 2.0 * before / maxf(1.0, before + after))
 	var db := 0.0
@@ -619,7 +623,7 @@ func _tone(text: String, i: int) -> Array:
 		var k := float(QUESTION_TAIL - after) / QUESTION_TAIL   # 1/3, 2/3, 1 na última
 		return [2, pitch * lerpf(1.0, QUESTION_RISE, k), db]
 	if after > 0:
-		return [randi() % 3, pitch, db]
+		return [_rng.randi() % 3, pitch, db]
 	return [0, pitch * (EXCLAIM_FALL if end == "!" else FINAL_FALL), db]
 
 
@@ -672,12 +676,12 @@ func syllable(v: String, vowel: String, onset: String, contour: int, pitch := 1.
 	_sound("s_%s_%s_%d%s" % [v, vowel, contour, "l" if long else ""], at, vol, pitch)
 	if onset != "":
 		_sound("s_%s_%s" % [v, onset], at, vol, pitch)
-	if v == "g" and randf() < 0.3:
+	if v == "g" and _rng.randf() < 0.3:
 		_sound("crackle", at, -4.0)
 
 
 func static_burst(strength: float = 0.0, at := -1.0) -> void:
-	_sound("static", at, strength, randf_range(0.9, 1.1))
+	_sound("static", at, strength, _rng.randf_range(0.9, 1.1))
 
 
 ## `play` (do centro) ou, com `at` >= 0, `play_at` (daquele lugar da tela).

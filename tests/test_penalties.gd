@@ -271,13 +271,40 @@ func _initialize() -> void:
 	var heads := " ".join(m.report.news().map(func(d: Dictionary) -> String: return ShiftReport.headline(d)))
 	ok(e4.address in heads and e5.address in heads, "as emergências no jornal da noite seguinte (não no relatório: o jornal já vem na mesa)")
 	ok(view._body.find_children("*", "HBoxContainer", true, false).size() == m.report.faults.size(), "uma linha com carimbo por advertência")
-	ok(m.report.verdict() == 2 and view._verdict.get_parsed_text() == tr(C.verdicts[2]), "parecer: turno ruim")
-	var sev: int = m.report.count(ShiftReport.Severity.SEVERE)
-	m.report.severe_before = ShiftReport.SEVERE_LIMIT - sev - 1
-	ok(not m.report.fired(), "ainda não foi demitido")
-	m.report.severe_before += 1
-	ok(m.report.fired(), "graves acumuladas entre as noites: demitido")
+	ok(m.report.grade() == ShiftReport.Grade.POOR and view._verdict.get_parsed_text() == tr(C.verdicts[ShiftReport.Grade.POOR]),
+		"parecer: Insuficiente")
+	ok(not m.report.fired(), "a primeira noite abaixo do mínimo não demite")
+	ok(T.text(T.Key.REPORT_SERVICES) in text and T.text(T.Key.REPORT_GOAL) % T.text(T.Key.GRADE_FAIR) in text,
+		"relatório com os serviços prestados e o conceito mínimo")
+	ok(view._grade != null and view._grade.get_parent() == view.get_node("%Foot"), "o carimbo do conceito no pé do memorando")
+	m.report.low_before = ShiftReport.LOW_LIMIT - 1
+	ok(m.report.fired(), "a segunda seguida abaixo do mínimo: demitido")
+	view.show_report(m.report)
+	ok(view._verdict.get_parsed_text() == tr(C.verdict_fired), "parecer da demissão")
 	print("OK 9 relatório (%d advertências)" % m.report.faults.size())
+
+	# ---- 9b. a eficiência e o conceito, pela conta (sem o turno)
+	var r := ShiftReport.new()
+	ok(r.efficiency() == 1.0 and r.grade() == ShiftReport.Grade.GREAT, "sem nada anotado: 1, Ótimo")
+	r.credit("transfer", "18:10")
+	r.credit("transfer", "18:20")
+	r.credit("transfer", "18:25")
+	r.credit("info", "18:30")
+	ok(r.efficiency() == 1.0, "só acertos: 1")
+	r.add("wrong_info", "18:40")
+	r.add("missed", "18:50")
+	ok(r.positives() == 35 and r.negatives() == 18 and is_equal_approx(r.efficiency(), 35.0 / 53.0), "a conta: 35 ÷ (35 + 18)")
+	ok(r.grade() == ShiftReport.Grade.FAIR and r.low_nights() == 0, "Regular: no mínimo, zera a contagem")
+	r.low_before = 1
+	ok(r.low_nights() == 0, "uma noite no mínimo zera a de antes")
+	r.add("dispatch_wrong_place", "19:00")
+	ok(r.grade() == ShiftReport.Grade.POOR and r.low_nights() == 2, "Insuficiente: a segunda seguida")
+	var r2 := ShiftReport.new()
+	for i in 40:
+		r2.credit("emergency_ok", "19:00")
+	r2.add("emergency_lost", "20:00")
+	ok(r2.efficiency() >= ShiftReport.GRADE_MIN[0] and r2.grade() == ShiftReport.Grade.POOR, "emergência perdida: Insuficiente com eficiência alta")
+	print("OK 9b eficiência e conceito")
 
 	# ---- 10. barra de agravamento (o relógio está parado: a barra anda por Urgency.tick chamado à mão)
 	# um caso em que cada estágio pede uma unidade nova (para ver quando ela passa a contar)
@@ -366,7 +393,7 @@ func _initialize() -> void:
 	m.dispatch._send()
 	ok(await wait_until(func(): return c11.ended, 20.0) and m.report.faults.size() == faults11, "despachou depois: nenhuma advertência a mais")
 	ok(m.report.outcomes()[e11] == ShiftReport.Outcome.BAD, "no jornal: ruim")
-	ok(m.report.severe_total() >= m.report.count(ShiftReport.Severity.SEVERE) + ShiftReport.CRITICAL_WEIGHT, "gravíssima pesa mais na demissão")
+	ok(m.report.grade() == ShiftReport.Grade.POOR, "gravíssima: Insuficiente")
 	print("OK 10 barra de agravamento")
 
 	# ---- 11. fim do turno: última ligação às 23:40, meia-noite que espera quem está na linha, botão Encerrar

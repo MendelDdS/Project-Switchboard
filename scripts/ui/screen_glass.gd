@@ -21,7 +21,7 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	var lit := fmod(Time.get_ticks_msec() / 1000.0, BLINK * 2.0) < BLINK
+	var lit := fmod(PixelArt.ms() / 1000.0, BLINK * 2.0) < BLINK
 	if lit != _blink_on:
 		_blink_on = lit
 		queue_redraw()

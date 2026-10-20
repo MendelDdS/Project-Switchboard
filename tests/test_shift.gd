@@ -205,7 +205,7 @@ func _initialize() -> void:
 			f = m._focus()
 		if f == null or not f.active or f.talking:
 			if m.notebook.has_pending() and frames_left % 120 == 0:
-				m.notebook.register(T.Key.TYPE_COMMON)
+				m.notebook.register(Supervisor.TYPE_OF.get(m.notebook.pending.kind, T.Key.TYPE_COMMON))   # o tipo certo
 				_acted()
 			elif m.toll.waiting() > 0 and frames_left % 120 == 0:   # o bilhete: carimbar e, depois, guardar
 				var t: TollTicket = m.toll.tickets()[0]
@@ -258,7 +258,11 @@ func _initialize() -> void:
 						m.dispatch._send()
 					_acted()
 				elif not f.options.is_empty():
-					f.options[0]["fn"].call()
+					var pick := 0   # na informação, a certa (escolher a primeira errava 2 em 3, e não é o jogador que se mede)
+					if f.phase == PhoneCall.Phase.INFO:
+						var right := T.text(T.Key.OP_IT_IS) % f.answer
+						pick = maxi(0, f.options.find_custom(func(o): return String(o["label"]) == right))
+					f.options[pick]["fn"].call()
 					_acted()
 	var recs: Array = m.notebook.entries + m.notebook.queue + ([m.notebook.pending] if m.notebook.has_pending() else [])
 	var lost := recs.filter(func(e): return e.type == T.Key.TYPE_MISSED).size()
@@ -298,6 +302,12 @@ func _initialize() -> void:
 		100 * starved / maxi(fall, 1), lost, recs.size(), int(kinds.get(PhoneCall.Kind.EMERGENCY, 0)),
 		int(kinds.get(PhoneCall.Kind.PRANK, 0)), max_quiet, max_empty])
 	print("despachos (estágio e barra corrida): ", ", ".join(stages))
+	var r := m.report
+	print("eficiência=%.0f%% (positivos=%d negativos=%d) conceito=%s | acertos: %s | advertências: %s" % [100.0 * r.efficiency(),
+		r.positives(), r.negatives(), ShiftReport.Grade.keys()[r.grade()], " ".join(r.credits.map(func(x): return x["id"])),
+		" ".join(r.faults.map(func(x): return x["id"]))])
+	if not clumsy and not careless:   # o desastrado é medição (abaixo do mínimo na maioria das sementes); o descuidado, denunciado, fica abaixo
+		ok(r.grade() <= ShiftReport.GOAL, "o robô atento não fica abaixo do conceito mínimo")
 	print("bilhetes guardados=%d, esquecidos na mesa=%d" % [m.toll.filed, m.toll.waiting()])
 	ok(myst_at != "" or m.night.mystery.is_empty(), "a ligação desconhecida tocou")
 	ok(m.ending and m.minutes >= m.shift_end, "o turno terminou no horário")

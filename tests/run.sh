@@ -62,6 +62,7 @@ if [ $# -gt 0 ]; then   # tests/run.sh flow penalties: só esses (sem argumentos
 	[ $fails -eq 0 ] && echo "Todos os testes passaram." || echo "$fails teste(s) falharam."
 	exit $fails
 fi
+run content
 run flow
 run training
 run penalties

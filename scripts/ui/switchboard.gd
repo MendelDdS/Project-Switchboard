@@ -294,7 +294,7 @@ func show_info(text_lines: PackedStringArray, ghost: bool, line: int) -> void:
 	info_lines = text_lines
 	info_ghost = ghost
 	info_line = line
-	info_until = Time.get_ticks_msec() + (7000 if ghost else 2600)
+	info_until = PixelArt.ms() + (7000 if ghost else 2600)
 
 
 func _gui_input(e: InputEvent) -> void:
@@ -427,7 +427,7 @@ func _process(delta: float) -> void:
 	_rub_loose = 0.0
 	_rub_tone = 0.0
 	if exchange != null:
-		var ms := Time.get_ticks_msec()
+		var ms := PixelArt.ms()
 		for n in range(1, 11):
 			_fade("l%d" % n, _lamp(exchange.line(n), ms, fone_line() == n), delta)
 		for d in dest_nums:
@@ -493,7 +493,7 @@ func _look() -> Array:
 				plugs.append(_plug_light(j))
 	return [[size, states, GameData.sectors.duplicate(), _lamp_at], [size, levels, ends.duplicate(), _eye, poses, _lamp_at],
 		[size, GameData.sectors.duplicate(), _lamp_at],
-		[size, ends.duplicate(), _hover, plugs, Time.get_ticks_msec() < info_until, info_line, _eye, _lamp_at]]
+		[size, ends.duplicate(), _hover, plugs, PixelArt.ms() < info_until, info_line, _eye, _lamp_at]]
 
 
 ## O plug da ponta e está no ponto p (guardado, vale a base inteira; fora dela, o desenho do plug).
@@ -847,7 +847,7 @@ func _draw_cords() -> void:
 			draw_lip(_cords, hole(e))
 
 	# balão de informação
-	if Time.get_ticks_msec() < info_until and info_line > 0:
+	if PixelArt.ms() < info_until and info_line > 0:
 		var jr := jack_rect(info_line)
 		var bw := 150.0
 		var bh := 8.0 + info_lines.size() * 14.0

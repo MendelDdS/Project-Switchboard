@@ -106,13 +106,14 @@ func _init() -> void:
 	flags = StoryFlags.new()
 
 
-## A noite (e os setores dela) vem antes dos filhos ficarem prontos: a lista telefônica monta as páginas no `_ready`.
+## A semente e a noite (e os setores dela) vêm antes dos filhos ficarem prontos: o cenário sorteia os pingos, as
+## estrelas e as nuvens no `_ready` dele, e a lista telefônica monta as páginas no dela.
 func _enter_tree() -> void:
+	_apply_seed()
 	_load_night()
 
 
 func _ready() -> void:
-	_apply_seed()
 	_shift_hours.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED   # (as horas da noite: a última vai até as 6h)
 	_shift_hours.text = T.text(T.Key.SHIFT_HOURS) % [fmt(0.0), fmt(shift_end)]
 	weather = night.weather if night.weather != "" else WEATHERS.pick_random()
@@ -171,7 +172,7 @@ func _ready() -> void:
 	tools.origin = background.prop_rect   # o papel de cada ferramenta sai do objeto dela na mesa
 	background.prop_clicked.connect(func(id: String): if running and not ending: tools.set_tab(id))   # objetos da cena
 	_intro.over = board   # o bilhete do supervisor fica preso no painel da mesa comutadora
-	_intro.setup(night_no, night, progress != null and progress.night > 0, progress != null)
+	_intro.setup(night_no, night, progress != null and progress.night > 0, progress != null, report.low_before > 0)
 	if is_training():   # o treinamento começa com o FONE já na entrada 1
 		board.plugged(0, 1)
 	if progress != null and night_no > 1:   # o jornal da manhã, com o que aconteceu na noite anterior
@@ -203,7 +204,7 @@ func _load_night() -> void:
 		progress = Progress.load_saved()
 		night_no = progress.night
 		pace_level = progress.pace
-		report.severe_before = progress.severe
+		report.low_before = progress.low_nights
 		for f in progress.flags:
 			flags.apply(f)
 		for f in progress.later:   # o que ficou para ser cobrado hoje (a denúncia de uma escuta)
@@ -1272,8 +1273,8 @@ func start_ending() -> void:
 			Progress.clear()
 		else:
 			progress.night = night_no + 1
-			progress.pace = Pace.next(pace_level, night_no, report.verdict())
-			progress.severe = report.severe_total() if night_no > 0 else 0   # o treinamento não conta
+			progress.pace = Pace.next(pace_level, night_no, report.grade())
+			progress.low_nights = report.low_nights() if night_no > 0 else 0   # o treinamento não conta
 			progress.flags = flags.names()
 			progress.news = report.news()
 			progress.later = report.later if later else []

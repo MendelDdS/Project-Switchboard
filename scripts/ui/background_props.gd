@@ -142,7 +142,7 @@ var _lamp_shades: Array[PackedVector2Array] = []   # as sombras da luminária no
 
 ## Em que passo da virada está a plaqueta do relógio (0 a 2; 3 = parada).
 func _flip_step() -> int:
-	return mini(3, int((Time.get_ticks_msec() - _flip_at) / (FLIP_SEC * 1000.0 / 3.0)))
+	return mini(3, int((PixelArt.ms() - _flip_at) / (FLIP_SEC * 1000.0 / 3.0)))
 
 
 ## Tampo de madeira visto de cima e da frente, de `r.position.y` (o fundo dele) até `front` (a borda da frente,
