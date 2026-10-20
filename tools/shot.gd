@@ -17,7 +17,9 @@ extends Node
 ##   --lines=2:ring,4:conn  as lâmpadas dessas linhas no estado dado (`Exchange.Line`, em minúsculas), sem ligação
 ##   --toll                 um interurbano contando no calculógrafo, dois bilhetes na mesa (um carimbado) e três na caixinha
 ##   --clues                palavras-chave ouvidas (uma marcada, uma riscada, uma ouvida duas vezes) e a lista nas anotações
-##   --screen=id            uma tela por cima: intro (a de início), pause, settings, report (o relatório com advertências)
+##   --screen=id            uma tela por cima: intro (a de início), pause, settings, report (o relatório com advertências;
+##                          --rating=great|good|fair|poor o conceito, padrão poor, a segunda noite seguida;
+##                          --warned, com intro, o bilhete depois de uma noite Insuficiente)
 ##   --hover=id             o mouse em cima do objeto da mesa (os ids de `Tools`): ele erguido e a etiqueta com o nome
 ##   --zoom=x,y,w,h         o recorte, em px do jogo, ampliado `ZOOM` vezes
 ##   --car=fusca            um carro de cada modelo dado (vírgulas) parado na rua lá fora, um em cada mão (--car_t=0.45: onde, de 0 a 1; --rack: com o bagageiro)
@@ -77,6 +79,8 @@ func _ready() -> void:
 	await get_tree().process_frame
 	m.sched.clear()   # nada toca sozinho
 	if _args.get("screen") == "intro":
+		if _args.has("warned"):   # o bilhete com o lembrete de quem teve uma noite Insuficiente
+			m._intro.setup(m.night_no, m.night, false, false, true)
 		await get_tree().create_timer(float(_args.get("wait", "5")), false).timeout
 		_save(out)
 		return
@@ -155,9 +159,15 @@ func _ready() -> void:
 		"settings":
 			m.pause()
 			m._pause.open_settings()
-		"report":
-			for f in ["missed", "hold", "wrong_number", "eavesdrop", "wrong_info"]:
+		"report":   # --rating=great|good|fair|poor: as advertências que dão esse conceito (padrão: poor, a segunda noite)
+			var faults := {"great": ["wrong_info"], "good": ["missed", "wrong_info"], "fair": ["missed", "hold", "wrong_number"],
+				"poor": ["missed", "hold", "wrong_number", "eavesdrop", "wrong_info"]}
+			var rating: String = _args.get("rating", "poor")
+			for f in faults[rating]:
 				m.report.add(f, "21:%02d" % (f.length() * 3))
+			for c in ["transfer", "transfer", "transfer", "transfer", "transfer", "transfer", "info", "info", "info", "emergency_ok", "occurrence"]:
+				m.report.credit(c, "20:00")
+			m.report.low_before = 1 if rating == "poor" else 0
 			m._ending.play(m.report, true)
 			await get_tree().create_timer(4.0, false).timeout
 	await get_tree().create_timer(float(_args.get("wait", "5")), true).timeout   # (conta também na pausa)

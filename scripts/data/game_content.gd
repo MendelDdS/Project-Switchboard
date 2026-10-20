@@ -114,8 +114,12 @@ extends Resource
 @export var news_ok: PackedStringArray = []
 @export var news_late: PackedStringArray = []
 @export var news_bad: PackedStringArray = []
-## O que o supervisor escreve no fim do relatório: turno bom, atenção, turno ruim.
+## O que o supervisor escreve no fim do relatório, um por conceito (`ShiftReport.Grade`: Ótimo a Insuficiente).
 @export var verdicts: PackedStringArray = []
+## O parecer da noite da demissão (a segunda seguida abaixo do mínimo), no lugar do do conceito.
+@export_multiline var verdict_fired := ""
+## O lembrete no bilhete da noite seguinte a uma Insuficiente: esta decide.
+@export_multiline var low_warning := ""
 
 @export_group("Pedidos de informação")
 ## %s vira "do Hotel Estrela" (DirectoryEntry.spoken com "d" na frente).

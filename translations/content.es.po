@@ -10964,16 +10964,28 @@ msgid "{occurrence} na {address}: vizinhos esperaram a noite toda por socorro."
 msgstr "{occurrence} en {address}: los vecinos esperaron ayuda toda la noche."
 
 #: data/content.tres
-msgid "Turno sem problemas. Bom trabalho."
-msgstr "Turno sin problemas. Buen trabajo."
+msgid "Turno exemplar. Continue assim."
+msgstr "Turno ejemplar. Siga así."
 
 #: data/content.tres
-msgid "Atenção aos detalhes. Os moradores contam com a central."
-msgstr "Atención a los detalles. Los vecinos cuentan con la central."
+msgid "Bom turno. Atenção aos detalhes."
+msgstr "Buen turno. Atención a los detalles."
 
 #: data/content.tres
-msgid "Turno inaceitável. Isso vai para a sua ficha."
-msgstr "Turno inaceptable. Esto va a su legajo."
+msgid "Turno regular. Os moradores contam com a central."
+msgstr "Turno regular. Los vecinos cuentan con la central."
+
+#: data/content.tres
+msgid "Insuficiente. Mais uma noite assim e a companhia vai dispensar seus serviços."
+msgstr "Insuficiente. Una noche más así y la compañía prescindirá de sus servicios."
+
+#: data/content.tres
+msgid "Insuficiente pela segunda noite seguida. A companhia dispensa seus serviços."
+msgstr "Insuficiente por segunda noche seguida. La compañía prescinde de sus servicios."
+
+#: data/content.tres
+msgid "P.S.: Ontem seu conceito foi insuficiente. Esta noite decide se você continua na companhia."
+msgstr "P.D.: Ayer su calificación fue insuficiente. Esta noche decide si usted sigue en la compañía."
 
 #: data/content.tres
 msgid "Boa noite. Pode me dar o número %s?"

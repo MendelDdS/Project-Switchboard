@@ -43,8 +43,10 @@ Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
 ## Consequências e relatório do supervisor
 
 À meia-noite, antes da tela final, o supervisor confere o turno (`ShiftReport` em `scripts/model/shift_report.gd`,
-tela em `scenes/ui/report_view.tscn`): lista as advertências (leve, média, grave, gravíssima), traz o **jornal da manhã** com o
-desfecho de cada emergência e dá um parecer (`verdicts` no content). As ligações do treinamento, os trotes e a
+tela em `scenes/ui/report_view.tscn`): conta os serviços prestados (ligações completadas, informações, emergências
+atendidas...), lista as advertências (leve, média, grave, gravíssima) e dá um **conceito** carimbado (Ótimo, Bom,
+Regular, Insuficiente) com o parecer à mão (`verdicts` no content, um por conceito). O jornal da manhã, com o desfecho
+de cada emergência, vem na mesa na noite seguinte. As ligações do treinamento, os trotes e a
 ligação desconhecida não contam.
 
 | Falha | Gravidade | O que acontece no turno |
@@ -71,8 +73,28 @@ Quem liga de novo espera a mesa esvaziar (no máximo `RETRY_WAIT`, 20 min de jog
 sobre quem já está sobrecarregado. Quando a emergência liga de novo, em `REDISPATCH_CHANCE` (60%) dos casos ainda dá para despachar (no jornal: "com
 atraso"); nos outros, já é tarde (no jornal: "ninguém foi atender"). Cada pessoa liga de novo no máximo uma vez por motivo, sempre antes do fim do turno (vale também para as
 ligações do treinamento, que só não geram advertência).
-As advertências graves se somam entre as noites: `ShiftReport.SEVERE_LIMIT` (3) graves acumuladas é demissão, e o
-jogo volta para a primeira noite. Uma gravíssima conta como `CRITICAL_WEIGHT` (2) graves.
+### O conceito do turno e a demissão
+
+Por trás do conceito há uma conta que o jogador não vê (só o painel de debug mostra): a **eficiência**, a parte certa
+de tudo o que o supervisor anotou, `acertos ÷ (acertos + advertências)`, em pontos (`ShiftReport.CREDITS` e `POINTS`).
+Só as decisões dão ponto: transferência completada (10), interurbano (12), informação certa (5), emergência socorrida
+no estágio inicial (20) ou agravando (10; na crítica, nada), tipo de ocorrência certo (3), trote reconhecido (5).
+Registrar a ficha e guardar o bilhete não: já têm a advertência quando faltam. Cada advertência tira 3 (leve), 15
+(média), 30 (grave) ou 60 (gravíssima): a média pesa mais que um acerto, porque a não atendida liga de novo e o
+crédito do retorno a apagaria.
+
+| Conceito | Eficiência |
+|---|---|
+| Ótimo | 90% ou mais |
+| Bom | 75% a 89% |
+| Regular (o mínimo) | 60% a 74% |
+| Insuficiente | abaixo de 60%, ou qualquer emergência perdida |
+
+**Duas noites seguidas em Insuficiente é demissão** (`ShiftReport.LOW_LIMIT`; uma Regular ou melhor zera a conta), e
+o jogo volta para o treinamento. Depois de uma Insuficiente, o bilhete da noite seguinte lembra que ela decide. A
+denúncia da escuta conta na noite em que chega ao relatório. O treinamento não tem conceito. Calibrado com o robô
+do `test_shift`, cinco sementes em cinco noites: o atento fica entre 67% e 100% e o que deixa tocar 1 em 3, entre 47%
+e 77% (`PLANO_EFICIENCIA.md`).
 
 ### Barra de agravamento da emergência
 
@@ -218,8 +240,8 @@ Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
   | 4 | 30–40 | 4% | 3 | 1–2 | 1–2 |
   | 5 (limite) | 28–38 | 5% | 3 | 2 | 1–2 |
 
-  A primeira noite usa o nível 1. **Nas 3 primeiras noites, o nível só sobe se a noite anterior não foi ruim** (parecer
-  do supervisor com alguma advertência grave: repete o ritmo, para não sobrecarregar quem ainda não pegou confiança).
+  A primeira noite usa o nível 1. **Nas 3 primeiras noites, o nível só sobe se a noite anterior não foi Insuficiente**
+  (repete o ritmo, para não sobrecarregar quem ainda não pegou confiança).
   Na noite em que um bairro novo é entregue (5 e 9), o nível não sobe, para o operador aprender o bairro antes.
   Da noite 4 em diante sobe sempre, até o nível 5, que vale para todas as noites seguintes (um nível 6 já fazia o
   robô em ritmo humano perder ligações toda noite). Para medir um nível: `tests/test_shift.gd -- --human --pace=N`.

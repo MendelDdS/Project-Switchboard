@@ -23,6 +23,12 @@ func fault(id: String, detail := "") -> void:
 	main.report.add(id, Main.fmt(main.minutes), detail)
 
 
+## Um acerto do operador (`ShiftReport.CREDITS`); o treinamento não conta.
+func credit(id: String) -> void:
+	if not main.training.active:
+		main.report.credit(id, Main.fmt(main.minutes))
+
+
 ## Advertência que o supervisor só fica sabendo depois (a denúncia de um assinante): vai para o relatório da noite
 ## seguinte, com a hora de hoje (sem noite seguinte, para o de hoje; `Main.start_ending`).
 func fault_later(id: String, detail := "") -> void:
@@ -53,6 +59,10 @@ func call_ended(c: PhoneCall, reason: PhoneCall.End) -> void:
 	elif c.kind == PhoneCall.Kind.INFO and c.info_ok == 0:
 		fault("wrong_info", who(c))
 		call_again(c, PhoneCall.Retry.WRONG_INFO)
+	if reason == PhoneCall.End.CONNECTED:
+		credit("trunk" if GameData.is_trunk(c.dest_num) else "transfer")
+	elif c.kind == PhoneCall.Kind.INFO and c.info_ok == 1:
+		credit("info")
 
 
 ## A mesma pessoa liga de novo mais tarde, irritada e com menos paciência (no máximo uma vez por motivo).
@@ -97,6 +107,8 @@ func check_hold() -> void:
 ## (a perdida já foi dada na hora).
 func secured(c: PhoneCall) -> void:
 	var e: EmergencyCall = c.data
+	if c.stage < 2:   # no crítico, nada: a grave do estágio já diz tudo
+		credit("emergency_ok" if c.stage == 0 else "emergency_late")
 	if c.stage > 0:
 		fault("emergency_worse" if c.stage == 1 else "emergency_critical", e.address)
 	if c.stage == 2:
@@ -123,6 +135,8 @@ func on_arrived(e: EmergencyCall, result: Fleet.Result, occurrence: String, extr
 	match result:
 		Fleet.Result.OK:
 			main.report.resolved(e)
+			if e != null and occurrence == e.occurrence:
+				credit("occurrence")
 		Fleet.Result.MISSING:
 			if not main.report.faults.any(func(f): return f["id"] == "dispatch_missing" and f["detail"] == e.address):
 				fault("dispatch_missing", e.address)
@@ -142,6 +156,8 @@ func on_registered(rec: PhoneCall.Record, type: T.Key) -> void:
 		return
 	if type != TYPE_OF[rec.kind]:
 		main.report.add("register_wrong", rec.time, rec.who)
+	elif rec.kind == PhoneCall.Kind.PRANK:   # trote reconhecido
+		credit("prank")
 
 
 ## Fim do turno: o que ficou sem registro no caderno e os bilhetes esquecidos na mesa do calculógrafo.

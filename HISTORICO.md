@@ -1838,3 +1838,10 @@ Chaves:
     o grafo foi de 907 nós e 1574 ligações para 2867 e 6292.
 309. #codigo "Eu instalei o graphify-godot para conseguir mapear .gd": o grafo se atualiza com `python -m graphify update
     <projeto>` (no `CLAUDE.md`, na regra de reaproveitar), no lugar do `graphify update .`, que não lia GDScript.
+310. #consequencias #interface #testes "Medir a eficiência do operador ... duas noites abaixo do nível médio e ele é
+    demitido": a demissão por 3 graves acumuladas saiu; o supervisor dá um **conceito** carimbado (Ótimo, Bom, Regular,
+    Insuficiente; a porcentagem, pedida no começo, ficou interna, a pedido: "a porcentagem seria a melhor forma?"), e
+    duas noites seguidas em Insuficiente demitem. Só decisões dão crédito; emergência perdida é Insuficiente. O carimbo
+    é redondo, "com detalhes", a pedido. Na calibração, o robô errava a informação (escolhia a primeira) e registrava
+    tudo como Comum, e a média em 8 deixava o desastrado passar: foi para 15 (grave 30, gravíssima 60). Plano e
+    números em `PLANO_EFICIENCIA.md`.

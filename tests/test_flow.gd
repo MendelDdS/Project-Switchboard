@@ -380,10 +380,10 @@ func _initialize() -> void:
 			"endereço no bairro do número: %s (%s)" % [e.name, e.address])
 	# ritmo: nas primeiras noites só sobe se a anterior não foi ruim; depois sobe sempre, até o limite
 	var top: int = C.paces.size()
-	ok(Pace.next(1, 1, 0) == 2 and Pace.next(1, 1, 2) == 1 and Pace.next(2, 2, 2) == 2, "noite ruim no começo: repete o ritmo")
-	ok(Pace.next(3, 3, 2) == 4 and Pace.next(2, 5, 2) == 3, "da noite 4 em diante: sobe mesmo depois de noite ruim")
-	ok(Pace.next(top, 8, 0) == top and Pace.next(top - 1, 6, 0) == top, "o último nível é o limite")
-	ok(Pace.next(4, 4, 0) == 4 and Pace.next(4, 5, 0) == 5 and Pace.expected(5) == 4 and Pace.expected(6) == 5,
+	ok(Pace.next(1, 1, ShiftReport.Grade.GREAT) == 2 and Pace.next(1, 1, ShiftReport.Grade.POOR) == 1 and Pace.next(2, 2, ShiftReport.Grade.POOR) == 2, "noite ruim no começo: repete o ritmo")
+	ok(Pace.next(3, 3, ShiftReport.Grade.POOR) == 4 and Pace.next(2, 5, ShiftReport.Grade.POOR) == 3, "da noite 4 em diante: sobe mesmo depois de noite ruim")
+	ok(Pace.next(top, 8, ShiftReport.Grade.GREAT) == top and Pace.next(top - 1, 6, ShiftReport.Grade.GREAT) == top, "o último nível é o limite")
+	ok(Pace.next(4, 4, ShiftReport.Grade.GREAT) == 4 and Pace.next(4, 5, ShiftReport.Grade.GREAT) == 5 and Pace.expected(5) == 4 and Pace.expected(6) == 5,
 		"noite de bairro novo (5): o ritmo não sobe")
 	ok(range(1, top).all(func(i): return C.paces[i].call_gap.x <= C.paces[i - 1].call_gap.x), "o ritmo só aperta de um nível para o outro")
 	# agenda: montada sem a cena (noite → ligações em ordem, espaçadas das do roteiro e entre emergências)

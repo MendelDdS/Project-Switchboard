@@ -23,8 +23,10 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   comutadora (`Intro`, `over`; a sala escurecida atrás e, ao começar, o bilhete some e ela clareia, `FADE_SEC`; como se
   joga, num papel de MANUAL como o da dica da parede, hoje escondida: `scripts/ui/CLAUDE.md`), a pausa e as configurações num papel com fita (rótulos em
   `InkLabel`) e o relatório é um memorando (`ReportView`: timbre com o fone e o nome da companhia, fio duplo, dobras em
-  três, texto datilografado, cada advertência com o carimbo da gravidade, `SEVERITY_COLORS`, a borracha falhando, o
-  parecer à mão e a rubrica do supervisor; a sala fica à vista, escura, atrás dele, `Ending.REPORT_DIM`).
+  três, texto datilografado, os serviços prestados contados em duas colunas, cada advertência com o carimbo da
+  gravidade, `SEVERITY_COLORS`, a borracha falhando, o parecer à mão, a rubrica do supervisor e, ao lado dela, o carimbo
+  redondo do conceito, `_grade_stamp`, montado pixel a pixel, `_stamp_image`: aros, "SÃO SOTERO" e "SUPERVISÃO" na
+  fonte miúda em 2× desenrolada no círculo, a faixa com o conceito em 11 negrito, `GRADE_COLORS`; a sala fica à vista, escura, atrás dele, `Ending.REPORT_DIM`).
 - Nomes de pessoas e lugares na ordem natural, "Nome Sobrenome" (nunca "Sobrenome, Nome"); a lista telefônica
   ordena pelo nome como aparece, sem acento (`PhoneBook._entries`, `_plain`). **Uma letra por página dupla**: a aba de
   índice na borda direita (`_index`, `_tab_rect`; a da letra aberta fica destacada) abre só os contatos daquela letra
@@ -293,7 +295,7 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `Godot --resolution 160x90 --position 0,0 --path . tools/shot.tscn -- ...`: a imagem sai da `SubViewport` dele, não da
   janela; várias em paralelo enchem de janelas a tela de quem trabalha): `Godot --path . tools/shot.tscn -- --hour=22:30 --weather=rain
   --tool=despacho --card --emergency --news --toll --width=1125 --zoom=x,y,w,h --out=build/shot.png` grava a tela inteira e o
-  recorte ampliado 4× (`_zoom.png`); `--hover=id` põe o mouse num objeto da mesa (ele erguido e a etiqueta com o nome); `--debug=N` abre o painel de debug na aba N; `--punch`, com `--card`, perfura o cartão, põe uma unidade fora e a etiqueta de um trecho no mapa, e `--card=closed` guarda o despacho com o cartão na mesa; `--car=fusca,sedan` põe um carro de cada modelo parado na rua da vista, o de lá e o de cá (`-` deixa a mão vazia; `--car_t=0.45` onde, de 0 a 1; `--rack` com o bagageiro); `--walk=2,-4` gente parada na calçada de lá nesses x (m) e `--walk_z=20,45` na da rua do cruzamento, a essas distâncias; `--bar` a porta do bar aberta; `--blind=1` a persiana descida (0 a 1); `--bolt` um relâmpago caindo na hora da captura; `--smoke[=s]`, `--cat`, `--bike=x` (`--papers`: o menino do jornal), `--damp=N`, `--phones=2,1`, `--sips=N`, `--cabinet`, `--written=N`, `--read`, `--taxi=s`, `--dog=x`, `--patch=312,4` (quem fuma na varanda, `s` segundos depois de sair, o gato, a bicicleta, a mancha de umidade, os telefones da vista, os goles da caneca, o armário aberto, o lugar do lápis no bloco, o jornal já lido, o táxi parando no hotel a `s` segundos de aparecer, o vira-lata, um cabo de conexão da saída da linha 4 encaixado no destino, com o aro aceso); `--lines=2:ring,4:conn` as lâmpadas dessas linhas nesse estado, sem ligação; `--screen=intro|pause|settings|report` as telas fora do turno; `--grade=0` sem a gradação de cor; `--lamp=0` sem a luz da luminária no shader do cenário; `--dim=0.2` a luminária presa nesse nível, como no meio de uma piscada; `--still` sem a poeira do feixe, que muda a cada captura (para comparar pixel a pixel: `tools/diff_shots.gd` compara duas pastas de capturas, imagem por imagem, ignorando os retângulos dados, como a vista da janela e a fala na miniatura do painel, que também mudam sozinhas); as opções do jogo (`--night`, `--seed`, `--lang`) também valem. Para conferir
+  recorte ampliado 4× (`_zoom.png`); `--hover=id` põe o mouse num objeto da mesa (ele erguido e a etiqueta com o nome); `--debug=N` abre o painel de debug na aba N; `--punch`, com `--card`, perfura o cartão, põe uma unidade fora e a etiqueta de um trecho no mapa, e `--card=closed` guarda o despacho com o cartão na mesa; `--car=fusca,sedan` põe um carro de cada modelo parado na rua da vista, o de lá e o de cá (`-` deixa a mão vazia; `--car_t=0.45` onde, de 0 a 1; `--rack` com o bagageiro); `--walk=2,-4` gente parada na calçada de lá nesses x (m) e `--walk_z=20,45` na da rua do cruzamento, a essas distâncias; `--bar` a porta do bar aberta; `--blind=1` a persiana descida (0 a 1); `--bolt` um relâmpago caindo na hora da captura; `--smoke[=s]`, `--cat`, `--bike=x` (`--papers`: o menino do jornal), `--damp=N`, `--phones=2,1`, `--sips=N`, `--cabinet`, `--written=N`, `--read`, `--taxi=s`, `--dog=x`, `--patch=312,4` (quem fuma na varanda, `s` segundos depois de sair, o gato, a bicicleta, a mancha de umidade, os telefones da vista, os goles da caneca, o armário aberto, o lugar do lápis no bloco, o jornal já lido, o táxi parando no hotel a `s` segundos de aparecer, o vira-lata, um cabo de conexão da saída da linha 4 encaixado no destino, com o aro aceso); `--lines=2:ring,4:conn` as lâmpadas dessas linhas nesse estado, sem ligação; `--screen=intro|pause|settings|report` as telas fora do turno (`--rating=great|good|fair|poor` o conceito do relatório; `--warned` o bilhete depois de uma noite Insuficiente); `--grade=0` sem a gradação de cor; `--lamp=0` sem a luz da luminária no shader do cenário; `--dim=0.2` a luminária presa nesse nível, como no meio de uma piscada; `--still` sem a poeira do feixe, que muda a cada captura (para comparar pixel a pixel: `tools/diff_shots.gd` compara duas pastas de capturas, imagem por imagem, ignorando os retângulos dados, como a vista da janela e a fala na miniatura do painel, que também mudam sozinhas); as opções do jogo (`--night`, `--seed`, `--lang`) também valem. Para conferir
   mudança visual medindo, não só olhando a captura. `tools/hibit_shots.sh build/hibit/<pasta>` grava o conjunto de
   capturas do plano hi-bit (sala nos três climas em três horas, a caneca, a mesa comutadora, o tampo, as ferramentas
   e o amanhecer da noite 15), para comparar com `tools/diff_shots.gd`; a pasta tem que ser relativa ao projeto.
@@ -567,9 +569,14 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
 
 ## Consequências (relatório do supervisor)
 - `ShiftReport` (`scripts/model/shift_report.gd`): `FAULTS` (id → gravidade, descrição), `add()`, desfecho das
-  emergências (`trouble`/`resolved`/`failed` → OK, LATE, BAD) e `verdict()`. Gravidades: leve, média, grave,
-  gravíssima (`CRITICAL`, pesa `CRITICAL_WEIGHT` graves). Entre noites só as graves somam
-  (`severe_before`, salvas no `Progress`; `SEVERE_LIMIT` = demissão).
+  emergências (`trouble`/`resolved`/`failed` → OK, LATE, BAD). Gravidades: leve, média, grave, gravíssima.
+  **O conceito** (`grade()`, `Grade`: Ótimo, Bom, Regular, Insuficiente; `GRADE_MIN`) vem da eficiência
+  (`efficiency()` = `positives() ÷ (positives() + negatives())`, interna, só no debug): os acertos (`credit(id)`,
+  `CREDITS`, marcados pelo `Supervisor.credit`, nunca no treinamento: só decisões, não registrar nem guardar o
+  bilhete) e as advertências (`POINTS` por gravidade); gravíssima = Insuficiente. `low_nights()` conta as noites
+  seguidas abaixo de `GOAL` (Regular; `low_before` do `Progress.low_nights`) e `fired()` demite em `LOW_LIMIT` (2).
+  O `test_shift` imprime a eficiência e falha se o robô atento ficar abaixo do mínimo; mudou um peso ou um crédito,
+  recalibre com várias sementes (`PLANO_EFICIENCIA.md`, seção 6).
 - **Barra de agravamento** (nó `Urgency`, `scripts/urgency.gd`: `tick` a cada quadro do turno; estado em `PhoneCall.stage`/`urgency`/`asking`/`secured`, regra em
   `PhoneCall.urgent()`, desenho em `UrgencyBar` na tela da conversa do painel de baixo, embaixo das opções, só com o operador na linha; fora dela, o rádio
   inteiro acende: `Radio.alert(stage, away)`, moldura pulsando e aviso na tela; a luz "Ocorrência" acende sempre;
@@ -646,8 +653,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   turno, registrar antes, meia-noite). Teste: `tests/test_training.gd`.
 - **Ritmo por nível, não por noite** (`Pace`, `scripts/data/pace.gd`; `GameContent.paces`, 5 níveis; `Main.pace`):
   `call_gap`, `peak_chance`, `max_live`, `emergencies`, `pranks`. Noite 1 = nível 1; `Pace.next` decide o da próxima
-  (salvo em `Progress.pace`): até a noite `CONFIDENCE_NIGHTS` (3) só sobe se a noite anterior não foi ruim
-  (`verdict()` 2); na noite de entrega de um setor (5, 9) não sobe; depois sobe sempre, até o último nível, que é o limite para todas as noites seguintes (o 6 que foi
+  (salvo em `Progress.pace`): até a noite `CONFIDENCE_NIGHTS` (3) só sobe se a noite anterior não foi
+  Insuficiente (`ShiftReport.grade()`); na noite de entrega de um setor (5, 9) não sobe; depois sobe sempre, até o último nível, que é o limite para todas as noites seguintes (o 6 que foi
   medido perdia ~1,3 ligação por noite com `--human`). Noite forçada (`--night=N`) usa `Pace.expected(N)` (sem
   tropeços); `--pace=N` força.
 - `PrankStep` é o roteiro falado de trotes e da ligação desconhecida (`Conversation.play_steps`); `EFFECT` =
@@ -659,8 +666,9 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   `PrankStep.sets` = efeito de cada opção do OPERATOR; `ChatReply.sets`/`ChatTopic.requires` na conversa fiada. Automáticos: `ligou_de_volta_N`, `desligou_desconhecida_N`.
   Para um recurso novo usar marcadores: exporte `requires`/`sets` e chame `allows`/`apply`. Testar um ramo:
   `-- --night=2 --flags=a,b`.
-- `Progress` (`scripts/model/progress.gd`, `user://progress.cfg`): próxima noite e graves acumuladas
-  (`ShiftReport.severe_before`/`severe_total()`/`fired()`), marcadores e as palavras-chave ouvidas (`clues`). Main salva em `start_ending` (última
+- `Progress` (`scripts/model/progress.gd`, `user://progress.cfg`): próxima noite e as noites seguidas abaixo do
+  conceito mínimo (`low_nights` → `ShiftReport.low_before`/`low_nights()`/`fired()`; o bilhete da noite seguinte
+  lembra, `Intro.setup(..., warned)`, `GameContent.low_warning`), marcadores e as palavras-chave ouvidas (`clues`). Main salva em `start_ending` (última
   noite ou demissão limpa o save). `-- --night=N` força uma noite **sem ler nem gravar** o save; `test_base.load_main` força a noite 1.
 
 ## Agenda e ritmo (constantes no topo de main.gd e schedule.gd; por noite em `Night`)

@@ -98,6 +98,7 @@ auto_translate_mode = 2
 theme_type_variation = &"HandText"
 
 [node name="Foot" type="HBoxContainer" parent="Paper/Margin/VBox"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 12
 
