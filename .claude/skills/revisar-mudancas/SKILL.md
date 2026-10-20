@@ -43,10 +43,10 @@ Só olha as linhas acrescentadas e aponta o que as convenções já proíbem, in
 ## 3. Leitura do diff
 
 Leia `git diff HEAD` (ou desde a base) e, só nas linhas alteradas, confira o que pede julgamento. As regras vêm do
-`CLAUDE.md` (o da raiz e o `scripts/ui/CLAUDE.md`) e do `LESSONS.md`; na dúvida, eles valem mais que esta lista.
+`CLAUDE.md` (o da raiz e o `scripts/ui/CLAUDE.md`; o detalhe em `docs/mapa-*.md`, por `grep`) e do `LESSONS.md`; na dúvida, eles valem mais que esta lista.
 
-**Desempenho** (a análise de 10/2026 achou engasgos de ~20 ms 3 a 4 vezes por segundo; ver a história 84 do
-`CLAUDE.md`):
+**Desempenho** (a análise de 10/2026 achou engasgos de ~20 ms 3 a 4 vezes por segundo; ver o item 84 do
+`HISTORICO.md`):
 
 - **Redesenho.** Quem desenha só redesenha quando o que mostra muda: o estado comparado no `_process`
   (`Background._state`, o da camada `_over`, o `_back_state` da vista, o `_look` da mesa). O que muda sozinho (tempo,

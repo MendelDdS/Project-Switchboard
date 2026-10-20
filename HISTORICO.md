@@ -1845,3 +1845,12 @@ Chaves:
     é redondo, "com detalhes", a pedido. Na calibração, o robô errava a informação (escolhia a primeira) e registrava
     tudo como Comum, e a média em 8 deixava o desastrado passar: foi para 15 (grave 30, gravíssima 60). Plano e
     números em `PLANO_EFICIENCIA.md`.
+311. #consequencias #interface "Deixar o carimbo mais aleatório no papel, concentrado na parte vazia de baixo,
+    rotacionando um pouco de vez em quando (nem de lado nem de cabeça para baixo)": o carimbo do conceito cai num
+    lugar sorteado do vão entre o botão e a rubrica, um pouco acima ou abaixo, e em 2 de cada 3 memorandos torto até
+    ~17° (`STAMP_TILT`); girado pixel a pixel pelo RotSprite dos plugs, e por isso o conceito virou pixel da imagem.
+312. #codigo "O HISTORICO.md está ficando grande, isso impacta o consumo de tokens?": o que pesava eram os dois
+    `CLAUDE.md` (105 KB e 93 KB, ~57 mil tokens, enviados em toda mensagem e reenviados inteiros quando editados no
+    meio da sessão). Viraram mapa e regras (~17 KB e ~10 KB); as versões longas ficaram em `docs/mapa-detalhado.md` e
+    `docs/mapa-ui-detalhado.md`, consultadas por `grep`. O `HISTORICO.md` não entra sozinho no contexto (só filtrado
+    pelo `awk`, ou anexado com `@`). Regra nova: atualizar os `CLAUDE.md` no fim da tarefa, de uma vez.
