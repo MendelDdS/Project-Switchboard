@@ -77,8 +77,10 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   Voices, Effects, Rub, Phone).
 - **Tempo e pausa**: todo `create_timer` com `false` no 2º argumento. Recomeçar é sempre `Main.restart()`, nunca
   `reload_current_scene()`. Pausa: `PauseMenu` (`get_tree().paused`); o `Box` do `GameView` processa sempre.
-- **Sorteio**: use o global (`randf`, que segue a semente `--seed`); `randomize()` anula a semente (o `check.sh`
-  acusa). Em threads, um `RandomNumberGenerator` cada.
+- **Sorteio**: use o global (`randf`, que segue a semente `--seed`, aplicada no `Main._enter_tree`, antes dos filhos);
+  `randomize()` anula a semente (o `check.sh` acusa). Em threads, um `RandomNumberGenerator` cada. O som sorteia no
+  `Sfx._rng`, nunca no global (as vozes andam pelo relógio real). Animação do desenho pelo `PixelArt.ms()`, não
+  `Time.get_ticks_msec()` (para nas capturas com `--still`).
 - Cursores próprios no autoload `Cursors` (pixel art; passe `Image`, não textura, ao `Input`).
 - Configurações no autoload `Settings` (`user://settings.cfg`: `locale`, `volumes`, `fullscreen`); `set_*` vale na
   hora, `save()` grava, `restore(snapshot)` desfaz. Testes não leem nem gravam o arquivo.
@@ -89,13 +91,16 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 
 ## Rodar e testar
 - Godot: `/Applications/Godot.app/Contents/MacOS/Godot` (fora do PATH). Compilar: `Godot --headless --path . --quit-after 60`.
+- **Hooks** (`.claude/settings.json`, `.claude/hooks/conferir.sh`): cada Edit/Write num `.gd`/`.tscn`/`.tres` roda o
+  `check.sh` nesse arquivo e compila o projeto; o Stop recompila se algo mudou por fora do Edit. Erro apontado: corrija.
 - **Com o editor aberto, nada de `--import`** (corrompe `.godot/uid_cache.bin`; o `run.sh` pula sozinho). `class_name`
   novo e traduções novas (`ui.csv`, `.po`) só valem depois de reimportar: peça ao usuário para dar foco ao editor.
 - **Testes: `tests/run.sh`** (~2 min; `tests/run.sh flow penalties` roda só esses), com `--fixed-fps 60`. À mão:
   `Godot --headless --fixed-fps 60 --path . tests/runner.tscn -- --test=x --seed=1`. Testes são cenas
   (`tests/test_<x>.gd` estende `test_base.gd`: `ok()`, `wait_until`, `load_main`, `finish`); tempo em quadros, nunca
   `Time.get_ticks_msec()`.
-  - `test_flow` (cenários e traduções), `test_keys` (teclas pelo `GameView`), `test_layout` (objetos da mesa sem
+  - `test_content` (o conteúdo de `data/` sem a cena, ~2 s: referências, lacunas, traduções, marcadores, falas fora
+    do `.po`, número da lista que não é destino de nada; rode depois de mexer em `data/`), `test_flow` (cenários), `test_keys` (teclas pelo `GameView`), `test_layout` (objetos da mesa sem
     sobreposição; rode ao mexer na disposição), `test_penalties` (consequências, relatório, conta do conceito),
     `test_training`, `test_shift` (o robô joga o turno inteiro e imprime métricas e a eficiência; `--human` mede o
     ritmo de uma pessoa, `--clumsy`, `--nosy`, `--careless`, `--night=N`, `--lang=`; falha se o atento ficar abaixo
@@ -108,11 +113,14 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   `Godot --resolution 160x90 --position 0,0 --path . tools/shot.tscn -- --hour=22:30 --weather=rain --out=build/x.png`.
   As opções estão no comentário do topo de `tools/shot.gd` (`--tool`, `--card`, `--hover`, `--screen=intro|pause|settings|report`,
   `--rating`, `--warned`, `--zoom`, `--still`...). Compare capturas com `tools/diff_shots.gd`; conjunto do plano
-  hi-bit: `tools/hibit_shots.sh build/hibit/<pasta>`.
+  hi-bit: `tools/hibit_shots.sh build/hibit/<pasta>`. **Regressão visual**: `tools/visual.sh [commit]` (~2 min, 12
+  capturas do commit contra o disco, a tela inteira; sem a chuva, que ainda varia). Rode em mudança que
+  não deveria mudar a tela (refatoração, desempenho) e confira que só mudou o esperado nas que deveriam.
 - Desempenho: sem tela, a vista da janela não é desenhada (`Background._headless`); a vista no amanhecer desenha ~17 mil
   itens (o `project.godot` põe `item_buffer_size` em 32768; o editor pode apagar a linha, o `test_layout` confere).
   Mexeu em desenho ou em algo por quadro: meça com o `medir.gd` da skill `revisar-mudancas`.
-- Exportar: skill `exportar-build`.
+- Exportar: skill `exportar-build`. CI: `.github/workflows/testes.yml` (`tests/run.sh` e `check.sh` em cada PR).
+- Revisão de continuidade do roteiro, só quando o usuário pede: skill `revisar-roteiro` (aponta, nunca escreve falas).
 
 ## Arquivos e arquitetura
 - `Exchange` (`scripts/model/exchange.gd`) é o **dono único** do estado das linhas e destinos (`Line`, `Dest`); o Main
@@ -150,7 +158,8 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   decisões, marcados pelo `Supervisor.credit`, nunca no treinamento), eficiência interna
   (`positives ÷ (positives + negatives)`, `POINTS`), **conceito** (`grade()`: Ótimo, Bom, Regular, Insuficiente;
   `GRADE_MIN`; emergência perdida = Insuficiente). Duas noites seguidas abaixo de Regular demitem (`low_nights`,
-  `LOW_LIMIT`, `fired()`). Mudou um peso: recalibre com várias sementes (`PLANO_EFICIENCIA.md`, seção 6).
+  `LOW_LIMIT`, `fired()`). Mudou um peso: recalibre com várias sementes (`tools/calibrar.sh [tabela anterior]`, ~4 min;
+  `PLANO_EFICIENCIA.md`, seção 6).
 - O Main chama `supervisor.fault()` onde a falha acontece; `Supervisor.call_ended()` decide advertência e retorno
   (`call_again`, uma vez por motivo). Treinamento, trotes e a desconhecida não geram advertência.
 - **Barra de agravamento** (`Urgency`, `PhoneCall.stage`): corre desde o atendimento, para em pergunta e resposta e de

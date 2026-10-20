@@ -106,13 +106,14 @@ func _init() -> void:
 	flags = StoryFlags.new()
 
 
-## A noite (e os setores dela) vem antes dos filhos ficarem prontos: a lista telefônica monta as páginas no `_ready`.
+## A semente e a noite (e os setores dela) vêm antes dos filhos ficarem prontos: o cenário sorteia os pingos, as
+## estrelas e as nuvens no `_ready` dele, e a lista telefônica monta as páginas no dela.
 func _enter_tree() -> void:
+	_apply_seed()
 	_load_night()
 
 
 func _ready() -> void:
-	_apply_seed()
 	_shift_hours.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED   # (as horas da noite: a última vai até as 6h)
 	_shift_hours.text = T.text(T.Key.SHIFT_HOURS) % [fmt(0.0), fmt(shift_end)]
 	weather = night.weather if night.weather != "" else WEATHERS.pick_random()

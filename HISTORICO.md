@@ -1854,3 +1854,32 @@ Chaves:
     meio da sessão). Viraram mapa e regras (~17 KB e ~10 KB); as versões longas ficaram em `docs/mapa-detalhado.md` e
     `docs/mapa-ui-detalhado.md`, consultadas por `grep`. O `HISTORICO.md` não entra sozinho no contexto (só filtrado
     pelo `awk`, ou anexado com `@`). Regra nova: atualizar os `CLAUDE.md` no fim da tarefa, de uma vez.
+313. #codigo #testes "Pensando em AI Engineer / Agent Engineer, que sugestões você dá...?" e "Vamos começar pelo 1, os
+    hooks": hooks do Claude Code no `.claude/settings.json`. Depois de cada Edit/Write num `.gd`, `.tscn` ou `.tres`,
+    `.claude/hooks/conferir.sh` roda o `check.sh` só nesse arquivo (o mesmo apontamento não volta a cada edição) e
+    compila o projeto (`--quit-after 60`, ~2 s); no Stop, recompila só se o código mudou sem passar pelo Edit. O erro
+    volta para o agente na hora. O `check.sh` passou a aceitar arquivos (`check.sh [base] [arquivo...]`). As outras
+    sugestões, ainda não feitas: referência visual e tabela de equilíbrio gravadas, validador de conteúdo, esteira de
+    roteiros com agentes (noites 3–15), CI no GitHub Actions.
+314. #testes #codigo #conteudo "Faça os pontos 1 e 2, mas sobre o ponto 2, lembre-se que o roteiro é escrito por mim" e
+    "No caso do ponto 3, eu que vou escrever o roteiro, não é?": sim; a esteira de roteiros com agentes saiu da lista
+    (as ferramentas só conferem o que ele escreve). Feito: `tests/test_content.gd`, as conferências de conteúdo que
+    estavam no `test_flow` (sem a cena, ~2 s) mais duas novas, marcador pedido em `requires` que ninguém liga e fala
+    fora do `.po`; `tools/visual.sh`, 12 capturas do commit (cópia em `build/visual/base`) contra o disco, sem a vista
+    da janela e a chuva (animadas pelo relógio real, saem diferentes a cada captura); `tools/calibrar.sh`, a
+    calibração da seção 6 do `PLANO_EFICIENCIA.md` em tabela (50 turnos, ~4 min). O `diff_shots` agora falha com a
+    pasta vazia (antes dizia "iguais").
+315. #testes #codigo #conteudo "Implemente 1, 2 e 4": (1) o relógio das animações do desenho virou `PixelArt.ms()`, parado
+    nas capturas com `--still`; e duas causas do `--seed` não repetir a noite: a semente era aplicada no `_ready` do
+    Main, depois do `_ready` do cenário, que já tinha sorteado pingos, estrelas e nuvens (agora no `_enter_tree`), e o
+    som sorteava no global no ritmo do relógio real (as sílabas das vozes caíam num quadro ou no seguinte e desandavam
+    o resto: quem passa na rua, a agenda); agora no `Sfx._rng`. O `visual.sh` compara a tela inteira (só a chuva
+    fica fora: ainda varia sem vir do sorteio nem do relógio). Efeito: a mesma semente dá outra agenda que antes; na
+    calibração, o atento teve duas noites 5 Insuficiente (emergência perdida; sementes 1 e 5). (2) CI no GitHub
+    Actions (`.github/workflows/testes.yml`): import, `tests/run.sh` e o `check.sh` só apontando. (4) Skill
+    `revisar-roteiro`: revisão de continuidade só quando pedida, apontando sem escrever falas. O ponto 3 (todo número
+    serve para alguma coisa) espera a definição do usuário.
+316. #testes #conteudo #lista "Para o ponto 3, prefiro a (a)": "todo número serve para alguma coisa" quer dizer ser
+    destino de transferência. O `test_content` (`_check_destinations`) acusa o número da lista que nenhuma ligação
+    escrita (avulsa, do roteiro, do treinamento, também como alternativa) nem molde transfere para ele, contando o do
+    mesmo ramo oferecido quando o pedido não atende; os só do despacho ficam de fora. Hoje todos servem.

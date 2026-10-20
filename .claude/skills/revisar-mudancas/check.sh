@@ -1,12 +1,15 @@
 #!/bin/sh
 # Verificações mecânicas só nas linhas acrescentadas (git diff sem contexto, mais os .gd novos ainda fora do git):
 # o que as convenções do projeto (CLAUDE.md, LESSONS.md) já proíbem. Não substitui a revisão: só acha o óbvio rápido.
-# Uso: check.sh [base]   (base: o commit para comparar; padrão HEAD, ou seja, o que ainda não foi commitado)
+# Uso: check.sh [base] [arquivo...]   (base: o commit para comparar; padrão HEAD, ou seja, o que ainda não foi
+# commitado; com arquivos, só eles: o hook .claude/hooks/conferir.sh passa o que acabou de ser editado)
 cd "$(git rev-parse --show-toplevel)" || exit 1
 base="${1:-HEAD}"
+[ $# -gt 0 ] && shift
+[ $# -eq 0 ] && set -- '*.gd' '*.tscn' '*.tres'
 {
-	git diff -U0 "$base" -- '*.gd' '*.tscn' '*.tres'
-	git ls-files --others --exclude-standard -- '*.gd' | while read -r f; do git diff -U0 --no-index /dev/null "$f"; done
+	git diff -U0 "$base" -- "$@"
+	git ls-files --others --exclude-standard -- "$@" | grep '\.gd$' | while read -r f; do git diff -U0 --no-index /dev/null "$f"; done
 } | awk '
 function warn(msg) { printf "%s:%d: %s\n    %s\n", file, line, msg, text; n++ }
 /^\+\+\+ / { file = substr($0, 7); next }
@@ -46,6 +49,8 @@ function warn(msg) { printf "%s:%d: %s\n    %s\n", file, line, msg, text; n++ }
 	if (code ~ /reload_current_scene|change_scene_to/ && file !~ /scripts\/main\.gd$/) warn("troca de cena fora do Main.restart: no meio de um clique, as esperas por quadro acordam sem árvore")
 	if (file ~ /^scripts\// && file !~ /pal\.gd$/ && code ~ /Color\("/) warn("cor literal fora do Pal: ponha a cor em scripts/pal.gd, com o nome do material")
 	if (code ~ /randomize\(\)/) warn("randomize() anula a semente dos testes (-- --seed=N)")
+	if (file ~ /^scripts\/ui\// && file !~ /pixel_art\.gd$/ && code ~ /Time\.get_ticks_(msec|usec)/) warn("relógio real no desenho: use PixelArt.ms() (para nas capturas com --still)")
+	if (file ~ /sfx\.gd$/ && code ~ /(^|[^_a-zA-Z.])(randf|randi|randf_range|randi_range)\(/) warn("sorteio global no som: use _rng (as vozes andam pelo relógio real e desandariam o --seed)")
 	if (code ~ /^class_name /) warn("class_name novo: só existe depois de reimportar (com o editor aberto, dê foco a ele)")
 	if (file ~ /^tests\// && code ~ /(^|[^a-z_.])assert\(/) warn("assert trava o headless: use ok()")
 	if (file ~ /^tests\// && code ~ /Time\.get_ticks_(msec|usec)/) warn("tempo de teste em relógio real: com --fixed-fps, meça em quadros")

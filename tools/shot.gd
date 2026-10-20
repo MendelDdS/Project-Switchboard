@@ -41,8 +41,8 @@ extends Node
 ##   --dim=N                a luminária presa no nível N (0 a 1), como no meio de uma piscada
 ##   --lamp=0               sem a luz da luminária no shader do cenário (`SceneView.lamp_light`)
 ##   --grade=0              sem a gradação de cor do `GameView` (a captura passa por ela, como a janela do jogo)
-##   --still                sem a poeira do feixe da luminária, que muda a cada captura (para comparar capturas pixel a
-##                          pixel, `tools/diff_shots.gd`)
+##   --still                sem a poeira do feixe da luminária e com o relógio das animações parado (`PixelArt.ms`):
+##                          duas capturas iguais saem idênticas (para comparar pixel a pixel, `tools/diff_shots.gd`)
 ## As do jogo também valem: --weather=rain|fog|clear, --night=N, --seed=N, --lang=en.
 
 const ZOOM := 4
@@ -54,6 +54,8 @@ func _ready() -> void:
 	for a in OS.get_cmdline_user_args():
 		var kv := a.trim_prefix("--").split("=", true, 1)
 		_args[kv[0]] = kv[1] if kv.size() > 1 else "1"
+	if _args.has("still"):
+		PixelArt.frozen_ms = 600000   # o relógio das animações parado (aos 10 min: as contas de "desde quando" ficam positivas)
 	var vp := SubViewport.new()   # o jogo nessa largura, como o `GameView` o põe na janela
 	vp.size = Vector2i(int(_args.get("width", "960")), 540)
 	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS

@@ -1,0 +1,37 @@
+# Os testes (tests/run.sh) e as verificações mecânicas (check.sh, só apontam) em cada PR e em cada push na development.
+# Sem tela: tools/visual.sh e tools/calibrar.sh ficam de fora (rode-os na máquina).
+name: Testes
+
+on:
+  push:
+    branches: [development]
+  pull_request:
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GODOT_VERSION: 4.6.2   # a do editor (o projeto é 4.6)
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # (o check.sh compara com a branch do PR)
+
+      - name: Godot
+        run: |
+          curl -sSfL -o godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip -d "$HOME/godot"
+          echo "GODOT=$HOME/godot/Godot_v${GODOT_VERSION}-stable_linux.x86_64" >> "$GITHUB_ENV"
+
+      # Num clone novo, o primeiro import lê os scripts antes de existir a lista de classes (class_name) e acusa erros
+      # que somem no segundo: este monta a lista, e o do tests/run.sh já sai limpo.
+      - name: Importar
+        run: $GODOT --headless --path . --import > /dev/null 2>&1 || true
+
+      - name: Verificações mecânicas
+        if: github.event_name == 'pull_request'
+        run: sh .claude/skills/revisar-mudancas/check.sh "$(git merge-base "origin/${{ github.base_ref }}" HEAD)" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Testes
+        run: tests/run.sh

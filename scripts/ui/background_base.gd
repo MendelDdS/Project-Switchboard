@@ -63,7 +63,7 @@ var minutes := 18 * 60.0:   ## a hora do jogo (minutos do dia; o Main atualiza):
 	set(v):
 		if int(v) != int(minutes):   # a plaqueta vira
 			_flip_from = int(minutes)
-			_flip_at = Time.get_ticks_msec()
+			_flip_at = PixelArt.ms()
 		minutes = v
 
 
@@ -180,12 +180,12 @@ func _moon_light() -> float:
 
 ## O letreiro aceso: quase sempre; de vez em quando apaga um instante, como neon velho.
 func _sign_on() -> bool:
-	return minutes < STREET_OFF and not (int(Time.get_ticks_msec() / 110.0) % 97 in [40, 42, 43, 71])
+	return minutes < STREET_OFF and not (int(PixelArt.ms() / 110.0) % 97 in [40, 42, 43, 71])
 
 
 ## A letra do letreiro que falha (`SIGN_BUZZ`) acesa: com ele aceso (`_sign_on`), ela falha sozinha, em rajadas.
 func _sign_buzz_on() -> bool:
-	return _sign_on() and not (int(Time.get_ticks_msec() / 70.0) % 23 in [3, 4, 9, 15, 16, 17])
+	return _sign_on() and not (int(PixelArt.ms() / 70.0) % 23 in [3, 4, 9, 15, 16, 17])
 
 
 ## Uma luz do cenário (`r` em px da tela) que brilha, a não ser que o papel de uma ferramenta esteja por cima dela.

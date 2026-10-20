@@ -20,9 +20,12 @@ func _initialize() -> void:
 		var r := args[i].split(",")
 		skip.append(Rect2i(int(r[0]), int(r[1]), int(r[2]), int(r[3])))
 	var changed := 0
-	for f in DirAccess.get_files_at("res://" + a):
-		if not f.ends_with(".png"):
-			continue
+	var pngs := Array(DirAccess.get_files_at("res://" + a)).filter(func(f: String) -> bool: return f.ends_with(".png"))
+	if pngs.is_empty():
+		print("nenhuma captura em " + a)
+		quit(1)
+		return
+	for f in pngs:
 		var ia := Image.load_from_file("res://%s/%s" % [a, f])
 		var path := "res://%s/%s" % [b, f]
 		if not FileAccess.file_exists(path):

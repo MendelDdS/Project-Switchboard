@@ -143,6 +143,8 @@ o jogador não vê no mesmo papel. Na última noite (sem noite seguinte) ela já
   desastrado fica em Insuficiente em cerca de 2 de cada 3 noites; como a demissão pede duas seguidas, ele costuma
   cair antes da metade do jogo.
 - Uma grave isolada na noite 1 do atento dá 63 ÷ (63 + 30) = 68%, Regular: a `SHIFT_BASE` não foi necessária.
+- **Refazer:** `tools/calibrar.sh` roda esse conjunto e grava a tabela em `build/calibracao/<commit>.tsv`; com a
+  anterior como argumento, mostra as duas (em 20/10/2026 reproduziu a tabela acima: 67/88/100% e 47/57/77%).
 - O `test_shift` imprime a eficiência, o conceito, os acertos e as advertências, e falha se o atento ficar abaixo
   de Regular (o desastrado e o descuidado da escuta, denunciado duas vezes, ficam de fora).
 

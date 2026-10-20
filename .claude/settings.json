@@ -1,5 +1,18 @@
 {
   "enabledPlugins": {
     "ponytail@ponytail": true
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/conferir.sh editou", "timeout": 60 }]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/conferir.sh parou", "timeout": 60 }]
+      }
+    ]
   }
 }
