@@ -24,6 +24,9 @@ const STAMP_INNER := 37
 const STAMP_TEXT := 16
 const STAMP_BAND := 8
 const STAMP_STAR := ["..#..", "#####", ".###.", ".#.#.", "#...#"]
+const STAMP_TILT := 0.3        ## o giro máximo (rad, ~17°): torto como batido à mão, nunca de lado nem de cabeça para baixo
+const STAMP_STRAIGHT := 0.35   ## a chance de sair reto
+const STAMP_JITTER := 8.0      ## quanto ele sobe ou desce do meio do pé do memorando (px)
 const MAX_LINES := 16   ## acima disso o texto rola numa altura fixa (`SCROLL_H`), para a folha caber na tela
 const SCROLL_H := 230.0
 const INK := preload("res://scripts/ui/paper_ink.gd")
@@ -134,30 +137,33 @@ func _services(r: ShiftReport) -> int:
 
 ## O carimbo redondo do conceito, como o de inspeção de uma repartição: os dois aros, o nome da cidade curvado em
 ## cima e "SUPERVISÃO" embaixo, na fonte miúda em 2×, a faixa reta atravessando o meio com o conceito em 11 negrito, "CONCEITO"
-## entre estrelinhas em cima dela e a data da noite embaixo; na tinta do conceito, a borracha falhando (sempre igual na
-## mesma noite). O que é pixel vem de uma imagem (`_stamp_image`), o conceito é texto por cima.
+## entre estrelinhas em cima dela e a data da noite embaixo; na tinta do conceito, a borracha falhando. Batido à mão
+## (sorteado a cada memorando): em qualquer lugar do vão entre o botão e a rubrica, um pouco acima ou abaixo, e às
+## vezes torto (`STAMP_TILT`), girado pixel a pixel (`PixelArt.turned`, o RotSprite dos plugs: girado pela
+## transformação do desenho, serrilhava). Por isso o conceito também é pixel da imagem (`PixelArt.big`), não texto.
 func _grade_stamp(r: ShiftReport) -> Control:
-	var g := r.grade()
-	var col := Color(GRADE_COLORS[g])
-	var tex := ImageTexture.create_from_image(_stamp_image(r.night))
-	var text := T.text(ShiftReport.GRADE_NAMES[g]).to_upper()
+	var angle := 0.0 if randf() < STAMP_STRAIGHT else randf_range(-STAMP_TILT, STAMP_TILT)
+	var turned := PixelArt.turned(_stamp_rows(r), angle, Vector2(STAMP_R + 0.5, STAMP_R + 0.5))
+	var tex := ImageTexture.create_from_image(_stamp_image(turned[0], r.night))
+	var col := Color(GRADE_COLORS[r.grade()], 0.85)
+	var at := Vector2(randf(), randf_range(-STAMP_JITTER, STAMP_JITTER))
 	var c := Control.new()
-	c.custom_minimum_size = tex.get_size()
-	c.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	c.custom_minimum_size = Vector2.ONE * (STAMP_R * 2 + 1)   # (o giro passa um pouco disso: é tinta no papel)
+	c.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	c.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	c.draw.connect(func():
-		c.draw_texture(tex, Vector2.ZERO, Color(col, 0.85))
-		var x := roundf((tex.get_width() - Pal.ui.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x) / 2.0)
-		for dx in [0, 1]:   # 11 em negrito: a sombra de 1 px ao lado
-			c.draw_string(Pal.ui, Vector2(x + dx, STAMP_R + 4), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(col, 0.9)))
+		var free := c.size - tex.get_size()
+		c.draw_texture(tex, Vector2(roundf(at.x * maxf(free.x, 0.0)), roundf(free.y / 2.0 + at.y)), col))
 	return c
 
 
-## Os pixels do carimbo do conceito (branco; a tinta vem no desenho): aros, faixa, texto curvado (a fonte miúda
-## desenrolada em volta do círculo, `PixelArt.tiny`), "CONCEITO" com as estrelinhas e a data.
-func _stamp_image(night: int) -> Image:
+## O desenho do carimbo reto, como mapa de `PixelArt` ("#" é tinta): aros, faixa, texto curvado (a fonte miúda
+## desenrolada em volta do círculo, `PixelArt.tiny`), o conceito, "CONCEITO" com as estrelinhas e a data.
+func _stamp_rows(r: ShiftReport) -> Array:
 	var d := STAMP_R * 2 + 1
-	var img := Image.create(d, d, false, Image.FORMAT_LA8)
+	var buf := PackedByteArray()
+	buf.resize(d * d)
+	buf.fill(46)   # "."
 	var top := _stamp_strip(CityMap.CITY)   # em cima, as letras com o pé para dentro
 	var bottom := _stamp_strip(T.text(T.Key.REPORT_STAMP_DEPT))   # embaixo, com a cabeça para dentro
 	var mid := float(STAMP_INNER + STAMP_OUTER) / 2.0
@@ -178,17 +184,38 @@ func _stamp_image(night: int) -> Image:
 				var sy := (STAMP_OUTER - 1 - ri) if dy < 0 else (ri - STAMP_INNER - 1)   # a linha 0 (os acentos): para fora em cima, para dentro embaixo
 				ink = sx >= 0 and sx < strip.get_width() and sy >= 0 and sy < strip.get_height() and strip.get_pixel(sx, sy).a > 0.5
 			if ink:
-				_ink_px(img, x, y, night)
+				buf[y * d + x] = 35   # "#"
+	var grade_px: Array = PixelArt.big(T.text(ShiftReport.GRADE_NAMES[r.grade()]).to_upper(), 0)   # a fonte de 11, pixel a pixel
+	var nw := (grade_px[0] as String).length()
+	for y in grade_px.size():
+		for x in nw:
+			if grade_px[y][x] != ".":
+				for bold in 2:   # 11 em negrito: a sombra de 1 px ao lado
+					buf[(STAMP_R - grade_px.size() / 2 + y) * d + STAMP_R - (nw + 1) / 2 + x + bold] = 35
 	var label := PixelArt.tiny(T.text(T.Key.REPORT_GRADE)).get_image()
 	var lx := STAMP_R - label.get_width() / 2
 	var ly := STAMP_R - STAMP_BAND - 3 - 7   # o pé das letras (linha 7 da fonte) 3 px acima da faixa
-	_blit(img, label, Vector2i(lx, ly), night)
+	_blit(buf, d, label, Vector2i(lx, ly))
 	var star := PixelArt.art(STAMP_STAR, {"#": Color.WHITE}).get_image()
-	_blit(img, star, Vector2i(lx - 8, ly + 3), night)
-	_blit(img, star, Vector2i(lx + label.get_width() + 3, ly + 3), night)
-	var day := GameData.date_of(night)
+	_blit(buf, d, star, Vector2i(lx - 8, ly + 3))
+	_blit(buf, d, star, Vector2i(lx + label.get_width() + 3, ly + 3))
+	var day := GameData.date_of(r.night)
 	var date := PixelArt.tiny("%02d·%02d·%d" % [day.day, day.month, day.year]).get_image()
-	_blit(img, date, Vector2i(STAMP_R - date.get_width() / 2, STAMP_R + STAMP_BAND + 3 - 3), night)
+	_blit(buf, d, date, Vector2i(STAMP_R - date.get_width() / 2, STAMP_R + STAMP_BAND + 3 - 3))
+	var rows := []
+	for y in d:
+		rows.append(buf.slice(y * d, (y + 1) * d).get_string_from_ascii())
+	return rows
+
+
+## A tinta do carimbo já girado (branco; a cor vem no desenho), falhando onde a borracha não pegou (sempre igual na
+## mesma noite e no mesmo giro).
+func _stamp_image(rows: Array, night: int) -> Image:
+	var img := Image.create((rows[0] as String).length(), rows.size(), false, Image.FORMAT_LA8)
+	for y in rows.size():
+		for x in (rows[y] as String).length():
+			if rows[y][x] == "#" and fposmod(sin((x * 131 + y * 17 + night * 7) * 7.13) * 917.3, 1.0) > 0.1:
+				img.set_pixel(x, y, Color.WHITE)
 	return img
 
 
@@ -199,17 +226,12 @@ func _stamp_strip(text: String) -> Image:
 	return img.get_region(Rect2i(0, 0, img.get_width(), STAMP_TEXT))
 
 
-## Um pixel de tinta do carimbo, onde a borracha pegou.
-func _ink_px(img: Image, x: int, y: int, night: int) -> void:
-	if fposmod(sin((x * 131 + y * 17 + night * 7) * 7.13) * 917.3, 1.0) > 0.1:
-		img.set_pixel(x, y, Color.WHITE)
-
-
-func _blit(img: Image, src: Image, at: Vector2i, night: int) -> void:
+## Os pixels de `src` como tinta no mapa `buf` (`d` de lado), a partir de `at`.
+func _blit(buf: PackedByteArray, d: int, src: Image, at: Vector2i) -> void:
 	for y in src.get_height():
 		for x in src.get_width():
 			if src.get_pixel(x, y).a > 0.5:
-				_ink_px(img, at.x + x, at.y + y, night)
+				buf[(at.y + y) * d + at.x + x] = 35
 
 
 ## O texto datilografado (`[typed]`).
