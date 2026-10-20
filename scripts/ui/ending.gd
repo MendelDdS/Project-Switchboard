@@ -16,7 +16,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for n in [_title, _question, _restart]:
 		n.modulate.a = 0.0
-	_restart.visible = false
+	_restart.disabled = true   # no lugar desde o começo, transparente: escondido, entrar depois subia o texto
 	_restart.pressed.connect(Main.restart)
 
 
@@ -49,5 +49,5 @@ func play(report: ShiftReport, more: bool) -> void:
 	await get_tree().create_timer(2.6, false).timeout
 	create_tween().tween_property(_question, "modulate:a", 1.0, 2.5)
 	await get_tree().create_timer(2.4, false).timeout
-	_restart.visible = true
+	_restart.disabled = false
 	create_tween().tween_property(_restart, "modulate:a", 1.0, 1.5)
