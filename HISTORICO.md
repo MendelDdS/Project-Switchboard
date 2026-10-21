@@ -1915,3 +1915,27 @@ Chaves:
     horizontais antes, alternando os lados (a do meio à direita) para deixar colunas para as verticais. Com os três
     bairros, as 14 ruas têm nome; Flores, Brasil e Acácias, já nomeadas em Vila Serena, só repetem no Centro se couber.
     Redesenhar os nomes custa ~1,4 ms (só quando muda a rua destacada).
+322. #mapa #despacho #saiu "Testar a sugestão 2, Grade e índice de ruas" (`PLANO_RITMO_JOGADOR.md`, D): grade fixa na
+    cidade (colunas A–F, linhas 1–4) e um índice das ruas à vista ("Tiradentes … E1–E2") num papel acima do selo.
+    Saiu: "o índice basicamente atrapalha o jogador", porque cobre ruas (nas primeiras noites, um canto de Vila
+    Serena; na noite 9, um terço do Centro); com os nomes à vista ele só repetia a informação com um passo a mais, e a
+    grade carregava o mapa.
+323. #mapa #despacho "Comece pelos pontos 1 e 2" (`PLANO_RITMO_JOGADOR.md`, F): (1) 40% das emergências de molde dão
+    a rua e um lugar ("perto do posto"), e na noite 9 nenhum nome de lugar cabe no telhado: com o mouse no prédio de
+    referência, a etiqueta diz o nome (`CityMap._spot`). (2) A numeração dos trechos só aparecia bem aproximado, e os
+    trechos não coincidem com os cruzamentos: com o mouse numa rua, ela inteira fica de leve, o trecho mais forte e
+    aparece o número onde começa cada trecho (`_draw_hover`). O realce amarelo era desenhado antes dos nomes e sumia
+    embaixo da faixa de papel do nome ("a barra amarela de seleção não aparece"); agora vem depois. Na rua vertical a
+    etiqueta fica ao lado (em cima tapava o trecho e o "100"). Captura: `tools/shot.gd` `--street=sol,1` e `--spot=Posto`.
+324. #mapa #despacho "Dê mais ênfase nesses amarelos" e "adicione o intervalo ... (100-199)": o realce da rua sob o
+    mouse ficou mais forte (`LIT`: a rua inteira 0,4, o trecho 0,8) e voltou para baixo dos nomes, com a faixa de
+    papel do nome dessa rua no mesmo âmbar (`_road_of`, `_road_at`: por cima, o âmbar forte apagava o nome). Cada trecho
+    mostra o intervalo ("200–299") na beira da rua, dentro do papel, no ponto mais perto do meio que não encoste em nome;
+    sem lugar, por cima (só aparece com o mouse na rua). Em cima da rua, os intervalos tapavam os nomes, e o meio dos
+    trechos das verticais cai quase nos cruzamentos.
+325. #despacho #mapa #interface #testes "Na primeira vez que abro a máquina de despacho e passo o cursor por cima das
+    ruas, não mostra o seletor, só mostra se eu clicar em outra parte": o objeto da mesa abria a ferramenta ao apertar
+    o botão, e o papel surgia sob o mouse com o botão apertado; pelo `GameView`, a soltura se perdia e a cena ficava
+    com o mouse até o próximo clique (o mapa não recebia os movimentos). Valia para toda ferramenta aberta pelo objeto
+    (pelas teclas 1–4, não). O clique na cena (`Background.pointer`) passou a agir ao soltar; o `test_keys` clica no
+    objeto pela janela e confere que o mapa já vê o mouse.

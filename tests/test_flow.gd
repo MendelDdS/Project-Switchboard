@@ -1139,7 +1139,7 @@ func _initialize() -> void:
 		await frames(12)
 		var pe := InputEventMouseButton.new()
 		pe.button_index = MOUSE_BUTTON_LEFT
-		pe.pressed = true
+		pe.pressed = false   # o clique na cena age ao soltar o botão
 		pe.position = (m.background._props[id] as Rect2).get_center()
 		m.background.pointer(pe)
 		ok(m.tools.open and m.tools.tab == id, "o objeto da cena abre " + id)
@@ -1149,7 +1149,7 @@ func _initialize() -> void:
 	await frames(3)
 	var pj := InputEventMouseButton.new()
 	pj.button_index = MOUSE_BUTTON_LEFT
-	pj.pressed = true
+	pj.pressed = false
 	pj.position = (m.background._props[Tools.NEWS] as Rect2).get_center()
 	m.background.pointer(pj)
 	ok(m.tools.open and m.tools.tab == Tools.NEWS, "o jornal na mesa abre")
@@ -1161,7 +1161,7 @@ func _initialize() -> void:
 	var room := m.background
 	var pb := InputEventMouseButton.new()
 	pb.button_index = MOUSE_BUTTON_LEFT
-	pb.pressed = true
+	pb.pressed = false
 	pb.position = room._bounds(room._blind_poly).get_center()
 	ok(room.prop_at(pb.position) == Background.BLIND_ID and room.pointer(pb) and room._shut_to == 1.0, "o clique na persiana a fecha")
 	await wait_until(func() -> bool: return room._shut == 1.0, 10.0)
@@ -1202,6 +1202,15 @@ func _initialize() -> void:
 	d.set_occurrence("")
 	ok(not d.can_send(), "despacho vazio não envia")
 	var spot: Vector2 = d.city._off + Vector2(300, 220) * d.city._k   # um ponto do mapa, na tela
+	if not d.city._places.is_empty():   # (sem tela o mapa não se desenha: nada a conferir)
+		var pl: Array = d.city._places[0]
+		var mv := InputEventMouseMotion.new()
+		mv.position = d.city._off + (pl[0] as Rect2).get_center() * d.city._k
+		d.city._gui_input(mv)
+		ok(d.city.hover.is_empty() and d.city._spot == [(pl[0] as Rect2).get_center(), pl[1]], "mapa: o mouse no lugar de referência mostra o nome dele")
+		d.city.notification(Control.NOTIFICATION_MOUSE_EXIT)
+	else:
+		print("(mapa sem desenho: a etiqueta do lugar não foi conferida)")
 	d.set_location("sol", 0, "Rua do Sol, 1–99")
 	await frames(2)
 	ok((d.city._off + Vector2(300, 220) * d.city._k).distance_to(spot) < 1.0, "o mapa não pula quando o cartão sai")

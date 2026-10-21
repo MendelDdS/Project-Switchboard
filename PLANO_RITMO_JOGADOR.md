@@ -59,12 +59,22 @@ Os cruzamentos continuam clicáveis (tirar o clique deles foi recusado). No cruz
 dela (as duas empatam ali); e o clique marca a rua destacada, não a recalculada ao soltar.
 Opcional, a decidir: clicar de novo enquanto a impressora datilografa troca o local, sem triturar o cartão.
 
-### D. Achar a rua (nomes à vista: feito; grade e índice: em teste)
+### D. Achar a rua (nomes à vista: feito; grade e índice: testado e descartado, cobria ruas)
 Opções que mantêm a procura:
 1. **Grade e índice de ruas**, como um guia de ruas da época: letras e números na moldura do mapa e um índice
    ("Tiradentes … C3") no mapa ou numa página da lista telefônica. Recomendada.
 2. **Nomes das ruas à vista onde couberem** (feito: as 14 com nome desde o mapa afastado), mesmo afastado: na margem, abreviados ("R. Tiradentes").
 3. **Botões + e − na moldura** para aproximar, além da roda.
+
+### F. O mapa, depois dos nomes à vista
+1. **Lugares de referência no mapa afastado (feito).** 40% das emergências de molde dão a rua e um lugar
+   ("Rua do Sol, perto do posto"; `LANDMARK_CHANCE`), e na noite 9 nenhum nome de lugar cabe no telhado. Passando o
+   mouse num prédio de referência, a etiqueta diz o nome dele, como nas ruas.
+2. **Onde fica o número (feito).** A numeração dos trechos só aparecia bem aproximado, e os trechos não
+   coincidem com os cruzamentos. Passando o mouse numa rua, ela inteira fica destacada (mais fraco) e aparece a
+   numeração de cada trecho. Junto: o realce amarelo do trecho sumia embaixo do nome da rua.
+3. **Corrigir o local sem triturar.** Clicar outra rua enquanto a impressora datilografa troca o local.
+4. **Aproximar sem a roda.** Duplo clique aproxima no ponto clicado, ou botões + e − na moldura.
 
 ### E. Medir de novo
 Outra partida cronometrada da noite 9; só então decidir se os limites do estágio inicial (35/40/45 s, `stage_sec`)

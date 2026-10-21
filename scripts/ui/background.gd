@@ -1718,8 +1718,12 @@ func prop_at(p: Vector2) -> String:
 func pointer(e: InputEvent) -> bool:
 	if e is InputEventMouseMotion:
 		_hot = prop_at(e.position)   # (o objeto se ergue no `_lift_step`)
-	elif e is InputEventMouseButton and e.pressed and e.button_index == MOUSE_BUTTON_LEFT:
+	elif e is InputEventMouseButton and e.button_index == MOUSE_BUTTON_LEFT:
+		# age ao soltar: aberta ao apertar, a ferramenta surgia sob o mouse com o botão apertado, a soltura se perdia e
+		# a cena ficava com o mouse (o mapa do despacho não via o mouse até outro clique)
 		var id := prop_at(e.position)
+		if e.pressed or id == "":
+			return id != ""
 		if id in PROPS:
 			news_read = news_read or id == Tools.NEWS   # aberto, o jornal volta dobrado de outro jeito
 			prop_clicked.emit(id)

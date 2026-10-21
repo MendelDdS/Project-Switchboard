@@ -46,7 +46,8 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
 - Luz nos objetos: cada um escurece pela distância à poça (`_shade`, `_pool`, `FRONT_LIGHT`); **os papéis trocam de tom
   na rampa** (`_still`, `_paper_step`, `Pal.lit`, `PAPER_RAMPS`), não escurecem por cima; o metal pequeno fica num
   degrau só (`_lit_image`). A luminária piscando ou esquentando não redesenha: é o shader (`_noir`, `FLICK_DARK`).
-- Objetos que abrem ferramentas: `prop_clicked(id)` → `Tools.set_tab`; sob o mouse o objeto sobe 2 px (`LIFT_PX`) e a
+- Objetos que abrem ferramentas: `prop_clicked(id)` → `Tools.set_tab`, **ao soltar o botão** (ao apertar, o papel
+  surgia sob o mouse e a soltura se perdia: a cena ficava com o mouse); sob o mouse o objeto sobe 2 px (`LIFT_PX`) e a
   etiqueta é uma fita crepe (`draw_hover`). O estado do jogo aparece nos objetos (`pending`, `unread`, `alert`,
   `card_out`, `counting`, `tickets`, `toll_desk`, `news`, `written`, `sips`).
 - A sala muda pelas noites (`GameContent.room`, `RoomChange`, `Background.details`); a folhinha é a data do jogo

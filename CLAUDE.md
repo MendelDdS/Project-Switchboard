@@ -102,7 +102,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   (`tests/test_<x>.gd` estende `test_base.gd`: `ok()`, `wait_until`, `load_main`, `finish`); tempo em quadros, nunca
   `Time.get_ticks_msec()`.
   - `test_content` (o conteúdo de `data/` sem a cena, ~2 s: referências, lacunas, traduções, marcadores, falas fora
-    do `.po`, número da lista que não é destino de nada; rode depois de mexer em `data/`), `test_flow` (cenários), `test_keys` (teclas pelo `GameView`), `test_layout` (objetos da mesa sem
+    do `.po`, número da lista que não é destino de nada; rode depois de mexer em `data/`), `test_flow` (cenários), `test_keys` (teclas e mouse pelo `GameView`), `test_layout` (objetos da mesa sem
     sobreposição; rode ao mexer na disposição), `test_penalties` (consequências, relatório, conta do conceito),
     `test_training`, `test_shift` (o robô joga o turno inteiro e imprime métricas e a eficiência; `--human` mede o
     ritmo de uma pessoa, `--eager` não espera o fim da ligação, `--clumsy`, `--nosy`, `--careless`, `--night=N`, `--lang=`; falha se o atento ficar abaixo

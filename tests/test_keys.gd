@@ -1,6 +1,7 @@
 extends "res://tests/test_base.gd"
 ## Teclas e pausa pelo `GameView` (app.tscn), com o evento entrando na janela como o de uma pessoa: o jogo fica dentro
 ## de um SubViewport, e o `SubViewportContainer` parado na pausa deixava de repassar as teclas (Esc não despausava).
+## E o mouse: o objeto da mesa abre a ferramenta e o mapa do despacho já vê o mouse.
 
 
 func _key(k: Key) -> void:
@@ -11,6 +12,13 @@ func _key(k: Key) -> void:
 		e.pressed = p
 		Input.parse_input_event(e)
 		await frames(3)
+
+
+func _mouse(e: InputEventMouse, at: Vector2) -> void:
+	e.position = at
+	e.global_position = at
+	Input.parse_input_event(e)
+	await frames(3)
 
 
 func _initialize() -> void:
@@ -41,6 +49,27 @@ func _initialize() -> void:
 	for k in [KEY_SPACE, KEY_TAB, KEY_Z, KEY_X]:
 		await _key(k)
 	ok(got == ["answer_pressed", "transfer_pressed", "listen_pressed", "hangup_pressed"], "Espaço, Tab, Z e X apertam os botões (%s)" % [got])
+	# o clique no objeto da mesa age ao soltar: aberta ao apertar, a ferramenta surgia sob o mouse com o botão apertado,
+	# a soltura se perdia e a cena ficava com o mouse (o mapa do despacho não via o mouse até outro clique)
+	get_window().size = GameView.BASE   # (sem tela a janela tem 64 px: o jogo a 1/15 e o mouse caía fora do mapa)
+	await frames(3)
+	var box: SubViewportContainer = app.get_node("Box")
+	var win := func(p: Vector2) -> Vector2: return box.get_global_transform() * (p * box.size / Vector2(box.get_node("View").size))
+	var at: Vector2 = win.call(m.background.get_global_transform() * m.background.prop_rect(Tools.DISPATCH).get_center())
+	await _mouse(InputEventMouseMotion.new(), at)
+	for p in [true, false]:
+		var b := InputEventMouseButton.new()
+		b.button_index = MOUSE_BUTTON_LEFT
+		b.pressed = p
+		await _mouse(b, at)
+	await frames(40)
+	var city := m.dispatch.city
+	var g := city.seg_geom(GameData.street("sol"), 1)
+	for i in 2:   # (o primeiro só atualiza o que está sob o mouse)
+		await _mouse(InputEventMouseMotion.new(), win.call(city.get_global_transform() * (city._off + (g[2] as Vector2) * city._k)) + Vector2(i, 0))
+	ok(m.tools.open and m.tools.tab == Tools.DISPATCH and city.hover.get("street") == "sol", "o objeto da mesa abre o despacho e o mapa já vê o mouse")
+	m.tools.close()
+	await frames(20)
 	await _key(KEY_ESCAPE)
 	ok(get_tree().paused and not m.can_process(), "Esc pausa e o jogo para")
 	await _key(KEY_ESCAPE)

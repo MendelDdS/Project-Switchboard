@@ -20,6 +20,8 @@ extends Node
 ##   --screen=id            uma tela por cima: intro (a de início), pause, settings, report (o relatório com advertências;
 ##                          --rating=great|good|fair|poor o conceito, padrão poor, a segunda noite seguida;
 ##                          --warned, com intro, o bilhete depois de uma noite Insuficiente)
+##   --street=sol,1         com --tool=despacho: o mouse no trecho 1 da Rua do Sol (a rua inteira de leve e os números)
+##   --spot=Posto           com --tool=despacho: o mouse no lugar de referência com esse nome (a etiqueta dele)
 ##   --hover=id             o mouse em cima do objeto da mesa (os ids de `Tools`): ele erguido e a etiqueta com o nome
 ##   --zoom=x,y,w,h         o recorte, em px do jogo, ampliado `ZOOM` vezes
 ##   --car=fusca            um carro de cada modelo dado (vírgulas) parado na rua lá fora, um em cada mão (--car_t=0.45: onde, de 0 a 1; --rack: com o bagageiro)
@@ -138,6 +140,17 @@ func _ready() -> void:
 	if _args.has("hover"):
 		m.background._hot = _args["hover"]
 		m.get_node("Scene").queue_redraw()
+	if _args.has("street"):   # o mouse numa rua do mapa aberto (--street=id,trecho), ou num lugar (--spot=nome)
+		var at: PackedStringArray = String(_args["street"]).split(",")
+		var st := GameData.street(at[0])
+		m.dispatch.city.hover = {"street": at[0], "block": int(at[1]), "label": "%s, %s" % [st.name, Street.block_label(int(at[1]))]}
+		m.dispatch.city.queue_redraw()
+	if _args.has("spot"):
+		await get_tree().process_frame
+		for pl in m.dispatch.city._places:
+			if pl[1] == _args["spot"]:
+				m.dispatch.city._spot = [(pl[0] as Rect2).get_center(), pl[1]]
+		m.dispatch.city.queue_redraw()
 	if _args.has("debug"):   # o painel de debug aberto, na aba N (0 = Jogo, 1 = Vozes)
 		m.get_node("%Debug").visible = true
 		(m.get_node("%Debug").find_child("Tabs") as TabContainer).current_tab = int(_args["debug"])
