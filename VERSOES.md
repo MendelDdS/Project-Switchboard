@@ -56,3 +56,35 @@ Commit `8732b9a` · macOS, Windows e Linux
 
 ### Correções
 - O fio pendurado na beira da prateleira e o plug encaixado na paralaxe.
+
+## v0.6.0-alpha — 21/10/2026
+
+Sem build: só a tag no código (o commit dela) · os executáveis saem quando alguém pedir
+
+### Novidades
+- O supervisor dá um conceito a cada noite (Ótimo, Bom, Regular, Insuficiente), carimbado no relatório; duas noites
+  seguidas abaixo de Regular demitem o operador.
+- O relatório virou um memorando datilografado no papel timbrado, com o carimbo da gravidade em cada advertência e o
+  parecer escrito à mão; as telas fora do turno são papéis.
+- A última noite vai até as 6h e termina no amanhecer: o céu em degradê, o sol nascendo atrás da igreja e a luz do dia
+  entrando na sala.
+- Visual mais rico: cores por rampas de material, a luz da luminária, o clima noir e o brilho das lâmpadas do painel em
+  shaders, e uma gradação de cor por clima.
+- A vista mais viva: pedestres com roupas variadas, alguém fumando na varanda, gato, bicicletas, a rua do cruzamento
+  com lojas, a igreja com vitrais e o letreiro de neon refletido no vidro.
+- A mesa mostra uso: os objetos se erguem sob o mouse, a persiana abre e fecha, o lápis e o jornal mudam de lugar, as
+  tomadas e os plugs foram redesenhados e os fios pendem menos.
+- Vozes sintetizadas mais ricas.
+- Despacho: os nomes das ruas à vista com o mapa afastado; a rua sob o mouse destacada, com a numeração de cada trecho;
+  o nome dos lugares de referência sob o mouse; dois cliques para imprimir (o primeiro datilografa o endereço, e
+  outra rua o troca sem triturar o cartão); e o anel de aproximar, como numa leitora de microfilme, com tiques e um
+  mostrador de tambores.
+- Botões de resposta curtos, com a frase inteira na conversa.
+
+### Correções
+- Os botões de resposta longos empurravam a tela para o lado.
+- O clique num cruzamento do mapa marcava a rua errada.
+- Aberto pelo objeto da mesa, o despacho só via o mouse depois de outro clique.
+- Recomeçar pelo clique tirava a cena do meio do evento.
+- O título e o texto das telas finais pulavam quando o botão aparecia.
+- Letras encostando na moldura da placa do fabricante e nomes encostando no mapa.
