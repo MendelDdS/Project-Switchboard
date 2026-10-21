@@ -34,6 +34,8 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 - Telas fora do turno são papéis: o bilhete do supervisor na abertura (`Intro`), pausa e configurações num papel com
   fita, o relatório num memorando (`ReportView`: timbre, serviços prestados, advertências com o carimbo da gravidade,
   parecer à mão, rubrica e o carimbo redondo do conceito, `_grade_stamp`, girado pixel a pixel e em lugar sorteado).
+- Botão de resposta (`ChoiceButton`): fala curta do operador (`CHOICE_*`; a frase inteira, `OP_*`, vai para a
+  conversa); ação do jogador entre colchetes ("[Oferecer outro lugar]").
 - Nomes de pessoas e lugares na ordem natural ("Nome Sobrenome"). Lista telefônica: uma letra por página dupla, aba
   de índice; a observação (`DirectoryEntry.note`) só diz quem atende quando o nome não diz. Todo número serve para
   alguma coisa.
@@ -100,17 +102,17 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   (`tests/test_<x>.gd` estende `test_base.gd`: `ok()`, `wait_until`, `load_main`, `finish`); tempo em quadros, nunca
   `Time.get_ticks_msec()`.
   - `test_content` (o conteúdo de `data/` sem a cena, ~2 s: referências, lacunas, traduções, marcadores, falas fora
-    do `.po`, número da lista que não é destino de nada; rode depois de mexer em `data/`), `test_flow` (cenários), `test_keys` (teclas pelo `GameView`), `test_layout` (objetos da mesa sem
+    do `.po`, número da lista que não é destino de nada; rode depois de mexer em `data/`), `test_flow` (cenários), `test_keys` (teclas e mouse pelo `GameView`), `test_layout` (objetos da mesa sem
     sobreposição; rode ao mexer na disposição), `test_penalties` (consequências, relatório, conta do conceito),
     `test_training`, `test_shift` (o robô joga o turno inteiro e imprime métricas e a eficiência; `--human` mede o
-    ritmo de uma pessoa, `--clumsy`, `--nosy`, `--careless`, `--night=N`, `--lang=`; falha se o atento ficar abaixo
+    ritmo de uma pessoa, `--eager` não espera o fim da ligação, `--clumsy`, `--nosy`, `--careless`, `--night=N`, `--lang=`; falha se o atento ficar abaixo
     de Regular). Rode depois de mudar agenda, fim de ligação, mesa ou cabos.
 - Opções do jogo: `-- --seed=N`, `--night=N` (sem ler nem gravar o save), `--weather=X`, `--lang=X`, `--pace=N`, `--flags=a,b`.
 - **Painel de debug** (F1, `DebugPanel`, só em build de debug): toca ligações, mexe no relógio, clima, luz, noites,
-  viaturas e advertências, mostra a eficiência ao vivo; mesa de som (`Sfx.vol`) e aba de vozes. O que mexe no Main fica
+  viaturas e advertências, mostra a eficiência ao vivo, cronometra os passos de cada ligação no log; mesa de som (`Sfx.vol`) e aba de vozes. O que mexe no Main fica
   em funções públicas dele (`ring`, `drop`, `drop_all`, `set_weather`, `start_ending`...).
 - **Captura** (`tools/shot.tscn`, com tela, **uma de cada vez, janela pequena no canto**):
-  `Godot --resolution 160x90 --position 0,0 --path . tools/shot.tscn -- --hour=22:30 --weather=rain --out=build/x.png`.
+  `Godot --resolution 160x90 --position 0,0 --quit-after 1500 --path . tools/shot.tscn -- --hour=22:30 --weather=rain --out=build/x.png`.
   As opções estão no comentário do topo de `tools/shot.gd` (`--tool`, `--card`, `--hover`, `--screen=intro|pause|settings|report`,
   `--rating`, `--warned`, `--zoom`, `--still`...). Compare capturas com `tools/diff_shots.gd`; conjunto do plano
   hi-bit: `tools/hibit_shots.sh build/hibit/<pasta>`. **Regressão visual**: `tools/visual.sh [commit]` (~2 min, 12
@@ -148,7 +150,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   o jogador carimba e guarda na caixinha; esquecido ou sem carimbo é advertência leve.
 - Fim de ligação: `end_call(c, PhoneCall.End.*)` → `c.record` → `Notebook.add()`; o caderno registra com um clique no
   tipo (`register(T.Key.TYPE_*)`).
-- **Despacho** (`Dispatch`, `CityMap`, `CardMachines`, `PunchCard`): marcar o trecho no mapa imprime o cartão;
+- **Despacho** (`Dispatch`, `CityMap`, `CardMachines`, `PunchCard`): marcar o trecho no mapa imprime o cartão (dois cliques: o primeiro só datilografa, `CardMachines.draft`; o anel da moldura aproxima, `_knob`);
   perfurar tipo e unidades; levar ao transmissor (envia) ou à trituradora; um cartão por vez. Regras das viaturas no
   `Fleet` (`scripts/model/fleet.gd`: `send` → `arrive` → `leave` → `home`, `Fleet.Result`). Cidade em folhas
   (`CityMap.SHEETS`), só as dos setores atendidos.

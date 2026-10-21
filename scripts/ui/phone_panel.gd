@@ -196,8 +196,10 @@ func _fit() -> void:
 	shown_lines = n
 
 
-## Só a ligação em que o operador está mostra as opções de fala.
+## Só a ligação em que o operador está mostra as opções de fala. A que não cabe numa linha do painel quebra em duas
+## (sem isso o botão exige o texto inteiro e empurra a tela toda para a esquerda).
 func _render_choices() -> void:
+	var room := _choices.size.x   # a largura do painel (as opções anteriores, que somem neste quadro, já cabiam)
 	for ch in _choices.get_children():
 		ch.queue_free()
 	if _call == null or not _call.on_line:
@@ -211,6 +213,9 @@ func _render_choices() -> void:
 		b.disabled = _call.talking
 		b.pressed.connect(o["fn"])
 		_choices.add_child(b)
+		if room > 0.0 and b.get_combined_minimum_size().x > room:
+			b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			b.custom_minimum_size.x = room
 
 
 func _sync_choices() -> void:

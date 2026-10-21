@@ -11,7 +11,11 @@ extends Control
 ## onde for arrastado, na unidade toda, e fica onde for solto; solto com a borda de baixo na fenda do transmissor, é
 ## puxado e enviado (`inserted`), mesmo incompleto (o supervisor é quem pune); na da trituradora, é destruído
 ## (`discarded`). A mesa comporta um cartão por vez, de qualquer tipo (`can_print`): enquanto houver um, a impressora
-## recusa imprimir outro.
+## recusa imprimir outro. O primeiro clique no mapa só datilografa o local na tira de papel (`draft`); o segundo, no
+## mesmo trecho, imprime (outro trecho troca o local, sem cartão a triturar).
+## Na moldura da direita, o anel de aproximar o mapa, como o de uma leitora de microfilme (`_knob`): girado com o mouse
+## (arrastar para cima aproxima) ou pela roda, um degrau por vez, e o + e o − em cima e embaixo dele, um salto por
+## clique (como a roda no mapa).
 ## O cartão é um nó filho (`card`) dentro de uma janela que recorta (`_window`): saindo da impressora ou entrando numa
 ## máquina, só aparece o que está acima da fenda.
 
@@ -23,6 +27,13 @@ enum State { IDLE, TYPING, PRINTING, READY, DRAGGING, FEEDING }
 enum Machine { SEND, SHRED }
 
 const BEZEL := 9.0         ## a moldura de metal em volta do vidro (px; o mapa, `Dispatch.city`, fica dentro dela)
+const KNOB_W := 28.0        ## a moldura da direita, mais larga: o anel de aproximar (na cena, o mapa acompanha)
+const KNOB := Vector2(14, 64)   # o anel, em pé
+const DETENT_PX := 6.0      # px de arraste por degrau do anel (cada degrau, um `CityMap.ZOOM_STEP` e um tique)
+const RIDGES := 24          # sulcos numa volta do anel...
+const DETENT_TURN := TAU / RIDGES / 3.0   # ...e o quanto ele gira por degrau, aos pulos (um terço de sulco)
+const DRUM := 7.0           # px entre dois números no tambor do mostrador
+const ROLL := 12.0          # décimos por segundo que o tambor rola, no mínimo (longe do número, mais depressa)
 const BASE_H := 72.0        ## a altura da base das máquinas, embaixo do vidro
 const STRIP := 10.0         ## a faixa da frente da base, embaixo das máquinas: as luzes e a plaqueta, como na miniatura da mesa
 const TONGUE_H := 14.0      ## a tira de papel saindo da impressora sem cartão (sobe sobre o pé do mapa)
@@ -36,6 +47,8 @@ const FEED_SEC := 0.8       # o transmissor puxando o cartão...
 const READ_SEC := 0.35      # ...e ainda lendo os furos, com ele já dentro, antes de enviar
 const SHRED_SEC := 1.2      # a trituradora engolindo o cartão
 const REFUSE_SEC := 1.6     # a impressora avisando que já há um cartão na mesa
+const BLINK_SEC := 0.8      # o aviso de clicar de novo piscando, com o local datilografado
+const TICK_GAP := 0.04      # s entre dois tiques do anel girando depressa
 
 var dispatch: Dispatch:
 	set(v):
@@ -51,6 +64,16 @@ var _press := Vector2.INF   ## onde o botão foi apertado no cartão (INF = solt
 var _shake := Vector2.ZERO  ## a trituradora tremendo (um sorteio por quadro)
 var _refused := -1.0        ## segundos desde que a impressora recusou um cartão (-1 = sem aviso)
 var _alert := false         ## a luz vermelha da faixa: uma emergência em andamento
+var draft := ""             ## o local datilografado na tira, à espera do segundo clique no mapa ("" = nenhum)
+var _draft_t := 0.0         ## segundos desde que o rascunho começou a ser datilografado
+var _blink := false         ## o aviso do rascunho aceso (redesenha só quando troca)
+var _turn := INF            ## a altura do mouse girando o anel (INF = solto)
+var _turn_acc := 0.0        ## px arrastados que ainda não completaram um degrau
+var _detent := 0            ## o degrau do aumento no último desenho (cada um que passa dá um tique)
+var _roll := -1.0           ## o número no mostrador, em décimos, rolando até o aumento (-1 = ainda nenhum)
+var _zoom_seen := -1.0      ## a aproximação do mapa no último desenho do anel
+var _knob_hot := false      ## o mouse no anel (ou girando): os sulcos mais claros
+var _since_tick := 1.0      ## segundos desde o último tique do anel (no máximo uns 25 por segundo)
 var _window := Control.new()
 var card := PunchCard.new()
 
@@ -75,24 +98,47 @@ func can_print() -> bool:
 	return state == State.IDLE
 
 
-## Imprime um cartão novo e devolve verdadeiro; com um cartão na mesa, recusa (luz vermelha, aviso e `deny`).
+## Imprime um cartão novo e devolve verdadeiro; com um cartão na mesa, recusa (luz vermelha, aviso e `deny`). Com o
+## local já datilografado (`draft`), o cartão sai direto.
 func print_card(place: String, sector: int) -> bool:
 	if not can_print():
-		_refused = 0.0
-		Sfx.play("deny")
-		queue_redraw()
+		_refuse()
 		return false
 	_refused = -1.0
 	card.fill(card.serial + 1, place, sector)
-	_go(State.TYPING)
-	Sfx.play("typing")
+	var typed := draft == place
+	draft = ""
+	_go(State.PRINTING if typed else State.TYPING)
+	Sfx.play("printer" if typed else "typing")
 	return true
+
+
+## O primeiro clique no mapa: datilografa o local na tira de papel, sem cartão ainda; outro clique troca o local, e o
+## segundo no mesmo trecho imprime (`print_card`). Com um cartão na mesa, recusa como `print_card`.
+func type_draft(place: String) -> bool:
+	if not can_print():
+		_refuse()
+		return false
+	_refused = -1.0
+	draft = place
+	_draft_t = 0.0
+	Sfx.play("typing")
+	queue_redraw()
+	return true
+
+
+func _refuse() -> void:
+	_refused = 0.0
+	Sfx.play("deny")
+	queue_redraw()
 
 
 ## Sem cartão (enviado, descartado, ou o despacho foi limpo).
 func clear() -> void:
+	draft = ""
 	if state != State.IDLE:
 		_go(State.IDLE)
+	queue_redraw()
 
 
 func _go(s: State) -> void:
@@ -196,6 +242,15 @@ func _process(delta: float) -> void:
 	if alert != _alert:
 		_alert = alert
 		queue_redraw()
+	if draft != "":
+		_draft_t += delta
+		var blink := _draft_t >= TYPE_SEC and fmod(_draft_t - TYPE_SEC, BLINK_SEC) < BLINK_SEC * 0.6
+		if _draft_t < TYPE_SEC + delta or blink != _blink:   # datilografando, ou o aviso trocando
+			_blink = blink
+			queue_redraw()
+	_since_tick += delta
+	if dispatch != null:
+		_knob_step(delta)
 	var shredding := state == State.FEEDING and _into == Machine.SHRED
 	_shake = Vector2(randi_range(-1, 1), randi_range(-1, 1)) if shredding else Vector2.ZERO
 	_place_sheet()
@@ -220,6 +275,7 @@ func _place_sheet() -> void:
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_MOUSE_EXIT:
+		_hot_knob(false)
 		card.point(Vector2.INF)
 	elif what == NOTIFICATION_RESIZED:
 		if state in [State.READY, State.DRAGGING]:
@@ -230,7 +286,7 @@ func _notification(what: int) -> void:
 # ------------------------------------------------------------------ mouse
 
 func _has_point(p: Vector2) -> bool:
-	if state == State.DRAGGING or _base().has_point(p) or not Rect2(Vector2.ONE * BEZEL, size - Vector2.ONE * BEZEL * 2.0).has_point(p):
+	if state == State.DRAGGING or _base().has_point(p) or not _glass().has_point(p):
 		return true
 	return state in [State.READY, State.FEEDING] and _card_rect().has_point(p)
 
@@ -238,6 +294,9 @@ func _has_point(p: Vector2) -> bool:
 ## Apertar no cartão não faz nada ainda: andar `DRAG_START` px com o botão apertado o arrasta (de qualquer ponto,
 ## sem perfurar); soltar antes disso é clique, e perfura a linha.
 func _gui_input(e: InputEvent) -> void:
+	if _knob_input(e):
+		accept_event()
+		return
 	if e is InputEventMouseMotion:
 		if _press != Vector2.INF and state == State.READY and e.position.distance_to(_press) > DRAG_START:
 			_grab = _press - _pos
@@ -260,6 +319,67 @@ func _gui_input(e: InputEvent) -> void:
 			_press = Vector2.INF
 			mouse_default_cursor_shape = _cursor(e.position)
 			accept_event()
+
+
+## O anel e o mostrador seguem o aumento do mapa (também pela roda no mapa): o anel pula de degrau em degrau, com um
+## tique, e o tambor do mostrador rola até o número novo.
+func _knob_step(delta: float) -> void:
+	var zoom := dispatch.city.zoom_level()
+	var detent := roundi((dispatch.city.magnification() - 1.0) / CityMap.ZOOM_STEP)
+	if zoom != _zoom_seen or detent != _detent:
+		_zoom_seen = zoom
+		queue_redraw()
+		if detent != _detent and is_visible_in_tree() and _since_tick >= TICK_GAP:   # a catraca
+			Sfx.play_at("knob_tick", get_global_rect().end.x / get_viewport_rect().size.x)
+			_since_tick = 0.0
+		_detent = detent
+	var target := 10.0 + detent
+	if _roll < 0.0 or not is_visible_in_tree():
+		_roll = target
+	elif _roll != target:
+		_roll = move_toward(_roll, target, delta * maxf(ROLL, absf(target - _roll) * 8.0))
+		queue_redraw()
+
+
+## O anel de aproximar: apertado nele, arrastar o gira (para cima aproxima); a roda, sobre ele ou sobre o + e o −, um
+## degrau; o + e o −, um salto (`CityMap.zoom_by`). Devolve se o evento era dele.
+func _knob_input(e: InputEvent) -> bool:
+	var zone := _knob().grow_individual(0, 14, 0, 14)
+	if e is InputEventMouse:
+		_hot_knob(_turn != INF or zone.has_point(e.position))
+	if e is InputEventMouseMotion and _turn != INF:   # um degrau a cada `DETENT_PX` arrastados
+		_turn_acc += _turn - e.position.y
+		_turn = e.position.y
+		var n := int(_turn_acc / DETENT_PX)
+		if n != 0:
+			_turn_acc -= n * DETENT_PX
+			dispatch.city.zoom_step(n)
+		return true
+	if not (e is InputEventMouseButton and (_turn != INF or zone.has_point(e.position))):
+		if e is InputEventMouseMotion and zone.has_point(e.position):
+			mouse_default_cursor_shape = Control.CURSOR_MOVE if _knob().has_point(e.position) else Control.CURSOR_POINTING_HAND
+			return true
+		return false
+	var b := e as InputEventMouseButton
+	if b.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN] and b.pressed:   # a roda gira o anel um degrau
+		dispatch.city.zoom_step(1 if b.button_index == MOUSE_BUTTON_WHEEL_UP else -1)
+	elif b.button_index == MOUSE_BUTTON_LEFT:
+		if not b.pressed:
+			_turn = INF
+		elif _knob().has_point(b.position):
+			_turn = b.position.y
+			_turn_acc = 0.0
+		else:
+			dispatch.city.zoom_by(1.2 if b.position.y < _knob().position.y else 1.0 / 1.2)
+			Sfx.play("click")
+		mouse_default_cursor_shape = Control.CURSOR_DRAG if _turn != INF else Control.CURSOR_MOVE if _knob().has_point(b.position) else Control.CURSOR_POINTING_HAND
+	return true
+
+
+func _hot_knob(on: bool) -> void:
+	if on != _knob_hot:
+		_knob_hot = on
+		queue_redraw()
 
 
 func _cursor(p: Vector2) -> int:
@@ -295,6 +415,7 @@ func _drop() -> void:
 func _draw() -> void:
 	Bloom.clear(self)
 	_draw_bezel()
+	_draw_knob()
 	var b := _base()
 	draw_rect(Rect2(BEZEL, b.position.y - 3.0, b.size.x - BEZEL * 2.0, 3), Color(0, 0, 0, 0.3))   # a sombra da base no vidro
 	draw_rect(b, Pal.PANEL_LO)
@@ -310,8 +431,8 @@ func _draw() -> void:
 ## escuro onde o vidro entra (no alto e nos lados; embaixo fica a base), a sombra da moldura no vidro e os parafusos.
 func _draw_bezel() -> void:
 	var w := BEZEL
-	var glass := Rect2(w, w, size.x - w * 2.0, size.y - w - BASE_H)
-	for r: Rect2 in [Rect2(0, 0, size.x, w), Rect2(0, 0, w, glass.end.y), Rect2(glass.end.x, 0, w, glass.end.y)]:
+	var glass := _glass()
+	for r: Rect2 in [Rect2(0, 0, size.x, w), Rect2(0, 0, w, glass.end.y), Rect2(glass.end.x, 0, KNOB_W, glass.end.y)]:
 		draw_rect(r, Pal.PANEL)
 	bevel(self, Rect2(0, 0, size.x, glass.end.y + 2.0))   # (embaixo fica a base, por cima da beira de baixo)
 	draw_rect(Rect2(w - 1, w - 1, glass.size.x + 2, 1), Pal.EDGE)   # o rebaixo
@@ -322,6 +443,77 @@ func _draw_bezel() -> void:
 	for c: Vector2 in [Vector2(4, 4), Vector2(size.x - 7, 4), Vector2(4, glass.end.y - 7), Vector2(size.x - 7, glass.end.y - 7)]:
 		draw_rect(Rect2(c, Vector2(3, 3)), Pal.BRASS)
 		draw_rect(Rect2(c + Vector2(1, 1), Vector2(1, 1)), Pal.PANEL_LO)   # a fenda do parafuso
+
+
+## O vidro do mapa, dentro da moldura (a da direita mais larga, com o anel).
+func _glass() -> Rect2:
+	return Rect2(BEZEL, BEZEL, size.x - BEZEL - KNOB_W, size.y - BEZEL - BASE_H)
+
+
+## O anel de aproximar, em pé no meio da moldura da direita, à altura do meio do vidro.
+func _knob() -> Rect2:
+	var g := _glass()
+	return Rect2(g.end.x + floorf((KNOB_W - KNOB.x) / 2.0), roundf(g.get_center().y - KNOB.y / 2.0), KNOB.x, KNOB.y)
+
+
+## O anel visto de lado, um cilindro de borracha: escuro nas pontas, claro no meio, com os sulcos que pulam um terço
+## de sulco por degrau do aumento (`DETENT_TURN`); o + em cima e o − embaixo, apagados no limite; embaixo, o mostrador.
+func _draw_knob() -> void:
+	const M := Pal.PANEL_METAL
+	var r := _knob()
+	var slot := r.grow(2.0)   # o rasgo na moldura, com um vão em volta do anel; a beira de baixo e a da direita na luz
+	draw_rect(slot, M[0])
+	draw_rect(Rect2(slot.position.x, slot.end.y, slot.size.x + 1.0, 1), M[5])
+	draw_rect(Rect2(slot.end.x, slot.position.y, 1, slot.size.y), M[5])
+	var half := r.size.y / 2.0
+	for y in int(r.size.y):   # o tom de cada linha pela inclinação dela no cilindro
+		var z := cos(asin(clampf((y + 0.5 - half) / half, -1.0, 1.0)))
+		draw_rect(Rect2(r.position.x, r.position.y + y, r.size.x, 1), M[1 + int(z * 4.0) + int(_knob_hot)])
+	var phase := _detent * DETENT_TURN
+	for i in RIDGES:   # os sulcos, só os da frente
+		var a := wrapf(phase + i * TAU / RIDGES, -PI, PI)
+		if absf(a) < PI / 2.0 - 0.15:
+			var y := r.position.y + roundf(half + sin(a) * (half - 1.0))
+			draw_rect(Rect2(r.position.x + 1, y, r.size.x - 2, 1), M[0])
+	var cx := r.get_center().x
+	for k in 2:   # + em cima, − embaixo, em latão
+		var at := Vector2(cx, r.position.y - 9.0 if k == 0 else r.end.y + 9.0)
+		var lit := (_zoom_seen < 1.0) if k == 0 else (_zoom_seen > 0.0)
+		var col := Pal.BRASS if lit else M[6]
+		draw_rect(Rect2(at.x - 3, at.y, 7, 1), col)
+		if k == 0:
+			draw_rect(Rect2(at.x, at.y - 3, 1, 7), col)
+	# o mostrador do aumento, embaixo do −, como o das leitoras de microfilme: um contador com um tambor por algarismo
+	# ("1.4X"), cada um no seu rasgo da chapa, o das unidades virando só quando o dos décimos passa do 9, como num
+	# hodômetro; o ponto e o X gravados no metal, em latão
+	var x0 := roundf(cx - 9.0)
+	var y0 := r.end.y + 17.0
+	var tenths := fmod(_roll, 10.0)
+	_drum(Rect2(x0, y0, 5, 9), floorf(_roll / 10.0) + maxf(0.0, tenths - 9.0))
+	_drum(Rect2(x0 + 8.0, y0, 5, 9), tenths)
+	for c: Array in [[".", 5.0], ["X", 15.0]]:
+		PunchCard.small(self, Vector2(x0 + c[1], y0 + 2.0), c[0], Pal.BRASS)
+
+
+## Um tambor do mostrador no rasgo `win` da chapa, no número `pos` (entre dois, a meio caminho: o de baixo subindo),
+## recortado pelo rasgo. O rasgo é rebaixado (a beira de cima e a da esquerda escuras, a de baixo e a da direita na
+## luz) e o tambor, um cilindro de papel: mais escuro no alto, à sombra da beira, e embaixo, onde ele faz a curva.
+func _drum(win: Rect2, pos: float) -> void:
+	const M := Pal.PANEL_METAL
+	draw_rect(win.grow(1.0), M[0])
+	draw_rect(Rect2(win.position.x, win.end.y, win.size.x + 1.0, 1), M[5])   # a beira de baixo e a da direita, na luz
+	draw_rect(Rect2(win.end.x, win.position.y, 1, win.size.y), M[5])
+	draw_rect(win, Pal.CARD)
+	var d := floori(pos)
+	for i in 2:
+		var y := roundf(2.0 - (pos - d) * DRUM) + i * DRUM   # o alto do número no rasgo (no meio, parado)
+		var top := maxf(0.0, -y)
+		var h := minf(5.0, win.size.y - y) - top
+		if h > 0.0:
+			draw_texture_rect_region(PixelArt.tiny(str((d + i) % 10)), Rect2(win.position + Vector2(1, y + top), Vector2(3, h)),
+				Rect2(0, 3.0 + top, 3, h), Pal.INK)
+	for k: Array in [[0, 0.45], [1, 0.2], [win.size.y - 2.0, 0.1], [win.size.y - 1.0, 0.3]]:   # a curva do cilindro
+		draw_rect(Rect2(win.position + Vector2(0, k[0]), Vector2(win.size.x, 1)), Color(0, 0, 0, k[1]))
 
 
 ## A faixa da frente da base, como a frente da unidade da mesa (`Background._draw_dispatch_unit`): a luz vermelha de
@@ -407,6 +599,10 @@ func _draw_printer() -> void:
 	if _refused >= 0.0:   # recusou: luz vermelha piscando e o aviso embaixo da placa
 		led(self, r.position + Vector2(9, 36), fmod(_refused, 0.3) < 0.15, Pal.RED)
 		PunchCard.small(self, Vector2(r.position.x + 18.0, r.position.y + 37.0), T.text(T.Key.CARD_ONE_AT_A_TIME), Pal.RED)
+	elif draft != "" and _draft_t >= TYPE_SEC:   # o local datilografado espera o segundo clique: o aviso piscando
+		led(self, r.position + Vector2(9, 36), _blink, Pal.AMBER)
+		if _blink:
+			PunchCard.small(self, Vector2(r.position.x + 18.0, r.position.y + 37.0), T.text(T.Key.MAP_CLICK_AGAIN), Pal.AMBER)
 	else:
 		led(self, r.position + Vector2(9, 36), busy and fmod(_t, 0.24) < 0.12, Pal.AMBER)
 	vent(self, Vector2(r.end.x - 33.0, r.position.y + 16.0), 3, 24.0)
@@ -418,8 +614,9 @@ func _draw_tongue() -> void:
 	draw_rect(r, Pal.CARD_EDGE)
 	draw_rect(r.grow(-1.0), Pal.CARD)
 	var txt := T.text(T.Key.DISPATCH_CLICK_STREET)
-	if state == State.TYPING:
-		txt = card.place.left(ceili(card.place.length() * minf(_t / (TYPE_SEC * 0.85), 1.0)))
+	var place := draft if draft != "" else card.place if state == State.TYPING else ""
+	if place != "":
+		txt = place.left(ceili(place.length() * minf((_draft_t if draft != "" else _t) / (TYPE_SEC * 0.85), 1.0)))
 	PunchCard.small(self, Vector2(r.position.x, r.position.y + 5.0), txt, Pal.INK_SOFT, r.size.x, HORIZONTAL_ALIGNMENT_CENTER)
 
 

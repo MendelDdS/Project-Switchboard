@@ -165,6 +165,23 @@ func _initialize() -> void:
 	var on_street := func(id: String, b: int): return city.seg_geom(GameData.street(id), b)[2]
 	ok(city._find_seg(on_street.call("brasil", 1)).get("block") == 1 and city._find_seg(on_street.call("brasil", 4)).is_empty(),
 		"mapa: a Avenida Brasil só nos trechos do setor atendido")
+	var cross := Vector2.INF   # um cruzamento: onde um trecho vertical corta um horizontal
+	var both := []
+	for v: Street in C.streets.filter(func(s: Street): return not s.horizontal):
+		for h: Street in C.streets.filter(func(s: Street): return s.horizontal):
+			for bv in v.blocks():
+				for bh in h.blocks():
+					var gv := city.seg_geom(v, bv)
+					var gh := city.seg_geom(h, bh)
+					var x = Geometry2D.segment_intersects_segment(gv[0], gv[1], gh[0], gh[1])
+					if cross == Vector2.INF and x != null and v.block_sector(bv) == 3 and h.block_sector(bh) == 3:
+						cross = x
+						both = [{"street": v.id, "block": bv, "label": ""}, {"street": h.id, "block": bh, "label": ""}]
+	ok(both.size() == 2, "mapa: há um cruzamento no setor 3")
+	for pick: Dictionary in both:
+		city.hover = pick
+		ok(city._find_seg(cross + Vector2(2, 2)) == pick, "mapa: no cruzamento fica a rua que o mouse vinha seguindo (%s)" % pick["street"])
+	city.hover = {}
 	GameData.sectors = [1, 2, 3]
 	var trip_c: float = city.trip("pol", {"street": "brasil", "block": 4})
 	var trip_3: float = city.trip("pol", {"street": "comercio", "block": 2})
@@ -768,8 +785,10 @@ func _initialize() -> void:
 	m.transfer()
 	ok(await wait_until(func(): return fa.no_answer), "ninguém atende")
 	ok(m.talk_clock - fa.last_talk < 1.0 and fa.chat == null, "chamando não conta como silêncio: a conversa fiada não vem junto da alternativa")
-	_pick(fa, "Ninguém atende")
+	_pick(fa, T.text(T.Key.CHOICE_OFFER_ALT))
 	ok(fa.target == "162", "trocou para a de plantão")
+	ok(await wait_until(func(): return fa.transcript.any(func(l): return l["text"] == (fa.data as TransferCall).alt_ask)),
+		"o botão é curto, mas o operador diz a oferta inteira")
 	_move(4, 162)
 	ok(await wait_until(func(): return not fa.talking), "terminou de falar")
 	m.transfer()
@@ -1048,7 +1067,7 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return cc.transcript.size() > n_reply and not cc.talking, 60.0), "volta a falar depois")
 	ok(m.talk_clock - t_reply >= m.SMALLTALK_AFTER + m.conversation.CHAT_WARM_PATIENCE, "simpática: ela espera mais antes de falar de novo")
 	# o operador também puxa assunto (uma vez); resposta seca: ela não puxa mais
-	var ask_opt := func(): return cc.options.filter(func(o): return String(o["label"]) == T.text(T.Key.OP_SMALLTALK))
+	var ask_opt := func(): return cc.options.filter(func(o): return String(o["label"]) == T.text(T.Key.CHOICE_SMALLTALK))
 	if cc.chat != null:   # ela pode ter puxado outro assunto sozinha
 		reply_with.call(ChatReply.Tone.WARM)
 	ok(await wait_until(func(): return not cc.talking and not cc.chatting), "assunto encerrado")
@@ -1120,7 +1139,7 @@ func _initialize() -> void:
 		await frames(12)
 		var pe := InputEventMouseButton.new()
 		pe.button_index = MOUSE_BUTTON_LEFT
-		pe.pressed = true
+		pe.pressed = false   # o clique na cena age ao soltar o botão
 		pe.position = (m.background._props[id] as Rect2).get_center()
 		m.background.pointer(pe)
 		ok(m.tools.open and m.tools.tab == id, "o objeto da cena abre " + id)
@@ -1130,7 +1149,7 @@ func _initialize() -> void:
 	await frames(3)
 	var pj := InputEventMouseButton.new()
 	pj.button_index = MOUSE_BUTTON_LEFT
-	pj.pressed = true
+	pj.pressed = false
 	pj.position = (m.background._props[Tools.NEWS] as Rect2).get_center()
 	m.background.pointer(pj)
 	ok(m.tools.open and m.tools.tab == Tools.NEWS, "o jornal na mesa abre")
@@ -1142,7 +1161,7 @@ func _initialize() -> void:
 	var room := m.background
 	var pb := InputEventMouseButton.new()
 	pb.button_index = MOUSE_BUTTON_LEFT
-	pb.pressed = true
+	pb.pressed = false
 	pb.position = room._bounds(room._blind_poly).get_center()
 	ok(room.prop_at(pb.position) == Background.BLIND_ID and room.pointer(pb) and room._shut_to == 1.0, "o clique na persiana a fecha")
 	await wait_until(func() -> bool: return room._shut == 1.0, 10.0)
@@ -1183,6 +1202,15 @@ func _initialize() -> void:
 	d.set_occurrence("")
 	ok(not d.can_send(), "despacho vazio não envia")
 	var spot: Vector2 = d.city._off + Vector2(300, 220) * d.city._k   # um ponto do mapa, na tela
+	if not d.city._places.is_empty():   # (sem tela o mapa não se desenha: nada a conferir)
+		var pl: Array = d.city._places[0]
+		var mv := InputEventMouseMotion.new()
+		mv.position = d.city._off + (pl[0] as Rect2).get_center() * d.city._k
+		d.city._gui_input(mv)
+		ok(d.city.hover.is_empty() and d.city._spot == [(pl[0] as Rect2).get_center(), pl[1]], "mapa: o mouse no lugar de referência mostra o nome dele")
+		d.city.notification(Control.NOTIFICATION_MOUSE_EXIT)
+	else:
+		print("(mapa sem desenho: a etiqueta do lugar não foi conferida)")
 	d.set_location("sol", 0, "Rua do Sol, 1–99")
 	await frames(2)
 	ok((d.city._off + Vector2(300, 220) * d.city._k).distance_to(spot) < 1.0, "o mapa não pula quando o cartão sai")
@@ -1248,6 +1276,29 @@ func _initialize() -> void:
 	ok(not d.fleet.is_free("amb"), "ambulância a caminho fica indisponível")
 	await frames(2)
 	ok(d.get_node("%Fleet").visible and d.get_node("%Report").text.contains(T.text(T.Key.UNIT_AMBULANCE)), "a faixa das viaturas mostra quem saiu")
+	# o clique no mapa: o primeiro datilografa o local na tira; outra rua troca; o segundo na mesma imprime
+	d._pick("sol", 0, "Rua do Sol, 1–99")
+	ok(card.state == card.State.IDLE and card.draft == "Rua do Sol, 1–99" and d.city.pend.get("street") == "sol" and d.location().is_empty(),
+		"o primeiro clique no mapa só datilografa o local, sem cartão")
+	d._pick("comercio", 0, "Rua do Comércio, 1–99")
+	ok(card.draft == "Rua do Comércio, 1–99" and d.city.pend.get("street") == "comercio" and card.serial() == 3, "outra rua troca o local, sem cartão a triturar")
+	d._pick("comercio", 0, "Rua do Comércio, 1–99")
+	ok(card.state == card.State.PRINTING and card.draft == "" and d.location().get("street") == "comercio" and d.city.pend.is_empty()
+		and d.city.sel.get("street") == "comercio", "o segundo clique na mesma rua imprime, sem datilografar de novo")
+	d._pick("sol", 0, "Rua do Sol, 1–99")
+	ok(card._refused >= 0.0 and card.draft == "" and d.city.pend.is_empty(), "com um cartão na mesa, o primeiro clique já é recusado")
+	await wait_until(func(): return card.state == card.State.READY, 5.0)
+	d._clean()
+	# o anel de aproximar na moldura: o + aproxima um degrau; girado para baixo, afasta até o enquadramento
+	var plus: Vector2 = card._knob().position + Vector2(7, -7)
+	_mouse(card, plus, 1)
+	_mouse(card, plus, 0)
+	ok(d.city.zoom_level() > 0.0, "o + do anel aproxima o mapa")
+	var ring: Vector2 = card._knob().get_center()
+	_mouse(card, ring, 1)
+	_mouse(card, ring + Vector2(0, 300))
+	_mouse(card, ring + Vector2(0, 300), 0)
+	ok(d.city.zoom_level() == 0.0 and card._turn == INF, "girar o anel para baixo afasta o mapa")
 	m.tools.set_tab(Tools.DIRECTORY)
 	print("OK 13 mapa e despacho")
 

@@ -25,11 +25,12 @@ const STATION := {
 const UNIT_SPEED := 115.0   # px de mapa por segundo: do Centro à Vila Serena, cerca de 7 s
 const MIN_TRIP := 3.5       # s: a viagem mais curta
 const MAX_K := 1.2          # aproximação máxima (escala de desenho)
+const ZOOM_STEP := 0.1      # o aumento anda em degraus (1.0, 1.1, 1.2...: os do anel do despacho, `CardMachines`)
 const REVEAL_SEC := 2.5     # s: o mapa se abrindo para o bairro entregue na noite
 const DISTRICT := {1: T.Key.MAP_DISTRICT_1, 2: T.Key.MAP_DISTRICT_2, 3: T.Key.MAP_DISTRICT_3}
 var bottom_inset := 0.0   ## px no pé do mapa cobertos pelo que fica por cima dele (o `Dispatch` diz)
-const NAMES_K := 0.42       # abaixo desta escala, só os nomes dos bairros (a etiqueta do mouse diz a rua)
 const NUMBERS_K := 0.8      # a numeração dos trechos só com o mapa perto
+const LIT := [0.4, 0.8]     # o realce da rua sob o mouse: ela inteira e o trecho (a força do âmbar sobre o papel)
 const PAPER := Pal.MAP_PAPER   # o papel, e as ruas são ele à mostra (como no mapa dobrado da mesa)
 const ROAD := Pal.MAP_PAPER
 const LINE := Pal.MAP_INK
@@ -45,7 +46,9 @@ const ROADS_V := [110.0, 250.0, 390.0, 530.0]
 const ROADS_H := [90.0, 225.0, 360.0]
 
 var sel: Dictionary = {}
+var pend: Dictionary = {}  ## o trecho do primeiro clique, à espera do segundo para imprimir (o `Dispatch` põe)
 var hover: Dictionary = {}
+var _spot: Array = []      ## o lugar de referência sob o mouse, longe das ruas: [ponto do mapa, nome] (vazio = nenhum)
 ## Uma viagem de viatura: o caminho e quanto dele já foi, no tempo do jogo.
 class Trip:
 	var u: String              ## a unidade (`Fleet.IDS`)
@@ -125,7 +128,7 @@ func _fit_k() -> float:
 ## Escala e deslocamento da vista; o centro não sai do enquadramento.
 func _view() -> void:
 	var f := _frame()
-	_zoom = clampf(_zoom, 1.0, maxf(1.0, MAX_K / _fit_k()))
+	_zoom = clampf(_zoom, 1.0, _top())
 	_k = _fit_k() * _zoom
 	if _center == Vector2.INF:
 		_center = f.get_center()
@@ -150,9 +153,15 @@ func _to_map(p: Vector2) -> Vector2:
 	return (p - _off) / _k
 
 
+## O trecho sob o ponto `mp` do mapa. No cruzamento as duas ruas empatam: fica a que o mouse vinha seguindo (`hover`)
+## até ele sair dela; antes, vencia a primeira da lista e o clique na vertical marcava a horizontal.
 func _find_seg(mp: Vector2) -> Dictionary:
 	var best := {}
 	var bd := maxf(13.0, 8.0 / _k)   # perto da rua em px de tela, mesmo com o mapa afastado
+	if not hover.is_empty():
+		var h := seg_geom(GameData.street(hover["street"]), hover["block"])
+		if Geometry2D.get_closest_point_to_segment(mp, h[0], h[1]).distance_to(mp) < bd:
+			return hover
 	for s in GameData.CONTENT.streets:
 		for b in s.blocks():
 			if not s.block_sector(b) in GameData.sectors:
@@ -173,17 +182,20 @@ func _gui_input(e: InputEvent) -> void:
 			mouse_default_cursor_shape = Control.CURSOR_DRAG
 			queue_redraw()
 			return
-		var h := _find_seg(_to_map(e.position))
-		if h != hover:
+		var mp := _to_map(e.position)
+		var h := _find_seg(mp)
+		var spot := []   # o nome do lugar não cabe no telhado com o mapa afastado: a etiqueta diz qual é
+		if h.is_empty():
+			for pl in _places:
+				if (pl[0] as Rect2).has_point(mp):
+					spot = [(pl[0] as Rect2).get_center(), pl[1]]
+		if h != hover or spot != _spot:
 			hover = h
+			_spot = spot
 			mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if not h.is_empty() else Control.CURSOR_ARROW
 			queue_redraw()
 	elif e is InputEventMouseButton and e.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN] and e.pressed:
-		var at := _to_map(e.position)   # o ponto sob o mouse fica parado
-		_zoom *= 1.2 if e.button_index == MOUSE_BUTTON_WHEEL_UP else 1.0 / 1.2
-		_view()
-		_center += at - _to_map(e.position)
-		queue_redraw()
+		zoom_by(1.2 if e.button_index == MOUSE_BUTTON_WHEEL_UP else 1.0 / 1.2, e.position)
 		accept_event()
 	elif e is InputEventMouseButton and e.button_index == MOUSE_BUTTON_LEFT:
 		if e.pressed:
@@ -196,12 +208,51 @@ func _gui_input(e: InputEvent) -> void:
 		mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if not hover.is_empty() else Control.CURSOR_ARROW
 		if was_drag:
 			return
-		var h := _find_seg(_to_map(e.position))
+		var h := _find_seg(_to_map(e.position))   # o destacado, se o mouse ainda está nele
 		if not h.is_empty():
-			sel = h
 			Sfx.play("click")
-			segment_selected.emit(h["street"], h["block"], h["label"])
+			segment_selected.emit(h["street"], h["block"], h["label"])   # (o `Dispatch` marca `pend` ou `sel`)
 			queue_redraw()
+
+
+## Aproxima (`f` > 1) ou afasta o mapa `f` vezes, no degrau mais perto (ao menos um), com o ponto `at` da tela
+## parado (a roda do mouse, ali; o + e o − do anel, no meio da vista).
+func zoom_by(f: float, at := Vector2.INF) -> void:
+	var to := snappedf(_zoom * f, ZOOM_STEP)
+	if is_equal_approx(to, _zoom):
+		to = _zoom + signf(f - 1.0) * ZOOM_STEP
+	_zoom_to(to, at)
+
+
+## `n` degraus do aumento (o anel girado), no meio da vista.
+func zoom_step(n: int) -> void:
+	_zoom_to(snappedf(_zoom + n * ZOOM_STEP, ZOOM_STEP), Vector2.INF)
+
+
+func _zoom_to(to: float, at: Vector2) -> void:
+	if at == Vector2.INF:
+		at = _seen().get_center()
+	var p := _to_map(at)
+	_zoom = to
+	_view()
+	_center += p - _to_map(at)
+	queue_redraw()
+
+
+## O aumento máximo, no degrau abaixo do limite da escala (`MAX_K`).
+func _top() -> float:
+	return maxf(1.0, floorf(MAX_K / _fit_k() / ZOOM_STEP + 0.001) * ZOOM_STEP)
+
+
+## O aumento do mapa: 1 enquadrado (o mostrador do anel, `CardMachines`).
+func magnification() -> float:
+	return _zoom
+
+
+## Quanto o mapa está aproximado, de 0 (enquadrado) a 1 (o máximo).
+func zoom_level() -> float:
+	var top := _top()
+	return 0.0 if top <= 1.0 else clampf(log(_zoom) / log(top), 0.0, 1.0)
 
 
 func route(u: String, target: Dictionary) -> PackedVector2Array:
@@ -282,12 +333,12 @@ func _t(p: Vector2, txt: String, sz: int, col: Color = LINE) -> void:
 
 
 ## Nome centrado no ponto p do mapa (linha de base), em pé se `up`, com fundo `bg` (transparente = sem): só se couber
-## inteiro na vista e não encostar num nome já desenhado (`_boxes`). Devolve se desenhou.
-func _label(p: Vector2, txt: String, sz: int, col: Color = LINE, bg := Color.TRANSPARENT, up := false) -> bool:
+## inteiro na vista e não encostar num nome já desenhado (`_boxes`; `over`, por cima deles). Devolve se desenhou.
+func _label(p: Vector2, txt: String, sz: int, col: Color = LINE, bg := Color.TRANSPARENT, up := false, over := false) -> bool:
 	var w := _width(txt, sz)
 	var at := (_tf * p).round()
 	var box := Rect2(at.x - sz * 0.8, at.y - w / 2.0 - 1, sz + 2, w + 2) if up else Rect2(at.x - w / 2.0 - 1, at.y - sz * 0.8, w + 2, sz + 2)
-	if not _seen().encloses(box) or _boxes.any(func(b: Rect2): return b.intersects(box)):
+	if not _seen().encloses(box) or not over and _boxes.any(func(b: Rect2): return b.intersects(box)):
 		return false
 	_boxes.append(box)
 	draw_set_transform(Vector2.ZERO)
@@ -329,21 +380,35 @@ func _draw() -> void:
 		var n := int(seg[2].distance_to(seg[3]) / 24.0)
 		for i in n:
 			draw_line(seg[2].lerp(seg[3], float(i) / n), seg[2].lerp(seg[3], (i + 0.5) / n), Color(LINE, 0.5), 3.0)
-	# realce e seleção
+	# realce e seleção (a faixa de papel do nome da rua sob o mouse tem o realce dela, `_road_of`, senão o tapava)
 	if not hover.is_empty():
-		var g := seg_geom(GameData.street(hover["street"]), hover["block"])
-		draw_line(g[0], g[1], Color(Pal.AMBER, 0.45), 16.0)
-	if not sel.is_empty():
-		var g := seg_geom(GameData.street(sel["street"]), sel["block"])
-		var a: Vector2 = g[0]
-		var b: Vector2 = g[1]
-		var n := int(a.distance_to(b) / 15.0)
-		for i in n:
-			draw_line(a.lerp(b, float(i) / n), a.lerp(b, (i + 0.66) / n), Pal.MAP_MARK, 7.0)
-		var m: Vector2 = g[2]
-		draw_rect(Rect2(m.x - 8, m.y - 8, 16, 16), Color.BLACK)
-		draw_rect(Rect2(m.x - 6, m.y - 6, 12, 12), Pal.MAP_MARK)
-	_draw_names(_k >= NAMES_K)
+		var hs := GameData.street(hover["street"])
+		for b in hs.blocks():
+			if shown(hs.block_sector(b)):
+				var g := seg_geom(hs, b)
+				draw_line(g[0], g[1], _road_of(hs, b), 16.0)
+	# o local impresso: tracejado cheio e o quadradinho; o do primeiro clique, à espera do segundo: tracejado ralo e
+	# o quadradinho vazado (ainda não é cartão). O tracejado fica embaixo dos nomes, com ao menos 3 px de tela; o
+	# quadradinho, por cima (o nome no meio do trecho o tapava), em tamanho de tela (afastado, sumia)
+	for at: Dictionary in [sel, pend]:
+		if not at.is_empty():
+			var g := seg_geom(GameData.street(at["street"]), at["block"])
+			var a: Vector2 = g[0]
+			var b: Vector2 = g[1]
+			var n := int(a.distance_to(b) / 15.0)
+			var dash := 0.66 if at == sel else 0.4
+			for i in n:
+				draw_line(a.lerp(b, float(i) / n), a.lerp(b, (i + dash) / n), Pal.MAP_MARK, maxf(7.0 if at == sel else 5.0, 3.0 / _k))
+	_draw_names()
+	draw_set_transform(Vector2.ZERO)
+	for at: Dictionary in [sel, pend]:
+		if not at.is_empty():
+			var m := (_tf * (seg_geom(GameData.street(at["street"]), at["block"])[2] as Vector2)).round()
+			draw_rect(Rect2(m - Vector2(6, 6), Vector2(12, 12)), Color.BLACK)
+			draw_rect(Rect2(m - Vector2(4, 4), Vector2(8, 8)), Pal.MAP_MARK if at == sel else PAPER)
+	draw_set_transform_matrix(_tf)
+	if not hover.is_empty():
+		_draw_spans()
 	if _reveal >= 0.0:   # o bairro entregue aparece aos poucos
 		for s in SHEETS:
 			if shown(s) and not SHEET_SECTOR[s] in _before:
@@ -359,7 +424,56 @@ func _draw() -> void:
 	_t(seal.position + Vector2(72, 22), CITY, 11)
 	_use(xf)
 	if not hover.is_empty():
-		_tag(seg_geom(GameData.street(hover["street"]), hover["block"])[2], hover["label"])
+		var st := GameData.street(hover["street"])   # na vertical, ao lado: em cima tapava o trecho e o número dele
+		_tag(seg_geom(st, hover["block"])[2], hover["label"], not st.horizontal, T.text(T.Key.MAP_CLICK_AGAIN) if hover == pend else "")
+	elif not _spot.is_empty():
+		_tag(_spot[0], _spot[1])
+
+
+## A cor da rua `st` no trecho `b`: o papel, ou o realce se ela está sob o mouse (inteira de leve, o trecho forte).
+func _road_of(st: Street, b: int) -> Color:
+	if hover.is_empty() or hover["street"] != st.id:
+		return ROAD
+	return ROAD.lerp(Pal.AMBER, LIT[1] if b == hover["block"] else LIT[0])
+
+
+## A cor da rua `st` no ponto `p` do mapa (o fundo do nome dela ali).
+func _road_at(st: Street, p: Vector2) -> Color:
+	var b := 0
+	var best := INF
+	for i in st.blocks():
+		var g := seg_geom(st, i)
+		var dd := Geometry2D.get_closest_point_to_segment(p, g[0], g[1]).distance_to(p)
+		if dd < best:
+			best = dd
+			b = i
+	return _road_of(st, b)
+
+
+## A numeração de cada trecho da rua sob o mouse ("200–299": o trecho começa no meio de um quarteirão; sem isso, só
+## aproximando bem se via onde ficava o 260), na beira da rua (em cima dela tapava os nomes), no ponto do trecho mais
+## perto do meio que não encoste em nome nenhum; sem nenhum, por cima. O do trecho sob o mouse está na etiqueta.
+func _draw_spans() -> void:
+	var st := GameData.street(hover["street"])
+	for b in st.blocks():
+		if b == hover["block"] or not shown(st.block_sector(b)):
+			continue
+		var g := seg_geom(st, b)
+		var txt := Street.block_label(b)
+		var sides := [Vector2(0, 17), Vector2(0, -8)] if st.horizontal else [Vector2(_width(txt, 11) / 2.0 + 7, 5), Vector2(-_width(txt, 11) / 2.0 - 7, 5)]
+		var paper := _frame().grow_individual(-(_width(txt, 11) / 2.0 + 2) / _k, -12 / _k, -(_width(txt, 11) / 2.0 + 2) / _k, -4 / _k)
+		if not paper.has_area():   # (o mapa ainda sem tamanho, antes do primeiro arranjo)
+			continue
+		var spots := []   # (dentro do papel: a vista vai até a moldura)
+		for t: float in [0.5, 0.35, 0.65, 0.2, 0.8, 0.1, 0.9]:
+			for sd: Vector2 in sides:
+				var q: Vector2 = (g[0] as Vector2).lerp(g[1], t) + sd / _k
+				if paper.has_point(q):
+					spots.append(q)
+		if spots.is_empty():
+			continue
+		if not spots.any(func(q: Vector2): return _label(q, txt, 11, LINE, Pal.MAP_TAG)):
+			_label(spots[0], txt, 11, LINE, Pal.MAP_TAG, false, true)   # só enquanto o mouse está na rua: por cima, se preciso
 
 
 ## Folhas (que aparecem) por onde a rua passa.
@@ -367,20 +481,21 @@ func _sheets_of(st: Street) -> Array:
 	return [st.sector, st.continues].filter(func(s): return s != 0 and shown(s))
 
 
-## Nomes, na ordem de prioridade: bairros, ruas, lugares e a numeração dos trechos. Afastado (`names` falso), só os
-## bairros, no meio da folha.
-func _draw_names(names: bool) -> void:
+## Nomes, na ordem de prioridade: bairros, ruas, lugares e a numeração dos trechos. As ruas desde o mapa afastado
+## (antes só os bairros: achar a rua pedida era passar o mouse em cada uma); as horizontais primeiro (`_street_name`
+## as põe alternando os lados e deixa colunas para as verticais).
+func _draw_names() -> void:
 	for s in SHEETS:
 		if s != 0 and shown(s):
-			var at: Vector2 = SHEETS[s] + (Vector2(300, 433) if names else Vector2(300, 226))
-			_label(at, T.text(DISTRICT[s]).to_upper(), 11, Pal.INK_SOFT, PAPER)
-	if not names:
-		return
+			_label(SHEETS[s] + Vector2(300, 433), T.text(DISTRICT[s]).to_upper(), 11, Pal.INK_SOFT, PAPER)
 	if shown(0):
 		_label(SHEETS[0] + Vector2(320, 300), T.text(T.Key.MAP_RURAL), 11, Pal.INK_SOFT)
-	for st in GameData.CONTENT.streets:
-		for sheet in _sheets_of(st):
-			_street_name(SHEETS[sheet], st)
+	for turn in 2:   # cada rua primeiro no bairro onde começa; depois, se couber, na folha para onde continua
+		for up in [false, true]:
+			for st in GameData.CONTENT.streets:
+				var sheet: int = [st.sector, st.continues][turn]
+				if st.horizontal != up and sheet != 0 and shown(sheet):
+					_street_name(SHEETS[sheet], st)
 	for pl in _places:
 		_place_name(pl[0], pl[1], pl[2])
 	if _k < NUMBERS_K:
@@ -398,18 +513,36 @@ func _draw_names(names: bool) -> void:
 
 ## Nome da rua ao longo dela (as verticais em pé, como nos aplicativos de mapa), no meio de um trecho entre dois
 ## cruzamentos: o primeiro trecho à vista em que caiba inteiro (os compridos primeiro), senão abreviado ("R. do Sol",
-## "Av. Brasil"); com o mapa afastado, o abreviado pode passar por um cruzamento. Sem lugar (fora da vista ou
-## encostando noutro nome), fica para a etiqueta do mouse.
+## "Av. Brasil"); com o mapa afastado, o abreviado (ou só o nome, "Tiradentes") passa pelos cruzamentos, em qualquer
+## ponto da folha, para fugir dos nomes já postos. Sem lugar (fora da vista ou encostando noutro nome), fica para a
+## etiqueta do mouse.
 func _street_name(o: Vector2, st: Street) -> void:
 	var short := st.name.replace("Rua ", "R. ").replace("Avenida ", "Av. ")
 	var cuts: Array = XS if st.horizontal else YS   # onde as ruas do outro sentido a cruzam
-	for opt in [[st.name, true], [short, true], [short, false]]:
+	for txt in [st.name, short]:
 		for i in ([1, 2, 3, 0, 4] if st.horizontal else [1, 2, 0, 3]):
 			var a: float = cuts[i]
 			var b: float = cuts[i + 1]
 			var mid := Vector2((a + b) / 2.0, st.pos + 5) if st.horizontal else Vector2(st.pos + 5, (a + b) / 2.0)
-			var fits: bool = _width(opt[0], 11) + 12.0 <= (b - a) * _k
-			if (fits or not opt[1]) and _label(o + mid, opt[0], 11, LINE, ROAD, not st.horizontal):
+			if _width(txt, 11) + 12.0 <= (b - a) * _k and _label(o + mid, txt, 11, LINE, _road_at(st, o + mid), not st.horizontal):
+				return
+	var bare := short.trim_prefix("R. ").trim_prefix("Av. ").trim_prefix("das ").trim_prefix("da ").trim_prefix("dos ").trim_prefix("do ")
+	# as verticais do meio para as pontas; as horizontais de um lado, alternando (a 1ª e a 3ª à esquerda, a do meio à
+	# direita), para deixar colunas livres para os nomes das verticais (no meio, as três tapavam as mesmas duas)
+	var c: float = (cuts[0] + cuts[-1]) / 2.0
+	var spots := []
+	for d in range(0, int(cuts[-1] - c), 10):
+		spots.append_array([c - d, c + d])
+	if st.horizontal:
+		spots.sort()
+		if ROADS_H.find(st.pos) == 1:
+			spots.reverse()
+	var end: float = SHEET.x if st.horizontal else SHEET.y
+	for txt in [short, bare]:
+		var half := (_width(txt, 11) / 2.0 + 2.0) / _k   # o nome não sai da folha do bairro
+		for at: float in spots:
+			var p := o + (Vector2(at, st.pos + 5) if st.horizontal else Vector2(st.pos + 5, at))
+			if at - half >= 0.0 and at + half <= end and _label(p, txt, 11, LINE, _road_at(st, p), not st.horizontal):
 				return
 
 
@@ -590,21 +723,29 @@ static func field_rect(ci: int, ri: int) -> Rect2:
 
 
 ## Etiqueta de papel com o nome e a faixa de números do trecho sob o mouse ("Rua do Sol, 1–99"): mostra onde fica
-## o número que a pessoa disse antes de clicar. Em tamanho de tela, acima do trecho, sem sair do mapa.
-func _tag(p: Vector2, txt: String) -> void:
-	var w := _width(txt, 11)
-	var at := (_tf * p).round() + Vector2(-roundf(w / 2.0) - 5, -34)
+## o número que a pessoa disse antes de clicar. Em tamanho de tela, acima do trecho, sem sair do mapa. `hint`, na fonte
+## miúda embaixo do nome, em vermelho (o trecho do primeiro clique: "clique de novo para imprimir").
+func _tag(p: Vector2, txt: String, beside := false, hint := "") -> void:
+	var tip := PixelArt.tiny(hint) if hint != "" else null
+	var w := maxf(_width(txt, 11), 0.0 if tip == null else tip.get_width())
+	var h := 20.0 if tip == null else 28.0
+	var at := (_tf * p).round() + (Vector2(14, -10) if beside else Vector2(-roundf(w / 2.0) - 5, 6 - h - 20))
+	if beside and at.x + w + 12 > _seen().end.x:   # sem lugar à direita, à esquerda da rua
+		at.x -= w + 38
 	at = Vector2(clampf(at.x, 2, _seen().end.x - w - 12), maxf(at.y, 2))
 	draw_set_transform(Vector2.ZERO)
-	draw_rect(Rect2(at, Vector2(w + 10, 20)), LINE)
-	draw_rect(Rect2(at + Vector2.ONE, Vector2(w + 8, 18)), Pal.MAP_TAG)
+	draw_rect(Rect2(at, Vector2(w + 10, h)), LINE)
+	draw_rect(Rect2(at + Vector2.ONE, Vector2(w + 8, h - 2)), Pal.MAP_TAG)
 	draw_string(Pal.ui, at + Vector2(5, 15), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, LINE)
+	if tip != null:
+		draw_texture(tip, at + Vector2(5, 19), Pal.MAP_MARK)
 	draw_set_transform_matrix(_tf)
 
 
 ## Tira a marcação do trecho (o despacho limpa depois de enviar).
 func clear_selection() -> void:
 	sel = {}
+	pend = {}
 	queue_redraw()
 
 
@@ -613,8 +754,9 @@ func clear_selection() -> void:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_TRANSLATION_CHANGED:
 		queue_redraw()
-	elif what == NOTIFICATION_MOUSE_EXIT and not hover.is_empty():
+	elif what == NOTIFICATION_MOUSE_EXIT and not (hover.is_empty() and _spot.is_empty()):
 		hover = {}
+		_spot = []
 		queue_redraw()
 	elif what == NOTIFICATION_VISIBILITY_CHANGED and is_visible_in_tree() and not pending_reveal.is_empty():
 		_before = pending_reveal

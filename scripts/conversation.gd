@@ -156,15 +156,15 @@ func transfer_choices(c: PhoneCall) -> void:
 	var t: TransferCall = c.data
 	var list: Array[Dictionary] = []
 	if not c.said_wait:
-		list.append({"label": T.text(T.Key.OP_CONNECT_WAIT), "fn": _transfer_wait.bind(c)})
-	list.append({"label": T.text(T.Key.OP_REPEAT), "fn": _transfer_repeat.bind(c)})
+		list.append({"label": T.text(T.Key.CHOICE_CONNECT_WAIT), "fn": _transfer_wait.bind(c)})
+	list.append({"label": T.text(T.Key.CHOICE_REPEAT), "fn": _transfer_repeat.bind(c)})
 	if c.no_answer and t.alt_target != "" and not c.alt_done:
-		list.append({"label": tr(t.alt_ask), "fn": _transfer_alt.bind(c)})
+		list.append({"label": T.text(T.Key.CHOICE_OFFER_ALT), "fn": _transfer_alt.bind(c)})
 	if c.chat != null:
 		for r in c.chat.replies:
 			list.append({"label": tr(r.text), "fn": _chat.bind(c, r)})
 	elif not c.chat_asked and not c.chatting and c.chats.size() < SMALLTALK_MAX:
-		list.append({"label": T.text(T.Key.OP_SMALLTALK), "fn": _ask_chat.bind(c)})
+		list.append({"label": T.text(T.Key.CHOICE_SMALLTALK), "fn": _ask_chat.bind(c)})
 	c.set_options(list)
 
 
@@ -335,7 +335,7 @@ func emergency_choices(c: PhoneCall) -> void:
 		if not k in c.asked and qa[0] != "":
 			list.append({"label": tr(qa[0]), "fn": _em_ask.bind(c, k)})
 	if not c.dispatched:
-		list.append({"label": T.text(T.Key.OP_HOLD_EMERGENCY), "fn": _em_hold.bind(c)})
+		list.append({"label": T.text(T.Key.CHOICE_HOLD_EMERGENCY), "fn": _em_hold.bind(c)})
 	c.set_options(list)
 
 

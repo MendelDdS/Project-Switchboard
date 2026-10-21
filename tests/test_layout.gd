@@ -2,7 +2,8 @@ extends "res://tests/test_base.gd"
 ## A disposição dos objetos da mesa: em 16:9 e nas janelas mais largas (o `main.tscn` sozinho), nenhum objeto
 ## fica por cima de outro na tela (o relógio por cima das listas passou duas vezes conferido só na captura). Mede o
 ## contorno de cada um como o cenário o desenhou (`Background._occ`, `occ_ids`). A caneca fica na frente do relógio
-## de propósito.
+## de propósito. E a resposta mais longa do jogo, num botão do painel, não alarga a tela (a oferta da alternativa
+## empurrava tudo para a esquerda).
 
 const WIDTHS := [960, 1125, 1281]   # o jogo é sempre 960 (`GameView`); as outras, o `main.tscn` sozinho numa janela larga
 const TOGETHER := [["relogio", "caneca"]]   # os que se encostam de propósito
@@ -41,9 +42,29 @@ func _initialize() -> void:
 						where = where.expand(p)
 				ok(area < 1.0, "%d px: %s e %s se sobrepõem na tela (%.0f px², em %s)" % [w, a, b, area, where])
 		print("OK %d px: %d objetos, nenhum por cima de outro" % [w, bg.occ_ids.size()])
+		if w == 960:
+			await _longest_choice(m)
 		vp.queue_free()
 		await frames(2)
 	finish("disposição da mesa")
+
+
+## A resposta mais longa (a oferta da alternativa) com outras duas no painel: tudo dentro dos 960 px.
+func _longest_choice(m: Main) -> void:
+	var longest := ""
+	for t: TransferCall in GameData.CONTENT.transfers + GameData.CONTENT.transfer_templates:
+		if tr(t.alt_ask).length() > longest.length():
+			longest = tr(t.alt_ask)
+	var c := PhoneCall.new()
+	c.on_line = true
+	m.phone.show_call(c)
+	c.set_options([{"label": T.text(T.Key.CHOICE_REPEAT), "fn": func(): pass}, {"label": longest, "fn": func(): pass},
+		{"label": T.text(T.Key.CHOICE_SMALLTALK), "fn": func(): pass}])
+	await frames(4)
+	var r := m.phone.get_global_rect()
+	ok(r.position.x >= 0.0 and r.end.x <= 960.0 and m.size.x <= 960.0,
+		"a resposta mais longa (%d letras) cabe no painel: painel em %s, tela com %.0f px" % [longest.length(), r, m.size.x])
+	m.phone.show_call(null)
 
 
 func _area(q: PackedVector2Array) -> float:

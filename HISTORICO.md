@@ -1883,3 +1883,95 @@ Chaves:
     destino de transferência. O `test_content` (`_check_destinations`) acusa o número da lista que nenhuma ligação
     escrita (avulsa, do roteiro, do treinamento, também como alternativa) nem molde transfere para ele, contando o do
     mesmo ramo oferecido quando o pedido não atende; os só do despacho ficam de fora. Hoje todos servem.
+317. #testes #consequencias "Nem todo jogador vai esperar a ligação finalizar depois que entender que isso não impacta em
+    nada": o robô do `test_shift` esperava o destino atender e o agradecimento (e a despedida da informação e da
+    emergência) antes de atender outra. `--eager` mede o apressado: com a ligação resolvida (`closing`) ou o destino
+    chamando ou na linha, tira o FONE e atende a próxima; sem ninguém tocando, volta à que ficou em espera precisando
+    dele. Largar não custa nada (a transferência se completa sozinha); na noite 9, semente 1, a mais cheia, com
+    `--human` o apressado largou 3 e tirou Bom contra Regular do atento (duas perdidas a menos). Nas outras sementes, igual.
+318. #testes #debug #emergencia "Meça" / "Faça" (o cronômetro): o caminho do cartão no `test_shift --human` leva 40 s
+    de barra (relato e perguntas 24, protocolo 5, mapa e impressão 5, perfuração 5, envio 1; a linha "despachos" mostra a
+    trilha); o limite do estágio inicial é 35, 40 ou 45 s. Para comparar com uma partida do usuário, o `DebugPanel`
+    (`_time_calls`, só em debug) imprime em cada ligação quando cada passo aconteceu (s desde que tocou; na emergência,
+    a barra), no `user://logs/godot.log`.
+319. #interface #painel #mapa #despacho #testes "Vamos elaborar um plano" (depois da partida cronometrada; o plano em
+    `PLANO_RITMO_JOGADOR.md`): (A) a oferta da alternativa (`alt_ask`, até 79 letras) num botão de resposta exigia o
+    texto inteiro e empurrava a tela toda para a esquerda; agora a resposta que não cabe quebra em duas linhas
+    (`PhonePanel._render_choices`), e o `test_layout` confere a mais longa. (C) No mapa, o clique na rua vertical
+    marcava a horizontal: no cruzamento as duas empatavam e vencia a primeira da lista. Tirar o clique dos cruzamentos
+    foi recusado ("não faz sentido tirar ação dos cruzamentos"); ficou a rua que o mouse vinha seguindo, até ele sair
+    dela (`CityMap._find_seg`), e o clique marca a destacada (`test_flow`).
+320. #interface #painel #conversa "Vamos implementar a B" (`PLANO_RITMO_JOGADOR.md`): os botões de resposta longos
+    atrasavam a leitura. O botão mostra uma fala curta do operador (`CHOICE_*` no `ui.csv`: "Um momento.", "Pode
+    repetir?", "Como vai a noite?", "Fique na linha.") e, clicado, ele diz a frase inteira (`OP_*`) na conversa. Um
+    verbo solto ("Conectar") foi recusado: parece ação, não fala. O que é ação do jogador vai entre colchetes:
+    "[Oferecer outro lugar]" no lugar da oferta da alternativa (`alt_ask`, que continua sendo a fala). As perguntas da
+    emergência e as respostas da conversa fiada (do roteiro, já curtas) ficaram. "Lugar" e não "número": o
+    operador oferece outro lugar do mesmo ramo, e "número" confundia com a resposta da informação ("É o 312.").
+321. #mapa #despacho "Vamos implementar o 1, Nomes à vista" (`PLANO_RITMO_JOGADOR.md`, D): com os três bairros o mapa
+    abria abaixo de `NAMES_K` e só mostrava os bairros; achar a Rua Tiradentes levou 31 s. Os nomes das ruas aparecem
+    desde o mapa afastado (`NAMES_K` saiu): sem lugar no meio de um trecho, o abreviado ("R. do Sol") ou só o nome
+    ("Estação", "Tiradentes") desliza ao longo da rua, sem sair da folha; cada rua primeiro no bairro onde começa, as
+    horizontais antes, alternando os lados (a do meio à direita) para deixar colunas para as verticais. Com os três
+    bairros, as 14 ruas têm nome; Flores, Brasil e Acácias, já nomeadas em Vila Serena, só repetem no Centro se couber.
+    Redesenhar os nomes custa ~1,4 ms (só quando muda a rua destacada).
+322. #mapa #despacho #saiu "Testar a sugestão 2, Grade e índice de ruas" (`PLANO_RITMO_JOGADOR.md`, D): grade fixa na
+    cidade (colunas A–F, linhas 1–4) e um índice das ruas à vista ("Tiradentes … E1–E2") num papel acima do selo.
+    Saiu: "o índice basicamente atrapalha o jogador", porque cobre ruas (nas primeiras noites, um canto de Vila
+    Serena; na noite 9, um terço do Centro); com os nomes à vista ele só repetia a informação com um passo a mais, e a
+    grade carregava o mapa.
+323. #mapa #despacho "Comece pelos pontos 1 e 2" (`PLANO_RITMO_JOGADOR.md`, F): (1) 40% das emergências de molde dão
+    a rua e um lugar ("perto do posto"), e na noite 9 nenhum nome de lugar cabe no telhado: com o mouse no prédio de
+    referência, a etiqueta diz o nome (`CityMap._spot`). (2) A numeração dos trechos só aparecia bem aproximado, e os
+    trechos não coincidem com os cruzamentos: com o mouse numa rua, ela inteira fica de leve, o trecho mais forte e
+    aparece o número onde começa cada trecho (`_draw_hover`). O realce amarelo era desenhado antes dos nomes e sumia
+    embaixo da faixa de papel do nome ("a barra amarela de seleção não aparece"); agora vem depois. Na rua vertical a
+    etiqueta fica ao lado (em cima tapava o trecho e o "100"). Captura: `tools/shot.gd` `--street=sol,1` e `--spot=Posto`.
+324. #mapa #despacho "Dê mais ênfase nesses amarelos" e "adicione o intervalo ... (100-199)": o realce da rua sob o
+    mouse ficou mais forte (`LIT`: a rua inteira 0,4, o trecho 0,8) e voltou para baixo dos nomes, com a faixa de
+    papel do nome dessa rua no mesmo âmbar (`_road_of`, `_road_at`: por cima, o âmbar forte apagava o nome). Cada trecho
+    mostra o intervalo ("200–299") na beira da rua, dentro do papel, no ponto mais perto do meio que não encoste em nome;
+    sem lugar, por cima (só aparece com o mouse na rua). Em cima da rua, os intervalos tapavam os nomes, e o meio dos
+    trechos das verticais cai quase nos cruzamentos.
+325. #despacho #mapa #interface #testes "Na primeira vez que abro a máquina de despacho e passo o cursor por cima das
+    ruas, não mostra o seletor, só mostra se eu clicar em outra parte": o objeto da mesa abria a ferramenta ao apertar
+    o botão, e o papel surgia sob o mouse com o botão apertado; pelo `GameView`, a soltura se perdia e a cena ficava
+    com o mouse até o próximo clique (o mapa não recebia os movimentos). Valia para toda ferramenta aberta pelo objeto
+    (pelas teclas 1–4, não). O clique na cena (`Background.pointer`) passou a agir ao soltar; o `test_keys` clica no
+    objeto pela janela e confere que o mapa já vê o mouse.
+326. #despacho #mapa "Clica uma vez na rua e clica novamente para confirmar a impressão", "deixar isso evidente para o
+    jogador": o primeiro clique no mapa só datilografa o local na tira da impressora (`CardMachines.draft`,
+    `type_draft`) e marca o trecho vazado (`CityMap.pend`); outra rua troca o local, sem cartão a triturar; o segundo
+    no mesmo trecho imprime (`Dispatch._pick`), já sem datilografar. O aviso "clique de novo para imprimir" pisca na
+    impressora e vai em vermelho na etiqueta do trecho. O quadradinho da marca passou para cima dos nomes (o nome no
+    meio do trecho o tapava). Com um cartão na mesa, o primeiro clique já é recusado.
+327. #despacho #mapa "simular uma máquina leitora de microfilme ... girar um controle de zoom", "não vamos remover a
+    rolagem do mouse", "+ e −" acima e abaixo: o anel de aproximar na moldura da direita, mais larga (`KNOB_W`,
+    `_draw_knob`, `_knob_input`): arrastar para cima aproxima, a roda sobre ele também, e o + e o − dão um degrau
+    (apagados no limite); os sulcos andam com a aproximação (`CityMap.zoom_level`, `zoom_by`).
+328. #despacho #mapa #objetos #som #testes "Pode fazer todos, exceto o ponto 5" (imprimir clicando na impressora ficou
+    de fora): a marca do local (o quadradinho) em tamanho de tela, por cima dos nomes, e o tracejado com ao menos 3 px
+    (afastado, sumiam); a miniatura da unidade na mesa com o anel na moldura da direita (`_art_glass`); o anel clareia
+    sob o mouse e tem embaixo o mostrador do aumento ("1.4X", `CityMap.magnification`); um tique de catraca por sulco
+    que passa (`knob_tick`, no máximo uns 25 por segundo); o robô `--human` dá o segundo clique na rua 0,4 s depois do
+    primeiro (`CONFIRM_SEC`).
+329. #despacho #mapa "ele está 'liso' ao girar ... ter o tic e pular pro próximo zoom" e "o display ... poderia ser
+    analógico ... números 'girando'", "uma pequena escurecida na parte de cima": o aumento do mapa anda em degraus de
+    0,1 (`CityMap.ZOOM_STEP`, `zoom_step`; a roda no mapa e o + e o − também caem num degrau, o máximo no degrau abaixo
+    de `MAX_K`); o anel avança um degrau a cada `DETENT_PX` arrastados, com um tique, e os sulcos pulam um terço de
+    sulco por degrau (`DETENT_TURN`), sem giro contínuo. O mostrador é um contador de tambores (`_drum`, `_roll`): o
+    número rola até o novo e o das unidades só vira quando o dos décimos passa do 9; a beira de cima da janela escurece
+    (a janela é funda).
+330. #testes #ferramentas "Adicione isso às lições aprendidas ... a tela da godot fica preta e paralizada e você espera
+    muito tempo antes de fechá-la": captura com o `shot.gd` quebrado ficava parada até o limite de 2 min. As capturas
+    passaram a rodar com `--quit-after 1500` (`CLAUDE.md`, `visual.sh`, `hibit_shots.sh`) e a lição foi para o
+    `LESSONS.md` (Ferramentas e testes).
+331. #despacho "acho que tá pra fazer mais algum ajuste para dar mais profundidade" (das sugestões, 1 a 3; o brilho do
+    vidro ficou para depois): o mostrador do aumento com um tambor por algarismo, cada um no seu rasgo rebaixado da
+    chapa (a beira de cima e a da esquerda escuras, a de baixo e a da direita na luz), o papel escurecendo no alto e
+    embaixo como um cilindro, e o ponto e o X gravados no metal, em latão (`CardMachines._drum`).
+332. #despacho "Aumente só mais um pouco de pixels para dar mais respiro" e "um pequeno vão entre o anel de zoom": a
+    moldura da direita foi de 24 para 28 px (`KNOB_W`; o mapa na cena acompanha, e na noite 9 ele não encolhe, pois
+    cabe pela altura), com folga em volta do mostrador; o anel num rasgo com 2 px de vão em volta, a beira de baixo e a
+    da direita na luz. Os tambores chegaram a crescer para 7×11 e voltaram ("Eu queria que aumentasse a borda da
+    máquina para dar respiro", não o mostrador).

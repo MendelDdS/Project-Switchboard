@@ -54,7 +54,7 @@ function warn(msg) { printf "%s:%d: %s\n    %s\n", file, line, msg, text; n++ }
 	if (code ~ /^class_name /) warn("class_name novo: só existe depois de reimportar (com o editor aberto, dê foco a ele)")
 	if (file ~ /^tests\// && code ~ /(^|[^a-z_.])assert\(/) warn("assert trava o headless: use ok()")
 	if (file ~ /^tests\// && code ~ /Time\.get_ticks_(msec|usec)/) warn("tempo de teste em relógio real: com --fixed-fps, meça em quadros")
-	if (file !~ /^(tests|tools)\// && code ~ /(^|[^a-z_.])print(s|err|_debug)?\(/) warn("print no jogo (depuração esquecida?)")
+	if (file !~ /^(tests|tools)\// && file !~ /debug_panel\.gd$/ && code ~ /(^|[^a-z_.])print(s|err|_debug)?\(/) warn("print no jogo (depuração esquecida?)")
 }
 END { if (!n) print "Nada nas verificações mecânicas."; else printf "%d apontamento(s) nas verificações mecânicas.\n", n }
 '

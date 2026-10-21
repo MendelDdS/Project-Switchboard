@@ -1455,7 +1455,8 @@ func _art_deck(sz: Vector2i) -> Image:
 
 ## O painel da unidade de despacho, de frente: a moldura de metal e, sob o vidro, o mapa de papel (`_art_map`, na
 ## proporção das folhas, com papel em volta; um pouco mais escuro perto da moldura), a sombra da moldura no alto e o
-## reflexo do vidro na diagonal. Papel sob a luz da sala, não uma tela acesa.
+## reflexo do vidro na diagonal. Papel sob a luz da sala, não uma tela acesa. Na moldura da direita, mais larga, o
+## anel de aproximar do despacho aberto (`CardMachines._draw_knob`).
 func _art_glass(sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
 	img.fill(Pal.PANEL)
@@ -1465,6 +1466,12 @@ func _art_glass(sz: Vector2i) -> Image:
 	var inner := _glass_inner(sz)
 	if inner.size.x < 4 or inner.size.y < 4:
 		return img
+	var kh := maxi(3, roundi(inner.size.y * 0.22))   # o anel: escuro, com um sulco claro no meio
+	var kx := inner.end.x + maxi(1, (sz.x - inner.end.x - 2) / 2)
+	var ky := inner.position.y + (inner.size.y - kh) / 2
+	_fr(img, kx, ky, 2, kh, Pal.PANEL_LO)
+	for y in range(ky + 1, ky + kh - 1, 2):
+		_fr(img, kx, y, 2, 1, Pal.PANEL_METAL[4])
 	var paper := Image.create(inner.size.x, inner.size.y, false, Image.FORMAT_RGBA8)
 	paper.fill(Pal.MAP_PAPER)
 	var at := _glass_map(sz)
@@ -1485,7 +1492,7 @@ func _art_glass(sz: Vector2i) -> Image:
 ## O vidro dentro da moldura do painel da unidade de despacho (`_art_glass` de `sz` px).
 func _glass_inner(sz: Vector2i) -> Rect2i:
 	var m := maxi(2, roundi(sz.x * 0.05))
-	return Rect2i(m, m, sz.x - m * 2, sz.y - m * 2)
+	return Rect2i(m, m, sz.x - m * 2 - maxi(2, m - 1), sz.y - m * 2)   # (à direita, a moldura do anel)
 
 
 ## Onde fica o mapa no painel da unidade de despacho (px do desenho de `sz`): no meio do vidro, na proporção das folhas.
