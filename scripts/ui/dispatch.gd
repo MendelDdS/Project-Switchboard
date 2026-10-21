@@ -7,7 +7,7 @@ extends Control
 ## EmergencyCall.units), e o cartão levado ao transmissor, à esquerda, envia (ou à trituradora, à direita, descarta). O
 ## tipo não marca unidades: quem decide é a conversa. O cartão só mostra o que fica aqui (`_location`, `_occurrence`,
 ## `_picked`). O mapa (`City`) fica no vidro: na cena, `CardMachines.BEZEL` dentro da beira do papel e acima da base
-## (`CardMachines.BASE_H`); as máquinas (`Slip`) cobrem o papel todo. O transmissor aceita cartão incompleto:
+## (`CardMachines.BASE_H`; à direita, `KNOB_W`, a moldura do anel de aproximar); as máquinas (`Slip`) cobrem o papel todo. O transmissor aceita cartão incompleto:
 ## sem unidade, ninguém sai (`blank_card`, o supervisor pune); sem tipo, as unidades vão e a chegada é avaliada com o
 ## tipo vazio. Depois do envio, tudo volta limpo para a próxima. As regras das viaturas e das emergências em andamento
 ## (até duas ao mesmo tempo; o cartão vai para a do lugar marcado, `Fleet.target_of`) ficam no `Fleet` (`fleet`);
@@ -41,7 +41,7 @@ var _picked: Array = []      ## unidades perfuradas no cartão
 
 
 func _ready() -> void:
-	city.segment_selected.connect(set_location)
+	city.segment_selected.connect(_pick)
 	machines.dispatch = self
 	machines.inserted.connect(_send)
 	machines.discarded.connect(_discard)
@@ -56,6 +56,17 @@ func _notification(what: int) -> void:
 		_refresh()
 
 
+## O clique no mapa: o primeiro datilografa o local na tira da impressora (`CardMachines.type_draft`) e marca o trecho
+## vazado (`city.pend`); outro trecho troca o local, sem cartão nenhum a triturar; o segundo no mesmo trecho imprime.
+func _pick(street: String, block: int, label: String) -> void:
+	var at := {"street": street, "block": block, "label": label}
+	if at == city.pend:
+		set_location(street, block, label)
+	elif machines.type_draft(label):
+		city.pend = at
+	city.queue_redraw()
+
+
 ## Marca o local: sai um cartão novo, em branco. Com um cartão ainda na mesa (é preciso enviar ou triturar antes),
 ## a impressora recusa e o mapa volta a marcar o local do cartão que está lá.
 func set_location(street: String, block: int, label: String) -> void:
@@ -64,6 +75,9 @@ func set_location(street: String, block: int, label: String) -> void:
 		city.queue_redraw()
 		return
 	_location = {"street": street, "block": block, "label": label}
+	city.sel = _location.duplicate()
+	city.pend = {}
+	city.queue_redraw()
 	_occurrence = ""
 	_picked.clear()
 	_refresh()

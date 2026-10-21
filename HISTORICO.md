@@ -1939,3 +1939,30 @@ Chaves:
     com o mouse até o próximo clique (o mapa não recebia os movimentos). Valia para toda ferramenta aberta pelo objeto
     (pelas teclas 1–4, não). O clique na cena (`Background.pointer`) passou a agir ao soltar; o `test_keys` clica no
     objeto pela janela e confere que o mapa já vê o mouse.
+326. #despacho #mapa "Clica uma vez na rua e clica novamente para confirmar a impressão", "deixar isso evidente para o
+    jogador": o primeiro clique no mapa só datilografa o local na tira da impressora (`CardMachines.draft`,
+    `type_draft`) e marca o trecho vazado (`CityMap.pend`); outra rua troca o local, sem cartão a triturar; o segundo
+    no mesmo trecho imprime (`Dispatch._pick`), já sem datilografar. O aviso "clique de novo para imprimir" pisca na
+    impressora e vai em vermelho na etiqueta do trecho. O quadradinho da marca passou para cima dos nomes (o nome no
+    meio do trecho o tapava). Com um cartão na mesa, o primeiro clique já é recusado.
+327. #despacho #mapa "simular uma máquina leitora de microfilme ... girar um controle de zoom", "não vamos remover a
+    rolagem do mouse", "+ e −" acima e abaixo: o anel de aproximar na moldura da direita, mais larga (`KNOB_W`,
+    `_draw_knob`, `_knob_input`): arrastar para cima aproxima, a roda sobre ele também, e o + e o − dão um degrau
+    (apagados no limite); os sulcos andam com a aproximação (`CityMap.zoom_level`, `zoom_by`).
+328. #despacho #mapa #objetos #som #testes "Pode fazer todos, exceto o ponto 5" (imprimir clicando na impressora ficou
+    de fora): a marca do local (o quadradinho) em tamanho de tela, por cima dos nomes, e o tracejado com ao menos 3 px
+    (afastado, sumiam); a miniatura da unidade na mesa com o anel na moldura da direita (`_art_glass`); o anel clareia
+    sob o mouse e tem embaixo o mostrador do aumento ("1.4X", `CityMap.magnification`); um tique de catraca por sulco
+    que passa (`knob_tick`, no máximo uns 25 por segundo); o robô `--human` dá o segundo clique na rua 0,4 s depois do
+    primeiro (`CONFIRM_SEC`).
+329. #despacho #mapa "ele está 'liso' ao girar ... ter o tic e pular pro próximo zoom" e "o display ... poderia ser
+    analógico ... números 'girando'", "uma pequena escurecida na parte de cima": o aumento do mapa anda em degraus de
+    0,1 (`CityMap.ZOOM_STEP`, `zoom_step`; a roda no mapa e o + e o − também caem num degrau, o máximo no degrau abaixo
+    de `MAX_K`); o anel avança um degrau a cada `DETENT_PX` arrastados, com um tique, e os sulcos pulam um terço de
+    sulco por degrau (`DETENT_TURN`), sem giro contínuo. O mostrador é um contador de tambores (`_drum`, `_roll`): o
+    número rola até o novo e o das unidades só vira quando o dos décimos passa do 9; a beira de cima da janela escurece
+    (a janela é funda).
+330. #testes #ferramentas "Adicione isso às lições aprendidas ... a tela da godot fica preta e paralizada e você espera
+    muito tempo antes de fechá-la": captura com o `shot.gd` quebrado ficava parada até o limite de 2 min. As capturas
+    passaram a rodar com `--quit-after 1500` (`CLAUDE.md`, `visual.sh`, `hibit_shots.sh`) e a lição foi para o
+    `LESSONS.md` (Ferramentas e testes).

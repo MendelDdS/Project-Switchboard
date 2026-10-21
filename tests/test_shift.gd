@@ -25,6 +25,7 @@ var clumsy := "--clumsy" in OS.get_cmdline_user_args()
 var skipped := 0
 var human := "--human" in OS.get_cmdline_user_args()
 const HUMAN_STEP := 5.0   ## segundos reais por ação no modo --human
+const CONFIRM_SEC := 0.4  ## segundos reais entre os dois cliques na rua (o primeiro datilografa, o segundo imprime)
 var nosy := "--nosy" in OS.get_cmdline_user_args()
 const NOSY_BACK := 0.1    ## o curioso volta a uma conversa com a suspeita abaixo disto
 var careless := "--careless" in OS.get_cmdline_user_args()
@@ -99,31 +100,33 @@ func _snoop(b, f: PhoneCall) -> bool:
 	return false
 
 
-## Um passo do despacho pelo cartão (modo --human). Devolve se fez alguma ação (que conta tempo); esperar a
-## impressora ou o transmissor não conta.
-func _card_step(f: PhoneCall, e: EmergencyCall) -> bool:
+## Um passo do despacho pelo cartão (modo --human). Devolve quantas ações fez (`_acted`; 0 = nenhuma): esperar a
+## impressora ou o transmissor não conta; o segundo clique na rua vem `CONFIRM_SEC` depois do primeiro.
+func _card_step(f: PhoneCall, e: EmergencyCall) -> float:
 	var d := m.dispatch
 	var card := d.machines
 	if not f.has_meta("planned"):
 		f.set_meta("planned", true)   # consultar o protocolo
 		_mark(f, "relato")
-		return true
+		return 1.0
 	if card.state == card.State.IDLE and d._location.is_empty():
-		_mark(f, "protocolo")
-		d.set_location(e.street, e.block, e.address)
-		return true
+		var again := card.draft == e.address
+		if not again:
+			_mark(f, "protocolo")
+		d._pick(e.street, e.block, e.address)
+		return 1.0 if again else CONFIRM_SEC / HUMAN_STEP
 	if card.state != card.State.READY:
-		return false   # imprimindo ou entrando
+		return 0.0   # imprimindo ou entrando
 	_mark(f, "impresso")
 	if d.occurrence() == "":
 		d.set_occurrence(e.occurrence)
 		for u in d.fleet.required(e):   # o que a situação pede agora (pode ter piorado)
 			d.punch_unit(u)
-		return true
+		return 1.0
 	card._pos = Vector2(card._machine(card.Machine.SEND).get_center().x - card.CARD_W / 2.0, card._slot(card.Machine.SEND) - card.card.size.y + 8.0)
 	_mark(f, "perfurado")
 	card._drop()
-	return true
+	return 1.0
 
 
 ## Quanto a barra de `f` já correu ao chegar no passo `step` do cartão (uma vez por passo; modo --human).
@@ -280,8 +283,10 @@ func _initialize() -> void:
 			_:
 				if f.kind == PhoneCall.Kind.EMERGENCY and not f.options.is_empty() and String(f.options[0]["label"]) == T.text(T.Key.CHOICE_HOLD_EMERGENCY) and not f.dispatched:
 					var e: EmergencyCall = f.data
+					var steps := 1.0
 					if human:   # como uma pessoa, pelo cartão: pensar, marcar no mapa, esperar imprimir, perfurar, levar
-						if not _card_step(f, e):
+						steps = _card_step(f, e)
+						if steps == 0.0:
 							continue
 					else:
 						m.dispatch.set_location(e.street, e.block, e.address)
@@ -290,7 +295,7 @@ func _initialize() -> void:
 							m.dispatch.punch_unit(u)
 						stages.append("%d(%.0fs)" % [f.stage, f.urgency] if f.retry == PhoneCall.Retry.NONE else "retorno")
 						m.dispatch._send()
-					_acted()
+					_acted(steps)
 				elif not f.options.is_empty():
 					var pick := 0   # na informação, a certa (escolher a primeira errava 2 em 3, e não é o jogador que se mede)
 					if f.phase == PhoneCall.Phase.INFO:

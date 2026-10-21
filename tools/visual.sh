@@ -30,7 +30,7 @@ capture() {   # capture <pasta do projeto> <pasta de saída>: o --out do shot.gd
 	rm -rf "$1/build/visual/tmp"
 	while IFS='|' read -r name opts; do
 		# shellcheck disable=SC2086
-		(cd "$1" && "$G" --fixed-fps 60 --resolution 160x90 --position 0,0 --path . tools/shot.tscn -- --night=2 --seed=1 \
+		(cd "$1" && "$G" --fixed-fps 60 --resolution 160x90 --position 0,0 --quit-after 1500 --path . tools/shot.tscn -- --night=2 --seed=1 \
 			--wait=5 --still $opts --out="build/visual/tmp/$name.png" >/dev/null 2>&1)
 	done <<<"$SET"
 	rm -rf "$2"

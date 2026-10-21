@@ -299,6 +299,7 @@ DISPATCH_WHY_POL,"crime, briga, arma, rua bloqueada","crime, fight, weapon, bloc
 DISPATCH_WHY_BOMB,"fogo, fumaça, fio ou gás, alguém preso","fire, smoke, wires or gas, someone trapped","fuego, humo, cables o gas, alguien atrapado"
 DISPATCH_WHY_AMB,"alguém ferido, passando mal ou preso","someone hurt, ill or trapped","alguien herido, enfermo o atrapado"
 DISPATCH_CLICK_STREET,clique na rua no mapa,click the street on the map,haga clic en la calle del mapa
+MAP_CLICK_AGAIN,clique de novo para imprimir,click again to print,haga clic otra vez para imprimir
 UNIT_POLICE,Polícia,Police,Policía
 UNIT_FIRE,Bombeiros,Fire department,Bomberos
 UNIT_AMBULANCE,Ambulância,Ambulance,Ambulancia

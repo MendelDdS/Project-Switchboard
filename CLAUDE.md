@@ -112,7 +112,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   viaturas e advertências, mostra a eficiência ao vivo, cronometra os passos de cada ligação no log; mesa de som (`Sfx.vol`) e aba de vozes. O que mexe no Main fica
   em funções públicas dele (`ring`, `drop`, `drop_all`, `set_weather`, `start_ending`...).
 - **Captura** (`tools/shot.tscn`, com tela, **uma de cada vez, janela pequena no canto**):
-  `Godot --resolution 160x90 --position 0,0 --path . tools/shot.tscn -- --hour=22:30 --weather=rain --out=build/x.png`.
+  `Godot --resolution 160x90 --position 0,0 --quit-after 1500 --path . tools/shot.tscn -- --hour=22:30 --weather=rain --out=build/x.png`.
   As opções estão no comentário do topo de `tools/shot.gd` (`--tool`, `--card`, `--hover`, `--screen=intro|pause|settings|report`,
   `--rating`, `--warned`, `--zoom`, `--still`...). Compare capturas com `tools/diff_shots.gd`; conjunto do plano
   hi-bit: `tools/hibit_shots.sh build/hibit/<pasta>`. **Regressão visual**: `tools/visual.sh [commit]` (~2 min, 12
@@ -150,7 +150,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   o jogador carimba e guarda na caixinha; esquecido ou sem carimbo é advertência leve.
 - Fim de ligação: `end_call(c, PhoneCall.End.*)` → `c.record` → `Notebook.add()`; o caderno registra com um clique no
   tipo (`register(T.Key.TYPE_*)`).
-- **Despacho** (`Dispatch`, `CityMap`, `CardMachines`, `PunchCard`): marcar o trecho no mapa imprime o cartão;
+- **Despacho** (`Dispatch`, `CityMap`, `CardMachines`, `PunchCard`): marcar o trecho no mapa imprime o cartão (dois cliques: o primeiro só datilografa, `CardMachines.draft`; o anel da moldura aproxima, `_knob`);
   perfurar tipo e unidades; levar ao transmissor (envia) ou à trituradora; um cartão por vez. Regras das viaturas no
   `Fleet` (`scripts/model/fleet.gd`: `send` → `arrive` → `leave` → `home`, `Fleet.Result`). Cidade em folhas
   (`CityMap.SHEETS`), só as dos setores atendidos.

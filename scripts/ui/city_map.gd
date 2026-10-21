@@ -25,6 +25,7 @@ const STATION := {
 const UNIT_SPEED := 115.0   # px de mapa por segundo: do Centro à Vila Serena, cerca de 7 s
 const MIN_TRIP := 3.5       # s: a viagem mais curta
 const MAX_K := 1.2          # aproximação máxima (escala de desenho)
+const ZOOM_STEP := 0.1      # o aumento anda em degraus (1.0, 1.1, 1.2...: os do anel do despacho, `CardMachines`)
 const REVEAL_SEC := 2.5     # s: o mapa se abrindo para o bairro entregue na noite
 const DISTRICT := {1: T.Key.MAP_DISTRICT_1, 2: T.Key.MAP_DISTRICT_2, 3: T.Key.MAP_DISTRICT_3}
 var bottom_inset := 0.0   ## px no pé do mapa cobertos pelo que fica por cima dele (o `Dispatch` diz)
@@ -45,6 +46,7 @@ const ROADS_V := [110.0, 250.0, 390.0, 530.0]
 const ROADS_H := [90.0, 225.0, 360.0]
 
 var sel: Dictionary = {}
+var pend: Dictionary = {}  ## o trecho do primeiro clique, à espera do segundo para imprimir (o `Dispatch` põe)
 var hover: Dictionary = {}
 var _spot: Array = []      ## o lugar de referência sob o mouse, longe das ruas: [ponto do mapa, nome] (vazio = nenhum)
 ## Uma viagem de viatura: o caminho e quanto dele já foi, no tempo do jogo.
@@ -126,7 +128,7 @@ func _fit_k() -> float:
 ## Escala e deslocamento da vista; o centro não sai do enquadramento.
 func _view() -> void:
 	var f := _frame()
-	_zoom = clampf(_zoom, 1.0, maxf(1.0, MAX_K / _fit_k()))
+	_zoom = clampf(_zoom, 1.0, _top())
 	_k = _fit_k() * _zoom
 	if _center == Vector2.INF:
 		_center = f.get_center()
@@ -193,11 +195,7 @@ func _gui_input(e: InputEvent) -> void:
 			mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if not h.is_empty() else Control.CURSOR_ARROW
 			queue_redraw()
 	elif e is InputEventMouseButton and e.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN] and e.pressed:
-		var at := _to_map(e.position)   # o ponto sob o mouse fica parado
-		_zoom *= 1.2 if e.button_index == MOUSE_BUTTON_WHEEL_UP else 1.0 / 1.2
-		_view()
-		_center += at - _to_map(e.position)
-		queue_redraw()
+		zoom_by(1.2 if e.button_index == MOUSE_BUTTON_WHEEL_UP else 1.0 / 1.2, e.position)
 		accept_event()
 	elif e is InputEventMouseButton and e.button_index == MOUSE_BUTTON_LEFT:
 		if e.pressed:
@@ -212,10 +210,49 @@ func _gui_input(e: InputEvent) -> void:
 			return
 		var h := _find_seg(_to_map(e.position))   # o destacado, se o mouse ainda está nele
 		if not h.is_empty():
-			sel = h
 			Sfx.play("click")
-			segment_selected.emit(h["street"], h["block"], h["label"])
+			segment_selected.emit(h["street"], h["block"], h["label"])   # (o `Dispatch` marca `pend` ou `sel`)
 			queue_redraw()
+
+
+## Aproxima (`f` > 1) ou afasta o mapa `f` vezes, no degrau mais perto (ao menos um), com o ponto `at` da tela
+## parado (a roda do mouse, ali; o + e o − do anel, no meio da vista).
+func zoom_by(f: float, at := Vector2.INF) -> void:
+	var to := snappedf(_zoom * f, ZOOM_STEP)
+	if is_equal_approx(to, _zoom):
+		to = _zoom + signf(f - 1.0) * ZOOM_STEP
+	_zoom_to(to, at)
+
+
+## `n` degraus do aumento (o anel girado), no meio da vista.
+func zoom_step(n: int) -> void:
+	_zoom_to(snappedf(_zoom + n * ZOOM_STEP, ZOOM_STEP), Vector2.INF)
+
+
+func _zoom_to(to: float, at: Vector2) -> void:
+	if at == Vector2.INF:
+		at = _seen().get_center()
+	var p := _to_map(at)
+	_zoom = to
+	_view()
+	_center += p - _to_map(at)
+	queue_redraw()
+
+
+## O aumento máximo, no degrau abaixo do limite da escala (`MAX_K`).
+func _top() -> float:
+	return maxf(1.0, floorf(MAX_K / _fit_k() / ZOOM_STEP + 0.001) * ZOOM_STEP)
+
+
+## O aumento do mapa: 1 enquadrado (o mostrador do anel, `CardMachines`).
+func magnification() -> float:
+	return _zoom
+
+
+## Quanto o mapa está aproximado, de 0 (enquadrado) a 1 (o máximo).
+func zoom_level() -> float:
+	var top := _top()
+	return 0.0 if top <= 1.0 else clampf(log(_zoom) / log(top), 0.0, 1.0)
 
 
 func route(u: String, target: Dictionary) -> PackedVector2Array:
@@ -350,17 +387,26 @@ func _draw() -> void:
 			if shown(hs.block_sector(b)):
 				var g := seg_geom(hs, b)
 				draw_line(g[0], g[1], _road_of(hs, b), 16.0)
-	if not sel.is_empty():
-		var g := seg_geom(GameData.street(sel["street"]), sel["block"])
-		var a: Vector2 = g[0]
-		var b: Vector2 = g[1]
-		var n := int(a.distance_to(b) / 15.0)
-		for i in n:
-			draw_line(a.lerp(b, float(i) / n), a.lerp(b, (i + 0.66) / n), Pal.MAP_MARK, 7.0)
-		var m: Vector2 = g[2]
-		draw_rect(Rect2(m.x - 8, m.y - 8, 16, 16), Color.BLACK)
-		draw_rect(Rect2(m.x - 6, m.y - 6, 12, 12), Pal.MAP_MARK)
+	# o local impresso: tracejado cheio e o quadradinho; o do primeiro clique, à espera do segundo: tracejado ralo e
+	# o quadradinho vazado (ainda não é cartão). O tracejado fica embaixo dos nomes, com ao menos 3 px de tela; o
+	# quadradinho, por cima (o nome no meio do trecho o tapava), em tamanho de tela (afastado, sumia)
+	for at: Dictionary in [sel, pend]:
+		if not at.is_empty():
+			var g := seg_geom(GameData.street(at["street"]), at["block"])
+			var a: Vector2 = g[0]
+			var b: Vector2 = g[1]
+			var n := int(a.distance_to(b) / 15.0)
+			var dash := 0.66 if at == sel else 0.4
+			for i in n:
+				draw_line(a.lerp(b, float(i) / n), a.lerp(b, (i + dash) / n), Pal.MAP_MARK, maxf(7.0 if at == sel else 5.0, 3.0 / _k))
 	_draw_names()
+	draw_set_transform(Vector2.ZERO)
+	for at: Dictionary in [sel, pend]:
+		if not at.is_empty():
+			var m := (_tf * (seg_geom(GameData.street(at["street"]), at["block"])[2] as Vector2)).round()
+			draw_rect(Rect2(m - Vector2(6, 6), Vector2(12, 12)), Color.BLACK)
+			draw_rect(Rect2(m - Vector2(4, 4), Vector2(8, 8)), Pal.MAP_MARK if at == sel else PAPER)
+	draw_set_transform_matrix(_tf)
 	if not hover.is_empty():
 		_draw_spans()
 	if _reveal >= 0.0:   # o bairro entregue aparece aos poucos
@@ -379,7 +425,7 @@ func _draw() -> void:
 	_use(xf)
 	if not hover.is_empty():
 		var st := GameData.street(hover["street"])   # na vertical, ao lado: em cima tapava o trecho e o número dele
-		_tag(seg_geom(st, hover["block"])[2], hover["label"], not st.horizontal)
+		_tag(seg_geom(st, hover["block"])[2], hover["label"], not st.horizontal, T.text(T.Key.MAP_CLICK_AGAIN) if hover == pend else "")
 	elif not _spot.is_empty():
 		_tag(_spot[0], _spot[1])
 
@@ -416,6 +462,8 @@ func _draw_spans() -> void:
 		var txt := Street.block_label(b)
 		var sides := [Vector2(0, 17), Vector2(0, -8)] if st.horizontal else [Vector2(_width(txt, 11) / 2.0 + 7, 5), Vector2(-_width(txt, 11) / 2.0 - 7, 5)]
 		var paper := _frame().grow_individual(-(_width(txt, 11) / 2.0 + 2) / _k, -12 / _k, -(_width(txt, 11) / 2.0 + 2) / _k, -4 / _k)
+		if not paper.has_area():   # (o mapa ainda sem tamanho, antes do primeiro arranjo)
+			continue
 		var spots := []   # (dentro do papel: a vista vai até a moldura)
 		for t: float in [0.5, 0.35, 0.65, 0.2, 0.8, 0.1, 0.9]:
 			for sd: Vector2 in sides:
@@ -675,23 +723,29 @@ static func field_rect(ci: int, ri: int) -> Rect2:
 
 
 ## Etiqueta de papel com o nome e a faixa de números do trecho sob o mouse ("Rua do Sol, 1–99"): mostra onde fica
-## o número que a pessoa disse antes de clicar. Em tamanho de tela, acima do trecho, sem sair do mapa.
-func _tag(p: Vector2, txt: String, beside := false) -> void:
-	var w := _width(txt, 11)
-	var at := (_tf * p).round() + (Vector2(14, -10) if beside else Vector2(-roundf(w / 2.0) - 5, -34))
+## o número que a pessoa disse antes de clicar. Em tamanho de tela, acima do trecho, sem sair do mapa. `hint`, na fonte
+## miúda embaixo do nome, em vermelho (o trecho do primeiro clique: "clique de novo para imprimir").
+func _tag(p: Vector2, txt: String, beside := false, hint := "") -> void:
+	var tip := PixelArt.tiny(hint) if hint != "" else null
+	var w := maxf(_width(txt, 11), 0.0 if tip == null else tip.get_width())
+	var h := 20.0 if tip == null else 28.0
+	var at := (_tf * p).round() + (Vector2(14, -10) if beside else Vector2(-roundf(w / 2.0) - 5, 6 - h - 20))
 	if beside and at.x + w + 12 > _seen().end.x:   # sem lugar à direita, à esquerda da rua
 		at.x -= w + 38
 	at = Vector2(clampf(at.x, 2, _seen().end.x - w - 12), maxf(at.y, 2))
 	draw_set_transform(Vector2.ZERO)
-	draw_rect(Rect2(at, Vector2(w + 10, 20)), LINE)
-	draw_rect(Rect2(at + Vector2.ONE, Vector2(w + 8, 18)), Pal.MAP_TAG)
+	draw_rect(Rect2(at, Vector2(w + 10, h)), LINE)
+	draw_rect(Rect2(at + Vector2.ONE, Vector2(w + 8, h - 2)), Pal.MAP_TAG)
 	draw_string(Pal.ui, at + Vector2(5, 15), txt, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, LINE)
+	if tip != null:
+		draw_texture(tip, at + Vector2(5, 19), Pal.MAP_MARK)
 	draw_set_transform_matrix(_tf)
 
 
 ## Tira a marcação do trecho (o despacho limpa depois de enviar).
 func clear_selection() -> void:
 	sel = {}
+	pend = {}
 	queue_redraw()
 
 

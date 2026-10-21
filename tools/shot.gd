@@ -21,6 +21,8 @@ extends Node
 ##                          --rating=great|good|fair|poor o conceito, padrão poor, a segunda noite seguida;
 ##                          --warned, com intro, o bilhete depois de uma noite Insuficiente)
 ##   --street=sol,1         com --tool=despacho: o mouse no trecho 1 da Rua do Sol (a rua inteira de leve e os números)
+##   --draft                com --street: o primeiro clique nela (o local datilografado, à espera do segundo)
+##   --mapzoom=1.44         com --tool=despacho: o mapa aproximado por esse fator (o anel girado)
 ##   --spot=Posto           com --tool=despacho: o mouse no lugar de referência com esse nome (a etiqueta dele)
 ##   --hover=id             o mouse em cima do objeto da mesa (os ids de `Tools`): ele erguido e a etiqueta com o nome
 ##   --zoom=x,y,w,h         o recorte, em px do jogo, ampliado `ZOOM` vezes
@@ -144,7 +146,11 @@ func _ready() -> void:
 		var at: PackedStringArray = String(_args["street"]).split(",")
 		var st := GameData.street(at[0])
 		m.dispatch.city.hover = {"street": at[0], "block": int(at[1]), "label": "%s, %s" % [st.name, Street.block_label(int(at[1]))]}
+		if _args.has("draft"):   # e o primeiro clique nela: o local datilografado à espera do segundo
+			m.dispatch._pick(at[0], int(at[1]), m.dispatch.city.hover["label"])
 		m.dispatch.city.queue_redraw()
+	if _args.has("mapzoom"):   # o mapa aproximado pelo anel (o fator, 1.2 = um degrau)
+		m.dispatch.city.zoom_by(float(_args["mapzoom"]))
 	if _args.has("spot"):
 		await get_tree().process_frame
 		for pl in m.dispatch.city._places:

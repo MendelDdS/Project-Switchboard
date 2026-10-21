@@ -188,6 +188,15 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   (`--resolution 160x90 --position 0,0`, antes do `--path`): a imagem sai da `SubViewport` do `shot.gd`, não da
   janela, e saem iguais. Várias em paralelo (`&` num laço) abriam uma janela de Godot atrás da outra na tela de quem
   está trabalhando, e o usuário notou. Capture só o que a conferência precisa.
+- **Script da captura com erro deixa a janela preta e parada, e o comando só volta no limite de 2 min.** Um erro de
+  parse no `tools/shot.gd` (um `m` usado fora da função onde ele existe, numa mudança temporária feita por python)
+  carrega a cena sem script: nada grava nem chama `quit()`, e a janela do Godot fica preta na tela do usuário. O
+  hook não pega: ele roda só no Edit/Write e compila o jogo, e o `shot.gd` não é carregado pelo jogo. Rode toda
+  captura com `--quit-after 1500` (~25 s; já está no comando do `CLAUDE.md`, no `visual.sh` e no `hibit_shots.sh`)
+  e leia a saída inteira: um `SCRIPT ERROR` ali quer dizer que a imagem não saiu. O `--check-only` não serve para
+  conferir o `shot.gd` (sem os autoloads, acusa erro em tudo). Mudança temporária num arquivo do projeto: guarde a
+  cópia antes e devolva no mesmo comando, e nunca devolva com `git checkout` (apaga também o que ainda não foi
+  para o commit).
 - **Arquivo editado por `sed`/python fica "modificado desde a leitura"** para a ferramenta de edição: releia
   antes de usar Write/Edit.
 - **O visualizador de imagens pode mostrar uma versão antiga de um PNG com o mesmo nome.** Ao comparar
