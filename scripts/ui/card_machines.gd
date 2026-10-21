@@ -27,7 +27,7 @@ enum State { IDLE, TYPING, PRINTING, READY, DRAGGING, FEEDING }
 enum Machine { SEND, SHRED }
 
 const BEZEL := 9.0         ## a moldura de metal em volta do vidro (px; o mapa, `Dispatch.city`, fica dentro dela)
-const KNOB_W := 24.0        ## a moldura da direita, mais larga: o anel de aproximar (na cena, o mapa acompanha)
+const KNOB_W := 28.0        ## a moldura da direita, mais larga: o anel de aproximar (na cena, o mapa acompanha)
 const KNOB := Vector2(14, 64)   # o anel, em pé
 const DETENT_PX := 6.0      # px de arraste por degrau do anel (cada degrau, um `CityMap.ZOOM_STEP` e um tique)
 const RIDGES := 24          # sulcos numa volta do anel...
@@ -461,7 +461,10 @@ func _knob() -> Rect2:
 func _draw_knob() -> void:
 	const M := Pal.PANEL_METAL
 	var r := _knob()
-	draw_rect(r.grow(1.0), M[0])   # o rasgo na moldura
+	var slot := r.grow(2.0)   # o rasgo na moldura, com um vão em volta do anel; a beira de baixo e a da direita na luz
+	draw_rect(slot, M[0])
+	draw_rect(Rect2(slot.position.x, slot.end.y, slot.size.x + 1.0, 1), M[5])
+	draw_rect(Rect2(slot.end.x, slot.position.y, 1, slot.size.y), M[5])
 	var half := r.size.y / 2.0
 	for y in int(r.size.y):   # o tom de cada linha pela inclinação dela no cilindro
 		var z := cos(asin(clampf((y + 0.5 - half) / half, -1.0, 1.0)))
@@ -474,37 +477,43 @@ func _draw_knob() -> void:
 			draw_rect(Rect2(r.position.x + 1, y, r.size.x - 2, 1), M[0])
 	var cx := r.get_center().x
 	for k in 2:   # + em cima, − embaixo, em latão
-		var at := Vector2(cx, r.position.y - 7.0 if k == 0 else r.end.y + 7.0)
+		var at := Vector2(cx, r.position.y - 9.0 if k == 0 else r.end.y + 9.0)
 		var lit := (_zoom_seen < 1.0) if k == 0 else (_zoom_seen > 0.0)
 		var col := Pal.BRASS if lit else M[6]
 		draw_rect(Rect2(at.x - 3, at.y, 7, 1), col)
 		if k == 0:
 			draw_rect(Rect2(at.x, at.y - 3, 1, 7), col)
-	# o mostrador do aumento, embaixo do −, como o das leitoras de microfilme: um contador de tambores ("1.4X") numa
-	# janelinha, o das unidades virando só quando o dos décimos passa do 9, como num hodômetro
-	var win := Rect2(roundf(cx - 9.0) - 1.0, r.end.y + 15.0, 19.0, 9.0)
-	draw_rect(win.grow(1.0), M[0])
-	draw_rect(win, Pal.CARD)
+	# o mostrador do aumento, embaixo do −, como o das leitoras de microfilme: um contador com um tambor por algarismo
+	# ("1.4X"), cada um no seu rasgo da chapa, o das unidades virando só quando o dos décimos passa do 9, como num
+	# hodômetro; o ponto e o X gravados no metal, em latão
+	var x0 := roundf(cx - 9.0)
+	var y0 := r.end.y + 17.0
 	var tenths := fmod(_roll, 10.0)
-	_drum(win, 2.0, floorf(_roll / 10.0) + maxf(0.0, tenths - 9.0))
-	_drum(win, 10.0, tenths)
-	for c: Array in [[".", 6.0], ["X", 14.0]]:
-		PunchCard.small(self, win.position + Vector2(c[1], 2), c[0], Pal.INK)
-	draw_rect(Rect2(win.position, Vector2(win.size.x, 1)), Color(0, 0, 0, 0.45))   # a beira de cima fazendo sombra:
-	draw_rect(Rect2(win.position + Vector2(0, 1), Vector2(win.size.x, 1)), Color(0, 0, 0, 0.2))   # a janela é funda
+	_drum(Rect2(x0, y0, 5, 9), floorf(_roll / 10.0) + maxf(0.0, tenths - 9.0))
+	_drum(Rect2(x0 + 8.0, y0, 5, 9), tenths)
+	for c: Array in [[".", 5.0], ["X", 15.0]]:
+		PunchCard.small(self, Vector2(x0 + c[1], y0 + 2.0), c[0], Pal.BRASS)
 
 
-## Um tambor do mostrador na coluna `x` da janela `win`, no número `pos` (entre dois, a meio caminho: o de baixo
-## subindo), recortado pela janela.
-func _drum(win: Rect2, x: float, pos: float) -> void:
+## Um tambor do mostrador no rasgo `win` da chapa, no número `pos` (entre dois, a meio caminho: o de baixo subindo),
+## recortado pelo rasgo. O rasgo é rebaixado (a beira de cima e a da esquerda escuras, a de baixo e a da direita na
+## luz) e o tambor, um cilindro de papel: mais escuro no alto, à sombra da beira, e embaixo, onde ele faz a curva.
+func _drum(win: Rect2, pos: float) -> void:
+	const M := Pal.PANEL_METAL
+	draw_rect(win.grow(1.0), M[0])
+	draw_rect(Rect2(win.position.x, win.end.y, win.size.x + 1.0, 1), M[5])   # a beira de baixo e a da direita, na luz
+	draw_rect(Rect2(win.end.x, win.position.y, 1, win.size.y), M[5])
+	draw_rect(win, Pal.CARD)
 	var d := floori(pos)
 	for i in 2:
-		var y := roundf(2.0 - (pos - d) * DRUM) + i * DRUM   # o alto do número na janela
+		var y := roundf(2.0 - (pos - d) * DRUM) + i * DRUM   # o alto do número no rasgo (no meio, parado)
 		var top := maxf(0.0, -y)
 		var h := minf(5.0, win.size.y - y) - top
 		if h > 0.0:
-			draw_texture_rect_region(PixelArt.tiny(str((d + i) % 10)), Rect2(win.position + Vector2(x, y + top), Vector2(3, h)),
+			draw_texture_rect_region(PixelArt.tiny(str((d + i) % 10)), Rect2(win.position + Vector2(1, y + top), Vector2(3, h)),
 				Rect2(0, 3.0 + top, 3, h), Pal.INK)
+	for k: Array in [[0, 0.45], [1, 0.2], [win.size.y - 2.0, 0.1], [win.size.y - 1.0, 0.3]]:   # a curva do cilindro
+		draw_rect(Rect2(win.position + Vector2(0, k[0]), Vector2(win.size.x, 1)), Color(0, 0, 0, k[1]))
 
 
 ## A faixa da frente da base, como a frente da unidade da mesa (`Background._draw_dispatch_unit`): a luz vermelha de

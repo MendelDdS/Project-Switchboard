@@ -1966,3 +1966,12 @@ Chaves:
     muito tempo antes de fechá-la": captura com o `shot.gd` quebrado ficava parada até o limite de 2 min. As capturas
     passaram a rodar com `--quit-after 1500` (`CLAUDE.md`, `visual.sh`, `hibit_shots.sh`) e a lição foi para o
     `LESSONS.md` (Ferramentas e testes).
+331. #despacho "acho que tá pra fazer mais algum ajuste para dar mais profundidade" (das sugestões, 1 a 3; o brilho do
+    vidro ficou para depois): o mostrador do aumento com um tambor por algarismo, cada um no seu rasgo rebaixado da
+    chapa (a beira de cima e a da esquerda escuras, a de baixo e a da direita na luz), o papel escurecendo no alto e
+    embaixo como um cilindro, e o ponto e o X gravados no metal, em latão (`CardMachines._drum`).
+332. #despacho "Aumente só mais um pouco de pixels para dar mais respiro" e "um pequeno vão entre o anel de zoom": a
+    moldura da direita foi de 24 para 28 px (`KNOB_W`; o mapa na cena acompanha, e na noite 9 ele não encolhe, pois
+    cabe pela altura), com folga em volta do mostrador; o anel num rasgo com 2 px de vão em volta, a beira de baixo e a
+    da direita na luz. Os tambores chegaram a crescer para 7×11 e voltaram ("Eu queria que aumentasse a borda da
+    máquina para dar respiro", não o mostrador).
