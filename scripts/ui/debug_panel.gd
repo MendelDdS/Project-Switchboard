@@ -7,6 +7,9 @@ extends PanelContainer
 ## A mesa de som toca cada som do `Sfx.VOL` e ajusta o volume dele na hora (`Sfx.vol`); "Copiar VOL" põe na área de
 ## transferência a constante pronta para colar em `sfx.gd`. A aba Vozes fala cada letra (pelo nome dela, "bê", "efe")
 ## ou um texto digitado, na voz escolhida, como numa ligação.
+## O cronômetro (`_time_calls`, aberto ou não) imprime, ao fim de cada ligação, quando cada passo do operador
+## aconteceu, para medir o ritmo de quem joga contra o robô do `test_shift --human` (o `print` vai para
+## `user://logs/godot.log`).
 
 const SPEEDS := [1.0, 2.0, 4.0, 8.0]
 const MIX_DB := Vector2(-40.0, 0.0)   ## faixa do controle de volume da mesa de som
@@ -32,6 +35,7 @@ var _voice: OptionButton   ## a voz da aba Vozes (as chaves de `SfxSynth.VOICE`)
 var _say: LineEdit
 var _speaking := 0   ## a fala da aba Vozes em andamento (uma nova corta a anterior)
 var _weather0 := ""   ## o clima sorteado da noite, antes de o painel trocar (o "Limpar" volta para ele)
+var _chrono := {}     ## PhoneCall -> {"t": s de jogo desde que tocou, "steps": [texto de cada passo], "seen": {passo: true}}; já impressa, {} até sair da mesa
 
 @onready var main: Main = get_parent()
 @onready var _box: VBoxContainer = %Box
@@ -181,7 +185,8 @@ func _go_night(n: int, at := 0.0) -> void:
 	main.queue_free()
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	_time_calls(delta)
 	if not visible:
 		return
 	var next := ""
@@ -208,6 +213,58 @@ func _process(_delta: float) -> void:
 	if not main.eavesdrop.grudges.is_empty():
 		ears.append("denúncias: %s" % main.eavesdrop.grudges)
 	_ears.text = "\n".join(ears) if not ears.is_empty() else "nenhuma conversa conectada"
+
+
+## Cronômetro: marca cada passo na primeira vez que acontece (s desde que tocou; na emergência, também a barra) e
+## imprime quando a ligação acaba (a emergência, quando o cartão sai ou ela deixa de correr).
+func _time_calls(delta: float) -> void:
+	for c: PhoneCall in main.live:
+		if not _chrono.has(c):
+			_chrono[c] = {"t": 0.0, "steps": [], "seen": {}}
+	var d := main.dispatch
+	# ponytail: o cartão é da última emergência ainda sem despacho; com duas ao mesmo tempo pode ir para a errada
+	var card: PhoneCall = null
+	for c: PhoneCall in main.in_progress():
+		if not c.dispatched:
+			card = c
+	for c: PhoneCall in _chrono.keys():
+		var k: Dictionary = _chrono[c]
+		if k.is_empty():   # já impressa: esquece quando sair da mesa
+			if not main.live.has(c):
+				_chrono.erase(c)
+			continue
+		k["t"] += delta
+		var mark := func(step: String, on: bool):
+			if on and not k["seen"].has(step):
+				k["seen"][step] = true
+				k["steps"].append("%s %.0f" % [step, k["t"]] + (" (barra %.0f)" % c.urgency if c.kind == PhoneCall.Kind.EMERGENCY and c.answered else ""))
+		mark.call("atendeu", c.answered)
+		match c.kind:
+			PhoneCall.Kind.TRANSFER:
+				var out: int = main.board.dest_of_output(c.line)
+				mark.call("pedido", c.phase == PhoneCall.Phase.AWAIT)
+				mark.call("cabo na saída", c.answered and main.board.cord_at(c.line + 10) != -1)
+				mark.call("cabo no destino", c.answered and out != -1)
+				mark.call("transferiu", out != -1 and main.exchange.dest(out) != Exchange.Dest.FREE)
+				mark.call("conectou", c.connected)
+			PhoneCall.Kind.INFO:
+				mark.call("pergunta", c.phase == PhoneCall.Phase.INFO)
+				mark.call("respondeu", c.closing)
+			PhoneCall.Kind.EMERGENCY:
+				mark.call("relato", not c.options.is_empty() and String(c.options[0]["label"]) == T.text(T.Key.CHOICE_HOLD_EMERGENCY))
+				if c == card:
+					mark.call("mapa", not d.location().is_empty())
+					mark.call("impresso", d.machines.state == CardMachines.State.READY)
+					mark.call("ocorrência", d.occurrence() != "")
+					mark.call("unidades", not d.picked().is_empty())
+				mark.call("estágio %d" % c.stage, c.stage > 0)
+				mark.call("enviado", c.dispatched)
+		var over := c.dispatched or not c.urgent() if c.kind == PhoneCall.Kind.EMERGENCY and c.answered else c.ended
+		if over:
+			var e := c.data as EmergencyCall
+			print("[cronômetro] %s %s linha %02d%s: %s" % [Main.fmt(main.minutes), KIND_NAMES[c.kind], c.line,
+				" (estágios %.0f/%.0f/%.0f s)" % [e.stage_sec.x, e.stage_sec.y, e.stage_sec.z] if e else "", " · ".join(k["steps"]) if c.answered else "não atendida (tocou %.0f s)" % k["t"]])
+			_chrono[c] = {}
 
 
 func _ring(c: PhoneCall) -> void:

@@ -380,7 +380,7 @@ func _initialize() -> void:
 	ok(c11.stage == 3 and m.report.count(ShiftReport.Severity.CRITICAL) == crit + 1, "perdida: advertência gravíssima")
 	ok(await wait_until(func(): return c11.transcript.any(func(l): return l["text"] == e11.lost)), "reclamou")
 	var hurt := T.text(T.Key.OP_ANYONE_HURT)
-	ok(await wait_until(func(): return c11.options.map(func(o): return o["label"]) == [e11.questions[0], hurt, T.text(T.Key.OP_HOLD_EMERGENCY)]),
+	ok(await wait_until(func(): return c11.options.map(func(o): return o["label"]) == [e11.questions[0], hurt, T.text(T.Key.CHOICE_HOLD_EMERGENCY)]),
 		"perdida: só o endereço e \"Tem alguém ferido?\"")
 	c11.options[1]["fn"].call()
 	ok(await wait_until(func(): return c11.transcript.any(func(l): return l["text"] == e11.lost_answer) and not c11.asking), "contou quem se feriu")

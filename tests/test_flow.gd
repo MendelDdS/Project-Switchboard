@@ -165,6 +165,23 @@ func _initialize() -> void:
 	var on_street := func(id: String, b: int): return city.seg_geom(GameData.street(id), b)[2]
 	ok(city._find_seg(on_street.call("brasil", 1)).get("block") == 1 and city._find_seg(on_street.call("brasil", 4)).is_empty(),
 		"mapa: a Avenida Brasil só nos trechos do setor atendido")
+	var cross := Vector2.INF   # um cruzamento: onde um trecho vertical corta um horizontal
+	var both := []
+	for v: Street in C.streets.filter(func(s: Street): return not s.horizontal):
+		for h: Street in C.streets.filter(func(s: Street): return s.horizontal):
+			for bv in v.blocks():
+				for bh in h.blocks():
+					var gv := city.seg_geom(v, bv)
+					var gh := city.seg_geom(h, bh)
+					var x = Geometry2D.segment_intersects_segment(gv[0], gv[1], gh[0], gh[1])
+					if cross == Vector2.INF and x != null and v.block_sector(bv) == 3 and h.block_sector(bh) == 3:
+						cross = x
+						both = [{"street": v.id, "block": bv, "label": ""}, {"street": h.id, "block": bh, "label": ""}]
+	ok(both.size() == 2, "mapa: há um cruzamento no setor 3")
+	for pick: Dictionary in both:
+		city.hover = pick
+		ok(city._find_seg(cross + Vector2(2, 2)) == pick, "mapa: no cruzamento fica a rua que o mouse vinha seguindo (%s)" % pick["street"])
+	city.hover = {}
 	GameData.sectors = [1, 2, 3]
 	var trip_c: float = city.trip("pol", {"street": "brasil", "block": 4})
 	var trip_3: float = city.trip("pol", {"street": "comercio", "block": 2})
@@ -768,8 +785,10 @@ func _initialize() -> void:
 	m.transfer()
 	ok(await wait_until(func(): return fa.no_answer), "ninguém atende")
 	ok(m.talk_clock - fa.last_talk < 1.0 and fa.chat == null, "chamando não conta como silêncio: a conversa fiada não vem junto da alternativa")
-	_pick(fa, "Ninguém atende")
+	_pick(fa, T.text(T.Key.CHOICE_OFFER_ALT))
 	ok(fa.target == "162", "trocou para a de plantão")
+	ok(await wait_until(func(): return fa.transcript.any(func(l): return l["text"] == (fa.data as TransferCall).alt_ask)),
+		"o botão é curto, mas o operador diz a oferta inteira")
 	_move(4, 162)
 	ok(await wait_until(func(): return not fa.talking), "terminou de falar")
 	m.transfer()
@@ -1048,7 +1067,7 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return cc.transcript.size() > n_reply and not cc.talking, 60.0), "volta a falar depois")
 	ok(m.talk_clock - t_reply >= m.SMALLTALK_AFTER + m.conversation.CHAT_WARM_PATIENCE, "simpática: ela espera mais antes de falar de novo")
 	# o operador também puxa assunto (uma vez); resposta seca: ela não puxa mais
-	var ask_opt := func(): return cc.options.filter(func(o): return String(o["label"]) == T.text(T.Key.OP_SMALLTALK))
+	var ask_opt := func(): return cc.options.filter(func(o): return String(o["label"]) == T.text(T.Key.CHOICE_SMALLTALK))
 	if cc.chat != null:   # ela pode ter puxado outro assunto sozinha
 		reply_with.call(ChatReply.Tone.WARM)
 	ok(await wait_until(func(): return not cc.talking and not cc.chatting), "assunto encerrado")

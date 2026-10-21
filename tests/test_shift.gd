@@ -8,6 +8,8 @@ extends "res://tests/test_base.gd"
 ## e volta quando a suspeita baixa (`NOSY_BACK`). Mede quanto dá para ouvir sem ser denunciado e se atrapalha o ritmo.
 ## Com `-- --careless` também, ele não solta no silêncio (só quando alguém chama): mede, por desconfiança do lugar, em
 ## quantos segundos ouvindo eles ficam sabendo, e falha se ninguém o denunciar.
+## Com `-- --eager` ele não espera o fim: com a ligação já resolvida ou o destino chamando, tira o FONE e atende a
+## próxima (sem ouvir o agradecimento); volta à que ficou em espera precisando dele (ninguém atendeu).
 ## Falha se houver travamento: o turno precisa chegar ao final (00:00) depois da ligação desconhecida.
 
 var m: Main
@@ -29,6 +31,8 @@ var careless := "--careless" in OS.get_cmdline_user_args()
 var heard := {}           ## cada PhoneCall conectada -> s ouvidos dela (modo --nosy)
 var caught := {}          ## cada PhoneCall conectada que ficou sabendo -> s ouvidos até a denúncia (modo --careless)
 var entered := {}         ## cada PhoneCall conectada -> quantas vezes o curioso entrou na linha dela
+var eager := "--eager" in OS.get_cmdline_user_args()
+var left := 0             ## ligações que o apressado largou antes do fim (modo --eager)
 var next_act := 0.0       ## instante (s, na velocidade do jogo) em que a "pessoa" pode agir de novo
 
 
@@ -66,6 +70,12 @@ func _fone_to(b, j: int) -> void:
 	b.place(0, j)
 
 
+## O apressado (modo --eager) já pode largar a ligação `f`: resolvida, ou o destino chamando ou na linha.
+func _done_with(f: PhoneCall) -> bool:
+	var d: int = m.board.dest_of_output(f.line)
+	return f.closing or f.kind == PhoneCall.Kind.TRANSFER and d != -1 and m.exchange.dest(d) in [Exchange.Dest.RING, Exchange.Dest.CONN]
+
+
 ## O curioso (modo --nosy): ouvindo, solta quando eles se calam ou alguém chama; com a mesa livre, leva o FONE a uma
 ## conversa que já esqueceu a desconfiança e levanta a chave. Devolve se ficou ouvindo (o quadro acaba aqui).
 func _snoop(b, f: PhoneCall) -> bool:
@@ -96,20 +106,32 @@ func _card_step(f: PhoneCall, e: EmergencyCall) -> bool:
 	var card := d.machines
 	if not f.has_meta("planned"):
 		f.set_meta("planned", true)   # consultar o protocolo
+		_mark(f, "relato")
 		return true
 	if card.state == card.State.IDLE and d._location.is_empty():
+		_mark(f, "protocolo")
 		d.set_location(e.street, e.block, e.address)
 		return true
 	if card.state != card.State.READY:
 		return false   # imprimindo ou entrando
+	_mark(f, "impresso")
 	if d.occurrence() == "":
 		d.set_occurrence(e.occurrence)
 		for u in d.fleet.required(e):   # o que a situação pede agora (pode ter piorado)
 			d.punch_unit(u)
 		return true
 	card._pos = Vector2(card._machine(card.Machine.SEND).get_center().x - card.CARD_W / 2.0, card._slot(card.Machine.SEND) - card.card.size.y + 8.0)
+	_mark(f, "perfurado")
 	card._drop()
 	return true
+
+
+## Quanto a barra de `f` já correu ao chegar no passo `step` do cartão (uma vez por passo; modo --human).
+func _mark(f: PhoneCall, step: String) -> void:
+	var trail: Dictionary = f.get_meta("trail", {})
+	if not trail.has(step):
+		trail[step] = f.urgency
+		f.set_meta("trail", trail)
 
 
 func _initialize() -> void:
@@ -119,7 +141,10 @@ func _initialize() -> void:
 		m.dispatch.sent.connect(func(_l, _u, _c, _n, e: EmergencyCall):
 			var f: PhoneCall = m.emergency_of(e)
 			if f != null:
-				stages.append("%d(%.0fs)" % [f.stage, f.urgency] if f.retry == PhoneCall.Retry.NONE else "retorno"))
+				_mark(f, "enviado")
+				var trail: Dictionary = f.get_meta("trail", {})
+				stages.append("%d(%s; limite %.0f s)" % [f.stage, " ".join(trail.keys().map(func(k): return "%s %.0f" % [k, trail[k]])), e.stage_sec.x]
+					if f.retry == PhoneCall.Retry.NONE else "retorno"))
 	m._intro.visible = false
 	m._start_shift()
 	var b := m.board
@@ -185,7 +210,8 @@ func _initialize() -> void:
 			continue
 		if nosy and _snoop(b, f):
 			continue
-		if f == null or not f.active:
+		if f == null or not f.active or eager and _done_with(f):
+			var was := f
 			for c in m.live:
 				var key: String = c.time + str(c.line)
 				if c.ringing and not answered.has(key):
@@ -202,6 +228,14 @@ func _initialize() -> void:
 					elif m.after:
 						post += 1
 					break
+			if eager and m._focus() == was:   # ninguém tocando: volta à que ficou em espera precisando dele
+				for c in m.live:
+					if c.active and not c.ringing and not c.on_line and not _done_with(c):
+						_fone_to(b, c.line)
+						_acted()
+						break
+			if eager and was != null and was.active and m._focus() != was:
+				left += 1
 			f = m._focus()
 		if f == null or not f.active or f.talking:
 			if m.notebook.has_pending() and frames_left % 120 == 0:
@@ -244,7 +278,7 @@ func _initialize() -> void:
 						_home(b, 0)
 						_acted()
 			_:
-				if f.kind == PhoneCall.Kind.EMERGENCY and not f.options.is_empty() and String(f.options[0]["label"]) == T.text(T.Key.OP_HOLD_EMERGENCY) and not f.dispatched:
+				if f.kind == PhoneCall.Kind.EMERGENCY and not f.options.is_empty() and String(f.options[0]["label"]) == T.text(T.Key.CHOICE_HOLD_EMERGENCY) and not f.dispatched:
 					var e: EmergencyCall = f.data
 					if human:   # como uma pessoa, pelo cartão: pensar, marcar no mapa, esperar imprimir, perfurar, levar
 						if not _card_step(f, e):
@@ -268,6 +302,8 @@ func _initialize() -> void:
 	var lost := recs.filter(func(e): return e.type == T.Key.TYPE_MISSED).size()
 	if human:
 		print("humano: %.0f s por ação" % HUMAN_STEP)
+	if eager:
+		print("apressado: largou %d ligações antes do fim" % left)
 	if clumsy:
 		print("desastrado: deixou tocar %d, retornos=%d" % [skipped, recs.filter(func(e): return e.who.begins_with(T.text(T.Key.UNKNOWN_CALLER))).size()])
 	if nosy:

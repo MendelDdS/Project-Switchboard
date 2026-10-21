@@ -28,7 +28,6 @@ const MAX_K := 1.2          # aproximação máxima (escala de desenho)
 const REVEAL_SEC := 2.5     # s: o mapa se abrindo para o bairro entregue na noite
 const DISTRICT := {1: T.Key.MAP_DISTRICT_1, 2: T.Key.MAP_DISTRICT_2, 3: T.Key.MAP_DISTRICT_3}
 var bottom_inset := 0.0   ## px no pé do mapa cobertos pelo que fica por cima dele (o `Dispatch` diz)
-const NAMES_K := 0.42       # abaixo desta escala, só os nomes dos bairros (a etiqueta do mouse diz a rua)
 const NUMBERS_K := 0.8      # a numeração dos trechos só com o mapa perto
 const PAPER := Pal.MAP_PAPER   # o papel, e as ruas são ele à mostra (como no mapa dobrado da mesa)
 const ROAD := Pal.MAP_PAPER
@@ -150,9 +149,15 @@ func _to_map(p: Vector2) -> Vector2:
 	return (p - _off) / _k
 
 
+## O trecho sob o ponto `mp` do mapa. No cruzamento as duas ruas empatam: fica a que o mouse vinha seguindo (`hover`)
+## até ele sair dela; antes, vencia a primeira da lista e o clique na vertical marcava a horizontal.
 func _find_seg(mp: Vector2) -> Dictionary:
 	var best := {}
 	var bd := maxf(13.0, 8.0 / _k)   # perto da rua em px de tela, mesmo com o mapa afastado
+	if not hover.is_empty():
+		var h := seg_geom(GameData.street(hover["street"]), hover["block"])
+		if Geometry2D.get_closest_point_to_segment(mp, h[0], h[1]).distance_to(mp) < bd:
+			return hover
 	for s in GameData.CONTENT.streets:
 		for b in s.blocks():
 			if not s.block_sector(b) in GameData.sectors:
@@ -196,7 +201,7 @@ func _gui_input(e: InputEvent) -> void:
 		mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if not hover.is_empty() else Control.CURSOR_ARROW
 		if was_drag:
 			return
-		var h := _find_seg(_to_map(e.position))
+		var h := _find_seg(_to_map(e.position))   # o destacado, se o mouse ainda está nele
 		if not h.is_empty():
 			sel = h
 			Sfx.play("click")
@@ -343,7 +348,7 @@ func _draw() -> void:
 		var m: Vector2 = g[2]
 		draw_rect(Rect2(m.x - 8, m.y - 8, 16, 16), Color.BLACK)
 		draw_rect(Rect2(m.x - 6, m.y - 6, 12, 12), Pal.MAP_MARK)
-	_draw_names(_k >= NAMES_K)
+	_draw_names()
 	if _reveal >= 0.0:   # o bairro entregue aparece aos poucos
 		for s in SHEETS:
 			if shown(s) and not SHEET_SECTOR[s] in _before:
@@ -367,20 +372,21 @@ func _sheets_of(st: Street) -> Array:
 	return [st.sector, st.continues].filter(func(s): return s != 0 and shown(s))
 
 
-## Nomes, na ordem de prioridade: bairros, ruas, lugares e a numeração dos trechos. Afastado (`names` falso), só os
-## bairros, no meio da folha.
-func _draw_names(names: bool) -> void:
+## Nomes, na ordem de prioridade: bairros, ruas, lugares e a numeração dos trechos. As ruas desde o mapa afastado
+## (antes só os bairros: achar a rua pedida era passar o mouse em cada uma); as horizontais primeiro (`_street_name`
+## as põe alternando os lados e deixa colunas para as verticais).
+func _draw_names() -> void:
 	for s in SHEETS:
 		if s != 0 and shown(s):
-			var at: Vector2 = SHEETS[s] + (Vector2(300, 433) if names else Vector2(300, 226))
-			_label(at, T.text(DISTRICT[s]).to_upper(), 11, Pal.INK_SOFT, PAPER)
-	if not names:
-		return
+			_label(SHEETS[s] + Vector2(300, 433), T.text(DISTRICT[s]).to_upper(), 11, Pal.INK_SOFT, PAPER)
 	if shown(0):
 		_label(SHEETS[0] + Vector2(320, 300), T.text(T.Key.MAP_RURAL), 11, Pal.INK_SOFT)
-	for st in GameData.CONTENT.streets:
-		for sheet in _sheets_of(st):
-			_street_name(SHEETS[sheet], st)
+	for turn in 2:   # cada rua primeiro no bairro onde começa; depois, se couber, na folha para onde continua
+		for up in [false, true]:
+			for st in GameData.CONTENT.streets:
+				var sheet: int = [st.sector, st.continues][turn]
+				if st.horizontal != up and sheet != 0 and shown(sheet):
+					_street_name(SHEETS[sheet], st)
 	for pl in _places:
 		_place_name(pl[0], pl[1], pl[2])
 	if _k < NUMBERS_K:
@@ -398,18 +404,35 @@ func _draw_names(names: bool) -> void:
 
 ## Nome da rua ao longo dela (as verticais em pé, como nos aplicativos de mapa), no meio de um trecho entre dois
 ## cruzamentos: o primeiro trecho à vista em que caiba inteiro (os compridos primeiro), senão abreviado ("R. do Sol",
-## "Av. Brasil"); com o mapa afastado, o abreviado pode passar por um cruzamento. Sem lugar (fora da vista ou
-## encostando noutro nome), fica para a etiqueta do mouse.
+## "Av. Brasil"); com o mapa afastado, o abreviado (ou só o nome, "Tiradentes") passa pelos cruzamentos, em qualquer
+## ponto da folha, para fugir dos nomes já postos. Sem lugar (fora da vista ou encostando noutro nome), fica para a
+## etiqueta do mouse.
 func _street_name(o: Vector2, st: Street) -> void:
 	var short := st.name.replace("Rua ", "R. ").replace("Avenida ", "Av. ")
 	var cuts: Array = XS if st.horizontal else YS   # onde as ruas do outro sentido a cruzam
-	for opt in [[st.name, true], [short, true], [short, false]]:
+	for txt in [st.name, short]:
 		for i in ([1, 2, 3, 0, 4] if st.horizontal else [1, 2, 0, 3]):
 			var a: float = cuts[i]
 			var b: float = cuts[i + 1]
 			var mid := Vector2((a + b) / 2.0, st.pos + 5) if st.horizontal else Vector2(st.pos + 5, (a + b) / 2.0)
-			var fits: bool = _width(opt[0], 11) + 12.0 <= (b - a) * _k
-			if (fits or not opt[1]) and _label(o + mid, opt[0], 11, LINE, ROAD, not st.horizontal):
+			if _width(txt, 11) + 12.0 <= (b - a) * _k and _label(o + mid, txt, 11, LINE, ROAD, not st.horizontal):
+				return
+	var bare := short.trim_prefix("R. ").trim_prefix("Av. ").trim_prefix("das ").trim_prefix("da ").trim_prefix("dos ").trim_prefix("do ")
+	# as verticais do meio para as pontas; as horizontais de um lado, alternando (a 1ª e a 3ª à esquerda, a do meio à
+	# direita), para deixar colunas livres para os nomes das verticais (no meio, as três tapavam as mesmas duas)
+	var c: float = (cuts[0] + cuts[-1]) / 2.0
+	var spots := []
+	for d in range(0, int(cuts[-1] - c), 10):
+		spots.append_array([c - d, c + d])
+	if st.horizontal:
+		spots.sort()
+		if ROADS_H.find(st.pos) == 1:
+			spots.reverse()
+	var end: float = SHEET.x if st.horizontal else SHEET.y
+	for txt in [short, bare]:
+		var half := (_width(txt, 11) / 2.0 + 2.0) / _k   # o nome não sai da folha do bairro
+		for at: float in spots:
+			if at - half >= 0.0 and at + half <= end and _label(o + (Vector2(at, st.pos + 5) if st.horizontal else Vector2(st.pos + 5, at)), txt, 11, LINE, ROAD, not st.horizontal):
 				return
 
 

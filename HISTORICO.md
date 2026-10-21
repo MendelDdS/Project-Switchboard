@@ -1883,3 +1883,35 @@ Chaves:
     destino de transferência. O `test_content` (`_check_destinations`) acusa o número da lista que nenhuma ligação
     escrita (avulsa, do roteiro, do treinamento, também como alternativa) nem molde transfere para ele, contando o do
     mesmo ramo oferecido quando o pedido não atende; os só do despacho ficam de fora. Hoje todos servem.
+317. #testes #consequencias "Nem todo jogador vai esperar a ligação finalizar depois que entender que isso não impacta em
+    nada": o robô do `test_shift` esperava o destino atender e o agradecimento (e a despedida da informação e da
+    emergência) antes de atender outra. `--eager` mede o apressado: com a ligação resolvida (`closing`) ou o destino
+    chamando ou na linha, tira o FONE e atende a próxima; sem ninguém tocando, volta à que ficou em espera precisando
+    dele. Largar não custa nada (a transferência se completa sozinha); na noite 9, semente 1, a mais cheia, com
+    `--human` o apressado largou 3 e tirou Bom contra Regular do atento (duas perdidas a menos). Nas outras sementes, igual.
+318. #testes #debug #emergencia "Meça" / "Faça" (o cronômetro): o caminho do cartão no `test_shift --human` leva 40 s
+    de barra (relato e perguntas 24, protocolo 5, mapa e impressão 5, perfuração 5, envio 1; a linha "despachos" mostra a
+    trilha); o limite do estágio inicial é 35, 40 ou 45 s. Para comparar com uma partida do usuário, o `DebugPanel`
+    (`_time_calls`, só em debug) imprime em cada ligação quando cada passo aconteceu (s desde que tocou; na emergência,
+    a barra), no `user://logs/godot.log`.
+319. #interface #painel #mapa #despacho #testes "Vamos elaborar um plano" (depois da partida cronometrada; o plano em
+    `PLANO_RITMO_JOGADOR.md`): (A) a oferta da alternativa (`alt_ask`, até 79 letras) num botão de resposta exigia o
+    texto inteiro e empurrava a tela toda para a esquerda; agora a resposta que não cabe quebra em duas linhas
+    (`PhonePanel._render_choices`), e o `test_layout` confere a mais longa. (C) No mapa, o clique na rua vertical
+    marcava a horizontal: no cruzamento as duas empatavam e vencia a primeira da lista. Tirar o clique dos cruzamentos
+    foi recusado ("não faz sentido tirar ação dos cruzamentos"); ficou a rua que o mouse vinha seguindo, até ele sair
+    dela (`CityMap._find_seg`), e o clique marca a destacada (`test_flow`).
+320. #interface #painel #conversa "Vamos implementar a B" (`PLANO_RITMO_JOGADOR.md`): os botões de resposta longos
+    atrasavam a leitura. O botão mostra uma fala curta do operador (`CHOICE_*` no `ui.csv`: "Um momento.", "Pode
+    repetir?", "Como vai a noite?", "Fique na linha.") e, clicado, ele diz a frase inteira (`OP_*`) na conversa. Um
+    verbo solto ("Conectar") foi recusado: parece ação, não fala. O que é ação do jogador vai entre colchetes:
+    "[Oferecer outro lugar]" no lugar da oferta da alternativa (`alt_ask`, que continua sendo a fala). As perguntas da
+    emergência e as respostas da conversa fiada (do roteiro, já curtas) ficaram. "Lugar" e não "número": o
+    operador oferece outro lugar do mesmo ramo, e "número" confundia com a resposta da informação ("É o 312.").
+321. #mapa #despacho "Vamos implementar o 1, Nomes à vista" (`PLANO_RITMO_JOGADOR.md`, D): com os três bairros o mapa
+    abria abaixo de `NAMES_K` e só mostrava os bairros; achar a Rua Tiradentes levou 31 s. Os nomes das ruas aparecem
+    desde o mapa afastado (`NAMES_K` saiu): sem lugar no meio de um trecho, o abreviado ("R. do Sol") ou só o nome
+    ("Estação", "Tiradentes") desliza ao longo da rua, sem sair da folha; cada rua primeiro no bairro onde começa, as
+    horizontais antes, alternando os lados (a do meio à direita) para deixar colunas para as verticais. Com os três
+    bairros, as 14 ruas têm nome; Flores, Brasil e Acácias, já nomeadas em Vila Serena, só repetem no Centro se couber.
+    Redesenhar os nomes custa ~1,4 ms (só quando muda a rua destacada).
