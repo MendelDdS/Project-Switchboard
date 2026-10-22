@@ -2024,3 +2024,9 @@ Chaves:
     original de X guardado).
 343. #burocracias "Tem que ajustar isso" / "uma coisa exclui a outra": número bloqueado (na lista da B2) nunca fica
     "ninguém atende" (`PhoneCall.away` desligado no começo da ligação); com isso a Borracharia do acordo também atende.
+344. #burocracias B3: quem não diz o código no pedido ganha o [Pedir a autorização]; quem tem lembra e diz
+    (`TransferCall.code_when_asked`), quem não tem reage (a dele ou uma das `reactions` da regra, sorteada, como na B2)
+    e desliga. Código não dito conta como sem código (`Bureaucracy.code_of`).
+345. #burocracias "No caso da funerária, vai depender apenas do roteiro": bloqueado que passa a valer só com
+    autorização é a burocracia trocada (sai da lista da B2, entra nos `numbers` da B3, por `update_params`), e vice
+    versa; a B2 não ganha o "lembrar o código".

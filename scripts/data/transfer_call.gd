@@ -83,8 +83,11 @@ enum Group {
 @export var deal_signal := ""
 ## B4: marcada pelas autoridades para gravar (as palavras-chave são as marcas `[tipo:texto]` de `overheard`, `Clue`).
 @export var suspicious := false
-## B3, o código de autorização que quem liga diz logo depois do "alô" (só com a regra valendo): com {code}, diz o
-## certo da noite ("Autorização {code}."); com outro escrito no lugar, diz esse (errado); vazio, não diz nenhum.
+## B3, o código de autorização que quem liga diz logo depois do pedido (só com a regra valendo): com {code}, diz o
+## certo da noite ("Autorização {code}."); com outro escrito no lugar, diz esse (errado); vazio, não tem nenhum (se o
+## operador pedir, reage, `refused_line` ou uma reação da regra, e desliga).
 @export var code_line := ""
+## B3: tem o código, mas só lembra de dizer quando o operador pede ([Pedir a autorização]).
+@export var code_when_asked := false
 ## B3: pede ao operador o próximo código de autorização (ele pode revelar ou recusar).
 @export var wants_next_code := false

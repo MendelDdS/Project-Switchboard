@@ -240,6 +240,27 @@ func _initialize() -> void:
 	ok(not c7.options.any(func(o): return o["label"] == T.text(T.Key.CHOICE_REVEAL_CODE)), "a opção some")
 	m.hangup()
 	_clear_board()
+	# sem dizer o código: o operador pede; quem tem lembra, quem não tem reage e desliga
+	var b3t := {}
+	for t: TransferCall in b3.tests:
+		b3t[t.resource_name] = t
+	var lem := await _call(b3t["Lembra o código se pedir"])
+	ok(not _said(lem, "Autorização"), "não disse o código no pedido")
+	await _pick(lem, T.Key.CHOICE_ASK_CODE)
+	ok(await wait_until(func(): return _said(lem, codes.code(1))) and not lem.ended, "pediu: lembrou e disse o código")
+	ok(not lem.options.any(func(o): return o["label"] == T.text(T.Key.CHOICE_ASK_CODE)), "o botão de pedir some")
+	m.report.faults.clear()
+	await _connect(lem, 390)
+	ok(_faults("b3_codigo") == 0, "com o código lembrado, sem advertência")
+	_clear_board()
+	var esq := await _call(b3t["Lembra o código se pedir"])
+	await _connect(esq, 390)
+	ok(_faults("b3_codigo") == 1, "sem pedir, o código não foi dito: gravíssima")
+	_clear_board()
+	var sem := await _call(b3t["Sem código"])
+	await _pick(sem, T.Key.CHOICE_ASK_CODE)
+	ok(await wait_until(func(): return sem.ended) and Array(b3.reactions).any(func(r): return _said(sem, r)), "sem código: reagiu (sorteada) e desligou")
+	_clear_board()
 	m.bureaucracy.reset()
 	print("OK 7 B3")
 

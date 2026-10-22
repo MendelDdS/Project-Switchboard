@@ -38,6 +38,19 @@ target = "390"
 destination = "Rádio Serena AM"
 thanks = "[TESTE] Obrigado."
 
+[sub_resource type="Resource" id="Test_lembra"]
+resource_name = "Lembra o código se pedir"
+script = ExtResource("2_call")
+voice = "f"
+caller = "TESTE B3 (lembra o código)"
+opening = PackedStringArray("[TESTE] Boa noite. A Rádio Serena, por favor.")
+repeat = "[TESTE] A Rádio Serena."
+target = "390"
+destination = "Rádio Serena AM"
+thanks = "[TESTE] Obrigada."
+code_line = "[TESTE] Ah, é verdade! Autorização {code}."
+code_when_asked = true
+
 [sub_resource type="Resource" id="Test_proximo"]
 resource_name = "Pede o próximo código"
 script = ExtResource("2_call")
@@ -56,5 +69,6 @@ id = "b3_codigo"
 title = "B3 · Código de autorização"
 severity = 3
 fault_text = "FAULT_AUTH_CODE"
-tests = Array[ExtResource("2_call")]([SubResource("Test_certo"), SubResource("Test_errado"), SubResource("Test_sem"), SubResource("Test_proximo")])
+tests = Array[ExtResource("2_call")]([SubResource("Test_certo"), SubResource("Test_errado"), SubResource("Test_sem"), SubResource("Test_proximo"), SubResource("Test_lembra")])
 numbers = PackedStringArray("390", "101")
+reactions = PackedStringArray("[TESTE] Reação passiva.", "[TESTE] Reclama do governo.", "[TESTE] Indiferente.")

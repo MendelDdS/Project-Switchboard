@@ -209,21 +209,28 @@ func log_decision(rule_id: String, c: PhoneCall, choice: String, result: String)
 
 
 ## A fala do código de autorização de quem liga (`TransferCall.code_line`, com o da noite no lugar de {code}), uma
-## vez por ligação, para a regra que pedir primeiro (`request_made`); vazio se não tem ou já disse.
-func code_line(c: PhoneCall) -> Array:
+## vez por ligação, para a regra que pedir primeiro (`request_made`); vazio se não tem ou já disse. Quem só lembra
+## quando o operador pede (`TransferCall.code_when_asked`) só diz com `asked`.
+func code_line(c: PhoneCall, asked := false) -> Array:
 	var t := c.data as TransferCall
-	if t == null or t.code_line == "" or c.meta.has("code_said"):
+	if t == null or t.code_line == "" or c.meta.has("code_said") or (t.code_when_asked and not asked):
 		return []
 	c.meta["code_said"] = true
 	return [GameData.fill(t.code_line, {"code": codes.code(night)})]
 
 
-## O código que a ligação `c` traz: 1 o certo desta noite, 0 um errado, -1 nenhum.
+## O código que quem liga disse: 1 o certo desta noite, 0 um errado, -1 nenhum (não tem ou ainda não disse).
 func code_of(c: PhoneCall) -> int:
 	var t := c.data as TransferCall
-	if t == null or t.code_line == "":
+	if t == null or not c.meta.has("code_said"):
 		return -1
 	return 1 if t.code_line.contains("{code}") else 0
+
+
+## A reação de quem liga ao "não" do operador: a dele (`TransferCall.refused_line`) ou uma de `pool`, sorteada.
+func refusal(c: PhoneCall, pool: PackedStringArray) -> String:
+	var own: String = c.data.refused_line if c.data is TransferCall else ""
+	return own if own != "" or pool.is_empty() else pool[randi() % pool.size()]
 
 
 ## Uma advertência fora da tentativa de transferência (um recado repassado...), com o registro: a regra `r` diz a

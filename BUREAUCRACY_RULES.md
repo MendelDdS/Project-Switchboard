@@ -31,7 +31,8 @@ Referência completa: `scripts/bureaucracy/rule_auth_code.gd` (B3) e `data/burea
    - Para decisões, use `desk.log_decision(id, c, escolha, resultado)`.
    - Para advertências, use `desk.penalize(self, c, gravidade, motivo, T.Key.X)`.
    - Quando o operador nega ou aceita algo e a conversa acaba, use `await desk.hang_up_after(c, fala)`: quem liga diz
-     a fala (a reação, `TransferCall.refused_line`, ou o agradecimento, `thanks`) e desliga.
+     a fala (a reação, `TransferCall.refused_line`, ou o agradecimento, `thanks`) e desliga. Para a ligação sem
+     reação própria, `desk.refusal(c, reactions)` sorteia uma das `reactions` da regra (como a B2 e a B3).
    - O que a regra guarda numa ligação vai em `c.meta["<id>_..."]`.
 4. **Os serviços**, que qualquer regra pode usar e trocar sem mexer nas outras: `desk.codes` (códigos de autorização),
    `desk.messages` (recados), `desk.agreements` (acordos de redirecionamento) e `desk.tapes` (fitas). Serviço novo é

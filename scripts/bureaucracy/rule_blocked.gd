@@ -140,7 +140,7 @@ func _warn(c: PhoneCall) -> void:
 	else:
 		desk.log_decision(id, c, "avisou o bloqueio de %s" % _asked(c), "permitido")
 	if await desk.main.conversation.op(c, T.text(T.Key.OP_WARN_BLOCKED)):
-		await desk.hang_up_after(c, t.refused_line if t.refused_line != "" or reactions.is_empty() else reactions[randi() % reactions.size()])
+		await desk.hang_up_after(c, desk.refusal(c, reactions))
 
 
 ## O operador aceitou ou recusou o acordo proposto por quem liga; ele agradece ou reclama e desliga.

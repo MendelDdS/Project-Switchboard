@@ -1,8 +1,10 @@
 extends BureaucracyRule
 ## B3. Ligações que exigem código de autorização: transferir para um dos `numbers` pede o código da noite
 ## (`Bureaucracy.codes`), dito por quem liga logo depois de pedir (`TransferCall.code_line`; o operador vê o aviso de
-## que o número exige o código). Sem código ou com o errado, a transferência sai mesmo assim e é infração (gravíssima,
-## no `.tres`). Quem pede o próximo código
+## que o número exige o código). Se ele não diz, o operador pode pedir ([Pedir a autorização]): quem tem lembra e diz
+## (`TransferCall.code_when_asked`); quem não tem reage (`refused_line` ou uma das `reactions`, sorteada) e desliga.
+## Sem código ou com o errado, a transferência sai mesmo assim e é infração (gravíssima, no `.tres`). Quem pede o
+## próximo código
 ## (`TransferCall.wants_next_code`) recebe duas opções: revelar (o código da noite seguinte) ou recusar; a escolha vai
 ## para o registro de decisões e liga um marcador (`revelou_codigo_N` ou `recusou_codigo_N`) para o roteiro.
 ##
@@ -11,6 +13,8 @@ extends BureaucracyRule
 
 ## Os lugares que exigem o código.
 @export var numbers := PackedStringArray()
+## Reações de quem não tem o código quando o operador pede (sem `refused_line`): uma sorteada.
+@export var reactions := PackedStringArray()
 ## Debug: quantas noites seguintes mostrar com o código.
 @export var preview_nights := 4
 
@@ -41,10 +45,31 @@ func before_transfer(c: PhoneCall, d: int) -> Verdict:
 
 func choices(c: PhoneCall) -> Array[Dictionary]:
 	var t := c.data as TransferCall
-	if t == null or not t.wants_next_code or c.meta.has("b3_answered"):
-		return []
-	return [{"label": T.text(T.Key.CHOICE_REVEAL_CODE), "fn": _answer.bind(c, true)},
-		{"label": T.text(T.Key.CHOICE_REFUSE_CODE), "fn": _answer.bind(c, false)}]
+	var out: Array[Dictionary] = []
+	if t == null:
+		return out
+	if c.target in numbers and not c.meta.has("code_said") and not c.meta.has("b3_asked"):
+		out.append({"label": T.text(T.Key.CHOICE_ASK_CODE), "fn": _ask.bind(c)})
+	if t.wants_next_code and not c.meta.has("b3_answered"):
+		out.append({"label": T.text(T.Key.CHOICE_REVEAL_CODE), "fn": _answer.bind(c, true)})
+		out.append({"label": T.text(T.Key.CHOICE_REFUSE_CODE), "fn": _answer.bind(c, false)})
+	return out
+
+
+## O operador avisou que o número só passa com o código: quem tem lembra e diz; quem não tem reage e desliga.
+func _ask(c: PhoneCall) -> void:
+	if c.talking:
+		return
+	c.meta["b3_asked"] = true
+	var code := desk.code_line(c, true)
+	desk.main.conversation.transfer_choices(c)
+	desk.log_decision(id, c, "pediu o código de autorização", "disse o código" if not code.is_empty() else "não tinha; desistiu")
+	if not await desk.main.conversation.op(c, T.text(T.Key.OP_ASK_CODE)):
+		return
+	if code.is_empty():
+		await desk.hang_up_after(c, desk.refusal(c, reactions))
+	elif await desk.main.conversation.say(c, code[0]):
+		desk.main.conversation.transfer_choices(c)
 
 
 ## O operador revelou (`reveal`) ou recusou o próximo código: decisão de alto peso para o roteiro.

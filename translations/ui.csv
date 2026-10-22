@@ -414,6 +414,8 @@ CHOICE_REVEAL_CODE,[Revelar o próximo código],[Reveal the next code],[Revelar 
 CHOICE_REFUSE_CODE,[Recusar],[Refuse],[Negarse]
 OP_REVEAL_CODE,"O de amanhã é %s. Eu não disse nada.","Tomorrow's is %s. You didn't hear it from me.","El de mañana es %s. Yo no dije nada."
 OP_REFUSE_CODE,Isso eu não posso passar.,I can't give that out.,Eso no lo puedo dar.
+CHOICE_ASK_CODE,[Pedir a autorização],[Ask for the authorization],[Pedir la autorización]
+OP_ASK_CODE,"Esse número só posso passar com o código de autorização.","I can only put that number through with the authorization code.","Ese número solo lo puedo pasar con el código de autorización."
 FAULT_UNIDENTIFIED,Transferência sem identificação de quem ligou,Transfer without the caller's identification,Transferencia sin identificación de quien llamó
 FAULT_ANON_MESSAGE,Recado anônimo repassado,Anonymous message passed on,Recado anónimo transmitido
 CHOICE_REQUEST_ID,[Solicitar identificação],[Ask for identification],[Pedir identificación]
