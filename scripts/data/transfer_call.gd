@@ -2,6 +2,10 @@ class_name TransferCall
 extends Resource
 ## Roteiro de um pedido de transferência: quem liga, o que diz e para qual número quer ir.
 
+## B1: como quem liga responde à identificação obrigatória: diz o nome sozinho, recusa sempre, recusa e cede se o
+## operador insistir, ou diz quando o operador pede.
+enum Identify { YES, NO, IF_PRESSED, WHEN_ASKED }
+
 enum Group {
 	ESTABLISHMENT,  ## pede um estabelecimento (pode ser a ligação do tutorial)
 	PERSON,         ## pede uma pessoa com nome parecido na lista
@@ -45,3 +49,41 @@ enum Group {
 @export var alt_destination := ""
 @export var alt_ask := ""
 @export var alt_yes := ""
+
+@export_group("Burocracias")
+## B1, identificação: nome e sobrenome de quem liga (o registro de decisões usa). Vazio: a ligação fica fora da B1.
+@export var caller_name := ""
+## B1: como responde à identificação (`Identify`); como diz o nome ("Aqui é Lúcia Pereira."), como recusa ("Meu nome
+## não interessa.") e, com NO, como recusa de novo quando o operador insiste.
+@export var identify := Identify.YES
+@export var name_line := ""
+@export var refuse_line := ""
+@export var refuse_again_line := ""
+## B1, recado: o texto que quem liga deixa (dito na abertura, `opening`) para o número `message_to`; o operador anota
+## ou recusa, e mais tarde repassa ou não (`Bureaucracy.messages`).
+@export var message := ""
+@export var message_to := ""
+## B1: a reclamação de quem teve o recado recusado, antes de desligar ("Pois então esquece. Boa noite."). Anotado, ele
+## agradece (`thanks`) e desliga.
+@export var message_refused_line := ""
+## O número de onde a pessoa liga (o recado deixado para ele chega a ela). Vazio: não se sabe.
+@export var from_number := ""
+## B2: pedido urgente (um parente no hospital...): para um número bloqueado, o operador aceita (transfere, com a
+## advertência) ou nega (avisa o bloqueio); as duas são decisão moral no registro. `urgency_reason` resume o motivo.
+@export var urgent := false
+@export var urgency_reason := ""
+## B2: o sinal combinado que quem liga dá logo depois do "alô" ("(um estalo)", "(um assobio)", uma palavra): dito
+## como fala; entre parênteses, é um som. Com um acordo de redirecionamento para o número pedido com este sinal, o
+## destino certo passa a ser o do acordo.
+@export var secret_signal := ""
+## B2, quem propõe o acordo: as ligações para `deal_from` vão para `deal_to` quando quem ligar der `deal_signal`.
+@export var deal_from := ""
+@export var deal_to := ""
+@export var deal_signal := ""
+## B4: marcada pelas autoridades para gravar (as palavras-chave são as marcas `[tipo:texto]` de `overheard`, `Clue`).
+@export var suspicious := false
+## B3, o código de autorização que quem liga diz logo depois do "alô" (só com a regra valendo): com {code}, diz o
+## certo da noite ("Autorização {code}."); com outro escrito no lugar, diz esse (errado); vazio, não diz nenhum.
+@export var code_line := ""
+## B3: pede ao operador o próximo código de autorização (ele pode revelar ou recusar).
+@export var wants_next_code := false

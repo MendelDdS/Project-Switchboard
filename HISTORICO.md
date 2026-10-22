@@ -23,6 +23,7 @@ Chaves:
   progresso, data · `#setores` · `#treinamento` · `#misterio` a ligação desconhecida e o homem na rua
 - `#conteudo` roteiros e moldes · `#conversa` conversa fiada e o andamento das falas · `#voz` vozes · `#som`
 - `#idiomas` · `#desempenho` · `#debug` · `#testes` · `#codigo` estrutura do código
+- `#burocracias` as normas do supervisor e das autoridades (identificação, bloqueios, códigos, fitas)
 - `#saiu` algo testado ou feito que saiu a pedido: confira antes de propor de novo
 
 1. #mesa-comutadora #cabos
@@ -1975,3 +1976,29 @@ Chaves:
     cabe pela altura), com folga em volta do mostrador; o anel num rasgo com 2 px de vão em volta, a beira de baixo e a
     da direita na luz. Os tambores chegaram a crescer para 7×11 e voltaram ("Eu queria que aumentasse a borda da
     máquina para dar respiro", não o mostrador).
+333. #burocracias #debug #mesa-comutadora "Temos um novo plano de implementação" (`PLANO_BUROCRACIAS.md`): a
+    infraestrutura das burocracias, só pelo debug e com a chave geral desligada (o jogo é o de sempre). Cada regra é um
+    `.tres` em `data/bureaucracy/` com o script dela (`BureaucracyRule`); o gerente (`Bureaucracy`) não conhece nenhuma,
+    aplica só a maior advertência de cada tentativa (também contra o número errado) e registra todas as decisões
+    (salvas no `Progress`). B1 identificação e recados, B2 bloqueados (horário, código, urgente, acordo com sinal), B3
+    código de autorização (gerador provisório K-07, M-14...; a gravíssima deixa a noite Insuficiente, mantida a pedido),
+    B4 fitas. O porta-fitas e o gravador ficam "na prateleira, na parte embaixo de onde fica a sessão Interurbano. Mas
+    isso pode mudar mais pra frente": o lugar fica tampado até a primeira burocracia trazer um equipamento. Guia:
+    `BUREAUCRACY_RULES.md`; a regra de exemplo (limite de duração) foi feita só por ele.
+334. #burocracias #debug "Não entendi nada desse debug": na B1, quem recusava o nome recusava sem ninguém pedir (agora o
+    operador pede nome e sobrenome depois do "alô"; no "só se insistir", a opção é "[Insistir no nome]"), e a B4 ligada
+    com o turno andando, ou antes da chave geral, chegava sem fitas (a regra que passa a valer começa na hora, `sync`).
+    O botão de uma ligação de teste liga sozinho a chave geral e a regra dela (antes, tocava como uma comum), e a aba
+    abre com "como usar".
+335. #burocracias "O jogador terá uma nova opção de botão (Solicitar identificação) e não perguntar automaticamente pois
+    aí tira a iteratividade da burocracia": na B1 ninguém pede o nome sozinho; quem não se identifica mostra
+    [Solicitar identificação] (quem diz o nome sem pedir não mostra). Recusado, [Insistir no nome]; quem recusa de novo
+    (`refuse_again_line`) só deixa desligar ou transferir com advertência. Recado recusado: quem ligou reclama
+    (`message_refused_line`) e desliga; anotado, agradece e desliga. "Destinatário liga" só oferece o recado depois que
+    a pessoa diz quem é. Novo jeito: diz quando pedem (`WHEN_ASKED`).
+336. #burocracias #saiu "Esse Destinatário recebe não faz sentido nenhum": dar o recado do bar a quem liga para o bar
+    saiu (vinha do plano, "ou receber ligação"). O recado só vai para quem é o destinatário, quando ele mesmo liga e diz
+    quem é.
+337. #burocracias "nem todo recado é anônimo": o recado leva o nome de quem se identificou antes de o operador anotar
+    (ligação de teste "Recado com nome"), e na entrega o operador diz de quem é ("Fulano deixou um recado"); a
+    advertência configurável continua só para o anônimo.

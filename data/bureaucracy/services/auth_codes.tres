@@ -1,0 +1,6 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/bureaucracy/auth_codes_placeholder.gd" id="1_codes"]
+
+[resource]
+script = ExtResource("1_codes")

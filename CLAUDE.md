@@ -104,7 +104,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   - `test_content` (o conteúdo de `data/` sem a cena, ~2 s: referências, lacunas, traduções, marcadores, falas fora
     do `.po`, número da lista que não é destino de nada; rode depois de mexer em `data/`), `test_flow` (cenários), `test_keys` (teclas e mouse pelo `GameView`), `test_layout` (objetos da mesa sem
     sobreposição; rode ao mexer na disposição), `test_penalties` (consequências, relatório, conta do conceito),
-    `test_training`, `test_shift` (o robô joga o turno inteiro e imprime métricas e a eficiência; `--human` mede o
+    `test_bureaucracy` (núcleo e B1–B4 com as ligações de teste dos `.tres`), `test_training`, `test_shift` (o robô joga o turno inteiro e imprime métricas e a eficiência; `--human` mede o
     ritmo de uma pessoa, `--eager` não espera o fim da ligação, `--clumsy`, `--nosy`, `--careless`, `--night=N`, `--lang=`; falha se o atento ficar abaixo
     de Regular). Rode depois de mudar agenda, fim de ligação, mesa ou cabos.
 - Opções do jogo: `-- --seed=N`, `--night=N` (sem ler nem gravar o save), `--weather=X`, `--lang=X`, `--pace=N`, `--flags=a,b`.
@@ -168,6 +168,15 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   vez com o socorro completo no lugar certo; cada estágio exige mais unidades (`Fleet.require`). Até duas emergências
   ao mesmo tempo (`Main.MAX_EMERGENCIES`); viatura de reserva só com duas (`Fleet.spare`).
 - Fim do turno: `Main.start_ending` → `Supervisor.shift_over` → `Ending.play(report)` → `ReportView`.
+
+## Burocracias (só pelo debug, por enquanto)
+- Normas que o jogador pode descumprir (registra e penaliza, nunca bloqueia): uma regra por `.tres` em
+  `data/bureaucracy/` com um script `extends BureaucracyRule` (`scripts/bureaucracy/`); o gerente `Bureaucracy` (nó
+  do Main) chama os ganchos (síncronos: `await` num Resource devolvia o estado da corrotina), aplica a maior advertência
+  da tentativa e registra as decisões (`decisions`, no `Progress.bureaucracy`). Chave geral `Bureaucracy.enabled` (ligue por `enable`;
+  regra que passa a valer no meio do turno começa na hora, `sync`) desligada = o jogo de sempre. Serviços: `codes`, `messages`, `agreements`, `tapes`. Equipamentos da mesa:
+  `unlock_equipment` (marcador `equipamento_<id>`), cena `scenes/ui/equipment/<id>.tscn` na prateleira embaixo do
+  Interurbano (`Switchboard.set_equipment`, `bay_rect`). Como criar uma: `BUREAUCRACY_RULES.md`; aba Burocracias no F1.
 
 ## Noites, setores e agenda
 - 15 noites (`GameContent.nights`, `Night`, `data/nights/`); a noite 0 é o treinamento (`Training`, `LessonStep`, a

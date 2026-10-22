@@ -83,9 +83,9 @@ func show_report(r: ShiftReport) -> void:
 		var detail: String = " — " + String(f["detail"]) if f["detail"] != "" else ""
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 10)
-		var text := _line("%s  %s%s" % [f["time"], T.text(ShiftReport.FAULTS[f["id"]][1]), detail.replace("[", "(")], row)
+		var text := _line("%s  %s%s" % [f["time"], ShiftReport.text_of(f), detail.replace("[", "(")], row)
 		text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(_stamp(ShiftReport.severity(f["id"])))
+		row.add_child(_stamp(ShiftReport.level(f)))
 		_body.add_child(row)
 		lines += 1
 	_gap()

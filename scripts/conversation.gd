@@ -116,22 +116,25 @@ func choose(c: PhoneCall, opts: Array) -> int:
 
 
 ## Toda ligação começa igual: o operador não sabe o que vem do outro lado.
-## Quem está ligando de novo reclama logo de cara.
+## Quem está ligando de novo reclama logo de cara. Depois, o que as burocracias pedem no começo (`call_started`).
 func greet(c: PhoneCall) -> bool:
 	if not await wait(c, 0.3):
 		return false
 	if not await op(c, GameData.pick(C.greetings)):
 		return false
+	var said := true
 	match c.retry:
 		PhoneCall.Retry.MISSED:
-			return await say(c, GameData.pick(C.retry_missed))
+			said = await say(c, GameData.pick(C.retry_missed))
 		PhoneCall.Retry.WRONG_INFO:
-			return await say(c, GameData.pick(C.retry_wrong_info))
+			said = await say(c, GameData.pick(C.retry_wrong_info))
 		PhoneCall.Retry.WRONG_NUMBER:
-			return await say(c, GameData.pick(C.retry_wrong_number))
+			said = await say(c, GameData.pick(C.retry_wrong_number))
 		PhoneCall.Retry.WORSE:
-			return await say(c, GameData.pick(C.retry_too_late if c.too_late else C.retry_worse))
-	return true
+			said = await say(c, GameData.pick(C.retry_too_late if c.too_late else C.retry_worse))
+	if not said:
+		return false
+	return await main.bureaucracy.call_started(c)
 
 
 # ---------------------------------------------------------------- transferência
@@ -160,6 +163,7 @@ func transfer_choices(c: PhoneCall) -> void:
 	list.append({"label": T.text(T.Key.CHOICE_REPEAT), "fn": _transfer_repeat.bind(c)})
 	if c.no_answer and t.alt_target != "" and not c.alt_done:
 		list.append({"label": T.text(T.Key.CHOICE_OFFER_ALT), "fn": _transfer_alt.bind(c)})
+	list.append_array(main.bureaucracy.choices(c))
 	if c.chat != null:
 		for r in c.chat.replies:
 			list.append({"label": tr(r.text), "fn": _chat.bind(c, r)})

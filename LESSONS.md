@@ -178,6 +178,12 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   árvore (`get_tree()` nulo). Recomece por `Main.restart`: depois do clique, libera a cena velha de uma vez (as esperas
   pendentes somem junto, sem erro) e só então carrega a nova.
 
+- **`await` numa corrotina de Resource às vezes devolve o `GDScriptFunctionState`.** O gerente das burocracias
+  (nó) esperava `await regra.call_started(c)` (Resource) e o `greet` recebia, de vez em quando (1 em 4 rodadas, sem
+  semente), o estado da corrotina no lugar do `bool`: a ligação parava depois da primeira fala. Os ganchos das regras
+  ficaram síncronos (devolvem as falas; o nó as diz). Instabilidade só sem semente: rode o teste várias vezes sem
+  `--seed` antes de confiar nele.
+
 ## Ferramentas e testes
 
 - **`assert` que falha em script `-s` não fecha o Godot**: o processo trava. Rode com limite de tempo

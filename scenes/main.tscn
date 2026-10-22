@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/tools.tscn" id="8_tools"]
 [ext_resource type="Script" uid="uid://dpp8fwpgwjrfm" path="res://scripts/conversation.gd" id="10_conversation"]
 [ext_resource type="Script" path="res://scripts/supervisor.gd" id="22_supervisor"]
+[ext_resource type="Script" path="res://scripts/bureaucracy/bureaucracy.gd" id="26_bureaucracy"]
 [ext_resource type="Script" path="res://scripts/ui/fone_socket.gd" id="25_fone_socket"]
 [ext_resource type="Script" path="res://scripts/urgency.gd" id="23_urgency"]
 [ext_resource type="Script" path="res://scripts/eavesdrop.gd" id="25_eavesdrop"]
@@ -299,6 +300,10 @@ script = ExtResource("25_eavesdrop")
 [node name="Training" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("24_training")
+
+[node name="Bureaucracy" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("26_bureaucracy")
 
 [node name="Intro" parent="." unique_id=2147120183 instance=ExtResource("11_intro")]
 unique_name_in_owner = true

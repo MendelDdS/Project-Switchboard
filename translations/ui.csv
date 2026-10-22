@@ -369,6 +369,7 @@ FAULT_DISPATCH_MISSING,Faltaram unidades no despacho,Not enough units dispatched
 FAULT_DISPATCH_IDLE,Unidades enviadas sem ocorrência,Units sent with no emergency,Unidades enviadas sin emergencia
 FAULT_DISPATCH_EXTRA,Unidade enviada sem necessidade,Unit sent unnecessarily,Unidad enviada sin necesidad
 FAULT_DISPATCH_BLANK,Ficha de despacho enviada sem unidades,Dispatch card sent with no units,Ficha de despacho enviada sin unidades
+FAULT_BUREAUCRACY,Norma da companhia descumprida,Company rule broken,Norma de la compañía incumplida
 FAULT_DISPATCH_TYPE,Ocorrência classificada errado,Incident misclassified,Incidente mal clasificado
 FAULT_EMERGENCY_WORSE,A emergência se agravou antes do despacho,The emergency got worse before dispatch,La emergencia empeoró antes del despacho
 FAULT_EMERGENCY_CRITICAL,A emergência ficou crítica antes do despacho,The emergency turned critical before dispatch,La emergencia se volvió crítica antes del despacho
@@ -408,3 +409,35 @@ TRUNK_OPERATOR,Telefonista (%s),Operator (%s),Operadora (%s)
 OP_TRUNK_NUMBER,"Aqui é São Sotero. O número %s, por favor.","São Sotero calling. Number %s, please.","Aquí São Sotero. El número %s, por favor."
 HINT_TRUNK,"Interurbano: ligue a SAÍDA na tomada da cidade, no banco INTERURBANO, e Transfira. Com o FONE na linha, passe o número à telefonista de lá.","Long distance: plug the OUTPUT into the city's jack in the LONG DISTANCE bank and Transfer. With the HEADSET on the line, give the number to the operator there.","Larga distancia: conecte la SALIDA en la toma de la ciudad, en el banco LARGA DISTANCIA, y Transfiera. Con el AURICULAR en la línea, dé el número a la operadora de allá."
 HINT_TOLL,"Interurbano encerrado: o calculógrafo, na mesa, imprimiu o bilhete. Abra-o, ponha o carimbo em cima do bilhete, clique nele para carimbar e depois arraste o bilhete até a caixinha. Se o carimbo secar, carimbe a almofada.","Long distance call over: the toll timer on the desk printed the ticket. Open it, put the stamp on the ticket, click it to stamp and then drag the ticket into the box. If the stamp runs dry, stamp the ink pad.","Larga distancia terminada: el tarificador, en la mesa, imprimió la boleta. Ábralo, ponga el sello sobre la boleta, haga clic en él para sellar y después arrastre la boleta hasta la cajita. Si el sello se seca, selle la almohadilla."
+FAULT_AUTH_CODE,Transferência sem o código de autorização certo,Transfer without the right authorization code,Transferencia sin el código de autorización correcto
+CHOICE_REVEAL_CODE,[Revelar o próximo código],[Reveal the next code],[Revelar el próximo código]
+CHOICE_REFUSE_CODE,[Recusar],[Refuse],[Negarse]
+OP_REVEAL_CODE,"O de amanhã é %s. Eu não disse nada.","Tomorrow's is %s. You didn't hear it from me.","El de mañana es %s. Yo no dije nada."
+OP_REFUSE_CODE,Isso eu não posso passar.,I can't give that out.,Eso no lo puedo dar.
+FAULT_UNIDENTIFIED,Transferência sem identificação de quem ligou,Transfer without the caller's identification,Transferencia sin identificación de quien llamó
+FAULT_ANON_MESSAGE,Recado anônimo repassado,Anonymous message passed on,Recado anónimo transmitido
+CHOICE_REQUEST_ID,[Solicitar identificação],[Ask for identification],[Pedir identificación]
+CHOICE_PRESS_NAME,[Insistir no nome],[Insist on the name],[Insistir en el nombre]
+OP_ASK_NAME,"Nome e sobrenome, por favor?","Your full name, please?","¿Nombre y apellido, por favor?"
+OP_PRESS_NAME,"Sem o nome e o sobrenome eu não posso completar.","Without your full name I can't put you through.","Sin nombre y apellido no puedo comunicarlo."
+CHOICE_TAKE_MESSAGE,[Anotar o recado],[Take the message],[Anotar el recado]
+OP_TAKE_MESSAGE,Anotado. Eu passo adiante.,Noted. I'll pass it on.,Anotado. Yo lo paso.
+CHOICE_REFUSE_MESSAGE,[Recusar o recado],[Refuse the message],[Rechazar el recado]
+OP_REFUSE_MESSAGE,Recado sem nome eu não anoto.,I don't take messages without a name.,Recados sin nombre no los anoto.
+CHOICE_GIVE_MESSAGE,[Dar o recado],[Give the message],[Dar el recado]
+OP_GIVE_MESSAGE,"Deixaram um recado: ""%s""","Someone left a message: ""%s""","Dejaron un recado: ""%s"""
+OP_GIVE_MESSAGE_FROM,"%s deixou um recado: ""%s""","%s left a message: ""%s""","%s dejó un recado: ""%s"""
+CHOICE_KEEP_MESSAGE,[Não dar o recado],[Keep the message],[No dar el recado]
+FAULT_BLOCKED,Transferência para número bloqueado,Transfer to a blocked number,Transferencia a un número bloqueado
+CHOICE_WARN_BLOCKED,[Avisar o bloqueio],[Warn about the block],[Avisar del bloqueo]
+OP_WARN_BLOCKED,"Esse número está bloqueado esta noite. Não posso completar.","That number is blocked tonight. I can't put you through.","Ese número está bloqueado esta noche. No puedo comunicarlo."
+CHOICE_ACCEPT_DEAL,[Aceitar o acordo],[Accept the deal],[Aceptar el acuerdo]
+OP_ACCEPT_DEAL,"Combinado. Com o sinal, eu passo para o outro número.","Deal. With the signal, I'll put them through to the other number.","Trato hecho. Con la señal, los paso al otro número."
+CHOICE_REFUSE_DEAL,[Recusar o acordo],[Refuse the deal],[Rechazar el acuerdo]
+OP_REFUSE_DEAL,Isso eu não faço.,I won't do that.,Eso no lo hago.
+SYS_RECORD_REQUEST,(Ligação marcada pelas autoridades: grave a conversa.),(Call flagged by the authorities: record the conversation.),(Llamada marcada por las autoridades: grabe la conversación.)
+EQUIP_DELIVER,ENTREGAR,DELIVER,ENTREGAR
+EQUIP_DISCARD,DESCARTAR,DISCARD,DESCARTAR
+WARN_NO_TAPES,Não há mais fitas virgens.,There are no blank tapes left.,No quedan cintas vírgenes.
+WARN_TAPE_INSIDE,Já há uma fita no gravador.,There's already a tape in the recorder.,Ya hay una cinta en la grabadora.
+WARN_NO_TAPE,Não há fita no gravador.,There's no tape in the recorder.,No hay cinta en la grabadora.

@@ -13,6 +13,8 @@ extends Node
 ##   --emergency            toca uma emergência e atende (a luz vermelha da unidade, a barra, o rádio)
 ##   --news                 o jornal da manhã na mesa · --read: já lido, dobrado de outro jeito
 ##   --listen               a linha 3 conectada, com o FONE nela e a chave de escuta levantada
+##   --tapes                a B4 ligada: o porta-fitas e o gravador na prateleira, com uma fita no gravador (--tapes=rec:
+##                          com --listen, gravando a conversa da linha 3, a lâmpada REC acesa)
 ##   --patch=312,4          um cabo de conexão da saída da linha 4 (o padrão) ao destino dado, conectado (o aro aceso)
 ##   --lines=2:ring,4:conn  as lâmpadas dessas linhas no estado dado (`Exchange.Line`, em minúsculas), sem ligação
 ##   --toll                 um interurbano contando no calculógrafo, dois bilhetes na mesa (um carimbado) e três na caixinha
@@ -113,6 +115,18 @@ func _ready() -> void:
 		m.exchange.set_line(3, Exchange.Line.CONN, m.minutes + 60.0)
 		m.board.plugged(0, 3)
 		m.listen()
+	if _args.has("tapes"):
+		m.bureaucracy.enable(true)
+		m.bureaucracy.activate("b4_fitas")
+		m.bureaucracy.rule("b4_fitas").night_started()
+		m.bureaucracy.tapes.insert()
+		if _args["tapes"] == "rec" and _args.has("listen"):   # uma conversa de verdade na linha 3, para a escuta (e a fita) pegar
+			var c := PhoneCall.from_transfer(GameData.CONTENT.transfers[0])
+			c.line = 3
+			c.dest_num = int(c.target)
+			m.eavesdrop.connected(c)
+			m.exchange.set_key(3, true)   # (o `--listen` não levantou a chave: ainda não havia conversa)
+			m.eavesdrop.tick(0.0)
 	if _args.has("patch"):
 		var pa := (_args["patch"] as String).split(",")
 		m.board.plugged(1, 10 + (int(pa[1]) if pa.size() > 1 else 4))

@@ -1,0 +1,116 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/bureaucracy/rule_identification.gd" id="1_rule"]
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="2_call"]
+
+[sub_resource type="Resource" id="Test_sozinho"]
+resource_name = "Diz o nome sozinho"
+script = ExtResource("2_call")
+voice = "f"
+caller = "TESTE B1 (diz sozinha)"
+opening = PackedStringArray("[TESTE] O Hotel Estrela, por favor.")
+repeat = "[TESTE] O Hotel Estrela."
+target = "305"
+destination = "Hotel Estrela"
+thanks = "[TESTE] Obrigada."
+caller_name = "Teste Sozinha"
+name_line = "[TESTE] Boa noite, aqui é Teste Sozinha."
+
+[sub_resource type="Resource" id="Test_pedem"]
+resource_name = "Diz quando pedem"
+script = ExtResource("2_call")
+voice = "m"
+caller = "TESTE B1 (diz quando pedem)"
+opening = PackedStringArray("[TESTE] O Hotel Estrela, por favor.")
+repeat = "[TESTE] O Hotel Estrela."
+target = "305"
+destination = "Hotel Estrela"
+thanks = "[TESTE] Obrigado."
+caller_name = "Teste Pedido"
+identify = 3
+name_line = "[TESTE] Ah, claro. Teste Pedido."
+
+[sub_resource type="Resource" id="Test_recusa"]
+resource_name = "Recusa sempre"
+script = ExtResource("2_call")
+voice = "m"
+caller = "TESTE B1 (recusa sempre)"
+opening = PackedStringArray("[TESTE] O Hotel Estrela, por favor.")
+repeat = "[TESTE] O Hotel Estrela."
+target = "305"
+destination = "Hotel Estrela"
+thanks = "[TESTE] Obrigado."
+caller_name = "Teste Recusa"
+identify = 1
+refuse_line = "[TESTE] Meu nome não interessa."
+refuse_again_line = "[TESTE] Já disse que não vou dizer. Completa logo essa ligação."
+
+[sub_resource type="Resource" id="Test_insistir"]
+resource_name = "Cede se insistir"
+script = ExtResource("2_call")
+voice = "w"
+caller = "TESTE B1 (cede se insistir)"
+opening = PackedStringArray("[TESTE] O Hotel Estrela, por favor.")
+repeat = "[TESTE] O Hotel Estrela."
+target = "305"
+destination = "Hotel Estrela"
+thanks = "[TESTE] Obrigado."
+caller_name = "Teste Insistido"
+identify = 2
+name_line = "[TESTE] Está bem, está bem. Teste Insistido."
+refuse_line = "[TESTE] Precisa mesmo do nome?"
+
+[sub_resource type="Resource" id="Test_recado"]
+resource_name = "Recado anônimo"
+script = ExtResource("2_call")
+voice = "w"
+caller = "TESTE B1 (recado)"
+opening = PackedStringArray("[TESTE] Não precisa ligar pra ninguém. Só quero deixar um recado pro Bar do Zé.", "[TESTE] Diz pra eles que a encomenda chega amanhã cedo.")
+repeat = "[TESTE] Um recado pro Bar do Zé."
+target = ""
+destination = "Recado"
+thanks = "[TESTE] Obrigado. Boa noite."
+caller_name = "Teste Anônimo"
+identify = 1
+refuse_line = "[TESTE] Nome eu não dou. É só um recado."
+refuse_again_line = "[TESTE] Já falei que não."
+message = "[TESTE] A encomenda chega amanhã cedo."
+message_to = "327"
+message_refused_line = "[TESTE] Que serviço é esse, que nem recado anota? Passar bem."
+
+[sub_resource type="Resource" id="Test_recado_nome"]
+resource_name = "Recado com nome"
+script = ExtResource("2_call")
+voice = "f"
+caller = "TESTE B1 (recado com nome)"
+opening = PackedStringArray("[TESTE] Não precisa ligar pra ninguém. Só um recado pro Bar do Zé.", "[TESTE] Diz que o conserto da geladeira fica pra sexta.")
+repeat = "[TESTE] Um recado pro Bar do Zé."
+destination = "Recado"
+thanks = "[TESTE] Obrigada. Boa noite."
+caller_name = "Teste Remetente"
+name_line = "[TESTE] Boa noite, aqui é Teste Remetente."
+message = "[TESTE] O conserto da geladeira fica pra sexta."
+message_to = "327"
+message_refused_line = "[TESTE] Nem um recado? Que coisa. Boa noite."
+
+[sub_resource type="Resource" id="Test_liga"]
+resource_name = "Destinatário liga"
+script = ExtResource("2_call")
+voice = "m"
+caller = "TESTE B1 (o Zé liga)"
+opening = PackedStringArray("[TESTE] Boa noite. O Cine Odeon, por favor.")
+repeat = "[TESTE] O Cine Odeon."
+target = "344"
+destination = "Cine Odeon"
+thanks = "[TESTE] Valeu."
+caller_name = "Zé Teste"
+identify = 3
+name_line = "[TESTE] Aqui é o Zé, do bar."
+from_number = "327"
+
+[resource]
+script = ExtResource("1_rule")
+id = "b1_identificacao"
+title = "B1 · Identificação obrigatória"
+fault_text = "FAULT_UNIDENTIFIED"
+tests = Array[ExtResource("2_call")]([SubResource("Test_sozinho"), SubResource("Test_pedem"), SubResource("Test_recusa"), SubResource("Test_insistir"), SubResource("Test_recado"), SubResource("Test_recado_nome"), SubResource("Test_liga")])

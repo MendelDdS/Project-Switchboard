@@ -94,6 +94,7 @@ var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o
 @onready var urgency: Urgency = %Urgency
 @onready var eavesdrop: Eavesdrop = %Eavesdrop
 @onready var training: Training = %Training
+@onready var bureaucracy: Bureaucracy = %Bureaucracy
 @onready var _hint: RichTextLabel = %Hint
 @onready var _glow: CanvasItem = %Glow
 @onready var _bloom: CanvasItem = $Bloom
@@ -132,6 +133,8 @@ func _ready() -> void:
 	board.setup(exchange, %FoneSocket, %CordTray)
 	board.shelf = background.shelf   # onde a prateleira acaba: além dela, o plug solto cai até o tampo
 	board.eye = background.eye   # os olhos do operador: a paralaxe dos plugs encaixados
+	board.set_equipment(bureaucracy.equipment())   # os equipamentos das burocracias já liberados (salvos nos marcadores)
+	bureaucracy.equipment_changed.connect(func(): board.set_equipment(bureaucracy.equipment()))
 	var plan := Schedule.build(night, pace, last_call)
 	sched = plan.calls.filter(func(c: PhoneCall) -> bool: return c.at >= minutes)   # (o debug pode começar mais tarde)
 	myst_plan = plan.mystery_at
@@ -165,6 +168,7 @@ func _ready() -> void:
 	tools.book.clues = eavesdrop.clues   # as palavras-chave ouvidas vão para a página de anotações da lista
 	tools.book.notes_changed()
 	eavesdrop.clue_heard.connect(func(_k: Clue): tools.book.notes_changed())
+	eavesdrop.clue_heard.connect(bureaucracy.clue_heard)
 	tools.call_log.unread_changed.connect(func(on: bool):
 		background.unread = on
 		if on:
@@ -288,6 +292,7 @@ func _start_shift() -> void:
 	Sfx.start_ambience(weather)
 	background.warm_up()
 	running = true
+	bureaucracy.night_started()
 	radio.say(T.text(T.Key.RADIO_PATROL))
 	hint(T.text(T.Key.HINT_WAIT_CALLS))
 	if is_training():
@@ -552,6 +557,7 @@ func transfer() -> void:
 		warn(T.text(T.Key.WARN_DEST_BUSY) % d)
 		return
 	Sfx.play("key")
+	bureaucracy.before_transfer(c, d)
 	_ring_dest(c, d)
 
 
@@ -623,7 +629,8 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 	var who := tr(c.destination) if right and GameData.is_trunk(d) else GameData.entry(str(d)).name
 	_update_call_ui()
 	if not right and not c.lesson:
-		supervisor.fault("wrong_number", supervisor.who(c))
+		if bureaucracy.wrong_number(c):   # (uma burocracia já pode ter dado advertência maior nesta tentativa)
+			supervisor.fault("wrong_number", supervisor.who(c))
 		c.wrong += 1
 	if right and c.on_line:   # o operador ouve o agradecimento; a conversa entre os dois ele já não ouve
 		c.sys(T.text(T.Key.SYS_ANSWERED) % who)
@@ -662,7 +669,8 @@ func _trunk(c: PhoneCall, d: int, g: int, right: bool) -> bool:
 			return false
 		exchange.set_dest(d, Exchange.Dest.FREE)
 		if not c.lesson:
-			supervisor.fault("wrong_number", supervisor.who(c))
+			if bureaucracy.wrong_number(c):
+				supervisor.fault("wrong_number", supervisor.who(c))
 			c.wrong += 1
 		if c.wrong >= 2 and await conversation.say(c, GameData.pick(C.gave_up), 0.5):
 			c.sys(T.text(T.Key.SYS_CALLER_HUNG_UP))
@@ -702,6 +710,7 @@ func _try_complete(c: PhoneCall) -> bool:
 		toll.start(c.line, GameData.trunk_city(d), (c.data as TransferCall).far_number, minutes)
 	c.sys(T.text(T.Key.SYS_LINES_CONNECTED) % [c.line, d])
 	phone.flash("%02d - %d" % [c.line, d], 2600)
+	bureaucracy.transfer_done(c)
 	end_call(c, PhoneCall.End.CONNECTED)
 	return true
 
@@ -1057,6 +1066,7 @@ func end_call(c: PhoneCall, reason: PhoneCall.End) -> void:
 	c.record = _record(c, reason)
 	notebook.add(c.record)
 	supervisor.call_ended(c, reason)
+	bureaucracy.call_ended(c, reason)
 	await get_tree().create_timer(1.5, false).timeout
 	if ending or reason == PhoneCall.End.MISSED or c.lesson:   # não atendida já entra registrada
 		return
@@ -1267,6 +1277,7 @@ func start_ending() -> void:
 	if progress == null or last:   # sem noite seguinte: cobra hoje
 		for f in report.later:
 			report.add(f["id"], f["time"], f["detail"])
+	bureaucracy.night_ended()
 	supervisor.shift_over()
 	if progress != null:
 		if report.fired() or last:
@@ -1281,6 +1292,7 @@ func start_ending() -> void:
 			progress.clues = eavesdrop.clues.map(func(k: Clue): return k.to_dict())
 			progress.grudges = eavesdrop.grudges
 			progress.rains += 1 if weather == "rain" else 0
+			progress.bureaucracy = bureaucracy.state()
 			progress.save()
 	await get_tree().create_timer(5.0, false).timeout
 	_ending.play(report, not last)

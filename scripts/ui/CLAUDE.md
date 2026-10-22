@@ -92,6 +92,9 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   cabos de conexão (`mate(e)` dá a outra ponta). Um par de cabos por setor entregue (`SHELF_SLOTS` lugares, os vagos
   sob um tampo, `_draw_cover`). `dest_of_output(n)` segue o cabo da saída. `refuse(e, j)` decide compatibilidade.
 - **Chave de escuta** de cada linha (`lever_rect`, `lever_up`, `lever_pressed`).
+- **Equipamentos das burocracias** na prateleira embaixo do bloco interurbano (`bay_rect`): tampados até o primeiro
+  chegar (`_draw_cover`); cada um é uma cena de `scenes/ui/equipment/` posta por `set_equipment` (porta-fitas e
+  gravador da B4, `scripts/ui/equipment/`, arte provisória). A mesa não sabe o que cada um faz.
 - **Fios** são cordas de Verlet, uma por ponta (`Cord`, `scripts/ui/cord.gd`, sem tela nem som, testada sozinha):
   presas no buraco (`hole(e)`) e na traseira do plug; o contrapeso puxa a folga para dentro (`WEIGHT_TAKE`); todos com
   o mesmo comprimento (`Cord.MAX`); a prateleira e a beira dela são quinas (`hang_step`, `lip_y`, `route`); fio parado

@@ -89,6 +89,7 @@ var hold_since := 0.0       ## minuto em que ficou em espera
 var transcript: Array[Dictionary] = []   ## {"who", "text", "cls", "marks"}; cls: "" / "op" / "sys" / "ghost"; marks: trechos sublinhados
 var options: Array[Dictionary] = []      ## {"label": String, "fn": Callable}
 var record: Record                       ## linha do caderno gerada quando a ligação termina (nula antes)
+var meta := {}              ## o que as burocracias guardam desta ligação (`BureaucracyRule`), cada uma nas chaves dela
 
 # transferência (o destino pode mudar quando o pedido não atende à noite)
 var target := ""

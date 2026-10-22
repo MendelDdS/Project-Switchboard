@@ -132,6 +132,11 @@ var _top: Control
 var _cords: Control
 var _glow: ColorRect   # a luz das lâmpadas acesas no painel em volta, num shader (`board_glow.gdshader`): por cima da luz da sala, por baixo dos fios
 var _drawn := [[], [], [], []]   # o que cada uma mostrava no último desenho (`_look`)
+var _equipment := {}   # id -> a cena do equipamento de pé na prateleira (`set_equipment`), na ordem em que ficam
+var _bay_at := Rect2()   # onde estava a faixa deles na última vez que foram postos (os containers arrumam a prateleira depois)
+
+const EQUIPMENT_DIR := "res://scenes/ui/equipment/"
+const BAY_GAP := 6.0   # entre um equipamento e o seguinte, e da beira do bloco interurbano até o primeiro
 
 
 func _ready() -> void:
@@ -178,6 +183,34 @@ func setup(ex: Exchange, socket: Control, cord_tray: Control) -> void:
 	dest_nums = ex.dest_numbers()
 	_jacks = range(1, 21) + dest_nums
 	_layout_dests()
+
+
+## Os equipamentos liberados (`Bureaucracy.equipment`), de pé na prateleira embaixo do bloco interurbano (`bay_rect`),
+## lado a lado na ordem de `ids`: cada um é a cena `scenes/ui/equipment/<id>.tscn` e cuida de si (desenho, clique); a
+## mesa só os põe no lugar, por baixo da luz das lâmpadas e dos fios. Sem nenhum, o lugar fica tampado.
+func set_equipment(ids: PackedStringArray) -> void:
+	for id: String in _equipment.keys():
+		if not id in ids:
+			(_equipment[id] as Node).queue_free()
+			_equipment.erase(id)
+	for id in ids:
+		if not _equipment.has(id) and ResourceLoader.exists(EQUIPMENT_DIR + id + ".tscn"):
+			var n: Control = load(EQUIPMENT_DIR + id + ".tscn").instantiate()
+			add_child(n)
+			move_child(n, _glow.get_index())
+			_equipment[id] = n
+	equipped = PackedStringArray(_equipment.keys())
+	_place_equipment()
+
+
+## Põe os equipamentos lado a lado, de pé na fileira da frente da faixa deles.
+func _place_equipment() -> void:
+	_bay_at = bay_rect()
+	var x := _bay_at.position.x + BAY_GAP
+	for n: Control in _equipment.values():
+		n.size = n.custom_minimum_size
+		n.position = Vector2(x, _bay_at.position.y + SHELF_FRONT_Y + 3.0 - n.size.y).round()
+		x += n.size.x + BAY_GAP
 
 
 ## Posição de cada tomada de destino: blocos lado a lado, centralizados na mesa.
@@ -383,6 +416,8 @@ func _release(pos: Vector2) -> void:
 
 
 func _process(delta: float) -> void:
+	if not _equipment.is_empty() and bay_rect() != _bay_at:
+		_place_equipment()
 	if eye.is_valid():
 		var at: Vector2 = eye.call()
 		_eye = at - global_position if at.x < INF else PLUG_EYE
@@ -491,7 +526,7 @@ func _look() -> Array:
 		for j in ends:
 			if j != -1:
 				plugs.append(_plug_light(j))
-	return [[size, states, GameData.sectors.duplicate(), _lamp_at], [size, levels, ends.duplicate(), _eye, poses, _lamp_at],
+	return [[size, states, GameData.sectors.duplicate(), _lamp_at, equipped], [size, levels, ends.duplicate(), _eye, poses, _lamp_at],
 		[size, GameData.sectors.duplicate(), _lamp_at],
 		[size, ends.duplicate(), _hover, plugs, PixelArt.ms() < info_until, info_line, _eye, _lamp_at]]
 

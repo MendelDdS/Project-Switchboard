@@ -1,6 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/debug_panel.gd" id="1_debug"]
+[ext_resource type="Script" path="res://scripts/ui/debug_bureaucracy.gd" id="2_bureau"]
 
 [node name="Debug" type="PanelContainer"]
 visible = false
@@ -48,3 +49,15 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 4
+
+[node name="Burocracias" type="ScrollContainer" parent="Margin/Tabs"]
+visible = false
+layout_mode = 2
+horizontal_scroll_mode = 0
+metadata/_tab_index = 2
+
+[node name="Box" type="VBoxContainer" parent="Margin/Tabs/Burocracias"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+script = ExtResource("2_bureau")

@@ -66,6 +66,7 @@ run content
 run flow
 run training
 run penalties
+run bureaucracy
 run keys --night=1   # (a noite também para a cena recarregada pelo Recomeçar, que não lê o progresso salvo)
 run layout
 for s in 1 2 3; do

@@ -83,6 +83,7 @@ func connected(c: PhoneCall) -> void:
 ## Tecla Escutar ou a alavanca: a chave de escuta da linha `n` sobe ou desce.
 func toggle(n: int) -> void:
 	main.exchange.set_key(n, not main.exchange.key(n))
+	main.bureaucracy.listening(n, main.exchange.key(n))
 
 
 ## A conversa da linha `n` ainda tem falas escritas por dizer: ela não acaba antes (`Main._update_line_timers`).

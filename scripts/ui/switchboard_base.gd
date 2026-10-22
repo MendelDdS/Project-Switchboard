@@ -26,6 +26,7 @@ var held := -1
 const PLUG_EYE := Vector2(SIZE.x + 132, 81)
 var _eye := PLUG_EYE
 var trunks := Rect2()   # o bloco interurbano no painel (a mesa o põe ao montar os bancos): os cabos vão até ele
+var equipped := PackedStringArray()   # os equipamentos de pé na prateleira embaixo dele (`bay_rect`, `Switchboard.set_equipment`)
 
 const PLUG_BASE := Vector2(0, 20)   # de onde a mão pega o plug (o meio do corpo) até onde o fio entra nele
 const PLUG_H := 51.0   # a altura do `PLUG_ART`: do bico até onde sai o fio...
@@ -115,6 +116,12 @@ func _pitch() -> float:
 ## Onde fica o plug guardado, de pé no buraco dele na prateleira, como nas mesas de verdade (o fio desce por ele).
 func home_pos(e: int) -> Vector2:
 	return hole(e) - PLUG_BASE + Vector2(0, PLUG_SINK)
+
+
+## A faixa da prateleira embaixo do bloco interurbano, onde ficam os equipamentos liberados (`set_equipment`); vazia,
+## fica sob um tampo (`_draw_tray`).
+func bay_rect() -> Rect2:
+	return Rect2(trunks.position.x, tray_rect().position.y, trunks.size.x, tray_rect().size.y)
 
 
 ## Buraco de onde sai o fio da ponta e, na prateleira (o do FONE no encaixe dele; os de conexão um atrás do outro).

@@ -4,7 +4,8 @@ extends RefCounted
 ## do conceito mínimo (`ShiftReport.low_nights`; o `severe` dos saves antigos é ignorado), os marcadores do roteiro (escolhas que mudam as noites seguintes; veja StoryFlags) e o jornal da manhã
 ## seguinte (as manchetes da noite, `ShiftReport.news`, que ficam na mesa na próxima) e as advertências que só chegam
 ## nela (`ShiftReport.later`) e as palavras-chave ouvidas na escuta (`Clue`, em dicionário) e quantas vezes cada lugar
-## denunciou a telefonista (`Eavesdrop.grudges`) e as noites de chuva (a mancha de umidade da sala, `Background.damp`).
+## denunciou a telefonista (`Eavesdrop.grudges`) e as noites de chuva (a mancha de umidade da sala, `Background.damp`)
+## e o estado das burocracias (`Bureaucracy.state`: o registro de decisões, os recados...).
 
 const PATH := "user://progress.cfg"
 
@@ -17,6 +18,7 @@ var later: Array = []
 var clues: Array = []
 var grudges := {}   ## número do lugar -> denúncias
 var rains := 0   ## noites de chuva que já passaram
+var bureaucracy := {}
 
 
 static func load_saved() -> Progress:
@@ -32,6 +34,7 @@ static func load_saved() -> Progress:
 		p.clues = f.get_value("progress", "clues", [])
 		p.grudges = f.get_value("progress", "grudges", {})
 		p.rains = f.get_value("progress", "rains", 0)
+		p.bureaucracy = f.get_value("progress", "bureaucracy", {})
 	return p
 
 
@@ -46,6 +49,7 @@ func save() -> void:
 	f.set_value("progress", "clues", clues)
 	f.set_value("progress", "grudges", grudges)
 	f.set_value("progress", "rains", rains)
+	f.set_value("progress", "bureaucracy", bureaucracy)
 	f.save(PATH)
 
 

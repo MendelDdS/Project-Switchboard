@@ -17,16 +17,17 @@ const TYPE_OF := {
 @onready var main: Main = get_parent()
 
 
-func fault(id: String, detail := "") -> void:
+## Uma advertência no relatório (a que entrou, ou vazio no treinamento); `sev` e `text` para as das burocracias.
+func fault(id: String, detail := "", sev := -1, text := -1) -> Dictionary:
 	if main.training.active:   # o treinamento não gera advertência
-		return
-	main.report.add(id, Main.fmt(main.minutes), detail)
+		return {}
+	return main.report.add(id, Main.fmt(main.minutes), detail, sev, text)
 
 
 ## Um acerto do operador (`ShiftReport.CREDITS`); o treinamento não conta.
-func credit(id: String) -> void:
+func credit(id: String, pts := -1) -> void:
 	if not main.training.active:
-		main.report.credit(id, Main.fmt(main.minutes))
+		main.report.credit(id, Main.fmt(main.minutes), pts)
 
 
 ## Advertência que o supervisor só fica sabendo depois (a denúncia de um assinante): vai para o relatório da noite

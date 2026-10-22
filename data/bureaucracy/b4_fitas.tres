@@ -1,0 +1,37 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/bureaucracy/rule_tapes.gd" id="1_rule"]
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="2_call"]
+
+[sub_resource type="Resource" id="Test_palavras"]
+resource_name = "Suspeita com palavras-chave"
+script = ExtResource("2_call")
+voice = "m"
+caller = "TESTE B4 (suspeita)"
+opening = PackedStringArray("[TESTE] A Pensão Dona Cota, por favor.")
+repeat = "[TESTE] A pensão."
+target = "312"
+destination = "Pensão Dona Cota"
+thanks = "[TESTE] Obrigado."
+overheard = PackedStringArray("[TESTE] Está tudo certo para amanhã?", "[TESTE] Está. Na [place:estação velha], às [time:dez].", "[TESTE] Leva o [other:pacote] e não fala com ninguém.", "[TESTE] Pode deixar. Quem vai é o [person:Ramiro].")
+suspicious = true
+
+[sub_resource type="Resource" id="Test_nada"]
+resource_name = "Suspeita sem nada relevante"
+script = ExtResource("2_call")
+voice = "f"
+caller = "TESTE B4 (nada relevante)"
+opening = PackedStringArray("[TESTE] A Pensão Dona Cota, por favor.")
+repeat = "[TESTE] A pensão."
+target = "312"
+destination = "Pensão Dona Cota"
+thanks = "[TESTE] Obrigada."
+overheard = PackedStringArray("[TESTE] Oi, mãe. Só pra saber se chegou bem.", "[TESTE] Cheguei, filha. A viagem foi tranquila.", "[TESTE] Que bom. Amanhã eu ligo de novo.", "[TESTE] Liga, sim. Boa noite.")
+suspicious = true
+
+[resource]
+script = ExtResource("1_rule")
+id = "b4_fitas"
+title = "B4 · Gravação em fitas"
+equipment = PackedStringArray("porta_fitas", "gravador")
+tests = Array[ExtResource("2_call")]([SubResource("Test_palavras"), SubResource("Test_nada")])
