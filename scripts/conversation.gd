@@ -148,6 +148,8 @@ func _transfer(c: PhoneCall) -> void:
 	for l in t.opening:
 		if not await say(c, l):
 			return
+	if not await main.bureaucracy.request_made(c):   # o que as burocracias pedem depois do pedido (o código...)
+		return
 	# a conversa fiada vem depois, se o operador demorar (Main._nag)
 	c.phase = PhoneCall.Phase.AWAIT
 	c.state_changed.emit()

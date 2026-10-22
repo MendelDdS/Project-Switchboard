@@ -6,10 +6,10 @@ extends BureaucracyRule
 ## mesmo assim. Transferir sem identificação (sem pedir ou com a recusa) é infração (média, no `.tres`). Só entram as
 ## ligações com `caller_name`: as outras seguem como sempre.
 ## Recados (`Bureaucracy.messages`): quem liga pode deixar só um recado (`message`, para `message_to`): com o nome de
-## quem se identificou antes de o operador anotar, ou anônimo; o operador anota (quem ligou agradece e desliga) ou recusa (reclama, `message_refused_line`, e
-## desliga). Mais tarde, quando quem é desse número liga e diz quem é (`from_number`, identificado), o operador pode
-## dar o recado ou não: a escolha vai para o registro e, se `message_penalty` não for "Nenhuma", dar um recado anônimo
-## é advertência.
+## quem se identificou antes de o operador anotar, ou anônimo; o operador anota (quem ligou agradece e desliga) ou
+## recusa (reclama, `refused_line`, e desliga). Mais tarde, quando quem é desse número liga e diz quem é
+## (`from_number`, identificado), o operador pode dar o recado ou não: a escolha vai para o registro e, se
+## `message_penalty` não for "Nenhuma", dar um recado anônimo é advertência.
 ##
 ## Roteiro: `activate("b1_identificacao")`; os recados ficam salvos de uma noite para outra.
 
@@ -97,9 +97,7 @@ func _note(c: PhoneCall, take: bool) -> void:
 		t.message_to], "na fila" if take else "recusado")
 	if not await desk.main.conversation.op(c, T.text(T.Key.OP_TAKE_MESSAGE if take else T.Key.OP_REFUSE_MESSAGE)):
 		return
-	if await desk.main.conversation.say(c, t.thanks if take else t.message_refused_line):
-		c.sys(T.text(T.Key.SYS_CALLER_HUNG_UP))
-		desk.main.end_call(c, PhoneCall.End.CALLER)
+	await desk.hang_up_after(c, t.thanks if take else t.refused_line)
 
 
 ## Deu (`give`, o operador diz na hora) ou guardou o recado `m`.

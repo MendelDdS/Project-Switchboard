@@ -2002,3 +2002,25 @@ Chaves:
 337. #burocracias "nem todo recado é anônimo": o recado leva o nome de quem se identificou antes de o operador anotar
     (ligação de teste "Recado com nome"), e na entrega o operador diz de quem é ("Fulano deixou um recado"); a
     advertência configurável continua só para o anônimo.
+338. #burocracias Na B2: avisado o bloqueio, quem ligou ficava calado (agora reage, `refused_line`, e desliga); o código
+    de autorização vinha antes do pedido (agora depois: gancho novo `request_made`); sem código, nada dizia que o número
+    estava bloqueado (agora um aviso na conversa depois do pedido: bloqueado, só com o código, liberado até as 21h; na
+    B3, "exige o código"); aceito ou recusado o acordo, quem propôs ficava esperando (agora agradece ou reclama e
+    desliga). A reação ao "não" virou um campo só, `refused_line` (era `message_refused_line`, da B1).
+339. #burocracias "Verifique se há mais inconsistências com relação ao B2": com o sinal de um acordo, o aviso e o botão
+    de bloqueio olhavam o destino do acordo, não o número pedido (o operador não podia recusar o acordo naquela
+    ligação); desligar na cara de uma ligação urgente para um bloqueado não ia para o registro (agora é decisão moral);
+    faltava a ligação de teste com o código errado.
+340. #burocracias Pontos menores da B2: avisado do bloqueio, quem liga sem `refused_line` (as ligações comuns do jogo)
+    diz uma das `reactions` da regra, sorteada (passiva, reclama do governo, indiferente; as falas são do usuário, no
+    `.tres` só marcadores `[TESTE]`). O bar: bateu 21h, transferir dá advertência mesmo atendida às 20:55 (já era
+    assim). Com o sinal de um acordo, o pedido continua sendo X: transferir para X é a conversa normal com a advertência
+    do bloqueio (antes tocava como número errado, com a reclamação de quem foi acordado); Y vira o destino só ao
+    transferir para ele.
+341. #burocracias "Não existiria uma opção mais barata?": o [Avisar o bloqueio] do bar aparece quando bate 21h com a
+    ligação esperando, por um temporizador só, armado no pedido até a hora da janela (nada de conferir a cada quadro).
+342. #burocracias "Verifique se há inconsistências no B2": com o sinal, tentar Y (sem atender, ou desfeita) deixava Y
+    como o destino certo, e voltar para X virava número errado; agora o certo é o tentado na hora (X ou Y, com o nome
+    original de X guardado).
+343. #burocracias "Tem que ajustar isso" / "uma coisa exclui a outra": número bloqueado (na lista da B2) nunca fica
+    "ninguém atende" (`PhoneCall.away` desligado no começo da ligação); com isso a Borracharia do acordo também atende.

@@ -16,7 +16,9 @@ Referência completa: `scripts/bureaucracy/rule_auth_code.gd` (B3) e `data/burea
    o estado da corrotina para quem esperava. Os ganchos são:
    - `night_started()`, `night_ended()`: começo do turno e fim, antes do relatório.
    - `call_started(c) -> Array`: as falas logo depois do "alô", em ordem; texto é de quem liga, `{"op": texto}` é do
-     operador (a B1 pede o nome assim). O gerente diz as falas.
+     operador e `{"sys": texto}` é um aviso na conversa. O gerente diz as falas.
+   - `request_made(c) -> Array`: o mesmo, logo depois de quem liga pedir a transferência (o aviso de bloqueio e o
+     código de autorização vêm aqui).
    - `choices(c) -> Array[Dictionary]`: opções do operador enquanto o pedido espera, `{"label", "fn"}`. O texto é
      `T.text(T.Key.CHOICE_*)`, a fala é `T.Key.OP_*`, em `translations/ui.csv`.
    - `before_transfer(c, d) -> Verdict`: a tentativa de transferir para `d`.
@@ -28,6 +30,8 @@ Referência completa: `scripts/bureaucracy/rule_auth_code.gd` (B3) e `data/burea
 3. **Fora da transferência:**
    - Para decisões, use `desk.log_decision(id, c, escolha, resultado)`.
    - Para advertências, use `desk.penalize(self, c, gravidade, motivo, T.Key.X)`.
+   - Quando o operador nega ou aceita algo e a conversa acaba, use `await desk.hang_up_after(c, fala)`: quem liga diz
+     a fala (a reação, `TransferCall.refused_line`, ou o agradecimento, `thanks`) e desliga.
    - O que a regra guarda numa ligação vai em `c.meta["<id>_..."]`.
 4. **Os serviços**, que qualquer regra pode usar e trocar sem mexer nas outras: `desk.codes` (códigos de autorização),
    `desk.messages` (recados), `desk.agreements` (acordos de redirecionamento) e `desk.tapes` (fitas). Serviço novo é

@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="2_call"]
 
 [sub_resource type="Resource" id="Test_bloq"]
-resource_name = "Bloqueado (Bilhar)"
+resource_name = "Bloqueado (Bilhar, reação sorteada)"
 script = ExtResource("2_call")
 voice = "m"
 caller = "TESTE B2 (bloqueado)"
@@ -24,6 +24,7 @@ repeat = "[TESTE] O Bar do Zé."
 target = "327"
 destination = "Bar do Zé"
 thanks = "[TESTE] Obrigado."
+refused_line = "[TESTE] Fechou o bar pra telefone, é? Tá bom, então."
 
 [sub_resource type="Resource" id="Test_urgente"]
 resource_name = "Urgente para bloqueado"
@@ -35,6 +36,7 @@ repeat = "[TESTE] O Bilhar do Tonho, é urgente."
 target = "355"
 destination = "Bilhar do Tonho"
 thanks = "[TESTE] Obrigado."
+refused_line = "[TESTE] Meu Deus, e agora? Vou correr até lá a pé!"
 urgent = true
 urgency_reason = "marido passou mal no bilhar"
 
@@ -48,7 +50,21 @@ repeat = "[TESTE] A funerária."
 target = "399"
 destination = "Funerária Paz Eterna"
 thanks = "[TESTE] Obrigado."
+refused_line = "[TESTE] Mas eu dei o código! Vou reclamar com a companhia."
 code_line = "[TESTE] Autorização {code}."
+
+[sub_resource type="Resource" id="Test_errado"]
+resource_name = "Código errado (Funerária)"
+script = ExtResource("2_call")
+voice = "f"
+caller = "TESTE B2 (código errado)"
+opening = PackedStringArray("[TESTE] A Funerária Paz Eterna, por favor.")
+repeat = "[TESTE] A funerária."
+target = "399"
+destination = "Funerária Paz Eterna"
+thanks = "[TESTE] Obrigada."
+refused_line = "[TESTE] Como errado? Foi o que me passaram! Boa noite."
+code_line = "[TESTE] Autorização Z-99."
 
 [sub_resource type="Resource" id="Test_semcodigo"]
 resource_name = "Sem código (Funerária)"
@@ -60,6 +76,7 @@ repeat = "[TESTE] A funerária."
 target = "399"
 destination = "Funerária Paz Eterna"
 thanks = "[TESTE] Obrigado."
+refused_line = "[TESTE] Código? Ninguém me falou de código nenhum. Boa noite."
 
 [sub_resource type="Resource" id="Test_acordo"]
 resource_name = "Propõe o acordo"
@@ -70,7 +87,8 @@ opening = PackedStringArray("[TESTE] Escuta: quem pedir o Bilhar e der um estalo
 repeat = "[TESTE] Bilhar com estalo, Borracharia."
 target = ""
 destination = "Acordo"
-thanks = "[TESTE] Obrigado."
+thanks = "[TESTE] Combinado, então. Boa noite."
+refused_line = "[TESTE] Pena. Você vai se arrepender. Boa noite."
 deal_from = "355"
 deal_to = "336"
 deal_signal = "(um estalo)"
@@ -85,6 +103,7 @@ repeat = "[TESTE] O Bilhar do Tonho."
 target = "355"
 destination = "Bilhar do Tonho"
 thanks = "[TESTE] Obrigado."
+refused_line = "[TESTE] Bloqueado? Mas eu... deixa pra lá."
 secret_signal = "(um estalo)"
 
 [sub_resource type="Resource" id="Test_semsinal"]
@@ -97,6 +116,7 @@ repeat = "[TESTE] O Bilhar do Tonho."
 target = "355"
 destination = "Bilhar do Tonho"
 thanks = "[TESTE] Obrigado."
+refused_line = "[TESTE] Bloqueado? Que coisa. Boa noite."
 
 [resource]
 script = ExtResource("1_rule")
@@ -104,7 +124,8 @@ id = "b2_bloqueados"
 title = "B2 · Números bloqueados"
 severity = 2
 fault_text = "FAULT_BLOCKED"
-tests = Array[ExtResource("2_call")]([SubResource("Test_bloq"), SubResource("Test_bar"), SubResource("Test_urgente"), SubResource("Test_codigo"), SubResource("Test_semcodigo"), SubResource("Test_acordo"), SubResource("Test_sinal"), SubResource("Test_semsinal")])
+tests = Array[ExtResource("2_call")]([SubResource("Test_bloq"), SubResource("Test_bar"), SubResource("Test_urgente"), SubResource("Test_codigo"), SubResource("Test_errado"), SubResource("Test_semcodigo"), SubResource("Test_acordo"), SubResource("Test_sinal"), SubResource("Test_semsinal")])
 blocked = PackedStringArray("355", "327", "399")
 free_until = PackedStringArray("327 21:00")
 code_frees = PackedStringArray("399")
+reactions = PackedStringArray("[TESTE] Reação passiva.", "[TESTE] Reclama do governo.", "[TESTE] Indiferente.")

@@ -209,8 +209,8 @@ func log_decision(rule_id: String, c: PhoneCall, choice: String, result: String)
 
 
 ## A fala do código de autorização de quem liga (`TransferCall.code_line`, com o da noite no lugar de {code}), uma
-## vez por ligação, para a regra que pedir primeiro (`call_started`); vazio se não tem ou já disse.
-func code_line(c: PhoneCall) -> PackedStringArray:
+## vez por ligação, para a regra que pedir primeiro (`request_made`); vazio se não tem ou já disse.
+func code_line(c: PhoneCall) -> Array:
 	var t := c.data as TransferCall
 	if t == null or t.code_line == "" or c.meta.has("code_said"):
 		return []
@@ -248,17 +248,44 @@ func night_ended() -> void:
 		r.night_ended()
 
 
-## Depois do "alô" do operador: as falas que as regras pedem (`BureaucracyRule.call_started`), em ordem. Falso se a
-## ligação acabou no meio.
+## Depois do "alô" do operador: as falas que as regras pedem (`BureaucracyRule.call_started`). Falso se a ligação
+## acabou no meio.
 func call_started(c: PhoneCall) -> bool:
 	var lines := []
 	for r in live():
 		lines.append_array(r.call_started(c))
+	return await _speak(c, lines)
+
+
+## Depois do pedido de transferência (`BureaucracyRule.request_made`).
+func request_made(c: PhoneCall) -> bool:
+	var lines := []
+	for r in live():
+		lines.append_array(r.request_made(c))
+	return await _speak(c, lines)
+
+
+## Diz as falas `lines` em ordem: texto de quem liga, {"op"} do operador, {"sys"} aviso. Falso se a ligação acabou.
+func _speak(c: PhoneCall, lines: Array) -> bool:
 	for l in lines:
-		var said: bool = await main.conversation.op(c, l["op"]) if l is Dictionary else await main.conversation.say(c, l)
-		if not said:
-			return false
+		if l is String:
+			if not await main.conversation.say(c, l):
+				return false
+		elif l.has("op"):
+			if not await main.conversation.op(c, l["op"]):
+				return false
+		else:
+			c.sys(l["sys"])
 	return not c.ended
+
+
+## Quem liga diz `line` (se tiver) e desliga: a resposta a uma decisão do operador (o recado recusado, o acordo).
+func hang_up_after(c: PhoneCall, line: String) -> void:
+	if line != "" and not await main.conversation.say(c, line):
+		return
+	if not c.ended:
+		c.sys(T.text(T.Key.SYS_CALLER_HUNG_UP))
+		main.end_call(c, PhoneCall.End.CALLER)
 
 
 func choices(c: PhoneCall) -> Array[Dictionary]:

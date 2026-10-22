@@ -1,7 +1,8 @@
 extends BureaucracyRule
 ## B3. Ligações que exigem código de autorização: transferir para um dos `numbers` pede o código da noite
-## (`Bureaucracy.codes`), dito por quem liga logo depois do "alô" (`TransferCall.code_line`). Sem código ou com o
-## errado, a transferência sai mesmo assim e é infração (gravíssima, no `.tres`). Quem pede o próximo código
+## (`Bureaucracy.codes`), dito por quem liga logo depois de pedir (`TransferCall.code_line`; o operador vê o aviso de
+## que o número exige o código). Sem código ou com o errado, a transferência sai mesmo assim e é infração (gravíssima,
+## no `.tres`). Quem pede o próximo código
 ## (`TransferCall.wants_next_code`) recebe duas opções: revelar (o código da noite seguinte) ou recusar; a escolha vai
 ## para o registro de decisões e liga um marcador (`revelou_codigo_N` ou `recusou_codigo_N`) para o roteiro.
 ##
@@ -19,9 +20,12 @@ func tonight() -> String:
 	return desk.codes.code(desk.night)
 
 
-## Quem liga diz o código (o certo ou o que tem escrito), se tiver um.
-func call_started(c: PhoneCall) -> Array:
-	return desk.code_line(c)
+## Depois do pedido: o aviso de que o número exige o código e o código de quem liga (o certo ou o que tem escrito).
+func request_made(c: PhoneCall) -> Array:
+	var out := []
+	if c.target in numbers:
+		out.append({"sys": T.text(T.Key.SYS_NEEDS_CODE) % c.target})
+	return out + desk.code_line(c)
 
 
 func before_transfer(c: PhoneCall, d: int) -> Verdict:

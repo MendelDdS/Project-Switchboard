@@ -1,13 +1,16 @@
 extends BureaucracyRule
 ## B2. Números bloqueados: transferir para um dos `blocked` é infração (grave, no `.tres`), também nas ligações
-## urgentes; o operador pode avisar o bloqueio (permitido). Cada número pode ter uma janela (`free_until`: liberado até
-## aquela hora, pelo relógio do jogo) e pode ser liberado pelo código de autorização da noite (`code_frees`, os códigos
-## da B3, `Bureaucracy.codes`; sem código ou com o errado, é um bloqueado como os outros). Urgente
+## urgentes; depois do pedido, o operador vê o aviso do bloqueio e pode avisar quem liga (permitido: ele reage,
+## `TransferCall.refused_line` ou, sem ela, uma das `reactions` sorteada, e desliga). Bloqueado nunca fica "ninguém
+## atende" (`PhoneCall.away`). Cada número pode ter uma janela (`free_until`: liberado até aquela hora, pelo relógio do
+## jogo na hora de transferir) e pode ser liberado pelo código de autorização da noite (`code_frees`, os códigos da B3,
+## `Bureaucracy.codes`; sem código ou com o errado, é um bloqueado como os outros). Urgente
 ## (`TransferCall.urgent`): transferir ou avisar é decisão moral no registro.
 ## Acordos de redirecionamento (`Bureaucracy.agreements`): quem propõe (`TransferCall.deal_from`, `deal_to`,
 ## `deal_signal`) pede que as ligações para X vão para Y quando quem liga der o sinal; o operador aceita ou recusa. Com o
-## acordo, quem dá o sinal (`secret_signal`) passa a ter Y como destino certo: Y é permitido (só o registro); X é número
-## errado (a reclamação, pelo fluxo de sempre) e bloqueado, e vale a maior. Sem o sinal, tudo segue as regras de bloqueio.
+## acordo, quem dá o sinal (`secret_signal`) pode ir para Y: permitido (só o registro; o destino passa a ser Y na hora de
+## transferir); X segue sendo o pedido, a conversa normal e a advertência do bloqueio. Sem o sinal, tudo segue as regras
+## de bloqueio.
 ##
 ## Roteiro: `activate("b2_bloqueados")`; `update_params("b2_bloqueados", {"blocked": ..., "free_until":
 ## PackedStringArray(["327 21:00"])})`; `desk.agreements.remove("355")` desfaz um acordo.
@@ -18,16 +21,30 @@ extends BureaucracyRule
 @export var free_until := PackedStringArray()
 ## Os bloqueados que o código de autorização da noite libera.
 @export var code_frees := PackedStringArray()
+## Reações de quem é avisado do bloqueio e não tem `refused_line` (as ligações comuns do jogo): uma sorteada.
+@export var reactions := PackedStringArray()
 
 
 ## O número está bloqueado agora para a ligação `c` (com o código dela, se ele liberar).
 func is_blocked(number: String, c: PhoneCall = null) -> bool:
 	if not number in blocked:
 		return false
-	for w in free_until:
-		if w.get_slice(" ", 0) == number and desk.main.minutes < _at(w.get_slice(" ", 1)):
-			return false
+	if _window(number) != "" and desk.main.minutes < _at(_window(number)):
+		return false
 	return not (c != null and number in code_frees and desk.code_of(c) == 1)
+
+
+## O número que quem liga pediu (depois de transferir para o do acordo, `c.target` passa a ser o dele).
+func _asked(c: PhoneCall) -> String:
+	return c.meta.get("b2_redirect", {}).get("from", c.target)
+
+
+## Até que hora o número fica liberado ("21:00"), ou vazio se não tem janela.
+func _window(number: String) -> String:
+	for w in free_until:
+		if w.get_slice(" ", 0) == number:
+			return w.get_slice(" ", 1)
+	return ""
 
 
 ## "HH:MM" em minutos do turno (depois da meia-noite, no dia seguinte).
@@ -36,23 +53,47 @@ func _at(hhmm: String) -> float:
 	return t + 1440 if t < 0 else t
 
 
-## O sinal (com um acordo para o número pedido, o destino certo passa a ser o do acordo) e o código, se o número
-## pedido se libera com ele.
+## O sinal, logo depois do "alô" (com um acordo para o número pedido, o do acordo também vale, `before_transfer`).
 func call_started(c: PhoneCall) -> Array:
 	var t := c.data as TransferCall
-	var out := []
 	if t == null:
-		return out
-	if t.secret_signal != "":
-		out.append(t.secret_signal)
-		var a := desk.agreements.redirect(c.target, t.secret_signal)
-		if not a.is_empty():
-			c.meta["b2_redirect"] = a
-			c.target = a["to"]
-			c.destination = GameData.entry(a["to"]).name
-	if c.target in code_frees:
-		out.append_array(desk.code_line(c))
-	return out
+		return []
+	if c.target in blocked:
+		c.away = false   # bloqueado e "ninguém atende" não andam juntos: um exclui o outro
+	if t.secret_signal == "":
+		return []
+	var a := desk.agreements.redirect(c.target, t.secret_signal)
+	if not a.is_empty():
+		c.meta["b2_redirect"] = a.merged({"name": c.destination})
+	return [t.secret_signal]
+
+
+## Depois do pedido: o aviso do bloqueio do número pedido (até que hora está liberado; se o código libera) e o código de
+## quem liga, se ele libera.
+func request_made(c: PhoneCall) -> Array:
+	var n := _asked(c)
+	if not n in blocked:
+		return []
+	var until := _window(n)
+	if until != "" and desk.main.minutes < _at(until):
+		_when_closes(c, n)
+		return [{"sys": T.text(T.Key.SYS_FREE_UNTIL) % [n, until]}]
+	if not n in code_frees:
+		return [{"sys": T.text(T.Key.SYS_BLOCKED) % n}]
+	return [{"sys": T.text(T.Key.SYS_BLOCKED_CODE) % n}] + desk.code_line(c)
+
+
+## Na hora em que a janela do número `n` fecha, as opções da ligação se refazem (aparece o [Avisar o bloqueio]). Um
+## temporizador só, pelo relógio do jogo; se o relógio parou no caminho, ele espera de novo o que falta.
+## ponytail: o relógio adiantado pelo debug não adianta o temporizador; o botão aparece quando ele vence.
+func _when_closes(c: PhoneCall, n: String) -> void:
+	if c.ended or c.connected:
+		return
+	var left := _at(_window(n)) - desk.main.minutes
+	if left > 0:
+		desk.get_tree().create_timer(left / Main.GAME_MIN_PER_SEC, false).timeout.connect(_when_closes.bind(c, n))
+	elif c.phase == PhoneCall.Phase.AWAIT and not c.options.is_empty():
+		desk.main.conversation.transfer_choices(c)
 
 
 func before_transfer(c: PhoneCall, d: int) -> Verdict:
@@ -60,6 +101,9 @@ func before_transfer(c: PhoneCall, d: int) -> Verdict:
 	if t == null:
 		return null
 	var a: Dictionary = c.meta.get("b2_redirect", {})
+	if not a.is_empty() and str(d) in [a["from"], a["to"]]:   # com o sinal, os dois valem: o certo é o tentado agora
+		c.target = str(d)
+		c.destination = a["name"] if c.target == a["from"] else GameData.entry(a["to"]).name
 	if is_blocked(str(d), c):
 		if t.urgent:
 			desk.log_decision(id, c, "aceitou a ligação urgente para o bloqueado %d (%s)" % [d, t.urgency_reason], "decisão moral")
@@ -76,7 +120,7 @@ func choices(c: PhoneCall) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	if t == null:
 		return out
-	if not c.meta.has("b2_warned") and is_blocked(c.target, c):
+	if not c.meta.has("b2_warned") and is_blocked(_asked(c), c):
 		out.append({"label": T.text(T.Key.CHOICE_WARN_BLOCKED), "fn": _warn.bind(c)})
 	if t.deal_from != "" and not c.meta.has("b2_deal"):
 		out.append({"label": T.text(T.Key.CHOICE_ACCEPT_DEAL), "fn": _deal.bind(c, true)})
@@ -92,13 +136,14 @@ func _warn(c: PhoneCall) -> void:
 	c.meta["b2_warned"] = true
 	desk.main.conversation.transfer_choices(c)
 	if t.urgent:
-		desk.log_decision(id, c, "negou a ligação urgente para o bloqueado %s (%s)" % [c.target, t.urgency_reason], "permitido; decisão moral")
+		desk.log_decision(id, c, "negou a ligação urgente para o bloqueado %s (%s)" % [_asked(c), t.urgency_reason], "permitido; decisão moral")
 	else:
-		desk.log_decision(id, c, "avisou o bloqueio de %s" % c.target, "permitido")
-	await desk.main.conversation.op(c, T.text(T.Key.OP_WARN_BLOCKED))
+		desk.log_decision(id, c, "avisou o bloqueio de %s" % _asked(c), "permitido")
+	if await desk.main.conversation.op(c, T.text(T.Key.OP_WARN_BLOCKED)):
+		await desk.hang_up_after(c, t.refused_line if t.refused_line != "" or reactions.is_empty() else reactions[randi() % reactions.size()])
 
 
-## O operador aceitou ou recusou o acordo proposto por quem liga.
+## O operador aceitou ou recusou o acordo proposto por quem liga; ele agradece ou reclama e desliga.
 func _deal(c: PhoneCall, accept: bool) -> void:
 	var t: TransferCall = c.data
 	if c.talking:
@@ -109,7 +154,16 @@ func _deal(c: PhoneCall, accept: bool) -> void:
 		desk.agreements.add(t.deal_from, t.deal_to, t.deal_signal, desk.night)
 	desk.log_decision(id, c, "%s o acordo: %s → %s com %s" % ["aceitou" if accept else "recusou", t.deal_from, t.deal_to, t.deal_signal],
 		"acordo valendo" if accept else "sem acordo")
-	await desk.main.conversation.op(c, T.text(T.Key.OP_ACCEPT_DEAL if accept else T.Key.OP_REFUSE_DEAL))
+	if await desk.main.conversation.op(c, T.text(T.Key.OP_ACCEPT_DEAL if accept else T.Key.OP_REFUSE_DEAL)):
+		await desk.hang_up_after(c, t.thanks if accept else t.refused_line)
+
+
+## O operador desligou a ligação urgente para um bloqueado sem avisar nem transferir: também decisão moral.
+func call_ended(c: PhoneCall, reason: PhoneCall.End) -> void:
+	var t := c.data as TransferCall
+	if t != null and t.urgent and reason == PhoneCall.End.OPERATOR and not c.connected and not c.meta.has("b2_warned") \
+			and is_blocked(_asked(c), c):
+		desk.log_decision(id, c, "desligou a ligação urgente para o bloqueado %s sem avisar (%s)" % [_asked(c), t.urgency_reason], "decisão moral")
 
 
 func debug_info() -> String:

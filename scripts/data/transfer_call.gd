@@ -63,9 +63,10 @@ enum Group {
 ## ou recusa, e mais tarde repassa ou não (`Bureaucracy.messages`).
 @export var message := ""
 @export var message_to := ""
-## B1: a reclamação de quem teve o recado recusado, antes de desligar ("Pois então esquece. Boa noite."). Anotado, ele
-## agradece (`thanks`) e desliga.
-@export var message_refused_line := ""
+## B1 e B2: a reação de quem liga quando o operador nega o que ele pediu (o recado recusado, o acordo recusado, o
+## número bloqueado), antes de desligar ("Pois então esquece. Boa noite."). Aceito o recado ou o acordo, ele agradece
+## (`thanks`) e desliga.
+@export var refused_line := ""
 ## O número de onde a pessoa liga (o recado deixado para ele chega a ela). Vazio: não se sabe.
 @export var from_number := ""
 ## B2: pedido urgente (um parente no hospital...): para um número bloqueado, o operador aceita (transfere, com a

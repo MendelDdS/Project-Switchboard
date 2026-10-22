@@ -435,6 +435,10 @@ CHOICE_ACCEPT_DEAL,[Aceitar o acordo],[Accept the deal],[Aceptar el acuerdo]
 OP_ACCEPT_DEAL,"Combinado. Com o sinal, eu passo para o outro número.","Deal. With the signal, I'll put them through to the other number.","Trato hecho. Con la señal, los paso al otro número."
 CHOICE_REFUSE_DEAL,[Recusar o acordo],[Refuse the deal],[Rechazar el acuerdo]
 OP_REFUSE_DEAL,Isso eu não faço.,I won't do that.,Eso no lo hago.
+SYS_BLOCKED,(O %s está bloqueado esta noite.),(%s is blocked tonight.),(El %s está bloqueado esta noche.)
+SYS_BLOCKED_CODE,(O %s está bloqueado esta noite: só com o código de autorização.),(%s is blocked tonight: only with the authorization code.),(El %s está bloqueado esta noche: solo con el código de autorización.)
+SYS_FREE_UNTIL,(O %s está liberado até as %s.),(%s is open until %s.),(El %s está liberado hasta las %s.)
+SYS_NEEDS_CODE,(O %s exige o código de autorização.),(%s requires the authorization code.),(El %s exige el código de autorización.)
 SYS_RECORD_REQUEST,(Ligação marcada pelas autoridades: grave a conversa.),(Call flagged by the authorities: record the conversation.),(Llamada marcada por las autoridades: grabe la conversación.)
 EQUIP_DELIVER,ENTREGAR,DELIVER,ENTREGAR
 EQUIP_DISCARD,DESCARTAR,DISCARD,DESCARTAR

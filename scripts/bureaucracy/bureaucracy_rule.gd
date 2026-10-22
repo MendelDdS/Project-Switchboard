@@ -80,9 +80,16 @@ func night_ended() -> void:
 
 
 ## A ligação foi atendida e o operador já disse o "alô" (`Conversation.greet`): as falas de agora, em ordem (o gerente
-## diz): texto é de quem liga; {"op": texto}, do operador. Síncrono de propósito: um `await` dentro de um Resource às
-## vezes devolvia o estado da corrotina (`GDScriptFunctionState`) para quem esperava, em vez do resultado.
+## diz): texto é de quem liga; {"op": texto}, do operador; {"sys": texto}, um aviso na conversa. Síncrono de
+## propósito: um `await` dentro de um Resource às vezes devolvia o estado da corrotina (`GDScriptFunctionState`) para
+## quem esperava, em vez do resultado.
 func call_started(_c: PhoneCall) -> Array:
+	return []
+
+
+## Quem liga acabou de pedir a transferência (`TransferCall.opening`): as falas de agora, como em `call_started` (o
+## código de autorização, o aviso de que o número está bloqueado).
+func request_made(_c: PhoneCall) -> Array:
 	return []
 
 
