@@ -6,6 +6,7 @@
 script = ExtResource("1_adpae")
 voice = "m"
 caller = "Caminhoneiro"
+caller_name = "Raul Siqueira"
 opening = PackedStringArray("Central, boa noite.", "Meu caminhão morreu perto do moinho. O Tião da oficina atende de noite, não atende?")
 repeat = "A oficina do Tião. Na Rua do Moinho."
 target = "318"

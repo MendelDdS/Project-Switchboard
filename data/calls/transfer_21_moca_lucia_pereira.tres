@@ -6,6 +6,7 @@
 script = ExtResource("1_5dgsc")
 group = 2
 caller = "Moça"
+caller_name = "Regina Lopes"
 opening = PackedStringArray("Oi. O número é 147.", "Da Lúcia Pereira.")
 repeat = "Três, três, seis."
 target = "147"

@@ -7,6 +7,7 @@ script = ExtResource("1_cbsiw")
 group = 2
 voice = "m"
 caller = "Rapaz"
+caller_name = "Caio Salgado"
 opening = PackedStringArray("Boa noite.", "Me liga com o seu Paulo Nogueira? Ele disse que eu podia ligar a qualquer hora.")
 repeat = "Paulo Nogueira."
 target = "131"

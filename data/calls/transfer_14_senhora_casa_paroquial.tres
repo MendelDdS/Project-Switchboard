@@ -6,6 +6,7 @@
 script = ExtResource("1_2y5ys")
 group = 1
 caller = "Senhora"
+caller_name = "Laura Lacerda"
 opening = PackedStringArray("Boa noite. Preciso falar com o Padre Anselmo.", "É sobre a missa de sétimo dia. Ele deve estar em casa.")
 repeat = "O Padre Anselmo. Na casa dele, não na igreja."
 target = "120"

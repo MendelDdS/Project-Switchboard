@@ -187,6 +187,18 @@ func _initialize() -> void:
 		ok(int(t.target) in nums and (t.alt_target == "" or int(t.alt_target) in nums), "destino existe: " + t.resource_path)
 		ok(t.alt_target == "" or GameData.entry(t.target).category != "" and GameData.entry(t.alt_target).category == GameData.entry(t.target).category,
 			"alternativa do mesmo ramo: " + t.resource_path)
+	# B1: quem liga tem nome e sobrenome, sem apelido nem tratamento; toda descrição dos moldes tem nome
+	var treat := RegEx.create_from_string("^(Seu|Dona|Sr\\.|Sra\\.|Dr\\.|Dra\\.|Doutor|Doutora|Padre) ")
+	var named := func(n: String): return n.split(" ").size() >= 2 and treat.search(n) == null
+	var calls: Array = C.transfers.duplicate()
+	for n: Night in C.nights:
+		calls.append_array(n.story.map(func(st: StoryCall): return st.call).filter(func(x): return x is TransferCall))
+	for t: TransferCall in calls:
+		ok(named.call(t.caller_name), "quem liga sem nome e sobrenome, ou com tratamento: " + t.resource_path)
+	for n in C.caller_names:
+		ok(named.call(n.get_slice(":", 1)), "nome de molde sem sobrenome, ou com tratamento: " + n)
+	for w in C.callers:
+		ok(GameData.caller_name(w.get_slice(":", 1)) != "", "descrição de molde sem nome em caller_names: " + w)
 	# todo ramo tem pelo menos dois estabelecimentos no mesmo setor (a alternativa existe desde a entrega do setor)
 	for d in C.directory.filter(func(d: DirectoryEntry): return d.category != ""):
 		ok(C.directory.any(func(o: DirectoryEntry): return o != d and o.category == d.category and o.number.left(1) == d.number.left(1)),

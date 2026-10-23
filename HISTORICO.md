@@ -2030,3 +2030,26 @@ Chaves:
 345. #burocracias "No caso da funerária, vai depender apenas do roteiro": bloqueado que passa a valer só com
     autorização é a burocracia trocada (sai da lista da B2, entra nos `numbers` da B3, por `update_params`), e vice
     versa; a B2 não ganha o "lembrar o código".
+346. #burocracias "Repasse novamente o B1, B2 e B3": sem erro de fluxo; apontados (sem mexer) o código da noite que o
+    jogador ainda não tem como saber fora do debug, o recado entregue sem resposta de quem recebe, o registro de
+    "desligou" só na B1 (na B2, só a urgente; na B3, nada) e o `code_frees` da B2 repetindo a B3.
+347. #burocracias Sobre a revisão (346): o código da noite fica em aberto (depende do roteiro). O recado entregue ganha
+    a resposta de quem recebe, escrita junto com o recado (`TransferCall.message_reply`, guardada na fila; nada
+    sorteado, "precisam fazer sentido"). Desligar sem transferir agora vai para o registro nas três: B1 sem
+    identificação, B2 sem avisar o bloqueio (permitido; a urgente, decisão moral), B3 sem o código certo.
+348. #burocracias #saiu "Pode apagar o jeito B": saiu a liberação por código da B2 (`code_frees`, o aviso
+    `SYS_BLOCKED_CODE` e as três ligações de teste da Funerária). Precisa de autorização = B3 (o código e o botão
+    [Pedir a autorização], gravíssima sem ele); o roteiro troca a burocracia do número. Contraria o plano (B2 com código,
+    grave), a pedido.
+349. #burocracias "Têm mais inconsistências? Melhorias que recomenda?": apontados a B1 valendo só para ligações com
+    `caller_name` (o plano: todo emissor, com ela ativa) e o roteiro sem como ligar as burocracias por dados; recomendados
+    a lista de burocracias por noite no `Night`, o robô do turno com elas ligadas e os avisos com o nome do lugar.
+350. #burocracias Sobre a revisão (349), "todo mundo possui nome mas só vai mostrar o nome no chat depois que a pessoa
+    falar o nome": a B1 vale para toda transferência (saiu a exceção de quem não tinha `caller_name`); o chat mostra
+    `caller` até a fala do nome e o nome dali em diante (`PhoneCall.named`; a voz continua a mesma).
+351. #burocracias "Vamos preencher com nomes. Mas não usar apelidos, tratamentos ou coisa do tipo": `caller_name` em
+    todo roteiro de transferência (`data/calls/`) e, para os moldes, `GameContent.caller_names` ("descrição:Nome
+    Sobrenome", sorteado por descrição de `callers`; `GameData.caller_name`). Mesma pessoa, mesmo nome: Rute Fonseca
+    (dito na conversa), Marta Costa e Benedito Souza (os da lista), Seu Ernesto nas duas ligações, e os de `callers`
+    iguais aos roteiros (Jair, Cida, Valdir, Olga). Apelido vira o nome (Glorinha: Glória; Zefa: Josefa; Cida:
+    Aparecida). Nenhum nome repete gente das falas. O `test_content` cobra nome e sobrenome sem tratamento.

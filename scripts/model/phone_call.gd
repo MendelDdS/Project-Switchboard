@@ -59,6 +59,7 @@ var kind := Kind.TRANSFER
 var data: Resource          ## roteiro (TransferCall, EmergencyCall ou PrankCall); nulo para informação e ligação desconhecida
 var voice := "m"
 var caller := ""
+var named := ""             ## o nome que quem liga disse (B1): dali em diante, o chat mostra ele no lugar de `caller`
 var lesson := false         ## da veterana do treinamento (`Training`): fala pelo roteiro dela, não desiste nem gera advertência
 var speech := 1.0           ## o tempo de cada letra falada, multiplicado (a veterana do treinamento fala mais devagar)
 var story := false          ## ligação do roteiro da noite (horário fixo; aguenta mais tempo tocando)

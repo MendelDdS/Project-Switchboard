@@ -3,11 +3,12 @@ extends RefCounted
 ## espera até o operador ter a chance de repassar (quem é desse número liga, ou recebe uma ligação). Qualquer regra
 ## pode usar; a B1 deixa os anônimos. Fica salva entre as noites (`Bureaucracy.state`).
 
-var items: Array[Dictionary] = []   ## {"to": número, "text", "from": quem deixou ("" = anônimo), "night", "time"}
+## {"to": número, "text", "from": quem deixou ("" = anônimo), "night", "time", "reply": a resposta de quem recebe}
+var items: Array[Dictionary] = []
 
 
-func add(to: String, text: String, from: String, night: int, time: String) -> Dictionary:
-	var m := {"to": to, "text": text, "from": from, "night": night, "time": time}
+func add(to: String, text: String, from: String, night: int, time: String, reply := "") -> Dictionary:
+	var m := {"to": to, "text": text, "from": from, "night": night, "time": time, "reply": reply}
 	items.append(m)
 	return m
 

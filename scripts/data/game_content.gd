@@ -78,6 +78,9 @@ extends Resource
 
 ## Quem liga nos pedidos de informação e nos moldes: "voz:nome", ex.: "f:Moradora".
 @export var callers: PackedStringArray = []
+## B1: nome e sobrenome de quem liga num molde, "descrição:Nome Sobrenome" (a descrição de `callers`; com vários, um
+## sorteado). Sem apelido nem tratamento.
+@export var caller_names: PackedStringArray = []
 
 @export_group("Supervisor e consequências")
 ## Quem liga de novo porque ninguém atendeu.

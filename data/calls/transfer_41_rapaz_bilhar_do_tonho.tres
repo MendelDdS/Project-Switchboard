@@ -7,6 +7,7 @@ script = ExtResource("1_tr")
 group = 2
 voice = "m"
 caller = "Rapaz"
+caller_name = "Mário Gomes"
 opening = PackedStringArray("Ô, central. Me liga com o Bilhar do Tonho?", "Esqueci meu chapéu lá e minha mãe vai brigar comigo.")
 repeat = "O bilhar do Tonho, na Rua do Comércio."
 target = "355"

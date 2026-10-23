@@ -6,6 +6,7 @@
 script = ExtResource("1_tr")
 voice = "m"
 caller = "Caixeiro-viajante"
+caller_name = "Edgar Moraes"
 opening = PackedStringArray("Boa noite. Estou na rodoviária e perdi o último ônibus.", "Me liga com o Hotel Estrela? Preciso de um quarto pra hoje.")
 repeat = "O Hotel Estrela, na avenida."
 target = "305"

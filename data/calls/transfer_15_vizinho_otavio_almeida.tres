@@ -7,6 +7,7 @@ script = ExtResource("1_mrclg")
 group = 1
 voice = "m"
 caller = "Vizinho"
+caller_name = "Osvaldo Freitas"
 opening = PackedStringArray("Quero falar com o seu Almeida.", "O Otávio, da Rua da Estação. Não é o doutor.")
 repeat = "Otávio Almeida. Rua da Estação."
 target = "251"

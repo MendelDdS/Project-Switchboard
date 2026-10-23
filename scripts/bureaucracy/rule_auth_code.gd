@@ -85,6 +85,13 @@ func _answer(c: PhoneCall, reveal: bool) -> void:
 	await desk.main.conversation.op(c, T.text(T.Key.OP_REVEAL_CODE) % next if reveal else T.text(T.Key.OP_REFUSE_CODE))
 
 
+## O operador desligou sem transferir quem pedia um número com código e não disse o certo.
+func call_ended(c: PhoneCall, reason: PhoneCall.End) -> void:
+	if c.data is TransferCall and reason == PhoneCall.End.OPERATOR and not c.connected and c.target in numbers \
+			and desk.code_of(c) != 1:
+		desk.log_decision(id, c, "desligou sem o código certo (%s)" % c.target, "permitido")
+
+
 func debug_info() -> String:
 	var next := PackedStringArray()
 	for i in range(1, preview_nights + 1):

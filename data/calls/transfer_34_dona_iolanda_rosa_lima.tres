@@ -6,6 +6,7 @@
 script = ExtResource("1_8spgs")
 group = 2
 caller = "Dona Iolanda"
+caller_name = "Iolanda Lima"
 opening = PackedStringArray("Boa noite, central.", "Quero falar com a Dona Rosa Lima. É a irmã dela, da capital.")
 repeat = "Rosa Lima, das Acácias."
 target = "296"

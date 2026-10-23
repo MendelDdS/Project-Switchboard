@@ -51,7 +51,8 @@ enum Group {
 @export var alt_yes := ""
 
 @export_group("Burocracias")
-## B1, identificação: nome e sobrenome de quem liga (o registro de decisões usa). Vazio: a ligação fica fora da B1.
+## B1, identificação: nome e sobrenome de quem liga. O chat mostra `caller` até ele dizer o nome (`name_line`) e este
+## dali em diante; o registro de decisões usa.
 @export var caller_name := ""
 ## B1: como responde à identificação (`Identify`); como diz o nome ("Aqui é Lúcia Pereira."), como recusa ("Meu nome
 ## não interessa.") e, com NO, como recusa de novo quando o operador insiste.
@@ -63,6 +64,9 @@ enum Group {
 ## ou recusa, e mais tarde repassa ou não (`Bureaucracy.messages`).
 @export var message := ""
 @export var message_to := ""
+## B1: o que quem recebe este recado responde quando o operador repassa (escrito junto com o recado, para fazer
+## sentido); vazio, fica calado.
+@export var message_reply := ""
 ## B1 e B2: a reação de quem liga quando o operador nega o que ele pediu (o recado recusado, o acordo recusado, o
 ## número bloqueado), antes de desligar ("Pois então esquece. Boa noite."). Aceito o recado ou o acordo, ele agradece
 ## (`thanks`) e desliga.

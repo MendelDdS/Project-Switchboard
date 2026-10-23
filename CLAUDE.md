@@ -36,7 +36,8 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   parecer à mão, rubrica e o carimbo redondo do conceito, `_grade_stamp`, girado pixel a pixel e em lugar sorteado).
 - Botão de resposta (`ChoiceButton`): fala curta do operador (`CHOICE_*`; a frase inteira, `OP_*`, vai para a
   conversa); ação do jogador entre colchetes ("[Oferecer outro lugar]").
-- Nomes de pessoas e lugares na ordem natural ("Nome Sobrenome"). Lista telefônica: uma letra por página dupla, aba
+- Nomes de pessoas e lugares na ordem natural ("Nome Sobrenome"). Quem liga tem nome e sobrenome sem apelido nem
+  tratamento (`TransferCall.caller_name`; nos moldes, `GameContent.caller_names`; o `test_content` cobra). Lista telefônica: uma letra por página dupla, aba
   de índice; a observação (`DirectoryEntry.note`) só diz quem atende quando o nome não diz. Todo número serve para
   alguma coisa.
 - **Conteúdo em Resources** (`data/content.tres`; `data/directory/` um por contato, com os motivos e as conversas;

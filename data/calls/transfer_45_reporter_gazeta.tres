@@ -7,6 +7,7 @@ script = ExtResource("1_tr")
 group = 2
 voice = "m"
 caller = "Correspondente"
+caller_name = "Álvaro Torres"
 opening = PackedStringArray("Central, aqui é o correspondente da Gazeta na estrada.", "Me liga com a redação, rápido. O jornal fecha daqui a pouco.")
 repeat = "A Gazeta de São Sotero. A redação."
 target = "101"

@@ -5,6 +5,7 @@
 [resource]
 script = ExtResource("1_c0ign")
 caller = "Dona Cida"
+caller_name = "Aparecida Carvalho"
 opening = PackedStringArray("Boa noite, meu bem.", "Quero saber que filme passa amanhã. Me passa pro cinema?")
 repeat = "O Cine Odeon, na avenida."
 target = "344"

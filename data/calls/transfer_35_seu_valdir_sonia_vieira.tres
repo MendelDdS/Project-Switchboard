@@ -7,6 +7,7 @@ script = ExtResource("1_2cda7")
 group = 2
 voice = "m"
 caller = "Seu Valdir"
+caller_name = "Valdir Cardoso"
 opening = PackedStringArray("O 237, por favor.", "Da Sônia.")
 repeat = "Três, oito, quatro."
 target = "237"

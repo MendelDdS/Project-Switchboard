@@ -76,6 +76,7 @@ refuse_line = "[TESTE] Nome eu não dou. É só um recado."
 refuse_again_line = "[TESTE] Já falei que não."
 message = "[TESTE] A encomenda chega amanhã cedo."
 message_to = "327"
+message_reply = "[TESTE] Resposta ao recado da encomenda."
 refused_line = "[TESTE] Que serviço é esse, que nem recado anota? Passar bem."
 
 [sub_resource type="Resource" id="Test_recado_nome"]
@@ -91,6 +92,7 @@ caller_name = "Teste Remetente"
 name_line = "[TESTE] Boa noite, aqui é Teste Remetente."
 message = "[TESTE] O conserto da geladeira fica pra sexta."
 message_to = "327"
+message_reply = "[TESTE] Resposta ao recado do conserto."
 refused_line = "[TESTE] Nem um recado? Que coisa. Boa noite."
 
 [sub_resource type="Resource" id="Test_liga"]

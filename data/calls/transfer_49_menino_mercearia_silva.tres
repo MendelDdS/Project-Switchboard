@@ -6,6 +6,7 @@
 script = ExtResource("1_tr")
 voice = "k"
 caller = "Menino"
+caller_name = "Pedro Tavares"
 opening = PackedStringArray("Alô? Moço, minha mãe mandou ligar pra Mercearia Silva.", "É pra ver se ainda tem leite. Ela tá aqui do lado.")
 repeat = "A mercearia do seu Silva!"
 target = "262"

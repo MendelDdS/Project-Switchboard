@@ -40,44 +40,6 @@ refused_line = "[TESTE] Meu Deus, e agora? Vou correr até lá a pé!"
 urgent = true
 urgency_reason = "marido passou mal no bilhar"
 
-[sub_resource type="Resource" id="Test_codigo"]
-resource_name = "Código certo libera (Funerária)"
-script = ExtResource("2_call")
-voice = "w"
-caller = "TESTE B2 (com código)"
-opening = PackedStringArray("[TESTE] A Funerária Paz Eterna, por favor.")
-repeat = "[TESTE] A funerária."
-target = "399"
-destination = "Funerária Paz Eterna"
-thanks = "[TESTE] Obrigado."
-refused_line = "[TESTE] Mas eu dei o código! Vou reclamar com a companhia."
-code_line = "[TESTE] Autorização {code}."
-
-[sub_resource type="Resource" id="Test_errado"]
-resource_name = "Código errado (Funerária)"
-script = ExtResource("2_call")
-voice = "f"
-caller = "TESTE B2 (código errado)"
-opening = PackedStringArray("[TESTE] A Funerária Paz Eterna, por favor.")
-repeat = "[TESTE] A funerária."
-target = "399"
-destination = "Funerária Paz Eterna"
-thanks = "[TESTE] Obrigada."
-refused_line = "[TESTE] Como errado? Foi o que me passaram! Boa noite."
-code_line = "[TESTE] Autorização Z-99."
-
-[sub_resource type="Resource" id="Test_semcodigo"]
-resource_name = "Sem código (Funerária)"
-script = ExtResource("2_call")
-voice = "m"
-caller = "TESTE B2 (sem código)"
-opening = PackedStringArray("[TESTE] A Funerária Paz Eterna, por favor.")
-repeat = "[TESTE] A funerária."
-target = "399"
-destination = "Funerária Paz Eterna"
-thanks = "[TESTE] Obrigado."
-refused_line = "[TESTE] Código? Ninguém me falou de código nenhum. Boa noite."
-
 [sub_resource type="Resource" id="Test_acordo"]
 resource_name = "Propõe o acordo"
 script = ExtResource("2_call")
@@ -124,8 +86,7 @@ id = "b2_bloqueados"
 title = "B2 · Números bloqueados"
 severity = 2
 fault_text = "FAULT_BLOCKED"
-tests = Array[ExtResource("2_call")]([SubResource("Test_bloq"), SubResource("Test_bar"), SubResource("Test_urgente"), SubResource("Test_codigo"), SubResource("Test_errado"), SubResource("Test_semcodigo"), SubResource("Test_acordo"), SubResource("Test_sinal"), SubResource("Test_semsinal")])
-blocked = PackedStringArray("355", "327", "399")
+tests = Array[ExtResource("2_call")]([SubResource("Test_bloq"), SubResource("Test_bar"), SubResource("Test_urgente"), SubResource("Test_acordo"), SubResource("Test_sinal"), SubResource("Test_semsinal")])
+blocked = PackedStringArray("355", "327")
 free_until = PackedStringArray("327 21:00")
-code_frees = PackedStringArray("399")
 reactions = PackedStringArray("[TESTE] Reação passiva.", "[TESTE] Reclama do governo.", "[TESTE] Indiferente.")

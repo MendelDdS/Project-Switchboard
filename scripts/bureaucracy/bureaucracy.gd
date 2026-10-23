@@ -272,7 +272,8 @@ func request_made(c: PhoneCall) -> bool:
 	return await _speak(c, lines)
 
 
-## Diz as falas `lines` em ordem: texto de quem liga, {"op"} do operador, {"sys"} aviso. Falso se a ligação acabou.
+## Diz as falas `lines` em ordem: texto de quem liga, {"op"} do operador, {"sys"} aviso, {"named"} o nome que quem
+## liga acabou de dizer (`PhoneCall.named`). Falso se a ligação acabou.
 func _speak(c: PhoneCall, lines: Array) -> bool:
 	for l in lines:
 		if l is String:
@@ -281,6 +282,8 @@ func _speak(c: PhoneCall, lines: Array) -> bool:
 		elif l.has("op"):
 			if not await main.conversation.op(c, l["op"]):
 				return false
+		elif l.has("named"):
+			c.named = l["named"]
 		else:
 			c.sys(l["sys"])
 	return not c.ended

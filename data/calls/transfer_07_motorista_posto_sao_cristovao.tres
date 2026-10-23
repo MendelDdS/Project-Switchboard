@@ -6,6 +6,7 @@
 script = ExtResource("1_bl2n1")
 voice = "m"
 caller = "Motorista"
+caller_name = "Milton Cunha"
 opening = PackedStringArray("O posto da Rua da Estação ainda está aberto?", "Me conecta lá, por favor. Tô quase sem gasolina.")
 repeat = "O Posto São Cristóvão."
 target = "347"
