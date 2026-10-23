@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_iu2ym")
 group = 1
-voice = "m"
+voice = "w"
 caller = "Seu Ernesto"
 caller_name = "Ernesto Figueiredo"
 opening = PackedStringArray("Boa noite. A Dona Célia Rocha, por favor.", "A que mora perto da escola.")

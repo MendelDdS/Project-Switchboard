@@ -2053,3 +2053,12 @@ Chaves:
     (dito na conversa), Marta Costa e Benedito Souza (os da lista), Seu Ernesto nas duas ligações, e os de `callers`
     iguais aos roteiros (Jair, Cida, Valdir, Olga). Apelido vira o nome (Glorinha: Glória; Zefa: Josefa; Cida:
     Aparecida). Nenhum nome repete gente das falas. O `test_content` cobra nome e sobrenome sem tratamento.
+352. #burocracias "o Seu Ernesto fala com voz w em story_02 e com voz m em transfer_31": a mesma pessoa, a voz de idoso
+    (`w`) nas duas, a da ligação do roteiro.
+353. #mesa-comutadora #cabos #camera "Essa angulação da placa na mesa comutadora está muito errada": o tampo largo do
+    lugar dos equipamentos (embaixo do interurbano) usava a inclinação estilizada dos pares de buracos e, ao lado da
+    lateral da prateleira, ficava torto; agora as laterais dele fogem para os olhos (`_draw_cover(..., exact)`,
+    `_eye`), como a lateral. Os tampos pequenos dos pares continuam na inclinação dos buracos.
+354. #mesa-comutadora #cabos "Há espaço para centralizar as placas na prateleira": os tampos (os dos pares vagos e o
+    dos equipamentos) ficavam encostados na beira da frente (9 px de madeira atrás, 1 na frente); agora ficam no meio
+    da prateleira, do pé do painel à beira de latão (6 e 5 px).

@@ -50,6 +50,10 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   inclinado que os pares de buracos ao lado, que usam um desencontro fixo e estilizado (`PAIR_SHIFT`, a pedido). Na
   prateleira, a referência é `front_of`: tudo o que fica deitado nela segue essa inclinação. Compare a peça nova com o
   que está ao lado, na captura, antes de mostrar.
+- **Peça larga pega a perspectiva de verdade.** O tampo largo dos equipamentos herdou a inclinação estilizada dos
+  pares de buracos (`PAIR_SHIFT`), que só serve ao lado deles: perto da lateral da prateleira, que foge para os
+  olhos, ficou "muito errada" (pedido 353). A referência é o vizinho de cada peça: ao lado dos buracos, `front_of`;
+  ao lado da lateral, o ponto de fuga (`_eye`).
 - **Texto de pixel não se inclina.** As letras da plaquinha deslocadas linha a linha viraram borrão, mesmo a 1/3 da
   inclinação; a placa inclinada com as letras retas ficou "muito ruim". Ficou reta. Peça com texto, reta; sem texto
   (o tampo), na inclinação da prateleira.

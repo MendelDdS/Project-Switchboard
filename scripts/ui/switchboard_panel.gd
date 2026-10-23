@@ -453,7 +453,7 @@ func _draw_tray() -> void:
 	for k in range(patches, SHELF_SLOTS):   # cada setor novo traz um cabo: até lá, o lugar dele fica tampado
 		_draw_cover(Vector2(patch_x(k), tray_rect().position.y + SHELF_HOLE_Y), COVER_W)
 	if equipped.is_empty() and trunks.has_area():   # o lugar dos equipamentos, tampado até chegar o primeiro
-		_draw_cover(Vector2(bay_rect().get_center().x + PAIR_SHIFT / 2.0, tray_rect().position.y + SHELF_HOLE_Y), bay_rect().size.x - BAY_MARGIN)
+		_draw_cover(Vector2(bay_rect().get_center().x + PAIR_SHIFT / 2.0, tray_rect().position.y + SHELF_HOLE_Y), bay_rect().size.x - BAY_MARGIN, true)
 
 
 const COVER_W := 26.0   # a largura do tampo: cobre os buracos do par, com um vão até o lugar seguinte
@@ -462,22 +462,31 @@ const BAY_MARGIN := 24.0   # o tampo dos equipamentos: a largura do bloco interu
 
 ## Um lugar vago na prateleira sob um tampo de metal parafusado de largura `w`, deitado nela, com o meio de trás em
 ## `back` (o buraco de trás de um par de cabos): linha a linha de pixels, na inclinação dos pares de buracos
-## (`front_of`: a ponta da frente à esquerda da de trás).
-func _draw_cover(back: Vector2, w: float) -> void:
+## (`front_of`: a ponta da frente à esquerda da de trás) ou, com `exact` (o tampo largo dos equipamentos, ao lado da
+## lateral da prateleira), com as laterais fugindo para os olhos (`_eye`), como a lateral.
+func _draw_cover(back: Vector2, w: float, exact := false) -> void:
+	# centrado na prateleira, do pé do painel à beira de latão (o vão do painel à faixa dos buracos se repete até ela)
+	var lip := tray_rect().end.y + tray_rect().position.y - size.y - 1.0
+	back.y += roundf((size.y + lip) / 2.0 - (back.y + front_of(back).y) / 2.0)
 	var front := front_of(back)
+	var mid := (back + front) / 2.0
 	var y0 := back.y - 5.0
 	var y1 := front.y + 5.0
-	var at := func(y: float) -> float:   # o meio do tampo na linha y: na reta do buraco de trás ao da frente
-		return roundf(back.x + (front.x - back.x) * (y - back.y) / (front.y - back.y))
+	var edge := func(y: float, side: float) -> float:   # a beira esquerda (-1) ou direita (1) do tampo na linha y
+		if exact:
+			var p := Vector2(mid.x + side * w / 2.0, mid.y)
+			return roundf(p.x + (_eye.x - p.x) * (y - p.y) / (_eye.y - p.y))
+		return roundf(back.x + (front.x - back.x) * (y - back.y) / (front.y - back.y)) + side * w / 2.0
 	for y in range(int(y0), int(y1) + 1):
-		var x: float = at.call(y)
-		_ci.draw_rect(Rect2(x - w / 2.0 + 1.0, y + 2.0, w, 1), SHADOW)
-		_ci.draw_rect(Rect2(x - w / 2.0 - 1.0, y, w + 2.0, 1), Pal.PANEL.darkened(0.3))   # a beira do tampo
+		var l: float = edge.call(y, -1.0)
+		var r: float = edge.call(y, 1.0)
+		_ci.draw_rect(Rect2(l + 1.0, y + 2.0, r - l, 1), SHADOW)
+		_ci.draw_rect(Rect2(l - 1.0, y, r - l + 2.0, 1), Pal.PANEL.darkened(0.3))   # a beira do tampo
 		var c: Color = Pal.PANEL_HI if y == int(y0) else (Pal.PANEL_LO if y == int(y1) else Pal.PANEL.lightened(0.06))
-		_ci.draw_rect(Rect2(x - w / 2.0, y, w, 1), c)
+		_ci.draw_rect(Rect2(l, y, r - l, 1), c)
 	for sy in [y0 + 3.0, y1 - 3.0]:   # um parafuso de latão em cada canto, com a fenda
-		for dx in [-w / 2.0 + 4.0, w / 2.0 - 4.0]:
-			var sp := Vector2(at.call(sy) + dx, sy)
+		for side in [-1.0, 1.0]:
+			var sp := Vector2(edge.call(sy, side) - side * 4.0, sy)
 			PixelArt.sprite(_ci, _disc(5, [[1.5, HOLE_PAL["F"], HOLE_PAL["f"], HOLE_PAL["b"]], [2.5, HOLE_PAL["w"]]]), sp)
 			_ci.draw_rect(Rect2(sp.x - 1.0, sy, 3, 1), HOLE_PAL["w"])
 
