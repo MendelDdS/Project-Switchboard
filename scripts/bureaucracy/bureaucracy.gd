@@ -28,6 +28,9 @@ static var enabled := false
 ## As regras desta sessão (cópias dos `.tres`: o que o debug muda vale até fechar o jogo, também na troca de noite).
 static var _rules: Array[BureaucracyRule] = []
 static var _loaded := false
+## Os parâmetros mudados por `update_params` ({id: {campo: valor}}), salvos com o resto (os do debug, que mexe direto
+## na regra, não).
+static var _params := {}
 
 var night := 0   ## a noite em que as regras se conferem (a do Main; o debug simula outras, `set_night`)
 var _begun := {}   ## id -> a regra já começou nesta noite (`night_started`, `sync`)
@@ -49,8 +52,11 @@ func _ready() -> void:
 		decisions.assign(main.progress.bureaucracy.get("decisions", []))
 		messages.items.assign(main.progress.bureaucracy.get("messages", []))
 		agreements.items.assign(main.progress.bureaucracy.get("agreements", []))
+	var first := not _loaded
 	for r in rules():
 		r.desk = self
+	if first and main.progress != null:   # o que o roteiro ligou fica de uma sessão para outra; depois, valem as da sessão
+		_restore(main.progress.bureaucracy)
 
 
 ## O gerente da cena de `n` (os equipamentos da mesa o acham assim).
@@ -72,9 +78,26 @@ static func rules() -> Array[BureaucracyRule]:
 	return _rules
 
 
-## O que fica salvo para as noites seguintes (`Progress.bureaucracy`).
+## O que fica salvo para as noites seguintes (`Progress.bureaucracy`): o registro, os serviços e o que o roteiro ligou
+## (a chave geral, as regras ligadas e os parâmetros de `update_params`).
 func state() -> Dictionary:
-	return {"decisions": decisions, "messages": messages.items, "agreements": agreements.items}
+	return {"decisions": decisions, "messages": messages.items, "agreements": agreements.items, "enabled": enabled,
+		"active": rules().filter(func(r: BureaucracyRule): return r.active).map(func(r: BureaucracyRule): return r.id),
+		"params": _params}
+
+
+## Volta o que o roteiro tinha ligado (`state`); regra salva que não existe mais é ignorada. Save sem isso (de antes,
+## ou novo): ficam as dos `.tres`.
+func _restore(saved: Dictionary) -> void:
+	if not saved.has("active"):
+		return
+	enabled = saved.get("enabled", false)
+	var on: Array = saved.get("active", [])
+	_params = saved.get("params", {}).duplicate(true)
+	for r in rules():
+		r.active = r.id in on
+		for k: String in _params.get(r.id, {}):
+			r.set(k, _params[r.id][k])
 
 
 ## Uma regra a mais nesta sessão (testes; a de mesmo `id` sai).
@@ -88,6 +111,7 @@ func register(r: BureaucracyRule) -> void:
 func reset() -> void:
 	_rules.clear()
 	_loaded = false
+	_params = {}
 	enabled = false
 	_begun.clear()
 	for r in rules():
@@ -190,6 +214,7 @@ func update_params(id: String, params: Dictionary) -> void:
 	var r := rule(id)
 	for k: String in params:
 		r.set(k, params[k])
+	_params[id] = _params.get(id, {}).merged(params, true)
 
 
 ## As regras que valem agora (nenhuma com a chave geral desligada).
@@ -273,7 +298,7 @@ func request_made(c: PhoneCall) -> bool:
 
 
 ## Diz as falas `lines` em ordem: texto de quem liga, {"op"} do operador, {"sys"} aviso, {"named"} o nome que quem
-## liga acabou de dizer (`PhoneCall.named`). Falso se a ligação acabou.
+## liga acabou de dizer (`PhoneCall.named`), {"snaps": ritmo} estalos de dedo (`Conversation.snaps`). Falso se a ligação acabou.
 func _speak(c: PhoneCall, lines: Array) -> bool:
 	for l in lines:
 		if l is String:
@@ -284,6 +309,9 @@ func _speak(c: PhoneCall, lines: Array) -> bool:
 				return false
 		elif l.has("named"):
 			c.named = l["named"]
+		elif l.has("snaps"):
+			if not await main.conversation.snaps(c, l["snaps"]):
+				return false
 		else:
 			c.sys(l["sys"])
 	return not c.ended
@@ -359,9 +387,6 @@ func clue_heard(k: Clue) -> void:
 
 
 func _describe(v: BureaucracyRule.Verdict) -> String:
-	match v.kind:
-		BureaucracyRule.Verdict.Kind.INFRACTION:
-			return "infração %s: %s" % [T.text(ShiftReport.SEVERITY_NAMES[v.severity]).to_lower(), v.reason]
-		BureaucracyRule.Verdict.Kind.ACTION:
-			return "pede ação: " + v.reason
+	if v.kind == BureaucracyRule.Verdict.Kind.INFRACTION:
+		return "infração %s: %s" % [T.text(ShiftReport.SEVERITY_NAMES[v.severity]).to_lower(), v.reason]
 	return "permitido" + (": " + v.reason if v.reason != "" else "")

@@ -10,7 +10,8 @@ extends BureaucracyRule
 ## `deal_signal`) pede que as ligações para X vão para Y quando quem liga der o sinal; o operador aceita ou recusa. Com o
 ## acordo, quem dá o sinal (`secret_signal`) pode ir para Y: permitido (só o registro; o destino passa a ser Y na hora de
 ## transferir); X segue sendo o pedido, a conversa normal e a advertência do bloqueio. Sem o sinal, tudo segue as regras
-## de bloqueio.
+## de bloqueio. O sinal `SNAPS` ("estalos") são três estalos de dedo no ritmo da noite (`rhythm`): o mesmo para todos
+## naquela noite, outro na noite seguinte; o acordo combina só "estalos".
 ##
 ## Roteiro: `activate("b2_bloqueados")`; `update_params("b2_bloqueados", {"blocked": ..., "free_until":
 ## PackedStringArray(["327 21:00"])})`; `desk.agreements.remove("355")` desfaz um acordo.
@@ -19,13 +20,25 @@ extends BureaucracyRule
 @export var blocked := PackedStringArray()
 ## Janelas: "número HH:MM", liberado até essa hora (o bar até as 21:00: "327 21:00").
 @export var free_until := PackedStringArray()
+## Os ritmos dos três estalos ("tec... tec tec": "..." é a pausa longa depois do estalo); um por noite (`rhythm`).
+@export var rhythms := PackedStringArray(["tec tec tec", "tec... tec tec", "tec tec... tec", "tec... tec... tec"])
 ## Reações de quem é avisado do bloqueio e não tem `refused_line` (as ligações comuns do jogo): uma sorteada.
 @export var reactions := PackedStringArray()
+
+const SNAPS := "estalos"   ## o sinal (`secret_signal`, `deal_signal`) dos três estalos no ritmo da noite
 
 
 ## O número está bloqueado agora (fora da janela dele, se tiver).
 func is_blocked(number: String) -> bool:
 	return number in blocked and not (_window(number) != "" and desk.main.minutes < _at(_window(number)))
+
+
+## O ritmo dos estalos da noite `night`: sempre o mesmo para a mesma noite, nunca o da noite anterior.
+func rhythm(night: int) -> String:
+	var k := 0
+	for n in range(1, night + 1):
+		k = (k + 1 + hash(n) % maxi(rhythms.size() - 1, 1)) % rhythms.size()
+	return rhythms[k]
 
 
 ## O número que quem liga pediu (depois de transferir para o do acordo, `c.target` passa a ser o dele).
@@ -59,7 +72,7 @@ func call_started(c: PhoneCall) -> Array:
 	var a := desk.agreements.redirect(c.target, t.secret_signal)
 	if not a.is_empty():
 		c.meta["b2_redirect"] = a.merged({"name": c.destination})
-	return [t.secret_signal]
+	return [{"snaps": rhythm(desk.night)} if t.secret_signal == SNAPS else t.secret_signal]
 
 
 ## Depois do pedido: o aviso do bloqueio do número pedido (ou até que hora está liberado).
@@ -161,7 +174,7 @@ func call_ended(c: PhoneCall, reason: PhoneCall.End) -> void:
 
 
 func debug_info() -> String:
-	var lines := PackedStringArray()
+	var lines := PackedStringArray(["estalos da noite: " + rhythm(desk.night)])
 	for n in blocked:
 		lines.append("%s %s: %s" % [n, GameData.entry(n).name if GameData.entry(n) else "?", "bloqueado" if is_blocked(n) else "liberado agora"])
 	for a in desk.agreements.items:

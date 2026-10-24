@@ -192,7 +192,19 @@ func _initialize() -> void:
 
 	m.bureaucracy.reset()
 	ok(not Bureaucracy.enabled and m.bureaucracy.live().is_empty(), "resetar desliga tudo")
-	print("OK 5 vigência e reset")
+	# o que o roteiro ligou vai para o save e volta na próxima sessão; save sem isso deixa as dos .tres
+	m.bureaucracy.enable(true)
+	m.bureaucracy.activate("b2_bloqueados")
+	m.bureaucracy.update_params("b2_bloqueados", {"blocked": PackedStringArray(["301"])})
+	var saved := m.bureaucracy.state()
+	m.bureaucracy.reset()
+	m.bureaucracy._restore({})
+	ok(not Bureaucracy.enabled and not m.bureaucracy.rule("b2_bloqueados").active, "save antigo: nada ligado")
+	m.bureaucracy._restore(saved)
+	var rb := m.bureaucracy.rule("b2_bloqueados")
+	ok(Bureaucracy.enabled and rb.active and rb.blocked == PackedStringArray(["301"]), "do save: chave geral, regra e parâmetros")
+	m.bureaucracy.reset()
+	print("OK 5 vigência, save e reset")
 
 	# ---- 6. B3, os códigos: um por noite, sem repetir, sempre o mesmo para a mesma noite
 	var codes := m.bureaucracy.codes
@@ -426,6 +438,8 @@ func _initialize() -> void:
 	await _try(urg, 355)
 	ok(severe.call() == 3 and m.bureaucracy.decisions.any(func(e): return e["choice"].begins_with("aceitou a ligação urgente")), "urgente aceito: grave e decisão moral")
 	_clear_board()
+	# os estalos: um ritmo por noite, sempre o mesmo para a mesma noite, nunca o da noite anterior
+	ok(range(1, 16).all(func(n: int): return b2.rhythm(n) != b2.rhythm(n - 1) and b2.rhythm(n) == b2.rhythm(n)), "um ritmo por noite")
 	# os quatro casos do acordo (X = 355 bloqueado, Y = 336)
 	var sig := await _call(t2["Acordo: pede o Bilhar com o sinal"])
 	ok(sig.target == "355", "sem acordo, o sinal não muda nada")
@@ -445,6 +459,7 @@ func _initialize() -> void:
 	m.report.faults.clear()
 	var sy := await _call(t2["Acordo: pede o Bilhar com o sinal"])
 	ok(sy.target == "355", "com o sinal, o pedido continua sendo o Bilhar")
+	ok(_said(sy, "(%s)" % b2.rhythm(m.bureaucracy.night)), "o sinal: os estalos no ritmo da noite")
 	ok(_said(sy, T.text(T.Key.SYS_BLOCKED) % "355") and sy.options.any(func(o): return o["label"] == T.text(T.Key.CHOICE_WARN_BLOCKED)),
 		"com o sinal, o aviso e o botão continuam sendo do número pedido")
 	await _try(sy, 336)

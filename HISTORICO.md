@@ -2100,3 +2100,12 @@ Chaves:
     resolve": as fileiras de buracos subiram 4 px (`SHELF_HOLE_Y` 4, `SHELF_FRONT_Y` 18), centradas na madeira à mostra
     (6 px atrás e na frente; eram 10 e 2), como os tampos: a fileira de trás bate com o fundo deles e a da frente com a
     frente. O equipamento da prateleira, assentado pela fileira da frente, subiu junto.
+364. #burocracias Sobre o que faltava do plano: o sinal secreto da B2 virou três estalos de dedo ("estalos" em
+    `secret_signal`/`deal_signal`), no ritmo da noite ("tec tec... tec", "tec tec tec", "tec... tec tec"...;
+    `rule_blocked.rhythms`, `rhythm(noite)`: sempre o mesmo na noite, nunca o da anterior), com o som sintetizado
+    ("snap", pelo barramento Phone) e o ritmo na conversa (`Conversation.snaps`). "Deixe isso pronto, mesmo que não
+    usaremos agora": a chave geral, as regras ligadas e os parâmetros de `update_params` vão para o save
+    (`Bureaucracy.state`/`_restore`).
+365. #burocracias "Pode apagar": saiu a terceira resposta das regras, "pede ação" (`Verdict.action`, o `RequerAcao`
+    do plano). Nenhuma regra a usava: o que a burocracia pede ao operador vem antes, por botão de resposta, e no
+    Transferir só cabe "pode" ou "infração" (o plano proíbe bloquear).

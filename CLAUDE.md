@@ -175,7 +175,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   `data/bureaucracy/` com um script `extends BureaucracyRule` (`scripts/bureaucracy/`); o gerente `Bureaucracy` (nó
   do Main) chama os ganchos (síncronos: `await` num Resource devolvia o estado da corrotina), aplica a maior advertência
   da tentativa e registra as decisões (`decisions`, no `Progress.bureaucracy`). Chave geral `Bureaucracy.enabled` (ligue por `enable`;
-  regra que passa a valer no meio do turno começa na hora, `sync`) desligada = o jogo de sempre. Serviços: `codes`, `messages`, `agreements`, `tapes`. Equipamentos da mesa:
+  regra que passa a valer no meio do turno começa na hora, `sync`) desligada = o jogo de sempre. Serviços: `codes`, `messages`, `agreements`, `tapes`. A ativação vai para o save (`state`, `_restore`). Equipamentos da mesa:
   `unlock_equipment` (marcador `equipamento_<id>`), cena `scenes/ui/equipment/<id>.tscn` na prateleira embaixo do
   Interurbano (`Switchboard.set_equipment`, `bay_rect`). Como criar uma: `BUREAUCRACY_RULES.md`; aba Burocracias no F1.
 

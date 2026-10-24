@@ -11,7 +11,7 @@ extends Resource
 
 ## O que a regra diz de uma tentativa de transferência (`before_transfer`).
 class Verdict:
-	enum Kind { ALLOWED, INFRACTION, ACTION }   ## permitido / infração (vira advertência) / pede uma ação do operador
+	enum Kind { ALLOWED, INFRACTION }   ## permitido / infração (vira advertência)
 	var kind := Kind.ALLOWED
 	var severity := ShiftReport.Severity.MEDIUM
 	var reason := ""   ## o que aconteceu, em poucas palavras: o detalhe da advertência e o resultado no registro
@@ -25,12 +25,6 @@ class Verdict:
 		var v := Verdict.new()
 		v.kind = Kind.INFRACTION
 		v.severity = sev
-		v.reason = why
-		return v
-
-	static func action(why: String) -> Verdict:
-		var v := Verdict.new()
-		v.kind = Kind.ACTION
 		v.reason = why
 		return v
 

@@ -349,6 +349,7 @@ func _build_basic() -> void:
 	_begin(0.36); _noise(0, 0.28, "bp", 2400, 0.6, 1.0); _noise(0.2, 0.12, "lp", 600, 0.7, 0.8); _end("page")
 	_begin(0.02); _tone(0, 3300, 0.008, "square", 0.3); _end("tick", false, false, 0.5)
 	_begin(0.03); _noise(0, 0.012, "bp", 1800, 1, 0.7); _tone(0, 620, 0.008, "square", 0.15); _end("knob_tick")   # o anel do mapa: um sulco
+	_begin(0.06); _noise(0, 0.025, "bp", 2800, 1.4, 1.0); _tone(0, 210, 0.02, "sine", 0.3); _end("snap", true)   # o estalo de dedos, pelo telefone
 	_begin(1.1)
 	for i in 14:
 		_noise(i * 0.07 + _rng.randf() * 0.03, 0.05, "bp", 5200 + _rng.randf() * 1500, 3, 0.8)

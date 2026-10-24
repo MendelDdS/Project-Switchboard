@@ -45,15 +45,15 @@ resource_name = "Propõe o acordo"
 script = ExtResource("2_call")
 voice = "w"
 caller = "TESTE B2 (propõe acordo)"
-opening = PackedStringArray("[TESTE] Escuta: quem pedir o Bilhar e der um estalo, você passa pra Borracharia do Neno.")
-repeat = "[TESTE] Bilhar com estalo, Borracharia."
+opening = PackedStringArray("[TESTE] Escuta: quem pedir o Bilhar e estalar os dedos três vezes, você passa pra Borracharia do Neno.")
+repeat = "[TESTE] Bilhar com os estalos, Borracharia."
 target = ""
 destination = "Acordo"
 thanks = "[TESTE] Combinado, então. Boa noite."
 refused_line = "[TESTE] Pena. Você vai se arrepender. Boa noite."
 deal_from = "355"
 deal_to = "336"
-deal_signal = "(um estalo)"
+deal_signal = "estalos"
 
 [sub_resource type="Resource" id="Test_sinal"]
 resource_name = "Acordo: pede o Bilhar com o sinal"
@@ -66,7 +66,7 @@ target = "355"
 destination = "Bilhar do Tonho"
 thanks = "[TESTE] Obrigado."
 refused_line = "[TESTE] Bloqueado? Mas eu... deixa pra lá."
-secret_signal = "(um estalo)"
+secret_signal = "estalos"
 
 [sub_resource type="Resource" id="Test_semsinal"]
 resource_name = "Acordo: pede o Bilhar sem o sinal"

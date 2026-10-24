@@ -81,6 +81,30 @@ func say(c: PhoneCall, text: String, pause: float = 0.55, who := "", voice := ""
 	return not c.ended
 
 
+## Quem ligou estala os dedos no ritmo `rhythm` ("tec tec... tec": cada "tec" um estalo; com "...", a pausa longa
+## depois dele); a transcrição mostra o ritmo, para o operador comparar. Falso se a ligação terminar no meio.
+func snaps(c: PhoneCall, rhythm: String) -> bool:
+	if c.ended or not c.closing and not await _until_on_line(c):
+		return false
+	while c.talking:
+		await get_tree().process_frame
+		if c.ended:
+			return false
+	c.set_talking(true)
+	var li := c.add_line(c.named if c.named != "" else c.caller, "(")
+	var beats := rhythm.split(" ", false)
+	for i in beats.size():
+		Sfx.play("snap")
+		c.append_text(li, beats[i] + (" " if i < beats.size() - 1 else ")"))
+		await get_tree().create_timer(0.9 if beats[i].ends_with("...") else 0.3, false).timeout
+		if c.ended:
+			c.set_talking(false)
+			return false
+	c.last_talk = main.talk_clock
+	c.set_talking(false)
+	return true
+
+
 ## O operador diz `text` (numa ligação resolvida, o clique já é a fala, mesmo que ele tenha ido para outra linha).
 func op(c: PhoneCall, text: String) -> bool:
 	if c.ended or not c.closing and not await _until_on_line(c):

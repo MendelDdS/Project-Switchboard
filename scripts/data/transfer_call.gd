@@ -77,8 +77,8 @@ enum Group {
 ## advertência) ou nega (avisa o bloqueio); as duas são decisão moral no registro. `urgency_reason` resume o motivo.
 @export var urgent := false
 @export var urgency_reason := ""
-## B2: o sinal combinado que quem liga dá logo depois do "alô" ("(um estalo)", "(um assobio)", uma palavra): dito
-## como fala; entre parênteses, é um som. Com um acordo de redirecionamento para o número pedido com este sinal, o
+## B2: o sinal combinado que quem liga dá logo depois do "alô": "estalos" (três estalos de dedo, no ritmo da noite,
+## `rule_blocked.gd`) ou outro texto, dito como fala (uma palavra, "(um assobio)"). Com um acordo de redirecionamento para o número pedido com este sinal, o
 ## destino certo passa a ser o do acordo.
 @export var secret_signal := ""
 ## B2, quem propõe o acordo: as ligações para `deal_from` vão para `deal_to` quando quem ligar der `deal_signal`.
