@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scripts/ui/equipment/tape_rack.gd" id="1_equip"]
 
 [node name="porta_fitas" type="Control"]
-custom_minimum_size = Vector2(31, 20)
+custom_minimum_size = Vector2(38, 46)
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_equip")

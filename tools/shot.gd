@@ -14,7 +14,8 @@ extends Node
 ##   --news                 o jornal da manhã na mesa · --read: já lido, dobrado de outro jeito
 ##   --listen               a linha 3 conectada, com o FONE nela e a chave de escuta levantada
 ##   --tapes                a B4 ligada: o porta-fitas e o gravador na prateleira, com uma fita no gravador (--tapes=rec:
-##                          com --listen, gravando a conversa da linha 3, a lâmpada REC acesa)
+##                          com --listen, gravando a conversa da linha 3, a lâmpada REC acesa; --tapefly=in|deliver|discard,0.2:
+##                          a fita voando, parada nesse instante do voo, com uma já na caixa)
 ##   --patch=312,4          um cabo de conexão da saída da linha 4 (o padrão) ao destino dado, conectado (o aro aceso)
 ##   --lines=2:ring,4:conn  as lâmpadas dessas linhas no estado dado (`Exchange.Line`, em minúsculas), sem ligação
 ##   --toll                 um interurbano contando no calculógrafo, dois bilhetes na mesa (um carimbado) e três na caixinha
@@ -127,6 +128,20 @@ func _ready() -> void:
 			m.eavesdrop.connected(c)
 			m.exchange.set_key(3, true)   # (o `--listen` não levantou a chave: ainda não havia conversa)
 			m.eavesdrop.tick(0.0)
+			m.bureaucracy.tapes.bind(c, true)   # a fita gravando ela, com duas palavras-chave ouvidas
+			m.bureaucracy.tapes.inside["words"].append_array(["um", "dois"])
+		if _args.has("tapefly"):   # o voo parado num instante (o gravador para de andar)
+			var fly: PackedStringArray = _args["tapefly"].split(",")
+			var rec: Control = m.board._equipment["gravador"]
+			m.bureaucracy.tapes.done.append({"who": "", "words": [], "value": 0, "fate": "entregue"})
+			if fly[0] == "in":
+				rec._had_tape = true
+				rec._start_in(m.bureaucracy.tapes.blank)
+			else:
+				rec._start_out(fly[0] == "deliver")
+			rec._step_fly(float(fly[1]) if fly.size() > 1 else 0.2)
+			rec.set_process(false)
+			rec.queue_redraw()
 	if _args.has("patch"):
 		var pa := (_args["patch"] as String).split(",")
 		m.board.plugged(1, 10 + (int(pa[1]) if pa.size() > 1 else 4))

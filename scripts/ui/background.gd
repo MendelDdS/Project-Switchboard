@@ -35,7 +35,8 @@ const WARM_STEP := 0.05
 const WARM_DARK := 0.3   ## o escuro a mais na sala com a luminária ainda fria (`_noir_params`)
 const FLICK_DARK := 0.45   ## o escuro a mais na sala com a luminária apagada no piscar (`_noir_params`; os objetos escureciam por conta própria, `_flick`, e a soma dos dois dava isso)
 const FLICK := [1.0, 0.2, 1.0, 1.0, 0.5, 1.0, 1.0, 0.1, 1.0, 1.0, 1.0, 0.4, 1.0, 1.0, 1.0, 1.0, 0.2, 1.0, 1.0, 0.6, 1.0, 1.0, 1.0]
-const WOOD := [Pal.CABINET_WOOD[6], Pal.CABINET_WOOD[4], Pal.CABINET_WOOD[2]]   ## madeira (luz, meio, sombra), a mesma do móvel
+const WOOD := [Pal.CABINET_WOOD[6], Pal.CABINET_WOOD[4], Pal.CABINET_WOOD[2]]   ## madeira (luz, meio, sombra): a guarnição e o peitoril da janela
+const SHELL := [Pal.SHELL[6], Pal.SHELL[4], Pal.SHELL[2]]   ## o esmalte do móvel da mesa comutadora (luz, meio, sombra): a lateral e o console
 const SIGN_AT := 0.62   ## onde fica o meio dela, na largura da mesa comutadora (à direita do horário do turno)
 const PROPS := {Tools.DIRECTORY: T.Key.TAB_DIRECTORY, Tools.DISPATCH: T.Key.TAB_DISPATCH, Tools.LOGBOOK: T.Key.TAB_LOGBOOK, Tools.CALL_LOG: T.Key.TAB_CALL_LOG,
 	Tools.NEWS: T.Key.TAB_NEWS, Tools.TOLL: T.Key.TAB_TOLL}
@@ -2121,6 +2122,24 @@ func _draw_reflection(g: Rect2) -> void:
 		PackedColorArray([steel, Color(steel, steel.a * 0.5), Color(steel, 0.0), Color(steel, 0.0)]))
 
 
+
+## A quina redonda do móvel da mesa comutadora (o canto de raio `Switchboard.SHELL_R`, centro `c`) correndo da frente
+## para o fundo (`back`): um quarto de volta a partir do ângulo `from`, em fatias, cada uma no tom do esmalte pelo
+## rumo dela (de cima, na luz; de lado, na sombra da lateral). Fatia virada para longe dos olhos não aparece.
+func _round_edge(c: Vector2, from: float, back: Callable) -> void:
+	const SLICES := 6
+	var r := Switchboard.SHELL_R
+	for i in SLICES:
+		var a0 := from + PI / 2.0 * i / SLICES
+		var a1 := from + PI / 2.0 * (i + 1) / SLICES
+		var p0 := c + Vector2(cos(a0), sin(a0)) * r
+		var p1 := c + Vector2(cos(a1), sin(a1)) * r
+		var b0: Vector2 = back.call(p0)
+		if (p1 - p0).cross(b0 - p0) >= 0.0:
+			continue   # virada para longe
+		var side := clampf(cos((a0 + a1) / 2.0), 0.0, 1.0)   # 0 de cima, 1 de lado
+		_poly(PackedVector2Array([p0, p1, back.call(p1), b0]), Pal.SHELL[6 - roundi(side * 4.0)])
+
 ## A mesa comutadora é um móvel só, em pé no tampo: embaixo, o console, cuja frente é a faixa de mesa (`desk`, com o
 ## rádio embutido) e cujo alto é a prateleira, onde ficam o encaixe do FONE e os buracos dos cabos com os plugs em pé
 ## (a mesa desenha); no fundo da prateleira, o painel (`board`). A interface é a frente do painel e do rádio; aqui
@@ -2150,29 +2169,26 @@ func _draw_switchboard() -> void:
 	var low_back: Vector2 = deep.call(low)
 	_desk_shadow(PackedVector2Array([Vector2(fx0, fy), low, low_back, deep.call(Vector2(fx0, fy))]))
 	if b.end.x < vp.x - 2.0:   # a lateral em L: o console e, em cima dele, o painel
-		var side := WOOD[2] as Color
+		var side := SHELL[2] as Color
+		var top := Vector2(b.end.x, b.position.y + Switchboard.SHELL_R)   # a lateral começa onde acaba o canto redondo
 		_side_faces = [PackedVector2Array([Vector2(fx1, sy), low, low_back, back.call(b.end)]),
-			PackedVector2Array([Vector2(b.end.x, b.position.y), b.end, back.call(b.end), back.call(Vector2(b.end.x, b.position.y))])]
+			PackedVector2Array([top, b.end, back.call(b.end), back.call(top)])]
 		for q: PackedVector2Array in _side_faces:
 			_poly(q, side)
-		for i in range(1, 7):   # o veio, no rumo do ponto de fuga
-			var p := Vector2(b.end.x, b.position.y + b.size.y * i / 7.0 + (i % 2) * 5.0)
-			draw_line(p, back.call(p), WOOD[1], 1.0)
-		for y in [sy + (fy - sy) * 0.4, sy + (fy - sy) * 0.75]:
-			draw_line(Vector2(fx1, y), deep.call(Vector2(fx1, y)), WOOD[1], 1.0)
-		draw_line(Vector2(b.end.x, b.position.y), b.end, WOOD[0], 1.0)   # as quinas da frente pegam a luz
-		draw_line(Vector2(fx1, sy), low, WOOD[0], 1.0)
-	# a frente do console (aparece entre as peças embutidas), com a beira de cima e o rodapé
-	_r(fx0, sy, fx1 - fx0, fy - sy, WOOD[1])
-	_r(fx0, sy, fx1 - fx0, 2, WOOD[0])
-	_r(fx0, fy - 3, fx1 - fx0, 3, WOOD[2])
-	# a prateleira: o painel pousa no fundo dela, num rodapé, com a sombra de contato na frente
-	_poly(PackedVector2Array([Vector2(fx0, sy), Vector2(fx1, sy), b.end, Vector2(b.position.x, b.end.y)]), Pal.SHELF_WOOD[1])
-	for t in [0.3, 0.55, 0.8]:   # os veios da prateleira, de lado a lado
-		var y := roundf(lerpf(sy, b.end.y, t))
-		_r(lerpf(fx0, b.position.x, t), y, lerpf(fx1, b.end.x, t) - lerpf(fx0, b.position.x, t), 1, Pal.SHELF_WOOD[0])
-	_r(fx0, sy - 1, fx1 - fx0, 2, Pal.BRASS_PLATE[3])   # o friso de latão na beira
-	_r(fx0, sy - 1, fx1 - fx0, 1, Pal.BRASS_PLATE[5])
+		_round_edge(top - Vector2(Switchboard.SHELL_R, 0), -PI / 2.0, back)
+		var p := Vector2(b.end.x, roundf(b.position.y + b.size.y * 0.55))   # a junta das chapas do esmalte, no rumo do ponto de fuga
+		draw_line(p, back.call(p), Pal.SHELL[1], 1.0)
+		draw_line(top, b.end, SHELL[0], 1.0)   # as quinas da frente pegam a luz
+		draw_line(Vector2(fx1, sy), low, SHELL[0], 1.0)
+	# a frente do console (aparece entre as peças embutidas), escura, com a beira de cima no esmalte e o rodapé
+	_r(fx0, sy, fx1 - fx0, fy - sy, Pal.BOARD_SIDE)
+	_r(fx0, sy, fx1 - fx0, 3, SHELL[1])
+	_r(fx0, sy + 3, fx1 - fx0, 1, Pal.BOARD_SIDE.darkened(0.4))
+	_r(fx0, fy - 3, fx1 - fx0, 3, SHELL[2])
+	# a prateleira, no esmalte claro: o painel pousa no fundo dela, num rodapé, com a sombra de contato na frente
+	_poly(PackedVector2Array([Vector2(fx0, sy), Vector2(fx1, sy), b.end, Vector2(b.position.x, b.end.y)]), Pal.SHELL[5])
+	_r(fx0, sy - 1, fx1 - fx0, 2, Pal.NICKEL[2])   # o friso niquelado na beira
+	_r(fx0, sy - 1, fx1 - fx0, 1, Pal.NICKEL[1])
 	var radio := desk.get_node_or_null("Mini") as Control
 	if radio and radio.visible:   # na frente do console, em volta da miniatura do painel: a plaqueta e os botões dele
 		var rr := Rect2(radio.global_position - global_position, radio.size)
@@ -2191,13 +2207,15 @@ func _draw_switchboard() -> void:
 		if p.x > fx0 + 4:
 			_sprite(PixelArt.disc(5, [[2.5, Pal.SCREW[2], Pal.SCREW[1], Pal.SCREW[0]]]), p)
 			draw_rect(Rect2(p.floor() - Vector2(1, 0), Vector2(3, 1)), Pal.SCREW[3])   # a fenda
-	draw_rect(Rect2(b.position.x, b.end.y, b.size.x, 3), WOOD[2])
+	draw_rect(Rect2(b.position.x, b.end.y, b.size.x, 3), SHELL[2])
 	_poly(PackedVector2Array([Vector2(b.position.x, b.end.y + 3), Vector2(b.end.x, b.end.y + 3),
 		Vector2(b.end.x + 2, b.end.y + 7), Vector2(b.position.x - 3, b.end.y + 7)]), Color(0, 0, 0, 0.3))
 	if b.position.y > vp.y + 1.0:   # os olhos estão acima do painel: o tampo dele aparece
-		var tl := b.position
-		var tr := Vector2(b.end.x, b.position.y)
-		_poly(PackedVector2Array([tl, tr, back.call(tr), back.call(tl)]), WOOD[0])
+		var r := Switchboard.SHELL_R
+		var tl := b.position + Vector2(r, 0)
+		var tr := Vector2(b.end.x - r, b.position.y)
+		_poly(PackedVector2Array([tl, tr, back.call(tr), back.call(tl)]), SHELL[0])
+		_round_edge(tl + Vector2(0, r), -PI, back)   # o canto da esquerda (o da direita sai com a lateral)
 	_occ_board = Geometry2D.convex_hull(PackedVector2Array([b.position, Vector2(b.end.x, b.position.y), b.end, Vector2(b.position.x, b.end.y),
 		back.call(b.end), back.call(Vector2(b.end.x, b.position.y)), Vector2(fx1, sy), low, low_back, Vector2(fx0, fy), Vector2(fx0, sy)]))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))

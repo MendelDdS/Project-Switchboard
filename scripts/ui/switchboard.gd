@@ -733,8 +733,8 @@ func _step_rope(e: int, dt: float) -> void:
 func _draw() -> void:
 	_draw_cabinet(Rect2(Vector2.ZERO, size))
 	_draw_tray()
-	for y in RULES.values():
-		_draw_rule(y, "")
+	_draw_header()
+	_draw_rule(RULES["out"], "")   # a faixa das chaves de escuta
 	if exchange == null:
 		return
 	_draw_strips()
@@ -755,7 +755,7 @@ func _draw() -> void:
 
 	# destinos: a moldura de cada banco (a faixa de numeração vai nela, por cima da chapa: `_draw_top`)
 	for s in _blocks:
-		draw_rect(_blocks[s], Pal.PANEL_LO, false, 1.0)
+		_draw_inset(_blocks[s])
 	for d in dest_nums:
 		if not GameData.is_trunk(d):   # o tronco tem o nome da cidade em cima (`_draw_trunks`)
 			var jr := jack_rect(d)
@@ -827,8 +827,8 @@ func _draw_top() -> void:
 		var br: Rect2 = _blocks[s]
 		var cap := PixelArt.tiny("%d-%d" % [s * 100, s * 100 + 99])
 		var at := Vector2(br.position.x + 10.0, br.position.y - 5.0).round()   # (passando o parafuso da chapa)
-		_top.draw_rect(Rect2(at.x - 3.0, br.position.y - 1.0, cap.get_width() + 6.0, 3.0), Pal.PANEL)
-		_top.draw_texture(cap, at, Pal.BRASS)
+		_top.draw_rect(Rect2(at.x - 3.0, br.position.y - 1.0, cap.get_width() + 6.0, 3.0), Pal.BOARD_INSET)
+		_top.draw_texture(cap, at, Pal.BOARD_INK)
 	_draw_room_light(Rect2(Vector2.ZERO, size).grow(-FRAME))
 	var jacks := []
 	for n in 20:

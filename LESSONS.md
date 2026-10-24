@@ -600,3 +600,7 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   ao lado do que está na frente: confira na captura se a silhueta deles sobe acima do que os encobre, não só os metros.
   E "mais alto" não é "o dobro": de 80 a 160 m, passando da ponta da torre, viraram arranha-céus numa cidade pequena
   (pedido 300). Suba o bastante para resolver a queixa, guardando a escala do lugar, e mostre antes de exagerar.
+- **Arredondado de referência se mede na referência.** No visual da mesa (pedido 368), cantos de raio 5 na moldura de
+  5 px pareciam quase retos na escala do jogo, e os de dentro ficaram quadrados (pedido 369). Ao copiar uma forma de
+  uma imagem, meça o raio dela em pixels do jogo (a imagem reduzida para 960×540) e arredonde também o contorno de
+  dentro quando a referência o faz.

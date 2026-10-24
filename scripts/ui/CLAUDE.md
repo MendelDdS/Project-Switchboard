@@ -14,7 +14,7 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   (`SIDE_VP`, `_svp`, `_side_pt`) e as contas de luz pela janela pegam o meio do vão (`_wall_x`). Nunca acerte a
   perspectiva elemento por elemento: pense a cena e passe pela câmera.
 - A tela é uma mesa de trabalho: no alto da esquerda o horário num papel com fita (`ShiftPlate`) e a placa da
-  companhia; embaixo, a mesa comutadora (492×304) com a prateleira (`Shelf`) e a frente do console (`%Desk`, com a
+  companhia; embaixo, a mesa comutadora (369×238) com a prateleira (`Shelf`) e a frente do console (`%Desk`, com a
   miniatura do painel, `ConsoleMini`); à direita a sala e as ferramentas (`Tools`, o papel sai do objeto dele na mesa,
   `Tools.origin` = `Background.prop_rect`; sem abas); embaixo de tudo, o painel do operador (`PhonePanel`, 150 px, fora
   da luz da sala). A dica do manual (`HintSlot`) está escondida, a pedido.
@@ -94,7 +94,9 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
 - **Chave de escuta** de cada linha (`lever_rect`, `lever_up`, `lever_pressed`).
 - **Equipamentos das burocracias** na prateleira embaixo do bloco interurbano (`bay_rect`): tampados até o primeiro
   chegar (`_draw_cover`); cada um é uma cena de `scenes/ui/equipment/` posta por `set_equipment` (porta-fitas e
-  gravador da B4, `scripts/ui/equipment/`, arte provisória). A mesa não sabe o que cada um faz.
+  gravador com a caixa das autoridades, da B4, `scripts/ui/equipment/`, desenhados com `cassette.gd`; a fita voa entre
+  eles, `tape_recorder.gd`, `_fly`), de até 46 px de altura (o vão do pé do painel até o interurbano, com a régua de
+  latão no meio, `_draw_trunks`; mais alto, tampa as tomadas). A mesa não sabe o que cada um faz.
 - **Fios** são cordas de Verlet, uma por ponta (`Cord`, `scripts/ui/cord.gd`, sem tela nem som, testada sozinha):
   presas no buraco (`hole(e)`) e na traseira do plug; o contrapeso puxa a folga para dentro (`WEIGHT_TAKE`); todos com
   o mesmo comprimento (`Cord.MAX`); a prateleira e a beira dela são quinas (`hang_step`, `lip_y`, `route`); fio parado
@@ -112,7 +114,11 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
 - Lâmpadas de vidro leitoso que acendem rápido e apagam devagar (`_fade`, `LAMP_ON_SEC`/`LAMP_OFF_SEC`); encaixes de
   pixel art (`_jack_tex`, `JACK_METAL`); luz da luminária no painel (`_draw_room_light`) e escurecendo junto com a da sala
   pelo `modulate` (`Switchboard.dim`); a luz das lâmpadas no painel pelo `_glow`.
-- Moldura de madeira pixel a pixel (`_wood_frame`), faixas gravadas na fonte miúda (`_draw_rule`, `RULES`), uso de
-  anos (`_draw_wear`), banco interurbano (`_draw_trunks`). Mexendo na altura, confira que a coluna da esquerda cabe
+- Visual retrofuturista (série Ruptura): móvel de esmalte de cantos redondos, pixel a pixel (`_shell_frame`,
+  `Pal.SHELL`, `Pal.cabinet`), painel cinza-esverdeado (`Pal.BOARD_METAL`/`BOARD_FACE`), faixa escura no alto
+  (`_draw_header`) e abas das seções (`_draw_rule`, `RULES`), trilhos finos nas colunas (`_draw_strips`), plaquinhas
+  creme (`BOARD_TAG`), bancos e interurbano rebaixados e escuros (`_draw_inset`, `BOARD_INSET`), letras em creme
+  (`BOARD_INK`), níquel no lugar do latão (buracos, plaquetas, régua); o console no cenário usa os mesmos tons
+  (`Background.SHELL`, `BOARD_SIDE`). Uso de anos (`_draw_wear`), banco interurbano (`_draw_trunks`). Mexendo na altura, confira que a coluna da esquerda cabe
   (até 540).
 - Folha de prévia de toda a pixel art: `Godot --headless --path . -s tools/sprite_sheet.gd` → `build/sprites.png`.

@@ -2,7 +2,8 @@ extends BureaucracyRule
 ## B4. Gravação de conversas em fitas: as autoridades marcam ligações (`TransferCall.suspicious`; o operador vê o aviso
 ## no começo dela); o operador põe uma fita do porta-fitas no gravador e escuta a conversa (`Eavesdrop`, com a
 ## desconfiança de sempre): a fita grava a conversa e as palavras-chave que ele ouvir dela (`Bureaucracy.tapes`).
-## Entregue, vale pontos de eficiência pelo valor; descartada, se perde. `tapes_per_night` virgens por noite. Numa noite
+## Entregue, vale pontos de eficiência pelo valor; descartada, se perde. Os dois notaram a escuta numa ligação marcada:
+## advertência na gravidade da regra (trabalho malfeito para as autoridades, que pediram), no lugar da por escuta. `tapes_per_night` virgens por noite. Numa noite
 ## com pedidos e nenhuma gravação, nada na hora: liga o marcador `authorities_questioning_pending` para o roteiro.
 ## Equipamentos (`equipment` no `.tres`): o porta-fitas e o gravador chegam na mesa na primeira vez que ela vale e
 ## ficam (`keep_equipment`), mesmo desligada.
@@ -55,6 +56,14 @@ func _bind(c: PhoneCall) -> void:
 	desk.tapes.bind(c, c.meta.has("b4"))
 	if c.meta.has("b4"):
 		_recorded += 1
+
+
+func caught_listening(c: PhoneCall) -> bool:
+	if not c.meta.has("b4"):
+		return false
+	desk.main.supervisor.fault_later(id, desk.main.supervisor.who(c), severity, T.Key[fault_text])
+	desk.log_decision(id, c, "foi pego escutando a ligação marcada", "advertência amanhã")
+	return true
 
 
 func night_ended() -> void:

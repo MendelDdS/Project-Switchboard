@@ -212,7 +212,7 @@ func _load_night() -> void:
 		for f in progress.flags:
 			flags.apply(f)
 		for f in progress.later:   # o que ficou para ser cobrado hoje (a denúncia de uma escuta)
-			report.add(f["id"], T.text(T.Key.REPORT_YESTERDAY) % f["time"], f["detail"])
+			report.add(f["id"], T.text(T.Key.REPORT_YESTERDAY) % f["time"], f["detail"], f.get("sev", -1), f.get("text", -1))
 	night_no = clampi(night_no, 0, C.nights.size())
 	night = C.training if night_no == 0 else C.nights[night_no - 1]
 	GameData.sectors = GameData.sectors_for(night_no) if force_sectors.is_empty() else force_sectors
@@ -1276,7 +1276,7 @@ func start_ending() -> void:
 	var later := progress != null and not last and night_no > 0   # o que a companhia cobra amanhã (o treinamento não leva)
 	if progress == null or last:   # sem noite seguinte: cobra hoje
 		for f in report.later:
-			report.add(f["id"], f["time"], f["detail"])
+			report.add(f["id"], f["time"], f["detail"], f.get("sev", -1), f.get("text", -1))
 	bureaucracy.night_ended()
 	supervisor.shift_over()
 	if progress != null:

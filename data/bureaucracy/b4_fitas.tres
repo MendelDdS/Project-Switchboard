@@ -33,5 +33,6 @@ suspicious = true
 script = ExtResource("1_rule")
 id = "b4_fitas"
 title = "B4 · Gravação em fitas"
+fault_text = "FAULT_TAPE_CAUGHT"
 equipment = PackedStringArray("porta_fitas", "gravador")
 tests = Array[ExtResource("2_call")]([SubResource("Test_palavras"), SubResource("Test_nada")])

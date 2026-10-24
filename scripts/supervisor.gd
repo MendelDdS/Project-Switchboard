@@ -32,9 +32,10 @@ func credit(id: String, pts := -1) -> void:
 
 ## Advertência que o supervisor só fica sabendo depois (a denúncia de um assinante): vai para o relatório da noite
 ## seguinte, com a hora de hoje (sem noite seguinte, para o de hoje; `Main.start_ending`).
-func fault_later(id: String, detail := "") -> void:
+## `sev` e `text` como em `fault` (a de uma burocracia).
+func fault_later(id: String, detail := "", sev := -1, text := -1) -> void:
 	if not main.training.active:
-		main.report.later.append({"id": id, "time": Main.fmt(main.minutes), "detail": detail})
+		main.report.later.append({"id": id, "time": Main.fmt(main.minutes), "detail": detail, "sev": sev, "text": text})
 
 
 func who(c: PhoneCall) -> String:

@@ -506,6 +506,9 @@ func _initialize() -> void:
 	click.pressed = false
 	rack._gui_input(click)
 	ok(tp.blank == 2 and not tp.inside.is_empty(), "clicar no porta-fitas põe uma no gravador")
+	var deck: Control = b._equipment["gravador"]
+	ok(await wait_until(func(): return deck._fly == 0 and deck._door == 0.0 and deck._bounce == 0.0 and rack._wobble == 0.0, 3.0),
+		"a fita voou, a porta fechou e o gravador e o porta-fitas voltaram ao lugar")
 	m.report.credits.clear()
 	var t4: Array = m.bureaucracy.rule("b4_fitas").tests
 	var sus := await _call(t4[0])
@@ -521,6 +524,11 @@ func _initialize() -> void:
 	recorder._gui_input(click)
 	ok(tp.inside.is_empty() and tp.done[-1]["value"] == words.size() * 10, "entregue: o valor pelas palavras")
 	ok(m.report.credits.any(func(c): return c["id"] == "tape" and c["pts"] == words.size() * 10), "pontos de eficiência pela fita")
+	m.report.later.clear()
+	ok(m.bureaucracy.caught_listening(sus) and m.report.later.size() == 1 and m.report.later[0]["id"] == "b4_fitas"
+		and m.report.later[0]["text"] == T.Key.FAULT_TAPE_CAUGHT, "pego na ligação marcada: a advertência da B4, não a da escuta")
+	ok(not m.bureaucracy.caught_listening(PhoneCall.new()) and m.report.later.size() == 1, "sem marca: a escuta de sempre")
+	m.report.later.clear()
 	_clear_board()
 	tp.insert()
 	var calm := await _call(t4[1])

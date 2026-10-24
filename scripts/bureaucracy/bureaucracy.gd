@@ -386,6 +386,10 @@ func clue_heard(k: Clue) -> void:
 		r.clue_heard(k)
 
 
+func caught_listening(c: PhoneCall) -> bool:
+	return live().any(func(r: BureaucracyRule): return r.caught_listening(c))
+
+
 func _describe(v: BureaucracyRule.Verdict) -> String:
 	if v.kind == BureaucracyRule.Verdict.Kind.INFRACTION:
 		return "infração %s: %s" % [T.text(ShiftReport.SEVERITY_NAMES[v.severity]).to_lower(), v.reason]

@@ -161,7 +161,7 @@ text = "END_SHIFT"
 [node name="Board" type="Control" parent="Layout/Rows/Columns/Left" unique_id=995017339]
 unique_name_in_owner = true
 z_index = 1
-custom_minimum_size = Vector2(369, 228)
+custom_minimum_size = Vector2(369, 238)
 layout_mode = 2
 script = ExtResource("5_switchboard")
 
@@ -192,7 +192,7 @@ alignment = 1
 
 [node name="Mini" type="Control" parent="Layout/Rows/Columns/Left/Desk"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(225, 64)
+custom_minimum_size = Vector2(209, 54)
 layout_mode = 2
 mouse_filter = 2
 script = ExtResource("22_mini")

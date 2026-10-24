@@ -1,14 +1,15 @@
 extends "res://scripts/ui/switchboard_base.gd"
-## O painel da mesa comutadora (`Switchboard`): o móvel de madeira, as faixas gravadas, as plaquinhas, as lâmpadas,
-## as tomadas, o desgaste, as chapas dos bancos e a prateleira com os buracos dos cabos.
+## O painel da mesa comutadora (`Switchboard`), retrofuturista (como na série Ruptura): o móvel de esmalte de cantos
+## redondos, a faixa escura do alto, os trilhos das colunas, as plaquinhas creme, as lâmpadas, as tomadas, o
+## desgaste, os blocos rebaixados dos bancos, as chapas deles e a prateleira com os buracos dos cabos.
 
 const DEST_TOP := 141.0      # topo das tomadas da primeira fileira (a segunda fica DEST_ROW px abaixo)
 const DEST_ROW := 27.0
-const FRAME := 5.0           # a moldura de madeira do móvel, em volta do painel
+const FRAME := 5.0           # a moldura de esmalte do móvel, em volta do painel
 ## Faixas gravadas no painel que separam as seções (altura da linha; o nome fica sobre ela, à esquerda).
 const RULES := {"in": 11.0, "out": 78.0}
-const CABINET_RAG := 0.05    # o quanto a troca de tom da madeira da moldura anda de um veio para outro, na luz (`_wood_frame`)
-## O buraco da prateleira (16×8, achatado pela perspectiva; o vão, 12 de largura, da largura do plug, que entra
+const SHELL_R := 12.0        # o raio dos cantos de fora do móvel (`_shell_frame`); os do painel, por dentro, `SHELL_R - FRAME`
+## O buraco da prateleira (16×8, niquelado, achatado pela perspectiva; o vão, 12 de largura, da largura do plug, que entra
 ## nele): b, a beira de trás do aro (na sombra); f e F, a da frente (na luz, com o brilho); w, a parede de dentro do lado
 ## de trás; h, o vão. As linhas são de elipses de pixel art (`draw_grommet`).
 const HOLE_ART := [
@@ -21,7 +22,7 @@ const HOLE_ART := [
 	"..ffFffffffFff..",
 	"....FFFFFFFF....",
 ]
-const HOLE_PAL := {"b": Pal.BRASS_PLATE[2], "f": Pal.BRASS_PLATE[5], "F": Pal.BRASS_PLATE[6], "w": Pal.BRASS_PLATE[1], "h": Pal.BRASS_PLATE[0]}
+const HOLE_PAL := {"b": Pal.NICKEL_EDGE[1], "f": Pal.NICKEL[2], "F": Pal.NICKEL[1], "w": Pal.NICKEL_EDGE[2], "h": Pal.JACK_HOLE}   # níquel: o buraco, a plaquinha do FONE e a do fabricante
 
 var _lit := {}   ## lâmpada ("l3" linha, "d312" destino) -> [cor, quanto está acesa 0..1]; a cor fica enquanto apaga
 
@@ -48,7 +49,6 @@ const PLATE := Pal.BANK_PLATE   # chapa sobre o banco que ainda não está em us
 const LAMP_R := 2.5         # o raio da luz da lâmpada de cada linha, no `Bloom` (o vidro tem 4; o aro de metal fica em volta)
 const BEZEL := [Pal.NICKEL[1], Pal.NICKEL[2], Pal.NICKEL[3]]   # aro niquelado: luz, meio, sombra
 const LAMP_OFF := Pal.LAMP_GLASS
-const STRIP_W := 18.0   # a faixa rebaixada de cada linha, da plaquinha à saída
 const WEAR := [0.5, 0.3, 0.15]   # o painel gasto em volta das tomadas: do perto ao longe (o quanto clareia)
 const LAMP_ON_SEC := 0.06    # a lâmpada (de filamento) acende quase na hora...
 const LAMP_OFF_SEC := 0.18   # ...e apaga mais devagar, o filamento esfriando: a linha tocando pulsa em vez de piscar seco
@@ -214,28 +214,22 @@ func _reflect(jr: Rect2, col: Color, level: float) -> void:
 		_ci.draw_texture_rect(PixelArt.disc(JACK_PX, [[JACK_RINGS[0], Color.TRANSPARENT], [JACK_RINGS[2], Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]], Vector2.UP), _jack_px(jr), false, Color(col, 0.55 * level))
 
 
-## O móvel da mesa: a moldura de madeira (`_wood_frame`), com o brilho da luminária do teto na quina de cima, mais
-## forte do lado dela (no meio da tela, à direita da mesa), e o painel de metal escuro dentro, rebaixado, com a beira
-## no tom da luz da sala ali (`_lit_rect`).
+## O móvel da mesa: o painel de metal, rebaixado, com a beira no tom da luz da sala ali (`_lit_rect`), e por cima dele
+## a moldura de esmalte (`_shell_frame`, que arredonda os cantos dele), com o brilho da luminária do teto na quina de
+## cima, mais forte do lado dela (no meio da tela, à direita da mesa).
 func _draw_cabinet(r: Rect2) -> void:
-	_ci.draw_texture(_wood_frame(r.size), r.position)
-	var lamp := get_viewport_rect().size.x / 2.0 - global_position.x
-	var glint := func(x: float) -> Color:
-		return Color(Pal.CABINET_WOOD[6].lightened(0.45), 0.6 * clampf(1.0 - absf(x - lamp) / 525.0, 0.0, 1.0))
-	var top := r.position.y + 1.0
-	_ci.draw_primitive(PackedVector2Array([Vector2(r.position.x + 1, top), Vector2(r.end.x - 1, top), Vector2(r.end.x - 1, top + 1), Vector2(r.position.x + 1, top + 1)]),
-		PackedColorArray([glint.call(r.position.x), glint.call(r.end.x), glint.call(r.end.x), glint.call(r.position.x)]), PackedVector2Array())
 	var p := r.grow(-FRAME)
-	var g := p.grow(1)   # a fresta entre a madeira e o painel: na sombra em cima e à esquerda, na luz embaixo e à direita
-	var wood := func(step: int) -> Callable: return func(lit: float) -> Color: return Pal.cabinet(lit, step)
-	_lit_rect(Rect2(g.position.x, g.end.y - 1, g.size.x, 1), wood.call(0))
-	_lit_rect(Rect2(g.end.x - 1, g.position.y, 1, g.size.y), wood.call(0))
-	_lit_rect(Rect2(g.position, Vector2(g.size.x, 1)), wood.call(-2))
-	_lit_rect(Rect2(g.position, Vector2(1, g.size.y)), wood.call(-2))
-	_ci.draw_rect(p, Pal.PANEL)
+	_ci.draw_rect(p, Pal.BOARD_FACE)
 	_lit_rect(Rect2(p.position, Vector2(p.size.x, 2)), _metal(-2))   # rebaixado: a sombra fica em cima à esquerda
 	_lit_rect(Rect2(p.position, Vector2(2, p.size.y)), _metal(-2))
 	_lit_rect(Rect2(p.position.x, p.end.y - 1, p.size.x, 1), _metal(2))
+	_ci.draw_texture(_shell_frame(r.size), r.position)
+	var lamp := get_viewport_rect().size.x / 2.0 - global_position.x
+	var glint := func(x: float) -> Color:
+		return Color(Pal.SHELL[7].lightened(0.3), 0.6 * clampf(1.0 - absf(x - lamp) / 525.0, 0.0, 1.0))
+	var top := r.position.y + 1.0
+	_ci.draw_primitive(PackedVector2Array([Vector2(r.position.x + SHELL_R, top), Vector2(r.end.x - SHELL_R, top), Vector2(r.end.x - SHELL_R, top + 1), Vector2(r.position.x + SHELL_R, top + 1)]),
+		PackedColorArray([glint.call(r.position.x), glint.call(r.end.x), glint.call(r.end.x), glint.call(r.position.x)]), PackedVector2Array())
 
 
 ## O metal do painel `step` tons acima ou abaixo do tom do lugar (`Pal.panel_metal`), para o `_lit_rect`.
@@ -275,24 +269,24 @@ func _draw_room_light(p: Rect2) -> void:
 			_ci.draw_primitive(quad, cols, PackedVector2Array())   # (primitivos seguidos são uma chamada de desenho só; polígonos, uma cada)
 
 
-## A faixa de cada linha: um rebaixo estreito do painel que liga a plaquinha, a lâmpada, a entrada e a saída da mesma
-## coluna (sem ela, a saída parecia solta). As faixas gravadas passam por baixo; o nome delas, por cima.
+## O trilho de cada linha: um sulco fino que desce da plaquinha à saída, ligando a lâmpada, a entrada, a chave e a
+## saída da mesma coluna (sem ele, a saída parecia solta). A faixa das chaves cruza por cima.
 func _draw_strips() -> void:
 	for i in 10:
-		var r := Rect2(col_x(i) - STRIP_W / 2.0, ROW_Y["plate"] + 3.0, STRIP_W, ROW_Y["out"] + JACK / 2.0 - ROW_Y["plate"])
-		_ci.draw_rect(r, Pal.PANEL.darkened(0.05))
-		_lit_rect(Rect2(r.position, Vector2(r.size.x, 1)), _metal(-1))   # rebaixada: a sombra em cima e à esquerda
-		_lit_rect(Rect2(r.position, Vector2(1, r.size.y)), _metal(-1))
-		_lit_rect(Rect2(r.position.x, r.end.y - 1, r.size.x, 1), _metal(1))
-		_lit_rect(Rect2(r.end.x - 1, r.position.y, 1, r.size.y), _metal(1))
+		var r := Rect2(col_x(i) - 1.0, ROW_Y["plate"] + ROW_Y["plate_h"] + 2.0, 2.0, ROW_Y["out"] - ROW_Y["plate"] - ROW_Y["plate_h"] - 2.0)
+		_lit_rect(Rect2(r.position, Vector2(1, r.size.y)), _metal(-2))   # rebaixado: a sombra à esquerda, a luz à direita
+		_lit_rect(Rect2(r.position.x + 1.0, r.position.y, 1, r.size.y), _metal(2))
 
 
 ## O uso de anos: o painel gasto em volta das tomadas (claro liso, mais nas entradas, onde o FONE entra a noite toda,
 ## e nas primeiras linhas) e riscos finos onde a ponta do plug escorregou errando o furo. Sempre os mesmos.
 func _draw_wear() -> void:
+	var hi: Color = Pal.BOARD_METAL[6]
 	for j in _jacks:
+		if j > 20:
+			continue   # nos bancos, rebaixados e escuros, o gasto não aparece
 		var use := _use(j)
-		PixelArt.sprite(_ci, _disc(20, [[7.0, Color(Pal.PANEL_HI, WEAR[0])], [8.5, Color(Pal.PANEL_HI, WEAR[1])], [10.0, Color(Pal.PANEL_HI, WEAR[2])]]),
+		PixelArt.sprite(_ci, _disc(20, [[7.0, Color(hi, WEAR[0])], [8.5, Color(hi, WEAR[1])], [10.0, Color(hi, WEAR[2])]]),
 			jack_rect(j).get_center(), Color(1, 1, 1, use))
 		var rng := RandomNumberGenerator.new()
 		rng.seed = j
@@ -300,7 +294,7 @@ func _draw_wear() -> void:
 			var a := rng.randf() * TAU
 			var from := jack_rect(j).get_center() + Vector2.from_angle(a) * rng.randf_range(6.0, 8.0)
 			var to := from + Vector2.from_angle(a + rng.randf_range(-0.6, 0.6)) * rng.randf_range(2.0, 4.0)
-			_ci.draw_line(from.round() + Vector2(0.5, 0.5), to.round() + Vector2(0.5, 0.5), Color(Pal.PANEL_HI, 0.45), 1.0)
+			_ci.draw_line(from.round() + Vector2(0.5, 0.5), to.round() + Vector2(0.5, 0.5), Color(hi, 0.45), 1.0)
 
 
 ## O quanto a tomada `j` é usada (0..1): as entradas mais, das primeiras linhas para as últimas; depois as saídas; os
@@ -313,15 +307,15 @@ func _use(j: int) -> float:
 	return 0.35
 
 
-## A plaqueta de latão do fabricante em `r` (96×32), desenhada pelo cenário na frente do console, ao lado da miniatura
-## do painel: o nome da central gravado (escuro, com o brilho embaixo) e um parafuso em cada ponta. Com 26 de altura,
+## A plaqueta do fabricante em `r` (96×32), no esmalte claro com a beira niquelada, desenhada pelo cenário na frente do console, ao lado
+## da miniatura do painel: o nome da central gravado (escuro, com o brilho embaixo) e um parafuso em cada ponta. Com 26 de altura,
 ## o acento do Ô caía no friso e o til de "SÃO" encostava no pé da linha de cima: agora há 1 px livre entre eles.
 static func draw_maker_plate(ci: CanvasItem, r: Rect2) -> void:
 	var pal := HOLE_PAL
 	var cx := r.get_center().x
 	ci.draw_rect(Rect2(r.position + Vector2(1, 2), r.size), SHADOW)
 	rim(ci, r, pal["b"], pal["b"].darkened(0.35))
-	ci.draw_rect(r, Pal.BRASS_PLATE[4])
+	ci.draw_rect(r, Pal.SHELL[6])
 	ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), pal["F"])
 	ci.draw_rect(Rect2(r.position, Vector2(1, r.size.y)), pal["f"])
 	ci.draw_rect(Rect2(r.position.x, r.end.y - 1, r.size.x, 1), pal["b"])
@@ -341,73 +335,83 @@ static func draw_maker_plate(ci: CanvasItem, r: Rect2) -> void:
 	ci.draw_string(Pal.mono, np, town, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, pal["w"])
 
 
-static var _woods := {}   # as molduras guardadas, por tamanho e lugar da luminária (`_wood_frame`)
+static var _shells := {}   # as molduras guardadas, por tamanho e lugar da luminária (`_shell_frame`)
 
 
 ## Os troncos interurbanos, no canto de baixo à direita do painel, em `br` (a largura de um banco de destino): um
 ## banco como os de destino, com o nome gravado na moldura e o da cidade em cima de cada tomada. As tomadas são
-## destinos (`GameData.TRUNKS`, posição em `_layout_dests`), desenhadas e acesas com os outros.
+## destinos (`GameData.TRUNKS`, posição em `_layout_dests`), desenhadas e acesas com os outros. Embaixo, a régua dos
+## equipamentos.
 func _draw_trunks(br: Rect2) -> void:
-	_ci.draw_rect(br, Pal.PANEL_LO, false, 1.0)
-	var cap := PixelArt.tiny(T.text(T.Key.BOARD_TRUNKS))   # na moldura, como o nome das faixas
+	_draw_inset(br)
+	var cap := PixelArt.tiny(T.text(T.Key.BOARD_TRUNKS))   # na beira de cima, como o nome dos bancos
 	var at := Vector2(roundf(br.get_center().x - cap.get_width() / 2.0), br.position.y - 5.0)
-	_ci.draw_rect(Rect2(at.x - 3.0, br.position.y - 1.0, cap.get_width() + 6.0, 3.0), Pal.PANEL)
-	_ci.draw_texture(cap, at, Pal.BRASS)
+	_ci.draw_rect(Rect2(at.x - 3.0, br.position.y - 1.0, cap.get_width() + 6.0, 3.0), Pal.BOARD_INSET)
+	_ci.draw_texture(cap, at, Pal.BOARD_INK)
 	for k in GameData.TRUNKS.size():
 		var d: int = GameData.TRUNKS[k]
 		var label := PixelArt.tiny(T.text(GameData.TRUNK_NAMES[k]))
 		var x := jack_rect(d).get_center().x
 		_ci.draw_texture(label, Vector2(roundf(x - label.get_width() / 2.0), br.position.y + 4.0),
 			Pal.NUMBER_PAINT if exchange.dest(d) == Exchange.Dest.FREE else Pal.TEXT)
+	# embaixo dele, no meio do vão até a moldura, a régua niquelada onde encostam os equipamentos da prateleira (sem
+	# eles, marca o lugar; com eles, aparece entre um e outro)
+	var rail := Rect2(br.position.x + 4.0, br.end.y + roundf((size.y - FRAME - br.end.y) / 2.0) - 1.0, br.size.x - 8.0, 3.0)
+	var n := _nickel(_step_at(rail.get_center()))
+	_ci.draw_rect(rail, n[1])
+	_ci.draw_rect(Rect2(rail.position, Vector2(rail.size.x, 1)), n[0])
+	_ci.draw_rect(Rect2(rail.position.x, rail.end.y - 1, rail.size.x, 1), n[2])
+	_ci.draw_rect(Rect2(rail.position.x, rail.end.y, rail.size.x, 1), SHADOW)
+	for x in [rail.position.x + 3.0, rail.end.x - 4.0]:   # os parafusos das pontas
+		_ci.draw_rect(Rect2(x, rail.position.y + 1.0, 1, 1), n[5])
 
 
-## A moldura de madeira do móvel, pixel a pixel e guardada: quatro trilhos com os cantos em meia-esquadria (uma
-## emenda escura na diagonal), cada um com os veios ao longo dele, ondulando (os de cima e de baixo deitados, os dos
-## lados em pé); a beira escura por fora, a luz em cima e à esquerda, a sombra embaixo e à direita, e as quinas gastas,
-## mais claras, de anos de mãos. Cada pixel no tom da madeira pela luz da sala ali (`Pal.cabinet`, `_room_lit`):
-## quente perto da luminária e escura e fria no canto longe dela; a troca de tom anda um pouco de um veio para outro
-## (`CABINET_RAG`), como na madeira do tampo.
-func _wood_frame(sz: Vector2) -> ImageTexture:
+## A moldura de esmalte do móvel, pixel a pixel e guardada: lisa, com os cantos de cima bem redondos por fora
+## (`SHELL_R`; a lateral e o tampo, no cenário, seguem o arco, `Background._round_edge`) e os quatro do painel, por dentro, também (o que fica entre o canto do painel e o arco é do esmalte); a beira de fora no tom
+## dela (escura, parecia um contorno), a luz na quina de cima e à esquerda e a sombra embaixo e à direita; na fresta
+## em volta do painel, o contrário (rebaixado); e a casca de laranja do esmalte num grão fino, sempre no mesmo lugar.
+## Cada pixel no tom do esmalte pela luz da sala ali (`Pal.cabinet`, `_room_lit`).
+func _shell_frame(sz: Vector2) -> ImageTexture:
 	var key := Rect2(_lamp_at, sz)
-	if not _woods.has(key):
-		if _woods.size() >= 8:
-			_woods.clear()
+	if not _shells.has(key):
+		if _shells.size() >= 8:
+			_shells.clear()
 		var w := int(sz.x)
 		var h := int(sz.y)
 		var img := Image.create(w, h, false, Image.FORMAT_RGBA8)
-		var f := int(FRAME)
+		var outer := Rect2(0, 0, w, h)
+		var inner := outer.grow(-FRAME)
+		var ri := SHELL_R - FRAME
 		for y in h:
 			for x in w:
-				var ex := mini(x, w - 1 - x)   # distância à beira de fora, na horizontal e na vertical
+				var ex := mini(x, w - 1 - x)
 				var ey := mini(y, h - 1 - y)
-				if ex >= f and ey >= f:
-					continue   # o painel
-				var upright := ex < ey   # nos cantos, a emenda em diagonal decide o trilho
-				var rail := (0 if x < w / 2 else 1) if upright else (2 if y < h / 2 else 3)
-				var along := float(y if upright else x)
-				var across := float(ex if upright else ey)
-				var g := fposmod(across + 1.4 * sin(along * 0.035 + rail * 2.1) + 0.7 * sin(along * 0.11 + rail * 4.3), 3.0)
-				var step := 0   # tons acima ou abaixo do tom da madeira ali
-				if g < 0.55:
-					step = -1   # o veio escuro
-				elif g > 1.6 and g < 1.9:
-					step = 1    # o claro entre os veios
-				if ex == ey and ex < f:
-					step = -2   # a emenda do canto
-				var corner := Vector2(mini(x, w - 1 - x), mini(y, h - 1 - y)).length()
-				step += 2 if corner < 3.0 else (1 if corner < 7.0 else 0)   # quina gasta
-				if x == 0 or y == 0:
-					step = 0    # a quina de fora, arredondada: no tom da madeira (escura, parecia um contorno)
-				elif x == w - 1 or y == h - 1:
-					step = -3
-				elif (x == 1 or y == 1) and x < w - 2 and y < h - 2:
-					step = 2    # a luz em cima e à esquerda
-				elif x == w - 2 or y == h - 2:
-					step = -2
-				var rag := fposmod(sin(across * 12.9898 + rail * 7.13 + floorf(along / 11.0) * 3.71) * 43758.55, 1.0) - 0.5
-				img.set_pixel(x, y, Pal.cabinet(_room_lit(Vector2(x, y)) + rag * CABINET_RAG, step))
-		_woods[key] = ImageTexture.create_from_image(img)
-	return _woods[key]
+				if ex >= FRAME + 1 and ey >= FRAME + 1 and (ex >= SHELL_R or ey >= SHELL_R):
+					continue   # o painel, longe dos cantos (a conta, cara, só nos cantos e na beira)
+				var c := Vector2(x + 0.5, y + 0.5)
+				var din := _round_dist(c, inner, ri)
+				var dout := _round_dist(c, outer, SHELL_R if y < h / 2 else 0.0)   # embaixo, reto: o móvel entra no console
+				if dout >= 0.0 or din < 0.0:
+					continue   # fora do canto redondo, ou dentro do painel
+				var lit := (c.x - outer.get_center().x) / w + (c.y - outer.get_center().y) / h < 0.0   # o lado de cima e à esquerda
+				var step := 0
+				if dout > -1.0:
+					step = -1 if lit else -3   # a beira de fora
+				elif dout > -2.0:
+					step = 2 if lit else -2    # a quina, na luz ou na sombra
+				elif din < 1.0:
+					step = -3 if lit else 1    # a fresta em volta do painel, rebaixada
+				elif posmod((x * 73856093) ^ (y * 19349663), 23) == 0:
+					step = -1   # o grão do esmalte
+				img.set_pixel(x, y, Pal.cabinet(_room_lit(Vector2(x, y)), step))
+		_shells[key] = ImageTexture.create_from_image(img)
+	return _shells[key]
+
+
+## A distância de `p` à beira do retângulo `r` de cantos redondos de raio `rad`: negativa dentro, positiva fora.
+static func _round_dist(p: Vector2, r: Rect2, rad: float) -> float:
+	var q := (p - r.get_center()).abs() - (r.size / 2.0 - Vector2(rad, rad))
+	return Vector2(maxf(q.x, 0.0), maxf(q.y, 0.0)).length() + minf(maxf(q.x, q.y), 0.0) - rad
 
 
 ## A legenda das lâmpadas, na faixa das entradas, alinhada à direita e logo acima das lâmpadas que ela explica, na
@@ -422,16 +426,15 @@ func _draw_legend() -> void:
 		width += 7.0 + 3.0 + t.get_width() + 8.0
 	var y := RULES["in"] + 1.0
 	var x := floorf(size.x - FRAME - 14.0 - width)
-	_ci.draw_rect(Rect2(x - 4, y - 6, width + 8, 12), Pal.PANEL)   # tampa a faixa, como o nome dela
 	for k in leg.size():
 		PixelArt.sprite(_ci, _disc(7, [[2.0, Color.WHITE], [3.5, Color.TRANSPARENT]]), Vector2(x + 3.5, y), leg[k][0])   # lâmpadas redondas, como as da mesa
 		PixelArt.sprite(_ci, _disc(7, [[2.0, Color.TRANSPARENT], [3.5, NICKEL_EDGE[0], NICKEL_EDGE[1], NICKEL_EDGE[2]]]), Vector2(x + 3.5, y))
-		_ci.draw_texture(texts[k], Vector2(x + 10.0, y - 5.0), Pal.DIM)
+		_ci.draw_texture(texts[k], Vector2(x + 10.0, y - 5.0), Pal.BOARD_INK)
 		x += 7.0 + 3.0 + (texts[k] as Texture2D).get_width() + 8.0
 
 
-## Faixa gravada que separa as seções do painel, com o nome dela em cima, à esquerda, na fonte gravada do painel como a legenda (`tiny`; em 11 enchia a
-## faixa e encostava nas plaquinhas) (sem nome, só a faixa; sem
+## Faixa gravada que separa as seções do painel, com o nome dela numa aba escura, à esquerda, na fonte gravada do
+## painel como a legenda (`tiny`; em 11 enchia a faixa e encostava nas plaquinhas) (sem nome, só a faixa; sem
 ## `line`, só o nome).
 func _draw_rule(y: float, caption: String, line := true) -> void:
 	if line:
@@ -439,8 +442,32 @@ func _draw_rule(y: float, caption: String, line := true) -> void:
 		_lit_rect(Rect2(FRAME + 5, y + 1, size.x - FRAME * 2 - 10, 1), _metal(2))
 	if caption != "":
 		var t := PixelArt.tiny(caption)
-		_ci.draw_rect(Rect2(FRAME + 10, y - 5, t.get_width() + 8, 12), Pal.PANEL)   # como a da legenda
-		_ci.draw_texture(t, Vector2(FRAME + 14, y - 4), Pal.BRASS)   # as letras nas linhas 3 a 7: em volta da faixa
+		var tab := Rect2(FRAME + 3, y - 5, t.get_width() + 15, 12)
+		_ci.draw_rect(tab, Pal.BOARD_STRIP)
+		_ci.draw_rect(Rect2(tab.position.x, tab.end.y, tab.size.x, 1), _metal_at(tab.position, 2))   # a beira de baixo, na luz
+		_ci.draw_texture(t, Vector2(FRAME + 10, y - 4), Pal.BOARD_INK)   # as letras nas linhas 3 a 7: em volta da faixa
+
+
+## A faixa escura do alto do painel, de ponta a ponta, onde vão o nome das entradas e a legenda das lâmpadas.
+func _draw_header() -> void:
+	var r := Rect2(FRAME + 3, RULES["in"] - 5, size.x - FRAME * 2 - 6, 12)
+	_ci.draw_rect(r, Pal.BOARD_STRIP)
+	_lit_rect(Rect2(r.position.x, r.end.y, r.size.x, 1), _metal(2))
+
+
+## Um bloco rebaixado no painel (os bancos de destino, o interurbano): o fundo escuro, com a sombra da beira em cima e
+## à esquerda e a luz embaixo e à direita.
+func _draw_inset(r: Rect2) -> void:
+	_lit_rect(Rect2(r.position.x - 1, r.position.y - 1, r.size.x + 2, 1), _metal(-2))
+	_lit_rect(Rect2(r.position.x - 1, r.position.y, 1, r.size.y + 1), _metal(-2))
+	_lit_rect(Rect2(r.position.x, r.end.y, r.size.x + 1, 1), _metal(2))
+	_lit_rect(Rect2(r.end.x, r.position.y - 1, 1, r.size.y + 1), _metal(2))
+	_ci.draw_rect(r, Pal.BOARD_INSET)
+
+
+## O tom do metal do painel em `p`, `step` tons acima ou abaixo.
+func _metal_at(p: Vector2, step: int) -> Color:
+	return Pal.panel_metal(_room_lit(p), step)
 
 
 ## A prateleira à frente do painel, onde os cabos de conexão ficam guardados de pé: os buracos de onde saem os fios
@@ -592,22 +619,6 @@ static func _hole_px(c: Vector2) -> Rect2:
 	return Rect2((c - size / 2.0).round(), size)
 
 
-## Chapa de metal niquelado: chanfro claro em cima e escuro embaixo, e um rebite em cada ponta; no tom da luz da sala
-## no meio dela (`_nickel`).
-func _draw_metal(r: Rect2) -> void:
-	var n := _nickel(_step_at(r.get_center()))
-	rim(_ci, r, n[3], n[5])
-	_ci.draw_rect(r, n[1])
-	_ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), n[0])
-	_ci.draw_rect(Rect2(r.position, Vector2(1, r.size.y)), n[0].darkened(0.1))
-	_ci.draw_rect(Rect2(r.position.x, r.end.y - 1, r.size.x, 1), n[2])
-	_ci.draw_rect(Rect2(r.end.x - 1, r.position.y, 1, r.size.y), n[2].lightened(0.1))
-	for x in [r.position.x + 2.0, r.end.x - 5.0]:   # rebites: um pixel claro no alto de um escuro
-		var rv := Vector2(x, floorf(r.get_center().y - 1.5))
-		_ci.draw_rect(Rect2(rv, Vector2(3, 3)), n[2])
-		_ci.draw_rect(Rect2(rv, Vector2(1, 1)), n[0])
-
-
 ## O degrau da luz da sala no ponto `p` do painel (`Pal.panel_step`), o mesmo do relevo: as peças de metal paradas
 ## escolhem o tom por ele, no meio delas.
 func _step_at(p: Vector2) -> int:
@@ -631,14 +642,17 @@ static func rim(ci: CanvasItem, r: Rect2, lit: Color, shade: Color) -> void:
 	ci.draw_rect(Rect2(r.position - Vector2.ONE, Vector2(1, r.size.y + 1)), lit)
 
 
-## Plaquinha de metal com o número da linha gravado (escuro, com o brilho embaixo de quem foi rebaixado), na fonte
-## miúda do painel (`PixelArt.tiny`), no meio dela: na de 11 o número enchia a chapa de alto a baixo e parecia grosso.
+## Plaquinha creme com o número da linha impresso em escuro, na fonte miúda do painel (`PixelArt.tiny`), no meio
+## dela: na de 11 o número enchia a chapa de alto a baixo e parecia grosso.
 func _draw_number_plate(r: Rect2, text: String) -> void:
-	_draw_metal(r)
 	var s := _step_at(r.get_center())
+	var tag := Pal.lit(Pal.BOARD_TAG, s)
+	rim(_ci, r, tag.darkened(0.5), tag.darkened(0.65))   # embutida: a beira escura em volta
+	_ci.draw_rect(r, tag)
+	_ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), tag.lightened(0.15))
+	_ci.draw_rect(Rect2(r.position.x, r.end.y - 1, r.size.x, 1), tag.darkened(0.15))
 	var tex := PixelArt.tiny(text)
 	var at := (r.get_center() - Vector2(tex.get_width() / 2.0, 3.0 + 2.5)).round()   # as letras ficam nas linhas 3 a 7 da imagem
-	_ci.draw_texture(tex, at + Vector2(0, 1), Pal.lit(BEZEL[0], s))   # o brilho do rebaixo
 	_ci.draw_texture(tex, at, Pal.lit(Pal.ENGRAVED, s))
 
 

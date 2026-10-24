@@ -3438,9 +3438,10 @@ func _build_city(gs: Vector2) -> void:
 		x += bw + tall.randf_range(0.0, 1.5)
 	# ponytail: o da esquerda da torre (o 11 do sorteio, na vista de 960) 1 px mais largo, para a esquerda, para o vão
 	# até o do lado ficar, e 4 px mais baixo (pedido 301); mudou o sorteio, confira qual é
-	_city[11]["x"] -= PX
-	_city[11]["w"] += PX
-	_city[11]["h"] -= 4.0 * PX
+	if _city.size() > 11:   # (com outro sorteio, a cidade pode ter menos prédios)
+		_city[11]["x"] -= PX
+		_city[11]["w"] += PX
+		_city[11]["h"] -= 4.0 * PX
 	_houses.clear()
 	var tones := Pal.FACADE_TONES
 	var spans := [Vector2(CROSSING.y, CROSSING.y + 15.0)]   # o de tijolos, na esquina

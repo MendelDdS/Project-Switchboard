@@ -4,7 +4,7 @@ extends Control
 ## dividida em camadas por herança: esta, o painel (`switchboard_panel.gd`), os plugs e fios
 ## (`switchboard_plugs.gd`) e a mesa com a entrada, a física e o desenho (`switchboard.gd`); cada uma só usa as de baixo.
 
-const SIZE := Vector2(369, 228)   # (em 1280 × 720 era 492 × 304; antes, 588 × 362: com as tomadas na medida dos plugs, tudo ficava espaçado)
+const SIZE := Vector2(369, 238)   # 10 px mais alto que os 228 de antes: o pé do painel, para os equipamentos das burocracias caberem de pé na prateleira embaixo do interurbano (em 1280 × 720 era 492 × 304; antes, 588 × 362: com as tomadas na medida dos plugs, tudo ficava espaçado)
 const SHELF_SLOTS := 5   # lugares de cabo na prateleira: um por setor ainda não atendido fica tampado, à espera do cabo novo (`patches`)
 const TRUNK_GAP := 10.0     # do último plug guardado até o bloco interurbano: com o FONE e os cabos 4 px à esquerda, os dois tampos dos lugares vagos (`COVER_W`) cabem ao lado do último par
 const PAIR_SHIFT := 12.0    # a ponta da frente de um cabo, à esquerda da de trás: encostadas, as duas se leem como um par

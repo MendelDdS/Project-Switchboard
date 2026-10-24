@@ -5,7 +5,7 @@ extends Control
 ## três teclas e o rádio, cada um no lugar e na proporção que tem lá) e o estado: a tela acende com uma ligação no
 ## painel e as falas viram traços, as teclas ativas acendem, e o rádio acende as luzes dele e mostra traços quando fala.
 
-const WOOD := PhonePanel.WOOD
+const SHELL := [Pal.SHELL[5], Pal.SHELL[3], Pal.SHELL[2]]   # a moldura dela, no esmalte do console (luz, meio, sombra)
 const SCREEN := Color(0.043, 0.047, 0.05)   # o fundo das telas (`HudPanel`)
 const BORDER := Color(0.1, 0.07, 0.045)
 const INK := {"op": Color("8dbb6c"), "sys": Color("9a917a"), "ghost": Color("c6d3c4")}   # a cor de quem fala, como na tela
@@ -27,12 +27,12 @@ func _draw() -> void:
 	var at := func(c: Control) -> Rect2:   # o lugar de um bloco do painel, na miniatura
 		var g := c.get_global_rect()
 		return Rect2((o + (g.position - src.position) * k).round(), (g.size * k).round())
-	# o console: a madeira, com a beira escura e a quina de cima pegando a luz
+	# a moldura: o esmalte, com a beira escura e a quina de cima pegando a luz
 	var body := Rect2(o - Vector2(4, 3), src.size * k + Vector2(8, 6)).abs()
 	draw_rect(Rect2(body.position + Vector2(1, 2), body.size), Color(0, 0, 0, 0.35))
-	Switchboard.rim(self, body, WOOD[3], WOOD[3].darkened(0.4))
-	draw_rect(body, WOOD[3])
-	draw_rect(Rect2(body.position, Vector2(body.size.x, 1)), WOOD[0])
+	Switchboard.rim(self, body, SHELL[2], SHELL[2].darkened(0.4))
+	draw_rect(body, SHELL[1])
+	draw_rect(Rect2(body.position, Vector2(body.size.x, 1)), SHELL[0])
 	_screen(at.call(phone.screen))
 	for b in phone.keys():
 		_key(at.call(b), b)

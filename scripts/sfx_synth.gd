@@ -350,6 +350,12 @@ func _build_basic() -> void:
 	_begin(0.02); _tone(0, 3300, 0.008, "square", 0.3); _end("tick", false, false, 0.5)
 	_begin(0.03); _noise(0, 0.012, "bp", 1800, 1, 0.7); _tone(0, 620, 0.008, "square", 0.15); _end("knob_tick")   # o anel do mapa: um sulco
 	_begin(0.06); _noise(0, 0.025, "bp", 2800, 1.4, 1.0); _tone(0, 210, 0.02, "sine", 0.3); _end("snap", true)   # o estalo de dedos, pelo telefone
+	# as fitas da B4: saindo da fenda do porta-fitas, batendo no gravador, a porta dele fechando, a tecla de piano e a mola da ejeção
+	_begin(0.08); _noise(0, 0.06, "bp", 1800, 0.8, 0.5); _tone(0, 520, 0.02, "square", 0.08); _end("tape_out")
+	_begin(0.12); _noise(0, 0.02, "bp", 2400, 1.5, 1.0); _tone(0, 330, 0.04, "sine", 0.4); _tone(0.004, 110, 0.07, "sine", 0.5); _end("tape_in")
+	_begin(0.1); _tone(0, 900, 0.012, "square", 0.25); _noise(0, 0.02, "hp", 3000, 0.7, 0.6); _tone(0, 170, 0.06, "sine", 0.5); _end("tape_door")
+	_begin(0.1); _tone(0, 140, 0.05, "sine", 0.6); _noise(0, 0.03, "lp", 1200, 0.7, 0.8); _tone(0, 620, 0.012, "square", 0.15); _end("tape_key")
+	_begin(0.2); _noise(0, 0.015, "bp", 3200, 1.2, 0.7); _tone(0, 480, 0.15, "sine", 0.25); _tone(0.01, 720, 0.1, "sine", 0.12); _tone(0, 160, 0.05, "sine", 0.4); _end("tape_pop")
 	_begin(1.1)
 	for i in 14:
 		_noise(i * 0.07 + _rng.randf() * 0.03, 0.05, "bp", 5200 + _rng.randf() * 1500, 3, 0.8)

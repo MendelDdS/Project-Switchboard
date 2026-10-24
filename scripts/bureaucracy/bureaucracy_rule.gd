@@ -117,6 +117,12 @@ func clue_heard(_k: Clue) -> void:
 	pass
 
 
+## Quem falava em `c` percebeu a escuta e vai denunciar: verdadeiro se a regra cobra do jeito dela, no lugar da
+## advertência por escuta (`Eavesdrop._denounce`).
+func caught_listening(_c: PhoneCall) -> bool:
+	return false
+
+
 ## O painel de debug mostra isto embaixo do nome da regra (o código do dia, a fila de recados...).
 func debug_info() -> String:
 	return ""

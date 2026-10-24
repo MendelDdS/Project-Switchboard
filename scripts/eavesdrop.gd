@@ -221,10 +221,12 @@ func _silence(t: Talk) -> float:
 
 
 ## Eles ouviram a resposta e têm certeza: denunciam a telefonista (amanhã a companhia fica sabendo), ouça ele a
-## reclamação ou não, e o lugar fica mais desconfiado (`grudges`).
+## reclamação ou não, e o lugar fica mais desconfiado (`grudges`). Escuta pedida por uma burocracia (a gravação da
+## B4) é cobrada por ela (`Bureaucracy.caught_listening`).
 func _denounce(t: Talk) -> void:
 	t.knows = true
-	main.supervisor.fault_later("eavesdrop", main.supervisor.who(t.call))
+	if not main.bureaucracy.caught_listening(t.call):
+		main.supervisor.fault_later("eavesdrop", main.supervisor.who(t.call))
 	main.flags.apply("denunciado_%d" % main.night_no)
 	var num := str(t.call.dest_num)
 	grudges[num] = grudges.get(num, 0) + 1

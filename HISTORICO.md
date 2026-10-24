@@ -2109,3 +2109,38 @@ Chaves:
 365. #burocracias "Pode apagar": saiu a terceira resposta das regras, "pede ação" (`Verdict.action`, o `RequerAcao`
     do plano). Nenhuma regra a usava: o que a burocracia pede ao operador vem antes, por botão de resposta, e no
     Transferir só cabe "pode" ou "infração" (o plano proíbe bloquear).
+366. #burocracias #fitas Correções da B4: pego escutando uma ligação marcada pelas autoridades, a advertência é da
+    B4 ("Perceberam a escuta pedida pelas autoridades", média, trabalho malfeito para elas), não a da escuta sem ordem
+    (`caught_listening`); entregar fita sem nada continua valendo zero, sem infração; as fitas entregues entram nos
+    serviços prestados do relatório; três fitas por noite, sem acumular (já era). "Não quero mais a arte provisória,
+    algo legal, com efeitos juicy, satisfatório": porta-fitas de madeira com as fitas em pé, gravador com teclas de
+    piano (REC desce sozinha ao gravar), porta com a fita atrás do vidro e a etiqueta escrita à mão (o primeiro nome e
+    um risquinho por palavra-chave), bobinas girando e passando a fita, VU com o ponteiro pulando com a voz, contador
+    que rola e a caixa das autoridades com lacre; por cliques animados (escolhidos entre cliques e arrastar): a fita
+    sai da fenda, vira no ar e cai na porta, que abre de mola e bate; entregue, pula e cai em pé na caixa; descartada,
+    cai pela beira da prateleira; sons novos (`tape_*`).
+367. #burocracias #fitas #cabos "As fitas e o equipamento ficaram pequenos?": pôr o gravador no tampo não cabe (as
+    duas fileiras já vão de ponta a ponta, e o lugar à direita do bloco é o do jornal) e a caixa das autoridades no
+    tampo tem o mesmo problema; "e se a prateleira diminuir um pouco a altura?": o painel ficou 10 px mais alto (238;
+    a prateleira desce, numa branch separada, `feature/0000-lower-shelf`) e a frente do console 10 px mais baixa (54;
+    a miniatura do painel ficou 16 px mais estreita para caber com folga). Com isso, os equipamentos têm 46 px de
+    altura: a fita na escala de verdade (44 × 26) com o nome e a hora da gravação na etiqueta, o gravador com 42 de
+    frente, as fitas do porta-fitas em estojo (a lombada de papel com a faixa da marca; a fenda fica vazia quando ela
+    sai) e, embaixo do interurbano, uma régua de latão onde os equipamentos encostam (sem eles, marca o lugar).
+368. #mesa-comutadora #painel #disposicao #saiu Integrar o despacho, o calculógrafo e o gravador na mesa comutadora
+    (alargando-a, com o armário no canto e a prancheta solta na prateleira): avaliado como grande (as ferramentas
+    abertas perderiam a largura mínima, e o canto direito é a janela); o usuário escolheu testar o meio-termo (só o
+    calculógrafo, o gravador e uma gaveta de fitas no lugar dos botões de volume), ainda por fazer. Antes, só o visual
+    da mesa comutadora, retrofuturista como na série Ruptura (imagem de referência do usuário), numa branch própria
+    (`feature/0000-retro-switchboard`): a moldura de madeira saiu (esmalte cinza-sálvia de cantos redondos), painel
+    cinza-esverdeado, faixa escura no alto com o nome das entradas e a legenda, aba escura no nome das saídas,
+    trilhos finos nas colunas no lugar das faixas largas, plaquinhas creme com o número escuro, bancos e interurbano
+    rebaixados e escuros, letras em creme, níquel no lugar do latão (buracos, plaquinha do FONE, plaqueta do
+    fabricante, régua dos equipamentos); no console, a prateleira em esmalte claro, a frente escura e a lateral em
+    esmalte (a sala, o painel de baixo e os aros das tomadas não mudaram).
+369. #mesa-comutadora #painel #pixel Cantos do móvel bem mais redondos, como na referência: raio 12 por fora (era 5)
+    e os cantos do painel, por dentro, também redondos (raio 7), com a fresta rebaixada acompanhando o arco
+    (`_shell_frame`, `SHELL_R`, `_round_dist`). A moldura continua com 5 px (mais grossa, apertaria os bancos).
+    Depois: a quina da lateral (e a do tampo, com os olhos acima dele) segue o arredondamento, varrendo o arco do
+    canto para o fundo (`Background._round_edge`; a lateral reta deixava uma ponta acima do arco); os cantos de baixo
+    voltaram a ser retos por fora, como na referência (o móvel entra no console; o arco mostrava a parede atrás).

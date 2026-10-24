@@ -86,9 +86,22 @@ const CARD_BUSY := Color("8a3a14")   ## a unidade ocupada: o nome e o estado del
 const HAZARD := Color("d9a521")      ## as faixas de perigo da trituradora, no despacho aberto e na unidade da mesa
 const NICKEL: Array[Color] = [Color("f4f0e6"), Color("d6d1c3"), Color("8e897c"), Color("45413a")]   ## o níquel (brilho, luz, meio, sombra): o prendedor da prancheta, o aro das lâmpadas
 
-## Os metais e a baquelite da mesa comutadora, do escuro ao claro.
+## A mesa comutadora, retrofuturista (como na série Ruptura): o móvel de esmalte cinza-sálvia de cantos redondos,
+## o painel de metal cinza-esverdeado, os blocos e as faixas escuras, e as plaquinhas e as letras em creme.
+## O esmalte do móvel e do console (`cabinet`), do escuro ao claro: no meio do painel, o 4º.
+const SHELL: Array[Color] = [Color("252b28"), Color("343b36"), Color("454d46"), Color("586058"), Color("6b736a"),
+	Color("7f877c"), Color("939a8d"), Color("a8ad9f")]
+## O metal do painel (`panel_metal`: o campo, `BOARD_FACE`, e o relevo dele).
+const BOARD_METAL: Array[Color] = [Color("161d1c"), Color("1f2826"), Color("2a3532"), Color("36433e"), Color("425049"),
+	Color("4f5e56"), Color("5d6d64"), Color("6e7e74")]
+const BOARD_FACE := Color("36433e")    ## o campo do painel (o tom do meio de `BOARD_METAL`)
+const BOARD_INSET := Color("142529")   ## os blocos rebaixados, escuros: os bancos de destino e o interurbano
+const BOARD_STRIP := Color("232c30")   ## a faixa do alto (o nome das entradas e a legenda) e a aba do nome das saídas
+const BOARD_INK := Color("cfc8ab")     ## as letras do painel, em creme
+const BOARD_TAG := Color("bdb79f")     ## as plaquinhas creme com o número das linhas
+const BOARD_SIDE := Color("23353a")    ## a frente do console embaixo da prateleira, escura
 ## A quina do níquel descendo até o painel (`Switchboard.NICKEL_EDGE`): na luz, no meio e na sombra.
-const NICKEL_EDGE: Array[Color] = [Color("6e675a"), Color("514b40"), Color("3a352d")]
+const NICKEL_EDGE: Array[Color] = [Color("5f6762"), Color("47504b"), Color("333b37")]
 ## O latão das plaquetas, dos aros dos buracos da prateleira e do friso na beira dela, e das etiquetas das teclas: a
 ## beira funda, a beira, a sombra, o friso, o meio, a luz e o brilho.
 const BRASS_PLATE: Array[Color] = [Color("140d06"), Color("3a2a12"), Color("7a6230"), Color("8a6a2e"), Color("b0904c"),
@@ -115,8 +128,8 @@ const JACK_METAL := {"face": [Color("fff2d8"), Color("e4c9a0"), Color("c3a37c"),
 	"wall": [Color("ddd2b6"), Color("a69072"), Color("735e47"), Color("4a3b2d"), Color("2e251c")]}
 const JACK_HOLE := Color("070605")
 const NUT_HOLE := Color("1c130b")      ## o fundo do furo da porca da chave de escuta: marrom quase preto
-const BANK_PLATE := Color("4d483d")    ## a chapa sobre o banco que ainda não está em uso
-const LAMP_GLASS := Color("6b6556")    ## o vidro leitoso da lâmpada apagada (escuro, parecia o furo de uma tomada)
+const BANK_PLATE := Color("4c5a53")    ## a chapa sobre o banco que ainda não está em uso
+const LAMP_GLASS := Color("6e7168")    ## o vidro leitoso da lâmpada apagada (escuro, parecia o furo de uma tomada)
 const ENGRAVED := Color("1d1a14")      ## o número gravado nas plaquinhas das linhas
 const NUMBER_PAINT := Color("d8c9a2")  ## os números pintados em cima dos destinos livres
 const STENCIL := Color("c9b98f")       ## o aviso pintado com estêncil na chapa do banco
@@ -336,6 +349,7 @@ const MUG_CHIP: Array[Color] = [Color("2a2620"), Color("4a443c")]   ## as lascas
 const GLINT := Color("d9a35f")
 const RUBBER_DRY := Color("3a302a")
 const TOLL_BOX_MOUTH := Color("140e09")
+const TAPE_PACK := Color("2a1a12")   ## a fita magnética enrolada nas bobinas da fita cassete (B4), marrom do óxido
 
 ## Rampas de material: do mais escuro ao mais claro, a sombra puxando para o frio (o azul da noite na sala) e a luz para
 ## o quente (a da luminária), não só mais escuro e mais claro. O desenho escolhe o tom pelo nível de luz (`ramp`).
@@ -353,12 +367,12 @@ const DESK := Color("3c2a19")   ## o tampo embaixo da luminária (`desk(1.0)`): 
 const DESK_EDGE: Array[Color] = [Color("1d1614"), Color("2b1f18"), Color("3a2616"), Color("442c1a"), Color("5a4030"),
 	Color("6b4529"), Color("7a5434"), Color("8d6239")]
 const DESK_EDGE_ROWS := [[0, 1, 2], [1, 1, 4], [2, 2, 3], [4, 8, 0], [6, 1, 1], [12, 2, -2]]
-## A madeira do móvel da mesa comutadora, a moldura em volta do painel (`cabinet`); no meio, os tons de sempre dela
-## (a sombra, o meio e a luz, que a sala e o console repetem no `WOOD` deles).
+## A madeira da guarnição e do peitoril da janela (`Background.WOOD`; era a do móvel da mesa comutadora, hoje de
+## esmalte, `SHELL`).
 const CABINET_WOOD: Array[Color] = [Color("151215"), Color("201813"), Color("2a1a0f"), Color("3a2516"), Color("4a2f1c"),
 	Color("5b3a22"), Color("6b4529"), Color("845733")]
-## O metal escuro do painel da mesa comutadora, para o relevo dele (`panel_metal`: os filetes gravados, a beira
-## rebaixada, as faixas das linhas); o campo liso fica em `PANEL`, o tom do meio, com a luz da sala por cima.
+## O metal escuro das máquinas da sala (a unidade de despacho, as máquinas de cartão); era o do painel da mesa
+## comutadora, hoje em `BOARD_METAL`.
 const PANEL_METAL: Array[Color] = [Color("101013"), Color("18150f"), Color("221f1b"), Color("2f2a21"), Color("3c3529"),
 	Color("4b4332"), Color("5e533c"), Color("756646")]
 
@@ -384,7 +398,7 @@ static func lit(c: Color, step: int) -> Color:
 	if step == 0:
 		return c
 	if _lit_of.is_empty():
-		for r: Array in PAPER_RAMPS + [PANEL_METAL]:
+		for r: Array in PAPER_RAMPS + [PANEL_METAL, BOARD_METAL]:
 			for i in r.size():
 				_lit_of[(r[i] as Color).to_rgba32()] = [r, i]
 	var at: Array = _lit_of.get(c.to_rgba32(), [])
@@ -412,22 +426,22 @@ static func desk_edge(lit: float, step := 0) -> Color:
 	return ramp(DESK_EDGE, 0.25 + (lit - 0.5) * 0.45, step)
 
 
-## A madeira do móvel da mesa comutadora na luz da sala `lit` (`Switchboard._room_lit`: de 0 longe da luminária a ~0,6
-## perto dela), `step` tons acima ou abaixo: no meio do painel, o tom de sempre (`CABINET_WOOD[4]`).
+## O esmalte do móvel da mesa comutadora na luz da sala `lit` (`Switchboard._room_lit`: de 0 longe da luminária a
+## ~0,6 perto dela), `step` tons acima ou abaixo: no meio do painel, o tom de sempre (`SHELL[4]`).
 static func cabinet(lit: float, step := 0) -> Color:
-	return ramp(CABINET_WOOD, 0.33 + lit * 0.84, step)
+	return ramp(SHELL, 0.33 + lit * 0.84, step)
 
 
-## O metal do painel da mesa comutadora na luz da sala `lit` (como em `cabinet`): no meio do painel, `PANEL`.
+## O metal do painel da mesa comutadora na luz da sala `lit` (como em `cabinet`): no meio do painel, `BOARD_FACE`.
 static func panel_metal(lit: float, step := 0) -> Color:
-	return PANEL_METAL[clampi(3 + panel_step(lit) + step, 0, PANEL_METAL.size() - 1)]
+	return BOARD_METAL[clampi(3 + panel_step(lit) + step, 0, BOARD_METAL.size() - 1)]
 
 
 ## O degrau da luz da sala `lit` no painel da mesa comutadora (`Switchboard._room_lit`): -1 longe da luminária, 0 no
 ## meio do painel e +1 perto dela. O relevo do painel (`panel_metal`) e as peças de metal paradas nele (pelo `lit`)
 ## escolhem o tom por ele.
 static func panel_step(lit: float) -> int:
-	return int((0.25 + lit * 0.6) * PANEL_METAL.size()) - 3
+	return int((0.25 + lit * 0.6) * BOARD_METAL.size()) - 3
 
 ## Uma fonte só, de pixel: Departure Mono (SIL OFL). Fica nítida só em múltiplos de 11 (11, 22, 33, 44); fora deles os
 ## pixels saem desiguais. Importada com suavização (para a janela menor que 1280×720 não apagar os traços), sem

@@ -14,7 +14,8 @@ const GRADE_COLORS := ["1f3a6b", "4a4f5a", "8a5a14", "8a1a14"]   ## a tinta do c
 ## Os serviços prestados no memorando: a linha e os acertos (`ShiftReport.CREDITS`) que ela conta; as emergências vêm
 ## dos desfechos (a resolvida no estágio crítico não dá crédito, mas foi atendida).
 const SERVICES := [[T.Key.REPORT_TRANSFERS, ["transfer"]], [T.Key.REPORT_TRUNKS, ["trunk"]], [T.Key.REPORT_INFOS, ["info"]],
-	[T.Key.REPORT_EMERGENCIES, []], [T.Key.REPORT_OCCURRENCES, ["occurrence"]], [T.Key.REPORT_PRANKS, ["prank"]]]
+	[T.Key.REPORT_EMERGENCIES, []], [T.Key.REPORT_OCCURRENCES, ["occurrence"]], [T.Key.REPORT_PRANKS, ["prank"]],
+	[T.Key.REPORT_TAPES, ["tape"]]]
 ## O carimbo do conceito (px): o raio, o aro de fora (2 px) e o de dentro (1 px), com o texto curvado entre eles (a
 ## fonte miúda em 2×, `STAMP_TEXT` linhas dela: na de 1×, curvada, as letras de 3 px se desfaziam), e a meia altura da
 ## faixa reta do meio, que atravessa os aros.

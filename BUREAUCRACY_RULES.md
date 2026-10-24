@@ -27,6 +27,8 @@ Referência completa: `scripts/bureaucracy/rule_auth_code.gd` (B3) e `data/burea
        na gravidade da regra); pedir algo ao operador é um botão de resposta (`choices`), não uma resposta aqui.
      - O gerente registra todas e aplica só a maior, também contra o número errado da mesma tentativa.
    - `transfer_done(c)`, `call_ended(c, reason)`, `listening(n, on)`, `clue_heard(k)`.
+   - `caught_listening(c) -> bool`: os dois perceberam a escuta; verdadeiro = a regra cobra do jeito dela, no lugar
+     da advertência por escuta (a B4, numa ligação marcada).
    - `debug_info() -> String`, `debug_actions() -> [[texto, Callable]]`: aparecem no painel de debug.
 3. **Fora da transferência:**
    - Para decisões, use `desk.log_decision(id, c, escolha, resultado)`.
