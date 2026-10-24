@@ -6,12 +6,12 @@ extends Control
 
 const SIZE := Vector2(369, 228)   # (em 1280 × 720 era 492 × 304; antes, 588 × 362: com as tomadas na medida dos plugs, tudo ficava espaçado)
 const SHELF_SLOTS := 5   # lugares de cabo na prateleira: um por setor ainda não atendido fica tampado, à espera do cabo novo (`patches`)
-const TRUNK_GAP := 6.0      # do último plug guardado até o bloco interurbano (o vão da moldura dos bancos)
+const TRUNK_GAP := 10.0     # do último plug guardado até o bloco interurbano: com o FONE e os cabos 4 px à esquerda, os dois tampos dos lugares vagos (`COVER_W`) cabem ao lado do último par
 const PAIR_SHIFT := 12.0    # a ponta da frente de um cabo, à esquerda da de trás: encostadas, as duas se leem como um par
-const FONE_HOLE_X := 14.0   # o buraco do FONE, a partir da esquerda do encaixe: perto da beira, para o nome gravado embaixo caber nos três idiomas antes da ponta da frente do primeiro cabo (em 30, "FONE" já passava por baixo dela)
-const CORDS_X := 30.0   # de onde contam os lugares dos cabos de conexão, a partir da esquerda do encaixe (`patch_x`)
-const SHELF_HOLE_Y := 8.0  # a fileira de trás dos buracos da prateleira (o FONE e a primeira ponta de cada cabo), afastada do rodapé do painel
-const SHELF_FRONT_Y := 22.0 # a fileira da frente (a outra ponta), à frente da de trás, como nas mesas de verdade; o mesmo vão entre as fileiras e até as beiras
+const FONE_HOLE_X := 10.0   # o buraco do FONE, a partir da esquerda do encaixe: perto da beira, para o nome gravado embaixo caber nos três idiomas antes da ponta da frente do primeiro cabo (em 30, "FONE" já passava por baixo dela)
+const CORDS_X := 26.0   # de onde contam os lugares dos cabos de conexão, a partir da esquerda do encaixe (`patch_x`)
+const SHELF_HOLE_Y := 4.0  # a fileira de trás dos buracos da prateleira (o FONE e a primeira ponta de cada cabo): com a da frente, centradas na madeira à mostra, do rodapé do painel à beira de latão (6 px de cada lado), como os tampos (`_shelf_mid`)
+const SHELF_FRONT_Y := 18.0 # a fileira da frente (a outra ponta), à frente da de trás, como nas mesas de verdade
 const PLUG_SINK := 10.0  # guardado, o plug entra tanto no buraco (px abaixo dele: a capa de borracha some nele, o corpo fica à mostra)...
 
 var exchange: Exchange

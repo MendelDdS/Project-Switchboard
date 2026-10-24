@@ -50,10 +50,22 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   inclinado que os pares de buracos ao lado, que usam um desencontro fixo e estilizado (`PAIR_SHIFT`, a pedido). Na
   prateleira, a referência é `front_of`: tudo o que fica deitado nela segue essa inclinação. Compare a peça nova com o
   que está ao lado, na captura, antes de mostrar.
-- **Peça larga pega a perspectiva de verdade.** O tampo largo dos equipamentos herdou a inclinação estilizada dos
-  pares de buracos (`PAIR_SHIFT`), que só serve ao lado deles: perto da lateral da prateleira, que foge para os
-  olhos, ficou "muito errada" (pedido 353). A referência é o vizinho de cada peça: ao lado dos buracos, `front_of`;
-  ao lado da lateral, o ponto de fuga (`_eye`).
+- **Na prateleira, a inclinação é a dos pares de plugs; junto da lateral, a da lateral.** Os tampos erraram sete vezes: finos e colados na largura
+  do passo (356), crescendo ao dividir o vão (357), flutuando com a sombra afastada (358), retos (sem angulação, 360) e
+  pelo ponto de fuga da câmera da sala (`_eye`: mais inclinados que os plugs ao lado, 361). O usuário mostrou com
+  riscos: as beiras paralelas à reta de um par (a ponta da frente `PAIR_SHIFT` à esquerda da de trás, `front_of`;
+  `_lean`). E a beira junto da lateral da mesa fica paralela a ela (362: com a inclinação dos plugs, "errou a parte
+  direita novamente"; fugindo dela para o ponto de fuga, pendia mais que a lateral, que está noutra coluna): cada beira
+  copia o ângulo da vizinha dela, medido na vizinha (`_receding` na beira da prateleira). A referência de uma peça
+  deitada é a peça vizinha no mesmo plano, do jeito que o jogo já a desenha, não a conta "de verdade" da câmera; numa
+  dúvida entre as duas, pergunte mostrando as duas. Antes de mostrar, meça o ângulo da vizinha na captura (as listras
+  de luminância por linha) e compare com o da peça. A textura vai junto, esticada
+  linha a linha (`_cover_px`); o que é redondo e pequeno (parafuso) vai por cima, sem esticar (vira serrilhado). Não
+  troque a inclinação para consertar outra coisa (textura, sombra, alinhamento). Texto não se inclina (abaixo).
+  Tamanho e lugar fixos, do espaço que existe; sombra de peça deitada, colada; confira as noites 1, 5 e 9. Alinhar
+  com os plugs também é na altura: os tampos centrados na prateleira e os buracos 4 px abaixo do meio pareciam
+  desencontrados (363); peças lado a lado no mesmo plano dividem o mesmo meio. Imagem do usuário que contradiz a
+  captura: meça a dele (pixels por linha) antes de mexer; um jogo aberto antes da mudança mostra o desenho antigo.
 - **Texto de pixel não se inclina.** As letras da plaquinha deslocadas linha a linha viraram borrão, mesmo a 1/3 da
   inclinação; a placa inclinada com as letras retas ficou "muito ruim". Ficou reta. Peça com texto, reta; sem texto
   (o tampo), na inclinação da prateleira.

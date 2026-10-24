@@ -473,14 +473,18 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   da noite 5, 5 da noite 9), e o lugar de cada setor que ainda não é dele fica sob um tampo (`_draw_cover`).
 - `setup(exchange, socket, tray)` liga a mesa ao estado, ao encaixe do FONE e à faixa dos buracos dos cabos (lugares
   na prateleira, fora do retângulo dela: `socket_rect`, `tray_rect`; o clique vale neles, `_has_point`). Os buracos
-  ficam na prateleira em duas fileiras (`hole`, `SHELF_HOLE_Y` atrás, `SHELF_FRONT_Y` na frente, `FONE_HOLE_X`, perto da beira para o nome gravado caber antes da ponta do primeiro cabo, que conta de `CORDS_X`; aro
+  ficam na prateleira em duas fileiras (`hole`, `SHELF_HOLE_Y` atrás, `SHELF_FRONT_Y` na frente, centradas na madeira à mostra como os tampos, `FONE_HOLE_X`, perto da beira para o nome gravado caber antes da ponta do primeiro cabo, que conta de `CORDS_X`; aro
   de latão achatado pela perspectiva, em pixel art, `HOLE_ART`, `draw_grommet`): o FONE sozinho atrás e as duas pontas de
   cada cabo juntas, como um par, a da frente `PAIR_SHIFT` à esquerda da de trás (`front_of`; sempre o mesmo: pela
   perspectiva exata o desencontro variava a cada coluna e parecia bagunça; alternadas uma a uma, não se via qual ponta
   era de qual cabo); os `SHELF_SLOTS` lugares a um passo igual do FONE até `TRUNK_GAP` antes do banco interurbano
-  (`patch_x`, `_pitch`, `trunks`). Os lugares vagos ficam sob um tampo de metal parafusado deitado na prateleira, na
-  inclinação dos pares, linha a linha de pixels (`_draw_cover`, `COVER_W`; na perspectiva exata ficava inclinado demais
-  ao lado dos pares). Os plugs guardados em pé neles (`home_pos`; os da fileira de trás são desenhados antes, a da frente
+  (`patch_x`, `_pitch`, `trunks`). Os lugares vagos ficam sob um tampo de metal parafusado deitado no meio da prateleira
+  (`_shelf_mid`), linha a linha de pixels (`_draw_cover`), de tamanho e lugar fixos (`COVER_W`, `COVER_GAP`), contados
+  do tampo dos equipamentos para a esquerda (dividindo o vão, o que sobrava crescia ao chegar um setor); chapa rasa
+  (`COVER_DEPTH`) no metal das chapas dos setores (`PLATE`): beira, chanfro, sulco e campo com grão (`_cover_px`),
+  esticados linha a linha na inclinação dos pares de plugs (`_lean`; reta, ficava sem a angulação; pelo ponto de fuga
+  da sala, mais inclinada que os plugs ao lado), e a beira direita do largo, paralela à lateral da mesa (`side`,
+  `_receding` na beira da prateleira); os parafusos redondos por cima; a sombra uma linha rente. Os plugs guardados em pé neles (`home_pos`; os da fileira de trás são desenhados antes, a da frente
   passa na frente; cada fio repousa na fileira do buraco dele, `floor_y`, senão o da frente travava antes de entrar) e
   o nome do FONE numa plaquinha de latão reta na fileira da frente, centrada embaixo do buraco dele, na largura par do
   plug (`_draw_fone_tag`; inclinada pela perspectiva ficou torta demais; gravado embaixo do buraco, a beira da frente

@@ -2062,3 +2062,41 @@ Chaves:
 354. #mesa-comutadora #cabos "Há espaço para centralizar as placas na prateleira": os tampos (os dos pares vagos e o
     dos equipamentos) ficavam encostados na beira da frente (9 px de madeira atrás, 1 na frente); agora ficam no meio
     da prateleira, do pé do painel à beira de latão (6 e 5 px).
+355. #burocracias "É a mesma pessoa": o Seu Benedito da `transfer_24` é o Benedito Souza da lista; a voz dele passou
+    de `m` para `w`, a mesma da lista.
+356. #mesa-comutadora #cabos "As placas dos cabos estão erradas... muito coladas e quase encostando nos plugs à
+    esquerda", depois "ficaram finas demais e ainda estão com uma angulação estranha em relação à placa maior": os
+    tampos dos pares vagos tinham a largura do passo entre os pares (26 px, `COVER_W`) e a inclinação estilizada deles;
+    no passo menos um vão ficaram finos. Agora dividem por igual o vão do último par (os dois buracos) ao tampo dos
+    equipamentos, com 6 px entre eles (`COVER_GAP`), e as laterais fogem para os olhos como as do tampo maior
+    (`_receding`; saiu o `exact`).
+357. #mesa-comutadora #cabos "Quando o setor é liberado a outra placa aumenta, não faz sentido. Vamos afastar só um
+    pouquinho todos os plugs para a esquerda... para caber as duas placas sem redimensionar": cada tampo tem tamanho
+    fixo (`COVER_W` 24) e lugar fixo, contado do tampo dos equipamentos para a esquerda; o FONE e os cabos foram 4 px
+    para a esquerda (`FONE_HOLE_X` 10, `CORDS_X` 26, `TRUNK_GAP` 10; o passo continua o mesmo). Centrados nos lugares
+    dos pares não cabiam: o passo (~26 px) mal passa da largura do tampo.
+358. #mesa-comutadora #cabos "Ajuste as placas, parece que elas estão flutuando na prateleira. Deixe mais orgânico e
+    realista": saíram o contorno escuro e a sombra afastada 2 px; a chapa ficou mais rasa que a prateleira
+    (`COVER_DEPTH` 20, madeira à mostra na frente e atrás), com a sombra colada só na frente e à esquerda, cada pixel
+    no metal do painel pela luz da sala (`Pal.panel_metal`), quinas no tom da peça, um brilho de través, riscos de uso
+    (`_cover_step`) e parafusos embutidos com a fenda virada a esmo.
+359. #mesa-comutadora #cabos "Ficou mais feia. Continua parecendo que está flutuando e estão desalinhadas. Tente simular
+    essa textura" (uma chapa escura com chanfro e quatro parafusos): os tampos ficaram retos, de frente, como a
+    plaquinha do FONE (saiu o ponto de fuga e a textura da 358), no metal das chapas dos setores (`PLATE`): a beira
+    de fora escura de cantos quebrados, o chanfro, um sulco, o campo mais escuro com grão fino e um parafuso escuro em
+    cada canto; a sombra, uma linha rente embaixo e à direita.
+360. #mesa-comutadora #cabos "A textura está ótima, mas faltou a angulação das placas em cima da prateleira, né? Não
+    pode errar isso adicione no LESSONS.md": a textura da 359 entrou na perspectiva da prateleira, esticada linha a
+    linha com as beiras fugindo para os olhos (`_cover_px`, `_receding`); os parafusos por cima, redondos, no lugar
+    projetado deles. A lição dos tampos foi reescrita (a da 359 dizia "fica reta", errado).
+361. #mesa-comutadora #cabos "Preciso que as placas sigam a mesma angulação dos plugs" (com riscos vermelhos na reta
+    do par amarelo e nas beiras das placas): as beiras e a textura pendem como os pares (`_lean`, de `PAIR_SHIFT`);
+    saiu o ponto de fuga da sala (`_receding`) nos tampos, o largo dos equipamentos também.
+362. #mesa-comutadora #cabos "Você errou a parte direita da placa novamente... Tem que ficar na mesma angulação da mesa
+    comutadora": a beira direita do tampo largo dos equipamentos fica paralela à lateral da mesa (`_draw_cover(..., side)`,
+    a inclinação de `_receding` na beira da prateleira, ~0,33 px por linha); a esquerda e os tampos pequenos seguem os
+    plugs (`_lean`).
+363. #mesa-comutadora #cabos "As placas estão desalinhadas com relação aos plugs. Centralize os plugs e veja se
+    resolve": as fileiras de buracos subiram 4 px (`SHELF_HOLE_Y` 4, `SHELF_FRONT_Y` 18), centradas na madeira à mostra
+    (6 px atrás e na frente; eram 10 e 2), como os tampos: a fileira de trás bate com o fundo deles e a da frente com a
+    frente. O equipamento da prateleira, assentado pela fileira da frente, subiu junto.

@@ -450,45 +450,97 @@ func _draw_tray() -> void:
 	for k in patches:
 		for e in [1 + k * 2, 2 + k * 2]:
 			draw_grommet(_ci, hole(e))
-	for k in range(patches, SHELF_SLOTS):   # cada setor novo traz um cabo: até lá, o lugar dele fica tampado
-		_draw_cover(Vector2(patch_x(k), tray_rect().position.y + SHELF_HOLE_Y), COVER_W)
+	var bay_w := bay_rect().size.x - BAY_MARGIN
+	# cada setor novo traz um cabo: até lá, o lugar dele fica sob um tampo, sempre o mesmo e no mesmo lugar, contados
+	# do tampo dos equipamentos para a esquerda (o par novo surge no lugar do tampo que sai; os outros não mudam)
+	var right := (bay_rect().get_center().x - bay_w / 2.0 if trunks.has_area() else tray_rect().end.x) - COVER_GAP
+	for k in range(patches, SHELF_SLOTS):
+		_draw_cover(right - COVER_W / 2.0 - (SHELF_SLOTS - 1 - k) * (COVER_W + COVER_GAP), COVER_W)
 	if equipped.is_empty() and trunks.has_area():   # o lugar dos equipamentos, tampado até chegar o primeiro
-		_draw_cover(Vector2(bay_rect().get_center().x + PAIR_SHIFT / 2.0, tray_rect().position.y + SHELF_HOLE_Y), bay_rect().size.x - BAY_MARGIN, true)
+		_draw_cover(bay_rect().get_center().x, bay_w, true)
 
 
-const COVER_W := 26.0   # a largura do tampo: cobre os buracos do par, com um vão até o lugar seguinte
+const COVER_W := 24.0   # o tampo de um lugar vago, na linha do meio (os pares são mais juntos: os tampos não ficam em cima deles)
+const COVER_GAP := 6.0   # o vão entre os tampos e até o dos equipamentos
 const BAY_MARGIN := 24.0   # o tampo dos equipamentos: a largura do bloco interurbano menos isto
 
 
-## Um lugar vago na prateleira sob um tampo de metal parafusado de largura `w`, deitado nela, com o meio de trás em
-## `back` (o buraco de trás de um par de cabos): linha a linha de pixels, na inclinação dos pares de buracos
-## (`front_of`: a ponta da frente à esquerda da de trás) ou, com `exact` (o tampo largo dos equipamentos, ao lado da
-## lateral da prateleira), com as laterais fugindo para os olhos (`_eye`), como a lateral.
-func _draw_cover(back: Vector2, w: float, exact := false) -> void:
-	# centrado na prateleira, do pé do painel à beira de latão (o vão do painel à faixa dos buracos se repete até ela)
-	var lip := tray_rect().end.y + tray_rect().position.y - size.y - 1.0
-	back.y += roundf((size.y + lip) / 2.0 - (back.y + front_of(back).y) / 2.0)
-	var front := front_of(back)
-	var mid := (back + front) / 2.0
-	var y0 := back.y - 5.0
-	var y1 := front.y + 5.0
-	var edge := func(y: float, side: float) -> float:   # a beira esquerda (-1) ou direita (1) do tampo na linha y
-		if exact:
-			var p := Vector2(mid.x + side * w / 2.0, mid.y)
-			return roundf(p.x + (_eye.x - p.x) * (y - p.y) / (_eye.y - p.y))
-		return roundf(back.x + (front.x - back.x) * (y - back.y) / (front.y - back.y)) + side * w / 2.0
-	for y in range(int(y0), int(y1) + 1):
-		var l: float = edge.call(y, -1.0)
-		var r: float = edge.call(y, 1.0)
-		_ci.draw_rect(Rect2(l + 1.0, y + 2.0, r - l, 1), SHADOW)
-		_ci.draw_rect(Rect2(l - 1.0, y, r - l + 2.0, 1), Pal.PANEL.darkened(0.3))   # a beira do tampo
-		var c: Color = Pal.PANEL_HI if y == int(y0) else (Pal.PANEL_LO if y == int(y1) else Pal.PANEL.lightened(0.06))
-		_ci.draw_rect(Rect2(l, y, r - l, 1), c)
-	for sy in [y0 + 3.0, y1 - 3.0]:   # um parafuso de latão em cada canto, com a fenda
-		for side in [-1.0, 1.0]:
-			var sp := Vector2(edge.call(sy, side) - side * 4.0, sy)
-			PixelArt.sprite(_ci, _disc(5, [[1.5, HOLE_PAL["F"], HOLE_PAL["f"], HOLE_PAL["b"]], [2.5, HOLE_PAL["w"]]]), sp)
-			_ci.draw_rect(Rect2(sp.x - 1.0, sy, 3, 1), HOLE_PAL["w"])
+## Um lugar vago na prateleira sob uma chapa parafusada, deitada no meio dela (`_shelf_mid`): `w` de largura em `x`
+## na linha do meio. Na inclinação dos pares de plugs, chapa e textura juntas: cada linha fica deitada e as beiras
+## pendem como a ponta da frente de um par em relação à de trás (`_lean`; reta, parecia em pé; pelo ponto de fuga da
+## sala, mais inclinada que os plugs ao lado). Com `side`, a da direita (o tampo largo dos equipamentos, junto da
+## lateral da mesa) fica paralela a ela, com a inclinação da lateral (`_receding` na beira da prateleira; fugindo
+## daqui para os olhos, pendia mais que ela). A textura (`_cover_px`) vem esticada linha a linha, em trechos do mesmo tom; os parafusos, redondos por cima, no
+## lugar deles (esticados, viravam serrilhado). Rente à madeira: a sombra é uma linha
+## só, embaixo e à direita (afastada, ela flutuava).
+func _draw_cover(x: float, w: float, side := false) -> void:
+	var ym := _shelf_mid()
+	var y0 := roundf(ym - COVER_DEPTH / 2.0)
+	var plate := Pal.lit(PLATE, _step_at(Vector2(x, ym)))   # no metal das chapas dos setores, pela luz da sala ali
+	var span := func(y: float) -> Vector2:   # as beiras da chapa na linha y, ainda sem arredondar
+		var r := x + w / 2.0 + (_receding(Vector2(tray_rect().end.x, ym), y) - tray_rect().end.x if side else _lean(y - ym))
+		return Vector2(x - w / 2.0 + _lean(y - ym), r)
+	for v in int(COVER_DEPTH) + 1:
+		var y := y0 + v
+		var e: Vector2 = span.call(y)
+		var l := roundf(e.x)
+		var r := roundf(e.y)
+		_ci.draw_rect(Rect2(r, y + 1.0, 1, 1), SHADOW)   # a sombra à direita...
+		if v == int(COVER_DEPTH):   # ...e embaixo
+			_ci.draw_rect(Rect2(l + 1.0, y + 1.0, r - l, 1), SHADOW)
+		var run := l
+		var last := Color(0, 0, 0, 0)
+		for px in range(int(l), int(r) + 1):
+			var c := Color(0, 0, 0, 0) if px == int(r) else \
+				_cover_px(int((px + 0.5 - e.x) / (e.y - e.x) * w), v, int(w), plate)
+			if px > int(l) and c != last:
+				if last.a > 0.0:
+					_ci.draw_rect(Rect2(run, y, px - run, 1), last)
+				run = px
+			last = c
+	for c: Vector2 in [Vector2(4, 4), Vector2(w - 4, 4), Vector2(4, COVER_DEPTH - 3), Vector2(w - 4, COVER_DEPTH - 3)]:
+		var e: Vector2 = span.call(y0 + c.y)
+		var at := Vector2(roundf(lerpf(e.x, e.y, c.x / w)), y0 + c.y)   # redondo, no lugar dele
+		PixelArt.sprite(_ci, _disc(4, [[1.0, plate.lightened(0.3), plate.darkened(0.15), plate.darkened(0.4)], [2.0, plate.darkened(0.6)]]), at)
+
+
+## A cor do pixel `u`, `v` da chapa de `w` de largura, de frente: a beira de fora escura com os cantos quebrados
+## (transparentes), o chanfro (luz em cima à esquerda, sombra embaixo à direita), um sulco, o campo mais escuro com
+## grão fino sempre no mesmo lugar, como na referência do usuário (os parafusos vêm por cima, `_draw_cover`).
+static func _cover_px(u: int, v: int, w: int, plate: Color) -> Color:
+	var h := int(COVER_DEPTH)
+	var b := mini(mini(u, v), mini(w - 1 - u, h - v))   # a distância à beira mais perto
+	if b == 0:
+		return Color(0, 0, 0, 0) if (u == 0 or u == w - 1) and (v == 0 or v == h) else plate.darkened(0.55)
+	if b == 1:
+		if v == 1 and u < w - 2:
+			return plate.lightened(0.22)
+		return plate.lightened(0.1) if u == 1 and v < h - 1 else plate.darkened(0.3)
+	if b == 2:
+		return plate.darkened(0.42)
+	var g := posmod((u * 73856093) ^ (v * 19349663) ^ (w * 83492791), 17)   # o grão
+	return plate.darkened(0.06 if g == 0 else (0.22 if g == 1 else 0.14))
+
+
+const COVER_DEPTH := 20.0   # da beira de trás à da frente: menos que a prateleira, com madeira à mostra em volta
+
+
+## Quanto uma reta deitada na prateleira anda para o lado a `dy` linhas (para a frente, à esquerda): a inclinação dos
+## pares de plugs (`front_of`), a de tudo que fica deitado nela.
+static func _lean(dy: float) -> float:
+	return -dy * PAIR_SHIFT / (SHELF_FRONT_Y - SHELF_HOLE_Y)
+
+
+## A coluna, na linha `y`, da reta deitada na prateleira que passa por `p` e foge para os olhos (`_eye`), como a lateral
+## da mesa comutadora.
+func _receding(p: Vector2, y: float) -> float:
+	return p.x + (_eye.x - p.x) * (y - p.y) / (_eye.y - p.y)
+
+
+## A linha do meio da prateleira, do pé do painel à beira de latão (o vão do painel à faixa dos buracos se repete até
+## ela).
+func _shelf_mid() -> float:
+	return (tray_rect().position.y + tray_rect().end.y - 1.0) / 2.0
 
 
 static var _fone_tags := {}   # nome -> textura
