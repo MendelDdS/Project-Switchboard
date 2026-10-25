@@ -2157,3 +2157,63 @@ Chaves:
     painel clareado e os riscos em volta das tomadas, `_draw_wear`, e os parafusos e riscos das tampas A/B); a frente
     do console virou a bandeja do teclado dos terminais: plástico branco com uma placa oliva rebaixada de cantos
     redondos, os botões oliva com aro creme e sem os parafusos.
+372. #mesa-comutadora #painel #pixel #b4 Mais itens no visual da série Ruptura: lâmpadas de plástico fosco num aro
+    creme, acendendo de uma cor só, sem miolo branco nem brilho de vidro (como a tecla; o aro da legenda também
+    creme); as tampas de metal parafusadas da prateleira viraram plástico creme liso encaixado; a plaqueta niquelada
+    do fabricante virou etiqueta creme impressa em oliva, colada na placa do console; o gravador da B4 ficou em
+    plástico branco com a frente oliva e as teclas ciano (a caixa das autoridades continua de aço).
+373. #mesa-comutadora #painel #pixel Os aros das tomadas passaram de latão a cromado frio (`Pal.JACK_METAL`, o
+    brilho também frio; eu tinha sugerido manter o dourado, o usuário quis o cromado) e a miniatura do painel no
+    console seguiu a mesa: telas no oliva escuro, o operador em ciano, as teclas ciano (acesas se ativas) numa chapa
+    oliva com etiqueta creme (antes copiavam as cores das teclas do painel de baixo).
+374. #painel #telefone #pixel O painel do operador (embaixo) seguiu a mesa da série Ruptura: o corpo de madeira com
+    parafusos de latão virou plástico creme liso; as telas da conversa e do rádio, oliva escuro (`HudPanel`); as teclas
+    numa chapa oliva de cantos quebrados, sem parafusos, com a etiqueta creme e a tecla fosca, mantendo as cores
+    (Atender verde, Desligar vermelho ajudam a jogar); o alto-falante em oliva. A miniatura do console volta a copiar
+    as cores das teclas e das falas (o ciano do pedido 373 saiu), agora na chapa oliva com etiqueta creme.
+375. #painel #telefone As teclas do painel não batiam com a miniatura que o usuário tinha visto (ciano, pedido 373):
+    Atender, Transferir e Escutar ficaram ciano (`Pal.KEY_CAP[3]`, nas `KeyCap_*` do tema), Desligar continua vermelho
+    para não ser apertado por engano; a miniatura copia as cores do tema.
+376. #painel #captura Conferir as teclas ativas: opção `--keys` no `tools/shot.gd` (todas as teclas do painel ativas,
+    sem ligação). Ativas ciano claro e vermelho; apagadas, escuras; a miniatura acompanha, mais escura pela luz da sala.
+377. #despacho #calculografo #pixel A máquina de despacho e o calculógrafo seguiram a mesa (série Ruptura), itens 1 e 2
+    da sugestão: as caixas das máquinas (`CardMachines.box`, que o calculógrafo também usa) em plástico creme de cantos
+    arredondados, sem parafusos, com uma frente oliva rebaixada para a luz e o aviso (âmbar e vermelho não se liam no
+    creme); as plaquetas de latão viraram etiquetas creme impressas em oliva (o nome das máquinas, a do fabricante, as
+    plaquinhas das entradas do calculógrafo); o visor dos contadores em oliva escuro. Na sala, a base da unidade de
+    despacho e o calculógrafo também creme, três tons abaixo do aberto (sob a luminária ficavam brancos); `Pal.SHELL`
+    entrou nas rampas do `Pal.lit`. A moldura do mapa, as lâmpadas e a caixinha dos bilhetes ficam para depois.
+378. #despacho #calculografo #pixel Itens 3 e 4: as lâmpadas das máquinas (`CardMachines.led`, também no calculógrafo)
+    viraram cúpulas de plástico fosco num aro creme, de uma cor só, como as da mesa (na sala, o aro creme nas luzes da
+    unidade); a moldura do mapa do despacho, oliva como o painel da mesa (`bevel` em `Pal.BOARD_METAL`), sem parafusos,
+    com o + e o − e o mostrador impressos em creme (a borracha do anel continua escura; na sala, o painel do mapa
+    oliva); a caixinha dos bilhetes do calculógrafo virou bandeja de plástico oliva com a etiqueta creme (aberta e na sala).
+379. #despacho #calculografo #sala #cabos Os papéis viraram papelaria da companhia: o bilhete de tarifação impresso em
+    azul-petróleo (`Pal.TICKET_FORM`, o ciano escuro das teclas; o azul-marinho destoava) e o selo oval CTSS da mesa
+    impresso na ficha de despacho (vazado na faixa vermelha, que fica: diz "emergência") e no bilhete (ao lado do
+    campo do carimbo); o selo virou `Switchboard.badge`, estático. Na sala, fios cinza-escuros saem de baixo da unidade
+    de despacho e do calculógrafo, deitam no tampo numa curva frouxa e entram num passa-fio na lateral do console da
+    mesa comutadora (`_draw_cable`).
+380. #cabos #sala #despacho #calculografo #objetos Os fios das máquinas estavam finos (menos que os cabos de conexão) e
+    cheios de furos, e não pareciam plugados: viraram borracha escura de 5 px, montados numa imagem guardada
+    (`_cable_image`), com um plugue de corpo creme e capa de borracha encaixado na lateral de cada máquina
+    (`_draw_cable_plug`, desenhado depois dela) e o passa-fio menor na lateral do console. Depois, os outros objetos da
+    mesa na paleta da mesa: o relógio de flip no plástico creme das máquinas com a base oliva, a borda da caneca e a
+    lista do meio em azul-petróleo e a fita do bloco de fichas em oliva (a lista mostarda, a vermelha, o lápis e a
+    almofada vermelha ficam: cor de objeto de verdade).
+381. #cabos #sala A arte dos fios e plugues estava ruim: saíram o plugue na lateral (parecia adesivo) e o passa-fio
+    (um quadrado de frente na lateral em perspectiva). Os fios saem de trás das máquinas e somem atrás da lateral do
+    console, como esses aparelhos são ligados; sem contorno escuro (brilho em cima, sombra embaixo e no tampo), curva
+    com folga sem cantos em L e a grossura pela distância (`CABLE_D`).
+382. #cabos #sala "Por trás da máquina" saiu "por baixo" (o fio nascia no pé da frente) e os fios sumiam embaixo da
+    mesa comutadora: agora saem da traseira (a ponta escondida atrás dela, o fio caindo de trás ao lado dela), correm no
+    tampo por trás, sobem pela lateral do console e entram num plugue de borracha encaixado nela, desenhado no plano da
+    lateral, entre 20% e 65% da fundura dela (`_draw_cable`, `CABLE_PLUG`, `CABLE_PLATE`); cinza-escuros (marrons, sumiam
+    no tampo). `_side_faces` desceu para `background_props`.
+    No mesmo pedido, depois: os fios vão todos para o fundo da mesa, junto da parede ao lado da mesa comutadora
+    (primeiro para o lado, rentes ao console, e então para o fundo), sem plugues (saíram a pedido).
+383. #cabos #sala O fio do calculógrafo parecia passar por baixo da máquina (saía rente à traseira, indo para o lado, e
+    na perspectiva aparecia no meio da lateral): agora sai rente atrás dela, sem cair do alto, e já recua ao sair, em
+    diagonal para o fundo (`CABLE_SAG`), até a parede ao lado da mesa comutadora.
+    Depois: em diagonal, o fio do calculógrafo passava por baixo da quina da unidade de despacho (o usuário viu na
+    captura): vai primeiro para o lado, recuando só um pouco (`CABLE_SAG` 0,12), e, rente ao console, para o fundo.

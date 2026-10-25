@@ -604,3 +604,21 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   5 px pareciam quase retos na escala do jogo, e os de dentro ficaram quadrados (pedido 369). Ao copiar uma forma de
   uma imagem, meça o raio dela em pixels do jogo (a imagem reduzida para 960×540) e arredonde também o contorno de
   dentro quando a referência o faz.
+- **A cópia segue o que o usuário aprovou por último.** Ao alinhar o painel do operador com a miniatura dele (pedido
+  374), voltei a miniatura às cores antigas das teclas em vez de levar ao painel o ciano que o usuário tinha acabado de
+  ver e aceitar nela (pedido 375). Quando duas peças precisam bater, pergunte ou parta do visual mais recente aprovado.
+
+## Fio desenhado é imagem montada, não trechos de linha
+Fios curvos em `_pixel_line` por trechos ficavam finos e cheios de furos nas emendas e nas diagonais (o usuário
+apontou: mais finos que os cabos de conexão). Fio é montado pixel a pixel numa imagem guardada, carimbando a beira, o
+lado de baixo, o miolo e o brilho em cada ponto da curva (`Background._cable_image`), sem contorno escuro (parecia
+linguiça), sem cantos em L e com a grossura pela distância. Plugue e passa-fio desenhados pequenos, de frente numa
+superfície em perspectiva, pareciam adesivos: o que fica numa face da sala se desenha no plano dela (`_p3` com o x da
+face). "Por trás da máquina" é o fio saindo da traseira (aparece ao lado dela, caindo de trás), nunca por baixo dela
+(nascendo no pé da frente, o usuário leu "por baixo"); e "ligado à mesa comutadora" é entrar nela à vista, não sumir
+embaixo dela.
+
+## Conferir a captura contra o que foi pedido antes de mandar
+Mandei uma captura dizendo que o fio do calculógrafo não passava mais por baixo da máquina dele, e na mesma imagem ele
+passava por baixo da quina da unidade de despacho; o usuário viu. Antes de mandar, olhe a captura procurando
+justamente o defeito reclamado, em todos os objetos que o mesmo desenho toca, não só no que foi mexido.

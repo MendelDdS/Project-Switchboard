@@ -38,14 +38,14 @@ const JACK_RINGS := [3.0, 4.0, 5.0, 5.8]   # até onde vão o furo, a parede da 
 const JACK_METAL := Pal.JACK_METAL
 const JACK_HOLE := Pal.JACK_HOLE
 const JACK_GLINT := Vector2(3, -4)   # o brilho do níquel, do meio do encaixe: na face, no alto à direita, virado para a luz
-const JACK_GLINT_COLOR := Color(1.0, 0.96, 0.86, 0.85)
+const JACK_GLINT_COLOR := Color(0.94, 0.98, 1.0, 0.85)   # o brilho frio do cromado
 const JACK_PX := 12   # o lado do desenho do encaixe, em pixels
 ## A quina do níquel descendo até o painel: na luz, no meio e na sombra. No lugar de uma beira quase preta, que em
 ## volta das tomadas, das lâmpadas e das plaquinhas parecia um contorno preto.
 const NICKEL_EDGE := Pal.NICKEL_EDGE
 const SHADOW := Color(0, 0, 0, 0.35)
 const PLATE := Pal.BANK_PLATE   # chapa sobre o banco que ainda não está em uso
-const LAMP_R := 2.5         # o raio da luz da lâmpada de cada linha, no `Bloom` (o vidro tem 4; o aro de metal fica em volta)
+const LAMP_R := 2.5         # o raio da luz da lâmpada de cada linha, no `Bloom` (a cúpula tem 3; o aro creme fica em volta)
 const BEZEL := [Pal.NICKEL[1], Pal.NICKEL[2], Pal.NICKEL[3]]   # aro niquelado: luz, meio, sombra
 const LAMP_OFF := Pal.LAMP_GLASS
 const ROUND := [2, 1]   # o canto redondo dos blocos, das abas e das chapas: o quanto as duas linhas da ponta recuam (`round_rect`)
@@ -93,24 +93,22 @@ func _fade(key: String, want: Array, delta: float) -> void:
 	_lit[key] = cur
 
 
-## Lâmpada de mesa antiga: uma tampa de vidro leitoso, abaulada, num aro fino de níquel, sem furo (com o assento
-## preto, ela parecia mais uma tomada). Apagada, o vidro fica leitoso (`LAMP_OFF`); acesa, toma a cor da linha, o aro
-## pega a cor dela e o centro estoura para o branco (o halo é do `Bloom`). A luz da sala brilha no alto do vidro.
+## Lâmpada de plástico fosco, como a tecla de escuta: uma cúpula lisa num aro do plástico creme do móvel. Apagada,
+## leitosa (`LAMP_OFF`); acesa, toda de uma cor só, a beira um pouco mais apagada, com a luz opaca em volta (sem miolo
+## branco nem brilho de vidro: o halo é do `Bloom`), e o aro pega a cor dela.
 func _draw_lamp(c: Vector2, col: Color, level: float) -> void:
-	var s := _step_at(c)
-	var n := _nickel(s)
-	PixelArt.sprite(_ci, _disc(10, [[4.0, n[0], n[1], n[2]], [5.0, n[3], n[4], n[5]]]), c)   # o aro, do tamanho da tomada
+	var lit := _room_lit(c)
+	var ring := func(step: int) -> Color: return Pal.cabinet(lit, step)
+	PixelArt.sprite(_ci, _disc(10, [[4.0, ring.call(2), ring.call(0), ring.call(-2)], [5.0, ring.call(-1), ring.call(-3), ring.call(-4)]]), c)
 	if level > 0.02:
 		PixelArt.sprite(_ci, _disc(10, [[3.0, Color.TRANSPARENT], [4.0, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), c, Color(col, 0.35 * level))   # a luz no aro
-	# o vidro abaulado (luz no alto à direita): o aceso por cima do apagado, com `level` no modulate (uma cor por quadro
-	# na chave do `disc` guardava uma textura nova a cada quadro da lâmpada pulsando)
-	var glass := Pal.lit(LAMP_OFF, s)
-	PixelArt.sprite(_ci, _disc(6, [[3.0, glass.lightened(0.3), glass, glass.darkened(0.4)]]), c)
-	if level > 0.02:   # acesa: o centro estoura para o branco (o halo é do Bloom; o miolo nítido, daqui)
-		PixelArt.sprite(_ci, _disc(6, [[3.0, col.lightened(0.3), col, col.darkened(0.4)]]), c, Color(1, 1, 1, level))
-		PixelArt.sprite(_ci, _disc(2, [[1.0, Color.WHITE]]), c, Color(Color.WHITE.lerp(col, Bloom.HOT_TINT), level))
+	# a cúpula: a acesa por cima da apagada, com `level` no modulate (uma cor por quadro na chave do `disc` guardava uma
+	# textura nova a cada quadro da lâmpada pulsando)
+	var glass := Pal.lit(LAMP_OFF, _step_at(c))
+	PixelArt.sprite(_ci, _disc(6, [[2.0, glass], [3.0, glass.darkened(0.2)]]), c)
+	if level > 0.02:
+		PixelArt.sprite(_ci, _disc(6, [[2.0, col.lightened(0.25)], [3.0, col]]), c, Color(1, 1, 1, level))
 		Bloom.light(_ci, Rect2(c - Vector2(LAMP_R, LAMP_R), Vector2(LAMP_R, LAMP_R) * 2.0), Color(col, level), 1.0, false, true)
-	_ci.draw_rect(Rect2(c + Vector2(1, -2), Vector2(1, 1)), Color(1, 1, 1, 0.5))   # o brilho da sala no vidro
 
 
 ## As chaves de escuta, teclas quadradas de plástico ciano (como as dos terminais da série Ruptura), cada uma num
@@ -258,32 +256,21 @@ func _draw_strips() -> void:
 		_lit_rect(Rect2(r.position.x + 1.0, r.position.y, 1, r.size.y), _metal(2))
 
 
-## A plaqueta do fabricante em `r` (96×32), no esmalte claro com a beira niquelada, desenhada pelo cenário na frente do console, ao lado
-## da miniatura do painel: o nome da central gravado (escuro, com o brilho embaixo) e um parafuso em cada ponta. Com 26 de altura,
+## A etiqueta do fabricante em `r` (96×32), creme e impressa em oliva escuro, colada na placa da frente do console
+## (desenhada pelo cenário, ao lado da miniatura do painel), sem parafusos nem relevo. Com 26 de altura,
 ## o acento do Ô caía no friso e o til de "SÃO" encostava no pé da linha de cima: agora há 1 px livre entre eles.
 static func draw_maker_plate(ci: CanvasItem, r: Rect2) -> void:
-	var pal := HOLE_PAL
+	var ink := Pal.BOARD_STRIP
 	var cx := r.get_center().x
-	ci.draw_rect(Rect2(r.position + Vector2(1, 2), r.size), SHADOW)
-	rim(ci, r, pal["b"], pal["b"].darkened(0.35))
-	ci.draw_rect(r, Pal.SHELL[6])
-	ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), pal["F"])
-	ci.draw_rect(Rect2(r.position, Vector2(1, r.size.y)), pal["f"])
-	ci.draw_rect(Rect2(r.position.x, r.end.y - 1, r.size.x, 1), pal["b"])
-	ci.draw_rect(Rect2(r.end.x - 1, r.position.y, 1, r.size.y), pal["b"])
-	ci.draw_rect(r.grow(-3), pal["b"], false, 1.0)   # o friso gravado em volta
-	for x in [r.position.x + 7.0, r.end.x - 7.0]:
-		PixelArt.sprite(ci, _disc(5, [[1.5, pal["F"], pal["f"], pal["b"]], [2.5, pal["w"]]]), Vector2(x, r.get_center().y))
-		ci.draw_rect(Rect2(x - 1.0, r.get_center().y, 3, 1), pal["w"])   # a fenda
+	round_rect(ci, r.grow(1), Pal.BOARD_SIDE.darkened(0.5))   # colada rente na placa
+	round_rect(ci, r, Pal.BOARD_TAG)
+	ci.draw_rect(Rect2(r.position.x + 2, r.position.y, r.size.x - 4, 1), Pal.BOARD_TAG.lightened(0.15))
 	var maker := PixelArt.tiny(T.text(T.Key.BOARD_MAKER))
-	var at := Vector2(roundf(cx - maker.get_width() / 2.0), r.position.y + 5.0)   # o acento 2 px abaixo do friso
-	ci.draw_texture(maker, at + Vector2(0, 1), pal["F"])
-	ci.draw_texture(maker, at, pal["w"])
+	ci.draw_texture(maker, Vector2(roundf(cx - maker.get_width() / 2.0), r.position.y + 5.0), ink)
+	ci.draw_rect(Rect2(r.position.x + 8, r.position.y + 14, r.size.x - 16, 1), ink)   # o filete impresso entre as linhas
 	var town := "SÃO SOTERO"
 	var nw := Pal.mono.get_string_size(town, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
-	var np := Vector2(roundf(cx - nw / 2.0), r.end.y - 6.0)
-	ci.draw_string(Pal.mono, np + Vector2(0, 1), town, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, pal["F"])
-	ci.draw_string(Pal.mono, np, town, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, pal["w"])
+	ci.draw_string(Pal.mono, Vector2(roundf(cx - nw / 2.0), r.end.y - 6.0), town, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, ink)
 
 
 static var _shells := {}   # as molduras guardadas, por tamanho e lugar da luminária (`_shell_frame`)
@@ -379,7 +366,7 @@ func _draw_legend() -> void:
 	var x := floorf(size.x - FRAME - 14.0 - width)
 	for k in leg.size():
 		PixelArt.sprite(_ci, _disc(7, [[2.0, Color.WHITE], [3.5, Color.TRANSPARENT]]), Vector2(x + 3.5, y), leg[k][0])   # lâmpadas redondas, como as da mesa
-		PixelArt.sprite(_ci, _disc(7, [[2.0, Color.TRANSPARENT], [3.5, NICKEL_EDGE[0], NICKEL_EDGE[1], NICKEL_EDGE[2]]]), Vector2(x + 3.5, y))
+		PixelArt.sprite(_ci, _disc(7, [[2.0, Color.TRANSPARENT], [3.5, Pal.SHELL[6], Pal.SHELL[4], Pal.SHELL[2]]]), Vector2(x + 3.5, y))   # o aro creme, como o das lâmpadas
 		_ci.draw_texture(texts[k], Vector2(x + 10.0, y - 5.0), Pal.BOARD_INK)
 		x += 7.0 + 3.0 + (texts[k] as Texture2D).get_width() + 8.0
 
@@ -409,18 +396,29 @@ func _draw_header() -> void:
 ## O emblema da companhia no vão à esquerda do interurbano, acima dos plugs guardados, com o meio em `c`: um oval
 ## ciano com a beira e a sigla em creme, como o logotipo nos terminais da série Ruptura.
 func _draw_badge(c: Vector2) -> void:
+	badge(_ci, c, Pal.BOARD_INK, Pal.KEY_CAP[2], 20.0, 12)
+
+
+## O selo oval da companhia (`BADGE`) em `ci`, no meio `c`: o texto e a beira na cor `ink` e, dentro dela, o oval em
+## `fill` (transparente: só a beira, como o selo impresso nos papéis, `PunchCard`, `TollTicket`); `pad` px de folga
+## em volta do texto e `h` de altura.
+static func badge(ci: CanvasItem, c: Vector2, ink: Color, fill: Color, pad: float, h: int) -> void:
 	var t := PixelArt.tiny(BADGE)
-	var w := t.get_width() + 20.0
-	var h := 12
+	var w := t.get_width() + pad
 	var r := Rect2((c - Vector2(w, h) / 2.0).round(), Vector2(w, h))
+	var mid := r.get_center().x
 	for y in h:   # pixel a pixel, linha a linha: a beira e, dentro dela, o oval
 		var dy := y + 0.5 - h / 2.0
 		var hw := roundf(w / 2.0 * sqrt(1.0 - pow(dy / (h / 2.0), 2.0)))
-		_ci.draw_rect(Rect2(r.get_center().x - hw, r.position.y + y, hw * 2.0, 1), Pal.BOARD_INK)
-		if absf(dy) < h / 2.0 - 1.0:
-			var hi := roundf((w / 2.0 - 1.5) * sqrt(1.0 - pow(dy / (h / 2.0 - 1.0), 2.0)))
-			_ci.draw_rect(Rect2(r.get_center().x - hi, r.position.y + y, hi * 2.0, 1), Pal.KEY_CAP[2])
-	_ci.draw_texture(t, (r.get_center() - Vector2(t.get_width() / 2.0, 3.0 + 2.5)).round(), Pal.BOARD_INK)
+		var hi := roundf((w / 2.0 - 1.5) * sqrt(1.0 - pow(dy / (h / 2.0 - 1.0), 2.0))) if absf(dy) < h / 2.0 - 1.0 else -1.0
+		if hi < 0.0:
+			ci.draw_rect(Rect2(mid - hw, r.position.y + y, hw * 2.0, 1), ink)
+			continue
+		ci.draw_rect(Rect2(mid - hw, r.position.y + y, hw - hi, 1), ink)
+		ci.draw_rect(Rect2(mid + hi, r.position.y + y, hw - hi, 1), ink)
+		if fill.a > 0.0:
+			ci.draw_rect(Rect2(mid - hi, r.position.y + y, hi * 2.0, 1), fill)
+	ci.draw_texture(t, (r.get_center() - Vector2(t.get_width() / 2.0, 3.0 + 2.5)).round(), ink)
 
 
 ## Um retângulo cheio de cantos redondos, pixel a pixel: `cut` diz quanto cada linha da ponta recua, de fora para
@@ -481,7 +479,7 @@ const BAY_MARGIN := 24.0   # o tampo dos equipamentos: a largura do bloco interu
 func _draw_cover(x: float, w: float, side := false) -> void:
 	var ym := _shelf_mid()
 	var y0 := roundf(ym - COVER_DEPTH / 2.0)
-	var plate := Pal.lit(PLATE, _step_at(Vector2(x, ym)))   # no metal das chapas dos setores, pela luz da sala ali
+	var plate := Pal.cabinet(_room_lit(Vector2(x, ym)), 1)   # o plástico creme do móvel, pela luz da sala ali
 	var span := func(y: float) -> Vector2:   # as beiras da chapa na linha y, ainda sem arredondar
 		var r := x + w / 2.0 + (_receding(Vector2(tray_rect().end.x, ym), y) - tray_rect().end.x if side else _lean(y - ym))
 		return Vector2(x - w / 2.0 + _lean(y - ym), r)
@@ -503,28 +501,21 @@ func _draw_cover(x: float, w: float, side := false) -> void:
 					_ci.draw_rect(Rect2(run, y, px - run, 1), last)
 				run = px
 			last = c
-	for c: Vector2 in [Vector2(4, 4), Vector2(w - 4, 4), Vector2(4, COVER_DEPTH - 3), Vector2(w - 4, COVER_DEPTH - 3)]:
-		var e: Vector2 = span.call(y0 + c.y)
-		var at := Vector2(roundf(lerpf(e.x, e.y, c.x / w)), y0 + c.y)   # redondo, no lugar dele
-		PixelArt.sprite(_ci, _disc(4, [[1.0, plate.lightened(0.3), plate.darkened(0.15), plate.darkened(0.4)], [2.0, plate.darkened(0.6)]]), at)
 
 
-## A cor do pixel `u`, `v` da chapa de `w` de largura, de frente: a beira de fora escura com os cantos quebrados
-## (transparentes), o chanfro (luz em cima à esquerda, sombra embaixo à direita), um sulco, o campo mais escuro com
-## grão fino sempre no mesmo lugar, como na referência do usuário (os parafusos vêm por cima, `_draw_cover`).
+## A cor do pixel `u`, `v` da tampa de `w` de largura, de frente: plástico liso encaixado na prateleira, sem
+## parafusos nem grão (como tudo na série Ruptura): a fresta em volta, escura, com os cantos quebrados (transparentes),
+## e a quina (luz em cima à esquerda, sombra embaixo à direita).
 static func _cover_px(u: int, v: int, w: int, plate: Color) -> Color:
 	var h := int(COVER_DEPTH)
 	var b := mini(mini(u, v), mini(w - 1 - u, h - v))   # a distância à beira mais perto
 	if b == 0:
-		return Color(0, 0, 0, 0) if (u == 0 or u == w - 1) and (v == 0 or v == h) else plate.darkened(0.55)
+		return Color(0, 0, 0, 0) if (u <= 1 or u >= w - 2) and (v <= 1 or v >= h - 1) and (u == 0 or u == w - 1 or v == 0 or v == h) else plate.darkened(0.45)
 	if b == 1:
-		if v == 1 and u < w - 2:
-			return plate.lightened(0.22)
-		return plate.lightened(0.1) if u == 1 and v < h - 1 else plate.darkened(0.3)
-	if b == 2:
-		return plate.darkened(0.42)
-	var g := posmod((u * 73856093) ^ (v * 19349663) ^ (w * 83492791), 17)   # o grão
-	return plate.darkened(0.06 if g == 0 else (0.22 if g == 1 else 0.14))
+		if v == 1 or u == 1:
+			return plate.lightened(0.12)
+		return plate.darkened(0.15)
+	return plate
 
 
 const COVER_DEPTH := 20.0   # da beira de trás à da frente: menos que a prateleira, com madeira à mostra em volta

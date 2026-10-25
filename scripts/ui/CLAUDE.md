@@ -22,6 +22,10 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   da mesa em duas fileiras (`_row`, `WALL_PAD`, `EDGE_PX`): atrás, o que é alto (unidade de despacho, listas, relógio
   com a caneca na frente); na frente, o que é baixo (calculógrafo, bloco de fichas, jornal). A prancheta fica
   pendurada na lateral da mesa comutadora (`_draw_hung_clipboard`). `test_layout` confere que nada se sobrepõe.
+- Fios da unidade de despacho e do calculógrafo: saem da traseira delas e vão, rentes ao console, para o fundo da mesa
+  (`_draw_cable`, imagem guardada em `_cable_art`), desenhados antes das máquinas; sem plugues (a pedido). Objetos da
+  mesa na paleta da mesa (relógio em `SHELL` com base oliva, caneca e lista do meio em azul-petróleo); os papéis com o
+  selo `Switchboard.badge`.
 
 ### Camadas e redesenho
 - **Só redesenha o que mudou** (redesenhar a sala custava ~20 ms): a sala (`_state`), a camada de cima `_over` (escuro,
@@ -112,7 +116,7 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   que registram as luzes e os plugs que as cobrem no `Bloom`), as tomadas dos destinos com a luz da sala (`_top`) e os
   plugs com os fios (`_cords`, a cada quadro só com algo se mexendo). Desenhe em `_ci`.
 - Lâmpadas de vidro leitoso que acendem rápido e apagam devagar (`_fade`, `LAMP_ON_SEC`/`LAMP_OFF_SEC`); encaixes de
-  pixel art (`_jack_tex`, `JACK_METAL`); luz da luminária no painel (`_draw_room_light`) e escurecendo junto com a da sala
+  pixel art, cromados (`_jack_tex`, `JACK_METAL`); luz da luminária no painel (`_draw_room_light`) e escurecendo junto com a da sala
   pelo `modulate` (`Switchboard.dim`); a luz das lâmpadas no painel pelo `_glow`.
 - Visual retrofuturista (série Ruptura): móvel de plástico branco-creme de cantos redondos, pixel a pixel
   (`_shell_frame`, `Pal.SHELL`, `Pal.cabinet`; a lateral segue o arco, `Background._round_edge`), painel verde-oliva
@@ -120,7 +124,9 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   (`_draw_header`) e abas das seções (`_draw_rule`, `RULES`), trilhos finos nas colunas (`_draw_strips`), plaquinhas
   creme (`BOARD_TAG`), bancos, interurbano e tampas rebaixados, escuros e de cantos redondos (`_draw_inset`,
   `round_rect`, `ROUND`), emblema oval da companhia ao lado do interurbano (`_draw_badge`), letras em creme
-  (`BOARD_INK`), níquel no lugar do latão; limpo, sem desgaste nem parafusos nas tampas. O console no cenário é a
+  (`BOARD_INK`), lâmpadas de plástico fosco num aro creme (`_draw_lamp`), tampas da prateleira de plástico creme
+  (`_cover_px`), etiqueta do fabricante impressa (`draw_maker_plate`); limpo, sem desgaste nem parafusos. O gravador
+  da B4 segue a mesa (branco, frente oliva, teclas ciano). O console no cenário é a
   bandeja do teclado: plástico branco com uma placa oliva rebaixada (`Background.SHELL`, `BOARD_SIDE`). Banco
   interurbano (`_draw_trunks`). Mexendo na altura, confira que a coluna da esquerda cabe (até 540).
 - Folha de prévia de toda a pixel art: `Godot --headless --path . -s tools/sprite_sheet.gd` → `build/sprites.png`.

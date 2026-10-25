@@ -169,6 +169,7 @@ func _draw() -> void:
 			draw_rect(Rect2(x, y, 1, 2), Color(Pal.TICKET_FORM, 0.6))
 	var label := PixelArt.tiny(T.text(T.Key.TOLL_FIELD))
 	draw_texture(label, FIELD.position + Vector2(0, -9), Pal.TICKET_FORM)
+	Switchboard.badge(self, Vector2((FIELD.end.x + SIZE.x) / 2.0, FIELD.get_center().y), Pal.TICKET_FORM, Color.TRANSPARENT, 8.0, 10)   # o selo da companhia, ao lado do carimbo
 	var bottom := SIZE.y - 2.0
 	draw_rect(Rect2(0, 0, SIZE.x, 1), Pal.TICKET_EDGE)   # a beira: em cima e dos lados...
 	for x: float in [0.0, SIZE.x - 1.0]:

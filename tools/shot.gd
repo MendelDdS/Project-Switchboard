@@ -42,6 +42,7 @@ extends Node
 ##   --damp=4               a mancha de umidade de 4 noites de chuva
 ##   --phones=2,1           os telefones da vista (hotel, bar): 1 tocando, 2 na linha
 ##   --sips=3               goles tomados do café · --cabinet: a porta do armário aberta
+##   --keys                 as teclas do painel do operador todas ativas (a cor acesa delas), sem ligação
 ##   --written=2            fichas registradas (o lugar do lápis no bloco)
 ##   --bolt                 um relâmpago caindo na hora da captura (o primeiro clarão)
 ##   --wait=5               segundos antes de capturar (a luminária esquenta em 4)
@@ -291,6 +292,12 @@ func _ready() -> void:
 			if _args.has("smoke"):
 				bg._smoke_t = 10.5 if _args["smoke"] == "1" else float(_args["smoke"])
 			await get_tree().process_frame
+	if _args.has("keys"):   # o Main refaz as teclas a cada quadro: ativadas por último, antes do quadro da captura
+		m.set_process(false)
+		m.phone.set_buttons(true, true, true)
+		m.phone.set_listen(true, false)
+		await get_tree().process_frame
+		await get_tree().process_frame
 	_save(out)
 
 

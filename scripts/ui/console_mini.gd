@@ -6,8 +6,8 @@ extends Control
 ## painel e as falas viram traços, as teclas ativas acendem, e o rádio acende as luzes dele e mostra traços quando fala.
 
 const SHELL := [Pal.SHELL[5], Pal.SHELL[3], Pal.SHELL[2]]   # a moldura dela, no esmalte do console (luz, meio, sombra)
-const SCREEN := Color(0.043, 0.047, 0.05)   # o fundo das telas (`HudPanel`)
-const BORDER := Color(0.1, 0.07, 0.045)
+const SCREEN := Pal.BOARD_INSET   # o fundo das telas (`HudPanel`), no oliva escuro do painel da mesa
+const BORDER := Pal.BOARD_SIDE
 const INK := {"op": Color("8dbb6c"), "sys": Color("9a917a"), "ghost": Color("c6d3c4")}   # a cor de quem fala, como na tela
 const TEXT := Color("e6dbbd")
 
@@ -65,20 +65,20 @@ func _screen(r: Rect2) -> void:
 		Vector2(x + 1, inner.end.y), Vector2(x - 3, inner.end.y)]), Color(1, 1, 1, 0.05))
 
 
-## Uma tecla como a do painel (`KeyCapStyle`): a chapa de metal, a etiqueta de latão no alto e, no meio do espaço
-## embaixo dela, a tecla na cor dela (apagada, escura) com a frente mais escura.
+## Uma tecla como a do painel (`KeyCapStyle`): a chapa oliva, a etiqueta creme no alto e, no meio do espaço embaixo
+## dela, a tecla na cor dela (apagada, escura) com a frente mais escura.
 func _key(r: Rect2, b: Button) -> void:
 	var cap := b.get_theme_stylebox("normal") as KeyCapStyle
 	var col: Color = cap.color if cap else Pal.AMBER
 	if b.disabled:
 		col = col.darkened(0.55)
-	draw_rect(r, Color.BLACK)
-	draw_rect(r.grow(-1), KeyCapStyle.METAL[1].darkened(0.5))
-	draw_rect(Rect2(r.position.x + 2, r.position.y + 2, r.size.x - 4, 2), KeyCapStyle.BRASS[1])
+	draw_rect(r, Pal.BOARD_INSET)
+	draw_rect(r.grow(-1), Pal.BOARD_METAL[3])
+	draw_rect(Rect2(r.position.x + 2, r.position.y + 2, r.size.x - 4, 2), Pal.BOARD_TAG)
 	var room := Rect2(r.position.x, r.position.y + 5, r.size.x, r.size.y - 6)
 	var kh := minf(room.size.y, roundf(KeyCapStyle.WELL_H * r.size.y / maxf(1.0, b.size.y)))
 	var key := Rect2(r.position.x + 2, roundf(room.get_center().y - kh / 2.0), r.size.x - 4, kh)
-	draw_rect(key, Color.BLACK)
+	draw_rect(key, Pal.BOARD_INSET)
 	draw_rect(Rect2(key.position + Vector2(1, 1), key.size - Vector2(2, 3)), col)
 	draw_rect(Rect2(key.position + Vector2(1, 1), Vector2(key.size.x - 2, 1)), col.lightened(0.3))
 
@@ -103,7 +103,7 @@ func _radio(at: Callable) -> void:
 		var label: Label = p[key]
 		var lr: Rect2 = at.call(label)
 		draw_rect(Rect2(lr.position.x, roundf(lr.get_center().y), lr.size.x, 1), Color(Pal.DIM, 0.6) * label.modulate)   # o rótulo tem a largura do texto
-	draw_rect(at.call(p["box"]), Color(0.03, 0.045, 0.035))
+	draw_rect(at.call(p["box"]), Pal.BOARD_METAL[0])   # a tela do rádio (`ScreenBox`)
 	var k: float = (at.call(radio) as Rect2).size.x / maxf(1.0, radio.size.x)
 	var lines := radio.lines()
 	var now: Array = lines.pop_back()

@@ -6,7 +6,7 @@
 [ext_resource type="Script" path="res://scripts/ui/speaker_grill.gd" id="4_grill"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
-bg_color = Color(0.03, 0.045, 0.035, 1)
+bg_color = Color(0.0824, 0.0941, 0.0588, 1)
 content_margin_left = 6
 content_margin_right = 6
 content_margin_top = 4

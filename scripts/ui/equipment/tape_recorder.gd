@@ -259,10 +259,11 @@ func _draw() -> void:
 	_draw_box()
 	var dy := Vector2(0, 1) if _bounce > 0.0 else Vector2.ZERO
 	draw_rect(Rect2(BODY.position.x + 1, BODY.end.y, BODY.size.x + 2, 1), Pal.SHELF_WOOD[0].darkened(0.5))   # a sombra rente
-	Cassette.block(self, Rect2(BODY.position + dy, BODY.size), TOP, Pal.BAKELITE[4], Pal.BAKELITE[2], Pal.BAKELITE[1])
-	draw_rect(Rect2(BODY.position + dy, Vector2(BODY.size.x, 1)), Pal.BAKELITE[5])   # a quina de cima, na luz
-	draw_rect(Rect2(BODY.position + dy + Vector2(0, BODY.size.y - 1), Vector2(BODY.size.x, 1)), Pal.BAKELITE[0])
-	draw_rect(Rect2(Vector2(1, KEY_Y + KEY_H + 1) + dy, Vector2(BODY.size.x - 2, 1)), Pal.BAKELITE[1])   # o friso embaixo das teclas
+	# plástico branco, como o móvel da mesa, com a frente oliva embaixo das teclas (como o painel)
+	Cassette.block(self, Rect2(BODY.position + dy, BODY.size), TOP, Pal.SHELL[7], Pal.SHELL[5], Pal.SHELL[3])
+	draw_rect(Rect2(BODY.position + dy, Vector2(BODY.size.x, 1)), Pal.SHELL[7])   # a quina de cima, na luz
+	draw_rect(Rect2(BODY.position + dy + Vector2(0, BODY.size.y - 1), Vector2(BODY.size.x, 1)), Pal.SHELL[2])
+	Switchboard.round_rect(self, Rect2(Vector2(1, KEY_Y + KEY_H + 1) + dy, Vector2(BODY.size.x - 2, BODY.end.y - KEY_Y - KEY_H - 3)), Pal.BOARD_FACE)
 	_draw_keys(dy, loaded, rec)
 	_draw_door(dy, loaded, rec)
 	_draw_meters(dy, rec)
@@ -277,7 +278,7 @@ func _draw_keys(dy: Vector2, loaded: bool, rec: bool) -> void:
 	var all := [[_rec_key, rec, Pal.RED, ""]]
 	for i in _keys.size():
 		var down: bool = i == _pressed or (i == _hover and loaded)
-		all.append([_keys[i][0], down, Pal.NICKEL[3], T.text(_keys[i][2])])
+		all.append([_keys[i][0], down, Pal.KEY_CAP[4], T.text(_keys[i][2])])
 	for k: Array in all:
 		var r: Rect2 = k[0]
 		r.position += dy
@@ -286,17 +287,17 @@ func _draw_keys(dy: Vector2, loaded: bool, rec: bool) -> void:
 			sink = 1.0   # sob o dedo, ainda sem apertar
 		r.position.y += sink
 		r.size.y -= sink
-		draw_rect(r, Pal.BAKELITE[4] if sink < 2.0 else Pal.BAKELITE[3])
+		draw_rect(r, Pal.KEY_CAP[3] if sink < 2.0 else Pal.KEY_CAP[2])   # ciano, como as teclas de escuta
 		draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), k[2] if sink < 2.0 else Color(k[2], 1.0).darkened(0.35))   # o alto da tecla
 		if k[3] != "":
-			draw_texture(PixelArt.tiny(k[3]), r.position + Vector2(2, -1), Pal.TEXT if loaded else Pal.DIM)
+			draw_texture(PixelArt.tiny(k[3]), r.position + Vector2(2, -1), Pal.BOARD_STRIP if loaded else Pal.KEY_CAP[1])
 		else:
 			draw_rect(Rect2(r.position + Vector2(4, 2), Vector2(3, 2)), Pal.RED.darkened(0.2 if rec else 0.5))   # o ponto vermelho do REC
 
 
 func _draw_door(dy: Vector2, loaded: bool, rec: bool) -> void:
 	var d := Rect2(DOOR.position + dy, DOOR.size)
-	draw_rect(d.grow(1), Pal.BAKELITE[0])
+	draw_rect(d.grow(1), Pal.BOARD_INSET)
 	draw_rect(d, Pal.VOID)   # o vão atrás da porta
 	if loaded:
 		Cassette.face(self, SEAT + dy, Cassette.FACE.x, _label, _hour, _written(), _marks, _pop / POP_SEC, _fill(),
@@ -308,15 +309,15 @@ func _draw_door(dy: Vector2, loaded: bool, rec: bool) -> void:
 	# aberta: a porta tomba para a frente pela dobradiça de baixo, mostrando a face de dentro, mais curta e mais larga
 	var h := roundf(lerpf(d.size.y, 5.0, minf(_door, 1.0))) - (2.0 if _door > 1.0 else 0.0)
 	var r := Rect2(d.position.x - 1, d.end.y - h + (1.0 if _door > 0.5 else 0.0), d.size.x + 2, h)
-	draw_rect(r, Pal.BAKELITE[3])
-	draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), Pal.BAKELITE[5])
-	draw_rect(Rect2(r.position + Vector2(2, 2), Vector2(r.size.x - 4, maxf(r.size.y - 3, 1))), Pal.BAKELITE[1])
+	draw_rect(r, Pal.BOARD_METAL[4])
+	draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), Pal.BOARD_METAL[6])
+	draw_rect(Rect2(r.position + Vector2(2, 2), Vector2(r.size.x - 4, maxf(r.size.y - 3, 1))), Pal.BOARD_METAL[2])
 
 
 func _draw_meters(dy: Vector2, rec: bool) -> void:
 	# o VU: a face creme, acesa por trás gravando, a escala e o ponteiro preto do pivô embaixo
 	var v := Rect2(VU.position + dy, VU.size)
-	draw_rect(v.grow(1), Pal.BAKELITE[0])
+	draw_rect(v.grow(1), Pal.BOARD_INSET)
 	draw_rect(v, Pal.GLOW.lerp(Pal.LABEL_PAPER, 0.4) if rec else Pal.LABEL_PAPER.darkened(0.35))
 	if rec:
 		Bloom.light(self, v, Pal.AMBER, 0.35, false)
@@ -333,7 +334,7 @@ func _draw_meters(dy: Vector2, rec: bool) -> void:
 	draw_rect(Rect2(pivot + Vector2(-1, 0), Vector2(3, 1)), Pal.BAKELITE[1])
 	# o contador: três rodinhas de números que rolam
 	var c := Rect2(COUNTER.position + dy, COUNTER.size)
-	draw_rect(c.grow(1), Pal.BAKELITE[0])
+	draw_rect(c.grow(1), Pal.BOARD_INSET)
 	draw_rect(c, Pal.VOID)
 	var n := int(_rec_sec * 2.0)
 	var frac := fmod(_rec_sec * 2.0, 1.0)
@@ -355,7 +356,7 @@ func _draw_meters(dy: Vector2, rec: bool) -> void:
 	# o alto-falante
 	for y in range(int(GRILLE.position.y), int(GRILLE.end.y), 2):
 		for x in range(int(GRILLE.position.x) + (y / 2) % 2, int(GRILLE.end.x), 2):
-			draw_rect(Rect2(Vector2(x, y) + dy, Vector2.ONE), Pal.BAKELITE[0])
+			draw_rect(Rect2(Vector2(x, y) + dy, Vector2.ONE), Pal.BOARD_INSET)
 
 
 ## O pedaço da textura `tex` posta em `at` que cai dentro da janela `win` (as rodinhas do contador somem na moldura).

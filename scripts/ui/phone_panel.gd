@@ -4,12 +4,12 @@ extends MarginContainer
 ## fica na ferramenta Registro, `CallLog`), com os avisos (`flash`/`warn`, a última linha das falas), as opções de fala e a barra de agravamento;
 ## as teclas (`KeyCapStyle`); e o rádio de despacho (`radio`). A mesa comutadora tem uma miniatura dele
 ## (`ConsoleMini`): este painel é a vista de perto daquela. Mostra uma PhoneCall por vez (`show_call`) e se redesenha
-## pelos sinais dela. É um console embutido na frente da mesa (`_draw`: a madeira de borda a borda, logo abaixo da
-## borda do tampo); os blocos são telas e chapas encaixadas nela, e a tela da conversa apaga sem ligação
+## pelos sinais dela. É um console embutido na frente da mesa (`_draw`: o plástico creme da mesa de borda a borda,
+## logo abaixo da borda do tampo); os blocos são telas e chapas encaixadas nela, e a tela da conversa apaga sem ligação
 ## (`ScreenGlass`). (A ligação em foco com o visor e o bloco do destino e das outras linhas saíram: a mesa já mostra.)
 
 const LINES := 20   ## falas da ligação em foco consideradas; a tela mostra as últimas que couberem (`_fit`)
-const WOOD := [Color("6b4529"), Color("4a2f1c"), Color("2a1a0f"), Color("3a2616")]   ## luz, meio, sombra, a frente da mesa
+const SHELL := [Pal.SHELL[7], Pal.SHELL[6], Pal.SHELL[3], Pal.SHELL[4]]   ## o plástico do móvel da mesa: luz, meio, sombra, a frente
 const BLINK := Color(1.7, 1.55, 1.1)   ## a tecla Atender no auge da piscada (`blink_answer`)
 
 signal answer_pressed
@@ -82,23 +82,14 @@ func show_call(c: PhoneCall) -> void:
 	_render_choices()
 
 
-## O corpo do console: a frente de madeira da mesa, de uma borda da tela à outra, com o veio na horizontal, a quina do
-## tampo pegando a luz no alto e os parafusos de latão que prendem o painel.
+## O corpo do console: o plástico creme da mesa (série Ruptura), de uma borda da tela à outra, liso e sem parafusos,
+## com a quina do tampo pegando a luz no alto.
 func _draw() -> void:
 	var r := Rect2(Vector2(-global_position.x, -8), Vector2(get_viewport_rect().size.x, size.y + 40))
-	draw_rect(r, WOOD[3])
-	for i in int(r.size.y / 5.0):   # o veio
-		var y := r.position.y + 6 + i * 5
-		var x := r.position.x + fmod(i * 173.0, 90.0)
-		while x < r.end.x:
-			draw_rect(Rect2(x, y + (int(x) / 7) % 2, 40 + int(x * 0.37) % 70, 1), WOOD[2] if (i + int(x)) % 3 else WOOD[1])
-			x += 150 + int(x * 0.13) % 60
-	draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), WOOD[0])   # a quina do tampo
-	draw_rect(Rect2(r.position + Vector2(0, 1), Vector2(r.size.x, 2)), WOOD[1])
-	draw_rect(Rect2(r.position + Vector2(0, 3), Vector2(r.size.x, 1)), WOOD[2])
-	for p in [Vector2(-12, 6), Vector2(size.x + 12, 6), Vector2(-12, size.y - 6), Vector2(size.x + 12, size.y - 6)]:
-		draw_texture_rect(PixelArt.disc(6, [[2.0, Color("d8bc78"), Color("b49a5a"), Color("7a6438")], [3.0, Color("1a120c")]]), Rect2(p - Vector2(3, 3), Vector2(6, 6)), false)
-		draw_rect(Rect2(p - Vector2(1, 0.5), Vector2(3, 1)), Color("5a4a2a"))   # a fenda
+	draw_rect(r, SHELL[3])
+	draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), SHELL[0])   # a quina do tampo
+	draw_rect(Rect2(r.position + Vector2(0, 1), Vector2(r.size.x, 2)), SHELL[1])
+	draw_rect(Rect2(r.position + Vector2(0, 3), Vector2(r.size.x, 1)), SHELL[2])
 
 
 func shown() -> PhoneCall:

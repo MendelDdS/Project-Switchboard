@@ -418,7 +418,7 @@ func _draw() -> void:
 	_draw_knob()
 	var b := _base()
 	draw_rect(Rect2(BEZEL, b.position.y - 3.0, b.size.x - BEZEL * 2.0, 3), Color(0, 0, 0, 0.3))   # a sombra da base no vidro
-	draw_rect(b, Pal.PANEL_LO)
+	draw_rect(b, Pal.SHELL[3])   # o tampo da base, no plástico das máquinas, mais na sombra
 	_draw_sender()
 	_draw_printer()
 	_draw_shredder()
@@ -427,22 +427,19 @@ func _draw() -> void:
 		_draw_tongue()
 
 
-## A moldura de metal em volta do vidro do mapa (`BEZEL`, até a base): a beira na luz no alto e à esquerda, o rebaixo
-## escuro onde o vidro entra (no alto e nos lados; embaixo fica a base), a sombra da moldura no vidro e os parafusos.
+## A moldura oliva em volta do vidro do mapa (`BEZEL`, até a base), como o painel da mesa: a beira na luz no alto e à
+## esquerda, o rebaixo escuro onde o vidro entra (no alto e nos lados; embaixo fica a base) e a sombra dela no vidro.
 func _draw_bezel() -> void:
 	var w := BEZEL
 	var glass := _glass()
 	for r: Rect2 in [Rect2(0, 0, size.x, w), Rect2(0, 0, w, glass.end.y), Rect2(glass.end.x, 0, KNOB_W, glass.end.y)]:
-		draw_rect(r, Pal.PANEL)
+		draw_rect(r, Pal.BOARD_FACE)
 	bevel(self, Rect2(0, 0, size.x, glass.end.y + 2.0))   # (embaixo fica a base, por cima da beira de baixo)
 	draw_rect(Rect2(w - 1, w - 1, glass.size.x + 2, 1), Pal.EDGE)   # o rebaixo
 	draw_rect(Rect2(w - 1, w - 1, 1, glass.size.y + 1), Pal.EDGE)
 	draw_rect(Rect2(glass.end.x, w - 1, 1, glass.size.y + 1), Pal.EDGE)
 	draw_rect(Rect2(glass.position, Vector2(glass.size.x, 2)), Color(0, 0, 0, 0.3))   # a sombra da moldura no vidro
 	draw_rect(Rect2(glass.position + Vector2(0, 2), Vector2(2, glass.size.y - 2)), Color(0, 0, 0, 0.18))
-	for c: Vector2 in [Vector2(4, 4), Vector2(size.x - 7, 4), Vector2(4, glass.end.y - 7), Vector2(size.x - 7, glass.end.y - 7)]:
-		draw_rect(Rect2(c, Vector2(3, 3)), Pal.BRASS)
-		draw_rect(Rect2(c + Vector2(1, 1), Vector2(1, 1)), Pal.PANEL_LO)   # a fenda do parafuso
 
 
 ## O vidro do mapa, dentro da moldura (a da direita mais larga, com o anel).
@@ -459,12 +456,13 @@ func _knob() -> Rect2:
 ## O anel visto de lado, um cilindro de borracha: escuro nas pontas, claro no meio, com os sulcos que pulam um terço
 ## de sulco por degrau do aumento (`DETENT_TURN`); o + em cima e o − embaixo, apagados no limite; embaixo, o mostrador.
 func _draw_knob() -> void:
-	const M := Pal.PANEL_METAL
+	const M := Pal.PANEL_METAL   # a borracha do anel
+	const O := Pal.BOARD_METAL   # a moldura oliva
 	var r := _knob()
 	var slot := r.grow(2.0)   # o rasgo na moldura, com um vão em volta do anel; a beira de baixo e a da direita na luz
-	draw_rect(slot, M[0])
-	draw_rect(Rect2(slot.position.x, slot.end.y, slot.size.x + 1.0, 1), M[5])
-	draw_rect(Rect2(slot.end.x, slot.position.y, 1, slot.size.y), M[5])
+	draw_rect(slot, O[0])
+	draw_rect(Rect2(slot.position.x, slot.end.y, slot.size.x + 1.0, 1), O[5])
+	draw_rect(Rect2(slot.end.x, slot.position.y, 1, slot.size.y), O[5])
 	var half := r.size.y / 2.0
 	for y in int(r.size.y):   # o tom de cada linha pela inclinação dela no cilindro
 		var z := cos(asin(clampf((y + 0.5 - half) / half, -1.0, 1.0)))
@@ -476,30 +474,30 @@ func _draw_knob() -> void:
 			var y := r.position.y + roundf(half + sin(a) * (half - 1.0))
 			draw_rect(Rect2(r.position.x + 1, y, r.size.x - 2, 1), M[0])
 	var cx := r.get_center().x
-	for k in 2:   # + em cima, − embaixo, em latão
+	for k in 2:   # + em cima, − embaixo, impressos em creme
 		var at := Vector2(cx, r.position.y - 9.0 if k == 0 else r.end.y + 9.0)
 		var lit := (_zoom_seen < 1.0) if k == 0 else (_zoom_seen > 0.0)
-		var col := Pal.BRASS if lit else M[6]
+		var col := Pal.BOARD_INK if lit else O[5]
 		draw_rect(Rect2(at.x - 3, at.y, 7, 1), col)
 		if k == 0:
 			draw_rect(Rect2(at.x, at.y - 3, 1, 7), col)
 	# o mostrador do aumento, embaixo do −, como o das leitoras de microfilme: um contador com um tambor por algarismo
 	# ("1.4X"), cada um no seu rasgo da chapa, o das unidades virando só quando o dos décimos passa do 9, como num
-	# hodômetro; o ponto e o X gravados no metal, em latão
+	# hodômetro; o ponto e o X impressos em creme
 	var x0 := roundf(cx - 9.0)
 	var y0 := r.end.y + 17.0
 	var tenths := fmod(_roll, 10.0)
 	_drum(Rect2(x0, y0, 5, 9), floorf(_roll / 10.0) + maxf(0.0, tenths - 9.0))
 	_drum(Rect2(x0 + 8.0, y0, 5, 9), tenths)
 	for c: Array in [[".", 5.0], ["X", 15.0]]:
-		PunchCard.small(self, Vector2(x0 + c[1], y0 + 2.0), c[0], Pal.BRASS)
+		PunchCard.small(self, Vector2(x0 + c[1], y0 + 2.0), c[0], Pal.BOARD_INK)
 
 
 ## Um tambor do mostrador no rasgo `win` da chapa, no número `pos` (entre dois, a meio caminho: o de baixo subindo),
 ## recortado pelo rasgo. O rasgo é rebaixado (a beira de cima e a da esquerda escuras, a de baixo e a da direita na
 ## luz) e o tambor, um cilindro de papel: mais escuro no alto, à sombra da beira, e embaixo, onde ele faz a curva.
 func _drum(win: Rect2, pos: float) -> void:
-	const M := Pal.PANEL_METAL
+	const M := Pal.BOARD_METAL
 	draw_rect(win.grow(1.0), M[0])
 	draw_rect(Rect2(win.position.x, win.end.y, win.size.x + 1.0, 1), M[5])   # a beira de baixo e a da direita, na luz
 	draw_rect(Rect2(win.end.x, win.position.y, 1, win.size.y), M[5])
@@ -517,37 +515,42 @@ func _drum(win: Rect2, pos: float) -> void:
 
 
 ## A faixa da frente da base, como a frente da unidade da mesa (`Background._draw_dispatch_unit`): a luz vermelha de
-## emergência em andamento e a âmbar de cartão na mesa, à esquerda, a plaqueta de latão no meio e a saída de ar.
+## emergência em andamento e a âmbar de cartão na mesa, à esquerda, a etiqueta creme no meio e a saída de ar.
 func _draw_strip() -> void:
 	var b := _base()
 	var y := b.end.y - STRIP - 3.0
 	var mid := y + floorf(STRIP / 2.0)
 	led(self, Vector2(b.position.x + 9.0, mid - 2.0), _alert, Pal.RED)
 	led(self, Vector2(b.position.x + 18.0, mid - 2.0), state != State.IDLE, Pal.AMBER)
-	var brass := Rect2(floorf(b.get_center().x - 45.0), mid - 2.0, 90, 5)
-	draw_rect(brass, Pal.BRASS.darkened(0.25))
-	draw_rect(brass.grow(-1.0), Pal.BRASS)
-	for x: float in [brass.position.x + 2.0, brass.end.x - 3.0]:   # os parafusos dela
-		draw_rect(Rect2(x, mid, 1, 1), Pal.PANEL_LO)
+	var tag := Rect2(floorf(b.get_center().x - 45.0), mid - 2.0, 90, 5)
+	Switchboard.round_rect(self, tag.grow(1.0), Pal.SHELL[1], [1])
+	Switchboard.round_rect(self, tag, Pal.BOARD_TAG, [1])
 	for i in 3:
-		draw_rect(Rect2(b.end.x - 45.0, mid - 3.0 + i * 3, 34, 1), Pal.PANEL_LO)
+		draw_rect(Rect2(b.end.x - 45.0, mid - 3.0 + i * 3, 34, 1), Pal.SHELL[1])
 
 
-## Caixa de metal: sombra, luz em cima e à esquerda, sombra embaixo e à direita, parafusos nos cantos (sem a borda
-## preta em volta: parecia contorno).
+## Caixa de plástico creme, como o móvel da mesa comutadora (série Ruptura): cantos arredondados, sem parafusos, a
+## sombra embaixo, a quina na luz em cima e à esquerda e na sombra embaixo e à direita.
 static func box(ci: CanvasItem, r: Rect2) -> void:
-	ci.draw_rect(Rect2(r.position + Vector2(2, 2), r.size), Color(0, 0, 0, 0.35))
-	ci.draw_rect(r, Pal.PANEL)
-	bevel(ci, r)
-	for c in [Vector2(4, 4), Vector2(r.size.x - 7, 4), Vector2(4, r.size.y - 7), Vector2(r.size.x - 7, r.size.y - 7)]:
-		ci.draw_rect(Rect2(r.position + c, Vector2(3, 3)), Pal.BRASS)
-		ci.draw_rect(Rect2(r.position + c + Vector2(1, 1), Vector2(1, 1)), Pal.PANEL_LO)   # a fenda do parafuso
+	Switchboard.round_rect(ci, Rect2(r.position + Vector2(2, 2), r.size), Color(0, 0, 0, 0.35))
+	Switchboard.round_rect(ci, r, Pal.SHELL[2])
+	Switchboard.round_rect(ci, Rect2(r.position, r.size - Vector2.ONE), Pal.SHELL[7])
+	Switchboard.round_rect(ci, r.grow(-1.0), Pal.SHELL[5])
 
 
-## A beira da chapa `r` em dois tons da rampa do metal de cada lado (`Pal.PANEL_METAL`, com o campo em `Pal.PANEL`, o
+## A frente oliva rebaixada da máquina `r`, embaixo da etiqueta: a luz, o aviso dela e, na trituradora, a faixa de
+## perigo ficam nela (o âmbar e o vermelho não se leem no creme).
+static func face(ci: CanvasItem, r: Rect2) -> void:
+	var f := Rect2(r.position.x + 5.0, r.position.y + 33.0, r.size.x - 10.0, r.size.y - 37.0)
+	Switchboard.round_rect(ci, f.grow(1.0), Pal.SHELL[3])
+	Switchboard.round_rect(ci, f, Pal.BOARD_FACE)
+	ci.draw_rect(Rect2(f.position.x + 1.0, f.position.y, f.size.x - 2.0, 1), Pal.BOARD_INSET)   # a sombra da beira de cima
+
+
+## A beira da chapa oliva `r` em dois tons da rampa de cada lado (`Pal.BOARD_METAL`, com o campo em `Pal.BOARD_FACE`, o
 ## tom do meio dela): na luz, em cima e à esquerda; na sombra, embaixo e à direita, a de fora mais escura.
 static func bevel(ci: CanvasItem, r: Rect2) -> void:
-	const M := Pal.PANEL_METAL
+	const M := Pal.BOARD_METAL
 	ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), M[6])
 	ci.draw_rect(Rect2(r.position + Vector2(1, 1), Vector2(r.size.x - 2.0, 1)), M[4])
 	ci.draw_rect(Rect2(r.position + Vector2(0, 1), Vector2(1, r.size.y - 1.0)), M[5])
@@ -558,34 +561,36 @@ static func bevel(ci: CanvasItem, r: Rect2) -> void:
 	ci.draw_rect(Rect2(r.end.x - 1.0, r.position.y + 1.0, 1, r.size.y - 1.0), M[1])
 
 
-## Saída de ar: `n` riscos escuros com o brilho embaixo.
+## Saída de ar no plástico: `n` frisos escuros com a beira de baixo na luz.
 static func vent(ci: CanvasItem, at: Vector2, n: int, w: float) -> void:
 	for i in n:
-		ci.draw_rect(Rect2(at + Vector2(0, i * 4), Vector2(w, 2)), Pal.PANEL_LO)
-		ci.draw_rect(Rect2(at + Vector2(0, i * 4 + 2), Vector2(w, 1)), Pal.PANEL_METAL[4])
+		ci.draw_rect(Rect2(at + Vector2(0, i * 4), Vector2(w, 2)), Pal.SHELL[1])
+		ci.draw_rect(Rect2(at + Vector2(0, i * 4 + 2), Vector2(w, 1)), Pal.SHELL[7])
 
 
-## Fenda de entrada ou saída: um rasgo fino, com a beira de metal na luz embaixo dele.
+## Fenda de entrada ou saída: um rasgo fino, com a beira do plástico na luz embaixo dele.
 static func mouth(ci: CanvasItem, x: float, y: float, w: float) -> void:
-	ci.draw_rect(Rect2(x - 2.0, y - 2.0, w + 4.0, 5), Pal.PANEL_LO)
+	ci.draw_rect(Rect2(x - 2.0, y - 2.0, w + 4.0, 5), Pal.SHELL[2])
 	ci.draw_rect(Rect2(x, y - 1.0, w, 2), Color.BLACK)
-	ci.draw_rect(Rect2(x - 2.0, y + 2.0, w + 4.0, 1), Pal.PANEL_HI)
+	ci.draw_rect(Rect2(x - 2.0, y + 2.0, w + 4.0, 1), Pal.SHELL[7])
 
 
+## A lâmpada de 5 px em `at`, como as da mesa comutadora (`Switchboard._draw_lamp`): uma cúpula de plástico fosco num
+## aro creme; apagada, leitosa; acesa, toda de uma cor só, com a luz opaca em volta (sem brilho de vidro).
 static func led(ci: CanvasItem, at: Vector2, on: bool, col: Color) -> void:
-	Switchboard.rim(ci, Rect2(at, Vector2(5, 5)), Pal.PANEL_LO, Pal.PANEL_HI)   # rebaixada: a sombra em cima, a luz embaixo
-	ci.draw_rect(Rect2(at, Vector2(5, 5)), col if on else Pal.PANEL_LO)
+	ci.draw_texture(PixelArt.disc(9, [[2.5, Color.TRANSPARENT], [4.5, Pal.SHELL[6], Pal.SHELL[4], Pal.SHELL[2]]]), at - Vector2(2, 2))
+	var dome := [[1.5, col.lightened(0.25)], [2.5, col]] if on else [[1.5, Pal.LAMP_GLASS], [2.5, Pal.LAMP_GLASS.darkened(0.2)]]
+	ci.draw_texture(PixelArt.disc(5, dome), at)
 	if on:
-		ci.draw_rect(Rect2(at + Vector2(1, 1), Vector2(1, 1)), Color(1, 1, 1, 0.6))   # o brilho da lâmpada
-		Bloom.light(ci, Rect2(at, Vector2(5, 5)), col)
+		Bloom.light(ci, Rect2(at, Vector2(5, 5)), col, 1.0, false, true)
 
 
-## A placa de latão com o nome da máquina.
+## A etiqueta com o nome da máquina: creme, impressa em oliva escuro, colada rente (como a do fabricante na mesa).
 static func plate(ci: CanvasItem, r: Rect2, text: String) -> void:
-	var brass := Rect2(r.position.x + 8.0, r.position.y + 14.0, minf(84.0, r.size.x - 16.0), 15.0)
-	ci.draw_rect(brass, Pal.BRASS)
-	ci.draw_rect(brass.grow(-1.0), Pal.BRASS.darkened(0.25))
-	PunchCard.write(ci, Vector2(brass.position.x, brass.position.y + 11.0), text, Pal.INK, brass.size.x, HORIZONTAL_ALIGNMENT_CENTER)
+	var tag := Rect2(r.position.x + 8.0, r.position.y + 14.0, minf(84.0, r.size.x - 16.0), 15.0)
+	Switchboard.round_rect(ci, tag.grow(1.0), Pal.SHELL[2])
+	Switchboard.round_rect(ci, tag, Pal.BOARD_TAG)
+	PunchCard.write(ci, Vector2(tag.position.x, tag.position.y + 11.0), text, Pal.BOARD_STRIP, tag.size.x, HORIZONTAL_ALIGNMENT_CENTER)
 
 
 ## A impressora, no meio: a fenda por onde o cartão sobe, a placa, a luz (âmbar trabalhando; vermelha piscando com o
@@ -593,6 +598,7 @@ static func plate(ci: CanvasItem, r: Rect2, text: String) -> void:
 func _draw_printer() -> void:
 	var r := _printer()
 	box(self, r)
+	face(self, r)
 	mouth(self, _mouth_x(1), _printer_slot(), CARD_W)
 	plate(self, r, T.text(T.Key.CARD_PRINTER))
 	var busy := state in [State.TYPING, State.PRINTING]
@@ -624,6 +630,7 @@ func _draw_tongue() -> void:
 func _draw_sender() -> void:
 	var r := _machine(Machine.SEND)
 	box(self, r)
+	face(self, r)
 	var x0 := _mouth_x(0)
 	var y := _slot(Machine.SEND)
 	mouth(self, x0, y, CARD_W)
@@ -644,6 +651,7 @@ func _draw_sender() -> void:
 func _draw_shredder() -> void:
 	var r := _machine(Machine.SHRED)
 	box(self, r)
+	face(self, r)
 	var x0 := _mouth_x(2) + _shake.x
 	var y := _slot(Machine.SHRED)
 	mouth(self, x0, y, CARD_W)

@@ -37,6 +37,10 @@ const UNIT_D := 0.3
 ## na proporção da da ferramenta (632 × 104), e o fundo dela (fração do tampo); na frente dela, a mesinha dela, na
 ## proporção da mesa da ferramenta (`Toll.NOMINAL`).
 const CALC := Vector3(28, 4.6, 0.06)
+const CABLE_STEPS := 32   # os trechos retos da curva de cada fio das máquinas até o fundo da mesa (`_draw_cable`)
+const CABLE_DROP := 0.35   # do lado da máquina até o fim do fio, onde ele, caindo da traseira, chega ao tampo
+const CABLE_SAG := 0.12   # o quanto cada um já recua ao sair da máquina, até o fundo da mesa
+const CABLE_D := 1.5   # a grossura deles (na sala; na tela, 3 a 6 px pela distância)
 const TOLL_BOX_H := 4.5   ## a altura da caixinha dos bilhetes (na sala, uns 2 cm)
 const STAMP_ART := [   ## o carimbo em pé na mesinha, como o da ferramenta (21 × 35 px, uns 6 cm): o cabo de baquelite com o medalhão, a haste, o corpo com a plaqueta, as rodas de latão entre as pernas e a sapata vazada
 	"......kkKKKKKkk......",
@@ -126,6 +130,7 @@ var _clock_rim := {}   # as faces do relógio na tela (`_clock_box`), para o mes
 var _lamp_x := 0.0     # onde está a luminária, no meio da tela (px de 2x2): a luz na mesa e a sombra dos objetos dependem dela
 var _zd := Vector2.ZERO   # a frente e o fundo do tampo (z)
 var _side_x := 0.0     # a lateral da mesa comutadora na sala (x): os objetos da mesa ficam à direita dela
+static var _cable_art := {}   # os fios das máquinas já montados: [pontos, grossura] -> [canto, textura] (`_draw_cable`)
 var _tip := Rect2()   # a ponta do bilhete saindo da fenda do calculógrafo, inteira (px da tela; a camada dela a desenha)
 var _tip_tones: Array = [Pal.TICKET, Pal.TICKET_EDGE]   # o bilhete e a beira dele na luz da fenda
 var _tip_cover: Array = []   # o carimbo em pé na mesinha [textura, meio, cor]: fica na frente da fenda, e a camada da ponta o desenha de novo por cima dela
@@ -231,6 +236,10 @@ func _draw_desk_props() -> void:
 	var cx: float = back[0] + (UNIT.x - CALC.x) * k / 2.0   # o calculógrafo no meio da unidade de despacho, logo atrás dele
 	var edge := (size.x / 2.0 - EDGE_PX - _vp.x) * _at(0.06) / Z0   # perto, a parede já passou da beira da tela: o jornal vai até ela
 	var near := _row(cx + CALC.x * k, minf(r, edge), [0.0, PAD_W * k, NEWS_W * k]).slice(1)   # e os outros dois depois dele
+	if _here(Tools.DISPATCH):   # os fios antes das máquinas, que tapam a ponta deles (saem da traseira delas)
+		_draw_cable(back[0], _at(0.6) + _deep(UNIT_D * k), UNIT.y * k, 7.0)
+	if _here(Tools.TOLL):   # (a máquina do calculógrafo fica atrás da mesinha, como em `_draw_calculograph`)
+		_draw_cable(cx, _at(0.06) + CALC.x * k * Toll.NOMINAL.y / Toll.NOMINAL.x + _deep(CALC.z * k), 0.0, 2.5)   # (rente ao tampo: caindo do alto, parecia entrar na lateral)
 	if _here(Tools.DISPATCH):
 		_draw_dispatch_unit(back[0], _at(0.6), UNIT.x * k)   # recuada: a máquina do calculógrafo, na frente dela, não tampa a base
 	if _here(Tools.DIRECTORY):
@@ -252,10 +261,77 @@ func _draw_desk_props() -> void:
 	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
+## Um fio de uma máquina da mesa, como esses aparelhos são ligados: sai da traseira dela (o canto de trás à esquerda
+## em `x`, `z`, de `tall` de altura; a ponta fica escondida atrás dela, desenhada depois), cai em barriga até o tampo
+## ao lado dela e corre por trás dela, numa curva com folga (`CABLE_SAG`), até o fundo da mesa, junto da parede ao lado
+## da mesa comutadora (`gap` além da lateral dela), onde desce por trás do tampo. Nunca vem para a frente da traseira
+## (parecia sair de baixo da máquina). Borracha cinza-escura sem contorno, como os cabos de conexão: o brilho em cima,
+## a sombra embaixo, a grossura pela distância (`CABLE_D`). Montado pixel a pixel numa imagem guardada (`_cable_art`;
+## em trechos de `_pixel_line`, a curva ficava com furos).
+## ponytail: com a máquina erguida sob o mouse, a ponta escondida do fio pode aparecer embaixo dela por um instante.
+func _draw_cable(x: float, z: float, tall: float, gap: float) -> void:
+	var deep := _zd.y - _zd.x
+	var st := Vector2(x + 6.0, z + 0.01 * deep)   # rente atrás da traseira (na frente dela, parecia sair de baixo da máquina): a máquina tapa a ponta
+	var e := Vector2(_side_x + gap, _zd.y)   # a beira de trás do tampo
+	var fall := lerpf(x, e.x, CABLE_DROP)   # onde ele chega ao tampo
+	var c1 := Vector2(e.x, lerpf(z, e.y, CABLE_SAG))   # já recuando um pouco ao sair (reto para o lado, parecia sair de baixo
+	var c2 := Vector2(e.x, lerpf(z, e.y, 0.5))   # da máquina), mas para o lado antes do fundo (em diagonal, o do calculógrafo
+	# passava por baixo da quina da unidade de despacho) e, rente ao console, para o fundo
+	var pts := PackedVector2Array()
+	for i in CABLE_STEPS + 1:
+		var t := float(i) / CABLE_STEPS
+		var q := st.bezier_interpolate(c1, c2, e, t)
+		var up := tall * 0.9 * pow(clampf((q.x - fall) / (st.x - fall), 0.0, 1.0), 2.0)   # a queda, já à vista, ao lado da máquina
+		pts.append(_p3(q.x, _yd - CABLE_D / 2.0 - up, q.y))
+	var mid := st.bezier_interpolate(c1, c2, e, 0.5)
+	var w := clampi(roundi(_p3(mid.x, _yd, mid.y).y - _p3(mid.x, _yd - CABLE_D, mid.y).y), 3, 6)
+	var key := [pts, w]
+	if not _cable_art.has(key):
+		if _cable_art.size() > 8:   # a tela mudou de tamanho
+			_cable_art.clear()
+		_cable_art[key] = _cable_image(pts, w)
+	var art: Array = _cable_art[key]
+	_ci.draw_texture(art[1], art[0])
+
+
+## A imagem do fio pelos pontos `pts` (px da tela), de `w` px, e onde ela vai: a sombra rente no tampo, o lado de baixo,
+## o miolo e o brilho de cima, cada pixel uma vez (alfa sobreposto manchava a sombra). A linha do meio passa sem cantos
+## em L (num degrau de pixel art bom, a curva anda em diagonal limpa).
+func _cable_image(pts: PackedVector2Array, w: int) -> Array:
+	var r := _bounds(pts).grow(w + 2.0)
+	r = Rect2(r.position.floor(), r.size.ceil() + Vector2.ONE)
+	var img := Image.create(int(r.size.x), int(r.size.y), false, Image.FORMAT_RGBA8)
+	var dots: Array[Vector2i] = []
+	for i in pts.size() - 1:
+		var n := maxi(1, ceili(pts[i].distance_to(pts[i + 1]) * 2.0))
+		for j in n:
+			var p := Vector2i((pts[i].lerp(pts[i + 1], float(j) / n) - r.position).round())
+			if dots.is_empty() or dots[-1] != p:
+				dots.append(p)
+	var i := 1
+	while i < dots.size() - 1:   # tira o pixel do canto em L (os vizinhos dele se tocam na diagonal)
+		var d := dots[i + 1] - dots[i - 1]
+		if absi(d.x) == 1 and absi(d.y) == 1:
+			dots.remove_at(i)
+		else:
+			i += 1
+	var h := w / 2
+	for pass_: Array in [[Rect2i(-h + 1, -h + 1, w, w), Color(0, 0, 0, 0.35)], [Rect2i(-h, -h, w, w), Pal.BAKELITE[1]],
+			[Rect2i(-h, -h, w, w - 1), Pal.SHELL[0]], [Rect2i(0, -h + 1, 1, 1), Pal.SHELL[2]]]:   # borracha cinza-escura (marrom, sumia no tampo)
+		for p: Vector2i in dots:
+			var q: Rect2i = pass_[0]
+			for y in range(q.position.y, q.end.y):
+				for x in range(q.position.x, q.end.x):
+					var o := p + Vector2i(x, y)
+					if o.x >= 0 and o.y >= 0 and o.x < img.get_width() and o.y < img.get_height():
+						img.set_pixelv(o, pass_[1])
+	return [r.position, ImageTexture.create_from_image(img)]
+
+
 ## O calculógrafo, que abre a tarifação (`x0`, a frente em `zf`; medidas em `CALC`), como a ferramenta aberta. Atrás, a
 ## máquina, uma caixa baixa no material das máquinas do despacho; na frente dela, sem relógio (o da mesa fica ao lado),
 ## os dez contadores em duas fileiras (a plaquinha, os tambores e a luz âmbar de cada entrada contando, `counting`), a
-## plaqueta de latão com a luz e a saída de ar e, embaixo, a fenda, de onde sai o bilhete (a ponta numa camada própria,
+## etiqueta creme com a luz e a saída de ar e, embaixo, a fenda, de onde sai o bilhete (a ponta numa camada própria,
 ## `_tip`, `Background._draw_tip`). Na frente dela, a mesinha (o que está nela e onde, `toll_desk`): a almofada com a
 ## tampa aberta, os bilhetes soltos com as marcas do carimbo, a caixinha com os guardados e o carimbo em pé.
 func _draw_calculograph(x0: float, zf: float) -> void:
@@ -272,7 +348,7 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 		_clock_pt(xc, zc, -hw, -hd, _yd)]))
 	var step := _paper_step(_still(xc, zb))   # a máquina num degrau só da luz parada, como a unidade de despacho
 	var tone := func(c: Color) -> Color: return Pal.lit(c, step)
-	var box := _clock_box(xc, zc, hw, hd, _yd, CALC.y * PROP_K, Pal.PANEL_HI, Pal.PANEL_LO, Pal.PANEL, tone)
+	var box := _clock_box(xc, zc, hw, hd, _yd, CALC.y * PROP_K, Pal.SHELL[3], Pal.SHELL[0], Pal.SHELL[2], tone)   # o plástico creme, três tons abaixo do aberto (a luminária ali o deixava branco)
 	var hull := PackedVector2Array()
 	for f: PackedVector2Array in box.values():
 		hull.append_array(f)
@@ -282,29 +358,29 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 		var win := Rect2(f.position.x + 3.0, f.position.y + 2.0, roundf(f.size.x * 0.76) - 3.0, 0)   # o visor, como o da aberta (`Toll._screen`)
 		var cell := Vector2(floorf(win.size.x / 5.0), maxf(floorf((f.size.y - 7.0) / 2.0), 1.0))   # (sem tela, no primeiro desenho, a frente tem 1 px)
 		win.size.y = cell.y * 2.0
-		_ci.draw_rect(win, tone.call(Pal.PANEL_LO))
+		_ci.draw_rect(win, tone.call(Pal.BOARD_INSET))
 		for n in range(1, Exchange.LINES + 1):
 			var o := win.position + Vector2((n - 1) % 5, (n - 1) / 5) * cell + Vector2(0, roundf(cell.y / 2.0) - 1.0)
 			var on := (counting & (1 << n)) != 0
-			_ci.draw_rect(Rect2(o + Vector2(1, 0), Vector2(2, 2)), tone.call(Pal.BRASS))   # a plaquinha da entrada
-			_ci.draw_rect(Rect2(o + Vector2(4, 0), Vector2(cell.x - 8.0, 2)), tone.call(Pal.SHEET_NEW if on else Pal.PANEL_HI))   # os tambores
+			_ci.draw_rect(Rect2(o + Vector2(1, 0), Vector2(2, 2)), tone.call(Pal.BOARD_TAG))   # a plaquinha da entrada
+			_ci.draw_rect(Rect2(o + Vector2(4, 0), Vector2(cell.x - 8.0, 2)), tone.call(Pal.SHEET_NEW if on else Pal.BOARD_METAL[4]))   # os tambores
 			var led := Rect2(o + Vector2(cell.x - 3.0, 0), Vector2(2, 2))
 			_ci.draw_rect(led, Pal.AMBER if on else Pal.AMBER.darkened(0.75))
 			if on:
 				_light(led, Pal.AMBER, 0.4, true)
 		var side := Rect2(win.end.x + 3.0, f.position.y + 2.0, f.end.x - win.end.x - 6.0, f.size.y)
-		_ci.draw_rect(Rect2(side.position, Vector2(side.size.x, 3)), tone.call(Pal.BRASS.darkened(0.25)))   # a plaqueta
-		_ci.draw_rect(Rect2(side.position + Vector2(1, 1), Vector2(side.size.x - 2.0, 1)), tone.call(Pal.BRASS))
+		_ci.draw_rect(Rect2(side.position, Vector2(side.size.x, 3)), tone.call(Pal.SHELL[0]))   # a etiqueta
+		_ci.draw_rect(Rect2(side.position + Vector2(1, 1), Vector2(side.size.x - 2.0, 1)), tone.call(Pal.BOARD_TAG))
 		var lamp := Rect2(side.position + Vector2(0, 6), Vector2(2, 2))
 		_ci.draw_rect(lamp, Pal.AMBER if counting else Pal.AMBER.darkened(0.75))
 		if counting:
 			_light(lamp, Pal.AMBER, 0.6, true, true, DESK_SPILL)
 		for i in 3:   # a saída de ar
-			_ci.draw_rect(Rect2(side.position.x + 4.0, side.position.y + 6.0 + i * 2.0, side.size.x - 4.0, 1), tone.call(Pal.PANEL_LO))
+			_ci.draw_rect(Rect2(side.position.x + 4.0, side.position.y + 6.0 + i * 2.0, side.size.x - 4.0, 1), tone.call(Pal.SHELL[0]))
 		var mw := roundf(f.size.x * TollTicket.SIZE.x / Toll.NOMINAL.x)   # a fenda, embaixo do meio dos contadores
 		var mouth := Rect2(roundf(win.get_center().x - mw / 2.0), f.end.y - 3.0, mw, 1)
 		_ci.draw_rect(mouth, Pal.EDGE)
-		_ci.draw_rect(Rect2(mouth.position + Vector2(0, 1), mouth.size), tone.call(Pal.PANEL_HI))
+		_ci.draw_rect(Rect2(mouth.position + Vector2(0, 1), mouth.size), tone.call(Pal.SHELL[4]))
 		# a ponta do bilhete saindo dela para a mesinha fica com a camada dela, que a faz descer sem redesenhar a sala
 		_tip = Rect2(mouth.position + Vector2(1, 1), Vector2(mw - 2.0, 6))
 		_tip_tones = [tone.call(Pal.TICKET), tone.call(Pal.TICKET_EDGE)]
@@ -340,11 +416,11 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 					_poly(quad.call(Rect2(r.position + mr.position * r.size, mr.size * r.size)), Color(Pal.lit(Pal.TOLL_INK, paper), lerpf(0.25, 0.75, m.z)))
 		var bx: Rect2 = toll_desk[1]
 		var shoe: Rect2 = toll_desk[3]
-		var draw_box := func() -> PackedVector2Array:   # a caixinha: a madeira, a boca escura com os guardados de pé e a plaqueta na frente
+		var draw_box := func() -> PackedVector2Array:   # a caixinha: o plástico oliva, a boca escura com os guardados de pé e a etiqueta na frente
 			var bc := Vector2(x0 + bx.get_center().x * w, zb - bx.get_center().y * d)
 			var bh := bx.size * Vector2(w, d) / 2.0
 			_desk_shadow(quad.call(bx), false)
-			var faces := _clock_box(bc.x, bc.y, bh.x, bh.y, _yd, TOLL_BOX_H, Pal.BOARD[0], Pal.BOARD[2], Pal.BOARD[1], desk)
+			var faces := _clock_box(bc.x, bc.y, bh.x, bh.y, _yd, TOLL_BOX_H, Pal.BOARD_METAL[5], Pal.BOARD_METAL[1], Pal.BOARD_METAL[3], desk)
 			var y1 := _yd - TOLL_BOX_H
 			var e := 0.5
 			_poly(PackedVector2Array([_clock_pt(bc.x, bc.y, -bh.x + e, bh.y - e, y1), _clock_pt(bc.x, bc.y, bh.x - e, bh.y - e, y1),
@@ -356,7 +432,7 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 			if faces.has("front"):
 				var bf := _bounds(faces["front"])
 				_ci.draw_rect(Rect2(roundf(bf.get_center().x - bf.size.x * 0.22), roundf(bf.get_center().y - 1.0), roundf(bf.size.x * 0.44), 2),
-					desk.call(Pal.BRASS.darkened(0.15)))
+					desk.call(Pal.BOARD_TAG))
 			var out := PackedVector2Array()
 			for g: PackedVector2Array in faces.values():
 				out.append_array(g)
@@ -1338,10 +1414,10 @@ func _art_map(sz: Vector2i) -> Image:
 
 
 ## A unidade de despacho, que abre o despacho (`x0`, a frente em `zf`, `wx` de largura; medidas em `UNIT`): um móvel
-## de metal no material das máquinas da ficha (`Pal.PANEL`), como um terminal antigo, todo no degrau da luz parada no
+## como um terminal antigo, a base no plástico creme das máquinas (`Pal.SHELL`) e o painel do mapa em oliva (`Pal.BOARD_METAL`), todo no degrau da luz parada no
 ## meio dele, na rampa do metal e na do cartão (`Pal.lit`, `_lit_image`). Embaixo,
 ## a base, com as três máquinas embutidas no tampo, na mesma disposição do despacho aberto (`_art_deck`: o
-## transmissor à esquerda, a impressora no meio e o triturador à direita) e, na frente, a plaqueta de latão e as luzes;
+## transmissor à esquerda, a impressora no meio e o triturador à direita) e, na frente, a etiqueta creme e as luzes;
 ## em cima, atrás, o painel inclinado com o mapa de papel sob o vidro (`_art_glass`). O estado do
 ## jogo nela: a luz vermelha com uma emergência em andamento (`alert`) e o cartão saindo da impressora enquanto há um
 ## na mesa (`card_out`), com a luz âmbar.
@@ -1361,12 +1437,12 @@ func _draw_dispatch_unit(x0: float, zf: float, wx: float) -> void:
 	var sx := x0 if x0 > 0.0 else x1   # o lado virado para o ponto de fuga (atravessando-o, nenhum)
 	if x0 > 0.0 or x1 < 0.0:
 		var base := PackedVector2Array([_p3(sx, yd, ze), _p3(sx, yd, zf), _p3(sx, _yd, zf), _p3(sx, _yd, ze)])
-		_poly(base, tone.call(Pal.PANEL_LO))
+		_poly(base, tone.call(Pal.SHELL[0]))
 		var side := PackedVector2Array([_p3(sx, yt, zt), _p3(sx, yt, ze), _p3(sx, yd, ze), _p3(sx, yd, zb)])
-		_poly(side, tone.call(Pal.PANEL_METAL[2]))
+		_poly(side, tone.call(Pal.BOARD_METAL[2]))
 		all.append_array(base + side)
 	var top := PackedVector2Array([_p3(x0, yt, ze), _p3(x1, yt, ze), _p3(x1, yt, zt), _p3(x0, yt, zt)])   # o alto do painel
-	_poly(top, tone.call(Pal.PANEL_HI))
+	_poly(top, tone.call(Pal.BOARD_METAL[5]))
 	var glass := PackedVector2Array([_p3(x0, yt, zt), _p3(x1, yt, zt), _p3(x1, yd, zb), _p3(x0, yd, zb)])
 	_flat_art("despacho_vidro", glass, func(sz: Vector2i) -> Image: return _lit_image(_art_glass(sz), step),
 		[GameData.sectors.duplicate(), step])
@@ -1379,18 +1455,18 @@ func _draw_dispatch_unit(x0: float, zf: float, wx: float) -> void:
 		_poly(card, tone.call(Pal.CARD))
 		_pixel_line(_tex_pt(sz * Vector2(0.39, 0.15)), _tex_pt(sz * Vector2(0.61, 0.15)), [tone.call(Pal.CARD_FORM)])
 	var front := Rect2(_p3(x0, yd, zf).round(), Vector2.ZERO).expand(_p3(x1, _yd, zf).round())   # a frente da base
-	_ci.draw_rect(front, tone.call(Pal.PANEL))
-	_ci.draw_rect(Rect2(front.position, Vector2(front.size.x, 1)), tone.call(Pal.PANEL_HI))
-	_ci.draw_rect(Rect2(front.position.x, front.end.y - 1, front.size.x, 1), tone.call(Pal.PANEL_LO))
+	_ci.draw_rect(front, tone.call(Pal.SHELL[2]))   # (três tons abaixo do despacho aberto: a luminária ali o deixava branco)
+	_ci.draw_rect(Rect2(front.position, Vector2(front.size.x, 1)), tone.call(Pal.SHELL[4]))
+	_ci.draw_rect(Rect2(front.position.x, front.end.y - 1, front.size.x, 1), tone.call(Pal.SHELL[0]))
 	var mid := front.position.y + floorf(front.size.y / 2.0)
 	var plate := Rect2(front.position.x + roundf(front.size.x * 0.36), mid - 2, roundf(front.size.x * 0.28), 4)
-	_ci.draw_rect(plate, tone.call(Pal.BRASS.darkened(0.25)))   # a plaqueta do fabricante
-	_ci.draw_rect(plate.grow(-1), tone.call(Pal.BRASS))
+	_ci.draw_rect(plate, tone.call(Pal.SHELL[0]))   # a etiqueta do fabricante
+	_ci.draw_rect(plate.grow(-1), tone.call(Pal.BOARD_TAG))
 	for i in 3:   # a saída de ar, à direita
-		_ci.draw_rect(Rect2(front.end.x - roundf(front.size.x * 0.22), mid - 2 + i * 2, roundf(front.size.x * 0.16), 1), tone.call(Pal.PANEL_LO))
+		_ci.draw_rect(Rect2(front.end.x - roundf(front.size.x * 0.22), mid - 2 + i * 2, roundf(front.size.x * 0.16), 1), tone.call(Pal.SHELL[0]))
 	for l: Array in [[0.06, alert, Pal.RED], [0.14, card_out, Pal.AMBER]]:   # as luzes: ocorrência e cartão na mesa
 		var lr := Rect2(front.position.x + roundf(front.size.x * l[0]), mid - 1, 3, 3)
-		_ci.draw_rect(lr.grow(1), tone.call(Pal.PANEL_LO))
+		_ci.draw_rect(lr.grow(1), tone.call(Pal.SHELL[4]))   # o aro creme, como o das lâmpadas da mesa
 		_ci.draw_rect(lr, l[2] if l[1] else (l[2] as Color).darkened(0.75))
 		if l[1]:
 			_light(lr, l[2], 0.6, true, true, DESK_SPILL)
@@ -1428,20 +1504,20 @@ static func _lit_image(img: Image, step: int) -> Image:
 	return img
 
 
-## O tampo da base da unidade de despacho, de cima (o alto do desenho é o fundo): a chapa com a beira clara e as três
+## O tampo da base da unidade de despacho, de cima (o alto do desenho é o fundo): o plástico creme com a beira clara e as três
 ## fendas lado a lado, como no despacho aberto (`CardMachines`): o transmissor à esquerda, com as marcas âmbar, a
 ## impressora no meio e o triturador à direita, com as faixas de perigo.
 func _art_deck(sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	img.fill(Pal.PANEL)
-	_fr(img, 0, 0, sz.x, 1, Pal.PANEL_HI)
-	_fr(img, 0, sz.y - 1, sz.x, 1, Pal.PANEL_HI)
+	img.fill(Pal.SHELL[3])
+	_fr(img, 0, 0, sz.x, 1, Pal.SHELL[5])
+	_fr(img, 0, sz.y - 1, sz.x, 1, Pal.SHELL[5])
 	var slot := func(x: float, y: float, w: float) -> Vector2i:   # uma fenda: o lábio e o escuro de dentro
 		var a := Vector2i(roundi(x * sz.x), roundi(y * sz.y))
 		var n := roundi(w * sz.x)
-		_fr(img, a.x - 1, a.y - 1, n + 2, 3, Pal.PANEL_LO)
+		_fr(img, a.x - 1, a.y - 1, n + 2, 3, Pal.SHELL[0])
 		_fr(img, a.x, a.y, n, 1, Pal.EDGE)
-		_fr(img, a.x - 1, a.y + 2, n + 2, 1, Pal.PANEL_HI)
+		_fr(img, a.x - 1, a.y + 2, n + 2, 1, Pal.SHELL[5])
 		return a
 	var tx: Vector2i = slot.call(0.05, 0.45, 0.27)   # o transmissor
 	_fr(img, tx.x, tx.y + 3, 2, 1, Pal.AMBER)
@@ -1453,16 +1529,16 @@ func _art_deck(sz: Vector2i) -> Image:
 	return img
 
 
-## O painel da unidade de despacho, de frente: a moldura de metal e, sob o vidro, o mapa de papel (`_art_map`, na
+## O painel da unidade de despacho, de frente: a moldura oliva e, sob o vidro, o mapa de papel (`_art_map`, na
 ## proporção das folhas, com papel em volta; um pouco mais escuro perto da moldura), a sombra da moldura no alto e o
 ## reflexo do vidro na diagonal. Papel sob a luz da sala, não uma tela acesa. Na moldura da direita, mais larga, o
 ## anel de aproximar do despacho aberto (`CardMachines._draw_knob`).
 func _art_glass(sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	img.fill(Pal.PANEL)
-	_fr(img, 0, 0, sz.x, 1, Pal.PANEL_HI)
-	_fr(img, 0, 0, 1, sz.y, Pal.PANEL_HI)
-	_fr(img, sz.x - 1, 0, 1, sz.y, Pal.PANEL_LO)
+	img.fill(Pal.BOARD_FACE)
+	_fr(img, 0, 0, sz.x, 1, Pal.BOARD_METAL[5])
+	_fr(img, 0, 0, 1, sz.y, Pal.BOARD_METAL[5])
+	_fr(img, sz.x - 1, 0, 1, sz.y, Pal.BOARD_METAL[1])
 	var inner := _glass_inner(sz)
 	if inner.size.x < 4 or inner.size.y < 4:
 		return img
