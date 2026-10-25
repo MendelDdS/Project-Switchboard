@@ -609,16 +609,21 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   ver e aceitar nela (pedido 375). Quando duas peças precisam bater, pergunte ou parta do visual mais recente aprovado.
 
 ## Fio desenhado é imagem montada, não trechos de linha
-Fios curvos em `_pixel_line` por trechos ficavam finos e cheios de furos nas emendas e nas diagonais (o usuário
-apontou: mais finos que os cabos de conexão). Fio é montado pixel a pixel numa imagem guardada, carimbando a beira, o
-lado de baixo, o miolo e o brilho em cada ponto da curva (`Background._cable_image`), sem contorno escuro (parecia
-linguiça), sem cantos em L e com a grossura pela distância. Plugue e passa-fio desenhados pequenos, de frente numa
-superfície em perspectiva, pareciam adesivos: o que fica numa face da sala se desenha no plano dela (`_p3` com o x da
-face). "Por trás da máquina" é o fio saindo da traseira (aparece ao lado dela, caindo de trás), nunca por baixo dela
-(nascendo no pé da frente, o usuário leu "por baixo"); e "ligado à mesa comutadora" é entrar nela à vista, não sumir
-embaixo dela.
+Fios curvos em `_pixel_line` por trechos ficavam finos e cheios de furos; carimbando quadrados ao longo da curva,
+engrossavam nas diagonais e o brilho corria pelo comprimento nos trechos em pé (o usuário: "amassados, não
+cilíndricos"). Fio é montado numa imagem guardada pintando cada pixel pela distância dele à linha do meio, de través,
+em faixas de cilindro (beira, brilho do lado da luz, miolo, lado de baixo), com pelo menos 4 px (com 3, o brilho some
+aos pedaços), sem contorno escuro. Plugue e passa-fio pequenos, de frente numa superfície em perspectiva, pareciam
+adesivos: o que fica numa face da sala se desenha no plano dela. "Por trás da máquina" é o fio saindo da traseira,
+nunca por baixo dela; e a mesa é afastada da parede (o fio cai no vão, cortado na beira).
 
 ## Conferir a captura contra o que foi pedido antes de mandar
 Mandei uma captura dizendo que o fio do calculógrafo não passava mais por baixo da máquina dele, e na mesma imagem ele
 passava por baixo da quina da unidade de despacho; o usuário viu. Antes de mandar, olhe a captura procurando
 justamente o defeito reclamado, em todos os objetos que o mesmo desenho toca, não só no que foi mexido.
+
+## Canto redondo em desenho projetado precisa de raio de verdade
+Arredondei a tela da miniatura do despacho tirando um pixel de cada canto do desenho de frente; depois da projeção na
+perspectiva (`_project`) o pixel sumia e o usuário viu os cantos quadrados. No objeto da sala, arredonde com raio de
+3 px ou mais no desenho (`_round`), recue a face vizinha que encosta no canto (o alto do painel) e confira na captura
+ampliada, canto por canto.

@@ -23,7 +23,8 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   com a caneca na frente); na frente, o que é baixo (calculógrafo, bloco de fichas, jornal). A prancheta fica
   pendurada na lateral da mesa comutadora (`_draw_hung_clipboard`). `test_layout` confere que nada se sobrepõe.
 - Fios da unidade de despacho e do calculógrafo: saem da traseira delas e vão, rentes ao console, para o fundo da mesa
-  (`_draw_cable`, imagem guardada em `_cable_art`), desenhados antes das máquinas; sem plugues (a pedido). Objetos da
+  (`_draw_cable`, imagem guardada em `_cable_art`), desenhados antes das máquinas; sem plugues (a pedido). A mesa é
+  afastada da parede: o fio passa da beira de trás e cai no vão, cortado nela. Objetos da
   mesa na paleta da mesa (relógio em `SHELL` com base oliva, caneca e lista do meio em azul-petróleo); os papéis com o
   selo `Switchboard.badge`.
 

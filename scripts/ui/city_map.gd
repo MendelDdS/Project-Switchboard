@@ -363,7 +363,7 @@ func _draw() -> void:
 	_boxes.append(seal)
 	_places.clear()
 	var xf := Transform2D(0.0, Vector2(_k, _k), 0.0, _off)
-	draw_rect(Rect2(Vector2.ZERO, size), Pal.INK_SOFT)
+	draw_rect(Rect2(Vector2.ZERO, size), Pal.MAP_BACK)
 	for s in SHEETS:
 		if not shown(s):
 			continue
@@ -412,7 +412,7 @@ func _draw() -> void:
 	if _reveal >= 0.0:   # o bairro entregue aparece aos poucos
 		for s in SHEETS:
 			if shown(s) and not SHEET_SECTOR[s] in _before:
-				draw_rect(Rect2(SHEETS[s], SHEET), Color(Pal.INK_SOFT, 1.0 - smoothstep(0.0, 1.0, _reveal)))
+				draw_rect(Rect2(SHEETS[s], SHEET), Color(Pal.MAP_BACK, 1.0 - smoothstep(0.0, 1.0, _reveal)))
 	_use(Transform2D.IDENTITY)
 	# o selo (o mesmo do mapa da mesa): a moldura vermelha, a rosa dos ventos e o nome da cidade
 	draw_rect(seal, Pal.SEAL)

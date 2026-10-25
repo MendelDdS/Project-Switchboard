@@ -37,10 +37,11 @@ const UNIT_D := 0.3
 ## na proporção da da ferramenta (632 × 104), e o fundo dela (fração do tampo); na frente dela, a mesinha dela, na
 ## proporção da mesa da ferramenta (`Toll.NOMINAL`).
 const CALC := Vector3(28, 4.6, 0.06)
-const CABLE_STEPS := 32   # os trechos retos da curva de cada fio das máquinas até o fundo da mesa (`_draw_cable`)
-const CABLE_DROP := 0.35   # do lado da máquina até o fim do fio, onde ele, caindo da traseira, chega ao tampo
+const CABLE_STEPS := 24   # os trechos retos da curva de cada fio das máquinas até o fundo da mesa (`_draw_cable`)
 const CABLE_SAG := 0.12   # o quanto cada um já recua ao sair da máquina, até o fundo da mesa
-const CABLE_D := 1.5   # a grossura deles (na sala; na tela, 3 a 6 px pela distância)
+const CABLE_D := 2.0   # a grossura deles (na sala; na tela, 4 a 6 px pela distância: com 3, não cabem as faixas do cilindro)
+const CABLE_LIGHT := Vector2(0.45, -0.9)   # de onde vem a luz neles (a luminária, no alto à direita): o brilho fica desse lado
+const CABLE_SHADE := Vector2(-1, 2)   # a sombra deles no tampo, do outro lado (px)
 const TOLL_BOX_H := 4.5   ## a altura da caixinha dos bilhetes (na sala, uns 2 cm)
 const STAMP_ART := [   ## o carimbo em pé na mesinha, como o da ferramenta (21 × 35 px, uns 6 cm): o cabo de baquelite com o medalhão, a haste, o corpo com a plaqueta, as rodas de latão entre as pernas e a sapata vazada
 	"......kkKKKKKkk......",
@@ -130,7 +131,7 @@ var _clock_rim := {}   # as faces do relógio na tela (`_clock_box`), para o mes
 var _lamp_x := 0.0     # onde está a luminária, no meio da tela (px de 2x2): a luz na mesa e a sombra dos objetos dependem dela
 var _zd := Vector2.ZERO   # a frente e o fundo do tampo (z)
 var _side_x := 0.0     # a lateral da mesa comutadora na sala (x): os objetos da mesa ficam à direita dela
-static var _cable_art := {}   # os fios das máquinas já montados: [pontos, grossura] -> [canto, textura] (`_draw_cable`)
+static var _cable_art := {}   # os fios das máquinas já montados: [pontos, grossura, beira] -> [canto, textura] (`_draw_cable`)
 var _tip := Rect2()   # a ponta do bilhete saindo da fenda do calculógrafo, inteira (px da tela; a camada dela a desenha)
 var _tip_tones: Array = [Pal.TICKET, Pal.TICKET_EDGE]   # o bilhete e a beira dele na luz da fenda
 var _tip_cover: Array = []   # o carimbo em pé na mesinha [textura, meio, cor]: fica na frente da fenda, e a camada da ponta o desenha de novo por cima dela
@@ -237,9 +238,9 @@ func _draw_desk_props() -> void:
 	var edge := (size.x / 2.0 - EDGE_PX - _vp.x) * _at(0.06) / Z0   # perto, a parede já passou da beira da tela: o jornal vai até ela
 	var near := _row(cx + CALC.x * k, minf(r, edge), [0.0, PAD_W * k, NEWS_W * k]).slice(1)   # e os outros dois depois dele
 	if _here(Tools.DISPATCH):   # os fios antes das máquinas, que tapam a ponta deles (saem da traseira delas)
-		_draw_cable(back[0], _at(0.6) + _deep(UNIT_D * k), UNIT.y * k, 7.0)
+		_draw_cable(back[0], _at(0.6) + _deep(UNIT_D * k), 7.0)
 	if _here(Tools.TOLL):   # (a máquina do calculógrafo fica atrás da mesinha, como em `_draw_calculograph`)
-		_draw_cable(cx, _at(0.06) + CALC.x * k * Toll.NOMINAL.y / Toll.NOMINAL.x + _deep(CALC.z * k), 0.0, 2.5)   # (rente ao tampo: caindo do alto, parecia entrar na lateral)
+		_draw_cable(cx, _at(0.06) + CALC.x * k * Toll.NOMINAL.y / Toll.NOMINAL.x + _deep(CALC.z * k), 2.5)
 	if _here(Tools.DISPATCH):
 		_draw_dispatch_unit(back[0], _at(0.6), UNIT.x * k)   # recuada: a máquina do calculógrafo, na frente dela, não tampa a base
 	if _here(Tools.DIRECTORY):
@@ -261,70 +262,70 @@ func _draw_desk_props() -> void:
 	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
-## Um fio de uma máquina da mesa, como esses aparelhos são ligados: sai da traseira dela (o canto de trás à esquerda
-## em `x`, `z`, de `tall` de altura; a ponta fica escondida atrás dela, desenhada depois), cai em barriga até o tampo
-## ao lado dela e corre por trás dela, numa curva com folga (`CABLE_SAG`), até o fundo da mesa, junto da parede ao lado
-## da mesa comutadora (`gap` além da lateral dela), onde desce por trás do tampo. Nunca vem para a frente da traseira
-## (parecia sair de baixo da máquina). Borracha cinza-escura sem contorno, como os cabos de conexão: o brilho em cima,
-## a sombra embaixo, a grossura pela distância (`CABLE_D`). Montado pixel a pixel numa imagem guardada (`_cable_art`;
-## em trechos de `_pixel_line`, a curva ficava com furos).
+## Um fio de uma máquina da mesa, como esses aparelhos são ligados: sai rente ao tampo atrás da traseira dela (o canto
+## de trás à esquerda em `x`, `z`; a ponta fica escondida atrás dela, desenhada depois), vai para o lado, recuando um
+## pouco (`CABLE_SAG`), e, rente ao console (`gap` além da lateral dele), para o fundo, onde passa da beira de trás do
+## tampo e cai no vão entre a mesa e a parede: o tampo tapa a queda, e nada dele passa da beira (pintado na parede,
+## parecia encostado nela). Nunca vem para a frente da traseira (parecia sair de baixo da máquina). Borracha
+## cinza-escura sem contorno, como os cabos de conexão: o brilho em cima, a sombra embaixo, a grossura pela distância
+## (`CABLE_D`). Montado pixel a pixel numa imagem guardada (`_cable_art`; em trechos de `_pixel_line`, a curva ficava
+## com furos).
 ## ponytail: com a máquina erguida sob o mouse, a ponta escondida do fio pode aparecer embaixo dela por um instante.
-func _draw_cable(x: float, z: float, tall: float, gap: float) -> void:
+func _draw_cable(x: float, z: float, gap: float) -> void:
 	var deep := _zd.y - _zd.x
-	var st := Vector2(x + 6.0, z + 0.01 * deep)   # rente atrás da traseira (na frente dela, parecia sair de baixo da máquina): a máquina tapa a ponta
-	var e := Vector2(_side_x + gap, _zd.y)   # a beira de trás do tampo
-	var fall := lerpf(x, e.x, CABLE_DROP)   # onde ele chega ao tampo
-	var c1 := Vector2(e.x, lerpf(z, e.y, CABLE_SAG))   # já recuando um pouco ao sair (reto para o lado, parecia sair de baixo
-	var c2 := Vector2(e.x, lerpf(z, e.y, 0.5))   # da máquina), mas para o lado antes do fundo (em diagonal, o do calculógrafo
-	# passava por baixo da quina da unidade de despacho) e, rente ao console, para o fundo
+	var st := Vector2(x + 6.0, z + 0.01 * deep)   # rente atrás da traseira (na frente dela, parecia sair de baixo da máquina)
+	var e := Vector2(_side_x + gap, _zd.y + 0.04 * deep)   # um pouco além da beira de trás: o corte fica com a grossura inteira
+	var c1 := Vector2(e.x, lerpf(z, e.y, CABLE_SAG))   # para o lado antes do fundo (em diagonal, o do calculógrafo passava
+	var c2 := Vector2(e.x, lerpf(z, e.y, 0.5))         # por baixo da quina da unidade de despacho)
 	var pts := PackedVector2Array()
 	for i in CABLE_STEPS + 1:
-		var t := float(i) / CABLE_STEPS
-		var q := st.bezier_interpolate(c1, c2, e, t)
-		var up := tall * 0.9 * pow(clampf((q.x - fall) / (st.x - fall), 0.0, 1.0), 2.0)   # a queda, já à vista, ao lado da máquina
-		pts.append(_p3(q.x, _yd - CABLE_D / 2.0 - up, q.y))
+		var q := st.bezier_interpolate(c1, c2, e, float(i) / CABLE_STEPS)
+		pts.append(_p3(q.x, _yd - CABLE_D / 2.0, q.y))
 	var mid := st.bezier_interpolate(c1, c2, e, 0.5)
-	var w := clampi(roundi(_p3(mid.x, _yd, mid.y).y - _p3(mid.x, _yd - CABLE_D, mid.y).y), 3, 6)
-	var key := [pts, w]
+	var w := clampi(roundi(_p3(mid.x, _yd, mid.y).y - _p3(mid.x, _yd - CABLE_D, mid.y).y), 4, 6)
+	var edge := roundf(_p3(x, _yd, _zd.y).y)   # a beira de trás do tampo na tela (é horizontal)
+	var key := [pts, w, edge]
 	if not _cable_art.has(key):
 		if _cable_art.size() > 8:   # a tela mudou de tamanho
 			_cable_art.clear()
-		_cable_art[key] = _cable_image(pts, w)
+		_cable_art[key] = _cable_image(pts, w, edge)
 	var art: Array = _cable_art[key]
 	_ci.draw_texture(art[1], art[0])
 
 
-## A imagem do fio pelos pontos `pts` (px da tela), de `w` px, e onde ela vai: a sombra rente no tampo, o lado de baixo,
-## o miolo e o brilho de cima, cada pixel uma vez (alfa sobreposto manchava a sombra). A linha do meio passa sem cantos
-## em L (num degrau de pixel art bom, a curva anda em diagonal limpa).
-func _cable_image(pts: PackedVector2Array, w: int) -> Array:
-	var r := _bounds(pts).grow(w + 2.0)
+## A imagem do fio pelos pontos `pts` (px da tela), de `w` px, e onde ela vai: cada pixel pela distância dele à linha
+## do meio, de través (com quadrados carimbados ao longo dela, o fio engrossava nas diagonais e o brilho corria pelo
+## comprimento nos trechos em pé: parecia amassado), em faixas de cilindro: a beira de cima, o brilho do lado da
+## luminária (`CABLE_LIGHT`), o miolo e o lado de baixo, escuro; a sombra rente no tampo é a mesma linha deslocada. Nada
+## acima do fio deitado em `edge` (a beira de trás do tampo).
+func _cable_image(pts: PackedVector2Array, w: int, edge: float) -> Array:
+	var r := _bounds(pts).grow(w + 3.0)
 	r = Rect2(r.position.floor(), r.size.ceil() + Vector2.ONE)
 	var img := Image.create(int(r.size.x), int(r.size.y), false, Image.FORMAT_RGBA8)
-	var dots: Array[Vector2i] = []
-	for i in pts.size() - 1:
-		var n := maxi(1, ceili(pts[i].distance_to(pts[i + 1]) * 2.0))
-		for j in n:
-			var p := Vector2i((pts[i].lerp(pts[i + 1], float(j) / n) - r.position).round())
-			if dots.is_empty() or dots[-1] != p:
-				dots.append(p)
-	var i := 1
-	while i < dots.size() - 1:   # tira o pixel do canto em L (os vizinhos dele se tocam na diagonal)
-		var d := dots[i + 1] - dots[i - 1]
-		if absi(d.x) == 1 and absi(d.y) == 1:
-			dots.remove_at(i)
-		else:
-			i += 1
-	var h := w / 2
-	for pass_: Array in [[Rect2i(-h + 1, -h + 1, w, w), Color(0, 0, 0, 0.35)], [Rect2i(-h, -h, w, w), Pal.BAKELITE[1]],
-			[Rect2i(-h, -h, w, w - 1), Pal.SHELL[0]], [Rect2i(0, -h + 1, 1, 1), Pal.SHELL[2]]]:   # borracha cinza-escura (marrom, sumia no tampo)
-		for p: Vector2i in dots:
-			var q: Rect2i = pass_[0]
-			for y in range(q.position.y, q.end.y):
-				for x in range(q.position.x, q.end.x):
-					var o := p + Vector2i(x, y)
-					if o.x >= 0 and o.y >= 0 and o.x < img.get_width() and o.y < img.get_height():
-						img.set_pixelv(o, pass_[1])
+	var rad := w / 2.0
+	var tones := [Pal.SHELL[0], Pal.SHELL[2], Pal.SHELL[0], Pal.BAKELITE[1]]   # borracha cinza-escura (marrom, sumia no tampo)
+	var top := int(edge - r.position.y) - w   # (deitado na beira, o fio passa dela a grossura dele, na frente da parede)
+	for y in range(maxi(top, 0), img.get_height()):
+		for x in img.get_width():
+			var c := Vector2(x, y) + r.position + Vector2(0.5, 0.5)
+			var best := INF
+			var side := 0.0
+			var shade := INF
+			for i in pts.size() - 1:
+				var q := Geometry2D.get_closest_point_to_segment(c, pts[i], pts[i + 1])
+				var dd := c.distance_to(q)
+				if dd < best:
+					var n := (pts[i + 1] - pts[i]).orthogonal().normalized()
+					if n.dot(CABLE_LIGHT) < 0.0:
+						n = -n
+					best = dd
+					side = (c - q).dot(n)
+				shade = minf(shade, (c - CABLE_SHADE).distance_to(Geometry2D.get_closest_point_to_segment(c - CABLE_SHADE, pts[i], pts[i + 1])))
+			if best < rad:
+				var t := -side / rad   # de -1, do lado da luz, a 1, do outro
+				img.set_pixel(x, y, tones[0 if t < -0.6 else (1 if t < -0.15 else (2 if t < 0.45 else 3))])
+			elif shade < rad:
+				img.set_pixel(x, y, Color(0, 0, 0, 0.35))
 	return [r.position, ImageTexture.create_from_image(img)]
 
 
@@ -1414,10 +1415,10 @@ func _art_map(sz: Vector2i) -> Image:
 
 
 ## A unidade de despacho, que abre o despacho (`x0`, a frente em `zf`, `wx` de largura; medidas em `UNIT`): um móvel
-## como um terminal antigo, a base no plástico creme das máquinas (`Pal.SHELL`) e o painel do mapa em oliva (`Pal.BOARD_METAL`), todo no degrau da luz parada no
+## como um terminal antigo, todo no plástico creme das máquinas (`Pal.SHELL`), no degrau da luz parada no
 ## meio dele, na rampa do metal e na do cartão (`Pal.lit`, `_lit_image`). Embaixo,
 ## a base, com as três máquinas embutidas no tampo, na mesma disposição do despacho aberto (`_art_deck`: o
-## transmissor à esquerda, a impressora no meio e o triturador à direita) e, na frente, a etiqueta creme e as luzes;
+## transmissor à esquerda, a impressora no meio e o triturador à direita) e, na frente, a etiqueta e as luzes;
 ## em cima, atrás, o painel inclinado com o mapa de papel sob o vidro (`_art_glass`). O estado do
 ## jogo nela: a luz vermelha com uma emergência em andamento (`alert`) e o cartão saindo da impressora enquanto há um
 ## na mesa (`card_out`), com a luz âmbar.
@@ -1439,10 +1440,11 @@ func _draw_dispatch_unit(x0: float, zf: float, wx: float) -> void:
 		var base := PackedVector2Array([_p3(sx, yd, ze), _p3(sx, yd, zf), _p3(sx, _yd, zf), _p3(sx, _yd, ze)])
 		_poly(base, tone.call(Pal.SHELL[0]))
 		var side := PackedVector2Array([_p3(sx, yt, zt), _p3(sx, yt, ze), _p3(sx, yd, ze), _p3(sx, yd, zb)])
-		_poly(side, tone.call(Pal.BOARD_METAL[2]))
+		_poly(side, tone.call(Pal.SHELL[2]))
 		all.append_array(base + side)
-	var top := PackedVector2Array([_p3(x0, yt, ze), _p3(x1, yt, ze), _p3(x1, yt, zt), _p3(x0, yt, zt)])   # o alto do painel
-	_poly(top, tone.call(Pal.BOARD_METAL[5]))
+	var top := PackedVector2Array([_p3(x0, yt, ze), _p3(x1, yt, ze), _p3(x1, yt, zt), _p3(x0, yt, zt)])   # o alto do painel...
+	var cut := Vector2(2, 0)   # ...recuado nas pontas, onde os cantos de cima do vidro são redondos (`_art_glass`)
+	_poly(PackedVector2Array([top[0] + cut, top[1] - cut, top[2] - cut, top[3] + cut]), tone.call(Pal.SHELL[5]))
 	var glass := PackedVector2Array([_p3(x0, yt, zt), _p3(x1, yt, zt), _p3(x1, yd, zb), _p3(x0, yd, zb)])
 	_flat_art("despacho_vidro", glass, func(sz: Vector2i) -> Image: return _lit_image(_art_glass(sz), step),
 		[GameData.sectors.duplicate(), step])
@@ -1462,8 +1464,6 @@ func _draw_dispatch_unit(x0: float, zf: float, wx: float) -> void:
 	var plate := Rect2(front.position.x + roundf(front.size.x * 0.36), mid - 2, roundf(front.size.x * 0.28), 4)
 	_ci.draw_rect(plate, tone.call(Pal.SHELL[0]))   # a etiqueta do fabricante
 	_ci.draw_rect(plate.grow(-1), tone.call(Pal.BOARD_TAG))
-	for i in 3:   # a saída de ar, à direita
-		_ci.draw_rect(Rect2(front.end.x - roundf(front.size.x * 0.22), mid - 2 + i * 2, roundf(front.size.x * 0.16), 1), tone.call(Pal.SHELL[0]))
 	for l: Array in [[0.06, alert, Pal.RED], [0.14, card_out, Pal.AMBER]]:   # as luzes: ocorrência e cartão na mesa
 		var lr := Rect2(front.position.x + roundf(front.size.x * l[0]), mid - 1, 3, 3)
 		_ci.draw_rect(lr.grow(1), tone.call(Pal.SHELL[4]))   # o aro creme, como o das lâmpadas da mesa
@@ -1505,7 +1505,7 @@ static func _lit_image(img: Image, step: int) -> Image:
 
 
 ## O tampo da base da unidade de despacho, de cima (o alto do desenho é o fundo): o plástico creme com a beira clara e as três
-## fendas lado a lado, como no despacho aberto (`CardMachines`): o transmissor à esquerda, com as marcas âmbar, a
+## fendas lado a lado, como no despacho aberto (`CardMachines`): o transmissor à esquerda, com as marcas ciano, a
 ## impressora no meio e o triturador à direita, com as faixas de perigo.
 func _art_deck(sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
@@ -1520,8 +1520,8 @@ func _art_deck(sz: Vector2i) -> Image:
 		_fr(img, a.x - 1, a.y + 2, n + 2, 1, Pal.SHELL[5])
 		return a
 	var tx: Vector2i = slot.call(0.05, 0.45, 0.27)   # o transmissor
-	_fr(img, tx.x, tx.y + 3, 2, 1, Pal.AMBER)
-	_fr(img, tx.x + roundi(0.27 * sz.x) - 2, tx.y + 3, 2, 1, Pal.AMBER)
+	_fr(img, tx.x, tx.y + 3, 2, 1, Pal.KEY_CAP[3])
+	_fr(img, tx.x + roundi(0.27 * sz.x) - 2, tx.y + 3, 2, 1, Pal.KEY_CAP[3])
 	slot.call(0.365, 0.45, 0.27)   # a impressora
 	var sh: Vector2i = slot.call(0.68, 0.45, 0.27)   # o triturador
 	for i in range(0, roundi(0.27 * sz.x), 4):
@@ -1529,27 +1529,30 @@ func _art_deck(sz: Vector2i) -> Image:
 	return img
 
 
-## O painel da unidade de despacho, de frente: a moldura oliva e, sob o vidro, o mapa de papel (`_art_map`, na
-## proporção das folhas, com papel em volta; um pouco mais escuro perto da moldura), a sombra da moldura no alto e o
+## O painel da unidade de despacho, de frente: a carcaça creme, o rebaixo da tela de cantos redondos e, sob o vidro, o
+## mapa de papel (`_art_map`, na proporção das folhas, com o fundo da tela em volta, `Pal.MAP_BACK`; um pouco mais
+## escuro perto da moldura), a sombra da moldura no alto e o
 ## reflexo do vidro na diagonal. Papel sob a luz da sala, não uma tela acesa. Na moldura da direita, mais larga, o
 ## anel de aproximar do despacho aberto (`CardMachines._draw_knob`).
 func _art_glass(sz: Vector2i) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
-	img.fill(Pal.BOARD_FACE)
-	_fr(img, 0, 0, sz.x, 1, Pal.BOARD_METAL[5])
-	_fr(img, 0, 0, 1, sz.y, Pal.BOARD_METAL[5])
-	_fr(img, sz.x - 1, 0, 1, sz.y, Pal.BOARD_METAL[1])
+	img.fill(Pal.SHELL[5])   # a carcaça creme, como a da unidade aberta (`CardMachines._draw_bezel`)
+	_fr(img, 0, 0, sz.x, 1, Pal.SHELL[7])
+	_fr(img, 0, 0, 1, sz.y, Pal.SHELL[6])
+	_fr(img, sz.x - 1, 0, 1, sz.y, Pal.SHELL[3])
 	var inner := _glass_inner(sz)
 	if inner.size.x < 4 or inner.size.y < 4:
 		return img
-	var kh := maxi(3, roundi(inner.size.y * 0.22))   # o anel: escuro, com um sulco claro no meio
+	var rim := Rect2i(inner.position - Vector2i.ONE, inner.size + Vector2i(2, 2))   # o rebaixo da tela
+	_fr(img, rim.position.x, rim.position.y, rim.size.x, rim.size.y, Pal.BOARD_INSET)
+	var kh := maxi(3, roundi(inner.size.y * 0.22))   # o anel ciano, com um sulco escuro no meio
 	var kx := inner.end.x + maxi(1, (sz.x - inner.end.x - 2) / 2)
 	var ky := inner.position.y + (inner.size.y - kh) / 2
-	_fr(img, kx, ky, 2, kh, Pal.PANEL_LO)
+	_fr(img, kx, ky, 2, kh, Pal.KEY_CAP[2])
 	for y in range(ky + 1, ky + kh - 1, 2):
-		_fr(img, kx, y, 2, 1, Pal.PANEL_METAL[4])
+		_fr(img, kx, y, 2, 1, Pal.KEY_CAP[0])
 	var paper := Image.create(inner.size.x, inner.size.y, false, Image.FORMAT_RGBA8)
-	paper.fill(Pal.MAP_PAPER)
+	paper.fill(Pal.MAP_BACK)
 	var at := _glass_map(sz)
 	paper.blit_rect(_art_map(at.size), Rect2i(Vector2i.ZERO, at.size), at.position - inner.position)
 	for y in inner.size.y:
@@ -1562,7 +1565,24 @@ func _art_glass(sz: Vector2i) -> Image:
 	for x in inner.size.x:   # a sombra da moldura no alto do vidro
 		var c := img.get_pixel(inner.position.x + x, inner.position.y)
 		img.set_pixel(inner.position.x + x, inner.position.y, c.darkened(0.35))
+	var rad := clampi(inner.size.y / 5, 3, 6)   # os cantos redondos, como os do despacho aberto (`CardMachines._corner`)
+	_round(img, inner, rad, Pal.BOARD_INSET)
+	_round(img, rim, rad + 1, Pal.SHELL[5])
+	_round(img, Rect2i(Vector2i.ZERO, sz), 3, Color.TRANSPARENT, false)   # e os de cima da carcaça (embaixo fica a base)
 	return img
+
+
+## Arredonda os cantos de `r` na imagem `img` com raio `rad` (sem `bottom`, só os de cima): o que fica fora do arco
+## vira `col`.
+static func _round(img: Image, r: Rect2i, rad: int, col: Color, bottom := true) -> void:
+	for j in rad:
+		for i in rad:
+			if Vector2(rad - i - 0.5, rad - j - 0.5).length() > rad:
+				var at := [Vector2i(r.position.x + i, r.position.y + j), Vector2i(r.end.x - 1 - i, r.position.y + j)]
+				if bottom:
+					at.append_array([Vector2i(r.position.x + i, r.end.y - 1 - j), Vector2i(r.end.x - 1 - i, r.end.y - 1 - j)])
+				for c: Vector2i in at:
+					img.set_pixelv(c, col)
 
 
 ## O vidro dentro da moldura do painel da unidade de despacho (`_art_glass` de `sz` px).

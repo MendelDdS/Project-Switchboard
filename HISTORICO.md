@@ -2217,3 +2217,30 @@ Chaves:
     diagonal para o fundo (`CABLE_SAG`), até a parede ao lado da mesa comutadora.
     Depois: em diagonal, o fio do calculógrafo passava por baixo da quina da unidade de despacho (o usuário viu na
     captura): vai primeiro para o lado, recuando só um pouco (`CABLE_SAG` 0,12), e, rente ao console, para o fundo.
+384. #cabos #sala Acabamento dos fios: a ponta passa da beira de trás do tampo e cai no vão entre a mesa e a parede (a
+    mesa é afastada dela: `DESK_T`), cortada na beira, sem pintar nada na parede além da grossura do fio deitado ali
+    (parecia encostado na parede); o da unidade de despacho também sai rente ao tampo (caindo do alto, fazia um gancho
+    solto); a curva em 10 retas entre pixels inteiros, de degraus iguais (em 32 trechos, os degraus saíam irregulares).
+385. #cabos #sala Os fios pareciam amassados, não cilíndricos (quadrados carimbados ao longo da curva engrossavam nas
+    diagonais e o brilho corria pelo comprimento nos trechos em pé): cada pixel pela distância à linha do meio, em
+    faixas de cilindro com o brilho do lado da luminária (`CABLE_LIGHT`) e a sombra do outro (`CABLE_SHADE`), de 4 a 6
+    px (`CABLE_D` 2,0).
+386. #despacho #mesa A unidade de despacho no visual da mesa comutadora e do terminal da série Ruptura: a carcaça do
+    mapa em plástico creme de cantos redondos com o rebaixo escuro da tela em volta do vidro (`SCREEN_RIM`), o anel de
+    aproximar em ciano (`Pal.KEY_CAP`), + e − e o mostrador impressos em oliva escuro, e a base como a bandeja do
+    teclado (creme em volta da placa oliva rebaixada onde ficam as máquinas, `_draw_tray`); a miniatura na mesa
+    (`_art_glass`) igual.
+387. #despacho #mesa Mais Ruptura no despacho: o fundo da tela em volta das folhas do mapa em azul-petróleo escuro
+    (`Pal.MAP_BACK`, também na miniatura); as máquinas sem etiqueta nem saída de ar, com o nome impresso em creme na
+    frente oliva (`CardMachines._name`) e os avisos em creme; a faixa de perigo da trituradora em creme e petróleo
+    (`Pal.HAZARD`); o selo CTSS na faixa da base; na miniatura, os cantos da tela redondos, o alto e o lado em creme,
+    as marcas do transmissor em ciano e sem a saída de ar. Os contadores do calculógrafo seguem em âmbar (são luzes de
+    estado, como no aberto).
+388. #despacho Os cantos da tela do mapa redondos, como a tela do terminal da série Ruptura: o vidro no rebaixo
+    (`SCREEN_R`, `CardMachines._corner`) e, em cima, o rebaixo no plástico; na miniatura, um pixel em cada canto.
+389. #despacho #sala Na miniatura, os cantos não ficavam redondos (um pixel por canto sumia na perspectiva): a tela e o
+    rebaixo com raio de 3 a 6 px (`_round`), os cantos de cima da carcaça vazados e o alto do painel recuado nas pontas.
+390. #despacho O despacho aberto seguindo a miniatura: os cantos de fora da carcaça e da base mais redondos
+    (`CardMachines.CASE_ROUND`; as laterais descem por trás da base, sem vão nos cantos de cima dela).
+391. #despacho A miniatura estava mais redonda que o despacho aberto, em proporção: no aberto, a tela com raio 18
+    (`SCREEN_R`, cantos em textura guardada, `_corner`) e a carcaça e a base com raio 9 (`CASE_R`, `_rounded`, `_arc`).

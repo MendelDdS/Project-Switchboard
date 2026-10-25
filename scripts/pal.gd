@@ -63,6 +63,7 @@ const TICKET_EDGE := Color("a89c78")   ## ...a beira dele...
 const TICKET_FORM := Color("1d5a72")   ## ...e o formulário, impresso em azul-petróleo, o ciano escuro das teclas (`KEY_CAP[1]`; o cartão do despacho, em vermelho)
 const TOLL_INK := Color("b03a2e")      ## a tinta do carimbo do calculógrafo: a marca no bilhete, o feltro da almofada
 const MAP_PAPER := Color("ddd1ad")   ## o papel do mapa, e as ruas são ele à mostra
+const MAP_BACK := Color("12262d")    ## o fundo da tela do despacho em volta das folhas: azul-petróleo escuro, como a tela do terminal da série Ruptura
 const MAP_TINTS := {3: Color("c9b88a"), 1: Color("c2ab8c"), 2: Color("b6b38c")}   ## os quarteirões de cada bairro (setor): ocre, sépia, oliva
 const MAP_PLAZA := Color("8a9168")   ## a praça
 const MAP_TREE := Color("5f7445")    ## as árvores
@@ -83,7 +84,7 @@ const CARD_FORM := LOG_STAMPS[1]     ## o formulário, impresso na tinta vermelh
 const CARD_RULE := Color(0.35, 0.43, 0.55, 0.3)   ## a pauta, como a do caderno
 const CARD_HOLE := Color("17110b")   ## o furo
 const CARD_BUSY := Color("8a3a14")   ## a unidade ocupada: o nome e o estado dela
-const HAZARD := Color("d9a521")      ## as faixas de perigo da trituradora, no despacho aberto e na unidade da mesa
+const HAZARD := Color("1d5a72")      ## as faixas de perigo da trituradora, em petróleo no creme, no despacho aberto e na unidade da mesa
 const NICKEL: Array[Color] = [Color("f4f0e6"), Color("d6d1c3"), Color("8e897c"), Color("45413a")]   ## o níquel (brilho, luz, meio, sombra): o prendedor da prancheta, o aro das lâmpadas
 
 ## A mesa comutadora, retrofuturista (como na série Ruptura): o móvel de plástico branco-creme de cantos redondos, o

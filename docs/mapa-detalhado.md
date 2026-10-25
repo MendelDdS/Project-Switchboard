@@ -168,8 +168,8 @@ Leia também [LESSONS.md](LESSONS.md) antes de mudanças grandes.
   despacho dela, `Pal.lit`, que leva um tom degraus acima ou abaixo na rampa em que ele está, a de um papel,
   `PAPER_RAMPS`, ou a do metal, `PANEL_METAL`; a unidade de despacho, pequena e de metal, fica toda no degrau da luz
   no meio dela, `Background._lit_image`, porque a troca de degrau andando de uma linha para outra, a dos papéis,
-  listrava o metal como escovado; nas máquinas abertas, a beira das chapas em dois tons dela de cada lado,
-  `CardMachines.bevel`; as peças de metal paradas do painel da mesa comutadora, num degrau da luz da sala no meio
+  listrava o metal como escovado; nas máquinas abertas, a carcaça creme de cantos redondos (`CardMachines._rounded`,
+  `_corner`); as peças de metal paradas do painel da mesa comutadora, num degrau da luz da sala no meio
   delas, `Pal.panel_step`, o mesmo do relevo; a máquina do calculógrafo da mesa, a mesinha, o carimbo e a caixinha
   num degrau só, `_clock_box` com `tone`; os plugs e os fios, que andam, continuam na luz multiplicada, `_lit_by`,
   porque uma paleta por degrau, por ângulo e por cabo encheria o cache do `PixelArt`; a parede do fundo, o conduíte e o
