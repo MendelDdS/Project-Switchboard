@@ -2149,3 +2149,11 @@ Chaves:
     sumir), painel verde-oliva (o usuário trocou o azul-marinho sugerido por oliva) e as chaves de escuta viraram
     teclas quadradas de plástico ciano num rebaixo escuro: soltas saem do painel, presas afundam e escurecem, com um
     pontinho aceso (a alavanca de bastão saiu).
+371. #mesa-comutadora #painel #pixel #saiu Tecla de escuta presa acesa (primeiro um pontinho branco; a pedido, a
+    tecla inteira acesa de uma cor só, fosca, com luz opaca sem miolo: `Pal.KEY_GLOW`) e os
+    outros itens sugeridos para lembrar a série Ruptura: cantos redondos nos bancos, no interurbano, nas abas, na faixa
+    do alto, nas plaquinhas e nas tampas A/B (`round_rect`); emblema oval ciano com a sigla CTSS no vão à esquerda do
+    interurbano (na faixa do alto não cabia: a legenda começa logo depois do nome das entradas); o desgaste saiu (o
+    painel clareado e os riscos em volta das tomadas, `_draw_wear`, e os parafusos e riscos das tampas A/B); a frente
+    do console virou a bandeja do teclado dos terminais: plástico branco com uma placa oliva rebaixada de cantos
+    redondos, os botões oliva com aro creme e sem os parafusos.

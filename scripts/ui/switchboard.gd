@@ -742,7 +742,6 @@ func _draw() -> void:
 	# o nome das saídas embaixo delas, no meio do vão até os bancos, sobre uma faixa como a das entradas, que separa as
 	# seções (a faixa entre as entradas e as saídas é das chaves de escuta)
 	_draw_rule(roundf((ROW_Y["out"] + JACK / 2.0 + DEST_TOP - 13.0) / 2.0), T.text(T.Key.BOARD_OUTPUTS))
-	_draw_wear()
 	_draw_trunks(trunks)
 
 	# entradas e saídas
@@ -763,8 +762,8 @@ func _draw() -> void:
 			draw_texture(num, Vector2(roundf(jr.get_center().x - num.get_width() / 2.0), jr.position.y - 10.0),
 				Pal.NUMBER_PAINT if exchange.dest(d) == Exchange.Dest.FREE else Pal.TEXT)
 
-	# legenda das lâmpadas, numa linha no pé do painel
-	_draw_legend()
+	_draw_legend()   # na faixa do alto
+	_draw_badge(Vector2((FRAME + trunks.position.x) / 2.0, trunks.position.y + 4.0))
 
 
 ## As lâmpadas das linhas (com a luz delas no aro da entrada) e o aro aceso dos destinos. As luzes vão para o `Bloom`,

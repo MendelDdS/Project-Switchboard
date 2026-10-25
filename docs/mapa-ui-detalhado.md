@@ -588,8 +588,7 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   o brilho da luminária na quina de cima, mais forte do lado dela (`_draw_cabinet`).
 - Cada linha tem uma faixa rebaixada e discreta da plaquinha à saída (`_draw_strips`, `STRIP_W`; sem ela a saída
   parecia solta); as faixas gravadas passam por baixo e o nome delas por cima (`_draw_rule(y, nome, false)`).
-- Uso de anos (`_draw_wear`, sempre o mesmo): o painel clareado em volta das tomadas (`WEAR`, pelo quanto cada uma é
-  usada, `_use`: entradas mais, das primeiras linhas para as últimas) e riscos finos de plug que errou o furo.
+- Uso de anos (`_draw_wear`): saiu com o visual da série Ruptura (pedido 371), que é limpo.
 - Plaqueta de latão do fabricante na frente do console, à esquerda da miniatura (`Switchboard.draw_maker_plate`,
   estática, desenhada pelo `Background`: `BOARD_MAKER` na fonte gravada e "SÃO SOTERO"; ficava no pé do painel e saiu
   de lá quando os cabos se juntaram).

@@ -2180,11 +2180,14 @@ func _draw_switchboard() -> void:
 		draw_line(p, back.call(p), Pal.SHELL[1], 1.0)
 		draw_line(top, b.end, SHELL[0], 1.0)   # as quinas da frente pegam a luz
 		draw_line(Vector2(fx1, sy), low, SHELL[0], 1.0)
-	# a frente do console (aparece entre as peças embutidas), escura, com a beira de cima no esmalte e o rodapé
-	_r(fx0, sy, fx1 - fx0, fy - sy, Pal.BOARD_SIDE)
-	_r(fx0, sy, fx1 - fx0, 3, SHELL[1])
-	_r(fx0, sy + 3, fx1 - fx0, 1, Pal.BOARD_SIDE.darkened(0.4))
+	# a frente do console, como a bandeja do teclado dos terminais da série Ruptura: o plástico branco em volta de uma
+	# placa oliva rebaixada, de cantos redondos (a miniatura do painel, a plaqueta e os botões ficam nela), e o rodapé
+	_r(fx0, sy, fx1 - fx0, fy - sy, SHELL[1])
 	_r(fx0, fy - 3, fx1 - fx0, 3, SHELL[2])
+	var tray := Rect2(maxf(fx0, 0.0) + 4.0, sy + 4.0, fx1 - maxf(fx0, 0.0) - 8.0, fy - sy - 8.0)
+	Switchboard.round_rect(self, tray.grow(1), Pal.BOARD_SIDE.darkened(0.5))
+	Switchboard.round_rect(self, tray, Pal.BOARD_SIDE)
+	draw_rect(Rect2(tray.position.x + 2.0, tray.end.y, tray.size.x - 4.0, 1), SHELL[0])   # a beira de baixo do rebaixo, na luz
 	# a prateleira, no esmalte claro: o painel pousa no fundo dela, num rodapé, com a sombra de contato na frente
 	_poly(PackedVector2Array([Vector2(fx0, sy), Vector2(fx1, sy), b.end, Vector2(b.position.x, b.end.y)]), Pal.SHELL[5])
 	_r(fx0, sy - 1, fx1 - fx0, 2, Pal.NICKEL[2])   # o friso niquelado na beira
@@ -2195,18 +2198,14 @@ func _draw_switchboard() -> void:
 		var my := roundf((sy + fy) / 2.0)
 		var px := maxf(fx0, 0.0) + 8.0   # a coluna dos parafusos da beira: a plaqueta fica no meio entre ela e a miniatura
 		Switchboard.draw_maker_plate(self, Rect2(roundf((px + rr.position.x - 96.0) / 2.0), my - 16, 96, 32))   # a plaqueta do fabricante
-		for i in 2:   # baquelite: a borda em volta do tampo, os dois com a luz no alto à esquerda, a espaços iguais entre a miniatura e a beira
+		for i in 2:   # oliva com o aro creme, como o botão do lado do monitor, a luz no alto à esquerda, a espaços iguais entre a miniatura e a beira
 			var c := Vector2(rr.end.x + roundf((fx1 - rr.end.x) * (i + 1) / 3.0), my)
 			_sprite(PixelArt.disc(15, [[7.0, Color(0, 0, 0, 0.35)]]), c + Vector2(1, 2))
-			var bk := Pal.BAKELITE
-			_sprite(PixelArt.disc(13, [[4.0, bk[5], bk[3], bk[2]], [5.5, bk[4], bk[2], bk[1]], [6.5, bk[0]]]), c)
+			var m := Pal.BOARD_METAL
+			_sprite(PixelArt.disc(13, [[4.0, m[6], m[4], m[2]], [5.5, Pal.SHELL[7], Pal.SHELL[5], Pal.SHELL[3]], [6.5, m[0]]]), c)
 			var a := -PI * 0.75 + i * 1.1
 			for j in range(2, 5):   # o risco de posição, pixel a pixel
-				draw_rect(Rect2((c + Vector2(cos(a), sin(a)) * j).floor(), Vector2.ONE), Pal.NICKEL[1])
-	for p in [Vector2(fx1 - 8, sy + 8), Vector2(fx1 - 8, fy - 10), Vector2(8, sy + 8), Vector2(8, fy - 10)]:   # os parafusos
-		if p.x > fx0 + 4:
-			_sprite(PixelArt.disc(5, [[2.5, Pal.SCREW[2], Pal.SCREW[1], Pal.SCREW[0]]]), p)
-			draw_rect(Rect2(p.floor() - Vector2(1, 0), Vector2(3, 1)), Pal.SCREW[3])   # a fenda
+				draw_rect(Rect2((c + Vector2(cos(a), sin(a)) * j).floor(), Vector2.ONE), Pal.BOARD_INK)
 	draw_rect(Rect2(b.position.x, b.end.y, b.size.x, 3), SHELL[2])
 	_poly(PackedVector2Array([Vector2(b.position.x, b.end.y + 3), Vector2(b.end.x, b.end.y + 3),
 		Vector2(b.end.x + 2, b.end.y + 7), Vector2(b.position.x - 3, b.end.y + 7)]), Color(0, 0, 0, 0.3))

@@ -118,8 +118,9 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   (`_shell_frame`, `Pal.SHELL`, `Pal.cabinet`; a lateral segue o arco, `Background._round_edge`), painel verde-oliva
   (`Pal.BOARD_METAL`/`BOARD_FACE`), chaves de escuta como teclas ciano (`_draw_levers`, `KEY_CAP`), faixa escura no alto
   (`_draw_header`) e abas das seções (`_draw_rule`, `RULES`), trilhos finos nas colunas (`_draw_strips`), plaquinhas
-  creme (`BOARD_TAG`), bancos e interurbano rebaixados e escuros (`_draw_inset`, `BOARD_INSET`), letras em creme
-  (`BOARD_INK`), níquel no lugar do latão (buracos, plaquetas, régua); o console no cenário usa os mesmos tons
-  (`Background.SHELL`, `BOARD_SIDE`). Uso de anos (`_draw_wear`), banco interurbano (`_draw_trunks`). Mexendo na altura, confira que a coluna da esquerda cabe
-  (até 540).
+  creme (`BOARD_TAG`), bancos, interurbano e tampas rebaixados, escuros e de cantos redondos (`_draw_inset`,
+  `round_rect`, `ROUND`), emblema oval da companhia ao lado do interurbano (`_draw_badge`), letras em creme
+  (`BOARD_INK`), níquel no lugar do latão; limpo, sem desgaste nem parafusos nas tampas. O console no cenário é a
+  bandeja do teclado: plástico branco com uma placa oliva rebaixada (`Background.SHELL`, `BOARD_SIDE`). Banco
+  interurbano (`_draw_trunks`). Mexendo na altura, confira que a coluna da esquerda cabe (até 540).
 - Folha de prévia de toda a pixel art: `Godot --headless --path . -s tools/sprite_sheet.gd` → `build/sprites.png`.

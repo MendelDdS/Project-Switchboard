@@ -48,7 +48,8 @@ const PLATE := Pal.BANK_PLATE   # chapa sobre o banco que ainda não está em us
 const LAMP_R := 2.5         # o raio da luz da lâmpada de cada linha, no `Bloom` (o vidro tem 4; o aro de metal fica em volta)
 const BEZEL := [Pal.NICKEL[1], Pal.NICKEL[2], Pal.NICKEL[3]]   # aro niquelado: luz, meio, sombra
 const LAMP_OFF := Pal.LAMP_GLASS
-const WEAR := [0.5, 0.3, 0.15]   # o painel gasto em volta das tomadas: do perto ao longe (o quanto clareia)
+const ROUND := [2, 1]   # o canto redondo dos blocos, das abas e das chapas: o quanto as duas linhas da ponta recuam (`round_rect`)
+const BADGE := "CTSS"   # a sigla da companhia no emblema (`_draw_badge`), igual em todos os idiomas
 const LAMP_ON_SEC := 0.06    # a lâmpada (de filamento) acende quase na hora...
 const LAMP_OFF_SEC := 0.18   # ...e apaga mais devagar, o filamento esfriando: a linha tocando pulsa em vez de piscar seco
 const CORD_COLORS := Pal.CORDS
@@ -115,7 +116,7 @@ func _draw_lamp(c: Vector2, col: Color, level: float) -> void:
 ## As chaves de escuta, teclas quadradas de plástico ciano (como as dos terminais da série Ruptura), cada uma num
 ## rebaixo escuro do painel: solta, a tecla sai dele (o topo e, embaixo, a frente dela, mais escura, com a sombra embaixo
 ## à esquerda: a luz vem do alto à direita, `LIGHT`); presa (escutando, ou o destino tocando), afunda rente ao painel e
-## escurece, com um pontinho aceso (`Pal.KEY_LED`). Cada uma em `levers` é [centro, direção, px além]: presa (-1),
+## acende por inteiro, fosca, de uma cor só (`Pal.KEY_GLOW`). Cada uma em `levers` é [centro, direção, px além]: presa (-1),
 ## solta (1) ou no meio do caminho (0), `over` px além, na batida.
 func _draw_levers(levers: Array) -> void:
 	var k := Pal.KEY_CAP
@@ -128,19 +129,21 @@ func _draw_levers(levers: Array) -> void:
 		_ci.draw_rect(Rect2(well.end.x, well.position.y, 1, well.size.y + 1), _metal_at(c, 2))
 		var dir: int = v[1]
 		var lift := clampi((2 if dir > 0 else 1 if dir == 0 else 0) + dir * roundi(v[2]), 0, 3)   # a altura da frente
-		var t := clampi(2 + s - (1 if dir < 0 else 0), 1, k.size() - 2)   # o tom do topo: presa, um abaixo
+		var t := clampi(2 + s, 1, k.size() - 2)   # o tom do topo, na luz da sala
 		var top := Rect2(c.x - 4, c.y - 3 - lift, 8, 7)
 		if lift > 0:
 			_ci.draw_rect(Rect2(top.position + Vector2(-1, 1), Vector2(8, 7 + lift)), SHADOW)
 			_ci.draw_rect(Rect2(top.position.x, top.end.y, 8, lift), k[t - 1])   # a frente da tecla
+		if dir < 0:   # presa: a tecla toda acesa por dentro, fosca: uma cor só, a beira um pouco mais apagada, luz opaca sem miolo
+			var glow := Pal.KEY_GLOW
+			_ci.draw_rect(top, glow.darkened(0.2))
+			_ci.draw_rect(top.grow(-1), glow)
+			Bloom.light(_ci, top, glow, 0.6, false)
+			continue
 		_ci.draw_rect(top, k[t])
 		_ci.draw_rect(Rect2(top.position, Vector2(8, 1)), k[t + 1])   # a quina de cima e a da direita, na luz
 		_ci.draw_rect(Rect2(top.end.x - 1, top.position.y, 1, 7), k[t + 1])
 		_ci.draw_rect(Rect2(top.position.x, top.position.y + 1, 1, 6), k[t - 1])
-		if dir < 0:   # presa: o pontinho aceso no meio dela (de longe, a tecla afundada sozinha mal se via)
-			var dot := Rect2(c.x - 1, top.position.y + 2, 2, 2)
-			_ci.draw_rect(dot, Pal.KEY_LED)
-			Bloom.light(_ci, dot, Pal.KEY_LED, 0.5)
 
 
 ## Encaixe redondo como os das mesas antigas (`_jack_tex`), com a sombra curta no painel. `dim`: o metal mais escuro.
@@ -253,35 +256,6 @@ func _draw_strips() -> void:
 		var r := Rect2(col_x(i) - 1.0, ROW_Y["plate"] + ROW_Y["plate_h"] + 2.0, 2.0, ROW_Y["out"] - ROW_Y["plate"] - ROW_Y["plate_h"] - 2.0)
 		_lit_rect(Rect2(r.position, Vector2(1, r.size.y)), _metal(-2))   # rebaixado: a sombra à esquerda, a luz à direita
 		_lit_rect(Rect2(r.position.x + 1.0, r.position.y, 1, r.size.y), _metal(2))
-
-
-## O uso de anos: o painel gasto em volta das tomadas (claro liso, mais nas entradas, onde o FONE entra a noite toda,
-## e nas primeiras linhas) e riscos finos onde a ponta do plug escorregou errando o furo. Sempre os mesmos.
-func _draw_wear() -> void:
-	var hi: Color = Pal.BOARD_METAL[6]
-	for j in _jacks:
-		if j > 20:
-			continue   # nos bancos, rebaixados e escuros, o gasto não aparece
-		var use := _use(j)
-		PixelArt.sprite(_ci, _disc(20, [[7.0, Color(hi, WEAR[0])], [8.5, Color(hi, WEAR[1])], [10.0, Color(hi, WEAR[2])]]),
-			jack_rect(j).get_center(), Color(1, 1, 1, use))
-		var rng := RandomNumberGenerator.new()
-		rng.seed = j
-		for k in roundi(use * 2.0):
-			var a := rng.randf() * TAU
-			var from := jack_rect(j).get_center() + Vector2.from_angle(a) * rng.randf_range(6.0, 8.0)
-			var to := from + Vector2.from_angle(a + rng.randf_range(-0.6, 0.6)) * rng.randf_range(2.0, 4.0)
-			_ci.draw_line(from.round() + Vector2(0.5, 0.5), to.round() + Vector2(0.5, 0.5), Color(hi, 0.45), 1.0)
-
-
-## O quanto a tomada `j` é usada (0..1): as entradas mais, das primeiras linhas para as últimas; depois as saídas; os
-## destinos, menos.
-func _use(j: int) -> float:
-	if j <= 10:
-		return 1.0 - (j - 1) * 0.05
-	if j <= 20:
-		return 0.6 - (j - 11) * 0.03
-	return 0.35
 
 
 ## A plaqueta do fabricante em `r` (96×32), no esmalte claro com a beira niquelada, desenhada pelo cenário na frente do console, ao lado
@@ -420,26 +394,53 @@ func _draw_rule(y: float, caption: String, line := true) -> void:
 	if caption != "":
 		var t := PixelArt.tiny(caption)
 		var tab := Rect2(FRAME + 3, y - 5, t.get_width() + 15, 12)
-		_ci.draw_rect(tab, Pal.BOARD_STRIP)
-		_ci.draw_rect(Rect2(tab.position.x, tab.end.y, tab.size.x, 1), _metal_at(tab.position, 2))   # a beira de baixo, na luz
+		round_rect(_ci, tab, Pal.BOARD_STRIP)
+		_ci.draw_rect(Rect2(tab.position.x + 2, tab.end.y, tab.size.x - 4, 1), _metal_at(tab.position, 2))   # a beira de baixo, na luz
 		_ci.draw_texture(t, Vector2(FRAME + 10, y - 4), Pal.BOARD_INK)   # as letras nas linhas 3 a 7: em volta da faixa
 
 
 ## A faixa escura do alto do painel, de ponta a ponta, onde vão o nome das entradas e a legenda das lâmpadas.
 func _draw_header() -> void:
 	var r := Rect2(FRAME + 3, RULES["in"] - 5, size.x - FRAME * 2 - 6, 12)
-	_ci.draw_rect(r, Pal.BOARD_STRIP)
-	_lit_rect(Rect2(r.position.x, r.end.y, r.size.x, 1), _metal(2))
+	round_rect(_ci, r, Pal.BOARD_STRIP)
+	_lit_rect(Rect2(r.position.x + 2, r.end.y, r.size.x - 4, 1), _metal(2))
 
 
-## Um bloco rebaixado no painel (os bancos de destino, o interurbano): o fundo escuro, com a sombra da beira em cima e
-## à esquerda e a luz embaixo e à direita.
+## O emblema da companhia no vão à esquerda do interurbano, acima dos plugs guardados, com o meio em `c`: um oval
+## ciano com a beira e a sigla em creme, como o logotipo nos terminais da série Ruptura.
+func _draw_badge(c: Vector2) -> void:
+	var t := PixelArt.tiny(BADGE)
+	var w := t.get_width() + 20.0
+	var h := 12
+	var r := Rect2((c - Vector2(w, h) / 2.0).round(), Vector2(w, h))
+	for y in h:   # pixel a pixel, linha a linha: a beira e, dentro dela, o oval
+		var dy := y + 0.5 - h / 2.0
+		var hw := roundf(w / 2.0 * sqrt(1.0 - pow(dy / (h / 2.0), 2.0)))
+		_ci.draw_rect(Rect2(r.get_center().x - hw, r.position.y + y, hw * 2.0, 1), Pal.BOARD_INK)
+		if absf(dy) < h / 2.0 - 1.0:
+			var hi := roundf((w / 2.0 - 1.5) * sqrt(1.0 - pow(dy / (h / 2.0 - 1.0), 2.0)))
+			_ci.draw_rect(Rect2(r.get_center().x - hi, r.position.y + y, hi * 2.0, 1), Pal.KEY_CAP[2])
+	_ci.draw_texture(t, (r.get_center() - Vector2(t.get_width() / 2.0, 3.0 + 2.5)).round(), Pal.BOARD_INK)
+
+
+## Um retângulo cheio de cantos redondos, pixel a pixel: `cut` diz quanto cada linha da ponta recua, de fora para
+## dentro (`ROUND`, o canto dos blocos; [1], o das plaquinhas).
+static func round_rect(ci: CanvasItem, r: Rect2, col: Color, cut: Array = ROUND) -> void:
+	var n := cut.size()
+	ci.draw_rect(Rect2(r.position.x, r.position.y + n, r.size.x, r.size.y - n * 2), col)
+	for i in n:
+		var w: float = r.size.x - cut[i] * 2
+		ci.draw_rect(Rect2(r.position.x + cut[i], r.position.y + i, w, 1), col)
+		ci.draw_rect(Rect2(r.position.x + cut[i], r.end.y - 1 - i, w, 1), col)
+
+
+## Um bloco rebaixado no painel (os bancos de destino, o interurbano), de cantos redondos: o fundo escuro, com a
+## sombra da beira em cima e à esquerda e a luz embaixo e à direita.
 func _draw_inset(r: Rect2) -> void:
-	_lit_rect(Rect2(r.position.x - 1, r.position.y - 1, r.size.x + 2, 1), _metal(-2))
-	_lit_rect(Rect2(r.position.x - 1, r.position.y, 1, r.size.y + 1), _metal(-2))
-	_lit_rect(Rect2(r.position.x, r.end.y, r.size.x + 1, 1), _metal(2))
-	_lit_rect(Rect2(r.end.x, r.position.y - 1, 1, r.size.y + 1), _metal(2))
-	_ci.draw_rect(r, Pal.BOARD_INSET)
+	var g := r.grow(1)
+	round_rect(_ci, g, _metal_at(r.end, 2))
+	round_rect(_ci, Rect2(g.position, g.size - Vector2.ONE), _metal_at(r.position, -2))
+	round_rect(_ci, r, Pal.BOARD_INSET)
 
 
 ## O tom do metal do painel em `p`, `step` tons acima ou abaixo.
@@ -624,10 +625,10 @@ static func rim(ci: CanvasItem, r: Rect2, lit: Color, shade: Color) -> void:
 func _draw_number_plate(r: Rect2, text: String) -> void:
 	var s := _step_at(r.get_center())
 	var tag := Pal.lit(Pal.BOARD_TAG, s)
-	rim(_ci, r, tag.darkened(0.5), tag.darkened(0.65))   # embutida: a beira escura em volta
-	_ci.draw_rect(r, tag)
-	_ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), tag.lightened(0.15))
-	_ci.draw_rect(Rect2(r.position.x, r.end.y - 1, r.size.x, 1), tag.darkened(0.15))
+	round_rect(_ci, r.grow(1), tag.darkened(0.55), [1])   # embutida: a beira escura em volta
+	round_rect(_ci, r, tag, [1])
+	_ci.draw_rect(Rect2(r.position.x + 1, r.position.y, r.size.x - 2, 1), tag.lightened(0.15))
+	_ci.draw_rect(Rect2(r.position.x + 1, r.end.y - 1, r.size.x - 2, 1), tag.darkened(0.15))
 	var tex := PixelArt.tiny(text)
 	var at := (r.get_center() - Vector2(tex.get_width() / 2.0, 3.0 + 2.5)).round()   # as letras ficam nas linhas 3 a 7 da imagem
 	_ci.draw_texture(tex, at, Pal.lit(Pal.ENGRAVED, s))
@@ -645,28 +646,20 @@ const PLATE_LETTERS := {
 }
 
 
-## Chapa de metal parafusada sobre um banco que ainda não está em uso (lisa: o escovado saiu, a pedido): a letra do
-## banco estampada em relevo (luz em cima à esquerda, sombra embaixo à direita), o aviso
-## pintado com estêncil embaixo e, em volta dos parafusos, os riscos da chave de fenda que escorregou. Sempre os mesmos.
+## Tampa lisa de cantos redondos sobre um banco que ainda não está em uso, encaixada, sem parafusos (limpa, como
+## tudo na série Ruptura; os parafusos e os riscos da chave de fenda saíram): a letra do banco estampada em relevo (luz
+## em cima à esquerda, sombra embaixo à direita) e o aviso pintado com estêncil embaixo.
 func _draw_plate(r: Rect2, letter: String) -> void:
-	var rng := RandomNumberGenerator.new()
-	rng.seed = hash(letter)
 	var plate := Pal.lit(PLATE, _step_at(r.get_center()))   # no tom da luz da sala no meio dela
-	rim(_ci, r, plate.darkened(0.15), plate.darkened(0.5))
-	_ci.draw_rect(r, plate)
-	_ci.draw_rect(Rect2(r.position, Vector2(r.size.x, 2)), plate.lightened(0.18))
-	_ci.draw_rect(Rect2(r.position.x, r.end.y - 2, r.size.x, 2), plate.darkened(0.35))
-	for c in [r.position + Vector2(5, 5), Vector2(r.end.x - 5, r.position.y + 5), Vector2(r.position.x + 5, r.end.y - 5), r.end - Vector2(5, 5)]:
-		for k in 2:   # a chave de fenda escorregou, sempre para dentro da chapa (para fora, o risco passava da borda)
-			var a: float = (r.get_center() - c).angle() + rng.randf_range(-0.6, 0.6)
-			var from: Vector2 = c + Vector2.from_angle(a) * 3.0
-			var to := from + Vector2.from_angle(a + rng.randf_range(-0.3, 0.3)) * rng.randf_range(2.0, 4.0)
-			_ci.draw_line(from.round() + Vector2(0.5, 0.5), to.round() + Vector2(0.5, 0.5), plate.lightened(0.3), 1.0)
-		PixelArt.sprite(_ci, _disc(5, [[1.5, plate.lightened(0.35), plate.lightened(0.15), plate.darkened(0.2)], [2.5, plate.darkened(0.5)]]), c)
-		_ci.draw_rect(Rect2((c - Vector2(2, 1)).floor(), Vector2(3, 1)), plate.darkened(0.5))   # fenda do parafuso
+	round_rect(_ci, r.grow(1), plate.darkened(0.5))
+	round_rect(_ci, r, plate)
+	for i in ROUND.size():   # a luz na beira de cima e a sombra na de baixo, seguindo o canto
+		var cut: int = ROUND[i]
+		_ci.draw_rect(Rect2(r.position.x + cut, r.position.y + i, r.size.x - cut * 2, 1), plate.lightened(0.18))
+		_ci.draw_rect(Rect2(r.position.x + cut, r.end.y - 1 - i, r.size.x - cut * 2, 1), plate.darkened(0.35))
 	var rows := PixelArt.relief(PLATE_LETTERS[letter])   # a letra estampada
 	var at := (r.get_center() - Vector2(0, 4)).round()
 	PixelArt.sprite(_ci, PixelArt.art(rows, {"*": plate.darkened(0.45)}), at + Vector2(1, 1))
 	PixelArt.sprite(_ci, PixelArt.art(rows, {"u": plate.lightened(0.35), "d": plate.darkened(0.2), "+": plate.lightened(0.15)}), at)
 	var notice := PixelArt.tiny(T.text(T.Key.BOARD_PLATE_NOTICE))   # pintado com estêncil, já gasto
-	_ci.draw_texture(notice, Vector2(roundf(r.get_center().x - notice.get_width() / 2.0), roundf(r.get_center().y + 10.0)), Color(Pal.STENCIL, 0.6))
+	_ci.draw_texture(notice, Vector2(roundf(r.get_center().x - notice.get_width() / 2.0), roundf(r.get_center().y + 10.0)), Color(Pal.STENCIL, 0.85))

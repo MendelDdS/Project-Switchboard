@@ -104,7 +104,7 @@ const BOARD_SIDE := Color("2a3022")    ## a frente do console embaixo da pratele
 ## As teclas de plástico ciano das chaves de escuta (`Switchboard._draw_levers`), do escuro ao claro.
 const KEY_CAP: Array[Color] = [Color("12394a"), Color("1d5a72"), Color("2b7e9c"), Color("3f9fbf"), Color("6cc0da"),
 	Color("a2dcec")]
-const KEY_LED := Color("d8fbff")   ## o pontinho aceso na tecla presa
+const KEY_GLOW := Color("7fd3e6")   ## a tecla presa, acesa por dentro: plástico fosco, uma cor só
 ## A quina do níquel descendo até o painel (`Switchboard.NICKEL_EDGE`): na luz, no meio e na sombra.
 const NICKEL_EDGE: Array[Color] = [Color("63675a"), Color("4a4f42"), Color("353a2e")]
 ## O latão das plaquetas, dos aros dos buracos da prateleira e do friso na beira dela, e das etiquetas das teclas: a
@@ -117,7 +117,6 @@ const PLUG_INSULATOR: Array[Color] = [Color("141210"), Color("2a2622")]   ## os 
 ## A baquelite preta dos botões do console: a beira, a sombra e o meio da saia, e a sombra, o meio e a luz do tampo.
 const BAKELITE: Array[Color] = [Color("120e0a"), Color("1a1612"), Color("2a2420"), Color("3a332c"), Color("4a4038"),
 	Color("5a5048")]
-const SCREW: Array[Color] = [Color("1a0f08"), Color("2a1a0f"), Color("4a3a24"), Color("8e7a5a")]   ## os parafusos do console: sombra, meio, luz e a fenda
 ## Os cabos (`Switchboard.CORD_COLORS`): o pano de cada um e o brilho dele; o corpo do plug na mesma cor.
 const CORDS := [
 	[Color("3d6e34"), Color("6c9e58")],
