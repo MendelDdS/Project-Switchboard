@@ -86,22 +86,27 @@ const CARD_BUSY := Color("8a3a14")   ## a unidade ocupada: o nome e o estado del
 const HAZARD := Color("d9a521")      ## as faixas de perigo da trituradora, no despacho aberto e na unidade da mesa
 const NICKEL: Array[Color] = [Color("f4f0e6"), Color("d6d1c3"), Color("8e897c"), Color("45413a")]   ## o níquel (brilho, luz, meio, sombra): o prendedor da prancheta, o aro das lâmpadas
 
-## A mesa comutadora, retrofuturista (como na série Ruptura): o móvel de esmalte cinza-sálvia de cantos redondos,
-## o painel de metal cinza-esverdeado, os blocos e as faixas escuras, e as plaquinhas e as letras em creme.
-## O esmalte do móvel e do console (`cabinet`), do escuro ao claro: no meio do painel, o 4º.
-const SHELL: Array[Color] = [Color("252b28"), Color("343b36"), Color("454d46"), Color("586058"), Color("6b736a"),
-	Color("7f877c"), Color("939a8d"), Color("a8ad9f")]
-## O metal do painel (`panel_metal`: o campo, `BOARD_FACE`, e o relevo dele).
-const BOARD_METAL: Array[Color] = [Color("161d1c"), Color("1f2826"), Color("2a3532"), Color("36433e"), Color("425049"),
-	Color("4f5e56"), Color("5d6d64"), Color("6e7e74")]
-const BOARD_FACE := Color("36433e")    ## o campo do painel (o tom do meio de `BOARD_METAL`)
-const BOARD_INSET := Color("142529")   ## os blocos rebaixados, escuros: os bancos de destino e o interurbano
-const BOARD_STRIP := Color("232c30")   ## a faixa do alto (o nome das entradas e a legenda) e a aba do nome das saídas
+## A mesa comutadora, retrofuturista (como na série Ruptura): o móvel de plástico branco-creme de cantos redondos, o
+## painel verde-oliva, os blocos e as faixas escuras, as teclas ciano e as plaquinhas e as letras em creme.
+## O plástico do móvel e do console (`cabinet`), do escuro ao claro: no meio do painel, o 4º. A sombra puxa para o
+## frio, para o branco não virar um bloco aceso na sala escura.
+const SHELL: Array[Color] = [Color("3e4243"), Color("5a5c5b"), Color("777772"), Color("95938a"), Color("b1ada1"),
+	Color("c9c5b8"), Color("dcd8cb"), Color("ece8dc")]
+## O metal do painel, verde-oliva (`panel_metal`: o campo, `BOARD_FACE`, e o relevo dele).
+const BOARD_METAL: Array[Color] = [Color("15180f"), Color("1e2216"), Color("292e1e"), Color("353b27"), Color("424930"),
+	Color("50583a"), Color("5f6845"), Color("707a52")]
+const BOARD_FACE := Color("353b27")    ## o campo do painel (o tom do meio de `BOARD_METAL`)
+const BOARD_INSET := Color("171b12")   ## os blocos rebaixados, escuros: os bancos de destino, o interurbano, o rebaixo das teclas
+const BOARD_STRIP := Color("22271a")   ## a faixa do alto (o nome das entradas e a legenda) e a aba do nome das saídas
 const BOARD_INK := Color("cfc8ab")     ## as letras do painel, em creme
 const BOARD_TAG := Color("bdb79f")     ## as plaquinhas creme com o número das linhas
-const BOARD_SIDE := Color("23353a")    ## a frente do console embaixo da prateleira, escura
+const BOARD_SIDE := Color("2a3022")    ## a frente do console embaixo da prateleira, oliva escuro
+## As teclas de plástico ciano das chaves de escuta (`Switchboard._draw_levers`), do escuro ao claro.
+const KEY_CAP: Array[Color] = [Color("12394a"), Color("1d5a72"), Color("2b7e9c"), Color("3f9fbf"), Color("6cc0da"),
+	Color("a2dcec")]
+const KEY_LED := Color("d8fbff")   ## o pontinho aceso na tecla presa
 ## A quina do níquel descendo até o painel (`Switchboard.NICKEL_EDGE`): na luz, no meio e na sombra.
-const NICKEL_EDGE: Array[Color] = [Color("5f6762"), Color("47504b"), Color("333b37")]
+const NICKEL_EDGE: Array[Color] = [Color("63675a"), Color("4a4f42"), Color("353a2e")]
 ## O latão das plaquetas, dos aros dos buracos da prateleira e do friso na beira dela, e das etiquetas das teclas: a
 ## beira funda, a beira, a sombra, o friso, o meio, a luz e o brilho.
 const BRASS_PLATE: Array[Color] = [Color("140d06"), Color("3a2a12"), Color("7a6230"), Color("8a6a2e"), Color("b0904c"),
@@ -127,8 +132,7 @@ const CORDS := [
 const JACK_METAL := {"face": [Color("fff2d8"), Color("e4c9a0"), Color("c3a37c"), Color("98785a"), Color("6a503a")],
 	"wall": [Color("ddd2b6"), Color("a69072"), Color("735e47"), Color("4a3b2d"), Color("2e251c")]}
 const JACK_HOLE := Color("070605")
-const NUT_HOLE := Color("1c130b")      ## o fundo do furo da porca da chave de escuta: marrom quase preto
-const BANK_PLATE := Color("4c5a53")    ## a chapa sobre o banco que ainda não está em uso
+const BANK_PLATE := Color("4d5540")    ## a chapa sobre o banco que ainda não está em uso
 const LAMP_GLASS := Color("6e7168")    ## o vidro leitoso da lâmpada apagada (escuro, parecia o furo de uma tomada)
 const ENGRAVED := Color("1d1a14")      ## o número gravado nas plaquinhas das linhas
 const NUMBER_PAINT := Color("d8c9a2")  ## os números pintados em cima dos destinos livres
@@ -429,7 +433,7 @@ static func desk_edge(lit: float, step := 0) -> Color:
 ## O esmalte do móvel da mesa comutadora na luz da sala `lit` (`Switchboard._room_lit`: de 0 longe da luminária a
 ## ~0,6 perto dela), `step` tons acima ou abaixo: no meio do painel, o tom de sempre (`SHELL[4]`).
 static func cabinet(lit: float, step := 0) -> Color:
-	return ramp(SHELL, 0.33 + lit * 0.84, step)
+	return ramp(SHELL, 0.45 + lit * 0.75, step)   # o branco não some no canto longe da luminária
 
 
 ## O metal do painel da mesa comutadora na luz da sala `lit` (como em `cabinet`): no meio do painel, `BOARD_FACE`.

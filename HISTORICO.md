@@ -2144,3 +2144,8 @@ Chaves:
     Depois: a quina da lateral (e a do tampo, com os olhos acima dele) segue o arredondamento, varrendo o arco do
     canto para o fundo (`Background._round_edge`; a lateral reta deixava uma ponta acima do arco); os cantos de baixo
     voltaram a ser retos por fora, como na referência (o móvel entra no console; o arco mostrava a parede atrás).
+370. #mesa-comutadora #painel #pixel Mais perto da série Ruptura (fotos dos terminais da Lumon do usuário): móvel
+    de plástico branco-creme (era esmalte cinza-sálvia; o tom sobe no canto longe da luminária para o branco não
+    sumir), painel verde-oliva (o usuário trocou o azul-marinho sugerido por oliva) e as chaves de escuta viraram
+    teclas quadradas de plástico ciano num rebaixo escuro: soltas saem do painel, presas afundam e escurecem, com um
+    pontinho aceso (a alavanca de bastão saiu).

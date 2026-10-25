@@ -40,9 +40,8 @@ const JACK_HOLE := Pal.JACK_HOLE
 const JACK_GLINT := Vector2(3, -4)   # o brilho do níquel, do meio do encaixe: na face, no alto à direita, virado para a luz
 const JACK_GLINT_COLOR := Color(1.0, 0.96, 0.86, 0.85)
 const JACK_PX := 12   # o lado do desenho do encaixe, em pixels
-const EDGE_DARK := Pal.NUT_HOLE   # o fundo do furo da porca da chave: marrom quase preto
-## A quina do níquel descendo até o painel: na luz, no meio e na sombra. No lugar da beira quase preta (`EDGE_DARK`),
-## que em volta das tomadas, das lâmpadas, das alavancas e das plaquinhas parecia um contorno preto.
+## A quina do níquel descendo até o painel: na luz, no meio e na sombra. No lugar de uma beira quase preta, que em
+## volta das tomadas, das lâmpadas e das plaquinhas parecia um contorno preto.
 const NICKEL_EDGE := Pal.NICKEL_EDGE
 const SHADOW := Color(0, 0, 0, 0.35)
 const PLATE := Pal.BANK_PLATE   # chapa sobre o banco que ainda não está em uso
@@ -52,21 +51,7 @@ const LAMP_OFF := Pal.LAMP_GLASS
 const WEAR := [0.5, 0.3, 0.15]   # o painel gasto em volta das tomadas: do perto ao longe (o quanto clareia)
 const LAMP_ON_SEC := 0.06    # a lâmpada (de filamento) acende quase na hora...
 const LAMP_OFF_SEC := 0.18   # ...e apaga mais devagar, o filamento esfriando: a linha tocando pulsa em vez de piscar seco
-## A alavanca da chave de escuta para baixo, do eixo (no meio da porca) à ponta: um bastão que engrossa até a ponta
-## arredondada, a luz à direita e a ponta, virada para baixo, na sombra. Cabe entre a entrada e a saída.
 const CORD_COLORS := Pal.CORDS
-const LEVER_ART := [   # para baixo: a haste curta de metal (L, D) saindo da porca e, na ponta, o pino comprido de baquelite preta (l, w, m, d)
-	".eDLE.",   # a beira de cada peça no tom dela, na luz à direita e na sombra à esquerda (E, e no metal; P, p no pino)
-	".eDLE.",
-	".eDLE.",
-	"pdmllP",
-	"pdmlwP",
-	"pdmllP",
-	"pdmmlP",
-	".pddp.",
-]
-## Para cima: o pino visto mais de frente (a ponta redonda) e a haste embaixo dele.
-const LEVER_UP := [".PllP.", "pdmmlP", "pdmlwP", "pdmllP", "pdmmlP", ".eDLE.", ".eDLE.", ".eDLE."]
 
 
 ## Cor da lâmpada de uma linha (Exchange.Line) e quanto ela quer estar acesa (0..1); `_fade` chega lá aos poucos.
@@ -127,43 +112,35 @@ func _draw_lamp(c: Vector2, col: Color, level: float) -> void:
 	_ci.draw_rect(Rect2(c + Vector2(1, -2), Vector2(1, 1)), Color(1, 1, 1, 0.5))   # o brilho da sala no vidro
 
 
-## As chaves de escuta, como as das mesas de verdade: a porca niquelada no painel e a alavanca de bastão (`LEVER_ART`).
-## Cada uma em `levers` é [centro, direção, px além]: para cima (-1), para baixo (1) ou, virando, de frente (0: só a
-## ponta, virada para os olhos), `over` px além, na batida. A sombra cai embaixo à esquerda (a luz vem do alto à
-## direita, `LIGHT`). Em passadas, todas as sombras, as porcas e as alavancas, para cada textura ser uma chamada de desenho só.
+## As chaves de escuta, teclas quadradas de plástico ciano (como as dos terminais da série Ruptura), cada uma num
+## rebaixo escuro do painel: solta, a tecla sai dele (o topo e, embaixo, a frente dela, mais escura, com a sombra embaixo
+## à esquerda: a luz vem do alto à direita, `LIGHT`); presa (escutando, ou o destino tocando), afunda rente ao painel e
+## escurece, com um pontinho aceso (`Pal.KEY_LED`). Cada uma em `levers` é [centro, direção, px além]: presa (-1),
+## solta (1) ou no meio do caminho (0), `over` px além, na batida.
 func _draw_levers(levers: Array) -> void:
-	var b: Color = CORD_COLORS[5][0]   # o pino da ponta, de baquelite preta, como os cabos pretos; a haste é de metal
-	var hi: Color = CORD_COLORS[5][1]
-	var shade := {"E": SHADOW, "e": SHADOW, "P": SHADOW, "p": SHADOW, "L": SHADOW, "D": SHADOW, "l": SHADOW, "w": SHADOW,
-		"m": SHADOW, "d": SHADOW}
-	var tones := {}   # o degrau da luz da sala (`_step_at`) -> as cores da alavanca nele
+	var k := Pal.KEY_CAP
 	for v in levers:
-		var s := _step_at(v[0])
-		if tones.has(s):
-			continue
-		var n := _nickel(s)
-		var k := Pal.lit(b, s)
-		tones[s] = {"E": n[3], "e": n[5], "P": k, "p": k.darkened(0.25), "L": n[0], "D": n[2], "l": Pal.lit(b.lerp(hi, 0.6), s),
-			"w": Pal.lit(hi.lightened(0.25), s), "m": k, "d": k.darkened(0.4)}
-	for v in levers:
-		PixelArt.sprite(_ci, _disc(8, [[4.0, SHADOW]]), v[0] + Vector2(-1, 1))
-	for v in levers:
-		if v[1] != 0:
-			_ci.draw_texture(PixelArt.art(LEVER_ART if v[1] > 0 else LEVER_UP, shade), _lever_corner(v) + Vector2(-1, 1))
-	for v in levers:   # a porca (pequena: a haste aparece além dela)
-		var n := _nickel(_step_at(v[0]))
-		PixelArt.sprite(_ci, _disc(8, [[1.5, EDGE_DARK], [3.0, n[0], n[1], n[2]], [4.0, n[3], n[4], n[5]]]), v[0])
-	for v in levers:
-		var t: Dictionary = tones[_step_at(v[0])]
-		if v[1] == 0:
-			PixelArt.sprite(_ci, _disc(6, [[2.0, t["l"], t["m"], t["d"]], [3.0, t["m"], t["m"], t["p"]]]), v[0])
-		else:
-			_ci.draw_texture(PixelArt.art(LEVER_ART if v[1] > 0 else LEVER_UP, t), _lever_corner(v))
-
-
-## Onde vai o canto da alavanca [centro, direção, px além] de `_draw_levers`.
-static func _lever_corner(v: Array) -> Vector2:
-	return v[0] + Vector2(-LEVER_ART[0].length() / 2.0, (0.0 if v[1] > 0 else 1.0 - LEVER_ART.size()) + v[1] * v[2])
+		var c: Vector2 = (v[0] as Vector2).round()
+		var s := _step_at(c)
+		var well := Rect2(c - Vector2(5, 5), Vector2(10, 10))
+		_ci.draw_rect(well, Pal.BOARD_INSET)
+		_ci.draw_rect(Rect2(well.position.x, well.end.y, well.size.x, 1), _metal_at(c, 2))   # a beira de baixo, na luz
+		_ci.draw_rect(Rect2(well.end.x, well.position.y, 1, well.size.y + 1), _metal_at(c, 2))
+		var dir: int = v[1]
+		var lift := clampi((2 if dir > 0 else 1 if dir == 0 else 0) + dir * roundi(v[2]), 0, 3)   # a altura da frente
+		var t := clampi(2 + s - (1 if dir < 0 else 0), 1, k.size() - 2)   # o tom do topo: presa, um abaixo
+		var top := Rect2(c.x - 4, c.y - 3 - lift, 8, 7)
+		if lift > 0:
+			_ci.draw_rect(Rect2(top.position + Vector2(-1, 1), Vector2(8, 7 + lift)), SHADOW)
+			_ci.draw_rect(Rect2(top.position.x, top.end.y, 8, lift), k[t - 1])   # a frente da tecla
+		_ci.draw_rect(top, k[t])
+		_ci.draw_rect(Rect2(top.position, Vector2(8, 1)), k[t + 1])   # a quina de cima e a da direita, na luz
+		_ci.draw_rect(Rect2(top.end.x - 1, top.position.y, 1, 7), k[t + 1])
+		_ci.draw_rect(Rect2(top.position.x, top.position.y + 1, 1, 6), k[t - 1])
+		if dir < 0:   # presa: o pontinho aceso no meio dela (de longe, a tecla afundada sozinha mal se via)
+			var dot := Rect2(c.x - 1, top.position.y + 2, 2, 2)
+			_ci.draw_rect(dot, Pal.KEY_LED)
+			Bloom.light(_ci, dot, Pal.KEY_LED, 0.5)
 
 
 ## Encaixe redondo como os das mesas antigas (`_jack_tex`), com a sombra curta no painel. `dim`: o metal mais escuro.
@@ -635,7 +612,7 @@ static func _nickel(s: int) -> Array:
 
 
 ## A beira de 1 px em volta de `r`, no tom da própria peça: `lit` em cima e à esquerda, `shade` embaixo e à direita (a
-## beira quase preta em volta, `EDGE_DARK`, parecia um contorno de desenho). Num rebaixo, ao contrário: escura em cima.
+## beira quase preta em volta parecia um contorno de desenho). Num rebaixo, ao contrário: escura em cima.
 static func rim(ci: CanvasItem, r: Rect2, lit: Color, shade: Color) -> void:
 	ci.draw_rect(r.grow(1), shade)
 	ci.draw_rect(Rect2(r.position - Vector2.ONE, Vector2(r.size.x + 1, 1)), lit)

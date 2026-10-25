@@ -114,8 +114,9 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
 - Lâmpadas de vidro leitoso que acendem rápido e apagam devagar (`_fade`, `LAMP_ON_SEC`/`LAMP_OFF_SEC`); encaixes de
   pixel art (`_jack_tex`, `JACK_METAL`); luz da luminária no painel (`_draw_room_light`) e escurecendo junto com a da sala
   pelo `modulate` (`Switchboard.dim`); a luz das lâmpadas no painel pelo `_glow`.
-- Visual retrofuturista (série Ruptura): móvel de esmalte de cantos redondos, pixel a pixel (`_shell_frame`,
-  `Pal.SHELL`, `Pal.cabinet`), painel cinza-esverdeado (`Pal.BOARD_METAL`/`BOARD_FACE`), faixa escura no alto
+- Visual retrofuturista (série Ruptura): móvel de plástico branco-creme de cantos redondos, pixel a pixel
+  (`_shell_frame`, `Pal.SHELL`, `Pal.cabinet`; a lateral segue o arco, `Background._round_edge`), painel verde-oliva
+  (`Pal.BOARD_METAL`/`BOARD_FACE`), chaves de escuta como teclas ciano (`_draw_levers`, `KEY_CAP`), faixa escura no alto
   (`_draw_header`) e abas das seções (`_draw_rule`, `RULES`), trilhos finos nas colunas (`_draw_strips`), plaquinhas
   creme (`BOARD_TAG`), bancos e interurbano rebaixados e escuros (`_draw_inset`, `BOARD_INSET`), letras em creme
   (`BOARD_INK`), níquel no lugar do latão (buracos, plaquetas, régua); o console no cenário usa os mesmos tons
