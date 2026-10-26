@@ -840,6 +840,16 @@ func _initialize() -> void:
 				long += hung.pts[i].distance_to(hung.pts[i - 1])
 		ok(high >= -1.0, "fio: com %d px, não sobe acima do plug (%.1f)" % [want, high])
 		ok(long <= want * 1.02, "fio: com %d px, estica menos de 2%% (%.0f)" % [want, long])
+	# um plug encaixado no caminho (`Cord.pegs`, 5 px acima de onde o fio passaria): o fio se apoia nele, nenhum trecho passa por dentro, e assenta
+	var pegged := Switchboard.Cord.new(Vector2(0, 300), Vector2(300, 0))
+	pegged.stub = Vector2.LEFT
+	pegged.pegs = PackedVector3Array([Vector3(150, 214, 7.5)])
+	for _i in 600:
+		pegged.step(b.STEP, Vector2(0, 300), Vector2(300, 0), 440.0)
+	var closest := INF
+	for i in pegged.pts.size() - 1:
+		closest = minf(closest, Geometry2D.get_closest_point_to_segment(Vector2(150, 214), pegged.pts[i], pegged.pts[i + 1]).distance_to(Vector2(150, 214)))
+	ok(closest >= 7.0 and pegged.asleep(), "fio: contorna o plug encaixado (%.1f px do centro) e dorme" % closest)
 	m.ring(c7)
 	var l7 := c7.line
 	_move(0, -1)

@@ -17,6 +17,7 @@ extends Node
 ##                          com --listen, gravando a conversa da linha 3, a lâmpada REC acesa; --tapefly=in|deliver|discard,0.2:
 ##                          a fita voando, parada nesse instante do voo, com uma já na caixa)
 ##   --patch=312,4          um cabo de conexão da saída da linha 4 (o padrão) ao destino dado, conectado (o aro aceso)
+##   --plugs=3:296,4:162    outras pontas encaixadas nas tomadas dadas, sem ligação (os fios passando pelos plugs)
 ##   --lines=2:ring,4:conn  as lâmpadas dessas linhas no estado dado (`Exchange.Line`, em minúsculas), sem ligação
 ##   --toll                 um interurbano contando no calculógrafo, dois bilhetes na mesa (um carimbado) e três na caixinha
 ##   --clues                palavras-chave ouvidas (uma marcada, uma riscada, uma ouvida duas vezes) e a lista nas anotações
@@ -148,6 +149,9 @@ func _ready() -> void:
 		m.board.plugged(1, 10 + (int(pa[1]) if pa.size() > 1 else 4))
 		m.board.plugged(2, int(pa[0]))
 		m.exchange.set_dest(int(pa[0]), Exchange.Dest.CONN)
+	if _args.has("plugs"):
+		for kv in (_args["plugs"] as String).split(","):
+			m.board.plugged(int(kv.get_slice(":", 0)), int(kv.get_slice(":", 1)))
 	if _args.has("lines"):
 		for l in (_args["lines"] as String).split(","):
 			var kv := l.split(":")

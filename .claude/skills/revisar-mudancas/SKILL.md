@@ -107,6 +107,10 @@ rm -f tests/test_zz_medir.gd tests/test_zz_medir.gd.uid
 
 Referência neste Mac (10/2026, depois do plano hi-bit; os números variam de uma medição para outra, ±1 ms):
 
+(26/10/2026: o mesmo commit mede ~7 ms de média, também na versão 0.6.0, e as chamadas do último quadro saem ~235 numa
+execução e ~740 na outra, sem mudar ao esconder o jogo inteiro: compare sempre com a versão anterior medida na mesma
+hora, e as chamadas só entre execuções que deram o mesmo patamar.)
+
 - **Quadro:** 2–4 ms em média; o pior 1% até ~10 ms e uns poucos quadros acima de 8 ms, nenhum acima de 16 ms
   (o sol a 8× pode dar um).
 - **Chamadas de desenho:** ~380 quando o cenário não se redesenha; ~400–450 abrindo uma ferramenta; no amanhecer

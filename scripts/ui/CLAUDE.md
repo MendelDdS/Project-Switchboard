@@ -104,15 +104,19 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   latão no meio, `_draw_trunks`; mais alto, tampa as tomadas). A mesa não sabe o que cada um faz.
 - **Fios** são cordas de Verlet, uma por ponta (`Cord`, `scripts/ui/cord.gd`, sem tela nem som, testada sozinha):
   presas no buraco (`hole(e)`) e na traseira do plug; o contrapeso puxa a folga para dentro (`WEIGHT_TAKE`); todos com
-  o mesmo comprimento (`Cord.MAX`); a prateleira e a beira dela são quinas (`hang_step`, `lip_y`, `route`); fio parado
-  dorme (`SLEEP_STEPS`). No desenho: dobras do pano (`_kinked`), trançado (`BRAID`, uma chamada,
-  `draw_multiline_colors`), curva Catmull-Rom (`_smooth`); dormindo, imagem pixel a pixel guardada (`_rope_image`).
+  o mesmo comprimento (`Cord.MAX`); a prateleira e a beira dela são quinas (`hang_step`, `lip_y`, `route`); os plugs
+  encaixados das outras pontas são pinos (`Cord.pegs`, `Switchboard._pegs`, `Cord.clear`: o fio encaixado contorna ou
+  se apoia, nunca atravessa, agarrado neles, `PEG_GRIP`; na mão e solto, não); fio parado dorme (`SLEEP_STEPS`). Ordem do desenho: os encaixados,
+  depois os guardados (o fio passa atrás deles), depois os da mão e os soltos. No desenho: dobras do pano (`_kinked`), trançado (`BRAID`, uma chamada,
+  `draw_multiline_colors`), curva Catmull-Rom (`_smooth`); dormindo, imagem pixel a pixel guardada (`_rope_image`);
+  a sombra no fio de baixo onde se cruzam (`_cross_shade`, `CROSS_SHADE`, em polígonos do `Geometry2D`).
 - **Plugs**: pixel art de um P10 (`PLUG_ART`), girados pelo RotSprite em passos de 5° (`PixelArt.turned`); encaixados,
   vistos de frente montados com discos (`_draw_plug_face`), com paralaxe para os olhos (`_tilt`); na mão balançam
   como pêndulo (`_swing_step`); soltos voltam ao buraco e assentam (`_seat`). Clique (apertar e soltar parado, em
   `CLICK_SEC`, sem andar `CLICK_PX`) desencaixa; plug só se move arrastando.
 - **Sons da mesa** pelo lugar na tela (`_sfx`): o atrito do fio (`Sfx.cord_rub`, barramento Rub, pela velocidade do
-  fio entrando ou saindo), `drop`, `thump`, `cord_stop`, `cord_snag`, `cord_snap`, `cord_tap`.
+  fio entrando ou saindo), `drop`, `thump`, `cord_stop`, `cord_snag`, `cord_snap`, `cord_tap`, `cord_knock` (o fio
+  caindo num plug encaixado, `Cord.knock`, `KNOCK_SPEED`; o plug afunda um instante, `_knocked`, `KNOCK_PX`).
 - **Quatro camadas, cada uma só redesenha quando o `_look` dela muda**: o painel (`_draw`), as lâmpadas (`_lamps`,
   que registram as luzes e os plugs que as cobrem no `Bloom`), as tomadas dos destinos com a luz da sala (`_top`) e os
   plugs com os fios (`_cords`, a cada quadro só com algo se mexendo). Desenhe em `_ci`.

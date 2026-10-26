@@ -2325,4 +2325,27 @@ Chaves:
 408. #painel #interface "As plaquinhas que indicam as teclas do teclado não estão com os textos centralizados": os
     rótulos do atalho (Espaço, Tab, Z, X) estavam 2 px acima do meio da plaquinha creme (3 px em cima, 5 embaixo);
     descidos 2 px no `phone_panel.tscn`, a folga ficou igual em cima e embaixo (dos lados já estava, ±1 px).
+409. #cabos #mesa-comutadora "Melhorar a física dos cabos dos plugs, atualmente os cabos atravessam os plugs
+    conectados e também os desconectados": os plugs encaixados viraram pinos para os fios encaixados das outras pontas
+    (`Cord.pegs`, `Cord.clear`: o fio contorna ou se apoia neles; esticado, dobra neles) e os fios encaixados passam
+    atrás dos plugs guardados em pé (ordem do desenho: encaixados, guardados, da mão e soltos). Na mão e solto, o fio
+    vem para a frente e não bate (prender o fio nos plugs enquanto arrasta não foi pedido). Tratar os guardados como
+    obstáculos (o fio por cima das pontas deles) foi descartado na proposta: o fio subiria quase reto ao sair do buraco.
+    `--plugs=3:296,4:162` no `tools/shot.gd`.
+    Depois, "os cabos ficaram por baixo do buraco do slot": a beira da frente dos buracos era desenhada junto de cada
+    plug guardado e depois de cada fio, e cobria os fios que passavam por ela; agora sai de todos os buracos antes de
+    fios e plugs (o plug guardado, cortado nela, continua entrando no buraco).
+410. #cabos #mesa-comutadora "Faça a conferência e depois os itens 1 e 2" (das melhorias sugeridas para os fios): dois
+    plugs encaixados lado a lado, com o fio passando entre eles por 16 caminhos, assentam sem tremer, sem prender e
+    sem esticar; um plug encaixando em cima de um fio parado o fazia saltar 8 px num passo (o obstáculo agora cresce
+    com o empurrão do encaixe, 0,6 px por passo) e o fio voltava a dormir dentro dele (o `calm` zera). (1) O pano agarra
+    no plug em que se apoia (`Cord.PEG_GRIP`). (2) A sombra do trecho apoiado cai tão longe quanto a do plug. A
+    investigação do desempenho: o quadro em ~7 ms é o deste Mac hoje (a versão 0.6.0 mede igual), e as chamadas de
+    desenho do `medir.gd` oscilam entre ~235 e ~740 de uma execução para outra no mesmo commit, sem mudar ao esconder
+    o jogo inteiro: não é regressão, é a leitura do monitor.
+411. #cabos #som #mesa-comutadora "Pode fazer nessa sequência. Deixe 5 por último depois de eu aprovar os outros" (as
+    melhorias seguintes dos fios). (3) O fio caindo num plug encaixado dá um "toc" abafado (`cord_knock`) e, tirado o
+    plug que segurava um fio, o fio cai com o "tap" de sempre. (4) O plug em que o fio cai afunda um instante, como
+    na assentada. (6) Onde dois fios se cruzam, o de cima faz uma sombra fina no de baixo. A 5 (o fio na mão
+    enroscando nos plugs rente ao painel) espera a aprovação destas.
 

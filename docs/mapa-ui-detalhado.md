@@ -551,7 +551,27 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
 - Sob o mouse: `_plug_under` (plug que dá para pegar → `_hover`, desenhado com contorno claro) e `_cursor_shape`
   (mão aberta, mão fechada segurando, proibido sobre tomada que recusa, dedo em tomada/plaqueta que informa).
   Desenho na ordem `_order`: a ponta pega ou encaixada por último (`_raise`) fica por cima (e é a primeira no clique);
-  cada ponta desenha fio e plug juntos, para o fio mais recente passar por cima dos plugs das outras.
+  cada ponta desenha fio e plug juntos, para o fio mais recente passar por cima dos plugs encaixados das outras; os
+  encaixados antes dos guardados (o fio vai do buraco para trás, até o painel, e passa atrás dos plugs em pé; antes,
+  por dentro deles) e os da mão e os soltos por último. Os plugs encaixados das outras pontas são pinos para o fio
+  encaixado (`Cord.pegs`, um disco do tamanho do plug visto de frente mais meio fio, `Switchboard._pegs`): cada trecho
+  que entra num deles sai pela beira (`Cord.clear`, os dois pontos do trecho levados juntos; só os pontos, a 12 px um
+  do outro, deixavam o trecho atravessar), e o fio contorna ou se apoia nele; o esticado, desenhado reto, também dobra
+  neles. Um plug que encaixa ou sai acorda os fios encaixados (e zera o `calm`: sem isso, voltavam a dormir dentro do
+  plug novo); encaixando, o disco cresce com o empurrão dele (`PUSH_SEC`), e o fio embaixo vai para o lado aos poucos
+  (de uma vez, saltava 8 px num passo). O pano agarra no plug (`Cord.PEG_GRIP`, `PEG_STICK`, no fim de cada passo:
+  sem atrito, escorregava até o fundo e todos pendiam do mesmo jeito), e a sombra do trecho apoiado cai tão longe
+  quanto a do plug (`_on_peg`, `PLUG_SHADE`), voltando ao painel a dois trechos dele. O fio caindo num plug encaixado
+  (`Cord.knock`: quanto a inércia e a gravidade o levaram para dentro dele, antes do `clear`) dá um "toc" de baquelite
+  abafado (`cord_knock`, a partir de `KNOCK_SPEED.x`; apoiado, 0) e o plug afunda até `KNOCK_PX` e volta em
+  `KNOCK_SEC` (`_knocked`, somado à assentada em `_push`); um plug encaixando não conta (é ele que empurra o fio). O
+  plug que segurava um fio, tirado, deixa o fio cair com um `cord_tap`. Onde dois fios se cruzam, o de cima faz sombra
+  no de baixo (`_cross_shade`): o fio deslocado de `CROSS_SHADE` cortado nos já desenhados (`_laid`, os polígonos de
+  `Geometry2D.offset_polyline`), menos o que os desenhados depois cobrem e os plugs encaixados. Pixel a pixel custava
+  ~10 ms por quadro com oito fios se mexendo (lado a lado, cada pixel testado muitas vezes); em polígonos, ~1 ms. Na mão e solto, o fio vem para a
+  frente e não bate.
+  A beira da frente de todos os buracos sai antes de fios e plugs: o fio deitado na prateleira passa por cima dela
+  (desenhada depois de cada fio, cobria os que cruzavam o buraco antes) e o plug guardado, cortado nela (`_cut`), entra atrás.
 - A luz da luminária do teto também cai no painel (`_draw_room_light`, `ROOM_LIT`/`ROOM_DARK`, `LAMP_ABOVE`): liso,
   mais claro e quente no alto à direita, mais escuro nos cantos de baixo; por cima de tudo que é do painel e por
   baixo dos plugs e fios. Ela pisca e esquenta com a da sala no `modulate` da mesa (`Switchboard.dim`, com o

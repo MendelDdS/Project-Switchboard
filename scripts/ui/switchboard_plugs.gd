@@ -9,6 +9,7 @@ const HOLE_LIP := 2.0    # ...e some abaixo disto (px abaixo do buraco), atrás 
 const HOLE_SHADE := [[0.0, 4.0, 0.65], [4.0, 8.0, 0.4], [8.0, 12.0, 0.2]]   # o fio entrando no buraco escurece: [de, até (px a partir do buraco), escuro]
 
 var _pushed := {}   ## ponta -> segundos desde que encaixou (a assentada, `PUSH_SEC`, e a passagem para de frente)
+var _knocked := {}   ## ponta encaixada -> [segundos desde que um fio caiu nela, px que afunda] (`KNOCK_PX`)
 var _pushed_ang := {}   ## ponta -> o ângulo do plug na mão quando encaixou (a passagem para de frente gira dali)
 var _silhouette := {}   ## inclinação do plug encaixado (em pé: false) -> polígono do contorno (destaque e sombra)
 var cursor := Vector2.ZERO
@@ -91,6 +92,8 @@ const MORPH_SEC := 0.08   # encaixando ou saindo, o plug passa de em pé para de
 const PUSH_PX := 1.0     # ao encaixar, o plug afunda (o tampo encolhe tanto, px) e volta...
 const ROT_STEP := deg_to_rad(5.0)   # solto ou na mão, o plug gira em passos assim, cada um montado pixel a pixel (`PixelArt.turned`)
 const PUSH_SEC := 0.14   # ...nesse tempo, como se fosse empurrado para dentro
+const KNOCK_PX := Vector2(0.5, 1.0)   # um fio caindo nele também o afunda (px, da batida fraca à forte: a fraca some no arredondamento)...
+const KNOCK_SEC := 0.1   # ...e ele volta nesse tempo
 const LAMP_ABOVE := 90.0   # px acima da tela: a luminária do teto, que não aparece
 const CORD_LIT := 0.6   # o fio e os plugs em pé pegam essa parte da luz da sala do painel (estão na frente dele)
 const TAIL_IN := 5.0   # px do fio que entram na traseira do plug em pé (`_draw_tail`)
@@ -103,6 +106,7 @@ const BRAID := 5.0   # px: o trançado do fio (o brilho dele vem em pedaços des
 ## Esticado (`Cord.taut`), o fio de pano alisa: as dobras somem aos poucos até o fim do fio, o trançado se espaça até
 ## TAUT_BRAID e, da metade disso em diante, ele afina 1 px; frouxo, volta com as dobras inteiras.
 const TAUT_BRAID := 1.3
+const CROSS_SHADE := Vector2(-1, 2)   # a sombra do fio sobre o fio de baixo, onde se cruzam (mais perto que a do painel)
 const ROPE_SHADOW := Vector2(-2, 3)  # deslocamento da sombra dos fios junto ao buraco; até o plug, cresce como a dele (`_lift`)
 
 var ropes := {}                    # ponta -> Cord (só enquanto o fio está para fora do buraco)
@@ -122,9 +126,12 @@ func _plug_base(e: int) -> Vector2:
 	return _rest(e)
 
 
-## Quanto o plug recém-encaixado está afundado (px, a assentada).
+## Quanto o plug encaixado está afundado (px): a assentada, recém-encaixado, e a batida de um fio caindo nele.
 func _push(e: int) -> float:
-	return PUSH_PX * sin(PI * minf(float(_pushed[e]) / PUSH_SEC, 1.0)) if _pushed.has(e) else 0.0
+	var px := PUSH_PX * sin(PI * minf(float(_pushed[e]) / PUSH_SEC, 1.0)) if _pushed.has(e) else 0.0
+	if _knocked.has(e):
+		px += float(_knocked[e][1]) * sin(PI * minf(float(_knocked[e][0]) / KNOCK_SEC, 1.0))
+	return px
 
 
 ## Onde o fio entra no plug guardado (assentado: `hole(e) + (0, PLUG_SINK)`, o fim de `_seat_pose`).
@@ -159,6 +166,17 @@ func _seat_pose(e: int) -> Array:
 	return [hole(e) + Vector2(0, sink), 0.0, sink / PLUG_SINK]
 
 
+## Quanto o ponto `q` do fio está apoiado num plug encaixado (`Cord.pegs`), de 0 a 1: encostado, o fio está na altura
+## da ponta dele, afastado do painel, e a sombra cai tão longe quanto a do plug (`PLUG_SHADE`); a dois trechos dele,
+## volta a encostar no painel (com a sombra de sempre, parecia que o fio estava colado no painel por cima do plug).
+static func _on_peg(q: Vector2, pegs: PackedVector3Array) -> float:
+	var k := 0.0
+	for g in pegs:
+		var off := q.distance_to(Vector2(g.x, g.y)) - g.z
+		k = maxf(k, clampf(1.0 - off / (Cord.SEG * 2.0), 0.0, 1.0))
+	return k
+
+
 ## [cor, brilho] do cabo da ponta e.
 func _cable_col(e: int) -> Array:
 	return CORD_COLORS[cable_of(e)]
@@ -180,6 +198,7 @@ func _draw_rope(e: int, shadow: bool) -> void:
 		var total := Cord.length_of(line)
 		for i in range(1, n):
 			pts[i] = pts[i].lerp(Cord.point_at(line, total * i / n), smoothstep(0.0, 1.0, taut))
+		Cord.clear(pts, r.pegs, n)   # reto, passaria por dentro dos plugs encaixados no caminho: dobra neles
 	if shadow:
 		var sh := PackedVector2Array()   # o fio desce do plug até o buraco: a sombra vai da do plug até a de rente ao painel
 		var lift := _lift(e)
@@ -188,7 +207,7 @@ func _draw_rope(e: int, shadow: bool) -> void:
 			if r.air >= 1:   # no ar, na frente do console: a sombra se afasta logo depois da beira e cai nele
 				sh.append(pts[i] + (ROPE_SHADOW if i < r.air else AIR_LIFT))
 				continue
-			sh.append(pts[i] + ROPE_SHADOW.lerp(lift, k * k))
+			sh.append(pts[i] + ROPE_SHADOW.lerp(lift, k * k).lerp(PLUG_SHADE, _on_peg(pts[i], r.pegs)))
 		_ci.draw_polyline(_smooth(sh), SHADOW, ROPE_W - 1.0 - thin)
 		return
 	var col: Array = _cable_col(e)
@@ -197,6 +216,10 @@ func _draw_rope(e: int, shadow: bool) -> void:
 	for q in pts:
 		lights.append(_lit_by(q))
 	var braid := BRAID * lerpf(1.0, TAUT_BRAID, taut)   # o pano esticado espaça o trançado
+	var laid := [Geometry2D.offset_polyline(pts, (ROPE_W - thin) / 2.0, Geometry2D.JOIN_ROUND, Geometry2D.END_ROUND),
+		PixelArt.bounds(pts).grow((ROPE_W - thin) / 2.0)]
+	_cross_shade(laid, r.pegs)
+	_laid[e] = laid
 	if r.asleep():   # parado, pixel a pixel numa imagem guardada (traçado, a beira engrossava e afinava pela curva)
 		var key := [pts, lights, col, thin, braid]
 		if not _rope_arts.has(key):
@@ -208,6 +231,53 @@ func _draw_rope(e: int, shadow: bool) -> void:
 		_draw_rope_line(pts, lights, col, thin, braid)
 	if ends[e] == -1:   # em pé (na mão, solto ou guardado): o fio entra na traseira do plug
 		_draw_tail(e, pts[pts.size() - 1], col[0], lights[lights.size() - 1], thin)
+
+
+## A sombra do fio `laid` ([polígonos, caixa]) nos fios já desenhados (`_laid`): o fio deslocado de `CROSS_SHADE`
+## cortado em cada um deles (o fio, desenhado depois, cobre o resto), menos o que os desenhados depois deste cobrem
+## (dois sobrepostos escureciam duas vezes) e os plugs encaixados (`pegs`: a ponteira deles fica por cima). Em
+## polígonos (`Geometry2D`): pixel a pixel, eram ~4 ms por quadro com fios lado a lado.
+func _cross_shade(laid: Array, pegs: PackedVector3Array) -> void:
+	if _laid.is_empty():
+		return
+	var box: Rect2 = laid[1]
+	box.position += CROSS_SHADE
+	var band: Array[PackedVector2Array] = []
+	for q: PackedVector2Array in laid[0]:
+		band.append(Transform2D(0.0, CROSS_SHADE) * q)
+	var cover: Array = []   # [polígonos, caixa] dos já vistos, de cima para baixo
+	for g in pegs:
+		var r := Rect2(g.x - g.z, g.y - g.z, g.z * 2.0, g.z * 2.0)
+		if r.intersects(box):
+			var disc := PackedVector2Array()
+			for k in 16:
+				disc.append(Vector2(g.x, g.y) + Vector2.from_angle(TAU * k / 16.0) * g.z)
+			cover.append([[disc], r])
+	var keys := _laid.keys()
+	keys.reverse()
+	for f in keys:
+		var under: Array = _laid[f]
+		if not box.intersects(under[1]):
+			continue
+		var parts: Array[PackedVector2Array] = []
+		for s: PackedVector2Array in band:
+			for u: PackedVector2Array in under[0]:
+				parts.append_array(Geometry2D.intersect_polygons(s, u))
+		for c: Array in cover:
+			if not under[1].intersects(c[1]):
+				continue
+			for o: PackedVector2Array in c[0]:
+				var left: Array[PackedVector2Array] = []
+				for q in parts:
+					left.append_array(Geometry2D.clip_polygons(q, o))
+				parts = left
+		for q in parts:
+			if Geometry2D.is_polygon_clockwise(q):
+				continue   # ponytail: um buraco no recorte (um fio inteiro dentro da sombra) sai escuro; só um toco faria isso
+			var tri := Geometry2D.triangulate_polygon(q)
+			for i in range(0, tri.size(), 3):
+				_ci.draw_primitive(PackedVector2Array([q[tri[i]], q[tri[i + 1]], q[tri[i + 2]]]), PackedColorArray([SHADOW]), PackedVector2Array())
+		cover.append(under)
 
 
 ## O fio se mexendo, traçado pela placa de vídeo: a beira e o miolo e, por cima, o trançado e a sombra do buraco.
@@ -241,6 +311,7 @@ func _draw_rope_line(pts: PackedVector2Array, lights: PackedColorArray, col: Arr
 
 ## Os fios parados já montados: [pontos, luzes, cabo, afinado, trançado] -> [canto, textura] (`_rope_image`).
 static var _rope_arts := {}
+var _laid := {}   ## ponta -> [polígonos, caixa] do fio já desenhado neste desenho (o de cima faz sombra nele, `_cross_shade`)
 
 
 ## A imagem do fio parado pelos pontos `pts` (px da mesa), cada pixel pelo trecho mais perto dele: a distância à linha
@@ -378,8 +449,6 @@ func _draw_plug(e: int, shadow: bool) -> void:
 		else:
 			_draw_plug_body(_cable_col(e), true, _lit_by(at))
 	_ci.draw_set_transform(Vector2.ZERO)
-	if _cut < INF and not shadow:
-		draw_lip(_ci, hole(e))
 	_cut = INF
 
 

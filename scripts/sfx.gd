@@ -9,7 +9,7 @@ extends Node
 const VOL := {
 	"click": -14.0, "sw": -10.0, "plug_in": -3.0, "plug_out": -9.0, "key": -13.0, "page": -11.0,
 	"tick": -24.0, "knob_tick": -20.0, "pencil": -13.0, "ring": -9.0, "pulse": -10.0, "ringback": -13.0, "sit": -13.0,
-	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "set_paper": -27.0, "set_metal": -27.0, "blind": -17.0, "gulp": -19.0, "locker": -15.0, "bike_bell": -24.0, "car_door": -21.0, "rub": -13.0, "cord_stop": -16.0, "cord_tap": -17.0, "cord_snag": -18.0, "cord_snap": -21.0, "unroll": -8.0,
+	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "set_paper": -27.0, "set_metal": -27.0, "blind": -17.0, "gulp": -19.0, "locker": -15.0, "bike_bell": -24.0, "car_door": -21.0, "rub": -13.0, "cord_stop": -16.0, "cord_tap": -17.0, "cord_knock": -19.0, "cord_snag": -18.0, "cord_snap": -21.0, "unroll": -8.0,
 	"typing": -13.0, "printer": -14.0, "punch": -8.0, "snap": -12.0, "tape_out": -16.0, "tape_in": -8.0, "tape_door": -10.0, "tape_key": -11.0, "tape_pop": -9.0, "feed": -11.0, "read": -14.0, "shred": -10.0, "deny": -14.0,
 	"chime": -11.0, "shift_bell": -13.0, "car": -15.0, "car_near": -13.0, "car_wet": -14.0, "car_wet_near": -12.0, "thunder": -8.0,
 	"bell": -15.0, "sabia": -24.0, "rattle": -17.0, "dog": -27.0, "dog_low": -28.0, "lamp_tick": -27.0,
@@ -54,7 +54,7 @@ const BELL_STEP := 0.006
 
 ## Sons mecânicos que se repetem muito (plugs, fios): cada vez sai com o tom e o volume levemente diferentes
 ## (± VARY_PITCH, ± VARY_DB), para a mesa cheia não soar como uma máquina.
-const VARIED := ["plug_in", "plug_out", "thump", "drop", "cord_stop", "cord_tap", "cord_snag", "cord_snap", "click", "punch", "lamp_tick", "knob_tick", "snap"]
+const VARIED := ["plug_in", "plug_out", "thump", "drop", "cord_stop", "cord_tap", "cord_knock", "cord_snag", "cord_snap", "click", "punch", "lamp_tick", "knob_tick", "snap"]
 ## O zumbido da luminária acesa (dB; era -40, alto demais).
 const LAMP_BUZZ := -44.0
 ## O zumbido elétrico de 60 Hz da sala, a noite toda (dB; era -29, depois -37: tom grave e constante, cansava, sobretudo em fone),

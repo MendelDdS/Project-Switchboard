@@ -655,3 +655,7 @@ feio". O item do plano dizia "inclinação limpa" e eu o segui ao pé da letra, 
 numa curva, o conserto é desenhar a mesma curva pixel a pixel. Se o conserto pede mudar a forma (menos peças, sem
 curva, outro caminho), mostre antes como proposta e pergunte, não entregue como feito.
 
+- **Mudou a ordem do desenho, confira tudo o que era desenhado junto.** Os fios encaixados passaram a sair antes dos
+  plugs guardados, e a beira do buraco, desenhada com cada plug, foi junto por cima dos fios ("os cabos ficaram por
+  baixo do buraco do slot"). Antes de trocar a ordem, liste o que cada passo desenha (plug, beira, sombra, tampa) e
+  capture o fio cruzando cada peça.

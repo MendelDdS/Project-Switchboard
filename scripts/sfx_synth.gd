@@ -385,6 +385,8 @@ func _build_basic() -> void:
 	_begin(0.06); _noise(0, 0.025, "bp", 3200, 1.3, 1.0); _noise(0.004, 0.018, "bp", 1600, 1.0, 0.5); _end("cord_snap")
 	# o fio caindo na mesa: "tap" macio e abafado
 	_begin(0.09); _noise(0, 0.03, "lp", 700, 0.7, 1.0); _tone(0, 110, 0.05, "sine", 0.5); _end("cord_tap")
+	# o fio caindo num plug encaixado: o pano abafa e, por baixo, o "toc" oco da baquelite
+	_begin(0.08); _noise(0, 0.02, "lp", 900, 0.7, 0.8); _tone(0, 420, 0.03, "sine", 0.45); _noise(0.002, 0.008, "bp", 1500, 1.4, 0.4); _end("cord_knock")
 	# plug solto batendo na mesa
 	_begin(0.14); _noise(0, 0.05, "lp", 1800, 0.7, 1.0); _tone(0, 150, 0.1, "sine", 0.6); _tone(0.005, 2100, 0.015, "square", 0.06); _end("drop")
 	# o objeto da mesa assentando depois de erguido sob o mouse: o papel, um "fft" curto e abafado...
