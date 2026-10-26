@@ -2314,4 +2314,15 @@ Chaves:
     sempre 960×540, `GameView.BASE`). O cabo de conexão parando muda só uns pixels do trançado (deixado assim). Os
     fios da caixa sem se cruzarem: só proposta (abrem o leque por cima da placa). `PixelArt.bounds` no lugar das três
     cópias de `_bounds`.
+407. #sala #interface #painel "Pode seguir na sequência" (o que melhorar depois da reformulação dos objetos): o
+    armário de aço com a cornija de cantos redondos, as venezianas num recuo escuro (como as teclas da mesa), a
+    etiqueta com o selo da companhia impresso em azul-petróleo (`Switchboard.badge`) e o guarda-chuva com volume (luz
+    à esquerda, sombra à direita; chapado, parecia uma faixa preta). As respostas do painel de baixo (`ChoiceButton`)
+    viraram plaquinhas creme com letra escura, como as etiquetas das teclas (eram caixas pretas de contorno fino). As
+    teclas apagadas com a letra na cor da tecla, escurecida (a tinta escura a meia força sumia no tampo apagado).
+    Depois, "se eles acendem não faz sentido ficar com texto preto": as teclas acesas com a letra creme clara (a cor do
+    texto da conversa), como letra iluminada; as plaquinhas de resposta seguem com a letra escura (são papel).
+408. #painel #interface "As plaquinhas que indicam as teclas do teclado não estão com os textos centralizados": os
+    rótulos do atalho (Espaço, Tab, Z, X) estavam 2 px acima do meio da plaquinha creme (3 px em cima, 5 embaixo);
+    descidos 2 px no `phone_panel.tscn`, a folga ficou igual em cima e embaixo (dos lados já estava, ±1 px).
 

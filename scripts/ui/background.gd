@@ -2520,8 +2520,9 @@ func _draw_drop_shadows() -> void:
 
 
 ## Armário de aço antigo, de chão, encostado na parede do fundo atrás da mesa (`x0` a partir do ponto de fuga, `CAB_W`, `CAB_TOP`, `CAB_T`; a mesa,
-## desenhada depois, esconde a base): cornija no alto, duas portas verde-acinzentadas com venezianas, o porta-etiqueta
-## niquelado, o puxador com a fechadura, as dobradiças e um calendário preso com ímã. Devolve a frente (px de 2x2).
+## desenhada depois, esconde a base): cornija de cantos redondos no alto, duas portas verde-acinzentadas com venezianas
+## em recuos, o porta-etiqueta niquelado com o cartão da companhia, o puxador com a fechadura, as dobradiças e um
+## calendário preso com ímã. Devolve a frente (px de 2x2).
 func _draw_steel_cabinet(x0: float) -> Rect2:
 	_cab_x0 = x0
 	var back := Rect2(_vp + Vector2(x0, _cm(CAB_TOP)) / WALL_K, Vector2(CAB_W, 400) / WALL_K)
@@ -2542,8 +2543,10 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 	_r(f.position.x, f.position.y, f.size.x, f.size.y, steel.call(0))
 	for i in 36:   # a luz da luminária, mais forte do lado dela, caindo pixel a pixel (em faixas largas, pareciam camadas)
 		_r(f.position.x + i * PX, f.position.y, PX, f.size.y, Color(1.0, 0.85, 0.6, 0.09 * (1.0 - i / 36.0)))
-	_r(f.position.x - 2, f.position.y - 1, f.size.x + 4, 5, steel.call(-1))   # a cornija, com o friso
-	_r(f.position.x - 2, f.position.y - 1, f.size.x + 4, PX, steel.call(3))
+	_ci.draw_set_transform(Vector2.ZERO)   # a cornija, de cantos redondos como os blocos da mesa (px da tela), com o friso
+	Switchboard.round_rect(_ci, Rect2((f.position + Vector2(-2, -1)) * 2.0, Vector2(f.size.x + 4, 5) * 2.0), steel.call(-1), [1])
+	_ci.draw_set_transform_matrix(X2)
+	_r(f.position.x - 1.5, f.position.y - 1, f.size.x + 3, PX, steel.call(3))
 	_r(f.position.x - 2, f.position.y + 1.5, f.size.x + 4, PX, steel.call(-2))
 	_r(f.position.x - 2, f.position.y + 4, f.size.x + 4, 1, Pal.STEEL_DARK[4])
 	_r(f.position.x, f.position.y + 5, PX, f.size.y, steel.call(1))   # a luz à esquerda, a sombra à direita
@@ -2555,6 +2558,13 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 	var low := _top - 30.0   # a parte de baixo que aparece, logo acima da mesa (ela esconde o pé)
 	for door in [Rect2(f.position.x + 3, doors, mid - f.position.x - 5, 60), Rect2(mid + 2, doors, f.end.x - mid - 5, 60)]:
 		for y0 in [door.position.y + 4, low]:   # as venezianas, no alto e embaixo de cada porta: a fenda e a aba que pega a luz
+			# num recuo de cantos redondos, como as teclas da mesa: o fundo mais escuro, a sombra no alto e a beira de baixo na luz
+			var well := Rect2((Vector2(door.position.x + 4, y0 - 2)) * 2.0, Vector2(door.size.x - 8, 25) * 2.0)
+			_ci.draw_set_transform(Vector2.ZERO)
+			Switchboard.round_rect(_ci, well, steel.call(-2), [1])
+			_ci.draw_rect(Rect2(well.position + Vector2(1, 0), Vector2(well.size.x - 2, 1)), Pal.STEEL_DARK[4])
+			_ci.draw_rect(Rect2(well.position + Vector2(1, well.size.y - 1), Vector2(well.size.x - 2, 1)), steel.call(2))
+			_ci.draw_set_transform_matrix(X2)
 			for i in 6:
 				_r(door.position.x + 6, y0 + i * 4, door.size.x - 12, 1.5, Pal.STEEL_DARK[5])
 				_r(door.position.x + 6, y0 + 1.5 + i * 4, door.size.x - 12, PX, steel.call(2))
@@ -2574,13 +2584,17 @@ func _draw_steel_cabinet(x0: float) -> Rect2:
 		_r(mid - 3.0, hand - 9.0 + i * 5.0, 2.5, 5.0, Color(steel.call(2), a))
 		_r(mid + 1.0, hand - 9.0 + i * 5.0, 2.0, 5.0, Color(steel.call(2), a * 0.7))
 	_r(mid + 3.0, floorf((doors + low) / 2.0) - 8.0, 5.0, 26.0, Color(Pal.STEEL_DARK[4], 0.12))
-	# o porta-etiqueta na porta da esquerda, com o cartão datilografado
+	# o porta-etiqueta na porta da esquerda, com o cartão da companhia: o selo impresso em azul-petróleo, como nos
+	# bilhetes (`Switchboard.badge`), e duas linhas datilografadas
 	var lab := Rect2(floorf((f.position.x + mid) / 2.0) - 10.0, doors + 34, 20, 11)
 	_r(lab.position.x - PX, lab.position.y - PX, lab.size.x + 1, lab.size.y + 1, Pal.CHROME[3])
 	_r(lab.position.x - PX, lab.position.y - PX, lab.size.x + 1, PX, Pal.CHROME[5])
 	_r(lab.position.x, lab.position.y, lab.size.x, lab.size.y, Pal.LABEL_PAPER)
-	for i in 3:
-		_r(lab.position.x + 2.5, lab.position.y + 2.5 + i * 2.5, lab.size.x - 5 - i * 4, PX, Pal.LABEL_INK)
+	_ci.draw_set_transform(Vector2.ZERO)
+	Switchboard.badge(_ci, Vector2(lab.get_center().x * 2.0, lab.position.y * 2.0 + 7.0), Pal.TICKET_FORM, Color.TRANSPARENT, 10.0, 11)
+	_ci.draw_set_transform_matrix(X2)
+	for i in 2:
+		_r(lab.position.x + 2.5, lab.position.y + 7.5 + i * 1.5, lab.size.x - 5 - i * 4, PX, Pal.LABEL_INK)
 	# o puxador e a fechadura, junto da fresta, na altura da mão
 	var hy := floorf((doors + low) / 2.0)   # na altura da mão: no meio da porta
 	_umbrella = Rect2()
@@ -2738,7 +2752,10 @@ func _draw_umbrella(o: Vector2) -> void:
 	_ci.draw_rect(Rect2(o.x - 7, o.y + 6, 2, 1), Pal.CHROME[3])   # a ponteira de metal
 	_ci.draw_rect(Rect2(x, o.y + 7, 1, 5), Pal.CHROME[4])   # a haste
 	_poly(canopy, cloth)
-	_ci.draw_rect(Rect2(x - 4, c0 + 12, 1, bottom - c0 - 12), cloth.lightened(0.18))   # a beira na luz
+	# o volume da cobertura enrolada: a luz da luminária do lado esquerdo, a sombra do direito (chapada, era uma faixa preta)
+	_ci.draw_rect(Rect2(x - 4, c0 + 12, 1, bottom - c0 - 12), cloth.lightened(0.3))   # a beira na luz
+	_ci.draw_rect(Rect2(x - 3, c0 + 12, 2, bottom - c0 - 12), cloth.lightened(0.14))
+	_ci.draw_rect(Rect2(x + 3, c0 + 12, 2, bottom - c0 - 12), cloth.darkened(0.35))
 	for fx in [x - 1, x + 2]:   # as dobras
 		_ci.draw_rect(Rect2(fx, c0 + 6, 1, bottom - c0 - 6), cloth.darkened(0.5))
 	_ci.draw_rect(Rect2(x - 5, c0 + 20, 11, 2), cloth.lightened(0.12))   # a tira, com o botão de pressão
