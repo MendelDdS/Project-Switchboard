@@ -640,7 +640,7 @@ func _blind_step(delta: float) -> void:
 ## Desce a persiana, se estiver aberta, ou sobe, com o barulho das lâminas vindo da janela.
 func toggle_blind() -> void:
 	_shut_to = 1.0 - _shut_to
-	Sfx.play_at("blind", _bounds(_blind_poly).get_center().x / maxf(1.0, size.x) if _blind_poly.size() > 2 else 0.9, 0.0,
+	Sfx.play_at("blind", PixelArt.bounds(_blind_poly).get_center().x / maxf(1.0, size.x) if _blind_poly.size() > 2 else 0.9, 0.0,
 		1.0 if _shut_to > 0.0 else 1.15)
 
 
@@ -698,7 +698,7 @@ func _draw_blind() -> void:
 ## convexos, com os retângulos deles em `rects`; `_cut`): os pedaços que sobram, [polígono, cores]. Perto de um deles,
 ## em triângulos recortados, com a cor de cada ponto tirada do triângulo (`_bary`).
 func _behind(pts: PackedVector2Array, cols: PackedColorArray, front: Array, rects: Array) -> Array:
-	var near := _touching(_bounds(pts), front, rects)
+	var near := _touching(PixelArt.bounds(pts), front, rects)
 	if near.is_empty():
 		return [[pts, cols]]
 	var out := []
@@ -771,7 +771,7 @@ func _state() -> Array:
 ## cada vez mais raros (`LATE_*`) e os grilos mais presentes (`Sfx.set_late`); no amanhecer da última noite, os grilos
 ## param, o sabiá canta e passa o primeiro caminhão (`CRICKETS_QUIET`...). Os sons vêm da janela.
 func _events(delta: float) -> void:
-	var x := _bounds(_glass).get_center().x / maxf(1.0, size.x) if _glass.size() > 2 else 0.9
+	var x := PixelArt.bounds(_glass).get_center().x / maxf(1.0, size.x) if _glass.size() > 2 else 0.9
 	var late := snappedf(clampf((minutes - LATE_FROM) / (LATE_TO - LATE_FROM), 0.0, 1.0), 0.1)
 	if late != _late_sent:   # a cidade se calando: grilos mais presentes, menos gente e carro
 		_late_sent = late
@@ -1200,7 +1200,7 @@ func _bolt_build(top: float) -> void:
 	var xc := _wall_x(Z0 * 2.0 / (SIDE_T + _t2))   # (a parede no meio do vão: ela fica em ângulo, `SIDE_VP`)
 	if xc < 20.0 or _cab[1].size.x <= 0.0:
 		return
-	var rects := _occ.map(func(o: PackedVector2Array) -> Rect2: return _bounds(o))
+	var rects := _occ.map(func(o: PackedVector2Array) -> Rect2: return PixelArt.bounds(o))
 	var wall := Rect2(0, 0, _qx * 2.0, top * 2.0)   # a parede do fundo à vista, acima do tampo
 	var lit := func(poly: PackedVector2Array, force: Callable, occ: Array) -> void:
 		for part: PackedVector2Array in _cut(poly, occ):
@@ -1280,7 +1280,7 @@ func _draw_sun() -> void:
 	var col := Color(Pal.SUN_ROOM, SUN_ROOM_A)
 	var shadows := []
 	for o: PackedVector2Array in _sun_occ:
-		var ob := _bounds(o)
+		var ob := PixelArt.bounds(o)
 		var foot := Rect2(ob.position.x - 1.0, ob.end.y - ob.size.y * 0.25, ob.size.x + 2.0, ob.size.y * 0.25 + 1.0)
 		var cast := _sun_ray(ob.size.y * SUN_CAST)
 		for part: PackedVector2Array in Geometry2D.intersect_polygons(o, PackedVector2Array([foot.position,
@@ -1483,11 +1483,11 @@ func _cut(poly: PackedVector2Array, occ: Array) -> Array:
 	for o: PackedVector2Array in occ:
 		if o.size() < 3:
 			continue
-		var ob := _bounds(o)
+		var ob := PixelArt.bounds(o)
 		var mid := ob.get_center().x
 		var next := []
 		for p: PackedVector2Array in parts:
-			if not _bounds(p).intersects(ob):
+			if not PixelArt.bounds(p).intersects(ob):
 				next.append(p)
 				continue
 			for half: Rect2 in [Rect2(-1e5, -1e5, 1e5 + mid, 2e5), Rect2(mid, -1e5, 1e5, 2e5)]:
@@ -1518,7 +1518,7 @@ func _noir_params() -> void:
 ## A luz do dia vinda da janela nos shaders da sala (`room_noir`, `lamp_light`): a cor, a força e de onde ela vem.
 func _day_params(m: ShaderMaterial) -> void:
 	m.set_shader_parameter("daylight", daylight())
-	m.set_shader_parameter("window_at", _bounds(_glass).get_center() if _glass.size() > 2 else Vector2(size.x, 0.0))
+	m.set_shader_parameter("window_at", PixelArt.bounds(_glass).get_center() if _glass.size() > 2 else Vector2(size.x, 0.0))
 	m.set_shader_parameter("reach", DAY_ROOM.y)
 
 
@@ -1575,7 +1575,7 @@ func _draw_window_glow() -> void:
 	if _glass.size() < 3:
 		return
 	_ci.draw_set_transform(Vector2.ZERO)
-	var c := _bounds(_glass).get_center()
+	var c := PixelArt.bounds(_glass).get_center()
 	var strength: float = WINDOW_GLOW.a * {"clear": 1.0, "rain": 0.8, "fog": 1.2}.get(weather, 1.0) * lerpf(MOON_DIM, 1.0, _moon_glow())
 	_light_fan(c, _ring(c, WINDOW_GLOW_R), Color(WINDOW_GLOW, strength * (1.0 - _shut)))
 	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
@@ -1588,7 +1588,7 @@ func _window_light_list() -> Array:
 	var out := []
 	var sun := snappedf(_sunlit() * (1.0 - _shut), 0.05)
 	if sun > 0.0 and not _glass.is_empty():   # o sol: do ponto do vidro mais perto dele (acima da persiana, da beira de baixo dela)
-		var b := _bounds(_glass)
+		var b := PixelArt.bounds(_glass)
 		var at := (_sun_at(_city_rect) * 2.0).clamp(b.position, b.end)
 		out.append([(at / 4.0).round() * 4.0, Vector2(SUN_LIGHT.x, SUN_LIGHT.y * sun), Pal.SUN_RIM])
 	for l: Array in _spills + _lifted_spills:
@@ -1626,7 +1626,7 @@ func _draw_mist() -> void:
 	if _glass.size() < 3 or force <= 0.0:
 		return
 	_ci.draw_set_transform(Vector2.ZERO)
-	var b := _bounds(_glass)
+	var b := PixelArt.bounds(_glass)
 	var fog := func(p: Vector2) -> Color:
 		var u := (p - b.position) / b.size
 		var e := pow(pow(absf(u.x * 2.0 - 1.0), 2.0) + pow(absf(u.y * 2.0 - 1.0), 2.0), 0.5)   # mais nos cantos
@@ -1676,7 +1676,7 @@ func _draw_company_sign(b: Rect2) -> void:
 func draw_hover(ci: Control) -> void:
 	if _hot != BLIND_ID and not _props.has(_hot):
 		return
-	var hr: Rect2 = _bounds(_blind_poly) if _hot == BLIND_ID else _props[_hot]
+	var hr: Rect2 = PixelArt.bounds(_blind_poly) if _hot == BLIND_ID else _props[_hot]
 	var cap: String
 	match _hot:
 		BLIND_ID:
@@ -1944,7 +1944,7 @@ func _draw_hung_clipboard() -> void:
 	_flat_art(Tools.CALL_LOG, q, _art_clipboard, [unread], PackedFloat32Array([HUNG_LIGHT, HUNG_LIGHT, HUNG_LIGHT, HUNG_LIGHT]))
 	_clipboard_print(Vector2i(_hom_sz))
 	_hom_light = PackedFloat32Array()
-	_mark(Tools.CALL_LOG, _bounds(q), q)
+	_mark(Tools.CALL_LOG, PixelArt.bounds(q), q)
 	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
@@ -2288,7 +2288,7 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	_poly(_side_quad(Rect2(-4, -4, gw + 8, gh + 8)), WOOD[1])
 	_poly(_side_quad(Rect2(-4, -4, gw + 8, 1)), WOOD[0])
 	# a vista, reta, recortada pelo vidro: o horizonte dela na altura dos olhos
-	var box := _bounds(outer)
+	var box := PixelArt.bounds(outer)
 	box = box.intersection(Rect2(0, 0, w, box.end.y))
 	# a cidade põe o horizonte a 58% da altura: na altura dos olhos, com a rua logo acima do peitoril de longe
 	var low := _side_pt(Vector2(0, gh)).y

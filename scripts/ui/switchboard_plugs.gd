@@ -250,7 +250,7 @@ static var _rope_arts := {}
 func _rope_image(pts: PackedVector2Array, lights: PackedColorArray, col: Array, thin: float, braid: float) -> Array:
 	var edge := (ROPE_W - thin) / 2.0
 	var core := edge - 1.0
-	var r := _bounds_of(pts).grow(edge + 1.0)
+	var r := PixelArt.bounds(pts).grow(edge + 1.0)
 	r = Rect2(r.position.floor(), (r.end.ceil() - r.position.floor()))
 	var w := int(r.size.x)
 	var best := PackedFloat32Array()
@@ -286,14 +286,6 @@ func _rope_image(pts: PackedVector2Array, lights: PackedColorArray, col: Array, 
 				img.set_pixel(x, y, Color(tone * light, 1.0))
 		at += seg
 	return [r.position, ImageTexture.create_from_image(img)]
-
-
-## O retângulo em volta dos pontos.
-static func _bounds_of(pts: PackedVector2Array) -> Rect2:
-	var r := Rect2(pts[0], Vector2.ZERO)
-	for p in pts:
-		r = r.expand(p)
-	return r
 
 
 ## O fio entrando na traseira do plug em pé, em `at`: um trecho dele segue TAIL_IN px para dentro do plug, no eixo

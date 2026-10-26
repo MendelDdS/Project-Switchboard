@@ -2307,3 +2307,11 @@ Chaves:
     (o moiré entre eles fica). Não endireitar os fios. "Faça isso": as mesmas curvas montadas pixel a pixel
     (`_cable_at`, o desenho dos fios das máquinas), de 2 px, a saída na caixa um pouco mais aberta. "Os fios estão
     'flutuando' na frente da caixa e não saindo dela": nascem dentro dela, que é desenhada por cima.
+406. #pixel #ferramentas "Faça isso. Em seguida, faça o restante" (as sugestões depois do plano de pixel): as beiras
+    consertadas (bloco, livros, lateral da mesa comutadora, peitoril) ficam em `tools/beiras.txt` com os degraus
+    aprovados, e o `tools/visual.sh` as confere (`tools/edge_steps.gd --check`; medidas vindo do fundo, `,l`/`,r`/`,u`/`,d`).
+    Às 21:00, no amanhecer e na chuva as beiras saem iguais (a luz não mexe nelas); a tela larga não conta (o jogo é
+    sempre 960×540, `GameView.BASE`). O cabo de conexão parando muda só uns pixels do trançado (deixado assim). Os
+    fios da caixa sem se cruzarem: só proposta (abrem o leque por cima da placa). `PixelArt.bounds` no lugar das três
+    cópias de `_bounds`.
+

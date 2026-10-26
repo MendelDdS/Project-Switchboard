@@ -116,7 +116,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   `Godot --resolution 160x90 --position 0,0 --quit-after 1500 --path . tools/shot.tscn -- --hour=22:30 --weather=rain --out=build/x.png`.
   As opções estão no comentário do topo de `tools/shot.gd` (`--tool`, `--card`, `--hover`, `--screen=intro|pause|settings|report`,
   `--rating`, `--warned`, `--zoom`, `--still`...). Compare capturas com `tools/diff_shots.gd`; conjunto do plano
-  hi-bit: `tools/hibit_shots.sh build/hibit/<pasta>`; cores e degradês das capturas (`PLANO_PIXEL.md`): `tools/pixel_map.gd`. Degraus de uma beira: `tools/edge_steps.gd`. **Regressão visual**: `tools/visual.sh [commit]` (~2 min, 12
+  hi-bit: `tools/hibit_shots.sh build/hibit/<pasta>`; cores e degradês das capturas (`PLANO_PIXEL.md`): `tools/pixel_map.gd`. Degraus de uma beira: `tools/edge_steps.gd` (as consertadas, com os degraus aprovados, em `tools/beiras.txt`, que o `visual.sh` confere). **Regressão visual**: `tools/visual.sh [commit]` (~2 min, 12
   capturas do commit contra o disco, a tela inteira; sem a chuva, que ainda varia). Rode em mudança que
   não deveria mudar a tela (refatoração, desempenho) e confira que só mudou o esperado nas que deveriam.
 - Desempenho: sem tela, a vista da janela não é desenhada (`Background._headless`); a vista no amanhecer desenha ~17 mil

@@ -1,6 +1,7 @@
 #!/bin/bash
 # Regressão visual: as mesmas capturas no commit dado (padrão HEAD) e no que está no disco, comparadas pixel a pixel
-# (`tools/diff_shots.gd`). Diz quais imagens mudaram e onde; sem nada mudado, sai com 0.
+# (`tools/diff_shots.gd`). Diz quais imagens mudaram e onde e confere os degraus das beiras consertadas do plano de pixel
+# (`tools/beiras.txt`, pelo `tools/edge_steps.gd`); sem nada mudado, sai com 0.
 #   tools/visual.sh [commit]       (com tela: uma captura de cada vez, janela pequena no canto, ~7 s cada)
 # As de antes saem de uma cópia do commit (git worktree em build/visual/base, com o .godot copiado: sem --import) e
 # ficam guardadas pelo hash, em build/visual/<hash>: na mesma HEAD, só as de depois são refeitas.
@@ -51,4 +52,7 @@ after="$PWD/build/visual/disco"
 echo "Capturando o que está no disco..."
 capture "$PWD" "$after"
 "$G" --headless --path . -s tools/diff_shots.gd -- "build/visual/$base" build/visual/disco 2>&1 | grep -v "^Godot Engine"
-exit "${PIPESTATUS[0]}"
+diff=${PIPESTATUS[0]}
+# as beiras consertadas no plano de pixel, nos degraus aprovados (`tools/beiras.txt`)
+"$G" --headless --path . -s tools/edge_steps.gd -- --check=tools/beiras.txt build/visual/disco 2>&1 | grep -v "^Godot Engine\|^$"
+[ "$diff" = 0 ] && [ "${PIPESTATUS[0]}" = 0 ]

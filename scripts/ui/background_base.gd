@@ -306,14 +306,6 @@ func _p3(x: float, y: float, z: float) -> Vector2:
 	return _proj(x, y, z) * 2.0
 
 
-## O retângulo que contém os pontos `pts`.
-func _bounds(pts: PackedVector2Array) -> Rect2:
-	var r := Rect2(pts[0], Vector2.ZERO)
-	for p in pts:
-		r = r.expand(p)
-	return r
-
-
 ## Uma luz lisa, sem camadas: a cor `col` no ponto `c`, sumindo até a borda `rim` (fechada, vista de `c`), com a cor
 ## variando ponto a ponto (forte perto de `c` e caindo depressa, como a luz; em camadas, parecia artificial).
 func _light_fan(c: Vector2, rim: PackedVector2Array, col: Color) -> void:

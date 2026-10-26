@@ -131,7 +131,7 @@ var _clock_rim := {}   # as faces do relógio na tela (`_clock_box`), para o mes
 var _lamp_x := 0.0     # onde está a luminária, no meio da tela (px de 2x2): a luz na mesa e a sombra dos objetos dependem dela
 var _zd := Vector2.ZERO   # a frente e o fundo do tampo (z)
 var _side_x := 0.0     # a lateral da mesa comutadora na sala (x): os objetos da mesa ficam à direita dela
-static var _cable_art := {}   # os fios já montados (das máquinas e da caixa na parede): [pontos, grossura, beira, tons] -> [canto, textura] (`_cable_at`)
+static var _cable_art := {}   # os fios já montados (das máquinas e da caixa na parede): [pontos, grossura, beira, tons, sombra] -> [canto, textura] (`_cable_at`)
 var _tip := Rect2()   # a ponta do bilhete saindo da fenda do calculógrafo, inteira (px da tela; a camada dela a desenha)
 var _tip_tones: Array = [Pal.TICKET, Pal.TICKET_EDGE]   # o bilhete e a beira dele na luz da fenda
 var _tip_cover: Array = []   # o carimbo em pé na mesinha [textura, meio, cor]: fica na frente da fenda, e a camada da ponta o desenha de novo por cima dela
@@ -292,7 +292,7 @@ func _draw_cable(x: float, z: float, gap: float) -> void:
 
 ## O fio pelos pontos `pts` já montado (`_cable_image`), guardado em `_cable_art`.
 func _cable_at(pts: PackedVector2Array, w: int, edge: float, tones := [], shade := CABLE_SHADE) -> Array:
-	var key := [pts, w, edge, tones]
+	var key := [pts, w, edge, tones, shade]
 	if not _cable_art.has(key):
 		if _cable_art.size() > 16:   # a tela mudou de tamanho
 			_cable_art.clear()
@@ -307,7 +307,7 @@ func _cable_at(pts: PackedVector2Array, w: int, edge: float, tones := [], shade 
 ## das máquinas); a sombra rente no tampo é a mesma linha deslocada `shade` (zero: sem sombra). Nada acima do fio
 ## deitado em `edge` (a beira de trás do tampo).
 func _cable_image(pts: PackedVector2Array, w: int, edge: float, tones := [], shade_at := CABLE_SHADE) -> Array:
-	var r := _bounds(pts).grow(w + 3.0)
+	var r := PixelArt.bounds(pts).grow(w + 3.0)
 	r = Rect2(r.position.floor(), r.size.ceil() + Vector2.ONE)
 	var img := Image.create(int(r.size.x), int(r.size.y), false, Image.FORMAT_RGBA8)
 	var rad := w / 2.0
@@ -363,7 +363,7 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 	for f: PackedVector2Array in box.values():
 		hull.append_array(f)
 	if box.has("front"):
-		var f := _bounds(box["front"])
+		var f := PixelArt.bounds(box["front"])
 		f = Rect2(f.position.round(), f.size.round())
 		var win := Rect2(f.position.x + 3.0, f.position.y + 2.0, roundf(f.size.x * 0.76) - 3.0, 0)   # o visor, como o da aberta (`Toll._screen`)
 		var cell := Vector2(floorf(win.size.x / 5.0), maxf(floorf((f.size.y - 7.0) / 2.0), 1.0))   # (sem tela, no primeiro desenho, a frente tem 1 px)
@@ -440,7 +440,7 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 				_pixel_line(_clock_pt(bc.x, bc.y, -bh.x + e * 3.0, v, y1 + 0.4), _clock_pt(bc.x, bc.y, bh.x - e * 3.0, v, y1 + 0.4),
 					[Pal.lit(Pal.TICKET, paper).darkened(0.3)])
 			if faces.has("front"):
-				var bf := _bounds(faces["front"])
+				var bf := PixelArt.bounds(faces["front"])
 				_ci.draw_rect(Rect2(roundf(bf.get_center().x - bf.size.x * 0.22), roundf(bf.get_center().y - 1.0), roundf(bf.size.x * 0.44), 2),
 					desk.call(Pal.BOARD_TAG))
 			var out := PackedVector2Array()
@@ -458,7 +458,7 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 		var near: Array = [draw_box, draw_stamp] if shoe.end.y >= bx.end.y else [draw_stamp, draw_box]   # quem está mais perto vai por cima
 		for draw_it: Callable in near:
 			hull.append_array(draw_it.call())
-	_mark(Tools.TOLL, _bounds(hull), Geometry2D.convex_hull(hull))
+	_mark(Tools.TOLL, PixelArt.bounds(hull), Geometry2D.convex_hull(hull))
 
 
 ## O carimbo da mesinha do calculógrafo (`STAMP_ART`), nas cores do da ferramenta, no degrau `step` da luz parada ali
@@ -496,7 +496,7 @@ func _draw_flip_clock(xc: float, zc: float) -> void:
 	_occ.append(Geometry2D.convex_hull(hull))
 	occ_ids.append("relogio")
 	var y1 := _yd - bh - CLOCK.y
-	clock_x = global_position.x + _bounds(box["top"]).get_center().x
+	clock_x = global_position.x + PixelArt.bounds(box["top"]).get_center().x
 	for i in 4:   # as fendas do alarme, no fundo do tampo
 		var v := hd - 1.6 - i * 1.1
 		_pixel_line(_clock_pt(xc, zc, -hw * 0.75, v, y1), _clock_pt(xc, zc, 0.0, v, y1), [Pal.CLOCK_CASE[1].darkened(dark)])
@@ -567,7 +567,7 @@ func _clock_box(xc: float, zc: float, hw: float, hd: float, y0: float, h: float,
 		if Vector2(n.x * cs - n.y * sn, n.x * sn + n.y * cs).dot(-Vector2(xc + m.x * cs - m.y * sn, zc + m.x * sn + m.y * cs)) <= 0.0:
 			continue
 		var q := PackedVector2Array([up[f[4]], up[f[5]], low[f[5]], low[f[4]]])
-		if _bounds(q).size.x < 1.0:   # quase de perfil, não aparece (e o polígono nem fecha)
+		if PixelArt.bounds(q).size.x < 1.0:   # quase de perfil, não aparece (e o polígono nem fecha)
 			continue
 		out[f[0]] = q
 		var col: Color = front if f[0] == "front" else side
@@ -761,7 +761,7 @@ func _top_xf(q: PackedVector2Array) -> Array:
 ## A da luminária, caindo no tampo (`on_desk`; não na mesinha do calculógrafo), vai para a camada dela
 ## (`_lamp_shades`), embaixo do sol, que a apaga com o dia (`Background.LAMP_SHADE`).
 func _desk_shadow(foot: PackedVector2Array, on_desk := true) -> void:
-	var off := Vector2(clampf((_bounds(foot).get_center().x - _lamp_x * 2.0) / 60.0, -6.0, 8.0), 4.0).round()
+	var off := Vector2(clampf((PixelArt.bounds(foot).get_center().x - _lamp_x * 2.0) / 60.0, -6.0, 8.0), 4.0).round()
 	var up := _raised()
 	off += up + (off.normalized() * up.length() * 0.5).round()
 	var pts := PackedVector2Array()
@@ -994,7 +994,7 @@ func _flat(id: String, x0: float, zf: float, wx: float, dz: float, h: float, edg
 		if post.is_valid():
 			post.call(sz)
 		_hom_light = PackedFloat32Array()
-	_mark(id, _bounds(foot + top), Geometry2D.convex_hull(foot + top))
+	_mark(id, PixelArt.bounds(foot + top), Geometry2D.convex_hull(foot + top))
 	return top
 
 
@@ -1059,7 +1059,7 @@ const EDGE_EPS := 0.0001   ## a folga do desempate nas beiras do `_project` (fra
 
 
 func _project(key: Array, art: Callable, q: PackedVector2Array, sz: Vector2i) -> void:
-	var box := _bounds(q)
+	var box := PixelArt.bounds(q)
 	var at := Vector2i(floori(box.position.x), floori(box.position.y))
 	var full := [key, at, Vector2i(ceili(box.end.x), ceili(box.end.y)), _hom_light]
 	if not _projected.has(full):
@@ -1178,7 +1178,7 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 			_hom_light = PackedFloat32Array()
 		else:
 			_poly(top, Pal.lit(cover, _paper_step(_still(cx, zf + offs[b].y + dz / 2.0))))
-	_mark(Tools.DIRECTORY, _bounds(all), Geometry2D.convex_hull(all))
+	_mark(Tools.DIRECTORY, PixelArt.bounds(all), Geometry2D.convex_hull(all))
 
 
 ## A caneca de café em pé na mesa (centro `xc`, `zc`; raio `rr`, altura `hh`): uma caneca esmaltada de época,
@@ -1209,7 +1209,7 @@ func _draw_mug(xc: float, zc: float, rr: float, hh: float) -> void:
 	var hull := PackedVector2Array()
 	for p in _mug_hulls[Vector4i(int(body.size.x), int(body.size.y), int(ry), int(rb))]:
 		hull.append(p + body.position - Vector2(0, ry))
-	_mark(MUG_ID, _bounds(hull), hull)
+	_mark(MUG_ID, PixelArt.bounds(hull), hull)
 
 
 ## A caneca esmaltada de frente, com `w` de largura e `h` da boca ao pé (px), a boca e o pé em elipses de meia altura
@@ -1522,7 +1522,7 @@ func _draw_dispatch_unit(x0: float, zf: float, wx: float) -> void:
 			_light(lr, l[2], 0.6, true, true, DESK_SPILL)
 	all.append_array(top + glass + deck)
 	all.append_array(PackedVector2Array([front.position, front.end, Vector2(front.position.x, front.end.y)]))
-	_mark(Tools.DISPATCH, _bounds(all), Geometry2D.convex_hull(all))
+	_mark(Tools.DISPATCH, PixelArt.bounds(all), Geometry2D.convex_hull(all))
 
 
 ## O desenho de frente `art` (com `key`) posto no quadrilátero `q` da tela pixel a pixel (`_project`), cada pixel no

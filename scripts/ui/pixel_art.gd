@@ -13,6 +13,14 @@ static func ms() -> int:
 	return Time.get_ticks_msec() if frozen_ms < 0 else frozen_ms
 
 
+## O retângulo que contém os pontos `pts`.
+static func bounds(pts: PackedVector2Array) -> Rect2:
+	var r := Rect2(pts[0], Vector2.ZERO)
+	for p in pts:
+		r = r.expand(p)
+	return r
+
+
 const LIGHT := Vector2(-0.7071, -0.7071)   # de onde vem a luz das peças redondas (alto à esquerda)
 ## Rede de segurança: um cache que passa disto foi usado com cor de cada quadro (contra a regra acima) e é esvaziado. No uso
 ## certo o jogo fica bem abaixo (umas 40 peças redondas numa noite); esvaziar só custa remontar o que estiver na tela.
