@@ -3,7 +3,7 @@ extends "res://tests/test_base.gd"
 ## fica por cima de outro na tela (o relógio por cima das listas passou duas vezes conferido só na captura). Mede o
 ## contorno de cada um como o cenário o desenhou (`Background._occ`, `occ_ids`). A caneca fica na frente do relógio
 ## de propósito. E a resposta mais longa do jogo, num botão do painel, não alarga a tela (a oferta da alternativa
-## empurrava tudo para a esquerda).
+## empurrava tudo para a esquerda). E a conta das inclinações limpas das beiras (`clean_slope`).
 
 const WIDTHS := [960, 1125, 1281]   # o jogo é sempre 960 (`GameView`); as outras, o `main.tscn` sozinho numa janela larga
 const TOGETHER := [["relogio", "caneca"]]   # os que se encostam de propósito
@@ -14,6 +14,13 @@ func _initialize() -> void:
 	# a vista no amanhecer desenha ~17 mil itens por quadro: acima do buffer do renderizador, ele às vezes trava
 	# (`project.godot`; o editor aberto pode regravá-lo sem a linha)
 	ok(int(ProjectSettings.get_setting("rendering/gl_compatibility/item_buffer_size")) >= 32768, "item_buffer_size abaixo de 32768")
+	# as beiras longas em inclinação limpa (`clean_slope`, `PLANO_PIXEL.md` etapa 2): a razão exata e o eixo preso parado
+	var bg_script := load("res://scripts/ui/background_base.gd")
+	for c: Array in [[Vector2(103, 10), Vector2.ONE, Vector2(105, 10)], [Vector2(35, -100), Vector2.ONE, Vector2(33, -99)],
+			[Vector2(35, -100), Vector2(0, 1), Vector2(35, -105)], [Vector2(70, 30), Vector2.ONE, Vector2(70, 28)], [Vector2(0, 40), Vector2.ONE, Vector2(0, 40)],
+			[Vector2(7, -24), Vector2(0, 1), Vector2(7, -25)]]:   # (o último, quase exato: 3,5 com o x ímpar)
+		var got: Vector2 = bg_script.clean_slope(Vector2.ZERO, c[0], c[1])
+		ok(got == c[2], "clean_slope de %s deu %s (esperado %s)" % [c[0], got, c[2]])
 	for w: int in WIDTHS:
 		var vp := SubViewport.new()   # o jogo nessa largura, como o `GameView` o põe na janela
 		vp.size = Vector2i(w, 540)
@@ -41,7 +48,6 @@ func _initialize() -> void:
 					for p in q:
 						where = where.expand(p)
 				ok(area < 1.0, "%d px: %s e %s se sobrepõem na tela (%.0f px², em %s)" % [w, a, b, area, where])
-		print("OK %d px: %d objetos, nenhum por cima de outro" % [w, bg.occ_ids.size()])
 		if w == 960:
 			await _longest_choice(m)
 		vp.queue_free()

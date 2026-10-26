@@ -336,7 +336,6 @@ func _initialize() -> void:
 	ok(ex.line(ln) == Exchange.Line.FREE, "linha liberada")
 	_move(2, -1)
 	ok(ex.dest(tgt) == Exchange.Dest.FREE and b.free_patches() == b.patches, "destino e cabo liberados")
-	print("OK 1 transferência completa / tirar o FONE mantém a ligação")
 
 	# ---- 1a. escuta: a chave sobe com o destino tocando e desce quando atendem; a tecla Escutar (Z) ou a alavanca a
 	# sobe com o FONE na linha conectada; entrar na linha estala; ouvindo, a suspeita sobe (sem ouvir, baixa) e, em 1,
@@ -587,7 +586,6 @@ func _initialize() -> void:
 	lesson.lesson = true
 	m.eavesdrop.connected(lesson)
 	ok(not m.eavesdrop.talks.has(el), "escuta: a conversa do treinamento não se escuta")
-	print("OK 1a escuta")
 
 	# ---- 1b. interurbano: a saída no tronco da cidade; a telefonista de lá pede o número e completa
 	ok(GameData.TRUNKS.size() == C.trunk_to.size() and GameData.TRUNKS.all(func(d): return ex.has_dest(d) and b.jack_at(b.jack_rect(d).get_center()) == d),
@@ -705,7 +703,6 @@ func _initialize() -> void:
 	m.tools.close()
 	ok(await wait_until(func(): return m.background.toll_desk.size() == 4 + m.toll.tickets().size()) and m.background.toll_desk[-1][1].size() == 2,
 		"guardado, o calculógrafo da sala mostra os bilhetes soltos com as marcas")
-	print("OK 1b interurbano pelo tronco da cidade")
 
 	# ---- 2. três ligações ao mesmo tempo, com espera
 	var t1 := _extra(GameData.transfers(TransferCall.Group.ESTABLISHMENT)[1])
@@ -742,7 +739,6 @@ func _initialize() -> void:
 	ok(info.info_ok == 1 and ex.line(info.line) == Exchange.Line.FREE, "respondeu certo; linha liberada")
 	ok(ex.line(t1.line) == Exchange.Line.TALK and m.phone.shown() == t1, "voltou para t1")
 	ok(t3.ringing and m.live.size() == 2, "t3 ainda tocando")
-	print("OK 2 três ligações simultâneas / espera")
 
 	# ---- 3. t3 desiste; caderno em fila
 	ok(await wait_until(func(): return t3.ended, 10.0), "t3 desistiu")
@@ -766,7 +762,6 @@ func _initialize() -> void:
 	await frames(3)
 	ok(not nb._form.visible and nb._page.size.y >= nb._scroll.size.y - 1 and nb._scroll.size.y > 300, "sem ficha, a página cresce até embaixo")
 	m.tools.set_tab(Tools.DIRECTORY)
-	print("OK 3 desistência / fila do caderno")
 
 	# ---- 4. o lugar pedido não atende (sorteado) e o operador sugere a alternativa
 	m.hangup()
@@ -796,14 +791,12 @@ func _initialize() -> void:
 	ok(ex.line(fl) == Exchange.Line.HOLD and not fa.ended, "em espera durante o toque")
 	ok(await wait_until(func(): return fa.connected), "completa sozinha quando o destino atende")
 	ok(fa.record.where == "Farmácia Santa Rita" and fa.record.obs == "", "registro com o destino novo")
-	print("OK 4 não atende / alternativa / FONE fora durante o toque")
 
 	# ---- 5. cortar uma conversa em andamento puxando a SAÍDA
 	_move(3, -1)
 	ok(ex.line(fl) == Exchange.Line.FREE and ex.dest(162) == Exchange.Dest.DONE, "cortou a conversa")
 	_move(4, -1)
 	ok(ex.dest(162) == Exchange.Dest.FREE, "destino liberado")
-	print("OK 5 cortar conversa")
 
 	# ---- 6. ligar de volta para o número desconhecido (pela entrada por onde ele veio)
 	m.after = true
@@ -811,7 +804,6 @@ func _initialize() -> void:
 	_move(0, 4)
 	ok(await wait_until(func(): return m.phone.display_text() == T.text(T.Key.DISPLAY_NO_NUMBER), 10.0), "número não existe")
 	ok(m.flags.has("ligou_de_volta_1"), "marcador automático: ligou de volta")
-	print("OK 6 ligação de volta ao desconhecido")
 
 	# ---- 7. clicar num plug encaixado devolve à base (com animação); arrastar move
 	var c7 := _extra(GameData.transfers(TransferCall.Group.ESTABLISHMENT)[0])
@@ -909,7 +901,6 @@ func _initialize() -> void:
 	for y in range(int(b._rest(3).y - b.PLUG_H + b.PLUG_SINK), int(b.hole(3).y + b.HOLE_LIP)):
 		reach = reach and b._has_point(Vector2(b._rest(3).x, y)) and b._plug_under(Vector2(b._rest(3).x, y)) == 3
 	ok(reach, "o plug guardado aceita o clique em toda a altura")
-	print("OK 7 clique desconecta / arrastar move")
 
 	# ---- 8. o homem na janela: chega andando, fica embaixo do poste de 25 a 10 min antes da ligação desconhecida e
 	# volta andando (vai ligar)
@@ -933,7 +924,6 @@ func _initialize() -> void:
 	await frames(1)
 	ok(is_nan(bg._man_x()), "foi ligar")
 	m.sched.erase(myst)
-	print("OK 8 o homem na janela")
 
 	# ---- 9. marcadores do roteiro: condição, escolha que muda a conversa e ligação do roteiro conferida na hora
 	var sf := StoryFlags.new(PackedStringArray(["a"]))
@@ -974,7 +964,6 @@ func _initialize() -> void:
 	m.sched.push_front(sc)
 	m._run_schedule()
 	ok(sc in m.live, "condição bate: toca")
-	print("OK 9 marcadores do roteiro")
 
 	# ---- 10. pausa e configurações
 	m.end_call(sc, PhoneCall.End.OPERATOR)
@@ -1013,7 +1002,6 @@ func _initialize() -> void:
 	Settings.set_volume("Effects", 0.5)
 	ok(absf(AudioServer.get_bus_volume_db(AudioServer.get_bus_index("Effects")) - linear_to_db(0.5)) < 0.01, "volume do barramento")
 	Settings.set_volume("Effects", 1.0)
-	print("OK 10 pausa e configurações")
 
 	# ---- 11. esperando a transferência: às vezes conversa fiada depois de um tempo; se demorar mais, reclama
 	var wc := _extra(GameData.transfers(TransferCall.Group.EXTRA)[3])
@@ -1034,7 +1022,6 @@ func _initialize() -> void:
 	ok(said_at[1][1] in waiting, "depois reclama da demora: " + said_at[1][1])
 	ok(asked > 0 and not wc.transcript.slice(0, asked).any(func(l): return String(l["text"]) in chat), "sem conversa fiada logo depois do pedido")
 	m.end_call(wc, PhoneCall.End.OPERATOR)
-	print("OK 11 conversa fiada e reclamação na espera")
 
 	# ---- 11b. responder a conversa fiada: ela continua o assunto e a reclamação da demora fica para depois
 	var cc := _extra(GameData.transfers(TransferCall.Group.EXTRA)[3])
@@ -1089,7 +1076,6 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return cc.transcript.size() == n_two + 2), "as duas falas saíram")
 	ok(cc.transcript[n_two]["text"] == "Primeira fala.", "a segunda só começa com a primeira inteira")
 	m.end_call(cc, PhoneCall.End.OPERATOR)
-	print("OK 11b responder e puxar conversa fiada")
 
 	# ---- 12. atalhos do telefone (teclas de verdade): Espaço atende, Tab transfere, X desliga
 	var kc := _extra(GameData.transfers(TransferCall.Group.EXTRA)[4])
@@ -1190,7 +1176,6 @@ func _initialize() -> void:
 	m.flags.apply("!desligou_desconhecida_2")
 	ok(not "armario_entreaberto" in m.background.details, "e desligado volta")
 	m.night_no = night_was
-	print("OK 12 atalhos do telefone e das abas")
 
 	# ---- 13. mapa e despacho numa tela: marcar o local imprime o cartão; perfura-se o tipo (um só) e as unidades (o
 	#          tipo não marca unidades: a conversa decide); o cartão anda livre pelo mapa e fica onde é solto; no cartucho,
@@ -1209,8 +1194,6 @@ func _initialize() -> void:
 		d.city._gui_input(mv)
 		ok(d.city.hover.is_empty() and d.city._spot == [(pl[0] as Rect2).get_center(), pl[1]], "mapa: o mouse no lugar de referência mostra o nome dele")
 		d.city.notification(Control.NOTIFICATION_MOUSE_EXIT)
-	else:
-		print("(mapa sem desenho: a etiqueta do lugar não foi conferida)")
 	d.set_location("sol", 0, "Rua do Sol, 1–99")
 	await frames(2)
 	ok((d.city._off + Vector2(300, 220) * d.city._k).distance_to(spot) < 1.0, "o mapa não pula quando o cartão sai")
@@ -1300,7 +1283,6 @@ func _initialize() -> void:
 	_mouse(card, ring + Vector2(0, 300), 0)
 	ok(d.city.zoom_level() == 0.0 and card._turn == INF, "girar o anel para baixo afasta o mapa")
 	m.tools.set_tab(Tools.DIRECTORY)
-	print("OK 13 mapa e despacho")
 
 	# ---- 14. painel de debug (F1): toca uma emergência, pula estágio, registra as pendências
 	var dbg = m.get_node("%Debug")
@@ -1345,7 +1327,6 @@ func _initialize() -> void:
 	_key(KEY_F1)
 	await frames(2)
 	ok(not dbg.visible, "F1 fecha o painel")
-	print("OK 14 painel de debug")
 
 	# ---- 15. clima do som: o cenário avisa a hora desde a introdução (antes, mixava o clima padrão, chuva, em 8 s, e
 	# essa mistura terminava depois da da noite: numa noite limpa, os grilos sumiam e entrava a chuva)
@@ -1356,7 +1337,6 @@ func _initialize() -> void:
 	await frames(int(10.0 * 60.0 / Engine.time_scale))
 	ok(Sfx._rain_db <= -79.0 and Sfx.crickets.volume_db > -40.0, "noite limpa: chuva %.0f dB, grilos %.0f dB" % [Sfx._rain_db, Sfx.crickets.volume_db])
 	Sfx.stop_ambience(0.0)
-	print("OK 15 clima do som")
 
 	# ---- 16. gente na calçada de lá: cada vez menos até as 22h, e daí ninguém (só o homem do mistério)
 	m.minutes = Background.WALK_FROM - Main.SHIFT_START_HOUR * 60.0
@@ -1365,7 +1345,6 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return bg._walkers.is_empty(), 60.0), "quem estava passando termina de passar")
 	await frames(int(60.0 * 60.0 / Engine.time_scale))
 	ok(bg._walkers.is_empty(), "depois das 22h ninguém passa")
-	print("OK 16 pedestres")
 
 	# ---- 17. o painel de baixo não muda de altura: numa emergência com aviso, respostas em quatro fileiras e a barra,
 	# as falas encolhem até a mais nova (antes, o painel crescia e empurrava a sala para cima)
@@ -1392,7 +1371,6 @@ func _initialize() -> void:
 	ok(rows >= 4 * 18.0, "o pior caso chegou a quatro fileiras de respostas (%d px)" % rows)
 	m.drop_all()
 	ok(await wait_until(func(): return m.board.ends.all(func(x): return x == -1), 10.0), "cabos na base depois")
-	print("OK 17 altura do painel")
 	finish("fluxo da central")
 
 

@@ -2244,3 +2244,50 @@ Chaves:
     (`CardMachines.CASE_ROUND`; as laterais descem por trás da base, sem vão nos cantos de cima dela).
 391. #despacho A miniatura estava mais redonda que o despacho aberto, em proporção: no aberto, a tela com raio 18
     (`SCREEN_R`, cantos em textura guardada, `_corner`) e a carcaça e a base com raio 9 (`CASE_R`, `_rounded`, `_arc`).
+392. #pixel #luz Melhorar o dithering e eliminar os degraus irregulares (jaggies): diagnóstico com capturas, mapa
+    automático dos degradês contínuos (a sala tinha ~33 mil cores, pela luz contínua dos shaders) e os degraus
+    marcados à mão (J1–J11); plano em `PLANO_PIXEL.md` (vértices no pixel, inclinações limpas, linhas desenhadas
+    na tela e não na textura projetada, luz em degraus com pontilhado só nas transições grandes, cabos de conexão
+    como cilindro). O pontilhado dos halos tinha saído a pedido (58): a etapa da luz pede aprovação.
+393. #pixel #luz O plano em checklist para ir fazendo aos poucos (`PLANO_PIXEL.md`). Decisões: o pontilhado e o
+    número de degraus de luz são testados e mostrados antes de aprovar (preferência pela versão mais suave, 6–8
+    degraus); o desgaste do carimbo fica.
+394. #pixel Etapa 0 do `PLANO_PIXEL.md`: a medida em `tools/pixel_map.gd` (cores distintas e blocos de degradê por
+    captura, com o mapa em laranja) e os números de partida no plano; o `tools/hibit_shots.sh` esperava pouco e só 4
+    capturas saíam (agora 3500 quadros, e diz quantas saíram).
+395. #pixel #mesa-comutadora #sala Etapa 1 do `PLANO_PIXEL.md`: na mesa comutadora e nos objetos do tampo, os pontos
+    dos polígonos no pixel inteiro (`Background._snap`, ligado no `_draw_switchboard` e no `_draw_desk_props`; as faces
+    e os tampos com textura projetada também, para a textura pisar onde a face pisa); as quinas que pegam a luz (lateral
+    da mesa, relógio) como a coluna rente à beira (`_pixel_line`), não um traço recalculado; nas tampas do console, a
+    fresta e a quina contadas da beira já arredondada de cada linha (as diagonais dobradas sumiram). O
+    `tools/visual.sh` também não tirava capturas (3500 quadros, e a lista de classes da cópia do commit renovada).
+396. #pixel #mesa-comutadora #janela #vista Etapa 2 do `PLANO_PIXEL.md`: as beiras longas em inclinação limpa
+    (`Background.clean_slope`: degraus iguais ou alternados por igual, movendo a ponta de longe só nos eixos permitidos)
+    na lateral da mesa, nas beiras do bloco de fichas e do jornal e na cornija das paredes da rua; no peitoril, só os
+    pontos inteiros e a luz pixel a pixel (limpo, ele descolava do batente no amanhecer).
+397. #testes "Limpe todos os prints desnecessários": saíram os `print("OK <seção>")` dos testes (o `# ---- N.` de cada
+    seção já diz o mesmo, o `run.sh` mostra só o `PASSOU` e o `ok()` aponta a linha da falha), o do `test_layout` no
+    laço e o aviso do mapa sem desenho no `test_flow`. Ficam o cronômetro do `DebugPanel` (`PLANO_RITMO_JOGADOR.md`),
+    as métricas do `test_shift` (o `calibrar.sh` as lê), os avisos do `test_content` e a saída das ferramentas.
+398. #testes "Na pasta build está cheio de imagens": os "prints" do item 397 eram as capturas. Saíram de `build/` as
+    soltas e as das pastas `plano/`, `eff/`, das etapas antigas do `PLANO_PIXEL.md` e do cache velho do `visual.sh`
+    (109 → 31 MB); ficam `pixel/ref` (a partida), `pixel/mapa` (o diagnóstico), `pixel/etapa2`, o cache da HEAD do
+    `visual.sh` e a `calibracao/`.
+399. #pixel #janela #objetos "Vamos seguir com o plano": etapa 3 do `PLANO_PIXEL.md`. O `_pixel_line` leva as pontas ao
+    pixel inteiro e distribui os degraus por igual (os filetes da lombada das listas, as pautas e a margem do bloco, o
+    lápis e as quinas usam ele); a persiana com lâminas de 3 (eram 2) e a beira de cada lâmina numa reta de pixel na
+    tela: em faixas de 1 px na perspectiva, as beiras convergindo viravam moiré (o J8 do plano, chamado de verga).
+400. #pixel #objetos "Ainda acho que há pixels sem conserto" (a beira da direita do bloco de fichas com dentes): o
+    `_project` desempata sempre do mesmo jeito o pixel cujo centro cai na beira (`EDGE_EPS`); numa inclinação limpa
+    entre pontos inteiros, a reta passa pelos centros e o erro da conta punha um pixel a mais ou a menos.
+401. #pixel #objetos "No lado esquerdo do caderno também pode ser melhorado?": o lado esquerdo do bloco de fichas
+    em degraus 2-2-1 (razão 1,73, fora dos 12% do `clean_slope`) passou a 1-2-1-2 (`FLAT_TOL`, 16%, nas beiras do lado
+    dos objetos chatos); a risca escura do contato com a mesa, que alternava 1 e 2 px, é o pé arredondado deslocado 1 px
+    para cada lado (`_desk_shadow`, em todos os objetos), não mais o `offset_polygon` fracionário.
+402. #pixel #objetos "Conserte, por favor" (a auditoria das beiras pelas capturas): os cantos das caixas do relógio,
+    do calculógrafo e da caixinha dos bilhetes saem de `_clock_corners`, com as beiras do lado em razão exata
+    (`exact_slope`: o canto de trás anda de lado e, se a razão só fica quase exata, 1 px na altura); o tampo do relógio
+    ficou em 2:1 (era 2-2-2-1 e 2-2-3-2) e a base em 1,5 (tinha um dente), com a sombra de contato no pé da base; os
+    livros têm a mesma conta (`BOOK_TOL`, 25%: o volume de cima, 1,25 e 1,29, não mudava com 16%) e a capa projetada
+    sem o tom liso por baixo; a beira da lateral da mesa comutadora no tampo, 3-4 com um 4-4 no meio, foi dobrada para o
+    degrau diferente ir para a ponta (`_bent_edge`). Medidas pelo `tools/edge_steps.gd`.

@@ -220,6 +220,7 @@ func _draw_desk(r: Rect2, front: float) -> void:
 ## fica num lugar da sala (x a partir dos olhos, z a distância; ver `Z0`) e é desenhado em px da tela (1x1).
 func _draw_desk_props() -> void:
 	_ci.draw_set_transform(Vector2.ZERO)
+	_snap = true
 	# em duas fileiras, distribuídas de ponta a ponta entre a lateral da mesa comutadora e a parede da direita, com a
 	# mesma folga entre eles e antes do primeiro (encostado na mesa comutadora, parecia apertado), em qualquer largura de
 	# janela: presos a uma ponta só, sobrava mesa vazia na outra, e presos a pontas diferentes, eles se trombavam. Atrás,
@@ -259,6 +260,7 @@ func _draw_desk_props() -> void:
 		var nd := _deep(0.19 * k) * (0.5 if news_read else 1.0)
 		_flat(Tools.NEWS, near[1], _at(0.07) + (_deep(0.19 * k) - nd) / 2.0, NEWS_W * k, nd, 0.5, Pal.NEWS_FOLD[1],
 			_art_newspaper.bind(news_read), [news_read], deg_to_rad(-9.0 if news_read else 6.0), _newspaper_print.bind(news_read))
+	_snap = false
 	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 
 
@@ -474,11 +476,10 @@ func _draw_flip_clock(xc: float, zc: float) -> void:
 	var hw := CLOCK.x / 2.0
 	var hd := CLOCK.z / 2.0
 	var bh := 1.5 * PROP_K   # a base, um pouco maior que a caixa, que a levanta da mesa
-	_desk_shadow(PackedVector2Array([_clock_pt(xc, zc, -hw - 1, hd + 1, _yd), _clock_pt(xc, zc, hw + 1, hd + 1, _yd),
-		_clock_pt(xc, zc, hw + 1, -hd - 1, _yd), _clock_pt(xc, zc, -hw - 1, -hd - 1, _yd)]))
+	_desk_shadow(PackedVector2Array(_clock_corners(xc, zc, hw + 0.8, hd + 0.8, _yd, bh, 1)[1]))   # (o pé da base: a risca do contato acompanha a beira dela)
 	var dark := _shade(xc, zc)
 	var lit := Color.WHITE.darkened(dark)   # longe da luz
-	var base := _clock_box(xc, zc, hw + 0.8, hd + 0.8, _yd, bh, Pal.CLOCK_BASE[2], Pal.CLOCK_BASE[0], Pal.CLOCK_BASE[1])
+	var base := _clock_box(xc, zc, hw + 0.8, hd + 0.8, _yd, bh, Pal.CLOCK_BASE[2], Pal.CLOCK_BASE[0], Pal.CLOCK_BASE[1], Callable(), 1)
 	var box := _clock_box(xc, zc, hw, hd, _yd - bh, CLOCK.y, Pal.CLOCK_CASE[3], Pal.CLOCK_CASE[0], Color.TRANSPARENT)
 	_clock_rim = box
 	var hull := PackedVector2Array()
@@ -541,22 +542,24 @@ func _clock_pt(xc: float, zc: float, u: float, v: float, y: float) -> Vector2:
 ## Uma caixa do relógio, girada como ele (meia largura `hw`, meio fundo `hd`, de `y0` até `h` acima): só as faces
 ## viradas para os olhos, as de pé em `side` (a da frente em `front`; transparente, quem chama a desenha) e o tampo em
 ## `top`, escurecendo ponto a ponto longe da luz (`_shade`); com `tone` (a cor -> o tom na luz parada, `Pal.lit`), cada
-## face num tom só, como as peças de metal. Devolve as faces que apareceram ("front", "right", "back", "left", "top").
+## face num tom só, como as peças de metal. `level`: a beira do lado levada à inclinação limpa (`_clock_corners`).
+## Devolve as faces que apareceram ("front", "right", "back", "left", "top").
 func _clock_box(xc: float, zc: float, hw: float, hd: float, y0: float, h: float, top: Color, side: Color, front: Color,
-		tone := Callable()) -> Dictionary:
+		tone := Callable(), level := 0) -> Dictionary:
 	var cs := cos(_yaw)
 	var sn := sin(_yaw)
-	var y1 := y0 - h
+	var c := _clock_corners(xc, zc, hw, hd, y0, h, level)
+	var up: Array = c[0]
+	var low: Array = c[1]
 	var out := {}
-	# [nome, normal (u, v), de onde a onde (u, v), da esquerda para a direita de quem olha de fora]
-	for f in [["front", Vector2(0, -1), Vector2(-hw, -hd), Vector2(hw, -hd)], ["right", Vector2(1, 0), Vector2(hw, -hd), Vector2(hw, hd)],
-			["back", Vector2(0, 1), Vector2(hw, hd), Vector2(-hw, hd)], ["left", Vector2(-1, 0), Vector2(-hw, hd), Vector2(-hw, -hd)]]:
+	# [nome, normal (u, v), de onde a onde (u, v), da esquerda para a direita de quem olha de fora, e os cantos (`_clock_corners`)]
+	for f in [["front", Vector2(0, -1), Vector2(-hw, -hd), Vector2(hw, -hd), 3, 2], ["right", Vector2(1, 0), Vector2(hw, -hd), Vector2(hw, hd), 2, 1],
+			["back", Vector2(0, 1), Vector2(hw, hd), Vector2(-hw, hd), 1, 0], ["left", Vector2(-1, 0), Vector2(-hw, hd), Vector2(-hw, -hd), 0, 3]]:
 		var n: Vector2 = f[1]
 		var m: Vector2 = (f[2] + f[3]) / 2.0
 		if Vector2(n.x * cs - n.y * sn, n.x * sn + n.y * cs).dot(-Vector2(xc + m.x * cs - m.y * sn, zc + m.x * sn + m.y * cs)) <= 0.0:
 			continue
-		var q := PackedVector2Array([_clock_pt(xc, zc, f[2].x, f[2].y, y1), _clock_pt(xc, zc, f[3].x, f[3].y, y1),
-			_clock_pt(xc, zc, f[3].x, f[3].y, y0), _clock_pt(xc, zc, f[2].x, f[2].y, y0)])
+		var q := PackedVector2Array([up[f[4]], up[f[5]], low[f[5]], low[f[4]]])
 		if _bounds(q).size.x < 1.0:   # quase de perfil, não aparece (e o polígono nem fecha)
 			continue
 		out[f[0]] = q
@@ -568,17 +571,33 @@ func _clock_box(xc: float, zc: float, hw: float, hd: float, y0: float, h: float,
 				_poly(q, tone.call(col))
 			else:
 				_shaded(q, [a, b, b, a], col)
-			if f[0] == "left":   # a quina com a frente pega a luz
-				_ci.draw_line(q[1], q[2], tone.call(col.lightened(0.15)) if tone.is_valid() else col.lightened(0.15).darkened(_shade(b.x, b.y)), 1.0)
-			elif f[0] == "right":
-				_ci.draw_line(q[0], q[3], tone.call(col.lightened(0.15)) if tone.is_valid() else col.lightened(0.15).darkened(_shade(a.x, a.y)), 1.0)
-	out["top"] = PackedVector2Array([_clock_pt(xc, zc, -hw, hd, y1), _clock_pt(xc, zc, hw, hd, y1), _clock_pt(xc, zc, hw, -hd, y1), _clock_pt(xc, zc, -hw, -hd, y1)])
+			if f[0] == "left":   # a quina com a frente pega a luz: a última coluna da face, rente à beira dela
+				_pixel_line(q[1] - Vector2(1, 0), q[2] - Vector2(1, 1), [tone.call(col.lightened(0.15)) if tone.is_valid() else col.lightened(0.15).darkened(_shade(b.x, b.y))])
+			elif f[0] == "right":   # (a primeira)
+				_pixel_line(q[0], q[3] - Vector2(0, 1), [tone.call(col.lightened(0.15)) if tone.is_valid() else col.lightened(0.15).darkened(_shade(a.x, a.y))])
+	out["top"] = PackedVector2Array(up)
 	if tone.is_valid():
 		_poly(out["top"], tone.call(top))
 	else:
 		_shaded(out["top"], [_clock_xz(xc, zc, -hw, hd), _clock_xz(xc, zc, hw, hd), _clock_xz(xc, zc, hw, -hd), _clock_xz(xc, zc, -hw, -hd)], top)
 	return out
 
+
+
+## Os cantos de uma caixa do relógio na tela, no pixel inteiro: [os de cima, os de baixo], cada um fundo-esq, fundo-dir,
+## frente-dir e frente-esq. As beiras do lado (do fundo à frente) na altura `level` (0 em cima, 1 embaixo: a que aparece)
+## em degraus iguais (`exact_slope`, `FLAT_TOL`): o canto do fundo anda, em cima e embaixo juntos (a quina dele
+## continua em pé). Arredondados um a um, saíam 2-2-2-1 e 2-2-3-2.
+func _clock_corners(xc: float, zc: float, hw: float, hd: float, y0: float, h: float, level: int) -> Array:
+	var out := [[], []]
+	for k in 2:
+		for uv: Vector2 in [Vector2(-hw, hd), Vector2(hw, hd), Vector2(hw, -hd), Vector2(-hw, -hd)]:
+			out[k].append(_clock_pt(xc, zc, uv.x, uv.y, y0 - h if k == 0 else y0).round())
+	for i in [0, 1]:   # (0 e 1 no fundo; 3 e 2, os da frente)
+		var d: Vector2 = exact_slope(out[level][3 - i], out[level][i], FLAT_TOL) - out[level][i]
+		out[0][i] += d
+		out[1][i] += d
+	return out
 
 ## Uma face na cor `col`, escurecendo ponto a ponto longe da luz (`xz`: os pontos dela na sala).
 func _shaded(pts: PackedVector2Array, xz: Array, col: Color) -> void:
@@ -745,9 +764,14 @@ func _desk_shadow(foot: PackedVector2Array, on_desk := true) -> void:
 		_lamp_shades.append(pts)
 	else:
 		_lamp_shade(pts)
-	if up == Vector2.ZERO:
-		for g in Geometry2D.offset_polygon(foot, 1.0, Geometry2D.JOIN_MITER):
-			_poly(g, Color(0, 0, 0, 0.45))
+	if up == Vector2.ZERO:   # o contato: o pé deslocado 1 px para cada lado, a beira dele nos mesmos degraus da do objeto (aberto 1 px pelo `offset_polygon`, a risca alternava 1 e 2 px)
+		var rim := PackedVector2Array()
+		for p in foot:
+			for d: Vector2 in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN]:
+				rim.append(p.round() + d)
+		var hull := Geometry2D.convex_hull(rim)   # (os pés são todos convexos)
+		hull.remove_at(hull.size() - 1)   # (o primeiro ponto volta no fim)
+		_poly(hull, Color(0, 0, 0, 0.45))
 
 
 ## A sombra da luminária de um objeto (`_desk_shadow`): a penumbra em volta e a sombra.
@@ -916,8 +940,8 @@ func _turned(cx: float, cz: float, wx: float, dz: float, yaw: float) -> Array:
 
 
 ## As faces de pé de uma caixa girada (`xz`, de `_turned`) de `y0` a `y1` que ficam viradas para os olhos: cada uma
-## [quad (px da tela), i, normal (x, z)]; a face `i` vai do canto `i` ao seguinte (0 fundo, 1 direita, 2 frente,
-## 3 esquerda).
+## [quad (px da tela, no pixel inteiro, como o `_fill` com `_snap`: a textura projetada nele pisa onde a face pisa), i,
+## normal (x, z)]; a face `i` vai do canto `i` ao seguinte (0 fundo, 1 direita, 2 frente, 3 esquerda).
 func _faces(xz: Array, y0: float, y1: float) -> Array:
 	var out := []
 	for i in 4:
@@ -926,7 +950,8 @@ func _faces(xz: Array, y0: float, y1: float) -> Array:
 		var n := Vector2(a.y - b.y, b.x - a.x)   # para fora (os cantos vão no sentido do relógio)
 		if n.dot(-(a + b) / 2.0) <= 0.0:
 			continue
-		out.append([PackedVector2Array([_p3(a.x, y1, a.y), _p3(b.x, y1, b.y), _p3(b.x, y0, b.y), _p3(a.x, y0, a.y)]), i, n.normalized()])
+		out.append([PackedVector2Array([_p3(a.x, y1, a.y).round(), _p3(b.x, y1, b.y).round(), _p3(b.x, y0, b.y).round(),
+			_p3(a.x, y0, a.y).round()]), i, n.normalized()])
 	return out
 
 
@@ -941,12 +966,18 @@ func _flat(id: String, x0: float, zf: float, wx: float, dz: float, h: float, edg
 	var foot := PackedVector2Array()
 	var top := PackedVector2Array()
 	for p: Vector2 in xz:
-		foot.append(_p3(p.x, _yd, p.y))
-		top.append(_p3(p.x, _yd - h, p.y))
+		foot.append(_p3(p.x, _yd, p.y).round())
+		top.append(_p3(p.x, _yd - h, p.y).round())
+	for i in [0, 1]:   # as beiras do lado, as compridas, em degraus iguais (`clean_slope`): o canto do fundo se ajeita, e o pé com ele
+		var moved := clean_slope(top[3 - i], top[i], Vector2(1, 0), FLAT_TOL)   # (0 e 1 no fundo; 3 e 2, os da frente; só para o lado: a beira do fundo fica onde estava, e as pautas com ela)
+		foot[i] += moved - top[i]
+		top[i] = moved
 	_desk_shadow(foot)
 	var step := _paper_step(_still(x0 + wx / 2.0, zf + dz / 2.0))
-	for f: Array in _faces(xz, _yd, _yd - h):
-		_poly(f[0], Pal.lit(edge, step).darkened(0.35 * absf((f[2] as Vector2).x)))
+	for f: Array in _faces(xz, _yd, _yd - h):   # (de pé entre o tampo e o pé, como eles ficaram)
+		var i: int = f[1]
+		var j := (i + 1) % 4
+		_poly(PackedVector2Array([top[i], top[j], foot[j], foot[i]]), Pal.lit(edge, step).darkened(0.35 * absf((f[2] as Vector2).x)))
 	var sz := Vector2i(_top_xf(top)[1])
 	if sz.x >= 8 and sz.y >= 4:   # (a tela ainda se arrumando)
 		_hom = _homography(top)
@@ -1015,6 +1046,9 @@ func _ink(x0: float, x1: float, y: float, cols: Array) -> void:
 ## cada pixel da tela pega o texel que cai nele, pela homografia (torto por transformação, o desenho esticava e
 ## entortava os pixels: uma linha de 1 px virava 0 ou 2, e destoava do resto do jogo). Guardado por `key`.
 static var _projected := {}
+const FLAT_TOL := 0.16   ## a tolerância do `clean_slope` nas beiras do lado dos objetos chatos (com 12%, a do bloco, 1,73, ficava em 2-2-1)
+const BOOK_TOL := 0.25   ## a do `clean_slope` nos livros, meio tortos: o canto de trás andando uns px é só o volume um pouco mais girado (com 16%, a capa de cima, 1,25 e 1,29, ficava como estava)
+const EDGE_EPS := 0.0001   ## a folga do desempate nas beiras do `_project` (fração do desenho; o erro da conta fica perto de 1e-6)
 
 
 func _project(key: Array, art: Callable, q: PackedVector2Array, sz: Vector2i) -> void:
@@ -1033,7 +1067,9 @@ func _project(key: Array, art: Callable, q: PackedVector2Array, sz: Vector2i) ->
 				var r := inv * Vector3(at.x + x + 0.5, at.y + y + 0.5, 1.0)
 				var u := r.x / r.z
 				var v := r.y / r.z
-				if u >= 0.0 and u < 1.0 and v >= 0.0 and v < 1.0:
+				# (numa beira de inclinação limpa entre pontos inteiros, a reta passa pelos centros dos pixels: o empate fica
+				# dentro numa ponta e fora na outra, sempre; decidido pelo erro da conta, a beira saía com dentes, +2 e 0)
+				if u >= -EDGE_EPS and u < 1.0 - EDGE_EPS and v >= -EDGE_EPS and v < 1.0 - EDGE_EPS:
 					var tex := Vector2i(int(u * sz.x), int(v * sz.y))
 					var c := img.get_pixel(tex.x, tex.y)
 					if not _hom_light.is_empty():
@@ -1084,9 +1120,18 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 		var xz := _turned(cx, zf + offs[b].y + dz / 2.0, wx, dz, yaws[b])
 		var y0 := _yd - b * bh
 		var spine := 1 if cx < 0.0 else 3   # a lombada fica do lado virado para o ponto de fuga; nos outros, o miolo
+		var top := PackedVector2Array()
+		var low := PackedVector2Array()
+		for p: Vector2 in xz:
+			top.append(_p3(p.x, y0 - bh, p.y).round())
+			low.append(_p3(p.x, y0, p.y).round())
+		for i in [0, 1]:   # as beiras do lado em degraus iguais (`exact_slope`, como no relógio); as faces saem dos mesmos cantos
+			var d := exact_slope(top[3 - i], top[i], BOOK_TOL) - top[i]
+			top[i] += d
+			low[i] += d
 		for f: Array in _faces(xz, y0, y0 - bh):
-			var q: PackedVector2Array = f[0]
 			var i: int = f[1]
+			var q := PackedVector2Array([top[i], top[(i + 1) % 4], low[(i + 1) % 4], low[i]])
 			var at := func(u: float, v: float) -> Vector2: return q[0].lerp(q[1], u).lerp(q[3].lerp(q[2], u), v)   # um ponto da face
 			var ends: Array = [xz[i], xz[(i + 1) % 4], xz[(i + 1) % 4], xz[i]]   # os cantos da face no tampo (em cima e embaixo, os mesmos)
 			if i == spine:   # a lombada: os filetes dourados e, entre eles, a etiqueta escura do volume com o número
@@ -1115,19 +1160,17 @@ func _draw_books(x0: float, zf: float, wx: float, dz: float) -> void:
 						_ci.draw_rect(Rect2(p + Vector2(-3, 2), Vector2(6, 1)), Color(0, 0, 0, 0.35))
 				_hom_light = PackedFloat32Array()
 			all.append_array(q)
-		var top := PackedVector2Array()
-		for p: Vector2 in xz:
-			top.append(_p3(p.x, y0 - bh, p.y))
 		var cover := c.darkened(0.15)   # a capa, que pega a luz de cima de chapa, um tom abaixo da cor do cabo
-		_poly(top, Pal.lit(cover, _paper_step(_still(cx, zf + offs[b].y + dz / 2.0))))
 		all.append_array(top)
 		var sz := Vector2i(_top_xf(top)[1])
-		if b == 2 and sz.x >= 8 and sz.y >= 4:   # a capa do volume de cima, pixel a pixel como os objetos chatos
+		if b == 2 and sz.x >= 8 and sz.y >= 4:   # a capa do volume de cima, pixel a pixel como os objetos chatos (sem o tom liso por baixo: ele aparecia nos pixels da beira que ela não pega)
 			_hom = _homography(top)
 			_hom_sz = Vector2(sz)
 			_hom_light = _still_at(xz)
 			_project([Tools.DIRECTORY, sz], _art_book_cover.bind(cover), top, sz)
 			_hom_light = PackedFloat32Array()
+		else:
+			_poly(top, Pal.lit(cover, _paper_step(_still(cx, zf + offs[b].y + dz / 2.0))))
 	_mark(Tools.DIRECTORY, _bounds(all), Geometry2D.convex_hull(all))
 
 

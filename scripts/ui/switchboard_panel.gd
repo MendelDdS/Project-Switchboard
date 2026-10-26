@@ -473,8 +473,9 @@ const BAY_MARGIN := 24.0   # o tampo dos equipamentos: a largura do bloco interu
 ## pendem como a ponta da frente de um par em relação à de trás (`_lean`; reta, parecia em pé; pelo ponto de fuga da
 ## sala, mais inclinada que os plugs ao lado). Com `side`, a da direita (o tampo largo dos equipamentos, junto da
 ## lateral da mesa) fica paralela a ela, com a inclinação da lateral (`_receding` na beira da prateleira; fugindo
-## daqui para os olhos, pendia mais que ela). A textura (`_cover_px`) vem esticada linha a linha, em trechos do mesmo tom; os parafusos, redondos por cima, no
-## lugar deles (esticados, viravam serrilhado). Rente à madeira: a sombra é uma linha
+## daqui para os olhos, pendia mais que ela). A textura (`_cover_px`) vai linha a linha, contada das beiras já
+## arredondadas da linha (esticada da beira fracionária, a fresta e a quina pisavam em outro lugar que a beira e saíam
+## em diagonais dobradas), em trechos do mesmo tom. Rente à madeira: a sombra é uma linha
 ## só, embaixo e à direita (afastada, ela flutuava).
 func _draw_cover(x: float, w: float, side := false) -> void:
 	var ym := _shelf_mid()
@@ -494,8 +495,7 @@ func _draw_cover(x: float, w: float, side := false) -> void:
 		var run := l
 		var last := Color(0, 0, 0, 0)
 		for px in range(int(l), int(r) + 1):
-			var c := Color(0, 0, 0, 0) if px == int(r) else \
-				_cover_px(int((px + 0.5 - e.x) / (e.y - e.x) * w), v, int(w), plate)
+			var c := Color(0, 0, 0, 0) if px == int(r) else _cover_px(px - int(l), v, int(r - l), plate)
 			if px > int(l) and c != last:
 				if last.a > 0.0:
 					_ci.draw_rect(Rect2(run, y, px - run, 1), last)

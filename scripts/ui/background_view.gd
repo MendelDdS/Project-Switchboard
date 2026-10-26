@@ -1771,7 +1771,9 @@ func _draw_canyon_wall(g: Rect2, w: Dictionary, hz: Color, taken: Dictionary) ->
 	var face: Color = shade.call(col)
 	var far := face.lerp(rim, 0.6 * sun * clampf((z1 - 20.0) / 90.0, 0.0, 1.0))   # e as duas, no fundo, somem no ar dourado do sol
 	face = face.lerp(rim, 0.6 * sun * clampf((z0 - 20.0) / 90.0, 0.0, 1.0))
-	_fill(PackedVector2Array([_o(g, x, z0), _o(g, x, z1), _o(g, x, z1, ht), _o(g, x, z0, ht)]), PackedColorArray([face, far, far, face]))
+	var t0 := (_o(g, x, z0, ht) * 2.0).round() / 2.0   # a beira de cima em degraus iguais (`clean_slope`, em px da tela; a ponta do fundo se ajeita)
+	var t1 := clean_slope(t0 * 2.0, _o(g, x, z1, ht) * 2.0) / 2.0
+	_fill(PackedVector2Array([_o(g, x, z0), _o(g, x, z1), t1, t0]), PackedColorArray([face, far, far, face]))
 	# a textura por cima da luz, translúcida para o degradê dela continuar: as fiadas fugindo para o fundo e os
 	# remendos, mais escuros (no frio da sombra) ou mais claros
 	var rng := RandomNumberGenerator.new()
@@ -1789,8 +1791,9 @@ func _draw_canyon_wall(g: Rect2, w: Dictionary, hz: Color, taken: Dictionary) ->
 		var c := Color(tone.call(-3), 2.0 * CANYON_GRAIN) if rng.randf() < 0.6 else Color(tone.call(3), CANYON_GRAIN)
 		_poly(PackedVector2Array([_o(g, x, za, ha), _o(g, x, zb, ha), _o(g, x, zb, hb), _o(g, x, za, hb)]), c)
 	_ci.draw_line(_o(g, x, z0), _o(g, x, z0, ht), tone.call(-2), PX)   # a quina
-	_ci.draw_line(_o(g, x, z1 - 0.3), _o(g, x, z1 - 0.3, ht), tone.call(-2), PX)   # o cano de descida, na divisa com o vizinho
-	_ci.draw_line(_o(g, x, z0, ht), _o(g, x, z1, ht), tone.call(2).lerp(rim, 0.85 * sun), PX)   # a cornija, acesa pelo sol
+	var pipe := _o(g, x, z1 - 0.3)
+	_ci.draw_line(pipe, Vector2(pipe.x, lerpf(t0.y, t1.y, (pipe.x - t0.x) / (t1.x - t0.x))), tone.call(-2), PX)   # o cano de descida, na divisa com o vizinho, até a beira
+	_pixel_line(t0 * 2.0, t1 * 2.0, [tone.call(2).lerp(rim, 0.85 * sun)], Transform2D.IDENTITY.scaled(Vector2(2, 2)))   # a cornija, acesa pelo sol
 	for f in range(1, 0 if w["brick"] else int((ht - 0.8) / 3.2)):   # a laje de cada andar, fugindo com as janelas (a de tijolos tem as fiadas)
 		_ci.draw_line(_o(g, x, z0, f * 3.2), _o(g, x, z1, f * 3.2), tone.call(1), PX)
 	var dark: Color = tone.call(-3)

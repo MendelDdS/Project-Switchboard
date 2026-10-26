@@ -177,6 +177,7 @@ const REVEAL_GRAIN := 0.25   ## a força dos remendos no reboco do batente de lo
 const SHIFT_START := 18.0 * 60.0   ## o começo do turno (min do dia): o café da caneca está quente
 const STEAM_FOR := 210.0    ## em quantos minutos de jogo o café esfria e o vapor some (às 21h30)
 const BLIND := 0.12        ## até onde a persiana desce aberta (fração da altura do vão)
+const SLAT := 3.0          ## a altura de cada lâmina (px de 2x2; com 2, as beiras convergindo viravam moiré)
 ## Clicada, a persiana desce até o peitoril (`toggle_blind`) em BLIND_SEC s, lâmina a lâmina, e clicada de novo sobe;
 ## fechada, tampa a rua, a luz dela na sala e o brilho das luzes de lá.
 const BLIND_SEC := 1.3
@@ -659,7 +660,7 @@ func _blind_shape() -> void:
 		var below := Geometry2D.intersect_polygons(_side_quad(Rect2(0, y, SIDE_W, gh - y)), _side_quad(Rect2(0, y, SIDE_W, gh - y), WALL_D))
 		if not below.is_empty():
 			_glass = X2 * below[0]
-	var rows := int(y / 2.0)
+	var rows := int(y / SLAT)
 	if rows != _blind_rows:
 		_blind_rows = rows
 		_blind_layer.queue_redraw()
@@ -682,10 +683,11 @@ func _draw_blind() -> void:
 	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 	var gw := SIDE_W
 	var y := floorf(_cm(WIN_SILL - WIN_TOP) * _blind_frac())
-	for k in range(0, int(y), 2):
-		_poly(_side_quad(Rect2(0, k, gw, 1.5)), Pal.BLIND[2])
-		_poly(_side_quad(Rect2(0, k, gw, PX)), Pal.BLIND[3])
-		_poly(_side_quad(Rect2(0, k + 1.5, gw, PX)), Pal.BLIND[0])
+	if y > 0.0:
+		_poly(_side_quad(Rect2(0, 0, gw, y)), Pal.BLIND[2])
+	for k in range(0, int(y), SLAT):   # a beira de cada lâmina numa reta de pixel na tela (em faixas de 1 px na perspectiva, viravam moiré)
+		_pixel_line(X2 * _side_pt(Vector2(0, k)), X2 * _side_pt(Vector2(gw, k)), [Pal.BLIND[3]], X2)
+		_pixel_line(X2 * _side_pt(Vector2(0, k + SLAT - PX)), X2 * _side_pt(Vector2(gw, k + SLAT - PX)), [Pal.BLIND[0]], X2)
 	var cord := minf(8.0, _cm(WIN_SILL - WIN_TOP) - y)   # fechada, o puxador fica no peitoril
 	_ci.draw_line(_side_pt(Vector2(gw * 0.8, y)), _side_pt(Vector2(gw * 0.8, y + cord)), Pal.BLIND[2], PX)
 	_poly(_side_quad(Rect2(gw * 0.8 - 1, y + cord - 2.0 if cord < 8.0 else y + cord, 2, 2)), Pal.BLIND[1])
@@ -2150,6 +2152,7 @@ func _draw_switchboard() -> void:
 	if not (board and desk):
 		return
 	draw_set_transform(Vector2.ZERO)
+	_snap = true
 	var vp := _vp * 2.0
 	var b := Rect2(board.global_position - global_position, board.size)
 	var sy := desk.global_position.y - global_position.y   # a prateleira, no alto da faixa de mesa
@@ -2166,20 +2169,21 @@ func _draw_switchboard() -> void:
 	var low := Vector2(fx1, fy)   # o canto de baixo da frente, do lado do ponto de fuga
 	_shelf = low
 	var deep := func(p: Vector2) -> Vector2: return vp + (p - vp) * k * kb   # da frente do console para o fundo
-	var low_back: Vector2 = deep.call(low)
-	_desk_shadow(PackedVector2Array([Vector2(fx0, fy), low, low_back, deep.call(Vector2(fx0, fy))]))
+	var low_back := clean_slope(low, deep.call(low), Vector2(0, 1))   # (a beira no tampo em degraus iguais; a quina de trás continua em pé)
+	var edge := _bent_edge(low.round(), low_back)
+	_desk_shadow(PackedVector2Array([Vector2(fx0, fy), low] + edge + [deep.call(Vector2(fx0, fy))]))
 	if b.end.x < vp.x - 2.0:   # a lateral em L: o console e, em cima dele, o painel
 		var side := SHELL[2] as Color
 		var top := Vector2(b.end.x, b.position.y + Switchboard.SHELL_R)   # a lateral começa onde acaba o canto redondo
-		_side_faces = [PackedVector2Array([Vector2(fx1, sy), low, low_back, back.call(b.end)]),
-			PackedVector2Array([top, b.end, back.call(b.end), back.call(top)])]
+		_side_faces = [PackedVector2Array([Vector2(fx1, sy).round(), low.round()] + edge + [back.call(b.end).round()]),
+			PackedVector2Array([top.round(), b.end.round(), back.call(b.end).round(), back.call(top).round()])]   # (no pixel, como o `_fill`: a luz delas pisa no mesmo lugar)
 		for q: PackedVector2Array in _side_faces:
 			_poly(q, side)
 		_round_edge(top - Vector2(Switchboard.SHELL_R, 0), -PI / 2.0, back)
 		var p := Vector2(b.end.x, roundf(b.position.y + b.size.y * 0.55))   # a junta das chapas do esmalte, no rumo do ponto de fuga
-		draw_line(p, back.call(p), Pal.SHELL[1], 1.0)
-		draw_line(top, b.end, SHELL[0], 1.0)   # as quinas da frente pegam a luz
-		draw_line(Vector2(fx1, sy), low, SHELL[0], 1.0)
+		_pixel_line(p, (back.call(p) as Vector2).round(), [Pal.SHELL[1]])
+		_pixel_line(top.round(), b.end.round() - Vector2(0, 1), [SHELL[0]])   # as quinas da frente pegam a luz: a primeira coluna da lateral
+		_pixel_line(Vector2(fx1, sy).round(), low.round() - Vector2(0, 1), [SHELL[0]])
 	# a frente do console, como a bandeja do teclado dos terminais da série Ruptura: o plástico branco em volta de uma
 	# placa oliva rebaixada, de cantos redondos (a miniatura do painel, a plaqueta e os botões ficam nela), e o rodapé
 	_r(fx0, sy, fx1 - fx0, fy - sy, SHELL[1])
@@ -2217,7 +2221,22 @@ func _draw_switchboard() -> void:
 		_round_edge(tl + Vector2(0, r), -PI, back)   # o canto da esquerda (o da direita sai com a lateral)
 	_occ_board = Geometry2D.convex_hull(PackedVector2Array([b.position, Vector2(b.end.x, b.position.y), b.end, Vector2(b.position.x, b.end.y),
 		back.call(b.end), back.call(Vector2(b.end.x, b.position.y)), Vector2(fx1, sy), low, low_back, Vector2(fx0, fy), Vector2(fx0, sy)]))
+	_snap = false
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+
+
+## A beira de `a` a `b` (px da tela, inteiros) já na razão do `clean_slope`; se ela é n + ½ com o lado curto ímpar (a
+## "quase exata": só a ponta de trás podia andar), [o ponto onde acaba o trecho exato, `b` ajustado], com o degrau
+## diferente na ponta, mais íngreme, para o canto ficar convexo (o pé dele vai para a sombra de contato, `_desk_shadow`);
+## numa beira só, a placa de vídeo punha o degrau diferente no meio dela (3-4-3-4-4-3). Se não, [`b`].
+static func _bent_edge(a: Vector2, b: Vector2) -> Array:
+	var d := b - a
+	var s := absf(d.x)
+	var half := roundf(absf(d.y) / maxf(1.0, s) * 2.0) / 2.0   # a razão: n ou n + ½
+	if s < 3.0 or int(s) % 2 == 0 or fmod(half, 1.0) == 0.0:
+		return [b]
+	var mid := a + d.sign() * Vector2(s - 1.0, half * (s - 1.0))
+	return [mid, mid + d.sign() * Vector2(1.0, ceilf(half))]
 
 
 ## A parede da direita, entrando para o fundo a partir da quina (`_qx`): cobre o que fica atrás dela (a mesa termina
@@ -2350,13 +2369,18 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	# olhos), a beira da frente e a sombra dela na parede
 	var s0 := Vector2(-5, gh)   # do tamanho da guarnição (passando dela, saía da janela)
 	var s1 := Vector2(gw + 5, gh)
+	# as pontas da tábua no pixel da tela e a luz na beira da frente pixel a pixel, rente a ela: os degraus variam de 1
+	# no máximo (com pontos quebrados e um traço comum, saíam 10, 12, 9). Sem `clean_slope`: a ponta de longe é presa
+	# ao canto da janela, e levada à inclinação limpa ela subia ~5 px e descolava do batente
+	var near := func(p: Vector2, o: float) -> Vector2: return (_side_pt(p, o) * 2.0).round() / 2.0
+	var board := PackedVector2Array([near.call(s0, 0.0), near.call(s1, 0.0), near.call(s1, -SILL_D), near.call(s0, -SILL_D)])
+	var edge := PackedVector2Array([board[3], board[2], near.call(s1 + Vector2(0, 3), -SILL_D), near.call(s0 + Vector2(0, 3), -SILL_D)])
 	_poly(_side_quad(Rect2(-5, gh + 3, gw + 10, 6)), Color(0, 0, 0, 0.25))
-	_poly(PackedVector2Array([_side_pt(s0), _side_pt(s1), _side_pt(s1, -SILL_D), _side_pt(s0, -SILL_D)]), WOOD[1])
-	_poly(_side_quad(Rect2(-5, gh, gw + 10, 3), -SILL_D), WOOD[2])
-	draw_line(_side_pt(s0, -SILL_D), _side_pt(s1, -SILL_D), WOOD[0], PX)
+	_poly(board, WOOD[1])
+	_poly(edge, WOOD[2])
+	_pixel_line(board[3] * 2.0, board[2] * 2.0, [WOOD[0]], Transform2D.IDENTITY.scaled(Vector2(2, 2)))
 	# a ponta de perto da tábua, virada para quem olha: fecha a lateral dela
-	_poly(PackedVector2Array([_side_pt(s1), _side_pt(s1, -SILL_D), _side_pt(s1 + Vector2(0, 3), -SILL_D),
-		_side_pt(s1 + Vector2(0, 3))]), WOOD[1])
+	_poly(PackedVector2Array([board[1], board[2], edge[2], near.call(s1 + Vector2(0, 3), 0.0)]), WOOD[1])
 	# a luz de fora no peitoril: ele fica fora do vidro, e o escuro da sala o deixava quase preto (parecia um buraco);
 	# mais clara junto do vidro, sumindo para a sala
 	_sill_lit.clear()
@@ -2370,7 +2394,7 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 		for p in part:
 			cols.append(Color(0, 0, 0, 0.7))   # (a força relativa; a cor vem na hora de desenhar)
 		_sill_lit.append([x2.call(part), cols])
-	_sill_lit.append([x2.call(PackedVector2Array([_side_pt(s0), _side_pt(s1), _side_pt(s1, -SILL_D), _side_pt(s0, -SILL_D)])),
+	_sill_lit.append([x2.call(board),
 		PackedColorArray([Color(0, 0, 0, 0.6), Color(0, 0, 0, 0.6), Color(0, 0, 0, 0.15), Color(0, 0, 0, 0.15)])])
 	# a guarnição do lado de perto (ficava quase preta e, com a ponta da tábua aberta, parecia um vão): mais clara
 	# junto do vidro

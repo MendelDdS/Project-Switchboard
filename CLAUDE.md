@@ -64,7 +64,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 - **Cores e materiais no `Pal`** (rampas `Array[Color]` escolhidas por `Pal.ramp`/`Pal.lit`), usados pelo objeto da
   sala e pelo papel aberto dele: o que muda numa ponta muda na outra.
 - **Desenho**: área cheia em `draw_primitive` (até 4 pontos, seguidos com o mesmo número de pontos), não
-  `draw_polygon`; no cenário, `Background._fill`/`_poly`. **Só redesenhe quando o que é mostrado muda** (estado
+  `draw_polygon`; no cenário, `Background._fill`/`_poly` (na mesa e no tampo, em px da tela, com os pontos no pixel inteiro: `_snap`; beira longa à vista em inclinação limpa: `clean_slope`, nos cantos de trás dos objetos `exact_slope`). **Só redesenhe quando o que é mostrado muda** (estado
   comparado no `_process`: `Background._state`, a camada `_over`, `_back_state`, o `_look` de cada camada da mesa);
   algo novo que muda entra no estado da camada certa. Imagem montada pixel a pixel fica guardada; caches com limite.
   Cor que muda a cada quadro vai no `modulate`, nunca nas cores de `PixelArt.disc`/`art`.
@@ -116,7 +116,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   `Godot --resolution 160x90 --position 0,0 --quit-after 1500 --path . tools/shot.tscn -- --hour=22:30 --weather=rain --out=build/x.png`.
   As opções estão no comentário do topo de `tools/shot.gd` (`--tool`, `--card`, `--hover`, `--screen=intro|pause|settings|report`,
   `--rating`, `--warned`, `--zoom`, `--still`...). Compare capturas com `tools/diff_shots.gd`; conjunto do plano
-  hi-bit: `tools/hibit_shots.sh build/hibit/<pasta>`. **Regressão visual**: `tools/visual.sh [commit]` (~2 min, 12
+  hi-bit: `tools/hibit_shots.sh build/hibit/<pasta>`; cores e degradês das capturas (`PLANO_PIXEL.md`): `tools/pixel_map.gd`. Degraus de uma beira: `tools/edge_steps.gd`. **Regressão visual**: `tools/visual.sh [commit]` (~2 min, 12
   capturas do commit contra o disco, a tela inteira; sem a chuva, que ainda varia). Rode em mudança que
   não deveria mudar a tela (refatoração, desempenho) e confira que só mudou o esperado nas que deveriam.
 - Desempenho: sem tela, a vista da janela não é desenhada (`Background._headless`); a vista no amanhecer desenha ~17 mil

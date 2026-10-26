@@ -627,3 +627,23 @@ Arredondei a tela da miniatura do despacho tirando um pixel de cada canto do des
 perspectiva (`_project`) o pixel sumia e o usuário viu os cantos quadrados. No objeto da sala, arredonde com raio de
 3 px ou mais no desenho (`_round`), recue a face vizinha que encosta no canto (o alto do painel) e confira na captura
 ampliada, canto por canto.
+
+## "Print" é captura de tela
+O usuário pediu para limpar "os prints desnecessários" e eu tirei `print()` dos testes; ele queria apagar as capturas
+de tela acumuladas em `build/`. Na fala do usuário, "print" é captura; `print()` do código é "log" ou "saída".
+Na dúvida entre os dois sentidos, olhe primeiro o que está mais à vista (pastas cheias de imagens).
+
+## Beira limpa pode sair com dentes no empate do centro do pixel
+Dei a etapa 3 por pronta e o usuário achou dentes (+2, 0) na beira da direita do bloco de fichas. A beira já tinha
+inclinação limpa entre pontos inteiros, e por isso a reta passava exatamente pelos centros dos pixels: o `_project`
+decidia o empate pelo erro da conta. Ao conferir beira, meça os degraus linha a linha na captura (o fim de cada linha),
+não só a olho na ampliação, e desempate sempre do mesmo jeito (`EDGE_EPS`).
+Logo depois ele achou o lado esquerdo do mesmo objeto: consertado um lado, meça todas as beiras dele (as duas
+do tampo, a espessura e a risca da sombra) antes de mandar.
+
+## Razão quase exata põe o degrau diferente no meio
+O `clean_slope` aceitava a razão "quase exata" (n + ½ com o lado curto ímpar) achando que o degrau diferente ia para
+a ponta; a placa de vídeo o põe onde a reta pede, no meio (3-4-3-4-4-3 na lateral da mesa, 2-1-2-2-1 na base do
+relógio). Deixar o canto livre nos dois eixos também não serve: o ponto mais perto entorta as outras beiras. Prefira
+a razão exata andando 1 px no outro eixo (`exact_slope`) ou dobre a beira (`_bent_edge`), e confira imprimindo os
+cantos: a medida pela captura erra onde há textura ou veio da mesa por perto.

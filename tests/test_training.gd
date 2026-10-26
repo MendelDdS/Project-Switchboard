@@ -166,5 +166,4 @@ func _initialize() -> void:
 	ok(m.report.faults.is_empty(), "o treinamento não gera advertência")
 	await frames(30)
 	ok(m.minutes > 0.0, "depois do treinamento, o relógio anda")
-	print("OK treinamento")
 	finish("test_training")

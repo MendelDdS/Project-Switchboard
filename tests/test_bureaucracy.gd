@@ -137,7 +137,6 @@ func _initialize() -> void:
 	ok(strict.started == 0 and strict.done == 0 and m.bureaucracy.decisions.is_empty(), "desligado: nenhum gancho")
 	ok(not c1.options.any(func(o): return String(o["label"]).begins_with("[Teste")), "desligado: nenhuma opção a mais")
 	_clear_board()
-	print("OK 1 desligado")
 
 	# ---- 2. ligado: os ganchos chegam e a maior das infrações vira a advertência; todas no registro
 	m.report.faults.clear()   # (desmontar a mesa com a conversa ainda ligada cortou a ligação: `cut_call`)
@@ -160,7 +159,6 @@ func _initialize() -> void:
 	ok(m.bureaucracy.decisions.size() == 2, "as duas infrações no registro")
 	ok(strict.done == 1 and grave.done == 1 and strict.ended == 1, "transferência completa e fim da ligação")
 	_clear_board()
-	print("OK 2 a maior vale, todas registradas")
 
 	# ---- 3. número errado com uma infração grave na mesma tentativa: fica só a grave
 	m.report.faults.clear()
@@ -169,7 +167,6 @@ func _initialize() -> void:
 	ok(m.bureaucracy.decisions.any(func(e): return e["rule"] == "wrong_number"), "o número errado ficou no registro")
 	m.hangup()
 	_clear_board()
-	print("OK 3 número errado com grave")
 
 	# ---- 4. número errado com só uma infração leve: sai a leve, vale o número errado (o maior)
 	m.report.faults.clear()
@@ -179,7 +176,6 @@ func _initialize() -> void:
 	ok(_faults("teste_media") == 0 and _faults("wrong_number") == 1, "vale o número errado, maior que a leve")
 	m.hangup()
 	_clear_board()
-	print("OK 4 número errado com leve")
 
 	# ---- 5. noites de vigência
 	m.report.faults.clear()
@@ -204,7 +200,6 @@ func _initialize() -> void:
 	var rb := m.bureaucracy.rule("b2_bloqueados")
 	ok(Bureaucracy.enabled and rb.active and rb.blocked == PackedStringArray(["301"]), "do save: chave geral, regra e parâmetros")
 	m.bureaucracy.reset()
-	print("OK 5 vigência, save e reset")
 
 	# ---- 6. B3, os códigos: um por noite, sem repetir, sempre o mesmo para a mesma noite
 	var codes := m.bureaucracy.codes
@@ -214,7 +209,6 @@ func _initialize() -> void:
 			seen[codes.code(n, i)] = true
 	ok(seen.size() == 16 * 3, "nenhum código repetido")
 	ok(codes.code(1) == "K-07" and codes.code(2) == "M-14" and codes.code(3) == codes.code(3), "o padrão provisório")
-	print("OK 6 códigos")
 
 	# ---- 7. B3, as ligações de teste do .tres: certo passa, errado e sem código são gravíssimas
 	Bureaucracy.enabled = true
@@ -278,7 +272,6 @@ func _initialize() -> void:
 	ok(hung.ended and m.bureaucracy.decisions[-1]["choice"].begins_with("desligou sem o código"), "desligou sem o código: registrado")
 	_clear_board()
 	m.bureaucracy.reset()
-	print("OK 7 B3")
 
 	# ---- 8. B1, identificação e recados
 	Bureaucracy.enabled = true
@@ -377,7 +370,6 @@ func _initialize() -> void:
 	ok(m.bureaucracy.state()["messages"].is_empty() and m.bureaucracy.state()["decisions"].size() > 5, "o que vai para o save")
 	_clear_board()
 	m.bureaucracy.reset()
-	print("OK 8 B1")
 
 	# ---- 9. B2, números bloqueados, janela, urgente, código e acordos com sinal
 	Bureaucracy.enabled = true
@@ -481,7 +473,6 @@ func _initialize() -> void:
 	m.hangup()
 	_clear_board()
 	m.bureaucracy.reset()
-	print("OK 9 B2")
 
 	# ---- 10. B4, equipamentos e fitas
 	ok(b.equipped.is_empty() and m.bureaucracy.equipment().is_empty(), "sem a B4, nada na prateleira")
@@ -550,7 +541,6 @@ func _initialize() -> void:
 	m.bureaucracy.lock_equipment("porta_fitas")
 	ok(b.equipped == PackedStringArray(["gravador"]), "o roteiro pode tirar um equipamento")
 	m.bureaucracy.reset()
-	print("OK 10 B4")
 
 	# ---- 11. a regra de exemplo (feita só pelo guia): desligada por padrão; ligada, a ligação longa leva advertência
 	var ex := m.bureaucracy.rule("exemplo_duracao")
@@ -565,5 +555,4 @@ func _initialize() -> void:
 	ok(_faults("exemplo_duracao") == 1, "passou do limite: advertência")
 	_clear_board()
 	m.bureaucracy.reset()
-	print("OK 11 exemplo")
 	finish("bureaucracy")
