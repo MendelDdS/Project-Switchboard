@@ -647,3 +647,11 @@ a ponta; a placa de vídeo o põe onde a reta pede, no meio (3-4-3-4-4-3 na late
 relógio). Deixar o canto livre nos dois eixos também não serve: o ponto mais perto entorta as outras beiras. Prefira
 a razão exata andando 1 px no outro eixo (`exact_slope`) ou dobre a beira (`_bent_edge`), e confira imprimindo os
 cantos: a medida pela captura erra onde há textura ou veio da mesa por perto.
+
+## Conserto de pixel não muda a forma do desenho
+Para limpar o moiré dos fios da caixa na parede, troquei os quatro fios caídos em curva por dois fios retos, a 45°,
+e mandei como pronto. O usuário: "tava infinitamente melhor antes [...] os fios retos e sem curvatura, tá muito
+feio". O item do plano dizia "inclinação limpa" e eu o segui ao pé da letra, mas reta limpa serve para beira reta:
+numa curva, o conserto é desenhar a mesma curva pixel a pixel. Se o conserto pede mudar a forma (menos peças, sem
+curva, outro caminho), mostre antes como proposta e pergunte, não entregue como feito.
+

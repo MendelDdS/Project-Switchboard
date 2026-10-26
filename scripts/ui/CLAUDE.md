@@ -23,7 +23,7 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   com a caneca na frente); na frente, o que é baixo (calculógrafo, bloco de fichas, jornal). A prancheta fica
   pendurada na lateral da mesa comutadora (`_draw_hung_clipboard`). `test_layout` confere que nada se sobrepõe.
 - Fios da unidade de despacho e do calculógrafo: saem da traseira delas e vão, rentes ao console, para o fundo da mesa
-  (`_draw_cable`, imagem guardada em `_cable_art`), desenhados antes das máquinas; sem plugues (a pedido). A mesa é
+  (`_draw_cable`, imagem guardada em `_cable_art` por `_cable_at`, que monta também os fios da caixa na parede), desenhados antes das máquinas; sem plugues (a pedido). A mesa é
   afastada da parede: o fio passa da beira de trás e cai no vão, cortado nela. Objetos da
   mesa na paleta da mesa (relógio em `SHELL` com base oliva, caneca e lista do meio em azul-petróleo); os papéis com o
   selo `Switchboard.badge`.
@@ -106,7 +106,7 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   presas no buraco (`hole(e)`) e na traseira do plug; o contrapeso puxa a folga para dentro (`WEIGHT_TAKE`); todos com
   o mesmo comprimento (`Cord.MAX`); a prateleira e a beira dela são quinas (`hang_step`, `lip_y`, `route`); fio parado
   dorme (`SLEEP_STEPS`). No desenho: dobras do pano (`_kinked`), trançado (`BRAID`, uma chamada,
-  `draw_multiline_colors`), curva Catmull-Rom (`_smooth`).
+  `draw_multiline_colors`), curva Catmull-Rom (`_smooth`); dormindo, imagem pixel a pixel guardada (`_rope_image`).
 - **Plugs**: pixel art de um P10 (`PLUG_ART`), girados pelo RotSprite em passos de 5° (`PixelArt.turned`); encaixados,
   vistos de frente montados com discos (`_draw_plug_face`), com paralaxe para os olhos (`_tilt`); na mão balançam
   como pêndulo (`_swing_step`); soltos voltam ao buraco e assentam (`_seat`). Clique (apertar e soltar parado, em

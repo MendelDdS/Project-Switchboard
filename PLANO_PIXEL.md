@@ -116,31 +116,27 @@ mandada ao usuário, `tools/visual.sh`, a medida do `medir.gd` e uma entrada no 
 - [x] A "verga" (J8) era a persiana recolhida: lâminas mais altas (`Background.SLAT`, 3 em vez de 2) e a beira de cada
   uma numa reta de pixel na tela; o fundo, de uma vez. Sem moiré, aberta ou fechada; o `medir.gd` deu o mesmo tempo.
 
-### Etapa 4: luz em degraus com pontilhado (D1–D5), por teste e aprovação
-Decidido (25/10/2026): o usuário vê antes de aprovar. Nada fica ligado sem o "sim" dele, superfície por superfície.
-- [ ] Nos shaders de luz, quantizar o fator de luz (não a cor final) em `levels` degraus, com o pontilhado ordenado
-  4×4 numa faixa `dither` entre eles (uniforms novos, no estado comparado de cada camada), com uma chave para
-  ligar e desligar no painel de debug (F1).
-- [ ] Teste A/B mandado ao usuário: poça da luminária (D1), sem pontilhado / com pontilhado.
-- [ ] Teste A/B: céu do amanhecer (D3) e sol na parede, no tampo e na rua (D4, D5).
-- [ ] Degraus: começar na versão suave (6–8 degraus, preferência do usuário) e mandar também uma de 4 para comparar.
-- [ ] Conferir a luminária piscando e o relâmpago (os níveis mudam a cada quadro: o padrão não pode cintilar).
-- [ ] A vista e o reflexo (D2) só depois das outras aprovadas.
-- [ ] Meta: a sala abaixo de ~3 mil cores, sem pontilhado nos halos (lâmpadas, LEDs), no texto e nos papéis abertos.
+### Etapa 4: luz em degraus com pontilhado (D1–D5): descartada
+Testada na poça da luminária (26/10/2026: 8, 6 e 4 degraus pontilhados e 6 secos, capturas em `build/pixel/e4/`) e
+recusada pelo usuário: "os pontilhados deixam muito ruído e a poça em camadas fica sem profundidade". A luz continua
+lisa nos shaders; o número de cores da sala fica como está (a meta de ~3 mil saiu).
 
 ### Etapa 5: cabos de conexão (J2)
-- [ ] O mesmo cilindro por distância à linha do meio dos fios da mesa (`_cable_image`), guardado por forma
-  enquanto o cabo está parado; arrastando, o desenho de hoje.
-- [ ] Medir com o `medir.gd` (os cabos mudam muito durante o jogo).
+- [x] Pela distância à linha do meio, como os fios da mesa, guardado enquanto o fio dorme (`_rope_image`,
+  `_rope_arts`); mexendo, o traçado de antes (`_draw_rope_line`). As cores e o trançado ficaram os mesmos.
+- [x] Medido (26/10/2026): o `medir.gd` deu igual com e sem; montar a imagem custa 2 a 10 ms, uma vez por fio parado.
 
 ### Etapa 6: retoques
-- [ ] Fios da caixa na parede (J9): menos fios, com 2 px ou mais entre eles e inclinação limpa.
+- [x] Fios da caixa na parede (J9): as mesmas curvas caídas, montadas pixel a pixel (`_cable_at`), de 2 px, saindo de dentro
+  da caixa (26/10/2026: retos, a 45°, ficaram feios e saíram).
 - [x] Carimbo do relatório (J11): o desgaste fica como está (decisão do usuário, 25/10/2026).
 
-Ordem: 0 → 1 → 2 → 3 (barato e muda muito) → 4 (teste e aprovação a cada superfície) → 5 → 6.
+Ordem: 0 → 1 → 2 → 3 (barato e muda muito) → ~~4~~ (descartada) → 5 → 6 (os fios da parede com a curva de antes, pixel a pixel). Concluído em 26/10/2026.
 
 ## 4. Decisões do usuário (25/10/2026)
 
 - **Pontilhado:** testar na poça da luminária, no céu e no sol e mostrar antes de aprovar (etapa 4).
 - **Degraus de luz:** testar e mostrar antes de aprovar; preferência pela versão mais suave (6–8 degraus).
 - **Carimbo:** manter o desgaste.
+- **Etapa 4 (26/10/2026):** sem pontilhado e sem luz em degraus: ruído demais e a poça sem profundidade.
+- **Fios da caixa na parede (26/10/2026):** a curva caída fica, montada pixel a pixel; retos ficaram feios.

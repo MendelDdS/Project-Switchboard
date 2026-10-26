@@ -2291,3 +2291,19 @@ Chaves:
     livros têm a mesma conta (`BOOK_TOL`, 25%: o volume de cima, 1,25 e 1,29, não mudava com 16%) e a capa projetada
     sem o tom liso por baixo; a beira da lateral da mesa comutadora no tampo, 3-4 com um 4-4 no meio, foi dobrada para o
     degrau diferente ir para a ponta (`_bent_edge`). Medidas pelo `tools/edge_steps.gd`.
+403. #pixel #luz #saiu "Comece a implementação" (etapa 4 do `PLANO_PIXEL.md`): a poça da luminária foi testada em
+    degraus com pontilhado ordenado 4×4 (8, 6 e 4 degraus) e em degraus secos, quantizada antes da força para não
+    cintilar. "Prefiro não aplicar essa etapa, os pontilhados deixam muito ruído e a poça em camadas fica sem
+    profundidade": saiu inteira, o código desfeito; a luz continua lisa (só a poça baixava as cores de 33,7 mil para
+    ~31 mil). Não refazer pontilhado nem luz em degraus sem pedido.
+404. #pixel #cabos "Certo, pode seguir" (etapa 5 do `PLANO_PIXEL.md`): o fio de conexão parado (`Cord.asleep`) sai de
+    uma imagem montada pixel a pixel pela distância à linha do meio (`Switchboard._rope_image`, guardada em
+    `_rope_arts`): a mesma grossura em toda a curva, a beira escura sem engrossar nas diagonais, o trançado do lado
+    da luz e a sombra do buraco nas mesmas cores; mexendo, o desenho traçado de antes (`_draw_rope_line`). Montar
+    custa 2 a 10 ms, uma vez, quando ele dorme; o `medir.gd` deu igual com e sem.
+405. #pixel #sala #saiu "Show, pode continuar" (etapa 6 do `PLANO_PIXEL.md`): os cabos do painel até a caixa de
+    passagem viraram dois fios retos, em pé ao lado do cano e a 45° até o painel. "Mas tava infinitamente melhor
+    antes, agora está bem ruim, os fios retos e sem curvatura, tá muito feio": voltaram os quatro, caídos em curva
+    (o moiré entre eles fica). Não endireitar os fios. "Faça isso": as mesmas curvas montadas pixel a pixel
+    (`_cable_at`, o desenho dos fios das máquinas), de 2 px, a saída na caixa um pouco mais aberta. "Os fios estão
+    'flutuando' na frente da caixa e não saindo dela": nascem dentro dela, que é desenhada por cima.

@@ -196,10 +196,24 @@ func _draw_rope(e: int, shadow: bool) -> void:
 	var lights := PackedColorArray()   # a luz da sala ao longo do fio
 	for q in pts:
 		lights.append(_lit_by(q))
-	_ci.draw_polyline_colors(pts, _tinted((col[0] as Color).darkened(EDGE), lights), ROPE_W - thin)
-	_ci.draw_polyline_colors(pts, _tinted(col[0], lights), ROPE_W - 2.0 - thin)
+	var braid := BRAID * lerpf(1.0, TAUT_BRAID, taut)   # o pano esticado espaça o trançado
+	if r.asleep():   # parado, pixel a pixel numa imagem guardada (traçado, a beira engrossava e afinava pela curva)
+		var key := [pts, lights, col, thin, braid]
+		if not _rope_arts.has(key):
+			if _rope_arts.size() > 40:
+				_rope_arts.clear()
+			_rope_arts[key] = _rope_image(pts, lights, col, thin, braid)
+		_ci.draw_texture(_rope_arts[key][1], _rope_arts[key][0])
+	else:
+		_draw_rope_line(pts, lights, col, thin, braid)
 	if ends[e] == -1:   # em pé (na mão, solto ou guardado): o fio entra na traseira do plug
 		_draw_tail(e, pts[pts.size() - 1], col[0], lights[lights.size() - 1], thin)
+
+
+## O fio se mexendo, traçado pela placa de vídeo: a beira e o miolo e, por cima, o trançado e a sombra do buraco.
+func _draw_rope_line(pts: PackedVector2Array, lights: PackedColorArray, col: Array, thin: float, braid: float) -> void:
+	_ci.draw_polyline_colors(pts, _tinted((col[0] as Color).darkened(EDGE), lights), ROPE_W - thin)
+	_ci.draw_polyline_colors(pts, _tinted(col[0], lights), ROPE_W - 2.0 - thin)
 	var pts2 := PackedVector2Array()   # o brilho, 1 px para o lado do fio virado para a luz (`LIGHT`, alto à direita)
 	var length := 0.0
 	for i in pts.size():
@@ -208,7 +222,6 @@ func _draw_rope(e: int, shadow: bool) -> void:
 		if i > 0:
 			length += pts[i].distance_to(pts[i - 1])
 	var at := 0.0
-	var braid := BRAID * lerpf(1.0, TAUT_BRAID, taut)   # o pano esticado espaça o trançado
 	var segs := PackedVector2Array()   # o trançado inteiro numa chamada de desenho só (um traço por pedaço eram dezenas)
 	var tones := PackedColorArray()
 	while at < length:   # o trançado do pano: o brilho em pedaços
@@ -224,6 +237,63 @@ func _draw_rope(e: int, shadow: bool) -> void:
 		var part := Cord.along(pts, band[0], band[1])
 		if part.size() >= 2:
 			_ci.draw_polyline(part, Color(0, 0, 0, band[2]), ROPE_W - 2.0 - thin)
+
+
+## Os fios parados já montados: [pontos, luzes, cabo, afinado, trançado] -> [canto, textura] (`_rope_image`).
+static var _rope_arts := {}
+
+
+## A imagem do fio parado pelos pontos `pts` (px da mesa), cada pixel pelo trecho mais perto dele: a distância à linha
+## do meio dá a beira e o miolo (a mesma largura em toda a curva), o lado dá o brilho do trançado (1 px para a luz,
+## em pedaços de `braid`) e o comprimento até ali, a sombra de dentro do buraco (`HOLE_SHADE`). As mesmas cores do fio
+## traçado (`_draw_rope_line`). Só em volta de cada trecho: a conta é pequena.
+func _rope_image(pts: PackedVector2Array, lights: PackedColorArray, col: Array, thin: float, braid: float) -> Array:
+	var edge := (ROPE_W - thin) / 2.0
+	var core := edge - 1.0
+	var r := _bounds_of(pts).grow(edge + 1.0)
+	r = Rect2(r.position.floor(), (r.end.ceil() - r.position.floor()))
+	var w := int(r.size.x)
+	var best := PackedFloat32Array()
+	best.resize(w * int(r.size.y))
+	best.fill(edge)
+	var img := Image.create(w, int(r.size.y), false, Image.FORMAT_RGBA8)
+	var at := 0.0
+	for i in pts.size() - 1:
+		var a := pts[i]
+		var b := pts[i + 1]
+		var seg := a.distance_to(b)
+		var n := (b - a).orthogonal().normalized()
+		if n.dot(LIGHT) < 0.0:
+			n = -n
+		var box := Rect2(a, Vector2.ZERO).expand(b).grow(edge + 1.0)
+		for y in range(maxi(0, floori(box.position.y - r.position.y)), mini(int(r.size.y), ceili(box.end.y - r.position.y))):
+			for x in range(maxi(0, floori(box.position.x - r.position.x)), mini(w, ceili(box.end.x - r.position.x))):
+				var c := r.position + Vector2(x + 0.5, y + 0.5)
+				var q := Geometry2D.get_closest_point_to_segment(c, a, b)
+				var d := c.distance_to(q)
+				if d >= best[y * w + x]:
+					continue
+				best[y * w + x] = d
+				var t := q.distance_to(a) / maxf(seg, 0.001)
+				var tone: Color = (col[0] as Color).darkened(EDGE) if d >= core else col[0]
+				var side := (c - q).dot(n)
+				if d < core and side >= 0.5 and fposmod(at + t * seg, braid) < braid - 2.0:   # o trançado, do lado da luz
+					tone = col[1]
+				var light := lights[i].lerp(lights[i + 1], t)
+				for band in HOLE_SHADE:   # perto do buraco, a sombra de dentro dele
+					if d < core and at + t * seg >= band[0] and at + t * seg < band[1]:
+						tone = tone.lerp(Color.BLACK, band[2])
+				img.set_pixel(x, y, Color(tone * light, 1.0))
+		at += seg
+	return [r.position, ImageTexture.create_from_image(img)]
+
+
+## O retângulo em volta dos pontos.
+static func _bounds_of(pts: PackedVector2Array) -> Rect2:
+	var r := Rect2(pts[0], Vector2.ZERO)
+	for p in pts:
+		r = r.expand(p)
+	return r
 
 
 ## O fio entrando na traseira do plug em pé, em `at`: um trecho dele segue TAIL_IN px para dentro do plug, no eixo

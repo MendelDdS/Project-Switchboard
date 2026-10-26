@@ -2419,23 +2419,27 @@ func _draw_conduit(b: Rect2, x: float) -> void:
 		y += 36.0
 	var box := Rect2(x - 6, b.position.y - 34, 12, 14)   # a caixa de passagem, com a tampa parafusada
 	_r(box.position.x + 1, box.position.y + 1, box.size.x, box.size.y, Color(0, 0, 0, 0.25))
+	# os cabos: da boca de baixo da caixa até o alto do painel, um pouco caídos, cada um num pano velho, montados pixel a
+	# pixel em px da tela (`_cable_at`; traçados, juntos, viravam moiré), 2 px de folga na boca da caixa; nascem dentro
+	# dela, que vem por cima (a ponta redonda na beira de baixo parecia flutuar na frente da caixa)
+	var cloth := Pal.CONDUIT_CABLES
+	_ci.draw_set_transform(Vector2.ZERO)
+	for i in cloth.size():
+		var a := Vector2(box.position.x + 2.0 + i * 2.5, box.end.y)
+		var e := Vector2(b.end.x - 12 - i * 6.0, b.position.y + 2)
+		var pts := PackedVector2Array([(a - Vector2(0, 3)) * 2.0])
+		for k in 13:
+			var t := k / 12.0
+			pts.append((a.lerp(e, t) + Vector2(0, sin(PI * t) * (4.0 + i * 1.5))) * 2.0)
+		var c: Color = cloth[i]
+		var art := _cable_at(pts, 2, -1e6, [c, c.lightened(0.2), c, c.darkened(0.35)], Vector2.ZERO)   # (de 3 px, eles se encostavam no meio da queda)
+		_ci.draw_texture(art[1], art[0])
+	_ci.draw_set_transform_matrix(X2)
 	_r(box.position.x, box.position.y, box.size.x, box.size.y, iron.call(0))
 	_r(box.position.x, box.position.y, box.size.x, PX, iron.call(2))
 	_r(box.position.x + 1, box.position.y + 1, box.size.x - 2, box.size.y - 2, iron.call(1))
 	for c in [Vector2(1.5, 1.5), Vector2(box.size.x - 2.5, 1.5), Vector2(1.5, box.size.y - 2.5), Vector2(box.size.x - 2.5, box.size.y - 2.5)]:
 		_r(box.position.x + c.x, box.position.y + c.y, 1, 1, iron.call(3))
-	# os cabos: da boca de baixo da caixa até o alto do painel, um pouco caídos, cada um num pano velho
-	var cloth := Pal.CONDUIT_CABLES
-	for i in cloth.size():
-		var a := Vector2(box.position.x + 2.5 + i * 2.0, box.end.y)
-		var e := Vector2(b.end.x - 12 - i * 6.0, b.position.y + 2)
-		var pts := PackedVector2Array()
-		for k in 13:
-			var t := k / 12.0
-			pts.append(a.lerp(e, t) + Vector2(0, sin(PI * t) * (4.0 + i * 1.5)))
-		draw_polyline(pts, (cloth[i] as Color).darkened(0.4), 1.5)
-		draw_polyline(pts, cloth[i], 1.0)
-		draw_polyline(pts, (cloth[i] as Color).lightened(0.25), PX)
 
 
 ## A luz da rua na mesa: a parte do vão abaixo da persiana projetada no tampo, descendo para dentro da sala

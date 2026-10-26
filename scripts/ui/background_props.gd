@@ -131,7 +131,7 @@ var _clock_rim := {}   # as faces do relógio na tela (`_clock_box`), para o mes
 var _lamp_x := 0.0     # onde está a luminária, no meio da tela (px de 2x2): a luz na mesa e a sombra dos objetos dependem dela
 var _zd := Vector2.ZERO   # a frente e o fundo do tampo (z)
 var _side_x := 0.0     # a lateral da mesa comutadora na sala (x): os objetos da mesa ficam à direita dela
-static var _cable_art := {}   # os fios das máquinas já montados: [pontos, grossura, beira] -> [canto, textura] (`_draw_cable`)
+static var _cable_art := {}   # os fios já montados (das máquinas e da caixa na parede): [pontos, grossura, beira, tons] -> [canto, textura] (`_cable_at`)
 var _tip := Rect2()   # a ponta do bilhete saindo da fenda do calculógrafo, inteira (px da tela; a camada dela a desenha)
 var _tip_tones: Array = [Pal.TICKET, Pal.TICKET_EDGE]   # o bilhete e a beira dele na luz da fenda
 var _tip_cover: Array = []   # o carimbo em pé na mesinha [textura, meio, cor]: fica na frente da fenda, e a camada da ponta o desenha de novo por cima dela
@@ -286,26 +286,33 @@ func _draw_cable(x: float, z: float, gap: float) -> void:
 	var mid := st.bezier_interpolate(c1, c2, e, 0.5)
 	var w := clampi(roundi(_p3(mid.x, _yd, mid.y).y - _p3(mid.x, _yd - CABLE_D, mid.y).y), 4, 6)
 	var edge := roundf(_p3(x, _yd, _zd.y).y)   # a beira de trás do tampo na tela (é horizontal)
-	var key := [pts, w, edge]
-	if not _cable_art.has(key):
-		if _cable_art.size() > 8:   # a tela mudou de tamanho
-			_cable_art.clear()
-		_cable_art[key] = _cable_image(pts, w, edge)
-	var art: Array = _cable_art[key]
+	var art := _cable_at(pts, w, edge)
 	_ci.draw_texture(art[1], art[0])
+
+
+## O fio pelos pontos `pts` já montado (`_cable_image`), guardado em `_cable_art`.
+func _cable_at(pts: PackedVector2Array, w: int, edge: float, tones := [], shade := CABLE_SHADE) -> Array:
+	var key := [pts, w, edge, tones]
+	if not _cable_art.has(key):
+		if _cable_art.size() > 16:   # a tela mudou de tamanho
+			_cable_art.clear()
+		_cable_art[key] = _cable_image(pts, w, edge, tones, shade)
+	return _cable_art[key]
 
 
 ## A imagem do fio pelos pontos `pts` (px da tela), de `w` px, e onde ela vai: cada pixel pela distância dele à linha
 ## do meio, de través (com quadrados carimbados ao longo dela, o fio engrossava nas diagonais e o brilho corria pelo
 ## comprimento nos trechos em pé: parecia amassado), em faixas de cilindro: a beira de cima, o brilho do lado da
-## luminária (`CABLE_LIGHT`), o miolo e o lado de baixo, escuro; a sombra rente no tampo é a mesma linha deslocada. Nada
-## acima do fio deitado em `edge` (a beira de trás do tampo).
-func _cable_image(pts: PackedVector2Array, w: int, edge: float) -> Array:
+## luminária (`CABLE_LIGHT`), o miolo e o lado de baixo, escuro (`tones`, do lado da luz ao outro; vazio, a borracha
+## das máquinas); a sombra rente no tampo é a mesma linha deslocada `shade` (zero: sem sombra). Nada acima do fio
+## deitado em `edge` (a beira de trás do tampo).
+func _cable_image(pts: PackedVector2Array, w: int, edge: float, tones := [], shade_at := CABLE_SHADE) -> Array:
 	var r := _bounds(pts).grow(w + 3.0)
 	r = Rect2(r.position.floor(), r.size.ceil() + Vector2.ONE)
 	var img := Image.create(int(r.size.x), int(r.size.y), false, Image.FORMAT_RGBA8)
 	var rad := w / 2.0
-	var tones := [Pal.SHELL[0], Pal.SHELL[2], Pal.SHELL[0], Pal.BAKELITE[1]]   # borracha cinza-escura (marrom, sumia no tampo)
+	if tones.is_empty():
+		tones = [Pal.SHELL[0], Pal.SHELL[2], Pal.SHELL[0], Pal.BAKELITE[1]]   # borracha cinza-escura (marrom, sumia no tampo)
 	var top := int(edge - r.position.y) - w   # (deitado na beira, o fio passa dela a grossura dele, na frente da parede)
 	for y in range(maxi(top, 0), img.get_height()):
 		for x in img.get_width():
@@ -322,7 +329,7 @@ func _cable_image(pts: PackedVector2Array, w: int, edge: float) -> Array:
 						n = -n
 					best = dd
 					side = (c - q).dot(n)
-				shade = minf(shade, (c - CABLE_SHADE).distance_to(Geometry2D.get_closest_point_to_segment(c - CABLE_SHADE, pts[i], pts[i + 1])))
+				shade = minf(shade, (c - shade_at).distance_to(Geometry2D.get_closest_point_to_segment(c - shade_at, pts[i], pts[i + 1])))
 			if best < rad:
 				var t := -side / rad   # de -1, do lado da luz, a 1, do outro
 				img.set_pixel(x, y, tones[0 if t < -0.6 else (1 if t < -0.15 else (2 if t < 0.45 else 3))])
