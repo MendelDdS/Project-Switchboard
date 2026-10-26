@@ -711,7 +711,7 @@ func _step_rope(e: int, dt: float) -> void:
 	r.direct = r.free and an["direct"]
 	r.held = held == e
 	r.stub = (_tilt(int(ends[e])).normalized() + Vector2.DOWN).normalized() if ends[e] != -1 else Vector2.ZERO   # sai para a frente e já cai
-	var pegs := _pegs(e) if ends[e] != -1 else PackedVector3Array()
+	var pegs := _pegs(e) if ends[e] != -1 or held == e else PackedVector3Array()
 	if pegs != r.pegs:   # um plug encaixou ou saiu: o fio acorda para se acomodar
 		for g in r.pegs:   # o que o segurava saiu: o fio cai e bate no painel
 			if ends[e] != -1 and not Array(pegs).any(func(h: Vector3) -> bool: return Vector2(h.x, h.y).is_equal_approx(Vector2(g.x, g.y))) and r.touching(g):
@@ -900,14 +900,16 @@ func _draw_cords() -> void:
 				_cords.draw_rect(hr, gc)
 
 	# cada ponta (fio e plug) na ordem em que foi mexida: o fio da mais recente passa por cima dos plugs encaixados
-	# das outras (e se apoia neles, `Cord.pegs`); as sombras antes, por baixo de tudo. Os encaixados primeiro: o fio
-	# vai do buraco para trás, até o painel, e passa atrás dos guardados em pé na prateleira (antes, por dentro deles);
-	# depois os guardados, os de trás antes dos da frente (a fileira da frente passa na frente da de trás); por último
-	# os da mão e os soltos, que vêm para a frente
+	# das outras (e se apoia neles, `Cord.pegs`); as sombras antes, por baixo de tudo. Fileira por fileira, de trás para
+	# a frente: os encaixados que saem dela, depois os guardados em pé nela. O fio vai do buraco para trás, até o painel:
+	# passa atrás dos guardados da fileira dele e dos da frente (antes, por dentro deles) e, saindo da fileira da frente,
+	# na frente dos da de trás (só fica mais fundo que eles a 14/18 do caminho, já alto). Por último os da mão e os soltos, que
+	# vêm para a frente
+	var front := func(e: int) -> bool: return e % 2 == 0 and e != 0
 	var home := _order.filter(func(e: int) -> bool: return _in_hole(e))
-	var order: Array = _order.filter(func(e: int) -> bool: return ends[e] != -1) \
-		+ home.filter(func(e: int) -> bool: return e % 2 == 1 or e == 0) + home.filter(func(e: int) -> bool: return e % 2 == 0 and e != 0) \
-		+ _order.filter(func(e: int) -> bool: return ends[e] == -1 and not _in_hole(e))
+	var seated := _order.filter(func(e: int) -> bool: return ends[e] != -1)
+	var order: Array = seated.filter(func(e: int) -> bool: return not front.call(e)) + home.filter(func(e: int) -> bool: return not front.call(e)) \
+		+ seated.filter(front) + home.filter(front) + _order.filter(func(e: int) -> bool: return ends[e] == -1 and not _in_hole(e))
 	for e in order:
 		_draw_rope(e, true)
 		_draw_plug(e, true)

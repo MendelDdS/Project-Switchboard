@@ -2349,3 +2349,20 @@ Chaves:
     na assentada. (6) Onde dois fios se cruzam, o de cima faz uma sombra fina no de baixo. A 5 (o fio na mão
     enroscando nos plugs rente ao painel) espera a aprovação destas.
 
+412. #cabos #mesa-comutadora "Faça a 5 agora". O fio na mão esbarra nos plugs encaixados só na metade do lado do
+    buraco (`Cord.HELD_LIE`), a que ainda passa rente ao painel; a do lado da mão, erguida, passa por cima. Arrastado
+    contra um plug, o trecho que já encostava não dá outro "toc" (dava um a cada ~0,1 s). Para testar no jogo: se
+    atrapalhar, sai.
+413. #cabos #mesa-comutadora "Os fios estão ficando por baixo dos plugs também, veja o plug azul". O fio encaixado
+    que sai da fileira da frente da prateleira sumia atrás dos plugs guardados na de trás; agora o desenho vai fileira
+    por fileira, de trás para a frente (os encaixados que saem dela, depois os guardados nela): ele passa na frente
+    dos de trás e atrás dos da frente.
+414. #cabos #pixel "Melhorar as cores das linhas dos fios: muito escuras, fogem do visual de remover as linhas que
+    deixam com cara de desenho". A beira do fio era a cor dele escurecida 65% dos dois lados (`EDGE`, a mesma do
+    plug): um contorno quase preto. Agora só o lado da sombra tem beira, escurecida 30% (`ROPE_EDGE`); o lado da luz
+    fica na cor do fio, e a sombra do buraco cobre o fio inteiro.
+415. #cabos #pixel "O plug encaixado está com o mesmo estilo de desenho; veja o que pode melhorar". Na vista de
+    frente (`_draw_plug_face`), a beira de cada disco era o tom `6` (a cor escurecida 65%) em volta toda: agora é
+    sombreada pela luz, no tom do meio do lado dela e escura só do lado da sombra (`ROPE_EDGE`). Os gomos escuros da
+    capa, empilhados, faziam uma meia-lua preta no meio do plug: de frente, a capa fica um tom mais clara
+    (`_face_row`). O plug em pé (na mão, guardado) segue com a beira `EDGE`.

@@ -98,6 +98,9 @@ const LAMP_ABOVE := 90.0   # px acima da tela: a luminária do teto, que não ap
 const CORD_LIT := 0.6   # o fio e os plugs em pé pegam essa parte da luz da sala do painel (estão na frente dele)
 const TAIL_IN := 5.0   # px do fio que entram na traseira do plug em pé (`_draw_tail`)
 const ROPE_W := 5.0   # px: a largura do fio com a beira (o miolo tem 2 a menos; esticado, os dois afinam 1). Era 7 em 1280 × 720.
+## A beira do fio do lado da sombra: a cor dele escurecida assim; do lado da luz, sem beira (o volume pelo tom, sem o
+## contorno escuro dos dois lados, que deixava o fio com cara de desenho).
+const ROPE_EDGE := 0.3
 const AIR_LIFT := Vector2(-6, 8)   # a sombra do fio no ar, depois da beira da prateleira: longe do console, como a do plug na mão
 const SMOOTH_PX := 3.0   # px: o fio é desenhado em trechos retos deste tamanho, numa curva pelos pontos da corda (`_smooth`)
 const KINK := 1.0   # px: as dobras que o fio de pano guarda, no máximo
@@ -280,17 +283,21 @@ func _cross_shade(laid: Array, pegs: PackedVector3Array) -> void:
 		cover.append(under)
 
 
-## O fio se mexendo, traçado pela placa de vídeo: a beira e o miolo e, por cima, o trançado e a sombra do buraco.
+## O fio se mexendo, traçado pela placa de vídeo: a beira da sombra e o resto (meio pixel para a luz) e, por cima, o
+## trançado e a sombra do buraco.
 func _draw_rope_line(pts: PackedVector2Array, lights: PackedColorArray, col: Array, thin: float, braid: float) -> void:
-	_ci.draw_polyline_colors(pts, _tinted((col[0] as Color).darkened(EDGE), lights), ROPE_W - thin)
-	_ci.draw_polyline_colors(pts, _tinted(col[0], lights), ROPE_W - 2.0 - thin)
 	var pts2 := PackedVector2Array()   # o brilho, 1 px para o lado do fio virado para a luz (`LIGHT`, alto à direita)
+	var half := PackedVector2Array()   # o miolo com a beira da luz, meio px para ela
 	var length := 0.0
 	for i in pts.size():
 		var side := (pts[mini(i + 1, pts.size() - 1)] - pts[maxi(i - 1, 0)]).orthogonal().normalized()
-		pts2.append(pts[i] + (side if side.dot(LIGHT) > 0.0 else -side).round())
+		side = side if side.dot(LIGHT) > 0.0 else -side
+		pts2.append(pts[i] + side.round())
+		half.append(pts[i] + side * 0.5)
 		if i > 0:
 			length += pts[i].distance_to(pts[i - 1])
+	_ci.draw_polyline_colors(pts, _tinted((col[0] as Color).darkened(ROPE_EDGE), lights), ROPE_W - thin)
+	_ci.draw_polyline_colors(half, _tinted(col[0], lights), ROPE_W - 1.0 - thin)
 	var at := 0.0
 	var segs := PackedVector2Array()   # o trançado inteiro numa chamada de desenho só (um traço por pedaço eram dezenas)
 	var tones := PackedColorArray()
@@ -306,7 +313,7 @@ func _draw_rope_line(pts: PackedVector2Array, lights: PackedColorArray, col: Arr
 	for band in HOLE_SHADE:   # perto do buraco, a sombra de dentro dele, em degraus
 		var part := Cord.along(pts, band[0], band[1])
 		if part.size() >= 2:
-			_ci.draw_polyline(part, Color(0, 0, 0, band[2]), ROPE_W - 2.0 - thin)
+			_ci.draw_polyline(part, Color(0, 0, 0, band[2]), ROPE_W - thin)
 
 
 ## Os fios parados já montados: [pontos, luzes, cabo, afinado, trançado] -> [canto, textura] (`_rope_image`).
@@ -315,7 +322,8 @@ var _laid := {}   ## ponta -> [polígonos, caixa] do fio já desenhado neste des
 
 
 ## A imagem do fio parado pelos pontos `pts` (px da mesa), cada pixel pelo trecho mais perto dele: a distância à linha
-## do meio dá a beira e o miolo (a mesma largura em toda a curva), o lado dá o brilho do trançado (1 px para a luz,
+## do meio dá a beira e o miolo (a mesma largura em toda a curva), o lado dá a beira (só a da sombra é escura,
+## `ROPE_EDGE`) e o brilho do trançado (1 px para a luz,
 ## em pedaços de `braid`) e o comprimento até ali, a sombra de dentro do buraco (`HOLE_SHADE`). As mesmas cores do fio
 ## traçado (`_draw_rope_line`). Só em volta de cada trecho: a conta é pequena.
 func _rope_image(pts: PackedVector2Array, lights: PackedColorArray, col: Array, thin: float, braid: float) -> Array:
@@ -346,13 +354,13 @@ func _rope_image(pts: PackedVector2Array, lights: PackedColorArray, col: Array, 
 					continue
 				best[y * w + x] = d
 				var t := q.distance_to(a) / maxf(seg, 0.001)
-				var tone: Color = (col[0] as Color).darkened(EDGE) if d >= core else col[0]
 				var side := (c - q).dot(n)
+				var tone: Color = (col[0] as Color).darkened(ROPE_EDGE) if d >= core and side < 0.0 else col[0]
 				if d < core and side >= 0.5 and fposmod(at + t * seg, braid) < braid - 2.0:   # o trançado, do lado da luz
 					tone = col[1]
 				var light := lights[i].lerp(lights[i + 1], t)
 				for band in HOLE_SHADE:   # perto do buraco, a sombra de dentro dele
-					if d < core and at + t * seg >= band[0] and at + t * seg < band[1]:
+					if at + t * seg >= band[0] and at + t * seg < band[1]:
 						tone = tone.lerp(Color.BLACK, band[2])
 				img.set_pixel(x, y, Color(tone * light, 1.0))
 		at += seg
@@ -364,10 +372,10 @@ func _rope_image(pts: PackedVector2Array, lights: PackedColorArray, col: Array, 
 ## terminava num corte reto no meio da ponta do plug e deixava um vão do outro lado.
 func _draw_tail(e: int, at: Vector2, c: Color, light: Color, thin: float) -> void:
 	var inside := at + Vector2.UP.rotated(_plug_angle(e)) * TAIL_IN
-	_ci.draw_line(at, inside, c.darkened(EDGE) * light, ROPE_W - thin)
+	_ci.draw_line(at, inside, c.darkened(ROPE_EDGE) * light, ROPE_W - thin)
 	_ci.draw_line(at, inside, c * light, ROPE_W - 2.0 - thin)
 	var w := int(ROPE_W - thin)
-	PixelArt.sprite(_ci, _disc(w, [[(w - 2) / 2.0, c], [w / 2.0, c.darkened(EDGE)]]), at, light)
+	PixelArt.sprite(_ci, _disc(w, [[(w - 2) / 2.0, c], [w / 2.0, c.darkened(ROPE_EDGE)]]), at, light)
 
 
 ## A linha `pts` alisada numa curva (Catmull-Rom) que passa pelos mesmos pontos, em trechos de até SMOOTH_PX: com
@@ -564,8 +572,9 @@ func _draw_plug_face(col: Array, tilt: Vector2, push: float, alpha: float, j := 
 			var r := _face_row(n, k)
 			if (layer == 2) != r[6]:
 				continue
-			if layer != 1:
-				PixelArt.sprite(_ci, _disc(r[0], [[r[0] / 2.0, pal[r[1]]]]), t * float(k) / n, mod)
+			if layer != 1:   # a beira pela luz, como a do fio: no tom do meio do lado dela, escura só do lado da sombra
+				var shade: Color = pal[r[4]]
+				PixelArt.sprite(_ci, _disc(r[0], [[r[0] / 2.0, pal[r[3]], shade, shade.darkened(ROPE_EDGE)]]), t * float(k) / n, mod)
 			if layer != 0:
 				var d: int = r[0] - 2
 				var tones := [pal[r[2]], pal[r[3]], pal[r[4]]]
@@ -604,6 +613,9 @@ func _face_row(n: int, k: int) -> Array:
 			if sc > score or (sc == score and knurl):
 				best = [r - l + 1, row[r], row[l + 2], mid, row[r - 2], knurl, i >= PLUG_CAPA_ROW]
 				score = sc
+				if i >= PLUG_CAPA_ROW:   # de frente, a capa pega a luz de cima: um tom mais clara (os gomos escuros faziam uma meia-lua preta)
+					for c in [2, 3, 4]:
+						best[c] = str(maxi(1, int(best[c]) - 1))
 		_face_rows[key] = best
 	return _face_rows[key]
 

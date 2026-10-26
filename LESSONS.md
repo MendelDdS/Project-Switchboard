@@ -659,3 +659,13 @@ curva, outro caminho), mostre antes como proposta e pergunte, não entregue como
   plugs guardados, e a beira do buraco, desenhada com cada plug, foi junto por cima dos fios ("os cabos ficaram por
   baixo do buraco do slot"). Antes de trocar a ordem, liste o que cada passo desenha (plug, beira, sombra, tampa) e
   capture o fio cruzando cada peça.
+
+- **Ordem de desenho por profundidade: pense em cada fileira.** "Encaixados antes dos guardados" valia para o fio da
+  fileira de trás, mas o da fileira da frente, que nasce na frente dos plugs de trás, sumia atrás deles ("os fios estão
+  ficando por baixo dos plugs também"). Ao ordenar por profundidade, confira o caso de cada fileira na captura.
+
+- **Beira escura dos dois lados é contorno, mesmo na cor da peça.** O fio tinha a beira na própria cor escurecida 65%
+  e ainda lia como linha de desenho ("muito escuras, fogem do visual"). Volume se faz com o lado da luz claro e só o
+  da sombra mais escuro, de leve; o recorte contra o fundo fica com a sombra projetada.
+  Valeu também para o plug encaixado, montado com discos: a beira de cada disco somava um anel escuro, e os gomos
+  escuros da capa, empilhados, uma meia-lua preta. Peça montada por camadas: olhe o que as camadas escuras somam.

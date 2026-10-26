@@ -553,13 +553,17 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   Desenho na ordem `_order`: a ponta pega ou encaixada por último (`_raise`) fica por cima (e é a primeira no clique);
   cada ponta desenha fio e plug juntos, para o fio mais recente passar por cima dos plugs encaixados das outras; os
   encaixados antes dos guardados (o fio vai do buraco para trás, até o painel, e passa atrás dos plugs em pé; antes,
-  por dentro deles) e os da mão e os soltos por último. Os plugs encaixados das outras pontas são pinos para o fio
+  por dentro deles), fileira por fileira: o da fileira da frente sai depois dos guardados na de trás e passa na frente
+  deles (só fica mais fundo que eles a 4 px do painel, a 14/18 do caminho, já alto; desenhado antes, sumia atrás do
+  plug); os da mão e os soltos por último. Os plugs encaixados das outras pontas são pinos para o fio
   encaixado (`Cord.pegs`, um disco do tamanho do plug visto de frente mais meio fio, `Switchboard._pegs`): cada trecho
   que entra num deles sai pela beira (`Cord.clear`, os dois pontos do trecho levados juntos; só os pontos, a 12 px um
   do outro, deixavam o trecho atravessar), e o fio contorna ou se apoia nele; o esticado, desenhado reto, também dobra
   neles. Um plug que encaixa ou sai acorda os fios encaixados (e zera o `calm`: sem isso, voltavam a dormir dentro do
   plug novo); encaixando, o disco cresce com o empurrão dele (`PUSH_SEC`), e o fio embaixo vai para o lado aos poucos
-  (de uma vez, saltava 8 px num passo). O pano agarra no plug (`Cord.PEG_GRIP`, `PEG_STICK`, no fim de cada passo:
+  (de uma vez, saltava 8 px num passo). Na mão, o plug está erguido: só a metade do fio do lado do buraco
+  (`Cord.HELD_LIE`) esbarra nos plugs, e o trecho já encostado não bate de novo (arrastado, dava um "toc" a cada
+  passo); a do lado da mão passa por cima. O pano agarra no plug (`Cord.PEG_GRIP`, `PEG_STICK`, no fim de cada passo:
   sem atrito, escorregava até o fundo e todos pendiam do mesmo jeito), e a sombra do trecho apoiado cai tão longe
   quanto a do plug (`_on_peg`, `PLUG_SHADE`), voltando ao painel a dois trechos dele. O fio caindo num plug encaixado
   (`Cord.knock`: quanto a inércia e a gravidade o levaram para dentro dele, antes do `clear`) dá um "toc" de baquelite

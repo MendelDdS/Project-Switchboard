@@ -48,6 +48,9 @@ const TAUT_EASE := 0.15
 ## e todos acabavam pendurados do mesmo jeito).
 const PEG_GRIP := 0.6
 const PEG_STICK := 0.25
+## Na mão, o plug está erguido: só esta parte do fio, a do lado do buraco, ainda passa rente ao painel e esbarra nos
+## plugs encaixados (`pegs`); a do lado da mão vem para a frente, por cima deles.
+const HELD_LIE := 0.5
 
 var pts: PackedVector2Array
 var old: PackedVector2Array   ## os pontos no passo anterior (a velocidade, no Verlet)
@@ -69,7 +72,8 @@ var stub := Vector2.ZERO  ## encaixado: a direção em que o fio sai da ponteira
 var mouse := Vector2.INF
 var nudge := Vector2.ZERO ## quanto o mouse andou no passo: passando por cima do fio, empurra
 ## Os plugs encaixados das outras pontas (x, y: o centro; z: o raio, com a metade da largura do fio): saindo do painel,
-## o fio não passa por dentro deles, contorna ou se apoia (`clear`). Vazio na mão e solto: o fio vem para a frente.
+## o fio não passa por dentro deles, contorna ou se apoia (`clear`). Na mão, só perto do buraco (`HELD_LIE`); solto,
+## vazio: o fio vem para a frente.
 var pegs := PackedVector3Array()
 
 # o que aconteceu no último passo (para os sons e o plug solto)
@@ -191,7 +195,8 @@ func step(dt: float, a: Vector2, b: Vector2, want: float) -> bool:
 	var fixed := last + 1 if free else pin   # os pontos daqui em diante estão presos (o 0 também)
 	var bend := BEND_MIN * 2.0 * seg
 	var near := _near(p)
-	_knock(p, near)
+	var lie := mini(fixed, int(last * HELD_LIE)) if held else fixed   # daqui em diante, o fio passa por cima dos plugs
+	_knock(p, o, near, lie)
 	for it in STIFF_ITER:
 		var back := it % 2 == 1   # ida e volta: a correção atravessa o fio inteiro em menos iterações
 		for k in pin:   # o comprimento de cada trecho
@@ -212,7 +217,7 @@ func step(dt: float, a: Vector2, b: Vector2, want: float) -> bool:
 				# o que estava no ar sobe pela beira aos poucos, puxado (de uma vez, o fio saltava para a prateleira)
 				p[i].y = maxf(under, o[i].y - RISE) if _in_air(o[i]) else under
 				o[i].x = lerpf(o[i].x, p[i].x, 0.3)   # atrito com a mesa
-		clear(p, near, fixed, o if it == STIFF_ITER - 1 else PackedVector2Array())
+		clear(p, near, lie, o if it == STIFF_ITER - 1 else PackedVector2Array())
 	pts = p
 	old = o
 	pulled = want - length
@@ -249,14 +254,16 @@ func _near(p: PackedVector2Array) -> PackedVector3Array:
 
 
 ## O quanto o fio `p`, depois da inércia e da gravidade, entrou num dos plugs `near`: a velocidade com que bateu nele
-## (o passo anterior o deixou fora), em `knock`, `knock_at` e `knock_peg`.
-func _knock(p: PackedVector2Array, near: PackedVector3Array) -> void:
+## (o passo anterior o deixou fora), em `knock`, `knock_at` e `knock_peg`; só os trechos antes do ponto `lie`. Na mão, o
+## trecho que já encostava no passo anterior (`o`) não bate de novo: arrastado contra o plug, batia a cada passo (caindo,
+## o primeiro passo só raspa e a batida vem no seguinte, já encostado).
+func _knock(p: PackedVector2Array, o: PackedVector2Array, near: PackedVector3Array, lie: int) -> void:
 	for g in near:
 		var c := Vector2(g.x, g.y)
-		for i in p.size() - 1:
+		for i in mini(p.size() - 1, lie):
 			var q := Geometry2D.get_closest_point_to_segment(c, p[i], p[i + 1])
 			var depth := g.z - q.distance_to(c)
-			if depth > knock:
+			if depth > knock and (not held or Geometry2D.get_closest_point_to_segment(c, o[i], o[i + 1]).distance_to(c) > g.z + 0.05):
 				knock = depth
 				knock_at = q
 				knock_peg = g
