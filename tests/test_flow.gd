@@ -1388,6 +1388,20 @@ func _initialize() -> void:
 	ok(rows >= 4 * 18.0, "o pior caso chegou a quatro fileiras de respostas (%d px)" % rows)
 	m.drop_all()
 	ok(await wait_until(func(): return m.board.ends.all(func(x): return x == -1), 10.0), "cabos na base depois")
+
+	# ---- 18. um plug encaixado numa tomada tapada por um fio esticado: o fio corre por cima dele (`_draped`); antes,
+	# sem como contornar, ficava preso dentro do plug, entortado e batendo sem parar
+	b.plugged(1, 13)
+	b.plugged(2, 336)
+	ok(await wait_until(func(): return b.ropes.has(2) and b.ropes[2].asleep(), 10.0), "o fio de 13 a 336 assentou (passa sobre a 355)")
+	ok(b.place(3, 355) and 2 in b._draped.get(3, []), "o fio que tapava a 355 fica por cima do plug novo")
+	var knocks := 0
+	for f in 120:
+		await frames(1)
+		knocks += int(b.ropes[2].knock > 0.0)
+	ok(knocks == 0 and b.ropes[2].asleep(), "sem bater no plug novo, e dorme (%d batidas)" % knocks)
+	b.pick_up(2)
+	ok(b._draped[3].is_empty(), "tirado, o fio sai de cima do plug")
 	finish("fluxo da central")
 
 

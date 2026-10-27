@@ -743,3 +743,6 @@ curva, outro caminho), mostre antes como proposta e pergunte, não entregue como
 - **Objeto dentro de um vão não encosta na borda.** Pus as fitas com o alto rente à borda de cima do compartimento e o
   usuário viu as fitas sobrepondo a borda. O que fica dentro de um vão tem que mostrar o fundo em volta, inclusive
   em cima; se não couber, esconda o pé atrás de uma beira em vez de subir o objeto.
+- **Obstáculo que aparece embaixo de um fio esticado.** Os pinos (`Cord.pegs`) supunham que o fio chega ao plug pelo
+  lado; um plug encaixado bem sob um fio esticado o prendia por dentro, batendo sem parar (o usuário viu). Todo
+  obstáculo novo da física tem que ser testado aparecendo *debaixo* do que já está parado, não só no caminho.

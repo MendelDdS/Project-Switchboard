@@ -2497,3 +2497,8 @@ Chaves:
     pilha inteira responde ao mouse; aberta, é um papel com botões de tinta e a descartada cai para fora da tela, sem
     som. Cada fita do compartimento tem o lugar dela: a apontada sobe 1 px e é a que sai. A virgem clicada no gravador
     volta voando ao primeiro lugar vazio e afunda nele (`Tapes.put_back`), sem ir para a mesa.
+435. #fios #mesa-comutadora "Quando o cabo está por cima de uma tomada e eu coloco outro plug na tomada tampada, ele
+    fica torto assim e fazendo barulho. Vamos sempre evitar isso." O plug novo crescia embaixo do fio esticado, que não
+    tinha como contorná-lo: ficava preso dentro dele, entortado e batendo a cada quadro. Agora o plug levanta o fio que
+    tapava a tomada: o fio corre por cima dele, sem esbarrar, e é desenhado depois dele (`Switchboard._draped`, até um
+    dos dois sair). Teste: `test_flow`, seção 18.

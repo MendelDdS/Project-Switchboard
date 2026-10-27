@@ -118,7 +118,8 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   presas no buraco (`hole(e)`) e na traseira do plug; o contrapeso puxa a folga para dentro (`WEIGHT_TAKE`); todos com
   o mesmo comprimento (`Cord.MAX`); a prateleira e a beira dela são quinas (`hang_step`, `lip_y`, `route`); os plugs
   encaixados das outras pontas são pinos (`Cord.pegs`, `Switchboard._pegs`, `Cord.clear`: o fio encaixado contorna ou
-  se apoia, nunca atravessa, agarrado neles, `PEG_GRIP`; na mão, só a metade do lado do buraco, `HELD_LIE`; solto, não); fio parado dorme (`SLEEP_STEPS`). Ordem do desenho: fileira por
+  se apoia, nunca atravessa, agarrado neles, `PEG_GRIP`; na mão, só a metade do lado do buraco, `HELD_LIE`; solto, não; o plug encaixado numa tomada tapada por um fio
+  levanta o fio, que corre por cima dele sem esbarrar e é desenhado depois, `_draped`); fio parado dorme (`SLEEP_STEPS`). Ordem do desenho: fileira por
   fileira, de trás para a frente, os encaixados que saem dela e os guardados nela (o fio passa atrás dos da fileira dele e dos da frente, na frente dos de trás), depois os da mão e os soltos. No desenho: dobras do pano (`_kinked`), trançado (`BRAID`, uma chamada,
   `draw_multiline_colors`), curva Catmull-Rom (`_smooth`); dormindo, imagem pixel a pixel guardada (`_rope_image`);
   a sombra no fio de baixo onde se cruzam (`_cross_shade`, `CROSS_SHADE`, em polígonos do `Geometry2D`).

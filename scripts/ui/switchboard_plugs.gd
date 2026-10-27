@@ -10,6 +10,7 @@ const HOLE_SHADE := [[0.0, 4.0, 0.65], [4.0, 8.0, 0.4], [8.0, 12.0, 0.2]]   # o 
 
 var _pushed := {}   ## ponta -> segundos desde que encaixou (a assentada, `PUSH_SEC`, e a passagem para de frente)
 var _knocked := {}   ## ponta encaixada -> [segundos desde que um fio caiu nela, px que afunda] (`KNOCK_PX`)
+var _draped := {}   ## ponta encaixada -> as pontas cujo fio tapava a tomada quando ela encaixou: o plug o levantou e ele corre por cima, sem esbarrar (esticado, não o contornava: preso nele, batia sem parar)
 var _pushed_ang := {}   ## ponta -> o ângulo do plug na mão quando encaixou (a passagem para de frente gira dali)
 var _silhouette := {}   ## encaixado (o cotovelo, pela `_elbow_pose`) ou em pé (false) -> polígono do contorno (destaque, clique)
 var cursor := Vector2.ZERO

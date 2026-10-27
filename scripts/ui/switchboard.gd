@@ -276,6 +276,10 @@ func place(e: int, j: int) -> bool:
 		return false
 	_pushed_ang[e] = _plug_angle(e)
 	ends[e] = j
+	var c := jack_rect(j).get_center()
+	var over := ropes.keys().filter(func(x: int) -> bool: return x != e and ends[x] != -1 and (ropes[x] as Cord).touching(Vector3(c.x, c.y, (JACK + ROPE_W) / 2.0)))
+	if not over.is_empty():
+		_draped[e] = over
 	held = -1
 	_loose.erase(e)
 	_raise(e)
@@ -315,6 +319,9 @@ func _unseat(e: int) -> void:
 		_pulled[e] = [0.0, jack_rect(int(ends[e])).get_center(), _elbow_pose(e)]
 	_pushed.erase(e)
 	_pushed_ang.erase(e)
+	_draped.erase(e)
+	for x in _draped:   # o fio dela sai de cima dos plugs
+		_draped[x].erase(e)
 
 
 ## Solta o plug: ele cai e o fio o puxa de volta para o buraco (o FONE volta ao telefone).
@@ -694,7 +701,7 @@ func _ground() -> Vector2:
 func _pegs(e: int) -> PackedVector3Array:
 	var out := PackedVector3Array()
 	for x in ends.size():
-		if x != e and ends[x] != -1:
+		if x != e and ends[x] != -1 and not e in _draped.get(x, []):
 			var grow := minf(float(_pushed.get(x, PUSH_SEC)) / PUSH_SEC, 1.0)
 			for g in _elbow_pegs(x):
 				out.append(Vector3(g.x, g.y, (g.z + ROPE_W / 2.0) * grow))
@@ -949,6 +956,11 @@ func _draw_cords() -> void:
 	var seated := _order.filter(func(e: int) -> bool: return ends[e] != -1)
 	var order: Array = seated.filter(func(e: int) -> bool: return not front.call(e)) + home.filter(func(e: int) -> bool: return not front.call(e)) \
 		+ seated.filter(front) + home.filter(front) + _order.filter(func(e: int) -> bool: return ends[e] == -1 and not _in_hole(e))
+	for x in _draped:   # o fio que corre por cima de um plug vem depois dele
+		for c in _draped[x]:
+			if order.find(c) < order.find(x):
+				order.erase(c)
+				order.insert(order.find(x) + 1, c)
 	for e in order:
 		_draw_rope(e, true)
 		_draw_plug(e, true)
