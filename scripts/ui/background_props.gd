@@ -43,42 +43,47 @@ const CABLE_D := 2.0   # a grossura deles (na sala; na tela, 4 a 6 px pela dist�
 const CABLE_LIGHT := Vector2(0.45, -0.9)   # de onde vem a luz neles (a luminária, no alto à direita): o brilho fica desse lado
 const CABLE_SHADE := Vector2(-1, 2)   # a sombra deles no tampo, do outro lado (px)
 const TOLL_BOX_H := 4.5   ## a altura da caixinha dos bilhetes (na sala, uns 2 cm)
-const STAMP_ART := [   ## o carimbo em pé na mesinha, como o da ferramenta (21 × 35 px, uns 6 cm): o cabo de baquelite com o medalhão, a haste, o corpo com a plaqueta, as rodas de latão entre as pernas e a sapata vazada
-	"......kkKKKKKkk......",
-	"....kKKhhKKKKKKKk....",
-	"....kKhgKmMbMmKKk....",
-	"....kKhhKKmmmKKKk....",
-	"....kkKKKKKKKKKkk....",
-	".....kkkkkkkkkkk.....",
-	"........cpcCd........",
-	".......ccpcCdd.......",
-	"........cpcCd........",
-	"........cpcCd........",
-	"........cpcCd........",
-	".......ccpccCdd......",
-	"..cppppppppppppppCd..",
-	"..cpppppppppppppcCd..",
-	"..cCCCCCCCCCCCCCCCd..",
-	"..cCpppppppppppppCd..",
-	"..cCpiiiiiiiiiiipCd..",
-	"..cCpppppppppppppCd..",
-	"..cCCCCCCCCCCCCCCCd..",
-	"..ddddddddddddddddd..",
-	"cCdeeeeeeeeeeeeeeecCd",
-	"cbd.bBbBbBbBbBbBb.cCd",
-	"cCd.BbBbBbBbBbBbB.cCd",
-	"cCd.bBbBbBbBbBbBb.cCd",
-	"cCd....bbbbbbb....cCd",
-	"cCd....bBBBBBb....cCd",
-	"cCd...............cCd",
-	"cbd...............cCd",
-	"cCd...............cCd",
+## O carimbo em pé na mesinha, como o da ferramenta (`Toll`, 21 × 35 px, uns 6 cm): o cabo de baquelite em cogumelo,
+## com o medalhão de latão no tampo e as faixas de luz de um cilindro (as do da ferramenta, `Toll.BAND_U`), afinando até
+## o anel e a haste de níquel; o corpo com o tampo à vista e a plaqueta escrita; as rodas de latão com os tipos sujos de
+## tinta e as pontas do eixo; as pernas e a sapata vazada. (Antes, o cabo era um disco escuro com dois pontos de latão
+## e as rodas, um xadrez: parecia um robozinho.)
+const STAMP_ART := [
+	".......kkkkkkk.......",
+	".....kKKKKKKKKKk.....",
+	"....kKKKMmmmMKKKk....",
+	"....kKKKmllmmKKKk....",
+	"....kKKKMmmmMKKKk....",
+	"....khhHhhKKjjjkk....",
+	".....khHhhKKjjkk.....",
+	"......khHhKKjjk......",
+	".......kHhKjjk.......",
+	"........khKjk........",
+	"........khKjk........",
+	".......kHhKjjk.......",
+	".......dppcCdd.......",
+	".........pcC.........",
+	".cpppppppnCnpppppppC.",
+	".cpppppppppppppppppC.",
+	".cpppppppppppppppppC.",
+	".pncccccccccccccccCd.",
+	".pncpppppppppppppcCd.",
+	".pncppiiiiiiiiippcCd.",
+	".pncpppppppppppppcCd.",
+	".pncccccccccccccccCd.",
+	".ddddddddddddddddddd.",
+	"CcpllllllllllllllnCdC",
+	"nCpbbbBbbbBbbbBbbbCdn",
+	"CcpBrBBBrBBBrBBBrBCdC",
+	".cp...............Cd.",
+	".cp...............Cd.",
+	".cp...............Cd.",
+	".cp...............Cd.",
 	"cpppppppppppppppppppd",
-	"cpp...............ppd",
-	"cpp...............ppd",
+	"cpp...............Cpd",
+	"cpp...............Cpd",
 	"cpppppppppppppppppppd",
 	"CCCCCCCCCCCCCCCCCCCCd",
-	"ddddddddddddddddddddd",
 ]
 const CLOCK := Vector3(24, 12.5, 14) * PROP_K   ## o relógio de flip da mesa: largura, altura e fundo (na escala da sala; ~15 × 8 × 9 cm, como as listas de 21 cm)
 ## Quanto ele está virado para os olhos do operador (1 = de frente para eles; 0 = reto, para a parede). Reto: virado
@@ -426,23 +431,30 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 					_poly(quad.call(Rect2(r.position + mr.position * r.size, mr.size * r.size)), Color(Pal.lit(Pal.TOLL_INK, paper), lerpf(0.25, 0.75, m.z)))
 		var bx: Rect2 = toll_desk[1]
 		var shoe: Rect2 = toll_desk[3]
-		var draw_box := func() -> PackedVector2Array:   # a caixinha: o plástico oliva, a boca escura com os guardados de pé e a etiqueta na frente
+		var draw_box := func() -> PackedVector2Array:   # a caixinha: o plástico oliva, a boca com os guardados de pé e a etiqueta na frente
 			var bc := Vector2(x0 + bx.get_center().x * w, zb - bx.get_center().y * d)
 			var bh := bx.size * Vector2(w, d) / 2.0
 			_desk_shadow(quad.call(bx), false)
 			var faces := _clock_box(bc.x, bc.y, bh.x, bh.y, _yd, TOLL_BOX_H, Pal.BOARD_METAL[5], Pal.BOARD_METAL[1], Pal.BOARD_METAL[3], desk)
 			var y1 := _yd - TOLL_BOX_H
 			var e := 0.5
+			# pela boca, vista de cima e da frente, aparece a parede de trás por dentro, na sombra da caixa, e embaixo, rente à
+			# beira da frente, o fundo escuro (toda escura, parecia um buraco)
+			var lip := [_clock_pt(bc.x, bc.y, bh.x - e, -bh.y + e, y1).round(), _clock_pt(bc.x, bc.y, -bh.x + e, -bh.y + e, y1).round()]
 			_poly(PackedVector2Array([_clock_pt(bc.x, bc.y, -bh.x + e, bh.y - e, y1), _clock_pt(bc.x, bc.y, bh.x - e, bh.y - e, y1),
-				_clock_pt(bc.x, bc.y, bh.x - e, -bh.y + e, y1), _clock_pt(bc.x, bc.y, -bh.x + e, -bh.y + e, y1)]), Pal.TOLL_BOX_MOUTH)
-			for i in mini(toll_desk[2], 3):
+				lip[0], lip[1]]), desk.call(Pal.BOARD_METAL[2]))
+			_poly(PackedVector2Array([lip[1] - Vector2(0, 2), lip[0] - Vector2(0, 2), lip[0], lip[1]]), Pal.TOLL_BOX_MOUTH)
+			for i in mini(toll_desk[2], 3):   # de trás para a frente, cada um mais claro que o de trás (o vão entre eles, na sombra)
 				var v := lerpf(bh.y - e * 3.0, -bh.y + e * 3.0, 0.3 + i * 0.25)
-				_pixel_line(_clock_pt(bc.x, bc.y, -bh.x + e * 3.0, v, y1 + 0.4), _clock_pt(bc.x, bc.y, bh.x - e * 3.0, v, y1 + 0.4),
-					[Pal.lit(Pal.TICKET, paper).darkened(0.3)])
-			if faces.has("front"):
+				var a := _clock_pt(bc.x, bc.y, -bh.x + e * 3.0, v, y1 + 0.4)
+				_pixel_line(a, _clock_pt(bc.x, bc.y, bh.x - e * 3.0, v, y1 + 0.4), [Pal.lit(Pal.TICKET, paper).darkened(0.4 - i * 0.12)])
+				_ci.draw_rect(Rect2(a.round() + Vector2(4 + i * 5, 0), Vector2(2, 1)), Pal.lit(Pal.TOLL_INK.darkened(0.35), paper))   # o carimbo na beira (a tinta seca, como nas rodas do carimbo)
+			if faces.has("front"):   # a etiqueta creme impressa em oliva, como a da caixinha aberta (`Toll`)
 				var bf := PixelArt.bounds(faces["front"])
-				_ci.draw_rect(Rect2(roundf(bf.get_center().x - bf.size.x * 0.22), roundf(bf.get_center().y - 1.0), roundf(bf.size.x * 0.44), 2),
-					desk.call(Pal.BOARD_TAG))
+				var word := PixelArt.tiny(T.text(T.Key.TOLL_BOX))
+				var tag := Rect2(roundf(bf.get_center().x - word.get_width() / 2.0) - 2.0, roundf(bf.get_center().y - 3.0), word.get_width() + 4, 7)
+				_ci.draw_rect(tag, desk.call(Pal.BOARD_TAG))
+				_ci.draw_texture(word, tag.position + Vector2(2, -2), desk.call(Pal.BOARD_METAL[1]))
 			var out := PackedVector2Array()
 			for g: PackedVector2Array in faces.values():
 				out.append_array(g)
@@ -466,9 +478,10 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 func _stamp_art(step: int) -> ImageTexture:
 	var k: Color = Switchboard.CORD_COLORS[5][0]
 	var n := Pal.NICKEL
-	var cols := {"k": k.darkened(0.5), "K": k, "h": k.lerp(Switchboard.CORD_COLORS[5][1], 0.6), "g": Toll.GLINT,
-		"m": Pal.BRASS, "M": Pal.BRASS.darkened(0.3), "c": n[1], "C": n[2], "d": n[3], "p": n[0], "i": Pal.INK, "b": Pal.BRASS,
-		"B": Pal.BRASS.darkened(0.3), "e": Pal.EDGE}
+	var lit: Color = Switchboard.CORD_COLORS[5][1]
+	var cols := {"k": k.darkened(0.5), "j": k.darkened(0.25), "K": k, "h": k.lerp(lit, 0.6), "H": lit, "m": Pal.BRASS,
+		"M": Pal.BRASS.darkened(0.3), "l": Pal.BRASS.lightened(0.3), "c": n[1], "C": n[2], "d": n[3], "p": n[0],
+		"n": n[1].lerp(n[2], 0.5), "i": Pal.INK, "b": Pal.BRASS, "B": Pal.BRASS.darkened(0.45), "r": Pal.TOLL_INK.darkened(0.25)}
 	for key: String in cols:
 		cols[key] = Pal.lit(cols[key], step)
 	return PixelArt.art(STAMP_ART, cols)

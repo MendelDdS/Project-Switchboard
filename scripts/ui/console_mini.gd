@@ -58,8 +58,12 @@ func _screen(r: Rect2) -> void:
 			draw_rect(Rect2(inner.position.x + name_w + 2.0, y, roundf(w), 1), INK["sys"] if l["cls"] == "sys" else TEXT)
 	else:
 		draw_rect(inner, Color(0, 0, 0, 0.45))
-		if fmod(PixelArt.ms() / 1000.0, ScreenGlass.BLINK * 2.0) < ScreenGlass.BLINK:   # o cursor esperando
-			draw_rect(Rect2(inner.position + Vector2(2, 2), Vector2(1, 2)), ScreenGlass.IDLE_INK)
+		# o aviso de espera em traço, do comprimento dele na tela, e o cursor piscando depois (só o cursor, num retângulo
+		# escuro, parecia uma tela desligada sem função)
+		var w := roundf(T.text(T.Key.CONSOLE_IDLE).length() * _char_w() * r.size.x / maxf(1.0, phone.screen.size.x))
+		draw_rect(Rect2(inner.position + Vector2(2, 3), Vector2(w, 1)), ScreenGlass.IDLE_INK)
+		if fmod(PixelArt.ms() / 1000.0, ScreenGlass.BLINK * 2.0) < ScreenGlass.BLINK:
+			draw_rect(Rect2(inner.position + Vector2(3 + w, 2), Vector2(1, 2)), ScreenGlass.IDLE_INK)
 	var x := inner.position.x + inner.size.x * 0.62   # o reflexo do vidro
 	draw_colored_polygon(PackedVector2Array([Vector2(x, inner.position.y), Vector2(x + 4, inner.position.y),
 		Vector2(x + 1, inner.end.y), Vector2(x - 3, inner.end.y)]), Color(1, 1, 1, 0.05))

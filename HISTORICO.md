@@ -2418,3 +2418,17 @@ Chaves:
     que o vão (`HINGE_PULL`), aos poucos (`HINGE_TAKE`), e o fio tem 24 iterações das regras (`Cord.HINGE_ITER`): tenso,
     quase reto, e a capa mais para o lado do buraco. Recolhendo de uma vez, o fio chicoteava e se enroscava por cima
     dos plugs.
+425. #mesa-comutadora #painel #pixel #calculografo "Vamos fazer 1, 2 e 3" (das sugestões de objetos que ficaram para trás
+    dos plugs novos): a tecla de escuta montada pixel a pixel (`_key_cap`): o tampo, menor que a base, acima dela, com
+    as laterais à mostra pela paralaxe dos olhos (`KEY_DEPTH`) e a sombra, presa rente e acesa como antes; a cúpula da
+    lâmpada abaulada (clara do lado da luz) e o alto dela andando com os olhos; o carimbo da mesinha do calculógrafo
+    redesenhado como o da ferramenta (cabo em cogumelo com as faixas de luz de cilindro e o medalhão, haste, corpo com a
+    plaqueta escrita numa linha, rodas de latão com os tipos sujos de tinta): parecia um robozinho. Os itens 4, 5 e 6
+    (tampas da prateleira, frente do console, caixinha dos bilhetes) depois da aprovação.
+426. #mesa-comutadora #cabos #console #calculografo "Aprovado" (o 1–3), seguindo para o 4, 5 e 6: os tampos dos lugares
+    vagos na prateleira encaixados rente, no tom dela (a fresta em volta e a beira dela por dentro, a de cima e a da
+    esquerda na sombra), sem a sombra de peça saltada (pareciam recortes soltos em cima dela); forma, inclinação e lugar
+    não mudaram. A tela da conversa na miniatura do console esperando como a de verdade: o aviso em traço apagado e o
+    cursor depois (só o cursor, parecia tela desligada sem função). A caixinha dos bilhetes com a parede de trás por
+    dentro à mostra (toda escura, parecia um buraco), a etiqueta impressa ("BILHETES", `T.Key.TOLL_BOX`, na fonte
+    gravada) e os bilhetes guardados em degraus de tom, cada um com a marca do carimbo na beira.

@@ -47,6 +47,9 @@ const SHADOW := Color(0, 0, 0, 0.35)
 const PLATE := Pal.BANK_PLATE   # chapa sobre o banco que ainda não está em uso
 const LAMP_R := 2.5         # o raio da luz da lâmpada de cada linha, no `Bloom` (a cúpula tem 3; o aro creme fica em volta)
 const BEZEL := [Pal.NICKEL[1], Pal.NICKEL[2], Pal.NICKEL[3]]   # aro niquelado: luz, meio, sombra
+## Px que o tampo da tecla solta (e, pela metade, a cúpula da lâmpada) anda por px de distância até os olhos (`_eye`):
+## a lateral do lado deles fica à mostra, como a curva do plug encaixado (`PLUG_DEPTH`, que sai mais do painel).
+const KEY_DEPTH := 0.003   # (com 0,005, o tampo andava 2 px na altura de 2 e a tecla parecia torta)
 const LAMP_OFF := Pal.LAMP_GLASS
 const ROUND := [2, 1]   # o canto redondo dos blocos, das abas e das chapas: o quanto as duas linhas da ponta recuam (`round_rect`)
 const BADGE := "CTSS"   # a sigla da companhia no emblema (`_draw_badge`), igual em todos os idiomas
@@ -102,46 +105,76 @@ func _draw_lamp(c: Vector2, col: Color, level: float) -> void:
 	PixelArt.sprite(_ci, _disc(10, [[4.0, ring.call(2), ring.call(0), ring.call(-2)], [5.0, ring.call(-1), ring.call(-3), ring.call(-4)]]), c)
 	if level > 0.02:
 		PixelArt.sprite(_ci, _disc(10, [[3.0, Color.TRANSPARENT], [4.0, Color.WHITE, Color.TRANSPARENT, Color.TRANSPARENT]]), c, Color(col, 0.35 * level))   # a luz no aro
-	# a cúpula: a acesa por cima da apagada, com `level` no modulate (uma cor por quadro na chave do `disc` guardava uma
-	# textura nova a cada quadro da lâmpada pulsando)
+	# a cúpula: a base no aro e o alto dela, vista dos olhos (`KEY_DEPTH`), um pouco para longe deles (o lado dela fica à
+	# mostra do lado de lá); apagada, abaulada (clara do lado da luz, `LIGHT`); a acesa por cima da apagada, com `level` no
+	# modulate (uma cor por quadro na chave do `disc` guardava uma textura nova a cada quadro da lâmpada pulsando)
+	var dc := c + Vector2(roundf((c.x - _eye.x) * KEY_DEPTH * 0.5), 0.0)
 	var glass := Pal.lit(LAMP_OFF, _step_at(c))
-	PixelArt.sprite(_ci, _disc(6, [[2.0, glass], [3.0, glass.darkened(0.2)]]), c)
+	PixelArt.sprite(_ci, _disc(6, [[3.0, glass.darkened(0.08), glass.darkened(0.15), glass.darkened(0.25)]]), c)
+	PixelArt.sprite(_ci, _disc(6, [[1.5, glass.lightened(0.2), glass.lightened(0.1), glass], [2.5, glass.lightened(0.08), glass.darkened(0.04), glass.darkened(0.15)]]), dc)
 	if level > 0.02:
-		PixelArt.sprite(_ci, _disc(6, [[2.0, col.lightened(0.25)], [3.0, col]]), c, Color(1, 1, 1, level))
+		PixelArt.sprite(_ci, _disc(6, [[3.0, col]]), c, Color(1, 1, 1, level))
+		PixelArt.sprite(_ci, _disc(6, [[1.5, col.lightened(0.25)], [2.5, col]]), dc, Color(1, 1, 1, level))
 		Bloom.light(_ci, Rect2(c - Vector2(LAMP_R, LAMP_R), Vector2(LAMP_R, LAMP_R) * 2.0), Color(col, level), 1.0, false, true)
 
 
 ## As chaves de escuta, teclas quadradas de plástico ciano (como as dos terminais da série Ruptura), cada uma num
-## rebaixo escuro do painel: solta, a tecla sai dele (o topo e, embaixo, a frente dela, mais escura, com a sombra embaixo
-## à esquerda: a luz vem do alto à direita, `LIGHT`); presa (escutando, ou o destino tocando), afunda rente ao painel e
-## acende por inteiro, fosca, de uma cor só (`Pal.KEY_GLOW`). Cada uma em `levers` é [centro, direção, px além]: presa (-1),
-## solta (1) ou no meio do caminho (0), `over` px além, na batida.
+## rebaixo escuro do painel: solta, a tecla sai dele (`_key_cap`: o tampo acima da base, com as laterais à mostra e a
+## sombra embaixo à esquerda: a luz vem do alto à direita, `LIGHT`); presa (escutando, ou o destino tocando), afunda
+## rente ao painel e acende por inteiro, fosca, de uma cor só (`Pal.KEY_GLOW`). Cada uma em `levers` é [centro, direção,
+## px além]: presa (-1), solta (1) ou no meio do caminho (0), `over` px além, na batida.
 func _draw_levers(levers: Array) -> void:
-	var k := Pal.KEY_CAP
 	for v in levers:
 		var c: Vector2 = (v[0] as Vector2).round()
-		var s := _step_at(c)
 		var well := Rect2(c - Vector2(5, 5), Vector2(10, 10))
 		_ci.draw_rect(well, Pal.BOARD_INSET)
 		_ci.draw_rect(Rect2(well.position.x, well.end.y, well.size.x, 1), _metal_at(c, 2))   # a beira de baixo, na luz
 		_ci.draw_rect(Rect2(well.end.x, well.position.y, 1, well.size.y + 1), _metal_at(c, 2))
 		var dir: int = v[1]
-		var lift := clampi((2 if dir > 0 else 1 if dir == 0 else 0) + dir * roundi(v[2]), 0, 3)   # a altura da frente
-		var t := clampi(2 + s, 1, k.size() - 2)   # o tom do topo, na luz da sala
-		var top := Rect2(c.x - 4, c.y - 3 - lift, 8, 7)
-		if lift > 0:
-			_ci.draw_rect(Rect2(top.position + Vector2(-1, 1), Vector2(8, 7 + lift)), SHADOW)
-			_ci.draw_rect(Rect2(top.position.x, top.end.y, 8, lift), k[t - 1])   # a frente da tecla
-		if dir < 0:   # presa: a tecla toda acesa por dentro, fosca: uma cor só, a beira um pouco mais apagada, luz opaca sem miolo
-			var glow := Pal.KEY_GLOW
-			_ci.draw_rect(top, glow.darkened(0.2))
-			_ci.draw_rect(top.grow(-1), glow)
-			Bloom.light(_ci, top, glow, 0.6, false)
-			continue
-		_ci.draw_rect(top, k[t])
-		_ci.draw_rect(Rect2(top.position, Vector2(8, 1)), k[t + 1])   # a quina de cima e a da direita, na luz
-		_ci.draw_rect(Rect2(top.end.x - 1, top.position.y, 1, 7), k[t + 1])
-		_ci.draw_rect(Rect2(top.position.x, top.position.y + 1, 1, 6), k[t - 1])
+		var lift := clampi((2 if dir > 0 else 1 if dir == 0 else 0) + dir * roundi(v[2]), 0, 3)   # a altura do tampo
+		var side := roundi((c.x - _eye.x) * KEY_DEPTH * lift / 2.0)   # e o quanto ele anda para longe dos olhos
+		var t := clampi(2 + _step_at(c), 2, Pal.KEY_CAP.size() - 2)   # o tom do tampo, na luz da sala
+		PixelArt.sprite(_ci, _key_cap(Vector2i(side, -lift), t, dir < 0), c)
+		if dir < 0:   # presa: a luz opaca, sem miolo
+			Bloom.light(_ci, Rect2(c - Vector2(4, 4), Vector2(8, 8)), Pal.KEY_GLOW, 0.6, false)
+
+
+## A tecla de escuta (16×16, o meio dela no meio), pixel a pixel: a base (8×8, rente ao painel, no rebaixo) e o tampo
+## (6×6, a tecla afunila como as de teclado) `off` px dela, com as camadas entre os dois fazendo as laterais (a da
+## direita, para a luz, e a de trás um tom abaixo do tampo, `t`; a da frente e a da esquerda dois) e a sombra da tecla
+## 1 px embaixo à esquerda. Presa (`lit`), só a base rente, acesa: uma cor só, a beira um pouco mais apagada. Guardada.
+static var _keys := {}
+static func _key_cap(off: Vector2i, t: int, lit: bool) -> ImageTexture:
+	var key := [off, t, lit]
+	if _keys.has(key):
+		return _keys[key]
+	if _keys.size() > 64:
+		_keys.clear()
+	var img := Image.create(16, 16, false, Image.FORMAT_RGBA8)
+	var base := Rect2i(4, 4, 8, 8)
+	if lit:
+		img.fill_rect(base, Pal.KEY_GLOW.darkened(0.2))
+		img.fill_rect(base.grow(-1), Pal.KEY_GLOW)
+	else:
+		var k := Pal.KEY_CAP
+		var top := Rect2i(base.position + Vector2i.ONE + off, Vector2i(6, 6))
+		var layers := []
+		for i in 7:
+			var f := i / 6.0
+			layers.append(Rect2i(Vector2(base.position).lerp(Vector2(top.position), f).round(), Vector2(base.size).lerp(Vector2(top.size), f).round()))
+		for r: Rect2i in layers:   # a sombra
+			img.fill_rect(Rect2i(r.position + Vector2i(-1, 1), r.size), SHADOW)
+		for r: Rect2i in layers:
+			img.fill_rect(r, k[t - 2])   # a frente (e o miolo, que o resto tapa)
+			img.fill_rect(Rect2i(r.position.x, r.position.y, 1, r.size.y - 1), k[t - 2])   # a esquerda
+			img.fill_rect(Rect2i(r.position.x, r.position.y, r.size.x, 1), k[t - 1])   # a de trás
+			img.fill_rect(Rect2i(r.end.x - 1, r.position.y, 1, r.size.y - 1), k[t - 1])   # a direita, para a luz
+		img.fill_rect(top, k[t])
+		img.fill_rect(Rect2i(top.position.x, top.position.y, top.size.x, 1), k[t + 1])   # as quinas de cima e da direita, na luz
+		img.fill_rect(Rect2i(top.end.x - 1, top.position.y, 1, top.size.y), k[t + 1])
+	var tex := ImageTexture.create_from_image(img)
+	_keys[key] = tex
+	return tex
 
 
 ## Encaixe redondo como os das mesas antigas (`_jack_tex`), com a sombra curta no painel. `dim`: o metal mais escuro.
@@ -475,12 +508,12 @@ const BAY_MARGIN := 24.0   # o tampo dos equipamentos: a largura do bloco interu
 ## lateral da mesa) fica paralela a ela, com a inclinação da lateral (`_receding` na beira da prateleira; fugindo
 ## daqui para os olhos, pendia mais que ela). A textura (`_cover_px`) vai linha a linha, contada das beiras já
 ## arredondadas da linha (esticada da beira fracionária, a fresta e a quina pisavam em outro lugar que a beira e saíam
-## em diagonais dobradas), em trechos do mesmo tom. Rente à madeira: a sombra é uma linha
-## só, embaixo e à direita (afastada, ela flutuava).
+## em diagonais dobradas), em trechos do mesmo tom. Encaixada rente, no tom da prateleira (saltada, com sombra embaixo e
+## à direita, parecia um recorte solto em cima dela).
 func _draw_cover(x: float, w: float, side := false) -> void:
 	var ym := _shelf_mid()
 	var y0 := roundf(ym - COVER_DEPTH / 2.0)
-	var plate := Pal.cabinet(_room_lit(Vector2(x, ym)), 1)   # o plástico creme do móvel, pela luz da sala ali
+	var plate := Pal.cabinet(_room_lit(Vector2(x, ym)), 0)   # o plástico creme do móvel, pela luz da sala ali
 	var span := func(y: float) -> Vector2:   # as beiras da chapa na linha y, ainda sem arredondar
 		var r := x + w / 2.0 + (_receding(Vector2(tray_rect().end.x, ym), y) - tray_rect().end.x if side else _lean(y - ym))
 		return Vector2(x - w / 2.0 + _lean(y - ym), r)
@@ -489,9 +522,6 @@ func _draw_cover(x: float, w: float, side := false) -> void:
 		var e: Vector2 = span.call(y)
 		var l := roundf(e.x)
 		var r := roundf(e.y)
-		_ci.draw_rect(Rect2(r, y + 1.0, 1, 1), SHADOW)   # a sombra à direita...
-		if v == int(COVER_DEPTH):   # ...e embaixo
-			_ci.draw_rect(Rect2(l + 1.0, y + 1.0, r - l, 1), SHADOW)
 		var run := l
 		var last := Color(0, 0, 0, 0)
 		for px in range(int(l), int(r) + 1):
@@ -505,7 +535,7 @@ func _draw_cover(x: float, w: float, side := false) -> void:
 
 ## A cor do pixel `u`, `v` da tampa de `w` de largura, de frente: plástico liso encaixado na prateleira, sem
 ## parafusos nem grão (como tudo na série Ruptura): a fresta em volta, escura, com os cantos quebrados (transparentes),
-## e a quina (luz em cima à esquerda, sombra embaixo à direita).
+## e a beira da prateleira por dentro dela (a de cima e a da esquerda na sombra, as outras na luz).
 static func _cover_px(u: int, v: int, w: int, plate: Color) -> Color:
 	var h := int(COVER_DEPTH)
 	var b := mini(mini(u, v), mini(w - 1 - u, h - v))   # a distância à beira mais perto
@@ -513,8 +543,8 @@ static func _cover_px(u: int, v: int, w: int, plate: Color) -> Color:
 		return Color(0, 0, 0, 0) if (u <= 1 or u >= w - 2) and (v <= 1 or v >= h - 1) and (u == 0 or u == w - 1 or v == 0 or v == h) else plate.darkened(0.45)
 	if b == 1:
 		if v == 1 or u == 1:
-			return plate.lightened(0.12)
-		return plate.darkened(0.15)
+			return plate.darkened(0.15)
+		return plate.lightened(0.12)
 	return plate
 
 
