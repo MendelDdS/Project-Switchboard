@@ -211,8 +211,14 @@ func _load_night() -> void:
 		report.low_before = progress.low_nights
 		for f in progress.flags:
 			flags.apply(f)
-		for f in progress.later:   # o que ficou para ser cobrado hoje (a denúncia de uma escuta)
-			report.add(f["id"], T.text(T.Key.REPORT_YESTERDAY) % f["time"], f["detail"], f.get("sev", -1), f.get("text", -1))
+		for f in progress.later:   # o que ficou para ser cobrado hoje (a denúncia de uma escuta); o de mais adiante, espera
+			if f.get("nights", 1) > 1:
+				f["nights"] -= 1
+				report.later.append(f)
+				continue
+			var after: int = f.get("after", 1)
+			var when := T.text(T.Key.REPORT_YESTERDAY) % f["time"] if after <= 1 else T.text(T.Key.REPORT_NIGHTS_AGO) % [after, f["time"]]
+			report.add(f["id"], when, f["detail"], f.get("sev", -1), f.get("text", -1))
 	night_no = clampi(night_no, 0, C.nights.size())
 	night = C.training if night_no == 0 else C.nights[night_no - 1]
 	GameData.sectors = GameData.sectors_for(night_no) if force_sectors.is_empty() else force_sectors
@@ -1274,10 +1280,10 @@ func start_ending() -> void:
 	Sfx.stop_ambience(5.0)
 	var last := night_no >= C.nights.size()
 	var later := progress != null and not last and night_no > 0   # o que a companhia cobra amanhã (o treinamento não leva)
+	bureaucracy.night_ended()   # (antes da cobrança: uma regra pode deixar advertência para depois)
 	if progress == null or last:   # sem noite seguinte: cobra hoje
 		for f in report.later:
 			report.add(f["id"], f["time"], f["detail"], f.get("sev", -1), f.get("text", -1))
-	bureaucracy.night_ended()
 	supervisor.shift_over()
 	if progress != null:
 		if report.fired() or last:

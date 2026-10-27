@@ -342,6 +342,7 @@ FAULT_HOLD,Solicitante desistiu na espera,Caller gave up on hold,La persona desi
 FAULT_WRONG_NUMBER,Conectou o número errado,Connected the wrong number,Conectó el número equivocado
 FAULT_CUT_CALL,Conversa cortada no meio,Conversation cut off,Conversación cortada a la mitad
 REPORT_YESTERDAY,"ontem, %s","yesterday, %s","ayer, %s"
+REPORT_NIGHTS_AGO,"há %d noites, %s","%d nights ago, %s","hace %d noches, %s"
 REPORT_SERVICES,SERVIÇOS PRESTADOS,SERVICES RENDERED,SERVICIOS PRESTADOS
 REPORT_NONE_SERVICES,Nenhum.,None.,Ninguno.
 REPORT_TRANSFERS,Ligações completadas: %d,Calls connected: %d,Llamadas completadas: %d
@@ -372,6 +373,7 @@ FAULT_DISPATCH_EXTRA,Unidade enviada sem necessidade,Unit sent unnecessarily,Uni
 FAULT_DISPATCH_BLANK,Ficha de despacho enviada sem unidades,Dispatch card sent with no units,Ficha de despacho enviada sin unidades
 FAULT_BUREAUCRACY,Norma da companhia descumprida,Company rule broken,Norma de la compañía incumplida
 FAULT_TAPE_CAUGHT,Perceberam a escuta pedida pelas autoridades,The wiretap the authorities asked for was noticed,Notaron la escucha que pidieron las autoridades
+FAULT_TAPE_MISSED,Ligação pedida pelas autoridades não foi gravada,A call flagged by the authorities was not recorded,Una llamada marcada por las autoridades no fue grabada
 FAULT_DISPATCH_TYPE,Ocorrência classificada errado,Incident misclassified,Incidente mal clasificado
 FAULT_EMERGENCY_WORSE,A emergência se agravou antes do despacho,The emergency got worse before dispatch,La emergencia empeoró antes del despacho
 FAULT_EMERGENCY_CRITICAL,A emergência ficou crítica antes do despacho,The emergency turned critical before dispatch,La emergencia se volvió crítica antes del despacho

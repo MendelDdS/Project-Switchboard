@@ -513,8 +513,8 @@ func _initialize() -> void:
 	var recorder: Control = b._equipment["gravador"]
 	recorder._hover = 0   # a tecla Entregar
 	recorder._gui_input(click)
-	ok(tp.inside.is_empty() and tp.done[-1]["value"] == words.size() * 10, "entregue: o valor pelas palavras")
-	ok(m.report.credits.any(func(c): return c["id"] == "tape" and c["pts"] == words.size() * 10), "pontos de eficiência pela fita")
+	ok(tp.inside.is_empty() and tp.done[-1]["value"] == 20, "entregue: o valor pelas palavras, até o máximo da fita")
+	ok(m.report.credits.any(func(c): return c["id"] == "tape" and c["pts"] == 20), "pontos de eficiência pela fita")
 	m.report.later.clear()
 	ok(m.bureaucracy.caught_listening(sus) and m.report.later.size() == 1 and m.report.later[0]["id"] == "b4_fitas"
 		and m.report.later[0]["text"] == T.Key.FAULT_TAPE_CAUGHT, "pego na ligação marcada: a advertência da B4, não a da escuta")
@@ -531,13 +531,18 @@ func _initialize() -> void:
 	ok(tp.done[-1]["value"] == 0 and tp.done[-1]["words"].is_empty(), "nada relevante: valor zero")
 	_clear_board()
 	m.bureaucracy.night_ended()
-	ok(not m.flags.has("authorities_questioning_pending"), "gravou: as autoridades não questionam")
+	ok(not m.flags.has("authorities_questioning_pending") and m.report.later.is_empty(), "entregou as duas: as autoridades não questionam")
 	m.bureaucracy.night_started()
 	var skip := await _call(t4[1])
 	m.hangup()
 	_clear_board()
+	tp.insert()   # e a fita fica no gravador
 	m.bureaucracy.night_ended()
 	ok(m.flags.has("authorities_questioning_pending"), "noite com pedido e sem gravação: o marcador para o roteiro")
+	ok(m.report.later.size() == 1 and m.report.later[0]["text"] == T.Key.FAULT_TAPE_MISSED and m.report.later[0]["nights"] == 2,
+		"e a advertência de descuido, daqui a duas noites")
+	ok(tp.inside.is_empty() and tp.done[-1]["fate"] == Bureaucracy.Tapes.LEFT, "a fita esquecida no gravador conta como não entregue")
+	m.report.later.clear()
 	m.bureaucracy.lock_equipment("porta_fitas")
 	ok(b.equipped == PackedStringArray(["gravador"]), "o roteiro pode tirar um equipamento")
 	m.bureaucracy.reset()

@@ -144,7 +144,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 - **Escuta** (`Eavesdrop`): chave de escuta por linha (`Exchange.key`); a conversa ouvida vem do motivo (`Motive`) ou
   das falas escritas (`TransferCall.overheard`); palavras-chave `[tipo:texto]` (`Clue`) vão para as anotações da
   lista (`Progress.clues`); a suspeita (`PhoneCall.suspicion`, `LISTEN_SEC`, `HUSH`, desconfiança `wary`) leva ao
-  silêncio, à pergunta e à denúncia (`_denounce`), cobrada no relatório da noite seguinte (`Supervisor.fault_later`).
+  silêncio, à pergunta e à denúncia (`_denounce`), cobrada no relatório da noite seguinte (`Supervisor.fault_later`; `nights` adia mais).
   O ritmo da fala (`PACE`) e a suspeita andam juntos: mudou um, confira o outro.
 - **Interurbano**: troncos 901–906 (`GameData.TRUNKS`), a telefonista de lá (`Main._trunk`), o número de lá
   (`TransferCall.far_number`). **Calculógrafo** (`Toll`, `TollTicket`): conta a ligação interurbana, imprime o bilhete,

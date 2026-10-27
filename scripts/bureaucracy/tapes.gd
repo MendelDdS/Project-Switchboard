@@ -7,10 +7,15 @@ extends RefCounted
 
 var desk: Node   ## o `Bureaucracy` (o registro de decisões e as advertências)
 var rule_id := ""   ## a regra em nome de quem o registro anota
-var per_word := 10   ## pontos por palavra-chave numa conversa marcada pelas autoridades
+var per_word := 5   ## pontos por palavra-chave numa conversa marcada pelas autoridades
+var max_points := 20   ## o máximo de uma fita
 var blank := 0   ## fitas virgens no porta-fitas
 var inside := {}   ## a fita no gravador: {} vazio; {"call": PhoneCall ou null, "who", "words": [], "marked": bool}
-var done: Array[Dictionary] = []   ## as que saíram nesta noite: {"who", "words", "value", "fate"}
+var done: Array[Dictionary] = []   ## as que saíram nesta noite: {"call", "marked", "who", "words", "value", "fate"} (`DELIVERED`...)
+
+const DELIVERED := "entregue"
+const DISCARDED := "descartada"
+const LEFT := "esquecida no gravador"
 
 
 func _init(d: Node) -> void:
@@ -55,18 +60,45 @@ func bind(c: PhoneCall, marked: bool) -> void:
 
 ## O valor de informação da fita: as palavras-chave de uma conversa marcada (as outras não interessam).
 func value(t: Dictionary) -> int:
-	return t["words"].size() * per_word if t.get("marked", false) else 0
+	return mini(t["words"].size() * per_word, max_points) if t.get("marked", false) else 0
 
 
-## O operador entrega a fita às autoridades (`deliver`) ou a descarta: sai do gravador e não volta.
+## O operador entrega a fita às autoridades (`deliver`) ou a descarta: sai do gravador e não volta. A gravação de uma
+## conversa que ninguém pediu entregue vai para o registro como tal (o roteiro pode cobrar).
 func eject(deliver: bool) -> void:
 	if inside.is_empty():
 		return
+	var t := _out(DELIVERED if deliver else DISCARDED)
+	if deliver and t["value"] > 0:
+		desk.main.supervisor.credit("tape", t["value"])
+	var result := "perdida"
+	if deliver:
+		result = "gravação não pedida" if t["call"] != null and not t["marked"] else "%d pontos" % t["value"]
+	desk.log_decision(rule_id, t["call"], "%s a fita (%s)" % ["entregou" if deliver else "descartou", _words(t)], result)
+
+
+## Fim da noite com fita no gravador: não foi entregue, perdida como a descartada.
+func left_behind() -> void:
+	if inside.is_empty():
+		return
+	var t := _out(LEFT)
+	desk.log_decision(rule_id, t["call"], "deixou a fita no gravador (%s)" % _words(t), "não entregue")
+
+
+## A gravada `call` (uma `PhoneCall`) foi entregue nesta noite.
+func delivered(call: PhoneCall) -> bool:
+	return done.any(func(t): return t["call"] == call and t["fate"] == DELIVERED)
+
+
+## Tira a fita do gravador para as que saíram, com o destino `fate`, e a devolve.
+func _out(fate: String) -> Dictionary:
 	var t := inside
 	inside = {}
-	var v := value(t)
-	done.append({"who": t["who"], "words": t["words"], "value": v, "fate": "entregue" if deliver else "descartada"})
-	if deliver and v > 0:
-		desk.main.supervisor.credit("tape", v)
-	desk.log_decision(rule_id, t["call"], "%s a fita (%s)" % ["entregou" if deliver else "descartou", ", ".join(t["words"]) if not t["words"].is_empty() else "nada"],
-		"%d pontos" % v if deliver else "perdida")
+	t["value"] = value(t) if fate == DELIVERED else 0
+	t["fate"] = fate
+	done.append(t)
+	return t
+
+
+func _words(t: Dictionary) -> String:
+	return ", ".join(t["words"]) if not t["words"].is_empty() else "nada"

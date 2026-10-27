@@ -712,3 +712,12 @@ curva, outro caminho), mostre antes como proposta e pergunte, não entregue como
 - **Fio reto não pode vir de tirar o peso.** Para tirar a barriga, o fio encaixado passou a pesar 0,15 e pareceu "em
   gravidade zero". Tensão é o contrapeso puxando (recolher mais fio que o vão), com o peso inteiro; e a mudança de
   comprimento vai aos poucos, ou a corda de Verlet chicoteia e se enrosca.
+
+## Burocracia: o que as autoridades sabem, e a tela é o canal do jogador
+- **A consequência segue o que o personagem sabe.** Propus que gravar e descartar a fita da ligação marcada contasse
+  como "não gravou" na hora; o usuário lembrou que as autoridades não sabem o que a ligação tinha: só dias depois
+  descobrem que houve ligação suspeita sem gravação, e aí é descuido do telefonista (B4: `found_after`, duas noites).
+  Antes de pôr uma advertência, pergunte quem fica sabendo e quando.
+- **Ler as falas é o jogo.** Propus um sinal na mesa para a ligação marcada, além da linha na conversa: "se o jogador
+  não estiver olhando para os textos, é um problema dele". Não proponha avisos redundantes ao texto da conversa.
+- **Ligação marcada é do roteiro.** Nenhum molde marca ligação como suspeita: só o roteiro (`TransferCall.suspicious`).

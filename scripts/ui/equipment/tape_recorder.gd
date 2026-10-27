@@ -110,7 +110,7 @@ func _process(delta: float) -> void:
 	_step_needle(delta, rec and c != null and _desk.main.eavesdrop.speaking(c.line))
 	if _fly != Fly.NONE:
 		_step_fly(delta)
-	_delivered = tp.done.filter(func(t): return t["fate"] == "entregue").size() - (1 if _fly == Fly.DELIVER else 0)
+	_delivered = tp.done.filter(func(t): return t["fate"] == Bureaucracy.Tapes.DELIVERED).size() - (1 if _fly == Fly.DELIVER else 0)
 	var shown := [_hover, loaded, rec, PixelArt.ms() / SPIN_MS if rec else 0, int(_rec_sec * 2.0), roundi(_needle * 12.0),
 		_written(), _marks, _pop > 0.0, _pressed, roundi(_door * 8.0), _bounce > 0.0, _box_bounce > 0.0, _delivered,
 		_fly, int(_fly_t * 60.0)]

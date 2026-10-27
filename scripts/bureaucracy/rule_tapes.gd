@@ -2,33 +2,39 @@ extends BureaucracyRule
 ## B4. Gravação de conversas em fitas: as autoridades marcam ligações (`TransferCall.suspicious`; o operador vê o aviso
 ## no começo dela); o operador põe uma fita do porta-fitas no gravador e escuta a conversa (`Eavesdrop`, com a
 ## desconfiança de sempre): a fita grava a conversa e as palavras-chave que ele ouvir dela (`Bureaucracy.tapes`).
-## Entregue, vale pontos de eficiência pelo valor; descartada, se perde. Os dois notaram a escuta numa ligação marcada:
-## advertência na gravidade da regra (trabalho malfeito para as autoridades, que pediram), no lugar da por escuta. `tapes_per_night` virgens por noite. Numa noite
-## com pedidos e nenhuma gravação, nada na hora: liga o marcador `authorities_questioning_pending` para o roteiro.
+## Entregue, vale pontos de eficiência pelo valor; descartada (ou esquecida no gravador no fim da noite), se perde. Os
+## dois notaram a escuta numa ligação marcada: advertência na gravidade da regra (trabalho malfeito para as autoridades,
+## que pediram), no lugar da por escuta. `tapes_per_night` virgens por noite. Ligação marcada sem a fita dela entregue:
+## nada na hora (as autoridades não sabem o que ela tinha); `found_after` noites depois descobrem e vem a advertência
+## de descuido (`missed_severity`, `missed_text`), e o marcador `authorities_questioning_pending` fica para o roteiro.
+## Só as ligações do roteiro vêm marcadas (`TransferCall.suspicious`).
 ## Equipamentos (`equipment` no `.tres`): o porta-fitas e o gravador chegam na mesa na primeira vez que ela vale e
 ## ficam (`keep_equipment`), mesmo desligada.
 ##
 ## Roteiro: `activate("b4_fitas")` (os equipamentos chegam; `equipment_unlocked` avisa para encenar a chegada).
 
 @export var tapes_per_night := 3
-@export var points_per_word := 10
+@export var points_per_word := 5   ## (com 10, uma fita de quatro palavras valia mais que uma advertência grave)
+@export var max_tape_points := 20   ## o máximo de uma fita, o de uma emergência resolvida a tempo
+@export var found_after := 2   ## noites até as autoridades darem pela ligação marcada que não chegou gravada
+@export var missed_severity := ShiftReport.Severity.MEDIUM
+@export var missed_text := "FAULT_TAPE_MISSED"
 
-var _asked := 0      ## ligações marcadas nesta noite
-var _recorded := 0   ## fitas que gravaram uma delas
+var _marked: Array[PhoneCall] = []   ## as ligações marcadas nesta noite
 
 
 func night_started() -> void:
 	desk.tapes.rule_id = id
 	desk.tapes.per_word = points_per_word
+	desk.tapes.max_points = max_tape_points
 	desk.tapes.reset(tapes_per_night)
-	_asked = 0
-	_recorded = 0
+	_marked.clear()
 
 
 func call_started(c: PhoneCall) -> Array:
 	var t := c.data as TransferCall
 	if t != null and t.suspicious:
-		_asked += 1
+		_marked.append(c)
 		c.meta["b4"] = true
 		c.sys(T.text(T.Key.SYS_RECORD_REQUEST))
 	return []
@@ -54,8 +60,6 @@ func _bind(c: PhoneCall) -> void:
 	if desk.tapes.inside["call"] != null:
 		return
 	desk.tapes.bind(c, c.meta.has("b4"))
-	if c.meta.has("b4"):
-		_recorded += 1
 
 
 func caught_listening(c: PhoneCall) -> bool:
@@ -67,16 +71,19 @@ func caught_listening(c: PhoneCall) -> bool:
 
 
 func night_ended() -> void:
-	if _asked > 0 and _recorded == 0:
+	desk.tapes.left_behind()
+	for c in _marked.filter(func(c: PhoneCall): return not desk.tapes.delivered(c)):
+		desk.main.supervisor.fault_later(id, desk.main.supervisor.who(c), missed_severity, T.Key[missed_text], found_after)
 		desk.main.flags.apply("authorities_questioning_pending")
-		desk.log_decision(id, null, "não gravou nenhuma das %d ligações marcadas" % _asked, "authorities_questioning_pending")
+		desk.log_decision(id, c, "não entregou a gravação da ligação marcada", "advertência daqui a %d noites" % found_after)
 
 
 func debug_info() -> String:
 	var tp := desk.tapes
 	var lines := ["Na prateleira: clique no porta-fitas (fita no gravador), conecte a ligação marcada e escute (Z); "
-		+ "depois, Entregar ou Descartar no gravador.", "virgens: %d · no gravador: %s · marcadas na noite: %d, gravadas: %d" % [tp.blank,
-		"nada" if tp.inside.is_empty() else "%s %s" % [tp.inside["who"] if tp.inside["who"] != "" else "virgem", tp.inside["words"]], _asked, _recorded]]
+		+ "depois, Entregar ou Descartar no gravador.", "virgens: %d · no gravador: %s · marcadas na noite: %d, entregues: %d" % [tp.blank,
+		"nada" if tp.inside.is_empty() else "%s %s" % [tp.inside["who"] if tp.inside["who"] != "" else "virgem", tp.inside["words"]], _marked.size(),
+		_marked.filter(func(c: PhoneCall): return tp.delivered(c)).size()]]
 	for t in tp.done:
 		lines.append("· %s: %s, %d pontos (%s)" % [t["who"], t["words"], t["value"], t["fate"]])
 	return "\n".join(lines)

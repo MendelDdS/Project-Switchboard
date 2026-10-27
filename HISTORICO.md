@@ -2432,3 +2432,13 @@ Chaves:
     cursor depois (só o cursor, parecia tela desligada sem função). A caixinha dos bilhetes com a parede de trás por
     dentro à mostra (toda escura, parecia um buraco), a etiqueta impressa ("BILHETES", `T.Key.TOLL_BOX`, na fonte
     gravada) e os bilhetes guardados em degraus de tom, cada um com a marca do carimbo na beira.
+427. #burocracias #fitas Revisão da B4 (os pontos que sugeri, com os ajustes do usuário): só as ligações do roteiro vêm
+    marcadas (nenhum mecanismo de marcar as comuns); a fita calibrada (5 pontos por palavra-chave, no máximo 20 por
+    fita, `max_tape_points`: com 10 por palavra, uma fita valia mais que uma advertência grave); a ligação marcada sem a
+    fita dela entregue (não gravada, descartada ou esquecida) não pesa na hora, porque as autoridades não sabem o que
+    ela tinha: duas noites depois (`found_after`) descobrem, e vem a advertência de descuido ("Ligação pedida pelas
+    autoridades não foi gravada", média; `Supervisor.fault_later` ganhou `nights`, e o relatório diz "há 2 noites"),
+    com o marcador `authorities_questioning_pending`; a fita deixada no gravador no fim da noite conta como não entregue
+    (`Tapes.left_behind`); a gravação de conversa não marcada entregue vai para o registro como "gravação não pedida".
+    Sinal na mesa para a ligação marcada: recusado ("se o jogador não estiver olhando para os textos, é um problema
+    dele"). O lugar do gravador: pediu mais sugestões.
