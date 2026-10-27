@@ -2366,3 +2366,55 @@ Chaves:
     sombreada pela luz, no tom do meio do lado dela e escura só do lado da sombra (`ROPE_EDGE`). Os gomos escuros da
     capa, empilhados, faziam uma meia-lua preta no meio do plug: de frente, a capa fica um tom mais clara
     (`_face_row`). O plug em pé (na mão, guardado) segue com a beira `EDGE`.
+416. #cabos #pixel "Mudar o visual dos plugs, deixar mais clean" (com a foto de uma mesa dos anos 60: plugs cinza de
+    cotovelo com capa de frisos, guardados com a ponta de metal fina sobre o corpo cinza). O plug em pé virou um
+    cilindro de plástico cinza liso, sem contorno escuro, com a ponta prateada (`Pal.PLUG_TIP`; antes, P10 de latão
+    com corpo na cor do cabo, serrilhado e capa em gomos) e o trançado do fio mais discreto (`BRAID_MIX`). A cor do par
+    fica no fio e numa faixa de 2 px no corpo (guardado, o fio some no buraco e não se sabia de que par era). Correções
+    pedidas no caminho: "minúsculos" (voltou ao tamanho antigo, 12 × 59); "a parte metálica não está pequena?";
+    "o plug está com uma escada" (a ponta reta até a cabeça); "troque a cor para prateado"; "de acordo com a largura
+    da tomada" (a ponta com os 6 px do furo); "o pino está reto na ponta" (bico arredondado).
+417. #cabos #pixel #mesa-comutadora "Siga com o cotovelo do plug encaixado". Encaixado, o plug é um cotovelo visto de
+    frente (`_elbow`, montado pixel a pixel): a cabeça redonda na tomada e a capa de frisos com a faixa do cabo, o fio
+    saindo do pé dela (`PLUG_DROP`, `Cord.stub`); os fios esbarram na cabeça e na capa (`ELBOW_PEGS`). Saiu a vista
+    de frente em discos com paralaxe (`_draw_plug_face`, `_tilt`). Descendo reta, como na foto, a capa tapava a chave
+    de escuta embaixo da entrada (e pegava o clique dela) e o número da tomada de baixo nos bancos; o usuário escolheu
+    a capa em diagonal, a 45° para a esquerda, e o clique segue a silhueta.
+418. #cabos #pixel #mesa-comutadora "Essa mudança piorou um monte de coisa, perdeu toda aquela lógica realista de
+    paralaxe dos plugs na tomada, os cotovelos estão pequenos e grossos" (e a foto de novo: "o completamento do cabo e
+    do cotovelo, além do formato do cotovelo"). O cotovelo virou um tubo só, da largura da capa: o pescoço sai da
+    tomada com a paralaxe de antes (`_tilt`), a curva arredondada e a capa comprida (24 px, ~3 × a largura) com
+    frisos no alto, e o fio continua da capa na mesma linha. A capa gira na tomada para o lado do fio (`_elbow_ang`);
+    na entrada, sempre para a esquerda da chave de escuta. A sombra segue o plug desenhado. Corrigido junto: o contorno
+    do cotovelo (destaque e clique) saía errado com linhas vazias no mapa (`_art_outline`); o `test_flow` confere.
+419. #cabos #pixel #mesa-comutadora "O cabo amarelo e verde da esquerda ficaram em desacordo, o cotovelo deveria seguir
+    a direção de onde o fio tá sendo puxado". A capa segue a linha esticada até o buraco do fio (sem somar o peso, que
+    a deixava mais em pé que o fio). Na entrada, para a esquerda, inclina só o que livra a chave de escuta (antes, 40°
+    no mínimo). Para a direita, segue o fio e tapa a chave (escolha do usuário: "Seguir o fio"), e o clique ali
+    continua sendo da chave (`_plug_under`; o `test_flow` confere).
+420. #cabos #pixel #mesa-comutadora "O cotovelo não aparece quando eu puxo o plug para fora do slot, para isso, deixe a
+    parte plástica do mesmo tamanho da parte metálica e o cotovelo (parte flexível) afunilando até se encontrar com o
+    fio"; "o cotovelo deveria afunilar mais na ponta". O plug em pé: corpo de plástico de 24 px (o da ponta), e a capa
+    flexível, com frisos, afunilando de 10 a 6 px até o fio (o comprimento total não mudou, `PLUG_LEN`). Encaixado, a
+    capa afunila da largura do tubo até a do fio por toda a parte lisa (`ELBOW_W.y` 2,5; antes 3,5 nos últimos 6 px).
+421. #cabos #pixel #mesa-comutadora "O tamanho do cotovelo do plug em pé não condiz com ele encaixado". A capa do plug
+    em pé passou a ser a mesma do cotovelo: 24 px, 8 de largura, frisos nos mesmos lugares, afunilando até o fio
+    (`PLUG_ART` 12 × 72, `PLUG_H` 72, `PLUG_LEN` 48). Guardado, afunda mais no buraco (`PLUG_SINK` 24, a capa some
+    nele e a parte à mostra fica como antes); a mão pega no meio do corpo (`PLUG_BASE` 36).
+422. #cabos #pixel #mesa-comutadora "Teria como fazer uma dobradura do cotovelo de forma mais suave? Veja que na
+    imagem real tem uma suavização na dobradura do cotovelo, não faz 90 graus" (com duas fotos). A curva virou um arco
+    (Bézier da tomada, saindo para a câmera, até `ELBOW_BEND` 11 px da capa), varrido com discos a cada meio px, e os
+    frisos seguem o eixo pela curva. Antes: o pescoço reto até uma bola, e a capa saindo dela num "L" com quina.
+423. #cabos #pixel #mesa-comutadora "O grau que o cotovelo está fazendo aqui está errado, o fio nem está puxando o
+    suficiente para ele ficar dessa forma; seria interessante fazer o cotovelo girar e acompanhar o balançado do fio;
+    também deixar o fio mais rígido, como se tivesse sendo puxado de volta para o slot". A capa virou parte da física
+    do fio: gira na curva do plug (`Cord.pivot`), o pé dela é a ponta da corda e pesa (`BOOT_WEIGHT`), o contrapeso conta
+    da curva e puxa para o buraco (`HINGE_SLACK`), e o fio encaixado pesa menos (`TAUT_WEIGHT`): esticado, quase reto, e
+    a capa entre a vertical e o buraco, na linha dele, balançando com ele. Saiu o `Cord.stub` (o fio saía da capa
+    parada) e a regra que inclinava a capa da entrada para livrar a chave de escuta (agora ela a tapa quando pende
+    reta; o clique é da chave).
+424. #cabos #mesa-comutadora "O fio está fazendo pouca força puxando para o slot, preciso de mais, da forma como está
+    agora parece que está em gravidade zero". O fio encaixado voltou ao peso inteiro; o contrapeso recolhe 6% a mais
+    que o vão (`HINGE_PULL`), aos poucos (`HINGE_TAKE`), e o fio tem 24 iterações das regras (`Cord.HINGE_ITER`): tenso,
+    quase reto, e a capa mais para o lado do buraco. Recolhendo de uma vez, o fio chicoteava e se enroscava por cima
+    dos plugs.

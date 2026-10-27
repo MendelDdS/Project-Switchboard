@@ -112,13 +112,13 @@ const NICKEL_EDGE: Array[Color] = [Color("63675a"), Color("4a4f42"), Color("353a
 ## beira funda, a beira, a sombra, o friso, o meio, a luz e o brilho.
 const BRASS_PLATE: Array[Color] = [Color("140d06"), Color("3a2a12"), Color("7a6230"), Color("8a6a2e"), Color("b0904c"),
 	Color("c4a35a"), Color("e6cf8e")]
-## O latão dos plugs (a aba e a ponta): da beira escura ao brilho, com o de sempre (`BRASS`) e o dourado (`GOLD`).
-const BRASS_PLUG: Array[Color] = [Color("3a2810"), Color("5a4218"), Color("7a5a24"), BRASS, GOLD, Color("ecd29a")]
-const PLUG_INSULATOR: Array[Color] = [Color("141210"), Color("2a2622")]   ## os isolantes pretos da ponta do plug
+## A ponta prateada dos plugs (`Switchboard.PLUG_PAL`): o isolante escuro, a sombra, o meio e o brilho (o cromado das
+## tomadas, `JACK_METAL`).
+const PLUG_TIP: Array[Color] = [Color("1c2023"), Color("6f777b"), Color("a9b1b4"), Color("e4e9ea")]
 ## A baquelite preta dos botões do console: a beira, a sombra e o meio da saia, e a sombra, o meio e a luz do tampo.
 const BAKELITE: Array[Color] = [Color("120e0a"), Color("1a1612"), Color("2a2420"), Color("3a332c"), Color("4a4038"),
 	Color("5a5048")]
-## Os cabos (`Switchboard.CORD_COLORS`): o pano de cada um e o brilho dele; o corpo do plug na mesma cor.
+## Os cabos (`Switchboard.CORD_COLORS`): o pano de cada um e o brilho dele (o plug é cinza em todos, `PLUG_PAL`).
 const CORDS := [
 	[Color("3d6e34"), Color("6c9e58")],
 	[Color("8e2a22"), Color("c4493b")],

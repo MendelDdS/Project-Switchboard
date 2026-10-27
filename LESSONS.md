@@ -669,3 +669,46 @@ curva, outro caminho), mostre antes como proposta e pergunte, não entregue como
   da sombra mais escuro, de leve; o recorte contra o fundo fica com a sombra projetada.
   Valeu também para o plug encaixado, montado com discos: a beira de cada disco somava um anel escuro, e os gomos
   escuros da capa, empilhados, uma meia-lua preta. Peça montada por camadas: olhe o que as camadas escuras somam.
+
+- **Redesenho a partir de referência: mantenha a escala do jogo.** Os plugs novos, desenhados "limpos" pela foto,
+  saíram com 36 px de altura ("minúsculos"), e a ponta de metal fina demais. Ao refazer uma peça, compare na captura
+  com a versão anterior e com o que encaixa nela: a ponta do plug tem a largura do furo da tomada, reta até a cabeça
+  (sem degrau) e com o bico arredondado (ponta chata não é pino).
+
+- **Peça que cresce sobre o painel: confira o que ela tapa e o clique de quem está embaixo.** O cotovelo descendo da
+  tomada cobria a chave de escuta e roubava o clique dela (o `test_flow` pegou); a caixa de clique de uma peça na
+  diagonal pega o vizinho, por isso o clique segue a silhueta.
+
+- **Ao trocar o desenho de uma peça, liste o que a versão anterior tinha de bom e mantenha.** O cotovelo novo perdeu a
+  paralaxe do plug encaixado ("perdeu toda aquela lógica realista") e saiu atarracado, com uma bola na cabeça, longe
+  da foto (um tubo só, curva e capa comprida, o fio na linha da capa). Antes de mostrar: captura ampliada lado a lado
+  com a referência e com a versão anterior.
+
+- **Contorno de pixel art: confira o polígono, não só o desenho.** Linhas vazias no mapa do cotovelo faziam o
+  `_art_outline` dar a volta errada; o destaque e o clique viraram um quadradinho, e nenhum teste pegou. Peça com
+  contorno novo: um teste de clique nela.
+
+- **Peça que gira com o fio segue o fio, sem limite fixo de lado.** Forçar a capa da entrada para a esquerda (para
+  livrar a chave de escuta) fazia o fio dar um "V" no pé dela. Se algo precisa ficar livre, incline só o necessário,
+  medido pela geometria, e resolva o resto no clique (a chave ganha da capa).
+
+- **A mesma peça nos dois estados.** O cotovelo ganhou capa flexível, mas o plug em pé (na mão, solto) continuou sem
+  ela: ao tirar da tomada, a capa sumia. Peça com mais de um desenho (em pé, encaixado, girado): mudou um, mude os
+  outros e confira cada um na captura.
+
+- **A mesma peça em dois desenhos tem as mesmas medidas.** A capa em pé saiu com 11 px e 10 de largura, a encaixada
+  com 24 e 8. Ao desenhar uma peça de novo em outro estado, copie as medidas do desenho que já existe (aqui,
+  `ELBOW_LEN`, `ELBOW_W`, `ELBOW_RIBS`) e ponha os dois lado a lado na captura antes de mostrar.
+
+- **Tubo dobrado é um eixo curvo, não peças retas emendadas.** Pescoço reto, bola e capa reta davam um "L" com quina
+  embaixo. Varra o tubo por um eixo curvo com um raio de curva maior que a meia largura; senão a parte de dentro da
+  curva fica com quina.
+
+- **O que pende de um fio vem da física do fio, não de uma regra.** A capa num ângulo calculado (a direção do buraco)
+  deitava mais do que o fio puxava. Peça presa a uma corda: ponha-a na simulação (articulação, peso) e leia o ângulo
+  dela. E a barriga da corda de Verlet é sobretudo o esticar das regras sob o peso; para um fio esticado por
+  contrapeso, tire peso do fio em vez de só tirar folga.
+
+- **Fio reto não pode vir de tirar o peso.** Para tirar a barriga, o fio encaixado passou a pesar 0,15 e pareceu "em
+  gravidade zero". Tensão é o contrapeso puxando (recolher mais fio que o vão), com o peso inteiro; e a mudança de
+  comprimento vai aos poucos, ou a corda de Verlet chicoteia e se enrosca.

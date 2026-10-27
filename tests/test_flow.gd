@@ -483,6 +483,8 @@ func _initialize() -> void:
 	_move(0, el)
 	_click(b, b.lever_rect(el - 1).get_center())
 	ok(ex.key(el), "escuta: com o FONE, o clique na alavanca a sobe")
+	ok(b._plug_under(b.jack_rect(el).get_center()) == 0 and b._plug_under(b._plug_base(0)) == 0, "o cotovelo do FONE pega o clique da tomada ao pé da capa")
+	ok(b._plug_under(b.lever_rect(el - 1).get_center()) == -1, "a chave de escuta ganha o clique da capa que a tapa")
 	await frames(2)
 	var s0 := ea.suspicion
 	_move(0, -1)
@@ -825,11 +827,13 @@ func _initialize() -> void:
 		cord.step(b.STEP, Vector2.ZERO, Vector2.ZERO, 260.0)
 		bounced = bounced or cord.drop > Switchboard.Cord.BOUNCE_MIN
 	ok(bounced and cord.tip().y <= 40.0 + 0.01, "fio: o plug solto cai, quica e para na prateleira")
-	# a forma do fio encaixado: saindo da ponteira na horizontal, ele faz a curva e cai, sem subir acima do plug
+	# a forma do fio encaixado: saindo do pé da capa, que gira na curva do plug, ele cai sem subir acima dela
 	# (o calombo de quando a curva era um empurrão nos pontos), e o comprimento quase não estica
 	for want: float in [440.0, 540.0, 640.0]:   # do buraco ao plug são 424 px
 		var hung := Switchboard.Cord.new(Vector2(0, 300), Vector2(300, 0))
-		hung.stub = Vector2.LEFT
+		hung.pivot = Vector2(300, -23)
+		hung.arm = 23.0
+		hung.arm_max = deg_to_rad(60.0)
 		for _i in 600:
 			hung.step(b.STEP, Vector2(0, 300), Vector2(300, 0), want)
 		var high := INF
@@ -838,11 +842,14 @@ func _initialize() -> void:
 			high = minf(high, hung.pts[i].y)
 			if i > 0:
 				long += hung.pts[i].distance_to(hung.pts[i - 1])
-		ok(high >= -1.0, "fio: com %d px, não sobe acima do plug (%.1f)" % [want, high])
+		ok(high >= hung.tip().y - 1.0, "fio: com %d px, não sobe acima do pé da capa (%.1f)" % [want, high])
+		ok(hung.tip().x < 300.0, "fio: com %d px, a capa vai para o lado do buraco (%.1f)" % [want, hung.tip().x])
 		ok(long <= want * 1.02, "fio: com %d px, estica menos de 2%% (%.0f)" % [want, long])
 	# um plug encaixado no caminho (`Cord.pegs`, 5 px acima de onde o fio passaria): o fio se apoia nele, nenhum trecho passa por dentro, e assenta
 	var pegged := Switchboard.Cord.new(Vector2(0, 300), Vector2(300, 0))
-	pegged.stub = Vector2.LEFT
+	pegged.pivot = Vector2(300, -23)
+	pegged.arm = 23.0
+	pegged.arm_max = deg_to_rad(60.0)
 	pegged.pegs = PackedVector3Array([Vector3(150, 214, 7.5)])
 	for _i in 600:
 		pegged.step(b.STEP, Vector2(0, 300), Vector2(300, 0), 440.0)
@@ -902,7 +909,7 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return b.ropes.has(0) and b.ropes[0].asleep(), 10.0), "fio parado deixa de ser simulado")
 	_move(0, l7)
 	await frames(1)
-	ok(not b.ropes[0].asleep() and b.ropes[0].tip() == b._plug_base(0), "mexer no plug acorda o fio")
+	ok(not b.ropes[0].asleep() and b.ropes[0].tip().distance_to(b._plug_base(0)) < 3.0, "mexer no plug acorda o fio (o pé da capa, no passo de `ROT_STEP` do desenho)")
 	var hp: Vector2 = b.home_pos(3)
 	b._press(hp)
 	b._release(hp)

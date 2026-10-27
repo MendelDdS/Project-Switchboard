@@ -33,7 +33,16 @@ const BEND_K := 0.3
 const AIR_GAP := 3.0
 const RISE := 3.0    # px por passo que um ponto que estava no ar sobe ao voltar para a prateleira ou o tampo
 const LIP_PTS := 2   # quantos pontos antes da beira podem estar no tampo da prateleira, entre os buracos e ela
-const STUB := 5.0   ## encaixado, o fio sai da ponteira por esses px, entre o eixo do plug e a vertical (visto quase de frente, o eixo tem ~3 px na tela, e só nele o fio passava deitado por cima do plug); a rigidez faz o resto da curva
+## Encaixado, a capa do plug gira na curva dele (`pivot`), com o pé dela, onde o fio entra, na ponta do fio: o peso a
+## leva para baixo e o fio a puxa para o lado do buraco, e ela balança com ele, presa no encaixe (HINGE_GRIP da
+## velocidade do pé perdida por passo). Antes, a capa ficava parada na direção do buraco e o fio saía dela, mesmo
+## pendendo de outro jeito.
+const HINGE_GRIP := 0.15
+## Encaixado, a capa, de plástico, pesa BOOT_WEIGHT pontos do fio e a leva para baixo; o fio, esticado pelo
+## contrapeso (`Switchboard.HINGE_PULL`), tem HINGE_ITER iterações das regras, para não esticar e fazer barriga com o
+## próprio peso. (Com o fio pesando 0,15 para ficar reto, parecia sem gravidade.)
+const BOOT_WEIGHT := 3.0
+const HINGE_ITER := 24
 ## O plug solto quica na mesa: volta com BOUNCE da velocidade com que bateu, enquanto bater a mais de BOUNCE_MIN px/s
 ## (devagar, assenta). Antes, ele grudava na mesa ao cair.
 const BOUNCE := 0.35
@@ -68,7 +77,9 @@ var lip_y := INF          ## a beira da frente da prateleira (y): abaixo dela, n
 var free := false         ## solto: o plug é a última conta e cai junto (não segue a ponta)
 var direct := false       ## solto e puxado direto para o buraco: esticado, sem gravidade e quase sem embalo
 var held := false         ## o plug na mão: o mouse não empurra o fio e ele não dorme
-var stub := Vector2.ZERO  ## encaixado: a direção em que o fio sai da ponteira, para a frente e caindo (zero: em pé)
+var pivot := Vector2.INF  ## encaixado: a curva do plug, em volta da qual a capa gira (INF: em pé)
+var arm := 0.0            ## encaixado: px da curva até o pé da capa
+var arm_max := PI         ## encaixado: rad da vertical que a capa deita, no máximo
 var mouse := Vector2.INF
 var nudge := Vector2.ZERO ## quanto o mouse andou no passo: passando por cima do fio, empurra
 ## Os plugs encaixados das outras pontas (x, y: o centro; z: o raio, com a metade da largura do fio): saindo do painel,
@@ -147,7 +158,7 @@ func step(dt: float, a: Vector2, b: Vector2, want: float) -> bool:
 	if asleep():
 		var poked := nudge.length_squared() > 0.5 and sleep.has_point(mouse)
 		var settled_now := not held and not free
-		if settled_now and pts[0] == a and pts[pts.size() - 1] == b and not poked:
+		if settled_now and pts[0] == a and (hinged() or pts[pts.size() - 1] == b) and not poked:
 			return false
 		sleep = Rect2()
 	_resize(count(want))
@@ -160,7 +171,7 @@ func step(dt: float, a: Vector2, b: Vector2, want: float) -> bool:
 	# beira da prateleira (a mesma mão dá o mesmo fio, subindo ou descendo); solto, só com ele no ar (deitado no tampo,
 	# o fio vem por cima)
 	air = _first_air(p) if held or _in_air(b if not free else p[last]) else -1
-	var moving := last + 1 if free else last
+	var moving := last + 1 if free or hinged() else last
 	# inércia + gravidade
 	for i in range(1, moving):
 		var v := (p[i] - o[i]) * DAMPING
@@ -168,10 +179,10 @@ func step(dt: float, a: Vector2, b: Vector2, want: float) -> bool:
 		if direct:
 			p[i] += v * 0.5   # puxado direto: fio esticado, sem gravidade e quase sem embalo (o plug não pendula)
 			continue
-		p[i] += v + GRAVITY * dt * dt
+		p[i] += v + GRAVITY * dt * dt * (BOOT_WEIGHT if hinged() and i == last else 1.0)
 		var under := _under(i, p[i], o[i])
 		if p[i].y > under:
-			if i == last:   # o plug solto bate na mesa...
+			if i == last and free:   # o plug solto bate na mesa...
 				drop = v.y / dt
 				drop_at = p[i]
 				if drop > BOUNCE_MIN:   # ...e quica: volta para cima com parte da velocidade
@@ -185,19 +196,16 @@ func step(dt: float, a: Vector2, b: Vector2, want: float) -> bool:
 			p[i] += nudge * 0.35
 	p[0] = a
 	var pin := last   # daqui até o plug, o fio não se mexe
-	if not free:
+	if not free and not hinged():
 		p[last] = b
 		o[last] = b
-	if stub != Vector2.ZERO:   # encaixado, o fio sai da ponteira na direção do `stub`
-		pin = last - 1
-		p[pin] = p[last] + stub * minf(seg, STUB)
-		o[pin] = p[pin]
-	var fixed := last + 1 if free else pin   # os pontos daqui em diante estão presos (o 0 também)
+	var fixed := last + 1 if free or hinged() else pin   # os pontos daqui em diante estão presos (o 0 também)
 	var bend := BEND_MIN * 2.0 * seg
 	var near := _near(p)
 	var lie := mini(fixed, int(last * HELD_LIE)) if held else fixed   # daqui em diante, o fio passa por cima dos plugs
 	_knock(p, o, near, lie)
-	for it in STIFF_ITER:
+	var iters := HINGE_ITER if hinged() else STIFF_ITER
+	for it in iters:
 		var back := it % 2 == 1   # ida e volta: a correção atravessa o fio inteiro em menos iterações
 		for k in pin:   # o comprimento de cada trecho
 			var i := pin - 1 - k if back else k
@@ -205,8 +213,8 @@ func step(dt: float, a: Vector2, b: Vector2, want: float) -> bool:
 		for k in range(0, pin - 1):   # a rigidez: o ponto dois adiante não chega perto demais
 			var i := pin - 2 - k if back else k
 			_keep(p, i, i + 2, bend, fixed, BEND_K, true)
-		if pin < last:   # e na saída da ponteira, contando o trecho curto do eixo do plug (sem isso, dobrava ali)
-			_keep(p, pin - 1, last, BEND_MIN * (seg + p[pin].distance_to(p[last])), fixed, BEND_K, true)
+		if hinged():   # o pé da capa fica no círculo em volta da curva, e o fio sai dele quase na linha dela
+			_hinge(p, seg)
 		for i in range(1, moving if air < 0 else air):
 			if p[i].x < ground.x and p[i].y > floor_y and o[i].x >= ground.x and o[i].y > floor_y:
 				p[i].x = ground.x   # veio de fora, por baixo da prateleira: bate na lateral do console
@@ -217,7 +225,9 @@ func step(dt: float, a: Vector2, b: Vector2, want: float) -> bool:
 				# o que estava no ar sobe pela beira aos poucos, puxado (de uma vez, o fio saltava para a prateleira)
 				p[i].y = maxf(under, o[i].y - RISE) if _in_air(o[i]) else under
 				o[i].x = lerpf(o[i].x, p[i].x, 0.3)   # atrito com a mesa
-		clear(p, near, lie, o if it == STIFF_ITER - 1 else PackedVector2Array())
+		clear(p, near, lie, o if it == iters - 1 else PackedVector2Array())
+	if hinged():
+		o[last] = o[last].lerp(p[last], HINGE_GRIP)
 	pts = p
 	old = o
 	pulled = want - length
@@ -236,6 +246,23 @@ func step(dt: float, a: Vector2, b: Vector2, want: float) -> bool:
 			box = box.expand(q)
 		sleep = box.grow(12.0)
 	return true
+
+
+func hinged() -> bool:
+	return pivot.x < INF
+
+
+## O pé da capa (o último ponto de `p`) a `arm` px da curva (`pivot`), deitado no máximo `arm_max` da vertical, e a
+## rigidez do pano na boca dela: o ponto antes do pé fica quase na linha da capa (a curva, o pé e ele, como dois trechos).
+func _hinge(p: PackedVector2Array, seg: float) -> void:
+	var last := p.size() - 1
+	var near := p[last - 1] - pivot
+	var d := BEND_MIN * (arm + seg)
+	if near.length() < d and near.length() > 0.0001:
+		p[last - 1] = pivot + near * lerpf(1.0, d / near.length(), BEND_K)
+	var off := p[last] - pivot
+	var ang := clampf(Vector2.DOWN.angle_to(off) if off.length() > 0.5 else 0.0, -arm_max, arm_max)
+	p[last] = pivot + Vector2.DOWN.rotated(ang) * arm
 
 
 ## Os `pegs` perto do fio `p` (a caixa dele, com um trecho de folga): só estes entram na conta do passo.

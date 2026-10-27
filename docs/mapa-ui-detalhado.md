@@ -659,17 +659,17 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   fino de níquel, do tamanho das tomadas (14 px), sem furo (`_draw_lamp`, `BEZEL`, `LAMP_OFF`: com o assento preto pareciam mais uma tomada) que acendem rápido e apagam devagar, como
   filamento (`_lamp`/`_dest_lamp` dizem cor e nível desejado, `_fade` chega lá em `LAMP_ON_SEC`/`LAMP_OFF_SEC`, estado em
   `_lit`; a linha tocando pulsa). A luz acesa tinge o aro dela e o chanfro de cima do encaixe logo abaixo (`_reflect`).
-- Plug (`_draw_plug`): de pé (comprido, `PLUG_LEN` do fio à aba; guardado, afunda `PLUG_SINK` = 14 px no buraco: a capa
-  de borracha some nele e o corpo fica à mostra, sem esconder metade do plug) (solto, na mão, na bandeja; `_draw_plug_body`) é um mapa de pixels (`PLUG_ART`, 16×66, cores
-  por cabo em `_plug_pal`; sombreado de cilindro com o brilho numa coluna só e a beira escura à direita, cantos
-  arredondados; contido como o relógio: brilho largo e colar claro destoavam), no jeito de um plugue P10 (referência
-  do usuário): a capa de borracha em gomos afinando até o fio (termina em 8 px, a largura do fio, `ROPE_W`), o corpo na cor do cabo (identifica o cabo) com anel em
-  cima, serrilhado em listras finas e anel no meio, a aba dourada e a ponta de metal dourado (luva, isolante preto,
-  anel, outro isolante e o bico em ponta com a bolinha); comprido e fino como o P10 e **na escala da sala** (14 ×
-  66 px, uns 2 × 9 cm, `PLUG_W`, `PLUG_H`, `PLUG_LEN` até a aba: o corpo enche o buraco da prateleira, `HOLE_ART` 20 × 10, e a luva de 6 entra
-  no furo de 8 da tomada; o encaixado, `PLUG_FACE_R`, 14 px de corpo com a beira, cobrindo o furo e quase todo o aro):
-  menor que o relógio, as listas e o carimbo do calculógrafo (com 18 × 93, na escala das tomadas, e os objetos da mesa
-  crescidos na mesma proporção, `Background.PROP_K`, ele ficava maior que todos eles e saiu a pedido); a área de clique do plug guardado sai da altura dele
+- Plug (`_draw_plug`): de pé (solto, na mão, guardado; `_draw_plug_body`) é um mapa de pixels (`PLUG_ART`, 12 × 72,
+  `PLUG_W`, `PLUG_H`; cores em `PLUG_PAL` + a faixa do cabo, `_plug_pal`), limpo como os da referência do usuário (uma
+  mesa comutadora dos anos 60, 26/10/2026; antes um P10 de latão, corpo na cor do cabo, serrilhado e capa em gomos): o
+  corpo cilíndrico de plástico cinza liso (`Pal.SHELL`, sem contorno escuro), 10 px de largura e do comprimento da ponta
+  (24 px), e embaixo a mesma capa flexível do cotovelo encaixado (24 px, 8 de largura, os frisos no mesmo lugar,
+  afunilando até 6 no fio; sem ela, o cotovelo sumia ao tirar o plug da tomada; com 11 px e 10 de largura, não
+  condizia com a encaixada), com uma faixa de 2 px na cor do cabo (guardado, o fio fica no buraco: sem ela, não se sabia de que par era o plug), e a
+  ponta prateada (`Pal.PLUG_TIP`), reta, da largura do furo da tomada (6 px, `JACK_RINGS`), com o anel isolante escuro
+  e o bico arredondado. Guardado, afunda `PLUG_SINK` no buraco e a ponta fica quase tão alta quanto a parte cinza à
+  mostra, como na foto (com 36 px de altura, "minúsculo"; a ponta com degrau mais largo embaixo, "escada"; a ponta
+  reta no alto, "não é assim"). A área de clique do plug guardado sai da altura dele
   (`home_rect`); gira com o fio em passos de
   `ROT_STEP` (5°), cada passo montado pixel a pixel como no RotSprite (`PixelArt.turned`: o mapa ampliado 8× pelo
   Scale2x e lido de volta girado, guardado por ângulo e servindo a qualquer cabo; girado pela transformação do
@@ -706,36 +706,41 @@ sombra do nosso prédio, lisa. Tudo em metros e no tamanho de verdade (`_o(g, x,
   deixava uma barriga, porque a gravidade puxa o meio a cada passo; pendurado na quina, `Cord.hang`, não). Puxando
   além do fim do fio, o plug na mão se inclina para o lado do puxão, inteiro a `LEAN_PX` além (a mesma mola do
   balanço), com a traseira virada para o buraco; o limite vale para a traseira girada (`_reach`). (Em pé, com o fio
-  chegando de lado, a junção dobrava e o fio passava por cima dele.) Encaixado, sai do painel em direção à câmera, a mesma do cenário (a ponta se afasta dos olhos do operador, o ponto
-  de fuga da sala, `Background.eye` → `Switchboard.eye`; à direita da mesa, na altura das plaquinhas das entradas:
-  as entradas saem quase só para a esquerda, as de baixo também para baixo; era um ponto 600 px acima do painel, e
-  todos pareciam vistos de cima) (`_draw_plug_face`: o próprio `PLUG_ART` visto de frente, com os mesmos detalhes: anel e friso claro em cima,
-  serrilhado, `_knurled` (as listras verticais; tirado, o plug ficava pobre), anel do meio e capa em gomos afinando até
-  o fio (a luva de latão fica toda dentro da tomada: à mostra, numa beira dourada entre ela e o corpo, ninguém sabia o que era); o corpo sai com a beira de todos os
-  discos antes dos miolos (só o contorno), mas a capa, por cima, disco a disco com a beira de cada um
-  (`PLUG_CAPA_ROW`): a beira de cada gomo fica à mostra em volta do seguinte, menor, e os sulcos aparecem em anéis em
-  volta da saída do fio (antes, liso, o plug parecia uma bola); pega a luz da sala como o fio que sai
-  dele (`_lit_by`, também a ponteira, `_draw_plug_cap`, na largura do miolo do fio); montado com discos de pixel art, `disc`, um
-  por pixel ao longo do eixo, cada um com a largura e os tons da linha do plug em pé que cai ali, `_face_row`: dela vale
-  a que mais se destaca, senão os detalhes sumiam no escorço; primeiro a beira de todos, depois o miolo sombreado; com cápsulas e círculos, saía embolotado); com paralaxe: a ponta se desloca do encaixe mais quanto mais longe dos olhos (`_tilt(j)`, `_eye`, no `_look`;
-  `PLUG_EYE` sem cenário; `PLUG_DEPTH` estilizado, a conta daria ~3× mais). O fio sai da ponteira (`_plug_base` = encaixe + `_tilt`; o plug encaixado é desenhado antes do fio,
-  e o miolo da ponteira, `_draw_plug_cap`, depois). Encaixado, o fio sai entre o eixo do plug e a vertical (`Cord.stub`, já caindo) por `Cord.STUB` px e faz a curva
-  aos poucos (o penúltimo ponto da corda fica preso, `pin` em `Cord.step`; a curva sai da rigidez do pano, a mesma no
-  fio todo: `Cord.BEND_MIN`; um empurrão nos pontos perto do plug deixava o fio longo duro e o curto com um calombo), a sombra vai do encaixe até `PLUG_SHADE` com uma
-  sombra de contato em volta do colar (a do fio sai do fim da do plug e chega a `ROPE_SHADOW` no buraco, `_lift`), a
-  luz bate no plug encaixado (`_plug_light`, `_face_rim`: a silhueta dos discos juntos, cada pixel aceso pela
-  distância à beira virada para a luz, em degraus, `RIM_FALL`; na entrada, a lâmpada da linha acende a partir da beira
-  de cima; no destino, o aro aceso, a partir da beira toda; clareada na cor da luz. Com só a beira acesa, a luz tomava
-  o plug de uma vez; mais funda, a luz verde do aro sujava o plug vermelho. Um anel solto por cima flutuava sobre a
-  capa, e uma beira por disco listrava o plug), o corpo em pé entra girando para o
-  eixo do encaixado, sem a ponta de metal (`_draw_plug_body(col, false)`). Ao encaixar, o corpo em pé entra no encaixe enquanto a
-  vista de frente cresce, e ao sair a vista de frente some no encaixe (`MORPH_SEC`, `_pulled`, `_unseat`); ao encaixar, o tampo encolhe `PUSH_PX`
-  e volta em `PUSH_SEC` (`_pushed`, `_push`). Destaque e sombra seguem a silhueta (`_plug_outline`: as partes unidas
-  num polígono, guardado; o destaque é ele alargado); `_plug_rect(seated)` é o retângulo do clique.
+  chegando de lado, a junção dobrava e o fio passava por cima dele.) Encaixado, é um plug de cotovelo como os da foto do usuário (`_draw_elbow`, `_elbow(pose)`: montado pixel a pixel
+  por pose, guardado, nas cores do `_plug_pal`): um tubo só, da largura da capa (`ELBOW_W`, 8 px), que sai da tomada
+  na direção da câmera e faz um arco (Bézier, até `ELBOW_BEND` px da capa; com o pescoço reto e uma bola na curva,
+  fazia um "L" com quina) que desce na capa comprida
+  (`ELBOW_LEN`, uns 3 × a largura; lisa embaixo, afunila do fim dos frisos até a largura do fio, `ELBOW_W.y`), com frisos seguindo o eixo, do meio do arco ao alto da capa (`ELBOW_RIBS`;
+  em cima da bola da curva, com o brilho, viravam pontos soltos), e o fio continua da capa na mesma linha (`Cord.pivot`). **Paralaxe**: o pescoço, da
+  tomada à curva, se afasta do ponto de fuga da sala (`_tilt(j)`, `_eye`, no `_look`; `PLUG_DEPTH`, estilizado; um
+  disco por px, como as peças redondas, mais escuro junto do painel), como no plug reto de antes. A capa gira na
+  curva com o fio, na física dele (`Cord.pivot`, `arm`, `arm_max`; `_hinge`): o pé dela é a ponta da corda, a `arm`
+  px da curva, e pesa `BOOT_WEIGHT` pontos (a leva para baixo); o contrapeso conta da curva e recolhe `HINGE_PULL` (6%) a mais
+  que o vão, aos poucos (`HINGE_TAKE`; de uma vez, o fio chicoteava e se enroscava nos plugs): o fio fica tenso,
+  quase reto, com o peso inteiro, e mais iterações das regras (`Cord.HINGE_ITER`). (Com folga e o fio pesando 0,15
+  para não fazer barriga, parecia sem gravidade.) Ela fica entre a vertical e o buraco, na linha do fio, e balança com ele, presa no
+  encaixe (`HINGE_GRIP`). `_elbow_ang` lê o ângulo da corda, em passos de `ROT_STEP` (até `ELBOW_MAX`; antes do primeiro
+  passo, a meio caminho da direção do buraco), e o fio é desenhado até o pé da capa desenhada. Tapando a chave de
+  escuta, o clique ali é da chave (`_plug_under`). Antes, um ângulo fixo: na direção do buraco, a capa deitava mais
+  do que o fio puxava; sempre à esquerda da chave, o fio fazia um "V". `_elbow_pose(e)` = (curva, ângulo).
+  Histórico: o plug reto de latão visto de frente em discos (`_draw_plug_face`); um cotovelo com bola na cabeça e capa
+  curta e fixa, sem paralaxe ("pequenos e grossos", "perdeu a paralaxe"). O fio sai do pé da capa (`_plug_base` =
+  tomada + curva + capa; o fio é desenhado antes do plug, que cobre o comecinho dele) quase na linha dela (a rigidez
+  do pano na boca, contando a curva, o pé e o ponto antes dele: `_hinge`, `Cord.BEND_MIN`). A sombra é a do plug desenhado deslocada `PLUG_SHADE` (`_elbow_shadow`, num polígono só;
+  sem a paralaxe, a da capa caía do lado da luz), e a do fio sai dela (`_lift`). A luz bate no plug encaixado
+  (`_plug_light`, `_elbow_rim`: cada pixel aceso pela distância à beira virada para a luz, em degraus, `RIM_FALL`; na
+  entrada, a lâmpada da linha acende a partir da beira de cima; no destino, o aro aceso, a partir da beira toda;
+  clareada na cor da luz). Os outros fios esbarram no pescoço e em dois pontos da capa (`_elbow_pegs`). Ao encaixar, o
+  corpo em pé gira para o pé da capa e encurta, sem a ponta de metal (`_draw_plug_body(col, false)`), enquanto o
+  cotovelo cresce; ao sair, ele some na tomada (`MORPH_SEC`, `_pulled`, `_unseat`); ao encaixar, o pescoço encolhe
+  `PUSH_PX` e volta em `PUSH_SEC` (`_pushed`, `_push`; a batida de um fio caindo nele também, `_knocked`). Destaque e
+  clique seguem a silhueta (`_plug_outline`, `_art_outline`: o contorno do mapa em degraus, sem as linhas vazias,
+  guardado por pose; o destaque é ele alargado).
   No plug em pé (na mão, solto, guardado), o fio entra `TAIL_IN` px na traseira dele, no eixo, e uma junta redonda
   fecha a dobra (`_draw_tail`): chegando de lado, ele terminava num corte reto no meio da ponta e deixava um vão.
   O fio tem `ROPE_W` (7 px com a beira; o miolo, 3 a menos; era 9, com o plug maior).
   Sombras (`SHADOW`): fios deslocados `ROPE_SHADOW`; plug mais longe quanto mais sai do painel (solto, na mão).
-  Sem contorno preto em plug e fio: a beira é a cor da própria peça escurecida (`EDGE`; o metal, `BEZEL[2]`), como no
-  cenário. Encaixado, o corpo (`PLUG_FACE_R`) cobre a tomada e a aba de latão; a aba só aparece na sombra de contato.
+  Sem contorno escuro em plug e fio: o volume é o tom da peça na luz e na sombra; no fio, só a beira do lado da sombra
+  escurece (`ROPE_EDGE`, 30%; era 65% dos dois lados, `EDGE`, e lia como linha de desenho), e o trançado fica no meio
+  do caminho entre o pano e o brilho (`BRAID_MIX`).
 

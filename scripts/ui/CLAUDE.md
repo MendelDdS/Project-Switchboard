@@ -110,8 +110,11 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   fileira, de trás para a frente, os encaixados que saem dela e os guardados nela (o fio passa atrás dos da fileira dele e dos da frente, na frente dos de trás), depois os da mão e os soltos. No desenho: dobras do pano (`_kinked`), trançado (`BRAID`, uma chamada,
   `draw_multiline_colors`), curva Catmull-Rom (`_smooth`); dormindo, imagem pixel a pixel guardada (`_rope_image`);
   a sombra no fio de baixo onde se cruzam (`_cross_shade`, `CROSS_SHADE`, em polígonos do `Geometry2D`).
-- **Plugs**: pixel art de um P10 (`PLUG_ART`), girados pelo RotSprite em passos de 5° (`PixelArt.turned`); encaixados,
-  vistos de frente montados com discos (`_draw_plug_face`), com paralaxe para os olhos (`_tilt`); na mão balançam
+- **Plugs**: limpos, de plástico cinza com a ponta prateada, uma faixa na cor do cabo e a capa flexível afunilando
+  até o fio (`PLUG_ART`, `_plug_pal`; a cor do par fica no fio e na faixa), girados pelo RotSprite em passos de 5° (`PixelArt.turned`); encaixados, de cotovelo
+  (um tubo em arco e a capa de frisos, como na foto), com paralaxe na curva (`_tilt`) e a capa articulada na física
+  do fio (`Cord.pivot`: o peso dela e o contrapeso; balança com ele; `_elbow_pose`, `_elbow`, `_draw_elbow`,
+  `_elbow_pegs`); na mão balançam
   como pêndulo (`_swing_step`); soltos voltam ao buraco e assentam (`_seat`). Clique (apertar e soltar parado, em
   `CLICK_SEC`, sem andar `CLICK_PX`) desencaixa; plug só se move arrastando.
 - **Sons da mesa** pelo lugar na tela (`_sfx`): o atrito do fio (`Sfx.cord_rub`, barramento Rub, pela velocidade do
