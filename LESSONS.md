@@ -721,3 +721,25 @@ curva, outro caminho), mostre antes como proposta e pergunte, não entregue como
 - **Ler as falas é o jogo.** Propus um sinal na mesa para a ligação marcada, além da linha na conversa: "se o jogador
   não estiver olhando para os textos, é um problema dele". Não proponha avisos redundantes ao texto da conversa.
 - **Ligação marcada é do roteiro.** Nenhum molde marca ligação como suspeita: só o roteiro (`TransferCall.suspicious`).
+
+## Objeto novo: a medida de verdade e o que ele mostra
+- **Escala entre objetos da mesma mesa.** Desenhei a fita cassete em pé, do tamanho de um plug ou menor; o usuário
+  lembrou que, pela lógica, ela não é tão pequena perto de um plug de áudio. Antes de pôr um objeto novo, confira a
+  medida de verdade contra os vizinhos (o plug tem 72 px, ~1 px/mm) e veja se ele cabe no lugar daquele jeito.
+- **O que se vê precisa existir no aparelho.** No gravador de fenda, pus uma janelinha com as bobinas girando, mas a
+  fita está dentro da fenda: não haveria o que ver ali. Cada mostrador tem que vir de algo físico do aparelho.
+- **Sem lugar, abra espaço; não esprema.** Encolhi o gravador para caber na frente do console e criei uma vista de perto
+  para compensar; o usuário não gostou e alargou a mesa comutadora para abrir uma coluna do tamanho dele. Quando um
+  objeto não cabe na escala de verdade, proponha mudar a disposição antes de miniaturizar ou esconder em outra tela.
+- **Objeto da mesa que não abre ferramenta.** O `_flat` registra tudo o que desenha em `_props` (os objetos de
+  clicar); a pilha de fitas entrou ali, e o mouse sobre ela quebrava o `draw_hover` (sem nome em `PROPS`). O que só
+  ocupa a mesa sai de `_props` depois de desenhado (fica em `_occ`, para a disposição e as sombras).
+- **Texto miúdo no meio de uma tecla.** As letras de `PixelArt.tiny` ficam nas linhas 3 a 7 da textura (em cima, os
+  acentos); pus o texto pela altura da textura e as teclas do gravador saíram com as letras fora do meio. Centre pelas
+  5 linhas das maiúsculas, na frente da tecla abaixo da quina de luz, e use largura com a mesma paridade do texto.
+- **Caixa funda não é retângulo escuro.** O compartimento de fitas era um nicho escuro com as fitas por cima: "chapado,
+  parecem adesivos". Profundidade vem do que o olho veria de cima e da direita: a parede de dentro, o fundo na sombra
+  da borda, o alto e o lado de cada objeto, a sombra dele no fundo e uma beira na frente tapando o pé.
+- **Objeto dentro de um vão não encosta na borda.** Pus as fitas com o alto rente à borda de cima do compartimento e o
+  usuário viu as fitas sobrepondo a borda. O que fica dentro de um vão tem que mostrar o fundo em volta, inclusive
+  em cima; se não couber, esconda o pé atrás de uma beira em vez de subir o objeto.

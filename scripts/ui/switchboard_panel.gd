@@ -396,7 +396,7 @@ func _draw_legend() -> void:
 		texts.append(t)
 		width += 7.0 + 3.0 + t.get_width() + 8.0
 	var y := RULES["in"] + 1.0
-	var x := floorf(size.x - FRAME - 14.0 - width)
+	var x := floorf(SIZE.x - FRAME - 14.0 - width)
 	for k in leg.size():
 		PixelArt.sprite(_ci, _disc(7, [[2.0, Color.WHITE], [3.5, Color.TRANSPARENT]]), Vector2(x + 3.5, y), leg[k][0])   # lâmpadas redondas, como as da mesa
 		PixelArt.sprite(_ci, _disc(7, [[2.0, Color.TRANSPARENT], [3.5, Pal.SHELL[6], Pal.SHELL[4], Pal.SHELL[2]]]), Vector2(x + 3.5, y))   # o aro creme, como o das lâmpadas
@@ -409,8 +409,8 @@ func _draw_legend() -> void:
 ## `line`, só o nome).
 func _draw_rule(y: float, caption: String, line := true) -> void:
 	if line:
-		_lit_rect(Rect2(FRAME + 5, y, size.x - FRAME * 2 - 10, 1), _metal(-2))
-		_lit_rect(Rect2(FRAME + 5, y + 1, size.x - FRAME * 2 - 10, 1), _metal(2))
+		_lit_rect(Rect2(FRAME + 5, y, SIZE.x - FRAME * 2 - 10, 1), _metal(-2))
+		_lit_rect(Rect2(FRAME + 5, y + 1, SIZE.x - FRAME * 2 - 10, 1), _metal(2))
 	if caption != "":
 		var t := PixelArt.tiny(caption)
 		var tab := Rect2(FRAME + 3, y - 5, t.get_width() + 15, 12)
@@ -419,9 +419,9 @@ func _draw_rule(y: float, caption: String, line := true) -> void:
 		_ci.draw_texture(t, Vector2(FRAME + 10, y - 4), Pal.BOARD_INK)   # as letras nas linhas 3 a 7: em volta da faixa
 
 
-## A faixa escura do alto do painel, de ponta a ponta, onde vão o nome das entradas e a legenda das lâmpadas.
+## A faixa escura do alto do painel, de ponta a ponta das tomadas, onde vão o nome das entradas e a legenda das lâmpadas.
 func _draw_header() -> void:
-	var r := Rect2(FRAME + 3, RULES["in"] - 5, size.x - FRAME * 2 - 6, 12)
+	var r := Rect2(FRAME + 3, RULES["in"] - 5, SIZE.x - FRAME * 2 - 6, 12)
 	round_rect(_ci, r, Pal.BOARD_STRIP)
 	_lit_rect(Rect2(r.position.x + 2, r.end.y, r.size.x - 4, 1), _metal(2))
 
@@ -492,7 +492,7 @@ func _draw_tray() -> void:
 	var right := (bay_rect().get_center().x - bay_w / 2.0 if trunks.has_area() else tray_rect().end.x) - COVER_GAP
 	for k in range(patches, SHELF_SLOTS):
 		_draw_cover(right - COVER_W / 2.0 - (SHELF_SLOTS - 1 - k) * (COVER_W + COVER_GAP), COVER_W)
-	if equipped.is_empty() and trunks.has_area():   # o lugar dos equipamentos, tampado até chegar o primeiro
+	if not shelf_used and trunks.has_area():   # o lugar dos equipamentos, tampado até chegar o primeiro
 		_draw_cover(bay_rect().get_center().x, bay_w, true)
 
 
@@ -669,7 +669,8 @@ const PLATE_LETTERS := {
 
 ## Tampa lisa de cantos redondos sobre um banco que ainda não está em uso, encaixada, sem parafusos (limpa, como
 ## tudo na série Ruptura; os parafusos e os riscos da chave de fenda saíram): a letra do banco estampada em relevo (luz
-## em cima à esquerda, sombra embaixo à direita) e o aviso pintado com estêncil embaixo.
+## em cima à esquerda, sombra embaixo à direita) e o aviso pintado com estêncil embaixo; sem `letter`, lisa (a da coluna
+## do lado, até chegar um equipamento).
 func _draw_plate(r: Rect2, letter: String) -> void:
 	var plate := Pal.lit(PLATE, _step_at(r.get_center()))   # no tom da luz da sala no meio dela
 	round_rect(_ci, r.grow(1), plate.darkened(0.5))
@@ -678,6 +679,8 @@ func _draw_plate(r: Rect2, letter: String) -> void:
 		var cut: int = ROUND[i]
 		_ci.draw_rect(Rect2(r.position.x + cut, r.position.y + i, r.size.x - cut * 2, 1), plate.lightened(0.18))
 		_ci.draw_rect(Rect2(r.position.x + cut, r.end.y - 1 - i, r.size.x - cut * 2, 1), plate.darkened(0.35))
+	if letter == "":
+		return
 	var rows := PixelArt.relief(PLATE_LETTERS[letter])   # a letra estampada
 	var at := (r.get_center() - Vector2(0, 4)).round()
 	PixelArt.sprite(_ci, PixelArt.art(rows, {"*": plate.darkened(0.45)}), at + Vector2(1, 1))

@@ -41,7 +41,8 @@ class Verdict:
 ## como "FAULT_BUREAUCRACY").
 @export var severity := ShiftReport.Severity.MEDIUM
 @export var fault_text := "FAULT_BUREAUCRACY"
-## Os equipamentos que ela traz para a mesa (`scenes/ui/equipment/<id>.tscn`, na prateleira embaixo do interurbano):
+## Os equipamentos que ela traz para a mesa (`scenes/ui/equipment/<id>.tscn`, na prateleira embaixo do interurbano ou,
+## com `metadata/side` na cena, na coluna do lado do painel, `Switchboard.side_rect`):
 ## chegam na primeira vez que ela vale (`Bureaucracy.unlock_equipment`) e ficam, a não ser que `keep_equipment` seja
 ## falso (aí saem quando ela é desligada).
 @export var equipment := PackedStringArray()

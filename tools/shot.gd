@@ -13,9 +13,13 @@ extends Node
 ##   --emergency            toca uma emergência e atende (a luz vermelha da unidade, a barra, o rádio)
 ##   --news                 o jornal da manhã na mesa · --read: já lido, dobrado de outro jeito
 ##   --listen               a linha 3 conectada, com o FONE nela e a chave de escuta levantada
-##   --tapes                a B4 ligada: o porta-fitas e o gravador na prateleira, com uma fita no gravador (--tapes=rec:
-##                          com --listen, gravando a conversa da linha 3, a lâmpada REC acesa; --tapefly=in|deliver|discard,0.2:
-##                          a fita voando, parada nesse instante do voo, com uma já na caixa)
+##   --tapes                a B4 ligada: o gravador e o compartimento de fitas na coluna do lado do painel, com uma fita no
+##                          gravador (--tapes=empty: sem, com a tampinha da fenda fechada; --tapes=rec: com --listen,
+##                          gravando a conversa da linha 3, a REC presa e a lâmpada acesa;
+##                          --tapefly=in|deliver|back,0.2: a fita voando, parada nesse instante do voo (a do meio subindo
+##                          do compartimento e entrando, indo para a mesa ou, virgem, voltando ao compartimento);
+##                          --tapehover=1|deck: o mouse na fita 1 do compartimento ou na do gravador; --delivered=3: tantas tiradas, empilhadas na mesa ao lado do
+##                          bloco de fichas; --pile: com elas, a pilha aberta de perto, com o Descartar)
 ##   --patch=312,4          um cabo de conexão da saída da linha 4 (o padrão) ao destino dado, conectado (o aro aceso)
 ##   --plugs=3:296,4:162    outras pontas encaixadas nas tomadas dadas, sem ligação (os fios passando pelos plugs)
 ##   --lines=2:ring,4:conn  as lâmpadas dessas linhas no estado dado (`Exchange.Line`, em minúsculas), sem ligação
@@ -122,7 +126,8 @@ func _ready() -> void:
 		m.bureaucracy.enable(true)
 		m.bureaucracy.activate("b4_fitas")
 		m.bureaucracy.rule("b4_fitas").night_started()
-		m.bureaucracy.tapes.insert()
+		if _args["tapes"] != "empty":
+			m.bureaucracy.tapes.insert()
 		if _args["tapes"] == "rec" and _args.has("listen"):   # uma conversa de verdade na linha 3, para a escuta (e a fita) pegar
 			var c := PhoneCall.from_transfer(GameData.CONTENT.transfers[0])
 			c.line = 3
@@ -130,20 +135,54 @@ func _ready() -> void:
 			m.eavesdrop.connected(c)
 			m.exchange.set_key(3, true)   # (o `--listen` não levantou a chave: ainda não havia conversa)
 			m.eavesdrop.tick(0.0)
-			m.bureaucracy.tapes.bind(c, true)   # a fita gravando ela, com duas palavras-chave ouvidas
+			c.meta["b4"] = true
+			m.bureaucracy.tapes.rec = true
+			m.bureaucracy.tapes.bind(c)   # a fita gravando ela, com duas palavras-chave ouvidas
 			m.bureaucracy.tapes.inside["words"].append_array(["um", "dois"])
+		for i in int(_args.get("delivered", "0")):   # (a de cima com nome, hora e duas palavras-chave, para o `--pile`)
+			var named := i == int(_args["delivered"]) - 1
+			var c: PhoneCall = PhoneCall.from_transfer(GameData.CONTENT.transfers[0]) if named else null
+			m.bureaucracy.tapes.done.append({"call": c, "who": "", "hour": "21:40" if named else "", "words": ["um", "dois"] if named else [],
+				"value": 0, "fate": "na mesa", "marked": false})
 		if _args.has("tapefly"):   # o voo parado num instante (o gravador para de andar)
 			var fly: PackedStringArray = _args["tapefly"].split(",")
 			var rec: Control = m.board._equipment["gravador"]
-			m.bureaucracy.tapes.done.append({"who": "", "words": [], "value": 0, "fate": "entregue"})
-			if fly[0] == "in":
+			await get_tree().process_frame   # (a sala desenhada: o lugar da fita na mesa, `tape_spot`)
+			var t := float(fly[1]) if fly.size() > 1 else 0.2
+			var rack: Control = m.board._equipment["porta_fitas"]
+			rack._sync()
+			if fly[0] == "in":   # a do meio (a subida de dentro do compartimento é desenhada por ele)
 				rec._had_tape = true
-				rec._start_in(m.bureaucracy.tapes.blank)
-			else:
-				rec._start_out(fly[0] == "deliver")
-			rec._step_fly(float(fly[1]) if fly.size() > 1 else 0.2)
+				rack._full = [true, false, true] as Array[bool]
+				rack._move_slot = 1
+				rack._move = maxf(rack.RISE_SEC - t, 0.0)
+				rec._start_in(1)
+			elif fly[0] == "back":   # como o clique na virgem
+				m.bureaucracy.tapes.inside["call"] = null
+				var free: int = rack.free_slot()
+				m.bureaucracy.tapes.put_back()
+				rec._had_tape = false
+				rec._start_back(free)
+			else:   # como o clique na fita
+				m.bureaucracy.tapes.eject()
+				rec._had_tape = false
+				rec._start_out()
+			m.background.tapes_out = m.bureaucracy.tapes.on_desk().size() - (1 if fly[0] == "deliver" else 0)   # (a que voa, não)
+			rec._step_fly(t)
 			rec.set_process(false)
 			rec.queue_redraw()
+			rack.set_process(false)
+			rack.queue_redraw()
+		if _args.has("tapehover"):
+			await get_tree().process_frame
+			if _args["tapehover"] == "deck":
+				m.board._equipment["gravador"]._hover = m.board._equipment["gravador"].Hover.TAPE
+			else:
+				m.board._equipment["porta_fitas"]._hover = int(_args["tapehover"])
+		if _args.has("pile"):
+			for i in 3:
+				await get_tree().process_frame   # (a pilha desenhada: o lugar dela, `prop_rect`)
+			m.get_node("TapePile").open()
 	if _args.has("patch"):
 		var pa := (_args["patch"] as String).split(",")
 		m.board.plugged(1, 10 + (int(pa[1]) if pa.size() > 1 else 4))

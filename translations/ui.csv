@@ -445,8 +445,10 @@ SYS_BLOCKED,(O %s está bloqueado esta noite.),(%s is blocked tonight.),(El %s e
 SYS_FREE_UNTIL,(O %s está liberado até as %s.),(%s is open until %s.),(El %s está liberado hasta las %s.)
 SYS_NEEDS_CODE,(O %s exige o código de autorização.),(%s requires the authorization code.),(El %s exige el código de autorización.)
 SYS_RECORD_REQUEST,(Ligação marcada pelas autoridades: grave a conversa.),(Call flagged by the authorities: record the conversation.),(Llamada marcada por las autoridades: grabe la conversación.)
-EQUIP_DELIVER,ENTREGAR,DELIVER,ENTREGAR
-EQUIP_DISCARD,DESCARTAR,DISCARD,DESCARTAR
+TAPES_PILE,Fitas gravadas,Recorded tapes,Cintas grabadas
+TAPE_TAKE,Tirar a fita,Take the tape out,Sacar la cinta
+TAPE_RETURN,Devolver a fita,Put the tape back,Devolver la cinta
+EQUIP_DISCARD,Descartar,Discard,Descartar
 WARN_NO_TAPES,Não há mais fitas virgens.,There are no blank tapes left.,No quedan cintas vírgenes.
 WARN_TAPE_INSIDE,Já há uma fita no gravador.,There's already a tape in the recorder.,Ya hay una cinta en la grabadora.
 WARN_NO_TAPE,Não há fita no gravador.,There's no tape in the recorder.,No hay cinta en la grabadora.

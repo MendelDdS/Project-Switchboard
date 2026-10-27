@@ -23,10 +23,13 @@ var patches := 3               # cabos de conexão em uso: cada setor entregue a
 var held := -1
 ## Os olhos do operador, o ponto de fuga da sala, em px da mesa (medido a cada quadro pela mesa; sem cenário, nos
 ## testes, onde eles ficam em 960 × 540): os plugs encaixados apontam para ele e a prateleira foge para ele.
+const SIDE_W := 72.0   # a coluna do móvel à direita do painel, para os equipamentos de pé (`side_rect`): o painel (as tomadas) é o `SIZE`
 const PLUG_EYE := Vector2(SIZE.x + 132, 81)
 var _eye := PLUG_EYE
 var trunks := Rect2()   # o bloco interurbano no painel (a mesa o põe ao montar os bancos): os cabos vão até ele
-var equipped := PackedStringArray()   # os equipamentos de pé na prateleira embaixo dele (`bay_rect`, `Switchboard.set_equipment`)
+var equipped := PackedStringArray()   # os equipamentos liberados (`Switchboard.set_equipment`)
+var shelf_used := false   # algum deles fica de pé na prateleira embaixo do interurbano (`bay_rect`; os outros, na coluna do lado, `side_rect`)
+var side_used := false   # algum deles fica na coluna do lado (sem nenhum, ela fica sob uma tampa lisa, `_draw_plate`)
 
 const PLUG_BASE := Vector2(0, 36)   # de onde a mão pega o plug (o meio do corpo) até onde o fio entra nele
 const PLUG_H := 72.0   # a altura do `PLUG_ART`: do bico até onde sai o fio...

@@ -105,6 +105,9 @@ const BOARD_SIDE := Color("2a3022")    ## a frente do console embaixo da pratele
 ## As teclas de plástico ciano das chaves de escuta (`Switchboard._draw_levers`), do escuro ao claro.
 const KEY_CAP: Array[Color] = [Color("12394a"), Color("1d5a72"), Color("2b7e9c"), Color("3f9fbf"), Color("6cc0da"),
 	Color("a2dcec")]
+## A tecla REC do gravador de fitas (B4), de plástico vermelho como as teclas vermelhas do console (`RedKey`, `RED`): a
+## beira funda, afundada, a frente e a quina na luz.
+const REC_CAP: Array[Color] = [Color("6e1a12"), Color("a3382a"), Color("d4553f"), Color("ea8a72")]
 const KEY_GLOW := Color("7fd3e6")   ## a tecla presa, acesa por dentro: plástico fosco, uma cor só
 ## A quina do níquel descendo até o painel (`Switchboard.NICKEL_EDGE`): na luz, no meio e na sombra.
 const NICKEL_EDGE: Array[Color] = [Color("63675a"), Color("4a4f42"), Color("353a2e")]
@@ -353,7 +356,6 @@ const MUG_CHIP: Array[Color] = [Color("2a2620"), Color("4a443c")]   ## as lascas
 const GLINT := Color("d9a35f")
 const RUBBER_DRY := Color("3a302a")
 const TOLL_BOX_MOUTH := Color("140e09")
-const TAPE_PACK := Color("2a1a12")   ## a fita magnética enrolada nas bobinas da fita cassete (B4), marrom do óxido
 
 ## Rampas de material: do mais escuro ao mais claro, a sombra puxando para o frio (o azul da noite na sala) e a luz para
 ## o quente (a da luminária), não só mais escuro e mais claro. O desenho escolhe o tom pelo nível de luz (`ramp`).

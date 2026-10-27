@@ -19,6 +19,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="20_pause"]
 [ext_resource type="PackedScene" path="res://scenes/ui/debug_panel.tscn" id="21_debug"]
 [ext_resource type="Script" path="res://scripts/ui/scene_view.gd" id="41_scene_view"]
+[ext_resource type="PackedScene" path="res://scenes/ui/equipment/pilha_fitas.tscn" id="42_tape_pile"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_4"]
 blend_mode = 1
@@ -115,13 +116,8 @@ size_flags_vertical = 3
 mouse_filter = 2
 theme_override_constants/separation = 18
 
-[node name="Gutter" type="Control" parent="Layout/Rows/Columns"]
-custom_minimum_size = Vector2(12, 0)
-layout_mode = 2
-mouse_filter = 2
-
 [node name="Left" type="VBoxContainer" parent="Layout/Rows/Columns" unique_id=2075594968]
-custom_minimum_size = Vector2(369, 0)
+custom_minimum_size = Vector2(441, 0)
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 6
@@ -161,7 +157,7 @@ text = "END_SHIFT"
 [node name="Board" type="Control" parent="Layout/Rows/Columns/Left" unique_id=995017339]
 unique_name_in_owner = true
 z_index = 1
-custom_minimum_size = Vector2(369, 238)
+custom_minimum_size = Vector2(441, 238)
 layout_mode = 2
 script = ExtResource("5_switchboard")
 
@@ -280,6 +276,8 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("24_bloom")
+
+[node name="TapePile" parent="." instance=ExtResource("42_tape_pile")]
 
 [node name="Conversation" type="Node" parent="." unique_id=1871039847]
 unique_name_in_owner = true

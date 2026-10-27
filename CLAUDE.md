@@ -177,7 +177,8 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   da tentativa e registra as decisões (`decisions`, no `Progress.bureaucracy`). Chave geral `Bureaucracy.enabled` (ligue por `enable`;
   regra que passa a valer no meio do turno começa na hora, `sync`) desligada = o jogo de sempre. Serviços: `codes`, `messages`, `agreements`, `tapes`. A ativação vai para o save (`state`, `_restore`). Equipamentos da mesa:
   `unlock_equipment` (marcador `equipamento_<id>`), cena `scenes/ui/equipment/<id>.tscn` na prateleira embaixo do
-  Interurbano (`Switchboard.set_equipment`, `bay_rect`). Como criar uma: `BUREAUCRACY_RULES.md`; aba Burocracias no F1.
+  Interurbano (`Switchboard.set_equipment`, `bay_rect`) ou, com `metadata/side`, na coluna à direita do painel
+  (`side_rect`; os da B4). Como criar uma: `BUREAUCRACY_RULES.md`; aba Burocracias no F1.
 
 ## Noites, setores e agenda
 - 15 noites (`GameContent.nights`, `Night`, `data/nights/`); a noite 0 é o treinamento (`Training`, `LessonStep`, a

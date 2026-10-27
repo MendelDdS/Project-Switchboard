@@ -16,6 +16,7 @@ const PAPER_RAG := 0.12    ## o mesmo nos papéis da mesa, na luz parada (`_lit_
 const WALL_PAD := 2.0           ## a folga dos objetos da mesa até a parede da direita (x da sala)
 const MUG_ID := "caneca"   ## a caneca: sob o mouse se ergue como os objetos das ferramentas; clicada, um gole (`Background.sip`)
 const MUG_SIPS := 5       ## os goles do café da caneca
+const TAPES_ID := "fitas"   ## a pilha das fitas tiradas do gravador (B4): sob o mouse se ergue; clicada, abre de perto (`tapes_clicked`)
 const EDGE_PX := 8.0            ## e a da fileira da frente até a beira da tela (px de 2x2): perto, a parede já passou dela, e o jornal saía cortado
 const PROP_K := 0.75 * 93.0 / 66.0   ## a escala dos objetos da mesa: no tamanho de verdade deles na sala (`_cm`; as listas com 21 cm), maiores que o plug em pé (uns 9 cm)
 ## A unidade de despacho (`_draw_dispatch_unit`, na escala dos objetos, `PROP_K`): largura, altura da base e fundo da
@@ -29,6 +30,11 @@ const PAD_W := 26.0    ## a largura do bloco de fichas (na escala dos objetos, u
 ## em fração da folha abaixo da fita (x da largura, y da altura dela).
 const PENCIL := [[Vector2(0.5, 0.88), Vector2(0.96, 0.18)], [Vector2(0.28, 0.82), Vector2(0.8, 0.5)],
 	[Vector2(0.9, 0.86), Vector2(0.44, 0.2)], [Vector2(0.14, 0.3), Vector2(0.64, 0.9)]]
+## A fita cassete deitada na mesa (as entregues, `tapes_out`, na escala dos objetos, `PROP_K`), de comprido para o fundo
+## (de frente, com 10 cm de largura, não cabia ao lado do bloco de fichas): largura (6,4 cm), fundo (10 cm, fração do
+## tampo) e grossura; giradas um pouco, cada uma para um lado (`TAPE_YAW`).
+const TAPE := Vector3(9.2, 0.2, 1.7)
+const TAPE_YAW := [-5.0, 4.0, -2.0, 7.0]
 const NEWS_W := 25.0   ## a largura do jornal dobrado (na escala dos objetos, uns 16 cm): com 32, o calculógrafo não cabia do lado
 const UNIT_TILT := 0.11
 const UNIT_D := 0.3
@@ -124,11 +130,13 @@ var card_out := false  ## há um cartão perfurado na mesa: ele sai da fenda da 
 var news := false    ## o jornal da manhã está na mesa (da segunda noite em diante; `Main.set_news`)
 var news_read := false   ## o jornal já foi aberto: volta à mesa dobrado de outro jeito, a última página para cima
 var written := 0     ## fichas registradas na noite: o lápis fica num lugar do bloco a cada uma (`PENCIL`)
+var tapes_out := 0   ## fitas tiradas do gravador na noite (B4, posto pelo gravador): empilhadas ao lado do bloco de fichas até o fim do turno
 var counting := 0    ## as entradas contando um interurbano, um bit cada (`Toll.counters`): os contadores acesos do calculógrafo
 var toll_desk := []  ## o que está na mesinha do calculógrafo e onde (`Toll.layout`; o Main só passa com a ferramenta fechada)
 var clock_x := 0.0   ## onde o relógio está na tela (x global): de lá vêm a badalada das horas e a campainha do turno
 var _yaw := 0.0   # quanto o relógio da mesa está girado (rad; `_draw_flip_clock`)
 var _props := {}       # objeto que abre ferramenta -> retângulo dele (px da tela), do último desenho
+var _tape_next := Rect2()   # o tampo da próxima fita entregue na pilha (`tape_spot`), do último desenho
 var sips := 0   ## os goles já tomados do café: ele baixa na caneca (`_mug_art`) e, acabado, o vapor some
 var _up_id := ""       # o objeto erguido sob o mouse, subindo ou assentando ("" = nenhum): fica na camada dele (`_lifted`), não na sala
 var _mug_rim := []     # a caneca na tela (o corpo e a meia altura da boca), para a beira acesa pelo sol (`Background._draw_sun_edge`)
@@ -254,6 +262,7 @@ func _draw_desk_props() -> void:
 	if _here(Tools.LOGBOOK):
 		_flat(Tools.LOGBOOK, near[0], _at(0.06), PAD_W * k, _deep(0.26 * k), 2 * k, Pal.NOTE_PAGE.darkened(0.25), _art_pad, [], deg_to_rad(-2.0),
 			_pad_marks)
+	_draw_tapes(cx + CALC.x * k, near[0], _at(0.06) + (_deep(0.26 * k) - _deep(TAPE.y * k)) / 2.0)
 	if _here("relogio"):
 		_draw_flip_clock(back[2] + cw / 2.0, _at(0.72))   # logo atrás da caneca (desenhado antes dela)
 	if _here(MUG_ID):
@@ -267,6 +276,44 @@ func _draw_desk_props() -> void:
 			_art_newspaper.bind(news_read), [news_read], deg_to_rad(-9.0 if news_read else 6.0), _newspaper_print.bind(news_read))
 	_snap = false
 	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+
+
+## As fitas tiradas do gravador (`tapes_out`), deitadas e empilhadas no meio do vão entre `a` e `b` (a mesinha do calculógrafo e
+## o bloco de fichas), com o fundo em `z`; e onde a próxima vai cair (`_tape_next`, a fita voando do gravador mira nela).
+func _draw_tapes(a: float, b: float, z: float) -> void:
+	var w := TAPE.x * PROP_K
+	var x := (a + b - w) / 2.0 - 0.6   # (um pouco para a esquerda: a beira do bloco, girado, vem para cá na frente)
+	var h := TAPE.z * PROP_K
+	var yd := _yd
+	if _here(TAPES_ID):
+		var all := Rect2()
+		for i in tapes_out:
+			_yd = yd - h * i   # a de baixo é o tampo da de cima
+			_flat(TAPES_ID, x, z, w, _deep(TAPE.y * PROP_K), h, Pal.BAKELITE[1], _art_tape, [], deg_to_rad(TAPE_YAW[i % TAPE_YAW.size()]))
+			all = _props[TAPES_ID] if i == 0 else all.merge(_props[TAPES_ID])
+		if tapes_out > 0:
+			_props[TAPES_ID] = all   # o mouse vale na pilha inteira, não só na de cima
+		_yd = yd
+		var top := yd - h * (tapes_out + 1)
+		var dz := _deep(TAPE.y * PROP_K)
+		_tape_next = PixelArt.bounds(PackedVector2Array([_p3(x, top, z), _p3(x + w, top, z), _p3(x + w, top, z + dz), _p3(x, top, z + dz)]))
+
+
+## A fita deitada vista de cima, de comprido para o fundo: o plástico escuro e a etiqueta creme do lado esquerdo (a
+## janelinha das bobinas, nesse tamanho, parecia um risco).
+func _art_tape(sz: Vector2i) -> Image:
+	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
+	img.fill(Pal.BAKELITE[3])
+	var lw := maxi(roundi(sz.x * 0.6), 2)
+	var ly := maxi(roundi(sz.y * 0.08), 1)
+	_fr(img, 1, ly, lw, sz.y - ly * 2, Pal.LABEL_PAPER)
+	_fr(img, 0, 0, sz.x, 1, Pal.BAKELITE[5])   # a beira do fundo, na luz
+	return img
+
+
+## Onde (na tela) a próxima fita entregue cai em cima da pilha (`_draw_tapes`).
+func tape_spot() -> Rect2:
+	return Rect2(global_position + _tape_next.position, _tape_next.size)
 
 
 ## Um fio de uma máquina da mesa, como esses aparelhos são ligados: sai rente ao tampo atrás da traseira dela (o canto

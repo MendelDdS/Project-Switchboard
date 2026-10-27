@@ -14,7 +14,7 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   (`SIDE_VP`, `_svp`, `_side_pt`) e as contas de luz pela janela pegam o meio do vão (`_wall_x`). Nunca acerte a
   perspectiva elemento por elemento: pense a cena e passe pela câmera.
 - A tela é uma mesa de trabalho: no alto da esquerda o horário num papel com fita (`ShiftPlate`) e a placa da
-  companhia; embaixo, a mesa comutadora (369×238) com a prateleira (`Shelf`) e a frente do console (`%Desk`, com a
+  companhia; embaixo, a mesa comutadora (441×238: o painel das tomadas, `SIZE`, e a coluna do lado, `SIDE_W`) com a prateleira (`Shelf`) e a frente do console (`%Desk`, com a
   miniatura do painel, `ConsoleMini`); à direita a sala e as ferramentas (`Tools`, o papel sai do objeto dele na mesa,
   `Tools.origin` = `Background.prop_rect`; sem abas); embaixo de tudo, o painel do operador (`PhonePanel`, 150 px, fora
   da luz da sala). A dica do manual (`HintSlot`) está escondida, a pedido.
@@ -97,11 +97,23 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   cabos de conexão (`mate(e)` dá a outra ponta). Um par de cabos por setor entregue (`SHELF_SLOTS` lugares, os vagos
   sob um tampo, `_draw_cover`). `dest_of_output(n)` segue o cabo da saída. `refuse(e, j)` decide compatibilidade.
 - **Chave de escuta** de cada linha (`lever_rect`, `lever_up`, `lever_pressed`).
-- **Equipamentos das burocracias** na prateleira embaixo do bloco interurbano (`bay_rect`): tampados até o primeiro
-  chegar (`_draw_cover`); cada um é uma cena de `scenes/ui/equipment/` posta por `set_equipment` (porta-fitas e
-  gravador com a caixa das autoridades, da B4, `scripts/ui/equipment/`, desenhados com `cassette.gd`; a fita voa entre
-  eles, `tape_recorder.gd`, `_fly`), de até 46 px de altura (o vão do pé do painel até o interurbano, com a régua de
-  latão no meio, `_draw_trunks`; mais alto, tampa as tomadas). A mesa não sabe o que cada um faz.
+- **Equipamentos das burocracias**: cada um é uma cena de `scenes/ui/equipment/` posta por `set_equipment`, na
+  prateleira embaixo do bloco interurbano (`bay_rect`, tampada até o primeiro chegar, `_draw_cover`, `shelf_used`; até
+  46 px de altura, o vão do pé do painel até o interurbano) ou, com `metadata/side` na cena (0 no alto, 1 embaixo), na
+  coluna à direita das tomadas, depois do friso (`side_rect`, 65×222, sob uma tampa lisa até chegar o primeiro,
+  `side_used`, `_draw_plate` sem letra; o painel, a faixa do alto e as abas ficam em `SIZE`). Os da B4 (`scripts/ui/equipment/`, desenhados com `cassette.gd`, a fita em pé de lado, 12×100, na escala dos
+  plugs): o gravador vertical no alto (a lombada na fenda com o nome e a hora escritos de lado; vazia, a fenda tem a tampinha de mola dos toca-fitas de carro, `_flap`; VU, contador,
+  lâmpada e a tecla REC vermelha que trava, `Tapes.rec`, também pela tecla R, e solta sozinha no fim da conversa gravada;
+  sob o mouse, a fita mostra uma etiqueta de fita crepe, `_draw_tip`; clicada, a gravada sai para a mesa e a virgem
+  volta ao compartimento, `Fly.BACK`, `Tapes.put_back`) e o compartimento embaixo (`tape_rack.gd`,
+  antes do gravador na árvore: a fita voa por cima), uma caixa funda de plástico branco com três fitas em pé, a beira
+  da frente tapando o pé delas; cada fita tem o lugar dela (`_full`) e o clique tira a apontada (`taken`: ela sobe
+  dentro do vão desenhada pelo compartimento, `RISE_SEC`, e o gravador a puxa para a frente, `FRONT_SEC`, e segue); a
+  devolvida volta ao lugar reservado (`hold`) e afunda (`land`). O voo para a mesa é do gravador (`tape_recorder.gd`, `_fly`): tomba de lado no meio do caminho e encolhe até
+  a pilha entre a mesinha do calculógrafo e o bloco de fichas (`Background.tapes_out`, `tape_spot`, `_draw_tapes`). A
+  pilha é objeto de clicar (`TAPES_ID`, `tapes_clicked`): abre de perto, acima dela (`tape_pile.gd`, cena
+  `pilha_fitas.tscn` no Main), as fitas deitadas (`Cassette.lying`) num papel (`NotePanel`) com o Descartar (`InkButton`): a descartada cai
+  para fora da tela, sem som. A mesa não sabe o que cada um faz.
 - **Fios** são cordas de Verlet, uma por ponta (`Cord`, `scripts/ui/cord.gd`, sem tela nem som, testada sozinha):
   presas no buraco (`hole(e)`) e na traseira do plug; o contrapeso puxa a folga para dentro (`WEIGHT_TAKE`); todos com
   o mesmo comprimento (`Cord.MAX`); a prateleira e a beira dela são quinas (`hang_step`, `lip_y`, `route`); os plugs

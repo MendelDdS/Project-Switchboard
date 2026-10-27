@@ -26,6 +26,7 @@ extends "res://scripts/ui/background_props.gd"
 ## sobre eles (`prop_at`) e não com o papel de uma ferramenta por cima.
 
 signal prop_clicked(id: String)
+signal tapes_clicked   ## a pilha de fitas na mesa (`TAPES_ID`), para ver de perto e descartar (`tape_pile.gd`)
 
 ## A luminária esquentando no começo do turno (`warm_up`): acende a WARM.x da luz e chega a ela inteira em WARM.y s,
 ## devagar no fim, como um filamento; em degraus de WARM_STEP (cada degrau redesenha a sala). Acima de 0,5, para não
@@ -43,7 +44,7 @@ const PROPS := {Tools.DIRECTORY: T.Key.TAB_DIRECTORY, Tools.DISPATCH: T.Key.TAB_
 ## Sob o mouse, o objeto se ergue LIFT_PX (no tempo do `Lift`, como o cartão e o bilhete; a prancheta pendurada sai
 ## da lateral para a frente) e, quando o mouse sai, assenta com a batidinha do material dele (`SET_SOUND`; sem ele, papel).
 const LIFT_PX := 2
-const SET_SOUND := {Tools.DISPATCH: "set_metal", Tools.TOLL: "set_metal"}
+const SET_SOUND := {Tools.DISPATCH: "set_metal", Tools.TOLL: "set_metal", TAPES_ID: "tape_door"}
 
 
 const TIP_SEC := 1.3   ## o bilhete subindo na fenda do calculógrafo da mesa: o tempo do som da impressora ("printer")
@@ -592,7 +593,7 @@ func _process(delta: float) -> void:
 ## dele. Ele vai para a camada dele (`_lifted`), que sobe sem redesenhar a sala: ela só se redesenha quando ele sai da
 ## sala e quando volta, e a camada a cada pixel que ele sobe ou desce (a sombra fica na mesa).
 func _lift_step(delta: float) -> void:
-	var want := _hot if (_hot in PROPS or _hot == MUG_ID) and not _cover.has_area() else ""
+	var want := _hot if (_hot in PROPS or _hot == MUG_ID or _hot == TAPES_ID) and not _cover.has_area() else ""
 	if _up_id != "" and want != "" and want != _up_id:   # ponytail: o anterior assenta de uma vez; uma camada por objeto se os dois tiverem de se ver
 		_land()
 	if _up_id == "" and want != "":
@@ -758,7 +759,7 @@ func _show() -> void:
 func _state() -> Array:
 	return [size, board.get_global_rect() if board else Rect2(), desk.get_global_rect() if desk else Rect2(),
 		window.get_global_rect() if window else Rect2(), pending, unread, alert, card_out, news, counting, toll_desk, details, night, weather,
-		snappedf(_shut, 0.25), cab_open, sips, damp, written, news_read,   # (a luz da rua na mesa e o relâmpago acompanham a persiana em 4 passos)
+		snappedf(_shut, 0.25), cab_open, sips, damp, written, news_read, tapes_out,   # (a luz da rua na mesa e o relâmpago acompanham a persiana em 4 passos)
 		TranslationServer.get_locale(), _city_for]   # (a cidade montada: as janelas do prédio de tijolos que brilham, `_flats`)
 
 
@@ -1685,6 +1686,8 @@ func draw_hover(ci: Control) -> void:
 			cap = T.text(T.Key.CABINET_CLOSE if ("armario_entreaberto" in details) != cab_open else T.Key.CABINET_OPEN)
 		MUG_ID:
 			cap = T.text(T.Key.MUG_SIP if sips < MUG_SIPS else T.Key.MUG_EMPTY)
+		TAPES_ID:
+			cap = T.text(T.Key.TAPES_PILE)
 		CALENDAR:
 			cap = GameData.date_text(night)
 		_:
@@ -1739,6 +1742,8 @@ func pointer(e: InputEvent) -> bool:
 				Sfx.play_at("locker", (_props[id] as Rect2).get_center().x / maxf(1.0, size.x))
 			MUG_ID:
 				sip()
+			TAPES_ID:
+				tapes_clicked.emit()
 			_:
 				return false
 		return true
@@ -1752,10 +1757,10 @@ func sip() -> void:
 		Sfx.play_at("gulp", (_props[MUG_ID] as Rect2).get_center().x / maxf(1.0, size.x) if _props.has(MUG_ID) else 0.9)
 
 
-## Se o objeto sob o mouse faz alguma coisa clicado (o cursor vira o dedo): as ferramentas, a persiana, o armário e a
-## caneca com café.
+## Se o objeto sob o mouse faz alguma coisa clicado (o cursor vira o dedo): as ferramentas, a persiana, o armário, a
+## caneca com café e a pilha de fitas.
 func pointing() -> bool:
-	return _hot in PROPS or _hot == BLIND_ID or _hot == CABINET_ID or (_hot == MUG_ID and sips < MUG_SIPS)
+	return _hot in PROPS or _hot == BLIND_ID or _hot == CABINET_ID or (_hot == MUG_ID and sips < MUG_SIPS) or _hot == TAPES_ID
 
 
 ## O objeto sob o mouse ("" = nenhum).

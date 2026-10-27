@@ -148,7 +148,7 @@ const BAY_GAP := 6.0   # entre um equipamento e o seguinte, e da beira do bloco 
 
 
 func _ready() -> void:
-	custom_minimum_size = SIZE
+	custom_minimum_size = SIZE + Vector2(SIDE_W, 0)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_ci = self
 	_layers.append(self)
@@ -194,7 +194,8 @@ func setup(ex: Exchange, socket: Control, cord_tray: Control) -> void:
 
 
 ## Os equipamentos liberados (`Bureaucracy.equipment`), de pé na prateleira embaixo do bloco interurbano (`bay_rect`),
-## lado a lado na ordem de `ids`: cada um é a cena `scenes/ui/equipment/<id>.tscn` e cuida de si (desenho, clique); a
+## lado a lado na ordem de `ids`, ou, com `side` na cena (0 em cima, 1 embaixo), na coluna do lado do painel
+## (`side_rect`): cada um é a cena `scenes/ui/equipment/<id>.tscn` e cuida de si (desenho, clique); a
 ## mesa só os põe no lugar, por baixo da luz das lâmpadas e dos fios. Sem nenhum, o lugar fica tampado.
 func set_equipment(ids: PackedStringArray) -> void:
 	for id: String in _equipment.keys():
@@ -211,14 +212,29 @@ func set_equipment(ids: PackedStringArray) -> void:
 	_place_equipment()
 
 
-## Põe os equipamentos lado a lado, de pé na fileira da frente da faixa deles.
+## Põe os equipamentos no lugar: os da coluna do lado, no alto ou no pé dela; os outros lado a lado, de pé na fileira
+## da frente da faixa deles.
 func _place_equipment() -> void:
 	_bay_at = bay_rect()
 	var x := _bay_at.position.x + BAY_GAP
+	var side := side_rect()
+	shelf_used = false
+	side_used = false
 	for n: Control in _equipment.values():
 		n.size = n.custom_minimum_size
+		var at: int = n.get_meta("side", -1)
+		if at >= 0:
+			side_used = true
+			n.position = Vector2(side.get_center().x - n.size.x / 2.0, side.position.y if at == 0 else side.end.y - n.size.y).round()
+			continue
+		shelf_used = true
 		n.position = Vector2(x, _bay_at.position.y + SHELF_FRONT_Y + 3.0 - n.size.y).round()
 		x += n.size.x + BAY_GAP
+
+
+## A coluna do móvel à direita das tomadas (`SIDE_W`), dentro da moldura, depois do friso que a separa delas.
+func side_rect() -> Rect2:
+	return Rect2(SIZE.x - FRAME + 4.0, FRAME + 3.0, SIDE_W - 7.0, SIZE.y - FRAME * 2.0 - 6.0)
 
 
 ## Posição de cada tomada de destino: blocos lado a lado, centralizados na mesa.
@@ -541,7 +557,7 @@ func _look() -> Array:
 			if j != -1:
 				plugs.append(_plug_light(j))
 	return [[size, states, GameData.sectors.duplicate(), _lamp_at, equipped, _eye], [size, levels, ends.duplicate(), _eye, poses, _lamp_at],
-		[size, GameData.sectors.duplicate(), _lamp_at],
+		[size, GameData.sectors.duplicate(), _lamp_at, side_used],
 		[size, ends.duplicate(), _hover, plugs, PixelArt.ms() < info_until, info_line, _eye, _lamp_at]]
 
 
@@ -794,6 +810,9 @@ func _step_rope(e: int, dt: float) -> void:
 ## destinos com a luz da sala (`_top`) e os plugs com os fios (`_cords`).
 func _draw() -> void:
 	_draw_cabinet(Rect2(Vector2.ZERO, size))
+	var div := Rect2(SIZE.x - FRAME, FRAME + 3.0, 1, SIZE.y - FRAME * 2.0 - 6.0)   # o friso entre as tomadas e a coluna do lado
+	_lit_rect(div, _metal(-2))
+	_lit_rect(Rect2(div.position + Vector2(1, 0), div.size), _metal(2))
 	_draw_tray()
 	_draw_header()
 	_draw_rule(RULES["out"], "")   # a faixa das chaves de escuta
@@ -884,6 +903,8 @@ func _draw_top() -> void:
 	for s in _blocks:
 		if not s in GameData.sectors:
 			_draw_plate(_blocks[s], "ABC"[SECTOR_ORDER.find(s)])
+	if not side_used:   # a coluna do lado, tampada até chegar o primeiro equipamento dela
+		_draw_plate(side_rect().grow(-1), "")
 	for s in GameData.sectors:   # a faixa de numeração na moldura de cima, à esquerda, como o nome do INTERURBANO (a chapa dispensa)
 		var br: Rect2 = _blocks[s]
 		var cap := PixelArt.tiny("%d-%d" % [s * 100, s * 100 + 99])

@@ -2442,3 +2442,58 @@ Chaves:
     (`Tapes.left_behind`); a gravação de conversa não marcada entregue vai para o registro como "gravação não pedida".
     Sinal na mesa para a ligação marcada: recusado ("se o jogador não estiver olhando para os textos, é um problema
     dele"). O lugar do gravador: pediu mais sugestões.
+428. #burocracias #fitas #console #ferramentas #saiu O lugar do gravador (sugestão A): o gravador e a gaveta das fitas
+    embutidos na frente do console, nos lugares da plaqueta do fabricante e dos dois botões (`metadata/console` 0 e 1
+    na cena, `Background.console_bay`/`console_used`, `Switchboard.console`); a prateleira embaixo do interurbano fica
+    tampada (`shelf_used`). Os lados trocaram: o lugar dos botões tem ~60 px, pouco para o gravador. Clicar em
+    qualquer dos dois abre o gravador de perto (`Tools.TAPES`, `tape_deck.gd`), como as outras ferramentas; o de
+    console só mostra. Fitas por cliques (a de cima da gaveta voa para o gravador; Entregar e Descartar levam para a
+    caixa das autoridades ou para o cesto); a caixa só na vista de perto, e no console uma luzinha por fita entregue.
+    A fita em pé atrás de uma porta de vidro saiu: "pela lógica, a fita não é tão pequena assim em comparação a um plug
+    de áudio". Agora ela fica deitada, na escala dos plugs (100×11 no console, 150×18 de perto), num gravador de fenda,
+    com a etiqueta na lombada; a gaveta e a caixa também com as fitas deitadas, empilhadas. A janelinha das bobinas em
+    cima da fenda também saiu: "não faz sentido, pois a fita está encaixada no slot". O VU ficou no lugar dela, e o
+    gravador encolheu (110×40 no console, 240 de largura de perto).
+429. #burocracias #fitas #mesa-comutadora #disposicao #saiu "Não gostei" do gravador no console: o painel das tomadas foi
+    para a esquerda (saiu a folga de 12 px antes dele) e a mesa comutadora alargou 72 px (441), com a prateleira e o
+    console acompanhando; à direita das tomadas, depois de um friso, uma coluna nova (`SIDE_W`, `side_rect`) com o
+    gravador vertical no alto e o compartimento de fitas embaixo, tudo na cena (pedido: "Tudo na cena"; "Fenda
+    vertical"; "Em pé, lado a lado"). Saíram a vista de perto do gravador (`Tools.TAPES`, `tape_deck.gd`), os lugares
+    da frente do console (a plaqueta e os botões voltaram), a lixeira e a caixa das autoridades, a porta do gravador e
+    o som dela. A fita em pé de lado, 12×100 (a lombada com o nome e a hora escritos de lado, de baixo para cima), na
+    fenda; o compartimento com três em pé, o clique tira a da direita. Descartar: "ela cai da tela e pronto". Entregar:
+    "ela é mostrada ao lado do caderno de registro, se tiver mais de uma fita, só empilhar" — voa encolhendo até a
+    pilha, deitada de comprido para o fundo entre a mesinha do calculógrafo e o bloco de fichas (de frente, com 10 cm,
+    encostava no bloco e no jornal).
+430. #burocracias #fitas #mesa-comutadora Melhorias na coluna do gravador (as que sugeri, escolhidas pelo usuário): até
+    chegar o primeiro equipamento dela, a coluna fica sob uma tampa lisa, como as chapas dos bancos (sem letra nem
+    aviso); a fita entregue tomba de lado no meio do voo (girada 90°, exata) e chega à mesa com a cara da da pilha
+    (escura, a etiqueta nos 60% da esquerda; antes, um bloco creme encolhendo). Conferido: as teclas Entregar e
+    Descartar cabem em espanhol (os mesmos textos) e em inglês (mais curtos). A sugestão de ajustar a miniatura do
+    console estava errada: ela é o painel do operador, não a mesa comutadora.
+431. #burocracias #fitas "Coloque uma tampinha no slot das fitas, como aquelas de toca fitas de carros": sem fita, a fenda
+    do gravador fica fechada por uma tampinha de plástico escuro presa pela beira da esquerda; a fita entrando a empurra
+    para dentro (de frente, ela estreita até sumir), e, quando a fita sai, ela volta de mola e bate (`_flap`, o som
+    `tape_door`, que tinha saído com a porta antiga, de volta). Captura: `--tapes=empty`.
+432. #burocracias #fitas #mesa-comutadora "As letras dos botões não estão centralizadas; troque por um botão REC
+    vermelho. Para entregar, o jogador deixa a fita na mesa até o fim do turno; para descartar, clica na fita e aparece
+    o botão Descartar. O compartimento está chapado, parecem adesivos: mais profundidade." A gravação deixou de ser
+    automática: a tecla REC vermelha trava (`Tapes.rec`) e, presa e com a escuta na conversa, em qualquer ordem, grava;
+    sem fita, desce e volta com o aviso. Clicada a fita na fenda, ela vai para a pilha da mesa (a REC volta); as da
+    mesa são entregues no fim do turno (`Tapes.hand_over`, os pontos só então); a esquecida no gravador continua não
+    entregue. Clicada a pilha (que se ergue, "Fitas gravadas"), abre de perto acima dela com as fitas deitadas e o
+    Descartar de cada uma (`tape_pile.gd`). O compartimento virou uma caixa funda de plástico branco, como o gravador: o
+    fundo escurecendo para cima, a parede da esquerda por dentro, o alto e o lado de cada fita com a sombra no fundo e
+    a beira da frente tapando o pé delas, de onde a fita tirada sobe antes de voar.
+433. #burocracias #fitas "As fitas parecem estar sobrepondo o compartimento": o alto das fitas subia até a borda de
+    cima. Baixei as fitas (`FLOOR` 106): o alto delas fica dentro do vão, com o fundo escuro à vista por cima, e o pé
+    fica escondido atrás da beira da frente e da borda de baixo, redesenhadas por cima delas.
+434. #burocracias #fitas "Sugira melhorias" e, das sugeridas, "Pode fazer todos, menos o som da queda. Também seria
+    interessante poder selecionar qualquer fita no compartimento (hoje só a primeira sai); se há fita no gravador, ela
+    está vazia e o jogador clica nela, ela volta para o compartimento, pois está limpa." A REC solta sozinha quando a
+    conversa gravada acaba (`rule_tapes.call_ended`, com o estalo dela) e é apertada também pela tecla R (`rec_tape`);
+    sob o mouse, a fita na fenda mostra numa etiqueta o que o clique faz ("Tirar a fita" / "Devolver a fita"); a tirada
+    sobe só dentro do vão e vem para a frente por cima da beira antes de voar (não passa mais pela borda de cima); a
+    pilha inteira responde ao mouse; aberta, é um papel com botões de tinta e a descartada cai para fora da tela, sem
+    som. Cada fita do compartimento tem o lugar dela: a apontada sobe 1 px e é a que sai. A virgem clicada no gravador
+    volta voando ao primeiro lugar vazio e afunda nele (`Tapes.put_back`), sem ir para a mesa.

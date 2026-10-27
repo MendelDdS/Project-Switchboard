@@ -1,76 +1,77 @@
 extends Control
-## O gravador de fitas (equipamento da B4, `Switchboard.set_equipment`) e, ao lado, a caixa das autoridades. No
-## gravador: as teclas de piano (REC desce sozinha enquanto grava, `Bureaucracy.tapes.recording`; Entregar e
-## Descartar tiram a fita, `Tapes.eject`), a porta com a fita atrás do vidro, na escala de verdade (a etiqueta escrita
-## à mão com o nome de quem é gravado, a hora e um risquinho por palavra-chave; as bobinas girando e a fita passando de
-## uma para a outra), o VU com o ponteiro pulando com a voz, o contador, a lâmpada REC e o alto-falante.
+## O gravador de fitas (equipamento da B4, `Switchboard.set_equipment`), de pé no alto da coluna do lado do painel:
+## plástico branco com a frente oliva, como a mesa. À esquerda, a fenda vertical com a fita encaixada, só a lombada à
+## vista, na escala de verdade (`Cassette.standing`: o nome de quem é gravado e a hora escritos de lado, um risquinho
+## por palavra-chave); sem fita, a fenda fica fechada por uma tampinha de mola, como a dos toca-fitas de carro, que a
+## fita empurra para dentro ao entrar e que bate de volta quando ela sai (`_flap`); à direita, o VU com o ponteiro
+## pulando com a voz, o contador, a lâmpada, o alto-falante e a tecla REC vermelha, que trava embaixo (`Tapes.rec`,
+## `press_rec`, também pela tecla R, `rec_tape`): presa e com a escuta na conversa, em qualquer ordem, grava
+## (`Tapes.recording`, a lâmpada acesa); acabada a conversa gravada, solta sozinha (`rule_tapes.call_ended`).
 ##
-## Tudo se mexe com peso (`movimento-organico`): a fita que sai do porta-fitas sobe da fenda, vira no ar e cai na porta,
-## que abre de mola e bate; o gravador e o porta-fitas pulam. Entregue, ela pula da porta e cai em pé na caixa; descartada,
-## pula e cai pela beira da prateleira. A lógica acontece no clique; a animação só mostra (`_fly`).
+## Tudo se mexe com peso (`movimento-organico`): a fita sobe dentro do compartimento embaixo (desenhada por ele,
+## `Rack.RISE_SEC`), vem para a frente por cima da beira dele, voa e entra na fenda, e o gravador e o compartimento
+## pulam. Sob o mouse, a fita na fenda mostra o que o clique faz (`TapedLabel`): virgem, volta para um lugar vazio do
+## compartimento (`Tapes.put_back`, o caminho de ida ao contrário); gravada, pula da fenda (a REC volta) e voa para a
+## mesa, ao lado do bloco de fichas, onde fica empilhada com as outras até o fim do turno (`Tapes.eject`,
+## `Background.tapes_out`, `tape_spot`; o descarte é na pilha, `tape_pile.gd`). A lógica acontece no clique; a animação
+## só mostra (`_fly`).
 
 const Cassette := preload("res://scripts/ui/equipment/cassette.gd")
-const BODY := Rect2(0, 3, 96, 42)   ## a frente do gravador (a altura toda até o bloco interurbano)
-const TOP := 3   ## as linhas do tampo
-const KEY_Y := 5.0   ## as teclas, no alto da frente
-const KEY_H := 7.0
-const DOOR := Rect2(2, 15, 46, 28)   ## a porta com o vidro, a fita atrás
-const SEAT := Vector2(3, 16)   ## o canto da fita dentro da porta
-const VU := Rect2(53, 16, 25, 13)
-const COUNTER := Rect2(81, 17, 13, 7)
-const LAMP := Rect2(86, 28, 3, 3)
-const GRILLE := Rect2(53, 33, 26, 9)   ## o alto-falante, furadinho
-const BOX := Rect2(103, 33, 28, 12)   ## a frente da caixa das autoridades
-const BOX_SPOT := Vector2(106, 15)   ## onde fica, em pé, a primeira fita entregue (as outras, `BOX_PITCH` à direita)
-const BOX_PITCH := 7.0
-const SPIN_MS := 120   ## a cada tanto, os raios das bobinas avançam um passo
-const FILL_SEC := 90.0   ## gravando isso, a fita passou toda para a bobina da direita
+const Rack := preload("res://scripts/ui/equipment/tape_rack.gd")
+const SLOT := Rect2(5, 5, 14, 102)   ## a fenda, com o aro escuro
+const SEAT := Vector2(6, 6)   ## o canto da fita encaixada
+const VU := Rect2(23, 6, 21, 13)
+const COUNTER := Rect2(47, 6, 13, 7)
+const LAMP := Rect2(52, 16, 3, 3)   ## a lâmpada de gravando, embaixo do contador
+const GRILLE := Rect2(23, 26, 38, 56)   ## o alto-falante, furadinho
+const REC_KEY := Rect2(23, 90, 37, 10)   ## (largura ímpar como o texto: as letras no meio exato)
 const WRITE_SEC := 0.07   ## cada letra da etiqueta
 const POP_SEC := 0.25   ## o risquinho novo, maior
-const BOUNCE_SEC := 0.08   ## o gravador ou a caixa afundando 1 px quando a fita bate
+const BOUNCE_SEC := 0.08   ## o gravador afundando 1 px quando a fita bate
 const KEY_SEC := 0.18   ## a tecla apertada antes de voltar
+const FLAP_PUSH := 0.08   ## a tampinha empurrada pela fita entrando (o último trecho do voo)
+const FLAP_AT := 0.13   ## saindo, a fita deixa a fenda (o primeiro trecho) e a tampinha volta...
+const FLAP_SEC := 0.05   ## ...de mola, rápido
+const FRONT_SEC := 0.06   ## a fita vindo para a frente, por cima da beira do compartimento (um pouco para baixo e para a esquerda: perto do olho)
 
-## As animações da fita (`_fly`): o caminho é feito de trechos, cada um com a duração, de onde a onde, a largura
-## (de lado a de frente) e a curva.
-enum Fly { NONE, IN, DELIVER, DISCARD }
+## As animações da fita (`_fly`): o caminho é feito de trechos, cada um com a duração, de onde a onde, o tamanho (1 em
+## pé, inteira; 0 deitada na mesa, `Background.tape_spot`) e a curva.
+enum Fly { NONE, IN, DELIVER, BACK }
+enum Hover { NONE, KEY, TAPE }
 
-var _keys := []   ## [Rect2, entregar?, T.Key]: as teclas que tiram a fita
-var _rec_key := Rect2()
-var _hover := -1
-var _pressed := -1   ## a tecla que está afundada (`KEY_SEC`)
-var _press_t := 0.0
-var _was_rec := false
-var _rec_sec := 0.0   ## o tempo gravado na fita de agora (as bobinas e o contador)
+var _hover := Hover.NONE
+var _press_t := 0.0   ## a tecla apertada sem fita, afundada antes de voltar (`KEY_SEC`)
+var _rec_sec := 0.0   ## o tempo gravado na fita de agora (o contador)
 var _bound: PhoneCall   ## a conversa na fita de agora (mudou: a etiqueta é escrita de novo)
 var _label := ""
-var _hour := ""   ## a hora em que ela começou a gravar, escrita embaixo do nome
+var _hour := ""   ## a hora em que ela começou a gravar, escrita depois do nome
 var _write_t := 0.0
 var _marks := 0
 var _pop := 0.0
 var _needle := 0.0   ## o ponteiro do VU, de 0 (parado) a 1 (no vermelho)
 var _needle_v := 0.0
-var _door := 0.0   ## a porta: 0 fechada, 1 aberta
 var _bounce := 0.0
-var _box_bounce := 0.0
-var _delivered := 0   ## as fitas em pé na caixa
+var _flap := 0.0   ## a tampinha da fenda: 0 fechada, 1 empurrada para dentro
 var _fly := Fly.NONE
 var _fly_t := 0.0
-var _flying := {}   ## a fita voando: {"from", "label", "marks", "fill", "deliver"}
+var _flying := {}   ## a fita voando: {"from", "label", "hour", "written", "marks", "spot" (na mesa, Rect2)}
 var _had_tape := false
+var _latched := false   ## a REC presa no último quadro (soltou sozinha: o estalo dela)
 var _drawn := []
 
 @onready var _desk := Bureaucracy.of(self)   ## o gerente (procurado uma vez: subir a árvore a cada quadro pesa)
 
 
 func _ready() -> void:
-	var x := BODY.end.x - 3.0
-	for k in [[T.Key.EQUIP_DISCARD, false], [T.Key.EQUIP_DELIVER, true]]:   # da direita para a esquerda
-		var w := PixelArt.tiny(T.text(k[0])).get_width() + 4.0
-		x -= w
-		_keys.push_front([Rect2(x, KEY_Y, w, KEY_H), k[1], k[0]])
-		x -= 2.0
-	_rec_key = Rect2(x - 11.0, KEY_Y, 11, KEY_H)
-	mouse_exited.connect(func(): _hover = -1)
+	mouse_exited.connect(func(): _hover = Hover.NONE)
+
+
+## A tecla R aperta a REC (como o Z, a escuta; com um campo de texto em foco, a tecla fica com ele).
+func _input(e: InputEvent) -> void:
+	var focus := get_viewport().gui_get_focus_owner()
+	if e.is_action_pressed("rec_tape") and not (focus is LineEdit or focus is TextEdit):
+		get_viewport().set_input_as_handled()
+		_press_rec()
 
 
 func _process(delta: float) -> void:
@@ -79,19 +80,20 @@ func _process(delta: float) -> void:
 		return
 	var loaded: bool = not tp.inside.is_empty()
 	var rec: bool = tp.recording()
-	if loaded and not _had_tape:   # uma fita entrou: vem voando do porta-fitas
-		_start_in(tp.blank)
+	if loaded and not _had_tape:   # uma fita entrou: vem do compartimento, do lugar dela
+		var rack := get_tree().get_first_node_in_group(&"tape_rack")
+		_start_in(rack.taken if rack else tp.blank)
 	_had_tape = loaded
-	if rec != _was_rec:
-		Sfx.play_at("tape_key" if rec else "click", _sx(), -4.0)
-		_was_rec = rec
+	if _latched and not tp.rec:
+		Sfx.play_at("click", _sx(), -4.0)   # a REC volta (soltada, sozinha no fim da conversa ou com a fita saindo)
+	_latched = tp.rec
 	if rec:
 		_rec_sec += delta
 	var c: PhoneCall = tp.inside.get("call") if loaded else null
 	if c != _bound:
 		_bound = c
 		_label = Cassette.label_of(c) if c != null else ""
-		_hour = Main.fmt(_desk.main.minutes) if c != null else ""
+		_hour = tp.inside["hour"] if c != null else ""
 		_write_t = 0.0
 		if c != null:
 			Sfx.play_at("pencil", _sx(), -6.0)
@@ -103,17 +105,16 @@ func _process(delta: float) -> void:
 	_marks = marks
 	_pop = maxf(_pop - delta, 0.0)
 	_press_t = maxf(_press_t - delta, 0.0)
-	if _press_t == 0.0:
-		_pressed = -1
 	_bounce = maxf(_bounce - delta, 0.0)
-	_box_bounce = maxf(_box_bounce - delta, 0.0)
 	_step_needle(delta, rec and c != null and _desk.main.eavesdrop.speaking(c.line))
 	if _fly != Fly.NONE:
 		_step_fly(delta)
-	_delivered = tp.done.filter(func(t): return t["fate"] == Bureaucracy.Tapes.DELIVERED).size() - (1 if _fly == Fly.DELIVER else 0)
-	var shown := [_hover, loaded, rec, PixelArt.ms() / SPIN_MS if rec else 0, int(_rec_sec * 2.0), roundi(_needle * 12.0),
-		_written(), _marks, _pop > 0.0, _pressed, roundi(_door * 8.0), _bounce > 0.0, _box_bounce > 0.0, _delivered,
-		_fly, int(_fly_t * 60.0)]
+	else:
+		_flap = 1.0 if loaded else 0.0
+	# as tiradas ficam na mesa (a que voa, só quando chega)
+	_desk.main.background.tapes_out = tp.on_desk().size() - (1 if _fly == Fly.DELIVER else 0)
+	var shown := [_hover, loaded, rec, tp.rec, int(_rec_sec * 2.0), roundi(_needle * 12.0), _written(), _marks, _pop > 0.0, _press_t > 0.0,
+		_bounce > 0.0, _fly, int(_fly_t * 60.0), roundi(_flap * 12.0)]
 	if shown != _drawn:
 		_drawn = shown
 		queue_redraw()
@@ -131,7 +132,7 @@ func _step_needle(delta: float, voice: bool) -> void:
 
 
 func _written() -> int:
-	return mini(int(_write_t / WRITE_SEC), _label.length() + _hour.length())
+	return mini(int(_write_t / WRITE_SEC), _label.length() + 1 + _hour.length()) if _label != "" else 0
 
 
 func _sx() -> float:
@@ -142,16 +143,28 @@ func _sx() -> float:
 
 func _start_in(slot: int) -> void:
 	var rack := get_tree().get_first_node_in_group(&"tape_rack") as Control
-	var from: Vector2 = (rack.slot_pos(slot) - global_position) if rack else SEAT + Vector2(Cassette.FACE.x / 2.0 - 2, -30)
 	_rec_sec = 0.0
 	_fly = Fly.IN
 	_fly_t = 0.0
-	_flying = {"from": from, "label": "", "marks": 0, "fill": 0.0}
+	_flying = {"from": (rack.slot_pos(slot) - global_position) if rack else SEAT + Vector2(0, 110)}
 
 
-func _start_out(deliver: bool) -> void:
-	_flying = {"from": SEAT, "label": _label, "hour": _hour, "written": _written(), "marks": _marks, "fill": _fill(), "deliver": deliver}
-	_fly = Fly.DELIVER if deliver else Fly.DISCARD
+## A virgem voltando para o lugar `slot` do compartimento (reservado nele, `hold`).
+func _start_back(slot: int) -> void:
+	var rack := get_tree().get_first_node_in_group(&"tape_rack") as Control
+	rack.hold = slot
+	_fly = Fly.BACK
+	_fly_t = 0.0
+	_flying = {"from": SEAT, "slot": slot, "to": rack.slot_pos(slot) - global_position}
+	_bound = null
+	_rec_sec = 0.0
+
+
+func _start_out() -> void:
+	var spot: Rect2 = _desk.main.background.tape_spot()
+	_flying = {"from": SEAT, "label": _label, "hour": _hour, "written": _written(), "marks": _marks,
+		"spot": Rect2(spot.position - global_position, spot.size)}
+	_fly = Fly.DELIVER
 	_fly_t = 0.0
 	_bound = null
 	_label = ""
@@ -160,93 +173,80 @@ func _start_out(deliver: bool) -> void:
 	_rec_sec = 0.0
 
 
-func _fill() -> float:
-	return clampf(_rec_sec / FILL_SEC, 0.0, 1.0)
-
-
-## Os trechos de cada voo: [segundos, até onde (o canto da fita), largura no fim (0 de lado, 1 de frente), curva].
-## Curvas: "in" acelera (cai, sai da fenda), "out" freia (pula, sobe), "arc" anda reto e sobe e desce no meio.
+## Os trechos de cada voo: [segundos, até onde (o canto da fita), tamanho no fim (1 em pé, 0 na mesa), curva].
+## Curvas: "in" acelera (entra, cai), "out" freia (pula, sobe), "arc" anda reto e sobe e desce no meio, "rack" sobe
+## dentro do compartimento, desenhada por ele (atrás da beira dele).
 func _legs() -> Array:
 	var from: Vector2 = _flying["from"]
-	var over := SEAT + Vector2(0, -12)   # em cima da porta, de frente
 	match _fly:
 		Fly.IN:
-			var up := from + Vector2(0, -8)
-			return [[0.12, up, 0.0, "in"], [0.24, over, 1.0, "arc"], [0.08, SEAT, 1.0, "in"]]
+			var lifted := from + Vector2(0, -Rack.RISE_PX)
+			return [[Rack.RISE_SEC, lifted, 1.0, "rack"], [FRONT_SEC, lifted + Vector2(-1, 1), 1.0, "out"],
+				[0.3, SEAT + Vector2(0, -4), 1.0, "arc"], [0.08, SEAT, 1.0, "in"]]
 		Fly.DELIVER:
-			var spot := BOX_SPOT + Vector2(_delivered * BOX_PITCH - (Cassette.FACE.x - Cassette.SPINE_W) / 2.0, 0)
-			return [[0.13, SEAT + Vector2(0, -14), 1.0, "out"], [0.26, spot + Vector2(0, -10), 0.0, "arc"], [0.08, spot, 0.0, "in"]]
-		Fly.DISCARD:
-			return [[0.13, SEAT + Vector2(0, -14), 1.0, "out"], [0.55, SEAT + Vector2(-14, 110), 0.5, "fall"]]
+			return [[0.13, SEAT + Vector2(0, -14), 1.0, "out"], [0.32, (_flying["spot"] as Rect2).position, 0.0, "arc"]]
+		Fly.BACK:   # (o compartimento afunda ela no lugar, `land`)
+			var lifted: Vector2 = _flying["to"] + Vector2(0, -Rack.RISE_PX)
+			return [[0.13, SEAT + Vector2(0, -14), 1.0, "out"], [0.3, lifted + Vector2(-1, 1), 1.0, "arc"], [FRONT_SEC, lifted, 1.0, "in"]]
 	return []
 
 
-## O ponto do voo agora: [canto, largura (0 a 1)]; nulo, acabou.
+## O ponto do voo agora: [canto, tamanho (0 a 1), desenhada aqui?]; nulo, acabou.
 func _fly_pose() -> Array:
 	var at: Vector2 = _flying["from"]
-	var w := 0.0 if _fly == Fly.IN else 1.0
+	var k := 1.0
 	var t := _fly_t
 	for leg: Array in _legs():
-		var k := t / float(leg[0])
-		if k < 1.0:
+		var f := t / float(leg[0])
+		if f < 1.0:
 			var to: Vector2 = leg[1]
 			match leg[3]:
 				"in":
-					at = at.lerp(to, k * k)
-				"out":
-					at = at.lerp(to, 1.0 - (1.0 - k) * (1.0 - k))
+					at = at.lerp(to, f * f)
+				"out", "rack":
+					at = at.lerp(to, 1.0 - (1.0 - f) * (1.0 - f))
 				"arc":
-					at = at.lerp(to, smoothstep(0.0, 1.0, k)) + Vector2(0, -10.0 * sin(PI * k))
-				"fall":   # anda para a frente e cai acelerando, virando duas vezes
-					at = Vector2(lerpf(at.x, to.x, k), at.y + (to.y - at.y) * k * k)
-					return [at, absf(cos(k * TAU))]
-			return [at, lerpf(w, float(leg[2]), smoothstep(0.0, 1.0, k))]
+					at = at.lerp(to, smoothstep(0.0, 1.0, f)) + Vector2(0, -10.0 * sin(PI * f))
+			return [at, lerpf(k, float(leg[2]), smoothstep(0.0, 1.0, f)), leg[3] != "rack"]
 		t -= float(leg[0])
 		at = leg[1]
-		w = leg[2]
+		k = leg[2]
 	return []
 
 
 func _step_fly(delta: float) -> void:
 	var before := _fly_t
 	_fly_t += delta
-	var legs := _legs()
-	var ends := []   # quando acaba cada trecho
-	var sum := 0.0
-	for leg: Array in legs:
-		sum += float(leg[0])
-		ends.append(sum)
+	var total := 0.0
+	for leg: Array in _legs():
+		total += float(leg[0])
+	var landed := before < total and _fly_t >= total
+	if _fly == Fly.IN:
+		_flap = clampf((_fly_t - (total - FLAP_PUSH)) / FLAP_PUSH, 0.0, 1.0)
+	else:
+		var was := _flap
+		_flap = 1.0 if _fly_t < FLAP_AT else maxf(1.0 - (_fly_t - FLAP_AT) / FLAP_SEC, 0.0)
+		if was > 0.0 and _flap == 0.0:
+			Sfx.play_at("tape_door", _sx(), -4.0)   # a tampinha batendo
 	match _fly:
 		Fly.IN:
-			_door = clampf(_fly_t / 0.08, 0.0, 1.0) if _fly_t < ends[-1] else _door
-			if before < ends[-1] and _fly_t >= ends[-1]:   # bateu na porta: ela fecha de mola e tudo pula
-				_land()
+			if landed:   # entrou na fenda: o gravador afunda e as fitas embaixo pulam
+				_bounce = BOUNCE_SEC
 				Sfx.play_at("tape_in", _sx())
-		Fly.DELIVER, Fly.DISCARD:
-			var e := maxf(_fly_t - 0.03, 0.0)   # a porta pula aberta (passa um pouco e volta) e fecha depois
-			_door = 1.0 + 0.15 * sin(clampf(e / 0.12, 0.0, 1.0) * PI) if e < 0.12 else (1.0 if _fly_t < 0.36 else maxf(1.0 - (_fly_t - 0.36) / 0.06, 0.0))
-			if before < 0.36 + 0.06 and _fly_t >= 0.36 + 0.06:
-				Sfx.play_at("tape_door", _sx(), -6.0)
-			if _fly == Fly.DELIVER and before < ends[-1] and _fly_t >= ends[-1]:
-				_box_bounce = BOUNCE_SEC
-				Sfx.play_at("drop", _sx() + 0.1)
-	if _fly == Fly.IN and _fly_t >= ends[-1]:
-		_door = maxf(1.0 - (_fly_t - ends[-1]) / 0.06, 0.0)   # fecha acelerando
-		if _door == 0.0:
-			Sfx.play_at("tape_door", _sx())
-			_fly = Fly.NONE
-	elif _fly == Fly.DISCARD and before < ends[-1] - 0.12 and _fly_t >= ends[-1] - 0.12:
-		Sfx.play_at("drop", _sx(), -9.0, 0.8)   # lá embaixo, no chão
-	if _fly != Fly.IN and _fly_t >= maxf(ends[-1], 0.42):
+				var rack := get_tree().get_first_node_in_group(&"tape_rack")
+				if rack:
+					rack.bump()
+		Fly.DELIVER:
+			if landed:
+				Sfx.play_at("drop", (global_position.x + (_flying["spot"] as Rect2).position.x) / get_viewport_rect().size.x)
+		Fly.BACK:
+			if landed:   # de volta no lugar dela
+				Sfx.play_at("tape_out", _sx(), -2.0)
+				var rack := get_tree().get_first_node_in_group(&"tape_rack")
+				if rack:
+					rack.land(_flying["slot"])
+	if _fly_t >= total:
 		_fly = Fly.NONE
-
-
-## A fita bateu no gravador: ele afunda 1 px e o porta-fitas ao lado pula.
-func _land() -> void:
-	_bounce = BOUNCE_SEC
-	var rack := get_tree().get_first_node_in_group(&"tape_rack")
-	if rack:
-		rack.bump()
 
 
 # ---- desenho
@@ -255,63 +255,73 @@ func _draw() -> void:
 	Bloom.clear(self)
 	var tp = _desk.tapes if _desk else null
 	var loaded: bool = tp != null and not tp.inside.is_empty() and _fly != Fly.IN
-	var rec: bool = _drawn[2] if not _drawn.is_empty() else false
-	_draw_box()
+	var rec: bool = tp != null and tp.recording()
 	var dy := Vector2(0, 1) if _bounce > 0.0 else Vector2.ZERO
-	draw_rect(Rect2(BODY.position.x + 1, BODY.end.y, BODY.size.x + 2, 1), Pal.SHELF_WOOD[0].darkened(0.5))   # a sombra rente
-	# plástico branco, como o móvel da mesa, com a frente oliva embaixo das teclas (como o painel)
-	Cassette.block(self, Rect2(BODY.position + dy, BODY.size), TOP, Pal.SHELL[7], Pal.SHELL[5], Pal.SHELL[3])
-	draw_rect(Rect2(BODY.position + dy, Vector2(BODY.size.x, 1)), Pal.SHELL[7])   # a quina de cima, na luz
-	draw_rect(Rect2(BODY.position + dy + Vector2(0, BODY.size.y - 1), Vector2(BODY.size.x, 1)), Pal.SHELL[2])
-	Switchboard.round_rect(self, Rect2(Vector2(1, KEY_Y + KEY_H + 1) + dy, Vector2(BODY.size.x - 2, BODY.end.y - KEY_Y - KEY_H - 3)), Pal.BOARD_FACE)
-	_draw_keys(dy, loaded, rec)
-	_draw_door(dy, loaded, rec)
+	Switchboard.round_rect(self, Rect2(dy, size), Pal.SHELL[5])   # plástico branco, como o móvel da mesa
+	draw_rect(Rect2(Vector2(2, 0) + dy, Vector2(size.x - 4, 1)), Pal.SHELL[7])   # a quina de cima, na luz
+	draw_rect(Rect2(Vector2(2, size.y - 1) + dy, Vector2(size.x - 4, 1)), Pal.SHELL[2])
+	Switchboard.round_rect(self, Rect2(Vector2(2, 2) + dy, size - Vector2(4, 4)), Pal.BOARD_FACE)   # a frente oliva, como o painel
+	var s := Rect2(SLOT.position + dy, SLOT.size)
+	draw_rect(s, Pal.BOARD_INSET)
+	draw_rect(s.grow(-1), Pal.VOID)
+	if loaded:   # sob o mouse, pronta para sair: sobe 1 px
+		Cassette.standing(self, SEAT + dy - Vector2(0, 1 if _hover == Hover.TAPE else 0), _label, _hour, _written(), _marks, _pop > 0.0)
+	else:
+		_draw_flap(dy)
 	_draw_meters(dy, rec)
+	_draw_key(dy, tp != null and tp.rec, rec)
 	if _fly != Fly.NONE:
 		var pose := _fly_pose()
-		if not pose.is_empty() and not (_fly == Fly.IN and _door < 1.0 and _fly_t > 0.3):
-			_draw_tape(pose[0], pose[1], _flying)
+		if not pose.is_empty() and pose[2]:
+			_draw_tape(pose[0], pose[1])
+	if _hover == Hover.TAPE and loaded:
+		_draw_tip(T.text(T.Key.TAPE_RETURN if tp.inside["call"] == null else T.Key.TAPE_TAKE))
 
 
-func _draw_keys(dy: Vector2, loaded: bool, rec: bool) -> void:
-	draw_rect(Rect2(Vector2(_rec_key.position.x - 1, KEY_Y - 1) + dy, Vector2(BODY.end.x - _rec_key.position.x - 1, KEY_H + 2)), Pal.KEY_WELL)
-	var all := [[_rec_key, rec, Pal.RED, ""]]
-	for i in _keys.size():
-		var down: bool = i == _pressed or (i == _hover and loaded)
-		all.append([_keys[i][0], down, Pal.KEY_CAP[4], T.text(_keys[i][2])])
-	for k: Array in all:
-		var r: Rect2 = k[0]
-		r.position += dy
-		var sink := (2.0 if k[1] and k != all[0] or (k == all[0] and rec) else 0.0)
-		if k != all[0] and k[1] and _pressed == -1:
-			sink = 1.0   # sob o dedo, ainda sem apertar
-		r.position.y += sink
-		r.size.y -= sink
-		draw_rect(r, Pal.KEY_CAP[3] if sink < 2.0 else Pal.KEY_CAP[2])   # ciano, como as teclas de escuta
-		draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), k[2] if sink < 2.0 else Color(k[2], 1.0).darkened(0.35))   # o alto da tecla
-		if k[3] != "":
-			draw_texture(PixelArt.tiny(k[3]), r.position + Vector2(2, -1), Pal.BOARD_STRIP if loaded else Pal.KEY_CAP[1])
-		else:
-			draw_rect(Rect2(r.position + Vector2(4, 2), Vector2(3, 2)), Pal.RED.darkened(0.2 if rec else 0.5))   # o ponto vermelho do REC
+## O que o clique na fita faz, numa etiqueta de fita crepe acima do gravador, como a dos objetos da mesa
+## (`Background.draw_hover`).
+func _draw_tip(cap: String) -> void:
+	var tape := get_theme_stylebox("normal", "TapedLabel")
+	var ts := (Pal.ui.get_string_size(cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11) + tape.get_minimum_size()).round()
+	var at := Vector2(roundf(SLOT.get_center().x - ts.x / 2.0), -ts.y - 3.0)
+	tape.draw(get_canvas_item(), Rect2(at, ts))
+	draw_string(Pal.ui, at + Vector2(tape.content_margin_left, tape.content_margin_top + Pal.ui.get_ascent(11)), cap,
+		HORIZONTAL_ALIGNMENT_LEFT, -1, 11, get_theme_color("default_color", "TapedLabel"))
 
 
-func _draw_door(dy: Vector2, loaded: bool, rec: bool) -> void:
-	var d := Rect2(DOOR.position + dy, DOOR.size)
-	draw_rect(d.grow(1), Pal.BOARD_INSET)
-	draw_rect(d, Pal.VOID)   # o vão atrás da porta
-	if loaded:
-		Cassette.face(self, SEAT + dy, Cassette.FACE.x, _label, _hour, _written(), _marks, _pop / POP_SEC, _fill(),
-			PixelArt.ms() / SPIN_MS if rec else 0)
-	if _door <= 0.0:   # fechada: o vidro com um reflexo
-		draw_rect(Rect2(d.position + Vector2(d.size.x - 4, d.size.y - 9), Vector2(1, 6)), Pal.NICKEL[2])   # (embaixo, longe da etiqueta)
-		draw_rect(Rect2(d.position + Vector2(d.size.x - 6, d.size.y - 6), Vector2(1, 3)), Pal.NICKEL[3])
+## A tampinha da fenda: plástico escuro, presa pela beira da esquerda; empurrada, gira para dentro e, de frente, vai
+## estreitando até sumir (`_flap`).
+func _draw_flap(dy: Vector2) -> void:
+	var w := roundf(Cassette.SPINE.x * (1.0 - _flap))
+	if w <= 0.0:
 		return
-	# aberta: a porta tomba para a frente pela dobradiça de baixo, mostrando a face de dentro, mais curta e mais larga
-	var h := roundf(lerpf(d.size.y, 5.0, minf(_door, 1.0))) - (2.0 if _door > 1.0 else 0.0)
-	var r := Rect2(d.position.x - 1, d.end.y - h + (1.0 if _door > 0.5 else 0.0), d.size.x + 2, h)
-	draw_rect(r, Pal.BOARD_METAL[4])
-	draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), Pal.BOARD_METAL[6])
-	draw_rect(Rect2(r.position + Vector2(2, 2), Vector2(r.size.x - 4, maxf(r.size.y - 3, 1))), Pal.BOARD_METAL[2])
+	var r := Rect2(SEAT + dy, Vector2(w, Cassette.SPINE.y))
+	draw_rect(r, Pal.BAKELITE[2])
+	draw_rect(Rect2(r.position, Vector2(1, r.size.y)), Pal.BAKELITE[4])   # a beira da dobradiça, na luz
+	draw_rect(Rect2(r.position, Vector2(w, 1)), Pal.BAKELITE[4])
+	if w > 2.0:
+		draw_rect(Rect2(r.end.x - 1, r.position.y, 1, r.size.y), Pal.BAKELITE[0])   # a beira solta, na sombra
+
+
+## A tecla REC: vermelha, com o nome no meio; presa (`latched`), fica afundada; sob o dedo, desce 1 px. Ao lado do
+## contador, a lâmpada, acesa enquanto grava (`rec`).
+func _draw_key(dy: Vector2, latched: bool, rec: bool) -> void:
+	var r := Rect2(REC_KEY.position + dy, REC_KEY.size)
+	draw_rect(r.grow(1), Pal.KEY_WELL)
+	var sink := 2.0 if latched or _press_t > 0.0 else (1.0 if _hover == Hover.KEY else 0.0)
+	r.position.y += sink
+	r.size.y -= sink
+	var down := sink >= 2.0
+	draw_rect(r, Pal.REC_CAP[1] if down else Pal.REC_CAP[2])
+	draw_rect(Rect2(r.position, Vector2(r.size.x, 1)), Pal.REC_CAP[2] if down else Pal.REC_CAP[3])   # o alto da tecla
+	var t := PixelArt.tiny("REC")
+	var top := floorf((r.size.y - 1.0 - 5.0) / 2.0) + 1.0   # (as maiúsculas, 5 linhas, no meio da frente, abaixo do alto)
+	draw_texture(t, r.position + Vector2(floorf((r.size.x - t.get_width()) / 2.0), top - 3.0), Pal.BOARD_INK)
+	var l := Rect2(LAMP.position + dy, LAMP.size)
+	draw_rect(l.grow(1), Pal.BOARD_INSET)
+	draw_rect(l, Pal.RED if rec else Pal.INK_RED.darkened(0.4))
+	if rec:
+		Bloom.light(self, l, Pal.RED, 0.6)
 
 
 func _draw_meters(dy: Vector2, rec: bool) -> void:
@@ -347,12 +357,6 @@ func _draw_meters(dy: Vector2, rec: bool) -> void:
 		_clipped(PixelArt.tiny(str(digit)), at, c)
 		if off > 0.0:
 			_clipped(PixelArt.tiny(str((digit + 1) % 10)), at + Vector2(0, 6), c)
-	# a lâmpada REC
-	var l := Rect2(LAMP.position + dy, LAMP.size)
-	draw_rect(l, Pal.RED if rec else Pal.INK_RED.darkened(0.4))
-	if rec:
-		Bloom.light(self, l, Pal.RED, 0.6)
-	draw_texture(PixelArt.tiny("REC"), l.position + Vector2(-4, 4), Pal.DIM)
 	# o alto-falante
 	for y in range(int(GRILLE.position.y), int(GRILLE.end.y), 2):
 		for x in range(int(GRILLE.position.x) + (y / 2) % 2, int(GRILLE.end.x), 2):
@@ -367,50 +371,59 @@ func _clipped(tex: Texture2D, at: Vector2, win: Rect2) -> void:
 		draw_texture_rect_region(tex, Rect2(at.x, at.y + top, tex.get_width(), bottom - top), Rect2(0, top, tex.get_width(), bottom - top), Pal.TEXT)
 
 
-## A caixa das autoridades: uma bandeja de aço aberta em cima, com o lacre vermelho na frente; as fitas entregues
-## ficam em pé dentro dela.
-func _draw_box() -> void:
-	var dy := Vector2(0, 1) if _box_bounce > 0.0 else Vector2.ZERO
-	draw_rect(Rect2(BOX.position.x + 1, BOX.end.y, BOX.size.x + 2, 1), Pal.SHELF_WOOD[0].darkened(0.5))
-	Cassette.block(self, Rect2(BOX.position + dy, BOX.size), TOP, Pal.STEEL_TONES[1], Pal.STEEL_TONES[3], Pal.STEEL_TONES[2])
-	draw_rect(Rect2(BOX.position + dy + Vector2(1, -2), Vector2(BOX.size.x - 2 + roundf(Cassette.LEAN), 2)), Pal.STEEL_DARK[1])   # a boca
-	for i in _delivered:
-		var at := BOX_SPOT + Vector2(i * BOX_PITCH, 0) + dy
-		if _box_bounce > 0.0 and i % 2 == 0:
-			at.y -= 1.0
-		Cassette.spine(self, at)
-	draw_rect(Rect2(BOX.position + dy, BOX.size), Pal.STEEL_TONES[3])   # a frente por cima das fitas
-	draw_rect(Rect2(BOX.position + dy, Vector2(BOX.size.x, 1)), Pal.STEEL_TONES[5])
-	draw_rect(Rect2(BOX.position + dy + Vector2(0, BOX.size.y - 1), Vector2(BOX.size.x, 1)), Pal.STEEL_TONES[1])
-	var seal := BOX.position + dy + Vector2(BOX.size.x / 2.0 - 2, 3)   # o lacre de cera, redondo
-	draw_rect(Rect2(seal + Vector2(1, 0), Vector2(3, 5)), Pal.SEAL)
-	draw_rect(Rect2(seal + Vector2(0, 1), Vector2(5, 3)), Pal.SEAL)
-	draw_rect(Rect2(seal + Vector2(1, 1), Vector2(1, 1)), Pal.CALENDAR_HEAD[1])
-	draw_rect(Rect2(seal + Vector2(-5, 2), Vector2(5, 1)), Pal.PAPER_LINE)   # o barbante do lacre
-	draw_rect(Rect2(seal + Vector2(5, 2), Vector2(5, 1)), Pal.PAPER_LINE)
-
-
-func _draw_tape(at: Vector2, w: float, t: Dictionary) -> void:
-	var px := roundi(lerpf(Cassette.SPINE_W, Cassette.FACE.x, w))
-	Cassette.face(self, at.round(), px, t.get("label", ""), t.get("hour", ""), t.get("written", 0), t.get("marks", 0), 0.0, t.get("fill", 0.0))
+## A fita voando: em pé, com a etiqueta; indo para a mesa, no meio do caminho (`k` 0,5) tomba de lado, girada 90°
+## pelo meio dela, e daí encolhe até o tamanho dela lá (`Background.tape_spot`), chegando no canto de lá.
+func _draw_tape(at: Vector2, k: float) -> void:
+	if k > 0.5:
+		Cassette.standing(self, at.round(), _flying.get("label", ""), _flying.get("hour", ""), _flying.get("written", 0), _flying.get("marks", 0))
+		return
+	var stand := Vector2(Cassette.SPINE)
+	var turned := Vector2(stand.y, stand.x)
+	var t := 1.0 - k * 2.0   # 0 ao tombar, 1 na mesa
+	var sz := turned.lerp((_flying["spot"] as Rect2).size, t)
+	Cassette.block(self, Rect2((at + (stand - turned) / 2.0 * (1.0 - t)).round(), sz.round()))
 
 
 func _gui_input(e: InputEvent) -> void:
+	var tp = _desk.tapes
 	if e is InputEventMouseMotion:
-		_hover = _keys.find_custom(func(k): return (k[0] as Rect2).grow(1).has_point(e.position))
+		_hover = Hover.KEY if REC_KEY.grow(1).has_point(e.position) else (
+			Hover.TAPE if SLOT.has_point(e.position) and not tp.inside.is_empty() and _fly == Fly.NONE else Hover.NONE)
+		mouse_default_cursor_shape = CURSOR_ARROW if _hover == Hover.NONE else CURSOR_POINTING_HAND
 		return
 	var b := e as InputEventMouseButton
-	if b == null or b.button_index != MOUSE_BUTTON_LEFT or b.pressed or _hover == -1:
+	if b == null or b.button_index != MOUSE_BUTTON_LEFT or b.pressed or _hover == Hover.NONE:
 		return
-	_pressed = _hover
-	_press_t = KEY_SEC
-	Sfx.play_at("tape_key", _sx())
-	if _desk.tapes.inside.is_empty():
-		_desk.main.warn(T.text(T.Key.WARN_NO_TAPE))
+	if _hover == Hover.TAPE:
+		_take_out()
 	else:
-		var deliver: bool = _keys[_hover][1]
-		_desk.tapes.eject(deliver)
-		_had_tape = false
-		_start_out(deliver)
-		Sfx.play_at("tape_pop", _sx(), -2.0)
+		_press_rec()
 	accept_event()
+
+
+## A fita clicada sai da fenda: virgem, volta para o compartimento (se houver lugar); gravada, vai para a mesa.
+func _take_out() -> void:
+	var tp = _desk.tapes
+	var rack := get_tree().get_first_node_in_group(&"tape_rack")
+	var slot: int = rack.free_slot() if rack else -1
+	_hover = Hover.NONE
+	_had_tape = false
+	if tp.inside["call"] == null and slot >= 0:
+		tp.put_back()
+		_start_back(slot)
+	else:
+		tp.eject()
+		_start_out()
+	Sfx.play_at("tape_pop", _sx(), -2.0)
+
+
+## A tecla REC: trava ou solta; sem fita, desce e volta com o aviso.
+func _press_rec() -> void:
+	var tp = _desk.tapes
+	if tp.press_rec():
+		if tp.rec:
+			Sfx.play_at("tape_key", _sx())   # (a volta tem o estalo dela, no `_process`)
+	else:
+		_press_t = KEY_SEC
+		Sfx.play_at("tape_key", _sx())
+		_desk.main.warn(T.text(T.Key.WARN_NO_TAPE))

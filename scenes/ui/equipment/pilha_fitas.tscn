@@ -1,0 +1,14 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/equipment/tape_pile.gd" id="1_pile"]
+
+[node name="TapePile" type="PanelContainer"]
+visible = false
+z_index = 2
+offset_right = 40.0
+offset_bottom = 40.0
+theme_type_variation = &"NotePanel"
+script = ExtResource("1_pile")
+
+[node name="Rows" type="VBoxContainer" parent="."]
+layout_mode = 2

@@ -51,7 +51,8 @@ Referência completa: `scripts/bureaucracy/rule_auth_code.gd` (B3) e `data/burea
    - Uma cena em `scenes/ui/equipment/<id>.tscn` (um Control com `custom_minimum_size`, pixel art e o próprio clique;
      acha o gerente com `Bureaucracy.of(self)`).
    - O `<id>` vai em `equipment` no `.tres`.
-   - A mesa a põe de pé na prateleira embaixo do Interurbano, na primeira vez que a regra vale
+   - A mesa a põe de pé na prateleira embaixo do Interurbano ou, com `metadata/side` na cena (0 no alto, 1 embaixo),
+     na coluna à direita do painel (`Switchboard.side_rect`, 65×222), na primeira vez que a regra vale
      (`equipment_unlocked(id)` avisa uma vez só).
 7. **O teste** vai em `tests/test_bureaucracy.gd`: ligue a chave geral, ligue a regra, toque as ligações de `tests` e
    confira as advertências (`ShiftReport.level`) e o registro (`desk.decisions`).
