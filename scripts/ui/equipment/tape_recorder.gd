@@ -32,6 +32,7 @@ const KEY_SEC := 0.18   ## a tecla apertada antes de voltar
 const FLAP_PUSH := 0.08   ## a tampinha empurrada pela fita entrando (o último trecho do voo)
 const FLAP_AT := 0.13   ## saindo, a fita deixa a fenda (o primeiro trecho) e a tampinha volta...
 const FLAP_SEC := 0.05   ## ...de mola, rápido
+const BLINK_MS := 500   ## a lâmpada piscando devagar com a fita cheia (meio segundo apagada, meio acesa)
 const FRONT_SEC := 0.06   ## a fita vindo para a frente, por cima da beira do compartimento (um pouco para baixo e para a esquerda: perto do olho)
 
 ## As animações da fita (`_fly`): o caminho é feito de trechos, cada um com a duração, de onde a onde, o tamanho (1 em
@@ -47,6 +48,8 @@ var _label := ""
 var _hour := ""   ## a hora em que ela começou a gravar, escrita depois do nome
 var _write_t := 0.0
 var _marks := 0
+var _wrong := false   ## a conversa gravada não é a pedida (a faixa da etiqueta riscada, `Cassette.standing`)
+var _blink := false   ## a lâmpada apagada no pisca da fita cheia (`Tapes.full`: escutar mais só arrisca)
 var _pop := 0.0
 var _needle := 0.0   ## o ponteiro do VU, de 0 (parado) a 1 (no vermelho)
 var _needle_v := 0.0
@@ -102,6 +105,8 @@ func _process(delta: float) -> void:
 		_pop = POP_SEC
 		Sfx.play_at("pencil", _sx(), -10.0, 1.4)
 	_marks = marks
+	_wrong = c != null and not tp.inside.marked
+	_blink = rec and tp.full(tp.inside) and int(PixelArt.ms() / BLINK_MS) % 2 == 1
 	_pop = maxf(_pop - delta, 0.0)
 	_press_t = maxf(_press_t - delta, 0.0)
 	_bounce = maxf(_bounce - delta, 0.0)
@@ -113,7 +118,7 @@ func _process(delta: float) -> void:
 	# as tiradas ficam na mesa (a que voa, só quando chega)
 	_desk.main.background.tapes_out = tp.on_desk().size() - (1 if _fly == Fly.DELIVER else 0)
 	var shown := [_hover, loaded, rec, tp.rec, int(_rec_sec * 2.0), roundi(_needle * 12.0), _written(), _marks, _pop > 0.0, _press_t > 0.0,
-		_bounce > 0.0, _fly, int(_fly_t * 60.0), roundi(_flap * 12.0)]
+		_bounce > 0.0, _wrong, _blink, _fly, int(_fly_t * 60.0), roundi(_flap * 12.0)]
 	if shown != _drawn:
 		_drawn = shown
 		queue_redraw()
@@ -161,7 +166,7 @@ func _start_back(slot: int) -> void:
 
 func _start_out() -> void:
 	var spot: Rect2 = _desk.main.background.tape_spot()
-	_flying = {"from": SEAT, "label": _label, "hour": _hour, "written": _written(), "marks": _marks,
+	_flying = {"from": SEAT, "label": _label, "hour": _hour, "written": _written(), "marks": _marks, "wrong": _wrong,
 		"spot": Rect2(spot.position - global_position, spot.size)}
 	_fly = Fly.DELIVER
 	_fly_t = 0.0
@@ -264,11 +269,11 @@ func _draw() -> void:
 	draw_rect(s, Pal.BOARD_INSET)
 	draw_rect(s.grow(-1), Pal.VOID)
 	if loaded:   # sob o mouse, pronta para sair: sobe 1 px
-		Cassette.standing(self, SEAT + dy - Vector2(0, 1 if _hover == Hover.TAPE else 0), _label, _hour, _written(), _marks, _pop > 0.0)
+		Cassette.standing(self, SEAT + dy - Vector2(0, 1 if _hover == Hover.TAPE else 0), _label, _hour, _written(), _marks, _pop > 0.0, _wrong)
 	else:
 		_draw_flap(dy)
 	_draw_meters(dy, rec)
-	_draw_key(dy, tp != null and tp.rec, rec)
+	_draw_key(dy, tp != null and tp.rec, rec and not _blink)
 	if _fly != Fly.NONE:
 		var pose := _fly_pose()
 		if not pose.is_empty() and pose[2]:
@@ -374,7 +379,7 @@ func _clipped(tex: Texture2D, at: Vector2, win: Rect2) -> void:
 ## pelo meio dela, e daí encolhe até o tamanho dela lá (`Background.tape_spot`), chegando no canto de lá.
 func _draw_tape(at: Vector2, k: float) -> void:
 	if k > 0.5:
-		Cassette.standing(self, at.round(), _flying.get("label", ""), _flying.get("hour", ""), _flying.get("written", 0), _flying.get("marks", 0))
+		Cassette.standing(self, at.round(), _flying.get("label", ""), _flying.get("hour", ""), _flying.get("written", 0), _flying.get("marks", 0), false, _flying.get("wrong", false))
 		return
 	var stand := Vector2(Cassette.SPINE)
 	var turned := Vector2(stand.y, stand.x)

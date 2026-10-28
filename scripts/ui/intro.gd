@@ -17,6 +17,7 @@ var over: Control   ## onde o bilhete fica preso: a mesa comutadora (o Main põe
 var _n := 0
 var _night: Night
 var _warned := false
+var _tapes := {}
 
 
 func _ready() -> void:
@@ -44,11 +45,13 @@ func _process(_delta: float) -> void:
 
 
 ## `can_skip`: jogo salvo (não uma noite forçada); no treinamento, dá para pular direto para a noite 1.
-## `warned`: a noite anterior foi Insuficiente, e o bilhete lembra que esta decide.
-func setup(n: int, night: Night, can_reset: bool, can_skip: bool, warned := false) -> void:
+## `warned`: a noite anterior foi Insuficiente, e o bilhete lembra que esta decide. `tapes`: o resumo das fitas da
+## noite anterior (`Tapes.last`, B4), num parágrafo a mais.
+func setup(n: int, night: Night, can_reset: bool, can_skip: bool, warned := false, tapes := {}) -> void:
 	_n = n
 	_night = night
 	_warned = warned
+	_tapes = tapes
 	%Reset.visible = can_reset
 	%Skip.visible = can_skip and n == 0
 	_texts()
@@ -86,5 +89,8 @@ func _texts() -> void:
 	var note := tr(night.note)
 	if _warned:
 		note += "\n\n" + tr(GameData.CONTENT.low_warning)
+	var tapes := Bureaucracy.Tapes.note(_tapes, n)
+	if tapes != "":
+		note += "\n\n" + tapes
 	%Text.text = "[hand]%s[/hand]" % note
 	%Info.text = "[color=#8a2a1c]%s[/color]  %s" % [T.text(T.Key.HINT_BADGE), T.text(T.Key.INTRO_INFO)]   # como a dica do manual na parede

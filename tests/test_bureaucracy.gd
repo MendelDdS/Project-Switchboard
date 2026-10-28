@@ -531,6 +531,11 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return _ticked() and m.eavesdrop.clues.filter(func(k: Clue): return k.call == sus).size() == 4, 120.0), "ouviu as quatro palavras")
 	var words: Array[String] = tp.inside.words
 	ok(words == ["estação velha", "dez", "pacote", "Ramiro"], "palavras-chave na fita: %s" % [words])
+	ok(not recorder._wrong, "a conversa pedida: a faixa da etiqueta inteira")
+	PixelArt.frozen_ms = recorder.BLINK_MS   # (a fase apagada do pisca; o relógio real quase não anda no teste)
+	await frames(1)
+	ok(tp.full(tp.inside) and tp.recording() and recorder._blink, "quatro palavras, o máximo: a fita está cheia e, gravando, a lâmpada pisca")
+	PixelArt.frozen_ms = -1
 	recorder._hover = recorder.Hover.TAPE   # clicada a fita na fenda
 	recorder._gui_input(click)
 	ok(tp.inside == null and not tp.rec and tp.done[-1].fate == Tape.Fate.ON_DESK, "tirada: vai para a mesa e a REC volta")
@@ -553,6 +558,10 @@ func _initialize() -> void:
 	await _connect(calm, 312)
 	m.listen()
 	ok(tp.inside.call == calm, "...grava a conversa quando a escuta entra")
+	tp.inside.marked = false   # (as duas de teste são pedidas)
+	await frames(1)
+	ok(recorder._wrong, "gravando uma conversa que não é a pedida: a faixa da etiqueta riscada")
+	tp.inside.marked = true
 	ok(await wait_until(func(): return _ticked() and m.eavesdrop.speaking(calm.line), 20.0), "a conversa sem nada começou")
 	ok(await wait_until(func(): return _ticked() and not m.eavesdrop.speaking(calm.line), 120.0), "a conversa sem nada terminou")
 	m.bureaucracy.call_ended(calm, PhoneCall.End.OPERATOR)
@@ -594,7 +603,10 @@ func _initialize() -> void:
 	pile.close()
 	_clear_board()
 	m.bureaucracy.night_ended()
-	ok(not m.flags.has("authorities_questioning_pending") and m.report.later.is_empty(), "entregou as duas: as autoridades não questionam")
+	ok(m.flags.has("authorities_questioning_pending") and m.report.later.size() == 1 and m.report.later[0]["detail"] == m.supervisor.who(calm),
+		"entregou as duas, mas a pedida sem nenhuma palavra-chave não conta: as autoridades vão questionar só essa")
+	m.report.later.clear()
+	m.flags.apply("!authorities_questioning_pending")
 	ok(m.report.credits.any(func(c): return c["id"] == "tape" and c["pts"] == 20) and tp.done[0].fate == Tape.Fate.DELIVERED,
 		"no fim do turno, as da mesa vão para as autoridades: o valor pelas palavras, até o máximo da fita")
 	m.bureaucracy.night_started()
@@ -607,7 +619,39 @@ func _initialize() -> void:
 	ok(m.report.later.size() == 1 and m.report.later[0]["text"] == T.Key.FAULT_TAPE_MISSED and m.report.later[0]["nights"] == 2,
 		"e a advertência de descuido, daqui a duas noites")
 	ok(tp.inside == null and tp.done[-1].fate == Tape.Fate.LEFT, "a fita esquecida no gravador conta como não entregue")
+	ok(m.flags.has("b4_nao_entregou_" + Bureaucracy.Tapes.call_id(skip)), "o marcador da ligação que não chegou gravada")
+	ok(tp.last["night"] == m.bureaucracy.night and tp.last["used"] == 1 and tp.last["delivered"] == 0 and tp.last["missed"].size() == 1,
+		"o resumo da noite, para o bilhete de amanhã: %s" % tp.last)
+	ok(Bureaucracy.Tapes.note(tp.last, m.bureaucracy.night + 1) != "" and Bureaucracy.Tapes.note(tp.last, m.bureaucracy.night + 2) == "",
+		"...só no bilhete da noite seguinte")
 	m.report.later.clear()
+	# a fita pedida vazia (um segundo de escuta) não conta; descartada de propósito, o marcador para o roteiro
+	m.bureaucracy.night_started()
+	var empty := Tape.new()
+	empty.call = skip
+	empty.marked = true
+	empty.fate = Tape.Fate.ON_DESK
+	tp.done.append(empty)
+	tp.hand_over()
+	ok(empty.fate == Tape.Fate.DELIVERED and not tp.delivered(skip), "a fita pedida vazia não conta como entregue")
+	var kept := Tape.new()
+	kept.call = skip
+	kept.marked = true
+	kept.fate = Tape.Fate.ON_DESK
+	tp.done.append(kept)
+	tp.discard(kept)
+	ok(m.flags.has("b4_descartou_" + Bureaucracy.Tapes.call_id(skip)), "descartar a pedida de propósito: o marcador para o roteiro")
+	# o compartimento: as virgens passam de uma noite para outra; repõe ao esvaziar ou depois de três noites incompleto
+	tp.reset(3)
+	tp.short_nights = 0
+	tp.slots[0] = false
+	ok(not tp.restock(3, 3) and not tp.restock(3, 3) and tp.blank == 2, "duas noites incompleto: ainda não repõe")
+	ok(tp.restock(3, 3) and tp.blank == 3 and tp.short_nights == 0, "na terceira, repõe")
+	tp.slots.assign([false, false, false])
+	ok(tp.restock(3, 3) and tp.blank == 3, "vazio: repõe")
+	tp.slots[1] = false
+	m.bureaucracy.night_started()
+	ok(tp.blank == 2 and tp.inside == null and tp.done.is_empty(), "a noite seguinte começa com as que sobraram")
 	m.bureaucracy.lock_equipment("porta_fitas")
 	ok(b.equipped == PackedStringArray(["gravador"]), "o roteiro pode tirar um equipamento")
 	m.bureaucracy.reset()

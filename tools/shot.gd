@@ -15,7 +15,8 @@ extends Node
 ##   --listen               a linha 3 conectada, com o FONE nela e a chave de escuta levantada
 ##   --tapes                a B4 ligada: o gravador e o compartimento de fitas na coluna do lado do painel, com uma fita no
 ##                          gravador (--tapes=empty: sem, com a tampinha da fenda fechada; --tapes=rec: com --listen,
-##                          gravando a conversa da linha 3, a REC presa e a lâmpada acesa;
+##                          gravando a conversa da linha 3, a REC presa e a lâmpada acesa; com --tapewrong, a conversa
+##                          não é a pedida (a faixa riscada); com --tapefull, a fita cheia e a lâmpada no apagado do pisca;
 ##                          --tapefly=in|deliver|back,0.2: a fita voando, parada nesse instante do voo (a do meio subindo
 ##                          do compartimento e entrando, indo para a mesa ou, virgem, voltando ao compartimento);
 ##                          --tapehover=1|deck: o mouse na fita 1 do compartimento ou na do gravador; --delivered=3: tantas tiradas, empilhadas na mesa ao lado do
@@ -27,7 +28,8 @@ extends Node
 ##   --clues                palavras-chave ouvidas (uma marcada, uma riscada, uma ouvida duas vezes) e a lista nas anotações
 ##   --screen=id            uma tela por cima: intro (a de início), pause, settings, report (o relatório com advertências;
 ##                          --rating=great|good|fair|poor o conceito, padrão poor, a segunda noite seguida;
-##                          --warned, com intro, o bilhete depois de uma noite Insuficiente)
+##                          --warned, com intro, o bilhete depois de uma noite Insuficiente; --tapenote, com o resumo das
+##                          fitas da noite anterior, da B4)
 ##   --street=sol,1         com --tool=despacho: o mouse no trecho 1 da Rua do Sol (a rua inteira de leve e os números)
 ##   --draft                com --street: o primeiro clique nela (o local datilografado, à espera do segundo)
 ##   --mapzoom=1.44         com --tool=despacho: o mapa aproximado por esse fator (o anel girado)
@@ -94,8 +96,9 @@ func _ready() -> void:
 	await get_tree().process_frame
 	m.sched.clear()   # nada toca sozinho
 	if _args.get("screen") == "intro":
-		if _args.has("warned"):   # o bilhete com o lembrete de quem teve uma noite Insuficiente
-			m._intro.setup(m.night_no, m.night, false, false, true)
+		if _args.has("warned") or _args.has("tapenote"):   # o lembrete de quem teve uma noite Insuficiente; o resumo das fitas (B4)
+			var tapes := {"night": m.night_no - 1, "used": 3, "delivered": 1, "missed": ["Laura Pires (linha 4)"], "restocked": true}
+			m._intro.setup(m.night_no, m.night, false, false, _args.has("warned"), tapes if _args.has("tapenote") else {})
 		await get_tree().create_timer(float(_args.get("wait", "5")), false).timeout
 		_save(out)
 		return
@@ -135,10 +138,14 @@ func _ready() -> void:
 			m.eavesdrop.connected(c)
 			m.exchange.set_key(3, true)   # (o `--listen` não levantou a chave: ainda não havia conversa)
 			m.eavesdrop.tick(0.0)
-			c.meta["b4"] = true
+			if not _args.has("tapewrong"):   # (--tapewrong: a conversa gravada não é a pedida, a faixa riscada)
+				c.meta["b4"] = true
 			m.bureaucracy.tapes.rec = true
 			m.bureaucracy.tapes.bind(c)   # a fita gravando ela, com duas palavras-chave ouvidas
 			m.bureaucracy.tapes.inside.words.append_array(["um", "dois"])
+			if _args.has("tapefull"):   # a fita cheia, na fase apagada do pisca da lâmpada
+				m.bureaucracy.tapes.inside.words.append_array(["três", "quatro"])
+				PixelArt.frozen_ms = m.board._equipment["gravador"].BLINK_MS
 		for i in int(_args.get("delivered", "0")):   # (a de cima com nome, hora e duas palavras-chave, para o `--pile`)
 			var named := i == int(_args["delivered"]) - 1
 			var c: PhoneCall = PhoneCall.from_transfer(GameData.CONTENT.transfers[0]) if named else null

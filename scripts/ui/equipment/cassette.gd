@@ -2,7 +2,8 @@ extends RefCounted
 ## A fita cassete dos equipamentos da B4 (o compartimento e o gravador, na coluna do lado do painel), desenhada pixel a
 ## pixel de lado, em pé, na escala dos plugs (a fita de verdade tem 10 × 6,4 × 1,2 cm): a lombada de plástico escuro
 ## com a etiqueta de papel, a faixa da marca no alto e, escritos de lado (de baixo para cima, como na lombada de um
-## livro), o nome de quem é gravado e a hora; acima, um risquinho por palavra-chave (`standing`). Deitada, a mesma
+## livro), o nome de quem é gravado e a hora; acima, um risquinho por palavra-chave (`standing`). Gravada uma conversa
+## que não foi a pedida, o operador risca a faixa da marca (`wrong`). Deitada, a mesma
 ## lombada virada para a direita, com a escrita de comprido (`lying`, a pilha da mesa vista de perto). Voando para a
 ## mesa, tomba de lado (girada 90°, exata) e encolhe num bloco liso (`block`).
 
@@ -19,8 +20,8 @@ static var _sideways := {}   ## texto -> a fonte miúda girada 90° (exata, pixe
 
 
 ## A fita em pé com o canto de cima à esquerda em `at`: na etiqueta, as `written` primeiras letras de "`name` `hour`"
-## e `marks` risquinhos (o último, com `pop`, sai maior).
-static func standing(ci: CanvasItem, at: Vector2, name := "", hour := "", written := 0, marks := 0, pop := false) -> void:
+## e `marks` risquinhos (o último, com `pop`, sai maior); `wrong`, a faixa da marca riscada (não é a conversa pedida).
+static func standing(ci: CanvasItem, at: Vector2, name := "", hour := "", written := 0, marks := 0, pop := false, wrong := false) -> void:
 	ci.draw_rect(Rect2(at, Vector2(SPINE)), Pal.BAKELITE[0])   # a beira
 	ci.draw_rect(Rect2(at + Vector2(1, 1), Vector2(SPINE) - Vector2(2, 2)), Pal.BAKELITE[3])
 	ci.draw_rect(Rect2(at + Vector2(1, 1), Vector2(1, SPINE.y - 2)), Pal.BAKELITE[5])   # a quina na luz
@@ -29,6 +30,8 @@ static func standing(ci: CanvasItem, at: Vector2, name := "", hour := "", writte
 	ci.draw_rect(Rect2(l.end.x - 1, l.position.y, 1, l.size.y), Pal.PAPER_LINE)   # a beira da direita, na sombra
 	ci.draw_rect(Rect2(l.position + Vector2(0, 1), Vector2(l.size.x - 1, 3)), Pal.RED)   # a faixa da marca
 	ci.draw_rect(Rect2(l.position + Vector2(0, 4), Vector2(l.size.x - 1, 1)), Pal.RED.darkened(0.4))
+	if wrong:
+		ci.draw_rect(Rect2(l.position + Vector2(0, 2), Vector2(l.size.x - 1, 1)), HAND)   # riscada à caneta
 	var text := (name + " " + hour).left(written) if written > 0 else ""
 	if text.strip_edges() != "":
 		var t := _turned(text)   # (as maiúsculas nas colunas 3 a 7 da textura girada: no meio do papel)
@@ -39,8 +42,8 @@ static func standing(ci: CanvasItem, at: Vector2, name := "", hour := "", writte
 
 
 ## A fita deitada com o canto de cima à esquerda em `at` (`standing` virada um quarto para a direita: a faixa da marca
-## na ponta da direita, a escrita da esquerda para a direita, `marks` risquinhos antes da faixa).
-static func lying(ci: CanvasItem, at: Vector2, name := "", hour := "", marks := 0) -> void:
+## na ponta da direita, a escrita da esquerda para a direita, `marks` risquinhos antes da faixa; `wrong`, riscada).
+static func lying(ci: CanvasItem, at: Vector2, name := "", hour := "", marks := 0, wrong := false) -> void:
 	var s := Vector2(SPINE.y, SPINE.x)
 	ci.draw_rect(Rect2(at, s), Pal.BAKELITE[0])
 	ci.draw_rect(Rect2(at + Vector2(1, 1), s - Vector2(2, 2)), Pal.BAKELITE[3])
@@ -50,6 +53,8 @@ static func lying(ci: CanvasItem, at: Vector2, name := "", hour := "", marks := 
 	ci.draw_rect(Rect2(l.position.x, l.end.y - 1, l.size.x, 1), Pal.PAPER_LINE)   # a beira de baixo, na sombra
 	ci.draw_rect(Rect2(l.end.x - 4, l.position.y, 3, l.size.y - 1), Pal.RED)   # a faixa da marca
 	ci.draw_rect(Rect2(l.end.x - 5, l.position.y, 1, l.size.y - 1), Pal.RED.darkened(0.4))
+	if wrong:
+		ci.draw_rect(Rect2(l.end.x - 3, l.position.y, 1, l.size.y - 1), HAND)
 	var text := (name + " " + hour).strip_edges()
 	if text != "":
 		ci.draw_texture(PixelArt.tiny(text), at + Vector2(s.x - TEXT_FOOT, 0), HAND)   # (as maiúsculas nas linhas 3 a 7: no meio do papel)

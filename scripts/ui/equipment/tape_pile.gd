@@ -98,7 +98,7 @@ func _fall(t: Tape, from: Vector2) -> void:
 
 ## A fita `t` deitada em `n`, com a etiqueta.
 func _draw_tape(n: Control, t: Tape) -> void:
-	Cassette.lying(n, Vector2.ZERO, Cassette.label_of(t.call) if t.call != null else "", t.hour, t.words.size())
+	Cassette.lying(n, Vector2.ZERO, Cassette.label_of(t.call) if t.call != null else "", t.hour, t.words.size(), t.call != null and not t.marked)
 
 
 func _sx() -> float:

@@ -5,16 +5,21 @@ extends BureaucracyRule
 ## ouvir dela (`Bureaucracy.tapes`). Tirada do gravador, fica na mesa e, no fim do turno, é entregue e vale pontos de
 ## eficiência pelo valor; descartada da mesa (ou esquecida no gravador no fim da noite), se perde. Os
 ## dois notaram a escuta numa ligação marcada: advertência na gravidade da regra (trabalho malfeito para as autoridades,
-## que pediram), no lugar da por escuta. `tapes_per_night` virgens por noite. Ligação marcada sem a fita dela entregue:
-## nada na hora (as autoridades não sabem o que ela tinha); `found_after` noites depois descobrem e vem a advertência
-## de descuido (`missed_severity`, `missed_text`), e o marcador `authorities_questioning_pending` fica para o roteiro.
+## que pediram), no lugar da por escuta. O compartimento tem `tapes_per_night` lugares e as virgens passam de uma noite
+## para outra: é reposto quando esvazia ou depois de `restock_after` noites seguidas incompleto (`Tapes.restock`).
+## Ligação marcada sem a fita dela entregue com alguma palavra-chave (descartada de propósito, vazia, esquecida ou nunca
+## gravada): nada na hora (as autoridades não sabem o que ela tinha); `found_after` noites depois descobrem e vem a
+## advertência de descuido (`missed_severity`, `missed_text`), e os marcadores `authorities_questioning_pending` e
+## `b4_nao_entregou_<ligação>` (`Tapes.call_id`) ficam para o roteiro. Na noite seguinte, o bilhete do supervisor resume
+## as fitas da anterior (`Tapes.summary`, `Tapes.note`).
 ## Só as ligações do roteiro vêm marcadas (`TransferCall.suspicious`).
 ## Equipamentos (`equipment` no `.tres`): o compartimento de fitas e o gravador chegam na mesa na primeira vez que ela vale e
 ## ficam (`keep_equipment`), mesmo desligada.
 ##
 ## Roteiro: `activate("b4_fitas")` (os equipamentos chegam; `equipment_unlocked` avisa para encenar a chegada).
 
-@export var tapes_per_night := 3
+@export var tapes_per_night := 3   ## os lugares do compartimento (cheio, ao repor)
+@export var restock_after := 3   ## noites seguidas incompleto até repor
 @export var points_per_word := 5   ## (com 10, uma fita de quatro palavras valia mais que uma advertência grave)
 @export var max_tape_points := 20   ## o máximo de uma fita, o de uma emergência resolvida a tempo
 @export var found_after := 2   ## noites até as autoridades darem pela ligação marcada que não chegou gravada
@@ -29,7 +34,9 @@ func night_started() -> void:
 	desk.tapes.per_word = points_per_word
 	desk.tapes.max_points = max_tape_points
 	desk.tapes.mark_key = "b4"
-	desk.tapes.reset(tapes_per_night)
+	if desk.tapes.slots.is_empty():   # a primeira noite dela: o compartimento chega cheio
+		desk.tapes.reset(tapes_per_night)
+	desk.tapes.new_night()
 	_marked.clear()
 
 
@@ -74,10 +81,15 @@ func caught_listening(c: PhoneCall) -> bool:
 func night_ended() -> void:
 	desk.tapes.left_behind()
 	desk.tapes.hand_over()
+	var missed := []
 	for c in _marked.filter(func(c: PhoneCall): return not desk.tapes.delivered(c)):
 		desk.main.supervisor.fault_later(id, desk.main.supervisor.who(c), missed_severity, T.Key[missed_text], found_after)
 		desk.main.flags.apply("authorities_questioning_pending")
+		desk.main.flags.apply("b4_nao_entregou_" + desk.tapes.call_id(c))
 		desk.log_decision(id, c, "não entregou a gravação da ligação marcada", "advertência daqui a %d noites" % found_after)
+		missed.append(desk.main.supervisor.who(c))
+	desk.tapes.last = desk.tapes.summary(desk.night, missed)
+	desk.tapes.last["restocked"] = desk.tapes.restock(tapes_per_night, restock_after)
 
 
 func debug_info() -> String:
@@ -93,4 +105,4 @@ func debug_info() -> String:
 
 
 func debug_actions() -> Array:
-	return [["Resetar fitas", night_started], ["+1 fita", desk.tapes.add_blank]]
+	return [["Resetar fitas", func(): desk.tapes.slots.clear(); night_started()], ["+1 fita", desk.tapes.add_blank]]

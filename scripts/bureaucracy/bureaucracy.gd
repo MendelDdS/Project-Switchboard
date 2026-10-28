@@ -52,6 +52,7 @@ func _ready() -> void:
 		decisions.assign(main.progress.bureaucracy.get("decisions", []))
 		messages.items.assign(main.progress.bureaucracy.get("messages", []))
 		agreements.items.assign(main.progress.bureaucracy.get("agreements", []))
+		tapes.restore(main.progress.bureaucracy.get("tapes", {}))
 	var first := not _loaded
 	for r in rules():
 		r.desk = self
@@ -81,7 +82,7 @@ static func rules() -> Array[BureaucracyRule]:
 ## O que fica salvo para as noites seguintes (`Progress.bureaucracy`): o registro, os serviços e o que o roteiro ligou
 ## (a chave geral, as regras ligadas e os parâmetros de `update_params`).
 func state() -> Dictionary:
-	return {"decisions": decisions, "messages": messages.items, "agreements": agreements.items, "enabled": enabled,
+	return {"decisions": decisions, "messages": messages.items, "agreements": agreements.items, "tapes": tapes.state(), "enabled": enabled,
 		"active": rules().filter(func(r: BureaucracyRule): return r.active).map(func(r: BureaucracyRule): return r.id),
 		"params": _params}
 

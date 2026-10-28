@@ -448,6 +448,9 @@ SYS_RECORD_REQUEST,(Ligação marcada pelas autoridades: grave a conversa.),(Cal
 TAPES_PILE,Fitas gravadas,Recorded tapes,Cintas grabadas
 TAPE_TAKE,Tirar a fita,Take the tape out,Sacar la cinta
 TAPE_RETURN,Devolver a fita,Put the tape back,Devolver la cinta
+TAPES_NOTE,"Fitas de ontem: usadas, %d; entregues às autoridades, %d.","Yesterday's tapes: used, %d; handed to the authorities, %d.","Cintas de ayer: usadas, %d; entregadas a las autoridades, %d."
+TAPES_NOTE_MISSED,"Gravações pedidas que não chegaram: %s.","Requested recordings that never arrived: %s.","Grabaciones pedidas que no llegaron: %s."
+TAPES_NOTE_RESTOCK,"Repus as fitas do compartimento.","I restocked the tape rack.","Repuse las cintas del compartimento."
 EQUIP_DISCARD,Descartar,Discard,Descartar
 WARN_NO_TAPES,Não há mais fitas virgens.,There are no blank tapes left.,No quedan cintas vírgenes.
 WARN_TAPE_INSIDE,Já há uma fita no gravador.,There's already a tape in the recorder.,Ya hay una cinta en la grabadora.
