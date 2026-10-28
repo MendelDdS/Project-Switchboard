@@ -41,8 +41,11 @@ extends Node
 ##   --zoom=x,y,w,h         o recorte, em px do jogo, ampliado `ZOOM` vezes
 ##   --car=fusca            um carro de cada modelo dado (vírgulas) parado na rua lá fora, um em cada mão (--car_t=0.45: onde, de 0 a 1; --rack: com o bagageiro)
 ##   --walk=2,-4            gente parada na calçada de lá, em cada x dado (m ao longo da rua; o 1º poste fica em 1,6)
+##                          (--walk_dir=-1: indo para a esquerda; --stride: a mesma pessoa, cada uma num quadro da passada, na ordem;
+##                          --outfit=short|long|dress|bag: a roupa dela)
 ##   --walk_z=20,45         e na calçada da direita da rua do cruzamento, em cada distância dada (m)
 ##   --bar                  a porta do bar aberta, com a luz saindo
+##   --man=0.5              o homem do mistério chegando, nessa fração do caminho até o poste (1: parado embaixo dele)
 ##   --behind=0.5           alguém passando atrás da última janela acesa do prédio de tijolos (de 0 a 1 do caminho)
 ##   --blind=1              a persiana descida (de 0, aberta, a 1, fechada)
 ##   --smoke[=s]            alguém fumando na varanda, `s` segundos depois de sair (10,5: no meio do sopro da tragada)
@@ -342,18 +345,27 @@ func _ready() -> void:
 		room._thunder_at = INF
 		for f in 2:
 			await get_tree().process_frame
-	if _args.has("walk") or _args.has("walk_z") or _args.has("bar") or _args.has("smoke") or _args.has("bike") or _args.has("phones") or _args.has("dog") or _args.has("taxi") or _args.has("behind"):   # posto de novo a cada quadro, como o carro
+	if _args.has("walk") or _args.has("walk_z") or _args.has("bar") or _args.has("smoke") or _args.has("bike") or _args.has("phones") or _args.has("dog") or _args.has("taxi") or _args.has("behind") or _args.has("man"):   # posto de novo a cada quadro, como o carro
 		var bg := m.background
 		bg._walk_in = INF
 		for f in 60:
 			if _args.has("walk") or _args.has("walk_z"):
 				bg._walkers.clear()
-				for x in (_args.get("walk", "") as String).split(",", false):
-					bg._walkers.append(bg._walker().merged({"t": (float(x) + Background.WALK_SPAN) / (2.0 * Background.WALK_SPAN), "dir": 1.0, "sec": 1e9,
+				var walk_dir := float(_args.get("walk_dir", "1"))
+				var xs := (_args.get("walk", "") as String).split(",", false)
+				var same := bg._walker()   # (com --stride, todos com a mesma roupa: o ciclo de uma pessoa só)
+				if _args.has("outfit"):
+					same.merge({"dress": _args["outfit"] == "dress", "long": _args["outfit"] == "long", "bag": _args["outfit"] == "bag"}, true)
+				for i in xs.size():
+					var t := (float(xs[i]) * walk_dir + Background.WALK_SPAN) / (2.0 * Background.WALK_SPAN)
+					var n := Background.STRIDE.size()   # com --stride, o i-ésimo no quadro i da passada
+					bg._walkers.append((same.duplicate() if _args.has("stride") else bg._walker()).merged({"t": t, "dir": walk_dir, "sec": (posmod(i, 2 * n) + 0.5) / (n * Background.WALK_STEPS * t) if _args.has("stride") else 1e9,
 						"z": Background.STREET["far_curb"] + 1.0}, true))
 				for z in (_args.get("walk_z", "") as String).split(",", false):
 					bg._walkers.append(bg._walker().merged({"t": 0.0, "dir": 1.0, "sec": 1e9, "z": Background.STREET["far_curb"] + 1.0,
 						"corner": Background.WALK_RIGHT, "out": true, "turn": float(z)}, true))
+			if _args.has("man"):   # o homem do mistério chegando, nessa fração do caminho até o poste
+				bg.stranger = Vector2(bg.minutes + Background.MAN_WALK * (1.0 - float(_args["man"])), bg.minutes + 60.0)
 			if _args.has("bike"):
 				bg._walkers.append({"t": (float(_args["bike"]) + Background.WALK_SPAN) / (2.0 * Background.WALK_SPAN), "dir": 1.0, "sec": 1e9,
 					"z": Background.STREET["far_curb"] - 0.6, "h": 1.0, "hat": false, "bike": true, "papers": _args.has("papers")})

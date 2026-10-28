@@ -8,6 +8,14 @@ const RAIN_SLANT := 0.18 ## o vento: quanto o pingo anda para a esquerda a cada 
 const WALK_SPAN := 12.0   ## de onde a onde quem passa anda (m dos dois lados do meio): fora do vidro, para entrar e sair pelas beiras dele (com a vista mais perto, `OUT_F`, o vidro mostra ~9 m para cada lado)
 const WALK_SEC := 13.0    ## quanto leva atravessando (~1,8 m/s, de 12 m a 12 m; cada um ±20%)
 const WALK_STEPS := 2.2   ## passos por segundo (as pernas alternam nesse ritmo)
+## A passada de quem anda, meia passada por quadro do desenho (a outra metade troca as pernas): a coxa de cada perna a
+## partir da vertical (x, z; positivo: para onde ele vai) e quanto o joelho dela dobra (y, w), em graus. Contato (a da
+## frente esticada, a de trás na ponta do pé), descida, passagem (a de trás passa dobrada) e subida. O quadril sai das
+## pernas (o pé de apoio no chão): o corpo desce no contato e sobe na passagem.
+const STRIDE: Array[Vector4] = [Vector4(24, 0, -20, 12), Vector4(14, 12, -24, 34), Vector4(2, 4, 6, 52), Vector4(-12, 0, 22, 28)]
+const LEG := Vector2(0.42, 0.4)   ## coxa e canela (m; em pé, o quadril fica na soma)
+const ARM := Vector2(0.3, 0.28)   ## braço e antebraço (m), do ombro, a `SHOULDER` m do chão
+const SHOULDER := 1.36
 const TURN_Z := 30.0      ## de onde (z, m) quem vira a esquina vem pela calçada da rua do cruzamento, ou até onde vai (`_walk_at`)...
 const TURN_FAR := 70.0    ## ...e de manhã, até onde (mais gente vem de longe, contra o sol)
 ## A vista é uma cena 3D simples projetada para o vidro (pensada antes, não elemento por elemento): uma câmera dentro
@@ -2404,10 +2412,8 @@ func _draw_shopfront(g: Rect2) -> void:
 	for i in roundi(BAR_PATRONS[weekday()] * (1.0 - left)):
 		var z := ff + 1.2
 		var foot := (_o(g, lerpf(x0, x1, [0.18, 0.7, 0.42, 0.92][i]) * z / ff, z) * 2.0).floor()   # (lá dentro, o x que cai na vitrine)
-		var parts := _body(0, false, i == 1)   # (um com o copo na boca)
-		if i % 2 == 0:
-			parts.append(Rect2(-0.14, 1.62, 0.28, 0.06))   # o chapéu
-		_figure(foot, OUT_F / z * 2.0, parts, Pal.BAR_FIGURE, clip)
+		var hat := [Rect2(-0.14, 1.62, 0.28, 0.06)] if i % 2 == 0 else []   # (uns de chapéu)
+		_figure(foot, _body(-1, OUT_F / z * 2.0, 1.0, i == 1, 1.0, false, hat), Pal.BAR_FIGURE, clip)   # (um com o copo na boca)
 	_r(lerpf(a.x, e.x, 0.5), a.y, PX, e.y - a.y, Pal.BAR_WOOD)   # o caixilho
 	_r(a.x, lerpf(a.y, e.y, 0.3), e.x - a.x, PX, Pal.BAR_WOOD)
 	_r(lerpf(a.x, e.x, 0.12), lerpf(a.y, e.y, 0.12), (e.x - a.x) * 0.5, PX, Pal.BAR_LETTERING)   # o letreiro pintado no vidro
@@ -2419,30 +2425,45 @@ func _draw_shopfront(g: Rect2) -> void:
 	_light_fan(c, rim, Color(1.0, 0.75, 0.4, 0.2))
 
 
-## Uma silhueta (`parts`: retângulos em metros a partir dos pés, x para o lado e y para cima) em `foot` (px da tela),
-## `k` px por metro, na cor `col`, recortada em `clip` (px da tela; vazio = sem recorte).
-func _figure(foot: Vector2, k: float, parts: Array, col: Color, clip := Rect2()) -> void:
+## Alguém em silhueta numa cor só (`col`): as peças em px a partir dos pés (`_body`), cortadas em `clip` (a porta, a vitrine).
+func _figure(foot: Vector2, parts: Array, col: Color, clip := Rect2()) -> void:
 	for part: Rect2 in parts:
-		var a := Vector2(roundf(part.position.x * k), -roundf((part.position.y + part.size.y) * k))
-		var b := Vector2(roundf(part.end.x * k), -roundf(part.position.y * k))
-		var r := Rect2(foot + a, Vector2(maxf(1.0, b.x - a.x), maxf(1.0, b.y - a.y)))
+		var r := Rect2(foot + part.position, part.size)
 		if clip.has_area():
 			r = r.intersection(clip)
 		if r.has_area():
 			_p(r.position.x, r.position.y, r.size.x, r.size.y, col)
 
 
-## As peças de alguém de pé (m, a partir dos pés): andando (as pernas abertas no passo `step` ímpar) ou parado, com o
-## braço do lado de `side` levantado até a orelha (`up`: o fone, o cigarro) ou caído.
-func _body(step: int, walking: bool, up: bool, side := 1.0) -> Array:
-	var parts: Array = [Rect2(-0.2, 0.75, 0.4, 0.68), Rect2(-0.1, 1.43, 0.2, 0.22)]   # o casaco e a cabeça
-	if walking and step % 2 == 0:
-		parts.append_array([Rect2(-0.22, 0.0, 0.13, 0.8), Rect2(0.09, 0.0, 0.13, 0.8)])
-	else:
-		parts.append(Rect2(-0.13, 0.0, 0.26, 0.8))
-	if up:
-		parts.append(Rect2(0.12 * side - 0.04, 1.2, 0.09, 0.42))
-	return parts
+## As peças de alguém de pé, em px a partir dos pés (`k` px por metro), na forma de quem passa: andando no quadro `f`
+## da passada (`_gait`; de perfil, no sentido `s`, ou de frente, `front`, vindo ou indo) ou parado (`f` negativo, de
+## frente), com o braço do lado de `side` dobrado até a orelha (`up`: o fone, o copo, o cigarro) ou caído. `extra`:
+## mais peças em metros (o chapéu, a mala), que sobem e descem com o corpo.
+func _body(f: int, k: float, s := 1.0, up := false, side := 1.0, front := false, extra := []) -> Array:
+	front = front or f < 0
+	var gait := _gait(f, k, s, front)
+	var drop: float = gait["drop"]
+	var arms: Array = gait["arms"]
+	if up:   # (de frente, o braço 0 fica à esquerda)
+		var i := (0 if side < 0.0 else 1) if front else 0
+		var sh: Vector2 = arms[i][0]
+		arms[i] = [sh, sh + Vector2(0.04 * side, 0.26) * k, Vector2(roundf(0.12 * side * k), -roundf(1.55 * k) + drop)]
+	var parts: Array = []
+	for i in 2:
+		_limb(parts, gait["legs"][i], maxi(1, roundi(0.13 * k)), Color.BLACK)
+		_limb(parts, arms[i], 1, Color.BLACK)
+	_round_top(parts, _m2px(Rect2(-0.2, 0.75, 0.4, 0.68), k, drop), Color.BLACK)   # o casaco, de ombros redondos
+	parts.append([_m2px(Rect2(-0.1 + (0.0 if front else 0.03 * s), 1.43, 0.2, 0.22), k, drop), Color.BLACK])   # a cabeça
+	for r: Rect2 in extra:
+		parts.append([_m2px(r, k, drop), Color.BLACK])
+	return parts.map(func(pc: Array) -> Rect2: return pc[0])
+
+
+## A peça `r` (m, de quem está em pé, a partir dos pés) em px da tela, com `k` px por metro e o corpo descido `drop` px.
+func _m2px(r: Rect2, k: float, drop := 0.0) -> Rect2:
+	var a := Vector2(roundf(r.position.x * k), -roundf(r.end.y * k) + drop)
+	var b := Vector2(roundf(r.end.x * k), -roundf(r.position.y * k) + drop)
+	return Rect2(a, Vector2(maxf(1.0, b.x - a.x), maxf(1.0, b.y - a.y)))
 
 
 ## Quem atende o telefone do outro lado da rua (`CALLED`, `phones`): enquanto ele toca (só se for atender), a pessoa
@@ -2471,8 +2492,8 @@ func _draw_phones(g: Rect2) -> void:
 		var x := spot.x * spot.y / ff + away * 1.4   # (lá dentro, o x que cai na porta ou na vitrine: mais longe, tudo vai para o ponto de fuga)
 		var foot := (_o(g, x, spot.y) * 2.0).floor()
 		var walking := away > 0.0
-		var parts := _body(int(t * WALK_STEPS * 2.0), walking, st == 2 and not walking, -1.0)
-		_figure(foot, OUT_F / spot.y * 2.0, parts, Pal.CLERK if i == 0 else Pal.BAR_FIGURE, clip)
+		var parts := _body(int(t * WALK_STEPS * STRIDE.size()) if walking else -1, OUT_F / spot.y * 2.0, 1.0 if st == 0 else -1.0, st == 2 and not walking, -1.0)   # (chegando, vem para a esquerda)
+		_figure(foot, parts, Pal.CLERK if i == 0 else Pal.BAR_FIGURE, clip)
 
 
 ## O passageiro do táxi parado no hotel (`_taxi_x`, `GUEST`): desce do lado da calçada, atrás do carro, e anda com a
@@ -2490,10 +2511,9 @@ func _draw_guest(g: Rect2) -> void:
 		if z > ff:
 			var a := _o(g, HOTEL_X - 0.6, ff, 2.3)
 			clip = Rect2(a * 2.0, (_o(g, HOTEL_X + 0.6, ff) - a) * 2.0)
-		var parts := _body(int(p * WALK_STEPS * 2.0), true, false)
-		parts.append(Rect2(0.2, 0.08, 0.3, 0.34))   # a mala
+		var parts := _body(int(p * WALK_STEPS * STRIDE.size()), OUT_F / z * 2.0, 1.0, false, 1.0, true, [Rect2(0.2, 0.08, 0.3, 0.34)])   # (indo, de costas; a mala)
 		var x := lerpf((_taxi_mid() + 0.6) * z0 / CAR_LANES[0].x, HOTEL_X * (ff + 0.8) / ff, u)   # ...até a porta do hotel
-		_figure((_o(g, x, z) * 2.0).floor(), OUT_F / z * 2.0, parts, Pal.SILHOUETTE, clip)
+		_figure((_o(g, x, z) * 2.0).floor(), parts, Pal.SILHOUETTE, clip)
 
 
 ## O vira-lata trotando pela calçada de lá (`w`, de `_walker`, com "dog"; `x` onde está): o desenho do quadro do trote
@@ -2573,7 +2593,8 @@ func _draw_smoker(g: Rect2) -> void:
 	var foot := (_o(g, x, z, APT["floor"]) * 2.0).floor()
 	var puff := fmod(_smoke_t, PUFF_EVERY)
 	var up := away == 0.0 and puff < 1.2
-	_figure(foot, k, _body(int(_smoke_t * WALK_STEPS * 2.0), away > 0.0, up), Pal.SILHOUETTE)
+	var s := signf(spot - (door.x + door.y) / 2.0) * (1.0 if _smoke_t < SMOKE_SEC / 2.0 else -1.0)   # saindo ou voltando
+	_figure(foot, _body(int(_smoke_t * WALK_STEPS * STRIDE.size()) if away > 0.0 else -1, k, s, up), Pal.SILHOUETTE)
 	var ember := foot + (Vector2(0.14, -1.55) if up else Vector2(0.24, -0.85)) * k
 	_p(roundf(ember.x), roundf(ember.y), 1, 1, EMBER if up else EMBER.darkened(0.45))
 	_p(roundf(ember.x) - 1, roundf(ember.y) - 1, 3, 3, Color(EMBER, 0.25 if up else 0.1))
@@ -2664,7 +2685,7 @@ func _draw_bar_door(g: Rect2) -> void:
 	if owner >= 1.0:   # o dono no vão, em silhueta contra o salão aceso, com a mão no batente
 		var z := ff + 0.4
 		var x := BAR_DOOR.y - 0.3
-		_figure((_o(g, x, z) * 2.0).floor(), OUT_F / z * 2.0, _body(0, false, true, 1.0), Pal.SILHOUETTE, Rect2(a * 2.0, (e - a) * 2.0))
+		_figure((_o(g, x, z) * 2.0).floor(), _body(-1, OUT_F / z * 2.0, 1.0, true), Pal.SILHOUETTE, Rect2(a * 2.0, (e - a) * 2.0))
 	if open > 0.0:   # a luz saindo pela calçada
 		var c := _o(g, (BAR_DOOR.x + BAR_DOOR.y) / 2.0, ff - 0.1)
 		var rim := PackedVector2Array()
@@ -2696,7 +2717,7 @@ func _draw_marquee(g: Rect2) -> void:
 	_r(door.x + (de.x - door.x) * 0.15, de.y - (de.y - door.y) * 0.35, (de.x - door.x) * 0.3, (de.y - door.y) * 0.35, Color(Pal.BAR_JAMB, 0.7))   # o balcão do saguão
 	if minutes >= BAR_OPENS:   # de manhã, o porteiro na porta, em silhueta contra o saguão aceso (como na referência)
 		var z := ff + 0.3
-		_figure((_o(g, HOTEL_X + 0.25, z) * 2.0).floor(), OUT_F / z * 2.0, _body(0, false, false), Pal.SILHOUETTE, Rect2(door * 2.0, (de - door) * 2.0))
+		_figure((_o(g, HOTEL_X + 0.25, z) * 2.0).floor(), _body(-1, OUT_F / z * 2.0), Pal.SILHOUETTE, Rect2(door * 2.0, (de - door) * 2.0))
 	var shade := _o(g, x0, ff, 3.0)   # a sombra dela na fachada
 	_r(shade.x, shade.y, _o(g, x1, ff).x - shade.x, (_o(g, x0, ff, 2.4).y - shade.y), Color(0, 0, 0, 0.3))
 	var top := PackedVector2Array([_o(g, x0, ff, 3.0), _o(g, x1, ff, 3.0), _o(g, x1, ff - 1.2, 3.0), _o(g, x0, ff - 1.2, 3.0)])
@@ -2838,15 +2859,16 @@ func _man_x() -> float:
 	return lerpf(MAN_X, MAN_FROM, (minutes - stranger.y) / MAN_WALK)
 
 
-## O homem do mistério na calçada de lá, em `x` (`_man_x`), de chapéu e casaco comprido, com 1,8 m: andando, as pernas
-## alternam a cada passo; parado embaixo do poste da esquina, fica contra a luz dele, com a sombra no chão para longe
+## O homem do mistério na calçada de lá, em `x` (`_man_x`), de chapéu e casaco comprido, com 1,8 m: andando, na
+## passada de quem passa (`_gait`); parado embaixo do poste da esquina, fica contra a luz dele, com a sombra no chão para longe
 ## dela. Em px da tela; a névoa e a chuva passam por cima.
 func _draw_stranger(g: Rect2, x: float) -> void:
 	var z: float = STREET["far_curb"] + 1.1
 	var walking := x != MAN_X
-	var steps := int(absf(x - MAN_FROM) / MAN_STRIDE)
-	var foot := (_o(g, x, z) * 2.0).floor() - Vector2(0, steps % 2 if walking else 0)
+	var foot := (_o(g, x, z) * 2.0).floor()
 	var k := OUT_F / z * 2.0   # px da tela por metro
+	var s := signf(MAN_X - MAN_FROM) * (1.0 if minutes < stranger.x else -1.0)   # chegando ou indo embora
+	var gait := _gait(int(absf(x - MAN_FROM) / MAN_STRIDE * STRIDE.size()) if walking else -1, k, s, not walking)   # (parado, de frente para nós)
 	var hc := _o(g, x, z, 1.0)
 	var halo := PackedVector2Array()   # a luz do poste atrás dele, lisa
 	for i in 24:
@@ -2855,17 +2877,17 @@ func _draw_stranger(g: Rect2, x: float) -> void:
 	var dir := 1.0 if x >= (FAR_LAMPS[0] as float) else -1.0
 	_poly(PackedVector2Array([_o(g, x - 0.2, z), _o(g, x + 0.2, z), _o(g, x + dir * 2.4, z + 0.6), _o(g, x + dir * 2.0, z + 0.6)]),
 		Color(0, 0, 0, 0.5))
-	# (x de um lado a outro, altura de baixo para cima), em metros: pernas, casaco, ombros, cabeça, aba e copa do chapéu
-	var legs: Array[Rect2] = [Rect2(-0.17, 0.0, 0.13, 0.8), Rect2(0.04, 0.0, 0.13, 0.8)]
-	if walking and steps % 2 == 0:
-		legs = [Rect2(-0.22, 0.0, 0.13, 0.8), Rect2(0.09, 0.0, 0.13, 0.8)]
-	elif walking:
-		legs = [Rect2(-0.07, 0.0, 0.14, 0.8)]
-	for part: Rect2 in legs + [Rect2(-0.24, 0.55, 0.48, 0.8),
+	var parts: Array = []   # as pernas e os braços na passada (`_gait`), e por cima, em metros (x de um lado a outro,
+	# altura de baixo para cima): casaco, ombros, cabeça, aba e copa do chapéu
+	for i in [1, 0]:
+		_limb(parts, gait["arms"][i], 1, Color.BLACK)
+		_limb(parts, gait["legs"][i], maxi(1, roundi(0.13 * k)), Color.BLACK)
+	for part: Rect2 in [Rect2(-0.24, 0.55, 0.48, 0.8),
 			Rect2(-0.27, 1.25, 0.54, 0.2), Rect2(-0.1, 1.45, 0.2, 0.22), Rect2(-0.2, 1.66, 0.4, 0.05), Rect2(-0.11, 1.7, 0.22, 0.13)]:
-		var a := Vector2(roundf(part.position.x * k), -roundf((part.position.y + part.size.y) * k))
-		var b := Vector2(roundf(part.end.x * k), -roundf(part.position.y * k))
-		_p(foot.x + a.x, foot.y + a.y, maxf(1.0, b.x - a.x), maxf(1.0, b.y - a.y), Color.BLACK)
+		parts.append([_m2px(part, k, gait["drop"]), Color.BLACK])
+	for pc: Array in parts:
+		var r: Rect2 = pc[0]
+		_p(foot.x + r.position.x, foot.y + r.position.y, r.size.x, r.size.y, pc[1])
 
 
 ## Alguém novo na calçada de lá, indo de um lado ao outro: cada um com o seu passo, a sua altura, a sua distância das
@@ -2905,10 +2927,70 @@ func _add_walker(w: Dictionary) -> void:
 	_walkers.insert(_walkers.bsearch_custom(w, func(a: Dictionary, b: Dictionary) -> bool: return a["z"] > b["z"]), w)
 
 
-## Alguém passando pela calçada de lá (`w`, de `_walker`; fora da vista, não desenha): silhueta escura de 1,7 m contra as luzes, as pernas
-## alternando a cada passo, com um balanço leve, e de guarda-chuva aberto na chuva. Perto de um poste, a luz dele
-## acende a beira de cima e o lado virado para ele (`RIM`); na chuva, ele se espelha na calçada molhada, apagado e
-## sumindo para baixo. Em px da tela, como o homem.
+## A passada no quadro `f` (`STRIDE`, meia passada por `STRIDE.size()` quadros; negativo: parado, em pé), em px da
+## tela a partir dos pés (`k` px por metro, `s` o sentido): quanto o corpo desceu (`drop`, px), as pernas [quadril,
+## joelho, tornozelo] e os braços [ombro, cotovelo, mão], cada um [o de cá, o de lá]; o braço vai ao contrário da
+## perna do mesmo lado. De frente (`front`), o balanço vai para a profundidade e some: as pernas e os braços abrem para
+## os lados. O pé fica na fileira de cima dos pés, como os sapatos.
+func _gait(f: int, k: float, s: float, front: bool) -> Dictionary:
+	var legs: Array[Vector2] = [Vector2.ZERO, Vector2.ZERO]   # [a de cá, a de lá]: coxa e dobra do joelho
+	if f >= 0:
+		f = posmod(f, 2 * STRIDE.size())
+		var row := STRIDE[f % STRIDE.size()]
+		legs = [Vector2(row.x, row.y), Vector2(row.z, row.w)]
+		if f >= STRIDE.size():
+			legs.reverse()
+	var reach := func(l: Vector2) -> float: return LEG.x * cos(deg_to_rad(l.x)) + LEG.y * cos(deg_to_rad(l.x - l.y))
+	var hip := maxf(reach.call(legs[0]), reach.call(legs[1]))   # o pé de apoio no chão
+	var drop := roundf((LEG.x + LEG.y) * k) - roundf(hip * k)
+	var across := 0.0 if front else 1.0
+	var bend := func(from: Vector2, deg: float, long: float) -> Vector2:   # o ponto `long` m adiante, a `deg` graus da vertical, para baixo
+		return from + Vector2(sin(deg_to_rad(deg)) * s * across, cos(deg_to_rad(deg))) * long * k
+	var out := {"drop": drop, "legs": [], "arms": []}
+	for i in 2:
+		var top := Vector2((0.08 * (2 * i - 1) if front else 0.0) * k, -roundf(hip * k) - 1.0)
+		var knee: Vector2 = bend.call(top, legs[i].x, LEG.x)
+		out["legs"].append([top, knee, bend.call(knee, legs[i].x - legs[i].y, LEG.y)])
+		var shoulder := Vector2(0.0 if not front else (roundf(-0.2 * k) if i == 0 else roundf(0.2 * k) - 1.0), -roundf(SHOULDER * k) + drop)   # (de frente, na beira do casaco: por fora, a silhueta ficava larga)
+		var swing: float = legs[1 - i].x * 0.9
+		var elbow: Vector2 = bend.call(shoulder, swing, ARM.x)
+		out["arms"].append([shoulder, elbow, bend.call(elbow, swing + 10.0 + maxf(swing, 0.0) * 0.6, ARM.y)])
+	return out
+
+
+## Um membro de `pts` (px da tela, do ombro ou do quadril à mão ou ao pé), `wide` px de grosso, em `parts` como
+## colunas de 1 px de altura juntadas (`_draw_walker`): um pixel por passo na direção mais longa.
+func _limb(parts: Array, pts: Array, wide: int, col: Color) -> void:
+	var run := Rect2()
+	for i in pts.size() - 1:
+		var a: Vector2 = (pts[i] as Vector2).round()
+		var d: Vector2 = (pts[i + 1] as Vector2).round() - a
+		var n := maxi(1, int(maxf(absf(d.x), absf(d.y))))
+		for j in range(0 if i == 0 else 1, n + 1):
+			var p := (a + d * j / n).round() - Vector2((wide - 1) / 2, 0)
+			if run.size != Vector2.ZERO and p.x == run.position.x and p.y == run.end.y:
+				run.size.y += 1.0
+				continue
+			if run.size != Vector2.ZERO:
+				parts.append([run, col])
+			run = Rect2(p, Vector2(wide, 1))
+	parts.append([run, col])
+
+
+## A peça `r` (px) em `parts` com os cantos de cima cortados (os ombros redondos), se for larga para isso.
+func _round_top(parts: Array, r: Rect2, col: Color) -> void:
+	if r.size.x < 4.0 or r.size.y < 3.0:
+		parts.append([r, col])
+		return
+	parts.append_array([[Rect2(r.position + Vector2(1, 0), Vector2(r.size.x - 2.0, 1)), col], [Rect2(r.position + Vector2(0, 1), r.size - Vector2(0, 1)), col]])
+
+
+## Alguém passando pela calçada de lá (`w`, de `_walker`; fora da vista, não desenha): de perfil, com 1,7 m, as pernas
+## de coxa e canela na passada (`STRIDE`, `WALK_FRAMES` quadros por passo, o corpo subindo e descendo com elas), os
+## braços balançando ao contrário delas (o de lá e a perna de lá mais escuros, atrás), os ombros redondos e o vestido
+## abrindo para a barra; quem desce ou sobe a rua do cruzamento vem de frente. Na chuva, de guarda-chuva aberto na mão
+## de cá; a pasta vai na mão, balançando. Perto de um poste, a luz dele acende a beira de cima e o lado virado para ele
+## (`RIM`); na chuva, ele se espelha na calçada molhada, apagado e sumindo para baixo. Em px da tela, como o homem.
 func _draw_walker(g: Rect2, w: Dictionary) -> void:
 	var at := _walk_at(w)
 	var x := at.x
@@ -2921,49 +3003,76 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 	if w.get("dog", false):
 		_draw_stray(g, w, x)
 		return
-	var steps := int(w["t"] * w["sec"] * WALK_STEPS)
-	var foot := (_o(g, x, z) * 2.0).floor() - Vector2(0, posmod(steps, 2))
 	var k: float = OUT_F / z * 2.0 * w["h"]   # px da tela por metro (na altura dele)
 	var dark := Pal.SILHOUETTE
 	_poly(PackedVector2Array([_o(g, x - 0.3, z), _o(g, x + 0.3, z), _o(g, x + 0.3, z + 0.2), _o(g, x - 0.3, z + 0.2)]), Color(0, 0, 0, 0.35))
 	_sun_shadow(g, x - 0.22, x + 0.22, z, 1.7 * w["h"])
-	var s: float = w["dir"]   # (o que tem frente, a aba da boina e a bolsa, vira para onde ele vai)
+	var s: float = w["dir"]   # (o que tem frente, a aba da boina, a bolsa e o passo, vira para onde ele vai)
+	var front := w.has("corner") and absf(x - float(w["corner"])) < 0.01   # na rua do cruzamento, vindo ou indo: de frente (o x vem de um Vector2, de 32 bits)
+	var gait := _gait(int(w["t"] * w["sec"] * WALK_STEPS * STRIDE.size()), k, s, front)
+	var drop: float = gait["drop"]
+	var foot := (_o(g, x, z) * 2.0).floor()
+	var px := func(r: Rect2) -> Rect2: return _m2px(r, k, drop)   # uma peça do corpo (m, em pé), com o corpo descido
 	var coat: Color = w["coat"]
-	var legs: Color = w["legs"]
-	var parts: Array = []   # [peça, cor], de trás para a frente
-	var apart := posmod(steps, 2) == 0
+	var legs_col: Color = w["legs"]
 	var sleeve := Pal.lit(coat, -2)
-	var swing := (0.06 if apart else -0.06) * s   # os braços balançando com o passo, um para cada lado
-	parts.append([Rect2(-0.03 - swing, 0.8, 0.08, 0.55), Pal.lit(coat, -3)])   # o braço de lá, atrás do corpo
-	if w["dress"]:   # as pernas finas embaixo da saia, os sapatos, o vestido e o casaquinho por cima
-		parts.append_array([[Rect2(-0.16, 0.0, 0.1, 0.5), legs], [Rect2(0.06, 0.0, 0.1, 0.5), legs]] if apart else [[Rect2(-0.06, 0.0, 0.12, 0.5), legs]])
-		parts.append_array([[Rect2(-0.17, 0.0, 0.12, 0.06), dark], [Rect2(0.05, 0.0, 0.12, 0.06), dark]] if apart else [[Rect2(-0.07, 0.0, 0.14, 0.06), dark]])
-		parts.append_array([[Rect2(-0.24, 0.42, 0.48, 0.5), coat], [Rect2(-0.24, 0.42, 0.48, 0.05), Pal.lit(coat, -2)],
-			[Rect2(-0.18, 0.9, 0.36, 0.53), Pal.lit(coat, -3) if w["long"] else coat]])
+	var parts: Array = []   # [peça em px, cor], de trás para a frente
+	var wide := maxi(1, roundi((0.09 if w["dress"] else 0.15) * k))   # a grossura da perna
+	var arms: Array = gait["arms"]
+	if weather == "rain":   # o braço de cá segura o guarda-chuva na frente do peito
+		var shoulder: Vector2 = arms[0][0]
+		arms[0] = [shoulder, shoulder + Vector2(0.06 * s, 0.26) * k, shoulder + Vector2(0.16 * s, 0.12) * k]
+	var limbs: Array = gait["legs"]
+	_limb(parts, arms[1], 1, Pal.lit(coat, -3))   # o braço de lá, atrás do corpo
+	for i in [1, 0]:   # a perna de lá, mais escura, e a de cá, com os sapatos
+		var col := Pal.lit(legs_col, -2) if i == 1 else legs_col
+		_limb(parts, limbs[i], wide, col)
+		var shoe := maxf(2.0, roundf(0.2 * k)) if not front else float(wide)
+		var heel: Vector2 = (limbs[i][2] as Vector2).round() - Vector2((wide - 1) / 2, 0)
+		parts.append([Rect2(heel.x - (shoe - wide if s < 0.0 and not front else 0.0), heel.y, shoe, 1), dark])
+	if w["dress"]:   # o vestido abrindo para a barra, e o casaquinho por cima
+		var top: Rect2 = px.call(Rect2(-0.16, 0.9, 0.32, 0.02))
+		var hem: Rect2 = px.call(Rect2(-0.25, 0.42, 0.5, 0.02))
+		for y in range(int(top.position.y), int(hem.position.y) + 1):
+			var u := inverse_lerp(top.position.y, hem.position.y, y)
+			var x0 := roundf(lerpf(top.position.x, hem.position.x, u))
+			parts.append([Rect2(x0, y, roundf(lerpf(top.end.x, hem.end.x, u)) - x0, 1), Pal.lit(coat, -2) if y == int(hem.position.y) else coat])
+		var jacket: Rect2 = px.call(Rect2(-0.18, 0.9, 0.36, 0.53))
+		_round_top(parts, jacket, Pal.lit(coat, -3) if w["long"] else coat)
 	else:
-		parts.append_array([[Rect2(-0.22, 0.0, 0.13, 0.8), legs], [Rect2(0.09, 0.0, 0.13, 0.8), legs]] if apart else [[Rect2(-0.07, 0.0, 0.14, 0.8), legs]])
-		parts.append_array([[Rect2(-0.24, 0.0, 0.16, 0.07), dark], [Rect2(0.08, 0.0, 0.16, 0.07), dark]] if apart else [[Rect2(-0.09, 0.0, 0.18, 0.07), dark]])
-		parts.append([Rect2(-0.21, 0.45, 0.42, 0.98) if w["long"] else Rect2(-0.2, 0.75, 0.4, 0.68), coat])
-		parts.append([Rect2(-0.21, 0.45, 0.42, 0.06) if w["long"] else Rect2(-0.2, 0.75, 0.4, 0.06), sleeve])   # a barra do casaco
-		parts.append([Rect2(-0.05, 1.33, 0.1, 0.1), Pal.lit(coat, 1)])   # a gola
-	parts.append([Rect2(-0.08 + swing, 0.82, 0.08, 0.55), sleeve])   # o braço de cá, na frente
-	parts.append([Rect2(-0.08 + swing, 0.8, 0.08, 0.06), w["skin"]])   # a mão
-	parts.append([Rect2(-0.1, 1.43, 0.2, 0.22), w["skin"]])   # a cabeça
+		var body: Rect2 = px.call(Rect2(-0.2, 0.45, 0.4, 0.98) if w["long"] else Rect2(-0.19, 0.75, 0.38, 0.68))
+		_round_top(parts, body, coat)
+		parts.append([Rect2(body.position.x, body.end.y - 1.0, body.size.x, 1), sleeve])   # a barra do casaco
+		parts.append([px.call(Rect2(-0.05, 1.33, 0.1, 0.1)), Pal.lit(coat, 1)])   # a gola
+	_limb(parts, arms[0], 1, sleeve)   # o braço de cá, na frente
+	var hand: Vector2 = (arms[0][2] as Vector2).round()
+	parts.append([Rect2(hand, Vector2.ONE), w["skin"]])   # a mão
+	var head: Rect2 = px.call(Rect2(-0.1 + (0.0 if front else 0.03 * s), 1.43, 0.2, 0.22))
+	parts.append([head, w["skin"]])   # a cabeça, um pouco à frente do corpo
 	if w["hat"] in ["", "cap"] and weather != "rain":   # o cabelo, atrás e em cima (o chapéu e o guarda-chuva o cobrem)
-		parts.append_array([[Rect2(-0.1, 1.58, 0.2, 0.07), dark], [Rect2(-0.1 if s > 0.0 else 0.04, 1.45, 0.06, 0.15), dark]])
-	if w["bag"]:   # a bolsa no ombro, ou a pasta na mão
-		parts.append([Rect2(0.14 * s - 0.06, 0.82, 0.12, 0.16), Pal.lit(Pal.lit(coat, -3), -2)] if w["dress"] else [Rect2(0.16 * s - 0.08, 0.3, 0.16, 0.24), Pal.BRIEFCASE])
-	if weather == "rain":   # o guarda-chuva: a cúpula, a beira e o cabo
+		parts.append_array([[Rect2(head.position, Vector2(head.size.x, 1)), dark],
+			[Rect2(head.end.x - 1.0 if s < 0.0 else head.position.x, head.position.y, 1, maxf(1.0, head.size.y - 1.0)), dark]])
+	if w["bag"]:   # a bolsa no ombro, ou a pasta na mão, balançando com ela
+		if w["dress"]:
+			parts.append([px.call(Rect2(-0.14 * s - 0.06, 0.82, 0.12, 0.16)), Pal.lit(Pal.lit(coat, -3), -2)])
+		elif weather != "rain":
+			var case := Vector2(maxf(2.0, roundf(0.16 * k)), maxf(2.0, roundf(0.24 * k)))
+			parts.append([Rect2(hand + Vector2(-floorf(case.x / 2.0), 1), case), Pal.BRIEFCASE])
+	if weather == "rain":   # o guarda-chuva na mão de cá: a cúpula, a beira e o cabo
 		var u: Color = w["umbrella"]
-		parts.append_array([[Rect2(-0.55, 1.74, 1.1, 0.1), u], [Rect2(-0.42, 1.84, 0.84, 0.1), u], [Rect2(-0.2, 1.94, 0.4, 0.05), u], [Rect2(-0.02, 1.4, 0.04, 0.36), dark]])
+		var c := hand.x / k
+		parts.append_array([[px.call(Rect2(c - 0.55, 1.74, 1.1, 0.1)), u], [px.call(Rect2(c - 0.42, 1.84, 0.84, 0.1)), u],
+			[px.call(Rect2(c - 0.2, 1.94, 0.4, 0.05)), u]])
+		var grip: float = (px.call(Rect2(0, 1.76, 0, 0)) as Rect2).position.y
+		parts.append([Rect2(hand.x, grip, 1, hand.y - grip), dark])
 	else:
 		match w["hat"]:
 			"fedora":
-				parts.append_array([[Rect2(-0.18, 1.63, 0.36, 0.04), dark], [Rect2(-0.1, 1.66, 0.2, 0.1), dark]])
+				parts.append_array([[px.call(Rect2(-0.18, 1.63, 0.36, 0.04)), dark], [px.call(Rect2(-0.1, 1.66, 0.2, 0.1)), dark]])
 			"cap":   # a boina, com a pala para a frente
-				parts.append_array([[Rect2(-0.11, 1.62, 0.22, 0.07), legs], [Rect2(0.13 * s - 0.05, 1.62, 0.1, 0.03), legs]])
+				parts.append_array([[px.call(Rect2(-0.11, 1.62, 0.22, 0.07)), legs_col], [px.call(Rect2(0.13 * s - 0.05, 1.62, 0.1, 0.03)), legs_col]])
 			"scarf":   # o lenço amarrado na cabeça
-				parts.append([Rect2(-0.12, 1.52, 0.24, 0.16), coat.lightened(0.15)])
+				parts.append([px.call(Rect2(-0.12, 1.52, 0.24, 0.16)), coat.lightened(0.15)])
 	var glow := 0.0   # o poste mais perto: até 3 m dele
 	var side := 1.0
 	for lx: float in FAR_LAMPS:
@@ -2984,9 +3093,8 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 	var against := _sunny(Pal.BACKLIT)
 	for pc: Array in parts:
 		var part: Rect2 = pc[0]
-		var a := Vector2(roundf(part.position.x * k), -roundf((part.position.y + part.size.y) * k))
-		var b := Vector2(roundf(part.end.x * k), -roundf(part.position.y * k))
-		var sz := Vector2(maxf(1.0, b.x - a.x), maxf(1.0, b.y - a.y))
+		var a := part.position
+		var sz := part.size
 		_p(foot.x + a.x, foot.y + a.y, sz.x, sz.y, (pc[1] as Color).lerp(RIM, 0.15 * glow).lerp(against, 0.8 * back))
 		if edge > 0.0:
 			if sz.y > 2.0 and top > 0.0:   # (as peças finas, como o guarda-chuva e a aba, só no lado: no alto, ficavam acesas inteiras)

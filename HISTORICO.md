@@ -2619,3 +2619,16 @@ Chaves:
     antigo fica inteiro) e o que não dá para ler (de versão mais nova ou corrompido) fica guardado ao lado
     (`Progress.aside`) com um aviso no papel da tela inicial, e o jogo começa do zero. A cópia antes de converter
     fica para a primeira conversão de verdade. Teste em `test_penalties` (9d).
+451. #vista "Você consegue melhorar as formas e animações dos pedestres?" Quem passa na calçada de lá deixou os
+    blocos de duas poses: as pernas de coxa e canela numa passada de 8 quadros por ciclo (`STRIDE`, `LEG`: contato,
+    descida, passagem, subida), com o corpo descendo e subindo pela perna de apoio, os braços de braço e antebraço
+    balançando ao contrário das pernas (`ARM`, `SHOULDER`), a perna e o braço de lá mais escuros, os sapatos para a
+    frente, os ombros redondos (`_round_top`), o vestido abrindo para a barra, a cabeça um pouco à frente, a pasta
+    balançando na mão e, na chuva, o guarda-chuva na mão de cá (antes ficava solto em cima). Quem desce ou sobe a rua
+    do cruzamento vem de frente (pernas e braços abertos para os lados). O homem do mistério anda na mesma passada
+    (`_gait`) e, parado embaixo do poste, segue de frente. Captura: `--stride`, `--walk_dir`, `--outfit`, `--man`.
+    Depois, a pedido ("Da pra desenhar o que voce disse que ta com desenho antigo como modelo novo?"): as silhuetas
+    (`_body`, `_figure`, agora em px) também: quem está no balcão do bar, quem atende os telefones do hotel e do bar,
+    quem fuma na varanda, o passageiro do táxi com a mala, o dono do bar e o porteiro do hotel. Parados ficam de frente,
+    com os braços na beira do casaco (por fora, a silhueta ficava larga) e o braço do fone, do copo ou do cigarro
+    dobrado no cotovelo até a orelha; andando, na passada.
