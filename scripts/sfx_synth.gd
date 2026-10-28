@@ -360,7 +360,6 @@ func _build_basic() -> void:
 	for i in 14:
 		_noise(i * 0.07 + _rng.randf() * 0.03, 0.05, "bp", 5200 + _rng.randf() * 1500, 3, 0.8)
 	_end("pencil")
-	_begin(0.03); _tone(0, 1300, 0.012, "square", 0.3); _noise(0, 0.012, "bp", 2500, 1, 0.6); _end("pulse", true)
 	# chamando: "tuuuu" contínuo de 425 Hz, pela linha
 	_begin(1.3)
 	var on := 1.15

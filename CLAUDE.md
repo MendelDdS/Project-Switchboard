@@ -24,7 +24,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 - **Antes de criar arquivo, função, cena ou recurso: procure o que já existe** (`graphify query "<componente>"`, o
   grafo em `graphify-out/`; confira com `grep`, o grafo envelhece; atualize com `python -m graphify update <projeto>`,
   conferindo que as ligações dos documentos não sumiram). Reaproveitar > criar.
-- Git: branch principal `development`; commits `tipo(#0000): descrição`. `.godot/` fora do git. Só faça commit quando
+- Git: branch principal `develop`; commits `tipo(#0000): descrição`. `.godot/` fora do git. Só faça commit quando
   o usuário pedir, e **antes rode a skill `revisar-mudancas`** (só então). Convenção nova que der para conferir por
   padrão no texto entra no `check.sh` dela.
 - **Interface em cenas** (`scenes/`), com Containers; scripts de interface em `scripts/ui/`, lógica em `scripts/`.
@@ -82,7 +82,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   `reload_current_scene()`. Pausa: `PauseMenu` (`get_tree().paused`); o `Box` do `GameView` processa sempre.
 - **Sorteio**: use o global (`randf`, que segue a semente `--seed`, aplicada no `Main._enter_tree`, antes dos filhos);
   `randomize()` anula a semente (o `check.sh` acusa). Em threads, um `RandomNumberGenerator` cada. O som sorteia no
-  `Sfx._rng`, nunca no global (as vozes andam pelo relógio real). Animação do desenho pelo `PixelArt.ms()`, não
+  `Sfx._rng` e o cenário no `Background._rng` (`_pick`), nunca no global (andam pelo relógio real). Animação do desenho pelo `PixelArt.ms()`, não
   `Time.get_ticks_msec()` (para nas capturas com `--still`).
 - Cursores próprios no autoload `Cursors` (pixel art; passe `Image`, não textura, ao `Input`).
 - Configurações no autoload `Settings` (`user://settings.cfg`: `locale`, `volumes`, `fullscreen`); `set_*` vale na
@@ -122,7 +122,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 - Desempenho: sem tela, a vista da janela não é desenhada (`Background._headless`); a vista no amanhecer desenha ~17 mil
   itens (o `project.godot` põe `item_buffer_size` em 32768; o editor pode apagar a linha, o `test_layout` confere).
   Mexeu em desenho ou em algo por quadro: meça com o `medir.gd` da skill `revisar-mudancas`.
-- Exportar: skill `exportar-build`. CI: `.github/workflows/testes.yml` (`tests/run.sh` e `check.sh` em cada PR).
+- Exportar: skill `exportar-build`. CI: `.github/workflows/testes.yml` (`tests/run.sh` em todo push e PR; `check.sh` no PR).
 - Revisão de continuidade do roteiro, só quando o usuário pede: skill `revisar-roteiro` (aponta, nunca escreve falas).
 
 ## Arquivos e arquitetura
@@ -139,7 +139,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 - `Main.live`: ligações tocando ou em andamento. **Foco** = a ligação da entrada onde está o FONE (`Main._focus()`);
   quem não está em foco fica em espera e não fala (`_until_on_line`), salvo a já resolvida (`c.closing`).
 - Transferência: FONE na entrada → Atender → pedido → cabo saída→destino → Transferir (`transfer()`) → `_ring_dest` →
-  `_try_complete` → linha e destino CONN por `TALK_LEN` → DONE até tirar as pontas. Destino que não atende: a
+  `_try_complete` → linha e destino CONN por `Pace.talk_len` → DONE até tirar as pontas. Destino que não atende: a
   alternativa do mesmo ramo (`TransferCall.alt_target`, `DirectoryEntry.category`, `GameData.alternative`).
 - **Escuta** (`Eavesdrop`): chave de escuta por linha (`Exchange.key`); a conversa ouvida vem do motivo (`Motive`) ou
   das falas escritas (`TransferCall.overheard`); palavras-chave `[tipo:texto]` (`Clue`) vão para as anotações da
@@ -159,16 +159,19 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 ## Consequências e conceito
 - `ShiftReport`: advertências (`FAULTS`; gravidades leve, média, grave, gravíssima), acertos (`credit`, `CREDITS`, só
   decisões, marcados pelo `Supervisor.credit`, nunca no treinamento), eficiência interna
-  (`positives ÷ (positives + negatives)`, `POINTS`), **conceito** (`grade()`: Ótimo, Bom, Regular, Insuficiente;
+  (`positives ÷ (positives + negatives × rigor da noite)`, `POINTS`, `RIGOR`), **conceito** (`grade()`: Ótimo, Bom, Regular, Insuficiente;
   `GRADE_MIN`; emergência perdida = Insuficiente). Duas noites seguidas abaixo de Regular demitem (`low_nights`,
   `LOW_LIMIT`, `fired()`). Mudou um peso: recalibre com várias sementes (`tools/calibrar.sh [tabela anterior]`, ~4 min;
   `PLANO_EFICIENCIA.md`, seção 6).
 - O Main chama `supervisor.fault()` onde a falha acontece; `Supervisor.call_ended()` decide advertência e retorno
   (`call_again`, uma vez por motivo). Treinamento, trotes e a desconhecida não geram advertência.
-- **Barra de agravamento** (`Urgency`, `PhoneCall.stage`): corre desde o atendimento, para em pergunta e resposta e de
+- **Barra de agravamento** (`Urgency`, `PhoneCall.stage`): corre desde o atendimento, para em pergunta e resposta, com máquina do despacho trabalhando (`CardMachines.working`) e de
   vez com o socorro completo no lugar certo; cada estágio exige mais unidades (`Fleet.require`). Até duas emergências
   ao mesmo tempo (`Main.MAX_EMERGENCIES`); viatura de reserva só com duas (`Fleet.spare`).
 - Fim do turno: `Main.start_ending` → `Supervisor.shift_over` → `Ending.play(report)` → `ReportView`.
+- **Broches** (recompensas, `scripts/model/badges.gd`, `Badges.award` no fim da noite; `Progress.badges`/`tally`, somem
+  com o save): numa almofada na prateleira da mesa (`scripts/ui/badges.gd`, `%Badges`, filho do `Board`; o mouse que
+  não pega broche segue para a mesa). Broche novo: id em `Badges.ALL`, cores em `Pal.BADGE_ENAMEL`, desenho em `ICONS`.
 
 ## Burocracias (só pelo debug, por enquanto)
 - Normas que o jogador pode descumprir (registra e penaliza, nunca bloqueia): uma regra por `.tres` em
@@ -186,7 +189,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 - Setores: o primeiro dígito do número (3 Vila Serena, 1 Centro, 2 Alto da Serra); o operador recebe o 1 na noite 5 e
   o 2 na 9 (`GameData.SECTOR_NIGHTS`; `GameData.sectors` definido em `Main._load_night`). Testes de cenário usam
   `load_main([1, 2, 3])`.
-- Ritmo por nível (`Pace`, 5 níveis; `Pace.next` pelo conceito; o último é o limite).
+- Ritmo por nível (`Pace`, 9 níveis; `Pace.next` pelo conceito; o último é o limite; do 6 ao 9 o mesmo `mean_gap` do 5, com mais picos).
 - Marcadores do roteiro: `StoryFlags` (`flags.allows(requires)`, `flags.apply("nome" | "!nome")`), salvos no `Progress`.
 - `Progress` (`user://progress.cfg`): próxima noite, ritmo, `low_nights`, marcadores, jornal, palavras-chave,
   denúncias, chuvas. A última noite ou a demissão limpa o save.

@@ -476,11 +476,6 @@ func _draw_spans() -> void:
 			_label(spots[0], txt, 11, LINE, Pal.MAP_TAG, false, true)   # só enquanto o mouse está na rua: por cima, se preciso
 
 
-## Folhas (que aparecem) por onde a rua passa.
-func _sheets_of(st: Street) -> Array:
-	return [st.sector, st.continues].filter(func(s): return s != 0 and shown(s))
-
-
 ## Nomes, na ordem de prioridade: bairros, ruas, lugares e a numeração dos trechos. As ruas desde o mapa afastado
 ## (antes só os bairros: achar a rua pedida era passar o mouse em cada uma); as horizontais primeiro (`_street_name`
 ## as põe alternando os lados e deixa colunas para as verticais).

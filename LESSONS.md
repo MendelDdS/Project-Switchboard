@@ -758,3 +758,12 @@ curva, outro caminho), mostre antes como proposta e pergunte, não entregue como
   a seção com largura fixa. Detalhe do objeto (a faixa colorida) fica na peça certa (a parte dura, não a borracha).
 - **Mudar um obstáculo da física mexe em todos os fios.** Ao trocar os discos de esbarrão do plug, revise as capturas
   com fios passando por cima de vários plugs: o pescoço deitado virou prateleira e o fio serpenteou.
+- **Um `await` longo num nó prende as variáveis locais depois de o nó sair.** A espera de 60 s do `Main.ring` segurava
+  a ligação depois do `restart`: espera longa com um objeto na mão vai por `timer.timeout.connect(f.bind(obj))`, que
+  cai com o nó. Ao caçar vazamento num teste, nada de `wait_until` com lambda que guarda o objeto: o lambda fica na
+  pilha do teste suspenso e o objeto parece vazado.
+- **Algo deitado na prateleira perto da lateral segue a lateral, não os plugs.** A almofada dos broches pegou a
+  inclinação dos pares de plugs (`_lean`) e o usuário viu que destoava da prateleira: perto do fim dela, a referência
+  é a lateral da mesa (`_receding`, como o tampo dos equipamentos). Meça a inclinação na captura contra a beira ao
+  lado antes de entregar. E o que depende dos olhos (`Switchboard._eye`, que muda depois do primeiro quadro) entra no
+  estado comparado, ou fica desenhado com os olhos errados.

@@ -2873,12 +2873,12 @@ func _draw_stranger(g: Rect2, x: float) -> void:
 ## (`WALK_*`), o chapéu, a boina, o lenço ou nada (`hat`, sem chuva) e às vezes uma bolsa ou uma pasta (`bag`).
 ## `t` vai de 0 a 1 (negativo: ainda não entrou na rua).
 func _walker() -> Dictionary:
-	var dress := randf() < 0.4
-	return {"t": 0.0, "dir": 1.0 if randf() < 0.5 else -1.0, "sec": WALK_SEC * randf_range(0.8, 1.2), "z": randf_range(STREET["far_curb"] + 0.5, STREET["far"] - 0.4),
-		"h": randf_range(0.88, 0.98) if dress else randf_range(0.94, 1.06), "dress": dress, "long": randf() < 0.35,
-		"coat": (Pal.WALK_DRESSES if dress else Pal.WALK_COATS).pick_random(), "legs": Pal.WALK_LEGS.pick_random(), "skin": Pal.WALK_SKIN.pick_random(),
-		"umbrella": Pal.WALK_UMBRELLAS.pick_random(), "hat": ["", "", "scarf"].pick_random() if dress else ["", "fedora", "fedora", "cap"].pick_random(),
-		"bag": randf() < 0.3}
+	var dress := _rng.randf() < 0.4
+	return {"t": 0.0, "dir": 1.0 if _rng.randf() < 0.5 else -1.0, "sec": WALK_SEC * _rng.randf_range(0.8, 1.2), "z": _rng.randf_range(STREET["far_curb"] + 0.5, STREET["far"] - 0.4),
+		"h": _rng.randf_range(0.88, 0.98) if dress else _rng.randf_range(0.94, 1.06), "dress": dress, "long": _rng.randf() < 0.35,
+		"coat": _pick(Pal.WALK_DRESSES if dress else Pal.WALK_COATS), "legs": _pick(Pal.WALK_LEGS), "skin": _pick(Pal.WALK_SKIN),
+		"umbrella": _pick(Pal.WALK_UMBRELLAS), "hat": _pick(["", "", "scarf"]) if dress else _pick(["", "fedora", "fedora", "cap"]),
+		"bag": _rng.randf() < 0.3}
 
 
 ## Onde `w` está (x, z em m): de um lado ao outro da calçada de lá, pelo `t`, no sentido `dir`. Quem vira a esquina

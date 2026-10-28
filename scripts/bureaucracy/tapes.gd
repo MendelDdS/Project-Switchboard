@@ -76,7 +76,7 @@ func summary(n: int, missed: Array) -> Dictionary:
 
 ## O resumo `last` no bilhete do supervisor da noite `n` (vazio se não é da noite anterior ou não há o que dizer).
 static func note(last: Dictionary, n: int) -> String:
-	if last.get("night", -1) != n - 1:
+	if last.is_empty() or last["night"] != n - 1:   # (vazio na noite 0: o -1 do padrão batia com n - 1)
 		return ""
 	var lines := PackedStringArray()
 	if last["used"] > 0:

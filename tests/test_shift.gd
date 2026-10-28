@@ -18,6 +18,9 @@ var f2 := 0
 var f3 := 0
 var fall := 0
 var starved := 0
+var info_run := 0          ## pedidos de informação seguidos tocando agora...
+var info_max := 0          ## ...e a maior sequência deles
+var cords_max := 0         ## o máximo de cabos de conexão em uso ao mesmo tempo
 var post := 0
 var myst_at := ""
 var answered := {}
@@ -174,6 +177,8 @@ func _initialize() -> void:
 			if not seen.has(c.time + str(c.line)):
 				seen[c.time + str(c.line)] = true
 				kinds[c.kind] = int(kinds.get(c.kind, 0)) + 1
+				info_run = info_run + 1 if c.kind == PhoneCall.Kind.INFO else 0
+				info_max = maxi(info_max, info_run)
 				ok(not m.live.any(func(x: PhoneCall): return x != c and (x.story or x.kind == PhoneCall.Kind.MYSTERY)),
 					"%s: nada toca com uma ligação do roteiro na mesa" % Main.fmt(m.minutes))
 				max_quiet = maxf(max_quiet, m.minutes - last_ring)
@@ -183,6 +188,7 @@ func _initialize() -> void:
 			if m.live.size() >= 2: f2 += 1
 			if m.live.size() >= 3: f3 += 1
 			if m.live.any(func(c: PhoneCall): return c.phase == PhoneCall.Phase.AWAIT) and b.free_patches() == 0: starved += 1
+			cords_max = maxi(cords_max, b.patches - b.free_patches())
 		# desmonta o que desligou
 		for n in range(1, 11):
 			if ex.line(n) == Exchange.Line.DONE and m._call_on_line(n) == null:
@@ -338,10 +344,10 @@ func _initialize() -> void:
 			var a: Array = by_wary[w]
 			return "%.1f: %.0f s por entrada, %.0f s por conversa (%d)" % [w, a[0] / maxi(a[1], 1), a[0] / a[2], a[2]])))
 	max_quiet = maxf(max_quiet, m.minutes - last_ring)
-	print("desconhecida tocou às %s, atendidas depois=%d, fim às %s | máx=%d  2+=%d%%  3+=%d%%  sem_cabo=%d%%  perdidas=%d  ligações=%d (emerg=%d trotes=%d)  maior_silêncio=%d min  mesa_vazia=%d min" % [
+	print("desconhecida tocou às %s, atendidas depois=%d, fim às %s | máx=%d  2+=%d%%  3+=%d%%  sem_cabo=%d%% (cabos %d/%d)  perdidas=%d  ligações=%d (emerg=%d trotes=%d info=%d, %d seguidas)  maior_silêncio=%d min  mesa_vazia=%d min" % [
 		myst_at, post, m.fmt(m.minutes), max_live, 100 * f2 / maxi(fall, 1), 100 * f3 / maxi(fall, 1),
-		100 * starved / maxi(fall, 1), lost, recs.size(), int(kinds.get(PhoneCall.Kind.EMERGENCY, 0)),
-		int(kinds.get(PhoneCall.Kind.PRANK, 0)), max_quiet, max_empty])
+		100 * starved / maxi(fall, 1), cords_max, b.patches, lost, recs.size(), int(kinds.get(PhoneCall.Kind.EMERGENCY, 0)),
+		int(kinds.get(PhoneCall.Kind.PRANK, 0)), int(kinds.get(PhoneCall.Kind.INFO, 0)), info_max, max_quiet, max_empty])
 	print("despachos (estágio e barra corrida): ", ", ".join(stages))
 	var r := m.report
 	print("eficiência=%.0f%% (positivos=%d negativos=%d) conceito=%s | acertos: %s | advertências: %s" % [100.0 * r.efficiency(),

@@ -13,7 +13,6 @@ const CLEAR_SEC := 40.0                 # o som e a cor indo para a noite limpa 
 const SHADOW_LEAD := 25.0               # minutos antes da ligação desconhecida em que o homem para embaixo do poste (chega andando)...
 const SHADOW_LEAVE := 10.0              # ...e em que vai embora andando (para ir ligar): fica 15 minutos
 const WEATHERS := ["rain", "fog", "clear"]   # clima sorteado no começo do turno (`-- --weather=fog` força um)
-const TALK_LEN := Vector2(34.0, 68.0)   # duração (min de jogo) de uma conversa transferida (≈ 45–90 s reais)
 const QUIET_SHARE := 0.6               # mesa vazia por tanto do maior intervalo do ritmo (`Pace.call_gap`): toca uma a mais
 const GIVE_UP_SEC := 60.0               # quem liga desiste se ninguém atende (as do roteiro aguentam 1,5x; retornos, 0,75x)
 const SMALLTALK_AFTER := 10.0           # segundos de silêncio esperando a transferência até puxar conversa fiada...
@@ -24,6 +23,7 @@ const MAX_EMERGENCIES := 2              # emergências em andamento ao mesmo tem
 ## Atalhos das ferramentas (Input Map): aba -> ação.
 const DAY_DIM := 0.5   # o quanto o dia enfraquece o brilho da luminária e o halo das luzes (`Bloom`), na força toda
 const WARM_TINT := Color(1.0, 0.62, 0.36, 0.35)   # a luminária recém-acesa: o brilho dela nesse tom e nessa fração da força
+const Badges := preload("res://scripts/model/badges.gd")
 const TAB_KEYS := {Tools.DIRECTORY: "tab_directory", Tools.DISPATCH: "tab_dispatch", Tools.LOGBOOK: "tab_logbook", Tools.CALL_LOG: "tab_call_log"}
 var C: GameContent = GameData.CONTENT
 
@@ -45,6 +45,7 @@ var report := ShiftReport.new()    ## advertências do turno, conferidas pelo su
 var minutes := 0.0
 var running := false
 var sched: Array[PhoneCall] = []   ## ligações ainda por tocar, em ordem de horário (montadas por `Schedule`)
+var plan: Schedule                 ## a agenda da noite (os destinos já pedidos, para a ligação a mais da mesa vazia)
 var live: Array[PhoneCall] = []    ## tocando ou em andamento (podem ser várias ao mesmo tempo)
 ## Emergências que tocaram, a mais recente por último; as em andamento (`in_progress`) são no máximo
 ## `MAX_EMERGENCIES`. Uma que acabou fica até dar lugar a outra (o despacho ainda pode chegar a ela).
@@ -83,6 +84,7 @@ var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o
 @onready var _end_shift: Button = %EndShift
 @onready var _shift_hours: Label = %ShiftHours
 @onready var board: Switchboard = %Board
+@onready var badges: Control = %Badges   ## os broches na prateleira (`scripts/ui/badges.gd`)
 @onready var phone: PhonePanel = %Phone
 @onready var radio: Radio = phone.radio
 @onready var tools: Tools = %Tools
@@ -134,8 +136,9 @@ func _ready() -> void:
 	board.shelf = background.shelf   # onde a prateleira acaba: além dela, o plug solto cai até o tampo
 	board.eye = background.eye   # os olhos do operador: a paralaxe dos plugs encaixados
 	board.set_equipment(bureaucracy.equipment())   # os equipamentos das burocracias já liberados (salvos nos marcadores)
+	badges.earned = progress.badges if progress else {}
 	bureaucracy.equipment_changed.connect(func(): board.set_equipment(bureaucracy.equipment()))
-	var plan := Schedule.build(night, pace, last_call)
+	plan = Schedule.build(night, pace, last_call)
 	sched = plan.calls.filter(func(c: PhoneCall) -> bool: return c.at >= minutes)   # (o debug pode começar mais tarde)
 	myst_plan = plan.mystery_at
 	after = night.mystery.is_empty()   # noite sem ligação desconhecida: o turno fecha à meia-noite
@@ -262,6 +265,11 @@ static func fmt(m: float) -> String:
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_TRANSLATION_CHANGED and _shift_hours:
 		_shift_hours.text = T.text(T.Key.SHIFT_HOURS) % [fmt(0.0), fmt(shift_end)]
+	elif what == NOTIFICATION_PREDELETE:
+		# cada opção de fala leva a própria ligação (`fn.bind(c)`): sem soltar, as ainda vivas ficariam presas umas
+		# nas outras a cada `restart`
+		for c in live:
+			c.set_options([])
 
 
 func hint(t: String) -> void:
@@ -361,6 +369,7 @@ func _process(delta: float) -> void:
 		background.minutes = SHIFT_START_HOUR * 60 + minutes
 		radio.minutes = minutes
 		_nag()
+		_busy_choices()
 		supervisor.check_hold()
 	background.flick = flick
 	background.alert = _alert()   # o estado do despacho na unidade da mesa
@@ -385,6 +394,15 @@ func _process(delta: float) -> void:
 
 ## Quem está na linha esperando o operador: na transferência, às vezes puxa conversa fiada depois de um tempo e,
 ## se a demora continuar, reclama; na emergência, pede pressa (só antes de a situação piorar).
+## O botão [Todas as linhas ocupadas] da transferência em foco aparece e some com os cabos (a cada quadro: o cabo
+## solto volta à base sem avisar a troca de ponta).
+func _busy_choices() -> void:
+	var f := _focus()
+	if f != null and f.phase == PhoneCall.Phase.AWAIT and not f.options.is_empty() and not f.busy_asked and not f.talking \
+			and no_cords(f) != f.options.any(func(o: Dictionary): return o["label"] == T.text(T.Key.CHOICE_ALL_BUSY)):
+		conversation.transfer_choices(f)
+
+
 func _nag() -> void:
 	var f := _focus()
 	if f == null or not f.active or f.talking or f.closing or f.lesson:
@@ -708,7 +726,7 @@ func _try_complete(c: PhoneCall) -> bool:
 			return false
 		_wrong_unattended(c, d)
 		return true
-	exchange.set_line(c.line, Exchange.Line.CONN, minutes + randf_range(TALK_LEN.x, TALK_LEN.y))
+	exchange.set_line(c.line, Exchange.Line.CONN, minutes + randf_range(pace.talk_len.x, pace.talk_len.y))
 	c.connected = true
 	c.dest_num = d
 	eavesdrop.connected(c)
@@ -872,13 +890,13 @@ func _scripted(c: PhoneCall) -> bool:
 	return c.story or c.kind == PhoneCall.Kind.MYSTERY
 
 
-## A mesa ficou vazia por `QUIET_SHARE` do maior intervalo do ritmo e a próxima ainda demora: toca um pedido de informação a mais (sorteado na
-## hora). Não com uma do roteiro para tocar (elas pedem a mesa em silêncio) nem depois da última ligação.
+## A mesa ficou vazia por `QUIET_SHARE` do maior intervalo do ritmo e a próxima ainda demora: toca uma a mais (sorteada na
+## hora, `Schedule.filler`). Não com uma do roteiro para tocar (elas pedem a mesa em silêncio) nem depois da última ligação.
 func _fill_quiet() -> void:
 	_quiet_from = minutes
 	if minutes >= last_call or sched.any(func(x: PhoneCall): return x.at < minutes + Schedule.STORY_GAP):
 		return
-	var c := Schedule.info_call()
+	var c := plan.filler()
 	c.at = minutes
 	sched.push_front(c)
 
@@ -958,15 +976,26 @@ func ring(c: PhoneCall) -> void:
 		if c.ringing and not ending:
 			warn(T.text(T.Key.WARN_PHONE_RINGING))
 	elif not c.lesson:
-		await get_tree().create_timer(GIVE_UP_SEC * (0.75 if c.retry != PhoneCall.Retry.NONE else 1.5 if c.story else 1.0), false).timeout
-		if c.ringing:
-			end_call(c, PhoneCall.End.MISSED)
+		# por conexão e não `await`: a espera pendente prendia a ligação na memória depois de o Main sair (`restart`)
+		get_tree().create_timer(GIVE_UP_SEC * (0.75 if c.retry != PhoneCall.Retry.NONE else 1.5 if c.story else 1.0), false) \
+				.timeout.connect(_give_up.bind(c))
+
+
+## Ninguém atendeu a tempo (`ring`).
+func _give_up(c: PhoneCall) -> void:
+	if c.ringing:
+		end_call(c, PhoneCall.End.MISSED)
+
+
+## Nenhum cabo de conexão livre para a transferência `c` (nem um já na saída da linha dela).
+func no_cords(c: PhoneCall) -> bool:
+	return board.free_patches() == 0 and board.cord_at(c.line + 10) == -1
 
 
 ## Chamado pela conversa quando o solicitante termina o pedido de transferência.
 func on_transfer_waiting(c: PhoneCall) -> void:
 	_update_call_ui()
-	if board.free_patches() == 0 and board.cord_at(c.line + 10) == -1:
+	if no_cords(c):
 		hint(T.text(T.Key.HINT_NO_CORDS))
 	elif GameData.is_trunk(c.target) and not flags.has(SAW_TRUNK):
 		_teach(SAW_TRUNK, T.Key.HINT_TRUNK)
@@ -1119,7 +1148,9 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> PhoneCall.Record:
 		PhoneCall.End.SHIFT_OVER:
 			obs = T.text(T.Key.OBS_SHIFT_ENDED)
 		_:
-			if c.kind == PhoneCall.Kind.TRANSFER and not c.connected:
+			if c.kind == PhoneCall.Kind.TRANSFER and c.busy_later:
+				obs = T.text(T.Key.OBS_ALL_BUSY)
+			elif c.kind == PhoneCall.Kind.TRANSFER and not c.connected:
 				obs = T.text(T.Key.OBS_WRONG_NUMBER) if c.wrong > 0 else T.text(T.Key.OBS_NOT_CONNECTED)
 			elif c.kind == PhoneCall.Kind.MYSTERY:
 				obs = T.text(T.Key.OBS_CALL_DROPPED)
@@ -1299,6 +1330,7 @@ func start_ending() -> void:
 			progress.grudges = eavesdrop.grudges
 			progress.rains += 1 if weather == "rain" else 0
 			progress.bureaucracy = bureaucracy.state()
+			Badges.award(progress, report, night_no, pace_level)
 			progress.save()
 	await get_tree().create_timer(5.0, false).timeout
 	_ending.play(report, not last)

@@ -1,10 +1,10 @@
-# Os testes (tests/run.sh) e as verificações mecânicas (check.sh, só apontam) em cada PR e em cada push na development.
+# Os testes (tests/run.sh) e as verificações mecânicas (check.sh, só apontam) em cada PR e em cada push, em qualquer
+# branch (o trabalho fica semanas numa branch de recurso antes do PR).
 # Sem tela: tools/visual.sh e tools/calibrar.sh ficam de fora (rode-os na máquina).
 name: Testes
 
 on:
   push:
-    branches: [development]
   pull_request:
 
 jobs:

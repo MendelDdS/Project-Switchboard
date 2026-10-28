@@ -40,6 +40,15 @@ Só olha as linhas acrescentadas e aponta o que as convenções já proíbem, in
 É um filtro grosso: confira cada apontamento no código antes de repassar (um `draw_polygon` com textura, ou um
 `queue_redraw` depois de comparar o estado, são legítimos).
 
+Depois, os testes rápidos (~30 s), sempre, antes de qualquer commit:
+
+```sh
+tests/run.sh content training flow
+```
+
+Falhou: não commite; conserte (ou relate, se não for da mudança). Um teste quebrado já entrou num commit por faltar
+este passo. Mudança em agenda, ritmo, fim de ligação, mesa ou cabos: rode a suíte inteira (`tests/run.sh`, ~2 min).
+
 ## 3. Leitura do diff
 
 Leia `git diff HEAD` (ou desde a base) e, só nas linhas alteradas, confira o que pede julgamento. As regras vêm do
@@ -136,5 +145,5 @@ Em português e curto, para o usuário:
 - Cada apontamento numa linha: `arquivo:linha`, o problema e o porquê, do mais grave para o menos.
 - Erro claro da própria mudança (um `create_timer` sem `false`, um `print` esquecido): corrija e diga que corrigiu.
 - O que for escolha de design ou mexer em comportamento: só aponte e pergunte antes de commitar.
-- Sem nada a apontar (ou depois das correções claras): siga com o commit pedido, no padrão do `CLAUDE.md`.
+- Sem nada a apontar (ou depois das correções claras) e com os testes passando: siga com o commit pedido, no padrão do `CLAUDE.md`.
   Diga "Revisão das mudanças: nada a apontar" e quantos arquivos foram vistos.

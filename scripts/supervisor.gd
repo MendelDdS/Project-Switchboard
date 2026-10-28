@@ -5,6 +5,7 @@ extends Node
 ## registro no caderno); as regras ficam aqui. Tutorial, trotes e ligação desconhecida não geram advertência.
 
 const HOLD_GIVE_UP := 120.0             # minutos de jogo que alguém aguenta em espera antes de desligar
+const BUSY_HOLD := 2.0                  # ...vezes tanto, quem aceitou esperar uma linha livre (`Conversation._all_busy`)
 const RETRY_AFTER := Vector2(15.0, 30.0)  # quem teve problema liga de novo depois de tantos minutos de jogo...
 const RETRY_WAIT := 20.0                # ...esperando a mesa esvaziar por no máximo tantos minutos
 const REDISPATCH_CHANCE := 0.6          # emergência sem socorro que liga de novo: chance de ainda dar para despachar
@@ -102,7 +103,7 @@ func call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
 func check_hold() -> void:
 	for c in main.live.duplicate():
 		if c.active and not c.lesson and c.kind != PhoneCall.Kind.MYSTERY and main.exchange.line(c.line) == Exchange.Line.HOLD \
-				and main.minutes - c.hold_since > HOLD_GIVE_UP:
+				and main.minutes - c.hold_since > HOLD_GIVE_UP * (BUSY_HOLD if c.busy_asked else 1.0):
 			main.end_call(c, PhoneCall.End.GAVE_UP)
 
 

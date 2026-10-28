@@ -10544,6 +10544,34 @@ msgid "Tá bem, obrigada."
 msgstr "Está bien, gracias."
 
 #: data/content.tres
+msgid "Vou aguardar."
+msgstr "Voy a esperar."
+
+#: data/content.tres
+msgid "Tá, eu espero."
+msgstr "Está bien, espero."
+
+#: data/content.tres
+msgid "Pode deixar, eu aguardo na linha."
+msgstr "No se preocupe, espero en la línea."
+
+#: data/content.tres
+msgid "Espero, mas não demora, tá?"
+msgstr "Espero, pero no tarde, ¿eh?"
+
+#: data/content.tres
+msgid "Ligarei outra hora."
+msgstr "Llamaré en otro momento."
+
+#: data/content.tres
+msgid "Então eu ligo mais tarde."
+msgstr "Entonces llamo más tarde."
+
+#: data/content.tres
+msgid "Deixa, ligo outra hora. Obrigado."
+msgstr "Déjelo, llamo en otro momento. Gracias."
+
+#: data/content.tres
 msgid "Pode ser. Obrigado."
 msgstr "Puede ser. Gracias."
 
@@ -10622,6 +10650,14 @@ msgstr "No tengo ese número aquí. ¿Revisa la ciudad?"
 #: data/content.tres
 msgid "Aqui não existe esse número, colega."
 msgstr "Aquí no existe ese número, colega."
+
+#: data/content.tres
+msgid "Liguei agora há pouco e as linhas estavam ocupadas. Já liberou?"
+msgstr "Llamé hace un rato y las líneas estaban ocupadas. ¿Ya se liberó alguna?"
+
+#: data/content.tres
+msgid "Sou eu de novo, Central. Já tem linha?"
+msgstr "Soy yo otra vez, Central. ¿Ya hay línea?"
 
 #: data/content.tres
 msgid "Liguei agora há pouco e ninguém atendeu!"

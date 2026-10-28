@@ -114,6 +114,7 @@ func _ready() -> void:
 	_row([["Viaturas livres", func(): main.dispatch.reset()], ["Registrar pendências", _register_all]])
 	_row([["Limpar advertências", func(): main.report.faults.clear()], ["Apagar progresso", Progress.clear]])
 	_row([["Marcar noite insuficiente (a próxima demite)", func(): main.report.low_before = ShiftReport.LOW_LIMIT - 1]])
+	_row([["Todos os broches (só nesta noite)", _all_badges]])
 	_section("Mesa de som", _reset_mix)
 	_row([["Copiar VOL", _copy_mix]])
 	for id: String in Sfx.VOL:
@@ -222,10 +223,13 @@ func _time_calls(delta: float) -> void:
 		if not _chrono.has(c):
 			_chrono[c] = {"t": 0.0, "steps": [], "seen": {}}
 	var d := main.dispatch
-	# ponytail: o cartão é da última emergência ainda sem despacho; com duas ao mesmo tempo pode ir para a errada
+	# o cartão é da emergência que o envio vai atender: a do local marcado ou, sem ele, a da linha do FONE
+	# (`Dispatch.send` pelo `Fleet.target_of`)
+	var loc := d.location()
+	var inc: Fleet.Incident = d.fleet.target_of(loc, d.attending) if not loc.is_empty() else d.fleet.incident_of(d.attending)
 	var card: PhoneCall = null
 	for c: PhoneCall in main.in_progress():
-		if not c.dispatched:
+		if inc != null and c.data == inc.call and not c.dispatched:
 			card = c
 	for c: PhoneCall in _chrono.keys():
 		var k: Dictionary = _chrono[c]
@@ -451,3 +455,11 @@ func _row(items: Array) -> void:
 		b.pressed.connect(it[1])
 		row.add_child(b)
 	_box.add_child(row)
+
+
+## Espeta todos os broches na almofada, só para ver (não vão para o save).
+func _all_badges() -> void:
+	var all := {}
+	for id: String in main.Badges.ALL:
+		all[id] = main.night_no
+	main.badges.earned = all

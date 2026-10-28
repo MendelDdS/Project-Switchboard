@@ -253,7 +253,7 @@ func _caught(t: Talk) -> void:
 
 
 ## A conversa dos dois: o "alô" de quem atende e as falas escritas, que fecham com a despedida (`C.overheard_bye`) e
-## eles desligam; sem elas, o cumprimento de quem ligou (se atendeu uma pessoa) e o murmúrio até o fim do `TALK_LEN`.
+## eles desligam; sem elas, o cumprimento de quem ligou (se atendeu uma pessoa) e o murmúrio até o fim do `Pace.talk_len`.
 ## Um fala, o outro responde. Cada fala escrita ouvida liga o marcador dela (`TransferCall.overheard_flags`); ouvidas
 ## todas, os da ligação (`overheard_sets`).
 func _talk(t: Talk) -> void:

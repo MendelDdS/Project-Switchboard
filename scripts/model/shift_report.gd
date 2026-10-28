@@ -52,6 +52,11 @@ enum Grade { GREAT, GOOD, FAIR, POOR }
 const GRADE_NAMES := [T.Key.GRADE_GREAT, T.Key.GRADE_GOOD, T.Key.GRADE_FAIR, T.Key.GRADE_POOR]
 const GRADE_MIN := [0.90, 0.75, 0.60]
 const GOAL := Grade.FAIR               ## o conceito mínimo que a companhia exige
+## O rigor do supervisor: quanto cada ponto de advertência pesa na eficiência, de `RIGOR.x` na noite 1 a `RIGOR.y` na
+## última, em linha reta (1 na noite 9). Nas primeiras ele releva quem ainda está aprendendo; nas últimas cobra mais.
+## Calibrado em 28/10/2026 (HISTORICO 447): o desastrado (deixa tocar 1 em 3) fica em Regular até a noite 11 e cai
+## para Insuficiente da 12 em diante.
+const RIGOR := Vector2(0.6, 1.3)
 const LOW_LIMIT := 2                   ## noites seguidas abaixo do mínimo que demitem
 
 var night := 1
@@ -108,10 +113,16 @@ func negatives() -> int:
 	return faults.reduce(func(s, f): return s + POINTS[level(f)], 0)
 
 
-## A parte certa de tudo o que o supervisor anotou, de 0 a 1 (1 sem advertência, também sem acerto nenhum).
+## O peso das advertências na noite `n` (`RIGOR`).
+static func rigor(n: int) -> float:
+	return lerpf(RIGOR.x, RIGOR.y, clampf((n - 1) / float(GameData.CONTENT.nights.size() - 1), 0.0, 1.0))
+
+
+## A parte certa de tudo o que o supervisor anotou, de 0 a 1 (1 sem advertência, também sem acerto nenhum); as
+## advertências pesam pelo rigor da noite (`rigor`).
 func efficiency() -> float:
-	var neg := negatives()
-	return 1.0 if neg == 0 else float(positives()) / (positives() + neg)
+	var neg := negatives() * rigor(night)
+	return 1.0 if neg == 0.0 else positives() / (positives() + neg)
 
 
 ## O conceito do turno; uma emergência perdida é Insuficiente, seja qual for a eficiência.

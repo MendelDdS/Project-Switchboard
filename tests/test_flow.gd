@@ -268,7 +268,8 @@ func _initialize() -> void:
 	ok(Pace.next(top, 8, ShiftReport.Grade.GREAT) == top and Pace.next(top - 1, 6, ShiftReport.Grade.GREAT) == top, "o último nível é o limite")
 	ok(Pace.next(4, 4, ShiftReport.Grade.GREAT) == 4 and Pace.next(4, 5, ShiftReport.Grade.GREAT) == 5 and Pace.expected(5) == 4 and Pace.expected(6) == 5,
 		"noite de bairro novo (5): o ritmo não sobe")
-	ok(range(1, top).all(func(i): return C.paces[i].call_gap.x <= C.paces[i - 1].call_gap.x), "o ritmo só aperta de um nível para o outro")
+	ok(range(1, top).all(func(i): return C.paces[i].mean_gap() <= C.paces[i - 1].mean_gap() + 0.5), "o ritmo nunca afrouxa de um nível para o outro")
+	ok(range(1, top).all(func(i): return C.paces[i].peak_chance >= C.paces[i - 1].peak_chance), "os picos só aumentam de um nível para o outro")
 	# agenda: montada sem a cena (noite → ligações em ordem, espaçadas das do roteiro e entre emergências)
 	for n in C.nights:
 		var last := n.shift_end - Main.LAST_CALL_BEFORE   # (a última noite vai até as 6h)
@@ -364,7 +365,7 @@ func _initialize() -> void:
 	await frames(1)
 	ok(ex.line(el) == Exchange.Line.CONN and m.eavesdrop.speaking(el), "escuta: a conversa não acaba antes das falas escritas")
 	m.minutes = m0
-	ex.set_line(el, Exchange.Line.CONN, m.minutes + 200.0)   # (uma conversa longa: o TALK_LEN sorteado curto acabava no meio do cenário)
+	ex.set_line(el, Exchange.Line.CONN, m.minutes + 200.0)   # (uma conversa longa: o `Pace.talk_len` sorteado curto acabava no meio do cenário)
 	ok(m.phone._transfer.disabled and not m.phone._listen.disabled and m.phone._listen.text == "LISTEN",
 		"escuta: com o FONE na linha conectada, a tecla Escutar vale")
 	m.listen()
@@ -455,7 +456,7 @@ func _initialize() -> void:
 	_move(1, -1)
 	_move(2, -1)
 	ok(ex.line(el) == Exchange.Line.FREE and ex.dest(et) == Exchange.Dest.FREE, "escuta: linha e destino liberados")
-	# a mesma ligação sem falas escritas (só o murmúrio, até o fim do TALK_LEN): alavanca, estalo e denúncia
+	# a mesma ligação sem falas escritas (só o murmúrio, até o fim do `Pace.talk_len`): alavanca, estalo e denúncia
 	ed.overheard = []
 	ed.wary = 1.0
 	ea = _extra(ed)
@@ -793,6 +794,47 @@ func _initialize() -> void:
 	ok(ex.line(fl) == Exchange.Line.HOLD and not fa.ended, "em espera durante o toque")
 	ok(await wait_until(func(): return fa.connected), "completa sozinha quando o destino atende")
 	ok(fa.record.where == "Farmácia Santa Rita" and fa.record.obs == "", "registro com o destino novo")
+
+	# ---- 4a. todos os cabos em uso: o botão [Todas as linhas ocupadas] aparece e some com os cabos; quem liga espera
+	# (aguenta mais o silêncio) ou liga outra hora (desliga sem advertência e volta mais tarde)
+	var busy_ends := [1, 5, 7, 9]   # (os 3 e 4 seguem com a farmácia)
+	var busy_jacks := [305, 312, 318, 327]
+	for k in busy_ends.size():
+		_move(busy_ends[k], busy_jacks[k])
+	ok(b.free_patches() == 0, "todos os cabos em uso")
+	var has_busy := func(c: PhoneCall) -> bool: return c.options.any(func(o): return o["label"] == T.text(T.Key.CHOICE_ALL_BUSY))
+	for wait_it in [true, false]:
+		var bz := _extra(GameData.transfers(TransferCall.Group.ESTABLISHMENT)[2])
+		bz.away = false
+		m.ring(bz)
+		_move(0, bz.line)
+		m.answer()
+		ok(await wait_until(_awaiting(bz)), "pedido com os cabos ocupados")
+		ok(has_busy.call(bz), "sem cabo livre: [Todas as linhas ocupadas]")
+		_move(1, -1)
+		await frames(1)
+		ok(not has_busy.call(bz), "um cabo livre: o botão some")
+		_move(1, busy_jacks[0])
+		await frames(1)
+		ok(has_busy.call(bz), "ocupado de novo: o botão volta")
+		m.conversation.busy_wait_chance = 1.0 if wait_it else 0.0
+		var faults_before := m.report.faults.size()
+		_pick(bz, T.text(T.Key.CHOICE_ALL_BUSY))
+		ok(not has_busy.call(bz), "o botão sai depois de usado")
+		if wait_it:
+			ok(await wait_until(func(): return not bz.talking and bz.last_talk > m.talk_clock), "aceitou esperar e aguenta mais o silêncio")
+			ok(bz.active and not bz.ended, "segue na linha")
+			m.hangup()
+		else:
+			ok(await wait_until(func(): return bz.ended), "preferiu ligar outra hora e desligou")
+			ok(bz.record.obs == T.text(T.Key.OBS_ALL_BUSY), "o caderno diz que vai ligar mais tarde")
+			ok(m.report.faults.size() == faults_before, "sem advertência")
+			ok(m.sched.any(func(x: PhoneCall): return x.retry == PhoneCall.Retry.BUSY), "liga de novo mais tarde")
+			m.sched = m.sched.filter(func(x: PhoneCall): return x.retry != PhoneCall.Retry.BUSY)
+		_move(0, -1)
+	for e in busy_ends:
+		_move(e, -1)
+	m.conversation.busy_wait_chance = 0.6
 
 	# ---- 5. cortar uma conversa em andamento puxando a SAÍDA
 	_move(3, -1)
@@ -1402,6 +1444,24 @@ func _initialize() -> void:
 	ok(knocks == 0 and b.ropes[2].asleep(), "sem bater no plug novo, e dorme (%d batidas)" % knocks)
 	b.pick_up(2)
 	ok(b._draped[3].is_empty(), "tirado, o fio sai de cima do plug")
+	# ---- 19. recomeçar solta as ligações em andamento: a espera de desistir (`ring`) e as opções de fala (presas à
+	# própria ligação pelo `bind`) as prendiam na memória
+	var m2: Main = await load_main([1, 2, 3])
+	var leak := PhoneCall.from_transfer(GameData.transfers(TransferCall.Group.ESTABLISHMENT)[2])
+	m2.ring(leak)
+	m2.board.held = 0
+	m2.board.place(0, leak.line)
+	m2.answer()
+	for f in 600:   # (sem `wait_until`: o lambda com a ligação ficaria na pilha deste teste, que segue suspenso)
+		await frames(1)
+		if leak.phase == PhoneCall.Phase.AWAIT and not leak.talking:
+			break
+	ok(not leak.options.is_empty(), "outra mesa: pedido feito, com opções")
+	var gone: WeakRef = weakref(leak)
+	leak = null
+	m2.queue_free()
+	await frames(3)
+	ok(gone.get_ref() == null, "a mesa saiu e a ligação em andamento saiu da memória com ela")
 	finish("fluxo da central")
 
 

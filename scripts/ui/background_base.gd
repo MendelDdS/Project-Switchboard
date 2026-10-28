@@ -87,7 +87,10 @@ var _glows: Array = []  # as luzes da sala para o brilho (`_light`): [retângulo
 var _spills: Array = []  # as luzes dos objetos da mesa que caem no tampo em volta (`_light` com `spill`): [retângulo, cor, alcance]
 var _lifted_spills: Array = []  # as do objeto erguido pelo mouse, que se desenha na camada dele (`_lifted`)
 var _posts: Array[Rect2] = []   # as cabeças dos postes de lá à vista, para o brilho (acesas só com a luminária acesa: `_draw_over`)
-var _rain_phase := Vector2(randf() * TAU, randf() * TAU)   # as fases das ondas da chuva nesta noite
+## O sorteio do cenário (chuva, poeira, carros, gente): fora do global, que é da agenda e das falas e segue o
+## `--seed` (o cenário sorteia a cada quadro do relógio real; no global, o turno mudava com o FPS). Semeado no `_ready`.
+var _rng := RandomNumberGenerator.new()
+var _rain_phase := Vector2(_rng.randf() * TAU, _rng.randf() * TAU)   # as fases das ondas da chuva nesta noite
 var _clouds: Array[Vector3] = []   # as nuvens da noite limpa: x (fração do vidro, sem o vento), altura (fração do céu à vista), tamanho
 var _bolt := -1.0        # há quanto tempo caiu o relâmpago (s; -1 = nenhum)
 
@@ -363,3 +366,8 @@ func _fill(pts: PackedVector2Array, cols: PackedColorArray) -> void:
 	for i in range(0, tri.size(), 3):
 		var c := cols if cols.size() == 1 else PackedColorArray([cols[tri[i]], cols[tri[i + 1]], cols[tri[i + 2]]])
 		_ci.draw_primitive(PackedVector2Array([pts[tri[i]], pts[tri[i + 1]], pts[tri[i + 2]]]), c, PackedVector2Array())
+
+
+## Um item qualquer de `a`, no sorteio do cenário (`_rng`).
+func _pick(a: Array) -> Variant:
+	return a[_rng.randi() % a.size()]

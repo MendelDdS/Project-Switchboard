@@ -51,6 +51,7 @@ enum Retry {
 	WRONG_INFO,  ## o operador deu a informação errada
 	WRONG_NUMBER,  ## foi conectada ao número errado sem o operador na linha
 	WORSE,       ## emergência sem socorro: a situação piorou
+	BUSY,        ## todas as linhas estavam ocupadas e ela disse que ligaria outra hora
 }
 
 const AWAY_CHANCE := 0.5    ## pedido com alternativa: chance de o destino pedido não atender
@@ -97,6 +98,8 @@ var target := ""
 var destination := ""
 var repeat := ""
 var said_wait := false
+var busy_asked := false     ## o operador avisou que todas as linhas estão ocupadas (`Conversation._all_busy`)...
+var busy_later := false     ## ...e ela preferiu ligar outra hora
 var away := false           ## o destino pedido não vai atender (sorteado, só quando há alternativa)
 var no_answer := false
 var alt_done := false

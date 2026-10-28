@@ -115,6 +115,15 @@ const NICKEL_EDGE: Array[Color] = [Color("63675a"), Color("4a4f42"), Color("353a
 ## beira funda, a beira, a sombra, o friso, o meio, a luz e o brilho.
 const BRASS_PLATE: Array[Color] = [Color("140d06"), Color("3a2a12"), Color("7a6230"), Color("8a6a2e"), Color("b0904c"),
 	Color("c4a35a"), Color("e6cf8e")]
+## Os broches da prateleira (`scripts/ui/badges.gd`): o feltro vinho da almofada (a frente na sombra, o meio, a beira
+## de trás na luz) e, por broche, o esmalte do fundo e o do desenho (o aro é `BRASS_PLATE`).
+const BADGE_FELT: Array[Color] = [Color("2a0e12"), Color("4a1a20"), Color("5e252c")]
+const BADGE_ENAMEL := {
+	"primorosas": [Color("1e2c52"), Color("e6cf8e")], "anjo": [Color("e8e2d0"), Color("b02a26")],
+	"linha_direta": [Color("23503c"), Color("e6cf8e")], "longa_distancia": [Color("2a5a8c"), Color("e8e2d0")],
+	"faro": [Color("e0b13a"), Color("2a2420")], "contas": [Color("e8e2d0"), Color("2f7a3c")],
+	"rush": [Color("6a1e2a"), Color("e6cf8e")], "veterano": [Color("b02a26"), Color("f0d88a")],
+}
 ## A ponta prateada dos plugs (`Switchboard.PLUG_PAL`): o isolante escuro, a sombra, o meio e o brilho (o cromado das
 ## tomadas, `JACK_METAL`).
 const PLUG_TIP: Array[Color] = [Color("1c2023"), Color("6f777b"), Color("a9b1b4"), Color("e4e9ea")]

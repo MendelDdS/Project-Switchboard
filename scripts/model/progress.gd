@@ -5,7 +5,8 @@ extends RefCounted
 ## seguinte (as manchetes da noite, `ShiftReport.news`, que ficam na mesa na próxima) e as advertências que só chegam
 ## nela (`ShiftReport.later`) e as palavras-chave ouvidas na escuta (`Clue`, em dicionário) e quantas vezes cada lugar
 ## denunciou a telefonista (`Eavesdrop.grudges`) e as noites de chuva (a mancha de umidade da sala, `Background.damp`)
-## e o estado das burocracias (`Bureaucracy.state`: o registro de decisões, os recados...).
+## e o estado das burocracias (`Bureaucracy.state`: o registro de decisões, os recados...) e os broches ganhos e as
+## contas deles (`Badges`).
 
 const PATH := "user://progress.cfg"
 
@@ -19,6 +20,8 @@ var clues: Array = []
 var grudges := {}   ## número do lugar -> denúncias
 var rains := 0   ## noites de chuva que já passaram
 var bureaucracy := {}
+var badges := {}   ## id do broche -> a noite em que veio (`Badges.award`)
+var tally := {}    ## as contas dos broches de várias noites
 
 
 static func load_saved() -> Progress:
@@ -35,6 +38,8 @@ static func load_saved() -> Progress:
 		p.grudges = f.get_value("progress", "grudges", {})
 		p.rains = f.get_value("progress", "rains", 0)
 		p.bureaucracy = f.get_value("progress", "bureaucracy", {})
+		p.badges = f.get_value("progress", "badges", {})
+		p.tally = f.get_value("progress", "tally", {})
 	return p
 
 
@@ -50,6 +55,8 @@ func save() -> void:
 	f.set_value("progress", "grudges", grudges)
 	f.set_value("progress", "rains", rains)
 	f.set_value("progress", "bureaucracy", bureaucracy)
+	f.set_value("progress", "badges", badges)
+	f.set_value("progress", "tally", tally)
 	f.save(PATH)
 
 

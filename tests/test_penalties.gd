@@ -273,7 +273,12 @@ func _initialize() -> void:
 	ok(view._verdict.get_parsed_text() == tr(C.verdict_fired), "parecer da demissão")
 
 	# ---- 9b. a eficiência e o conceito, pela conta (sem o turno)
+	var last := GameData.CONTENT.nights.size()   # (a última noite; a 0, o treinamento, fica fora da lista)
+	ok(is_equal_approx(ShiftReport.rigor(1), ShiftReport.RIGOR.x) and is_equal_approx(ShiftReport.rigor(last), ShiftReport.RIGOR.y)
+		and is_equal_approx(ShiftReport.rigor(9), 1.0), "o rigor sobe da noite 1 à última (1 na noite 9)")
+	ok(range(2, last + 1).all(func(n): return ShiftReport.rigor(n) > ShiftReport.rigor(n - 1)), "o rigor só aumenta")
 	var r := ShiftReport.new()
+	r.night = 9   # (rigor 1: a conta crua)
 	ok(r.efficiency() == 1.0 and r.grade() == ShiftReport.Grade.GREAT, "sem nada anotado: 1, Ótimo")
 	r.credit("transfer", "18:10")
 	r.credit("transfer", "18:20")
@@ -284,6 +289,12 @@ func _initialize() -> void:
 	r.add("missed", "18:50")
 	ok(r.positives() == 35 and r.negatives() == 18 and is_equal_approx(r.efficiency(), 35.0 / 53.0), "a conta: 35 ÷ (35 + 18)")
 	ok(r.grade() == ShiftReport.Grade.FAIR and r.low_nights() == 0, "Regular: no mínimo, zera a contagem")
+	r.night = 1
+	ok(is_equal_approx(r.efficiency(), 35.0 / (35.0 + 18.0 * ShiftReport.RIGOR.x)) and r.grade() == ShiftReport.Grade.GOOD,
+		"na noite 1 o mesmo turno pesa menos: Bom")
+	r.night = last
+	ok(r.grade() == ShiftReport.Grade.POOR, "na última, Insuficiente")
+	r.night = 9
 	r.low_before = 1
 	ok(r.low_nights() == 0, "uma noite no mínimo zera a de antes")
 	r.add("dispatch_wrong_place", "19:00")
@@ -293,6 +304,25 @@ func _initialize() -> void:
 		r2.credit("emergency_ok", "19:00")
 	r2.add("emergency_lost", "20:00")
 	ok(r2.efficiency() >= ShiftReport.GRADE_MIN[0] and r2.grade() == ShiftReport.Grade.POOR, "emergência perdida: Insuficiente com eficiência alta")
+	# ---- 9c. os broches (`Badges.award`): contas somadas noite a noite no `Progress`
+	var B := preload("res://scripts/model/badges.gd")
+	var pg := Progress.new()
+	var clean := ShiftReport.new()
+	clean.credit("trunk", "18:10")
+	clean.credit("prank", "18:20")
+	ok(B.award(pg, clean, 0, 1).is_empty() and pg.tally.is_empty(), "o treinamento não conta")
+	ok(B.award(pg, clean, 1, 1) == ["contas"], "noite sem advertência com interurbano: Contas em dia")
+	B.award(pg, clean, 2, 1)
+	var missed := ShiftReport.new()
+	missed.add("missed", "19:00")
+	B.award(pg, missed, 3, 1)
+	ok(not pg.badges.has("primorosas") and pg.tally["direct"] == 0, "a não atendida zera a Linha direta e não é primorosa")
+	ok(B.award(pg, clean, 4, 1).has("primorosas") and pg.badges["primorosas"] == 4, "a terceira noite perfeita (não seguidas) na noite 4")
+	for n in range(5, 9):
+		B.award(pg, clean, n, 1)
+	ok(pg.badges.has("linha_direta") and pg.badges.has("faro") and not pg.badges.has("longa_distancia"), "cinco seguidas sem perder; cinco trotes; oito interurbanos ainda não")
+	ok(B.award(pg, clean, 10, GameData.CONTENT.paces.size()).has("rush") and pg.badges.has("veterano"), "Bom no ritmo máximo e a noite 10")
+	ok(B.award(pg, clean, 11, 1).is_empty(), "cada broche vem uma vez")
 
 	# ---- 10. barra de agravamento (o relógio está parado: a barra anda por Urgency.tick chamado à mão)
 	# um caso em que cada estágio pede uma unidade nova (para ver quando ela passa a contar)

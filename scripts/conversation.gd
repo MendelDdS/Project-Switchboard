@@ -8,7 +8,9 @@ extends Node
 
 const SMALLTALK_MAX := 3            ## assuntos de conversa fiada por ligação (puxados por ela ou pelo operador)
 const CHAT_WARM_PATIENCE := 10.0    ## resposta simpática: segundos a mais de silêncio antes de ela reclamar
+const BUSY_PATIENCE := 40.0         ## ...e esperando, os segundos a mais de silêncio antes de reclamar
 
+var busy_wait_chance := 0.6   ## todas as linhas ocupadas: a chance de quem liga esperar (senão, liga outra hora)
 var C: GameContent = GameData.CONTENT
 var heard: Array[ChatTopic] = []    ## novidades da conversa fiada já contadas nesta noite (não se repetem)
 
@@ -154,6 +156,8 @@ func greet(c: PhoneCall) -> bool:
 			said = await say(c, GameData.pick(C.retry_wrong_info))
 		PhoneCall.Retry.WRONG_NUMBER:
 			said = await say(c, GameData.pick(C.retry_wrong_number))
+		PhoneCall.Retry.BUSY:
+			said = await say(c, GameData.pick(C.retry_busy))
 		PhoneCall.Retry.WORSE:
 			said = await say(c, GameData.pick(C.retry_too_late if c.too_late else C.retry_worse))
 	if not said:
@@ -186,6 +190,8 @@ func transfer_choices(c: PhoneCall) -> void:
 	var list: Array[Dictionary] = []
 	if not c.said_wait:
 		list.append({"label": T.text(T.Key.CHOICE_CONNECT_WAIT), "fn": _transfer_wait.bind(c)})
+	if not c.busy_asked and main.no_cords(c):
+		list.append({"label": T.text(T.Key.CHOICE_ALL_BUSY), "fn": _all_busy.bind(c)})
 	list.append({"label": T.text(T.Key.CHOICE_REPEAT), "fn": _transfer_repeat.bind(c)})
 	if c.no_answer and t.alt_target != "" and not c.alt_done:
 		list.append({"label": T.text(T.Key.CHOICE_OFFER_ALT), "fn": _transfer_alt.bind(c)})
@@ -271,6 +277,29 @@ func _transfer_wait(c: PhoneCall) -> void:
 	if not await op(c, T.text(T.Key.OP_CONNECT_WAIT)):
 		return
 	await say(c, GameData.pick(C.hold_ok))
+
+
+## Todos os cabos de conexão em uso: o operador avisa e pergunta se ela espera. Quem espera aguenta mais o silêncio
+## (`Main._nag`) e a espera (`Supervisor.check_hold`); quem não espera desliga sem advertência e liga de novo mais tarde.
+func _all_busy(c: PhoneCall) -> void:
+	if c.talking:
+		return
+	c.busy_asked = true
+	transfer_choices(c)
+	if not await op(c, T.text(T.Key.OP_ALL_BUSY)):
+		return
+	if randf() < busy_wait_chance:
+		if await say(c, GameData.pick(C.busy_wait)):
+			c.last_talk = main.talk_clock + BUSY_PATIENCE
+		return
+	c.busy_later = true
+	c.closing = true
+	c.set_options([])
+	if not await say(c, GameData.pick(C.busy_later)):
+		return
+	c.sys(T.text(T.Key.SYS_CALLER_HUNG_UP))
+	main.supervisor.call_again(c, PhoneCall.Retry.BUSY)
+	main.end_call(c, PhoneCall.End.CALLER)
 
 
 func _transfer_repeat(c: PhoneCall) -> void:

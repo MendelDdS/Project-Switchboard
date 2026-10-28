@@ -48,6 +48,14 @@ func _initialize() -> void:
 					for p in q:
 						where = where.expand(p)
 				ok(area < 1.0, "%d px: %s e %s se sobrepõem na tela (%.0f px², em %s)" % [w, a, b, area, where])
+		var sb: Switchboard = m.board   # os broches (`badges.gd`): a almofada na prateleira, folgada do tampo dos equipamentos e do fim dela
+		var bay := sb.bay_rect()
+		var pad: Control = m.badges
+		for y in range(int(pad._mid) - 10, int(pad._mid) + 12):
+			var cover := bay.get_center().x + (bay.size.x - Switchboard.BAY_MARGIN) / 2.0 + sb._receding(Vector2(sb.tray_rect().end.x, pad._mid), y) - sb.tray_rect().end.x
+			var e: Vector2 = pad.edges(y)
+			ok(e.x - cover >= 6.0 and sb._receding(Vector2(sb.tray_rect().end.x, pad._mid), y) - e.y >= 6.0,
+				"%d px: a almofada dos broches na linha %d encosta (tampo em %.0f, almofada de %.0f a %.0f)" % [w, y, cover, e.x, e.y])
 		if w == 960:
 			await _longest_choice(m)
 		vp.queue_free()

@@ -103,11 +103,13 @@ HINT_TRAINING_BACK,"%s está em espera e não ouve nada: volte o [b]FONE[/b] par
 HINT_TRAINING_UNITS_AWAY,"Os [b]bombeiros[/b] ainda estão fora, voltando de outro cartão: espere chegarem à base para perfurá-los.","The [b]fire brigade[/b] is still out, coming back from another card: wait for them to reach the station before punching them.","Los [b]bomberos[/b] todavía están fuera, volviendo de otra tarjeta: espere a que lleguen a la base para perforarlos."
 OP_CONNECT_WAIT,"Um momento, vou conectar.","One moment, I'll put you through.","Un momento, lo comunico."
 OP_REPEAT,"Pode repetir, por favor?","Could you repeat that, please?","¿Puede repetir, por favor?"
+OP_ALL_BUSY,"Neste momento todas as linhas estão ocupadas. Deseja aguardar?","All lines are busy at the moment. Would you like to hold?","En este momento todas las líneas están ocupadas. ¿Desea esperar?"
 OP_SMALLTALK,"E aí, como vai a noite?","So, how's your night going?","¿Y qué tal la noche?"
 OP_ANYONE_HURT,Tem alguém ferido?,Is anyone hurt?,¿Hay alguien herido?
 OP_HOLD_EMERGENCY,"Fique na linha, vou enviar ajuda.","Stay on the line, I'm sending help.","No cuelgue, voy a enviar ayuda."
 CHOICE_CONNECT_WAIT,Um momento.,One moment.,Un momento.
 CHOICE_REPEAT,Pode repetir?,Could you repeat that?,¿Puede repetir?
+CHOICE_ALL_BUSY,[Todas as linhas ocupadas],[All lines busy],[Todas las líneas ocupadas]
 CHOICE_SMALLTALK,Como vai a noite?,How's your night?,¿Qué tal la noche?
 CHOICE_HOLD_EMERGENCY,Fique na linha.,Stay on the line.,No cuelgue.
 CHOICE_OFFER_ALT,[Oferecer outro lugar],[Offer another place],[Ofrecer otro lugar]
@@ -180,6 +182,7 @@ OBS_OPERATOR_ENDED,Encerrada pelo operador.,Ended by the operator.,Terminada por
 OBS_NOT_ANSWERED,Não atendida.,Not answered.,No contestada.
 OBS_GAVE_UP,Desistiu na espera.,Gave up on hold.,Desistió en espera.
 OBS_NOT_CONNECTED,Não conectada.,Not connected.,No conectada.
+OBS_ALL_BUSY,Linhas ocupadas; vai ligar mais tarde.,Lines busy; will call back later.,Líneas ocupadas; llamará más tarde.
 OBS_CALL_DROPPED,A ligação caiu.,The call dropped.,La llamada se cortó.
 OBS_TRAINING,Treinamento (não conta).,Training (does not count).,Entrenamiento (no cuenta).
 TAB_DIRECTORY,Lista telefônica,Phone directory,Guía telefónica
@@ -455,3 +458,20 @@ EQUIP_DISCARD,Descartar,Discard,Descartar
 WARN_NO_TAPES,Não há mais fitas virgens.,There are no blank tapes left.,No quedan cintas vírgenes.
 WARN_TAPE_INSIDE,Já há uma fita no gravador.,There's already a tape in the recorder.,Ya hay una cinta en la grabadora.
 WARN_NO_TAPE,Não há fita no gravador.,There's no tape in the recorder.,No hay cinta en la grabadora.
+BADGE_PERFECT,Noites primorosas,Flawless Nights,Noches impecables
+BADGE_PERFECT_DESC,Três noites sem nenhuma advertência do supervisor.,Three nights without a single warning from the supervisor.,Tres noches sin ninguna advertencia del supervisor.
+BADGE_ANGEL,Anjo da guarda,Guardian Angel,Ángel de la guarda
+BADGE_ANGEL_DESC,Dez emergências socorridas antes de a situação piorar.,Ten emergencies handled before things got worse.,Diez emergencias atendidas antes de que la situación empeorara.
+BADGE_DIRECT,Linha direta,Direct Line,Línea directa
+BADGE_DIRECT_DESC,Cinco noites seguidas sem deixar ninguém tocando até desistir.,Five nights in a row without leaving anyone ringing until they gave up.,Cinco noches seguidas sin dejar a nadie sonando hasta que colgara.
+BADGE_TRUNK,Longa distância,Long Distance,Larga distancia
+BADGE_TRUNK_DESC,Quinze ligações interurbanas completadas.,Fifteen long-distance calls put through.,Quince llamadas de larga distancia completadas.
+BADGE_PRANK,Faro de trote,Prank Sniffer,Olfato para bromas
+BADGE_PRANK_DESC,Cinco trotes reconhecidos.,Five prank calls recognized.,Cinco bromas telefónicas reconocidas.
+BADGE_BOOKS,Contas em dia,Books Balanced,Cuentas al día
+BADGE_BOOKS_DESC,"Uma noite com interurbano, todos os bilhetes carimbados e guardados e todas as fichas registradas certo.","A night with long-distance calls, every ticket stamped and filed and every card logged right.","Una noche con larga distancia, todos los boletos sellados y guardados y todas las fichas bien registradas."
+BADGE_RUSH,Hora do rush,Rush Hour,Hora pico
+BADGE_RUSH_DESC,Conceito Bom ou melhor no ritmo mais puxado da central.,A Good grade or better at the exchange's busiest pace.,Concepto Bueno o mejor en el ritmo más intenso de la central.
+BADGE_VETERAN,Veterano,Veteran,Veterano
+BADGE_VETERAN_DESC,Dez noites de trabalho na central.,Ten nights of work at the exchange.,Diez noches de trabajo en la central.
+BADGE_EARNED,Ganho na noite %d,Earned on night %d,Ganado en la noche %d

@@ -117,6 +117,8 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   pilha é objeto de clicar (`TAPES_ID`, `tapes_clicked`): abre de perto, acima dela (`tape_pile.gd`, cena
   `pilha_fitas.tscn` no Main), as fitas deitadas (`Cassette.lying`) num papel (`NotePanel`) com o Descartar (`InkButton`): a descartada cai
   para fora da tela, sem som. A mesa não sabe o que cada um faz.
+- **Broches** (`badges.gd`, `%Badges`): almofada de feltro deitada na prateleira, entre o tampo dos equipamentos e o
+  fim dela (`edges`, `_spot`; o `test_layout` confere a folga), com etiqueta e papel numa camada por cima (`_pop`).
 - **Fios** são cordas de Verlet, uma por ponta (`Cord`, `scripts/ui/cord.gd`, sem tela nem som, testada sozinha):
   presas no buraco (`hole(e)`) e na traseira do plug; o contrapeso puxa a folga para dentro (`WEIGHT_TAKE`); todos com
   o mesmo comprimento (`Cord.MAX`); a prateleira e a beira dela são quinas (`hang_step`, `lip_y`, `route`); os plugs

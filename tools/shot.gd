@@ -11,6 +11,9 @@ extends Node
 ##   --card                 marca um local no mapa e espera o cartão sair impresso (--card=closed: e guarda o despacho)
 ##   --punch                com --card: o cartão perfurado, uma unidade fora e a etiqueta de um trecho no mapa
 ##   --emergency            toca uma emergência e atende (a luz vermelha da unidade, a barra, o rádio)
+##   --busy                 todos os cabos de conexão em uso e uma transferência esperando: o [Todas as linhas ocupadas]
+##   --badges=all           os broches na almofada da prateleira (all ou ids com vírgulas, `Badges.ALL`); --badgehover=id:
+##                          o mouse num deles (a etiqueta); --badgenote=id: o papel da descrição aberto
 ##   --news                 o jornal da manhã na mesa · --read: já lido, dobrado de outro jeito
 ##   --listen               a linha 3 conectada, com o FONE nela e a chave de escuta levantada
 ##   --tapes                a B4 ligada: o gravador e o compartimento de fitas na coluna do lado do painel, com uma fita no
@@ -214,6 +217,26 @@ func _ready() -> void:
 		m.board.held = 0   # o FONE na linha dela
 		m.board.place(0, m.live[0].line)
 		m.answer()
+	if _args.has("badges"):
+		var ids: Array = m.Badges.ALL.keys() if _args["badges"] == "all" else Array((_args["badges"] as String).split(","))
+		var got := {}
+		for i in ids.size():
+			got[ids[i]] = i + 2
+		m.badges.earned = got
+		await get_tree().process_frame
+		m.badges._hover = _args.get("badgehover", "")
+		m.badges._open = _args.get("badgenote", "")
+	if _args.has("busy"):
+		for k in m.board.patches:
+			m.board.plugged(1 + k * 2, [305, 312, 318, 327, 336][k])
+		var t := PhoneCall.from_transfer(GameData.transfers(TransferCall.Group.ESTABLISHMENT)[2])
+		m.ring(t)
+		await get_tree().create_timer(0.5, false).timeout
+		m.board.held = 0
+		m.board.place(0, t.line)
+		m.answer()
+		while t.phase != PhoneCall.Phase.AWAIT or t.talking:
+			await get_tree().process_frame
 	if _args.has("clues"):
 		for w in [["Benedito Souza", "person", 271], ["Rua do Moinho", "street", 305], ["oito", "time", 305], ["Benedito Souza", "person", 312]]:
 			m.eavesdrop.clues.append(Clue.from_dict({"word": w[0], "kind": w[1], "night": 2, "minutes": 190.0, "number": str(w[2])}))

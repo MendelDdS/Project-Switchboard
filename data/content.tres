@@ -949,7 +949,7 @@ replies = Array[ExtResource("98_reply")]([SubResource("Reply_39_0"), SubResource
 
 [sub_resource type="Resource" id="Pace_1"]
 script = ExtResource("97_pace")
-call_gap = Vector2(45, 60)
+call_gap = Vector2(40, 52)
 peak_chance = 0.0
 max_live = 2
 emergencies = Vector2i(1, 1)
@@ -983,6 +983,42 @@ pranks = Vector2i(1, 2)
 script = ExtResource("97_pace")
 call_gap = Vector2(28, 38)
 peak_chance = 0.05
+max_live = 3
+emergencies = Vector2i(2, 2)
+pranks = Vector2i(1, 2)
+
+[sub_resource type="Resource" id="Pace_6"]
+script = ExtResource("97_pace")
+talk_len = Vector2(45, 85)
+call_gap = Vector2(30, 40)
+peak_chance = 0.12
+max_live = 3
+emergencies = Vector2i(2, 2)
+pranks = Vector2i(1, 2)
+
+[sub_resource type="Resource" id="Pace_7"]
+script = ExtResource("97_pace")
+talk_len = Vector2(60, 110)
+call_gap = Vector2(33, 44)
+peak_chance = 0.2
+max_live = 3
+emergencies = Vector2i(2, 2)
+pranks = Vector2i(1, 2)
+
+[sub_resource type="Resource" id="Pace_8"]
+script = ExtResource("97_pace")
+talk_len = Vector2(80, 140)
+call_gap = Vector2(37, 48)
+peak_chance = 0.28
+max_live = 3
+emergencies = Vector2i(2, 2)
+pranks = Vector2i(1, 2)
+
+[sub_resource type="Resource" id="Pace_9"]
+script = ExtResource("97_pace")
+talk_len = Vector2(95, 165)
+call_gap = Vector2(38, 49)
+peak_chance = 0.3
 max_live = 3
 emergencies = Vector2i(2, 2)
 pranks = Vector2i(1, 2)
@@ -1083,7 +1119,7 @@ occurrences = PackedStringArray("Acidente de trânsito", "Incêndio", "Mal súbi
 nights = Array[ExtResource("90_night")]([ExtResource("91_night1"), ExtResource("92_night2"), ExtResource("93_night3"), ExtResource("94_night4"), ExtResource("95_night5"), ExtResource("96_night6"), ExtResource("97_night7"), ExtResource("98_night8"), ExtResource("99_night9"), ExtResource("100_night10"), ExtResource("101_night11"), ExtResource("102_night12"), ExtResource("103_night13"), ExtResource("104_night14"), ExtResource("105_night15")])
 training = ExtResource("91_night0")
 room = Array[ExtResource("80_room")]([ExtResource("81_room"), ExtResource("82_room"), ExtResource("83_room")])
-paces = Array[ExtResource("97_pace")]([SubResource("Pace_1"), SubResource("Pace_2"), SubResource("Pace_3"), SubResource("Pace_4"), SubResource("Pace_5")])
+paces = Array[ExtResource("97_pace")]([SubResource("Pace_1"), SubResource("Pace_2"), SubResource("Pace_3"), SubResource("Pace_4"), SubResource("Pace_5"), SubResource("Pace_6"), SubResource("Pace_7"), SubResource("Pace_8"), SubResource("Pace_9")])
 transfers = Array[ExtResource("17_q4d2e")]([ExtResource("18_g0ddb"), ExtResource("19_y6u46"), ExtResource("20_5hhcc"), ExtResource("21_r4mvx"), ExtResource("22_nagbo"), ExtResource("23_7ad0u"), ExtResource("24_76ki8"), ExtResource("25_q3bf4"), ExtResource("26_61w3p"), ExtResource("27_grq3w"), ExtResource("28_otrev"), ExtResource("29_flf23"), ExtResource("30_amupc"), ExtResource("31_xeepj"), ExtResource("32_nyi6e"), ExtResource("33_xdh2c"), ExtResource("34_hps07"), ExtResource("35_2ubng"), ExtResource("36_35dgx"), ExtResource("37_8shhh"), ExtResource("38_ko1bc"), ExtResource("39_11ieg"), ExtResource("40_grptk"), ExtResource("41_e6ja0"), ExtResource("50_amupc"), ExtResource("51_xeepj"), ExtResource("52_nyi6e"), ExtResource("53_xdh2c"), ExtResource("54_hps07"), ExtResource("55_2ubng"), ExtResource("56_35dgx"), ExtResource("57_8shhh"), ExtResource("58_ko1bc"), ExtResource("59_11ieg"), ExtResource("60_grptk"), ExtResource("61_e6ja0"), ExtResource("62_ssh4q"), ExtResource("n_transfer_38_dona_benta_pensao_dona_cota"), ExtResource("n_transfer_39_caixeiro_hotel_estrela"), ExtResource("n_transfer_40_motorista_borracharia_do_neno"), ExtResource("n_transfer_41_rapaz_bilhar_do_tonho"), ExtResource("n_transfer_42_dona_zefa_farmacia_santa_rita"), ExtResource("n_transfer_43_noivo_casa_paroquial"), ExtResource("n_transfer_44_dona_glorinha_padaria_pao_dourado"), ExtResource("n_transfer_45_reporter_gazeta"), ExtResource("n_transfer_46_afilhado_geraldo_martins"), ExtResource("n_transfer_47_veterinario_sitio_boa_esperanca"), ExtResource("n_transfer_48_dona_mirtes_laudelina_prado"), ExtResource("n_transfer_49_menino_mercearia_silva"), ExtResource("n_transfer_50_senhora_otavio_almeida")])
 emergencies = Array[ExtResource("2_l0sn3")]([ExtResource("3_v72nw"), ExtResource("4_brh46"), ExtResource("5_t6c0w"), ExtResource("6_cbrcj"), ExtResource("7_ks6ko"), ExtResource("8_ec5ew"), ExtResource("9_nagbo"), ExtResource("10_7ad0u"), ExtResource("11_76ki8"), ExtResource("12_q3bf4"), ExtResource("80_em11"), ExtResource("81_em12"), ExtResource("82_em13"), ExtResource("83_em14"), ExtResource("84_em15"), ExtResource("85_em16"), ExtResource("n_emergency_17_incendio_rua_sete_de_setembro_60"), ExtResource("n_emergency_18_invasao_rua_do_mercado_90"), ExtResource("n_emergency_19_mal_subito_rua_da_matriz_30"), ExtResource("n_emergency_20_acidente_avenida_brasil_420"), ExtResource("n_emergency_21_outro_rua_das_flores_350"), ExtResource("n_emergency_22_outro_rua_tiradentes_250"), ExtResource("n_emergency_23_mal_subito_rua_das_acacias_450"), ExtResource("n_emergency_24_acidente_rua_das_palmeiras_140"), ExtResource("n_emergency_25_invasao_rua_bela_vista_230"), ExtResource("n_emergency_26_incendio_rua_do_cruzeiro_260"), ExtResource("n_emergency_27_outro_rua_do_moinho_410"), ExtResource("n_emergency_28_outro_rua_da_estacao_450"), ExtResource("n_emergency_29_invasao_rua_do_comercio_420"), ExtResource("n_emergency_30_mal_subito_rua_bela_vista_160")])
 pranks = Array[ExtResource("9_ev121")]([ExtResource("10_wfk0g"), ExtResource("11_pg478"), ExtResource("12_3mr8u"), ExtResource("13_4b6fe"), ExtResource("14_3w1w1"), ExtResource("19_61w3p"), ExtResource("20_grq3w"), ExtResource("21_otrev"), ExtResource("22_flf23"), ExtResource("23_pt10r"), ExtResource("n_prank_11_menino"), ExtResource("n_prank_12_menina"), ExtResource("n_prank_13_menino"), ExtResource("n_prank_14_rapaz"), ExtResource("n_prank_15_garoto"), ExtResource("n_prank_16_rapaz"), ExtResource("n_prank_17_menino"), ExtResource("n_prank_18_garoto"), ExtResource("n_prank_19_criancas"), ExtResource("n_prank_20_menina")])
@@ -1099,6 +1135,8 @@ waiting = PackedStringArray("Alô? Central?", "Ainda está aí?", "Alô? Consegu
 emergency_waiting = PackedStringArray("Alô?! Vocês vão mandar alguém?", "Por favor, rápido!", "Central?!", "Alô! Tá demorando!", "Central, ainda tá aí?", "Manda alguém, pelo amor de Deus!")
 alt_accepted = PackedStringArray("Pode ser. Obrigado.", "Serve, sim. Pode ligar.", "Tanto faz, contanto que atendam.", "Ah, pode ser essa mesmo.")
 address_landmark = PackedStringArray("{street}, perto {landmark}", "na frente {landmark}, na {street}")
+busy_wait = PackedStringArray("Vou aguardar.", "Tá, eu espero.", "Pode deixar, eu aguardo na linha.", "Espero, mas não demora, tá?")
+busy_later = PackedStringArray("Ligarei outra hora.", "Então eu ligo mais tarde.", "Deixa, ligo outra hora. Obrigado.")
 hold_ok = PackedStringArray("Tá bom, eu espero.", "Obrigado, aguardo.", "Certo.", "Pode ser, eu fico na linha.", "Tá, mas rapidinho, tá?", "Tá, fico esperando.", "Sem pressa, moço.", "Tá bem, obrigada.")
 trunk_hello = PackedStringArray("Interurbano, boa noite.", "Telefonista, pois não?", "Interurbano. Qual o número?")
 trunk_wait = PackedStringArray("Um momento, vou chamar.", "Aguarde, estou completando.", "Só um instante, já chamo.")
@@ -1106,6 +1144,7 @@ trunk_unknown = PackedStringArray("Esse número não é daqui, não.", "Não ten
 wrong_destination = PackedStringArray("Não, moço, não é aí.", "Hã? Não é com essa pessoa que eu quero falar.", "Esse não é quem eu pedi!", "Opa, acho que o senhor ligou errado.", "Ih, quem atendeu não foi quem eu pedi.", "Moço, essa voz eu não conheço.", "Não é esse número, não.")
 callers = PackedStringArray("f:Moradora", "m:Morador", "w:Senhor", "f:Senhora", "m:Rapaz", "f:Moça", "w:Seu Jair", "f:Dona Cida", "m:Seu Valdir", "f:Dona Olga")
 caller_names = PackedStringArray("Moradora:Ana Paiva", "Moradora:Dirce Monteiro", "Moradora:Leonor Viana", "Moradora:Nair Toledo", "Moradora:Odete Pimentel", "Morador:Carlos Magalhães", "Morador:Ademar Sales", "Morador:Luís Couto", "Morador:Hugo Meireles", "Morador:Wilson Junqueira", "Senhor:Sebastião Falcão", "Senhor:Manoel Quintela", "Senhor:Francisco Valadares", "Senhor:Olavo Serrano", "Senhor:Domingos Garcia", "Senhora:Conceição Lobo", "Senhora:Amélia Bittencourt", "Senhora:Judite Pinheiro", "Senhora:Alzira Moreno", "Senhora:Isaura Teles", "Rapaz:Celso Amorim", "Rapaz:Reinaldo Prates", "Rapaz:Ronaldo Vidal", "Rapaz:Nilton Brito", "Rapaz:Edson Cavalcanti", "Moça:Marisa Fontoura", "Moça:Neusa Lemos", "Moça:Sueli Arantes", "Moça:Rosângela Dutra", "Moça:Marli Peçanha", "Seu Jair:Jair Mendes", "Dona Cida:Aparecida Carvalho", "Seu Valdir:Valdir Cardoso", "Dona Olga:Olga Miranda")
+retry_busy = PackedStringArray("Liguei agora há pouco e as linhas estavam ocupadas. Já liberou?", "Sou eu de novo, Central. Já tem linha?")
 retry_missed = PackedStringArray("Liguei agora há pouco e ninguém atendeu!", "Central? Até que enfim! Já liguei antes.", "Tô tentando faz tempo. Ninguém atende essa central?")
 retry_wrong_info = PackedStringArray("O número que o senhor me deu não era o certo.", "Liguei pro número que o senhor passou e era de outra pessoa!", "Central, a informação que o senhor me deu tava errada.")
 retry_wrong_number = PackedStringArray("Central, vocês me ligaram pro número errado! Agora me passa pro certo, por favor.", "Liguei antes e fui parar no lugar errado! Vamos tentar de novo.", "Me conectaram com uma pessoa nada a ver! Quero o número certo desta vez.")

@@ -62,6 +62,7 @@ var _t := 0.0               ## segundos no estado atual
 var _pos := Vector2.ZERO    ## canto do cartão (coordenadas deste nó)
 var _from := 0.0            ## altura de onde o cartão começa a entrar na máquina
 var _into := Machine.SEND   ## a máquina em que ele está entrando (em FEEDING)
+var _shake_rng := RandomNumberGenerator.new()   ## o tremor da trituradora, a cada quadro: fora do sorteio global (`--seed`)
 var _grab := Vector2.ZERO   ## onde o mouse pegou o cartão
 var _press := Vector2.INF   ## onde o botão foi apertado no cartão (INF = solto): ainda não se sabe se é clique ou arraste
 var _shake := Vector2.ZERO  ## a trituradora tremendo (um sorteio por quadro)
@@ -98,6 +99,11 @@ func serial() -> int:
 
 ## A mesa comporta um cartão por vez, de qualquer tipo: enquanto houver um (imprimindo, na mesa ou entrando numa
 ## máquina), não sai outro; ele precisa ser enviado ou triturado antes. Todo cartão novo passa por `print_card`.
+## Uma máquina trabalhando sozinha (imprimindo, transmitindo ou triturando): a barra da emergência espera (`Urgency`).
+func working() -> bool:
+	return state in [State.TYPING, State.PRINTING, State.FEEDING]
+
+
 func can_print() -> bool:
 	return state == State.IDLE
 
@@ -256,7 +262,7 @@ func _process(delta: float) -> void:
 	if dispatch != null:
 		_knob_step(delta)
 	var shredding := state == State.FEEDING and _into == Machine.SHRED
-	_shake = Vector2(randi_range(-1, 1), randi_range(-1, 1)) if shredding else Vector2.ZERO
+	_shake = Vector2(_shake_rng.randi_range(-1, 1), _shake_rng.randi_range(-1, 1)) if shredding else Vector2.ZERO
 	_place_sheet()
 	# só o que anima: luzes piscando, impressora, cartão entrando
 	if state in [State.TYPING, State.PRINTING, State.FEEDING] or _refused >= 0.0:

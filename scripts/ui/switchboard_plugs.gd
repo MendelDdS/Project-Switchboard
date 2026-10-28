@@ -519,13 +519,6 @@ func _draw_cut(shape: PackedVector2Array, col: Color) -> void:
 		_ci.draw_colored_polygon(shape, col)
 
 
-## Desenha `r` no plug em pé só até `_cut` (o resto está dentro do buraco da prateleira).
-func _pr(r: Rect2, col: Color) -> void:
-	r.size.y = minf(r.end.y, _cut) - r.position.y
-	if r.size.y > 0.0:
-		_ci.draw_rect(r, col)
-
-
 ## Quanto a sombra se desloca de onde o fio entra no plug: mais quanto mais o plug sai do painel (na mão, mais).
 ## Encaixado, a do pé da capa, como a do plug (`PLUG_SHADE`).
 func _lift(e: int) -> Vector2:

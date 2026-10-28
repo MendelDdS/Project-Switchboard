@@ -24,6 +24,7 @@ Chaves:
 - `#conteudo` roteiros e moldes · `#conversa` conversa fiada e o andamento das falas · `#voz` vozes · `#som`
 - `#idiomas` · `#desempenho` · `#debug` · `#testes` · `#codigo` estrutura do código
 - `#burocracias` as normas do supervisor e das autoridades (identificação, bloqueios, códigos, fitas)
+- `#recompensas` os broches ganhos pelas noites
 - `#saiu` algo testado ou feito que saiu a pedido: confira antes de propor de novo
 
 1. #mesa-comutadora #cabos
@@ -2545,3 +2546,69 @@ Chaves:
     3 px de profundidade, e a projeção dava até 1,5 px na tela por px de profundidade (~4,5 px à esquerda). A faixa
     voltou a 2 px, como no plug em pé, e o corpo duro ficou mais fundo (`ELBOW_BODY` 15): o mesmo deslocamento da
     curva nunca passa de 1 px na tela por px de profundidade (o que aponta para a câmera só encurta).
+442. #ritmo #testes #treinamento "Pode fazer o 1 e o 3" (do relatório da simulação, `docs/relatorio-simulacao-2026-10-27.md`):
+    o bilhete da abertura quebrava na noite 0 (`Tapes.note` com o resumo vazio: o -1 do padrão batia com `n - 1`) e
+    o `Main._ready` parava antes de plugar o FONE do treinamento. E a dificuldade parava de subir na noite 6 (nível 5
+    até a 15): escolhido "picos nas noites finais" (contraria em parte o "pico raro" do item 3, só no fim do jogo).
+    Níveis 6–9 (noites 7–15) com tantas ligações quanto o 5 (`Pace.mean_gap`), só que mais juntas (picos de 12% a 30%,
+    `Pace.PEAK_GAP`) e a mesa mais calma entre eles. Medido no robô `--human` (6 sementes por nível): 2+ juntas de 10%
+    (nível 5) a 23–24% (8–9), 3+ de 0 a 7–8%, no máximo 1 perdida por noite (uma semente do 7 perdeu 3). O cabo ainda
+    não falta (5 cabos com todos os setores): fazer pesar pede menos cabos ou conversas mais longas, a decidir.
+443. #ritmo #emergencia #despacho #cabos "Ao invés de diminuir os cabos, podemos alongar as conversas" e, na emergência,
+    "pausar o tempo enquanto imprime, enquanto tritura e enquanto transmite; se ainda assim estiver ruim, aumentar o
+    tempo da barra". A duração da conversa transferida saiu do `Main.TALK_LEN` para o nível (`Pace.talk_len`): 34–68
+    min do 1 ao 5, subindo de 45–85 (6) a 95–165 (9). Mas o cabo ainda não falta: só transferências e interurbanos
+    usam cabo (~6 por noite), e o robô `--human` chegou a 2 de 5 cabos em uso (o `test_shift` passou a mostrar
+    `cabos N/M`). A barra para com uma máquina do despacho trabalhando (`CardMachines.working`); não bastou (a de 35 s
+    piorava sempre e, na noite 3, perdia), e o estágio inicial de todas subiu 10 s (45/50/55). Medido: em 20 turnos do
+    robô humano nas noites 1–12, nenhuma emergência piorou; ele envia aos ~38 s.
+444. #ritmo #conteudo "Vamos ajustar a proporção de ligações pedindo informações": muitas e poucas transferências, uma
+    noite com 4 seguidas. Medido antes no robô `--human` (18 turnos): 2,9 por noite, até 7 de 10 na noite 1, 5
+    seguidas. Três fontes: `TRANSFER_SHARE` (65% → 85%); o pedido de informação também ocupava um número da noite
+    (sem chamar ninguém), e na noite 1 (10 números) as transferências se esgotavam e viravam informação (agora não
+    ocupa); e a ligação a mais da mesa vazia (`Main._fill_quiet`) era sempre informação (agora `Schedule.filler`: uma
+    transferência de molde para um número livre; só sem número livre, informação). Depois: 1,5 por noite, no máximo 2
+    seguidas. O `test_shift` mostra `info=N, M seguidas`.
+445. #ritmo #testes #processo #despacho "Se todos os fios estiverem conectados deve aparecer um botão [Todas as linhas
+    ocupadas]... 'Vou aguardar' ou 'Ligarei outra hora'": anotado no relatório (Jogabilidade 5), ainda não feito. "Pode
+    aumentar o movimento um pouco, precisamos acompanhar se um jogador novato não vai sofrer": o nível 1 de ritmo
+    passou de 45–60 para 40–52 min entre ligações (noite 1: 8–9 ligações); o robô humano descuidado e o apressado
+    seguem com Ótimo nas 6 sementes. E os outros itens do relatório: o cenário sorteia no gerador dele
+    (`Background._rng`, e o tremor da trituradora no `CardMachines._shake_rng`), fora do global do `--seed`; saiu o
+    código morto (`Sfx.later`, `dial`, `ringback`, o som `pulse`, `_pr`, `_sheets_of`); a `revisar-mudancas` roda
+    `tests/run.sh content training flow` antes do commit; o CI roda em todo push.
+446. #cabos #transferencia #conversa #processo "Pode fazer [Todas as linhas ocupadas]": sem cabo de conexão livre
+    (`Main.no_cords`), a transferência ganha o botão (`CHOICE_ALL_BUSY`; aparece e some com os cabos a cada quadro,
+    `Main._busy_choices`, porque o cabo solto volta à base sem avisar). O operador diz "Neste momento todas as linhas
+    estão ocupadas. Deseja aguardar?" e quem liga decide (`Conversation._all_busy`, `busy_wait_chance` 0,6): espera
+    (40 s a mais de silêncio, `BUSY_PATIENCE`, e o dobro em espera, `Supervisor.BUSY_HOLD`) ou "Ligarei outra hora"
+    (desliga sem advertência, `OBS_ALL_BUSY` no caderno, e liga de novo, `Retry.BUSY` com `retry_busy`). "Qual o
+    problema de ficha em cima do mapa? Depois de imprimir não há mais ação no mapa": o item saiu do relatório. "A
+    branch principal é a develop": `CLAUDE.md` corrigido; apagadas as 14 branches locais já mescladas nela.
+447. #consequencias #debug #codigo #desempenho #burocracias #testes "Vamos criar um fator de rigorosidade que
+    aumentará ao longo dos dias, daí resolve o problema dos primeiros dias serem tão rigorosos com os erros (vamos
+    precisar analisar bem o crescimento desse fator)": as advertências pesam na eficiência pelo rigor da noite
+    (`ShiftReport.RIGOR`, `rigor(n)`): 0,6 na noite 1, 1 na 9, 1,3 na 15, em linha reta. Escolhida entre cinco curvas
+    simuladas sobre 90 turnos do robô (relatório da simulação, Balanceamento 5): o desastrado fica em Regular até a 11
+    e cai para Insuficiente da 12 em diante; a emergência perdida segue Insuficiente em qualquer noite. Do mesmo
+    pedido: burocracias ficam no F1 até o roteiro ficar pronto; o rascunho do mapa fica ("não faz sentido tirar isso
+    para algumas noites"); o cabo, "vamos acompanhar"; vazamentos ao recomeçar corrigidos (a espera de desistir do
+    `Main.ring` virou temporizador ligado a `_give_up`, e o Main solta as opções das ligações vivas ao sair); o
+    cronômetro do F1 com duas emergências segue o `Fleet.target_of`; desempenho medido, nada a corrigir.
+448. #recompensas #mesa-comutadora #consequencias "Vamos criar algumas recompensas diferentes que vão sendo
+    destravadas. Como por exemplo 'Noites primorosas' quando o jogador consegue completar 3 noites perfeitas. [...]
+    broches com desenhos diferentes que ficariam em algum lugar da mesa, ao passar o mouse nelas, mostraria o título
+    de cada recompensa, ao clicar mostraria um quadrado com a descrição": oito broches (`scripts/model/badges.gd`,
+    tabela no README), escolhidos pelo usuário entre os sugeridos. O lugar, a pedido: "na parte de cima da
+    prateleira da mesa comutadora já que não há mais nada ali", numa almofada de feltro vinho deitada na inclinação
+    da prateleira entre o tampo dos equipamentos e o fim dela (`scripts/ui/badges.gd`, nó `%Badges` filho do
+    `Board`), cada broche no seu lugar (o que falta deixa o feltro à mostra), etiqueta de fita crepe sob o mouse e
+    papel (`TapedNote`) no clique. "Sempre que reiniciar o jogo [...] ficará atrelado aos dados de progresso": no
+    `Progress` (`badges`, `tally`), somem com ele. Por isso o Veterano é a noite 10, não o fim da 15 (o save é
+    apagado logo depois dela). Os bancos vazios do setor não atendido ficam como estão ("não vi problema").
+449. #recompensas #mesa-comutadora "Conserte a angulação do 'pano' vermelho, está diferente da angulação da
+    prateleira da mesa": a almofada dos broches seguia a inclinação dos pares de plugs (`_lean`, −0,86 px por linha),
+    bem mais que o fim da prateleira ali (−0,3). Agora fica paralela à lateral da mesa, como a beira direita do tampo
+    dos equipamentos (`badges.gd`, `_slant` pelo `_receding`), com os olhos (`_eye`) no estado comparado (desenhada
+    no primeiro quadro, com outros olhos, pendia para o lado contrário e não se refazia), e centrada entre o tampo e
+    o fim da prateleira à vista (16 px de cada lado).

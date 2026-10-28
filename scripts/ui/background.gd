@@ -275,7 +275,7 @@ var _taxi_next := false  # o próximo da mão de lá é o táxi que para no hote
 var _taxi_at: Array[float] = []   # as horas deles nesta noite (min do dia; `_taxi_times`)
 var _taxi_for := -1      # a noite delas
 var _stray_in := 60.0    # para passar um vira-lata (s)
-var _dog_in := randf_range(15.0, 50.0)   # quanto falta para o próximo latido, contado a partir de `DOG_FROM` (s)
+var _dog_in := _rng.randf_range(15.0, 50.0)   # quanto falta para o próximo latido, contado a partir de `DOG_FROM` (s)
 var _dog_reply := -1.0   # quanto falta para o cachorro que responde (-1 = nenhum)
 var _tolls := 0          # badaladas do sino que faltam bater
 var _dawn_sent := -1.0   # o quanto o dia já nasceu da última vez que o som soube (`Sfx.set_dawn`)
@@ -292,6 +292,7 @@ var _thunder_at := 2.0   # quando, depois dele, vem o trovão (s)
 
 
 func _ready() -> void:
+	_rng.seed = randi()   # (um número do global, já semeado pelo `Main._enter_tree`)
 	_headless = DisplayServer.get_name() == "headless"
 	mouse_filter = Control.MOUSE_FILTER_IGNORE   # o mouse chega pelo `SceneView`
 	_ci = self
@@ -419,11 +420,11 @@ func _ready() -> void:
 	add_child(_bolt_layer)
 	_show()
 	for i in RAIN:   # pingos e estrelas em frações do vidro: a janela muda de tamanho com a tela
-		_drops.append(Vector3(randf() * 1.2, randf(), randf()))
+		_drops.append(Vector3(_rng.randf() * 1.2, _rng.randf(), _rng.randf()))
 	for i in 30:
-		_stars.append(Vector2(randf() * 0.95 + 0.02, randf() * 0.45 + 0.03))
+		_stars.append(Vector2(_rng.randf() * 0.95 + 0.02, _rng.randf() * 0.45 + 0.03))
 	for i in CLOUDS:
-		_clouds.append(Vector3(randf() * 1.4, randf_range(0.1, 0.75), randf_range(0.7, 1.3)))
+		_clouds.append(Vector3(_rng.randf() * 1.4, _rng.randf_range(0.1, 0.75), _rng.randf_range(0.7, 1.3)))
 	_dust = dust
 	if _dust == null:   # (sem a camada da cena: aqui mesmo, atrás da interface)
 		_dust = Control.new()
@@ -431,9 +432,9 @@ func _ready() -> void:
 		add_child(_dust)
 	_dust.draw.connect(_draw_dust)
 	for i in DUST:
-		_motes.append(Vector3(randf() * 2.0 - 1.0, randf(), randf() * TAU))
+		_motes.append(Vector3(_rng.randf() * 2.0 - 1.0, _rng.randf(), _rng.randf() * TAU))
 	for i in BEADS:
-		_beads.append(Vector4(randf(), randf(), 1 + randi() % 2, 0.0))
+		_beads.append(Vector4(_rng.randf(), _rng.randf(), 1 + _rng.randi() % 2, 0.0))
 
 
 ## A sala só se redesenha quando algo que ela mostra muda (`_state`): parada, ela custa só o desenho já guardado. O
@@ -524,7 +525,7 @@ func _process(delta: float) -> void:
 		d.x -= fall * RAIN_SLANT / _win.x
 		if d.y > 1.05:   # volta para cima, de onde o vento o traz até ali
 			d.y -= 1.1
-			d.x = randf() * (1.0 + RAIN_SLANT * _win.y / _win.x)
+			d.x = _rng.randf() * (1.0 + RAIN_SLANT * _win.y / _win.x)
 		_drops[i] = d
 	for i in _motes.size():   # a poeira: sobe e desce devagar, ao sabor do ar
 		var m: Vector3 = _motes[i]
@@ -532,20 +533,20 @@ func _process(delta: float) -> void:
 		m.y += sin(m.z * 1.3) * 0.001 - 0.0003
 		m.z += 0.014
 		if m.y < 0.0 or m.y > 1.0 or absf(m.x) > 1.0:
-			m = Vector3(randf() * 2.0 - 1.0, randf(), randf() * TAU)
+			m = Vector3(_rng.randf() * 2.0 - 1.0, _rng.randf(), _rng.randf() * TAU)
 		_motes[i] = m
 	_dust.queue_redraw()
 	if weather == "rain":
 		for i in _beads.size():   # as gotas no vidro: paradas, até pesarem e escorrerem
 			var b: Vector4 = _beads[i]
 			if b.w == 0.0:
-				if randf() < 0.002:
-					b.w = 0.006 + randf() * 0.008
+				if _rng.randf() < 0.002:
+					b.w = 0.006 + _rng.randf() * 0.008
 			else:
 				b.y += b.w
-				b.x += (randf() - 0.5) * 0.003   # serpenteia um pouco
+				b.x += (_rng.randf() - 0.5) * 0.003   # serpenteia um pouco
 				if b.y > 1.0:
-					b = Vector4(randf(), randf() * 0.8, 1 + randi() % 2, 0.0)
+					b = Vector4(_rng.randf(), _rng.randf() * 0.8, 1 + _rng.randi() % 2, 0.0)
 			_beads[i] = b
 	if _warm_t >= 0.0:
 		_warm_t += 1.0 / 30.0
@@ -785,8 +786,8 @@ func _events(delta: float) -> void:
 	if minutes >= SABIA_FROM:   # o sabiá cantando ainda no escuro, frase atrás de frase
 		_sabia_in -= delta
 		if _sabia_in <= 0.0:
-			_sabia_in = randf_range(SABIA_EVERY.x, SABIA_EVERY.y)
-			Sfx.play_at("sabia", x, 0.0, randf_range(0.96, 1.04))
+			_sabia_in = _rng.randf_range(SABIA_EVERY.x, SABIA_EVERY.y)
+			Sfx.play_at("sabia", x, 0.0, _rng.randf_range(0.96, 1.04))
 	if minutes >= FIRST_TRUCK and not _truck:   # o primeiro caminhão da manhã: o próximo da mão de cá (com ela livre, já)
 		_truck = true
 		pass_car(1, "caminhao")
@@ -800,32 +801,32 @@ func _events(delta: float) -> void:
 	if minutes >= DOG_FROM:   # um cachorro latindo longe e, às vezes, outro respondendo
 		_dog_in -= delta
 		if _dog_in <= 0.0:
-			_dog_in = randf_range(DOG_EVERY.x, DOG_EVERY.y)
+			_dog_in = _rng.randf_range(DOG_EVERY.x, DOG_EVERY.y)
 			if not Sfx.hushed():
-				Sfx.play_at("dog", x, 0.0, randf_range(0.92, 1.08))
-				if randf() < DOG_REPLY:
-					_dog_reply = randf_range(DOG_REPLY_AFTER.x, DOG_REPLY_AFTER.y)
+				Sfx.play_at("dog", x, 0.0, _rng.randf_range(0.92, 1.08))
+				if _rng.randf() < DOG_REPLY:
+					_dog_reply = _rng.randf_range(DOG_REPLY_AFTER.x, DOG_REPLY_AFTER.y)
 	if _dog_reply >= 0.0:
 		_dog_reply -= delta
 		if _dog_reply < 0.0 and not Sfx.hushed():
-			Sfx.play_at("dog_low", x, -3.0, randf_range(0.92, 1.05))
+			Sfx.play_at("dog_low", x, -3.0, _rng.randf_range(0.92, 1.05))
 	for lane in CAR_LANES.size():   # um carro por vez em cada mão, cada uma no seu tempo
 		_car_in[lane] -= delta
 		if _car_in[lane] <= 0.0:
 			var kind: String = _car_next[lane] if _car_next[lane] != "" else _car_kind()
 			var stop: bool = lane == 0 and _taxi_next and _car_next[lane] == ""   # (o ônibus na hora dele passa antes)
 			if stop:
-				kind = TAXI_KINDS.pick_random()
+				kind = _pick(TAXI_KINDS)
 				_taxi_next = false
 			_car_next[lane] = ""
-			_cars.append({"t": 0.0, "lane": lane, "kind": kind, "tones": Pal.CAR_TONES.pick_random(),
-				"taxi": stop or (kind in TAXI_KINDS and randf() < TAXI),
-				"rack": not stop and kind in RACK_KINDS and randf() < lerpf(RACK.x, RACK.y, morning())})
+			_cars.append({"t": 0.0, "lane": lane, "kind": kind, "tones": _pick(Pal.CAR_TONES),
+				"taxi": stop or (kind in TAXI_KINDS and _rng.randf() < TAXI),
+				"rack": not stop and kind in RACK_KINDS and _rng.randf() < lerpf(RACK.x, RACK.y, morning())})
 			if stop:
 				_cars[-1].merge({"stop": true, "s": 0.0})
 			_car_in[lane] = INF   # o próximo desta mão é sorteado quando este sair
 			Sfx.play_at(("car_wet" if weather == "rain" else "car") + ("_near" if lane == 1 else ""), x, 0.0,
-				CAR_KINDS[kind]["pitch"] * randf_range(0.97, 1.03))   # o de cá, mais perto; cada modelo no tom dele
+				CAR_KINDS[kind]["pitch"] * _rng.randf_range(0.97, 1.03))   # o de cá, mais perto; cada modelo no tom dele
 	for i in range(_cars.size() - 1, -1, -1):
 		var c := _cars[i]
 		if c.has("stop"):   # o táxi do hotel: a porta bate quando o passageiro desce e, parado, ele sai de novo
@@ -840,18 +841,18 @@ func _events(delta: float) -> void:
 		else:
 			c["t"] += delta / (CAR_KINDS[c["kind"]] as Dictionary).get("sec", CAR_SEC)
 		if c["t"] >= 1.0:
-			_car_in[c["lane"]] = randf_range(CAR_EVERY.x, CAR_EVERY.y) * rare
+			_car_in[c["lane"]] = _rng.randf_range(CAR_EVERY.x, CAR_EVERY.y) * rare
 			_cars.remove_at(i)
 	var crowd := maxf(1.0 - clampf((minutes - WALK_FROM) / (WALK_UNTIL - WALK_FROM), 0.0, 1.0), morning())
 	_walk_in -= delta
 	if _walk_in <= 0.0 and crowd > 0.0:
-		_walk_in = randf_range(WALK_EVERY.x, WALK_EVERY.y) / maxf(crowd * BUSY[weekday()], 0.05)
+		_walk_in = _rng.randf_range(WALK_EVERY.x, WALK_EVERY.y) / maxf(crowd * BUSY[weekday()], 0.05)
 		var w := _walker()
-		var pair := randf() < WALK_PAIR
-		if not pair and randf() < lerpf(WALK_CORNER, WALK_CORNER_DAWN, morning()):   # (o caminho é ~1,5 vez o de lado a lado)
-			w.merge({"corner": CROSSING.x + 0.9 if randf() < 0.5 else WALK_RIGHT, "out": randf() < 0.5, "sec": w["sec"] * 1.5}, true)
+		var pair := _rng.randf() < WALK_PAIR
+		if not pair and _rng.randf() < lerpf(WALK_CORNER, WALK_CORNER_DAWN, morning()):   # (o caminho é ~1,5 vez o de lado a lado)
+			w.merge({"corner": CROSSING.x + 0.9 if _rng.randf() < 0.5 else WALK_RIGHT, "out": _rng.randf() < 0.5, "sec": w["sec"] * 1.5}, true)
 			if morning() > 0.0:   # de manhã, vindo de mais longe pela rua do cruzamento (o tempo pelo tamanho do caminho)
-				var turn := randf_range(TURN_Z, lerpf(TURN_Z, TURN_FAR, morning()))
+				var turn := _rng.randf_range(TURN_Z, lerpf(TURN_Z, TURN_FAR, morning()))
 				w.merge({"turn": turn, "sec": w["sec"] * (turn - w["z"] + WALK_SPAN) / (TURN_Z - w["z"] + WALK_SPAN)}, true)
 		_add_walker(w)
 		if pair:   # dois juntos: lado a lado, o de trás um passo atrás
@@ -860,7 +861,7 @@ func _events(delta: float) -> void:
 			_add_walker(w2)
 	_smoke_in -= delta
 	if _smoke_in <= 0.0:
-		_smoke_in = randf_range(SMOKE_EVERY.x, SMOKE_EVERY.y)
+		_smoke_in = _rng.randf_range(SMOKE_EVERY.x, SMOKE_EVERY.y)
 		if minutes < TV_OFF and _smoke_t < 0.0:
 			_smoke_t = 0.0
 	if _smoke_t >= 0.0:
@@ -869,13 +870,13 @@ func _events(delta: float) -> void:
 			_smoke_t = -1.0
 	_bike_in -= delta
 	if _bike_in <= 0.0:
-		_bike_in = randf_range(BIKE_EVERY.x, BIKE_EVERY.y)
+		_bike_in = _rng.randf_range(BIKE_EVERY.x, BIKE_EVERY.y)
 		if crowd > 0.0:   # junto do meio-fio de lá, nos dois sentidos
 			var b := _walker()
-			b.merge({"bike": true, "sec": BIKE_SEC * randf_range(0.85, 1.15), "z": STREET["far_curb"] - 0.6,
-				"papers": morning() > 0.0 and randf() < PAPERBOY}, true)   # (de manhã, o menino do jornal)
+			b.merge({"bike": true, "sec": BIKE_SEC * _rng.randf_range(0.85, 1.15), "z": STREET["far_curb"] - 0.6,
+				"papers": morning() > 0.0 and _rng.randf() < PAPERBOY}, true)   # (de manhã, o menino do jornal)
 			_add_walker(b)
-			if randf() < BIKE_BELL:
+			if _rng.randf() < BIKE_BELL:
 				Sfx.play_at("bike_bell", x, -4.0)
 	var buses := BUS_TIMES.filter(func(b: int) -> bool: return minutes >= b).size()
 	if buses > _buses and _buses >= 0:   # a hora do ônibus: ele é o próximo da mão de lá (com ela livre, já)
@@ -891,14 +892,14 @@ func _events(delta: float) -> void:
 	_taxis = taxis
 	_stray_in -= delta
 	if _stray_in <= 0.0:
-		_stray_in = randf_range(STRAY_EVERY.x, STRAY_EVERY.y)
+		_stray_in = _rng.randf_range(STRAY_EVERY.x, STRAY_EVERY.y)
 		if weather != "rain" and crowd > 0.0:   # (depois das 22h a rua fica vazia: só o homem do mistério)
 			var dog := _walker()
-			dog.merge({"dog": true, "sec": STRAY_SEC * randf_range(0.85, 1.15)}, true)
+			dog.merge({"dog": true, "sec": STRAY_SEC * _rng.randf_range(0.85, 1.15)}, true)
 			_add_walker(dog)
 	_bar_in -= delta
 	if _bar_in <= 0.0:
-		_bar_in = randf_range(BAR_EVERY.x, BAR_EVERY.y) / BUSY[weekday()]
+		_bar_in = _rng.randf_range(BAR_EVERY.x, BAR_EVERY.y) / BUSY[weekday()]
 		if crowd > 0.0 and _bar_t < 0.0:
 			_bar_t = 0.0
 	if _bar_t >= 0.0:   # a porta do bar aberta: a pessoa sai e segue pela calçada, junto das fachadas
@@ -913,10 +914,10 @@ func _events(delta: float) -> void:
 			_bar_t = -1.0
 	_behind_in -= delta
 	if _behind_in <= 0.0 and _indoor.x < 0.0:   # alguém passa dentro de casa, atrás de uma das janelas acesas à vista
-		_behind_in = randf_range(BEHIND_EVERY.x, BEHIND_EVERY.y)
+		_behind_in = _rng.randf_range(BEHIND_EVERY.x, BEHIND_EVERY.y)
 		var lit := _flats.filter(func(f: Array) -> bool: return _win_lit(_houses[0], f[1]))
 		if not lit.is_empty():
-			_indoor = Vector3(0.0, lit.pick_random()[1], 1.0 if randf() < 0.5 else -1.0)
+			_indoor = Vector3(0.0, _pick(lit)[1], 1.0 if _rng.randf() < 0.5 else -1.0)
 	if _indoor.x >= 0.0:
 		_indoor.x += delta
 		if _indoor.x >= BEHIND_SEC:
@@ -932,7 +933,7 @@ func _events(delta: float) -> void:
 		Sfx.set_rain(_rain_sent)
 	if _bolt < 0.0 and _bolt_in <= 0.0 and weather == "rain" and rain_level() > BOLT_RAIN:   # só na chuva forte
 		_bolt = 0.0
-		_thunder_at = randf_range(THUNDER_AFTER.x, THUNDER_AFTER.y)
+		_thunder_at = _rng.randf_range(THUNDER_AFTER.x, THUNDER_AFTER.y)
 	if _bolt >= 0.0:
 		var before := _bolt
 		_bolt += delta
@@ -941,7 +942,7 @@ func _events(delta: float) -> void:
 			if _thunder_at < RATTLE_NEAR:   # perto: o vidro e a persiana chocalham
 				Sfx.play_at("rattle", x, -6.0 * (_thunder_at - THUNDER_AFTER.x) / (RATTLE_NEAR - THUNDER_AFTER.x))
 			_bolt = -1.0
-			_bolt_in = randf_range(BOLT_EVERY.x, BOLT_EVERY.y)
+			_bolt_in = _rng.randf_range(BOLT_EVERY.x, BOLT_EVERY.y)
 
 
 ## As horas (min do dia) em que um táxi para no hotel nesta noite (`TAXI_STOPS`), sorteadas pela noite: sempre as mesmas.
@@ -968,7 +969,7 @@ func _car_kind() -> String:
 	var total := 0.0
 	for k: String in CAR_KINDS:
 		total += CAR_KINDS[k]["weight"]
-	var r := randf() * total
+	var r := _rng.randf() * total
 	for k: String in CAR_KINDS:
 		r -= CAR_KINDS[k]["weight"]
 		if r <= 0.0:
