@@ -30,12 +30,16 @@ const PLUG_LEN := 48.0   # em pé: do fio até o alto do corpo (a ponta de metal
 ## de baixo também para baixo); a capa gira na tomada, para o lado do fio (`_elbow_ang`). Montado pixel a pixel
 ## (`_elbow`, nas cores do `_plug_pal`, luz no alto à direita). (Com uma bola na cabeça e a capa curta e fixa,
 ## ficava pequeno e grosso.)
-const PLUG_DEPTH := 0.014   # px de deslocamento da curva por px de distância da tomada até os olhos (estilizado: a conta daria ~0,04, de lado demais)
+const PLUG_DEPTH := 0.03   # px de deslocamento da curva por px de distância da tomada até os olhos (com 0,014, mal se via o pescoço)
 const ELBOW_LEN := 24.0   # px: da curva ao pé da capa (na foto, uns 3 × a largura dela)
 const ELBOW_W := Vector2(4.0, 2.5)   # px: a meia largura do tubo e a do pé da capa (a do fio: a capa afunila até ele)
-const ELBOW_BEND := 11.0   # px: a curva vai da tomada até essa altura da capa, num arco (reta, fazia um "L" com quina)
-const ELBOW_RIBS := Vector2(1.0, 13.0)   # px do eixo, a partir da quina da curva: os frisos, um a cada 3 px, do meio do arco ao alto da capa (embaixo, lisa; em cima da bola da curva, com o brilho, viravam pontos soltos)
+const ELBOW_RIBS := Vector2(7.0, 16.0)   # px do eixo, a partir do começo da curva: os frisos, um a cada 3 px, do fim da curva ao alto da capa (no meio da curva, vistos de lado, viravam pedaços de arco soltos)
 const ELBOW_MAX := deg_to_rad(60.0)   # e nunca mais deitada que isso
+const ELBOW_SLEEVE := Vector2(3.0, 1.5)   # px: o raio e a altura da ponta de metal à mostra, na boca da tomada
+const ELBOW_BODY := 15.0   # px do painel até onde acaba o corpo duro (e começa a curva de borracha); fundo o bastante para o deslocamento da curva (`_tilt`, até ~19 px) dar menos de 1 px na tela por px de profundidade (com 7, a 1,5, o corpo e a faixa esticavam)
+const ELBOW_BAND := Vector2(2.5, 2.0)   # px do painel e largura da faixa na cor do cabo, no corpo duro (como no plug em pé, `PLUG_ART`)
+const ELBOW_ARC := 5.0   # px: o raio do eixo na curva, do corpo para a capa
+const ELBOW_Z := ELBOW_BODY + ELBOW_ARC   # a capa, a tantos px do painel (aparece deslocada `_tilt`)
 const PLUG_SHADE := Vector2(-4, 5)   # encaixado, a sombra do plug no painel, deslocada assim (luz no alto à direita, `LIGHT`)
 const PLUG_ART := [   ## o plug em pé, de 12 × 72 px (y de -72 a -1; o fio sai de y = 0): a ponta de metal, o corpo de
 	".....mm.....",
@@ -612,13 +616,14 @@ func _elbow_pose(e: int) -> Vector3:
 	return Vector3(t.x, t.y, _elbow_ang(e))
 
 
-## As partes do plug encaixado da ponta `e` em que os outros fios esbarram (`Cord.pegs`), como (x, y, raio): o pescoço,
-## no meio do caminho da tomada à curva, e a capa, em dois discos.
+## As partes do plug encaixado da ponta `e` em que os outros fios esbarram (`Cord.pegs`), como (x, y, raio): a curva e
+## a capa, em dois discos, à frente do painel, na altura do fio que cai de outra capa. O pescoço, da tomada à curva,
+## fica atrás: com a paralaxe, deitado, ele segurava o fio como uma prateleira e o fio serpenteava pelas cabeças.
 func _elbow_pegs(e: int) -> Array[Vector3]:
 	var pose := _elbow_pose(e)
 	var t := Vector2(pose.x, pose.y)
 	var c := jack_rect(int(ends[e])).get_center()
-	var out: Array[Vector3] = [Vector3(c.x + t.x / 2.0, c.y + t.y / 2.0, ELBOW_W.x + 0.5 + t.length() / 2.0)]
+	var out: Array[Vector3] = [Vector3(c.x + t.x, c.y + t.y, ELBOW_W.x + 0.5)]
 	for k: float in [0.35, 0.75]:
 		var b := c + t + Vector2.DOWN.rotated(pose.z) * ELBOW_LEN * k
 		out.append(Vector3(b.x, b.y, lerpf(ELBOW_W.x, ELBOW_W.y, clampf((ELBOW_LEN * k - ELBOW_RIBS.y) / (ELBOW_LEN - ELBOW_RIBS.y), 0.0, 1.0)) + 0.5))   # a capa afunila (`_elbow`)
@@ -639,11 +644,14 @@ func _plug_light(j: int) -> Array:
 
 
 ## O plug encaixado em pixel art, na pose (x, y da curva a partir da tomada, ângulo da capa), como [mapa (os
-## caracteres do `_plug_pal`), onde fica o meio da tomada nele]; cada pixel no tom da luz que bate nele (`LIGHT`, um
-## pouco de frente): a capa, um cilindro do tubo que afina no pé até o fio; e a curva, um disco a cada meio px num arco
-## (Bézier) da tomada, saindo na direção da câmera (`t`), até a capa (`ELBOW_BEND`), o mais à frente por cima, abaulado
-## junto da tomada e cilindro perto da capa, mais escuro junto do painel; os frisos seguem o eixo, da curva ao alto da
-## capa. Guardado pela pose.
+## caracteres do `_plug_pal`), onde fica o meio da tomada nele]. Um tubo em 3D pelo eixo dele: o ponto do eixo a z px
+## do painel aparece deslocado `z × t / ELBOW_Z` (a curva, em `t`), e em volta de cada um, um círculo do raio do tubo,
+## da mesma largura de qualquer lado (projetar cada ponto da superfície assim esticava o tubo para o lado do
+## deslocamento: quanto mais longe dos olhos, mais grosso). Da tomada para fora: a ponta de metal (`ELBOW_SLEEVE`), o
+## corpo duro com a faixa na cor do cabo (`ELBOW_BODY`, `ELBOW_BAND`), a curva de borracha num quarto de círculo
+## (`ELBOW_ARC`) e a capa, paralela ao painel, até o pé. Cada pixel mostra o ponto mais à frente (na direção da vista),
+## no tom da luz na normal do tubo ali (`LIGHT`, um pouco de frente): a faixa e os frisos saem em anel. Junto do
+## painel, mais escuro. Guardado pela pose. (Desenhado em 2D, com discos, ficava chapado, sem profundidade.)
 static var _elbows := {}
 
 
@@ -653,57 +661,83 @@ static func _elbow(pose: Vector3) -> Array:
 			_elbows.clear()
 		var sun := Vector3(LIGHT.x, LIGHT.y, 1.1).normalized()
 		var t := Vector2(pose.x, pose.y)
+		var sv := t / ELBOW_Z   # o deslocamento na tela por px de profundidade
+		var eye := Vector3(-sv.x, -sv.y, 1.0).normalized()   # para onde está quem olha
+		var ex := (Vector3.RIGHT - eye * eye.x).normalized()   # os eixos da tela, de frente para ele
+		var ey := (Vector3(0, 1, 0) - eye * eye.y).normalized()   # (y da tela para baixo)
 		var dir := Vector2.DOWN.rotated(pose.z)
-		var side := dir.orthogonal()
 		var r := ELBOW_W.x
+		var arc := PI / 2.0 * ELBOW_ARC   # o comprimento do eixo na curva
+		var cap := ELBOW_LEN - ELBOW_ARC   # e na capa
+		var axis := []   # [ponto, tangente, raio, parte, px do eixo desde o começo da curva], a cada quarto de px
+		for i in int(ELBOW_BODY * 4.0):
+			var z := i / 4.0
+			axis.append([Vector3(0, 0, z), Vector3.BACK, ELBOW_SLEEVE.x if z < ELBOW_SLEEVE.y else r,
+				"sleeve" if z < ELBOW_SLEEVE.y else "body", z - ELBOW_BODY])
+		for i in int(arc * 4.0):
+			var th := i / 4.0 / ELBOW_ARC
+			axis.append([Vector3(dir.x * ELBOW_ARC * (1.0 - cos(th)), dir.y * ELBOW_ARC * (1.0 - cos(th)), ELBOW_BODY + ELBOW_ARC * sin(th)),
+				Vector3(dir.x * sin(th), dir.y * sin(th), cos(th)), r, "bend", i / 4.0])
+		for i in int(cap * 4.0) + 1:
+			var u := i / 4.0
+			var w := lerpf(r, ELBOW_W.y, clampf((arc + u - ELBOW_RIBS.y) / (arc + cap - ELBOW_RIBS.y), 0.0, 1.0))   # afunila do fim dos frisos até o fio
+			axis.append([Vector3(dir.x * (ELBOW_ARC + u), dir.y * (ELBOW_ARC + u), ELBOW_Z), Vector3(dir.x, dir.y, 0.0), w,
+				"mouth" if u > cap - 1.0 else "cap", arc + u])
 		var foot := t + dir * ELBOW_LEN
-		var lo := Vector2i((Vector2.ZERO.min(t).min(foot) - Vector2.ONE * (r + 1.0)).floor())
-		var hi := Vector2i((Vector2.ZERO.max(t).max(foot) + Vector2.ONE * (r + 1.0)).ceil())
-		var bend := t + dir * ELBOW_BEND   # a curva: da tomada, na direção da câmera (`t`), até a capa reta, sem quina
-		var n := ceili((t.length() + ELBOW_BEND) * 2.0)
-		var at: Array[Vector2] = []   # o eixo da curva, em amostras de ~meio px: [centro, direção, px do eixo até o fim da curva]
-		var ax: Array[Vector2] = []
-		var to_end: Array[float] = []
-		for i in n + 1:
-			var s := float(i) / n
-			at.append(t * 2.0 * (1.0 - s) * s + bend * s * s)
-			ax.append((t * (1.0 - s) + (bend - t) * s).normalized() if t != Vector2.ZERO or s > 0.0 else dir)
-		to_end.resize(n + 1)
-		to_end[n] = 0.0
-		for i in range(n - 1, -1, -1):
-			to_end[i] = to_end[i + 1] + at[i].distance_to(at[i + 1])
-		var rows := []
-		for y in range(lo.y, hi.y):
-			var row := ""
-			for x in range(lo.x, hi.x):
-				var c := Vector2(x + 0.5, y + 0.5)
-				var along := (c - t).dot(dir)
-				var across := (c - t).dot(side)
-				var w := lerpf(r, ELBOW_W.y, clampf((along - ELBOW_RIBS.y) / (ELBOW_LEN - ELBOW_RIBS.y), 0.0, 1.0))   # afunila do fim dos frisos até o fio
-				var nv: Vector3
-				var dark := 0
-				if along > ELBOW_BEND and along <= ELBOW_LEN and absf(across) <= w:   # a capa
-					var g := side * (across / w)
-					nv = Vector3(g.x, g.y, sqrt(maxf(1.0 - g.length_squared(), 0.0)))
-					dark = 2 if along > ELBOW_LEN - 1.0 else 0   # a boca de onde sai o fio
-				else:   # a curva: o disco mais à frente que cobre o pixel (os de perto da capa estão mais perto da câmera)
-					var k := n
-					while k >= 0 and c.distance_to(at[k]) > r:
-						k -= 1
-					if k < 0:
-						row += "."
+		var lo := Vector2i((Vector2.ZERO.min(t).min(foot) - Vector2.ONE * (r + 2.0)).floor())
+		var hi := Vector2i((Vector2.ZERO.max(t).max(foot) + Vector2.ONE * (r + 2.0)).ceil())
+		var size := hi - lo
+		var depth := PackedFloat32Array()   # o mais à frente em cada pixel
+		depth.resize(size.x * size.y)
+		depth.fill(-INF)
+		var hit := PackedInt32Array()   # qual ponto do eixo
+		hit.resize(size.x * size.y)
+		var off := PackedVector2Array()   # e onde, do meio do círculo dele
+		off.resize(size.x * size.y)
+		for k in axis.size():
+			var a: Array = axis[k]
+			var pt: Vector3 = a[0]
+			var rk: float = a[2]
+			var at := Vector2(pt.x, pt.y) + sv * pt.z
+			for y in range(maxi(floori(at.y - rk) - lo.y, 0), mini(ceili(at.y + rk) - lo.y, size.y)):
+				for x in range(maxi(floori(at.x - rk) - lo.x, 0), mini(ceili(at.x + rk) - lo.x, size.x)):
+					var o := Vector2(x + lo.x + 0.5, y + lo.y + 0.5) - at
+					if o.length_squared() > rk * rk:
 						continue
-					var g := (c - at[k]) / r
-					var cross := g.dot(ax[k].orthogonal())
-					var tube := Vector3(ax[k].orthogonal().x * cross, ax[k].orthogonal().y * cross, sqrt(maxf(1.0 - cross * cross, 0.0)))
-					var cap := Vector3(g.x * 0.6, g.y * 0.6, sqrt(maxf(1.0 - g.length_squared() * 0.36, 0.0)))   # junto da tomada, o tubo vem para a câmera: abaulado de leve (mais, parecia uma bola)
-					var s := float(k) / n
-					nv = cap.lerp(tube, s).normalized()
-					along = ELBOW_BEND - to_end[k] + (c - at[k]).dot(ax[k])   # os frisos seguem a curva
-					dark = 1 if k == 0 else 0
-				if along >= ELBOW_RIBS.x and along < ELBOW_RIBS.y and fposmod(along - ELBOW_RIBS.x, 3.0) < 1.0:
-					dark = 2   # o friso
+					var d := pt.dot(eye) + sqrt(rk * rk - o.length_squared())
+					var i := y * size.x + x
+					if d > depth[i]:
+						depth[i] = d
+						hit[i] = k
+						off[i] = o
+		var rows := []
+		for y in size.y:
+			var row := ""
+			for x in size.x:
+				var i := y * size.x + x
+				if depth[i] == -INF:
+					row += "."
+					continue
+				var a: Array = axis[hit[i]]
+				var pt: Vector3 = a[0]
+				var tan: Vector3 = a[1]
+				var rk: float = a[2]
+				var o := off[i] / rk
+				var nv := ex * o.x + ey * o.y + eye * sqrt(maxf(1.0 - o.length_squared(), 0.0))
+				nv = (nv - tan * nv.dot(tan)).normalized()   # a normal do tubo (sem a parte ao longo dele)
 				var lit := nv.dot(sun)   # de frente, o tom 3, como o corpo do plug em pé; o 1 só no brilho
+				if a[3] == "sleeve":
+					row += "g" if lit > 0.6 else ("m" if lit > 0.2 else ("s" if lit > -0.2 else "k"))
+					continue
+				if a[3] == "body" and pt.z >= ELBOW_BAND.x and pt.z < ELBOW_BAND.x + ELBOW_BAND.y:   # a faixa do cabo
+					row += "a" if lit > 0.97 else ("b" if lit > 0.3 else "c")
+					continue
+				var dark := 1 if pt.z < 1.5 else 0   # junto do painel, na sombra dele
+				var along: float = a[4]
+				if a[3] == "mouth":
+					dark = 2   # a boca de onde sai o fio
+				elif a[3] != "body" and along >= ELBOW_RIBS.x and along < ELBOW_RIBS.y and fposmod(along - ELBOW_RIBS.x, 3.0) < 1.0:
+					dark = 2   # o friso
 				row += str(mini((1 if lit > 0.97 else 6 - clampi(int((lit + 0.05) * 4.0), 0, 4)) + dark, 6))
 			rows.append(row)
 		_elbows[pose] = [rows, -Vector2(lo)]

@@ -2508,3 +2508,40 @@ Chaves:
     chaves em texto; o compartimento só desenha o que o modelo diz (antes guardava os lugares e os reconciliava a cada
     quadro); com uma fita voltando, ele espera ela chegar. (3) A etiqueta da fita no gravador saiu de cima da borda do
     painel e da placa: fica à esquerda da coluna, na frente do painel, fora da moldura.
+437. #burocracias #fitas "Pensando como um game designer, a jogabilidade da B4 está boa?" e, das mudanças sugeridas:
+    (1) a fita pedida só conta como entregue com alguma palavra-chave (`Tapes.delivered`); a vazia, de um segundo de
+    escuta, leva a mesma advertência adiada de não entregar. (2) Nada no relatório da noite: o bilhete do supervisor da
+    noite seguinte diz o que houve com as fitas (usadas, entregues, as pedidas que não chegaram, se repôs;
+    `Tapes.summary`/`note`, salvo em `Bureaucracy.state`); o que acontece por isso fica com o roteiro, pelos marcadores
+    `b4_nao_entregou_<ligação>` e `b4_descartou_<ligação>`. (3) As virgens passam de uma noite para outra: o
+    compartimento só é reposto quando esvazia ou depois de três noites seguidas incompleto (`Tapes.restock`,
+    `restock_after`). (4) Descartar a fita pedida é não colaborar de propósito: a mesma advertência adiada e o marcador;
+    descartar gravação não pedida não tem efeito. (5) Gravando conversa não pedida, a faixa da etiqueta sai riscada
+    (`Cassette.standing`/`lying`, `wrong`). (6) Com a fita cheia (o máximo de pontos), a lâmpada da REC pisca devagar.
+438. #plugs #mesa-comutadora "Tira print de todos os cabos conectados em posições diferentes, de forma que eu veja o
+    paralaxe", "Há melhorias a serem feitas nos plugs nas tomadas?" e "Faça 1 e 3": (1) o plug encaixado ganhou o
+    colar de metal rente ao painel (`COLLAR`, nos tons da ponta do plug em pé): fica na tomada enquanto o pescoço sai
+    para longe dos olhos, e o que ele deixa à mostra mostra a profundidade (no tom mais claro, contornava a cabeça como
+    um halo). (3) Os frisos viraram traços retos de lado a lado do tubo (`_ribs`); antes eram os pixels a menos de 1 px
+    de uma distância do eixo, e a capa deitada ficava com frisos em degraus desiguais, falhados ou grossos.
+439. #plugs #mesa-comutadora "O paralaxe tá pequeno ainda, não dá pra ver nada do plug. Os plugs têm uma linha
+    colorida que sequer dá pra ver encaixados nas tomadas". `PLUG_DEPTH` de 0,014 para 0,03: longe dos olhos, o pescoço
+    do plug sai bem para o lado (até ~18 px), perto deles quase nada. A capa do plug encaixado ganhou a faixa na cor do
+    cabo, logo abaixo dos frisos (`ELBOW_BAND`), como no plug em pé. Os fios esbarram no pescoço em discos da largura
+    do tubo ao longo dele (`_elbow_pegs`; um disco só, crescendo com o deslocamento, passava muito do tubo).
+440. #plugs #mesa-comutadora "Reveja os cabos conectados e veja se está correto", e depois: "Os plugs estão com zero
+    profundidade, o cotovelo piorou depois das mudanças; a linha dos plugs NÃO fica no cotovelo, mas sim na parte dura
+    do plug; precisa de mais detalhes para que a profundidade funcione de verdade" e "O cotovelo do cabo verde está
+    muito grosso: quanto mais para a esquerda, mais grosso; a circunferência do cabo é uniforme". O plug encaixado
+    virou um tubo em 3D montado pelo eixo (`_elbow`): a ponta de metal na boca da tomada (`ELBOW_SLEEVE`), o corpo
+    duro saindo para a câmera com a faixa na cor do cabo em anel (`ELBOW_BODY`, `ELBOW_BAND`), a curva de borracha
+    num quarto de círculo (`ELBOW_ARC`) e a capa com os frisos no alto (`ELBOW_RIBS` do fim da curva ao alto da capa;
+    no meio da curva viravam pedaços de arco soltos); a luz pela normal 3D e o mais à frente cobre o resto (buffer de
+    profundidade). Em volta de cada ponto do eixo, um círculo do raio do tubo: projetar cada ponto da superfície pelo
+    deslocamento esticava o tubo para o lado (√(1+s²)). Saíram o colar e os frisos em traço reto (438) e a faixa na
+    capa (439). Os fios só esbarram na curva e na capa, à frente do painel: o pescoço deitado os segurava como uma
+    prateleira e o fio serpenteava pelas cabeças dos plugs do interurbano.
+441. #plugs #mesa-comutadora "A linha do plug encaixado não está grossa demais em comparação ao plug no slot?" Estava:
+    3 px de profundidade, e a projeção dava até 1,5 px na tela por px de profundidade (~4,5 px à esquerda). A faixa
+    voltou a 2 px, como no plug em pé, e o corpo duro ficou mais fundo (`ELBOW_BODY` 15): o mesmo deslocamento da
+    curva nunca passa de 1 px na tela por px de profundidade (o que aponta para a câmera só encurta).

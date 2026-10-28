@@ -104,6 +104,8 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   `side_used`, `_draw_plate` sem letra; o painel, a faixa do alto e as abas ficam em `SIZE`). Os da B4 (`scripts/ui/equipment/`, desenhados com `cassette.gd`, a fita em pé de lado, 12×100, na escala dos
   plugs): o gravador vertical no alto (a lombada na fenda com o nome e a hora escritos de lado; vazia, a fenda tem a tampinha de mola dos toca-fitas de carro, `_flap`; VU, contador,
   lâmpada e a tecla REC vermelha que trava, `Tapes.rec`, também pela tecla R, e solta sozinha no fim da conversa gravada;
+  com a fita cheia, `Tapes.full`, a lâmpada pisca devagar, `_blink`; gravando conversa não pedida, a faixa da etiqueta
+  sai riscada, `Cassette.standing(wrong)`, também deitada na pilha;
   sob o mouse, a fita mostra uma etiqueta de fita crepe à esquerda da coluna, `_draw_tip`; clicada, a gravada sai para a mesa e a virgem
   volta ao compartimento, `Fly.BACK`, `Tapes.put_back`) e o compartimento embaixo (`tape_rack.gd`,
   antes do gravador na árvore: a fita voa por cima), uma caixa funda de plástico branco com três fitas em pé, a beira
@@ -126,7 +128,9 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   a sombra no fio de baixo onde se cruzam (`_cross_shade`, `CROSS_SHADE`, em polígonos do `Geometry2D`).
 - **Plugs**: limpos, de plástico cinza com a ponta prateada, uma faixa na cor do cabo e a capa flexível afunilando
   até o fio (`PLUG_ART`, `_plug_pal`; a cor do par fica no fio e na faixa), girados pelo RotSprite em passos de 5° (`PixelArt.turned`); encaixados, de cotovelo
-  (um tubo em arco e a capa de frisos, como na foto), com paralaxe na curva (`_tilt`) e a capa articulada na física
+  (um tubo em 3D pelo eixo, `_elbow`: a ponta de metal na boca, o corpo duro com a faixa do cabo em anel,
+  `ELBOW_BAND`, a curva de borracha e a capa de frisos; largura igual de qualquer lado), com paralaxe na curva
+  (`_tilt`, `ELBOW_Z`) e a capa articulada na física
   do fio (`Cord.pivot`: o peso dela e o contrapeso; balança com ele; `_elbow_pose`, `_elbow`, `_draw_elbow`,
   `_elbow_pegs`); na mão balançam
   como pêndulo (`_swing_step`); soltos voltam ao buraco e assentam (`_seat`). Clique (apertar e soltar parado, em

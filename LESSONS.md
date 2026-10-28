@@ -746,3 +746,15 @@ curva, outro caminho), mostre antes como proposta e pergunte, não entregue como
 - **Obstáculo que aparece embaixo de um fio esticado.** Os pinos (`Cord.pegs`) supunham que o fio chega ao plug pelo
   lado; um plug encaixado bem sob um fio esticado o prendia por dentro, batendo sem parar (o usuário viu). Todo
   obstáculo novo da física tem que ser testado aparecendo *debaixo* do que já está parado, não só no caminho.
+- **Profundidade que não se vê não existe.** A paralaxe dos plugs encaixados estava "estilizada" em 0,014 px por px
+  (no máximo ~8 px, quase sempre 1–2) e o usuário não via nada; um colar de metal discreto também não resolveu. Ao
+  ajustar um efeito de profundidade, compare as pontas (o mais perto e o mais longe dos olhos) lado a lado na captura:
+  se a diferença não salta aos olhos sem explicação, está fraco. E os detalhes do objeto em pé (a faixa na cor do
+  cabo) têm que sobreviver na outra pose.
+- **Profundidade é volume, não deslocamento.** Aumentar a paralaxe de um objeto chapado só alongou o pescoço do plug
+  ("zero profundidade, o cotovelo piorou"). O que vende a profundidade: anéis em elipse (a faixa, os frisos), a luz
+  pela normal 3D, o que está mais à frente cobrindo o resto, a parte de metal na boca. E uma projeção de viés aplicada
+  a cada ponto da superfície estica as seções redondas (o tubo engrossava longe dos olhos): projete o eixo e desenhe
+  a seção com largura fixa. Detalhe do objeto (a faixa colorida) fica na peça certa (a parte dura, não a borracha).
+- **Mudar um obstáculo da física mexe em todos os fios.** Ao trocar os discos de esbarrão do plug, revise as capturas
+  com fios passando por cima de vários plugs: o pescoço deitado virou prateleira e o fio serpenteou.
