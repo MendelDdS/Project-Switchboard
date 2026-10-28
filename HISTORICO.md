@@ -2502,3 +2502,9 @@ Chaves:
     tinha como contorná-lo: ficava preso dentro dele, entortado e batendo a cada quadro. Agora o plug levanta o fio que
     tapava a tomada: o fio corre por cima dele, sem esbarrar, e é desenhado depois dele (`Switchboard._draped`, até um
     dos dois sair). Teste: `test_flow`, seção 18.
+436. #burocracias #fitas "Você acha que a B4 está boa?" e, das melhorias apontadas, "Faça 1 e 3": (1) os lugares das
+    fitas passaram para o modelo (`Tapes.slots`; `insert(i)`, `put_back` devolve a virgem ao lugar dela) e cada fita
+    virou uma `Tape` (`scripts/bureaucracy/tape.gd`, com o destino num enum, `Tape.Fate`), no lugar de dicionários com
+    chaves em texto; o compartimento só desenha o que o modelo diz (antes guardava os lugares e os reconciliava a cada
+    quadro); com uma fita voltando, ele espera ela chegar. (3) A etiqueta da fita no gravador saiu de cima da borda do
+    painel e da placa: fica à esquerda da coluna, na frente do painel, fora da moldura.

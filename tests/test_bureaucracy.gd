@@ -8,6 +8,7 @@ var m: Main
 var b: Switchboard
 var C: GameContent = GameData.CONTENT
 const LURDES := "res://data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres"   # pede a Farmácia Santa Rita (162)
+const Tape := preload("res://scripts/bureaucracy/tape.gd")
 
 
 ## Regra de teste: toda transferência é infração na gravidade dela; conta os ganchos e oferece uma opção.
@@ -503,10 +504,10 @@ func _initialize() -> void:
 	click.pressed = false
 	rack._hover = 0   # a fita da esquerda
 	rack._gui_input(click)
-	ok(tp.blank == 2 and not tp.inside.is_empty(), "clicar numa fita do compartimento a põe no gravador")
+	ok(tp.blank == 2 and tp.inside != null, "clicar numa fita do compartimento a põe no gravador")
 	await frames(2)
 	ok(deck._fly == deck.Fly.IN and deck._flap < 1.0, "a fita sai voando do compartimento, com a fenda ainda fechada")
-	ok(rack.taken == 0 and not rack._full[0] and rack._full.count(true) == 2, "sai a clicada; as outras ficam no lugar")
+	ok(tp.inside.slot == 0 and Array(tp.slots) == [false, true, true], "sai a clicada; as outras ficam no lugar")
 	ok(await wait_until(func(): return deck._fly == 0 and deck._bounce == 0.0 and rack._wobble == 0.0, 3.0) and deck._flap == 1.0,
 		"a fita voou para a fenda (a tampinha empurrada para dentro) e o gravador e o compartimento voltaram ao lugar")
 	m.report.credits.clear()
@@ -526,13 +527,13 @@ func _initialize() -> void:
 	ok(not tp.rec, "...e solta")
 	recorder._hover = recorder.Hover.KEY
 	recorder._gui_input(click)
-	ok(tp.rec and tp.recording() and tp.inside["call"] == sus, "a REC presa escutando: grava esta conversa")
+	ok(tp.rec and tp.recording() and tp.inside.call == sus, "a REC presa escutando: grava esta conversa")
 	ok(await wait_until(func(): return _ticked() and m.eavesdrop.clues.filter(func(k: Clue): return k.call == sus).size() == 4, 120.0), "ouviu as quatro palavras")
-	var words: Array = tp.inside["words"]
+	var words: Array[String] = tp.inside.words
 	ok(words == ["estação velha", "dez", "pacote", "Ramiro"], "palavras-chave na fita: %s" % [words])
 	recorder._hover = recorder.Hover.TAPE   # clicada a fita na fenda
 	recorder._gui_input(click)
-	ok(tp.inside.is_empty() and not tp.rec and tp.done[-1]["fate"] == Bureaucracy.Tapes.ON_DESK, "tirada: vai para a mesa e a REC volta")
+	ok(tp.inside == null and not tp.rec and tp.done[-1].fate == Tape.Fate.ON_DESK, "tirada: vai para a mesa e a REC volta")
 	ok(m.background.tapes_out == 0 and await wait_until(func(): return recorder._fly == 0, 3.0) and m.background.tapes_out == 1
 		and m.background.tape_spot().has_area(), "voa e fica na mesa, ao lado do bloco de fichas")
 	await frames(2)
@@ -551,26 +552,29 @@ func _initialize() -> void:
 	var calm := await _call(t4[1])
 	await _connect(calm, 312)
 	m.listen()
-	ok(tp.inside["call"] == calm, "...grava a conversa quando a escuta entra")
+	ok(tp.inside.call == calm, "...grava a conversa quando a escuta entra")
 	ok(await wait_until(func(): return _ticked() and m.eavesdrop.speaking(calm.line), 20.0), "a conversa sem nada começou")
 	ok(await wait_until(func(): return _ticked() and not m.eavesdrop.speaking(calm.line), 120.0), "a conversa sem nada terminou")
 	m.bureaucracy.call_ended(calm, PhoneCall.End.OPERATOR)
 	ok(not tp.rec, "acabada a conversa gravada, a REC solta sozinha")
 	tp.eject()
-	ok(tp.done[-1]["words"].is_empty(), "nada relevante")
+	ok(tp.done[-1].words.is_empty(), "nada relevante")
 	ok(await wait_until(func(): return m.background.tapes_out == 2, 3.0), "a segunda, empilhada na primeira")
-	tp.blank += 1
+	tp.add_blank()
 	await frames(2)
-	rack._hover = rack._full.find(true)
+	rack._hover = tp.slots.find(true)
 	rack._gui_input(click)
 	await frames(2)   # (o voo começa no quadro seguinte)
 	await wait_until(func(): return recorder._fly == 0, 3.0)
-	var back: int = rack.free_slot()
+	var back: int = tp.inside.slot
 	recorder._hover = recorder.Hover.TAPE
 	recorder._gui_input(click)
-	ok(tp.inside.is_empty() and tp.blank == 2 and recorder._fly == recorder.Fly.BACK and rack.hold == back,
-		"a virgem clicada volta para um lugar vazio do compartimento, reservado enquanto voa")
-	ok(await wait_until(func(): return recorder._fly == 0 and rack.hold == -1 and rack._full[back], 3.0) and m.background.tapes_out == 2
+	ok(tp.inside == null and tp.blank == 2 and tp.slots[back] and recorder._fly == recorder.Fly.BACK and rack.hold == back,
+		"a virgem clicada volta para o lugar dela no compartimento, escondida enquanto voa")
+	rack._hover = 1 - back if back < 2 else 0
+	rack._gui_input(click)
+	ok(tp.inside == null, "com uma voltando, o compartimento espera")
+	ok(await wait_until(func(): return recorder._fly == 0 and rack.hold == -1 and rack._shows(back), 3.0) and m.background.tapes_out == 2
 		and recorder._flap == 0.0, "e assenta nele, sem ir para a mesa; a tampinha fecha a fenda")
 	rack._hover = back
 	rack._gui_input(click)
@@ -585,13 +589,13 @@ func _initialize() -> void:
 	ok(pile.visible and pile._shown.size() == 3 and pile._shown[0] == tp.done[-1], "a pilha abre de perto, a última em cima")
 	(pile._rows.get_child(0).get_child(1) as Button).pressed.emit()   # o Descartar dela
 	await frames(2)
-	ok(tp.done[-1]["fate"] == Bureaucracy.Tapes.DISCARDED and m.background.tapes_out == 2 and pile._shown.size() == 2,
+	ok(tp.done[-1].fate == Tape.Fate.DISCARDED and m.background.tapes_out == 2 and pile._shown.size() == 2,
 		"descartada da pilha: sai da mesa e se perde")
 	pile.close()
 	_clear_board()
 	m.bureaucracy.night_ended()
 	ok(not m.flags.has("authorities_questioning_pending") and m.report.later.is_empty(), "entregou as duas: as autoridades não questionam")
-	ok(m.report.credits.any(func(c): return c["id"] == "tape" and c["pts"] == 20) and tp.done[0]["fate"] == Bureaucracy.Tapes.DELIVERED,
+	ok(m.report.credits.any(func(c): return c["id"] == "tape" and c["pts"] == 20) and tp.done[0].fate == Tape.Fate.DELIVERED,
 		"no fim do turno, as da mesa vão para as autoridades: o valor pelas palavras, até o máximo da fita")
 	m.bureaucracy.night_started()
 	var skip := await _call(t4[1])
@@ -602,7 +606,7 @@ func _initialize() -> void:
 	ok(m.flags.has("authorities_questioning_pending"), "noite com pedido e sem gravação: o marcador para o roteiro")
 	ok(m.report.later.size() == 1 and m.report.later[0]["text"] == T.Key.FAULT_TAPE_MISSED and m.report.later[0]["nights"] == 2,
 		"e a advertência de descuido, daqui a duas noites")
-	ok(tp.inside.is_empty() and tp.done[-1]["fate"] == Bureaucracy.Tapes.LEFT, "a fita esquecida no gravador conta como não entregue")
+	ok(tp.inside == null and tp.done[-1].fate == Tape.Fate.LEFT, "a fita esquecida no gravador conta como não entregue")
 	m.report.later.clear()
 	m.bureaucracy.lock_equipment("porta_fitas")
 	ok(b.equipped == PackedStringArray(["gravador"]), "o roteiro pode tirar um equipamento")

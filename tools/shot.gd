@@ -138,31 +138,37 @@ func _ready() -> void:
 			c.meta["b4"] = true
 			m.bureaucracy.tapes.rec = true
 			m.bureaucracy.tapes.bind(c)   # a fita gravando ela, com duas palavras-chave ouvidas
-			m.bureaucracy.tapes.inside["words"].append_array(["um", "dois"])
+			m.bureaucracy.tapes.inside.words.append_array(["um", "dois"])
 		for i in int(_args.get("delivered", "0")):   # (a de cima com nome, hora e duas palavras-chave, para o `--pile`)
 			var named := i == int(_args["delivered"]) - 1
 			var c: PhoneCall = PhoneCall.from_transfer(GameData.CONTENT.transfers[0]) if named else null
-			m.bureaucracy.tapes.done.append({"call": c, "who": "", "hour": "21:40" if named else "", "words": ["um", "dois"] if named else [],
-				"value": 0, "fate": "na mesa", "marked": false})
+			var t := Bureaucracy.Tapes.Tape.new()
+			t.call = c
+			t.hour = "21:40" if named else ""
+			if named:
+				t.words.append_array(["um", "dois"])
+			t.fate = t.Fate.ON_DESK
+			m.bureaucracy.tapes.done.append(t)
 		if _args.has("tapefly"):   # o voo parado num instante (o gravador para de andar)
 			var fly: PackedStringArray = _args["tapefly"].split(",")
 			var rec: Control = m.board._equipment["gravador"]
 			await get_tree().process_frame   # (a sala desenhada: o lugar da fita na mesa, `tape_spot`)
 			var t := float(fly[1]) if fly.size() > 1 else 0.2
 			var rack: Control = m.board._equipment["porta_fitas"]
-			rack._sync()
 			if fly[0] == "in":   # a do meio (a subida de dentro do compartimento é desenhada por ele)
 				rec._had_tape = true
-				rack._full = [true, false, true] as Array[bool]
+				m.bureaucracy.tapes.slots.assign([true, false, true])
+				m.bureaucracy.tapes.inside.slot = 1
+				rack._seen = m.bureaucracy.tapes.slots.duplicate()
 				rack._move_slot = 1
 				rack._move = maxf(rack.RISE_SEC - t, 0.0)
 				rec._start_in(1)
 			elif fly[0] == "back":   # como o clique na virgem
-				m.bureaucracy.tapes.inside["call"] = null
-				var free: int = rack.free_slot()
-				m.bureaucracy.tapes.put_back()
+				m.bureaucracy.tapes.inside.call = null
+				var back: int = m.bureaucracy.tapes.put_back()
+				rack._seen = m.bureaucracy.tapes.slots.duplicate()
 				rec._had_tape = false
-				rec._start_back(free)
+				rec._start_back(back)
 			else:   # como o clique na fita
 				m.bureaucracy.tapes.eject()
 				rec._had_tape = false

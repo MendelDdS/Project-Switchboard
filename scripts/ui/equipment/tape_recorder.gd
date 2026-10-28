@@ -78,27 +78,26 @@ func _process(delta: float) -> void:
 	var tp = _desk.tapes if _desk else null
 	if tp == null:
 		return
-	var loaded: bool = not tp.inside.is_empty()
+	var loaded: bool = tp.inside != null
 	var rec: bool = tp.recording()
 	if loaded and not _had_tape:   # uma fita entrou: vem do compartimento, do lugar dela
-		var rack := get_tree().get_first_node_in_group(&"tape_rack")
-		_start_in(rack.taken if rack else tp.blank)
+		_start_in(tp.inside.slot)
 	_had_tape = loaded
 	if _latched and not tp.rec:
 		Sfx.play_at("click", _sx(), -4.0)   # a REC volta (soltada, sozinha no fim da conversa ou com a fita saindo)
 	_latched = tp.rec
 	if rec:
 		_rec_sec += delta
-	var c: PhoneCall = tp.inside.get("call") if loaded else null
+	var c: PhoneCall = tp.inside.call if loaded else null
 	if c != _bound:
 		_bound = c
 		_label = Cassette.label_of(c) if c != null else ""
-		_hour = tp.inside["hour"] if c != null else ""
+		_hour = tp.inside.hour if c != null else ""
 		_write_t = 0.0
 		if c != null:
 			Sfx.play_at("pencil", _sx(), -6.0)
 	_write_t += delta
-	var marks: int = tp.inside["words"].size() if loaded else 0
+	var marks: int = tp.inside.words.size() if loaded else 0
 	if marks > _marks:
 		_pop = POP_SEC
 		Sfx.play_at("pencil", _sx(), -10.0, 1.4)
@@ -254,7 +253,7 @@ func _step_fly(delta: float) -> void:
 func _draw() -> void:
 	Bloom.clear(self)
 	var tp = _desk.tapes if _desk else null
-	var loaded: bool = tp != null and not tp.inside.is_empty() and _fly != Fly.IN
+	var loaded: bool = tp != null and tp.inside != null and _fly != Fly.IN
 	var rec: bool = tp != null and tp.recording()
 	var dy := Vector2(0, 1) if _bounce > 0.0 else Vector2.ZERO
 	Switchboard.round_rect(self, Rect2(dy, size), Pal.SHELL[5])   # plástico branco, como o móvel da mesa
@@ -275,15 +274,15 @@ func _draw() -> void:
 		if not pose.is_empty() and pose[2]:
 			_draw_tape(pose[0], pose[1])
 	if _hover == Hover.TAPE and loaded:
-		_draw_tip(T.text(T.Key.TAPE_RETURN if tp.inside["call"] == null else T.Key.TAPE_TAKE))
+		_draw_tip(T.text(T.Key.TAPE_RETURN if tp.inside.call == null else T.Key.TAPE_TAKE))
 
 
-## O que o clique na fita faz, numa etiqueta de fita crepe acima do gravador, como a dos objetos da mesa
-## (`Background.draw_hover`).
+## O que o clique na fita faz, numa etiqueta de fita crepe como a dos objetos da mesa (`Background.draw_hover`), à
+## esquerda da fenda, na frente do painel (acima, invadia a borda dele e a placa da companhia).
 func _draw_tip(cap: String) -> void:
 	var tape := get_theme_stylebox("normal", "TapedLabel")
 	var ts := (Pal.ui.get_string_size(cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11) + tape.get_minimum_size()).round()
-	var at := Vector2(roundf(SLOT.get_center().x - ts.x / 2.0), -ts.y - 3.0)
+	var at := Vector2(-8.0 - ts.x, SLOT.position.y + 6.0)   # (fora da moldura da coluna)
 	tape.draw(get_canvas_item(), Rect2(at, ts))
 	draw_string(Pal.ui, at + Vector2(tape.content_margin_left, tape.content_margin_top + Pal.ui.get_ascent(11)), cap,
 		HORIZONTAL_ALIGNMENT_LEFT, -1, 11, get_theme_color("default_color", "TapedLabel"))
@@ -388,7 +387,7 @@ func _gui_input(e: InputEvent) -> void:
 	var tp = _desk.tapes
 	if e is InputEventMouseMotion:
 		_hover = Hover.KEY if REC_KEY.grow(1).has_point(e.position) else (
-			Hover.TAPE if SLOT.has_point(e.position) and not tp.inside.is_empty() and _fly == Fly.NONE else Hover.NONE)
+			Hover.TAPE if SLOT.has_point(e.position) and tp.inside != null and _fly == Fly.NONE else Hover.NONE)
 		mouse_default_cursor_shape = CURSOR_ARROW if _hover == Hover.NONE else CURSOR_POINTING_HAND
 		return
 	var b := e as InputEventMouseButton
@@ -404,12 +403,10 @@ func _gui_input(e: InputEvent) -> void:
 ## A fita clicada sai da fenda: virgem, volta para o compartimento (se houver lugar); gravada, vai para a mesa.
 func _take_out() -> void:
 	var tp = _desk.tapes
-	var rack := get_tree().get_first_node_in_group(&"tape_rack")
-	var slot: int = rack.free_slot() if rack else -1
+	var slot: int = tp.put_back()
 	_hover = Hover.NONE
 	_had_tape = false
-	if tp.inside["call"] == null and slot >= 0:
-		tp.put_back()
+	if slot >= 0:
 		_start_back(slot)
 	else:
 		tp.eject()

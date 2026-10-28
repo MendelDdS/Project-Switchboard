@@ -53,13 +53,13 @@ func clue_heard(k: Clue) -> void:
 	if not desk.tapes.recording():
 		return
 	desk.tapes.bind(k.call)
-	if desk.tapes.inside["call"] == k.call:
-		desk.tapes.inside["words"].append(k.word)
+	if desk.tapes.inside.call == k.call:
+		desk.tapes.inside.words.append(k.word)
 
 
 ## A conversa gravada acabou: a REC solta sozinha (a fita já tem a conversa dela).
 func call_ended(c: PhoneCall, _reason: PhoneCall.End) -> void:
-	if not desk.tapes.inside.is_empty() and desk.tapes.inside["call"] == c:
+	if desk.tapes.inside != null and desk.tapes.inside.call == c:
 		desk.tapes.rec = false
 
 
@@ -84,13 +84,13 @@ func debug_info() -> String:
 	var tp := desk.tapes
 	var lines := ["Na coluna à direita do painel: clique no compartimento (fita no gravador), conecte a ligação marcada, "
 		+ "aperte REC e escute (Z); clique na fita para tirá-la (vai para a mesa); para descartar, clique na pilha.", "virgens: %d · no gravador: %s · marcadas na noite: %d, entregues: %d" % [tp.blank,
-		"nada" if tp.inside.is_empty() else "%s %s" % [tp.inside["who"] if tp.inside["who"] != "" else "virgem", tp.inside["words"]], _marked.size(),
+		"nada" if tp.inside == null else "%s %s" % [tp.inside.who if tp.inside.who != "" else "virgem", tp.inside.words], _marked.size(),
 		_marked.filter(func(c: PhoneCall): return tp.delivered(c)).size()]]
 	lines[1] += " · REC %s" % ("presa" if tp.rec else "solta")
 	for t in tp.done:
-		lines.append("· %s: %s, %d pontos (%s)" % [t["who"], t["words"], t["value"], t["fate"]])
+		lines.append("· %s: %s, %d pontos (%s)" % [t.who, t.words, t.value, Bureaucracy.Tapes.Tape.Fate.find_key(t.fate)])
 	return "\n".join(lines)
 
 
 func debug_actions() -> Array:
-	return [["Resetar fitas", night_started], ["+1 fita", func(): desk.tapes.blank += 1]]
+	return [["Resetar fitas", night_started], ["+1 fita", desk.tapes.add_blank]]

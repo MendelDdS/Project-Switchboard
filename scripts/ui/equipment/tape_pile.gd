@@ -5,9 +5,10 @@ extends PanelContainer
 ## (`Tapes.hand_over`). Fecha clicando fora dela ou com Esc, e sozinha quando não sobra fita ou o turno acaba.
 
 const Cassette := preload("res://scripts/ui/equipment/cassette.gd")
+const Tape := preload("res://scripts/bureaucracy/tape.gd")
 const FALL_SEC := 0.45   ## a descartada caindo até sair da tela
 
-var _shown: Array[Dictionary] = []   ## as fitas na lista, de cima para baixo
+var _shown: Array = []   ## as fitas na lista, de cima para baixo
 
 var _desk: Bureaucracy
 
@@ -57,8 +58,7 @@ func _fill() -> void:
 		var tape := Control.new()
 		tape.custom_minimum_size = Vector2(Cassette.SPINE.y, Cassette.SPINE.x)
 		tape.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		var c: PhoneCall = t["call"]
-		tape.draw.connect(func(): Cassette.lying(tape, Vector2.ZERO, Cassette.label_of(c) if c != null else "", t["hour"], t["words"].size()))
+		tape.draw.connect(_draw_tape.bind(tape, t))
 		var b := Button.new()
 		b.theme_type_variation = &"InkButton"
 		b.text = T.text(T.Key.EQUIP_DISCARD)
@@ -72,7 +72,7 @@ func _fill() -> void:
 	position = Vector2(clampf(pile.get_center().x - size.x / 2.0, 4.0, vp.x - size.x - 4.0), maxf(pile.position.y - size.y - 6.0, 4.0)).round()
 
 
-func _discard(t: Dictionary, tape: Control) -> void:
+func _discard(t: Tape, tape: Control) -> void:
 	_desk.tapes.discard(t)
 	_fall(t, tape.global_position)
 	if _desk.tapes.on_desk().is_empty():
@@ -83,18 +83,22 @@ func _discard(t: Dictionary, tape: Control) -> void:
 
 ## A fita `t` caindo de `from` (px da tela) até sair por baixo, acelerando e indo um pouco para o lado, por cima de
 ## tudo (fora do papel, que se refaz sem ela).
-func _fall(t: Dictionary, from: Vector2) -> void:
-	var c: PhoneCall = t["call"]
+func _fall(t: Tape, from: Vector2) -> void:
 	var tape := Control.new()
 	tape.z_index = z_index + 1
 	tape.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	tape.position = from
-	tape.draw.connect(func(): Cassette.lying(tape, Vector2.ZERO, Cassette.label_of(c) if c != null else "", t["hour"], t["words"].size()))
+	tape.draw.connect(_draw_tape.bind(tape, t))
 	get_parent().add_child(tape)
 	var drop := get_viewport_rect().size.y + 4.0 - from.y
 	var tw := tape.create_tween()
 	tw.tween_method(func(f: float): tape.position = (from + Vector2(-8.0 * f, drop * f * f)).round(), 0.0, 1.0, FALL_SEC)
 	tw.tween_callback(tape.queue_free)
+
+
+## A fita `t` deitada em `n`, com a etiqueta.
+func _draw_tape(n: Control, t: Tape) -> void:
+	Cassette.lying(n, Vector2.ZERO, Cassette.label_of(t.call) if t.call != null else "", t.hour, t.words.size())
 
 
 func _sx() -> float:
