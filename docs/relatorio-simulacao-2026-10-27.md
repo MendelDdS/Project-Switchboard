@@ -215,7 +215,9 @@ O resto das capturas está coerente: luz, chuva, cabos e contraste.
    `bureaucracy`/`clues` é lido sem conferência. Isso importa a partir do momento em que houver jogadores com
    saves de versões anteriores.
 
-   ⏳ **Explicado em 28/10; fica para antes da primeira versão pública.**
+   ✅ **Feito em 28/10**: o save leva a versão do formato (`Progress.VERSION`, a 1; os sem versão também são da 1),
+   grava num temporário e só então toma o lugar do antigo, e o que não dá para ler (versão mais nova ou corrompido)
+   fica guardado ao lado, com um aviso na tela inicial, e o jogo começa do zero.
 6. **Atalho conhecido do debug** (`debug_panel.gd:225`): com duas emergências, o cartão pode ir para a errada.
 
    ✅ **Corrigido em 28/10**: o cronômetro do F1 segue a regra do envio de verdade (`Fleet.target_of`: a emergência
@@ -327,4 +329,4 @@ computador mais fraco perder quadros na noite 15 (conferir quando houver build p
    - `background_view.gd` tem 3683 linhas, `background.gd` 2899 e `background_props.gd` 1979;
    - a vista poderia ser dividida por assunto (céu e amanhecer, prédios, rua e gente), seguindo a mesma ideia das
      camadas por herança.
-9. **Versão no save** (Bugs 5), antes da primeira versão pública.
+9. ~~**Versão no save** (Bugs 5)~~: feito em 28/10.

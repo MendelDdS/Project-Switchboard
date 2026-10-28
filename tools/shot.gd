@@ -32,7 +32,7 @@ extends Node
 ##   --screen=id            uma tela por cima: intro (a de início), pause, settings, report (o relatório com advertências;
 ##                          --rating=great|good|fair|poor o conceito, padrão poor, a segunda noite seguida;
 ##                          --warned, com intro, o bilhete depois de uma noite Insuficiente; --tapenote, com o resumo das
-##                          fitas da noite anterior, da B4)
+##                          fitas da noite anterior, da B4; --aside, o aviso do save que não deu para ler, `Progress.aside`)
 ##   --street=sol,1         com --tool=despacho: o mouse no trecho 1 da Rua do Sol (a rua inteira de leve e os números)
 ##   --draft                com --street: o primeiro clique nela (o local datilografado, à espera do segundo)
 ##   --mapzoom=1.44         com --tool=despacho: o mapa aproximado por esse fator (o anel girado)
@@ -99,9 +99,10 @@ func _ready() -> void:
 	await get_tree().process_frame
 	m.sched.clear()   # nada toca sozinho
 	if _args.get("screen") == "intro":
-		if _args.has("warned") or _args.has("tapenote"):   # o lembrete de quem teve uma noite Insuficiente; o resumo das fitas (B4)
+		if _args.has("warned") or _args.has("tapenote") or _args.has("aside"):   # o lembrete de quem teve uma noite Insuficiente; o resumo das fitas (B4)
 			var tapes := {"night": m.night_no - 1, "used": 3, "delivered": 1, "missed": ["Laura Pires (linha 4)"], "restocked": true}
-			m._intro.setup(m.night_no, m.night, false, false, _args.has("warned"), tapes if _args.has("tapenote") else {})
+			m._intro.setup(m.night_no, m.night, false, false, _args.has("warned"), tapes if _args.has("tapenote") else {},
+				"user://progress.v2-1761600000.cfg" if _args.has("aside") else "")
 		await get_tree().create_timer(float(_args.get("wait", "5")), false).timeout
 		_save(out)
 		return

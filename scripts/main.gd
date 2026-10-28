@@ -179,7 +179,8 @@ func _ready() -> void:
 	tools.origin = background.prop_rect   # o papel de cada ferramenta sai do objeto dela na mesa
 	background.prop_clicked.connect(func(id: String): if running and not ending: tools.set_tab(id))   # objetos da cena
 	_intro.over = board   # o bilhete do supervisor fica preso no painel da mesa comutadora
-	_intro.setup(night_no, night, progress != null and progress.night > 0, progress != null, report.low_before > 0, bureaucracy.tapes.last)
+	_intro.setup(night_no, night, progress != null and progress.night > 0, progress != null, report.low_before > 0, bureaucracy.tapes.last,
+		progress.aside if progress else "")
 	if is_training():   # o treinamento começa com o FONE já na entrada 1
 		board.plugged(0, 1)
 	if progress != null and night_no > 1:   # o jornal da manhã, com o que aconteceu na noite anterior

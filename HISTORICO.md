@@ -2612,3 +2612,10 @@ Chaves:
     dos equipamentos (`badges.gd`, `_slant` pelo `_receding`), com os olhos (`_eye`) no estado comparado (desenhada
     no primeiro quadro, com outros olhos, pendia para o lado contrário e não se refazia), e centrada entre o tampo e
     o fim da prateleira à vista (16 px de cada lado).
+450. #codigo "Podemos implementar versão no save então [...] versionar é a forma mais recomendada e segue as boas
+    práticas de desenvolvimento de jogos?": sim, com o resto que costuma vir junto. O save leva a versão do formato
+    (`Progress.VERSION`, a 1; os de antes, sem versão, são da 1; a conversão de versão em versão entra no
+    `load_saved` quando o formato mudar), grava num temporário que só então toma o lugar do save (fechado no meio, o
+    antigo fica inteiro) e o que não dá para ler (de versão mais nova ou corrompido) fica guardado ao lado
+    (`Progress.aside`) com um aviso no papel da tela inicial, e o jogo começa do zero. A cópia antes de converter
+    fica para a primeira conversão de verdade. Teste em `test_penalties` (9d).

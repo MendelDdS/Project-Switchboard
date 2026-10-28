@@ -323,6 +323,30 @@ func _initialize() -> void:
 	ok(pg.badges.has("linha_direta") and pg.badges.has("faro") and not pg.badges.has("longa_distancia"), "cinco seguidas sem perder; cinco trotes; oito interurbanos ainda não")
 	ok(B.award(pg, clean, 10, GameData.CONTENT.paces.size()).has("rush") and pg.badges.has("veterano"), "Bom no ritmo máximo e a noite 10")
 	ok(B.award(pg, clean, 11, 1).is_empty(), "cada broche vem uma vez")
+	# ---- 9d. o save (`Progress`): versão, gravação segura e o que não dá para ler, guardado ao lado
+	var sp := "user://test_progress.cfg"
+	pg.save(sp)
+	var back := Progress.load_saved(sp)
+	ok(back.aside == "" and back.night == pg.night and back.badges == pg.badges and not FileAccess.file_exists(sp + ".tmp"),
+		"o save volta igual, sem o temporário")
+	var old := ConfigFile.new()   # um save de antes da versão: lido como a 1
+	old.set_value("progress", "night", 4)
+	old.save(sp)
+	ok(Progress.load_saved(sp).night == 4, "o save sem versão é lido")
+	var newer := ConfigFile.new()
+	newer.set_value("progress", "version", Progress.VERSION + 1)
+	newer.set_value("progress", "night", 7)
+	newer.save(sp)
+	var got := Progress.load_saved(sp)
+	ok(got.night == 0 and got.aside != "" and FileAccess.file_exists(got.aside) and not FileAccess.file_exists(sp),
+		"o save de versão mais nova fica guardado ao lado e o jogo começa do zero (%s)" % got.aside)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(got.aside))
+	var bad := FileAccess.open(sp, FileAccess.WRITE)
+	bad.store_string("[progress\nnight = ")
+	bad.close()
+	got = Progress.load_saved(sp)
+	ok(got.night == 0 and got.aside.contains("corrompido") and FileAccess.file_exists(got.aside), "o save corrompido também")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(got.aside))
 
 	# ---- 10. barra de agravamento (o relógio está parado: a barra anda por Urgency.tick chamado à mão)
 	# um caso em que cada estágio pede uma unidade nova (para ver quando ela passa a contar)

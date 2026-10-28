@@ -192,7 +192,8 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 - Ritmo por nível (`Pace`, 9 níveis; `Pace.next` pelo conceito; o último é o limite; do 6 ao 9 o mesmo `mean_gap` do 5, com mais picos).
 - Marcadores do roteiro: `StoryFlags` (`flags.allows(requires)`, `flags.apply("nome" | "!nome")`), salvos no `Progress`.
 - `Progress` (`user://progress.cfg`): próxima noite, ritmo, `low_nights`, marcadores, jornal, palavras-chave,
-  denúncias, chuvas. A última noite ou a demissão limpa o save.
+  denúncias, chuvas. A última noite ou a demissão limpa o save. Formato com versão (`Progress.VERSION`): mudou o tipo
+  ou o sentido de um campo, suba e converta no `load_saved`; o que não dá para ler fica ao lado (`aside`).
 - Agenda (`Schedule`, constantes no topo de `main.gd` e `schedule.gd`): a desconhecida entre `mystery_from` e
   `mystery_to`, com a mesa em silêncio; a ligação do roteiro espera a mesa em silêncio (`STORY_WAIT`); intervalo
   `Pace.call_gap`; nada novo depois de `last_call` (23:40) e, depois, o botão Encerrar turno; `GIVE_UP_SEC` 60 s;

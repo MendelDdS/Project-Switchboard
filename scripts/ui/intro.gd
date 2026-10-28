@@ -18,6 +18,7 @@ var _n := 0
 var _night: Night
 var _warned := false
 var _tapes := {}
+var _aside := ""
 
 
 func _ready() -> void:
@@ -46,8 +47,10 @@ func _process(_delta: float) -> void:
 
 ## `can_skip`: jogo salvo (não uma noite forçada); no treinamento, dá para pular direto para a noite 1.
 ## `warned`: a noite anterior foi Insuficiente, e o bilhete lembra que esta decide. `tapes`: o resumo das fitas da
-## noite anterior (`Tapes.last`, B4), num parágrafo a mais.
-func setup(n: int, night: Night, can_reset: bool, can_skip: bool, warned := false, tapes := {}) -> void:
+## noite anterior (`Tapes.last`, B4), num parágrafo a mais. `aside`: o save que não deu para ler, guardado ao lado
+## (`Progress.aside`), avisado no papel de como se joga.
+func setup(n: int, night: Night, can_reset: bool, can_skip: bool, warned := false, tapes := {}, aside := "") -> void:
+	_aside = aside
 	_n = n
 	_night = night
 	_warned = warned
@@ -94,3 +97,5 @@ func _texts() -> void:
 		note += "\n\n" + tapes
 	%Text.text = "[hand]%s[/hand]" % note
 	%Info.text = "[color=#8a2a1c]%s[/color]  %s" % [T.text(T.Key.HINT_BADGE), T.text(T.Key.INTRO_INFO)]   # como a dica do manual na parede
+	if _aside != "":
+		%Info.text = "[color=#8a2a1c]%s[/color]  %s" % [T.text(T.Key.SAVE_ASIDE_BADGE), T.text(T.Key.SAVE_ASIDE) % _aside.get_file()]
