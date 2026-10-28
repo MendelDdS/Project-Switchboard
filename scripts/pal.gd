@@ -308,6 +308,15 @@ const WALK_LEGS: Array[Color] = [Color("18181c"), Color("26221c"), Color("262a34
 const WALK_SKIN: Array[Color] = [Color("b08868"), Color("8a5e40"), Color("62422c"), Color("44302a")]
 const WALK_UMBRELLAS: Array[Color] = [Color("121318"), Color("121318"), Color("4e1a1e"), Color("1c2640"), Color("2a3426")]
 const BRIEFCASE := Color("2a1a10")   ## ...a pasta na mão...
+## A cena da rua da noite 3 (`Beating`): a farda do policial (o quepe e a calça, da mesma cor), o cinto, o cassetete,
+## a camisa clara e a calça do homem que apanha, e o sangue no asfalto (quase preto de noite; o último, molhado, onde
+## pega a luz)
+const COP := Color("1e2638")
+const COP_BELT := Color("0c0c0e")
+const BATON := Color("0a0a0c")
+const SHIRT := Color("78725f")
+const SHIRT_PANTS := Color("2c2820")
+const BLOOD: Array[Color] = [Color("2a0606"), Color("440a0a"), Color("6a1410")]
 const AWNINGS: Array[Color] = [Color("4a1c1c"), Color("1e3a2c"), Color("2a3048")]   ## os toldos de lona das lojas de lá (desbotados pela noite)
 const SHOP_BOARD := Color("1a1410")   ## a tábua da placa em cima da vitrine, com as letras só sugeridas (`_draw_far_house`)
 const SHOP_PAINT := Color("6a665e")   ## a tinta clara, desbotada, das lojas da rua do cruzamento: as listras dos toldos e as letras das placas de bandeira

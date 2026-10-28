@@ -20,6 +20,13 @@ extends Resource
 ## Novidades da cidade nesta noite (conversa fiada): contadas antes dos assuntos gerais, uma vez por noite.
 @export var smalltalk: Array[ChatTopic] = []
 
+@export_group("Na rua")
+## Uma cena lá fora, na rua da vista, nesta noite (vazio = nenhuma): "beating", o policial que espanca um homem na boca
+## do cruzamento e o arrasta para fora da vista (`Beating`); o sangue fica no chão até o fim da noite.
+@export_enum("Nenhuma:", "beating") var street_scene := ""
+## Quando ela começa (minutos depois do início do turno; antes das 22h, com gente na calçada para assistir).
+@export var street_scene_at := 190.0
+
 @export_group("Treinamento")
 ## Só a noite 0: a telefonista veterana que liga e ensina o serviço (`LessonStep`, conduzido pelo `Training`). O relógio
 ## só anda depois que ela termina; aí segue um turno calmo.

@@ -76,7 +76,7 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   a rua do cruzamento entre paredes (`CROSSING`, `_canyon`) até a igreja (`CHURCH_*`) e a cidade atrás (`CITY_BACK`).
 - O que é desenhado em px fixos (igreja, sol, lua, letreiro) cresce por `OUT_K`. A árvore e a cerca viva do primeiro
   plano são postas pela parede da sala (`_side_pt`), não pela câmera da vista.
-- **Lá fora acontece coisa** (`_events`): carros, gente a pé (`_walkers`, `_draw_walker`; a passada de perfil, `_gait`, `STRIDE`, também a do homem e a das silhuetas, `_body`), quem sai do bar, quem fuma
+- **Lá fora acontece coisa** (`_events`): carros, gente a pé (`_walkers`, `_draw_walker`; a passada de perfil, `_gait`, `STRIDE`, também a do homem e a das silhuetas, `_body`; a cena da rua da noite 3, `Beating`, `_draw_rig`, com o sangue que fica, `_draw_blood`, e quem assiste, `_watch`), quem sai do bar, quem fuma
   na varanda, gato, bicicleta, ônibus, táxi no hotel, vira-lata, mariposas; os telefones da lista vistos dela
   (`CALLED`, `phones`); **o homem do mistério** chega e fica embaixo do poste (`stranger`, `MAN_*`). Gente e carros
   seguem a hora e o dia da semana (`BUSY`, `LATE_*`).

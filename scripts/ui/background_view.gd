@@ -2,6 +2,7 @@ extends "res://scripts/ui/background_base.gd"
 ## A vista da janela do cenário (`Background`): a rua lá fora numa cena 3D simples (`OUT_*`, `_o`), com a cidade,
 ## o clima, quem passa, os carros, o homem do mistério e o arbusto. Desenhada de frente no vidro (`_vport`).
 
+const Beating := preload("res://scripts/ui/beating.gd")
 const SLEEP := Vector3(19 * 60, 23 * 60 + 50, 0.15)   ## as janelas apagam entre x e y (minutos do dia); z: as que ficam acesas
 const RAIN_STREAK := Vector2(6.0, 14.0) ## o comprimento do risco (px da tela), do mais longe ao mais perto: o rastro do quadro
 const RAIN_SLANT := 0.18 ## o vento: quanto o pingo anda para a esquerda a cada px que cai
@@ -377,6 +378,8 @@ var _walkers: Array = []   # quem está passando na calçada de lá (`_walker`),
 var _bar_t := -1.0   # há quanto tempo a porta do bar abriu (s; -1 = fechada)
 var _indoor := Vector3(-1.0, 0.0, 1.0)   # alguém passando atrás de uma janela acesa do prédio de tijolos: há quanto tempo (s; -1 = ninguém), qual janela e para que lado
 var _smoke_t := -1.0   # há quanto tempo alguém saiu para fumar na varanda (s; -1 = ninguém)
+var beating := INF     ## quando começa a cena da rua (`Beating`, a noite 3; min do dia; o Main põe)
+var _beat_t := -1.0    # há quanto tempo ela começou (s; -1 = ainda não; `Beating.END`: acabou, o sangue fica no chão)
 var _cat_for := -1     # a noite do `_cat_plan`
 var _cat_plan := Vector4.ZERO   # o gato desta noite: x 1 se vier, y onde (0 marquise, 1 gradil), de z a w (min do dia)
 var cat_here := false  ## o gato aparece já, a noite toda (a captura de tela)
@@ -1028,8 +1031,15 @@ func _draw_city_front(g: Rect2) -> void:
 	_draw_phones(g)
 	_draw_cat(g)
 	_draw_guest(g)
+	var figs := _beating_figs()   # o policial e o homem da cena da rua, na ordem de quem passa (os de mais longe primeiro)
+	_draw_blood(g, false)
 	for w: Dictionary in _walkers:   # passam atrás dos postes e do homem
+		while not figs.is_empty() and figs[0]["z"] > _walk_at(w).y:
+			_draw_rig(g, figs.pop_front())
 		_draw_walker(g, w)
+	for p: Dictionary in figs:
+		_draw_rig(g, p)
+	_draw_blood(g, true)
 	for x: float in FAR_LAMPS:
 		_draw_lamp_post(g, x, STREET["far_curb"] + 0.4)
 	if weather == "clear" and _posts_on():
@@ -2907,6 +2917,8 @@ func _walker() -> Dictionary:
 ## (`corner`: o x da calçada da rua do cruzamento) desce por ela desde `TURN_Z` e segue pela calçada de lá (`out`), ou
 ## vem pela calçada de lá e sobe por ela.
 func _walk_at(w: Dictionary) -> Vector2:
+	if w.has("at"):   # (assistindo à cena da rua: onde parou, `_watch`)
+		return w["at"]
 	var z: float = w["z"]
 	if not w.has("corner"):
 		return Vector2(lerpf(-WALK_SPAN, WALK_SPAN, w["t"]) * w["dir"], z)
@@ -3007,9 +3019,13 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 	var dark := Pal.SILHOUETTE
 	_poly(PackedVector2Array([_o(g, x - 0.3, z), _o(g, x + 0.3, z), _o(g, x + 0.3, z + 0.2), _o(g, x - 0.3, z + 0.2)]), Color(0, 0, 0, 0.35))
 	_sun_shadow(g, x - 0.22, x + 0.22, z, 1.7 * w["h"])
-	var s: float = w["dir"]   # (o que tem frente, a aba da boina, a bolsa e o passo, vira para onde ele vai)
+	var s: float = w.get("face", w["dir"])   # (o que tem frente, a aba da boina, a bolsa e o passo, vira para onde ele vai)
 	var front := w.has("corner") and absf(x - float(w["corner"])) < 0.01   # na rua do cruzamento, vindo ou indo: de frente (o x vem de um Vector2, de 32 bits)
-	var gait := _gait(int(w["t"] * w["sec"] * WALK_STEPS * STRIDE.size()), k, s, front)
+	var f := int(w["t"] * w["sec"] * WALK_STEPS * STRIDE.size())
+	if w.has("watch"):   # assistindo à cena da rua: se afastando dela, ou parado, de frente, olhando
+		f = int(w["step"] * WALK_STEPS * STRIDE.size()) if w["watch"] else -1
+		front = front or not w["watch"]
+	var gait := _gait(f, k, s, front)
 	var drop: float = gait["drop"]
 	var foot := (_o(g, x, z) * 2.0).floor()
 	var px := func(r: Rect2) -> Rect2: return _m2px(r, k, drop)   # uma peça do corpo (m, em pé), com o corpo descido
@@ -3102,6 +3118,180 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 			_p(foot.x + (a.x + sz.x - 1.0 if side > 0.0 else a.x), foot.y + a.y, 1, sz.y, rim)
 		if weather == "rain":   # o reflexo, de cabeça para baixo a partir dos pés: mais fraco quanto mais longe deles
 			_p(foot.x + a.x, foot.y - a.y - sz.y, sz.x, sz.y, Color(0, 0, 0, 0.35 * (1.0 - (-a.y) / (2.2 * k))))
+
+
+## O policial e o homem da cena da rua (`Beating`) agora, os de mais longe primeiro (nada fora dela).
+func _beating_figs() -> Array:
+	if _beat_t < 0.0 or _beat_t >= Beating.END:
+		return []
+	var figs := [Beating.victim(_beat_t).merged({"cop": false}), Beating.officer(_beat_t).merged({"cop": true})]
+	figs.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a["z"] > b["z"])
+	return figs
+
+
+## Alguém da cena da rua na pose `p` (`Beating`): o policial (`cop`: a farda escura, o quepe com a pala, o cinto e o
+## cassetete, na mão de cá ou pendurado nele) ou o homem (a camisa clara, a calça escura, o cabelo). Um esqueleto de
+## coxa e canela, braço e antebraço, tronco e cabeça, nos ângulos da pose, montado pixel a pixel (`_rig_pixels`): deitado
+## ou dobrado, a grossura vale em qualquer direção. Andando, as pernas são as da passada de quem passa (`_gait`). A
+## luz do poste mais perto acende a beira de cima e o lado virado para ele, e na chuva ele se espelha no chão, como quem
+## passa (`_draw_walker`).
+func _draw_rig(g: Rect2, p: Dictionary) -> void:
+	var x: float = p["x"]
+	var z: float = p["z"]
+	if absf(_out_x + OUT_F * x / z - g.size.x * 0.5) > g.size.x * 0.5 + OUT_F / z * 2.0:
+		return
+	var k := OUT_F / z * 2.0
+	var foot := (_o(g, x, z) * 2.0).floor()
+	var lying := clampf(1.0 - (p["hip"] - 0.2) / 0.4, 0.0, 1.0)   # a sombra embaixo do corpo, comprida quando deitado
+	var reach := 0.3 + 0.6 * lying
+	_poly(PackedVector2Array([_o(g, x - reach, z), _o(g, x + reach, z), _o(g, x + reach, z + 0.2), _o(g, x - reach, z + 0.2)]), Color(0, 0, 0, 0.35))
+	var pix := _rig_pixels(p, k)
+	var glow := 0.0   # o poste mais perto: até 3 m dele
+	var side := 1.0
+	for lx: float in FAR_LAMPS:
+		var near := clampf(1.0 - absf(x - lx) / 3.0, 0.0, 1.0)
+		if near > glow:
+			glow = near
+			side = 1.0 if lx >= x else -1.0
+	var rim := Pal.SILHOUETTE.lerp(RIM, 0.45)
+	var rows := {}   # y: os x da fileira, em ordem, para juntar os vizinhos da mesma cor
+	for at: Vector2i in pix:
+		if not rows.has(at.y):
+			rows[at.y] = []
+		rows[at.y].append(at.x)
+	for y: int in rows:
+		var xs: Array = rows[y]
+		xs.sort()
+		var run := Rect2()
+		var run_col := Color()
+		for px: int in xs:
+			var c: Color = (pix[Vector2i(px, y)] as Color).lerp(RIM, 0.15 * glow)
+			if glow > 0.0 and (not pix.has(Vector2i(px, y - 1)) or not pix.has(Vector2i(px + int(side), y))):   # a beira acesa
+				c = c.lerp(rim, glow * 0.8)
+			if run.size.x > 0.0 and px == int(run.end.x) and c == run_col:
+				run.size.x += 1.0
+				continue
+			if run.size.x > 0.0:
+				_rig_run(foot, run, run_col, k)
+			run = Rect2(px, y, 1, 1)
+			run_col = c
+		_rig_run(foot, run, run_col, k)
+
+
+## Uma fileira `r` do corpo (px a partir de `foot`) na cor `c` e, na chuva, o reflexo dela no chão molhado.
+func _rig_run(foot: Vector2, r: Rect2, c: Color, k: float) -> void:
+	_p(foot.x + r.position.x, foot.y + r.position.y, r.size.x, 1, c)
+	if weather == "rain":
+		_p(foot.x + r.position.x, foot.y - r.position.y - 1.0, r.size.x, 1, Color(0, 0, 0, 0.35 * (1.0 - (-r.position.y) / (2.2 * k))))
+
+
+## Os pixels (px da tela a partir do chão embaixo do quadril: a cor de cada um) da pessoa na pose `p` (`_draw_rig`),
+## `k` px por metro. De trás para a frente: o braço e a perna de lá (mais escuros), a perna de cá, o tronco, a cabeça,
+## o braço de cá e o cassetete.
+func _rig_pixels(p: Dictionary, k: float) -> Dictionary:
+	var s: float = p["s"]
+	var cop: bool = p["cop"]
+	var front: bool = p["front"]
+	var across := 0.0 if front else 1.0
+	var down := func(deg: float) -> Vector2: return Vector2(sin(deg_to_rad(deg)) * s * across, cos(deg_to_rad(deg)))   # 0: para baixo; positivo: para a frente
+	var up := func(deg: float) -> Vector2: return Vector2(sin(deg_to_rad(deg)) * s, -cos(deg_to_rad(deg)))   # 0: para cima; positivo: para a frente
+	var cloth := Pal.COP if cop else Pal.SHIRT
+	var pants := Pal.COP if cop else Pal.SHIRT_PANTS
+	var skin: Color = Pal.WALK_SKIN[1 if cop else 2]
+	var lean: float = p["lean"]
+	var legs := []   # [quadril, joelho, tornozelo], [o de cá, o de lá]
+	var hip := Vector2(0.0, -roundf(p["hip"] * k))
+	if p["step"] >= 0:
+		var gait := _gait(p["step"], k, s, front)
+		legs = gait["legs"]
+		hip = legs[0][0]
+	else:
+		for i in 2:
+			var l: Vector2 = p["legs"][i]
+			var top := hip + Vector2((0.08 * (2 * i - 1) if front else 0.0) * k, 0.0)
+			var knee: Vector2 = top + down.call(l.x) * LEG.x * k
+			legs.append([top, knee, knee + down.call(l.x - l.y) * LEG.y * k])
+	var neck: Vector2 = hip + up.call(lean) * 0.54 * k
+	var shoulder: Vector2 = neck - up.call(lean) * 0.05 * k
+	var arms := []
+	for i in 2:
+		var a: Vector2 = p["arms"][i]
+		var from := shoulder + Vector2((roundf(-0.18 * k) if i == 0 else roundf(0.18 * k)) if front else 0.0, 0.0)
+		var elbow: Vector2 = from + down.call(a.x) * ARM.x * k
+		arms.append([from, elbow, elbow + down.call(a.x + a.y) * ARM.y * k])
+	var pix := {}
+	var limb := maxi(2, roundi(0.14 * k))
+	_stamp(pix, arms[1], 1, Pal.lit(cloth, -3))
+	_stamp(pix, legs[1], limb, Pal.lit(pants, -2))
+	_stamp(pix, legs[0], limb, pants)
+	for i in 2:   # os sapatos, no fim da canela
+		var heel: Vector2 = legs[i][2]
+		_stamp(pix, [heel, heel + (heel - legs[i][1]).normalized().rotated(-PI / 2.0 * s) * 0.16 * k], 1, Pal.SILHOUETTE)
+	var chest := maxi(3, roundi(0.3 * k))   # (de perfil: a grossura do peito)
+	_stamp(pix, [hip + up.call(lean) * 0.08 * k, neck], chest, cloth)
+	if cop:   # o cinto
+		_stamp(pix, [hip + up.call(lean) * 0.12 * k, hip + up.call(lean) * 0.14 * k], chest, Pal.COP_BELT)
+	var tilt := lean + float(p["head"])
+	var head: Vector2 = neck + up.call(tilt) * 0.12 * k
+	var hw := maxi(2, roundi(0.2 * k))
+	_stamp(pix, [head, head], hw, skin)
+	if cop:   # o quepe: a copa larga e a pala para a frente
+		var crown: Vector2 = head + up.call(tilt) * 0.12 * k
+		_stamp(pix, [crown, crown], hw + 1, Pal.COP)
+		if not front:
+			_stamp(pix, [crown + up.call(tilt + 90.0) * 0.14 * k, crown + up.call(tilt + 90.0) * 0.18 * k - up.call(tilt) * 0.03 * k], 1, Pal.COP_BELT)
+	else:   # o cabelo, em cima e atrás
+		_stamp(pix, [head + up.call(tilt) * 0.08 * k - up.call(tilt + 90.0) * 0.04 * k, head + up.call(tilt) * 0.08 * k + up.call(tilt + 90.0) * 0.02 * k], 1, Pal.SILHOUETTE)
+		_stamp(pix, [head - up.call(tilt + 90.0) * 0.08 * k, head - up.call(tilt + 90.0) * 0.08 * k + up.call(tilt) * 0.06 * k], 1, Pal.SILHOUETTE)
+	_stamp(pix, arms[0], 1, Pal.lit(cloth, -1))
+	var hand: Vector2 = arms[0][2]
+	_stamp(pix, [hand, hand], 1, skin)
+	if cop:   # o cassetete: na mão, seguindo o antebraço, ou pendurado no cinto
+		var fore: Vector2 = (arms[0][2] - arms[0][1]).normalized()
+		var stick: Array = [hand, hand + fore * 0.6 * k] if p["baton"] else [hip + up.call(lean) * 0.1 * k + up.call(lean + 90.0) * 0.1 * k, hip + up.call(lean) * 0.1 * k + up.call(lean + 90.0) * 0.14 * k + down.call(8.0) * 0.45 * k]
+		_stamp(pix, stick, 1, Pal.BATON)
+	return pix
+
+
+## Pinta em `pix` a linha que passa pelos pontos `pts` (px), com `wide` px de grossura em qualquer direção (um quadrado
+## em cada ponto do caminho), na cor `col`; o que vem depois fica por cima.
+func _stamp(pix: Dictionary, pts: Array, wide: int, col: Color) -> void:
+	var half := (wide - 1) / 2
+	for i in maxi(1, pts.size() - 1):
+		var a: Vector2 = (pts[i] as Vector2).round()
+		var d: Vector2 = (pts[mini(i + 1, pts.size() - 1)] as Vector2).round() - a
+		var n := maxi(1, int(maxf(absf(d.x), absf(d.y))))
+		for j in n + 1:
+			var c := Vector2i((a + d * j / n).round()) - Vector2i(half, half)
+			for dy in wide:
+				for dx in wide:
+					pix[c + Vector2i(dx, dy)] = col
+
+
+## O sangue da cena da rua (`Beating`): no chão (`air` falso: a poça que cresce embaixo da cabeça, as gotas que caíram
+## e o rastro do arrasto, até o fim da noite) ou as gotas ainda no ar. Escuro, com o brilho molhado do lado do poste.
+func _draw_blood(g: Rect2, air: bool) -> void:
+	if _beat_t < 0.0:
+		return
+	if not air:
+		var pool := Beating.pool(_beat_t)
+		if pool.z > 0.0:   # a poça: uma elipse deitada no chão, e uma menor ao lado, escorrendo
+			for blob: Vector3 in [pool, Vector3(pool.x + pool.z * 0.9, pool.y - pool.z * 0.3, pool.z * 0.55)]:
+				var c := (_o(g, blob.x, blob.y) * 2.0).floor()
+				var rx := blob.z * OUT_F / blob.y * 2.0
+				var ry := maxf(0.5, (_o(g, blob.x, blob.y - blob.z).y - _o(g, blob.x, blob.y + blob.z).y))   # (×2 da tela, ÷2 do raio)
+				for dy in range(-floori(ry), floori(ry) + 1):
+					var half := roundf(rx * sqrt(maxf(0.0, 1.0 - pow(dy / maxf(ry, 1.0), 2.0))))
+					if half >= 1.0:
+						_p(c.x - half, c.y + dy, 2.0 * half, 1, Pal.BLOOD[0])
+				if rx >= 2.0:
+					_p(c.x + roundf(rx * 0.4), c.y - floorf(ry * 0.5), 1, 1, Pal.BLOOD[2])
+	for d: Array in Beating.drops(_beat_t):
+		if (d[1] > 0.0) != air:
+			continue
+		var at := (_o(g, d[0], d[2], d[1]) * 2.0).floor()
+		var size: int = d[3]
+		_p(at.x, at.y, size + (0 if air else 1), size if air else 1, Pal.BLOOD[d[4]])
 
 
 ## O carro `c` passando pela mão dele (`CAR_LANES`), apoiado no asfalto, na forma do modelo dele (`CAR_KINDS`) e na cor

@@ -810,9 +810,16 @@ func _events(delta: float) -> void:
 		_dog_reply -= delta
 		if _dog_reply < 0.0 and not Sfx.hushed():
 			Sfx.play_at("dog_low", x, -3.0, _rng.randf_range(0.92, 1.05))
+	if _beat_t < 0.0 and minutes >= beating:   # a cena da rua (`Beating`): na hora, ou já passada (só o sangue no chão)
+		_beat_t = 0.0 if minutes < beating + 1.0 else Beating.END
+		if _beat_t == 0.0:
+			_onlookers()
+	elif _beat_t >= 0.0:
+		_beat_t = minf(_beat_t + delta, Beating.END)
+	var scene := minutes >= beating - 3.0 and _beat_t < Beating.END
 	for lane in CAR_LANES.size():   # um carro por vez em cada mão, cada uma no seu tempo
 		_car_in[lane] -= delta
-		if _car_in[lane] <= 0.0:
+		if _car_in[lane] <= 0.0 and not scene:
 			var kind: String = _car_next[lane] if _car_next[lane] != "" else _car_kind()
 			var stop: bool = lane == 0 and _taxi_next and _car_next[lane] == ""   # (o ônibus na hora dele passa antes)
 			if stop:
@@ -843,7 +850,7 @@ func _events(delta: float) -> void:
 		if c["t"] >= 1.0:
 			_car_in[c["lane"]] = _rng.randf_range(CAR_EVERY.x, CAR_EVERY.y) * rare
 			_cars.remove_at(i)
-	var crowd := maxf(1.0 - clampf((minutes - WALK_FROM) / (WALK_UNTIL - WALK_FROM), 0.0, 1.0), morning())
+	var crowd := 0.0 if scene else maxf(1.0 - clampf((minutes - WALK_FROM) / (WALK_UNTIL - WALK_FROM), 0.0, 1.0), morning())
 	_walk_in -= delta
 	if _walk_in <= 0.0 and crowd > 0.0:
 		_walk_in = _rng.randf_range(WALK_EVERY.x, WALK_EVERY.y) / maxf(crowd * BUSY[weekday()], 0.05)
@@ -924,7 +931,8 @@ func _events(delta: float) -> void:
 			_indoor.x = -1.0
 	for i in range(_walkers.size() - 1, -1, -1):
 		var w: Dictionary = _walkers[i]
-		w["t"] += delta / w["sec"]
+		if not _watch(w, delta):
+			w["t"] += delta / w["sec"]
 		if w["t"] >= 1.0:
 			_walkers.remove_at(i)
 	_bolt_in -= delta
@@ -955,6 +963,58 @@ func _taxi_times() -> Array[float]:
 		for i in TAXI_STOPS:
 			_taxi_at.append(rng.randf_range(18 * 60 + 25, WALK_UNTIL - 15.0))   # (o passageiro anda na calçada: antes de ela esvaziar)
 	return _taxi_at
+
+
+## Quem vem pela calçada quando a cena da rua começa (`Beating.ONLOOKERS`): cada um chega ao seu lugar quando ela
+## esquenta (`Beating.WATCH`).
+func _onlookers() -> void:
+	for spot: Vector2 in Beating.ONLOOKERS:
+		var w := _walker()
+		w["dir"] = spot.y
+		w["t"] = (spot.x * spot.y + WALK_SPAN) / (2.0 * WALK_SPAN) - Beating.WATCH / w["sec"]
+		_add_walker(w)
+
+
+## Quem está na calçada durante a cena da rua (`Beating`, de `WATCH` ao fim): se afasta dela andando, até `BACK_OFF`
+## m, e fica parado olhando (`at`, `face`; `watch`: se afastando agora); quem estava na rua do cruzamento só para. No
+## fim, segue pela calçada de onde parou. Devolve se `w` está parado na cena (o `t` não anda).
+func _watch(w: Dictionary, delta: float) -> bool:
+	if w.get("bike", false) or w.get("dog", false):
+		return false
+	var on := _beat_t >= Beating.WATCH and _beat_t < Beating.END
+	if not on:
+		if w.has("watch"):   # acabou: segue o caminho
+			if w.has("at"):
+				var at: Vector2 = w["at"]
+				for key: String in ["at", "corner", "out", "turn"]:
+					w.erase(key)
+				w["t"] = (at.x * w["dir"] + WALK_SPAN) / (2.0 * WALK_SPAN)
+				w["sec"] = WALK_SEC * _rng.randf_range(0.8, 1.2)
+			w.erase("watch")
+			w.erase("face")
+		return false
+	var at := _walk_at(w)
+	var mid := Beating.focus(_beat_t)
+	if not w.has("watch"):
+		if w.has("corner") and absf(at.x - float(w["corner"])) < 0.01:   # na rua do cruzamento: para ali mesmo
+			w.merge({"watch": false, "step": 0.0, "side": 0.0})
+		else:
+			w.merge({"watch": false, "step": 0.0, "at": at, "side": signf(at.x - mid) if at.x != mid else -w["dir"]})
+	var side: float = w["side"]
+	w["watch"] = side != 0.0 and (w["watch"] or side * (at.x - mid) < Beating.BACK_OFF - 0.6) and side * (at.x - mid) < Beating.BACK_OFF
+	if w["watch"]:   # andando para longe, de costas para a briga
+		w["face"] = side
+		w["step"] += delta
+		w["at"] = at + Vector2(side * 2.0 * WALK_SPAN / w["sec"] * delta, 0.0)
+	else:
+		w["face"] = signf(mid - at.x) if absf(mid - at.x) > 0.01 else w["dir"]
+	return true
+
+
+## A cena da rua agora (debug): o policial e o homem (`Beating`), do começo.
+func start_beating() -> void:
+	beating = minutes
+	_beat_t = -1.0
 
 
 ## Faz passar agora um carro na mão `lane` (0: a de lá), do modelo `kind` (vazio: sorteado), se ela estiver livre (debug).

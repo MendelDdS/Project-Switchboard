@@ -46,6 +46,8 @@ extends Node
 ##   --walk_z=20,45         e na calçada da direita da rua do cruzamento, em cada distância dada (m)
 ##   --bar                  a porta do bar aberta, com a luz saindo
 ##   --man=0.5              o homem do mistério chegando, nessa fração do caminho até o poste (1: parado embaixo dele)
+##   --beating=12           a cena da rua da noite 3 (`Beating`) nesse instante (s desde o começo); --beating=8,0.1,30: de
+##                          8 s em diante, de 0,1 em 0,1 s, 30 capturas (<nome>_00.png..., e os recortes do --zoom)
 ##   --behind=0.5           alguém passando atrás da última janela acesa do prédio de tijolos (de 0 a 1 do caminho)
 ##   --blind=1              a persiana descida (de 0, aberta, a 1, fechada)
 ##   --smoke[=s]            alguém fumando na varanda, `s` segundos depois de sair (10,5: no meio do sopro da tragada)
@@ -384,6 +386,22 @@ func _ready() -> void:
 			if _args.has("smoke"):
 				bg._smoke_t = 10.5 if _args["smoke"] == "1" else float(_args["smoke"])
 			await get_tree().process_frame
+	if _args.has("beating"):   # posto de novo a cada quadro (o cenário o avança sozinho)
+		var bt := (_args["beating"] as String).split_floats(",")
+		var bg := m.background
+		bg._car_in = [INF, INF]
+		bg._cars.clear()
+		bg.beating = bg.minutes - 1.0
+		var n := int(bt[2]) if bt.size() > 2 else 1
+		for i in n:
+			for f in 8:   # (a vista se desenha a 30 por segundo, e a captura sai um quadro depois)
+				bg._beat_t = bt[0] + i * (bt[1] if n > 1 else 0.0)
+				await get_tree().process_frame
+			if n > 1:
+				_grab(out, (_args.get("out", "build/shot.png") as String).get_basename() + "_%02d.png" % i)
+		if n > 1:
+			get_tree().quit()
+			return
 	if _args.has("keys"):   # o Main refaz as teclas a cada quadro: ativadas por último, antes do quadro da captura
 		m.set_process(false)
 		m.phone.set_buttons(true, true, true)
@@ -394,8 +412,13 @@ func _ready() -> void:
 
 
 func _save(vp: SubViewport) -> void:
+	_grab(vp, _args.get("out", "build/shot.png"))
+	get_tree().quit()
+
+
+## Grava a tela em `out` e, com --zoom, o recorte ampliado.
+func _grab(vp: SubViewport, out: String) -> void:
 	var img := vp.get_texture().get_image()
-	var out: String = _args.get("out", "build/shot.png")
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://" + out.get_base_dir()))
 	img.save_png("res://" + out)
 	print("gravado: ", out)
@@ -407,4 +430,3 @@ func _save(vp: SubViewport) -> void:
 		var zout := out.get_basename() + "_zoom.png"
 		crop.save_png("res://" + zout)
 		print("gravado: ", zout)
-	get_tree().quit()

@@ -128,6 +128,8 @@ func _ready() -> void:
 	if night.clears_at >= 0.0:
 		background.clears_at = SHIFT_START_HOUR * 60 + night.clears_at
 	background.night = night_no
+	if night.street_scene == "beating":
+		background.beating = SHIFT_START_HOUR * 60 + night.street_scene_at
 	notebook.night = night_no
 	toll.night = night_no
 	_update_room()

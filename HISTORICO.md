@@ -2632,3 +2632,18 @@ Chaves:
     quem fuma na varanda, o passageiro do táxi com a mala, o dono do bar e o porteiro do hotel. Parados ficam de frente,
     com os braços na beira do casaco (por fora, a silhueta ficava larga) e o braço do fone, do copo ou do cigarro
     dobrado no cotovelo até a orelha; andando, na passada.
+452. #vista #noites "Na terceira noite haverá um momento da noite em que um policial abordará um homem e começará a
+    espanca-lo no meio da avenida, depois irá levantar ele e o arrastará para fora dos limites da visão da janela. A
+    animação precisa ser fluida. O sangue deve respingar no chão e ficar lá pelo resto da noite. Os pedestres se
+    afastarão e ficarão observando distante até que a cena acabe. A noite continua normal logo em seguida." Cena da
+    rua por noite (`Night.street_scene`, `street_scene_at`; a 3 às 20h40, com gente ainda na calçada): o roteiro em
+    `scripts/ui/beating.gd` (`Beating`: momentos-chave de cada um, com curvas de aceleração, interpolados a cada quadro;
+    ~28 s). O homem vem pela calçada de lá, o policial desce a rua do cruzamento, aponta, agarra a gola e o empurra
+    para o asfalto da boca do cruzamento (o meio da avenida fica embaixo do peitoril, fora da vista), bate com o
+    cassetete e chuta (`HITS`, com pausas; o homem encolhe a cada pancada), guarda o cassetete, o levanta pela gola e
+    o arrasta para a direita, embaixo do poste, até sair do vidro. Desenhados como esqueleto de coxa, canela, braço,
+    antebraço, tronco e cabeça montado pixel a pixel (`_draw_rig`, `_rig_pixels`, `_stamp`), com a beira acesa pelo
+    poste. Sangue a partir da terceira pancada (gotas em arco que caem e ficam, `drops`), a poça crescendo embaixo da
+    cabeça (`pool`) e o rastro do arrasto; fica até o fim da noite. Sem carros nem gente nova da hora da cena até o
+    fim; quem está na calçada para, se afasta até ~4,5 m e fica olhando (`_watch`; mais três chegam para assistir,
+    `ONLOOKERS`) e depois segue. Captura `--beating=t` (ou `t0,passo,n`), botão "Cena da rua" no F1. Sem som, por ora.
