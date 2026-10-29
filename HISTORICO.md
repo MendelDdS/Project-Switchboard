@@ -2835,3 +2835,12 @@ Chaves:
     dos prédios de lá: da calçada na frente deles, a fachada o tapa. Só quem passa pela boca da rua do cruzamento
     (`CROSSING`) nota (`FLARE_REACT`, mais curto), e, se ainda estiver nela, para olhando um tempo (`FLARE_GAZE`, 5 a
     12 s, ou até ele apagar) e segue; o primeiro a parar aponta (`_skyward`).
+482. #vista #luz #noites #pedestres #conteudo #desempenho #testes "Pode fazer tudo. No caso do 6, vai ser um sinal do
+    roteiro, pode deixar o marcador" e "não implemente os latidos" (o latido logo depois do tiro saiu da lista). Quem
+    vê o sinalizador é quem está na luz dele (`_flare_reach`, a mesma conta do chão aceso, `_flare_gap`): na boca do
+    cruzamento e na rua do cruzamento, indo para o lado da igreja (quem desce, de costas para ele, não). Quem está na
+    luz ganha a beira vermelha do lado dele (só do lado: no alto de cada peça virava contorno de arame) e os carros
+    passando por ela, o brilho vermelho no capô, no teto e no porta-malas (`_sheen`, `FLARE_FIG`, `FLARE_CAR`). Ao
+    acender, o `Background` avisa (`flare_lit`) e o Main liga o marcador `sinalizador_N` (README). A barriga das nuvens
+    desenhada em lote (`_light_fans`): ~200 chamadas de desenho a menos, +0,55 ms aceso em todo clima (na chuva era
+    +1,2). Teste em `test_flow` (16b): quem passa pela boca para nela, na frente do hotel ninguém vê, e o marcador.

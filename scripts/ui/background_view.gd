@@ -186,6 +186,8 @@ const FLARE_SMOKE_LIT := 60.0   ## até quantos m dele a fumaça fica acesa (ros
 ## Quem passa pela boca da rua do cruzamento (só dali se vê o céu atrás dos prédios de lá): quanto leva para ver ele
 ## aceso e quanto fica parado olhando (s; `_skyward`), cada um no seu tempo
 const FLARE_REACT := Vector2(0.3, 1.5)
+const FLARE_CAR := 0.8    ## a luz dele no capô, no teto e no porta-malas de quem passa por ela (`_sheen`)...
+const FLARE_FIG := 0.7    ## ...e na beira de cima e do lado dele em quem está nela (`_draw_walker`)
 const FLARE_GAZE := Vector2(5.0, 12.0)
 const CURFEW_SOUND := 0.33    ## onde (fração da passagem) toca o ronco dela, grave e mais longo (`CURFEW_PITCH`): o mais alto quando passa no meio
 const CURFEW_PITCH := 0.75
@@ -3755,9 +3757,16 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 			glow = near
 			side = 1.0 if lx >= x else -1.0
 	var rim := Color(dark.lerp(RIM, 0.45), glow * 0.8)
+	var ft: float = _scene_t.get("flare", -1.0)   # o sinalizador da noite 15, onde a luz dele passa: atrás, no alto, do lado dele
+	var fl := minf(Flare.glow(ft), 1.0) * FLARE_FIG * _flare_reach(Flare.at(ft), x, z) if Flare.light(ft) > 0.0 else 0.0
+	var flared := fl > glow
+	if flared:
+		glow = fl
+		side = signf(Flare.at(ft).x - x)
+		rim = Color(dark.lerp(Pal.SIGNAL_FLARE[1], 0.6), fl * 0.8)
 	var edge := glow
 	var back := _sunlit() * smoothstep(STREET["far"], STREET["far"] + 1.5, z)
-	var top := glow   # (de manhã, contra o sol, a beira acesa só do lado: no alto de cada peça, a figura virava um contorno de arame)
+	var top := 0.0 if flared else glow   # (de manhã, contra o sol, e com o sinalizador atrás, a beira acesa só do lado: no alto de cada peça, a figura virava um contorno de arame)
 	if back > glow:   # na rua do cruzamento, de manhã, entre nós e o sol: quase em silhueta, com a beira acesa se ele
 		# estiver na faixa de sol (na sombra da parede, não), e só de perto (de longe, com 2 px, a figura virava um risco laranja)
 		edge = back * smoothstep(3.0, 8.0, k) * float(x > CROSSING.x + STRIP_EDGE and x < _strip_end(g, z))
@@ -4185,6 +4194,7 @@ func _draw_flare_glow(g: Rect2) -> void:
 	var at := (_o(g, f.x, f.y, f.z) * 2.0).floor()
 	var halo := _flare_halo()
 	_ci.draw_texture(halo, at - (halo.get_size() / 2.0).floor())
+	var fans := []
 	for blob: Array in _cloud_shapes(g):   # a barriga das nuvens perto dele, o lado virado para ele (px da tela)
 		var mid: Vector2 = blob[0] * 2.0
 		var size: Vector2 = blob[1] * 2.0
@@ -4196,7 +4206,8 @@ func _draw_flare_glow(g: Rect2) -> void:
 		var rim := PackedVector2Array()
 		for i in 12:
 			rim.append(c + Vector2(cos(TAU * i / 12.0), sin(TAU * i / 12.0)) * size * 0.55)
-		_light_fan(c, rim, Color(Pal.SIGNAL_FLARE[1], FLARE_CLOUD.x * near))
+		fans.append([c, rim, Color(Pal.SIGNAL_FLARE[1], FLARE_CLOUD.x * near)])
+	_light_fans(fans)
 
 
 ## A beira da igreja e dos prédios de longe acesa pelo sinalizador (`_flare_rim`, somada, por baixo das paredes da rua
@@ -4274,15 +4285,15 @@ func _draw_flare_light(g: Rect2) -> void:
 			_o(g, x0, z0, h - PX * z0 / OUT_F)]), PackedColorArray([c, c, c, c]), PackedVector2Array())
 	for b in _houses:
 		cornice.call(b["x0"], ff, b["x1"], ff, b["h"])
-	var shade := clampf(10.0 * (f.x - CROSSING.y) / f.z, 0.0, 4.0)   # o chão da rua do cruzamento, menos a sombra da parede do lado dele
-	var ground := Color(red, FLARE_GROUND.x * k * (FLARE_GROUND.y if weather == "rain" else 1.0))
-	var edge := CROSSING.y - shade
+	var ground := Color(red, FLARE_GROUND.x * k * (FLARE_GROUND.y if weather == "rain" else 1.0))   # o chão da rua do cruzamento, menos a sombra da parede do lado dele
+	var gap := _flare_gap(f)
+	var edge := gap.x
 	_ci.draw_primitive(_patch(g, CROSSING.x, edge, ff, SQUARE.x), PackedColorArray([Color(ground, ground.a * 0.7), Color(ground, ground.a * 0.7), ground, ground]), PackedVector2Array())
 	_ci.draw_primitive(_patch(g, edge, minf(edge + 1.0, CROSSING.y), ff, SQUARE.x), PackedColorArray([Color(ground, ground.a * 0.7), Color(ground, 0.0), Color(ground, 0.0), ground]), PackedVector2Array())
 	# e pelo vão do cruzamento ela segue pela calçada de lá e pela rua até a nossa calçada, andando para o lado de lá
 	# dele no caminho (o resto da rua fica na sombra dos prédios de lá), com as beiras da sombra deles macias
 	var near: float = STREET["curb"]
-	var back := (ff - near) * (f.x - CROSSING.x) / (f.y - ff)
+	var back := (ff - near) * gap.y
 	var at_far := Color(ground, ground.a * 0.7)
 	var at_near := Color(ground, ground.a * 0.6)
 	var gone := Color(ground, 0.0)
@@ -4303,6 +4314,24 @@ func _draw_flare_light(g: Rect2) -> void:
 			var low := Color(red, top.a * 0.4)
 			_ci.draw_primitive(PackedVector2Array([_o(g, x, z0, ht), _o(g, x, z1, ht), _o(g, x, z1), _o(g, x, z0)]),
 				PackedColorArray([top, top, low, low]), PackedVector2Array())
+
+
+## Por onde a luz do sinalizador em `f` (m) passa no chão: Vector2(a beira da direita da rua do cruzamento, onde
+## começa a sombra da parede do lado dele, e o quanto ela anda para a esquerda a cada m que vem para cá, pelo vão,
+## na calçada de lá e na rua).
+func _flare_gap(f: Vector3) -> Vector2:
+	return Vector2(CROSSING.y - clampf(10.0 * (f.x - CROSSING.y) / f.z, 0.0, 4.0), (f.x - CROSSING.x) / (f.y - STREET["far"]))
+
+
+## O quanto a luz do sinalizador em `f` chega em quem está em `x`, `z` (m), de 0 a 1: na rua do cruzamento e, pelo vão
+## dela, na calçada de lá e na rua (as beiras macias, como as de `_draw_flare_light`); o resto fica na sombra dos
+## prédios de lá. Quem está na luz dele o vê, e quem não está, não.
+func _flare_reach(f: Vector3, x: float, z: float) -> float:
+	var gap := _flare_gap(f)
+	var back := maxf(0.0, STREET["far"] - z) * gap.y
+	if z > STREET["far"]:   # (na rua do cruzamento, a parede da esquerda é a beira)
+		return clampf(gap.x + 1.0 - x, 0.0, 1.0) * float(x > CROSSING.x)
+	return clampf(minf(x + back - CROSSING.x + 1.0, gap.x + 1.0 - x - back), 0.0, 1.0)
 
 ## O carro `c` passando pela mão dele (`CAR_LANES`), apoiado no asfalto, na forma do modelo dele (`CAR_KINDS`) e na cor
 ## dele: a sombra de contato, o facho dos faróis no chão à frente, o capô, o teto e o porta-malas vistos um pouco de
@@ -4444,7 +4473,7 @@ func _draw_car(g: Rect2, c: Dictionary) -> void:
 		_ci.draw_line(_o(g, at.call(a), z0, 0.4), _o(g, at.call(a), z0, m["belt"]), Color(0, 0, 0, 0.5), PX)
 	var shine := CAR_WET if wet else 1.0
 	for t: Vector3 in m["tops"]:   # a luz dos postes na beira de lá do capô, do teto e do porta-malas
-		_sheen(g, at.call(t.x), at.call(t.y), z1 - 0.15, t.z, 0.55 * shine, shine)
+		_sheen(g, at.call(t.x), at.call(t.y), z1 - 0.15, t.z, 0.55 * shine, shine, true)
 	for h: float in m["trim"]:   # e nos frisos
 		_sheen(g, at.call(0.05), at.call(L - 0.05), z0, h, 0.35 * shine, shine)
 	if c.has("police"):
@@ -4526,19 +4555,24 @@ func _spray(g: Rect2, c: Dictionary, m: Dictionary, at: Callable, z0: float) -> 
 
 ## A luz dos postes (`FAR_LAMPS`) refletida numa linha da lataria, de `x0` a `x1` (m ao longo da rua) a `z` m e `h` de
 ## altura: um pixel por coluna da tela, mais forte quanto mais perto de um poste (`CAR_SHEEN`, vezes `spread`); `alpha`
-## no máximo.
-func _sheen(g: Rect2, x0: float, x1: float, z: float, h: float, alpha: float, spread := 1.0) -> void:
+## no máximo. No que fica virado para cima (`up`: o capô, o teto, o porta-malas), também a do sinalizador da noite 15,
+## vermelha, onde ela passa (`_flare_reach`).
+func _sheen(g: Rect2, x0: float, x1: float, z: float, h: float, alpha: float, spread := 1.0, up := false) -> void:
 	var a := _o(g, x0, z, h)
 	var b := _o(g, x1, z, h)
 	var n := absi(roundi((b.x - a.x) * 2.0))
+	var ft: float = _scene_t.get("flare", -1.0)
+	var fk := minf(Flare.glow(ft), 1.0) * FLARE_CAR if up else 0.0
+	var f := Flare.at(ft)
 	for i in n + 1:
 		var u := float(i) / maxf(1.0, n)
 		var lit := 0.0
 		for lx: float in FAR_LAMPS:
 			lit += exp(-pow((lerpf(x0, x1, u) - lx) / (CAR_SHEEN * spread), 2.0))
-		if lit > 0.05:
+		var red := fk * _flare_reach(f, lerpf(x0, x1, u), z) if fk > 0.0 else 0.0
+		if lit + red > 0.05:
 			var q := a.lerp(b, u)
-			_p(roundf(q.x * 2.0), roundf(q.y * 2.0), 1, 1, Color(1.0, 0.85, 0.55, alpha * minf(lit, 1.0)))
+			_p(roundf(q.x * 2.0), roundf(q.y * 2.0), 1, 1, Color(Color(1.0, 0.85, 0.55).lerp(Pal.SIGNAL_FLARE[1], red / (lit + red)), alpha * minf(lit + red, 1.0)))
 
 
 ## A árvore da nossa calçada, embaixo da janela (`SHRUB`, com a cerca viva embaixo, `HEDGE`): o tronco sobe do

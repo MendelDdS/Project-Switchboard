@@ -186,6 +186,7 @@ func _ready() -> void:
 			_teach(SAW_SHEET, T.Key.HINT_DESK_SHEET))
 	tools.origin = background.prop_rect   # o papel de cada ferramenta sai do objeto dela na mesa
 	background.prop_clicked.connect(func(id: String): if running and not ending: tools.set_tab(id))   # objetos da cena
+	background.flare_lit.connect(func(): flags.apply("sinalizador_%d" % night_no))   # o sinal do roteiro na noite 15
 	_intro.over = board   # o bilhete do supervisor fica preso no painel da mesa comutadora
 	_intro.setup(night_no, night, progress != null and progress.night > 0, progress != null, report.low_before > 0, bureaucracy.tapes.last,
 		progress.aside if progress else "")

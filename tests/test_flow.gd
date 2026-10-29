@@ -1405,6 +1405,21 @@ func _initialize() -> void:
 	await frames(int(60.0 * 60.0 / Engine.time_scale))
 	ok(bg._walkers.is_empty(), "depois das 22h ninguém passa")
 
+	# ---- 16b. o sinalizador da noite 15 (`Flare`) está atrás dos prédios de lá: só quem passa na luz dele (a boca da
+	# rua do cruzamento) o vê e para olhando; na frente do hotel, ninguém. Acendendo, liga o marcador do roteiro
+	var span := Background.WALK_SPAN
+	var still: Dictionary = bg._walker().merged({"t": (-11.0 + span) / (2.0 * span), "dir": 1.0, "sec": 1e9}, true)   # parado na frente do hotel
+	var by: Dictionary = bg._walker().merged({"t": (-6.0 + span) / (2.0 * span), "dir": 1.0}, true)   # andando, vai passar pela boca
+	bg._walkers.append_array([still, by])
+	bg.start_scene("flare")
+	ok(await wait_until(func(): return by.has("up"), 30.0), "quem passa pela boca do cruzamento para olhando o sinalizador")
+	var bx: float = bg._walk_at(by).x
+	ok(bx > Background.CROSSING.x and bx < Background.CROSSING.y, "parou na boca do cruzamento (x %.1f)" % bx)
+	ok(not still.has("sky"), "na frente do hotel ninguém vê o sinalizador")
+	ok(m.flags.has("sinalizador_%d" % m.night_no), "o sinalizador aceso liga o marcador do roteiro")
+	bg._scene_t.erase("flare")
+	bg._walkers.clear()
+
 	# ---- 17. o painel de baixo não muda de altura: numa emergência com aviso, respostas em quatro fileiras e a barra,
 	# as falas encolhem até a mais nova (antes, o painel crescia e empurrava a sala para cima)
 	var ph: PhonePanel = m.phone

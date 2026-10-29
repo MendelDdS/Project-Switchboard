@@ -28,7 +28,8 @@ Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
     ligados (com `!` na frente, desligados). A ligação do roteiro confere na hora de tocar, então uma escolha às
     19:00 já vale para uma ligação das 21:00.
   - O jogo liga sozinho `ligou_de_volta_N` (tentou ligar de volta para a ligação desconhecida da noite N) e
-    `desligou_desconhecida_N` (desligou na cara dela).
+    `desligou_desconhecida_N` (desligou na cara dela) e `sinalizador_N` (o sinalizador da rua acendeu no céu, a
+    noite 15 às 21h).
   - Para testar um ramo: `godot --path . -- --night=2 --flags=respondeu_a_luz`.
 - `data/templates/` — **moldes**: roteiros com lacunas em inglês, preenchidas na hora (veja abaixo).
 - `scripts/main.gd` — conduz o turno (relógio, quando cada ligação toca, mesa, fim de ligação, final).

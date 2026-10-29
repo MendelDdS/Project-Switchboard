@@ -139,7 +139,10 @@ Ordem sugerida: das que reaproveitam mais (o rig, a viatura, a passada) para as 
   da subida fino e o da queda grosso, abrindo com o tempo, ondulando (`CURL`), entortado pelo vento mais forte no
   alto (`SHEAR`), partindo-se com a idade e à vista por 30 s; acesa até `FLARE_SMOKE_LIT`, mais por baixo.
 - [x] Quem passa pela boca da rua do cruzamento (só dali se vê o céu atrás dos prédios) para um tempo, vira para ele
-  e olha para o céu; o primeiro aponta (`_skyward`, `FLARE_REACT`, `FLARE_GAZE`; captura `--walk=... --sky`).
+  e olha para o céu; o primeiro aponta (`_skyward`, `FLARE_REACT`, `FLARE_GAZE`; captura `--walk=... --sky`). Quem vê
+  é quem está na luz dele (`_flare_reach`), também quem sobe a rua do cruzamento; na luz, a beira vermelha do lado
+  dele nas pessoas e o brilho vermelho no alto dos carros. Teste em `test_flow` (16b).
+- [x] O sinal do roteiro: ao acender, o marcador `sinalizador_N` (`Background.flare_lit`, ligado no Main).
 - [x] As nuvens perto dele com a barriga vermelha (as da noite limpa, `_draw_moon`, e as da chuva, `_draw_overcast`);
   hoje só o halo somado as clareia. Feito: somada com o halo (`_draw_flare_glow`, `_cloud_shapes`, `FLARE_CLOUD`), o
   lado de cada mancha virado para ele, mais forte quanto mais perto.

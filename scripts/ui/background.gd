@@ -26,6 +26,7 @@ extends "res://scripts/ui/background_props.gd"
 ## sobre eles (`prop_at`) e não com o papel de uma ferramenta por cima.
 
 signal prop_clicked(id: String)
+signal flare_lit   ## o sinalizador da noite 15 acendeu no céu (`Flare`): o Main liga o marcador do roteiro
 signal tapes_clicked   ## a pilha de fitas na mesa (`TAPES_ID`), para ver de perto e descartar (`tape_pile.gd`)
 
 ## A luminária esquentando no começo do turno (`warm_up`): acende a WARM.x da luz e chega a ela inteira em WARM.y s,
@@ -889,6 +890,8 @@ func _events(delta: float) -> void:
 		_scene_t[k] = was + delta
 		if k == "chase" and Chase.footfalls(was, _scene_t[k]) > 0 and not Sfx.hushed():   # os passos da corrida na calçada
 			Sfx.play_at("footfall", x, 0.0, _rng.randf_range(0.9, 1.1))
+		if k == "flare" and was < Flare.RISE and _scene_t[k] >= Flare.RISE:
+			flare_lit.emit()
 		if k == "flyers" and Flyers.THROWS.any(func(at: float) -> bool: return was < at and _scene_t[k] >= at):   # cada maço jogado, os papéis batendo no ar
 			Sfx.play_at("flyers", x)
 		if k == "graffiti" and was >= Graffiti.SHAKE - delta:   # a lata sacudida e os jatos do spray
@@ -1201,18 +1204,19 @@ func _listen(w: Dictionary, delta: float) -> bool:
 	return false
 
 
-## O sinalizador da noite 15 aceso em quem passa pela calçada de lá (`w`): ele está atrás dos prédios, e só se vê pela
-## boca da rua do cruzamento (`CROSSING`); quem passa por ela nota, no seu tempo (`FLARE_REACT`), e, se ainda estiver
-## nela, para, vira para o lado dele e olha para o céu um tempo (`FLARE_GAZE`, ou até ele apagar) e segue; o primeiro a
-## parar aponta (`point`). Na frente dos prédios ninguém vê; quem desce ou sobe a rua do cruzamento passa. Devolve se
-## `w` está parado.
+## O sinalizador da noite 15 aceso em quem passa (`w`): ele está atrás dos prédios de lá, e só o vê quem está na luz
+## dele (`_flare_reach`): na rua do cruzamento, indo para o lado da igreja, e na boca dela; quem passa ali nota, no seu
+## tempo (`FLARE_REACT`), e, se ainda estiver na luz, para, vira para o lado dele e olha para o céu um tempo
+## (`FLARE_GAZE`, ou até ele apagar) e segue; o primeiro a parar aponta (`point`). Na frente dos prédios ninguém vê, nem
+## quem desce a rua do cruzamento, de costas para ele. Devolve se `w` está parado.
 func _skyward(w: Dictionary, delta: float) -> bool:
-	if w.get("bike", false) or w.get("dog", false) or w.has("hurry") or w.has("corner") or w.get("sky", 0.0) == INF:
+	if w.get("bike", false) or w.get("dog", false) or w.has("hurry") or w.get("sky", 0.0) == INF:
 		return false
 	var ft: float = _scene_t.get("flare", -1.0)
 	var lit := Flare.light(ft) > 0.0
-	var x := _walk_at(w).x
-	var open := x > CROSSING.x and x < CROSSING.y
+	var at := _walk_at(w)
+	var x := at.x
+	var open: bool = _flare_reach(Flare.at(ft), x, at.y) > 0.5 and not (w.get("out", false) and at.y > float(w["z"]) + 0.01)
 	if not w.has("sky"):
 		if not lit or not open:
 			return false
