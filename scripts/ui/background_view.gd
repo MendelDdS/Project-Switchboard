@@ -8,6 +8,7 @@ const Flyers := preload("res://scripts/ui/flyers.gd")
 const Graffiti := preload("res://scripts/ui/graffiti.gd")
 const Newsstand := preload("res://scripts/ui/newsstand.gd")
 const Moving := preload("res://scripts/ui/moving.gd")
+const Flare := preload("res://scripts/ui/flare.gd")
 const SLEEP := Vector3(19 * 60, 23 * 60 + 50, 0.15)   ## as janelas apagam entre x e y (minutos do dia); z: as que ficam acesas
 const RAIN_STREAK := Vector2(6.0, 14.0) ## o comprimento do risco (px da tela), do mais longe ao mais perto: o rastro do quadro
 const RAIN_SLANT := 0.18 ## o vento: quanto o pingo anda para a esquerda a cada px que cai
@@ -156,6 +157,17 @@ const CURFEW_REACT := Vector2(0.4, 2.4)   ## ...e quanto leva para isso (s): cad
 const CURFEW_LOOK := Vector2(0.7, 1.3)    ## parado, olhando para ela (s)
 const CURFEW_HURRY := 1.5     ## depois, quantas vezes mais rápido anda...
 const CURFEW_CADENCE := 1.6   ## ...em passos mais curtos e rápidos (× `WALK_STEPS`)
+## O sinalizador da noite 15 (`Flare`): o halo dele no céu (`_flare_halo`), liso, sem beira: até onde vai (px da
+## tela), a parte forte colada no miolo (força, px em que cai a um terço) e a larga e fraca (força, a queda até a
+## beira); quanto a luz dele avermelha a cidade (`modulate`: o verde e o azul descem) e a luz que entra na sala
+## (`_window_light_list`). (No `Bloom`, o halo em degraus fazia um disco vermelho: uma bola, não uma luz.)
+const FLARE_GLOW := 90
+const FLARE_TIGHT := Vector2(0.9, 4.0)
+const FLARE_WIDE := Vector2(0.35, 2.0)
+const FLARE_TINT := Vector2(0.22, 0.26)
+const FLARE_ROOM := 0.75    ## a força da janela dele desenhada na sala (`_sun_layer`, no lugar do sol)...
+const FLARE_STEEP := 3.5    ## ...e o quanto o raio dele desce, pela altura dele no céu (o sol, baixo, `SUN_STEEP`)
+const FLARE_LIGHT := Vector2(300, 1.5)
 const CURFEW_SOUND := 0.33    ## onde (fração da passagem) toca o ronco dela, grave e mais longo (`CURFEW_PITCH`): o mais alto quando passa no meio
 const CURFEW_PITCH := 0.75
 ## O carro de som (a noite 5, `StreetEvent` "speaker"): uma Kombi com dois alto-falantes de corneta num bagageiro no
@@ -458,6 +470,7 @@ var beating := INF     ## quando começa a cena da rua (`Beating`, a noite 3; mi
 var police := INF      ## quando a viatura vem parar no hotel (`PATROL_*`, a noite 7; min do dia; o Main põe)
 var curfew := INF      ## quando começa o toque de recolher (`CURFEW_*`, as noites 9 a 14; min do dia; o Main põe)
 var scene_at := {}     ## quando começa cada uma das outras cenas da rua (`StreetEvent.kind` -> min do dia; o Main põe, `schedule`)
+var _flare_tex: ImageTexture   # o halo do sinalizador (`_flare_halo`), montado uma vez
 var _scene_t := {}     # há quanto tempo cada uma delas começou (s; negativo: esperando a rua esvaziar; `Background._start_scene`)
 var lookout_at: Array[float] = []   ## quando o vigia aparece no terraço do hotel (`LOOKOUT_*`, a noite 9; min do dia; o Main põe)
 var _look_t := -1.0    # há quanto tempo ele apareceu (s; -1 = não está)
@@ -4015,6 +4028,76 @@ func _draw_flyers(g: Rect2, air: bool) -> void:
 			if p3.z > 0.0:   # (uns com a ponta virada para cima: um pixel a mais, mais claro)
 				_p(at.x + 1, at.y - 1, 1, 1, col.lightened(0.15))
 
+
+
+## O sinalizador da noite 15 (`Flare`, na camada `_flare`, entre o céu e a cidade: o que desce atrás dos telhados some
+## neles): a fumaça do caminho, acesa de vermelho perto dele e alargando e sumindo com a idade, o clarão no céu, liso,
+## e a chama, 2×2 px com o miolo quase branco (a cintilação vai no `modulate` da camada).
+func _draw_flare(g: Rect2) -> void:
+	var t: float = _scene_t.get("flare", -1.0)
+	if t < 0.0 or t >= Flare.END:
+		return
+	var k := Flare.glow(t)
+	var fire := Flare.at(t)
+	var p := _o(g, fire.x, fire.y, fire.z)
+	var puffs := Flare.smoke(t)
+	for i in puffs.size() - 1:   # cada trecho da fumaça, pixel a pixel
+		var a := _o(g, puffs[i].x, puffs[i].y, puffs[i].z) * 2.0
+		var b := _o(g, puffs[i + 1].x, puffs[i + 1].y, puffs[i + 1].z) * 2.0
+		var age := puffs[i].w
+		var lit := maxf(k, 0.6 if t < Flare.RISE else 0.0) * (1.0 - smoothstep(0.0, 4.0, age))
+		var col := Color(Pal.SIGNAL_SMOKE[1].lerp(Pal.SIGNAL_SMOKE[0], lit), 0.55 * (1.0 - age / Flare.SMOKE))
+		var wide := 1 + int(age / 6.0)
+		var n := maxi(1, ceili(a.distance_to(b)))
+		for j in n:
+			var q := a.lerp(b, float(j) / n).floor()
+			_p(q.x, q.y, wide, wide, col)
+	var at := (p * 2.0).floor()
+	if t < Flare.RISE:   # subindo: uma faísca
+		_p(at.x, at.y, 1, 1, Pal.SIGNAL_FLARE[1])
+	elif k > 0.0:   # aceso: 3×3 estourando no branco, a cruz rosada, e os raios em cruz crescendo com a força
+		var a := minf(1.0, k * 2.0)
+		_p(at.x - 1, at.y - 1, 3, 3, Color(Pal.SIGNAL_FLARE[1], a))
+		_p(at.x - 1, at.y, 3, 1, Color(Pal.SIGNAL_FLARE[0].lerp(Pal.SIGNAL_FLARE[1], 0.3), a))
+		_p(at.x, at.y - 1, 1, 3, Color(Pal.SIGNAL_FLARE[0].lerp(Pal.SIGNAL_FLARE[1], 0.3), a))
+		_p(at.x, at.y, 1, 1, Color(Pal.SIGNAL_FLARE[0], a))
+		var ray := roundi(clampf((k - 0.5) * 3.0, 0.0, 5.0))
+		for i in ray:
+			var c := Color(Pal.SIGNAL_FLARE[1], a * (1.0 - float(i) / (ray + 1)))
+			for d: Vector2 in [Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1), Vector2(0, -1)]:
+				var q := at + d * (2 + i)
+				_p(q.x, q.y, 1, 1, c)
+
+
+## O halo do sinalizador (`_flare_add`, somado): liso, a parte forte colada no miolo, quase branca, e a larga e fraca,
+## vermelha, caindo até zero na beira (`FLARE_GLOW`). Montado pixel a pixel uma vez, em px da tela, sem ampliar; a
+## força, com a cintilação, vai no `modulate`.
+func _flare_halo() -> ImageTexture:
+	if _flare_tex:
+		return _flare_tex
+	var n := FLARE_GLOW * 2 + 1
+	var img := Image.create(n, n, false, Image.FORMAT_RGBA8)
+	for y in n:
+		for x in n:
+			var d := Vector2(x - FLARE_GLOW, y - FLARE_GLOW).length()
+			if d >= FLARE_GLOW:
+				continue
+			var tight := FLARE_TIGHT.x * exp(-d / FLARE_TIGHT.y)
+			var wide := FLARE_WIDE.x * pow(1.0 - d / FLARE_GLOW, FLARE_WIDE.y)
+			var c := Pal.SIGNAL_FLARE[1] * wide + Pal.SIGNAL_FLARE[0].lerp(Pal.SIGNAL_FLARE[1], 0.7) * tight
+			img.set_pixel(x, y, Color(minf(c.r, 1.0), minf(c.g, 1.0), minf(c.b, 1.0)))
+	_flare_tex = ImageTexture.create_from_image(img)
+	return _flare_tex
+
+
+## O halo do sinalizador (`_flare_halo`) na vista `g`, em px da tela, onde ele está aceso.
+func _draw_flare_glow(g: Rect2) -> void:
+	var t: float = _scene_t.get("flare", -1.0)
+	if Flare.light(t) <= 0.0:
+		return
+	var f := Flare.at(t)
+	var at := (_o(g, f.x, f.y, f.z) * 2.0).floor()
+	_ci.draw_texture(_flare_halo(), at - Vector2(FLARE_GLOW, FLARE_GLOW))
 
 ## O carro `c` passando pela mão dele (`CAR_LANES`), apoiado no asfalto, na forma do modelo dele (`CAR_KINDS`) e na cor
 ## dele: a sombra de contato, o facho dos faróis no chão à frente, o capô, o teto e o porta-malas vistos um pouco de

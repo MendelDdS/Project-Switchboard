@@ -806,3 +806,11 @@ curva, outro caminho), mostre antes como proposta e pergunte, não entregue como
 - **`Beating.walk` freia no fim.** Emendar vários trechos dele faz a pessoa desacelerar a cada um (e trocar o "out" do
   último por "lin" deixa o trecho de freio na metade da velocidade). Quem anda sem parar por um caminho com curvas: um
   momento "lin" por ponto, o tempo pela distância; a pose (virar, olhar para trás) muda no momento do ponto.
+- **Luz na vista é `Bloom`, não tinta.** Um ponto colorido com um clarão misturado ao céu (`_light_fan` em mistura
+  normal) parece mancha, não luz: o que acende (poste, letreiro, sinalizador) entra no `Bloom` pela camada `_over`
+  (halo somado e o miolo estourando para o branco), com a posição no estado dela. E tom que muda a cada quadro na
+  cidade vai no `modulate`, nunca no `_day` (as luzes dela se dividem por ele e a `_back` não se redesenha junto).
+- **Ponto de luz forte no céu não é `Bloom`.** O halo em degraus dele, bom em lâmpada pequena, num ponto sozinho no
+  céu vira um disco de beira marcada. Luz que precisa parecer luz: miolo estourando no branco, halo liso somado
+  (imagem montada pixel a pixel, força no `modulate`), estouro ao acender, cintilação irregular, e o efeito dela na
+  sala (a janela projetada, pela camada do sol). Foram três tentativas até o usuário aceitar a direção.

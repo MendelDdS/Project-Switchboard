@@ -345,6 +345,10 @@ const STAND_SEAL := Color("b0aa96")   ## o lacre de papel na banca fechada da no
 ## (o couro e a beira)
 const MOVING: Array[Color] = [Color("1e2026"), Color("5a5e66"), Color("5e3a3e"), Color("4a5a48")]
 const SUITCASE: Array[Color] = [Color("4e3626"), Color("2a1c14")]
+## O sinalizador da noite 15 (`Flare`): o miolo quase branco, a chama vermelha em volta e o clarão no céu, e a fumaça
+## (acesa por ele perto, cinza longe)
+const SIGNAL_FLARE: Array[Color] = [Color("ffe8e0"), Color("ff3a2a"), Color("d0281c")]
+const SIGNAL_SMOKE: Array[Color] = [Color("a04a44"), Color("4a4650")]
 const CHASE_SUIT: Array[Color] = [Color("2a2d36"), Color("38342c")]
 const BLOOD: Array[Color] = [Color("2a0606"), Color("440a0a"), Color("6a1410")]
 const AWNINGS: Array[Color] = [Color("4a1c1c"), Color("1e3a2c"), Color("2a3048")]   ## os toldos de lona das lojas de lá (desbotados pela noite)

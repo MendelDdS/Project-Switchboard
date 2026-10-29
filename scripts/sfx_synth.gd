@@ -654,6 +654,15 @@ func _build_outside() -> void:
 	_tone(0.0, 2400.0, 0.015, "sine", 0.3)
 	_w = _biquad(_w, "lp", 3800.0, 0.7)   # (pelo vidro)
 	_end("spray")
+	_begin(2.4)   # o sinalizador atirado longe (`Flare`): o "pof" abafado do tiro e o chiado dele subindo, sumindo no alto
+	_tone(0.0, 70.0, 0.25, "sine", 0.8)
+	_noise(0.0, 0.08, "bp", 500.0, 0.9, 0.7)
+	var t2 := 0.05
+	while t2 < 2.2:
+		_noise(t2, 0.06, "bp", lerpf(1800.0, 3200.0, t2 / 2.2), 1.5, 0.35 * exp(-t2 / 0.9))
+		t2 += 0.05
+	_w = _biquad(_w, "lp", 2800.0, 0.7)   # (longe e pelo vidro)
+	_end("flare")
 
 
 ## A luminária: o zumbido elétrico bem baixo da lâmpada acesa (120 Hz e harmônicos, em loop) e o estalo de quando ela

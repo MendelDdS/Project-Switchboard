@@ -121,6 +121,21 @@ Ordem sugerida: das que reaproveitam mais (o rig, a viatura, a passada) para as 
   dos dois lados, os fuzis em pé) passa devagar. Os vidros da sala tremem: o reflexo e as gotas da janela vibram, e a
   xícara e os papéis da mesa estremecem um pouco, com o ronco grave do motor em camadas.
 
+### I. O sinalizador (noite 15)
+- Feito (`scripts/ui/flare.gd`; `--flare=t` ou `--scene=flare`, F1). Às 21h, atirado de longe atrás da cidade, sobe,
+  acende vermelho e desce de paraquedas até apagar. A distância está certa (decidido: não chegar mais perto).
+- [x] Halo liso somado (`_flare_add`, `_flare_halo`; o `Bloom` fazia um disco), miolo de 3×3 estourando no branco com
+  raios em cruz, estouro ao acender e cintilação com falhas (`Flare.glow`), a cidade puxando para o vermelho
+  (`FLARE_TINT`) e a janela vermelha projetada na sala pela camada do sol (`_flare_steep`).
+- [ ] A luz vindo de um lado na cidade: uma beira vermelha nos telhados, na igreja e nas paredes viradas para ele,
+  andando enquanto ele desce e balança; as fachadas da rua do cruzamento mais acesas no alto que embaixo (reaproveitar
+  o `spot_light.gdshader`, que clareia o que está embaixo); o tom por igual (`FLARE_TINT`) fica só de fundo.
+- [ ] A fumaça acesa: uma coluna mais grossa logo acima dele, rosada por baixo, e o rastro da subida mais comprido,
+  desfazendo-se com o vento (`Flare.smoke`, `_draw_flare`).
+- [ ] As nuvens perto dele com a barriga vermelha (as da noite limpa, `_draw_moon`, e as da chuva, `_draw_overcast`);
+  hoje só o halo somado as clareia.
+- [ ] Conferir na chuva e na névoa, e medir o desempenho (`medir.gd` da `revisar-mudancas`).
+
 ## 4. Fechando cada cena
 - [ ] Opção na captura (`tools/shot.gd`) e botão no F1.
 - [ ] `test_content` cobre a hora e a noite; `tests/run.sh` inteiro.

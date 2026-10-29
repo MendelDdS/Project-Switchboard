@@ -2784,3 +2784,25 @@ Chaves:
 474. #vista "Em alguns momentos, uma das pessoas desacelera o passo" (a família da noite 14). Cada trecho do caminho
     (descida, esquina, travessia, o olhar para trás do pai) era um `Beating.walk`, que freia no fim; agora o caminho
     inteiro vai em momentos "lin" no mesmo passo (1,7 m/s) até a porta da Kombi, onde eles entram andando (`Moving._keys`).
+475. #vista #luz #noites "Vamos fazer um evento para o dia 15 às 21:00. Nesse horário, um sinalizador de luz vermelha
+    será atirado para o céu e ele cairá lentamente." O sinalizador (`StreetEvent` "flare", `Flare`): sai de longe,
+    atrás da cidade e à direita da igreja, sobe riscando em 2,6 s, acende vermelho no alto e desce no paraquedas
+    (2,4 m/s, levado pelo vento e balançando) por 48 s, deixando a fumaça do caminho, acesa perto dele; numa camada
+    entre o céu e a cidade (`_flare`), some atrás dos telhados. O clarão no céu é liso (`FLARE_GLOW`), a cidade puxa
+    para o vermelho pelo `modulate` (`FLARE_TINT`, fora do `_day`: as luzes da cidade se dividem por ele, `_sunny`, e
+    a `_back` não se redesenha a cada quadro; com ele dentro, as janelas acesas ficavam verdes) e a luz entra na sala
+    pela janela (`FLARE_LIGHT`); o "pof" do tiro longe (som "flare"). Captura `--flare=t`, botão no F1.
+476. #vista #luz "A luz do sinalizador quando acende está fraca, não parece uma luz". Era só um clarão vermelho
+    escuro misturado ao céu e um ponto de 2×2 px: entrou no `Bloom` como os postes e o letreiro (`_flare_glow`, na
+    camada `_over`, que se redesenha quando ele anda um pixel): o halo somado e o miolo estourando para o branco.
+    `FLARE_HALO` 0,9 (a 1,4, um disco vermelho de beira marcada).
+477. #vista #luz "Continua ruim. Sugira melhorias pra essa luz", e "Faça sua recomendação" (sem chegar mais perto:
+    "a distância está correta"). O `Bloom` saiu do sinalizador (o halo em degraus era um disco, uma bola vermelha): o
+    halo é uma imagem lisa montada pixel a pixel, somada numa camada logo acima dele na vista (`_flare_add`,
+    `_flare_halo`: forte e quase branco colado no miolo, largo e fraco vermelho até zero na beira), a força no
+    `modulate`; o miolo de 3×3 estourando no branco com a cruz rosada e raios em cruz crescendo com a força; acende
+    com estouro (`BURST`) e cintila aos trancos, com falhas, mais apagando (`Flare.glow`, sorteado pelo tempo); e entra
+    na sala como o sol do amanhecer, pela mesma camada (`_sun_layer`, de noite livre, `_flare_steep`): a janela
+    vermelha no tampo e no peitoril com as sombras dos objetos, curtas (ele está alto, `FLARE_STEEP`) e crescendo
+    enquanto ele desce, e a poeira no feixe, vermelha. Ficaram para depois a luz de um lado só nos telhados e na
+    igreja, a fumaça mais grossa e as nuvens acesas por baixo.

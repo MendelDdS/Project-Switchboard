@@ -221,6 +221,10 @@ var _street_add: Control   # ...e a faixa de sol, somada a ele; as duas embaixo 
 var _upright: Control  # o que fica em pé na cidade, por cima da luz no chão (`_draw_city_upright`): redesenhado com a `_back`
 var _spot_add: Control  # a luz do holofote do toque de recolher, clareando o que está embaixo (`spot_light.gdshader`): por cima da `_upright` e por baixo da `_view` (`_draw_sweep_light`)
 var _spot_drawn := false   # (redesenhada enquanto há viatura com ele, e uma vez depois, para apagar)
+var _flare: Control    # o sinalizador da noite 15 (`_draw_flare`), entre o céu e a `_back`: some atrás dos telhados; redesenhado enquanto está no céu...
+var _flare_add: Control   # ...e o halo dele, somado logo acima (`_draw_flare_glow`), a força com a cintilação no `modulate`
+var _flare_at := Vector3.INF   # onde o halo foi desenhado da última vez (m, de meio em meio metro; INF apagado)
+var _flare_steep := 0.0   # o sinalizador aceso no lugar do sol (0: não): o quanto o raio dele desce ao entrar na sala (`_sun_steep`)
 var _sky: Control      # o céu da vista, embaixo da `_back` e fora da luz do dia da cidade (`DAY_GAIN`): redesenhado com ela
 var _rays: Control     # os raios do sol nascendo e os reflexos da lente, somados por cima da vista (`_draw_rays`): redesenhados com o céu
 var _pane: Control     # o vidro da vista, por cima da `_view`: o reflexo da sala e a chuva nele, fora da luz do dia
@@ -312,6 +316,14 @@ func _ready() -> void:
 	_sky = Control.new()
 	_sky.draw.connect(_draw_view_sky)
 	_vport.add_child(_sky)
+	_flare = Control.new()
+	_flare.draw.connect(_draw_view_flare)
+	_vport.add_child(_flare)
+	_flare_add = Control.new()
+	_flare_add.material = CanvasItemMaterial.new()
+	(_flare_add.material as CanvasItemMaterial).blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	_flare_add.draw.connect(_draw_view_flare_glow)
+	_vport.add_child(_flare_add)
 	_back = Control.new()
 	_back.draw.connect(_draw_view_back)
 	_vport.add_child(_back)
@@ -496,12 +508,18 @@ func _process(delta: float) -> void:
 		_window_set = wl
 		_window_light_params(wl[0])
 		_show()
+	var ft2: float = _scene_t.get("flare", -1.0)   # o sinalizador aceso entra pela janela como o sol (de noite ela está livre), vermelho e mais do alto
+	var f3 := Flare.at(ft2)
+	_flare_steep = FLARE_STEEP * (f3.z - OUT_EYE) / f3.y if Flare.light(ft2) > 0.0 and _sunlit() == 0.0 else 0.0
 	var sk := snappedf(_sunlit() * lerpf(SUN_FAINT, 1.0, _sun_up()) * (1.0 - _shut), 0.02)   # o sol entrando: a força no `modulate`, o desenho só quando muda
+	if _flare_steep > 0.0:
+		sk = snappedf(minf(1.0, FLARE_ROOM * Flare.glow(ft2)) * (1.0 - _shut), 0.02)
+	var sun_tint: Color = Pal.SIGNAL_FLARE[1] if _flare_steep > 0.0 else Color.WHITE
 	var sg := [_blind_frac(), _sun_occ, _drawn, floorf(_cm(WIN_SILL) / _sun_steep()), snappedf(_sun_up(), 0.05), _up_id] if sk > 0.0 else _sun_geo   # (redesenha quando a beira anda)
 	if sk != _sun_layer.modulate.a or sg != _sun_geo:
-		_sun_layer.modulate.a = sk
+		_sun_layer.modulate = Color(sun_tint, sk)
 		_sun_layer.visible = sk > 0.0
-		_sun_edge.modulate.a = sk
+		_sun_edge.modulate = Color(sun_tint, sk)
 		_sun_edge.visible = sk > 0.0
 		if sg != _sun_geo:
 			_sun_geo = sg
@@ -595,12 +613,22 @@ func _process(delta: float) -> void:
 	var tones := _sky_tones()   # a luz do dia na cidade: o céu clareando, no `modulate` (acima de 1 clareia; um shader
 	var day := Color.WHITE + tones[0].lerp(tones[1], DAY_WARM) * DAY_GAIN * smoothstep(0.1, 1.0, dawn())   # nelas desfazia o lote das chamadas)
 	day.a = 1.0
-	_day = day
+	_day = day   # (sem o sinalizador: as luzes da cidade, `_sunny`, se dividem por ele, e a `_back` não se redesenha a cada quadro)
+	var fk := Flare.glow(_scene_t.get("flare", -1.0))   # o sinalizador no céu avermelha a cidade
+	day *= Color(1.0, 1.0 - FLARE_TINT.x * minf(fk, 1.0), 1.0 - FLARE_TINT.y * minf(fk, 1.0))
+	_flare_add.modulate = Color(fk, fk, fk)
 	_back.modulate = day   # (o céu, embaixo, e o vidro, por cima, ficam de fora; a sombra multiplica, sem ela)
 	_street_add.modulate = day
 	_upright.modulate = day
 	_view.modulate = day
 	_view.queue_redraw()
+	var ft: float = _scene_t.get("flare", -1.0)
+	if ft >= 0.0 and ft < Flare.END + 1.0:
+		_flare.queue_redraw()   # (o miolo e os raios mudam com a cintilação, a fumaça anda)
+		var fa := Flare.at(ft).snapped(Vector3(0.5, 0.5, 0.5)) if Flare.light(ft) > 0.0 else Vector3.INF
+		if fa != _flare_at:   # o halo só quando ele anda (a força está no `modulate`)
+			_flare_at = fa
+			_flare_add.queue_redraw()
 	var spot := _cars.any(func(c: Dictionary) -> bool: return c.has("sweep"))
 	if spot or _spot_drawn:
 		_spot_add.queue_redraw()
@@ -860,6 +888,8 @@ func _events(delta: float) -> void:
 				Sfx.play_at("rattle", x, -6.0, 1.6)
 			if tag >= Graffiti.SPRAY_AT and tag < Graffiti.SPRAY_END and floorf((was - Graffiti.SPRAY_AT) / SPRAY_EVERY) != floorf((tag - Graffiti.SPRAY_AT) / SPRAY_EVERY):
 				Sfx.play_at("spray", x, 0.0, _rng.randf_range(0.95, 1.05))
+		if k == "flare" and was <= 0.0:   # o tiro, longe
+			Sfx.play_at("flare", x, 0.0)
 		if k == "paint" and was < Graffiti.SET_DOWN and _scene_t[k] >= Graffiti.SET_DOWN:   # o balde no chão
 			Sfx.play_at("set_metal", x, 6.0, 0.7)
 	var scene := minutes >= beating - 3.0 and _beat_t < Beating.END
@@ -1209,6 +1239,9 @@ func left_behind(kind: String) -> void:
 ## Começa a cena `kind` (`scene_at`): a que vem de carro, ele é o próximo da mão de lá (com ela livre, já); a corrida,
 ## quando os carros que estão passando saírem (`_scene_t` negativo até lá).
 func _start_scene(kind: String) -> void:
+	if kind == "flare":   # (no céu: não espera a rua)
+		_scene_t[kind] = 0.0
+		return
 	if kind in ["speaker", "flyers", "newsstand", "parade", "moving"]:
 		_scene_car = kind
 		if _cars.all(func(c: Dictionary) -> bool: return c["lane"] != 0):
@@ -1304,6 +1337,8 @@ func schedule(kind: String, at: float) -> void:
 			lookout_at.append(at)
 		_:
 			scene_at[kind] = at
+			if kind == "flare":
+				_flare_halo()   # (montado agora, ao carregar a noite: na hora de acender ele engasgava)
 
 
 ## A cena `kind` (`StreetEvent`, as de `scene_at`) agora (debug), como na noite dela.
@@ -1777,11 +1812,15 @@ func _draw_sun_sill(xc: float, ys: float, zfar: float, up: float) -> void:
 ## Quanto o raio do sol desce para cada unidade que entra na sala agora (`SUN_STEEP`): cresce devagar e por igual com
 ## ele subindo (na curva do `_sun_up`, ela andava depressa no meio).
 func _sun_steep() -> float:
+	if _flare_steep > 0.0:   # (o sinalizador no lugar dele, `_flare_steep`)
+		return _flare_steep
 	return lerpf(SUN_STEEP.x, SUN_STEEP.y, clampf(inverse_lerp(SUNRISE, DAWN.y, minutes), 0.0, 1.0))
 
 
 ## O quanto o sol já subiu, de quando nasce (0) às 6h (1), na curva das sombras da rua (`_shadow_k`).
 func _sun_up() -> float:
+	if _flare_steep > 0.0:   # (o sinalizador é um ponto: a janela nítida, sem a luz espalhada do sol baixo)
+		return 1.0
 	return smoothstep(SUNRISE, DAWN.y, minutes)
 
 
@@ -1970,6 +2009,12 @@ func _window_light_list() -> Array:
 		var b := PixelArt.bounds(_glass)
 		var at := (_sun_at(_city_rect) * 2.0).clamp(b.position, b.end)
 		out.append([(at / 4.0).round() * 4.0, Vector2(SUN_LIGHT.x, SUN_LIGHT.y * sun), Pal.SUN_RIM])
+	var fk := snappedf(Flare.glow(_scene_t.get("flare", -1.0)) * (1.0 - _shut), 0.05)
+	if fk > 0.0 and not _glass.is_empty():   # o sinalizador: vermelho, do ponto do vidro mais perto dele
+		var b := PixelArt.bounds(_glass)
+		var f := Flare.at(_scene_t["flare"])
+		var at := (_o(_city_rect, f.x, f.y, f.z) * 2.0).clamp(b.position, b.end)
+		out.append([(at / 4.0).round() * 4.0, Vector2(FLARE_LIGHT.x, FLARE_LIGHT.y * fk), Pal.SIGNAL_FLARE[1]])
 	for l: Array in _spills + _lifted_spills:
 		out.append([(l[0] as Rect2).get_center(), Vector2(l[2], DESK_LIGHT), l[1]])
 	if _sign_px != Vector2.ZERO and _sign_on() and not _behind_blind(Rect2(_sign_px, Vector2.ONE)):
@@ -2382,6 +2427,26 @@ func _draw_view() -> void:
 	if not window_art:
 		_draw_city_front(Rect2(g.position, g.size - Vector2(0, _near)))
 		_draw_shrub()
+	_ci = self
+
+
+## O sinalizador da noite 15 (`_flare`), entre o céu e a cidade.
+func _draw_view_flare() -> void:
+	_ci = _flare
+	_flare.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	var g := Rect2(Vector2.ZERO, Vector2(_vport.size) / 2.0)
+	if not window_art:
+		_draw_flare(Rect2(g.position, g.size - Vector2(0, _near)))
+	_ci = self
+
+
+## O halo do sinalizador da noite 15 (`_flare_add`), em px da tela.
+func _draw_view_flare_glow() -> void:
+	_ci = _flare_add
+	_flare_add.draw_set_transform(Vector2.ZERO)
+	var g := Rect2(Vector2.ZERO, Vector2(_vport.size) / 2.0)
+	if not window_art:
+		_draw_flare_glow(Rect2(g.position, g.size - Vector2(0, _near)))
 	_ci = self
 
 
@@ -3220,7 +3285,7 @@ func _draw_dust() -> void:
 		var p := _sunbeam[0].lerp(_sunbeam[1], u).lerp(_sunbeam[3].lerp(_sunbeam[2], u), m.y)
 		var a := (0.5 + 0.5 * sin(m.z)) * SUN_DUST * sun
 		if a > 0.02 and not _cover.has_point(p):
-			_dust.draw_rect(Rect2(p.floor(), Vector2.ONE), Color(Pal.SUN_ROOM, a))
+			_dust.draw_rect(Rect2(p.floor(), Vector2.ONE), Color(Pal.SUN_ROOM * Color(_sun_layer.modulate, 1.0), a))   # (vermelha no sinalizador)
 
 
 ## A ponta solta da folhinha (presa só pelo prego, no meio do alto): a de baixo, do lado da janela, dobra para a

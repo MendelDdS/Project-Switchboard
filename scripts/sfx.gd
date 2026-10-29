@@ -12,7 +12,7 @@ const VOL := {
 	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "set_paper": -27.0, "set_metal": -27.0, "blind": -17.0, "gulp": -19.0, "locker": -15.0, "bike_bell": -24.0, "car_door": -21.0, "rub": -13.0, "cord_stop": -16.0, "cord_tap": -17.0, "cord_knock": -19.0, "cord_snag": -18.0, "cord_snap": -21.0, "unroll": -8.0,
 	"typing": -13.0, "printer": -14.0, "punch": -8.0, "snap": -12.0, "tape_out": -16.0, "tape_in": -8.0, "tape_door": -10.0, "tape_key": -11.0, "tape_pop": -9.0, "feed": -11.0, "read": -14.0, "shred": -10.0, "deny": -14.0,
 	"chime": -11.0, "shift_bell": -13.0, "car": -15.0, "car_near": -13.0, "car_wet": -14.0, "car_wet_near": -12.0, "thunder": -8.0,
-	"bell": -15.0, "speaker": -12.0, "sabia": -24.0, "rattle": -17.0, "footfall": -24.0, "flyers": -22.0, "spray": -27.0, "army": -6.0, "dog": -27.0, "dog_low": -28.0, "lamp_tick": -27.0,
+	"bell": -15.0, "speaker": -12.0, "sabia": -24.0, "rattle": -17.0, "footfall": -24.0, "flyers": -22.0, "spray": -27.0, "flare": -20.0, "army": -6.0, "dog": -27.0, "dog_low": -28.0, "lamp_tick": -27.0,
 }
 ## Volume (dB) dos sons de ambiente em cada clima; o que não aparece fica mudo.
 const WEATHER_MIX := {
