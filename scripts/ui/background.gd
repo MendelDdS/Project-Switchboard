@@ -219,6 +219,8 @@ var _back: Control     # a parte de trás da vista, embaixo da `_view`: só se r
 var _street_mul: Control   # a sombra dos prédios de lá na rua, multiplicando o chão da `_back` (`_draw_sun_strip`)...
 var _street_add: Control   # ...e a faixa de sol, somada a ele; as duas embaixo da `_upright` e redesenhadas com a `_back`
 var _upright: Control  # o que fica em pé na cidade, por cima da luz no chão (`_draw_city_upright`): redesenhado com a `_back`
+var _spot_add: Control  # a luz do holofote do toque de recolher, somada por cima da `_upright` e por baixo da `_view` (`_draw_sweep_light`)
+var _spot_drawn := false   # (redesenhada enquanto há viatura com ele, e uma vez depois, para apagar)
 var _sky: Control      # o céu da vista, embaixo da `_back` e fora da luz do dia da cidade (`DAY_GAIN`): redesenhado com ela
 var _rays: Control     # os raios do sol nascendo e os reflexos da lente, somados por cima da vista (`_draw_rays`): redesenhados com o céu
 var _pane: Control     # o vidro da vista, por cima da `_view`: o reflexo da sala e a chuva nele, fora da luz do dia
@@ -273,6 +275,8 @@ var _buses := -1         # quantos horários do ônibus já passaram (-1: ainda 
 var _taxis := -1         # quantos táxis da noite já pararam no hotel (-1: ainda não contado)
 var _taxi_next := false  # o próximo da mão de lá é o táxi que para no hotel
 var _police_next := false   # o próximo da mão de lá é a viatura que para no hotel (`police`)
+var _curfew_next := false   # o próximo da mão de lá é a viatura do toque de recolher (`curfew`)...
+var _curfew_sent := false   # ...que já foi chamada
 var _taxi_at: Array[float] = []   # as horas deles nesta noite (min do dia; `_taxi_times`)
 var _taxi_for := -1      # a noite delas
 var _stray_in := 60.0    # para passar um vira-lata (s)
@@ -319,6 +323,11 @@ func _ready() -> void:
 	_upright = Control.new()
 	_upright.draw.connect(_draw_view_upright)
 	_vport.add_child(_upright)
+	_spot_add = Control.new()
+	_spot_add.material = CanvasItemMaterial.new()
+	(_spot_add.material as CanvasItemMaterial).blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	_spot_add.draw.connect(_draw_view_beam)
+	_vport.add_child(_spot_add)
 	_view = Control.new()
 	_view.draw.connect(_draw_view)
 	_vport.add_child(_view)
@@ -586,6 +595,10 @@ func _process(delta: float) -> void:
 	_upright.modulate = day
 	_view.modulate = day
 	_view.queue_redraw()
+	var spot := _cars.any(func(c: Dictionary) -> bool: return c.has("sweep"))
+	if spot or _spot_drawn:
+		_spot_add.queue_redraw()
+	_spot_drawn = spot
 	_pane.queue_redraw()
 	_vport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	_show()
@@ -826,9 +839,13 @@ func _events(delta: float) -> void:
 		_car_in[lane] -= delta
 		if _car_in[lane] <= 0.0 and not scene:
 			var kind: String = _car_next[lane] if _car_next[lane] != "" else _car_kind()
-			var patrol: bool = lane == 0 and _police_next and _car_next[lane] == ""
-			var stop: bool = patrol or lane == 0 and _taxi_next and _car_next[lane] == ""   # (o ônibus na hora dele passa antes)
-			if patrol:
+			var sweep: bool = lane == 0 and _curfew_next and _car_next[lane] == ""
+			var patrol: bool = lane == 0 and _police_next and _car_next[lane] == "" and not sweep
+			var stop: bool = patrol or lane == 0 and _taxi_next and _car_next[lane] == "" and not sweep   # (o ônibus na hora dele passa antes)
+			if sweep:
+				kind = PATROL_KIND
+				_curfew_next = false
+			elif patrol:
 				kind = PATROL_KIND
 				_police_next = false
 			elif stop:
@@ -843,6 +860,12 @@ func _events(delta: float) -> void:
 			if patrol:
 				_cars[-1].merge(_patrol_car(), true)
 			_car_in[lane] = INF   # o próximo desta mão é sorteado quando este sair
+			if sweep:   # devagar, sem o ronco de passagem agora (ele vem no meio, `CURFEW_SOUND`), e quem está na rua nota
+				_cars[-1].merge({"police": true, "taxi": false, "rack": false, "tones": Pal.CAR_TONES[5], "sweep": true, "sec": CURFEW_SEC}, true)
+				for w: Dictionary in _walkers:
+					if not w.get("bike", false) and not w.get("dog", false):
+						w["hurry"] = -_rng.randf_range(CURFEW_REACT.x, CURFEW_REACT.y)
+				continue
 			Sfx.play_at(("car_wet" if weather == "rain" else "car") + ("_near" if lane == 1 else ""), x, 0.0,
 				CAR_KINDS[kind]["pitch"] * _rng.randf_range(0.97, 1.03))   # o de cá, mais perto; cada modelo no tom dele
 	for i in range(_cars.size() - 1, -1, -1):
@@ -859,11 +882,16 @@ func _events(delta: float) -> void:
 				Sfx.play_at("car_wet" if weather == "rain" else "car", x, -3.0, CAR_KINDS[c["kind"]]["pitch"] * 0.9)
 			c["t"] = c["s"] / (TAXI_STOP.x + wait + TAXI_STOP.z)
 		else:
-			c["t"] += delta / (CAR_KINDS[c["kind"]] as Dictionary).get("sec", CAR_SEC)
+			var was: float = c["t"]
+			c["t"] += delta / c.get("sec", (CAR_KINDS[c["kind"]] as Dictionary).get("sec", CAR_SEC))
+			if c.has("sweep"):
+				_aim(c, delta)
+			if c.has("sweep") and was < CURFEW_SOUND and c["t"] >= CURFEW_SOUND:
+				Sfx.play_at("car_wet" if weather == "rain" else "car", x, -2.0, CURFEW_PITCH)
 		if c["t"] >= 1.0:
 			_car_in[c["lane"]] = _rng.randf_range(CAR_EVERY.x, CAR_EVERY.y) * rare
 			_cars.remove_at(i)
-	var crowd := 0.0 if scene else maxf(1.0 - clampf((minutes - WALK_FROM) / (WALK_UNTIL - WALK_FROM), 0.0, 1.0), morning())
+	var crowd := 0.0 if scene or minutes >= curfew else maxf(1.0 - clampf((minutes - WALK_FROM) / (WALK_UNTIL - WALK_FROM), 0.0, 1.0), morning())
 	_walk_in -= delta
 	if _walk_in <= 0.0 and crowd > 0.0:
 		_walk_in = _rng.randf_range(WALK_EVERY.x, WALK_EVERY.y) / maxf(crowd * BUSY[weekday()], 0.05)
@@ -910,6 +938,11 @@ func _events(delta: float) -> void:
 		if _cars.all(func(c: Dictionary) -> bool: return c["lane"] != 0):
 			_car_in[0] = 0.0
 	_taxis = taxis
+	if minutes >= curfew and not _curfew_sent:   # o toque de recolher (`CURFEW_*`): a viatura é a próxima da mão de lá (bem depois da hora, a rua já vazia)
+		_curfew_sent = true
+		_curfew_next = minutes < curfew + 30.0
+		if _curfew_next and _cars.all(func(c: Dictionary) -> bool: return c["lane"] != 0):
+			_car_in[0] = 0.0
 	if minutes >= police and minutes < police + 30.0 and not _police_next and not _cars.any(func(c: Dictionary) -> bool: return c.has("police")):   # a viatura da noite (`PATROL_*`): a próxima da mão de lá, uma vez
 		police = INF
 		_police_next = true
@@ -949,9 +982,9 @@ func _events(delta: float) -> void:
 			_indoor.x = -1.0
 	for i in range(_walkers.size() - 1, -1, -1):
 		var w: Dictionary = _walkers[i]
-		if not _watch(w, delta):
+		if not _watch(w, delta) and not _hurry(w, delta):
 			w["t"] += delta / w["sec"]
-		if w["t"] >= 1.0:
+		if w["t"] >= 1.0 or w.get("in", 0.0) >= 1.0:
 			_walkers.remove_at(i)
 	_bolt_in -= delta
 	if weather == "rain" and rain_level() != _rain_sent:   # a chuva engrossa e afina: o som acompanha
@@ -1029,6 +1062,99 @@ func _watch(w: Dictionary, delta: float) -> bool:
 	return true
 
 
+## O toque de recolher em quem está na rua (`w`, com "hurry", posto quando a viatura aparece): segue no passo até notar
+## a viatura, para e olha para ela (`CURFEW_LOOK`) e sai apressado (`_take_cover`); passando pela porta do hotel, entra
+## (`in`). Devolve se cuidou do passo dele.
+func _hurry(w: Dictionary, delta: float) -> bool:
+	if not w.has("hurry"):
+		return false
+	if w["hurry"] < 0.0:   # ainda não viu: ela perto dele, conta o tempo de notar
+		var car := _cars.filter(func(c: Dictionary) -> bool: return c.has("sweep"))
+		var cx: float = _car_x(car[0]) if not car.is_empty() else _walk_at(w).x
+		if absf(cx - _walk_at(w).x) < CURFEW_SEE:
+			w["hurry"] += delta
+		if w["hurry"] >= 0.0:
+			w["look"] = _rng.randf_range(CURFEW_LOOK.x, CURFEW_LOOK.y)
+			w["face"] = signf(cx - _walk_at(w).x) if cx != _walk_at(w).x else -w["dir"]
+		return false
+	if w.has("look"):
+		w["look"] -= delta
+		if w["look"] <= 0.0:
+			w.erase("look")
+			_take_cover(w, -float(w["face"]))
+			w.erase("face")
+		return true
+	w["steps"] += delta * WALK_STEPS * CURFEW_CADENCE
+	if w.has("in"):
+		w["in"] += delta * 2.0 * WALK_SPAN / w["sec"] / (STREET["far"] + 0.8 - float(w["z"]))
+		return true
+	if w.has("door") and (float(w["door"]) - _walk_at(w).x) * w["dir"] <= 0.0:
+		w["in"] = 0.0
+		return true
+	return false
+
+
+## O holofote da viatura do toque de recolher (`c`) na mão do policial: procura aos trancos, virando até um ponto da
+## calçada ou da fachada perto dela (rápido no começo, devagar chegando, `CURFEW_TURN`), para um instante
+## (`CURFEW_PAUSE`) e escolhe outro; pegando alguém, acompanha um tempo (`CURFEW_FOLLOW`) o peito dele, e larga.
+func _aim(c: Dictionary, delta: float) -> void:
+	var cx := _car_x(c) + 1.5
+	if not c.has("aim"):
+		c.merge({"aim": Vector2(cx + 2.0, 0.6), "goal": Vector2(cx + 2.0, 0.6), "wait": 0.0})
+	var ff: float = STREET["far"]
+	var follow: Dictionary = c.get("follow", {})
+	var at := _walk_at(follow) if not follow.is_empty() else Vector2.ZERO
+	if not follow.is_empty() and c["hold"] > 0.0 and at.y < ff - 0.05 and _walkers.any(func(o: Dictionary) -> bool: return is_same(o, follow)):
+		c["hold"] -= delta
+		var lamp := _sweep_lamp(c)
+		var s := (ff - lamp.y) / (at.y - lamp.y)   # (o ponto da fachada atrás do peito dele, visto da lâmpada)
+		c["goal"] = Vector2(lamp.x + (at.x - lamp.x) * s, lamp.z + (1.2 - lamp.z) * s)
+	else:
+		c.erase("follow")
+		var goal: Vector2 = c["goal"]
+		if (c["aim"] as Vector2).distance_to(goal) < 0.1 or absf(goal.x - cx) > CURFEW_REACH + 1.5:   # chegou (ou ficou para trás)
+			c["wait"] -= delta
+			if c["wait"] <= 0.0:
+				c["goal"] = Vector2(cx + _rng.randf_range(-CURFEW_REACH, CURFEW_REACH), _rng.randf_range(-0.5, 1.7))
+				c["wait"] = _rng.randf_range(CURFEW_PAUSE.x, CURFEW_PAUSE.y)
+		for w: Dictionary in _walkers:   # pegou alguém (uma vez cada um): acompanha
+			var wa := _walk_at(w)
+			if not w.has("caught") and not w.get("bike", false) and not w.get("dog", false) and _beam_on(c, wa.x, wa.y) > 0.6:
+				w["caught"] = true
+				c.merge({"follow": w, "hold": _rng.randf_range(CURFEW_FOLLOW.x, CURFEW_FOLLOW.y)}, true)
+				break
+	c["aim"] = (c["aim"] as Vector2).lerp(c["goal"], 1.0 - exp(-delta * CURFEW_TURN))
+
+
+## Apressa quem está na rua (`w`) e o manda para a esquina ou para a porta do hotel mais à frente, para o lado `away`,
+## longe da viatura (indo para ela, dá meia-volta; passou de todas: sai pela beira da vista); quem já está na rua do
+## cruzamento só apressa.
+func _take_cover(w: Dictionary, away: float) -> void:
+	w["steps"] = w["t"] * w["sec"] * WALK_STEPS   # (a passada segue de onde estava)
+	w["sec"] /= CURFEW_HURRY
+	if w.has("corner"):
+		return
+	if w["dir"] != away:   # (no mesmo lugar: o x é o do `t` no sentido dele)
+		w["dir"] = away
+		w["t"] = 1.0 - w["t"]
+	var at := _walk_at(w)
+	var d: float = w["dir"]
+	var best := INF
+	var to := 0.0
+	for spot: float in [CROSSING.x + 0.9, WALK_RIGHT, HOTEL_X * at.y / STREET["far"]]:
+		if (spot - at.x) * d > 0.3 and (spot - at.x) * d < best:
+			best = (spot - at.x) * d
+			to = spot
+	if best == INF:
+		return
+	if to != CROSSING.x + 0.9 and to != WALK_RIGHT:
+		w["door"] = to
+		return
+	var up := TURN_Z - at.y   # o caminho da esquina (`_walk_at`): pela calçada até ela e subindo a rua do cruzamento
+	var side := absf(to + WALK_SPAN * d)
+	w.merge({"corner": to, "out": false, "t": 1.0 - (up + best) / (up + side), "sec": w["sec"] * (up + side) / (2.0 * WALK_SPAN)}, true)
+
+
 ## O que a viatura que para no hotel tem a mais que o táxi (`PATROL_*`): a lataria preta, quanto fica parada e quando
 ## as portas batem (cada policial entrando ou saindo dela).
 func _patrol_car() -> Dictionary:
@@ -1045,6 +1171,8 @@ func schedule(kind: String, at: float) -> void:
 			beating = at
 		"police":
 			police = at
+		"curfew":
+			curfew = at
 		"lookout":
 			lookout_at.append(at)
 
@@ -1053,6 +1181,12 @@ func schedule(kind: String, at: float) -> void:
 func start_lookout() -> void:
 	lookout_at.push_front(minutes)
 	_look_t = -1.0
+
+
+## O toque de recolher agora (debug), como nas noites 9 a 14.
+func start_curfew() -> void:
+	curfew = minutes
+	_curfew_sent = false
 
 
 ## A viatura parando no hotel agora (debug), como na noite 7.
@@ -2114,6 +2248,16 @@ func _draw_view() -> void:
 	if not window_art:
 		_draw_city_front(Rect2(g.position, g.size - Vector2(0, _near)))
 		_draw_shrub()
+	_ci = self
+
+
+## A luz do holofote do toque de recolher (`_spot_add`), somada embaixo da frente da vista.
+func _draw_view_beam() -> void:
+	_ci = _spot_add
+	_spot_add.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	var g := Rect2(Vector2.ZERO, Vector2(_vport.size) / 2.0)
+	if not window_art:
+		_draw_sweep_light(Rect2(g.position, g.size - Vector2(0, _near)))
 	_ci = self
 
 

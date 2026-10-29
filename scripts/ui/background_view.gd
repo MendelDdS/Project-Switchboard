@@ -128,6 +128,26 @@ const PATROL_WAIT := 77.0
 const PATROL_OUT := [0.6, 1.2]
 const PATROL_BACK := [70.0, 70.9]
 const PATROL_SPIN := 900.0   ## o giro da sirene (ms por volta)
+## O toque de recolher (noites 9 a 14, `StreetEvent` "curfew"): a viatura passa devagar pela mão de lá, varrendo as
+## calçadas com o holofote da coluna (`_draw_sweep_light`, `Background._aim`); quem está na rua nota, para, olha para ela e sai apressado para a
+## esquina ou a porta do hotel mais à frente (`Background._hurry`), e ninguém mais passa depois disso.
+const CURFEW_SEC := 24.0   ## quanto ela leva passando (~5 km/h; um carro qualquer, 3,2 s)
+const CURFEW_REACH := 4.0    ## o holofote procura até quantos m para cada lado dele...
+const CURFEW_PAUSE := Vector2(0.2, 0.9)   ## ...parando um instante em cada ponto (s)...
+const CURFEW_TURN := 3.5     ## ...e virando até o próximo aos trancos: rápido no começo, devagar chegando (1/s)
+const CURFEW_FOLLOW := Vector2(1.2, 2.4)  ## quanto acompanha quem pega (s)
+const CURFEW_SPOT := 0.55    ## o raio do círculo de luz na fachada (m), um pouco mais alto que largo (`CURFEW_TALL`)...
+const CURFEW_TALL := 1.3
+const CURFEW_LIGHT := 0.5    ## ...a força dele (no meio), somada (`_spot_add`), a do facho no ar...
+const CURFEW_AIR := 0.08
+const CURFEW_LIT := 0.45     ## ...e quanto acende quem ele pega, de frente, e escurece a sombra dele na parede
+const CURFEW_SEE := 5.0   ## a quantos m dela quem passa começa a notá-la (a beira direita da vista, na mão de lá, fica a ~5 m)...
+const CURFEW_REACT := Vector2(0.4, 2.4)   ## ...e quanto leva para isso (s): cada um no seu tempo
+const CURFEW_LOOK := Vector2(0.7, 1.3)    ## parado, olhando para ela (s)
+const CURFEW_HURRY := 1.5     ## depois, quantas vezes mais rápido anda...
+const CURFEW_CADENCE := 1.6   ## ...em passos mais curtos e rápidos (× `WALK_STEPS`)
+const CURFEW_SOUND := 0.33    ## onde (fração da passagem) toca o ronco dela, grave e mais longo (`CURFEW_PITCH`): o mais alto quando passa no meio
+const CURFEW_PITCH := 0.75
 ## Um vira-lata caramelo trotando pela calçada de lá de vez em quando (`Background.STRAY_EVERY`; com chuva, não): em
 ## pixel art, dois quadros do trote (`STRAY_ART`), virado para onde vai; uns pixels maior que o de verdade, como o gato.
 ## Escuro, sumia na calçada: o pelo caramelo, apagado pela noite, aparece contra ela (`Pal.STRAY_COAT`).
@@ -401,6 +421,7 @@ var _indoor := Vector3(-1.0, 0.0, 1.0)   # alguém passando atrás de uma janela
 var _smoke_t := -1.0   # há quanto tempo alguém saiu para fumar na varanda (s; -1 = ninguém)
 var beating := INF     ## quando começa a cena da rua (`Beating`, a noite 3; min do dia; o Main põe)
 var police := INF      ## quando a viatura vem parar no hotel (`PATROL_*`, a noite 7; min do dia; o Main põe)
+var curfew := INF      ## quando começa o toque de recolher (`CURFEW_*`, as noites 9 a 14; min do dia; o Main põe)
 var lookout_at: Array[float] = []   ## quando o vigia aparece no terraço do hotel (`LOOKOUT_*`, a noite 9; min do dia; o Main põe)
 var _look_t := -1.0    # há quanto tempo ele apareceu (s; -1 = não está)
 var _beat_t := -1.0    # há quanto tempo ela começou (s; -1 = ainda não; `Beating.END`: acabou, o sangue fica no chão)
@@ -1059,6 +1080,7 @@ func _draw_city_front(g: Rect2) -> void:
 	_draw_patrol(g)
 	var figs := _beating_figs()   # o policial e o homem da cena da rua, na ordem de quem passa (os de mais longe primeiro)
 	_draw_blood(g, false)
+	_draw_beam_shadows(g)
 	for w: Dictionary in _walkers:   # passam atrás dos postes e do homem
 		while not figs.is_empty() and figs[0]["z"] > _walk_at(w).y:
 			_draw_rig(g, figs.pop_front())
@@ -1221,6 +1243,144 @@ func _taxi_x(c: Dictionary) -> float:
 ## é menor: tudo vai para o ponto de fuga).
 func _taxi_mid() -> float:
 	return (HOTEL_X - 1.4) * CAR_LANES[0].x / STREET["far"]
+
+
+## Para onde o holofote da viatura do toque de recolher (`c`, com "sweep") aponta agora: o x (m) e a altura (m) na
+## fachada de lá (negativa: abaixo do pé dela, o círculo cai na calçada). Quem move é o `Background._aim`.
+func _sweep_at(c: Dictionary) -> Vector2:
+	return c.get("aim", Vector2(_car_x(c) + 2.0, 0.6))
+
+
+## A lâmpada do holofote da viatura `c` (x, z, altura em m): na coluna da frente, do lado de cá (`_draw_patrol_car`).
+func _sweep_lamp(c: Dictionary) -> Vector3:
+	var m: Dictionary = CAR_KINDS[c["kind"]]
+	var lane := _lane(c)
+	return Vector3(_car_x(c) - lane.y * ((m["win"][1] as Vector2).x - 0.08), lane.x - m["wide"] / 2.0, m["belt"] + 0.06)
+
+
+## Quanto o facho da viatura `c` pega quem está em `x`, `z` (m) de 0 a 1: o círculo de luz encolhendo da fachada até a
+## lâmpada, na altura do corpo.
+func _beam_on(c: Dictionary, x: float, z: float) -> float:
+	var lamp := _sweep_lamp(c)
+	var aim := _sweep_at(c)
+	var u := (z - lamp.y) / (STREET["far"] - lamp.y)
+	if u <= 0.0:
+		return 0.0
+	var h := lerpf(lamp.z, aim.y, u)
+	var r := CURFEW_SPOT * u
+	return (1.0 - smoothstep(r * 0.6, r + 0.25, absf(x - lerpf(lamp.x, aim.x, u)))) * float(h > -0.3 and h < 1.9)
+
+
+## O quanto o holofote mais forte pega quem está em `x`, `z` (m; sem viatura do toque de recolher, 0).
+func _beam_at(x: float, z: float) -> float:
+	var lit := 0.0
+	for c in _cars:
+		if c.has("sweep"):
+			lit = maxf(lit, _beam_on(c, x, z))
+	return lit
+
+
+## A luz do holofote do toque de recolher (`_spot_add`, somada por baixo dos carros e de quem passa, que a tapam): o facho
+## fraco no ar, da lâmpada até a fachada, e o círculo de luz nela, com a beira definida (cheio até ~85% do raio). Abaixo
+## do pé da fachada, ele dobra para a calçada: cada ponto segue o raio da lâmpada até o chão, e a parte de baixo vira
+## uma elipse deitada, vindo para cá. Na boca da rua do cruzamento não há parede: o raio segue e cai no chão dela,
+## comprido, rua acima; na quina, a luz se parte (o que fica entre a parede e a rua não se desenha).
+func _draw_sweep_light(g: Rect2) -> void:
+	var ff: float = STREET["far"]
+	for c in _cars:
+		if not c.has("sweep"):
+			continue
+		var lamp := _sweep_lamp(c)
+		var aim := _sweep_at(c)
+		var open := func(p: Vector2) -> bool: return p.x > CROSSING.x and p.x < CROSSING.y
+		var hit := func(p: Vector2) -> Vector2:   # um ponto do círculo (x e altura na fachada) onde a luz bate
+			if p.y >= 0.0 and not open.call(p):
+				return _o(g, p.x, ff, p.y)
+			var s := minf(lamp.z / (lamp.z - minf(p.y, lamp.z * 0.5)), 1.5)   # (o raio da lâmpada ao ponto chega ao chão antes da parede, ou depois, sem ela)
+			return _o(g, lerpf(lamp.x, p.x, s), lerpf(lamp.y, ff, s), 0.0)
+		var head := Pal.CAR_HEAD
+		var from := _o(g, lamp.x, lamp.y, lamp.z)
+		var mid: Vector2 = hit.call(aim)
+		var across := (mid - from).normalized().orthogonal() * CURFEW_SPOT * OUT_F / ff
+		_fill(PackedVector2Array([from, from, mid + across, mid - across]),
+			PackedColorArray([Color(head, CURFEW_AIR), Color(head, CURFEW_AIR), Color(head, CURFEW_AIR * 0.3), Color(head, CURFEW_AIR * 0.3)]))
+		var rings := [0.5, 0.85, 1.0]   # (mais forte no meio, a beira definida: sumindo nos últimos 15%)
+		var fade := [0.7, 0.45, 0.0]
+		var pts := []
+		var sides := []   # (em que superfície cada ponto caiu: a parede ou o chão da rua do cruzamento)
+		for r: float in rings:
+			var ring := PackedVector2Array()
+			var side := []
+			for i in 24:
+				var a := TAU * i / 24.0
+				var p := aim + Vector2(cos(a), sin(a) * CURFEW_TALL) * CURFEW_SPOT * r
+				ring.append(hit.call(p))
+				side.append(open.call(p))
+			pts.append(ring)
+			sides.append(side)
+		var here: bool = open.call(aim)
+		var full := Color(head, CURFEW_LIGHT)
+		for i in 24:   # (os triângulos todos e depois os quadriláteros: o lote só junta primitivos com o mesmo número de pontos)
+			var n := (i + 1) % 24
+			if sides[0][i] == here and sides[0][n] == here:
+				_ci.draw_primitive(PackedVector2Array([mid, pts[0][i], pts[0][n]]), PackedColorArray([full, Color(head, CURFEW_LIGHT * fade[0]), Color(head, CURFEW_LIGHT * fade[0])]), PackedVector2Array())
+		for j in 2:
+			var ca := Color(head, CURFEW_LIGHT * fade[j])
+			var cb := Color(head, CURFEW_LIGHT * fade[j + 1])
+			for i in 24:
+				var n := (i + 1) % 24
+				var on: bool = sides[j][i]
+				if sides[j][n] == on and sides[j + 1][i] == on and sides[j + 1][n] == on:
+					_ci.draw_primitive(PackedVector2Array([pts[j][i], pts[j][n], pts[j + 1][n], pts[j + 1][i]]),
+						PackedColorArray([ca, ca, cb, cb]), PackedVector2Array())
+
+
+## As sombras de quem o holofote do toque de recolher pega, na fachada de lá, por baixo de quem passa: a silhueta de
+## cada um (as pernas e os braços da passada, o tronco e a cabeça) projetada da lâmpada na parede, maior quanto mais
+## perto dela ele está, cortada no pé da parede e só dentro do círculo de luz, mais fraca na beira dele.
+func _draw_beam_shadows(g: Rect2) -> void:
+	var ff: float = STREET["far"]
+	for c in _cars:
+		if not c.has("sweep"):
+			continue
+		var lamp := _sweep_lamp(c)
+		var aim := _sweep_at(c)
+		var spot := (_o(g, aim.x, ff, aim.y) * 2.0).floor()
+		var kw := OUT_F / ff * 2.0   # px da tela por metro na fachada
+		var radius := Vector2(CURFEW_SPOT, CURFEW_SPOT * CURFEW_TALL) * kw
+		var base := floorf(_o(g, 0.0, ff, 0.0).y * 2.0)   # o pé da parede
+		for w: Dictionary in _walkers:
+			var at := _walk_at(w)
+			if w.get("bike", false) or w.get("dog", false) or at.y >= ff or _beam_on(c, at.x, at.y) <= 0.0:
+				continue
+			var k: float = OUT_F / at.y * 2.0 * w["h"]
+			var front := w.has("corner") and absf(at.x - float(w["corner"])) < 0.01
+			var f := -1 if w.has("look") else int(w.get("steps", w["t"] * w["sec"] * WALK_STEPS) * STRIDE.size())
+			var gait := _gait(f, k, w.get("face", w["dir"]), front)
+			var parts: Array = []
+			for i in 2:
+				_limb(parts, gait["legs"][i], maxi(1, roundi(0.15 * k)), Color.BLACK)
+				_limb(parts, gait["arms"][i], 1, Color.BLACK)
+			parts.append([_m2px(Rect2(-0.19, 0.75, 0.38, 0.68), k, gait["drop"]), Color.BLACK])   # o tronco...
+			parts.append([_m2px(Rect2(-0.1, 1.43, 0.2, 0.22), k, gait["drop"]), Color.BLACK])   # ...e a cabeça
+			var s := (ff - lamp.y) / (at.y - lamp.y)   # (da lâmpada até ele e até a parede)
+			var wall := func(p: Vector2) -> Vector2:   # px a partir dos pés dele -> px da tela na parede
+				return _o(g, lamp.x + (at.x + p.x / k - lamp.x) * s, ff, lamp.z + (-p.y / k - lamp.z) * s) * 2.0
+			var pix := {}
+			for pc: Array in parts:
+				var r: Rect2 = pc[0]
+				var a: Vector2 = wall.call(r.position)
+				var b: Vector2 = wall.call(r.end)
+				var open := Vector2(_o(g, CROSSING.x, ff).x, _o(g, CROSSING.y, ff).x) * 2.0   # (na boca da rua do cruzamento não há parede)
+				if minf(a.x, b.x) < open.y and maxf(a.x, b.x) > open.x:
+					continue
+				for y in range(int(minf(a.y, b.y)), int(minf(maxf(a.y, b.y), base))):
+					for x in range(int(minf(a.x, b.x)), int(maxf(a.x, b.x))):
+						var e := Vector2((x - spot.x) / radius.x, (y - spot.y) / radius.y).length()
+						if e < 1.0:
+							pix[Vector2i(x, y)] = e
+			for p: Vector2i in pix:
+				_p(p.x, p.y, 1, 1, Color(0, 0, 0, CURFEW_LIT * (1.0 - smoothstep(0.85, 1.0, pix[p]))))
 
 
 ## Onde o meio da viatura estacionada fica (x, m): bem na frente da porta do hotel.
@@ -2638,7 +2798,7 @@ func _draw_lookout(g: Rect2) -> void:
 func _draw_patrol(g: Rect2) -> void:
 	var ff: float = STREET["far"]
 	for c in _cars:
-		if not c.has("police"):
+		if not c.has("police") or not c.has("stop"):   # (a do toque de recolher só passa)
 			continue
 		var p: float = c["s"] - TAXI_STOP.x
 		for i in 2:
@@ -2689,6 +2849,8 @@ func _draw_patrol_car(g: Rect2, c: Dictionary, m: Dictionary, at: Callable, z0: 
 	_ci.draw_texture(word, mid - Vector2(floorf(word.get_width() / 2.0), 5), Pal.PATROL_INK)
 	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 	_p(spot.x - 1.0, spot.y, 2, 1, Pal.CAR_CHROME)
+	if c.has("sweep"):   # o toque de recolher: o holofote aceso (a luz dele, `_draw_sweep_light`)
+		_p(spot.x - 1.0, spot.y, 2, 1, Pal.CAR_HEAD)
 	_pixel_line(antenna[0], antenna[1], [Pal.CAR_CHROME.darkened(0.45)], Transform2D(0.0, Vector2(2, 2), 0.0, Vector2.ZERO))
 	_p(dome.x - 3.0, dome.y - 1.0, 7, 1, Pal.CAR_CHROME)   # a base
 	var glass := Pal.BEACON_GLASS[0].lerp(Pal.BEACON, 0.55 * lit)
@@ -3103,6 +3265,9 @@ func _walker() -> Dictionary:
 func _walk_at(w: Dictionary) -> Vector2:
 	if w.has("at"):   # (assistindo à cena da rua: onde parou, `_watch`)
 		return w["at"]
+	if w.has("in"):   # (o toque de recolher: da calçada para dentro do hotel, pela porta, `_hurry`; o x que cai nela)
+		var zi := lerpf(w["z"], STREET["far"] + 0.8, w["in"])
+		return Vector2(HOTEL_X * zi / STREET["far"], zi)
 	var z: float = w["z"]
 	if not w.has("corner"):
 		return Vector2(lerpf(-WALK_SPAN, WALK_SPAN, w["t"]) * w["dir"], z)
@@ -3201,11 +3366,16 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 		return
 	var k: float = OUT_F / z * 2.0 * w["h"]   # px da tela por metro (na altura dele)
 	var dark := Pal.SILHOUETTE
-	_poly(PackedVector2Array([_o(g, x - 0.3, z), _o(g, x + 0.3, z), _o(g, x + 0.3, z + 0.2), _o(g, x - 0.3, z + 0.2)]), Color(0, 0, 0, 0.35))
-	_sun_shadow(g, x - 0.22, x + 0.22, z, 1.7 * w["h"])
+	var clip := Rect2()   # entrando no hotel (o toque de recolher), passando da fachada: só pela porta
+	if z > STREET["far"]:
+		var a := _o(g, HOTEL_X - 0.6, STREET["far"], 2.3)
+		clip = Rect2(a * 2.0, (_o(g, HOTEL_X + 0.6, STREET["far"]) - a) * 2.0)
+	else:
+		_poly(PackedVector2Array([_o(g, x - 0.3, z), _o(g, x + 0.3, z), _o(g, x + 0.3, z + 0.2), _o(g, x - 0.3, z + 0.2)]), Color(0, 0, 0, 0.35))
+		_sun_shadow(g, x - 0.22, x + 0.22, z, 1.7 * w["h"])
 	var s: float = w.get("face", w["dir"])   # (o que tem frente, a aba da boina, a bolsa e o passo, vira para onde ele vai)
-	var front := w.has("corner") and absf(x - float(w["corner"])) < 0.01   # na rua do cruzamento, vindo ou indo: de frente (o x vem de um Vector2, de 32 bits)
-	var f := int(w["t"] * w["sec"] * WALK_STEPS * STRIDE.size())
+	var front := w.has("corner") and absf(x - float(w["corner"])) < 0.01 or w.has("in")   # na rua do cruzamento, vindo ou indo, ou entrando no hotel: de frente (o x vem de um Vector2, de 32 bits)
+	var f := -1 if w.has("look") else int(w.get("steps", w["t"] * w["sec"] * WALK_STEPS) * STRIDE.size())   # (parado olhando a viatura; apressado, a passada contada à parte)
 	if w.has("watch"):   # assistindo à cena da rua: se afastando dela, ou parado, de frente, olhando
 		f = int(w["step"] * WALK_STEPS * STRIDE.size()) if w["watch"] else -1
 		front = front or not w["watch"]
@@ -3291,11 +3461,21 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 		side = 1.0   # (o sol um pouco à direita do eixo da rua)
 		rim = Color(_sun_tint(Pal.SUN_STREET), edge * 0.6)
 	var against := _sunny(Pal.BACKLIT)
+	var beam := CURFEW_LIT * _beam_at(x, z)   # o holofote do toque de recolher, de frente: clareia a figura inteira, no tom dela
 	for pc: Array in parts:
 		var part: Rect2 = pc[0]
+		if clip.has_area():
+			part = Rect2(foot + part.position, part.size).intersection(clip)
+			if not part.has_area():
+				continue
+			part.position -= foot
 		var a := part.position
 		var sz := part.size
-		_p(foot.x + a.x, foot.y + a.y, sz.x, sz.y, (pc[1] as Color).lerp(RIM, 0.15 * glow).lerp(against, 0.8 * back))
+		var col := (pc[1] as Color).lerp(RIM, 0.15 * glow).lerp(against, 0.8 * back)
+		if beam > 0.0:
+			col = Color(col.r * (1.0 + 2.0 * beam) + Pal.CAR_HEAD.r * 0.12 * beam, col.g * (1.0 + 2.0 * beam) + Pal.CAR_HEAD.g * 0.12 * beam,
+				col.b * (1.0 + 2.0 * beam) + Pal.CAR_HEAD.b * 0.12 * beam, col.a)
+		_p(foot.x + a.x, foot.y + a.y, sz.x, sz.y, col)
 		if edge > 0.0:
 			if sz.y > 2.0 and top > 0.0:   # (as peças finas, como o guarda-chuva e a aba, só no lado: no alto, ficavam acesas inteiras)
 				_p(foot.x + a.x, foot.y + a.y, sz.x, 1, rim)

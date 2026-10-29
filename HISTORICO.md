@@ -2691,3 +2691,20 @@ Chaves:
 461. #vista #noites "Está sem braços, a cabeça não precisa ficar tão baixa". Caídas, as mangas ficavam por cima da
     capa e sumiam nela: saem por fora do tronco, mais claras, com os cotovelos um pouco abertos (um vão de céu até o
     corpo) e a costura da capa mais escura. A cabeça sobe uma fileira, sobre o pescoço na sombra do queixo.
+462. #vista #noites "Pode fazer" (o toque de recolher do `PLANO_RUA.md`, noites 9 a 14 às 21h). A viatura da noite 7
+    passa devagar pela mão de lá (`CURFEW_SEC`), a sirene girando e o holofote da coluna aceso, o facho correndo pela
+    calçada e pelas fachadas de lá e acendendo a beira de quem pega (`_sweep_at`, `_sweeps`); o ronco grave toca
+    quando ela passa no meio. Quem está na calçada nota quando ela chega perto (`CURFEW_SEE`), cada um no seu tempo,
+    para de perfil olhando para ela, dá meia-volta se ia para o lado dela e sai apressado, em passos mais curtos e
+    rápidos (`_hurry`, `_take_cover`, `steps`), para a rua do cruzamento ou para dentro do hotel, recortado pela porta
+    (`in`). Ninguém mais passa depois (`crowd` zero desde a hora). Na noite 9 coincide com o vigia das 21h.
+463. #vista #noites "O que melhoraria nessa luz do holofote?" e "Faça de 1 a 4". O holofote do toque de recolher:
+    (1) a luz somada numa camada própria por baixo da frente da vista (`_spot_add`, ADD), clareando o tijolo e a
+    calçada sem acinzentar, tapada pela viatura e por quem passa; (2) o círculo com o meio mais forte e a beira
+    definida, mais alto que largo na fachada e dobrando para a calçada abaixo do pé dela (cada ponto segue o raio da
+    lâmpada até o chão: uma elipse deitada); na boca da rua do cruzamento cai no chão dela, rua acima, e se parte na
+    quina (`_draw_sweep_light`); (3) quem ele pega clareia de frente, no tom da roupa (`_beam_at`), e a sombra dele
+    aparece na fachada, projetada da lâmpada, maior, cortada no pé da parede e no círculo (`_draw_beam_shadows`); (4) o
+    policial procura aos trancos (vira rápido e chega devagar, para um instante) e acompanha um tempo o peito de quem
+    pega (`_aim`, `CURFEW_PAUSE`, `CURFEW_TURN`, `CURFEW_FOLLOW`). A primeira versão do círculo, somada a 0,55 com a cor
+    do farol, virou tinta bege chapada; e o círculo atravessando a quina virava um risco: partido nela.

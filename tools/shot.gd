@@ -49,6 +49,10 @@ extends Node
 ##   --beating=12           a cena da rua da noite 3 (`Beating`) nesse instante (s desde o começo); --beating=8,0.1,30: de
 ##                          8 s em diante, de 0,1 em 0,1 s, 30 capturas (<nome>_00.png..., e os recortes do --zoom)
 ##   --lookout=12           o vigia no terraço do hotel da noite 9 (`LOOKOUT_*`) nesse instante; em sequência como o --beating
+##   --curfew=0,1,24        o toque de recolher (`CURFEW_*`) desde que a viatura aparece, com gente na calçada: de 0 s em diante, de 1 em 1 s,
+##                          24 capturas (o tempo corre de verdade entre elas, sem --still)
+##   --spot=-1,0.8,-2.5     com --curfew: a viatura parada com a frente nesse x (m), o holofote fixo nesse ponto da fachada
+##                          (x, altura) e alguém parado na calçada nesse x, no caminho do facho
 ##   --behind=0.5           alguém passando atrás da última janela acesa do prédio de tijolos (de 0 a 1 do caminho)
 ##   --blind=1              a persiana descida (de 0, aberta, a 1, fechada)
 ##   --smoke[=s]            alguém fumando na varanda, `s` segundos depois de sair (10,5: no meio do sopro da tragada)
@@ -410,6 +414,32 @@ func _ready() -> void:
 		if n > 1:
 			get_tree().quit()
 			return
+	if _args.has("curfew"):   # gente nos dois sentidos pela calçada e a viatura vindo; as capturas no tempo de verdade
+		var ct := (_args["curfew"] as String).split_floats(",")
+		var bg := m.background
+		bg._cars.clear()
+		bg._car_in = [INF, INF]
+		for i in 6:
+			bg._add_walker(bg._walker().merged({"t": 0.15 + i * 0.13, "dir": 1.0 if i % 2 == 0 else -1.0}, true))
+		bg.start_curfew()
+		if _args.has("spot"):   # parados: a viatura, o holofote e alguém no facho
+			var sp := (_args["spot"] as String).split_floats(",")
+			bg._walkers.clear()
+			while bg._cars.is_empty():
+				await get_tree().process_frame
+			var c: Dictionary = bg._cars[0]
+			c.merge({"t": (16.0 - sp[0]) / 37.0, "sec": 1e9, "aim": Vector2(sp[1], sp[2]), "goal": Vector2(sp[1], sp[2]), "wait": 1e9}, true)
+			var lamp: Vector3 = bg._sweep_lamp(c)
+			var z := Background.STREET["far_curb"] + 0.8
+			var wx := lamp.x + (sp[1] - lamp.x) * (z - lamp.y) / (Background.STREET["far"] - lamp.y)
+			bg._add_walker(bg._walker().merged({"t": (wx + Background.WALK_SPAN) / (2.0 * Background.WALK_SPAN), "dir": 1.0, "sec": 1e9, "z": z, "caught": true}, true))
+		if ct[0] > 0.0:
+			await get_tree().create_timer(ct[0], false).timeout
+		for i in int(ct[2]) if ct.size() > 2 else 1:
+			_grab(out, (_args.get("out", "build/shot.png") as String).get_basename() + "_%02d.png" % i)
+			await get_tree().create_timer(ct[1] if ct.size() > 1 else 1.0, false).timeout
+		get_tree().quit()
+		return
 	if _args.has("keys"):   # o Main refaz as teclas a cada quadro: ativadas por último, antes do quadro da captura
 		m.set_process(false)
 		m.phone.set_buttons(true, true, true)
