@@ -193,7 +193,8 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 - Cenas na rua da vista: `Night.street_events` (`StreetEvent`: `kind`, `at`, `every`; o Main chama
   `Background.schedule`). A 3: o policial (`scripts/ui/beating.gd`); a 7: a viatura estacionada no hotel (`PATROL_*`);
   a 9: o vigia no terraço (`LOOKOUT_*`); 9 a 14: o toque de recolher às 21h, `CURFEW_*`, `_hurry`; 4 a 12: pichação,
-  carro de som, panfletos, tinta, corrida, desfile e banca; 14: a fuga da família às 20h (`Moving`); 15: o
+  carro de som, panfletos, tinta, corrida, desfile e banca; 13: a batida no hotel às 22h (`Raid`: camburão, viatura,
+  cinco presos); 14: a fuga da família às 20h (`Moving`); 15: o
   sinalizador vermelho às 21h (`Flare`, camada `_flare` entre o céu e a cidade); um script por cena em
   `scripts/ui/`, relógio `_scene_t`; pichação, tinta, banca e o apartamento vazio ficam nas noites seguintes, `left_behind`). Regra de qualidade: `PLANO_RUA.md`.
 - Marcadores do roteiro: `StoryFlags` (`flags.allows(requires)`, `flags.apply("nome" | "!nome")`), salvos no `Progress`.

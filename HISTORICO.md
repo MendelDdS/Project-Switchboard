@@ -2844,3 +2844,41 @@ Chaves:
     acender, o `Background` avisa (`flare_lit`) e o Main liga o marcador `sinalizador_N` (README). A barriga das nuvens
     desenhada em lote (`_light_fans`): ~200 chamadas de desenho a menos, +0,55 ms aceso em todo clima (na chuva era
     +1,2). Teste em `test_flow` (16b): quem passa pela boca para nela, na frente do hotel ninguém vê, e o marcador.
+483. #vista #noites #luz "Vamos adicionar outro evento de roteiro: no dia 13 um camburão irá parar em frente ao hotel, e
+    um carro da polícia logo atrás, a polícia irá entrar no hotel e um tempo depois sairá escoltando 5 pessoas
+    algemadas e entraram no camburão" e "se atente aos detalhes, como portas abrindo, pessoas saindo em fila, subindo
+    no camburão, luz do giroflex iluminando local". A batida (`StreetEvent` "raid", `scripts/ui/raid.gd`), na noite 13
+    às 22h, com a rua vazia pelo toque de recolher. O camburão (`CAR_KINDS` "camburao": a cabine preta e o cofre de
+    chapa branca com "POLÍCIA", a janelinha gradeada, o degrau e a sirene, `_draw_camburao`) para com a frente logo
+    depois da porta do hotel: mais para lá, de onde estamos, ele a tapava. A viatura para atrás dele. As portas das
+    cabines do lado de cá abrem e fecham, batendo (`_draw_cab_door`; quem desce ou entra aparece só no vão); o
+    motorista do camburão fica de guarda e os outros três entram no hotel; os andares acendem um a um e ficam
+    (`Raid.floors`). A fila sai: um policial, os cinco presos algemados (as mãos nas costas, o brilho do aço, a cabeça
+    baixa; roupas e peles diferentes, `Pal.RAID_*`), um policial no meio e outro no fim, pela rua na frente do
+    camburão até a traseira; as portas do cofre abrem (a de cá dobra rente ao lado, a de lá fica para trás), cada preso
+    sobe o degrau, abaixa a cabeça e some para lá da beira do cofre, com o da guarda ajudando; ele fecha as duas,
+    batendo pesado, e cada um volta ao seu carro. As sirenes paradas (a dela e a da viatura, cada uma no seu giro)
+    iluminam a rua: uma mancha vermelha no chão e na fachada onde o facho bate (`_draw_beacon_light`, pelo shader do
+    holofote), quem o facho pega (`_beacon_at`), o asfalto molhado e a sala quando viram para nós. Isso vale também
+    para a viatura da noite 7 e a do toque de recolher; o vermelho pintado na fachada do hotel (um leque por cima)
+    saiu, no lugar dele a luz de verdade. Nenhum carro novo enquanto ela dura. Medido: +0,35 ms por quadro.
+484. #vista #noites "Estacione o camburão mais para frente": a frente dele para 1,5 m mais para lá (`Raid.VAN_FRONT`
+    -5,7), na frente do hotel; o capô, baixo, passa da porta, que fica à vista por cima dele, e quem vai da porta para
+    a rua contorna a frente dele (`Raid.ROUND`). A viatura acompanha. Com a traseira à esquerda do meio, a face de trás
+    do cofre aparece, estreita: aberta, mostra o vão escuro. As portas das cabines abrem até 50° (a 65°, a branca da
+    viatura saltava para cá como uma tábua).
+485. #vista #noites "Mais pra frente, quase chegando nos limites da janela. Também ajuste o nome 'Polícia' do camburão,
+    está mais que o carro". A frente do camburão para quase na beira da janela (`Raid.VAN_FRONT` -7,2); a porta do
+    hotel fica atrás da cabine (só o alto dela aparece), e por isso a fila e os policiais vão pela calçada, atrás
+    dele, e descem para a rua no vão entre ele e a viatura (`Raid.DOWN`; contornar a frente ficaria fora da vista).
+    O "POLÍCIA" do cofre foi para o meio da lateral, embaixo da janelinha (ao lado dela, passava da traseira).
+486. #vista #noites "O camburão está sem a parte traseira da cabine", "no final um dos policiais ficou travado, a porta
+    da viatura se abriu sozinha e o policial simplesmente sumiu e fechou a porta" e "os carros parecem deslizar ao
+    estacionar [...] já deixe os veículos na posição que irão parar". A cabine do camburão ganhou a chapa de trás,
+    depois do vidro, encostada no cofre (ele ficou 30 cm mais comprido, 5,3 m, para o cofre não encurtar). Quem desce e
+    sobe na cabine faz o movimento inteiro (`Raid._out_of_cab`, `_into_cab`): vai até a beira solta da porta, puxa com
+    a mão, recua enquanto ela gira, passa para o vão e senta, sumindo nele (sentado, do peitoril para cima; pondo o pé
+    na rua, até o chão, `_raid_clip` "van"/"van_in"); descendo, sai do banco, fica de pé e empurra a porta. Os dois
+    carros já vêm pela linha do meio-fio e só freiam (sem o `park`, que os encostava de lado no caminho).
+487. #vista #noites "A viatura pode ficar com a luz nova": a viatura da noite 7 fica com a luz do giroflex da batida
+    (`_draw_beacon_light`, a fachada, o chão, as pessoas e a sala), sem o leque antigo na fachada.

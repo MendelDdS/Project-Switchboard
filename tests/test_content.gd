@@ -328,6 +328,14 @@ func _check_street() -> void:
 	ok(moving.figures(last).is_empty() and last < moving.ARRIVE + moving.wait(), "a família entra na Kombi antes de ela sair")
 	ok(moving.FAMILY_AT > moving.DARK_AT, "a luz do apartamento apaga antes de a família descer")
 	ok(moving.laundry(moving.DARK_AT) == 0 and moving.balcony(moving.DARK_AT).x < -1.5, "a roupa recolhida antes de a luz apagar")
+	var raid: GDScript = load("res://scripts/ui/raid.gd")
+	raid.figures(0.0)
+	var last_in: float = range(raid.PRISONERS.size()).map(func(i: int) -> float: return raid._in["p%d" % i]).max()
+	ok(last_in < raid._rear.z and raid.rear(last_in).x == 1.0 and raid.rear(last_in).y == 1.0 and raid.rear(raid.end()) == Vector2.ZERO,
+		"os presos sobem com as portas do cofre abertas, e elas fecham depois do último")
+	ok(raid.figures(raid.ARRIVE + raid.wait(0) - 0.05).all(func(f: Dictionary) -> bool: return f["cop"]) and raid.figures(raid.end()).is_empty(),
+		"todos nos carros antes de eles saírem")
+	ok(raid.floors(1e5) == raid.FLOORS.size() and raid.floors(raid.FLOORS[0] - 0.1) == 0, "os andares do hotel acendem na batida e ficam")
 	var flare: GDScript = load("res://scripts/ui/flare.gd")
 	ok(flare.at(flare.RISE).z == flare.APEX and flare.light(flare.RISE - 0.1) == 0.0 and flare.light(flare.RISE + 1.0) > 0.0, "o sinalizador acende no alto")
 	ok(flare.light(flare.RISE + flare.BURN) == 0.0 and flare.at(flare.RISE + flare.BURN).z > 0.0, "o sinalizador apaga ainda no ar")

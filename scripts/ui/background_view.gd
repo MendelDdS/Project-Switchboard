@@ -9,6 +9,7 @@ const Graffiti := preload("res://scripts/ui/graffiti.gd")
 const Newsstand := preload("res://scripts/ui/newsstand.gd")
 const Moving := preload("res://scripts/ui/moving.gd")
 const Flare := preload("res://scripts/ui/flare.gd")
+const Raid := preload("res://scripts/ui/raid.gd")
 const SLEEP := Vector3(19 * 60, 23 * 60 + 50, 0.15)   ## as janelas apagam entre x e y (minutos do dia); z: as que ficam acesas
 const RAIN_STREAK := Vector2(6.0, 14.0) ## o comprimento do risco (px da tela), do mais longe ao mais perto: o rastro do quadro
 const RAIN_SLANT := 0.18 ## o vento: quanto o pingo anda para a esquerda a cada px que cai
@@ -186,6 +187,11 @@ const FLARE_SMOKE_LIT := 60.0   ## até quantos m dele a fumaça fica acesa (ros
 ## Quem passa pela boca da rua do cruzamento (só dali se vê o céu atrás dos prédios de lá): quanto leva para ver ele
 ## aceso e quanto fica parado olhando (s; `_skyward`), cada um no seu tempo
 const FLARE_REACT := Vector2(0.3, 1.5)
+## As sirenes paradas na rua (`_draw_beacon_light`, `_beacon_at`): a força da luz delas no chão, na fachada de lá e em
+## quem ela pega; e até onde o facho chega no chão (m, a mancha) e na fachada (m, mais longe não bate).
+const BEACON_LIGHT := Vector3(0.6, 0.85, 0.8)
+const BEACON_REACH := Vector2(2.8, 7.0)
+const BEACON_ROOM := Vector2(260, 0.9)   ## e a luz dela que entra na sala, virada para nós (`_window_light_list`)
 const FLARE_CAR := 0.8    ## a luz dele no capô, no teto e no porta-malas de quem passa por ela (`_sheen`)...
 const FLARE_FIG := 0.7    ## ...e na beira de cima e do lado dele em quem está nela (`_draw_walker`)
 const FLARE_GAZE := Vector2(5.0, 12.0)
@@ -289,6 +295,15 @@ const CAR_KINDS := {
 		"win": [Vector2(1.62, 1.5), Vector2(1.75, 2.2), Vector2(2.65, 2.2), Vector2(2.65, 1.5)], "pillars": [],
 		"tops": [Vector3(0.0, 1.5, 1.38), Vector3(1.65, 2.85, 2.35), Vector3(3.15, 6.65, 3.1)], "glass": [Vector4(1.5, 1.45, 1.65, 2.33)],
 		"front": 1.38, "back": 3.1, "trim": [], "doors": [2.6], "wheels": [1.05, 4.6, 5.85], "wheel": 0.48},   # (os dois de trás afastados: com 1 m, os arcos se sobrepunham)
+	# o camburão da batida no hotel da noite 13 (`Raid`): nunca sorteado; uma picape com o cofre de chapa no lugar da
+	# caçamba, mais alto que a cabine, as portas de trás dele (`_draw_camburao`)
+	"camburao": {"weight": 0.0, "pitch": 0.8, "len": 5.3, "wide": 1.9, "belt": 1.05, "lamp": 0.8,   # (a cabine com a chapa de trás, atrás da porta, encostada no cofre: só com o vidro até o fim, faltava a traseira dela)
+		"body": [Vector2(0, 0.4), Vector2(0, 0.95), Vector2(0.1, 1.05), Vector2(1.5, 1.05), Vector2(1.5, 0.95), Vector2(5.3, 0.95), Vector2(5.3, 0.4)],
+		"cab": [Vector2(1.5, 1.05), Vector2(1.85, 1.78), Vector2(3.0, 1.78), Vector2(3.0, 1.05)],
+		"box": [Vector2(3.0, 0.85), Vector2(3.0, 2.2), Vector2(3.1, 2.28), Vector2(5.25, 2.28), Vector2(5.3, 2.2), Vector2(5.3, 0.85)], "box_col": Pal.RAID_BOX,
+		"win": [Vector2(1.62, 1.08), Vector2(1.9, 1.7), Vector2(2.5, 1.7), Vector2(2.5, 1.08)], "pillars": [],
+		"tops": [Vector3(0.0, 1.5, 1.05), Vector3(1.85, 3.0, 1.78), Vector3(3.1, 5.25, 2.28)], "glass": [Vector4(1.5, 1.05, 1.85, 1.78)],
+		"front": 1.05, "back": 2.28, "trim": [0.75], "doors": [2.6], "wheels": [0.95, 4.3], "wheel": 0.38},
 	# o ônibus da linha da cidade: nunca sorteado, passa nos horários dele (`Background.BUS_TIMES`), mais devagar (`sec`)
 	"onibus": {"weight": 0.0, "sec": 5.0, "pitch": 0.62, "len": 10.5, "wide": 2.5, "belt": 1.5, "lamp": 0.9,
 		"body": [Vector2(0, 0.35), Vector2(0, 2.95), Vector2(0.2, 3.1), Vector2(10.3, 3.1), Vector2(10.5, 2.95), Vector2(10.5, 0.35)],
@@ -492,6 +507,7 @@ var police := INF      ## quando a viatura vem parar no hotel (`PATROL_*`, a noi
 var curfew := INF      ## quando começa o toque de recolher (`CURFEW_*`, as noites 9 a 14; min do dia; o Main põe)
 var scene_at := {}     ## quando começa cada uma das outras cenas da rua (`StreetEvent.kind` -> min do dia; o Main põe, `schedule`)
 var _far_tops: Array[Rect2] = []   # o alto de cada prédio da cidade de longe, como desenhado (`_draw_city`): a beira que o sinalizador acende
+var _raid_clip := {}   # por onde quem está na batida (`Raid`) aparece só em parte, medido ao desenhar os carros: "rear" (o vão do cofre), "van" e "patrol" (a porta da cabine)
 var _flare_tex := {}   # o halo do sinalizador (`_flare_halo`) de cada clima, montado uma vez
 var _scene_t := {}     # há quanto tempo cada uma delas começou (s; negativo: esperando a rua esvaziar; `Background._start_scene`)
 var lookout_at: Array[float] = []   ## quando o vigia aparece no terraço do hotel (`LOOKOUT_*`, a noite 9; min do dia; o Main põe)
@@ -1209,7 +1225,8 @@ func _draw_city_front(g: Rect2) -> void:
 	var mx := _man_x()
 	if not is_nan(mx):
 		_draw_stranger(g, mx)
-	_cars.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a["lane"] < b["lane"])   # o de lá primeiro
+	_cars.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:   # o de lá primeiro; na mesma mão, o mais longe do meio da vista
+		return a["lane"] < b["lane"] or a["lane"] == b["lane"] and absf(_car_x(a) - _lane(a).y * CAR_KINDS[a["kind"]]["len"] / 2.0) > absf(_car_x(b) - _lane(b).y * CAR_KINDS[b["kind"]]["len"] / 2.0))
 	for c in _cars:
 		if weather == "rain" or morning() > 0.0:
 			_draw_wet(g, c, 1.0 if weather == "rain" else DAMP)
@@ -1221,6 +1238,9 @@ func _draw_city_front(g: Rect2) -> void:
 		_car_z = 0.0
 		if c.has("lid"):
 			_draw_loaders(g)
+		if c.has("raid_van"):   # quem está atrás do camburão, no vão até a viatura (a viatura, depois, tapa o que estiver atrás dela)
+			_draw_raid(g, false)
+	_draw_raid(g, true)   # e quem está na rua, na frente dos carros
 	if weather == "fog":
 		_draw_fog(g)
 
@@ -2043,6 +2063,11 @@ func _draw_wet(g: Rect2, car: Dictionary = {}, a := 1.0) -> void:
 		cuts = _car_cuts(g)
 	for l: Array in lights:
 		_wet_streak(l[0], l[1], l[2], a, cuts)
+	if car.is_empty():   # e as sirenes paradas, quando viram para nós: um risco vermelho a cada volta
+		for bc in _beacons():
+			var lit := maxf(0.0, cos(bc.w))
+			if lit > 0.05:
+				_wet_streak(_o(g, bc.x, bc.y, bc.z), _o(g, bc.x, bc.y - 1.2), Pal.BEACON, a * lit, cuts)
 
 
 ## O reflexo da luz `col` (que fica em `head`) no asfalto molhado, um risco vertical quebrado descendo de `foot`, tapado
@@ -2490,6 +2515,8 @@ func _win_rect(g: Rect2, wv: Vector3) -> Rect2:
 func _win_lit(b: Dictionary, j: int) -> bool:
 	var wv: Vector3 = b["wins"][j]
 	var woke: Vector2 = b["wake"].get(j, Vector2.ZERO)
+	if wv.y >= 1.0 and wv.y <= Raid.floors(_scene_t.get("raid", -1.0)) and b["x0"] <= HOTEL_X and HOTEL_X <= b["x1"]:
+		return true   # a batida: os andares do hotel acendendo com a polícia subindo, e ficando acesos
 	return wv.z > minutes or (minutes >= woke.x and minutes < woke.y)
 
 
@@ -2959,7 +2986,7 @@ func _draw_lookout(g: Rect2) -> void:
 func _draw_patrol(g: Rect2) -> void:
 	var ff: float = STREET["far"]
 	for c in _cars:
-		if not c.has("police") or not c.has("stop"):   # (a do toque de recolher só passa)
+		if not c.has("police") or not c.has("stop") or c.has("raid"):   # (a do toque de recolher só passa; a da batida tem os dela, `Raid`)
 			continue
 		var p: float = c["s"] - TAXI_STOP.x
 		for i in 2:
@@ -2995,12 +3022,6 @@ func _draw_patrol_car(g: Rect2, c: Dictionary, m: Dictionary, at: Callable, z0: 
 	var spot := (_o(g, at.call(win.x - 0.08), z0, m["belt"] + 0.06) * 2.0).floor()   # o holofote na coluna da frente
 	var antenna_at: float = at.call(m["len"] - 0.35)   # a antena, no porta-malas, um pouco para trás
 	var antenna := [(_o(g, antenna_at, lane.x + 0.4, m["tops"][2].z) * 2.0).floor(), (_o(g, antenna_at - 0.12 * lane.y, lane.x + 0.4, m["tops"][2].z + 0.85) * 2.0).floor()]
-	var cap: Vector3 = m["tops"][1]
-	var dome := (_o(g, at.call((cap.x + cap.y) / 2.0), lane.x, cap.z) * 2.0).floor()   # o pé da sirene, no meio do teto
-	var turn := TAU * fmod(PixelArt.ms(), PATROL_SPIN) / PATROL_SPIN
-	var face := cos(turn)   # 1: virada para nós
-	var side := sin(turn)   # para onde o facho vai (x da rua)
-	var lit := maxf(face, 0.0)
 	_ci.draw_set_transform(Vector2.ZERO)   # em px da tela
 	var word := PixelArt.tiny(PATROL_WORD)
 	var mid := (_o(g, at.call(2.25), z0, (door.x + door.y) / 2.0) * 2.0).floor()
@@ -3010,6 +3031,17 @@ func _draw_patrol_car(g: Rect2, c: Dictionary, m: Dictionary, at: Callable, z0: 
 	if c.has("sweep"):   # o toque de recolher: o holofote aceso (a luz dele, `_draw_sweep_light`)
 		_p(spot.x - 1.0, spot.y, 2, 1, Pal.CAR_HEAD)
 	_pixel_line(antenna[0], antenna[1], [Pal.CAR_CHROME.darkened(0.45)], Transform2D(0.0, Vector2(2, 2), 0.0, Vector2.ZERO))
+	_draw_beacon(g, _beacon_of(c))
+
+
+## A sirene de teto `b` (`_beacon_of`), em px da tela: a base cromada, a cúpula de vidro vermelho e, dentro dela, a
+## lâmpada girando: passa de um lado ao outro da cúpula, acende tudo e pisca um clarão quando vira para nós, e varre a
+## rua num facho para o lado para onde aponta. (A luz dela no que está em volta: `_draw_beacon_light`, `_beacon_at`.)
+func _draw_beacon(g: Rect2, b: Vector4) -> void:
+	var dome := (_o(g, b.x, b.y, b.z) * 2.0).floor()   # o pé dela, no meio do teto
+	var face := cos(b.w)   # 1: virada para nós
+	var side := sin(b.w)   # para onde o facho vai (x da rua)
+	var lit := maxf(face, 0.0)
 	_p(dome.x - 3.0, dome.y - 1.0, 7, 1, Pal.CAR_CHROME)   # a base
 	var glass := Pal.BEACON_GLASS[0].lerp(Pal.BEACON, 0.55 * lit)
 	_p(dome.x - 2.0, dome.y - 3.0, 5, 2, glass)   # a cúpula, mais clara em cima
@@ -3018,16 +3050,162 @@ func _draw_patrol_car(g: Rect2, c: Dictionary, m: Dictionary, at: Callable, z0: 
 		_p(dome.x + roundf(side * 1.6), dome.y - 3.0, 1, 2, Pal.BEACON.lerp(Color.WHITE, 0.7 * lit * lit))
 	var head := dome * PX - Vector2(0, 1.5)   # (de volta às unidades da vista)
 	if lit > 0.0:   # o clarão quando ela vira para nós
-		_light_fan(head, _ring(head, (0.3 + 1.6 * lit * lit) * OUT_F / lane.x), Color(Pal.BEACON, 0.45 * lit * lit))
+		_light_fan(head, _ring(head, (0.3 + 1.6 * lit * lit) * OUT_F / b.y), Color(Pal.BEACON, 0.45 * lit * lit))
 	var sweep := absf(side) * (1.0 - absf(face) * 0.5)
 	if sweep > 0.1:   # o facho varrendo a rua, para o lado em que ela aponta
-		var far := _o(g, at.call((cap.x + cap.y) / 2.0) + signf(side) * 5.0, lane.x, cap.z) - Vector2(0, 1.5)
-		var spread := 0.6 * OUT_F / lane.x
+		var far := _o(g, b.x + signf(side) * 5.0, b.y, b.z) - Vector2(0, 1.5)
+		var spread := 0.6 * OUT_F / b.y
 		_fill(PackedVector2Array([head, head, far + Vector2(0, spread), far - Vector2(0, spread)]),
 			PackedColorArray([Color(Pal.BEACON, 0.22 * sweep), Color(Pal.BEACON, 0.22 * sweep), Color(Pal.BEACON, 0.0), Color(Pal.BEACON, 0.0)]))
-	if face < 0.0:   # de costas para nós: o vermelho batendo na fachada do hotel, atrás
-		var wall := Vector2(head.x, _o(g, 0.0, STREET["far"], 1.6).y)
-		_light_fan(wall, _ring(wall, 2.6 * OUT_F / STREET["far"]), Color(Pal.BEACON, 0.16 * -face))
+
+
+## A sirene do carro `c` (uma viatura ou o camburão): Vector4(x, z, a altura dela (m), o giro (rad; 0: virada para
+## nós)). Cada carro gira no seu tempo (`spin`, ms a mais).
+func _beacon_of(c: Dictionary) -> Vector4:
+	var m: Dictionary = CAR_KINDS[c["kind"]]
+	var cap: Vector3 = m["tops"][1]   # (o teto: da viatura ou da cabine do camburão)
+	var lane := _lane(c)
+	return Vector4(_car_x(c) - lane.y * (cap.x + cap.y) / 2.0, lane.x, cap.z, TAU * fmod(PixelArt.ms() + c.get("spin", 0.0), PATROL_SPIN) / PATROL_SPIN)
+
+
+## As sirenes na rua agora (`_beacon_of`): as das viaturas e a do camburão.
+func _beacons() -> Array[Vector4]:
+	var out: Array[Vector4] = []
+	for c in _cars:
+		if c.has("police") or c.has("raid_van"):
+			out.append(_beacon_of(c))
+	return out
+
+
+## O quanto a luz das sirenes pega quem está em `x`, `z` (m): Vector2(a força, de 0 a 1; o lado de onde ela vem, -1 ou
+## 1). Pega quem está no facho dela (girando, uma vez por volta), mais forte perto.
+func _beacon_at(x: float, z: float) -> Vector2:
+	var best := Vector2(0.0, 1.0)
+	for b in _beacons():
+		var to := Vector2(x - b.x, z - b.y)
+		var aim := Vector2(sin(b.w), -cos(b.w))   # (no chão: para onde o facho vai)
+		var k := smoothstep(0.7, 0.97, to.normalized().dot(aim)) * (1.0 - smoothstep(2.0, BEACON_REACH.y, to.length()))
+		if to.length() < 0.6:   # (embaixo dela, colado no carro: um pouco, sempre)
+			k = maxf(k, 0.3)
+		if k * BEACON_LIGHT.z > best.x:
+			best = Vector2(k * BEACON_LIGHT.z, signf(b.x - x) if absf(b.x - x) > 0.05 else 1.0)
+	return best
+
+
+## A luz das sirenes na rua (`_spot_add`, que clareia o que está embaixo, `spot_light.gdshader`): para onde o facho
+## aponta, uma mancha vermelha no chão a uns metros e, virado para a calçada de lá, outra na fachada, onde ele bate;
+## girando, as duas correm pela rua e pela fachada. (De frente para nós, ela entra na sala: `_window_light_list`.)
+func _draw_beacon_light(g: Rect2) -> void:
+	var ff: float = STREET["far"]
+	var fans := []
+	for b in _beacons():
+		var aim := Vector2(sin(b.w), -cos(b.w))
+		var wall := (ff - b.y) / aim.y if aim.y > 0.05 else INF   # (até a fachada de lá, pelo chão)
+		var d := minf(BEACON_REACH.x, wall - 0.5)
+		var c := Vector2(b.x, b.y) + aim * d
+		var rim := PackedVector2Array()
+		for i in 16:
+			var a := TAU * i / 16.0
+			rim.append(_o(g, c.x + cos(a) * 1.9, c.y + sin(a) * 1.2))
+		fans.append([_o(g, c.x, c.y), rim, Color(Pal.BEACON, BEACON_LIGHT.x)])
+		if wall < BEACON_REACH.y:   # e na fachada, onde ele bate (mais forte quanto mais de frente)
+			var hx := b.x + aim.x * wall
+			var wr := PackedVector2Array()
+			for i in 16:
+				var a := TAU * i / 16.0
+				wr.append(_o(g, hx + cos(a) * 1.6, ff, maxf(0.0, 1.5 + sin(a) * 1.5)))
+			fans.append([_o(g, hx, ff, 1.5), wr, Color(Pal.BEACON, BEACON_LIGHT.y * aim.y * (1.0 - wall / BEACON_REACH.y))])
+	_light_fans(fans)
+
+
+## O que o camburão da batida (`c`, `Raid`; `at` dá o x a tantos m da frente, `z0`/`z1` os lados) tem a mais que uma
+## picape com baú: no cofre, "POLÍCIA" e a janelinha gradeada no alto, rebites na beira, o degrau atrás e a sirene na
+## cabine; e as duas portas de trás, abrindo (`Raid.rear`): a de cá dobra até ficar quase rente ao lado, a de lá fica
+## para trás, as duas mostrando o lado de dentro, mais escuro, com a janelinha. Quem sobe some no vão, para lá da
+## beira de trás do cofre (`_raid_clip` "rear").
+func _draw_camburao(g: Rect2, c: Dictionary, m: Dictionary, at: Callable, z0: float, z1: float) -> void:
+	var box: Array = m["box"]
+	var b0: float = box[0].x
+	var b1: float = m["len"]
+	var lo: float = box[0].y
+	var hi: float = box[2].y
+	var tones: Array = m["box_col"]
+	var grille := Vector2(b0 + 0.35, b0 + 1.1)   # a janelinha gradeada, no alto do lado do cofre
+	_poly(PackedVector2Array([_o(g, at.call(grille.x), z0, hi - 0.55), _o(g, at.call(grille.y), z0, hi - 0.55), _o(g, at.call(grille.y), z0, hi - 0.2),
+		_o(g, at.call(grille.x), z0, hi - 0.2)]), Pal.RAID_GRILLE)
+	for u in [0.25, 0.5, 0.75]:   # as grades
+		var gx: float = at.call(lerpf(grille.x, grille.y, u))
+		_ci.draw_line(_o(g, gx, z0, hi - 0.55), _o(g, gx, z0, hi - 0.2), tones[Pal.CAR_MID + 1], PX)
+	_ci.draw_line(_o(g, at.call(b0 + 0.05), z0, hi - 0.05), _o(g, at.call(b1 - 0.05), z0, hi - 0.05), tones[Pal.CAR_MID + 2], PX)   # a beira de cima, na luz
+	_ci.draw_line(_o(g, at.call(b0 + 0.05), z0, lo + 0.1), _o(g, at.call(b1 - 0.05), z0, lo + 0.1), tones[Pal.CAR_MID - 1], PX)   # e a de baixo
+	_ci.draw_set_transform(Vector2.ZERO)   # o letreiro, em px da tela
+	var word := PixelArt.tiny(PATROL_WORD)
+	var mid := (_o(g, at.call((b0 + b1) / 2.0), z0, lo + 0.4) * 2.0).floor()   # (no meio do cofre, embaixo da janelinha: ao lado dela, passava da traseira)
+	_ci.draw_texture(word, mid - Vector2(floorf(word.get_width() / 2.0), 5), Pal.PATROL_INK)
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	_poly(PackedVector2Array([_o(g, at.call(b1 - 0.05), z0, 0.45), _o(g, at.call(b1 + 0.2), z0, 0.45), _o(g, at.call(b1 + 0.2), z1, 0.45),
+		_o(g, at.call(b1 - 0.05), z1, 0.45)]), Pal.CAR_CHROME.darkened(0.3))   # o degrau, atrás
+	_draw_beacon(g, _beacon_of(c))
+	var open := Raid.rear(_scene_t.get("raid", -1.0))
+	var w := (z1 - z0) / 2.0
+	var rx: float = at.call(b1)
+	var back := -_lane(c).y   # (para trás do carro, em x)
+	if open.x + open.y > 0.0 and back * rx < 0.0:   # a traseira à vista (à esquerda do meio), aberta: o vão escuro no lugar das portas
+		_poly(PackedVector2Array([_o(g, rx, z0 + 0.06, lo), _o(g, rx, z1 - 0.06, lo), _o(g, rx, z1 - 0.06, hi - 0.06), _o(g, rx, z0 + 0.06, hi - 0.06)]), Pal.RAID_GRILLE)
+	for leaf in [1, 0]:   # a de lá antes (atrás): cada uma pela dobradiça no canto dela, girando para fora
+		var turn := deg_to_rad(Raid.REAR_OPEN[leaf]) * open[leaf]
+		if turn <= 0.0:
+			continue
+		var hinge := Vector2(rx, z0 if leaf == 0 else z1)
+		var tip := hinge + Vector2(sin(turn) * back, cos(turn) * (1.0 if leaf == 0 else -1.0)) * w
+		var inside := tones[Pal.CAR_MID - 2] as Color   # (aberta, o lado de dentro dela fica para fora)
+		_poly(PackedVector2Array([_o(g, hinge.x, hinge.y, lo), _o(g, tip.x, tip.y, lo), _o(g, tip.x, tip.y, hi - 0.06), _o(g, hinge.x, hinge.y, hi - 0.06)]), inside)
+		var gl := hinge.lerp(tip, 0.3)   # a janelinha dela, gradeada
+		var gr := hinge.lerp(tip, 0.75)
+		_poly(PackedVector2Array([_o(g, gl.x, gl.y, hi - 0.5), _o(g, gr.x, gr.y, hi - 0.5), _o(g, gr.x, gr.y, hi - 0.25), _o(g, gl.x, gl.y, hi - 0.25)]), Pal.RAID_GRILLE)
+		_ci.draw_line(_o(g, tip.x, tip.y, lo), _o(g, tip.x, tip.y, hi - 0.06), tones[Pal.CAR_MID - 1], PX)   # a beira solta
+	var rim: float = _o(g, rx, z0, lo).x * 2.0   # quem sobe some para lá da beira de trás (o cofre fica entre nós e ele; ele vem pela mão de lá, a traseira à direita)
+	_raid_clip["rear"] = Rect2(rim, -1e4, 1e5, 2e4)
+
+
+## A porta da cabine do lado de cá do carro da batida `c` (`Raid.cab`; o camburão ou a viatura), abrindo pela dobradiça
+## da frente: o vão escuro dela, com o banco, e a porta girando para cá, a lataria embaixo e o vidro em cima. Quem desce
+## ou entra aparece só no vão (`_raid_clip` "van" ou "patrol").
+func _draw_cab_door(g: Rect2, c: Dictionary, m: Dictionary, at: Callable, z0: float) -> void:
+	var van := c.has("raid_van")
+	var cab: Vector2 = Raid.VAN_CAB if van else Raid.PATROL_CAB   # (x da dobradiça e do fim, na rua)
+	var win: Vector2 = Vector2(m["win"][0].y, m["win"][1].y)   # a altura do vidro
+	var x0: float = cab.x
+	var x1: float = cab.y
+	var low := 0.4
+	var p := [_o(g, x0, z0, low), _o(g, x1, z0, low), _o(g, x1, z0, win.y), _o(g, x0, z0, win.y)]
+	var id := "van" if van else "patrol"
+	_raid_clip[id + "_in"] = Rect2(p[3] * 2.0, (p[1] - p[3]) * 2.0)   # sentado: do peitoril para cima...
+	_raid_clip[id] = Rect2(p[3] * 2.0, (_o(g, x1, z0) - p[3]) * 2.0)   # ...e pondo o pé na rua: até o chão
+	var open := Raid.cab(_scene_t.get("raid", -1.0), 0 if van else 1)
+	if open <= 0.0:
+		return
+	_poly(PackedVector2Array(p), Pal.RAID_GRILLE)   # o vão, escuro
+	_poly(PackedVector2Array([_o(g, x0 + 0.1 * (x1 - x0), z0 + 0.3, 0.6), _o(g, x1, z0 + 0.3, 0.6), _o(g, x1, z0 + 0.3, 1.0),
+		_o(g, x0 + 0.1 * (x1 - x0), z0 + 0.3, 1.0)]), (c["tones"] as Array)[Pal.CAR_MID - 2])   # o banco
+	var turn := deg_to_rad(50.0) * open   # (mais, a porta saltava para cá como uma tábua)
+	var tip := Vector2(x0 + (x1 - x0) * cos(turn), z0 - absf(x1 - x0) * sin(turn))
+	var body: Color = Pal.PATROL_DOOR if c.has("police") else (c["tones"] as Array)[Pal.CAR_MID]   # (a da viatura é branca)
+	_poly(PackedVector2Array([_o(g, x0, z0, low), _o(g, tip.x, tip.y, low), _o(g, tip.x, tip.y, m["belt"]), _o(g, x0, z0, m["belt"])]), body)
+	_poly(PackedVector2Array([_o(g, x0, z0, m["belt"]), _o(g, tip.x, tip.y, m["belt"]), _o(g, tip.x, tip.y, win.y - 0.05), _o(g, x0, z0, win.y - 0.05)]),
+		Pal.CAR_GLASS.lerp(Pal.CAR_SKY, 0.45))
+	_ci.draw_line(_o(g, tip.x, tip.y, low), _o(g, tip.x, tip.y, win.y - 0.05), Color(0, 0, 0, 0.5), PX)   # a beira dela
+
+
+## Quem está na batida (`Raid`) na rua: `near` os da frente dos carros (desenhados depois de todos) ou os do vão atrás
+## do camburão (logo depois dele), cada um recortado por onde aparece (o vão do cofre, a porta da cabine, a do hotel).
+func _draw_raid(g: Rect2, near: bool) -> void:
+	for f: Dictionary in Raid.figures(_scene_t.get("raid", -1.0)):
+		var z: float = f["z"]
+		if z >= STREET["far_curb"] or (z < Raid.PARK.y - 0.95) != near:
+			continue
+		var clip: String = f.get("clip", "")
+		_draw_rig(g, f, _raid_clip.get(clip, Rect2()) if clip != "" else _door_clip(g, f["x"], z))
 
 
 ## O que o carro de som (`c`; `at` dá o x a tantos m da frente, `z0` o lado de cá) tem a mais que uma Kombi: o cartaz
@@ -3764,6 +3942,12 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 		glow = fl
 		side = signf(Flare.at(ft).x - x)
 		rim = Color(dark.lerp(Pal.SIGNAL_FLARE[1], 0.6), fl * 0.8)
+	var red := _beacon_at(x, z)   # e a sirene de uma viatura parada, quando o facho dela passa (também só do lado)
+	if red.x > glow:
+		flared = true
+		glow = red.x
+		side = red.y
+		rim = Color(dark.lerp(Pal.BEACON, 0.6), red.x * 0.8)
 	var edge := glow
 	var back := _sunlit() * smoothstep(STREET["far"], STREET["far"] + 1.5, z)
 	var top := 0.0 if flared else glow   # (de manhã, contra o sol, e com o sinalizador atrás, a beira acesa só do lado: no alto de cada peça, a figura virava um contorno de arame)
@@ -3827,6 +4011,7 @@ func _scene_figs() -> Array:
 	figs.append_array(Chase.figures(_scene_t.get("chase", -1.0)))
 	figs.append_array(Newsstand.figures(_scene_t.get("newsstand", -1.0)))
 	figs.append_array(Moving.figures(_scene_t.get("moving", -1.0)))
+	figs.append_array(Raid.figures(_scene_t.get("raid", -1.0)).filter(func(f: Dictionary) -> bool: return f["z"] >= STREET["far_curb"]))   # (os da rua vêm com os carros, `_draw_raid`)
 	figs.append_array(Flyers.figures(_scene_t.get("flyers", -1.0)))
 	for f: Dictionary in [Graffiti.tagger(_scene_t.get("graffiti", -1.0)),
 			Graffiti.painter(_scene_t.get("paint", -1.0))]:
@@ -3860,6 +4045,10 @@ func _draw_rig(g: Rect2, p: Dictionary, clip := Rect2()) -> void:
 		if near > glow:
 			glow = near
 			side = 1.0 if lx >= x else -1.0
+	var red := _beacon_at(x, z)   # a sirene, quando o facho dela passa
+	if red.x > glow:
+		_draw_pixels(foot, _rig_pixels(p, k), k, Pal.BEACON, red.x, red.y, clip)
+		return
 	_draw_pixels(foot, _rig_pixels(p, k), k, RIM, glow, side, clip)
 
 
@@ -4001,6 +4190,10 @@ func _rig_pixels(p: Dictionary, k: float) -> Dictionary:
 	if p.get("sack", false):   # o saco na mão de lá, de lona, pendurado
 		var held: Vector2 = arms[1][2]
 		_stamp(pix, [held + Vector2(0, 0.08 * k), held + Vector2(0, 0.3 * k)], maxi(3, roundi(0.22 * k)), Pal.PAPERBOY[0])
+	if p.get("cuffs", false):   # as algemas: as duas mãos juntas nas costas e o brilho do aço entre elas
+		var held: Vector2 = arms[1][2]
+		_stamp(pix, [held, held], 1, Pal.lit(skin, -1))
+		_stamp(pix, [(hand + held) / 2.0, (hand + held) / 2.0], 1, Pal.CAR_CHROME.lightened(0.2))
 	if cop:   # o cassetete: na mão, seguindo o antebraço, ou pendurado no cinto
 		var fore: Vector2 = (arms[0][2] - arms[0][1]).normalized()
 		var stick: Array = [hand, hand + fore * 0.6 * k] if p["baton"] else [hip + up.call(lean) * 0.1 * k + up.call(lean + 90.0) * 0.1 * k, hip + up.call(lean) * 0.1 * k + up.call(lean + 90.0) * 0.14 * k + down.call(8.0) * 0.45 * k]
@@ -4478,6 +4671,10 @@ func _draw_car(g: Rect2, c: Dictionary) -> void:
 		_sheen(g, at.call(0.05), at.call(L - 0.05), z0, h, 0.35 * shine, shine)
 	if c.has("police"):
 		_draw_patrol_car(g, c, m, at, z0)
+	if c.has("raid_van"):
+		_draw_camburao(g, c, m, at, z0, z1)
+	if c.has("raid"):   # a porta do motorista, do lado de cá, abrindo
+		_draw_cab_door(g, c, m, at, z0)
 	if c.has("speaker"):
 		_draw_speaker_car(g, c, at, z0)
 	if c.has("army"):

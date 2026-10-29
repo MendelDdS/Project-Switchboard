@@ -388,6 +388,12 @@ const BEACON := Color("ff2a1e")
 const BEACON_GLASS: Array[Color] = [Color("3a0c0c"), Color("6a1612")]
 const PATROL_DOOR := Color("6e6c66")
 const PATROL_INK := Color("15181e")
+## A batida no hotel (`Background`, `Raid`): o cofre do camburão, de chapa branca (a rampa, como as dos carros: o tom em
+## `CAR_MID`), as grades da janelinha dele e as roupas dos presos (camisas e calças, pegos de noite no hotel)
+const RAID_BOX: Array[Color] = [Color("0e1216"), Color("13171a"), Color("1b1e20"), Color("262829"), Color("4a4c4a"), Color("5c5c58"), Color("6e6c66"), Color("807c74")]
+const RAID_GRILLE := Color("0a0c0e")
+const RAID_SHIRTS: Array[Color] = [Color("7a766a"), Color("3a4658"), Color("5a3a2c"), Color("6a6248"), Color("2e3a30")]
+const RAID_PANTS: Array[Color] = [Color("24242a"), Color("2e2a22"), Color("3a3e48")]
 ## O carro de som (`Background.SPEAKER_*`): o cartaz na porta (o papel, e o brasão redondo: o aro e o miolo, em tinta
 ## escura, e o campo claro entre eles) e as cornetas no teto, de chapa pintada (o fundo da boca, o corpo e o aro na
 ## luz), escuras contra o teto claro da Kombi

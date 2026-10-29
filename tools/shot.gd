@@ -54,6 +54,8 @@ extends Node
 ##   --graffiti=10,1,12     a pichação da noite 4 (`Graffiti`) nesse instante; --paint=8,2,12, a tinta por cima na noite 7
 ##   --newsstand=4,3,14     a banca fechada da noite 12 (`Newsstand`) nesse instante (sem o carro; com ele, --scene=newsstand)
 ##   --flare=10,2,12        o sinalizador da noite 15 (`Flare`) nesse instante (s desde o tiro); em sequência como o --beating
+##   --raid=50,2,12         a batida no hotel da noite 13 (`Raid`), com o camburão e a viatura, nesse instante (s desde que o
+##                          camburão aparece); em sequência como o --beating
 ##   --lookout=12           o vigia no terraço do hotel da noite 9 (`LOOKOUT_*`) nesse instante; em sequência como o --beating
 ##   --curfew=0,1,24        o toque de recolher (`CURFEW_*`) desde que a viatura aparece, com gente na calçada: de 0 s em diante, de 1 em 1 s,
 ##                          24 capturas (o tempo corre de verdade entre elas, sem --still)
@@ -407,7 +409,7 @@ func _ready() -> void:
 			if _args.has("smoke"):
 				bg._smoke_t = 10.5 if _args["smoke"] == "1" else float(_args["smoke"])
 			await get_tree().process_frame
-	for scene: Array in [["beating", "_beat_t"], ["lookout", "_look_t"], ["chase", "chase"], ["flyers", "flyers"], ["graffiti", "graffiti"], ["paint", "paint"], ["newsstand", "newsstand"], ["flare", "flare"]]:   # posto de novo a cada quadro (o cenário o avança sozinho)
+	for scene: Array in [["beating", "_beat_t"], ["lookout", "_look_t"], ["chase", "chase"], ["flyers", "flyers"], ["graffiti", "graffiti"], ["paint", "paint"], ["newsstand", "newsstand"], ["flare", "flare"], ["raid", "raid"]]:   # posto de novo a cada quadro (o cenário o avança sozinho)
 		if not _args.has(scene[0]):
 			continue
 		var bt := (_args[scene[0]] as String).split_floats(",")
@@ -419,8 +421,16 @@ func _ready() -> void:
 		var n := int(bt[2]) if bt.size() > 2 else 1
 		for i in n:
 			for f in 8:   # (a vista se desenha a 30 por segundo, e a captura sai um quadro depois)
-				if scene[1] in ["chase", "flyers", "graffiti", "paint", "newsstand", "flare"]:   # (as cenas de `scene_at`: o relógio delas em `_scene_t`)
+				if scene[1] in ["chase", "flyers", "graffiti", "paint", "newsstand", "flare", "raid"]:   # (as cenas de `scene_at`: o relógio delas em `_scene_t`)
 					bg._scene_t[scene[1]] = bt[0] + i * (bt[1] if n > 1 else 0.0)
+				if scene[0] == "raid":   # os dois carros, no mesmo relógio da cena
+					if not bg._cars.any(func(c: Dictionary) -> bool: return c.has("raid")):
+						bg._cars.clear()
+						bg._car_in = [INF, INF]
+						bg._walkers.clear()
+						bg._cars.append(bg._scene_car_of("raid", 0.0))
+					for c: Dictionary in bg._cars:
+						c["s"] = bg._scene_t["raid"] - (0.0 if c.has("raid_van") else Background.Raid.LATE)
 				else:
 					bg.set(scene[1], bt[0] + i * (bt[1] if n > 1 else 0.0))
 				await get_tree().process_frame

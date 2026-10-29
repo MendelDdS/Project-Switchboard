@@ -153,6 +153,17 @@ Ordem sugerida: das que reaproveitam mais (o rig, a viatura, a passada) para as 
   é maior e mais forte (`FLARE_WET`) e as gotas do vidro e os pingos perto dele pegam o vermelho (`FLARE_BEADS`).
   Medido: aceso, +0,5 ms por quadro (~2,5 ms) e ~360 chamadas a mais, nenhum quadro acima de 16 ms.
 
+### K. A batida no hotel (noite 13)
+- Feito (`scripts/ui/raid.gd`; `--raid=t0,passo,n` ou `--scene=raid`, F1). Às 22h, depois do toque de recolher, com a
+  rua vazia.
+- [x] Um camburão (cabine preta, o cofre de chapa branca com "POLÍCIA", a janelinha gradeada e a sirene) encosta logo
+  depois da porta do hotel, que fica à vista, e uma viatura logo atrás. O motorista do camburão desce pela porta do
+  lado de cá e fica de guarda; os outros três entram no hotel, e os andares acendem um a um. Saem em fila: um policial,
+  os cinco presos algemados (as mãos juntas nas costas, o brilho do aço, a cabeça baixa), um policial no meio e outro
+  no fim, pela rua na frente do camburão; o da guarda abre as portas do cofre (a de cá dobra rente ao lado, a de lá
+  fica para trás) e ajuda cada um a subir o degrau; fecha as duas (batendo), cada um volta ao seu carro pela porta
+  dele, e saem. As sirenes iluminam a rua, a fachada, quem o facho pega, o asfalto molhado e a sala.
+
 ## 4. Fechando cada cena
 - [ ] Opção na captura (`tools/shot.gd`) e botão no F1.
 - [ ] `test_content` cobre a hora e a noite; `tests/run.sh` inteiro.

@@ -7,9 +7,10 @@ extends Resource
 ## a corrida (`Chase`); "flyers": os panfletos (`Flyers`); "graffiti" e "paint": a pichação e a tinta por cima
 ## (`Graffiti`); "newsstand": a banca esvaziada e lacrada (`Newsstand`, antes das 19h); "parade": o caminhão do
 ## exército (`ARMY_*`); "moving": a família do apartamento da varanda fugindo de Kombi (`Moving`, antes das 21h); "flare": o sinalizador
-## vermelho atirado no céu e descendo devagar (`Flare`).
+## vermelho atirado no céu e descendo devagar (`Flare`); "raid": a batida no hotel, o camburão e a viatura, cinco presos
+## levados algemados (`Raid`).
 ## Pichação, tinta, banca e o apartamento vazio ficam nas noites seguintes (`Background.left_behind`).
 
-@export_enum("beating", "police", "lookout", "curfew", "speaker", "chase", "flyers", "graffiti", "paint", "newsstand", "parade", "moving", "flare") var kind := "beating"
+@export_enum("beating", "police", "lookout", "curfew", "speaker", "chase", "flyers", "graffiti", "paint", "newsstand", "parade", "moving", "flare", "raid") var kind := "beating"
 @export var at := 190.0
 @export var every := 0.0
