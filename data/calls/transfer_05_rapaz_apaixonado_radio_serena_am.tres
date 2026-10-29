@@ -6,6 +6,7 @@
 script = ExtResource("1_s7gop")
 voice = "m"
 caller = "Rapaz apaixonado"
+caller_name = "Gilberto Brandão"
 opening = PackedStringArray("Boa noite!", "Me liga com a Rádio Serena? Quero pedir uma música pra minha noiva.")
 repeat = "A rádio. A Serena AM."
 target = "390"

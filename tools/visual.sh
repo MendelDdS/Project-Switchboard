@@ -1,6 +1,7 @@
 #!/bin/bash
 # Regressão visual: as mesmas capturas no commit dado (padrão HEAD) e no que está no disco, comparadas pixel a pixel
-# (`tools/diff_shots.gd`). Diz quais imagens mudaram e onde; sem nada mudado, sai com 0.
+# (`tools/diff_shots.gd`). Diz quais imagens mudaram e onde e confere os degraus das beiras consertadas do plano de pixel
+# (`tools/beiras.txt`, pelo `tools/edge_steps.gd`); sem nada mudado, sai com 0.
 #   tools/visual.sh [commit]       (com tela: uma captura de cada vez, janela pequena no canto, ~7 s cada)
 # As de antes saem de uma cópia do commit (git worktree em build/visual/base, com o .godot copiado: sem --import) e
 # ficam guardadas pelo hash, em build/visual/<hash>: na mesma HEAD, só as de depois são refeitas.
@@ -27,12 +28,13 @@ relatorio|--hour=23:59 --weather=clear --screen=report --rating=fair
 amanhecer|--night=15 --hour=05:30 --weather=clear"
 
 capture() {   # capture <pasta do projeto> <pasta de saída>: o --out do shot.gd é relativo ao projeto em que roda
-	rm -rf "$1/build/visual/tmp"
+	rm -rf "$1/build/visual/tmp"   # (3500 quadros: com 1500, o som sintetizado ao iniciar não deixava as capturas saírem)
 	while IFS='|' read -r name opts; do
 		# shellcheck disable=SC2086
-		(cd "$1" && "$G" --fixed-fps 60 --resolution 160x90 --position 0,0 --quit-after 1500 --path . tools/shot.tscn -- --night=2 --seed=1 \
+		(cd "$1" && "$G" --fixed-fps 60 --resolution 160x90 --position 0,0 --quit-after 3500 --path . tools/shot.tscn -- --night=2 --seed=1 \
 			--wait=5 --still $opts --out="build/visual/tmp/$name.png" >/dev/null 2>&1)
 	done <<<"$SET"
+	[ -f "$1/build/visual/tmp/amanhecer.png" ] || { echo "capturas incompletas em $1 (o --quit-after acabou antes?)"; exit 1; }
 	rm -rf "$2"
 	mv "$1/build/visual/tmp" "$2"
 }
@@ -42,6 +44,7 @@ if [ ! -f "$before/amanhecer.png" ]; then
 	wt="$PWD/build/visual/base"
 	if [ -d "$wt" ]; then git -C "$wt" checkout -q --detach "$base"; else git worktree add -q --detach "$wt" "$base"; fi
 	[ -d "$wt/.godot" ] || cp -R .godot "$wt/"
+	cp .godot/global_script_class_cache.cfg "$wt/.godot/"   # (a lista das classes guardada na cópia envelhece: `class_name` novo não resolvia)
 	echo "Capturando $base..."
 	capture "$wt" "$before"
 fi
@@ -49,4 +52,7 @@ after="$PWD/build/visual/disco"
 echo "Capturando o que está no disco..."
 capture "$PWD" "$after"
 "$G" --headless --path . -s tools/diff_shots.gd -- "build/visual/$base" build/visual/disco 2>&1 | grep -v "^Godot Engine"
-exit "${PIPESTATUS[0]}"
+diff=${PIPESTATUS[0]}
+# as beiras consertadas no plano de pixel, nos degraus aprovados (`tools/beiras.txt`)
+"$G" --headless --path . -s tools/edge_steps.gd -- --check=tools/beiras.txt build/visual/disco 2>&1 | grep -v "^Godot Engine\|^$"
+[ "$diff" = 0 ] && [ "${PIPESTATUS[0]}" = 0 ]

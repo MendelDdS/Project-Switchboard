@@ -10543,6 +10543,34 @@ msgid "Tá bem, obrigada."
 msgstr ""
 
 #: data/content.tres
+msgid "Vou aguardar."
+msgstr ""
+
+#: data/content.tres
+msgid "Tá, eu espero."
+msgstr ""
+
+#: data/content.tres
+msgid "Pode deixar, eu aguardo na linha."
+msgstr ""
+
+#: data/content.tres
+msgid "Espero, mas não demora, tá?"
+msgstr ""
+
+#: data/content.tres
+msgid "Ligarei outra hora."
+msgstr ""
+
+#: data/content.tres
+msgid "Então eu ligo mais tarde."
+msgstr ""
+
+#: data/content.tres
+msgid "Deixa, ligo outra hora. Obrigado."
+msgstr ""
+
+#: data/content.tres
 msgid "Pode ser. Obrigado."
 msgstr ""
 
@@ -10620,6 +10648,14 @@ msgstr ""
 
 #: data/content.tres
 msgid "Aqui não existe esse número, colega."
+msgstr ""
+
+#: data/content.tres
+msgid "Liguei agora há pouco e as linhas estavam ocupadas. Já liberou?"
+msgstr ""
+
+#: data/content.tres
+msgid "Sou eu de novo, Central. Já tem linha?"
 msgstr ""
 
 #: data/content.tres

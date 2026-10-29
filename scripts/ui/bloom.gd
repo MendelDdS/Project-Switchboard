@@ -121,7 +121,7 @@ func _glow(r: Rect2, col: Color, halo: float, core: bool, round: bool, masks := 
 	var tex := _halo_for(r.size, round, not core, rel)
 	var at := ((r.position - Vector2(SPREAD, SPREAD)) / BLOCK).floor() * BLOCK   # na grade dos pixels do cenário
 	var area := Rect2(at, Vector2(tex.get_size()) * BLOCK)
-	var hit := masks.filter(func(m: PackedVector2Array) -> bool: return area.intersects(_bounds(m)))
+	var hit := masks.filter(func(m: PackedVector2Array) -> bool: return area.intersects(PixelArt.bounds(m)))
 	if not hit.is_empty():
 		tex = _cut(tex, at, hit)
 	draw_texture_rect(tex, Rect2(at, Vector2(tex.get_size()) * BLOCK), false,
@@ -149,13 +149,6 @@ func _cut(tex: ImageTexture, at: Vector2, masks: Array) -> ImageTexture:
 	var cut := ImageTexture.create_from_image(img)
 	_cuts[key] = cut
 	return cut
-
-
-func _bounds(m: PackedVector2Array) -> Rect2:
-	var b := Rect2(m[0], Vector2.ZERO)
-	for p in m:
-		b = b.expand(p)
-	return b
 
 
 ## O halo de uma luz do tamanho `size` (guardado por tamanho): branco, em blocos, das duas camadas. `hollow`: fraco

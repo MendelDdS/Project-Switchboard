@@ -5,6 +5,7 @@
 [resource]
 script = ExtResource("1_pf6m4")
 caller = "Dona Lurdes"
+caller_name = "Lurdes Andrade"
 opening = PackedStringArray("Boa noite.", "Poderia me conectar com a farmácia? A de plantão. Meu neto está com febre.")
 repeat = "A farmácia de plantão, moço. A que fica aberta de noite."
 target = "162"

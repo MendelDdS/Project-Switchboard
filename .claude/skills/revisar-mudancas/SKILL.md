@@ -40,6 +40,15 @@ Só olha as linhas acrescentadas e aponta o que as convenções já proíbem, in
 É um filtro grosso: confira cada apontamento no código antes de repassar (um `draw_polygon` com textura, ou um
 `queue_redraw` depois de comparar o estado, são legítimos).
 
+Depois, os testes rápidos (~30 s), sempre, antes de qualquer commit:
+
+```sh
+tests/run.sh content training flow
+```
+
+Falhou: não commite; conserte (ou relate, se não for da mudança). Um teste quebrado já entrou num commit por faltar
+este passo. Mudança em agenda, ritmo, fim de ligação, mesa ou cabos: rode a suíte inteira (`tests/run.sh`, ~2 min).
+
 ## 3. Leitura do diff
 
 Leia `git diff HEAD` (ou desde a base) e, só nas linhas alteradas, confira o que pede julgamento. As regras vêm do
@@ -107,6 +116,10 @@ rm -f tests/test_zz_medir.gd tests/test_zz_medir.gd.uid
 
 Referência neste Mac (10/2026, depois do plano hi-bit; os números variam de uma medição para outra, ±1 ms):
 
+(26/10/2026: o mesmo commit mede ~7 ms de média, também na versão 0.6.0, e as chamadas do último quadro saem ~235 numa
+execução e ~740 na outra, sem mudar ao esconder o jogo inteiro: compare sempre com a versão anterior medida na mesma
+hora, e as chamadas só entre execuções que deram o mesmo patamar.)
+
 - **Quadro:** 2–4 ms em média; o pior 1% até ~10 ms e uns poucos quadros acima de 8 ms, nenhum acima de 16 ms
   (o sol a 8× pode dar um).
 - **Chamadas de desenho:** ~380 quando o cenário não se redesenha; ~400–450 abrindo uma ferramenta; no amanhecer
@@ -132,5 +145,5 @@ Em português e curto, para o usuário:
 - Cada apontamento numa linha: `arquivo:linha`, o problema e o porquê, do mais grave para o menos.
 - Erro claro da própria mudança (um `create_timer` sem `false`, um `print` esquecido): corrija e diga que corrigiu.
 - O que for escolha de design ou mexer em comportamento: só aponte e pergunte antes de commitar.
-- Sem nada a apontar (ou depois das correções claras): siga com o commit pedido, no padrão do `CLAUDE.md`.
+- Sem nada a apontar (ou depois das correções claras) e com os testes passando: siga com o commit pedido, no padrão do `CLAUDE.md`.
   Diga "Revisão das mudanças: nada a apontar" e quantos arquivos foram vistos.

@@ -17,7 +17,10 @@ Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
 - `data/nights/` — **uma noite por arquivo** (ordem em `nights` no `content.tres`): dia da semana, bilhete da tela
   inicial, clima, agenda, ligações do roteiro (`story`: um roteiro de `data/calls/` num horário fixo) e o que se diz
   na ligação desconhecida (`mystery`, passos como os dos trotes). Para criar uma noite: duplique um `.tres`, edite no
-  inspetor e acrescente na lista `nights`. O progresso fica salvo em `user://progress.cfg`.
+  inspetor e acrescente na lista `nights`. O progresso fica salvo em `user://progress.cfg`, com a versão
+  do formato (`Progress.VERSION`): mudou o tipo ou o sentido de um campo, suba a versão e converta o save antigo no
+  `load_saved`. Um save de versão mais nova ou corrompido fica guardado ao lado (`progress.v2-<hora>.cfg`,
+  `progress.corrompido-<hora>.cfg`), a tela inicial avisa e o jogo começa do zero.
 - **Escolhas que mudam as noites seguintes (marcadores)**: um marcador é um nome (ex.: `respondeu_a_luz`).
   - Num passo de operador (`OPERATOR`), `sets` diz o que cada opção faz, na ordem de `options`: `"nome"` liga,
     `"!nome"` desliga, vazio não faz nada.
@@ -83,6 +86,10 @@ Registrar a ficha e guardar o bilhete não: já têm a advertência quando falta
 (média), 30 (grave) ou 60 (gravíssima): a média pesa mais que um acerto, porque a não atendida liga de novo e o
 crédito do retorno a apagaria.
 
+O supervisor fica mais rigoroso a cada noite (`ShiftReport.RIGOR`): as advertências pesam 0,6 do valor na noite 1,
+o valor cheio na 9 e 1,3 na 15, em linha reta. Nas primeiras noites ele releva quem ainda está aprendendo. A
+emergência perdida é Insuficiente em qualquer noite.
+
 | Conceito | Eficiência |
 |---|---|
 | Ótimo | 90% ou mais |
@@ -95,6 +102,24 @@ o jogo volta para o treinamento. Depois de uma Insuficiente, o bilhete da noite 
 denúncia da escuta conta na noite em que chega ao relatório. O treinamento não tem conceito. Calibrado com o robô
 do `test_shift`, cinco sementes em cinco noites: o atento fica entre 67% e 100% e o que deixa tocar 1 em 3, entre 47%
 e 77% (`PLANO_EFICIENCIA.md`).
+
+### Os broches
+
+Recompensas que o operador ganha pelas noites, espetadas numa almofada de feltro na prateleira da mesa comutadora (à
+direita do tampo dos equipamentos). Sob o mouse, o broche mostra o nome; o clique abre um papel com a descrição e a
+noite em que veio. Ficam no save (`Progress.badges` e as contas em `tally`) e somem com ele, na demissão e depois da
+última noite. Conferidos no fim de cada noite (`scripts/model/badges.gd`, `award`); o treinamento não conta.
+
+| Broche | Como se ganha |
+|---|---|
+| Noites primorosas | 3 noites sem nenhuma advertência (não precisam ser seguidas) |
+| Anjo da guarda | 10 emergências socorridas no estágio inicial |
+| Linha direta | 5 noites seguidas sem deixar ninguém tocando até desistir |
+| Longa distância | 15 interurbanos completados |
+| Faro de trote | 5 trotes reconhecidos |
+| Contas em dia | uma noite com interurbano, sem bilhete esquecido ou sem carimbo e sem ficha errada ou faltando |
+| Hora do rush | Bom ou melhor no ritmo mais alto (o último nível) |
+| Veterano | a noite 10 trabalhada |
 
 ### Barra de agravamento da emergência
 
@@ -120,7 +145,7 @@ despacho. Depois de contar, a pessoa pode
 ser perguntada sobre o que mudou (`worsening_question`/`critical_question` e as respostas). Na situação perdida,
 as perguntas que sobraram saem (menos o endereço) e fica "Tem alguém ferido?": `lost_answer` diz o estado agora e
 `lost_units` o que isso passa a exigir (quase sempre ambulância). A duração de cada estágio é
-`stage_sec` (segundos reais): 45/22/22 nas ocorrências mais lentas, 40/20/20 nas médias e 35/18/18 em fogo e AVC.
+`stage_sec` (segundos reais): 55/22/22 nas ocorrências mais lentas, 50/20/20 nas médias e 45/18/18 em fogo e AVC. A barra para durante pergunta e resposta e enquanto uma máquina do despacho trabalha (imprimindo, transmitindo ou triturando).
 O robô em ritmo humano (5 s por ação, lendo cada resposta até o fim, 15 s no protocolo e no mapa) despacha com
 ~40 s de barra corrida: a tempo nas lentas e médias, já agravando em fogo e AVC.
 
@@ -234,20 +259,27 @@ Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
 
   | Nível | Intervalo | Picos | Máx. juntas | Emergências | Trotes |
   |---|---|---|---|---|---|
-  | 1 | 45–60 | — | 2 | 1 | 0–1 |
+  | 1 | 40–52 | — | 2 | 1 | 0–1 |
   | 2 | 34–46 | 3% | 2 | 1 | 0–2 |
   | 3 | 32–42 | 3% | 2 | 1–2 | 0–2 |
   | 4 | 30–40 | 4% | 3 | 1–2 | 1–2 |
-  | 5 (limite) | 28–38 | 5% | 3 | 2 | 1–2 |
+  | 5 | 28–38 | 5% | 3 | 2 | 1–2 |
+  | 6 | 30–40 | 12% | 3 | 2 | 1–2 |
+  | 7 | 33–44 | 20% | 3 | 2 | 1–2 |
+  | 8 | 37–48 | 28% | 3 | 2 | 1–2 |
+  | 9 (limite) | 38–49 | 30% | 3 | 2 | 1–2 |
 
   A primeira noite usa o nível 1. **Nas 3 primeiras noites, o nível só sobe se a noite anterior não foi Insuficiente**
   (repete o ritmo, para não sobrecarregar quem ainda não pegou confiança).
   Na noite em que um bairro novo é entregue (5 e 9), o nível não sobe, para o operador aprender o bairro antes.
-  Da noite 4 em diante sobe sempre, até o nível 5, que vale para todas as noites seguintes (um nível 6 já fazia o
-  robô em ritmo humano perder ligações toda noite). Para medir um nível: `tests/test_shift.gd -- --human --pace=N`.
+  Da noite 4 em diante sobe sempre, até o nível 9 (noites 11–15). Do 1 ao 5 as ligações vêm cada vez mais seguidas;
+  do 6 ao 9 vêm tantas quanto no 5 (`Pace.mean_gap`), só que **mais juntas**: picos mais frequentes, com a mesa mais
+  calma entre eles (encurtar o intervalo do 5 fazia o robô em ritmo humano perder ligações toda noite). Para medir um
+  nível: `tests/test_shift.gd -- --human --pace=N`.
 - **Tipo sorteado**: `emergencies` emergências (a pelo menos `EMERGENCY_GAP` = 60 min uma da outra; atrasos e
-  retornos podem juntar duas, nunca mais de duas em andamento), `pranks` trotes e o resto transferências (65%) ou pedidos de informação
-  (o número de alguém na lista). Um destino não se repete na mesma noite. O treinamento (noite 0) é a Cecília,
+  retornos podem juntar duas, nunca mais de duas em andamento), `pranks` trotes e o resto transferências (85%) ou pedidos de informação
+  (o número de alguém na lista). Um destino não se repete na mesma noite (o pedido de informação não ocupa o número).
+  Com a mesa vazia por muito tempo, toca uma a mais: uma transferência para um número livre (`Schedule.filler`). O treinamento (noite 0) é a Cecília,
   veterana do Alto da Serra, ligando e ensinando o serviço (`data/nights/night_00.tres`, passos `LessonStep`).
 - **Ligação desconhecida**: toca por uma entrada livre qualquer, num horário sorteado entre `mystery_from` e
   `mystery_to` da noite (22:00–23:30).
@@ -257,9 +289,11 @@ Ajuste em `main.gd` → `GAME_MIN_PER_SEC`.
 - A ligação desconhecida espera a mesa ficar em silêncio, por no máximo 30 minutos de jogo.
 - Alguns números não atendem à noite (`closed_at_night` no contato). Roteiros com `alt_target` deixam o operador
   sugerir outro lugar.
-- Conexões completadas duram 34–68 minutos de jogo, cerca de 45–90 s reais (`TALK_LEN` em `main.gd`); depois as lâmpadas ficam vermelhas
+- Conexões completadas duram 34–68 minutos de jogo, cerca de 45–90 s reais (`talk_len` do nível de ritmo; mais longas do nível 6 em diante); depois as lâmpadas ficam vermelhas
   até o operador desmontar. Conversas mais longas prendem os cabos de conexão por mais tempo: em turnos
-  movimentados, às vezes é preciso esperar uma conversa acabar (ou cortá-la) para ter um cabo livre.
+  movimentados, às vezes é preciso esperar uma conversa acabar (ou cortá-la) para ter um cabo livre. Sem cabo livre,
+  a transferência ganha **[Todas as linhas ocupadas]**: quem liga espera (com mais paciência) ou diz que liga outra
+  hora (desliga sem advertência e liga de novo mais tarde).
 - A ficha de ocorrências (o bloco de fichas na mesa; a da noite vai para o supervisor) guarda as ocorrências numa fila: dá para registrar depois, sem travar o turno. A aba mostra quantas
   faltam; registrar é um clique no tipo (ligação comum, emergência ou trote), o resto a ficha já anotou.
 - A última ligação nova toca às 23:40 (`LAST_CALL`); a partir daí aparece o botão **Encerrar turno** ao lado do relógio

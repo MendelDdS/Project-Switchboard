@@ -363,7 +363,7 @@ func _draw() -> void:
 	_boxes.append(seal)
 	_places.clear()
 	var xf := Transform2D(0.0, Vector2(_k, _k), 0.0, _off)
-	draw_rect(Rect2(Vector2.ZERO, size), Pal.INK_SOFT)
+	draw_rect(Rect2(Vector2.ZERO, size), Pal.MAP_BACK)
 	for s in SHEETS:
 		if not shown(s):
 			continue
@@ -412,7 +412,7 @@ func _draw() -> void:
 	if _reveal >= 0.0:   # o bairro entregue aparece aos poucos
 		for s in SHEETS:
 			if shown(s) and not SHEET_SECTOR[s] in _before:
-				draw_rect(Rect2(SHEETS[s], SHEET), Color(Pal.INK_SOFT, 1.0 - smoothstep(0.0, 1.0, _reveal)))
+				draw_rect(Rect2(SHEETS[s], SHEET), Color(Pal.MAP_BACK, 1.0 - smoothstep(0.0, 1.0, _reveal)))
 	_use(Transform2D.IDENTITY)
 	# o selo (o mesmo do mapa da mesa): a moldura vermelha, a rosa dos ventos e o nome da cidade
 	draw_rect(seal, Pal.SEAL)
@@ -474,11 +474,6 @@ func _draw_spans() -> void:
 			continue
 		if not spots.any(func(q: Vector2): return _label(q, txt, 11, LINE, Pal.MAP_TAG)):
 			_label(spots[0], txt, 11, LINE, Pal.MAP_TAG, false, true)   # só enquanto o mouse está na rua: por cima, se preciso
-
-
-## Folhas (que aparecem) por onde a rua passa.
-func _sheets_of(st: Street) -> Array:
-	return [st.sector, st.continues].filter(func(s): return s != 0 and shown(s))
 
 
 ## Nomes, na ordem de prioridade: bairros, ruas, lugares e a numeração dos trechos. As ruas desde o mapa afastado

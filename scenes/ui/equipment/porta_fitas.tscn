@@ -1,0 +1,10 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/equipment/tape_rack.gd" id="1_equip"]
+
+[node name="porta_fitas" type="Control"]
+custom_minimum_size = Vector2(64, 106)
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_equip")
+metadata/side = 1

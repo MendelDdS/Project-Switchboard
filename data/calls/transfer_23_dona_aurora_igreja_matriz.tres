@@ -6,6 +6,7 @@
 script = ExtResource("1_lqlpy")
 group = 2
 caller = "Dona Aurora"
+caller_name = "Aurora Medeiros"
 opening = PackedStringArray("Preciso falar com a igreja. A Matriz.", "É pra pedir uma bênção... minha filha viaja amanhã cedo.")
 repeat = "A Igreja Matriz."
 target = "124"

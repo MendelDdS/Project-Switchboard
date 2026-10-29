@@ -8,7 +8,7 @@ const EMERGENCY_GAP := 60.0     # minutos de jogo entre duas emergências sortea
 const STORY_GAP := 8.0          # as ligações sorteadas ficam a tantos minutos das do roteiro
 const STORY_WAIT := 30.0        # a do roteiro espera a mesa silenciar por no máximo tantos minutos (toca sozinha)
 const TEMPLATE_CHANCE := 0.5    # chance de uma transferência ou emergência vir de um molde e não de um roteiro escrito
-const TRANSFER_SHARE := 0.65    # das ligações comuns, quantas são transferências (o resto, pedidos de informação)
+const TRANSFER_SHARE := 0.85    # das ligações comuns, quantas são transferências (o resto, pedidos de informação)
 const TRUNK_SHARE := 0.2        # das transferências, quantas são interurbanos (pelo banco INTERURBANO; nunca no treinamento)
 const MYSTERY_WAIT := 30.0      # a ligação desconhecida espera a mesa silenciar por no máximo tantos minutos...
 const MYSTERY_MARGIN := 10.0    # ...e toca no máximo tantos minutos antes da última ligação, para acabar antes do
@@ -16,6 +16,7 @@ const MYSTERY_MARGIN := 10.0    # ...e toca no máximo tantos minutos antes da �
 
 var calls: Array[PhoneCall] = []   ## em ordem de horário
 var mystery_at := INF              ## horário sorteado da ligação desconhecida (INF = não toca nesta noite)
+var targets := []                  ## os destinos já pedidos nesta noite (um número por noite; `filler` também usa)
 
 
 ## Agenda da noite `night` no ritmo `pace`; as ligações sorteadas vão até o minuto `last_call`.
@@ -52,7 +53,7 @@ func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[Phon
 	while t < last_call:
 		if not fixed.any(func(f: PhoneCall): return absf(t - f.at) < STORY_GAP):
 			ats.append(t)
-		t += randf_range(2.0, 6.0) if randf() < pace.peak_chance else randf_range(pace.call_gap.x, pace.call_gap.y)
+		t += randf_range(Pace.PEAK_GAP.x, Pace.PEAK_GAP.y) if randf() < pace.peak_chance else randf_range(pace.call_gap.x, pace.call_gap.y)
 	var kinds := []
 	kinds.resize(ats.size())
 	var free := range(ats.size())
@@ -67,7 +68,7 @@ func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[Phon
 	for i in free.slice(0, randi_range(pace.pranks.x, pace.pranks.y)):
 		kinds[i] = PhoneCall.Kind.PRANK
 	var used := fixed.map(func(f: PhoneCall): return f.caller)
-	var targets := fixed.map(func(f: PhoneCall): return f.target)
+	targets = fixed.map(func(f: PhoneCall): return f.target)
 	var transfers := C.transfers.filter(func(x): return not x.caller in used and GameData.serves(x))
 	var emergencies := C.emergencies.filter(func(e: EmergencyCall): return GameData.street(e.street).block_sector(e.block) in GameData.sectors)
 	var pranks := C.pranks.duplicate()
@@ -95,10 +96,21 @@ func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[Phon
 				targets.append(tc.alt_target)
 		if c == null:   # pedido de informação (ou nenhum número livre para transferir nesta noite)
 			c = info_call()
-		targets.append(c.target)
+		if c.kind != PhoneCall.Kind.INFO:   # (o pedido de informação não chama ninguém: não ocupa o número)
+			targets.append(c.target)
 		c.at = ats[i]
 		out.append(c)
 	return out
+
+
+## A ligação a mais da mesa vazia (`Main._fill_quiet`): uma transferência (de um molde) para um número ainda não
+## pedido nesta noite; sem número livre, um pedido de informação.
+func filler() -> PhoneCall:
+	var tc := GameData.template_transfer(targets)
+	if tc == null:
+		return info_call()
+	targets.append_array([tc.target, tc.alt_target])
+	return PhoneCall.from_transfer(tc)
 
 
 ## Pedido de informação: alguém quer o número de um lugar da lista (dos setores atendidos).

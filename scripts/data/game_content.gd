@@ -64,6 +64,10 @@ extends Resource
 @export var emergency_waiting: PackedStringArray = []
 ## Resposta a "Um momento, vou conectar.".
 @export var hold_ok: PackedStringArray = []
+## Todas as linhas ocupadas (`Conversation._all_busy`): quem aceita esperar...
+@export var busy_wait: PackedStringArray = []
+## ...e quem prefere ligar outra hora (desliga e liga de novo mais tarde).
+@export var busy_later: PackedStringArray = []
 ## Quem aceita o outro estabelecimento que o operador sugeriu (moldes; os roteiros escritos têm `alt_yes`).
 @export var alt_accepted: PackedStringArray = []
 ## Quando o destino errado atende.
@@ -78,8 +82,13 @@ extends Resource
 
 ## Quem liga nos pedidos de informação e nos moldes: "voz:nome", ex.: "f:Moradora".
 @export var callers: PackedStringArray = []
+## B1: nome e sobrenome de quem liga num molde, "descrição:Nome Sobrenome" (a descrição de `callers`; com vários, um
+## sorteado). Sem apelido nem tratamento.
+@export var caller_names: PackedStringArray = []
 
 @export_group("Supervisor e consequências")
+## Quem liga de novo porque as linhas estavam ocupadas (e disse que ligaria outra hora).
+@export var retry_busy: PackedStringArray = []
 ## Quem liga de novo porque ninguém atendeu.
 @export var retry_missed: PackedStringArray = []
 ## Quem liga de novo porque recebeu a informação errada.

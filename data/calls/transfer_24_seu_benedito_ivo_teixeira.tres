@@ -5,8 +5,9 @@
 [resource]
 script = ExtResource("1_we3yq")
 group = 2
-voice = "m"
+voice = "w"
 caller = "Seu Benedito"
+caller_name = "Benedito Souza"
 opening = PackedStringArray("Central, é o Benedito.", "Me liga com o Ivo Teixeira? Ele ficou de me devolver a escada.")
 repeat = "O Ivo. Ivo Teixeira, da Rua das Flores."
 target = "184"

@@ -8,7 +8,9 @@ extends Node
 
 const SMALLTALK_MAX := 3            ## assuntos de conversa fiada por ligação (puxados por ela ou pelo operador)
 const CHAT_WARM_PATIENCE := 10.0    ## resposta simpática: segundos a mais de silêncio antes de ela reclamar
+const BUSY_PATIENCE := 40.0         ## ...e esperando, os segundos a mais de silêncio antes de reclamar
 
+var busy_wait_chance := 0.6   ## todas as linhas ocupadas: a chance de quem liga esperar (senão, liga outra hora)
 var C: GameContent = GameData.CONTENT
 var heard: Array[ChatTopic] = []    ## novidades da conversa fiada já contadas nesta noite (não se repetem)
 
@@ -66,7 +68,7 @@ func say(c: PhoneCall, text: String, pause: float = 0.55, who := "", voice := ""
 		var ch := text[i]
 		if c.on_line:
 			if li == -1:
-				li = c.add_line(who if who != "" else c.caller, "", "ghost" if ghost else "")
+				li = c.add_line(who if who != "" else (c.named if c.named != "" else c.caller), "", "ghost" if ghost else "")
 			c.append_text(li, ch)
 			prev_vowel = Sfx.speak_char(voice, text, i, prev_vowel, paren, -1.0, pitch, Sfx.agitation(c))
 		var d := (0.062 if ghost else (0.09 if ch in [",", "."] else 0.028)) * c.speech
@@ -79,6 +81,30 @@ func say(c: PhoneCall, text: String, pause: float = 0.55, who := "", voice := ""
 	await get_tree().create_timer(pause, false).timeout
 	c.set_talking(false)
 	return not c.ended
+
+
+## Quem ligou estala os dedos no ritmo `rhythm` ("tec tec... tec": cada "tec" um estalo; com "...", a pausa longa
+## depois dele); a transcrição mostra o ritmo, para o operador comparar. Falso se a ligação terminar no meio.
+func snaps(c: PhoneCall, rhythm: String) -> bool:
+	if c.ended or not c.closing and not await _until_on_line(c):
+		return false
+	while c.talking:
+		await get_tree().process_frame
+		if c.ended:
+			return false
+	c.set_talking(true)
+	var li := c.add_line(c.named if c.named != "" else c.caller, "(")
+	var beats := rhythm.split(" ", false)
+	for i in beats.size():
+		Sfx.play("snap")
+		c.append_text(li, beats[i] + (" " if i < beats.size() - 1 else ")"))
+		await get_tree().create_timer(0.9 if beats[i].ends_with("...") else 0.3, false).timeout
+		if c.ended:
+			c.set_talking(false)
+			return false
+	c.last_talk = main.talk_clock
+	c.set_talking(false)
+	return true
 
 
 ## O operador diz `text` (numa ligação resolvida, o clique já é a fala, mesmo que ele tenha ido para outra linha).
@@ -116,22 +142,27 @@ func choose(c: PhoneCall, opts: Array) -> int:
 
 
 ## Toda ligação começa igual: o operador não sabe o que vem do outro lado.
-## Quem está ligando de novo reclama logo de cara.
+## Quem está ligando de novo reclama logo de cara. Depois, o que as burocracias pedem no começo (`call_started`).
 func greet(c: PhoneCall) -> bool:
 	if not await wait(c, 0.3):
 		return false
 	if not await op(c, GameData.pick(C.greetings)):
 		return false
+	var said := true
 	match c.retry:
 		PhoneCall.Retry.MISSED:
-			return await say(c, GameData.pick(C.retry_missed))
+			said = await say(c, GameData.pick(C.retry_missed))
 		PhoneCall.Retry.WRONG_INFO:
-			return await say(c, GameData.pick(C.retry_wrong_info))
+			said = await say(c, GameData.pick(C.retry_wrong_info))
 		PhoneCall.Retry.WRONG_NUMBER:
-			return await say(c, GameData.pick(C.retry_wrong_number))
+			said = await say(c, GameData.pick(C.retry_wrong_number))
+		PhoneCall.Retry.BUSY:
+			said = await say(c, GameData.pick(C.retry_busy))
 		PhoneCall.Retry.WORSE:
-			return await say(c, GameData.pick(C.retry_too_late if c.too_late else C.retry_worse))
-	return true
+			said = await say(c, GameData.pick(C.retry_too_late if c.too_late else C.retry_worse))
+	if not said:
+		return false
+	return await main.bureaucracy.call_started(c)
 
 
 # ---------------------------------------------------------------- transferência
@@ -145,6 +176,8 @@ func _transfer(c: PhoneCall) -> void:
 	for l in t.opening:
 		if not await say(c, l):
 			return
+	if not await main.bureaucracy.request_made(c):   # o que as burocracias pedem depois do pedido (o código...)
+		return
 	# a conversa fiada vem depois, se o operador demorar (Main._nag)
 	c.phase = PhoneCall.Phase.AWAIT
 	c.state_changed.emit()
@@ -157,9 +190,12 @@ func transfer_choices(c: PhoneCall) -> void:
 	var list: Array[Dictionary] = []
 	if not c.said_wait:
 		list.append({"label": T.text(T.Key.CHOICE_CONNECT_WAIT), "fn": _transfer_wait.bind(c)})
+	if not c.busy_asked and main.no_cords(c):
+		list.append({"label": T.text(T.Key.CHOICE_ALL_BUSY), "fn": _all_busy.bind(c)})
 	list.append({"label": T.text(T.Key.CHOICE_REPEAT), "fn": _transfer_repeat.bind(c)})
 	if c.no_answer and t.alt_target != "" and not c.alt_done:
 		list.append({"label": T.text(T.Key.CHOICE_OFFER_ALT), "fn": _transfer_alt.bind(c)})
+	list.append_array(main.bureaucracy.choices(c))
 	if c.chat != null:
 		for r in c.chat.replies:
 			list.append({"label": tr(r.text), "fn": _chat.bind(c, r)})
@@ -241,6 +277,29 @@ func _transfer_wait(c: PhoneCall) -> void:
 	if not await op(c, T.text(T.Key.OP_CONNECT_WAIT)):
 		return
 	await say(c, GameData.pick(C.hold_ok))
+
+
+## Todos os cabos de conexão em uso: o operador avisa e pergunta se ela espera. Quem espera aguenta mais o silêncio
+## (`Main._nag`) e a espera (`Supervisor.check_hold`); quem não espera desliga sem advertência e liga de novo mais tarde.
+func _all_busy(c: PhoneCall) -> void:
+	if c.talking:
+		return
+	c.busy_asked = true
+	transfer_choices(c)
+	if not await op(c, T.text(T.Key.OP_ALL_BUSY)):
+		return
+	if randf() < busy_wait_chance:
+		if await say(c, GameData.pick(C.busy_wait)):
+			c.last_talk = main.talk_clock + BUSY_PATIENCE
+		return
+	c.busy_later = true
+	c.closing = true
+	c.set_options([])
+	if not await say(c, GameData.pick(C.busy_later)):
+		return
+	c.sys(T.text(T.Key.SYS_CALLER_HUNG_UP))
+	main.supervisor.call_again(c, PhoneCall.Retry.BUSY)
+	main.end_call(c, PhoneCall.End.CALLER)
 
 
 func _transfer_repeat(c: PhoneCall) -> void:

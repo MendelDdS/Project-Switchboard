@@ -6,6 +6,7 @@
 script = ExtResource("1_tr")
 voice = "m"
 caller = "Noivo"
+caller_name = "Renato Oliveira"
 opening = PackedStringArray("Boa noite. Desculpe ligar tarde.", "Preciso falar com o padre Anselmo, na Casa Paroquial. É sobre o meu casamento no sábado.")
 repeat = "A Casa Paroquial. O padre Anselmo."
 target = "120"

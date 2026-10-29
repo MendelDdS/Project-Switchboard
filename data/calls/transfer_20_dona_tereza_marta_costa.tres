@@ -6,6 +6,7 @@
 script = ExtResource("1_dyan4")
 group = 2
 caller = "Dona Tereza"
+caller_name = "Tereza Ribeiro"
 opening = PackedStringArray("Me conecta com o 223, por favor?", "É da minha comadre.")
 repeat = "Dois, dois, três. A Marta."
 target = "223"

@@ -70,6 +70,27 @@ func _initialize() -> void:
 	ok(m.tools.open and m.tools.tab == Tools.DISPATCH and city.hover.get("street") == "sol", "o objeto da mesa abre o despacho e o mapa já vê o mouse")
 	m.tools.close()
 	await frames(20)
+	# os broches na prateleira: sob o mouse, a etiqueta; o clique abre o papel; o clique fora fecha e a mesa fica com o mouse
+	m.badges.earned = {"anjo": 2, "rush": 5}
+	var pin := func(id: String) -> Vector2: return win.call(m.board.get_global_transform() * m.badges._spot(id))
+	for i in 2:
+		await _mouse(InputEventMouseMotion.new(), pin.call("anjo") + Vector2(i, 0))
+	ok(m.badges._hover == "anjo" and m.badges.mouse_default_cursor_shape == Control.CURSOR_POINTING_HAND, "o mouse no broche: o nome e o dedo")
+	for p in [true, false]:
+		var b := InputEventMouseButton.new()
+		b.button_index = MOUSE_BUTTON_LEFT
+		b.pressed = p
+		await _mouse(b, pin.call("anjo"))
+	ok(m.badges._open == "anjo", "o clique abre o papel do broche")
+	var empty: Vector2 = pin.call("primorosas")   # (um lugar sem broche: o feltro)
+	await _mouse(InputEventMouseMotion.new(), empty)
+	ok(m.badges._hover == "" and m.badges.mouse_default_cursor_shape == m.board.mouse_default_cursor_shape, "no feltro, o cursor é o da mesa")
+	for p in [true, false]:
+		var b := InputEventMouseButton.new()
+		b.button_index = MOUSE_BUTTON_LEFT
+		b.pressed = p
+		await _mouse(b, empty)
+	ok(m.badges._open == "", "o clique fora fecha o papel")
 	await _key(KEY_ESCAPE)
 	ok(get_tree().paused and not m.can_process(), "Esc pausa e o jogo para")
 	await _key(KEY_ESCAPE)

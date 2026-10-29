@@ -6,6 +6,7 @@
 script = ExtResource("1_tr")
 voice = "f"
 caller = "Dona Glorinha"
+caller_name = "Glória Amaral"
 opening = PackedStringArray("Boa noite. Me liga com a Padaria Pão Dourado?", "Quero encomendar o bolo do aniversário da minha neta.")
 repeat = "A padaria Pão Dourado, na Rua das Acácias."
 target = "142"

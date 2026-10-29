@@ -6,6 +6,7 @@
 script = ExtResource("1_p4w44")
 voice = "m"
 caller = "Rapaz"
+caller_name = "Mauro Duarte"
 opening = PackedStringArray("Boa noite.", "Esqueci meu guarda-chuva na sessão das oito. Será que ainda tem alguém no cinema?")
 repeat = "O Cine Odeon."
 target = "344"

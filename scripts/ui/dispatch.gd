@@ -7,7 +7,7 @@ extends Control
 ## EmergencyCall.units), e o cartão levado ao transmissor, à esquerda, envia (ou à trituradora, à direita, descarta). O
 ## tipo não marca unidades: quem decide é a conversa. O cartão só mostra o que fica aqui (`_location`, `_occurrence`,
 ## `_picked`). O mapa (`City`) fica no vidro: na cena, `CardMachines.BEZEL` dentro da beira do papel e acima da base
-## (`CardMachines.BASE_H`; à direita, `KNOB_W`, a moldura do anel de aproximar); as máquinas (`Slip`) cobrem o papel todo. O transmissor aceita cartão incompleto:
+## (`CardMachines.BASE_H`; à direita, `KNOB_W`, a carcaça do anel de aproximar); as máquinas (`Slip`) cobrem o papel todo. O transmissor aceita cartão incompleto:
 ## sem unidade, ninguém sai (`blank_card`, o supervisor pune); sem tipo, as unidades vão e a chegada é avaliada com o
 ## tipo vazio. Depois do envio, tudo volta limpo para a próxima. As regras das viaturas e das emergências em andamento
 ## (até duas ao mesmo tempo; o cartão vai para a do lugar marcado, `Fleet.target_of`) ficam no `Fleet` (`fleet`);

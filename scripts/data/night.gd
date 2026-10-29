@@ -1,5 +1,7 @@
 class_name Night
 extends Resource
+
+const StreetEvent := preload("res://scripts/data/street_event.gd")
 ## Uma noite do jogo: o bilhete do começo e o roteiro fixo (ligações da história e a ligação desconhecida). Fica em
 ## res://data/nights/, na ordem de GameContent.nights. Só o roteiro é fixo; o resto do turno (quem liga, quando, de que
 ## tipo) é sorteado no ritmo do nível em que o jogador está (`Pace`, que não depende da noite).
@@ -19,6 +21,10 @@ extends Resource
 @export var story: Array[StoryCall] = []
 ## Novidades da cidade nesta noite (conversa fiada): contadas antes dos assuntos gerais, uma vez por noite.
 @export var smalltalk: Array[ChatTopic] = []
+
+@export_group("Na rua")
+## As cenas lá fora, na rua da vista, nesta noite (`StreetEvent`: qual, quando e se volta).
+@export var street_events: Array[StreetEvent] = []
 
 @export_group("Treinamento")
 ## Só a noite 0: a telefonista veterana que liga e ensina o serviço (`LessonStep`, conduzido pelo `Training`). O relógio

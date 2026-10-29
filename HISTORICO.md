@@ -23,6 +23,8 @@ Chaves:
   progresso, data · `#setores` · `#treinamento` · `#misterio` a ligação desconhecida e o homem na rua
 - `#conteudo` roteiros e moldes · `#conversa` conversa fiada e o andamento das falas · `#voz` vozes · `#som`
 - `#idiomas` · `#desempenho` · `#debug` · `#testes` · `#codigo` estrutura do código
+- `#burocracias` as normas do supervisor e das autoridades (identificação, bloqueios, códigos, fitas)
+- `#recompensas` os broches ganhos pelas noites
 - `#saiu` algo testado ou feito que saiu a pedido: confira antes de propor de novo
 
 1. #mesa-comutadora #cabos
@@ -1975,3 +1977,832 @@ Chaves:
     cabe pela altura), com folga em volta do mostrador; o anel num rasgo com 2 px de vão em volta, a beira de baixo e a
     da direita na luz. Os tambores chegaram a crescer para 7×11 e voltaram ("Eu queria que aumentasse a borda da
     máquina para dar respiro", não o mostrador).
+333. #burocracias #debug #mesa-comutadora "Temos um novo plano de implementação" (`PLANO_BUROCRACIAS.md`): a
+    infraestrutura das burocracias, só pelo debug e com a chave geral desligada (o jogo é o de sempre). Cada regra é um
+    `.tres` em `data/bureaucracy/` com o script dela (`BureaucracyRule`); o gerente (`Bureaucracy`) não conhece nenhuma,
+    aplica só a maior advertência de cada tentativa (também contra o número errado) e registra todas as decisões
+    (salvas no `Progress`). B1 identificação e recados, B2 bloqueados (horário, código, urgente, acordo com sinal), B3
+    código de autorização (gerador provisório K-07, M-14...; a gravíssima deixa a noite Insuficiente, mantida a pedido),
+    B4 fitas. O porta-fitas e o gravador ficam "na prateleira, na parte embaixo de onde fica a sessão Interurbano. Mas
+    isso pode mudar mais pra frente": o lugar fica tampado até a primeira burocracia trazer um equipamento. Guia:
+    `BUREAUCRACY_RULES.md`; a regra de exemplo (limite de duração) foi feita só por ele.
+334. #burocracias #debug "Não entendi nada desse debug": na B1, quem recusava o nome recusava sem ninguém pedir (agora o
+    operador pede nome e sobrenome depois do "alô"; no "só se insistir", a opção é "[Insistir no nome]"), e a B4 ligada
+    com o turno andando, ou antes da chave geral, chegava sem fitas (a regra que passa a valer começa na hora, `sync`).
+    O botão de uma ligação de teste liga sozinho a chave geral e a regra dela (antes, tocava como uma comum), e a aba
+    abre com "como usar".
+335. #burocracias "O jogador terá uma nova opção de botão (Solicitar identificação) e não perguntar automaticamente pois
+    aí tira a iteratividade da burocracia": na B1 ninguém pede o nome sozinho; quem não se identifica mostra
+    [Solicitar identificação] (quem diz o nome sem pedir não mostra). Recusado, [Insistir no nome]; quem recusa de novo
+    (`refuse_again_line`) só deixa desligar ou transferir com advertência. Recado recusado: quem ligou reclama
+    (`message_refused_line`) e desliga; anotado, agradece e desliga. "Destinatário liga" só oferece o recado depois que
+    a pessoa diz quem é. Novo jeito: diz quando pedem (`WHEN_ASKED`).
+336. #burocracias #saiu "Esse Destinatário recebe não faz sentido nenhum": dar o recado do bar a quem liga para o bar
+    saiu (vinha do plano, "ou receber ligação"). O recado só vai para quem é o destinatário, quando ele mesmo liga e diz
+    quem é.
+337. #burocracias "nem todo recado é anônimo": o recado leva o nome de quem se identificou antes de o operador anotar
+    (ligação de teste "Recado com nome"), e na entrega o operador diz de quem é ("Fulano deixou um recado"); a
+    advertência configurável continua só para o anônimo.
+338. #burocracias Na B2: avisado o bloqueio, quem ligou ficava calado (agora reage, `refused_line`, e desliga); o código
+    de autorização vinha antes do pedido (agora depois: gancho novo `request_made`); sem código, nada dizia que o número
+    estava bloqueado (agora um aviso na conversa depois do pedido: bloqueado, só com o código, liberado até as 21h; na
+    B3, "exige o código"); aceito ou recusado o acordo, quem propôs ficava esperando (agora agradece ou reclama e
+    desliga). A reação ao "não" virou um campo só, `refused_line` (era `message_refused_line`, da B1).
+339. #burocracias "Verifique se há mais inconsistências com relação ao B2": com o sinal de um acordo, o aviso e o botão
+    de bloqueio olhavam o destino do acordo, não o número pedido (o operador não podia recusar o acordo naquela
+    ligação); desligar na cara de uma ligação urgente para um bloqueado não ia para o registro (agora é decisão moral);
+    faltava a ligação de teste com o código errado.
+340. #burocracias Pontos menores da B2: avisado do bloqueio, quem liga sem `refused_line` (as ligações comuns do jogo)
+    diz uma das `reactions` da regra, sorteada (passiva, reclama do governo, indiferente; as falas são do usuário, no
+    `.tres` só marcadores `[TESTE]`). O bar: bateu 21h, transferir dá advertência mesmo atendida às 20:55 (já era
+    assim). Com o sinal de um acordo, o pedido continua sendo X: transferir para X é a conversa normal com a advertência
+    do bloqueio (antes tocava como número errado, com a reclamação de quem foi acordado); Y vira o destino só ao
+    transferir para ele.
+341. #burocracias "Não existiria uma opção mais barata?": o [Avisar o bloqueio] do bar aparece quando bate 21h com a
+    ligação esperando, por um temporizador só, armado no pedido até a hora da janela (nada de conferir a cada quadro).
+342. #burocracias "Verifique se há inconsistências no B2": com o sinal, tentar Y (sem atender, ou desfeita) deixava Y
+    como o destino certo, e voltar para X virava número errado; agora o certo é o tentado na hora (X ou Y, com o nome
+    original de X guardado).
+343. #burocracias "Tem que ajustar isso" / "uma coisa exclui a outra": número bloqueado (na lista da B2) nunca fica
+    "ninguém atende" (`PhoneCall.away` desligado no começo da ligação); com isso a Borracharia do acordo também atende.
+344. #burocracias B3: quem não diz o código no pedido ganha o [Pedir a autorização]; quem tem lembra e diz
+    (`TransferCall.code_when_asked`), quem não tem reage (a dele ou uma das `reactions` da regra, sorteada, como na B2)
+    e desliga. Código não dito conta como sem código (`Bureaucracy.code_of`).
+345. #burocracias "No caso da funerária, vai depender apenas do roteiro": bloqueado que passa a valer só com
+    autorização é a burocracia trocada (sai da lista da B2, entra nos `numbers` da B3, por `update_params`), e vice
+    versa; a B2 não ganha o "lembrar o código".
+346. #burocracias "Repasse novamente o B1, B2 e B3": sem erro de fluxo; apontados (sem mexer) o código da noite que o
+    jogador ainda não tem como saber fora do debug, o recado entregue sem resposta de quem recebe, o registro de
+    "desligou" só na B1 (na B2, só a urgente; na B3, nada) e o `code_frees` da B2 repetindo a B3.
+347. #burocracias Sobre a revisão (346): o código da noite fica em aberto (depende do roteiro). O recado entregue ganha
+    a resposta de quem recebe, escrita junto com o recado (`TransferCall.message_reply`, guardada na fila; nada
+    sorteado, "precisam fazer sentido"). Desligar sem transferir agora vai para o registro nas três: B1 sem
+    identificação, B2 sem avisar o bloqueio (permitido; a urgente, decisão moral), B3 sem o código certo.
+348. #burocracias #saiu "Pode apagar o jeito B": saiu a liberação por código da B2 (`code_frees`, o aviso
+    `SYS_BLOCKED_CODE` e as três ligações de teste da Funerária). Precisa de autorização = B3 (o código e o botão
+    [Pedir a autorização], gravíssima sem ele); o roteiro troca a burocracia do número. Contraria o plano (B2 com código,
+    grave), a pedido.
+349. #burocracias "Têm mais inconsistências? Melhorias que recomenda?": apontados a B1 valendo só para ligações com
+    `caller_name` (o plano: todo emissor, com ela ativa) e o roteiro sem como ligar as burocracias por dados; recomendados
+    a lista de burocracias por noite no `Night`, o robô do turno com elas ligadas e os avisos com o nome do lugar.
+350. #burocracias Sobre a revisão (349), "todo mundo possui nome mas só vai mostrar o nome no chat depois que a pessoa
+    falar o nome": a B1 vale para toda transferência (saiu a exceção de quem não tinha `caller_name`); o chat mostra
+    `caller` até a fala do nome e o nome dali em diante (`PhoneCall.named`; a voz continua a mesma).
+351. #burocracias "Vamos preencher com nomes. Mas não usar apelidos, tratamentos ou coisa do tipo": `caller_name` em
+    todo roteiro de transferência (`data/calls/`) e, para os moldes, `GameContent.caller_names` ("descrição:Nome
+    Sobrenome", sorteado por descrição de `callers`; `GameData.caller_name`). Mesma pessoa, mesmo nome: Rute Fonseca
+    (dito na conversa), Marta Costa e Benedito Souza (os da lista), Seu Ernesto nas duas ligações, e os de `callers`
+    iguais aos roteiros (Jair, Cida, Valdir, Olga). Apelido vira o nome (Glorinha: Glória; Zefa: Josefa; Cida:
+    Aparecida). Nenhum nome repete gente das falas. O `test_content` cobra nome e sobrenome sem tratamento.
+352. #burocracias "o Seu Ernesto fala com voz w em story_02 e com voz m em transfer_31": a mesma pessoa, a voz de idoso
+    (`w`) nas duas, a da ligação do roteiro.
+353. #mesa-comutadora #cabos #camera "Essa angulação da placa na mesa comutadora está muito errada": o tampo largo do
+    lugar dos equipamentos (embaixo do interurbano) usava a inclinação estilizada dos pares de buracos e, ao lado da
+    lateral da prateleira, ficava torto; agora as laterais dele fogem para os olhos (`_draw_cover(..., exact)`,
+    `_eye`), como a lateral. Os tampos pequenos dos pares continuam na inclinação dos buracos.
+354. #mesa-comutadora #cabos "Há espaço para centralizar as placas na prateleira": os tampos (os dos pares vagos e o
+    dos equipamentos) ficavam encostados na beira da frente (9 px de madeira atrás, 1 na frente); agora ficam no meio
+    da prateleira, do pé do painel à beira de latão (6 e 5 px).
+355. #burocracias "É a mesma pessoa": o Seu Benedito da `transfer_24` é o Benedito Souza da lista; a voz dele passou
+    de `m` para `w`, a mesma da lista.
+356. #mesa-comutadora #cabos "As placas dos cabos estão erradas... muito coladas e quase encostando nos plugs à
+    esquerda", depois "ficaram finas demais e ainda estão com uma angulação estranha em relação à placa maior": os
+    tampos dos pares vagos tinham a largura do passo entre os pares (26 px, `COVER_W`) e a inclinação estilizada deles;
+    no passo menos um vão ficaram finos. Agora dividem por igual o vão do último par (os dois buracos) ao tampo dos
+    equipamentos, com 6 px entre eles (`COVER_GAP`), e as laterais fogem para os olhos como as do tampo maior
+    (`_receding`; saiu o `exact`).
+357. #mesa-comutadora #cabos "Quando o setor é liberado a outra placa aumenta, não faz sentido. Vamos afastar só um
+    pouquinho todos os plugs para a esquerda... para caber as duas placas sem redimensionar": cada tampo tem tamanho
+    fixo (`COVER_W` 24) e lugar fixo, contado do tampo dos equipamentos para a esquerda; o FONE e os cabos foram 4 px
+    para a esquerda (`FONE_HOLE_X` 10, `CORDS_X` 26, `TRUNK_GAP` 10; o passo continua o mesmo). Centrados nos lugares
+    dos pares não cabiam: o passo (~26 px) mal passa da largura do tampo.
+358. #mesa-comutadora #cabos "Ajuste as placas, parece que elas estão flutuando na prateleira. Deixe mais orgânico e
+    realista": saíram o contorno escuro e a sombra afastada 2 px; a chapa ficou mais rasa que a prateleira
+    (`COVER_DEPTH` 20, madeira à mostra na frente e atrás), com a sombra colada só na frente e à esquerda, cada pixel
+    no metal do painel pela luz da sala (`Pal.panel_metal`), quinas no tom da peça, um brilho de través, riscos de uso
+    (`_cover_step`) e parafusos embutidos com a fenda virada a esmo.
+359. #mesa-comutadora #cabos "Ficou mais feia. Continua parecendo que está flutuando e estão desalinhadas. Tente simular
+    essa textura" (uma chapa escura com chanfro e quatro parafusos): os tampos ficaram retos, de frente, como a
+    plaquinha do FONE (saiu o ponto de fuga e a textura da 358), no metal das chapas dos setores (`PLATE`): a beira
+    de fora escura de cantos quebrados, o chanfro, um sulco, o campo mais escuro com grão fino e um parafuso escuro em
+    cada canto; a sombra, uma linha rente embaixo e à direita.
+360. #mesa-comutadora #cabos "A textura está ótima, mas faltou a angulação das placas em cima da prateleira, né? Não
+    pode errar isso adicione no LESSONS.md": a textura da 359 entrou na perspectiva da prateleira, esticada linha a
+    linha com as beiras fugindo para os olhos (`_cover_px`, `_receding`); os parafusos por cima, redondos, no lugar
+    projetado deles. A lição dos tampos foi reescrita (a da 359 dizia "fica reta", errado).
+361. #mesa-comutadora #cabos "Preciso que as placas sigam a mesma angulação dos plugs" (com riscos vermelhos na reta
+    do par amarelo e nas beiras das placas): as beiras e a textura pendem como os pares (`_lean`, de `PAIR_SHIFT`);
+    saiu o ponto de fuga da sala (`_receding`) nos tampos, o largo dos equipamentos também.
+362. #mesa-comutadora #cabos "Você errou a parte direita da placa novamente... Tem que ficar na mesma angulação da mesa
+    comutadora": a beira direita do tampo largo dos equipamentos fica paralela à lateral da mesa (`_draw_cover(..., side)`,
+    a inclinação de `_receding` na beira da prateleira, ~0,33 px por linha); a esquerda e os tampos pequenos seguem os
+    plugs (`_lean`).
+363. #mesa-comutadora #cabos "As placas estão desalinhadas com relação aos plugs. Centralize os plugs e veja se
+    resolve": as fileiras de buracos subiram 4 px (`SHELF_HOLE_Y` 4, `SHELF_FRONT_Y` 18), centradas na madeira à mostra
+    (6 px atrás e na frente; eram 10 e 2), como os tampos: a fileira de trás bate com o fundo deles e a da frente com a
+    frente. O equipamento da prateleira, assentado pela fileira da frente, subiu junto.
+364. #burocracias Sobre o que faltava do plano: o sinal secreto da B2 virou três estalos de dedo ("estalos" em
+    `secret_signal`/`deal_signal`), no ritmo da noite ("tec tec... tec", "tec tec tec", "tec... tec tec"...;
+    `rule_blocked.rhythms`, `rhythm(noite)`: sempre o mesmo na noite, nunca o da anterior), com o som sintetizado
+    ("snap", pelo barramento Phone) e o ritmo na conversa (`Conversation.snaps`). "Deixe isso pronto, mesmo que não
+    usaremos agora": a chave geral, as regras ligadas e os parâmetros de `update_params` vão para o save
+    (`Bureaucracy.state`/`_restore`).
+365. #burocracias "Pode apagar": saiu a terceira resposta das regras, "pede ação" (`Verdict.action`, o `RequerAcao`
+    do plano). Nenhuma regra a usava: o que a burocracia pede ao operador vem antes, por botão de resposta, e no
+    Transferir só cabe "pode" ou "infração" (o plano proíbe bloquear).
+366. #burocracias #fitas Correções da B4: pego escutando uma ligação marcada pelas autoridades, a advertência é da
+    B4 ("Perceberam a escuta pedida pelas autoridades", média, trabalho malfeito para elas), não a da escuta sem ordem
+    (`caught_listening`); entregar fita sem nada continua valendo zero, sem infração; as fitas entregues entram nos
+    serviços prestados do relatório; três fitas por noite, sem acumular (já era). "Não quero mais a arte provisória,
+    algo legal, com efeitos juicy, satisfatório": porta-fitas de madeira com as fitas em pé, gravador com teclas de
+    piano (REC desce sozinha ao gravar), porta com a fita atrás do vidro e a etiqueta escrita à mão (o primeiro nome e
+    um risquinho por palavra-chave), bobinas girando e passando a fita, VU com o ponteiro pulando com a voz, contador
+    que rola e a caixa das autoridades com lacre; por cliques animados (escolhidos entre cliques e arrastar): a fita
+    sai da fenda, vira no ar e cai na porta, que abre de mola e bate; entregue, pula e cai em pé na caixa; descartada,
+    cai pela beira da prateleira; sons novos (`tape_*`).
+367. #burocracias #fitas #cabos "As fitas e o equipamento ficaram pequenos?": pôr o gravador no tampo não cabe (as
+    duas fileiras já vão de ponta a ponta, e o lugar à direita do bloco é o do jornal) e a caixa das autoridades no
+    tampo tem o mesmo problema; "e se a prateleira diminuir um pouco a altura?": o painel ficou 10 px mais alto (238;
+    a prateleira desce, numa branch separada, `feature/0000-lower-shelf`) e a frente do console 10 px mais baixa (54;
+    a miniatura do painel ficou 16 px mais estreita para caber com folga). Com isso, os equipamentos têm 46 px de
+    altura: a fita na escala de verdade (44 × 26) com o nome e a hora da gravação na etiqueta, o gravador com 42 de
+    frente, as fitas do porta-fitas em estojo (a lombada de papel com a faixa da marca; a fenda fica vazia quando ela
+    sai) e, embaixo do interurbano, uma régua de latão onde os equipamentos encostam (sem eles, marca o lugar).
+368. #mesa-comutadora #painel #disposicao #saiu Integrar o despacho, o calculógrafo e o gravador na mesa comutadora
+    (alargando-a, com o armário no canto e a prancheta solta na prateleira): avaliado como grande (as ferramentas
+    abertas perderiam a largura mínima, e o canto direito é a janela); o usuário escolheu testar o meio-termo (só o
+    calculógrafo, o gravador e uma gaveta de fitas no lugar dos botões de volume), ainda por fazer. Antes, só o visual
+    da mesa comutadora, retrofuturista como na série Ruptura (imagem de referência do usuário), numa branch própria
+    (`feature/0000-retro-switchboard`): a moldura de madeira saiu (esmalte cinza-sálvia de cantos redondos), painel
+    cinza-esverdeado, faixa escura no alto com o nome das entradas e a legenda, aba escura no nome das saídas,
+    trilhos finos nas colunas no lugar das faixas largas, plaquinhas creme com o número escuro, bancos e interurbano
+    rebaixados e escuros, letras em creme, níquel no lugar do latão (buracos, plaquinha do FONE, plaqueta do
+    fabricante, régua dos equipamentos); no console, a prateleira em esmalte claro, a frente escura e a lateral em
+    esmalte (a sala, o painel de baixo e os aros das tomadas não mudaram).
+369. #mesa-comutadora #painel #pixel Cantos do móvel bem mais redondos, como na referência: raio 12 por fora (era 5)
+    e os cantos do painel, por dentro, também redondos (raio 7), com a fresta rebaixada acompanhando o arco
+    (`_shell_frame`, `SHELL_R`, `_round_dist`). A moldura continua com 5 px (mais grossa, apertaria os bancos).
+    Depois: a quina da lateral (e a do tampo, com os olhos acima dele) segue o arredondamento, varrendo o arco do
+    canto para o fundo (`Background._round_edge`; a lateral reta deixava uma ponta acima do arco); os cantos de baixo
+    voltaram a ser retos por fora, como na referência (o móvel entra no console; o arco mostrava a parede atrás).
+370. #mesa-comutadora #painel #pixel Mais perto da série Ruptura (fotos dos terminais da Lumon do usuário): móvel
+    de plástico branco-creme (era esmalte cinza-sálvia; o tom sobe no canto longe da luminária para o branco não
+    sumir), painel verde-oliva (o usuário trocou o azul-marinho sugerido por oliva) e as chaves de escuta viraram
+    teclas quadradas de plástico ciano num rebaixo escuro: soltas saem do painel, presas afundam e escurecem, com um
+    pontinho aceso (a alavanca de bastão saiu).
+371. #mesa-comutadora #painel #pixel #saiu Tecla de escuta presa acesa (primeiro um pontinho branco; a pedido, a
+    tecla inteira acesa de uma cor só, fosca, com luz opaca sem miolo: `Pal.KEY_GLOW`) e os
+    outros itens sugeridos para lembrar a série Ruptura: cantos redondos nos bancos, no interurbano, nas abas, na faixa
+    do alto, nas plaquinhas e nas tampas A/B (`round_rect`); emblema oval ciano com a sigla CTSS no vão à esquerda do
+    interurbano (na faixa do alto não cabia: a legenda começa logo depois do nome das entradas); o desgaste saiu (o
+    painel clareado e os riscos em volta das tomadas, `_draw_wear`, e os parafusos e riscos das tampas A/B); a frente
+    do console virou a bandeja do teclado dos terminais: plástico branco com uma placa oliva rebaixada de cantos
+    redondos, os botões oliva com aro creme e sem os parafusos.
+372. #mesa-comutadora #painel #pixel #b4 Mais itens no visual da série Ruptura: lâmpadas de plástico fosco num aro
+    creme, acendendo de uma cor só, sem miolo branco nem brilho de vidro (como a tecla; o aro da legenda também
+    creme); as tampas de metal parafusadas da prateleira viraram plástico creme liso encaixado; a plaqueta niquelada
+    do fabricante virou etiqueta creme impressa em oliva, colada na placa do console; o gravador da B4 ficou em
+    plástico branco com a frente oliva e as teclas ciano (a caixa das autoridades continua de aço).
+373. #mesa-comutadora #painel #pixel Os aros das tomadas passaram de latão a cromado frio (`Pal.JACK_METAL`, o
+    brilho também frio; eu tinha sugerido manter o dourado, o usuário quis o cromado) e a miniatura do painel no
+    console seguiu a mesa: telas no oliva escuro, o operador em ciano, as teclas ciano (acesas se ativas) numa chapa
+    oliva com etiqueta creme (antes copiavam as cores das teclas do painel de baixo).
+374. #painel #telefone #pixel O painel do operador (embaixo) seguiu a mesa da série Ruptura: o corpo de madeira com
+    parafusos de latão virou plástico creme liso; as telas da conversa e do rádio, oliva escuro (`HudPanel`); as teclas
+    numa chapa oliva de cantos quebrados, sem parafusos, com a etiqueta creme e a tecla fosca, mantendo as cores
+    (Atender verde, Desligar vermelho ajudam a jogar); o alto-falante em oliva. A miniatura do console volta a copiar
+    as cores das teclas e das falas (o ciano do pedido 373 saiu), agora na chapa oliva com etiqueta creme.
+375. #painel #telefone As teclas do painel não batiam com a miniatura que o usuário tinha visto (ciano, pedido 373):
+    Atender, Transferir e Escutar ficaram ciano (`Pal.KEY_CAP[3]`, nas `KeyCap_*` do tema), Desligar continua vermelho
+    para não ser apertado por engano; a miniatura copia as cores do tema.
+376. #painel #captura Conferir as teclas ativas: opção `--keys` no `tools/shot.gd` (todas as teclas do painel ativas,
+    sem ligação). Ativas ciano claro e vermelho; apagadas, escuras; a miniatura acompanha, mais escura pela luz da sala.
+377. #despacho #calculografo #pixel A máquina de despacho e o calculógrafo seguiram a mesa (série Ruptura), itens 1 e 2
+    da sugestão: as caixas das máquinas (`CardMachines.box`, que o calculógrafo também usa) em plástico creme de cantos
+    arredondados, sem parafusos, com uma frente oliva rebaixada para a luz e o aviso (âmbar e vermelho não se liam no
+    creme); as plaquetas de latão viraram etiquetas creme impressas em oliva (o nome das máquinas, a do fabricante, as
+    plaquinhas das entradas do calculógrafo); o visor dos contadores em oliva escuro. Na sala, a base da unidade de
+    despacho e o calculógrafo também creme, três tons abaixo do aberto (sob a luminária ficavam brancos); `Pal.SHELL`
+    entrou nas rampas do `Pal.lit`. A moldura do mapa, as lâmpadas e a caixinha dos bilhetes ficam para depois.
+378. #despacho #calculografo #pixel Itens 3 e 4: as lâmpadas das máquinas (`CardMachines.led`, também no calculógrafo)
+    viraram cúpulas de plástico fosco num aro creme, de uma cor só, como as da mesa (na sala, o aro creme nas luzes da
+    unidade); a moldura do mapa do despacho, oliva como o painel da mesa (`bevel` em `Pal.BOARD_METAL`), sem parafusos,
+    com o + e o − e o mostrador impressos em creme (a borracha do anel continua escura; na sala, o painel do mapa
+    oliva); a caixinha dos bilhetes do calculógrafo virou bandeja de plástico oliva com a etiqueta creme (aberta e na sala).
+379. #despacho #calculografo #sala #cabos Os papéis viraram papelaria da companhia: o bilhete de tarifação impresso em
+    azul-petróleo (`Pal.TICKET_FORM`, o ciano escuro das teclas; o azul-marinho destoava) e o selo oval CTSS da mesa
+    impresso na ficha de despacho (vazado na faixa vermelha, que fica: diz "emergência") e no bilhete (ao lado do
+    campo do carimbo); o selo virou `Switchboard.badge`, estático. Na sala, fios cinza-escuros saem de baixo da unidade
+    de despacho e do calculógrafo, deitam no tampo numa curva frouxa e entram num passa-fio na lateral do console da
+    mesa comutadora (`_draw_cable`).
+380. #cabos #sala #despacho #calculografo #objetos Os fios das máquinas estavam finos (menos que os cabos de conexão) e
+    cheios de furos, e não pareciam plugados: viraram borracha escura de 5 px, montados numa imagem guardada
+    (`_cable_image`), com um plugue de corpo creme e capa de borracha encaixado na lateral de cada máquina
+    (`_draw_cable_plug`, desenhado depois dela) e o passa-fio menor na lateral do console. Depois, os outros objetos da
+    mesa na paleta da mesa: o relógio de flip no plástico creme das máquinas com a base oliva, a borda da caneca e a
+    lista do meio em azul-petróleo e a fita do bloco de fichas em oliva (a lista mostarda, a vermelha, o lápis e a
+    almofada vermelha ficam: cor de objeto de verdade).
+381. #cabos #sala A arte dos fios e plugues estava ruim: saíram o plugue na lateral (parecia adesivo) e o passa-fio
+    (um quadrado de frente na lateral em perspectiva). Os fios saem de trás das máquinas e somem atrás da lateral do
+    console, como esses aparelhos são ligados; sem contorno escuro (brilho em cima, sombra embaixo e no tampo), curva
+    com folga sem cantos em L e a grossura pela distância (`CABLE_D`).
+382. #cabos #sala "Por trás da máquina" saiu "por baixo" (o fio nascia no pé da frente) e os fios sumiam embaixo da
+    mesa comutadora: agora saem da traseira (a ponta escondida atrás dela, o fio caindo de trás ao lado dela), correm no
+    tampo por trás, sobem pela lateral do console e entram num plugue de borracha encaixado nela, desenhado no plano da
+    lateral, entre 20% e 65% da fundura dela (`_draw_cable`, `CABLE_PLUG`, `CABLE_PLATE`); cinza-escuros (marrons, sumiam
+    no tampo). `_side_faces` desceu para `background_props`.
+    No mesmo pedido, depois: os fios vão todos para o fundo da mesa, junto da parede ao lado da mesa comutadora
+    (primeiro para o lado, rentes ao console, e então para o fundo), sem plugues (saíram a pedido).
+383. #cabos #sala O fio do calculógrafo parecia passar por baixo da máquina (saía rente à traseira, indo para o lado, e
+    na perspectiva aparecia no meio da lateral): agora sai rente atrás dela, sem cair do alto, e já recua ao sair, em
+    diagonal para o fundo (`CABLE_SAG`), até a parede ao lado da mesa comutadora.
+    Depois: em diagonal, o fio do calculógrafo passava por baixo da quina da unidade de despacho (o usuário viu na
+    captura): vai primeiro para o lado, recuando só um pouco (`CABLE_SAG` 0,12), e, rente ao console, para o fundo.
+384. #cabos #sala Acabamento dos fios: a ponta passa da beira de trás do tampo e cai no vão entre a mesa e a parede (a
+    mesa é afastada dela: `DESK_T`), cortada na beira, sem pintar nada na parede além da grossura do fio deitado ali
+    (parecia encostado na parede); o da unidade de despacho também sai rente ao tampo (caindo do alto, fazia um gancho
+    solto); a curva em 10 retas entre pixels inteiros, de degraus iguais (em 32 trechos, os degraus saíam irregulares).
+385. #cabos #sala Os fios pareciam amassados, não cilíndricos (quadrados carimbados ao longo da curva engrossavam nas
+    diagonais e o brilho corria pelo comprimento nos trechos em pé): cada pixel pela distância à linha do meio, em
+    faixas de cilindro com o brilho do lado da luminária (`CABLE_LIGHT`) e a sombra do outro (`CABLE_SHADE`), de 4 a 6
+    px (`CABLE_D` 2,0).
+386. #despacho #mesa A unidade de despacho no visual da mesa comutadora e do terminal da série Ruptura: a carcaça do
+    mapa em plástico creme de cantos redondos com o rebaixo escuro da tela em volta do vidro (`SCREEN_RIM`), o anel de
+    aproximar em ciano (`Pal.KEY_CAP`), + e − e o mostrador impressos em oliva escuro, e a base como a bandeja do
+    teclado (creme em volta da placa oliva rebaixada onde ficam as máquinas, `_draw_tray`); a miniatura na mesa
+    (`_art_glass`) igual.
+387. #despacho #mesa Mais Ruptura no despacho: o fundo da tela em volta das folhas do mapa em azul-petróleo escuro
+    (`Pal.MAP_BACK`, também na miniatura); as máquinas sem etiqueta nem saída de ar, com o nome impresso em creme na
+    frente oliva (`CardMachines._name`) e os avisos em creme; a faixa de perigo da trituradora em creme e petróleo
+    (`Pal.HAZARD`); o selo CTSS na faixa da base; na miniatura, os cantos da tela redondos, o alto e o lado em creme,
+    as marcas do transmissor em ciano e sem a saída de ar. Os contadores do calculógrafo seguem em âmbar (são luzes de
+    estado, como no aberto).
+388. #despacho Os cantos da tela do mapa redondos, como a tela do terminal da série Ruptura: o vidro no rebaixo
+    (`SCREEN_R`, `CardMachines._corner`) e, em cima, o rebaixo no plástico; na miniatura, um pixel em cada canto.
+389. #despacho #sala Na miniatura, os cantos não ficavam redondos (um pixel por canto sumia na perspectiva): a tela e o
+    rebaixo com raio de 3 a 6 px (`_round`), os cantos de cima da carcaça vazados e o alto do painel recuado nas pontas.
+390. #despacho O despacho aberto seguindo a miniatura: os cantos de fora da carcaça e da base mais redondos
+    (`CardMachines.CASE_ROUND`; as laterais descem por trás da base, sem vão nos cantos de cima dela).
+391. #despacho A miniatura estava mais redonda que o despacho aberto, em proporção: no aberto, a tela com raio 18
+    (`SCREEN_R`, cantos em textura guardada, `_corner`) e a carcaça e a base com raio 9 (`CASE_R`, `_rounded`, `_arc`).
+392. #pixel #luz Melhorar o dithering e eliminar os degraus irregulares (jaggies): diagnóstico com capturas, mapa
+    automático dos degradês contínuos (a sala tinha ~33 mil cores, pela luz contínua dos shaders) e os degraus
+    marcados à mão (J1–J11); plano em `PLANO_PIXEL.md` (vértices no pixel, inclinações limpas, linhas desenhadas
+    na tela e não na textura projetada, luz em degraus com pontilhado só nas transições grandes, cabos de conexão
+    como cilindro). O pontilhado dos halos tinha saído a pedido (58): a etapa da luz pede aprovação.
+393. #pixel #luz O plano em checklist para ir fazendo aos poucos (`PLANO_PIXEL.md`). Decisões: o pontilhado e o
+    número de degraus de luz são testados e mostrados antes de aprovar (preferência pela versão mais suave, 6–8
+    degraus); o desgaste do carimbo fica.
+394. #pixel Etapa 0 do `PLANO_PIXEL.md`: a medida em `tools/pixel_map.gd` (cores distintas e blocos de degradê por
+    captura, com o mapa em laranja) e os números de partida no plano; o `tools/hibit_shots.sh` esperava pouco e só 4
+    capturas saíam (agora 3500 quadros, e diz quantas saíram).
+395. #pixel #mesa-comutadora #sala Etapa 1 do `PLANO_PIXEL.md`: na mesa comutadora e nos objetos do tampo, os pontos
+    dos polígonos no pixel inteiro (`Background._snap`, ligado no `_draw_switchboard` e no `_draw_desk_props`; as faces
+    e os tampos com textura projetada também, para a textura pisar onde a face pisa); as quinas que pegam a luz (lateral
+    da mesa, relógio) como a coluna rente à beira (`_pixel_line`), não um traço recalculado; nas tampas do console, a
+    fresta e a quina contadas da beira já arredondada de cada linha (as diagonais dobradas sumiram). O
+    `tools/visual.sh` também não tirava capturas (3500 quadros, e a lista de classes da cópia do commit renovada).
+396. #pixel #mesa-comutadora #janela #vista Etapa 2 do `PLANO_PIXEL.md`: as beiras longas em inclinação limpa
+    (`Background.clean_slope`: degraus iguais ou alternados por igual, movendo a ponta de longe só nos eixos permitidos)
+    na lateral da mesa, nas beiras do bloco de fichas e do jornal e na cornija das paredes da rua; no peitoril, só os
+    pontos inteiros e a luz pixel a pixel (limpo, ele descolava do batente no amanhecer).
+397. #testes "Limpe todos os prints desnecessários": saíram os `print("OK <seção>")` dos testes (o `# ---- N.` de cada
+    seção já diz o mesmo, o `run.sh` mostra só o `PASSOU` e o `ok()` aponta a linha da falha), o do `test_layout` no
+    laço e o aviso do mapa sem desenho no `test_flow`. Ficam o cronômetro do `DebugPanel` (`PLANO_RITMO_JOGADOR.md`),
+    as métricas do `test_shift` (o `calibrar.sh` as lê), os avisos do `test_content` e a saída das ferramentas.
+398. #testes "Na pasta build está cheio de imagens": os "prints" do item 397 eram as capturas. Saíram de `build/` as
+    soltas e as das pastas `plano/`, `eff/`, das etapas antigas do `PLANO_PIXEL.md` e do cache velho do `visual.sh`
+    (109 → 31 MB); ficam `pixel/ref` (a partida), `pixel/mapa` (o diagnóstico), `pixel/etapa2`, o cache da HEAD do
+    `visual.sh` e a `calibracao/`.
+399. #pixel #janela #objetos "Vamos seguir com o plano": etapa 3 do `PLANO_PIXEL.md`. O `_pixel_line` leva as pontas ao
+    pixel inteiro e distribui os degraus por igual (os filetes da lombada das listas, as pautas e a margem do bloco, o
+    lápis e as quinas usam ele); a persiana com lâminas de 3 (eram 2) e a beira de cada lâmina numa reta de pixel na
+    tela: em faixas de 1 px na perspectiva, as beiras convergindo viravam moiré (o J8 do plano, chamado de verga).
+400. #pixel #objetos "Ainda acho que há pixels sem conserto" (a beira da direita do bloco de fichas com dentes): o
+    `_project` desempata sempre do mesmo jeito o pixel cujo centro cai na beira (`EDGE_EPS`); numa inclinação limpa
+    entre pontos inteiros, a reta passa pelos centros e o erro da conta punha um pixel a mais ou a menos.
+401. #pixel #objetos "No lado esquerdo do caderno também pode ser melhorado?": o lado esquerdo do bloco de fichas
+    em degraus 2-2-1 (razão 1,73, fora dos 12% do `clean_slope`) passou a 1-2-1-2 (`FLAT_TOL`, 16%, nas beiras do lado
+    dos objetos chatos); a risca escura do contato com a mesa, que alternava 1 e 2 px, é o pé arredondado deslocado 1 px
+    para cada lado (`_desk_shadow`, em todos os objetos), não mais o `offset_polygon` fracionário.
+402. #pixel #objetos "Conserte, por favor" (a auditoria das beiras pelas capturas): os cantos das caixas do relógio,
+    do calculógrafo e da caixinha dos bilhetes saem de `_clock_corners`, com as beiras do lado em razão exata
+    (`exact_slope`: o canto de trás anda de lado e, se a razão só fica quase exata, 1 px na altura); o tampo do relógio
+    ficou em 2:1 (era 2-2-2-1 e 2-2-3-2) e a base em 1,5 (tinha um dente), com a sombra de contato no pé da base; os
+    livros têm a mesma conta (`BOOK_TOL`, 25%: o volume de cima, 1,25 e 1,29, não mudava com 16%) e a capa projetada
+    sem o tom liso por baixo; a beira da lateral da mesa comutadora no tampo, 3-4 com um 4-4 no meio, foi dobrada para o
+    degrau diferente ir para a ponta (`_bent_edge`). Medidas pelo `tools/edge_steps.gd`.
+403. #pixel #luz #saiu "Comece a implementação" (etapa 4 do `PLANO_PIXEL.md`): a poça da luminária foi testada em
+    degraus com pontilhado ordenado 4×4 (8, 6 e 4 degraus) e em degraus secos, quantizada antes da força para não
+    cintilar. "Prefiro não aplicar essa etapa, os pontilhados deixam muito ruído e a poça em camadas fica sem
+    profundidade": saiu inteira, o código desfeito; a luz continua lisa (só a poça baixava as cores de 33,7 mil para
+    ~31 mil). Não refazer pontilhado nem luz em degraus sem pedido.
+404. #pixel #cabos "Certo, pode seguir" (etapa 5 do `PLANO_PIXEL.md`): o fio de conexão parado (`Cord.asleep`) sai de
+    uma imagem montada pixel a pixel pela distância à linha do meio (`Switchboard._rope_image`, guardada em
+    `_rope_arts`): a mesma grossura em toda a curva, a beira escura sem engrossar nas diagonais, o trançado do lado
+    da luz e a sombra do buraco nas mesmas cores; mexendo, o desenho traçado de antes (`_draw_rope_line`). Montar
+    custa 2 a 10 ms, uma vez, quando ele dorme; o `medir.gd` deu igual com e sem.
+405. #pixel #sala #saiu "Show, pode continuar" (etapa 6 do `PLANO_PIXEL.md`): os cabos do painel até a caixa de
+    passagem viraram dois fios retos, em pé ao lado do cano e a 45° até o painel. "Mas tava infinitamente melhor
+    antes, agora está bem ruim, os fios retos e sem curvatura, tá muito feio": voltaram os quatro, caídos em curva
+    (o moiré entre eles fica). Não endireitar os fios. "Faça isso": as mesmas curvas montadas pixel a pixel
+    (`_cable_at`, o desenho dos fios das máquinas), de 2 px, a saída na caixa um pouco mais aberta. "Os fios estão
+    'flutuando' na frente da caixa e não saindo dela": nascem dentro dela, que é desenhada por cima.
+406. #pixel #ferramentas "Faça isso. Em seguida, faça o restante" (as sugestões depois do plano de pixel): as beiras
+    consertadas (bloco, livros, lateral da mesa comutadora, peitoril) ficam em `tools/beiras.txt` com os degraus
+    aprovados, e o `tools/visual.sh` as confere (`tools/edge_steps.gd --check`; medidas vindo do fundo, `,l`/`,r`/`,u`/`,d`).
+    Às 21:00, no amanhecer e na chuva as beiras saem iguais (a luz não mexe nelas); a tela larga não conta (o jogo é
+    sempre 960×540, `GameView.BASE`). O cabo de conexão parando muda só uns pixels do trançado (deixado assim). Os
+    fios da caixa sem se cruzarem: só proposta (abrem o leque por cima da placa). `PixelArt.bounds` no lugar das três
+    cópias de `_bounds`.
+407. #sala #interface #painel "Pode seguir na sequência" (o que melhorar depois da reformulação dos objetos): o
+    armário de aço com a cornija de cantos redondos, as venezianas num recuo escuro (como as teclas da mesa), a
+    etiqueta com o selo da companhia impresso em azul-petróleo (`Switchboard.badge`) e o guarda-chuva com volume (luz
+    à esquerda, sombra à direita; chapado, parecia uma faixa preta). As respostas do painel de baixo (`ChoiceButton`)
+    viraram plaquinhas creme com letra escura, como as etiquetas das teclas (eram caixas pretas de contorno fino). As
+    teclas apagadas com a letra na cor da tecla, escurecida (a tinta escura a meia força sumia no tampo apagado).
+    Depois, "se eles acendem não faz sentido ficar com texto preto": as teclas acesas com a letra creme clara (a cor do
+    texto da conversa), como letra iluminada; as plaquinhas de resposta seguem com a letra escura (são papel).
+408. #painel #interface "As plaquinhas que indicam as teclas do teclado não estão com os textos centralizados": os
+    rótulos do atalho (Espaço, Tab, Z, X) estavam 2 px acima do meio da plaquinha creme (3 px em cima, 5 embaixo);
+    descidos 2 px no `phone_panel.tscn`, a folga ficou igual em cima e embaixo (dos lados já estava, ±1 px).
+409. #cabos #mesa-comutadora "Melhorar a física dos cabos dos plugs, atualmente os cabos atravessam os plugs
+    conectados e também os desconectados": os plugs encaixados viraram pinos para os fios encaixados das outras pontas
+    (`Cord.pegs`, `Cord.clear`: o fio contorna ou se apoia neles; esticado, dobra neles) e os fios encaixados passam
+    atrás dos plugs guardados em pé (ordem do desenho: encaixados, guardados, da mão e soltos). Na mão e solto, o fio
+    vem para a frente e não bate (prender o fio nos plugs enquanto arrasta não foi pedido). Tratar os guardados como
+    obstáculos (o fio por cima das pontas deles) foi descartado na proposta: o fio subiria quase reto ao sair do buraco.
+    `--plugs=3:296,4:162` no `tools/shot.gd`.
+    Depois, "os cabos ficaram por baixo do buraco do slot": a beira da frente dos buracos era desenhada junto de cada
+    plug guardado e depois de cada fio, e cobria os fios que passavam por ela; agora sai de todos os buracos antes de
+    fios e plugs (o plug guardado, cortado nela, continua entrando no buraco).
+410. #cabos #mesa-comutadora "Faça a conferência e depois os itens 1 e 2" (das melhorias sugeridas para os fios): dois
+    plugs encaixados lado a lado, com o fio passando entre eles por 16 caminhos, assentam sem tremer, sem prender e
+    sem esticar; um plug encaixando em cima de um fio parado o fazia saltar 8 px num passo (o obstáculo agora cresce
+    com o empurrão do encaixe, 0,6 px por passo) e o fio voltava a dormir dentro dele (o `calm` zera). (1) O pano agarra
+    no plug em que se apoia (`Cord.PEG_GRIP`). (2) A sombra do trecho apoiado cai tão longe quanto a do plug. A
+    investigação do desempenho: o quadro em ~7 ms é o deste Mac hoje (a versão 0.6.0 mede igual), e as chamadas de
+    desenho do `medir.gd` oscilam entre ~235 e ~740 de uma execução para outra no mesmo commit, sem mudar ao esconder
+    o jogo inteiro: não é regressão, é a leitura do monitor.
+411. #cabos #som #mesa-comutadora "Pode fazer nessa sequência. Deixe 5 por último depois de eu aprovar os outros" (as
+    melhorias seguintes dos fios). (3) O fio caindo num plug encaixado dá um "toc" abafado (`cord_knock`) e, tirado o
+    plug que segurava um fio, o fio cai com o "tap" de sempre. (4) O plug em que o fio cai afunda um instante, como
+    na assentada. (6) Onde dois fios se cruzam, o de cima faz uma sombra fina no de baixo. A 5 (o fio na mão
+    enroscando nos plugs rente ao painel) espera a aprovação destas.
+
+412. #cabos #mesa-comutadora "Faça a 5 agora". O fio na mão esbarra nos plugs encaixados só na metade do lado do
+    buraco (`Cord.HELD_LIE`), a que ainda passa rente ao painel; a do lado da mão, erguida, passa por cima. Arrastado
+    contra um plug, o trecho que já encostava não dá outro "toc" (dava um a cada ~0,1 s). Para testar no jogo: se
+    atrapalhar, sai.
+413. #cabos #mesa-comutadora "Os fios estão ficando por baixo dos plugs também, veja o plug azul". O fio encaixado
+    que sai da fileira da frente da prateleira sumia atrás dos plugs guardados na de trás; agora o desenho vai fileira
+    por fileira, de trás para a frente (os encaixados que saem dela, depois os guardados nela): ele passa na frente
+    dos de trás e atrás dos da frente.
+414. #cabos #pixel "Melhorar as cores das linhas dos fios: muito escuras, fogem do visual de remover as linhas que
+    deixam com cara de desenho". A beira do fio era a cor dele escurecida 65% dos dois lados (`EDGE`, a mesma do
+    plug): um contorno quase preto. Agora só o lado da sombra tem beira, escurecida 30% (`ROPE_EDGE`); o lado da luz
+    fica na cor do fio, e a sombra do buraco cobre o fio inteiro.
+415. #cabos #pixel "O plug encaixado está com o mesmo estilo de desenho; veja o que pode melhorar". Na vista de
+    frente (`_draw_plug_face`), a beira de cada disco era o tom `6` (a cor escurecida 65%) em volta toda: agora é
+    sombreada pela luz, no tom do meio do lado dela e escura só do lado da sombra (`ROPE_EDGE`). Os gomos escuros da
+    capa, empilhados, faziam uma meia-lua preta no meio do plug: de frente, a capa fica um tom mais clara
+    (`_face_row`). O plug em pé (na mão, guardado) segue com a beira `EDGE`.
+416. #cabos #pixel "Mudar o visual dos plugs, deixar mais clean" (com a foto de uma mesa dos anos 60: plugs cinza de
+    cotovelo com capa de frisos, guardados com a ponta de metal fina sobre o corpo cinza). O plug em pé virou um
+    cilindro de plástico cinza liso, sem contorno escuro, com a ponta prateada (`Pal.PLUG_TIP`; antes, P10 de latão
+    com corpo na cor do cabo, serrilhado e capa em gomos) e o trançado do fio mais discreto (`BRAID_MIX`). A cor do par
+    fica no fio e numa faixa de 2 px no corpo (guardado, o fio some no buraco e não se sabia de que par era). Correções
+    pedidas no caminho: "minúsculos" (voltou ao tamanho antigo, 12 × 59); "a parte metálica não está pequena?";
+    "o plug está com uma escada" (a ponta reta até a cabeça); "troque a cor para prateado"; "de acordo com a largura
+    da tomada" (a ponta com os 6 px do furo); "o pino está reto na ponta" (bico arredondado).
+417. #cabos #pixel #mesa-comutadora "Siga com o cotovelo do plug encaixado". Encaixado, o plug é um cotovelo visto de
+    frente (`_elbow`, montado pixel a pixel): a cabeça redonda na tomada e a capa de frisos com a faixa do cabo, o fio
+    saindo do pé dela (`PLUG_DROP`, `Cord.stub`); os fios esbarram na cabeça e na capa (`ELBOW_PEGS`). Saiu a vista
+    de frente em discos com paralaxe (`_draw_plug_face`, `_tilt`). Descendo reta, como na foto, a capa tapava a chave
+    de escuta embaixo da entrada (e pegava o clique dela) e o número da tomada de baixo nos bancos; o usuário escolheu
+    a capa em diagonal, a 45° para a esquerda, e o clique segue a silhueta.
+418. #cabos #pixel #mesa-comutadora "Essa mudança piorou um monte de coisa, perdeu toda aquela lógica realista de
+    paralaxe dos plugs na tomada, os cotovelos estão pequenos e grossos" (e a foto de novo: "o completamento do cabo e
+    do cotovelo, além do formato do cotovelo"). O cotovelo virou um tubo só, da largura da capa: o pescoço sai da
+    tomada com a paralaxe de antes (`_tilt`), a curva arredondada e a capa comprida (24 px, ~3 × a largura) com
+    frisos no alto, e o fio continua da capa na mesma linha. A capa gira na tomada para o lado do fio (`_elbow_ang`);
+    na entrada, sempre para a esquerda da chave de escuta. A sombra segue o plug desenhado. Corrigido junto: o contorno
+    do cotovelo (destaque e clique) saía errado com linhas vazias no mapa (`_art_outline`); o `test_flow` confere.
+419. #cabos #pixel #mesa-comutadora "O cabo amarelo e verde da esquerda ficaram em desacordo, o cotovelo deveria seguir
+    a direção de onde o fio tá sendo puxado". A capa segue a linha esticada até o buraco do fio (sem somar o peso, que
+    a deixava mais em pé que o fio). Na entrada, para a esquerda, inclina só o que livra a chave de escuta (antes, 40°
+    no mínimo). Para a direita, segue o fio e tapa a chave (escolha do usuário: "Seguir o fio"), e o clique ali
+    continua sendo da chave (`_plug_under`; o `test_flow` confere).
+420. #cabos #pixel #mesa-comutadora "O cotovelo não aparece quando eu puxo o plug para fora do slot, para isso, deixe a
+    parte plástica do mesmo tamanho da parte metálica e o cotovelo (parte flexível) afunilando até se encontrar com o
+    fio"; "o cotovelo deveria afunilar mais na ponta". O plug em pé: corpo de plástico de 24 px (o da ponta), e a capa
+    flexível, com frisos, afunilando de 10 a 6 px até o fio (o comprimento total não mudou, `PLUG_LEN`). Encaixado, a
+    capa afunila da largura do tubo até a do fio por toda a parte lisa (`ELBOW_W.y` 2,5; antes 3,5 nos últimos 6 px).
+421. #cabos #pixel #mesa-comutadora "O tamanho do cotovelo do plug em pé não condiz com ele encaixado". A capa do plug
+    em pé passou a ser a mesma do cotovelo: 24 px, 8 de largura, frisos nos mesmos lugares, afunilando até o fio
+    (`PLUG_ART` 12 × 72, `PLUG_H` 72, `PLUG_LEN` 48). Guardado, afunda mais no buraco (`PLUG_SINK` 24, a capa some
+    nele e a parte à mostra fica como antes); a mão pega no meio do corpo (`PLUG_BASE` 36).
+422. #cabos #pixel #mesa-comutadora "Teria como fazer uma dobradura do cotovelo de forma mais suave? Veja que na
+    imagem real tem uma suavização na dobradura do cotovelo, não faz 90 graus" (com duas fotos). A curva virou um arco
+    (Bézier da tomada, saindo para a câmera, até `ELBOW_BEND` 11 px da capa), varrido com discos a cada meio px, e os
+    frisos seguem o eixo pela curva. Antes: o pescoço reto até uma bola, e a capa saindo dela num "L" com quina.
+423. #cabos #pixel #mesa-comutadora "O grau que o cotovelo está fazendo aqui está errado, o fio nem está puxando o
+    suficiente para ele ficar dessa forma; seria interessante fazer o cotovelo girar e acompanhar o balançado do fio;
+    também deixar o fio mais rígido, como se tivesse sendo puxado de volta para o slot". A capa virou parte da física
+    do fio: gira na curva do plug (`Cord.pivot`), o pé dela é a ponta da corda e pesa (`BOOT_WEIGHT`), o contrapeso conta
+    da curva e puxa para o buraco (`HINGE_SLACK`), e o fio encaixado pesa menos (`TAUT_WEIGHT`): esticado, quase reto, e
+    a capa entre a vertical e o buraco, na linha dele, balançando com ele. Saiu o `Cord.stub` (o fio saía da capa
+    parada) e a regra que inclinava a capa da entrada para livrar a chave de escuta (agora ela a tapa quando pende
+    reta; o clique é da chave).
+424. #cabos #mesa-comutadora "O fio está fazendo pouca força puxando para o slot, preciso de mais, da forma como está
+    agora parece que está em gravidade zero". O fio encaixado voltou ao peso inteiro; o contrapeso recolhe 6% a mais
+    que o vão (`HINGE_PULL`), aos poucos (`HINGE_TAKE`), e o fio tem 24 iterações das regras (`Cord.HINGE_ITER`): tenso,
+    quase reto, e a capa mais para o lado do buraco. Recolhendo de uma vez, o fio chicoteava e se enroscava por cima
+    dos plugs.
+425. #mesa-comutadora #painel #pixel #calculografo "Vamos fazer 1, 2 e 3" (das sugestões de objetos que ficaram para trás
+    dos plugs novos): a tecla de escuta montada pixel a pixel (`_key_cap`): o tampo, menor que a base, acima dela, com
+    as laterais à mostra pela paralaxe dos olhos (`KEY_DEPTH`) e a sombra, presa rente e acesa como antes; a cúpula da
+    lâmpada abaulada (clara do lado da luz) e o alto dela andando com os olhos; o carimbo da mesinha do calculógrafo
+    redesenhado como o da ferramenta (cabo em cogumelo com as faixas de luz de cilindro e o medalhão, haste, corpo com a
+    plaqueta escrita numa linha, rodas de latão com os tipos sujos de tinta): parecia um robozinho. Os itens 4, 5 e 6
+    (tampas da prateleira, frente do console, caixinha dos bilhetes) depois da aprovação.
+426. #mesa-comutadora #cabos #console #calculografo "Aprovado" (o 1–3), seguindo para o 4, 5 e 6: os tampos dos lugares
+    vagos na prateleira encaixados rente, no tom dela (a fresta em volta e a beira dela por dentro, a de cima e a da
+    esquerda na sombra), sem a sombra de peça saltada (pareciam recortes soltos em cima dela); forma, inclinação e lugar
+    não mudaram. A tela da conversa na miniatura do console esperando como a de verdade: o aviso em traço apagado e o
+    cursor depois (só o cursor, parecia tela desligada sem função). A caixinha dos bilhetes com a parede de trás por
+    dentro à mostra (toda escura, parecia um buraco), a etiqueta impressa ("BILHETES", `T.Key.TOLL_BOX`, na fonte
+    gravada) e os bilhetes guardados em degraus de tom, cada um com a marca do carimbo na beira.
+427. #burocracias #fitas Revisão da B4 (os pontos que sugeri, com os ajustes do usuário): só as ligações do roteiro vêm
+    marcadas (nenhum mecanismo de marcar as comuns); a fita calibrada (5 pontos por palavra-chave, no máximo 20 por
+    fita, `max_tape_points`: com 10 por palavra, uma fita valia mais que uma advertência grave); a ligação marcada sem a
+    fita dela entregue (não gravada, descartada ou esquecida) não pesa na hora, porque as autoridades não sabem o que
+    ela tinha: duas noites depois (`found_after`) descobrem, e vem a advertência de descuido ("Ligação pedida pelas
+    autoridades não foi gravada", média; `Supervisor.fault_later` ganhou `nights`, e o relatório diz "há 2 noites"),
+    com o marcador `authorities_questioning_pending`; a fita deixada no gravador no fim da noite conta como não entregue
+    (`Tapes.left_behind`); a gravação de conversa não marcada entregue vai para o registro como "gravação não pedida".
+    Sinal na mesa para a ligação marcada: recusado ("se o jogador não estiver olhando para os textos, é um problema
+    dele"). O lugar do gravador: pediu mais sugestões.
+428. #burocracias #fitas #console #ferramentas #saiu O lugar do gravador (sugestão A): o gravador e a gaveta das fitas
+    embutidos na frente do console, nos lugares da plaqueta do fabricante e dos dois botões (`metadata/console` 0 e 1
+    na cena, `Background.console_bay`/`console_used`, `Switchboard.console`); a prateleira embaixo do interurbano fica
+    tampada (`shelf_used`). Os lados trocaram: o lugar dos botões tem ~60 px, pouco para o gravador. Clicar em
+    qualquer dos dois abre o gravador de perto (`Tools.TAPES`, `tape_deck.gd`), como as outras ferramentas; o de
+    console só mostra. Fitas por cliques (a de cima da gaveta voa para o gravador; Entregar e Descartar levam para a
+    caixa das autoridades ou para o cesto); a caixa só na vista de perto, e no console uma luzinha por fita entregue.
+    A fita em pé atrás de uma porta de vidro saiu: "pela lógica, a fita não é tão pequena assim em comparação a um plug
+    de áudio". Agora ela fica deitada, na escala dos plugs (100×11 no console, 150×18 de perto), num gravador de fenda,
+    com a etiqueta na lombada; a gaveta e a caixa também com as fitas deitadas, empilhadas. A janelinha das bobinas em
+    cima da fenda também saiu: "não faz sentido, pois a fita está encaixada no slot". O VU ficou no lugar dela, e o
+    gravador encolheu (110×40 no console, 240 de largura de perto).
+429. #burocracias #fitas #mesa-comutadora #disposicao #saiu "Não gostei" do gravador no console: o painel das tomadas foi
+    para a esquerda (saiu a folga de 12 px antes dele) e a mesa comutadora alargou 72 px (441), com a prateleira e o
+    console acompanhando; à direita das tomadas, depois de um friso, uma coluna nova (`SIDE_W`, `side_rect`) com o
+    gravador vertical no alto e o compartimento de fitas embaixo, tudo na cena (pedido: "Tudo na cena"; "Fenda
+    vertical"; "Em pé, lado a lado"). Saíram a vista de perto do gravador (`Tools.TAPES`, `tape_deck.gd`), os lugares
+    da frente do console (a plaqueta e os botões voltaram), a lixeira e a caixa das autoridades, a porta do gravador e
+    o som dela. A fita em pé de lado, 12×100 (a lombada com o nome e a hora escritos de lado, de baixo para cima), na
+    fenda; o compartimento com três em pé, o clique tira a da direita. Descartar: "ela cai da tela e pronto". Entregar:
+    "ela é mostrada ao lado do caderno de registro, se tiver mais de uma fita, só empilhar" — voa encolhendo até a
+    pilha, deitada de comprido para o fundo entre a mesinha do calculógrafo e o bloco de fichas (de frente, com 10 cm,
+    encostava no bloco e no jornal).
+430. #burocracias #fitas #mesa-comutadora Melhorias na coluna do gravador (as que sugeri, escolhidas pelo usuário): até
+    chegar o primeiro equipamento dela, a coluna fica sob uma tampa lisa, como as chapas dos bancos (sem letra nem
+    aviso); a fita entregue tomba de lado no meio do voo (girada 90°, exata) e chega à mesa com a cara da da pilha
+    (escura, a etiqueta nos 60% da esquerda; antes, um bloco creme encolhendo). Conferido: as teclas Entregar e
+    Descartar cabem em espanhol (os mesmos textos) e em inglês (mais curtos). A sugestão de ajustar a miniatura do
+    console estava errada: ela é o painel do operador, não a mesa comutadora.
+431. #burocracias #fitas "Coloque uma tampinha no slot das fitas, como aquelas de toca fitas de carros": sem fita, a fenda
+    do gravador fica fechada por uma tampinha de plástico escuro presa pela beira da esquerda; a fita entrando a empurra
+    para dentro (de frente, ela estreita até sumir), e, quando a fita sai, ela volta de mola e bate (`_flap`, o som
+    `tape_door`, que tinha saído com a porta antiga, de volta). Captura: `--tapes=empty`.
+432. #burocracias #fitas #mesa-comutadora "As letras dos botões não estão centralizadas; troque por um botão REC
+    vermelho. Para entregar, o jogador deixa a fita na mesa até o fim do turno; para descartar, clica na fita e aparece
+    o botão Descartar. O compartimento está chapado, parecem adesivos: mais profundidade." A gravação deixou de ser
+    automática: a tecla REC vermelha trava (`Tapes.rec`) e, presa e com a escuta na conversa, em qualquer ordem, grava;
+    sem fita, desce e volta com o aviso. Clicada a fita na fenda, ela vai para a pilha da mesa (a REC volta); as da
+    mesa são entregues no fim do turno (`Tapes.hand_over`, os pontos só então); a esquecida no gravador continua não
+    entregue. Clicada a pilha (que se ergue, "Fitas gravadas"), abre de perto acima dela com as fitas deitadas e o
+    Descartar de cada uma (`tape_pile.gd`). O compartimento virou uma caixa funda de plástico branco, como o gravador: o
+    fundo escurecendo para cima, a parede da esquerda por dentro, o alto e o lado de cada fita com a sombra no fundo e
+    a beira da frente tapando o pé delas, de onde a fita tirada sobe antes de voar.
+433. #burocracias #fitas "As fitas parecem estar sobrepondo o compartimento": o alto das fitas subia até a borda de
+    cima. Baixei as fitas (`FLOOR` 106): o alto delas fica dentro do vão, com o fundo escuro à vista por cima, e o pé
+    fica escondido atrás da beira da frente e da borda de baixo, redesenhadas por cima delas.
+434. #burocracias #fitas "Sugira melhorias" e, das sugeridas, "Pode fazer todos, menos o som da queda. Também seria
+    interessante poder selecionar qualquer fita no compartimento (hoje só a primeira sai); se há fita no gravador, ela
+    está vazia e o jogador clica nela, ela volta para o compartimento, pois está limpa." A REC solta sozinha quando a
+    conversa gravada acaba (`rule_tapes.call_ended`, com o estalo dela) e é apertada também pela tecla R (`rec_tape`);
+    sob o mouse, a fita na fenda mostra numa etiqueta o que o clique faz ("Tirar a fita" / "Devolver a fita"); a tirada
+    sobe só dentro do vão e vem para a frente por cima da beira antes de voar (não passa mais pela borda de cima); a
+    pilha inteira responde ao mouse; aberta, é um papel com botões de tinta e a descartada cai para fora da tela, sem
+    som. Cada fita do compartimento tem o lugar dela: a apontada sobe 1 px e é a que sai. A virgem clicada no gravador
+    volta voando ao primeiro lugar vazio e afunda nele (`Tapes.put_back`), sem ir para a mesa.
+435. #fios #mesa-comutadora "Quando o cabo está por cima de uma tomada e eu coloco outro plug na tomada tampada, ele
+    fica torto assim e fazendo barulho. Vamos sempre evitar isso." O plug novo crescia embaixo do fio esticado, que não
+    tinha como contorná-lo: ficava preso dentro dele, entortado e batendo a cada quadro. Agora o plug levanta o fio que
+    tapava a tomada: o fio corre por cima dele, sem esbarrar, e é desenhado depois dele (`Switchboard._draped`, até um
+    dos dois sair). Teste: `test_flow`, seção 18.
+436. #burocracias #fitas "Você acha que a B4 está boa?" e, das melhorias apontadas, "Faça 1 e 3": (1) os lugares das
+    fitas passaram para o modelo (`Tapes.slots`; `insert(i)`, `put_back` devolve a virgem ao lugar dela) e cada fita
+    virou uma `Tape` (`scripts/bureaucracy/tape.gd`, com o destino num enum, `Tape.Fate`), no lugar de dicionários com
+    chaves em texto; o compartimento só desenha o que o modelo diz (antes guardava os lugares e os reconciliava a cada
+    quadro); com uma fita voltando, ele espera ela chegar. (3) A etiqueta da fita no gravador saiu de cima da borda do
+    painel e da placa: fica à esquerda da coluna, na frente do painel, fora da moldura.
+437. #burocracias #fitas "Pensando como um game designer, a jogabilidade da B4 está boa?" e, das mudanças sugeridas:
+    (1) a fita pedida só conta como entregue com alguma palavra-chave (`Tapes.delivered`); a vazia, de um segundo de
+    escuta, leva a mesma advertência adiada de não entregar. (2) Nada no relatório da noite: o bilhete do supervisor da
+    noite seguinte diz o que houve com as fitas (usadas, entregues, as pedidas que não chegaram, se repôs;
+    `Tapes.summary`/`note`, salvo em `Bureaucracy.state`); o que acontece por isso fica com o roteiro, pelos marcadores
+    `b4_nao_entregou_<ligação>` e `b4_descartou_<ligação>`. (3) As virgens passam de uma noite para outra: o
+    compartimento só é reposto quando esvazia ou depois de três noites seguidas incompleto (`Tapes.restock`,
+    `restock_after`). (4) Descartar a fita pedida é não colaborar de propósito: a mesma advertência adiada e o marcador;
+    descartar gravação não pedida não tem efeito. (5) Gravando conversa não pedida, a faixa da etiqueta sai riscada
+    (`Cassette.standing`/`lying`, `wrong`). (6) Com a fita cheia (o máximo de pontos), a lâmpada da REC pisca devagar.
+438. #plugs #mesa-comutadora "Tira print de todos os cabos conectados em posições diferentes, de forma que eu veja o
+    paralaxe", "Há melhorias a serem feitas nos plugs nas tomadas?" e "Faça 1 e 3": (1) o plug encaixado ganhou o
+    colar de metal rente ao painel (`COLLAR`, nos tons da ponta do plug em pé): fica na tomada enquanto o pescoço sai
+    para longe dos olhos, e o que ele deixa à mostra mostra a profundidade (no tom mais claro, contornava a cabeça como
+    um halo). (3) Os frisos viraram traços retos de lado a lado do tubo (`_ribs`); antes eram os pixels a menos de 1 px
+    de uma distância do eixo, e a capa deitada ficava com frisos em degraus desiguais, falhados ou grossos.
+439. #plugs #mesa-comutadora "O paralaxe tá pequeno ainda, não dá pra ver nada do plug. Os plugs têm uma linha
+    colorida que sequer dá pra ver encaixados nas tomadas". `PLUG_DEPTH` de 0,014 para 0,03: longe dos olhos, o pescoço
+    do plug sai bem para o lado (até ~18 px), perto deles quase nada. A capa do plug encaixado ganhou a faixa na cor do
+    cabo, logo abaixo dos frisos (`ELBOW_BAND`), como no plug em pé. Os fios esbarram no pescoço em discos da largura
+    do tubo ao longo dele (`_elbow_pegs`; um disco só, crescendo com o deslocamento, passava muito do tubo).
+440. #plugs #mesa-comutadora "Reveja os cabos conectados e veja se está correto", e depois: "Os plugs estão com zero
+    profundidade, o cotovelo piorou depois das mudanças; a linha dos plugs NÃO fica no cotovelo, mas sim na parte dura
+    do plug; precisa de mais detalhes para que a profundidade funcione de verdade" e "O cotovelo do cabo verde está
+    muito grosso: quanto mais para a esquerda, mais grosso; a circunferência do cabo é uniforme". O plug encaixado
+    virou um tubo em 3D montado pelo eixo (`_elbow`): a ponta de metal na boca da tomada (`ELBOW_SLEEVE`), o corpo
+    duro saindo para a câmera com a faixa na cor do cabo em anel (`ELBOW_BODY`, `ELBOW_BAND`), a curva de borracha
+    num quarto de círculo (`ELBOW_ARC`) e a capa com os frisos no alto (`ELBOW_RIBS` do fim da curva ao alto da capa;
+    no meio da curva viravam pedaços de arco soltos); a luz pela normal 3D e o mais à frente cobre o resto (buffer de
+    profundidade). Em volta de cada ponto do eixo, um círculo do raio do tubo: projetar cada ponto da superfície pelo
+    deslocamento esticava o tubo para o lado (√(1+s²)). Saíram o colar e os frisos em traço reto (438) e a faixa na
+    capa (439). Os fios só esbarram na curva e na capa, à frente do painel: o pescoço deitado os segurava como uma
+    prateleira e o fio serpenteava pelas cabeças dos plugs do interurbano.
+441. #plugs #mesa-comutadora "A linha do plug encaixado não está grossa demais em comparação ao plug no slot?" Estava:
+    3 px de profundidade, e a projeção dava até 1,5 px na tela por px de profundidade (~4,5 px à esquerda). A faixa
+    voltou a 2 px, como no plug em pé, e o corpo duro ficou mais fundo (`ELBOW_BODY` 15): o mesmo deslocamento da
+    curva nunca passa de 1 px na tela por px de profundidade (o que aponta para a câmera só encurta).
+442. #ritmo #testes #treinamento "Pode fazer o 1 e o 3" (do relatório da simulação, `docs/relatorio-simulacao-2026-10-27.md`):
+    o bilhete da abertura quebrava na noite 0 (`Tapes.note` com o resumo vazio: o -1 do padrão batia com `n - 1`) e
+    o `Main._ready` parava antes de plugar o FONE do treinamento. E a dificuldade parava de subir na noite 6 (nível 5
+    até a 15): escolhido "picos nas noites finais" (contraria em parte o "pico raro" do item 3, só no fim do jogo).
+    Níveis 6–9 (noites 7–15) com tantas ligações quanto o 5 (`Pace.mean_gap`), só que mais juntas (picos de 12% a 30%,
+    `Pace.PEAK_GAP`) e a mesa mais calma entre eles. Medido no robô `--human` (6 sementes por nível): 2+ juntas de 10%
+    (nível 5) a 23–24% (8–9), 3+ de 0 a 7–8%, no máximo 1 perdida por noite (uma semente do 7 perdeu 3). O cabo ainda
+    não falta (5 cabos com todos os setores): fazer pesar pede menos cabos ou conversas mais longas, a decidir.
+443. #ritmo #emergencia #despacho #cabos "Ao invés de diminuir os cabos, podemos alongar as conversas" e, na emergência,
+    "pausar o tempo enquanto imprime, enquanto tritura e enquanto transmite; se ainda assim estiver ruim, aumentar o
+    tempo da barra". A duração da conversa transferida saiu do `Main.TALK_LEN` para o nível (`Pace.talk_len`): 34–68
+    min do 1 ao 5, subindo de 45–85 (6) a 95–165 (9). Mas o cabo ainda não falta: só transferências e interurbanos
+    usam cabo (~6 por noite), e o robô `--human` chegou a 2 de 5 cabos em uso (o `test_shift` passou a mostrar
+    `cabos N/M`). A barra para com uma máquina do despacho trabalhando (`CardMachines.working`); não bastou (a de 35 s
+    piorava sempre e, na noite 3, perdia), e o estágio inicial de todas subiu 10 s (45/50/55). Medido: em 20 turnos do
+    robô humano nas noites 1–12, nenhuma emergência piorou; ele envia aos ~38 s.
+444. #ritmo #conteudo "Vamos ajustar a proporção de ligações pedindo informações": muitas e poucas transferências, uma
+    noite com 4 seguidas. Medido antes no robô `--human` (18 turnos): 2,9 por noite, até 7 de 10 na noite 1, 5
+    seguidas. Três fontes: `TRANSFER_SHARE` (65% → 85%); o pedido de informação também ocupava um número da noite
+    (sem chamar ninguém), e na noite 1 (10 números) as transferências se esgotavam e viravam informação (agora não
+    ocupa); e a ligação a mais da mesa vazia (`Main._fill_quiet`) era sempre informação (agora `Schedule.filler`: uma
+    transferência de molde para um número livre; só sem número livre, informação). Depois: 1,5 por noite, no máximo 2
+    seguidas. O `test_shift` mostra `info=N, M seguidas`.
+445. #ritmo #testes #processo #despacho "Se todos os fios estiverem conectados deve aparecer um botão [Todas as linhas
+    ocupadas]... 'Vou aguardar' ou 'Ligarei outra hora'": anotado no relatório (Jogabilidade 5), ainda não feito. "Pode
+    aumentar o movimento um pouco, precisamos acompanhar se um jogador novato não vai sofrer": o nível 1 de ritmo
+    passou de 45–60 para 40–52 min entre ligações (noite 1: 8–9 ligações); o robô humano descuidado e o apressado
+    seguem com Ótimo nas 6 sementes. E os outros itens do relatório: o cenário sorteia no gerador dele
+    (`Background._rng`, e o tremor da trituradora no `CardMachines._shake_rng`), fora do global do `--seed`; saiu o
+    código morto (`Sfx.later`, `dial`, `ringback`, o som `pulse`, `_pr`, `_sheets_of`); a `revisar-mudancas` roda
+    `tests/run.sh content training flow` antes do commit; o CI roda em todo push.
+446. #cabos #transferencia #conversa #processo "Pode fazer [Todas as linhas ocupadas]": sem cabo de conexão livre
+    (`Main.no_cords`), a transferência ganha o botão (`CHOICE_ALL_BUSY`; aparece e some com os cabos a cada quadro,
+    `Main._busy_choices`, porque o cabo solto volta à base sem avisar). O operador diz "Neste momento todas as linhas
+    estão ocupadas. Deseja aguardar?" e quem liga decide (`Conversation._all_busy`, `busy_wait_chance` 0,6): espera
+    (40 s a mais de silêncio, `BUSY_PATIENCE`, e o dobro em espera, `Supervisor.BUSY_HOLD`) ou "Ligarei outra hora"
+    (desliga sem advertência, `OBS_ALL_BUSY` no caderno, e liga de novo, `Retry.BUSY` com `retry_busy`). "Qual o
+    problema de ficha em cima do mapa? Depois de imprimir não há mais ação no mapa": o item saiu do relatório. "A
+    branch principal é a develop": `CLAUDE.md` corrigido; apagadas as 14 branches locais já mescladas nela.
+447. #consequencias #debug #codigo #desempenho #burocracias #testes "Vamos criar um fator de rigorosidade que
+    aumentará ao longo dos dias, daí resolve o problema dos primeiros dias serem tão rigorosos com os erros (vamos
+    precisar analisar bem o crescimento desse fator)": as advertências pesam na eficiência pelo rigor da noite
+    (`ShiftReport.RIGOR`, `rigor(n)`): 0,6 na noite 1, 1 na 9, 1,3 na 15, em linha reta. Escolhida entre cinco curvas
+    simuladas sobre 90 turnos do robô (relatório da simulação, Balanceamento 5): o desastrado fica em Regular até a 11
+    e cai para Insuficiente da 12 em diante; a emergência perdida segue Insuficiente em qualquer noite. Do mesmo
+    pedido: burocracias ficam no F1 até o roteiro ficar pronto; o rascunho do mapa fica ("não faz sentido tirar isso
+    para algumas noites"); o cabo, "vamos acompanhar"; vazamentos ao recomeçar corrigidos (a espera de desistir do
+    `Main.ring` virou temporizador ligado a `_give_up`, e o Main solta as opções das ligações vivas ao sair); o
+    cronômetro do F1 com duas emergências segue o `Fleet.target_of`; desempenho medido, nada a corrigir.
+448. #recompensas #mesa-comutadora #consequencias "Vamos criar algumas recompensas diferentes que vão sendo
+    destravadas. Como por exemplo 'Noites primorosas' quando o jogador consegue completar 3 noites perfeitas. [...]
+    broches com desenhos diferentes que ficariam em algum lugar da mesa, ao passar o mouse nelas, mostraria o título
+    de cada recompensa, ao clicar mostraria um quadrado com a descrição": oito broches (`scripts/model/badges.gd`,
+    tabela no README), escolhidos pelo usuário entre os sugeridos. O lugar, a pedido: "na parte de cima da
+    prateleira da mesa comutadora já que não há mais nada ali", numa almofada de feltro vinho deitada na inclinação
+    da prateleira entre o tampo dos equipamentos e o fim dela (`scripts/ui/badges.gd`, nó `%Badges` filho do
+    `Board`), cada broche no seu lugar (o que falta deixa o feltro à mostra), etiqueta de fita crepe sob o mouse e
+    papel (`TapedNote`) no clique. "Sempre que reiniciar o jogo [...] ficará atrelado aos dados de progresso": no
+    `Progress` (`badges`, `tally`), somem com ele. Por isso o Veterano é a noite 10, não o fim da 15 (o save é
+    apagado logo depois dela). Os bancos vazios do setor não atendido ficam como estão ("não vi problema").
+449. #recompensas #mesa-comutadora "Conserte a angulação do 'pano' vermelho, está diferente da angulação da
+    prateleira da mesa": a almofada dos broches seguia a inclinação dos pares de plugs (`_lean`, −0,86 px por linha),
+    bem mais que o fim da prateleira ali (−0,3). Agora fica paralela à lateral da mesa, como a beira direita do tampo
+    dos equipamentos (`badges.gd`, `_slant` pelo `_receding`), com os olhos (`_eye`) no estado comparado (desenhada
+    no primeiro quadro, com outros olhos, pendia para o lado contrário e não se refazia), e centrada entre o tampo e
+    o fim da prateleira à vista (16 px de cada lado).
+450. #codigo "Podemos implementar versão no save então [...] versionar é a forma mais recomendada e segue as boas
+    práticas de desenvolvimento de jogos?": sim, com o resto que costuma vir junto. O save leva a versão do formato
+    (`Progress.VERSION`, a 1; os de antes, sem versão, são da 1; a conversão de versão em versão entra no
+    `load_saved` quando o formato mudar), grava num temporário que só então toma o lugar do save (fechado no meio, o
+    antigo fica inteiro) e o que não dá para ler (de versão mais nova ou corrompido) fica guardado ao lado
+    (`Progress.aside`) com um aviso no papel da tela inicial, e o jogo começa do zero. A cópia antes de converter
+    fica para a primeira conversão de verdade. Teste em `test_penalties` (9d).
+451. #vista "Você consegue melhorar as formas e animações dos pedestres?" Quem passa na calçada de lá deixou os
+    blocos de duas poses: as pernas de coxa e canela numa passada de 8 quadros por ciclo (`STRIDE`, `LEG`: contato,
+    descida, passagem, subida), com o corpo descendo e subindo pela perna de apoio, os braços de braço e antebraço
+    balançando ao contrário das pernas (`ARM`, `SHOULDER`), a perna e o braço de lá mais escuros, os sapatos para a
+    frente, os ombros redondos (`_round_top`), o vestido abrindo para a barra, a cabeça um pouco à frente, a pasta
+    balançando na mão e, na chuva, o guarda-chuva na mão de cá (antes ficava solto em cima). Quem desce ou sobe a rua
+    do cruzamento vem de frente (pernas e braços abertos para os lados). O homem do mistério anda na mesma passada
+    (`_gait`) e, parado embaixo do poste, segue de frente. Captura: `--stride`, `--walk_dir`, `--outfit`, `--man`.
+    Depois, a pedido ("Da pra desenhar o que voce disse que ta com desenho antigo como modelo novo?"): as silhuetas
+    (`_body`, `_figure`, agora em px) também: quem está no balcão do bar, quem atende os telefones do hotel e do bar,
+    quem fuma na varanda, o passageiro do táxi com a mala, o dono do bar e o porteiro do hotel. Parados ficam de frente,
+    com os braços na beira do casaco (por fora, a silhueta ficava larga) e o braço do fone, do copo ou do cigarro
+    dobrado no cotovelo até a orelha; andando, na passada.
+452. #vista #noites "Na terceira noite haverá um momento da noite em que um policial abordará um homem e começará a
+    espanca-lo no meio da avenida, depois irá levantar ele e o arrastará para fora dos limites da visão da janela. A
+    animação precisa ser fluida. O sangue deve respingar no chão e ficar lá pelo resto da noite. Os pedestres se
+    afastarão e ficarão observando distante até que a cena acabe. A noite continua normal logo em seguida." Cena da
+    rua por noite (`Night.street_scene`, `street_scene_at`; a 3 às 20h40, com gente ainda na calçada): o roteiro em
+    `scripts/ui/beating.gd` (`Beating`: momentos-chave de cada um, com curvas de aceleração, interpolados a cada quadro;
+    ~28 s). O homem vem pela calçada de lá, o policial desce a rua do cruzamento, aponta, agarra a gola e o empurra
+    para o asfalto da boca do cruzamento (o meio da avenida fica embaixo do peitoril, fora da vista), bate com o
+    cassetete e chuta (`HITS`, com pausas; o homem encolhe a cada pancada), guarda o cassetete, o levanta pela gola e
+    o arrasta para a direita, embaixo do poste, até sair do vidro. Desenhados como esqueleto de coxa, canela, braço,
+    antebraço, tronco e cabeça montado pixel a pixel (`_draw_rig`, `_rig_pixels`, `_stamp`), com a beira acesa pelo
+    poste. Sangue a partir da terceira pancada (gotas em arco que caem e ficam, `drops`), a poça crescendo embaixo da
+    cabeça (`pool`) e o rastro do arrasto; fica até o fim da noite. Sem carros nem gente nova da hora da cena até o
+    fim; quem está na calçada para, se afasta até ~4,5 m e fica olhando (`_watch`; mais três chegam para assistir,
+    `ONLOOKERS`) e depois segue. Captura `--beating=t` (ou `t0,passo,n`), botão "Policial batendo no pedestre" no F1. Sem som, por ora.
+453. #vista #noites "No dia 7 vamos adicionar um carro da polícia parando em frente ao hotel, daí dois policiais irão
+    descer e entrar no hotel, ficarão lá por um tempo e depois irão embora." `Night.street_scene` "police" (a 7 às
+    21h30): a viatura é a próxima da mão de lá (`_police_next`) e para no hotel como o táxi (`_taxi_x`), mas fica
+    `PATROL_WAIT` s (~77 s, ~58 min do relógio). Sedã preto de portas brancas, com a sirene vermelha girando no teto
+    (`PATROL_SPIN`, o halo pulsando). Os dois policiais, desenhados como o da noite 3 (`_draw_rig`, agora com recorte
+    pela porta), descem do lado da calçada, andam até a porta do hotel e somem nela; ~70 s depois saem, voltam, as
+    portas batem (`slams`) e ela vai embora. Captura `--taxi=s --police`, botão "Viatura no hotel" no F1.
+454. #debug "Pode adicionar o policial batendo no pedestre no debug?" O botão existia como "Cena da rua (noite 3)";
+    virou "Policial batendo no pedestre (noite 3)".
+455. #vista #pedestres #noites "As pernas dos pedestres estão um pouco para trás do corpo, parece que eles estão andando
+    e caindo para frente; [...] estacionar o carro da polícia [...] ele já pode chegar na posição de estacionado [...]
+    a giroflex não está legal, precisa ser mais detalhado, assim como o próprio carro." O quadril de perfil foi
+    0,1 m à frente do tronco (`HIP_AHEAD`, que saiu no 457). A viatura vem junto do meio-fio (`PATROL_Z`, a faixa por carro em
+    `_lane`) e para com o meio na porta do hotel (`_patrol_mid`), sem manobra. `_draw_patrol_car`: "POLÍCIA" na porta
+    branca, holofote na coluna, antena atrás e a sirene com base cromada, cúpula de vidro vermelho e a lâmpada
+    passando de um lado ao outro: clarão quando vira para nós, facho varrendo a rua, vermelho na fachada de costas.
+    `--still=N` na captura para a sirene em outro ponto do giro.
+456. #pedestres "Os pedestres que caminha da esquerda pra direita ainda estão com problema de pernas para frente."
+    A perna de 2 px crescia sempre para a direita (`_limb` só centrava as de largura ímpar): quem ia para a direita
+    ficava com as pernas 1 px adiante e quem ia para a esquerda, 1 px atrás. Centrada (`wide / 2`).
+457. #pedestres "Está a mesma coisa, e pessoas caminhando da direita pra esquerda continua com as pernas para frente."
+    Com a perna centrada (456), o quadril adiantado (`HIP_AHEAD`, do 455) passou a pôr as pernas na frente nos dois
+    sentidos: saiu, e o quadril volta ao meio do tronco.
+458. #vista #noites "Da primeira lista implemente 1 (dias 9 à 14), 3 (no caso, o homem de macacão pinta 3 dias
+    depois), 6 (nesse caso, um carro passa jogando os panfletos), 8 e 10. Da segunda lista implemente 5, 8, 9 (no dia
+    9, de hora em hora o homem aparece no terraço do Hotel e observa a rua [...]). Não precisa implementar tudo de uma
+    vez. Crie um .md para implementar esses eventos por vez" e "Deixe claro no documento que precisa ter detalhes e
+    boas animações". `PLANO_RUA.md`: o passo 0 (várias cenas por noite, `StreetEvent`) e as oito cenas, uma por vez,
+    com a seção de qualidade (animação fluida, movimento orgânico, detalhe, som, marca que fica, conferência visual).
+459. #vista #noites "Pode começar" (o `PLANO_RUA.md`). Passo 0: `StreetEvent` (`kind`, `at`, `every`) e
+    `Night.street_events` no lugar de `street_scene`; o Main desdobra as repetições e chama `Background.schedule`.
+    Cena H, o vigia da noite 9 (`LOOKOUT_*`, `_draw_lookout`): às 19h, 20h, 21h, 22h e 23h, em silhueta contra o céu,
+    vem de trás até a platibanda do hotel, vira a cabeça de um lado ao outro, debruça-se com as mãos nela, ergue o
+    binóculo (os cotovelos abertos) e varre a rua, e volta (26 s). Encostado nela: mais atrás, a platibanda o
+    escondia quase inteiro. Os braços espelhados pela coluna do corpo (como a perna no 456).
+460. #vista #noites "O boneco não está detalhado como eu pedi! Ele tá com os braços super finos, parece uma aranha do
+    que um homem, tire o chapéu também". O vigia (`_draw_lookout`) deixou a silhueta de peças (`_body`, braços de 1 px)
+    e é montado pixel a pixel, de frente, em colunas simétricas: a capa escura com a beira mais escura, as mangas de
+    2 px e as mãos, a cabeça sem chapéu (cabelo em cima e, virada, na nuca, com o nariz para o lado), o binóculo no
+    rosto; a beira de cima acesa pelo céu (`_draw_pixels`, separado do `_draw_rig`). Num degrau junto da platibanda,
+    subindo aos poucos: aparece do peito para cima.
+461. #vista #noites "Está sem braços, a cabeça não precisa ficar tão baixa". Caídas, as mangas ficavam por cima da
+    capa e sumiam nela: saem por fora do tronco, mais claras, com os cotovelos um pouco abertos (um vão de céu até o
+    corpo) e a costura da capa mais escura. A cabeça sobe uma fileira, sobre o pescoço na sombra do queixo.
+462. #vista #noites "Pode fazer" (o toque de recolher do `PLANO_RUA.md`, noites 9 a 14 às 21h). A viatura da noite 7
+    passa devagar pela mão de lá (`CURFEW_SEC`), a sirene girando e o holofote da coluna aceso, o facho correndo pela
+    calçada e pelas fachadas de lá e acendendo a beira de quem pega (`_sweep_at`, `_sweeps`); o ronco grave toca
+    quando ela passa no meio. Quem está na calçada nota quando ela chega perto (`CURFEW_SEE`), cada um no seu tempo,
+    para de perfil olhando para ela, dá meia-volta se ia para o lado dela e sai apressado, em passos mais curtos e
+    rápidos (`_hurry`, `_take_cover`, `steps`), para a rua do cruzamento ou para dentro do hotel, recortado pela porta
+    (`in`). Ninguém mais passa depois (`crowd` zero desde a hora). Na noite 9 coincide com o vigia das 21h.
+463. #vista #noites "O que melhoraria nessa luz do holofote?" e "Faça de 1 a 4". O holofote do toque de recolher:
+    (1) a luz somada numa camada própria por baixo da frente da vista (`_spot_add`, ADD), clareando o tijolo e a
+    calçada sem acinzentar, tapada pela viatura e por quem passa; (2) o círculo com o meio mais forte e a beira
+    definida, mais alto que largo na fachada e dobrando para a calçada abaixo do pé dela (cada ponto segue o raio da
+    lâmpada até o chão: uma elipse deitada); na boca da rua do cruzamento cai no chão dela, rua acima, e se parte na
+    quina (`_draw_sweep_light`); (3) quem ele pega clareia de frente, no tom da roupa (`_beam_at`), e a sombra dele
+    aparece na fachada, projetada da lâmpada, maior, cortada no pé da parede e no círculo (`_draw_beam_shadows`); (4) o
+    policial procura aos trancos (vira rápido e chega devagar, para um instante) e acompanha um tempo o peito de quem
+    pega (`_aim`, `CURFEW_PAUSE`, `CURFEW_TURN`, `CURFEW_FOLLOW`). A primeira versão do círculo, somada a 0,55 com a cor
+    do farol, virou tinta bege chapada; e o círculo atravessando a quina virava um risco: partido nela.
+464. #vista #noites "Existe outra forma de fazer essa projeção de luz? Algo que deixe mais parecido com o ambiente ao
+    invés de um círculo opaco?" e "Troque para testar. Mas antes commit o código atual". O holofote deixou de somar uma
+    cor: a camada `_spot_add` usa `spot_light.gdshader`, que lê o que já está desenhado embaixo e o multiplica pela
+    força da luz (a forma que `_draw_sweep_light` desenha, na cor dos vértices): o tijolo, as juntas e a calçada
+    continuam aparecendo, cada um na sua cor, e o ganho cai no que já é claro (a porta acesa quase não muda,
+    `CURFEW_GAIN`). A forma virou a de um holofote antigo (`CURFEW_RINGS`: miolo, faixa, anel do refletor, beira e um
+    halo largo), um pouco torta. O commit anterior (fe54ebe) guarda a versão somada, para voltar se esta ficar pior.
+465. #vista #noites "A luz no cruzamento fica cortada" e "enquanto a polícia passa em frente aos dois prédios, poderia
+    levantar mais a luz". O círculo do holofote deixou de pular os pedaços que atravessavam a quina (o buraco e a beira
+    em degraus): cada triângulo é cortado na linha da quina (`_split`) e cai inteiro na parede ou no chão; no chão da
+    rua do cruzamento o facho não para mais numa linha (o raio ia até 1,5× e se juntava ali) e vai sumindo com a
+    distância; a mira no cruzamento fica baixa (até 0,4 m). Nos prédios ela sobe até as janelas de cima
+    (`CURFEW_HIGH`, 4,5 m).
+466. #vista #noites "Pode seguir, assim que finalizar parta para os próximos e no final mostre o que você conseguiu
+    fazer e o que melhoraria" (as cenas F, G, C, B, E e D do `PLANO_RUA.md`, sem esperar aprovação de cada uma). Noite
+    5: o carro de som, uma Kombi devagar com cartaz, brasão e duas cornetas no bagageiro, a voz saturada com eco na rua
+    (`SPEAKER_*`, `_build_speaker`), quem está na calçada para e olha (`_listen`). Noite 8: a corrida (`Chase`): um
+    rapaz atravessa correndo, olha para trás e entra no hotel; dois homens de terno e chapéu perdem o rastro na esquina
+    e vão embora. Noite 6: panfletos jogados de uma Brasília, voando e planando até o chão (`Flyers`), recolhidos um a
+    um por um policial um minuto depois. Noite 4: a pichação de madrugada (três letras inventadas e um risco, pixel a
+    pixel, escorrendo; `Graffiti`); noite 7: um pintor cobre de cinza em faixas de rolo; ficam nas noites seguintes
+    (`left_behind`). Noite 12: um sedã escuro para na esquina, dois homens esvaziam a banca, baixam as portas e a
+    lacram (`Newsstand`); ela fica fechada até o fim do jogo. Noite 10: o caminhão do exército com a lona enrolada e os
+    soldados de capacete e fuzil (`_draw_army_truck`), o diesel grave (`_build_army`) e o vidro da janela tremendo
+    (`_tremor`). Captura `--scene=<tipo>` e as determinísticas `--chase`, `--flyers`, `--graffiti`, `--paint`,
+    `--newsstand`; botões no F1.
+467. #vista #saiu "Tire a bandeira do Brasil do carro, deixe um círculo como fosse um brasão apenas". O cartaz do carro
+    de som ficou com um brasão redondo, sem bandeira.
+468. #vista #saiu "As cornetas ficaram estranhas, estão tortas quase viradas para o jogador" e "Deixe elas menores
+    também, como na primeira versão". As cornetas ficaram retas, deitadas ao longo do carro, e pequenas.
+469. #vista #saiu "Vamos tirar a tremulação na hora do desfile", "o caminhão do desfile está com as duas rodas
+    traseiras se sobrepondo. Os soldados estão cortados na carroceria, complete eles, dê mais detalhes ao caminhão",
+    "algum problema esquisito na porta do hotel, é como se tivessem duas portas uma em cima da outra", "o carro que passa
+    jogando os panfletos poderia jogar aos poucos ao longo da rua e aí ao invés de aparecer somente uma pessoa limpando,
+    apareciam umas três varrendo e limpando", "quando o rapaz da tinta está chegando na pichação, a velocidade dele cai
+    drasticamente até parar" e, na corrida, "os dois outros homens aparecem muito rápido e não fica crível que eles não
+    viram o homem entrar no hotel... seguir pelo mesmo caminho da esquerda". O vidro não treme mais (saiu o `_tremor`).
+    O caminhão: os eixos de trás afastados (1,25 m), a lona enrolada mais alta e os soldados no banco do meio, costas com
+    costas, cinco de cada lado (`ARMY_SEATS`, `ARMY_GAP`): os de cá inteiros, de frente (capacete, rosto, farda, braços
+    nos joelhos, pernas até as botas, o fuzil em pé até o peito); os de lá, só capacete e ombros, mais escuros; os postes
+    da lona só nas pontas (no meio, com os fuzis, virava grade); e para-choque, venezianas do capô, retrovisor, estribo,
+    tanque, caixa de ferramentas, para-barros e o número na porta. A porta do hotel: uma vitrine do térreo caía atrás
+    dela e acendia junto; o trecho da porta não tem mais vitrine (`HOTEL_DOOR_GAP`). Os panfletos: a Brasília mais
+    devagar joga quatro maços ao longo da rua (`THROWS`); três varredores de uniforme, vassoura e saco (um da direita, um
+    descendo a rua do cruzamento, um da esquerda) varrem e pegam papel por papel da calçada à vista (`SWEEPERS`,
+    `Flyers.figures`, som "sweep"). Quem anda até um lugar vai no passo e só freia no fim (`Beating.walk`, `WALK_EASE`),
+    no pintor, no pichador, nos homens da banca e nos varredores. A corrida: os homens chegam depois de o rapaz sumir
+    na porta (`MEN_START`) e seguem para a esquerda, passando pelo hotel sem saber.
+470. #vista #saiu "No evento da banca fechada, os policiais não estão abrindo o porta-malas para colocar as coisas
+    dentro, eles também estão ficando atrás do poste", "tire o som das pessoas varrendo as ruas" e "não entendi porque
+    os soldados estão pulando dentro do caminhão, pode deixar eles parados". A banca: o primeiro a chegar ao carro abre
+    a tampa (`Newsstand.lid`, desenhada no `_draw_car` com `"lid"`), os dois carregam pela traseira, na rua (`TRUNK`,
+    passando pela `CORNER`), e o último bate a tampa (som de porta); quem está na cena e mais perto que os postes de lá
+    é desenhado depois deles (antes, todos ficavam atrás). Saiu o som "sweep" e o balanço dos soldados (`ARMY_BOB`).
+471. #vista "Quando os homens vão colocar os papeis no porta-malas, um deles está colocando os papeis fora do carro,
+    fica por trás do porta-malas". O de lá (z 7) ficava atrás da tampa aberta e punha a pilha no vazio: os dois agora
+    ficam na metade de cá da traseira, colados nela (`Newsstand.TRUNK`), e se debruçam sobre o porta-malas (`reach`).
+    Não bastou ("o homem ainda está por trás do porta-malas e colocando os papeis fora"): o carro, desenhado depois de
+    quem está atrás dele, cobria com o tampo e o fundo do porta-malas o tronco e a pilha. Agora os dois são desenhados
+    de novo por cima do carro, da altura do tampo para cima e da tampa para a direita (`_draw_loaders`, `_trunk_clip`).
+472. #vista "Faça o 14" (a cena proposta da mudança às pressas). Às 20h (antes do toque de recolher das 21h; a
+    proposta dizia de madrugada, mas o turno acaba à meia-noite), uma Kombi com bagageiro para na boca da rua do
+    cruzamento; o motorista desce do lado da rua, olha a varanda e os dois lados; na varanda do apartamento, alguém
+    recolhe a roupa do varal peça por peça e entra, e a luz e a TV apagam; a família desce a rua do cruzamento (o pai
+    com o colchão enrolado no ombro, a mãe com a mala, o filho do lado), o colchão sobe para o bagageiro e é amarrado,
+    todos entram e a Kombi vai embora. O apartamento fica vazio nas noites seguintes (`Moving`, `left_behind`).
+473. #vista "A kombi está parando no meio da avenida, poderia parar um pouco pra frente do hotel, daí as pessoas com um
+    passo apressado atravessariam a rua e entraria na kombi, não precisaria do motorista descer e nem colocar as malas
+    em cima. Basicamente isso seria uma fuga da família do local." e "A kombi precisa estar bem mais encostada no meio
+    fio, como se estivesse estacionando". Saíram o motorista descendo e o colchão no bagageiro; a Kombi para na frente
+    do hotel (mais para lá, a borda da vista cortava a frente dela) e encosta no meio-fio enquanto freia (`"park"`: o z
+    vai da mão até 7,45 m e volta ao sair); a família desce às pressas (1,7 m/s), o pai olhando para trás, atravessa
+    a boca da rua do cruzamento e some pela porta do lado da calçada (`Moving`).
+474. #vista "Em alguns momentos, uma das pessoas desacelera o passo" (a família da noite 14). Cada trecho do caminho
+    (descida, esquina, travessia, o olhar para trás do pai) era um `Beating.walk`, que freia no fim; agora o caminho
+    inteiro vai em momentos "lin" no mesmo passo (1,7 m/s) até a porta da Kombi, onde eles entram andando (`Moving._keys`).
+475. #vista #luz #noites "Vamos fazer um evento para o dia 15 às 21:00. Nesse horário, um sinalizador de luz vermelha
+    será atirado para o céu e ele cairá lentamente." O sinalizador (`StreetEvent` "flare", `Flare`): sai de longe,
+    atrás da cidade e à direita da igreja, sobe riscando em 2,6 s, acende vermelho no alto e desce no paraquedas
+    (2,4 m/s, levado pelo vento e balançando) por 48 s, deixando a fumaça do caminho, acesa perto dele; numa camada
+    entre o céu e a cidade (`_flare`), some atrás dos telhados. O clarão no céu é liso (`FLARE_GLOW`), a cidade puxa
+    para o vermelho pelo `modulate` (`FLARE_TINT`, fora do `_day`: as luzes da cidade se dividem por ele, `_sunny`, e
+    a `_back` não se redesenha a cada quadro; com ele dentro, as janelas acesas ficavam verdes) e a luz entra na sala
+    pela janela (`FLARE_LIGHT`); o "pof" do tiro longe (som "flare"). Captura `--flare=t`, botão no F1.
+476. #vista #luz "A luz do sinalizador quando acende está fraca, não parece uma luz". Era só um clarão vermelho
+    escuro misturado ao céu e um ponto de 2×2 px: entrou no `Bloom` como os postes e o letreiro (`_flare_glow`, na
+    camada `_over`, que se redesenha quando ele anda um pixel): o halo somado e o miolo estourando para o branco.
+    `FLARE_HALO` 0,9 (a 1,4, um disco vermelho de beira marcada).
+477. #vista #luz "Continua ruim. Sugira melhorias pra essa luz", e "Faça sua recomendação" (sem chegar mais perto:
+    "a distância está correta"). O `Bloom` saiu do sinalizador (o halo em degraus era um disco, uma bola vermelha): o
+    halo é uma imagem lisa montada pixel a pixel, somada numa camada logo acima dele na vista (`_flare_add`,
+    `_flare_halo`: forte e quase branco colado no miolo, largo e fraco vermelho até zero na beira), a força no
+    `modulate`; o miolo de 3×3 estourando no branco com a cruz rosada e raios em cruz crescendo com a força; acende
+    com estouro (`BURST`) e cintila aos trancos, com falhas, mais apagando (`Flare.glow`, sorteado pelo tempo); e entra
+    na sala como o sol do amanhecer, pela mesma camada (`_sun_layer`, de noite livre, `_flare_steep`): a janela
+    vermelha no tampo e no peitoril com as sombras dos objetos, curtas (ele está alto, `FLARE_STEEP`) e crescendo
+    enquanto ele desce, e a poeira no feixe, vermelha. Ficaram para depois a luz de um lado só nos telhados e na
+    igreja, a fumaça mais grossa e as nuvens acesas por baixo.

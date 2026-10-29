@@ -196,6 +196,7 @@ func _draw() -> void:
 	draw_colored_polygon(PackedVector2Array([Vector2(8, 0), Vector2(W, 0), Vector2(W, 13), Vector2(0, 13), Vector2(0, 8)]), Pal.CARD_FORM)
 	small(self, Vector2(9, 4), T.text(T.Key.CARD_TITLE), Pal.CARD)
 	small(self, Vector2(9, 4), T.text(T.Key.CARD_SERIAL) % serial, Pal.CARD, W - 14.0, HORIZONTAL_ALIGNMENT_RIGHT)
+	Switchboard.badge(self, Vector2(94, 6.5), Pal.CARD, Color.TRANSPARENT, 10.0, 9)   # o selo da companhia, impresso vazado na faixa
 	small(self, Vector2(6, 17), T.text(T.Key.CARD_PLACE), Pal.CARD_FORM)
 	var box := Rect2(W - 14.0, 15.0, 9, 9)   # o setor, datilografado numa caixinha à direita
 	draw_rect(box, Pal.CARD_FORM, false, 1.0)

@@ -4,15 +4,15 @@ extends Control
 ## dividida em camadas por herança: esta, o painel (`switchboard_panel.gd`), os plugs e fios
 ## (`switchboard_plugs.gd`) e a mesa com a entrada, a física e o desenho (`switchboard.gd`); cada uma só usa as de baixo.
 
-const SIZE := Vector2(369, 228)   # (em 1280 × 720 era 492 × 304; antes, 588 × 362: com as tomadas na medida dos plugs, tudo ficava espaçado)
+const SIZE := Vector2(369, 238)   # 10 px mais alto que os 228 de antes: o pé do painel, para os equipamentos das burocracias caberem de pé na prateleira embaixo do interurbano (em 1280 × 720 era 492 × 304; antes, 588 × 362: com as tomadas na medida dos plugs, tudo ficava espaçado)
 const SHELF_SLOTS := 5   # lugares de cabo na prateleira: um por setor ainda não atendido fica tampado, à espera do cabo novo (`patches`)
-const TRUNK_GAP := 6.0      # do último plug guardado até o bloco interurbano (o vão da moldura dos bancos)
+const TRUNK_GAP := 10.0     # do último plug guardado até o bloco interurbano: com o FONE e os cabos 4 px à esquerda, os dois tampos dos lugares vagos (`COVER_W`) cabem ao lado do último par
 const PAIR_SHIFT := 12.0    # a ponta da frente de um cabo, à esquerda da de trás: encostadas, as duas se leem como um par
-const FONE_HOLE_X := 14.0   # o buraco do FONE, a partir da esquerda do encaixe: perto da beira, para o nome gravado embaixo caber nos três idiomas antes da ponta da frente do primeiro cabo (em 30, "FONE" já passava por baixo dela)
-const CORDS_X := 30.0   # de onde contam os lugares dos cabos de conexão, a partir da esquerda do encaixe (`patch_x`)
-const SHELF_HOLE_Y := 8.0  # a fileira de trás dos buracos da prateleira (o FONE e a primeira ponta de cada cabo), afastada do rodapé do painel
-const SHELF_FRONT_Y := 22.0 # a fileira da frente (a outra ponta), à frente da de trás, como nas mesas de verdade; o mesmo vão entre as fileiras e até as beiras
-const PLUG_SINK := 10.0  # guardado, o plug entra tanto no buraco (px abaixo dele: a capa de borracha some nele, o corpo fica à mostra)...
+const FONE_HOLE_X := 10.0   # o buraco do FONE, a partir da esquerda do encaixe: perto da beira, para o nome gravado embaixo caber nos três idiomas antes da ponta da frente do primeiro cabo (em 30, "FONE" já passava por baixo dela)
+const CORDS_X := 26.0   # de onde contam os lugares dos cabos de conexão, a partir da esquerda do encaixe (`patch_x`)
+const SHELF_HOLE_Y := 4.0  # a fileira de trás dos buracos da prateleira (o FONE e a primeira ponta de cada cabo): com a da frente, centradas na madeira à mostra, do rodapé do painel à beira de latão (6 px de cada lado), como os tampos (`_shelf_mid`)
+const SHELF_FRONT_Y := 18.0 # a fileira da frente (a outra ponta), à frente da de trás, como nas mesas de verdade
+const PLUG_SINK := 24.0  # guardado, o plug entra tanto no buraco (px abaixo dele: a capa de borracha some nele, o corpo fica à mostra)...
 
 var exchange: Exchange
 var fone_socket: Control       # encaixe do FONE, na prateleira à frente do painel
@@ -23,12 +23,16 @@ var patches := 3               # cabos de conexão em uso: cada setor entregue a
 var held := -1
 ## Os olhos do operador, o ponto de fuga da sala, em px da mesa (medido a cada quadro pela mesa; sem cenário, nos
 ## testes, onde eles ficam em 960 × 540): os plugs encaixados apontam para ele e a prateleira foge para ele.
+const SIDE_W := 72.0   # a coluna do móvel à direita do painel, para os equipamentos de pé (`side_rect`): o painel (as tomadas) é o `SIZE`
 const PLUG_EYE := Vector2(SIZE.x + 132, 81)
 var _eye := PLUG_EYE
 var trunks := Rect2()   # o bloco interurbano no painel (a mesa o põe ao montar os bancos): os cabos vão até ele
+var equipped := PackedStringArray()   # os equipamentos liberados (`Switchboard.set_equipment`)
+var shelf_used := false   # algum deles fica de pé na prateleira embaixo do interurbano (`bay_rect`; os outros, na coluna do lado, `side_rect`)
+var side_used := false   # algum deles fica na coluna do lado (sem nenhum, ela fica sob uma tampa lisa, `_draw_plate`)
 
-const PLUG_BASE := Vector2(0, 20)   # de onde a mão pega o plug (o meio do corpo) até onde o fio entra nele
-const PLUG_H := 51.0   # a altura do `PLUG_ART`: do bico até onde sai o fio...
+const PLUG_BASE := Vector2(0, 36)   # de onde a mão pega o plug (o meio do corpo) até onde o fio entra nele
+const PLUG_H := 72.0   # a altura do `PLUG_ART`: do bico até onde sai o fio...
 const PLUG_W := 12.0   # ...e a largura dele (o corpo tem 10)
 ## A luminária do teto fica à direita do painel, no alto: a luz das peças dele vem dali (a das peças da mesa da sala,
 ## `PixelArt.LIGHT`, do alto à esquerda). A sombra delas cai embaixo à esquerda.
@@ -115,6 +119,12 @@ func _pitch() -> float:
 ## Onde fica o plug guardado, de pé no buraco dele na prateleira, como nas mesas de verdade (o fio desce por ele).
 func home_pos(e: int) -> Vector2:
 	return hole(e) - PLUG_BASE + Vector2(0, PLUG_SINK)
+
+
+## A faixa da prateleira embaixo do bloco interurbano, onde ficam os equipamentos liberados (`set_equipment`); vazia,
+## fica sob um tampo (`_draw_tray`).
+func bay_rect() -> Rect2:
+	return Rect2(trunks.position.x, tray_rect().position.y, trunks.size.x, tray_rect().size.y)
 
 
 ## Buraco de onde sai o fio da ponta e, na prateleira (o do FONE no encaixe dele; os de conexão um atrás do outro).

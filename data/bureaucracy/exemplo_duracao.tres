@@ -1,0 +1,21 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/bureaucracy/rule_call_length.gd" id="1_rule"]
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="2_call"]
+
+[sub_resource type="Resource" id="Test_longa"]
+resource_name = "Ligação qualquer"
+script = ExtResource("2_call")
+voice = "f"
+caller = "TESTE exemplo (duração)"
+opening = PackedStringArray("[TESTE] O Hotel Estrela, por favor.")
+repeat = "[TESTE] O Hotel Estrela."
+target = "305"
+destination = "Hotel Estrela"
+thanks = "[TESTE] Obrigada."
+
+[resource]
+script = ExtResource("1_rule")
+id = "exemplo_duracao"
+title = "Exemplo · Limite de duração"
+tests = Array[ExtResource("2_call")]([SubResource("Test_longa")])

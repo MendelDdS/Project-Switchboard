@@ -79,6 +79,7 @@ const SWING_SPRING := Vector2(160.0, 11.0)
 ## por cima dele).
 const LEAN_PX := 30.0
 const TAP_SPEED := Vector2(112.0, 450.0)   # px/s: o fio batendo na mesa faz "tap" a partir de x; em y, no volume máximo
+const KNOCK_SPEED := Vector2(60.0, 300.0)   # px/s: o fio caindo num plug encaixado faz "toc" a partir de x (apoiado nele, 0); em y, no máximo
 const TAP_GAP := 0.12          # s: intervalo mínimo entre dois "taps" do mesmo fio
 ## O puxão da mão, na direção do buraco para fora (`_pull_edges`): o fio parado que sai rápido dá um tranco
 ## (`cord_snag`: parado há SNAG_REST s, passa de SNAG_SPEED px/s até SNAG_WINDOW s depois de começar a andar) e o
@@ -95,12 +96,19 @@ const RUB_STILL := 22.0        # px/s: abaixo disso a mão está parada
 const CORD_TONE := [1.0, 1.05, 0.95, 1.02, 0.97, 1.04]
 
 ## A folga do fio esticado pelo contrapeso, além da distância do buraco ao plug: só a barriga do peso dele, que cresce
-## com o cubo do vão (SAG × vão³: ~1 px em 330, ~4 no fio todo), e nunca menos que BEND_SLACK, para a curva saindo da
-## ponteira. Pouca: a barriga de uma corda presa nas duas pontas cresce com a raiz da folga vezes o vão (10 px de folga
+## com o cubo do vão (SAG × vão³: ~1 px em 330, ~4 no fio todo), e nunca menos que BEND_SLACK, para a curva saindo do
+## plug. Pouca: a barriga de uma corda presa nas duas pontas cresce com a raiz da folga vezes o vão (10 px de folga
 ## em 200 de vão já são ~27 de barriga, e o fio parecia solto, encaixado e na mão). (Antes, uma folga fixa, maior no
 ## FONE, até 52 px: o fio ficava mole, deitava na prateleira e passava por cima dos plugs guardados antes de subir.)
 const SAG := 3e-8
 const BEND_SLACK := 3.0
+## Encaixado, o contrapeso recolhe HINGE_PULL a mais (do vão) que o fio esticado do buraco à curva menos a capa (a
+## mesma tensão no fio curto e no longo; 6%: ~25 px no vão de 420): o fio fica
+## sob tensão, quase reto, e puxa a capa, que gira na curva, para a direção do buraco; o peso dela a leva para baixo
+## (`Cord.BOOT_WEIGHT`). (Com folga, o fio pendia mole e a capa quase reta; contando do pé da capa, o fio ganhava
+## folga a cada passo.)
+const HINGE_PULL := 0.06
+const HINGE_TAKE := 120.0   # px/s: encaixado, o contrapeso recolhe o fio no máximo assim
 const CORD_SLACK := 10.0           # no ar, na frente do console: o peso do fio pendurado puxa a folga pela beira
 const STEP := 1.0 / 90.0
 
@@ -132,10 +140,15 @@ var _top: Control
 var _cords: Control
 var _glow: ColorRect   # a luz das lâmpadas acesas no painel em volta, num shader (`board_glow.gdshader`): por cima da luz da sala, por baixo dos fios
 var _drawn := [[], [], [], []]   # o que cada uma mostrava no último desenho (`_look`)
+var _equipment := {}   # id -> a cena do equipamento de pé na prateleira (`set_equipment`), na ordem em que ficam
+var _bay_at := Rect2()   # onde estava a faixa deles na última vez que foram postos (os containers arrumam a prateleira depois)
+
+const EQUIPMENT_DIR := "res://scenes/ui/equipment/"
+const BAY_GAP := 6.0   # entre um equipamento e o seguinte, e da beira do bloco interurbano até o primeiro
 
 
 func _ready() -> void:
-	custom_minimum_size = SIZE
+	custom_minimum_size = SIZE + Vector2(SIDE_W, 0)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_ci = self
 	_layers.append(self)
@@ -180,6 +193,50 @@ func setup(ex: Exchange, socket: Control, cord_tray: Control) -> void:
 	_layout_dests()
 
 
+## Os equipamentos liberados (`Bureaucracy.equipment`), de pé na prateleira embaixo do bloco interurbano (`bay_rect`),
+## lado a lado na ordem de `ids`, ou, com `side` na cena (0 em cima, 1 embaixo), na coluna do lado do painel
+## (`side_rect`): cada um é a cena `scenes/ui/equipment/<id>.tscn` e cuida de si (desenho, clique); a
+## mesa só os põe no lugar, por baixo da luz das lâmpadas e dos fios. Sem nenhum, o lugar fica tampado.
+func set_equipment(ids: PackedStringArray) -> void:
+	for id: String in _equipment.keys():
+		if not id in ids:
+			(_equipment[id] as Node).queue_free()
+			_equipment.erase(id)
+	for id in ids:
+		if not _equipment.has(id) and ResourceLoader.exists(EQUIPMENT_DIR + id + ".tscn"):
+			var n: Control = load(EQUIPMENT_DIR + id + ".tscn").instantiate()
+			add_child(n)
+			move_child(n, _glow.get_index())
+			_equipment[id] = n
+	equipped = PackedStringArray(_equipment.keys())
+	_place_equipment()
+
+
+## Põe os equipamentos no lugar: os da coluna do lado, no alto ou no pé dela; os outros lado a lado, de pé na fileira
+## da frente da faixa deles.
+func _place_equipment() -> void:
+	_bay_at = bay_rect()
+	var x := _bay_at.position.x + BAY_GAP
+	var side := side_rect()
+	shelf_used = false
+	side_used = false
+	for n: Control in _equipment.values():
+		n.size = n.custom_minimum_size
+		var at: int = n.get_meta("side", -1)
+		if at >= 0:
+			side_used = true
+			n.position = Vector2(side.get_center().x - n.size.x / 2.0, side.position.y if at == 0 else side.end.y - n.size.y).round()
+			continue
+		shelf_used = true
+		n.position = Vector2(x, _bay_at.position.y + SHELF_FRONT_Y + 3.0 - n.size.y).round()
+		x += n.size.x + BAY_GAP
+
+
+## A coluna do móvel à direita das tomadas (`SIDE_W`), dentro da moldura, depois do friso que a separa delas.
+func side_rect() -> Rect2:
+	return Rect2(SIZE.x - FRAME + 4.0, FRAME + 3.0, SIDE_W - 7.0, SIZE.y - FRAME * 2.0 - 6.0)
+
+
 ## Posição de cada tomada de destino: blocos lado a lado, centralizados na mesa.
 func _layout_dests() -> void:
 	var by_sector := {}
@@ -219,6 +276,10 @@ func place(e: int, j: int) -> bool:
 		return false
 	_pushed_ang[e] = _plug_angle(e)
 	ends[e] = j
+	var c := jack_rect(j).get_center()
+	var over := ropes.keys().filter(func(x: int) -> bool: return x != e and ends[x] != -1 and (ropes[x] as Cord).touching(Vector3(c.x, c.y, (JACK + ROPE_W) / 2.0)))
+	if not over.is_empty():
+		_draped[e] = over
 	held = -1
 	_loose.erase(e)
 	_raise(e)
@@ -255,9 +316,12 @@ func pick_up(e: int) -> void:
 ## O plug encaixado vai sair: a vista de frente some aos poucos no encaixe (`_pulled`).
 func _unseat(e: int) -> void:
 	if ends[e] != -1:
-		_pulled[e] = [0.0, jack_rect(int(ends[e])).get_center(), _tilt(int(ends[e]))]
+		_pulled[e] = [0.0, jack_rect(int(ends[e])).get_center(), _elbow_pose(e)]
 	_pushed.erase(e)
 	_pushed_ang.erase(e)
+	_draped.erase(e)
+	for x in _draped:   # o fio dela sai de cima dos plugs
+		_draped[x].erase(e)
 
 
 ## Solta o plug: ele cai e o fio o puxa de volta para o buraco (o FONE volta ao telefone).
@@ -334,6 +398,8 @@ func _press(pos: Vector2) -> void:
 
 ## A ponta cujo plug está em p (-1 = nenhuma), o de cima primeiro: guardado, solto voltando ou encaixado.
 func _plug_under(p: Vector2) -> int:
+	if _lever_at(p) != -1 and jack_at(p) == -1:
+		return -1   # a chave de escuta ganha da capa do plug encaixado que a tapa (`_elbow_ang`)
 	for i in range(_order.size() - 1, -1, -1):
 		var e: int = _order[i]
 		if e != held and _plug_hit(e, p):
@@ -383,6 +449,8 @@ func _release(pos: Vector2) -> void:
 
 
 func _process(delta: float) -> void:
+	if not _equipment.is_empty() and bay_rect() != _bay_at:
+		_place_equipment()
 	if eye.is_valid():
 		var at: Vector2 = eye.call()
 		_eye = at - global_position if at.x < INF else PLUG_EYE
@@ -391,6 +459,10 @@ func _process(delta: float) -> void:
 		if _pushed[e] >= maxf(PUSH_SEC, MORPH_SEC):
 			_pushed.erase(e)
 			_pushed_ang.erase(e)
+	for e in _knocked.keys():
+		_knocked[e][0] += delta
+		if _knocked[e][0] >= KNOCK_SEC or ends[e] == -1:
+			_knocked.erase(e)
 	for e in _pulled.keys():
 		_pulled[e][0] += delta
 		if _pulled[e][0] >= MORPH_SEC:
@@ -433,7 +505,7 @@ func _process(delta: float) -> void:
 		for d in dest_nums:
 			_fade("d%d" % d, _dest_lamp(exchange.dest(d), ms), delta)
 		_flip_levers(delta)
-	var moving := held != -1 or not (_loose.is_empty() and _pushed.is_empty() and _pulled.is_empty())
+	var moving := held != -1 or not (_loose.is_empty() and _pushed.is_empty() and _pulled.is_empty() and _knocked.is_empty())
 	for e in ropes:
 		moving = moving or not (ropes[e] as Cord).asleep()
 	_lamp_at = _lamp_pos()
@@ -491,8 +563,8 @@ func _look() -> Array:
 		for j in ends:
 			if j != -1:
 				plugs.append(_plug_light(j))
-	return [[size, states, GameData.sectors.duplicate(), _lamp_at], [size, levels, ends.duplicate(), _eye, poses, _lamp_at],
-		[size, GameData.sectors.duplicate(), _lamp_at],
+	return [[size, states, GameData.sectors.duplicate(), _lamp_at, equipped, _eye], [size, levels, ends.duplicate(), _eye, poses, _lamp_at],
+		[size, GameData.sectors.duplicate(), _lamp_at, side_used],
 		[size, ends.duplicate(), _hover, plugs, PixelArt.ms() < info_until, info_line, _eye, _lamp_at]]
 
 
@@ -500,16 +572,10 @@ func _look() -> Array:
 func _plug_hit(e: int, p: Vector2) -> bool:
 	if ends[e] == -1 and not _loose.has(e):
 		return home_rect(e).has_point(p)
+	if ends[e] != -1:   # encaixado, pela silhueta do cotovelo (a caixa dele, na diagonal, pegava a chave de escuta)
+		return Geometry2D.is_point_in_polygon(p - jack_rect(int(ends[e])).get_center(), _plug_outline(e, 2.0))
 	var q := (p - _plug_base(e)).rotated(-_plug_angle(e))
-	return _plug_rect(e).grow(2.0).has_point(q)
-
-
-## Contorno do plug a partir de onde o fio entra nele: em pé (solto, na mão, na base) ou, encaixado, visto de frente.
-func _plug_rect(e: int) -> Rect2:
-	if ends[e] != -1:   # do encaixe (atrás) até a ponteira (aqui)
-		var r := PLUG_FACE_R + 1.0
-		return Rect2(-_tilt(int(ends[e])) - Vector2(r, r), Vector2(r, r) * 2.0).merge(Rect2(-r, -r, r * 2.0, r * 2.0))
-	return Rect2(-PLUG_W / 2.0, -PLUG_H, PLUG_W, PLUG_H)
+	return Rect2(-PLUG_W / 2.0, -PLUG_H, PLUG_W, PLUG_H).grow(2.0).has_point(q)
 
 
 ## Começa a assentar a ponta e, que chegou à boca do buraco com a traseira em `at`: o fio já entrou todo.
@@ -628,6 +694,31 @@ func _ground() -> Vector2:
 
 ## Um passo do fio da ponta e (`Cord`): preso no buraco, a outra ponta segue o plug; solto, o plug é a última conta da
 ## corda (cai) e o comprimento encolhe até ele assentar no buraco. A mesa cuida do comprimento, dos sons e do plug.
+## Os plugs encaixados das outras pontas, como obstáculos do fio de `e` (`Cord.pegs`): os discos da cabeça e da capa
+## de cada um (`_elbow_pegs`), do tamanho do plug ali mais meio fio. Encaixando,
+## cresce enquanto ele é empurrado para dentro (`PUSH_SEC`): o fio embaixo dele vai para o lado aos poucos (com o
+## plug inteiro de uma vez, saltava 8 px num passo).
+func _pegs(e: int) -> PackedVector3Array:
+	var out := PackedVector3Array()
+	for x in ends.size():
+		if x != e and ends[x] != -1 and not e in _draped.get(x, []):
+			var grow := minf(float(_pushed.get(x, PUSH_SEC)) / PUSH_SEC, 1.0)
+			for g in _elbow_pegs(x):
+				out.append(Vector3(g.x, g.y, (g.z + ROPE_W / 2.0) * grow))
+	return out
+
+
+## A ponta encaixada que é o plug `g` de `Cord.pegs` (-1: nenhuma; o raio não conta: encaixando, ele cresce).
+func _end_of_peg(g: Vector3) -> int:
+	var c := Vector2(g.x, g.y)
+	for x in ends.size():
+		if ends[x] != -1:
+			for part in _elbow_pegs(x):
+				if Vector2(part.x, part.y).is_equal_approx(c):
+					return x
+	return -1
+
+
 func _step_rope(e: int, dt: float) -> void:
 	if held != e and ends[e] == -1 and not _loose.has(e):
 		ropes.erase(e)   # o fio está todo dentro do buraco
@@ -646,7 +737,25 @@ func _step_rope(e: int, dt: float) -> void:
 	r.free = not an.is_empty()
 	r.direct = r.free and an["direct"]
 	r.held = held == e
-	r.stub = (_tilt(int(ends[e])).normalized() + Vector2.DOWN).normalized() if ends[e] != -1 else Vector2.ZERO   # sai para a frente e já cai
+	var j := int(ends[e])
+	var pivot := jack_rect(j).get_center() + _tilt(j) if j != -1 else Vector2.INF   # encaixado, a capa gira com o fio (`Cord.pivot`)
+	if pivot != r.pivot:   # encaixou ou mudou de tomada: o fio acorda, com o pé da capa entre a vertical e o buraco
+		r.pivot = Vector2.INF
+		if j != -1:
+			r.pts[r.pts.size() - 1] = _plug_base(e)
+		r.pivot = pivot
+		r.sleep = Rect2()
+	r.arm = ELBOW_LEN - 1.0
+	r.arm_max = ELBOW_MAX
+	var pegs := _pegs(e) if ends[e] != -1 or held == e else PackedVector3Array()
+	if pegs != r.pegs:   # um plug encaixou ou saiu: o fio acorda para se acomodar
+		for g in r.pegs:   # o que o segurava saiu: o fio cai e bate no painel
+			if ends[e] != -1 and not Array(pegs).any(func(h: Vector3) -> bool: return Vector2(h.x, h.y).is_equal_approx(Vector2(g.x, g.y))) and r.touching(g):
+				_sfx("cord_tap", Vector2(g.x, g.y), -8.0)
+				break
+		r.pegs = pegs
+		r.sleep = Rect2()
+		r.calm = 0   # (sem isso, voltava a dormir no passo seguinte, ainda dentro do plug novo)
 	r.mouse = get_local_mouse_position()
 	r.nudge = r.mouse - _last_mouse
 	var length := r.length
@@ -661,13 +770,18 @@ func _step_rope(e: int, dt: float) -> void:
 			_count_rub(e, r.over, r.over_at)
 			return
 	else:
-		b = _plug_base(e)
+		b = r.tip() if r.hinged() else _plug_base(e)
 		var reach := a.distance_to(b)
 		var slack := maxf(BEND_SLACK, SAG * reach * reach * reach)
+		if r.hinged():   # encaixado, o contrapeso conta da curva do plug e estica o fio (`HINGE_PULL`)
+			reach = a.distance_to(r.pivot) - r.arm
+			slack = -reach * HINGE_PULL
 		if r.air >= 1:   # no ar, o peso do fio pendurado puxa a folga pela beira (sobrava em laço na prateleira)
 			slack = CORD_SLACK
 		var target := minf(reach + slack, Cord.MAX)
 		length = lerpf(length, target, WEIGHT_TAKE if target < length else HAND_FEED)   # o contrapeso recolhe; a mão puxa
+		if r.hinged():   # esticando, recolhe aos poucos: de uma vez, o fio chicoteava e se enroscava nos plugs
+			length = maxf(length, r.length - HINGE_TAKE * dt)
 	if not r.step(dt, a, b, length):
 		return   # dormindo
 	_count_rub(e, r.pulled)
@@ -679,6 +793,12 @@ func _step_rope(e: int, dt: float) -> void:
 		var k := clampf((r.tap / dt - TAP_SPEED.x) / (TAP_SPEED.y - TAP_SPEED.x), 0.0, 1.0)
 		_sfx("cord_tap", r.tap_at, lerpf(-12.0, 0.0, k))
 		r.tap_wait = TAP_GAP
+	var hit := _end_of_peg(r.knock_peg) if r.knock > KNOCK_SPEED.x * dt and r.tap_wait == 0.0 else -1
+	if hit != -1 and not _pushed.has(hit):   # o fio caiu num plug encaixado: o "toc" e o plug afunda um instante (encaixando, é ele que empurra o fio)
+		var k := clampf((r.knock / dt - KNOCK_SPEED.x) / (KNOCK_SPEED.y - KNOCK_SPEED.x), 0.0, 1.0)
+		_sfx("cord_knock", r.knock_at, lerpf(-12.0, 0.0, k))
+		r.tap_wait = TAP_GAP
+		_knocked[hit] = [0.0, lerpf(KNOCK_PX.x, KNOCK_PX.y, k)]
 	if r.free:   # o plug solto segue o fio, que sai da traseira dele (com o fio quase todo dentro, fica como estava)
 		var pts := r.pts
 		var last := pts.size() - 1
@@ -697,9 +817,12 @@ func _step_rope(e: int, dt: float) -> void:
 ## destinos com a luz da sala (`_top`) e os plugs com os fios (`_cords`).
 func _draw() -> void:
 	_draw_cabinet(Rect2(Vector2.ZERO, size))
+	var div := Rect2(SIZE.x - FRAME, FRAME + 3.0, 1, SIZE.y - FRAME * 2.0 - 6.0)   # o friso entre as tomadas e a coluna do lado
+	_lit_rect(div, _metal(-2))
+	_lit_rect(Rect2(div.position + Vector2(1, 0), div.size), _metal(2))
 	_draw_tray()
-	for y in RULES.values():
-		_draw_rule(y, "")
+	_draw_header()
+	_draw_rule(RULES["out"], "")   # a faixa das chaves de escuta
 	if exchange == null:
 		return
 	_draw_strips()
@@ -707,7 +830,6 @@ func _draw() -> void:
 	# o nome das saídas embaixo delas, no meio do vão até os bancos, sobre uma faixa como a das entradas, que separa as
 	# seções (a faixa entre as entradas e as saídas é das chaves de escuta)
 	_draw_rule(roundf((ROW_Y["out"] + JACK / 2.0 + DEST_TOP - 13.0) / 2.0), T.text(T.Key.BOARD_OUTPUTS))
-	_draw_wear()
 	_draw_trunks(trunks)
 
 	# entradas e saídas
@@ -720,7 +842,7 @@ func _draw() -> void:
 
 	# destinos: a moldura de cada banco (a faixa de numeração vai nela, por cima da chapa: `_draw_top`)
 	for s in _blocks:
-		draw_rect(_blocks[s], Pal.PANEL_LO, false, 1.0)
+		_draw_inset(_blocks[s])
 	for d in dest_nums:
 		if not GameData.is_trunk(d):   # o tronco tem o nome da cidade em cima (`_draw_trunks`)
 			var jr := jack_rect(d)
@@ -728,8 +850,8 @@ func _draw() -> void:
 			draw_texture(num, Vector2(roundf(jr.get_center().x - num.get_width() / 2.0), jr.position.y - 10.0),
 				Pal.NUMBER_PAINT if exchange.dest(d) == Exchange.Dest.FREE else Pal.TEXT)
 
-	# legenda das lâmpadas, numa linha no pé do painel
-	_draw_legend()
+	_draw_legend()   # na faixa do alto
+	_draw_badge(Vector2((FRAME + trunks.position.x) / 2.0, trunks.position.y + 4.0))
 
 
 ## As lâmpadas das linhas (com a luz delas no aro da entrada) e o aro aceso dos destinos. As luzes vão para o `Bloom`,
@@ -788,12 +910,14 @@ func _draw_top() -> void:
 	for s in _blocks:
 		if not s in GameData.sectors:
 			_draw_plate(_blocks[s], "ABC"[SECTOR_ORDER.find(s)])
+	if not side_used:   # a coluna do lado, tampada até chegar o primeiro equipamento dela
+		_draw_plate(side_rect().grow(-1), "")
 	for s in GameData.sectors:   # a faixa de numeração na moldura de cima, à esquerda, como o nome do INTERURBANO (a chapa dispensa)
 		var br: Rect2 = _blocks[s]
 		var cap := PixelArt.tiny("%d-%d" % [s * 100, s * 100 + 99])
 		var at := Vector2(br.position.x + 10.0, br.position.y - 5.0).round()   # (passando o parafuso da chapa)
-		_top.draw_rect(Rect2(at.x - 3.0, br.position.y - 1.0, cap.get_width() + 6.0, 3.0), Pal.PANEL)
-		_top.draw_texture(cap, at, Pal.BRASS)
+		_top.draw_rect(Rect2(at.x - 3.0, br.position.y - 1.0, cap.get_width() + 6.0, 3.0), Pal.BOARD_INSET)
+		_top.draw_texture(cap, at, Pal.BOARD_INK)
 	_draw_room_light(Rect2(Vector2.ZERO, size).grow(-FRAME))
 	var jacks := []
 	for n in 20:
@@ -821,30 +945,39 @@ func _draw_cords() -> void:
 				gc.a = 0.2
 				_cords.draw_rect(hr, gc)
 
-	# cada ponta (fio e plug) na ordem em que foi mexida: o fio da mais recente passa por cima dos plugs das
-	# outras (o da mão inclusive); as sombras antes, por baixo de tudo
-	# os guardados primeiro, os de trás antes dos da frente (a fileira da frente passa na frente da de trás)
+	# cada ponta (fio e plug) na ordem em que foi mexida: o fio da mais recente passa por cima dos plugs encaixados
+	# das outras (e se apoia neles, `Cord.pegs`); as sombras antes, por baixo de tudo. Fileira por fileira, de trás para
+	# a frente: os encaixados que saem dela, depois os guardados em pé nela. O fio vai do buraco para trás, até o painel:
+	# passa atrás dos guardados da fileira dele e dos da frente (antes, por dentro deles) e, saindo da fileira da frente,
+	# na frente dos da de trás (só fica mais fundo que eles a 14/18 do caminho, já alto). Por último os da mão e os soltos, que
+	# vêm para a frente
+	var front := func(e: int) -> bool: return e % 2 == 0 and e != 0
 	var home := _order.filter(func(e: int) -> bool: return _in_hole(e))
-	var order: Array = home.filter(func(e: int) -> bool: return e % 2 == 1 or e == 0) + home.filter(func(e: int) -> bool: return e % 2 == 0 and e != 0) \
-		+ _order.filter(func(e: int) -> bool: return not _in_hole(e))
+	var seated := _order.filter(func(e: int) -> bool: return ends[e] != -1)
+	var order: Array = seated.filter(func(e: int) -> bool: return not front.call(e)) + home.filter(func(e: int) -> bool: return not front.call(e)) \
+		+ seated.filter(front) + home.filter(front) + _order.filter(func(e: int) -> bool: return ends[e] == -1 and not _in_hole(e))
+	for x in _draped:   # o fio que corre por cima de um plug vem depois dele
+		for c in _draped[x]:
+			if order.find(c) < order.find(x):
+				order.erase(c)
+				order.insert(order.find(x) + 1, c)
 	for e in order:
 		_draw_rope(e, true)
 		_draw_plug(e, true)
-	for e in _pulled:   # plugs que acabaram de sair: a vista de frente sumindo no encaixe
+	for e in _pulled:   # plugs que acabaram de sair: o cotovelo sumindo no encaixe
 		var k: float = _pulled[e][0] / MORPH_SEC
 		_cords.draw_set_transform(_pulled[e][1], 0.0, Vector2.ONE * lerpf(1.0, 0.4, k))
-		_draw_plug_face(_cable_col(e), _pulled[e][2], 0.0, 1.0 - k, -1, _lit_by(_pulled[e][1]))
+		_draw_elbow(_cable_col(e), _pulled[e][2], 0.0, 1.0 - k, -1, _lit_by(_pulled[e][1]))
 		_cords.draw_set_transform(Vector2.ZERO)
+	# a beira da frente de cada buraco, antes de fios e plugs: o fio deitado na prateleira passa por cima dela (desenhada
+	# depois de cada fio, ela cobria os que passavam pelo buraco antes) e o plug guardado, cortado nela (`_cut`), entra
+	# atrás; o fio que sai do buraco começa no meio dele e, subindo, não chega à beira
 	for e in order:
-		if ends[e] != -1:   # encaixado, visto de frente: o fio sai do meio dele (da ponteira), por cima do tampo
-			_draw_plug(e, false)
-			_draw_rope(e, false)
-			_draw_plug_cap(e)
-		else:
-			_draw_rope(e, false)
-			_draw_plug(e, false)
-		if ropes.has(e) and not _in_hole(e):   # o fio sai de dentro do buraco: a beira da frente passa por cima dele
-			draw_lip(_cords, hole(e))
+		draw_lip(_cords, hole(e))
+	_laid.clear()
+	for e in order:   # o plug por cima do fio dele: em pé, o fio entra na traseira; encaixado, sai do pé da capa
+		_draw_rope(e, false)
+		_draw_plug(e, false)
 
 	# balão de informação
 	if PixelArt.ms() < info_until and info_line > 0:

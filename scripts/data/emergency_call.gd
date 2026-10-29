@@ -26,10 +26,11 @@ extends Resource
 @export var after := ""
 
 @export_group("Agravamento")
-## Enquanto ninguém despacha, a situação piora (barra abaixo da conversa; para durante pergunta e resposta).
+## Enquanto ninguém despacha, a situação piora (barra abaixo da conversa; para durante pergunta e resposta e com uma
+## máquina do despacho trabalhando, `CardMachines.working`).
 ## Segundos de cada estágio: inicial, agravando, agravada; depois disso está perdida. Situações perigosas
 ## (fogo, AVC) correm mais rápido.
-@export var stage_sec := Vector3(45.0, 22.0, 22.0)
+@export var stage_sec := Vector3(55.0, 22.0, 22.0)
 ## O que a pessoa conta quando a situação começa a piorar e as unidades que isso passa a exigir (somam às do caso).
 ## Depois de contar, o operador ganha uma pergunta sobre o que mudou (`worsening_question` e a resposta).
 @export var worsening := ""

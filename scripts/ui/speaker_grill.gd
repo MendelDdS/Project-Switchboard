@@ -3,14 +3,14 @@ extends Control
 ## O alto-falante do rádio: uma chapa perfurada na altura toda do bloco, com os furos em fileiras desencontradas
 ## (cada furo escuro com a beira de baixo pegando a luz) e a moldura com a luz no alto à esquerda.
 
-const PLATE := Color("2a2620")
-const HOLE := Color("0b0907")
+const PLATE := Pal.BOARD_METAL[2]   # oliva, como o painel da mesa
+const HOLE := Pal.BOARD_METAL[0]
 const PITCH := 3   # px entre dois furos
 
 
 func _draw() -> void:
 	var r := Rect2(Vector2.ZERO, size)
-	draw_rect(r, Color.BLACK)
+	draw_rect(r, Pal.BOARD_INSET)
 	draw_rect(r.grow(-1), PLATE)
 	draw_rect(Rect2(1, 1, size.x - 2, 1), PLATE.lightened(0.2))
 	draw_rect(Rect2(1, 1, 1, size.y - 2), PLATE.lightened(0.1))

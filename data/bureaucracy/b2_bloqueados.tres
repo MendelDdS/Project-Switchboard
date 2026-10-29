@@ -1,0 +1,92 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/bureaucracy/rule_blocked.gd" id="1_rule"]
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="2_call"]
+
+[sub_resource type="Resource" id="Test_bloq"]
+resource_name = "Bloqueado (Bilhar, reação sorteada)"
+script = ExtResource("2_call")
+voice = "m"
+caller = "TESTE B2 (bloqueado)"
+opening = PackedStringArray("[TESTE] O Bilhar do Tonho, por favor.")
+repeat = "[TESTE] O Bilhar do Tonho."
+target = "355"
+destination = "Bilhar do Tonho"
+thanks = "[TESTE] Obrigado."
+
+[sub_resource type="Resource" id="Test_bar"]
+resource_name = "Bar (liberado até 21h)"
+script = ExtResource("2_call")
+voice = "w"
+caller = "TESTE B2 (bar)"
+opening = PackedStringArray("[TESTE] O Bar do Zé, por favor.")
+repeat = "[TESTE] O Bar do Zé."
+target = "327"
+destination = "Bar do Zé"
+thanks = "[TESTE] Obrigado."
+refused_line = "[TESTE] Fechou o bar pra telefone, é? Tá bom, então."
+
+[sub_resource type="Resource" id="Test_urgente"]
+resource_name = "Urgente para bloqueado"
+script = ExtResource("2_call")
+voice = "f"
+caller = "TESTE B2 (urgente)"
+opening = PackedStringArray("[TESTE] Pelo amor de Deus, o Bilhar do Tonho! Meu marido passou mal lá.")
+repeat = "[TESTE] O Bilhar do Tonho, é urgente."
+target = "355"
+destination = "Bilhar do Tonho"
+thanks = "[TESTE] Obrigado."
+refused_line = "[TESTE] Meu Deus, e agora? Vou correr até lá a pé!"
+urgent = true
+urgency_reason = "marido passou mal no bilhar"
+
+[sub_resource type="Resource" id="Test_acordo"]
+resource_name = "Propõe o acordo"
+script = ExtResource("2_call")
+voice = "w"
+caller = "TESTE B2 (propõe acordo)"
+opening = PackedStringArray("[TESTE] Escuta: quem pedir o Bilhar e estalar os dedos três vezes, você passa pra Borracharia do Neno.")
+repeat = "[TESTE] Bilhar com os estalos, Borracharia."
+target = ""
+destination = "Acordo"
+thanks = "[TESTE] Combinado, então. Boa noite."
+refused_line = "[TESTE] Pena. Você vai se arrepender. Boa noite."
+deal_from = "355"
+deal_to = "336"
+deal_signal = "estalos"
+
+[sub_resource type="Resource" id="Test_sinal"]
+resource_name = "Acordo: pede o Bilhar com o sinal"
+script = ExtResource("2_call")
+voice = "m"
+caller = "TESTE B2 (com o sinal)"
+opening = PackedStringArray("[TESTE] O Bilhar do Tonho, por favor.")
+repeat = "[TESTE] O Bilhar do Tonho."
+target = "355"
+destination = "Bilhar do Tonho"
+thanks = "[TESTE] Obrigado."
+refused_line = "[TESTE] Bloqueado? Mas eu... deixa pra lá."
+secret_signal = "estalos"
+
+[sub_resource type="Resource" id="Test_semsinal"]
+resource_name = "Acordo: pede o Bilhar sem o sinal"
+script = ExtResource("2_call")
+voice = "f"
+caller = "TESTE B2 (sem o sinal)"
+opening = PackedStringArray("[TESTE] O Bilhar do Tonho, por favor.")
+repeat = "[TESTE] O Bilhar do Tonho."
+target = "355"
+destination = "Bilhar do Tonho"
+thanks = "[TESTE] Obrigado."
+refused_line = "[TESTE] Bloqueado? Que coisa. Boa noite."
+
+[resource]
+script = ExtResource("1_rule")
+id = "b2_bloqueados"
+title = "B2 · Números bloqueados"
+severity = 2
+fault_text = "FAULT_BLOCKED"
+tests = Array[ExtResource("2_call")]([SubResource("Test_bloq"), SubResource("Test_bar"), SubResource("Test_urgente"), SubResource("Test_acordo"), SubResource("Test_sinal"), SubResource("Test_semsinal")])
+blocked = PackedStringArray("355", "327")
+free_until = PackedStringArray("327 21:00")
+reactions = PackedStringArray("[TESTE] Reação passiva.", "[TESTE] Reclama do governo.", "[TESTE] Indiferente.")

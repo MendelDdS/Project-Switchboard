@@ -107,6 +107,13 @@ func _ready() -> void:
 	var kind := func() -> String: return "" if car.selected <= 0 else car.get_item_text(car.selected)
 	_row([["Carro na mão de lá", func(): main.background.pass_car(0, kind.call())],
 		["Carro na mão de cá", func(): main.background.pass_car(1, kind.call())]])
+	_row([["Policial batendo no pedestre (noite 3)", func(): main.background.start_beating()], ["Viatura no hotel (noite 7)", func(): main.background.call_police()]])
+	_row([["Vigia no terraço (noite 9)", func(): main.background.start_lookout()]])
+	_row([["Toque de recolher (noites 9 a 14)", func(): main.background.start_curfew()], ["Carro de som (noite 5)", func(): main.background.start_scene("speaker")]])
+	_row([["Corrida (noite 8)", func(): main.background.start_scene("chase")], ["Panfletos (noite 6)", func(): main.background.start_scene("flyers")]])
+	_row([["Pichação (noite 4)", func(): main.background.start_scene("graffiti")], ["Tinta por cima (noite 7)", func(): main.background.start_scene("paint")]])
+	_row([["Banca fechada (noite 12)", func(): main.background.start_scene("newsstand")], ["Desfile (noite 10)", func(): main.background.start_scene("parade")]])
+	_row([["Fuga da família (noite 14)", func(): main.background.start_scene("moving")], ["Sinalizador (noite 15)", func(): main.background.start_scene("flare")]])
 	_section("Noites", func(): _go_night(1))
 	_row([["◀ Noite anterior", func(): _go_night(main.night_no - 1)], ["Próxima noite ▶", func(): _go_night(main.night_no + 1)]])
 	_row([["Amanhecer (última noite, 4h)", func(): _go_night(C.nights.size(), 10 * 60.0)]])
@@ -114,6 +121,7 @@ func _ready() -> void:
 	_row([["Viaturas livres", func(): main.dispatch.reset()], ["Registrar pendências", _register_all]])
 	_row([["Limpar advertências", func(): main.report.faults.clear()], ["Apagar progresso", Progress.clear]])
 	_row([["Marcar noite insuficiente (a próxima demite)", func(): main.report.low_before = ShiftReport.LOW_LIMIT - 1]])
+	_row([["Todos os broches (só nesta noite)", _all_badges]])
 	_section("Mesa de som", _reset_mix)
 	_row([["Copiar VOL", _copy_mix]])
 	for id: String in Sfx.VOL:
@@ -222,10 +230,13 @@ func _time_calls(delta: float) -> void:
 		if not _chrono.has(c):
 			_chrono[c] = {"t": 0.0, "steps": [], "seen": {}}
 	var d := main.dispatch
-	# ponytail: o cartão é da última emergência ainda sem despacho; com duas ao mesmo tempo pode ir para a errada
+	# o cartão é da emergência que o envio vai atender: a do local marcado ou, sem ele, a da linha do FONE
+	# (`Dispatch.send` pelo `Fleet.target_of`)
+	var loc := d.location()
+	var inc: Fleet.Incident = d.fleet.target_of(loc, d.attending) if not loc.is_empty() else d.fleet.incident_of(d.attending)
 	var card: PhoneCall = null
 	for c: PhoneCall in main.in_progress():
-		if not c.dispatched:
+		if inc != null and c.data == inc.call and not c.dispatched:
 			card = c
 	for c: PhoneCall in _chrono.keys():
 		var k: Dictionary = _chrono[c]
@@ -451,3 +462,11 @@ func _row(items: Array) -> void:
 		b.pressed.connect(it[1])
 		row.add_child(b)
 	_box.add_child(row)
+
+
+## Espeta todos os broches na almofada, só para ver (não vão para o save).
+func _all_badges() -> void:
+	var all := {}
+	for id: String in main.Badges.ALL:
+		all[id] = main.night_no
+	main.badges.earned = all

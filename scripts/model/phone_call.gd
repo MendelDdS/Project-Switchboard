@@ -51,6 +51,7 @@ enum Retry {
 	WRONG_INFO,  ## o operador deu a informação errada
 	WRONG_NUMBER,  ## foi conectada ao número errado sem o operador na linha
 	WORSE,       ## emergência sem socorro: a situação piorou
+	BUSY,        ## todas as linhas estavam ocupadas e ela disse que ligaria outra hora
 }
 
 const AWAY_CHANCE := 0.5    ## pedido com alternativa: chance de o destino pedido não atender
@@ -59,6 +60,7 @@ var kind := Kind.TRANSFER
 var data: Resource          ## roteiro (TransferCall, EmergencyCall ou PrankCall); nulo para informação e ligação desconhecida
 var voice := "m"
 var caller := ""
+var named := ""             ## o nome que quem liga disse (B1): dali em diante, o chat mostra ele no lugar de `caller`
 var lesson := false         ## da veterana do treinamento (`Training`): fala pelo roteiro dela, não desiste nem gera advertência
 var speech := 1.0           ## o tempo de cada letra falada, multiplicado (a veterana do treinamento fala mais devagar)
 var story := false          ## ligação do roteiro da noite (horário fixo; aguenta mais tempo tocando)
@@ -89,12 +91,15 @@ var hold_since := 0.0       ## minuto em que ficou em espera
 var transcript: Array[Dictionary] = []   ## {"who", "text", "cls", "marks"}; cls: "" / "op" / "sys" / "ghost"; marks: trechos sublinhados
 var options: Array[Dictionary] = []      ## {"label": String, "fn": Callable}
 var record: Record                       ## linha do caderno gerada quando a ligação termina (nula antes)
+var meta := {}              ## o que as burocracias guardam desta ligação (`BureaucracyRule`), cada uma nas chaves dela
 
 # transferência (o destino pode mudar quando o pedido não atende à noite)
 var target := ""
 var destination := ""
 var repeat := ""
 var said_wait := false
+var busy_asked := false     ## o operador avisou que todas as linhas estão ocupadas (`Conversation._all_busy`)...
+var busy_later := false     ## ...e ela preferiu ligar outra hora
 var away := false           ## o destino pedido não vai atender (sorteado, só quando há alternativa)
 var no_answer := false
 var alt_done := false

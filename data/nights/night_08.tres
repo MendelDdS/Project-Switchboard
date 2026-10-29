@@ -1,7 +1,14 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
+
+[sub_resource type="Resource" id="ev_0"]
+script = ExtResource("2_event")
+kind = "chase"
+at = 80.0
 
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"O pessoal do Centro elogiou o atendimento. Continue assim.\""
+street_events = Array[ExtResource("2_event")]([SubResource("ev_0")])

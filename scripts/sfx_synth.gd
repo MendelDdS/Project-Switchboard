@@ -65,7 +65,14 @@ const CAR_NEAR_SHARP := 1.8   ## o carro da mão de cá: a passagem mais concent
 const CAR_TAKES := 3   ## versões de cada carro, cada uma com o seu sorteio
 const PARTS := [["_build_basic"], ["_build_ring"], ["_build_clock"], ["_build_rub"], ["_build_unroll"], ["_build_card"],
 	["_build_thunder"], ["_build_bell"], ["_build_dog"], ["_build_dog", true], ["_build_outside"],
-	["_build_lamp"], ["_build_rain"], ["_build_breeze"], ["_build_crickets"], ["_build_sabia"]]
+	["_build_lamp"], ["_build_rain"], ["_build_breeze"], ["_build_crickets"], ["_build_sabia"], ["_build_speaker"], ["_build_army"]]
+## O carro de som da rua (`_build_speaker`, `Background.SPEAKER_*`): quanto ele leva passando (s), o x dele no começo e
+## no fim (m, a mão de lá, `Background._car_x`), a distância da mão de lá até a janela (m) e os ecos da rua ([s, força]).
+const ARMY := 16.0   ## o caminhão do desfile passando (s; `Background.ARMY_SEC`)
+const SPEAKER := 20.0
+const SPEAKER_X := Vector2(16.0, -21.0)
+const SPEAKER_Z := 6.4
+const SPEAKER_ECHO := [Vector2(0.19, 0.35), Vector2(0.47, 0.2), Vector2(0.83, 0.1)]
 ## O sabiá-laranjeira do amanhecer (`_build_sabia`): quantas frases diferentes (cada uma uma versão do som, `sabia~N`),
 ## e o tom das notas (Hz, do mais grave ao mais agudo).
 const SABIA_TAKES := 4
@@ -349,11 +356,17 @@ func _build_basic() -> void:
 	_begin(0.36); _noise(0, 0.28, "bp", 2400, 0.6, 1.0); _noise(0.2, 0.12, "lp", 600, 0.7, 0.8); _end("page")
 	_begin(0.02); _tone(0, 3300, 0.008, "square", 0.3); _end("tick", false, false, 0.5)
 	_begin(0.03); _noise(0, 0.012, "bp", 1800, 1, 0.7); _tone(0, 620, 0.008, "square", 0.15); _end("knob_tick")   # o anel do mapa: um sulco
+	_begin(0.06); _noise(0, 0.025, "bp", 2800, 1.4, 1.0); _tone(0, 210, 0.02, "sine", 0.3); _end("snap", true)   # o estalo de dedos, pelo telefone
+	# as fitas da B4: saindo do compartimento, entrando na fenda do gravador, a tampinha dela batendo, a tecla de piano e a mola da ejeção
+	_begin(0.08); _noise(0, 0.06, "bp", 1800, 0.8, 0.5); _tone(0, 520, 0.02, "square", 0.08); _end("tape_out")
+	_begin(0.12); _noise(0, 0.02, "bp", 2400, 1.5, 1.0); _tone(0, 330, 0.04, "sine", 0.4); _tone(0.004, 110, 0.07, "sine", 0.5); _end("tape_in")
+	_begin(0.1); _tone(0, 900, 0.012, "square", 0.25); _noise(0, 0.02, "hp", 3000, 0.7, 0.6); _tone(0, 170, 0.06, "sine", 0.5); _end("tape_door")
+	_begin(0.1); _tone(0, 140, 0.05, "sine", 0.6); _noise(0, 0.03, "lp", 1200, 0.7, 0.8); _tone(0, 620, 0.012, "square", 0.15); _end("tape_key")
+	_begin(0.2); _noise(0, 0.015, "bp", 3200, 1.2, 0.7); _tone(0, 480, 0.15, "sine", 0.25); _tone(0.01, 720, 0.1, "sine", 0.12); _tone(0, 160, 0.05, "sine", 0.4); _end("tape_pop")
 	_begin(1.1)
 	for i in 14:
 		_noise(i * 0.07 + _rng.randf() * 0.03, 0.05, "bp", 5200 + _rng.randf() * 1500, 3, 0.8)
 	_end("pencil")
-	_begin(0.03); _tone(0, 1300, 0.012, "square", 0.3); _noise(0, 0.012, "bp", 2500, 1, 0.6); _end("pulse", true)
 	# chamando: "tuuuu" contínuo de 425 Hz, pela linha
 	_begin(1.3)
 	var on := 1.15
@@ -378,6 +391,8 @@ func _build_basic() -> void:
 	_begin(0.06); _noise(0, 0.025, "bp", 3200, 1.3, 1.0); _noise(0.004, 0.018, "bp", 1600, 1.0, 0.5); _end("cord_snap")
 	# o fio caindo na mesa: "tap" macio e abafado
 	_begin(0.09); _noise(0, 0.03, "lp", 700, 0.7, 1.0); _tone(0, 110, 0.05, "sine", 0.5); _end("cord_tap")
+	# o fio caindo num plug encaixado: o pano abafa e, por baixo, o "toc" oco da baquelite
+	_begin(0.08); _noise(0, 0.02, "lp", 900, 0.7, 0.8); _tone(0, 420, 0.03, "sine", 0.45); _noise(0.002, 0.008, "bp", 1500, 1.4, 0.4); _end("cord_knock")
 	# plug solto batendo na mesa
 	_begin(0.14); _noise(0, 0.05, "lp", 1800, 0.7, 1.0); _tone(0, 150, 0.1, "sine", 0.6); _tone(0.005, 2100, 0.015, "square", 0.06); _end("drop")
 	# o objeto da mesa assentando depois de erguido sob o mouse: o papel, um "fft" curto e abafado...
@@ -613,6 +628,41 @@ func _build_outside() -> void:
 		_noise(t0, 0.02, "bp", 900.0, 4.0, g * 0.4)
 		t0 += _rng.randf_range(0.015, 0.04)
 	_end("rattle")
+	_begin(0.12)   # um passo de corrida na calçada: a sola batendo (o baque) e o raspar no cimento
+	_tone(0.0, 95.0, 0.05, "sine", 0.7)
+	_noise(0.0, 0.03, "bp", 1400.0, 1.2, 0.6)
+	_noise(0.01, 0.06, "bp", 3200.0, 1.5, 0.2)
+	_w = _biquad(_w, "lp", 2500.0, 0.7)   # (pelo vidro)
+	_end("footfall")
+	_begin(2.2)   # o maço de panfletos jogado: o tapa do maço abrindo e os papéis batendo no ar, rareando
+	_noise(0.0, 0.08, "bp", 1800.0, 0.8, 0.9)
+	var t1 := 0.04
+	while t1 < 2.0:
+		var g := exp(-t1 / 0.7) * _rng.randf_range(0.3, 1.0)
+		_noise(t1, _rng.randf_range(0.01, 0.03), "bp", _rng.randf_range(2500.0, 5000.0), 2.5, g)
+		t1 += _rng.randf_range(0.008, 0.03) / maxf(0.15, exp(-t1 / 0.8))
+	_w = _biquad(_w, "lp", 3500.0, 0.7)   # (pelo vidro)
+	_end("flyers")
+	_begin(0.9)   # um jato de spray: o chiado fino do bico, abrindo e fechando, com a esfera batendo no começo
+	var n := _w.size()
+	var r := _rng.randi()
+	for i in n:
+		r = (r * 1103515245 + 12345) & 0x7fffffff
+		var u := float(i) / n
+		_w[i] = (r / 1073741823.5 - 1.0) * minf(1.0, u * 25.0) * minf(1.0, (1.0 - u) * 8.0) * (0.8 + 0.2 * sin(TAU * 9.0 * u))
+	_w = _biquad(_biquad(_w, "hp", 2800.0, 0.7), "lp", 6000.0, 0.7)
+	_tone(0.0, 2400.0, 0.015, "sine", 0.3)
+	_w = _biquad(_w, "lp", 3800.0, 0.7)   # (pelo vidro)
+	_end("spray")
+	_begin(2.4)   # o sinalizador atirado longe (`Flare`): o "pof" abafado do tiro e o chiado dele subindo, sumindo no alto
+	_tone(0.0, 70.0, 0.25, "sine", 0.8)
+	_noise(0.0, 0.08, "bp", 500.0, 0.9, 0.7)
+	var t2 := 0.05
+	while t2 < 2.2:
+		_noise(t2, 0.06, "bp", lerpf(1800.0, 3200.0, t2 / 2.2), 1.5, 0.35 * exp(-t2 / 0.9))
+		t2 += 0.05
+	_w = _biquad(_w, "lp", 2800.0, 0.7)   # (longe e pelo vidro)
+	_end("flare")
 
 
 ## A luminária: o zumbido elétrico bem baixo da lâmpada acesa (120 Hz e harmônicos, em loop) e o estalo de quando ela
@@ -643,6 +693,115 @@ func _build_thunder() -> void:
 	_w = _biquad(_biquad(_w, "lp", 220.0, 0.7), "hp", 25.0, 0.7)
 	_noise(0.02, 0.5, "lp", 1100.0, 0.7, 0.25)
 	_end("thunder", false, false, 0.9)
+
+
+## O carro de som passando (`SPEAKER`): uma voz de locutor, de frases curtas e enfáticas (sílabas de vogais sorteadas,
+## a tônica mais alta e a última longa, caindo), sem palavras: a corneta (só o meio da voz, saturada), o eco nas
+## fachadas (`SPEAKER_ECHO`), a distância (mais forte e mais clara quando ele passa na frente; longe, só o abafado que
+## atravessa o vidro) e o motor a ar da Kombi por baixo.
+func _build_speaker() -> void:
+	_begin(SPEAKER)
+	var n := _w.size()
+	var talk := PackedFloat32Array()
+	talk.resize(n)
+	var vowels := VOWEL.values()
+	var at := 0.6
+	while at < SPEAKER - 1.0:   # as frases
+		var count := _rng.randi_range(5, 10)
+		var stress := _rng.randi_range(1, count - 2)
+		for k in count:
+			var last := k == count - 1
+			var dur := _rng.randf_range(0.1, 0.15) * (2.2 if last else (1.4 if k == stress else 1.0))
+			var f0 := 128.0 * (1.0 - 0.12 * k / count) * (1.3 if k == stress else 1.0) * _rng.randf_range(0.96, 1.04)
+			var fall := -0.25 if last else 0.0
+			var m := int(dur * RATE)
+			var src := PackedFloat32Array()
+			src.resize(m)
+			var ph := 0.0
+			var flow := 0.0
+			for i in m:   # o pulso glotal (como em `_syllable`), com a sílaba abrindo e fechando
+				ph += f0 * (1.0 + fall * i / m) / RATE
+				ph -= floorf(ph)
+				var g := 0.5 * (1.0 - cos(PI * ph / GLOTTIS.x)) if ph < GLOTTIS.x else (cos(PI * (ph - GLOTTIS.x) / (2.0 * GLOTTIS.y)) if ph < GLOTTIS.x + GLOTTIS.y else 0.0)
+				src[i] = (g - flow) * pow(sin(PI * float(i) / m), 0.6)
+				flow = g
+			var fm: Vector3 = vowels[_rng.randi() % vowels.size()]
+			src = _formant(_formant(_formant(src, fm.x, BANDWIDTHS.x), fm.y, BANDWIDTHS.y), fm.z, BANDWIDTHS.z)
+			var k0 := int(at * RATE)
+			var top := _peak(src) * (1.0 if k == stress else 1.4)
+			for i in mini(m, n - k0):
+				talk[k0 + i] += src[i] / top
+			at += dur + (0.03 if _rng.randf() < 0.6 else 0.0)   # (a consoante: um respiro entre as vogais)
+		at += _rng.randf_range(0.35, 0.75)
+	talk = _biquad(_biquad(talk, "hp", 450.0, 0.7), "lp", 3200.0, 0.7)   # a corneta: só o meio...
+	var top := _peak(talk)
+	for i in n:   # ...e saturada
+		var v := talk[i] * 3.0 / top
+		talk[i] = v / (1.0 + absf(v))
+	var wet := talk.duplicate()
+	for e: Vector2 in SPEAKER_ECHO:
+		var d := int(e.x * RATE)
+		for i in range(n - 1, d - 1, -1):
+			wet[i] += talk[i - d] * e.y
+	var far := _biquad(_biquad(wet, "lp", 650.0, 0.7), "lp", 800.0, 0.7)   # pelo vidro, de longe...
+	var near := _biquad(wet, "lp", 1900.0, 0.7)   # ...e passando na frente
+	var motor := PackedFloat32Array()   # o motor a ar, em marcha lenta: o dente de serra grave e o chiado dele
+	motor.resize(n)
+	var ph := 0.0
+	var r := _rng.randi()
+	for i in n:
+		ph += 36.0 / RATE
+		r = (r * 1103515245 + 12345) & 0x7fffffff
+		motor[i] = ((ph - floorf(ph)) * 2.0 - 1.0) * 0.5 + (r / 1073741823.5 - 1.0) * 0.15
+	motor = _biquad(motor, "lp", 260.0, 0.7)
+	for i in n:
+		var x := lerpf(SPEAKER_X.x, SPEAKER_X.y, float(i) / n)
+		var g := SPEAKER_Z / sqrt(x * x + SPEAKER_Z * SPEAKER_Z)
+		var c := smoothstep(0.35, 0.95, g)
+		_w[i] = (far[i] * (1.0 - c) * 0.9 + near[i] * c) * g + motor[i] * 0.5 * g * g
+	var fade := int(0.6 * RATE)
+	for i in fade:   # (entrando e saindo sem estalo)
+		_w[i] *= float(i) / fade
+		_w[n - 1 - i] *= float(i) / fade
+	_w = _biquad(_w, "lp", 2600.0, 0.7)
+	_end("speaker", false, false, 0.8)
+
+
+## O caminhão do exército passando devagar (`ARMY` s, de um lado ao outro da vista, como o carro de som): o diesel
+## grave aos estouros, o chiado dos pneus largos, a lona e as correntes batendo, e o grave que faz o vidro tremer.
+func _build_army() -> void:
+	_begin(ARMY)
+	var n := _w.size()
+	var motor := PackedFloat32Array()
+	var road := PackedFloat32Array()
+	motor.resize(n)
+	road.resize(n)
+	var ph := 0.0
+	var r := _rng.randi()
+	for i in n:   # os estouros do diesel (um pulso estreito a cada ciclo, o tempo variando um pouco) e o chão
+		ph += 27.0 * (1.0 + 0.03 * sin(TAU * 0.7 * i / RATE)) / RATE
+		ph -= floorf(ph)
+		r = (r * 1103515245 + 12345) & 0x7fffffff
+		var noise := r / 1073741823.5 - 1.0
+		motor[i] = (1.0 if ph < 0.18 else -0.2) + noise * 0.3 + 0.6 * sin(TAU * 41.0 * i / RATE)
+		road[i] = noise
+	motor = _biquad(_biquad(motor, "lp", 170.0, 0.8), "lp", 220.0, 0.7)
+	road = _biquad(_biquad(road, "lp", 700.0, 0.7), "hp", 90.0, 0.7)
+	for i in n:
+		var x := lerpf(SPEAKER_X.x, SPEAKER_X.y, float(i) / n)
+		var g := SPEAKER_Z / sqrt(x * x + SPEAKER_Z * SPEAKER_Z)
+		_w[i] = motor[i] * 0.8 * g + road[i] * 0.25 * g * g
+	var at := 0.4
+	while at < ARMY - 0.5:   # a lona e as correntes da guarda batendo com a estrada
+		var x := lerpf(SPEAKER_X.x, SPEAKER_X.y, at / ARMY)
+		var g := SPEAKER_Z / sqrt(x * x + SPEAKER_Z * SPEAKER_Z)
+		_tone(at, _rng.randf_range(1700.0, 2600.0), 0.05, "sine", 0.07 * g * g)
+		at += _rng.randf_range(0.12, 0.6)
+	var fade := int(0.8 * RATE)
+	for i in fade:
+		_w[i] *= float(i) / fade
+		_w[n - 1 - i] *= float(i) / fade
+	_end("army", false, false, 0.85)
 
 
 ## Fecha o loop sem estalo: os últimos `sec` segundos se misturam com o começo e são cortados.

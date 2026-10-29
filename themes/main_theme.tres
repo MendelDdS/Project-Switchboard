@@ -60,7 +60,7 @@ content_margin_top = 22.0
 content_margin_right = 2.0
 content_margin_bottom = 6.0
 script = ExtResource("2_keycap")
-color = Color(0.9529412, 0.65882355, 0.23529412, 1)
+color = Color(0.2471, 0.6235, 0.749, 1)
 off = true
 
 [sub_resource type="StyleBox" id="KeyCap_Amber_hover"]
@@ -71,7 +71,7 @@ content_margin_top = 22.0
 content_margin_right = 2.0
 content_margin_bottom = 6.0
 script = ExtResource("2_keycap")
-color = Color(0.9529412, 0.65882355, 0.23529412, 1)
+color = Color(0.2471, 0.6235, 0.749, 1)
 hover = true
 
 [sub_resource type="StyleBox" id="KeyCap_Amber_pressed"]
@@ -82,7 +82,7 @@ content_margin_top = 25.0
 content_margin_right = 2.0
 content_margin_bottom = 3.0
 script = ExtResource("2_keycap")
-color = Color(0.9529412, 0.65882355, 0.23529412, 1)
+color = Color(0.2471, 0.6235, 0.749, 1)
 pressed = true
 
 [sub_resource type="StyleBox" id="KeyCap_Amber_normal"]
@@ -93,7 +93,7 @@ content_margin_top = 22.0
 content_margin_right = 2.0
 content_margin_bottom = 6.0
 script = ExtResource("2_keycap")
-color = Color(0.9529412, 0.65882355, 0.23529412, 1)
+color = Color(0.2471, 0.6235, 0.749, 1)
 
 [sub_resource type="StyleBox" id="KeyCap_Ivory_disabled"]
 resource_local_to_scene = false
@@ -103,7 +103,7 @@ content_margin_top = 22.0
 content_margin_right = 2.0
 content_margin_bottom = 6.0
 script = ExtResource("2_keycap")
-color = Color(0.85, 0.81, 0.7, 1)
+color = Color(0.2471, 0.6235, 0.749, 1)
 off = true
 
 [sub_resource type="StyleBox" id="KeyCap_Ivory_hover"]
@@ -114,7 +114,7 @@ content_margin_top = 22.0
 content_margin_right = 2.0
 content_margin_bottom = 6.0
 script = ExtResource("2_keycap")
-color = Color(0.85, 0.81, 0.7, 1)
+color = Color(0.2471, 0.6235, 0.749, 1)
 hover = true
 
 [sub_resource type="StyleBox" id="KeyCap_Ivory_pressed"]
@@ -125,7 +125,7 @@ content_margin_top = 25.0
 content_margin_right = 2.0
 content_margin_bottom = 3.0
 script = ExtResource("2_keycap")
-color = Color(0.85, 0.81, 0.7, 1)
+color = Color(0.2471, 0.6235, 0.749, 1)
 pressed = true
 
 [sub_resource type="StyleBox" id="KeyCap_Ivory_normal"]
@@ -136,7 +136,7 @@ content_margin_top = 22.0
 content_margin_right = 2.0
 content_margin_bottom = 6.0
 script = ExtResource("2_keycap")
-color = Color(0.85, 0.81, 0.7, 1)
+color = Color(0.2471, 0.6235, 0.749, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7ceur"]
 content_margin_left = 6.0
@@ -195,40 +195,40 @@ border_width_bottom = 2
 border_color = Color(0, 0, 0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0x86e"]
-content_margin_left = 8.0
+content_margin_left = 9.0
 content_margin_top = 2.0
-content_margin_right = 8.0
+content_margin_right = 9.0
 content_margin_bottom = 2.0
-bg_color = Color(0.08627451, 0.10980392, 0.078431375, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0, 0, 0, 1)
+bg_color = Color(0.4471, 0.4314, 0.3725, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 3
+border_color = Color(0.0902, 0.1059, 0.0706, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_f5ubn"]
-content_margin_left = 8.0
+content_margin_left = 9.0
 content_margin_top = 2.0
-content_margin_right = 8.0
+content_margin_right = 9.0
 content_margin_bottom = 2.0
-bg_color = Color(0.16470589, 0.22745098, 0.14509805, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0, 0, 0, 1)
+bg_color = Color(0.8, 0.7804, 0.702, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 3
+border_color = Color(0.0902, 0.1059, 0.0706, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7qy2x"]
-content_margin_left = 8.0
+content_margin_left = 9.0
 content_margin_top = 2.0
-content_margin_right = 8.0
+content_margin_right = 9.0
 content_margin_bottom = 2.0
-bg_color = Color(0.12156863, 0.16470589, 0.10980392, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0, 0, 0, 1)
+bg_color = Color(0.7412, 0.7176, 0.6235, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 3
+border_color = Color(0.0902, 0.1059, 0.0706, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_myxx4"]
 content_margin_left = 6.0
@@ -358,7 +358,7 @@ content_margin_top = 22.0
 content_margin_right = 2.0
 content_margin_bottom = 6.0
 script = ExtResource("2_keycap")
-color = Color(0.5529412, 0.73333335, 0.42352942, 1)
+color = Color(0.2471, 0.6235, 0.749, 1)
 off = true
 
 [sub_resource type="StyleBox" id="KeyCap_Green_hover"]
@@ -369,7 +369,7 @@ content_margin_top = 22.0
 content_margin_right = 2.0
 content_margin_bottom = 6.0
 script = ExtResource("2_keycap")
-color = Color(0.5529412, 0.73333335, 0.42352942, 1)
+color = Color(0.2471, 0.6235, 0.749, 1)
 hover = true
 
 [sub_resource type="StyleBox" id="KeyCap_Green_pressed"]
@@ -380,7 +380,7 @@ content_margin_top = 25.0
 content_margin_right = 2.0
 content_margin_bottom = 3.0
 script = ExtResource("2_keycap")
-color = Color(0.5529412, 0.73333335, 0.42352942, 1)
+color = Color(0.2471, 0.6235, 0.749, 1)
 pressed = true
 
 [sub_resource type="StyleBox" id="KeyCap_Green_normal"]
@@ -391,19 +391,19 @@ content_margin_top = 22.0
 content_margin_right = 2.0
 content_margin_bottom = 6.0
 script = ExtResource("2_keycap")
-color = Color(0.5529412, 0.73333335, 0.42352942, 1)
+color = Color(0.2471, 0.6235, 0.749, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hud"]
 content_margin_left = 10.0
 content_margin_top = 7.0
 content_margin_right = 10.0
 content_margin_bottom = 7.0
-bg_color = Color(0.043, 0.047, 0.05, 1)
+bg_color = Color(0.0902, 0.1059, 0.0706, 1)
 border_width_left = 2
 border_width_top = 3
 border_width_right = 2
 border_width_bottom = 1
-border_color = Color(0.1, 0.07, 0.045, 1)
+border_color = Color(0.1647, 0.1882, 0.1333, 1)
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
@@ -783,12 +783,12 @@ AmberButton/styles/hover = SubResource("StyleBoxFlat_ydht1")
 AmberButton/styles/normal = SubResource("StyleBoxFlat_8gw6x")
 AmberButton/styles/pressed = SubResource("StyleBoxFlat_g21io")
 AmberKey/base_type = &"Button"
-AmberKey/colors/font_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
-AmberKey/colors/font_disabled_color = Color(0.10980392, 0.08235294, 0.047058824, 0.5)
-AmberKey/colors/font_focus_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
-AmberKey/colors/font_hover_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
-AmberKey/colors/font_hover_pressed_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
-AmberKey/colors/font_pressed_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+AmberKey/colors/font_color = Color(0.902, 0.8588, 0.7412, 1)
+AmberKey/colors/font_disabled_color = Color(0.21, 0.53, 0.6367, 1)
+AmberKey/colors/font_focus_color = Color(0.902, 0.8588, 0.7412, 1)
+AmberKey/colors/font_hover_color = Color(0.902, 0.8588, 0.7412, 1)
+AmberKey/colors/font_hover_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
+AmberKey/colors/font_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
 AmberKey/font_sizes/font_size = 11
 AmberKey/styles/disabled = SubResource("KeyCap_Amber_disabled")
 AmberKey/styles/hover = SubResource("KeyCap_Amber_hover")
@@ -796,12 +796,12 @@ AmberKey/styles/hover_pressed = SubResource("KeyCap_Amber_pressed")
 AmberKey/styles/normal = SubResource("KeyCap_Amber_normal")
 AmberKey/styles/pressed = SubResource("KeyCap_Amber_pressed")
 IvoryKey/base_type = &"Button"
-IvoryKey/colors/font_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
-IvoryKey/colors/font_disabled_color = Color(0.10980392, 0.08235294, 0.047058824, 0.5)
-IvoryKey/colors/font_focus_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
-IvoryKey/colors/font_hover_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
-IvoryKey/colors/font_hover_pressed_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
-IvoryKey/colors/font_pressed_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+IvoryKey/colors/font_color = Color(0.902, 0.8588, 0.7412, 1)
+IvoryKey/colors/font_disabled_color = Color(0.21, 0.53, 0.6367, 1)
+IvoryKey/colors/font_focus_color = Color(0.902, 0.8588, 0.7412, 1)
+IvoryKey/colors/font_hover_color = Color(0.902, 0.8588, 0.7412, 1)
+IvoryKey/colors/font_hover_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
+IvoryKey/colors/font_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
 IvoryKey/font_sizes/font_size = 11
 IvoryKey/styles/disabled = SubResource("KeyCap_Ivory_disabled")
 IvoryKey/styles/hover = SubResource("KeyCap_Ivory_hover")
@@ -821,11 +821,11 @@ Button/styles/hover = SubResource("StyleBoxFlat_puucq")
 Button/styles/normal = SubResource("StyleBoxFlat_1mjdo")
 Button/styles/pressed = SubResource("StyleBoxFlat_s5e0q")
 ChoiceButton/base_type = &"Button"
-ChoiceButton/colors/font_color = Color(0.8117647, 0.8901961, 0.7490196, 1)
-ChoiceButton/colors/font_disabled_color = Color(0.81, 0.89, 0.75, 0.35)
-ChoiceButton/colors/font_focus_color = Color(0.8117647, 0.8901961, 0.7490196, 1)
-ChoiceButton/colors/font_hover_color = Color(0.8117647, 0.8901961, 0.7490196, 1)
-ChoiceButton/colors/font_pressed_color = Color(0.8117647, 0.8901961, 0.7490196, 1)
+ChoiceButton/colors/font_color = Color(0.1333, 0.1529, 0.102, 1)
+ChoiceButton/colors/font_disabled_color = Color(0.1333, 0.1529, 0.102, 0.75)
+ChoiceButton/colors/font_focus_color = Color(0.1333, 0.1529, 0.102, 1)
+ChoiceButton/colors/font_hover_color = Color(0.1333, 0.1529, 0.102, 1)
+ChoiceButton/colors/font_pressed_color = Color(0.1333, 0.1529, 0.102, 1)
 ChoiceButton/font_sizes/font_size = 11
 ChoiceButton/styles/disabled = SubResource("StyleBoxFlat_0x86e")
 ChoiceButton/styles/hover = SubResource("StyleBoxFlat_f5ubn")
@@ -843,6 +843,9 @@ DarkButton/styles/normal = SubResource("StyleBoxFlat_5iri2")
 DarkButton/styles/pressed = SubResource("StyleBoxFlat_3scot")
 DarkPanel/base_type = &"PanelContainer"
 DarkPanel/styles/panel = SubResource("StyleBoxFlat_puicy")
+KeyTagLabel/base_type = &"Label"
+KeyTagLabel/colors/font_color = Color(0.1333, 0.1529, 0.102, 1)
+KeyTagLabel/font_sizes/font_size = 11
 DimLabel/base_type = &"Label"
 DimLabel/colors/font_color = Color(0.6039216, 0.5686275, 0.47843137, 1)
 FormPanel/base_type = &"PanelContainer"
@@ -859,12 +862,12 @@ GreenButton/styles/hover = SubResource("StyleBoxFlat_k36pm")
 GreenButton/styles/normal = SubResource("StyleBoxFlat_6h40v")
 GreenButton/styles/pressed = SubResource("StyleBoxFlat_s47sh")
 GreenKey/base_type = &"Button"
-GreenKey/colors/font_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
-GreenKey/colors/font_disabled_color = Color(0.10980392, 0.08235294, 0.047058824, 0.5)
-GreenKey/colors/font_focus_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
-GreenKey/colors/font_hover_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
-GreenKey/colors/font_hover_pressed_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
-GreenKey/colors/font_pressed_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+GreenKey/colors/font_color = Color(0.902, 0.8588, 0.7412, 1)
+GreenKey/colors/font_disabled_color = Color(0.21, 0.53, 0.6367, 1)
+GreenKey/colors/font_focus_color = Color(0.902, 0.8588, 0.7412, 1)
+GreenKey/colors/font_hover_color = Color(0.902, 0.8588, 0.7412, 1)
+GreenKey/colors/font_hover_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
+GreenKey/colors/font_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
 GreenKey/font_sizes/font_size = 11
 GreenKey/styles/disabled = SubResource("KeyCap_Green_disabled")
 GreenKey/styles/hover = SubResource("KeyCap_Green_hover")
@@ -991,12 +994,12 @@ RedButton/styles/hover = SubResource("StyleBoxFlat_35dwi")
 RedButton/styles/normal = SubResource("StyleBoxFlat_r3gy8")
 RedButton/styles/pressed = SubResource("StyleBoxFlat_anjdx")
 RedKey/base_type = &"Button"
-RedKey/colors/font_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
-RedKey/colors/font_disabled_color = Color(0.10980392, 0.08235294, 0.047058824, 0.5)
-RedKey/colors/font_focus_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
-RedKey/colors/font_hover_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
-RedKey/colors/font_hover_pressed_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
-RedKey/colors/font_pressed_color = Color(0.10980392, 0.08235294, 0.047058824, 1)
+RedKey/colors/font_color = Color(0.902, 0.8588, 0.7412, 1)
+RedKey/colors/font_disabled_color = Color(0.7067, 0.2833, 0.21, 1)
+RedKey/colors/font_focus_color = Color(0.902, 0.8588, 0.7412, 1)
+RedKey/colors/font_hover_color = Color(0.902, 0.8588, 0.7412, 1)
+RedKey/colors/font_hover_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
+RedKey/colors/font_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
 RedKey/font_sizes/font_size = 11
 RedKey/styles/disabled = SubResource("KeyCap_Red_disabled")
 RedKey/styles/hover = SubResource("KeyCap_Red_hover")

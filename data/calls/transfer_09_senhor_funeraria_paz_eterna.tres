@@ -6,6 +6,7 @@
 script = ExtResource("1_x8fs7")
 voice = "w"
 caller = "Senhor"
+caller_name = "Amadeu Guimarães"
 opening = PackedStringArray("Boa noite...", "Preciso falar com a funerária. Meu pai faleceu agora há pouco.")
 repeat = "A funerária. A Paz Eterna."
 target = "399"

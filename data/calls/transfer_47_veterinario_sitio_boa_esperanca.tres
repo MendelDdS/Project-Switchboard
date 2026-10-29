@@ -7,6 +7,7 @@ script = ExtResource("1_tr")
 group = 2
 voice = "m"
 caller = "Veterinário"
+caller_name = "Heitor Campos"
 opening = PackedStringArray("Central, boa noite. Me liga com o Sítio Boa Esperança?", "Me chamaram por causa de uma vaca pra parir. Quero saber se ainda precisa.")
 repeat = "O Sítio Boa Esperança, lá no Cruzeiro."
 target = "209"

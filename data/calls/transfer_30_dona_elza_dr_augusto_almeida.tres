@@ -6,6 +6,7 @@
 script = ExtResource("1_axf2e")
 group = 1
 caller = "Dona Elza"
+caller_name = "Elza Machado"
 opening = PackedStringArray("Preciso falar com o Doutor Almeida.", "O médico. A pressão do meu marido subiu e ele mandou ligar se isso acontecesse.")
 repeat = "O Doutor Almeida, o médico."
 target = "214"

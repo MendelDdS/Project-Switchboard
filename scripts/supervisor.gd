@@ -5,6 +5,7 @@ extends Node
 ## registro no caderno); as regras ficam aqui. Tutorial, trotes e ligação desconhecida não geram advertência.
 
 const HOLD_GIVE_UP := 120.0             # minutos de jogo que alguém aguenta em espera antes de desligar
+const BUSY_HOLD := 2.0                  # ...vezes tanto, quem aceitou esperar uma linha livre (`Conversation._all_busy`)
 const RETRY_AFTER := Vector2(15.0, 30.0)  # quem teve problema liga de novo depois de tantos minutos de jogo...
 const RETRY_WAIT := 20.0                # ...esperando a mesa esvaziar por no máximo tantos minutos
 const REDISPATCH_CHANCE := 0.6          # emergência sem socorro que liga de novo: chance de ainda dar para despachar
@@ -17,23 +18,26 @@ const TYPE_OF := {
 @onready var main: Main = get_parent()
 
 
-func fault(id: String, detail := "") -> void:
+## Uma advertência no relatório (a que entrou, ou vazio no treinamento); `sev` e `text` para as das burocracias.
+func fault(id: String, detail := "", sev := -1, text := -1) -> Dictionary:
 	if main.training.active:   # o treinamento não gera advertência
-		return
-	main.report.add(id, Main.fmt(main.minutes), detail)
+		return {}
+	return main.report.add(id, Main.fmt(main.minutes), detail, sev, text)
 
 
 ## Um acerto do operador (`ShiftReport.CREDITS`); o treinamento não conta.
-func credit(id: String) -> void:
+func credit(id: String, pts := -1) -> void:
 	if not main.training.active:
-		main.report.credit(id, Main.fmt(main.minutes))
+		main.report.credit(id, Main.fmt(main.minutes), pts)
 
 
-## Advertência que o supervisor só fica sabendo depois (a denúncia de um assinante): vai para o relatório da noite
-## seguinte, com a hora de hoje (sem noite seguinte, para o de hoje; `Main.start_ending`).
-func fault_later(id: String, detail := "") -> void:
+## Advertência que o supervisor só fica sabendo depois (a denúncia de um assinante): vai para o relatório de `nights`
+## noites adiante (a seguinte, se 1), com a hora de hoje (sem noite seguinte, para o de hoje; `Main.start_ending`).
+## `sev` e `text` como em `fault` (a de uma burocracia).
+func fault_later(id: String, detail := "", sev := -1, text := -1, nights := 1) -> void:
 	if not main.training.active:
-		main.report.later.append({"id": id, "time": Main.fmt(main.minutes), "detail": detail})
+		main.report.later.append({"id": id, "time": Main.fmt(main.minutes), "detail": detail, "sev": sev, "text": text,
+			"nights": nights, "after": nights})
 
 
 func who(c: PhoneCall) -> String:
@@ -99,7 +103,7 @@ func call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
 func check_hold() -> void:
 	for c in main.live.duplicate():
 		if c.active and not c.lesson and c.kind != PhoneCall.Kind.MYSTERY and main.exchange.line(c.line) == Exchange.Line.HOLD \
-				and main.minutes - c.hold_since > HOLD_GIVE_UP:
+				and main.minutes - c.hold_since > HOLD_GIVE_UP * (BUSY_HOLD if c.busy_asked else 1.0):
 			main.end_call(c, PhoneCall.End.GAVE_UP)
 
 

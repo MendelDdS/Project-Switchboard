@@ -1,0 +1,74 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/bureaucracy/rule_auth_code.gd" id="1_rule"]
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="2_call"]
+
+[sub_resource type="Resource" id="Test_certo"]
+resource_name = "Código certo"
+script = ExtResource("2_call")
+voice = "m"
+caller = "TESTE B3 (código certo)"
+opening = PackedStringArray("[TESTE] Boa noite. A Rádio Serena, por favor.")
+repeat = "[TESTE] A Rádio Serena."
+target = "390"
+destination = "Rádio Serena AM"
+thanks = "[TESTE] Obrigado."
+code_line = "[TESTE] Autorização {code}."
+
+[sub_resource type="Resource" id="Test_errado"]
+resource_name = "Código errado"
+script = ExtResource("2_call")
+voice = "f"
+caller = "TESTE B3 (código errado)"
+opening = PackedStringArray("[TESTE] Boa noite. A Rádio Serena, por favor.")
+repeat = "[TESTE] A Rádio Serena."
+target = "390"
+destination = "Rádio Serena AM"
+thanks = "[TESTE] Obrigada."
+code_line = "[TESTE] Autorização Z-99."
+
+[sub_resource type="Resource" id="Test_sem"]
+resource_name = "Sem código"
+script = ExtResource("2_call")
+voice = "w"
+caller = "TESTE B3 (sem código)"
+opening = PackedStringArray("[TESTE] Boa noite. A Rádio Serena, por favor.")
+repeat = "[TESTE] A Rádio Serena."
+target = "390"
+destination = "Rádio Serena AM"
+thanks = "[TESTE] Obrigado."
+
+[sub_resource type="Resource" id="Test_lembra"]
+resource_name = "Lembra o código se pedir"
+script = ExtResource("2_call")
+voice = "f"
+caller = "TESTE B3 (lembra o código)"
+opening = PackedStringArray("[TESTE] Boa noite. A Rádio Serena, por favor.")
+repeat = "[TESTE] A Rádio Serena."
+target = "390"
+destination = "Rádio Serena AM"
+thanks = "[TESTE] Obrigada."
+code_line = "[TESTE] Ah, é verdade! Autorização {code}."
+code_when_asked = true
+
+[sub_resource type="Resource" id="Test_proximo"]
+resource_name = "Pede o próximo código"
+script = ExtResource("2_call")
+voice = "w"
+caller = "TESTE B3 (pede o próximo)"
+opening = PackedStringArray("[TESTE] Boa noite. Antes da ligação: qual é o código de amanhã?", "[TESTE] E me põe com o Cine Odeon, por favor.")
+repeat = "[TESTE] O Cine Odeon."
+target = "344"
+destination = "Cine Odeon"
+thanks = "[TESTE] Obrigado."
+wants_next_code = true
+
+[resource]
+script = ExtResource("1_rule")
+id = "b3_codigo"
+title = "B3 · Código de autorização"
+severity = 3
+fault_text = "FAULT_AUTH_CODE"
+tests = Array[ExtResource("2_call")]([SubResource("Test_certo"), SubResource("Test_errado"), SubResource("Test_sem"), SubResource("Test_proximo"), SubResource("Test_lembra")])
+numbers = PackedStringArray("390", "101")
+reactions = PackedStringArray("[TESTE] Reação passiva.", "[TESTE] Reclama do governo.", "[TESTE] Indiferente.")

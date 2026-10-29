@@ -6,6 +6,7 @@
 script = ExtResource("1_jfla8")
 group = 1
 caller = "Sobrinha"
+caller_name = "Vera Moura"
 opening = PackedStringArray("A Dona Célia Rocha, por favor.", "A que mora na avenida. Minha tia.")
 repeat = "Célia Rocha. A da avenida."
 target = "373"

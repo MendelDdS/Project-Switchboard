@@ -5,6 +5,7 @@
 [resource]
 script = ExtResource("1_rhixv")
 caller = "Dona Zilda"
+caller_name = "Zilda Leite"
 opening = PackedStringArray("Boa noite, querido.", "Quero falar com a Padaria Pão Dourado. É pra encomendar o pão de amanhã cedo.")
 repeat = "A Pão Dourado. A padaria."
 target = "142"

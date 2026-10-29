@@ -83,6 +83,7 @@ func connected(c: PhoneCall) -> void:
 ## Tecla Escutar ou a alavanca: a chave de escuta da linha `n` sobe ou desce.
 func toggle(n: int) -> void:
 	main.exchange.set_key(n, not main.exchange.key(n))
+	main.bureaucracy.listening(n, main.exchange.key(n))
 
 
 ## A conversa da linha `n` ainda tem falas escritas por dizer: ela não acaba antes (`Main._update_line_timers`).
@@ -220,10 +221,12 @@ func _silence(t: Talk) -> float:
 
 
 ## Eles ouviram a resposta e têm certeza: denunciam a telefonista (amanhã a companhia fica sabendo), ouça ele a
-## reclamação ou não, e o lugar fica mais desconfiado (`grudges`).
+## reclamação ou não, e o lugar fica mais desconfiado (`grudges`). Escuta pedida por uma burocracia (a gravação da
+## B4) é cobrada por ela (`Bureaucracy.caught_listening`).
 func _denounce(t: Talk) -> void:
 	t.knows = true
-	main.supervisor.fault_later("eavesdrop", main.supervisor.who(t.call))
+	if not main.bureaucracy.caught_listening(t.call):
+		main.supervisor.fault_later("eavesdrop", main.supervisor.who(t.call))
 	main.flags.apply("denunciado_%d" % main.night_no)
 	var num := str(t.call.dest_num)
 	grudges[num] = grudges.get(num, 0) + 1
@@ -250,7 +253,7 @@ func _caught(t: Talk) -> void:
 
 
 ## A conversa dos dois: o "alô" de quem atende e as falas escritas, que fecham com a despedida (`C.overheard_bye`) e
-## eles desligam; sem elas, o cumprimento de quem ligou (se atendeu uma pessoa) e o murmúrio até o fim do `TALK_LEN`.
+## eles desligam; sem elas, o cumprimento de quem ligou (se atendeu uma pessoa) e o murmúrio até o fim do `Pace.talk_len`.
 ## Um fala, o outro responde. Cada fala escrita ouvida liga o marcador dela (`TransferCall.overheard_flags`); ouvidas
 ## todas, os da ligação (`overheard_sets`).
 func _talk(t: Talk) -> void:

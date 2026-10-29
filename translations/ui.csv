@@ -19,6 +19,8 @@ DIGIT_9,nove,nine,nueve
 INTRO_NIGHT,Noite %d · %s · %s,Night %d · %s · %s,Noche %d · %s · %s
 INTRO_TRAINING,Treinamento · %s · %s,Training · %s · %s,Entrenamiento · %s · %s
 INTRO_INFO,"Tudo acontece na sua mesa. Use o mouse para levar os plugues até as tomadas e para consultar a lista, o mapa e a ficha de ocorrências. Mais de uma linha pode tocar ao mesmo tempo. Use fones de ouvido.","Everything happens at your desk. Use the mouse to move the plugs to the jacks and to check the directory, the map and the log sheet. More than one line can ring at the same time. Use headphones.","Todo sucede en su mesa. Use el mouse para llevar los conectores a las tomas y para consultar la guía, el mapa y la ficha de llamadas. Puede sonar más de una línea a la vez. Use audífonos."
+SAVE_ASIDE_BADGE,ATENÇÃO,WARNING,ATENCIÓN
+SAVE_ASIDE,"O progresso salvo não pôde ser aberto (é de uma versão mais nova do jogo ou está danificado) e o jogo começou do zero. O arquivo antigo foi guardado como %s, na pasta de dados do jogo.","The saved progress could not be opened (it is from a newer version of the game or is damaged), so the game started over. The old file was kept as %s, in the game's data folder.","El progreso guardado no se pudo abrir (es de una versión más nueva del juego o está dañado) y el juego empezó de cero. El archivo anterior quedó guardado como %s, en la carpeta de datos del juego."
 START_SHIFT,Começar turno,Start shift,Comenzar turno
 RESTART_FIRST_NIGHT,Recomeçar do treinamento,Start over from the training,Empezar de nuevo desde el entrenamiento
 SKIP_TRAINING,Pular o treinamento,Skip the training,Saltar el entrenamiento
@@ -103,11 +105,13 @@ HINT_TRAINING_BACK,"%s está em espera e não ouve nada: volte o [b]FONE[/b] par
 HINT_TRAINING_UNITS_AWAY,"Os [b]bombeiros[/b] ainda estão fora, voltando de outro cartão: espere chegarem à base para perfurá-los.","The [b]fire brigade[/b] is still out, coming back from another card: wait for them to reach the station before punching them.","Los [b]bomberos[/b] todavía están fuera, volviendo de otra tarjeta: espere a que lleguen a la base para perforarlos."
 OP_CONNECT_WAIT,"Um momento, vou conectar.","One moment, I'll put you through.","Un momento, lo comunico."
 OP_REPEAT,"Pode repetir, por favor?","Could you repeat that, please?","¿Puede repetir, por favor?"
+OP_ALL_BUSY,"Neste momento todas as linhas estão ocupadas. Deseja aguardar?","All lines are busy at the moment. Would you like to hold?","En este momento todas las líneas están ocupadas. ¿Desea esperar?"
 OP_SMALLTALK,"E aí, como vai a noite?","So, how's your night going?","¿Y qué tal la noche?"
 OP_ANYONE_HURT,Tem alguém ferido?,Is anyone hurt?,¿Hay alguien herido?
 OP_HOLD_EMERGENCY,"Fique na linha, vou enviar ajuda.","Stay on the line, I'm sending help.","No cuelgue, voy a enviar ayuda."
 CHOICE_CONNECT_WAIT,Um momento.,One moment.,Un momento.
 CHOICE_REPEAT,Pode repetir?,Could you repeat that?,¿Puede repetir?
+CHOICE_ALL_BUSY,[Todas as linhas ocupadas],[All lines busy],[Todas las líneas ocupadas]
 CHOICE_SMALLTALK,Como vai a noite?,How's your night?,¿Qué tal la noche?
 CHOICE_HOLD_EMERGENCY,Fique na linha.,Stay on the line.,No cuelgue.
 CHOICE_OFFER_ALT,[Oferecer outro lugar],[Offer another place],[Ofrecer otro lugar]
@@ -180,6 +184,7 @@ OBS_OPERATOR_ENDED,Encerrada pelo operador.,Ended by the operator.,Terminada por
 OBS_NOT_ANSWERED,Não atendida.,Not answered.,No contestada.
 OBS_GAVE_UP,Desistiu na espera.,Gave up on hold.,Desistió en espera.
 OBS_NOT_CONNECTED,Não conectada.,Not connected.,No conectada.
+OBS_ALL_BUSY,Linhas ocupadas; vai ligar mais tarde.,Lines busy; will call back later.,Líneas ocupadas; llamará más tarde.
 OBS_CALL_DROPPED,A ligação caiu.,The call dropped.,La llamada se cortó.
 OBS_TRAINING,Treinamento (não conta).,Training (does not count).,Entrenamiento (no cuenta).
 TAB_DIRECTORY,Lista telefônica,Phone directory,Guía telefónica
@@ -342,6 +347,7 @@ FAULT_HOLD,Solicitante desistiu na espera,Caller gave up on hold,La persona desi
 FAULT_WRONG_NUMBER,Conectou o número errado,Connected the wrong number,Conectó el número equivocado
 FAULT_CUT_CALL,Conversa cortada no meio,Conversation cut off,Conversación cortada a la mitad
 REPORT_YESTERDAY,"ontem, %s","yesterday, %s","ayer, %s"
+REPORT_NIGHTS_AGO,"há %d noites, %s","%d nights ago, %s","hace %d noches, %s"
 REPORT_SERVICES,SERVIÇOS PRESTADOS,SERVICES RENDERED,SERVICIOS PRESTADOS
 REPORT_NONE_SERVICES,Nenhum.,None.,Ninguno.
 REPORT_TRANSFERS,Ligações completadas: %d,Calls connected: %d,Llamadas completadas: %d
@@ -350,6 +356,7 @@ REPORT_INFOS,Informações prestadas: %d,Information given: %d,Informaciones dad
 REPORT_EMERGENCIES,Emergências atendidas: %d,Emergencies handled: %d,Emergencias atendidas: %d
 REPORT_OCCURRENCES,Ocorrências classificadas: %d,Incidents classified: %d,Incidentes clasificados: %d
 REPORT_PRANKS,Trotes identificados: %d,Prank calls identified: %d,Bromas identificadas: %d
+REPORT_TAPES,Fitas entregues às autoridades: %d,Tapes handed to the authorities: %d,Cintas entregadas a las autoridades: %d
 REPORT_GOAL,Conceito mínimo exigido: %s,Minimum rating required: %s,Calificación mínima exigida: %s
 REPORT_LOW,Noites seguidas com conceito insuficiente: %d de %d,Consecutive nights rated unsatisfactory: %d of %d,Noches seguidas con calificación insuficiente: %d de %d
 REPORT_GRADE,CONCEITO,RATING,CALIFICACIÓN
@@ -369,6 +376,9 @@ FAULT_DISPATCH_MISSING,Faltaram unidades no despacho,Not enough units dispatched
 FAULT_DISPATCH_IDLE,Unidades enviadas sem ocorrência,Units sent with no emergency,Unidades enviadas sin emergencia
 FAULT_DISPATCH_EXTRA,Unidade enviada sem necessidade,Unit sent unnecessarily,Unidad enviada sin necesidad
 FAULT_DISPATCH_BLANK,Ficha de despacho enviada sem unidades,Dispatch card sent with no units,Ficha de despacho enviada sin unidades
+FAULT_BUREAUCRACY,Norma da companhia descumprida,Company rule broken,Norma de la compañía incumplida
+FAULT_TAPE_CAUGHT,Perceberam a escuta pedida pelas autoridades,The wiretap the authorities asked for was noticed,Notaron la escucha que pidieron las autoridades
+FAULT_TAPE_MISSED,Ligação pedida pelas autoridades não foi gravada,A call flagged by the authorities was not recorded,Una llamada marcada por las autoridades no fue grabada
 FAULT_DISPATCH_TYPE,Ocorrência classificada errado,Incident misclassified,Incidente mal clasificado
 FAULT_EMERGENCY_WORSE,A emergência se agravou antes do despacho,The emergency got worse before dispatch,La emergencia empeoró antes del despacho
 FAULT_EMERGENCY_CRITICAL,A emergência ficou crítica antes do despacho,The emergency turned critical before dispatch,La emergencia se volvió crítica antes del despacho
@@ -408,3 +418,62 @@ TRUNK_OPERATOR,Telefonista (%s),Operator (%s),Operadora (%s)
 OP_TRUNK_NUMBER,"Aqui é São Sotero. O número %s, por favor.","São Sotero calling. Number %s, please.","Aquí São Sotero. El número %s, por favor."
 HINT_TRUNK,"Interurbano: ligue a SAÍDA na tomada da cidade, no banco INTERURBANO, e Transfira. Com o FONE na linha, passe o número à telefonista de lá.","Long distance: plug the OUTPUT into the city's jack in the LONG DISTANCE bank and Transfer. With the HEADSET on the line, give the number to the operator there.","Larga distancia: conecte la SALIDA en la toma de la ciudad, en el banco LARGA DISTANCIA, y Transfiera. Con el AURICULAR en la línea, dé el número a la operadora de allá."
 HINT_TOLL,"Interurbano encerrado: o calculógrafo, na mesa, imprimiu o bilhete. Abra-o, ponha o carimbo em cima do bilhete, clique nele para carimbar e depois arraste o bilhete até a caixinha. Se o carimbo secar, carimbe a almofada.","Long distance call over: the toll timer on the desk printed the ticket. Open it, put the stamp on the ticket, click it to stamp and then drag the ticket into the box. If the stamp runs dry, stamp the ink pad.","Larga distancia terminada: el tarificador, en la mesa, imprimió la boleta. Ábralo, ponga el sello sobre la boleta, haga clic en él para sellar y después arrastre la boleta hasta la cajita. Si el sello se seca, selle la almohadilla."
+FAULT_AUTH_CODE,Transferência sem o código de autorização certo,Transfer without the right authorization code,Transferencia sin el código de autorización correcto
+CHOICE_REVEAL_CODE,[Revelar o próximo código],[Reveal the next code],[Revelar el próximo código]
+CHOICE_REFUSE_CODE,[Recusar],[Refuse],[Negarse]
+OP_REVEAL_CODE,"O de amanhã é %s. Eu não disse nada.","Tomorrow's is %s. You didn't hear it from me.","El de mañana es %s. Yo no dije nada."
+OP_REFUSE_CODE,Isso eu não posso passar.,I can't give that out.,Eso no lo puedo dar.
+CHOICE_ASK_CODE,[Pedir a autorização],[Ask for the authorization],[Pedir la autorización]
+OP_ASK_CODE,"Esse número só posso passar com o código de autorização.","I can only put that number through with the authorization code.","Ese número solo lo puedo pasar con el código de autorización."
+FAULT_UNIDENTIFIED,Transferência sem identificação de quem ligou,Transfer without the caller's identification,Transferencia sin identificación de quien llamó
+FAULT_ANON_MESSAGE,Recado anônimo repassado,Anonymous message passed on,Recado anónimo transmitido
+CHOICE_REQUEST_ID,[Solicitar identificação],[Ask for identification],[Pedir identificación]
+CHOICE_PRESS_NAME,[Insistir no nome],[Insist on the name],[Insistir en el nombre]
+OP_ASK_NAME,"Nome e sobrenome, por favor?","Your full name, please?","¿Nombre y apellido, por favor?"
+OP_PRESS_NAME,"Sem o nome e o sobrenome eu não posso completar.","Without your full name I can't put you through.","Sin nombre y apellido no puedo comunicarlo."
+CHOICE_TAKE_MESSAGE,[Anotar o recado],[Take the message],[Anotar el recado]
+OP_TAKE_MESSAGE,Anotado. Eu passo adiante.,Noted. I'll pass it on.,Anotado. Yo lo paso.
+CHOICE_REFUSE_MESSAGE,[Recusar o recado],[Refuse the message],[Rechazar el recado]
+OP_REFUSE_MESSAGE,Recado sem nome eu não anoto.,I don't take messages without a name.,Recados sin nombre no los anoto.
+CHOICE_GIVE_MESSAGE,[Dar o recado],[Give the message],[Dar el recado]
+OP_GIVE_MESSAGE,"Deixaram um recado: ""%s""","Someone left a message: ""%s""","Dejaron un recado: ""%s"""
+OP_GIVE_MESSAGE_FROM,"%s deixou um recado: ""%s""","%s left a message: ""%s""","%s dejó un recado: ""%s"""
+CHOICE_KEEP_MESSAGE,[Não dar o recado],[Keep the message],[No dar el recado]
+FAULT_BLOCKED,Transferência para número bloqueado,Transfer to a blocked number,Transferencia a un número bloqueado
+CHOICE_WARN_BLOCKED,[Avisar o bloqueio],[Warn about the block],[Avisar del bloqueo]
+OP_WARN_BLOCKED,"Esse número está bloqueado esta noite. Não posso completar.","That number is blocked tonight. I can't put you through.","Ese número está bloqueado esta noche. No puedo comunicarlo."
+CHOICE_ACCEPT_DEAL,[Aceitar o acordo],[Accept the deal],[Aceptar el acuerdo]
+OP_ACCEPT_DEAL,"Combinado. Com o sinal, eu passo para o outro número.","Deal. With the signal, I'll put them through to the other number.","Trato hecho. Con la señal, los paso al otro número."
+CHOICE_REFUSE_DEAL,[Recusar o acordo],[Refuse the deal],[Rechazar el acuerdo]
+OP_REFUSE_DEAL,Isso eu não faço.,I won't do that.,Eso no lo hago.
+SYS_BLOCKED,(O %s está bloqueado esta noite.),(%s is blocked tonight.),(El %s está bloqueado esta noche.)
+SYS_FREE_UNTIL,(O %s está liberado até as %s.),(%s is open until %s.),(El %s está liberado hasta las %s.)
+SYS_NEEDS_CODE,(O %s exige o código de autorização.),(%s requires the authorization code.),(El %s exige el código de autorización.)
+SYS_RECORD_REQUEST,(Ligação marcada pelas autoridades: grave a conversa.),(Call flagged by the authorities: record the conversation.),(Llamada marcada por las autoridades: grabe la conversación.)
+TAPES_PILE,Fitas gravadas,Recorded tapes,Cintas grabadas
+TAPE_TAKE,Tirar a fita,Take the tape out,Sacar la cinta
+TAPE_RETURN,Devolver a fita,Put the tape back,Devolver la cinta
+TAPES_NOTE,"Fitas de ontem: usadas, %d; entregues às autoridades, %d.","Yesterday's tapes: used, %d; handed to the authorities, %d.","Cintas de ayer: usadas, %d; entregadas a las autoridades, %d."
+TAPES_NOTE_MISSED,"Gravações pedidas que não chegaram: %s.","Requested recordings that never arrived: %s.","Grabaciones pedidas que no llegaron: %s."
+TAPES_NOTE_RESTOCK,"Repus as fitas do compartimento.","I restocked the tape rack.","Repuse las cintas del compartimento."
+EQUIP_DISCARD,Descartar,Discard,Descartar
+WARN_NO_TAPES,Não há mais fitas virgens.,There are no blank tapes left.,No quedan cintas vírgenes.
+WARN_TAPE_INSIDE,Já há uma fita no gravador.,There's already a tape in the recorder.,Ya hay una cinta en la grabadora.
+WARN_NO_TAPE,Não há fita no gravador.,There's no tape in the recorder.,No hay cinta en la grabadora.
+BADGE_PERFECT,Noites primorosas,Flawless Nights,Noches impecables
+BADGE_PERFECT_DESC,Três noites sem nenhuma advertência do supervisor.,Three nights without a single warning from the supervisor.,Tres noches sin ninguna advertencia del supervisor.
+BADGE_ANGEL,Anjo da guarda,Guardian Angel,Ángel de la guarda
+BADGE_ANGEL_DESC,Dez emergências socorridas antes de a situação piorar.,Ten emergencies handled before things got worse.,Diez emergencias atendidas antes de que la situación empeorara.
+BADGE_DIRECT,Linha direta,Direct Line,Línea directa
+BADGE_DIRECT_DESC,Cinco noites seguidas sem deixar ninguém tocando até desistir.,Five nights in a row without leaving anyone ringing until they gave up.,Cinco noches seguidas sin dejar a nadie sonando hasta que colgara.
+BADGE_TRUNK,Longa distância,Long Distance,Larga distancia
+BADGE_TRUNK_DESC,Quinze ligações interurbanas completadas.,Fifteen long-distance calls put through.,Quince llamadas de larga distancia completadas.
+BADGE_PRANK,Faro de trote,Prank Sniffer,Olfato para bromas
+BADGE_PRANK_DESC,Cinco trotes reconhecidos.,Five prank calls recognized.,Cinco bromas telefónicas reconocidas.
+BADGE_BOOKS,Contas em dia,Books Balanced,Cuentas al día
+BADGE_BOOKS_DESC,"Uma noite com interurbano, todos os bilhetes carimbados e guardados e todas as fichas registradas certo.","A night with long-distance calls, every ticket stamped and filed and every card logged right.","Una noche con larga distancia, todos los boletos sellados y guardados y todas las fichas bien registradas."
+BADGE_RUSH,Hora do rush,Rush Hour,Hora pico
+BADGE_RUSH_DESC,Conceito Bom ou melhor no ritmo mais puxado da central.,A Good grade or better at the exchange's busiest pace.,Concepto Bueno o mejor en el ritmo más intenso de la central.
+BADGE_VETERAN,Veterano,Veteran,Veterano
+BADGE_VETERAN_DESC,Dez noites de trabalho na central.,Ten nights of work at the exchange.,Diez noches de trabajo en la central.
+BADGE_EARNED,Ganho na noite %d,Earned on night %d,Ganado en la noche %d

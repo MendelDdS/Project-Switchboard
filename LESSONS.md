@@ -50,6 +50,22 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   inclinado que os pares de buracos ao lado, que usam um desencontro fixo e estilizado (`PAIR_SHIFT`, a pedido). Na
   prateleira, a referência é `front_of`: tudo o que fica deitado nela segue essa inclinação. Compare a peça nova com o
   que está ao lado, na captura, antes de mostrar.
+- **Na prateleira, a inclinação é a dos pares de plugs; junto da lateral, a da lateral.** Os tampos erraram sete vezes: finos e colados na largura
+  do passo (356), crescendo ao dividir o vão (357), flutuando com a sombra afastada (358), retos (sem angulação, 360) e
+  pelo ponto de fuga da câmera da sala (`_eye`: mais inclinados que os plugs ao lado, 361). O usuário mostrou com
+  riscos: as beiras paralelas à reta de um par (a ponta da frente `PAIR_SHIFT` à esquerda da de trás, `front_of`;
+  `_lean`). E a beira junto da lateral da mesa fica paralela a ela (362: com a inclinação dos plugs, "errou a parte
+  direita novamente"; fugindo dela para o ponto de fuga, pendia mais que a lateral, que está noutra coluna): cada beira
+  copia o ângulo da vizinha dela, medido na vizinha (`_receding` na beira da prateleira). A referência de uma peça
+  deitada é a peça vizinha no mesmo plano, do jeito que o jogo já a desenha, não a conta "de verdade" da câmera; numa
+  dúvida entre as duas, pergunte mostrando as duas. Antes de mostrar, meça o ângulo da vizinha na captura (as listras
+  de luminância por linha) e compare com o da peça. A textura vai junto, esticada
+  linha a linha (`_cover_px`); o que é redondo e pequeno (parafuso) vai por cima, sem esticar (vira serrilhado). Não
+  troque a inclinação para consertar outra coisa (textura, sombra, alinhamento). Texto não se inclina (abaixo).
+  Tamanho e lugar fixos, do espaço que existe; sombra de peça deitada, colada; confira as noites 1, 5 e 9. Alinhar
+  com os plugs também é na altura: os tampos centrados na prateleira e os buracos 4 px abaixo do meio pareciam
+  desencontrados (363); peças lado a lado no mesmo plano dividem o mesmo meio. Imagem do usuário que contradiz a
+  captura: meça a dele (pixels por linha) antes de mexer; um jogo aberto antes da mudança mostra o desenho antigo.
 - **Texto de pixel não se inclina.** As letras da plaquinha deslocadas linha a linha viraram borrão, mesmo a 1/3 da
   inclinação; a placa inclinada com as letras retas ficou "muito ruim". Ficou reta. Peça com texto, reta; sem texto
   (o tampo), na inclinação da prateleira.
@@ -177,6 +193,12 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   (`is_input_handled: !is_inside_tree()`) e as esperas por quadro (`await get_tree().process_frame`) acordavam sem
   árvore (`get_tree()` nulo). Recomece por `Main.restart`: depois do clique, libera a cena velha de uma vez (as esperas
   pendentes somem junto, sem erro) e só então carrega a nova.
+
+- **`await` numa corrotina de Resource às vezes devolve o `GDScriptFunctionState`.** O gerente das burocracias
+  (nó) esperava `await regra.call_started(c)` (Resource) e o `greet` recebia, de vez em quando (1 em 4 rodadas, sem
+  semente), o estado da corrotina no lugar do `bool`: a ligação parava depois da primeira fala. Os ganchos das regras
+  ficaram síncronos (devolvem as falas; o nó as diz). Instabilidade só sem semente: rode o teste várias vezes sem
+  `--seed` antes de confiar nele.
 
 ## Ferramentas e testes
 
@@ -578,3 +600,217 @@ Erros que já aconteceram neste projeto e o que fazer para não repetir.
   ao lado do que está na frente: confira na captura se a silhueta deles sobe acima do que os encobre, não só os metros.
   E "mais alto" não é "o dobro": de 80 a 160 m, passando da ponta da torre, viraram arranha-céus numa cidade pequena
   (pedido 300). Suba o bastante para resolver a queixa, guardando a escala do lugar, e mostre antes de exagerar.
+- **Arredondado de referência se mede na referência.** No visual da mesa (pedido 368), cantos de raio 5 na moldura de
+  5 px pareciam quase retos na escala do jogo, e os de dentro ficaram quadrados (pedido 369). Ao copiar uma forma de
+  uma imagem, meça o raio dela em pixels do jogo (a imagem reduzida para 960×540) e arredonde também o contorno de
+  dentro quando a referência o faz.
+- **A cópia segue o que o usuário aprovou por último.** Ao alinhar o painel do operador com a miniatura dele (pedido
+  374), voltei a miniatura às cores antigas das teclas em vez de levar ao painel o ciano que o usuário tinha acabado de
+  ver e aceitar nela (pedido 375). Quando duas peças precisam bater, pergunte ou parta do visual mais recente aprovado.
+
+## Fio desenhado é imagem montada, não trechos de linha
+Fios curvos em `_pixel_line` por trechos ficavam finos e cheios de furos; carimbando quadrados ao longo da curva,
+engrossavam nas diagonais e o brilho corria pelo comprimento nos trechos em pé (o usuário: "amassados, não
+cilíndricos"). Fio é montado numa imagem guardada pintando cada pixel pela distância dele à linha do meio, de través,
+em faixas de cilindro (beira, brilho do lado da luz, miolo, lado de baixo), com pelo menos 4 px (com 3, o brilho some
+aos pedaços), sem contorno escuro. Plugue e passa-fio pequenos, de frente numa superfície em perspectiva, pareciam
+adesivos: o que fica numa face da sala se desenha no plano dela. "Por trás da máquina" é o fio saindo da traseira,
+nunca por baixo dela; e a mesa é afastada da parede (o fio cai no vão, cortado na beira).
+
+## Conferir a captura contra o que foi pedido antes de mandar
+Mandei uma captura dizendo que o fio do calculógrafo não passava mais por baixo da máquina dele, e na mesma imagem ele
+passava por baixo da quina da unidade de despacho; o usuário viu. Antes de mandar, olhe a captura procurando
+justamente o defeito reclamado, em todos os objetos que o mesmo desenho toca, não só no que foi mexido.
+
+## Canto redondo em desenho projetado precisa de raio de verdade
+Arredondei a tela da miniatura do despacho tirando um pixel de cada canto do desenho de frente; depois da projeção na
+perspectiva (`_project`) o pixel sumia e o usuário viu os cantos quadrados. No objeto da sala, arredonde com raio de
+3 px ou mais no desenho (`_round`), recue a face vizinha que encosta no canto (o alto do painel) e confira na captura
+ampliada, canto por canto.
+
+## "Print" é captura de tela
+O usuário pediu para limpar "os prints desnecessários" e eu tirei `print()` dos testes; ele queria apagar as capturas
+de tela acumuladas em `build/`. Na fala do usuário, "print" é captura; `print()` do código é "log" ou "saída".
+Na dúvida entre os dois sentidos, olhe primeiro o que está mais à vista (pastas cheias de imagens).
+
+## Beira limpa pode sair com dentes no empate do centro do pixel
+Dei a etapa 3 por pronta e o usuário achou dentes (+2, 0) na beira da direita do bloco de fichas. A beira já tinha
+inclinação limpa entre pontos inteiros, e por isso a reta passava exatamente pelos centros dos pixels: o `_project`
+decidia o empate pelo erro da conta. Ao conferir beira, meça os degraus linha a linha na captura (o fim de cada linha),
+não só a olho na ampliação, e desempate sempre do mesmo jeito (`EDGE_EPS`).
+Logo depois ele achou o lado esquerdo do mesmo objeto: consertado um lado, meça todas as beiras dele (as duas
+do tampo, a espessura e a risca da sombra) antes de mandar.
+
+## Razão quase exata põe o degrau diferente no meio
+O `clean_slope` aceitava a razão "quase exata" (n + ½ com o lado curto ímpar) achando que o degrau diferente ia para
+a ponta; a placa de vídeo o põe onde a reta pede, no meio (3-4-3-4-4-3 na lateral da mesa, 2-1-2-2-1 na base do
+relógio). Deixar o canto livre nos dois eixos também não serve: o ponto mais perto entorta as outras beiras. Prefira
+a razão exata andando 1 px no outro eixo (`exact_slope`) ou dobre a beira (`_bent_edge`), e confira imprimindo os
+cantos: a medida pela captura erra onde há textura ou veio da mesa por perto.
+
+## Conserto de pixel não muda a forma do desenho
+Para limpar o moiré dos fios da caixa na parede, troquei os quatro fios caídos em curva por dois fios retos, a 45°,
+e mandei como pronto. O usuário: "tava infinitamente melhor antes [...] os fios retos e sem curvatura, tá muito
+feio". O item do plano dizia "inclinação limpa" e eu o segui ao pé da letra, mas reta limpa serve para beira reta:
+numa curva, o conserto é desenhar a mesma curva pixel a pixel. Se o conserto pede mudar a forma (menos peças, sem
+curva, outro caminho), mostre antes como proposta e pergunte, não entregue como feito.
+
+- **Mudou a ordem do desenho, confira tudo o que era desenhado junto.** Os fios encaixados passaram a sair antes dos
+  plugs guardados, e a beira do buraco, desenhada com cada plug, foi junto por cima dos fios ("os cabos ficaram por
+  baixo do buraco do slot"). Antes de trocar a ordem, liste o que cada passo desenha (plug, beira, sombra, tampa) e
+  capture o fio cruzando cada peça.
+
+- **Ordem de desenho por profundidade: pense em cada fileira.** "Encaixados antes dos guardados" valia para o fio da
+  fileira de trás, mas o da fileira da frente, que nasce na frente dos plugs de trás, sumia atrás deles ("os fios estão
+  ficando por baixo dos plugs também"). Ao ordenar por profundidade, confira o caso de cada fileira na captura.
+
+- **Beira escura dos dois lados é contorno, mesmo na cor da peça.** O fio tinha a beira na própria cor escurecida 65%
+  e ainda lia como linha de desenho ("muito escuras, fogem do visual"). Volume se faz com o lado da luz claro e só o
+  da sombra mais escuro, de leve; o recorte contra o fundo fica com a sombra projetada.
+  Valeu também para o plug encaixado, montado com discos: a beira de cada disco somava um anel escuro, e os gomos
+  escuros da capa, empilhados, uma meia-lua preta. Peça montada por camadas: olhe o que as camadas escuras somam.
+
+- **Redesenho a partir de referência: mantenha a escala do jogo.** Os plugs novos, desenhados "limpos" pela foto,
+  saíram com 36 px de altura ("minúsculos"), e a ponta de metal fina demais. Ao refazer uma peça, compare na captura
+  com a versão anterior e com o que encaixa nela: a ponta do plug tem a largura do furo da tomada, reta até a cabeça
+  (sem degrau) e com o bico arredondado (ponta chata não é pino).
+
+- **Peça que cresce sobre o painel: confira o que ela tapa e o clique de quem está embaixo.** O cotovelo descendo da
+  tomada cobria a chave de escuta e roubava o clique dela (o `test_flow` pegou); a caixa de clique de uma peça na
+  diagonal pega o vizinho, por isso o clique segue a silhueta.
+
+- **Ao trocar o desenho de uma peça, liste o que a versão anterior tinha de bom e mantenha.** O cotovelo novo perdeu a
+  paralaxe do plug encaixado ("perdeu toda aquela lógica realista") e saiu atarracado, com uma bola na cabeça, longe
+  da foto (um tubo só, curva e capa comprida, o fio na linha da capa). Antes de mostrar: captura ampliada lado a lado
+  com a referência e com a versão anterior.
+
+- **Contorno de pixel art: confira o polígono, não só o desenho.** Linhas vazias no mapa do cotovelo faziam o
+  `_art_outline` dar a volta errada; o destaque e o clique viraram um quadradinho, e nenhum teste pegou. Peça com
+  contorno novo: um teste de clique nela.
+
+- **Peça que gira com o fio segue o fio, sem limite fixo de lado.** Forçar a capa da entrada para a esquerda (para
+  livrar a chave de escuta) fazia o fio dar um "V" no pé dela. Se algo precisa ficar livre, incline só o necessário,
+  medido pela geometria, e resolva o resto no clique (a chave ganha da capa).
+
+- **A mesma peça nos dois estados.** O cotovelo ganhou capa flexível, mas o plug em pé (na mão, solto) continuou sem
+  ela: ao tirar da tomada, a capa sumia. Peça com mais de um desenho (em pé, encaixado, girado): mudou um, mude os
+  outros e confira cada um na captura.
+
+- **A mesma peça em dois desenhos tem as mesmas medidas.** A capa em pé saiu com 11 px e 10 de largura, a encaixada
+  com 24 e 8. Ao desenhar uma peça de novo em outro estado, copie as medidas do desenho que já existe (aqui,
+  `ELBOW_LEN`, `ELBOW_W`, `ELBOW_RIBS`) e ponha os dois lado a lado na captura antes de mostrar.
+
+- **Tubo dobrado é um eixo curvo, não peças retas emendadas.** Pescoço reto, bola e capa reta davam um "L" com quina
+  embaixo. Varra o tubo por um eixo curvo com um raio de curva maior que a meia largura; senão a parte de dentro da
+  curva fica com quina.
+
+- **O que pende de um fio vem da física do fio, não de uma regra.** A capa num ângulo calculado (a direção do buraco)
+  deitava mais do que o fio puxava. Peça presa a uma corda: ponha-a na simulação (articulação, peso) e leia o ângulo
+  dela. E a barriga da corda de Verlet é sobretudo o esticar das regras sob o peso; para um fio esticado por
+  contrapeso, tire peso do fio em vez de só tirar folga.
+
+- **Fio reto não pode vir de tirar o peso.** Para tirar a barriga, o fio encaixado passou a pesar 0,15 e pareceu "em
+  gravidade zero". Tensão é o contrapeso puxando (recolher mais fio que o vão), com o peso inteiro; e a mudança de
+  comprimento vai aos poucos, ou a corda de Verlet chicoteia e se enrosca.
+
+## Burocracia: o que as autoridades sabem, e a tela é o canal do jogador
+- **A consequência segue o que o personagem sabe.** Propus que gravar e descartar a fita da ligação marcada contasse
+  como "não gravou" na hora; o usuário lembrou que as autoridades não sabem o que a ligação tinha: só dias depois
+  descobrem que houve ligação suspeita sem gravação, e aí é descuido do telefonista (B4: `found_after`, duas noites).
+  Antes de pôr uma advertência, pergunte quem fica sabendo e quando.
+- **Ler as falas é o jogo.** Propus um sinal na mesa para a ligação marcada, além da linha na conversa: "se o jogador
+  não estiver olhando para os textos, é um problema dele". Não proponha avisos redundantes ao texto da conversa.
+- **Ligação marcada é do roteiro.** Nenhum molde marca ligação como suspeita: só o roteiro (`TransferCall.suspicious`).
+
+## Objeto novo: a medida de verdade e o que ele mostra
+- **Escala entre objetos da mesma mesa.** Desenhei a fita cassete em pé, do tamanho de um plug ou menor; o usuário
+  lembrou que, pela lógica, ela não é tão pequena perto de um plug de áudio. Antes de pôr um objeto novo, confira a
+  medida de verdade contra os vizinhos (o plug tem 72 px, ~1 px/mm) e veja se ele cabe no lugar daquele jeito.
+- **O que se vê precisa existir no aparelho.** No gravador de fenda, pus uma janelinha com as bobinas girando, mas a
+  fita está dentro da fenda: não haveria o que ver ali. Cada mostrador tem que vir de algo físico do aparelho.
+- **Sem lugar, abra espaço; não esprema.** Encolhi o gravador para caber na frente do console e criei uma vista de perto
+  para compensar; o usuário não gostou e alargou a mesa comutadora para abrir uma coluna do tamanho dele. Quando um
+  objeto não cabe na escala de verdade, proponha mudar a disposição antes de miniaturizar ou esconder em outra tela.
+- **Objeto da mesa que não abre ferramenta.** O `_flat` registra tudo o que desenha em `_props` (os objetos de
+  clicar); a pilha de fitas entrou ali, e o mouse sobre ela quebrava o `draw_hover` (sem nome em `PROPS`). O que só
+  ocupa a mesa sai de `_props` depois de desenhado (fica em `_occ`, para a disposição e as sombras).
+- **Texto miúdo no meio de uma tecla.** As letras de `PixelArt.tiny` ficam nas linhas 3 a 7 da textura (em cima, os
+  acentos); pus o texto pela altura da textura e as teclas do gravador saíram com as letras fora do meio. Centre pelas
+  5 linhas das maiúsculas, na frente da tecla abaixo da quina de luz, e use largura com a mesma paridade do texto.
+- **Caixa funda não é retângulo escuro.** O compartimento de fitas era um nicho escuro com as fitas por cima: "chapado,
+  parecem adesivos". Profundidade vem do que o olho veria de cima e da direita: a parede de dentro, o fundo na sombra
+  da borda, o alto e o lado de cada objeto, a sombra dele no fundo e uma beira na frente tapando o pé.
+- **Objeto dentro de um vão não encosta na borda.** Pus as fitas com o alto rente à borda de cima do compartimento e o
+  usuário viu as fitas sobrepondo a borda. O que fica dentro de um vão tem que mostrar o fundo em volta, inclusive
+  em cima; se não couber, esconda o pé atrás de uma beira em vez de subir o objeto.
+- **Obstáculo que aparece embaixo de um fio esticado.** Os pinos (`Cord.pegs`) supunham que o fio chega ao plug pelo
+  lado; um plug encaixado bem sob um fio esticado o prendia por dentro, batendo sem parar (o usuário viu). Todo
+  obstáculo novo da física tem que ser testado aparecendo *debaixo* do que já está parado, não só no caminho.
+- **Profundidade que não se vê não existe.** A paralaxe dos plugs encaixados estava "estilizada" em 0,014 px por px
+  (no máximo ~8 px, quase sempre 1–2) e o usuário não via nada; um colar de metal discreto também não resolveu. Ao
+  ajustar um efeito de profundidade, compare as pontas (o mais perto e o mais longe dos olhos) lado a lado na captura:
+  se a diferença não salta aos olhos sem explicação, está fraco. E os detalhes do objeto em pé (a faixa na cor do
+  cabo) têm que sobreviver na outra pose.
+- **Profundidade é volume, não deslocamento.** Aumentar a paralaxe de um objeto chapado só alongou o pescoço do plug
+  ("zero profundidade, o cotovelo piorou"). O que vende a profundidade: anéis em elipse (a faixa, os frisos), a luz
+  pela normal 3D, o que está mais à frente cobrindo o resto, a parte de metal na boca. E uma projeção de viés aplicada
+  a cada ponto da superfície estica as seções redondas (o tubo engrossava longe dos olhos): projete o eixo e desenhe
+  a seção com largura fixa. Detalhe do objeto (a faixa colorida) fica na peça certa (a parte dura, não a borracha).
+- **Mudar um obstáculo da física mexe em todos os fios.** Ao trocar os discos de esbarrão do plug, revise as capturas
+  com fios passando por cima de vários plugs: o pescoço deitado virou prateleira e o fio serpenteou.
+- **Um `await` longo num nó prende as variáveis locais depois de o nó sair.** A espera de 60 s do `Main.ring` segurava
+  a ligação depois do `restart`: espera longa com um objeto na mão vai por `timer.timeout.connect(f.bind(obj))`, que
+  cai com o nó. Ao caçar vazamento num teste, nada de `wait_until` com lambda que guarda o objeto: o lambda fica na
+  pilha do teste suspenso e o objeto parece vazado.
+- **Algo deitado na prateleira perto da lateral segue a lateral, não os plugs.** A almofada dos broches pegou a
+  inclinação dos pares de plugs (`_lean`) e o usuário viu que destoava da prateleira: perto do fim dela, a referência
+  é a lateral da mesa (`_receding`, como o tampo dos equipamentos). Meça a inclinação na captura contra a beira ao
+  lado antes de entregar. E o que depende dos olhos (`Switchboard._eye`, que muda depois do primeiro quadro) entra no
+  estado comparado, ou fica desenhado com os olhos errados.
+- **Erro visual num sentido só: procure o arredondamento antes de mexer na pose.** As pernas de quem ia para a
+  esquerda pareciam para trás; adiantei o quadril (`HIP_AHEAD`) para todos e quem ia para a direita ficou com as
+  pernas na frente. A causa era a perna de 2 px no `_limb`, que crescia sempre para a direita. Capture os dois
+  sentidos lado a lado antes e depois de cada ajuste. E carro que para na rua por muito tempo estaciona junto do
+  meio-fio: parado no meio da faixa, o usuário estranhou.
+- **Figura pequena não é desculpa para pouco detalhe.** O vigia da noite 9 (~9 px por metro) saiu em silhueta de
+  peças, com braços de 1 px e chapéu, e o usuário recusou ("parece uma aranha"). Membro de 1 px numa figura de frente
+  vira pata. Use o caminho do rig (`_draw_pixels`): pixel a pixel, membros de 2 px, tons (pele, cabelo, roupa, beira
+  acesa), colunas simétricas. Releia a seção de qualidade do `PLANO_RUA.md` antes de mostrar uma cena.
+- **Símbolo nacional real fica de fora das cenas.** O carro de som saiu com a bandeira do Brasil no cartaz e o usuário
+  pediu um brasão genérico. Na rua, insígnia, bandeira e frase de verdade viram emblema neutro (brasão redondo, letras
+  inventadas na pichação, caminhão sem estrela).
+- **Peça presa num carro segue o eixo dele.** As cornetas do carro de som, apontadas em diagonal, pareciam tortas e
+  viradas para o jogador; e crescer o que já estava aprovado em tamanho também foi recusado. Objeto montado em veículo
+  fica alinhado ao comprimento dele, no tamanho da primeira versão aprovada, salvo pedido.
+- **Antes de entregar um veículo novo, meça a folga entre as rodas na captura ampliada.** As rodas de trás do
+  caminhão saíram uma em cima da outra (os arcos têm 2 px a mais que o pneu). E figura dentro de um vão: confira que
+  nada a corta (a lona enrolada comia os capacetes) e que linhas finas repetidas (fuzis, postes, cinto) não viram
+  grade ou cruz.
+- **Elemento novo da fachada não pode cair em cima de outro.** A vitrine do térreo do hotel, quando acesa, aparecia
+  atrás da porta, como duas portas. Ao mexer perto da porta, da marquise ou do bar, capture com as vitrines acesas
+  (começo do turno) e apagadas.
+- **Andar até um lugar: no passo, freando só no fim.** A curva "out" no caminho inteiro fazia o pintor perder
+  velocidade desde longe. Use `Beating.walk`. E numa perseguição, quem persegue chega depois de o perseguido sumir,
+  senão não é crível que não o viu.
+- **Figura da cena da rua na frente dos postes de lá vem depois deles no desenho.** Os postes eram desenhados por
+  cima de todos, e os homens da banca, na frente deles, ficavam atrás. E ação com objeto (pôr no porta-malas) precisa
+  do objeto mudando (a tampa abrindo) e de quem age à vista, sem nada que o tape.
+- **Figura atrás de um carro, mexendo nele, some debaixo dele.** O carro é desenhado depois das figuras e com a
+  profundidade encolhida (`CAR_DEPTH`): o que a figura faz por cima dele (pôr algo no porta-malas) precisa ser
+  desenhado de novo depois do carro, recortado da altura dele para cima. Confira na captura ampliada se a mão e o
+  objeto chegam dentro, não só se a pessoa está perto.
+- **Carro parado na rua de lá: encostado no meio-fio.** Com a profundidade encolhida (`CAR_DEPTH`), um carro no meio da
+  mão (ou em `PATROL_Z`) parece parado no meio da avenida; quem estaciona encosta (z ~7,45 m, o lado de lá passando do
+  meio-fio, que não se vê) e chega a ele freando (`"park"`). E cena de fuga é rápida e à vista: sem coreografia de
+  carga, gente atravessando com pressa até a porta do lado da calçada.
+- **`Beating.walk` freia no fim.** Emendar vários trechos dele faz a pessoa desacelerar a cada um (e trocar o "out" do
+  último por "lin" deixa o trecho de freio na metade da velocidade). Quem anda sem parar por um caminho com curvas: um
+  momento "lin" por ponto, o tempo pela distância; a pose (virar, olhar para trás) muda no momento do ponto.
+- **Luz na vista é `Bloom`, não tinta.** Um ponto colorido com um clarão misturado ao céu (`_light_fan` em mistura
+  normal) parece mancha, não luz: o que acende (poste, letreiro, sinalizador) entra no `Bloom` pela camada `_over`
+  (halo somado e o miolo estourando para o branco), com a posição no estado dela. E tom que muda a cada quadro na
+  cidade vai no `modulate`, nunca no `_day` (as luzes dela se dividem por ele e a `_back` não se redesenha junto).
+- **Ponto de luz forte no céu não é `Bloom`.** O halo em degraus dele, bom em lâmpada pequena, num ponto sozinho no
+  céu vira um disco de beira marcada. Luz que precisa parecer luz: miolo estourando no branco, halo liso somado
+  (imagem montada pixel a pixel, força no `modulate`), estouro ao acender, cintilação irregular, e o efeito dela na
+  sala (a janela projetada, pela camada do sol). Foram três tentativas até o usuário aceitar a direção.

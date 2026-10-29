@@ -8,11 +8,11 @@ extends Node
 
 const VOL := {
 	"click": -14.0, "sw": -10.0, "plug_in": -3.0, "plug_out": -9.0, "key": -13.0, "page": -11.0,
-	"tick": -24.0, "knob_tick": -20.0, "pencil": -13.0, "ring": -9.0, "pulse": -10.0, "ringback": -13.0, "sit": -13.0,
-	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "set_paper": -27.0, "set_metal": -27.0, "blind": -17.0, "gulp": -19.0, "locker": -15.0, "bike_bell": -24.0, "car_door": -21.0, "rub": -13.0, "cord_stop": -16.0, "cord_tap": -17.0, "cord_snag": -18.0, "cord_snap": -21.0, "unroll": -8.0,
-	"typing": -13.0, "printer": -14.0, "punch": -8.0, "feed": -11.0, "read": -14.0, "shred": -10.0, "deny": -14.0,
+	"tick": -24.0, "knob_tick": -20.0, "pencil": -13.0, "ring": -9.0, "ringback": -13.0, "sit": -13.0,
+	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "set_paper": -27.0, "set_metal": -27.0, "blind": -17.0, "gulp": -19.0, "locker": -15.0, "bike_bell": -24.0, "car_door": -21.0, "rub": -13.0, "cord_stop": -16.0, "cord_tap": -17.0, "cord_knock": -19.0, "cord_snag": -18.0, "cord_snap": -21.0, "unroll": -8.0,
+	"typing": -13.0, "printer": -14.0, "punch": -8.0, "snap": -12.0, "tape_out": -16.0, "tape_in": -8.0, "tape_door": -10.0, "tape_key": -11.0, "tape_pop": -9.0, "feed": -11.0, "read": -14.0, "shred": -10.0, "deny": -14.0,
 	"chime": -11.0, "shift_bell": -13.0, "car": -15.0, "car_near": -13.0, "car_wet": -14.0, "car_wet_near": -12.0, "thunder": -8.0,
-	"bell": -15.0, "sabia": -24.0, "rattle": -17.0, "dog": -27.0, "dog_low": -28.0, "lamp_tick": -27.0,
+	"bell": -15.0, "speaker": -12.0, "sabia": -24.0, "rattle": -17.0, "footfall": -24.0, "flyers": -22.0, "spray": -27.0, "flare": -20.0, "army": -6.0, "dog": -27.0, "dog_low": -28.0, "lamp_tick": -27.0,
 }
 ## Volume (dB) dos sons de ambiente em cada clima; o que não aparece fica mudo.
 const WEATHER_MIX := {
@@ -54,7 +54,7 @@ const BELL_STEP := 0.006
 
 ## Sons mecânicos que se repetem muito (plugs, fios): cada vez sai com o tom e o volume levemente diferentes
 ## (± VARY_PITCH, ± VARY_DB), para a mesa cheia não soar como uma máquina.
-const VARIED := ["plug_in", "plug_out", "thump", "drop", "cord_stop", "cord_tap", "cord_snag", "cord_snap", "click", "punch", "lamp_tick", "knob_tick"]
+const VARIED := ["plug_in", "plug_out", "thump", "drop", "cord_stop", "cord_tap", "cord_knock", "cord_snag", "cord_snap", "click", "punch", "lamp_tick", "knob_tick", "snap"]
 ## O zumbido da luminária acesa (dB; era -40, alto demais).
 const LAMP_BUZZ := -44.0
 ## O zumbido elétrico de 60 Hz da sala, a noite toda (dB; era -29, depois -37: tom grave e constante, cansava, sobretudo em fone),
@@ -246,7 +246,7 @@ func _free(players: Array) -> Node:
 ## `p`: AudioStreamPlayer ou AudioStreamPlayer2D.
 func _start(p: Node, id: String, db: float, pitch: float) -> void:
 	p.stream = streams[_take(id)]
-	p.bus = SfxSynth.VOICE[id[2]]["bus"] if id.begins_with("s_") else (&"Voices" if id == "crackle" else &"Effects")
+	p.bus = SfxSynth.VOICE[id[2]]["bus"] if id.begins_with("s_") else {"crackle": &"Voices", "snap": &"Phone"}.get(id, &"Effects")
 	if id in VARIED:
 		db += _rng.randf_range(-VARY_DB, VARY_DB)
 		pitch *= 1.0 + _rng.randf_range(-VARY_PITCH, VARY_PITCH)
@@ -261,13 +261,6 @@ func _start(p: Node, id: String, db: float, pitch: float) -> void:
 func _take(id: String) -> String:
 	var k := _rng.randi() % int(_takes.get(id, 1))
 	return id if k == 0 else "%s~%d" % [id, k]
-
-
-func later(t: float, id: String, db: float = 0.0) -> void:
-	if t <= 0.0:
-		play(id, db)
-		return
-	get_tree().create_timer(t).timeout.connect(play.bind(id, db))
 
 
 func start_ambience(w: String) -> void:
@@ -469,24 +462,6 @@ func _ring_burst() -> void:
 	_ring_turn = (_ring_turn + 1) % lines.size()
 	var n: int = lines[_ring_turn]
 	_ring_player = play_at("ring", _bells[n], 0.0, 1.0 + (n - 5.5) * BELL_STEP)
-
-
-## Discagem por pulsos. Retorna a duração em segundos.
-func dial(num: String) -> float:
-	var t := 0.0
-	for ch in num:
-		var n := 10 if ch == "0" else int(ch)
-		for i in n:
-			later(t, "pulse")
-			t += 0.075
-		t += 0.35
-	return t
-
-
-func ringback(times: int) -> float:
-	for i in times:
-		later(i * 2.0, "ringback")
-	return times * 2.0
 
 
 ## Fala o caractere i de `text`: cada grupo de vogais dispara uma sílaba (ritmo de fala, estilo Papers, Please), com

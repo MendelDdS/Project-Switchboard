@@ -482,7 +482,7 @@ func _screen() -> Rect2:
 	return Rect2(r.position.x + 16.0, r.position.y + 12.0, r.size.x - 16.0 - 150.0, r.size.y - 40.0)
 
 
-## A máquina: a caixa de metal das do despacho (`CardMachines.box`) com o painel dos contadores (um por entrada, com a
+## A máquina: a caixa de plástico das do despacho (`CardMachines.box`) com o painel oliva dos contadores (um por entrada, com a
 ## plaquinha, os tambores dos minutos, `_counter`, e a lâmpada acesa enquanto conta), a placa, a luz âmbar acesa
 ## enquanto conta algum e, embaixo, a fenda de onde sai o bilhete; apoiada na mesa pelos pés de borracha. Sem relógio:
 ## o da mesa da sala, ao lado, já dá a hora.
@@ -492,15 +492,14 @@ func _draw_machine() -> void:
 	var r := Rect2(Vector2.ZERO, ci.size - Vector2(2, 2)).abs()
 	CardMachines.box(ci, r)
 	var screen := _screen()
-	Switchboard.rim(ci, screen, Pal.PANEL_LO, Pal.PANEL_HI)   # rebaixado
-	ci.draw_rect(screen, Pal.PANEL_LO)
+	Switchboard.rim(ci, screen, Pal.SHELL[2], Pal.SHELL[7])   # rebaixado
+	ci.draw_rect(screen, Pal.BOARD_INSET)
 	var cell := (screen.size / Vector2(COUNTER_COLS, ceilf(float(Exchange.LINES) / COUNTER_COLS))).floor()
 	for n in range(1, Exchange.LINES + 1):
 		var o := screen.position + Vector2((n - 1) % COUNTER_COLS, (n - 1) / COUNTER_COLS) * cell + Vector2(roundf((cell.x - 62.0) / 2.0), 0)   # no meio da célula
 		var plate := Rect2(o.x + 3.0, o.y + roundf((cell.y - 13.0) / 2.0), 18, 13)   # a plaquinha da entrada
-		ci.draw_rect(plate, Pal.BRASS)
-		ci.draw_rect(plate.grow(-1.0), Pal.BRASS.darkened(0.25))
-		PunchCard.write(ci, Vector2(plate.position.x, plate.end.y - 3.0), "%02d" % n, Pal.INK, plate.size.x, HORIZONTAL_ALIGNMENT_CENTER)
+		Switchboard.round_rect(ci, plate, Pal.BOARD_TAG, [1])   # creme, como as plaquinhas das linhas na mesa
+		PunchCard.write(ci, Vector2(plate.position.x, plate.end.y - 3.0), "%02d" % n, Pal.BOARD_STRIP, plate.size.x, HORIZONTAL_ALIGNMENT_CENTER)
 		var win := Rect2(plate.end.x + 3.0, o.y + roundf((cell.y - DRUM.y - 2.0) / 2.0), DRUMS * (DRUM.x + 1.0) + 1.0, DRUM.y + 2.0)
 		_counter(ci, win, n)
 		CardMachines.led(ci, Vector2(win.end.x + 4.0, win.position.y + 5.0), counting(n), Pal.AMBER)
@@ -798,8 +797,8 @@ static func _felt(sz: Vector2i) -> ImageTexture:
 
 
 ## A mesa: a almofada de tinta (a lata de níquel com a tampa aberta atrás, o feltro e o brilho da tinta molhada, `_wet`)
-## e a caixinha de madeira, aberta, com a beira de cima de cada bilhete guardado (até alguns: a faixa do formulário e,
-## nos carimbados, a ponta da marca) e a plaqueta de latão na frente.
+## e a caixinha, uma bandeja de plástico oliva aberta, com a beira de cima de cada bilhete guardado (até alguns: a faixa
+## do formulário e, nos carimbados, a ponta da marca) e a etiqueta creme impressa na frente.
 func _draw_desk() -> void:
 	var ci := _desk
 	var pad := _pad()
@@ -823,8 +822,8 @@ func _draw_desk() -> void:
 	for line: Rect2 in [Rect2(12, 5, 46, 1), Rect2(20, 7, 24, 1), Rect2(84, 21, 30, 1), Rect2(92, 23, 12, 1)]:
 		ci.draw_rect(Rect2(felt.position + line.position, line.size), sheen)
 	var r := _box()
-	ci.draw_rect(Rect2(r.position + Vector2(3, 4), r.size), Color(0, 0, 0, 0.35))
-	ci.draw_rect(r, Pal.BOARD[2])
+	Switchboard.round_rect(ci, Rect2(r.position + Vector2(3, 4), r.size), Color(0, 0, 0, 0.35))
+	Switchboard.round_rect(ci, r, Pal.BOARD_METAL[2])
 	var inside := Rect2(r.position + Vector2(5, 4), Vector2(r.size.x - 10.0, BOX_MOUTH - 4.0))
 	ci.draw_rect(inside, Pal.TOLL_BOX_MOUTH)
 	for i in range(mini(_filed.size(), 10) - 1, -1, -1):   # os bilhetes de pé lá dentro, do fundo para a frente (o último na frente)
@@ -835,10 +834,10 @@ func _draw_desk() -> void:
 		if _filed[_filed.size() - 1 - i]:
 			ci.draw_rect(Rect2(tk.position.x + roundf(tk.size.x * 0.55), tk.position.y + 1.0, 5, 1), Pal.TOLL_INK.darkened(k))   # a ponta da marca
 	var front := Rect2(r.position.x, inside.end.y, r.size.x, r.end.y - inside.end.y)
-	ci.draw_rect(front, Pal.BOARD[1])
-	ci.draw_rect(Rect2(front.position, Vector2(front.size.x, 2)), Pal.BOARD[0])
-	ci.draw_rect(Rect2(front.position.x, front.end.y - 2.0, front.size.x, 2), Pal.BOARD[2])
-	var brass := Rect2(floorf(front.get_center().x - 50.0), front.position.y + roundf(front.size.y / 2.0) - 9.0, 100, 18)
-	ci.draw_rect(brass, Pal.BRASS)
-	ci.draw_rect(brass.grow(-1.0), Pal.BRASS.darkened(0.25))
-	PunchCard.write(ci, Vector2(brass.position.x, brass.position.y + 13.0), T.text(T.Key.TOLL_BOX), Pal.INK, brass.size.x, HORIZONTAL_ALIGNMENT_CENTER)
+	Switchboard.round_rect(ci, front, Pal.BOARD_FACE)
+	ci.draw_rect(Rect2(front.position.x + 2.0, front.position.y, front.size.x - 4.0, 2), Pal.BOARD_METAL[5])   # a quina de cima, na luz
+	ci.draw_rect(Rect2(front.position.x + 2.0, front.end.y - 2.0, front.size.x - 4.0, 2), Pal.BOARD_METAL[1])
+	var tag := Rect2(floorf(front.get_center().x - 50.0), front.position.y + roundf(front.size.y / 2.0) - 9.0, 100, 18)
+	Switchboard.round_rect(ci, tag.grow(1.0), Pal.BOARD_INSET)
+	Switchboard.round_rect(ci, tag, Pal.BOARD_TAG)
+	PunchCard.write(ci, Vector2(tag.position.x, tag.position.y + 13.0), T.text(T.Key.TOLL_BOX), Pal.BOARD_STRIP, tag.size.x, HORIZONTAL_ALIGNMENT_CENTER)

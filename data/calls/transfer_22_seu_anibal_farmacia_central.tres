@@ -7,6 +7,7 @@ script = ExtResource("1_v0vlb")
 group = 2
 voice = "w"
 caller = "Seu Aníbal"
+caller_name = "Aníbal Correia"
 opening = PackedStringArray("Boa noite. Me liga com a Farmácia Central, a da praça?", "Preciso de um remédio pra pressão.")
 repeat = "A Farmácia Central. Na Praça da Matriz."
 target = "118"

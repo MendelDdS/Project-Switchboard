@@ -53,6 +53,12 @@ static func pick(list: PackedStringArray) -> String:
 	return list[randi() % list.size()] if not list.is_empty() else ""
 
 
+## Nome e sobrenome de quem liga num molde (B1): um dos de `caller_names` para a descrição `caller` ("" se não há).
+static func caller_name(caller: String) -> String:
+	return pick(PackedStringArray(Array(CONTENT.caller_names).filter(func(n: String): return n.begins_with(caller + ":")))) \
+		.get_slice(":", 1)
+
+
 static func street(id: String) -> Street:
 	for s in CONTENT.streets:
 		if s.id == id:
@@ -104,6 +110,7 @@ static func trunk_transfer(exclude: Array = []) -> TransferCall:
 	t.group = TransferCall.Group.EXTRA
 	t.voice = who[0]
 	t.caller = who[1]
+	t.caller_name = caller_name(who[1])
 	for l in tpl.opening:
 		t.opening.append(fill(l, vars))
 	t.repeat = fill(tpl.repeat, vars)
@@ -148,6 +155,7 @@ static func template_transfer(exclude: Array = []) -> TransferCall:
 	t.group = TransferCall.Group.EXTRA
 	t.voice = who[0]
 	t.caller = who[1]
+	t.caller_name = caller_name(who[1])
 	for l in tpl.opening:
 		t.opening.append(fill(l, vars))
 	t.repeat = fill(tpl.repeat, vars)

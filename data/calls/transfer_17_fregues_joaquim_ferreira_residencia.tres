@@ -7,6 +7,7 @@ script = ExtResource("1_ncdxd")
 group = 1
 voice = "m"
 caller = "Freguês"
+caller_name = "Rubens Macedo"
 opening = PackedStringArray("O seu Joaquim Ferreira, por favor.", "Na casa dele. O armazém já fechou a essa hora.")
 repeat = "Na casa do Joaquim Ferreira. Não no armazém."
 target = "291"

@@ -187,6 +187,18 @@ func _initialize() -> void:
 		ok(int(t.target) in nums and (t.alt_target == "" or int(t.alt_target) in nums), "destino existe: " + t.resource_path)
 		ok(t.alt_target == "" or GameData.entry(t.target).category != "" and GameData.entry(t.alt_target).category == GameData.entry(t.target).category,
 			"alternativa do mesmo ramo: " + t.resource_path)
+	# B1: quem liga tem nome e sobrenome, sem apelido nem tratamento; toda descrição dos moldes tem nome
+	var treat := RegEx.create_from_string("^(Seu|Dona|Sr\\.|Sra\\.|Dr\\.|Dra\\.|Doutor|Doutora|Padre) ")
+	var named := func(n: String): return n.split(" ").size() >= 2 and treat.search(n) == null
+	var calls: Array = C.transfers.duplicate()
+	for n: Night in C.nights:
+		calls.append_array(n.story.map(func(st: StoryCall): return st.call).filter(func(x): return x is TransferCall))
+	for t: TransferCall in calls:
+		ok(named.call(t.caller_name), "quem liga sem nome e sobrenome, ou com tratamento: " + t.resource_path)
+	for n in C.caller_names:
+		ok(named.call(n.get_slice(":", 1)), "nome de molde sem sobrenome, ou com tratamento: " + n)
+	for w in C.callers:
+		ok(GameData.caller_name(w.get_slice(":", 1)) != "", "descrição de molde sem nome em caller_names: " + w)
 	# todo ramo tem pelo menos dois estabelecimentos no mesmo setor (a alternativa existe desde a entrega do setor)
 	for d in C.directory.filter(func(d: DirectoryEntry): return d.category != ""):
 		ok(C.directory.any(func(o: DirectoryEntry): return o != d and o.category == d.category and o.number.left(1) == d.number.left(1)),
@@ -279,4 +291,56 @@ func _initialize() -> void:
 	_check_destinations()
 	_check_flags()
 	_check_po()
+	_check_street()
 	finish("conteúdo")
+
+
+## A cena da rua (`Beating`): na hora em que ainda passa gente para assistir, e no fim os dois fora do vidro e todo o
+## sangue no chão.
+func _check_street() -> void:
+	var beating: GDScript = load("res://scripts/ui/beating.gd")
+	for n: Night in GameData.CONTENT.nights:
+		for e in n.street_events:
+			ok(e.at >= 0.0 and e.at < n.shift_end and e.every >= 0.0, "cena da rua dentro do turno")
+			if e.kind in ["beating", "speaker", "chase", "flyers", "newsstand", "parade", "moving"]:   # (as que têm gente na calçada reagindo)
+				ok(e.at + Main.SHIFT_START_HOUR * 60 < Background.WALK_UNTIL - 30.0, "cena da rua com gente na calçada")
+			if e.kind == "newsstand":   # (com a banca ainda aberta)
+				ok(e.at + Main.SHIFT_START_HOUR * 60 < Background.NEWSSTAND_SHUT.x - 10.0, "a banca fechada antes da hora dela")
+	var marks := {}   # a tinta por cima numa noite depois da pichação
+	for i in GameData.CONTENT.nights.size():
+		for e in GameData.CONTENT.nights[i].street_events:
+			marks[e.kind] = i
+	ok(not marks.has("paint") or marks.get("graffiti", INF) < marks["paint"], "a tinta por cima depois da pichação")
+	var stand: GDScript = load("res://scripts/ui/newsstand.gd")
+	var shut: Vector3 = stand.state(1e5)
+	ok(shut == Vector3(1, 0, 1) and stand.state(0.0).y == 1.0, "a banca esvaziada, fechada e lacrada no fim")
+	ok(stand.figures(stand.wait() + stand.ARRIVE - 0.1).size() == 1, "os dois homens no carro antes de ele sair")
+	var tag: GDScript = load("res://scripts/ui/graffiti.gd")
+	ok(tag.tag(tag.SPRAY_END).size() == tag._paint_order().size() and tag.tag(tag.SPRAY_AT - 0.01).is_empty(), "a pichação no tempo do spray")
+	ok(tag.tagger(1e5).is_empty() and tag.painter(1e5).is_empty(), "o pichador e o pintor saem da vista")
+	var kiosk: GDScript = load("res://scripts/ui/newsstand.gd")
+	kiosk.state(0.0)
+	ok(kiosk._puts.size() == 4 and kiosk._puts.all(func(p: float) -> bool: return kiosk.lid(p) == 1.0) and kiosk.lid(kiosk._in.min()) == 0.0,
+		"o porta-malas aberto a cada pilha e fechado antes de os homens entrarem")
+	var moving: GDScript = load("res://scripts/ui/moving.gd")
+	moving.figures(0.0)
+	var last: float = moving._in.values().max()
+	ok(moving.figures(last).is_empty() and last < moving.ARRIVE + moving.wait(), "a família entra na Kombi antes de ela sair")
+	ok(moving.FAMILY_AT > moving.DARK_AT, "a luz do apartamento apaga antes de a família descer")
+	ok(moving.laundry(moving.DARK_AT) == 0 and moving.balcony(moving.DARK_AT).x < -1.5, "a roupa recolhida antes de a luz apagar")
+	var flare: GDScript = load("res://scripts/ui/flare.gd")
+	ok(flare.at(flare.RISE).z == flare.APEX and flare.light(flare.RISE - 0.1) == 0.0 and flare.light(flare.RISE + 1.0) > 0.0, "o sinalizador acende no alto")
+	ok(flare.light(flare.RISE + flare.BURN) == 0.0 and flare.at(flare.RISE + flare.BURN).z > 0.0, "o sinalizador apaga ainda no ar")
+	ok(flare.smoke(flare.END + 0.1).is_empty(), "a fumaça do sinalizador some")
+	ok(flare.light(flare.RISE + 0.12) > 1.5 and flare.light(flare.RISE + 5.0) < 1.01, "o sinalizador estoura ao acender e assenta")
+	ok(range(60).all(func(i: int) -> bool: var t: float = flare.RISE + i * 0.8; return flare.glow(t) <= flare.light(t) and flare.glow(t) == flare.glow(t)), "a cintilação só apaga, e é a mesma a cada vez")
+	var flyers: GDScript = load("res://scripts/ui/flyers.gd")
+	ok(flyers.ground(1e5).all(func(f: Vector3) -> bool: return f.y < flyers.SIDEWALK.x or absf(f.x) >= flyers.VIEW), "os varredores limpam a calçada à vista")
+	ok(flyers.figures(1e5).is_empty(), "os varredores saem da vista")
+	var chase: GDScript = load("res://scripts/ui/chase.gd")
+	var door: float = chase._young_keys()[-1][0]
+	ok(chase.MEN_START.all(func(t0: float) -> bool: return t0 > door), "os homens da corrida chegam depois de o rapaz entrar")
+	ok(chase.figures(chase.END - 0.01).all(func(f: Dictionary) -> bool: return f["x"] < -12.0), "os homens da corrida saem pela esquerda")
+	var end: float = beating.END
+	ok(beating.officer(end)["x"] > 11.0 and beating.victim(end)["x"] > 10.0, "o policial e o homem saem da vista")
+	ok(beating.drops(end).all(func(d: Array) -> bool: return d[1] == 0.0), "o sangue todo no chão no fim")

@@ -5,6 +5,7 @@
 [resource]
 script = ExtResource("1_da3kq")
 caller = "Dona Olga"
+caller_name = "Olga Miranda"
 opening = PackedStringArray("Boa noite, meu filho.", "Me liga com a rádio? Quero mandar um recado pro meu filho que trabalha na roça. Ele escuta o programa da noite.")
 repeat = "A Rádio Serena."
 target = "390"

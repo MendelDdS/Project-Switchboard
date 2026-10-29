@@ -5,9 +5,9 @@ extends Control
 ## três teclas e o rádio, cada um no lugar e na proporção que tem lá) e o estado: a tela acende com uma ligação no
 ## painel e as falas viram traços, as teclas ativas acendem, e o rádio acende as luzes dele e mostra traços quando fala.
 
-const WOOD := PhonePanel.WOOD
-const SCREEN := Color(0.043, 0.047, 0.05)   # o fundo das telas (`HudPanel`)
-const BORDER := Color(0.1, 0.07, 0.045)
+const SHELL := [Pal.SHELL[5], Pal.SHELL[3], Pal.SHELL[2]]   # a moldura dela, no esmalte do console (luz, meio, sombra)
+const SCREEN := Pal.BOARD_INSET   # o fundo das telas (`HudPanel`), no oliva escuro do painel da mesa
+const BORDER := Pal.BOARD_SIDE
 const INK := {"op": Color("8dbb6c"), "sys": Color("9a917a"), "ghost": Color("c6d3c4")}   # a cor de quem fala, como na tela
 const TEXT := Color("e6dbbd")
 
@@ -27,12 +27,12 @@ func _draw() -> void:
 	var at := func(c: Control) -> Rect2:   # o lugar de um bloco do painel, na miniatura
 		var g := c.get_global_rect()
 		return Rect2((o + (g.position - src.position) * k).round(), (g.size * k).round())
-	# o console: a madeira, com a beira escura e a quina de cima pegando a luz
+	# a moldura: o esmalte, com a beira escura e a quina de cima pegando a luz
 	var body := Rect2(o - Vector2(4, 3), src.size * k + Vector2(8, 6)).abs()
 	draw_rect(Rect2(body.position + Vector2(1, 2), body.size), Color(0, 0, 0, 0.35))
-	Switchboard.rim(self, body, WOOD[3], WOOD[3].darkened(0.4))
-	draw_rect(body, WOOD[3])
-	draw_rect(Rect2(body.position, Vector2(body.size.x, 1)), WOOD[0])
+	Switchboard.rim(self, body, SHELL[2], SHELL[2].darkened(0.4))
+	draw_rect(body, SHELL[1])
+	draw_rect(Rect2(body.position, Vector2(body.size.x, 1)), SHELL[0])
 	_screen(at.call(phone.screen))
 	for b in phone.keys():
 		_key(at.call(b), b)
@@ -58,27 +58,31 @@ func _screen(r: Rect2) -> void:
 			draw_rect(Rect2(inner.position.x + name_w + 2.0, y, roundf(w), 1), INK["sys"] if l["cls"] == "sys" else TEXT)
 	else:
 		draw_rect(inner, Color(0, 0, 0, 0.45))
-		if fmod(PixelArt.ms() / 1000.0, ScreenGlass.BLINK * 2.0) < ScreenGlass.BLINK:   # o cursor esperando
-			draw_rect(Rect2(inner.position + Vector2(2, 2), Vector2(1, 2)), ScreenGlass.IDLE_INK)
+		# o aviso de espera em traço, do comprimento dele na tela, e o cursor piscando depois (só o cursor, num retângulo
+		# escuro, parecia uma tela desligada sem função)
+		var w := roundf(T.text(T.Key.CONSOLE_IDLE).length() * _char_w() * r.size.x / maxf(1.0, phone.screen.size.x))
+		draw_rect(Rect2(inner.position + Vector2(2, 3), Vector2(w, 1)), ScreenGlass.IDLE_INK)
+		if fmod(PixelArt.ms() / 1000.0, ScreenGlass.BLINK * 2.0) < ScreenGlass.BLINK:
+			draw_rect(Rect2(inner.position + Vector2(3 + w, 2), Vector2(1, 2)), ScreenGlass.IDLE_INK)
 	var x := inner.position.x + inner.size.x * 0.62   # o reflexo do vidro
 	draw_colored_polygon(PackedVector2Array([Vector2(x, inner.position.y), Vector2(x + 4, inner.position.y),
 		Vector2(x + 1, inner.end.y), Vector2(x - 3, inner.end.y)]), Color(1, 1, 1, 0.05))
 
 
-## Uma tecla como a do painel (`KeyCapStyle`): a chapa de metal, a etiqueta de latão no alto e, no meio do espaço
-## embaixo dela, a tecla na cor dela (apagada, escura) com a frente mais escura.
+## Uma tecla como a do painel (`KeyCapStyle`): a chapa oliva, a etiqueta creme no alto e, no meio do espaço embaixo
+## dela, a tecla na cor dela (apagada, escura) com a frente mais escura.
 func _key(r: Rect2, b: Button) -> void:
 	var cap := b.get_theme_stylebox("normal") as KeyCapStyle
 	var col: Color = cap.color if cap else Pal.AMBER
 	if b.disabled:
 		col = col.darkened(0.55)
-	draw_rect(r, Color.BLACK)
-	draw_rect(r.grow(-1), KeyCapStyle.METAL[1].darkened(0.5))
-	draw_rect(Rect2(r.position.x + 2, r.position.y + 2, r.size.x - 4, 2), KeyCapStyle.BRASS[1])
+	draw_rect(r, Pal.BOARD_INSET)
+	draw_rect(r.grow(-1), Pal.BOARD_METAL[3])
+	draw_rect(Rect2(r.position.x + 2, r.position.y + 2, r.size.x - 4, 2), Pal.BOARD_TAG)
 	var room := Rect2(r.position.x, r.position.y + 5, r.size.x, r.size.y - 6)
 	var kh := minf(room.size.y, roundf(KeyCapStyle.WELL_H * r.size.y / maxf(1.0, b.size.y)))
 	var key := Rect2(r.position.x + 2, roundf(room.get_center().y - kh / 2.0), r.size.x - 4, kh)
-	draw_rect(key, Color.BLACK)
+	draw_rect(key, Pal.BOARD_INSET)
 	draw_rect(Rect2(key.position + Vector2(1, 1), key.size - Vector2(2, 3)), col)
 	draw_rect(Rect2(key.position + Vector2(1, 1), Vector2(key.size.x - 2, 1)), col.lightened(0.3))
 
@@ -103,7 +107,7 @@ func _radio(at: Callable) -> void:
 		var label: Label = p[key]
 		var lr: Rect2 = at.call(label)
 		draw_rect(Rect2(lr.position.x, roundf(lr.get_center().y), lr.size.x, 1), Color(Pal.DIM, 0.6) * label.modulate)   # o rótulo tem a largura do texto
-	draw_rect(at.call(p["box"]), Color(0.03, 0.045, 0.035))
+	draw_rect(at.call(p["box"]), Pal.BOARD_METAL[0])   # a tela do rádio (`ScreenBox`)
 	var k: float = (at.call(radio) as Rect2).size.x / maxf(1.0, radio.size.x)
 	var lines := radio.lines()
 	var now: Array = lines.pop_back()

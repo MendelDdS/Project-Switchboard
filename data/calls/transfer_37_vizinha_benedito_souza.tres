@@ -6,6 +6,7 @@
 script = ExtResource("1_d0x3r")
 group = 2
 caller = "Vizinha"
+caller_name = "Irene Fagundes"
 opening = PackedStringArray("Central, me liga com o seu Benedito Souza?", "Sou vizinha dele. A luz da casa tá acesa e ele não atende a porta.")
 repeat = "O seu Benedito Souza, da Rua do Sol."
 target = "271"

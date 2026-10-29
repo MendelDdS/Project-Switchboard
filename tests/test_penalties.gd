@@ -72,7 +72,6 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return _said(r1, C.retry_missed)), "reclamou que ninguém atendeu")
 	m.hangup()
 	_clear_board()
-	print("OK 1 não atendida / liga de novo")
 
 	# ---- 2. número errado: quem atende reclama; na segunda vez o solicitante desiste
 	var c2 := PhoneCall.from_transfer(load("res://data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres"))
@@ -91,7 +90,6 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return c2.ended), "desistiu na segunda conexão errada")
 	ok(_said(c2, C.gave_up) and not c2.connected and _faults("wrong_number") == 2, "duas advertências, sem conexão")
 	_clear_board()
-	print("OK 2 número errado / desiste na segunda")
 
 	# ---- 2b. número errado com o FONE fora: foi engano, os dois desligam e o solicitante liga de novo
 	var c2b := PhoneCall.from_transfer(load("res://data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres"))
@@ -112,7 +110,6 @@ func _initialize() -> void:
 	ok(_said(r2b, C.retry_wrong_number), "reclamou do número errado")
 	m.hangup()
 	_clear_board()
-	print("OK 2b número errado com o FONE fora / liga de novo")
 
 	# ---- 2c. o mesmo fluxo liga de novo também numa ligação que já era um retorno e perto do fim do turno (o
 	#          retorno nunca fica para depois da meia-noite)
@@ -138,7 +135,6 @@ func _initialize() -> void:
 		m.sched.erase(again[0])
 		_clear_board()
 	m.minutes = 0.0
-	print("OK 2c número errado com o FONE fora: retorno e fim do turno")
 
 	# ---- 3. registro com tipo errado
 	var nb = m.notebook
@@ -157,7 +153,6 @@ func _initialize() -> void:
 	nb.add(prank.call())
 	nb.register(T.Key.TYPE_PRANK)
 	ok(_faults("register_wrong") == before + 1, "tipo certo não gera advertência")
-	print("OK 3 registro errado")
 
 	# ---- 4. despacho no endereço errado: rádio reclama, unidades voltam, a pessoa liga de novo e dá para refazer
 	var e4: EmergencyCall = C.emergencies[0]
@@ -188,7 +183,6 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return m.report.is_resolved(e4), 20.0), "resolvida no segundo despacho")
 	ok(m.report.outcomes()[e4] == ShiftReport.Outcome.LATE, "no jornal: com atraso")
 	_clear_board()
-	print("OK 4 despacho errado / liga de novo / novo despacho")
 
 	# ---- 5. emergência encerrada sem despacho; quando liga de novo já é tarde
 	var e5: EmergencyCall = C.emergencies[1]
@@ -204,7 +198,6 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return r5.ended), "tarde demais: desligou")
 	ok(_said(r5, C.retry_too_late) and m.report.outcomes()[e5] == ShiftReport.Outcome.BAD, "no jornal: ninguém foi")
 	_clear_board()
-	print("OK 5 sem despacho / tarde demais")
 
 	# ---- 6. espera longa: a pessoa desiste
 	var c6 := PhoneCall.from_transfer(GameData.transfers(TransferCall.Group.EXTRA)[1])
@@ -217,7 +210,6 @@ func _initialize() -> void:
 	ok(c6.ended and _faults("hold") == 1, "desistiu na espera")
 	ok(m.sched.any(func(r): return r.retry == PhoneCall.Retry.MISSED and r.caller == c6.caller), "vai ligar de novo")
 	_clear_board()
-	print("OK 6 espera longa")
 
 	# ---- 7. informação errada: advertência leve e a pessoa liga de novo
 	var c7 := PhoneCall.info("f", "Moça", "Qual é o número do Hotel Estrela?", "o Hotel Estrela", "305")
@@ -233,7 +225,6 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return _said(r7, C.retry_wrong_info)), "reclamou da informação")
 	m.hangup()
 	_clear_board()
-	print("OK 7 informação errada")
 
 	# ---- 8. cartão em branco (ninguém sai); depois, no lugar certo, com unidade a mais e sem o tipo perfurado
 	var e8: EmergencyCall = C.emergencies.filter(func(x): return Array(x.units) == ["amb"])[0]
@@ -259,7 +250,6 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return m.dispatch.fleet.units["bomb"] == 0, 30.0) and m.dispatch.fleet.units["amb"] != 0,
 		"bombeiros liberados antes da ambulância")
 	_clear_board()
-	print("OK 8 cartão em branco / unidade a mais / sem tipo")
 
 	# ---- 9. relatório do supervisor
 	var view = m._ending._report
@@ -281,10 +271,14 @@ func _initialize() -> void:
 	ok(m.report.fired(), "a segunda seguida abaixo do mínimo: demitido")
 	view.show_report(m.report)
 	ok(view._verdict.get_parsed_text() == tr(C.verdict_fired), "parecer da demissão")
-	print("OK 9 relatório (%d advertências)" % m.report.faults.size())
 
 	# ---- 9b. a eficiência e o conceito, pela conta (sem o turno)
+	var last := GameData.CONTENT.nights.size()   # (a última noite; a 0, o treinamento, fica fora da lista)
+	ok(is_equal_approx(ShiftReport.rigor(1), ShiftReport.RIGOR.x) and is_equal_approx(ShiftReport.rigor(last), ShiftReport.RIGOR.y)
+		and is_equal_approx(ShiftReport.rigor(9), 1.0), "o rigor sobe da noite 1 à última (1 na noite 9)")
+	ok(range(2, last + 1).all(func(n): return ShiftReport.rigor(n) > ShiftReport.rigor(n - 1)), "o rigor só aumenta")
 	var r := ShiftReport.new()
+	r.night = 9   # (rigor 1: a conta crua)
 	ok(r.efficiency() == 1.0 and r.grade() == ShiftReport.Grade.GREAT, "sem nada anotado: 1, Ótimo")
 	r.credit("transfer", "18:10")
 	r.credit("transfer", "18:20")
@@ -295,6 +289,12 @@ func _initialize() -> void:
 	r.add("missed", "18:50")
 	ok(r.positives() == 35 and r.negatives() == 18 and is_equal_approx(r.efficiency(), 35.0 / 53.0), "a conta: 35 ÷ (35 + 18)")
 	ok(r.grade() == ShiftReport.Grade.FAIR and r.low_nights() == 0, "Regular: no mínimo, zera a contagem")
+	r.night = 1
+	ok(is_equal_approx(r.efficiency(), 35.0 / (35.0 + 18.0 * ShiftReport.RIGOR.x)) and r.grade() == ShiftReport.Grade.GOOD,
+		"na noite 1 o mesmo turno pesa menos: Bom")
+	r.night = last
+	ok(r.grade() == ShiftReport.Grade.POOR, "na última, Insuficiente")
+	r.night = 9
 	r.low_before = 1
 	ok(r.low_nights() == 0, "uma noite no mínimo zera a de antes")
 	r.add("dispatch_wrong_place", "19:00")
@@ -304,7 +304,49 @@ func _initialize() -> void:
 		r2.credit("emergency_ok", "19:00")
 	r2.add("emergency_lost", "20:00")
 	ok(r2.efficiency() >= ShiftReport.GRADE_MIN[0] and r2.grade() == ShiftReport.Grade.POOR, "emergência perdida: Insuficiente com eficiência alta")
-	print("OK 9b eficiência e conceito")
+	# ---- 9c. os broches (`Badges.award`): contas somadas noite a noite no `Progress`
+	var B := preload("res://scripts/model/badges.gd")
+	var pg := Progress.new()
+	var clean := ShiftReport.new()
+	clean.credit("trunk", "18:10")
+	clean.credit("prank", "18:20")
+	ok(B.award(pg, clean, 0, 1).is_empty() and pg.tally.is_empty(), "o treinamento não conta")
+	ok(B.award(pg, clean, 1, 1) == ["contas"], "noite sem advertência com interurbano: Contas em dia")
+	B.award(pg, clean, 2, 1)
+	var missed := ShiftReport.new()
+	missed.add("missed", "19:00")
+	B.award(pg, missed, 3, 1)
+	ok(not pg.badges.has("primorosas") and pg.tally["direct"] == 0, "a não atendida zera a Linha direta e não é primorosa")
+	ok(B.award(pg, clean, 4, 1).has("primorosas") and pg.badges["primorosas"] == 4, "a terceira noite perfeita (não seguidas) na noite 4")
+	for n in range(5, 9):
+		B.award(pg, clean, n, 1)
+	ok(pg.badges.has("linha_direta") and pg.badges.has("faro") and not pg.badges.has("longa_distancia"), "cinco seguidas sem perder; cinco trotes; oito interurbanos ainda não")
+	ok(B.award(pg, clean, 10, GameData.CONTENT.paces.size()).has("rush") and pg.badges.has("veterano"), "Bom no ritmo máximo e a noite 10")
+	ok(B.award(pg, clean, 11, 1).is_empty(), "cada broche vem uma vez")
+	# ---- 9d. o save (`Progress`): versão, gravação segura e o que não dá para ler, guardado ao lado
+	var sp := "user://test_progress.cfg"
+	pg.save(sp)
+	var back := Progress.load_saved(sp)
+	ok(back.aside == "" and back.night == pg.night and back.badges == pg.badges and not FileAccess.file_exists(sp + ".tmp"),
+		"o save volta igual, sem o temporário")
+	var old := ConfigFile.new()   # um save de antes da versão: lido como a 1
+	old.set_value("progress", "night", 4)
+	old.save(sp)
+	ok(Progress.load_saved(sp).night == 4, "o save sem versão é lido")
+	var newer := ConfigFile.new()
+	newer.set_value("progress", "version", Progress.VERSION + 1)
+	newer.set_value("progress", "night", 7)
+	newer.save(sp)
+	var got := Progress.load_saved(sp)
+	ok(got.night == 0 and got.aside != "" and FileAccess.file_exists(got.aside) and not FileAccess.file_exists(sp),
+		"o save de versão mais nova fica guardado ao lado e o jogo começa do zero (%s)" % got.aside)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(got.aside))
+	var bad := FileAccess.open(sp, FileAccess.WRITE)
+	bad.store_string("[progress\nnight = ")
+	bad.close()
+	got = Progress.load_saved(sp)
+	ok(got.night == 0 and got.aside.contains("corrompido") and FileAccess.file_exists(got.aside), "o save corrompido também")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(got.aside))
 
 	# ---- 10. barra de agravamento (o relógio está parado: a barra anda por Urgency.tick chamado à mão)
 	# um caso em que cada estágio pede uma unidade nova (para ver quando ela passa a contar)
@@ -394,7 +436,6 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return c11.ended, 20.0) and m.report.faults.size() == faults11, "despachou depois: nenhuma advertência a mais")
 	ok(m.report.outcomes()[e11] == ShiftReport.Outcome.BAD, "no jornal: ruim")
 	ok(m.report.grade() == ShiftReport.Grade.POOR, "gravíssima: Insuficiente")
-	print("OK 10 barra de agravamento")
 
 	# ---- 11. fim do turno: última ligação às 23:40, meia-noite que espera quem está na linha, botão Encerrar
 	_clear_board()
@@ -438,5 +479,4 @@ func _initialize() -> void:
 	ok(m.ending and sc.ended and _faults("shift_hung_up") == hung + 1, "encerrou com alguém na linha: advertência")
 	ok(_faults("register_missing") == unreg + 1, "sem registro só a que já tinha acabado")
 	ok(_faults("toll_forgotten") == forgot + 1, "bilhete esquecido na mesa: advertência leve")
-	print("OK 11 fim do turno")
 	finish("consequências e relatório")

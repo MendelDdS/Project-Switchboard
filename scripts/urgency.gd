@@ -2,7 +2,8 @@ class_name Urgency
 extends Node
 ## As barras de agravamento das emergências em andamento (`Main.emergencies`, até duas; nó filho de Main). A situação piora até o socorro
 ## completo sair para o lugar certo (despacho incompleto ou no endereço errado não para a barra), mesmo com a ligação em
-## espera ou já desligada; só para durante pergunta e resposta e na pausa do jogo. Com o operador fora da linha dela, o
+## espera ou já desligada; só para durante pergunta e resposta, com uma máquina do despacho trabalhando
+## (`CardMachines.working`: imprimindo, transmitindo ou triturando; as duas barras, se houver duas) e na pausa do jogo. Com o operador fora da linha dela, o
 ## rádio inteiro avisa (`Radio.alert`). Cada estágio pode exigir unidades novas, mas só depois de alguém contar o que
 ## mudou (`told`); o último (perdida) já pune e piora o jornal, mas ainda dá para despachar. Quem liga de novo não tem
 ## barra. O estado fica na `PhoneCall` (`stage`, `urgency`, `told`); o desenho, em `UrgencyBar` (a da linha do FONE).
@@ -46,7 +47,7 @@ func tick(delta: float) -> void:
 ## A barra de `c` anda; ao mudar de estágio, quem está na linha (ou o rádio) conta o que piorou.
 func _advance(c: PhoneCall, delta: float) -> void:
 	var e: EmergencyCall = c.data
-	if not frozen:
+	if not frozen and not main.dispatch.machines.working():
 		c.urgency += delta
 	if c.urgency < [e.stage_sec.x, e.stage_sec.x + e.stage_sec.y, e.stage_sec.x + e.stage_sec.y + e.stage_sec.z][c.stage]:
 		return
