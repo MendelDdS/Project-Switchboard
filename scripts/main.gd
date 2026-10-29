@@ -128,10 +128,11 @@ func _ready() -> void:
 	if night.clears_at >= 0.0:
 		background.clears_at = SHIFT_START_HOUR * 60 + night.clears_at
 	background.night = night_no
-	if night.street_scene == "beating":
-		background.beating = SHIFT_START_HOUR * 60 + night.street_scene_at
-	elif night.street_scene == "police":
-		background.police = SHIFT_START_HOUR * 60 + night.street_scene_at
+	for e in night.street_events:   # (as que voltam, de tantos em tantos minutos até o fim do turno)
+		var at := e.at
+		while at < night.shift_end:
+			background.schedule(e.kind, SHIFT_START_HOUR * 60 + at)
+			at = at + e.every if e.every > 0.0 else INF
 	notebook.night = night_no
 	toll.night = night_no
 	_update_room()

@@ -817,6 +817,10 @@ func _events(delta: float) -> void:
 			_onlookers()
 	elif _beat_t >= 0.0:
 		_beat_t = minf(_beat_t + delta, Beating.END)
+	if _look_t < 0.0 and not lookout_at.is_empty() and minutes >= lookout_at[0]:   # o vigia (`LOOKOUT_*`): na hora (passada, fica para a próxima)
+		_look_t = 0.0 if minutes < lookout_at.pop_front() + 2.0 else -1.0
+	elif _look_t >= 0.0:
+		_look_t = _look_t + delta if _look_t + delta < LOOKOUT_KEYS[-1][0] else -1.0
 	var scene := minutes >= beating - 3.0 and _beat_t < Beating.END
 	for lane in CAR_LANES.size():   # um carro por vez em cada mão, cada uma no seu tempo
 		_car_in[lane] -= delta
@@ -1032,6 +1036,23 @@ func _patrol_car() -> Dictionary:
 	for i in 2:
 		slams.append_array([PATROL_OUT[i] + 0.6, PATROL_BACK[i] + GUEST.z + 0.4])
 	return {"police": true, "taxi": false, "rack": false, "tones": Pal.CAR_TONES[5], "wait": PATROL_WAIT, "slams": slams, "z": PATROL_Z}
+
+
+## Marca a cena da rua `kind` (`StreetEvent`) para `at` (min do dia; o Main põe as da noite).
+func schedule(kind: String, at: float) -> void:
+	match kind:
+		"beating":
+			beating = at
+		"police":
+			police = at
+		"lookout":
+			lookout_at.append(at)
+
+
+## O vigia aparecendo no terraço agora (debug), como na noite 9.
+func start_lookout() -> void:
+	lookout_at.push_front(minutes)
+	_look_t = -1.0
 
 
 ## A viatura parando no hotel agora (debug), como na noite 7.

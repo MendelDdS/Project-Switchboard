@@ -2670,3 +2670,24 @@ Chaves:
 457. #pedestres "Está a mesma coisa, e pessoas caminhando da direita pra esquerda continua com as pernas para frente."
     Com a perna centrada (456), o quadril adiantado (`HIP_AHEAD`, do 455) passou a pôr as pernas na frente nos dois
     sentidos: saiu, e o quadril volta ao meio do tronco.
+458. #vista #noites "Da primeira lista implemente 1 (dias 9 à 14), 3 (no caso, o homem de macacão pinta 3 dias
+    depois), 6 (nesse caso, um carro passa jogando os panfletos), 8 e 10. Da segunda lista implemente 5, 8, 9 (no dia
+    9, de hora em hora o homem aparece no terraço do Hotel e observa a rua [...]). Não precisa implementar tudo de uma
+    vez. Crie um .md para implementar esses eventos por vez" e "Deixe claro no documento que precisa ter detalhes e
+    boas animações". `PLANO_RUA.md`: o passo 0 (várias cenas por noite, `StreetEvent`) e as oito cenas, uma por vez,
+    com a seção de qualidade (animação fluida, movimento orgânico, detalhe, som, marca que fica, conferência visual).
+459. #vista #noites "Pode começar" (o `PLANO_RUA.md`). Passo 0: `StreetEvent` (`kind`, `at`, `every`) e
+    `Night.street_events` no lugar de `street_scene`; o Main desdobra as repetições e chama `Background.schedule`.
+    Cena H, o vigia da noite 9 (`LOOKOUT_*`, `_draw_lookout`): às 19h, 20h, 21h, 22h e 23h, em silhueta contra o céu,
+    vem de trás até a platibanda do hotel, vira a cabeça de um lado ao outro, debruça-se com as mãos nela, ergue o
+    binóculo (os cotovelos abertos) e varre a rua, e volta (26 s). Encostado nela: mais atrás, a platibanda o
+    escondia quase inteiro. Os braços espelhados pela coluna do corpo (como a perna no 456).
+460. #vista #noites "O boneco não está detalhado como eu pedi! Ele tá com os braços super finos, parece uma aranha do
+    que um homem, tire o chapéu também". O vigia (`_draw_lookout`) deixou a silhueta de peças (`_body`, braços de 1 px)
+    e é montado pixel a pixel, de frente, em colunas simétricas: a capa escura com a beira mais escura, as mangas de
+    2 px e as mãos, a cabeça sem chapéu (cabelo em cima e, virada, na nuca, com o nariz para o lado), o binóculo no
+    rosto; a beira de cima acesa pelo céu (`_draw_pixels`, separado do `_draw_rig`). Num degrau junto da platibanda,
+    subindo aos poucos: aparece do peito para cima.
+461. #vista #noites "Está sem braços, a cabeça não precisa ficar tão baixa". Caídas, as mangas ficavam por cima da
+    capa e sumiam nela: saem por fora do tronco, mais claras, com os cotovelos um pouco abertos (um vão de céu até o
+    corpo) e a costura da capa mais escura. A cabeça sobe uma fileira, sobre o pescoço na sombra do queixo.

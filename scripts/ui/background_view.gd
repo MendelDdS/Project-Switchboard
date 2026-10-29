@@ -112,6 +112,15 @@ const GUEST := Vector3(0.5, 1.2, 3.6)
 ## dois policiais descem do lado da calçada (`PATROL_OUT`: quando cada um, s depois de parar; a porta bate logo
 ## depois), andam até a porta do hotel em `GUEST.z` s e entram (`_draw_patrol`); saem (`PATROL_BACK`), voltam para
 ## ela, entram, e ela vai embora.
+## O vigia no terraço do hotel (`StreetEvent` "lookout", a noite 9, de hora em hora): vem de trás da caixa d'água até a
+## platibanda, olha a rua de um lado ao outro, debruça-se nela, ergue o binóculo e varre a rua, e volta para trás. Só a
+## silhueta contra o céu, de chapéu e capa (`_draw_lookout`). As poses (`LOOKOUT_KEYS`, suavizadas de uma a outra):
+## [s, atrás da fachada (m), cabeça (-1 virada para a esquerda, 1 para a direita), debruçado (0..1), binóculo (0..1)].
+const LOOKOUT_X := -5.4
+const LOOKOUT_KEYS := [[0.0, 4.5, 0, 0, 0], [4.0, 0.25, 0, 0, 0], [5.5, 0.25, 0, 0, 0], [7.0, 0.25, -1, 0, 0],
+	[8.5, 0.25, -1, 0, 0], [10.5, 0.25, 1, 0, 0], [11.5, 0.25, 1, 0, 0], [12.5, 0.08, 0, 1, 0], [15.0, 0.08, 0, 1, 0],
+	[16.0, 0.25, 0, 0, 1], [17.5, 0.25, -1, 0, 1], [20.0, 0.25, 1, 0, 1], [21.0, 0.25, 1, 0, 0], [22.0, 0.25, 0, 0, 0],
+	[26.0, 4.5, 0, 0, 0]]   # (encostado na platibanda: vista de baixo, cada palmo para trás esconde mais dele)
 const PATROL_KIND := "sedan"
 const PATROL_Z := STREET["far_curb"] - 0.95   ## estacionada: as rodas de lá junto do meio-fio (vem já por essa linha, sem manobra)
 const PATROL_WORD := "POLÍCIA"   ## o letreiro na porta branca
@@ -392,6 +401,8 @@ var _indoor := Vector3(-1.0, 0.0, 1.0)   # alguém passando atrás de uma janela
 var _smoke_t := -1.0   # há quanto tempo alguém saiu para fumar na varanda (s; -1 = ninguém)
 var beating := INF     ## quando começa a cena da rua (`Beating`, a noite 3; min do dia; o Main põe)
 var police := INF      ## quando a viatura vem parar no hotel (`PATROL_*`, a noite 7; min do dia; o Main põe)
+var lookout_at: Array[float] = []   ## quando o vigia aparece no terraço do hotel (`LOOKOUT_*`, a noite 9; min do dia; o Main põe)
+var _look_t := -1.0    # há quanto tempo ele apareceu (s; -1 = não está)
 var _beat_t := -1.0    # há quanto tempo ela começou (s; -1 = ainda não; `Beating.END`: acabou, o sangue fica no chão)
 var _cat_for := -1     # a noite do `_cat_plan`
 var _cat_plan := Vector4.ZERO   # o gato desta noite: x 1 se vier, y onde (0 marquise, 1 gradil), de z a w (min do dia)
@@ -1036,6 +1047,7 @@ func _draw_city_front(g: Rect2) -> void:
 					_mirror(g, wv.x - 0.9, wv.x + 0.9, 2.6, _sunny(Pal.CITY_LIT[int(wv.x + wv.y) % Pal.CITY_LIT.size()]), a)
 		_mirror(g, CROSSING.y + 0.5, CROSSING.y + 2.5, 2.5, _sunny(Pal.BAR_LIGHT[1]), a)   # a vitrine do bar e a porta do hotel, sempre acesas
 		_mirror(g, HOTEL_X - 0.6, HOTEL_X + 0.6, 2.3, _sunny(Pal.HOTEL_DOOR[1]), a)
+	_draw_lookout(g)
 	_draw_sign_wash(g)
 	_draw_hotel_sign(g)
 	_draw_balcony_front(g)
@@ -2552,6 +2564,74 @@ func _draw_guest(g: Rect2) -> void:
 		_figure((_o(g, x, z) * 2.0).floor(), parts, Pal.SILHOUETTE, clip)
 
 
+## O vigia no terraço do hotel (`LOOKOUT_*`), no instante `_look_t`: escuro contra o céu, cortado na beira da
+## platibanda, a beira de cima acesa pelo céu (`_draw_pixels`). Vindo e voltando, anda (a passada de frente, `_gait`: o
+## corpo sobe e desce) e afunda atrás dela; parado, vira a cabeça devagar, debruça (o corpo desce e as mãos vão à
+## platibanda, os cotovelos abertos) e ergue o binóculo (os cotovelos sobem, as mãos no rosto). Pixel a pixel, de
+## frente para nós, em colunas simétricas (o corpo de -w a w-1; o lado direito espelhado no esquerdo): a capa escura,
+## mais escura na beira; as mangas de 2 px saindo do ombro, e as mãos; a cabeça sem chapéu, o cabelo em cima e,
+## virada, na nuca, com o nariz apontando para o lado; o binóculo escuro no rosto. Junto da platibanda, sobe num degrau:
+## vista de baixo, ela o escondia até o peito.
+func _draw_lookout(g: Rect2) -> void:
+	if _look_t < 0.0:
+		return
+	var i := 1
+	while i < LOOKOUT_KEYS.size() - 1 and LOOKOUT_KEYS[i][0] < _look_t:
+		i += 1
+	var a: Array = LOOKOUT_KEYS[i - 1]
+	var b: Array = LOOKOUT_KEYS[i]
+	var u := smoothstep(a[0], b[0], _look_t)
+	var pose := []
+	for j in range(1, 5):
+		pose.append(lerpf(a[j], b[j], u))
+	var top := 0.0   # a altura do prédio do hotel
+	for h: Dictionary in _houses:
+		if h["x0"] <= LOOKOUT_X and LOOKOUT_X <= h["x1"]:
+			top = h["h"]
+	var ff: float = STREET["far"]
+	var z: float = ff + pose[0]
+	var k := OUT_F / z * 2.0
+	var foot := (_o(g, LOOKOUT_X, z, top - 0.8 + 0.3 * clampf(1.0 - (pose[0] - 0.25) / 0.75, 0.0, 1.0)) * 2.0).floor()   # no chão do terraço, atrás da platibanda (junto dela, subindo no degrau)
+	var walking: bool = absf(a[1] - b[1]) > 1.0   # (debruçar também o traz para a frente, sem passos)
+	var gait := _gait(int(_look_t * WALK_STEPS * STRIDE.size()) if walking else -1, k, 1.0, true)
+	var lean: float = pose[2]
+	var glass: float = pose[3]
+	var drop := roundi(gait["drop"]) + roundi(lean * 0.08 * k)
+	var y := func(m: float) -> int: return -roundi(m * k) + drop
+	var w := maxi(2, roundi(0.21 * k))
+	var coat := Pal.LOOKOUT_COAT
+	var skin := Pal.lit(Pal.WALK_SKIN[1], -2)
+	var half := {}   # o lado direito (x >= 0)
+	var sh: int = y.call(1.4)   # o alto dos ombros
+	for row in range(sh, y.call(0.62) + 1):   # a capa, mais escura na beira (a costura da manga)
+		for x in w:
+			half[Vector2i(x, row)] = Pal.lit(coat, -2) if x == w - 1 else coat
+	var elbow := Vector2(0.3, 1.1).lerp(Vector2(0.36, 1.02), lean).lerp(Vector2(0.32, 1.34), glass)   # caídos, as mãos na platibanda ou o binóculo no rosto
+	var hand := Vector2(0.33, 0.84).lerp(Vector2(0.3, 0.88), lean).lerp(Vector2(0.13, 1.58), glass)
+	var arm := [Vector2(w, sh), Vector2(maxf(w, roundf(elbow.x * k)), y.call(elbow.y)), Vector2(roundf(hand.x * k), y.call(hand.y))]
+	_stamp(half, arm, 2, Pal.lit(coat, 2))   # a manga, de 2 px, por fora do tronco e mais clara que ele (caída, com um vão até ele)
+	half.erase(Vector2i(w + 1, sh))   # (o ombro arredondado)
+	_stamp(half, [arm[2], arm[2]], 1, skin)   # a mão
+	var pix := {}
+	for at: Vector2i in half:   # (espelhado pela coluna: o corpo vai de -w a w-1)
+		pix[at] = half[at]
+		pix[Vector2i(-1 - at.x, at.y)] = half[at]
+	var turn := roundi(pose[1])   # a cabeça, sobre o pescoço: -1 virada para a esquerda, 1 para a direita
+	for x in [-1, 0]:
+		pix[Vector2i(x, sh - 1)] = Pal.lit(skin, -2)   # o pescoço, na sombra do queixo
+		pix[Vector2i(x, sh - 2)] = skin
+		pix[Vector2i(x, sh - 3)] = skin
+		pix[Vector2i(x, sh - 4)] = Pal.LOOKOUT_DARK   # o cabelo, em cima...
+	if turn != 0:   # ...e na nuca, do lado de lá; o nariz para o lado dela
+		pix[Vector2i(0 if turn < 0 else -1, sh - 3)] = Pal.LOOKOUT_DARK
+		pix[Vector2i(-2 if turn < 0 else 1, sh - 2)] = skin
+	if glass > 0.5:   # o binóculo nos olhos, entre as mãos
+		for x in [-1, 0]:
+			pix[Vector2i(x, sh - 3)] = Pal.LOOKOUT_DARK
+	var clip := Rect2(foot.x - 40.0, 0.0, 80.0, floorf(_o(g, LOOKOUT_X, ff, top).y * 2.0))   # só o que passa da platibanda
+	_draw_pixels(foot, pix, k, Pal.CAR_SKY.lightened(0.3), 0.6, 1.0, clip)
+
+
 ## Os dois policiais da viatura parada no hotel (`PATROL_*`): descem do lado da calçada (o da frente e o de trás),
 ## andam até a porta acesa embaixo da marquise e somem nela; depois saem e voltam para ela, de frente para nós. Como o
 ## policial da noite 3 (`_draw_rig`). Antes dos carros (a viatura fica na frente deles).
@@ -3250,7 +3330,6 @@ func _draw_rig(g: Rect2, p: Dictionary, clip := Rect2()) -> void:
 	var reach := 0.3 + 0.6 * lying
 	if not clip.has_area():
 		_poly(PackedVector2Array([_o(g, x - reach, z), _o(g, x + reach, z), _o(g, x + reach, z + 0.2), _o(g, x - reach, z + 0.2)]), Color(0, 0, 0, 0.35))
-	var pix := _rig_pixels(p, k)
 	var glow := 0.0   # o poste mais perto: até 3 m dele
 	var side := 1.0
 	for lx: float in FAR_LAMPS:
@@ -3258,7 +3337,13 @@ func _draw_rig(g: Rect2, p: Dictionary, clip := Rect2()) -> void:
 		if near > glow:
 			glow = near
 			side = 1.0 if lx >= x else -1.0
-	var rim := Pal.SILHOUETTE.lerp(RIM, 0.45)
+	_draw_pixels(foot, _rig_pixels(p, k), k, RIM, glow, side, clip)
+
+
+## Pinta os pixels `pix` (px a partir de `foot`: a cor de cada um) em fileiras, com a beira de cima e o lado `side`
+## acesos pela luz `light` (`glow` de 0 a 1), cortados em `clip` (`_rig_run`).
+func _draw_pixels(foot: Vector2, pix: Dictionary, k: float, light: Color, glow: float, side: float, clip := Rect2()) -> void:
+	var rim := Pal.SILHOUETTE.lerp(light, 0.45)
 	var rows := {}   # y: os x da fileira, em ordem, para juntar os vizinhos da mesma cor
 	for at: Vector2i in pix:
 		if not rows.has(at.y):
@@ -3270,7 +3355,7 @@ func _draw_rig(g: Rect2, p: Dictionary, clip := Rect2()) -> void:
 		var run := Rect2()
 		var run_col := Color()
 		for px: int in xs:
-			var c: Color = (pix[Vector2i(px, y)] as Color).lerp(RIM, 0.15 * glow)
+			var c: Color = (pix[Vector2i(px, y)] as Color).lerp(light, 0.15 * glow)
 			if glow > 0.0 and (not pix.has(Vector2i(px, y - 1)) or not pix.has(Vector2i(px + int(side), y))):   # a beira acesa
 				c = c.lerp(rim, glow * 0.8)
 			if run.size.x > 0.0 and px == int(run.end.x) and c == run_col:

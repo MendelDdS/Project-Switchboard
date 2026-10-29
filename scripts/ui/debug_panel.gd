@@ -108,6 +108,7 @@ func _ready() -> void:
 	_row([["Carro na mão de lá", func(): main.background.pass_car(0, kind.call())],
 		["Carro na mão de cá", func(): main.background.pass_car(1, kind.call())]])
 	_row([["Policial batendo no pedestre (noite 3)", func(): main.background.start_beating()], ["Viatura no hotel (noite 7)", func(): main.background.call_police()]])
+	_row([["Vigia no terraço (noite 9)", func(): main.background.start_lookout()]])
 	_section("Noites", func(): _go_night(1))
 	_row([["◀ Noite anterior", func(): _go_night(main.night_no - 1)], ["Próxima noite ▶", func(): _go_night(main.night_no + 1)]])
 	_row([["Amanhecer (última noite, 4h)", func(): _go_night(C.nights.size(), 10 * 60.0)]])

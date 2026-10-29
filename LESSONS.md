@@ -772,3 +772,7 @@ curva, outro caminho), mostre antes como proposta e pergunte, não entregue como
   pernas na frente. A causa era a perna de 2 px no `_limb`, que crescia sempre para a direita. Capture os dois
   sentidos lado a lado antes e depois de cada ajuste. E carro que para na rua por muito tempo estaciona junto do
   meio-fio: parado no meio da faixa, o usuário estranhou.
+- **Figura pequena não é desculpa para pouco detalhe.** O vigia da noite 9 (~9 px por metro) saiu em silhueta de
+  peças, com braços de 1 px e chapéu, e o usuário recusou ("parece uma aranha"). Membro de 1 px numa figura de frente
+  vira pata. Use o caminho do rig (`_draw_pixels`): pixel a pixel, membros de 2 px, tons (pele, cabelo, roupa, beira
+  acesa), colunas simétricas. Releia a seção de qualidade do `PLANO_RUA.md` antes de mostrar uma cena.

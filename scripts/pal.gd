@@ -316,6 +316,9 @@ const COP_BELT := Color("0c0c0e")
 const BATON := Color("0a0a0c")
 const SHIRT := Color("78725f")
 const SHIRT_PANTS := Color("2c2820")
+## O vigia no terraço do hotel (`Background.LOOKOUT_*`): a capa, o binóculo e o cabelo
+const LOOKOUT_COAT := Color("16161b")
+const LOOKOUT_DARK := Color("0c0c10")
 const BLOOD: Array[Color] = [Color("2a0606"), Color("440a0a"), Color("6a1410")]
 const AWNINGS: Array[Color] = [Color("4a1c1c"), Color("1e3a2c"), Color("2a3048")]   ## os toldos de lona das lojas de lá (desbotados pela noite)
 const SHOP_BOARD := Color("1a1410")   ## a tábua da placa em cima da vitrine, com as letras só sugeridas (`_draw_far_house`)
