@@ -6,8 +6,9 @@ extends Resource
 ## calçadas com o holofote, a rua esvaziando e ninguém mais depois); "speaker": o carro de som (`SPEAKER_*`); "chase":
 ## a corrida (`Chase`); "flyers": os panfletos (`Flyers`); "graffiti" e "paint": a pichação e a tinta por cima
 ## (`Graffiti`); "newsstand": a banca esvaziada e lacrada (`Newsstand`, antes das 19h); "parade": o caminhão do
-## exército (`ARMY_*`). Pichação, tinta e banca ficam nas noites seguintes (`Background.left_behind`).
+## exército (`ARMY_*`); "moving": a família do apartamento da varanda fugindo de Kombi (`Moving`, antes das 21h).
+## Pichação, tinta, banca e o apartamento vazio ficam nas noites seguintes (`Background.left_behind`).
 
-@export_enum("beating", "police", "lookout", "curfew", "speaker", "chase", "flyers", "graffiti", "paint", "newsstand", "parade") var kind := "beating"
+@export_enum("beating", "police", "lookout", "curfew", "speaker", "chase", "flyers", "graffiti", "paint", "newsstand", "parade", "moving") var kind := "beating"
 @export var at := 190.0
 @export var every := 0.0

@@ -57,7 +57,7 @@ extends Node
 ##   --curfew=0,1,24        o toque de recolher (`CURFEW_*`) desde que a viatura aparece, com gente na calçada: de 0 s em diante, de 1 em 1 s,
 ##                          24 capturas (o tempo corre de verdade entre elas, sem --still)
 ##   --scene=speaker,0,1,24 outra cena da rua (`Background.scene_at`: speaker, chase, flyers, graffiti, paint, newsstand, parade,
-##                          parade) começando agora, com gente na calçada; os tempos como no --curfew
+##                          moving) começando agora, com gente na calçada; os tempos como no --curfew
 ##   --spot=-1,0.8,-2.5     com --curfew: a viatura parada com a frente nesse x (m), o holofote fixo nesse ponto da fachada
 ##                          (x, altura) e alguém parado na calçada nesse x, no caminho do facho
 ##   --behind=0.5           alguém passando atrás da última janela acesa do prédio de tijolos (de 0 a 1 do caminho)

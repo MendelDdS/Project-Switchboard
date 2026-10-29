@@ -108,6 +108,13 @@ Ordem sugerida: das que reaproveitam mais (o rig, a viatura, a passada) para as 
   jornais da banca em pilhas para o porta-malas, baixam a porta de ferro da banca e vão embora. O jornaleiro fica
   um pouco parado na calçada e sai. A banca fica fechada (a porta de aço baixada, com cadeado) até o fim do jogo.
 
+### F. A fuga da família (noite 14)
+- Feito (`scripts/ui/moving.gd`; `--scene=moving`, F1). Às 20h, antes do toque de recolher (o turno acaba à meia-noite).
+  Saiu a pedido: o motorista descendo e o colchão no bagageiro (é uma fuga, não uma mudança).
+- [x] A Kombi encosta no meio-fio na frente do hotel, o motorista não desce; na varanda, a roupa recolhida peça por
+  peça, a luz e a TV apagam; a família desce a rua do cruzamento às pressas (malas, o filho, o pai olhando para trás),
+  atravessa a boca da rua e entra pela porta da calçada; a Kombi sai. O apartamento fica vazio até o fim do jogo.
+
 ### D. O desfile (noite 10)
 - Feito (`_draw_army_truck`, `ARMY_*`, `_build_army`; `--scene=parade`). Sem tremor no vidro (saiu a pedido).
 - [x] Um caminhão do exército (verde-oliva, lona sobre a carroceria, os soldados sentados de capacete nos bancos

@@ -7,6 +7,7 @@ const Chase := preload("res://scripts/ui/chase.gd")
 const Flyers := preload("res://scripts/ui/flyers.gd")
 const Graffiti := preload("res://scripts/ui/graffiti.gd")
 const Newsstand := preload("res://scripts/ui/newsstand.gd")
+const Moving := preload("res://scripts/ui/moving.gd")
 const SLEEP := Vector3(19 * 60, 23 * 60 + 50, 0.15)   ## as janelas apagam entre x e y (minutos do dia); z: as que ficam acesas
 const RAIN_STREAK := Vector2(6.0, 14.0) ## o comprimento do risco (px da tela), do mais longe ao mais perto: o rastro do quadro
 const RAIN_SLANT := 0.18 ## o vento: quanto o pingo anda para a esquerda a cada px que cai
@@ -3291,6 +3292,28 @@ func _draw_marquee(g: Rect2) -> void:
 	_ci.draw_line(_o(g, x0, ff - 1.2, 2.75), _o(g, x1, ff - 1.2, 2.75), Color(1.0, 0.8, 0.5, 0.6), PX)   # a luz embaixo dela
 
 
+## O apartamento da varanda já vazio (a fuga da noite 14, `Moving`, e as noites depois dela): sem luz, sem TV e sem
+## ninguém fumando.
+func _apt_gone() -> bool:
+	return Moving.gone(_scene_t.get("moving", -1.0))
+
+
+## Quem recolhe a roupa do varal na fuga da noite 14 (`Moving.balcony`): sai pela porta, vai de peça em peça com o
+## braço erguido e volta para dentro; uma silhueta contra a luz da sala, como quem fuma, atrás do gradil.
+func _draw_packer(g: Rect2) -> void:
+	var b := Moving.balcony(_scene_t.get("moving", -1.0))
+	if b.x < -1.5:
+		return
+	var z: float = STREET["far"] - APT["deep"] + 0.35
+	var door: Vector2 = APT["door"]
+	var line := func(i: float) -> float: return APT["x0"] + 0.1 + 1.3 * (0.15 + i * 0.3)   # embaixo da peça `i` do varal (`_draw_balcony_back`)
+	var x: float = lerpf((door.x + door.y) / 2.0, line.call(0.0), b.x + 1.0) if b.x < 0.0 else line.call(b.x)
+	var s := 1.0 if _scene_t["moving"] < Moving.BALCONY_AT + Moving.BALCONY_WALK + Moving.PIECE_SEC * Pal.LAUNDRY.size() and b.x >= -0.99 else -1.0
+	var k := OUT_F / z * 2.0
+	var foot := (_o(g, x, z, APT["floor"]) * 2.0).floor()
+	_figure(foot, _body(int(_scene_t["moving"] * WALK_STEPS * STRIDE.size()) if b.y > 0.0 else -1, k, s, b.z > 0.0), Pal.SILHOUETTE)
+
+
 ## A parte parada da varanda do apartamento no prédio de tijolos (`APT`), na camada de trás: a porta (acesa, com a
 ## cortina, até `APT_DARK`), o vão da janela da sala (o vidro com a TV é da frente, `_draw_balcony_front`), os vasos de
 ## planta nos cantos e o lado de baixo da laje, visto de baixo (os olhos ficam abaixo dela).
@@ -3302,7 +3325,7 @@ func _draw_balcony_back(g: Rect2, tone: Callable) -> void:
 	var a := _o(g, d.x, ff, fl + 2.3)
 	var e := _o(g, d.y, ff, fl + 0.05)
 	_r(a.x - PX, a.y - PX, e.x - a.x + PX * 2.0, e.y - a.y + PX, tone.call(-3))
-	if minutes < APT_DARK:
+	if minutes < APT_DARK and not _apt_gone():
 		var lc: Color = (Pal.CITY_LIT[1] as Color).darkened(0.15)
 		_r(a.x, a.y, e.x - a.x, e.y - a.y, lc)
 		_r(a.x, a.y, (e.x - a.x) * 0.6, e.y - a.y, lc.darkened(0.3))   # a cortina
@@ -3331,7 +3354,7 @@ func _draw_balcony_back(g: Rect2, tone: Callable) -> void:
 	var lb := _o(g, APT["x0"] + 1.4, lz, fl + 2.2)
 	_ci.draw_line(la, lb, tone.call(-3), PX)
 	var kk := OUT_F / lz
-	for i in Pal.LAUNDRY.size():
+	for i in range(Pal.LAUNDRY.size() - Moving.laundry(_scene_t.get("moving", -1.0)), Pal.LAUNDRY.size()):   # (recolhida na noite 14, da primeira em diante)
 		var cx := la.x + (lb.x - la.x) * (0.15 + i * 0.3)
 		_r(cx, la.y, 0.28 * kk, (0.45 + 0.15 * (i % 2)) * kk, Pal.LAUNDRY[i])
 
@@ -3344,7 +3367,7 @@ func _draw_balcony_front(g: Rect2) -> void:
 	var fl: float = APT["floor"]
 	var dz: float = ff - APT["deep"]
 	var tv := Color(0, 0, 0, 0)
-	if minutes < TV_OFF:
+	if minutes < TV_OFF and not _apt_gone():
 		var t := PixelArt.ms() / 1000.0
 		var cut := floorf(t * 0.8 + sin(t * 0.31) * 0.7)   # cada cena, um brilho e um tom
 		var lv := 0.45 + 0.45 * fposmod(sin(cut * 12.9898) * 43758.5453, 1.0) + 0.05 * sin(t * 17.0)
@@ -3367,6 +3390,7 @@ func _draw_balcony_front(g: Rect2) -> void:
 		_r(we.x - (we.x - wa.x) * 0.25, wa.y, (we.x - wa.x) * 0.25, we.y - wa.y, glass.darkened(0.45))   # a cortina
 		_r(wa.x, wa.y, we.x - wa.x, maxf(PX, 0.15 * OUT_F / ff), glass.darkened(0.5))   # a sombra da verga
 	_draw_smoker(g)
+	_draw_packer(g)
 	var iron := Pal.BALCONY_IRON
 	var x0: float = APT["x0"]
 	var x1: float = APT["x1"]
@@ -3716,6 +3740,7 @@ func _scene_figs() -> Array:
 		figs = [Beating.victim(_beat_t).merged({"cop": false}), Beating.officer(_beat_t).merged({"cop": true})]
 	figs.append_array(Chase.figures(_scene_t.get("chase", -1.0)))
 	figs.append_array(Newsstand.figures(_scene_t.get("newsstand", -1.0)))
+	figs.append_array(Moving.figures(_scene_t.get("moving", -1.0)))
 	figs.append_array(Flyers.figures(_scene_t.get("flyers", -1.0)))
 	for f: Dictionary in [Graffiti.tagger(_scene_t.get("graffiti", -1.0)),
 			Graffiti.painter(_scene_t.get("paint", -1.0))]:
@@ -3736,7 +3761,7 @@ func _draw_rig(g: Rect2, p: Dictionary, clip := Rect2()) -> void:
 	var z: float = p["z"]
 	if absf(_out_x + OUT_F * x / z - g.size.x * 0.5) > g.size.x * 0.5 + OUT_F / z * 2.0:
 		return
-	var k := OUT_F / z * 2.0
+	var k: float = OUT_F / z * 2.0 * p.get("size", 1.0)   # (`size`: o filho, menor)
 	var foot := (_o(g, x, z) * 2.0).floor()
 	var lying := clampf(1.0 - (p["hip"] - 0.2) / 0.4, 0.0, 1.0)   # a sombra embaixo do corpo, comprida quando deitado
 	var reach := 0.3 + 0.6 * lying
@@ -3876,6 +3901,10 @@ func _rig_pixels(p: Dictionary, k: float) -> Dictionary:
 		var tip := hold + Vector2(0, -0.28 * k)
 		_stamp(pix, [hold, tip], 1, Pal.BUCKET[0])
 		_stamp(pix, [tip + Vector2(-0.11 * k, 0), tip + Vector2(0.11 * k, 0)], 1, Pal.FRESH_PAINT[1].lightened(0.2))
+	if p.get("case", false):   # a mala na mão de cá, pela alça (de frente, vista de lado: estreita)
+		var wide := (0.06 if front else 0.2) * k
+		_stamp(pix, [hand + Vector2(-wide, 0.2 * k), hand + Vector2(wide, 0.2 * k)], maxi(3, roundi(0.28 * k)), Pal.SUITCASE[0])
+		_stamp(pix, [hand + Vector2(-wide, 0.07 * k), hand + Vector2(wide, 0.07 * k)], 1, Pal.SUITCASE[1])
 	if p.get("carry", false):   # a pilha de jornais nos braços, na frente do peito
 		var held: Vector2 = (arms[0][2] + arms[1][2]) / 2.0
 		_stamp(pix, [held + Vector2(-0.12 * k, -0.06 * k), held + Vector2(0.12 * k, -0.06 * k)], maxi(2, roundi(0.16 * k)), Pal.PAPERBOY[1])

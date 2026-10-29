@@ -799,3 +799,10 @@ curva, outro caminho), mostre antes como proposta e pergunte, não entregue como
   profundidade encolhida (`CAR_DEPTH`): o que a figura faz por cima dele (pôr algo no porta-malas) precisa ser
   desenhado de novo depois do carro, recortado da altura dele para cima. Confira na captura ampliada se a mão e o
   objeto chegam dentro, não só se a pessoa está perto.
+- **Carro parado na rua de lá: encostado no meio-fio.** Com a profundidade encolhida (`CAR_DEPTH`), um carro no meio da
+  mão (ou em `PATROL_Z`) parece parado no meio da avenida; quem estaciona encosta (z ~7,45 m, o lado de lá passando do
+  meio-fio, que não se vê) e chega a ele freando (`"park"`). E cena de fuga é rápida e à vista: sem coreografia de
+  carga, gente atravessando com pressa até a porta do lado da calçada.
+- **`Beating.walk` freia no fim.** Emendar vários trechos dele faz a pessoa desacelerar a cada um (e trocar o "out" do
+  último por "lin" deixa o trecho de freio na metade da velocidade). Quem anda sem parar por um caminho com curvas: um
+  momento "lin" por ponto, o tempo pela distância; a pose (virar, olhar para trás) muda no momento do ponto.

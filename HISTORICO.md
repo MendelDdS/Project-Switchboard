@@ -2768,3 +2768,19 @@ Chaves:
     Não bastou ("o homem ainda está por trás do porta-malas e colocando os papeis fora"): o carro, desenhado depois de
     quem está atrás dele, cobria com o tampo e o fundo do porta-malas o tronco e a pilha. Agora os dois são desenhados
     de novo por cima do carro, da altura do tampo para cima e da tampa para a direita (`_draw_loaders`, `_trunk_clip`).
+472. #vista "Faça o 14" (a cena proposta da mudança às pressas). Às 20h (antes do toque de recolher das 21h; a
+    proposta dizia de madrugada, mas o turno acaba à meia-noite), uma Kombi com bagageiro para na boca da rua do
+    cruzamento; o motorista desce do lado da rua, olha a varanda e os dois lados; na varanda do apartamento, alguém
+    recolhe a roupa do varal peça por peça e entra, e a luz e a TV apagam; a família desce a rua do cruzamento (o pai
+    com o colchão enrolado no ombro, a mãe com a mala, o filho do lado), o colchão sobe para o bagageiro e é amarrado,
+    todos entram e a Kombi vai embora. O apartamento fica vazio nas noites seguintes (`Moving`, `left_behind`).
+473. #vista "A kombi está parando no meio da avenida, poderia parar um pouco pra frente do hotel, daí as pessoas com um
+    passo apressado atravessariam a rua e entraria na kombi, não precisaria do motorista descer e nem colocar as malas
+    em cima. Basicamente isso seria uma fuga da família do local." e "A kombi precisa estar bem mais encostada no meio
+    fio, como se estivesse estacionando". Saíram o motorista descendo e o colchão no bagageiro; a Kombi para na frente
+    do hotel (mais para lá, a borda da vista cortava a frente dela) e encosta no meio-fio enquanto freia (`"park"`: o z
+    vai da mão até 7,45 m e volta ao sair); a família desce às pressas (1,7 m/s), o pai olhando para trás, atravessa
+    a boca da rua do cruzamento e some pela porta do lado da calçada (`Moving`).
+474. #vista "Em alguns momentos, uma das pessoas desacelera o passo" (a família da noite 14). Cada trecho do caminho
+    (descida, esquina, travessia, o olhar para trás do pai) era um `Beating.walk`, que freia no fim; agora o caminho
+    inteiro vai em momentos "lin" no mesmo passo (1,7 m/s) até a porta da Kombi, onde eles entram andando (`Moving._keys`).

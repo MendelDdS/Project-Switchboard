@@ -302,7 +302,7 @@ func _check_street() -> void:
 	for n: Night in GameData.CONTENT.nights:
 		for e in n.street_events:
 			ok(e.at >= 0.0 and e.at < n.shift_end and e.every >= 0.0, "cena da rua dentro do turno")
-			if e.kind in ["beating", "speaker", "chase", "flyers", "newsstand", "parade"]:   # (as que têm gente na calçada reagindo)
+			if e.kind in ["beating", "speaker", "chase", "flyers", "newsstand", "parade", "moving"]:   # (as que têm gente na calçada reagindo)
 				ok(e.at + Main.SHIFT_START_HOUR * 60 < Background.WALK_UNTIL - 30.0, "cena da rua com gente na calçada")
 			if e.kind == "newsstand":   # (com a banca ainda aberta)
 				ok(e.at + Main.SHIFT_START_HOUR * 60 < Background.NEWSSTAND_SHUT.x - 10.0, "a banca fechada antes da hora dela")
@@ -322,6 +322,12 @@ func _check_street() -> void:
 	kiosk.state(0.0)
 	ok(kiosk._puts.size() == 4 and kiosk._puts.all(func(p: float) -> bool: return kiosk.lid(p) == 1.0) and kiosk.lid(kiosk._in.min()) == 0.0,
 		"o porta-malas aberto a cada pilha e fechado antes de os homens entrarem")
+	var moving: GDScript = load("res://scripts/ui/moving.gd")
+	moving.figures(0.0)
+	var last: float = moving._in.values().max()
+	ok(moving.figures(last).is_empty() and last < moving.ARRIVE + moving.wait(), "a família entra na Kombi antes de ela sair")
+	ok(moving.FAMILY_AT > moving.DARK_AT, "a luz do apartamento apaga antes de a família descer")
+	ok(moving.laundry(moving.DARK_AT) == 0 and moving.balcony(moving.DARK_AT).x < -1.5, "a roupa recolhida antes de a luz apagar")
 	var flyers: GDScript = load("res://scripts/ui/flyers.gd")
 	ok(flyers.ground(1e5).all(func(f: Vector3) -> bool: return f.y < flyers.SIDEWALK.x or absf(f.x) >= flyers.VIEW), "os varredores limpam a calçada à vista")
 	ok(flyers.figures(1e5).is_empty(), "os varredores saem da vista")
