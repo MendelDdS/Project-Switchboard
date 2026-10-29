@@ -15,7 +15,7 @@ const ARRIVE := 3.2    ## quando ele para (`Background.TAXI_STOP.x`)
 const OUT := [3.8, 4.4]   ## quando cada homem desce (s)
 const WALK := 1.3   ## m/s
 const COUNTER := [Vector2(5.0, 10.05), Vector2(5.55, 10.0)]   ## onde cada homem fica na frente do balcão (x, z)
-const TRUNK := [Vector2(5.85, 6.3), Vector2(5.95, 7.0)]   ## e atrás do carro, na rua, de frente para o porta-malas (do lado da calçada, a tampa aberta os tapava)
+const TRUNK := [Vector2(5.75, 6.65), Vector2(5.8, 6.05)]   ## e atrás do carro, na rua, de frente para o porta-malas (do lado da calçada, ou do meio para lá, a tampa aberta os tapava)
 const CORNER := Vector2(5.95, 7.75)   ## por onde passam da calçada para trás do carro, na frente do poste
 const LID_SEC := Vector2(0.6, 0.25)   ## quanto a tampa do porta-malas leva abrindo e batendo (s)
 const DOORS := [Vector2(2.3, 7.9), Vector2(3.7, 7.9)]   ## as portas do carro, do lado da calçada
@@ -135,7 +135,8 @@ static func _man_keys(i: int) -> Array:
 			_lid.x = t + 0.3
 			k.append_array([[t + 0.25, {"s": -1.0, "arms": [Vector2(40, 10), Vector2(50, 75)]}], [t + 0.3 + LID_SEC.x, {"arms": [Vector2(120, 10), Vector2(50, 75)]}]])
 			t += 0.3 + LID_SEC.x
-		k.append_array([[t + 0.4, bend.merged({"carry": true, "s": -1.0})], [t + 0.8, bend.merged({"carry": false})], [t + 1.2, up.merged({"arms": Beating.STAND["arms"]})]])
+		var reach := bend.merged({"lean": 60.0, "hip": 0.7, "arms": [Vector2(95, 0), Vector2(85, 5)], "s": -1.0})   # debruçado sobre o porta-malas, a pilha lá dentro
+		k.append_array([[t + 0.4, reach.merged({"carry": true})], [t + 0.8, reach.merged({"carry": false})], [t + 1.2, up.merged({"arms": Beating.STAND["arms"]})]])
 		_puts.append(t + 0.8)
 		if trip == 1 and i == 0:   # o último bate a tampa (o primeiro, que apontou para o jornaleiro; feito depois do outro)
 			_lid.y = maxf(t + 1.4, _puts.max() + 0.6)

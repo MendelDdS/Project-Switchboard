@@ -2762,3 +2762,9 @@ Chaves:
     a tampa (`Newsstand.lid`, desenhada no `_draw_car` com `"lid"`), os dois carregam pela traseira, na rua (`TRUNK`,
     passando pela `CORNER`), e o último bate a tampa (som de porta); quem está na cena e mais perto que os postes de lá
     é desenhado depois deles (antes, todos ficavam atrás). Saiu o som "sweep" e o balanço dos soldados (`ARMY_BOB`).
+471. #vista "Quando os homens vão colocar os papeis no porta-malas, um deles está colocando os papeis fora do carro,
+    fica por trás do porta-malas". O de lá (z 7) ficava atrás da tampa aberta e punha a pilha no vazio: os dois agora
+    ficam na metade de cá da traseira, colados nela (`Newsstand.TRUNK`), e se debruçam sobre o porta-malas (`reach`).
+    Não bastou ("o homem ainda está por trás do porta-malas e colocando os papeis fora"): o carro, desenhado depois de
+    quem está atrás dele, cobria com o tampo e o fundo do porta-malas o tronco e a pilha. Agora os dois são desenhados
+    de novo por cima do carro, da altura do tampo para cima e da tampa para a direita (`_draw_loaders`, `_trunk_clip`).

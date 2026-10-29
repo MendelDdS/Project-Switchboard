@@ -795,3 +795,7 @@ curva, outro caminho), mostre antes como proposta e pergunte, não entregue como
 - **Figura da cena da rua na frente dos postes de lá vem depois deles no desenho.** Os postes eram desenhados por
   cima de todos, e os homens da banca, na frente deles, ficavam atrás. E ação com objeto (pôr no porta-malas) precisa
   do objeto mudando (a tampa abrindo) e de quem age à vista, sem nada que o tape.
+- **Figura atrás de um carro, mexendo nele, some debaixo dele.** O carro é desenhado depois das figuras e com a
+  profundidade encolhida (`CAR_DEPTH`): o que a figura faz por cima dele (pôr algo no porta-malas) precisa ser
+  desenhado de novo depois do carro, recortado da altura dele para cima. Confira na captura ampliada se a mão e o
+  objeto chegam dentro, não só se a pessoa está perto.

@@ -445,6 +445,7 @@ var _city: Array = []          # a cidade no fundo: {x, w, h, lit: [Vector3...],
 var _city_for := Vector2.ZERO  # tamanho do vidro para o qual `_city` foi montada
 var _view_at := Vector2.ZERO   # onde a vista começa na tela (px de 2x2): o arbusto é posto pela parede da sala
 var _out_x := 38.0   # o ponto de fuga lá fora, a partir da esquerda da vista (px de 2x2; `OUT_AT`)
+var _trunk_clip := Vector2.ZERO   # o porta-malas aberto da banca: da tampa para a direita (px da tela) e do tampo (m) para cima (`_draw_loaders`)
 var _car_z := 0.0   # desenhando um carro: o meio da mão dele (m), onde a profundidade se encolhe (`CAR_DEPTH`); 0 = fora dele
 var _near := 0.0         # a vista passa do peitoril de longe para baixo (px de 2x2): a parte de perto da janela, mais alta na tela, mostra a calçada embaixo dela
 var _cars: Array[Dictionary] = []   # os carros passando lá fora: {"t": de 0 a 1, "lane": em `CAR_LANES`, "kind": em `CAR_KINDS`, "tones": a rampa da lataria em `Pal.CAR_TONES`, "taxi"}
@@ -1149,6 +1150,8 @@ func _draw_city_front(g: Rect2) -> void:
 		_car_z = _lane(c).x
 		_draw_car(g, c)
 		_car_z = 0.0
+		if c.has("lid"):
+			_draw_loaders(g)
 	if weather == "fog":
 		_draw_fog(g)
 
@@ -3693,6 +3696,18 @@ func _door_clip(g: Rect2, x: float, z: float) -> Rect2:
 	return Rect2(a * 2.0, (_o(g, HOTEL_X + 0.6, STREET["far"]) - a) * 2.0)
 
 
+## Os homens da banca carregando o porta-malas aberto, de novo por cima do carro, da altura do tampo para cima, onde
+## cada um está (`_trunk_clip`): atrás dele, o carro, desenhado depois, cobria o tronco e a pilha debruçados lá dentro;
+## da cintura para baixo ficam atrás da lataria (cortados na beira de cá, pareciam de pé dentro do porta-malas).
+func _draw_loaders(g: Rect2) -> void:
+	if _trunk_clip == Vector2.ZERO:
+		return
+	for f: Dictionary in Newsstand.figures(_scene_t.get("newsstand", -1.0)):
+		if f["z"] < STREET["far_curb"]:
+			var top: float = _o(g, f["x"], f["z"], _trunk_clip.y).y * 2.0
+			_draw_rig(g, f, Rect2(_trunk_clip.x, -1e4, 1e5, top + 1e4))
+
+
 ## Quem está nas cenas da rua agora: o policial e o homem da noite 3 (`Beating`) e os da corrida (`Chase`), os de mais
 ## longe primeiro.
 func _scene_figs() -> Array:
@@ -4124,6 +4139,7 @@ func _draw_car(g: Rect2, c: Dictionary) -> void:
 	if c.has("lid"):   # o porta-malas aberto, na cena da banca: o fundo escuro e a tampa erguida na dobradiça junto do vidro
 		var open := Newsstand.lid(_scene_t.get("newsstand", -1.0))
 		var tr: Vector3 = m["tops"][-1]
+		_trunk_clip = Vector2.ZERO
 		if open > 0.0:
 			var ts: Vector2 = span.call(tr.x + 0.05, tr.y - 0.05)
 			_poly(_patch(g, ts.x, ts.y, z0 + 0.08, z1 - 0.08, tr.z), tone.call(-4).darkened(0.5))
@@ -4133,6 +4149,7 @@ func _draw_car(g: Rect2, c: Dictionary) -> void:
 			_poly(PackedVector2Array([_o(g, at.call(tr.x), z0, tr.z), _o(g, at.call(ea), z0, eh), _o(g, at.call(ea), z1, eh),
 				_o(g, at.call(tr.x), z1, tr.z)]), tone.call(-1))   # (por dentro, na cor do carro: escura, era uma barbatana preta)
 			_ci.draw_line(_o(g, at.call(ea), z0, eh), _o(g, at.call(ea), z1, eh), tone.call(1), PX)   # a beira de cima, com a luz do poste
+			_trunk_clip = Vector2(maxf(_o(g, at.call(ea), z0, eh).x, _o(g, at.call(tr.x), z0, tr.z).x) * 2.0, tr.z)
 	if c.get("taxi", false):   # o táxi: a placa acesa no teto
 		var cab: Vector3 = m["tops"][1]
 		var tx: float = at.call((cab.x + cab.y) / 2.0)
