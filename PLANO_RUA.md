@@ -43,7 +43,7 @@ o toque de recolher e o vigia, e as marcas atravessam noites (a pichação fica 
   um valor no enum do `kind`.
 - [x] O `Main` desdobra as repetições até o fim do turno e entrega cada hora ao `Background.schedule(kind, at)`; o
   `Background` dispara cada uma na hora (`_events`), com `start_<cena>()` público para o painel de debug (F1).
-- [ ] Marcas entre noites (a pichação, a tinta nova, a banca fechada) calculadas pelas noites anteriores da lista
+- [x] Marcas entre noites (a pichação, a tinta nova, a banca fechada) calculadas pelas noites anteriores da lista
   (`GameContent.nights` até a atual), sem save: funciona com `--night=N`. Fica para a cena B, a primeira que precisa.
 - [x] `test_content`: toda cena com hora dentro do turno; a que precisa de gente na calçada antes de `WALK_UNTIL`.
 
@@ -75,36 +75,42 @@ Ordem sugerida: das que reaproveitam mais (o rig, a viatura, a passada) para as 
   fica vazia pelo resto da noite (o `WALK_UNTIL` daquela noite vira as 21h).
 
 ### F. O carro de som (noite 5)
-- [ ] Um carro passa devagar com dois alto-falantes cornetas no teto, amarrados num bagageiro, e um cartaz na
+- Feito (`SPEAKER_*`, `_draw_speaker_car`, `_build_speaker`, `_listen`; `--scene=speaker`). Cartaz com brasão redondo, sem bandeira (a pedido).
+- [x] Um carro passa devagar com dois alto-falantes cornetas no teto, amarrados num bagageiro, e um cartaz na
   porta. O som chega abafado pelo vidro, sobe quando ele passa na frente e some (uma voz de anúncio sintetizada, sem
   palavras distinguíveis, com eco da rua). Os pedestres param na calçada e esperam ele passar, olhando; depois seguem.
 
 ### G. A corrida (noite 8)
-- [ ] Um jovem atravessa a rua correndo (a passada de corrida: inclinado, braços dobrados, os dois pés fora do chão
+- Feito (`scripts/ui/chase.gd`; `--chase=t0,passo,n`).
+- [x] Um jovem atravessa a rua correndo (a passada de corrida: inclinado, braços dobrados, os dois pés fora do chão
   em parte do ciclo), olha para trás e entra numa porta. Segundos depois dois homens de terno passam correndo atrás,
   param no meio da rua, olham em volta (a cabeça virando, um aponta), e voltam andando devagar.
 
 ### C. Os panfletos (noite 6)
-- [ ] Um carro passa e, pela janela de trás, jogam um maço de panfletos: os papéis voam, giram e planam até o chão
+- Feito (`scripts/ui/flyers.gd`; `--flyers=`). Quatro maços ao longo da rua; três varredores limpam a calçada; os da rua ficam até o fim da noite.
+- [x] Um carro passa e, pela janela de trás, jogam um maço de panfletos: os papéis voam, giram e planam até o chão
   (cada um com a sua queda, brancos, alguns pousando na rua, outros na calçada), e ficam espalhados. Os pedestres
   desviam sem pegar. Um tempo depois, um policial vem a pé e recolhe um por um num saco, abaixando-se a cada papel;
   os que ele não pega ficam até o fim da noite.
 
 ### B. A pichação e a tinta nova (noite 4, apagada na noite 7)
-- [ ] Noite 4: de madrugada, alguém de capuz para num muro da calçada de lá, olha para os lados, picha uma frase
+- Feito (`scripts/ui/graffiti.gd`; `--graffiti=`, `--paint=`). Decisão: três letras inventadas e um risco, sem frase (nada a traduzir).
+- [x] Noite 4: de madrugada, alguém de capuz para num muro da calçada de lá, olha para os lados, picha uma frase
   com spray (o braço indo e voltando, a tinta aparecendo letra por letra, o chiado do spray) e foge correndo. A
   pichação fica nas noites 4, 5 e 6.
-- [ ] Noite 7: um homem de macacão chega com balde e rolo, pinta por cima com a tinta de outra cor (o rolo subindo e
+- [x] Noite 7: um homem de macacão chega com balde e rolo, pinta por cima com a tinta de outra cor (o rolo subindo e
   descendo, a tinta cobrindo a pichação em faixas) e vai embora. A mancha de tinta nova, retangular e de outro tom,
   fica dali até o fim do jogo.
 
 ### E. A banca de jornal fechada (noite 12)
-- [ ] Dois homens de terno chegam num carro escuro, falam com o jornaleiro (gestos, o jornaleiro recua), recolhem os
+- Feito (`scripts/ui/newsstand.gd`; `--newsstand=` ou `--scene=newsstand`). Decisão: fechada e lacrada até o fim do jogo, também no amanhecer.
+- [x] Dois homens de terno chegam num carro escuro, falam com o jornaleiro (gestos, o jornaleiro recua), recolhem os
   jornais da banca em pilhas para o porta-malas, baixam a porta de ferro da banca e vão embora. O jornaleiro fica
   um pouco parado na calçada e sai. A banca fica fechada (a porta de aço baixada, com cadeado) até o fim do jogo.
 
 ### D. O desfile (noite 10)
-- [ ] Um caminhão do exército (verde-oliva, lona sobre a carroceria, os soldados sentados de capacete nos bancos
+- Feito (`_draw_army_truck`, `ARMY_*`, `_build_army`; `--scene=parade`). Sem tremor no vidro (saiu a pedido).
+- [x] Um caminhão do exército (verde-oliva, lona sobre a carroceria, os soldados sentados de capacete nos bancos
   dos dois lados, os fuzis em pé) passa devagar. Os vidros da sala tremem: o reflexo e as gotas da janela vibram, e a
   xícara e os papéis da mesa estremecem um pouco, com o ronco grave do motor em camadas.
 
@@ -115,5 +121,4 @@ Ordem sugerida: das que reaproveitam mais (o rig, a viatura, a passada) para as 
 - [ ] Aprovação do usuário antes da próxima cena.
 
 ## 5. Decisões em aberto
-- A banca fecha até o fim do jogo ou reabre noites depois?
-- A frase da pichação: legível (e traduzida) ou só rabiscos de letras?
+- (decidido: a banca fica fechada até o fim do jogo; a pichação é de letras inventadas, sem texto)

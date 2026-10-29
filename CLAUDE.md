@@ -192,7 +192,9 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 - Ritmo por nível (`Pace`, 9 níveis; `Pace.next` pelo conceito; o último é o limite; do 6 ao 9 o mesmo `mean_gap` do 5, com mais picos).
 - Cenas na rua da vista: `Night.street_events` (`StreetEvent`: `kind`, `at`, `every`; o Main chama
   `Background.schedule`). A 3: o policial (`scripts/ui/beating.gd`); a 7: a viatura estacionada no hotel (`PATROL_*`);
-  a 9: o vigia no terraço (`LOOKOUT_*`); 9 a 14: o toque de recolher às 21h, `CURFEW_*`, `_hurry`). As próximas e a regra de qualidade delas: `PLANO_RUA.md`.
+  a 9: o vigia no terraço (`LOOKOUT_*`); 9 a 14: o toque de recolher às 21h, `CURFEW_*`, `_hurry`; 4 a 12: pichação,
+  carro de som, panfletos, tinta, corrida, desfile e banca, um script por cena em `scripts/ui/`, relógio `_scene_t`;
+  pichação, tinta e banca ficam nas noites seguintes, `left_behind`). Regra de qualidade: `PLANO_RUA.md`.
 - Marcadores do roteiro: `StoryFlags` (`flags.allows(requires)`, `flags.apply("nome" | "!nome")`), salvos no `Progress`.
 - `Progress` (`user://progress.cfg`): próxima noite, ritmo, `low_nights`, marcadores, jornal, palavras-chave,
   denúncias, chuvas. A última noite ou a demissão limpa o save. Formato com versão (`Progress.VERSION`): mudou o tipo

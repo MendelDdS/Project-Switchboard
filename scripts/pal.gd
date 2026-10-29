@@ -319,6 +319,29 @@ const SHIRT_PANTS := Color("2c2820")
 ## O vigia no terraço do hotel (`Background.LOOKOUT_*`): a capa, o binóculo e o cabelo
 const LOOKOUT_COAT := Color("16161b")
 const LOOKOUT_DARK := Color("0c0c10")
+## A corrida da noite 8 (`Chase`): o blusão claro e a calça do rapaz, e os ternos dos dois homens que correm atrás dele
+const CHASE_YOUNG: Array[Color] = [Color("6a5a3e"), Color("232838")]
+## Os panfletos da noite 6 (`Flyers`): o papel de lado ou no chão, de chapa (mais claro) e molhado
+const FLYER: Array[Color] = [Color("6e6a5e"), Color("a8a28e"), Color("45433c")]
+## A pichação da noite 4 (`Graffiti`): o moletom e a calça de quem picha, a tinta do spray (e a escorrida, mais
+## escura), a tinta nova por cima na noite 7 (um tom mais claro e frio que o muro), o macacão do pintor e o balde
+## (a lata e o aro)
+const TAGGER: Array[Color] = [Color("2e3038"), Color("26241f")]
+const GRAFFITI: Array[Color] = [Color("6e2220"), Color("4a1614")]
+const FRESH_PAINT: Array[Color] = [Color("2a2e36"), Color("2e333c")]
+const PAINTER: Array[Color] = [Color("4a5260")]
+const BUCKET: Array[Color] = [Color("50544e"), Color("7a7e76")]
+## O caminhão do exército do desfile da noite 10 (`Background._draw_army_truck`): a lataria verde-oliva fosca (rampa
+## como as de `CAR_TONES`, o meio em `CAR_MID`), a lona, o capacete (a aba e o alto) e o fuzil.
+const ARMY_OLIVE: Array[Color] = [Color("080b08"), Color("0b0e0a"), Color("10130d"), Color("161a11"), Color("232819"), Color("2e3220"), Color("3c3e29"), Color("4b4c33")]
+const ARMY_CANVAS: Array[Color] = [Color("0a0c08"), Color("0e100b"), Color("13150f"), Color("1a1c15"), Color("2b2c20"), Color("373729"), Color("454432"), Color("55523c")]
+const ARMY_HELMET: Array[Color] = [Color("4a4f34"), Color("6a6f4a")]
+const ARMY_RIFLE := Color("15161a")
+const ARMY_STENCIL := Color("9a9884")   ## o número pintado na porta
+const BROOM: Array[Color] = [Color("5a4630"), Color("8a7448")]   ## a vassoura dos varredores da noite 6 (`Flyers`): o cabo e a palha
+const SWEEPER: Array[Color] = [Color("5e5a4c"), Color("3a3830")]   ## ...e o uniforme deles: a camisa e a calça
+const STAND_SEAL := Color("b0aa96")   ## o lacre de papel na banca fechada da noite 12 (`Newsstand`)
+const CHASE_SUIT: Array[Color] = [Color("2a2d36"), Color("38342c")]
 const BLOOD: Array[Color] = [Color("2a0606"), Color("440a0a"), Color("6a1410")]
 const AWNINGS: Array[Color] = [Color("4a1c1c"), Color("1e3a2c"), Color("2a3048")]   ## os toldos de lona das lojas de lá (desbotados pela noite)
 const SHOP_BOARD := Color("1a1410")   ## a tábua da placa em cima da vitrine, com as letras só sugeridas (`_draw_far_house`)
@@ -357,6 +380,11 @@ const BEACON := Color("ff2a1e")
 const BEACON_GLASS: Array[Color] = [Color("3a0c0c"), Color("6a1612")]
 const PATROL_DOOR := Color("6e6c66")
 const PATROL_INK := Color("15181e")
+## O carro de som (`Background.SPEAKER_*`): o cartaz na porta (o papel, e o brasão redondo: o aro e o miolo, em tinta
+## escura, e o campo claro entre eles) e as cornetas no teto, de chapa pintada (o fundo da boca, o corpo e o aro na
+## luz), escuras contra o teto claro da Kombi
+const SPEAKER_POSTER: Array[Color] = [Color("8a8676"), Color("a89c74"), Color("233050")]
+const SPEAKER_HORN: Array[Color] = [Color("0a0b0c"), Color("1e2124"), Color("5e646a")]
 const SMOKE := Color(0.7, 0.72, 0.76)   ## a fumaça do cigarro na varanda, no escuro (`Background._draw_smoke`; perto do poste, esquenta)
 const SIGN_RED := Color("ff4a3a")   ## o letreiro de neon do hotel: a luz vermelha dele, no halo, na parede e no vidro...
 const SIGN_GLOW := Color("b23e35")   ## ...o brilho em volta das letras, na caixa cinza (no vermelho da luz, a caixa toda parecia vermelha)...

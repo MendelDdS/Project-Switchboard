@@ -12,6 +12,7 @@ extends RefCounted
 ## frente; y: quanto o joelho ou o cotovelo dobra, para a frente), `front` de frente para nós, `walk` (andando nesse
 ## trecho: as pernas da passada pela distância), `swing` (os braços também), `baton` o cassetete na mão de cá.
 
+const WALK_EASE := 0.6   ## quanto quem anda leva parando (s; `walk`)
 const END := 28.5   ## quando os dois saem do vidro
 const X0 := 2.6     ## onde o policial para o homem (m; a boca do cruzamento vai de -4,2 a 5,8)
 const STEP := 0.21  ## o quanto se anda por quadro da passada (4 quadros por passo de ~0,84 m)
@@ -207,6 +208,23 @@ static func _man_keys() -> Array:
 
 
 ## Os momentos completos: cada um com o que veio antes (`STAND` no começo).
+## Anda de `from` até `to` a `v` m/s a partir de `t` (os momentos em `k`): no passo, em linha reta, e só no fim
+## freando, em `WALK_EASE` s (a velocidade não cai antes, como a curva "out" do caminho inteiro fazia); devolve quando
+## chega, parado.
+static func walk(k: Array, t: float, from: Vector2, to: Vector2, v: float) -> float:
+	var d := from.distance_to(to)
+	var ease := minf(WALK_EASE, 2.0 * d / v)
+	var brake := v * ease / 2.0   # o que ele anda freando (a "out" começa na velocidade do passo)
+	var s: float = signf(to.x - from.x) if absf(to.x - from.x) > 0.05 else k[-1][1].get("s", 1.0)
+	k.append([t, {"x": from.x, "z": from.y, "walk": true, "swing": true, "s": s}])
+	var mid := to.move_toward(from, brake)
+	t += (d - brake) / v
+	k.append([t, {"x": mid.x, "z": mid.y}, "lin"])
+	t += ease
+	k.append([t, {"x": to.x, "z": to.y, "walk": false, "swing": false}, "out"])
+	return t
+
+
 static func _build(keys: Array) -> Array:
 	var out := []
 	var pose: Dictionary = STAND.duplicate(true)
@@ -232,11 +250,15 @@ static func _at(track: Array, t: float) -> Dictionary:
 			u = u * u
 		"out":
 			u = 1.0 - (1.0 - u) * (1.0 - u)
+		"lin":   # (momentos seguidos de um movimento só, como a corrida: sem parar em cada um)
+			pass
 		_:
 			u = smoothstep(0.0, 1.0, u)
 	var out := a.duplicate()
 	for key: String in ["x", "z", "hip", "lean", "head"]:
 		out[key] = lerpf(a[key], b[key], u)
+	if a.has("broom") and b.has("broom"):   # (a vassoura indo e voltando no chão)
+		out["broom"] = lerpf(a["broom"], b["broom"], u)
 	for key: String in ["legs", "arms"]:
 		out[key] = [(a[key][0] as Vector2).lerp(b[key][0], u), (a[key][1] as Vector2).lerp(b[key][1], u)]
 	out["step"] = -1

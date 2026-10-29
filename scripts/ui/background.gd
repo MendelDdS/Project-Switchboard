@@ -277,6 +277,11 @@ var _taxi_next := false  # o próximo da mão de lá é o táxi que para no hote
 var _police_next := false   # o próximo da mão de lá é a viatura que para no hotel (`police`)
 var _curfew_next := false   # o próximo da mão de lá é a viatura do toque de recolher (`curfew`)...
 var _curfew_sent := false   # ...que já foi chamada
+## As cenas que deixam marca (`scene_at`): passada a hora, a marca fica (os papéis no chão, a tinta, a banca fechada).
+const MARKS := ["flyers", "graffiti", "paint", "newsstand"]
+const LASTING := ["graffiti", "paint", "newsstand"]   ## ...e as que ficam nas noites seguintes (`left_behind`)
+const SPRAY_EVERY := 1.1   ## de quanto em quanto tempo um jato do spray (s)
+var _scene_car := ""   # o próximo da mão de lá é o carro desta cena (`scene_at`, `_scene_car_of`)
 var _taxi_at: Array[float] = []   # as horas deles nesta noite (min do dia; `_taxi_times`)
 var _taxi_for := -1      # a noite delas
 var _stray_in := 60.0    # para passar um vira-lata (s)
@@ -835,10 +840,39 @@ func _events(delta: float) -> void:
 		_look_t = 0.0 if minutes < lookout_at.pop_front() + 2.0 else -1.0
 	elif _look_t >= 0.0:
 		_look_t = _look_t + delta if _look_t + delta < LOOKOUT_KEYS[-1][0] else -1.0
+	for k: String in scene_at.keys():   # as outras cenas (`scene_at`): na hora; passada há mais de meia hora, não acontece, mas fica a marca dela
+		if minutes >= scene_at[k]:
+			if minutes < scene_at[k] + 30.0:
+				_start_scene(k)
+			elif k in MARKS:
+				_scene_t[k] = 1e5
+			scene_at.erase(k)
+	for k: String in _scene_t.keys():   # o relógio de cada uma já começada
+		var was: float = _scene_t[k]
+		_scene_t[k] = was + delta
+		if k == "chase" and Chase.footfalls(was, _scene_t[k]) > 0 and not Sfx.hushed():   # os passos da corrida na calçada
+			Sfx.play_at("footfall", x, 0.0, _rng.randf_range(0.9, 1.1))
+		if k == "flyers" and Flyers.THROWS.any(func(at: float) -> bool: return was < at and _scene_t[k] >= at):   # cada maço jogado, os papéis batendo no ar
+			Sfx.play_at("flyers", x)
+		if k == "graffiti" and was >= Graffiti.SHAKE - delta:   # a lata sacudida e os jatos do spray
+			var tag: float = _scene_t[k]
+			if was < Graffiti.SHAKE and tag >= Graffiti.SHAKE:
+				Sfx.play_at("rattle", x, -6.0, 1.6)
+			if tag >= Graffiti.SPRAY_AT and tag < Graffiti.SPRAY_END and floorf((was - Graffiti.SPRAY_AT) / SPRAY_EVERY) != floorf((tag - Graffiti.SPRAY_AT) / SPRAY_EVERY):
+				Sfx.play_at("spray", x, 0.0, _rng.randf_range(0.95, 1.05))
+		if k == "paint" and was < Graffiti.SET_DOWN and _scene_t[k] >= Graffiti.SET_DOWN:   # o balde no chão
+			Sfx.play_at("set_metal", x, 6.0, 0.7)
 	var scene := minutes >= beating - 3.0 and _beat_t < Beating.END
+	var quiet: bool = _scene_t.get("chase", INF) < Chase.END   # (a corrida atravessa a mão de lá: nenhum carro novo)
 	for lane in CAR_LANES.size():   # um carro por vez em cada mão, cada uma no seu tempo
 		_car_in[lane] -= delta
-		if _car_in[lane] <= 0.0 and not scene:
+		if quiet:
+			continue
+		if _car_in[lane] <= 0.0 and not scene and lane == 0 and _scene_car != "" and _car_next[lane] == "":
+			_cars.append(_scene_car_of(_scene_car, x))
+			_scene_car = ""
+			_car_in[lane] = INF
+		elif _car_in[lane] <= 0.0 and not scene:
 			var kind: String = _car_next[lane] if _car_next[lane] != "" else _car_kind()
 			var sweep: bool = lane == 0 and _curfew_next and _car_next[lane] == ""
 			var patrol: bool = lane == 0 and _police_next and _car_next[lane] == "" and not sweep
@@ -862,7 +896,8 @@ func _events(delta: float) -> void:
 				_cars[-1].merge(_patrol_car(), true)
 			_car_in[lane] = INF   # o próximo desta mão é sorteado quando este sair
 			if sweep:   # devagar, sem o ronco de passagem agora (ele vem no meio, `CURFEW_SOUND`), e quem está na rua nota
-				_cars[-1].merge({"police": true, "taxi": false, "rack": false, "tones": Pal.CAR_TONES[5], "sweep": true, "sec": CURFEW_SEC}, true)
+				_cars[-1].merge({"police": true, "taxi": false, "rack": false, "tones": Pal.CAR_TONES[5], "sweep": true, "sec": CURFEW_SEC,
+					"roar": Vector2(CURFEW_SOUND, CURFEW_PITCH)}, true)
 				for w: Dictionary in _walkers:
 					if not w.get("bike", false) and not w.get("dog", false):
 						w["hurry"] = -_rng.randf_range(CURFEW_REACT.x, CURFEW_REACT.y)
@@ -887,8 +922,8 @@ func _events(delta: float) -> void:
 			c["t"] += delta / c.get("sec", (CAR_KINDS[c["kind"]] as Dictionary).get("sec", CAR_SEC))
 			if c.has("sweep"):
 				_aim(c, delta)
-			if c.has("sweep") and was < CURFEW_SOUND and c["t"] >= CURFEW_SOUND:
-				Sfx.play_at("car_wet" if weather == "rain" else "car", x, -2.0, CURFEW_PITCH)
+			if c.has("roar") and was < c["roar"].x and c["t"] >= c["roar"].x:   # (o devagar: o ronco de passagem só no meio)
+				Sfx.play_at("car_wet" if weather == "rain" else "car", x, -2.0, c["roar"].y)
 		if c["t"] >= 1.0:
 			_car_in[c["lane"]] = _rng.randf_range(CAR_EVERY.x, CAR_EVERY.y) * rare
 			_cars.remove_at(i)
@@ -983,7 +1018,7 @@ func _events(delta: float) -> void:
 			_indoor.x = -1.0
 	for i in range(_walkers.size() - 1, -1, -1):
 		var w: Dictionary = _walkers[i]
-		if not _watch(w, delta) and not _hurry(w, delta):
+		if not _watch(w, delta) and not _hurry(w, delta) and not _listen(w, delta):
 			w["t"] += delta / w["sec"]
 		if w["t"] >= 1.0 or w.get("in", 0.0) >= 1.0:
 			_walkers.remove_at(i)
@@ -1095,6 +1130,88 @@ func _hurry(w: Dictionary, delta: float) -> bool:
 	return false
 
 
+## O carro de som ou a corrida em quem está na calçada (`w`): chegando perto (`SPEAKER_HEAR`, de `_focus_x`), cada um
+## no seu tempo (`SPEAKER_REACT`), para e olha, virando a cabeça com o que passa, até passar e mais um pouco
+## (`SPEAKER_AFTER`); depois segue. Devolve se `w` está parado.
+func _listen(w: Dictionary, delta: float) -> bool:
+	if w.get("bike", false) or w.get("dog", false) or w.has("hurry") or w.get("listen", 0.0) == INF:
+		return false
+	var at := _walk_at(w)
+	var cx := _focus_x()
+	if not w.has("listen"):
+		if absf(cx - at.x) > SPEAKER_HEAR:
+			return false
+		w["listen"] = -_rng.randf_range(SPEAKER_REACT.x, SPEAKER_REACT.y)
+	w["listen"] += delta
+	if w["listen"] < 0.0:   # ainda andando: nota daqui a pouco
+		return false
+	if absf(cx - at.x) < SPEAKER_HEAR + 3.0:
+		w["look"] = 1.0
+		w["face"] = signf(cx - at.x) if cx != at.x else w["dir"]
+		w["stay"] = _rng.randf_range(SPEAKER_AFTER.x, SPEAKER_AFTER.y) if not w.has("stay") else w["stay"]
+		return true
+	w["stay"] = w.get("stay", 0.0) - delta
+	if w["stay"] > 0.0:
+		return true
+	for key: String in ["look", "face", "stay"]:
+		w.erase(key)
+	w["listen"] = INF   # (para uma vez só)
+	return false
+
+
+## Para onde quem está na calçada olha agora (x, m; INF: nada): o carro de som passando, ou quem corre.
+func _focus_x() -> float:
+	for c in _cars:
+		if c.has("speaker") or c.has("army"):
+			return _car_x(c) + 1.5
+	for f in [Flyers.focus(_scene_t.get("flyers", -1.0)), Chase.focus(_scene_t.get("chase", -1.0)), Newsstand.focus(_scene_t.get("newsstand", -1.0))]:
+		if f != INF:
+			return f
+	return INF
+
+
+## O carro da cena `kind` (`scene_at`), entrando na mão de lá, e o som dele (do lado `x` da tela).
+func _scene_car_of(kind: String, x: float) -> Dictionary:
+	var c := {"t": 0.0, "lane": 0, "taxi": false, "rack": false}
+	match kind:
+		"speaker":
+			c.merge({"kind": SPEAKER_KIND, "tones": Pal.CAR_TONES[2], "speaker": true, "sec": SPEAKER_SEC,
+				"roar": Vector2(0.4, 0.8)})
+			Sfx.play_at("speaker", x)
+		"flyers":   # (o relógio da cena começa com ele: a hora de jogar sai da posição dele)
+			c.merge({"kind": Flyers.CAR, "tones": Pal.CAR_TONES[1], "sec": Flyers.CAR_SEC, "roar": Vector2(0.4, 0.85)})
+			_scene_t["flyers"] = 0.0
+		"parade":   # o caminhão do exército, devagar, roncando grave
+			c.merge({"kind": ARMY_KIND, "tones": Pal.ARMY_OLIVE, "army": true, "sec": ARMY_SEC})
+			Sfx.play_at("army", x)
+		"newsstand":   # o sedã escuro sem letreiro, parado junto do meio-fio perto da esquina
+			c.merge({"kind": Newsstand.CAR, "tones": Pal.CAR_TONES[5], "stop": true, "s": 0.0, "wait": Newsstand.wait(),
+				"slams": Newsstand.slams(), "z": PATROL_Z, "mid": Newsstand.CAR_MID, "lid": true})
+			_scene_t["newsstand"] = 0.0
+	return c
+
+
+## A marca que a cena `kind` de uma noite anterior deixou na rua (a pichação, a tinta nova, a banca fechada; o Main
+## chama, `LASTING`): como já acabada.
+func left_behind(kind: String) -> void:
+	if kind in LASTING:
+		_scene_t[kind] = 1e5
+
+
+## Começa a cena `kind` (`scene_at`): a que vem de carro, ele é o próximo da mão de lá (com ela livre, já); a corrida,
+## quando os carros que estão passando saírem (`_scene_t` negativo até lá).
+func _start_scene(kind: String) -> void:
+	if kind in ["speaker", "flyers", "newsstand", "parade"]:
+		_scene_car = kind
+		if _cars.all(func(c: Dictionary) -> bool: return c["lane"] != 0):
+			_car_in[0] = 0.0
+		return
+	var wait := 0.0
+	for c in _cars:
+		wait = maxf(wait, (1.0 - c["t"]) * float(c.get("sec", (CAR_KINDS[c["kind"]] as Dictionary).get("sec", CAR_SEC))))
+	_scene_t[kind] = -wait - 0.5
+
+
 ## O holofote da viatura do toque de recolher (`c`) na mão do policial: procura aos trancos, virando até um ponto da
 ## calçada ou da fachada perto dela, até as janelas de cima (`CURFEW_HIGH`; rápido no começo, devagar chegando, `CURFEW_TURN`), para um instante
 ## (`CURFEW_PAUSE`) e escolhe outro; pegando alguém, acompanha um tempo (`CURFEW_FOLLOW`) o peito dele, e larga.
@@ -1177,6 +1294,13 @@ func schedule(kind: String, at: float) -> void:
 			curfew = at
 		"lookout":
 			lookout_at.append(at)
+		_:
+			scene_at[kind] = at
+
+
+## A cena `kind` (`StreetEvent`, as de `scene_at`) agora (debug), como na noite dela.
+func start_scene(kind: String) -> void:
+	_start_scene(kind)
 
 
 ## O vigia aparecendo no terraço agora (debug), como na noite 9.
@@ -2351,7 +2475,7 @@ func _back_state() -> Array:
 		clouds = int(_overcast_x(0) * _vport.size.x)
 	return [_vport.size, _near, weather, window_art, int(minutes), flick, lamp_level > 0.5, snappedf(_flash(), 0.02),
 		_sign_on(), stars, clouds, _moon_light(), snappedf(minutes, 0.5) if weather != "rain" and _moon_t() < 1.0 else 0.0,
-		snappedf(dawn(), 0.005), _posts_on()]   # (a lua e o sol subindo: meio minuto, ~0,6 px)
+		snappedf(dawn(), 0.005), _posts_on(), Newsstand.state(_scene_t.get("newsstand", -1.0)).snapped(Vector3(0.05, 0.01, 1.0))]   # (a lua e o sol subindo: meio minuto, ~0,6 px)
 
 
 ## À noite, com a sala acesa, o vidro reflete um pouco dela, por cima da cidade (e da silhueta, que fica atrás do

@@ -776,3 +776,22 @@ curva, outro caminho), mostre antes como proposta e pergunte, não entregue como
   peças, com braços de 1 px e chapéu, e o usuário recusou ("parece uma aranha"). Membro de 1 px numa figura de frente
   vira pata. Use o caminho do rig (`_draw_pixels`): pixel a pixel, membros de 2 px, tons (pele, cabelo, roupa, beira
   acesa), colunas simétricas. Releia a seção de qualidade do `PLANO_RUA.md` antes de mostrar uma cena.
+- **Símbolo nacional real fica de fora das cenas.** O carro de som saiu com a bandeira do Brasil no cartaz e o usuário
+  pediu um brasão genérico. Na rua, insígnia, bandeira e frase de verdade viram emblema neutro (brasão redondo, letras
+  inventadas na pichação, caminhão sem estrela).
+- **Peça presa num carro segue o eixo dele.** As cornetas do carro de som, apontadas em diagonal, pareciam tortas e
+  viradas para o jogador; e crescer o que já estava aprovado em tamanho também foi recusado. Objeto montado em veículo
+  fica alinhado ao comprimento dele, no tamanho da primeira versão aprovada, salvo pedido.
+- **Antes de entregar um veículo novo, meça a folga entre as rodas na captura ampliada.** As rodas de trás do
+  caminhão saíram uma em cima da outra (os arcos têm 2 px a mais que o pneu). E figura dentro de um vão: confira que
+  nada a corta (a lona enrolada comia os capacetes) e que linhas finas repetidas (fuzis, postes, cinto) não viram
+  grade ou cruz.
+- **Elemento novo da fachada não pode cair em cima de outro.** A vitrine do térreo do hotel, quando acesa, aparecia
+  atrás da porta, como duas portas. Ao mexer perto da porta, da marquise ou do bar, capture com as vitrines acesas
+  (começo do turno) e apagadas.
+- **Andar até um lugar: no passo, freando só no fim.** A curva "out" no caminho inteiro fazia o pintor perder
+  velocidade desde longe. Use `Beating.walk`. E numa perseguição, quem persegue chega depois de o perseguido sumir,
+  senão não é crível que não o viu.
+- **Figura da cena da rua na frente dos postes de lá vem depois deles no desenho.** Os postes eram desenhados por
+  cima de todos, e os homens da banca, na frente deles, ficavam atrás. E ação com objeto (pôr no porta-malas) precisa
+  do objeto mudando (a tampa abrindo) e de quem age à vista, sem nada que o tape.

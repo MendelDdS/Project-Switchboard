@@ -133,6 +133,9 @@ func _ready() -> void:
 		while at < night.shift_end:
 			background.schedule(e.kind, SHIFT_START_HOUR * 60 + at)
 			at = at + e.every if e.every > 0.0 else INF
+	for n in range(1, night_no):   # o que as noites anteriores deixaram na rua (a pichação, a tinta nova, a banca fechada)
+		for e in C.nights[n - 1].street_events:
+			background.left_behind(e.kind)
 	notebook.night = night_no
 	toll.night = night_no
 	_update_room()

@@ -302,8 +302,33 @@ func _check_street() -> void:
 	for n: Night in GameData.CONTENT.nights:
 		for e in n.street_events:
 			ok(e.at >= 0.0 and e.at < n.shift_end and e.every >= 0.0, "cena da rua dentro do turno")
-			if e.kind == "beating":
+			if e.kind in ["beating", "speaker", "chase", "flyers", "newsstand", "parade"]:   # (as que têm gente na calçada reagindo)
 				ok(e.at + Main.SHIFT_START_HOUR * 60 < Background.WALK_UNTIL - 30.0, "cena da rua com gente na calçada")
+			if e.kind == "newsstand":   # (com a banca ainda aberta)
+				ok(e.at + Main.SHIFT_START_HOUR * 60 < Background.NEWSSTAND_SHUT.x - 10.0, "a banca fechada antes da hora dela")
+	var marks := {}   # a tinta por cima numa noite depois da pichação
+	for i in GameData.CONTENT.nights.size():
+		for e in GameData.CONTENT.nights[i].street_events:
+			marks[e.kind] = i
+	ok(not marks.has("paint") or marks.get("graffiti", INF) < marks["paint"], "a tinta por cima depois da pichação")
+	var stand: GDScript = load("res://scripts/ui/newsstand.gd")
+	var shut: Vector3 = stand.state(1e5)
+	ok(shut == Vector3(1, 0, 1) and stand.state(0.0).y == 1.0, "a banca esvaziada, fechada e lacrada no fim")
+	ok(stand.figures(stand.wait() + stand.ARRIVE - 0.1).size() == 1, "os dois homens no carro antes de ele sair")
+	var tag: GDScript = load("res://scripts/ui/graffiti.gd")
+	ok(tag.tag(tag.SPRAY_END).size() == tag._paint_order().size() and tag.tag(tag.SPRAY_AT - 0.01).is_empty(), "a pichação no tempo do spray")
+	ok(tag.tagger(1e5).is_empty() and tag.painter(1e5).is_empty(), "o pichador e o pintor saem da vista")
+	var kiosk: GDScript = load("res://scripts/ui/newsstand.gd")
+	kiosk.state(0.0)
+	ok(kiosk._puts.size() == 4 and kiosk._puts.all(func(p: float) -> bool: return kiosk.lid(p) == 1.0) and kiosk.lid(kiosk._in.min()) == 0.0,
+		"o porta-malas aberto a cada pilha e fechado antes de os homens entrarem")
+	var flyers: GDScript = load("res://scripts/ui/flyers.gd")
+	ok(flyers.ground(1e5).all(func(f: Vector3) -> bool: return f.y < flyers.SIDEWALK.x or absf(f.x) >= flyers.VIEW), "os varredores limpam a calçada à vista")
+	ok(flyers.figures(1e5).is_empty(), "os varredores saem da vista")
+	var chase: GDScript = load("res://scripts/ui/chase.gd")
+	var door: float = chase._young_keys()[-1][0]
+	ok(chase.MEN_START.all(func(t0: float) -> bool: return t0 > door), "os homens da corrida chegam depois de o rapaz entrar")
+	ok(chase.figures(chase.END - 0.01).all(func(f: Dictionary) -> bool: return f["x"] < -12.0), "os homens da corrida saem pela esquerda")
 	var end: float = beating.END
 	ok(beating.officer(end)["x"] > 11.0 and beating.victim(end)["x"] > 10.0, "o policial e o homem saem da vista")
 	ok(beating.drops(end).all(func(d: Array) -> bool: return d[1] == 0.0), "o sangue todo no chão no fim")

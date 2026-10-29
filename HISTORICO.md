@@ -2721,3 +2721,44 @@ Chaves:
     rua do cruzamento o facho não para mais numa linha (o raio ia até 1,5× e se juntava ali) e vai sumindo com a
     distância; a mira no cruzamento fica baixa (até 0,4 m). Nos prédios ela sobe até as janelas de cima
     (`CURFEW_HIGH`, 4,5 m).
+466. #vista #noites "Pode seguir, assim que finalizar parta para os próximos e no final mostre o que você conseguiu
+    fazer e o que melhoraria" (as cenas F, G, C, B, E e D do `PLANO_RUA.md`, sem esperar aprovação de cada uma). Noite
+    5: o carro de som, uma Kombi devagar com cartaz, brasão e duas cornetas no bagageiro, a voz saturada com eco na rua
+    (`SPEAKER_*`, `_build_speaker`), quem está na calçada para e olha (`_listen`). Noite 8: a corrida (`Chase`): um
+    rapaz atravessa correndo, olha para trás e entra no hotel; dois homens de terno e chapéu perdem o rastro na esquina
+    e vão embora. Noite 6: panfletos jogados de uma Brasília, voando e planando até o chão (`Flyers`), recolhidos um a
+    um por um policial um minuto depois. Noite 4: a pichação de madrugada (três letras inventadas e um risco, pixel a
+    pixel, escorrendo; `Graffiti`); noite 7: um pintor cobre de cinza em faixas de rolo; ficam nas noites seguintes
+    (`left_behind`). Noite 12: um sedã escuro para na esquina, dois homens esvaziam a banca, baixam as portas e a
+    lacram (`Newsstand`); ela fica fechada até o fim do jogo. Noite 10: o caminhão do exército com a lona enrolada e os
+    soldados de capacete e fuzil (`_draw_army_truck`), o diesel grave (`_build_army`) e o vidro da janela tremendo
+    (`_tremor`). Captura `--scene=<tipo>` e as determinísticas `--chase`, `--flyers`, `--graffiti`, `--paint`,
+    `--newsstand`; botões no F1.
+467. #vista #saiu "Tire a bandeira do Brasil do carro, deixe um círculo como fosse um brasão apenas". O cartaz do carro
+    de som ficou com um brasão redondo, sem bandeira.
+468. #vista #saiu "As cornetas ficaram estranhas, estão tortas quase viradas para o jogador" e "Deixe elas menores
+    também, como na primeira versão". As cornetas ficaram retas, deitadas ao longo do carro, e pequenas.
+469. #vista #saiu "Vamos tirar a tremulação na hora do desfile", "o caminhão do desfile está com as duas rodas
+    traseiras se sobrepondo. Os soldados estão cortados na carroceria, complete eles, dê mais detalhes ao caminhão",
+    "algum problema esquisito na porta do hotel, é como se tivessem duas portas uma em cima da outra", "o carro que passa
+    jogando os panfletos poderia jogar aos poucos ao longo da rua e aí ao invés de aparecer somente uma pessoa limpando,
+    apareciam umas três varrendo e limpando", "quando o rapaz da tinta está chegando na pichação, a velocidade dele cai
+    drasticamente até parar" e, na corrida, "os dois outros homens aparecem muito rápido e não fica crível que eles não
+    viram o homem entrar no hotel... seguir pelo mesmo caminho da esquerda". O vidro não treme mais (saiu o `_tremor`).
+    O caminhão: os eixos de trás afastados (1,25 m), a lona enrolada mais alta e os soldados no banco do meio, costas com
+    costas, cinco de cada lado (`ARMY_SEATS`, `ARMY_GAP`): os de cá inteiros, de frente (capacete, rosto, farda, braços
+    nos joelhos, pernas até as botas, o fuzil em pé até o peito); os de lá, só capacete e ombros, mais escuros; os postes
+    da lona só nas pontas (no meio, com os fuzis, virava grade); e para-choque, venezianas do capô, retrovisor, estribo,
+    tanque, caixa de ferramentas, para-barros e o número na porta. A porta do hotel: uma vitrine do térreo caía atrás
+    dela e acendia junto; o trecho da porta não tem mais vitrine (`HOTEL_DOOR_GAP`). Os panfletos: a Brasília mais
+    devagar joga quatro maços ao longo da rua (`THROWS`); três varredores de uniforme, vassoura e saco (um da direita, um
+    descendo a rua do cruzamento, um da esquerda) varrem e pegam papel por papel da calçada à vista (`SWEEPERS`,
+    `Flyers.figures`, som "sweep"). Quem anda até um lugar vai no passo e só freia no fim (`Beating.walk`, `WALK_EASE`),
+    no pintor, no pichador, nos homens da banca e nos varredores. A corrida: os homens chegam depois de o rapaz sumir
+    na porta (`MEN_START`) e seguem para a esquerda, passando pelo hotel sem saber.
+470. #vista #saiu "No evento da banca fechada, os policiais não estão abrindo o porta-malas para colocar as coisas
+    dentro, eles também estão ficando atrás do poste", "tire o som das pessoas varrendo as ruas" e "não entendi porque
+    os soldados estão pulando dentro do caminhão, pode deixar eles parados". A banca: o primeiro a chegar ao carro abre
+    a tampa (`Newsstand.lid`, desenhada no `_draw_car` com `"lid"`), os dois carregam pela traseira, na rua (`TRUNK`,
+    passando pela `CORNER`), e o último bate a tampa (som de porta); quem está na cena e mais perto que os postes de lá
+    é desenhado depois deles (antes, todos ficavam atrás). Saiu o som "sweep" e o balanço dos soldados (`ARMY_BOB`).

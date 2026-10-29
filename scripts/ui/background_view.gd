@@ -3,6 +3,10 @@ extends "res://scripts/ui/background_base.gd"
 ## o clima, quem passa, os carros, o homem do mistério e o arbusto. Desenhada de frente no vidro (`_vport`).
 
 const Beating := preload("res://scripts/ui/beating.gd")
+const Chase := preload("res://scripts/ui/chase.gd")
+const Flyers := preload("res://scripts/ui/flyers.gd")
+const Graffiti := preload("res://scripts/ui/graffiti.gd")
+const Newsstand := preload("res://scripts/ui/newsstand.gd")
 const SLEEP := Vector3(19 * 60, 23 * 60 + 50, 0.15)   ## as janelas apagam entre x e y (minutos do dia); z: as que ficam acesas
 const RAIN_STREAK := Vector2(6.0, 14.0) ## o comprimento do risco (px da tela), do mais longe ao mais perto: o rastro do quadro
 const RAIN_SLANT := 0.18 ## o vento: quanto o pingo anda para a esquerda a cada px que cai
@@ -83,6 +87,7 @@ const BIKE_SEC := 4.8     ## quanto quem passa de bicicleta leva de um lado ao o
 const CALLED := [305, 327]
 const PHONE_WALK := 1.6   ## quanto a pessoa leva até o telefone (s)
 const HOTEL_X := -6.3     ## a porta do hotel, com a marquise, no prédio do outro lado da esquina
+const HOTEL_DOOR_GAP := 1.5   ## ...sem vitrine do térreo a menos disso dela (m; a vitrine acesa aparecia atrás da porta)
 ## O letreiro de bandeira do hotel (`_draw_hotel_sign`), no estilo dos letreiros de neon antigos: pendurado por
 ## suportes na lateral do prédio, na rua do cruzamento, `SIGN_Z` m para dentro dela (antes da primeira coluna de
 ## janelas, a 1,8 m da esquina ou mais), afastado `SIGN_GAP` px da parede e de frente para a central, com a beira de
@@ -152,6 +157,15 @@ const CURFEW_HURRY := 1.5     ## depois, quantas vezes mais rápido anda...
 const CURFEW_CADENCE := 1.6   ## ...em passos mais curtos e rápidos (× `WALK_STEPS`)
 const CURFEW_SOUND := 0.33    ## onde (fração da passagem) toca o ronco dela, grave e mais longo (`CURFEW_PITCH`): o mais alto quando passa no meio
 const CURFEW_PITCH := 0.75
+## O carro de som (a noite 5, `StreetEvent` "speaker"): uma Kombi com dois alto-falantes de corneta num bagageiro no
+## teto e um cartaz na porta, passando devagar pela mão de lá (`_draw_speaker_car`); o anúncio chega abafado pelo vidro,
+## mais alto quando ela passa na frente (`SfxSynth._build_speaker`). Quem está na calçada para e olha até ela passar
+## (`Background._listen`).
+const SPEAKER_KIND := "kombi"
+const SPEAKER_SEC := SfxSynth.SPEAKER   ## quanto ela leva passando (~7 km/h; o som tem esse tamanho)
+const SPEAKER_HEAR := 7.0   ## a quantos m dela quem está na calçada para e olha...
+const SPEAKER_REACT := Vector2(0.3, 1.6)   ## ...cada um no seu tempo (s)...
+const SPEAKER_AFTER := Vector2(0.8, 2.6)   ## ...e quanto fica olhando depois que ela passa, antes de seguir (s)
 ## Um vira-lata caramelo trotando pela calçada de lá de vez em quando (`Background.STRAY_EVERY`; com chuva, não): em
 ## pixel art, dois quadros do trote (`STRAY_ART`), virado para onde vai; uns pixels maior que o de verdade, como o gato.
 ## Escuro, sumia na calçada: o pelo caramelo, apagado pela noite, aparece contra ela (`Pal.STRAY_COAT`).
@@ -231,6 +245,16 @@ const CAR_KINDS := {
 		"win": [Vector2(1.55, 1.45), Vector2(1.7, 2.15), Vector2(2.6, 2.15), Vector2(2.6, 1.45)], "pillars": [],
 		"tops": [Vector3(0.0, 1.4, 1.32), Vector3(1.6, 2.8, 2.3), Vector3(2.95, 6.5, 3.0)], "glass": [Vector4(1.4, 1.4, 1.6, 2.28)],
 		"front": 1.32, "back": 3.0, "trim": [], "doors": [2.55], "wheels": [1.0, 5.3], "wheel": 0.48},
+	# o caminhão do exército do desfile da noite 10 (`ARMY_*`): nunca sorteado; a carroceria de lona com as laterais
+	# enroladas, os soldados sentados nos bancos (`_draw_army_truck`)
+	"militar": {"weight": 0.0, "pitch": 0.55, "len": 6.8, "wide": 2.3, "belt": 1.45, "lamp": 1.0,
+		"body": [Vector2(0, 0.55), Vector2(0, 1.3), Vector2(0.15, 1.38), Vector2(1.5, 1.42), Vector2(1.5, 1.15), Vector2(6.8, 1.15), Vector2(6.8, 0.55)],
+		"cab": [Vector2(1.5, 1.15), Vector2(1.5, 1.45), Vector2(1.65, 2.35), Vector2(2.85, 2.35), Vector2(2.85, 1.15)],
+		"box": [Vector2(3.0, 1.15), Vector2(3.0, 2.9), Vector2(3.15, 3.1), Vector2(6.65, 3.1), Vector2(6.8, 2.9), Vector2(6.8, 1.15)],
+		"box_col": Pal.ARMY_CANVAS,
+		"win": [Vector2(1.62, 1.5), Vector2(1.75, 2.2), Vector2(2.65, 2.2), Vector2(2.65, 1.5)], "pillars": [],
+		"tops": [Vector3(0.0, 1.5, 1.38), Vector3(1.65, 2.85, 2.35), Vector3(3.15, 6.65, 3.1)], "glass": [Vector4(1.5, 1.45, 1.65, 2.33)],
+		"front": 1.38, "back": 3.1, "trim": [], "doors": [2.6], "wheels": [1.05, 4.6, 5.85], "wheel": 0.48},   # (os dois de trás afastados: com 1 m, os arcos se sobrepunham)
 	# o ônibus da linha da cidade: nunca sorteado, passa nos horários dele (`Background.BUS_TIMES`), mais devagar (`sec`)
 	"onibus": {"weight": 0.0, "sec": 5.0, "pitch": 0.62, "len": 10.5, "wide": 2.5, "belt": 1.5, "lamp": 0.9,
 		"body": [Vector2(0, 0.35), Vector2(0, 2.95), Vector2(0.2, 3.1), Vector2(10.3, 3.1), Vector2(10.5, 2.95), Vector2(10.5, 0.35)],
@@ -239,6 +263,11 @@ const CAR_KINDS := {
 		"tops": [Vector3(0.1, 10.4, 3.1)], "glass": [],
 		"front": 3.0, "front_glass": Vector2(1.5, 2.75), "back": 2.95, "trim": [1.5], "doors": [1.0, 5.6], "wheels": [2.0, 8.3], "wheel": 0.5},
 }
+const ARMY_KIND := "militar"
+const ARMY_SEC := SfxSynth.ARMY   ## quanto o caminhão do desfile leva passando (s; o som tem esse tamanho)
+const ARMY_SEATS := 5   ## soldados em cada lado do banco...
+const ARMY_GAP := 0.64   ## ...e de um para o outro (m; com 0,52, os capacetes se encostavam)
+const ARMY_ROLL := Vector2(2.82, 2.96)   ## a lona do lado de cá, enrolada: de que altura a que altura (m)
 const CAR_SHEEN := 2.4   ## até onde (m ao longo da rua) a luz de um poste corre pela lataria
 const CAR_WET := 1.6   ## na chuva, a lataria molhada: a luz dos postes nela mais forte e mais espalhada
 const TAXI := 0.15   ## dos Fuscas e sedãs, quantos são táxi (com a placa acesa no teto)
@@ -426,6 +455,8 @@ var _smoke_t := -1.0   # há quanto tempo alguém saiu para fumar na varanda (s;
 var beating := INF     ## quando começa a cena da rua (`Beating`, a noite 3; min do dia; o Main põe)
 var police := INF      ## quando a viatura vem parar no hotel (`PATROL_*`, a noite 7; min do dia; o Main põe)
 var curfew := INF      ## quando começa o toque de recolher (`CURFEW_*`, as noites 9 a 14; min do dia; o Main põe)
+var scene_at := {}     ## quando começa cada uma das outras cenas da rua (`StreetEvent.kind` -> min do dia; o Main põe, `schedule`)
+var _scene_t := {}     # há quanto tempo cada uma delas começou (s; negativo: esperando a rua esvaziar; `Background._start_scene`)
 var lookout_at: Array[float] = []   ## quando o vigia aparece no terraço do hotel (`LOOKOUT_*`, a noite 9; min do dia; o Main põe)
 var _look_t := -1.0    # há quanto tempo ele apareceu (s; -1 = não está)
 var _beat_t := -1.0    # há quanto tempo ela começou (s; -1 = ainda não; `Beating.END`: acabou, o sangue fica no chão)
@@ -1072,6 +1103,7 @@ func _draw_city_front(g: Rect2) -> void:
 					_mirror(g, wv.x - 0.9, wv.x + 0.9, 2.6, _sunny(Pal.CITY_LIT[int(wv.x + wv.y) % Pal.CITY_LIT.size()]), a)
 		_mirror(g, CROSSING.y + 0.5, CROSSING.y + 2.5, 2.5, _sunny(Pal.BAR_LIGHT[1]), a)   # a vitrine do bar e a porta do hotel, sempre acesas
 		_mirror(g, HOTEL_X - 0.6, HOTEL_X + 0.6, 2.3, _sunny(Pal.HOTEL_DOOR[1]), a)
+	_draw_tag_wall(g)
 	_draw_lookout(g)
 	_draw_sign_wash(g)
 	_draw_hotel_sign(g)
@@ -1082,18 +1114,26 @@ func _draw_city_front(g: Rect2) -> void:
 	_draw_cat(g)
 	_draw_guest(g)
 	_draw_patrol(g)
-	var figs := _beating_figs()   # o policial e o homem da cena da rua, na ordem de quem passa (os de mais longe primeiro)
+	var figs := _scene_figs()   # quem está nas cenas da rua, na ordem de quem passa (os de mais longe primeiro)
+	var posts: float = STREET["far_curb"] + 0.4
+	var ahead := figs.filter(func(f: Dictionary) -> bool: return f["z"] < posts)   # os da frente dos postes vêm depois deles
+	figs = figs.filter(func(f: Dictionary) -> bool: return f["z"] >= posts)
 	_draw_blood(g, false)
+	_draw_flyers(g, false)
 	_draw_beam_shadows(g)
 	for w: Dictionary in _walkers:   # passam atrás dos postes e do homem
 		while not figs.is_empty() and figs[0]["z"] > _walk_at(w).y:
-			_draw_rig(g, figs.pop_front())
+			var f: Dictionary = figs.pop_front()
+			_draw_rig(g, f, _door_clip(g, f["x"], f["z"]))
 		_draw_walker(g, w)
 	for p: Dictionary in figs:
-		_draw_rig(g, p)
-	_draw_blood(g, true)
+		_draw_rig(g, p, _door_clip(g, p["x"], p["z"]))
 	for x: float in FAR_LAMPS:
-		_draw_lamp_post(g, x, STREET["far_curb"] + 0.4)
+		_draw_lamp_post(g, x, posts)
+	for p: Dictionary in ahead:
+		_draw_rig(g, p, _door_clip(g, p["x"], p["z"]))
+	_draw_blood(g, true)
+	_draw_flyers(g, true)
 	if weather == "clear" and _posts_on():
 		_draw_moths(g)
 	var mx := _man_x()
@@ -1231,7 +1271,7 @@ func _lane(c: Dictionary) -> Vector2:
 ## Onde está a frente do táxi que para no hotel (`c`, com "stop"; x, m), pelos segundos dele (`s`): chegando,
 ## freando; parado com o meio na porta; saindo, acelerando (`TAXI_STOP`).
 func _taxi_x(c: Dictionary) -> float:
-	var stop: float = (_patrol_mid() if c.has("police") else _taxi_mid()) - CAR_KINDS[c["kind"]]["len"] / 2.0   # (a frente vai para a esquerda)
+	var stop: float = c.get("mid", _patrol_mid() if c.has("police") else _taxi_mid()) - CAR_KINDS[c["kind"]]["len"] / 2.0   # (a frente vai para a esquerda)
 	var s: float = c["s"]
 	if s < TAXI_STOP.x:
 		var u := 1.0 - s / TAXI_STOP.x
@@ -2226,7 +2266,9 @@ func _draw_newsstand(g: Rect2, hz: Color) -> void:
 	var top := 2.2
 	var sun := _sunlit()
 	var paint := func(i: int) -> Color: return (Pal.NEWSSTAND[i] as Color).lerp(Pal.DAWN_SHADE, 0.3 * sun)   # (na sombra da parede da direita)
-	var open := minutes < NEWSSTAND_SHUT.x or minutes >= NEWSSTAND_SHUT.y
+	var seized := Newsstand.state(_scene_t.get("newsstand", -1.0))   # (a noite 12 e depois: esvaziada, fechada e lacrada para sempre)
+	var shut := seized.x if _scene_t.has("newsstand") else 0.0 if minutes < NEWSSTAND_SHUT.x or minutes >= NEWSSTAND_SHUT.y else 1.0
+	var open := shut < 1.0
 	var side := func(za: float, zb: float, h0: float, h1: float, d := 0.0) -> PackedVector2Array:   # na face da rua (ou `d` m para fora)
 		return PackedVector2Array([_o(g, x0 - d, za, h0), _o(g, x0 - d, zb, h0), _o(g, x0 - d, zb, h1), _o(g, x0 - d, za, h1)])
 	var front := func(xa: float, xb: float, h0: float, h1: float, d := 0.0) -> PackedVector2Array:   # na ponta de cá
@@ -2240,24 +2282,34 @@ func _draw_newsstand(g: Rect2, hz: Color) -> void:
 		_poly(side.call(z0 + 0.1, z1 - 0.1, 0.9, top - 0.15), lit)
 		_poly(front.call(x0 + 0.1, x1 - 0.1, 0.9, top - 0.15), lit)
 		var n := 0
+		var left := seized.y   # (levadas em pilhas: as revistas saem das fileiras, as de baixo antes)
 		for h: float in [1.68, 1.33]:
 			var zs := z0 + 0.18
 			while zs < z1 - 0.35:
-				_poly(side.call(zs, zs + 0.22, h, h + 0.28), Pal.MAGAZINES[n % Pal.MAGAZINES.size()])
+				if (n * 7) % 10 < left * 10.0 + (1.0 if h > 1.5 else 0.0):
+					_poly(side.call(zs, zs + 0.22, h, h + 0.28), Pal.MAGAZINES[n % Pal.MAGAZINES.size()])
 				zs += 0.3
 				n += 3
 			var xs := x0 + 0.16
 			while xs < x1 - 0.3:
-				_poly(front.call(xs, xs + 0.2, h, h + 0.28), Pal.MAGAZINES[n % Pal.MAGAZINES.size()])
+				if (n * 7) % 10 < left * 10.0 + (1.0 if h > 1.5 else 0.0):
+					_poly(front.call(xs, xs + 0.2, h, h + 0.28), Pal.MAGAZINES[n % Pal.MAGAZINES.size()])
 				xs += 0.27
 				n += 2
-		_poly(side.call(z0 + 0.15, z1 - 0.15, 0.9, 1.02), news)
-		_poly(front.call(x0 + 0.15, x1 - 0.15, 0.9, 1.02), news)
+		if left > 0.0:   # os jornais no balcão, a pilha baixando
+			_poly(side.call(z0 + 0.15, z1 - 0.15, 0.9, 0.9 + 0.12 * left), news)
+			_poly(front.call(x0 + 0.15, x1 - 0.15, 0.9, 0.9 + 0.12 * left), news)
 		_ci.draw_line(_o(g, x0, z0, 0.9), _o(g, x0, z1, 0.9), paint.call(2), PX)   # a beira do balcão
 		_ci.draw_line(_o(g, x0, z0, 0.9), _o(g, x1, z0, 0.9), paint.call(2), PX)
-		# as portas de cima, levantadas: a chapa de cima para fora, vista de cima
-		_poly(PackedVector2Array([_o(g, x0, z0, top - 0.1), _o(g, x0, z1, top - 0.1), _o(g, x0 - 0.7, z1, top + 0.15), _o(g, x0 - 0.7, z0, top + 0.15)]), paint.call(2))
-		_poly(PackedVector2Array([_o(g, x0, z0, top - 0.1), _o(g, x1, z0, top - 0.1), _o(g, x1, z0 - 0.7, top + 0.15), _o(g, x0, z0 - 0.7, top + 0.15)]), paint.call(2))
+		if shut == 0.0:   # as portas de cima, levantadas: a chapa de cima para fora, vista de cima
+			_poly(PackedVector2Array([_o(g, x0, z0, top - 0.1), _o(g, x0, z1, top - 0.1), _o(g, x0 - 0.7, z1, top + 0.15), _o(g, x0 - 0.7, z0, top + 0.15)]), paint.call(2))
+			_poly(PackedVector2Array([_o(g, x0, z0, top - 0.1), _o(g, x1, z0, top - 0.1), _o(g, x1, z0 - 0.7, top + 0.15), _o(g, x0, z0 - 0.7, top + 0.15)]), paint.call(2))
+		else:   # descendo: a chapa cobrindo o vão de cima para baixo
+			var low := top - shut * top
+			_poly(side.call(z0, z1, low, top), paint.call(1))
+			_poly(front.call(x0, x1, low, top), (paint.call(1) as Color).darkened(0.15))
+			_ci.draw_line(_o(g, x0, z0, low), _o(g, x0, z1, low), paint.call(2), PX)
+			_ci.draw_line(_o(g, x0, z0, low), _o(g, x1, z0, low), paint.call(2), PX)
 	else:   # as portas arriadas, com os vincos da chapa
 		var h := 0.2
 		while h < top - 0.1:
@@ -2265,6 +2317,12 @@ func _draw_newsstand(g: Rect2, hz: Color) -> void:
 			_ci.draw_line(_o(g, x0, z0, h), _o(g, x1, z0, h), paint.call(0), PX)
 			h += 0.22
 		_ci.draw_line(_o(g, x0, (z0 + z1) / 2.0, 0.1), _o(g, x0, (z0 + z1) / 2.0, top), paint.call(0), PX)   # a junta das portas
+		if seized.z > 0.0:   # lacrada: a faixa de papel atravessando a junta e o cadeado embaixo dela
+			var zm := (z0 + z1) / 2.0
+			_poly(side.call(zm - 0.35, zm + 0.35, 1.05, 1.17), Pal.STAND_SEAL.lerp(hz, 0.15))
+			var lock := (_o(g, x0, zm, 0.45) * 2.0).floor()
+			_p(lock.x - 1, lock.y - 2, 2, 2, Pal.BUCKET[0])
+			_p(lock.x - 1, lock.y - 2, 2, 1, Pal.BUCKET[1])
 	_ci.draw_line(_o(g, x0, z0, 0.0), _o(g, x0, z0, top), paint.call(2), PX)   # a quina, na luz da rua
 	# o teto, saindo um pouco, e a tábua com o nome em cima dele, de frente para a esquina
 	_poly(PackedVector2Array([_o(g, x0 - 0.12, z0 - 0.12, top + 0.1), _o(g, x1, z0 - 0.12, top + 0.1), _o(g, x1, z1 + 0.12, top + 0.1),
@@ -2413,6 +2471,8 @@ func _draw_far_house(g: Rect2, b: Dictionary, hz: Color) -> void:
 	for j in b["wins"].size():   # (x do meio, andar, hora de apagar; -1: apagada)
 		var wv: Vector3 = b["wins"][j]
 		var ground := wv.y == 0.0
+		if ground and absf(wv.x - HOTEL_X) < HOTEL_DOOR_GAP:   # a porta do hotel, com a marquise, toma o lugar dela
+			continue
 		var w := (1.8 if ground else 1.2) * k
 		var top := _o(g, wv.x, ff, 2.6 if ground else wv.y * 3.2 + 2.5)
 		var variety := int(absf(wv.x) * 7.0 + wv.y * 3.0)
@@ -2455,7 +2515,7 @@ func _draw_far_house(g: Rect2, b: Dictionary, hz: Color) -> void:
 			elif variety % 3 == 1:   # o caixilho
 				_r(p.x + w * 0.5, p.y, PX, h, tone.call(-3))
 			_r(p.x, p.y, w, PX, Color(hz, 0.5))   # o reflexo da rua no vidro
-		if ground and absf(wv.x - HOTEL_X) > 1.5 and (wv.x < CROSSING.y or wv.x > BAR_DOOR.y + 0.5):   # o térreo (o bar e a marquise do hotel têm o deles)
+		if ground and (wv.x < CROSSING.y or wv.x > BAR_DOOR.y + 0.5):   # o térreo (o bar e a marquise do hotel têm o deles)
 			_draw_shop_trim(p, w, h, k, variety, _win_lit(b, j), tone)
 		if not ground:
 			_r(p.x - PX * 2.0, p.y + h, w + PX * 4.0, PX, tone.call(3))   # o peitoril, saindo da parede, e a sombra dele
@@ -2841,10 +2901,7 @@ func _draw_patrol(g: Rect2) -> void:
 			var to := Vector2((HOTEL_X + (0.25 if i == 1 else -0.25)) * (ff + 0.8) / ff, ff + 0.8)   # ...até a porta do hotel
 			var u := q / GUEST.z if q == going else 1.0 - q / GUEST.z
 			var at := from.lerp(to, u)
-			var clip := Rect2()   # passando da fachada, só pela porta
-			if at.y > ff:
-				var a := _o(g, HOTEL_X - 0.6, ff, 2.3)
-				clip = Rect2(a * 2.0, (_o(g, HOTEL_X + 0.6, ff) - a) * 2.0)
+			var clip := _door_clip(g, at.x, at.y)
 			var dir := signf(to.x - from.x) * (1.0 if q == going else -1.0)
 			_draw_rig(g, Beating.STAND.merged({"x": at.x, "z": at.y, "s": dir, "front": true, "cop": true,
 				"step": int(q / GUEST.z * from.distance_to(to) / Beating.STEP)}, true), clip)
@@ -2899,6 +2956,120 @@ func _draw_patrol_car(g: Rect2, c: Dictionary, m: Dictionary, at: Callable, z0: 
 	if face < 0.0:   # de costas para nós: o vermelho batendo na fachada do hotel, atrás
 		var wall := Vector2(head.x, _o(g, 0.0, STREET["far"], 1.6).y)
 		_light_fan(wall, _ring(wall, 2.6 * OUT_F / STREET["far"]), Color(Pal.BEACON, 0.16 * -face))
+
+
+## O que o carro de som (`c`; `at` dá o x a tantos m da frente, `z0` o lado de cá) tem a mais que uma Kombi: o cartaz
+## na porta (um brasão redondo e as letras só sugeridas, num papel colado) e, no teto, o bagageiro cromado com os dois
+## alto-falantes de corneta, retos, um apontando para a frente e o outro para trás: vistos de lado, o tubo abrindo do
+## motor no meio até a boca, com o aro dela na ponta.
+## O caminhão do desfile (`c`, "army"; `at`: x a metros da frente; `z0`/`z1`: os lados): a lona do lado de cá
+## enrolada em cima e, pelo vão, os soldados no banco do meio, costas com costas (os de cá de frente para nós, inteiros:
+## capacete, rosto, farda, os braços nos joelhos, as pernas até as botas no assoalho e o fuzil em pé entre elas; os de
+## lá, só o capacete e os ombros entre as cabeças), parados; e os detalhes da lataria (para-choque, retrovisor, venezianas do capô, estribo, tanque, caixa de ferramentas,
+## para-barros e o número pintado na porta).
+func _draw_army_truck(g: Rect2, c: Dictionary, at: Callable, z0: float, z1: float) -> void:
+	var canvas: Array = Pal.ARMY_CANVAS
+	var olive: Array = Pal.ARMY_OLIVE
+	var mid := Pal.CAR_MID
+	var face := func(a: float, b: float, z: float, h0: float, h1: float) -> PackedVector2Array:   # um retângulo de pé, de frente para nós
+		return PackedVector2Array([_o(g, at.call(a), z, h0), _o(g, at.call(b), z, h0), _o(g, at.call(b), z, h1), _o(g, at.call(a), z, h1)])
+	var flat := func(a: float, b: float, za: float, zb: float, h: float) -> PackedVector2Array:   # um deitado, visto de cima
+		return PackedVector2Array([_o(g, at.call(a), za, h), _o(g, at.call(b), za, h), _o(g, at.call(b), zb, h), _o(g, at.call(a), zb, h)])
+	var floor_h := 1.15   # o assoalho da carroceria
+	var top := ARMY_ROLL.x   # o vão, até a lona enrolada
+	_poly(face.call(3.15, 6.65, z0, floor_h, top), canvas[mid - 3])   # o vão: o escuro debaixo da lona...
+	_poly(face.call(3.15, 6.65, z1, floor_h + 0.15, top + 0.3), canvas[mid - 2])   # ...a lona do lado de lá, por dentro
+	var seat := (z0 + z1) / 2.0 - 0.1   # o banco do meio, costas com costas
+	_poly(face.call(3.2, 6.6, seat, floor_h, floor_h + 0.45), olive[mid - 3])
+	for i in ARMY_SEATS:   # os de lá, de costas para nós: o capacete e os ombros
+		var a := 3.65 + i * ARMY_GAP + ARMY_GAP / 2.0
+		var zb := seat + 0.35
+		_poly(face.call(a - 0.18, a + 0.18, zb, floor_h + 0.5, floor_h + 0.98), olive[mid])
+		_poly(face.call(a - 0.08, a + 0.08, zb, floor_h + 0.98, floor_h + 1.1), (Pal.WALK_SKIN[(i + 1) % 3] as Color).darkened(0.45))
+		_poly(face.call(a - 0.15, a + 0.15, zb, floor_h + 1.08, floor_h + 1.24), Pal.ARMY_HELMET[0].darkened(0.4))   # (no escuro: no tom dos de cá, viravam uma faixa só)
+	for i in ARMY_SEATS:   # os de cá, de frente: do mais escondido (o tronco) para o de mais à frente (o fuzil)
+		var a := 3.65 + i * ARMY_GAP
+		var knee := seat - 0.45
+		var lap := floor_h + 0.47   # o colo
+		var cloth: Color = olive[mid + 2 + (i % 2)]   # (acesos pela rua: no tom do vão, sumiam)
+		var skin: Color = Pal.WALK_SKIN[(i * 2) % 3]
+		_poly(face.call(a - 0.18, a + 0.18, seat, lap, lap + 0.55), cloth)   # o tronco, com o cinto
+		_poly(face.call(a - 0.06, a + 0.06, seat, lap + 0.55, lap + 0.6), skin.darkened(0.3))   # o pescoço
+		_poly(face.call(a - 0.08, a + 0.08, seat, lap + 0.6, lap + 0.76), skin)   # o rosto, com a sombra da aba nos olhos
+		_poly(face.call(a - 0.08, a + 0.08, seat, lap + 0.7, lap + 0.73), skin.darkened(0.45))
+		_poly(face.call(a - 0.16, a + 0.16, seat, lap + 0.73, lap + 0.79), Pal.ARMY_HELMET[0])   # o capacete: a aba...
+		_poly(face.call(a - 0.13, a + 0.13, seat, lap + 0.79, lap + 0.9), Pal.ARMY_HELMET[0])   # ...a cúpula...
+		_poly(face.call(a - 0.07, a + 0.07, seat, lap + 0.86, lap + 0.9), Pal.ARMY_HELMET[1])   # ...e o alto aceso
+		for side: float in [-1.0, 1.0]:
+			var x0 := a + side * 0.1
+			_poly(flat.call(x0 - 0.06, x0 + 0.06, seat, knee, lap + 0.04), cloth.darkened(0.1))   # a coxa, vindo para nós...
+			_poly(face.call(x0 - 0.055, x0 + 0.055, knee, floor_h + 0.06, lap + 0.04), cloth.darkened(0.2))   # ...a canela, de pé...
+			_poly(face.call(x0 - 0.07, x0 + 0.07, knee - 0.05, floor_h, floor_h + 0.1), Pal.ARMY_RIFLE)   # ...e a bota
+			var arm := PackedVector2Array([_o(g, at.call(a + side * 0.2), seat, lap + 0.5), _o(g, at.call(a + side * 0.24), seat, lap + 0.5),
+				_o(g, at.call(a + side * 0.17), knee, lap + 0.1), _o(g, at.call(a + side * 0.12), knee, lap + 0.1)])
+			_poly(arm, cloth.darkened(0.08))   # o braço, do ombro ao joelho
+			_poly(face.call(a + side * 0.17 - 0.04, a + side * 0.17 + 0.04, knee - 0.02, lap + 0.04, lap + 0.1), skin)   # a mão
+		var gun := _o(g, at.call(a), knee - 0.08, floor_h + 0.02)   # o fuzil em pé entre os joelhos: a coronha no assoalho e o cano para cima
+		_ci.draw_line(gun, _o(g, at.call(a), knee - 0.08, lap + 0.5), Pal.ARMY_RIFLE, PX)   # (até o peito: passando da cabeça, com os seis, era uma grade)
+		_poly(face.call(a - 0.04, a + 0.04, knee - 0.08, floor_h + 0.02, floor_h + 0.2), Pal.ARMY_RIFLE)
+	_poly(face.call(3.0, 6.8, z0, floor_h, floor_h + 0.14), canvas[mid])   # a guarda baixa da carroceria e a barra de cima, fina
+	_ci.draw_line(_o(g, at.call(3.0), z0, floor_h + 0.48), _o(g, at.call(6.8), z0, floor_h + 0.48), canvas[mid - 1], PX)
+	_poly(face.call(3.0, 6.8, z0, top, ARMY_ROLL.y), canvas[mid + 1])   # a lona enrolada, com a sombra embaixo e as amarras
+	_ci.draw_line(_o(g, at.call(3.0), z0, top), _o(g, at.call(6.8), z0, top), canvas[mid - 2], PX)
+	for a: float in [3.1, 6.7]:   # os postes da lona nas pontas (no meio, com os soldados, era uma grade)
+		_ci.draw_line(_o(g, at.call(a), z0, floor_h), _o(g, at.call(a), z0, top), canvas[mid - 1], PX)
+	for a: float in [3.1, 4.3, 5.5, 6.7]:   # as amarras da lona enrolada
+		_ci.draw_line(_o(g, at.call(a + 0.3), z0, top), _o(g, at.call(a + 0.3), z0, ARMY_ROLL.y), canvas[mid - 2], PX)
+	var roof := 3.1   # as costuras da lona no teto, por cima dos arcos
+	for a: float in [4.3, 5.5]:
+		_ci.draw_line(_o(g, at.call(a), z0, roof), _o(g, at.call(a), z1, roof), canvas[mid - 2], PX)
+	# a lataria: o para-choque, as venezianas do capô, o retrovisor, o estribo, o tanque, a caixa e os para-barros
+	_poly(face.call(-0.12, 0.2, z0, 0.42, 0.62), Pal.ARMY_RIFLE)
+	for a: float in [0.45, 0.6, 0.75, 0.9]:
+		_ci.draw_line(_o(g, at.call(a), z0, 0.95), _o(g, at.call(a), z0, 1.2), olive[mid - 2], PX)
+	_ci.draw_line(_o(g, at.call(1.62), z0, 2.1), _o(g, at.call(1.45), z0 - 0.25, 2.15), Pal.ARMY_RIFLE, PX)
+	_poly(face.call(1.4, 1.5, z0 - 0.25, 1.95, 2.25), Pal.ARMY_RIFLE)
+	_poly(face.call(1.75, 2.75, z0, 0.5, 0.58), Pal.ARMY_RIFLE)
+	_poly(face.call(2.05, 2.75, z0, 0.62, 0.92), olive[mid - 1])   # o tanque de combustível, com a beira acesa
+	_ci.draw_line(_o(g, at.call(2.05), z0, 0.9), _o(g, at.call(2.75), z0, 0.9), olive[mid + 1], PX)
+	_poly(face.call(3.35, 4.0, z0, 0.62, 0.95), olive[mid - 2])
+	for a: float in [1.6, 5.4, 6.45]:   # (atrás de cada eixo)
+		_poly(face.call(a, a + 0.08, z0, 0.3, 0.75), Pal.ARMY_RIFLE)
+	_strokes(Rect2(_o(g, at.call(2.05), z0, 1.0), _o(g, at.call(2.5), z0, 0.88) - _o(g, at.call(2.05), z0, 1.0)), Pal.ARMY_STENCIL, 5)   # o número na porta
+
+
+func _draw_speaker_car(g: Rect2, c: Dictionary, at: Callable, z0: float) -> void:
+	var poster := Rect2(_o(g, at.call(3.0), z0, 1.08), Vector2.ZERO).expand(_o(g, at.call(1.35), z0, 0.58))
+	_r(poster.position.x, poster.position.y, poster.size.x, poster.size.y, Pal.SPEAKER_POSTER[0])
+	var d := maxi(5, int(poster.size.y / PX) - 2) | 1   # (ímpar: o centro num pixel)
+	var crest := poster.position + Vector2(PX + d * PX / 2.0, poster.size.y / 2.0)
+	if c["lane"] == 0:   # (o brasão na ponta de trás: a mão de lá anda para a esquerda)
+		crest.x = poster.end.x - PX - d * PX / 2.0
+	var back := Transform2D(0.0, Vector2(2, 2), 0.0, Vector2.ZERO)
+	_sprite(PixelArt.disc(d, [[d * 0.1, Pal.SPEAKER_POSTER[2]], [d * 0.34, Pal.SPEAKER_POSTER[1]], [d * 0.5, Pal.SPEAKER_POSTER[2]]]),
+		(crest * 2.0).round(), Color.WHITE, back)
+	var words := Rect2(Vector2(poster.position.x if crest.x > poster.get_center().x else crest.x + d * PX / 2.0, poster.position.y),
+		Vector2(poster.size.x - d * PX - PX, poster.size.y))
+	for row in [0.15, 0.55]:
+		_strokes(Rect2(words.position + Vector2(0, words.size.y * row), Vector2(words.size.x, words.size.y * 0.32)), Pal.PATROL_INK, 4 + int(row * 10))
+	var roof := 1.95
+	var zc: float = _lane(c).x
+	var dark := Pal.lit(Pal.CAR_CHROME, -2)
+	for a: float in [1.0, 3.3]:   # os pés do bagageiro e o trilho de cá
+		_ci.draw_line(_o(g, at.call(a), z0 + 0.15, roof), _o(g, at.call(a), z0 + 0.15, roof + 0.1), dark, PX)
+	_ci.draw_line(_o(g, at.call(0.9), z0 + 0.15, roof + 0.1), _o(g, at.call(3.4), z0 + 0.15, roof + 0.1), Pal.CAR_CHROME, PX)
+	var hc := roof + 0.3
+	_ci.draw_line(_o(g, at.call(2.15), zc, roof + 0.1), _o(g, at.call(2.15), zc, hc), dark, PX)   # o poste das cornetas
+	for horn: Vector2 in [Vector2(1.95, 1.2), Vector2(2.35, 3.1)]:   # [a garganta, a boca] (m da frente)
+		var t := _o(g, at.call(horn.x), zc, hc).round()
+		var m := _o(g, at.call(horn.y), zc, hc).round()
+		var rm := maxf(1.5 * PX, roundf((_o(g, at.call(horn.y), zc, hc + 0.2).y - m.y) / -PX) * PX)
+		var out := signf(m.x - t.x)
+		_poly(PackedVector2Array([t - Vector2(0, PX), m - Vector2(0, rm), m + Vector2(0, rm), t + Vector2(0, PX)]), Pal.SPEAKER_HORN[1])
+		_poly(PackedVector2Array([t - Vector2(0, PX), m - Vector2(0, rm), m - Vector2(0, rm - PX), t]), Pal.SPEAKER_HORN[2])   # o alto, na luz
+		_r(m.x - (PX if out > 0.0 else 0.0), m.y - rm - PX, PX, 2.0 * rm + 2.0 * PX, Pal.SPEAKER_HORN[2])   # o aro da boca, de lado
+	var can := _o(g, at.call(2.15), zc, hc)
+	_r(can.x - 2.0 * PX, can.y - 1.5 * PX, 4.0 * PX, 3.0 * PX, Pal.SPEAKER_HORN[0])   # o motor das duas, no meio
 
 
 ## O vira-lata trotando pela calçada de lá (`w`, de `_walker`, com "dog"; `x` onde está): o desenho do quadro do trote
@@ -3513,11 +3684,28 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 			_p(foot.x + a.x, foot.y - a.y - sz.y, sz.x, sz.y, Color(0, 0, 0, 0.35 * (1.0 - (-a.y) / (2.2 * k))))
 
 
-## O policial e o homem da cena da rua (`Beating`) agora, os de mais longe primeiro (nada fora dela).
-func _beating_figs() -> Array:
-	if _beat_t < 0.0 or _beat_t >= Beating.END:
-		return []
-	var figs := [Beating.victim(_beat_t).merged({"cop": false}), Beating.officer(_beat_t).merged({"cop": true})]
+## Quem está em `x`, `z` m (passando da fachada de lá, entrando pela porta do hotel): o recorte da porta, em px da
+## tela; na calçada e na rua do cruzamento, nenhum.
+func _door_clip(g: Rect2, x: float, z: float) -> Rect2:
+	if z <= STREET["far"] or x > CROSSING.x:
+		return Rect2()
+	var a := _o(g, HOTEL_X - 0.6, STREET["far"], 2.3)
+	return Rect2(a * 2.0, (_o(g, HOTEL_X + 0.6, STREET["far"]) - a) * 2.0)
+
+
+## Quem está nas cenas da rua agora: o policial e o homem da noite 3 (`Beating`) e os da corrida (`Chase`), os de mais
+## longe primeiro.
+func _scene_figs() -> Array:
+	var figs := []
+	if _beat_t >= 0.0 and _beat_t < Beating.END:
+		figs = [Beating.victim(_beat_t).merged({"cop": false}), Beating.officer(_beat_t).merged({"cop": true})]
+	figs.append_array(Chase.figures(_scene_t.get("chase", -1.0)))
+	figs.append_array(Newsstand.figures(_scene_t.get("newsstand", -1.0)))
+	figs.append_array(Flyers.figures(_scene_t.get("flyers", -1.0)))
+	for f: Dictionary in [Graffiti.tagger(_scene_t.get("graffiti", -1.0)),
+			Graffiti.painter(_scene_t.get("paint", -1.0))]:
+		if not f.is_empty():
+			figs.append(f)
 	figs.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a["z"] > b["z"])
 	return figs
 
@@ -3600,9 +3788,10 @@ func _rig_pixels(p: Dictionary, k: float) -> Dictionary:
 	var across := 0.0 if front else 1.0
 	var down := func(deg: float) -> Vector2: return Vector2(sin(deg_to_rad(deg)) * s * across, cos(deg_to_rad(deg)))   # 0: para baixo; positivo: para a frente
 	var up := func(deg: float) -> Vector2: return Vector2(sin(deg_to_rad(deg)) * s, -cos(deg_to_rad(deg)))   # 0: para cima; positivo: para a frente
-	var cloth := Pal.COP if cop else Pal.SHIRT
-	var pants := Pal.COP if cop else Pal.SHIRT_PANTS
-	var skin: Color = Pal.WALK_SKIN[1 if cop else 2]
+	var cloth: Color = p.get("cloth", Pal.COP if cop else Pal.SHIRT)
+	var pants: Color = p.get("pants", Pal.COP if cop else Pal.SHIRT_PANTS)
+	var skin: Color = Pal.WALK_SKIN[p.get("skin", 1 if cop else 2)]
+	var hat: String = p.get("hat", "cap" if cop else "")
 	var lean: float = p["lean"]
 	var legs := []   # [quadril, joelho, tornozelo], [o de cá, o de lá]
 	var hip := Vector2(0.0, -roundf(p["hip"] * k))
@@ -3619,11 +3808,14 @@ func _rig_pixels(p: Dictionary, k: float) -> Dictionary:
 	var neck: Vector2 = hip + up.call(lean) * 0.54 * k
 	var shoulder: Vector2 = neck - up.call(lean) * 0.05 * k
 	var arms := []
+	var reach := down   # (`open`: de frente, os braços abrem para os lados, no plano do desenho: pichando, pintando)
+	if front and p.get("open", false):
+		reach = func(deg: float) -> Vector2: return Vector2(sin(deg_to_rad(deg)) * s, cos(deg_to_rad(deg)))
 	for i in 2:
 		var a: Vector2 = p["arms"][i]
 		var from := shoulder + Vector2((roundf(-0.18 * k) if i == 0 else roundf(0.18 * k)) if front else 0.0, 0.0)
-		var elbow: Vector2 = from + down.call(a.x) * ARM.x * k
-		arms.append([from, elbow, elbow + down.call(a.x + a.y) * ARM.y * k])
+		var elbow: Vector2 = from + reach.call(a.x) * ARM.x * k
+		arms.append([from, elbow, elbow + reach.call(a.x + a.y) * ARM.y * k])
 	var pix := {}
 	var limb := maxi(2, roundi(0.14 * k))
 	_stamp(pix, arms[1], 1, Pal.lit(cloth, -3))
@@ -3639,18 +3831,46 @@ func _rig_pixels(p: Dictionary, k: float) -> Dictionary:
 	var tilt := lean + float(p["head"])
 	var head: Vector2 = neck + up.call(tilt) * 0.12 * k
 	var hw := maxi(2, roundi(0.2 * k))
+	var face: Vector2 = up.call(tilt + 90.0) * (-1.0 if p.get("back", false) else 1.0)   # para onde o rosto olha (`back`: por cima do ombro)
+	var crown: Vector2 = head + up.call(tilt) * 0.12 * k
 	_stamp(pix, [head, head], hw, skin)
-	if cop:   # o quepe: a copa larga e a pala para a frente
-		var crown: Vector2 = head + up.call(tilt) * 0.12 * k
-		_stamp(pix, [crown, crown], hw + 1, Pal.COP)
-		if not front:
-			_stamp(pix, [crown + up.call(tilt + 90.0) * 0.14 * k, crown + up.call(tilt + 90.0) * 0.18 * k - up.call(tilt) * 0.03 * k], 1, Pal.COP_BELT)
-	else:   # o cabelo, em cima e atrás
-		_stamp(pix, [head + up.call(tilt) * 0.08 * k - up.call(tilt + 90.0) * 0.04 * k, head + up.call(tilt) * 0.08 * k + up.call(tilt + 90.0) * 0.02 * k], 1, Pal.SILHOUETTE)
-		_stamp(pix, [head - up.call(tilt + 90.0) * 0.08 * k, head - up.call(tilt + 90.0) * 0.08 * k + up.call(tilt) * 0.06 * k], 1, Pal.SILHOUETTE)
+	match hat:
+		"cap":   # o quepe: a copa larga e a pala para a frente
+			_stamp(pix, [crown, crown], hw + 1, Pal.COP)
+			if not front:
+				_stamp(pix, [crown + face * 0.14 * k, crown + face * 0.18 * k - up.call(tilt) * 0.03 * k], 1, Pal.COP_BELT)
+		"fedora":   # o chapéu: a copa e a aba dos dois lados, um tom acima do terno
+			_stamp(pix, [crown, crown], hw, Pal.lit(cloth, 1))
+			_stamp(pix, [crown - up.call(tilt) * 0.06 * k - face * 0.17 * k, crown - up.call(tilt) * 0.06 * k + face * 0.17 * k], 1, Pal.lit(cloth, 1))
+		"hood":   # o capuz: a cabeça coberta, só o rosto aparecendo na frente
+			_stamp(pix, [head - face * 0.04 * k + up.call(tilt) * 0.03 * k, head - face * 0.04 * k + up.call(tilt) * 0.03 * k], hw + 1, Pal.lit(cloth, -1))
+			if not front:
+				_stamp(pix, [head + face * 0.08 * k, head + face * 0.08 * k], 1, skin)
+		_:   # o cabelo, em cima e atrás
+			_stamp(pix, [head + up.call(tilt) * 0.08 * k - face * 0.04 * k, head + up.call(tilt) * 0.08 * k + face * 0.02 * k], 1, Pal.SILHOUETTE)
+			_stamp(pix, [head - face * 0.08 * k, head - face * 0.08 * k + up.call(tilt) * 0.06 * k], 1, Pal.SILHOUETTE)
 	_stamp(pix, arms[0], 1, Pal.lit(cloth, -1))
 	var hand: Vector2 = arms[0][2]
 	_stamp(pix, [hand, hand], 1, skin)
+	if p.get("bucket", false):   # o balde na mão de lá, pela alça
+		var held: Vector2 = arms[1][2]
+		_stamp(pix, [held + Vector2(0, 0.1 * k), held + Vector2(0, 0.22 * k)], maxi(3, roundi(0.24 * k)), Pal.BUCKET[0])
+		_stamp(pix, [held + Vector2(-0.1 * k, 0.1 * k), held + Vector2(0.1 * k, 0.1 * k)], 1, Pal.BUCKET[1])
+	if p.get("roller", false):   # o rolo na mão de cá: o cabo para cima e o rolo atravessado, molhado de tinta
+		var hold: Vector2 = arms[0][2]
+		var tip := hold + Vector2(0, -0.28 * k)
+		_stamp(pix, [hold, tip], 1, Pal.BUCKET[0])
+		_stamp(pix, [tip + Vector2(-0.11 * k, 0), tip + Vector2(0.11 * k, 0)], 1, Pal.FRESH_PAINT[1].lightened(0.2))
+	if p.get("carry", false):   # a pilha de jornais nos braços, na frente do peito
+		var held: Vector2 = (arms[0][2] + arms[1][2]) / 2.0
+		_stamp(pix, [held + Vector2(-0.12 * k, -0.06 * k), held + Vector2(0.12 * k, -0.06 * k)], maxi(2, roundi(0.16 * k)), Pal.PAPERBOY[1])
+	if p.has("broom"):   # a vassoura na mão de cá: o cabo até a palha no chão, `broom` m à frente do quadril
+		var tip := Vector2(roundf(s * across * float(p["broom"]) * k), -1.0)
+		_stamp(pix, [arms[0][2], tip], 1, Pal.BROOM[0])
+		_stamp(pix, [tip + Vector2(-0.14 * k, 0), tip + Vector2(0.14 * k, 0)], 2, Pal.BROOM[1])
+	if p.get("sack", false):   # o saco na mão de lá, de lona, pendurado
+		var held: Vector2 = arms[1][2]
+		_stamp(pix, [held + Vector2(0, 0.08 * k), held + Vector2(0, 0.3 * k)], maxi(3, roundi(0.22 * k)), Pal.PAPERBOY[0])
 	if cop:   # o cassetete: na mão, seguindo o antebraço, ou pendurado no cinto
 		var fore: Vector2 = (arms[0][2] - arms[0][1]).normalized()
 		var stick: Array = [hand, hand + fore * 0.6 * k] if p["baton"] else [hip + up.call(lean) * 0.1 * k + up.call(lean + 90.0) * 0.1 * k, hip + up.call(lean) * 0.1 * k + up.call(lean + 90.0) * 0.14 * k + down.call(8.0) * 0.45 * k]
@@ -3697,6 +3917,59 @@ func _draw_blood(g: Rect2, air: bool) -> void:
 		var at := (_o(g, d[0], d[2], d[1]) * 2.0).floor()
 		var size: int = d[3]
 		_p(at.x, at.y, size + (0 if air else 1), size if air else 1, Pal.BLOOD[d[4]])
+
+
+## O muro do hotel entre a porta e a esquina (`Graffiti`): a pichação da noite 4, letra por letra, com a tinta
+## escorrendo, e a tinta nova da noite 7 por cima, faixa por faixa (as duas ficam nas noites seguintes:
+## `Background.left_behind`); e o balde do pintor no chão.
+func _draw_tag_wall(g: Rect2) -> void:
+	var ff: float = STREET["far"]
+	var tag: float = _scene_t.get("graffiti", -1.0)
+	if tag >= Graffiti.SPRAY_AT:
+		var corner := (_o(g, Graffiti.WALL.x - 5.0 * Graffiti.CELL, ff, Graffiti.WALL.z) * 2.0).floor()
+		for px: Vector2i in Graffiti.tag(tag):
+			_p(corner.x + px.x, corner.y + px.y, 1, 1, Pal.GRAFFITI[0])
+		for d: Array in Graffiti.drips(tag):
+			var at: Vector2i = d[0]
+			_p(corner.x + at.x, corner.y + at.y, 1, d[1], Pal.GRAFFITI[1])
+	var paint: float = _scene_t.get("paint", -1.0)
+	var bands := Graffiti.patch(paint)
+	for i in bands.size():   # (uma faixa ou outra com mais tinta, um tom acima)
+		var r: Rect2 = bands[i]
+		_poly(PackedVector2Array([_o(g, r.position.x, ff, r.position.y), _o(g, r.end.x, ff, r.position.y), _o(g, r.end.x, ff, r.end.y),
+			_o(g, r.position.x, ff, r.end.y)]), Pal.FRESH_PAINT[1 if i % 3 == 1 else 0])
+	var b := Graffiti.bucket(paint)
+	if b.z > 0.0:   # o balde no chão, com o aro aceso
+		var at := (_o(g, b.x, b.y) * 2.0).floor()
+		_p(at.x - 1, at.y - 3, 3, 3, Pal.BUCKET[0])
+		_p(at.x - 1, at.y - 3, 3, 1, Pal.BUCKET[1])
+
+
+## Os panfletos da noite 6 (`Flyers`): no chão (`air` falso: pousados, até o fim da noite, menos os que os varredores
+## recolheram; molhados, mais escuros) ou voando, um ou dois pixels de papel, virando (de chapa, mais largo e claro; de
+## lado, um ponto apagado). Mais claros perto dos postes.
+func _draw_flyers(g: Rect2, air: bool) -> void:
+	var t: float = _scene_t.get("flyers", -1.0)
+	if t < Flyers.THROWS[0]:
+		return
+	var wet := weather == "rain"
+	for f in (Flyers.air(t) if air else Flyers.ground(t)):
+		var x: float = f.x
+		var lamp := 0.0
+		for lx: float in FAR_LAMPS:
+			lamp = maxf(lamp, clampf(1.0 - absf(x - lx) / 3.5, 0.0, 1.0))
+		if air:
+			var p4: Vector4 = f
+			var at := (_o(g, p4.x, p4.y, p4.z) * 2.0).floor()
+			var flat := absf(p4.w) > 0.5
+			_p(at.x, at.y, 2 if flat else 1, 1, Pal.FLYER[1 if flat else 0].lerp(Pal.STREET_LAMP, 0.2 * lamp))
+		else:
+			var p3: Vector3 = f
+			var at := (_o(g, p3.x, p3.y) * 2.0).floor()
+			var col: Color = Pal.FLYER[2 if wet else 0].lerp(Pal.FLYER[1], 0.6 * lamp)
+			_p(at.x, at.y, 2, 1, col)
+			if p3.z > 0.0:   # (uns com a ponta virada para cima: um pixel a mais, mais claro)
+				_p(at.x + 1, at.y - 1, 1, 1, col.lightened(0.15))
 
 
 ## O carro `c` passando pela mão dele (`CAR_LANES`), apoiado no asfalto, na forma do modelo dele (`CAR_KINDS`) e na cor
@@ -3844,6 +4117,22 @@ func _draw_car(g: Rect2, c: Dictionary) -> void:
 		_sheen(g, at.call(0.05), at.call(L - 0.05), z0, h, 0.35 * shine, shine)
 	if c.has("police"):
 		_draw_patrol_car(g, c, m, at, z0)
+	if c.has("speaker"):
+		_draw_speaker_car(g, c, at, z0)
+	if c.has("army"):
+		_draw_army_truck(g, c, at, z0, lane.x + m["wide"] / 2.0)
+	if c.has("lid"):   # o porta-malas aberto, na cena da banca: o fundo escuro e a tampa erguida na dobradiça junto do vidro
+		var open := Newsstand.lid(_scene_t.get("newsstand", -1.0))
+		var tr: Vector3 = m["tops"][-1]
+		if open > 0.0:
+			var ts: Vector2 = span.call(tr.x + 0.05, tr.y - 0.05)
+			_poly(_patch(g, ts.x, ts.y, z0 + 0.08, z1 - 0.08, tr.z), tone.call(-4).darkened(0.5))
+			var ang := open * deg_to_rad(80.0)
+			var ea: float = tr.x + (tr.y - tr.x) * cos(ang)
+			var eh: float = tr.z + (tr.y - tr.x) * sin(ang)
+			_poly(PackedVector2Array([_o(g, at.call(tr.x), z0, tr.z), _o(g, at.call(ea), z0, eh), _o(g, at.call(ea), z1, eh),
+				_o(g, at.call(tr.x), z1, tr.z)]), tone.call(-1))   # (por dentro, na cor do carro: escura, era uma barbatana preta)
+			_ci.draw_line(_o(g, at.call(ea), z0, eh), _o(g, at.call(ea), z1, eh), tone.call(1), PX)   # a beira de cima, com a luz do poste
 	if c.get("taxi", false):   # o táxi: a placa acesa no teto
 		var cab: Vector3 = m["tops"][1]
 		var tx: float = at.call((cab.x + cab.y) / 2.0)
@@ -4190,6 +4479,10 @@ func _build_city(gs: Vector2) -> void:
 				wake[j] = Vector2(at, at + up.randf_range(WAKE_FOR.x, WAKE_FOR.y))
 			elif wv.z < INF and up.randf() < WAKE_DAWN:   # de madrugada, gente acordando: acende e fica
 				wake[j] = Vector2(up.randf_range(MORNING.x - 30.0, MORNING.y - 10.0), INF)
+		for j in wins.size():   # a vitrine que cairia na porta do hotel: nunca acesa (e não desenhada); depois dos sorteios, que ficam os mesmos
+			if wins[j].y == 0.0 and absf(wins[j].x - HOTEL_X) < HOTEL_DOOR_GAP:
+				wins[j].z = -1.0
+				wake.erase(j)
 		_houses.append({"x0": sp.x, "x1": sp.y, "h": floors * 3.2 + 0.8, "tones": Pal.BRICK_TONES if i == 0 else tones[rng.randi_range(0, 3)],
 			"brick": i == 0, "wins": wins, "wake": wake})
 	_canyon.clear()   # as paredes da rua do cruzamento: os fundos dos prédios da esquina e os que vêm depois, até a praça

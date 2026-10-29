@@ -48,9 +48,16 @@ extends Node
 ##   --man=0.5              o homem do mistério chegando, nessa fração do caminho até o poste (1: parado embaixo dele)
 ##   --beating=12           a cena da rua da noite 3 (`Beating`) nesse instante (s desde o começo); --beating=8,0.1,30: de
 ##                          8 s em diante, de 0,1 em 0,1 s, 30 capturas (<nome>_00.png..., e os recortes do --zoom)
+##   --chase=2,0.1,30       a corrida da noite 8 (`Chase`) nesse instante; em sequência como o --beating
+##   --flyers=50,3,12       os panfletos da noite 6 (`Flyers`) nesse instante (sem o carro: os varredores limpando, os do chão);
+##                          o carro jogando, pelo --scene=flyers
+##   --graffiti=10,1,12     a pichação da noite 4 (`Graffiti`) nesse instante; --paint=8,2,12, a tinta por cima na noite 7
+##   --newsstand=4,3,14     a banca fechada da noite 12 (`Newsstand`) nesse instante (sem o carro; com ele, --scene=newsstand)
 ##   --lookout=12           o vigia no terraço do hotel da noite 9 (`LOOKOUT_*`) nesse instante; em sequência como o --beating
 ##   --curfew=0,1,24        o toque de recolher (`CURFEW_*`) desde que a viatura aparece, com gente na calçada: de 0 s em diante, de 1 em 1 s,
 ##                          24 capturas (o tempo corre de verdade entre elas, sem --still)
+##   --scene=speaker,0,1,24 outra cena da rua (`Background.scene_at`: speaker, chase, flyers, graffiti, paint, newsstand, parade,
+##                          parade) começando agora, com gente na calçada; os tempos como no --curfew
 ##   --spot=-1,0.8,-2.5     com --curfew: a viatura parada com a frente nesse x (m), o holofote fixo nesse ponto da fachada
 ##                          (x, altura) e alguém parado na calçada nesse x, no caminho do facho
 ##   --behind=0.5           alguém passando atrás da última janela acesa do prédio de tijolos (de 0 a 1 do caminho)
@@ -395,7 +402,7 @@ func _ready() -> void:
 			if _args.has("smoke"):
 				bg._smoke_t = 10.5 if _args["smoke"] == "1" else float(_args["smoke"])
 			await get_tree().process_frame
-	for scene: Array in [["beating", "_beat_t"], ["lookout", "_look_t"]]:   # posto de novo a cada quadro (o cenário o avança sozinho)
+	for scene: Array in [["beating", "_beat_t"], ["lookout", "_look_t"], ["chase", "chase"], ["flyers", "flyers"], ["graffiti", "graffiti"], ["paint", "paint"], ["newsstand", "newsstand"]]:   # posto de novo a cada quadro (o cenário o avança sozinho)
 		if not _args.has(scene[0]):
 			continue
 		var bt := (_args[scene[0]] as String).split_floats(",")
@@ -407,21 +414,28 @@ func _ready() -> void:
 		var n := int(bt[2]) if bt.size() > 2 else 1
 		for i in n:
 			for f in 8:   # (a vista se desenha a 30 por segundo, e a captura sai um quadro depois)
-				bg.set(scene[1], bt[0] + i * (bt[1] if n > 1 else 0.0))
+				if scene[1] in ["chase", "flyers", "graffiti", "paint", "newsstand"]:   # (as cenas de `scene_at`: o relógio delas em `_scene_t`)
+					bg._scene_t[scene[1]] = bt[0] + i * (bt[1] if n > 1 else 0.0)
+				else:
+					bg.set(scene[1], bt[0] + i * (bt[1] if n > 1 else 0.0))
 				await get_tree().process_frame
 			if n > 1:
 				_grab(out, (_args.get("out", "build/shot.png") as String).get_basename() + "_%02d.png" % i)
 		if n > 1:
 			get_tree().quit()
 			return
-	if _args.has("curfew"):   # gente nos dois sentidos pela calçada e a viatura vindo; as capturas no tempo de verdade
-		var ct := (_args["curfew"] as String).split_floats(",")
+	if _args.has("curfew") or _args.has("scene"):   # gente nos dois sentidos pela calçada e a cena começando; as capturas no tempo de verdade
+		var sc := (_args.get("scene", "curfew,") + _args.get("curfew", "") as String).split(",")
+		var ct := ",".join(sc.slice(1)).split_floats(",")
 		var bg := m.background
 		bg._cars.clear()
 		bg._car_in = [INF, INF]
 		for i in 6:
 			bg._add_walker(bg._walker().merged({"t": 0.15 + i * 0.13, "dir": 1.0 if i % 2 == 0 else -1.0}, true))
-		bg.start_curfew()
+		if sc[0] == "curfew":
+			bg.start_curfew()
+		else:
+			bg.start_scene(sc[0])
 		if _args.has("spot"):   # parados: a viatura, o holofote e alguém no facho
 			var sp := (_args["spot"] as String).split_floats(",")
 			bg._walkers.clear()
