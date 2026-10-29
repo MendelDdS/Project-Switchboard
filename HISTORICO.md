@@ -2646,4 +2646,27 @@ Chaves:
     poste. Sangue a partir da terceira pancada (gotas em arco que caem e ficam, `drops`), a poça crescendo embaixo da
     cabeça (`pool`) e o rastro do arrasto; fica até o fim da noite. Sem carros nem gente nova da hora da cena até o
     fim; quem está na calçada para, se afasta até ~4,5 m e fica olhando (`_watch`; mais três chegam para assistir,
-    `ONLOOKERS`) e depois segue. Captura `--beating=t` (ou `t0,passo,n`), botão "Cena da rua" no F1. Sem som, por ora.
+    `ONLOOKERS`) e depois segue. Captura `--beating=t` (ou `t0,passo,n`), botão "Policial batendo no pedestre" no F1. Sem som, por ora.
+453. #vista #noites "No dia 7 vamos adicionar um carro da polícia parando em frente ao hotel, daí dois policiais irão
+    descer e entrar no hotel, ficarão lá por um tempo e depois irão embora." `Night.street_scene` "police" (a 7 às
+    21h30): a viatura é a próxima da mão de lá (`_police_next`) e para no hotel como o táxi (`_taxi_x`), mas fica
+    `PATROL_WAIT` s (~77 s, ~58 min do relógio). Sedã preto de portas brancas, com a sirene vermelha girando no teto
+    (`PATROL_SPIN`, o halo pulsando). Os dois policiais, desenhados como o da noite 3 (`_draw_rig`, agora com recorte
+    pela porta), descem do lado da calçada, andam até a porta do hotel e somem nela; ~70 s depois saem, voltam, as
+    portas batem (`slams`) e ela vai embora. Captura `--taxi=s --police`, botão "Viatura no hotel" no F1.
+454. #debug "Pode adicionar o policial batendo no pedestre no debug?" O botão existia como "Cena da rua (noite 3)";
+    virou "Policial batendo no pedestre (noite 3)".
+455. #vista #pedestres #noites "As pernas dos pedestres estão um pouco para trás do corpo, parece que eles estão andando
+    e caindo para frente; [...] estacionar o carro da polícia [...] ele já pode chegar na posição de estacionado [...]
+    a giroflex não está legal, precisa ser mais detalhado, assim como o próprio carro." O quadril de perfil foi
+    0,1 m à frente do tronco (`HIP_AHEAD`, que saiu no 457). A viatura vem junto do meio-fio (`PATROL_Z`, a faixa por carro em
+    `_lane`) e para com o meio na porta do hotel (`_patrol_mid`), sem manobra. `_draw_patrol_car`: "POLÍCIA" na porta
+    branca, holofote na coluna, antena atrás e a sirene com base cromada, cúpula de vidro vermelho e a lâmpada
+    passando de um lado ao outro: clarão quando vira para nós, facho varrendo a rua, vermelho na fachada de costas.
+    `--still=N` na captura para a sirene em outro ponto do giro.
+456. #pedestres "Os pedestres que caminha da esquerda pra direita ainda estão com problema de pernas para frente."
+    A perna de 2 px crescia sempre para a direita (`_limb` só centrava as de largura ímpar): quem ia para a direita
+    ficava com as pernas 1 px adiante e quem ia para a esquerda, 1 px atrás. Centrada (`wide / 2`).
+457. #pedestres "Está a mesma coisa, e pessoas caminhando da direita pra esquerda continua com as pernas para frente."
+    Com a perna centrada (456), o quadril adiantado (`HIP_AHEAD`, do 455) passou a pôr as pernas na frente nos dois
+    sentidos: saiu, e o quadril volta ao meio do tronco.

@@ -272,6 +272,7 @@ var _bike_in := 45.0     # para passar uma bicicleta (s)
 var _buses := -1         # quantos horários do ônibus já passaram (-1: ainda não contado)
 var _taxis := -1         # quantos táxis da noite já pararam no hotel (-1: ainda não contado)
 var _taxi_next := false  # o próximo da mão de lá é o táxi que para no hotel
+var _police_next := false   # o próximo da mão de lá é a viatura que para no hotel (`police`)
 var _taxi_at: Array[float] = []   # as horas deles nesta noite (min do dia; `_taxi_times`)
 var _taxi_for := -1      # a noite delas
 var _stray_in := 60.0    # para passar um vira-lata (s)
@@ -821,8 +822,12 @@ func _events(delta: float) -> void:
 		_car_in[lane] -= delta
 		if _car_in[lane] <= 0.0 and not scene:
 			var kind: String = _car_next[lane] if _car_next[lane] != "" else _car_kind()
-			var stop: bool = lane == 0 and _taxi_next and _car_next[lane] == ""   # (o ônibus na hora dele passa antes)
-			if stop:
+			var patrol: bool = lane == 0 and _police_next and _car_next[lane] == ""
+			var stop: bool = patrol or lane == 0 and _taxi_next and _car_next[lane] == ""   # (o ônibus na hora dele passa antes)
+			if patrol:
+				kind = PATROL_KIND
+				_police_next = false
+			elif stop:
 				kind = _pick(TAXI_KINDS)
 				_taxi_next = false
 			_car_next[lane] = ""
@@ -831,6 +836,8 @@ func _events(delta: float) -> void:
 				"rack": not stop and kind in RACK_KINDS and _rng.randf() < lerpf(RACK.x, RACK.y, morning())})
 			if stop:
 				_cars[-1].merge({"stop": true, "s": 0.0})
+			if patrol:
+				_cars[-1].merge(_patrol_car(), true)
 			_car_in[lane] = INF   # o próximo desta mão é sorteado quando este sair
 			Sfx.play_at(("car_wet" if weather == "rain" else "car") + ("_near" if lane == 1 else ""), x, 0.0,
 				CAR_KINDS[kind]["pitch"] * _rng.randf_range(0.97, 1.03))   # o de cá, mais perto; cada modelo no tom dele
@@ -840,11 +847,13 @@ func _events(delta: float) -> void:
 			var was: float = c["s"] - TAXI_STOP.x
 			c["s"] += delta
 			var p: float = c["s"] - TAXI_STOP.x
-			if was < GUEST.y and p >= GUEST.y:
-				Sfx.play_at("car_door", x)
-			if was < TAXI_STOP.y and p >= TAXI_STOP.y:
+			for slam: float in c.get("slams", [GUEST.y]):
+				if was < slam and p >= slam:
+					Sfx.play_at("car_door", x)
+			var wait: float = c.get("wait", TAXI_STOP.y)
+			if was < wait and p >= wait:
 				Sfx.play_at("car_wet" if weather == "rain" else "car", x, -3.0, CAR_KINDS[c["kind"]]["pitch"] * 0.9)
-			c["t"] = c["s"] / (TAXI_STOP.x + TAXI_STOP.y + TAXI_STOP.z)
+			c["t"] = c["s"] / (TAXI_STOP.x + wait + TAXI_STOP.z)
 		else:
 			c["t"] += delta / (CAR_KINDS[c["kind"]] as Dictionary).get("sec", CAR_SEC)
 		if c["t"] >= 1.0:
@@ -897,6 +906,11 @@ func _events(delta: float) -> void:
 		if _cars.all(func(c: Dictionary) -> bool: return c["lane"] != 0):
 			_car_in[0] = 0.0
 	_taxis = taxis
+	if minutes >= police and minutes < police + 30.0 and not _police_next and not _cars.any(func(c: Dictionary) -> bool: return c.has("police")):   # a viatura da noite (`PATROL_*`): a próxima da mão de lá, uma vez
+		police = INF
+		_police_next = true
+		if _cars.all(func(c: Dictionary) -> bool: return c["lane"] != 0):
+			_car_in[0] = 0.0
 	_stray_in -= delta
 	if _stray_in <= 0.0:
 		_stray_in = _rng.randf_range(STRAY_EVERY.x, STRAY_EVERY.y)
@@ -1009,6 +1023,20 @@ func _watch(w: Dictionary, delta: float) -> bool:
 	else:
 		w["face"] = signf(mid - at.x) if absf(mid - at.x) > 0.01 else w["dir"]
 	return true
+
+
+## O que a viatura que para no hotel tem a mais que o táxi (`PATROL_*`): a lataria preta, quanto fica parada e quando
+## as portas batem (cada policial entrando ou saindo dela).
+func _patrol_car() -> Dictionary:
+	var slams := []
+	for i in 2:
+		slams.append_array([PATROL_OUT[i] + 0.6, PATROL_BACK[i] + GUEST.z + 0.4])
+	return {"police": true, "taxi": false, "rack": false, "tones": Pal.CAR_TONES[5], "wait": PATROL_WAIT, "slams": slams, "z": PATROL_Z}
+
+
+## A viatura parando no hotel agora (debug), como na noite 7.
+func call_police() -> void:
+	police = minutes
 
 
 ## A cena da rua agora (debug): o policial e o homem (`Beating`), do começo.

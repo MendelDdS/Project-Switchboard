@@ -107,7 +107,7 @@ func _ready() -> void:
 	var kind := func() -> String: return "" if car.selected <= 0 else car.get_item_text(car.selected)
 	_row([["Carro na mão de lá", func(): main.background.pass_car(0, kind.call())],
 		["Carro na mão de cá", func(): main.background.pass_car(1, kind.call())]])
-	_row([["Cena da rua (noite 3)", func(): main.background.start_beating()]])
+	_row([["Policial batendo no pedestre (noite 3)", func(): main.background.start_beating()], ["Viatura no hotel (noite 7)", func(): main.background.call_police()]])
 	_section("Noites", func(): _go_night(1))
 	_row([["◀ Noite anterior", func(): _go_night(main.night_no - 1)], ["Próxima noite ▶", func(): _go_night(main.night_no + 1)]])
 	_row([["Amanhecer (última noite, 4h)", func(): _go_night(C.nights.size(), 10 * 60.0)]])

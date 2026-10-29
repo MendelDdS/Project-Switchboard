@@ -767,3 +767,8 @@ curva, outro caminho), mostre antes como proposta e pergunte, não entregue como
   é a lateral da mesa (`_receding`, como o tampo dos equipamentos). Meça a inclinação na captura contra a beira ao
   lado antes de entregar. E o que depende dos olhos (`Switchboard._eye`, que muda depois do primeiro quadro) entra no
   estado comparado, ou fica desenhado com os olhos errados.
+- **Erro visual num sentido só: procure o arredondamento antes de mexer na pose.** As pernas de quem ia para a
+  esquerda pareciam para trás; adiantei o quadril (`HIP_AHEAD`) para todos e quem ia para a direita ficou com as
+  pernas na frente. A causa era a perna de 2 px no `_limb`, que crescia sempre para a direita. Capture os dois
+  sentidos lado a lado antes e depois de cada ajuste. E carro que para na rua por muito tempo estaciona junto do
+  meio-fio: parado no meio da faixa, o usuário estranhou.

@@ -190,7 +190,8 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   o 2 na 9 (`GameData.SECTOR_NIGHTS`; `GameData.sectors` definido em `Main._load_night`). Testes de cenário usam
   `load_main([1, 2, 3])`.
 - Ritmo por nível (`Pace`, 9 níveis; `Pace.next` pelo conceito; o último é o limite; do 6 ao 9 o mesmo `mean_gap` do 5, com mais picos).
-- Cena na rua da vista por noite: `Night.street_scene` (a 3: o policial, `scripts/ui/beating.gd`).
+- Cena na rua da vista por noite: `Night.street_scene` (a 3: o policial, `scripts/ui/beating.gd`; a 7: a viatura estacionada no
+  hotel, `PATROL_*`, parando como o táxi).
 - Marcadores do roteiro: `StoryFlags` (`flags.allows(requires)`, `flags.apply("nome" | "!nome")`), salvos no `Progress`.
 - `Progress` (`user://progress.cfg`): próxima noite, ritmo, `low_nights`, marcadores, jornal, palavras-chave,
   denúncias, chuvas. A última noite ou a demissão limpa o save. Formato com versão (`Progress.VERSION`): mudou o tipo

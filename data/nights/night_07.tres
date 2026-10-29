@@ -5,3 +5,5 @@
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Domingo é mais calmo. Aproveite para conferir a lista antes de conectar: são mais números agora.\""
+street_scene = "police"
+street_scene_at = 210.0

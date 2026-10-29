@@ -300,7 +300,7 @@ func _initialize() -> void:
 func _check_street() -> void:
 	var beating: GDScript = load("res://scripts/ui/beating.gd")
 	for n: Night in GameData.CONTENT.nights:
-		if n.street_scene != "":
+		if n.street_scene == "beating":
 			ok(n.street_scene_at + Main.SHIFT_START_HOUR * 60 < Background.WALK_UNTIL - 30.0, "cena da rua com gente na calçada")
 	var end: float = beating.END
 	ok(beating.officer(end)["x"] > 11.0 and beating.victim(end)["x"] > 10.0, "o policial e o homem saem da vista")

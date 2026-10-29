@@ -22,9 +22,10 @@ extends Resource
 
 @export_group("Na rua")
 ## Uma cena lá fora, na rua da vista, nesta noite (vazio = nenhuma): "beating", o policial que espanca um homem na boca
-## do cruzamento e o arrasta para fora da vista (`Beating`); o sangue fica no chão até o fim da noite.
-@export_enum("Nenhuma:", "beating") var street_scene := ""
-## Quando ela começa (minutos depois do início do turno; antes das 22h, com gente na calçada para assistir).
+## do cruzamento e o arrasta para fora da vista (`Beating`; o sangue fica no chão até o fim da noite); "police", a
+## viatura que para no hotel, com os dois policiais que entram, ficam um tempo e vão embora (`PATROL_*`).
+@export_enum("Nenhuma:", "beating", "police") var street_scene := ""
+## Quando ela começa (minutos depois do início do turno; o "beating" antes das 22h, com gente na calçada para assistir).
 @export var street_scene_at := 190.0
 
 @export_group("Treinamento")

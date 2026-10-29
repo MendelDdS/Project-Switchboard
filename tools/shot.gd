@@ -53,7 +53,8 @@ extends Node
 ##   --smoke[=s]            alguém fumando na varanda, `s` segundos depois de sair (10,5: no meio do sopro da tragada)
 ##   --cat                  o gato da noite (na marquise ou no gradil, pela noite)
 ##   --bike=-2              alguém de bicicleta parado nesse x (m; --papers: o menino do jornal) · --dog=3: um vira-lata nesse x
-##   --taxi=4.5             o táxi que para no hotel, tantos segundos depois de aparecer (parado de 3,2 a 9,7; o passageiro de 3,7 a 7,3)
+##   --taxi=4.5             o táxi que para no hotel, tantos segundos depois de aparecer (parado de 3,2 a 9,7; o passageiro de 3,7 a 7,3);
+##                          com --police, a viatura da noite 7 (os policiais descem de 3,8 a 8,0, entram, saem de 73,2 a 77,7)
 ##   --damp=4               a mancha de umidade de 4 noites de chuva
 ##   --phones=2,1           os telefones da vista (hotel, bar): 1 tocando, 2 na linha
 ##   --sips=3               goles tomados do café · --cabinet: a porta do armário aberta
@@ -66,6 +67,7 @@ extends Node
 ##   --grade=0              sem a gradação de cor do `GameView` (a captura passa por ela, como a janela do jogo)
 ##   --still                sem a poeira do feixe da luminária e com o relógio das animações parado (`PixelArt.ms`):
 ##                          duas capturas iguais saem idênticas (para comparar pixel a pixel, `tools/diff_shots.gd`)
+##   --still=N              ...parado N-1 ms depois (a sirene da viatura em outro ponto do giro: `--still=226`)
 ## As do jogo também valem: --weather=rain|fog|clear, --night=N, --seed=N, --lang=en.
 
 const ZOOM := 4
@@ -78,7 +80,7 @@ func _ready() -> void:
 		var kv := a.trim_prefix("--").split("=", true, 1)
 		_args[kv[0]] = kv[1] if kv.size() > 1 else "1"
 	if _args.has("still"):
-		PixelArt.frozen_ms = 600000   # o relógio das animações parado (aos 10 min: as contas de "desde quando" ficam positivas)
+		PixelArt.frozen_ms = 600000 + int(_args["still"]) - 1   # o relógio das animações parado (aos 10 min: as contas de "desde quando" ficam positivas)
 	var vp := SubViewport.new()   # o jogo nessa largura, como o `GameView` o põe na janela
 	vp.size = Vector2i(int(_args.get("width", "960")), 540)
 	vp.render_target_update_mode = SubViewport.UPDATE_ALWAYS
@@ -377,6 +379,8 @@ func _ready() -> void:
 			if _args.has("taxi"):
 				bg._car_in = [INF, INF]
 				bg._cars.assign([{"t": 0.5, "lane": 0, "kind": "fusca", "tones": Pal.CAR_TONES[2], "taxi": true, "stop": true, "s": float(_args["taxi"])}])
+				if _args.has("police"):
+					bg._cars[0].merge(bg._patrol_car().merged({"kind": Background.PATROL_KIND}), true)
 			if _args.has("bar"):
 				bg._bar_t = 1.0
 			if _args.has("behind") and not bg._flats.is_empty():   # na última janela acesa à vista (a mais alta)
