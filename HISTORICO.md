@@ -2708,3 +2708,16 @@ Chaves:
     policial procura aos trancos (vira rápido e chega devagar, para um instante) e acompanha um tempo o peito de quem
     pega (`_aim`, `CURFEW_PAUSE`, `CURFEW_TURN`, `CURFEW_FOLLOW`). A primeira versão do círculo, somada a 0,55 com a cor
     do farol, virou tinta bege chapada; e o círculo atravessando a quina virava um risco: partido nela.
+464. #vista #noites "Existe outra forma de fazer essa projeção de luz? Algo que deixe mais parecido com o ambiente ao
+    invés de um círculo opaco?" e "Troque para testar. Mas antes commit o código atual". O holofote deixou de somar uma
+    cor: a camada `_spot_add` usa `spot_light.gdshader`, que lê o que já está desenhado embaixo e o multiplica pela
+    força da luz (a forma que `_draw_sweep_light` desenha, na cor dos vértices): o tijolo, as juntas e a calçada
+    continuam aparecendo, cada um na sua cor, e o ganho cai no que já é claro (a porta acesa quase não muda,
+    `CURFEW_GAIN`). A forma virou a de um holofote antigo (`CURFEW_RINGS`: miolo, faixa, anel do refletor, beira e um
+    halo largo), um pouco torta. O commit anterior (fe54ebe) guarda a versão somada, para voltar se esta ficar pior.
+465. #vista #noites "A luz no cruzamento fica cortada" e "enquanto a polícia passa em frente aos dois prédios, poderia
+    levantar mais a luz". O círculo do holofote deixou de pular os pedaços que atravessavam a quina (o buraco e a beira
+    em degraus): cada triângulo é cortado na linha da quina (`_split`) e cai inteiro na parede ou no chão; no chão da
+    rua do cruzamento o facho não para mais numa linha (o raio ia até 1,5× e se juntava ali) e vai sumindo com a
+    distância; a mira no cruzamento fica baixa (até 0,4 m). Nos prédios ela sobe até as janelas de cima
+    (`CURFEW_HIGH`, 4,5 m).

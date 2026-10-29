@@ -219,7 +219,7 @@ var _back: Control     # a parte de trás da vista, embaixo da `_view`: só se r
 var _street_mul: Control   # a sombra dos prédios de lá na rua, multiplicando o chão da `_back` (`_draw_sun_strip`)...
 var _street_add: Control   # ...e a faixa de sol, somada a ele; as duas embaixo da `_upright` e redesenhadas com a `_back`
 var _upright: Control  # o que fica em pé na cidade, por cima da luz no chão (`_draw_city_upright`): redesenhado com a `_back`
-var _spot_add: Control  # a luz do holofote do toque de recolher, somada por cima da `_upright` e por baixo da `_view` (`_draw_sweep_light`)
+var _spot_add: Control  # a luz do holofote do toque de recolher, clareando o que está embaixo (`spot_light.gdshader`): por cima da `_upright` e por baixo da `_view` (`_draw_sweep_light`)
 var _spot_drawn := false   # (redesenhada enquanto há viatura com ele, e uma vez depois, para apagar)
 var _sky: Control      # o céu da vista, embaixo da `_back` e fora da luz do dia da cidade (`DAY_GAIN`): redesenhado com ela
 var _rays: Control     # os raios do sol nascendo e os reflexos da lente, somados por cima da vista (`_draw_rays`): redesenhados com o céu
@@ -324,8 +324,9 @@ func _ready() -> void:
 	_upright.draw.connect(_draw_view_upright)
 	_vport.add_child(_upright)
 	_spot_add = Control.new()
-	_spot_add.material = CanvasItemMaterial.new()
-	(_spot_add.material as CanvasItemMaterial).blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	_spot_add.material = ShaderMaterial.new()
+	(_spot_add.material as ShaderMaterial).shader = preload("res://scripts/ui/spot_light.gdshader")
+	(_spot_add.material as ShaderMaterial).set_shader_parameter("gain", CURFEW_GAIN)
 	_spot_add.draw.connect(_draw_view_beam)
 	_vport.add_child(_spot_add)
 	_view = Control.new()
@@ -1095,7 +1096,7 @@ func _hurry(w: Dictionary, delta: float) -> bool:
 
 
 ## O holofote da viatura do toque de recolher (`c`) na mão do policial: procura aos trancos, virando até um ponto da
-## calçada ou da fachada perto dela (rápido no começo, devagar chegando, `CURFEW_TURN`), para um instante
+## calçada ou da fachada perto dela, até as janelas de cima (`CURFEW_HIGH`; rápido no começo, devagar chegando, `CURFEW_TURN`), para um instante
 ## (`CURFEW_PAUSE`) e escolhe outro; pegando alguém, acompanha um tempo (`CURFEW_FOLLOW`) o peito dele, e larga.
 func _aim(c: Dictionary, delta: float) -> void:
 	var cx := _car_x(c) + 1.5
@@ -1115,7 +1116,8 @@ func _aim(c: Dictionary, delta: float) -> void:
 		if (c["aim"] as Vector2).distance_to(goal) < 0.1 or absf(goal.x - cx) > CURFEW_REACH + 1.5:   # chegou (ou ficou para trás)
 			c["wait"] -= delta
 			if c["wait"] <= 0.0:
-				c["goal"] = Vector2(cx + _rng.randf_range(-CURFEW_REACH, CURFEW_REACH), _rng.randf_range(-0.5, 1.7))
+				var gx := cx + _rng.randf_range(-CURFEW_REACH, CURFEW_REACH)   # (nos prédios, sobe até as janelas de cima)
+				c["goal"] = Vector2(gx, _rng.randf_range(-0.5, 0.4 if gx > CROSSING.x and gx < CROSSING.y else CURFEW_HIGH))
 				c["wait"] = _rng.randf_range(CURFEW_PAUSE.x, CURFEW_PAUSE.y)
 		for w: Dictionary in _walkers:   # pegou alguém (uma vez cada um): acompanha
 			var wa := _walk_at(w)
@@ -2251,7 +2253,7 @@ func _draw_view() -> void:
 	_ci = self
 
 
-## A luz do holofote do toque de recolher (`_spot_add`), somada embaixo da frente da vista.
+## A luz do holofote do toque de recolher (`_spot_add`), embaixo da frente da vista.
 func _draw_view_beam() -> void:
 	_ci = _spot_add
 	_spot_add.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))

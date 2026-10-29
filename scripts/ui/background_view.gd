@@ -135,11 +135,15 @@ const CURFEW_SEC := 24.0   ## quanto ela leva passando (~5 km/h; um carro qualqu
 const CURFEW_REACH := 4.0    ## o holofote procura até quantos m para cada lado dele...
 const CURFEW_PAUSE := Vector2(0.2, 0.9)   ## ...parando um instante em cada ponto (s)...
 const CURFEW_TURN := 3.5     ## ...e virando até o próximo aos trancos: rápido no começo, devagar chegando (1/s)
+const CURFEW_HIGH := 4.5     ## até que altura (m) ele levanta o facho nos prédios
 const CURFEW_FOLLOW := Vector2(1.2, 2.4)  ## quanto acompanha quem pega (s)
 const CURFEW_SPOT := 0.55    ## o raio do círculo de luz na fachada (m), um pouco mais alto que largo (`CURFEW_TALL`)...
 const CURFEW_TALL := 1.3
-const CURFEW_LIGHT := 0.5    ## ...a força dele (no meio), somada (`_spot_add`), a do facho no ar...
+const CURFEW_GAIN := 4.0     ## ...quanto ele clareia o que está embaixo, no meio e no escuro (`spot_light.gdshader`), o facho no ar...
 const CURFEW_AIR := 0.08
+## A forma do facho de um holofote antigo, do meio para fora (fração do raio, força): o miolo quente, uma faixa mais
+## fraca, o anel do refletor, a beira e o halo largo e fraco em volta.
+const CURFEW_RINGS := [Vector2(0.35, 0.9), Vector2(0.6, 0.8), Vector2(0.8, 0.85), Vector2(0.92, 0.6), Vector2(1.0, 0.2), Vector2(1.7, 0.0)]
 const CURFEW_LIT := 0.45     ## ...e quanto acende quem ele pega, de frente, e escurece a sombra dele na parede
 const CURFEW_SEE := 5.0   ## a quantos m dela quem passa começa a notá-la (a beira direita da vista, na mão de lá, fica a ~5 m)...
 const CURFEW_REACT := Vector2(0.4, 2.4)   ## ...e quanto leva para isso (s): cada um no seu tempo
@@ -1280,11 +1284,13 @@ func _beam_at(x: float, z: float) -> float:
 	return lit
 
 
-## A luz do holofote do toque de recolher (`_spot_add`, somada por baixo dos carros e de quem passa, que a tapam): o facho
-## fraco no ar, da lâmpada até a fachada, e o círculo de luz nela, com a beira definida (cheio até ~85% do raio). Abaixo
+## A luz do holofote do toque de recolher (`_spot_add`, por baixo dos carros e de quem passa, que a tapam), como força em
+## cada ponto, que o `spot_light.gdshader` usa para clarear o que está embaixo: o facho fraco no ar, da lâmpada até a
+## fachada, e o círculo nela, na forma de um holofote antigo (`CURFEW_RINGS`), um pouco torto como o refletor. Abaixo
 ## do pé da fachada, ele dobra para a calçada: cada ponto segue o raio da lâmpada até o chão, e a parte de baixo vira
 ## uma elipse deitada, vindo para cá. Na boca da rua do cruzamento não há parede: o raio segue e cai no chão dela,
-## comprido, rua acima; na quina, a luz se parte (o que fica entre a parede e a rua não se desenha).
+## comprido e mais fraco quanto mais longe, rua acima. Na quina, a luz se parte numa linha reta: cada pedaço do círculo
+## é cortado nela (`_split`) e cai na parede ou no chão.
 func _draw_sweep_light(g: Rect2) -> void:
 	var ff: float = STREET["far"]
 	for c in _cars:
@@ -1292,47 +1298,70 @@ func _draw_sweep_light(g: Rect2) -> void:
 			continue
 		var lamp := _sweep_lamp(c)
 		var aim := _sweep_at(c)
-		var open := func(p: Vector2) -> bool: return p.x > CROSSING.x and p.x < CROSSING.y
-		var hit := func(p: Vector2) -> Vector2:   # um ponto do círculo (x e altura na fachada) onde a luz bate
-			if p.y >= 0.0 and not open.call(p):
+		var hit := func(p: Vector2, open: bool) -> Vector2:   # um ponto do círculo (x e altura na fachada) onde a luz bate
+			if p.y >= 0.0 and not open:
 				return _o(g, p.x, ff, p.y)
-			var s := minf(lamp.z / (lamp.z - minf(p.y, lamp.z * 0.5)), 1.5)   # (o raio da lâmpada ao ponto chega ao chão antes da parede, ou depois, sem ela)
+			var s := lamp.z / (lamp.z - minf(p.y, lamp.z * 0.8))   # (o raio da lâmpada ao ponto chega ao chão antes da parede, ou depois, sem ela)
 			return _o(g, lerpf(lamp.x, p.x, s), lerpf(lamp.y, ff, s), 0.0)
+		var dim := func(p: Vector2, open: bool) -> float:   # no chão da rua do cruzamento, mais fraca quanto mais longe
+			return 1.0 if not open or p.y <= 0.0 else clampf(1.2 - 1.6 * p.y / lamp.z, 0.0, 1.0)
 		var head := Pal.CAR_HEAD
 		var from := _o(g, lamp.x, lamp.y, lamp.z)
-		var mid: Vector2 = hit.call(aim)
+		var mid: Vector2 = hit.call(aim, aim.x > CROSSING.x and aim.x < CROSSING.y)
 		var across := (mid - from).normalized().orthogonal() * CURFEW_SPOT * OUT_F / ff
 		_fill(PackedVector2Array([from, from, mid + across, mid - across]),
 			PackedColorArray([Color(head, CURFEW_AIR), Color(head, CURFEW_AIR), Color(head, CURFEW_AIR * 0.3), Color(head, CURFEW_AIR * 0.3)]))
-		var rings := [0.5, 0.85, 1.0]   # (mais forte no meio, a beira definida: sumindo nos últimos 15%)
-		var fade := [0.7, 0.45, 0.0]
-		var pts := []
-		var sides := []   # (em que superfície cada ponto caiu: a parede ou o chão da rua do cruzamento)
-		for r: float in rings:
-			var ring := PackedVector2Array()
-			var side := []
+		var rings := [[Vector3(aim.x, aim.y, 1.0)]]   # (x e altura na fachada, força; o meio e cada anel)
+		for rf: Vector2 in CURFEW_RINGS:
+			var ring := []
 			for i in 24:
 				var a := TAU * i / 24.0
+				var r := rf.x * (1.0 + 0.05 * sin(3.0 * a + 1.3) + 0.03 * sin(5.0 * a))   # (o refletor torto)
 				var p := aim + Vector2(cos(a), sin(a) * CURFEW_TALL) * CURFEW_SPOT * r
-				ring.append(hit.call(p))
-				side.append(open.call(p))
-			pts.append(ring)
-			sides.append(side)
-		var here: bool = open.call(aim)
-		var full := Color(head, CURFEW_LIGHT)
-		for i in 24:   # (os triângulos todos e depois os quadriláteros: o lote só junta primitivos com o mesmo número de pontos)
-			var n := (i + 1) % 24
-			if sides[0][i] == here and sides[0][n] == here:
-				_ci.draw_primitive(PackedVector2Array([mid, pts[0][i], pts[0][n]]), PackedColorArray([full, Color(head, CURFEW_LIGHT * fade[0]), Color(head, CURFEW_LIGHT * fade[0])]), PackedVector2Array())
-		for j in 2:
-			var ca := Color(head, CURFEW_LIGHT * fade[j])
-			var cb := Color(head, CURFEW_LIGHT * fade[j + 1])
+				ring.append(Vector3(p.x, p.y, rf.y))
+			rings.append(ring)
+		for j in rings.size() - 1:   # (tudo em triângulos: o lote só junta primitivos com o mesmo número de pontos)
 			for i in 24:
-				var n := (i + 1) % 24
-				var on: bool = sides[j][i]
-				if sides[j][n] == on and sides[j + 1][i] == on and sides[j + 1][n] == on:
-					_ci.draw_primitive(PackedVector2Array([pts[j][i], pts[j][n], pts[j + 1][n], pts[j + 1][i]]),
-						PackedColorArray([ca, ca, cb, cb]), PackedVector2Array())
+				var a: Array = rings[j]
+				var b: Array = rings[j + 1]
+				var tris := [[a[i % a.size()], b[i], b[(i + 1) % 24]]]
+				if a.size() > 1:
+					tris.append([a[i], b[(i + 1) % 24], a[(i + 1) % 24]])
+				for tri: Array in tris:
+					for piece: Array in _split(tri):
+						var c0: Vector3 = (piece[0] + piece[1] + piece[2]) / 3.0
+						var open := c0.x > CROSSING.x and c0.x < CROSSING.y
+						var at := PackedVector2Array()
+						var cols := PackedColorArray()
+						for v: Vector3 in piece:
+							var p := Vector2(v.x, v.y)
+							at.append(hit.call(p, open))
+							cols.append(Color(head, v.z * dim.call(p, open)))
+						_ci.draw_primitive(at, cols, PackedVector2Array())
+
+
+## Um triângulo do círculo do holofote (`tri`: x e altura na fachada, força) cortado nas duas quinas da rua do
+## cruzamento (`CROSSING`), em triângulos que ficam inteiros de um lado só, a força interpolada no corte.
+func _split(tri: Array) -> Array:
+	var out := [tri]
+	for edge: float in [CROSSING.x, CROSSING.y]:
+		var next := []
+		for t: Array in out:
+			for keep: float in [-1.0, 1.0]:
+				var poly := []
+				for k in 3:
+					var p: Vector3 = t[k]
+					var q: Vector3 = t[(k + 1) % 3]
+					var dp := (p.x - edge) * keep
+					var dq := (q.x - edge) * keep
+					if dp >= 0.0:
+						poly.append(p)
+					if dp * dq < 0.0:
+						poly.append(p.lerp(q, dp / (dp - dq)))
+				for k in range(1, poly.size() - 1):
+					next.append([poly[0], poly[k], poly[k + 1]])
+		out = next
+	return out
 
 
 ## As sombras de quem o holofote do toque de recolher pega, na fachada de lá, por baixo de quem passa: a silhueta de

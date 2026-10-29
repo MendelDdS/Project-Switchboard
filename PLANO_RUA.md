@@ -65,7 +65,7 @@ Ordem sugerida: das que reaproveitam mais (o rig, a viatura, a passada) para as 
 - [x] Feito (`CURFEW_*`, `_sweep_at`, `_hurry`, `_take_cover`, captura `--curfew=t0,passo,n`, botão no F1). A
   viatura é a da noite 7 passando a ~5 km/h, com o ronco grave no meio; cada um nota quando ela está a 5 m (a beira
   da vista), no seu tempo, para de perfil olhando para ela, dá meia-volta se ia na direção dela e sai apressado para
-  a esquina ou a porta do hotel mais à frente (entra recortado por ela). O holofote: luz somada por baixo dos carros e
+  a esquina ou a porta do hotel mais à frente (entra recortado por ela). O holofote: um shader que clareia o que está embaixo, por baixo dos carros e
   de quem passa (`_spot_add`), o círculo com a beira definida dobrando da fachada para a calçada (e partido na quina
   da rua do cruzamento), quem ele pega aceso de frente e com a sombra projetada na parede, e ele procurando aos
   trancos e acompanhando quem pega (`_aim`); `--spot` na captura o deixa parado num ponto. Sem som de passos: a rua não tem nenhum.
