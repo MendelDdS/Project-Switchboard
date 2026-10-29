@@ -168,6 +168,25 @@ const FLARE_TINT := Vector2(0.22, 0.26)
 const FLARE_ROOM := 0.75    ## a força da janela dele desenhada na sala (`_sun_layer`, no lugar do sol)...
 const FLARE_STEEP := 3.5    ## ...e o quanto o raio dele desce, pela altura dele no céu (o sol, baixo, `SUN_STEEP`)
 const FLARE_LIGHT := Vector2(300, 1.5)
+## A luz dele vindo de um lado: a força da beira acesa da igreja e dos prédios de longe virada para ele (somada,
+## `_draw_flare_rim`), a da cornija das fachadas de lá e das paredes da rua do cruzamento, e a da parede dela virada
+## para ele, de raspão (clareando o que está embaixo, `_draw_flare_light`)
+const FLARE_RIM := Vector3(0.6, 0.45, 0.4)
+## No ar molhado, a luz dele se espalha: o halo maior e a parte larga mais forte (vezes o de sempre), por clima; e até
+## onde as gotas no vidro e os pingos pegam o vermelho dele (px de 2x2)
+const FLARE_WET := {"rain": Vector2(1.5, 1.4), "fog": Vector2(2.2, 1.9)}
+const FLARE_BEADS := 40.0
+## A barriga das nuvens perto dele, do lado virado para ele (somada): a força e até quantos px da tela da beira delas
+## (`_draw_flare_glow`)
+const FLARE_CLOUD := Vector2(0.35, 140.0)
+## O chão da rua do cruzamento aceso por ele: a força (`_draw_flare_light`), quanto mais na chuva, e o reflexo dele no
+## asfalto molhado, um risco vermelho quebrado descendo até a nossa calçada (força, `_draw_flare_rim`)
+const FLARE_GROUND := Vector3(0.35, 1.5, 0.32)
+const FLARE_SMOKE_LIT := 60.0   ## até quantos m dele a fumaça fica acesa (rosada por baixo, `_draw_flare`)
+## Quem passa pela boca da rua do cruzamento (só dali se vê o céu atrás dos prédios de lá): quanto leva para ver ele
+## aceso e quanto fica parado olhando (s; `_skyward`), cada um no seu tempo
+const FLARE_REACT := Vector2(0.3, 1.5)
+const FLARE_GAZE := Vector2(5.0, 12.0)
 const CURFEW_SOUND := 0.33    ## onde (fração da passagem) toca o ronco dela, grave e mais longo (`CURFEW_PITCH`): o mais alto quando passa no meio
 const CURFEW_PITCH := 0.75
 ## O carro de som (a noite 5, `StreetEvent` "speaker"): uma Kombi com dois alto-falantes de corneta num bagageiro no
@@ -470,7 +489,8 @@ var beating := INF     ## quando começa a cena da rua (`Beating`, a noite 3; mi
 var police := INF      ## quando a viatura vem parar no hotel (`PATROL_*`, a noite 7; min do dia; o Main põe)
 var curfew := INF      ## quando começa o toque de recolher (`CURFEW_*`, as noites 9 a 14; min do dia; o Main põe)
 var scene_at := {}     ## quando começa cada uma das outras cenas da rua (`StreetEvent.kind` -> min do dia; o Main põe, `schedule`)
-var _flare_tex: ImageTexture   # o halo do sinalizador (`_flare_halo`), montado uma vez
+var _far_tops: Array[Rect2] = []   # o alto de cada prédio da cidade de longe, como desenhado (`_draw_city`): a beira que o sinalizador acende
+var _flare_tex := {}   # o halo do sinalizador (`_flare_halo`) de cada clima, montado uma vez
 var _scene_t := {}     # há quanto tempo cada uma delas começou (s; negativo: esperando a rua esvaziar; `Background._start_scene`)
 var lookout_at: Array[float] = []   ## quando o vigia aparece no terraço do hotel (`LOOKOUT_*`, a noite 9; min do dia; o Main põe)
 var _look_t := -1.0    # há quanto tempo ele apareceu (s; -1 = não está)
@@ -897,6 +917,7 @@ func _draw_city(g: Rect2) -> void:
 		return
 	if _city_for != g.size:
 		_build_city(g.size)
+	_far_tops.clear()
 	var house := Pal.CITY_FAR[1] if fog else Pal.CITY_FAR[0]
 	# bem longe: a cidade atrás da igreja (`CITY_BACK`; os prédios de lá escondem o resto), apagada no ar (a cor do
 	# horizonte; de dia, sem a luz do dia por cima, para ela sumir no céu de verdade)
@@ -925,10 +946,12 @@ func _draw_city(g: Rect2) -> void:
 			bh = minf(bh, base - arch.end.y)
 		var top := base - bh
 		_r(bx, top, b["w"], bh, col)
+		_far_tops.append(Rect2(bx, top, b["w"], bh))
 		for t: Rect2 in b["top"]:
 			var piece := Rect2(bx + t.position.x, top + t.position.y, t.size.x, t.size.y)
 			if not piece.intersects(arch):
 				_r(piece.position.x, piece.position.y, piece.size.x, piece.size.y, col)
+				_far_tops.append(piece)
 		if absf(bx + b["w"] / 2.0 - church) < FAR_DETAIL:   # (na grade das acesas, `_build_city`)
 			var yy := 1.5
 			while yy < bh - 1.0:
@@ -1035,14 +1058,43 @@ func _draw_moon(g: Rect2, sky: Color, hzy: float) -> void:
 		var under := col.lerp(Pal.DAWN_CLOUD.lerp(Pal.SUN_RIM, 0.5 * _sunlit()).lerp(Pal.DAY_CLOUD, day), tint)
 		col = col.lerp(Pal.DAWN_CLOUD_TOP.lerp(Pal.DAY_CLOUD, day), tint)
 		for k in 3:   # três manchas juntas, a do meio maior
-			var o := at + Vector2((k - 1) * r.x * 0.55, (k % 2) * -r.y * 0.25)
-			var size := Vector2(r.x * (0.9 if k == 1 else 0.6), r.y * (1.0 if k == 1 else 0.7))
+			var blob := _cloud_blob(at, r, k)
+			var o: Vector2 = blob[0]
+			var size: Vector2 = blob[1]
 			for layer in ([1, 0] if tint > 0.0 else [0]):   # a de baixo um pouco mais baixa, para sobrar a beira dela
 				var mid := o + Vector2(0, size.y * 0.3 * layer)
 				var rim := PackedVector2Array()
 				for i in 12:
 					rim.append(mid + Vector2(cos(TAU * i / 12.0), sin(TAU * i / 12.0)) * size)
 				_light_fan(mid, rim, Color(under if layer else col, 0.85))
+
+
+## A mancha `k` (0 a 2) da nuvem da noite limpa em `at`, de tamanho `r` (px de 2x2): [meio, raios]; a do meio maior.
+func _cloud_blob(at: Vector2, r: Vector2, k: int) -> Array:
+	return [at + Vector2((k - 1) * r.x * 0.55, (k % 2) * -r.y * 0.25), Vector2(r.x * (0.9 if k == 1 else 0.6), r.y * (1.0 if k == 1 else 0.7))]
+
+
+## As nuvens à vista agora, cada mancha como [meio, raios] (px de 2x2): as três de cada nuvem da noite limpa e as do
+## céu da chuva; na névoa, nenhuma.
+func _cloud_shapes(g: Rect2) -> Array:
+	var top := g.position.y + (g.size.y + _near) * _glass_from
+	var sh := _hz(g) - top
+	var out := []
+	if weather == "clear":
+		for c in _clouds:
+			for k in 3:
+				out.append(_cloud_blob(Vector2(g.position.x + _cloud_x(c) * g.size.x, top + c.y * sh), Vector2(0.16 * c.z * g.size.x, 0.09 * c.z * sh), k))
+	elif weather == "rain":
+		for k in OVERCAST:
+			out.append(_overcast_at(g, k, top, sh).slice(0, 2))
+	return out
+
+
+## A nuvem `k` do céu da chuva (`top`, `sh`: o alto e a altura do céu à vista): [meio, raios, altura em fração do céu].
+func _overcast_at(g: Rect2, k: int, top: float, sh: float) -> Array:
+	var y := fmod(k * 0.618, 1.0) * 1.1 - 0.1   # (fração do céu à vista; as de cima passam da persiana)
+	return [Vector2(g.position.x + _overcast_x(k) * g.size.x, top + y * sh),
+		Vector2((0.22 + fmod(k * 0.37, 1.0) * 0.2) * g.size.x, (0.12 + fmod(k * 0.71, 1.0) * 0.1) * sh), y]
 
 
 ## O céu da chuva, nublado: nuvens grandes e lisas cobrindo tudo, passando com o vento (`OVERCAST_SPEED`), clareadas
@@ -1057,9 +1109,10 @@ func _draw_overcast(g: Rect2, sky: Color, hzy: float) -> void:
 	_fill(PackedVector2Array([Vector2(g.position.x, g.position.y), Vector2(g.end.x, g.position.y), Vector2(g.end.x, hzy), Vector2(g.position.x, hzy)]),
 		PackedColorArray([deck, deck, deck_low, deck_low]))
 	for k in OVERCAST:
-		var y := fmod(k * 0.618, 1.0) * 1.1 - 0.1   # (fração do céu à vista; as de cima passam da persiana)
-		var at := Vector2(g.position.x + _overcast_x(k) * g.size.x, top + y * sh)
-		var r := Vector2((0.22 + fmod(k * 0.37, 1.0) * 0.2) * g.size.x, (0.12 + fmod(k * 0.71, 1.0) * 0.1) * sh)
+		var cloud := _overcast_at(g, k, top, sh)
+		var at: Vector2 = cloud[0]
+		var r: Vector2 = cloud[1]
+		var y: float = cloud[2]
 		var col := Pal.OVERCAST_DARK if k % 3 == 0 else Pal.OVERCAST_DECK.lerp(Pal.OVERCAST_LIT, clampf(y, 0.0, 1.0)).lightened(0.12)
 		col = col.lerp(Pal.FLASH, flash * (0.0 if k % 3 == 0 else 0.7))
 		var rim := PackedVector2Array()
@@ -3632,6 +3685,10 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 	if weather == "rain":   # o braço de cá segura o guarda-chuva na frente do peito
 		var shoulder: Vector2 = arms[0][0]
 		arms[0] = [shoulder, shoulder + Vector2(0.06 * s, 0.26) * k, shoulder + Vector2(0.16 * s, 0.12) * k]
+	if w.has("point"):   # apontando para o sinalizador: o braço esticado para o alto, do lado dele (na chuva, o de lá)
+		var raised := 0 if weather != "rain" else 1
+		var shoulder: Vector2 = arms[raised][0]
+		arms[raised] = [shoulder, shoulder + Vector2(0.14 * s, -0.2) * k, shoulder + Vector2(0.3 * s, -0.42) * k]
 	var limbs: Array = gait["legs"]
 	_limb(parts, arms[1], 1, Pal.lit(coat, -3))   # o braço de lá, atrás do corpo
 	for i in [1, 0]:   # a perna de lá, mais escura, e a de cá, com os sapatos
@@ -3658,11 +3715,15 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 	var hand: Vector2 = (arms[0][2] as Vector2).round()
 	parts.append([Rect2(hand, Vector2.ONE), w["skin"]])   # a mão
 	var head: Rect2 = px.call(Rect2(-0.1 + (0.0 if front else 0.03 * s), 1.43, 0.2, 0.22))
+	var up: bool = w.get("up", false) and not front   # olhando para o céu: a cabeça jogada para trás, o rosto para cima
+	if up:
+		head.position.x -= s
 	parts.append([head, w["skin"]])   # a cabeça, um pouco à frente do corpo
 	if w["hat"] in ["", "cap"] and weather != "rain":   # o cabelo, atrás e em cima (o chapéu e o guarda-chuva o cobrem)
-		parts.append_array([[Rect2(head.position, Vector2(head.size.x, 1)), dark],
-			[Rect2(head.end.x - 1.0 if s < 0.0 else head.position.x, head.position.y, 1, maxf(1.0, head.size.y - 1.0)), dark]])
-	if w["bag"]:   # a bolsa no ombro, ou a pasta na mão, balançando com ela
+		if not up:   # (de rosto para cima, o alto da cabeça vira para trás: só o cabelo da nuca)
+			parts.append([Rect2(head.position, Vector2(head.size.x, 1)), dark])
+		parts.append([Rect2(head.end.x - 1.0 if s < 0.0 else head.position.x, head.position.y, 1, maxf(1.0, head.size.y - 1.0)), dark])
+	if w["bag"] and not w.has("point"):   # a bolsa no ombro, ou a pasta na mão, balançando com ela
 		if w["dress"]:
 			parts.append([px.call(Rect2(-0.14 * s - 0.06, 0.82, 0.12, 0.16)), Pal.lit(Pal.lit(coat, -3), -2)])
 		elif weather != "rain":
@@ -3676,6 +3737,7 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 		var grip: float = (px.call(Rect2(0, 1.76, 0, 0)) as Rect2).position.y
 		parts.append([Rect2(hand.x, grip, 1, hand.y - grip), dark])
 	else:
+		var hat := parts.size()
 		match w["hat"]:
 			"fedora":
 				parts.append_array([[px.call(Rect2(-0.18, 1.63, 0.36, 0.04)), dark], [px.call(Rect2(-0.1, 1.66, 0.2, 0.1)), dark]])
@@ -3683,6 +3745,8 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 				parts.append_array([[px.call(Rect2(-0.11, 1.62, 0.22, 0.07)), legs_col], [px.call(Rect2(0.13 * s - 0.05, 1.62, 0.1, 0.03)), legs_col]])
 			"scarf":   # o lenço amarrado na cabeça
 				parts.append([px.call(Rect2(-0.12, 1.52, 0.24, 0.16)), coat.lightened(0.15)])
+		for i in range(hat, parts.size() if up else hat):   # (o chapéu vai junto com a cabeça)
+			parts[i][0] = Rect2((parts[i][0] as Rect2).position - Vector2(s, 0), (parts[i][0] as Rect2).size)
 	var glow := 0.0   # o poste mais perto: até 3 m dele
 	var side := 1.0
 	for lx: float in FAR_LAMPS:
@@ -4040,18 +4104,27 @@ func _draw_flare(g: Rect2) -> void:
 	var k := Flare.glow(t)
 	var fire := Flare.at(t)
 	var p := _o(g, fire.x, fire.y, fire.z)
-	var puffs := Flare.smoke(t)
-	for i in puffs.size() - 1:   # cada trecho da fumaça, pixel a pixel
-		var a := _o(g, puffs[i].x, puffs[i].y, puffs[i].z) * 2.0
-		var b := _o(g, puffs[i + 1].x, puffs[i + 1].y, puffs[i + 1].z) * 2.0
-		var age := puffs[i].w
-		var lit := maxf(k, 0.6 if t < Flare.RISE else 0.0) * (1.0 - smoothstep(0.0, 4.0, age))
-		var col := Color(Pal.SIGNAL_SMOKE[1].lerp(Pal.SIGNAL_SMOKE[0], lit), 0.55 * (1.0 - age / Flare.SMOKE))
-		var wide := 1 + int(age / 6.0)
-		var n := maxi(1, ceili(a.distance_to(b)))
-		for j in n:
-			var q := a.lerp(b, float(j) / n).floor()
-			_p(q.x, q.y, wide, wide, col)
+	var cells := {}   # a fumaça, pixel a pixel: [força, luz] de cada um (a maior das bolotas que caem nele; somadas, manchava)
+	var near := maxf(k, 0.6 if t < Flare.RISE else 0.0)   # (subindo, a faísca acende um pouco o rastro)
+	for q: Vector4 in Flare.smoke(t):
+		var pf := Flare.puff(t, q)
+		if pf.y <= 0.0:
+			continue
+		var c := _o(g, q.x, q.y, q.z) * 2.0
+		var r := maxf(0.5, pf.x * OUT_F / q.y * 2.0)   # (px da tela)
+		var lit := near * (1.0 - smoothstep(0.0, FLARE_SMOKE_LIT, Vector3(q.x - fire.x, 0.0, q.z - fire.z).length()))
+		for y in range(floori(c.y - r), ceili(c.y + r)):
+			for x in range(floori(c.x - r), ceili(c.x + r)):
+				var d := Vector2(x + 0.5, y + 0.5) - c
+				if d.length() > r:
+					continue
+				var under := lit * lerpf(0.55, 1.0, clampf(d.y / r, 0.0, 1.0))   # rosada por baixo, o lado virado para ele
+				var key := Vector2i(x, y)
+				var was: Vector2 = cells.get(key, Vector2.ZERO)
+				cells[key] = Vector2(maxf(was.x, pf.y * (1.0 - 0.4 * d.length() / r)), maxf(was.y, under))
+	for key: Vector2i in cells:
+		var v: Vector2 = cells[key]
+		_p(key.x, key.y, 1, 1, Color(Pal.SIGNAL_SMOKE[1].lerp(Pal.SIGNAL_SMOKE[0], v.y), v.x))
 	var at := (p * 2.0).floor()
 	if t < Flare.RISE:   # subindo: uma faísca
 		_p(at.x, at.y, 1, 1, Pal.SIGNAL_FLARE[1])
@@ -4070,24 +4143,37 @@ func _draw_flare(g: Rect2) -> void:
 
 
 ## O halo do sinalizador (`_flare_add`, somado): liso, a parte forte colada no miolo, quase branca, e a larga e fraca,
-## vermelha, caindo até zero na beira (`FLARE_GLOW`). Montado pixel a pixel uma vez, em px da tela, sem ampliar; a
-## força, com a cintilação, vai no `modulate`.
+## vermelha, caindo até zero na beira (`FLARE_GLOW`; na chuva e na névoa, maior e mais forte, `FLARE_WET`). Montado
+## pixel a pixel uma vez por clima, em px da tela, sem ampliar; a força, com a cintilação, vai no `modulate`.
 func _flare_halo() -> ImageTexture:
-	if _flare_tex:
-		return _flare_tex
-	var n := FLARE_GLOW * 2 + 1
+	if _flare_tex.has(weather):
+		return _flare_tex[weather]
+	var wet: Vector2 = FLARE_WET.get(weather, Vector2.ONE)
+	var r := roundi(FLARE_GLOW * wet.x)
+	var n := r * 2 + 1
 	var img := Image.create(n, n, false, Image.FORMAT_RGBA8)
 	for y in n:
 		for x in n:
-			var d := Vector2(x - FLARE_GLOW, y - FLARE_GLOW).length()
-			if d >= FLARE_GLOW:
+			var d := Vector2(x - r, y - r).length()
+			if d >= r:
 				continue
 			var tight := FLARE_TIGHT.x * exp(-d / FLARE_TIGHT.y)
-			var wide := FLARE_WIDE.x * pow(1.0 - d / FLARE_GLOW, FLARE_WIDE.y)
+			var wide := FLARE_WIDE.x * wet.y * pow(1.0 - d / r, FLARE_WIDE.y)
 			var c := Pal.SIGNAL_FLARE[1] * wide + Pal.SIGNAL_FLARE[0].lerp(Pal.SIGNAL_FLARE[1], 0.7) * tight
 			img.set_pixel(x, y, Color(minf(c.r, 1.0), minf(c.g, 1.0), minf(c.b, 1.0)))
-	_flare_tex = ImageTexture.create_from_image(img)
-	return _flare_tex
+	_flare_tex[weather] = ImageTexture.create_from_image(img)
+	return _flare_tex[weather]
+
+
+## Onde o sinalizador aceso está na vista `g` (x, y em px de 2x2) e a força dele agora, com a cintilação (z; 0 apagado).
+func _flare_seen(g: Rect2) -> Vector3:
+	var t: float = _scene_t.get("flare", -1.0)
+	var k := Flare.glow(t)
+	if k <= 0.0:
+		return Vector3.ZERO
+	var f := Flare.at(t)
+	var at := _o(Rect2(g.position, g.size - Vector2(0, _near)), f.x, f.y, f.z)
+	return Vector3(at.x, at.y, minf(k, 1.0))
 
 
 ## O halo do sinalizador (`_flare_halo`) na vista `g`, em px da tela, onde ele está aceso.
@@ -4097,7 +4183,126 @@ func _draw_flare_glow(g: Rect2) -> void:
 		return
 	var f := Flare.at(t)
 	var at := (_o(g, f.x, f.y, f.z) * 2.0).floor()
-	_ci.draw_texture(_flare_halo(), at - Vector2(FLARE_GLOW, FLARE_GLOW))
+	var halo := _flare_halo()
+	_ci.draw_texture(halo, at - (halo.get_size() / 2.0).floor())
+	for blob: Array in _cloud_shapes(g):   # a barriga das nuvens perto dele, o lado virado para ele (px da tela)
+		var mid: Vector2 = blob[0] * 2.0
+		var size: Vector2 = blob[1] * 2.0
+		var to := at - mid
+		var near := 1.0 - smoothstep(0.0, FLARE_CLOUD.y, maxf(0.0, to.length() - (size.x + size.y) / 2.0))
+		if near <= 0.0:
+			continue
+		var c := mid + (to / size).normalized() * size * 0.4
+		var rim := PackedVector2Array()
+		for i in 12:
+			rim.append(c + Vector2(cos(TAU * i / 12.0), sin(TAU * i / 12.0)) * size * 0.55)
+		_light_fan(c, rim, Color(Pal.SIGNAL_FLARE[1], FLARE_CLOUD.x * near))
+
+
+## A beira da igreja e dos prédios de longe acesa pelo sinalizador (`_flare_rim`, somada, por baixo das paredes da rua
+## do cruzamento, que a tapam), o lado virado para ele: ele está alto e atrás deles, à direita da igreja, e acende o
+## telhado, a torre e a ponta desse lado, e o alto de cada prédio contra o céu, mais o que está mais de frente para
+## ele; anda com ele. A força com a cintilação vai no `modulate`.
+func _draw_flare_rim(g: Rect2) -> void:
+	var t: float = _scene_t.get("flare", -1.0)
+	if Flare.light(t) <= 0.0:
+		return
+	var f := Flare.at(t)
+	var sky := _o(g, f.x, f.y, f.z)
+	var col := Color(Pal.SIGNAL_FLARE[2], FLARE_RIM.x)
+	var parts := _church_parts(_church_pos(g))
+	for part: PackedVector2Array in parts:
+		for i in part.size():
+			var a := part[i]
+			var b := part[(i + 1) % part.size()]
+			var n := Vector2(b.y - a.y, a.x - b.x).normalized()   # (para fora: as peças vão no sentido do relógio na tela)
+			var face := n.dot((sky - (a + b) / 2.0).normalized())
+			if face > 0.0 and not _in_church(parts, (a + b) / 2.0 + n * PX):   # (o lado encostado noutra peça, não)
+				_rim_strip(a, b, n, Color(col, col.a * face * face))   # (ao quadrado: o lado dele bem mais aceso que o de lá)
+	if weather == "rain":   # o reflexo no asfalto molhado: um risco descendo embaixo dele, quebrado e tremendo com os pingos; as paredes, as fachadas e os carros, por cima, o tapam
+		var y0 := _o(g, 0.0, SQUARE.x).y
+		var y1 := _o(g, 0.0, STREET["curb"]).y
+		var beat := int(PixelArt.ms() / 120.0)
+		var y := y0
+		while y < y1:
+			var u := (y - y0) / (y1 - y0)
+			var row := int(y / PX)
+			if Flare.noise(row * 1.37 + beat * 0.71) > 0.3:   # (quebrado pelas poças e pelos pingos)
+				var w := PX * (1.0 + roundf(2.0 * u + Flare.noise(row * 3.1 + beat)))
+				var x := roundf((sky.x + PX * (Flare.noise(row * 5.3 + beat * 1.9) - 0.5) * 2.0) / PX) * PX - roundf(w / PX / 2.0) * PX
+				_r(x, y, w, PX, Color(Pal.SIGNAL_FLARE[1], FLARE_GROUND.z * (1.0 - 0.7 * u)))
+			y += PX
+	for r in _far_tops:   # o alto de cada um, só onde está contra o céu (nem atrás de um vizinho mais alto, nem da igreja)
+		var face := Vector2.UP.dot((sky - r.get_center()).normalized())
+		if face <= 0.0:
+			continue
+		var x := r.position.x
+		while x < r.end.x:
+			var x1 := x
+			while x1 < r.end.x and not _covered(Vector2(x1 + PX / 2.0, r.position.y - PX / 2.0), r, parts):
+				x1 += PX
+			if x1 > x:
+				_rim_strip(Vector2(x1, r.position.y), Vector2(x, r.position.y), Vector2.UP, Color(col, col.a * face))
+			x = x1 + PX
+
+
+## O ponto `p` da beira de cima de `r` está atrás de outro prédio de longe ou da igreja.
+func _covered(p: Vector2, r: Rect2, parts: Array) -> bool:
+	return _in_church(parts, p) or _far_tops.any(func(o: Rect2) -> bool: return o != r and o.has_point(p))
+
+
+## Uma faixa de 1 px por dentro da beira de `a` a `b`, de normal `n` para fora.
+func _rim_strip(a: Vector2, b: Vector2, n: Vector2, col: Color) -> void:
+	_ci.draw_primitive(PackedVector2Array([a, b, b - n * PX, a - n * PX]), PackedColorArray([col, col, col, col]), PackedVector2Array())
+
+
+## A luz do sinalizador na frente da cidade (`_spot_add`, que clareia o que está embaixo, `spot_light.gdshader`): a
+## cornija das fachadas de lá e das paredes da rua do cruzamento, de cima, e a parede dela virada para ele, de raspão,
+## mais no alto; mais forte quanto mais ele está do lado dela (andando para o meio, ela apaga). A força com a
+## cintilação.
+func _draw_flare_light(g: Rect2) -> void:
+	var t: float = _scene_t.get("flare", -1.0)
+	var k := Flare.glow(t)
+	if k <= 0.0:
+		return
+	var f := Flare.at(t)
+	var red := Pal.SIGNAL_FLARE[1]
+	var ff: float = STREET["far"]
+	var cornice := func(x0: float, z0: float, x1: float, z1: float, h: float) -> void:   # 1 px de tela abaixo da beira
+		var c := Color(red, FLARE_RIM.y * k)
+		_ci.draw_primitive(PackedVector2Array([_o(g, x0, z0, h), _o(g, x1, z1, h), _o(g, x1, z1, h - PX * z1 / OUT_F),
+			_o(g, x0, z0, h - PX * z0 / OUT_F)]), PackedColorArray([c, c, c, c]), PackedVector2Array())
+	for b in _houses:
+		cornice.call(b["x0"], ff, b["x1"], ff, b["h"])
+	var shade := clampf(10.0 * (f.x - CROSSING.y) / f.z, 0.0, 4.0)   # o chão da rua do cruzamento, menos a sombra da parede do lado dele
+	var ground := Color(red, FLARE_GROUND.x * k * (FLARE_GROUND.y if weather == "rain" else 1.0))
+	var edge := CROSSING.y - shade
+	_ci.draw_primitive(_patch(g, CROSSING.x, edge, ff, SQUARE.x), PackedColorArray([Color(ground, ground.a * 0.7), Color(ground, ground.a * 0.7), ground, ground]), PackedVector2Array())
+	_ci.draw_primitive(_patch(g, edge, minf(edge + 1.0, CROSSING.y), ff, SQUARE.x), PackedColorArray([Color(ground, ground.a * 0.7), Color(ground, 0.0), Color(ground, 0.0), ground]), PackedVector2Array())
+	# e pelo vão do cruzamento ela segue pela calçada de lá e pela rua até a nossa calçada, andando para o lado de lá
+	# dele no caminho (o resto da rua fica na sombra dos prédios de lá), com as beiras da sombra deles macias
+	var near: float = STREET["curb"]
+	var back := (ff - near) * (f.x - CROSSING.x) / (f.y - ff)
+	var at_far := Color(ground, ground.a * 0.7)
+	var at_near := Color(ground, ground.a * 0.6)
+	var gone := Color(ground, 0.0)
+	for band: Array in [[CROSSING.x, edge, at_far, at_far, at_near, at_near], [CROSSING.x - 1.0, CROSSING.x, gone, at_far, at_near, gone],
+			[edge, edge + 1.0, at_far, gone, gone, at_near]]:
+		_ci.draw_primitive(PackedVector2Array([_o(g, band[0], ff), _o(g, band[1], ff), _o(g, band[1] - back, near), _o(g, band[0] - back, near)]),
+			PackedColorArray([band[2], band[3], band[4], band[5]]), PackedVector2Array())
+	for w in _canyon:
+		var x: float = w["x"]
+		var z0: float = w["z0"]
+		var z1: float = w["z1"]
+		var ht: float = w["h"]
+		cornice.call(x, z0, x, z1, ht)
+		var to := Vector3(f.x - x, f.y - (z0 + z1) / 2.0, f.z - ht / 2.0)
+		var face := clampf(4.0 * to.x * -signf(x) / to.length(), 0.0, 1.0)   # (a normal dela aponta para o meio da rua)
+		if face > 0.0:
+			var top := Color(red, FLARE_RIM.z * k * face)
+			var low := Color(red, top.a * 0.4)
+			_ci.draw_primitive(PackedVector2Array([_o(g, x, z0, ht), _o(g, x, z1, ht), _o(g, x, z1), _o(g, x, z0)]),
+				PackedColorArray([top, top, low, low]), PackedVector2Array())
 
 ## O carro `c` passando pela mão dele (`CAR_LANES`), apoiado no asfalto, na forma do modelo dele (`CAR_KINDS`) e na cor
 ## dele: a sombra de contato, o facho dos faróis no chão à frente, o capô, o teto e o porta-malas vistos um pouco de
@@ -4774,6 +4979,7 @@ func _draw_glass_weather(g: Rect2) -> void:
 	if weather == "rain":
 		# os pingos: riscos de 1 px inclinados pelo vento, mais longos e claros os de perto, e acesos perto dos postes
 		var heads := _lamp_heads(g)
+		var flare := _flare_seen(g)   # (z: a força dele)
 		var many := int(_drops.size() * rain_level())   # na garoa, poucos
 		for i in many:
 			var d: Vector3 = _drops[i]
@@ -4783,8 +4989,9 @@ func _draw_glass_weather(g: Rect2) -> void:
 			var lit := 0.0
 			for h: Vector2 in heads:
 				lit = maxf(lit, 1.0 - hp.distance_to(h) / 45.0)
-			var col := Color(0.62, 0.72, 0.8).lerp(Pal.STREET_LAMP, lit * 0.7)
-			col.a = lerpf(0.14, 0.34, d.z) + lit * 0.3
+			var red := clampf(1.0 - hp.distance_to(Vector2(flare.x, flare.y)) / FLARE_BEADS, 0.0, 1.0) * flare.z   # e vermelhos perto do sinalizador
+			var col := Color(0.62, 0.72, 0.8).lerp(Pal.STREET_LAMP, lit * 0.7).lerp(Pal.SIGNAL_FLARE[1], red * 0.7)
+			col.a = lerpf(0.14, 0.34, d.z) + maxf(lit, red) * 0.3
 			var n := lerpf(RAIN_STREAK.x, RAIN_STREAK.y, d.z)
 			var cols := 1 + int(n * RAIN_SLANT)   # o rastro sobe para a direita, de onde ele veio, em degraus de 1 px
 			var seg := ceilf(n / cols)
@@ -4803,8 +5010,9 @@ func _draw_glass_weather(g: Rect2) -> void:
 					_r(p.x, p.y - (k + 1) * PX, PX, PX, Color(0.55, 0.66, 0.74, 0.2 - k * 0.045))
 			_r(p.x, p.y, b.z * PX, b.z * PX, Pal.RAIN_BEAD[0])
 			var warm := clampf(1.0 - p.distance_to(post) / 30.0, 0.0, 1.0) if _posts_on() else 0.0
-			var red := clampf(1.0 - p.distance_to(sign) / NEON_BEADS, 0.0, 1.0) * neon   # e vermelho perto do letreiro
-			_r(p.x, p.y, PX, PX, Pal.RAIN_BEAD[1].lerp(Pal.STREET_LAMP, warm).lerp(Pal.SIGN_RED, red * 0.8))
+			var red := clampf(1.0 - p.distance_to(sign) / NEON_BEADS, 0.0, 1.0) * neon   # e vermelho perto do letreiro...
+			var fl := clampf(1.0 - p.distance_to(Vector2(flare.x, flare.y)) / FLARE_BEADS, 0.0, 1.0) * flare.z   # ...e do sinalizador, piscando com ele
+			_r(p.x, p.y, PX, PX, Pal.RAIN_BEAD[1].lerp(Pal.STREET_LAMP, warm).lerp(Pal.SIGN_RED, red * 0.8).lerp(Pal.SIGNAL_FLARE[1], fl * 0.8))
 	_draw_neon_glass(g)
 	_poly(PackedVector2Array([g.position + Vector2(g.size.x * 0.12, 0), g.position + Vector2(g.size.x * 0.22, 0),
 		g.position + Vector2(g.size.x * 0.02, g.size.y * 0.5), g.position + Vector2(0, g.size.y * 0.5)]), Color(1, 1, 1, 0.03))

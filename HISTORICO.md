@@ -2806,3 +2806,32 @@ Chaves:
     vermelha no tampo e no peitoril com as sombras dos objetos, curtas (ele está alto, `FLARE_STEEP`) e crescendo
     enquanto ele desce, e a poeira no feixe, vermelha. Ficaram para depois a luz de um lado só nos telhados e na
     igreja, a fumaça mais grossa e as nuvens acesas por baixo.
+478. #vista #luz #noites #pedestres "O que você melhoraria no evento do sinalizador?" e "Faça 1 à 5": (1) a fumaça
+    deixou de ser um risco reto de 1 px (parecia uma antena): bolotas pixel a pixel (`Flare.puff`), a da subida fina e
+    a da queda grossa, abrindo com o tempo, ondulando (`CURL`), entortada pelo vento mais forte no alto (`SHEAR`),
+    partindo-se com a idade e à vista por 30 s (eram 14), rosada por baixo perto dele (`FLARE_SMOKE_LIT`). (2) A luz de
+    um lado: a beira da igreja e do alto dos prédios de longe virada para ele, somada logo acima da `_back`
+    (`_flare_rim`; as paredes da rua do cruzamento tapam o que fica atrás delas), o lado dele bem mais aceso; as
+    cornijas das fachadas de lá e das paredes e a parede da esquerda da rua do cruzamento, de raspão, na camada do
+    holofote (`_draw_flare_light`); anda com ele. (3) A janela vermelha na sala estava certa (conferida ampliada; na
+    tela inteira eu não tinha visto). (4) Quem está na calçada para, cada um no seu tempo, vira para ele com a cabeça
+    para trás e o primeiro aponta (`_skyward`, `FLARE_REACT`; captura `--sky`). (5) Na chuva e na névoa o halo é
+    maior e mais forte (`FLARE_WET`), e as gotas e os pingos perto dele ficam vermelhos (`FLARE_BEADS`). Medido:
+    +0,5 ms por quadro aceso. Ficou do `PLANO_RUA.md` a barriga vermelha das nuvens perto dele.
+479. #vista #luz #noites #clima "Faça" (a barriga vermelha das nuvens perto do sinalizador, que faltava do
+    `PLANO_RUA.md`) e "a rua central do cruzamento não fica iluminada, principalmente na chuva fica sem reflexo". As
+    nuvens da noite limpa e as do céu da chuva ganham o lado virado para ele aceso de vermelho, mais quanto mais perto,
+    somado com o halo, por baixo da cidade (`_cloud_shapes`, `_cloud_blob`, `_overcast_at`, `FLARE_CLOUD`). O chão da
+    rua do cruzamento acende com ele (na camada do holofote), menos a faixa na sombra da parede do lado dele, e mais
+    na chuva; e na chuva o reflexo dele no asfalto molhado: um risco vermelho quebrado e tremendo embaixo dele,
+    descendo até a rua de cá, na camada `_flare_rim`, por baixo das paredes, das fachadas e dos carros, que o tapam
+    (`FLARE_GROUND`). Medido aceso: +0,5 ms (limpo) a +1,2 ms (chuva) por quadro.
+480. #vista #luz #noites "A rua horizontal está sem luz, a luz cortou na passagem do cruzamento" (com a captura). O
+    chão aceso pelo sinalizador parava na calçada de lá. Pelo vão do cruzamento a luz segue pela calçada de lá e pela
+    rua até a nossa calçada, andando para o lado de lá dele no caminho (a direção de onde ela vem), com as beiras
+    macias (`_draw_flare_light`); o resto da rua fica na sombra dos prédios de lá (ele está atrás e acima deles).
+481. #vista #pedestres #noites "Essas pessoas pararam na frente do prédio para ver a luz, porém como elas conseguiriam
+    ver? [...] as pessoas só irão parar quando estiverem passando pelo cruzamento". O sinalizador está atrás e acima
+    dos prédios de lá: da calçada na frente deles, a fachada o tapa. Só quem passa pela boca da rua do cruzamento
+    (`CROSSING`) nota (`FLARE_REACT`, mais curto), e, se ainda estiver nela, para olhando um tempo (`FLARE_GAZE`, 5 a
+    12 s, ou até ele apagar) e segue; o primeiro a parar aponta (`_skyward`).

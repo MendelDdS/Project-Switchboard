@@ -223,6 +223,7 @@ var _spot_add: Control  # a luz do holofote do toque de recolher, clareando o qu
 var _spot_drawn := false   # (redesenhada enquanto há viatura com ele, e uma vez depois, para apagar)
 var _flare: Control    # o sinalizador da noite 15 (`_draw_flare`), entre o céu e a `_back`: some atrás dos telhados; redesenhado enquanto está no céu...
 var _flare_add: Control   # ...e o halo dele, somado logo acima (`_draw_flare_glow`), a força com a cintilação no `modulate`
+var _flare_rim: Control   # ...a beira da igreja e da cidade de longe acesa por ele (`_draw_flare_rim`), somada logo acima da `_back`
 var _flare_at := Vector3.INF   # onde o halo foi desenhado da última vez (m, de meio em meio metro; INF apagado)
 var _flare_steep := 0.0   # o sinalizador aceso no lugar do sol (0: não): o quanto o raio dele desce ao entrar na sala (`_sun_steep`)
 var _sky: Control      # o céu da vista, embaixo da `_back` e fora da luz do dia da cidade (`DAY_GAIN`): redesenhado com ela
@@ -327,6 +328,10 @@ func _ready() -> void:
 	_back = Control.new()
 	_back.draw.connect(_draw_view_back)
 	_vport.add_child(_back)
+	_flare_rim = Control.new()
+	_flare_rim.material = _flare_add.material
+	_flare_rim.draw.connect(_draw_view_flare_rim)
+	_vport.add_child(_flare_rim)
 	_street_mul = Control.new()
 	_street_mul.material = CanvasItemMaterial.new()
 	(_street_mul.material as CanvasItemMaterial).blend_mode = CanvasItemMaterial.BLEND_MODE_MUL
@@ -606,6 +611,8 @@ func _process(delta: float) -> void:
 		_back_drawn = bs
 		_sky.queue_redraw()
 		_back.queue_redraw()
+		_flare_rim.queue_redraw()   # (usa o alto dos prédios que a `_back` mede)
+		_flare_add.queue_redraw()   # (a barriga das nuvens anda com elas)
 		_street_mul.queue_redraw()
 		_street_add.queue_redraw()
 		_upright.queue_redraw()
@@ -617,6 +624,7 @@ func _process(delta: float) -> void:
 	var fk := Flare.glow(_scene_t.get("flare", -1.0))   # o sinalizador no céu avermelha a cidade
 	day *= Color(1.0, 1.0 - FLARE_TINT.x * minf(fk, 1.0), 1.0 - FLARE_TINT.y * minf(fk, 1.0))
 	_flare_add.modulate = Color(fk, fk, fk)
+	_flare_rim.modulate = Color(fk, fk, fk)
 	_back.modulate = day   # (o céu, embaixo, e o vidro, por cima, ficam de fora; a sombra multiplica, sem ela)
 	_street_add.modulate = day
 	_upright.modulate = day
@@ -629,7 +637,8 @@ func _process(delta: float) -> void:
 		if fa != _flare_at:   # o halo só quando ele anda (a força está no `modulate`)
 			_flare_at = fa
 			_flare_add.queue_redraw()
-	var spot := _cars.any(func(c: Dictionary) -> bool: return c.has("sweep"))
+			_flare_rim.queue_redraw()
+	var spot := _cars.any(func(c: Dictionary) -> bool: return c.has("sweep")) or Flare.light(ft) > 0.0   # (o sinalizador: a cintilação a cada quadro)
 	if spot or _spot_drawn:
 		_spot_add.queue_redraw()
 	_spot_drawn = spot
@@ -1051,7 +1060,7 @@ func _events(delta: float) -> void:
 			_indoor.x = -1.0
 	for i in range(_walkers.size() - 1, -1, -1):
 		var w: Dictionary = _walkers[i]
-		if not _watch(w, delta) and not _hurry(w, delta) and not _listen(w, delta):
+		if not _watch(w, delta) and not _hurry(w, delta) and not _listen(w, delta) and not _skyward(w, delta):
 			w["t"] += delta / w["sec"]
 		if w["t"] >= 1.0 or w.get("in", 0.0) >= 1.0:
 			_walkers.remove_at(i)
@@ -1189,6 +1198,42 @@ func _listen(w: Dictionary, delta: float) -> bool:
 	for key: String in ["look", "face", "stay"]:
 		w.erase(key)
 	w["listen"] = INF   # (para uma vez só)
+	return false
+
+
+## O sinalizador da noite 15 aceso em quem passa pela calçada de lá (`w`): ele está atrás dos prédios, e só se vê pela
+## boca da rua do cruzamento (`CROSSING`); quem passa por ela nota, no seu tempo (`FLARE_REACT`), e, se ainda estiver
+## nela, para, vira para o lado dele e olha para o céu um tempo (`FLARE_GAZE`, ou até ele apagar) e segue; o primeiro a
+## parar aponta (`point`). Na frente dos prédios ninguém vê; quem desce ou sobe a rua do cruzamento passa. Devolve se
+## `w` está parado.
+func _skyward(w: Dictionary, delta: float) -> bool:
+	if w.get("bike", false) or w.get("dog", false) or w.has("hurry") or w.has("corner") or w.get("sky", 0.0) == INF:
+		return false
+	var ft: float = _scene_t.get("flare", -1.0)
+	var lit := Flare.light(ft) > 0.0
+	var x := _walk_at(w).x
+	var open := x > CROSSING.x and x < CROSSING.y
+	if not w.has("sky"):
+		if not lit or not open:
+			return false
+		w["sky"] = -_rng.randf_range(FLARE_REACT.x, FLARE_REACT.y)
+	w["sky"] += delta
+	if w["sky"] < 0.0:   # ainda andando: vê daqui a pouco
+		return false
+	if not w.has("up"):
+		if not lit or not open:   # (apagou, ou ele já passou da boca, antes de ver)
+			w["sky"] = INF
+			return false
+		w.merge({"look": 1.0, "up": true, "face": signf(Flare.at(ft).x - x) if Flare.at(ft).x != x else w["dir"],
+			"stay": _rng.randf_range(FLARE_GAZE.x, FLARE_GAZE.y)})
+		if not _walkers.any(func(o: Dictionary) -> bool: return o.has("point")):
+			w["point"] = true
+	w["stay"] -= delta
+	if w["stay"] > 0.0 and lit:
+		return true
+	for key: String in ["look", "face", "stay", "up", "point"]:
+		w.erase(key)
+	w["sky"] = INF   # (para uma vez só)
 	return false
 
 
@@ -2450,13 +2495,24 @@ func _draw_view_flare_glow() -> void:
 	_ci = self
 
 
-## A luz do holofote do toque de recolher (`_spot_add`), embaixo da frente da vista.
+## A beira da igreja e da cidade de longe acesa pelo sinalizador da noite 15 (`_flare_rim`), logo acima da `_back`.
+func _draw_view_flare_rim() -> void:
+	_ci = _flare_rim
+	_flare_rim.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	var g := Rect2(Vector2.ZERO, Vector2(_vport.size) / 2.0)
+	if not window_art:
+		_draw_flare_rim(Rect2(g.position, g.size - Vector2(0, _near)))
+	_ci = self
+
+
+## A luz do holofote do toque de recolher e a do sinalizador da noite 15 (`_spot_add`), embaixo da frente da vista.
 func _draw_view_beam() -> void:
 	_ci = _spot_add
 	_spot_add.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 	var g := Rect2(Vector2.ZERO, Vector2(_vport.size) / 2.0)
 	if not window_art:
 		_draw_sweep_light(Rect2(g.position, g.size - Vector2(0, _near)))
+		_draw_flare_light(Rect2(g.position, g.size - Vector2(0, _near)))
 	_ci = self
 
 

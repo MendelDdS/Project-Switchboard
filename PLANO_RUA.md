@@ -127,14 +127,28 @@ Ordem sugerida: das que reaproveitam mais (o rig, a viatura, a passada) para as 
 - [x] Halo liso somado (`_flare_add`, `_flare_halo`; o `Bloom` fazia um disco), miolo de 3×3 estourando no branco com
   raios em cruz, estouro ao acender e cintilação com falhas (`Flare.glow`), a cidade puxando para o vermelho
   (`FLARE_TINT`) e a janela vermelha projetada na sala pela camada do sol (`_flare_steep`).
-- [ ] A luz vindo de um lado na cidade: uma beira vermelha nos telhados, na igreja e nas paredes viradas para ele,
+- [x] A luz vindo de um lado na cidade: uma beira vermelha nos telhados, na igreja e nas paredes viradas para ele,
   andando enquanto ele desce e balança; as fachadas da rua do cruzamento mais acesas no alto que embaixo (reaproveitar
   o `spot_light.gdshader`, que clareia o que está embaixo); o tom por igual (`FLARE_TINT`) fica só de fundo.
-- [ ] A fumaça acesa: uma coluna mais grossa logo acima dele, rosada por baixo, e o rastro da subida mais comprido,
-  desfazendo-se com o vento (`Flare.smoke`, `_draw_flare`).
-- [ ] As nuvens perto dele com a barriga vermelha (as da noite limpa, `_draw_moon`, e as da chuva, `_draw_overcast`);
-  hoje só o halo somado as clareia.
-- [ ] Conferir na chuva e na névoa, e medir o desempenho (`medir.gd` da `revisar-mudancas`).
+  Feito: a beira da igreja e do alto dos prédios de longe numa camada somada logo acima da `_back` (`_flare_rim`,
+  `_draw_flare_rim`, `_far_tops`; as paredes da rua do cruzamento a tapam), mais forte no lado virado para ele; a
+  cornija das fachadas de lá e das paredes e a parede da esquerda da rua do cruzamento, de raspão, mais no alto, na
+  camada do holofote (`_draw_flare_light`, `FLARE_RIM`).
+- [x] A fumaça acesa: uma coluna mais grossa logo acima dele, rosada por baixo, e o rastro da subida mais comprido,
+  desfazendo-se com o vento (`Flare.smoke`, `_draw_flare`). Feito: bolotas pixel a pixel (`Flare.puff`), o rastro
+  da subida fino e o da queda grosso, abrindo com o tempo, ondulando (`CURL`), entortado pelo vento mais forte no
+  alto (`SHEAR`), partindo-se com a idade e à vista por 30 s; acesa até `FLARE_SMOKE_LIT`, mais por baixo.
+- [x] Quem passa pela boca da rua do cruzamento (só dali se vê o céu atrás dos prédios) para um tempo, vira para ele
+  e olha para o céu; o primeiro aponta (`_skyward`, `FLARE_REACT`, `FLARE_GAZE`; captura `--walk=... --sky`).
+- [x] As nuvens perto dele com a barriga vermelha (as da noite limpa, `_draw_moon`, e as da chuva, `_draw_overcast`);
+  hoje só o halo somado as clareia. Feito: somada com o halo (`_draw_flare_glow`, `_cloud_shapes`, `FLARE_CLOUD`), o
+  lado de cada mancha virado para ele, mais forte quanto mais perto.
+- [x] O chão da rua do cruzamento aceso por ele, menos a sombra da parede do lado dele, e mais na chuva; e na chuva o
+  reflexo dele no asfalto molhado, um risco vermelho quebrado e tremendo, tapado pelas paredes, fachadas e carros
+  (`_draw_flare_light`, `_draw_flare_rim`, `FLARE_GROUND`).
+- [x] Conferir na chuva e na névoa, e medir o desempenho (`medir.gd` da `revisar-mudancas`). No ar molhado o halo
+  é maior e mais forte (`FLARE_WET`) e as gotas do vidro e os pingos perto dele pegam o vermelho (`FLARE_BEADS`).
+  Medido: aceso, +0,5 ms por quadro (~2,5 ms) e ~360 chamadas a mais, nenhum quadro acima de 16 ms.
 
 ## 4. Fechando cada cena
 - [ ] Opção na captura (`tools/shot.gd`) e botão no F1.

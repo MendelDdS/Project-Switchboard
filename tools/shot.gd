@@ -42,7 +42,7 @@ extends Node
 ##   --car=fusca            um carro de cada modelo dado (vírgulas) parado na rua lá fora, um em cada mão (--car_t=0.45: onde, de 0 a 1; --rack: com o bagageiro)
 ##   --walk=2,-4            gente parada na calçada de lá, em cada x dado (m ao longo da rua; o 1º poste fica em 1,6)
 ##                          (--walk_dir=-1: indo para a esquerda; --stride: a mesma pessoa, cada uma num quadro da passada, na ordem;
-##                          --outfit=short|long|dress|bag: a roupa dela)
+##                          --outfit=short|long|dress|bag: a roupa dela; --sky: olhando o sinalizador, o primeiro apontando)
 ##   --walk_z=20,45         e na calçada da direita da rua do cruzamento, em cada distância dada (m)
 ##   --bar                  a porta do bar aberta, com a luz saindo
 ##   --man=0.5              o homem do mistério chegando, nessa fração do caminho até o poste (1: parado embaixo dele)
@@ -378,6 +378,10 @@ func _ready() -> void:
 					var n := Background.STRIDE.size()   # com --stride, o i-ésimo no quadro i da passada
 					bg._walkers.append((same.duplicate() if _args.has("stride") else bg._walker()).merged({"t": t, "dir": walk_dir, "sec": (posmod(i, 2 * n) + 0.5) / (n * Background.WALK_STEPS * t) if _args.has("stride") else 1e9,
 						"z": Background.STREET["far_curb"] + 1.0}, true))
+					if _args.has("sky"):
+						bg._walkers[-1].merge({"look": 1.0, "up": true, "face": 1.0, "sky": 0.0, "stay": 1.0}, true)
+						if i == 0:
+							bg._walkers[-1]["point"] = true
 				for z in (_args.get("walk_z", "") as String).split(",", false):
 					bg._walkers.append(bg._walker().merged({"t": 0.0, "dir": 1.0, "sec": 1e9, "z": Background.STREET["far_curb"] + 1.0,
 						"corner": Background.WALK_RIGHT, "out": true, "turn": float(z)}, true))

@@ -814,3 +814,6 @@ curva, outro caminho), mostre antes como proposta e pergunte, não entregue como
   céu vira um disco de beira marcada. Luz que precisa parecer luz: miolo estourando no branco, halo liso somado
   (imagem montada pixel a pixel, força no `modulate`), estouro ao acender, cintilação irregular, e o efeito dela na
   sala (a janela projetada, pela camada do sol). Foram três tentativas até o usuário aceitar a direção.
+- **Antes de dizer que um efeito não aparece, confira ampliado.** Sugeri que a janela vermelha do sinalizador quase não
+  aparecia na sala, olhando a tela inteira; ampliado, com e sem ele, ela estava nítida no tampo e no peitoril. Na
+  tela inteira, um efeito vermelho escuro sobre a madeira escura some: compare o mesmo recorte com e sem o efeito.
