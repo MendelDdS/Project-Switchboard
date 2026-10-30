@@ -28,8 +28,8 @@ Abra a pasta no Godot 4.6 (Importar → `project.godot`) e aperte F5.
     ligados (com `!` na frente, desligados). A ligação do roteiro confere na hora de tocar, então uma escolha às
     19:00 já vale para uma ligação das 21:00.
   - O jogo liga sozinho `ligou_de_volta_N` (tentou ligar de volta para a ligação desconhecida da noite N) e
-    `desligou_desconhecida_N` (desligou na cara dela) e `sinalizador_N` (o sinalizador da rua acendeu no céu, a
-    noite 15 às 21h).
+    `desligou_desconhecida_N` (desligou na cara dela), `sinalizador_N` (o sinalizador da rua acendeu no céu, a
+    noite 15 às 21h) e `ligou_<número>_N` (o operador ligou pelo discador e o lugar atendeu).
   - Para testar um ramo: `godot --path . -- --night=2 --flags=respondeu_a_luz`.
 - `data/templates/` — **moldes**: roteiros com lacunas em inglês, preenchidas na hora (veja abaixo).
 - `scripts/main.gd` — conduz o turno (relógio, quando cada ligação toca, mesa, fim de ligação, final).
@@ -149,6 +149,20 @@ as perguntas que sobraram saem (menos o endereço) e fica "Tem alguém ferido?":
 `stage_sec` (segundos reais): 55/22/22 nas ocorrências mais lentas, 50/20/20 nas médias e 45/18/18 em fogo e AVC. A barra para durante pergunta e resposta e enquanto uma máquina do despacho trabalha (imprimindo, transmitindo ou triturando).
 O robô em ritmo humano (5 s por ação, lendo cada resposta até o fim, 15 s no protocolo e no mapa) despacha com
 ~40 s de barra corrida: a tempo nas lentas e médias, já agravando em fogo e AVC.
+
+## O discador (ligações que o operador faz)
+
+O operador liga pelo discador da prateleira (clicado, ele abre de perto): digita o número, Discar, e o lugar atende.
+- **O atendimento de cada lugar** fica no contato dele em `data/directory/` (`answers`): cada um é um assunto de
+  conversa fiada (`ChatTopic`), com a fala de atendimento (`line`) e as perguntas do operador (`replies`: `text` a
+  pergunta, `follow` a resposta, `sets` os marcadores). Pode ter `requires` (só depois de um marcador) e `weather`.
+  Sorteia um entre os que valem; o operador vê até duas perguntas e [Encerrar ligação]. `bye` é a despedida (vazio:
+  uma de `dial_byes`, no `content.tres`). Sem atendimento, ninguém atende. Hoje só Vila Serena (o `test_content` cobra).
+- **Ligação do roteiro**: um `.tres` com o script `scripts/data/dial_call.gd` (`DialCall`) em `Night.dial` (só naquela
+  noite) ou `GameContent.dial` (qualquer uma): o número (pode nem estar na lista), `requires`, o horário (`from`/`to`),
+  quem atende e os passos (`PrankStep`, como os trotes). Feita até o fim, liga `sets` e, com `once`, o marcador
+  `discou_<nome do arquivo>`. Para o lugar ligar de volta: uma `StoryCall` com `requires = ["ligou_<número>_N"]`.
+- No F1, o campo "Número para discar".
 
 ## Moldes (conversas geradas)
 

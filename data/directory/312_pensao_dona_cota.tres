@@ -1,6 +1,8 @@
 [gd_resource type="Resource" script_class="DirectoryEntry" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
 [ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
 
 [sub_resource type="Resource" id="Motive_59"]
@@ -13,6 +15,36 @@ script = ExtResource("2_motive")
 text = "Quero saber se tem vaga pra dois pernoitarem."
 talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Tem vaga pra duas pessoas? É só pra pernoitar.", "Pra dois tem o quarto da frente, com duas camas.", "Ótimo. A gente chegou no último ônibus e não tem onde ficar.", "Então venham logo, que a rua aqui fica escura depois das {hour}.", "Precisa levar alguma coisa? Documento?", "Só o documento, pra anotar no livro de hóspedes."), PackedStringArray("Boa noite. Tem quarto pra duas pessoas, só esta noite?", "Tem, mas só com uma cama de casal.", "Somos dois irmãos. Não tem com duas camas?", "Posso pôr um colchão no chão. Serve?", "Serve, sim. Chegamos em {wait}.", "Vou deixar a luz da frente acesa pra vocês.")])
 
+[sub_resource type="Resource" id="Answer_0_0"]
+script = ExtResource("9_reply")
+text = "Tem vaga para hoje?"
+follow = "Tem um quarto nos fundos. Mas o portão fecha às dez, viu?"
+
+[sub_resource type="Resource" id="Answer_0_1"]
+script = ExtResource("9_reply")
+text = "A senhora ainda serve janta?"
+follow = "A sopa já acabou. Amanhã tem feijoada, se quiser."
+
+[sub_resource type="Resource" id="Answer_0"]
+script = ExtResource("8_chat")
+line = "Pensão. Quem é que fala?"
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_0_0"), SubResource("Answer_0_1")])
+
+[sub_resource type="Resource" id="Answer_1_0"]
+script = ExtResource("9_reply")
+text = "O que a senhora está ouvindo?"
+follow = "A novela da Rádio Serena. Está bem na hora boa."
+
+[sub_resource type="Resource" id="Answer_1_1"]
+script = ExtResource("9_reply")
+text = "Tudo bem por aí?"
+follow = "Tudo, graças a Deus. Só a goteira da cozinha que não para."
+
+[sub_resource type="Resource" id="Answer_1"]
+script = ExtResource("8_chat")
+line = "Alô! Fala mais alto, que o rádio está ligado."
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_1_0"), SubResource("Answer_1_1")])
+
 [resource]
 script = ExtResource("1_entry")
 wary = 1.6
@@ -24,3 +56,5 @@ hello = "Pensão. Quem é que fala?"
 category = "hospedagem"
 spoken = "a Pensão Dona Cota"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_59"), SubResource("Motive_60")])
+answers = Array[ExtResource("8_chat")]([SubResource("Answer_0"), SubResource("Answer_1")])
+bye = "Boa noite. E não liga depois das dez, que eu durmo cedo."

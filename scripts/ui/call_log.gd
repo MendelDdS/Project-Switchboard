@@ -62,7 +62,8 @@ func _render() -> void:
 	for c in _calls:
 		if c.transcript.is_empty():
 			continue
-		s += "[color=#5a4d3a]— %s · %s —[/color]\n" % [T.text(T.Key.STATUS_LINE) % c.line, c.time]
+		var head := T.text(T.Key.LOG_DIALED) % c.target if c.kind == PhoneCall.Kind.OUTGOING else T.text(T.Key.STATUS_LINE) % c.line   # (a feita pelo operador não tem entrada)
+		s += "[color=#5a4d3a]— %s · %s —[/color]\n" % [head, c.time]
 		for l in c.transcript:
 			var text := String(l["text"]).replace("[", "(")
 			match l["cls"]:

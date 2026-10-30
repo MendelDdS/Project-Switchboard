@@ -289,7 +289,55 @@ msgstr "Hace bien. Hoy la discusión está fea."
 
 #: data/directory/327_bar_do_ze.tres
 msgid "Bar do Zé! Fala aí, meu chapa!"
-msgstr "¡Bar de Zé! ¡Dale, compadre!"
+msgstr "¡Bar de Zé! ¡Diga, compadre!"
+
+#: data/directory/327_bar_do_ze.tres
+msgid "O jogo ainda está passando aí?"
+msgstr "¿Todavía están pasando el partido?"
+
+#: data/directory/327_bar_do_ze.tres
+msgid "Está no segundo tempo, zero a zero. Uma tristeza."
+msgstr "Va en el segundo tiempo, cero a cero. Una tristeza."
+
+#: data/directory/327_bar_do_ze.tres
+msgid "Até que horas o bar fica aberto?"
+msgstr "¿Hasta qué hora abre el bar?"
+
+#: data/directory/327_bar_do_ze.tres
+msgid "Enquanto tiver freguês. Mas a polícia anda mandando fechar cedo."
+msgstr "Mientras haya clientes. Pero la policía anda mandando cerrar temprano."
+
+#: data/directory/327_bar_do_ze.tres
+msgid "Está muito cheio hoje?"
+msgstr "¿Está muy lleno hoy?"
+
+#: data/directory/327_bar_do_ze.tres
+msgid "Lotado. Hoje foi dia de pagamento na fábrica."
+msgstr "Repleto. Hoy fue día de pago en la fábrica."
+
+#: data/directory/327_bar_do_ze.tres
+msgid "Bar do Zé. Com essa chuva, só os de sempre."
+msgstr "Bar de Zé. Con esta lluvia, solo los de siempre."
+
+#: data/directory/327_bar_do_ze.tres
+msgid "Choveu muito por aí?"
+msgstr "¿Llovió mucho por ahí?"
+
+#: data/directory/327_bar_do_ze.tres
+msgid "A Rua da Estação virou rio. O Tonho do bilhar chegou de galocha."
+msgstr "La Rua da Estação se volvió río. Tonho, el del billar, llegó con botas de goma."
+
+#: data/directory/327_bar_do_ze.tres
+msgid "Quanto está a cerveja?"
+msgstr "¿Cuánto está la cerveza?"
+
+#: data/directory/327_bar_do_ze.tres
+msgid "Três cruzeiros a garrafa. Gelada, hein."
+msgstr "Tres cruzeiros la botella. Bien fría, ¿eh?"
+
+#: data/directory/327_bar_do_ze.tres
+msgid "Valeu, meu chapa! Aparece aqui qualquer dia."
+msgstr "¡Gracias, compadre! Pase por aquí cualquier día."
 
 #: data/directory/327_bar_do_ze.tres
 msgid "do Bar do Zé"
@@ -657,7 +705,43 @@ msgstr "Sí. Queda guardado en la boletería."
 
 #: data/directory/344_cine_odeon.tres
 msgid "Cine Odeon, boa noite."
-msgstr "Cine Odeon, buenas noches."
+msgstr "Cine Odeón, buenas noches."
+
+#: data/directory/344_cine_odeon.tres
+msgid "Que filme está passando hoje?"
+msgstr "¿Qué película dan hoy?"
+
+#: data/directory/344_cine_odeon.tres
+msgid "Um faroeste italiano. A última sessão começa às nove e meia."
+msgstr "Un western italiano. La última función empieza a las nueve y media."
+
+#: data/directory/344_cine_odeon.tres
+msgid "Quanto é o ingresso?"
+msgstr "¿Cuánto cuesta la entrada?"
+
+#: data/directory/344_cine_odeon.tres
+msgid "Quatro cruzeiros. Estudante paga meia, com a carteirinha."
+msgstr "Cuatro cruzeiros. Los estudiantes pagan la mitad, con el carné."
+
+#: data/directory/344_cine_odeon.tres
+msgid "Odeon, bilheteria."
+msgstr "Odeón, boletería."
+
+#: data/directory/344_cine_odeon.tres
+msgid "Ainda tem lugar na última sessão?"
+msgstr "¿Todavía hay lugar en la última función?"
+
+#: data/directory/344_cine_odeon.tres
+msgid "Tem, sim. A plateia de baixo está quase vazia."
+msgstr "Sí, hay. La platea de abajo está casi vacía."
+
+#: data/directory/344_cine_odeon.tres
+msgid "Alguém esqueceu alguma coisa aí hoje?"
+msgstr "¿Alguien olvidó algo ahí hoy?"
+
+#: data/directory/344_cine_odeon.tres
+msgid "Um guarda-chuva preto e uma luva. Está tudo aqui na bilheteria."
+msgstr "Un paraguas negro y un guante. Está todo aquí en la boletería."
 
 #: data/directory/344_cine_odeon.tres
 msgid "do Cine Odeon"
@@ -1428,6 +1512,46 @@ msgid "Funerária Paz Eterna, boa noite."
 msgstr "Funeraria Paz Eterna, buenas noches."
 
 #: data/directory/399_funeraria_paz_eterna.tres
+msgid "Vocês atendem a noite toda?"
+msgstr "¿Atienden toda la noche?"
+
+#: data/directory/399_funeraria_paz_eterna.tres
+msgid "A noite toda. A morte não tem hora, infelizmente."
+msgstr "Toda la noche. La muerte no tiene hora, por desgracia."
+
+#: data/directory/399_funeraria_paz_eterna.tres
+msgid "Onde fica a capela?"
+msgstr "¿Dónde queda la capilla?"
+
+#: data/directory/399_funeraria_paz_eterna.tres
+msgid "Aqui mesmo, na Rua das Acácias, ao lado da borracharia."
+msgstr "Aquí mismo, en la Rua das Acácias, al lado de la gomería."
+
+#: data/directory/399_funeraria_paz_eterna.tres
+msgid "Paz Eterna. Em que posso ajudar?"
+msgstr "Paz Eterna. ¿En qué puedo ayudarle?"
+
+#: data/directory/399_funeraria_paz_eterna.tres
+msgid "Não é nada grave, só uma informação."
+msgstr "No es nada grave, solo una consulta."
+
+#: data/directory/399_funeraria_paz_eterna.tres
+msgid "Que bom. Aqui, quase sempre é."
+msgstr "Qué bueno. Aquí, casi siempre lo es."
+
+#: data/directory/399_funeraria_paz_eterna.tres
+msgid "Tem velório hoje?"
+msgstr "¿Hay velorio hoy?"
+
+#: data/directory/399_funeraria_paz_eterna.tres
+msgid "Tem um, de um senhor da Vila. A família pediu silêncio."
+msgstr "Hay uno, de un señor de la Vila. La familia pidió silencio."
+
+#: data/directory/399_funeraria_paz_eterna.tres
+msgid "Boa noite. Que Deus lhe guarde."
+msgstr "Buenas noches. Que Dios lo guarde."
+
+#: data/directory/399_funeraria_paz_eterna.tres
 msgid "da Funerária Paz Eterna"
 msgstr "de la Funerária Paz Eterna"
 
@@ -1546,6 +1670,62 @@ msgstr "Hecho. Pase cuando quiera a arreglarlo."
 #: data/directory/305_hotel_estrela.tres
 msgid "Hotel Estrela, boa noite."
 msgstr "Hotel Estrela, buenas noches."
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Hotel Estrela, boa noite. Em que posso ajudar?"
+msgstr "Hotel Estrela, buenas noches. ¿En qué puedo ayudarle?"
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Tem quarto vago esta noite?"
+msgstr "¿Hay cuarto libre esta noche?"
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Tem dois no terceiro andar. É só chegar antes da meia-noite."
+msgstr "Hay dos en el tercer piso. Basta llegar antes de la medianoche."
+
+#: data/directory/305_hotel_estrela.tres
+msgid "A portaria fecha a que horas?"
+msgstr "¿A qué hora cierra la portería?"
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Não fecha. Depois da meia-noite, é só tocar a campainha."
+msgstr "No cierra. Después de la medianoche, basta tocar el timbre."
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Quanto custa o pernoite?"
+msgstr "¿Cuánto cuesta la noche?"
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Quarenta cruzeiros, com café da manhã."
+msgstr "Cuarenta cruzeiros, con desayuno."
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Estrela, recepção. Pois não?"
+msgstr "Estrela, recepción. ¿Diga?"
+
+#: data/directory/305_hotel_estrela.tres
+msgid "O restaurante ainda está servindo?"
+msgstr "¿El restaurante todavía sirve?"
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Só até as nove. Agora, só o café da recepção."
+msgstr "Solo hasta las nueve. Ahora, solo el café de la recepción."
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Chegou algum hóspede de fora hoje?"
+msgstr "¿Llegó algún huésped de fuera hoy?"
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Isso eu não posso dizer pelo telefone, desculpe."
+msgstr "Eso no lo puedo decir por teléfono, disculpe."
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Tudo tranquilo por aí?"
+msgstr "¿Todo tranquilo por ahí?"
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Tudo calmo. Só o letreiro da fachada que anda piscando."
+msgstr "Todo en calma. Solo el letrero de la fachada que anda parpadeando."
 
 #: data/directory/305_hotel_estrela.tres
 msgid "do Hotel Estrela"
@@ -2144,6 +2324,46 @@ msgid "Oficina do Tião, boa noite."
 msgstr "Taller de Tião, buenas noches."
 
 #: data/directory/318_oficina_do_tiao.tres
+msgid "Oficina. Fala logo, que eu estou com a mão suja de graxa."
+msgstr "Taller. Hable rápido, que tengo las manos llenas de grasa."
+
+#: data/directory/318_oficina_do_tiao.tres data/directory/355_bilhar_do_tonho.tres
+msgid "Até que horas vocês ficam abertos?"
+msgstr "¿Hasta qué hora están abiertos?"
+
+#: data/directory/318_oficina_do_tiao.tres
+msgid "Hoje eu fico até tarde. Tem um caminhão para entregar de manhã."
+msgstr "Hoy me quedo hasta tarde. Hay un camión para entregar en la mañana."
+
+#: data/directory/318_oficina_do_tiao.tres
+msgid "Vocês fazem guincho?"
+msgstr "¿Ustedes tienen grúa?"
+
+#: data/directory/318_oficina_do_tiao.tres
+msgid "Faço, mas só até a saída da cidade. Depois disso, é com o posto."
+msgstr "Sí, pero solo hasta la salida de la ciudad. Después, es cosa de la gasolinera."
+
+#: data/directory/318_oficina_do_tiao.tres
+msgid "Tião falando."
+msgstr "Habla Tião."
+
+#: data/directory/318_oficina_do_tiao.tres
+msgid "Dá para olhar um carro amanhã cedo?"
+msgstr "¿Puede revisar un auto mañana temprano?"
+
+#: data/directory/318_oficina_do_tiao.tres
+msgid "Pode trazer às sete. Antes do café, eu não falo com ninguém."
+msgstr "Tráigalo a las siete. Antes del café, no hablo con nadie."
+
+#: data/directory/318_oficina_do_tiao.tres
+msgid "Quanto custa uma revisão?"
+msgstr "¿Cuánto cuesta una revisión?"
+
+#: data/directory/318_oficina_do_tiao.tres
+msgid "Depende do carro. Fusca é barato; o resto, a gente conversa."
+msgstr "Depende del auto. Un escarabajo es barato; lo demás, lo hablamos."
+
+#: data/directory/318_oficina_do_tiao.tres
 msgid "da Oficina do Tião"
 msgstr "de la Oficina do Tião"
 
@@ -2500,6 +2720,42 @@ msgid "Posto São Cristóvão, boa noite."
 msgstr "Gasolinera São Cristóvão, buenas noches."
 
 #: data/directory/347_posto_sao_cristovao.tres
+msgid "Vocês ficam abertos a noite toda?"
+msgstr "¿Están abiertos toda la noche?"
+
+#: data/directory/347_posto_sao_cristovao.tres
+msgid "A bomba fecha à meia-noite. Depois, só o frentista de plantão."
+msgstr "El surtidor cierra a la medianoche. Después, solo el playero de guardia."
+
+#: data/directory/347_posto_sao_cristovao.tres
+msgid "Quanto está a gasolina?"
+msgstr "¿A cuánto está la gasolina?"
+
+#: data/directory/347_posto_sao_cristovao.tres
+msgid "Subiu de novo esta semana. Nem me pergunte."
+msgstr "Subió otra vez esta semana. Ni me pregunte."
+
+#: data/directory/347_posto_sao_cristovao.tres
+msgid "Posto, plantão."
+msgstr "Gasolinera, guardia."
+
+#: data/directory/347_posto_sao_cristovao.tres
+msgid "Tem borracheiro aí hoje?"
+msgstr "¿Hay gomero ahí hoy?"
+
+#: data/directory/347_posto_sao_cristovao.tres
+msgid "Hoje, não. Fala com o Neno, na Rua das Acácias."
+msgstr "Hoy no. Hable con Neno, en la Rua das Acácias."
+
+#: data/directory/347_posto_sao_cristovao.tres
+msgid "Muito movimento hoje?"
+msgstr "¿Mucho movimiento hoy?"
+
+#: data/directory/347_posto_sao_cristovao.tres
+msgid "Só caminhão passando para a Capital. Carro de passeio, quase nenhum."
+msgstr "Solo camiones que van a la Capital. Autos, casi ninguno."
+
+#: data/directory/347_posto_sao_cristovao.tres
 msgid "do Posto São Cristóvão"
 msgstr "del Posto São Cristóvão"
 
@@ -2740,6 +2996,58 @@ msgid "Rádio Serena. Quem fala, e do que se trata?"
 msgstr "Radio Serena. ¿Quién habla y de qué se trata?"
 
 #: data/directory/390_radio_serena_am.tres
+msgid "Rádio Serena, boa noite! O que deseja?"
+msgstr "¡Radio Serena, buenas noches! ¿Qué desea?"
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Qual é a programação de hoje?"
+msgstr "¿Cuál es la programación de hoy?"
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Depois das notícias, o programa dos pedidos. À meia-noite, a gente sai do ar."
+msgstr "Después de las noticias, el programa de pedidos. A la medianoche salimos del aire."
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Posso pedir uma música?"
+msgstr "¿Puedo pedir una canción?"
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Pode. Deixa o nome que o locutor toca no programa das dez."
+msgstr "Puede. Deje el nombre y el locutor la pasa en el programa de las diez."
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Quem está no ar agora?"
+msgstr "¿Quién está al aire ahora?"
+
+#: data/directory/390_radio_serena_am.tres
+msgid "O locutor da noite, com as modas de viola."
+msgstr "El locutor de la noche, con las modas de viola."
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Serena AM, estúdio. Fala rápido, que estamos no ar."
+msgstr "Serena AM, estudio. Hable rápido, que estamos al aire."
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Vai ter a previsão do tempo hoje?"
+msgstr "¿Va a haber pronóstico del tiempo hoy?"
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Às onze, depois do intervalo."
+msgstr "A las once, después de la pausa."
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Vocês recebem recado para a roça?"
+msgstr "¿Reciben recados para el campo?"
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Recebe, sim. Vai ao ar no quadro dos recados, depois das notícias."
+msgstr "Sí, recibimos. Salen al aire en la sección de recados, después de las noticias."
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Obrigado por ouvir a Serena. Boa noite!"
+msgstr "Gracias por escuchar la Serena. ¡Buenas noches!"
+
+#: data/directory/390_radio_serena_am.tres
 msgid "da Rádio Serena"
 msgstr "de Rádio Serena"
 
@@ -2863,6 +3171,86 @@ msgstr "de Seu Alberto Ramos"
 msgid "pro seu Alberto Ramos"
 msgstr "con Seu Alberto Ramos"
 
+#: data/directory/367_celia_rocha.tres
+msgid "Alô? Quem fala a essa hora?"
+msgstr "¿Hola? ¿Quién habla a esta hora?"
+
+#: data/directory/367_celia_rocha.tres data/directory/373_celia_rocha.tres
+msgid "É da central. Estamos testando a linha."
+msgstr "Es la central. Estamos probando la línea."
+
+#: data/directory/367_celia_rocha.tres
+msgid "Ah, está funcionando, sim. Estou ouvindo bem."
+msgstr "Ah, sí, está funcionando. La escucho bien."
+
+#: data/directory/367_celia_rocha.tres
+msgid "Desculpe, foi engano."
+msgstr "Disculpe, número equivocado."
+
+#: data/directory/367_celia_rocha.tres
+msgid "Engano a essa hora... Tudo bem, acontece."
+msgstr "Equivocado a esta hora... Está bien, pasa."
+
+#: data/directory/367_celia_rocha.tres
+msgid "Alô? É o Antônio?"
+msgstr "¿Hola? ¿Es Antônio?"
+
+#: data/directory/367_celia_rocha.tres
+msgid "Não, senhora. Aqui é da central."
+msgstr "No, señora. Aquí es la central."
+
+#: data/directory/367_celia_rocha.tres
+msgid "Ah. Pensei que fosse meu filho. Ele ficou de ligar."
+msgstr "Ah. Pensé que era mi hijo. Quedó en llamar."
+
+#: data/directory/367_celia_rocha.tres
+msgid "É a dona Célia da Rua do Sol?"
+msgstr "¿Es doña Célia, la de la Rua do Sol?"
+
+#: data/directory/367_celia_rocha.tres
+msgid "Sou eu. A outra Célia mora na avenida; todo mundo confunde."
+msgstr "Soy yo. La otra Célia vive en la avenida; todo el mundo nos confunde."
+
+#: data/directory/367_celia_rocha.tres
+msgid "Boa noite. E não liga mais tarde, que eu acordo cedo."
+msgstr "Buenas noches. Y no llame más tarde, que me levanto temprano."
+
+#: data/directory/373_celia_rocha.tres
+msgid "Residência da Célia, boa noite."
+msgstr "Casa de Célia, buenas noches."
+
+#: data/directory/373_celia_rocha.tres
+msgid "É a dona Célia da Avenida Brasil?"
+msgstr "¿Es doña Célia, la de la Avenida Brasil?"
+
+#: data/directory/373_celia_rocha.tres
+msgid "Isso. Se procura a da Rua do Sol, é o outro número."
+msgstr "Así es. Si busca a la de la Rua do Sol, es el otro número."
+
+#: data/directory/373_celia_rocha.tres
+msgid "Pode testar à vontade. O meu telefone vive chiando."
+msgstr "Pruebe tranquilo. Mi teléfono vive haciendo ruido."
+
+#: data/directory/373_celia_rocha.tres
+msgid "Alô? Pode falar, eu estava acordada."
+msgstr "¿Hola? Hable, estaba despierta."
+
+#: data/directory/373_celia_rocha.tres
+msgid "Desculpe ligar tão tarde."
+msgstr "Disculpe que llame tan tarde."
+
+#: data/directory/373_celia_rocha.tres
+msgid "Não faz mal. Com o movimento na rua, quem consegue dormir?"
+msgstr "No importa. Con el movimiento en la calle, ¿quién puede dormir?"
+
+#: data/directory/373_celia_rocha.tres
+msgid "Está ouvindo bem?"
+msgstr "¿Me escucha bien?"
+
+#: data/directory/373_celia_rocha.tres
+msgid "Com um chiadinho, mas dá para entender."
+msgstr "Con un poco de ruido, pero se entiende."
+
 #: data/directory/355_bilhar_do_tonho.tres
 msgid "o Bilhar do Tonho"
 msgstr "el Bilhar do Tonho"
@@ -2973,7 +3361,39 @@ msgstr "Déjelo. Le digo ahora mismo."
 
 #: data/directory/355_bilhar_do_tonho.tres
 msgid "Bilhar do Tonho! Opa, pode falar!"
-msgstr "¡Billar de Tonho! ¡Epa, diga nomás!"
+msgstr "¡Billar de Tonho! ¡Epa, diga!"
+
+#: data/directory/355_bilhar_do_tonho.tres
+msgid "Tem mesa livre?"
+msgstr "¿Hay mesa libre?"
+
+#: data/directory/355_bilhar_do_tonho.tres
+msgid "Está tudo ocupado. Hoje tem campeonato dos ferroviários."
+msgstr "Está todo ocupado. Hoy hay campeonato de los ferroviarios."
+
+#: data/directory/355_bilhar_do_tonho.tres
+msgid "Até o último perder a camisa."
+msgstr "Hasta que el último pierda la camisa."
+
+#: data/directory/355_bilhar_do_tonho.tres
+msgid "Tonho. Quem fala?"
+msgstr "Tonho. ¿Quién habla?"
+
+#: data/directory/355_bilhar_do_tonho.tres
+msgid "É da central. Está tudo bem aí?"
+msgstr "Es la central. ¿Todo bien por ahí?"
+
+#: data/directory/355_bilhar_do_tonho.tres
+msgid "Tudo. Só uns rapazes que não querem ir embora."
+msgstr "Todo. Solo unos muchachos que no se quieren ir."
+
+#: data/directory/355_bilhar_do_tonho.tres
+msgid "O barulho aí é de briga?"
+msgstr "¿Ese ruido es una pelea?"
+
+#: data/directory/355_bilhar_do_tonho.tres
+msgid "Que nada, é o pessoal comemorando uma tacada."
+msgstr "Qué va, es la gente festejando una jugada."
 
 #: data/directory/355_bilhar_do_tonho.tres
 msgid "do Bilhar do Tonho"
@@ -3564,6 +3984,46 @@ msgid "Pensão. Quem é que fala?"
 msgstr "Pensión. ¿Quién habla?"
 
 #: data/directory/312_pensao_dona_cota.tres
+msgid "Tem vaga para hoje?"
+msgstr "¿Hay lugar para hoy?"
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "Tem um quarto nos fundos. Mas o portão fecha às dez, viu?"
+msgstr "Hay un cuarto al fondo. Pero el portón cierra a las diez, ¿eh?"
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "A senhora ainda serve janta?"
+msgstr "¿Usted todavía sirve la cena?"
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "A sopa já acabou. Amanhã tem feijoada, se quiser."
+msgstr "La sopa ya se acabó. Mañana hay feijoada, si quiere."
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "Alô! Fala mais alto, que o rádio está ligado."
+msgstr "¡Hola! Hable más alto, que la radio está prendida."
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "O que a senhora está ouvindo?"
+msgstr "¿Qué está escuchando?"
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "A novela da Rádio Serena. Está bem na hora boa."
+msgstr "La radionovela de Radio Serena. Justo en la mejor parte."
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "Tudo bem por aí?"
+msgstr "¿Todo bien por ahí?"
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "Tudo, graças a Deus. Só a goteira da cozinha que não para."
+msgstr "Todo, gracias a Dios. Solo la gotera de la cocina que no para."
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "Boa noite. E não liga depois das dez, que eu durmo cedo."
+msgstr "Buenas noches. Y no llame después de las diez, que me acuesto temprano."
+
+#: data/directory/312_pensao_dona_cota.tres
 msgid "da Pensão Dona Cota"
 msgstr "de la Pensão Dona Cota"
 
@@ -3682,6 +4142,46 @@ msgstr "Llego en {wait}. Deje el capó abierto así lo encuentro."
 #: data/directory/336_borracharia_do_neno.tres
 msgid "Borracharia do Neno, boa noite."
 msgstr "Gomería de Neno, buenas noches."
+
+#: data/directory/336_borracharia_do_neno.tres
+msgid "Borracharia, boa noite."
+msgstr "Gomería, buenas noches."
+
+#: data/directory/336_borracharia_do_neno.tres
+msgid "Vocês atendem de madrugada?"
+msgstr "¿Atienden de madrugada?"
+
+#: data/directory/336_borracharia_do_neno.tres
+msgid "Se bater no portão, eu acordo. Moro nos fundos."
+msgstr "Si golpea el portón, me despierto. Vivo al fondo."
+
+#: data/directory/336_borracharia_do_neno.tres
+msgid "Tem pneu de Fusca?"
+msgstr "¿Tiene neumático de escarabajo?"
+
+#: data/directory/336_borracharia_do_neno.tres
+msgid "Tenho dois recapados. Novo, só semana que vem."
+msgstr "Tengo dos recauchutados. Nuevo, recién la semana que viene."
+
+#: data/directory/336_borracharia_do_neno.tres
+msgid "Neno falando. Furou onde?"
+msgstr "Habla Neno. ¿Dónde se pinchó?"
+
+#: data/directory/336_borracharia_do_neno.tres
+msgid "Nada furou. Só queria saber se estão abertos."
+msgstr "No se pinchó nada. Solo quería saber si están abiertos."
+
+#: data/directory/336_borracharia_do_neno.tres
+msgid "Aberto, não. Mas eu durmo aqui do lado; é só chamar."
+msgstr "Abierto, no. Pero duermo aquí al lado; basta con llamar."
+
+#: data/directory/336_borracharia_do_neno.tres
+msgid "Quanto custa um remendo?"
+msgstr "¿Cuánto cuesta un parche?"
+
+#: data/directory/336_borracharia_do_neno.tres
+msgid "Cinco cruzeiros, e o café é por minha conta."
+msgstr "Cinco cruzeiros, y el café corre por mi cuenta."
 
 #: data/directory/336_borracharia_do_neno.tres
 msgid "da Borracharia do Neno"
@@ -10616,6 +11116,22 @@ msgid "Não é esse número, não."
 msgstr "No es ese número, no."
 
 #: data/content.tres
+msgid "Boa noite, então."
+msgstr "Buenas noches, entonces."
+
+#: data/content.tres
+msgid "Disponha. Boa noite."
+msgstr "A la orden. Buenas noches."
+
+#: data/content.tres
+msgid "Está certo. Até mais."
+msgstr "Está bien. Hasta luego."
+
+#: data/content.tres
+msgid "Boa noite, e bom trabalho aí na central."
+msgstr "Buenas noches, y buen trabajo ahí en la central."
+
+#: data/content.tres
 msgid "Interurbano, boa noite."
 msgstr "Larga distancia, buenas noches."
 
@@ -10906,10 +11422,6 @@ msgstr "Entonces eso es todo. Buenas noches."
 #: data/content.tres
 msgid "Até mais."
 msgstr "Hasta luego."
-
-#: data/content.tres
-msgid "Disponha. Boa noite."
-msgstr "A la orden. Buenas noches."
 
 #: data/content.tres
 msgid "Boa noite. Vai com Deus."

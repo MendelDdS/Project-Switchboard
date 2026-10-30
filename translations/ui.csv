@@ -477,3 +477,19 @@ BADGE_RUSH_DESC,Conceito Bom ou melhor no ritmo mais puxado da central.,A Good g
 BADGE_VETERAN,Veterano,Veteran,Veterano
 BADGE_VETERAN_DESC,Dez noites de trabalho na central.,Ten nights of work at the exchange.,Diez noches de trabajo en la central.
 BADGE_EARNED,Ganho na noite %d,Earned on night %d,Ganado en la noche %d
+DIAL_TITLE,Discador,Dialer,Marcador
+DIAL_KEY,Discar,Dial,Marcar
+DIAL_END,Encerrar,End,Terminar
+DIAL_CALLING,CHAMANDO,CALLING,LLAMANDO
+DIAL_ON_LINE,EM LINHA,ON LINE,EN LÍNEA
+DIAL_ENDED,ENCERRADA,ENDED,TERMINADA
+DIAL_BUSY,OCUPADO,BUSY,OCUPADO
+DIAL_NO_ANSWER,NÃO ATENDE,NO ANSWER,NO CONTESTA
+DIAL_NO_NUMBER,NÃO EXISTE,NO SUCH NUMBER,NO EXISTE
+DIAL_NOT_SERVED,NÃO COMPLETA,CANNOT CONNECT,NO COMPLETA
+DIAL_TRUNK,USE O TRONCO,USE THE TRUNK,USE LA TRONCAL
+DIAL_DISPATCH,USE O DESPACHO,USE DISPATCH,USE EL DESPACHO
+SYS_DIALING,(Discando %s...),(Dialing %s...),(Marcando %s...)
+LOG_DIALED,Ligação para %s,Call to %s,Llamada a %s
+CHOICE_DIAL_BYE,[Encerrar ligação],[End the call],[Terminar la llamada]
+OP_DIAL_BYE,"Vou desligar agora, obrigado.","I'll hang up now, thank you.","Voy a colgar ahora, gracias."

@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://scripts/ui/news_view.gd" id="7_news"]
 [ext_resource type="Script" path="res://scripts/ui/paper_deco.gd" id="8_deco"]
 [ext_resource type="PackedScene" path="res://scenes/ui/toll.tscn" id="9_toll"]
+[ext_resource type="PackedScene" path="res://scenes/ui/dial_view.tscn" id="10_dial"]
 
 [node name="Tools" type="VBoxContainer"]
 custom_minimum_size = Vector2(465, 0)
@@ -64,6 +65,10 @@ theme_override_constants/line_separation = 3
 script = ExtResource("6_call_log")
 
 [node name="Toll" parent="Body/Paper/Margin" instance=ExtResource("9_toll")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="DialView" parent="Body/Paper/Margin" instance=ExtResource("10_dial")]
 unique_name_in_owner = true
 layout_mode = 2
 

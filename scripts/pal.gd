@@ -108,6 +108,9 @@ const KEY_CAP: Array[Color] = [Color("12394a"), Color("1d5a72"), Color("2b7e9c")
 ## A tecla REC do gravador de fitas (B4), de plástico vermelho como as teclas vermelhas do console (`RedKey`, `RED`): a
 ## beira funda, afundada, a frente e a quina na luz.
 const REC_CAP: Array[Color] = [Color("6e1a12"), Color("a3382a"), Color("d4553f"), Color("ea8a72")]
+## A tecla Discar do discador (`Dialer` e, de perto, a variação `CallKey` do tema, no tom [2]): verde, do escuro ao claro
+## (a Encerrar é a vermelha do REC, `REC_CAP`, a mesma do Desligar do console).
+const CALL_CAP: Array[Color] = [Color("1f3d1b"), Color("3d6b34"), Color("5e9b52"), Color("86bd77")]
 const KEY_GLOW := Color("7fd3e6")   ## a tecla presa, acesa por dentro: plástico fosco, uma cor só
 ## A quina do níquel descendo até o painel (`Switchboard.NICKEL_EDGE`): na luz, no meio e na sombra.
 const NICKEL_EDGE: Array[Color] = [Color("63675a"), Color("4a4f42"), Color("353a2e")]

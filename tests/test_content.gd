@@ -233,6 +233,21 @@ func _initialize() -> void:
 		ok(t.line != "" and t.replies.all(func(r: ChatReply): return r.text != "" and r.follow != "")
 			and t.replies.any(func(r): return r.tone == ChatReply.Tone.WARM) and t.replies.any(func(r): return r.tone == ChatReply.Tone.CURT),
 			"assunto com resposta simpática e seca: " + t.line)
+	# o discador (`Dialing`): todo número de Vila Serena atende quem liga da central (os outros setores, ainda não), cada
+	# atendimento com a fala e as perguntas com resposta; as ligações do roteiro num número da cidade, com o roteiro
+	for e in C.directory:
+		if e.number.begins_with("3") and not e.dispatch_only:
+			ok(not e.answers.is_empty(), "o discador: %s atende quem liga da central" % e.name)
+		for t in e.answers:
+			ok(t.line != "" and not t.replies.is_empty() and t.replies.all(func(r: ChatReply): return r.text != "" and r.follow != ""),
+				"atendimento com fala e perguntas com resposta: %s" % e.name)
+	ok(not C.dial_byes.is_empty(), "as despedidas gerais de quem atende o discador")
+	var dials: Array = C.dial.duplicate()
+	for n in C.nights:
+		dials.append_array(n.dial)
+	for dc in dials:
+		ok(dc.number.length() == 3 and dc.number.is_valid_int() and not GameData.is_trunk(dc.number) and not dc.steps.is_empty(),
+			"ligação do roteiro pelo discador num número da cidade, com roteiro: " + dc.resource_path)
 	# emergências escritas: o endereço bate com a rua e o trecho do mapa (o trecho sai do número)
 	for e: EmergencyCall in C.emergencies:
 		var st := GameData.street(e.street)

@@ -7,7 +7,7 @@ signal transcript_changed
 signal options_changed
 signal state_changed
 
-enum Kind { TRANSFER, EMERGENCY, PRANK, INFO, MYSTERY }
+enum Kind { TRANSFER, EMERGENCY, PRANK, INFO, MYSTERY, OUTGOING }   ## OUTGOING: a que o operador faz pelo discador (`Dialing`)
 
 ## Uma linha do caderno: o que se sabe da ligação quando ela termina (`Main._record`) e, depois de registrada, o tipo
 ## que o jogador carimbou.
@@ -57,7 +57,8 @@ enum Retry {
 const AWAY_CHANCE := 0.5    ## pedido com alternativa: chance de o destino pedido não atender
 
 var kind := Kind.TRANSFER
-var data: Resource          ## roteiro (TransferCall, EmergencyCall ou PrankCall); nulo para informação e ligação desconhecida
+var data: Resource          ## roteiro (TransferCall, EmergencyCall ou PrankCall); nulo para informação e ligação desconhecida;
+                            ## na feita pelo operador, o lugar chamado (DirectoryEntry) ou a do roteiro (`DialCall`)
 var voice := "m"
 var caller := ""
 var named := ""             ## o nome que quem liga disse (B1): dali em diante, o chat mostra ele no lugar de `caller`

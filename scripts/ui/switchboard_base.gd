@@ -12,6 +12,7 @@ const FONE_HOLE_X := 10.0   # o buraco do FONE, a partir da esquerda do encaixe:
 const CORDS_X := 26.0   # de onde contam os lugares dos cabos de conexão, a partir da esquerda do encaixe (`patch_x`)
 const SHELF_HOLE_Y := 4.0  # a fileira de trás dos buracos da prateleira (o FONE e a primeira ponta de cada cabo): com a da frente, centradas na madeira à mostra, do rodapé do painel à beira de latão (6 px de cada lado), como os tampos (`_shelf_mid`)
 const SHELF_FRONT_Y := 18.0 # a fileira da frente (a outra ponta), à frente da de trás, como nas mesas de verdade
+const BAY_W := 68.0   # a faixa dos equipamentos na prateleira, do pé do bloco interurbano para a direita: curta (o tampo vazio não serve para nada ainda; a pedido), cresce quando um equipamento vier para cá
 const PLUG_SINK := 24.0  # guardado, o plug entra tanto no buraco (px abaixo dele: a capa de borracha some nele, o corpo fica à mostra)...
 
 var exchange: Exchange
@@ -124,7 +125,7 @@ func home_pos(e: int) -> Vector2:
 ## A faixa da prateleira embaixo do bloco interurbano, onde ficam os equipamentos liberados (`set_equipment`); vazia,
 ## fica sob um tampo (`_draw_tray`).
 func bay_rect() -> Rect2:
-	return Rect2(trunks.position.x, tray_rect().position.y, trunks.size.x, tray_rect().size.y)
+	return Rect2(trunks.position.x, tray_rect().position.y, minf(trunks.size.x, BAY_W), tray_rect().size.y)
 
 
 ## Buraco de onde sai o fio da ponta e, na prateleira (o do FONE no encaixe dele; os de conexão um atrás do outro).

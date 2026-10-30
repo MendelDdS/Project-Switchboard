@@ -18,6 +18,7 @@ Chaves:
 - `#despacho` cartão, máquinas, viaturas · `#mapa` o desenho do mapa · `#lista` lista telefônica · `#jornal`
 - `#caderno` caderno, hoje bloco de fichas · `#prancheta` o registro das conversas · `#ferramentas` os papéis abertos
 - `#painel` o painel de baixo, console e teclas · `#radio` · `#interface` menus, pausa, configurações, cursores, dicas
+- `#discador` as ligações que o operador faz (o discador da prateleira e o de perto)
 - `#emergencia` barra de agravamento e viaturas · `#consequencias` supervisor, advertências, relatório
 - `#ritmo` agenda e quantidade de ligações · `#turno` horário, relógio do jogo, fim do turno · `#noites` noites,
   progresso, data · `#setores` · `#treinamento` · `#misterio` a ligação desconhecida e o homem na rua
@@ -2890,3 +2891,24 @@ Chaves:
     orelha (`PHONE_FRONT`); um freguês bebe de lado (`HOLD_UP`); o dono fica de frente com a mão no batente; o porteiro
     de quepe e farda (`Pal.CLERK_COAT`). Quem passa atrás da janela fica meio metro acima do piso, para a cabeça e os
     ombros caírem no meio do vidro (a conta certa deixava só o alto da cabeça no peitoril).
+489. #discador #mesa-comutadora #conteudo #roteiro "Vamos implementar uma nova funcionalidade que é a de realizar
+    ligações" (a referência: o disco na ponta direita da bandeja de uma mesa Ericsson): um discador digital como o
+    console, com os algarismos, Discar e Encerrar; ligando para um lugar, uma conversa curta que faz sentido para ele
+    (a fala de atendimento, até duas perguntas e [Encerrar ligação]; respondida uma, só resta encerrar); por ora só o
+    setor de Vila Serena (os 3xx, os 12 números com atendimento escrito, rascunho para o usuário revisar); ligações do
+    roteiro preparadas (`DialCall`, em `Night.dial` ou `GameContent.dial`, no formato dos trotes; o marcador
+    `ligou_<número>_<noite>` a cada atendida). Decisões do usuário: o discador fica onde estavam os broches, que foram
+    para a esquerda; não precisa do FONE (o fone do operador é ligado direto na mesa); só o clique, e ele abre de
+    perto como as outras ferramentas (`Tools.DIALER`). Plano em `PLANO_DISCADOR.md`. O teclado de discagem do item 2
+    (para transferir) não volta: este só faz as ligações do operador.
+490. #discador #mesa-comutadora "Diminua essa barra branca a esquerda das recompensas, ela não está servindo para nada
+    nesse momento": o tampo do lugar dos equipamentos na prateleira ficou curto (`BAY_W`, 60 px de tampo, depois 44, para o teclado maior; a beira
+    esquerda é a mesma, os tampos dos cabos não mudam); depois, a pedido ("não ajustou a posição do discador e das
+    recompensas"), a almofada vem logo depois dele (`Switchboard.pad_x`); o discador fica no fim da prateleira, à
+    direita ("o teclado tem que ficar na direita", `dialer_x`), no meio do vão entre a almofada e o fim dela ("De
+    espaços": encostado no fim, parecia sair da mesa).
+491. #mesa-comutadora #camera #saiu "A prateleira está com essa curva no final", "dá a entender que a mesa comutadora
+    não tem lateral" (na perspectiva, a lateral do console é uma cunha que afina até a quina da frente). Testados e
+    desfeitos: escurecer a lateral e marcar a quina com um fio; a ponta reta, a prateleira e o console alinhados com a
+    beira do painel ("ficou horrível"); a bochecha em pé na ponta da prateleira, como as da mesa Ericsson. Ficou como
+    era, a pedido ("vamos focar na implementação do discador").

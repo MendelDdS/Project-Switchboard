@@ -1,7 +1,39 @@
 [gd_resource type="Resource" script_class="DirectoryEntry" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
 [ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+
+[sub_resource type="Resource" id="Answer_0_0"]
+script = ExtResource("9_reply")
+text = "É da central. Estamos testando a linha."
+follow = "Ah, está funcionando, sim. Estou ouvindo bem."
+
+[sub_resource type="Resource" id="Answer_0_1"]
+script = ExtResource("9_reply")
+text = "Desculpe, foi engano."
+follow = "Engano a essa hora... Tudo bem, acontece."
+
+[sub_resource type="Resource" id="Answer_0"]
+script = ExtResource("8_chat")
+line = "Alô? Quem fala a essa hora?"
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_0_0"), SubResource("Answer_0_1")])
+
+[sub_resource type="Resource" id="Answer_1_0"]
+script = ExtResource("9_reply")
+text = "Não, senhora. Aqui é da central."
+follow = "Ah. Pensei que fosse meu filho. Ele ficou de ligar."
+
+[sub_resource type="Resource" id="Answer_1_1"]
+script = ExtResource("9_reply")
+text = "É a dona Célia da Rua do Sol?"
+follow = "Sou eu. A outra Célia mora na avenida; todo mundo confunde."
+
+[sub_resource type="Resource" id="Answer_1"]
+script = ExtResource("8_chat")
+line = "Alô? É o Antônio?"
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_1_0"), SubResource("Answer_1_1")])
 
 [resource]
 script = ExtResource("1_entry")
@@ -10,3 +42,5 @@ address = "Rua do Sol, 88"
 number = "367"
 voice = "f"
 motives = Array[ExtResource("2_motive")]([])
+answers = Array[ExtResource("8_chat")]([SubResource("Answer_0"), SubResource("Answer_1")])
+bye = "Boa noite. E não liga mais tarde, que eu acordo cedo."

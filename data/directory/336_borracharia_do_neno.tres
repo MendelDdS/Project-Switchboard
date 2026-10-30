@@ -1,6 +1,8 @@
 [gd_resource type="Resource" script_class="DirectoryEntry" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
 [ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
 
 [sub_resource type="Resource" id="Motive_61"]
@@ -13,6 +15,36 @@ script = ExtResource("2_motive")
 text = "O carro morreu no meio da rua e não pega."
 talks = Array[PackedStringArray]([PackedStringArray("Boa noite. O carro morreu no meio da rua e não quer pegar.", "Está atrapalhando o trânsito?", "A essa hora não passa ninguém. Mas está bem no meio da rua.", "Empurra pro canto, se conseguir. Tem alguém aí pra ajudar?", "Tem um rapaz aqui me ajudando a empurrar.", "Então empurra e me espera. Em {wait} eu chego."), PackedStringArray("Boa noite. O carro apagou aqui na {street} e não pega mais.", "Fez algum barulho antes de apagar?", "Deu um estouro e saiu fumaça preta.", "Então nem tenta dar partida de novo.", "Tá bom. Fico esperando aqui do lado.", "Chego em {wait}. Deixa o capô aberto pra eu achar.")])
 
+[sub_resource type="Resource" id="Answer_0_0"]
+script = ExtResource("9_reply")
+text = "Vocês atendem de madrugada?"
+follow = "Se bater no portão, eu acordo. Moro nos fundos."
+
+[sub_resource type="Resource" id="Answer_0_1"]
+script = ExtResource("9_reply")
+text = "Tem pneu de Fusca?"
+follow = "Tenho dois recapados. Novo, só semana que vem."
+
+[sub_resource type="Resource" id="Answer_0"]
+script = ExtResource("8_chat")
+line = "Borracharia, boa noite."
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_0_0"), SubResource("Answer_0_1")])
+
+[sub_resource type="Resource" id="Answer_1_0"]
+script = ExtResource("9_reply")
+text = "Nada furou. Só queria saber se estão abertos."
+follow = "Aberto, não. Mas eu durmo aqui do lado; é só chamar."
+
+[sub_resource type="Resource" id="Answer_1_1"]
+script = ExtResource("9_reply")
+text = "Quanto custa um remendo?"
+follow = "Cinco cruzeiros, e o café é por minha conta."
+
+[sub_resource type="Resource" id="Answer_1"]
+script = ExtResource("8_chat")
+line = "Neno falando. Furou onde?"
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_1_0"), SubResource("Answer_1_1")])
+
 [resource]
 script = ExtResource("1_entry")
 name = "Borracharia do Neno"
@@ -23,3 +55,4 @@ hello = "Borracharia do Neno, boa noite."
 category = "oficina"
 spoken = "a Borracharia do Neno"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_61"), SubResource("Motive_62")])
+answers = Array[ExtResource("8_chat")]([SubResource("Answer_0"), SubResource("Answer_1")])

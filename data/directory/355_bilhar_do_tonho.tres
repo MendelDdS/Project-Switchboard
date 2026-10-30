@@ -1,6 +1,8 @@
 [gd_resource type="Resource" script_class="DirectoryEntry" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
 [ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
 
 [sub_resource type="Resource" id="Motive_49"]
@@ -13,6 +15,36 @@ script = ExtResource("2_motive")
 text = "Quero deixar um recado pro meu irmão, que joga aí toda noite."
 talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Meu irmão está aí? O magrinho, de óculos.", "Está aqui, esperando a vez dele na mesa.", "Avisa que a moto dele ficou com o farol aceso na frente de casa.", "O farol aceso? Vou falar agora, senão amanhã não pega.", "Isso. E diz que eu não vou lá apagar, não.", "Pode deixar, eu falo assim mesmo."), PackedStringArray("Boa noite. Meu irmão está aí? O de chapéu {color}.", "Está, na mesa do canto.", "Avisa que amanhã ele começa no serviço às {dawn}.", "Às {dawn}? Vou falar, mas ele não vai gostar.", "Diz que é ordem do patrão.", "Pode deixar. Falo agora mesmo.")])
 
+[sub_resource type="Resource" id="Answer_0_0"]
+script = ExtResource("9_reply")
+text = "Tem mesa livre?"
+follow = "Está tudo ocupado. Hoje tem campeonato dos ferroviários."
+
+[sub_resource type="Resource" id="Answer_0_1"]
+script = ExtResource("9_reply")
+text = "Até que horas vocês ficam abertos?"
+follow = "Até o último perder a camisa."
+
+[sub_resource type="Resource" id="Answer_0"]
+script = ExtResource("8_chat")
+line = "Bilhar do Tonho! Opa, pode falar!"
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_0_0"), SubResource("Answer_0_1")])
+
+[sub_resource type="Resource" id="Answer_1_0"]
+script = ExtResource("9_reply")
+text = "É da central. Está tudo bem aí?"
+follow = "Tudo. Só uns rapazes que não querem ir embora."
+
+[sub_resource type="Resource" id="Answer_1_1"]
+script = ExtResource("9_reply")
+text = "O barulho aí é de briga?"
+follow = "Que nada, é o pessoal comemorando uma tacada."
+
+[sub_resource type="Resource" id="Answer_1"]
+script = ExtResource("8_chat")
+line = "Tonho. Quem fala?"
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_1_0"), SubResource("Answer_1_1")])
+
 [resource]
 script = ExtResource("1_entry")
 wary = 0.6
@@ -23,3 +55,4 @@ voice = "m"
 hello = "Bilhar do Tonho! Opa, pode falar!"
 spoken = "o Bilhar do Tonho"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_49"), SubResource("Motive_50")])
+answers = Array[ExtResource("8_chat")]([SubResource("Answer_0"), SubResource("Answer_1")])

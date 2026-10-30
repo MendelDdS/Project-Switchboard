@@ -90,7 +90,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 - Entrada (Input Map): `cancel_plug` (Esc, botão direito), `pause` (Esc, P), `answer_call` (Espaço),
   `transfer_call` (Tab), `listen_call` (Z), `hang_up` (X), tratadas em `PhonePanel._input` antes da interface;
   ferramentas 1–4 (`Main.TAB_KEYS`, `Tools.toggle`); ids das ferramentas sempre pelas constantes `Tools.DIRECTORY`,
-  `DISPATCH`, `LOGBOOK`, `CALL_LOG`, `NEWS`, `TOLL`.
+  `DISPATCH`, `LOGBOOK`, `CALL_LOG`, `NEWS`, `TOLL`, `DIALER`.
 
 ## Rodar e testar
 - Godot: `/Applications/Godot.app/Contents/MacOS/Godot` (fora do PATH). Compilar: `Godot --headless --path . --quit-after 60`.
@@ -105,7 +105,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   - `test_content` (o conteúdo de `data/` sem a cena, ~2 s: referências, lacunas, traduções, marcadores, falas fora
     do `.po`, número da lista que não é destino de nada; rode depois de mexer em `data/`), `test_flow` (cenários), `test_keys` (teclas e mouse pelo `GameView`), `test_layout` (objetos da mesa sem
     sobreposição; rode ao mexer na disposição), `test_penalties` (consequências, relatório, conta do conceito),
-    `test_bureaucracy` (núcleo e B1–B4 com as ligações de teste dos `.tres`), `test_training`, `test_shift` (o robô joga o turno inteiro e imprime métricas e a eficiência; `--human` mede o
+    `test_bureaucracy` (núcleo e B1–B4 com as ligações de teste dos `.tres`), `test_training`, `test_dial` (o discador), `test_shift` (o robô joga o turno inteiro e imprime métricas e a eficiência; `--human` mede o
     ritmo de uma pessoa, `--eager` não espera o fim da ligação, `--clumsy`, `--nosy`, `--careless`, `--night=N`, `--lang=`; falha se o atento ficar abaixo
     de Regular). Rode depois de mudar agenda, fim de ligação, mesa ou cabos.
 - Opções do jogo: `-- --seed=N`, `--night=N` (sem ler nem gravar o save), `--weather=X`, `--lang=X`, `--pace=N`, `--flags=a,b`.
@@ -149,6 +149,11 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 - **Interurbano**: troncos 901–906 (`GameData.TRUNKS`), a telefonista de lá (`Main._trunk`), o número de lá
   (`TransferCall.far_number`). **Calculógrafo** (`Toll`, `TollTicket`): conta a ligação interurbana, imprime o bilhete,
   o jogador carimba e guarda na caixinha; esquecido ou sem carimbo é advertência leve.
+- **Discador** (`Dialing`, nó do Main; `PhoneCall.Kind.OUTGOING`, `Conversation._outgoing`): o operador liga pelo
+  próprio fone (sem o FONE); na prateleira (`Dialer`, `dialer.gd`) e de perto (`Tools.DIALER`, `DialView`), só clique.
+  Enquanto dura, é o foco e a linha do lugar fica ocupada (`Exchange`); fora do caderno e sem advertência. Atende a do
+  roteiro (`DialCall`, `Night.dial`/`GameContent.dial`, passos de `PrankStep`) ou o atendimento do lugar
+  (`DirectoryEntry.answers`, `ChatTopic`; só Vila Serena por ora). Marcador `ligou_<número>_<noite>`. `PLANO_DISCADOR.md`.
 - Fim de ligação: `end_call(c, PhoneCall.End.*)` → `c.record` → `Notebook.add()`; o caderno registra com um clique no
   tipo (`register(T.Key.TYPE_*)`).
 - **Despacho** (`Dispatch`, `CityMap`, `CardMachines`, `PunchCard`): marcar o trecho no mapa imprime o cartão (dois cliques: o primeiro só datilografa, `CardMachines.draft`; o anel da moldura aproxima, `_knob`);

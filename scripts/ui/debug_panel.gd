@@ -60,6 +60,19 @@ func _ready() -> void:
 		_emergency.add_item("molde: " + e.resource_path.get_file().get_basename().trim_prefix("emergency_"))
 	_box.add_child(_emergency)
 	_row([["Tocar emergência (caso sorteado)", _ring_emergency]])
+	var dial := LineEdit.new()   # o discador (`Dialing`): liga para o número, como se o operador o digitasse
+	dial.placeholder_text = "Número para discar (Enter)"
+	dial.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	dial.add_theme_font_size_override("font_size", 11)
+	var go := func(t: String):
+		main.dialing.end()
+		main.dialing.end()
+		for ch in t.strip_edges().left(main.Dialing.DIGITS):
+			main.dialing.press(ch)
+		main.dialing.dial()
+	dial.text_submitted.connect(go)
+	_box.add_child(dial)
+	_row([["Discar", func(): go.call(dial.text)], ["Encerrar a feita", func(): main.dialing.hang_up()]])
 	_section("Barra de agravamento", _clear_bar)
 	_bar = _label("")
 	_row([["Próximo estágio", _next_stage], ["Encerrar emergência", main.drop_emergency]])

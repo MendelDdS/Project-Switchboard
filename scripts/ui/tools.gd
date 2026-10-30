@@ -1,7 +1,7 @@
 class_name Tools
 extends VBoxContainer
 ## Ferramentas à direita da mesa: lista telefônica, mapa e despacho (a unidade de despacho), caderno, o registro das
-## conversas e o calculógrafo dos interurbanos. Ficam guardadas e a janela aparece no lugar delas; os objetos da mesa (`Background.prop_clicked`) ou as
+## conversas, o calculógrafo dos interurbanos e o discador. Ficam guardadas e a janela aparece no lugar delas; os objetos da mesa (`Background.prop_clicked`) ou as
 ## teclas 1 a 4 (Main.TAB_KEYS) abrem a ferramenta: o papel sai do objeto dela na mesa (`origin`) e vem para a frente do
 ## operador, com a forma do objeto (`PaperDeco`), e volta para ele ao guardar. Sem abas: para trocar, o objeto da mesa
 ## ou a tecla (as abas repetiam os objetos e tomavam altura do papel). A tecla da aberta ou Esc guardam. O jornal da
@@ -15,10 +15,14 @@ const LOGBOOK := "caderno"
 const CALL_LOG := "registro"
 const NEWS := "jornal"   ## o jornal da manhã: só pelo objeto da mesa, sem tecla
 const TOLL := "calculografo"   ## o calculógrafo dos interurbanos e os bilhetes de tarifação: só pelo objeto da mesa, sem tecla
+const DIALER := "discador"   ## o discador da prateleira da mesa comutadora (`Dialer`): só pelo clique nele, sem tecla
 const SLIDE_SEC := 0.2
 ## A cor do papel de cada ferramenta, a mesma do objeto dela na mesa (as outras, `Pal.PAPER`); a unidade de despacho é
-## de metal (a moldura do vidro e a base das máquinas) e o calculógrafo fica no tampo da mesa.
-const PAPER := {LOGBOOK: Pal.NOTE_PAGE, CALL_LOG: Pal.SHEET, NEWS: Pal.NEWSPRINT, DISPATCH: Pal.PANEL, TOLL: Pal.DESK}
+## de metal (a moldura do vidro e a base das máquinas), o calculógrafo fica no tampo da mesa e o discador é do plástico
+## creme da mesa comutadora.
+const PAPER := {LOGBOOK: Pal.NOTE_PAGE, CALL_LOG: Pal.SHEET, NEWS: Pal.NEWSPRINT, DISPATCH: Pal.PANEL, TOLL: Pal.DESK, DIALER: Pal.SHELL[5]}
+
+const DialView := preload("res://scripts/ui/dial_view.gd")
 
 @onready var book: PhoneBook = %PhoneBook
 @onready var dispatch: Dispatch = %Dispatch
@@ -26,10 +30,11 @@ const PAPER := {LOGBOOK: Pal.NOTE_PAGE, CALL_LOG: Pal.SHEET, NEWS: Pal.NEWSPRINT
 @onready var call_log: CallLog = %CallLog
 @onready var news: NewsView = %News
 @onready var toll: Toll = %Toll
+@onready var dialer: DialView = %DialView
 @onready var body: Control = %Body   ## onde a ferramenta aberta fica (e, guardada, a janela aparece)
 @onready var _paper: Control = %Paper
 @onready var _deco: PaperDeco = %Deco
-@onready var _views := {DIRECTORY: book, DISPATCH: dispatch, LOGBOOK: notebook, CALL_LOG: call_log, NEWS: news, TOLL: toll}
+@onready var _views := {DIRECTORY: book, DISPATCH: dispatch, LOGBOOK: notebook, CALL_LOG: call_log, NEWS: news, TOLL: toll, DIALER: dialer}
 
 var tab := DIRECTORY   ## a última aberta
 var open := false

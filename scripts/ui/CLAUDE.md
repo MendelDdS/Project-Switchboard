@@ -117,8 +117,14 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   pilha é objeto de clicar (`TAPES_ID`, `tapes_clicked`): abre de perto, acima dela (`tape_pile.gd`, cena
   `pilha_fitas.tscn` no Main), as fitas deitadas (`Cassette.lying`) num papel (`NotePanel`) com o Descartar (`InkButton`): a descartada cai
   para fora da tela, sem som. A mesa não sabe o que cada um faz.
-- **Broches** (`badges.gd`, `%Badges`): almofada de feltro deitada na prateleira, entre o tampo dos equipamentos e o
-  fim dela (`edges`, `_spot`; o `test_layout` confere a folga), com etiqueta e papel numa camada por cima (`_pop`).
+- **Broches** (`badges.gd`, `%Badges`): almofada de feltro deitada na prateleira, logo depois do tampo dos equipamentos (`pad_x`, `edges`, `_spot`;
+  o `test_layout` confere a folga), com etiqueta e papel numa camada por cima (`_pop`). O tampo dos equipamentos antes
+  dela é curto (`BAY_W`, a pedido: vazio, não servia para nada).
+- **Discador** (`dialer.gd`, `%Dialer`): deitado à direita da almofada, no meio do vão até o fim da prateleira (`Switchboard.dialer_x`, `DIALER_W`), linha a linha na
+  inclinação dela como a almofada (`_flat`, `_slant`): caixa creme, placa oliva, visor com o número (`PixelArt.tiny`),
+  lâmpada de linha e teclado (Discar `Pal.CALL_CAP`, Encerrar `REC_CAP`); o clique abre o de perto (`dial_view.gd`,
+  `Tools.DIALER`): o visor em sete segmentos na tela do console, a lâmpada e as teclas do console (`DigitKey`,
+  `CallKey`, `RedKey`, `KeyCapStyle`), as letras na etiqueta.
 - **Fios** são cordas de Verlet, uma por ponta (`Cord`, `scripts/ui/cord.gd`, sem tela nem som, testada sozinha):
   presas no buraco (`hole(e)`) e na traseira do plug; o contrapeso puxa a folga para dentro (`WEIGHT_TAKE`); todos com
   o mesmo comprimento (`Cord.MAX`); a prateleira e a beira dela são quinas (`hang_step`, `lip_y`, `route`); os plugs

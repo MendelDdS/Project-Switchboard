@@ -1,0 +1,330 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/dial_view.gd" id="1_dial"]
+[ext_resource type="Script" path="res://scripts/ui/screen_glass.gd" id="2_glass"]
+
+[node name="DialView" type="VBoxContainer"]
+visible = false
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/separation = 12
+alignment = 1
+script = ExtResource("1_dial")
+
+[node name="Head" type="HBoxContainer" parent="."]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="Screen" type="PanelContainer" parent="Head"]
+layout_mode = 2
+custom_minimum_size = Vector2(244, 62)
+mouse_filter = 2
+theme_type_variation = &"HudPanel"
+
+[node name="Readout" type="Control" parent="Head/Screen"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Glass" type="Control" parent="Head/Screen"]
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_glass")
+
+[node name="Lamp" type="Control" parent="Head"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(26, 26)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="Keys" type="GridContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 3
+
+[node name="K1" type="Button" parent="Keys"]
+custom_minimum_size = Vector2(84, 58)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DigitKey"
+text = "1"
+auto_translate_mode = 2
+
+[node name="Key" type="Label" parent="Keys/K1"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = 17.0
+grow_horizontal = 2
+mouse_filter = 2
+auto_translate_mode = 2
+theme_type_variation = &"KeyTagLabel"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="K2" type="Button" parent="Keys"]
+custom_minimum_size = Vector2(84, 58)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DigitKey"
+text = "2"
+auto_translate_mode = 2
+
+[node name="Key" type="Label" parent="Keys/K2"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = 17.0
+grow_horizontal = 2
+mouse_filter = 2
+auto_translate_mode = 2
+theme_type_variation = &"KeyTagLabel"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="K3" type="Button" parent="Keys"]
+custom_minimum_size = Vector2(84, 58)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DigitKey"
+text = "3"
+auto_translate_mode = 2
+
+[node name="Key" type="Label" parent="Keys/K3"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = 17.0
+grow_horizontal = 2
+mouse_filter = 2
+auto_translate_mode = 2
+theme_type_variation = &"KeyTagLabel"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="K4" type="Button" parent="Keys"]
+custom_minimum_size = Vector2(84, 58)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DigitKey"
+text = "4"
+auto_translate_mode = 2
+
+[node name="Key" type="Label" parent="Keys/K4"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = 17.0
+grow_horizontal = 2
+mouse_filter = 2
+auto_translate_mode = 2
+theme_type_variation = &"KeyTagLabel"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="K5" type="Button" parent="Keys"]
+custom_minimum_size = Vector2(84, 58)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DigitKey"
+text = "5"
+auto_translate_mode = 2
+
+[node name="Key" type="Label" parent="Keys/K5"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = 17.0
+grow_horizontal = 2
+mouse_filter = 2
+auto_translate_mode = 2
+theme_type_variation = &"KeyTagLabel"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="K6" type="Button" parent="Keys"]
+custom_minimum_size = Vector2(84, 58)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DigitKey"
+text = "6"
+auto_translate_mode = 2
+
+[node name="Key" type="Label" parent="Keys/K6"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = 17.0
+grow_horizontal = 2
+mouse_filter = 2
+auto_translate_mode = 2
+theme_type_variation = &"KeyTagLabel"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="K7" type="Button" parent="Keys"]
+custom_minimum_size = Vector2(84, 58)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DigitKey"
+text = "7"
+auto_translate_mode = 2
+
+[node name="Key" type="Label" parent="Keys/K7"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = 17.0
+grow_horizontal = 2
+mouse_filter = 2
+auto_translate_mode = 2
+theme_type_variation = &"KeyTagLabel"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="K8" type="Button" parent="Keys"]
+custom_minimum_size = Vector2(84, 58)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DigitKey"
+text = "8"
+auto_translate_mode = 2
+
+[node name="Key" type="Label" parent="Keys/K8"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = 17.0
+grow_horizontal = 2
+mouse_filter = 2
+auto_translate_mode = 2
+theme_type_variation = &"KeyTagLabel"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="K9" type="Button" parent="Keys"]
+custom_minimum_size = Vector2(84, 58)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DigitKey"
+text = "9"
+auto_translate_mode = 2
+
+[node name="Key" type="Label" parent="Keys/K9"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = 17.0
+grow_horizontal = 2
+mouse_filter = 2
+auto_translate_mode = 2
+theme_type_variation = &"KeyTagLabel"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Dial" type="Button" parent="Keys"]
+custom_minimum_size = Vector2(84, 58)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"CallKey"
+text = "DIAL_KEY"
+
+[node name="Icon" type="TextureRect" parent="Keys/Dial"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = 20.0
+grow_horizontal = 2
+mouse_filter = 2
+stretch_mode = 3
+
+[node name="K0" type="Button" parent="Keys"]
+custom_minimum_size = Vector2(84, 58)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DigitKey"
+text = "0"
+auto_translate_mode = 2
+
+[node name="Key" type="Label" parent="Keys/K0"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = 17.0
+grow_horizontal = 2
+mouse_filter = 2
+auto_translate_mode = 2
+theme_type_variation = &"KeyTagLabel"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="End" type="Button" parent="Keys"]
+custom_minimum_size = Vector2(84, 58)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"RedKey"
+text = "DIAL_END"
+
+[node name="Icon" type="TextureRect" parent="Keys/End"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = -6.0
+offset_bottom = 20.0
+grow_horizontal = 2
+mouse_filter = 2
+stretch_mode = 3

@@ -376,6 +376,18 @@ func _build_basic() -> void:
 		_w[i] = (sin(TAU * 425.0 * t) + 0.15 * sin(TAU * 850.0 * t) + _rng.randf_range(-0.02, 0.02)) * env
 	_w = _biquad(_biquad(_w, "hp", 300.0, 0.7), "lp", 3000.0, 0.7)
 	_end("ringback")
+	# o discador (`Dialing`): o bipe suave de cada tecla (o tom muda com o algarismo, no `pitch`), o bipe grave de
+	# quando ela não entra, a central puxando o número (cliques rápidos, pela linha) e o ocupado (425 Hz, cortado)
+	_begin(0.1); _tone(0, 1180, 0.075, "sine", 0.35, 0.006); _tone(0, 2360, 0.04, "sine", 0.05); _end("dial_key")
+	_begin(0.14); _tone(0, 330, 0.11, "sine", 0.4, 0.008); _tone(0, 660, 0.06, "sine", 0.06); _end("dial_full")
+	_begin(0.55)
+	for i in 7:
+		_tone(i * 0.07, 900, 0.012, "square", 0.12); _noise(i * 0.07, 0.01, "bp", 2200, 1, 0.3)
+	_end("dial_pulse", true)
+	_begin(1.5)
+	for i in 3:
+		_tone(i * 0.5, 425, 0.25, "sine", 0.6, 0.01); _tone(i * 0.5, 850, 0.25, "sine", 0.08, 0.01)
+	_end("busy", true)
 	_begin(1.05)
 	for i in 3:
 		_tone(i * 0.33, [950.0, 1400.0, 1800.0][i], 0.3, "sine", 0.6, 0.01)

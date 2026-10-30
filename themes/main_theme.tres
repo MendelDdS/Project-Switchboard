@@ -768,6 +768,92 @@ shadow_color = Color(0, 0, 0, 0.45)
 shadow_size = 1
 shadow_offset = Vector2(5, 6)
 
+[sub_resource type="StyleBox" id="KeyCap_Call_disabled"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 2.0
+content_margin_top = 22.0
+content_margin_right = 2.0
+content_margin_bottom = 6.0
+script = ExtResource("2_keycap")
+color = Color(0.36862746, 0.60784316, 0.32156864, 1)
+off = true
+
+[sub_resource type="StyleBox" id="KeyCap_Call_hover"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 2.0
+content_margin_top = 22.0
+content_margin_right = 2.0
+content_margin_bottom = 6.0
+script = ExtResource("2_keycap")
+color = Color(0.36862746, 0.60784316, 0.32156864, 1)
+hover = true
+
+[sub_resource type="StyleBox" id="KeyCap_Call_pressed"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 2.0
+content_margin_top = 25.0
+content_margin_right = 2.0
+content_margin_bottom = 3.0
+script = ExtResource("2_keycap")
+color = Color(0.36862746, 0.60784316, 0.32156864, 1)
+pressed = true
+
+[sub_resource type="StyleBox" id="KeyCap_Call_normal"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 2.0
+content_margin_top = 22.0
+content_margin_right = 2.0
+content_margin_bottom = 6.0
+script = ExtResource("2_keycap")
+color = Color(0.36862746, 0.60784316, 0.32156864, 1)
+
+[sub_resource type="StyleBox" id="KeyCap_Digit_disabled"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 2.0
+content_margin_top = 22.0
+content_margin_right = 2.0
+content_margin_bottom = 6.0
+script = ExtResource("2_keycap")
+color = Color(0.2471, 0.6235, 0.749, 1)
+off = true
+
+[sub_resource type="StyleBox" id="KeyCap_Digit_hover"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 2.0
+content_margin_top = 22.0
+content_margin_right = 2.0
+content_margin_bottom = 6.0
+script = ExtResource("2_keycap")
+color = Color(0.2471, 0.6235, 0.749, 1)
+hover = true
+
+[sub_resource type="StyleBox" id="KeyCap_Digit_pressed"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 2.0
+content_margin_top = 25.0
+content_margin_right = 2.0
+content_margin_bottom = 3.0
+script = ExtResource("2_keycap")
+color = Color(0.2471, 0.6235, 0.749, 1)
+pressed = true
+
+[sub_resource type="StyleBox" id="KeyCap_Digit_normal"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 2.0
+content_margin_top = 22.0
+content_margin_right = 2.0
+content_margin_bottom = 6.0
+script = ExtResource("2_keycap")
+color = Color(0.2471, 0.6235, 0.749, 1)
+
 [resource]
 default_font = ExtResource("1_vu6l5")
 default_font_size = 11
@@ -1006,6 +1092,32 @@ RedKey/styles/hover = SubResource("KeyCap_Red_hover")
 RedKey/styles/hover_pressed = SubResource("KeyCap_Red_pressed")
 RedKey/styles/normal = SubResource("KeyCap_Red_normal")
 RedKey/styles/pressed = SubResource("KeyCap_Red_pressed")
+CallKey/base_type = &"Button"
+CallKey/colors/font_color = Color(0.902, 0.8588, 0.7412, 1)
+CallKey/colors/font_focus_color = Color(0.902, 0.8588, 0.7412, 1)
+CallKey/colors/font_hover_color = Color(0.902, 0.8588, 0.7412, 1)
+CallKey/colors/font_hover_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
+CallKey/colors/font_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
+CallKey/colors/font_disabled_color = Color(0.27, 0.45, 0.24, 1)
+CallKey/font_sizes/font_size = 11
+CallKey/styles/disabled = SubResource("KeyCap_Call_disabled")
+CallKey/styles/hover = SubResource("KeyCap_Call_hover")
+CallKey/styles/hover_pressed = SubResource("KeyCap_Call_pressed")
+CallKey/styles/normal = SubResource("KeyCap_Call_normal")
+CallKey/styles/pressed = SubResource("KeyCap_Call_pressed")
+DigitKey/base_type = &"Button"
+DigitKey/colors/font_color = Color(0.902, 0.8588, 0.7412, 1)
+DigitKey/colors/font_focus_color = Color(0.902, 0.8588, 0.7412, 1)
+DigitKey/colors/font_hover_color = Color(0.902, 0.8588, 0.7412, 1)
+DigitKey/colors/font_hover_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
+DigitKey/colors/font_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
+DigitKey/colors/font_disabled_color = Color(0.21, 0.53, 0.6367, 1)
+DigitKey/font_sizes/font_size = 22
+DigitKey/styles/disabled = SubResource("KeyCap_Digit_disabled")
+DigitKey/styles/hover = SubResource("KeyCap_Digit_hover")
+DigitKey/styles/hover_pressed = SubResource("KeyCap_Digit_pressed")
+DigitKey/styles/normal = SubResource("KeyCap_Digit_normal")
+DigitKey/styles/pressed = SubResource("KeyCap_Digit_pressed")
 SlipPanel/base_type = &"PanelContainer"
 SlipPanel/styles/panel = SubResource("StyleBoxFlat_slip")
 TapedLabel/base_type = &"RichTextLabel"

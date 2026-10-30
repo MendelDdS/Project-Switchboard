@@ -26,3 +26,10 @@ extends Resource
 ## Quão desconfiado quem atende aqui é da escuta: multiplica a de quem ligou (`TransferCall.wary`) na subida da
 ## suspeita (a pensão cismada, 1,6, percebe logo; o bar barulhento, 0,5, quase não nota).
 @export_range(0.0, 3.0, 0.1) var wary := 1.0
+## Quando o operador liga para cá (o discador, `Dialing`): cada atendimento é um assunto (`ChatTopic`), sorteado entre
+## os que valem agora (`requires`, `weather`): a `line` é como atendem ("Rádio Serena, boa noite! O que deseja?") e as
+## `replies`, as perguntas que o operador pode fazer (o `text`), cada uma com a resposta (`follow`) e os marcadores
+## dela (`sets`; o `tone` não conta aqui). Vazio: ninguém atende.
+@export var answers: Array[ChatTopic] = []
+## A despedida quando o operador encerra (vazio: uma das gerais, `GameContent.dial_byes`).
+@export var bye := ""

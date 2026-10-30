@@ -6,7 +6,8 @@ extends Node
 ##   --out=build/shot.png   onde gravar (o recorte vai em <nome>_zoom.png)
 ##   --width=960            a largura do `main.tscn` (540 de altura; o jogo, no `GameView`, é sempre 960)
 ##   --hour=20:00           a hora do turno no relógio e lá fora
-##   --tool=id              abre a ferramenta (os ids de `Tools`: lista, despacho, caderno, registro, jornal, calculografo)
+##   --tool=id              abre a ferramenta (os ids de `Tools`: lista, despacho, caderno, registro, jornal, calculografo, discador)
+##   --dial=390[,call][,talk]  o discador (`Dialing`): o número digitado; com call, discado; com talk, depois de atenderem
 ##   --debug=N              abre o painel de debug na aba N (0 = Jogo, 1 = Vozes)
 ##   --card                 marca um local no mapa e espera o cartão sair impresso (--card=closed: e guarda o despacho)
 ##   --punch                com --card: o cartão perfurado, uma unidade fora e a etiqueta de um trecho no mapa
@@ -269,6 +270,15 @@ func _ready() -> void:
 		m.tools.book.turn(99)
 	if _args.has("tool"):
 		m.tools.set_tab(_args["tool"])
+	if _args.has("dial"):   # o discador: o número digitado e, com ",call", discado (espera atender com ",talk")
+		var dv: Array = str(_args["dial"]).split(",")
+		for ch in str(dv[0]):
+			m.dialing.press(ch)
+		if dv.size() > 1:
+			m.dialing.dial()
+		if "talk" in dv:
+			while m.dialing.status == m.dialing.Status.CALLING:
+				await get_tree().process_frame
 	if _args.has("still"):
 		m.background.dust.visible = false
 	if _args.has("hover"):
