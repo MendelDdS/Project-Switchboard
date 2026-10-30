@@ -152,12 +152,15 @@ O robô em ritmo humano (5 s por ação, lendo cada resposta até o fim, 15 s no
 
 ## O discador (ligações que o operador faz)
 
-O operador liga pelo discador da prateleira (clicado, ele abre de perto): digita o número, Discar, e o lugar atende.
+O operador liga pelo discador da prateleira (clicado, ele abre de perto): digita o número, Discar, e o lugar atende
+(Discar com o visor vazio liga de novo para o último). Quem estava com o FONE fica em espera enquanto isso.
 - **O atendimento de cada lugar** fica no contato dele em `data/directory/` (`answers`): cada um é um assunto de
   conversa fiada (`ChatTopic`), com a fala de atendimento (`line`) e as perguntas do operador (`replies`: `text` a
   pergunta, `follow` a resposta, `sets` os marcadores). Pode ter `requires` (só depois de um marcador) e `weather`.
   Sorteia um entre os que valem; o operador vê até duas perguntas e [Encerrar ligação]. `bye` é a despedida (vazio:
   uma de `dial_byes`, no `content.tres`). Sem atendimento, ninguém atende. Hoje só Vila Serena (o `test_content` cobra).
+  `closes`: a hora em que o lugar fecha (minutos depois das 18h) e ninguém mais atende. As respostas podem ter
+  palavras-chave (`[person:Benedito Souza]`, como na escuta), que vão para as anotações da lista.
 - **Ligação do roteiro**: um `.tres` com o script `scripts/data/dial_call.gd` (`DialCall`) em `Night.dial` (só naquela
   noite) ou `GameContent.dial` (qualquer uma): o número (pode nem estar na lista), `requires`, o horário (`from`/`to`),
   quem atende e os passos (`PrankStep`, como os trotes). Feita até o fim, liga `sets` e, com `once`, o marcador

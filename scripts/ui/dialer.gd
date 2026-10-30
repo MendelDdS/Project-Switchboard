@@ -1,12 +1,13 @@
 extends Control
-## O discador da mesa, deitado na prateleira da mesa comutadora, à direita da almofada dos broches, no meio do vão até o
-## fim dela (`Switchboard.dialer_x`): uma caixinha de plástico creme, como o móvel, com a placa oliva rebaixada em cima e, nela, o visor escuro
-## (o número digitado em verde, `PixelArt.tiny`) e, embaixo dele, a lâmpada de linha (âmbar piscando chamando, verde em conversa,
-## vermelha nos avisos, como as do painel); à direita, o teclado de 3 × 4 teclas ciano, Discar verde e Encerrar vermelha nos
-## cantos de baixo (`Dialing`). Linha a linha, na inclinação da prateleira ali (como a almofada, `_slant`), com a
-## frente em pé, na sombra. Sob o mouse, sobe 1 px e mostra o nome numa etiqueta de fita crepe; o clique abre o
-## discador de perto (`clicked`, a ferramenta `Tools.DIALER`). O mouse que não é dele segue para a mesa
-## (`MOUSE_FILTER_PASS`): os plugs e os fios por cima continuam na mão.
+## O discador da mesa, deitado na prateleira da mesa comutadora, à direita da almofada dos broches, no meio do vão
+## até o fim dela (`Switchboard.dialer_x`): uma caixinha de plástico creme, como o móvel, com a placa oliva rebaixada
+## em cima e, nela, o visor escuro (o número digitado em verde, `PixelArt.tiny`) e, embaixo dele, a lâmpada de linha
+## (âmbar piscando chamando, verde em conversa, vermelha nos avisos, como as do painel); à direita, o teclado de 3 × 4
+## teclas ciano, Discar verde e Encerrar vermelha nos cantos de baixo (`Dialing`; a apertada afunda um instante,
+## `_sunk`). Linha a linha, na inclinação da prateleira ali (como a almofada, `_slant`), com a frente em pé, na
+## sombra. Sob o mouse, sobe 1 px e mostra o nome numa etiqueta de fita crepe; o clique abre o discador de perto
+## (`clicked`, a ferramenta `Tools.DIALER`). O mouse que não é dele segue para a mesa (`MOUSE_FILTER_PASS`): os
+## plugs e os fios por cima continuam na mão.
 
 signal clicked
 
@@ -20,6 +21,8 @@ const KEYS_AT := Vector2i(25, 2)   ## o canto de trás à esquerda do teclado, n
 const SCREEN := Rect2i(3, 3, 19, 8)   ## o visor, na tampa, à esquerda do teclado...
 const LAMP_AT := Vector2i(11, 14)   ## ...e embaixo dele, a lâmpada de linha (3 × 3), com o aro em volta
 const BLINK := 0.5   ## s: a lâmpada acesa, depois apagada, chamando (como no de perto, `DialView.BLINK`)
+const ORDER := ["1", "2", "3", "4", "5", "6", "7", "8", "9", "DIAL", "0", "END"]   ## as teclas, linha a linha (`Dialing.key`)
+const SUNK_SEC := 0.15   ## s: a tecla apertada (aqui ou no de perto) fica afundada
 
 var dialing: Dialing   ## o Main liga
 var _hover := false
@@ -49,7 +52,7 @@ func _process(_delta: float) -> void:
 	if _board.held != -1:   # (com um plug na mão, o mouse é da mesa)
 		_hover = false
 	mouse_default_cursor_shape = CURSOR_POINTING_HAND if _hover else _board.mouse_default_cursor_shape
-	var look := [_hover, position, _board._eye, _lamp(), dialing.digits if dialing else ""]
+	var look := [_hover, position, _board._eye, _lamp(), dialing.digits if dialing else "", _sunk()]
 	if look != _drawn:
 		_drawn = look
 		queue_redraw()
@@ -98,6 +101,13 @@ func _lamp() -> Color:
 	return Pal.RED if dialing.main.talk_clock - dialing.since < DialView.FAIL_SEC else Color.TRANSPARENT
 
 
+## A tecla afundada agora (o índice em `ORDER`; -1: nenhuma).
+func _sunk() -> int:
+	if dialing == null or dialing.main.talk_clock - dialing.key_at > SUNK_SEC:
+		return -1
+	return ORDER.find(dialing.key)
+
+
 ## Um retângulo `r` no plano da tampa (x ao longo do discador, y da beira de trás para a frente), cada linha no lugar
 ## dela na prateleira.
 func _flat(r: Rect2i, col: Color) -> void:
@@ -136,6 +146,10 @@ func _draw() -> void:
 	for i in 12:
 		var k := KEYS_AT + Vector2i(i % 3, i / 3) * (KEY + KEY_GAP)
 		var cap: Array = Pal.CALL_CAP if i == 9 else Pal.REC_CAP if i == 11 else Pal.KEY_CAP
+		if i == _sunk():   # afundada: o tampo desce, a beira de trás fica na sombra e a frente some
+			_flat(Rect2i(k, Vector2i(KEY.x, 1)), Pal.BOARD_INSET)
+			_flat(Rect2i(k + Vector2i(0, 1), Vector2i(KEY.x, KEY.y - 1)), cap[1])
+			continue
 		_flat(Rect2i(k, Vector2i(KEY.x, 1)), cap[3])
 		_flat(Rect2i(k + Vector2i(0, 1), Vector2i(KEY.x, KEY.y - 2)), cap[2])
 		_flat(Rect2i(k + Vector2i(0, KEY.y - 1), Vector2i(KEY.x, 1)), cap[1])

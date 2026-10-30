@@ -538,6 +538,8 @@ func _vacated(j: int, e: int) -> void:
 			_maybe_free(n)
 		return
 	# saiu do destino j
+	if dialing.seized(j):   # a linha que o operador chama pelo discador: o cabo solto nela não a solta
+		return
 	var st := exchange.dest(j)
 	exchange.set_dest(j, Exchange.Dest.FREE)
 	cancel_dest_ring(j)

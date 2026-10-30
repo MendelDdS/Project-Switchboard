@@ -54,3 +54,4 @@ hello = "Cine Odeon, boa noite."
 spoken = "o Cine Odeon"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_10"), SubResource("Motive_11")])
 answers = Array[ExtResource("8_chat")]([SubResource("Answer_0"), SubResource("Answer_1")])
+closes = 330.0

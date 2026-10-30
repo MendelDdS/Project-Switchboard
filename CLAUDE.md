@@ -151,9 +151,9 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   o jogador carimba e guarda na caixinha; esquecido ou sem carimbo é advertência leve.
 - **Discador** (`Dialing`, nó do Main; `PhoneCall.Kind.OUTGOING`, `Conversation._outgoing`): o operador liga pelo
   próprio fone (sem o FONE); na prateleira (`Dialer`, `dialer.gd`) e de perto (`Tools.DIALER`, `DialView`), só clique.
-  Enquanto dura, é o foco e a linha do lugar fica ocupada (`Exchange`); fora do caderno e sem advertência. Atende a do
+  Enquanto dura, é o foco (a linha do FONE em HOLD) e a do lugar fica ocupada (`Exchange`, `seized`); fora do caderno. Atende a do
   roteiro (`DialCall`, `Night.dial`/`GameContent.dial`, passos de `PrankStep`) ou o atendimento do lugar
-  (`DirectoryEntry.answers`, `ChatTopic`; só Vila Serena por ora). Marcador `ligou_<número>_<noite>`. `PLANO_DISCADOR.md`.
+  (`DirectoryEntry.answers`, `ChatTopic`, `closes`; só Vila Serena por ora; palavras-chave nas respostas, `Eavesdrop.note`). Marcador `ligou_<número>_<noite>`. `PLANO_DISCADOR.md`.
 - Fim de ligação: `end_call(c, PhoneCall.End.*)` → `c.record` → `Notebook.add()`; o caderno registra com um clique no
   tipo (`register(T.Key.TYPE_*)`).
 - **Despacho** (`Dispatch`, `CityMap`, `CardMachines`, `PunchCard`): marcar o trecho no mapa imprime o cartão (dois cliques: o primeiro só datilografa, `CardMachines.draft`; o anel da moldura aproxima, `_knob`);

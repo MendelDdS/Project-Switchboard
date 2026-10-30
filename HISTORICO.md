@@ -2912,3 +2912,12 @@ Chaves:
     desfeitos: escurecer a lateral e marcar a quina com um fio; a ponta reta, a prateleira e o console alinhados com a
     beira do painel ("ficou horrível"); a bochecha em pé na ponta da prateleira, como as da mesa Ericsson. Ficou como
     era, a pedido ("vamos focar na implementação do discador").
+492. #discador "O que você melhoraria" → "pode seguir com tudo": quem estava com o FONE fica em espera de verdade
+    enquanto o operador liga (a linha em HOLD: quem espera demais desiste, `Supervisor.check_hold`; volta a falar quando
+    a feita acaba); um cabo solto na tomada da linha chamada não a solta mais (`Dialing.seized`); as respostas do
+    discador aceitam palavras-chave (`[tipo:texto]`), anotadas na lista como na escuta (`Eavesdrop.note`); horário de
+    funcionamento (`DirectoryEntry.closes`: a pensão às 22h, a Célia da Rua do Sol às 23h, a oficina e o cinema às
+    23h30, a rádio à meia-noite); rediscar (Discar com o visor vazio, ou com o último número nele); a tecla apertada
+    afunda na miniatura da prateleira (`Dialer._sunk`), mesmo apertada no de perto; o estado no visor de perto em
+    negrito. Revisar as falas e as que a cidade lembra (`requires` nos atendimentos) ficam com o usuário.
+

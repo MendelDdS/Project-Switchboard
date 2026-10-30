@@ -98,7 +98,8 @@ func _draw_readout() -> void:
 		var sec := int(dialing.main.talk_clock - dialing.since)
 		say += "  %02d:%02d" % [sec / 60, sec % 60]
 	var x := at.x + Dialing.DIGITS * (CELL.x + GAP) + 4.0
-	_readout.draw_string(Pal.mono, Vector2(x, at.y + CELL.y), say, HORIZONTAL_ALIGNMENT_LEFT, _readout.size.x - x - 6.0, 11, INK)
+	for dx in 2:   # (em negrito, como o `InkBoldLabel`: fino, sumia perto dos algarismos)
+		_readout.draw_string(Pal.mono, Vector2(x + dx, at.y + CELL.y), say, HORIZONTAL_ALIGNMENT_LEFT, _readout.size.x - x - 7.0, 11, INK)
 
 
 ## Um segmento `s` do algarismo na célula `o`, com as pontas chanfradas (um pixel a menos de cada lado na beira),

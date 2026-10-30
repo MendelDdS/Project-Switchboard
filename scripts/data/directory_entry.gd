@@ -33,3 +33,5 @@ extends Resource
 @export var answers: Array[ChatTopic] = []
 ## A despedida quando o operador encerra (vazio: uma das gerais, `GameContent.dial_byes`).
 @export var bye := ""
+## Quando o lugar fecha e ninguém mais atende o discador (minutos depois das 18h; -1: atende a noite toda).
+@export var closes := -1.0

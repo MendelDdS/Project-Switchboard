@@ -58,3 +58,4 @@ spoken = "a Pensão Dona Cota"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_59"), SubResource("Motive_60")])
 answers = Array[ExtResource("8_chat")]([SubResource("Answer_0"), SubResource("Answer_1")])
 bye = "Boa noite. E não liga depois das dez, que eu durmo cedo."
+closes = 240.0

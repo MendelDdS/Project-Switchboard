@@ -241,6 +241,9 @@ func _initialize() -> void:
 		for t in e.answers:
 			ok(t.line != "" and not t.replies.is_empty() and t.replies.all(func(r: ChatReply): return r.text != "" and r.follow != ""),
 				"atendimento com fala e perguntas com resposta: %s" % e.name)
+			for r in t.replies:   # as palavras-chave das respostas (vão para as anotações da lista): de tipo conhecido e bem marcadas
+				ok(_holes(r.follow).all(func(h: String): return not h.begins_with("[") or h.trim_prefix("[").trim_suffix(":") in Clue.KINDS)
+					and not "[" in Clue.parse(r.follow)[0] and not "]" in Clue.parse(r.follow)[0], "palavra-chave mal marcada na resposta: " + r.follow)
 	ok(not C.dial_byes.is_empty(), "as despedidas gerais de quem atende o discador")
 	var dials: Array = C.dial.duplicate()
 	for n in C.nights:

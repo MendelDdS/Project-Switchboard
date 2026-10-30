@@ -2,7 +2,8 @@ extends Node
 ## O discador da mesa (`Dialer`, na prateleira, e o de perto, a ferramenta `Tools.DIALER`): o operador digita o número
 ## e liga para ele pelo próprio fone, ligado direto na mesa (sem o FONE). Aqui fica o número digitado, o que o visor
 ## mostra (`status`) e a ligação feita (`call`, `PhoneCall.Kind.OUTGOING`); a conversa é do `Conversation._outgoing`.
-## Enquanto ela dura, é a ligação em foco (`Main._focus`): quem estava com o FONE fica em espera. A linha do lugar
+## Enquanto ela dura, é a ligação em foco (`Main._focus`): quem estava com o FONE fica em espera (a linha em HOLD, e
+## quem espera demais desiste, `Supervisor.check_hold`), e volta quando ela acaba. A linha do lugar
 ## chamado fica ocupada (`Exchange`): tocando e depois conectada, como numa transferência (quem pedir o número nesse
 ## meio-tempo encontra ocupado; o telefone do outro lado da rua toca na vista). Não entra no caderno nem dá advertência;
 ## a conversa vai para o registro das conversas.
@@ -20,12 +21,17 @@ var digits := ""   ## o número digitado (ou o da ligação em andamento)
 var status := Status.IDLE
 var since := 0.0   ## `Main.talk_clock` de quando o `status` mudou (o tempo de conversa no visor)
 var call: PhoneCall   ## a ligação feita em andamento (nula = nenhuma)
+var last := ""   ## o último número discado: Discar com o visor vazio liga de novo para ele
+var key := ""    ## a última tecla apertada ("0"–"9", "DIAL", "END") e quando (`Main.talk_clock`): no discador da
+var key_at := -INF   ## prateleira, ela afunda um instante (`Dialer`), mesmo apertada no de perto
+var _held: PhoneCall   ## quem estava com o FONE quando o operador ligou: em espera até a ligação feita acabar
 
 @onready var main: Main = get_parent()
 
 
 ## Uma tecla de algarismo: entra no número (o quarto não entra; com a ligação em andamento, nada).
 func press(d: String) -> void:
+	_key(d)
 	if call != null or digits.length() >= DIGITS:
 		Sfx.play("dial_full")
 		return
@@ -36,11 +42,15 @@ func press(d: String) -> void:
 	Sfx.play("dial_key", 0.0, 0.92 + int(d) * 0.02)
 
 
-## Discar: liga para o número digitado (com ele incompleto, ou já ligando, nada).
+## Discar: liga para o número digitado; com o visor vazio, para o último (com ele incompleto, ou já ligando, nada).
 func dial() -> void:
-	if call != null or digits.length() < DIGITS or status != Status.IDLE:
+	_key("DIAL")
+	if call == null and digits == "" and last != "":
+		digits = last
+	if call != null or digits.length() < DIGITS:
 		Sfx.play("dial_full")
 		return
+	last = digits
 	Sfx.play("dial_pulse")
 	var e := GameData.entry(digits)
 	var story := _story(digits)
@@ -60,6 +70,7 @@ func dial() -> void:
 
 ## Encerrar: desliga a ligação feita ou apaga o número digitado.
 func end() -> void:
+	_key("END")
 	if call != null:
 		hang_up()
 	elif digits != "" or status != Status.IDLE:
@@ -93,6 +104,10 @@ func finish(reason: PhoneCall.End) -> void:
 	Sfx.play("sw")
 	c.sys(T.text(T.Key.SYS_YOU_ENDED if reason == PhoneCall.End.OPERATOR else T.Key.SYS_OTHER_SIDE_ENDED))
 	main.tools.call_log.filed(c)
+	if _held != null and not _held.ended and _held.line == main.board.fone_line() \
+			and main.exchange.line(_held.line) == Exchange.Line.HOLD:   # quem estava com o FONE volta a falar com o operador
+		main.exchange.set_line(_held.line, Exchange.Line.TALK)
+	_held = null
 	_put(Status.ENDED)
 	main._refresh_panel()
 
@@ -135,10 +150,17 @@ func _start(e: DirectoryEntry, story: DialCall) -> void:
 	c.caller = story.caller if story != null and story.caller != "" else (e.name if e != null else digits)
 	c.voice = story.voice if story != null and story.voice != "" else (GameData.voice_of(e) if e != null else "m")
 	c.target = digits
+	c.dest_num = int(digits)   # (as palavras-chave das respostas vão para as anotações com este número)
 	c.time = Main.fmt(main.minutes)
 	c.active = true
 	c.on_line = true
 	call = c
+	var h := main._call_on_line(main.board.fone_line())   # quem está com o FONE fica em espera, como com o FONE fora
+	if h != null and h.active and not h.closing and main.exchange.line(h.line) == Exchange.Line.TALK:
+		main.exchange.set_line(h.line, Exchange.Line.HOLD)
+		h.hold_since = main.minutes
+		h.sys(T.text(T.Key.SYS_ON_HOLD))
+		_held = h
 	if main.exchange.has_dest(int(digits)):
 		main.exchange.set_dest(int(digits), Exchange.Dest.RING)
 	main.tools.call_log.track(c)
@@ -146,6 +168,16 @@ func _start(e: DirectoryEntry, story: DialCall) -> void:
 	c.sys(T.text(T.Key.SYS_DIALING) % digits)
 	main._refresh_panel()
 	main.conversation.run(c)
+
+
+## A linha `n` está sendo chamada ou em conversa pelo discador (um cabo solto na tomada dela não a solta).
+func seized(n: int) -> bool:
+	return call != null and int(call.target) == n
+
+
+func _key(k: String) -> void:
+	key = k
+	key_at = main.talk_clock
 
 
 func _fail(s: Status) -> void:
