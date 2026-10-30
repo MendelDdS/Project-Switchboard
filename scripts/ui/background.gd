@@ -2749,8 +2749,9 @@ func _draw_switchboard() -> void:
 			for j in range(2, 5):   # o risco de posição, pixel a pixel
 				draw_rect(Rect2((c + Vector2(cos(a), sin(a)) * j).floor(), Vector2.ONE), Pal.BOARD_INK)
 	draw_rect(Rect2(b.position.x, b.end.y, b.size.x, 3), SHELL[2])
-	_poly(PackedVector2Array([Vector2(b.position.x, b.end.y + 3), Vector2(b.end.x, b.end.y + 3),
-		Vector2(b.end.x + 2, b.end.y + 7), Vector2(b.position.x - 3, b.end.y + 7)]), Color(0, 0, 0, 0.3))
+	var lip := func(y: float) -> float: return floorf(lerpf(b.end.x, fx1, (y - b.end.y) / (sy - b.end.y)))   # a ponta da prateleira na linha `y` (por baixo: arredondada, sobrava 1 px)
+	_poly(PackedVector2Array([Vector2(b.position.x, b.end.y + 3), Vector2(lip.call(b.end.y + 3), b.end.y + 3),
+		Vector2(lip.call(b.end.y + 7), b.end.y + 7), Vector2(b.position.x - 3, b.end.y + 7)]), Color(0, 0, 0, 0.3))   # (até a ponta da prateleira: passando dela, caía na lateral, um triângulo escuro)
 	if b.position.y > vp.y + 1.0:   # os olhos estão acima do painel: o tampo dele aparece
 		var r := Switchboard.SHELL_R
 		var tl := b.position + Vector2(r, 0)

@@ -13,13 +13,14 @@ signal clicked
 
 const Dialing := preload("res://scripts/dialing.gd")
 const DialView := preload("res://scripts/ui/dial_view.gd")
-const DEPTH := 22   ## da beira de trás à da frente, deitado
+const DEPTH := 29   ## da beira de trás à da frente, deitado: de trás, encosta no rodapé do painel...
+const FRONT := 13   ## ...e a da frente fica tanto abaixo da linha do meio da prateleira
 const FACE := 3     ## a frente, em pé
-const KEY := Vector2i(10, 4)   ## cada tecla, deitada (largura e fundura: o tampo na luz, o meio e a frente)...
+const KEY := Vector2i(10, 5)   ## cada tecla, deitada (largura e fundura: o tampo na luz, o meio e a frente)...
 const KEY_GAP := Vector2i(2, 1)   ## ...e o vão entre elas
-const KEYS_AT := Vector2i(25, 2)   ## o canto de trás à esquerda do teclado, na tampa: à direita, na fundura toda
-const SCREEN := Rect2i(3, 3, 19, 8)   ## o visor, na tampa, à esquerda do teclado...
-const LAMP_AT := Vector2i(11, 14)   ## ...e embaixo dele, a lâmpada de linha (3 × 3), com o aro em volta
+const KEYS_AT := Vector2i(25, 3)   ## o canto de trás à esquerda do teclado, na tampa: à direita, na fundura toda
+const SCREEN := Rect2i(4, 4, 19, 9)   ## o visor, na tampa, à esquerda do teclado...
+const LAMP_AT := Vector2i(13, 20)   ## ...e embaixo dele, a lâmpada de linha (o meio), redonda, no meio do vão até a beira da frente
 const BLINK := 0.5   ## s: a lâmpada acesa, depois apagada, chamando (como no de perto, `DialView.BLINK`)
 const ORDER := ["1", "2", "3", "4", "5", "6", "7", "8", "9", "DIAL", "0", "END"]   ## as teclas, linha a linha (`Dialing.key`)
 const SUNK_SEC := 0.15   ## s: a tecla apertada (aqui ou no de perto) fica afundada
@@ -45,7 +46,7 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	_mid = _board._shelf_mid()
 	_cx = _board.dialer_x()
-	var r := Rect2(_cx - Switchboard.DIALER_W / 2.0 - 8.0, roundf(_mid - DEPTH / 2.0) - 3.0, Switchboard.DIALER_W + 16.0, DEPTH + FACE + 5.0)
+	var r := Rect2(_cx - Switchboard.DIALER_W / 2.0 - 8.0, _back() - 3.0, Switchboard.DIALER_W + 16.0, DEPTH + FACE + 5.0)
 	if r != Rect2(position, size):
 		position = r.position
 		size = r.size
@@ -77,13 +78,24 @@ func _slant(y: float) -> float:
 	return _board._receding(Vector2(end, _mid), y) - end
 
 
+## A linha da beira de trás (px da mesa).
+func _back() -> float:
+	return roundf(_mid) + FRONT - DEPTH
+
+
+## O ponto `p` da tampa (x ao longo do discador, y da beira de trás) na mesa, sem deitar (como as linhas do `_flat`).
+func _at(p: Vector2i) -> Vector2:
+	var y := _back() + p.y
+	return Vector2(_left(y) + p.x, y - (1.0 if _hover else 0.0))
+
+
 ## A beira esquerda do discador na linha `y` (px da mesa); a frente fica em pé e não deita mais.
 func _left(y: float) -> float:
-	return roundf(_cx - Switchboard.DIALER_W / 2.0 + _slant(minf(y, roundf(_mid - DEPTH / 2.0) + DEPTH - 1)))
+	return roundf(_cx - Switchboard.DIALER_W / 2.0 + _slant(minf(y, _back() + DEPTH - 1)))
 
 
 func _inside(p: Vector2) -> bool:
-	var y0 := roundf(_mid - DEPTH / 2.0) - (1.0 if _hover else 0.0)
+	var y0 := _back() - (1.0 if _hover else 0.0)
 	return p.y >= y0 and p.y < y0 + DEPTH + FACE and p.x >= _left(p.y) and p.x < _left(p.y) + Switchboard.DIALER_W
 
 
@@ -111,7 +123,7 @@ func _sunk() -> int:
 ## Um retângulo `r` no plano da tampa (x ao longo do discador, y da beira de trás para a frente), cada linha no lugar
 ## dela na prateleira.
 func _flat(r: Rect2i, col: Color) -> void:
-	var y0 := roundf(_mid - DEPTH / 2.0) - (1.0 if _hover else 0.0)
+	var y0 := _back() - (1.0 if _hover else 0.0)
 	for v in range(r.position.y, r.end.y):
 		var y := y0 + v
 		draw_rect(Rect2(_left(y + (1.0 if _hover else 0.0)) + r.position.x, y, r.size.x, 1), col)
@@ -121,9 +133,15 @@ func _draw() -> void:
 	draw_set_transform(-position)
 	var w := int(Switchboard.DIALER_W)
 	var s := Pal.SHELL
-	# a sombra na prateleira, a caixa (a tampa e a frente em pé) com as quinas quebradas
-	var y0 := roundf(_mid - DEPTH / 2.0)
-	draw_rect(Rect2(_left(y0 + DEPTH) + 1.0, y0 + DEPTH + FACE, w, 1), Color(0, 0, 0, 0.3))
+	# a sombra na prateleira, embaixo da frente e à direita (como a dos broches), mais fraca na beira de fora; a caixa
+	# (a tampa e a frente em pé) com as quinas quebradas
+	var y0 := _back()
+	for v in range(2, DEPTH + FACE + 1):
+		var y := y0 + v
+		var x := _left(y) + w
+		draw_rect(Rect2(x, y, 1, 1), Color(0, 0, 0, 0.3))
+		draw_rect(Rect2(x + 1, y, 1, 1), Color(0, 0, 0, 0.15))
+	draw_rect(Rect2(_left(y0 + DEPTH) + 1.0, y0 + DEPTH + FACE, w - 1, 1), Color(0, 0, 0, 0.3))
 	_flat(Rect2i(1, 0, w - 2, 1), s[7])
 	_flat(Rect2i(0, 1, w, DEPTH - 1), s[6])
 	_flat(Rect2i(0, 1, 1, DEPTH - 1), s[7])   # a beira da esquerda na luz, a da direita na sombra
@@ -138,10 +156,9 @@ func _draw() -> void:
 	if dialing != null and dialing.digits != "":   # no meio do visor (as letras do `tiny` ficam nas linhas 3 a 7 da imagem)
 		var mid := y0 - (1.0 if _hover else 0.0) + SCREEN.get_center().y
 		draw_texture(PixelArt.tiny(dialing.digits), Vector2(_left(mid + (1.0 if _hover else 0.0)) + SCREEN.position.x + 4, roundf(mid) - 5.0), Pal.GREEN)
-	# a lâmpada, no aro creme
-	_flat(Rect2i(LAMP_AT - Vector2i.ONE, Vector2i(5, 5)), s[4])
+	# a lâmpada, redonda no aro creme (sem deitar: pequena, linha a linha virava um borrão dentado)
 	var lamp := _lamp()
-	_flat(Rect2i(LAMP_AT, Vector2i(3, 3)), Pal.LAMP_GLASS if lamp.a == 0.0 else lamp)
+	draw_texture(PixelArt.disc(5, [[1.5, Pal.LAMP_GLASS if lamp.a == 0.0 else lamp], [2.5, s[5], s[4], s[3]]]), _at(LAMP_AT) - Vector2(2, 2))
 	# o teclado: as teclas com o tampo na luz e a frente na sombra; Discar e Encerrar nos cantos de baixo
 	for i in 12:
 		var k := KEYS_AT + Vector2i(i % 3, i / 3) * (KEY + KEY_GAP)
@@ -153,6 +170,7 @@ func _draw() -> void:
 		_flat(Rect2i(k, Vector2i(KEY.x, 1)), cap[3])
 		_flat(Rect2i(k + Vector2i(0, 1), Vector2i(KEY.x, KEY.y - 2)), cap[2])
 		_flat(Rect2i(k + Vector2i(0, KEY.y - 1), Vector2i(KEY.x, 1)), cap[1])
+		_flat(Rect2i(k + Vector2i(0, KEY.y), Vector2i(KEY.x, 1)), Color(0, 0, 0, 0.35))   # a sombra na placa: a tecla salta dela
 
 
 func _draw_pop() -> void:
@@ -162,7 +180,7 @@ func _draw_pop() -> void:
 	var cap := T.text(T.Key.DIAL_TITLE)
 	var tape := get_theme_stylebox("normal", "TapedLabel")
 	var ts := (Pal.ui.get_string_size(cap, HORIZONTAL_ALIGNMENT_LEFT, -1, 11) + tape.get_minimum_size()).round()
-	var at := Vector2(minf(roundf(_cx - ts.x / 2.0), _board.size.x - ts.x - 2.0), roundf(_mid - DEPTH / 2.0) - ts.y - 6.0)
+	var at := Vector2(minf(roundf(_cx - ts.x / 2.0), _board.size.x - ts.x - 2.0), _back() - ts.y - 6.0)
 	tape.draw(_pop.get_canvas_item(), Rect2(at, ts))
 	_pop.draw_string(Pal.ui, at + Vector2(tape.content_margin_left, tape.content_margin_top + Pal.ui.get_ascent(11)), cap,
 		HORIZONTAL_ALIGNMENT_LEFT, -1, 11, get_theme_color("default_color", "TapedLabel"))

@@ -2921,3 +2921,20 @@ Chaves:
     afunda na miniatura da prateleira (`Dialer._sunk`), mesmo apertada no de perto; o estado no visor de perto em
     negrito. Revisar as falas e as que a cidade lembra (`requires` nos atendimentos) ficam com o usuário.
 
+493. #mesa-comutadora #discador "No canto da mesa comutadora tem triângulo escuro que parece uma sombra de algo
+    dobrado" e "crescer mais um pouco a altura do teclado numérico" (com a linha vermelha no rodapé do painel). O
+    triângulo era a sombra de contato do painel na prateleira, que abria 2 px para a direita e passava da ponta dela,
+    caindo na lateral do móvel: agora para na ponta da prateleira (`_draw_switchboard`, `lip`). O discador ficou mais
+    fundo (`Dialer.DEPTH` 29, a frente no mesmo lugar, `FRONT`, `_back`): a beira de trás encosta no rodapé do painel;
+    as teclas, o visor e a lâmpada acompanham.
+494. #mesa-comutadora #discador #luz "Faça 1 e 2" (das melhorias do discador) e "o 3 não faz sentido pq a ideia é
+    que esse discador é embutido na mesa comutadora" (o fio até o painel saiu). (2) A sombra do discador na prateleira
+    ganhou o lado direito, 2 px (a de fora mais fraca), como a dos broches, além da linha embaixo da frente. (1) Os tons
+    pela luz da sala (`Pal.cabinet(_room_lit)`, como as tampas) foram testados e desfeitos: saíam 2 degraus mais
+    escuros que a prateleira em volta, que já recebe a luz da sala pelo shader, como ele. Depois, "Desça aí um
+    pouquinho o discador": 2 px (`FRONT` 13), a beira de trás já não encosta no rodapé.
+495. #mesa-comutadora #discador "Com relação ao visual, mudaria alguma coisa?" → "Faça os 3": a lâmpada de linha,
+    um aro de 5 × 5 deitado linha a linha na inclinação (parecia um "§"), ficou redonda (`PixelArt.disc`, sem deitar),
+    embaixo de "LINHA" gravado em creme (`PixelArt.tiny`, `Pal.BOARD_INK`), os dois embaixo do visor, na altura da
+    terceira e da última fileira de teclas (`LABEL_AT`, `LAMP_AT`, `_at`); cada tecla ganhou a sombra de 1 px na placa,
+    embaixo (a apertada, rente, não). Depois, "Não gostei do texto linha": o "LINHA" saiu; a lâmpada ficou no lugar.
