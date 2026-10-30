@@ -2882,3 +2882,11 @@ Chaves:
     carros já vêm pela linha do meio-fio e só freiam (sem o `park`, que os encostava de lado no caminho).
 487. #vista #noites "A viatura pode ficar com a luz nova": a viatura da noite 7 fica com a luz do giroflex da batida
     (`_draw_beacon_light`, a fachada, o chão, as pessoas e a sala), sem o leque antigo na fachada.
+488. #vista "Esse porteiro está bem ruim", "no prédio de tijolos também tem pessoas dentro que estão feias": quem está
+    lá dentro contra a luz (o recepcionista no telefone do hotel, o porteiro na porta de manhã, quem está no balcão e
+    no telefone do bar, o dono na porta e quem passa atrás da janela acesa) deixou de ser silhueta preta de palito e
+    usa o corpo de quem passa na rua (`_draw_backlit`: `_rig_pixels`, com roupa, pele, cabelo e chapéu, escurecido
+    pela contraluz, `BACKLIT`; com a beira acesa, sumia no fundo claro). O recepcionista fala de frente, com o fone na
+    orelha (`PHONE_FRONT`); um freguês bebe de lado (`HOLD_UP`); o dono fica de frente com a mão no batente; o porteiro
+    de quepe e farda (`Pal.CLERK_COAT`). Quem passa atrás da janela fica meio metro acima do piso, para a cabeça e os
+    ombros caírem no meio do vidro (a conta certa deixava só o alto da cabeça no peitoril).
