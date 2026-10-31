@@ -1,6 +1,6 @@
 extends Control
 ## Os broches ganhos (`Badges`, no `Progress`) espetados numa almofada de feltro deitada na prateleira da mesa
-## comutadora, entre o tampo dos equipamentos (`bay_rect`) e o fim dela: quatro atrás e quatro na frente, cada um no
+## comutadora, logo depois do tampo dos equipamentos e antes do discador (`Switchboard.pad_x`): quatro atrás e quatro na frente, cada um no
 ## seu lugar (o que falta deixa o feltro à mostra). Sob o mouse, o broche sobe 1 px e mostra o nome numa etiqueta de
 ## fita crepe (`TapedLabel`, como os objetos da mesa); o clique abre um papel com a descrição e a noite em que veio
 ## (um clique em qualquer outro lugar fecha). O mouse que não pega um broche segue para a mesa (`MOUSE_FILTER_PASS`):
@@ -9,7 +9,7 @@ extends Control
 const Badges := preload("res://scripts/model/badges.gd")
 const PIN := 11          ## o diâmetro de cada broche
 const STEP := 14.0       ## de um broche ao seguinte na fileira
-const PAD_W := 58.0      ## a almofada, na linha do meio da prateleira
+const PAD_W := Switchboard.PAD_W   ## a almofada, na linha do meio da prateleira
 const DEPTH := 20        ## da beira de trás à da frente (como os tampos, `Switchboard.COVER_DEPTH`)
 const FACE := 2          ## a frente da almofada, na sombra
 const NOTE_W := 190.0    ## o papel da descrição
@@ -49,10 +49,8 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
-	var bay := _board.bay_rect()
-	var from := bay.get_center().x + (bay.size.x - Switchboard.BAY_MARGIN) / 2.0   # a beira do tampo dos equipamentos
 	_mid = _board._shelf_mid()
-	_cx = roundf((from + _board.tray_rect().end.x - Switchboard.COVER_GAP) / 2.0)   # (o fim da prateleira à vista fica uns px antes do `tray_rect`)
+	_cx = _board.pad_x()
 	var r := Rect2(_cx - PAD_W / 2.0 - DEPTH, roundf(_mid - DEPTH / 2.0) - 4.0, PAD_W + DEPTH * 2.0, DEPTH + FACE + 6.0)
 	if r != Rect2(position, size):
 		position = r.position

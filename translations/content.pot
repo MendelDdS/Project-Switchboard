@@ -291,6 +291,54 @@ msgid "Bar do Zé! Fala aí, meu chapa!"
 msgstr ""
 
 #: data/directory/327_bar_do_ze.tres
+msgid "O jogo ainda está passando aí?"
+msgstr ""
+
+#: data/directory/327_bar_do_ze.tres
+msgid "Está no segundo tempo, zero a zero. Uma tristeza."
+msgstr ""
+
+#: data/directory/327_bar_do_ze.tres
+msgid "Até que horas o bar fica aberto?"
+msgstr ""
+
+#: data/directory/327_bar_do_ze.tres
+msgid "Enquanto tiver freguês. Mas a polícia anda mandando fechar cedo."
+msgstr ""
+
+#: data/directory/327_bar_do_ze.tres
+msgid "Está muito cheio hoje?"
+msgstr ""
+
+#: data/directory/327_bar_do_ze.tres
+msgid "Lotado. Hoje foi dia de pagamento na fábrica."
+msgstr ""
+
+#: data/directory/327_bar_do_ze.tres
+msgid "Bar do Zé. Com essa chuva, só os de sempre."
+msgstr ""
+
+#: data/directory/327_bar_do_ze.tres
+msgid "Choveu muito por aí?"
+msgstr ""
+
+#: data/directory/327_bar_do_ze.tres
+msgid "A Rua da Estação virou rio. O Tonho do bilhar chegou de galocha."
+msgstr ""
+
+#: data/directory/327_bar_do_ze.tres
+msgid "Quanto está a cerveja?"
+msgstr ""
+
+#: data/directory/327_bar_do_ze.tres
+msgid "Três cruzeiros a garrafa. Gelada, hein."
+msgstr ""
+
+#: data/directory/327_bar_do_ze.tres
+msgid "Valeu, meu chapa! Aparece aqui qualquer dia."
+msgstr ""
+
+#: data/directory/327_bar_do_ze.tres
 msgid "do Bar do Zé"
 msgstr ""
 
@@ -656,6 +704,42 @@ msgstr ""
 
 #: data/directory/344_cine_odeon.tres
 msgid "Cine Odeon, boa noite."
+msgstr ""
+
+#: data/directory/344_cine_odeon.tres
+msgid "Que filme está passando hoje?"
+msgstr ""
+
+#: data/directory/344_cine_odeon.tres
+msgid "Um faroeste italiano. A última sessão começa às nove e meia."
+msgstr ""
+
+#: data/directory/344_cine_odeon.tres
+msgid "Quanto é o ingresso?"
+msgstr ""
+
+#: data/directory/344_cine_odeon.tres
+msgid "Quatro cruzeiros. Estudante paga meia, com a carteirinha."
+msgstr ""
+
+#: data/directory/344_cine_odeon.tres
+msgid "Odeon, bilheteria."
+msgstr ""
+
+#: data/directory/344_cine_odeon.tres
+msgid "Ainda tem lugar na última sessão?"
+msgstr ""
+
+#: data/directory/344_cine_odeon.tres
+msgid "Tem, sim. A plateia de baixo está quase vazia."
+msgstr ""
+
+#: data/directory/344_cine_odeon.tres
+msgid "Alguém esqueceu alguma coisa aí hoje?"
+msgstr ""
+
+#: data/directory/344_cine_odeon.tres
+msgid "Um guarda-chuva preto e uma luva. Está tudo aqui na bilheteria."
 msgstr ""
 
 #: data/directory/344_cine_odeon.tres
@@ -1427,6 +1511,46 @@ msgid "Funerária Paz Eterna, boa noite."
 msgstr ""
 
 #: data/directory/399_funeraria_paz_eterna.tres
+msgid "Vocês atendem a noite toda?"
+msgstr ""
+
+#: data/directory/399_funeraria_paz_eterna.tres
+msgid "A noite toda. A morte não tem hora, infelizmente."
+msgstr ""
+
+#: data/directory/399_funeraria_paz_eterna.tres
+msgid "Onde fica a capela?"
+msgstr ""
+
+#: data/directory/399_funeraria_paz_eterna.tres
+msgid "Aqui mesmo, na Rua das Acácias, ao lado da borracharia."
+msgstr ""
+
+#: data/directory/399_funeraria_paz_eterna.tres
+msgid "Paz Eterna. Em que posso ajudar?"
+msgstr ""
+
+#: data/directory/399_funeraria_paz_eterna.tres
+msgid "Não é nada grave, só uma informação."
+msgstr ""
+
+#: data/directory/399_funeraria_paz_eterna.tres
+msgid "Que bom. Aqui, quase sempre é."
+msgstr ""
+
+#: data/directory/399_funeraria_paz_eterna.tres
+msgid "Tem velório hoje?"
+msgstr ""
+
+#: data/directory/399_funeraria_paz_eterna.tres
+msgid "Tem um, de um senhor da Vila. A família pediu silêncio."
+msgstr ""
+
+#: data/directory/399_funeraria_paz_eterna.tres
+msgid "Boa noite. Que Deus lhe guarde."
+msgstr ""
+
+#: data/directory/399_funeraria_paz_eterna.tres
 msgid "da Funerária Paz Eterna"
 msgstr ""
 
@@ -1544,6 +1668,62 @@ msgstr ""
 
 #: data/directory/305_hotel_estrela.tres
 msgid "Hotel Estrela, boa noite."
+msgstr ""
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Hotel Estrela, boa noite. Em que posso ajudar?"
+msgstr ""
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Tem quarto vago esta noite?"
+msgstr ""
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Tem dois no terceiro andar. É só chegar antes da meia-noite."
+msgstr ""
+
+#: data/directory/305_hotel_estrela.tres
+msgid "A portaria fecha a que horas?"
+msgstr ""
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Não fecha. Depois da meia-noite, é só tocar a campainha."
+msgstr ""
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Quanto custa o pernoite?"
+msgstr ""
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Quarenta cruzeiros, com café da manhã."
+msgstr ""
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Estrela, recepção. Pois não?"
+msgstr ""
+
+#: data/directory/305_hotel_estrela.tres
+msgid "O restaurante ainda está servindo?"
+msgstr ""
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Só até as nove. Agora, só o café da recepção."
+msgstr ""
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Chegou algum hóspede de fora hoje?"
+msgstr ""
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Isso eu não posso dizer pelo telefone, desculpe."
+msgstr ""
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Tudo tranquilo por aí?"
+msgstr ""
+
+#: data/directory/305_hotel_estrela.tres
+msgid "Tudo calmo. Só o letreiro da fachada que anda piscando."
 msgstr ""
 
 #: data/directory/305_hotel_estrela.tres
@@ -2143,6 +2323,46 @@ msgid "Oficina do Tião, boa noite."
 msgstr ""
 
 #: data/directory/318_oficina_do_tiao.tres
+msgid "Oficina. Fala logo, que eu estou com a mão suja de graxa."
+msgstr ""
+
+#: data/directory/318_oficina_do_tiao.tres data/directory/355_bilhar_do_tonho.tres
+msgid "Até que horas vocês ficam abertos?"
+msgstr ""
+
+#: data/directory/318_oficina_do_tiao.tres
+msgid "Hoje eu fico até tarde. Tem um caminhão para entregar de manhã."
+msgstr ""
+
+#: data/directory/318_oficina_do_tiao.tres
+msgid "Vocês fazem guincho?"
+msgstr ""
+
+#: data/directory/318_oficina_do_tiao.tres
+msgid "Faço, mas só até a saída da cidade. Depois disso, é com o posto."
+msgstr ""
+
+#: data/directory/318_oficina_do_tiao.tres
+msgid "Tião falando."
+msgstr ""
+
+#: data/directory/318_oficina_do_tiao.tres
+msgid "Dá para olhar um carro amanhã cedo?"
+msgstr ""
+
+#: data/directory/318_oficina_do_tiao.tres
+msgid "Pode trazer às sete. Antes do café, eu não falo com ninguém."
+msgstr ""
+
+#: data/directory/318_oficina_do_tiao.tres
+msgid "Quanto custa uma revisão?"
+msgstr ""
+
+#: data/directory/318_oficina_do_tiao.tres
+msgid "Depende do carro. Fusca é barato; o resto, a gente conversa."
+msgstr ""
+
+#: data/directory/318_oficina_do_tiao.tres
 msgid "da Oficina do Tião"
 msgstr ""
 
@@ -2499,6 +2719,42 @@ msgid "Posto São Cristóvão, boa noite."
 msgstr ""
 
 #: data/directory/347_posto_sao_cristovao.tres
+msgid "Vocês ficam abertos a noite toda?"
+msgstr ""
+
+#: data/directory/347_posto_sao_cristovao.tres
+msgid "A bomba fecha à meia-noite. Depois, só o frentista de plantão."
+msgstr ""
+
+#: data/directory/347_posto_sao_cristovao.tres
+msgid "Quanto está a gasolina?"
+msgstr ""
+
+#: data/directory/347_posto_sao_cristovao.tres
+msgid "Subiu de novo esta semana. Nem me pergunte."
+msgstr ""
+
+#: data/directory/347_posto_sao_cristovao.tres
+msgid "Posto, plantão."
+msgstr ""
+
+#: data/directory/347_posto_sao_cristovao.tres
+msgid "Tem borracheiro aí hoje?"
+msgstr ""
+
+#: data/directory/347_posto_sao_cristovao.tres
+msgid "Hoje, não. Fala com o Neno, na Rua das Acácias."
+msgstr ""
+
+#: data/directory/347_posto_sao_cristovao.tres
+msgid "Muito movimento hoje?"
+msgstr ""
+
+#: data/directory/347_posto_sao_cristovao.tres
+msgid "Só caminhão passando para a Capital. Carro de passeio, quase nenhum."
+msgstr ""
+
+#: data/directory/347_posto_sao_cristovao.tres
 msgid "do Posto São Cristóvão"
 msgstr ""
 
@@ -2739,6 +2995,58 @@ msgid "Rádio Serena. Quem fala, e do que se trata?"
 msgstr ""
 
 #: data/directory/390_radio_serena_am.tres
+msgid "Rádio Serena, boa noite! O que deseja?"
+msgstr ""
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Qual é a programação de hoje?"
+msgstr ""
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Depois das notícias, o programa dos pedidos. À meia-noite, a gente sai do ar."
+msgstr ""
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Posso pedir uma música?"
+msgstr ""
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Pode. Deixa o nome que o locutor toca no programa das dez."
+msgstr ""
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Quem está no ar agora?"
+msgstr ""
+
+#: data/directory/390_radio_serena_am.tres
+msgid "O locutor da noite, com as modas de viola."
+msgstr ""
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Serena AM, estúdio. Fala rápido, que estamos no ar."
+msgstr ""
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Vai ter a previsão do tempo hoje?"
+msgstr ""
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Às onze, depois do intervalo."
+msgstr ""
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Vocês recebem recado para a roça?"
+msgstr ""
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Recebe, sim. Vai ao ar no quadro dos recados, depois das notícias."
+msgstr ""
+
+#: data/directory/390_radio_serena_am.tres
+msgid "Obrigado por ouvir a Serena. Boa noite!"
+msgstr ""
+
+#: data/directory/390_radio_serena_am.tres
 msgid "da Rádio Serena"
 msgstr ""
 
@@ -2862,6 +3170,86 @@ msgstr ""
 msgid "pro seu Alberto Ramos"
 msgstr ""
 
+#: data/directory/367_celia_rocha.tres
+msgid "Alô? Quem fala a essa hora?"
+msgstr ""
+
+#: data/directory/367_celia_rocha.tres data/directory/373_celia_rocha.tres
+msgid "É da central. Estamos testando a linha."
+msgstr ""
+
+#: data/directory/367_celia_rocha.tres
+msgid "Ah, está funcionando, sim. Estou ouvindo bem."
+msgstr ""
+
+#: data/directory/367_celia_rocha.tres
+msgid "Desculpe, foi engano."
+msgstr ""
+
+#: data/directory/367_celia_rocha.tres
+msgid "Engano a essa hora... Tudo bem, acontece."
+msgstr ""
+
+#: data/directory/367_celia_rocha.tres
+msgid "Alô? É o Antônio?"
+msgstr ""
+
+#: data/directory/367_celia_rocha.tres
+msgid "Não, senhora. Aqui é da central."
+msgstr ""
+
+#: data/directory/367_celia_rocha.tres
+msgid "Ah. Pensei que fosse meu filho. Ele ficou de ligar."
+msgstr ""
+
+#: data/directory/367_celia_rocha.tres
+msgid "É a dona Célia da Rua do Sol?"
+msgstr ""
+
+#: data/directory/367_celia_rocha.tres
+msgid "Sou eu. A outra Célia mora na avenida; todo mundo confunde."
+msgstr ""
+
+#: data/directory/367_celia_rocha.tres
+msgid "Boa noite. E não liga mais tarde, que eu acordo cedo."
+msgstr ""
+
+#: data/directory/373_celia_rocha.tres
+msgid "Residência da Célia, boa noite."
+msgstr ""
+
+#: data/directory/373_celia_rocha.tres
+msgid "É a dona Célia da Avenida Brasil?"
+msgstr ""
+
+#: data/directory/373_celia_rocha.tres
+msgid "Isso. Se procura a da Rua do Sol, é o outro número."
+msgstr ""
+
+#: data/directory/373_celia_rocha.tres
+msgid "Pode testar à vontade. O meu telefone vive chiando."
+msgstr ""
+
+#: data/directory/373_celia_rocha.tres
+msgid "Alô? Pode falar, eu estava acordada."
+msgstr ""
+
+#: data/directory/373_celia_rocha.tres
+msgid "Desculpe ligar tão tarde."
+msgstr ""
+
+#: data/directory/373_celia_rocha.tres
+msgid "Não faz mal. Com o movimento na rua, quem consegue dormir?"
+msgstr ""
+
+#: data/directory/373_celia_rocha.tres
+msgid "Está ouvindo bem?"
+msgstr ""
+
+#: data/directory/373_celia_rocha.tres
+msgid "Com um chiadinho, mas dá para entender."
+msgstr ""
+
 #: data/directory/355_bilhar_do_tonho.tres
 msgid "o Bilhar do Tonho"
 msgstr ""
@@ -2972,6 +3360,38 @@ msgstr ""
 
 #: data/directory/355_bilhar_do_tonho.tres
 msgid "Bilhar do Tonho! Opa, pode falar!"
+msgstr ""
+
+#: data/directory/355_bilhar_do_tonho.tres
+msgid "Tem mesa livre?"
+msgstr ""
+
+#: data/directory/355_bilhar_do_tonho.tres
+msgid "Está tudo ocupado. Hoje tem campeonato dos ferroviários."
+msgstr ""
+
+#: data/directory/355_bilhar_do_tonho.tres
+msgid "Até o último perder a camisa."
+msgstr ""
+
+#: data/directory/355_bilhar_do_tonho.tres
+msgid "Tonho. Quem fala?"
+msgstr ""
+
+#: data/directory/355_bilhar_do_tonho.tres
+msgid "É da central. Está tudo bem aí?"
+msgstr ""
+
+#: data/directory/355_bilhar_do_tonho.tres
+msgid "Tudo. Só uns rapazes que não querem ir embora."
+msgstr ""
+
+#: data/directory/355_bilhar_do_tonho.tres
+msgid "O barulho aí é de briga?"
+msgstr ""
+
+#: data/directory/355_bilhar_do_tonho.tres
+msgid "Que nada, é o pessoal comemorando uma tacada."
 msgstr ""
 
 #: data/directory/355_bilhar_do_tonho.tres
@@ -3563,6 +3983,46 @@ msgid "Pensão. Quem é que fala?"
 msgstr ""
 
 #: data/directory/312_pensao_dona_cota.tres
+msgid "Tem vaga para hoje?"
+msgstr ""
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "Tem um quarto nos fundos. Mas o portão fecha às dez, viu?"
+msgstr ""
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "A senhora ainda serve janta?"
+msgstr ""
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "A sopa já acabou. Amanhã tem feijoada, se quiser."
+msgstr ""
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "Alô! Fala mais alto, que o rádio está ligado."
+msgstr ""
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "O que a senhora está ouvindo?"
+msgstr ""
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "A novela da Rádio Serena. Está bem na hora boa."
+msgstr ""
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "Tudo bem por aí?"
+msgstr ""
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "Tudo, graças a Deus. Só a goteira da cozinha que não para."
+msgstr ""
+
+#: data/directory/312_pensao_dona_cota.tres
+msgid "Boa noite. E não liga depois das dez, que eu durmo cedo."
+msgstr ""
+
+#: data/directory/312_pensao_dona_cota.tres
 msgid "da Pensão Dona Cota"
 msgstr ""
 
@@ -3680,6 +4140,46 @@ msgstr ""
 
 #: data/directory/336_borracharia_do_neno.tres
 msgid "Borracharia do Neno, boa noite."
+msgstr ""
+
+#: data/directory/336_borracharia_do_neno.tres
+msgid "Borracharia, boa noite."
+msgstr ""
+
+#: data/directory/336_borracharia_do_neno.tres
+msgid "Vocês atendem de madrugada?"
+msgstr ""
+
+#: data/directory/336_borracharia_do_neno.tres
+msgid "Se bater no portão, eu acordo. Moro nos fundos."
+msgstr ""
+
+#: data/directory/336_borracharia_do_neno.tres
+msgid "Tem pneu de Fusca?"
+msgstr ""
+
+#: data/directory/336_borracharia_do_neno.tres
+msgid "Tenho dois recapados. Novo, só semana que vem."
+msgstr ""
+
+#: data/directory/336_borracharia_do_neno.tres
+msgid "Neno falando. Furou onde?"
+msgstr ""
+
+#: data/directory/336_borracharia_do_neno.tres
+msgid "Nada furou. Só queria saber se estão abertos."
+msgstr ""
+
+#: data/directory/336_borracharia_do_neno.tres
+msgid "Aberto, não. Mas eu durmo aqui do lado; é só chamar."
+msgstr ""
+
+#: data/directory/336_borracharia_do_neno.tres
+msgid "Quanto custa um remendo?"
+msgstr ""
+
+#: data/directory/336_borracharia_do_neno.tres
+msgid "Cinco cruzeiros, e o café é por minha conta."
 msgstr ""
 
 #: data/directory/336_borracharia_do_neno.tres
@@ -10615,6 +11115,22 @@ msgid "Não é esse número, não."
 msgstr ""
 
 #: data/content.tres
+msgid "Boa noite, então."
+msgstr ""
+
+#: data/content.tres
+msgid "Disponha. Boa noite."
+msgstr ""
+
+#: data/content.tres
+msgid "Está certo. Até mais."
+msgstr ""
+
+#: data/content.tres
+msgid "Boa noite, e bom trabalho aí na central."
+msgstr ""
+
+#: data/content.tres
 msgid "Interurbano, boa noite."
 msgstr ""
 
@@ -10904,10 +11420,6 @@ msgstr ""
 
 #: data/content.tres
 msgid "Até mais."
-msgstr ""
-
-#: data/content.tres
-msgid "Disponha. Boa noite."
 msgstr ""
 
 #: data/content.tres

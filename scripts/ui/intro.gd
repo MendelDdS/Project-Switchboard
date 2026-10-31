@@ -30,9 +30,6 @@ func _ready() -> void:
 	%Start.pressed.connect(_start)
 	%Settings.pressed.connect(settings_pressed.emit)
 	%Skip.pressed.connect(skip_pressed.emit)
-	%Reset.pressed.connect(func():
-		Progress.clear()
-		Main.restart())
 
 
 ## O bilhete preso no painel da mesa comutadora, no meio dele, e os botões logo embaixo (a mesa se arruma na tela).
@@ -49,13 +46,12 @@ func _process(_delta: float) -> void:
 ## `warned`: a noite anterior foi Insuficiente, e o bilhete lembra que esta decide. `tapes`: o resumo das fitas da
 ## noite anterior (`Tapes.last`, B4), num parágrafo a mais. `aside`: o save que não deu para ler, guardado ao lado
 ## (`Progress.aside`), avisado no papel de como se joga.
-func setup(n: int, night: Night, can_reset: bool, can_skip: bool, warned := false, tapes := {}, aside := "") -> void:
+func setup(n: int, night: Night, can_skip: bool, warned := false, tapes := {}, aside := "") -> void:
 	_aside = aside
 	_n = n
 	_night = night
 	_warned = warned
 	_tapes = tapes
-	%Reset.visible = can_reset
 	%Skip.visible = can_skip and n == 0
 	_texts()
 

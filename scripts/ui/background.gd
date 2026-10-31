@@ -26,6 +26,7 @@ extends "res://scripts/ui/background_props.gd"
 ## sobre eles (`prop_at`) e não com o papel de uma ferramenta por cima.
 
 signal prop_clicked(id: String)
+signal flare_lit   ## o sinalizador da noite 15 acendeu no céu (`Flare`): o Main liga o marcador do roteiro
 signal tapes_clicked   ## a pilha de fitas na mesa (`TAPES_ID`), para ver de perto e descartar (`tape_pile.gd`)
 
 ## A luminária esquentando no começo do turno (`warm_up`): acende a WARM.x da luz e chega a ela inteira em WARM.y s,
@@ -223,11 +224,15 @@ var _spot_add: Control  # a luz do holofote do toque de recolher, clareando o qu
 var _spot_drawn := false   # (redesenhada enquanto há viatura com ele, e uma vez depois, para apagar)
 var _flare: Control    # o sinalizador da noite 15 (`_draw_flare`), entre o céu e a `_back`: some atrás dos telhados; redesenhado enquanto está no céu...
 var _flare_add: Control   # ...e o halo dele, somado logo acima (`_draw_flare_glow`), a força com a cintilação no `modulate`
+var _flare_rim: Control   # ...a beira da igreja e da cidade de longe acesa por ele (`_draw_flare_rim`), somada logo acima da `_back`
 var _flare_at := Vector3.INF   # onde o halo foi desenhado da última vez (m, de meio em meio metro; INF apagado)
 var _flare_steep := 0.0   # o sinalizador aceso no lugar do sol (0: não): o quanto o raio dele desce ao entrar na sala (`_sun_steep`)
 var _sky: Control      # o céu da vista, embaixo da `_back` e fora da luz do dia da cidade (`DAY_GAIN`): redesenhado com ela
 var _rays: Control     # os raios do sol nascendo e os reflexos da lente, somados por cima da vista (`_draw_rays`): redesenhados com o céu
 var _pane: Control     # o vidro da vista, por cima da `_view`: o reflexo da sala e a chuva nele, fora da luz do dia
+var _crack: Control    # o vidro trincado pela pedra da noite 14 (`Stone`), por cima de tudo na vista e também de dia: só redesenhado quando muda...
+var _crack_box := Rect2()   # ...o vidro que aparece abaixo da persiana (px da vista, 1x1), onde ela bate...
+var _crack_t := -1.0   # ...e o tempo da pedra no último desenho (-1: nada; parado em `Stone.END` depois da queda)
 var _back_drawn := []
 var _vport: SubViewport
 var _cover := Rect2()   # onde está o papel da ferramenta aberta (px da tela, não de 2x2): luz embaixo dele não brilha
@@ -282,8 +287,8 @@ var _police_next := false   # o próximo da mão de lá é a viatura que para no
 var _curfew_next := false   # o próximo da mão de lá é a viatura do toque de recolher (`curfew`)...
 var _curfew_sent := false   # ...que já foi chamada
 ## As cenas que deixam marca (`scene_at`): passada a hora, a marca fica (os papéis no chão, a tinta, a banca fechada).
-const MARKS := ["flyers", "graffiti", "paint", "newsstand", "moving"]
-const LASTING := ["graffiti", "paint", "newsstand", "moving"]   ## ...e as que ficam nas noites seguintes (`left_behind`)
+const MARKS := ["flyers", "graffiti", "paint", "newsstand", "moving", "stone"]
+const LASTING := ["graffiti", "paint", "newsstand", "moving", "stone"]   ## ...e as que ficam nas noites seguintes (`left_behind`)
 const SPRAY_EVERY := 1.1   ## de quanto em quanto tempo um jato do spray (s)
 var _scene_car := ""   # o próximo da mão de lá é o carro desta cena (`scene_at`, `_scene_car_of`)
 var _taxi_at: Array[float] = []   # as horas deles nesta noite (min do dia; `_taxi_times`)
@@ -327,6 +332,10 @@ func _ready() -> void:
 	_back = Control.new()
 	_back.draw.connect(_draw_view_back)
 	_vport.add_child(_back)
+	_flare_rim = Control.new()
+	_flare_rim.material = _flare_add.material
+	_flare_rim.draw.connect(_draw_view_flare_rim)
+	_vport.add_child(_flare_rim)
 	_street_mul = Control.new()
 	_street_mul.material = CanvasItemMaterial.new()
 	(_street_mul.material as CanvasItemMaterial).blend_mode = CanvasItemMaterial.BLEND_MODE_MUL
@@ -357,6 +366,9 @@ func _ready() -> void:
 	_pane = Control.new()
 	_pane.draw.connect(_draw_view_glass)
 	_vport.add_child(_pane)
+	_crack = Control.new()
+	_crack.draw.connect(_draw_view_crack)
+	_vport.add_child(_crack)
 	add_child(_vport)
 	_blind_layer = Control.new()
 	_blind_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -606,6 +618,8 @@ func _process(delta: float) -> void:
 		_back_drawn = bs
 		_sky.queue_redraw()
 		_back.queue_redraw()
+		_flare_rim.queue_redraw()   # (usa o alto dos prédios que a `_back` mede)
+		_flare_add.queue_redraw()   # (a barriga das nuvens anda com elas)
 		_street_mul.queue_redraw()
 		_street_add.queue_redraw()
 		_upright.queue_redraw()
@@ -617,6 +631,7 @@ func _process(delta: float) -> void:
 	var fk := Flare.glow(_scene_t.get("flare", -1.0))   # o sinalizador no céu avermelha a cidade
 	day *= Color(1.0, 1.0 - FLARE_TINT.x * minf(fk, 1.0), 1.0 - FLARE_TINT.y * minf(fk, 1.0))
 	_flare_add.modulate = Color(fk, fk, fk)
+	_flare_rim.modulate = Color(fk, fk, fk)
 	_back.modulate = day   # (o céu, embaixo, e o vidro, por cima, ficam de fora; a sombra multiplica, sem ela)
 	_street_add.modulate = day
 	_upright.modulate = day
@@ -629,7 +644,8 @@ func _process(delta: float) -> void:
 		if fa != _flare_at:   # o halo só quando ele anda (a força está no `modulate`)
 			_flare_at = fa
 			_flare_add.queue_redraw()
-	var spot := _cars.any(func(c: Dictionary) -> bool: return c.has("sweep"))
+			_flare_rim.queue_redraw()
+	var spot := _cars.any(func(c: Dictionary) -> bool: return c.has("sweep") or c.has("police") or c.has("raid_van")) or Flare.light(ft) > 0.0   # (o sinalizador e as sirenes: a cada quadro)
 	if spot or _spot_drawn:
 		_spot_add.queue_redraw()
 	_spot_drawn = spot
@@ -880,6 +896,8 @@ func _events(delta: float) -> void:
 		_scene_t[k] = was + delta
 		if k == "chase" and Chase.footfalls(was, _scene_t[k]) > 0 and not Sfx.hushed():   # os passos da corrida na calçada
 			Sfx.play_at("footfall", x, 0.0, _rng.randf_range(0.9, 1.1))
+		if k == "flare" and was < Flare.RISE and _scene_t[k] >= Flare.RISE:
+			flare_lit.emit()
 		if k == "flyers" and Flyers.THROWS.any(func(at: float) -> bool: return was < at and _scene_t[k] >= at):   # cada maço jogado, os papéis batendo no ar
 			Sfx.play_at("flyers", x)
 		if k == "graffiti" and was >= Graffiti.SHAKE - delta:   # a lata sacudida e os jatos do spray
@@ -888,12 +906,21 @@ func _events(delta: float) -> void:
 				Sfx.play_at("rattle", x, -6.0, 1.6)
 			if tag >= Graffiti.SPRAY_AT and tag < Graffiti.SPRAY_END and floorf((was - Graffiti.SPRAY_AT) / SPRAY_EVERY) != floorf((tag - Graffiti.SPRAY_AT) / SPRAY_EVERY):
 				Sfx.play_at("spray", x, 0.0, _rng.randf_range(0.95, 1.05))
+		if k == "raid" and Raid.rear_slams().any(func(at: float) -> bool: return was < at and _scene_t[k] >= at):   # as portas do cofre batendo, chapa pesada
+			Sfx.play_at("car_door", x, 2.0, 0.72)
 		if k == "flare" and was <= 0.0:   # o tiro, longe
 			Sfx.play_at("flare", x, 0.0)
+		if k == "stone" and was < Stone.FLY and _scene_t[k] >= Stone.FLY:   # a pedra no vidro: a batida trincando e a janela chocalhando
+			Sfx.play_at("glass_hit", x)
+			Sfx.play_at("rattle", x, 2.0, 1.2)
 		if k == "paint" and was < Graffiti.SET_DOWN and _scene_t[k] >= Graffiti.SET_DOWN:   # o balde no chão
 			Sfx.play_at("set_metal", x, 6.0, 0.7)
+	var ct := minf(_scene_t.get("stone", -1.0), Stone.END)   # a pedra voando e caindo (a cada quadro) e o trincado (uma vez)
+	if ct != _crack_t:
+		_crack_t = ct
+		_crack.queue_redraw()
 	var scene := minutes >= beating - 3.0 and _beat_t < Beating.END
-	var quiet: bool = _scene_t.get("chase", INF) < Chase.END   # (a corrida atravessa a mão de lá: nenhum carro novo)
+	var quiet: bool = _scene_t.get("chase", INF) < Chase.END or _scene_t.get("raid", INF) < Raid.end()   # (a corrida atravessa a mão de lá, e a batida para a rua: nenhum carro novo)
 	for lane in CAR_LANES.size():   # um carro por vez em cada mão, cada uma no seu tempo
 		_car_in[lane] -= delta
 		if quiet:
@@ -958,7 +985,8 @@ func _events(delta: float) -> void:
 			if c.has("roar") and was < c["roar"].x and c["t"] >= c["roar"].x:   # (o devagar: o ronco de passagem só no meio)
 				Sfx.play_at("car_wet" if weather == "rain" else "car", x, -2.0, c["roar"].y)
 		if c["t"] >= 1.0:
-			_car_in[c["lane"]] = _rng.randf_range(CAR_EVERY.x, CAR_EVERY.y) * rare
+			if not _cars.any(func(o: Dictionary) -> bool: return not is_same(o, c) and o["lane"] == c["lane"]):   # (um carro por vez em cada mão: a batida traz dois)
+				_car_in[c["lane"]] = _rng.randf_range(CAR_EVERY.x, CAR_EVERY.y) * rare
 			_cars.remove_at(i)
 	var crowd := 0.0 if scene or minutes >= curfew else maxf(1.0 - clampf((minutes - WALK_FROM) / (WALK_UNTIL - WALK_FROM), 0.0, 1.0), morning())
 	_walk_in -= delta
@@ -1051,7 +1079,7 @@ func _events(delta: float) -> void:
 			_indoor.x = -1.0
 	for i in range(_walkers.size() - 1, -1, -1):
 		var w: Dictionary = _walkers[i]
-		if not _watch(w, delta) and not _hurry(w, delta) and not _listen(w, delta):
+		if not _watch(w, delta) and not _hurry(w, delta) and not _listen(w, delta) and not _skyward(w, delta):
 			w["t"] += delta / w["sec"]
 		if w["t"] >= 1.0 or w.get("in", 0.0) >= 1.0:
 			_walkers.remove_at(i)
@@ -1192,6 +1220,43 @@ func _listen(w: Dictionary, delta: float) -> bool:
 	return false
 
 
+## O sinalizador da noite 15 aceso em quem passa (`w`): ele está atrás dos prédios de lá, e só o vê quem está na luz
+## dele (`_flare_reach`): na rua do cruzamento, indo para o lado da igreja, e na boca dela; quem passa ali nota, no seu
+## tempo (`FLARE_REACT`), e, se ainda estiver na luz, para, vira para o lado dele e olha para o céu um tempo
+## (`FLARE_GAZE`, ou até ele apagar) e segue; o primeiro a parar aponta (`point`). Na frente dos prédios ninguém vê, nem
+## quem desce a rua do cruzamento, de costas para ele. Devolve se `w` está parado.
+func _skyward(w: Dictionary, delta: float) -> bool:
+	if w.get("bike", false) or w.get("dog", false) or w.has("hurry") or w.get("sky", 0.0) == INF:
+		return false
+	var ft: float = _scene_t.get("flare", -1.0)
+	var lit := Flare.light(ft) > 0.0
+	var at := _walk_at(w)
+	var x := at.x
+	var open: bool = _flare_reach(Flare.at(ft), x, at.y) > 0.5 and not (w.get("out", false) and at.y > float(w["z"]) + 0.01)
+	if not w.has("sky"):
+		if not lit or not open:
+			return false
+		w["sky"] = -_rng.randf_range(FLARE_REACT.x, FLARE_REACT.y)
+	w["sky"] += delta
+	if w["sky"] < 0.0:   # ainda andando: vê daqui a pouco
+		return false
+	if not w.has("up"):
+		if not lit or not open:   # (apagou, ou ele já passou da boca, antes de ver)
+			w["sky"] = INF
+			return false
+		w.merge({"look": 1.0, "up": true, "face": signf(Flare.at(ft).x - x) if Flare.at(ft).x != x else w["dir"],
+			"stay": _rng.randf_range(FLARE_GAZE.x, FLARE_GAZE.y)})
+		if not _walkers.any(func(o: Dictionary) -> bool: return o.has("point")):
+			w["point"] = true
+	w["stay"] -= delta
+	if w["stay"] > 0.0 and lit:
+		return true
+	for key: String in ["look", "face", "stay", "up", "point"]:
+		w.erase(key)
+	w["sky"] = INF   # (para uma vez só)
+	return false
+
+
 ## Para onde quem está na calçada olha agora (x, m; INF: nada): o carro de som passando, ou quem corre.
 func _focus_x() -> float:
 	for c in _cars:
@@ -1222,6 +1287,14 @@ func _scene_car_of(kind: String, x: float) -> Dictionary:
 			c.merge({"kind": Newsstand.CAR, "tones": Pal.CAR_TONES[5], "stop": true, "s": 0.0, "wait": Newsstand.wait(),
 				"slams": Newsstand.slams(), "z": PATROL_Z, "mid": Newsstand.CAR_MID, "lid": true})
 			_scene_t["newsstand"] = 0.0
+		"raid":   # o camburão, que encosta logo depois da porta do hotel, e a viatura atrás dele (chega `Raid.LATE` s depois)
+			c.merge({"kind": Raid.VAN, "tones": Pal.CAR_TONES[5], "raid": true, "raid_van": true, "stop": true, "s": 0.0, "wait": Raid.wait(0),
+				"slams": Raid.slams(0), "z": Raid.PARK.y, "mid": Raid.VAN_MID})   # (já vêm pela linha do meio-fio e só freiam: encostando no caminho, pareciam deslizar de lado)
+			var patrol := c.merged({"kind": Raid.PATROL, "police": true, "s": -Raid.LATE, "wait": Raid.wait(1), "slams": Raid.slams(1),
+				"mid": Raid.PATROL_MID, "spin": 370.0}, true)   # (a sirene no tempo dela)
+			patrol.erase("raid_van")
+			_cars.append(patrol)
+			_scene_t["raid"] = 0.0
 		"moving":   # a Kombi verde, que encosta no meio-fio na frente do hotel (`park`)
 			c.merge({"kind": Moving.CAR, "tones": Pal.CAR_TONES[3], "stop": true, "s": 0.0, "wait": Moving.wait(),
 				"slams": Moving.slams(), "z": Moving.PARK.x, "park": Moving.PARK, "mid": Moving.CAR_MID})
@@ -1239,10 +1312,10 @@ func left_behind(kind: String) -> void:
 ## Começa a cena `kind` (`scene_at`): a que vem de carro, ele é o próximo da mão de lá (com ela livre, já); a corrida,
 ## quando os carros que estão passando saírem (`_scene_t` negativo até lá).
 func _start_scene(kind: String) -> void:
-	if kind == "flare":   # (no céu: não espera a rua)
+	if kind in ["flare", "stone"]:   # (no céu, ou de quem não aparece: não espera a rua)
 		_scene_t[kind] = 0.0
 		return
-	if kind in ["speaker", "flyers", "newsstand", "parade", "moving"]:
+	if kind in ["speaker", "flyers", "newsstand", "parade", "moving", "raid"]:
 		_scene_car = kind
 		if _cars.all(func(c: Dictionary) -> bool: return c["lane"] != 0):
 			_car_in[0] = 0.0
@@ -2015,6 +2088,13 @@ func _window_light_list() -> Array:
 		var f := Flare.at(_scene_t["flare"])
 		var at := (_o(_city_rect, f.x, f.y, f.z) * 2.0).clamp(b.position, b.end)
 		out.append([(at / 4.0).round() * 4.0, Vector2(FLARE_LIGHT.x, FLARE_LIGHT.y * fk), Pal.SIGNAL_FLARE[1]])
+	if not _glass.is_empty():   # as sirenes paradas na rua, quando viram para nós: um clarão vermelho a cada volta
+		for b in _beacons():
+			var face := snappedf(maxf(0.0, cos(b.w)), 0.05) * (1.0 - _shut)
+			if face > 0.0:
+				var gb := PixelArt.bounds(_glass)
+				var at := (_o(_city_rect, b.x, b.y, b.z) * 2.0).clamp(gb.position, gb.end)
+				out.append([(at / 4.0).round() * 4.0, Vector2(BEACON_ROOM.x, BEACON_ROOM.y * face * face), Pal.BEACON])
 	for l: Array in _spills + _lifted_spills:
 		out.append([(l[0] as Rect2).get_center(), Vector2(l[2], DESK_LIGHT), l[1]])
 	if _sign_px != Vector2.ZERO and _sign_on() and not _behind_blind(Rect2(_sign_px, Vector2.ONE)):
@@ -2450,14 +2530,45 @@ func _draw_view_flare_glow() -> void:
 	_ci = self
 
 
-## A luz do holofote do toque de recolher (`_spot_add`), embaixo da frente da vista.
+## A beira da igreja e da cidade de longe acesa pelo sinalizador da noite 15 (`_flare_rim`), logo acima da `_back`.
+func _draw_view_flare_rim() -> void:
+	_ci = _flare_rim
+	_flare_rim.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	var g := Rect2(Vector2.ZERO, Vector2(_vport.size) / 2.0)
+	if not window_art:
+		_draw_flare_rim(Rect2(g.position, g.size - Vector2(0, _near)))
+	_ci = self
+
+
+## A luz do holofote do toque de recolher e a do sinalizador da noite 15 (`_spot_add`), embaixo da frente da vista.
 func _draw_view_beam() -> void:
 	_ci = _spot_add
 	_spot_add.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
 	var g := Rect2(Vector2.ZERO, Vector2(_vport.size) / 2.0)
 	if not window_art:
 		_draw_sweep_light(Rect2(g.position, g.size - Vector2(0, _near)))
+		_draw_flare_light(Rect2(g.position, g.size - Vector2(0, _near)))
+		_draw_beacon_light(Rect2(g.position, g.size - Vector2(0, _near)))
 	_ci = self
+
+
+## O vidro trincado pela pedra da noite 14 (`_crack`, `Stone`), em px da vista: ela voando da rua até o vidro e, depois
+## da batida, o trincado na parte esquerda dele, por cima dela quicando e caindo (ela está do lado de fora). Fora do `_pane`: o trincado não some com o dia (a noite 15).
+func _draw_view_crack() -> void:
+	var t: float = _scene_t.get("stone", -1.0)
+	if t < 0.0 or not _crack_box.has_area():
+		return
+	var s := Stone.at(t)
+	if s.z > 0.0:
+		var p := (_crack_box.position + _crack_box.size * Vector2(s.x, s.y)).round()
+		var d := maxi(1, roundi(s.z))
+		if d < 3:
+			_crack.draw_rect(Rect2(p, Vector2(d, d)), Pal.STONE[1])
+		else:   # perto: a luz da sala no alto dela
+			_crack.draw_texture(PixelArt.disc(d, [[d / 2.0, Pal.STONE[1], Pal.STONE[0], Pal.STONE[0]]], Vector2(0.3, -0.95)), (p - Vector2(d, d) / 2.0).floor())
+	if Stone.cracked(t):
+		var hit := (_crack_box.position + _crack_box.size * Stone.HIT).round()
+		_crack.draw_texture(Stone.art(), hit - Vector2(Stone.ART / 2))
 
 
 ## O vidro da vista (`_pane`), por cima dela e fora da luz do dia: o reflexo da sala, sumindo com o dia lá fora, e a
@@ -2549,7 +2660,7 @@ func _back_state() -> Array:
 	return [_vport.size, _near, weather, window_art, int(minutes), flick, lamp_level > 0.5, snappedf(_flash(), 0.02),
 		_sign_on(), stars, clouds, _moon_light(), snappedf(minutes, 0.5) if weather != "rain" and _moon_t() < 1.0 else 0.0,
 		snappedf(dawn(), 0.005), _posts_on(), Newsstand.state(_scene_t.get("newsstand", -1.0)).snapped(Vector3(0.05, 0.01, 1.0)),
-		Moving.laundry(_scene_t.get("moving", -1.0)), _apt_gone()]   # (a lua e o sol subindo: meio minuto, ~0,6 px)
+		Moving.laundry(_scene_t.get("moving", -1.0)), _apt_gone(), Raid.floors(_scene_t.get("raid", -1.0))]   # (a lua e o sol subindo: meio minuto, ~0,6 px)
 
 
 ## À noite, com a sala acesa, o vidro reflete um pouco dela, por cima da cidade (e da silhueta, que fica atrás do
@@ -2670,8 +2781,9 @@ func _draw_switchboard() -> void:
 			for j in range(2, 5):   # o risco de posição, pixel a pixel
 				draw_rect(Rect2((c + Vector2(cos(a), sin(a)) * j).floor(), Vector2.ONE), Pal.BOARD_INK)
 	draw_rect(Rect2(b.position.x, b.end.y, b.size.x, 3), SHELL[2])
-	_poly(PackedVector2Array([Vector2(b.position.x, b.end.y + 3), Vector2(b.end.x, b.end.y + 3),
-		Vector2(b.end.x + 2, b.end.y + 7), Vector2(b.position.x - 3, b.end.y + 7)]), Color(0, 0, 0, 0.3))
+	var lip := func(y: float) -> float: return floorf(lerpf(b.end.x, fx1, (y - b.end.y) / (sy - b.end.y)))   # a ponta da prateleira na linha `y` (por baixo: arredondada, sobrava 1 px)
+	_poly(PackedVector2Array([Vector2(b.position.x, b.end.y + 3), Vector2(lip.call(b.end.y + 3), b.end.y + 3),
+		Vector2(lip.call(b.end.y + 7), b.end.y + 7), Vector2(b.position.x - 3, b.end.y + 7)]), Color(0, 0, 0, 0.3))   # (até a ponta da prateleira: passando dela, caía na lateral, um triângulo escuro)
 	if b.position.y > vp.y + 1.0:   # os olhos estão acima do painel: o tampo dele aparece
 		var r := Switchboard.SHELL_R
 		var tl := b.position + Vector2(r, 0)
@@ -2757,6 +2869,12 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	_view_at = view.position
 	# o vidro que aparece começa abaixo da persiana (e da borda de cima da tela): as gotas ficam dali para baixo
 	_glass_from = clampf((maxf(0.0, _side_pt(Vector2(gw * 0.5, blind)).y) - view.position.y) / view.size.y, 0.0, 0.95)
+	var vb := PixelArt.bounds(q)   # o vidro que aparece abaixo da persiana, até o peitoril de longe, em px da vista: onde a pedra bate
+	var gy := maxf(vb.position.y, view.position.y + view.size.y * _glass_from)
+	var cb := Rect2((Vector2(vb.position.x, gy) - view.position) * 2.0, Vector2(minf(vb.end.x, w) - vb.position.x, low - gy) * 2.0)
+	if cb != _crack_box:
+		_crack_box = cb
+		_crack.queue_redraw()
 	var hy := -_cm(WIN_TOP)   # o horizonte no vão: o ponto de fuga lá fora fica nele
 	var near_x := minf(_side_pt(Vector2(gw, hy)).x, w)   # o batente de perto, ou a borda da tela
 	var out_x := roundf(lerpf(_side_pt(Vector2(0, hy), WALL_D).x, near_x, OUT_AT) - view.position.x)

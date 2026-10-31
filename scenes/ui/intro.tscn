@@ -92,14 +92,6 @@ focus_mode = 0
 theme_type_variation = &"DarkButton"
 text = "SKIP_TRAINING"
 
-[node name="Reset" type="Button" parent="Bottom/Buttons"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-size_flags_horizontal = 0
-focus_mode = 0
-theme_type_variation = &"DarkButton"
-text = "RESTART_FIRST_NIGHT"
 
 [node name="Info" type="RichTextLabel" parent="Bottom"]
 unique_name_in_owner = true

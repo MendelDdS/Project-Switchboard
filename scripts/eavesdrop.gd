@@ -309,7 +309,14 @@ func _talk(t: Talk) -> void:
 ## ela fica sublinhada.
 func _clue(ear: PhoneCall, li: int, word: String, kind: String) -> void:
 	var c := call_of(ear.line)
-	if c == null or clues.any(func(k: Clue): return k.call == c and k.word == word):
+	if c != null:
+		note(c, ear, li, word, kind)
+
+
+## Anota a palavra-chave `word` (`kind`) dita na ligação `c` (a escutada ou a que o operador fez pelo discador, das
+## respostas do lugar, `Conversation.say`), sublinhada na fala `li` da transcrição `ear`.
+func note(c: PhoneCall, ear: PhoneCall, li: int, word: String, kind: String) -> void:
+	if clues.any(func(k: Clue): return k.call == c and k.word == word):
 		return
 	var k := Clue.new()
 	k.word = word

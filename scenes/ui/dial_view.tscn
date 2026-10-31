@@ -1,0 +1,162 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/dial_view.gd" id="1_dial"]
+[ext_resource type="Script" path="res://scripts/ui/screen_glass.gd" id="2_glass"]
+
+[node name="DialView" type="MarginContainer"]
+visible = false
+z_index = 50
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+script = ExtResource("1_dial")
+
+[node name="Body" type="HBoxContainer" parent="."]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="Head" type="VBoxContainer" parent="Body"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Screen" type="PanelContainer" parent="Body/Head"]
+layout_mode = 2
+custom_minimum_size = Vector2(136, 54)
+mouse_filter = 2
+theme_type_variation = &"HudPanel"
+
+[node name="Readout" type="Control" parent="Body/Head/Screen"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Glass" type="Control" parent="Body/Head/Screen"]
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_glass")
+
+[node name="Lamp" type="Control" parent="Body/Head"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+
+[node name="Keys" type="GridContainer" parent="Body"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
+columns = 3
+
+[node name="K1" type="Button" parent="Body/Keys"]
+custom_minimum_size = Vector2(30, 24)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DigitKey"
+text = "1"
+auto_translate_mode = 2
+
+[node name="K2" type="Button" parent="Body/Keys"]
+custom_minimum_size = Vector2(30, 24)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DigitKey"
+text = "2"
+auto_translate_mode = 2
+
+[node name="K3" type="Button" parent="Body/Keys"]
+custom_minimum_size = Vector2(30, 24)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DigitKey"
+text = "3"
+auto_translate_mode = 2
+
+[node name="K4" type="Button" parent="Body/Keys"]
+custom_minimum_size = Vector2(30, 24)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DigitKey"
+text = "4"
+auto_translate_mode = 2
+
+[node name="K5" type="Button" parent="Body/Keys"]
+custom_minimum_size = Vector2(30, 24)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DigitKey"
+text = "5"
+auto_translate_mode = 2
+
+[node name="K6" type="Button" parent="Body/Keys"]
+custom_minimum_size = Vector2(30, 24)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DigitKey"
+text = "6"
+auto_translate_mode = 2
+
+[node name="K7" type="Button" parent="Body/Keys"]
+custom_minimum_size = Vector2(30, 24)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DigitKey"
+text = "7"
+auto_translate_mode = 2
+
+[node name="K8" type="Button" parent="Body/Keys"]
+custom_minimum_size = Vector2(30, 24)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DigitKey"
+text = "8"
+auto_translate_mode = 2
+
+[node name="K9" type="Button" parent="Body/Keys"]
+custom_minimum_size = Vector2(30, 24)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DigitKey"
+text = "9"
+auto_translate_mode = 2
+
+[node name="Dial" type="Button" parent="Body/Keys"]
+custom_minimum_size = Vector2(30, 24)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"CallKey"
+icon_alignment = 1
+
+[node name="K0" type="Button" parent="Body/Keys"]
+custom_minimum_size = Vector2(30, 24)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DigitKey"
+text = "0"
+auto_translate_mode = 2
+
+[node name="End" type="Button" parent="Body/Keys"]
+custom_minimum_size = Vector2(30, 24)
+layout_mode = 2
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"EndKey"
+icon_alignment = 1

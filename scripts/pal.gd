@@ -108,6 +108,9 @@ const KEY_CAP: Array[Color] = [Color("12394a"), Color("1d5a72"), Color("2b7e9c")
 ## A tecla REC do gravador de fitas (B4), de plástico vermelho como as teclas vermelhas do console (`RedKey`, `RED`): a
 ## beira funda, afundada, a frente e a quina na luz.
 const REC_CAP: Array[Color] = [Color("6e1a12"), Color("a3382a"), Color("d4553f"), Color("ea8a72")]
+## A tecla Discar do discador (`Dialer` e, de perto, a variação `CallKey` do tema, no tom [2]): verde, do escuro ao claro
+## (a Encerrar é a vermelha do REC, `REC_CAP`, a mesma do Desligar do console).
+const CALL_CAP: Array[Color] = [Color("1f3d1b"), Color("3d6b34"), Color("5e9b52"), Color("86bd77")]
 const KEY_GLOW := Color("7fd3e6")   ## a tecla presa, acesa por dentro: plástico fosco, uma cor só
 ## A quina do níquel descendo até o painel (`Switchboard.NICKEL_EDGE`): na luz, no meio e na sombra.
 const NICKEL_EDGE: Array[Color] = [Color("63675a"), Color("4a4f42"), Color("353a2e")]
@@ -355,9 +358,8 @@ const AWNINGS: Array[Color] = [Color("4a1c1c"), Color("1e3a2c"), Color("2a3048")
 const SHOP_BOARD := Color("1a1410")   ## a tábua da placa em cima da vitrine, com as letras só sugeridas (`_draw_far_house`)
 const SHOP_PAINT := Color("6a665e")   ## a tinta clara, desbotada, das lojas da rua do cruzamento: as listras dos toldos e as letras das placas de bandeira
 const SILHOUETTE := Color("07090c")  ## ...quem fica em silhueta (o homem do mistério, o passageiro do táxi, quem fuma na varanda, o ciclista)...
-const CLERK := Color("120a06")       ## ...o recepcionista no telefone do hotel, contra a porta acesa...
-const BAR_FIGURE := Color(0.17, 0.09, 0.04, 0.9)   ## ...quem está no bar, contra o salão aceso (no telefone e no balcão)...
 const CAT := Color("0b0c0f")         ## ...e o gato preto
+const CLERK_COAT := Color("3a2a3c")   ## a farda do hotel: o recepcionista no telefone e o porteiro na porta, de manhã (`_draw_backlit`)
 ## Os carros: uma rampa por cor de lataria, de noite (escurecida; o tom dela em `CAR_MID`): a sombra fria embaixo e
 ## dentro (o arco da roda, o fundo da caçamba, a frente e a traseira), a luz quente na beira do para-lama...
 const CAR_TONES := [
@@ -387,7 +389,16 @@ const TAXI_SIGN := Color("f0d88a")  ## ...e a placa acesa do táxi
 const BEACON := Color("ff2a1e")
 const BEACON_GLASS: Array[Color] = [Color("3a0c0c"), Color("6a1612")]
 const PATROL_DOOR := Color("6e6c66")
+## A pedra da noite 14 (`Stone`): ela (a sombra e a luz da sala nela, chegando no vidro) e o vidro trincado, pegando a luz
+const STONE: Array[Color] = [Color("4a4743"), Color("8c877d")]
+const GLASS_CRACK := Color("d8e2e6")
 const PATROL_INK := Color("15181e")
+## A batida no hotel (`Background`, `Raid`): o cofre do camburão, de chapa branca (a rampa, como as dos carros: o tom em
+## `CAR_MID`), as grades da janelinha dele e as roupas dos presos (camisas e calças, pegos de noite no hotel)
+const RAID_BOX: Array[Color] = [Color("0e1216"), Color("13171a"), Color("1b1e20"), Color("262829"), Color("4a4c4a"), Color("5c5c58"), Color("6e6c66"), Color("807c74")]
+const RAID_GRILLE := Color("0a0c0e")
+const RAID_SHIRTS: Array[Color] = [Color("7a766a"), Color("3a4658"), Color("5a3a2c"), Color("6a6248"), Color("2e3a30")]
+const RAID_PANTS: Array[Color] = [Color("24242a"), Color("2e2a22"), Color("3a3e48")]
 ## O carro de som (`Background.SPEAKER_*`): o cartaz na porta (o papel, e o brasão redondo: o aro e o miolo, em tinta
 ## escura, e o campo claro entre eles) e as cornetas no teto, de chapa pintada (o fundo da boca, o corpo e o aro na
 ## luz), escuras contra o teto claro da Kombi

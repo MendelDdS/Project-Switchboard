@@ -24,8 +24,9 @@ func _mouse(e: InputEventMouse, at: Vector2) -> void:
 func _initialize() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	var app: Control = load("res://scenes/app.tscn").instantiate()
-	var m: Main = app.get_node("Box/View/Main")
+	var m: Main = load("res://scenes/main.tscn").instantiate()   # (já no jogo: o `GameView` só põe a tela inicial com a tela vazia)
 	m.night_no = 1
+	app.get_node("Box/View").add_child(m)
 	get_tree().root.add_child(app)
 	get_tree().current_scene = app
 	await frames(3)
@@ -102,5 +103,13 @@ func _initialize() -> void:
 	(m.find_child("RestartNight", true, false) as Button).grab_focus()
 	await _key(KEY_ENTER)
 	ok(not is_instance_valid(app) and get_tree().current_scene.scene_file_path == "res://scenes/app.tscn", "Recomeçar troca a cena")
+	# fora do jogo (`GameView.playing`, que só a tela inicial liga), a cena abre na tela inicial: o menu e os créditos
+	var title: Control = get_tree().current_scene.get_node("Box/View").get_child(0)
+	ok(title.scene_file_path == "res://scenes/title_screen.tscn" and (title.get_node("%Load") as Button).visible == FileAccess.file_exists(Progress.PATH),
+		"sem ter jogado, a tela inicial (Carregar só com jogo salvo)")
+	(title.get_node("%Credits") as Button).pressed.emit()
+	ok((title.get_node("%Shade") as Control).visible and not (title.get_node("%Erase") as Button).visible, "Créditos abre o papel, sem o Apagar")
+	await _key(KEY_ESCAPE)
+	ok(not (title.get_node("%Shade") as Control).visible, "Esc fecha o papel")
 	get_tree().current_scene.free()
 	finish("teclas pelo GameView")

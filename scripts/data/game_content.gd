@@ -6,6 +6,8 @@ extends Resource
 ## Moldes (data/templates/) são roteiros com lacunas em inglês, preenchidas na hora (veja GameData.fill).
 ## Cada noite (data/nights/) tem o próprio roteiro fixo (veja Night); o ritmo vem dos níveis (`paces`).
 
+const DialCall := preload("res://scripts/data/dial_call.gd")
+
 @export_group("Lista telefônica e cidade")
 ## Em ordem alfabética (é a ordem da lista telefônica).
 @export var directory: Array[DirectoryEntry] = []
@@ -72,6 +74,11 @@ extends Resource
 @export var alt_accepted: PackedStringArray = []
 ## Quando o destino errado atende.
 @export var wrong_destination: PackedStringArray = []
+## Quando o operador liga (o discador) e encerra: a despedida de quem atendeu, se o lugar não tem a dele
+## (`DirectoryEntry.bye`).
+@export var dial_byes: PackedStringArray = []
+## As ligações que o roteiro espera que o operador faça em qualquer noite (`DialCall`; as de uma noite só, `Night.dial`).
+@export var dial: Array[DialCall] = []
 
 ## A telefonista da outra cidade atende o tronco (o operador então passa o número)...
 @export var trunk_hello: PackedStringArray = []

@@ -1,7 +1,7 @@
 class_name Tools
 extends VBoxContainer
 ## Ferramentas à direita da mesa: lista telefônica, mapa e despacho (a unidade de despacho), caderno, o registro das
-## conversas e o calculógrafo dos interurbanos. Ficam guardadas e a janela aparece no lugar delas; os objetos da mesa (`Background.prop_clicked`) ou as
+## conversas e o calculógrafo dos interurbanos (o discador abre por cima da mesa comutadora, `DialView`). Ficam guardadas e a janela aparece no lugar delas; os objetos da mesa (`Background.prop_clicked`) ou as
 ## teclas 1 a 4 (Main.TAB_KEYS) abrem a ferramenta: o papel sai do objeto dela na mesa (`origin`) e vem para a frente do
 ## operador, com a forma do objeto (`PaperDeco`), e volta para ele ao guardar. Sem abas: para trocar, o objeto da mesa
 ## ou a tecla (as abas repetiam os objetos e tomavam altura do papel). A tecla da aberta ou Esc guardam. O jornal da

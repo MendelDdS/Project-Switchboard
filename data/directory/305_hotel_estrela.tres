@@ -1,6 +1,8 @@
 [gd_resource type="Resource" script_class="DirectoryEntry" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
 [ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
 
 [sub_resource type="Resource" id="Motive_25"]
@@ -13,6 +15,46 @@ script = ExtResource("2_motive")
 text = "Quero saber se ainda tem quarto vago pra amanhã."
 talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Queria reservar um quarto pra amanhã. Ainda tem vago?", "Amanhã está quase cheio. Sobrou um de casal, nos fundos.", "Serve. São {nights}, a partir de amanhã.", "{nights}. Vou anotar aqui no livro.", "Chego no ônibus da tarde. Posso pagar quando chegar?", "Pode, sim. Só não passe das {hour}, que a portaria fecha."), PackedStringArray("Boa noite. Amanhã chega um parente meu de viagem. Tem quarto?", "Pra amanhã tem, sim. Quantas pessoas?", "Uma só. Fica {nights}.", "Fica no quarto da frente, com janela pra rua.", "Pode deixar no meu nome? Eu passo aí pra acertar.", "Deixo. Pode passar a qualquer hora pra acertar.")])
 
+[sub_resource type="Resource" id="Answer_0_0"]
+script = ExtResource("9_reply")
+text = "Tem quarto vago esta noite?"
+follow = "Tem dois no terceiro andar. É só chegar antes da meia-noite."
+
+[sub_resource type="Resource" id="Answer_0_1"]
+script = ExtResource("9_reply")
+text = "A portaria fecha a que horas?"
+follow = "Não fecha. Depois da meia-noite, é só tocar a campainha."
+
+[sub_resource type="Resource" id="Answer_0_2"]
+script = ExtResource("9_reply")
+text = "Quanto custa o pernoite?"
+follow = "Quarenta cruzeiros, com café da manhã."
+
+[sub_resource type="Resource" id="Answer_0"]
+script = ExtResource("8_chat")
+line = "Hotel Estrela, boa noite. Em que posso ajudar?"
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_0_0"), SubResource("Answer_0_1"), SubResource("Answer_0_2")])
+
+[sub_resource type="Resource" id="Answer_1_0"]
+script = ExtResource("9_reply")
+text = "O restaurante ainda está servindo?"
+follow = "Só até as nove. Agora, só o café da recepção."
+
+[sub_resource type="Resource" id="Answer_1_1"]
+script = ExtResource("9_reply")
+text = "Chegou algum hóspede de fora hoje?"
+follow = "Isso eu não posso dizer pelo telefone, desculpe."
+
+[sub_resource type="Resource" id="Answer_1_2"]
+script = ExtResource("9_reply")
+text = "Tudo tranquilo por aí?"
+follow = "Tudo calmo. Só o letreiro da fachada que anda piscando."
+
+[sub_resource type="Resource" id="Answer_1"]
+script = ExtResource("8_chat")
+line = "Estrela, recepção. Pois não?"
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_1_0"), SubResource("Answer_1_1"), SubResource("Answer_1_2")])
+
 [resource]
 script = ExtResource("1_entry")
 name = "Hotel Estrela"
@@ -22,3 +64,4 @@ hello = "Hotel Estrela, boa noite."
 category = "hospedagem"
 spoken = "o Hotel Estrela"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_25"), SubResource("Motive_26")])
+answers = Array[ExtResource("8_chat")]([SubResource("Answer_0"), SubResource("Answer_1")])

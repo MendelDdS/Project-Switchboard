@@ -746,6 +746,10 @@ curva, outro caminho), mostre antes como proposta e pergunte, não entregue como
 - **Obstáculo que aparece embaixo de um fio esticado.** Os pinos (`Cord.pegs`) supunham que o fio chega ao plug pelo
   lado; um plug encaixado bem sob um fio esticado o prendia por dentro, batendo sem parar (o usuário viu). Todo
   obstáculo novo da física tem que ser testado aparecendo *debaixo* do que já está parado, não só no caminho.
+- **Obstáculo de fio só apoia por cima.** Os plugs encaixados seguravam o fio de qualquer lado; o de cima, esticado,
+  enganchou por baixo do plug de baixo e tremia sem parar (o usuário viu "o fio se mexendo loucamente"). Um plug que
+  sai do painel não prende um fio puxado contra ele por baixo: o fio escorrega pela ponta. Obstáculo de corda que
+  segura de baixo para cima é laço; confira as capturas com o fio passando por baixo de um plug, não só por cima.
 - **Profundidade que não se vê não existe.** A paralaxe dos plugs encaixados estava "estilizada" em 0,014 px por px
   (no máximo ~8 px, quase sempre 1–2) e o usuário não via nada; um colar de metal discreto também não resolveu. Ao
   ajustar um efeito de profundidade, compare as pontas (o mais perto e o mais longe dos olhos) lado a lado na captura:
@@ -814,3 +818,33 @@ curva, outro caminho), mostre antes como proposta e pergunte, não entregue como
   céu vira um disco de beira marcada. Luz que precisa parecer luz: miolo estourando no branco, halo liso somado
   (imagem montada pixel a pixel, força no `modulate`), estouro ao acender, cintilação irregular, e o efeito dela na
   sala (a janela projetada, pela camada do sol). Foram três tentativas até o usuário aceitar a direção.
+- **Antes de dizer que um efeito não aparece, confira ampliado.** Sugeri que a janela vermelha do sinalizador quase não
+  aparecia na sala, olhando a tela inteira; ampliado, com e sem ele, ela estava nítida no tampo e no peitoril. Na
+  tela inteira, um efeito vermelho escuro sobre a madeira escura some: compare o mesmo recorte com e sem o efeito.
+- **Efeito de impacto precisa de causa física.** No encaixe do plug pus um brilho em estrela na boca da tomada (o
+  reflexo do metal); o usuário leu como faísca e tirou: "não faz sentido". Numa interação física, o impacto vem do
+  movimento (aceleração, batida, repique), da sombra, do entorno que pula e do som; luz só onde algo acende de verdade.
+  E animação de 4 quadros não se vê: dê tempo ao movimento principal (o giro, a chegada) antes da batida.
+- **Analise a peça antes de desenhar: o plug encaixado.** No menu, desenhei o FONE de perto como um tubo reto com a
+  faixa verde embaixo da cabeça e a capa toda em frisos; corrigido com uma foto, refiz a capa inteira em anéis, e
+  errei de novo. O plug tem partes, cada uma no lugar dela: a ponta de metal, o corpo duro com a faixa do cabo junto
+  da tomada, o cotovelo (só a dobra, uma mola de borracha de poucos anéis, com o fio à mostra nas frestas) e a capa
+  lisa até o fio. Antes de redesenhar uma peça que já existe no jogo, leia como o jogo a monta (`Switchboard._elbow`,
+  o comentário dele descreve a anatomia) e reaproveite o modelo (o tubo em 3D pelo eixo), não reinvente em 2D.
+  Com uma imagem melhor veio a terceira correção: a cabeça é curta, a dobra inteira é mola (sulcos finos, sem o fio à
+  mostra) e acaba num colarinho reto, sem capa comprida. Peça descrita por foto: compare proporção por proporção
+  (comprimento de cada parte, largura do fio) antes de mostrar, não só a lista das partes.
+- **Relevo pequeno num tubo 3D vem da forma, não da tinta.** Os sulcos da mola pintados como faixas escuras num tubo
+  liso pareciam listras, e o tubo feito de esferas pelo eixo não consegue ter sulco (a esfera vizinha tapa). Montado
+  em anéis de pontos na superfície (`title_board.gd`, `_fone_art`), com o raio ondulando e a normal inclinada junto, a
+  luz faz o anel e a beira sai recortada. Pontos espalhados deixam furos: passo menor que o pixel, descarte da parede
+  de dentro e um tapa-furos.
+- **Foto de referência mostra a forma; a proporção é a do jogo.** Seguindo a foto do plug, engrossei o cotovelo e o
+  fio, e o usuário corrigiu: "não segue o que mostra na gameplay". Na versão de perto de uma peça do jogo, as medidas
+  são as dela em escala (`Switchboard.ELBOW_*`, `JACK_RINGS`, a largura do fio); da foto, só o feitio (a mola, o
+  colarinho). Compare a captura de perto com uma do jogo lado a lado antes de mostrar.
+  O mesmo vale para o texto: no painel de perto deixei as legendas na fonte de 11 enquanto o resto ia a 3×, e a
+  chapa do banco com a letra e o aviso num canto; o usuário notou as duas. Ampliou a peça, amplie as letras e mantenha
+  a disposição dela (a fonte em dobro com relevo, `PixelArt.big`, é o tamanho das miúdas da mesa em 3×).
+  E use as mesmas peças: na chapa do banco troquei a letra estampada (`PLATE_LETTERS`) e o estêncil (`PixelArt.tiny`)
+  pela fonte do jogo, e "ainda não condiz". Peça com desenho próprio no jogo vai de perto com aquele desenho ampliado.

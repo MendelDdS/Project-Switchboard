@@ -350,7 +350,7 @@ func _voice_line(v: String) -> void:
 func _build_basic() -> void:
 	_begin(0.05); _tone(0, 1900, 0.02, "square", 0.3); _noise(0, 0.02, "bp", 4000, 1, 0.8); _end("click")
 	_begin(0.06); _tone(0, 700, 0.03, "square", 0.3); _noise(0, 0.03, "bp", 2500, 1, 1.0); _end("sw")
-	_begin(0.16); _noise(0, 0.06, "lp", 1400, 0.7, 1.0); _tone(0, 85, 0.12, "sine", 0.8); _tone(0.03, 1600, 0.02, "square", 0.08); _end("plug_in")
+	_begin(0.16); _noise(0, 0.006, "bp", 5200, 1.2, 0.5); _tone(0, 2750, 0.06, "sine", 0.1, 0.001); _noise(0, 0.06, "lp", 1400, 0.7, 1.0); _tone(0, 85, 0.12, "sine", 0.8); _tone(0.03, 1600, 0.02, "square", 0.08); _end("plug_in")   # o estalo do metal na mola da tomada e o baque
 	_begin(0.08); _noise(0, 0.04, "bp", 3200, 1, 1.0); _tone(0, 240, 0.05, "sine", 0.35); _end("plug_out")
 	_begin(0.05); _tone(0, 1100, 0.03, "square", 0.25); _noise(0, 0.02, "hp", 3000, 0.7, 0.5); _end("key")
 	_begin(0.36); _noise(0, 0.28, "bp", 2400, 0.6, 1.0); _noise(0.2, 0.12, "lp", 600, 0.7, 0.8); _end("page")
@@ -376,6 +376,18 @@ func _build_basic() -> void:
 		_w[i] = (sin(TAU * 425.0 * t) + 0.15 * sin(TAU * 850.0 * t) + _rng.randf_range(-0.02, 0.02)) * env
 	_w = _biquad(_biquad(_w, "hp", 300.0, 0.7), "lp", 3000.0, 0.7)
 	_end("ringback")
+	# o discador (`Dialing`): o bipe suave de cada tecla (o tom muda com o algarismo, no `pitch`), o bipe grave de
+	# quando ela não entra, a central puxando o número (cliques rápidos, pela linha) e o ocupado (425 Hz, cortado)
+	_begin(0.1); _tone(0, 1180, 0.075, "sine", 0.35, 0.006); _tone(0, 2360, 0.04, "sine", 0.05); _end("dial_key")
+	_begin(0.14); _tone(0, 330, 0.11, "sine", 0.4, 0.008); _tone(0, 660, 0.06, "sine", 0.06); _end("dial_full")
+	_begin(0.55)
+	for i in 7:
+		_tone(i * 0.07, 900, 0.012, "square", 0.12); _noise(i * 0.07, 0.01, "bp", 2200, 1, 0.3)
+	_end("dial_pulse", true)
+	_begin(1.5)
+	for i in 3:
+		_tone(i * 0.5, 425, 0.25, "sine", 0.6, 0.01); _tone(i * 0.5, 850, 0.25, "sine", 0.08, 0.01)
+	_end("busy", true)
 	_begin(1.05)
 	for i in 3:
 		_tone(i * 0.33, [950.0, 1400.0, 1800.0][i], 0.3, "sine", 0.6, 0.01)
@@ -628,6 +640,21 @@ func _build_outside() -> void:
 		_noise(t0, 0.02, "bp", 900.0, 4.0, g * 0.4)
 		t0 += _rng.randf_range(0.015, 0.04)
 	_end("rattle")
+	_begin(0.6)   # a pedra no vidro (`Stone`), aqui do lado: a batida seca, o vidro cedendo grave, o trincado correndo em
+	_tone(0.0, 140.0, 0.1, "sine", 1.0)   # estalinhos e o vidro vibrando, com dois grãos caindo no peitoril
+	_tone(0.0, 75.0, 0.14, "sine", 0.6)
+	_tone(0.0, 1900.0, 0.04, "sine", 0.6, 0.001)
+	_noise(0.0, 0.04, "bp", 2600.0, 1.0, 1.2)
+	_noise(0.0, 0.025, "lp", 900.0, 0.7, 0.8)
+	var t3 := 0.008
+	while t3 < 0.2:
+		_noise(t3, _rng.randf_range(0.003, 0.009), "bp", _rng.randf_range(3000.0, 6500.0), 2.5, _rng.randf_range(0.4, 0.9) * (1.0 - t3 / 0.2))
+		t3 += _rng.randf_range(0.006, 0.02)
+	_tone(0.01, 880.0, 0.45, "sine", 0.12)
+	_tone(0.01, 1310.0, 0.3, "sine", 0.07)
+	for at: float in [0.24, 0.37]:
+		_tone(at, _rng.randf_range(4500.0, 6500.0), 0.04, "sine", 0.12, 0.001)
+	_end("glass_hit")
 	_begin(0.12)   # um passo de corrida na calçada: a sola batendo (o baque) e o raspar no cimento
 	_tone(0.0, 95.0, 0.05, "sine", 0.7)
 	_noise(0.0, 0.03, "bp", 1400.0, 1.2, 0.6)

@@ -1,6 +1,8 @@
 [gd_resource type="Resource" script_class="DirectoryEntry" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
 [ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
 
 [sub_resource type="Resource" id="Motive_10"]
@@ -13,6 +15,36 @@ script = ExtResource("2_motive")
 text = "Esqueci meu guarda-chuva na sessão das oito."
 talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Esqueci um guarda-chuva na sessão das oito.", "O lanterninha recolheu uns três hoje. Como é o seu?", "{color}, com o cabo de madeira curvado.", "Tem um assim aqui na bilheteria.", "Ainda bem. Posso buscar amanhã?", "Pode. É só pedir na bilheteria."), PackedStringArray("Boa noite. Deixei meu guarda-chuva na poltrona, na sessão das oito.", "Em que fileira você sentou?", "Lá no fundo, perto da porta.", "O lanterninha achou um {color} lá atrás.", "Deve ser o meu. Posso buscar amanhã?", "Pode. Fica guardado na bilheteria.")])
 
+[sub_resource type="Resource" id="Answer_0_0"]
+script = ExtResource("9_reply")
+text = "Que filme está passando hoje?"
+follow = "Um faroeste italiano. A última sessão começa às nove e meia."
+
+[sub_resource type="Resource" id="Answer_0_1"]
+script = ExtResource("9_reply")
+text = "Quanto é o ingresso?"
+follow = "Quatro cruzeiros. Estudante paga meia, com a carteirinha."
+
+[sub_resource type="Resource" id="Answer_0"]
+script = ExtResource("8_chat")
+line = "Cine Odeon, boa noite."
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_0_0"), SubResource("Answer_0_1")])
+
+[sub_resource type="Resource" id="Answer_1_0"]
+script = ExtResource("9_reply")
+text = "Ainda tem lugar na última sessão?"
+follow = "Tem, sim. A plateia de baixo está quase vazia."
+
+[sub_resource type="Resource" id="Answer_1_1"]
+script = ExtResource("9_reply")
+text = "Alguém esqueceu alguma coisa aí hoje?"
+follow = "Um guarda-chuva preto e uma luva. Está tudo aqui na bilheteria."
+
+[sub_resource type="Resource" id="Answer_1"]
+script = ExtResource("8_chat")
+line = "Odeon, bilheteria."
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_1_0"), SubResource("Answer_1_1")])
+
 [resource]
 script = ExtResource("1_entry")
 name = "Cine Odeon"
@@ -21,3 +53,5 @@ number = "344"
 hello = "Cine Odeon, boa noite."
 spoken = "o Cine Odeon"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_10"), SubResource("Motive_11")])
+answers = Array[ExtResource("8_chat")]([SubResource("Answer_0"), SubResource("Answer_1")])
+closes = 330.0

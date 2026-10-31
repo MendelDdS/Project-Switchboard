@@ -21,6 +21,9 @@
 [ext_resource type="Script" path="res://scripts/ui/scene_view.gd" id="41_scene_view"]
 [ext_resource type="PackedScene" path="res://scenes/ui/equipment/pilha_fitas.tscn" id="42_tape_pile"]
 [ext_resource type="Script" path="res://scripts/ui/badges.gd" id="43_badges"]
+[ext_resource type="Script" path="res://scripts/dialing.gd" id="44_dialing"]
+[ext_resource type="Script" path="res://scripts/ui/dialer.gd" id="45_dialer"]
+[ext_resource type="PackedScene" path="res://scenes/ui/dial_view.tscn" id="46_dial_view"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_4"]
 blend_mode = 1
@@ -168,6 +171,16 @@ layout_mode = 0
 mouse_filter = 1
 script = ExtResource("43_badges")
 
+[node name="Dialer" type="Control" parent="Layout/Rows/Columns/Left/Board"]
+unique_name_in_owner = true
+layout_mode = 0
+mouse_filter = 1
+script = ExtResource("45_dialer")
+
+[node name="DialView" parent="Layout/Rows/Columns/Left/Board/Dialer" instance=ExtResource("46_dial_view")]
+unique_name_in_owner = true
+layout_mode = 0
+
 [node name="Shelf" type="HBoxContainer" parent="Layout/Rows/Columns/Left"]
 custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
@@ -301,6 +314,10 @@ script = ExtResource("23_urgency")
 [node name="Eavesdrop" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("25_eavesdrop")
+
+[node name="Dialing" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("44_dialing")
 
 [node name="Training" type="Node" parent="."]
 unique_name_in_owner = true

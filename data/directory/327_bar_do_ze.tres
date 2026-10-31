@@ -1,6 +1,8 @@
 [gd_resource type="Resource" script_class="DirectoryEntry" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
 [ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
 
 [sub_resource type="Resource" id="Motive_03"]
@@ -18,6 +20,42 @@ script = ExtResource("2_motive")
 text = "Quero saber se o jogo ainda tá passando na televisão de lá."
 talks = Array[PackedStringArray]([PackedStringArray("Boa noite. O jogo ainda está passando aí na televisão?", "Está no segundo tempo. Todo mundo grudado na tela.", "E o placar, como está?", "{score}. Quase saiu um gol agora há pouco.", "Guarda uma cadeira pra mim, que eu estou indo aí.", "Vem logo, que aqui não cabe mais ninguém."), PackedStringArray("Boa noite. O jogo já acabou aí?", "Acabou agora. Ficou {score}.", "E o pessoal, está todo mundo bravo?", "Uns comemorando, outros xingando o juiz.", "Então nem vou aí hoje.", "Faz bem. Hoje a discussão está feia.")])
 
+[sub_resource type="Resource" id="Answer_0_0"]
+script = ExtResource("9_reply")
+text = "O jogo ainda está passando aí?"
+follow = "Está no segundo tempo, zero a zero. Uma tristeza."
+
+[sub_resource type="Resource" id="Answer_0_1"]
+script = ExtResource("9_reply")
+text = "Até que horas o bar fica aberto?"
+follow = "Enquanto tiver freguês. Mas a polícia anda mandando fechar cedo."
+
+[sub_resource type="Resource" id="Answer_0_2"]
+script = ExtResource("9_reply")
+text = "Está muito cheio hoje?"
+follow = "Lotado. Hoje foi dia de pagamento na fábrica."
+
+[sub_resource type="Resource" id="Answer_0"]
+script = ExtResource("8_chat")
+line = "Bar do Zé! Fala aí, meu chapa!"
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_0_0"), SubResource("Answer_0_1"), SubResource("Answer_0_2")])
+
+[sub_resource type="Resource" id="Answer_1_0"]
+script = ExtResource("9_reply")
+text = "Choveu muito por aí?"
+follow = "A Rua da Estação virou rio. O Tonho do bilhar chegou de galocha."
+
+[sub_resource type="Resource" id="Answer_1_1"]
+script = ExtResource("9_reply")
+text = "Quanto está a cerveja?"
+follow = "Três cruzeiros a garrafa. Gelada, hein."
+
+[sub_resource type="Resource" id="Answer_1"]
+script = ExtResource("8_chat")
+weather = "rain"
+line = "Bar do Zé. Com essa chuva, só os de sempre."
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_1_0"), SubResource("Answer_1_1")])
+
 [resource]
 script = ExtResource("1_entry")
 wary = 0.5
@@ -28,3 +66,5 @@ voice = "m"
 hello = "Bar do Zé! Fala aí, meu chapa!"
 spoken = "o Bar do Zé"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_03"), SubResource("Motive_04"), SubResource("Motive_05")])
+answers = Array[ExtResource("8_chat")]([SubResource("Answer_0"), SubResource("Answer_1")])
+bye = "Valeu, meu chapa! Aparece aqui qualquer dia."

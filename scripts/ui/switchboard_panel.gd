@@ -59,10 +59,11 @@ const CORD_COLORS := Pal.CORDS
 
 
 ## Cor da lâmpada de uma linha (Exchange.Line) e quanto ela quer estar acesa (0..1); `_fade` chega lá aos poucos.
-func _lamp(st: int, ms: int, steady: bool) -> Array:
+## Chamando, pisca até a ligação ser atendida, mesmo com o FONE já na entrada.
+func _lamp(st: int, ms: int) -> Array:
 	match st:
 		Exchange.Line.RING:
-			return [Pal.AMBER, 1.0 if steady or (ms / 250) % 2 == 0 else 0.0]
+			return [Pal.AMBER, 1.0 if (ms / 250) % 2 == 0 else 0.0]
 		Exchange.Line.TALK:
 			return [Pal.AMBER, 1.0]
 		Exchange.Line.HOLD:
@@ -78,7 +79,7 @@ func _lamp(st: int, ms: int, steady: bool) -> Array:
 func _dest_lamp(st: int, ms: int) -> Array:
 	match st:
 		Exchange.Dest.RING:
-			return _lamp(Exchange.Line.RING, ms, false)
+			return _lamp(Exchange.Line.RING, ms)
 		Exchange.Dest.CONN:
 			return [Pal.GREEN, 1.0]
 		Exchange.Dest.DONE:
@@ -498,7 +499,21 @@ func _draw_tray() -> void:
 
 const COVER_W := 24.0   # o tampo de um lugar vago, na linha do meio (os pares são mais juntos: os tampos não ficam em cima deles)
 const COVER_GAP := 6.0   # o vão entre os tampos e até o dos equipamentos
-const BAY_MARGIN := 24.0   # o tampo dos equipamentos: a largura do bloco interurbano menos isto
+const BAY_MARGIN := 24.0   # o tampo dos equipamentos: a largura da faixa deles (`bay_rect`) menos isto
+const PAD_W := 58.0   # a almofada dos broches (`badges.gd`), na linha do meio da prateleira...
+const DIALER_W := 62.0   # ...e o discador deitado no fim dela (`Dialer`)
+
+
+## O meio da almofada dos broches na linha do meio da prateleira: logo depois do tampo dos equipamentos, com a folga
+## dos tampos (`COVER_GAP`; encolhendo o tampo, ela vem junto).
+func pad_x() -> float:
+	return roundf(bay_rect().end.x - BAY_MARGIN / 2.0 + COVER_GAP + PAD_W / 2.0)
+
+
+## O meio do discador: à direita da almofada, no meio do vão entre ela e o fim da prateleira (a mesma folga dos dois
+## lados; encostado no fim, parecia sair da mesa).
+func dialer_x() -> float:
+	return roundf((pad_x() + PAD_W / 2.0 + tray_rect().end.x - COVER_GAP) / 2.0)
 
 
 ## Um lugar vago na prateleira sob uma chapa parafusada, deitada no meio dela (`_shelf_mid`): `w` de largura em `x`

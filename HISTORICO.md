@@ -18,6 +18,7 @@ Chaves:
 - `#despacho` cartão, máquinas, viaturas · `#mapa` o desenho do mapa · `#lista` lista telefônica · `#jornal`
 - `#caderno` caderno, hoje bloco de fichas · `#prancheta` o registro das conversas · `#ferramentas` os papéis abertos
 - `#painel` o painel de baixo, console e teclas · `#radio` · `#interface` menus, pausa, configurações, cursores, dicas
+- `#discador` as ligações que o operador faz (o discador da prateleira e o de perto)
 - `#emergencia` barra de agravamento e viaturas · `#consequencias` supervisor, advertências, relatório
 - `#ritmo` agenda e quantidade de ligações · `#turno` horário, relógio do jogo, fim do turno · `#noites` noites,
   progresso, data · `#setores` · `#treinamento` · `#misterio` a ligação desconhecida e o homem na rua
@@ -2806,3 +2807,234 @@ Chaves:
     vermelha no tampo e no peitoril com as sombras dos objetos, curtas (ele está alto, `FLARE_STEEP`) e crescendo
     enquanto ele desce, e a poeira no feixe, vermelha. Ficaram para depois a luz de um lado só nos telhados e na
     igreja, a fumaça mais grossa e as nuvens acesas por baixo.
+478. #vista #luz #noites #pedestres "O que você melhoraria no evento do sinalizador?" e "Faça 1 à 5": (1) a fumaça
+    deixou de ser um risco reto de 1 px (parecia uma antena): bolotas pixel a pixel (`Flare.puff`), a da subida fina e
+    a da queda grossa, abrindo com o tempo, ondulando (`CURL`), entortada pelo vento mais forte no alto (`SHEAR`),
+    partindo-se com a idade e à vista por 30 s (eram 14), rosada por baixo perto dele (`FLARE_SMOKE_LIT`). (2) A luz de
+    um lado: a beira da igreja e do alto dos prédios de longe virada para ele, somada logo acima da `_back`
+    (`_flare_rim`; as paredes da rua do cruzamento tapam o que fica atrás delas), o lado dele bem mais aceso; as
+    cornijas das fachadas de lá e das paredes e a parede da esquerda da rua do cruzamento, de raspão, na camada do
+    holofote (`_draw_flare_light`); anda com ele. (3) A janela vermelha na sala estava certa (conferida ampliada; na
+    tela inteira eu não tinha visto). (4) Quem está na calçada para, cada um no seu tempo, vira para ele com a cabeça
+    para trás e o primeiro aponta (`_skyward`, `FLARE_REACT`; captura `--sky`). (5) Na chuva e na névoa o halo é
+    maior e mais forte (`FLARE_WET`), e as gotas e os pingos perto dele ficam vermelhos (`FLARE_BEADS`). Medido:
+    +0,5 ms por quadro aceso. Ficou do `PLANO_RUA.md` a barriga vermelha das nuvens perto dele.
+479. #vista #luz #noites #clima "Faça" (a barriga vermelha das nuvens perto do sinalizador, que faltava do
+    `PLANO_RUA.md`) e "a rua central do cruzamento não fica iluminada, principalmente na chuva fica sem reflexo". As
+    nuvens da noite limpa e as do céu da chuva ganham o lado virado para ele aceso de vermelho, mais quanto mais perto,
+    somado com o halo, por baixo da cidade (`_cloud_shapes`, `_cloud_blob`, `_overcast_at`, `FLARE_CLOUD`). O chão da
+    rua do cruzamento acende com ele (na camada do holofote), menos a faixa na sombra da parede do lado dele, e mais
+    na chuva; e na chuva o reflexo dele no asfalto molhado: um risco vermelho quebrado e tremendo embaixo dele,
+    descendo até a rua de cá, na camada `_flare_rim`, por baixo das paredes, das fachadas e dos carros, que o tapam
+    (`FLARE_GROUND`). Medido aceso: +0,5 ms (limpo) a +1,2 ms (chuva) por quadro.
+480. #vista #luz #noites "A rua horizontal está sem luz, a luz cortou na passagem do cruzamento" (com a captura). O
+    chão aceso pelo sinalizador parava na calçada de lá. Pelo vão do cruzamento a luz segue pela calçada de lá e pela
+    rua até a nossa calçada, andando para o lado de lá dele no caminho (a direção de onde ela vem), com as beiras
+    macias (`_draw_flare_light`); o resto da rua fica na sombra dos prédios de lá (ele está atrás e acima deles).
+481. #vista #pedestres #noites "Essas pessoas pararam na frente do prédio para ver a luz, porém como elas conseguiriam
+    ver? [...] as pessoas só irão parar quando estiverem passando pelo cruzamento". O sinalizador está atrás e acima
+    dos prédios de lá: da calçada na frente deles, a fachada o tapa. Só quem passa pela boca da rua do cruzamento
+    (`CROSSING`) nota (`FLARE_REACT`, mais curto), e, se ainda estiver nela, para olhando um tempo (`FLARE_GAZE`, 5 a
+    12 s, ou até ele apagar) e segue; o primeiro a parar aponta (`_skyward`).
+482. #vista #luz #noites #pedestres #conteudo #desempenho #testes "Pode fazer tudo. No caso do 6, vai ser um sinal do
+    roteiro, pode deixar o marcador" e "não implemente os latidos" (o latido logo depois do tiro saiu da lista). Quem
+    vê o sinalizador é quem está na luz dele (`_flare_reach`, a mesma conta do chão aceso, `_flare_gap`): na boca do
+    cruzamento e na rua do cruzamento, indo para o lado da igreja (quem desce, de costas para ele, não). Quem está na
+    luz ganha a beira vermelha do lado dele (só do lado: no alto de cada peça virava contorno de arame) e os carros
+    passando por ela, o brilho vermelho no capô, no teto e no porta-malas (`_sheen`, `FLARE_FIG`, `FLARE_CAR`). Ao
+    acender, o `Background` avisa (`flare_lit`) e o Main liga o marcador `sinalizador_N` (README). A barriga das nuvens
+    desenhada em lote (`_light_fans`): ~200 chamadas de desenho a menos, +0,55 ms aceso em todo clima (na chuva era
+    +1,2). Teste em `test_flow` (16b): quem passa pela boca para nela, na frente do hotel ninguém vê, e o marcador.
+483. #vista #noites #luz "Vamos adicionar outro evento de roteiro: no dia 13 um camburão irá parar em frente ao hotel, e
+    um carro da polícia logo atrás, a polícia irá entrar no hotel e um tempo depois sairá escoltando 5 pessoas
+    algemadas e entraram no camburão" e "se atente aos detalhes, como portas abrindo, pessoas saindo em fila, subindo
+    no camburão, luz do giroflex iluminando local". A batida (`StreetEvent` "raid", `scripts/ui/raid.gd`), na noite 13
+    às 22h, com a rua vazia pelo toque de recolher. O camburão (`CAR_KINDS` "camburao": a cabine preta e o cofre de
+    chapa branca com "POLÍCIA", a janelinha gradeada, o degrau e a sirene, `_draw_camburao`) para com a frente logo
+    depois da porta do hotel: mais para lá, de onde estamos, ele a tapava. A viatura para atrás dele. As portas das
+    cabines do lado de cá abrem e fecham, batendo (`_draw_cab_door`; quem desce ou entra aparece só no vão); o
+    motorista do camburão fica de guarda e os outros três entram no hotel; os andares acendem um a um e ficam
+    (`Raid.floors`). A fila sai: um policial, os cinco presos algemados (as mãos nas costas, o brilho do aço, a cabeça
+    baixa; roupas e peles diferentes, `Pal.RAID_*`), um policial no meio e outro no fim, pela rua na frente do
+    camburão até a traseira; as portas do cofre abrem (a de cá dobra rente ao lado, a de lá fica para trás), cada preso
+    sobe o degrau, abaixa a cabeça e some para lá da beira do cofre, com o da guarda ajudando; ele fecha as duas,
+    batendo pesado, e cada um volta ao seu carro. As sirenes paradas (a dela e a da viatura, cada uma no seu giro)
+    iluminam a rua: uma mancha vermelha no chão e na fachada onde o facho bate (`_draw_beacon_light`, pelo shader do
+    holofote), quem o facho pega (`_beacon_at`), o asfalto molhado e a sala quando viram para nós. Isso vale também
+    para a viatura da noite 7 e a do toque de recolher; o vermelho pintado na fachada do hotel (um leque por cima)
+    saiu, no lugar dele a luz de verdade. Nenhum carro novo enquanto ela dura. Medido: +0,35 ms por quadro.
+484. #vista #noites "Estacione o camburão mais para frente": a frente dele para 1,5 m mais para lá (`Raid.VAN_FRONT`
+    -5,7), na frente do hotel; o capô, baixo, passa da porta, que fica à vista por cima dele, e quem vai da porta para
+    a rua contorna a frente dele (`Raid.ROUND`). A viatura acompanha. Com a traseira à esquerda do meio, a face de trás
+    do cofre aparece, estreita: aberta, mostra o vão escuro. As portas das cabines abrem até 50° (a 65°, a branca da
+    viatura saltava para cá como uma tábua).
+485. #vista #noites "Mais pra frente, quase chegando nos limites da janela. Também ajuste o nome 'Polícia' do camburão,
+    está mais que o carro". A frente do camburão para quase na beira da janela (`Raid.VAN_FRONT` -7,2); a porta do
+    hotel fica atrás da cabine (só o alto dela aparece), e por isso a fila e os policiais vão pela calçada, atrás
+    dele, e descem para a rua no vão entre ele e a viatura (`Raid.DOWN`; contornar a frente ficaria fora da vista).
+    O "POLÍCIA" do cofre foi para o meio da lateral, embaixo da janelinha (ao lado dela, passava da traseira).
+486. #vista #noites "O camburão está sem a parte traseira da cabine", "no final um dos policiais ficou travado, a porta
+    da viatura se abriu sozinha e o policial simplesmente sumiu e fechou a porta" e "os carros parecem deslizar ao
+    estacionar [...] já deixe os veículos na posição que irão parar". A cabine do camburão ganhou a chapa de trás,
+    depois do vidro, encostada no cofre (ele ficou 30 cm mais comprido, 5,3 m, para o cofre não encurtar). Quem desce e
+    sobe na cabine faz o movimento inteiro (`Raid._out_of_cab`, `_into_cab`): vai até a beira solta da porta, puxa com
+    a mão, recua enquanto ela gira, passa para o vão e senta, sumindo nele (sentado, do peitoril para cima; pondo o pé
+    na rua, até o chão, `_raid_clip` "van"/"van_in"); descendo, sai do banco, fica de pé e empurra a porta. Os dois
+    carros já vêm pela linha do meio-fio e só freiam (sem o `park`, que os encostava de lado no caminho).
+487. #vista #noites "A viatura pode ficar com a luz nova": a viatura da noite 7 fica com a luz do giroflex da batida
+    (`_draw_beacon_light`, a fachada, o chão, as pessoas e a sala), sem o leque antigo na fachada.
+488. #vista "Esse porteiro está bem ruim", "no prédio de tijolos também tem pessoas dentro que estão feias": quem está
+    lá dentro contra a luz (o recepcionista no telefone do hotel, o porteiro na porta de manhã, quem está no balcão e
+    no telefone do bar, o dono na porta e quem passa atrás da janela acesa) deixou de ser silhueta preta de palito e
+    usa o corpo de quem passa na rua (`_draw_backlit`: `_rig_pixels`, com roupa, pele, cabelo e chapéu, escurecido
+    pela contraluz, `BACKLIT`; com a beira acesa, sumia no fundo claro). O recepcionista fala de frente, com o fone na
+    orelha (`PHONE_FRONT`); um freguês bebe de lado (`HOLD_UP`); o dono fica de frente com a mão no batente; o porteiro
+    de quepe e farda (`Pal.CLERK_COAT`). Quem passa atrás da janela fica meio metro acima do piso, para a cabeça e os
+    ombros caírem no meio do vidro (a conta certa deixava só o alto da cabeça no peitoril).
+489. #discador #mesa-comutadora #conteudo #roteiro "Vamos implementar uma nova funcionalidade que é a de realizar
+    ligações" (a referência: o disco na ponta direita da bandeja de uma mesa Ericsson): um discador digital como o
+    console, com os algarismos, Discar e Encerrar; ligando para um lugar, uma conversa curta que faz sentido para ele
+    (a fala de atendimento, até duas perguntas e [Encerrar ligação]; respondida uma, só resta encerrar); por ora só o
+    setor de Vila Serena (os 3xx, os 12 números com atendimento escrito, rascunho para o usuário revisar); ligações do
+    roteiro preparadas (`DialCall`, em `Night.dial` ou `GameContent.dial`, no formato dos trotes; o marcador
+    `ligou_<número>_<noite>` a cada atendida). Decisões do usuário: o discador fica onde estavam os broches, que foram
+    para a esquerda; não precisa do FONE (o fone do operador é ligado direto na mesa); só o clique, e ele abre de
+    perto como as outras ferramentas (`Tools.DIALER`). Plano em `PLANO_DISCADOR.md`. O teclado de discagem do item 2
+    (para transferir) não volta: este só faz as ligações do operador.
+490. #discador #mesa-comutadora "Diminua essa barra branca a esquerda das recompensas, ela não está servindo para nada
+    nesse momento": o tampo do lugar dos equipamentos na prateleira ficou curto (`BAY_W`, 60 px de tampo, depois 44, para o teclado maior; a beira
+    esquerda é a mesma, os tampos dos cabos não mudam); depois, a pedido ("não ajustou a posição do discador e das
+    recompensas"), a almofada vem logo depois dele (`Switchboard.pad_x`); o discador fica no fim da prateleira, à
+    direita ("o teclado tem que ficar na direita", `dialer_x`), no meio do vão entre a almofada e o fim dela ("De
+    espaços": encostado no fim, parecia sair da mesa).
+491. #mesa-comutadora #camera #saiu "A prateleira está com essa curva no final", "dá a entender que a mesa comutadora
+    não tem lateral" (na perspectiva, a lateral do console é uma cunha que afina até a quina da frente). Testados e
+    desfeitos: escurecer a lateral e marcar a quina com um fio; a ponta reta, a prateleira e o console alinhados com a
+    beira do painel ("ficou horrível"); a bochecha em pé na ponta da prateleira, como as da mesa Ericsson. Ficou como
+    era, a pedido ("vamos focar na implementação do discador").
+492. #discador "O que você melhoraria" → "pode seguir com tudo": quem estava com o FONE fica em espera de verdade
+    enquanto o operador liga (a linha em HOLD: quem espera demais desiste, `Supervisor.check_hold`; volta a falar quando
+    a feita acaba); um cabo solto na tomada da linha chamada não a solta mais (`Dialing.seized`); as respostas do
+    discador aceitam palavras-chave (`[tipo:texto]`), anotadas na lista como na escuta (`Eavesdrop.note`); horário de
+    funcionamento (`DirectoryEntry.closes`: a pensão às 22h, a Célia da Rua do Sol às 23h, a oficina e o cinema às
+    23h30, a rádio à meia-noite); rediscar (Discar com o visor vazio, ou com o último número nele); a tecla apertada
+    afunda na miniatura da prateleira (`Dialer._sunk`), mesmo apertada no de perto; o estado no visor de perto em
+    negrito. Revisar as falas e as que a cidade lembra (`requires` nos atendimentos) ficam com o usuário.
+
+493. #mesa-comutadora #discador "No canto da mesa comutadora tem triângulo escuro que parece uma sombra de algo
+    dobrado" e "crescer mais um pouco a altura do teclado numérico" (com a linha vermelha no rodapé do painel). O
+    triângulo era a sombra de contato do painel na prateleira, que abria 2 px para a direita e passava da ponta dela,
+    caindo na lateral do móvel: agora para na ponta da prateleira (`_draw_switchboard`, `lip`). O discador ficou mais
+    fundo (`Dialer.DEPTH` 29, a frente no mesmo lugar, `FRONT`, `_back`): a beira de trás encosta no rodapé do painel;
+    as teclas, o visor e a lâmpada acompanham.
+494. #mesa-comutadora #discador #luz "Faça 1 e 2" (das melhorias do discador) e "o 3 não faz sentido pq a ideia é
+    que esse discador é embutido na mesa comutadora" (o fio até o painel saiu). (2) A sombra do discador na prateleira
+    ganhou o lado direito, 2 px (a de fora mais fraca), como a dos broches, além da linha embaixo da frente. (1) Os tons
+    pela luz da sala (`Pal.cabinet(_room_lit)`, como as tampas) foram testados e desfeitos: saíam 2 degraus mais
+    escuros que a prateleira em volta, que já recebe a luz da sala pelo shader, como ele. Depois, "Desça aí um
+    pouquinho o discador": 2 px (`FRONT` 13), a beira de trás já não encosta no rodapé.
+495. #mesa-comutadora #discador "Com relação ao visual, mudaria alguma coisa?" → "Faça os 3": a lâmpada de linha,
+    um aro de 5 × 5 deitado linha a linha na inclinação (parecia um "§"), ficou redonda (`PixelArt.disc`, sem deitar),
+    embaixo de "LINHA" gravado em creme (`PixelArt.tiny`, `Pal.BOARD_INK`), os dois embaixo do visor, na altura da
+    terceira e da última fileira de teclas (`LABEL_AT`, `LAMP_AT`, `_at`); cada tecla ganhou a sombra de 1 px na placa,
+    embaixo (a apertada, rente, não). Depois, "Não gostei do texto linha": o "LINHA" saiu; a lâmpada ficou no lugar.
+496. #discador #mesa-comutadora "Ao clicar no discador, abrir um pop up em cima dele mostrando a versão expandida porém
+    menor" ou manter a ferramenta à direita → "vamos testar como fica o pop up" (o argumento: com a ferramenta à
+    direita, a lista não fica aberta enquanto se disca). Em teste: o de perto (`DialView`) saiu das ferramentas
+    (`Tools.DIALER` saiu) e virou um pop-up filho do discador da prateleira, logo acima dele, por cima do painel, sem
+    tapar as chaves de escuta; compacto, como a miniatura: o visor e a lâmpada à esquerda (o estado embaixo dos
+    algarismos), o teclado à direita, nas teclas do console sem etiqueta (`KeyCapStyle.tag`; as letras dos algarismos
+    saíram; Discar e Encerrar só com o fone, `EndKey` para não mexer no Desligar). Abre e fecha pelo clique na
+    miniatura e fecha com Esc e no fim do turno.
+497. #cabos #mesa-comutadora #saiu "Melhorar a animação do plug entrando na tomada. Queria algo fluido, satisfatório e
+    visualmente bonito". Antes: em 0,08 s o plug em pé girava e encolhia até o cotovelo, esticado pela transformação
+    do desenho (contra a regra dos pixels), com 1 px de afundada. Primeira versão: o cotovelo aparecia 6 px para fora
+    e entrava em 0,07 s, com um brilho em estrela na boca da tomada; "não mudou muita coisa" (curto demais para se
+    ver) e o brilho saiu ("não faz sentido": lia como faísca). Depois, a pedido ("uma animação do plug virando para
+    entrar na tomada", "uma batida mais marcada", a sombra): o plug vira da mão para a tomada em 0,13 s, o mesmo tubo
+    3D do encaixado (`_elbow` com `turn`): a cabeça vai de em pé, deitada no painel, para de frente, a ponta de metal
+    (`PIN`) entrando na tomada, a capa e o fio pendurados, do tamanho da mão para o do encaixado (`TURN_LEN`,
+    `TURN_W`); para 8 px à frente do painel e entra acelerando em 0,06 s (`_turning`, `OUT_PX`, `IN_SEC`), a sombra
+    indo de longe, como na mão, até colar; bate no fundo, afunda 2 px (com 3, o buraco da tomada aparecia ao lado do
+    pescoço), segura e repica para fora e para dentro até parar em 0,4 s, a sombra colando e descolando junto
+    (`_push`); na batida (`_impact`), o estalo com o tique do metal (`plug_in`) e os plugs encaixados ao lado pulam
+    (`NEIGHBOR`, `_knocked`); o fio segue o pé da capa enquanto ele vira. Captura quadro a quadro:
+    `shot --plugin=4,20`. Depois, "diminua essa sensação de mola ao encaixar": o repique saiu; afundado, ele volta ao
+    lugar freando em 0,15 s (`SETTLE_SEC`).
+498. #cabos #mesa-comutadora "Vamos consertar esse comportamento dos fios. Não vamos permitir que eles se enrosquem
+    dessa forma, pois está causando bugs visuais com o fio se mexendo loucamente ou enganchando no plug de baixo" (o
+    fio da entrada 10 preso por baixo do plug da saída 20): um plug encaixado só apoia o fio por cima. Encostado abaixo
+    do meio dele (`Cord.HOOK`, `Cord.hook`), o fio esticado está enganchado: escorrega pela frente do plug e passa a
+    correr por cima dele, desenhado depois, como o fio que tapava a tomada (`_draped`). Preso, ele tremia sem dormir
+    (16 px em 2 s); agora endireita e dorme. Teste no `test_flow`, depois da seção 18.
+499. #interface #mesa-comutadora "Vamos implementar o menu inicial do jogo?" Sugeri um cartão de ponto num relógio de
+    ponto na parede; o usuário preferiu a ideia dele: à direita, o canto esquerdo da mesa comutadora de perto, com mais
+    detalhe, as primeiras tomadas e o FONE encaixado na entrada 1; à esquerda, o menu (Carregar jogo, só com jogo
+    salvo; Novo jogo; Configurações; Sair), embaixo, pequeno, Créditos e, menor ainda, a versão. Feito em
+    `scenes/title_screen.tscn` (`title_screen.gd`; o painel em `title_board.gd`, as peças da mesa em 3× refeitas pixel
+    a pixel, não ampliadas): cada opção com uma lâmpada que acende âmbar sob o mouse (variação `TitleButton`), a versão
+    na fonte gravada do painel (`PixelArt.tiny`), Novo jogo com jogo salvo pergunta num papel antes de apagar, os
+    créditos no mesmo papel, Configurações no papel da pausa. O `GameView` põe a tela inicial na primeira vez e o jogo
+    depois dela (`GameView.playing`): os recomeços (`Main.restart`) não voltam ao menu.
+    Correção do usuário (com uma foto): o cotovelo do plug é uma mola de borracha, e entre os anéis se vê o fio. Fiz a
+    capa inteira em anéis; corrigido de novo ("o cotovelo é justamente a dobradura, não tem tantos vincos e a linha
+    verde do plug não fica aí"), o FONE do menu passou a ser montado como o plug encaixado do jogo (`_elbow`), um tubo
+    em 3D pelo eixo: a ponta de metal, o corpo duro saindo da tomada com a faixa verde junto do painel, o cotovelo
+    numa mola de cinco anéis (nas frestas, o fio e o avesso escuro dos anéis) e a capa lisa descendo até o fio.
+    Depois, "mais uns 4 vincos para baixo", como na foto: a mola segue quatro anéis capa abaixo (`COILS_DOWN`).
+    Depois, com uma imagem melhor do plug encaixado: a cabeça lisa é curta (`PLUG_BODY`), a dobra inteira é mola, com
+    sulcos finos e escuros (sem o fio à mostra), e a mola acaba num colarinho liso e reto (`COLLAR`) de onde sai o fio
+    grosso (`CORD_R`); saiu a capa comprida afunilando. Depois, "o cabo grosso e o cotovelo não ficaram legais ainda":
+    das melhorias que sugeri, fiz três. O plug passou a ser montado em anéis de pontos na superfície (antes, esferas pelo
+    eixo, que tapavam qualquer sulco): o raio da mola ondula (`_coil_r`, `COIL_DEPTH`) e a normal acompanha, então cada
+    anel tem luz e sombra próprias e a beira sai recortada. O plug é visto mais de lado (`TILT`), com a cabeça à mostra
+    e os anéis abrindo em leque na dobra. O fio virou um tubo também (`_fone_cord`): tom redondo pela luz, trançado
+    fino em V que some na sombra, sombra do colarinho no começo e queda em curva; mais fino (`CORD_R` 7) e na mesma
+    cor (a pedido). Ficou de fora o colarinho mais largo com a beirinha clara.
+    Depois, "a ponta do cotovelo pode ir afunilando": o colarinho afunila da largura da mola até pouco mais que o fio
+    (`TIP_R`, `COLLAR` 14), com a luz seguindo a inclinação. Depois, "esse cotovelo e cabo estão grossos demais, isso
+    não segue o que mostra na gameplay": as medidas voltaram às do jogo em 3×. O tubo ficou mais fino que o aro da
+    tomada (`PLUG_R` 10), a ponta afunila comprida (`COLLAR` 28, `TIP_R` 6), o fio tem uns 3 px do jogo (`CORD_R` 4,5)
+    e a ponta de metal tem o raio do furo (`SLEEVE_R`).
+    Depois, "o fio ficou fino demais agora": `CORD_R` 5,5 (entre os dois), e a boca da ponta acompanha (`TIP_R` 7).
+    Depois, a perspectiva ("se a mesa comutadora está no lado esquerdo, a perspectiva do cabo não deveria ser essa"):
+    no menu o painel fica à direita da tela e quem olha está na frente dela, à esquerda dele; o plug é visto pelo lado
+    esquerdo e o cotovelo pende para a direita (`TILT` positivo; na mesa do jogo o olho fica à direita, e ele pende
+    para a esquerda). O fio cai quase reto, e a letra da chapa do banco foi para a direita dele.
+    Depois, comparando com a mesa do jogo ("o tamanho das fontes no menu são bem menores; a placa do setor não
+    atendido não tem os textos ali"): as legendas do painel de perto passaram à altura das letras miúdas da mesa em
+    3× (`_text`, a fonte em dobro com relevo, `PixelArt.big`), com as lâmpadas da legenda e as abas maiores; as
+    plaquinhas dos números, 78×38 (as da mesa em 3×); as chapas dos bancos A e B como na mesa, a letra grande no meio
+    e o aviso centrado embaixo (`_draw_bank_plate`, `BANK_W`), com o painel 20 px mais alto para caber. O fio pende
+    em curva (`CORD_SWING`) pelo vão entre "SAÍDAS" e o ponto e sai à esquerda do aviso, sem tapar letra.
+    Depois, "a placa de setor não atendido ainda não condiz": a letra é a estampada da mesa (`PLATE_LETTERS`, em
+    relevo, cada pixel em 3×3, `_tripled`) e o aviso, o estêncil nas letras miúdas da mesa (`PixelArt.tiny` em 3×),
+    em vez da fonte do jogo; a folga entre as chapas, a da mesa (`BANK_GAP` 13).
+    Depois, "deixe o cabo reto e a luz da entrada piscando, assim como acontece na noite 0": o fio cai reto da boca do
+    plug (saiu a curva `CORD_SWING`; ele passa na frente do "D" de "SAÍDAS" e do começo do aviso da chapa) e a lâmpada
+    da entrada 1 pulsa como uma linha chamando (`fone_on`, o mesmo toque de `Switchboard._lamp`), sem campainha.
+500. #interface #som "Implemente 2, 3, 4, 5, 6, 7 e 8" (das melhorias que sugeri para o menu; ficou de fora ligar
+    cada opção a uma linha do painel). Começar o jogo: o tec da chave, a lâmpada do FONE apagando, a tela escurecendo
+    e clareando já no jogo (`TitleScreen._play`, `%Fade` numa CanvasLayer). Vida na tela parada: o ambiente da sala
+    (às vezes de chuva, `RAIN_CHANCE`) e, a cada 25–50 s, uma linha chamando por dois toques, a lâmpada pulsando como
+    na mesa (`TitleBoard.ringing`, `_lit`, `LAMP_ON_SEC`/`LAMP_OFF_SEC`). O nome do jogo em letra grande acima do
+    menu (`%Logo`, `PixelArt.big`). Carregar diz onde o jogo parou (`%Where`: "Noite 4 · Quinta-feira, ..."; lido do
+    arquivo sem o `Progress.load_saved`, que mexeria no save ilegível). No pé do painel, a chapa do banco A com o
+    aviso de setor não atendido (`_draw_bank_plate`). Teclado: a primeira opção já escolhida, as setas e o Enter
+    andam pelo menu e o mouse escolhe do mesmo jeito (uma lâmpada acesa só). Saiu o "Recomeçar do treinamento" do
+    bilhete do supervisor (o Novo jogo do menu faz o mesmo) e a pausa ganhou "Voltar ao menu" (`%ToMenu`).
+501. #mesa-comutadora "Na gameplay, a luz para de piscar quando encaixa o cabo, mas deveria piscar até atender a
+    ligação." A lâmpada de uma linha chamando ficava acesa fixa com o FONE na entrada; agora pisca até o Atender
+    (`Switchboard._lamp` sem o `steady`; a linha só passa a TALK no `Main.answer`).
+502. #vista #janela "Crie um novo evento para o dia 14. Por volta das 23h, uma pedra atingirá a janela e causará um
+    trincado na parte esquerda." Cena "stone" da noite 14 às 23h (`StreetEvent`, `Stone`), com a rua já vazia do
+    toque de recolher: quem atira não aparece; a pedra sobe da rua embaixo da janela crescendo (vindo na nossa
+    direção) em 0,45 s, clara da luz da sala chegando no vidro, e bate na parte esquerda dele: a batida seca, o
+    trincado correndo em estalinhos e o vidro vibrando (`glass_hit`), a janela chocalhando. O trincado (o miolo moído,
+    nove riscos em zigue-zague com galhos e arcos entre eles, claros com a sombra 1 px abaixo, mais estreito que alto
+    pelo vidro visto de lado) fica numa camada por cima da vista (`_crack`), redesenhada só quando muda, e segue na
+    noite 15 (`LASTING`), também de dia. No F1 e no `shot --scene=stone`.
+    Depois: "Aumente o tamanho do trincado; aumente o barulho da batida da pedra; quando a pedra bater, ela deve quicar e
+    cair": o trincado ~1,5× maior (11 riscos, 4 arcos, o miolo maior, `ART`, `RAY_LEN`, `RINGS`), a batida mais forte
+    (`glass_hit` a 0 dB, com mais grave; o chocalho também) e, depois da batida, a pedra quica um pouco para cima, se
+    afasta (encolhe) e cai até sumir no pé do vidro em 0,7 s (`BOUNCE`, `FALL`, `DROP`, `Stone.END`), atrás do trincado.

@@ -24,6 +24,7 @@ const MAX_EMERGENCIES := 2              # emergências em andamento ao mesmo tem
 const DAY_DIM := 0.5   # o quanto o dia enfraquece o brilho da luminária e o halo das luzes (`Bloom`), na força toda
 const WARM_TINT := Color(1.0, 0.62, 0.36, 0.35)   # a luminária recém-acesa: o brilho dela nesse tom e nessa fração da força
 const Badges := preload("res://scripts/model/badges.gd")
+const Dialing := preload("res://scripts/dialing.gd")
 const TAB_KEYS := {Tools.DIRECTORY: "tab_directory", Tools.DISPATCH: "tab_dispatch", Tools.LOGBOOK: "tab_logbook", Tools.CALL_LOG: "tab_call_log"}
 var C: GameContent = GameData.CONTENT
 
@@ -85,6 +86,7 @@ var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o
 @onready var _shift_hours: Label = %ShiftHours
 @onready var board: Switchboard = %Board
 @onready var badges: Control = %Badges   ## os broches na prateleira (`scripts/ui/badges.gd`)
+@onready var shelf_dialer: Control = %Dialer   ## o discador na prateleira (`scripts/ui/dialer.gd`; de perto, o pop-up `%DialView`)
 @onready var phone: PhonePanel = %Phone
 @onready var radio: Radio = phone.radio
 @onready var tools: Tools = %Tools
@@ -95,6 +97,7 @@ var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o
 @onready var supervisor: Supervisor = %Supervisor
 @onready var urgency: Urgency = %Urgency
 @onready var eavesdrop: Eavesdrop = %Eavesdrop
+@onready var dialing: Dialing = %Dialing
 @onready var training: Training = %Training
 @onready var bureaucracy: Bureaucracy = %Bureaucracy
 @onready var _hint: RichTextLabel = %Hint
@@ -185,9 +188,13 @@ func _ready() -> void:
 		if on:
 			_teach(SAW_SHEET, T.Key.HINT_DESK_SHEET))
 	tools.origin = background.prop_rect   # o papel de cada ferramenta sai do objeto dela na mesa
+	shelf_dialer.dialing = dialing
+	%DialView.dialing = dialing
+	shelf_dialer.clicked.connect(func(): if running and not ending: %DialView.visible = not %DialView.visible)   # o de perto, por cima do painel
 	background.prop_clicked.connect(func(id: String): if running and not ending: tools.set_tab(id))   # objetos da cena
+	background.flare_lit.connect(func(): flags.apply("sinalizador_%d" % night_no))   # o sinal do roteiro na noite 15
 	_intro.over = board   # o bilhete do supervisor fica preso no painel da mesa comutadora
-	_intro.setup(night_no, night, progress != null and progress.night > 0, progress != null, report.low_before > 0, bureaucracy.tapes.last,
+	_intro.setup(night_no, night, progress != null, report.low_before > 0, bureaucracy.tapes.last,
 		progress.aside if progress else "")
 	if is_training():   # o treinamento começa com o FONE já na entrada 1
 		board.plugged(0, 1)
@@ -437,7 +444,8 @@ func _nag() -> void:
 		conversation.say(f, GameData.pick(C.emergency_waiting))
 
 
-## Esc: primeiro devolve o plug que está na mão; depois guarda a ferramenta aberta; sem nada disso, pausa o turno.
+## Esc: primeiro devolve o plug que está na mão; depois fecha o discador de perto e guarda a ferramenta aberta; sem
+## nada disso, pausa o turno.
 ## 1 a 4 abrem e guardam as ferramentas (só durante o turno; na pausa a árvore está parada). F1 abre o painel de
 ## debug (só em build de debug).
 func _unhandled_input(e: InputEvent) -> void:
@@ -447,6 +455,9 @@ func _unhandled_input(e: InputEvent) -> void:
 	elif e.is_action_pressed("debug") and OS.is_debug_build():
 		get_viewport().set_input_as_handled()
 		%Debug.visible = not %Debug.visible
+	elif e.is_action_pressed("pause") and running and not ending and %DialView.visible and e is InputEventKey and e.keycode == KEY_ESCAPE:
+		get_viewport().set_input_as_handled()
+		%DialView.hide()
 	elif e.is_action_pressed("pause") and running and not ending and tools.open and e is InputEventKey and e.keycode == KEY_ESCAPE:
 		get_viewport().set_input_as_handled()
 		tools.close()
@@ -467,9 +478,10 @@ func pause() -> void:
 
 # ================================================================ mesa comutadora
 
-## A ligação em que o operador está: a da entrada onde o FONE está.
+## A ligação em que o operador está: a que ele fez pelo discador, enquanto ela dura (o fone dele é ligado direto na
+## mesa; quem está com o FONE fica em espera); senão, a da entrada onde o FONE está.
 func _focus() -> PhoneCall:
-	return _call_on_line(board.fone_line())
+	return dialing.call if dialing.call != null else _call_on_line(board.fone_line())
 
 
 func _call_on_line(n: int) -> PhoneCall:
@@ -529,6 +541,8 @@ func _vacated(j: int, e: int) -> void:
 			_maybe_free(n)
 		return
 	# saiu do destino j
+	if dialing.seized(j):   # a linha que o operador chama pelo discador: o cabo solto nela não a solta
+		return
 	var st := exchange.dest(j)
 	exchange.set_dest(j, Exchange.Dest.FREE)
 	cancel_dest_ring(j)
@@ -1045,6 +1059,9 @@ func hangup() -> void:
 	var c := _focus()
 	if c == null or not c.active:
 		return
+	if c.kind == PhoneCall.Kind.OUTGOING:
+		dialing.hang_up()
+		return
 	if c.lesson:   # a veterana desliga quando terminar de explicar
 		warn(T.text(T.Key.WARN_TRAINING_HANG_UP) % tr(c.caller))
 		return
@@ -1306,6 +1323,7 @@ func _unregistered() -> bool:
 func end_shift() -> void:
 	if ending:
 		return
+	dialing.hang_up()
 	for c in live.duplicate():
 		end_call(c, PhoneCall.End.SHIFT_OVER)
 	start_ending()
@@ -1316,6 +1334,7 @@ func start_ending() -> void:
 		return
 	ending = true
 	running = false
+	%DialView.hide()
 	Sfx.ring_stop()
 	Sfx.stop_ambience(5.0)
 	var last := night_no >= C.nights.size()

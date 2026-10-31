@@ -312,15 +312,29 @@ func _p3(x: float, y: float, z: float) -> Vector2:
 ## Uma luz lisa, sem camadas: a cor `col` no ponto `c`, sumindo até a borda `rim` (fechada, vista de `c`), com a cor
 ## variando ponto a ponto (forte perto de `c` e caindo depressa, como a luz; em camadas, parecia artificial).
 func _light_fan(c: Vector2, rim: PackedVector2Array, col: Color) -> void:
-	var mid := Color(col, col.a * 0.35)
-	var out := Color(col, 0.0)
-	var n := rim.size()
-	for i in n:   # (os triângulos todos e depois os quadriláteros: o lote só junta primitivos com o mesmo número de pontos)
-		_ci.draw_primitive(PackedVector2Array([c, c.lerp(rim[i], 0.5), c.lerp(rim[(i + 1) % n], 0.5)]), PackedColorArray([col, mid, mid]), PackedVector2Array())
-	for i in n:
-		var a := rim[i]
-		var b := rim[(i + 1) % n]
-		_fill(PackedVector2Array([c.lerp(a, 0.5), a, b, c.lerp(b, 0.5)]), PackedColorArray([mid, out, out, mid]))
+	_light_fans([[c, rim, col]])
+
+
+## Várias luzes de `_light_fan` ([c, rim, col] cada), os triângulos de todas e depois os quadriláteros: o lote só junta
+## primitivos com o mesmo número de pontos (uma depois da outra, eram duas chamadas de desenho por luz).
+func _light_fans(fans: Array) -> void:
+	for fan: Array in fans:
+		var c: Vector2 = fan[0]
+		var rim: PackedVector2Array = fan[1]
+		var col: Color = fan[2]
+		var mid := Color(col, col.a * 0.35)
+		for i in rim.size():
+			_ci.draw_primitive(PackedVector2Array([c, c.lerp(rim[i], 0.5), c.lerp(rim[(i + 1) % rim.size()], 0.5)]), PackedColorArray([col, mid, mid]), PackedVector2Array())
+	for fan: Array in fans:
+		var c: Vector2 = fan[0]
+		var rim: PackedVector2Array = fan[1]
+		var col: Color = fan[2]
+		var mid := Color(col, col.a * 0.35)
+		var out := Color(col, 0.0)
+		for i in rim.size():
+			var a := rim[i]
+			var b := rim[(i + 1) % rim.size()]
+			_fill(PackedVector2Array([c.lerp(a, 0.5), a, b, c.lerp(b, 0.5)]), PackedColorArray([mid, out, out, mid]))
 
 
 ## `v` cm da sala nas unidades da parede do fundo (px de 2x2 lá): a altura dos olhos acima do tampo é `SEAT_EYE`.

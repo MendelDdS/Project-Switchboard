@@ -6,7 +6,9 @@ extends Node
 ##   --out=build/shot.png   onde gravar (o recorte vai em <nome>_zoom.png)
 ##   --width=960            a largura do `main.tscn` (540 de altura; o jogo, no `GameView`, é sempre 960)
 ##   --hour=20:00           a hora do turno no relógio e lá fora
-##   --tool=id              abre a ferramenta (os ids de `Tools`: lista, despacho, caderno, registro, jornal, calculografo)
+##   --tool=id              abre a ferramenta (os ids de `Tools`: lista, despacho, caderno, registro, jornal, calculografo, discador)
+##   --dial=390[,call][,talk][,open]  o discador (`Dialing`): o número digitado; com call, discado; com talk, depois de
+##                          atenderem; com open, o de perto aberto por cima do painel
 ##   --debug=N              abre o painel de debug na aba N (0 = Jogo, 1 = Vozes)
 ##   --card                 marca um local no mapa e espera o cartão sair impresso (--card=closed: e guarda o despacho)
 ##   --punch                com --card: o cartão perfurado, uma unidade fora e a etiqueta de um trecho no mapa
@@ -24,6 +26,8 @@ extends Node
 ##                          do compartimento e entrando, indo para a mesa ou, virgem, voltando ao compartimento);
 ##                          --tapehover=1|deck: o mouse na fita 1 do compartimento ou na do gravador; --delivered=3: tantas tiradas, empilhadas na mesa ao lado do
 ##                          bloco de fichas; --pile: com elas, a pilha aberta de perto, com o Descartar)
+##   --plugin=4,18          o FONE encaixando na tomada dada (4: a entrada da linha 4), uma captura por quadro (18), em
+##                          <out>_00.png... (rode com --fixed-fps 60)
 ##   --patch=312,4          um cabo de conexão da saída da linha 4 (o padrão) ao destino dado, conectado (o aro aceso)
 ##   --plugs=3:296,4:162    outras pontas encaixadas nas tomadas dadas, sem ligação (os fios passando pelos plugs)
 ##   --lines=2:ring,4:conn  as lâmpadas dessas linhas no estado dado (`Exchange.Line`, em minúsculas), sem ligação
@@ -42,7 +46,7 @@ extends Node
 ##   --car=fusca            um carro de cada modelo dado (vírgulas) parado na rua lá fora, um em cada mão (--car_t=0.45: onde, de 0 a 1; --rack: com o bagageiro)
 ##   --walk=2,-4            gente parada na calçada de lá, em cada x dado (m ao longo da rua; o 1º poste fica em 1,6)
 ##                          (--walk_dir=-1: indo para a esquerda; --stride: a mesma pessoa, cada uma num quadro da passada, na ordem;
-##                          --outfit=short|long|dress|bag: a roupa dela)
+##                          --outfit=short|long|dress|bag: a roupa dela; --sky: olhando o sinalizador, o primeiro apontando)
 ##   --walk_z=20,45         e na calçada da direita da rua do cruzamento, em cada distância dada (m)
 ##   --bar                  a porta do bar aberta, com a luz saindo
 ##   --man=0.5              o homem do mistério chegando, nessa fração do caminho até o poste (1: parado embaixo dele)
@@ -54,11 +58,13 @@ extends Node
 ##   --graffiti=10,1,12     a pichação da noite 4 (`Graffiti`) nesse instante; --paint=8,2,12, a tinta por cima na noite 7
 ##   --newsstand=4,3,14     a banca fechada da noite 12 (`Newsstand`) nesse instante (sem o carro; com ele, --scene=newsstand)
 ##   --flare=10,2,12        o sinalizador da noite 15 (`Flare`) nesse instante (s desde o tiro); em sequência como o --beating
+##   --raid=50,2,12         a batida no hotel da noite 13 (`Raid`), com o camburão e a viatura, nesse instante (s desde que o
+##                          camburão aparece); em sequência como o --beating
 ##   --lookout=12           o vigia no terraço do hotel da noite 9 (`LOOKOUT_*`) nesse instante; em sequência como o --beating
 ##   --curfew=0,1,24        o toque de recolher (`CURFEW_*`) desde que a viatura aparece, com gente na calçada: de 0 s em diante, de 1 em 1 s,
 ##                          24 capturas (o tempo corre de verdade entre elas, sem --still)
 ##   --scene=speaker,0,1,24 outra cena da rua (`Background.scene_at`: speaker, chase, flyers, graffiti, paint, newsstand, parade,
-##                          moving) começando agora, com gente na calçada; os tempos como no --curfew
+##                          moving, stone) começando agora, com gente na calçada; os tempos como no --curfew
 ##   --spot=-1,0.8,-2.5     com --curfew: a viatura parada com a frente nesse x (m), o holofote fixo nesse ponto da fachada
 ##                          (x, altura) e alguém parado na calçada nesse x, no caminho do facho
 ##   --behind=0.5           alguém passando atrás da última janela acesa do prédio de tijolos (de 0 a 1 do caminho)
@@ -121,7 +127,7 @@ func _ready() -> void:
 	if _args.get("screen") == "intro":
 		if _args.has("warned") or _args.has("tapenote") or _args.has("aside"):   # o lembrete de quem teve uma noite Insuficiente; o resumo das fitas (B4)
 			var tapes := {"night": m.night_no - 1, "used": 3, "delivered": 1, "missed": ["Laura Pires (linha 4)"], "restocked": true}
-			m._intro.setup(m.night_no, m.night, false, false, _args.has("warned"), tapes if _args.has("tapenote") else {},
+			m._intro.setup(m.night_no, m.night, false, _args.has("warned"), tapes if _args.has("tapenote") else {},
 				"user://progress.v2-1761600000.cfg" if _args.has("aside") else "")
 		await get_tree().create_timer(float(_args.get("wait", "5")), false).timeout
 		_save(out)
@@ -225,6 +231,17 @@ func _ready() -> void:
 		m.board.plugged(1, 10 + (int(pa[1]) if pa.size() > 1 else 4))
 		m.board.plugged(2, int(pa[0]))
 		m.exchange.set_dest(int(pa[0]), Exchange.Dest.CONN)
+	if _args.has("plugin"):
+		var pv := (_args["plugin"] as String).split(",")
+		var j := int(pv[0])
+		m.board.held = 0
+		m.board.cursor = m.board.jack_rect(j).get_center() + Vector2(5, 4)   # (solto um pouco fora do meio)
+		m.board.place(0, j)
+		for i in int(pv[1]) if pv.size() > 1 else 18:
+			await get_tree().process_frame
+			_grab(out, (_args.get("out", "build/shot.png") as String).get_basename() + "_%02d.png" % i)
+		get_tree().quit()
+		return
 	if _args.has("plugs"):
 		for kv in (_args["plugs"] as String).split(","):
 			m.board.plugged(int(kv.get_slice(":", 0)), int(kv.get_slice(":", 1)))
@@ -267,6 +284,17 @@ func _ready() -> void:
 		m.tools.book.turn(99)
 	if _args.has("tool"):
 		m.tools.set_tab(_args["tool"])
+	if _args.has("dial"):   # o discador: o número digitado e, com ",call", discado (espera atender com ",talk")
+		var dv: Array = str(_args["dial"]).split(",")
+		for ch in str(dv[0]):
+			m.dialing.press(ch)
+		if "call" in dv or "talk" in dv:
+			m.dialing.dial()
+		if "open" in dv:
+			m.shelf_dialer.view.show()
+		if "talk" in dv:
+			while m.dialing.status == m.dialing.Status.CALLING:
+				await get_tree().process_frame
 	if _args.has("still"):
 		m.background.dust.visible = false
 	if _args.has("hover"):
@@ -378,6 +406,10 @@ func _ready() -> void:
 					var n := Background.STRIDE.size()   # com --stride, o i-ésimo no quadro i da passada
 					bg._walkers.append((same.duplicate() if _args.has("stride") else bg._walker()).merged({"t": t, "dir": walk_dir, "sec": (posmod(i, 2 * n) + 0.5) / (n * Background.WALK_STEPS * t) if _args.has("stride") else 1e9,
 						"z": Background.STREET["far_curb"] + 1.0}, true))
+					if _args.has("sky"):
+						bg._walkers[-1].merge({"look": 1.0, "up": true, "face": 1.0, "sky": 0.0, "stay": 1.0}, true)
+						if i == 0:
+							bg._walkers[-1]["point"] = true
 				for z in (_args.get("walk_z", "") as String).split(",", false):
 					bg._walkers.append(bg._walker().merged({"t": 0.0, "dir": 1.0, "sec": 1e9, "z": Background.STREET["far_curb"] + 1.0,
 						"corner": Background.WALK_RIGHT, "out": true, "turn": float(z)}, true))
@@ -403,7 +435,7 @@ func _ready() -> void:
 			if _args.has("smoke"):
 				bg._smoke_t = 10.5 if _args["smoke"] == "1" else float(_args["smoke"])
 			await get_tree().process_frame
-	for scene: Array in [["beating", "_beat_t"], ["lookout", "_look_t"], ["chase", "chase"], ["flyers", "flyers"], ["graffiti", "graffiti"], ["paint", "paint"], ["newsstand", "newsstand"], ["flare", "flare"]]:   # posto de novo a cada quadro (o cenário o avança sozinho)
+	for scene: Array in [["beating", "_beat_t"], ["lookout", "_look_t"], ["chase", "chase"], ["flyers", "flyers"], ["graffiti", "graffiti"], ["paint", "paint"], ["newsstand", "newsstand"], ["flare", "flare"], ["raid", "raid"]]:   # posto de novo a cada quadro (o cenário o avança sozinho)
 		if not _args.has(scene[0]):
 			continue
 		var bt := (_args[scene[0]] as String).split_floats(",")
@@ -415,8 +447,16 @@ func _ready() -> void:
 		var n := int(bt[2]) if bt.size() > 2 else 1
 		for i in n:
 			for f in 8:   # (a vista se desenha a 30 por segundo, e a captura sai um quadro depois)
-				if scene[1] in ["chase", "flyers", "graffiti", "paint", "newsstand", "flare"]:   # (as cenas de `scene_at`: o relógio delas em `_scene_t`)
+				if scene[1] in ["chase", "flyers", "graffiti", "paint", "newsstand", "flare", "raid"]:   # (as cenas de `scene_at`: o relógio delas em `_scene_t`)
 					bg._scene_t[scene[1]] = bt[0] + i * (bt[1] if n > 1 else 0.0)
+				if scene[0] == "raid":   # os dois carros, no mesmo relógio da cena
+					if not bg._cars.any(func(c: Dictionary) -> bool: return c.has("raid")):
+						bg._cars.clear()
+						bg._car_in = [INF, INF]
+						bg._walkers.clear()
+						bg._cars.append(bg._scene_car_of("raid", 0.0))
+					for c: Dictionary in bg._cars:
+						c["s"] = bg._scene_t["raid"] - (0.0 if c.has("raid_van") else Background.Raid.LATE)
 				else:
 					bg.set(scene[1], bt[0] + i * (bt[1] if n > 1 else 0.0))
 				await get_tree().process_frame

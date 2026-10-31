@@ -8,10 +8,10 @@ const Cord := preload("res://scripts/ui/cord.gd")   ## a física de cada fio
 const HOLE_LIP := 2.0    # ...e some abaixo disto (px abaixo do buraco), atrás da beira da frente dele
 const HOLE_SHADE := [[0.0, 4.0, 0.65], [4.0, 8.0, 0.4], [8.0, 12.0, 0.2]]   # o fio entrando no buraco escurece: [de, até (px a partir do buraco), escuro]
 
-var _pushed := {}   ## ponta -> segundos desde que encaixou (a assentada, `PUSH_SEC`, e a passagem para de frente)
+var _pushed := {}   ## ponta -> segundos desde que encaixou (a entrada e a assentada, `PUSH_SEC`)
 var _knocked := {}   ## ponta encaixada -> [segundos desde que um fio caiu nela, px que afunda] (`KNOCK_PX`)
 var _draped := {}   ## ponta encaixada -> as pontas cujo fio tapava a tomada quando ela encaixou: o plug o levantou e ele corre por cima, sem esbarrar (esticado, não o contornava: preso nele, batia sem parar)
-var _pushed_ang := {}   ## ponta -> o ângulo do plug na mão quando encaixou (a passagem para de frente gira dali)
+var _pushed_from := {}   ## ponta -> [onde estava a frente do plug na mão, a partir do meio da tomada, e o ângulo dele] (ele vira dali, `_turning`)
 var _silhouette := {}   ## encaixado (o cotovelo, pela `_elbow_pose`) ou em pé (false) -> polígono do contorno (destaque, clique)
 var cursor := Vector2.ZERO
 var _hover := -1               # ponta cujo plug está sob o mouse (pode ser pega); desenhada com destaque
@@ -123,10 +123,30 @@ const PLUG_PAL := {"1": Pal.SHELL[7], "2": Pal.SHELL[6], "3": Pal.SHELL[5], "4":
 ## A luz da lâmpada ou do aro aceso no plug encaixado, pixel a pixel a partir da beira virada para ela (`_elbow_rim`):
 ## cheia na beira e sumindo para dentro em degraus. Com a beira acesa e o resto apagado, a luz tomava o plug de uma vez.
 const RIM_FALL := [0.75, 0.4, 0.16]
-const MORPH_SEC := 0.08   # encaixando ou saindo, o plug passa de em pé para o cotovelo de frente (e volta) nesse tempo
-const PUSH_PX := 1.0     # ao encaixar, o plug desce tanto (px) e volta...
+const MORPH_SEC := 0.08   # saindo, o plug passa do cotovelo de frente para em pé nesse tempo
 const ROT_STEP := deg_to_rad(5.0)   # solto ou na mão, o plug gira em passos assim, cada um montado pixel a pixel (`PixelArt.turned`)
-const PUSH_SEC := 0.14   # ...nesse tempo, como se fosse empurrado para dentro
+## Encaixando (`_turning`): o plug vira da mão para a tomada em TURN_SEC, a cabeça indo de em pé, deitada no painel,
+## para de frente, apontada para ele, enquanto a capa e o fio ficam pendurados (`_elbow` com `turn`); vai OUT_PX à
+## frente do painel, com a sombra longe, e entra acelerando em IN_SEC, a sombra encolhendo até colar; bate no fundo,
+## afunda PUSH_PX, segura PUSH_HOLD s e volta ao lugar freando, sem repicar (SETTLE_SEC, `_push`; repicando, parecia
+## mola), com a sombra colando e voltando junto. Na batida
+## (`_impact`), o estalo e os plugs encaixados a menos de NEIGHBOR px pulam (`_knocked`).
+const TURN_SEC := 0.13
+const IN_SEC := 0.06
+const OUT_PX := 8.0
+const PUSH_PX := 2.0   # (com 3, o pescoço curto deixava à mostra o buraco da tomada)
+const PUSH_HOLD := 0.03
+const SETTLE_SEC := 0.15
+const HIT_SEC := TURN_SEC + IN_SEC   # a batida no fundo
+const PUSH_SEC := HIT_SEC + PUSH_HOLD + SETTLE_SEC
+## Na mão, o plug é maior que encaixado (mais perto dos olhos): virando, o tubo do `_elbow` vai deste tamanho (o
+## comprimento e a grossura, do plug em pé, `PLUG_LEN` e o corpo de 10 px) para o dele; e a ponta de metal, que entra na
+## tomada, tem PIN de comprimento e PIN_R de raio (encaixada, fica toda dentro).
+const TURN_LEN := 1.4
+const TURN_W := 1.25
+const PIN := 17.0
+const PIN_R := 2.0
+const NEIGHBOR := 36.0   # (as colunas das linhas ficam a ~33 px)
 const KNOCK_PX := Vector2(0.5, 1.0)   # um fio caindo nele também o afunda (px, da batida fraca à forte: a fraca some no arredondamento)...
 const KNOCK_SEC := 0.1   # ...e ele volta nesse tempo
 const LAMP_ABOVE := 90.0   # px acima da tela: a luminária do teto, que não aparece
@@ -158,7 +178,10 @@ func _plug_base(e: int) -> Vector2:
 		return cursor + PLUG_BASE.rotated(_swing)   # balança em volta de onde a mão pega
 	if ends[e] != -1:
 		var pose := _elbow_pose(e)   # encaixado: o fio sai do pé da capa
-		return jack_rect(int(ends[e])).get_center() + Vector2(pose.x, pose.y) + (Vector2.DOWN.rotated(pose.z) * (ELBOW_LEN - 1.0)).round()
+		var tu := _turning(e)
+		if not tu.is_empty():   # ainda virando ou chegando: o pé da capa do tubo
+			return (tu[0] as Vector2) + (_elbow(tu[3], tu[1], tu[2])[2] as Vector2)
+		return jack_rect(int(ends[e])).get_center() + _pushed_t(Vector2(pose.x, pose.y), _push(e)) + (Vector2.DOWN.rotated(pose.z) * (ELBOW_LEN - 1.0)).round()
 	if _loose.has(e):
 		if _loose[e]["seat"] >= 0.0:
 			return _seat_pose(e)[0]
@@ -166,12 +189,47 @@ func _plug_base(e: int) -> Vector2:
 	return _rest(e)
 
 
-## Quanto o plug encaixado desce (px): a assentada, recém-encaixado, e a batida de um fio caindo nele.
+## Quanto o plug encaixado entra além do assentado (px; negativo, para fora): a batida no fundo e a mola de volta
+## (`PUSH_HOLD`, `SETTLE_SEC`), e a batida de um fio caindo nele.
 func _push(e: int) -> float:
-	var px := PUSH_PX * sin(PI * minf(float(_pushed[e]) / PUSH_SEC, 1.0)) if _pushed.has(e) else 0.0
+	var px := 0.0
+	if _pushed.has(e) and float(_pushed[e]) >= HIT_SEC:
+		var s := float(_pushed[e]) - HIT_SEC - PUSH_HOLD
+		if s < 0.0:
+			px = PUSH_PX
+		elif s < SETTLE_SEC:   # volta freando
+			px = PUSH_PX * pow(1.0 - s / SETTLE_SEC, 2.0)
 	if _knocked.has(e):
 		px += float(_knocked[e][1]) * sin(PI * minf(float(_knocked[e][0]) / KNOCK_SEC, 1.0))
 	return px
+
+
+## O plug encaixando antes da batida (`TURN_SEC`, `IN_SEC`): [onde fica a frente dele na tela, sem a profundidade,
+## quanto falta virar (1: em pé, como na mão; 0: de frente, apontado para a tomada), px à frente do painel, a pose
+## (`_elbow_pose`, com a capa girando do ângulo da mão para o do fio)]; vazio depois da batida. A frente vai de onde
+## estava na mão (`_pushed_from`) até a tomada, e com ela fora do painel a profundidade a desloca na tela: ela parte
+## de onde estava e termina na frente da tomada.
+func _turning(e: int) -> Array:
+	var t: float = _pushed.get(e, INF)
+	if t >= HIT_SEC:
+		return []
+	var c := jack_rect(int(ends[e])).get_center()
+	var pose := _elbow_pose(e)
+	if t >= TURN_SEC:   # de frente, entrando acelerado
+		var u := (t - TURN_SEC) / IN_SEC
+		return [c, 0.0, roundf(OUT_PX * (1.0 - u * u)), pose]
+	var from: Array = _pushed_from.get(e, [Vector2.ZERO, 0.0])
+	var k := smoothstep(0.0, 1.0, t / TURN_SEC)
+	var sv := Vector2(pose.x, pose.y) / ELBOW_Z
+	var ang := snappedf(lerp_angle(float(from[1]), pose.z, k), ROT_STEP)
+	return [(c + (from[0] as Vector2) - sv * OUT_PX).lerp(c, k).round(), snappedf(1.0 - k, 0.1), OUT_PX, Vector3(pose.x, pose.y, ang)]
+
+
+## A curva do plug encaixado (`t`, a partir da tomada) com ele `push` px para dentro: o pescoço encurta (para fora,
+## alonga; com a tomada bem na frente dos olhos, sem pescoço, sai para baixo e à direita).
+static func _pushed_t(t: Vector2, push: float) -> Vector2:
+	var n := t.normalized() if t != Vector2.ZERO else Vector2(1, 1).normalized()
+	return (t - n * minf(push, t.length())).round()
 
 
 ## Onde o fio entra no plug guardado (assentado: `hole(e) + (0, PLUG_SINK)`, o fim de `_seat_pose`).
@@ -468,8 +526,20 @@ func _draw_plug(e: int, shadow: bool) -> void:
 	var seated: bool = ends[e] != -1
 	var pose := _elbow_pose(e) if seated else Vector3.ZERO
 	var at := jack_rect(int(ends[e])).get_center() if seated else _plug_base(e)   # encaixado, desenha a partir da tomada
+	var tu := _turning(e) if seated else []
+	if not tu.is_empty():   # virando e entrando: o tubo inteiro, e a sombra dele, longe na mão e colando ao entrar
+		var art := _elbow(tu[3], tu[1], tu[2])
+		var tex := PixelArt.art(art[0], _plug_pal(_cable_col(e)))
+		if shadow:
+			var far := (PLUG_SHADE + Vector2(-1, 1) * float(tu[2]) * 0.6).lerp(Vector2(-6, 8), float(tu[1]))
+			_ci.draw_texture(tex, (tu[0] as Vector2) - (art[1] as Vector2) + far.round(), Color(0, 0, 0, SHADOW.a))
+		else:
+			_ci.draw_texture(tex, (tu[0] as Vector2) - (art[1] as Vector2), _lit_by(tu[0]))
+		return
 	if shadow and not seated:
 		at += _lift(e)
+	elif shadow:   # afundado, a sombra cola no plug
+		at += Vector2(1, -1) * roundf(_push(e) * 0.5)
 	_ci.draw_set_transform(at.round(), _plug_angle(e))
 	_cut = hole(e).y + HOLE_LIP - at.round().y if _in_hole(e) else INF
 	if shadow and seated:   # da tomada até onde a luz joga a frente da cabeça, e dali a capa
@@ -480,15 +550,7 @@ func _draw_plug(e: int, shadow: bool) -> void:
 		if e == _hover:   # contorno claro, na forma do plug: dá para pegar
 			_draw_cut(_plug_outline(e, 2.0), Pal.GLOW)
 		if seated:
-			var k := minf(float(_pushed.get(e, MORPH_SEC)) / MORPH_SEC, 1.0)
-			if k < 1.0:   # acabou de encaixar: o cotovelo cresce enquanto o corpo em pé entra no encaixe
-				_ci.draw_set_transform(at.round(), 0.0, Vector2.ONE * lerpf(0.4, 1.0, k))
 			_draw_elbow(_cable_col(e), pose, _push(e), 1.0, int(ends[e]), _lit_by(at))
-			if k < 1.0:   # o corpo em pé gira para a tomada e encurta até o tamanho do cotovelo, entrando no encaixe
-				var to := _plug_base(e) - at
-				var axis := Transform2D(lerp_angle(float(_pushed_ang.get(e, 0.0)), to.angle() - PI / 2.0, k), Vector2(1.0, lerpf(1.0, to.length() / PLUG_LEN, k)), 0.0, at.round())
-				_ci.draw_set_transform_matrix(axis * Transform2D(0.0, Vector2(0, PLUG_LEN)))
-				_draw_plug_body(_cable_col(e), false, _lit_by(at))
 		elif _plug_angle(e) != 0.0:   # girado pixel a pixel, preso aos pixels (girado pelo desenho, serrilhava)
 			var ang := _plug_angle(e)
 			var t := PixelArt.turned(_plug_art(ang), ang, Vector2(PLUG_W / 2.0, PLUG_H))
@@ -576,8 +638,7 @@ static func _art_outline(rows: Array, origin: Vector2) -> PackedVector2Array:
 ## sai dele. `j`: o encaixe, para a luz que bate no plug (`_plug_light`): ele acende a partir da beira (`_elbow_rim`),
 ## a de cima (a lâmpada logo acima) ou a toda volta (o aro aceso do destino), sumindo para dentro.
 func _draw_elbow(col: Array, pose: Vector3, push: float, alpha: float, j := -1, lit := Color.WHITE) -> void:
-	var t := Vector2(pose.x, pose.y)
-	t = (t - t.normalized() * minf(push, t.length())).round()
+	var t := _pushed_t(Vector2(pose.x, pose.y), push)
 	var key := Vector3(t.x, t.y, pose.z)
 	var art := _elbow(key)
 	var p: Vector2 = -art[1]
@@ -645,11 +706,17 @@ func _plug_light(j: int) -> Array:
 ## (`ELBOW_ARC`) e a capa, paralela ao painel, até o pé. Cada pixel mostra o ponto mais à frente (na direção da vista),
 ## no tom da luz na normal do tubo ali (`LIGHT`, um pouco de frente): a faixa e os frisos saem em anel. Junto do
 ## painel, mais escuro. Guardado pela pose. (Desenhado em 2D, com discos, ficava chapado, sem profundidade.)
+## Encaixando (`_turning`), o mesmo tubo virando: `turn` de 1 (a cabeça em pé, deitada no painel, como o plug na mão)
+## a 0 (de frente); a cabeça gira em volta do eixo de lado e a curva de borracha se desfaz na mesma conta (a capa
+## continua pendurada para baixo), com a ponta de metal (`PIN`) à mostra fora do painel e o tamanho da mão
+## (`TURN_LEN`, `TURN_W`); `lift` px à frente do painel (o que passa para dentro dele não aparece). O terceiro
+## item: onde fica o pé da capa, de onde sai o fio.
 static var _elbows := {}
 
 
-static func _elbow(pose: Vector3) -> Array:
-	if not _elbows.has(pose):
+static func _elbow(pose: Vector3, turn := 0.0, lift := 0.0) -> Array:
+	var key: Variant = pose if turn == 0.0 and lift == 0.0 else [pose, turn, lift]
+	if not _elbows.has(key):
 		if _elbows.size() > 256:
 			_elbows.clear()
 		var sun := Vector3(LIGHT.x, LIGHT.y, 1.1).normalized()
@@ -660,26 +727,49 @@ static func _elbow(pose: Vector3) -> Array:
 		var ey := (Vector3(0, 1, 0) - eye * eye.y).normalized()   # (y da tela para baixo)
 		var dir := Vector2.DOWN.rotated(pose.z)
 		var r := ELBOW_W.x
-		var arc := PI / 2.0 * ELBOW_ARC   # o comprimento do eixo na curva
+		var bend := PI / 2.0 * (1.0 - turn)   # a curva de borracha (de frente, um quarto de volta; em pé, reta)
+		var phi := PI / 2.0 * turn   # a cabeça deitada para baixo
+		var sl := lerpf(1.0, TURN_LEN, turn)
+		var sw := lerpf(1.0, TURN_W, turn)
+		var arc := bend * ELBOW_ARC   # o comprimento do eixo na curva
 		var cap := ELBOW_LEN - ELBOW_ARC   # e na capa
-		var axis := []   # [ponto, tangente, raio, parte, px do eixo desde o começo da curva], a cada quarto de px
+		# o eixo no plug (a cabeça em +z, a curva para +y), girado `phi` em volta do x e posto no painel: y para `dir`
+		var place := func(p: Vector3) -> Vector3:
+			var wy := p.y * cos(phi) + p.z * sin(phi)
+			return Vector3(dir.x * wy, dir.y * wy, -p.y * sin(phi) + p.z * cos(phi))
+		var local := []   # [ponto, tangente, raio, parte, px do eixo desde o começo da curva], a cada quarto de px
+		if turn > 0.0 or lift > 0.0:
+			for i in int(PIN * 4.0):
+				local.append([Vector3(0, 0, i / 4.0 - PIN), Vector3.BACK, PIN_R, "sleeve", -INF])
 		for i in int(ELBOW_BODY * 4.0):
 			var z := i / 4.0
-			axis.append([Vector3(0, 0, z), Vector3.BACK, ELBOW_SLEEVE.x if z < ELBOW_SLEEVE.y else r,
+			local.append([Vector3(0, 0, z), Vector3.BACK, ELBOW_SLEEVE.x if z < ELBOW_SLEEVE.y else r,
 				"sleeve" if z < ELBOW_SLEEVE.y else "body", z - ELBOW_BODY])
 		for i in int(arc * 4.0):
 			var th := i / 4.0 / ELBOW_ARC
-			axis.append([Vector3(dir.x * ELBOW_ARC * (1.0 - cos(th)), dir.y * ELBOW_ARC * (1.0 - cos(th)), ELBOW_BODY + ELBOW_ARC * sin(th)),
-				Vector3(dir.x * sin(th), dir.y * sin(th), cos(th)), r, "bend", i / 4.0])
+			local.append([Vector3(0, ELBOW_ARC * (1.0 - cos(th)), ELBOW_BODY + ELBOW_ARC * sin(th)), Vector3(0, sin(th), cos(th)), r, "bend", i / 4.0])
+		var bent := Vector3(0, ELBOW_ARC * (1.0 - cos(bend)), ELBOW_BODY + ELBOW_ARC * sin(bend))
+		var down := Vector3(0, sin(bend), cos(bend))
 		for i in int(cap * 4.0) + 1:
 			var u := i / 4.0
 			var w := lerpf(r, ELBOW_W.y, clampf((arc + u - ELBOW_RIBS.y) / (arc + cap - ELBOW_RIBS.y), 0.0, 1.0))   # afunila do fim dos frisos até o fio
-			axis.append([Vector3(dir.x * (ELBOW_ARC + u), dir.y * (ELBOW_ARC + u), ELBOW_Z), Vector3(dir.x, dir.y, 0.0), w,
-				"mouth" if u > cap - 1.0 else "cap", arc + u])
-		var foot := t + dir * ELBOW_LEN
-		var lo := Vector2i((Vector2.ZERO.min(t).min(foot) - Vector2.ONE * (r + 2.0)).floor())
-		var hi := Vector2i((Vector2.ZERO.max(t).max(foot) + Vector2.ONE * (r + 2.0)).ceil())
-		var size := hi - lo
+			local.append([bent + down * u, down, w, "mouth" if u > cap - 1.0 else "cap", arc + u])
+		var axis := []   # no painel: [ponto, tangente, raio, parte, px desde a curva, z no plug (a faixa)]
+		var low := Vector2.INF
+		var high := -Vector2.INF
+		for a: Array in local:
+			var pt: Vector3 = place.call((a[0] as Vector3) * sl) + Vector3(0, 0, lift)
+			if pt.z < 0.0:
+				continue   # dentro do painel
+			var rk: float = a[2] * sw
+			axis.append([pt, place.call(a[1]), rk, a[3], a[4], (a[0] as Vector3).z])
+			var at := Vector2(pt.x, pt.y) + sv * pt.z
+			low = low.min(at - Vector2.ONE * (rk + 2.0))
+			high = high.max(at + Vector2.ONE * (rk + 2.0))
+		var last: Vector3 = axis[-1][0]
+		var foot := Vector2(last.x, last.y) + sv * last.z
+		var lo := Vector2i(low.floor())
+		var size := Vector2i(high.ceil()) - lo
 		var depth := PackedFloat32Array()   # o mais à frente em cada pixel
 		depth.resize(size.x * size.y)
 		depth.fill(-INF)
@@ -722,7 +812,7 @@ static func _elbow(pose: Vector3) -> Array:
 				if a[3] == "sleeve":
 					row += "g" if lit > 0.6 else ("m" if lit > 0.2 else ("s" if lit > -0.2 else "k"))
 					continue
-				if a[3] == "body" and pt.z >= ELBOW_BAND.x and pt.z < ELBOW_BAND.x + ELBOW_BAND.y:   # a faixa do cabo
+				if a[3] == "body" and a[5] >= ELBOW_BAND.x and a[5] < ELBOW_BAND.x + ELBOW_BAND.y:   # a faixa do cabo
 					row += "a" if lit > 0.97 else ("b" if lit > 0.3 else "c")
 					continue
 				var dark := 1 if pt.z < 1.5 else 0   # junto do painel, na sombra dele
@@ -733,8 +823,8 @@ static func _elbow(pose: Vector3) -> Array:
 					dark = 2   # o friso
 				row += str(mini((1 if lit > 0.97 else 6 - clampi(int((lit + 0.05) * 4.0), 0, 4)) + dark, 6))
 			rows.append(row)
-		_elbows[pose] = [rows, -Vector2(lo)]
-	return _elbows[pose]
+		_elbows[key] = [rows, -Vector2(lo), foot]
+	return _elbows[key]
 
 
 ## A sombra do plug encaixado no painel, a partir da tomada, na pose `pose`: da tomada até a curva deslocada

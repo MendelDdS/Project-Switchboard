@@ -48,14 +48,20 @@ func _initialize() -> void:
 					for p in q:
 						where = where.expand(p)
 				ok(area < 1.0, "%d px: %s e %s se sobrepõem na tela (%.0f px², em %s)" % [w, a, b, area, where])
-		var sb: Switchboard = m.board   # os broches (`badges.gd`): a almofada na prateleira, folgada do tampo dos equipamentos e do fim dela
+		# os broches (`badges.gd`) e o discador (`dialer.gd`) na prateleira: a almofada folgada do tampo dos equipamentos e
+		# do discador, e o discador do fim dela
+		var sb: Switchboard = m.board
 		var bay := sb.bay_rect()
 		var pad: Control = m.badges
+		var dialer: Control = m.shelf_dialer
 		for y in range(int(pad._mid) - 10, int(pad._mid) + 12):
-			var cover := bay.get_center().x + (bay.size.x - Switchboard.BAY_MARGIN) / 2.0 + sb._receding(Vector2(sb.tray_rect().end.x, pad._mid), y) - sb.tray_rect().end.x
-			var e: Vector2 = pad.edges(y)
-			ok(e.x - cover >= 6.0 and sb._receding(Vector2(sb.tray_rect().end.x, pad._mid), y) - e.y >= 6.0,
-				"%d px: a almofada dos broches na linha %d encosta (tampo em %.0f, almofada de %.0f a %.0f)" % [w, y, cover, e.x, e.y])
+			var slant: float = sb._receding(Vector2(sb.tray_rect().end.x, pad._mid), y) - sb.tray_rect().end.x
+			var cover := bay.get_center().x + (bay.size.x - Switchboard.BAY_MARGIN) / 2.0 + slant
+			var e: Vector2 = pad.edges(y).round()   # (como ela é desenhada)
+			var d0: float = dialer._left(y)
+			ok(e.x - cover >= 6.0 and d0 - e.y >= 6.0 and sb.tray_rect().end.x + slant - (d0 + Switchboard.DIALER_W) >= 5.0,
+				"%d px: na linha %d, a almofada ou o discador encostam (tampo em %.0f, almofada de %.0f a %.0f, discador de %.0f a %.0f)"
+				% [w, y, cover, e.x, e.y, d0, d0 + Switchboard.DIALER_W])
 		if w == 960:
 			await _longest_choice(m)
 		vp.queue_free()

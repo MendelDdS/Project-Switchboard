@@ -31,7 +31,8 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   Estilo no tema global `themes/main_theme.tres` por variações de tipo (`GreenButton`, `InkButton`, `HudPanel`,
   `PaperPanel`, `MemoPanel`, `TapedNote`, `InkLabel`, `InkBoldLabel`, `TypedText`/`HandText`...): prefira variação de
   tema a override por nó. Papéis escritos: efeito de RichTextLabel (`scripts/ui/paper_ink.gd`, `[typed]` e `[hand]`).
-- Telas fora do turno são papéis: o bilhete do supervisor na abertura (`Intro`), pausa e configurações num papel com
+- Tela inicial (`scenes/title_screen.tscn`, posta pelo `GameView` antes do jogo, `GameView.playing`; a pausa volta a
+  ela, `%ToMenu`): a mesa de perto (`title_board.gd`, linha chamando, `ringing`) e o menu (`TitleButton`, setas e Enter). Telas fora do turno são papéis: o bilhete do supervisor na abertura (`Intro`), pausa e configurações num papel com
   fita, o relatório num memorando (`ReportView`: timbre, serviços prestados, advertências com o carimbo da gravidade,
   parecer à mão, rubrica e o carimbo redondo do conceito, `_grade_stamp`, girado pixel a pixel e em lugar sorteado).
 - Botão de resposta (`ChoiceButton`): fala curta do operador (`CHOICE_*`; a frase inteira, `OP_*`, vai para a
@@ -105,7 +106,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   - `test_content` (o conteúdo de `data/` sem a cena, ~2 s: referências, lacunas, traduções, marcadores, falas fora
     do `.po`, número da lista que não é destino de nada; rode depois de mexer em `data/`), `test_flow` (cenários), `test_keys` (teclas e mouse pelo `GameView`), `test_layout` (objetos da mesa sem
     sobreposição; rode ao mexer na disposição), `test_penalties` (consequências, relatório, conta do conceito),
-    `test_bureaucracy` (núcleo e B1–B4 com as ligações de teste dos `.tres`), `test_training`, `test_shift` (o robô joga o turno inteiro e imprime métricas e a eficiência; `--human` mede o
+    `test_bureaucracy` (núcleo e B1–B4 com as ligações de teste dos `.tres`), `test_training`, `test_dial` (o discador), `test_shift` (o robô joga o turno inteiro e imprime métricas e a eficiência; `--human` mede o
     ritmo de uma pessoa, `--eager` não espera o fim da ligação, `--clumsy`, `--nosy`, `--careless`, `--night=N`, `--lang=`; falha se o atento ficar abaixo
     de Regular). Rode depois de mudar agenda, fim de ligação, mesa ou cabos.
 - Opções do jogo: `-- --seed=N`, `--night=N` (sem ler nem gravar o save), `--weather=X`, `--lang=X`, `--pace=N`, `--flags=a,b`.
@@ -149,6 +150,11 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 - **Interurbano**: troncos 901–906 (`GameData.TRUNKS`), a telefonista de lá (`Main._trunk`), o número de lá
   (`TransferCall.far_number`). **Calculógrafo** (`Toll`, `TollTicket`): conta a ligação interurbana, imprime o bilhete,
   o jogador carimba e guarda na caixinha; esquecido ou sem carimbo é advertência leve.
+- **Discador** (`Dialing`, nó do Main; `PhoneCall.Kind.OUTGOING`, `Conversation._outgoing`): o operador liga pelo
+  próprio fone (sem o FONE); na prateleira (`Dialer`, `dialer.gd`) e de perto num pop-up em cima dele (`DialView`), só clique.
+  Enquanto dura, é o foco (a linha do FONE em HOLD) e a do lugar fica ocupada (`Exchange`, `seized`); fora do caderno. Atende a do
+  roteiro (`DialCall`, `Night.dial`/`GameContent.dial`, passos de `PrankStep`) ou o atendimento do lugar
+  (`DirectoryEntry.answers`, `ChatTopic`, `closes`; só Vila Serena por ora; palavras-chave nas respostas, `Eavesdrop.note`). Marcador `ligou_<número>_<noite>`. `PLANO_DISCADOR.md`.
 - Fim de ligação: `end_call(c, PhoneCall.End.*)` → `c.record` → `Notebook.add()`; o caderno registra com um clique no
   tipo (`register(T.Key.TYPE_*)`).
 - **Despacho** (`Dispatch`, `CityMap`, `CardMachines`, `PunchCard`): marcar o trecho no mapa imprime o cartão (dois cliques: o primeiro só datilografa, `CardMachines.draft`; o anel da moldura aproxima, `_knob`);
@@ -193,7 +199,9 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 - Cenas na rua da vista: `Night.street_events` (`StreetEvent`: `kind`, `at`, `every`; o Main chama
   `Background.schedule`). A 3: o policial (`scripts/ui/beating.gd`); a 7: a viatura estacionada no hotel (`PATROL_*`);
   a 9: o vigia no terraço (`LOOKOUT_*`); 9 a 14: o toque de recolher às 21h, `CURFEW_*`, `_hurry`; 4 a 12: pichação,
-  carro de som, panfletos, tinta, corrida, desfile e banca; 14: a fuga da família às 20h (`Moving`); 15: o
+  carro de som, panfletos, tinta, corrida, desfile e banca; 13: a batida no hotel às 22h (`Raid`: camburão, viatura,
+  cinco presos); 14: a fuga da família às 20h (`Moving`) e a pedra que trinca a janela às 23h (`Stone`, camada `_crack`
+  na vista, o trincado fica para a 15); 15: o
   sinalizador vermelho às 21h (`Flare`, camada `_flare` entre o céu e a cidade); um script por cena em
   `scripts/ui/`, relógio `_scene_t`; pichação, tinta, banca e o apartamento vazio ficam nas noites seguintes, `left_behind`). Regra de qualidade: `PLANO_RUA.md`.
 - Marcadores do roteiro: `StoryFlags` (`flags.allows(requires)`, `flags.apply("nome" | "!nome")`), salvos no `Progress`.

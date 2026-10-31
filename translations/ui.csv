@@ -477,3 +477,29 @@ BADGE_RUSH_DESC,Conceito Bom ou melhor no ritmo mais puxado da central.,A Good g
 BADGE_VETERAN,Veterano,Veteran,Veterano
 BADGE_VETERAN_DESC,Dez noites de trabalho na central.,Ten nights of work at the exchange.,Diez noches de trabajo en la central.
 BADGE_EARNED,Ganho na noite %d,Earned on night %d,Ganado en la noche %d
+DIAL_TITLE,Discador,Dialer,Marcador
+DIAL_KEY,Discar,Dial,Marcar
+DIAL_END,Encerrar,End,Terminar
+DIAL_CALLING,CHAMANDO,CALLING,LLAMANDO
+DIAL_ON_LINE,EM LINHA,ON LINE,EN LÍNEA
+DIAL_ENDED,ENCERRADA,ENDED,TERMINADA
+DIAL_BUSY,OCUPADO,BUSY,OCUPADO
+DIAL_NO_ANSWER,NÃO ATENDE,NO ANSWER,NO CONTESTA
+DIAL_NO_NUMBER,NÃO EXISTE,NO SUCH NUMBER,NO EXISTE
+DIAL_NOT_SERVED,NÃO COMPLETA,CANNOT CONNECT,NO COMPLETA
+DIAL_TRUNK,USE O TRONCO,USE THE TRUNK,USE LA TRONCAL
+DIAL_DISPATCH,USE O DESPACHO,USE DISPATCH,USE EL DESPACHO
+SYS_DIALING,(Discando %s...),(Dialing %s...),(Marcando %s...)
+LOG_DIALED,Ligação para %s,Call to %s,Llamada a %s
+CHOICE_DIAL_BYE,[Encerrar ligação],[End the call],[Terminar la llamada]
+OP_DIAL_BYE,"Vou desligar agora, obrigado.","I'll hang up now, thank you.","Voy a colgar ahora, gracias."
+TITLE_LOAD,Carregar jogo,Load game,Cargar partida
+TITLE_NEW,Novo jogo,New game,Nueva partida
+TITLE_QUIT,Sair,Quit,Salir
+TITLE_CREDITS,Créditos,Credits,Créditos
+TITLE_NEW_WARNING,Um jogo novo apaga o jogo salvo e começa de novo do treinamento.,A new game erases the saved game and starts over from the training.,Una partida nueva borra la partida guardada y empieza de nuevo desde el entrenamiento.
+TITLE_ERASE,Apagar e começar,Erase and start,Borrar y empezar
+CREDITS_TEXT,"Criação, roteiro e programação\nMendelssohn Dantas de Sá\n\nFeito com Godot Engine\ngodotengine.org/license\n\nFonte Departure Mono, de Helena Zhang\n(SIL Open Font License)","Created, written and programmed by\nMendelssohn Dantas de Sá\n\nMade with Godot Engine\ngodotengine.org/license\n\nDeparture Mono font by Helena Zhang\n(SIL Open Font License)","Creación, guion y programación\nMendelssohn Dantas de Sá\n\nHecho con Godot Engine\ngodotengine.org/license\n\nFuente Departure Mono, de Helena Zhang\n(SIL Open Font License)"
+TITLE_WHERE,Noite %d · %s,Night %d · %s,Noche %d · %s
+TITLE_WHERE_TRAINING,Treinamento · %s,Training · %s,Entrenamiento · %s
+PAUSE_TO_MENU,Voltar ao menu,Back to the menu,Volver al menú

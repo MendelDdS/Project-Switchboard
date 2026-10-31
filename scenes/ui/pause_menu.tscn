@@ -70,6 +70,13 @@ layout_mode = 2
 theme_type_variation = &"DarkButton"
 text = "RESTART_NIGHT"
 
+[node name="ToMenu" type="Button" parent="Center/Card/Margin/Main"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+theme_type_variation = &"DarkButton"
+text = "PAUSE_TO_MENU"
+
 [node name="Quit" type="Button" parent="Center/Card/Margin/Main"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 28)

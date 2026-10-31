@@ -2,6 +2,7 @@ class_name Night
 extends Resource
 
 const StreetEvent := preload("res://scripts/data/street_event.gd")
+const DialCall := preload("res://scripts/data/dial_call.gd")
 ## Uma noite do jogo: o bilhete do começo e o roteiro fixo (ligações da história e a ligação desconhecida). Fica em
 ## res://data/nights/, na ordem de GameContent.nights. Só o roteiro é fixo; o resto do turno (quem liga, quando, de que
 ## tipo) é sorteado no ritmo do nível em que o jogador está (`Pace`, que não depende da noite).
@@ -51,3 +52,8 @@ const StreetEvent := preload("res://scripts/data/street_event.gd")
 ## Toca em algum momento entre estes minutos depois do início do turno, só com a mesa em silêncio.
 @export var mystery_from := 240.0
 @export var mystery_to := 330.0
+
+@export_group("Ligações do operador")
+## As ligações que o roteiro desta noite espera que o operador faça pelo discador (`DialCall`): discando o número,
+## atendem elas no lugar do atendimento de sempre (as de qualquer noite ficam em `GameContent.dial`).
+@export var dial: Array[DialCall] = []

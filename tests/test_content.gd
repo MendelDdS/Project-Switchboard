@@ -233,6 +233,24 @@ func _initialize() -> void:
 		ok(t.line != "" and t.replies.all(func(r: ChatReply): return r.text != "" and r.follow != "")
 			and t.replies.any(func(r): return r.tone == ChatReply.Tone.WARM) and t.replies.any(func(r): return r.tone == ChatReply.Tone.CURT),
 			"assunto com resposta simpática e seca: " + t.line)
+	# o discador (`Dialing`): todo número de Vila Serena atende quem liga da central (os outros setores, ainda não), cada
+	# atendimento com a fala e as perguntas com resposta; as ligações do roteiro num número da cidade, com o roteiro
+	for e in C.directory:
+		if e.number.begins_with("3") and not e.dispatch_only:
+			ok(not e.answers.is_empty(), "o discador: %s atende quem liga da central" % e.name)
+		for t in e.answers:
+			ok(t.line != "" and not t.replies.is_empty() and t.replies.all(func(r: ChatReply): return r.text != "" and r.follow != ""),
+				"atendimento com fala e perguntas com resposta: %s" % e.name)
+			for r in t.replies:   # as palavras-chave das respostas (vão para as anotações da lista): de tipo conhecido e bem marcadas
+				ok(_holes(r.follow).all(func(h: String): return not h.begins_with("[") or h.trim_prefix("[").trim_suffix(":") in Clue.KINDS)
+					and not "[" in Clue.parse(r.follow)[0] and not "]" in Clue.parse(r.follow)[0], "palavra-chave mal marcada na resposta: " + r.follow)
+	ok(not C.dial_byes.is_empty(), "as despedidas gerais de quem atende o discador")
+	var dials: Array = C.dial.duplicate()
+	for n in C.nights:
+		dials.append_array(n.dial)
+	for dc in dials:
+		ok(dc.number.length() == 3 and dc.number.is_valid_int() and not GameData.is_trunk(dc.number) and not dc.steps.is_empty(),
+			"ligação do roteiro pelo discador num número da cidade, com roteiro: " + dc.resource_path)
 	# emergências escritas: o endereço bate com a rua e o trecho do mapa (o trecho sai do número)
 	for e: EmergencyCall in C.emergencies:
 		var st := GameData.street(e.street)
@@ -315,6 +333,11 @@ func _check_street() -> void:
 	var shut: Vector3 = stand.state(1e5)
 	ok(shut == Vector3(1, 0, 1) and stand.state(0.0).y == 1.0, "a banca esvaziada, fechada e lacrada no fim")
 	ok(stand.figures(stand.wait() + stand.ARRIVE - 0.1).size() == 1, "os dois homens no carro antes de ele sair")
+	var stone: GDScript = load("res://scripts/ui/stone.gd")
+	ok(not stone.cracked(stone.FLY - 0.01) and stone.cracked(stone.FLY) and stone.at(stone.FLY / 2.0).z > stone.at(0.0).z,
+		"a pedra cresce voando e só trinca o vidro ao chegar")
+	ok(stone.at(stone.END - 0.01).y > stone.HIT.y + 0.3 and stone.at(stone.END).z == 0.0, "a pedra quica e cai depois da batida")
+	ok(stone.art().get_size() == Vector2(stone.ART), "o trincado desenhado")
 	var tag: GDScript = load("res://scripts/ui/graffiti.gd")
 	ok(tag.tag(tag.SPRAY_END).size() == tag._paint_order().size() and tag.tag(tag.SPRAY_AT - 0.01).is_empty(), "a pichação no tempo do spray")
 	ok(tag.tagger(1e5).is_empty() and tag.painter(1e5).is_empty(), "o pichador e o pintor saem da vista")
@@ -328,6 +351,14 @@ func _check_street() -> void:
 	ok(moving.figures(last).is_empty() and last < moving.ARRIVE + moving.wait(), "a família entra na Kombi antes de ela sair")
 	ok(moving.FAMILY_AT > moving.DARK_AT, "a luz do apartamento apaga antes de a família descer")
 	ok(moving.laundry(moving.DARK_AT) == 0 and moving.balcony(moving.DARK_AT).x < -1.5, "a roupa recolhida antes de a luz apagar")
+	var raid: GDScript = load("res://scripts/ui/raid.gd")
+	raid.figures(0.0)
+	var last_in: float = range(raid.PRISONERS.size()).map(func(i: int) -> float: return raid._in["p%d" % i]).max()
+	ok(last_in < raid._rear.z and raid.rear(last_in).x == 1.0 and raid.rear(last_in).y == 1.0 and raid.rear(raid.end()) == Vector2.ZERO,
+		"os presos sobem com as portas do cofre abertas, e elas fecham depois do último")
+	ok(raid.figures(raid.ARRIVE + raid.wait(0) - 0.05).all(func(f: Dictionary) -> bool: return f["cop"]) and raid.figures(raid.end()).is_empty(),
+		"todos nos carros antes de eles saírem")
+	ok(raid.floors(1e5) == raid.FLOORS.size() and raid.floors(raid.FLOORS[0] - 0.1) == 0, "os andares do hotel acendem na batida e ficam")
 	var flare: GDScript = load("res://scripts/ui/flare.gd")
 	ok(flare.at(flare.RISE).z == flare.APEX and flare.light(flare.RISE - 0.1) == 0.0 and flare.light(flare.RISE + 1.0) > 0.0, "o sinalizador acende no alto")
 	ok(flare.light(flare.RISE + flare.BURN) == 0.0 and flare.at(flare.RISE + flare.BURN).z > 0.0, "o sinalizador apaga ainda no ar")

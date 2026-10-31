@@ -681,6 +681,53 @@ border_width_right = 2
 border_width_bottom = 2
 border_color = Color(0.5568628, 0.20784314, 0.14901961, 1)
 
+[sub_resource type="StyleBox" id="KeyCap_End_disabled"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 2.0
+content_margin_top = 3.0
+content_margin_right = 2.0
+content_margin_bottom = 8.0
+script = ExtResource("2_keycap")
+color = Color(0.83137256, 0.33333334, 0.24705882, 1)
+off = true
+tag = false
+
+[sub_resource type="StyleBox" id="KeyCap_End_hover"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 2.0
+content_margin_top = 3.0
+content_margin_right = 2.0
+content_margin_bottom = 8.0
+script = ExtResource("2_keycap")
+color = Color(0.83137256, 0.33333334, 0.24705882, 1)
+hover = true
+tag = false
+
+[sub_resource type="StyleBox" id="KeyCap_End_pressed"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 2.0
+content_margin_top = 6.0
+content_margin_right = 2.0
+content_margin_bottom = 5.0
+script = ExtResource("2_keycap")
+color = Color(0.83137256, 0.33333334, 0.24705882, 1)
+pressed = true
+tag = false
+
+[sub_resource type="StyleBox" id="KeyCap_End_normal"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 2.0
+content_margin_top = 3.0
+content_margin_right = 2.0
+content_margin_bottom = 8.0
+script = ExtResource("2_keycap")
+color = Color(0.83137256, 0.33333334, 0.24705882, 1)
+tag = false
+
 [sub_resource type="StyleBox" id="KeyCap_Red_disabled"]
 resource_local_to_scene = false
 resource_name = ""
@@ -767,6 +814,100 @@ border_color = Color(0.62, 0.55, 0.4, 1)
 shadow_color = Color(0, 0, 0, 0.45)
 shadow_size = 1
 shadow_offset = Vector2(5, 6)
+
+[sub_resource type="StyleBox" id="KeyCap_Call_disabled"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 2.0
+content_margin_top = 3.0
+content_margin_right = 2.0
+content_margin_bottom = 8.0
+script = ExtResource("2_keycap")
+color = Color(0.36862746, 0.60784316, 0.32156864, 1)
+off = true
+tag = false
+
+[sub_resource type="StyleBox" id="KeyCap_Call_hover"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 2.0
+content_margin_top = 3.0
+content_margin_right = 2.0
+content_margin_bottom = 8.0
+script = ExtResource("2_keycap")
+color = Color(0.36862746, 0.60784316, 0.32156864, 1)
+hover = true
+tag = false
+
+[sub_resource type="StyleBox" id="KeyCap_Call_pressed"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 2.0
+content_margin_top = 6.0
+content_margin_right = 2.0
+content_margin_bottom = 5.0
+script = ExtResource("2_keycap")
+color = Color(0.36862746, 0.60784316, 0.32156864, 1)
+pressed = true
+tag = false
+
+[sub_resource type="StyleBox" id="KeyCap_Call_normal"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 2.0
+content_margin_top = 3.0
+content_margin_right = 2.0
+content_margin_bottom = 8.0
+script = ExtResource("2_keycap")
+color = Color(0.36862746, 0.60784316, 0.32156864, 1)
+tag = false
+
+[sub_resource type="StyleBox" id="KeyCap_Digit_disabled"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 2.0
+content_margin_top = 3.0
+content_margin_right = 2.0
+content_margin_bottom = 8.0
+script = ExtResource("2_keycap")
+color = Color(0.2471, 0.6235, 0.749, 1)
+off = true
+tag = false
+
+[sub_resource type="StyleBox" id="KeyCap_Digit_hover"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 2.0
+content_margin_top = 3.0
+content_margin_right = 2.0
+content_margin_bottom = 8.0
+script = ExtResource("2_keycap")
+color = Color(0.2471, 0.6235, 0.749, 1)
+hover = true
+tag = false
+
+[sub_resource type="StyleBox" id="KeyCap_Digit_pressed"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 2.0
+content_margin_top = 6.0
+content_margin_right = 2.0
+content_margin_bottom = 5.0
+script = ExtResource("2_keycap")
+color = Color(0.2471, 0.6235, 0.749, 1)
+pressed = true
+tag = false
+
+[sub_resource type="StyleBox" id="KeyCap_Digit_normal"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 2.0
+content_margin_top = 3.0
+content_margin_right = 2.0
+content_margin_bottom = 8.0
+script = ExtResource("2_keycap")
+color = Color(0.2471, 0.6235, 0.749, 1)
+tag = false
 
 [resource]
 default_font = ExtResource("1_vu6l5")
@@ -993,6 +1134,19 @@ RedButton/styles/disabled = SubResource("StyleBoxFlat_ouuwv")
 RedButton/styles/hover = SubResource("StyleBoxFlat_35dwi")
 RedButton/styles/normal = SubResource("StyleBoxFlat_r3gy8")
 RedButton/styles/pressed = SubResource("StyleBoxFlat_anjdx")
+EndKey/base_type = &"Button"
+EndKey/colors/font_color = Color(0.902, 0.8588, 0.7412, 1)
+EndKey/colors/font_disabled_color = Color(0.7067, 0.2833, 0.21, 1)
+EndKey/colors/font_focus_color = Color(0.902, 0.8588, 0.7412, 1)
+EndKey/colors/font_hover_color = Color(0.902, 0.8588, 0.7412, 1)
+EndKey/colors/font_hover_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
+EndKey/colors/font_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
+EndKey/font_sizes/font_size = 11
+EndKey/styles/disabled = SubResource("KeyCap_End_disabled")
+EndKey/styles/hover = SubResource("KeyCap_End_hover")
+EndKey/styles/hover_pressed = SubResource("KeyCap_End_pressed")
+EndKey/styles/normal = SubResource("KeyCap_End_normal")
+EndKey/styles/pressed = SubResource("KeyCap_End_pressed")
 RedKey/base_type = &"Button"
 RedKey/colors/font_color = Color(0.902, 0.8588, 0.7412, 1)
 RedKey/colors/font_disabled_color = Color(0.7067, 0.2833, 0.21, 1)
@@ -1006,6 +1160,32 @@ RedKey/styles/hover = SubResource("KeyCap_Red_hover")
 RedKey/styles/hover_pressed = SubResource("KeyCap_Red_pressed")
 RedKey/styles/normal = SubResource("KeyCap_Red_normal")
 RedKey/styles/pressed = SubResource("KeyCap_Red_pressed")
+CallKey/base_type = &"Button"
+CallKey/colors/font_color = Color(0.902, 0.8588, 0.7412, 1)
+CallKey/colors/font_focus_color = Color(0.902, 0.8588, 0.7412, 1)
+CallKey/colors/font_hover_color = Color(0.902, 0.8588, 0.7412, 1)
+CallKey/colors/font_hover_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
+CallKey/colors/font_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
+CallKey/colors/font_disabled_color = Color(0.27, 0.45, 0.24, 1)
+CallKey/font_sizes/font_size = 11
+CallKey/styles/disabled = SubResource("KeyCap_Call_disabled")
+CallKey/styles/hover = SubResource("KeyCap_Call_hover")
+CallKey/styles/hover_pressed = SubResource("KeyCap_Call_pressed")
+CallKey/styles/normal = SubResource("KeyCap_Call_normal")
+CallKey/styles/pressed = SubResource("KeyCap_Call_pressed")
+DigitKey/base_type = &"Button"
+DigitKey/colors/font_color = Color(0.902, 0.8588, 0.7412, 1)
+DigitKey/colors/font_focus_color = Color(0.902, 0.8588, 0.7412, 1)
+DigitKey/colors/font_hover_color = Color(0.902, 0.8588, 0.7412, 1)
+DigitKey/colors/font_hover_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
+DigitKey/colors/font_pressed_color = Color(0.902, 0.8588, 0.7412, 1)
+DigitKey/colors/font_disabled_color = Color(0.21, 0.53, 0.6367, 1)
+DigitKey/font_sizes/font_size = 11
+DigitKey/styles/disabled = SubResource("KeyCap_Digit_disabled")
+DigitKey/styles/hover = SubResource("KeyCap_Digit_hover")
+DigitKey/styles/hover_pressed = SubResource("KeyCap_Digit_pressed")
+DigitKey/styles/normal = SubResource("KeyCap_Digit_normal")
+DigitKey/styles/pressed = SubResource("KeyCap_Digit_pressed")
 SlipPanel/base_type = &"PanelContainer"
 SlipPanel/styles/panel = SubResource("StyleBoxFlat_slip")
 TapedLabel/base_type = &"RichTextLabel"
@@ -1013,5 +1193,23 @@ TapedLabel/colors/default_color = Color(0.16470589, 0.13725491, 0.09803922, 1)
 TapedLabel/styles/normal = SubResource("Taped_strip")
 TapedNote/base_type = &"PanelContainer"
 TapedNote/styles/panel = SubResource("Taped_note")
+TitleButton/base_type = &"Button"
+TitleButton/colors/font_color = Color(0.8117647, 0.78431374, 0.67058825, 1)
+TitleButton/colors/font_focus_color = Color(0.9529412, 0.65882355, 0.23529412, 1)
+TitleButton/colors/font_hover_color = Color(0.9529412, 0.65882355, 0.23529412, 1)
+TitleButton/colors/font_hover_pressed_color = Color(0.9529412, 0.65882355, 0.23529412, 1)
+TitleButton/colors/font_pressed_color = Color(0.9529412, 0.65882355, 0.23529412, 1)
+TitleButton/colors/icon_focus_color = Color(0.9529412, 0.65882355, 0.23529412, 1)
+TitleButton/colors/icon_hover_color = Color(0.9529412, 0.65882355, 0.23529412, 1)
+TitleButton/colors/icon_hover_pressed_color = Color(0.9529412, 0.65882355, 0.23529412, 1)
+TitleButton/colors/icon_normal_color = Color(0.43137255, 0.44313726, 0.40784314, 1)
+TitleButton/colors/icon_pressed_color = Color(0.9529412, 0.65882355, 0.23529412, 1)
+TitleButton/constants/h_separation = 12
+TitleButton/font_sizes/font_size = 22
+TitleButton/styles/disabled = SubResource("StyleBoxEmpty_axpob")
+TitleButton/styles/focus = SubResource("StyleBoxEmpty_axpob")
+TitleButton/styles/hover = SubResource("StyleBoxEmpty_axpob")
+TitleButton/styles/normal = SubResource("StyleBoxEmpty_axpob")
+TitleButton/styles/pressed = SubResource("StyleBoxEmpty_axpob")
 TypedText/base_type = &"RichTextLabel"
 TypedText/colors/default_color = Color(0.3529412, 0.3019608, 0.22745098, 1)

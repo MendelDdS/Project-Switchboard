@@ -274,7 +274,7 @@ func place(e: int, j: int) -> bool:
 		warned.emit(why)
 		_sfx("click", jack_rect(j).get_center())
 		return false
-	_pushed_ang[e] = _plug_angle(e)
+	_pushed_from[e] = [cursor + (PLUG_BASE - Vector2(0, PLUG_LEN)).rotated(_swing) - jack_rect(j).get_center(), _swing]   # a frente do plug na mão
 	ends[e] = j
 	var c := jack_rect(j).get_center()
 	var over := ropes.keys().filter(func(x: int) -> bool: return x != e and ends[x] != -1 and (ropes[x] as Cord).touching(Vector3(c.x, c.y, (JACK + ROPE_W) / 2.0)))
@@ -283,10 +283,18 @@ func place(e: int, j: int) -> bool:
 	held = -1
 	_loose.erase(e)
 	_raise(e)
-	_pushed[e] = 0.0
-	_sfx("plug_in", jack_rect(j).get_center())
+	_pushed[e] = 0.0   # o estalo vem na batida no fundo (`_impact`)
 	end_changed.emit(e, j, -1)
 	return true
+
+
+## O plug que está encaixando bate no fundo da tomada: o estalo, e os encaixados perto pulam (o brilho, `_draw_plug`).
+func _impact(e: int) -> void:
+	var c := jack_rect(int(ends[e])).get_center()
+	_sfx("plug_in", c)
+	for x in ends.size():
+		if x != e and ends[x] != -1 and not _pushed.has(x) and jack_rect(int(ends[x])).get_center().distance_to(c) < NEIGHBOR:
+			_knocked[x] = [0.0, KNOCK_PX.y]
 
 
 ## A ponta `e` já encaixada na tomada `j`, sem som nem animação (o treinamento começa com o FONE na entrada 1).
@@ -318,7 +326,7 @@ func _unseat(e: int) -> void:
 	if ends[e] != -1:
 		_pulled[e] = [0.0, jack_rect(int(ends[e])).get_center(), _elbow_pose(e)]
 	_pushed.erase(e)
-	_pushed_ang.erase(e)
+	_pushed_from.erase(e)
 	_draped.erase(e)
 	for x in _draped:   # o fio dela sai de cima dos plugs
 		_draped[x].erase(e)
@@ -455,10 +463,12 @@ func _process(delta: float) -> void:
 		var at: Vector2 = eye.call()
 		_eye = at - global_position if at.x < INF else PLUG_EYE
 	for e in _pushed.keys():   # a assentada anda antes dos fios: a ponta deles acompanha o plug no mesmo quadro
+		if _pushed[e] < HIT_SEC and _pushed[e] + delta >= HIT_SEC:
+			_impact(e)
 		_pushed[e] += delta
-		if _pushed[e] >= maxf(PUSH_SEC, MORPH_SEC):
+		if _pushed[e] >= PUSH_SEC:
 			_pushed.erase(e)
-			_pushed_ang.erase(e)
+			_pushed_from.erase(e)
 	for e in _knocked.keys():
 		_knocked[e][0] += delta
 		if _knocked[e][0] >= KNOCK_SEC or ends[e] == -1:
@@ -501,7 +511,7 @@ func _process(delta: float) -> void:
 	if exchange != null:
 		var ms := PixelArt.ms()
 		for n in range(1, 11):
-			_fade("l%d" % n, _lamp(exchange.line(n), ms, fone_line() == n), delta)
+			_fade("l%d" % n, _lamp(exchange.line(n), ms), delta)
 		for d in dest_nums:
 			_fade("d%d" % d, _dest_lamp(exchange.dest(d), ms), delta)
 		_flip_levers(delta)
@@ -738,7 +748,7 @@ func _step_rope(e: int, dt: float) -> void:
 	r.direct = r.free and an["direct"]
 	r.held = held == e
 	var j := int(ends[e])
-	var pivot := jack_rect(j).get_center() + _tilt(j) if j != -1 else Vector2.INF   # encaixado, a capa gira com o fio (`Cord.pivot`)
+	var pivot := jack_rect(j).get_center() + _tilt(j) if j != -1 and _turning(e).is_empty() else Vector2.INF   # encaixado, a capa gira com o fio (`Cord.pivot`; virando, o fio segue o pé dela)
 	if pivot != r.pivot:   # encaixou ou mudou de tomada: o fio acorda, com o pé da capa entre a vertical e o buraco
 		r.pivot = Vector2.INF
 		if j != -1:
@@ -784,6 +794,9 @@ func _step_rope(e: int, dt: float) -> void:
 			length = maxf(length, r.length - HINGE_TAKE * dt)
 	if not r.step(dt, a, b, length):
 		return   # dormindo
+	var hooked := _end_of_peg(r.hook()) if j != -1 else -1
+	if hooked != -1:   # enganchado por baixo num plug: escorrega pela frente dele e corre por cima (`Cord.HOOK`)
+		_draped[hooked] = _draped.get(hooked, []) + [e]
 	_count_rub(e, r.pulled)
 	_count_rub(e, r.over, r.over_at)
 	if r.drop > DROP_SPEED:   # o plug solto bate na mesa

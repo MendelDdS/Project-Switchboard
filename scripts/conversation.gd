@@ -9,6 +9,10 @@ extends Node
 const SMALLTALK_MAX := 3            ## assuntos de conversa fiada por ligação (puxados por ela ou pelo operador)
 const CHAT_WARM_PATIENCE := 10.0    ## resposta simpática: segundos a mais de silêncio antes de ela reclamar
 const BUSY_PATIENCE := 40.0         ## ...e esperando, os segundos a mais de silêncio antes de reclamar
+const DIAL_RINGS := Vector2i(2, 4)  ## a ligação que o operador faz: quantos toques até atenderem...
+const DIAL_NO_ANSWER := 6           ## ...e até a ligação cair, quando ninguém atende
+const DIAL_ASKS := 2                ## perguntas oferecidas (sorteadas entre as do atendimento), fora o Encerrar
+const DialCall := preload("res://scripts/data/dial_call.gd")
 
 var busy_wait_chance := 0.6   ## todas as linhas ocupadas: a chance de quem liga esperar (senão, liga outra hora)
 var C: GameContent = GameData.CONTENT
@@ -31,6 +35,8 @@ func run(c: PhoneCall) -> void:
 			_info(c)
 		PhoneCall.Kind.MYSTERY:
 			_mystery(c)
+		PhoneCall.Kind.OUTGOING:
+			_outgoing(c)
 
 
 # ---------------------------------------------------------------- falar e ouvir
@@ -52,7 +58,8 @@ func say(c: PhoneCall, text: String, pause: float = 0.55, who := "", voice := ""
 		await get_tree().process_frame
 		if c.ended:
 			return false
-	text = tr(text)
+	var parsed := Clue.parse(tr(text))   # sem as marcas das palavras-chave (as respostas do discador podem ter)
+	text = parsed[0]
 	var ghost := c.kind == PhoneCall.Kind.MYSTERY
 	var li := -1   # a linha da transcrição só aparece enquanto o operador está ouvindo
 	c.set_talking(true)
@@ -71,6 +78,9 @@ func say(c: PhoneCall, text: String, pause: float = 0.55, who := "", voice := ""
 				li = c.add_line(who if who != "" else (c.named if c.named != "" else c.caller), "", "ghost" if ghost else "")
 			c.append_text(li, ch)
 			prev_vowel = Sfx.speak_char(voice, text, i, prev_vowel, paren, -1.0, pitch, Sfx.agitation(c))
+			for m in parsed[1]:   # a palavra-chave dita inteira vai para as anotações da lista, como na escuta
+				if m[1] - 1 == i and c.kind == PhoneCall.Kind.OUTGOING:
+					main.eavesdrop.note(c, c, li, text.substr(m[0], m[1] - m[0]), m[2])
 		var d := (0.062 if ghost else (0.09 if ch in [",", "."] else 0.028)) * c.speech
 		d *= 1.0 - Sfx.agitation(c) * Sfx.AGITATION["speed"]
 		await get_tree().create_timer(d, false).timeout
@@ -521,3 +531,59 @@ func _mystery(c: PhoneCall) -> void:
 	if not await play_steps(c, main.night.mystery):
 		return
 	main.end_call(c, PhoneCall.End.MYSTERY)
+
+
+# ---------------------------------------------------------------- a ligação que o operador faz (o discador)
+
+## Chama alguns toques e atende a do roteiro (`DialCall`) ou o atendimento do lugar (`DirectoryEntry.answers`, um dos
+## que valem agora, se ele ainda não fechou, `closes`): quem atende diz como atende e o operador faz uma pergunta ou
+## encerra; respondida, só resta encerrar (a conversa não se estica). Sem atendimento (ou fechado), ninguém atende e a
+## ligação cai (`Dialing.unanswered`).
+func _outgoing(c: PhoneCall) -> void:
+	var story := c.data as DialCall
+	var e := c.data as DirectoryEntry
+	var pool := e.answers.filter(func(t: ChatTopic): return t.weather in ["", main.weather] and main.flags.allows(t.requires)) \
+		if e != null and (e.closes < 0.0 or main.minutes < e.closes) else []   # (fechado, ninguém atende)
+	var topic: ChatTopic = null if pool.is_empty() else pool.pick_random()
+	for i in randi_range(DIAL_RINGS.x, DIAL_RINGS.y) if story != null or topic != null else DIAL_NO_ANSWER:
+		Sfx.play("ringback")
+		if not await wait(c, 2.0):
+			return
+	if story == null and topic == null:
+		main.dialing.unanswered(c)
+		return
+	main.dialing.answered(c)
+	if not await wait(c, 0.4):
+		return
+	if story != null:
+		if not await play_steps(c, story.steps):
+			return
+		for f in story.sets:
+			main.flags.apply(f)
+		if story.once:
+			main.flags.apply(story.done_flag())
+		Sfx.play("cut")
+		main.dialing.finish(PhoneCall.End.CALLER)
+		return
+	if not await say(c, topic.line):
+		return
+	var asks := topic.replies.duplicate()
+	asks.shuffle()
+	asks = asks.slice(0, DIAL_ASKS)
+	var asked := false
+	while true:
+		var opts: Array = [] if asked else asks.map(func(r: ChatReply): return r.text)
+		opts.append(T.text(T.Key.CHOICE_DIAL_BYE))
+		var i := await choose(c, opts)
+		if i < 0:
+			return
+		if i == opts.size() - 1:
+			break
+		var r: ChatReply = asks[i]
+		for f in r.sets:
+			main.flags.apply(f)
+		if not await op(c, r.text) or not await say(c, r.follow):
+			return
+		asked = true
+	if await op(c, T.text(T.Key.OP_DIAL_BYE)) and await say(c, e.bye if e.bye != "" else GameData.pick(C.dial_byes), 0.3):
+		main.dialing.finish(PhoneCall.End.OPERATOR)

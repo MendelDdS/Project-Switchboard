@@ -1,6 +1,8 @@
 [gd_resource type="Resource" script_class="DirectoryEntry" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
 [ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
 
 [sub_resource type="Resource" id="Motive_35"]
@@ -13,6 +15,36 @@ script = ExtResource("2_motive")
 text = "O caminhão não quer pegar de jeito nenhum."
 talks = Array[PackedStringArray]([PackedStringArray("Boa noite. O caminhão não pega. Gira, gira e não pega.", "Faz barulho de quê? Estala, ou nem isso?", "Estala e morre. As luzes acendem, a bateria parece boa.", "Pode ser o combustível. Tem óleo no tanque?", "Tem, enchi hoje de manhã no posto.", "Então vou aí dar uma olhada. Me diz direitinho onde você está."), PackedStringArray("Boa noite. Meu caminhão parou e não pega mais.", "Parou como? Foi morrendo aos poucos?", "Foi engasgando e apagou. Agora nem tenta pegar.", "Pode ser a correia. Onde ele está?", "Na {street}, perto do número {house}.", "Vou aí com a caixa de ferramentas. Chego em {wait}.")])
 
+[sub_resource type="Resource" id="Answer_0_0"]
+script = ExtResource("9_reply")
+text = "Até que horas vocês ficam abertos?"
+follow = "Hoje eu fico até tarde. Tem um caminhão para entregar de manhã."
+
+[sub_resource type="Resource" id="Answer_0_1"]
+script = ExtResource("9_reply")
+text = "Vocês fazem guincho?"
+follow = "Faço, mas só até a saída da cidade. Depois disso, é com o posto."
+
+[sub_resource type="Resource" id="Answer_0"]
+script = ExtResource("8_chat")
+line = "Oficina. Fala logo, que eu estou com a mão suja de graxa."
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_0_0"), SubResource("Answer_0_1")])
+
+[sub_resource type="Resource" id="Answer_1_0"]
+script = ExtResource("9_reply")
+text = "Dá para olhar um carro amanhã cedo?"
+follow = "Pode trazer às sete. Antes do café, eu não falo com ninguém."
+
+[sub_resource type="Resource" id="Answer_1_1"]
+script = ExtResource("9_reply")
+text = "Quanto custa uma revisão?"
+follow = "Depende do carro. Fusca é barato; o resto, a gente conversa."
+
+[sub_resource type="Resource" id="Answer_1"]
+script = ExtResource("8_chat")
+line = "Tião falando."
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_1_0"), SubResource("Answer_1_1")])
+
 [resource]
 script = ExtResource("1_entry")
 name = "Oficina do Tião"
@@ -23,3 +55,5 @@ hello = "Oficina do Tião, boa noite."
 category = "oficina"
 spoken = "a Oficina do Tião"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_35"), SubResource("Motive_36")])
+answers = Array[ExtResource("8_chat")]([SubResource("Answer_0"), SubResource("Answer_1")])
+closes = 330.0

@@ -1,7 +1,6 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/game_view.gd" id="1_game_view"]
-[ext_resource type="PackedScene" path="res://scenes/main.tscn" id="2_main"]
 
 [node name="App" type="Control"]
 layout_mode = 3
@@ -38,5 +37,3 @@ snap_2d_vertices_to_pixel = true
 handle_input_locally = false
 size = Vector2i(960, 540)
 render_target_update_mode = 4
-
-[node name="Main" parent="Box/View" instance=ExtResource("2_main")]

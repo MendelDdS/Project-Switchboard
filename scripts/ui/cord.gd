@@ -60,6 +60,10 @@ const PEG_STICK := 0.25
 ## Na mão, o plug está erguido: só esta parte do fio, a do lado do buraco, ainda passa rente ao painel e esbarra nos
 ## plugs encaixados (`pegs`); a do lado da mão vem para a frente, por cima deles.
 const HELD_LIE := 0.5
+## Encostado num plug encaixado abaixo do meio dele (mais que HOOK do raio), o fio está enganchado (`hook`): esticado,
+## ele escorrega pela frente do plug e passa a correr por cima (`Switchboard._draped`). Enganchado, ele tremia sem
+## dormir e se enroscava no plug de baixo.
+const HOOK := 0.3
 
 var pts: PackedVector2Array
 var old: PackedVector2Array   ## os pontos no passo anterior (a velocidade, no Verlet)
@@ -303,6 +307,18 @@ func touching(g: Vector3) -> bool:
 		if Geometry2D.get_closest_point_to_segment(c, pts[i], pts[i + 1]).distance_to(c) < g.z + 1.0:
 			return true
 	return false
+
+
+## O plug de `pegs` que segura o fio por baixo (encostado abaixo do meio dele, mais que HOOK do raio): o fio
+## esticado puxando contra ele, enganchado (Vector3.ZERO: nenhum). Um plug só apoia o fio por cima.
+func hook() -> Vector3:
+	for g in pegs:
+		var c := Vector2(g.x, g.y)
+		for i in pts.size() - 1:
+			var q := Geometry2D.get_closest_point_to_segment(c, pts[i], pts[i + 1])
+			if q.distance_to(c) < g.z + 0.5 and q.y - c.y > HOOK * g.z:
+				return g
+	return Vector3.ZERO
 
 
 ## Tira o fio `p` de dentro dos plugs `near`: o ponto de cada trecho mais perto do centro vai para a beira, os dois

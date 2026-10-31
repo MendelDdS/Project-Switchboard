@@ -1,6 +1,8 @@
 [gd_resource type="Resource" script_class="DirectoryEntry" format=3]
 
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
 [ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
 
 [sub_resource type="Resource" id="Motive_41"]
@@ -13,6 +15,36 @@ script = ExtResource("2_motive")
 text = "Quero saber se o posto ainda está aberto."
 talks = Array[PackedStringArray]([PackedStringArray("Boa noite. O posto ainda está aberto?", "Aberto até a meia-noite, como sempre.", "Ainda bem. Preciso encher o tanque pra viajar amanhã cedo.", "Vem agora, que de manhã a fila é grande.", "Vocês calibram pneu também?", "Tem ar, sim. Fica do lado da bomba, pode usar à vontade."), PackedStringArray("Boa noite. Ainda dá tempo de abastecer?", "Dá. Hoje eu fecho às {hour}.", "Vocês trocam óleo também?", "Troca, mas só de dia. De noite é só a bomba.", "Então amanhã eu passo pra trocar.", "Vem cedo, que de manhã o mecânico está aqui.")])
 
+[sub_resource type="Resource" id="Answer_0_0"]
+script = ExtResource("9_reply")
+text = "Vocês ficam abertos a noite toda?"
+follow = "A bomba fecha à meia-noite. Depois, só o frentista de plantão."
+
+[sub_resource type="Resource" id="Answer_0_1"]
+script = ExtResource("9_reply")
+text = "Quanto está a gasolina?"
+follow = "Subiu de novo esta semana. Nem me pergunte."
+
+[sub_resource type="Resource" id="Answer_0"]
+script = ExtResource("8_chat")
+line = "Posto São Cristóvão, boa noite."
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_0_0"), SubResource("Answer_0_1")])
+
+[sub_resource type="Resource" id="Answer_1_0"]
+script = ExtResource("9_reply")
+text = "Tem borracheiro aí hoje?"
+follow = "Hoje, não. Fala com o Neno, na Rua das Acácias."
+
+[sub_resource type="Resource" id="Answer_1_1"]
+script = ExtResource("9_reply")
+text = "Muito movimento hoje?"
+follow = "Só caminhão passando para a Capital. Carro de passeio, quase nenhum."
+
+[sub_resource type="Resource" id="Answer_1"]
+script = ExtResource("8_chat")
+line = "Posto, plantão."
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_1_0"), SubResource("Answer_1_1")])
+
 [resource]
 script = ExtResource("1_entry")
 name = "Posto São Cristóvão"
@@ -21,3 +53,4 @@ number = "347"
 hello = "Posto São Cristóvão, boa noite."
 spoken = "o Posto São Cristóvão"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_41"), SubResource("Motive_42")])
+answers = Array[ExtResource("8_chat")]([SubResource("Answer_0"), SubResource("Answer_1")])
