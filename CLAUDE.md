@@ -31,7 +31,8 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   Estilo no tema global `themes/main_theme.tres` por variações de tipo (`GreenButton`, `InkButton`, `HudPanel`,
   `PaperPanel`, `MemoPanel`, `TapedNote`, `InkLabel`, `InkBoldLabel`, `TypedText`/`HandText`...): prefira variação de
   tema a override por nó. Papéis escritos: efeito de RichTextLabel (`scripts/ui/paper_ink.gd`, `[typed]` e `[hand]`).
-- Telas fora do turno são papéis: o bilhete do supervisor na abertura (`Intro`), pausa e configurações num papel com
+- Tela inicial (`scenes/title_screen.tscn`, posta pelo `GameView` antes do jogo, `GameView.playing`; a pausa volta a
+  ela, `%ToMenu`): a mesa de perto (`title_board.gd`, linha chamando, `ringing`) e o menu (`TitleButton`, setas e Enter). Telas fora do turno são papéis: o bilhete do supervisor na abertura (`Intro`), pausa e configurações num papel com
   fita, o relatório num memorando (`ReportView`: timbre, serviços prestados, advertências com o carimbo da gravidade,
   parecer à mão, rubrica e o carimbo redondo do conceito, `_grade_stamp`, girado pixel a pixel e em lugar sorteado).
 - Botão de resposta (`ChoiceButton`): fala curta do operador (`CHOICE_*`; a frase inteira, `OP_*`, vai para a
@@ -90,7 +91,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 - Entrada (Input Map): `cancel_plug` (Esc, botão direito), `pause` (Esc, P), `answer_call` (Espaço),
   `transfer_call` (Tab), `listen_call` (Z), `hang_up` (X), tratadas em `PhonePanel._input` antes da interface;
   ferramentas 1–4 (`Main.TAB_KEYS`, `Tools.toggle`); ids das ferramentas sempre pelas constantes `Tools.DIRECTORY`,
-  `DISPATCH`, `LOGBOOK`, `CALL_LOG`, `NEWS`, `TOLL`, `DIALER`.
+  `DISPATCH`, `LOGBOOK`, `CALL_LOG`, `NEWS`, `TOLL`.
 
 ## Rodar e testar
 - Godot: `/Applications/Godot.app/Contents/MacOS/Godot` (fora do PATH). Compilar: `Godot --headless --path . --quit-after 60`.
@@ -150,7 +151,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   (`TransferCall.far_number`). **Calculógrafo** (`Toll`, `TollTicket`): conta a ligação interurbana, imprime o bilhete,
   o jogador carimba e guarda na caixinha; esquecido ou sem carimbo é advertência leve.
 - **Discador** (`Dialing`, nó do Main; `PhoneCall.Kind.OUTGOING`, `Conversation._outgoing`): o operador liga pelo
-  próprio fone (sem o FONE); na prateleira (`Dialer`, `dialer.gd`) e de perto (`Tools.DIALER`, `DialView`), só clique.
+  próprio fone (sem o FONE); na prateleira (`Dialer`, `dialer.gd`) e de perto num pop-up em cima dele (`DialView`), só clique.
   Enquanto dura, é o foco (a linha do FONE em HOLD) e a do lugar fica ocupada (`Exchange`, `seized`); fora do caderno. Atende a do
   roteiro (`DialCall`, `Night.dial`/`GameContent.dial`, passos de `PrankStep`) ou o atendimento do lugar
   (`DirectoryEntry.answers`, `ChatTopic`, `closes`; só Vila Serena por ora; palavras-chave nas respostas, `Eavesdrop.note`). Marcador `ligou_<número>_<noite>`. `PLANO_DISCADOR.md`.

@@ -1,5 +1,5 @@
 extends Node
-## O discador da mesa (`Dialer`, na prateleira, e o de perto, a ferramenta `Tools.DIALER`): o operador digita o número
+## O discador da mesa (`Dialer`, na prateleira, e o de perto, o pop-up em cima dele, `DialView`): o operador digita o número
 ## e liga para ele pelo próprio fone, ligado direto na mesa (sem o FONE). Aqui fica o número digitado, o que o visor
 ## mostra (`status`) e a ligação feita (`call`, `PhoneCall.Kind.OUTGOING`); a conversa é do `Conversation._outgoing`.
 ## Enquanto ela dura, é a ligação em foco (`Main._focus`): quem estava com o FONE fica em espera (a linha em HOLD, e

@@ -2938,3 +2938,91 @@ Chaves:
     embaixo de "LINHA" gravado em creme (`PixelArt.tiny`, `Pal.BOARD_INK`), os dois embaixo do visor, na altura da
     terceira e da última fileira de teclas (`LABEL_AT`, `LAMP_AT`, `_at`); cada tecla ganhou a sombra de 1 px na placa,
     embaixo (a apertada, rente, não). Depois, "Não gostei do texto linha": o "LINHA" saiu; a lâmpada ficou no lugar.
+496. #discador #mesa-comutadora "Ao clicar no discador, abrir um pop up em cima dele mostrando a versão expandida porém
+    menor" ou manter a ferramenta à direita → "vamos testar como fica o pop up" (o argumento: com a ferramenta à
+    direita, a lista não fica aberta enquanto se disca). Em teste: o de perto (`DialView`) saiu das ferramentas
+    (`Tools.DIALER` saiu) e virou um pop-up filho do discador da prateleira, logo acima dele, por cima do painel, sem
+    tapar as chaves de escuta; compacto, como a miniatura: o visor e a lâmpada à esquerda (o estado embaixo dos
+    algarismos), o teclado à direita, nas teclas do console sem etiqueta (`KeyCapStyle.tag`; as letras dos algarismos
+    saíram; Discar e Encerrar só com o fone, `EndKey` para não mexer no Desligar). Abre e fecha pelo clique na
+    miniatura e fecha com Esc e no fim do turno.
+497. #cabos #mesa-comutadora #saiu "Melhorar a animação do plug entrando na tomada. Queria algo fluido, satisfatório e
+    visualmente bonito". Antes: em 0,08 s o plug em pé girava e encolhia até o cotovelo, esticado pela transformação
+    do desenho (contra a regra dos pixels), com 1 px de afundada. Primeira versão: o cotovelo aparecia 6 px para fora
+    e entrava em 0,07 s, com um brilho em estrela na boca da tomada; "não mudou muita coisa" (curto demais para se
+    ver) e o brilho saiu ("não faz sentido": lia como faísca). Depois, a pedido ("uma animação do plug virando para
+    entrar na tomada", "uma batida mais marcada", a sombra): o plug vira da mão para a tomada em 0,13 s, o mesmo tubo
+    3D do encaixado (`_elbow` com `turn`): a cabeça vai de em pé, deitada no painel, para de frente, a ponta de metal
+    (`PIN`) entrando na tomada, a capa e o fio pendurados, do tamanho da mão para o do encaixado (`TURN_LEN`,
+    `TURN_W`); para 8 px à frente do painel e entra acelerando em 0,06 s (`_turning`, `OUT_PX`, `IN_SEC`), a sombra
+    indo de longe, como na mão, até colar; bate no fundo, afunda 2 px (com 3, o buraco da tomada aparecia ao lado do
+    pescoço), segura e repica para fora e para dentro até parar em 0,4 s, a sombra colando e descolando junto
+    (`_push`); na batida (`_impact`), o estalo com o tique do metal (`plug_in`) e os plugs encaixados ao lado pulam
+    (`NEIGHBOR`, `_knocked`); o fio segue o pé da capa enquanto ele vira. Captura quadro a quadro:
+    `shot --plugin=4,20`. Depois, "diminua essa sensação de mola ao encaixar": o repique saiu; afundado, ele volta ao
+    lugar freando em 0,15 s (`SETTLE_SEC`).
+498. #cabos #mesa-comutadora "Vamos consertar esse comportamento dos fios. Não vamos permitir que eles se enrosquem
+    dessa forma, pois está causando bugs visuais com o fio se mexendo loucamente ou enganchando no plug de baixo" (o
+    fio da entrada 10 preso por baixo do plug da saída 20): um plug encaixado só apoia o fio por cima. Encostado abaixo
+    do meio dele (`Cord.HOOK`, `Cord.hook`), o fio esticado está enganchado: escorrega pela frente do plug e passa a
+    correr por cima dele, desenhado depois, como o fio que tapava a tomada (`_draped`). Preso, ele tremia sem dormir
+    (16 px em 2 s); agora endireita e dorme. Teste no `test_flow`, depois da seção 18.
+499. #interface #mesa-comutadora "Vamos implementar o menu inicial do jogo?" Sugeri um cartão de ponto num relógio de
+    ponto na parede; o usuário preferiu a ideia dele: à direita, o canto esquerdo da mesa comutadora de perto, com mais
+    detalhe, as primeiras tomadas e o FONE encaixado na entrada 1; à esquerda, o menu (Carregar jogo, só com jogo
+    salvo; Novo jogo; Configurações; Sair), embaixo, pequeno, Créditos e, menor ainda, a versão. Feito em
+    `scenes/title_screen.tscn` (`title_screen.gd`; o painel em `title_board.gd`, as peças da mesa em 3× refeitas pixel
+    a pixel, não ampliadas): cada opção com uma lâmpada que acende âmbar sob o mouse (variação `TitleButton`), a versão
+    na fonte gravada do painel (`PixelArt.tiny`), Novo jogo com jogo salvo pergunta num papel antes de apagar, os
+    créditos no mesmo papel, Configurações no papel da pausa. O `GameView` põe a tela inicial na primeira vez e o jogo
+    depois dela (`GameView.playing`): os recomeços (`Main.restart`) não voltam ao menu.
+    Correção do usuário (com uma foto): o cotovelo do plug é uma mola de borracha, e entre os anéis se vê o fio. Fiz a
+    capa inteira em anéis; corrigido de novo ("o cotovelo é justamente a dobradura, não tem tantos vincos e a linha
+    verde do plug não fica aí"), o FONE do menu passou a ser montado como o plug encaixado do jogo (`_elbow`), um tubo
+    em 3D pelo eixo: a ponta de metal, o corpo duro saindo da tomada com a faixa verde junto do painel, o cotovelo
+    numa mola de cinco anéis (nas frestas, o fio e o avesso escuro dos anéis) e a capa lisa descendo até o fio.
+    Depois, "mais uns 4 vincos para baixo", como na foto: a mola segue quatro anéis capa abaixo (`COILS_DOWN`).
+    Depois, com uma imagem melhor do plug encaixado: a cabeça lisa é curta (`PLUG_BODY`), a dobra inteira é mola, com
+    sulcos finos e escuros (sem o fio à mostra), e a mola acaba num colarinho liso e reto (`COLLAR`) de onde sai o fio
+    grosso (`CORD_R`); saiu a capa comprida afunilando. Depois, "o cabo grosso e o cotovelo não ficaram legais ainda":
+    das melhorias que sugeri, fiz três. O plug passou a ser montado em anéis de pontos na superfície (antes, esferas pelo
+    eixo, que tapavam qualquer sulco): o raio da mola ondula (`_coil_r`, `COIL_DEPTH`) e a normal acompanha, então cada
+    anel tem luz e sombra próprias e a beira sai recortada. O plug é visto mais de lado (`TILT`), com a cabeça à mostra
+    e os anéis abrindo em leque na dobra. O fio virou um tubo também (`_fone_cord`): tom redondo pela luz, trançado
+    fino em V que some na sombra, sombra do colarinho no começo e queda em curva; mais fino (`CORD_R` 7) e na mesma
+    cor (a pedido). Ficou de fora o colarinho mais largo com a beirinha clara.
+    Depois, "a ponta do cotovelo pode ir afunilando": o colarinho afunila da largura da mola até pouco mais que o fio
+    (`TIP_R`, `COLLAR` 14), com a luz seguindo a inclinação. Depois, "esse cotovelo e cabo estão grossos demais, isso
+    não segue o que mostra na gameplay": as medidas voltaram às do jogo em 3×. O tubo ficou mais fino que o aro da
+    tomada (`PLUG_R` 10), a ponta afunila comprida (`COLLAR` 28, `TIP_R` 6), o fio tem uns 3 px do jogo (`CORD_R` 4,5)
+    e a ponta de metal tem o raio do furo (`SLEEVE_R`).
+    Depois, "o fio ficou fino demais agora": `CORD_R` 5,5 (entre os dois), e a boca da ponta acompanha (`TIP_R` 7).
+    Depois, a perspectiva ("se a mesa comutadora está no lado esquerdo, a perspectiva do cabo não deveria ser essa"):
+    no menu o painel fica à direita da tela e quem olha está na frente dela, à esquerda dele; o plug é visto pelo lado
+    esquerdo e o cotovelo pende para a direita (`TILT` positivo; na mesa do jogo o olho fica à direita, e ele pende
+    para a esquerda). O fio cai quase reto, e a letra da chapa do banco foi para a direita dele.
+    Depois, comparando com a mesa do jogo ("o tamanho das fontes no menu são bem menores; a placa do setor não
+    atendido não tem os textos ali"): as legendas do painel de perto passaram à altura das letras miúdas da mesa em
+    3× (`_text`, a fonte em dobro com relevo, `PixelArt.big`), com as lâmpadas da legenda e as abas maiores; as
+    plaquinhas dos números, 78×38 (as da mesa em 3×); as chapas dos bancos A e B como na mesa, a letra grande no meio
+    e o aviso centrado embaixo (`_draw_bank_plate`, `BANK_W`), com o painel 20 px mais alto para caber. O fio pende
+    em curva (`CORD_SWING`) pelo vão entre "SAÍDAS" e o ponto e sai à esquerda do aviso, sem tapar letra.
+    Depois, "a placa de setor não atendido ainda não condiz": a letra é a estampada da mesa (`PLATE_LETTERS`, em
+    relevo, cada pixel em 3×3, `_tripled`) e o aviso, o estêncil nas letras miúdas da mesa (`PixelArt.tiny` em 3×),
+    em vez da fonte do jogo; a folga entre as chapas, a da mesa (`BANK_GAP` 13).
+    Depois, "deixe o cabo reto e a luz da entrada piscando, assim como acontece na noite 0": o fio cai reto da boca do
+    plug (saiu a curva `CORD_SWING`; ele passa na frente do "D" de "SAÍDAS" e do começo do aviso da chapa) e a lâmpada
+    da entrada 1 pulsa como uma linha chamando (`fone_on`, o mesmo toque de `Switchboard._lamp`), sem campainha.
+500. #interface #som "Implemente 2, 3, 4, 5, 6, 7 e 8" (das melhorias que sugeri para o menu; ficou de fora ligar
+    cada opção a uma linha do painel). Começar o jogo: o tec da chave, a lâmpada do FONE apagando, a tela escurecendo
+    e clareando já no jogo (`TitleScreen._play`, `%Fade` numa CanvasLayer). Vida na tela parada: o ambiente da sala
+    (às vezes de chuva, `RAIN_CHANCE`) e, a cada 25–50 s, uma linha chamando por dois toques, a lâmpada pulsando como
+    na mesa (`TitleBoard.ringing`, `_lit`, `LAMP_ON_SEC`/`LAMP_OFF_SEC`). O nome do jogo em letra grande acima do
+    menu (`%Logo`, `PixelArt.big`). Carregar diz onde o jogo parou (`%Where`: "Noite 4 · Quinta-feira, ..."; lido do
+    arquivo sem o `Progress.load_saved`, que mexeria no save ilegível). No pé do painel, a chapa do banco A com o
+    aviso de setor não atendido (`_draw_bank_plate`). Teclado: a primeira opção já escolhida, as setas e o Enter
+    andam pelo menu e o mouse escolhe do mesmo jeito (uma lâmpada acesa só). Saiu o "Recomeçar do treinamento" do
+    bilhete do supervisor (o Novo jogo do menu faz o mesmo) e a pausa ganhou "Voltar ao menu" (`%ToMenu`).
+501. #mesa-comutadora "Na gameplay, a luz para de piscar quando encaixa o cabo, mas deveria piscar até atender a
+    ligação." A lâmpada de uma linha chamando ficava acesa fixa com o FONE na entrada; agora pisca até o Atender
+    (`Switchboard._lamp` sem o `steady`; a linha só passa a TALK no `Main.answer`).

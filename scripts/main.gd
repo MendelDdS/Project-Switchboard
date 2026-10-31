@@ -86,7 +86,7 @@ var talk_clock := 0.0              ## segundos de jogo (param na pausa); medem o
 @onready var _shift_hours: Label = %ShiftHours
 @onready var board: Switchboard = %Board
 @onready var badges: Control = %Badges   ## os broches na prateleira (`scripts/ui/badges.gd`)
-@onready var shelf_dialer: Control = %Dialer   ## o discador na prateleira (`scripts/ui/dialer.gd`; de perto, `tools.dialer`)
+@onready var shelf_dialer: Control = %Dialer   ## o discador na prateleira (`scripts/ui/dialer.gd`; de perto, o pop-up `%DialView`)
 @onready var phone: PhonePanel = %Phone
 @onready var radio: Radio = phone.radio
 @onready var tools: Tools = %Tools
@@ -187,15 +187,14 @@ func _ready() -> void:
 		background.unread = on
 		if on:
 			_teach(SAW_SHEET, T.Key.HINT_DESK_SHEET))
-	# o papel de cada ferramenta sai do objeto dela na mesa (o discador, da prateleira da mesa comutadora)
-	tools.origin = func(id: String) -> Rect2: return shelf_dialer.get_global_rect() if id == Tools.DIALER else background.prop_rect(id)
+	tools.origin = background.prop_rect   # o papel de cada ferramenta sai do objeto dela na mesa
 	shelf_dialer.dialing = dialing
-	tools.dialer.dialing = dialing
-	shelf_dialer.clicked.connect(func(): if running and not ending: tools.set_tab(Tools.DIALER))
+	%DialView.dialing = dialing
+	shelf_dialer.clicked.connect(func(): if running and not ending: %DialView.visible = not %DialView.visible)   # o de perto, por cima do painel
 	background.prop_clicked.connect(func(id: String): if running and not ending: tools.set_tab(id))   # objetos da cena
 	background.flare_lit.connect(func(): flags.apply("sinalizador_%d" % night_no))   # o sinal do roteiro na noite 15
 	_intro.over = board   # o bilhete do supervisor fica preso no painel da mesa comutadora
-	_intro.setup(night_no, night, progress != null and progress.night > 0, progress != null, report.low_before > 0, bureaucracy.tapes.last,
+	_intro.setup(night_no, night, progress != null, report.low_before > 0, bureaucracy.tapes.last,
 		progress.aside if progress else "")
 	if is_training():   # o treinamento começa com o FONE já na entrada 1
 		board.plugged(0, 1)
@@ -445,7 +444,8 @@ func _nag() -> void:
 		conversation.say(f, GameData.pick(C.emergency_waiting))
 
 
-## Esc: primeiro devolve o plug que está na mão; depois guarda a ferramenta aberta; sem nada disso, pausa o turno.
+## Esc: primeiro devolve o plug que está na mão; depois fecha o discador de perto e guarda a ferramenta aberta; sem
+## nada disso, pausa o turno.
 ## 1 a 4 abrem e guardam as ferramentas (só durante o turno; na pausa a árvore está parada). F1 abre o painel de
 ## debug (só em build de debug).
 func _unhandled_input(e: InputEvent) -> void:
@@ -455,6 +455,9 @@ func _unhandled_input(e: InputEvent) -> void:
 	elif e.is_action_pressed("debug") and OS.is_debug_build():
 		get_viewport().set_input_as_handled()
 		%Debug.visible = not %Debug.visible
+	elif e.is_action_pressed("pause") and running and not ending and %DialView.visible and e is InputEventKey and e.keycode == KEY_ESCAPE:
+		get_viewport().set_input_as_handled()
+		%DialView.hide()
 	elif e.is_action_pressed("pause") and running and not ending and tools.open and e is InputEventKey and e.keycode == KEY_ESCAPE:
 		get_viewport().set_input_as_handled()
 		tools.close()
@@ -1331,6 +1334,7 @@ func start_ending() -> void:
 		return
 	ending = true
 	running = false
+	%DialView.hide()
 	Sfx.ring_stop()
 	Sfx.stop_ambience(5.0)
 	var last := night_no >= C.nights.size()

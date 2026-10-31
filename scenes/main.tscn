@@ -23,6 +23,7 @@
 [ext_resource type="Script" path="res://scripts/ui/badges.gd" id="43_badges"]
 [ext_resource type="Script" path="res://scripts/dialing.gd" id="44_dialing"]
 [ext_resource type="Script" path="res://scripts/ui/dialer.gd" id="45_dialer"]
+[ext_resource type="PackedScene" path="res://scenes/ui/dial_view.tscn" id="46_dial_view"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_4"]
 blend_mode = 1
@@ -175,6 +176,10 @@ unique_name_in_owner = true
 layout_mode = 0
 mouse_filter = 1
 script = ExtResource("45_dialer")
+
+[node name="DialView" parent="Layout/Rows/Columns/Left/Board/Dialer" instance=ExtResource("46_dial_view")]
+unique_name_in_owner = true
+layout_mode = 0
 
 [node name="Shelf" type="HBoxContainer" parent="Layout/Rows/Columns/Left"]
 custom_minimum_size = Vector2(0, 24)

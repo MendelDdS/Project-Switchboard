@@ -5,14 +5,15 @@ extends Control
 ## (âmbar piscando chamando, verde em conversa, vermelha nos avisos, como as do painel); à direita, o teclado de 3 × 4
 ## teclas ciano, Discar verde e Encerrar vermelha nos cantos de baixo (`Dialing`; a apertada afunda um instante,
 ## `_sunk`). Linha a linha, na inclinação da prateleira ali (como a almofada, `_slant`), com a frente em pé, na
-## sombra. Sob o mouse, sobe 1 px e mostra o nome numa etiqueta de fita crepe; o clique abre o discador de perto
-## (`clicked`, a ferramenta `Tools.DIALER`). O mouse que não é dele segue para a mesa (`MOUSE_FILTER_PASS`): os
-## plugs e os fios por cima continuam na mão.
+## sombra. Sob o mouse, sobe 1 px e mostra o nome numa etiqueta de fita crepe; o clique (`clicked`) abre e fecha o
+## discador de perto (`view`), que fica logo acima dele, por cima do painel. O mouse que não é dele segue para a mesa
+## (`MOUSE_FILTER_PASS`): os plugs e os fios por cima continuam na mão.
 
 signal clicked
 
 const Dialing := preload("res://scripts/dialing.gd")
 const DialView := preload("res://scripts/ui/dial_view.gd")
+const VIEW_GAP := 3.0   ## px entre o de perto e a beira de trás deste
 const DEPTH := 29   ## da beira de trás à da frente, deitado: de trás, encosta no rodapé do painel...
 const FRONT := 13   ## ...e a da frente fica tanto abaixo da linha do meio da prateleira
 const FACE := 3     ## a frente, em pé
@@ -33,6 +34,7 @@ var _drawn := []
 var _pop := Control.new()   ## a etiqueta, por cima dos fios e dos plugs
 
 @onready var _board: Switchboard = get_parent()
+@onready var view: DialView = $DialView   ## o de perto (o Main liga o `dialing` e abre e fecha pelo `clicked`)
 
 
 func _ready() -> void:
@@ -50,6 +52,9 @@ func _process(_delta: float) -> void:
 	if r != Rect2(position, size):
 		position = r.position
 		size = r.size
+	if view.visible:   # logo acima deste, no meio dele, sem passar da beira da mesa
+		var at := Vector2(clampf(roundf(_cx - view.size.x / 2.0), 2.0, _board.size.x - view.size.x - 2.0), _back() - VIEW_GAP - view.size.y)
+		view.position = at - position
 	if _board.held != -1:   # (com um plug na mão, o mouse é da mesa)
 		_hover = false
 	mouse_default_cursor_shape = CURSOR_POINTING_HAND if _hover else _board.mouse_default_cursor_shape

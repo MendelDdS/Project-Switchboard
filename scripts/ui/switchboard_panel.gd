@@ -59,10 +59,11 @@ const CORD_COLORS := Pal.CORDS
 
 
 ## Cor da lâmpada de uma linha (Exchange.Line) e quanto ela quer estar acesa (0..1); `_fade` chega lá aos poucos.
-func _lamp(st: int, ms: int, steady: bool) -> Array:
+## Chamando, pisca até a ligação ser atendida, mesmo com o FONE já na entrada.
+func _lamp(st: int, ms: int) -> Array:
 	match st:
 		Exchange.Line.RING:
-			return [Pal.AMBER, 1.0 if steady or (ms / 250) % 2 == 0 else 0.0]
+			return [Pal.AMBER, 1.0 if (ms / 250) % 2 == 0 else 0.0]
 		Exchange.Line.TALK:
 			return [Pal.AMBER, 1.0]
 		Exchange.Line.HOLD:
@@ -78,7 +79,7 @@ func _lamp(st: int, ms: int, steady: bool) -> Array:
 func _dest_lamp(st: int, ms: int) -> Array:
 	match st:
 		Exchange.Dest.RING:
-			return _lamp(Exchange.Line.RING, ms, false)
+			return _lamp(Exchange.Line.RING, ms)
 		Exchange.Dest.CONN:
 			return [Pal.GREEN, 1.0]
 		Exchange.Dest.DONE:

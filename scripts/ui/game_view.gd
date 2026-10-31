@@ -20,6 +20,9 @@ const GRADES := {
 ## mais contraste e as cores mais vivas (com o contraste de 1,04, o amanhecer saía opaco, sem a força da luz baixa).
 const DAY_GRADE := {"shadow_lift": Vector3(-0.004, 0.002, 0.012), "light_tint": Vector3(1.06, 1.0, 0.92), "contrast": 1.16, "saturation": 1.25}
 
+## Já saiu da tela inicial nesta sessão: os recomeços (`Main.restart`, que recarrega esta cena) vão direto ao jogo.
+static var playing := false
+
 @onready var _box: SubViewportContainer = $Box
 @onready var _view: SubViewport = $Box/View
 
@@ -31,6 +34,8 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	if _view.get_child_count() == 0:   # (o `test_keys` já põe o jogo dentro)
+		_view.add_child(load("res://scenes/main.tscn" if playing else "res://scenes/title_screen.tscn").instantiate())
 	# o projeto amplia a 960×540 (para o `main.tscn` sozinho e os testes); aqui, a janela fica em pixels da tela
 	get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_DISABLED
 	get_viewport().size_changed.connect(_fit)

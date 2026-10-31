@@ -20,6 +20,11 @@ func _ready() -> void:
 		Sfx.muffle(false)
 		get_tree().paused = false
 		Main.restart())
+	%ToMenu.pressed.connect(func():   # a noite em andamento se perde, como em Recomeçar
+		Sfx.muffle(false)
+		get_tree().paused = false
+		GameView.playing = false
+		Main.restart())
 	%Quit.pressed.connect(func(): get_tree().quit())
 	%Back.pressed.connect(_back)
 	%Apply.pressed.connect(_apply_settings)

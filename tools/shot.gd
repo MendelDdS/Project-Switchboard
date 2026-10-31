@@ -7,7 +7,8 @@ extends Node
 ##   --width=960            a largura do `main.tscn` (540 de altura; o jogo, no `GameView`, é sempre 960)
 ##   --hour=20:00           a hora do turno no relógio e lá fora
 ##   --tool=id              abre a ferramenta (os ids de `Tools`: lista, despacho, caderno, registro, jornal, calculografo, discador)
-##   --dial=390[,call][,talk]  o discador (`Dialing`): o número digitado; com call, discado; com talk, depois de atenderem
+##   --dial=390[,call][,talk][,open]  o discador (`Dialing`): o número digitado; com call, discado; com talk, depois de
+##                          atenderem; com open, o de perto aberto por cima do painel
 ##   --debug=N              abre o painel de debug na aba N (0 = Jogo, 1 = Vozes)
 ##   --card                 marca um local no mapa e espera o cartão sair impresso (--card=closed: e guarda o despacho)
 ##   --punch                com --card: o cartão perfurado, uma unidade fora e a etiqueta de um trecho no mapa
@@ -25,6 +26,8 @@ extends Node
 ##                          do compartimento e entrando, indo para a mesa ou, virgem, voltando ao compartimento);
 ##                          --tapehover=1|deck: o mouse na fita 1 do compartimento ou na do gravador; --delivered=3: tantas tiradas, empilhadas na mesa ao lado do
 ##                          bloco de fichas; --pile: com elas, a pilha aberta de perto, com o Descartar)
+##   --plugin=4,18          o FONE encaixando na tomada dada (4: a entrada da linha 4), uma captura por quadro (18), em
+##                          <out>_00.png... (rode com --fixed-fps 60)
 ##   --patch=312,4          um cabo de conexão da saída da linha 4 (o padrão) ao destino dado, conectado (o aro aceso)
 ##   --plugs=3:296,4:162    outras pontas encaixadas nas tomadas dadas, sem ligação (os fios passando pelos plugs)
 ##   --lines=2:ring,4:conn  as lâmpadas dessas linhas no estado dado (`Exchange.Line`, em minúsculas), sem ligação
@@ -124,7 +127,7 @@ func _ready() -> void:
 	if _args.get("screen") == "intro":
 		if _args.has("warned") or _args.has("tapenote") or _args.has("aside"):   # o lembrete de quem teve uma noite Insuficiente; o resumo das fitas (B4)
 			var tapes := {"night": m.night_no - 1, "used": 3, "delivered": 1, "missed": ["Laura Pires (linha 4)"], "restocked": true}
-			m._intro.setup(m.night_no, m.night, false, false, _args.has("warned"), tapes if _args.has("tapenote") else {},
+			m._intro.setup(m.night_no, m.night, false, _args.has("warned"), tapes if _args.has("tapenote") else {},
 				"user://progress.v2-1761600000.cfg" if _args.has("aside") else "")
 		await get_tree().create_timer(float(_args.get("wait", "5")), false).timeout
 		_save(out)
@@ -228,6 +231,17 @@ func _ready() -> void:
 		m.board.plugged(1, 10 + (int(pa[1]) if pa.size() > 1 else 4))
 		m.board.plugged(2, int(pa[0]))
 		m.exchange.set_dest(int(pa[0]), Exchange.Dest.CONN)
+	if _args.has("plugin"):
+		var pv := (_args["plugin"] as String).split(",")
+		var j := int(pv[0])
+		m.board.held = 0
+		m.board.cursor = m.board.jack_rect(j).get_center() + Vector2(5, 4)   # (solto um pouco fora do meio)
+		m.board.place(0, j)
+		for i in int(pv[1]) if pv.size() > 1 else 18:
+			await get_tree().process_frame
+			_grab(out, (_args.get("out", "build/shot.png") as String).get_basename() + "_%02d.png" % i)
+		get_tree().quit()
+		return
 	if _args.has("plugs"):
 		for kv in (_args["plugs"] as String).split(","):
 			m.board.plugged(int(kv.get_slice(":", 0)), int(kv.get_slice(":", 1)))
@@ -274,8 +288,10 @@ func _ready() -> void:
 		var dv: Array = str(_args["dial"]).split(",")
 		for ch in str(dv[0]):
 			m.dialing.press(ch)
-		if dv.size() > 1:
+		if "call" in dv or "talk" in dv:
 			m.dialing.dial()
+		if "open" in dv:
+			m.shelf_dialer.view.show()
 		if "talk" in dv:
 			while m.dialing.status == m.dialing.Status.CALLING:
 				await get_tree().process_frame

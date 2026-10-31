@@ -122,6 +122,22 @@ func _initialize() -> void:
 	b = m.board
 	ex = m.exchange
 	ok(b.patches == b.SHELF_SLOTS, "com os três setores, os cinco cabos (um par por setor novo)")
+	# o encaixe: entra de fora acelerando, bate no fundo (o encaixado ao lado pula) e assenta, e tudo volta ao lugar
+	# (no tempo de verdade: a 8×, a batida do vizinho começa e acaba no mesmo quadro)
+	Engine.time_scale = 1.0
+	_move(1, 12)
+	await frames(int(b.PUSH_SEC * 60.0) + 3)
+	_move(3, 13)
+	ok(not b._turning(3).is_empty() and b._turning(3)[1] > 0.0 and not b._knocked.has(1), "encaixando, o plug começa virando, fora da tomada")
+	await frames(int(b.HIT_SEC * 60.0) + 1)
+	ok(b._knocked.has(1), "na batida no fundo, o encaixado ao lado pula")
+	await frames(int(b.PUSH_SEC * 60.0) + 3)
+	await wait_until(func(): return b._knocked.is_empty(), 2.0)   # (o fio do novo ainda pode bater no vizinho, `cord_knock`)
+	Engine.time_scale = 8.0
+	ok(b._push(3) == 0.0 and b._push(1) == 0.0 and b._turning(3).is_empty() and b._pushed.is_empty() and b._knocked.is_empty(),
+		"depois, os dois assentados no lugar")
+	_move(1, -1)
+	_move(3, -1)
 
 	# ---- 0. regras com a cena (o conteúdo em si, sem ela: test_content)
 	var C: GameContent = GameData.CONTENT
@@ -484,6 +500,7 @@ func _initialize() -> void:
 	_move(0, el)
 	_click(b, b.lever_rect(el - 1).get_center())
 	ok(ex.key(el), "escuta: com o FONE, o clique na alavanca a sobe")
+	await frames(int(b.PUSH_SEC * 60.0 / Engine.time_scale) + 2)   # (assentado: entrando, o pé da capa ainda está fora)
 	ok(b._plug_under(b.jack_rect(el).get_center()) == 0 and b._plug_under(b._plug_base(0)) == 0, "o cotovelo do FONE pega o clique da tomada ao pé da capa")
 	ok(b._plug_under(b.lever_rect(el - 1).get_center()) == -1, "a chave de escuta ganha o clique da capa que a tapa")
 	await frames(2)
@@ -1459,6 +1476,26 @@ func _initialize() -> void:
 	ok(knocks == 0 and b.ropes[2].asleep(), "sem bater no plug novo, e dorme (%d batidas)" % knocks)
 	b.pick_up(2)
 	ok(b._draped[3].is_empty(), "tirado, o fio sai de cima do plug")
+	# o fio da entrada 10 enganchado por baixo do plug da saída 20 (`Cord.HOOK`): escorrega pela frente dele, corre por
+	# cima e dorme; preso, tremia sem parar
+	b.go_home(2)
+	b.go_home(3)
+	b.plugged(1, 20)
+	await frames(60)
+	b.plugged(3, 10)
+	await frames(2)
+	var hr: Switchboard.Cord = b.ropes[3]
+	var hc := b.jack_rect(20).get_center()
+	var hook := PackedVector2Array([hr.pts[0], hc + Vector2(-6, 30), hc + Vector2(10, 22), hc + Vector2(12, 4), hr.pts[hr.pts.size() - 1]])
+	var hl: float = Switchboard.Cord.length_of(hook)
+	for i in hr.pts.size():
+		hr.pts[i] = Switchboard.Cord.point_at(hook, hl * i / (hr.pts.size() - 1))
+		hr.old[i] = hr.pts[i]
+	hr.length = hl
+	hr.sleep = Rect2()
+	ok(await wait_until(func(): return 3 in b._draped.get(1, []) and b.ropes[3].asleep(), 10.0), "o fio enganchado no plug de baixo corre por cima dele e dorme")
+	b.go_home(1)
+	b.go_home(3)
 	# ---- 19. recomeçar solta as ligações em andamento: a espera de desistir (`ring`) e as opções de fala (presas à
 	# própria ligação pelo `bind`) as prendiam na memória
 	var m2: Main = await load_main([1, 2, 3])

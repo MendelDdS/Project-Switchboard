@@ -1,0 +1,201 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/title_screen.gd" id="1_title"]
+[ext_resource type="Script" path="res://scripts/ui/title_board.gd" id="2_board"]
+[ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="3_pause"]
+
+[node name="TitleScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_title")
+
+[node name="Room" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.039, 0.047, 0.051, 1)
+
+[node name="Board" type="Control" parent="."]
+layout_mode = 0
+offset_left = 440.0
+offset_right = 960.0
+offset_bottom = 540.0
+mouse_filter = 2
+script = ExtResource("2_board")
+
+[node name="Logo" type="TextureRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 64.0
+offset_top = 132.0
+offset_right = 420.0
+offset_bottom = 164.0
+mouse_filter = 2
+stretch_mode = 2
+
+[node name="Menu" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 64.0
+offset_top = 206.0
+offset_right = 420.0
+offset_bottom = 340.0
+theme_override_constants/separation = 10
+
+[node name="Load" type="Button" parent="Menu"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"TitleButton"
+text = "TITLE_LOAD"
+alignment = 0
+
+[node name="WhereBox" type="MarginContainer" parent="Menu"]
+layout_mode = 2
+theme_override_constants/margin_left = 23
+theme_override_constants/margin_top = -9
+
+[node name="Where" type="Label" parent="Menu/WhereBox"]
+unique_name_in_owner = true
+layout_mode = 2
+auto_translate_mode = 2
+theme_type_variation = &"DimLabel"
+theme_override_font_sizes/font_size = 11
+
+[node name="New" type="Button" parent="Menu"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"TitleButton"
+text = "TITLE_NEW"
+alignment = 0
+
+[node name="Settings" type="Button" parent="Menu"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"TitleButton"
+text = "SETTINGS"
+alignment = 0
+
+[node name="Quit" type="Button" parent="Menu"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"TitleButton"
+text = "TITLE_QUIT"
+alignment = 0
+
+[node name="Credits" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 64.0
+offset_top = 488.0
+offset_right = 200.0
+offset_bottom = 504.0
+mouse_default_cursor_shape = 2
+theme_type_variation = &"TitleButton"
+theme_override_font_sizes/font_size = 11
+text = "TITLE_CREDITS"
+alignment = 0
+
+[node name="Version" type="TextureRect" parent="."]
+unique_name_in_owner = true
+modulate = Color(0.6039216, 0.5686275, 0.47843137, 0.8)
+layout_mode = 0
+offset_left = 64.0
+offset_top = 510.0
+offset_right = 200.0
+offset_bottom = 520.0
+mouse_filter = 2
+stretch_mode = 2
+
+[node name="Shade" type="ColorRect" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.01961, 0.02353, 0.02745, 0.72)
+
+[node name="Center" type="CenterContainer" parent="Shade"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Paper" type="PanelContainer" parent="Shade/Center"]
+custom_minimum_size = Vector2(345, 0)
+layout_mode = 2
+theme_type_variation = &"TapedNote"
+
+[node name="Margin" type="MarginContainer" parent="Shade/Center/Paper"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="Shade/Center/Paper/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 9
+
+[node name="Title" type="Label" parent="Shade/Center/Paper/Margin/VBox"]
+layout_mode = 2
+theme_type_variation = &"LetterheadLabel"
+text = "GAME_TITLE"
+
+[node name="Text" type="Label" parent="Shade/Center/Paper/Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(305, 0)
+layout_mode = 2
+auto_translate_mode = 2
+theme_type_variation = &"InkLabel"
+autowrap_mode = 3
+
+[node name="Buttons" type="HBoxContainer" parent="Shade/Center/Paper/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Erase" type="Button" parent="Shade/Center/Paper/Margin/VBox/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"AmberButton"
+text = "TITLE_ERASE"
+
+[node name="Close" type="Button" parent="Shade/Center/Paper/Margin/VBox/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_type_variation = &"DarkButton"
+text = "BACK"
+
+[node name="PauseMenu" parent="." instance=ExtResource("3_pause")]
+unique_name_in_owner = true
+layout_mode = 1
+
+[node name="Top" type="CanvasLayer" parent="."]
+layer = 20
+
+[node name="Fade" type="ColorRect" parent="Top"]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.02, 0.024, 0.027, 0)

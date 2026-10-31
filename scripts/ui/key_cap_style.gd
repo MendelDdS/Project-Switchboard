@@ -19,6 +19,7 @@ const PLATE_TONES := [Pal.BOARD_METAL[5], Pal.BOARD_METAL[3], Pal.BOARD_METAL[1]
 @export var pressed := false
 @export var hover := false
 @export var off := false
+@export var tag := true   ## a etiqueta no alto (sem ela, a tecla ocupa a chapa toda: as do discador, `DialView`)
 
 
 func _draw(to: RID, rect: Rect2) -> void:
@@ -32,11 +33,12 @@ func _draw(to: RID, rect: Rect2) -> void:
 	rs.canvas_item_add_rect(to, Rect2(bz.position.x + 1, bz.end.y - 1, bz.size.x - 2, 1), PLATE_TONES[2])
 	# a etiqueta creme impressa, onde fica o atalho
 	var plate := Rect2(rect.position.x + SIDE, rect.position.y + PLATE.position.y, rect.size.x - SIDE * 2.0, PLATE.size.y)
-	_cut_rect(to, plate.grow(1), Pal.BOARD_INSET)
-	_cut_rect(to, plate, Pal.BOARD_TAG)
-	rs.canvas_item_add_rect(to, Rect2(plate.position.x + 1, plate.position.y, plate.size.x - 2, 1), Pal.BOARD_TAG.lightened(0.15))
-	# o poço da tecla
-	var room := Rect2(rect.position.x, plate.end.y + 6.0, rect.size.x, rect.end.y - plate.end.y - 12.0)   # embaixo da etiqueta
+	if tag:
+		_cut_rect(to, plate.grow(1), Pal.BOARD_INSET)
+		_cut_rect(to, plate, Pal.BOARD_TAG)
+		rs.canvas_item_add_rect(to, Rect2(plate.position.x + 1, plate.position.y, plate.size.x - 2, 1), Pal.BOARD_TAG.lightened(0.15))
+	# o poço da tecla, embaixo da etiqueta (sem ela, na chapa toda)
+	var room := Rect2(rect.position.x, plate.end.y + 6.0, rect.size.x, rect.end.y - plate.end.y - 12.0) if tag else rect.grow(-2)
 	var wh := minf(room.size.y, WELL_H)   # baixa, no meio do espaço (o texto, pelas margens, fica no meio dela)
 	var well := Rect2(rect.position.x + SIDE - 2.0, roundf(room.get_center().y - wh / 2.0), rect.size.x - (SIDE - 2.0) * 2.0, wh)
 	rs.canvas_item_add_rect(to, well, Pal.BOARD_INSET)

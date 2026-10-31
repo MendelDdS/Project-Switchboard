@@ -122,15 +122,15 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   dela é curto (`BAY_W`, a pedido: vazio, não servia para nada).
 - **Discador** (`dialer.gd`, `%Dialer`): deitado à direita da almofada, no meio do vão até o fim da prateleira (`Switchboard.dialer_x`, `DIALER_W`), linha a linha na
   inclinação dela como a almofada (`_flat`, `_slant`): caixa creme, placa oliva, visor com o número (`PixelArt.tiny`),
-  lâmpada de linha e teclado (Discar `Pal.CALL_CAP`, Encerrar `REC_CAP`); o clique abre o de perto (`dial_view.gd`,
-  `Tools.DIALER`): o visor em sete segmentos na tela do console, a lâmpada e as teclas do console (`DigitKey`,
+  lâmpada de linha e teclado (Discar `Pal.CALL_CAP`, Encerrar `REC_CAP`); o clique abre o de perto num pop-up em cima dele (`dial_view.gd`, `Dialer.view`): o visor em sete segmentos na tela do console, a lâmpada e as teclas do console (`DigitKey`,
   `CallKey`, `RedKey`, `KeyCapStyle`), as letras na etiqueta.
 - **Fios** são cordas de Verlet, uma por ponta (`Cord`, `scripts/ui/cord.gd`, sem tela nem som, testada sozinha):
   presas no buraco (`hole(e)`) e na traseira do plug; o contrapeso puxa a folga para dentro (`WEIGHT_TAKE`); todos com
   o mesmo comprimento (`Cord.MAX`); a prateleira e a beira dela são quinas (`hang_step`, `lip_y`, `route`); os plugs
   encaixados das outras pontas são pinos (`Cord.pegs`, `Switchboard._pegs`, `Cord.clear`: o fio encaixado contorna ou
   se apoia, nunca atravessa, agarrado neles, `PEG_GRIP`; na mão, só a metade do lado do buraco, `HELD_LIE`; solto, não; o plug encaixado numa tomada tapada por um fio
-  levanta o fio, que corre por cima dele sem esbarrar e é desenhado depois, `_draped`); fio parado dorme (`SLEEP_STEPS`). Ordem do desenho: fileira por
+  levanta o fio, que corre por cima dele sem esbarrar e é desenhado depois, `_draped`; um plug só apoia o fio por cima:
+  enganchado por baixo dele, o fio escorrega pela frente e passa a correr por cima, `Cord.hook`, `HOOK`); fio parado dorme (`SLEEP_STEPS`). Ordem do desenho: fileira por
   fileira, de trás para a frente, os encaixados que saem dela e os guardados nela (o fio passa atrás dos da fileira dele e dos da frente, na frente dos de trás), depois os da mão e os soltos. No desenho: dobras do pano (`_kinked`), trançado (`BRAID`, uma chamada,
   `draw_multiline_colors`), curva Catmull-Rom (`_smooth`); dormindo, imagem pixel a pixel guardada (`_rope_image`);
   a sombra no fio de baixo onde se cruzam (`_cross_shade`, `CROSS_SHADE`, em polígonos do `Geometry2D`).
