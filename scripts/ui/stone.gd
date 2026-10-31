@@ -1,27 +1,36 @@
 extends RefCounted
 ## A pedra da noite 14 (`StreetEvent` "stone"), às 23h, com a rua já vazia do toque de recolher: atirada da rua
-## embaixo da janela (quem atira não aparece), sobe crescendo até o vidro, bate na parte esquerda dele e deixa o
-## trincado, que fica (`Background.LASTING`: a noite 15 começa com ele). Desenhada por cima da vista, na camada do vidro
+## embaixo da janela (quem atira não aparece), sobe crescendo até o vidro, bate na parte esquerda dele, quica para
+## trás e cai de volta para a rua, e deixa o trincado, que fica (`Background.LASTING`: a noite 15 começa com ele). Desenhada por cima da vista, na camada do vidro
 ## trincado (`Background._crack`), em px da tela. Só o roteiro, sem estado: tudo sai do tempo `t` (s desde o arremesso).
 
 const FLY := 0.45    ## quanto ela leva da rua ao vidro (s)
 const HIT := Vector2(0.24, 0.6)   ## onde bate: fração do vidro que aparece (x da beira de longe, y do alto abaixo da persiana)
 const FROM := Vector2(0.46, 0.97)   ## de onde ela vem: a rua embaixo da janela, no pé do vidro
 const SIZE := Vector2(2.0, 6.0)   ## o tamanho dela (px da tela): na rua, longe, e chegando no vidro
+const BOUNCE := Vector3(-0.05, -0.6, 0.7)   ## o quique: para o lado e para cima (fração do vidro por s) e o tamanho a que ela volta, se afastando...
+const FALL := 4.2    ## ...a gravidade puxando para baixo (fração do vidro por s²)...
+const DROP := 0.7    ## ...e quanto leva caindo até sumir no pé do vidro (s)
+const END := FLY + DROP
 const SQUASH := 0.72   ## o vidro visto de lado (na parede da direita): o trincado mais estreito que alto
-const ART := Vector2i(96, 104)   ## o desenho do trincado (px da tela), com o ponto da batida no meio
-const RAYS := 9      ## os riscos saindo do ponto da batida...
-const RAY_LEN := Vector2(16.0, 50.0)   ## ...e o comprimento de cada um (px, antes do `SQUASH`)
-const RINGS := [6.0, 13.0, 23.0]   ## os arcos entre os riscos, a essa distância do ponto (px): cada vez menos deles
+const ART := Vector2i(150, 160)   ## o desenho do trincado (px da tela), com o ponto da batida no meio
+const RAYS := 11     ## os riscos saindo do ponto da batida...
+const RAY_LEN := Vector2(26.0, 76.0)   ## ...e o comprimento de cada um (px, antes do `SQUASH`)
+const RINGS := [7.0, 16.0, 29.0, 45.0]   ## os arcos entre os riscos, a essa distância do ponto (px): cada vez menos deles
 
 static var _art: ImageTexture
 
 
 ## Onde ela está no vidro (x, y em fração dele, como `HIT`) e de que tamanho (z, px), `t` s depois de atirada; já no
-## vidro (ou ainda não atirada), z = 0. Vindo na nossa direção, ela cresce e corre mais no fim (a perspectiva).
+## fim da queda (ou ainda não atirada), z = 0. Vindo na nossa direção, ela cresce e corre mais no fim (a perspectiva);
+## quicando, sobe um pouco, se afasta (encolhe) e cai.
 static func at(t: float) -> Vector3:
-	if t < 0.0 or t >= FLY:
+	if t < 0.0 or t >= END:
 		return Vector3.ZERO
+	if t >= FLY:
+		var d := t - FLY
+		var q := HIT + Vector2(BOUNCE.x, BOUNCE.y) * d + Vector2(0.0, FALL * d * d / 2.0)
+		return Vector3(q.x, q.y, SIZE.y * lerpf(1.0, BOUNCE.z, minf(1.0, d / 0.2)))
 	var u := pow(t / FLY, 2.2)
 	var p := FROM.lerp(HIT, u) + Vector2(0.0, -0.08 * sin(PI * t / FLY))   # (um arco de leve, subindo)
 	return Vector3(p.x, p.y, lerpf(SIZE.x, SIZE.y, u))
@@ -63,11 +72,11 @@ static func art() -> ImageTexture:
 				continue
 			var mid := (a + b) / 2.0 * rng.randf_range(1.04, 1.14)   # (o arco abaulado para fora)
 			_crack_line(img, lit, c, PackedVector2Array([a, mid, b]), 0.6 - 0.12 * n)
-	for y in range(-3, 4):   # o miolo moído, no ponto da batida
-		for x in range(-3, 4):
+	for y in range(-4, 5):   # o miolo moído, no ponto da batida
+		for x in range(-4, 5):
 			var d := Vector2(x, y).length()
-			if d <= 1.5 or (d <= 3.2 and rng.randf() < 0.45):
-				lit.set_pixel(int(c.x) + x, int(c.y) + y, Color(Pal.GLASS_CRACK, 0.95 if d <= 1.5 else 0.6))
+			if d <= 2.0 or (d <= 4.2 and rng.randf() < 0.45):
+				lit.set_pixel(int(c.x) + x, int(c.y) + y, Color(Pal.GLASS_CRACK, 0.95 if d <= 2.0 else 0.6))
 	img.blend_rect(lit, Rect2i(Vector2i.ZERO, ART), Vector2i.ZERO)
 	_art = ImageTexture.create_from_image(img)
 	return _art

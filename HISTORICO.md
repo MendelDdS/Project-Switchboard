@@ -3034,3 +3034,7 @@ Chaves:
     nove riscos em zigue-zague com galhos e arcos entre eles, claros com a sombra 1 px abaixo, mais estreito que alto
     pelo vidro visto de lado) fica numa camada por cima da vista (`_crack`), redesenhada só quando muda, e segue na
     noite 15 (`LASTING`), também de dia. No F1 e no `shot --scene=stone`.
+    Depois: "Aumente o tamanho do trincado; aumente o barulho da batida da pedra; quando a pedra bater, ela deve quicar e
+    cair": o trincado ~1,5× maior (11 riscos, 4 arcos, o miolo maior, `ART`, `RAY_LEN`, `RINGS`), a batida mais forte
+    (`glass_hit` a 0 dB, com mais grave; o chocalho também) e, depois da batida, a pedra quica um pouco para cima, se
+    afasta (encolhe) e cai até sumir no pé do vidro em 0,7 s (`BOUNCE`, `FALL`, `DROP`, `Stone.END`), atrás do trincado.

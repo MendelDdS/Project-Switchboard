@@ -232,7 +232,7 @@ var _rays: Control     # os raios do sol nascendo e os reflexos da lente, somado
 var _pane: Control     # o vidro da vista, por cima da `_view`: o reflexo da sala e a chuva nele, fora da luz do dia
 var _crack: Control    # o vidro trincado pela pedra da noite 14 (`Stone`), por cima de tudo na vista e também de dia: só redesenhado quando muda...
 var _crack_box := Rect2()   # ...o vidro que aparece abaixo da persiana (px da vista, 1x1), onde ela bate...
-var _crack_t := -1.0   # ...e o tempo da pedra no último desenho (-1: nada; parado em `Stone.FLY` depois da batida)
+var _crack_t := -1.0   # ...e o tempo da pedra no último desenho (-1: nada; parado em `Stone.END` depois da queda)
 var _back_drawn := []
 var _vport: SubViewport
 var _cover := Rect2()   # onde está o papel da ferramenta aberta (px da tela, não de 2x2): luz embaixo dele não brilha
@@ -912,10 +912,10 @@ func _events(delta: float) -> void:
 			Sfx.play_at("flare", x, 0.0)
 		if k == "stone" and was < Stone.FLY and _scene_t[k] >= Stone.FLY:   # a pedra no vidro: a batida trincando e a janela chocalhando
 			Sfx.play_at("glass_hit", x)
-			Sfx.play_at("rattle", x, -4.0, 1.2)
+			Sfx.play_at("rattle", x, 2.0, 1.2)
 		if k == "paint" and was < Graffiti.SET_DOWN and _scene_t[k] >= Graffiti.SET_DOWN:   # o balde no chão
 			Sfx.play_at("set_metal", x, 6.0, 0.7)
-	var ct := minf(_scene_t.get("stone", -1.0), Stone.FLY)   # a pedra voando (a cada quadro) e o trincado (uma vez)
+	var ct := minf(_scene_t.get("stone", -1.0), Stone.END)   # a pedra voando e caindo (a cada quadro) e o trincado (uma vez)
 	if ct != _crack_t:
 		_crack_t = ct
 		_crack.queue_redraw()
@@ -2553,23 +2553,22 @@ func _draw_view_beam() -> void:
 
 
 ## O vidro trincado pela pedra da noite 14 (`_crack`, `Stone`), em px da vista: ela voando da rua até o vidro e, depois
-## da batida, o trincado na parte esquerda dele. Fora do `_pane`: o trincado não some com o dia (a noite 15).
+## da batida, o trincado na parte esquerda dele, por cima dela quicando e caindo (ela está do lado de fora). Fora do `_pane`: o trincado não some com o dia (a noite 15).
 func _draw_view_crack() -> void:
 	var t: float = _scene_t.get("stone", -1.0)
 	if t < 0.0 or not _crack_box.has_area():
 		return
-	var hit := (_crack_box.position + _crack_box.size * Stone.HIT).round()
-	if Stone.cracked(t):
-		var tex := Stone.art()
-		_crack.draw_texture(tex, hit - Vector2(Stone.ART / 2))
-		return
 	var s := Stone.at(t)
-	var p := (_crack_box.position + _crack_box.size * Vector2(s.x, s.y)).round()
-	var d := maxi(1, roundi(s.z))
-	if d < 3:
-		_crack.draw_rect(Rect2(p, Vector2(d, d)), Pal.STONE[1])
-	else:   # perto: a luz da sala no alto dela
-		_crack.draw_texture(PixelArt.disc(d, [[d / 2.0, Pal.STONE[1], Pal.STONE[0], Pal.STONE[0]]], Vector2(0.3, -0.95)), (p - Vector2(d, d) / 2.0).floor())
+	if s.z > 0.0:
+		var p := (_crack_box.position + _crack_box.size * Vector2(s.x, s.y)).round()
+		var d := maxi(1, roundi(s.z))
+		if d < 3:
+			_crack.draw_rect(Rect2(p, Vector2(d, d)), Pal.STONE[1])
+		else:   # perto: a luz da sala no alto dela
+			_crack.draw_texture(PixelArt.disc(d, [[d / 2.0, Pal.STONE[1], Pal.STONE[0], Pal.STONE[0]]], Vector2(0.3, -0.95)), (p - Vector2(d, d) / 2.0).floor())
+	if Stone.cracked(t):
+		var hit := (_crack_box.position + _crack_box.size * Stone.HIT).round()
+		_crack.draw_texture(Stone.art(), hit - Vector2(Stone.ART / 2))
 
 
 ## O vidro da vista (`_pane`), por cima dela e fora da luz do dia: o reflexo da sala, sumindo com o dia lá fora, e a

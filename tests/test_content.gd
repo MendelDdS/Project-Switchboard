@@ -336,6 +336,7 @@ func _check_street() -> void:
 	var stone: GDScript = load("res://scripts/ui/stone.gd")
 	ok(not stone.cracked(stone.FLY - 0.01) and stone.cracked(stone.FLY) and stone.at(stone.FLY / 2.0).z > stone.at(0.0).z,
 		"a pedra cresce voando e só trinca o vidro ao chegar")
+	ok(stone.at(stone.END - 0.01).y > stone.HIT.y + 0.3 and stone.at(stone.END).z == 0.0, "a pedra quica e cai depois da batida")
 	ok(stone.art().get_size() == Vector2(stone.ART), "o trincado desenhado")
 	var tag: GDScript = load("res://scripts/ui/graffiti.gd")
 	ok(tag.tag(tag.SPRAY_END).size() == tag._paint_order().size() and tag.tag(tag.SPRAY_AT - 0.01).is_empty(), "a pichação no tempo do spray")

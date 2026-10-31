@@ -641,9 +641,11 @@ func _build_outside() -> void:
 		t0 += _rng.randf_range(0.015, 0.04)
 	_end("rattle")
 	_begin(0.6)   # a pedra no vidro (`Stone`), aqui do lado: a batida seca, o vidro cedendo grave, o trincado correndo em
-	_tone(0.0, 140.0, 0.07, "sine", 0.7)   # estalinhos e o vidro vibrando, com dois grãos caindo no peitoril
-	_tone(0.0, 1900.0, 0.03, "sine", 0.45, 0.001)
-	_noise(0.0, 0.03, "bp", 2600.0, 1.0, 0.9)
+	_tone(0.0, 140.0, 0.1, "sine", 1.0)   # estalinhos e o vidro vibrando, com dois grãos caindo no peitoril
+	_tone(0.0, 75.0, 0.14, "sine", 0.6)
+	_tone(0.0, 1900.0, 0.04, "sine", 0.6, 0.001)
+	_noise(0.0, 0.04, "bp", 2600.0, 1.0, 1.2)
+	_noise(0.0, 0.025, "lp", 900.0, 0.7, 0.8)
 	var t3 := 0.008
 	while t3 < 0.2:
 		_noise(t3, _rng.randf_range(0.003, 0.009), "bp", _rng.randf_range(3000.0, 6500.0), 2.5, _rng.randf_range(0.4, 0.9) * (1.0 - t3 / 0.2))
