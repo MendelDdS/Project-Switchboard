@@ -8,9 +8,9 @@ extends Resource
 ## (`Graffiti`); "newsstand": a banca esvaziada e lacrada (`Newsstand`, antes das 19h); "parade": o caminhão do
 ## exército (`ARMY_*`); "moving": a família do apartamento da varanda fugindo de Kombi (`Moving`, antes das 21h); "flare": o sinalizador
 ## vermelho atirado no céu e descendo devagar (`Flare`); "raid": a batida no hotel, o camburão e a viatura, cinco presos
-## levados algemados (`Raid`).
-## Pichação, tinta, banca e o apartamento vazio ficam nas noites seguintes (`Background.left_behind`).
+## levados algemados (`Raid`); "stone": a pedra atirada da rua que trinca a janela da sala (`Stone`).
+## Pichação, tinta, banca, o apartamento vazio e o vidro trincado ficam nas noites seguintes (`Background.left_behind`).
 
-@export_enum("beating", "police", "lookout", "curfew", "speaker", "chase", "flyers", "graffiti", "paint", "newsstand", "parade", "moving", "flare", "raid") var kind := "beating"
+@export_enum("beating", "police", "lookout", "curfew", "speaker", "chase", "flyers", "graffiti", "paint", "newsstand", "parade", "moving", "flare", "raid", "stone") var kind := "beating"
 @export var at := 190.0
 @export var every := 0.0

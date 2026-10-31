@@ -13,7 +13,12 @@ script = ExtResource("2_event")
 kind = "moving"
 at = 120.0
 
+[sub_resource type="Resource" id="ev_2"]
+script = ExtResource("2_event")
+kind = "stone"
+at = 300.0
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Amanhã é sua última noite deste período. Capriche.\""
-street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1")])
+street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1"), SubResource("ev_2")])

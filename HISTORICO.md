@@ -3026,3 +3026,11 @@ Chaves:
 501. #mesa-comutadora "Na gameplay, a luz para de piscar quando encaixa o cabo, mas deveria piscar até atender a
     ligação." A lâmpada de uma linha chamando ficava acesa fixa com o FONE na entrada; agora pisca até o Atender
     (`Switchboard._lamp` sem o `steady`; a linha só passa a TALK no `Main.answer`).
+502. #vista #janela "Crie um novo evento para o dia 14. Por volta das 23h, uma pedra atingirá a janela e causará um
+    trincado na parte esquerda." Cena "stone" da noite 14 às 23h (`StreetEvent`, `Stone`), com a rua já vazia do
+    toque de recolher: quem atira não aparece; a pedra sobe da rua embaixo da janela crescendo (vindo na nossa
+    direção) em 0,45 s, clara da luz da sala chegando no vidro, e bate na parte esquerda dele: a batida seca, o
+    trincado correndo em estalinhos e o vidro vibrando (`glass_hit`), a janela chocalhando. O trincado (o miolo moído,
+    nove riscos em zigue-zague com galhos e arcos entre eles, claros com a sombra 1 px abaixo, mais estreito que alto
+    pelo vidro visto de lado) fica numa camada por cima da vista (`_crack`), redesenhada só quando muda, e segue na
+    noite 15 (`LASTING`), também de dia. No F1 e no `shot --scene=stone`.

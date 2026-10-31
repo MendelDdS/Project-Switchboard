@@ -127,7 +127,7 @@ func _ready() -> void:
 	_row([["Pichação (noite 4)", func(): main.background.start_scene("graffiti")], ["Tinta por cima (noite 7)", func(): main.background.start_scene("paint")]])
 	_row([["Banca fechada (noite 12)", func(): main.background.start_scene("newsstand")], ["Desfile (noite 10)", func(): main.background.start_scene("parade")]])
 	_row([["Fuga da família (noite 14)", func(): main.background.start_scene("moving")], ["Sinalizador (noite 15)", func(): main.background.start_scene("flare")]])
-	_row([["Batida no hotel (noite 13)", func(): main.background.start_scene("raid")]])
+	_row([["Batida no hotel (noite 13)", func(): main.background.start_scene("raid")], ["Pedra na janela (noite 14)", func(): main.background.start_scene("stone")]])
 	_section("Noites", func(): _go_night(1))
 	_row([["◀ Noite anterior", func(): _go_night(main.night_no - 1)], ["Próxima noite ▶", func(): _go_night(main.night_no + 1)]])
 	_row([["Amanhecer (última noite, 4h)", func(): _go_night(C.nights.size(), 10 * 60.0)]])

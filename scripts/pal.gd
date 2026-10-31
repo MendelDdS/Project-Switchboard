@@ -389,6 +389,9 @@ const TAXI_SIGN := Color("f0d88a")  ## ...e a placa acesa do táxi
 const BEACON := Color("ff2a1e")
 const BEACON_GLASS: Array[Color] = [Color("3a0c0c"), Color("6a1612")]
 const PATROL_DOOR := Color("6e6c66")
+## A pedra da noite 14 (`Stone`): ela (a sombra e a luz da sala nela, chegando no vidro) e o vidro trincado, pegando a luz
+const STONE: Array[Color] = [Color("4a4743"), Color("8c877d")]
+const GLASS_CRACK := Color("d8e2e6")
 const PATROL_INK := Color("15181e")
 ## A batida no hotel (`Background`, `Raid`): o cofre do camburão, de chapa branca (a rampa, como as dos carros: o tom em
 ## `CAR_MID`), as grades da janelinha dele e as roupas dos presos (camisas e calças, pegos de noite no hotel)

@@ -10,6 +10,7 @@ const Newsstand := preload("res://scripts/ui/newsstand.gd")
 const Moving := preload("res://scripts/ui/moving.gd")
 const Flare := preload("res://scripts/ui/flare.gd")
 const Raid := preload("res://scripts/ui/raid.gd")
+const Stone := preload("res://scripts/ui/stone.gd")
 const SLEEP := Vector3(19 * 60, 23 * 60 + 50, 0.15)   ## as janelas apagam entre x e y (minutos do dia); z: as que ficam acesas
 const RAIN_STREAK := Vector2(6.0, 14.0) ## o comprimento do risco (px da tela), do mais longe ao mais perto: o rastro do quadro
 const RAIN_SLANT := 0.18 ## o vento: quanto o pingo anda para a esquerda a cada px que cai

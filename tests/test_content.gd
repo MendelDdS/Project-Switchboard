@@ -333,6 +333,10 @@ func _check_street() -> void:
 	var shut: Vector3 = stand.state(1e5)
 	ok(shut == Vector3(1, 0, 1) and stand.state(0.0).y == 1.0, "a banca esvaziada, fechada e lacrada no fim")
 	ok(stand.figures(stand.wait() + stand.ARRIVE - 0.1).size() == 1, "os dois homens no carro antes de ele sair")
+	var stone: GDScript = load("res://scripts/ui/stone.gd")
+	ok(not stone.cracked(stone.FLY - 0.01) and stone.cracked(stone.FLY) and stone.at(stone.FLY / 2.0).z > stone.at(0.0).z,
+		"a pedra cresce voando e só trinca o vidro ao chegar")
+	ok(stone.art().get_size() == Vector2(stone.ART), "o trincado desenhado")
 	var tag: GDScript = load("res://scripts/ui/graffiti.gd")
 	ok(tag.tag(tag.SPRAY_END).size() == tag._paint_order().size() and tag.tag(tag.SPRAY_AT - 0.01).is_empty(), "a pichação no tempo do spray")
 	ok(tag.tagger(1e5).is_empty() and tag.painter(1e5).is_empty(), "o pichador e o pintor saem da vista")

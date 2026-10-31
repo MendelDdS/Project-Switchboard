@@ -230,6 +230,9 @@ var _flare_steep := 0.0   # o sinalizador aceso no lugar do sol (0: não): o qua
 var _sky: Control      # o céu da vista, embaixo da `_back` e fora da luz do dia da cidade (`DAY_GAIN`): redesenhado com ela
 var _rays: Control     # os raios do sol nascendo e os reflexos da lente, somados por cima da vista (`_draw_rays`): redesenhados com o céu
 var _pane: Control     # o vidro da vista, por cima da `_view`: o reflexo da sala e a chuva nele, fora da luz do dia
+var _crack: Control    # o vidro trincado pela pedra da noite 14 (`Stone`), por cima de tudo na vista e também de dia: só redesenhado quando muda...
+var _crack_box := Rect2()   # ...o vidro que aparece abaixo da persiana (px da vista, 1x1), onde ela bate...
+var _crack_t := -1.0   # ...e o tempo da pedra no último desenho (-1: nada; parado em `Stone.FLY` depois da batida)
 var _back_drawn := []
 var _vport: SubViewport
 var _cover := Rect2()   # onde está o papel da ferramenta aberta (px da tela, não de 2x2): luz embaixo dele não brilha
@@ -284,8 +287,8 @@ var _police_next := false   # o próximo da mão de lá é a viatura que para no
 var _curfew_next := false   # o próximo da mão de lá é a viatura do toque de recolher (`curfew`)...
 var _curfew_sent := false   # ...que já foi chamada
 ## As cenas que deixam marca (`scene_at`): passada a hora, a marca fica (os papéis no chão, a tinta, a banca fechada).
-const MARKS := ["flyers", "graffiti", "paint", "newsstand", "moving"]
-const LASTING := ["graffiti", "paint", "newsstand", "moving"]   ## ...e as que ficam nas noites seguintes (`left_behind`)
+const MARKS := ["flyers", "graffiti", "paint", "newsstand", "moving", "stone"]
+const LASTING := ["graffiti", "paint", "newsstand", "moving", "stone"]   ## ...e as que ficam nas noites seguintes (`left_behind`)
 const SPRAY_EVERY := 1.1   ## de quanto em quanto tempo um jato do spray (s)
 var _scene_car := ""   # o próximo da mão de lá é o carro desta cena (`scene_at`, `_scene_car_of`)
 var _taxi_at: Array[float] = []   # as horas deles nesta noite (min do dia; `_taxi_times`)
@@ -363,6 +366,9 @@ func _ready() -> void:
 	_pane = Control.new()
 	_pane.draw.connect(_draw_view_glass)
 	_vport.add_child(_pane)
+	_crack = Control.new()
+	_crack.draw.connect(_draw_view_crack)
+	_vport.add_child(_crack)
 	add_child(_vport)
 	_blind_layer = Control.new()
 	_blind_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -904,8 +910,15 @@ func _events(delta: float) -> void:
 			Sfx.play_at("car_door", x, 2.0, 0.72)
 		if k == "flare" and was <= 0.0:   # o tiro, longe
 			Sfx.play_at("flare", x, 0.0)
+		if k == "stone" and was < Stone.FLY and _scene_t[k] >= Stone.FLY:   # a pedra no vidro: a batida trincando e a janela chocalhando
+			Sfx.play_at("glass_hit", x)
+			Sfx.play_at("rattle", x, -4.0, 1.2)
 		if k == "paint" and was < Graffiti.SET_DOWN and _scene_t[k] >= Graffiti.SET_DOWN:   # o balde no chão
 			Sfx.play_at("set_metal", x, 6.0, 0.7)
+	var ct := minf(_scene_t.get("stone", -1.0), Stone.FLY)   # a pedra voando (a cada quadro) e o trincado (uma vez)
+	if ct != _crack_t:
+		_crack_t = ct
+		_crack.queue_redraw()
 	var scene := minutes >= beating - 3.0 and _beat_t < Beating.END
 	var quiet: bool = _scene_t.get("chase", INF) < Chase.END or _scene_t.get("raid", INF) < Raid.end()   # (a corrida atravessa a mão de lá, e a batida para a rua: nenhum carro novo)
 	for lane in CAR_LANES.size():   # um carro por vez em cada mão, cada uma no seu tempo
@@ -1299,7 +1312,7 @@ func left_behind(kind: String) -> void:
 ## Começa a cena `kind` (`scene_at`): a que vem de carro, ele é o próximo da mão de lá (com ela livre, já); a corrida,
 ## quando os carros que estão passando saírem (`_scene_t` negativo até lá).
 func _start_scene(kind: String) -> void:
-	if kind == "flare":   # (no céu: não espera a rua)
+	if kind in ["flare", "stone"]:   # (no céu, ou de quem não aparece: não espera a rua)
 		_scene_t[kind] = 0.0
 		return
 	if kind in ["speaker", "flyers", "newsstand", "parade", "moving", "raid"]:
@@ -2539,6 +2552,26 @@ func _draw_view_beam() -> void:
 	_ci = self
 
 
+## O vidro trincado pela pedra da noite 14 (`_crack`, `Stone`), em px da vista: ela voando da rua até o vidro e, depois
+## da batida, o trincado na parte esquerda dele. Fora do `_pane`: o trincado não some com o dia (a noite 15).
+func _draw_view_crack() -> void:
+	var t: float = _scene_t.get("stone", -1.0)
+	if t < 0.0 or not _crack_box.has_area():
+		return
+	var hit := (_crack_box.position + _crack_box.size * Stone.HIT).round()
+	if Stone.cracked(t):
+		var tex := Stone.art()
+		_crack.draw_texture(tex, hit - Vector2(Stone.ART / 2))
+		return
+	var s := Stone.at(t)
+	var p := (_crack_box.position + _crack_box.size * Vector2(s.x, s.y)).round()
+	var d := maxi(1, roundi(s.z))
+	if d < 3:
+		_crack.draw_rect(Rect2(p, Vector2(d, d)), Pal.STONE[1])
+	else:   # perto: a luz da sala no alto dela
+		_crack.draw_texture(PixelArt.disc(d, [[d / 2.0, Pal.STONE[1], Pal.STONE[0], Pal.STONE[0]]], Vector2(0.3, -0.95)), (p - Vector2(d, d) / 2.0).floor())
+
+
 ## O vidro da vista (`_pane`), por cima dela e fora da luz do dia: o reflexo da sala, sumindo com o dia lá fora, e a
 ## chuva no vidro.
 func _draw_view_glass() -> void:
@@ -2837,6 +2870,12 @@ func _draw_side_wall(top: float, front: float, w: float) -> void:
 	_view_at = view.position
 	# o vidro que aparece começa abaixo da persiana (e da borda de cima da tela): as gotas ficam dali para baixo
 	_glass_from = clampf((maxf(0.0, _side_pt(Vector2(gw * 0.5, blind)).y) - view.position.y) / view.size.y, 0.0, 0.95)
+	var vb := PixelArt.bounds(q)   # o vidro que aparece abaixo da persiana, até o peitoril de longe, em px da vista: onde a pedra bate
+	var gy := maxf(vb.position.y, view.position.y + view.size.y * _glass_from)
+	var cb := Rect2((Vector2(vb.position.x, gy) - view.position) * 2.0, Vector2(minf(vb.end.x, w) - vb.position.x, low - gy) * 2.0)
+	if cb != _crack_box:
+		_crack_box = cb
+		_crack.queue_redraw()
 	var hy := -_cm(WIN_TOP)   # o horizonte no vão: o ponto de fuga lá fora fica nele
 	var near_x := minf(_side_pt(Vector2(gw, hy)).x, w)   # o batente de perto, ou a borda da tela
 	var out_x := roundf(lerpf(_side_pt(Vector2(0, hy), WALL_D).x, near_x, OUT_AT) - view.position.x)

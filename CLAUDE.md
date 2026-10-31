@@ -200,7 +200,8 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   `Background.schedule`). A 3: o policial (`scripts/ui/beating.gd`); a 7: a viatura estacionada no hotel (`PATROL_*`);
   a 9: o vigia no terraço (`LOOKOUT_*`); 9 a 14: o toque de recolher às 21h, `CURFEW_*`, `_hurry`; 4 a 12: pichação,
   carro de som, panfletos, tinta, corrida, desfile e banca; 13: a batida no hotel às 22h (`Raid`: camburão, viatura,
-  cinco presos); 14: a fuga da família às 20h (`Moving`); 15: o
+  cinco presos); 14: a fuga da família às 20h (`Moving`) e a pedra que trinca a janela às 23h (`Stone`, camada `_crack`
+  na vista, o trincado fica para a 15); 15: o
   sinalizador vermelho às 21h (`Flare`, camada `_flare` entre o céu e a cidade); um script por cena em
   `scripts/ui/`, relógio `_scene_t`; pichação, tinta, banca e o apartamento vazio ficam nas noites seguintes, `left_behind`). Regra de qualidade: `PLANO_RUA.md`.
 - Marcadores do roteiro: `StoryFlags` (`flags.allows(requires)`, `flags.apply("nome" | "!nome")`), salvos no `Progress`.
