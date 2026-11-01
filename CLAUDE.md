@@ -150,6 +150,8 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 - **Interurbano**: troncos 901–906 (`GameData.TRUNKS`), a telefonista de lá (`Main._trunk`), o número de lá
   (`TransferCall.far_number`). **Calculógrafo** (`Toll`, `TollTicket`): conta a ligação interurbana, imprime o bilhete,
   o jogador carimba e guarda na caixinha; esquecido ou sem carimbo é advertência leve.
+- Telefonistas das centrais (`GameContent.operators`: 001 Morgana, 002 Cecília; 003 é a própria, `GameData.OWN`): só
+  pelo discador, números no rodapé da lista (`PhoneBook._footer`); `DirectoryEntry.answers_until`/`gone_from`.
 - **Discador** (`Dialing`, nó do Main; `PhoneCall.Kind.OUTGOING`, `Conversation._outgoing`): o operador liga pelo
   próprio fone (sem o FONE); na prateleira (`Dialer`, `dialer.gd`) e de perto num pop-up em cima dele (`DialView`), só clique.
   Enquanto dura, é o foco (a linha do FONE em HOLD) e a do lugar fica ocupada (`Exchange`, `seized`); fora do caderno. Atende a do
@@ -179,12 +181,15 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   com o save): numa almofada na prateleira da mesa (`scripts/ui/badges.gd`, `%Badges`, filho do `Board`; o mouse que
   não pega broche segue para a mesa). Broche novo: id em `Badges.ALL`, cores em `Pal.BADGE_ENAMEL`, desenho em `ICONS`.
 
-## Burocracias (só pelo debug, por enquanto)
+## Burocracias
 - Normas que o jogador pode descumprir (registra e penaliza, nunca bloqueia): uma regra por `.tres` em
   `data/bureaucracy/` com um script `extends BureaucracyRule` (`scripts/bureaucracy/`); o gerente `Bureaucracy` (nó
   do Main) chama os ganchos (síncronos: `await` num Resource devolvia o estado da corrotina), aplica a maior advertência
-  da tentativa e registra as decisões (`decisions`, no `Progress.bureaucracy`). Chave geral `Bureaucracy.enabled` (ligue por `enable`;
-  regra que passa a valer no meio do turno começa na hora, `sync`) desligada = o jogo de sempre. Serviços: `codes`, `messages`, `agreements`, `tapes`. A ativação vai para o save (`state`, `_restore`). Equipamentos da mesa:
+  da tentativa e registra as decisões (`decisions`, no `Progress.bureaucracy`). Cada uma vale nas noites do `.tres` (`active`,
+  `from_night`/`to_night`: B1 da 3, B2 o bar 327 na 5 e na 6, B4 da 7; B3 da 10 na delegacia 184, no Hospital São Lucas 213 e na Alta Cúpula 296, o código no bilhete); chave geral
+  `Bureaucracy.enabled` ligada no jogo (o debug e os testes desligam; regra que passa a valer no meio do turno começa
+  na hora, `sync`). Pedido das autoridades (`StoryCall.authority`) passa sem advertência; na última noite nenhuma
+  advertência conta (`Supervisor.fault`). Serviços: `codes`, `messages`, `agreements`, `tapes`. A ativação vai para o save (`state`, `_restore`). Equipamentos da mesa:
   `unlock_equipment` (marcador `equipamento_<id>`), cena `scenes/ui/equipment/<id>.tscn` na prateleira embaixo do
   Interurbano (`Switchboard.set_equipment`, `bay_rect`) ou, com `metadata/side`, na coluna à direita do painel
   (`side_rect`; os da B4). Como criar uma: `BUREAUCRACY_RULES.md`; aba Burocracias no F1.
@@ -199,12 +204,21 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 - Cenas na rua da vista: `Night.street_events` (`StreetEvent`: `kind`, `at`, `every`; o Main chama
   `Background.schedule`). A 3: o policial (`scripts/ui/beating.gd`); a 7: a viatura estacionada no hotel (`PATROL_*`);
   a 9: o vigia no terraço (`LOOKOUT_*`); 9 a 14: o toque de recolher às 21h, `CURFEW_*`, `_hurry`; 4 a 12: pichação,
-  carro de som, panfletos, tinta, corrida, desfile e banca; 13: a batida no hotel às 22h (`Raid`: camburão, viatura,
-  cinco presos); 14: a fuga da família às 20h (`Moving`) e a pedra que trinca a janela às 23h (`Stone`, camada `_crack`
-  na vista, o trincado fica para a 15); 15: o
+  carro de som, panfletos, tinta, corrida, desfile e banca; 13: a batida no hotel às 21h, só com uma fita do hotel na polícia (`Raid`: camburão, viatura,
+  cinco presos); 14: a fuga da família às 20h (`Moving`) e a pedra que trinca a janela às 23h, só sem chances altas (`Stone`, camada
+  `_crack` na vista, o trincado fica para a 15); cena com `StreetEvent.requires` conferida na hora (`Main._street_check`,
+  liga `rua_<kind>_<noite>`); 15: o
   sinalizador vermelho às 21h (`Flare`, camada `_flare` entre o céu e a cidade); um script por cena em
   `scripts/ui/`, relógio `_scene_t`; pichação, tinta, banca e o apartamento vazio ficam nas noites seguintes, `left_behind`). Regra de qualidade: `PLANO_RUA.md`.
 - Marcadores do roteiro: `StoryFlags` (`flags.allows(requires)`, `flags.apply("nome" | "!nome")`), salvos no `Progress`.
+  O desfecho de uma ligação do roteiro liga os dela (`StoryCall.if_connected`/`if_elsewhere`/`if_dropped`/`if_missed`,
+  `Main._story_outcome`; `again` desligado: sem retorno automático; `if_delivered`, a fita entregue). O roteiro de Maria:
+  `PLANO_ROTEIRO.md`. **Fator sucesso** (`scripts/model/rebellion.gd`, só dos marcadores e da noite; `test_story`): TV,
+  rádio, pontos, nível (`chance_alta/media/baixa`, ligados por `Rebellion.sync`); à meia-noite da 15, `golpe_venceu` ou
+  `golpe_falhou` (o turno acaba ali, `Main._midnight`). Bilhete e jornal com versões por marcador (`Night.notes`,
+  `news_if`, `StoryText`). Carta da noite (`Night.letters`, `letter_for`): envelope lacrado em cima do jornal desde o
+  começo (`Background.letter`, `_art_envelope`; aberta, sem o lacre, `letter_read`), aberta quando o jogador quiser
+  (`Tools.LETTER`, `letter_view.gd`); a dica do começo avisa (`HINT_LETTER`).
 - `Progress` (`user://progress.cfg`): próxima noite, ritmo, `low_nights`, marcadores, jornal, palavras-chave,
   denúncias, chuvas. A última noite ou a demissão limpa o save. Formato com versão (`Progress.VERSION`): mudou o tipo
   ou o sentido de um campo, suba e converta no `load_saved`; o que não dá para ler fica ao lado (`aside`).

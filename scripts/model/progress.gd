@@ -16,7 +16,7 @@ const PATH := "user://progress.cfg"
 ## A versão do formato do save. Mudou o tipo ou o sentido de um campo (não basta acrescentar um: a leitura dá o valor
 ## padrão ao que falta): suba e converta o save antigo no `load_saved`, de versão em versão, antes de ler. Os saves
 ## sem versão são da 1.
-const VERSION := 1
+const VERSION := 2
 
 var night := 0   ## 0 = o treinamento (jogo novo)
 var pace := 1   ## nível de ritmo da próxima noite (GameContent.paces; veja Pace.next)
@@ -55,6 +55,9 @@ static func load_saved(path := PATH) -> Progress:
 		p.grudges = f.get_value("progress", "grudges", {})
 		p.rains = f.get_value("progress", "rains", 0)
 		p.bureaucracy = f.get_value("progress", "bureaucracy", {})
+		if v < 2:   # (até a 1, as regras só ligavam pelo debug: as ligadas e a chave geral salvas não valem mais)
+			for k in ["enabled", "active", "params"]:
+				p.bureaucracy.erase(k)
 		p.badges = f.get_value("progress", "badges", {})
 		p.tally = f.get_value("progress", "tally", {})
 	return p

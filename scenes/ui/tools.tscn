@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://scripts/ui/news_view.gd" id="7_news"]
 [ext_resource type="Script" path="res://scripts/ui/paper_deco.gd" id="8_deco"]
 [ext_resource type="PackedScene" path="res://scenes/ui/toll.tscn" id="9_toll"]
+[ext_resource type="Script" path="res://scripts/ui/letter_view.gd" id="10_letter"]
 
 [node name="Tools" type="VBoxContainer"]
 custom_minimum_size = Vector2(465, 0)
@@ -66,6 +67,16 @@ script = ExtResource("6_call_log")
 [node name="Toll" parent="Body/Paper/Margin" instance=ExtResource("9_toll")]
 unique_name_in_owner = true
 layout_mode = 2
+
+[node name="Letter" type="RichTextLabel" parent="Body/Paper/Margin"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+bbcode_enabled = true
+auto_translate_mode = 2
+theme_type_variation = &"HandText"
+theme_override_constants/line_separation = 3
+script = ExtResource("10_letter")
 
 [node name="News" type="VBoxContainer" parent="Body/Paper/Margin"]
 unique_name_in_owner = true

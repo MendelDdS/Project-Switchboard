@@ -14,6 +14,7 @@ const BAYER := [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5]
 
 var _news: Array = []
 var _night: Night
+var _stories := PackedStringArray()   ## as matérias desta noite, com os marcadores de quando o jornal chegou (`Night.stories_for`)
 var _n := 0   # o número da noite: a data da edição
 
 static var _photos := {}   # tamanho -> a foto
@@ -25,9 +26,10 @@ func _ready() -> void:
 	$Page/Photo.draw.connect(_draw_photo)
 
 
-func show_news(news: Array, night: Night, n: int) -> void:
+func show_news(news: Array, night: Night, n: int, flags: StoryFlags = null) -> void:
 	_news = news
 	_night = night
+	_stories = night.stories_for(flags) if night else PackedStringArray()
 	_n = n
 	_render()
 
@@ -96,7 +98,7 @@ func _draw_photo() -> void:
 
 ## A matéria `i` da noite (traduzida), ou vazio.
 func _story(i: int) -> String:
-	return tr(_night.news_stories[i]) if _night and i < _night.news_stories.size() else ""
+	return tr(_stories[i]) if i < _stories.size() else ""
 
 
 ## Uma coluna em `r`: a matéria no alto (`story`: a primeira linha é o título, em tinta; o texto, mais apagado) e,

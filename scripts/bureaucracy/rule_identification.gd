@@ -14,6 +14,9 @@ extends BureaucracyRule
 ## Roteiro: `activate("b1_identificacao")`; os recados ficam salvos de uma noite para outra.
 
 @export_enum("Nenhuma:-1", "Leve:0", "Média:1", "Grave:2", "Gravíssima:3") var message_penalty := -1
+## Das ligações fora do roteiro que diriam o nome sem fala própria (YES sem `name_line`), a parte que só diz quando o
+## operador pede (uma das `GameContent.name_lines`): ele precisa cobrar.
+@export_range(0.0, 1.0) var ask_share := 0.4
 
 
 ## Estado da identificação em `c.meta["b1"]`: "unasked" (ninguém pediu), "asking" (pedindo agora), "ok", "refused".
@@ -21,7 +24,9 @@ func call_started(c: PhoneCall) -> Array:
 	var t := c.data as TransferCall
 	if t == null:
 		return []
-	if t.identify == TransferCall.Identify.YES:
+	if t.identify == TransferCall.Identify.YES and t.name_line == "" and not c.story and randf() < ask_share:
+		c.meta["b1_line"] = GameData.fill(GameData.pick(GameData.CONTENT.name_lines), {"name": t.caller_name})
+	if t.identify == TransferCall.Identify.YES and not c.meta.has("b1_line"):
 		c.meta["b1"] = "ok"
 		return [t.name_line, {"named": t.caller_name}] if t.name_line != "" else []
 	c.meta["b1"] = "unasked"
@@ -72,12 +77,12 @@ func _ask(c: PhoneCall, press: bool) -> void:
 	if press:
 		c.meta["b1_pressed"] = true
 	desk.main.conversation.transfer_choices(c)
-	var gives := t.identify == (TransferCall.Identify.IF_PRESSED if press else TransferCall.Identify.WHEN_ASKED)
+	var gives := c.meta.has("b1_line") or t.identify == (TransferCall.Identify.IF_PRESSED if press else TransferCall.Identify.WHEN_ASKED)
 	desk.log_decision(id, c, "insistiu no nome" if press else "pediu a identificação",
 		"identificou-se: " + t.caller_name if gives else ("recusou de novo" if press else "recusou"))
 	if not await desk.main.conversation.op(c, T.text(T.Key.OP_PRESS_NAME if press else T.Key.OP_ASK_NAME)):
 		return
-	var answer := t.name_line if gives else (t.refuse_again_line if press and t.refuse_again_line != "" else t.refuse_line)
+	var answer: String = c.meta.get("b1_line", t.name_line) if gives else (t.refuse_again_line if press and t.refuse_again_line != "" else t.refuse_line)
 	if await desk.main.conversation.say(c, answer):
 		c.meta["b1"] = "ok" if gives else "refused"
 		if gives:

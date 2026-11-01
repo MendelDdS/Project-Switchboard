@@ -14,3 +14,7 @@ extends Resource
 @export_enum("beating", "police", "lookout", "curfew", "speaker", "chase", "flyers", "graffiti", "paint", "newsstand", "parade", "moving", "flare", "raid", "stone") var kind := "beating"
 @export var at := 190.0
 @export var every := 0.0
+## Só acontece se os marcadores baterem na hora dela (`StoryFlags.allows`; vazio: sempre): a pedra só com o fator
+## sucesso médio ou baixo, a batida só com uma fita do hotel na polícia. Quando acontece, liga "rua_<kind>_<noite>"
+## (o que ela deixa fica para as noites seguintes só assim, `Background.left_behind`).
+@export var requires: PackedStringArray = []

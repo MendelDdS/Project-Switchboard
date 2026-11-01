@@ -35,3 +35,7 @@ extends Resource
 @export var bye := ""
 ## Quando o lugar fecha e ninguém mais atende o discador (minutos depois das 18h; -1: atende a noite toda).
 @export var closes := -1.0
+## A última noite em que alguém atende o discador (depois, toca e ninguém atende; a Cecília, que largou o setor).
+@export var answers_until := 99
+## A noite em que o número deixa de existir (0: nunca).
+@export var gone_from := 0

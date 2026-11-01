@@ -543,7 +543,7 @@ func _outgoing(c: PhoneCall) -> void:
 	var story := c.data as DialCall
 	var e := c.data as DirectoryEntry
 	var pool := e.answers.filter(func(t: ChatTopic): return t.weather in ["", main.weather] and main.flags.allows(t.requires)) \
-		if e != null and (e.closes < 0.0 or main.minutes < e.closes) else []   # (fechado, ninguém atende)
+		if e != null and (e.closes < 0.0 or main.minutes < e.closes) and main.night_no <= e.answers_until else []   # (fechado, ninguém atende)
 	var topic: ChatTopic = null if pool.is_empty() else pool.pick_random()
 	for i in randi_range(DIAL_RINGS.x, DIAL_RINGS.y) if story != null or topic != null else DIAL_NO_ANSWER:
 		Sfx.play("ringback")

@@ -259,7 +259,7 @@ func _initialize() -> void:
 		var shown_entries: Array = pg[0] + pg[1]
 		var of_letter: Array = book._entries.filter(func(e): return book.initial(e) == l)
 		var right_h: float = book.TOP + pg[1].reduce(func(acc, e): return acc + book.entry_height(e), 0.0)
-		ok(book.current_letter() == l and shown_entries == of_letter and right_h <= book.bottom, "aba %s: só a letra, inteira" % l)
+		ok(book.current_letter() == l and shown_entries == of_letter and right_h <= book.bottom - book.FOOT_H, "aba %s: só a letra, inteira, acima do rodapé" % l)
 	book.jump(book._index[0])
 	var walked := 0
 	while not book._next.disabled:
@@ -1514,6 +1514,56 @@ func _initialize() -> void:
 	m2.queue_free()
 	await frames(3)
 	ok(gone.get_ref() == null, "a mesa saiu e a ligação em andamento saiu da memória com ela")
+	# o desfecho de uma ligação do roteiro liga os marcadores dele (`StoryCall.if_*`) e, sem `again`, ela não liga de novo
+	var so := StoryCall.new()
+	so.call = C.transfers[0]
+	so.if_connected = PackedStringArray(["d_transferiu", "!d_ignorou"])
+	so.if_elsewhere = PackedStringArray(["d_foi_{dest}"])
+	so.if_missed = PackedStringArray(["d_ignorou"])
+	so.if_dropped = PackedStringArray(["d_recusou"])
+	so.again = false
+	var oc := PhoneCall.from_script(so.call)
+	oc.beat = so
+	m._story_outcome(oc, PhoneCall.End.MISSED)
+	oc.dest_num = int(oc.target)
+	m._story_outcome(oc, PhoneCall.End.CONNECTED)
+	ok(m.flags.has("d_transferiu") and not m.flags.has("d_ignorou"), "desfecho: ignorada, depois transferida ao pedido")
+	oc.dest_num = 305 if oc.target != "305" else 312
+	m._story_outcome(oc, PhoneCall.End.CONNECTED)
+	m._story_outcome(oc, PhoneCall.End.OPERATOR)
+	ok(m.flags.has("d_foi_%d" % oc.dest_num) and m.flags.has("d_recusou"), "desfecho: para outro número ({dest}) e encerrada sem transferir")
+	var queued := m.sched.size()
+	m.supervisor.call_again(oc, PhoneCall.Retry.MISSED)
+	ok(m.sched.size() == queued, "sem `again`, a ligação do roteiro não liga de novo sozinha")
+	# a cena da rua com condição: conferida na hora dela; acontecendo, liga "rua_<kind>_<noite>"
+	var ev := Night.StreetEvent.new()
+	ev.kind = "stone"
+	ev.at = m.minutes
+	ev.requires = PackedStringArray(["d_pedra"])
+	m.background.scene_at.erase("stone")
+	m._street_waiting = [ev]
+	m._street_check()
+	ok(m._street_waiting.is_empty() and not m.background.scene_at.has("stone") and not m.flags.has("rua_stone_%d" % m.night_no),
+		"cena com condição que não bate: não acontece")
+	m.flags.apply("d_pedra")
+	m._street_waiting = [ev]
+	m._street_check()
+	ok(m.background.scene_at.has("stone") and m.flags.has("rua_stone_%d" % m.night_no), "cena com condição que bate: acontece e fica marcada")
+	m.background.scene_at.erase("stone")
+	# a meia-noite da última noite: sem o fator sucesso, o turno acaba ali; com ele, segue até o amanhecer
+	var was_night: int = m.night_no
+	var was_end: float = m.shift_end
+	m.night_no = GameData.CONTENT.nights.size()
+	m.minutes = m.MIDNIGHT
+	m._midnight()
+	ok(m.flags.has(m.Rebellion.LOST) and m.shift_end == m.MIDNIGHT, "golpe falhou: o turno acaba à meia-noite")
+	m._verdict = false
+	m.shift_end = was_end
+	for f in [m.Rebellion.HOTEL, m.Rebellion.HOSPITAL, m.Rebellion.IGNORED, m.Rebellion.PARISH]:
+		m.flags.apply(f)
+	m._midnight()
+	ok(m.flags.has(m.Rebellion.WON) and m.shift_end == was_end, "golpe venceu: o turno segue")
+	m.night_no = was_night
 	finish("fluxo da central")
 
 

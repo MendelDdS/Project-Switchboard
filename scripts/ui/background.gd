@@ -41,7 +41,7 @@ const WOOD := [Pal.CABINET_WOOD[6], Pal.CABINET_WOOD[4], Pal.CABINET_WOOD[2]]   
 const SHELL := [Pal.SHELL[6], Pal.SHELL[4], Pal.SHELL[2]]   ## o esmalte do móvel da mesa comutadora (luz, meio, sombra): a lateral e o console
 const SIGN_AT := 0.62   ## onde fica o meio dela, na largura da mesa comutadora (à direita do horário do turno)
 const PROPS := {Tools.DIRECTORY: T.Key.TAB_DIRECTORY, Tools.DISPATCH: T.Key.TAB_DISPATCH, Tools.LOGBOOK: T.Key.TAB_LOGBOOK, Tools.CALL_LOG: T.Key.TAB_CALL_LOG,
-	Tools.NEWS: T.Key.TAB_NEWS, Tools.TOLL: T.Key.TAB_TOLL}
+	Tools.NEWS: T.Key.TAB_NEWS, Tools.LETTER: T.Key.TAB_LETTER, Tools.TOLL: T.Key.TAB_TOLL}
 ## Sob o mouse, o objeto se ergue LIFT_PX (no tempo do `Lift`, como o cartão e o bilhete; a prancheta pendurada sai
 ## da lateral para a frente) e, quando o mouse sai, assenta com a batidinha do material dele (`SET_SOUND`; sem ele, papel).
 const LIFT_PX := 2
@@ -824,7 +824,7 @@ func _show() -> void:
 func _state() -> Array:
 	return [size, board.get_global_rect() if board else Rect2(), desk.get_global_rect() if desk else Rect2(),
 		window.get_global_rect() if window else Rect2(), pending, unread, alert, card_out, news, counting, toll_desk, details, night, weather,
-		snappedf(_shut, 0.25), cab_open, sips, damp, written, news_read, tapes_out,   # (a luz da rua na mesa e o relâmpago acompanham a persiana em 4 passos)
+		snappedf(_shut, 0.25), cab_open, sips, damp, written, news_read, letter, letter_read, tapes_out,   # (a luz da rua na mesa e o relâmpago acompanham a persiana em 4 passos)
 		TranslationServer.get_locale(), _city_for]   # (a cidade montada: as janelas do prédio de tijolos que brilham, `_flats`)
 
 
@@ -2214,6 +2214,8 @@ func draw_hover(ci: Control) -> void:
 func prop_at(p: Vector2) -> String:
 	if _cover.has_point(p):
 		return ""
+	if _props.has(Tools.LETTER) and (_props[Tools.LETTER] as Rect2).grow(2).has_point(p):   # (em cima do jornal: ela antes dele)
+		return Tools.LETTER
 	for id in _props:   # o armário por último: os objetos da mesa ficam na frente dele
 		if id != CABINET_ID and (_props[id] as Rect2).grow(2).has_point(p):
 			return id
@@ -2235,6 +2237,7 @@ func pointer(e: InputEvent) -> bool:
 			return id != ""
 		if id in PROPS:
 			news_read = news_read or id == Tools.NEWS   # aberto, o jornal volta dobrado de outro jeito
+			letter_read = letter_read or id == Tools.LETTER   # e a carta, sem o lacre
 			prop_clicked.emit(id)
 			return true
 		match id:

@@ -3,12 +3,18 @@ extends Resource
 
 const StreetEvent := preload("res://scripts/data/street_event.gd")
 const DialCall := preload("res://scripts/data/dial_call.gd")
+const StoryText := preload("res://scripts/data/story_text.gd")
 ## Uma noite do jogo: o bilhete do começo e o roteiro fixo (ligações da história e a ligação desconhecida). Fica em
 ## res://data/nights/, na ordem de GameContent.nights. Só o roteiro é fixo; o resto do turno (quem liga, quando, de que
 ## tipo) é sorteado no ritmo do nível em que o jogador está (`Pace`, que não depende da noite).
 
-## Bilhete do supervisor na tela inicial.
+## Bilhete do supervisor na tela inicial...
 @export_multiline var note := ""
+## ...ou a primeira destas versões cujos marcadores batem (`note_for`).
+@export var notes: Array[StoryText] = []
+## A carta da noite, na mesa (em cima do jornal) desde o começo do turno: a primeira destas versões cujos marcadores
+## batem (`letter_for`; nenhuma, sem carta). O jogador abre quando quiser (`Tools.LETTER`).
+@export var letters: Array[StoryText] = []
 ## Clima fixo da noite; vazio ("Sorteado") = sorteado.
 @export_enum("Sorteado:", "rain", "fog", "clear") var weather := ""
 ## O fim do turno (minutos depois do início, às 18h): 360 = meia-noite; a última noite vai até as 6h (720).
@@ -44,6 +50,8 @@ const DialCall := preload("res://scripts/data/dial_call.gd")
 ## As matérias, uma por coluna: as duas embaixo das manchetes e a de baixo da foto, nessa ordem (as que passarem de
 ## três ficam de fora). A primeira linha de cada uma é o título; o que sobrar da coluna é letra miúda.
 @export_multiline var news_stories: PackedStringArray = []
+## Matérias que só saem com os marcadores certos, na frente das de sempre (`stories_for`).
+@export var news_if: Array[StoryText] = []
 
 @export_group("Ligação desconhecida")
 ## O que se diz na ligação desconhecida (vazio = ela não toca nesta noite). Passos EFFECT: "static",
@@ -57,3 +65,29 @@ const DialCall := preload("res://scripts/data/dial_call.gd")
 ## As ligações que o roteiro desta noite espera que o operador faça pelo discador (`DialCall`): discando o número,
 ## atendem elas no lugar do atendimento de sempre (as de qualquer noite ficam em `GameContent.dial`).
 @export var dial: Array[DialCall] = []
+
+
+## O bilhete do supervisor com os marcadores `f` (`notes`; nenhuma bate: `note`).
+func note_for(f: StoryFlags) -> String:
+	for v in notes:
+		if f != null and f.allows(v.requires):
+			return v.text
+	return note
+
+
+## O texto da carta com os marcadores `f` ("" sem carta).
+func letter_for(f: StoryFlags) -> String:
+	for v in letters:
+		if f == null or f.allows(v.requires):
+			return v.text
+	return ""
+
+
+## As matérias do jornal com os marcadores `f`: as de `news_if` que batem, depois as de sempre.
+func stories_for(f: StoryFlags) -> PackedStringArray:
+	var out := PackedStringArray()
+	for v in news_if:
+		if f != null and f.allows(v.requires):
+			out.append(v.text)
+	out.append_array(news_stories)
+	return out

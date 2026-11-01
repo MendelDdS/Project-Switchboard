@@ -25,6 +25,8 @@ const DAY_DIM := 0.5   # o quanto o dia enfraquece o brilho da luminária e o ha
 const WARM_TINT := Color(1.0, 0.62, 0.36, 0.35)   # a luminária recém-acesa: o brilho dela nesse tom e nessa fração da força
 const Badges := preload("res://scripts/model/badges.gd")
 const Dialing := preload("res://scripts/dialing.gd")
+const Rebellion := preload("res://scripts/model/rebellion.gd")
+const MIDNIGHT := 360.0   # minutos depois do início do turno: na última noite, a conta do golpe (`_midnight`)
 const TAB_KEYS := {Tools.DIRECTORY: "tab_directory", Tools.DISPATCH: "tab_dispatch", Tools.LOGBOOK: "tab_logbook", Tools.CALL_LOG: "tab_call_log"}
 var C: GameContent = GameData.CONTENT
 
@@ -40,7 +42,10 @@ var progress: Progress             ## progresso salvo; nulo quando a noite foi f
 var flags: StoryFlags:             ## marcadores do roteiro valendo agora: os salvos + os desta noite (mudam a sala)
 	set(v):
 		flags = v
-		flags.changed.connect(func(_n: String, _on: bool): _update_room())
+		flags.changed.connect(func(n: String, _on: bool):
+			if not n in Rebellion.DERIVED:   # o fator sucesso acompanha os marcadores (as conclusões dele não recontam)
+				Rebellion.sync(flags, night_no)
+			_update_room())
 var weather := "rain"
 var report := ShiftReport.new()    ## advertências do turno, conferidas pelo supervisor no fim do turno
 var minutes := 0.0
@@ -55,6 +60,8 @@ var myst_time := "02:13"
 var myst_line := 0                 ## entrada por onde veio a ligação desconhecida (sorteada)
 var myst_plan := INF               ## horário sorteado da ligação desconhecida (a silhueta segue este, mesmo se ela atrasar)
 var after := false                 ## a ligação desconhecida já tocou e caiu
+var _street_waiting: Array = []    ## cenas da rua com `requires`: conferidas na hora delas (`_street_check`)
+var _verdict := false              ## a conta da meia-noite da última noite já foi feita (`_midnight`)
 var ending := false
 var flick := false
 
@@ -131,14 +138,16 @@ func _ready() -> void:
 	if night.clears_at >= 0.0:
 		background.clears_at = SHIFT_START_HOUR * 60 + night.clears_at
 	background.night = night_no
-	for e in night.street_events:   # (as que voltam, de tantos em tantos minutos até o fim do turno)
-		var at := e.at
-		while at < night.shift_end:
-			background.schedule(e.kind, SHIFT_START_HOUR * 60 + at)
-			at = at + e.every if e.every > 0.0 else INF
+	Rebellion.sync(flags, night_no)
+	for e in night.street_events:
+		if e.requires.is_empty():
+			_street(e)
+		else:
+			_street_waiting.append(e)
 	for n in range(1, night_no):   # o que as noites anteriores deixaram na rua (a pichação, a tinta nova, a banca fechada)
 		for e in C.nights[n - 1].street_events:
-			background.left_behind(e.kind)
+			if e.requires.is_empty() or flags.has("rua_%s_%d" % [e.kind, n]):
+				background.left_behind(e.kind)
 	notebook.night = night_no
 	toll.night = night_no
 	_update_room()
@@ -194,12 +203,16 @@ func _ready() -> void:
 	background.prop_clicked.connect(func(id: String): if running and not ending: tools.set_tab(id))   # objetos da cena
 	background.flare_lit.connect(func(): flags.apply("sinalizador_%d" % night_no))   # o sinal do roteiro na noite 15
 	_intro.over = board   # o bilhete do supervisor fica preso no painel da mesa comutadora
+	var b3 := bureaucracy.rule("b3_codigo")
 	_intro.setup(night_no, night, progress != null, report.low_before > 0, bureaucracy.tapes.last,
-		progress.aside if progress else "")
+		progress.aside if progress else "", flags, bureaucracy.codes.code(night_no) if b3 in bureaucracy.live() else "")
 	if is_training():   # o treinamento começa com o FONE já na entrada 1
 		board.plugged(0, 1)
 	if progress != null and night_no > 1:   # o jornal da manhã, com o que aconteceu na noite anterior
 		set_news(progress.news)
+	var letter := night.letter_for(flags)   # a carta da noite, em cima do jornal desde o começo
+	tools.letter.show_letter(letter)
+	background.letter = letter != ""
 	if progress != null:
 		background.damp = progress.rains   # a mancha de umidade da sala, das noites de chuva
 	# noite de entrega de um setor: o mapa se abre para o bairro novo na primeira vez que aparece
@@ -247,6 +260,38 @@ func _load_night() -> void:
 	shift_end = night.shift_end
 	last_call = shift_end - LAST_CALL_BEFORE
 	report.end = shift_end
+
+
+## Põe a cena da rua `e` no cenário (as que voltam, de tantos em tantos minutos até o fim do turno).
+func _street(e: Night.StreetEvent) -> void:
+	var at := e.at
+	while at < night.shift_end:
+		background.schedule(e.kind, SHIFT_START_HOUR * 60 + at)
+		at = at + e.every if e.every > 0.0 else INF
+
+
+## As cenas com `requires` que chegaram na hora: com os marcadores batendo, acontecem (e ligam "rua_<kind>_<noite>").
+func _street_check() -> void:
+	for e: Night.StreetEvent in _street_waiting.duplicate():
+		if minutes < e.at:
+			continue
+		_street_waiting.erase(e)
+		if flags.allows(e.requires):
+			flags.apply("rua_%s_%d" % [e.kind, night_no])
+			_street(e)
+
+
+## Meia-noite da última noite: o golpe vence (o turno segue até o amanhecer) ou falha, e o turno acaba ali.
+func _midnight() -> void:
+	if _verdict or night_no < C.nights.size() or minutes < MIDNIGHT:
+		return
+	_verdict = true
+	var won := Rebellion.won(flags, night_no)
+	flags.apply(Rebellion.WON if won else Rebellion.LOST)
+	if not won:
+		shift_end = MIDNIGHT
+		last_call = minf(last_call, MIDNIGHT)
+		report.end = shift_end
 
 
 ## `godot -- --seed=123` repete a mesma agenda de ligações (útil para reproduzir bugs).
@@ -324,7 +369,7 @@ func _start_shift() -> void:
 	running = true
 	bureaucracy.night_started()
 	radio.say(T.text(T.Key.RADIO_PATROL))
-	hint(T.text(T.Key.HINT_WAIT_CALLS))
+	hint(T.text(T.Key.HINT_LETTER if background.letter else T.Key.HINT_WAIT_CALLS))
 	if is_training():
 		_taught_done = true   # a lâmpada vermelha ela ensina
 		training.start(night)
@@ -361,6 +406,8 @@ func _process(delta: float) -> void:
 					func() -> void: Sfx.play_at("tick", _across(background.clock_x), -3.0))
 			_minute = int(minutes)
 		_run_schedule()
+		_street_check()
+		_midnight()
 		_update_line_timers()
 		# o turno fecha depois do fim do turno, da ligação desconhecida, da última ligação e do último registro
 		# (com registro pendente ou bilhete na mesa, espera o operador registrar e guardar ou encerrar pelo botão)
@@ -1085,11 +1132,25 @@ func _update_room() -> void:
 
 ## Põe na mesa o jornal da manhã com as manchetes `news` (`ShiftReport.news` da noite anterior).
 func set_news(news: Array) -> void:
-	tools.news.show_news(news, night, night_no)
+	tools.news.show_news(news, night, night_no, flags)
 	background.news = true
 
 
 # ================================================================ fim de ligação
+
+## Os marcadores que o fim da ligação do roteiro `c` liga ou desliga (`StoryCall.if_*`), antes do retorno dela.
+func _story_outcome(c: PhoneCall, reason: PhoneCall.End) -> void:
+	if c.beat == null:
+		return
+	var o := c.beat
+	var sets := o.if_dropped
+	if reason == PhoneCall.End.CONNECTED:
+		sets = o.if_connected if str(c.dest_num) == c.target else o.if_elsewhere
+	elif reason == PhoneCall.End.MISSED:
+		sets = o.if_missed
+	for f in sets:
+		flags.apply(f.replace("{dest}", str(c.dest_num)))
+
 
 func end_call(c: PhoneCall, reason: PhoneCall.End) -> void:
 	if c.ended:
@@ -1126,6 +1187,7 @@ func end_call(c: PhoneCall, reason: PhoneCall.End) -> void:
 	_refresh_panel()
 	c.record = _record(c, reason)
 	notebook.add(c.record)
+	_story_outcome(c, reason)
 	supervisor.call_ended(c, reason)
 	bureaucracy.call_ended(c, reason)
 	await get_tree().create_timer(1.5, false).timeout

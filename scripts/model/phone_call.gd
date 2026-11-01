@@ -66,6 +66,7 @@ var lesson := false         ## da veterana do treinamento (`Training`): fala pel
 var speech := 1.0           ## o tempo de cada letra falada, multiplicado (a veterana do treinamento fala mais devagar)
 var story := false          ## ligação do roteiro da noite (horário fixo; aguenta mais tempo tocando)
 var requires := PackedStringArray()   ## marcadores que precisam bater na hora de tocar (StoryFlags.allows)
+var beat: StoryCall         ## o trecho do roteiro desta ligação (desfecho, `Main._story_outcome`; autoridade); passa para o retorno dela
 var at := 0.0               ## minuto previsto (depois do início do turno)
 var latest := INF           ## roteiro, ligação desconhecida e retornos: a partir daqui toca mesmo com a mesa ocupada
 var retry := Retry.NONE

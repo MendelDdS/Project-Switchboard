@@ -47,6 +47,17 @@ func _initialize() -> void:
 		_type(c[0])
 		d.dial()
 		ok(d.call == null and d.status == c[1], "%s: visor %s (deu %s)" % [c[0], c[1], d.status])
+	# as centrais (001–003): fora dos setores; a própria dá ocupado; a da Cecília some da noite 9 em diante
+	_type("003")
+	d.dial()
+	ok(d.call == null and d.status == d.Status.BUSY, "003, a própria central: ocupado")
+	var was: int = m.night_no
+	m.night_no = 9
+	_type("002")
+	d.dial()
+	ok(d.call == null and d.status == d.Status.NO_NUMBER, "002 na noite 9: não existe mais")
+	m.night_no = was
+	ok(GameData.entry("001") != null and GameData.entry("002").answers_until < 8, "001 e 002 no discador; a Cecília some do 8")
 	m.exchange.set_dest(305, Exchange.Dest.CONN)   # o hotel conectado numa transferência
 	_type("305")
 	d.dial()

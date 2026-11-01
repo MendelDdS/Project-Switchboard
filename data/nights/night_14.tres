@@ -17,6 +17,7 @@ at = 120.0
 script = ExtResource("2_event")
 kind = "stone"
 at = 300.0
+requires = PackedStringArray("!chance_alta")
 
 [resource]
 script = ExtResource("1_night")

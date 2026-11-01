@@ -11,6 +11,9 @@ const DialCall := preload("res://scripts/data/dial_call.gd")
 @export_group("Lista telefônica e cidade")
 ## Em ordem alfabética (é a ordem da lista telefônica).
 @export var directory: Array[DirectoryEntry] = []
+## As telefonistas das outras centrais (001 o Centro, 002 o Alto da Serra; o fim é o setor): fora da lista e da mesa,
+## só pelo discador; os números vão no rodapé da lista (`PhoneBook`). O 003 é a própria central (`GameData.OWN`).
+@export var operators: Array[DirectoryEntry] = []
 @export var streets: Array[Street] = []
 ## Tipos de ocorrência no despacho.
 @export var occurrences: PackedStringArray = []
@@ -41,6 +44,8 @@ const DialCall := preload("res://scripts/data/dial_call.gd")
 @export var transfer_templates: Array[TransferCall] = []
 ## Agradecimento de quem foi transferido por molde (sem gênero: quem liga é sorteado).
 @export var transfer_thanks: PackedStringArray = []
+## B1: como diz o nome quem só diz quando o operador pede ({name} o nome e sobrenome; `rule_identification.ask_share`).
+@export var name_lines: PackedStringArray = []
 ## Interurbanos com lacunas: {to_city} "pra Capital" (`trunk_to`) e {far} o número na outra cidade. Vão para um
 ## tronco sorteado (`GameData.trunk_transfer`).
 @export var trunk_templates: Array[TransferCall] = []

@@ -261,6 +261,18 @@ func _initialize() -> void:
 		match f.kind:
 			PhoneCall.Kind.TRANSFER:
 				if f.phase == PhoneCall.Phase.AWAIT:
+					# as burocracias da noite (`Bureaucracy`): pede o nome (insiste uma vez), avisa o bloqueio, e quem
+					# recusa o nome de vez fica sem transferir
+					var rule := f.options.find_custom(func(o): return String(o["label"]) in [T.text(T.Key.CHOICE_REQUEST_ID),
+						T.text(T.Key.CHOICE_PRESS_NAME), T.text(T.Key.CHOICE_WARN_BLOCKED)])
+					if rule != -1:
+						f.options[rule]["fn"].call()
+						_acted()
+						continue
+					if f.meta.get("b1", "") == "refused":
+						m.hangup()
+						_acted()
+						continue
 					var tg := int(f.target)
 					var s: int = b.cord_at(f.line + 10)
 					var d: int = b.dest_of_output(f.line)
@@ -350,6 +362,7 @@ func _initialize() -> void:
 		int(kinds.get(PhoneCall.Kind.PRANK, 0)), int(kinds.get(PhoneCall.Kind.INFO, 0)), info_max, max_quiet, max_empty])
 	print("despachos (estágio e barra corrida): ", ", ".join(stages))
 	var r := m.report
+	print("burocracias: %s, %d decisões" % [", ".join(m.bureaucracy.live().map(func(x): return x.id)), m.bureaucracy.decisions.size()])
 	print("eficiência=%.0f%% (positivos=%d negativos=%d) conceito=%s | acertos: %s | advertências: %s" % [100.0 * r.efficiency(),
 		r.positives(), r.negatives(), ShiftReport.Grade.keys()[r.grade()], " ".join(r.credits.map(func(x): return x["id"])),
 		" ".join(r.faults.map(func(x): return x["id"]))])

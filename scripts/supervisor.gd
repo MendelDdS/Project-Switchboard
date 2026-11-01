@@ -19,8 +19,9 @@ const TYPE_OF := {
 
 
 ## Uma advertência no relatório (a que entrou, ou vazio no treinamento); `sev` e `text` para as das burocracias.
+## Na última noite também não: não há noite seguinte para o relatório pesar.
 func fault(id: String, detail := "", sev := -1, text := -1) -> Dictionary:
-	if main.training.active:   # o treinamento não gera advertência
+	if main.training.active or main.night_no >= GameData.CONTENT.nights.size():   # o treinamento não gera advertência
 		return {}
 	return main.report.add(id, Main.fmt(main.minutes), detail, sev, text)
 
@@ -73,7 +74,7 @@ func call_ended(c: PhoneCall, reason: PhoneCall.End) -> void:
 ## Vale também para a ligação do treinamento (que só não gera advertência). Nunca depois da última ligação
 ## (`Main.last_call`): se não couber, o Main a descarta.
 func call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
-	if why in c.retried:
+	if why in c.retried or (c.beat != null and not c.beat.again):
 		return
 	var n: PhoneCall
 	match c.kind:
@@ -90,6 +91,7 @@ func call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
 		_:
 			return
 	n.retry = why
+	n.beat = c.beat
 	n.retried = c.retried.duplicate()
 	n.retried.append(why)
 	var now := main.minutes

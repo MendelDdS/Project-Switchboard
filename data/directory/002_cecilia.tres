@@ -1,0 +1,56 @@
+[gd_resource type="Resource" script_class="DirectoryEntry" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
+
+[sub_resource type="Resource" id="Answer_0_0"]
+script = ExtResource("9_reply")
+text = "Só queria ouvir uma voz conhecida."
+follow = "Eu sei como é. A noite aqui também se arrasta. Precisando, me liga de novo."
+
+[sub_resource type="Resource" id="Answer_0_1"]
+script = ExtResource("9_reply")
+text = "Como está o movimento por aí?"
+follow = "Calmo. Uma briga de vizinhos e uma senhora querendo saber a hora certa. E aí?"
+
+[sub_resource type="Resource" id="Answer_0_2"]
+script = ExtResource("9_reply")
+text = "Uma dúvida do serviço."
+follow = "Na dúvida, registra na ficha e segue o manual. O supervisor só reclama do que não está escrito."
+
+[sub_resource type="Resource" id="Answer_0"]
+script = ExtResource("8_chat")
+line = "Alto da Serra, Cecília falando. Ah, Maria! Aconteceu alguma coisa?"
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_0_0"), SubResource("Answer_0_1"), SubResource("Answer_0_2")])
+
+[sub_resource type="Resource" id="Answer_1_0"]
+script = ExtResource("9_reply")
+text = "Tudo bem com você?"
+follow = "Tudo indo. Cansada, mas indo. E você, se acostumando com a mesa?"
+
+[sub_resource type="Resource" id="Answer_1_1"]
+script = ExtResource("9_reply")
+text = "A linha está chiando hoje."
+follow = "Aqui também. Deve ser o tempo nos fios."
+
+[sub_resource type="Resource" id="Answer_1_2"]
+script = ExtResource("9_reply")
+text = "Obrigada pela ajuda no treinamento."
+follow = "Imagina. Você aprendeu rápido, viu? Melhor que eu no começo."
+
+[sub_resource type="Resource" id="Answer_1"]
+script = ExtResource("8_chat")
+line = "Central do Alto da Serra, boa noite. Maria? Fala, menina."
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_1_0"), SubResource("Answer_1_1"), SubResource("Answer_1_2")])
+
+[resource]
+script = ExtResource("1_entry")
+name = "Cecília"
+note = "telefonista do Alto da Serra"
+number = "002"
+voice = "f"
+answers = Array[ExtResource("8_chat")]([SubResource("Answer_0"), SubResource("Answer_1")])
+bye = "Boa noite, Maria. Juízo aí."
+answers_until = 7
+gone_from = 9

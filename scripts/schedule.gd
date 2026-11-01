@@ -28,6 +28,7 @@ static func build(night: Night, pace: Pace, last_call: float) -> Schedule:
 		c.at = st.at
 		c.story = true
 		c.requires = st.requires
+		c.beat = st
 		c.latest = minf(st.at + STORY_WAIT, last_call)
 		fixed.append(c)
 	if not night.mystery.is_empty():

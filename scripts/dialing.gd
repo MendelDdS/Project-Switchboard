@@ -9,7 +9,7 @@ extends Node
 ## a conversa vai para o registro das conversas.
 
 const DialCall := preload("res://scripts/data/dial_call.gd")
-const DIGITS := 3   ## os números da cidade (101–399)
+const DIGITS := 3   ## os números da cidade (101–399) e das centrais (001–003)
 
 ## O que o visor mostra (`TEXT`).
 enum Status { IDLE, CALLING, TALK, ENDED, BUSY, NO_ANSWER, NO_NUMBER, NOT_SERVED, TRUNK, DISPATCH }
@@ -54,11 +54,16 @@ func dial() -> void:
 	Sfx.play("dial_pulse")
 	var e := GameData.entry(digits)
 	var story := _story(digits)
-	if GameData.is_trunk(digits):
+	var central := e != null and e in GameData.CONTENT.operators   # (a outra central: fora dos setores)
+	if central and e.gone_from > 0 and main.night_no >= e.gone_from:
+		_fail(Status.NO_NUMBER)
+	elif digits == GameData.OWN:
+		_fail(Status.BUSY)
+	elif GameData.is_trunk(digits):
 		_fail(Status.TRUNK)
 	elif e != null and e.dispatch_only:
 		_fail(Status.DISPATCH)
-	elif not int(digits.left(1)) in GameData.sectors:
+	elif not central and not int(digits.left(1)) in GameData.sectors:
 		_fail(Status.NOT_SERVED)
 	elif e == null and story == null:
 		_fail(Status.NO_NUMBER)

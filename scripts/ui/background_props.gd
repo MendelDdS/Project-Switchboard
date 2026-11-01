@@ -35,6 +35,8 @@ const PENCIL := [[Vector2(0.5, 0.88), Vector2(0.96, 0.18)], [Vector2(0.28, 0.82)
 ## tampo) e grossura; giradas um pouco, cada uma para um lado (`TAPE_YAW`).
 const TAPE := Vector3(9.2, 0.2, 1.7)
 const TAPE_YAW := [-5.0, 4.0, -2.0, 7.0]
+const LETTER_W := 19.0   ## a largura do envelope da carta (uns 12 cm), em cima do jornal...
+const LETTER_D := 0.62   ## ...e o fundo dele, em fração do fundo do jornal dobrado
 const NEWS_W := 25.0   ## a largura do jornal dobrado (na escala dos objetos, uns 16 cm): com 32, o calculógrafo não cabia do lado
 const UNIT_TILT := 0.11
 const UNIT_D := 0.3
@@ -129,6 +131,8 @@ var alert := false     ## há uma emergência em andamento: a luz vermelha da un
 var card_out := false  ## há um cartão perfurado na mesa: ele sai da fenda da impressora da unidade, com a luz âmbar
 var news := false    ## o jornal da manhã está na mesa (da segunda noite em diante; `Main.set_news`)
 var news_read := false   ## o jornal já foi aberto: volta à mesa dobrado de outro jeito, a última página para cima
+var letter := false   ## há carta na noite (`Night.letter_for`, `Main`): um envelope lacrado em cima do jornal...
+var letter_read := false   ## ...que, aberta, volta sem o lacre
 var written := 0     ## fichas registradas na noite: o lápis fica num lugar do bloco a cada uma (`PENCIL`)
 var tapes_out := 0   ## fitas tiradas do gravador na noite (B4, posto pelo gravador): empilhadas ao lado do bloco de fichas até o fim do turno
 var counting := 0    ## as entradas contando um interurbano, um bit cada (`Toll.counters`): os contadores acesos do calculógrafo
@@ -274,8 +278,53 @@ func _draw_desk_props() -> void:
 		var nd := _deep(0.19 * k) * (0.5 if news_read else 1.0)
 		_flat(Tools.NEWS, near[1], _at(0.07) + (_deep(0.19 * k) - nd) / 2.0, NEWS_W * k, nd, 0.5, Pal.NEWS_FOLD[1],
 			_art_newspaper.bind(news_read), [news_read], deg_to_rad(-9.0 if news_read else 6.0), _newspaper_print.bind(news_read))
+	if letter and (_up_id in [Tools.LETTER, Tools.NEWS]) == (_ci == _lifted):   # em cima do jornal: erguido o jornal, ela sobe junto
+		var on := 0.5 if news else 0.0   # (a espessura do jornal embaixo dela)
+		var ld := _deep(0.19 * k) * LETTER_D
+		var yd := _yd
+		_yd -= on
+		_flat(Tools.LETTER, near[1] + (NEWS_W - LETTER_W) * k * 0.4, _at(0.07) + (_deep(0.19 * k) - ld) / 2.0, LETTER_W * k, ld, 0.5,
+			Pal.SHEET_NEW.darkened(0.25), _art_envelope.bind(letter_read), [letter_read], deg_to_rad(-3.0),
+			_envelope_seal.bind(letter_read))
+		_yd = yd
 	_snap = false
 	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+
+
+## O envelope da carta (`sz`, de frente): papel claro com a aba fechada em V; aberta (`read`), a aba solta, um pouco
+## erguida. O lacre vai por cima, na tela (`_envelope_seal`).
+func _art_envelope(sz: Vector2i, read := false) -> Image:
+	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
+	img.fill(Pal.SHEET_NEW)
+	_fr(img, sz.x - 1, 0, 1, sz.y, Pal.SHEET_NEW.darkened(0.1))   # as beiras longe da luz
+	_fr(img, 0, sz.y - 1, sz.x, 1, Pal.SHEET_NEW.darkened(0.12))
+	var tip := Vector2i(sz.x / 2, roundi(sz.y * 0.55))
+	for x in sz.x:   # a aba: as duas beiras do V, do canto de cima até a ponta
+		var y := roundi(tip.y * (1.0 - absf(x - tip.x) / maxf(1.0, tip.x)))
+		img.set_pixel(x, clampi(y, 0, sz.y - 1), Pal.SHEET_NEW.darkened(0.2 if read else 0.14))
+		if read and y + 1 < sz.y:   # solta, a aba faz sombra na frente do envelope
+			img.set_pixel(x, y + 1, Pal.SHEET_NEW.darkened(0.08))
+	return img
+
+
+## O lacre de cera vermelho na ponta da aba do envelope ainda fechado (`read` falso), o sinal de que há carta:
+## desenhado na tela, deitado como o envelope (mais largo que alto); posto no desenho de frente, a perspectiva o
+## entortava num losango.
+const SEAL := ["  ####", " ######", "#######", " ######"]   ## o lacre, linha a linha (a de cima na luz, a de baixo na sombra)
+
+
+func _envelope_seal(sz: Vector2i, read: bool) -> void:
+	if read:
+		return
+	var tip := Vector2(sz.x / 2.0, roundf(sz.y * 0.55))
+	var c := _tex_pt(tip).round() - Vector2(3, 2)
+	for y in SEAL.size():
+		var col: Color = Pal.SEAL.lightened(0.25) if y == 0 else Pal.SEAL.darkened(0.25) if y == SEAL.size() - 1 else Pal.SEAL
+		col = _tone(col, tip)
+		var row: String = SEAL[y]
+		for x in row.length():
+			if row[x] == "#":
+				_ci.draw_rect(Rect2(c + Vector2(x, y), Vector2.ONE), col)
 
 
 ## As fitas tiradas do gravador (`tapes_out`), deitadas e empilhadas no meio do vão entre `a` e `b` (a mesinha do calculógrafo e

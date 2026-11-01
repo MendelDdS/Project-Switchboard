@@ -2,13 +2,24 @@
 
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
+[ext_resource type="Script" path="res://scripts/data/story_text.gd" id="3_text"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
 kind = "curfew"
 at = 180.0
 
+[sub_resource type="Resource" id="letter_friend"]
+script = ExtResource("3_text")
+text = "Maria,\n\nEscrevo porque o telefone já não é seguro, nem o meu nem o seu.\n\nO que começamos está perto do fim. Não posso contar o que vai acontecer, e é melhor que você não saiba: o que você não sabe, ninguém tira de você.\n\nNos próximos dias vou pedir algumas coisas. Umas vão parecer estranhas. Confie e faça como eu disser, na hora que eu disser.\n\nNa última noite, às dez em ponto, ligue para a rádio e peça uma música. Qualquer uma. Eles vão entender.\n\nSeu pai teria orgulho de você.\n\nS."
+requires = PackedStringArray("chance_alta")
+
+[sub_resource type="Resource" id="letter_threat"]
+script = ExtResource("3_text")
+text = "Maria,\n\nEscrevo porque o telefone já não é seguro, e você sabe disso melhor do que ninguém.\n\nTem gente de olho em você. Gente que anota cada ligação que passa pela sua mesa. Não sei mais de que lado você está, e a essa altura não importa: daqui em diante, você faz o que eu mandar, na hora que eu mandar. Sem perguntas e sem atraso.\n\nNa última noite, às dez em ponto, ligue para a rádio e peça uma música. Qualquer uma.\n\nCristóvão morreu acreditando em alguma coisa. Até agora, você não honrou o nome dele. Ainda dá tempo.\n\nS."
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Quase fim de semana de novo. Paciência com quem liga.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0")])
+letters = Array[ExtResource("3_text")]([SubResource("letter_friend"), SubResource("letter_threat")])

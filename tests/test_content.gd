@@ -136,6 +136,9 @@ func _check_flags() -> void:
 			by_night.append(m.get_string(1))
 		else:
 			given[m.get_string(1)] = true
+	var rebellion := preload("res://scripts/model/rebellion.gd")   # as conclusões do fator sucesso (`Rebellion.sync`)
+	for d: String in rebellion.DERIVED + [rebellion.WON, rebellion.LOST]:
+		given[d] = true
 	for name: String in asked:
 		var nightly := RegEx.create_from_string("^(.+)_[0-9]+$").search(name)
 		ok(given.has(name) or nightly != null and nightly.get_string(1) in by_night,

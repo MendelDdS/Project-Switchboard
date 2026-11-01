@@ -5,10 +5,10 @@
 
 [resource]
 script = ExtResource("1_entry")
-name = "Clínica São Lucas"
+name = "Hospital São Lucas"
 note = "recepção"
 address = "Rua das Palmeiras, 85"
 number = "213"
 voice = "f"
-hello = "Clínica São Lucas, recepção."
+hello = "Hospital São Lucas, recepção."
 motives = Array[ExtResource("2_motive")]([])

@@ -75,6 +75,9 @@ func _draw() -> void:
 			draw_texture(_skin("prendedor", CLIP), at)
 		Tools.NEWS:
 			crease(self, Vector2(0, size.y / 2.0), Vector2(size.x, size.y / 2.0))
+		Tools.LETTER:   # dobrada em três para caber no envelope
+			for f in [1.0 / 3.0, 2.0 / 3.0]:
+				crease(self, Vector2(0, roundf(size.y * f)), Vector2(size.x, roundf(size.y * f)))
 	_draw_light()
 
 

@@ -181,11 +181,11 @@ func _initialize() -> void:
 	# ---- 5. noites de vigência
 	m.report.faults.clear()
 	strict.from_night = 5
-	ok(m.bureaucracy.live().is_empty(), "fora das noites dela, não vale")
+	ok(not strict in m.bureaucracy.live(), "fora das noites dela, não vale")
 	m.bureaucracy.night = 6
-	ok(m.bureaucracy.live().size() == 1 and m.bureaucracy.live()[0] == strict, "na noite simulada 6, vale")
+	ok(strict in m.bureaucracy.live(), "na noite simulada 6, vale")
 	strict.to_night = 5
-	ok(m.bureaucracy.live().is_empty(), "depois da última noite dela, não vale")
+	ok(not strict in m.bureaucracy.live(), "depois da última noite dela, não vale")
 
 	m.bureaucracy.reset()
 	ok(not Bureaucracy.enabled and m.bureaucracy.live().is_empty(), "resetar desliga tudo")
@@ -196,7 +196,7 @@ func _initialize() -> void:
 	var saved := m.bureaucracy.state()
 	m.bureaucracy.reset()
 	m.bureaucracy._restore({})
-	ok(not Bureaucracy.enabled and not m.bureaucracy.rule("b2_bloqueados").active, "save antigo: nada ligado")
+	ok(not Bureaucracy.enabled and m.bureaucracy.rule("b2_bloqueados").active, "save sem o estado: ficam as dos .tres")
 	m.bureaucracy._restore(saved)
 	var rb := m.bureaucracy.rule("b2_bloqueados")
 	ok(Bureaucracy.enabled and rb.active and rb.blocked == PackedStringArray(["301"]), "do save: chave geral, regra e parâmetros")
@@ -216,6 +216,7 @@ func _initialize() -> void:
 	m.bureaucracy.night = 1
 	var b3 := m.bureaucracy.rule("b3_codigo")
 	b3.active = true
+	b3.from_night = 1
 	for t: TransferCall in b3.tests.slice(0, 3):
 		m.report.faults.clear()
 		var c := PhoneCall.from_transfer(t)
@@ -257,11 +258,11 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return _said(lem, codes.code(1))) and not lem.ended, "pediu: lembrou e disse o código")
 	ok(not lem.options.any(func(o): return o["label"] == T.text(T.Key.CHOICE_ASK_CODE)), "o botão de pedir some")
 	m.report.faults.clear()
-	await _connect(lem, 390)
+	await _connect(lem, 296)
 	ok(_faults("b3_codigo") == 0, "com o código lembrado, sem advertência")
 	_clear_board()
 	var esq := await _call(b3t["Lembra o código se pedir"])
-	await _connect(esq, 390)
+	await _connect(esq, 296)
 	ok(_faults("b3_codigo") == 1, "sem pedir, o código não foi dito: gravíssima")
 	_clear_board()
 	var sem := await _call(b3t["Sem código"])
@@ -278,6 +279,7 @@ func _initialize() -> void:
 	Bureaucracy.enabled = true
 	var b1 := m.bureaucracy.rule("b1_identificacao")
 	b1.active = true
+	b1.from_night = 1   # (o teste corre na noite 1; no jogo, ela vale a partir da 3)
 	var tests := {}
 	for t: TransferCall in b1.tests:
 		tests[t.resource_name] = t
@@ -293,6 +295,27 @@ func _initialize() -> void:
 	await _connect(alone, 305)
 	ok(_faults("b1_identificacao") == 0, "identificado: sem advertência")
 	_clear_board()
+	# quem diria o nome sem fala própria: com `ask_share`, só diz quando o operador pede (e sem pedir é infração)
+	b1.ask_share = 0.0
+	var quiet := await _call(load(LURDES))
+	ok(not has.call(quiet, T.Key.CHOICE_REQUEST_ID), "sem a parte que cobra: identificada sem dizer, como sempre")
+	m.hangup()
+	_clear_board()
+	b1.ask_share = 1.0
+	var mute := await _call(load(LURDES))
+	ok(has.call(mute, T.Key.CHOICE_REQUEST_ID), "com a parte que cobra: o botão")
+	await _pick(mute, T.Key.CHOICE_REQUEST_ID)
+	ok(mute.transcript.any(func(l): return "Lurdes Andrade" in l["text"] and l["cls"] == "") and mute.named == "Lurdes Andrade",
+		"pedido, diz o nome numa das falas genéricas")
+	await _connect(mute, 162)
+	ok(_faults("b1_identificacao") == 0, "cobrou o nome: sem advertência")
+	_clear_board()
+	var mute2 := await _call(load(LURDES))
+	await _connect(mute2, 162)
+	ok(_faults("b1_identificacao") == 1, "não cobrou: advertência")
+	_clear_board()
+	m.report.faults.clear()
+	b1.ask_share = 0.4
 	var asked := await _call(tests["Diz quando pedem"])
 	ok(not _said(asked, T.text(T.Key.OP_ASK_NAME)) and has.call(asked, T.Key.CHOICE_REQUEST_ID), "ninguém pede sozinho: o botão")
 	ok(who.call(asked, tests["Diz quando pedem"].opening[0]) == tests["Diz quando pedem"].caller, "sem dizer o nome, o chat não mostra")
@@ -376,6 +399,10 @@ func _initialize() -> void:
 	Bureaucracy.enabled = true
 	var b2 := m.bureaucracy.rule("b2_bloqueados")
 	b2.active = true
+	b2.from_night = 1   # (as ligações de teste do .tres: o Bilhar bloqueado e o bar com janela, em qualquer noite)
+	b2.to_night = 0
+	b2.blocked = PackedStringArray(["355", "327"])
+	b2.free_until = PackedStringArray(["327 21:00"])
 	var t2 := {}
 	for t: TransferCall in b2.tests:
 		t2[t.resource_name] = t
@@ -384,6 +411,17 @@ func _initialize() -> void:
 	var x := await _call(t2["Bloqueado (Bilhar, reação sorteada)"])
 	await _try(x, 355)
 	ok(severe.call() == 1, "bloqueado: grave")
+	_clear_board()
+	# pedido das autoridades (`StoryCall.authority`): passa sem advertência, só no registro
+	var au := PhoneCall.from_transfer(t2["Bloqueado (Bilhar, reação sorteada)"])
+	au.beat = StoryCall.new()
+	au.beat.authority = true
+	m.ring(au)
+	_move(0, au.line)
+	m.answer()
+	ok(await wait_until(func(): return au.phase == PhoneCall.Phase.AWAIT and not au.talking), "pedido das autoridades")
+	await _try(au, 355)
+	ok(severe.call() == 1 and m.bureaucracy.decisions[-1]["result"] == "permitido: pedido das autoridades", "autoridades: sem advertência, registrado")
 	_clear_board()
 	var w := await _call(t2["Bloqueado (Bilhar, reação sorteada)"])
 	await _pick(w, T.Key.CHOICE_WARN_BLOCKED)
@@ -481,6 +519,7 @@ func _initialize() -> void:
 	m.bureaucracy.equipment_unlocked.connect(func(id: String): arrivals.append(id))
 	var tp := m.bureaucracy.tapes
 	m.running = true   # com o turno andando: a regra ligada antes da chave geral começa quando a chave liga
+	m.bureaucracy.rule("b4_fitas").from_night = 1   # (o teste corre na noite 1; no jogo, ela vale a partir da 7)
 	m.bureaucracy.activate("b4_fitas")
 	ok(arrivals.is_empty() and tp.blank == 0, "chave geral desligada: nada chega")
 	m.bureaucracy.enable(true)

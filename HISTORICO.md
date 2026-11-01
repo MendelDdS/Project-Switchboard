@@ -3038,3 +3038,48 @@ Chaves:
     cair": o trincado ~1,5× maior (11 riscos, 4 arcos, o miolo maior, `ART`, `RAY_LEN`, `RINGS`), a batida mais forte
     (`glass_hit` a 0 dB, com mais grave; o chocalho também) e, depois da batida, a pedra quica um pouco para cima, se
     afasta (encolhe) e cai até sumir no pé do vidro em 0,7 s (`BOUNCE`, `FALL`, `DROP`, `Stone.END`), atrás do trincado.
+503. #roteiro "Vamos criar uma branch a partir da develop e agora de fato implementar o roteiro" (o documento
+    "Roteiro — Planejamento dia a dia (Maria, a telefonista)"): primeiro o motor, em passos, com as dúvidas tiradas
+    antes de cada um (`PLANO_ROTEIRO.md`). Passo 1: o desfecho das ligações do roteiro liga marcadores
+    (`StoryCall.if_connected`, `if_elsewhere`, `if_dropped`, `if_missed`) e o retorno automático pode sair (`again`),
+    para as tentativas do Dia 2 e as escolhas de transferir ou não.
+    Passo 2: as burocracias valem pelas noites do roteiro, não só pelo debug (B1 da 3; B2 com o Bar do Zé, 327, na 5 e
+    na 6; B4 da 7), continuam até a 15, mas na última noite nenhuma advertência conta ("como a noite 15 é a última,
+    não tem motivo pra contabilizar advertência"); pedido das autoridades (`StoryCall.authority`) sem advertência; o
+    acordo do Dia 6 com os estalos; só as ligações do roteiro marcadas para gravar; a demissão continua; o robô do
+    turno cumpre as regras; save na versão 2 (as regras ligadas pelo debug nos saves antigos não valem).
+    Passo 2, pendências: o código de autorização (B3) vai valer para a delegacia, o hospital e a Alta Cúpula (que
+    deixa de ser um tronco e vira um número do setor 2; falta onde ficam na mesa); 40% das ligações comuns sem fala do
+    nome só dizem quando a Maria pede ("algumas pessoas já pedem para transferir para um local sem dizer o nome, aí
+    precisa cobrar"; `rule_identification.ask_share`, `GameContent.name_lines`).
+    Passo 3: "precisamos implementar um fator sucesso bem definido e testado para cada situação, conquistas da emissora
+    de TV, rádio e final do jogo" (`scripts/model/rebellion.gd`, `tests/test_story.gd`); a batida no hotel (13) "só
+    acontece dependendo das falhas do jogador" (uma fita do hotel na polícia); a pedra (14) só sem chances altas; o
+    sinalizador da 15 sempre ("mesmo se o jogador não tiver conhecimento disso"); o homem de sobretudo sempre; no
+    fracasso, o turno acaba à meia-noite e "vai direto pra tela do final" (a tela vem no passo 7).
+    Passo 3, respostas: a delegacia, o hospital e a Alta Cúpula na mesa trocando contatos ("Vamos trocar como você
+    sugeriu"): o 184 (Ivo Teixeira) vira a Delegacia de Polícia, plantão; o 296 (Rosa Lima) vira a Alta Cúpula; o
+    hospital é a Clínica São Lucas (213), que já tinha tomada; saem as duas ligações para os contatos que sumiram. A
+    B3 vale da noite 10 para esses três, com o código da noite no bilhete do supervisor. O setor 2 fica na noite 9
+    ("mantenha na noite 9"); a batida da noite 13 passa para as 21h ("Pode passar a batida pras 21h"); a carta de
+    Sebastião (Dia 11) "aparece como um papel, para o jogador abrir a qualquer momento".
+    Mais respostas: o epílogo é uma noite jogável; "todas as cartas ficam na mesa", desde o começo do turno ("não faz o
+    menor sentido ela aparecer do nada"), com um aviso de que há carta: envelope lacrado em cima do jornal, o lacre
+    vermelho e a dica do começo; aberta, volta sem o lacre (`Night.letters`, `Tools.LETTER`). A carta de Sebastião do
+    Dia 11 em duas versões (amiga com chances altas; ameaça, com o nome do pai, Cristóvão, nas outras). A clínica vira
+    o Hospital São Lucas. A Cecília tem o número 002 e os números dos setores (001, 002, 003) vão no rodapé da lista;
+    a TV fica no lugar do Geraldo Martins (155). As falas do roteiro: "Pode escrever" (só alguns do setor 3, que
+    conhecem a Maria, a chamam pelo nome); a ligação desconhecida sai; o hotel da história passa a ser o Hotel Serena
+    (o do neon) nos textos; a senha do Dia 4 vale das 20:30 às 21h; "avisar o bar" é o do Dia 7 (no 6, Sebastião pede
+    que toda ligação do bar vá para o hotel); fita: pelo menos uma entregue às autoridades nas noites com ligação para
+    o bar (pode ser de conversa sem informação, para despistar; sem nenhuma, advertência leve), e a fita gravada na
+    mesa tem duas saídas, dar para Sebastião (pacote branco de carta) ou para as autoridades (pacote amarelo com um
+    risco azul vertical), resolvidas antes de encerrar o turno; obedecer às autoridades é transferir (transferir e
+    desligar antes do fim da conversa é desobedecer); o encontro com Sebastião num texto na tela preta; dos finais
+    sugeridos, só a vitória amarga e a presa.
+    Depois: "Uma fita dada a Sebastião e nenhuma às autoridades não livra da advertência"; a telefonista do 001 é a
+    Morgana, séria e comportada (para não levantar suspeita de que também ajuda os rebeldes); a Cecília larga o setor
+    no Dia 8 e liga de outro lugar no Dia 10, e o setor passa à Maria no 9 (ela não liga no Dia 8); a TV é a TV Orbital
+    (155, no lugar do Geraldo Martins); Miguel e Generosa virão depois, sem mexer no roteiro principal. "A cera que
+    sela a carta está estranha, não tá esticada": o lacre passou a ser desenhado na tela, deitado
+    (`_envelope_seal`). Passo 5: as centrais pelo discador e no rodapé da lista.

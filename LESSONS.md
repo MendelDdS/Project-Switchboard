@@ -848,3 +848,21 @@ curva, outro caminho), mostre antes como proposta e pergunte, não entregue como
   a disposição dela (a fonte em dobro com relevo, `PixelArt.big`, é o tamanho das miúdas da mesa em 3×).
   E use as mesmas peças: na chapa do banco troquei a letra estampada (`PLATE_LETTERS`) e o estêncil (`PixelArt.tiny`)
   pela fonte do jogo, e "ainda não condiz". Peça com desenho próprio no jogo vai de perto com aquele desenho ampliado.
+
+## Pergunta ao usuário se lê sozinha
+No relato do passo 3 do roteiro, listei as dúvidas que ainda faltavam só pelo número que elas tinham numa análise
+antiga ("0 · 1 · 3 · 5 · 7–9 · 13–25"), com um resumo de três palavras; o usuário: "não entendi absolutamente nada
+dessa tabela de dúvidas. O que são esses números?". Ele não guarda a numeração de mensagens passadas. Cada pergunta
+vai escrita inteira, com o contexto e uma sugestão, e só as que importam para o próximo passo; numeração, só a da
+própria mensagem.
+
+## Antes de perguntar, jogue a cena de cabeça
+Perguntei se "ignorar as ligações para a delegacia e a Alta Cúpula" (Dia 9) era não atender ou atender e não
+transferir; o usuário: "como que o jogador vai descobrir que aquela ligação é da cúpula ou delegacia? Pergunta sem
+sentido." O destino só se sabe depois de atender. Antes de mandar uma dúvida de roteiro, siga a ligação na mesa
+(toca, atende, ouve o pedido, transfere) e só pergunte o que o jogo de fato deixa em aberto.
+
+## Detalhe pequeno em objeto deitado vai na tela
+Pus o lacre da carta no desenho de frente do envelope; a homografia o entortou num losango e o usuário achou
+"estranho, não tá esticada". Detalhe de poucos pixels em objeto chato da mesa (lacre, lápis, risco) vai na tela,
+deitado (mais largo que alto), no ponto que `_tex_pt` dá, como o `_ink`.

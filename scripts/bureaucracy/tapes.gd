@@ -197,6 +197,9 @@ func hand_over() -> void:
 		t.value = value(t)
 		if t.value > 0:
 			desk.main.supervisor.credit("tape", t.value)
+		if t.call != null and t.call.beat != null and not t.words.is_empty():
+			for f in t.call.beat.if_delivered:
+				desk.main.flags.apply(f)
 		var result := "gravação não pedida" if t.call != null and not t.marked else (
 			"vazia: não conta como entregue" if t.marked and t.words.is_empty() else "%d pontos" % t.value)
 		desk.log_decision(rule_id, t.call, "entregou a fita (%s)" % t.words_text(), result)

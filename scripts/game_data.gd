@@ -68,7 +68,7 @@ static func street(id: String) -> Street:
 
 ## Contato da lista telefônica pelo número (nulo se não existir); num tronco, a telefonista da cidade dele.
 static func entry(number: String) -> DirectoryEntry:
-	for e in CONTENT.directory:
+	for e in CONTENT.directory + CONTENT.operators:
 		if e.number == number:
 			return e
 	if is_trunk(number):
@@ -78,6 +78,10 @@ static func entry(number: String) -> DirectoryEntry:
 		t.voice = "f"
 		return t
 	return null
+
+
+## O número da própria central (Vila Serena): no discador, dá ocupado.
+const OWN := "003"
 
 
 ## Os troncos interurbanos, um por cidade (o banco INTERURBANO da mesa): tomadas de destino fora da lista e de todos
