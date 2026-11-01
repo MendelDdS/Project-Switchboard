@@ -10,7 +10,7 @@ extends "res://tests/test_base.gd"
 ## quantos segundos ouvindo eles ficam sabendo, e falha se ninguém o denunciar.
 ## Com `-- --eager` ele não espera o fim: com a ligação já resolvida ou o destino chamando, tira o FONE e atende a
 ## próxima (sem ouvir o agradecimento); volta à que ficou em espera precisando dele (ninguém atendeu).
-## Falha se houver travamento: o turno precisa chegar ao final (00:00) depois da ligação desconhecida.
+## Falha se houver travamento: o turno precisa chegar ao final (00:00).
 
 var m: Main
 var max_live := 0
@@ -21,8 +21,6 @@ var starved := 0
 var info_run := 0          ## pedidos de informação seguidos tocando agora...
 var info_max := 0          ## ...e a maior sequência deles
 var cords_max := 0         ## o máximo de cabos de conexão em uso ao mesmo tempo
-var post := 0
-var myst_at := ""
 var answered := {}
 var clumsy := "--clumsy" in OS.get_cmdline_user_args()
 var skipped := 0
@@ -179,16 +177,15 @@ func _initialize() -> void:
 				kinds[c.kind] = int(kinds.get(c.kind, 0)) + 1
 				info_run = info_run + 1 if c.kind == PhoneCall.Kind.INFO else 0
 				info_max = maxi(info_max, info_run)
-				ok(not m.live.any(func(x: PhoneCall): return x != c and (x.story or x.kind == PhoneCall.Kind.MYSTERY)),
+				ok(not m.live.any(func(x: PhoneCall): return x != c and x.story),
 					"%s: nada toca com uma ligação do roteiro na mesa" % Main.fmt(m.minutes))
 				max_quiet = maxf(max_quiet, m.minutes - last_ring)
 				last_ring = m.minutes
-		if not m.after or m.night.mystery.is_empty():   # antes da desconhecida (sem ela, o turno todo)
-			fall += 1
-			if m.live.size() >= 2: f2 += 1
-			if m.live.size() >= 3: f3 += 1
-			if m.live.any(func(c: PhoneCall): return c.phase == PhoneCall.Phase.AWAIT) and b.free_patches() == 0: starved += 1
-			cords_max = maxi(cords_max, b.patches - b.free_patches())
+		fall += 1
+		if m.live.size() >= 2: f2 += 1
+		if m.live.size() >= 3: f3 += 1
+		if m.live.any(func(c: PhoneCall): return c.phase == PhoneCall.Phase.AWAIT) and b.free_patches() == 0: starved += 1
+		cords_max = maxi(cords_max, b.patches - b.free_patches())
 		# desmonta o que desligou
 		for n in range(1, 11):
 			if ex.line(n) == Exchange.Line.DONE and m._call_on_line(n) == null:
@@ -224,7 +221,7 @@ func _initialize() -> void:
 			for c in m.live:
 				var key: String = c.time + str(c.line)
 				if c.ringing and not answered.has(key):
-					if clumsy and c.kind != PhoneCall.Kind.MYSTERY and answered.size() % 3 == 1:
+					if clumsy and answered.size() % 3 == 1:
 						answered[key] = true
 						skipped += 1
 						continue
@@ -232,10 +229,6 @@ func _initialize() -> void:
 					m.answer()
 					_acted()
 					answered[key] = true
-					if c.kind == PhoneCall.Kind.MYSTERY:
-						myst_at = "%s na linha %02d" % [c.time, c.line]
-					elif m.after:
-						post += 1
 					break
 			if eager and m._focus() == was:   # ninguém tocando: volta à que ficou em espera precisando dele
 				for c in m.live:
@@ -356,8 +349,8 @@ func _initialize() -> void:
 			var a: Array = by_wary[w]
 			return "%.1f: %.0f s por entrada, %.0f s por conversa (%d)" % [w, a[0] / maxi(a[1], 1), a[0] / a[2], a[2]])))
 	max_quiet = maxf(max_quiet, m.minutes - last_ring)
-	print("desconhecida tocou às %s, atendidas depois=%d, fim às %s | máx=%d  2+=%d%%  3+=%d%%  sem_cabo=%d%% (cabos %d/%d)  perdidas=%d  ligações=%d (emerg=%d trotes=%d info=%d, %d seguidas)  maior_silêncio=%d min  mesa_vazia=%d min" % [
-		myst_at, post, m.fmt(m.minutes), max_live, 100 * f2 / maxi(fall, 1), 100 * f3 / maxi(fall, 1),
+	print("fim às %s | máx=%d  2+=%d%%  3+=%d%%  sem_cabo=%d%% (cabos %d/%d)  perdidas=%d  ligações=%d (emerg=%d trotes=%d info=%d, %d seguidas)  maior_silêncio=%d min  mesa_vazia=%d min" % [
+		m.fmt(m.minutes), max_live, 100 * f2 / maxi(fall, 1), 100 * f3 / maxi(fall, 1),
 		100 * starved / maxi(fall, 1), cords_max, b.patches, lost, recs.size(), int(kinds.get(PhoneCall.Kind.EMERGENCY, 0)),
 		int(kinds.get(PhoneCall.Kind.PRANK, 0)), int(kinds.get(PhoneCall.Kind.INFO, 0)), info_max, max_quiet, max_empty])
 	print("despachos (estágio e barra corrida): ", ", ".join(stages))
@@ -369,6 +362,5 @@ func _initialize() -> void:
 	if not clumsy and not careless:   # o desastrado é medição (abaixo do mínimo na maioria das sementes); o descuidado, denunciado, fica abaixo
 		ok(r.grade() <= ShiftReport.GOAL, "o robô atento não fica abaixo do conceito mínimo")
 	print("bilhetes guardados=%d, esquecidos na mesa=%d" % [m.toll.filed, m.toll.waiting()])
-	ok(myst_at != "" or m.night.mystery.is_empty(), "a ligação desconhecida tocou")
 	ok(m.ending and m.minutes >= m.shift_end, "o turno terminou no horário")
 	finish("turno completo")

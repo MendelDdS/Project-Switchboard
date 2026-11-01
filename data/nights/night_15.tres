@@ -2,15 +2,45 @@
 
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
+[ext_resource type="Script" path="res://scripts/data/story_call.gd" id="3_story"]
+[ext_resource type="Resource" path="res://data/calls/story_15_cupula_presa.tres" id="4_presa"]
+[ext_resource type="Script" path="res://scripts/data/story_text.gd" id="5_text"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
 kind = "flare"
 at = 180.0
 
+[sub_resource type="Resource" id="ev_1"]
+script = ExtResource("2_event")
+kind = "banner"
+at = 360.0
+requires = PackedStringArray("golpe_venceu")
+
+[sub_resource type="Resource" id="Story_presa"]
+script = ExtResource("3_story")
+at = 360.0
+call = ExtResource("4_presa")
+requires = PackedStringArray("final_presa")
+authority = true
+again = false
+
+[sub_resource type="Resource" id="End_sucesso"]
+script = ExtResource("5_text")
+text = "Às seis, quando a rendição chega, Sebastião está esperando na calçada da frente, embaixo da bandeira. Ele tira o chapéu, como o pai dele fazia nas reuniões, e diz que Cristóvão teria orgulho.\n\nOs jornais da tarde vão chamar Maria de heroína. Ali na calçada, ele só aperta a mão dela e demora a soltar."
+title = "Amanhece"
+requires = PackedStringArray("final_sucesso")
+
+[sub_resource type="Resource" id="End_presa"]
+script = ExtResource("5_text")
+text = "O turno não termina. Ninguém sai da central naquela noite."
+requires = PackedStringArray("final_presa")
+
 [resource]
 script = ExtResource("1_night")
 shift_end = 720.0
 clears_at = 360.0
 note = "O supervisor deixou um recado: \"Última noite do período. O relatório de hoje vai para a diretoria.\""
-street_events = Array[ExtResource("2_event")]([SubResource("ev_0")])
+story = Array[ExtResource("3_story")]([SubResource("Story_presa")])
+street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1")])
+endings = Array[ExtResource("5_text")]([SubResource("End_sucesso"), SubResource("End_presa")])

@@ -2,7 +2,7 @@ class_name Supervisor
 extends Node
 ## As consequências do turno (nó filho de Main): o que vira advertência no relatório (`Main.report`), quem liga de
 ## novo e quem desiste de esperar. O Main avisa quando algo acontece (fim de ligação, despacho, chegada das unidades,
-## registro no caderno); as regras ficam aqui. Tutorial, trotes e ligação desconhecida não geram advertência.
+## registro no caderno); as regras ficam aqui. Tutorial e trotes não geram advertência.
 
 const HOLD_GIVE_UP := 120.0             # minutos de jogo que alguém aguenta em espera antes de desligar
 const BUSY_HOLD := 2.0                  # ...vezes tanto, quem aceitou esperar uma linha livre (`Conversation._all_busy`)
@@ -47,7 +47,7 @@ func who(c: PhoneCall) -> String:
 
 ## O que o supervisor vai anotar e quem vai ligar de novo por causa de como a ligação terminou.
 func call_ended(c: PhoneCall, reason: PhoneCall.End) -> void:
-	if c.lesson or c.kind in [PhoneCall.Kind.PRANK, PhoneCall.Kind.MYSTERY]:
+	if c.lesson or c.kind == PhoneCall.Kind.PRANK:
 		return
 	var e: EmergencyCall = c.data if c.kind == PhoneCall.Kind.EMERGENCY else null
 	if reason in [PhoneCall.End.MISSED, PhoneCall.End.GAVE_UP]:
@@ -104,7 +104,7 @@ func call_again(c: PhoneCall, why: PhoneCall.Retry) -> void:
 ## Quem fica em espera tempo demais desiste.
 func check_hold() -> void:
 	for c in main.live.duplicate():
-		if c.active and not c.lesson and c.kind != PhoneCall.Kind.MYSTERY and main.exchange.line(c.line) == Exchange.Line.HOLD \
+		if c.active and not c.lesson and main.exchange.line(c.line) == Exchange.Line.HOLD \
 				and main.minutes - c.hold_since > HOLD_GIVE_UP * (BUSY_HOLD if c.busy_asked else 1.0):
 			main.end_call(c, PhoneCall.End.GAVE_UP)
 

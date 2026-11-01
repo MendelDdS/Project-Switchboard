@@ -578,7 +578,7 @@ func _initialize() -> void:
 	recorder._hover = recorder.Hover.TAPE   # clicada a fita na fenda
 	recorder._gui_input(click)
 	ok(tp.inside == null and not tp.rec and tp.done[-1].fate == Tape.Fate.ON_DESK, "tirada: vai para a mesa e a REC volta")
-	ok(m.background.tapes_out == 0 and await wait_until(func(): return recorder._fly == 0, 3.0) and m.background.tapes_out == 1
+	ok(m.background.tapes_out.size() == 0 and await wait_until(func(): return recorder._fly == 0, 3.0) and m.background.tapes_out.size() == 1
 		and m.background.tape_spot().has_area(), "voa e fica na mesa, ao lado do bloco de fichas")
 	await frames(2)
 	var spot: Rect2 = m.background.tape_spot()
@@ -607,7 +607,7 @@ func _initialize() -> void:
 	ok(not tp.rec, "acabada a conversa gravada, a REC solta sozinha")
 	tp.eject()
 	ok(tp.done[-1].words.is_empty(), "nada relevante")
-	ok(await wait_until(func(): return m.background.tapes_out == 2, 3.0), "a segunda, empilhada na primeira")
+	ok(await wait_until(func(): return m.background.tapes_out.size() == 2, 3.0), "a segunda, empilhada na primeira")
 	tp.add_blank()
 	await frames(2)
 	rack._hover = tp.slots.find(true)
@@ -622,23 +622,33 @@ func _initialize() -> void:
 	rack._hover = 1 - back if back < 2 else 0
 	rack._gui_input(click)
 	ok(tp.inside == null, "com uma voltando, o compartimento espera")
-	ok(await wait_until(func(): return recorder._fly == 0 and rack.hold == -1 and rack._shows(back), 3.0) and m.background.tapes_out == 2
+	ok(await wait_until(func(): return recorder._fly == 0 and rack.hold == -1 and rack._shows(back), 3.0) and m.background.tapes_out.size() == 2
 		and recorder._flap == 0.0, "e assenta nele, sem ir para a mesa; a tampinha fecha a fenda")
 	rack._hover = back
 	rack._gui_input(click)
 	await frames(2)
 	await wait_until(func(): return recorder._fly == 0, 3.0)
 	tp.eject()   # uma virgem na mesa (para a pilha ter três)
-	ok(await wait_until(func(): return m.background.tapes_out == 3, 3.0), "três na mesa")
+	ok(await wait_until(func(): return m.background.tapes_out.size() == 3, 3.0), "três na mesa")
 	var pile: Control = m.get_node("TapePile")
 	m.running = true
 	m.background.tapes_clicked.emit()   # clicada a pilha
 	m.running = false
 	ok(pile.visible and pile._shown.size() == 3 and pile._shown[0] == tp.done[-1], "a pilha abre de perto, a última em cima")
-	(pile._rows.get_child(0).get_child(1) as Button).pressed.emit()   # o Descartar dela
+	ok(not pile._rows.get_child(0).get_child(1).visible, "sem Sebastião ter pedido, não há o Dar a Sebastião")
+	m.flags.apply(tp.ASKED + str(m.night_no))
+	pile._fill()
+	ok(pile._rows.get_child(0).get_child(1).visible, "com o pedido dele na noite, há")
+	(pile._rows.get_child(0).get_child(3) as Button).pressed.emit()   # o Descartar dela
 	await frames(2)
-	ok(tp.done[-1].fate == Tape.Fate.DISCARDED and m.background.tapes_out == 2 and pile._shown.size() == 2,
+	ok(tp.done[-1].fate == Tape.Fate.DISCARDED and m.background.tapes_out.size() == 2 and pile._shown.size() == 2,
 		"descartada da pilha: sai da mesa e se perde")
+	ok(m._tapes_open() and m._unregistered(), "fita na mesa sem destino: o turno não encerra")
+	for i in 2:   # Dar às autoridades, uma de cada vez (o papel se refaz com o pacote)
+		(pile._rows.get_child(i).get_child(2) as Button).pressed.emit()
+	await frames(2)
+	ok(not m._tapes_open() and m.background.tapes_out == [Tape.To.AUTHORITIES, Tape.To.AUTHORITIES]
+		and pile._rows.get_child(0).get_child(1) is Label, "embrulhadas para as autoridades: o pacote amarelo na mesa e no papel")
 	pile.close()
 	_clear_board()
 	m.bureaucracy.night_ended()
@@ -670,9 +680,54 @@ func _initialize() -> void:
 	empty.call = skip
 	empty.marked = true
 	empty.fate = Tape.Fate.ON_DESK
+	empty.to = Tape.To.AUTHORITIES
 	tp.done.append(empty)
+	var loose := Tape.new()   # sem destino (o turno acabou à força)
+	loose.call = skip
+	loose.fate = Tape.Fate.ON_DESK
+	tp.done.append(loose)
+	var friend := Tape.new()
+	friend.call = skip
+	friend.fate = Tape.Fate.ON_DESK
+	tp.give(friend, Tape.To.SEBASTIAO)
+	tp.give(friend, Tape.To.AUTHORITIES)   # (sem volta)
+	tp.done.append(friend)
 	tp.hand_over()
 	ok(empty.fate == Tape.Fate.DELIVERED and not tp.delivered(skip), "a fita pedida vazia não conta como entregue")
+	ok(loose.fate == Tape.Fate.LEFT and friend.fate == Tape.Fate.SEBASTIAO, "sem destino fica esquecida; o pacote branco vai a Sebastião")
+	# noite com ligação para o bar: pelo menos uma gravação às autoridades (mesmo sem nada); a de Sebastião não livra
+	var b4: BureaucracyRule = m.bureaucracy.rule("b4_fitas")
+	for gave in [Tape.To.SEBASTIAO, Tape.To.AUTHORITIES]:
+		m.bureaucracy.night_started()
+		var bar := PhoneCall.new()
+		bar.target = "327"
+		b4.call_started(bar)
+		var decoy := Tape.new()
+		decoy.call = bar
+		decoy.fate = Tape.Fate.ON_DESK
+		tp.done.append(decoy)
+		tp.give(decoy, gave)
+		var before := m.report.faults.size()
+		b4.night_ended()
+		var warned: bool = m.report.faults.size() > before and m.report.faults[-1].get("text") == T.Key.FAULT_TAPE_NONE
+		ok(warned == (gave == Tape.To.SEBASTIAO), "bar na noite, fita só para %s: %s" % [gave, "advertência" if warned else "nada"])
+	m.report.later.clear()
+	# a fita de uma conversa das próprias autoridades (`StoryCall.authority`) entregue a elas: gravíssima
+	for gave in [Tape.To.SEBASTIAO, Tape.To.AUTHORITIES]:
+		m.bureaucracy.night_started()
+		var own := PhoneCall.new()
+		own.beat = StoryCall.new()
+		own.beat.authority = true
+		var spy := Tape.new()
+		spy.call = own
+		spy.fate = Tape.Fate.ON_DESK
+		tp.done.append(spy)
+		tp.give(spy, gave)
+		var before := m.report.faults.size()
+		tp.hand_over()
+		var caught: bool = m.report.faults.size() > before and m.report.faults[-1].get("text") == T.Key.FAULT_TAPE_AUTHORITY \
+			and m.report.faults[-1].get("sev") == ShiftReport.Severity.CRITICAL
+		ok(caught == (gave == Tape.To.AUTHORITIES), "fita das autoridades para %s: %s" % [gave, "gravíssima" if caught else "nada"])
 	var kept := Tape.new()
 	kept.call = skip
 	kept.marked = true

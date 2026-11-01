@@ -72,5 +72,6 @@ fault_text = "FAULT_AUTH_CODE"
 tests = Array[ExtResource("2_call")]([SubResource("Test_certo"), SubResource("Test_errado"), SubResource("Test_sem"), SubResource("Test_proximo"), SubResource("Test_lembra")])
 active = true
 from_night = 10
+to_night = 15
 numbers = PackedStringArray("184", "213", "296")
 reactions = PackedStringArray("Código? Ninguém me deu código nenhum. Deixa pra lá.", "Agora precisa de autorização até pra telefonar? Que tempos...", "Não tenho, não. Ligo amanhã, então.")

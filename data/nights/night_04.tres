@@ -2,13 +2,53 @@
 
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
+[ext_resource type="Script" path="res://scripts/data/dial_call.gd" id="3_dial"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="4_step"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
 kind = "graffiti"
 at = 315.0
 
+[sub_resource type="Resource" id="Pw_1"]
+script = ExtResource("4_step")
+text = "Hotel, boa noite. Pois não?"
+
+[sub_resource type="Resource" id="Pw_2"]
+script = ExtResource("4_step")
+kind = 1
+options = PackedStringArray("A semente brotou.", "Desculpe, foi engano.")
+sets = PackedStringArray("senha_hotel_4", "")
+
+[sub_resource type="Resource" id="Pw_3"]
+script = ExtResource("4_step")
+kind = 2
+seconds = 1.5
+requires = PackedStringArray("senha_hotel_4")
+
+[sub_resource type="Resource" id="Pw_4"]
+script = ExtResource("4_step")
+text = "...Entendido. Boa noite, telefonista."
+requires = PackedStringArray("senha_hotel_4")
+
+[sub_resource type="Resource" id="Pw_5"]
+script = ExtResource("4_step")
+text = "Não foi nada. Boa noite."
+requires = PackedStringArray("!senha_hotel_4")
+
+[sub_resource type="Resource" id="Pw_6"]
+script = ExtResource("4_step")
+kind = 3
+
+[sub_resource type="Resource" id="Dial_hotel"]
+script = ExtResource("3_dial")
+number = "305"
+from = 150.0
+to = 180.0
+steps = Array[ExtResource("4_step")]([SubResource("Pw_1"), SubResource("Pw_2"), SubResource("Pw_3"), SubResource("Pw_4"), SubResource("Pw_5"), SubResource("Pw_6")])
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"O fim de semana vem aí e o movimento costuma crescer. Não deixe ninguém esperando.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0")])
+dial = Array[ExtResource("3_dial")]([SubResource("Dial_hotel")])

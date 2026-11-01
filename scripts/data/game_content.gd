@@ -23,6 +23,9 @@ const DialCall := preload("res://scripts/data/dial_call.gd")
 @export var nights: Array[Night] = []
 ## A noite 0, antes da primeira: o treinamento (`Night.lesson`) e um turno calmo. Fica fora de `nights`.
 @export var training: Night
+## A noite 16, depois da última (a do golpe): o epílogo, com as ligações conforme o final (`Rebellion.FINALS`). Fica
+## fora de `nights`, para a última continuar sendo a 15 (a meia-noite do golpe, nenhuma advertência). Na presa, não há.
+@export var epilogue: Night
 ## Níveis de ritmo das ligações sorteadas, do mais calmo ao limite (veja Pace): o 1 é o da primeira noite e o último
 ## vale para todas as noites depois de chegar nele.
 @export var paces: Array[Pace] = []

@@ -55,8 +55,9 @@ func _initialize() -> void:
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 	Engine.max_fps = 0
 	var app: Control = load("res://scenes/app.tscn").instantiate()
-	m = app.get_node("Box/View/Main")
+	m = load("res://scenes/main.tscn").instantiate()   # (já no jogo: o `GameView` só põe a tela inicial com a tela vazia)
 	m.night_no = 1
+	app.get_node("Box/View").add_child(m)
 	get_tree().root.add_child(app)
 	get_tree().current_scene = app
 	await frames(5)

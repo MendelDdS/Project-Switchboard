@@ -1,0 +1,84 @@
+[gd_resource type="Resource" script_class="Night" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
+[ext_resource type="Script" path="res://scripts/data/story_call.gd" id="3_story"]
+[ext_resource type="Resource" path="res://data/calls/story_16_sebastiao.tres" id="4_sebastiao"]
+[ext_resource type="Resource" path="res://data/calls/story_16_mae_cecilia.tres" id="5_mae"]
+[ext_resource type="Resource" path="res://data/calls/story_16_cupula.tres" id="6_cupula"]
+[ext_resource type="Script" path="res://scripts/data/story_text.gd" id="5_text"]
+
+[sub_resource type="Resource" id="Story_sebastiao"]
+script = ExtResource("3_story")
+at = 60.0
+call = ExtResource("4_sebastiao")
+requires = PackedStringArray("final_sucesso")
+again = false
+
+[sub_resource type="Resource" id="Story_mae"]
+script = ExtResource("3_story")
+at = 300.0
+call = ExtResource("5_mae")
+again = false
+
+[sub_resource type="Resource" id="Story_cupula"]
+script = ExtResource("3_story")
+at = 320.0
+call = ExtResource("6_cupula")
+requires = PackedStringArray("final_fracasso")
+authority = true
+again = false
+
+[sub_resource type="Resource" id="Note_won"]
+script = ExtResource("5_text")
+text = "Não há recado do supervisor. Na mesa, um bilhete da companhia, sem assinatura: \"A central segue funcionando. Atenda como sempre.\""
+requires = PackedStringArray("golpe_venceu")
+
+[sub_resource type="Resource" id="Letter_fracasso"]
+script = ExtResource("5_text")
+text = "À operadora do turno da noite,\n\nEm nome da diretoria, parabenizo pela conduta exemplar durante os acontecimentos da última noite. A central de São Sotero manteve as comunicações das autoridades quando mais se precisou delas. Esse serviço não será esquecido.\n\nAtenciosamente,\nO Supervisor"
+requires = PackedStringArray("final_fracasso")
+
+[sub_resource type="Resource" id="News_sucesso"]
+script = ExtResource("5_text")
+text = "São Sotero amanhece livre: a emissora e a rádio nas mãos do povo; a praça cheia desde cedo"
+requires = PackedStringArray("final_sucesso")
+
+[sub_resource type="Resource" id="News_amarga"]
+script = ExtResource("5_text")
+text = "A vitória custou caro: a lista dos que não voltaram ocupa a página inteira"
+requires = PackedStringArray("final_amarga")
+
+[sub_resource type="Resource" id="News_amarga2"]
+script = ExtResource("5_text")
+text = "São Sotero amanhece livre: a emissora e a rádio nas mãos do povo"
+requires = PackedStringArray("final_amarga")
+
+[sub_resource type="Resource" id="News_fracasso"]
+script = ExtResource("5_text")
+text = "Insurgentes contidos na madrugada: a ordem segue garantida em São Sotero"
+requires = PackedStringArray("final_fracasso")
+
+[sub_resource type="Resource" id="End_sucesso"]
+script = ExtResource("5_text")
+text = "Maria atende até o fim do turno. Nenhuma linha pede socorro. Lá fora, a bandeira continua na varanda."
+requires = PackedStringArray("final_sucesso")
+
+[sub_resource type="Resource" id="End_amarga"]
+script = ExtResource("5_text")
+text = "Maria atende até o fim do turno. Sebastião não liga. No jornal, a vitória ocupa a primeira página; os nomes dos que não voltaram, a segunda inteira."
+requires = PackedStringArray("final_amarga")
+
+[sub_resource type="Resource" id="End_fracasso"]
+script = ExtResource("5_text")
+text = "Na semana seguinte, Maria recebe a medalha de uniforme. A central de São Sotero continua funcionando, como sempre."
+requires = PackedStringArray("final_fracasso")
+
+[resource]
+script = ExtResource("1_night")
+weather = "clear"
+note = "O supervisor deixou um recado: \"Escala normal. Nenhuma ocorrência a registrar.\""
+notes = Array[ExtResource("5_text")]([SubResource("Note_won")])
+letters = Array[ExtResource("5_text")]([SubResource("Letter_fracasso")])
+endings = Array[ExtResource("5_text")]([SubResource("End_sucesso"), SubResource("End_amarga"), SubResource("End_fracasso")])
+story = Array[ExtResource("3_story")]([SubResource("Story_sebastiao"), SubResource("Story_mae"), SubResource("Story_cupula")])
+news_if = Array[ExtResource("5_text")]([SubResource("News_sucesso"), SubResource("News_amarga"), SubResource("News_amarga2"), SubResource("News_fracasso")])

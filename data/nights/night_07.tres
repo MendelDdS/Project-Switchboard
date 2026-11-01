@@ -15,5 +15,5 @@ at = 70.0
 
 [resource]
 script = ExtResource("1_night")
-note = "O supervisor deixou um recado: \"Domingo é mais calmo. Aproveite para conferir a lista antes de conectar: são mais números agora.\""
+note = "O supervisor deixou um recado: \"Instalaram um gravador na sua mesa, a pedido das autoridades. A linha do bar foi liberada, e elas querem gravado tudo o que for para lá. Em noite com ligação para o bar, entregue às autoridades pelo menos uma fita, mesmo que a conversa não tenha nada: grave assim mesmo, para não ter reclamação. E daqui em diante, o que as autoridades pedirem, atenda, mesmo contra as regras: não vai haver advertência.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1")])

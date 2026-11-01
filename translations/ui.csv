@@ -32,6 +32,7 @@ END_NIGHT_TITLE,Fim da noite %d,End of night %d,Fin de la noche %d
 END_NIGHT_TEXT,"Amanhã, às 18:00, a central é sua de novo.","Tomorrow at 18:00, the switchboard is yours again.","Mañana, a las 18:00, la central es suya otra vez."
 END_TRAINING_TITLE,Fim do treinamento,End of training,Fin del entrenamiento
 END_TRAINING_TEXT,"Na segunda-feira, às 18:00, a central é sua.","On Monday at 18:00, the switchboard is yours.","El lunes, a las 18:00, la central es suya."
+END_GAME_TITLE,Fim,The end,Fin
 NEXT_NIGHT,Próxima noite,Next night,Siguiente noche
 SHIFT_HOURS,"Turno
 %s–%s","Shift
@@ -74,9 +75,6 @@ INFO_CORD_NO_DEST,CABO SEM DESTINO,CORD WITH NO DESTINATION,CABLE SIN DESTINO
 INFO_OUTPUT,SAÍDA %02d,OUTPUT %02d,SALIDA %02d
 INFO_NUMBER,NÚMERO %d,NUMBER %d,NÚMERO %d
 INFO_LINE,LINHA %02d,LINE %02d,LÍNEA %02d
-INFO_LAST_ORIGIN,ÚLTIMA ORIGEM: ???,LAST ORIGIN: ???,ÚLTIMO ORIGEN: ???
-INFO_NUMBER_UNKNOWN,NÚMERO: ???,NUMBER: ???,NÚMERO: ???
-INFO_DURATION,DURAÇÃO: %s,DURATION: %s,DURACIÓN: %s
 INFO_FONE_CONNECTED,FONE CONECTADO,HEADSET CONNECTED,AURICULAR CONECTADO
 ANSWER,Atender,Answer,Contestar
 TRANSFER,Transferir,Transfer,Transferir
@@ -89,15 +87,12 @@ STATUS_ON_HOLD,em espera,on hold,en espera
 DISPLAY_RINGING,%d TOCANDO,%d RINGING,%d SONANDO
 DISPLAY_NO_ANSWER,%d SEM RESPOSTA,%d NO ANSWER,%d SIN RESPUESTA
 DISPLAY_CONNECTED,%d CONECTADO,%d CONNECTED,%d CONECTADO
-DISPLAY_LINE_DOTS,LINHA %02d…,LINE %02d…,LÍNEA %02d…
-DISPLAY_NO_NUMBER,NÚMERO NÃO EXISTE,NUMBER DOES NOT EXIST,EL NÚMERO NO EXISTE
 WARN_FONE_TO_TRANSFER,Leve o FONE até a entrada da ligação que você quer transferir.,Bring the HEADSET to the input of the call you want to transfer.,Lleve el AURICULAR a la entrada de la llamada que quiere transferir.
 WARN_LISTEN_FONE,"Para escutar a linha %02d, leve o FONE até a entrada dela.","To listen in on line %02d, bring the HEADSET to its input.","Para escuchar la línea %02d, lleve el AURICULAR a su entrada."
 WARN_NOT_TRANSFER,Esse solicitante não pediu transferência.,This caller didn't ask for a transfer.,Esta persona no pidió una transferencia.
 WARN_LISTEN_FIRST,Ouça o pedido do solicitante antes de transferir.,Hear the caller's request before transferring.,Escuche el pedido antes de transferir.
 WARN_PLUG_OUTPUT,Ligue um cabo de conexão da SAÍDA %02d até o número de destino.,Connect a patch cord from OUTPUT %02d to the destination number.,Conecte un cable de conexión de la SALIDA %02d al número de destino.
 WARN_DEST_BUSY,O %d já está tocando ou em conversa.,%d is already ringing or on a call.,El %d ya está sonando o en conversación.
-WARN_PHONE_RINGING,O telefone está tocando.,The phone is ringing.,El teléfono está sonando.
 WARN_FONE_TO_BLINK,Leve o FONE até a entrada que está piscando.,Bring the HEADSET to the blinking input.,Lleve el AURICULAR a la entrada que parpadea.
 WARN_TRAINING_HANG_UP,%s ainda está explicando: ela desliga quando terminar.,%s is still explaining: she will hang up when she is done.,%s todavía está explicando: ella cuelga cuando termine.
 WARN_TRAINING_WRONG,"O cabo está no %d, que não é o número pedido.","The cord is on %d, which is not the number asked for.","El cable está en el %d, que no es el número pedido."
@@ -136,7 +131,6 @@ SYS_WRONG_BOTH_HUNG,"(Atendeu: %s. Foi engano, e os dois desligaram.)","(Answere
 SYS_YOU_ENDED,(Você encerrou a ligação.),(You ended the call.),(Usted terminó la llamada.)
 SYS_NOBODY_ANSWERED,(Ninguém atendeu. A pessoa desistiu.),(Nobody answered. The caller gave up.),(Nadie contestó. La persona desistió.)
 SYS_TIRED_WAITING,(Cansou de esperar e desligou.),(Got tired of waiting and hung up.),(Se cansó de esperar y colgó.)
-SYS_CALL_DROPPED,(A ligação caiu.),(The call dropped.),(La llamada se cortó.)
 HINT_WAIT_CALLS,"Aguarde as chamadas. A lista, o mapa e despacho, as fichas e o registro abrem pelos objetos na mesa (ou teclas 1 a 4).","Wait for calls. The directory, map & dispatch, the log sheets and the call log open from the desk (or keys 1 to 4).","Espere las llamadas. La guía, el mapa y despacho, las fichas y el registro se abren desde la mesa (o teclas 1 a 4)."
 HINT_LETTER,Deixaram uma carta para você em cima do jornal.,Someone left you a letter on top of the newspaper.,Le dejaron una carta encima del periódico.
 HINT_INFO,Pedido de informação: confira a lista telefônica antes de responder.,Information request: check the phone directory before answering.,Pedido de información: revise la guía telefónica antes de responder.
@@ -186,7 +180,6 @@ OBS_NOT_ANSWERED,Não atendida.,Not answered.,No contestada.
 OBS_GAVE_UP,Desistiu na espera.,Gave up on hold.,Desistió en espera.
 OBS_NOT_CONNECTED,Não conectada.,Not connected.,No conectada.
 OBS_ALL_BUSY,Linhas ocupadas; vai ligar mais tarde.,Lines busy; will call back later.,Líneas ocupadas; llamará más tarde.
-OBS_CALL_DROPPED,A ligação caiu.,The call dropped.,La llamada se cortó.
 OBS_TRAINING,Treinamento (não conta).,Training (does not count).,Entrenamiento (no cuenta).
 TAB_DIRECTORY,Lista telefônica,Phone directory,Guía telefónica
 TAB_DISPATCH,Mapa e despacho,Map & dispatch,Mapa y despacho
@@ -382,6 +375,8 @@ FAULT_DISPATCH_BLANK,Ficha de despacho enviada sem unidades,Dispatch card sent w
 FAULT_BUREAUCRACY,Norma da companhia descumprida,Company rule broken,Norma de la compañía incumplida
 FAULT_TAPE_CAUGHT,Perceberam a escuta pedida pelas autoridades,The wiretap the authorities asked for was noticed,Notaron la escucha que pidieron las autoridades
 FAULT_TAPE_MISSED,Ligação pedida pelas autoridades não foi gravada,A call flagged by the authorities was not recorded,Una llamada marcada por las autoridades no fue grabada
+FAULT_TAPE_AUTHORITY,Fita com a conversa das próprias autoridades entregue a elas,Tape of the authorities' own conversation handed to them,Cinta con la conversación de las propias autoridades entregada a ellas
+FAULT_TAPE_NONE,Nenhuma fita entregue às autoridades numa noite com ligação para o bar,No tape handed to the authorities on a night with calls to the bar,Ninguna cinta entregada a las autoridades en una noche con llamadas al bar
 FAULT_DISPATCH_TYPE,Ocorrência classificada errado,Incident misclassified,Incidente mal clasificado
 FAULT_EMERGENCY_WORSE,A emergência se agravou antes do despacho,The emergency got worse before dispatch,La emergencia empeoró antes del despacho
 FAULT_EMERGENCY_CRITICAL,A emergência ficou crítica antes do despacho,The emergency turned critical before dispatch,La emergencia se volvió crítica antes del despacho
@@ -416,6 +411,7 @@ turno"
 FAULT_SHIFT_HUNG_UP,Encerrou o turno com alguém na linha,Ended the shift with someone on the line,Terminó el turno con alguien en la línea
 OBS_SHIFT_ENDED,Turno encerrado durante a ligação.,Shift ended during the call.,Turno terminado durante la llamada.
 HINT_MIDNIGHT,"Fim do turno. Registre o que falta na ficha e guarde os bilhetes, ou encerre o turno.","End of shift. Log what's left on the log sheet and file the tickets, or end the shift.","Fin del turno. Registre lo que falta en la ficha y guarde las boletas, o termine el turno."
+HINT_TAPES,"Há fitas na mesa sem destino. Clique na pilha e escolha para quem vai cada uma.","There are tapes on the desk with no destination. Click the pile and choose who gets each one.","Hay cintas en la mesa sin destino. Haga clic en la pila y elija para quién va cada una."
 CALL_LOG_EMPTY,Nenhuma conversa ainda. Tudo o que for dito com o FONE na linha fica registrado aqui.,No conversations yet. Everything said with the HEADSET on the line is logged here.,Ninguna conversación todavía. Todo lo que se diga con el AURICULAR en la línea queda registrado aquí.
 TRUNK_OPERATOR,Telefonista (%s),Operator (%s),Operadora (%s)
 OP_TRUNK_NUMBER,"Aqui é São Sotero. O número %s, por favor.","São Sotero calling. Number %s, please.","Aquí São Sotero. El número %s, por favor."
@@ -461,6 +457,10 @@ TAPES_NOTE_MISSED,"Gravações pedidas que não chegaram: %s.","Requested record
 TAPES_NOTE_RESTOCK,"Repus as fitas do compartimento.","I restocked the tape rack.","Repuse las cintas del compartimento."
 CODE_NOTE,"Código de autorização desta noite: %s.","Tonight's authorization code: %s.","Código de autorización de esta noche: %s."
 EQUIP_DISCARD,Descartar,Discard,Descartar
+TAPE_TO_SEBASTIAO,Dar a Sebastião,Give to Sebastião,Dar a Sebastião
+TAPE_TO_AUTHORITIES,Dar às autoridades,Give to the authorities,Dar a las autoridades
+TAPE_FOR_SEBASTIAO,Para Sebastião,For Sebastião,Para Sebastião
+TAPE_FOR_AUTHORITIES,Para as autoridades,For the authorities,Para las autoridades
 WARN_NO_TAPES,Não há mais fitas virgens.,There are no blank tapes left.,No quedan cintas vírgenes.
 WARN_TAPE_INSIDE,Já há uma fita no gravador.,There's already a tape in the recorder.,Ya hay una cinta en la grabadora.
 WARN_NO_TAPE,Não há fita no gravador.,There's no tape in the recorder.,No hay cinta en la grabadora.

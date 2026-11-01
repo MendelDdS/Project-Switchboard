@@ -8,7 +8,7 @@ extends Control
 const SHELL := [Pal.SHELL[5], Pal.SHELL[3], Pal.SHELL[2]]   # a moldura dela, no esmalte do console (luz, meio, sombra)
 const SCREEN := Pal.BOARD_INSET   # o fundo das telas (`HudPanel`), no oliva escuro do painel da mesa
 const BORDER := Pal.BOARD_SIDE
-const INK := {"op": Color("8dbb6c"), "sys": Color("9a917a"), "ghost": Color("c6d3c4")}   # a cor de quem fala, como na tela
+const INK := {"op": Color("8dbb6c"), "sys": Color("9a917a")}   # a cor de quem fala, como na tela
 const TEXT := Color("e6dbbd")
 
 var phone: PhonePanel

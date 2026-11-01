@@ -866,3 +866,28 @@ sentido." O destino só se sabe depois de atender. Antes de mandar uma dúvida d
 Pus o lacre da carta no desenho de frente do envelope; a homografia o entortou num losango e o usuário achou
 "estranho, não tá esticada". Detalhe de poucos pixels em objeto chato da mesa (lacre, lápis, risco) vai na tela,
 deitado (mais largo que alto), no ponto que `_tex_pt` dá, como o `_ink`.
+
+## Nomeie a coisa, não o apelido do plano
+Escrevi "a senha do Dia 4 vale das 20:30 às 21h" e o usuário perguntou "a senha só vale por trinta minutos? Como
+assim?"; depois: "você não deixou claro que senha seria". Era a regra que ele mesmo tinha dado (a ligação ao hotel
+com "A semente brotou"), mas "a senha" soava como o código da B3 do bilhete. Ao citar uma regra do roteiro, diga a
+cena inteira: quem liga para onde, o que diz e o que conta.
+
+## Cena da rua nasce na regra de qualidade
+Fiz a bandeira da noite 15 como silhueta andando e um retângulo descendo e mostrei as capturas; o usuário: "como eu
+já tinha falado e especificado antes, as animações e detalhes dos eventos precisam ser bons". Toda cena nova na vista
+(evento do roteiro ou não) segue o `PLANO_RUA.md`, seção 1, desde a primeira versão: rig ou figura com poses
+suavizadas, objeto com peso (cai, quica, assenta), detalhe e luz do lugar, chuva e névoa, som. Leia a seção antes de
+desenhar.
+
+
+## Distância antes de desculpa de escala
+Disse que o homem na varanda não comportava detalhe por ser pequeno; o usuário: "por que não dá pra colocar detalhes?
+Na prática, ele está na mesma distância das pessoas que andam na rua". Antes de alegar limite de escala, compare o `z`
+com o de quem já é desenhado com detalhe ali perto; o que apagava o detalhe era a contraluz forte que eu pus.
+
+
+## O que o usuário já decidiu não volta como pergunta
+Deixei o relatório do supervisor no fim da noite 16 e perguntei se estava bom; o usuário: "Não tem relatório, já
+falei isso. Após o epílogo seriam os créditos basicamente". Antes de listar dúvidas, procure a resposta no
+`HISTORICO.md` e no `PLANO_ROTEIRO.md`; o que já foi dito vira código, não pergunta.

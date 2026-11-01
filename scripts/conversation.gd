@@ -33,8 +33,6 @@ func run(c: PhoneCall) -> void:
 			_prank(c)
 		PhoneCall.Kind.INFO:
 			_info(c)
-		PhoneCall.Kind.MYSTERY:
-			_mystery(c)
 		PhoneCall.Kind.OUTGOING:
 			_outgoing(c)
 
@@ -60,7 +58,6 @@ func say(c: PhoneCall, text: String, pause: float = 0.55, who := "", voice := ""
 			return false
 	var parsed := Clue.parse(tr(text))   # sem as marcas das palavras-chave (as respostas do discador podem ter)
 	text = parsed[0]
-	var ghost := c.kind == PhoneCall.Kind.MYSTERY
 	var li := -1   # a linha da transcrição só aparece enquanto o operador está ouvindo
 	c.set_talking(true)
 	var paren := text.begins_with("(")
@@ -75,13 +72,13 @@ func say(c: PhoneCall, text: String, pause: float = 0.55, who := "", voice := ""
 		var ch := text[i]
 		if c.on_line:
 			if li == -1:
-				li = c.add_line(who if who != "" else (c.named if c.named != "" else c.caller), "", "ghost" if ghost else "")
+				li = c.add_line(who if who != "" else (c.named if c.named != "" else c.caller), "", "")
 			c.append_text(li, ch)
 			prev_vowel = Sfx.speak_char(voice, text, i, prev_vowel, paren, -1.0, pitch, Sfx.agitation(c))
 			for m in parsed[1]:   # a palavra-chave dita inteira vai para as anotações da lista, como na escuta
 				if m[1] - 1 == i and c.kind == PhoneCall.Kind.OUTGOING:
 					main.eavesdrop.note(c, c, li, text.substr(m[0], m[1] - m[0]), m[2])
-		var d := (0.062 if ghost else (0.09 if ch in [",", "."] else 0.028)) * c.speech
+		var d := (0.09 if ch in [",", "."] else 0.028) * c.speech
 		d *= 1.0 - Sfx.agitation(c) * Sfx.AGITATION["speed"]
 		await get_tree().create_timer(d, false).timeout
 		if c.ended:
@@ -474,7 +471,7 @@ func emergency_dispatched(c: PhoneCall) -> void:
 	main.end_call(c, PhoneCall.End.CALLER)
 
 
-# ---------------------------------------------------------------- roteiros falados (trote e ligação desconhecida)
+# ---------------------------------------------------------------- roteiros falados (trote e discador)
 
 ## Segue os passos até o fim ou até um END, pulando os que pedem marcadores que não batem.
 ## Falso se a ligação terminar no meio.
@@ -522,15 +519,6 @@ func _prank(c: PhoneCall) -> void:
 	if not await wait(c, 0.5):
 		return
 	main.end_call(c, PhoneCall.End.CALLER)
-
-
-## O roteiro muda a cada noite (Night.mystery).
-func _mystery(c: PhoneCall) -> void:
-	if not await greet(c):
-		return
-	if not await play_steps(c, main.night.mystery):
-		return
-	main.end_call(c, PhoneCall.End.MYSTERY)
 
 
 # ---------------------------------------------------------------- a ligação que o operador faz (o discador)

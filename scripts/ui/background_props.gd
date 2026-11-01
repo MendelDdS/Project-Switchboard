@@ -134,7 +134,7 @@ var news_read := false   ## o jornal já foi aberto: volta à mesa dobrado de ou
 var letter := false   ## há carta na noite (`Night.letter_for`, `Main`): um envelope lacrado em cima do jornal...
 var letter_read := false   ## ...que, aberta, volta sem o lacre
 var written := 0     ## fichas registradas na noite: o lápis fica num lugar do bloco a cada uma (`PENCIL`)
-var tapes_out := 0   ## fitas tiradas do gravador na noite (B4, posto pelo gravador): empilhadas ao lado do bloco de fichas até o fim do turno
+var tapes_out: Array = []   ## as fitas tiradas do gravador na noite (B4, posto pelo gravador), cada uma pelo destino (`Tape.To`: 0 a fita, 1 o pacote branco de Sebastião, 2 o amarelo das autoridades): empilhadas ao lado do bloco de fichas até o fim do turno
 var counting := 0    ## as entradas contando um interurbano, um bit cada (`Toll.counters`): os contadores acesos do calculógrafo
 var toll_desk := []  ## o que está na mesinha do calculógrafo e onde (`Toll.layout`; o Main só passa com a ferramenta fechada)
 var clock_x := 0.0   ## onde o relógio está na tela (x global): de lá vêm a badalada das horas e a campainha do turno
@@ -336,22 +336,34 @@ func _draw_tapes(a: float, b: float, z: float) -> void:
 	var yd := _yd
 	if _here(TAPES_ID):
 		var all := Rect2()
-		for i in tapes_out:
+		for i in tapes_out.size():
 			_yd = yd - h * i   # a de baixo é o tampo da de cima
-			_flat(TAPES_ID, x, z, w, _deep(TAPE.y * PROP_K), h, Pal.BAKELITE[1], _art_tape, [], deg_to_rad(TAPE_YAW[i % TAPE_YAW.size()]))
+			var k: int = tapes_out[i]
+			var side: Color = [Pal.BAKELITE[1], Pal.PARCEL_WHITE.darkened(0.35), Pal.PARCEL_YELLOW.darkened(0.35)][k]
+			_flat(TAPES_ID, x, z, w, _deep(TAPE.y * PROP_K), h, side, _art_tape.bind(k), [k], deg_to_rad(TAPE_YAW[i % TAPE_YAW.size()]))
 			all = _props[TAPES_ID] if i == 0 else all.merge(_props[TAPES_ID])
-		if tapes_out > 0:
+		if not tapes_out.is_empty():
 			_props[TAPES_ID] = all   # o mouse vale na pilha inteira, não só na de cima
 		_yd = yd
-		var top := yd - h * (tapes_out + 1)
+		var top := yd - h * (tapes_out.size() + 1)
 		var dz := _deep(TAPE.y * PROP_K)
 		_tape_next = PixelArt.bounds(PackedVector2Array([_p3(x, top, z), _p3(x + w, top, z), _p3(x + w, top, z + dz), _p3(x, top, z + dz)]))
 
 
 ## A fita deitada vista de cima, de comprido para o fundo: o plástico escuro e a etiqueta creme do lado esquerdo (a
-## janelinha das bobinas, nesse tamanho, parecia um risco).
-func _art_tape(sz: Vector2i) -> Image:
+## janelinha das bobinas, nesse tamanho, parecia um risco). Embrulhada (`to` 1 ou 2), o pacote: o branco de carta com o
+## selo vermelho num canto; o amarelo oficial com o risco azul de ponta a ponta, no meio.
+func _art_tape(sz: Vector2i, to := 0) -> Image:
 	var img := Image.create(sz.x, sz.y, false, Image.FORMAT_RGBA8)
+	if to != 0:
+		var col := Pal.PARCEL_WHITE if to == 1 else Pal.PARCEL_YELLOW
+		img.fill(col)
+		_fr(img, 0, 0, sz.x, 1, col.lightened(0.2))   # a beira do fundo, na luz
+		if to == 1:
+			_fr(img, sz.x - 3, 1, 2, 2, Pal.RED)   # o selo
+		else:
+			_fr(img, sz.x / 2, 0, maxi(1, sz.x / 5), sz.y, Pal.PARCEL_STRIPE)
+		return img
 	img.fill(Pal.BAKELITE[3])
 	var lw := maxi(roundi(sz.x * 0.6), 2)
 	var ly := maxi(roundi(sz.y * 0.08), 1)

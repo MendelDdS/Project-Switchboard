@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_call"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_00"]
+script = ExtResource("2_step")
+text = "Central 3, aqui fala a Alta Cúpula."
+
+[sub_resource type="Resource" id="Step_01"]
+script = ExtResource("2_step")
+text = "A diretoria encaminhou o relatório de ontem. A colaboração desta mesa foi decisiva para conter os insurgentes."
+
+[sub_resource type="Resource" id="Step_02"]
+script = ExtResource("2_step")
+text = "Na semana que vem haverá uma condecoração. Compareça de uniforme."
+
+[sub_resource type="Resource" id="Step_03"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Sim, senhor.", "[Ficar em silêncio]")
+
+[sub_resource type="Resource" id="Step_04"]
+script = ExtResource("2_step")
+text = "É só isso. Bom turno."
+
+[sub_resource type="Resource" id="Step_05"]
+script = ExtResource("2_step")
+kind = 3
+
+[resource]
+script = ExtResource("1_call")
+voice = "m"
+caller = "Alta Cúpula"
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05")])

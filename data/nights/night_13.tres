@@ -14,7 +14,12 @@ kind = "raid"
 at = 180.0
 requires = PackedStringArray("fita_hotel_entregue")
 
+[sub_resource type="Resource" id="ev_2"]
+script = ExtResource("2_event")
+kind = "stranger"
+at = 240.0
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Faltam poucas noites para a avaliação do mês.\""
-street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1")])
+street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1"), SubResource("ev_2")])

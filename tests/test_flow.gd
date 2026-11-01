@@ -294,13 +294,10 @@ func _initialize() -> void:
 		var in_order := ats.duplicate()
 		in_order.sort()
 		ok(ats == in_order and ats.all(func(a): return a >= 0.0 and a < n.shift_end), "agenda em ordem: " + n.resource_path)
-		ok(plan.calls.all(func(c: PhoneCall): return c.story or c.kind == PhoneCall.Kind.MYSTERY or c.at < last),
+		ok(plan.calls.all(func(c: PhoneCall): return c.story or c.at < last),
 			"sorteadas antes da última ligação: " + n.resource_path)
-		ok((plan.mystery_at == INF) == n.mystery.is_empty(), "ligação desconhecida conforme a noite: " + n.resource_path)
-		ok(plan.calls.all(func(c: PhoneCall): return c.kind != PhoneCall.Kind.MYSTERY or c.latest <= last - Schedule.MYSTERY_MARGIN),
-			"desconhecida toca antes da última ligação: " + n.resource_path)
-		var fixed := plan.calls.filter(func(c: PhoneCall): return c.story or c.kind == PhoneCall.Kind.MYSTERY)
-		ok(fixed.size() == n.story.size() + (0 if n.mystery.is_empty() else 1), "roteiro inteiro na agenda: " + n.resource_path)
+		var fixed := plan.calls.filter(func(c: PhoneCall): return c.story)
+		ok(fixed.size() == n.story.size(), "roteiro inteiro na agenda: " + n.resource_path)
 		ok(plan.calls.all(func(c: PhoneCall): return c in fixed or fixed.all(func(f): return absf(c.at - f.at) >= Schedule.STORY_GAP)),
 			"sorteadas longe das do roteiro: " + n.resource_path)
 		var ems: Array = plan.calls.filter(func(c: PhoneCall): return c.kind == PhoneCall.Kind.EMERGENCY).map(func(c): return c.at)
@@ -859,16 +856,8 @@ func _initialize() -> void:
 	_move(4, -1)
 	ok(ex.dest(162) == Exchange.Dest.FREE, "destino liberado")
 
-	# ---- 6. ligar de volta para o número desconhecido (pela entrada por onde ele veio)
-	m.after = true
-	m.myst_line = 4
-	_move(0, 4)
-	ok(await wait_until(func(): return m.phone.display_text() == T.text(T.Key.DISPLAY_NO_NUMBER), 10.0), "número não existe")
-	ok(m.flags.has("ligou_de_volta_1"), "marcador automático: ligou de volta")
-
 	# ---- 7. clicar num plug encaixado devolve à base (com animação); arrastar move
 	var c7 := _extra(GameData.transfers(TransferCall.Group.ESTABLISHMENT)[0])
-	m.after = false
 	# o fio sozinho (`Switchboard.Cord`, sem mesa): preso nas duas pontas, com folga, deita na prateleira e dorme;
 	# solto, o plug cai, bate nela e quica
 	var cord := Switchboard.Cord.new(Vector2.ZERO, Vector2(200, 0))
@@ -978,28 +967,20 @@ func _initialize() -> void:
 		reach = reach and b._has_point(Vector2(b._rest(3).x, y)) and b._plug_under(Vector2(b._rest(3).x, y)) == 3
 	ok(reach, "o plug guardado aceita o clique em toda a altura")
 
-	# ---- 8. o homem na janela: chega andando, fica embaixo do poste de 25 a 10 min antes da ligação desconhecida e
-	# volta andando (vai ligar)
-	var myst := PhoneCall.mystery()
-	myst.at = m.minutes + 60.0   # na agenda, mas sem tocar durante o teste
-	m.myst_plan = myst.at
-	m.sched.append(myst)
-	await frames(1)
+	# ---- 8. o homem na janela (`Background.stranger`, min do dia): chega andando, fica embaixo do poste e volta andando
 	var bg := m.background
+	var now: float = bg.minutes
+	bg.stranger = Vector2(now + 60.0, now + 75.0)
 	ok(is_nan(bg._man_x()), "ainda não aparece")
-	m.myst_plan = m.minutes + Main.SHADOW_LEAD + Background.MAN_WALK / 2.0
-	await frames(1)
+	bg.stranger = Vector2(now + Background.MAN_WALK / 2.0, now + 15.0)
 	ok(bg._man_x() > Background.MAN_X and bg._man_x() < Background.MAN_FROM, "chegando andando: %.1f m" % bg._man_x())
-	m.myst_plan = m.minutes + 20.0
-	await frames(1)
+	bg.stranger = Vector2(now - 5.0, now + 10.0)
 	ok(bg._man_x() == Background.MAN_X, "parado embaixo do poste")
-	m.myst_plan = m.minutes + Main.SHADOW_LEAVE - Background.MAN_WALK / 2.0
-	await frames(1)
+	bg.stranger = Vector2(now - 15.0, now - Background.MAN_WALK / 2.0)
 	ok(bg._man_x() > Background.MAN_X and bg._man_x() < Background.MAN_FROM, "indo embora andando: %.1f m" % bg._man_x())
-	m.myst_plan = m.minutes + 1.0
-	await frames(1)
-	ok(is_nan(bg._man_x()), "foi ligar")
-	m.sched.erase(myst)
+	bg.stranger = Vector2(now - 30.0, now - 15.0 - Background.MAN_WALK)
+	ok(is_nan(bg._man_x()), "foi embora")
+	bg.stranger = Vector2(INF, INF)
 
 	# ---- 9. marcadores do roteiro: condição, escolha que muda a conversa e ligação do roteiro conferida na hora
 	var sf := StoryFlags.new(PackedStringArray(["a"]))
@@ -1247,10 +1228,11 @@ func _initialize() -> void:
 		ok(r.detail in Background.DETAILS, "detalhe da sala conhecido: " + r.detail)
 	var night_was := m.night_no
 	m.night_no = 3
-	m.flags.apply("desligou_desconhecida_2")
-	ok("armario_entreaberto" in m.background.details, "um marcador ligado já muda a sala")
-	m.flags.apply("!desligou_desconhecida_2")
-	ok(not "armario_entreaberto" in m.background.details, "e desligado volta")
+	m.flags.apply("!prometeu_quermesse")   # (ligado lá atrás, na noite 1)
+	m.flags.apply("prometeu_quermesse")
+	ok("cartaz_quermesse" in m.background.details, "um marcador ligado já muda a sala")
+	m.flags.apply("!prometeu_quermesse")
+	ok(not "cartaz_quermesse" in m.background.details, "e desligado volta")
 	m.night_no = night_was
 
 	# ---- 13. mapa e despacho numa tela: marcar o local imprime o cartão; perfura-se o tipo (um só) e as unidades (o
@@ -1527,9 +1509,16 @@ func _initialize() -> void:
 	m._story_outcome(oc, PhoneCall.End.MISSED)
 	oc.dest_num = int(oc.target)
 	m._story_outcome(oc, PhoneCall.End.CONNECTED)
+	ok(not m.flags.has("d_transferiu"), "desfecho: conectada, espera o fim da conversa")
+	m._story_talk_over(oc.line, false)
 	ok(m.flags.has("d_transferiu") and not m.flags.has("d_ignorou"), "desfecho: ignorada, depois transferida ao pedido")
+	m._story_outcome(oc, PhoneCall.End.CONNECTED)
+	m._story_talk_over(oc.line, true)
+	ok(m.flags.has("d_recusou"), "desfecho: transferida e cortada antes do fim conta como encerrada sem transferir")
+	m.flags.apply("!d_recusou")
 	oc.dest_num = 305 if oc.target != "305" else 312
 	m._story_outcome(oc, PhoneCall.End.CONNECTED)
+	m._story_talk_over(oc.line, false)
 	m._story_outcome(oc, PhoneCall.End.OPERATOR)
 	ok(m.flags.has("d_foi_%d" % oc.dest_num) and m.flags.has("d_recusou"), "desfecho: para outro número ({dest}) e encerrada sem transferir")
 	var queued := m.sched.size()
@@ -1557,12 +1546,52 @@ func _initialize() -> void:
 	m.minutes = m.MIDNIGHT
 	m._midnight()
 	ok(m.flags.has(m.Rebellion.LOST) and m.shift_end == m.MIDNIGHT, "golpe falhou: o turno acaba à meia-noite")
+	ok(m.flags.has(m.Rebellion.FINALS[m.Rebellion.Final.FAILURE]), "golpe falhou sem desobedecer: o fracasso")
+	var banner: Array = GameData.CONTENT.nights[-1].street_events.filter(func(e): return e.kind == "banner")
+	m._street_waiting = banner.duplicate()
+	m._street_check()
+	ok(banner.size() == 1 and not m.background.scene_at.has("banner"), "golpe falhou: sem a bandeira na varanda")
+	# a presa: desobedeceu às autoridades e o golpe falhou; a cúpula liga à meia-noite, depois da última ligação, e o
+	# turno espera por ela
+	var was_last: float = m.last_call
+	for f in ["!" + m.Rebellion.LOST, "!" + m.Rebellion.FINALS[m.Rebellion.Final.FAILURE], m.Rebellion.DISOBEYED + "teste"]:
+		m.flags.apply(f)
+	m._verdict = false
+	m._midnight()
+	ok(m.flags.has(m.Rebellion.FINALS[m.Rebellion.Final.PRISON]), "golpe falhou depois de desobedecer: presa")
+	m.drop_all()
+	await frames(2)
+	var st: StoryCall = GameData.CONTENT.nights[-1].story.filter(func(x: StoryCall): return x.requires.has(m.Rebellion.FINALS[m.Rebellion.Final.PRISON]))[0]
+	var late := PhoneCall.from_script(st.call)
+	late.at = st.at
+	late.story = true
+	late.requires = st.requires
+	late.beat = st
+	var was_sched: Array[PhoneCall] = m.sched
+	m.sched = [late]
+	ok(m._story_late() and st.authority, "presa: a ligação da cúpula ainda vai tocar (o turno espera)")
+	m._run_schedule()
+	ok(m.live.has(late), "presa: a cúpula liga à meia-noite, depois da última ligação")
+	m.drop_all()
+	await frames(2)
+	m.sched = was_sched
+	for f in ["!" + m.Rebellion.LOST, "!" + m.Rebellion.FINALS[m.Rebellion.Final.PRISON], "!" + m.Rebellion.DISOBEYED + "teste"]:
+		m.flags.apply(f)
 	m._verdict = false
 	m.shift_end = was_end
+	m.last_call = was_last
 	for f in [m.Rebellion.HOTEL, m.Rebellion.HOSPITAL, m.Rebellion.IGNORED, m.Rebellion.PARISH]:
 		m.flags.apply(f)
 	m._midnight()
 	ok(m.flags.has(m.Rebellion.WON) and m.shift_end == was_end, "golpe venceu: o turno segue")
+	ok(m.flags.has(m.Rebellion.FINALS[m.Rebellion.Final.SUCCESS]), "golpe venceu com a paróquia e sem fitas caras: o sucesso")
+	var was_n: Night = m.night
+	m.night = GameData.CONTENT.nights[-1]   # (a que vai até o amanhecer: a cena da meia-noite cabe no turno)
+	m._street_waiting = banner.duplicate()
+	m._street_check()
+	ok(m.background.scene_at.has("banner"), "golpe venceu: a bandeira na varanda à meia-noite")
+	m.background.scene_at.erase("banner")
+	m.night = was_n
 	m.night_no = was_night
 	finish("fluxo da central")
 

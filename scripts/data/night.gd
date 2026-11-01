@@ -4,7 +4,7 @@ extends Resource
 const StreetEvent := preload("res://scripts/data/street_event.gd")
 const DialCall := preload("res://scripts/data/dial_call.gd")
 const StoryText := preload("res://scripts/data/story_text.gd")
-## Uma noite do jogo: o bilhete do começo e o roteiro fixo (ligações da história e a ligação desconhecida). Fica em
+## Uma noite do jogo: o bilhete do começo e o roteiro fixo (ligações da história). Fica em
 ## res://data/nights/, na ordem de GameContent.nights. Só o roteiro é fixo; o resto do turno (quem liga, quando, de que
 ## tipo) é sorteado no ritmo do nível em que o jogador está (`Pace`, que não depende da noite).
 
@@ -15,6 +15,9 @@ const StoryText := preload("res://scripts/data/story_text.gd")
 ## A carta da noite, na mesa (em cima do jornal) desde o começo do turno: a primeira destas versões cujos marcadores
 ## batem (`letter_for`; nenhuma, sem carta). O jogador abre quando quiser (`Tools.LETTER`).
 @export var letters: Array[StoryText] = []
+## O texto da tela preta no fim do turno (`Ending`), depois do relatório: a primeira destas versões cujos marcadores
+## batem (`ending_for`; nenhuma, o de toda noite). Os finais: o encontro com Sebastião na 15 e o fecho do epílogo.
+@export var endings: Array[StoryText] = []
 ## Clima fixo da noite; vazio ("Sorteado") = sorteado.
 @export_enum("Sorteado:", "rain", "fog", "clear") var weather := ""
 ## O fim do turno (minutos depois do início, às 18h): 360 = meia-noite; a última noite vai até as 6h (720).
@@ -53,14 +56,6 @@ const StoryText := preload("res://scripts/data/story_text.gd")
 ## Matérias que só saem com os marcadores certos, na frente das de sempre (`stories_for`).
 @export var news_if: Array[StoryText] = []
 
-@export_group("Ligação desconhecida")
-## O que se diz na ligação desconhecida (vazio = ela não toca nesta noite). Passos EFFECT: "static",
-## "static_loud", "flick" (a lâmpada da mesa pisca).
-@export var mystery: Array[PrankStep] = []
-## Toca em algum momento entre estes minutos depois do início do turno, só com a mesa em silêncio.
-@export var mystery_from := 240.0
-@export var mystery_to := 330.0
-
 @export_group("Ligações do operador")
 ## As ligações que o roteiro desta noite espera que o operador faça pelo discador (`DialCall`): discando o número,
 ## atendem elas no lugar do atendimento de sempre (as de qualquer noite ficam em `GameContent.dial`).
@@ -81,6 +76,14 @@ func letter_for(f: StoryFlags) -> String:
 		if f == null or f.allows(v.requires):
 			return v.text
 	return ""
+
+
+## O texto do fim do turno com os marcadores `f` (null sem nenhum que bata).
+func ending_for(f: StoryFlags) -> StoryText:
+	for v in endings:
+		if f.allows(v.requires):
+			return v
+	return null
 
 
 ## As matérias do jornal com os marcadores `f`: as de `news_if` que batem, depois as de sempre.

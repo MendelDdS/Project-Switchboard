@@ -1,9 +1,0 @@
-[gd_resource type="Resource" script_class="RoomChange" format=3]
-
-[ext_resource type="Script" path="res://scripts/data/room_change.gd" id="1_room"]
-
-[resource]
-script = ExtResource("1_room")
-detail = "numero_anotado"
-requires = PackedStringArray("ligou_de_volta_1")
-from_night = 2

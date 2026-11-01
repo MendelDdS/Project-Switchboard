@@ -62,6 +62,24 @@ static func lying(ci: CanvasItem, at: Vector2, name := "", hour := "", marks := 
 		ci.draw_rect(Rect2(l.end.x - 1 - MARKS_Y - i * 2, l.position.y + 1, 1, 3), MARK)
 
 
+## A fita embrulhada (`to`, `Tape.To`: 1 Sebastião, 2 as autoridades), deitada, no lugar da `lying` com o canto de cima
+## à esquerda em `at`: o pacote de carta branco, com o selo e o endereço riscado; o oficial amarelo, com o risco azul
+## de cima a baixo.
+static func parcel(ci: CanvasItem, at: Vector2, to: int) -> void:
+	var s := Vector2(SPINE.y, SPINE.x)
+	var col := Pal.PARCEL_WHITE if to == 1 else Pal.PARCEL_YELLOW
+	ci.draw_rect(Rect2(at, s), col.darkened(0.35))   # a beira
+	ci.draw_rect(Rect2(at + Vector2(1, 1), s - Vector2(2, 2)), col)
+	ci.draw_rect(Rect2(at + Vector2(1, 1), Vector2(s.x - 2, 1)), col.lightened(0.2))   # a quina na luz
+	if to == 1:
+		ci.draw_rect(Rect2(at + Vector2(s.x - 9, 3), Vector2(6, 6)), Pal.RED)   # o selo
+		ci.draw_rect(Rect2(at + Vector2(s.x - 8, 4), Vector2(4, 4)), Pal.RED.lightened(0.2))
+		for y in [4, 7]:
+			ci.draw_rect(Rect2(at + Vector2(30, y), Vector2(40, 1)), HAND)   # o endereço, à caneta
+	else:
+		ci.draw_rect(Rect2(at + Vector2(s.x / 2.0 - 2.0, 1), Vector2(4, s.y - 2)), Pal.PARCEL_STRIPE)
+
+
 ## A fita voando no retângulo `r`, sem letras (que não encolhem): em pé, a lombada com a etiqueta ao comprido, como na
 ## `standing`; deitada (mais larga que alta), como fica na pilha da mesa (`Background._art_tape`): o plástico escuro
 ## com a etiqueta nos 60% da esquerda.

@@ -42,22 +42,39 @@ motor (o que o roteiro precisa e o jogo ainda não faz), depois o conteúdo, com
    dá o número no fim do treinamento), que atende até a noite 7, larga o setor na 8 (toca e ninguém atende) e some da
    9 em diante (o setor passa à Maria; `answers_until`, `gone_from`); 003 é a própria central (ocupado). A TV Orbital
    no 155, no lugar do Geraldo Martins (a ligação do afilhado saiu). No Dia 10 a Cecília liga de outro lugar.
-6. Fitas: a gravada vai para a mesa com duas saídas, dar para Sebastião (pacote branco de carta) ou para as
-   autoridades (pacote amarelo com um risco azul vertical), resolvidas antes de encerrar o turno; nas noites com
-   ligação para o bar, pelo menos uma às autoridades (pode ser de conversa sem informação), senão advertência leve; o
-   supervisor explica no dia do gravador. Substitui o "deixar na mesa = entregar".
-7. Regras das ligações do roteiro: obedecer às autoridades é transferir (transferir e desligar antes do fim da
-   conversa é desobedecer); a senha do Dia 4 vale das 20:30 às 21h; sai a ligação desconhecida.
-8. Na rua: o homem de sobretudo nas noites 13 e 14 (22h–23h, em frente ao prédio de tijolos; o homem do mistério
-   reaproveitado) e a bandeira na varanda à meia-noite da noite 15.
-9. Os finais: sucesso (o encontro com Sebastião num texto na tela preta), fracasso, vitória amarga e presa; o epílogo,
-   uma noite 16 jogável, com a carta do supervisor na mesa no fracasso.
+6. **Feito.** Fitas: na pilha da mesa, Dar a Sebastião (pacote branco de carta, `StoryCall.if_sebastiao`), Dar às
+   autoridades (pacote amarelo com risco azul; vale pontos e liga `if_delivered`) ou Descartar; sem volta (`Tapes.give`).
+   A fita da conversa das próprias autoridades entregue a elas: advertência gravíssima (`FAULT_TAPE_AUTHORITY`).
+   O turno não encerra com fita sem destino (o Encerrar abre a pilha e avisa); acabado à força, a sem destino fica
+   esquecida. Noite com ligação para o bar (327) sem nenhuma gravação às autoridades (vale uma sem nada; a de Sebastião
+   não livra): advertência leve (`rule_tapes.gd`, `bar_*`). O bilhete da noite 7 explica (o gravador, o bar liberado,
+   a fita mínima e atender às autoridades sem advertência). As duas ligações sem informação para o bar nas noites 7 e
+   8 ficam para o conteúdo (passo 10).
+7. **Feito.** Obedecer às autoridades é transferir e deixar a conversa acabar: o desfecho da conectada
+   (`if_connected`/`if_elsewhere`) espera o fim dela; cortada pelo operador antes, vale `if_dropped`
+   (`Main._story_talk_over`). Saiu a ligação desconhecida (falas, agenda, ligar de volta, a noite calada, os detalhes
+   da sala que dependiam dela). Dar a Sebastião só na noite em que ele pediu (`Tapes.ASKED` + a noite, que a ligação
+   dele liga). A senha do Dia 4: ligar pelo discador para o Hotel Serena (305) das 20:30 às 21h e dizer "A semente
+   brotou" liga `senha_hotel_4` (`Night.dial`, `DialCall`); fora disso, o hotel de sempre.
+8. **Feito, falta a aprovação.** Na rua: o homem de sobretudo nas noites 13 e 14, das 22h às 22h50, embaixo do poste da
+   esquina do prédio de tijolos, fumando (`StreetEvent` "stranger"); a bandeira na varanda do apartamento vazio à
+   meia-noite da noite 15, só com `golpe_venceu` (`Banner`; o veredito da meia-noite agora vem antes das cenas da rua).
+9. **Feito, falta a aprovação.** Os finais (`Rebellion.final`, à meia-noite da 15, `final_*`): sucesso (o encontro
+   com Sebastião num texto na tela preta, `Night.endings`), vitória amarga (venceu com a fita das armas, do grupo C ou
+   dos grupos entregue, ou com a paróquia esquecida), fracasso e presa (falhou e desobedeceu alguma vez: a cúpula liga
+   à meia-noite, e no lugar do relatório a cena `Arrest`, o homem de sobretudo e a viatura com dois policiais vindo
+   para a central). O epílogo, a noite 16 jogável (`GameContent.epilogue`, fora das 15): Sebastião no sucesso, a mãe
+   da Cecília com o golpe vencido, a cúpula no fracasso e a carta do supervisor na mesa no fracasso; o fecho na tela
+   com "Fim", os créditos e a volta ao menu, sem relatório. A mãe da Cecília liga em todos os finais, com uma
+   conversa por final. Presa: o golpe falhou e ela cortou mais pedidos das autoridades do que atendeu. Ligações do
+   roteiro depois das 23:40 ainda tocam (`Main._story_late`); as conversas do roteiro são ligação comum no caderno.
+   Burocracias até a 15.
 10. Conteúdo: as falas de todas as noites (Claude escreve, fiel ao documento), revisadas para a Maria (só alguns do
     setor 3, que a conhecem, a chamam pelo nome); o hotel da história é o Hotel Serena (o do neon) nos textos;
     "avisar o bar" é o do Dia 7 (no Dia 6, Sebastião pede que toda ligação do bar vá para o hotel); traduções.
 
 ## Dúvidas em aberto
 
-- Miguel e Generosa (epílogo): o usuário ainda escreve o roteiro deles; não mexem no roteiro principal.
-- O Otávio do epílogo é o Otávio Almeida (251) da lista?
+- Miguel e Generosa (epílogo): o usuário ainda escreve o roteiro deles; não mexem no roteiro principal. O Otávio
+  (alta em breve) é o Otávio Almeida (251) da lista.
 - (Respondida: a fita mínima conta só a dada às autoridades; uma dada a Sebastião não livra da advertência.)

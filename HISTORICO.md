@@ -3083,3 +3083,42 @@ Chaves:
     (155, no lugar do Geraldo Martins); Miguel e Generosa virão depois, sem mexer no roteiro principal. "A cera que
     sela a carta está estranha, não tá esticada": o lacre passou a ser desenhado na tela, deitado
     (`_envelope_seal`). Passo 5: as centrais pelo discador e no rodapé da lista.
+    "Commit e siga com o próximo": commit dos passos 1–5 e o passo 6, as fitas (os dois pacotes na pilha da mesa, o
+    turno esperando as sem destino, a fita mínima às autoridades nas noites com ligação para o bar e o bilhete da noite 7).
+    "Dar a Sebastião só aparece quando houver a ligação dele": o botão da pilha só na noite em que ele pediu (o
+    marcador `sebastiao_pediu_fita_<noite>`, que a ligação dele liga, `Tapes.ASKED`). Passo 7: obedecer é transferir e
+    deixar a conversa acabar (o desfecho da conectada espera o fim; cortada antes vale `if_dropped`); a ligação
+    desconhecida saiu inteira ("se você tiver falando da ligação do desconhecido que acontecia nas primeiras versões do
+    jogo, sim sai"): as falas das noites 1 e 2, a hora dela na agenda, ligar de volta, o silêncio da noite antes dela,
+    o homem do poste chamado por ela (fica para o passo 8), o estilo "fantasma" da conversa e os dois detalhes da sala
+    que dependiam dela (o número anotado, o armário entreaberto; o desenho ficou). A senha do Dia 4 voltou como
+    pergunta ("a senha só vale por trinta minutos? Como assim?").
+    "Não deixou claro que senha seria [...] das 20:30 às 21h mesmo": a senha do Dia 4 é a ligação pelo discador ao
+    hotel (305) dizendo "A semente brotou", que só conta das 20:30 às 21h (`DialCall`). "Se o jogador der uma fita com
+    gravação de conversa com autoridades para elas mesma, sofre punição gravíssima." "A condição da bandeira na
+    varanda é um evento que acontece somente se o golpe foi sucesso": passo 8, o homem de sobretudo nas noites 13 e
+    14 (22h–23h) e a bandeira da meia-noite da 15 com `golpe_venceu`. "Como eu já tinha falado e especificado antes,
+    as animações e detalhes dos eventos precisam ser bons": a primeira bandeira (silhueta andando, um retângulo
+    descendo) foi refeita na regra do `PLANO_RUA.md` (o rig com o rolo, poses suavizadas, o pano quicando e assentando,
+    pregas no vento, a luz do poste, a chuva, o som), e o homem de sobretudo passou a fumar.
+    "A bandeira será preta com símbolo amarelo no centro [...] coloque apenas um círculo"; o homem de sobretudo sai
+    antes da pedra (fica até 22h50); "por que não dá pra colocar detalhes? Na prática, ele está na mesma distância das
+    pessoas que andam na rua": quem estende a bandeira ganhou a cor da roupa (jaqueta de couro aberta, camisa, boina),
+    só um pouco de contraluz, no detalhe de quem passa na calçada de lá. "Pode continuar com o passo 9."
+    Passo 9, os finais: `Rebellion.final` (sucesso; vitória amarga com fita custosa ou a paróquia esquecida; fracasso;
+    presa, o golpe falhou e ela desobedeceu alguma vez), o texto do fim na tela (`Night.endings`, `Ending.play`, "Fim" e
+    voltar ao menu), a noite 16 como epílogo jogável fora das 15 (`GameContent.epilogue`, a carta do supervisor no
+    fracasso), as ligações do roteiro depois das 23:40 (`Main._story_late`). Na presa, a cúpula liga à meia-noite e,
+    no lugar do relatório, a cena `Arrest`: o homem de sobretudo fuma embaixo do poste, pisa no cigarro e atravessa.
+    "Para o final “presa” seria interessante uma viatura parar em frente ao prédio, do lado de cá e descer dois
+    policiais": a viatura para na mão de cá, em frente ao prédio, com a sirene girando; os dois descem pelo lado da rua
+    (o do banco de trás e o motorista: o lado de cá dela fica embaixo do peitoril), dão a volta pela traseira e somem
+    atrás do arbusto, e o homem vai atrás deles.
+    Respostas do passo 9: Miguel e Generosa ficam para depois; o Otávio do epílogo é o Otávio Almeida (251); a mãe
+    da Cecília liga no epílogo em todos os finais, com a conversa de cada um: no fracasso, "muito triste por Maria não
+    ter colaborado e a morte da filha foi em vão"; no sucesso, "o quanto ela admira Maria e está orgulhosa dela, que o
+    pai estaria feliz (pense em uma conversa mais emocionante)"; na amarga, agradece sem saber o preço. A presa
+    (sugestão aceita a pedido, "o que você sugere?"): o golpe falhou e ela cortou mais pedidos das autoridades nas
+    noites 14 e 15 do que atendeu. "Não tem relatório, já falei isso. Após o epílogo seriam os créditos": o fim do
+    jogo (epílogo ou presa) não mostra relatório, e depois do fecho vêm os créditos. As conversas do roteiro entram no
+    caderno como ligação comum ("não tem motivo de criar um tipo novo").

@@ -1,0 +1,169 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_call"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_00"]
+script = ExtResource("2_step")
+text = "Boa noite. Desculpe a hora. Quem atende aí... é quem trabalhava com a Cecília?"
+
+[sub_resource type="Resource" id="Step_01"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Sou eu. Ela me ensinou tudo.", "Sim. Quem fala?")
+
+[sub_resource type="Resource" id="Step_02"]
+script = ExtResource("2_step")
+text = "Aqui é a mãe dela."
+
+[sub_resource type="Resource" id="Step_03"]
+script = ExtResource("2_step")
+text = "Passei o dia inteiro na janela. Vi a bandeira, vi o povo cantando na rua. E só conseguia pensar nela."
+requires = PackedStringArray("final_sucesso")
+
+[sub_resource type="Resource" id="Step_04"]
+script = ExtResource("2_step")
+text = "Ela vinha jantar aos domingos e só falava da central. Dizia: \"Mãe, a mesa ficou em boas mãos.\""
+requires = PackedStringArray("final_sucesso")
+
+[sub_resource type="Resource" id="Step_05"]
+script = ExtResource("2_step")
+text = "Ontem bateu aqui um rapaz. Me contou o que você fez. Cada ligação, cada fita."
+requires = PackedStringArray("final_sucesso")
+
+[sub_resource type="Resource" id="Step_06"]
+script = ExtResource("2_step")
+kind = 2
+seconds = 2.0
+requires = PackedStringArray("final_sucesso")
+
+[sub_resource type="Resource" id="Step_07"]
+script = ExtResource("2_step")
+text = "Ela não morreu à toa, Maria. Você não deixou."
+requires = PackedStringArray("final_sucesso")
+
+[sub_resource type="Resource" id="Step_08"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Eu fiz por ela.", "[Ficar em silêncio]")
+requires = PackedStringArray("final_sucesso")
+
+[sub_resource type="Resource" id="Step_09"]
+script = ExtResource("2_step")
+text = "Eu conheci o seu pai, sabia? O Cristóvão. Ele ia estar tão feliz hoje."
+requires = PackedStringArray("final_sucesso")
+
+[sub_resource type="Resource" id="Step_10"]
+script = ExtResource("2_step")
+text = "Eu tenho tanto orgulho de você. Como se fosse da minha casa."
+requires = PackedStringArray("final_sucesso")
+
+[sub_resource type="Resource" id="Step_11"]
+script = ExtResource("2_step")
+text = "Venha tomar um café comigo um dia. Guardei o casaco que ela usava aí na central. Acho que ela ia querer que ficasse com você."
+requires = PackedStringArray("final_sucesso")
+
+[sub_resource type="Resource" id="Step_12"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Eu vou.", "Obrigada. Por tudo.")
+requires = PackedStringArray("final_sucesso")
+
+[sub_resource type="Resource" id="Step_13"]
+script = ExtResource("2_step")
+text = "Boa noite. Cuide bem da mesa dela."
+requires = PackedStringArray("final_sucesso")
+
+[sub_resource type="Resource" id="Step_14"]
+script = ExtResource("2_step")
+text = "Hoje cedo vi a bandeira na varanda e chorei feito criança."
+requires = PackedStringArray("final_amarga")
+
+[sub_resource type="Resource" id="Step_15"]
+script = ExtResource("2_step")
+text = "Me disseram que ela ajudou a cidade. E que quem estava na central ajudou também."
+requires = PackedStringArray("final_amarga")
+
+[sub_resource type="Resource" id="Step_16"]
+script = ExtResource("2_step")
+text = "O jornal trouxe os nomes de quem não voltou. Tanto nome... Mas ganhamos, não é? Ganhamos."
+requires = PackedStringArray("final_amarga")
+
+[sub_resource type="Resource" id="Step_17"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Ganhamos.", "[Ficar em silêncio]")
+requires = PackedStringArray("final_amarga")
+
+[sub_resource type="Resource" id="Step_18"]
+script = ExtResource("2_step")
+text = "Obrigada pelo que você fez por ela. Ela confiava em você."
+requires = PackedStringArray("final_amarga")
+
+[sub_resource type="Resource" id="Step_19"]
+script = ExtResource("2_step")
+text = "Eu só queria ouvir alguém daí. Boa noite."
+requires = PackedStringArray("final_amarga")
+
+[sub_resource type="Resource" id="Step_20"]
+script = ExtResource("2_step")
+text = "Eu sei que essa linha é escutada. Não me importa mais."
+requires = PackedStringArray("final_fracasso")
+
+[sub_resource type="Resource" id="Step_21"]
+script = ExtResource("2_step")
+text = "Da última vez que veio em casa, ela me disse: \"Mãe, pode ficar tranquila. A mesa está em boas mãos.\""
+requires = PackedStringArray("final_fracasso")
+
+[sub_resource type="Resource" id="Step_22"]
+script = ExtResource("2_step")
+text = "Ela acreditou em você até o fim. Até quando vieram buscar ela."
+requires = PackedStringArray("final_fracasso")
+
+[sub_resource type="Resource" id="Step_23"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Eu sinto muito.", "Eu não podia...")
+requires = PackedStringArray("final_fracasso")
+
+[sub_resource type="Resource" id="Step_24"]
+script = ExtResource("2_step")
+text = "Sente. Eu também sinto. Toda noite, quando ponho a mesa e sobra um prato."
+requires = PackedStringArray("final_fracasso")
+
+[sub_resource type="Resource" id="Step_25"]
+script = ExtResource("2_step")
+kind = 2
+seconds = 2.0
+requires = PackedStringArray("final_fracasso")
+
+[sub_resource type="Resource" id="Step_26"]
+script = ExtResource("2_step")
+text = "Hoje passou um carro de som falando em paz e ordem. Os vizinhos fecharam as janelas. Ninguém diz o nome dela."
+requires = PackedStringArray("final_fracasso")
+
+[sub_resource type="Resource" id="Step_27"]
+script = ExtResource("2_step")
+text = "Ela morreu por nada. Por nada. E você aí, atendendo como se fosse uma noite qualquer."
+requires = PackedStringArray("final_fracasso")
+
+[sub_resource type="Resource" id="Step_28"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Me perdoe.", "[Ficar em silêncio]")
+requires = PackedStringArray("final_fracasso")
+
+[sub_resource type="Resource" id="Step_29"]
+script = ExtResource("2_step")
+text = "Não sou eu quem tem que perdoar. Boa noite."
+requires = PackedStringArray("final_fracasso")
+
+[sub_resource type="Resource" id="Step_30"]
+script = ExtResource("2_step")
+kind = 3
+
+[resource]
+script = ExtResource("1_call")
+voice = "w"
+caller = "Mãe de Cecília"
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09"), SubResource("Step_10"), SubResource("Step_11"), SubResource("Step_12"), SubResource("Step_13"), SubResource("Step_14"), SubResource("Step_15"), SubResource("Step_16"), SubResource("Step_17"), SubResource("Step_18"), SubResource("Step_19"), SubResource("Step_20"), SubResource("Step_21"), SubResource("Step_22"), SubResource("Step_23"), SubResource("Step_24"), SubResource("Step_25"), SubResource("Step_26"), SubResource("Step_27"), SubResource("Step_28"), SubResource("Step_29"), SubResource("Step_30")])

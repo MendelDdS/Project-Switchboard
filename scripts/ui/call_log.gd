@@ -71,8 +71,6 @@ func _render() -> void:
 					s += "[color=#5a4d3a]%s[/color]\n" % text
 				"op":
 					s += "[color=#3f6a2c]%s[/color]  %s\n" % [T.text(T.Key.YOU), text]
-				"ghost":
-					s += "[color=#6e1a12]—[/color]  %s\n" % text
 				_:
 					s += "[color=#6e1a12]%s[/color]  %s\n" % [tr(l["who"]), text]
 		s += "\n"

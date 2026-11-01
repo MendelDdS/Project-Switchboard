@@ -7,7 +7,7 @@ signal transcript_changed
 signal options_changed
 signal state_changed
 
-enum Kind { TRANSFER, EMERGENCY, PRANK, INFO, MYSTERY, OUTGOING }   ## OUTGOING: a que o operador faz pelo discador (`Dialing`)
+enum Kind { TRANSFER, EMERGENCY, PRANK, INFO, OUTGOING }   ## OUTGOING: a que o operador faz pelo discador (`Dialing`)
 
 ## Uma linha do caderno: o que se sabe da ligação quando ela termina (`Main._record`) e, depois de registrada, o tipo
 ## que o jogador carimbou.
@@ -41,7 +41,6 @@ enum End {
 	MISSED,     ## ninguém atendeu e a pessoa desistiu
 	GAVE_UP,    ## ficou em espera tempo demais e desligou
 	CONNECTED,  ## transferência completa; segue conectada sem o operador
-	MYSTERY,    ## a ligação desconhecida caiu
 	SHIFT_OVER, ## o operador encerrou o turno com ela na linha ou tocando
 }
 ## Por que a pessoa está ligando de novo (liga de novo no máximo uma vez por motivo).
@@ -57,7 +56,7 @@ enum Retry {
 const AWAY_CHANCE := 0.5    ## pedido com alternativa: chance de o destino pedido não atender
 
 var kind := Kind.TRANSFER
-var data: Resource          ## roteiro (TransferCall, EmergencyCall ou PrankCall); nulo para informação e ligação desconhecida;
+var data: Resource          ## roteiro (TransferCall, EmergencyCall ou PrankCall); nulo para informação;
                             ## na feita pelo operador, o lugar chamado (DirectoryEntry) ou a do roteiro (`DialCall`)
 var voice := "m"
 var caller := ""
@@ -68,7 +67,7 @@ var story := false          ## ligação do roteiro da noite (horário fixo; agu
 var requires := PackedStringArray()   ## marcadores que precisam bater na hora de tocar (StoryFlags.allows)
 var beat: StoryCall         ## o trecho do roteiro desta ligação (desfecho, `Main._story_outcome`; autoridade); passa para o retorno dela
 var at := 0.0               ## minuto previsto (depois do início do turno)
-var latest := INF           ## roteiro, ligação desconhecida e retornos: a partir daqui toca mesmo com a mesa ocupada
+var latest := INF           ## roteiro e retornos: a partir daqui toca mesmo com a mesa ocupada
 var retry := Retry.NONE
 var retried: Array[Retry] = []   ## motivos pelos quais esta pessoa já ligou de novo
 var too_late := false       ## emergência que liga de novo: já não adianta despachar
@@ -90,7 +89,7 @@ var chatting := false       ## um assunto em andamento (sendo contado ou esperan
 var chat_asked := false     ## o operador já puxou conversa (só uma vez por ligação)
 var chats: Array[ChatTopic] = []   ## assuntos já puxados nesta ligação (não se repetem)
 var hold_since := 0.0       ## minuto em que ficou em espera
-var transcript: Array[Dictionary] = []   ## {"who", "text", "cls", "marks"}; cls: "" / "op" / "sys" / "ghost"; marks: trechos sublinhados
+var transcript: Array[Dictionary] = []   ## {"who", "text", "cls", "marks"}; cls: "" / "op" / "sys"; marks: trechos sublinhados
 var options: Array[Dictionary] = []      ## {"label": String, "fn": Callable}
 var record: Record                       ## linha do caderno gerada quando a ligação termina (nula antes)
 var meta := {}              ## o que as burocracias guardam desta ligação (`BureaucracyRule`), cada uma nas chaves dela
@@ -173,14 +172,6 @@ static func info(voice_id: String, who: String, question: String, spoken: String
 	c.ask = question
 	c.about = spoken
 	c.answer = number
-	return c
-
-
-static func mystery() -> PhoneCall:
-	var c := PhoneCall.new()
-	c.kind = Kind.MYSTERY
-	c.voice = "g"
-	c.caller = "—"
 	return c
 
 

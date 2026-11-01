@@ -3182,7 +3182,7 @@ msgstr ""
 msgid "Ah, está funcionando, sim. Estou ouvindo bem."
 msgstr ""
 
-#: data/directory/367_celia_rocha.tres
+#: data/directory/367_celia_rocha.tres data/nights/night_04.tres
 msgid "Desculpe, foi engano."
 msgstr ""
 
@@ -3582,7 +3582,7 @@ msgstr ""
 msgid "Boa noite. O último ônibus sai às onze e eu não posso perder."
 msgstr ""
 
-#: data/directory/176_ponto_de_taxi_da_rodoviaria.tres data/nights/night_01.tres
+#: data/directory/176_ponto_de_taxi_da_rodoviaria.tres
 msgid "Onde você está?"
 msgstr ""
 
@@ -4354,46 +4354,6 @@ msgstr ""
 msgid "Ah... tá bom, então."
 msgstr ""
 
-#: data/nights/night_01.tres
-msgid "...alô?"
-msgstr ""
-
-#: data/nights/night_01.tres
-msgid "Central telefônica. Qual número você está tentando chamar?"
-msgstr ""
-
-#: data/nights/night_01.tres
-msgid "Eu não sei."
-msgstr ""
-
-#: data/nights/night_01.tres
-msgid "Qual é o seu nome?"
-msgstr ""
-
-#: data/nights/night_01.tres
-msgid "Eu estou tentando descobrir."
-msgstr ""
-
-#: data/nights/night_01.tres
-msgid "Você consegue me dizer alguma rua?"
-msgstr ""
-
-#: data/nights/night_01.tres
-msgid "Tem uma luz."
-msgstr ""
-
-#: data/nights/night_01.tres
-msgid "Que luz?"
-msgstr ""
-
-#: data/nights/night_01.tres
-msgid "A luz da sua mesa."
-msgstr ""
-
-#: data/nights/night_01.tres
-msgid "Ela sempre fica acesa?"
-msgstr ""
-
 #: data/nights/night_02.tres
 msgid "O supervisor deixou um recado: \"Ontem a linha ficou com chiado depois das dez. A companhia vai olhar. Se acontecer de novo, anote na ficha.\""
 msgstr ""
@@ -4462,44 +4422,28 @@ msgstr ""
 msgid "...Pois é."
 msgstr ""
 
-#: data/nights/night_02.tres
-msgid "...você ainda está aí?"
-msgstr ""
-
-#: data/nights/night_02.tres
-msgid "Central telefônica. Quem fala?"
-msgstr ""
-
-#: data/nights/night_02.tres
-msgid "Ontem você não me respondeu."
-msgstr ""
-
-#: data/nights/night_02.tres
-msgid "Respondi o quê?"
-msgstr ""
-
-#: data/nights/night_02.tres
-msgid "Se ela sempre fica acesa."
-msgstr ""
-
-#: data/nights/night_02.tres
-msgid "Fica. A noite toda."
-msgstr ""
-
-#: data/nights/night_02.tres
-msgid "Então é por isso que eu consigo te ver."
-msgstr ""
-
-#: data/nights/night_02.tres
-msgid "Não apaga, tá?"
-msgstr ""
-
 #: data/nights/night_03.tres
 msgid "O supervisor deixou um recado: \"Boa semana até aqui. Continue registrando tudo na ficha.\""
 msgstr ""
 
 #: data/nights/night_04.tres
 msgid "O supervisor deixou um recado: \"O fim de semana vem aí e o movimento costuma crescer. Não deixe ninguém esperando.\""
+msgstr ""
+
+#: data/nights/night_04.tres
+msgid "Hotel, boa noite. Pois não?"
+msgstr ""
+
+#: data/nights/night_04.tres
+msgid "A semente brotou."
+msgstr ""
+
+#: data/nights/night_04.tres
+msgid "...Entendido. Boa noite, telefonista."
+msgstr ""
+
+#: data/nights/night_04.tres
+msgid "Não foi nada. Boa noite."
 msgstr ""
 
 #: data/nights/night_05.tres
@@ -4511,7 +4455,7 @@ msgid "O supervisor deixou um recado: \"Sábado o Centro tem baile e a praça ch
 msgstr ""
 
 #: data/nights/night_07.tres
-msgid "O supervisor deixou um recado: \"Domingo é mais calmo. Aproveite para conferir a lista antes de conectar: são mais números agora.\""
+msgid "O supervisor deixou um recado: \"Instalaram um gravador na sua mesa, a pedido das autoridades. A linha do bar foi liberada, e elas querem gravado tudo o que for para lá. Em noite com ligação para o bar, entregue às autoridades pelo menos uma fita, mesmo que a conversa não tenha nada: grave assim mesmo, para não ter reclamação. E daqui em diante, o que as autoridades pedirem, atenda, mesmo contra as regras: não vai haver advertência.\""
 msgstr ""
 
 #: data/nights/night_08.tres
@@ -4552,6 +4496,50 @@ msgstr ""
 
 #: data/nights/night_15.tres
 msgid "O supervisor deixou um recado: \"Última noite do período. O relatório de hoje vai para a diretoria.\""
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "Às seis, quando a rendição chega, Sebastião está esperando na calçada da frente, embaixo da bandeira. Ele tira o chapéu, como o pai dele fazia nas reuniões, e diz que Cristóvão teria orgulho.\n\nOs jornais da tarde vão chamar Maria de heroína. Ali na calçada, ele só aperta a mão dela e demora a soltar."
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "Amanhece"
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "O turno não termina. Ninguém sai da central naquela noite."
+msgstr ""
+
+#: data/calls/story_15_cupula_presa.tres data/calls/story_16_cupula.tres
+msgid "Alta Cúpula"
+msgstr ""
+
+#: data/calls/story_15_cupula_presa.tres
+msgid "Central 3. Aqui fala a Alta Cúpula."
+msgstr ""
+
+#: data/calls/story_15_cupula_presa.tres
+msgid "Temos as gravações desta mesa. Da noite sete em diante."
+msgstr ""
+
+#: data/calls/story_15_cupula_presa.tres
+msgid "Inclusive das ligações que foram derrubadas daí, nas duas últimas noites."
+msgstr ""
+
+#: data/calls/story_15_cupula_presa.tres
+msgid "Eu só cumpri o meu turno."
+msgstr ""
+
+#: data/calls/story_15_cupula_presa.tres data/calls/story_16_mae_cecilia.tres data/calls/story_16_cupula.tres
+msgid "[Ficar em silêncio]"
+msgstr ""
+
+#: data/calls/story_15_cupula_presa.tres
+msgid "Permaneça no posto. Ninguém sai da central esta noite."
+msgstr ""
+
+#: data/calls/story_15_cupula_presa.tres
+msgid "Já tem gente nossa a caminho."
 msgstr ""
 
 #: data/nights/night_00.tres
@@ -5024,6 +5012,226 @@ msgstr ""
 
 #: data/nights/night_00.tres
 msgid "Boa noite, e boa sorte!"
+msgstr ""
+
+#: data/nights/night_16.tres
+msgid "O supervisor deixou um recado: \"Escala normal. Nenhuma ocorrência a registrar.\""
+msgstr ""
+
+#: data/nights/night_16.tres
+msgid "Não há recado do supervisor. Na mesa, um bilhete da companhia, sem assinatura: \"A central segue funcionando. Atenda como sempre.\""
+msgstr ""
+
+#: data/nights/night_16.tres
+msgid "À operadora do turno da noite,\n\nEm nome da diretoria, parabenizo pela conduta exemplar durante os acontecimentos da última noite. A central de São Sotero manteve as comunicações das autoridades quando mais se precisou delas. Esse serviço não será esquecido.\n\nAtenciosamente,\nO Supervisor"
+msgstr ""
+
+#: data/nights/night_16.tres
+msgid "Maria atende até o fim do turno. Nenhuma linha pede socorro. Lá fora, a bandeira continua na varanda."
+msgstr ""
+
+#: data/nights/night_16.tres
+msgid "Maria atende até o fim do turno. Sebastião não liga. No jornal, a vitória ocupa a primeira página; os nomes dos que não voltaram, a segunda inteira."
+msgstr ""
+
+#: data/nights/night_16.tres
+msgid "Na semana seguinte, Maria recebe a medalha de uniforme. A central de São Sotero continua funcionando, como sempre."
+msgstr ""
+
+#: data/calls/story_16_sebastiao.tres
+msgid "Sebastião Falcão"
+msgstr ""
+
+#: data/calls/story_16_sebastiao.tres
+msgid "Central 3? Sou eu. Sebastião."
+msgstr ""
+
+#: data/calls/story_16_sebastiao.tres
+msgid "Não é nada urgente. Pela primeira vez, não é nada urgente."
+msgstr ""
+
+#: data/calls/story_16_sebastiao.tres
+msgid "Que bom ouvir sua voz."
+msgstr ""
+
+#: data/calls/story_16_sebastiao.tres
+msgid "Está tudo bem aí?"
+msgstr ""
+
+#: data/calls/story_16_sebastiao.tres
+msgid "Está. A rádio toca o que quer desde cedo. Tem gente na praça que não dormiu."
+msgstr ""
+
+#: data/calls/story_16_sebastiao.tres
+msgid "Liguei só pra dizer que hoje a noite é sua. Atenda as ligações, como sempre."
+msgstr ""
+
+#: data/calls/story_16_sebastiao.tres
+msgid "Seu pai ia gostar de ver."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Mãe de Cecília"
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Boa noite. Desculpe a hora. Quem atende aí... é quem trabalhava com a Cecília?"
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Sou eu. Ela me ensinou tudo."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Sim. Quem fala?"
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Aqui é a mãe dela."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Passei o dia inteiro na janela. Vi a bandeira, vi o povo cantando na rua. E só conseguia pensar nela."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Ela vinha jantar aos domingos e só falava da central. Dizia: \"Mãe, a mesa ficou em boas mãos.\""
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Ontem bateu aqui um rapaz. Me contou o que você fez. Cada ligação, cada fita."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Ela não morreu à toa, Maria. Você não deixou."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Eu fiz por ela."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Eu conheci o seu pai, sabia? O Cristóvão. Ele ia estar tão feliz hoje."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Eu tenho tanto orgulho de você. Como se fosse da minha casa."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Venha tomar um café comigo um dia. Guardei o casaco que ela usava aí na central. Acho que ela ia querer que ficasse com você."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Eu vou."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Obrigada. Por tudo."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Boa noite. Cuide bem da mesa dela."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Hoje cedo vi a bandeira na varanda e chorei feito criança."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Me disseram que ela ajudou a cidade. E que quem estava na central ajudou também."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "O jornal trouxe os nomes de quem não voltou. Tanto nome... Mas ganhamos, não é? Ganhamos."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Ganhamos."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Obrigada pelo que você fez por ela. Ela confiava em você."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Eu só queria ouvir alguém daí. Boa noite."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Eu sei que essa linha é escutada. Não me importa mais."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Da última vez que veio em casa, ela me disse: \"Mãe, pode ficar tranquila. A mesa está em boas mãos.\""
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Ela acreditou em você até o fim. Até quando vieram buscar ela."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Eu sinto muito."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Eu não podia..."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Sente. Eu também sinto. Toda noite, quando ponho a mesa e sobra um prato."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Hoje passou um carro de som falando em paz e ordem. Os vizinhos fecharam as janelas. Ninguém diz o nome dela."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Ela morreu por nada. Por nada. E você aí, atendendo como se fosse uma noite qualquer."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Me perdoe."
+msgstr ""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Não sou eu quem tem que perdoar. Boa noite."
+msgstr ""
+
+#: data/calls/story_16_cupula.tres
+msgid "Central 3, aqui fala a Alta Cúpula."
+msgstr ""
+
+#: data/calls/story_16_cupula.tres
+msgid "A diretoria encaminhou o relatório de ontem. A colaboração desta mesa foi decisiva para conter os insurgentes."
+msgstr ""
+
+#: data/calls/story_16_cupula.tres
+msgid "Na semana que vem haverá uma condecoração. Compareça de uniforme."
+msgstr ""
+
+#: data/calls/story_16_cupula.tres
+msgid "Sim, senhor."
+msgstr ""
+
+#: data/calls/story_16_cupula.tres
+msgid "É só isso. Bom turno."
+msgstr ""
+
+#: data/nights/night_16.tres
+msgid "São Sotero amanhece livre: a emissora e a rádio nas mãos do povo; a praça cheia desde cedo"
+msgstr ""
+
+#: data/nights/night_16.tres
+msgid "A vitória custou caro: a lista dos que não voltaram ocupa a página inteira"
+msgstr ""
+
+#: data/nights/night_16.tres
+msgid "São Sotero amanhece livre: a emissora e a rádio nas mãos do povo"
+msgstr ""
+
+#: data/nights/night_16.tres
+msgid "Insurgentes contidos na madrugada: a ordem segue garantida em São Sotero"
 msgstr ""
 
 #: data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres

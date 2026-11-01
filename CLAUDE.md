@@ -2,7 +2,7 @@
 
 Jogo em Godot 4.6 (GDScript, renderer GL Compatibility), a caminho da versão definitiva. O jogador é o operador
 noturno da central telefônica de São Sotero (18:00–00:00; a última noite vai até as 6h): atende e transfere ligações
-numa mesa comutadora com cabos físicos; ao fundo, uma ligação misteriosa de número desconhecido (terror leve).
+numa mesa comutadora com cabos físicos; a história é o roteiro de Maria (`PLANO_ROTEIRO.md`).
 
 Este arquivo é o **mapa e as regras**. O resto:
 - `README.md`: o jogo para quem joga ou edita conteúdo (regras, tabelas de advertências, conceito do turno).
@@ -155,10 +155,10 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 - **Discador** (`Dialing`, nó do Main; `PhoneCall.Kind.OUTGOING`, `Conversation._outgoing`): o operador liga pelo
   próprio fone (sem o FONE); na prateleira (`Dialer`, `dialer.gd`) e de perto num pop-up em cima dele (`DialView`), só clique.
   Enquanto dura, é o foco (a linha do FONE em HOLD) e a do lugar fica ocupada (`Exchange`, `seized`); fora do caderno. Atende a do
-  roteiro (`DialCall`, `Night.dial`/`GameContent.dial`, passos de `PrankStep`) ou o atendimento do lugar
+  roteiro (`DialCall`, `Night.dial`/`GameContent.dial`, passos de `PrankStep`; a senha do Dia 4 ao hotel 305, das 20:30 às 21h) ou o atendimento do lugar
   (`DirectoryEntry.answers`, `ChatTopic`, `closes`; só Vila Serena por ora; palavras-chave nas respostas, `Eavesdrop.note`). Marcador `ligou_<número>_<noite>`. `PLANO_DISCADOR.md`.
 - Fim de ligação: `end_call(c, PhoneCall.End.*)` → `c.record` → `Notebook.add()`; o caderno registra com um clique no
-  tipo (`register(T.Key.TYPE_*)`).
+  tipo (`register(T.Key.TYPE_*)`). A conversa do roteiro (`PrankCall` com `beat`) é ligação comum no caderno.
 - **Despacho** (`Dispatch`, `CityMap`, `CardMachines`, `PunchCard`): marcar o trecho no mapa imprime o cartão (dois cliques: o primeiro só datilografa, `CardMachines.draft`; o anel da moldura aproxima, `_knob`);
   perfurar tipo e unidades; levar ao transmissor (envia) ou à trituradora; um cartão por vez. Regras das viaturas no
   `Fleet` (`scripts/model/fleet.gd`: `send` → `arrive` → `leave` → `home`, `Fleet.Result`). Cidade em folhas
@@ -172,11 +172,15 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   `LOW_LIMIT`, `fired()`). Mudou um peso: recalibre com várias sementes (`tools/calibrar.sh [tabela anterior]`, ~4 min;
   `PLANO_EFICIENCIA.md`, seção 6).
 - O Main chama `supervisor.fault()` onde a falha acontece; `Supervisor.call_ended()` decide advertência e retorno
-  (`call_again`, uma vez por motivo). Treinamento, trotes e a desconhecida não geram advertência.
+  (`call_again`, uma vez por motivo). Treinamento e trotes não geram advertência.
 - **Barra de agravamento** (`Urgency`, `PhoneCall.stage`): corre desde o atendimento, para em pergunta e resposta, com máquina do despacho trabalhando (`CardMachines.working`) e de
   vez com o socorro completo no lugar certo; cada estágio exige mais unidades (`Fleet.require`). Até duas emergências
   ao mesmo tempo (`Main.MAX_EMERGENCIES`); viatura de reserva só com duas (`Fleet.spare`).
-- Fim do turno: `Main.start_ending` → `Supervisor.shift_over` → `Ending.play(report)` → `ReportView`.
+- Fim do turno: `Main.start_ending` → `Supervisor.shift_over` → `Ending.play(report, more, text, memo)` → `ReportView`.
+  **Finais** (`Rebellion.final`, à meia-noite da 15, `final_*`): sucesso, vitória amarga, fracasso, presa (o golpe
+  falhou e ela cortou mais pedidos das autoridades do que atendeu; a cena `Arrest` na rua e o fim); texto do fim por
+  final em `Night.endings`. O fim do jogo (epílogo ou presa) não tem relatório: o fecho, "Fim", os créditos e o menu.
+  **Epílogo**: a noite 16, `GameContent.epilogue`, fora de `nights` (a "última noite" continua a 15).
 - **Broches** (recompensas, `scripts/model/badges.gd`, `Badges.award` no fim da noite; `Progress.badges`/`tally`, somem
   com o save): numa almofada na prateleira da mesa (`scripts/ui/badges.gd`, `%Badges`, filho do `Board`; o mouse que
   não pega broche segue para a mesa). Broche novo: id em `Badges.ALL`, cores em `Pal.BADGE_ENAMEL`, desenho em `ICONS`.
@@ -189,14 +193,14 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   `from_night`/`to_night`: B1 da 3, B2 o bar 327 na 5 e na 6, B4 da 7; B3 da 10 na delegacia 184, no Hospital São Lucas 213 e na Alta Cúpula 296, o código no bilhete); chave geral
   `Bureaucracy.enabled` ligada no jogo (o debug e os testes desligam; regra que passa a valer no meio do turno começa
   na hora, `sync`). Pedido das autoridades (`StoryCall.authority`) passa sem advertência; na última noite nenhuma
-  advertência conta (`Supervisor.fault`). Serviços: `codes`, `messages`, `agreements`, `tapes`. A ativação vai para o save (`state`, `_restore`). Equipamentos da mesa:
+  advertência conta (`Supervisor.fault`). Serviços: `codes`, `messages`, `agreements`, `tapes` (a fita da mesa vai a Sebastião, só na noite em que ele pediu, `Tapes.ASKED`, ou às autoridades, `Tapes.give`; a conversa das próprias autoridades entregue a elas é gravíssima; o turno espera as sem destino, `Main._tapes_open`; noite com ligação para o bar sem fita às autoridades, advertência leve, `bar_number`). A ativação vai para o save (`state`, `_restore`). Equipamentos da mesa:
   `unlock_equipment` (marcador `equipamento_<id>`), cena `scenes/ui/equipment/<id>.tscn` na prateleira embaixo do
   Interurbano (`Switchboard.set_equipment`, `bay_rect`) ou, com `metadata/side`, na coluna à direita do painel
   (`side_rect`; os da B4). Como criar uma: `BUREAUCRACY_RULES.md`; aba Burocracias no F1.
 
 ## Noites, setores e agenda
 - 15 noites (`GameContent.nights`, `Night`, `data/nights/`); a noite 0 é o treinamento (`Training`, `LessonStep`, a
-  Cecília). Só `story` e `mystery` são fixos. As noites 3–15 ainda são genéricas.
+  Cecília). Só `story` é fixo (a ligação desconhecida saiu). As noites 3–15 ainda são genéricas.
 - Setores: o primeiro dígito do número (3 Vila Serena, 1 Centro, 2 Alto da Serra); o operador recebe o 1 na noite 5 e
   o 2 na 9 (`GameData.SECTOR_NIGHTS`; `GameData.sectors` definido em `Main._load_night`). Testes de cenário usam
   `load_main([1, 2, 3])`.
@@ -205,14 +209,15 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   `Background.schedule`). A 3: o policial (`scripts/ui/beating.gd`); a 7: a viatura estacionada no hotel (`PATROL_*`);
   a 9: o vigia no terraço (`LOOKOUT_*`); 9 a 14: o toque de recolher às 21h, `CURFEW_*`, `_hurry`; 4 a 12: pichação,
   carro de som, panfletos, tinta, corrida, desfile e banca; 13: a batida no hotel às 21h, só com uma fita do hotel na polícia (`Raid`: camburão, viatura,
-  cinco presos); 14: a fuga da família às 20h (`Moving`) e a pedra que trinca a janela às 23h, só sem chances altas (`Stone`, camada
+  cinco presos); 13 e 14: o homem de sobretudo embaixo do poste das 22h às 22h50 (`stranger`); 14: a fuga da família às 20h (`Moving`) e a pedra que trinca a janela às 23h, só sem chances altas (`Stone`, camada
   `_crack` na vista, o trincado fica para a 15); cena com `StreetEvent.requires` conferida na hora (`Main._street_check`,
   liga `rua_<kind>_<noite>`); 15: o
-  sinalizador vermelho às 21h (`Flare`, camada `_flare` entre o céu e a cidade); um script por cena em
+  sinalizador vermelho às 21h (`Flare`, camada `_flare` entre o céu e a cidade) e a bandeira na varanda à meia-noite, só
+  com `golpe_venceu` (`Banner`; o `_midnight` roda antes do `_street_check`); um script por cena em
   `scripts/ui/`, relógio `_scene_t`; pichação, tinta, banca e o apartamento vazio ficam nas noites seguintes, `left_behind`). Regra de qualidade: `PLANO_RUA.md`.
 - Marcadores do roteiro: `StoryFlags` (`flags.allows(requires)`, `flags.apply("nome" | "!nome")`), salvos no `Progress`.
   O desfecho de uma ligação do roteiro liga os dela (`StoryCall.if_connected`/`if_elsewhere`/`if_dropped`/`if_missed`,
-  `Main._story_outcome`; `again` desligado: sem retorno automático; `if_delivered`, a fita entregue). O roteiro de Maria:
+  `Main._story_outcome`; a conectada só no fim da conversa, cortada antes vale `if_dropped`, `_story_talk_over`; `again` desligado: sem retorno automático; `if_delivered`, a fita entregue). O roteiro de Maria:
   `PLANO_ROTEIRO.md`. **Fator sucesso** (`scripts/model/rebellion.gd`, só dos marcadores e da noite; `test_story`): TV,
   rádio, pontos, nível (`chance_alta/media/baixa`, ligados por `Rebellion.sync`); à meia-noite da 15, `golpe_venceu` ou
   `golpe_falhou` (o turno acaba ali, `Main._midnight`). Bilhete e jornal com versões por marcador (`Night.notes`,
@@ -222,9 +227,8 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 - `Progress` (`user://progress.cfg`): próxima noite, ritmo, `low_nights`, marcadores, jornal, palavras-chave,
   denúncias, chuvas. A última noite ou a demissão limpa o save. Formato com versão (`Progress.VERSION`): mudou o tipo
   ou o sentido de um campo, suba e converta no `load_saved`; o que não dá para ler fica ao lado (`aside`).
-- Agenda (`Schedule`, constantes no topo de `main.gd` e `schedule.gd`): a desconhecida entre `mystery_from` e
-  `mystery_to`, com a mesa em silêncio; a ligação do roteiro espera a mesa em silêncio (`STORY_WAIT`); intervalo
-  `Pace.call_gap`; nada novo depois de `last_call` (23:40) e, depois, o botão Encerrar turno; `GIVE_UP_SEC` 60 s;
+- Agenda (`Schedule`, constantes no topo de `main.gd` e `schedule.gd`): a ligação do roteiro espera a mesa em silêncio (`STORY_WAIT`); intervalo
+  `Pace.call_gap`; nada novo depois de `last_call` (23:40; a do roteiro marcada depois toca, `_story_late`) e, depois, o botão Encerrar turno; `GIVE_UP_SEC` 60 s;
   conversa fiada (`ChatTopic`, `Conversation.smalltalk`) só do cotidiano. Relógio: 0,75 min de jogo por segundo.
 - O amanhecer da noite 15 (céu, sol atrás da igreja, luz do dia na sala): `scripts/ui/CLAUDE.md` e
   `docs/mapa-detalhado.md`.

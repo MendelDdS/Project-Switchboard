@@ -15,7 +15,7 @@ extends Resource
 ## Quem atende: o nome na conversa e a voz (`SfxSynth.VOICE`). Vazios: os do lugar na lista.
 @export var caller := ""
 @export_enum("Do lugar:", "f", "m", "k", "w") var voice := ""
-## O roteiro falado, no formato dos trotes e da desconhecida (CALLER, OPERATOR com `sets`, PAUSE, END, EFFECT).
+## O roteiro falado, no formato dos trotes (CALLER, OPERATOR com `sets`, PAUSE, END, EFFECT).
 @export var steps: Array[PrankStep] = []
 ## Marcadores ligados ("nome") ou desligados ("!nome") quando a conversa vai até o fim.
 @export var sets: PackedStringArray = []

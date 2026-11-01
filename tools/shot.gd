@@ -25,7 +25,8 @@ extends Node
 ##                          --tapefly=in|deliver|back,0.2: a fita voando, parada nesse instante do voo (a do meio subindo
 ##                          do compartimento e entrando, indo para a mesa ou, virgem, voltando ao compartimento);
 ##                          --tapehover=1|deck: o mouse na fita 1 do compartimento ou na do gravador; --delivered=3: tantas tiradas, empilhadas na mesa ao lado do
-##                          bloco de fichas; --pile: com elas, a pilha aberta de perto, com o Descartar)
+##                          bloco de fichas; --pile: com elas, a pilha aberta de perto, com os botões; --parcels: as de
+##                          baixo embrulhadas, alternando o pacote de Sebastião e o das autoridades)
 ##   --plugin=4,18          o FONE encaixando na tomada dada (4: a entrada da linha 4), uma captura por quadro (18), em
 ##                          <out>_00.png... (rode com --fixed-fps 60)
 ##   --patch=312,4          um cabo de conexão da saída da linha 4 (o padrão) ao destino dado, conectado (o aro aceso)
@@ -60,6 +61,8 @@ extends Node
 ##   --flare=10,2,12        o sinalizador da noite 15 (`Flare`) nesse instante (s desde o tiro); em sequência como o --beating
 ##   --raid=50,2,12         a batida no hotel da noite 13 (`Raid`), com o camburão e a viatura, nesse instante (s desde que o
 ##                          camburão aparece); em sequência como o --beating
+##   --arrest=6,0.5,30      o fim da presa (`Arrest`: o homem de sobretudo atravessando a rua) nesse instante (s desde que ele
+##                          aparece); em sequência como o --beating
 ##   --lookout=12           o vigia no terraço do hotel da noite 9 (`LOOKOUT_*`) nesse instante; em sequência como o --beating
 ##   --curfew=0,1,24        o toque de recolher (`CURFEW_*`) desde que a viatura aparece, com gente na calçada: de 0 s em diante, de 1 em 1 s,
 ##                          24 capturas (o tempo corre de verdade entre elas, sem --still)
@@ -188,6 +191,8 @@ func _ready() -> void:
 			if named:
 				t.words.append_array(["um", "dois"])
 			t.fate = t.Fate.ON_DESK
+			if _args.has("parcels") and (not named or _args["parcels"] == "all"):   # (--parcels: as de baixo embrulhadas, alternando a de Sebastião e a das autoridades; =all, todas)
+				t.to = 1 + i % 2
 			m.bureaucracy.tapes.done.append(t)
 		if _args.has("tapefly"):   # o voo parado num instante (o gravador para de andar)
 			var fly: PackedStringArray = _args["tapefly"].split(",")
@@ -213,7 +218,10 @@ func _ready() -> void:
 				m.bureaucracy.tapes.eject()
 				rec._had_tape = false
 				rec._start_out()
-			m.background.tapes_out = m.bureaucracy.tapes.on_desk().size() - (1 if fly[0] == "deliver" else 0)   # (a que voa, não)
+			var kinds := m.bureaucracy.tapes.on_desk().map(func(t): return t.to)
+			if fly[0] == "deliver":   # (a que voa, não)
+				kinds.pop_back()
+			m.background.tapes_out = kinds
 			rec._step_fly(t)
 			rec.set_process(false)
 			rec.queue_redraw()
@@ -438,7 +446,7 @@ func _ready() -> void:
 			if _args.has("smoke"):
 				bg._smoke_t = 10.5 if _args["smoke"] == "1" else float(_args["smoke"])
 			await get_tree().process_frame
-	for scene: Array in [["beating", "_beat_t"], ["lookout", "_look_t"], ["chase", "chase"], ["flyers", "flyers"], ["graffiti", "graffiti"], ["paint", "paint"], ["newsstand", "newsstand"], ["flare", "flare"], ["raid", "raid"]]:   # posto de novo a cada quadro (o cenário o avança sozinho)
+	for scene: Array in [["beating", "_beat_t"], ["lookout", "_look_t"], ["chase", "chase"], ["flyers", "flyers"], ["graffiti", "graffiti"], ["paint", "paint"], ["newsstand", "newsstand"], ["flare", "flare"], ["raid", "raid"], ["arrest", "arrest"]]:   # posto de novo a cada quadro (o cenário o avança sozinho)
 		if not _args.has(scene[0]):
 			continue
 		var bt := (_args[scene[0]] as String).split_floats(",")
@@ -450,7 +458,7 @@ func _ready() -> void:
 		var n := int(bt[2]) if bt.size() > 2 else 1
 		for i in n:
 			for f in 8:   # (a vista se desenha a 30 por segundo, e a captura sai um quadro depois)
-				if scene[1] in ["chase", "flyers", "graffiti", "paint", "newsstand", "flare", "raid"]:   # (as cenas de `scene_at`: o relógio delas em `_scene_t`)
+				if scene[1] in ["chase", "flyers", "graffiti", "paint", "newsstand", "flare", "raid", "arrest"]:   # (as cenas de `scene_at`: o relógio delas em `_scene_t`)
 					bg._scene_t[scene[1]] = bt[0] + i * (bt[1] if n > 1 else 0.0)
 				if scene[0] == "raid":   # os dois carros, no mesmo relógio da cena
 					if not bg._cars.any(func(c: Dictionary) -> bool: return c.has("raid")):
@@ -460,6 +468,13 @@ func _ready() -> void:
 						bg._cars.append(bg._scene_car_of("raid", 0.0))
 					for c: Dictionary in bg._cars:
 						c["s"] = bg._scene_t["raid"] - (0.0 if c.has("raid_van") else Background.Raid.LATE)
+				elif scene[0] == "arrest":   # a viatura, no mesmo relógio
+					var at: float = bg._scene_t["arrest"] - Background.Arrest.CAR_AT
+					if at >= 0.0 and not bg._cars.any(func(c: Dictionary) -> bool: return c.has("arrest")):
+						bg._cars.clear()
+						bg._cars.append(bg._arrest_car())
+					for c: Dictionary in bg._cars:
+						c["s"] = at
 				else:
 					bg.set(scene[1], bt[0] + i * (bt[1] if n > 1 else 0.0))
 				await get_tree().process_frame

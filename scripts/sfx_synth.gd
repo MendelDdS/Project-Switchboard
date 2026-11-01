@@ -5,6 +5,7 @@ extends RefCounted
 ## iniciar, uma vez: as receitas em pedaços (`PARTS`), montados ao mesmo tempo nos núcleos do processador (~0,9 s num
 ## Mac recente um depois do outro).
 
+const BannerScene := preload("res://scripts/ui/banner.gd")
 const RATE := 22050
 # Vozes: cada vogal vira uma sílaba sintetizada (fonte glotal + formantes).
 # f0 = altura, breath = sopro, dur = duração da sílaba, bus = por onde toca, tract = o tamanho da boca (os formantes
@@ -690,6 +691,28 @@ func _build_outside() -> void:
 		t2 += 0.05
 	_w = _biquad(_w, "lp", 2800.0, 0.7)   # (longe e pelo vidro)
 	_end("flare")
+	_begin(0.5)   # a porta da varanda do apartamento da frente (`Banner`), do outro lado da rua: o trinco estalando e as
+	_tone(0.0, 2100.0, 0.02, "sine", 0.5, 0.001)   # dobradiças rangendo curto, abafados pelo vidro
+	_noise(0.0, 0.015, "bp", 3200.0, 2.0, 0.6)
+	_tone(0.06, 1500.0, 0.015, "sine", 0.3, 0.001)
+	var n1 := int(0.3 * RATE)
+	for i in n1:   # o rangido: um tom que sobe e treme
+		var u := float(i) / n1
+		_w[int(0.12 * RATE) + i] += sin(TAU * (380.0 + 160.0 * u) * i / RATE + 3.0 * sin(TAU * 31.0 * i / RATE)) * 0.12 * sin(PI * u)
+	_w = _biquad(_w, "lp", 2600.0, 0.7)
+	_end("latch")
+	_begin(1.4)   # a bandeira desenrolando (`Banner`): o pano deslizando cada vez mais rápido, o estalo dele esticando
+	var fall := sqrt(2.0 * BannerScene.SIZE.y / BannerScene.FALL)   # (o tempo da queda)
+	var t4 := 0.0
+	while t4 < fall:
+		_noise(t4, 0.03, "bp", lerpf(600.0, 1400.0, t4 / fall), 1.2, 0.25 + 0.5 * t4 / fall)
+		t4 += 0.025
+	_noise(fall, 0.05, "bp", 900.0, 1.5, 1.2)   # o estalo
+	_tone(fall, 85.0, 0.09, "sine", 0.6)
+	for f: float in [0.18, 0.33, 0.5]:   # o pano batendo ainda, cada vez mais fraco
+		_noise(fall + f, 0.04, "bp", 1100.0, 1.5, 0.45 * (1.0 - f))
+	_w = _biquad(_w, "lp", 2400.0, 0.7)   # (longe e pelo vidro)
+	_end("unfurl")
 
 
 ## A luminária: o zumbido elétrico bem baixo da lâmpada acesa (120 Hz e harmônicos, em loop) e o estalo de quando ela

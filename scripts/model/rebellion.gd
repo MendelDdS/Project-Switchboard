@@ -11,9 +11,10 @@ extends RefCounted
 ## não tiram pontos por si: sem eles, Maria não fica sabendo da senha e a TV não vem.
 ## O nível (`level`): alto com 4 ou mais, médio com 2 ou 3, baixo abaixo disso. A carta do Dia 11 vem amiga só com o
 ## nível alto; a pedra da noite 14 vem com médio ou baixo; o golpe vence na noite 15 com médio ou alto à meia-noite
-## (`won`).
+## (`won`). Na mesma hora sai o final (`final`): sucesso, vitória amarga, fracasso ou presa.
 
 enum Level { LOW, MEDIUM, HIGH }
+enum Final { SUCCESS, BITTER, FAILURE, PRISON }
 
 ## Os marcadores que o roteiro liga (os nomes que as ligações, o discador e as fitas usam).
 const HOTEL := "senha_hotel_4"             ## Dia 4: ligou para o hotel às 20:30 e disse a senha
@@ -28,7 +29,8 @@ const HOSPITAL := "hospital_8"             ## Dia 8: deu o recado da ala 3C à E
 const IGNORED := "cumpriu_9"               ## Dia 9: ignorou as ligações para a delegacia e a Alta Cúpula
 const PARISH := "paroquia_10"              ## Dia 10: pediu abrigo à paróquia
 const TAPE_SEBASTIAO := "fita_sebastiao_12"   ## Dia 12: entregou a Sebastião a fita das autoridades com a Alta Cúpula
-const OBEYED := "obedeceu_"                ## Noites 14 e 15: um por pedido das autoridades atendido ("obedeceu_<id>")
+const OBEYED := "obedeceu_"                ## Noites 14 e 15: um por pedido das autoridades atendido ("obedeceu_<id>")...
+const DISOBEYED := "desobedeceu_"          ## ...e um por pedido cortado ou recusado ("desobedeceu_<id>"): no fracasso, presa
 
 ## As conclusões, ligadas e desligadas por `sync` (não se liga à mão).
 const TV := "tv_conquistada"
@@ -37,6 +39,8 @@ const HOTEL_TAPED := "fita_hotel_entregue"   ## alguma fita do hotel (Dia 8) che
 const CHANCE := ["chance_baixa", "chance_media", "chance_alta"]   ## o nível agora, um ligado por vez (`Level`)
 const WON := "golpe_venceu"   ## a conta da meia-noite da noite 15 (`Main._midnight`): amanhece...
 const LOST := "golpe_falhou"  ## ...ou o turno acaba ali
+const FINALS := ["final_sucesso", "final_amarga", "final_fracasso", "final_presa"]   ## o final (`Final`), ligado à meia-noite da 15
+const COSTLY := [TAPE_GUNS, TAPE_GROUP_C, TAPE_GROUPS]   ## as fitas que custaram gente (Dias 7 e 8): a vitória amarga
 const DERIVED := [TV, RADIO, HOTEL_TAPED, "chance_baixa", "chance_media", "chance_alta"]
 
 const POINTS := {"tv": 2, "radio": 2, "half": -2, "little": -1, "sebastiao": 1, "obeyed": -1}
@@ -90,6 +94,18 @@ static func level(f: StoryFlags, night: int) -> Level:
 ## O golpe vence (a conta da meia-noite da noite 15): nível médio ou alto.
 static func won(f: StoryFlags, night: int) -> bool:
 	return level(f, night) != Level.LOW
+
+
+## O final, à meia-noite da noite 15: com o golpe vencido, o sucesso, ou a vitória amarga se uma fita custou gente
+## (`COSTLY`) ou a paróquia ficou esquecida; com o golpe falho, a presa se Maria cortou ou recusou mais pedidos das
+## autoridades nas noites 14 e 15 do que atendeu (`DISOBEYED`; ficou do lado da rebelião no fim, e elas têm as
+## gravações; um corte só, obedecendo o resto, não basta), senão o fracasso.
+static func final(f: StoryFlags, night: int) -> Final:
+	if won(f, night):
+		return Final.BITTER if COSTLY.any(f.has) or not f.has(PARISH) else Final.SUCCESS
+	var names := Array(f.names())
+	var no := names.filter(func(n: String) -> bool: return n.begins_with(DISOBEYED)).size()
+	return Final.PRISON if no > names.filter(func(n: String) -> bool: return n.begins_with(OBEYED)).size() else Final.FAILURE
 
 
 ## Liga as conclusões (`DERIVED`) conforme os marcadores agora; só mexe no que mudou.

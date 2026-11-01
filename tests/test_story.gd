@@ -48,6 +48,21 @@ func _initialize() -> void:
 	ok(R.points(_f(full), 12) == R.points(_f(full), 13) + 1, "a fita de Sebastião que não veio só conta depois da noite 12")
 	ok(R.points(_f([]), 8) == 0 and R.points(_f([]), 9) == -2, "o hospital esquecido só conta depois da noite 8")
 
+	# os finais, à meia-noite da 15
+	var C: GameContent = GameData.CONTENT
+	var won_full := full + [R.TAPE_SEBASTIAO]
+	ok(R.final(_f(won_full), 15) == R.Final.SUCCESS, "final: sucesso")
+	ok(R.final(_f(won_full + [R.DISOBEYED + "a"]), 15) == R.Final.SUCCESS, "final: desobedecer com o golpe vencido ainda é o sucesso")
+	ok(R.final(_f(bitter + [R.TAPE_SEBASTIAO]), 15) == R.Final.BITTER, "final: vitória amarga, a fita das armas")
+	var no_parish := won_full.filter(func(x: String) -> bool: return x != R.PARISH)
+	ok(R.won(_f(no_parish), 15) and R.final(_f(no_parish), 15) == R.Final.BITTER, "final: vitória amarga, a paróquia esquecida")
+	ok(R.final(_f([]), 15) == R.Final.FAILURE, "final: fracasso")
+	ok(R.final(_f([R.DISOBEYED + "a", R.DISOBEYED + "b", R.OBEYED + "c"]), 15) == R.Final.PRISON, "final: presa (o golpe falhou e ela desobedeceu mais do que obedeceu)")
+	ok(R.final(_f([R.DISOBEYED + "a", R.OBEYED + "b"]), 15) == R.Final.FAILURE, "final: um corte só, obedecendo o resto, é o fracasso")
+	var mother: PrankCall = C.epilogue.story.filter(func(x: StoryCall): return x.call.caller == "Mãe de Cecília")[0].call
+	for fin in [R.Final.SUCCESS, R.Final.BITTER, R.Final.FAILURE]:   # a mãe da Cecília liga em todos, cada um com a sua conversa
+		ok(mother.steps.filter(func(st: PrankStep): return st.requires == PackedStringArray([R.FINALS[fin]])).size() >= 5, "epílogo: a mãe com a conversa do final " + R.FINALS[fin])
+
 	# as conclusões viram marcadores, para o roteiro usar
 	var f := _f(full)
 	R.sync(f, 11)
@@ -77,10 +92,29 @@ func _initialize() -> void:
 		"carta do Dia 11: amiga com chances altas, ameaça com o nome do pai nas outras")
 	ok(n.letter_for(_f([])) == "", "noite sem carta")
 
+	# a senha do Dia 4: ligar para o hotel das 20:30 às 21h e dizer "A semente brotou" (fora disso, o hotel de sempre)
+	var pw: Array = GameData.CONTENT.nights[3].dial.filter(func(d): return d.number == "305")
+	ok(pw.size() == 1 and pw[0].from == 150.0 and pw[0].to == 180.0
+		and pw[0].steps.any(func(st: PrankStep): return R.HOTEL in st.sets), "Dia 4: a senha ao hotel, das 20:30 às 21h")
+
 	# as cenas da rua do roteiro com condição
-	var C: GameContent = GameData.CONTENT
 	var stone: Array = C.nights[13].street_events.filter(func(e): return e.kind == "stone")
 	var raid: Array = C.nights[12].street_events.filter(func(e): return e.kind == "raid")
 	ok(stone.size() == 1 and stone[0].requires == PackedStringArray(["!chance_alta"]), "a pedra (14) só sem chances altas")
 	ok(raid.size() == 1 and raid[0].requires == PackedStringArray([R.HOTEL_TAPED]), "a batida (13) só com uma fita do hotel na polícia")
+	var banner: Array = C.nights[14].street_events.filter(func(e): return e.kind == "banner")
+	ok(banner.size() == 1 and banner[0].at == 360.0 and banner[0].requires == PackedStringArray([R.WON]), "a bandeira (15) à meia-noite, só com o golpe vencido")
+	for n_i in [12, 13]:
+		ok(C.nights[n_i].street_events.any(func(e): return e.kind == "stranger" and e.at == 240.0), "o homem de sobretudo às 22h na noite %d" % (n_i + 1))
+	# a presa na 15 (a cúpula à meia-noite) e o epílogo (a 16, fora de `nights`): uma ligação por final, a carta e o fecho
+	var presa: Array = C.nights[14].story.filter(func(x: StoryCall): return x.requires == PackedStringArray([R.FINALS[R.Final.PRISON]]))
+	ok(presa.size() == 1 and presa[0].at == 360.0 and presa[0].authority and not presa[0].again, "presa: a cúpula liga à meia-noite da 15")
+	var epi: Night = C.epilogue
+	ok(epi != null and not epi in C.nights, "o epílogo, fora das noites")
+	for fin in [R.Final.SUCCESS, R.Final.BITTER, R.Final.FAILURE]:
+		var fl := _f([R.FINALS[fin], R.WON if fin != R.Final.FAILURE else R.LOST])
+		ok(epi.ending_for(fl) != null and epi.story.any(func(x: StoryCall): return fl.allows(x.requires)), "epílogo: fecho e ligação no final " + R.FINALS[fin])
+	ok(epi.letter_for(_f([R.FINALS[R.Final.FAILURE]])) != "" and epi.letter_for(_f([R.FINALS[R.Final.SUCCESS]])) == "", "epílogo: a carta do supervisor só no fracasso")
+	ok(C.nights[14].ending_for(_f([R.FINALS[R.Final.SUCCESS]])).title != "" and C.nights[14].ending_for(_f([R.FINALS[R.Final.FAILURE]])) == null,
+		"noite 15: o encontro com Sebastião só no sucesso")
 	finish("fator sucesso")

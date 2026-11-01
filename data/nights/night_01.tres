@@ -3,112 +3,6 @@
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
 [ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
-[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
-
-[sub_resource type="Resource" id="Step_01"]
-script = ExtResource("2_step")
-kind = 2
-seconds = 2.6
-
-[sub_resource type="Resource" id="Step_02"]
-script = ExtResource("2_step")
-text = "...alô?"
-seconds = 0.7
-
-[sub_resource type="Resource" id="Step_03"]
-script = ExtResource("2_step")
-kind = 1
-options = PackedStringArray("Central telefônica. Qual número você está tentando chamar?")
-
-[sub_resource type="Resource" id="Step_04"]
-script = ExtResource("2_step")
-kind = 2
-seconds = 2.2
-
-[sub_resource type="Resource" id="Step_05"]
-script = ExtResource("2_step")
-text = "Eu não sei."
-seconds = 0.55
-
-[sub_resource type="Resource" id="Step_06"]
-script = ExtResource("2_step")
-kind = 1
-options = PackedStringArray("Qual é o seu nome?")
-
-[sub_resource type="Resource" id="Step_07"]
-script = ExtResource("2_step")
-kind = 2
-seconds = 1.5
-
-[sub_resource type="Resource" id="Step_08"]
-script = ExtResource("2_step")
-text = "Eu estou tentando descobrir."
-seconds = 0.55
-
-[sub_resource type="Resource" id="Step_09"]
-script = ExtResource("2_step")
-kind = 4
-effect = "static_loud"
-
-[sub_resource type="Resource" id="Step_10"]
-script = ExtResource("2_step")
-kind = 1
-options = PackedStringArray("Onde você está?")
-
-[sub_resource type="Resource" id="Step_11"]
-script = ExtResource("2_step")
-kind = 2
-seconds = 1.2
-
-[sub_resource type="Resource" id="Step_12"]
-script = ExtResource("2_step")
-text = "Eu não sei."
-seconds = 0.55
-
-[sub_resource type="Resource" id="Step_13"]
-script = ExtResource("2_step")
-kind = 1
-options = PackedStringArray("Você consegue me dizer alguma rua?")
-
-[sub_resource type="Resource" id="Step_14"]
-script = ExtResource("2_step")
-kind = 2
-seconds = 3.4
-
-[sub_resource type="Resource" id="Step_15"]
-script = ExtResource("2_step")
-text = "Tem uma luz."
-seconds = 0.6
-
-[sub_resource type="Resource" id="Step_16"]
-script = ExtResource("2_step")
-kind = 1
-options = PackedStringArray("Que luz?")
-
-[sub_resource type="Resource" id="Step_17"]
-script = ExtResource("2_step")
-kind = 2
-seconds = 1.3
-
-[sub_resource type="Resource" id="Step_18"]
-script = ExtResource("2_step")
-kind = 4
-effect = "flick"
-
-[sub_resource type="Resource" id="Step_19"]
-script = ExtResource("2_step")
-text = "A luz da sua mesa."
-seconds = 2.6
-
-[sub_resource type="Resource" id="Step_20"]
-script = ExtResource("2_step")
-kind = 4
-effect = "static"
-
-[sub_resource type="Resource" id="Step_21"]
-script = ExtResource("2_step")
-text = "Ela sempre fica acesa?"
-seconds = 0.5
 
 [sub_resource type="Resource" id="ChatReply_00_0"]
 script = ExtResource("9_reply")
@@ -131,5 +25,4 @@ replies = Array[ExtResource("9_reply")]([SubResource("ChatReply_00_0"), SubResou
 [resource]
 script = ExtResource("1_night")
 note = "Seu turno termina à meia-noite. Atenda as chamadas, conecte-as corretamente e registre todas as ocorrências."
-mystery = Array[ExtResource("2_step")]([SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09"), SubResource("Step_10"), SubResource("Step_11"), SubResource("Step_12"), SubResource("Step_13"), SubResource("Step_14"), SubResource("Step_15"), SubResource("Step_16"), SubResource("Step_17"), SubResource("Step_18"), SubResource("Step_19"), SubResource("Step_20"), SubResource("Step_21")])
 smalltalk = Array[ExtResource("8_chat")]([SubResource("ChatTopic_00")])

@@ -3183,7 +3183,7 @@ msgstr "It's the exchange. We're testing the line."
 msgid "Ah, está funcionando, sim. Estou ouvindo bem."
 msgstr "Oh, it's working all right. I can hear you fine."
 
-#: data/directory/367_celia_rocha.tres
+#: data/directory/367_celia_rocha.tres data/nights/night_04.tres
 msgid "Desculpe, foi engano."
 msgstr "Sorry, wrong number."
 
@@ -3583,7 +3583,7 @@ msgstr "The last bus leaves at eleven and I can't miss it."
 msgid "Boa noite. O último ônibus sai às onze e eu não posso perder."
 msgstr "Good evening. The last bus leaves at eleven and I can't miss it."
 
-#: data/directory/176_ponto_de_taxi_da_rodoviaria.tres data/nights/night_01.tres
+#: data/directory/176_ponto_de_taxi_da_rodoviaria.tres
 msgid "Onde você está?"
 msgstr "Where are you?"
 
@@ -4355,46 +4355,6 @@ msgstr "I won't be going."
 msgid "Ah... tá bom, então."
 msgstr "Oh... all right, then."
 
-#: data/nights/night_01.tres
-msgid "...alô?"
-msgstr "...hello?"
-
-#: data/nights/night_01.tres
-msgid "Central telefônica. Qual número você está tentando chamar?"
-msgstr "Telephone exchange. What number are you trying to reach?"
-
-#: data/nights/night_01.tres
-msgid "Eu não sei."
-msgstr "I don't know."
-
-#: data/nights/night_01.tres
-msgid "Qual é o seu nome?"
-msgstr "What's your name?"
-
-#: data/nights/night_01.tres
-msgid "Eu estou tentando descobrir."
-msgstr "I'm trying to find out."
-
-#: data/nights/night_01.tres
-msgid "Você consegue me dizer alguma rua?"
-msgstr "Can you tell me any street?"
-
-#: data/nights/night_01.tres
-msgid "Tem uma luz."
-msgstr "There's a light."
-
-#: data/nights/night_01.tres
-msgid "Que luz?"
-msgstr "What light?"
-
-#: data/nights/night_01.tres
-msgid "A luz da sua mesa."
-msgstr "The light on your desk."
-
-#: data/nights/night_01.tres
-msgid "Ela sempre fica acesa?"
-msgstr "Is it always on?"
-
 #: data/nights/night_02.tres
 msgid "O supervisor deixou um recado: \"Ontem a linha ficou com chiado depois das dez. A companhia vai olhar. Se acontecer de novo, anote na ficha.\""
 msgstr "The supervisor left a note: \"Last night the line had static after ten. The company will look into it. If it happens again, write it on the log sheet.\""
@@ -4463,38 +4423,6 @@ msgstr "I bet."
 msgid "...Pois é."
 msgstr "...Yeah."
 
-#: data/nights/night_02.tres
-msgid "...você ainda está aí?"
-msgstr "...are you still there?"
-
-#: data/nights/night_02.tres
-msgid "Central telefônica. Quem fala?"
-msgstr "Telephone exchange. Who's calling?"
-
-#: data/nights/night_02.tres
-msgid "Ontem você não me respondeu."
-msgstr "Last night you didn't answer me."
-
-#: data/nights/night_02.tres
-msgid "Respondi o quê?"
-msgstr "Answer what?"
-
-#: data/nights/night_02.tres
-msgid "Se ela sempre fica acesa."
-msgstr "Whether it's always on."
-
-#: data/nights/night_02.tres
-msgid "Fica. A noite toda."
-msgstr "It is. All night long."
-
-#: data/nights/night_02.tres
-msgid "Então é por isso que eu consigo te ver."
-msgstr "So that's why I can see you."
-
-#: data/nights/night_02.tres
-msgid "Não apaga, tá?"
-msgstr "Don't turn it off, okay?"
-
 #: data/nights/night_03.tres
 msgid "O supervisor deixou um recado: \"Boa semana até aqui. Continue registrando tudo na ficha.\""
 msgstr "The supervisor left a note: \"Good week so far. Keep logging everything on the log sheet.\""
@@ -4502,6 +4430,22 @@ msgstr "The supervisor left a note: \"Good week so far. Keep logging everything 
 #: data/nights/night_04.tres
 msgid "O supervisor deixou um recado: \"O fim de semana vem aí e o movimento costuma crescer. Não deixe ninguém esperando.\""
 msgstr "The supervisor left a note: \"The weekend is coming and things usually get busier. Don't leave anyone waiting.\""
+
+#: data/nights/night_04.tres
+msgid "Hotel, boa noite. Pois não?"
+msgstr "Hotel, good evening. How can I help?"
+
+#: data/nights/night_04.tres
+msgid "A semente brotou."
+msgstr "The seed has sprouted."
+
+#: data/nights/night_04.tres
+msgid "...Entendido. Boa noite, telefonista."
+msgstr "...Understood. Good night, operator."
+
+#: data/nights/night_04.tres
+msgid "Não foi nada. Boa noite."
+msgstr "No harm done. Good night."
 
 #: data/nights/night_05.tres
 msgid "O supervisor deixou um recado: \"A partir de hoje, o setor 1, o Centro, também é seu: a central de lá não tem mais turno da noite. Os números que começam com 1 agora passam pela sua mesa. A lista já foi atualizada.\""
@@ -4512,8 +4456,8 @@ msgid "O supervisor deixou um recado: \"Sábado o Centro tem baile e a praça ch
 msgstr "The supervisor left a note: \"On Saturdays Downtown has a dance and a crowded square. Stay alert.\""
 
 #: data/nights/night_07.tres
-msgid "O supervisor deixou um recado: \"Domingo é mais calmo. Aproveite para conferir a lista antes de conectar: são mais números agora.\""
-msgstr "The supervisor left a note: \"Sundays are quieter. Use the time to check the directory before connecting: there are more numbers now.\""
+msgid "O supervisor deixou um recado: \"Instalaram um gravador na sua mesa, a pedido das autoridades. A linha do bar foi liberada, e elas querem gravado tudo o que for para lá. Em noite com ligação para o bar, entregue às autoridades pelo menos uma fita, mesmo que a conversa não tenha nada: grave assim mesmo, para não ter reclamação. E daqui em diante, o que as autoridades pedirem, atenda, mesmo contra as regras: não vai haver advertência.\""
+msgstr "The supervisor left a message: \"They installed a recorder at your desk, at the authorities' request. The bar's line has been unblocked, and they want everything that goes there recorded. On a night with calls to the bar, hand at least one tape to the authorities, even if the conversation has nothing in it: record it anyway, so there are no complaints. And from now on, whatever the authorities ask for, do it, even against the rules: there will be no warning.\""
 
 #: data/nights/night_08.tres
 msgid "O supervisor deixou um recado: \"O pessoal do Centro elogiou o atendimento. Continue assim.\""
@@ -4554,6 +4498,50 @@ msgstr "The supervisor left a note: \"Tomorrow is your last night of this period
 #: data/nights/night_15.tres
 msgid "O supervisor deixou um recado: \"Última noite do período. O relatório de hoje vai para a diretoria.\""
 msgstr "The supervisor left a note: \"Last night of the period. Tonight's report goes to the board of directors.\""
+
+#: data/nights/night_15.tres
+msgid "Às seis, quando a rendição chega, Sebastião está esperando na calçada da frente, embaixo da bandeira. Ele tira o chapéu, como o pai dele fazia nas reuniões, e diz que Cristóvão teria orgulho.\n\nOs jornais da tarde vão chamar Maria de heroína. Ali na calçada, ele só aperta a mão dela e demora a soltar."
+msgstr "At six, when the relief shift arrives, Sebastião is waiting on the sidewalk across the street, under the flag. He takes off his hat, as his father used to at the meetings, and says Cristóvão would be proud.\n\nThe afternoon papers will call Maria a heroine. There on the sidewalk, he only shakes her hand and takes a long time to let go."
+
+#: data/nights/night_15.tres
+msgid "Amanhece"
+msgstr "Dawn"
+
+#: data/nights/night_15.tres
+msgid "O turno não termina. Ninguém sai da central naquela noite."
+msgstr "The shift does not end. Nobody leaves the exchange that night."
+
+#: data/calls/story_15_cupula_presa.tres data/calls/story_16_cupula.tres
+msgid "Alta Cúpula"
+msgstr "High Command"
+
+#: data/calls/story_15_cupula_presa.tres
+msgid "Central 3. Aqui fala a Alta Cúpula."
+msgstr "Exchange 3. This is the High Command."
+
+#: data/calls/story_15_cupula_presa.tres
+msgid "Temos as gravações desta mesa. Da noite sete em diante."
+msgstr "We have the recordings from this board. From night seven onward."
+
+#: data/calls/story_15_cupula_presa.tres
+msgid "Inclusive das ligações que foram derrubadas daí, nas duas últimas noites."
+msgstr "Including the calls that were dropped from there, these last two nights."
+
+#: data/calls/story_15_cupula_presa.tres
+msgid "Eu só cumpri o meu turno."
+msgstr "I only worked my shift."
+
+#: data/calls/story_15_cupula_presa.tres data/calls/story_16_mae_cecilia.tres data/calls/story_16_cupula.tres
+msgid "[Ficar em silêncio]"
+msgstr "[Stay silent]"
+
+#: data/calls/story_15_cupula_presa.tres
+msgid "Permaneça no posto. Ninguém sai da central esta noite."
+msgstr "Stay at your post. Nobody leaves the exchange tonight."
+
+#: data/calls/story_15_cupula_presa.tres
+msgid "Já tem gente nossa a caminho."
+msgstr "Our people are already on their way."
 
 #: data/nights/night_00.tres
 msgid "Sexta-feira. Seu primeiro turno de verdade é na segunda. Hoje a Cecília, telefonista do Alto da Serra, vai ligar para lhe mostrar o serviço. O fone já está na entrada 1."
@@ -5026,6 +5014,226 @@ msgstr "See you next time!"
 #: data/nights/night_00.tres
 msgid "Boa noite, e boa sorte!"
 msgstr "Good night, and good luck!"
+
+#: data/nights/night_16.tres
+msgid "O supervisor deixou um recado: \"Escala normal. Nenhuma ocorrência a registrar.\""
+msgstr "The supervisor left a note: \"Regular schedule. No incidents to report.\""
+
+#: data/nights/night_16.tres
+msgid "Não há recado do supervisor. Na mesa, um bilhete da companhia, sem assinatura: \"A central segue funcionando. Atenda como sempre.\""
+msgstr "There is no note from the supervisor. On the desk, an unsigned slip from the company: \"The exchange stays open. Answer as usual.\""
+
+#: data/nights/night_16.tres
+msgid "À operadora do turno da noite,\n\nEm nome da diretoria, parabenizo pela conduta exemplar durante os acontecimentos da última noite. A central de São Sotero manteve as comunicações das autoridades quando mais se precisou delas. Esse serviço não será esquecido.\n\nAtenciosamente,\nO Supervisor"
+msgstr "To the night shift operator,\n\nOn behalf of the board, my congratulations on your exemplary conduct during last night's events. The São Sotero exchange kept the authorities' lines open when they were needed most. This service will not be forgotten.\n\nSincerely,\nThe Supervisor"
+
+#: data/nights/night_16.tres
+msgid "Maria atende até o fim do turno. Nenhuma linha pede socorro. Lá fora, a bandeira continua na varanda."
+msgstr "Maria answers until the end of the shift. No line calls for help. Outside, the flag is still on the balcony."
+
+#: data/nights/night_16.tres
+msgid "Maria atende até o fim do turno. Sebastião não liga. No jornal, a vitória ocupa a primeira página; os nomes dos que não voltaram, a segunda inteira."
+msgstr "Maria answers until the end of the shift. Sebastião does not call. In the paper, the victory fills the front page; the names of those who did not come back, the whole second one."
+
+#: data/nights/night_16.tres
+msgid "Na semana seguinte, Maria recebe a medalha de uniforme. A central de São Sotero continua funcionando, como sempre."
+msgstr "The following week, Maria receives the medal in uniform. The São Sotero exchange keeps running, as always."
+
+#: data/calls/story_16_sebastiao.tres
+msgid "Sebastião Falcão"
+msgstr "Sebastião Falcão"
+
+#: data/calls/story_16_sebastiao.tres
+msgid "Central 3? Sou eu. Sebastião."
+msgstr "Exchange 3? It's me. Sebastião."
+
+#: data/calls/story_16_sebastiao.tres
+msgid "Não é nada urgente. Pela primeira vez, não é nada urgente."
+msgstr "It's nothing urgent. For the first time, it's nothing urgent."
+
+#: data/calls/story_16_sebastiao.tres
+msgid "Que bom ouvir sua voz."
+msgstr "It's good to hear your voice."
+
+#: data/calls/story_16_sebastiao.tres
+msgid "Está tudo bem aí?"
+msgstr "Is everything all right there?"
+
+#: data/calls/story_16_sebastiao.tres
+msgid "Está. A rádio toca o que quer desde cedo. Tem gente na praça que não dormiu."
+msgstr "It is. The radio has been playing whatever it wants since morning. There are people in the square who haven't slept."
+
+#: data/calls/story_16_sebastiao.tres
+msgid "Liguei só pra dizer que hoje a noite é sua. Atenda as ligações, como sempre."
+msgstr "I just called to say tonight is yours. Answer the calls, as always."
+
+#: data/calls/story_16_sebastiao.tres
+msgid "Seu pai ia gostar de ver."
+msgstr "Your father would have liked to see it."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Mãe de Cecília"
+msgstr "Cecília's mother"
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Boa noite. Desculpe a hora. Quem atende aí... é quem trabalhava com a Cecília?"
+msgstr "Good evening. Sorry for the hour. Whoever's answering... did you work with Cecília?"
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Sou eu. Ela me ensinou tudo."
+msgstr "That's me. She taught me everything."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Sim. Quem fala?"
+msgstr "Yes. Who's calling?"
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Aqui é a mãe dela."
+msgstr "This is her mother."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Passei o dia inteiro na janela. Vi a bandeira, vi o povo cantando na rua. E só conseguia pensar nela."
+msgstr "I spent the whole day at the window. I saw the flag, the people singing in the street. And all I could think of was her."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Ela vinha jantar aos domingos e só falava da central. Dizia: \"Mãe, a mesa ficou em boas mãos.\""
+msgstr "She came for dinner on Sundays and only talked about the exchange. She'd say: \"Mom, the board is in good hands.\""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Ontem bateu aqui um rapaz. Me contou o que você fez. Cada ligação, cada fita."
+msgstr "A young man knocked on my door yesterday. He told me what you did. Every call, every tape."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Ela não morreu à toa, Maria. Você não deixou."
+msgstr "She didn't die for nothing, Maria. You didn't let her."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Eu fiz por ela."
+msgstr "I did it for her."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Eu conheci o seu pai, sabia? O Cristóvão. Ele ia estar tão feliz hoje."
+msgstr "I knew your father, you know? Cristóvão. He'd be so happy today."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Eu tenho tanto orgulho de você. Como se fosse da minha casa."
+msgstr "I'm so proud of you. As if you were one of my own."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Venha tomar um café comigo um dia. Guardei o casaco que ela usava aí na central. Acho que ela ia querer que ficasse com você."
+msgstr "Come have a coffee with me some day. I kept the coat she wore there at the exchange. I think she'd want you to have it."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Eu vou."
+msgstr "I will."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Obrigada. Por tudo."
+msgstr "Thank you. For everything."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Boa noite. Cuide bem da mesa dela."
+msgstr "Good night. Take good care of her board."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Hoje cedo vi a bandeira na varanda e chorei feito criança."
+msgstr "This morning I saw the flag on the balcony and cried like a child."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Me disseram que ela ajudou a cidade. E que quem estava na central ajudou também."
+msgstr "They told me she helped the city. And that whoever was at the exchange helped too."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "O jornal trouxe os nomes de quem não voltou. Tanto nome... Mas ganhamos, não é? Ganhamos."
+msgstr "The paper printed the names of those who didn't come back. So many names... But we won, didn't we? We won."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Ganhamos."
+msgstr "We won."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Obrigada pelo que você fez por ela. Ela confiava em você."
+msgstr "Thank you for what you did for her. She trusted you."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Eu só queria ouvir alguém daí. Boa noite."
+msgstr "I just wanted to hear someone from there. Good night."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Eu sei que essa linha é escutada. Não me importa mais."
+msgstr "I know this line is listened to. I don't care anymore."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Da última vez que veio em casa, ela me disse: \"Mãe, pode ficar tranquila. A mesa está em boas mãos.\""
+msgstr "The last time she came home, she told me: \"Mom, don't worry. The board is in good hands.\""
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Ela acreditou em você até o fim. Até quando vieram buscar ela."
+msgstr "She believed in you to the end. Even when they came for her."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Eu sinto muito."
+msgstr "I'm so sorry."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Eu não podia..."
+msgstr "I couldn't..."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Sente. Eu também sinto. Toda noite, quando ponho a mesa e sobra um prato."
+msgstr "You are. So am I. Every night, when I set the table and there's a plate left over."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Hoje passou um carro de som falando em paz e ordem. Os vizinhos fecharam as janelas. Ninguém diz o nome dela."
+msgstr "Today a loudspeaker car went by talking about peace and order. The neighbors shut their windows. Nobody says her name."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Ela morreu por nada. Por nada. E você aí, atendendo como se fosse uma noite qualquer."
+msgstr "She died for nothing. For nothing. And there you are, answering as if it were any other night."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Me perdoe."
+msgstr "Forgive me."
+
+#: data/calls/story_16_mae_cecilia.tres
+msgid "Não sou eu quem tem que perdoar. Boa noite."
+msgstr "I'm not the one who has to forgive. Good night."
+
+#: data/calls/story_16_cupula.tres
+msgid "Central 3, aqui fala a Alta Cúpula."
+msgstr "Exchange 3, this is the High Command."
+
+#: data/calls/story_16_cupula.tres
+msgid "A diretoria encaminhou o relatório de ontem. A colaboração desta mesa foi decisiva para conter os insurgentes."
+msgstr "The board forwarded yesterday's report. This board's cooperation was decisive in containing the insurgents."
+
+#: data/calls/story_16_cupula.tres
+msgid "Na semana que vem haverá uma condecoração. Compareça de uniforme."
+msgstr "There will be a decoration ceremony next week. Come in uniform."
+
+#: data/calls/story_16_cupula.tres
+msgid "Sim, senhor."
+msgstr "Yes, sir."
+
+#: data/calls/story_16_cupula.tres
+msgid "É só isso. Bom turno."
+msgstr "That is all. Have a good shift."
+
+#: data/nights/night_16.tres
+msgid "São Sotero amanhece livre: a emissora e a rádio nas mãos do povo; a praça cheia desde cedo"
+msgstr "São Sotero wakes up free: the TV station and the radio in the people's hands; the square full since early morning"
+
+#: data/nights/night_16.tres
+msgid "A vitória custou caro: a lista dos que não voltaram ocupa a página inteira"
+msgstr "The victory came at a price: the list of those who did not come back fills the whole page"
+
+#: data/nights/night_16.tres
+msgid "São Sotero amanhece livre: a emissora e a rádio nas mãos do povo"
+msgstr "São Sotero wakes up free: the TV station and the radio in the people's hands"
+
+#: data/nights/night_16.tres
+msgid "Insurgentes contidos na madrugada: a ordem segue garantida em São Sotero"
+msgstr "Insurgents contained overnight: order remains assured in São Sotero"
 
 #: data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres
 msgid "Dona Lurdes"

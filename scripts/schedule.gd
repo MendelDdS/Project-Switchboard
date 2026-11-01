@@ -1,7 +1,7 @@
 class_name Schedule
 extends RefCounted
-## Monta a agenda de uma noite: as ligações do roteiro (horário fixo; a condição é conferida na hora de tocar), a
-## ligação desconhecida e as sorteadas. Não depende da cena: noite + semente → as mesmas ligações.
+## Monta a agenda de uma noite: as ligações do roteiro (horário fixo; a condição é conferida na hora de tocar) e as
+## sorteadas. Não depende da cena: noite + semente → as mesmas ligações.
 ## Quando cada uma toca de fato (mesa cheia, emergência em curso...) é decidido pelo Main (`_run_schedule`).
 
 const EMERGENCY_GAP := 60.0     # minutos de jogo entre duas emergências sorteadas (em andamento, no máximo `Main.MAX_EMERGENCIES`)
@@ -10,12 +10,8 @@ const STORY_WAIT := 30.0        # a do roteiro espera a mesa silenciar por no m�
 const TEMPLATE_CHANCE := 0.5    # chance de uma transferência ou emergência vir de um molde e não de um roteiro escrito
 const TRANSFER_SHARE := 0.85    # das ligações comuns, quantas são transferências (o resto, pedidos de informação)
 const TRUNK_SHARE := 0.2        # das transferências, quantas são interurbanos (pelo banco INTERURBANO; nunca no treinamento)
-const MYSTERY_WAIT := 30.0      # a ligação desconhecida espera a mesa silenciar por no máximo tantos minutos...
-const MYSTERY_MARGIN := 10.0    # ...e toca no máximo tantos minutos antes da última ligação, para acabar antes do
-                                # botão Encerrar turno (que só aparece depois dela)
 
 var calls: Array[PhoneCall] = []   ## em ordem de horário
-var mystery_at := INF              ## horário sorteado da ligação desconhecida (INF = não toca nesta noite)
 var targets := []                  ## os destinos já pedidos nesta noite (um número por noite; `filler` também usa)
 
 
@@ -31,12 +27,6 @@ static func build(night: Night, pace: Pace, last_call: float) -> Schedule:
 		c.beat = st
 		c.latest = minf(st.at + STORY_WAIT, last_call)
 		fixed.append(c)
-	if not night.mystery.is_empty():
-		var myst := PhoneCall.mystery()
-		myst.at = randf_range(night.mystery_from, night.mystery_to)
-		myst.latest = minf(myst.at + MYSTERY_WAIT, last_call - MYSTERY_MARGIN)
-		s.mystery_at = myst.at
-		fixed.append(myst)
 	s.calls = fixed.duplicate()
 	s.calls.append_array(s._random_calls(night, pace, last_call, fixed))
 	s.calls.sort_custom(func(a: PhoneCall, b: PhoneCall): return a.at < b.at)

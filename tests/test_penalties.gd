@@ -442,7 +442,6 @@ func _initialize() -> void:
 	m.sched.clear()
 	m.notebook.reset()
 	var awaiting := func(c: PhoneCall): return c.phase == PhoneCall.Phase.AWAIT and not c.talking
-	m.after = true
 	m.minutes = m.last_call - 1.0
 	m.running = true
 	await frames(2)

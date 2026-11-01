@@ -4,7 +4,7 @@ extends RefCounted
 ## ficam salvos para as seguintes (Progress.flags). Qualquer sistema pode consultar (`allows`) ou alterar (`apply`).
 ##
 ## Condição (`requires` nos Resources): lista de nomes; todos precisam estar ligados, e com "!" na frente,
-## desligados. Ex.: ["respondeu_a_luz", "!ligou_de_volta_1"]. Lista vazia = sempre vale.
+## desligados. Ex.: ["prometeu_quermesse", "!senha_hotel_4"]. Lista vazia = sempre vale.
 ## Alteração (`apply`): "nome" liga, "!nome" desliga, vazio não faz nada.
 
 signal changed(name: String, on: bool)

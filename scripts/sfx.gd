@@ -12,7 +12,7 @@ const VOL := {
 	"cut": -2.0, "static": -11.0, "crackle": -14.0, "thump": -5.0, "drop": -12.0, "set_paper": -27.0, "set_metal": -27.0, "blind": -17.0, "gulp": -19.0, "locker": -15.0, "bike_bell": -24.0, "car_door": -21.0, "rub": -13.0, "cord_stop": -16.0, "cord_tap": -17.0, "cord_knock": -19.0, "cord_snag": -18.0, "cord_snap": -21.0, "unroll": -8.0,
 	"typing": -13.0, "printer": -14.0, "punch": -8.0, "snap": -12.0, "tape_out": -16.0, "tape_in": -8.0, "tape_door": -10.0, "tape_key": -11.0, "tape_pop": -9.0, "feed": -11.0, "read": -14.0, "shred": -10.0, "deny": -14.0,
 	"chime": -11.0, "shift_bell": -13.0, "car": -15.0, "car_near": -13.0, "car_wet": -14.0, "car_wet_near": -12.0, "thunder": -8.0,
-	"bell": -15.0, "speaker": -12.0, "sabia": -24.0, "rattle": -17.0, "glass_hit": 0.0, "footfall": -24.0, "flyers": -22.0, "spray": -27.0, "flare": -20.0, "army": -6.0, "dog": -27.0, "dog_low": -28.0, "lamp_tick": -27.0,
+	"bell": -15.0, "speaker": -12.0, "sabia": -24.0, "rattle": -17.0, "glass_hit": 0.0, "footfall": -24.0, "flyers": -22.0, "spray": -27.0, "flare": -20.0, "latch": -22.0, "unfurl": -16.0, "army": -6.0, "dog": -27.0, "dog_low": -28.0, "lamp_tick": -27.0,
 }
 ## Volume (dB) dos sons de ambiente em cada clima; o que não aparece fica mudo.
 const WEATHER_MIX := {
@@ -57,10 +57,8 @@ const BELL_STEP := 0.006
 const VARIED := ["plug_in", "plug_out", "thump", "drop", "cord_stop", "cord_tap", "cord_knock", "cord_snag", "cord_snap", "click", "punch", "lamp_tick", "knob_tick", "snap"]
 ## O zumbido da luminária acesa (dB; era -40, alto demais).
 const LAMP_BUZZ := -44.0
-## O zumbido elétrico de 60 Hz da sala, a noite toda (dB; era -29, depois -37: tom grave e constante, cansava, sobretudo em fone),
-## e quanto ele baixa quando a noite se cala antes da ligação desconhecida (depois dela, some).
+## O zumbido elétrico de 60 Hz da sala, a noite toda (dB; era -29, depois -37: tom grave e constante, cansava, sobretudo em fone).
 const HUM_DB := -45.0
-const HUM_HUSHED := -50.0
 ## A chuva cresce e diminui em ondas lentas (dB de cada onda, período em s), em vez de um chiado constante.
 const RAIN_WAVES := [Vector2(2.5, 37.0), Vector2(1.5, 11.0)]
 ## A força da chuva muda durante a noite (`set_rain`, de garoa a forte): dB a mais na chuva, de RAIN_GAIN.x (garoa) a
@@ -151,7 +149,6 @@ var _muffle_lp: AudioEffectLowPassFilter   # a pausa abafando tudo (`muffle`), n
 var _muffle_amp: AudioEffectAmplify
 var _rub_duck := 0.0                      # s que faltam para o atrito voltar depois de um `cord_tap`
 var weather := ""   ## o clima da noite ("" = ainda sem noite: a mistura não mexe em nada)
-var _hushed := false
 var _ring_on := false
 var _ring_timer: Timer
 var _ring_player: AudioStreamPlayer2D
@@ -324,17 +321,6 @@ func muffle(on: bool) -> void:
 	_tween(_muffle_amp, "volume_db", MUFFLE.y if on else 0.0, MUFFLE.z)
 
 
-## A noite está calada (antes da ligação desconhecida): nem os cachorros latem.
-func hushed() -> bool:
-	return _hushed
-
-
-## Antes da ligação desconhecida a noite se cala: grilos param, chuva e brisa baixam.
-func hush_nature(on: bool, sec: float) -> void:
-	_hushed = on
-	_apply_mix(sec)
-
-
 func _apply_mix(sec: float) -> void:
 	if not WEATHER_MIX.has(weather):   # o cenário avisa a hora (`set_late`) desde a introdução, antes de a noite começar
 		return
@@ -345,8 +331,6 @@ func _apply_mix(sec: float) -> void:
 			db += {"crickets": LATE_CRICKETS, "breeze": LATE_BREEZE * (1.0 - _dawn)}.get(id, 0.0) * _late
 			if id == "crickets":
 				db += linear_to_db(maxf(1.0 - _dawn, 0.0001))
-		if _hushed:
-			db = -80.0 if id == "crickets" else db - 10.0
 		if id == "rain":   # a chuva tem as ondas por cima (`_process`)
 			_tween(self, "_rain_db", db, sec)
 		else:
