@@ -63,7 +63,7 @@ func dial() -> void:
 		_fail(Status.TRUNK)
 	elif e != null and e.dispatch_only:
 		_fail(Status.DISPATCH)
-	elif not central and not int(digits.left(1)) in GameData.sectors:
+	elif not central and story == null and not int(digits.left(1)) in GameData.sectors:   # (a do roteiro atende fora dos setores: a denúncia do Dia 4 na delegacia)
 		_fail(Status.NOT_SERVED)
 	elif e == null and story == null:
 		_fail(Status.NO_NUMBER)

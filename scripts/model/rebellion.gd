@@ -7,7 +7,8 @@ extends RefCounted
 ## A conta, em pontos (`POINTS`): a emissora de TV (Dia 4) e a rádio (Dia 9) valem 2 cada; o que "cai pela metade"
 ## (fita das armas, do grupo C, do comandante; a denúncia; o hospital e a paróquia esquecidos) tira 2; o que "cai um
 ## pouco" (o hotel avisado no Dia 8, a fita do Dia 12 que não chegou a Sebastião) tira 1, e a fita entregue a ele
-## soma 1; cada pedido das autoridades atendido nas noites 14 e 15 (`obedeceu_*`) é um vacilo e tira 1. Os Dias 2 e 3
+## soma 1; cada pedido das autoridades atendido nas noites 14 e 15 (`obedeceu_*`) é um vacilo e tira 1, e cada ordem
+## de Sebastião dessas noites não cumprida (`ORDERS`, contada depois que a noite dela passa) também. Os Dias 2 e 3
 ## não tiram pontos por si: sem eles, Maria não fica sabendo da senha e a TV não vem.
 ## O nível (`level`): alto com 4 ou mais, médio com 2 ou 3, baixo abaixo disso. A carta do Dia 11 vem amiga só com o
 ## nível alto; a pedra da noite 14 vem com médio ou baixo; o golpe vence na noite 15 com médio ou alto à meia-noite
@@ -31,6 +32,10 @@ const PARISH := "paroquia_10"              ## Dia 10: pediu abrigo à paróquia
 const TAPE_SEBASTIAO := "fita_sebastiao_12"   ## Dia 12: entregou a Sebastião a fita das autoridades com a Alta Cúpula
 const OBEYED := "obedeceu_"                ## Noites 14 e 15: um por pedido das autoridades atendido ("obedeceu_<id>")...
 const DISOBEYED := "desobedeceu_"          ## ...e um por pedido cortado ou recusado ("desobedeceu_<id>"): no fracasso, presa
+## As ordens de Sebastião nas noites 14 e 15 (a ligação dele e a carta): cada uma, cumprida, liga os marcadores dela
+## (todos); a que não foi, depois da noite, é um vacilo. Na 14, uma fita das autoridades dada a ele; na 15, o "começou"
+## ao Centro e ao Alto da Serra no sinal e a música pedida à rádio às 22h.
+const ORDERS := [[["cumpriu_fitas_14"], 14], [["sinal_centro_15", "sinal_serra_15"], 15], [["musica_15"], 15]]
 
 ## As conclusões, ligadas e desligadas por `sync` (não se liga à mão).
 const TV := "tv_conquistada"
@@ -82,6 +87,9 @@ static func points(f: StoryFlags, night: int) -> int:
 		p += POINTS["little"]
 	for n in f.names():
 		if n.begins_with(OBEYED):
+			p += POINTS["obeyed"]
+	for o: Array in ORDERS:
+		if night > o[1] and not (o[0] as Array).all(f.has):
 			p += POINTS["obeyed"]
 	return p
 

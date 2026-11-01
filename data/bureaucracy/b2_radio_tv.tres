@@ -1,0 +1,15 @@
+[gd_resource type="Resource" format=3]
+
+[ext_resource type="Script" path="res://scripts/bureaucracy/rule_blocked.gd" id="1_rule"]
+
+[resource]
+script = ExtResource("1_rule")
+id = "b2_radio_tv"
+title = "B2 · Rádio e TV bloqueadas"
+active = true
+from_night = 14
+to_night = 15
+severity = 2
+fault_text = "FAULT_BLOCKED"
+blocked = PackedStringArray("390", "155")
+reactions = PackedStringArray("Bloqueada? Desde quando?", "Então é assim agora. Tá bom.", "Ninguém mais pode falar com ninguém nesta cidade. Boa noite.")

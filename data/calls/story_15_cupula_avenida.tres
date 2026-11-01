@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_story"]
+
+[resource]
+script = ExtResource("1_story")
+group = 2
+voice = "m"
+caller = "Assessor"
+opening = PackedStringArray("Alta Cúpula! Urgente!")
+repeat = "A Alta Cúpula! Rápido!"
+target = "296"
+destination = "Alta Cúpula"
+thanks = "Obrigado."
+overheard = PackedStringArray("Valadares! Viram o sinal no céu?", "Vimos. Fala.", "Tem gente saindo de todo canto. Um grupo descendo a [street:Avenida Brasil] em direção à [place:praça].", "Quantos?", "Uns [number:trinta]. Precisamos de viaturas na esquina da [street:Rua do Comércio] antes que eles cheguem.", "Vou mandar o que tiver. Segura a residência.")
+caller_name = "Henrique Valadares"
+name_line = "Henrique Valadares, da residência oficial."
+code_line = "Autorização {code}."

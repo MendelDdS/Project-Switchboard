@@ -3,6 +3,8 @@
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
 [ext_resource type="Script" path="res://scripts/data/story_text.gd" id="3_text"]
+[ext_resource type="Script" path="res://scripts/data/story_call.gd" id="x0_story_call"]
+[ext_resource type="Resource" path="res://data/calls/story_11_sebastiao_raiva.tres" id="x1_story_11_sebastiao_raiva"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -18,8 +20,27 @@ requires = PackedStringArray("chance_alta")
 script = ExtResource("3_text")
 text = "Maria,\n\nEscrevo porque o telefone já não é seguro, e você sabe disso melhor do que ninguém.\n\nTem gente de olho em você. Gente que anota cada ligação que passa pela sua mesa. Não sei mais de que lado você está, e a essa altura não importa: daqui em diante, você faz o que eu mandar, na hora que eu mandar. Sem perguntas e sem atraso.\n\nNa última noite, às dez em ponto, ligue para a rádio e peça uma música. Qualquer uma.\n\nCristóvão morreu acreditando em alguma coisa. Até agora, você não honrou o nome dele. Ainda dá tempo.\n\nS."
 
+[sub_resource type="Resource" id="News_presos"]
+script = ExtResource("3_text")
+text = "Famílias inteiras presas no Alto da Serra\nEntre os detidos na batida de ontem há mulheres, idosos e crianças. A polícia diz que são parentes de rebeldes e que \"ninguém está acima da lei\"."
+requires = PackedStringArray("!paroquia_10")
+
+[sub_resource type="Resource" id="News_vazias"]
+script = ExtResource("3_text")
+text = "Batida no Alto da Serra encontra casas vazias\nAs famílias procuradas pela polícia tinham deixado as casas horas antes. A paróquia nega ter dado abrigo a quem quer que seja."
+requires = PackedStringArray("paroquia_10")
+
+[sub_resource type="Resource" id="S_seb"]
+script = ExtResource("x0_story_call")
+at = 30.0
+call = ExtResource("x1_story_11_sebastiao_raiva")
+requires = PackedStringArray("!paroquia_10")
+again = false
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Quase fim de semana de novo. Paciência com quem liga.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0")])
 letters = Array[ExtResource("3_text")]([SubResource("letter_friend"), SubResource("letter_threat")])
+news_if = Array[ExtResource("3_text")]([SubResource("News_presos"), SubResource("News_vazias")])
+story = Array[ExtResource("x0_story_call")]([SubResource("S_seb")])

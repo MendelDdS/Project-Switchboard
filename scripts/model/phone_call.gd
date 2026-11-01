@@ -119,7 +119,7 @@ var asking := false         ## pergunta e resposta em andamento: a barra para
 var temper := -1.0          ## de 0 (tranquila) a 1 (se agita toda) com a barra; -1 = ainda não sorteado (`Sfx.agitation`)
 # pedido de informação
 var ask := ""
-var about := ""             ## de quem pediu o número: "o Hotel Estrela"
+var about := ""             ## de quem pediu o número: "o Hotel Serena"
 var answer := ""
 var info_ok := -1           ## -1 sem resposta, 0 errada, 1 certa
 

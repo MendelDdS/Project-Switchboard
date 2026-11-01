@@ -3,6 +3,8 @@
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
 [ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
+[ext_resource type="Script" path="res://scripts/data/story_call.gd" id="x0_story_call"]
+[ext_resource type="Resource" path="res://data/calls/story_01_homem_bar.tres" id="x1_story_01_homem_bar"]
 
 [sub_resource type="Resource" id="ChatReply_00_0"]
 script = ExtResource("9_reply")
@@ -22,7 +24,13 @@ script = ExtResource("8_chat")
 line = "Amanhã tem quermesse na praça, o senhor vai?"
 replies = Array[ExtResource("9_reply")]([SubResource("ChatReply_00_0"), SubResource("ChatReply_00_1")])
 
+[sub_resource type="Resource" id="S_homem"]
+script = ExtResource("x0_story_call")
+at = 150.0
+call = ExtResource("x1_story_01_homem_bar")
+
 [resource]
 script = ExtResource("1_night")
 note = "Seu turno termina à meia-noite. Atenda as chamadas, conecte-as corretamente e registre todas as ocorrências."
 smalltalk = Array[ExtResource("8_chat")]([SubResource("ChatTopic_00")])
+story = Array[ExtResource("x0_story_call")]([SubResource("S_homem")])

@@ -1,0 +1,82 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_call"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_00"]
+script = ExtResource("2_step")
+text = "Maria. Sou eu, Sebastião. Não posso demorar."
+
+[sub_resource type="Resource" id="Step_01"]
+script = ExtResource("2_step")
+text = "Você soube da Cecília. O que te contaram é mentira."
+
+[sub_resource type="Resource" id="Step_02"]
+script = ExtResource("2_step")
+text = "Ela não morreu de doença nenhuma. Pegaram ela na estrada, e ela não abriu a boca. Nem pra dizer o seu nome."
+
+[sub_resource type="Resource" id="Step_03"]
+script = ExtResource("2_step")
+kind = 2
+seconds = 1.0
+
+[sub_resource type="Resource" id="Step_04"]
+script = ExtResource("2_step")
+text = "Os policiais no seu prédio não estão lá pra te proteger. Mas tem gente nossa de olho em você também. Você não está sozinha."
+
+[sub_resource type="Resource" id="Step_05"]
+script = ExtResource("2_step")
+text = "Amanhã é o dia. Hoje eu preciso dos seus ouvidos."
+
+[sub_resource type="Resource" id="Step_06"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Estou ouvindo.", "O que você precisa?")
+sets = PackedStringArray()
+
+[sub_resource type="Resource" id="Step_07"]
+script = ExtResource("2_step")
+text = "A polícia e a Alta Cúpula vão falar muito esta noite. Grave o que puder dessas conversas."
+
+[sub_resource type="Resource" id="Step_08"]
+script = ExtResource("2_step")
+text = "Não entregue nada disso a eles. Mande as fitas pra mim, no pacote de carta. Alguém passa pra buscar antes de amanhecer."
+
+[sub_resource type="Resource" id="Step_09"]
+script = ExtResource("2_step")
+kind = 2
+seconds = 1.0
+
+[sub_resource type="Resource" id="Step_10"]
+script = ExtResource("2_step")
+text = "Eles vão querer que você grave o bar e o hotel também. Faça o que tiver que fazer pra não levantar suspeita."
+
+[sub_resource type="Resource" id="Step_11"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Pode deixar.", "E se me pegarem?")
+sets = PackedStringArray("", "medo_14")
+
+[sub_resource type="Resource" id="Step_12"]
+script = ExtResource("2_step")
+text = "Ninguém pega quem faz tudo direito. Mais uma noite, Maria, e acaba."
+requires = PackedStringArray("medo_14")
+
+[sub_resource type="Resource" id="Step_13"]
+script = ExtResource("2_step")
+text = "Eu sei que posso contar com você."
+requires = PackedStringArray("!medo_14")
+
+[sub_resource type="Resource" id="Step_14"]
+script = ExtResource("2_step")
+text = "Até amanhã. Cuide-se."
+
+[sub_resource type="Resource" id="Step_15"]
+script = ExtResource("2_step")
+kind = 3
+
+[resource]
+script = ExtResource("1_call")
+voice = "m"
+caller = "Sebastião Falcão"
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09"), SubResource("Step_10"), SubResource("Step_11"), SubResource("Step_12"), SubResource("Step_13"), SubResource("Step_14"), SubResource("Step_15")])

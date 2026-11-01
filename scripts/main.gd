@@ -24,6 +24,7 @@ const WARM_TINT := Color(1.0, 0.62, 0.36, 0.35)   # a luminária recém-acesa: o
 const Badges := preload("res://scripts/model/badges.gd")
 const Dialing := preload("res://scripts/dialing.gd")
 const Rebellion := preload("res://scripts/model/rebellion.gd")
+const SIGN_BACK := 8   # horas depois do início do turno em que o letreiro do hotel volta a acender no golpe vencido (2h)
 const MIDNIGHT := 360.0   # minutos depois do início do turno: na última noite, a conta do golpe (`_midnight`)
 const TAB_KEYS := {Tools.DIRECTORY: "tab_directory", Tools.DISPATCH: "tab_dispatch", Tools.LOGBOOK: "tab_logbook", Tools.CALL_LOG: "tab_call_log"}
 var C: GameContent = GameData.CONTENT
@@ -40,7 +41,9 @@ var progress: Progress             ## progresso salvo; nulo quando a noite foi f
 var flags: StoryFlags:             ## marcadores do roteiro valendo agora: os salvos + os desta noite (mudam a sala)
 	set(v):
 		flags = v
-		flags.changed.connect(func(n: String, _on: bool):
+		flags.changed.connect(func(n: String, on: bool):
+			if on and n.begins_with(StoryFlags.FAULT):   # (a cobrança do supervisor no Dia 12)
+				supervisor.fault("authority_ignored")
 			if not n in Rebellion.DERIVED:   # o fator sucesso acompanha os marcadores (as conclusões dele não recontam)
 				Rebellion.sync(flags, night_no)
 			_update_room())
@@ -131,6 +134,8 @@ func _ready() -> void:
 	if night.clears_at >= 0.0:
 		background.clears_at = SHIFT_START_HOUR * 60 + night.clears_at
 	background.night = night_no
+	if night_no == C.nights.size():   # a última noite: o letreiro do hotel apagado (acende às 2h com o golpe vencido, `_midnight`)
+		background.sign_from = INF
 	Rebellion.sync(flags, night_no)
 	for e in night.street_events:
 		if e.requires.is_empty():
@@ -277,9 +282,11 @@ func _midnight() -> void:
 	if _verdict or night_no != C.nights.size() or minutes < MIDNIGHT:
 		return
 	_verdict = true
-	var won := Rebellion.won(flags, night_no)
+	var won := Rebellion.won(flags, night_no + 1)   # (a conta como depois da noite: as ordens dela já valem)
 	flags.apply(Rebellion.WON if won else Rebellion.LOST)
-	flags.apply(Rebellion.FINALS[Rebellion.final(flags, night_no)])   # (a ligação da cúpula na presa, o epílogo)
+	if won:
+		background.sign_from = (SHIFT_START_HOUR + SIGN_BACK) * 60.0
+	flags.apply(Rebellion.FINALS[Rebellion.final(flags, night_no + 1)])   # (a ligação da cúpula na presa, o epílogo)
 	if not won:
 		shift_end = MIDNIGHT
 		last_call = minf(last_call, MIDNIGHT)

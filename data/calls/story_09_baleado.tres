@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_em"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[resource]
+script = ExtResource("1_em")
+voice = "f"
+caller = "Senhora"
+opening = "Central! Teve tiroteio aqui perto! Meu filho levou um tiro no ombro!"
+questions = PackedStringArray("Qual é o endereço?", "Ele está respirando bem?", "O tiroteio acabou?")
+answers = PackedStringArray("Rua do Sol, 190, a casa azul!", "Tá, mas sangra muito no ombro!", "Não! Ainda tão atirando lá na esquina!")
+street = "sol"
+block = 1
+address = "Rua do Sol, 190"
+occurrence = "Outro"
+units = PackedStringArray("pol", "amb")
+after = "Rápido! Eu tô segurando um pano no ombro dele."
+stage_sec = Vector3(45, 18, 18)
+worsening = "Ele tá com frio, tremendo todo!"
+worsening_question = "Ele está acordado?"
+worsening_answer = "Tá, mas não para de tremer!"
+critical = "Ele tá fechando o olho! Fala comigo, filho!"
+critical_units = PackedStringArray("amb")
+critical_question = "Ele ainda responde?"
+critical_answer = "Só geme! Não responde mais!"
+lost = "Ele... ele parou. Ninguém veio."
+lost_answer = "Não respira direito!"
+lost_units = PackedStringArray("amb")

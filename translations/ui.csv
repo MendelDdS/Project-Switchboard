@@ -224,7 +224,7 @@ MAP_POLICE,Delegacia,Police station,Comisaría
 MAP_FIRE_STATION,Bombeiros,Fire station,Bomberos
 MAP_GROCERY,Mercearia,Grocery,Almacén
 MAP_FUNERAL,Funerária,Funeral home,Funeraria
-MAP_HOTEL,Hotel Estrela,Hotel Estrela,Hotel Estrela
+MAP_HOTEL,Hotel Serena,Hotel Serena,Hotel Serena
 MAP_GAS_STATION,Posto,Gas station,Gasolinera
 MAP_RADIO,Rádio Serena,Rádio Serena,Rádio Serena
 MAP_GARAGE,Oficina,Garage,Taller
@@ -251,7 +251,7 @@ MAP_POLICE_OF,da delegacia,the police station,de la comisaría
 MAP_FIRE_STATION_OF,dos bombeiros,the fire station,de los bomberos
 MAP_GROCERY_OF,da mercearia,the grocery,del almacén
 MAP_FUNERAL_OF,da funerária,the funeral home,de la funeraria
-MAP_HOTEL_OF,do Hotel Estrela,the Hotel Estrela,del Hotel Estrela
+MAP_HOTEL_OF,do Hotel Serena,the Hotel Serena,del Hotel Serena
 MAP_GAS_STATION_OF,do posto,the gas station,de la gasolinera
 MAP_RADIO_OF,da Rádio Serena,Rádio Serena,de Rádio Serena
 MAP_GARAGE_OF,da oficina,the garage,del taller
@@ -376,6 +376,7 @@ FAULT_BUREAUCRACY,Norma da companhia descumprida,Company rule broken,Norma de la
 FAULT_TAPE_CAUGHT,Perceberam a escuta pedida pelas autoridades,The wiretap the authorities asked for was noticed,Notaron la escucha que pidieron las autoridades
 FAULT_TAPE_MISSED,Ligação pedida pelas autoridades não foi gravada,A call flagged by the authorities was not recorded,Una llamada marcada por las autoridades no fue grabada
 FAULT_TAPE_AUTHORITY,Fita com a conversa das próprias autoridades entregue a elas,Tape of the authorities' own conversation handed to them,Cinta con la conversación de las propias autoridades entregada a ellas
+FAULT_AUTHORITY_IGNORED,Ligações das autoridades não completadas (reclamação da Alta Cúpula),Authority calls not completed (High Command complaint),Llamadas de las autoridades no completadas (queja de la Alta Cúpula)
 FAULT_TAPE_NONE,Nenhuma fita entregue às autoridades numa noite com ligação para o bar,No tape handed to the authorities on a night with calls to the bar,Ninguna cinta entregada a las autoridades en una noche con llamadas al bar
 FAULT_DISPATCH_TYPE,Ocorrência classificada errado,Incident misclassified,Incidente mal clasificado
 FAULT_EMERGENCY_WORSE,A emergência se agravou antes do despacho,The emergency got worse before dispatch,La emergencia empeoró antes del despacho

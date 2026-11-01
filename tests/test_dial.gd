@@ -152,7 +152,7 @@ func _initialize() -> void:
 		st.text = k[1]
 		if k[0] == PrankStep.Kind.OPERATOR:
 			st.options = PackedStringArray(["Quem fala?"])
-			st.sets = PackedStringArray(["perguntou_quem"])
+			st.sets = PackedStringArray([StoryFlags.FAULT + "teste"])   # (como a cobrança do Dia 12: advertência)
 		story.steps.append(st)
 	story.take_over_path("res://data/dial/teste.tres")   # (o nome do arquivo dá o marcador `discou_teste`)
 	m.night.dial.append(story)
@@ -168,7 +168,8 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return not c.options.is_empty(), 30.0), "a pergunta do roteiro")
 	c.options[0]["fn"].call()
 	ok(await wait_until(func(): return d.call == null, 30.0), "a do roteiro acaba sozinha")
-	ok(m.flags.allows(["perguntou_quem", "fez_a_ligacao", "discou_teste"]), "os marcadores da escolha, do fim e do feito")
+	ok(m.flags.allows([StoryFlags.FAULT + "teste", "fez_a_ligacao", "discou_teste"]), "os marcadores da escolha, do fim e do feito")
+	ok(m.report.faults.any(func(f): return f["id"] == "authority_ignored"), "o marcador advertencia_ vira advertência")
 	_type("355")
 	d.dial()
 	ok(d.call != null and d.call.data != story, "feita, o número volta ao de sempre")

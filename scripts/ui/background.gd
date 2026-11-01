@@ -287,7 +287,7 @@ var _police_next := false   # o próximo da mão de lá é a viatura que para no
 var _curfew_next := false   # o próximo da mão de lá é a viatura do toque de recolher (`curfew`)...
 var _curfew_sent := false   # ...que já foi chamada
 ## As cenas que deixam marca (`scene_at`): passada a hora, a marca fica (os papéis no chão, a tinta, a banca fechada).
-const MARKS := ["flyers", "graffiti", "paint", "newsstand", "moving", "stone"]
+const MARKS := ["flyers", "graffiti", "paint", "newsstand", "moving", "stone", "closed"]
 const LASTING := ["graffiti", "paint", "newsstand", "moving", "stone", "banner"]   ## ...e as que ficam nas noites seguintes (`left_behind`)
 const SPRAY_EVERY := 1.1   ## de quanto em quanto tempo um jato do spray (s)
 var _scene_car := ""   # o próximo da mão de lá é o carro desta cena (`scene_at`, `_scene_car_of`)
@@ -1322,7 +1322,7 @@ func left_behind(kind: String) -> void:
 ## Começa a cena `kind` (`scene_at`): a que vem de carro, ele é o próximo da mão de lá (com ela livre, já); a corrida,
 ## quando os carros que estão passando saírem (`_scene_t` negativo até lá).
 func _start_scene(kind: String) -> void:
-	if kind in ["flare", "stone", "banner", "arrest"]:   # (no céu, de quem não aparece, na varanda ou o fim do jogo: não espera a rua)
+	if kind in ["flare", "stone", "banner", "arrest", "closed"]:   # (no céu, de quem não aparece, na varanda, o fim do jogo ou o hotel fechado: não espera a rua)
 		_scene_t[kind] = 0.0
 		return
 	if kind in ["speaker", "flyers", "newsstand", "parade", "moving", "raid"]:
@@ -2681,7 +2681,7 @@ func _back_state() -> Array:
 	return [_vport.size, _near, weather, window_art, int(minutes), flick, lamp_level > 0.5, snappedf(_flash(), 0.02),
 		_sign_on(), stars, clouds, _moon_light(), snappedf(minutes, 0.5) if weather != "rain" and _moon_t() < 1.0 else 0.0,
 		snappedf(dawn(), 0.005), _posts_on(), Newsstand.state(_scene_t.get("newsstand", -1.0)).snapped(Vector3(0.05, 0.01, 1.0)),
-		Moving.laundry(_scene_t.get("moving", -1.0)), _apt_gone(), _banner_on(), Raid.floors(_scene_t.get("raid", -1.0))]   # (a lua e o sol subindo: meio minuto, ~0,6 px)
+		Moving.laundry(_scene_t.get("moving", -1.0)), _apt_gone(), _banner_on(), Raid.floors(_scene_t.get("raid", -1.0)), _scene_t.has("closed")]   # (a lua e o sol subindo: meio minuto, ~0,6 px)
 
 
 ## À noite, com a sala acesa, o vidro reflete um pouco dela, por cima da cidade (e da silhueta, que fica atrás do

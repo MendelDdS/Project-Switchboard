@@ -891,3 +891,22 @@ com o de quem já é desenhado com detalhe ali perto; o que apagava o detalhe er
 Deixei o relatório do supervisor no fim da noite 16 e perguntei se estava bom; o usuário: "Não tem relatório, já
 falei isso. Após o epílogo seriam os créditos basicamente". Antes de listar dúvidas, procure a resposta no
 `HISTORICO.md` e no `PLANO_ROTEIRO.md`; o que já foi dito vira código, não pergunta.
+
+## Figura pequena na vista: conferir a cor final na captura, pixel a pixel
+O homem de sobretudo saiu "marrom" duas vezes: a luz do contorno do rig (`_draw_pixels`) acende as beiras de cima e do
+lado, e numa figura de 3–4 px quase todo pixel é beira; e a gradação da noite clareia os escuros (um `2c2b2d` vira
+`3a3a3d`). Figura pequena que tem de parecer preta: sem contorno (`rim`) e cor bem escura no `Pal`, conferida no
+valor do pixel da captura, não só no olho. Desenho próprio com retângulos em metros (o antigo) flutuava e não tinha
+rosto: pessoa na rua é sempre o rig de quem passa.
+
+## Quem tem nome tem a voz da pessoa, e lugar tomado fecha
+A Morgana saiu com a voz "w" (homem velho) porque a voz do contato foi escrita sem conferir quem é; e as centrais dos
+setores continuavam atendendo depois que o setor passou à Maria. Pelo modelo físico: setor entregue é central fechada,
+sem ninguém do outro lado. Ao criar contato com nome, confira a voz pelo sexo e pela idade; ao mudar quem atende um
+setor, feche o que ficou para trás (`gone_from`).
+
+## Sugestão de design: resolver o problema, não criar sistema
+Pedido "sugira desculpas e consequências", propus conferir a desculpa com a noite, mentira descoberta depois, contador
+de suspeita em degraus e cobranças em seis noites. O usuário recusou: "vai só adicionar mais coisa no jogo sendo que
+podemos simplificar o que de fato é problema". Antes de sugerir mecânica, diga qual problema ela resolve e proponha o
+menor ajuste no que já existe; sistema novo só se ele pedir.

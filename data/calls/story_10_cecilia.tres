@@ -1,0 +1,55 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_call"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_00"]
+script = ExtResource("2_step")
+text = "Maria? É a Cecília. Não pergunte de onde estou ligando."
+
+[sub_resource type="Resource" id="Step_01"]
+script = ExtResource("2_step")
+text = "Eu deixei o Alto da Serra. Hoje eu vou embora de São Sotero, e não sei se volto."
+
+[sub_resource type="Resource" id="Step_02"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("O que aconteceu?", "Você está bem?")
+sets = PackedStringArray()
+
+[sub_resource type="Resource" id="Step_03"]
+script = ExtResource("2_step")
+text = "Vieram atrás de mim. Eu saí pelos fundos, a tempo. Outros não vão ter a mesma sorte."
+
+[sub_resource type="Resource" id="Step_04"]
+script = ExtResource("2_step")
+text = "Por isso eu preciso de você: ligue pelo seu discador para a Casa Paroquial, o 120, e peça abrigo para algumas famílias. Hoje."
+
+[sub_resource type="Resource" id="Step_05"]
+script = ExtResource("2_step")
+text = "O padre vai entender. Diga que é pelas famílias do Alto."
+
+[sub_resource type="Resource" id="Step_06"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Eu ligo.", "Cecília, e você?")
+sets = PackedStringArray("", "cecilia_e_voce_10")
+
+[sub_resource type="Resource" id="Step_07"]
+script = ExtResource("2_step")
+text = "Eu me viro. Sempre me virei."
+requires = PackedStringArray("cecilia_e_voce_10")
+
+[sub_resource type="Resource" id="Step_08"]
+script = ExtResource("2_step")
+text = "Obrigada, Maria. Por tudo."
+
+[sub_resource type="Resource" id="Step_09"]
+script = ExtResource("2_step")
+kind = 3
+
+[resource]
+script = ExtResource("1_call")
+voice = "f"
+caller = "Cecília"
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09")])

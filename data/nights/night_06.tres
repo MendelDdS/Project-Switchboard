@@ -2,13 +2,39 @@
 
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
+[ext_resource type="Script" path="res://scripts/data/story_call.gd" id="x0_story_call"]
+[ext_resource type="Resource" path="res://data/calls/story_06_sebastiao_acordo.tres" id="x1_story_06_sebastiao_acordo"]
+[ext_resource type="Resource" path="res://data/calls/story_06_bar_sinal_1.tres" id="x2_story_06_bar_sinal_1"]
+[ext_resource type="Resource" path="res://data/calls/story_06_bar_sinal_2.tres" id="x3_story_06_bar_sinal_2"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
 kind = "flyers"
 at = 70.0
 
+[sub_resource type="Resource" id="S_acordo"]
+script = ExtResource("x0_story_call")
+at = 30.0
+call = ExtResource("x1_story_06_sebastiao_acordo")
+requires = PackedStringArray("senha_hotel_4", "!denunciou_bar_4")
+again = false
+
+[sub_resource type="Resource" id="S_bar1"]
+script = ExtResource("x0_story_call")
+at = 120.0
+call = ExtResource("x2_story_06_bar_sinal_1")
+requires = PackedStringArray("senha_hotel_4", "!denunciou_bar_4")
+again = false
+
+[sub_resource type="Resource" id="S_bar2"]
+script = ExtResource("x0_story_call")
+at = 220.0
+call = ExtResource("x3_story_06_bar_sinal_2")
+requires = PackedStringArray("senha_hotel_4", "!denunciou_bar_4")
+again = false
+
 [resource]
 script = ExtResource("1_night")
-note = "O supervisor deixou um recado: \"Sábado o Centro tem baile e a praça cheia. Fique atento.\""
+note = "O supervisor deixou um recado: \"Sábado o Centro tem baile e a praça cheia. Fique atento. A linha do Bar do Zé continua bloqueada.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0")])
+story = Array[ExtResource("x0_story_call")]([SubResource("S_acordo"), SubResource("S_bar1"), SubResource("S_bar2")])

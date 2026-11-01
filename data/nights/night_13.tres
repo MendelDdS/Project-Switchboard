@@ -19,7 +19,9 @@ script = ExtResource("2_event")
 kind = "stranger"
 at = 240.0
 
+
+
 [resource]
 script = ExtResource("1_night")
-note = "O supervisor deixou um recado: \"Faltam poucas noites para a avaliação do mês.\""
+note = "O supervisor deixou um recado: \"Recebemos uma notícia triste: a Cecília, telefonista do Alto da Serra, faleceu. Não temos detalhes. Por segurança, há policiais no prédio esta noite, para a sua proteção. Não abra a porta para ninguém e siga trabalhando normalmente.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1"), SubResource("ev_2")])

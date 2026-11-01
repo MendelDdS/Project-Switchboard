@@ -32,7 +32,7 @@ follow = "Quarenta cruzeiros, com café da manhã."
 
 [sub_resource type="Resource" id="Answer_0"]
 script = ExtResource("8_chat")
-line = "Hotel Estrela, boa noite. Em que posso ajudar?"
+line = "Hotel Serena, boa noite. Em que posso ajudar?"
 replies = Array[ExtResource("9_reply")]([SubResource("Answer_0_0"), SubResource("Answer_0_1"), SubResource("Answer_0_2")])
 
 [sub_resource type="Resource" id="Answer_1_0"]
@@ -52,16 +52,16 @@ follow = "Tudo calmo. Só o letreiro da fachada que anda piscando."
 
 [sub_resource type="Resource" id="Answer_1"]
 script = ExtResource("8_chat")
-line = "Estrela, recepção. Pois não?"
+line = "Serena, recepção. Pois não?"
 replies = Array[ExtResource("9_reply")]([SubResource("Answer_1_0"), SubResource("Answer_1_1"), SubResource("Answer_1_2")])
 
 [resource]
 script = ExtResource("1_entry")
-name = "Hotel Estrela"
+name = "Hotel Serena"
 address = "Avenida Brasil, 30"
 number = "305"
-hello = "Hotel Estrela, boa noite."
+hello = "Hotel Serena, boa noite."
 category = "hospedagem"
-spoken = "o Hotel Estrela"
+spoken = "o Hotel Serena"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_25"), SubResource("Motive_26")])
 answers = Array[ExtResource("8_chat")]([SubResource("Answer_0"), SubResource("Answer_1")])

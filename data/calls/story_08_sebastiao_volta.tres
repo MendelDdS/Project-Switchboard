@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_call"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_00"]
+script = ExtResource("2_step")
+text = "Maria, Sebastião de novo. É rápido."
+
+[sub_resource type="Resource" id="Step_01"]
+script = ExtResource("2_step")
+text = "A Joana recebeu o recado. Obrigado. Tem gente que vai dormir melhor hoje por sua causa."
+requires = PackedStringArray("hospital_8")
+
+[sub_resource type="Resource" id="Step_02"]
+script = ExtResource("2_step")
+text = "A Joana ainda não recebeu nada. Ainda dá tempo, mas não muito."
+requires = PackedStringArray("!hospital_8")
+
+[sub_resource type="Resource" id="Step_03"]
+script = ExtResource("2_step")
+text = "Boa noite."
+
+[sub_resource type="Resource" id="Step_04"]
+script = ExtResource("2_step")
+kind = 3
+
+[resource]
+script = ExtResource("1_call")
+voice = "m"
+caller = "Sebastião Falcão"
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04")])

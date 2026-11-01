@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_em"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[resource]
+script = ExtResource("1_em")
+voice = "m"
+caller = "Rapaz"
+opening = "Central! Atiraram num homem aqui na rua! Ele tá caído no chão!"
+questions = PackedStringArray("Qual é o endereço?", "Ele está consciente?", "Quem atirou ainda está aí?")
+answers = PackedStringArray("Rua da Estação, 120, em frente à banca!", "Tá gemendo, sangrando muito na perna!", "Fugiram de carro, mas tão dando volta no quarteirão!")
+street = "estacao"
+block = 1
+address = "Rua da Estação, 120"
+occurrence = "Outro"
+units = PackedStringArray("pol", "amb")
+after = "Rápido, pelo amor de Deus! Tô apertando a perna dele com a minha camisa."
+stage_sec = Vector3(45, 18, 18)
+worsening = "Ele tá ficando branco! Não para de sangrar!"
+worsening_question = "Ele ainda responde?"
+worsening_answer = "Responde, mas bem fraquinho!"
+critical = "O carro voltou! Tão atirando de novo pra cá!"
+critical_units = PackedStringArray("pol")
+critical_question = "Tem mais alguém ferido?"
+critical_answer = "Não sei, eu me escondi atrás do muro!"
+lost = "Ele parou de falar... Ninguém veio."
+lost_answer = "Ele tá desacordado! Mandem alguém!"
+lost_units = PackedStringArray("amb")

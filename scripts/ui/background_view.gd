@@ -54,10 +54,9 @@ const CROSS_MANHOLE := Vector2(0.6, 19.0)   ## ...e a da rua do cruzamento
 const CROSS_DETAIL := 45.0   ## até onde (z, m) o chão da rua do cruzamento tem detalhe (depois, menor que um pixel)
 const DRAINS := [-9.1, 11.0]          ## as bocas de lobo no meio-fio de lá (x, m)
 const FAR_LAMPS := [6.2, -10.9, 15.1]  ## os postes da calçada de lá (x, m): o primeiro na esquina do prédio de tijolos, com o homem
-const MAN_X := 6.7        ## onde o homem fica, embaixo do poste da esquina
+const MAN_X := 7.4        ## onde o homem fica, embaixo do poste da esquina
 const MAN_FROM := 13.0    ## de onde ele vem pela calçada (x, m; fora do vidro) e para onde volta
 const MAN_WALK := 4.5     ## quanto ele leva andando de lá até o poste (min de jogo: ~5 s, ~1,6 m/s)
-const MAN_STRIDE := 0.75  ## o passo dele (m)
 const BEHIND_BUSH := 3.6 ## a distância (m) em que quem vem para cá entra atrás da copa do arbusto (`_draw_arrest`)
 const MAN_STAY := 50.0    ## quanto ele fica parado embaixo do poste (min de jogo: nas noites 13 e 14, das 22h às 22h50, e some antes da pedra das 23h)
 ## A porta do bar, ao lado da vitrine (de x a y, m): de vez em quando alguém sai por ela (`_bar_t`, posto pelo
@@ -93,7 +92,7 @@ const EMBER := Color(1.0, 0.45, 0.15)
 const CAT_NIGHTS := 0.5
 const CAT_EYES := Color(0.85, 0.9, 0.35)
 const BIKE_SEC := 4.8     ## quanto quem passa de bicicleta leva de um lado ao outro (~4,5 m/s; cada um ±15%)
-## Os telefones da lista que se veem do outro lado da rua (`phones`, posto pelo Main): o Hotel Estrela, no saguão, pela
+## Os telefones da lista que se veem do outro lado da rua (`phones`, posto pelo Main): o Hotel Serena, no saguão, pela
 ## porta embaixo da marquise, e o Bar do Zé, atrás da vitrine. Transferida a ligação para um deles, alguém vem atender.
 const CALLED := [305, 327]
 const PHONE_WALK := 1.6   ## quanto a pessoa leva até o telefone (s)
@@ -1224,15 +1223,15 @@ func _draw_city_front(g: Rect2) -> void:
 		_draw_rig(g, p, _door_clip(g, p["x"], p["z"]))
 	for x: float in FAR_LAMPS:
 		_draw_lamp_post(g, x, posts)
+	var mx := _man_x()   # (depois do poste: a luz dele, por cima, tingia o sobretudo de marrom; fica ao lado dele, sem cruzar)
+	if not is_nan(mx):
+		_draw_stranger(g, mx)
 	for p: Dictionary in ahead:
 		_draw_rig(g, p, _door_clip(g, p["x"], p["z"]))
 	_draw_blood(g, true)
 	_draw_flyers(g, true)
 	if weather == "clear" and _posts_on():
 		_draw_moths(g)
-	var mx := _man_x()
-	if not is_nan(mx):
-		_draw_stranger(g, mx)
 	if _scene_t.has("arrest"):
 		_draw_arrest(g, false)
 	_cars.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:   # o de lá primeiro; na mesma mão, o mais longe do meio da vista
@@ -2530,6 +2529,8 @@ func _win_lit(b: Dictionary, j: int) -> bool:
 	var woke: Vector2 = b["wake"].get(j, Vector2.ZERO)
 	if wv.y >= 1.0 and wv.y <= Raid.floors(_scene_t.get("raid", -1.0)) and b["x0"] <= HOTEL_X and HOTEL_X <= b["x1"]:
 		return true   # a batida: os andares do hotel acendendo com a polícia subindo, e ficando acesos
+	if _scene_t.has("closed") and b["x0"] <= HOTEL_X and HOTEL_X <= b["x1"]:
+		return false   # o hotel fechado pela polícia: nenhuma janela acesa
 	return wv.z > minutes or (minutes >= woke.x and minutes < woke.y)
 
 
@@ -3814,46 +3815,28 @@ func _man_x() -> float:
 	return lerpf(MAN_X, MAN_FROM, (minutes - stranger.y) / MAN_WALK)
 
 
-## O homem de sobretudo na calçada de lá (o policial que vigia Maria, que o jogador nunca confirma), em `x` (`_man_x`), de chapéu e casaco comprido, com 1,8 m: andando, na
-## passada de quem passa (`_gait`); parado embaixo do poste da esquina, fica contra a luz dele, com a sombra no chão para longe
-## dela, fumando (a brasa, a tragada e a fumaça). Em px da tela; a névoa e a chuva passam por cima.
+## O homem de sobretudo na calçada de lá (o policial que vigia Maria, que o jogador nunca confirma), em `x` (`_man_x`):
+## o mesmo de perto na presa (`Arrest.COAT`, o rig de quem passa, com rosto, sobretudo comprido e chapéu), a 1,1 m do
+## meio-fio, atrás do poste da esquina. Andando, na passada do rig; parado, de frente para nós, fumando (a brasa na mão
+## caída, rente ao casaco; na tragada, na boca, mais acesa; depois o sopro, que pega a luz do poste, `_draw_smoke`).
+## Em px da tela; a névoa e a chuva passam por cima.
 func _draw_stranger(g: Rect2, x: float) -> void:
-	var z: float = STREET["far_curb"] + 1.1
 	var walking := x != MAN_X
-	var foot := (_o(g, x, z) * 2.0).floor()
-	var k := OUT_F / z * 2.0   # px da tela por metro
-	var s := signf(MAN_X - MAN_FROM) * (1.0 if minutes < stranger.x else -1.0)   # chegando ou indo embora
-	var gait := _gait(int(absf(x - MAN_FROM) / MAN_STRIDE * STRIDE.size()) if walking else -1, k, s, not walking)   # (parado, de frente para nós)
-	var hc := _o(g, x, z, 1.0)
-	var halo := PackedVector2Array()   # a luz do poste atrás dele, lisa
-	for i in 24:
-		halo.append(hc + Vector2.from_angle(TAU * i / 24.0) * k * 0.45)
-	_light_fan(hc, halo, Color(0.85, 0.62, 0.3, 0.16 * clampf(1.0 - absf(x - MAN_X) / 2.0, 0.0, 1.0)))
-	var dir := 1.0 if x >= (FAR_LAMPS[0] as float) else -1.0
-	_poly(PackedVector2Array([_o(g, x - 0.2, z), _o(g, x + 0.2, z), _o(g, x + dir * 2.4, z + 0.6), _o(g, x + dir * 2.0, z + 0.6)]),
-		Color(0, 0, 0, 0.5))
-	var parts: Array = []   # as pernas e os braços na passada (`_gait`), e por cima, em metros (x de um lado a outro,
-	# altura de baixo para cima): casaco, ombros, cabeça, aba e copa do chapéu
-	for i in [1, 0]:
-		_limb(parts, gait["arms"][i], 1, Color.BLACK)
-		_limb(parts, gait["legs"][i], maxi(1, roundi(0.13 * k)), Color.BLACK)
-	for part: Rect2 in [Rect2(-0.24, 0.55, 0.48, 0.8),
-			Rect2(-0.27, 1.25, 0.54, 0.2), Rect2(-0.1, 1.45, 0.2, 0.22), Rect2(-0.2, 1.66, 0.4, 0.05), Rect2(-0.11, 1.7, 0.22, 0.13)]:
-		parts.append([_m2px(part, k, gait["drop"]), Color.BLACK])
-	for pc: Array in parts:
-		var r: Rect2 = pc[0]
-		_p(foot.x + r.position.x, foot.y + r.position.y, r.size.x, r.size.y, pc[1])
-	if walking:
-		return
-	# parado, fuma (como quem fuma na varanda, `PUFF_EVERY`): a brasa na mão caída, rente ao casaco; na tragada, na
-	# boca, mais acesa, tingindo o rosto embaixo da aba; depois o sopro, que pega a luz do poste (`_draw_smoke`)
 	var pt := fmod(PixelArt.ms() / 1000.0, PUFF_EVERY)
-	var up := pt < 1.2
-	var ember := foot + (Vector2(0.06, -1.52) if up else Vector2(0.27, -0.82)) * k
+	var up := not walking and pt < 1.2
+	var p: Dictionary = Beating.STAND.merged(Arrest.COAT, true).merged({"x": x, "z": Arrest.POST.y, "front": not walking,
+		"s": signf(MAN_X - MAN_FROM) * (1.0 if minutes < stranger.x else -1.0),   # chegando ou indo embora
+		"walk": walking, "step": int(absf(x - MAN_FROM) / Beating.STEP) if walking else -1,
+		"arms": Arrest.SMOKE if up else Arrest.HANG, "ember": not walking, "rim": 0.0}, true)   # (sem o contorno aceso: estreito assim, ele pegava o corpo todo e o sobretudo saía marrom)
+	_draw_rig(g, p)
+	if not p.has("hand_at"):
+		return
+	var foot := (_o(g, x, p["z"]) * 2.0).floor()
+	var ember: Vector2 = foot + (p["hand_at"] as Vector2)
 	if up:
-		_p(roundf(ember.x) - 1.0, roundf(ember.y) - 1.0, 2, 1, Color(EMBER, 0.3 * smoothstep(0.0, 0.3, pt)))
-	_p(roundf(ember.x), roundf(ember.y), 1, 1, EMBER if up else EMBER.darkened(0.45))
-	_draw_smoke(g, foot, k, ember, not up, pt - 1.2 if pt > 1.2 else -1.0)
+		_p(ember.x - 1.0, ember.y - 1.0, 3, 1, Color(EMBER, 0.3 * smoothstep(0.0, 0.3, pt)))
+	_p(ember.x, ember.y, 1, 1, EMBER if up else EMBER.darkened(0.45))
+	_draw_smoke(g, foot, OUT_F / float(p["z"]) * 2.0, ember, not up, pt - 1.2 if pt > 1.2 else -1.0)
 
 
 ## O fim da presa (`Arrest`): o homem de sobretudo pelo rig (de perto, com o sobretudo comprido e o chapéu), com o
@@ -4229,6 +4212,7 @@ func _draw_rig(g: Rect2, p: Dictionary, clip := Rect2()) -> void:
 		if near > glow:
 			glow = near
 			side = 1.0 if lx >= x else -1.0
+	glow *= p.get("rim", 1.0)   # (`rim`: o contorno mais fraco, de quem é estreito demais e ficaria aceso inteiro)
 	var red := _beacon_at(x, z)   # a sirene, quando o facho dela passa
 	if red.x > glow:
 		_draw_pixels(foot, _rig_pixels(p, k), k, Pal.BEACON, red.x, red.y, clip)

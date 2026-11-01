@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_story"]
+
+[resource]
+script = ExtResource("1_story")
+group = 2
+voice = "m"
+caller = "Sebastião Falcão"
+opening = PackedStringArray("Maria, é o Sebastião. Escuta com atenção, que eu não posso repetir muito.", "O bar está bloqueado. Quem pedir o Bar do Zé e estalar os dedos três vezes, você passa pro Hotel Serena. Combinado?")
+repeat = "Bar do Zé com os três estalos: o Hotel Serena."
+target = ""
+destination = "Acordo"
+thanks = "Obrigado, Maria. Você não sabe o quanto isso ajuda."
+caller_name = "Sebastião Falcão"
+name_line = "Sebastião Falcão."
+refused_line = "Tudo bem. Eu entendo o medo. Boa noite."
+deal_from = "327"
+deal_to = "305"
+deal_signal = "estalos"

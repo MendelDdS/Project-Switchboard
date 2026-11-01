@@ -9,6 +9,8 @@ extends RefCounted
 
 signal changed(name: String, on: bool)
 
+const FAULT := "advertencia_"   ## marcador ligado com este começo é advertência (`ShiftReport` "authority_ignored", `Main.flags`)
+
 var _on := {}   ## nome -> true
 
 

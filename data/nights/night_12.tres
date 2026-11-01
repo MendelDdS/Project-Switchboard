@@ -2,6 +2,11 @@
 
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
+[ext_resource type="Script" path="res://scripts/data/story_call.gd" id="x0_story_call"]
+[ext_resource type="Resource" path="res://data/calls/story_12_sebastiao.tres" id="x1_story_12_sebastiao"]
+[ext_resource type="Resource" path="res://data/calls/story_12_cupula_telefonista.tres" id="x2_story_12_cupula_telefonista"]
+[ext_resource type="Resource" path="res://data/calls/story_12_cupula_ronda.tres" id="x3_story_12_cupula_ronda"]
+[ext_resource type="Resource" path="res://data/calls/story_12_supervisor.tres" id="x0_story_12_supervisor"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -13,7 +18,40 @@ script = ExtResource("2_event")
 kind = "newsstand"
 at = 20.0
 
+[sub_resource type="Resource" id="S_seb"]
+script = ExtResource("x0_story_call")
+at = 15.0
+call = ExtResource("x1_story_12_sebastiao")
+if_dropped = PackedStringArray("sebastiao_pediu_fita_12")
+again = false
+
+[sub_resource type="Resource" id="S_cup1"]
+script = ExtResource("x0_story_call")
+at = 120.0
+call = ExtResource("x2_story_12_cupula_telefonista")
+authority = true
+if_sebastiao = PackedStringArray("fita_sebastiao_12")
+again = false
+
+[sub_resource type="Resource" id="S_cup2"]
+script = ExtResource("x0_story_call")
+at = 240.0
+call = ExtResource("x3_story_12_cupula_ronda")
+authority = true
+if_sebastiao = PackedStringArray("fita_sebastiao_12")
+again = false
+
+[sub_resource type="Resource" id="S_sup"]
+script = ExtResource("x0_story_call")
+at = 5.0
+call = ExtResource("x0_story_12_supervisor")
+requires = PackedStringArray("cumpriu_9")
+again = false
+if_dropped = PackedStringArray("advertencia_cupula_12")
+if_missed = PackedStringArray("advertencia_cupula_12")
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Não esqueça: tudo o que acontece vai para a ficha.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1")])
+story = Array[ExtResource("x0_story_call")]([SubResource("S_seb"), SubResource("S_cup1"), SubResource("S_cup2"), SubResource("S_sup")])

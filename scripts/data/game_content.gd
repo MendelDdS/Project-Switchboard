@@ -40,7 +40,7 @@ const DialCall := preload("res://scripts/data/dial_call.gd")
 @export var pranks: Array[PrankCall] = []
 
 @export_group("Moldes")
-## Transferências com lacunas: {place} "o Hotel Estrela", {of_place} "do Hotel Estrela", {to_place} "pro Hotel Estrela",
+## Transferências com lacunas: {place} "o Hotel Serena", {of_place} "do Hotel Serena", {to_place} "pro Hotel Serena",
 ## {street} rua do contato, {number} "305", {digits} "três, zero, cinco", {reason} um dos motivos do contato.
 ## Só vão para contatos com `spoken` e `motives` que atendem à noite (a conversa depois de conectados vem do motivo).
 ## Quem liga sai de `callers`.
@@ -146,7 +146,7 @@ const DialCall := preload("res://scripts/data/dial_call.gd")
 @export_multiline var low_warning := ""
 
 @export_group("Pedidos de informação")
-## %s vira "do Hotel Estrela" (DirectoryEntry.spoken com "d" na frente).
+## %s vira "do Hotel Serena" (DirectoryEntry.spoken com "d" na frente).
 @export var ask_number: PackedStringArray = []
 @export var info_thanks: PackedStringArray = []
 @export var info_doubt: PackedStringArray = []

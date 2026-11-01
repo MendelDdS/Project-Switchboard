@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_story"]
+
+[resource]
+script = ExtResource("1_story")
+group = 2
+voice = "m"
+caller = "Policial"
+opening = PackedStringArray("A delegacia, por favor. Polícia.")
+repeat = "A delegacia."
+target = "184"
+destination = "Delegacia de Polícia"
+thanks = "Obrigado."
+overheard = PackedStringArray("Plantão? Aqui é o Bastos. Estou na porta do hotel.", "E aí, Bastos? Fecharam?", "Lacrado desde as [time:cinco]. Mandamos todo mundo embora. Ficou só o [person:vigia] pra atender o telefone.", "Deixa ele lá. Quem ligar pro [place:Hotel Serena] hoje, a gente quer saber quem é.", "E o bar?", "O [place:Bar do Zé] fecha amanhã, às [time:onze]. Até lá ninguém mexe: quero ver quem aparece.", "Entendido. Fico aqui até a troca.")
+caller_name = "Jorge Bastos"
+name_line = "Jorge Bastos, da polícia."
+code_line = "Autorização {code}."

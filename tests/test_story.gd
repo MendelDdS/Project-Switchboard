@@ -28,16 +28,19 @@ func _initialize() -> void:
 	ok(R.radio(_f(radio_ok + [R.TAPE_GUNS, R.TAPE_GROUP_C]), 10), "rádio: armas + grupo C com o hospital avisado, ainda vem")
 
 	# os caminhos do roteiro até a noite 11 (a carta) e a 15 (o golpe)
-	var full := [R.HOTEL, R.HOSPITAL, R.IGNORED, R.PARISH]   # colaborou em tudo
+	var done: Array = []   # as ordens de Sebastião nas noites 14 e 15, cumpridas
+	for o: Array in R.ORDERS:
+		done.append_array(o[0])
+	var full := [R.HOTEL, R.HOSPITAL, R.IGNORED, R.PARISH] + done   # colaborou em tudo
 	ok(R.level(_f(full), 11) == R.Level.HIGH, "colaborou: chances altas no Dia 11 (a carta amiga)")
 	ok(R.level(_f(full + [R.TAPE_SEBASTIAO]), 15) == R.Level.HIGH and R.won(_f(full + [R.TAPE_SEBASTIAO]), 15), "colaborou: vence")
 	var obeyed := full + [R.TAPE_SEBASTIAO, R.OBEYED + "a", R.OBEYED + "b"]
 	ok(R.won(_f(obeyed), 15), "chances altas: dois vacilos não derrubam")
 	ok(not R.won(_f(obeyed + [R.OBEYED + "c", R.OBEYED + "d"]), 15), "chances altas: vacilos grandes derrubam")
-	var bitter := [R.HOTEL, R.TAPE_GUNS, R.HOSPITAL, R.IGNORED, R.PARISH]   # vitória amarga: entregou a das armas
+	var bitter := [R.HOTEL, R.TAPE_GUNS, R.HOSPITAL, R.IGNORED, R.PARISH] + done   # vitória amarga: entregou a das armas
 	ok(R.level(_f(bitter), 11) == R.Level.MEDIUM, "fita das armas: cai pela metade, chances médias")
 	ok(R.won(_f(bitter + [R.TAPE_SEBASTIAO]), 15) and R.level(_f(bitter + [R.TAPE_SEBASTIAO]), 14) != R.Level.HIGH, "vitória amarga: vence, mas a pedra vem")
-	var late := [R.HOSPITAL, R.IGNORED, R.PARISH]   # não colaborou até o Dia 8, depois sim: só a rádio
+	var late := [R.HOSPITAL, R.IGNORED, R.PARISH] + done   # não colaborou até o Dia 8, depois sim: só a rádio
 	ok(R.level(_f(late), 11) == R.Level.MEDIUM, "voltou no Dia 8: chances médias, sem margem")
 	ok(not R.won(_f(late + [R.OBEYED + "a"]), 15), "voltou no Dia 8: o primeiro vacilo derruba")
 	ok(R.won(_f(late + [R.TAPE_SEBASTIAO, R.OBEYED + "a"]), 15), "voltou no Dia 8 e deu a fita a Sebastião: aguenta um vacilo")
@@ -46,6 +49,10 @@ func _initialize() -> void:
 	ok(R.level(_f(full + [R.TAPE_CHIEF]), 11) == R.Level.MEDIUM, "fita do comandante: cai pela metade")
 	ok(R.level(_f(full + [R.WARNED_HOTEL]), 11) == R.Level.MEDIUM, "hotel avisado: cai um pouco (de 4 a 3)")
 	ok(R.points(_f(full), 12) == R.points(_f(full), 13) + 1, "a fita de Sebastião que não veio só conta depois da noite 12")
+	var undone := full.filter(func(x: String) -> bool: return not x in done) + [R.TAPE_SEBASTIAO]
+	ok(R.points(_f(undone), 15) == R.points(_f(full + [R.TAPE_SEBASTIAO]), 15) - 1, "a ordem da noite 14 não cumprida: um vacilo, contado na 15")
+	ok(R.points(_f(undone), 16) == R.points(_f(full + [R.TAPE_SEBASTIAO]), 16) - 3, "as ordens da 15 só contam à meia-noite (a conta como noite 16)")
+	ok(R.points(_f(undone + ["sinal_centro_15"]), 16) == R.points(_f(undone), 16), "o sinal só a um dos setores não cumpre a ordem")
 	ok(R.points(_f([]), 8) == 0 and R.points(_f([]), 9) == -2, "o hospital esquecido só conta depois da noite 8")
 
 	# os finais, à meia-noite da 15

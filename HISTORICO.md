@@ -3122,3 +3122,48 @@ Chaves:
     noites 14 e 15 do que atendeu. "Não tem relatório, já falei isso. Após o epílogo seriam os créditos": o fim do
     jogo (epílogo ou presa) não mostra relatório, e depois do fecho vêm os créditos. As conversas do roteiro entram no
     caderno como ligação comum ("não tem motivo de criar um tipo novo").
+    Passo 10, as falas ("pode escrever as falas e depois eu vou testar"). Dia 14: as autoridades pedem gravar as
+    conversas suspeitas do bar e do hotel e não transferir para a rádio e a TV; os rebeldes, gravar as conversas das
+    autoridades e mandar a Sebastião (a polícia fala das suspeitas e do cerco ao aeroporto e à ferrovia, e de fechar o
+    hotel e o bar, "então nesse dia o hotel estará com as luzes das janelas apagadas"; a Cúpula, de levar o líder
+    político ao setor 1 e tirá-lo de avião, e de estar perto do paradeiro do comandante). Dia 15: as autoridades,
+    rádio e TV bloqueadas "sujeito a prisão", denunciar na delegacia quem ligar para o bar ou o hotel, transferir
+    tudo para a delegacia e a Cúpula (ligações estratégicas: o grupo avança por tal rua, mandem viaturas); os
+    rebeldes, não transferir nenhuma ligação das autoridades, no sinal das 21h ligar para os 2 setores dizendo que
+    começou e às 22h pedir uma música à rádio (instrução da carta). "As ligações sem informações são as comuns" (as
+    duas do bar nas noites 7 e 8 não pedem nada novo); a reação sem o código da B3 já existe ("Não posso transferir sem
+    uma autorização"). Feito: o hotel 305 passa a se chamar Hotel Serena na lista também; "os 2 setores" são a Casa
+    Paroquial (120, Centro) e o Armazém Ferreira (288, Alto da Serra, o do comandante); a música é a "Canção da
+    Madrugada"; cada ordem de Sebastião não cumprida é um vacilo (`Rebellion.ORDERS`); à meia-noite da 15, o bar
+    pelo discador dá a mensagem de liberdade (do documento).
+504. #vista #rua "O homem de sobretudo está na frente do poste e parece estar flutuando, os detalhes dele também estão
+    ruins, ele está todo preto e deveria ser uma pessoa normal com sobretudo e chapéu preto, mas precisa ter rosto
+    como os pedestres"; depois, "A roupa precisa ser preta, na imagem está marrom". Ele passa a ser o rig de quem passa
+    (o mesmo da presa, `Arrest.COAT`), no tamanho dos pedestres, com os pés no chão, ao lado do poste da esquina
+    (`MAN_X` 7,4, e `Arrest.POST`), sem o contorno aceso (estreito, pegava o corpo todo e ficava marrom) e com o
+    sobretudo e o chapéu pretos (`Pal.STRANGER`, mais escuro também na presa).
+505. #vista #roteiro "O neon apaga no dia 15, mas às 2h da manhã ele acende se o golpe deu certo." O letreiro do hotel
+    fica apagado a última noite inteira (`Background.sign_from`, posto no `Main._load_night`) e volta às 2h com o golpe
+    vencido (`Main.SIGN_BACK`, no `_midnight`).
+506. #roteiro "Prossiga implementando as falas dos dias restantes." As ligações do roteiro das noites 1 a 13, fiéis ao
+    documento: o homem sério e o bar (1; 2 em três tentativas, `bar_2`); a Cecília e o bar pelo discador com a senha
+    (3, `sabe_senha_3`; sem ela, o hotel do Dia 4 não oferece a senha); a denúncia na delegacia pelo discador e a cidade
+    em pânico (4; a ligação do roteiro no discador atende fora dos setores); o nome dele, a história dos pais e a TV no
+    jornal (5); o acordo do bar para o hotel com os estalos (6); avisar o bar e as três conversas gravadas (7); o
+    hospital, o hotel gravado ou avisado e a volta dele (8); ignorar a delegacia e a Cúpula (9, `cumpriu_9`); a Cecília
+    indo embora e a paróquia (10); a raiva dele com as crianças presas no jornal (11); as fitas das autoridades para
+    ele (12); o bilhete da morte da Cecília (13); a versão dele na 14 (torturada, sem dizer o nome dela). Jornal por
+    marcador nas noites 5, 8, 9, 10 e 11. Traduções en/es.
+507. #roteiro #discador "Um homem atende o setor 1 e uma mulher diferente atende o setor 2 ... Eles deveriam ter sido
+    fechados e equipamentos removidos." A Morgana (001) com voz de mulher (estava com a do homem velho) e a central do
+    Centro fechada da noite 5 em diante, quando o setor passa à Maria (`gone_from`, sem número, como a da Cecília da 9).
+    A Cecília do discador já tem a voz e o tom das outras ligações dela (o tom sai do nome).
+508. #roteiro "As emergências devem ser relacionadas ao ataque dos rebeldes: baleados, atropelados, feridos em brigas,
+    incêndios." Quatro emergências do roteiro no Dia 4 (baleado, atropelado no protesto, bomba na loja, briga com faca)
+    e quatro no Dia 9 (carro em chamas na barricada, tiroteio, atropelada por carro preto, briga pela rádio); elas
+    contam no espaçamento das sorteadas (`Schedule`) e, quatro na noite, tomam o lugar delas.
+509. #roteiro "É interessante rolar uma cobrança." Dia 12, só com `cumpriu_9`: o supervisor liga às 18:05, cobra as
+    ligações das autoridades que não passaram e avisa que vai para a ficha, sem respostas ("essa mecânica não vai dar
+    certo, vai só adicionar mais coisa no jogo": saíram as desculpas e a suspeita propostas). Atendida, cortada ou
+    deixada tocando, advertência média (`ShiftReport` "authority_ignored"; o marcador `advertencia_*`, `StoryFlags.FAULT`,
+    ligado pelo desfecho da ligação).

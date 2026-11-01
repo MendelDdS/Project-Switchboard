@@ -158,7 +158,7 @@ func _walk_flags(r: Resource, src: String, seen: Dictionary, asked: Dictionary, 
 		if p["name"] == "requires":
 			for f: String in v:
 				asked[f.trim_prefix("!")] = src
-		elif p["name"] in ["sets", "overheard_sets", "overheard_flags"]:
+		elif p["name"] in ["sets", "overheard_sets", "overheard_flags"] or p["name"].begins_with("if_"):
 			for f: String in v:
 				given[f.trim_prefix("!")] = true
 		elif v is Resource:

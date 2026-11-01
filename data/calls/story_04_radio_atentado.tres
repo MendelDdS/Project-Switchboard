@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_story"]
+
+[resource]
+script = ExtResource("1_story")
+group = 2
+voice = "w"
+caller = "Senhor"
+opening = PackedStringArray("A Rádio Serena, por favor. Quero saber o que explodiu hoje. Ninguém fala nada.")
+repeat = "A rádio. A Serena."
+target = "390"
+destination = "Rádio Serena AM"
+thanks = "Obrigado."
+caller_name = "Osvaldo Rezende"
+name_line = "Osvaldo Rezende."
+overheard = PackedStringArray("Rádio? Aqui é um ouvinte. O que foi que explodiu?", "Não podemos dar a notícia, senhor. Ordem de cima.", "Nem dizer onde foi?", "Nem isso. Fique em casa esta noite. É tudo o que eu posso dizer.")

@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_em"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[sub_resource type="Resource" id="Case_0"]
+script = ExtResource("2_case")
+answers = PackedStringArray("", "Não, a loja já tava fechada. Graças a Deus não tinha ninguém.", "")
+units = PackedStringArray("bomb")
+
+[resource]
+script = ExtResource("1_em")
+voice = "w"
+caller = "Senhor"
+opening = "Central! Jogaram uma bomba na loja de tecidos! Tá pegando fogo em tudo!"
+questions = PackedStringArray("Qual é o endereço?", "Tem alguém lá dentro?", "O fogo está se espalhando?")
+answers = PackedStringArray("Rua do Comércio, 210, a loja do turco!", "O vigia! Saiu com as mãos queimadas, tá sentado aqui na calçada!", "Tá subindo pro sobrado de cima!")
+street = "comercio"
+block = 2
+address = "Rua do Comércio, 210"
+occurrence = "Incêndio"
+units = PackedStringArray("bomb", "amb")
+after = "Tô tirando o povo do sobrado!"
+stage_sec = Vector3(45, 18, 18)
+worsening = "O sobrado pegou fogo! Tem família morando ali!"
+worsening_question = "Todos já saíram?"
+worsening_answer = "Acho que sim, tão todos aqui na rua!"
+critical = "Tem uma criança na janela do sobrado! A mãe tá gritando!"
+critical_units = PackedStringArray("amb")
+critical_question = "A criança consegue descer?"
+critical_answer = "Não! A escada tá pegando fogo!"
+lost = "O sobrado desabou..."
+lost_answer = "A criança! Tiraram pela janela dos fundos, mas tá respirando mal!"
+lost_units = PackedStringArray("amb")
+cases = Array[ExtResource("2_case")]([SubResource("Case_0")])

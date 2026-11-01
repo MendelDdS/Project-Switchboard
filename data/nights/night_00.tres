@@ -9,7 +9,7 @@
 script = ExtResource("3_transfer")
 caller = "Cecília"
 target = "305"
-destination = "Hotel Estrela"
+destination = "Hotel Serena"
 thanks = "Pronto, atenderam! Pode tirar o fone, que agora a conversa é minha com eles."
 
 [sub_resource type="Resource" id="Drill"]
@@ -92,7 +92,7 @@ text = "Isso! Agora finge que eu sou alguém da cidade."
 
 [sub_resource type="Resource" id="Lesson_17"]
 script = ExtResource("2_lesson")
-text = "Me passa pro Hotel Estrela, por favor? Minha prima trabalha na recepção."
+text = "Me passa pro Hotel Serena, por favor? Minha prima trabalha na recepção."
 
 [sub_resource type="Resource" id="Lesson_18"]
 script = ExtResource("2_lesson")
@@ -115,7 +115,7 @@ text = "Cada página dupla é uma letra, e as abas na beira trocam de letra."
 
 [sub_resource type="Resource" id="Lesson_22"]
 script = ExtResource("2_lesson")
-text = "Hotel Estrela fica no H. O número é o do fim do pontilhado."
+text = "Hotel Serena fica no H. O número é o do fim do pontilhado."
 
 [sub_resource type="Resource" id="Lesson_23"]
 script = ExtResource("2_lesson")
@@ -143,7 +143,7 @@ script = ExtResource("2_lesson")
 kind = 3
 seconds = 15.0
 until = "cord_dest"
-hint = "Leve a outra ponta do cabo até o número do [b]Hotel Estrela[/b], na fileira de destinos."
+hint = "Leve a outra ponta do cabo até o número do [b]Hotel Serena[/b], na fileira de destinos."
 nudges = PackedStringArray("Os destinos ficam em ordem de número. Confere na lista se precisar.")
 wrong = "Esse é o %d, não é o hotel. Confere o número na lista."
 

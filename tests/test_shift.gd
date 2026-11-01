@@ -254,10 +254,10 @@ func _initialize() -> void:
 		match f.kind:
 			PhoneCall.Kind.TRANSFER:
 				if f.phase == PhoneCall.Phase.AWAIT:
-					# as burocracias da noite (`Bureaucracy`): pede o nome (insiste uma vez), avisa o bloqueio, e quem
+					# as burocracias da noite (`Bureaucracy`): pede o nome (insiste uma vez), avisa o bloqueio, aceita o acordo, e quem
 					# recusa o nome de vez fica sem transferir
 					var rule := f.options.find_custom(func(o): return String(o["label"]) in [T.text(T.Key.CHOICE_REQUEST_ID),
-						T.text(T.Key.CHOICE_PRESS_NAME), T.text(T.Key.CHOICE_WARN_BLOCKED)])
+						T.text(T.Key.CHOICE_PRESS_NAME), T.text(T.Key.CHOICE_WARN_BLOCKED), T.text(T.Key.CHOICE_ACCEPT_DEAL)])
 					if rule != -1:
 						f.options[rule]["fn"].call()
 						_acted()

@@ -542,7 +542,7 @@ func _street_name(o: Vector2, st: Street) -> void:
 
 
 ## Nome do lugar dentro de `r` (coordenadas do mapa: o telhado do prédio, a faixa da praça), com 1 px livre de cada
-## lado (a largura do texto já traz 1 px de ar depois da última letra): numa linha, em duas ("Hotel / Estrela") ou em
+## lado (a largura do texto já traz 1 px de ar depois da última letra): numa linha, em duas ("Hotel / Serena") ou em
 ## pé no prédio estreito; se não couber, só aproximando.
 func _place_name(r: Rect2, txt: String, up: bool) -> void:
 	var c := r.get_center()

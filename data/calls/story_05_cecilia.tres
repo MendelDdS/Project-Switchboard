@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_call"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_00"]
+script = ExtResource("2_step")
+text = "Maria, é a Cecília."
+
+[sub_resource type="Resource" id="Step_01"]
+script = ExtResource("2_step")
+text = "Aquele homem do bar... ele se chama Sebastião."
+
+[sub_resource type="Resource" id="Step_02"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Você conhece ele?", "Por que ele sabe o meu nome?")
+sets = PackedStringArray()
+
+[sub_resource type="Resource" id="Step_03"]
+script = ExtResource("2_step")
+text = "Conheço. Ele conhece você desde pequena, Maria. Pode confiar nele."
+
+[sub_resource type="Resource" id="Step_04"]
+script = ExtResource("2_step")
+text = "Mais do que isso eu não posso dizer pelo telefone."
+
+[sub_resource type="Resource" id="Step_05"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Obrigada, Cecília.", "Isso está ficando perigoso.")
+sets = PackedStringArray("", "perigo_5")
+
+[sub_resource type="Resource" id="Step_06"]
+script = ExtResource("2_step")
+text = "Está. Por isso mesmo."
+requires = PackedStringArray("perigo_5")
+
+[sub_resource type="Resource" id="Step_07"]
+script = ExtResource("2_step")
+text = "Boa noite. Cuide-se."
+
+[sub_resource type="Resource" id="Step_08"]
+script = ExtResource("2_step")
+kind = 3
+
+[resource]
+script = ExtResource("1_call")
+voice = "f"
+caller = "Cecília"
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08")])

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_story"]
+
+[resource]
+script = ExtResource("1_story")
+group = 2
+voice = "f"
+caller = "Moça"
+opening = PackedStringArray("A Pensão Dona Cota, por favor. Meu marido saiu pro protesto e não voltou.")
+repeat = "A pensão. A da Dona Cota."
+target = "312"
+destination = "Pensão Dona Cota"
+thanks = "Obrigada."
+caller_name = "Rosana Lopes"
+name_line = "Rosana Lopes."
+overheard = PackedStringArray("Dona Cota? É a Rosana. O [person:Ivo] passou por aí?", "Passou correndo, minha filha. Disse que a polícia fechou a [place:praça].", "E ele está bem?", "Está. Foi pros fundos, com outros dois. Melhor ninguém saber.")

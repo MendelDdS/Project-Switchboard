@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_em"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[resource]
+script = ExtResource("1_em")
+voice = "f"
+caller = "Moça"
+opening = "Central! Tá tendo briga na rua por causa da rádio! Uns gritando viva, outros batendo!"
+questions = PackedStringArray("Qual é o endereço?", "Alguém se machucou?", "Eles estão armados?")
+answers = PackedStringArray("Rua das Flores, 75, perto da esquina!", "Um senhor caiu e bateu a cabeça no meio-fio!", "Tão com pedaço de pau e pedra!")
+street = "flores"
+block = 0
+address = "Rua das Flores, 75"
+occurrence = "Outro"
+units = PackedStringArray("pol", "amb")
+after = "Vem logo, que o senhor não levanta!"
+stage_sec = Vector3(45, 18, 18)
+worsening = "Quebraram a vitrine da quitanda! Tão pegando tudo!"
+worsening_question = "O senhor ainda está no chão?"
+worsening_answer = "Tá, uns vizinhos tão segurando a cabeça dele!"
+critical = "Puseram fogo na quitanda!"
+critical_units = PackedStringArray("bomb")
+critical_question = "O fogo está grande?"
+critical_answer = "Tá começando, mas tem querosene lá dentro!"
+lost = "A quitanda queimou toda... e levaram o senhor num carro de vizinho."
+lost_answer = "O senhor desmaiou no carro!"
+lost_units = PackedStringArray("amb")

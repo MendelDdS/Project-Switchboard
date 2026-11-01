@@ -49,8 +49,8 @@ func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[Phon
 	kinds.resize(ats.size())
 	var free := range(ats.size())
 	free.shuffle()
-	var em_ats := []
-	var em_count := randi_range(pace.emergencies.x, pace.emergencies.y)
+	var em_ats := fixed.filter(func(f: PhoneCall): return f.kind == PhoneCall.Kind.EMERGENCY).map(func(f: PhoneCall): return f.at)   # as do roteiro contam (Dias 4 e 9)
+	var em_count := randi_range(pace.emergencies.x, pace.emergencies.y) + em_ats.size()
 	for i in free.duplicate():
 		if em_ats.size() < em_count and em_ats.all(func(x): return absf(ats[i] - x) >= EMERGENCY_GAP):
 			kinds[i] = PhoneCall.Kind.EMERGENCY
