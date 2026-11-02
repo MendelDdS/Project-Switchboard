@@ -40,7 +40,7 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   `_street_add` soma), o que fica em pé (`_upright`), a rua molhada (`_wet`, na chuva e no sereno da manhã, a cada
   quadro: `wet_street.gdshader` espelha o que está aceso embaixo dela, virado no pé das fachadas, cortado por quebras
   horizontais de 1 px (nada de manchas: lê como mancha), com poças, anéis e respingos pela força da chuva, o meio-fio e o relâmpago; o letreiro e as luzes da frente por cima, `_wet_sign`,
-  `_wet_streak`; `_draw_wet_street`)
+  `_wet_streak`; o reflexo de quem passa tapa o espelho, `_wet_shade`, um quadro depois; `_draw_wet_street`)
   e a da frente (`_draw_city_front`, a cada quadro). O `SceneView`
   só desenha quando algo muda (`Background._show`).
 - Sem tela (`_headless`), a vista não é desenhada.

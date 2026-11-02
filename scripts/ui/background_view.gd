@@ -75,6 +75,7 @@ const WET_A := 0.4      ## a força do risco dos postes, do letreiro e dos faró
 const WET_CURB := 0.15   ## o degrau da calçada de lá para a rua (m): o espelho na rua desce o dobro (`wet_street.gdshader`)
 const WET_SIGN := 1.4   ## a força do letreiro espelhado no asfalto molhado (`_wet_sign`), sobre a de cada luz (`WET_A`)
 const WET_CARS := 8     ## quantos carros o `wet_street.gdshader` sabe tapar (o tamanho da lista `cars` dele)
+const WET_CUTS := 2000  ## o máximo de peças de quem passa guardadas por quadro para tapar o espelho (`_wet_shade`)
 const RIM := Color(1.0, 0.8, 0.5)   ## a luz dos postes na beira de quem passa embaixo deles
 const BACKLIT := 0.55   ## quanto escurece quem está lá dentro, contra a luz acesa de trás (`_draw_backlit`)
 const HOLD_UP := [Vector2(25, 150), Vector2(-6, 10)]   ## de perfil, a mão de cá na orelha ou na boca (o fone, o copo)
@@ -515,6 +516,8 @@ var _indoor := Vector3(-1.0, 0.0, 1.0)   # alguém passando atrás de uma janela
 var _doors := {"hotel": 0.0, "apt": 0.0}   # o quanto cada porta está aberta agora (0 a 1, `_swing`)
 var _door_ms := -1.0   # quando elas andaram da última vez (`PixelArt.ms`)
 var _hotel_near := false   # alguém chegou à porta do hotel no último quadro (`_door_clip`): ela abre
+var _wet_cuts: Array[Rect2] = []   # as peças do reflexo de quem passa, do último quadro da frente (px da tela; `_wet_shade`)...
+var _wet_cut_f: Array[float] = []   # ...e a força de cada uma
 var _smoke_t := -1.0   # há quanto tempo alguém saiu para fumar na varanda (s; -1 = ninguém)
 var beating := INF     ## quando começa a cena da rua (`Beating`, a noite 3; min do dia; o Main põe)
 var police := INF      ## quando a viatura vem parar no hotel (`PATROL_*`, a noite 7; min do dia; o Main põe)
@@ -2058,6 +2061,7 @@ func _draw_wet_street(g: Rect2) -> void:
 	_draw_wet(g, {}, 1.0 if weather == "rain" else 2.0 * DAMP)
 	for c in _cars:
 		_draw_wet(g, c, 1.0 if weather == "rain" else DAMP)
+	_draw_wet_cuts()
 
 
 ## O que cada carro tapa do espelho das fachadas (px da vista, 1x1): [de x, até x, de y, até y], da beira de lá do chão
@@ -4190,8 +4194,30 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 			if sz.y > 2.0 and top > 0.0:   # (as peças finas, como o guarda-chuva e a aba, só no lado: no alto, ficavam acesas inteiras)
 				_p(foot.x + a.x, foot.y + a.y, sz.x, 1, rim)
 			_p(foot.x + (a.x + sz.x - 1.0 if side > 0.0 else a.x), foot.y + a.y, 1, sz.y, rim)
-		if weather == "rain":   # o reflexo, de cabeça para baixo a partir dos pés: mais fraco quanto mais longe deles
-			_p(foot.x + a.x, foot.y - a.y - sz.y, sz.x, sz.y, Color(0, 0, 0, 0.35 * (1.0 - (-a.y) / (2.2 * k))))
+		_wet_shade(foot.x + a.x, foot.y - a.y - sz.y, sz.x, sz.y, 1.0 - (-a.y) / (2.2 * k))   # o reflexo, de cabeça para baixo a partir dos pés
+
+
+## Na chuva, o reflexo de uma peça de quem passa (px da tela, já de cabeça para baixo), com a força `f` (1 junto dos
+## pés, sumindo para longe deles): escurece o asfalto aqui e fica guardado em `_wet_cuts` para a rua molhada do quadro
+## seguinte (`_draw_wet_cuts`) apagar o que ela espelha atrás dele (a vitrine acesa).
+func _wet_shade(x: float, y: float, w: float, h: float, f: float) -> void:
+	if weather != "rain" or f <= 0.0:
+		return
+	_p(x, y, w, h, Color(0, 0, 0, 0.35 * f))
+	if _wet_cuts.size() < WET_CUTS:
+		_wet_cuts.append(Rect2(x, y, w, h))
+		_wet_cut_f.append(f)
+
+
+## O que quem passa tapou do espelho no quadro anterior (`_wet_shade`), na camada da rua molhada, por cima do chão
+## dela: preto translúcido, que o `wet_street.gdshader` lê como o tanto de luz espelhada a tirar ali (o chão é preto
+## inteiro). Esvazia a lista.
+func _draw_wet_cuts() -> void:
+	for i in _wet_cuts.size():
+		var r := _wet_cuts[i]
+		_p(r.position.x, r.position.y, r.size.x, r.size.y, Color(0, 0, 0, 0.98 * minf(_wet_cut_f[i], 1.0)))
+	_wet_cuts.clear()
+	_wet_cut_f.clear()
 
 
 ## Quem está em `x`, `z` m (passando da fachada de lá, entrando pela porta do hotel): o recorte da porta, em px da
@@ -4305,8 +4331,7 @@ func _rig_run(foot: Vector2, r: Rect2, c: Color, k: float, clip := Rect2()) -> v
 			_p(cut.position.x, cut.position.y, cut.size.x, 1, c)
 		return
 	_p(foot.x + r.position.x, foot.y + r.position.y, r.size.x, 1, c)
-	if weather == "rain":
-		_p(foot.x + r.position.x, foot.y - r.position.y - 1.0, r.size.x, 1, Color(0, 0, 0, 0.35 * (1.0 - (-r.position.y) / (2.2 * k))))
+	_wet_shade(foot.x + r.position.x, foot.y - r.position.y - 1.0, r.size.x, 1, 1.0 - (-r.position.y) / (2.2 * k))
 
 
 ## Os pixels (px da tela a partir do chão embaixo do quadril: a cor de cada um) da pessoa na pose `p` (`_draw_rig`),

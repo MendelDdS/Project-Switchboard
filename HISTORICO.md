@@ -3283,3 +3283,7 @@ Chaves:
     cima do azul dele (`cover`), com a cor mais funda que a da luz (`sat`); o borrão para cima guarda metade do mais
     claro (os caixilhos não apagam o vidro aceso); e o espelho fica inteiro junto do pé das fachadas antes de sumir.
     Agora: cor 0,59 e brilho 0,60 na vitrine.
+527. #clima #vista #luz "Pode fazer o 1 e o 2" (o que eu sugeri para os reflexos). Quem passa na calçada de lá já tinha
+    o reflexo em preto fraco, que quase não cortava o reflexo claro: agora ele apaga a vitrine espelhada atrás dele
+    (`_wet_shade` guarda as peças e a rua molhada do quadro seguinte as passa ao shader, `_draw_wet_cuts`). O meio-fio
+    de lá deixou de ser uma linha preta: a quina pega a luz das vitrines e a face, um brilho molhado.

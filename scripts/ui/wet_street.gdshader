@@ -7,7 +7,8 @@ shader_type canvas_item;
 //   claro. Poças, anéis e respingos crescem com a força da chuva (`rain`, `t`). Só a luz reflete (o escuro das paredes
 //   some), no lugar do asfalto e com a cor mais funda (`sat`). A calçada de lá (até `curb_top`) reflete quase inteira, cortada pelas juntas das
 //   lajotas; na face do meio-fio (até `curb`) o reflexo quebra, e na rua, um degrau abaixo da calçada, desce `drop`.
-//   O chão de cada carro tapa o espelho atrás dele (`cars`). O relâmpago (`flash`) acende o céu espelhado, mais nas poças;
+//   O chão de cada carro tapa o espelho atrás dele (`cars`), e o reflexo de quem passa, desenhado
+//   em preto translúcido por cima do chão, também (a força no alfa). O relâmpago (`flash`) acende o céu espelhado, mais nas poças;
 // - o risco de uma luz que fica na frente da fachada (postes, letreiro, faróis), na cor dos vértices: o brilho falha
 //   nas manchas mais secas do asfalto e fica inteiro nas poças.
 // Cada pixel lê pixels inteiros do que está embaixo (nada de esticar a pixel art pela transformação).
@@ -101,6 +102,7 @@ void fragment() {
 		}
 		acc = mix(acc / 8.0, top, 0.5);
 		vec3 lit = acc * smoothstep(glare.x, glare.y, dot(acc, vec3(0.299, 0.587, 0.114)));
+		lit *= COLOR.a < 0.995 ? 1.0 - COLOR.a : 1.0;   // (o reflexo de quem passa, em preto translúcido, tapa o que está atrás dele)
 		for (int i = 0; i < 8; i++) {
 			vec4 b = cars[i];
 			if (here.x > b.x && here.x < b.y && here.y > b.z && here.y < b.w) {
@@ -114,8 +116,9 @@ void fragment() {
 		float y = dot(lit, vec3(0.299, 0.587, 0.114));
 		lit = max(mix(vec3(y), lit, sat), 0.0);
 		float cover = clamp(k * y * 3.0, 0.0, 1.0);
-		if (!road && !walk) {
-			k = 0.0;   // a face do meio-fio
+		if (!road && !walk) {   // o meio-fio: a face, de costas para as vitrines, só um brilho molhado; a quina pega a luz delas
+			k = wet * fall * (here.y < curb_top + 1.0 ? 0.5 : 0.15);
+			cover = 0.0;
 		}
 		float splash = 0.0;   // um respingo por célula, de vez em quando, num pixel dela (e meio no do lado)
 		if (rain > 0.0 && pud < 0.5 && road) {

@@ -2589,6 +2589,8 @@ func _draw_view_beam() -> void:
 ## espelho), o meio-fio, a força da chuva, o relâmpago, os pingos e o chão dos carros.
 func _draw_view_wet() -> void:
 	if window_art or not (weather == "rain" or morning() > 0.0):
+		_wet_cuts.clear()
+		_wet_cut_f.clear()
 		return
 	_ci = _wet
 	_wet.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
