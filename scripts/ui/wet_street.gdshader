@@ -5,7 +5,7 @@ shader_type canvas_item;
 //   baixo (`stretch`) e borra um pouco para cima e é cortado por quebras finas na horizontal; nas poças, quase um espelho, e a água mais
 //   escura, com os pingos abrindo anéis; no asfalto, os respingos acendem um pixel e somem, mais vistos no reflexo
 //   claro. Poças, anéis e respingos crescem com a força da chuva (`rain`, `t`). Só a luz reflete (o escuro das paredes
-//   some). A calçada de lá (até `curb_top`) reflete quase inteira, cortada pelas juntas das
+//   some), no lugar do asfalto e com a cor mais funda (`sat`). A calçada de lá (até `curb_top`) reflete quase inteira, cortada pelas juntas das
 //   lajotas; na face do meio-fio (até `curb`) o reflexo quebra, e na rua, um degrau abaixo da calçada, desce `drop`.
 //   O chão de cada carro tapa o espelho atrás dele (`cars`). O relâmpago (`flash`) acende o céu espelhado, mais nas poças;
 // - o risco de uma luz que fica na frente da fachada (postes, letreiro, faróis), na cor dos vértices: o brilho falha
@@ -23,6 +23,7 @@ uniform float curb_top = 0.0;  // a quina do meio-fio de lá (y, px): acima, a c
 uniform float curb = 0.0;      // ...o pé dele: entre os dois, a face, que não reflete...
 uniform float drop = 1.0;      // ...e, abaixo dela, o espelho desce tanto (px: a rua mais baixa que a calçada)
 uniform vec2 glare = vec2(0.08, 0.45);   // o claro a partir do qual o que está embaixo começa a refletir e reflete inteiro (de manhã, mais alto: só as vitrines)
+uniform float sat = 1.3;       // a cor do reflexo sobre a da luz (o molhado a deixa mais funda)
 uniform float t = 0.0;         // s (`PixelArt.ms`)
 uniform vec4 cars[8];          // o que cada carro tapa: de x, até x, de y, até y (px; vazio: zeros)
 uniform float horizon = 0.0;   // a câmera da vista (`_o`), para pôr o grão e as poças no chão de verdade: o horizonte (px),...
@@ -91,11 +92,14 @@ void fragment() {
 		float s = mix(stretch, 1.0, pud);
 		float blur = mix(1.0 + d * 0.3, 0.0, pud);
 		vec3 acc = vec3(0.0);
+		vec3 top = vec3(0.0);   // (o mais claro do borrão: os caixilhos escuros não apagam o vidro aceso)
 		for (int i = 0; i < 8; i++) {
 			float sy = floor(axis - d * s - blur * float(i) / 7.0) + 0.5;
-			acc += texture(screen, vec2(here.x + round(ring), sy) * SCREEN_PIXEL_SIZE).rgb;
+			vec3 c = texture(screen, vec2(here.x + round(ring), sy) * SCREEN_PIXEL_SIZE).rgb;
+			acc += c;
+			top = max(top, c);
 		}
-		acc /= 8.0;
+		acc = mix(acc / 8.0, top, 0.5);
 		vec3 lit = acc * smoothstep(glare.x, glare.y, dot(acc, vec3(0.299, 0.587, 0.114)));
 		for (int i = 0; i < 8; i++) {
 			vec4 b = cars[i];
@@ -103,9 +107,13 @@ void fragment() {
 				lit = vec3(0.0);
 			}
 		}
-		float fall = 1.0 - smoothstep(0.0, reach, d);
+		float fall = 1.0 - smoothstep(reach * 0.15, reach, d);   // (inteiro junto do pé das fachadas)
 		lit += vec3(0.8, 0.85, 0.95) * flash * mix(0.35, 1.0, pud);   // o céu do relâmpago, espelhado
-		float k = wet * fall * mix(0.7 * grain, 1.0, pud);
+		float k = wet * fall * mix(0.85 * grain, 1.0, pud);
+		// a cor do molhado: mais funda que a da luz, e no lugar do asfalto (somada por cima do azul dele, ia para o cinza)
+		float y = dot(lit, vec3(0.299, 0.587, 0.114));
+		lit = max(mix(vec3(y), lit, sat), 0.0);
+		float cover = clamp(k * y * 3.0, 0.0, 1.0);
 		if (!road && !walk) {
 			k = 0.0;   // a face do meio-fio
 		}
@@ -118,6 +126,6 @@ void fragment() {
 			vec2 off = floor(vec2(here.x, d)) - at;
 			splash = on * (off == vec2(0.0) ? 1.0 : (off == vec2(1.0, 0.0) ? 0.4 : 0.0));
 		}
-		COLOR = vec4(base * (1.0 - 0.35 * pud * wet) + lit * k + (0.1 * ring + splash * 0.1) * wet + splash * lit * 0.5 * fall, 1.0);
+		COLOR = vec4(base * (1.0 - 0.35 * pud * wet) * (1.0 - cover) + lit * k + (0.1 * ring + splash * 0.1) * wet + splash * lit * 0.5 * fall, 1.0);
 	}
 }

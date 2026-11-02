@@ -3278,3 +3278,8 @@ Chaves:
     inteiro, esticado para baixo, cortado por quebras de um pixel na horizontal, em trechos, em faixas de 3 px junto
     do espelho e mais largas para perto de nós (`band`); nunca deslocadas para o lado (pareceria água). As poças e a
     calçada com as juntas ficam como estavam.
+526. #clima #vista #luz "Você acha que as luzes nos reflexos estão apagadas e sem cor?" / "Faça". Estavam (a vitrine:
+    brilho 0,68 → 0,43 e cor 0,54 → 0,31 no reflexo). O reflexo passou a tomar o lugar do asfalto em vez de somar por
+    cima do azul dele (`cover`), com a cor mais funda que a da luz (`sat`); o borrão para cima guarda metade do mais
+    claro (os caixilhos não apagam o vidro aceso); e o espelho fica inteiro junto do pé das fachadas antes de sumir.
+    Agora: cor 0,59 e brilho 0,60 na vitrine.
