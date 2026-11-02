@@ -6,6 +6,9 @@
 [ext_resource type="Resource" path="res://data/calls/story_16_mae_cecilia.tres" id="5_mae"]
 [ext_resource type="Resource" path="res://data/calls/story_16_cupula.tres" id="6_cupula"]
 [ext_resource type="Script" path="res://scripts/data/story_text.gd" id="5_text"]
+[ext_resource type="Resource" path="res://data/calls/story_16_miguel.tres" id="a_story_16_miguel"]
+[ext_resource type="Resource" path="res://data/calls/story_16_generosa.tres" id="a_story_16_generosa"]
+[ext_resource type="Resource" path="res://data/calls/story_16_generosa_hospital.tres" id="a_story_16_generosa_hospital"]
 
 [sub_resource type="Resource" id="Story_sebastiao"]
 script = ExtResource("3_story")
@@ -73,12 +76,46 @@ script = ExtResource("5_text")
 text = "Na semana seguinte, Maria recebe a medalha de uniforme. A central de São Sotero continua funcionando, como sempre."
 requires = PackedStringArray("final_fracasso")
 
+[sub_resource type="Resource" id="A_story_16_miguel"]
+script = ExtResource("3_story")
+at = 120.0
+call = ExtResource("a_story_16_miguel")
+again = false
+
+[sub_resource type="Resource" id="A_story_16_generosa"]
+script = ExtResource("3_story")
+at = 200.0
+call = ExtResource("a_story_16_generosa")
+requires = PackedStringArray("final_sucesso")
+again = false
+
+[sub_resource type="Resource" id="A_story_16_generosa_hospital"]
+script = ExtResource("3_story")
+at = 200.0
+call = ExtResource("a_story_16_generosa_hospital")
+requires = PackedStringArray("final_fracasso")
+again = false
+
+[sub_resource type="Resource" id="End_gesso"]
+script = ExtResource("5_text")
+text = "Maria atende até o fim do turno. Nenhuma linha pede socorro. Lá fora, a bandeira continua na varanda.
+
+De manhã, antes de dormir, ela passa no Hospital São Lucas com uma caneta no bolso: tem um gesso esperando a assinatura dela. No corredor da ala 3C, Sebastião visita os feridos da madrugada. Ele segura a porta do quarto para ela e espera do lado de fora."
+requires = PackedStringArray("final_sucesso", "!custou_gente", "miguel_gesso")
+
+[sub_resource type="Resource" id="End_gesso_amarga"]
+script = ExtResource("5_text")
+text = "Maria atende até o fim do turno. Sebastião não liga. No jornal, a vitória ocupa a primeira página; os nomes dos que não voltaram, a segunda inteira.
+
+De manhã, ela passa no Hospital São Lucas para assinar um gesso na ala 3C. No corredor, Sebastião está sentado num banco, de chapéu na mão. Ele se levanta quando a vê e não diz nada."
+requires = PackedStringArray("final_sucesso", "custou_gente", "miguel_gesso")
+
 [resource]
 script = ExtResource("1_night")
 weather = "clear"
 note = "O supervisor deixou um recado: \"Escala normal. Nenhuma ocorrência a registrar.\""
 notes = Array[ExtResource("5_text")]([SubResource("Note_won")])
 letters = Array[ExtResource("5_text")]([SubResource("Letter_fracasso")])
-endings = Array[ExtResource("5_text")]([SubResource("End_sucesso"), SubResource("End_amarga"), SubResource("End_fracasso")])
-story = Array[ExtResource("3_story")]([SubResource("Story_sebastiao"), SubResource("Story_mae"), SubResource("Story_cupula")])
+endings = Array[ExtResource("5_text")]([SubResource("End_gesso"), SubResource("End_gesso_amarga"), SubResource("End_sucesso"), SubResource("End_amarga"), SubResource("End_fracasso")])
+story = Array[ExtResource("3_story")]([SubResource("Story_sebastiao"), SubResource("Story_mae"), SubResource("Story_cupula"), SubResource("A_story_16_miguel"), SubResource("A_story_16_generosa"), SubResource("A_story_16_generosa_hospital")])
 news_if = Array[ExtResource("5_text")]([SubResource("News_sucesso"), SubResource("News_amarga"), SubResource("News_amarga2"), SubResource("News_fracasso")])

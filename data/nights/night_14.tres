@@ -16,6 +16,7 @@
 [ext_resource type="Resource" path="res://data/calls/story_14_tv.tres" id="c_story_14_tv"]
 [ext_resource type="Resource" path="res://data/calls/story_14_cupula_comandante.tres" id="c_story_14_cupula_comandante"]
 [ext_resource type="Resource" path="res://data/calls/story_14_cupula_comandante_armas.tres" id="c_story_14_cupula_comandante_armas"]
+[ext_resource type="Resource" path="res://data/calls/story_14_miguel.tres" id="a_story_14_miguel"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -107,8 +108,15 @@ call = ExtResource("c_story_14_cupula_comandante_armas")
 requires = PackedStringArray("fita_armas_entregue")
 again = false
 
+[sub_resource type="Resource" id="A_story_14_miguel"]
+script = ExtResource("3_story")
+at = 175.0
+call = ExtResource("a_story_14_miguel")
+if_hung_up = PackedStringArray("!miguel_amigo")
+again = false
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Pedido das autoridades para hoje: grave toda conversa suspeita do bar e do hotel. As linhas da Rádio Serena e da TV Orbital estão bloqueadas, não transfira nada para elas. Amanhã é sua última noite deste período. Capriche.\""
-story = Array[ExtResource("3_story")]([SubResource("S_seb"), SubResource("S_pol1"), SubResource("S_bar"), SubResource("S_radio"), SubResource("S_pol2"), SubResource("S_cup1"), SubResource("S_hotel"), SubResource("S_tv"), SubResource("S_cup2"), SubResource("S_cup2a")])
+story = Array[ExtResource("3_story")]([SubResource("S_seb"), SubResource("S_pol1"), SubResource("S_bar"), SubResource("S_radio"), SubResource("S_pol2"), SubResource("S_cup1"), SubResource("S_hotel"), SubResource("S_tv"), SubResource("S_cup2"), SubResource("S_cup2a"), SubResource("A_story_14_miguel")])
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1"), SubResource("ev_2"), SubResource("ev_3"), SubResource("ev_4")])

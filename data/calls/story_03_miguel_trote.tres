@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_call"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_00"]
+script = ExtResource("2_step")
+text = "Alô, central? Quero falar com o meu tio."
+
+[sub_resource type="Resource" id="Step_01"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Seu nome e sobrenome, por favor.", "Quem é o seu tio?")
+
+[sub_resource type="Resource" id="Step_02"]
+script = ExtResource("2_step")
+text = "O meu nome é Zé Pequeno Bolinho de Chuva da Silva."
+
+[sub_resource type="Resource" id="Step_03"]
+script = ExtResource("2_step")
+kind = 2
+seconds = 1.0
+
+[sub_resource type="Resource" id="Step_04"]
+script = ExtResource("2_step")
+text = "Hihihi."
+
+[sub_resource type="Resource" id="Step_05"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("E eu sou a Rainha da Inglaterra.", "O nome de verdade, menino. Com sobrenome.")
+sets = PackedStringArray("miguel_amigo", "!miguel_amigo")
+
+[sub_resource type="Resource" id="Step_06"]
+script = ExtResource("2_step")
+text = "Hahaha! A Rainha da Inglaterra trabalha na central!"
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="Step_07"]
+script = ExtResource("2_step")
+text = "A senhora é legal. Tchau, Rainha!"
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="Step_08"]
+script = ExtResource("2_step")
+text = "...Chata."
+requires = PackedStringArray("!miguel_amigo")
+
+[sub_resource type="Resource" id="Step_09"]
+script = ExtResource("2_step")
+kind = 3
+
+[resource]
+script = ExtResource("1_call")
+voice = "k"
+caller = "Menino"
+prank = true
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09")])

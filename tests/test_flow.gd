@@ -351,6 +351,28 @@ func _initialize() -> void:
 	_move(2, -1)
 	ok(ex.dest(tgt) == Exchange.Dest.FREE and b.free_patches() == b.patches, "destino e cabo liberados")
 
+	# ---- 1b. ocupado na primeira (`TransferCall.busy_line`): o destino não toca e quem ligou pede de novo; na segunda, toca
+	var oc_t: TransferCall = quiet.duplicate()
+	oc_t.busy_line = "Ocupado? Tenta de novo."
+	var oc_b := _extra(oc_t)
+	oc_b.away = false
+	m.ring(oc_b)
+	_move(0, oc_b.line)
+	m.answer()
+	ok(await wait_until(_awaiting(oc_b)), "ocupado: pedido de transferência")
+	_move(1, oc_b.line + 10)
+	_move(2, int(oc_b.target))
+	m.transfer()
+	ok(await wait_until(func(): return not oc_b.options.is_empty()), "ocupado: quem ligou pede de novo")
+	ok(oc_b.busy_tried and ex.dest(int(oc_b.target)) == Exchange.Dest.FREE, "ocupado: o destino não tocou")
+	m.transfer()
+	ok(ex.dest(int(oc_b.target)) == Exchange.Dest.RING, "ocupado: na segunda, o destino toca")
+	m.end_call(oc_b, PhoneCall.End.OPERATOR)
+	_move(0, -1)
+	_move(1, -1)
+	_move(2, -1)
+	await frames(2)
+
 	# ---- 1a. escuta: a chave sobe com o destino tocando e desce quando atendem; a tecla Escutar (Z) ou a alavanca a
 	# sobe com o FONE na linha conectada; entrar na linha estala; ouvindo, a suspeita sobe (sem ouvir, baixa) e, em 1,
 	# eles desligam e denunciam (advertência grave no relatório da noite seguinte)
@@ -1521,6 +1543,19 @@ func _initialize() -> void:
 	m._story_talk_over(oc.line, false)
 	m._story_outcome(oc, PhoneCall.End.OPERATOR)
 	ok(m.flags.has("d_foi_%d" % oc.dest_num) and m.flags.has("d_recusou"), "desfecho: para outro número ({dest}) e encerrada sem transferir")
+	so.if_hung_up = PackedStringArray(["d_desligou"])
+	m._story_outcome(oc, PhoneCall.End.MISSED)
+	ok(not m.flags.has("d_desligou"), "desfecho: ignorada não é desligar na cara")
+	m._story_outcome(oc, PhoneCall.End.OPERATOR)
+	ok(m.flags.has("d_desligou"), "desfecho: encerrada pelo operador liga o `if_hung_up`")
+	# a conversa do roteiro vai ao caderno como ligação comum; com `PrankCall.prank`, como trote
+	var sp := PrankCall.new()
+	sp.steps = [_step(PrankStep.Kind.END, "")]
+	var spc := PhoneCall.from_prank(sp)
+	spc.beat = so
+	ok(m._record(spc, PhoneCall.End.OPERATOR).kind == PhoneCall.Kind.TRANSFER, "conversa do roteiro: ligação comum no caderno")
+	sp.prank = true
+	ok(m._record(spc, PhoneCall.End.OPERATOR).kind == PhoneCall.Kind.PRANK, "trote do roteiro: trote no caderno")
 	var queued := m.sched.size()
 	m.supervisor.call_again(oc, PhoneCall.Retry.MISSED)
 	ok(m.sched.size() == queued, "sem `again`, a ligação do roteiro não liga de novo sozinha")

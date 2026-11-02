@@ -7,6 +7,7 @@
 [ext_resource type="Resource" path="res://data/calls/story_02_homem_bar_1.tres" id="x0_story_02_homem_bar_1"]
 [ext_resource type="Resource" path="res://data/calls/story_02_homem_bar_2.tres" id="x1_story_02_homem_bar_2"]
 [ext_resource type="Resource" path="res://data/calls/story_02_homem_bar_3.tres" id="x2_story_02_homem_bar_3"]
+[ext_resource type="Resource" path="res://data/calls/story_02_otavio_radio.tres" id="a_story_02_otavio_radio"]
 
 [sub_resource type="Resource" id="ChatReply_00_0"]
 script = ExtResource("9_reply")
@@ -67,8 +68,14 @@ requires = PackedStringArray("!bar_2")
 if_connected = PackedStringArray("bar_2")
 again = false
 
+[sub_resource type="Resource" id="A_story_02_otavio_radio"]
+script = ExtResource("3_story")
+at = 120.0
+call = ExtResource("a_story_02_otavio_radio")
+again = false
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Hoje é como ontem: atenda, transfira e anote tudo na ficha.\""
-story = Array[ExtResource("3_story")]([SubResource("S_homem1"), SubResource("S_homem2"), SubResource("S_homem3")])
+story = Array[ExtResource("3_story")]([SubResource("S_homem1"), SubResource("S_homem2"), SubResource("S_homem3"), SubResource("A_story_02_otavio_radio")])
 smalltalk = Array[ExtResource("8_chat")]([SubResource("ChatTopic_00"), SubResource("ChatTopic_01")])

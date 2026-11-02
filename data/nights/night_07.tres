@@ -11,6 +11,7 @@
 [ext_resource type="Resource" path="res://data/calls/story_07_bar_armas_avisado.tres" id="x6_story_07_bar_armas_avisado"]
 [ext_resource type="Resource" path="res://data/calls/story_07_bar_grupo_c.tres" id="x7_story_07_bar_grupo_c"]
 [ext_resource type="Resource" path="res://data/calls/story_07_bar_grupo_c_avisado.tres" id="x8_story_07_bar_grupo_c_avisado"]
+[ext_resource type="Resource" path="res://data/calls/story_07_miguel.tres" id="a_story_07_miguel"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -105,9 +106,16 @@ call = ExtResource("x8_story_07_bar_grupo_c_avisado")
 requires = PackedStringArray("avisou_bar_7")
 again = false
 
+[sub_resource type="Resource" id="A_story_07_miguel"]
+script = ExtResource("x2_story_call")
+at = 60.0
+call = ExtResource("a_story_07_miguel")
+if_hung_up = PackedStringArray("!miguel_amigo")
+again = false
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Instalaram um gravador na sua mesa, a pedido das autoridades. A linha do bar foi liberada, e elas querem gravado tudo o que for para lá. Em noite com ligação para o bar, entregue às autoridades pelo menos uma fita, mesmo que a conversa não tenha nada: grave assim mesmo, para não ter reclamação. E daqui em diante, o que as autoridades pedirem, atenda, mesmo contra as regras: não vai haver advertência.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1")])
 dial = Array[ExtResource("x1_dial_call")]([SubResource("D_aviso")])
-story = Array[ExtResource("x2_story_call")]([SubResource("S_bar0"), SubResource("S_bar0w"), SubResource("S_bar1"), SubResource("S_bar1w"), SubResource("S_bar2"), SubResource("S_bar2w")])
+story = Array[ExtResource("x2_story_call")]([SubResource("S_bar0"), SubResource("S_bar0w"), SubResource("S_bar1"), SubResource("S_bar1w"), SubResource("S_bar2"), SubResource("S_bar2w"), SubResource("A_story_07_miguel")])

@@ -7,6 +7,8 @@
 [ext_resource type="Resource" path="res://data/calls/story_10_cecilia.tres" id="x2_story_10_cecilia"]
 [ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="x3_prank_step"]
 [ext_resource type="Script" path="res://scripts/data/dial_call.gd" id="x4_dial_call"]
+[ext_resource type="Resource" path="res://data/calls/story_10_generosa.tres" id="a_story_10_generosa"]
+[ext_resource type="Resource" path="res://data/calls/story_10_generosa_volta.tres" id="a_story_10_generosa_volta"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -70,10 +72,100 @@ voice = "w"
 caller = "Padre"
 steps = Array[ExtResource("x3_prank_step")]([SubResource("D_par_00"), SubResource("D_par_01"), SubResource("D_par_02"), SubResource("D_par_03"), SubResource("D_par_04"), SubResource("D_par_05")])
 
+[sub_resource type="Resource" id="A_story_10_generosa"]
+script = ExtResource("x1_story_call")
+at = 60.0
+call = ExtResource("a_story_10_generosa")
+if_dropped = PackedStringArray("generosa_10")
+again = false
+
+[sub_resource type="Resource" id="A_story_10_generosa_volta"]
+script = ExtResource("x1_story_call")
+at = 320.0
+call = ExtResource("a_story_10_generosa_volta")
+requires = PackedStringArray("generosa_10")
+again = false
+
+[sub_resource type="Resource" id="D_otavio_00"]
+script = ExtResource("x3_prank_step")
+text = "Hospital São Lucas, boa noite."
+
+[sub_resource type="Resource" id="D_otavio_01"]
+script = ExtResource("x3_prank_step")
+kind = 1
+options = PackedStringArray("A Enfermeira Joana, por favor.", "Desculpe, foi engano.")
+sets = PackedStringArray("joana_10", "")
+
+[sub_resource type="Resource" id="D_otavio_02"]
+script = ExtResource("x3_prank_step")
+text = "Um momento."
+requires = PackedStringArray("joana_10")
+
+[sub_resource type="Resource" id="D_otavio_03"]
+script = ExtResource("x3_prank_step")
+kind = 2
+seconds = 2.0
+requires = PackedStringArray("joana_10")
+
+[sub_resource type="Resource" id="D_otavio_04"]
+script = ExtResource("x3_prank_step")
+text = "Joana falando."
+requires = PackedStringArray("joana_10")
+
+[sub_resource type="Resource" id="D_otavio_05"]
+script = ExtResource("x3_prank_step")
+text = "Essa voz eu conheço. Foi você que ligou pela ala 3C, não foi?"
+requires = PackedStringArray("joana_10", "hospital_8")
+
+[sub_resource type="Resource" id="D_otavio_06"]
+script = ExtResource("x3_prank_step")
+kind = 1
+options = PackedStringArray("Tem um Otávio Almeida internado aí?", "Desculpe, liguei errado.")
+sets = PackedStringArray("otavio_achado", "")
+requires = PackedStringArray("joana_10")
+
+[sub_resource type="Resource" id="D_otavio_07"]
+script = ExtResource("x3_prank_step")
+text = "Otávio Almeida... Chegou ontem à noite, da praça. Está na 3C."
+requires = PackedStringArray("otavio_achado")
+
+[sub_resource type="Resource" id="D_otavio_08"]
+script = ExtResource("x3_prank_step")
+text = "Bastante machucado. Mas vivo. Visita de manhã."
+requires = PackedStringArray("otavio_achado")
+
+[sub_resource type="Resource" id="D_otavio_09"]
+script = ExtResource("x3_prank_step")
+text = "Pode dizer a quem perguntar que ele está em boas mãos. Boa noite."
+requires = PackedStringArray("otavio_achado", "hospital_8")
+
+[sub_resource type="Resource" id="D_otavio_10"]
+script = ExtResource("x3_prank_step")
+text = "Boa noite."
+requires = PackedStringArray("otavio_achado", "!hospital_8")
+
+[sub_resource type="Resource" id="D_otavio_11"]
+script = ExtResource("x3_prank_step")
+text = "Boa noite."
+requires = PackedStringArray("joana_10", "!otavio_achado")
+
+[sub_resource type="Resource" id="D_otavio_12"]
+script = ExtResource("x3_prank_step")
+kind = 3
+
+[sub_resource type="Resource" id="D_otavio"]
+script = ExtResource("x4_dial_call")
+number = "213"
+from = 60.0
+to = 330.0
+requires = PackedStringArray("generosa_10")
+voice = "f"
+steps = Array[ExtResource("x3_prank_step")]([SubResource("D_otavio_00"), SubResource("D_otavio_01"), SubResource("D_otavio_02"), SubResource("D_otavio_03"), SubResource("D_otavio_04"), SubResource("D_otavio_05"), SubResource("D_otavio_06"), SubResource("D_otavio_07"), SubResource("D_otavio_08"), SubResource("D_otavio_09"), SubResource("D_otavio_10"), SubResource("D_otavio_11"), SubResource("D_otavio_12")])
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Com os três setores, a noite fica mais cheia. Emergência vem primeiro.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1")])
 news_if = Array[ExtResource("x0_story_text")]([SubResource("News_radio")])
-story = Array[ExtResource("x1_story_call")]([SubResource("S_cec")])
-dial = Array[ExtResource("x4_dial_call")]([SubResource("D_par")])
+story = Array[ExtResource("x1_story_call")]([SubResource("S_cec"), SubResource("A_story_10_generosa"), SubResource("A_story_10_generosa_volta")])
+dial = Array[ExtResource("x4_dial_call")]([SubResource("D_par"), SubResource("D_otavio")])

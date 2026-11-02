@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_call"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_00"]
+script = ExtResource("2_step")
+text = "Boa noite. Desculpe a hora. Aqui é a Generosa Prates."
+
+[sub_resource type="Resource" id="Step_01"]
+script = ExtResource("2_step")
+text = "Ontem um rapaz ofereceu uma música na Rádio Serena pra moça de fita amarela do baile. Era pra mim."
+
+[sub_resource type="Resource" id="Step_02"]
+script = ExtResource("2_step")
+text = "Ele disse que eu podia deixar recado aqui na central. Se ele ligar, a senhora passa o meu número? Três, oito, quatro. A linha é nova, ainda nem está na lista."
+
+[sub_resource type="Resource" id="Step_03"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Passo, sim.", "Deixa comigo.")
+
+[sub_resource type="Resource" id="Step_04"]
+script = ExtResource("2_step")
+text = "Ai, obrigada. Que vergonha... Boa noite!"
+
+[sub_resource type="Resource" id="Step_05"]
+script = ExtResource("2_step")
+kind = 3
+
+[resource]
+script = ExtResource("1_call")
+voice = "f"
+caller = "Moça"
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05")])

@@ -3,6 +3,50 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Language: en\n"
 
+#: data/directory/361_otavio_almeida.tres
+msgid "Alô? Otávio falando."
+msgstr "Hello? Otávio speaking."
+
+#: data/directory/361_otavio_almeida.tres data/directory/367_celia_rocha.tres data/directory/373_celia_rocha.tres
+msgid "É da central. Estamos testando a linha."
+msgstr "It's the exchange. We're testing the line."
+
+#: data/directory/361_otavio_almeida.tres
+msgid "Ah, tá. Pensei que fosse alguém da rádio."
+msgstr "Oh, okay. I thought it was someone from the radio."
+
+#: data/directory/361_otavio_almeida.tres data/directory/367_celia_rocha.tres data/nights/night_04.tres
+msgid "Desculpe, foi engano."
+msgstr "Sorry, wrong number."
+
+#: data/directory/361_otavio_almeida.tres
+msgid "Tudo bem. Se for a moça de fita amarela, eu tô aqui, viu?"
+msgstr "That's fine. If it's the girl with the yellow ribbon, I'm right here, okay?"
+
+#: data/directory/361_otavio_almeida.tres
+msgid "Alô? É a moça da fita amarela?"
+msgstr "Hello? Is this the girl with the yellow ribbon?"
+
+#: data/directory/361_otavio_almeida.tres
+msgid "Aqui é da central, seu Otávio."
+msgstr "This is the exchange, Mr. Otávio."
+
+#: data/directory/361_otavio_almeida.tres
+msgid "Ah, é você! Pode me chamar de Otávio, que eu nem tenho trinta."
+msgstr "Oh, it's you! Just call me Otávio, I'm not even thirty."
+
+#: data/directory/361_otavio_almeida.tres
+msgid "O Trovão fugiu de novo?"
+msgstr "Did Trovão run off again?"
+
+#: data/directory/361_otavio_almeida.tres
+msgid "Hoje não! Tá aqui dormindo no meu pé."
+msgstr "Not today! He's asleep right here at my feet."
+
+#: data/directory/361_otavio_almeida.tres
+msgid "Boa noite. Amanhã eu pego cedo na estação."
+msgstr "Good night. I start early at the station tomorrow."
+
 #: data/directory/288_armazem_ferreira.tres
 msgid "Joaquim Ferreira"
 msgstr "Joaquim Ferreira"
@@ -1403,163 +1447,163 @@ msgstr "for the Farmácia Santa Rita"
 msgid "pra Farmácia Santa Rita"
 msgstr "to the Farmácia Santa Rita"
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "a Funerária Paz Eterna"
 msgstr "the Funerária Paz Eterna"
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Meu tio faleceu agora há pouco."
 msgstr "My uncle passed away a little while ago."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Boa noite. Meu tio faleceu agora há pouco, em casa."
 msgstr "Good evening. My uncle passed away a little while ago, at home."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Meus sentimentos. O médico já veio atestar?"
 msgstr "My condolences. Has the doctor come to certify?"
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Já veio. Disse que foi o coração."
 msgstr "He has. He said it was his heart."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Então eu mando o carro buscar. Qual é o endereço?"
 msgstr "Then I'll send the car. What's the address?"
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "{street}, {house}. A casa do portão {color}."
 msgstr "{street}, {house}. The house with the {color} gate."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Chegamos em {wait}. Separe uma roupa pra ele."
 msgstr "We'll be there in {wait}. Set aside some clothes for him."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Boa noite. Minha avó faleceu agora há pouco."
 msgstr "Good evening. My grandmother passed away a little while ago."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Meus sentimentos. Foi em casa ou no hospital?"
 msgstr "My condolences. At home or in the hospital?"
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Em casa, dormindo. O médico já veio."
 msgstr "At home, in her sleep. The doctor's been."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Vocês querem o velório em casa ou na capela?"
 msgstr "Do you want the wake at home or at the chapel?"
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Em casa. Ela morava na {street}, {house}."
 msgstr "At home. She lived at {street}, {house}."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Então levo as coisas pra lá em {wait}."
 msgstr "Then I'll bring everything over in {wait}."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Preciso acertar o velório de amanhã."
 msgstr "I need to arrange tomorrow's wake."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Boa noite. Preciso acertar as coisas do velório de amanhã."
 msgstr "Good evening. I need to sort out tomorrow's wake."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Pois não. Vai ser na capela ou em casa?"
 msgstr "Of course. Will it be at the chapel or at home?"
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Na capela. A família quer de manhã, cedo."
 msgstr "At the chapel. The family wants it early in the morning."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Às oito a capela está livre. Precisa de flores?"
 msgstr "The chapel's free at eight. Do you need flowers?"
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Uma coroa só, simples. Com o nome da família."
 msgstr "Just one wreath, simple. With the family name."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Anotado. Às sete eu abro a capela."
 msgstr "Noted. I'll open the chapel at seven."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Boa noite. Queria saber o preço do caixão e do velório."
 msgstr "Good evening. I'd like to know the price of the coffin and the wake."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Depende da madeira. Tem o simples e o envernizado."
 msgstr "Depends on the wood. There's plain and varnished."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "O simples. A família não tem muito."
 msgstr "The plain one. The family hasn't much."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "O simples já vem com as velas e o pano."
 msgstr "The plain one comes with the candles and the cloth."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "E a coroa de flores, vocês fazem também?"
 msgstr "And the wreath, do you do that too?"
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Faço. Passa aqui amanhã que a gente acerta tudo."
 msgstr "I do. Come by tomorrow and we'll settle everything."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Funerária Paz Eterna, boa noite."
 msgstr "Paz Eterna Funeral Home, good evening."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Vocês atendem a noite toda?"
 msgstr "Are you open all night?"
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "A noite toda. A morte não tem hora, infelizmente."
 msgstr "All night. Death keeps no hours, sadly."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Onde fica a capela?"
 msgstr "Where's the chapel?"
 
-#: data/directory/399_funeraria_paz_eterna.tres
-msgid "Aqui mesmo, na Rua das Acácias, ao lado da borracharia."
-msgstr "Right here on Rua das Acácias, next to the tire shop."
+#: data/directory/253_funeraria_paz_eterna.tres
+msgid "Aqui mesmo, na Rua da Estação, defronte dos trilhos."
+msgstr "Right here, on Rua da Estação, across from the tracks."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Paz Eterna. Em que posso ajudar?"
 msgstr "Paz Eterna. How can I help?"
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Não é nada grave, só uma informação."
 msgstr "Nothing serious, just a question."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Que bom. Aqui, quase sempre é."
 msgstr "Good. Here, it nearly always is."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Tem velório hoje?"
 msgstr "Is there a wake tonight?"
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Tem um, de um senhor da Vila. A família pediu silêncio."
 msgstr "One, for an old man from the Vila. The family asked for quiet."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "Boa noite. Que Deus lhe guarde."
 msgstr "Good night. God keep you."
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "da Funerária Paz Eterna"
 msgstr "for the Funerária Paz Eterna"
 
-#: data/directory/399_funeraria_paz_eterna.tres
+#: data/directory/253_funeraria_paz_eterna.tres
 msgid "pra Funerária Paz Eterna"
 msgstr "to the Funerária Paz Eterna"
 
@@ -3175,17 +3219,9 @@ msgstr "to Seu Alberto Ramos"
 msgid "Alô? Quem fala a essa hora?"
 msgstr "Hello? Who's calling at this hour?"
 
-#: data/directory/367_celia_rocha.tres data/directory/373_celia_rocha.tres
-msgid "É da central. Estamos testando a linha."
-msgstr "It's the exchange. We're testing the line."
-
 #: data/directory/367_celia_rocha.tres
 msgid "Ah, está funcionando, sim. Estou ouvindo bem."
 msgstr "Oh, it's working all right. I can hear you fine."
-
-#: data/directory/367_celia_rocha.tres data/nights/night_04.tres data/nights/night_07.tres
-msgid "Desculpe, foi engano."
-msgstr "Sorry, wrong number."
 
 #: data/directory/367_celia_rocha.tres
 msgid "Engano a essa hora... Tudo bem, acontece."
@@ -4303,7 +4339,7 @@ msgstr "Don't mention it. You learned fast, you know? Better than me when I star
 msgid "Boa noite, Maria. Juízo aí."
 msgstr "Good night, Maria. Behave yourself."
 
-#: data/content.tres data/calls/story_04_atropelado.tres data/calls/story_09_atropelada.tres
+#: data/content.tres data/calls/story_04_atropelado.tres data/calls/story_09_mae_atropelado.tres
 msgid "Acidente de trânsito"
 msgstr "Traffic accident"
 
@@ -4374,6 +4410,42 @@ msgstr "Sebastião Falcão."
 #: data/calls/story_01_homem_bar.tres data/calls/story_02_homem_bar_1.tres data/calls/story_02_homem_bar_2.tres
 msgid "Isso não importa agora."
 msgstr "That doesn't matter now."
+
+#: data/calls/story_01_miguel_trote.tres data/calls/story_03_miguel_trote.tres data/calls/story_06_miguel.tres
+msgid "Menino"
+msgstr "Kid"
+
+#: data/calls/story_01_miguel_trote.tres data/calls/prank_06_menina.tres
+msgid "Alô? É da central?"
+msgstr "Hello? Is this the exchange?"
+
+#: data/calls/story_01_miguel_trote.tres
+msgid "É, sim. Em que posso ajudar?"
+msgstr "Yes, it is. How can I help?"
+
+#: data/calls/story_01_miguel_trote.tres data/calls/transfer_06_caminhoneiro_oficina_do_tiao.tres data/templates/transfer_02.tres
+msgid "Central, boa noite."
+msgstr "Exchange, good evening."
+
+#: data/calls/story_01_miguel_trote.tres
+msgid "A senhora tem geladeira em casa?"
+msgstr "Ma'am, do you have a fridge at home?"
+
+#: data/calls/story_01_miguel_trote.tres
+msgid "Tenho. Por quê?"
+msgstr "I do. Why?"
+
+#: data/calls/story_01_miguel_trote.tres
+msgid "Isso é trote?"
+msgstr "Is this a prank?"
+
+#: data/calls/story_01_miguel_trote.tres
+msgid "Então corre, que ela tá fugindo!"
+msgstr "Then you'd better run, it's running away!"
+
+#: data/calls/story_01_miguel_trote.tres
+msgid "Hahaha!"
+msgstr "Hahaha!"
 
 #: data/nights/night_01.tres
 msgid "Amanhã tem quermesse na praça, o senhor vai?"
@@ -4454,6 +4526,62 @@ msgstr "The bar. If you don't put me through now, I won't call again."
 #: data/calls/story_02_homem_bar_3.tres
 msgid "Obrigado. De verdade."
 msgstr "Thank you. Truly."
+
+#: data/calls/story_02_otavio_radio.tres data/calls/story_03_otavio.tres data/calls/story_04_baleado.tres
+msgid "Rapaz"
+msgstr "Young man"
+
+#: data/calls/story_02_otavio_radio.tres
+msgid "Boa noite, moça! A Rádio Serena, por favor."
+msgstr "Good evening, miss! Rádio Serena, please."
+
+#: data/calls/story_02_otavio_radio.tres
+msgid "Vou oferecer uma música pra uma moça que eu conheci no Alto da Serra."
+msgstr "I'm dedicating a song to a girl I met in Alto da Serra."
+
+#: data/calls/story_02_otavio_radio.tres
+msgid "A Rádio Serena! Antes que acabe o programa de pedidos."
+msgstr "Rádio Serena! Before the request show ends."
+
+#: data/calls/story_02_otavio_radio.tres data/calls/story_04_radio_atentado.tres data/calls/story_05_otavio_radio.tres
+msgid "Rádio Serena AM"
+msgstr "Rádio Serena AM"
+
+#: data/calls/story_02_otavio_radio.tres
+msgid "Obrigado! Liga o rádio aí, hein?"
+msgstr "Thanks! Turn on the radio, okay?"
+
+#: data/calls/story_02_otavio_radio.tres
+msgid "Rádio Serena, programa de pedidos. Boa noite."
+msgstr "Rádio Serena, request show. Good evening."
+
+#: data/calls/story_02_otavio_radio.tres
+msgid "Boa noite! Quero oferecer [other:Luar da Serra] pra uma moça."
+msgstr "Good evening! I want to dedicate [other:Luar da Serra] to a girl."
+
+#: data/calls/story_02_otavio_radio.tres
+msgid "Pois não. O nome dela?"
+msgstr "Sure. Her name?"
+
+#: data/calls/story_02_otavio_radio.tres
+msgid "Não sei o nome. É a moça de fita amarela que dançou comigo no baile do [place:Alto da Serra], domingo."
+msgstr "I don't know her name. She's the girl with the yellow ribbon who danced with me at the [place:Alto da Serra] dance on Sunday."
+
+#: data/calls/story_02_otavio_radio.tres
+msgid "Sem nome, rapaz? E se ela não estiver ouvindo?"
+msgstr "No name, young man? What if she isn't listening?"
+
+#: data/calls/story_02_otavio_radio.tres
+msgid "Ela ouve. Diz que é do [person:Otávio], e que ela pode deixar recado na central da Vila Serena."
+msgstr "She'll hear it. Say it's from [person:Otávio], and that she can leave a message at the Vila Serena exchange."
+
+#: data/calls/story_02_otavio_radio.tres
+msgid "Vai ao ar depois do noticiário. Boa sorte."
+msgstr "It goes on after the news. Good luck."
+
+#: data/calls/story_02_otavio_radio.tres data/calls/story_05_otavio_radio.tres
+msgid "Otávio Almeida."
+msgstr "Otávio Almeida."
 
 #: data/nights/night_02.tres
 msgid "Disseram que o senhor ia na quermesse hoje à tarde e não apareceu, hein!"
@@ -4563,6 +4691,98 @@ msgstr "He'll tell you himself. I'm just passing on the message."
 msgid "E Maria... não comenta isso com ninguém."
 msgstr "And Maria... don't mention this to anyone."
 
+#: data/calls/story_03_generosa.tres data/calls/story_04_pensao_marido.tres data/calls/story_04_briga.tres
+msgid "Moça"
+msgstr "Young woman"
+
+#: data/calls/story_03_generosa.tres
+msgid "Boa noite. Desculpe a hora. Aqui é a Generosa Prates."
+msgstr "Good evening. Sorry for the hour. This is Generosa Prates."
+
+#: data/calls/story_03_generosa.tres
+msgid "Ontem um rapaz ofereceu uma música na Rádio Serena pra moça de fita amarela do baile. Era pra mim."
+msgstr "Yesterday a young man dedicated a song on Rádio Serena to the girl with the yellow ribbon from the dance. It was for me."
+
+#: data/calls/story_03_generosa.tres
+msgid "Ele disse que eu podia deixar recado aqui na central. Se ele ligar, a senhora passa o meu número? Três, oito, quatro. A linha é nova, ainda nem está na lista."
+msgstr "He said I could leave a message here at the exchange. If he calls, would you give him my number? Three, eight, four. The line is new, it isn't even in the directory yet."
+
+#: data/calls/story_03_generosa.tres data/content.tres
+msgid "Passo, sim."
+msgstr "I do."
+
+#: data/calls/story_03_generosa.tres
+msgid "Deixa comigo."
+msgstr "Leave it to me."
+
+#: data/calls/story_03_generosa.tres
+msgid "Ai, obrigada. Que vergonha... Boa noite!"
+msgstr "Oh, thank you. How embarrassing... Good night!"
+
+#: data/calls/story_03_miguel_trote.tres
+msgid "Alô, central? Quero falar com o meu tio."
+msgstr "Hello, operator? I want to talk to my uncle."
+
+#: data/calls/story_03_miguel_trote.tres
+msgid "Seu nome e sobrenome, por favor."
+msgstr "Your first and last name, please."
+
+#: data/calls/story_03_miguel_trote.tres
+msgid "Quem é o seu tio?"
+msgstr "Who's your uncle?"
+
+#: data/calls/story_03_miguel_trote.tres
+msgid "O meu nome é Zé Pequeno Bolinho de Chuva da Silva."
+msgstr "My name is Little Joe Rain Doughnut da Silva."
+
+#: data/calls/story_03_miguel_trote.tres
+msgid "Hihihi."
+msgstr "Hee hee hee."
+
+#: data/calls/story_03_miguel_trote.tres
+msgid "E eu sou a Rainha da Inglaterra."
+msgstr "And I'm the Queen of England."
+
+#: data/calls/story_03_miguel_trote.tres
+msgid "O nome de verdade, menino. Com sobrenome."
+msgstr "Your real name, kid. With your last name."
+
+#: data/calls/story_03_miguel_trote.tres
+msgid "Hahaha! A Rainha da Inglaterra trabalha na central!"
+msgstr "Hahaha! The Queen of England works at the exchange!"
+
+#: data/calls/story_03_miguel_trote.tres
+msgid "A senhora é legal. Tchau, Rainha!"
+msgstr "You're nice. Bye, Your Majesty!"
+
+#: data/calls/story_03_miguel_trote.tres
+msgid "...Chata."
+msgstr "...Boring."
+
+#: data/calls/story_03_otavio.tres
+msgid "Boa noite, moça. Aqui é o Otávio Almeida. O da música de ontem, na rádio."
+msgstr "Good evening, miss. This is Otávio Almeida. The one with the song on the radio yesterday."
+
+#: data/calls/story_03_otavio.tres
+msgid "Alguma moça deixou recado pra mim? Uma de fita amarela?"
+msgstr "Did a girl leave a message for me? One with a yellow ribbon?"
+
+#: data/calls/story_03_otavio.tres
+msgid "Deixou. É a Generosa, o número dela é 384."
+msgstr "She did. Her name's Generosa, her number is 384."
+
+#: data/calls/story_03_otavio.tres
+msgid "Ninguém deixou recado, não."
+msgstr "Nobody left a message, no."
+
+#: data/calls/story_03_otavio.tres
+msgid "Generosa... Três, oito, quatro. Escrevi na mão! Moça, você é uma santa. Boa noite!"
+msgstr "Generosa... Three, eight, four. I wrote it on my hand! Miss, you're a saint. Good night!"
+
+#: data/calls/story_03_otavio.tres
+msgid "Ninguém? ...Vai ver ela não estava ouvindo. Obrigado assim mesmo."
+msgstr "Nobody? ...Maybe she wasn't listening. Thanks anyway."
+
 #: data/nights/night_03.tres
 msgid "Bar do Zé."
 msgstr "Bar do Zé."
@@ -4663,10 +4883,6 @@ msgstr "Thank God. Tell her to come straight home."
 msgid "Neusa Prado. Rápido, por favor!"
 msgstr "Neusa Prado. Hurry, please!"
 
-#: data/calls/story_04_pensao_marido.tres data/calls/story_04_briga.tres data/calls/story_07_bar_grupo_c.tres
-msgid "Moça"
-msgstr "Young woman"
-
 #: data/calls/story_04_pensao_marido.tres
 msgid "A Pensão Dona Cota, por favor. Meu marido saiu pro protesto e não voltou."
 msgstr "Pensão Dona Cota, please. My husband went to the protest and hasn't come back."
@@ -4679,7 +4895,7 @@ msgstr "The boarding house. Dona Cota's."
 msgid "Pensão Dona Cota"
 msgstr "Pensão Dona Cota"
 
-#: data/calls/story_04_pensao_marido.tres data/calls/story_14_hotel.tres data/calls/story_14_tv.tres
+#: data/calls/story_04_pensao_marido.tres data/calls/story_08_generosa_recado.tres data/calls/story_10_generosa.tres
 msgid "Obrigada."
 msgstr "Thank you."
 
@@ -4715,11 +4931,7 @@ msgstr "Rádio Serena, please. I want to know what blew up today. Nobody says an
 msgid "A rádio. A Serena."
 msgstr "The radio. Serena."
 
-#: data/calls/story_04_radio_atentado.tres data/calls/story_14_radio.tres data/calls/story_15_radio.tres
-msgid "Rádio Serena AM"
-msgstr "Rádio Serena AM"
-
-#: data/calls/story_04_radio_atentado.tres data/calls/story_06_bar_sinal_2.tres data/calls/story_07_bar_radio.tres
+#: data/calls/story_04_radio_atentado.tres data/calls/story_05_otavio_radio.tres data/calls/story_06_bar_sinal_2.tres
 msgid "Obrigado."
 msgstr "Thank you."
 
@@ -4742,10 +4954,6 @@ msgstr "Not even that. Stay home tonight. That's all I can tell you."
 #: data/calls/story_04_radio_atentado.tres
 msgid "Osvaldo Rezende."
 msgstr "Osvaldo Rezende."
-
-#: data/calls/story_04_baleado.tres data/calls/story_06_bar_sinal_1.tres data/calls/story_07_bar_radio.tres
-msgid "Rapaz"
-msgstr "Young man"
 
 #: data/calls/story_04_baleado.tres
 msgid "Central! Atiraram num homem aqui na rua! Ele tá caído no chão!"
@@ -4815,7 +5023,7 @@ msgstr "He's unconscious! Send someone!"
 msgid "Central! Um carro passou por cima de um rapaz do protesto e nem parou!"
 msgstr "Operator! A car ran over a boy from the protest and didn't even stop!"
 
-#: data/calls/story_04_atropelado.tres
+#: data/calls/story_04_atropelado.tres data/calls/story_09_mae_atropelado.tres
 msgid "Como ele está?"
 msgstr "How is he?"
 
@@ -5127,6 +5335,58 @@ msgstr "They took our fathers from us in the dark and called it order. I'll make
 msgid "Agora preciso desligar. A gente se fala."
 msgstr "Now I have to hang up. We'll talk."
 
+#: data/calls/story_05_otavio.tres
+msgid "Boa noite, moça. É o Otávio, lembra? O da Generosa."
+msgstr "Good evening, miss. It's Otávio, remember? Generosa's Otávio."
+
+#: data/calls/story_05_otavio.tres
+msgid "Liguei pra ela, conversamos até a ficha acabar. Agora eu quero levar ela no Cine Odeon. Mas e se ela achar que é cedo demais?"
+msgstr "I called her, we talked until my tokens ran out. Now I want to take her to the Cine Odeon. But what if she thinks it's too soon?"
+
+#: data/calls/story_05_otavio.tres
+msgid "Convida. Ela vai gostar."
+msgstr "Ask her. She'll like it."
+
+#: data/calls/story_05_otavio.tres
+msgid "Vai com calma, Otávio."
+msgstr "Take it slow, Otávio."
+
+#: data/calls/story_05_otavio.tres
+msgid "É... Vou convidar pra sessão de sábado. Se ela disser não, eu ofereço outra música! Boa noite!"
+msgstr "Yeah... I'll ask her to the Saturday show. If she says no, I'll dedicate another song! Good night!"
+
+#: data/calls/story_05_otavio_radio.tres
+msgid "Boa noite. A Rádio Serena de novo, por favor."
+msgstr "Good evening. Rádio Serena again, please."
+
+#: data/calls/story_05_otavio_radio.tres
+msgid "A moça da fita amarela ainda não deu notícia. Vou tentar mais uma vez."
+msgstr "The girl with the yellow ribbon still hasn't called. I'm going to try once more."
+
+#: data/calls/story_05_otavio_radio.tres
+msgid "A Rádio Serena, moça."
+msgstr "Rádio Serena, miss."
+
+#: data/calls/story_05_otavio_radio.tres data/calls/story_12_generosa_radio.tres
+msgid "Rádio Serena, boa noite."
+msgstr "Rádio Serena, good evening."
+
+#: data/calls/story_05_otavio_radio.tres
+msgid "Sou eu de novo, o [person:Otávio]. Toca [other:Luar da Serra] mais uma vez? Pra moça de fita amarela."
+msgstr "It's me again, [person:Otávio]. Will you play [other:Luar da Serra] one more time? For the girl with the yellow ribbon."
+
+#: data/calls/story_05_otavio_radio.tres
+msgid "Ela não deu notícia, rapaz?"
+msgstr "She hasn't called, son?"
+
+#: data/calls/story_05_otavio_radio.tres
+msgid "Ainda não. Mas eu espero."
+msgstr "Not yet. But I'll wait."
+
+#: data/calls/story_05_otavio_radio.tres
+msgid "Então vai de novo, depois do noticiário."
+msgstr "Then it goes on again, after the news."
+
 #: data/nights/night_05.tres
 msgid "Explosões em quatro pontos da cidade\nBombas caseiras atingiram uma subestação, dois postes de energia e a porta da delegacia do Centro na tarde de ontem. Não houve mortos. A polícia fala em atentado e promete resposta."
 msgstr "Explosions in four parts of the city\nHomemade bombs hit a substation, two power poles and the door of the downtown police station yesterday afternoon. No one died. The police call it an attack and promise a response."
@@ -5230,6 +5490,130 @@ msgstr "Anselmo Duarte."
 #: data/calls/story_06_bar_sinal_2.tres
 msgid "Bloqueado... Então tá. Boa noite."
 msgstr "Blocked... All right then. Good night."
+
+#: data/calls/story_06_miguel.tres
+msgid "Alô? É a moça da central? A do outro dia?"
+msgstr "Hello? Is this the operator lady? The one from the other day?"
+
+#: data/calls/story_06_miguel.tres
+msgid "A Rainha da Inglaterra?"
+msgstr "The Queen of England?"
+
+#: data/calls/story_06_miguel.tres
+msgid "Sou eu. Quem fala?"
+msgstr "That's me. Who's this?"
+
+#: data/calls/story_06_miguel.tres
+msgid "Aqui é a central. O que deseja?"
+msgstr "This is the exchange. What do you need?"
+
+#: data/calls/story_06_miguel.tres
+msgid "É o Miguel! Fui eu que liguei aquele dia. O Zé Pequeno Bolinho de Chuva era mentira."
+msgstr "It's Miguel! I'm the one who called that day. Little Joe Rain Doughnut was made up."
+
+#: data/calls/story_06_miguel.tres
+msgid "Eu desconfiei. E o sobrenome de verdade?"
+msgstr "I had a hunch. And your real last name?"
+
+#: data/calls/story_06_miguel.tres
+msgid "Prazer, Miguel."
+msgstr "Nice to meet you, Miguel."
+
+#: data/calls/story_06_miguel.tres
+msgid "Sobrenome não posso falar. A mãe não deixa dar sobrenome pra estranho."
+msgstr "I can't say my last name. Mom won't let me give it to strangers."
+
+#: data/calls/story_06_miguel.tres
+msgid "Eu gosto de ligar aqui. A senhora fala com a cidade inteira?"
+msgstr "I like calling here. Do you talk to the whole town?"
+
+#: data/calls/story_06_miguel.tres
+msgid "Quase inteira."
+msgstr "Almost all of it."
+
+#: data/calls/story_06_miguel.tres
+msgid "Com quem liga."
+msgstr "With whoever calls."
+
+#: data/calls/story_06_miguel.tres
+msgid "Que nem a rádio! E qual é o seu nome?"
+msgstr "Just like the radio! So what's your name?"
+
+#: data/calls/story_06_miguel.tres
+msgid "Maria."
+msgstr "Maria."
+
+#: data/calls/story_06_miguel.tres
+msgid "É segredo, que nem o seu sobrenome."
+msgstr "It's a secret, just like your last name."
+
+#: data/calls/story_06_miguel.tres
+msgid "Maria. Gostei. Boa noite, Maria!"
+msgstr "Maria. I like it. Good night, Maria!"
+
+#: data/calls/story_06_miguel.tres
+msgid "Hahaha! Empatou. Boa noite!"
+msgstr "Hahaha! It's a tie. Good night!"
+
+#: data/calls/story_06_miguel.tres
+msgid "É o Miguel. Eu só queria conversar um pouquinho..."
+msgstr "It's Miguel. I just wanted to talk a little..."
+
+#: data/calls/story_06_miguel.tres
+msgid "Aqui é linha de trabalho, Miguel."
+msgstr "This is a work line, Miguel."
+
+#: data/calls/story_06_miguel.tres
+msgid "Fala rápido, então."
+msgstr "Make it quick, then."
+
+#: data/calls/story_06_miguel.tres
+msgid "Tá. Desculpa. Tchau."
+msgstr "Okay. Sorry. Bye."
+
+#: data/calls/story_06_generosa.tres
+msgid "Boa noite! É a Generosa Prates. Lembra de mim? A da fita amarela."
+msgstr "Good evening! It's Generosa Prates. Remember me? The one with the yellow ribbon."
+
+#: data/calls/story_06_generosa.tres
+msgid "Eu precisava contar pra alguém: fomos ao cinema! Ele não prestou atenção no filme nem um minuto."
+msgstr "I had to tell someone: we went to the movies! He didn't watch the film for a single minute."
+
+#: data/calls/story_06_generosa.tres
+msgid "E você?"
+msgstr "And you?"
+
+#: data/calls/story_06_generosa.tres
+msgid "Que bom, Generosa!"
+msgstr "That's wonderful, Generosa!"
+
+#: data/calls/story_06_generosa.tres
+msgid "Nem eu. Obrigada por ter passado o recado. Boa noite!"
+msgstr "Neither did I. Thank you for passing on the message. Good night!"
+
+#: data/calls/story_06_generosa.tres
+msgid "Boa noite. É a Generosa Prates. Desculpe ligar de novo."
+msgstr "Good evening. It's Generosa Prates. Sorry to call again."
+
+#: data/calls/story_06_generosa.tres
+msgid "O rapaz da música nunca deixou recado, né? Ouvi ele oferecer de novo na rádio... e nada."
+msgstr "The young man with the song never left a message, did he? I heard him dedicate it again on the radio... and nothing."
+
+#: data/calls/story_06_generosa.tres
+msgid "Vai ver mudou de ideia."
+msgstr "Maybe he changed his mind."
+
+#: data/calls/story_06_generosa.tres
+msgid "Ninguém ligou, não."
+msgstr "Nobody called, no."
+
+#: data/calls/story_06_generosa.tres data/calls/story_14_miguel.tres data/calls/story_15_cupula_presa.tres
+msgid "[Ficar em silêncio]"
+msgstr "[Stay silent]"
+
+#: data/calls/story_06_generosa.tres
+msgid "Tá bom. Boa noite."
+msgstr "All right. Good night."
 
 #: data/nights/night_07.tres
 msgid "O supervisor deixou um recado: \"Instalaram um gravador na sua mesa, a pedido das autoridades. A linha do bar foi liberada, e elas querem gravado tudo o que for para lá. Em noite com ligação para o bar, entregue às autoridades pelo menos uma fita, mesmo que a conversa não tenha nada: grave assim mesmo, para não ter reclamação. E daqui em diante, o que as autoridades pedirem, atenda, mesmo contra as regras: não vai haver advertência.\""
@@ -5346,6 +5730,58 @@ msgstr "Oh, was she? Tell her I'll drop by."
 #: data/calls/story_07_bar_grupo_c_avisado.tres
 msgid "Digo. Boa noite."
 msgstr "I'll tell her. Good night."
+
+#: data/calls/story_07_miguel.tres
+msgid "Alô, central? É o Miguel."
+msgstr "Hello, operator? It's Miguel."
+
+#: data/calls/story_07_miguel.tres
+msgid "Oi, Maria!"
+msgstr "Hi, Maria!"
+
+#: data/calls/story_07_miguel.tres
+msgid "Oi, Miguel. Como foi o dia?"
+msgstr "Hi, Miguel. How was your day?"
+
+#: data/calls/story_07_miguel.tres
+msgid "Miguel, agora estou ocupada."
+msgstr "Miguel, I'm busy right now."
+
+#: data/calls/story_07_miguel.tres
+msgid "A professora leu a minha redação na frente da turma! Era sobre o meu irmão."
+msgstr "The teacher read my essay in front of the class! It was about my brother."
+
+#: data/calls/story_07_miguel.tres
+msgid "Que orgulho! O que você escreveu?"
+msgstr "How proud! What did you write?"
+
+#: data/calls/story_07_miguel.tres
+msgid "Sobre o seu irmão?"
+msgstr "About your brother?"
+
+#: data/calls/story_07_miguel.tres
+msgid "Que ele é o mais forte da rua. Ele já tem dezoito anos."
+msgstr "That he's the strongest on the street. He's already eighteen."
+
+#: data/calls/story_07_miguel.tres
+msgid "Mas ele anda estranho. Chega tarde, não joga mais bola comigo, fica cochichando com uns amigos no portão."
+msgstr "But he's been acting weird. He comes home late, doesn't play ball with me anymore, keeps whispering with some friends at the gate."
+
+#: data/calls/story_07_miguel.tres
+msgid "Coisa de gente grande."
+msgstr "Grown-up stuff."
+
+#: data/calls/story_07_miguel.tres
+msgid "Ele deve estar cansado."
+msgstr "He must be tired."
+
+#: data/calls/story_07_miguel.tres
+msgid "Hum. Deve ser. Boa noite!"
+msgstr "Hmm. Must be. Good night!"
+
+#: data/calls/story_07_miguel.tres
+msgid "Tá bom. Tchau."
+msgstr "Okay. Bye."
 
 #: data/nights/night_07.tres
 msgid "Bar do Zé, boa noite."
@@ -5547,6 +5983,118 @@ msgstr "Oh. Then I'll call tomorrow."
 msgid "Boa noite, senhor."
 msgstr "Good night, sir."
 
+#: data/calls/story_08_miguel.tres
+msgid "Alô? É o Miguel. Posso falar um pouquinho?"
+msgstr "Hello? It's Miguel. Can I talk for a bit?"
+
+#: data/calls/story_08_miguel.tres
+msgid "Pode, Miguel. Conta."
+msgstr "Go ahead, Miguel. Tell me."
+
+#: data/calls/story_08_miguel.tres
+msgid "Agora não dá."
+msgstr "Not now."
+
+#: data/calls/story_08_miguel.tres
+msgid "Eu descobri uma coisa do meu irmão. Mas é segredo, tá? Jura que não conta pra ninguém?"
+msgstr "I found out something about my brother. But it's a secret, okay? Swear you won't tell anyone?"
+
+#: data/calls/story_08_miguel.tres
+msgid "Juro."
+msgstr "I swear."
+
+#: data/calls/story_08_miguel.tres
+msgid "Depende do segredo."
+msgstr "Depends on the secret."
+
+#: data/calls/story_08_miguel.tres
+msgid "Ele tá com os rebeldes. Os que picham os muros. Eu vi as latas de tinta debaixo da cama dele."
+msgstr "He's with the rebels. The ones who paint the walls. I saw the paint cans under his bed."
+
+#: data/calls/story_08_miguel.tres
+msgid "E ouvi ele falando no portão: amanhã vai ter uma coisa grande. Na praça."
+msgstr "And I heard him at the gate: tomorrow there's going to be something big. In the square."
+
+#: data/calls/story_08_miguel.tres
+msgid "Miguel, fica longe disso."
+msgstr "Miguel, stay away from that."
+
+#: data/calls/story_08_miguel.tres
+msgid "O que mais ele disse?"
+msgstr "What else did he say?"
+
+#: data/calls/story_08_miguel.tres
+msgid "Que menino não vai. Mas eu não sou mais menino. Tchau!"
+msgstr "That kids don't go. But I'm not a kid anymore. Bye!"
+
+#: data/calls/story_08_miguel.tres
+msgid "Tá. É que o meu irmão não brinca mais comigo. Ninguém quer conversar."
+msgstr "Okay. It's just that my brother doesn't play with me anymore. Nobody wants to talk."
+
+#: data/calls/story_08_miguel.tres
+msgid "Tchau."
+msgstr "Bye."
+
+#: data/calls/story_08_generosa.tres
+msgid "Boa noite! O Otávio Almeida, por favor. Da Rua da Estação."
+msgstr "Good evening! Otávio Almeida, please. On Rua da Estação."
+
+#: data/calls/story_08_generosa.tres
+msgid "Moça, ontem ele me deu um beijo! Na porta de casa, com a minha mãe espiando pela janela!"
+msgstr "Miss, yesterday he kissed me! Right at my front door, with my mother peeking out the window!"
+
+#: data/calls/story_08_generosa.tres data/calls/story_08_generosa_recado.tres
+msgid "O Otávio Almeida, da Rua da Estação."
+msgstr "Otávio Almeida, on Rua da Estação."
+
+#: data/calls/story_08_generosa.tres data/calls/story_08_generosa_recado.tres data/calls/transfer_15_vizinho_otavio_almeida.tres
+msgid "Otávio Almeida"
+msgstr "Otávio Almeida"
+
+#: data/calls/story_08_generosa.tres data/calls/transfer_21_moca_lucia_pereira.tres
+msgid "Obrigada!"
+msgstr "Thank you!"
+
+#: data/calls/story_08_generosa.tres data/calls/story_08_generosa_recado.tres data/nights/night_15.tres
+msgid "Alô?"
+msgstr "Hello?"
+
+#: data/calls/story_08_generosa.tres data/calls/story_08_generosa_recado.tres
+msgid "Sou eu. Liguei só pra ouvir a sua voz."
+msgstr "It's me. I only called to hear your voice."
+
+#: data/calls/story_08_generosa.tres data/calls/story_08_generosa_recado.tres
+msgid "Amanhã eu vou na [place:praça] com o pessoal da estação. Vai ter muita gente."
+msgstr "Tomorrow I'm going to the [place:square] with the guys from the station. There'll be a lot of people."
+
+#: data/calls/story_08_generosa.tres data/calls/story_08_generosa_recado.tres
+msgid "Na praça? Otávio, toma cuidado."
+msgstr "The square? Otávio, be careful."
+
+#: data/calls/story_08_generosa.tres data/calls/story_08_generosa_recado.tres
+msgid "É só uma passeata. Depois eu te ligo."
+msgstr "It's just a march. I'll call you after."
+
+#: data/calls/story_08_generosa.tres data/calls/story_08_generosa_recado.tres
+msgid "Liga mesmo, hein?"
+msgstr "You'd better call, okay?"
+
+#: data/calls/story_08_generosa.tres data/calls/story_08_generosa_recado.tres data/calls/story_12_generosa_radio.tres
+msgid "Generosa Prates."
+msgstr "Generosa Prates."
+
+#: data/calls/story_08_generosa_recado.tres
+msgid "Boa noite. O Otávio Almeida, por favor. Da Rua da Estação."
+msgstr "Good evening. Otávio Almeida, please. On Rua da Estação."
+
+#: data/calls/story_08_generosa_recado.tres
+msgid "Consegui o número dele com a prima de uma amiga. Ele jura que deixou recado na central e ninguém nunca me passou."
+msgstr "I got his number from a friend's cousin. He swears he left a message at the exchange and nobody ever passed it on to me."
+
+#: data/calls/story_08_generosa_recado.tres
+msgid "Mas não faz mal. Ontem ele me deu um beijo!"
+msgstr "But never mind. Yesterday he kissed me!"
+
 #: data/nights/night_08.tres
 msgid "Polícia apreende armas em armazém\nDoze caixas de armas foram encontradas nesta madrugada no fundo de um armazém do Alto da Serra, escondidas sob sacos de café. A polícia agradece a colaboração de cidadãos."
 msgstr "Police seize weapons in warehouse\nTwelve crates of weapons were found before dawn today at the back of a warehouse in Alto da Serra, hidden under sacks of coffee. The police thank citizens for their cooperation."
@@ -5555,19 +6103,19 @@ msgstr "Police seize weapons in warehouse\nTwelve crates of weapons were found b
 msgid "Batida em porão termina com sete presos\nNa Rua das Acácias, a polícia surpreendeu uma reunião clandestina num porão. Os presos não tiveram os nomes divulgados. A família de um deles procura notícias desde a madrugada."
 msgstr "Raid on basement ends with seven arrested\nOn Rua das Acácias, the police surprised a clandestine meeting in a basement. The names of those arrested were not released. The family of one of them has been looking for news since before dawn."
 
-#: data/nights/night_08.tres
+#: data/nights/night_08.tres data/nights/night_10.tres
 msgid "Hospital São Lucas, boa noite."
 msgstr "Hospital São Lucas, good evening."
 
-#: data/nights/night_08.tres
+#: data/nights/night_08.tres data/nights/night_10.tres
 msgid "A Enfermeira Joana, por favor."
 msgstr "Nurse Joana, please."
 
-#: data/nights/night_08.tres
+#: data/nights/night_08.tres data/nights/night_10.tres
 msgid "Um momento."
 msgstr "One moment."
 
-#: data/nights/night_08.tres
+#: data/nights/night_08.tres data/nights/night_10.tres
 msgid "Joana falando."
 msgstr "Joana speaking."
 
@@ -5575,7 +6123,7 @@ msgstr "Joana speaking."
 msgid "A ala 3C precisa de suprimentos."
 msgstr "Ward 3C needs supplies."
 
-#: data/nights/night_08.tres
+#: data/nights/night_08.tres data/nights/night_10.tres
 msgid "Desculpe, liguei errado."
 msgstr "Sorry, wrong number."
 
@@ -5843,65 +6391,61 @@ msgstr "He... he stopped. Nobody came."
 msgid "Não respira direito!"
 msgstr "He can't breathe properly!"
 
-#: data/calls/story_09_atropelada.tres
-msgid "Central! Um carro preto atropelou uma moça aqui e fugiu!"
-msgstr "Operator! A black car ran over a girl here and drove off!"
+#: data/calls/story_09_mae_atropelado.tres
+msgid "Central! Meu filho! Um carro passou fugindo e pegou o meu filho!"
+msgstr "Operator! My son! A car came speeding away and hit my son!"
 
-#: data/calls/story_09_atropelada.tres
-msgid "Como ela está?"
-msgstr "How is she?"
+#: data/calls/story_09_mae_atropelado.tres
+msgid "Qual é o nome dele?"
+msgstr "What's his name?"
 
-#: data/calls/story_09_atropelada.tres
-msgid "Viram para onde o carro foi?"
-msgstr "Did anyone see where the car went?"
-
-#: data/calls/story_09_atropelada.tres
+#: data/calls/story_09_mae_atropelado.tres
 msgid "Rua da Estação, 250, perto da linha do trem!"
 msgstr "Rua da Estação, 250, near the railway line!"
 
-#: data/calls/story_09_atropelada.tres
-msgid "Tá no chão, acordada, mas não consegue mexer a perna!"
-msgstr "She's on the ground, awake, but she can't move her leg!"
+#: data/calls/story_09_mae_atropelado.tres
+msgid "Tá no chão, acordado, chorando! A perna tá torta!"
+msgstr "He's on the ground, awake, crying! His leg is bent!"
 
-#: data/calls/story_09_atropelada.tres
-msgid "Fugiu pra cima, sem placa, correndo feito louco!"
-msgstr "It sped off uphill, no plates, driving like a madman!"
+#: data/calls/story_09_mae_atropelado.tres
+msgid "É o meu menino! Pelo amor de Deus, manda alguém!"
+msgstr "He's my boy! For the love of God, send someone!"
 
-#: data/calls/story_09_atropelada.tres
-msgid "Vou ficar aqui com ela, ela tá com muito medo."
-msgstr "I'll stay here with her, she's very scared."
+#: data/calls/story_09_mae_atropelado.tres
+msgid "Eu tô aqui com ele. Ele tá tremendo, a ambulância já vem, filho."
+msgstr "I'm here with him. He's shaking. The ambulance is coming, son."
 
-#: data/calls/story_09_atropelada.tres
-msgid "Ela tá dizendo que não sente a perna!"
-msgstr "She says she can't feel her leg!"
+#: data/calls/story_09_mae_atropelado.tres
+msgid "Ele tá dizendo que não sente a perna!"
+msgstr "He's saying he can't feel his leg!"
 
-#: data/calls/story_09_atropelada.tres
-msgid "Ela está sangrando?"
-msgstr "Is she bleeding?"
+#: data/calls/story_09_mae_atropelado.tres data/calls/emergency_14_mal_subito_rua_do_sol_530.tres
+msgid "Ele está sangrando?"
+msgstr "Is he bleeding?"
 
-#: data/calls/story_09_atropelada.tres
+#: data/calls/story_09_mae_atropelado.tres
 msgid "Um pouco, na cabeça!"
 msgstr "A little, from the head!"
 
-#: data/calls/story_09_atropelada.tres
-msgid "Ela desmaiou! Tá com a boca roxa!"
-msgstr "She passed out! Her lips are turning purple!"
+#: data/calls/story_09_mae_atropelado.tres
+msgid "Ele fechou os olhos! Fala comigo, filho!"
+msgstr "He closed his eyes! Talk to me, son!"
 
-#: data/calls/story_09_atropelada.tres data/calls/emergency_09_mal_subito_rua_do_comercio_150.tres data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres
-msgid "Ela está respirando?"
-msgstr "Is she breathing?"
+#: data/calls/story_09_mae_atropelado.tres data/calls/emergency_03_mal_subito_rua_do_sol_230.tres data/calls/emergency_14_mal_subito_rua_do_sol_530.tres
+msgid "Ele está respirando?"
+msgstr "Is he breathing?"
 
-#: data/calls/story_09_atropelada.tres
-msgid "Bem pouquinho!"
-msgstr "Just barely!"
+#: data/calls/story_09_mae_atropelado.tres
+msgid "Tá, mas não responde!"
+msgstr "Yes, but he won't answer!"
 
-#: data/calls/story_09_atropelada.tres
-msgid "Ela não acorda mais..."
-msgstr "She won't wake up anymore..."
+#: data/calls/story_09_mae_atropelado.tres
+msgid "Ele não abre os olhos! Cadê a ambulância?!"
+msgstr "He won't open his eyes! Where's the ambulance?!"
 
-#: data/calls/story_09_atropelada.tres
-msgid "Não acorda!"
-msgstr "She won't wake up!"
+#: data/calls/story_09_mae_atropelado.tres
+msgid "Respira, mas não acorda!"
+msgstr "He's breathing, but he won't wake up!"
 
 #: data/calls/story_09_briga.tres
 msgid "Central! Tá tendo briga na rua por causa da rádio! Uns gritando viva, outros batendo!"
@@ -6015,6 +6559,66 @@ msgstr "I'll manage. I always have."
 msgid "Obrigada, Maria. Por tudo."
 msgstr "Thank you, Maria. For everything."
 
+#: data/calls/story_10_generosa.tres
+msgid "Boa noite. É a Generosa Prates. Desculpe, eu não sei mais pra quem ligar."
+msgstr "Good evening. It's Generosa Prates. Sorry, I don't know who else to call."
+
+#: data/calls/story_10_generosa.tres
+msgid "O Otávio ligou aí pra central? Procurando por mim, deixando recado, qualquer coisa?"
+msgstr "Did Otávio call the exchange? Looking for me, leaving a message, anything?"
+
+#: data/calls/story_10_generosa.tres
+msgid "Não ligou, não."
+msgstr "No, he didn't."
+
+#: data/calls/story_10_generosa.tres
+msgid "Hoje não."
+msgstr "Not today."
+
+#: data/calls/story_10_generosa.tres
+msgid "Ele foi na praça ontem. Disse que ligava depois. Na casa dele ninguém atende desde ontem."
+msgstr "He went to the square yesterday. He said he'd call after. Nobody's answered at his place since yesterday."
+
+#: data/calls/story_10_generosa.tres
+msgid "Eu ligo de novo no fim do turno. Se a senhora souber de alguma coisa..."
+msgstr "I'll call again at the end of your shift. If you hear anything..."
+
+#: data/calls/story_10_generosa.tres
+msgid "Vou tentar descobrir."
+msgstr "I'll try to find out."
+
+#: data/calls/story_10_generosa.tres
+msgid "Ligue, sim."
+msgstr "Please do call."
+
+#: data/calls/story_10_generosa_volta.tres
+msgid "Sou eu de novo. A Generosa. Soube de alguma coisa?"
+msgstr "It's me again. Generosa. Did you hear anything?"
+
+#: data/calls/story_10_generosa_volta.tres
+msgid "Ele está no São Lucas, na ala 3C. Machucado, mas vivo."
+msgstr "He's at São Lucas, ward 3C. Hurt, but alive."
+
+#: data/calls/story_10_generosa_volta.tres
+msgid "Não soube de nada."
+msgstr "I didn't hear anything."
+
+#: data/calls/story_10_generosa_volta.tres
+msgid "Ainda não."
+msgstr "Not yet."
+
+#: data/calls/story_10_generosa_volta.tres
+msgid "Vivo... Graças a Deus. Amanhã cedo eu estou na porta do hospital."
+msgstr "Alive... Thank God. First thing tomorrow I'll be at the hospital door."
+
+#: data/calls/story_10_generosa_volta.tres
+msgid "Obrigada. A senhora nem sabe o que fez."
+msgstr "Thank you. You have no idea what you've done."
+
+#: data/calls/story_10_generosa_volta.tres
+msgid "Tá. Amanhã eu procuro nos hospitais, um por um. Boa noite."
+msgstr "All right. Tomorrow I'll search the hospitals, one by one. Good night."
+
 #: data/nights/night_10.tres
 msgid "Rádio Serena fora do controle por três horas\nNa noite de ontem, a Rádio Serena transmitiu uma mensagem da resistência e tocou a \"Canção da Madrugada\", proibida há anos. A Alta Cúpula diz que os responsáveis já foram identificados."
 msgstr "Rádio Serena out of control for three hours\nLast night, Rádio Serena broadcast a message from the resistance and played the \"Canção da Madrugada\", banned for years. The High Command says those responsible have already been identified."
@@ -6034,6 +6638,26 @@ msgstr "...As many as there are. The back door stays open until morning. God ble
 #: data/nights/night_10.tres data/nights/night_15.tres data/content.tres
 msgid "Boa noite, então."
 msgstr "Good night, then."
+
+#: data/nights/night_10.tres
+msgid "Essa voz eu conheço. Foi você que ligou pela ala 3C, não foi?"
+msgstr "I know that voice. You're the one who called about ward 3C, aren't you?"
+
+#: data/nights/night_10.tres
+msgid "Tem um Otávio Almeida internado aí?"
+msgstr "Is there an Otávio Almeida admitted there?"
+
+#: data/nights/night_10.tres
+msgid "Otávio Almeida... Chegou ontem à noite, da praça. Está na 3C."
+msgstr "Otávio Almeida... He came in last night, from the square. He's in 3C."
+
+#: data/nights/night_10.tres
+msgid "Bastante machucado. Mas vivo. Visita de manhã."
+msgstr "Badly hurt. But alive. Visiting hours in the morning."
+
+#: data/nights/night_10.tres
+msgid "Pode dizer a quem perguntar que ele está em boas mãos. Boa noite."
+msgstr "You can tell whoever asks that he's in good hands. Good night."
 
 #: data/nights/night_11.tres
 msgid "O supervisor deixou um recado: \"A semana está longa. Paciência com quem liga.\""
@@ -6218,6 +6842,94 @@ msgstr "A call from the authorities comes before any other. This goes on your re
 #: data/calls/story_12_supervisor.tres
 msgid "E eu vou ficar de olho em você. Boa noite, Maria."
 msgstr "And I'll be keeping an eye on you. Good night, Maria."
+
+#: data/calls/story_12_miguel.tres
+msgid "Maria? É o Miguel. Fala baixinho, tô ligando escondido."
+msgstr "Maria? It's Miguel. Talk quietly, I'm calling in secret."
+
+#: data/calls/story_12_miguel.tres
+msgid "Moça da central? É o Miguel. Fala baixinho, tô ligando escondido."
+msgstr "Operator lady? It's Miguel. Talk quietly, I'm calling in secret."
+
+#: data/calls/story_12_miguel.tres
+msgid "Tô no hospital. No São Lucas."
+msgstr "I'm in the hospital. At São Lucas."
+
+#: data/calls/story_12_miguel.tres
+msgid "No hospital? O que aconteceu?"
+msgstr "In the hospital? What happened?"
+
+#: data/calls/story_12_miguel.tres
+msgid "Miguel, você não devia estar no telefone."
+msgstr "Miguel, you shouldn't be on the phone."
+
+#: data/calls/story_12_miguel.tres
+msgid "A mãe me deixou de castigo, sem telefone, por isso eu não liguei mais. Mas naquela noite da coisa grande eu fugi pela janela e segui o meu irmão."
+msgstr "Mom grounded me, no phone, that's why I stopped calling. But on the night of the big thing I snuck out the window and followed my brother."
+
+#: data/calls/story_12_miguel.tres
+msgid "Tinha um monte de gente na praça, gritaria, e aí veio um carro correndo e... pum."
+msgstr "There were lots of people in the square, shouting, and then a car came speeding and... boom."
+
+#: data/calls/story_12_miguel.tres
+msgid "Quebrei a perna! Tô de gesso até aqui. Já assinaram o médico, a enfermeira e o moço da cama do lado."
+msgstr "I broke my leg! I've got a cast up to here. The doctor signed it, the nurse, and the guy in the next bed."
+
+#: data/calls/story_12_miguel.tres
+msgid "Eu assino também. Prometo."
+msgstr "I'll sign it too. I promise."
+
+#: data/calls/story_12_miguel.tres
+msgid "Que susto, Miguel."
+msgstr "What a scare, Miguel."
+
+#: data/calls/story_12_miguel.tres
+msgid "Jura? Vou guardar um lugar bem grande. Do lado do joelho."
+msgstr "Swear? I'll save a really big spot. Next to the knee."
+
+#: data/calls/story_12_miguel.tres
+msgid "Ih, a enfermeira! Tchau!"
+msgstr "Uh-oh, the nurse! Bye!"
+
+#: data/calls/story_12_miguel.tres
+msgid "É que eu machuquei a perna. Foi um carro."
+msgstr "I hurt my leg. It was a car."
+
+#: data/calls/story_12_miguel.tres
+msgid "Ih, a enfermeira. Tchau."
+msgstr "Uh-oh, the nurse. Bye."
+
+#: data/calls/story_12_generosa_radio.tres
+msgid "Boa noite. A Rádio Serena, por favor."
+msgstr "Good evening. Rádio Serena, please."
+
+#: data/calls/story_12_generosa_radio.tres
+msgid "Fui ver o Otávio no São Lucas. Ele está muito mal, quase não fala."
+msgstr "I went to see Otávio at São Lucas. He's in a bad way, he can barely talk."
+
+#: data/calls/story_12_generosa_radio.tres
+msgid "Quero oferecer uma música pra ele."
+msgstr "I want to dedicate a song to him."
+
+#: data/calls/story_12_generosa_radio.tres
+msgid "A Rádio Serena, por favor."
+msgstr "Rádio Serena, please."
+
+#: data/calls/story_12_generosa_radio.tres
+msgid "Boa noite. Quero oferecer [other:Luar da Serra] pro [person:Otávio], na ala 3C do [place:São Lucas]."
+msgstr "Good evening. I want to dedicate [other:Luar da Serra] to [person:Otávio], in ward 3C at [place:São Lucas]."
+
+#: data/calls/story_12_generosa_radio.tres
+msgid "Quem oferece?"
+msgstr "From whom?"
+
+#: data/calls/story_12_generosa_radio.tres
+msgid "A moça de fita amarela. Ele sabe."
+msgstr "The girl with the yellow ribbon. He'll know."
+
+#: data/calls/story_12_generosa_radio.tres
+msgid "Vai ao ar depois do noticiário, moça. Melhoras pra ele."
+msgstr "It goes on after the news, miss. I hope he gets better."
 
 #: data/nights/night_13.tres
 msgid "O supervisor deixou um recado: \"Recebemos uma notícia triste: a Cecília, telefonista do Alto da Serra, faleceu de um mal súbito. Não temos mais detalhes. Por segurança, há policiais no prédio esta noite, para a sua proteção. Não abra a porta para ninguém e siga trabalhando normalmente.\""
@@ -6511,6 +7223,54 @@ msgstr "The warehouse one? That's already been searched."
 msgid "Não o armazém. A casa dele, na [street:Rua da Estação]. Amanhã a gente cerca a rua inteira."
 msgstr "Not the warehouse. His house, on [street:Rua da Estação]. Tomorrow we surround the whole street."
 
+#: data/calls/story_14_miguel.tres
+msgid "Maria? É o Miguel. Já tô em casa. De muleta!"
+msgstr "Maria? It's Miguel. I'm home now. On crutches!"
+
+#: data/calls/story_14_miguel.tres
+msgid "Moça da central? É o Miguel. Já tô em casa. De muleta!"
+msgstr "Operator lady? It's Miguel. I'm home now. On crutches!"
+
+#: data/calls/story_14_miguel.tres
+msgid "A mãe disse que agora eu vou me cuidar. Eu prometi. Juro que prometi."
+msgstr "Mom says from now on I'm going to be careful. I promised. I swear I promised."
+
+#: data/calls/story_14_miguel.tres
+msgid "Cumpre a promessa, hein?"
+msgstr "Keep that promise, okay?"
+
+#: data/calls/story_14_miguel.tres
+msgid "Que bom, Miguel."
+msgstr "Good, Miguel."
+
+#: data/calls/story_14_miguel.tres
+msgid "Cumpro. Boa noite!"
+msgstr "I will. Good night!"
+
+#: data/calls/story_14_miguel.tres
+msgid "Mas o meu irmão não voltou pra casa. A polícia levou ele. Faz uma semana."
+msgstr "But my brother didn't come home. The police took him. It's been a week."
+
+#: data/calls/story_14_miguel.tres
+msgid "A mãe chora a noite inteira. Você fala com a cidade toda... Sabe de alguma coisa?"
+msgstr "Mom cries all night. You talk to the whole town... Do you know anything?"
+
+#: data/calls/story_14_miguel.tres
+msgid "Não sei, Miguel. Mas vou ficar de ouvido."
+msgstr "I don't, Miguel. But I'll keep my ears open."
+
+#: data/calls/story_14_miguel.tres data/calls/story_16_mae_cecilia.tres
+msgid "Eu sinto muito."
+msgstr "I'm so sorry."
+
+#: data/calls/story_14_miguel.tres
+msgid "Se souber, me conta? Promete?"
+msgstr "If you find out, will you tell me? Promise?"
+
+#: data/calls/story_14_miguel.tres
+msgid "Ninguém sabe de nada. Tchau."
+msgstr "Nobody knows anything. Bye."
+
 #: data/nights/night_15.tres
 msgid "O supervisor deixou um recado: \"Ordem das autoridades: as linhas da Rádio Serena e da TV Orbital estão bloqueadas. Transferir qualquer ligação para elas é crime, sujeito a prisão. Quem ligar para o bar ou para o hotel, denuncie na delegacia (184). Ligação para a delegacia ou para a Alta Cúpula passa na hora, sem demora. Última noite do período: o relatório de hoje vai para a diretoria.\""
 msgstr "The supervisor left a note: \"Orders from the authorities: the Rádio Serena and TV Orbital lines are blocked. Transferring any call to them is a crime, punishable by arrest. Whoever calls the bar or the hotel, report them to the police station (184). Calls to the police station or the High Command go through at once, no delay. Last night of the period: tonight's report goes to the board.\""
@@ -6550,10 +7310,6 @@ msgstr "Including the calls that were dropped from there, these last two nights.
 #: data/calls/story_15_cupula_presa.tres
 msgid "Eu só cumpri o meu turno."
 msgstr "I only worked my shift."
-
-#: data/calls/story_15_cupula_presa.tres data/calls/story_16_mae_cecilia.tres data/calls/story_16_cupula.tres
-msgid "[Ficar em silêncio]"
-msgstr "[Stay silent]"
 
 #: data/calls/story_15_cupula_presa.tres
 msgid "Permaneça no posto. Ninguém sai da central esta noite."
@@ -6802,10 +7558,6 @@ msgstr "...Understood. Tell him we're heading out."
 #: data/nights/night_15.tres
 msgid "Aqui não tem ninguém. Boa noite."
 msgstr "There's nobody here. Good night."
-
-#: data/nights/night_15.tres data/content.tres
-msgid "Alô?"
-msgstr "Hello?"
 
 #: data/nights/night_15.tres
 msgid "Rádio Serena, boa noite. Estamos no ar."
@@ -7324,6 +8076,14 @@ msgid "À operadora do turno da noite,\n\nEm nome da diretoria, parabenizo pela 
 msgstr "To the night shift operator,\n\nOn behalf of the board, my congratulations on your exemplary conduct during last night's events. The São Sotero exchange kept the authorities' lines open when they were needed most. This service will not be forgotten.\n\nSincerely,\nThe Supervisor"
 
 #: data/nights/night_16.tres
+msgid "Maria atende até o fim do turno. Nenhuma linha pede socorro. Lá fora, a bandeira continua na varanda.\n\nDe manhã, antes de dormir, ela passa no Hospital São Lucas com uma caneta no bolso: tem um gesso esperando a assinatura dela. No corredor da ala 3C, Sebastião visita os feridos da madrugada. Ele segura a porta do quarto para ela e espera do lado de fora."
+msgstr "Maria works until the end of the shift. No line calls for help. Outside, the flag is still on the balcony.\n\nIn the morning, before going to sleep, she stops by Hospital São Lucas with a pen in her pocket: there's a cast waiting for her signature. In the corridor of ward 3C, Sebastião is visiting the wounded from the night. He holds the door to the room for her and waits outside."
+
+#: data/nights/night_16.tres
+msgid "Maria atende até o fim do turno. Sebastião não liga. No jornal, a vitória ocupa a primeira página; os nomes dos que não voltaram, a segunda inteira.\n\nDe manhã, ela passa no Hospital São Lucas para assinar um gesso na ala 3C. No corredor, Sebastião está sentado num banco, de chapéu na mão. Ele se levanta quando a vê e não diz nada."
+msgstr "Maria works until the end of the shift. Sebastião doesn't call. In the paper, the victory takes the front page; the names of those who didn't come back, the whole second page.\n\nIn the morning, she stops by Hospital São Lucas to sign a cast in ward 3C. In the corridor, Sebastião sits on a bench, hat in hand. He stands when he sees her and says nothing."
+
+#: data/nights/night_16.tres
 msgid "Maria atende até o fim do turno. Nenhuma linha pede socorro. Lá fora, a bandeira continua na varanda."
 msgstr "Maria answers until the end of the shift. No line calls for help. Outside, the flag is still on the balcony."
 
@@ -7464,10 +8224,6 @@ msgid "Ela acreditou em você até o fim. Até quando vieram buscar ela."
 msgstr "She believed in you to the end. Even when they came for her."
 
 #: data/calls/story_16_mae_cecilia.tres
-msgid "Eu sinto muito."
-msgstr "I'm so sorry."
-
-#: data/calls/story_16_mae_cecilia.tres
 msgid "Sente. Eu também sinto. Toda noite, quando ponho a mesa e sobra um prato."
 msgstr "You are. So am I. Every night, when I set the table and there's a plate left over."
 
@@ -7506,6 +8262,130 @@ msgstr "Yes, sir."
 #: data/calls/story_16_cupula.tres
 msgid "É só isso. Bom turno."
 msgstr "That is all. Have a good shift."
+
+#: data/calls/story_16_miguel.tres
+msgid "Maria! É o Miguel!"
+msgstr "Maria! It's Miguel!"
+
+#: data/calls/story_16_miguel.tres
+msgid "Moça da central! É o Miguel!"
+msgstr "Operator lady! It's Miguel!"
+
+#: data/calls/story_16_miguel.tres
+msgid "O meu irmão saiu ontem de noite e ainda não voltou. Ele ligou aí? Ele disse que, quando acabasse, ligava."
+msgstr "My brother went out last night and hasn't come back yet. Did he call there? He said he'd call when it was over."
+
+#: data/calls/story_16_miguel.tres
+msgid "Disseram no rádio que soltaram todo mundo da cadeia hoje cedo. A mãe foi buscar o meu irmão. Ele ligou aí?"
+msgstr "They said on the radio they let everyone out of jail this morning. Mom went to get my brother. Did he call there?"
+
+#: data/calls/story_16_miguel.tres
+msgid "O meu irmão saiu ontem de noite e não voltou. Ele ligou aí?"
+msgstr "My brother went out last night and didn't come back. Did he call there?"
+
+#: data/calls/story_16_miguel.tres
+msgid "Ainda não. Mas vai ligar."
+msgstr "Not yet. But he will."
+
+#: data/calls/story_16_miguel.tres
+msgid "Não ligou, Miguel."
+msgstr "He didn't, Miguel."
+
+#: data/calls/story_16_miguel.tres
+msgid "Não, Miguel. Ninguém ligou."
+msgstr "No, Miguel. Nobody called."
+
+#: data/calls/story_16_miguel.tres
+msgid "A rádio disse que acabou, que agora pode tudo. Então ele vai ligar, né?"
+msgstr "The radio said it's over, that now anything goes. So he's going to call, right?"
+
+#: data/calls/story_16_miguel.tres
+msgid "Ó! Bateram na porta! Deve ser ele!"
+msgstr "Oh! Someone's knocking! It must be him!"
+
+#: data/calls/story_16_miguel.tres
+msgid "Quando ele chegar, eu mando ele ligar pra você agradecer!"
+msgstr "When he gets here, I'll make him call you to say thanks!"
+
+#: data/calls/story_16_miguel.tres
+msgid "E não esquece do gesso! Amanhã de manhã, no São Lucas!"
+msgstr "And don't forget the cast! Tomorrow morning, at São Lucas!"
+
+#: data/calls/story_16_miguel.tres data/calls/prank_09_menino.tres
+msgid "Tchau!"
+msgstr "Bye!"
+
+#: data/calls/story_16_miguel.tres
+msgid "A rádio só fala que acabou a baderna. A mãe não sai da janela."
+msgstr "The radio only says the riot is over. Mom won't leave the window."
+
+#: data/calls/story_16_miguel.tres
+msgid "Se ele ligar, você me avisa? Eu fico aqui do lado do telefone."
+msgstr "If he calls, will you tell me? I'll stay right here by the phone."
+
+#: data/calls/story_16_generosa.tres
+msgid "Boa noite! Aqui é a Generosa Prates. A da fita amarela, lembra?"
+msgstr "Good evening! This is Generosa Prates. The one with the yellow ribbon, remember?"
+
+#: data/calls/story_16_generosa.tres
+msgid "O Otávio está bem! O médico disse que ele tem alta na semana que vem."
+msgstr "Otávio is fine! The doctor says he'll be discharged next week."
+
+#: data/calls/story_16_generosa.tres
+msgid "Ele pediu pra eu ligar e agradecer. Disse que a moça da central é a madrinha da gente."
+msgstr "He asked me to call and thank you. He says the operator is our godmother."
+
+#: data/calls/story_16_generosa.tres
+msgid "Madrinha? Que honra."
+msgstr "Godmother? What an honor."
+
+#: data/calls/story_16_generosa.tres
+msgid "Fico feliz, Generosa."
+msgstr "I'm so glad, Generosa."
+
+#: data/calls/story_16_generosa.tres
+msgid "Quando ele sair, a primeira música é por nossa conta. Boa noite!"
+msgstr "When he gets out, the first song is on us. Good night!"
+
+#: data/calls/story_16_generosa_hospital.tres
+msgid "O Hospital São Lucas."
+msgstr "Hospital São Lucas."
+
+#: data/calls/story_16_generosa_hospital.tres
+msgid "Quero saber o horário de visita."
+msgstr "I want to know the visiting hours."
+
+#: data/calls/story_16_generosa_hospital.tres
+msgid "O São Lucas."
+msgstr "São Lucas."
+
+#: data/calls/story_16_generosa_hospital.tres data/calls/transfer_18_dona_rute_hospital_sao_lucas.tres
+msgid "Hospital São Lucas"
+msgstr "São Lucas Hospital"
+
+#: data/calls/story_16_generosa_hospital.tres
+msgid "Hospital São Lucas."
+msgstr "Hospital São Lucas."
+
+#: data/calls/story_16_generosa_hospital.tres
+msgid "O horário de visita da ala 3C."
+msgstr "Visiting hours for ward 3C."
+
+#: data/calls/story_16_generosa_hospital.tres
+msgid "Das duas às quatro. Só parente."
+msgstr "Two to four. Family only."
+
+#: data/calls/story_16_generosa_hospital.tres
+msgid "Eu sou a noiva dele."
+msgstr "I'm his fiancée."
+
+#: data/calls/story_16_generosa_hospital.tres
+msgid "Então traga um documento."
+msgstr "Then bring an ID."
+
+#: data/calls/story_16_generosa_hospital.tres
+msgid "Ocupado? ...Tenta de novo, por favor."
+msgstr "Busy? ...Try again, please."
 
 #: data/nights/night_16.tres
 msgid "São Sotero amanhece livre: a emissora e a rádio nas mãos do povo; a praça cheia desde cedo"
@@ -7738,10 +8618,6 @@ msgstr "Then it goes on after the news. Listen with her."
 #: data/calls/transfer_06_caminhoneiro_oficina_do_tiao.tres
 msgid "Caminhoneiro"
 msgstr "Trucker"
-
-#: data/calls/transfer_06_caminhoneiro_oficina_do_tiao.tres data/templates/transfer_02.tres data/content.tres
-msgid "Central, boa noite."
-msgstr "Exchange, good evening."
 
 #: data/calls/transfer_06_caminhoneiro_oficina_do_tiao.tres
 msgid "Meu caminhão morreu perto do moinho. O Tião da oficina atende de noite, não atende?"
@@ -8147,10 +9023,6 @@ msgstr "Otávio, from Rua da Estação. Not the doctor."
 msgid "Otávio Almeida. Rua da Estação."
 msgstr "Otávio Almeida. Rua da Estação."
 
-#: data/calls/transfer_15_vizinho_otavio_almeida.tres data/calls/transfer_50_senhora_otavio_almeida.tres
-msgid "Otávio Almeida"
-msgstr "Otávio Almeida"
-
 #: data/calls/transfer_15_vizinho_otavio_almeida.tres data/content.tres
 msgid "Isso, obrigado."
 msgstr "That's it, thanks."
@@ -8288,10 +9160,6 @@ msgid "A recepção do Hospital São Lucas."
 msgstr "The front desk at the São Lucas Hospital."
 
 #: data/calls/transfer_18_dona_rute_hospital_sao_lucas.tres
-msgid "Hospital São Lucas"
-msgstr "São Lucas Hospital"
-
-#: data/calls/transfer_18_dona_rute_hospital_sao_lucas.tres
 msgid "Boa noite. Queria marcar horário com o doutor."
 msgstr "Good evening. I'd like to book an appointment with the doctor."
 
@@ -8402,10 +9270,6 @@ msgstr "Three, three, six."
 #: data/calls/transfer_21_moca_lucia_pereira.tres
 msgid "Lúcia Pereira"
 msgstr "Lúcia Pereira"
-
-#: data/calls/transfer_21_moca_lucia_pereira.tres
-msgid "Obrigada!"
-msgstr "Thank you!"
 
 #: data/calls/transfer_21_moca_lucia_pereira.tres
 msgid "Lúcia? Oi, sou eu."
@@ -9463,10 +10327,6 @@ msgstr "Good. Bring the mold back whenever you like."
 msgid "Levo amanhã cedo, com um pedaço do pudim."
 msgstr "I'll bring it early tomorrow, with a slice of pudding."
 
-#: data/calls/transfer_49_menino_mercearia_silva.tres data/calls/prank_05_menino.tres data/calls/prank_09_menino.tres
-msgid "Menino"
-msgstr "Kid"
-
 #: data/calls/transfer_49_menino_mercearia_silva.tres
 msgid "Alô? Moço, minha mãe mandou ligar pra Mercearia Silva."
 msgstr "Hello? Sir, my mum told me to call the Mercearia Silva."
@@ -9698,10 +10558,6 @@ msgstr "They dragged the neighbor out, but he's in really bad shape!"
 #: data/calls/emergency_03_mal_subito_rua_do_sol_230.tres
 msgid "Central, meu pai caiu no banheiro e não acorda!"
 msgstr "Operator, my father fell in the bathroom and won't wake up!"
-
-#: data/calls/emergency_03_mal_subito_rua_do_sol_230.tres data/calls/emergency_14_mal_subito_rua_do_sol_530.tres data/calls/emergency_20_acidente_avenida_brasil_420.tres
-msgid "Ele está respirando?"
-msgstr "Is he breathing?"
 
 #: data/calls/emergency_03_mal_subito_rua_do_sol_230.tres
 msgid "Rua do Sol, 230! A casa amarela!"
@@ -10131,6 +10987,10 @@ msgstr "Just the left one. The right one is limp."
 msgid "Ela desmaiou! Não acorda!"
 msgstr "She fainted! She won't wake up!"
 
+#: data/calls/emergency_09_mal_subito_rua_do_comercio_150.tres data/calls/emergency_17_incendio_rua_sete_de_setembro_60.tres data/calls/emergency_19_mal_subito_rua_da_matriz_30.tres
+msgid "Ela está respirando?"
+msgstr "Is she breathing?"
+
 #: data/calls/emergency_09_mal_subito_rua_do_comercio_150.tres
 msgid "Tá, mas fazendo um barulho estranho!"
 msgstr "Yes, but she's making a strange noise!"
@@ -10410,10 +11270,6 @@ msgstr "No... I call him and he doesn't open his eyes."
 #: data/calls/emergency_14_mal_subito_rua_do_sol_530.tres data/templates/emergency_mal_subito.tres
 msgid "Ele começou a tremer todo!"
 msgstr "He started shaking all over!"
-
-#: data/calls/emergency_14_mal_subito_rua_do_sol_530.tres
-msgid "Ele está sangrando?"
-msgstr "Is he bleeding?"
 
 #: data/calls/emergency_14_mal_subito_rua_do_sol_530.tres
 msgid "Tá! A cabeça tá sangrando muito!"
@@ -11544,10 +12400,6 @@ msgid "(ao fundo) Pede cachorro-quente!"
 msgstr "(in the background) Get hot dogs!"
 
 #: data/calls/prank_06_menina.tres
-msgid "Alô? É da central?"
-msgstr "Hello? Is this the exchange?"
-
-#: data/calls/prank_06_menina.tres
 msgid "Sim, central telefônica. Pois não?"
 msgstr "Yes, telephone exchange. How can I help?"
 
@@ -11634,10 +12486,6 @@ msgstr "What company?"
 #: data/calls/prank_09_menino.tres
 msgid "(tentando não rir) Assovia, por favor..."
 msgstr "(trying not to laugh) Whistle, please..."
-
-#: data/calls/prank_09_menino.tres
-msgid "Tchau!"
-msgstr "Bye!"
 
 #: data/calls/prank_10_rapaz.tres
 msgid "Alô? Gostaria de falar com a Paula!"
@@ -12614,10 +13462,6 @@ msgstr "Just me and the cords."
 #: data/content.tres
 msgid "Hehe, pelo menos eles não reclamam, né?"
 msgstr "Heh, at least they don't complain, right?"
-
-#: data/content.tres
-msgid "Passo, sim."
-msgstr "I do."
 
 #: data/content.tres
 msgid "Ah... tá. Não vou atrapalhar, então."

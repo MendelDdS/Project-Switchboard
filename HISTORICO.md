@@ -3304,3 +3304,10 @@ Chaves:
 531. #vista "As balas seriam para cima, seguindo uma linha contínua diagonal, não um rastro que esmaece. É uma bala e
     não míssil." Os traçantes saem de trás dos telhados (h 5–40 m) e sobem retos em diagonal (`Battle.TRACE_V`, sem
     queda), cada um uma linha laranja inteira de 0,15 s de voo (`TRACE_TAIL`; saiu o esmaecer, `TRACE_FADE`).
+532. #conteudo "Estou com um arquivo com dois roteiros secundários que não impactam na história principal. Vamos
+    implementar." Miguel (trotes na 1 e na 3, conversas na 6, 7, 8, 12 e 14 com versão simpática e seca, a mãe dele na
+    emergência da 9 no lugar da moça atropelada, o epílogo) e Otávio e Generosa (2, 3, 5, 6, 8, 10, 12 e o epílogo;
+    passar o número ou mentir na 3). Respostas: a música deles é outra ("Luar da Serra"); o Otávio mudou para o 361
+    (setor 3, para a Generosa pedir por ele na 8; a Funerária Paz Eterna foi para o 253); os três complementos (o
+    castigo só nas falas da 12, o gesso leva Maria ao hospital no final de sucesso, a linha ocupada no epílogo de
+    fracasso). Motor: `PrankCall.prank`, `StoryCall.if_hung_up`, `TransferCall.busy_line`.

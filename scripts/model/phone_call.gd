@@ -103,6 +103,7 @@ var busy_asked := false     ## o operador avisou que todas as linhas estão ocup
 var busy_later := false     ## ...e ela preferiu ligar outra hora
 var away := false           ## o destino pedido não vai atender (sorteado, só quando há alternativa)
 var no_answer := false
+var busy_tried := false      ## o número pedido já deu ocupado uma vez (`TransferCall.busy_line`)
 var alt_done := false
 var connected := false
 var dest_num := 0

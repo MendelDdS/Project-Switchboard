@@ -24,6 +24,8 @@ extends Resource
 @export var if_dropped: PackedStringArray = []
 ## ...ou deixada tocando até a pessoa desistir.
 @export var if_missed: PackedStringArray = []
+## Encerrada pelo operador (desligou na cara), além do `if_dropped`.
+@export var if_hung_up: PackedStringArray = []
 ## Gravada (B4) e entregue às autoridades no fim do turno com alguma palavra-chave (`Tapes.hand_over`).
 @export var if_delivered: PackedStringArray = []
 ## Gravada (B4) e dada a Sebastião (o pacote branco, `Tapes.give`), no fim do turno.

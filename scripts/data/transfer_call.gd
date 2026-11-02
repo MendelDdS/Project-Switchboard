@@ -49,6 +49,8 @@ enum Group {
 @export var alt_destination := ""
 @export var alt_ask := ""
 @export var alt_yes := ""
+## Não vazio: o número pedido dá ocupado na primeira tentativa, e quem ligou diz isto (pede para tentar de novo).
+@export var busy_line := ""
 
 @export_group("Burocracias")
 ## B1, identificação: nome e sobrenome de quem liga. O chat mostra `caller` até ele dizer o nome (`name_line`) e este

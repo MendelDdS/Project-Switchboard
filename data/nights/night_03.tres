@@ -7,6 +7,9 @@
 [ext_resource type="Resource" path="res://data/calls/story_03_cecilia_bar.tres" id="x2_story_03_cecilia_bar"]
 [ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="x3_prank_step"]
 [ext_resource type="Script" path="res://scripts/data/dial_call.gd" id="x4_dial_call"]
+[ext_resource type="Resource" path="res://data/calls/story_03_generosa.tres" id="a_story_03_generosa"]
+[ext_resource type="Resource" path="res://data/calls/story_03_miguel_trote.tres" id="a_story_03_miguel_trote"]
+[ext_resource type="Resource" path="res://data/calls/story_03_otavio.tres" id="a_story_03_otavio"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -98,9 +101,28 @@ voice = "m"
 sets = PackedStringArray("sabe_senha_3")
 steps = Array[ExtResource("x3_prank_step")]([SubResource("D_bar_00"), SubResource("D_bar_01"), SubResource("D_bar_02"), SubResource("D_bar_03"), SubResource("D_bar_04"), SubResource("D_bar_05"), SubResource("D_bar_06"), SubResource("D_bar_07"), SubResource("D_bar_08"), SubResource("D_bar_09"), SubResource("D_bar_10"), SubResource("D_bar_11"), SubResource("D_bar_12")])
 
+[sub_resource type="Resource" id="A_story_03_generosa"]
+script = ExtResource("x0_story_call")
+at = 45.0
+call = ExtResource("a_story_03_generosa")
+if_dropped = PackedStringArray("generosa_3")
+again = false
+
+[sub_resource type="Resource" id="A_story_03_miguel_trote"]
+script = ExtResource("x0_story_call")
+at = 100.0
+call = ExtResource("a_story_03_miguel_trote")
+again = false
+
+[sub_resource type="Resource" id="A_story_03_otavio"]
+script = ExtResource("x0_story_call")
+at = 140.0
+call = ExtResource("a_story_03_otavio")
+again = false
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Ordem da diretoria: a partir de hoje, peça o nome e o sobrenome de quem liga antes de completar a ligação. Quem não disser, não passa.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0")])
-story = Array[ExtResource("x0_story_call")]([SubResource("S_cec1"), SubResource("S_cec2")])
+story = Array[ExtResource("x0_story_call")]([SubResource("S_cec1"), SubResource("S_cec2"), SubResource("A_story_03_generosa"), SubResource("A_story_03_miguel_trote"), SubResource("A_story_03_otavio")])
 dial = Array[ExtResource("x4_dial_call")]([SubResource("D_bar")])

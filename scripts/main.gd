@@ -697,6 +697,18 @@ func _ring_dest(c: PhoneCall, d: int) -> void:
 	var g := cancel_dest_ring(d)
 	var right := str(d) == c.target
 	var closed := right and c.away   # ninguém atende: o operador pode sugerir a alternativa
+	var t := c.data as TransferCall
+	if right and t != null and t.busy_line != "" and not c.busy_tried:   # dá ocupado da primeira vez: tentar de novo
+		c.busy_tried = true
+		c.set_options([])
+		if c.on_line:
+			Sfx.play("busy")
+		phone.flash(T.text(T.Key.DISPLAY_BUSY) % d, 3000)
+		c.sys(T.text(T.Key.SYS_LINE_BUSY) % d)
+		if await conversation.say(c, t.busy_line, 0.6):
+			conversation.transfer_choices(c)
+			_update_call_ui()
+		return
 	_quiet[d] = closed
 	exchange.set_dest(d, Exchange.Dest.RING)
 	c.set_options([])   # a conversa agora é com o destino; as opções voltam se a transferência for desfeita
@@ -1127,6 +1139,8 @@ func _story_outcome(c: PhoneCall, reason: PhoneCall.End) -> void:
 		_story_talks[c.line] = c
 		return
 	_story_flags(c, c.beat.if_missed if reason == PhoneCall.End.MISSED else c.beat.if_dropped)
+	if reason == PhoneCall.End.OPERATOR:
+		_story_flags(c, c.beat.if_hung_up)
 
 
 ## A conversa conectada pela linha `n` acabou (`cut`: o operador tirou o cabo antes): o desfecho da do roteiro dela.
@@ -1244,7 +1258,7 @@ func _record(c: PhoneCall, reason: PhoneCall.End) -> PhoneCall.Record:
 	r.card = card
 	r.ticket = ticket
 	r.obs = obs
-	r.kind = PhoneCall.Kind.TRANSFER if c.beat != null and c.kind == PhoneCall.Kind.PRANK else c.kind   # (a conversa do roteiro: ligação comum no caderno)
+	r.kind = PhoneCall.Kind.TRANSFER if c.beat != null and c.kind == PhoneCall.Kind.PRANK and not (c.data as PrankCall).prank else c.kind   # (a conversa do roteiro: ligação comum no caderno)
 	r.missed = reason == PhoneCall.End.MISSED
 	r.tut = c.lesson
 	r.shift = reason == PhoneCall.End.SHIFT_OVER

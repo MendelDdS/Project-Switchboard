@@ -6,6 +6,8 @@
 [ext_resource type="Script" path="res://scripts/data/story_call.gd" id="x1_story_call"]
 [ext_resource type="Resource" path="res://data/calls/story_05_cecilia.tres" id="x2_story_05_cecilia"]
 [ext_resource type="Resource" path="res://data/calls/story_05_sebastiao.tres" id="x3_story_05_sebastiao"]
+[ext_resource type="Resource" path="res://data/calls/story_05_otavio.tres" id="a_story_05_otavio"]
+[ext_resource type="Resource" path="res://data/calls/story_05_otavio_radio.tres" id="a_story_05_otavio_radio"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -32,10 +34,24 @@ if_dropped = PackedStringArray("sebastiao_5")
 if_missed = PackedStringArray("sebastiao_5")
 again = false
 
+[sub_resource type="Resource" id="A_story_05_otavio"]
+script = ExtResource("x1_story_call")
+at = 90.0
+call = ExtResource("a_story_05_otavio")
+requires = PackedStringArray("otavio_numero")
+again = false
+
+[sub_resource type="Resource" id="A_story_05_otavio_radio"]
+script = ExtResource("x1_story_call")
+at = 90.0
+call = ExtResource("a_story_05_otavio_radio")
+requires = PackedStringArray("!otavio_numero")
+again = false
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"A partir de hoje, o setor 1, o Centro, também é seu: a central de lá não tem mais turno da noite. Os números que começam com 1 agora passam pela sua mesa. A lista já foi atualizada. E, por ordem da polícia, a linha do Bar do Zé (327) está bloqueada: não transfira nada para lá.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0")])
 news_if = Array[ExtResource("x0_story_text")]([SubResource("News_tv")])
-story = Array[ExtResource("x1_story_call")]([SubResource("S_cec"), SubResource("S_seb")])
+story = Array[ExtResource("x1_story_call")]([SubResource("S_cec"), SubResource("S_seb"), SubResource("A_story_05_otavio"), SubResource("A_story_05_otavio_radio")])
 news_stories = PackedStringArray("Explosões em quatro pontos da cidade\nBombas caseiras atingiram uma subestação, dois postes de energia e a porta da delegacia do Centro na tarde de ontem. Não houve mortos. A polícia fala em atentado e promete resposta.", "Protesto termina com dezenas de presos\nA manifestação na praça foi dispersada pela polícia ao anoitecer. A Alta Cúpula pede calma à população e diz que os responsáveis serão encontrados.")

@@ -9,6 +9,8 @@
 [ext_resource type="Resource" path="res://data/calls/story_12_cupula_telefonista_homem.tres" id="x2h_story_12_cupula_telefonista_homem"]
 [ext_resource type="Resource" path="res://data/calls/story_12_cupula_ronda.tres" id="x3_story_12_cupula_ronda"]
 [ext_resource type="Resource" path="res://data/calls/story_12_supervisor.tres" id="x0_story_12_supervisor"]
+[ext_resource type="Resource" path="res://data/calls/story_12_miguel.tres" id="a_story_12_miguel"]
+[ext_resource type="Resource" path="res://data/calls/story_12_generosa_radio.tres" id="a_story_12_generosa_radio"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -71,8 +73,21 @@ again = false
 if_dropped = PackedStringArray("advertencia_cupula_12")
 if_missed = PackedStringArray("advertencia_cupula_12")
 
+[sub_resource type="Resource" id="A_story_12_miguel"]
+script = ExtResource("x0_story_call")
+at = 60.0
+call = ExtResource("a_story_12_miguel")
+if_hung_up = PackedStringArray("!miguel_amigo")
+again = false
+
+[sub_resource type="Resource" id="A_story_12_generosa_radio"]
+script = ExtResource("x0_story_call")
+at = 180.0
+call = ExtResource("a_story_12_generosa_radio")
+again = false
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Não esqueça: tudo o que acontece vai para a ficha.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1")])
-story = Array[ExtResource("x0_story_call")]([SubResource("S_seb"), SubResource("S_cup1"), SubResource("S_cup1d"), SubResource("S_cup1h"), SubResource("S_cup2"), SubResource("S_sup")])
+story = Array[ExtResource("x0_story_call")]([SubResource("S_seb"), SubResource("S_cup1"), SubResource("S_cup1d"), SubResource("S_cup1h"), SubResource("S_cup2"), SubResource("S_sup"), SubResource("A_story_12_miguel"), SubResource("A_story_12_generosa_radio")])

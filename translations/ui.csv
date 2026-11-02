@@ -86,6 +86,7 @@ STATUS_LINE,Linha %02d,Line %02d,Línea %02d
 STATUS_ON_HOLD,em espera,on hold,en espera
 DISPLAY_RINGING,%d TOCANDO,%d RINGING,%d SONANDO
 DISPLAY_NO_ANSWER,%d SEM RESPOSTA,%d NO ANSWER,%d SIN RESPUESTA
+DISPLAY_BUSY,%d OCUPADO,%d BUSY,%d OCUPADO
 DISPLAY_CONNECTED,%d CONECTADO,%d CONNECTED,%d CONECTADO
 WARN_FONE_TO_TRANSFER,Leve o FONE até a entrada da ligação que você quer transferir.,Bring the HEADSET to the input of the call you want to transfer.,Lleve el AURICULAR a la entrada de la llamada que quiere transferir.
 WARN_LISTEN_FONE,"Para escutar a linha %02d, leve o FONE até a entrada dela.","To listen in on line %02d, bring the HEADSET to its input.","Para escuchar la línea %02d, lleve el AURICULAR a su entrada."
@@ -124,6 +125,7 @@ SYS_LISTENING,(Escutando a linha %02d: %s e %s.),(Listening in on line %02d: %s 
 SYS_LINE_SILENT,(Silêncio na linha.),(Silence on the line.),(Silencio en la línea.)
 SYS_BOTH_HUNG_UP,(Os dois desligaram.),(Both hung up.),(Los dos colgaron.)
 SYS_NOBODY_ANSWERS,(Ninguém atende no %d.),(Nobody answers at %d.),(Nadie contesta en el %d.)
+SYS_LINE_BUSY,(O %d dá ocupado.),(%d is busy.),(El %d da ocupado.)
 SYS_ANSWERED,(%s atendeu.),(%s answered.),(%s contestó.)
 SYS_WRONG_PERSON,(Atendeu: %s. Não é quem o solicitante pediu.),(Answered: %s. Not who the caller asked for.),(Contestó: %s. No es a quien pidió la persona.)
 SYS_LINES_CONNECTED,(%02d e %d conectados.),(%02d and %d connected.),(%02d y %d conectados.)

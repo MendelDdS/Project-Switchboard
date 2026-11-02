@@ -153,7 +153,7 @@
 [ext_resource type="Resource" path="res://data/templates/emergency_atropelamento.tres" id="n_emergency_atropelamento"]
 [ext_resource type="Resource" path="res://data/templates/emergency_desabamento.tres" id="n_emergency_desabamento"]
 [ext_resource type="Resource" path="res://data/directory/214_dr_augusto_almeida.tres" id="dir_214"]
-[ext_resource type="Resource" path="res://data/directory/251_otavio_almeida.tres" id="dir_251"]
+[ext_resource type="Resource" path="res://data/directory/361_otavio_almeida.tres" id="dir_361"]
 [ext_resource type="Resource" path="res://data/directory/288_armazem_ferreira.tres" id="dir_288"]
 [ext_resource type="Resource" path="res://data/directory/327_bar_do_ze.tres" id="dir_327"]
 [ext_resource type="Resource" path="res://data/directory/209_sitio_boa_esperanca.tres" id="dir_209"]
@@ -170,7 +170,7 @@
 [ext_resource type="Resource" path="res://data/directory/118_farmacia_central.tres" id="dir_118"]
 [ext_resource type="Resource" path="res://data/directory/162_farmacia_santa_rita.tres" id="dir_162"]
 [ext_resource type="Resource" path="res://data/directory/291_joaquim_ferreira.tres" id="dir_291"]
-[ext_resource type="Resource" path="res://data/directory/399_funeraria_paz_eterna.tres" id="dir_399"]
+[ext_resource type="Resource" path="res://data/directory/253_funeraria_paz_eterna.tres" id="dir_253"]
 [ext_resource type="Resource" path="res://data/directory/192_hospital_municipal.tres" id="dir_192"]
 [ext_resource type="Resource" path="res://data/directory/305_hotel_estrela.tres" id="dir_305"]
 [ext_resource type="Resource" path="res://data/directory/124_igreja_matriz.tres" id="dir_124"]
@@ -1111,7 +1111,7 @@ values = PackedStringArray("um faroeste", "uma comédia", "um filme de guerra", 
 
 [resource]
 script = ExtResource("15_65xm7")
-directory = Array[ExtResource("1_6g7xa")]([ExtResource("dir_214"), ExtResource("dir_251"), ExtResource("dir_288"), ExtResource("dir_327"), ExtResource("dir_209"), ExtResource("dir_193"), ExtResource("dir_120"), ExtResource("dir_344"), ExtResource("dir_213"), ExtResource("dir_155"), ExtResource("dir_223"), ExtResource("dir_190"), ExtResource("dir_280"), ExtResource("dir_118"), ExtResource("dir_162"), ExtResource("dir_291"), ExtResource("dir_399"), ExtResource("dir_192"), ExtResource("dir_305"), ExtResource("dir_124"), ExtResource("dir_296"), ExtResource("dir_262"), ExtResource("dir_131"), ExtResource("dir_318"), ExtResource("dir_142"), ExtResource("dir_147"), ExtResource("dir_347"), ExtResource("dir_101"), ExtResource("dir_390"), ExtResource("dir_168"), ExtResource("dir_367"), ExtResource("dir_373"), ExtResource("dir_355"), ExtResource("dir_271"), ExtResource("dir_176"), ExtResource("dir_184"), ExtResource("dir_237"), ExtResource("dir_312"), ExtResource("dir_336")])
+directory = Array[ExtResource("1_6g7xa")]([ExtResource("dir_214"), ExtResource("dir_361"), ExtResource("dir_288"), ExtResource("dir_327"), ExtResource("dir_209"), ExtResource("dir_193"), ExtResource("dir_120"), ExtResource("dir_344"), ExtResource("dir_213"), ExtResource("dir_155"), ExtResource("dir_223"), ExtResource("dir_190"), ExtResource("dir_280"), ExtResource("dir_118"), ExtResource("dir_162"), ExtResource("dir_291"), ExtResource("dir_253"), ExtResource("dir_192"), ExtResource("dir_305"), ExtResource("dir_124"), ExtResource("dir_296"), ExtResource("dir_262"), ExtResource("dir_131"), ExtResource("dir_318"), ExtResource("dir_142"), ExtResource("dir_147"), ExtResource("dir_347"), ExtResource("dir_101"), ExtResource("dir_390"), ExtResource("dir_168"), ExtResource("dir_367"), ExtResource("dir_373"), ExtResource("dir_355"), ExtResource("dir_271"), ExtResource("dir_176"), ExtResource("dir_184"), ExtResource("dir_237"), ExtResource("dir_312"), ExtResource("dir_336")])
 operators = Array[ExtResource("1_6g7xa")]([ExtResource("op_001"), ExtResource("op_002")])
 streets = Array[ExtResource("16_5siro")]([SubResource("Resource_ecmv4"), SubResource("Resource_1exdq"), SubResource("Resource_r56aq"), SubResource("Resource_8jahr"), SubResource("Resource_drklu"), SubResource("Resource_6vkdf"), SubResource("Resource_5w5ra"), SubResource("Street_matriz"), SubResource("Street_sete"), SubResource("Street_tiradentes"), SubResource("Street_mercado"), SubResource("Street_palmeiras"), SubResource("Street_belavista"), SubResource("Street_cruzeiro")])
 occurrences = PackedStringArray("Acidente de trânsito", "Incêndio", "Mal súbito", "Invasão / roubo", "Outro")

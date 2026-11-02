@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_em"]
+[ext_resource type="Script" path="res://scripts/data/emergency_case.gd" id="2_case"]
+
+[resource]
+script = ExtResource("1_em")
+voice = "f"
+caller = "Senhora"
+opening = "Central! Meu filho! Um carro passou fugindo e pegou o meu filho!"
+questions = PackedStringArray("Qual é o endereço?", "Como ele está?", "Qual é o nome dele?")
+answers = PackedStringArray("Rua da Estação, 250, perto da linha do trem!", "Tá no chão, acordado, chorando! A perna tá torta!", "É o meu menino! Pelo amor de Deus, manda alguém!")
+street = "estacao"
+block = 2
+address = "Rua da Estação, 250"
+occurrence = "Acidente de trânsito"
+units = PackedStringArray("amb", "pol")
+after = "Eu tô aqui com ele. Ele tá tremendo, a ambulância já vem, filho."
+stage_sec = Vector3(45, 18, 18)
+worsening = "Ele tá dizendo que não sente a perna!"
+worsening_question = "Ele está sangrando?"
+worsening_answer = "Um pouco, na cabeça!"
+critical = "Ele fechou os olhos! Fala comigo, filho!"
+critical_units = PackedStringArray("amb")
+critical_question = "Ele está respirando?"
+critical_answer = "Tá, mas não responde!"
+lost = "Ele não abre os olhos! Cadê a ambulância?!"
+lost_answer = "Respira, mas não acorda!"
+lost_units = PackedStringArray("amb")

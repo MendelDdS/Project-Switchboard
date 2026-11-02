@@ -23,7 +23,7 @@ follow = "A noite toda. A morte não tem hora, infelizmente."
 [sub_resource type="Resource" id="Answer_0_1"]
 script = ExtResource("9_reply")
 text = "Onde fica a capela?"
-follow = "Aqui mesmo, na Rua das Acácias, ao lado da borracharia."
+follow = "Aqui mesmo, na Rua da Estação, defronte dos trilhos."
 
 [sub_resource type="Resource" id="Answer_0"]
 script = ExtResource("8_chat")
@@ -48,8 +48,8 @@ replies = Array[ExtResource("9_reply")]([SubResource("Answer_1_0"), SubResource(
 [resource]
 script = ExtResource("1_entry")
 name = "Funerária Paz Eterna"
-address = "Rua das Acácias, 250"
-number = "399"
+address = "Rua da Estação, 330"
+number = "253"
 hello = "Funerária Paz Eterna, boa noite."
 spoken = "a Funerária Paz Eterna"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_23"), SubResource("Motive_24")])

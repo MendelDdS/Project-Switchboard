@@ -1,0 +1,76 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_call"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_00"]
+script = ExtResource("2_step")
+text = "Maria? É o Miguel. Fala baixinho, tô ligando escondido."
+requires = PackedStringArray("miguel_maria")
+
+[sub_resource type="Resource" id="Step_01"]
+script = ExtResource("2_step")
+text = "Moça da central? É o Miguel. Fala baixinho, tô ligando escondido."
+requires = PackedStringArray("!miguel_maria")
+
+[sub_resource type="Resource" id="Step_02"]
+script = ExtResource("2_step")
+text = "Tô no hospital. No São Lucas."
+
+[sub_resource type="Resource" id="Step_03"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("No hospital? O que aconteceu?", "Miguel, você não devia estar no telefone.")
+sets = PackedStringArray("miguel_amigo", "!miguel_amigo")
+
+[sub_resource type="Resource" id="Step_04"]
+script = ExtResource("2_step")
+text = "A mãe me deixou de castigo, sem telefone, por isso eu não liguei mais. Mas naquela noite da coisa grande eu fugi pela janela e segui o meu irmão."
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="Step_05"]
+script = ExtResource("2_step")
+text = "Tinha um monte de gente na praça, gritaria, e aí veio um carro correndo e... pum."
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="Step_06"]
+script = ExtResource("2_step")
+text = "Quebrei a perna! Tô de gesso até aqui. Já assinaram o médico, a enfermeira e o moço da cama do lado."
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="Step_07"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Eu assino também. Prometo.", "Que susto, Miguel.")
+sets = PackedStringArray("miguel_gesso", "")
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="Step_08"]
+script = ExtResource("2_step")
+text = "Jura? Vou guardar um lugar bem grande. Do lado do joelho."
+requires = PackedStringArray("miguel_amigo", "miguel_gesso")
+
+[sub_resource type="Resource" id="Step_09"]
+script = ExtResource("2_step")
+text = "Ih, a enfermeira! Tchau!"
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="Step_10"]
+script = ExtResource("2_step")
+text = "É que eu machuquei a perna. Foi um carro."
+requires = PackedStringArray("!miguel_amigo")
+
+[sub_resource type="Resource" id="Step_11"]
+script = ExtResource("2_step")
+text = "Ih, a enfermeira. Tchau."
+requires = PackedStringArray("!miguel_amigo")
+
+[sub_resource type="Resource" id="Step_12"]
+script = ExtResource("2_step")
+kind = 3
+
+[resource]
+script = ExtResource("1_call")
+voice = "k"
+caller = "Menino"
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09"), SubResource("Step_10"), SubResource("Step_11"), SubResource("Step_12")])

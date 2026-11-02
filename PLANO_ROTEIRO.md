@@ -95,10 +95,22 @@ motor (o que o roteiro precisa e o jogo ainda não faz), depois o conteúdo, com
     dele. Emergências dos ataques nos Dias 4 e 9 (quatro cada, no lugar das sorteadas); a cobrança do supervisor no Dia 12
     (com `cumpriu_9`, sem respostas: advertência média, `StoryFlags.FAULT`). A Morgana fecha na 5 (o setor 1 é da
     Maria). O robô dos caminhos (`test_shift --path=`, `tools/caminhos.sh`) joga as 15 noites em sequência por final (sucesso, amarga, que é o sucesso com `custou_gente`, presa, fracasso: disca, grava e entrega as fitas, corta ou obedece) e confere o final de cada um.
-12. Epílogo: Miguel e Generosa (o usuário escreve o roteiro deles).
+12. Os roteiros secundários (do documento do usuário, 02/11/2026; não mexem no fator sucesso), feitos:
+    - **Miguel** (o menino, voz `k`): trotes de verdade na 1 e na 3 (`PrankCall.prank`: o caderno registra como trote);
+      na 3 o sobrenome inventado liga `miguel_amigo` (entrar na brincadeira) ou não (exigir o nome); depois, conversas
+      na 6, 7, 8, 12 e 14 com versão simpática e seca pelo `miguel_amigo` (desligar na cara desliga, `if_hung_up`); o
+      nome dela (`miguel_maria`, na 6), o irmão com os rebeldes (`miguel_irmao`, na 8), o gesso (`miguel_gesso`, na
+      12), o irmão preso na 14 com `fita_grupo_c_entregue`; a 9 é a mãe com o filho atropelado (emergência das 21:25,
+      no lugar da moça, `story_09_mae_atropelado`, sem dizer o nome); a 10 sem ele; no epílogo, pelo final e pela fita.
+    - **Otávio e Generosa**: a música deles é "Luar da Serra" (a da 15 continua a proibida); 2 ele pede a Rádio Serena
+      (390); 3 ela deixa o número (384, linha nova, fora da lista; `generosa_3`) e ele pergunta: passar (`otavio_numero`)
+      ou mentir (`otavio_mentira`); 5 o conselho do cinema ou a segunda dedicatória; 6 o cinema ou a tristeza; 8 ela
+      pede o Otávio (agora 361, Rua da Estação, setor 3; a Funerária Paz Eterna foi para o 253 para a lista seguir com
+      12 por setor) e conta do beijo, os ramos se juntam; 10 ela pergunta, o operador disca o São Lucas (213, `D_otavio`,
+      a Joana lembra da voz com `hospital_8`, `otavio_achado`) e conta na volta dela (`generosa_soube`); 12 a dedicatória
+      dela; epílogo: sucesso, a alta; fracasso, o hospital dá ocupado da primeira vez (`TransferCall.busy_line`).
+    - Final com o gesso (`End_gesso`, `End_gesso_amarga`): de manhã Maria assina o gesso no São Lucas e encontra Sebastião.
 
 ## Dúvidas em aberto
 
-- Miguel e Generosa (epílogo): o usuário ainda escreve o roteiro deles; não mexem no roteiro principal. O Otávio
-  (alta em breve) é o Otávio Almeida (251) da lista.
 - (Respondida: a fita mínima conta só a dada às autoridades; uma dada a Sebastião não livra da advertência.)

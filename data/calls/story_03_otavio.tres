@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_call"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_00"]
+script = ExtResource("2_step")
+text = "Boa noite, moça. Aqui é o Otávio Almeida. O da música de ontem, na rádio."
+
+[sub_resource type="Resource" id="Step_01"]
+script = ExtResource("2_step")
+text = "Alguma moça deixou recado pra mim? Uma de fita amarela?"
+
+[sub_resource type="Resource" id="Step_02"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Deixou. É a Generosa, o número dela é 384.", "Ninguém deixou recado, não.")
+sets = PackedStringArray("otavio_numero", "otavio_mentira")
+requires = PackedStringArray("generosa_3")
+
+[sub_resource type="Resource" id="Step_03"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Ninguém deixou recado, não.")
+sets = PackedStringArray("otavio_mentira")
+requires = PackedStringArray("!generosa_3")
+
+[sub_resource type="Resource" id="Step_04"]
+script = ExtResource("2_step")
+text = "Generosa... Três, oito, quatro. Escrevi na mão! Moça, você é uma santa. Boa noite!"
+requires = PackedStringArray("otavio_numero")
+
+[sub_resource type="Resource" id="Step_05"]
+script = ExtResource("2_step")
+text = "Ninguém? ...Vai ver ela não estava ouvindo. Obrigado assim mesmo."
+requires = PackedStringArray("otavio_mentira")
+
+[sub_resource type="Resource" id="Step_06"]
+script = ExtResource("2_step")
+kind = 3
+
+[resource]
+script = ExtResource("1_call")
+voice = "m"
+caller = "Rapaz"
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06")])

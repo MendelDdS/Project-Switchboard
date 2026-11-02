@@ -6,6 +6,8 @@
 [ext_resource type="Resource" path="res://data/calls/story_06_sebastiao_acordo.tres" id="x1_story_06_sebastiao_acordo"]
 [ext_resource type="Resource" path="res://data/calls/story_06_bar_sinal_1.tres" id="x2_story_06_bar_sinal_1"]
 [ext_resource type="Resource" path="res://data/calls/story_06_bar_sinal_2.tres" id="x3_story_06_bar_sinal_2"]
+[ext_resource type="Resource" path="res://data/calls/story_06_miguel.tres" id="a_story_06_miguel"]
+[ext_resource type="Resource" path="res://data/calls/story_06_generosa.tres" id="a_story_06_generosa"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -33,8 +35,22 @@ call = ExtResource("x3_story_06_bar_sinal_2")
 requires = PackedStringArray("senha_hotel_4", "!denunciou_bar_4")
 again = false
 
+[sub_resource type="Resource" id="A_story_06_miguel"]
+script = ExtResource("x0_story_call")
+at = 75.0
+call = ExtResource("a_story_06_miguel")
+if_hung_up = PackedStringArray("!miguel_amigo")
+again = false
+
+[sub_resource type="Resource" id="A_story_06_generosa"]
+script = ExtResource("x0_story_call")
+at = 170.0
+call = ExtResource("a_story_06_generosa")
+requires = PackedStringArray("generosa_3")
+again = false
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Hoje o Centro tem baile e a praça cheia. Fique atento. A linha do Bar do Zé continua bloqueada.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0")])
-story = Array[ExtResource("x0_story_call")]([SubResource("S_acordo"), SubResource("S_bar1"), SubResource("S_bar2")])
+story = Array[ExtResource("x0_story_call")]([SubResource("S_acordo"), SubResource("S_bar1"), SubResource("S_bar2"), SubResource("A_story_06_miguel"), SubResource("A_story_06_generosa")])

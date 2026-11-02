@@ -12,7 +12,7 @@
 [ext_resource type="Resource" path="res://data/calls/story_09_policia_cancao_caiu.tres" id="x5c_story_09_policia_cancao_caiu"]
 [ext_resource type="Resource" path="res://data/calls/story_09_carro_fogo.tres" id="x0_story_09_carro_fogo"]
 [ext_resource type="Resource" path="res://data/calls/story_09_baleado.tres" id="x1_story_09_baleado"]
-[ext_resource type="Resource" path="res://data/calls/story_09_atropelada.tres" id="x2_story_09_atropelada"]
+[ext_resource type="Resource" path="res://data/calls/story_09_mae_atropelado.tres" id="x2_story_09_atropelada"]
 [ext_resource type="Resource" path="res://data/calls/story_09_briga.tres" id="x3_story_09_briga"]
 
 [sub_resource type="Resource" id="ev_0"]

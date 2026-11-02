@@ -15,6 +15,9 @@
 [ext_resource type="Resource" path="res://data/calls/story_08_hotel_comandante_avisado.tres" id="x9_story_08_hotel_comandante_avisado"]
 [ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="x10_prank_step"]
 [ext_resource type="Script" path="res://scripts/data/dial_call.gd" id="x11_dial_call"]
+[ext_resource type="Resource" path="res://data/calls/story_08_miguel.tres" id="a_story_08_miguel"]
+[ext_resource type="Resource" path="res://data/calls/story_08_generosa.tres" id="a_story_08_generosa"]
+[ext_resource type="Resource" path="res://data/calls/story_08_generosa_recado.tres" id="a_story_08_generosa_recado"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -192,10 +195,31 @@ to = 195.0
 voice = "m"
 steps = Array[ExtResource("x10_prank_step")]([SubResource("D_hotel_00"), SubResource("D_hotel_01"), SubResource("D_hotel_02"), SubResource("D_hotel_03"), SubResource("D_hotel_04"), SubResource("D_hotel_05")])
 
+[sub_resource type="Resource" id="A_story_08_miguel"]
+script = ExtResource("x1_story_call")
+at = 70.0
+call = ExtResource("a_story_08_miguel")
+if_hung_up = PackedStringArray("!miguel_amigo")
+again = false
+
+[sub_resource type="Resource" id="A_story_08_generosa"]
+script = ExtResource("x1_story_call")
+at = 150.0
+call = ExtResource("a_story_08_generosa")
+requires = PackedStringArray("otavio_numero")
+again = false
+
+[sub_resource type="Resource" id="A_story_08_generosa_recado"]
+script = ExtResource("x1_story_call")
+at = 150.0
+call = ExtResource("a_story_08_generosa_recado")
+requires = PackedStringArray("!otavio_numero")
+again = false
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Pedido da polícia: grave as ligações para o Bar do Zé e para o Hotel Serena e entregue as fitas a eles no fim do turno.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0")])
 news_if = Array[ExtResource("x0_story_text")]([SubResource("News_armas"), SubResource("News_grupo_c")])
-story = Array[ExtResource("x1_story_call")]([SubResource("S_seb"), SubResource("S_seb2"), SubResource("S_bar"), SubResource("S_barw"), SubResource("S_hot1"), SubResource("S_hot1a"), SubResource("S_hot1w"), SubResource("S_hot2"), SubResource("S_hot2w")])
+story = Array[ExtResource("x1_story_call")]([SubResource("S_seb"), SubResource("S_seb2"), SubResource("S_bar"), SubResource("S_barw"), SubResource("S_hot1"), SubResource("S_hot1a"), SubResource("S_hot1w"), SubResource("S_hot2"), SubResource("S_hot2w"), SubResource("A_story_08_miguel"), SubResource("A_story_08_generosa"), SubResource("A_story_08_generosa_recado")])
 dial = Array[ExtResource("x11_dial_call")]([SubResource("D_joana"), SubResource("D_hotel")])

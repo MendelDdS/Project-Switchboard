@@ -1,0 +1,94 @@
+[gd_resource type="Resource" script_class="PrankCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/prank_call.gd" id="1_call"]
+[ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_00"]
+script = ExtResource("2_step")
+text = "Alô? É a moça da central? A do outro dia?"
+
+[sub_resource type="Resource" id="Step_01"]
+script = ExtResource("2_step")
+text = "A Rainha da Inglaterra?"
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="Step_02"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Sou eu. Quem fala?", "Aqui é a central. O que deseja?")
+sets = PackedStringArray("miguel_amigo", "!miguel_amigo")
+
+[sub_resource type="Resource" id="Step_03"]
+script = ExtResource("2_step")
+text = "É o Miguel! Fui eu que liguei aquele dia. O Zé Pequeno Bolinho de Chuva era mentira."
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="Step_04"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Eu desconfiei. E o sobrenome de verdade?", "Prazer, Miguel.")
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="Step_05"]
+script = ExtResource("2_step")
+text = "Sobrenome não posso falar. A mãe não deixa dar sobrenome pra estranho."
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="Step_06"]
+script = ExtResource("2_step")
+text = "Eu gosto de ligar aqui. A senhora fala com a cidade inteira?"
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="Step_07"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Quase inteira.", "Com quem liga.")
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="Step_08"]
+script = ExtResource("2_step")
+text = "Que nem a rádio! E qual é o seu nome?"
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="Step_09"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Maria.", "É segredo, que nem o seu sobrenome.")
+sets = PackedStringArray("miguel_maria", "")
+requires = PackedStringArray("miguel_amigo")
+
+[sub_resource type="Resource" id="Step_10"]
+script = ExtResource("2_step")
+text = "Maria. Gostei. Boa noite, Maria!"
+requires = PackedStringArray("miguel_amigo", "miguel_maria")
+
+[sub_resource type="Resource" id="Step_11"]
+script = ExtResource("2_step")
+text = "Hahaha! Empatou. Boa noite!"
+requires = PackedStringArray("miguel_amigo", "!miguel_maria")
+
+[sub_resource type="Resource" id="Step_12"]
+script = ExtResource("2_step")
+text = "É o Miguel. Eu só queria conversar um pouquinho..."
+requires = PackedStringArray("!miguel_amigo")
+
+[sub_resource type="Resource" id="Step_13"]
+script = ExtResource("2_step")
+kind = 1
+options = PackedStringArray("Aqui é linha de trabalho, Miguel.", "Fala rápido, então.")
+requires = PackedStringArray("!miguel_amigo")
+
+[sub_resource type="Resource" id="Step_14"]
+script = ExtResource("2_step")
+text = "Tá. Desculpa. Tchau."
+requires = PackedStringArray("!miguel_amigo")
+
+[sub_resource type="Resource" id="Step_15"]
+script = ExtResource("2_step")
+kind = 3
+
+[resource]
+script = ExtResource("1_call")
+voice = "k"
+caller = "Menino"
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09"), SubResource("Step_10"), SubResource("Step_11"), SubResource("Step_12"), SubResource("Step_13"), SubResource("Step_14"), SubResource("Step_15")])
