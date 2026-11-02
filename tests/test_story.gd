@@ -26,6 +26,9 @@ func _initialize() -> void:
 	ok(not R.radio(_f([R.IGNORED, R.TAPE_GUNS, R.TAPE_GROUP_C]), 10), "rádio: armas + grupo C + hospital esquecido")
 	ok(not R.radio(_f(radio_ok + [R.TAPE_GUNS, R.TAPE_GROUP_C, R.WARNED_HOTEL]), 10), "rádio: armas + grupo C + hotel avisado")
 	ok(R.radio(_f(radio_ok + [R.TAPE_GUNS, R.TAPE_GROUP_C]), 10), "rádio: armas + grupo C com o hospital avisado, ainda vem")
+	var rare := _f([R.IGNORED, R.TAPE_GUNS, R.TAPE_GROUP_C])
+	R.sync(rare, 9)
+	ok(rare.has(R.TAKEOVER_LOST) and not R.takeover_lost(_f(radio_ok)), "tomada: já na noite 9, a mesma conta da rádio (o caso raro também)")
 
 	# os caminhos do roteiro até a noite 11 (a carta) e a 15 (o golpe)
 	var done: Array = []   # as ordens de Sebastião nas noites 14 e 15, cumpridas

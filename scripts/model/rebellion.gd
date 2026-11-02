@@ -41,6 +41,7 @@ const ORDERS := [[["sinal_centro_15", "sinal_serra_15"], 15], [["musica_15"], 15
 ## As conclusões, ligadas e desligadas por `sync` (não se liga à mão).
 const TV := "tv_conquistada"
 const RADIO := "radio_conquistada"
+const TAKEOVER_LOST := "tomada_caiu"   ## a tomada da rádio já caiu com o que houve até agora (as falas da noite 9)
 const HOTEL_TAPED := "fita_hotel_entregue"   ## alguma fita do hotel (Dia 8) chegou à polícia: a batida da noite 13
 const CHANCE := ["chance_baixa", "chance_media", "chance_alta"]   ## o nível agora, um ligado por vez (`Level`)
 const WON := "golpe_venceu"   ## a conta da meia-noite da noite 15 (`Main._midnight`): amanhece...
@@ -48,7 +49,7 @@ const LOST := "golpe_falhou"  ## ...ou o turno acaba ali
 const FINALS := ["final_sucesso", "final_fracasso", "final_presa"]   ## o final (`Final`), ligado à meia-noite da 15
 const COST := "custou_gente"   ## com o sucesso, a vitória amarga (`costly`): só muda o epílogo
 const COSTLY := [TAPE_GUNS, TAPE_GROUP_C, TAPE_GROUPS]   ## as fitas que custaram gente (Dias 7 e 8)
-const DERIVED := [TV, RADIO, HOTEL_TAPED, "chance_baixa", "chance_media", "chance_alta"]
+const DERIVED := [TV, RADIO, TAKEOVER_LOST, HOTEL_TAPED, "chance_baixa", "chance_media", "chance_alta"]
 
 const POINTS := {"tv": 2, "radio": 2, "half": -2, "little": -1, "sebastiao": 1, "obeyed": -1}
 const HIGH_FROM := 4
@@ -63,9 +64,14 @@ static func tv(f: StoryFlags, night: int) -> bool:
 ## A rádio: Maria cumpriu o pedido do Dia 9 e a polícia não recebeu nenhuma das fitas que a entregam (a da rádio, a
 ## do local dos grupos, ou as armas e o grupo C juntos com o hospital esquecido ou o hotel avisado).
 static func radio(f: StoryFlags, night: int) -> bool:
-	if night <= 9 or not f.has(IGNORED) or f.has(TAPE_RADIO) or f.has(TAPE_GROUPS):
-		return false
-	return not (f.has(TAPE_GUNS) and f.has(TAPE_GROUP_C) and (not f.has(HOSPITAL) or f.has(WARNED_HOTEL)))
+	return night > 9 and not takeover_lost(f)
+
+
+## A conta da rádio sem esperar a noite 9 acabar: na hora de cada ligação, o que já aconteceu derrubou a tomada.
+static func takeover_lost(f: StoryFlags) -> bool:
+	if not f.has(IGNORED) or f.has(TAPE_RADIO) or f.has(TAPE_GROUPS):
+		return true
+	return f.has(TAPE_GUNS) and f.has(TAPE_GROUP_C) and (not f.has(HOSPITAL) or f.has(WARNED_HOTEL))
 
 
 static func points(f: StoryFlags, night: int) -> int:
@@ -126,7 +132,7 @@ static func costly(f: StoryFlags) -> bool:
 ## Liga as conclusões (`DERIVED`) conforme os marcadores agora; só mexe no que mudou.
 static func sync(f: StoryFlags, night: int) -> void:
 	var lv := level(f, night)
-	var on := {TV: tv(f, night), RADIO: radio(f, night), HOTEL_TAPED: f.has(TAPE_GROUPS) or f.has(TAPE_CHIEF)}
+	var on := {TV: tv(f, night), RADIO: radio(f, night), TAKEOVER_LOST: takeover_lost(f), HOTEL_TAPED: f.has(TAPE_GROUPS) or f.has(TAPE_CHIEF)}
 	for i in CHANCE.size():
 		on[CHANCE[i]] = i == lv
 	for k: String in on:

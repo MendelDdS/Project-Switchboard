@@ -5384,6 +5384,10 @@ msgid "Faz tempo. Eu sumi porque achei que você não queria ouvir. Mas agora n�
 msgstr "Hace tiempo. Desaparecí porque pensé que no querías escuchar. Pero ahora no tengo a quién más pedirle."
 
 #: data/calls/story_08_sebastiao.tres
+msgid "Eu sei que alguém dessa mesa falou do bar na delegacia. Não vim cobrar: eu também teria medo. Mas agora não tenho mais a quem pedir."
+msgstr "Sé que alguien de esta mesa habló del bar en la comisaría. No vengo a reclamar: yo también tendría miedo. Pero ahora no tengo a quién más pedirle."
+
+#: data/calls/story_08_sebastiao.tres
 msgid "Ligue para o Hospital São Lucas pelo seu discador e peça a Enfermeira Joana."
 msgstr "Llama al Hospital São Lucas con tu discador y pregunta por la Enfermera Joana."
 
@@ -5627,7 +5631,7 @@ msgstr "Sé lo que esto te va a costar. Hoy vale la pena."
 msgid "Deixe tocar. Diga que a linha está ocupada. O que for."
 msgstr "Déjalo sonar. Di que la línea está ocupada. Lo que sea."
 
-#: data/calls/story_09_policia_radio.tres data/calls/story_09_policia_cancao.tres data/calls/story_12_cupula_ronda.tres
+#: data/calls/story_09_policia_radio.tres data/calls/story_09_policia_cancao.tres data/calls/story_09_policia_cancao_caiu.tres
 msgid "Policial"
 msgstr "Policía"
 
@@ -5639,7 +5643,7 @@ msgstr "La comisaría, por favor. Es la policía."
 msgid "A delegacia, por favor."
 msgstr "La comisaría, por favor."
 
-#: data/calls/story_09_policia_radio.tres data/calls/story_09_policia_cancao.tres data/calls/story_14_policia_aeroporto.tres
+#: data/calls/story_09_policia_radio.tres data/calls/story_09_policia_cancao.tres data/calls/story_09_policia_cancao_caiu.tres
 msgid "Delegacia de Polícia"
 msgstr "Comisaría de Policía"
 
@@ -5663,19 +5667,19 @@ msgstr "Manda dos. Ahora."
 msgid "Rubens Moura, do posto da rodoviária."
 msgstr "Rubens Moura, del puesto de la terminal."
 
-#: data/calls/story_09_cupula_radio.tres data/calls/story_14_cupula_aviao.tres data/calls/story_15_cupula_avenida.tres
+#: data/calls/story_09_cupula_radio.tres data/calls/story_09_cupula_radio_caiu.tres data/calls/story_14_cupula_aviao.tres
 msgid "Assessor"
 msgstr "Asesor"
 
-#: data/calls/story_09_cupula_radio.tres data/calls/story_14_cupula_aviao.tres
+#: data/calls/story_09_cupula_radio.tres data/calls/story_09_cupula_radio_caiu.tres data/calls/story_14_cupula_aviao.tres
 msgid "A Alta Cúpula. É urgente."
 msgstr "La Alta Cúpula. Es urgente."
 
-#: data/calls/story_09_cupula_radio.tres data/calls/story_12_cupula_ronda.tres data/calls/story_14_cupula_aviao.tres
+#: data/calls/story_09_cupula_radio.tres data/calls/story_09_cupula_radio_caiu.tres data/calls/story_12_cupula_ronda.tres
 msgid "A Alta Cúpula."
 msgstr "La Alta Cúpula."
 
-#: data/calls/story_09_cupula_radio.tres data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_ronda.tres
+#: data/calls/story_09_cupula_radio.tres data/calls/story_09_cupula_radio_caiu.tres data/calls/story_12_cupula_telefonista.tres
 msgid "Alta Cúpula"
 msgstr "Alta Cúpula"
 
@@ -5691,11 +5695,23 @@ msgstr "Todavía no. Estamos llamando allá y nadie contesta."
 msgid "Pois mandem gente. E coloquem homens na porta do [place:transmissor]."
 msgstr "Pues manden gente. Y pongan hombres en la puerta del [place:transmisor]."
 
-#: data/calls/story_09_cupula_radio.tres data/calls/story_14_cupula_aviao.tres data/calls/story_15_cupula_avenida.tres
+#: data/calls/story_09_cupula_radio.tres data/calls/story_09_cupula_radio_caiu.tres data/calls/story_14_cupula_aviao.tres
 msgid "Henrique Valadares, da residência oficial."
 msgstr "Henrique Valadares, de la residencia oficial."
 
-#: data/calls/story_09_policia_cancao.tres data/calls/story_15_policia_ferrovia.tres
+#: data/calls/story_09_cupula_radio_caiu.tres
+msgid "Valadares. Como está a [place:rádio]?"
+msgstr "Valadares. ¿Cómo está la [place:radio]?"
+
+#: data/calls/story_09_cupula_radio_caiu.tres
+msgid "Quieta. A viatura pegou dois rapazes nos fundos, às dez."
+msgstr "Tranquila. La patrulla agarró a dos muchachos por el fondo, a las diez."
+
+#: data/calls/story_09_cupula_radio_caiu.tres
+msgid "Pois mandem mais gente. E coloquem homens na porta do [place:transmissor]."
+msgstr "Pues manden más gente. Y pongan hombres en la puerta del [place:transmisor]."
+
+#: data/calls/story_09_policia_cancao.tres data/calls/story_09_policia_cancao_caiu.tres data/calls/story_15_policia_ferrovia.tres
 msgid "A delegacia, rápido."
 msgstr "La comisaría, rápido."
 
@@ -5707,13 +5723,21 @@ msgstr "Habla Bastos. Los oyentes están llamando: la radio tocó la [other:Can�
 msgid "A proibida? Manda fechar aquilo agora!"
 msgstr "¿La prohibida? ¡Manda cerrar eso ya!"
 
-#: data/calls/story_09_policia_cancao.tres
+#: data/calls/story_09_policia_cancao.tres data/calls/story_09_policia_cancao_caiu.tres
 msgid "Estou indo."
 msgstr "Voy para allá."
 
-#: data/calls/story_09_policia_cancao.tres data/calls/story_12_cupula_ronda.tres data/calls/story_14_policia_hotel.tres
+#: data/calls/story_09_policia_cancao.tres data/calls/story_09_policia_cancao_caiu.tres data/calls/story_12_cupula_ronda.tres
 msgid "Jorge Bastos, da polícia."
 msgstr "Jorge Bastos, de la policía."
+
+#: data/calls/story_09_policia_cancao_caiu.tres
+msgid "Bastos falando. A [place:rádio] está tranquila. Os rapazes já falaram: era pra tocar a [other:Canção da Madrugada]."
+msgstr "Habla Bastos. La [place:radio] está tranquila. Los muchachos ya hablaron: iban a poner la [other:Canção da Madrugada]."
+
+#: data/calls/story_09_policia_cancao_caiu.tres
+msgid "A proibida? Fecha aquilo hoje mesmo. Não quero nem o locutor lá dentro."
+msgstr "¿La prohibida? Cierren eso hoy mismo. No quiero ni al locutor ahí dentro."
 
 #: data/calls/story_09_carro_fogo.tres
 msgid "Central! Puseram fogo num carro no meio da rua! Fecharam tudo com pneu!"
@@ -6076,8 +6100,8 @@ msgid "O supervisor deixou um recado: \"Não esqueça: tudo o que acontece vai p
 msgstr "El supervisor dejó un recado: \"No olvide: todo lo que pasa va a la ficha.\""
 
 #: data/calls/story_12_sebastiao.tres
-msgid "Maria. Sebastião. Presta atenção, que hoje não dá pra repetir."
-msgstr "Maria. Sebastião. Presta atención, que hoy no puedo repetir."
+msgid "Maria. Sebastião. Eu sei o que escrevi: o telefone não é seguro. Por isso, presta atenção, que hoje não dá pra repetir."
+msgstr "Maria. Sebastião. Sé lo que escribí: el teléfono no es seguro. Por eso, presta atención, que hoy no puedo repetirlo."
 
 #: data/calls/story_12_sebastiao.tres
 msgid "Eles estão na sua cola. Sabem que tem alguém nessa mesa ajudando a gente."
@@ -6107,41 +6131,61 @@ msgstr "Al final del turno, mándamelas en el paquete de carta. Para ellos, nada
 msgid "Boa noite, Maria."
 msgstr "Buenas noches, Maria."
 
-#: data/calls/story_12_cupula_telefonista.tres data/calls/story_14_cupula_comandante.tres data/calls/story_14_cupula_comandante_armas.tres
+#: data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_telefonista_denuncia.tres data/calls/story_12_cupula_telefonista_homem.tres
 msgid "Investigador"
 msgstr "Investigador"
 
-#: data/calls/story_12_cupula_telefonista.tres
+#: data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_telefonista_denuncia.tres data/calls/story_12_cupula_telefonista_homem.tres
 msgid "A Alta Cúpula, por favor."
 msgstr "La Alta Cúpula, por favor."
 
-#: data/calls/story_12_cupula_telefonista.tres
+#: data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_telefonista_denuncia.tres data/calls/story_12_cupula_telefonista_homem.tres
 msgid "Vilela, da investigação. É sobre a central da [place:Vila Serena]."
 msgstr "Vilela, de la investigación. Es sobre la central de [place:Vila Serena]."
 
-#: data/calls/story_12_cupula_telefonista.tres
+#: data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_telefonista_denuncia.tres data/calls/story_12_cupula_telefonista_homem.tres
 msgid "A telefonista?"
 msgstr "¿La telefonista?"
 
 #: data/calls/story_12_cupula_telefonista.tres
-msgid "Ela mesma. Ligações que caem, fitas que não chegam. Alguém ajuda eles por dentro."
-msgstr "Ella misma. Llamadas que se cortan, cintas que no llegan. Alguien los ayuda desde adentro."
+msgid "Ela mesma. Metade dos recados deles passa por aquela mesa. Alguém ajuda eles por dentro."
+msgstr "Ella misma. La mitad de sus recados pasa por esa mesa. Alguien los ayuda desde dentro."
 
-#: data/calls/story_12_cupula_telefonista.tres
+#: data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_telefonista_denuncia.tres data/calls/story_12_cupula_telefonista_homem.tres
 msgid "Então vigiem. Mas sem pressa: quero saber pra quem ela trabalha."
 msgstr "Entonces vigílenla. Pero sin prisa: quiero saber para quién trabaja."
 
-#: data/calls/story_12_cupula_telefonista.tres
+#: data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_telefonista_denuncia.tres data/calls/story_12_cupula_telefonista_homem.tres
 msgid "Ponho um homem no [place:prédio de tijolos], em frente."
 msgstr "Pongo un hombre en el [place:edificio de ladrillos], enfrente."
 
-#: data/calls/story_12_cupula_telefonista.tres data/calls/story_14_cupula_comandante.tres data/calls/story_14_cupula_comandante_armas.tres
+#: data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_telefonista_denuncia.tres data/calls/story_12_cupula_telefonista_homem.tres
 msgid "Nestor Vilela, da investigação."
 msgstr "Nestor Vilela, de investigaciones."
 
-#: data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_ronda.tres data/calls/story_14_policia_aeroporto.tres
+#: data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_telefonista_denuncia.tres data/calls/story_12_cupula_telefonista_homem.tres
 msgid "Autorização {code}."
 msgstr "Autorización {code}."
+
+#: data/calls/story_12_cupula_telefonista_denuncia.tres data/calls/story_12_cupula_telefonista_homem.tres
+msgid "Ela mesma. Metade dos recados deles passa por aquela mesa."
+msgstr "Ella misma. La mitad de sus recados pasa por esa mesa."
+
+#: data/calls/story_12_cupula_telefonista_denuncia.tres
+msgid "Não foi ela que denunciou o [place:Bar do Zé]?"
+msgstr "¿No fue ella la que denunció el [place:Bar do Zé]?"
+
+#: data/calls/story_12_cupula_telefonista_denuncia.tres
+msgid "Foi. Ou ela é ingênua, ou está jogando dos dois lados."
+msgstr "Fue ella. O es ingenua, o está jugando a dos bandas."
+
+#: data/calls/story_12_cupula_telefonista_homem.tres
+msgid "Não foi ela que denunciou o [place:Bar do Zé]? E um homem que ligava pelo nome dela?"
+msgstr "¿No fue ella la que denunció el [place:Bar do Zé]? ¿Y a un hombre que llamaba preguntando por su nombre?"
+
+#: data/calls/story_12_cupula_telefonista_homem.tres
+msgid "Foi. Um homem que ninguém achou até hoje. Ou ela é ingênua, ou está jogando dos dois lados."
+msgstr "Fue ella. Un hombre que nadie encontró hasta hoy. O es ingenua, o está jugando a dos bandas."
 
 #: data/calls/story_12_cupula_ronda.tres
 msgid "A Alta Cúpula. É da polícia."

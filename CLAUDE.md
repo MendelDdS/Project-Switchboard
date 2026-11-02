@@ -221,7 +221,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   O desfecho de uma ligação do roteiro liga os dela (`StoryCall.if_connected`/`if_elsewhere`/`if_dropped`/`if_missed`,
   `Main._story_outcome`; marcador `advertencia_*` ligado é advertência, `StoryFlags.FAULT`; a conectada só no fim da conversa, cortada antes vale `if_dropped`, `_story_talk_over`; `again` desligado: sem retorno automático; `if_delivered`, a fita entregue). O roteiro de Maria:
   `PLANO_ROTEIRO.md`. **Fator sucesso** (`scripts/model/rebellion.gd`, só dos marcadores e da noite; `test_story`): TV,
-  rádio, pontos, nível (`chance_alta/media/baixa`, ligados por `Rebellion.sync`; ordens de Sebastião da noite 15 não cumpridas
+  rádio, pontos, nível (`chance_alta/media/baixa`, ligados por `Rebellion.sync`, que liga também `tomada_caiu`, a rádio já perdida na hora, para as falas da 9; ordens de Sebastião da noite 15 não cumpridas
   são vacilos, `Rebellion.ORDERS`); à meia-noite da 15, `golpe_venceu` ou
   `golpe_falhou` (o turno acaba ali, `Main._midnight`). Bilhete e jornal com versões por marcador (`Night.notes`,
   `news_if`, `StoryText`). Carta da noite (`Night.letters`, `letter_for`): envelope lacrado em cima do jornal desde o

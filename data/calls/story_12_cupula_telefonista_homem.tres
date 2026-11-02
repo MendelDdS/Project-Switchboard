@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_story"]
+
+[resource]
+script = ExtResource("1_story")
+group = 2
+voice = "m"
+caller = "Investigador"
+opening = PackedStringArray("A Alta Cúpula, por favor.")
+repeat = "A Alta Cúpula, por favor."
+target = "296"
+destination = "Alta Cúpula"
+thanks = "Obrigado."
+overheard = PackedStringArray("Vilela, da investigação. É sobre a central da [place:Vila Serena].", "A telefonista?", "Ela mesma. Metade dos recados deles passa por aquela mesa.", "Não foi ela que denunciou o [place:Bar do Zé]? E um homem que ligava pelo nome dela?", "Foi. Um homem que ninguém achou até hoje. Ou ela é ingênua, ou está jogando dos dois lados.", "Então vigiem. Mas sem pressa: quero saber pra quem ela trabalha.", "Ponho um homem no [place:prédio de tijolos], em frente.")
+caller_name = "Nestor Vilela"
+name_line = "Nestor Vilela, da investigação."
+suspicious = true
+code_line = "Autorização {code}."

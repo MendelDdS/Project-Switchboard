@@ -90,7 +90,7 @@ motor (o que o roteiro precisa e o jogo ainda não faz), depois o conteúdo, com
     estalos vai para o hotel) e duas ligações com o sinal; 7 avisar o bar pelo discador (`avisou_bar_7`) e as três
     conversas (rádio, armas, grupo C) em duas versões; 8 Sebastião (o hospital, `hospital_8`), a volta dele, o bar, o
     hotel avisado ou não (grupos e comandante; com `fita_armas_entregue` o armazém caiu e o grupo espera na casa do Joaquim Ferreira, 291, também na 14, na 15 e no "Começou." da carta, versões `_armas`); convites: o recado da 4 pede denunciar pelo 184, Sebastião pede avisar o bar e o hotel no acordo da 6 e na 8, a carta da 15 manda ligar para o bar à meia-noite; 9 ignorar delegacia e Cúpula (três pedidos das autoridades desligam
-    `cumpriu_9`); 10 a Cecília vai embora e a paróquia (`paroquia_10`); 11 a raiva dele sem a paróquia e o jornal das
+    `cumpriu_9`; as ligações das 22:05 e 22:30 têm a versão da tomada caída, `_caiu`, pelo marcador `tomada_caiu`); 10 a Cecília vai embora e a paróquia (`paroquia_10`); 11 a raiva dele sem a paróquia e o jornal das
     crianças; 12 as duas conversas com a Cúpula para gravar e dar a ele; 13 o bilhete da morte da Cecília; 14 a versão
     dele. Emergências dos ataques nos Dias 4 e 9 (quatro cada, no lugar das sorteadas); a cobrança do supervisor no Dia 12
     (com `cumpriu_9`, sem respostas: advertência média, `StoryFlags.FAULT`). A Morgana fecha na 5 (o setor 1 é da

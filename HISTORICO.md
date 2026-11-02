@@ -3218,3 +3218,14 @@ Chaves:
     revistado", `story_14_cupula_comandante_armas`) e na 15 ("Achamos a casa do Ferreira", `story_15_cupula_armazem_armas`),
     a carta da 15 (`letter_15a`) e o "Começou." pelo discador no 291 (`D_sef`, o mesmo `sinal_serra_15`); as versões
     comuns pedem `!fita_armas_entregue`. O robô do caminho amargo liga também o 291.
+516. #roteiro #noites "Pode escrever" (os itens 4, 5 e 7 dos próximos passos da auditoria). A denúncia reconhecida:
+    Sebastião na 8 sabe que alguém da mesa falou do bar na delegacia e não cobra (`denunciou_bar_4`); o Vilela na 12
+    lembra que foi ela quem denunciou o bar, e o homem que ligava pelo nome dela (`denunciou_homem_4`, que não era lido),
+    em versões da ligação (`_denuncia`, `_homem`). A frase do Vilela que supunha desobediência ("ligações que caem,
+    fitas que não chegam") virou uma que vale em todo caminho ("metade dos recados deles passa por aquela mesa"). A
+    rádio da 9 nas duas ligações das autoridades (22:05 e 22:30) segue o que já aconteceu na hora: com um pedido das
+    autoridades passado ou a fita da rádio ou a dos grupos na polícia, a tomada caiu (`_caiu`: a viatura pegou os
+    rapazes nos fundos), pelo marcador `tomada_caiu`, que o `Rebellion.sync` liga com a mesma conta da rádio
+    (`takeover_lost`) sem esperar o fim da noite ("aplique tomada_caiu": cobre também as armas e o grupo C com o
+    hospital esquecido ou o hotel avisado). Sebastião na 12 reconhece a carta: "Eu sei o que escrevi: o
+    telefone não é seguro."

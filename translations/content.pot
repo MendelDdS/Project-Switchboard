@@ -5383,6 +5383,10 @@ msgid "Faz tempo. Eu sumi porque achei que você não queria ouvir. Mas agora n�
 msgstr ""
 
 #: data/calls/story_08_sebastiao.tres
+msgid "Eu sei que alguém dessa mesa falou do bar na delegacia. Não vim cobrar: eu também teria medo. Mas agora não tenho mais a quem pedir."
+msgstr ""
+
+#: data/calls/story_08_sebastiao.tres
 msgid "Ligue para o Hospital São Lucas pelo seu discador e peça a Enfermeira Joana."
 msgstr ""
 
@@ -5626,7 +5630,7 @@ msgstr ""
 msgid "Deixe tocar. Diga que a linha está ocupada. O que for."
 msgstr ""
 
-#: data/calls/story_09_policia_radio.tres data/calls/story_09_policia_cancao.tres data/calls/story_12_cupula_ronda.tres
+#: data/calls/story_09_policia_radio.tres data/calls/story_09_policia_cancao.tres data/calls/story_09_policia_cancao_caiu.tres
 msgid "Policial"
 msgstr ""
 
@@ -5638,7 +5642,7 @@ msgstr ""
 msgid "A delegacia, por favor."
 msgstr ""
 
-#: data/calls/story_09_policia_radio.tres data/calls/story_09_policia_cancao.tres data/calls/story_14_policia_aeroporto.tres
+#: data/calls/story_09_policia_radio.tres data/calls/story_09_policia_cancao.tres data/calls/story_09_policia_cancao_caiu.tres
 msgid "Delegacia de Polícia"
 msgstr ""
 
@@ -5662,19 +5666,19 @@ msgstr ""
 msgid "Rubens Moura, do posto da rodoviária."
 msgstr ""
 
-#: data/calls/story_09_cupula_radio.tres data/calls/story_14_cupula_aviao.tres data/calls/story_15_cupula_avenida.tres
+#: data/calls/story_09_cupula_radio.tres data/calls/story_09_cupula_radio_caiu.tres data/calls/story_14_cupula_aviao.tres
 msgid "Assessor"
 msgstr ""
 
-#: data/calls/story_09_cupula_radio.tres data/calls/story_14_cupula_aviao.tres
+#: data/calls/story_09_cupula_radio.tres data/calls/story_09_cupula_radio_caiu.tres data/calls/story_14_cupula_aviao.tres
 msgid "A Alta Cúpula. É urgente."
 msgstr ""
 
-#: data/calls/story_09_cupula_radio.tres data/calls/story_12_cupula_ronda.tres data/calls/story_14_cupula_aviao.tres
+#: data/calls/story_09_cupula_radio.tres data/calls/story_09_cupula_radio_caiu.tres data/calls/story_12_cupula_ronda.tres
 msgid "A Alta Cúpula."
 msgstr ""
 
-#: data/calls/story_09_cupula_radio.tres data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_ronda.tres
+#: data/calls/story_09_cupula_radio.tres data/calls/story_09_cupula_radio_caiu.tres data/calls/story_12_cupula_telefonista.tres
 msgid "Alta Cúpula"
 msgstr ""
 
@@ -5690,11 +5694,23 @@ msgstr ""
 msgid "Pois mandem gente. E coloquem homens na porta do [place:transmissor]."
 msgstr ""
 
-#: data/calls/story_09_cupula_radio.tres data/calls/story_14_cupula_aviao.tres data/calls/story_15_cupula_avenida.tres
+#: data/calls/story_09_cupula_radio.tres data/calls/story_09_cupula_radio_caiu.tres data/calls/story_14_cupula_aviao.tres
 msgid "Henrique Valadares, da residência oficial."
 msgstr ""
 
-#: data/calls/story_09_policia_cancao.tres data/calls/story_15_policia_ferrovia.tres
+#: data/calls/story_09_cupula_radio_caiu.tres
+msgid "Valadares. Como está a [place:rádio]?"
+msgstr ""
+
+#: data/calls/story_09_cupula_radio_caiu.tres
+msgid "Quieta. A viatura pegou dois rapazes nos fundos, às dez."
+msgstr ""
+
+#: data/calls/story_09_cupula_radio_caiu.tres
+msgid "Pois mandem mais gente. E coloquem homens na porta do [place:transmissor]."
+msgstr ""
+
+#: data/calls/story_09_policia_cancao.tres data/calls/story_09_policia_cancao_caiu.tres data/calls/story_15_policia_ferrovia.tres
 msgid "A delegacia, rápido."
 msgstr ""
 
@@ -5706,12 +5722,20 @@ msgstr ""
 msgid "A proibida? Manda fechar aquilo agora!"
 msgstr ""
 
-#: data/calls/story_09_policia_cancao.tres
+#: data/calls/story_09_policia_cancao.tres data/calls/story_09_policia_cancao_caiu.tres
 msgid "Estou indo."
 msgstr ""
 
-#: data/calls/story_09_policia_cancao.tres data/calls/story_12_cupula_ronda.tres data/calls/story_14_policia_hotel.tres
+#: data/calls/story_09_policia_cancao.tres data/calls/story_09_policia_cancao_caiu.tres data/calls/story_12_cupula_ronda.tres
 msgid "Jorge Bastos, da polícia."
+msgstr ""
+
+#: data/calls/story_09_policia_cancao_caiu.tres
+msgid "Bastos falando. A [place:rádio] está tranquila. Os rapazes já falaram: era pra tocar a [other:Canção da Madrugada]."
+msgstr ""
+
+#: data/calls/story_09_policia_cancao_caiu.tres
+msgid "A proibida? Fecha aquilo hoje mesmo. Não quero nem o locutor lá dentro."
 msgstr ""
 
 #: data/calls/story_09_carro_fogo.tres
@@ -6075,7 +6099,7 @@ msgid "O supervisor deixou um recado: \"Não esqueça: tudo o que acontece vai p
 msgstr ""
 
 #: data/calls/story_12_sebastiao.tres
-msgid "Maria. Sebastião. Presta atenção, que hoje não dá pra repetir."
+msgid "Maria. Sebastião. Eu sei o que escrevi: o telefone não é seguro. Por isso, presta atenção, que hoje não dá pra repetir."
 msgstr ""
 
 #: data/calls/story_12_sebastiao.tres
@@ -6106,40 +6130,60 @@ msgstr ""
 msgid "Boa noite, Maria."
 msgstr ""
 
-#: data/calls/story_12_cupula_telefonista.tres data/calls/story_14_cupula_comandante.tres data/calls/story_14_cupula_comandante_armas.tres
+#: data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_telefonista_denuncia.tres data/calls/story_12_cupula_telefonista_homem.tres
 msgid "Investigador"
 msgstr ""
 
-#: data/calls/story_12_cupula_telefonista.tres
+#: data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_telefonista_denuncia.tres data/calls/story_12_cupula_telefonista_homem.tres
 msgid "A Alta Cúpula, por favor."
 msgstr ""
 
-#: data/calls/story_12_cupula_telefonista.tres
+#: data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_telefonista_denuncia.tres data/calls/story_12_cupula_telefonista_homem.tres
 msgid "Vilela, da investigação. É sobre a central da [place:Vila Serena]."
 msgstr ""
 
-#: data/calls/story_12_cupula_telefonista.tres
+#: data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_telefonista_denuncia.tres data/calls/story_12_cupula_telefonista_homem.tres
 msgid "A telefonista?"
 msgstr ""
 
 #: data/calls/story_12_cupula_telefonista.tres
-msgid "Ela mesma. Ligações que caem, fitas que não chegam. Alguém ajuda eles por dentro."
+msgid "Ela mesma. Metade dos recados deles passa por aquela mesa. Alguém ajuda eles por dentro."
 msgstr ""
 
-#: data/calls/story_12_cupula_telefonista.tres
+#: data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_telefonista_denuncia.tres data/calls/story_12_cupula_telefonista_homem.tres
 msgid "Então vigiem. Mas sem pressa: quero saber pra quem ela trabalha."
 msgstr ""
 
-#: data/calls/story_12_cupula_telefonista.tres
+#: data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_telefonista_denuncia.tres data/calls/story_12_cupula_telefonista_homem.tres
 msgid "Ponho um homem no [place:prédio de tijolos], em frente."
 msgstr ""
 
-#: data/calls/story_12_cupula_telefonista.tres data/calls/story_14_cupula_comandante.tres data/calls/story_14_cupula_comandante_armas.tres
+#: data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_telefonista_denuncia.tres data/calls/story_12_cupula_telefonista_homem.tres
 msgid "Nestor Vilela, da investigação."
 msgstr ""
 
-#: data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_ronda.tres data/calls/story_14_policia_aeroporto.tres
+#: data/calls/story_12_cupula_telefonista.tres data/calls/story_12_cupula_telefonista_denuncia.tres data/calls/story_12_cupula_telefonista_homem.tres
 msgid "Autorização {code}."
+msgstr ""
+
+#: data/calls/story_12_cupula_telefonista_denuncia.tres data/calls/story_12_cupula_telefonista_homem.tres
+msgid "Ela mesma. Metade dos recados deles passa por aquela mesa."
+msgstr ""
+
+#: data/calls/story_12_cupula_telefonista_denuncia.tres
+msgid "Não foi ela que denunciou o [place:Bar do Zé]?"
+msgstr ""
+
+#: data/calls/story_12_cupula_telefonista_denuncia.tres
+msgid "Foi. Ou ela é ingênua, ou está jogando dos dois lados."
+msgstr ""
+
+#: data/calls/story_12_cupula_telefonista_homem.tres
+msgid "Não foi ela que denunciou o [place:Bar do Zé]? E um homem que ligava pelo nome dela?"
+msgstr ""
+
+#: data/calls/story_12_cupula_telefonista_homem.tres
+msgid "Foi. Um homem que ninguém achou até hoje. Ou ela é ingênua, ou está jogando dos dois lados."
 msgstr ""
 
 #: data/calls/story_12_cupula_ronda.tres

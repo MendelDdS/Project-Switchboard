@@ -15,7 +15,12 @@ requires = PackedStringArray("sebastiao_5")
 [sub_resource type="Resource" id="Step_02"]
 script = ExtResource("2_step")
 text = "Faz tempo. Eu sumi porque achei que você não queria ouvir. Mas agora não tenho mais a quem pedir."
-requires = PackedStringArray("!sebastiao_5")
+requires = PackedStringArray("!sebastiao_5", "!denunciou_bar_4")
+
+[sub_resource type="Resource" id="Step_02d"]
+script = ExtResource("2_step")
+text = "Eu sei que alguém dessa mesa falou do bar na delegacia. Não vim cobrar: eu também teria medo. Mas agora não tenho mais a quem pedir."
+requires = PackedStringArray("denunciou_bar_4")
 
 [sub_resource type="Resource" id="Step_03"]
 script = ExtResource("2_step")
@@ -52,4 +57,4 @@ kind = 3
 script = ExtResource("1_call")
 voice = "m"
 caller = "Sebastião Falcão"
-steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_09"), SubResource("Step_08")])
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_02d"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_09"), SubResource("Step_08")])

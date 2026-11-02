@@ -7,7 +7,9 @@
 [ext_resource type="Resource" path="res://data/calls/story_09_sebastiao.tres" id="x2_story_09_sebastiao"]
 [ext_resource type="Resource" path="res://data/calls/story_09_policia_radio.tres" id="x3_story_09_policia_radio"]
 [ext_resource type="Resource" path="res://data/calls/story_09_cupula_radio.tres" id="x4_story_09_cupula_radio"]
+[ext_resource type="Resource" path="res://data/calls/story_09_cupula_radio_caiu.tres" id="x4c_story_09_cupula_radio_caiu"]
 [ext_resource type="Resource" path="res://data/calls/story_09_policia_cancao.tres" id="x5_story_09_policia_cancao"]
+[ext_resource type="Resource" path="res://data/calls/story_09_policia_cancao_caiu.tres" id="x5c_story_09_policia_cancao_caiu"]
 [ext_resource type="Resource" path="res://data/calls/story_09_carro_fogo.tres" id="x0_story_09_carro_fogo"]
 [ext_resource type="Resource" path="res://data/calls/story_09_baleado.tres" id="x1_story_09_baleado"]
 [ext_resource type="Resource" path="res://data/calls/story_09_atropelada.tres" id="x2_story_09_atropelada"]
@@ -54,6 +56,17 @@ again = false
 script = ExtResource("x1_story_call")
 at = 245.0
 call = ExtResource("x4_story_09_cupula_radio")
+requires = PackedStringArray("!tomada_caiu")
+authority = true
+if_connected = PackedStringArray("!cumpriu_9")
+if_elsewhere = PackedStringArray("!cumpriu_9")
+again = false
+
+[sub_resource type="Resource" id="S_aut1a"]
+script = ExtResource("x1_story_call")
+at = 245.0
+call = ExtResource("x4c_story_09_cupula_radio_caiu")
+requires = PackedStringArray("tomada_caiu")
 authority = true
 if_connected = PackedStringArray("!cumpriu_9")
 if_elsewhere = PackedStringArray("!cumpriu_9")
@@ -63,6 +76,17 @@ again = false
 script = ExtResource("x1_story_call")
 at = 270.0
 call = ExtResource("x5_story_09_policia_cancao")
+requires = PackedStringArray("!tomada_caiu")
+authority = true
+if_connected = PackedStringArray("!cumpriu_9")
+if_elsewhere = PackedStringArray("!cumpriu_9")
+again = false
+
+[sub_resource type="Resource" id="S_aut2a"]
+script = ExtResource("x1_story_call")
+at = 270.0
+call = ExtResource("x5c_story_09_policia_cancao_caiu")
+requires = PackedStringArray("tomada_caiu")
 authority = true
 if_connected = PackedStringArray("!cumpriu_9")
 if_elsewhere = PackedStringArray("!cumpriu_9")
@@ -97,4 +121,4 @@ script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Último setor: a partir de hoje, o setor 2, o Alto da Serra, também fica com você. Os números que começam com 2 passam pela sua mesa. A cidade inteira está nas suas mãos. A pedido das autoridades, grave toda ligação suspeita.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1")])
 news_if = Array[ExtResource("x0_story_text")]([SubResource("News_grupos"), SubResource("News_comandante")])
-story = Array[ExtResource("x1_story_call")]([SubResource("S_seb"), SubResource("S_aut0"), SubResource("S_aut1"), SubResource("S_aut2"), SubResource("E_car"), SubResource("E_bal"), SubResource("E_atr"), SubResource("E_bri")])
+story = Array[ExtResource("x1_story_call")]([SubResource("S_seb"), SubResource("S_aut0"), SubResource("S_aut1"), SubResource("S_aut1a"), SubResource("S_aut2"), SubResource("S_aut2a"), SubResource("E_car"), SubResource("E_bal"), SubResource("E_atr"), SubResource("E_bri")])

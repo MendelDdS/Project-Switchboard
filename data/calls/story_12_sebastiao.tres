@@ -5,7 +5,7 @@
 
 [sub_resource type="Resource" id="Step_00"]
 script = ExtResource("2_step")
-text = "Maria. Sebastião. Presta atenção, que hoje não dá pra repetir."
+text = "Maria. Sebastião. Eu sei o que escrevi: o telefone não é seguro. Por isso, presta atenção, que hoje não dá pra repetir."
 
 [sub_resource type="Resource" id="Step_01"]
 script = ExtResource("2_step")
