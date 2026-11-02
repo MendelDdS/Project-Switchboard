@@ -42,7 +42,7 @@ var next_act := 0.0       ## instante (s, na velocidade do jogo) em que a "pesso
 ## ligação -> para quem; "all", as pedidas às autoridades; o rebelde dá a Sebastião as que ele pediu). Não confere o
 ## conceito (a história custa advertências); imprime os marcadores para a noite seguinte (`tools/caminhos.sh`).
 const Tape := preload("res://scripts/bureaucracy/tape.gd")
-const REBEL := ["3:327", "4:305", "7:327", "8:213", "10:120", "15:120", "15:288", "15:390", "15:327"]   ## o rebelde liga
+const REBEL := ["3:327", "4:305", "7:327", "8:213", "10:120", "15:120", "15:288", "15:291", "15:390", "15:327"]   ## o rebelde liga
 const PATHS := {
 	"sucesso": {"dial": REBEL, "cut": true, "deal": true, "record": {}},   # avisa o bar: nada a gravar dele
 	"amarga": {"dial": REBEL, "skip": "7:327", "cut": true, "deal": true, "record": {"story_07_bar_armas": Tape.To.AUTHORITIES}},

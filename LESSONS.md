@@ -910,3 +910,9 @@ Pedido "sugira desculpas e consequências", propus conferir a desculpa com a noi
 de suspeita em degraus e cobranças em seis noites. O usuário recusou: "vai só adicionar mais coisa no jogo sendo que
 podemos simplificar o que de fato é problema". Antes de sugerir mecânica, diga qual problema ela resolve e proponha o
 menor ajuste no que já existe; sistema novo só se ele pedir.
+
+## Final que vira variação: procure todo `requires` do final que absorveu
+Ao fundir a vitória amarga no sucesso (`custou_gente`), troquei os `requires` do epílogo, mas o fecho da noite 15
+("Amanhece", o encontro com Sebastião) pedia só `final_sucesso` e passou a valer também na amarga, que não tem
+encontro. Quem ganha um marcador a mais herda tudo o que pedia só aquele marcador: ao fundir dois estados, procure
+(`grep`) cada `requires` do que ficou, em todas as noites, não só nos arquivos do que saiu.

@@ -41,7 +41,7 @@ seconds = 1.0
 
 [sub_resource type="Resource" id="Step_10"]
 script = ExtResource("2_step")
-text = "Eles vão querer que você grave o bar e o hotel. Faça o que tiver que fazer pra não levantar suspeita."
+text = "Eles vão querer fita do bar e do hotel. Mande uma fita qualquer, pra não levantar suspeita. Essas conversas, não."
 
 [sub_resource type="Resource" id="Step_11"]
 script = ExtResource("2_step")

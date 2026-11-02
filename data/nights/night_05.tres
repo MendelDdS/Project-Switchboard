@@ -29,6 +29,7 @@ at = 140.0
 call = ExtResource("x3_story_05_sebastiao")
 requires = PackedStringArray("senha_hotel_4", "!denunciou_bar_4")
 if_dropped = PackedStringArray("sebastiao_5")
+if_missed = PackedStringArray("sebastiao_5")
 again = false
 
 [resource]

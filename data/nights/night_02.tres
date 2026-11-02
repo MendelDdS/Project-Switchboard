@@ -4,15 +4,9 @@
 [ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
 [ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
 [ext_resource type="Script" path="res://scripts/data/story_call.gd" id="3_story"]
-[ext_resource type="Resource" path="res://data/calls/story_02_seu_ernesto_radio_serena_am.tres" id="4_ernesto"]
 [ext_resource type="Resource" path="res://data/calls/story_02_homem_bar_1.tres" id="x0_story_02_homem_bar_1"]
 [ext_resource type="Resource" path="res://data/calls/story_02_homem_bar_2.tres" id="x1_story_02_homem_bar_2"]
 [ext_resource type="Resource" path="res://data/calls/story_02_homem_bar_3.tres" id="x2_story_02_homem_bar_3"]
-
-[sub_resource type="Resource" id="Story_01"]
-script = ExtResource("3_story")
-at = 120.0
-call = ExtResource("4_ernesto")
 
 [sub_resource type="Resource" id="ChatReply_00_0"]
 script = ExtResource("9_reply")
@@ -75,6 +69,6 @@ again = false
 
 [resource]
 script = ExtResource("1_night")
-note = "O supervisor deixou um recado: \"Ontem a linha ficou com chiado depois das dez. A companhia vai olhar. Se acontecer de novo, anote na ficha.\""
-story = Array[ExtResource("3_story")]([SubResource("Story_01"), SubResource("S_homem1"), SubResource("S_homem2"), SubResource("S_homem3")])
+note = "O supervisor deixou um recado: \"Hoje é como ontem: atenda, transfira e anote tudo na ficha.\""
+story = Array[ExtResource("3_story")]([SubResource("S_homem1"), SubResource("S_homem2"), SubResource("S_homem3")])
 smalltalk = Array[ExtResource("8_chat")]([SubResource("ChatTopic_00"), SubResource("ChatTopic_01")])

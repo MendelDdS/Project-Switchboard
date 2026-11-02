@@ -39,7 +39,7 @@ again = false
 
 [resource]
 script = ExtResource("1_night")
-note = "O supervisor deixou um recado: \"Quase fim de semana de novo. Paciência com quem liga.\""
+note = "O supervisor deixou um recado: \"A semana está longa. Paciência com quem liga.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0")])
 letters = Array[ExtResource("3_text")]([SubResource("letter_friend"), SubResource("letter_threat")])
 news_if = Array[ExtResource("3_text")]([SubResource("News_presos"), SubResource("News_vazias")])

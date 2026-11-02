@@ -40,6 +40,10 @@ requires = PackedStringArray("ala_8")
 script = ExtResource("2_step")
 text = "Hoje, Maria. Amanhã pode ser tarde pra eles."
 
+[sub_resource type="Resource" id="Step_09"]
+script = ExtResource("2_step")
+text = "E o hotel: se as autoridades estão de olho nele, ligue pra lá e avise. Antes das nove."
+
 [sub_resource type="Resource" id="Step_08"]
 script = ExtResource("2_step")
 kind = 3
@@ -48,4 +52,4 @@ kind = 3
 script = ExtResource("1_call")
 voice = "m"
 caller = "Sebastião Falcão"
-steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08")])
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_09"), SubResource("Step_08")])

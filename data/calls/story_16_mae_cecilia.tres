@@ -60,7 +60,7 @@ requires = PackedStringArray("final_sucesso", "!custou_gente")
 
 [sub_resource type="Resource" id="Step_11"]
 script = ExtResource("2_step")
-text = "Venha tomar um café comigo um dia. Guardei o casaco que ela usava aí na central. Acho que ela ia querer que ficasse com você."
+text = "Venha tomar um café comigo um dia. Guardei o casaco que ela usava na central. Acho que ela ia querer que ficasse com você."
 requires = PackedStringArray("final_sucesso", "!custou_gente")
 
 [sub_resource type="Resource" id="Step_12"]

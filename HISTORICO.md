@@ -3192,3 +3192,29 @@ Chaves:
     A noite 12 ficou como está (a primeira ordem da carta, gravar para Sebastião, e a cobrança do supervisor), porque o
     repetido era a 14: Sebastião ali pedia de novo as fitas das autoridades. Saiu da 14 o pedido (as duas falas,
     `sebastiao_pediu_fita_14`, `cumpriu_fitas_14` e a ordem dela em `Rebellion.ORDERS`). A 13 já era a noite parada.
+513. #roteiro #noites "Use a skill auditar-roteiro para analisar o que foi feito até agora junto com o roteiro; corrija o
+    que já deve ser corrigido e liste dúvidas e próximos passos." Corrigido pela auditoria: o fecho "Amanhece" da 15
+    vazava para a vitória amarga (`!custou_gente`); o calendário das falas pelo do jogo (a noite 1 é segunda, 8/10): a
+    rádio "na noite de terça" (era quinta; a 9 é terça), a encomenda que "chega amanhã" (era segunda, e chegava no
+    domingo), o comandante "até o dia vinte e dois" (era quinze, a data da própria noite 8), a reunião do grupo C "esta
+    noite, às três da madrugada" (era sábado, e a batida saía no jornal de segunda), os jornais de fita entregue "nesta
+    madrugada" (a fita sai no fim do turno) e o recado da 10 sem "quase fim de semana" (é quarta); a Cúpula da 9
+    perguntando da programação da rádio passou das 20:40 para 22:05 (a tomada é às dez); a versão oficial da morte da
+    Cecília no recado da 13 ("mal súbito"), que a 14 desmente; Sebastião na 8 não diz que sumiu para quem perdeu a
+    ligação dele na 5 (`if_missed`); na 14 ele pede uma fita qualquer às autoridades, não a do bar e do hotel (entregá-la
+    é vacilo, e a fala antiga parecia mandar entregar).
+514. #roteiro #noites "Sobre as dúvidas: convite de cada lado (Sebastião deixa claro que qualquer coisa estranha das
+    autoridades é para ligar e avisar o bar ou o hotel; o mesmo para as autoridades); tire o chiado, é antigo; as
+    ligações das autoridades da 14 ficam como clima; o homem de sobretudo confirmado pode ficar." Convites: o recado da
+    4 traz o pedido da delegacia (conversa suspeita, comunique pelo 184; a 15 já pedia); o acordo da 6 termina com
+    Sebastião pedindo para avisar o bar ou o hotel de qualquer coisa estranha das autoridades (o aviso ao bar é na 7);
+    na 8 ele pede o aviso ao hotel antes das nove; a carta da 15 manda ligar para o bar à meia-noite, fora das três
+    ordens (a mensagem de liberdade). Saíram o recado do chiado da 2 (ficou um recado neutro) e a ligação do Seu
+    Ernesto ("uma moça falando na minha linha"), restos da ligação desconhecida. O Armazém Ferreira no ramo da fita
+    das armas fica para versões das ligações, a descrever antes.
+515. #roteiro #noites "Pode escrever essa versão" (o Armazém Ferreira no ramo da fita das armas). Com a fita das armas
+    entregue na 7 (`fita_armas_entregue`), o armazém caiu e o grupo espera na casa do dono, Joaquim Ferreira (291, Rua
+    da Estação): o Lauro ao hotel na 8 (`story_08_hotel_grupos_armas`), o Vilela na 14 ("O do armazém? Esse já foi
+    revistado", `story_14_cupula_comandante_armas`) e na 15 ("Achamos a casa do Ferreira", `story_15_cupula_armazem_armas`),
+    a carta da 15 (`letter_15a`) e o "Começou." pelo discador no 291 (`D_sef`, o mesmo `sinal_serra_15`); as versões
+    comuns pedem `!fita_armas_entregue`. O robô do caminho amargo liga também o 291.

@@ -9,6 +9,7 @@
 [ext_resource type="Resource" path="res://data/calls/story_08_bar.tres" id="x4_story_08_bar"]
 [ext_resource type="Resource" path="res://data/calls/story_08_bar_avisado.tres" id="x5_story_08_bar_avisado"]
 [ext_resource type="Resource" path="res://data/calls/story_08_hotel_grupos.tres" id="x6_story_08_hotel_grupos"]
+[ext_resource type="Resource" path="res://data/calls/story_08_hotel_grupos_armas.tres" id="x7a_story_08_hotel_grupos_armas"]
 [ext_resource type="Resource" path="res://data/calls/story_08_hotel_grupos_avisado.tres" id="x7_story_08_hotel_grupos_avisado"]
 [ext_resource type="Resource" path="res://data/calls/story_08_hotel_comandante.tres" id="x8_story_08_hotel_comandante"]
 [ext_resource type="Resource" path="res://data/calls/story_08_hotel_comandante_avisado.tres" id="x9_story_08_hotel_comandante_avisado"]
@@ -22,12 +23,12 @@ at = 80.0
 
 [sub_resource type="Resource" id="News_armas"]
 script = ExtResource("x0_story_text")
-text = "Polícia apreende armas em armazém\nDoze caixas de armas foram encontradas na madrugada de ontem no fundo de um armazém do Alto da Serra, escondidas sob sacos de café. A polícia agradece a colaboração de cidadãos."
+text = "Polícia apreende armas em armazém\nDoze caixas de armas foram encontradas nesta madrugada no fundo de um armazém do Alto da Serra, escondidas sob sacos de café. A polícia agradece a colaboração de cidadãos."
 requires = PackedStringArray("fita_armas_entregue")
 
 [sub_resource type="Resource" id="News_grupo_c"]
 script = ExtResource("x0_story_text")
-text = "Batida em porão termina com sete presos\nNa Rua das Acácias, a polícia surpreendeu uma reunião clandestina num porão. Os presos não tiveram os nomes divulgados. A família de um deles procura notícias desde ontem."
+text = "Batida em porão termina com sete presos\nNa Rua das Acácias, a polícia surpreendeu uma reunião clandestina num porão. Os presos não tiveram os nomes divulgados. A família de um deles procura notícias desde a madrugada."
 requires = PackedStringArray("fita_grupo_c_entregue")
 
 [sub_resource type="Resource" id="S_seb"]
@@ -63,7 +64,15 @@ again = false
 script = ExtResource("x1_story_call")
 at = 200.0
 call = ExtResource("x6_story_08_hotel_grupos")
-requires = PackedStringArray("!avisou_hotel_8")
+requires = PackedStringArray("!avisou_hotel_8", "!fita_armas_entregue")
+if_delivered = PackedStringArray("fita_grupos_entregue")
+again = false
+
+[sub_resource type="Resource" id="S_hot1a"]
+script = ExtResource("x1_story_call")
+at = 200.0
+call = ExtResource("x7a_story_08_hotel_grupos_armas")
+requires = PackedStringArray("!avisou_hotel_8", "fita_armas_entregue")
 if_delivered = PackedStringArray("fita_grupos_entregue")
 again = false
 
@@ -188,5 +197,5 @@ script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Pedido da polícia: grave as ligações para o Bar do Zé e para o Hotel Serena e entregue as fitas a eles no fim do turno.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0")])
 news_if = Array[ExtResource("x0_story_text")]([SubResource("News_armas"), SubResource("News_grupo_c")])
-story = Array[ExtResource("x1_story_call")]([SubResource("S_seb"), SubResource("S_seb2"), SubResource("S_bar"), SubResource("S_barw"), SubResource("S_hot1"), SubResource("S_hot1w"), SubResource("S_hot2"), SubResource("S_hot2w")])
+story = Array[ExtResource("x1_story_call")]([SubResource("S_seb"), SubResource("S_seb2"), SubResource("S_bar"), SubResource("S_barw"), SubResource("S_hot1"), SubResource("S_hot1a"), SubResource("S_hot1w"), SubResource("S_hot2"), SubResource("S_hot2w")])
 dial = Array[ExtResource("x11_dial_call")]([SubResource("D_joana"), SubResource("D_hotel")])

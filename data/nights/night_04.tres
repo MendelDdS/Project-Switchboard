@@ -148,7 +148,7 @@ again = false
 
 [resource]
 script = ExtResource("1_night")
-note = "O supervisor deixou um recado: \"Houve explosões em vários pontos da cidade esta tarde, e há protesto marcado na praça. A noite vai ser pesada: emergência primeiro, e nada de conversa na linha.\""
+note = "O supervisor deixou um recado: \"Houve explosões em vários pontos da cidade esta tarde, e há protesto marcado na praça. A noite vai ser pesada: emergência primeiro, e nada de conversa na linha. A delegacia pede que qualquer conversa suspeita na linha seja comunicada pelo 184.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0")])
 dial = Array[ExtResource("3_dial")]([SubResource("Dial_hotel"), SubResource("D_den")])
 story = Array[ExtResource("x0_story_call")]([SubResource("S_cine"), SubResource("S_pensao"), SubResource("S_radio"), SubResource("E_bal"), SubResource("E_atr"), SubResource("E_bom"), SubResource("E_bri")])

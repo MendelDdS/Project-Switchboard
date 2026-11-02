@@ -14,6 +14,6 @@ destination = "Hotel Serena"
 thanks = "Obrigado."
 caller_name = "Aurélio Campos"
 name_line = "Aurélio Campos."
-overheard = PackedStringArray("Boa noite. O comandante já chegou?", "Chegou. Está no [place:armazém] da [street:Rua do Moinho], com dois homens.", "Até quando?", "Até o dia [time:quinze]. De lá ele não sai.", "Então ninguém liga pra lá. Boa noite.")
+overheard = PackedStringArray("Boa noite. O comandante já chegou?", "Chegou. Está no [place:armazém] da [street:Rua do Moinho], com dois homens.", "Até quando?", "Até o dia [time:vinte e dois]. De lá ele não sai.", "Então ninguém liga pra lá. Boa noite.")
 suspicious = true
 wary = 0.6

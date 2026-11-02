@@ -31,7 +31,7 @@ requires = PackedStringArray("fita_grupos_entregue")
 
 [sub_resource type="Resource" id="News_comandante"]
 script = ExtResource("x0_story_text")
-text = "Cerco a armazém na Rua do Moinho\nA polícia cercou ontem um armazém da Rua do Moinho onde estaria escondido o chefe dos rebeldes. Houve tiros. A Alta Cúpula não confirma prisões."
+text = "Cerco a armazém na Rua do Moinho\nA polícia cercou nesta madrugada um armazém da Rua do Moinho onde estaria escondido o chefe dos rebeldes. Houve tiros. A Alta Cúpula não confirma prisões."
 requires = PackedStringArray("fita_comandante_entregue")
 
 [sub_resource type="Resource" id="S_seb"]
@@ -52,7 +52,7 @@ again = false
 
 [sub_resource type="Resource" id="S_aut1"]
 script = ExtResource("x1_story_call")
-at = 160.0
+at = 245.0
 call = ExtResource("x4_story_09_cupula_radio")
 authority = true
 if_connected = PackedStringArray("!cumpriu_9")

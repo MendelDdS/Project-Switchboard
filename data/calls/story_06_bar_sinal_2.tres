@@ -14,6 +14,6 @@ destination = "Bar do Zé"
 thanks = "Obrigado."
 caller_name = "Anselmo Duarte"
 name_line = "Anselmo Duarte."
-overheard = PackedStringArray("Boa noite. É o Anselmo, do bar.", "Pode falar, seu Anselmo. A linha daqui está limpa.", "A encomenda chega na segunda. Onde eu deixo?", "Aqui não. Depois a gente combina.")
+overheard = PackedStringArray("Boa noite. É o Anselmo, do bar.", "Pode falar, seu Anselmo. A linha daqui está limpa.", "A encomenda chega amanhã. Onde eu deixo?", "Aqui não. Depois a gente combina.")
 secret_signal = "estalos"
 refused_line = "Bloqueado... Então tá. Boa noite."

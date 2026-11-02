@@ -86,10 +86,10 @@ motor (o que o roteiro precisa e o jogo ainda não faz), depois o conteúdo, com
     (`bar_2`; o "se perguntado" é a fala do repetir); 3 a Cecília avisa e, às 21h, manda ligar para o bar, onde ele dá
     a senha (`sabe_senha_3`, que o hotel do Dia 4 exige); 4 a denúncia pelo discador na delegacia (a ligação do roteiro
     atende fora dos setores, `Dialing`) e três ligações da cidade em pânico; 5 a Cecília dá o nome e ele conta dos pais
-    (só com `senha_hotel_4` sem denúncia; liga `sebastiao_5`), jornal dos atentados e da TV; 6 o acordo B2 (bar com os
+    (só com `senha_hotel_4` sem denúncia; liga `sebastiao_5`, também se ela não atender: na 8 ele não diz que sumiu), jornal dos atentados e da TV; 6 o acordo B2 (bar com os
     estalos vai para o hotel) e duas ligações com o sinal; 7 avisar o bar pelo discador (`avisou_bar_7`) e as três
     conversas (rádio, armas, grupo C) em duas versões; 8 Sebastião (o hospital, `hospital_8`), a volta dele, o bar, o
-    hotel avisado ou não (grupos e comandante); 9 ignorar delegacia e Cúpula (três pedidos das autoridades desligam
+    hotel avisado ou não (grupos e comandante; com `fita_armas_entregue` o armazém caiu e o grupo espera na casa do Joaquim Ferreira, 291, também na 14, na 15 e no "Começou." da carta, versões `_armas`); convites: o recado da 4 pede denunciar pelo 184, Sebastião pede avisar o bar e o hotel no acordo da 6 e na 8, a carta da 15 manda ligar para o bar à meia-noite; 9 ignorar delegacia e Cúpula (três pedidos das autoridades desligam
     `cumpriu_9`); 10 a Cecília vai embora e a paróquia (`paroquia_10`); 11 a raiva dele sem a paróquia e o jornal das
     crianças; 12 as duas conversas com a Cúpula para gravar e dar a ele; 13 o bilhete da morte da Cecília; 14 a versão
     dele. Emergências dos ataques nos Dias 4 e 9 (quatro cada, no lugar das sorteadas); a cobrança do supervisor no Dia 12
