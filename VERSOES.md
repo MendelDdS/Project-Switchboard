@@ -106,7 +106,7 @@ Sem build: só a tag no código (commit `75e5e16`; a entrada foi escrita depois,
 
 ## v0.8.0-alpha — 02/11/2026
 
-Commit `134238c` · macOS, Windows e Linux
+Commit `5df0f75` · macOS, Windows e Linux
 
 ### Novidades
 - O roteiro de Maria nas noites 1 a 15: Sebastião, o bar, a TV e a rádio, as autoridades, as fitas, a Cecília, e
