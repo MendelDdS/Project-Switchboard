@@ -4291,14 +4291,6 @@ msgid "Tudo indo. Cansada, mas indo. E você, se acostumando com a mesa?"
 msgstr ""
 
 #: data/directory/002_cecilia.tres
-msgid "A linha está chiando hoje."
-msgstr ""
-
-#: data/directory/002_cecilia.tres
-msgid "Aqui também. Deve ser o tempo nos fios."
-msgstr ""
-
-#: data/directory/002_cecilia.tres
 msgid "Obrigada pela ajuda no treinamento."
 msgstr ""
 
@@ -5147,7 +5139,7 @@ msgid "Rebeldes ocupam a TV Orbital\nPor quase duas horas, na noite de ontem, a 
 msgstr ""
 
 #: data/nights/night_06.tres
-msgid "O supervisor deixou um recado: \"Sábado o Centro tem baile e a praça cheia. Fique atento. A linha do Bar do Zé continua bloqueada.\""
+msgid "O supervisor deixou um recado: \"Hoje o Centro tem baile e a praça cheia. Fique atento. A linha do Bar do Zé continua bloqueada.\""
 msgstr ""
 
 #: data/calls/story_06_sebastiao_acordo.tres
@@ -5215,7 +5207,7 @@ msgid "O bar, minha filha. O do Zé."
 msgstr ""
 
 #: data/calls/story_06_bar_sinal_2.tres
-msgid "Boa noite. É o Anselmo, do bar."
+msgid "Boa noite, seu Zé. É o Anselmo."
 msgstr ""
 
 #: data/calls/story_06_bar_sinal_2.tres
@@ -5267,7 +5259,7 @@ msgid "Zé, é o Davi. Recado do..."
 msgstr ""
 
 #: data/calls/story_07_bar_radio_avisado.tres
-msgid "Davi! Que bom que ligou. E o jogo de domingo, vai?"
+msgid "Davi! Que bom que ligou. E o jogo de hoje, vai?"
 msgstr ""
 
 #: data/calls/story_07_bar_radio_avisado.tres
@@ -5275,23 +5267,23 @@ msgid "Jogo? Ah... vou, vou sim."
 msgstr ""
 
 #: data/calls/story_07_bar_radio_avisado.tres
-msgid "Então leva a camisa. Até domingo."
+msgid "Então leva a camisa. Até mais tarde."
 msgstr ""
 
 #: data/calls/story_07_bar_armas.tres
-msgid "Zé? Anselmo. A encomenda chegou?"
+msgid "Zé? Anselmo. A encomenda chegou, está comigo. Onde eu deixo?"
 msgstr ""
 
 #: data/calls/story_07_bar_armas.tres
-msgid "Chegou. Vai pro [place:Armazém Ferreira], no fundo, embaixo dos sacos de [other:café]."
+msgid "Leva pro [place:Armazém Ferreira], no fundo, embaixo dos sacos de [other:café]. Quantas caixas?"
 msgstr ""
 
 #: data/calls/story_07_bar_armas.tres
-msgid "Quantas caixas?"
+msgid "[number:Doze]. Do jeito que o senhor pediu."
 msgstr ""
 
 #: data/calls/story_07_bar_armas.tres
-msgid "[number:Doze]. Quem busca é o pessoal do caminhão, de madrugada."
+msgid "Quem busca é o pessoal do caminhão, de madrugada."
 msgstr ""
 
 #: data/calls/story_07_bar_armas.tres
@@ -5463,7 +5455,7 @@ msgid "Hotel Serena"
 msgstr ""
 
 #: data/calls/story_08_hotel_grupos.tres data/calls/story_08_hotel_grupos_armas.tres
-msgid "Hotel? É o Lauro. Preciso confirmar os lugares."
+msgid "Hotel? É o Lauro. Preciso confirmar os lugares que a gente combinou ontem."
 msgstr ""
 
 #: data/calls/story_08_hotel_grupos.tres data/calls/story_08_hotel_grupos_armas.tres
@@ -6291,7 +6283,7 @@ msgid "A delegacia. O plantão."
 msgstr ""
 
 #: data/calls/story_14_policia_aeroporto.tres
-msgid "Boa noite. Aqui é o Rubens, do posto da rodoviária."
+msgid "Boa noite. Aqui é o Rubens, que faz ronda no posto da rodoviária."
 msgstr ""
 
 #: data/calls/story_14_policia_aeroporto.tres
@@ -6774,10 +6766,6 @@ msgstr ""
 msgid "Manda logo. Eles estão vindo pra cá."
 msgstr ""
 
-#: data/calls/story_15_policia_matriz.tres
-msgid "Rubens Moura, da polícia."
-msgstr ""
-
 #: data/nights/night_15.tres
 msgid "Quero denunciar quem ligou para o bar e para o hotel."
 msgstr ""
@@ -6799,7 +6787,7 @@ msgid "Começou."
 msgstr ""
 
 #: data/nights/night_15.tres
-msgid "Graças a Deus. Os sinos tocam daqui a dez minutos."
+msgid "Graças a Deus. Vou tocar o sino e abrir a igreja."
 msgstr ""
 
 #: data/nights/night_15.tres
@@ -6839,7 +6827,7 @@ msgid "Bar do Zé! (ao fundo, gente cantando)"
 msgstr ""
 
 #: data/nights/night_15.tres
-msgid "Telefonista? É você? Escuta só."
+msgid "Telefonista? É você? Fecharam o bar às onze, mas a gente já voltou. Escuta só."
 msgstr ""
 
 #: data/nights/night_15.tres
@@ -7403,7 +7391,7 @@ msgid "Ela vinha jantar aos domingos e só falava da central. Dizia: \"Mãe, a m
 msgstr ""
 
 #: data/calls/story_16_mae_cecilia.tres
-msgid "Ontem bateu aqui um rapaz. Me contou o que você fez. Cada ligação, cada fita."
+msgid "Ontem bateu aqui um rapaz. Me contou o que você fez naquela mesa."
 msgstr ""
 
 #: data/calls/story_16_mae_cecilia.tres

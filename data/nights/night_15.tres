@@ -198,7 +198,7 @@ requires = PackedStringArray("sinal_centro_15")
 
 [sub_resource type="Resource" id="D_cen_03"]
 script = ExtResource("2_step")
-text = "Graças a Deus. Os sinos tocam daqui a dez minutos."
+text = "Graças a Deus. Vou tocar o sino e abrir a igreja."
 requires = PackedStringArray("sinal_centro_15")
 
 [sub_resource type="Resource" id="D_cen_04"]
@@ -317,7 +317,7 @@ text = "Bar do Zé! (ao fundo, gente cantando)"
 
 [sub_resource type="Resource" id="D_bar_01"]
 script = ExtResource("2_step")
-text = "Telefonista? É você? Escuta só."
+text = "Telefonista? É você? Fecharam o bar às onze, mas a gente já voltou. Escuta só."
 
 [sub_resource type="Resource" id="D_bar_02"]
 script = ExtResource("2_step")

@@ -79,6 +79,7 @@ var kinds := {}           ## tipo -> quantas tocaram
 var stages := []          ## estágio da barra de agravamento em cada despacho (e quanto ela correu)
 var max_quiet := 0.0      ## maior intervalo (min de jogo) sem nenhuma ligação nova tocando
 var max_empty := 0.0      ## maior tempo (min de jogo) com a mesa vazia, sem ninguém tocando nem na linha
+var rung := {}            ## as ligações do roteiro que tocaram (modo --path, para conferir a versão de cada caminho)
 
 
 func _home(b, e: int) -> void:
@@ -276,6 +277,9 @@ func _initialize() -> void:
 		for d in ex.dest_numbers():
 			if ex.dest(d) == Exchange.Dest.DONE and b.cord_at(d) != -1:
 				_home(b, b.cord_at(d))
+		for c in m.live:
+			if c.beat != null and not path.is_empty():
+				rung[c.beat.call.resource_path.get_file().get_basename()] = true
 		var f: PhoneCall = m._focus()
 		# a pessoa lê a resposta da emergência até o fim antes de pensar no próximo passo
 		if human and f != null and f.kind == PhoneCall.Kind.EMERGENCY and f.talking:
@@ -465,6 +469,7 @@ func _initialize() -> void:
 		r.positives(), r.negatives(), ShiftReport.Grade.keys()[r.grade()], " ".join(r.credits.map(func(x): return x["id"])),
 		" ".join(r.faults.map(func(x): return x["id"]))])
 	if not path.is_empty():
+		print("roteiro: " + " ".join(rung.keys()))
 		print("marcadores: " + ",".join(m.flags.names()))
 	if not clumsy and not careless and path.is_empty():   # o desastrado é medição (abaixo do mínimo na maioria das sementes); o descuidado, denunciado, fica abaixo
 		ok(r.grade() <= ShiftReport.GOAL, "o robô atento não fica abaixo do conceito mínimo")

@@ -1,5 +1,6 @@
 extends RefCounted
-## A batida no hotel da noite 13 (`StreetEvent` "raid"), depois do toque de recolher, com a rua vazia: um camburão
+## A batida no hotel da noite 13 (`StreetEvent` "raid"), às 20h, antes do toque de recolher (a cena esvazia a rua:
+## nenhum carro nem gente nova): um camburão
 ## (cabine preta e o cofre branco, a sirene girando) para junto do meio-fio de lá, logo depois da porta do hotel, e uma
 ## viatura logo atrás dele, `LATE` s depois. O motorista do camburão desce pela porta do lado de cá (`cab`), fica de
 ## guarda na traseira; os outros três (o do lado da calçada do camburão e os dois da viatura) entram no hotel. Lá

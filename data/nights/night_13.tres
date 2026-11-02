@@ -11,7 +11,7 @@ at = 180.0
 [sub_resource type="Resource" id="ev_1"]
 script = ExtResource("2_event")
 kind = "raid"
-at = 180.0
+at = 120.0
 requires = PackedStringArray("fita_hotel_entregue")
 
 [sub_resource type="Resource" id="ev_2"]

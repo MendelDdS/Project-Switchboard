@@ -29,11 +29,6 @@ script = ExtResource("9_reply")
 text = "Tudo bem com você?"
 follow = "Tudo indo. Cansada, mas indo. E você, se acostumando com a mesa?"
 
-[sub_resource type="Resource" id="Answer_1_1"]
-script = ExtResource("9_reply")
-text = "A linha está chiando hoje."
-follow = "Aqui também. Deve ser o tempo nos fios."
-
 [sub_resource type="Resource" id="Answer_1_2"]
 script = ExtResource("9_reply")
 text = "Obrigada pela ajuda no treinamento."
@@ -42,7 +37,7 @@ follow = "Imagina. Você aprendeu rápido, viu? Melhor que eu no começo."
 [sub_resource type="Resource" id="Answer_1"]
 script = ExtResource("8_chat")
 line = "Central do Alto da Serra, boa noite. Maria? Fala, menina."
-replies = Array[ExtResource("9_reply")]([SubResource("Answer_1_0"), SubResource("Answer_1_1"), SubResource("Answer_1_2")])
+replies = Array[ExtResource("9_reply")]([SubResource("Answer_1_0"), SubResource("Answer_1_2")])
 
 [resource]
 script = ExtResource("1_entry")

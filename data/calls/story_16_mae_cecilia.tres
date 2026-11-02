@@ -28,7 +28,7 @@ requires = PackedStringArray("final_sucesso", "!custou_gente")
 
 [sub_resource type="Resource" id="Step_05"]
 script = ExtResource("2_step")
-text = "Ontem bateu aqui um rapaz. Me contou o que você fez. Cada ligação, cada fita."
+text = "Ontem bateu aqui um rapaz. Me contou o que você fez naquela mesa."
 requires = PackedStringArray("final_sucesso", "!custou_gente")
 
 [sub_resource type="Resource" id="Step_06"]

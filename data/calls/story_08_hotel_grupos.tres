@@ -14,6 +14,6 @@ destination = "Hotel Serena"
 thanks = "Obrigado."
 caller_name = "Lauro Teixeira"
 name_line = "Lauro Teixeira."
-overheard = PackedStringArray("Hotel? É o Lauro. Preciso confirmar os lugares.", "Pode falar, mas rápido.", "Grupo A na [place:estação], grupo B na [place:praça da Matriz], grupo C no [place:Alto da Serra].", "E o resto espera o sinal no [place:Armazém Ferreira].", "Entendido. Até o dia.")
+overheard = PackedStringArray("Hotel? É o Lauro. Preciso confirmar os lugares que a gente combinou ontem.", "Pode falar, mas rápido.", "Grupo A na [place:estação], grupo B na [place:praça da Matriz], grupo C no [place:Alto da Serra].", "E o resto espera o sinal no [place:Armazém Ferreira].", "Entendido. Até o dia.")
 suspicious = true
 wary = 0.6

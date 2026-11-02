@@ -109,7 +109,8 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
     `test_bureaucracy` (núcleo e B1–B4 com as ligações de teste dos `.tres`), `test_training`, `test_dial` (o discador), `test_shift` (o robô joga o turno inteiro e imprime métricas e a eficiência; `--human` mede o
     ritmo de uma pessoa, `--eager` não espera o fim da ligação, `--clumsy`, `--nosy`, `--careless`, `--night=N`, `--lang=`; falha se o atento ficar abaixo
     de Regular; `--path=sucesso|amarga|presa|fracasso` joga um caminho da história, e `tools/caminhos.sh` as 15 noites
-    de cada um em sequência conferindo o final, ~5 min: rode depois de mexer no roteiro). Rode depois de mudar agenda, fim de ligação, mesa ou cabos.
+    de cada um em sequência conferindo o final e listando as ligações do roteiro de cada noite em `build/caminhos/`, ~5 min:
+    rode só quando mudar a estrutura do roteiro, `requires`, marcadores, ligações da noite, horários; fala só de texto, o `test_content`). Rode depois de mudar agenda, fim de ligação, mesa ou cabos.
 - Opções do jogo: `-- --seed=N`, `--night=N` (sem ler nem gravar o save), `--weather=X`, `--lang=X`, `--pace=N`, `--flags=a,b`.
 - **Painel de debug** (F1, `DebugPanel`, só em build de debug): toca ligações, mexe no relógio, clima, luz, noites,
   viaturas e advertências, mostra a eficiência ao vivo, cronometra os passos de cada ligação no log; mesa de som (`Sfx.vol`) e aba de vozes. O que mexe no Main fica
@@ -210,7 +211,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 - Cenas na rua da vista: `Night.street_events` (`StreetEvent`: `kind`, `at`, `every`; o Main chama
   `Background.schedule`). A 3: o policial (`scripts/ui/beating.gd`); a 7: a viatura estacionada no hotel (`PATROL_*`);
   a 9: o vigia no terraço (`LOOKOUT_*`); 9 a 14: o toque de recolher às 21h, `CURFEW_*`, `_hurry`; 4 a 12: pichação,
-  carro de som, panfletos, tinta, corrida, desfile e banca; 13: a batida no hotel às 21h, só com uma fita do hotel na polícia (`Raid`: camburão, viatura,
+  carro de som, panfletos, tinta, corrida, desfile e banca; 13: a batida no hotel às 20h, só com uma fita do hotel na polícia (`Raid`: camburão, viatura,
   cinco presos); 13 e 14: o homem de sobretudo embaixo do poste das 22h às 22h50 (`stranger`); 14: a fuga da família às 20h (`Moving`) e a pedra que trinca a janela às 23h, só sem chances altas (`Stone`, camada
   `_crack` na vista, o trincado fica para a 15); cena com `StreetEvent.requires` conferida na hora (`Main._street_check`,
   liga `rua_<kind>_<noite>`); 14: o hotel lacrado, as janelas apagadas a noite toda (`closed`); 15: o letreiro do hotel apagado (aceso às 2h com o golpe vencido, `sign_from`), o

@@ -4292,14 +4292,6 @@ msgid "Tudo indo. Cansada, mas indo. E você, se acostumando com a mesa?"
 msgstr "Getting by. Tired, but getting by. And you, getting used to the board?"
 
 #: data/directory/002_cecilia.tres
-msgid "A linha está chiando hoje."
-msgstr "The line is hissing tonight."
-
-#: data/directory/002_cecilia.tres
-msgid "Aqui também. Deve ser o tempo nos fios."
-msgstr "Here too. Must be the weather on the wires."
-
-#: data/directory/002_cecilia.tres
 msgid "Obrigada pela ajuda no treinamento."
 msgstr "Thanks for the help with the training."
 
@@ -5148,8 +5140,8 @@ msgid "Rebeldes ocupam a TV Orbital\nPor quase duas horas, na noite de ontem, a 
 msgstr "Rebels occupy TV Orbital\nFor almost two hours last night, TV Orbital broadcast the message of a group calling itself the resistance of São Sotero. The police retook the station before dawn. No one was arrested."
 
 #: data/nights/night_06.tres
-msgid "O supervisor deixou um recado: \"Sábado o Centro tem baile e a praça cheia. Fique atento. A linha do Bar do Zé continua bloqueada.\""
-msgstr "The supervisor left a note: \"Saturday downtown has a dance and the square is full. Stay alert. The Bar do Zé line is still blocked.\""
+msgid "O supervisor deixou um recado: \"Hoje o Centro tem baile e a praça cheia. Fique atento. A linha do Bar do Zé continua bloqueada.\""
+msgstr "The supervisor left a note: \"Tonight downtown has a dance and the square is full. Stay alert. The Bar do Zé line is still blocked.\""
 
 #: data/calls/story_06_sebastiao_acordo.tres
 msgid "Maria, é o Sebastião. Escuta com atenção, que eu não posso repetir muito."
@@ -5216,8 +5208,8 @@ msgid "O bar, minha filha. O do Zé."
 msgstr "The bar, dear. Zé's."
 
 #: data/calls/story_06_bar_sinal_2.tres
-msgid "Boa noite. É o Anselmo, do bar."
-msgstr "Good evening. It's Anselmo, about the bar."
+msgid "Boa noite, seu Zé. É o Anselmo."
+msgstr "Good evening, Zé. It's Anselmo."
 
 #: data/calls/story_06_bar_sinal_2.tres
 msgid "Pode falar, seu Anselmo. A linha daqui está limpa."
@@ -5268,32 +5260,32 @@ msgid "Zé, é o Davi. Recado do..."
 msgstr "Zé, it's Davi. Message from..."
 
 #: data/calls/story_07_bar_radio_avisado.tres
-msgid "Davi! Que bom que ligou. E o jogo de domingo, vai?"
-msgstr "Davi! Good of you to call. And Sunday's game, are you coming?"
+msgid "Davi! Que bom que ligou. E o jogo de hoje, vai?"
+msgstr "Davi! Good of you to call. And today's game, are you coming?"
 
 #: data/calls/story_07_bar_radio_avisado.tres
 msgid "Jogo? Ah... vou, vou sim."
 msgstr "Game? Oh... yes, yes I am."
 
 #: data/calls/story_07_bar_radio_avisado.tres
-msgid "Então leva a camisa. Até domingo."
-msgstr "Then bring the jersey. See you Sunday."
+msgid "Então leva a camisa. Até mais tarde."
+msgstr "Then bring the jersey. See you later."
 
 #: data/calls/story_07_bar_armas.tres
-msgid "Zé? Anselmo. A encomenda chegou?"
-msgstr "Zé? Anselmo. Did the delivery arrive?"
+msgid "Zé? Anselmo. A encomenda chegou, está comigo. Onde eu deixo?"
+msgstr "Zé? Anselmo. The delivery arrived, I have it. Where do I leave it?"
 
 #: data/calls/story_07_bar_armas.tres
-msgid "Chegou. Vai pro [place:Armazém Ferreira], no fundo, embaixo dos sacos de [other:café]."
-msgstr "It did. It goes to [place:Armazém Ferreira], in the back, under the sacks of [other:coffee]."
+msgid "Leva pro [place:Armazém Ferreira], no fundo, embaixo dos sacos de [other:café]. Quantas caixas?"
+msgstr "Take it to [place:Armazém Ferreira], in the back, under the sacks of [other:coffee]. How many crates?"
 
 #: data/calls/story_07_bar_armas.tres
-msgid "Quantas caixas?"
-msgstr "How many crates?"
+msgid "[number:Doze]. Do jeito que o senhor pediu."
+msgstr "[number:Twelve]. Just as you asked."
 
 #: data/calls/story_07_bar_armas.tres
-msgid "[number:Doze]. Quem busca é o pessoal do caminhão, de madrugada."
-msgstr "[number:Twelve]. The truck people pick them up before dawn."
+msgid "Quem busca é o pessoal do caminhão, de madrugada."
+msgstr "The truck people pick them up before dawn."
 
 #: data/calls/story_07_bar_armas.tres
 msgid "Então até lá."
@@ -5464,8 +5456,8 @@ msgid "Hotel Serena"
 msgstr "Hotel Serena"
 
 #: data/calls/story_08_hotel_grupos.tres data/calls/story_08_hotel_grupos_armas.tres
-msgid "Hotel? É o Lauro. Preciso confirmar os lugares."
-msgstr "Hotel? It's Lauro. I need to confirm the places."
+msgid "Hotel? É o Lauro. Preciso confirmar os lugares que a gente combinou ontem."
+msgstr "Hotel? It's Lauro. I need to confirm the places we agreed on yesterday."
 
 #: data/calls/story_08_hotel_grupos.tres data/calls/story_08_hotel_grupos_armas.tres
 msgid "Pode falar, mas rápido."
@@ -6292,8 +6284,8 @@ msgid "A delegacia. O plantão."
 msgstr "The station. The duty desk."
 
 #: data/calls/story_14_policia_aeroporto.tres
-msgid "Boa noite. Aqui é o Rubens, do posto da rodoviária."
-msgstr "Evening. This is Rubens, from the bus station post."
+msgid "Boa noite. Aqui é o Rubens, que faz ronda no posto da rodoviária."
+msgstr "Evening. This is Rubens, on patrol at the bus station post."
 
 #: data/calls/story_14_policia_aeroporto.tres
 msgid "Fala, Rubens. Alguma novidade?"
@@ -6775,10 +6767,6 @@ msgstr "Stay there. I'll send the ambulance and whatever patrol cars are left."
 msgid "Manda logo. Eles estão vindo pra cá."
 msgstr "Send them fast. They're coming this way."
 
-#: data/calls/story_15_policia_matriz.tres
-msgid "Rubens Moura, da polícia."
-msgstr "Rubens Moura, police."
-
 #: data/nights/night_15.tres
 msgid "Quero denunciar quem ligou para o bar e para o hotel."
 msgstr "I want to report who called the bar and the hotel."
@@ -6800,8 +6788,8 @@ msgid "Começou."
 msgstr "It's begun."
 
 #: data/nights/night_15.tres
-msgid "Graças a Deus. Os sinos tocam daqui a dez minutos."
-msgstr "Thank God. The bells ring in ten minutes."
+msgid "Graças a Deus. Vou tocar o sino e abrir a igreja."
+msgstr "Thank God. I'll ring the bell and open the church."
 
 #: data/nights/night_15.tres
 msgid "Armazém."
@@ -6840,8 +6828,8 @@ msgid "Bar do Zé! (ao fundo, gente cantando)"
 msgstr "Zé's Bar! (people singing in the background)"
 
 #: data/nights/night_15.tres
-msgid "Telefonista? É você? Escuta só."
-msgstr "Operator? Is that you? Just listen."
+msgid "Telefonista? É você? Fecharam o bar às onze, mas a gente já voltou. Escuta só."
+msgstr "Operator? Is that you? They shut the bar at eleven, but we're back. Just listen."
 
 #: data/nights/night_15.tres
 msgid "São Sotero é livre. Ouviu? Livre! Acabou o toque de recolher, acabou a censura, acabou o medo."
@@ -7404,8 +7392,8 @@ msgid "Ela vinha jantar aos domingos e só falava da central. Dizia: \"Mãe, a m
 msgstr "She came for dinner on Sundays and only talked about the exchange. She'd say: \"Mom, the board is in good hands.\""
 
 #: data/calls/story_16_mae_cecilia.tres
-msgid "Ontem bateu aqui um rapaz. Me contou o que você fez. Cada ligação, cada fita."
-msgstr "A young man knocked on my door yesterday. He told me what you did. Every call, every tape."
+msgid "Ontem bateu aqui um rapaz. Me contou o que você fez naquela mesa."
+msgstr "A young man knocked on my door yesterday. He told me what you did at that switchboard."
 
 #: data/calls/story_16_mae_cecilia.tres
 msgid "Ela não morreu à toa, Maria. Você não deixou."

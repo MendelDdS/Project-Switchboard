@@ -916,3 +916,15 @@ Ao fundir a vitória amarga no sucesso (`custou_gente`), troquei os `requires` d
 ("Amanhece", o encontro com Sebastião) pedia só `final_sucesso` e passou a valer também na amarga, que não tem
 encontro. Quem ganha um marcador a mais herda tudo o que pedia só aquele marcador: ao fundir dois estados, procure
 (`grep`) cada `requires` do que ficou, em todas as noites, não só nos arquivos do que saiu.
+
+## Pergunta de "quem faz": responda com o nome, não com a condição
+"Quem verifica se as falas soam naturais?" respondi "isso depende de jogar", e o usuário reclamou: bastava "você" ou
+"eu", e já tinha pedido clareza antes. Na revisão, listei incoerências sem dizer se a correção já era proposta ou
+esperava a escolha dele. Pergunta de quem/quando/sim-ou-não começa pela resposta seca ("Você."); cada problema
+apontado diz em uma frase o que está errado e o que eu faria, e se já fiz ou espero aprovação.
+
+## Rua no mapa: confira o trecho, não só o setor da rua
+Na revisão do roteiro afirmei que a Rua do Moinho e a Rua da Estação eram só da Vila Serena e "corrigi" falas e o
+endereço do Joaquim Ferreira; o usuário aprovou com base nisso. Errado: rua com `continues` tem 6 trechos e do 300 em
+diante fica no outro setor (`Street.block_sector`). O `test_content` já confere o endereço contra o bairro do número;
+antes de apontar rua no bairro errado, olhe `continues` e o número.

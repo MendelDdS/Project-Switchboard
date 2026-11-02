@@ -14,6 +14,6 @@ destination = "Bar do Zé"
 thanks = "Obrigado."
 caller_name = "Davi Correia"
 name_line = "Davi Correia."
-overheard = PackedStringArray("Zé, é o Davi. Recado do...", "Davi! Que bom que ligou. E o jogo de domingo, vai?", "Jogo? Ah... vou, vou sim.", "Então leva a camisa. Até domingo.")
+overheard = PackedStringArray("Zé, é o Davi. Recado do...", "Davi! Que bom que ligou. E o jogo de hoje, vai?", "Jogo? Ah... vou, vou sim.", "Então leva a camisa. Até mais tarde.")
 suspicious = true
 wary = 1.5

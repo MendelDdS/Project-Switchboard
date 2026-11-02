@@ -13,7 +13,7 @@ run() {
 	for n in $(seq 1 15); do
 		out=$("$G" --headless --fixed-fps 60 --path . tests/runner.tscn -- --test=shift --seed=1 --night="$n" --path="$1" --flags="$flags" 2>&1)
 		flags=$(echo "$out" | sed -n 's/^marcadores: //p')
-		echo "noite $n: $(echo "$out" | grep -E '^eficiência|FALHOU' | cut -c1-800)" >> "build/caminhos/$1.txt"
+		echo "noite $n: $(echo "$out" | grep -E '^eficiência|^roteiro|FALHOU' | cut -c1-800)" >> "build/caminhos/$1.txt"
 	done
 	echo "marcadores: $flags" >> "build/caminhos/$1.txt"
 	has() { echo "$flags" | tr ',' '\n' | grep -qx "$1"; }

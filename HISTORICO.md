@@ -3229,3 +3229,20 @@ Chaves:
     (`takeover_lost`) sem esperar o fim da noite ("aplique tomada_caiu": cobre também as armas e o grupo C com o
     hospital esquecido ou o hotel avisado). Sebastião na 12 reconhece a carta: "Eu sei o que escrevi: o
     telefone não é seguro."
+517. #roteiro #rua "Pode passar a batida para mais cedo, umas 20h" (o toque de recolher e a batida no hotel eram os dois
+    às 21h na 13; o toque já vale da 9 à 14). A batida (`raid`) passou para as 20h; a cena esvazia a rua sozinha (sem
+    carro nem gente nova). O Davi da 7 (domingo) pergunta do "jogo de hoje", não "de domingo", e se despede com "até mais tarde".
+518. #roteiro "Pode corrigir" (a revisão de continuidade). O Anselmo traz a encomenda: na 6 se apresenta ao Zé ("Boa
+    noite, seu Zé. É o Anselmo.") e pergunta onde deixa; na 7 diz que ela chegou e está com ele, o Zé manda para o
+    Armazém Ferreira. (As ruas do Vilela na 14 e na 15 e a casa do Ferreira na Rua da Estação, 360, ficaram como
+    estavam: as ruas verticais da Vila Serena seguem pelo Alto da Serra, do 300 em diante; apontei errado.) "Pode sinalizar com o sino e dizer que abre a
+    igreja": a Casa Paroquial da 15 responde "Vou tocar o sino e abrir a igreja." O Zé da meia-noite da 15 diz que
+    fecharam o bar às onze e já voltaram (a polícia fechou; com o golpe vencido, ele voltou). A mãe da Cecília no
+    epílogo não fala mais em "cada fita" (valia também para quem não entregou fita). A conversa do chiado da Cecília
+    (002) saiu ("versão muito antiga"). O Rubens da 15 se apresenta "do posto da rodoviária", como na 14. O recado da
+    6 (sábado) diz "Hoje o Centro tem baile".
+519. #roteiro "No máximo ele pode falar nas conversas que Maria escuta: Aqui é Rubens, que faz ronda no posto da
+    rodoviária" (é policial da ronda da rodoviária; a apresentação no pedido fica igual). Na 14 ele se apresenta assim.
+520. #roteiro "As reuniões não acontecem por telefone, o resultado delas pode aparecer nas transferências" (a reunião
+    marcada no hotel na 6 para o dia seguinte, e a da pensão na 2, acontecem fora da tela). O Lauro da 8 liga para
+    confirmar "os lugares que a gente combinou ontem", a reunião de domingo no hotel.
