@@ -9,6 +9,7 @@ const Graffiti := preload("res://scripts/ui/graffiti.gd")
 const Newsstand := preload("res://scripts/ui/newsstand.gd")
 const Moving := preload("res://scripts/ui/moving.gd")
 const Flare := preload("res://scripts/ui/flare.gd")
+const Battle := preload("res://scripts/ui/battle.gd")
 const Raid := preload("res://scripts/ui/raid.gd")
 const Stone := preload("res://scripts/ui/stone.gd")
 const Banner := preload("res://scripts/ui/banner.gd")
@@ -4612,6 +4613,89 @@ func _draw_flare(g: Rect2) -> void:
 			for d: Vector2 in [Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1), Vector2(0, -1)]:
 				var q := at + d * (2 + i)
 				_p(q.x, q.y, 1, 1, c)
+
+
+
+## Uma bolota de fumaça do combate em `c` (unidades da vista), de raio `r`: um disco pixel a pixel (`PixelArt.disc`,
+## branco e guardado por tamanho), a cor no `modulate`; a transformação já em px da tela.
+func _battle_puff(c: Vector2, r: float, col: Color) -> void:
+	var d := maxi(1, roundi(r * 4.0))
+	PixelArt.sprite(_ci, PixelArt.disc(d, [[d / 2.0, Color.WHITE]]), (c * 2.0).round(), col)
+
+## O combate da noite 15 (`Battle`, na camada `_battle`, entre o céu e a cidade: o que fica atrás dos telhados e da
+## igreja some neles): a fumaça do incêndio, acesa de laranja embaixo e cinza no alto, a de cada estouro recente, as
+## faíscas das rajadas no horizonte e os traçantes, a cabeça quase branca e o rastro laranja.
+func _draw_battle(g: Rect2) -> void:
+	var t: float = _scene_t.get("battle", -1.0)
+	if t < 0.0 or t >= Battle.END:
+		return
+	var k := Battle.flicker(t)
+	var evs := Battle.events(t - Battle.BLAST_SMOKE, t)
+	_ci.draw_set_transform(Vector2.ZERO)   # (as bolotas em px da tela, pixel a pixel)
+	for q: Vector4 in Battle.smoke(t):   # (da mais velha, no alto, para a mais nova, embaixo, que fica por cima)
+		var pf := Battle.puff(t, q)
+		if pf.y > 0.01:
+			_battle_puff(_o(g, q.x, q.y, q.z), pf.x * OUT_F / q.y, Color(Pal.BATTLE_SMOKE[1].lerp(Pal.BATTLE_SMOKE[0], k * exp(-q.z / 140.0)), pf.y))
+	for e: Dictionary in evs:   # a fumaça de cada estouro, escura, subindo e abrindo, acesa no primeiro instante
+		var age: float = t - e["at"]
+		var p: Vector3 = e["pos"]
+		if e["kind"] == "boom":
+			_battle_puff(_o(g, p.x - Battle.WIND * age, p.y, 15.0 + 4.0 * age), (16.0 + age) * OUT_F / p.y,
+				Color(Pal.BATTLE_SMOKE[1].lerp(Pal.BATTLE_SMOKE[0], exp(-age / 0.6)), 0.35 * (1.0 - age / Battle.BLAST_SMOKE)))
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	for e: Dictionary in evs:
+		var age: float = t - e["at"]
+		var p: Vector3 = e["pos"]
+		if e["kind"] == "boom":
+			continue
+		var shots: Array[float] = e["shots"]
+		for i in shots.size():
+			var s: float = age - shots[i]
+			if s >= 0.0 and s < 0.05:   # a faísca do tiro
+				var mz := Battle.muzzle(e)
+				var m := (_o(g, mz.x, mz.y, mz.z) * 2.0).floor()
+				_p(m.x, m.y, 1, 1, Pal.BATTLE_TRACER[0])
+			if e["trace"] and i % Battle.TRACE == 0 and s >= 0.0 and s < Battle.TRACE_SEC:
+				var hp := Battle.tracer(e, i, s)   # a bala: uma linha reta, inteira, subindo
+				var tp := Battle.tracer(e, i, maxf(0.0, s - Battle.TRACE_TAIL))
+				_pixel_line(_o(g, tp.x, tp.y, tp.z) * 2.0, _o(g, hp.x, hp.y, hp.z) * 2.0, [Pal.BATTLE_TRACER[1]], Transform2D.IDENTITY.scaled(Vector2(2, 2)))
+
+
+## A luz do combate (`_battle_add`, somada): o clarão do incêndio no horizonte, liso (um laranja largo e o miolo
+## amarelo, cintilando), o de cada estouro, grande e branco, sumindo, e o piscar de cada tiro.
+func _draw_battle_glow(g: Rect2) -> void:
+	var t: float = _scene_t.get("battle", -1.0)
+	if t < 0.0 or t >= Battle.END:
+		return
+	var fans := []
+	var k := Battle.flicker(t)
+	var f := Battle.FIRE
+	if k > 0.0:
+		fans.append([_o(g, f.x, f.y, 6.0), _battle_dome(g, Vector3(f.x, f.y, 6.0), 360.0, 260.0), Color(Pal.BATTLE_FIRE[1], 0.5 * k)])
+		fans.append([_o(g, f.x, f.y, 4.0), _battle_dome(g, Vector3(f.x, f.y, 4.0), 110.0, 70.0), Color(Pal.BATTLE_FIRE[0], 0.85 * k)])
+	for e: Dictionary in Battle.events(t - 1.5, t):
+		var age: float = t - e["at"]
+		var p: Vector3 = e["pos"]
+		if e["kind"] == "boom":
+			if age < Battle.BLAST_SEC:
+				var a := pow(1.0 - age / Battle.BLAST_SEC, 2.0) * minf(1.0, age / 0.04)
+				fans.append([_o(g, p.x, p.y, 10.0), _battle_dome(g, Vector3(p.x, p.y, 10.0), 460.0, 320.0), Color(Pal.BATTLE_FIRE[1], 0.7 * a)])
+				fans.append([_o(g, p.x, p.y, 10.0), _battle_dome(g, Vector3(p.x, p.y, 10.0), 150.0, 110.0), Color(Pal.BATTLE_BLAST, a)])
+			continue
+		for s: float in e["shots"]:
+			if age - s >= 0.0 and age - s < 0.06:
+				var m := Battle.muzzle(e)
+				fans.append([_o(g, m.x, m.y, m.z), _battle_dome(g, m, 40.0, 25.0), Color(Pal.BATTLE_FIRE[0], 0.35)])
+	_light_fans(fans)
+
+
+## O contorno de uma luz no céu em volta de `c` (m), `rx` m para os lados e `rh` m para cima e para baixo, na vista `g`.
+func _battle_dome(g: Rect2, c: Vector3, rx: float, rh: float) -> PackedVector2Array:
+	var rim := PackedVector2Array()
+	for i in 16:
+		var an := TAU * i / 16.0
+		rim.append(_o(g, c.x + cos(an) * rx, c.y, c.z + sin(an) * rh))
+	return rim
 
 
 ## O halo do sinalizador (`_flare_add`, somado): liso, a parte forte colada no miolo, quase branca, e a larga e fraca,

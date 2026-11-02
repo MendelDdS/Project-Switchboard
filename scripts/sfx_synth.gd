@@ -6,6 +6,7 @@ extends RefCounted
 ## Mac recente um depois do outro).
 
 const BannerScene := preload("res://scripts/ui/banner.gd")
+const Battle := preload("res://scripts/ui/battle.gd")
 const RATE := 22050
 # Vozes: cada vogal vira uma sílaba sintetizada (fonte glotal + formantes).
 # f0 = altura, breath = sopro, dur = duração da sílaba, bus = por onde toca, tract = o tamanho da boca (os formantes
@@ -691,6 +692,31 @@ func _build_outside() -> void:
 		t2 += 0.05
 	_w = _biquad(_w, "lp", 2800.0, 0.7)   # (longe e pelo vidro)
 	_end("flare")
+	for take in 3:   # o combate da noite 15 (`Battle`), longe: um estouro, o baque surdo e o ronco rolando pelos
+		_begin(3.5)   # prédios, com um eco atrasado
+		var thump := _rng.randf_range(42.0, 58.0)
+		_tone(0.0, thump, 0.45, "sine", 1.0, 0.01)
+		_tone(0.0, thump * 1.6, 0.25, "sine", 0.4, 0.01)
+		var b := 0.0
+		for i in _w.size():
+			var t := float(i) / RATE
+			b = b * 0.98 + _rng.randf_range(-1.0, 1.0) * 0.08
+			_w[i] += b * (1.0 - exp(-t / 0.02)) * exp(-t / 0.9) * 1.4
+		var echo := _rng.randf_range(0.35, 0.6)
+		_tone(echo, thump * 0.9, 0.5, "sine", 0.35, 0.03)
+		_w = _biquad(_biquad(_w, "lp", 320.0, 0.7), "hp", 28.0, 0.7)
+		_end("blast" if take == 0 else "blast~%d" % take, false, false, 0.85)
+	for take in 3:   # uma rajada longe: os estalos secos, cada um com a cauda curta do eco, abafados pela distância e pelo vidro
+		_begin(2.0)
+		var at := 0.0
+		for i in _rng.randi_range(Battle.SHOTS.x, Battle.SHOTS.y):
+			var g := _rng.randf_range(0.6, 1.0)
+			_noise(at, 0.012, "bp", _rng.randf_range(900.0, 1300.0), 1.2, g)
+			_tone(at, _rng.randf_range(110.0, 150.0), 0.06, "sine", 0.5 * g, 0.001)
+			_noise(at + 0.01, 0.25, "lp", 500.0, 0.7, 0.18 * g)
+			at += _rng.randf_range(Battle.GAP.x, Battle.GAP.y)
+		_w = _biquad(_w, "lp", 1600.0, 0.7)
+		_end("gunfire" if take == 0 else "gunfire~%d" % take, false, false, 0.7)
 	_begin(0.5)   # a porta da varanda do apartamento da frente (`Banner`), do outro lado da rua: o trinco estalando e as
 	_tone(0.0, 2100.0, 0.02, "sine", 0.5, 0.001)   # dobradiças rangendo curto, abafados pelo vidro
 	_noise(0.0, 0.015, "bp", 3200.0, 2.0, 0.6)

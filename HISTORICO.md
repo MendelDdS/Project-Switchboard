@@ -3287,3 +3287,20 @@ Chaves:
     o reflexo em preto fraco, que quase não cortava o reflexo claro: agora ele apaga a vitrine espelhada atrás dele
     (`_wet_shade` guarda as peças e a rua molhada do quadro seguinte as passa ao shader, `_draw_wet_cuts`). O meio-fio
     de lá deixou de ser uma linha preta: a quina pega a luz das vitrines e a face, um brilho molhado.
+528. #vista #luz #som "No dia 15, eu gostaria de adicionar alguns eventos após as 21h. Às 21:20, uma luz amarela no
+    fundo do cenário e em seguida fumaça surgindo, dando a entender um incêndio; depois, até às 00h, bombas e tiros
+    distantes, seguidos de luzes e até alguns rastros de balas passando por trás da igreja." Feito como cena da rua da
+    noite 15 (`StreetEvent` "battle" às 21:20, em todos os caminhos): `Battle` (tudo do tempo, sem estado) com o clarão
+    do fogo à esquerda da igreja, a fumaça em bolotas subindo acima dos telhados, estouros (clarão grande e fumaça
+    escura) e rajadas (faíscas no horizonte; das mais perto, traçantes riscando o céu por trás da igreja), crescendo e
+    afrouxando em ondas; os sons sintetizados (`blast`, `gunfire`) chegam depois da luz, pela distância. O fogo apaga
+    aos poucos depois da meia-noite. A luz da sala não muda.
+529. #vista "Os rastros de tiros deveriam ser linhas, não?" Eram riscos de 8 px (0,035 s de voo atrás da cabeça):
+    agora uma linha de ~0,2 s de voo, laranja, esmaecendo em quatro pedaços da cabeça quase branca para trás
+    (`Battle.TRACE_TAIL`, `TRACE_FADE`).
+530. #vista #luz "Após 1h da manhã, o fogo pode começar a apagar até finalizar às 4h, porque o amanhecer não precisa
+    mais mostrar incêndio." O fogo fica forte até a 1h (`Battle.DOUSE`) e apaga até as 4h (`EMBERS`, 3 h de jogo);
+    a última fumaça some uns 45 min depois.
+531. #vista "As balas seriam para cima, seguindo uma linha contínua diagonal, não um rastro que esmaece. É uma bala e
+    não míssil." Os traçantes saem de trás dos telhados (h 5–40 m) e sobem retos em diagonal (`Battle.TRACE_V`, sem
+    queda), cada um uma linha laranja inteira de 0,15 s de voo (`TRACE_TAIL`; saiu o esmaecer, `TRACE_FADE`).

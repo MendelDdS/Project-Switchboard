@@ -227,6 +227,8 @@ var _spot_drawn := false   # (redesenhada enquanto há viatura com ele, e uma ve
 var _flare: Control    # o sinalizador da noite 15 (`_draw_flare`), entre o céu e a `_back`: some atrás dos telhados; redesenhado enquanto está no céu...
 var _flare_add: Control   # ...e o halo dele, somado logo acima (`_draw_flare_glow`), a força com a cintilação no `modulate`
 var _flare_rim: Control   # ...a beira da igreja e da cidade de longe acesa por ele (`_draw_flare_rim`), somada logo acima da `_back`
+var _battle: Control   # o combate da noite 15 (`_draw_battle`: a fumaça, as faíscas, os traçantes), entre o céu e a `_back`...
+var _battle_add: Control   # ...e a luz dele, somada logo acima (`_draw_battle_glow`): os dois redesenhados enquanto dura
 var _flare_at := Vector3.INF   # onde o halo foi desenhado da última vez (m, de meio em meio metro; INF apagado)
 var _flare_steep := 0.0   # o sinalizador aceso no lugar do sol (0: não): o quanto o raio dele desce ao entrar na sala (`_sun_steep`)
 var _sky: Control      # o céu da vista, embaixo da `_back` e fora da luz do dia da cidade (`DAY_GAIN`): redesenhado com ela
@@ -331,6 +333,14 @@ func _ready() -> void:
 	(_flare_add.material as CanvasItemMaterial).blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
 	_flare_add.draw.connect(_draw_view_flare_glow)
 	_vport.add_child(_flare_add)
+	_battle = Control.new()
+	_battle.draw.connect(_draw_view_battle)
+	_vport.add_child(_battle)
+	_battle_add = Control.new()
+	_battle_add.material = CanvasItemMaterial.new()
+	(_battle_add.material as CanvasItemMaterial).blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+	_battle_add.draw.connect(_draw_view_battle.bind(true))
+	_vport.add_child(_battle_add)
 	_back = Control.new()
 	_back.draw.connect(_draw_view_back)
 	_vport.add_child(_back)
@@ -649,6 +659,10 @@ func _process(delta: float) -> void:
 	if wet or _wet_drawn:
 		_wet.queue_redraw()
 	_wet_drawn = wet
+	var bt: float = _scene_t.get("battle", -1.0)
+	if bt >= 0.0 and bt < Battle.END + 1.0:   # (o fogo cintila, a fumaça sobe, os tiros piscam)
+		_battle.queue_redraw()
+		_battle_add.queue_redraw()
 	var ft: float = _scene_t.get("flare", -1.0)
 	if ft >= 0.0 and ft < Flare.END + 1.0:
 		_flare.queue_redraw()   # (o miolo e os raios mudam com a cintilação, a fumaça anda)
@@ -927,6 +941,8 @@ func _events(delta: float) -> void:
 			Sfx.play_at("car_door", x, 2.0, 0.72)
 		if k == "flare" and was <= 0.0:   # o tiro, longe
 			Sfx.play_at("flare", x, 0.0)
+		if k == "battle":   # os estrondos e as rajadas, chegando depois da luz (`Battle.SOUND`), mais fracos de mais longe
+			_battle_sounds(was, _scene_t[k], x)
 		if k == "stone" and was < Stone.FLY and _scene_t[k] >= Stone.FLY:   # a pedra no vidro: a batida trincando e a janela chocalhando
 			Sfx.play_at("glass_hit", x)
 			Sfx.play_at("rattle", x, 2.0, 1.2)
@@ -1324,6 +1340,19 @@ func _scene_car_of(kind: String, x: float) -> Dictionary:
 	return c
 
 
+## Os sons do combate da noite 15 (`Battle`) que chegam entre `was` e `now` (s da cena): cada estouro e cada rajada,
+## o tanto da distância depois de acontecer, da janela (`x`), um pouco para o lado em que aconteceu.
+func _battle_sounds(was: float, now: float, x: float) -> void:
+	for e: Dictionary in Battle.events(was - 2.5, now):
+		var p: Vector3 = e["pos"]
+		var d := Vector2(p.x, p.y).length()
+		var at: float = e["at"] + d / Battle.SOUND
+		if at > was and at <= now:
+			var g := Rect2(Vector2.ZERO, Vector2(_vport.size) / 2.0)
+			var sx := clampf(x + (_o(g, p.x, p.y).x / maxf(1.0, g.size.x) - 0.5) * 0.15, 0.0, 1.0)
+			Sfx.play_at("blast" if e["kind"] == "boom" else "gunfire", sx, -20.0 * log(d / 250.0) / log(10.0), _rng.randf_range(0.9, 1.1))
+
+
 ## A marca que a cena `kind` de uma noite anterior deixou na rua (a pichação, a tinta nova, a banca fechada; o Main
 ## chama, `LASTING`): como já acabada.
 func left_behind(kind: String) -> void:
@@ -1334,7 +1363,7 @@ func left_behind(kind: String) -> void:
 ## Começa a cena `kind` (`scene_at`): a que vem de carro, ele é o próximo da mão de lá (com ela livre, já); a corrida,
 ## quando os carros que estão passando saírem (`_scene_t` negativo até lá).
 func _start_scene(kind: String) -> void:
-	if kind in ["flare", "stone", "banner", "arrest", "closed"]:   # (no céu, de quem não aparece, na varanda, o fim do jogo ou o hotel fechado: não espera a rua)
+	if kind in ["flare", "battle", "stone", "banner", "arrest", "closed"]:   # (no céu, de quem não aparece, na varanda, o fim do jogo ou o hotel fechado: não espera a rua)
 		_scene_t[kind] = 0.0
 		return
 	if kind in ["speaker", "flyers", "newsstand", "parade", "moving", "raid"]:
@@ -2550,6 +2579,19 @@ func _draw_view_flare() -> void:
 	var g := Rect2(Vector2.ZERO, Vector2(_vport.size) / 2.0)
 	if not window_art:
 		_draw_flare(Rect2(g.position, g.size - Vector2(0, _near)))
+	_ci = self
+
+
+## O combate da noite 15 (`_battle`; com `glow`, a luz dele, `_battle_add`), entre o céu e a cidade.
+func _draw_view_battle(glow := false) -> void:
+	_ci = _battle_add if glow else _battle
+	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	var g := Rect2(Vector2.ZERO, Vector2(_vport.size) / 2.0)
+	if not window_art:
+		if glow:
+			_draw_battle_glow(Rect2(g.position, g.size - Vector2(0, _near)))
+		else:
+			_draw_battle(Rect2(g.position, g.size - Vector2(0, _near)))
 	_ci = self
 
 

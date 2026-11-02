@@ -942,3 +942,10 @@ manchado. Recortar um reflexo em manchas 2D lê como mancha, qualquer que seja a
 por quebras finas na horizontal (1 px, em trechos, mais juntas lá longe, sem deslocar para o lado, que vira água) e
 pelo esticar para baixo; mancha grande só onde é poça. O que tem de ser liso é a luz (o sumiço ao longo do reflexo,
 a poça da luminária). Antes de propor uma causa visual, teste tirando a suspeita numa captura.
+
+## Rastro de bala é linha reta e inteira
+
+O traçante do combate da noite 15 saiu primeiro como risco de 8 px (lia como faísca) e depois como linha esmaecendo
+para trás (lia como míssil). Bala traçante é uma linha reta, de cor única, inteira, subindo em diagonal desde trás
+dos telhados. Antes de desenhar algo que se move, pense no objeto físico (bala, míssil, fogo) e no que ele parece de
+longe, e não só no tamanho na captura.

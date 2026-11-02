@@ -215,7 +215,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   cinco presos); 13 e 14: o homem de sobretudo embaixo do poste das 22h às 22h50 (`stranger`); 14: a fuga da família às 20h (`Moving`) e a pedra que trinca a janela às 23h, só sem chances altas (`Stone`, camada
   `_crack` na vista, o trincado fica para a 15); cena com `StreetEvent.requires` conferida na hora (`Main._street_check`,
   liga `rua_<kind>_<noite>`); 14: o hotel lacrado, as janelas apagadas a noite toda (`closed`); 15: o letreiro do hotel apagado (aceso às 2h com o golpe vencido, `sign_from`), o
-  sinalizador vermelho às 21h (`Flare`, camada `_flare` entre o céu e a cidade) e a bandeira na varanda à meia-noite, só
+  sinalizador vermelho às 21h (`Flare`, camada `_flare` entre o céu e a cidade), o incêndio e o combate longe, atrás da igreja, das 21:20 à meia-noite (`Battle`, camadas `_battle`/`_battle_add`; os estrondos e as rajadas chegam depois do clarão) e a bandeira na varanda à meia-noite, só
   com `golpe_venceu` (`Banner`; o `_midnight` roda antes do `_street_check`); um script por cena em
   `scripts/ui/`, relógio `_scene_t`; pichação, tinta, banca e o apartamento vazio ficam nas noites seguintes, `left_behind`). Regra de qualidade: `PLANO_RUA.md`.
 - Marcadores do roteiro: `StoryFlags` (`flags.allows(requires)`, `flags.apply("nome" | "!nome")`), salvos no `Progress`.

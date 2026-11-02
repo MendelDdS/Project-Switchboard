@@ -29,6 +29,11 @@ kind = "banner"
 at = 360.0
 requires = PackedStringArray("golpe_venceu")
 
+[sub_resource type="Resource" id="ev_2"]
+script = ExtResource("2_event")
+kind = "battle"
+at = 200.0
+
 [sub_resource type="Resource" id="Story_presa"]
 script = ExtResource("3_story")
 at = 360.0
@@ -377,7 +382,7 @@ shift_end = 720.0
 clears_at = 360.0
 note = "O supervisor deixou um recado: \"Ordem das autoridades: as linhas da Rádio Serena e da TV Orbital estão bloqueadas. Transferir qualquer ligação para elas é crime, sujeito a prisão. Quem ligar para o bar ou para o hotel, denuncie na delegacia (184). Ligação para a delegacia ou para a Alta Cúpula passa na hora, sem demora. Última noite do período: o relatório de hoje vai para a diretoria.\""
 story = Array[ExtResource("3_story")]([SubResource("Story_presa"), SubResource("S_pol1"), SubResource("S_bar"), SubResource("S_radio"), SubResource("S_hotel"), SubResource("S_cup1"), SubResource("S_pol2"), SubResource("S_cup2"), SubResource("S_cup2a"), SubResource("S_tv"), SubResource("S_pol3")])
-street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1")])
+street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1"), SubResource("ev_2")])
 endings = Array[ExtResource("5_text")]([SubResource("End_sucesso"), SubResource("End_presa")])
 letters = Array[ExtResource("5_text")]([SubResource("letter_15"), SubResource("letter_15a")])
 dial = Array[ExtResource("6_dial")]([SubResource("D_den"), SubResource("D_cen"), SubResource("D_ser"), SubResource("D_sef"), SubResource("D_rad"), SubResource("D_bar")])

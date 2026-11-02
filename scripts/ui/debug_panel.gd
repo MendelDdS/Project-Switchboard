@@ -127,6 +127,7 @@ func _ready() -> void:
 	_row([["Pichação (noite 4)", func(): main.background.start_scene("graffiti")], ["Tinta por cima (noite 7)", func(): main.background.start_scene("paint")]])
 	_row([["Banca fechada (noite 12)", func(): main.background.start_scene("newsstand")], ["Desfile (noite 10)", func(): main.background.start_scene("parade")]])
 	_row([["Fuga da família (noite 14)", func(): main.background.start_scene("moving")], ["Sinalizador (noite 15)", func(): main.background.start_scene("flare")]])
+	_row([["Incêndio e combate (noite 15)", func(): main.background.start_scene("battle")]])
 	_row([["Batida no hotel (noite 13)", func(): main.background.start_scene("raid")], ["Pedra na janela (noite 14)", func(): main.background.start_scene("stone")]])
 	_row([["Bandeira na varanda (noite 15)", func(): main.background.start_scene("banner")], ["Homem de sobretudo (noites 13 e 14)",
 		func(): main.background.schedule("stranger", main.background.minutes + Background.MAN_WALK)]])

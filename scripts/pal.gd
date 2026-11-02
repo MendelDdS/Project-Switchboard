@@ -359,6 +359,12 @@ const SUITCASE: Array[Color] = [Color("4e3626"), Color("2a1c14")]
 ## (acesa por ele perto, cinza longe)
 const SIGNAL_FLARE: Array[Color] = [Color("ffe8e0"), Color("ff3a2a"), Color("d0281c")]
 const SIGNAL_SMOKE: Array[Color] = [Color("a04a44"), Color("4a4650")]
+## O combate da noite 15 (`Battle`): o fogo no horizonte (o miolo amarelo e o clarão laranja), o clarão de um estouro,
+## o traçante (a cabeça e o rastro) e a fumaça (acesa pelo fogo embaixo, cinza no alto)
+const BATTLE_FIRE: Array[Color] = [Color("ffd27a"), Color("ff8a2a")]
+const BATTLE_BLAST := Color("fff0c8")
+const BATTLE_TRACER: Array[Color] = [Color("fff2b0"), Color("ff7a1e")]
+const BATTLE_SMOKE: Array[Color] = [Color("8a4a2a"), Color("3a3840")]
 const CHASE_SUIT: Array[Color] = [Color("2a2d36"), Color("38342c")]
 const BLOOD: Array[Color] = [Color("2a0606"), Color("440a0a"), Color("6a1410")]
 const AWNINGS: Array[Color] = [Color("4a1c1c"), Color("1e3a2c"), Color("2a3048")]   ## os toldos de lona das lojas de lá (desbotados pela noite)
