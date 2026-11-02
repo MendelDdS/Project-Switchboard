@@ -42,7 +42,7 @@ var flags: StoryFlags:             ## marcadores do roteiro valendo agora: os sa
 	set(v):
 		flags = v
 		flags.changed.connect(func(n: String, on: bool):
-			if on and n.begins_with(StoryFlags.FAULT):   # (a cobrança do supervisor no Dia 12)
+			if on and n.begins_with(StoryFlags.FAULT) and is_node_ready():   # (a cobrança do Dia 12; os salvos chegam antes, já cobrados na noite deles)
 				supervisor.fault("authority_ignored")
 			if not n in Rebellion.DERIVED:   # o fator sucesso acompanha os marcadores (as conclusões dele não recontam)
 				Rebellion.sync(flags, night_no)
@@ -287,6 +287,8 @@ func _midnight() -> void:
 	if won:
 		background.sign_from = (SHIFT_START_HOUR + SIGN_BACK) * 60.0
 	flags.apply(Rebellion.FINALS[Rebellion.final(flags, night_no + 1)])   # (a ligação da cúpula na presa, o epílogo)
+	if won and Rebellion.costly(flags):
+		flags.apply(Rebellion.COST)
 	if not won:
 		shift_end = MIDNIGHT
 		last_call = minf(last_call, MIDNIGHT)
@@ -921,8 +923,8 @@ func _run_schedule() -> void:
 	# As do roteiro e quem liga de novo só tocam com a mesa em silêncio (até `latest`), para
 	# não empilhar ligações sobre quem já está sobrecarregado; as outras esperam uma entrada livre.
 	var hush := (c.story or c.retry != PhoneCall.Retry.NONE) and not live.is_empty() and minutes < c.latest
-	# com uma do roteiro na mesa, nenhuma outra toca até ela acabar
-	if live.any(func(x: PhoneCall): return x.story):
+	# numa "missão" do roteiro, nenhuma outra toca até ela acabar
+	if on_mission():
 		hush = true
 	# no máximo `MAX_EMERGENCIES` ao mesmo tempo: a próxima espera uma delas desligar e ter o socorro
 	if c.kind == PhoneCall.Kind.EMERGENCY and in_progress().size() >= MAX_EMERGENCIES:
@@ -936,6 +938,14 @@ func _run_schedule() -> void:
 		return
 	sched.pop_front()
 	ring(c)
+
+
+## O jogador está numa "missão" do roteiro: uma ligação do roteiro na mesa, a conversa dela que ele escuta (para
+## ouvir ou gravar) ou a ligação do roteiro que ele fez pelo discador. Enquanto isso, nada novo toca (`_run_schedule`).
+func on_mission() -> bool:
+	return live.any(func(x: PhoneCall): return x.story) \
+		or eavesdrop.talks.keys().any(func(n: int): return eavesdrop.listening(n) and eavesdrop.call_of(n).story) \
+		or dialing.call != null and not dialing.call.data is DirectoryEntry   # (a do roteiro é um `DialCall`)
 
 
 ## A mesa ficou vazia por `QUIET_SHARE` do maior intervalo do ritmo e a próxima ainda demora: toca uma a mais (sorteada na

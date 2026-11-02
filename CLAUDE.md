@@ -108,7 +108,8 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
     sobreposição; rode ao mexer na disposição), `test_penalties` (consequências, relatório, conta do conceito),
     `test_bureaucracy` (núcleo e B1–B4 com as ligações de teste dos `.tres`), `test_training`, `test_dial` (o discador), `test_shift` (o robô joga o turno inteiro e imprime métricas e a eficiência; `--human` mede o
     ritmo de uma pessoa, `--eager` não espera o fim da ligação, `--clumsy`, `--nosy`, `--careless`, `--night=N`, `--lang=`; falha se o atento ficar abaixo
-    de Regular). Rode depois de mudar agenda, fim de ligação, mesa ou cabos.
+    de Regular; `--path=sucesso|amarga|presa|fracasso` joga um caminho da história, e `tools/caminhos.sh` as 15 noites
+    de cada um em sequência conferindo o final, ~5 min: rode depois de mexer no roteiro). Rode depois de mudar agenda, fim de ligação, mesa ou cabos.
 - Opções do jogo: `-- --seed=N`, `--night=N` (sem ler nem gravar o save), `--weather=X`, `--lang=X`, `--pace=N`, `--flags=a,b`.
 - **Painel de debug** (F1, `DebugPanel`, só em build de debug): toca ligações, mexe no relógio, clima, luz, noites,
   viaturas e advertências, mostra a eficiência ao vivo, cronometra os passos de cada ligação no log; mesa de som (`Sfx.vol`) e aba de vozes. O que mexe no Main fica
@@ -124,7 +125,8 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   itens (o `project.godot` põe `item_buffer_size` em 32768; o editor pode apagar a linha, o `test_layout` confere).
   Mexeu em desenho ou em algo por quadro: meça com o `medir.gd` da skill `revisar-mudancas`.
 - Exportar: skill `exportar-build`. CI: `.github/workflows/testes.yml` (`tests/run.sh` em todo push e PR; `check.sh` no PR).
-- Revisão de continuidade do roteiro, só quando o usuário pede: skill `revisar-roteiro` (aponta, nunca escreve falas).
+- Revisão de continuidade do roteiro, só quando o usuário pede: skill `revisar-roteiro` (aponta, nunca escreve falas);
+  auditoria narrativa (estrutura, personagens, escolhas, ritmo), só quando pede: skill `auditar-roteiro`.
 
 ## Arquivos e arquitetura
 - `Exchange` (`scripts/model/exchange.gd`) é o **dono único** do estado das linhas e destinos (`Line`, `Dest`); o Main
@@ -177,9 +179,9 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   vez com o socorro completo no lugar certo; cada estágio exige mais unidades (`Fleet.require`). Até duas emergências
   ao mesmo tempo (`Main.MAX_EMERGENCIES`); viatura de reserva só com duas (`Fleet.spare`).
 - Fim do turno: `Main.start_ending` → `Supervisor.shift_over` → `Ending.play(report, more, text, memo)` → `ReportView`.
-  **Finais** (`Rebellion.final`, à meia-noite da 15, `final_*`): sucesso, vitória amarga, fracasso, presa (o golpe
+  **Finais** (`Rebellion.final`, à meia-noite da 15, `final_*`): três, sucesso, fracasso, presa (o golpe
   falhou e ela cortou mais pedidos das autoridades do que atendeu; a cena `Arrest` na rua e o fim); texto do fim por
-  final em `Night.endings`. O fim do jogo (epílogo ou presa) não tem relatório: o fecho, "Fim", os créditos e o menu.
+  final em `Night.endings`. A vitória amarga é variação do sucesso no epílogo (`custou_gente`, `Rebellion.costly`). O fim do jogo (epílogo ou presa) não tem relatório: o fecho, "Fim", os créditos e o menu.
   **Epílogo**: a noite 16, `GameContent.epilogue`, fora de `nights` (a "última noite" continua a 15).
 - **Broches** (recompensas, `scripts/model/badges.gd`, `Badges.award` no fim da noite; `Progress.badges`/`tally`, somem
   com o save): numa almofada na prateleira da mesa (`scripts/ui/badges.gd`, `%Badges`, filho do `Board`; o mouse que
@@ -193,7 +195,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   `from_night`/`to_night`: B1 da 3, B2 o bar 327 na 5 e na 6 e a rádio e a TV na 14 e na 15 (`b2_radio_tv`), B4 da 7; B3 da 10 na delegacia 184, no Hospital São Lucas 213 e na Alta Cúpula 296, o código no bilhete); chave geral
   `Bureaucracy.enabled` ligada no jogo (o debug e os testes desligam; regra que passa a valer no meio do turno começa
   na hora, `sync`). Pedido das autoridades (`StoryCall.authority`) passa sem advertência; na última noite nenhuma
-  advertência conta (`Supervisor.fault`). Serviços: `codes`, `messages`, `agreements`, `tapes` (a fita da mesa vai a Sebastião, só na noite em que ele pediu, `Tapes.ASKED`, ou às autoridades, `Tapes.give`; a conversa das próprias autoridades entregue a elas é gravíssima; o turno espera as sem destino, `Main._tapes_open`; noite com ligação para o bar sem fita às autoridades, advertência leve, `bar_number`). A ativação vai para o save (`state`, `_restore`). Equipamentos da mesa:
+  advertência conta (`Supervisor.fault`). Serviços: `codes`, `messages`, `agreements`, `tapes` (a fita da mesa vai a Sebastião, só na noite em que ele pediu, `Tapes.ASKED`, ou às autoridades, `Tapes.give`; a conversa das próprias autoridades entregue a elas é gravíssima, e sem fita não é cobrada; o turno espera as sem destino, `Main._tapes_open`; noite com ligação para o bar sem fita às autoridades, advertência leve, `bar_number`). A ativação vai para o save (`state`, `_restore`). Equipamentos da mesa:
   `unlock_equipment` (marcador `equipamento_<id>`), cena `scenes/ui/equipment/<id>.tscn` na prateleira embaixo do
   Interurbano (`Switchboard.set_equipment`, `bay_rect`) ou, com `metadata/side`, na coluna à direita do painel
   (`side_rect`; os da B4). Como criar uma: `BUREAUCRACY_RULES.md`; aba Burocracias no F1.
@@ -219,7 +221,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   O desfecho de uma ligação do roteiro liga os dela (`StoryCall.if_connected`/`if_elsewhere`/`if_dropped`/`if_missed`,
   `Main._story_outcome`; marcador `advertencia_*` ligado é advertência, `StoryFlags.FAULT`; a conectada só no fim da conversa, cortada antes vale `if_dropped`, `_story_talk_over`; `again` desligado: sem retorno automático; `if_delivered`, a fita entregue). O roteiro de Maria:
   `PLANO_ROTEIRO.md`. **Fator sucesso** (`scripts/model/rebellion.gd`, só dos marcadores e da noite; `test_story`): TV,
-  rádio, pontos, nível (`chance_alta/media/baixa`, ligados por `Rebellion.sync`; ordens de Sebastião das noites 14 e 15 não cumpridas
+  rádio, pontos, nível (`chance_alta/media/baixa`, ligados por `Rebellion.sync`; ordens de Sebastião da noite 15 não cumpridas
   são vacilos, `Rebellion.ORDERS`); à meia-noite da 15, `golpe_venceu` ou
   `golpe_falhou` (o turno acaba ali, `Main._midnight`). Bilhete e jornal com versões por marcador (`Night.notes`,
   `news_if`, `StoryText`). Carta da noite (`Night.letters`, `letter_for`): envelope lacrado em cima do jornal desde o
@@ -228,7 +230,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 - `Progress` (`user://progress.cfg`): próxima noite, ritmo, `low_nights`, marcadores, jornal, palavras-chave,
   denúncias, chuvas. A última noite ou a demissão limpa o save. Formato com versão (`Progress.VERSION`): mudou o tipo
   ou o sentido de um campo, suba e converta no `load_saved`; o que não dá para ler fica ao lado (`aside`).
-- Agenda (`Schedule`, constantes no topo de `main.gd` e `schedule.gd`; emergência do roteiro conta no espaçamento das sorteadas): a ligação do roteiro espera a mesa em silêncio (`STORY_WAIT`); intervalo
+- Agenda (`Schedule`, constantes no topo de `main.gd` e `schedule.gd`; emergência do roteiro conta no espaçamento das sorteadas): a ligação do roteiro espera a mesa em silêncio (`STORY_WAIT`); numa missão do roteiro (a ligação dele na mesa, a conversa dele escutada, a do discador) nada novo toca (`Main.on_mission`); intervalo
   `Pace.call_gap`; nada novo depois de `last_call` (23:40; a do roteiro marcada depois toca, `_story_late`) e, depois, o botão Encerrar turno; `GIVE_UP_SEC` 60 s;
   conversa fiada (`ChatTopic`, `Conversation.smalltalk`) só do cotidiano. Relógio: 0,75 min de jogo por segundo.
 - O amanhecer da noite 15 (céu, sol atrás da igreja, luz do dia na sala): `scripts/ui/CLAUDE.md` e

@@ -50,8 +50,8 @@ func _initialize() -> void:
 	ok(R.level(_f(full + [R.WARNED_HOTEL]), 11) == R.Level.MEDIUM, "hotel avisado: cai um pouco (de 4 a 3)")
 	ok(R.points(_f(full), 12) == R.points(_f(full), 13) + 1, "a fita de Sebastião que não veio só conta depois da noite 12")
 	var undone := full.filter(func(x: String) -> bool: return not x in done) + [R.TAPE_SEBASTIAO]
-	ok(R.points(_f(undone), 15) == R.points(_f(full + [R.TAPE_SEBASTIAO]), 15) - 1, "a ordem da noite 14 não cumprida: um vacilo, contado na 15")
-	ok(R.points(_f(undone), 16) == R.points(_f(full + [R.TAPE_SEBASTIAO]), 16) - 3, "as ordens da 15 só contam à meia-noite (a conta como noite 16)")
+	ok(R.points(_f(undone), 15) == R.points(_f(full + [R.TAPE_SEBASTIAO]), 15), "as ordens da 15 não contam durante a noite")
+	ok(R.points(_f(undone), 16) == R.points(_f(full + [R.TAPE_SEBASTIAO]), 16) - 2, "as ordens da 15 só contam à meia-noite (a conta como noite 16)")
 	ok(R.points(_f(undone + ["sinal_centro_15"]), 16) == R.points(_f(undone), 16), "o sinal só a um dos setores não cumpre a ordem")
 	ok(R.points(_f([]), 8) == 0 and R.points(_f([]), 9) == -2, "o hospital esquecido só conta depois da noite 8")
 
@@ -60,15 +60,16 @@ func _initialize() -> void:
 	var won_full := full + [R.TAPE_SEBASTIAO]
 	ok(R.final(_f(won_full), 15) == R.Final.SUCCESS, "final: sucesso")
 	ok(R.final(_f(won_full + [R.DISOBEYED + "a"]), 15) == R.Final.SUCCESS, "final: desobedecer com o golpe vencido ainda é o sucesso")
-	ok(R.final(_f(bitter + [R.TAPE_SEBASTIAO]), 15) == R.Final.BITTER, "final: vitória amarga, a fita das armas")
+	ok(R.final(_f(bitter + [R.TAPE_SEBASTIAO]), 15) == R.Final.SUCCESS and R.costly(_f(bitter)), "final: vitória amarga (sucesso que custou gente), a fita das armas")
 	var no_parish := won_full.filter(func(x: String) -> bool: return x != R.PARISH)
-	ok(R.won(_f(no_parish), 15) and R.final(_f(no_parish), 15) == R.Final.BITTER, "final: vitória amarga, a paróquia esquecida")
+	ok(R.won(_f(no_parish), 15) and R.final(_f(no_parish), 15) == R.Final.SUCCESS and R.costly(_f(no_parish)), "final: vitória amarga, a paróquia esquecida")
 	ok(R.final(_f([]), 15) == R.Final.FAILURE, "final: fracasso")
 	ok(R.final(_f([R.DISOBEYED + "a", R.DISOBEYED + "b", R.OBEYED + "c"]), 15) == R.Final.PRISON, "final: presa (o golpe falhou e ela desobedeceu mais do que obedeceu)")
 	ok(R.final(_f([R.DISOBEYED + "a", R.OBEYED + "b"]), 15) == R.Final.FAILURE, "final: um corte só, obedecendo o resto, é o fracasso")
 	var mother: PrankCall = C.epilogue.story.filter(func(x: StoryCall): return x.call.caller == "Mãe de Cecília")[0].call
-	for fin in [R.Final.SUCCESS, R.Final.BITTER, R.Final.FAILURE]:   # a mãe da Cecília liga em todos, cada um com a sua conversa
-		ok(mother.steps.filter(func(st: PrankStep): return st.requires == PackedStringArray([R.FINALS[fin]])).size() >= 5, "epílogo: a mãe com a conversa do final " + R.FINALS[fin])
+	var sucesso: String = R.FINALS[R.Final.SUCCESS]   # o sucesso puro, a vitória amarga (o sucesso que custou gente) e o fracasso
+	for req in [[sucesso, "!" + R.COST], [sucesso, R.COST], [R.FINALS[R.Final.FAILURE]]]:   # a mãe da Cecília liga em todos, cada um com a sua conversa
+		ok(mother.steps.filter(func(st: PrankStep): return st.requires == PackedStringArray(req)).size() >= 5, "epílogo: a mãe com a conversa de " + str(req))
 
 	# as conclusões viram marcadores, para o roteiro usar
 	var f := _f(full)
@@ -118,9 +119,9 @@ func _initialize() -> void:
 	ok(presa.size() == 1 and presa[0].at == 360.0 and presa[0].authority and not presa[0].again, "presa: a cúpula liga à meia-noite da 15")
 	var epi: Night = C.epilogue
 	ok(epi != null and not epi in C.nights, "o epílogo, fora das noites")
-	for fin in [R.Final.SUCCESS, R.Final.BITTER, R.Final.FAILURE]:
-		var fl := _f([R.FINALS[fin], R.WON if fin != R.Final.FAILURE else R.LOST])
-		ok(epi.ending_for(fl) != null and epi.story.any(func(x: StoryCall): return fl.allows(x.requires)), "epílogo: fecho e ligação no final " + R.FINALS[fin])
+	for fin in [[sucesso, R.WON], [sucesso, R.WON, R.COST], [R.FINALS[R.Final.FAILURE], R.LOST]]:
+		var fl := _f(fin)
+		ok(epi.ending_for(fl) != null and epi.story.any(func(x: StoryCall): return fl.allows(x.requires)), "epílogo: fecho e ligação no final " + str(fin))
 	ok(epi.letter_for(_f([R.FINALS[R.Final.FAILURE]])) != "" and epi.letter_for(_f([R.FINALS[R.Final.SUCCESS]])) == "", "epílogo: a carta do supervisor só no fracasso")
 	ok(C.nights[14].ending_for(_f([R.FINALS[R.Final.SUCCESS]])).title != "" and C.nights[14].ending_for(_f([R.FINALS[R.Final.FAILURE]])) == null,
 		"noite 15: o encontro com Sebastião só no sucesso")

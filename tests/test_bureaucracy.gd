@@ -728,6 +728,16 @@ func _initialize() -> void:
 		var caught: bool = m.report.faults.size() > before and m.report.faults[-1].get("text") == T.Key.FAULT_TAPE_AUTHORITY \
 			and m.report.faults[-1].get("sev") == ShiftReport.Severity.CRITICAL
 		ok(caught == (gave == Tape.To.AUTHORITIES), "fita das autoridades para %s: %s" % [gave, "gravíssima" if caught else "nada"])
+	m.bureaucracy.night_started()   # e a marcada delas que fica sem fita não é cobrada (entregue, seria gravíssima)
+	var theirs := PhoneCall.new()
+	theirs.beat = StoryCall.new()
+	theirs.beat.authority = true
+	theirs.data = TransferCall.new()
+	(theirs.data as TransferCall).suspicious = true
+	b4.call_started(theirs)
+	var owed := m.report.later.size()
+	b4.night_ended()
+	ok(m.report.later.size() == owed, "a conversa das autoridades sem fita: nada cobrado")
 	var kept := Tape.new()
 	kept.call = skip
 	kept.marked = true

@@ -11,7 +11,7 @@
 script = ExtResource("3_story")
 at = 60.0
 call = ExtResource("4_sebastiao")
-requires = PackedStringArray("final_sucesso")
+requires = PackedStringArray("final_sucesso", "!custou_gente")
 again = false
 
 [sub_resource type="Resource" id="Story_mae"]
@@ -41,17 +41,17 @@ requires = PackedStringArray("final_fracasso")
 [sub_resource type="Resource" id="News_sucesso"]
 script = ExtResource("5_text")
 text = "São Sotero amanhece livre: a emissora e a rádio nas mãos do povo; a praça cheia desde cedo"
-requires = PackedStringArray("final_sucesso")
+requires = PackedStringArray("final_sucesso", "!custou_gente")
 
 [sub_resource type="Resource" id="News_amarga"]
 script = ExtResource("5_text")
 text = "A vitória custou caro: a lista dos que não voltaram ocupa a página inteira"
-requires = PackedStringArray("final_amarga")
+requires = PackedStringArray("final_sucesso", "custou_gente")
 
 [sub_resource type="Resource" id="News_amarga2"]
 script = ExtResource("5_text")
 text = "São Sotero amanhece livre: a emissora e a rádio nas mãos do povo"
-requires = PackedStringArray("final_amarga")
+requires = PackedStringArray("final_sucesso", "custou_gente")
 
 [sub_resource type="Resource" id="News_fracasso"]
 script = ExtResource("5_text")
@@ -61,12 +61,12 @@ requires = PackedStringArray("final_fracasso")
 [sub_resource type="Resource" id="End_sucesso"]
 script = ExtResource("5_text")
 text = "Maria atende até o fim do turno. Nenhuma linha pede socorro. Lá fora, a bandeira continua na varanda."
-requires = PackedStringArray("final_sucesso")
+requires = PackedStringArray("final_sucesso", "!custou_gente")
 
 [sub_resource type="Resource" id="End_amarga"]
 script = ExtResource("5_text")
 text = "Maria atende até o fim do turno. Sebastião não liga. No jornal, a vitória ocupa a primeira página; os nomes dos que não voltaram, a segunda inteira."
-requires = PackedStringArray("final_amarga")
+requires = PackedStringArray("final_sucesso", "custou_gente")
 
 [sub_resource type="Resource" id="End_fracasso"]
 script = ExtResource("5_text")

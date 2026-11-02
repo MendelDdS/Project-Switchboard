@@ -3167,3 +3167,28 @@ Chaves:
     certo, vai só adicionar mais coisa no jogo": saíram as desculpas e a suspeita propostas). Atendida, cortada ou
     deixada tocando, advertência média (`ShiftReport` "authority_ignored"; o marcador `advertencia_*`, `StoryFlags.FAULT`,
     ligado pelo desfecho da ligação).
+510. #roteiro #testes "Depois vamos criar um robô que jogue os vários fluxos da história." `test_shift --path=sucesso|amarga|presa|fracasso`
+    joga um caminho (disca para quem o caminho pede, grava a conversa conectada e entrega a fita, corta ou obedece aos
+    pedidos das autoridades, aceita ou recusa o acordo da B2) e `tools/caminhos.sh` encadeia as noites 1 a 15 de cada um,
+    os marcadores de uma para a outra, conferindo o final. Ele achou dois defeitos: todas as ligações do discador de uma
+    noite davam o mesmo marcador do feito (`DialCall.done_flag`), e a primeira completada calava as outras (na 15, o
+    sinal do Alto da Serra não atendia depois do Centro); e o `advertencia_*` salvo, aplicado ao carregar antes do
+    supervisor existir, derrubava o jogo na noite seguinte à cobrança.
+511. #roteiro #agenda "Enquanto tiver fazendo “missões” da história principal, seria interessante barrar outras ligações
+    aleatórias, justamente para não atrapalhar a jogatina." Missão (`Main.on_mission`): uma ligação do roteiro na mesa
+    (já valia), a conversa dela conectada que o jogador escuta (para ouvir ou gravar) e a ligação do roteiro feita pelo
+    discador. Enquanto dura, nada novo toca; o robô confere.
+512. #balanceamento "Vamos precisar balancear isso." As noites Insuficiente dos caminhos rebeldes eram quase todas do
+    robô (transferia com o nome ainda sendo dito na B1, ignorava o pedido de código da B3, transferia depois de avisar
+    o bloqueio da B2); corrigido, nenhum caminho fica abaixo de Regular. Contradição corrigida: a conversa das próprias
+    autoridades (noite 12) vinha marcada, sem fita era advertência média e entregue a elas gravíssima; agora sem fita
+    não é cobrada.
+511. #roteiro "Adicione isso como uma skill de roteirização do meu jogo." O protocolo de auditoria narrativa (Diretor
+    Narrativo: sete categorias, cinco etapas, gravidades, relatório em formato fixo) virou a skill `auditar-roteiro`,
+    com um cabeçalho dizendo onde está o material do projeto e que as soluções descrevem a mudança sem escrever falas.
+512. #roteiro #saiu "Três finais, não mais que isso" e "Dias 12 e 13 magros". Os finais são três (sucesso, fracasso,
+    presa): a vitória amarga virou variação do sucesso no epílogo (`custou_gente`, `Rebellion.costly`: a mesma condição,
+    muda só quem liga, o jornal e o fecho; `final_amarga` saiu) e a esquecida, nunca feita, seria variação do fracasso.
+    A noite 12 ficou como está (a primeira ordem da carta, gravar para Sebastião, e a cobrança do supervisor), porque o
+    repetido era a 14: Sebastião ali pedia de novo as fitas das autoridades. Saiu da 14 o pedido (as duas falas,
+    `sebastiao_pediu_fita_14`, `cumpriu_fitas_14` e a ordem dela em `Rebellion.ORDERS`). A 13 já era a noite parada.

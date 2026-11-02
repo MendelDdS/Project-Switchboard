@@ -46,14 +46,12 @@ at = 0.0
 script = ExtResource("3_story")
 at = 20.0
 call = ExtResource("c_story_14_sebastiao")
-if_dropped = PackedStringArray("sebastiao_pediu_fita_14")
 again = false
 
 [sub_resource type="Resource" id="S_pol1"]
 script = ExtResource("3_story")
 at = 45.0
 call = ExtResource("c_story_14_policia_aeroporto")
-if_sebastiao = PackedStringArray("cumpriu_fitas_14")
 again = false
 
 [sub_resource type="Resource" id="S_bar"]
@@ -73,14 +71,12 @@ again = false
 script = ExtResource("3_story")
 at = 150.0
 call = ExtResource("c_story_14_policia_hotel")
-if_sebastiao = PackedStringArray("cumpriu_fitas_14")
 again = false
 
 [sub_resource type="Resource" id="S_cup1"]
 script = ExtResource("3_story")
 at = 200.0
 call = ExtResource("c_story_14_cupula_aviao")
-if_sebastiao = PackedStringArray("cumpriu_fitas_14")
 again = false
 
 [sub_resource type="Resource" id="S_hotel"]
@@ -100,7 +96,6 @@ again = false
 script = ExtResource("3_story")
 at = 285.0
 call = ExtResource("c_story_14_cupula_comandante")
-if_sebastiao = PackedStringArray("cumpriu_fitas_14")
 again = false
 
 [resource]

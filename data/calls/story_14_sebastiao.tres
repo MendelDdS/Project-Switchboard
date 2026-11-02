@@ -26,21 +26,13 @@ text = "Os policiais no seu prédio não estão lá pra te proteger. Mas tem gen
 
 [sub_resource type="Resource" id="Step_05"]
 script = ExtResource("2_step")
-text = "Amanhã é o dia. Hoje eu preciso dos seus ouvidos."
+text = "Amanhã é o dia. Hoje eu só preciso que você aguente firme."
 
 [sub_resource type="Resource" id="Step_06"]
 script = ExtResource("2_step")
 kind = 1
 options = PackedStringArray("Estou ouvindo.", "O que você precisa?")
 sets = PackedStringArray()
-
-[sub_resource type="Resource" id="Step_07"]
-script = ExtResource("2_step")
-text = "A polícia e a Alta Cúpula vão falar muito esta noite. Grave o que puder dessas conversas."
-
-[sub_resource type="Resource" id="Step_08"]
-script = ExtResource("2_step")
-text = "Não entregue nada disso a eles. Mande as fitas pra mim, no pacote de carta. Alguém passa pra buscar antes de amanhecer."
 
 [sub_resource type="Resource" id="Step_09"]
 script = ExtResource("2_step")
@@ -49,7 +41,7 @@ seconds = 1.0
 
 [sub_resource type="Resource" id="Step_10"]
 script = ExtResource("2_step")
-text = "Eles vão querer que você grave o bar e o hotel também. Faça o que tiver que fazer pra não levantar suspeita."
+text = "Eles vão querer que você grave o bar e o hotel. Faça o que tiver que fazer pra não levantar suspeita."
 
 [sub_resource type="Resource" id="Step_11"]
 script = ExtResource("2_step")
@@ -79,4 +71,4 @@ kind = 3
 script = ExtResource("1_call")
 voice = "m"
 caller = "Sebastião Falcão"
-steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_07"), SubResource("Step_08"), SubResource("Step_09"), SubResource("Step_10"), SubResource("Step_11"), SubResource("Step_12"), SubResource("Step_13"), SubResource("Step_14"), SubResource("Step_15")])
+steps = Array[ExtResource("2_step")]([SubResource("Step_00"), SubResource("Step_01"), SubResource("Step_02"), SubResource("Step_03"), SubResource("Step_04"), SubResource("Step_05"), SubResource("Step_06"), SubResource("Step_09"), SubResource("Step_10"), SubResource("Step_11"), SubResource("Step_12"), SubResource("Step_13"), SubResource("Step_14"), SubResource("Step_15")])

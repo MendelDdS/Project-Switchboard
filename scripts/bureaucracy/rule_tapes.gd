@@ -95,7 +95,8 @@ func night_ended() -> void:
 		desk.main.supervisor.fault(id, "", bar_severity, T.Key[bar_text])
 		desk.log_decision(id, null, "nenhuma fita às autoridades numa noite com ligação para o bar", "advertência")
 	var missed := []
-	for c in _marked.filter(func(c: PhoneCall): return not desk.tapes.delivered(c)):
+	# (a conversa das próprias autoridades não é cobrada: entregue a elas é gravíssima, `Tapes.give`; só Sebastião a quer)
+	for c in _marked.filter(func(c: PhoneCall): return not desk.tapes.delivered(c) and not (c.beat != null and c.beat.authority)):
 		desk.main.supervisor.fault_later(id, desk.main.supervisor.who(c), missed_severity, T.Key[missed_text], found_after)
 		desk.main.flags.apply("authorities_questioning_pending")
 		desk.main.flags.apply("b4_nao_entregou_" + desk.tapes.call_id(c))

@@ -19,91 +19,91 @@ text = "Aqui é a mãe dela."
 [sub_resource type="Resource" id="Step_03"]
 script = ExtResource("2_step")
 text = "Passei o dia inteiro na janela. Vi a bandeira, vi o povo cantando na rua. E só conseguia pensar nela."
-requires = PackedStringArray("final_sucesso")
+requires = PackedStringArray("final_sucesso", "!custou_gente")
 
 [sub_resource type="Resource" id="Step_04"]
 script = ExtResource("2_step")
 text = "Ela vinha jantar aos domingos e só falava da central. Dizia: \"Mãe, a mesa ficou em boas mãos.\""
-requires = PackedStringArray("final_sucesso")
+requires = PackedStringArray("final_sucesso", "!custou_gente")
 
 [sub_resource type="Resource" id="Step_05"]
 script = ExtResource("2_step")
 text = "Ontem bateu aqui um rapaz. Me contou o que você fez. Cada ligação, cada fita."
-requires = PackedStringArray("final_sucesso")
+requires = PackedStringArray("final_sucesso", "!custou_gente")
 
 [sub_resource type="Resource" id="Step_06"]
 script = ExtResource("2_step")
 kind = 2
 seconds = 2.0
-requires = PackedStringArray("final_sucesso")
+requires = PackedStringArray("final_sucesso", "!custou_gente")
 
 [sub_resource type="Resource" id="Step_07"]
 script = ExtResource("2_step")
 text = "Ela não morreu à toa, Maria. Você não deixou."
-requires = PackedStringArray("final_sucesso")
+requires = PackedStringArray("final_sucesso", "!custou_gente")
 
 [sub_resource type="Resource" id="Step_08"]
 script = ExtResource("2_step")
 kind = 1
 options = PackedStringArray("Eu fiz por ela.", "[Ficar em silêncio]")
-requires = PackedStringArray("final_sucesso")
+requires = PackedStringArray("final_sucesso", "!custou_gente")
 
 [sub_resource type="Resource" id="Step_09"]
 script = ExtResource("2_step")
 text = "Eu conheci o seu pai, sabia? O Cristóvão. Ele ia estar tão feliz hoje."
-requires = PackedStringArray("final_sucesso")
+requires = PackedStringArray("final_sucesso", "!custou_gente")
 
 [sub_resource type="Resource" id="Step_10"]
 script = ExtResource("2_step")
 text = "Eu tenho tanto orgulho de você. Como se fosse da minha casa."
-requires = PackedStringArray("final_sucesso")
+requires = PackedStringArray("final_sucesso", "!custou_gente")
 
 [sub_resource type="Resource" id="Step_11"]
 script = ExtResource("2_step")
 text = "Venha tomar um café comigo um dia. Guardei o casaco que ela usava aí na central. Acho que ela ia querer que ficasse com você."
-requires = PackedStringArray("final_sucesso")
+requires = PackedStringArray("final_sucesso", "!custou_gente")
 
 [sub_resource type="Resource" id="Step_12"]
 script = ExtResource("2_step")
 kind = 1
 options = PackedStringArray("Eu vou.", "Obrigada. Por tudo.")
-requires = PackedStringArray("final_sucesso")
+requires = PackedStringArray("final_sucesso", "!custou_gente")
 
 [sub_resource type="Resource" id="Step_13"]
 script = ExtResource("2_step")
 text = "Boa noite. Cuide bem da mesa dela."
-requires = PackedStringArray("final_sucesso")
+requires = PackedStringArray("final_sucesso", "!custou_gente")
 
 [sub_resource type="Resource" id="Step_14"]
 script = ExtResource("2_step")
 text = "Hoje cedo vi a bandeira na varanda e chorei feito criança."
-requires = PackedStringArray("final_amarga")
+requires = PackedStringArray("final_sucesso", "custou_gente")
 
 [sub_resource type="Resource" id="Step_15"]
 script = ExtResource("2_step")
 text = "Me disseram que ela ajudou a cidade. E que quem estava na central ajudou também."
-requires = PackedStringArray("final_amarga")
+requires = PackedStringArray("final_sucesso", "custou_gente")
 
 [sub_resource type="Resource" id="Step_16"]
 script = ExtResource("2_step")
 text = "O jornal trouxe os nomes de quem não voltou. Tanto nome... Mas ganhamos, não é? Ganhamos."
-requires = PackedStringArray("final_amarga")
+requires = PackedStringArray("final_sucesso", "custou_gente")
 
 [sub_resource type="Resource" id="Step_17"]
 script = ExtResource("2_step")
 kind = 1
 options = PackedStringArray("Ganhamos.", "[Ficar em silêncio]")
-requires = PackedStringArray("final_amarga")
+requires = PackedStringArray("final_sucesso", "custou_gente")
 
 [sub_resource type="Resource" id="Step_18"]
 script = ExtResource("2_step")
 text = "Obrigada pelo que você fez por ela. Ela confiava em você."
-requires = PackedStringArray("final_amarga")
+requires = PackedStringArray("final_sucesso", "custou_gente")
 
 [sub_resource type="Resource" id="Step_19"]
 script = ExtResource("2_step")
 text = "Eu só queria ouvir alguém daí. Boa noite."
-requires = PackedStringArray("final_amarga")
+requires = PackedStringArray("final_sucesso", "custou_gente")
 
 [sub_resource type="Resource" id="Step_20"]
 script = ExtResource("2_step")

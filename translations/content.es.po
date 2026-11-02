@@ -6220,8 +6220,8 @@ msgid "Os policiais no seu prédio não estão lá pra te proteger. Mas tem gent
 msgstr "Los policías de tu edificio no están ahí para protegerte. Pero también hay gente nuestra cuidándote. No estás sola."
 
 #: data/calls/story_14_sebastiao.tres
-msgid "Amanhã é o dia. Hoje eu preciso dos seus ouvidos."
-msgstr "Mañana es el día. Hoy necesito tus oídos."
+msgid "Amanhã é o dia. Hoje eu só preciso que você aguente firme."
+msgstr "Mañana es el día. Hoy solo necesito que aguantes firme."
 
 #: data/calls/story_14_sebastiao.tres
 msgid "Estou ouvindo."
@@ -6232,16 +6232,8 @@ msgid "O que você precisa?"
 msgstr "¿Qué necesitas?"
 
 #: data/calls/story_14_sebastiao.tres
-msgid "A polícia e a Alta Cúpula vão falar muito esta noite. Grave o que puder dessas conversas."
-msgstr "La policía y la Alta Cúpula van a hablar mucho esta noche. Graba lo que puedas de esas conversaciones."
-
-#: data/calls/story_14_sebastiao.tres
-msgid "Não entregue nada disso a eles. Mande as fitas pra mim, no pacote de carta. Alguém passa pra buscar antes de amanhecer."
-msgstr "No les entregues nada de eso. Mándame las cintas a mí, en el paquete de carta. Alguien pasa a buscarlas antes del amanecer."
-
-#: data/calls/story_14_sebastiao.tres
-msgid "Eles vão querer que você grave o bar e o hotel também. Faça o que tiver que fazer pra não levantar suspeita."
-msgstr "Van a querer que grabes el bar y el hotel también. Haz lo que tengas que hacer para no levantar sospechas."
+msgid "Eles vão querer que você grave o bar e o hotel. Faça o que tiver que fazer pra não levantar suspeita."
+msgstr "Van a querer que grabes el bar y el hotel. Haz lo que tengas que hacer para no levantar sospechas."
 
 #: data/calls/story_14_sebastiao.tres
 msgid "E se me pegarem?"

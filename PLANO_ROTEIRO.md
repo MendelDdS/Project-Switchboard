@@ -60,8 +60,10 @@ motor (o que o roteiro precisa e o jogo ainda não faz), depois o conteúdo, com
    esquina do prédio de tijolos, fumando (`StreetEvent` "stranger"); a bandeira na varanda do apartamento vazio à
    meia-noite da noite 15, só com `golpe_venceu` (`Banner`; o veredito da meia-noite agora vem antes das cenas da rua).
 9. **Feito, falta a aprovação.** Os finais (`Rebellion.final`, à meia-noite da 15, `final_*`): sucesso (o encontro
-   com Sebastião num texto na tela preta, `Night.endings`), vitória amarga (venceu com a fita das armas, do grupo C ou
-   dos grupos entregue, ou com a paróquia esquecida), fracasso e presa (falhou e desobedeceu alguma vez: a cúpula liga
+   com Sebastião num texto na tela preta, `Night.endings`), fracasso e presa. Três finais só: a vitória amarga é uma
+   variação do sucesso no epílogo (`custou_gente`, `Rebellion.costly`: venceu com a fita das armas, do grupo C ou dos
+   grupos entregue, ou com a paróquia esquecida; muda quem liga, o jornal e o fecho), e a esquecida, se vier, será uma
+   variação do fracasso (falhou e desobedeceu alguma vez: a cúpula liga
    à meia-noite, e no lugar do relatório a cena `Arrest`, o homem de sobretudo e a viatura com dois policiais vindo
    para a central). O epílogo, a noite 16 jogável (`GameContent.epilogue`, fora das 15): Sebastião no sucesso, a mãe
    da Cecília com o golpe vencido, a cúpula no fracasso e a carta do supervisor na mesa no fracasso; o fecho na tela
@@ -69,10 +71,9 @@ motor (o que o roteiro precisa e o jogo ainda não faz), depois o conteúdo, com
    conversa por final. Presa: o golpe falhou e ela cortou mais pedidos das autoridades do que atendeu. Ligações do
    roteiro depois das 23:40 ainda tocam (`Main._story_late`); as conversas do roteiro são ligação comum no caderno.
    Burocracias até a 15.
-10. **Noites 14 e 15 feitas, falta testar.** Na 14: Sebastião às 18:20 pede as fitas das autoridades (liga
-    `sebastiao_pediu_fita_14`); a polícia (184) fala do cerco ao aeroporto e à ferrovia e do hotel lacrado e do bar
-    fechado amanhã; a Cúpula (296), do ministro levado ao Centro e tirado de avião e do armazém do comandante (uma fita
-    delas dada a Sebastião liga `cumpriu_fitas_14`); bar e hotel marcados para gravar (entregues: `obedeceu_*_14`);
+10. **Noites 14 e 15 feitas, falta testar.** Na 14: Sebastião às 18:20 conta a versão dele (não pede mais fitas: o
+    pedido é só o do Dia 12, que não se repete); a polícia (184) fala do cerco ao aeroporto e à ferrovia e do hotel lacrado e do bar
+    fechado amanhã; a Cúpula (296), do ministro levado ao Centro e tirado de avião e do armazém do comandante; bar e hotel marcados para gravar (entregues: `obedeceu_*_14`);
     rádio e TV bloqueadas (`b2_radio_tv.tres`, 14 e 15); o hotel apagado a noite toda (`StreetEvent` "closed"). Na
     15: a carta (as três ordens); cinco pedidos das autoridades para a delegacia e a Cúpula (`authority`: transferida
     e ouvida até o fim, `obedeceu_<rua>_15`; cortada, recusada ou deixada tocando, `desobedeceu_`); bar e hotel
@@ -93,7 +94,7 @@ motor (o que o roteiro precisa e o jogo ainda não faz), depois o conteúdo, com
     crianças; 12 as duas conversas com a Cúpula para gravar e dar a ele; 13 o bilhete da morte da Cecília; 14 a versão
     dele. Emergências dos ataques nos Dias 4 e 9 (quatro cada, no lugar das sorteadas); a cobrança do supervisor no Dia 12
     (com `cumpriu_9`, sem respostas: advertência média, `StoryFlags.FAULT`). A Morgana fecha na 5 (o setor 1 é da
-    Maria). Falta o robô que joga os caminhos da história (e entrega as fitas).
+    Maria). O robô dos caminhos (`test_shift --path=`, `tools/caminhos.sh`) joga as 15 noites em sequência por final (sucesso, amarga, que é o sucesso com `custou_gente`, presa, fracasso: disca, grava e entrega as fitas, corta ou obedece) e confere o final de cada um.
 12. Epílogo: Miguel e Generosa (o usuário escreve o roteiro deles).
 
 ## Dúvidas em aberto

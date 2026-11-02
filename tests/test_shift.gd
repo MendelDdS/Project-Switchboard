@@ -36,9 +36,32 @@ var entered := {}         ## cada PhoneCall conectada -> quantas vezes o curioso
 var eager := "--eager" in OS.get_cmdline_user_args()
 var left := 0             ## ligações que o apressado largou antes do fim (modo --eager)
 var next_act := 0.0       ## instante (s, na velocidade do jogo) em que a "pessoa" pode agir de novo
+## --path=<caminho>: o robô joga a história por um dos finais (`PATHS`): liga pelo discador nas noites do roteiro
+## ("noite:número", na janela da `DialCall`, a primeira resposta), corta os pedidos das autoridades das noites 9 e 15
+## (`cut`), aceita ou recusa o acordo do bar (`deal`) e grava as conversas, dando as fitas (`record`: o arquivo da
+## ligação -> para quem; "all", as pedidas às autoridades; o rebelde dá a Sebastião as que ele pediu). Não confere o
+## conceito (a história custa advertências); imprime os marcadores para a noite seguinte (`tools/caminhos.sh`).
+const Tape := preload("res://scripts/bureaucracy/tape.gd")
+const REBEL := ["3:327", "4:305", "7:327", "8:213", "10:120", "15:120", "15:288", "15:390", "15:327"]   ## o rebelde liga
+const PATHS := {
+	"sucesso": {"dial": REBEL, "cut": true, "deal": true, "record": {}},   # avisa o bar: nada a gravar dele
+	"amarga": {"dial": REBEL, "skip": "7:327", "cut": true, "deal": true, "record": {"story_07_bar_armas": Tape.To.AUTHORITIES}},
+	"presa": {"dial": REBEL, "also": "4:184", "cut": true, "deal": true, "record": {}},   # denunciou o bar: sem a TV
+	"fracasso": {"dial": ["4:184", "15:184"], "cut": false, "deal": false, "record": "all"},
+}
+var path: Dictionary = PATHS.get(_arg("--path="), {})
+var taping: PhoneCall     ## a conversa que o robô grava agora (modo --path)
 
 
 var sim := 0.0           ## segundos simulados (somando o delta de cada quadro; com --fixed-fps não seguem o relógio real)
+
+
+## O valor da opção `prefix` na linha de comando ("" sem ela).
+func _arg(prefix: String) -> String:
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with(prefix):
+			return a.trim_prefix(prefix)
+	return ""
 
 
 ## Segundos na velocidade do jogo (o relógio do turno para às 00:00; este não).
@@ -97,6 +120,60 @@ func _snoop(b, f: PhoneCall) -> bool:
 			_fone_to(b, k)
 			m.listen()
 			_acted()
+			return true
+	return false
+
+
+## Para quem vai a fita da conversa `f` no caminho do robô (NONE: não grava).
+func _tape_to(f: PhoneCall) -> Tape.To:
+	if path.is_empty() or f.beat == null:
+		return Tape.To.NONE
+	var rec = path["record"]
+	var id := f.beat.call.resource_path.get_file().get_basename()
+	if rec is Dictionary and rec.has(id):
+		return rec[id]
+	if rec is Dictionary and not f.beat.if_sebastiao.is_empty() and m.bureaucracy.tapes.sebastiao_asked():
+		return Tape.To.SEBASTIAO
+	if rec is String and f.meta.has("b4") and not f.beat.authority:   # (a das próprias autoridades, a elas: gravíssima)
+		return Tape.To.AUTHORITIES
+	return Tape.To.NONE
+
+
+## Grava a conversa `taping`: o FONE nela, escutando com a REC presa, solta a chave quando eles desconfiam e volta
+## quando esquecem (como o curioso); acabada, tira a fita e dá. Devolve se continua gravando (o quadro acaba aqui).
+func _tape(b) -> bool:
+	var tp = m.bureaucracy.tapes
+	var n := taping.line
+	if not (m.eavesdrop.talks.has(n) and m.eavesdrop.call_of(n) == taping):
+		if tp.inside != null and tp.inside.call == taping:
+			tp.eject()
+		for t in tp.unresolved():
+			if t.call == taping:
+				tp.give(t, taping.get_meta("tape_to"))
+		taping = null
+		return false
+	if b.fone_line() != n:
+		_fone_to(b, n)
+	var on: bool = m.eavesdrop.listening(n)
+	if on and taping.suspicion >= Eavesdrop.HUSH or not on and taping.suspicion < NOSY_BACK:
+		m.listen()
+	if tp.inside == null:
+		tp.insert()
+	if m.eavesdrop.listening(n) and not tp.rec:
+		tp.press_rec()
+	return true
+
+
+## Liga pelo discador o que o caminho pede agora (a mesa livre). Devolve se discou.
+func _dial_story() -> bool:
+	for dc in m.night.dial:
+		var key := "%d:%s" % [m.night_no, dc.number]
+		if (key in path["dial"] and key != path.get("skip", "") or key == path.get("also", "")) and m.flags.allows(dc.requires) and not m.flags.has("ligou_%s_%d" % [dc.number, m.night_no]) \
+				and m.minutes >= dc.from and m.minutes < dc.to:
+			m.dialing.end()
+			for ch in dc.number:
+				m.dialing.press(ch)
+			m.dialing.dial()
 			return true
 	return false
 
@@ -160,7 +237,9 @@ func _initialize() -> void:
 	var empty_at := m.minutes   # (a mesa vazia: desde o último quadro, e quanto já somou)
 	var empty_for := 0.0
 	var deadline := Time.get_ticks_msec() + 90000   # limite de segurança em tempo real (um turno leva ~6 s com --fixed-fps)
+	var mission := false   # (no quadro anterior, depois do que o robô fez)
 	while not m.ending and Time.get_ticks_msec() < deadline and not failed:
+		mission = m.on_mission()
 		await get_tree().process_frame
 		sim += m.get_process_delta_time()
 		frames_left += 1
@@ -177,8 +256,7 @@ func _initialize() -> void:
 				kinds[c.kind] = int(kinds.get(c.kind, 0)) + 1
 				info_run = info_run + 1 if c.kind == PhoneCall.Kind.INFO else 0
 				info_max = maxi(info_max, info_run)
-				ok(not m.live.any(func(x: PhoneCall): return x != c and x.story),
-					"%s: nada toca com uma ligação do roteiro na mesa" % Main.fmt(m.minutes))
+				ok(not mission, "%s: nada toca numa missão do roteiro (`Main.on_mission`)" % Main.fmt(m.minutes))
 				max_quiet = maxf(max_quiet, m.minutes - last_ring)
 				last_ring = m.minutes
 		fall += 1
@@ -216,6 +294,24 @@ func _initialize() -> void:
 			continue
 		if nosy and _snoop(b, f):
 			continue
+		if taping != null and _tape(b):
+			continue
+		if not path.is_empty():
+			for t in m.bureaucracy.tapes.unresolved():   # (sem destino o turno não encerra)
+				m.bureaucracy.tapes.discard(t)
+			var free := (f == null or not f.active) and m.dialing.call == null and not m.live.any(func(c: PhoneCall): return c.ringing)
+			if free and taping == null and m.bureaucracy.tapes.blank > 0:   # a conversa conectada que o caminho grava
+				for n: int in m.eavesdrop.talks:   # (a conectada já saiu do `live`: é só a conversa)
+					var c := m.eavesdrop.call_of(n)
+					if not c.has_meta("tape_to") and _tape_to(c) != Tape.To.NONE:
+						c.set_meta("tape_to", _tape_to(c))
+						taping = c
+						break
+				if taping != null:
+					continue
+			if free and _dial_story():
+				_acted()
+				continue
 		if f == null or not f.active or eager and _done_with(f):
 			var was := f
 			for c in m.live:
@@ -253,16 +349,25 @@ func _initialize() -> void:
 			continue
 		match f.kind:
 			PhoneCall.Kind.TRANSFER:
+				if f.phase == PhoneCall.Phase.AWAIT and not path.is_empty() and path["cut"] and f.beat != null and f.beat.authority \
+						and m.night_no in [9, 15]:   # o rebelde corta os pedidos das autoridades
+					m.hangup()
+					_acted()
+					continue
 				if f.phase == PhoneCall.Phase.AWAIT:
-					# as burocracias da noite (`Bureaucracy`): pede o nome (insiste uma vez), avisa o bloqueio, aceita o acordo, e quem
-					# recusa o nome de vez fica sem transferir
+					# as burocracias da noite (`Bureaucracy`): pede o nome (insiste uma vez) e o código, avisa o bloqueio, aceita o
+					# acordo; espera o nome que está sendo dito, e quem recusa o nome de vez ou diz o código errado fica sem transferir
+					if f.meta.get("b1", "") == "asking" or f.meta.has("b2_warned") \
+							or f.meta.has("b3_asked") and m.bureaucracy.code_of(f) == -1:   # (avisado do bloqueio ou sem código, ele desliga)
+						continue
 					var rule := f.options.find_custom(func(o): return String(o["label"]) in [T.text(T.Key.CHOICE_REQUEST_ID),
-						T.text(T.Key.CHOICE_PRESS_NAME), T.text(T.Key.CHOICE_WARN_BLOCKED), T.text(T.Key.CHOICE_ACCEPT_DEAL)])
+						T.text(T.Key.CHOICE_PRESS_NAME), T.text(T.Key.CHOICE_WARN_BLOCKED), T.text(T.Key.CHOICE_ASK_CODE),
+						T.text(T.Key.CHOICE_ACCEPT_DEAL if path.get("deal", true) else T.Key.CHOICE_REFUSE_DEAL)])
 					if rule != -1:
 						f.options[rule]["fn"].call()
 						_acted()
 						continue
-					if f.meta.get("b1", "") == "refused":
+					if f.meta.get("b1", "") == "refused" or m.bureaucracy.code_of(f) == 0:
 						m.hangup()
 						_acted()
 						continue
@@ -359,7 +464,9 @@ func _initialize() -> void:
 	print("eficiência=%.0f%% (positivos=%d negativos=%d) conceito=%s | acertos: %s | advertências: %s" % [100.0 * r.efficiency(),
 		r.positives(), r.negatives(), ShiftReport.Grade.keys()[r.grade()], " ".join(r.credits.map(func(x): return x["id"])),
 		" ".join(r.faults.map(func(x): return x["id"]))])
-	if not clumsy and not careless:   # o desastrado é medição (abaixo do mínimo na maioria das sementes); o descuidado, denunciado, fica abaixo
+	if not path.is_empty():
+		print("marcadores: " + ",".join(m.flags.names()))
+	if not clumsy and not careless and path.is_empty():   # o desastrado é medição (abaixo do mínimo na maioria das sementes); o descuidado, denunciado, fica abaixo
 		ok(r.grade() <= ShiftReport.GOAL, "o robô atento não fica abaixo do conceito mínimo")
 	print("bilhetes guardados=%d, esquecidos na mesa=%d" % [m.toll.filed, m.toll.waiting()])
 	ok(m.ending and m.minutes >= m.shift_end, "o turno terminou no horário")

@@ -1580,12 +1580,12 @@ func _initialize() -> void:
 	m._verdict = false
 	m.shift_end = was_end
 	m.last_call = was_last
-	for f in [m.Rebellion.HOTEL, m.Rebellion.HOSPITAL, m.Rebellion.IGNORED, m.Rebellion.PARISH, "cumpriu_fitas_14", "sinal_centro_15", "sinal_serra_15", "musica_15"]:   # (e as ordens de Sebastião)
+	for f in [m.Rebellion.HOTEL, m.Rebellion.HOSPITAL, m.Rebellion.IGNORED, m.Rebellion.PARISH, "sinal_centro_15", "sinal_serra_15", "musica_15"]:   # (e as ordens de Sebastião)
 		m.flags.apply(f)
 	m._midnight()
 	ok(m.flags.has(m.Rebellion.WON) and m.shift_end == was_end, "golpe venceu: o turno segue")
 	ok(m.background.sign_from == (Main.SHIFT_START_HOUR + Main.SIGN_BACK) * 60.0, "golpe venceu: o letreiro do hotel volta às 2h")
-	ok(m.flags.has(m.Rebellion.FINALS[m.Rebellion.Final.SUCCESS]), "golpe venceu com a paróquia e sem fitas caras: o sucesso")
+	ok(m.flags.has(m.Rebellion.FINALS[m.Rebellion.Final.SUCCESS]) and not m.flags.has(m.Rebellion.COST), "golpe venceu com a paróquia e sem fitas caras: o sucesso")
 	var was_n: Night = m.night
 	m.night = GameData.CONTENT.nights[-1]   # (a que vai até o amanhecer: a cena da meia-noite cabe no turno)
 	m._street_waiting = banner.duplicate()
