@@ -221,6 +221,8 @@ var _street_mul: Control   # a sombra dos prédios de lá na rua, multiplicando 
 var _street_add: Control   # ...e a faixa de sol, somada a ele; as duas embaixo da `_upright` e redesenhadas com a `_back`
 var _upright: Control  # o que fica em pé na cidade, por cima da luz no chão (`_draw_city_upright`): redesenhado com a `_back`
 var _spot_add: Control  # a luz do holofote do toque de recolher, clareando o que está embaixo (`spot_light.gdshader`): por cima da `_upright` e por baixo da `_view` (`_draw_sweep_light`)
+var _wet: Control      # a rua molhada (`_draw_wet_street`, `wet_street.gdshader`): por cima da `_spot_add`, embaixo da `_view`
+var _wet_drawn := false   # (redesenhada a cada quadro na chuva e de manhã, e uma vez depois, para apagar)
 var _spot_drawn := false   # (redesenhada enquanto há viatura com ele, e uma vez depois, para apagar)
 var _flare: Control    # o sinalizador da noite 15 (`_draw_flare`), entre o céu e a `_back`: some atrás dos telhados; redesenhado enquanto está no céu...
 var _flare_add: Control   # ...e o halo dele, somado logo acima (`_draw_flare_glow`), a força com a cintilação no `modulate`
@@ -355,6 +357,11 @@ func _ready() -> void:
 	(_spot_add.material as ShaderMaterial).set_shader_parameter("gain", CURFEW_GAIN)
 	_spot_add.draw.connect(_draw_view_beam)
 	_vport.add_child(_spot_add)
+	_wet = Control.new()
+	_wet.material = ShaderMaterial.new()
+	(_wet.material as ShaderMaterial).shader = preload("res://scripts/ui/wet_street.gdshader")
+	_wet.draw.connect(_draw_view_wet)
+	_vport.add_child(_wet)
 	_view = Control.new()
 	_view.draw.connect(_draw_view)
 	_vport.add_child(_view)
@@ -636,7 +643,12 @@ func _process(delta: float) -> void:
 	_street_add.modulate = day
 	_upright.modulate = day
 	_view.modulate = day
+	_wet.modulate = day
 	_view.queue_redraw()
+	var wet := weather == "rain" or morning() > 0.0
+	if wet or _wet_drawn:
+		_wet.queue_redraw()
+	_wet_drawn = wet
 	var ft: float = _scene_t.get("flare", -1.0)
 	if ft >= 0.0 and ft < Flare.END + 1.0:
 		_flare.queue_redraw()   # (o miolo e os raios mudam com a cintilação, a fumaça anda)
@@ -2570,6 +2582,37 @@ func _draw_view_beam() -> void:
 		_draw_sweep_light(Rect2(g.position, g.size - Vector2(0, _near)))
 		_draw_flare_light(Rect2(g.position, g.size - Vector2(0, _near)))
 		_draw_beacon_light(Rect2(g.position, g.size - Vector2(0, _near)))
+	_ci = self
+
+
+## A rua molhada (`_wet`, `_draw_wet_street`), com o que o `wet_street.gdshader` precisa: o pé das fachadas de lá (o
+## espelho), o meio-fio, a força da chuva, o relâmpago, os pingos e o chão dos carros.
+func _draw_view_wet() -> void:
+	if window_art or not (weather == "rain" or morning() > 0.0):
+		return
+	_ci = _wet
+	_wet.draw_set_transform(Vector2.ZERO, 0.0, Vector2(2, 2))
+	var g := Rect2(Vector2.ZERO, Vector2(_vport.size) / 2.0)
+	g.size.y -= _near
+	var m := _wet.material as ShaderMaterial
+	var rain := weather == "rain"
+	m.set_shader_parameter("axis", _o(g, 0.0, STREET["far"]).y * 2.0)
+	m.set_shader_parameter("reach", (g.end.y + _near - _o(g, 0.0, STREET["far"]).y) * 2.0)
+	m.set_shader_parameter("wet", lerpf(0.6, 1.0, rain_level()) if rain else DAMP * morning())
+	m.set_shader_parameter("glare", Vector2(0.08, 0.45).lerp(Vector2(0.5, 0.85), morning()))
+	m.set_shader_parameter("rain", rain_level() if rain else 0.0)
+	m.set_shader_parameter("flash", _flash() if rain else 0.0)
+	m.set_shader_parameter("curb_top", floorf(_o(g, 0.0, STREET["far_curb"], 0.15).y * 2.0))
+	m.set_shader_parameter("curb", ceilf(_o(g, 0.0, STREET["far_curb"]).y * 2.0))
+	m.set_shader_parameter("horizon", _hz(g) * 2.0)
+	m.set_shader_parameter("ox", (g.position.x + _out_x) * 2.0)
+	m.set_shader_parameter("fe", OUT_F * OUT_EYE * 2.0)
+	m.set_shader_parameter("f2", OUT_F * 2.0)
+	m.set_shader_parameter("seam", STREET["far_curb"] + 1.4)
+	m.set_shader_parameter("drop", roundf((_o(g, 0.0, STREET["far"]).y - _o(g, 0.0, STREET["far"], WET_CURB).y) * 4.0))
+	m.set_shader_parameter("t", PixelArt.ms() / 1000.0)
+	m.set_shader_parameter("cars", PackedVector4Array(_wet_cars(g)))
+	_draw_wet_street(g)
 	_ci = self
 
 

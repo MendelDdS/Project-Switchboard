@@ -3246,3 +3246,35 @@ Chaves:
 520. #roteiro "As reuniões não acontecem por telefone, o resultado delas pode aparecer nas transferências" (a reunião
     marcada no hotel na 6 para o dia seguinte, e a da pensão na 2, acontecem fora da tela). O Lauro da 8 liga para
     confirmar "os lugares que a gente combinou ontem", a reunião de domingo no hotel.
+521. #clima #vista #luz "Nos dias de chuva, gostaria que você melhorasse os reflexos das luzes, atualmente os reflexos são
+    linhas" e "Quando as pessoas forem entrar e sair dos prédios, que as portas se abrissem". Os reflexos eram riscos
+    de 1 px em linhas soltas; ondulados e animados, "parece que o reflexo está diretamente na água e não numa rua
+    molhada"; retos e manchados, "não tá ficando bom. Faça algo que você sugeriria". Saiu o desenho risco a risco: a
+    rua molhada é uma camada própria (`_wet`, `wet_street.gdshader`, entre a cidade e a frente da vista) que espelha
+    de verdade o que está aceso nas fachadas (vitrines, porta do hotel, janelas do térreo), virado no pé delas,
+    esticado e borrado para baixo no asfalto áspero (manchado) e nítido nas poças, mais escuras, com os pingos abrindo
+    anéis; o chão de cada carro tapa o espelho atrás dele. Postes, letreiro, sirenes e faróis, que ficam na frente da
+    fachada, viram uma faixa lisa nas cores dos vértices que o shader quebra nas manchas do asfalto. De manhã (sereno),
+    só o que brilha mais reflete, fraco, sem poças. As portas: a de vidro do hotel (era só o saguão com um risco no
+    meio) tem duas folhas que abrem para dentro quando alguém chega a ela, de fora ou de dentro (`_door_clip`), e com
+    o porteiro de manhã; a da varanda abre para quem sai para fumar e para quem recolhe a roupa na 14 (`_swing`,
+    `DOOR_SEC`).
+522. #clima #vista #luz "Pode fazer" (os detalhes que eu sugeri para os reflexos). O letreiro do hotel aparece espelhado
+    no asfalto com as letras, de cabeça para baixo, escorridas e quebradas nas manchas, e a letra que falha some junto
+    (`_wet_sign`; antes, uma faixa vermelha lisa); o relâmpago acende o céu espelhado na rua, mais nas poças (`flash`);
+    a face do meio-fio de lá quebra o reflexo e, na rua, um degrau abaixo, ele desce (`curb`, `drop`, `WET_CURB`);
+    respingos de um pixel acendem e somem no asfalto, mais vistos no reflexo claro; poças, anéis e respingos crescem
+    com a força da chuva (`rain_level`: na garoa, a rua só molhada).
+523. #clima #vista #luz "Os reflexos estão meio esfumaçados para dar textura, não seria melhor colocar transições mais
+    rígidas?". O grão do asfalto molhado (`wet_street.gdshader`) passou de manchas que sumiam aos poucos para manchas
+    de beira seca em três níveis (brilha, meio, quase nada), com um grão miúdo recortando as beiras; a beira das poças
+    também ficou seca e o borrão para cima, menor. O sumiço ao longo do reflexo continua liso.
+524. #clima #vista #luz "Faça então" (o que eu sugeri para o grão do reflexo). As manchas do asfalto molhado ficaram
+    no chão de verdade (pela câmera da vista: mais largas que fundas, maiores perto e miúdas lá longe), sem pixel solto
+    (o que difere dos dois vizinhos fica como eles); as poças também no chão, só na rua. A calçada de lá reflete quase
+    inteira, mais lisa que o asfalto, cortada pelas juntas das lajotas (as de `_draw_city_front`, `SLAB`, `seam`).
+525. #clima #vista #luz "Ainda sinto que esses reflexos parecem manchados" / "Pode fazer, quero ver como vai ficar".
+    A causa era o grão em manchas (testado: sem ele, o reflexo limpa). Saíram as manchas: o reflexo no asfalto fica
+    inteiro, esticado para baixo, cortado por quebras de um pixel na horizontal, em trechos, em faixas de 3 px junto
+    do espelho e mais largas para perto de nós (`band`); nunca deslocadas para o lado (pareceria água). As poças e a
+    calçada com as juntas ficam como estavam.

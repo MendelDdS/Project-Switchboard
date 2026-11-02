@@ -71,7 +71,10 @@ const BAR_EMPTIES := Vector2(22 * 60, 24 * 60)   ## ...e quando eles vão saindo
 const RACK_KINDS := ["fusca", "brasilia", "sedan", "perua"]   ## os carros que podem vir com o bagageiro no teto...
 const RACK := Vector2(0.08, 0.35)   ## ...e quantos vêm, de noite e às 6h (quem pega a estrada cedo)
 const DAMP := 0.4    ## de manhã, o asfalto úmido do sereno espelha os faróis e as lanternas, fraco (na chuva, 1)
-const MIRROR_A := 0.3   ## a força do reflexo das vitrines e portas acesas no asfalto molhado (`_mirror`)
+const WET_A := 0.4      ## a força do risco dos postes, do letreiro e dos faróis no asfalto molhado (`_wet_streak`)
+const WET_CURB := 0.15   ## o degrau da calçada de lá para a rua (m): o espelho na rua desce o dobro (`wet_street.gdshader`)
+const WET_SIGN := 1.4   ## a força do letreiro espelhado no asfalto molhado (`_wet_sign`), sobre a de cada luz (`WET_A`)
+const WET_CARS := 8     ## quantos carros o `wet_street.gdshader` sabe tapar (o tamanho da lista `cars` dele)
 const RIM := Color(1.0, 0.8, 0.5)   ## a luz dos postes na beira de quem passa embaixo deles
 const BACKLIT := 0.55   ## quanto escurece quem está lá dentro, contra a luz acesa de trás (`_draw_backlit`)
 const HOLD_UP := [Vector2(25, 150), Vector2(-6, 10)]   ## de perfil, a mão de cá na orelha ou na boca (o fone, o copo)
@@ -97,6 +100,7 @@ const BIKE_SEC := 4.8     ## quanto quem passa de bicicleta leva de um lado ao o
 const CALLED := [305, 327]
 const PHONE_WALK := 1.6   ## quanto a pessoa leva até o telefone (s)
 const HOTEL_X := -6.3     ## a porta do hotel, com a marquise, no prédio do outro lado da esquina
+const DOOR_SEC := 0.45   ## quanto uma porta leva para abrir ou fechar de todo (s; a do hotel e a da varanda, `_swing`)
 const HOTEL_DOOR_GAP := 1.5   ## ...sem vitrine do térreo a menos disso dela (m; a vitrine acesa aparecia atrás da porta)
 ## O letreiro de bandeira do hotel (`_draw_hotel_sign`), no estilo dos letreiros de neon antigos: pendurado por
 ## suportes na lateral do prédio, na rua do cruzamento, `SIGN_Z` m para dentro dela (antes da primeira coluna de
@@ -508,6 +512,9 @@ var _cars: Array[Dictionary] = []   # os carros passando lá fora: {"t": de 0 a 
 var _walkers: Array = []   # quem está passando na calçada de lá (`_walker`), na ordem do desenho: os de mais longe primeiro
 var _bar_t := -1.0   # há quanto tempo a porta do bar abriu (s; -1 = fechada)
 var _indoor := Vector3(-1.0, 0.0, 1.0)   # alguém passando atrás de uma janela acesa do prédio de tijolos: há quanto tempo (s; -1 = ninguém), qual janela e para que lado
+var _doors := {"hotel": 0.0, "apt": 0.0}   # o quanto cada porta está aberta agora (0 a 1, `_swing`)
+var _door_ms := -1.0   # quando elas andaram da última vez (`PixelArt.ms`)
+var _hotel_near := false   # alguém chegou à porta do hotel no último quadro (`_door_clip`): ela abre
 var _smoke_t := -1.0   # há quanto tempo alguém saiu para fumar na varanda (s; -1 = ninguém)
 var beating := INF     ## quando começa a cena da rua (`Beating`, a noite 3; min do dia; o Main põe)
 var police := INF      ## quando a viatura vem parar no hotel (`PATROL_*`, a noite 7; min do dia; o Main põe)
@@ -1178,30 +1185,19 @@ func _moon_art(age: float, size: int) -> Texture2D:
 	return _moon_tex[size]
 
 
-## A frente da vista, por cima da de trás (`_draw_city`) e redesenhada a cada quadro dela: o letreiro (uma letra falha
-## sozinha), o que está aceso espelhado no asfalto molhado, quem passa, os postes, o homem, o carro (na chuva, com o
+## A frente da vista, por cima da de trás (`_draw_city`) e da rua molhada (`_draw_wet_street`), redesenhada a cada
+## quadro dela: o letreiro (uma letra falha sozinha), quem passa, os postes, o homem, o carro (na chuva, com o
 ## farol espelhado na rua) e a névoa.
 func _draw_city_front(g: Rect2) -> void:
 	if _hz(g) - g.position.y < 40.0:   # (a tela ainda não se arrumou: o vidro ainda não tem o tamanho dele)
 		return
-	# o que está aceso lá, no asfalto molhado (de manhã, úmido do sereno: as vitrines, grandes e paradas, mais que os
-	# faróis): aqui, e não no chão, porque o carro passando na frente tapa (`_mirror`, `_wet_streak`)
-	if weather == "rain" or morning() > 0.0:
-		var a := 1.0 if weather == "rain" else 2.0 * DAMP
-		_draw_wet(g, {}, a)
-		for b: Dictionary in _houses:   # as vitrines acesas do térreo
-			for j in b["wins"].size():
-				var wv: Vector3 = b["wins"][j]
-				if wv.y == 0.0 and _win_lit(b, j):
-					_mirror(g, wv.x - 0.9, wv.x + 0.9, 2.6, _sunny(Pal.CITY_LIT[int(wv.x + wv.y) % Pal.CITY_LIT.size()]), a)
-		_mirror(g, CROSSING.y + 0.5, CROSSING.y + 2.5, 2.5, _sunny(Pal.BAR_LIGHT[1]), a)   # a vitrine do bar e a porta do hotel, sempre acesas
-		_mirror(g, HOTEL_X - 0.6, HOTEL_X + 0.6, 2.3, _sunny(Pal.HOTEL_DOOR[1]), a)
 	_draw_tag_wall(g)
 	_draw_lookout(g)
 	_draw_sign_wash(g)
 	_draw_hotel_sign(g)
 	_draw_balcony_front(g)
 	_draw_bar_door(g)
+	_draw_hotel_door(g)
 	_draw_behind(g)
 	_draw_phones(g)
 	_draw_cat(g)
@@ -1237,8 +1233,6 @@ func _draw_city_front(g: Rect2) -> void:
 	_cars.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:   # o de lá primeiro; na mesma mão, o mais longe do meio da vista
 		return a["lane"] < b["lane"] or a["lane"] == b["lane"] and absf(_car_x(a) - _lane(a).y * CAR_KINDS[a["kind"]]["len"] / 2.0) > absf(_car_x(b) - _lane(b).y * CAR_KINDS[b["kind"]]["len"] / 2.0))
 	for c in _cars:
-		if weather == "rain" or morning() > 0.0:
-			_draw_wet(g, c, 1.0 if weather == "rain" else DAMP)
 		var cx := _car_x(c)   # a sombra comprida dele, na faixa de sol
 		var back: float = cx - _lane(c).y * CAR_KINDS[c["kind"]]["len"]
 		_sun_shadow(g, minf(cx, back), maxf(cx, back), _lane(c).x - 0.8, 1.4)
@@ -1254,6 +1248,7 @@ func _draw_city_front(g: Rect2) -> void:
 		_draw_arrest(g, true)
 	if weather == "fog":
 		_draw_fog(g)
+	_door_ms = PixelArt.ms()   # (as portas andaram até agora: `_swing`)
 
 
 ## A névoa, por cima da rua e do outro lado (o arbusto, perto, fica fora dela): um véu liso, mais grosso rente ao chão
@@ -2051,9 +2046,37 @@ func _blot(g: Rect2, x0: float, x1: float, z0: float, z1: float, rng: RandomNumb
 	return pts
 
 
-## A chuva no chão: o asfalto molhado espelha as luzes em riscos verticais, quebrados, embaixo de cada uma (os postes
-## e o letreiro, tapados pelos carros; com `car`, só o farol e a lanterna daquele carro), mais fracos para baixo. Na
-## frente da vista (`_draw_city_front`), que se redesenha com os carros.
+## A rua molhada (na chuva; de manhã, úmida do sereno), na camada `_wet` do `Background`, entre a cidade e a frente da
+## vista: o chão preto, do pé das fachadas de lá até o pé do vidro, onde o `wet_street.gdshader` espelha o que está
+## aceso embaixo dela (as janelas, as vitrines, a porta do hotel), esticado e borrado no asfalto e nítido nas poças; e
+## o risco de cada luz que fica na frente (`_draw_wet`). Os carros e quem passa, na `_view`, tapam o que está atrás
+## deles; o chão de cada carro (`_wet_cars`) tapa o espelho da fachada atrás dele. Antes, riscos de pixel desenhados um
+## a um: pareciam linhas e, ondulando, água parada (pedido 521).
+func _draw_wet_street(g: Rect2) -> void:
+	var top := _o(g, 0.0, STREET["far"]).y
+	_r(g.position.x, top, g.size.x, g.end.y + _near - top, Color.BLACK)   # (preto: o espelho, no shader)
+	_draw_wet(g, {}, 1.0 if weather == "rain" else 2.0 * DAMP)
+	for c in _cars:
+		_draw_wet(g, c, 1.0 if weather == "rain" else DAMP)
+
+
+## O que cada carro tapa do espelho das fachadas (px da vista, 1x1): [de x, até x, de y, até y], da beira de lá do chão
+## dele até o tanto da altura dele abaixo da beira de cá (a imagem dele no espelho); até `WET_CARS`.
+func _wet_cars(g: Rect2) -> Array[Vector4]:
+	var out: Array[Vector4] = []
+	for c in _cars:
+		if out.size() < WET_CARS:
+			var q := _car_ground(g, c)
+			var near := maxf(q[0].y, q[1].y)
+			var rise := near - _o(g, _car_x(c), _lane(c).x, 1.4).y
+			out.append(Vector4(minf(q[0].x, q[3].x), maxf(q[1].x, q[2].x), minf(q[2].y, q[3].y), near + rise) * 2.0)
+	while out.size() < WET_CARS:
+		out.append(Vector4.ZERO)
+	return out
+
+
+## As luzes que ficam na frente da fachada, no asfalto molhado (`_wet_streak`): os postes e o letreiro (com `car`, o
+## farol e a lanterna daquele carro) e as sirenes paradas quando viram para nós.
 func _draw_wet(g: Rect2, car: Dictionary = {}, a := 1.0) -> void:
 	var lights := []   # [cabeça, pé, cor]
 	if not car.is_empty():
@@ -2066,82 +2089,61 @@ func _draw_wet(g: Rect2, car: Dictionary = {}, a := 1.0) -> void:
 		if _posts_on():
 			for i in FAR_LAMPS.size():
 				lights.append([_lamp_heads(g)[i], _o(g, FAR_LAMPS[i], STREET["far_curb"] - 0.5), Color(1.0, 0.85, 0.55)])
-		if _sign_on():   # embaixo das letras (no meio da face; o risco tem 1,5 de largura)
+		if _sign_on():   # a luz vermelha embaixo das letras, larga e fraca (no meio da face), e as letras espelhadas
 			var box := _sign_box(g)
 			var s := Vector2(box.get_center().x - 0.25, box.position.y)
-			lights.append([s, Vector2(s.x - 0.75, _o(g, HOTEL_X, STREET["far_curb"] - 0.5).y), Pal.SIGN_RED])
-	var cuts: Array[Vector3] = []   # (o do farol não some embaixo do próprio carro)
-	if car.is_empty():
-		cuts = _car_cuts(g)
-	for l: Array in lights:
-		_wet_streak(l[0], l[1], l[2], a, cuts)
-	if car.is_empty():   # e as sirenes paradas, quando viram para nós: um risco vermelho a cada volta
+			lights.append([s, Vector2(s.x - 0.75, _o(g, HOTEL_X, STREET["far_curb"] - 0.5).y), Color(Pal.SIGN_RED, 0.35)])
+			_wet_sign(g, a)
 		for bc in _beacons():
 			var lit := maxf(0.0, cos(bc.w))
 			if lit > 0.05:
-				_wet_streak(_o(g, bc.x, bc.y, bc.z), _o(g, bc.x, bc.y - 1.2), Pal.BEACON, a * lit, cuts)
+				lights.append([_o(g, bc.x, bc.y, bc.z), _o(g, bc.x, bc.y - 1.2), Color(Pal.BEACON, lit)])
+	for l: Array in lights:
+		_wet_streak(l[0], l[1], l[2], a)
 
 
-## O reflexo da luz `col` (que fica em `head`) no asfalto molhado, um risco vertical quebrado descendo de `foot`, tapado
-## pelos carros em `cuts` (`_car_cuts`).
-func _wet_streak(head: Vector2, foot: Vector2, col: Color, a: float, cuts: Array[Vector3]) -> void:
-	var length := (foot.y - head.y) * 0.9
-	var n := maxi(3, int(length / 1.5))
-	for k in n:
-		if k % 3 == 2:
-			continue   # quebrado pelas poças e pelos pingos
-		var x := foot.x - PX * (k % 2)
-		var y := foot.y + length * k / n
-		for s in _uncovered(cuts, x, x + maxf(PX, 1.5 - k * 0.05), y):
-			if s.y > s.x:
-				_r(s.x, y, s.y - s.x, PX, Color(col, 0.32 * a * (1.0 - float(k) / n)))
-
-
-## O chão de cada carro na rua (`_car_ground`), para tapar o que está espelhado no asfalto: [de x, até x, a beira de lá]
-## (px de 2x2).
-func _car_cuts(g: Rect2) -> Array[Vector3]:
-	var cuts: Array[Vector3] = []
-	for c in _cars:
-		var q := _car_ground(g, c)
-		cuts.append(Vector3(minf(q[0].x, q[3].x), maxf(q[1].x, q[2].x), q[3].y))
-	return cuts
-
-
-## Os trechos da linha `y` de `x0` a `x1` (px de 2x2) que nenhum carro tapa (`cuts`): ele tapa da beira de lá do chão
-## dele para cá.
-func _uncovered(cuts: Array[Vector3], x0: float, x1: float, y: float) -> Array[Vector2]:
-	var segs: Array[Vector2] = [Vector2(x0, x1)]
-	for v in cuts:
-		if y + PX <= v.z:
+## O letreiro do hotel espelhado no asfalto molhado: os tubos das letras e da lua e o brilho em volta, de cabeça para
+## baixo, do meio-fio para cá (de onde começa a luz dele no chão; o espelho de verdade cairia abaixo do vidro), cada
+## peça escorrida um pixel para baixo e sumindo para baixo; a letra que falha some junto. O shader corta o brilho nas
+## quebras do asfalto e o deixa nítido nas poças. Antes, uma faixa vermelha lisa (pedido 522).
+func _wet_sign(g: Rect2, a: float) -> void:
+	var cells := _sign_cells(g)
+	var low := -INF   # o pé do letreiro
+	for cell: Array in cells:
+		low = maxf(low, (cell[0] as Rect2).end.y)
+	var y0 := _o(g, HOTEL_X, STREET["far_curb"] - 0.5).y
+	var shift := -1.0   # (embaixo da luz dele no chão, `_draw_wet`)
+	var reach := g.end.y + _near - y0
+	var buzz := _sign_buzz_on()
+	for cell: Array in cells:
+		var r: Rect2 = cell[0]
+		var col: Color
+		match cell[2]:
+			Neon.TUBE: col = Pal.SIGN_HOT.lerp(Pal.SIGN_RED, 0.35)
+			Neon.MOON: col = Pal.SIGN_MOON
+			Neon.GLOW: col = Color(Pal.SIGN_GLOW, 0.15)
+			_: continue
+		if cell[1] == SIGN_BUZZ and not buzz:
 			continue
-		var rest: Array[Vector2] = []
-		for s in segs:
-			if v.x > s.x:
-				rest.append(Vector2(s.x, minf(s.y, v.x)))
-			if v.y < s.y:
-				rest.append(Vector2(maxf(s.x, v.y), s.y))
-		segs = rest
-	return segs
+		var y := y0 + low - r.end.y
+		var fade := pow(clampf(1.0 - (y - y0) / reach, 0.0, 1.0), 1.2)
+		if fade > 0.0:
+			_r(r.position.x + shift, y, r.size.x, r.size.y + PX, Color(col, WET_A * WET_SIGN * a * col.a * fade))
 
 
-## O reflexo de uma abertura acesa no térreo da fachada de lá (de `x0` a `x1` m, `h` m de altura) no asfalto molhado:
-## da largura dela, descendo reto do meio-fio (não para o ponto de fuga), em linhas quebradas que somem para baixo
-## (num risco fino, como o dos postes, de manhã quase não se via). O carro na rua tapa o reflexo da beira de lá do chão
-## dele para cá (`_car_ground`): por baixo da sombra dele, aparecia uma listra de luz (pedido 276).
-func _mirror(g: Rect2, x0: float, x1: float, h: float, col: Color, a: float) -> void:
-	var ff: float = STREET["far"]
-	var left := _o(g, x0, ff).x
-	var right := _o(g, x1, ff).x
-	var y := _o(g, x0, STREET["far_curb"] - 0.3).y
-	var n := int((_o(g, x0, ff).y - _o(g, x0, ff, h).y) * 0.8 / PX)
-	var cuts := _car_cuts(g)
-	for k in n:
-		if k % 3 == 2:   # (quebrado pelas poças e pelo vento na água)
-			continue
-		var at := y + k * PX
-		for s in _uncovered(cuts, left + PX * (k % 2), right - PX + PX * (k % 2), at):
-			if s.y > s.x:
-				_r(s.x, at, s.y - s.x, PX, Color(col, MIRROR_A * a * (1.0 - float(k) / n)))
+## O risco de uma luz (`col`, em `head`) no asfalto molhado: desce reto de `foot` o tanto da altura dela, abrindo um
+## pouco e sumindo para baixo, o miolo e uma beira lisa de cada lado nas cores dos vértices; o shader corta o brilho
+## nas quebras do asfalto e o deixa inteiro nas poças.
+func _wet_streak(head: Vector2, foot: Vector2, col: Color, a: float) -> void:
+	var h := (foot.y - head.y) * 0.9
+	var x := foot.x
+	var y := foot.y
+	var c := Color(col, WET_A * a * col.a)
+	var e := Color(col, 0.0)
+	var w := Vector4(0.75, 1.1, 2.0, 3.2)   # meia largura do miolo em cima e embaixo, e a da beira
+	_fill(PackedVector2Array([Vector2(x - w.x, y), Vector2(x + w.x, y), Vector2(x + w.y, y + h), Vector2(x - w.y, y + h)]), PackedColorArray([c, c, e, e]))
+	_fill(PackedVector2Array([Vector2(x - w.z, y), Vector2(x - w.x, y), Vector2(x - w.y, y + h), Vector2(x - w.w, y + h)]), PackedColorArray([e, c, e, e]))
+	_fill(PackedVector2Array([Vector2(x + w.x, y), Vector2(x + w.z, y), Vector2(x + w.w, y + h), Vector2(x + w.y, y + h)]), PackedColorArray([c, e, e, e]))
 
 
 ## Uma parede da rua do cruzamento (`w`: o lado `x`, de `z0` a `z1`, `h` m), indo embora para o ponto de fuga, com
@@ -2932,13 +2934,9 @@ func _draw_guest(g: Rect2) -> void:
 		var u := p / GUEST.z
 		var z0: float = CAR_LANES[0].x + 1.0   # da porta de trás do táxi, do lado da calçada...
 		var z := lerpf(z0, ff + 0.8, u)
-		var clip := Rect2()   # passando da fachada, só pela porta
-		if z > ff:
-			var a := _o(g, HOTEL_X - 0.6, ff, 2.3)
-			clip = Rect2(a * 2.0, (_o(g, HOTEL_X + 0.6, ff) - a) * 2.0)
 		var parts := _body(int(p * WALK_STEPS * STRIDE.size()), OUT_F / z * 2.0, 1.0, false, 1.0, true, [Rect2(0.2, 0.08, 0.3, 0.34)])   # (indo, de costas; a mala)
 		var x := lerpf((_taxi_mid() + 0.6) * z0 / CAR_LANES[0].x, HOTEL_X * (ff + 0.8) / ff, u)   # ...até a porta do hotel
-		_figure((_o(g, x, z) * 2.0).floor(), parts, Pal.SILHOUETTE, clip)
+		_figure((_o(g, x, z) * 2.0).floor(), parts, Pal.SILHOUETTE, _door_clip(g, x, z))   # (passando da fachada, só pela porta)
 
 
 ## O vigia no terraço do hotel (`LOOKOUT_*`), no instante `_look_t`: escuro contra o céu, cortado na beira da
@@ -3531,6 +3529,57 @@ func _draw_bar_door(g: Rect2) -> void:
 		_light_fan(c, rim, Color(1.0, 0.75, 0.4, 0.3 * open))
 
 
+## O quanto a porta `key` (`_doors`) está aberta agora: anda até `target` em `DOOR_SEC`, pelo tempo desde o último
+## quadro da vista (`_door_ms`, acertado no começo da frente), e devolve com a aceleração e a freada da folha.
+func _swing(key: String, target: float) -> float:
+	var dt := clampf((PixelArt.ms() - _door_ms) / 1000.0, 0.0, 0.1) if _door_ms >= 0.0 else 1.0
+	_doors[key] = move_toward(_doors[key], target, dt / DOOR_SEC)
+	return smoothstep(0.0, 1.0, _doors[key])
+
+
+## A porta de vidro do hotel, embaixo da marquise (o caixilho e o saguão aceso atrás são da `_upright`,
+## `_draw_marquee`): as duas folhas fechadas, com o reflexo frio do vidro, as beiras se encontrando no meio e o
+## puxador; quando alguém chega a ela, de fora ou de dentro (`_door_clip`, `_hotel_near`, do quadro anterior), ou com
+## o porteiro na porta de manhã, elas abrem para dentro, cada uma estreitando para o lado da dobradiça (`_swing`), e o
+## vão fica com o saguão limpo. Antes, a porta era só o saguão com um risco no meio e não abria (pedido 521).
+func _draw_hotel_door(g: Rect2) -> void:
+	var open := _swing("hotel", 1.0 if _hotel_near or minutes >= BAR_OPENS else 0.0)
+	_hotel_near = false
+	var a := _o(g, HOTEL_X - 0.6, STREET["far"], 2.3)
+	var e := _o(g, HOTEL_X + 0.6, STREET["far"])
+	var h := e.y - a.y - PX
+	var w := maxf(PX * 2.0, snappedf((e.x - a.x) / 2.0 * (1.0 - 0.85 * open), PX))   # cada folha, girando para dentro
+	for left in [true, false]:
+		var x: float = a.x if left else e.x - w
+		_r(x, a.y + PX, w, h, Color(Pal.CAR_SKY, 0.16))   # o vidro
+		_r(x + w - PX if left else x, a.y + PX, PX, h, Pal.BAR_JAMB)   # a beira solta da folha
+		_r(x if left else x + PX, a.y + PX + snappedf(h * 0.45, PX), w - PX, PX, Color(Pal.BAR_JAMB, 0.8))   # o puxador
+
+
+## A porta da varanda do apartamento (`APT["door"]`; fechada, na camada de trás, `_draw_balcony_back`) aberta por
+## quem sai e entra por ela: quem fuma (`_smoke_t`) e quem recolhe a roupa na fuga (`Moving.balcony`). A folha da
+## direita gira para dentro, estreitando contra o batente (vista quase de lado, escura), e no vão aparece a sala
+## acesa, sem a cortina. Antes, quem saía atravessava a porta fechada (pedido 521).
+func _draw_balcony_door(g: Rect2) -> void:
+	var near := false
+	if _smoke_t >= 0.0:
+		near = minf(_smoke_t, SMOKE_SEC - _smoke_t) < 1.4   # (na porta, saindo ou voltando; anda 2,5 s até o gradil)
+	var b := Moving.balcony(_scene_t.get("moving", -1.0))
+	if b.x >= -1.5 and b.x < -0.5:
+		near = true
+	var open := _swing("apt", 1.0 if near else 0.0)
+	if open <= 0.0:
+		return
+	var d: Vector2 = APT["door"]
+	var a := _o(g, (d.x + d.y) / 2.0, STREET["far"], APT["floor"] + 2.3)
+	var e := _o(g, d.y, STREET["far"], APT["floor"] + 0.05)
+	var lit := minutes < APT_DARK and not _apt_gone() or _banner_on()
+	var room: Color = (Pal.CITY_LIT[1] as Color).darkened(0.05) if lit else Pal.BALCONY_ROOM
+	var w := snappedf((e.x - a.x) * (1.0 - 0.8 * open), PX)   # a folha, cada vez mais estreita
+	_r(a.x + PX, a.y, e.x - a.x - PX, e.y - a.y, room)   # o vão (a folha fechada tinha a beira no meio)
+	_r(e.x - maxf(w, PX), a.y, maxf(w, PX), e.y - a.y, Pal.WINDOW_DARK.lerp(room, 0.25))
+
+
 ## A marquise do hotel sobre a porta (embaixo do letreiro): saindo 1,2 m da fachada, o alto visto de cima (os olhos
 ## ficam acima), a beira da frente e a luz quente embaixo dela, na porta e na calçada.
 func _draw_marquee(g: Rect2) -> void:
@@ -3548,8 +3597,7 @@ func _draw_marquee(g: Rect2) -> void:
 		var an := TAU * i / 20.0
 		rim.append(_o(g, HOTEL_X + cos(an) * 2.8, ff - 0.8 + sin(an) * 1.4))
 	_light_fan(c, rim, Color(1.0, 0.78, 0.45, 0.22))
-	_r(door.x, door.y, de.x - door.x, PX, Pal.BAR_JAMB)   # o caixilho da porta de vidro, com a folha do meio
-	_r((door.x + de.x) / 2.0, door.y, PX, de.y - door.y, Pal.BAR_JAMB)
+	_r(door.x, door.y, de.x - door.x, PX, Pal.BAR_JAMB)   # o caixilho da porta de vidro (as folhas, na frente: `_draw_hotel_door`)
 	_r(door.x + (de.x - door.x) * 0.15, de.y - (de.y - door.y) * 0.35, (de.x - door.x) * 0.3, (de.y - door.y) * 0.35, Color(Pal.BAR_JAMB, 0.7))   # o balcão do saguão
 	if minutes >= BAR_OPENS:   # de manhã, o porteiro na porta, em silhueta contra o saguão aceso (como na referência)
 		var z := ff + 0.3
@@ -3666,6 +3714,7 @@ func _draw_balcony_front(g: Rect2) -> void:
 				rim.append(c + Vector2(cos(TAU * i / 16.0) * (we.x - wa.x) * 1.4, sin(TAU * i / 16.0) * (we.y - wa.y) * 1.3))
 			_light_fan(c, rim, Color(tint, 0.1 * lv))
 		_balcony_glass(wa, we, glass)
+	_draw_balcony_door(g)
 	_draw_smoker(g)
 	_draw_packer(g)
 	_draw_banner_man(g)
@@ -4006,11 +4055,8 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 		return
 	var k: float = OUT_F / z * 2.0 * w["h"]   # px da tela por metro (na altura dele)
 	var dark := Pal.SILHOUETTE
-	var clip := Rect2()   # entrando no hotel (o toque de recolher), passando da fachada: só pela porta
-	if z > STREET["far"]:
-		var a := _o(g, HOTEL_X - 0.6, STREET["far"], 2.3)
-		clip = Rect2(a * 2.0, (_o(g, HOTEL_X + 0.6, STREET["far"]) - a) * 2.0)
-	else:
+	var clip := _door_clip(g, x, z)   # entrando no hotel (o toque de recolher), passando da fachada: só pela porta
+	if z <= STREET["far"]:
 		_poly(PackedVector2Array([_o(g, x - 0.3, z), _o(g, x + 0.3, z), _o(g, x + 0.3, z + 0.2), _o(g, x - 0.3, z + 0.2)]), Color(0, 0, 0, 0.35))
 		_sun_shadow(g, x - 0.22, x + 0.22, z, 1.7 * w["h"])
 	var s: float = w.get("face", w["dir"])   # (o que tem frente, a aba da boina, a bolsa e o passo, vira para onde ele vai)
@@ -4149,8 +4195,10 @@ func _draw_walker(g: Rect2, w: Dictionary) -> void:
 
 
 ## Quem está em `x`, `z` m (passando da fachada de lá, entrando pela porta do hotel): o recorte da porta, em px da
-## tela; na calçada e na rua do cruzamento, nenhum.
+## tela; na calçada e na rua do cruzamento, nenhum. Todo mundo que entra ou sai pela porta do hotel passa por aqui.
 func _door_clip(g: Rect2, x: float, z: float) -> Rect2:
+	if z > STREET["far"] - 0.3 and absf(x - HOTEL_X) < 1.2:   # chegando à porta, de fora ou de dentro: ela abre (quem passa pela calçada fica mais longe)
+		_hotel_near = true
 	if z <= STREET["far"] or x > CROSSING.x:
 		return Rect2()
 	var a := _o(g, HOTEL_X - 0.6, STREET["far"], 2.3)

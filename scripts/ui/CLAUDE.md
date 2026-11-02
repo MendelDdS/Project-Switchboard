@@ -37,7 +37,11 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   (`%Dust`, 30 quadros por segundo). Algo novo que muda entra no estado da camada certa.
 - A vista da janela tem tela própria (`_vport`, `UPDATE_ONCE` a cada quadro dela, 30 por segundo), em partes: o céu
   (`_sky`), a de trás (`_back`, só quando muda, `_back_state`), a luz do sol no chão (`_street_mul` multiplica,
-  `_street_add` soma), o que fica em pé (`_upright`) e a da frente (`_draw_city_front`, a cada quadro). O `SceneView`
+  `_street_add` soma), o que fica em pé (`_upright`), a rua molhada (`_wet`, na chuva e no sereno da manhã, a cada
+  quadro: `wet_street.gdshader` espelha o que está aceso embaixo dela, virado no pé das fachadas, cortado por quebras
+  horizontais de 1 px (nada de manchas: lê como mancha), com poças, anéis e respingos pela força da chuva, o meio-fio e o relâmpago; o letreiro e as luzes da frente por cima, `_wet_sign`,
+  `_wet_streak`; `_draw_wet_street`)
+  e a da frente (`_draw_city_front`, a cada quadro). O `SceneView`
   só desenha quando algo muda (`Background._show`).
 - Sem tela (`_headless`), a vista não é desenhada.
 
@@ -83,7 +87,8 @@ sons `latch` e `unfurl`); o homem de sobretudo das noites 13 e 14, das 22h às 2
 prédio de tijolos (`stranger`, `MAN_*`, `_draw_stranger`, fumando); o fim da presa, `Arrest` (o homem atravessando
 para a central, `_draw_arrest` em duas vezes, antes e depois dos carros, `_arrest_rig` recortado atrás do arbusto, e a
 viatura parando na mão de cá, `_arrest_car`, com dois policiais), posto pelo `Main.start_ending`: cada uma num script sem estado, pelo relógio `_scene_t`, posta por `scene_at`/`_start_scene`, e as que deixam marca seguem nas noites seguintes, `left_behind`; figuras pelo `_scene_figs`, as mais perto que os postes de lá desenhadas depois deles; quem anda até um lugar, `Beating.walk`), quem sai do bar, quem fuma
-  na varanda, gato, bicicleta, ônibus, táxi no hotel, vira-lata, mariposas; os telefones da lista vistos dela
+  na varanda (as portas abrem para quem passa: a do bar, `_bar_t`; a do hotel, `_draw_hotel_door`, por quem chega a
+  ela no `_door_clip`; a da varanda, `_draw_balcony_door`; `_swing`), gato, bicicleta, ônibus, táxi no hotel, vira-lata, mariposas; os telefones da lista vistos dela
   (`CALLED`, `phones`); **o homem do poste** chega e fica embaixo dele (`stranger`, `MAN_*`; nenhuma noite o chama até o passo 8 do roteiro). Gente e carros
   seguem a hora e o dia da semana (`BUSY`, `LATE_*`).
 - Clima: chuva (`rain_level`, pingos `_drops`, gotas `_beads`, relâmpago `BOLT_*` e trovão), névoa (`_draw_fog`),

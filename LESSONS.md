@@ -928,3 +928,17 @@ Na revisão do roteiro afirmei que a Rua do Moinho e a Rua da Estação eram só
 endereço do Joaquim Ferreira; o usuário aprovou com base nisso. Errado: rua com `continues` tem 6 trechos e do 300 em
 diante fica no outro setor (`Street.block_sector`). O `test_content` já confere o endereço contra o bairro do número;
 antes de apontar rua no bairro errado, olhe `continues` e o número.
+
+## Reflexo na rua molhada: espelhe a cena, não desenhe riscos
+Os reflexos da chuva eram riscos desenhados pixel a pixel embaixo de cada luz: em linhas, pareciam linhas; ondulando,
+água parada; retos e manchados, ainda "não tá ficando bom". O que lê como asfalto molhado é o espelho do que está lá
+(a vitrine com o vão, a porta com a pessoa), esticado e borrado para baixo, com poças mais nítidas: um shader que lê
+o que já foi desenhado (`hint_screen_texture`, como o `spot_light`) e vira no pé das fachadas. Depois de duas
+tentativas no mesmo caminho recusadas, troque o método em vez de afinar o parâmetro.
+
+## Reflexo na rua molhada: quebras horizontais, não manchas; luz lisa
+O grão do reflexo na rua molhada em manchas que sumiam aos poucos parecia fumaça; em manchas de beira seca, parecia
+manchado. Recortar um reflexo em manchas 2D lê como mancha, qualquer que seja a beira: asfalto molhado se texturiza
+por quebras finas na horizontal (1 px, em trechos, mais juntas lá longe, sem deslocar para o lado, que vira água) e
+pelo esticar para baixo; mancha grande só onde é poça. O que tem de ser liso é a luz (o sumiço ao longo do reflexo,
+a poça da luminária). Antes de propor uma causa visual, teste tirando a suspeita numa captura.
