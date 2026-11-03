@@ -5,7 +5,7 @@
 
 [sub_resource type="Resource" id="Step_1"]
 script = ExtResource("2_step")
-text = "Alô? O senhor tem água encanada aí?"
+text = "Alô? A senhora tem água encanada aí?"
 
 [sub_resource type="Resource" id="Step_2"]
 script = ExtResource("2_step")

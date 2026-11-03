@@ -24,7 +24,7 @@ var kind := "":
 	set(v):
 		kind = v
 		queue_redraw()
-var pending := 0:   ## registros esperando no bloco de fichas: uma tira de papel saindo de cima dele por registro (até seis)
+var pending := PackedColorArray():   ## registros esperando no bloco de fichas: uma tira de papel saindo de cima dele por registro, na cor do tipo (até seis)
 	set(v):
 		pending = v
 		queue_redraw()
@@ -54,14 +54,13 @@ func _draw() -> void:
 				draw_rect(Rect2(cx - 3 + i, COVER, 1, size.y - COVER * 2), Color(0, 0, 0, 0.16 - absf(i - 2.5) * 0.04))
 		Tools.LOGBOOK:
 			draw_texture(_skin(kind, sz), Vector2.ZERO)
-			for i in mini(pending, 6):   # as tiras, saindo de baixo do bloco, por cima da fita (como no da mesa)
+			for i in mini(pending.size(), 6):   # as tiras, saindo de baixo do bloco, por cima da fita (como no da mesa)
 				var x := floorf(size.x * 0.56) + i * 26.0
-				var col: Color = Pal.PENDING[i % 2]
+				var col := pending[i]
 				var h := COVER + 12.0 + (i * 5) % 4
 				draw_rect(Rect2(x + 1, h, 12, 1), Color(0, 0, 0, 0.25))   # onde ela entra no papel
 				draw_rect(Rect2(x, 0, 12, h), col)
 				draw_rect(Rect2(x + 11, 0, 1, h), col.darkened(0.2))   # o lado na sombra
-				draw_rect(Rect2(x + 3, 3, 6, 2), Pal.FORM_RED)
 		Tools.CALL_LOG:
 			draw_texture(_skin(kind, sz), Vector2.ZERO)
 			var x0 := BOARD_W + 12.0

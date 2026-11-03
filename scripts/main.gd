@@ -179,8 +179,9 @@ func _ready() -> void:
 	notebook.registered.connect(supervisor.on_registered)
 	notebook.registered.connect(func(_r: PhoneCall.Record, _t: T.Key): background.written += 1)   # o lápis muda de lugar
 	notebook.pending_changed.connect(func(n: int):
-		tools.set_pending(n)
-		background.pending = n
+		var strips := notebook.pending_strips()
+		tools.set_pending(strips)
+		background.pending = strips
 		if n > 0:
 			_teach(SAW_SLIPS, T.Key.HINT_DESK_SLIPS))
 	toll.unstamped.connect(func(t: TollTicket): supervisor.fault("toll_unstamped", t.detail()))

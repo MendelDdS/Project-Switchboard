@@ -22,7 +22,7 @@ tone = 2
 
 [sub_resource type="Resource" id="ChatTopic_00"]
 script = ExtResource("8_chat")
-line = "Amanhã tem quermesse na praça, o senhor vai?"
+line = "Amanhã tem quermesse na praça, a senhora vai?"
 replies = Array[ExtResource("9_reply")]([SubResource("ChatReply_00_0"), SubResource("ChatReply_00_1")])
 
 [sub_resource type="Resource" id="S_homem"]

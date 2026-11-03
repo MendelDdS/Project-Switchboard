@@ -5,12 +5,12 @@
 
 [sub_resource type="Resource" id="Step_1"]
 script = ExtResource("2_step")
-text = "(voz grossa) Aqui quem fala é o prefeito. Exijo falar com o operador."
+text = "(voz grossa) Aqui quem fala é o prefeito. Exijo falar com a telefonista."
 
 [sub_resource type="Resource" id="Step_2"]
 script = ExtResource("2_step")
 kind = 1
-options = PackedStringArray("É ele mesmo. Pois não, senhor prefeito?", "Quantos anos o senhor tem?")
+options = PackedStringArray("Sou eu mesma. Pois não, senhor prefeito?", "Quantos anos o senhor tem?")
 
 [sub_resource type="Resource" id="Step_3"]
 script = ExtResource("2_step")
@@ -19,7 +19,7 @@ seconds = 0.6
 
 [sub_resource type="Resource" id="Step_4"]
 script = ExtResource("2_step")
-text = "(a voz afina) ...Mãe! Ele descobriu!"
+text = "(a voz afina) ...Mãe! Ela descobriu!"
 
 [sub_resource type="Resource" id="Step_5"]
 script = ExtResource("2_step")

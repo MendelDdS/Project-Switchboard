@@ -37,6 +37,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   parecer à mão, rubrica e o carimbo redondo do conceito, `_grade_stamp`, girado pixel a pixel e em lugar sorteado).
 - Botão de resposta (`ChoiceButton`): fala curta do operador (`CHOICE_*`; a frase inteira, `OP_*`, vai para a
   conversa); ação do jogador entre colchetes ("[Oferecer outro lugar]").
+- A telefonista é Maria: quem fala com ela usa o feminino ("a senhora", "moça", "minha filha"), também no en e no es.
 - Nomes de pessoas e lugares na ordem natural ("Nome Sobrenome"). Quem liga tem nome e sobrenome sem apelido nem
   tratamento (`TransferCall.caller_name`; nos moldes, `GameContent.caller_names`; o `test_content` cobra). Lista telefônica: uma letra por página dupla, aba
   de índice; a observação (`DirectoryEntry.note`) só diz quem atende quando o nome não diz. Todo número serve para

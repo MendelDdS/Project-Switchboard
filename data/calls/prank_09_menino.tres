@@ -10,7 +10,7 @@ options = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_ytmxk"]
 script = ExtResource("2_k37in")
-text = "Vamos testar a linha. O senhor pode assoviar?"
+text = "Vamos testar a linha. A senhora pode assoviar?"
 options = PackedStringArray()
 
 [sub_resource type="Resource" id="Resource_rsc20"]

@@ -949,3 +949,17 @@ O traçante do combate da noite 15 saiu primeiro como risco de 8 px (lia como fa
 para trás (lia como míssil). Bala traçante é uma linha reta, de cor única, inteira, subindo em diagonal desde trás
 dos telhados. Antes de desenhar algo que se move, pense no objeto físico (bala, míssil, fogo) e no que ele parece de
 longe, e não só no tamanho na captura.
+
+## Texto que fala de uma cor ou de um rótulo amarra o objeto
+Mudar a cor de um objeto (a fita do bloco, de vermelha para oliva) ou o tamanho de uma coluna (o carimbo do tipo, na
+base 960×540) deixou o tutorial errado ("a fita vermelha") e o carimbo cortado ("LIGAÇ..."). Ao mudar cor, rótulo ou
+largura, procure nas falas (`grep` em `data/`) quem descreve aquilo e capture o texto mais longo de cada idioma.
+
+## O objeto do relato: ache na captura o que a pessoa vê
+"As fitas na ficha são brancas com uma linhazinha vermelha" eram as tiras pendentes saindo do bloco; pintei a fita
+de pano do alto, porque a fala citava "fita". Antes de consertar, ache na captura o que bate com a descrição (cor,
+forma, quantidade) e confira o nome do código pelo desenho, não pela palavra.
+
+## `--import` com o editor aberto: confira antes e pare
+Rodei `pgrep ... && echo EDITOR; Godot --import` numa linha só: o aviso saiu e o import rodou mesmo assim. A
+conferência do editor tem de bloquear o comando (`pgrep ... || Godot --import`), nunca só avisar.

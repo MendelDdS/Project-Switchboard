@@ -5,7 +5,7 @@
 
 [sub_resource type="Resource" id="Step_1"]
 script = ExtResource("2_step")
-text = "Moço, quanto é sete vezes oito?"
+text = "Moça, quanto é sete vezes oito?"
 
 [sub_resource type="Resource" id="Step_2"]
 script = ExtResource("2_step")

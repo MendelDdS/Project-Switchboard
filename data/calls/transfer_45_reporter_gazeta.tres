@@ -12,5 +12,5 @@ opening = PackedStringArray("Central, aqui é o correspondente da Gazeta na estr
 repeat = "A Gazeta de São Sotero. A redação."
 target = "101"
 destination = "Gazeta de São Sotero"
-thanks = "Obrigado. Amanhã o senhor lê no jornal."
+thanks = "Obrigado. Amanhã a senhora lê no jornal."
 overheard = PackedStringArray("Redação? É o correspondente. Tenho notícia pra amanhã.", "Rápido, que a página fecha em vinte minutos.", "A ponte do rio Claro vai ser reformada. Começa em março.", "Quem confirmou?", "O engenheiro da estrada. Estive com ele hoje.", "Dita devagar, que eu vou batendo à máquina.")

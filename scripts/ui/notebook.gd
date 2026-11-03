@@ -15,10 +15,16 @@ const STAMPS := {
 	T.Key.TYPE_PRANK: Pal.LOG_STAMPS[2],
 	T.Key.TYPE_MISSED: Pal.LOG_STAMPS[3],
 }
+## Cor da tira saindo do bloco, por tipo da ligação esperando registro.
+const STRIPS := {
+	T.Key.TYPE_COMMON: Pal.PENDING[0],
+	T.Key.TYPE_EMERGENCY: Pal.PENDING[1],
+	T.Key.TYPE_PRANK: Pal.PENDING[2],
+}
 const ROW_H := 50.0                # cada ocorrência: linha principal e, abaixo, unidade e observação
 const X_CALLER := 56.0             # colunas do livro (as legendas acima seguem as mesmas larguras)
-const X_PLACE := 216.0
-const X_STAMP := 360.0
+const X_PLACE := 192.0
+const X_STAMP := 330.0
 const RULE := Pal.NOTE_RULE       # a pauta e a margem, as do caderno da mesa
 const MARGIN := Pal.NOTE_MARGIN
 
@@ -71,6 +77,14 @@ func has_pending() -> bool:
 
 func pending_count() -> int:
 	return queue.size() + (1 if has_pending() else 0)
+
+
+## A cor da tira de cada registro esperando (a da ficha primeiro), pelo tipo da ligação.
+func pending_strips() -> PackedColorArray:
+	var out := PackedColorArray()
+	for r in ([pending] if has_pending() else []) + queue:
+		out.append(STRIPS[Supervisor.TYPE_OF.get(r.kind, T.Key.TYPE_COMMON)])
+	return out
 
 
 ## Nova ocorrência. Se já há uma na ficha, entra na fila. Não atendida vai direto para o livro (não há tipo a

@@ -125,7 +125,7 @@ const DIGITS := [
 
 @export var desk_art: Texture2D     ## imagem da madeira da mesa (repetida), no lugar do desenho
 # O estado do jogo nos objetos da mesa, para ler de relance sem abrir nada (o Main atualiza):
-var pending := 0     ## registros esperando no bloco de fichas: uma tira de papel saindo dele por registro
+var pending := PackedColorArray()   ## registros esperando no bloco de fichas: uma tira de papel saindo dele por registro, na cor do tipo
 var unread := false  ## o registro das conversas tem fala nova: uma folha nova presa na prancheta
 var alert := false     ## há uma emergência em andamento: a luz vermelha da unidade de despacho (o Main atualiza)
 var card_out := false  ## há um cartão perfurado na mesa: ele sai da fenda da impressora da unidade, com a luz âmbar
@@ -1822,15 +1822,14 @@ func _pad_marks(sz: Vector2i) -> void:
 			w += n + 2.0
 	if rows.size() > 1:   # a margem vermelha, impressa, do fio do cabeçalho para baixo
 		_pixel_line(_tex_pt(Vector2(mx, rows[1])), _tex_pt(Vector2(mx, sz.y - 2)), [_tone(Pal.NOTE_MARGIN, Vector2(mx, sz.y / 2.0))])
-	for i in mini(pending, 6):
+	for i in mini(pending.size(), 6):
 		var p := _tex_pt(Vector2(5 + i * floorf((sz.x - 12) / 6.0), 0)).round()
 		var up := 6.0 + (i * 5) % 4
 		var spot := Vector2(5 + i * floorf((sz.x - 12) / 6.0), 0)
-		var col := _tone(Pal.PENDING[i % 2], spot)
+		var col := _tone(pending[i], spot)
 		_ci.draw_rect(Rect2(p.x, p.y - up, 6, up + 2), col)
 		_ci.draw_rect(Rect2(p.x + 5, p.y - up, 1, up + 2), col.darkened(0.2))   # o lado na sombra
 		_ci.draw_rect(Rect2(p.x, p.y - up, 5, 1), col.lightened(0.12))   # a beira de cima, na luz
-		_ci.draw_rect(Rect2(p.x + 1, p.y - up + 2, 3, 1), _tone(Pal.FORM_RED, spot))
 		_ci.draw_rect(Rect2(p.x, p.y + 1, 6, 1), Color(0, 0, 0, 0.3))   # onde ela entra embaixo do bloco
 	var at: Array = PENCIL[written % PENCIL.size()]
 	var page := func(f: Vector2) -> Vector2:   # a fração da folha abaixo da fita, na tela

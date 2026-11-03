@@ -51,6 +51,6 @@ again = false
 
 [resource]
 script = ExtResource("1_night")
-note = "O supervisor deixou um recado: \"Hoje o Centro tem baile e a praça cheia. Fique atento. A linha do Bar do Zé continua bloqueada.\""
+note = "O supervisor deixou um recado: \"Hoje o Centro tem baile e a praça cheia. Fique atenta. A linha do Bar do Zé continua bloqueada.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0")])
 story = Array[ExtResource("x0_story_call")]([SubResource("S_acordo"), SubResource("S_bar1"), SubResource("S_bar2"), SubResource("A_story_06_miguel"), SubResource("A_story_06_generosa")])

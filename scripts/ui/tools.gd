@@ -83,9 +83,9 @@ func close() -> void:
 	_apply()
 
 
-## Quantos registros esperam no caderno: as tiras saindo do caderno aberto, como no da mesa.
-func set_pending(n: int) -> void:
-	_deco.pending = n
+## Os registros que esperam no caderno, um por cor do tipo: as tiras saindo do caderno aberto, como no da mesa.
+func set_pending(strips: PackedColorArray) -> void:
+	_deco.pending = strips
 
 
 ## O papel sai do objeto da ferramenta na mesa (pequeno, em cima dele) e vem para o lugar, ou volta para ele e some.

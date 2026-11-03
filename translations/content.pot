@@ -4447,7 +4447,7 @@ msgid "Hahaha!"
 msgstr ""
 
 #: data/nights/night_01.tres
-msgid "Amanhã tem quermesse na praça, o senhor vai?"
+msgid "Amanhã tem quermesse na praça, a senhora vai?"
 msgstr ""
 
 #: data/nights/night_01.tres
@@ -4583,7 +4583,7 @@ msgid "Otávio Almeida."
 msgstr ""
 
 #: data/nights/night_02.tres
-msgid "Disseram que o senhor ia na quermesse hoje à tarde e não apareceu, hein!"
+msgid "Disseram que a senhora ia na quermesse hoje à tarde e não apareceu, hein!"
 msgstr ""
 
 #: data/nights/night_02.tres
@@ -4603,7 +4603,7 @@ msgid "Hum. Tá bom."
 msgstr ""
 
 #: data/nights/night_02.tres
-msgid "A quermesse hoje à tarde foi uma beleza, o senhor perdeu."
+msgid "A quermesse hoje à tarde foi uma beleza, a senhora perdeu."
 msgstr ""
 
 #: data/nights/night_02.tres
@@ -5399,7 +5399,7 @@ msgid "Rebeldes ocupam a TV Orbital\nPor quase duas horas, na noite de ontem, a 
 msgstr ""
 
 #: data/nights/night_06.tres
-msgid "O supervisor deixou um recado: \"Hoje o Centro tem baile e a praça cheia. Fique atento. A linha do Bar do Zé continua bloqueada.\""
+msgid "O supervisor deixou um recado: \"Hoje o Centro tem baile e a praça cheia. Fique atenta. A linha do Bar do Zé continua bloqueada.\""
 msgstr ""
 
 #: data/calls/story_06_sebastiao_acordo.tres
@@ -7807,11 +7807,11 @@ msgid "As minhas duas de agora foram ligações comuns. Carimba as duas como Com
 msgstr ""
 
 #: data/nights/night_00.tres
-msgid "Registre as ligações da Cecília: na ficha de ocorrências, clique em [b]Ligação comum[/b], uma vez para cada."
+msgid "Registre as ligações da Cecília: na ficha de ocorrências, clique em [b]Comum[/b], uma vez para cada."
 msgstr ""
 
 #: data/nights/night_00.tres
-msgid "É o botão Ligação comum, embaixo da ficha. A segunda sobe sozinha depois da primeira."
+msgid "É o botão Comum, embaixo da ficha. A segunda sobe sozinha depois da primeira."
 msgstr ""
 
 #: data/nights/night_00.tres
@@ -8047,7 +8047,7 @@ msgid "Por hoje é isso. A mesa é sua: a noite é calma, e o manual ali na pare
 msgstr ""
 
 #: data/nights/night_00.tres
-msgid "Obrigado, Cecília!"
+msgid "Valeu, Cecília!"
 msgstr ""
 
 #: data/nights/night_00.tres
@@ -8411,7 +8411,7 @@ msgid "Poderia me conectar com a farmácia? A de plantão. Meu neto está com fe
 msgstr ""
 
 #: data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres
-msgid "A farmácia de plantão, moço. A que fica aberta de noite."
+msgid "A farmácia de plantão, moça. A que fica aberta de noite."
 msgstr ""
 
 #: data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres data/calls/transfer_22_seu_anibal_farmacia_central.tres data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
@@ -8419,7 +8419,7 @@ msgid "Farmácia Santa Rita"
 msgstr ""
 
 #: data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres
-msgid "Obrigada, meu filho. Deus te abençoe."
+msgid "Obrigada, minha filha. Deus te abençoe."
 msgstr ""
 
 #: data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres
@@ -8531,7 +8531,7 @@ msgid "Dona Zilda"
 msgstr ""
 
 #: data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres
-msgid "Boa noite, querido."
+msgid "Boa noite, querida."
 msgstr ""
 
 #: data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres
@@ -8547,7 +8547,7 @@ msgid "Padaria Pão Dourado"
 msgstr ""
 
 #: data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres data/calls/transfer_20_dona_tereza_marta_costa.tres
-msgid "Obrigada, querido."
+msgid "Obrigada, querida."
 msgstr ""
 
 #: data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres
@@ -8767,7 +8767,7 @@ msgid "Funerária Paz Eterna"
 msgstr ""
 
 #: data/calls/transfer_09_senhor_funeraria_paz_eterna.tres
-msgid "Obrigado, moço."
+msgid "Obrigado, moça."
 msgstr ""
 
 #: data/calls/transfer_09_senhor_funeraria_paz_eterna.tres
@@ -8983,7 +8983,7 @@ msgid "Casa Paroquial"
 msgstr ""
 
 #: data/calls/transfer_14_senhora_casa_paroquial.tres
-msgid "Obrigada, meu filho."
+msgid "Obrigada, minha filha."
 msgstr ""
 
 #: data/calls/transfer_14_senhora_casa_paroquial.tres
@@ -9071,7 +9071,7 @@ msgid "Célia Rocha (Av. Brasil)"
 msgstr ""
 
 #: data/calls/transfer_16_sobrinha_celia_rocha_av_brasil.tres data/calls/transfer_27_moca_taxi_ponto_da_rodoviaria.tres
-msgid "Obrigada, moço."
+msgid "Obrigada, moça."
 msgstr ""
 
 #: data/calls/transfer_16_sobrinha_celia_rocha_av_brasil.tres
@@ -9311,7 +9311,7 @@ msgid "Farmácia Central"
 msgstr ""
 
 #: data/calls/transfer_22_seu_anibal_farmacia_central.tres
-msgid "Obrigado, meu filho."
+msgid "Obrigado, minha filha."
 msgstr ""
 
 #: data/calls/transfer_22_seu_anibal_farmacia_central.tres
@@ -9511,7 +9511,7 @@ msgid "Dona Olga"
 msgstr ""
 
 #: data/calls/transfer_28_dona_olga_radio_serena_am.tres
-msgid "Boa noite, meu filho."
+msgid "Boa noite, minha filha."
 msgstr ""
 
 #: data/calls/transfer_28_dona_olga_radio_serena_am.tres
@@ -9671,7 +9671,7 @@ msgid "O Ferreira do armazém. O Joaquim."
 msgstr ""
 
 #: data/calls/transfer_32_seu_lauro_armazem_ferreira.tres
-msgid "Obrigado, moço. Tomara que ele atenda."
+msgid "Obrigado, moça. Tomara que ele atenda."
 msgstr ""
 
 #: data/calls/transfer_32_seu_lauro_armazem_ferreira.tres
@@ -9855,7 +9855,7 @@ msgid "Dona Benta"
 msgstr ""
 
 #: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
-msgid "Boa noite, moço."
+msgid "Boa noite, moça."
 msgstr ""
 
 #: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
@@ -9867,7 +9867,7 @@ msgid "A pensão da Dona Cota, na Rua da Estação."
 msgstr ""
 
 #: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
-msgid "Obrigada, meu filho. Boa noite."
+msgid "Obrigada, minha filha. Boa noite."
 msgstr ""
 
 #: data/calls/transfer_38_dona_benta_pensao_dona_cota.tres
@@ -9915,7 +9915,7 @@ msgid "Me liga com o Hotel Serena? Preciso de um quarto pra hoje."
 msgstr ""
 
 #: data/calls/transfer_39_caixeiro_hotel_estrela.tres
-msgid "Muito obrigado. O senhor me salvou a noite."
+msgid "Muito obrigado. A senhora me salvou a noite."
 msgstr ""
 
 #: data/calls/transfer_39_caixeiro_hotel_estrela.tres
@@ -10019,7 +10019,7 @@ msgid "Bilhar do Tonho"
 msgstr ""
 
 #: data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
-msgid "Valeu! O senhor é dos bons."
+msgid "Valeu! A senhora é das boas."
 msgstr ""
 
 #: data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
@@ -10095,7 +10095,7 @@ msgid "A Santa Rita não atende. Quer que eu tente a Farmácia Central, da praç
 msgstr ""
 
 #: data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
-msgid "Qualquer uma, moço. Contanto que tenha remédio."
+msgid "Qualquer uma, moça. Contanto que tenha remédio."
 msgstr ""
 
 #: data/calls/transfer_43_noivo_casa_paroquial.tres
@@ -10167,7 +10167,7 @@ msgid "A padaria Pão Dourado, na Rua das Acácias."
 msgstr ""
 
 #: data/calls/transfer_44_dona_glorinha_padaria_pao_dourado.tres
-msgid "Obrigada, querido. Vou pedir um de coco."
+msgid "Obrigada, querida. Vou pedir um de coco."
 msgstr ""
 
 #: data/calls/transfer_44_dona_glorinha_padaria_pao_dourado.tres
@@ -10215,7 +10215,7 @@ msgid "Gazeta de São Sotero"
 msgstr ""
 
 #: data/calls/transfer_45_reporter_gazeta.tres
-msgid "Obrigado. Amanhã o senhor lê no jornal."
+msgid "Obrigado. Amanhã a senhora lê no jornal."
 msgstr ""
 
 #: data/calls/transfer_45_reporter_gazeta.tres
@@ -10327,7 +10327,7 @@ msgid "Levo amanhã cedo, com um pedaço do pudim."
 msgstr ""
 
 #: data/calls/transfer_49_menino_mercearia_silva.tres
-msgid "Alô? Moço, minha mãe mandou ligar pra Mercearia Silva."
+msgid "Alô? Moça, minha mãe mandou ligar pra Mercearia Silva."
 msgstr ""
 
 #: data/calls/transfer_49_menino_mercearia_silva.tres
@@ -10339,7 +10339,7 @@ msgid "A mercearia do seu Silva!"
 msgstr ""
 
 #: data/calls/transfer_49_menino_mercearia_silva.tres
-msgid "Brigado, moço!"
+msgid "Brigado, moça!"
 msgstr ""
 
 #: data/calls/transfer_49_menino_mercearia_silva.tres
@@ -12403,7 +12403,7 @@ msgid "Sim, central telefônica. Pois não?"
 msgstr ""
 
 #: data/calls/prank_06_menina.tres
-msgid "Meu irmão quer saber se o senhor tem cara de telefone."
+msgid "Meu irmão quer saber se a senhora tem cara de telefone."
 msgstr ""
 
 #: data/calls/prank_06_menina.tres
@@ -12471,7 +12471,7 @@ msgid "Alô, central? Aqui é da companhia telefônica."
 msgstr ""
 
 #: data/calls/prank_09_menino.tres
-msgid "Vamos testar a linha. O senhor pode assoviar?"
+msgid "Vamos testar a linha. A senhora pode assoviar?"
 msgstr ""
 
 #: data/calls/prank_09_menino.tres
@@ -12499,7 +12499,7 @@ msgid "Paula Tejano!"
 msgstr ""
 
 #: data/calls/prank_11_menino.tres
-msgid "Alô? O senhor tem água encanada aí?"
+msgid "Alô? A senhora tem água encanada aí?"
 msgstr ""
 
 #: data/calls/prank_11_menino.tres
@@ -12511,7 +12511,7 @@ msgid "Então solta ela, que ela é inocente!"
 msgstr ""
 
 #: data/calls/prank_12_menina.tres
-msgid "Moço, quanto é sete vezes oito?"
+msgid "Moça, quanto é sete vezes oito?"
 msgstr ""
 
 #: data/calls/prank_12_menina.tres
@@ -12563,7 +12563,7 @@ msgid "(gargalhadas)"
 msgstr ""
 
 #: data/calls/prank_15_garoto.tres
-msgid "Central? Eu tenho um recado muito importante pro senhor."
+msgid "Central? Eu tenho um recado muito importante pra senhora."
 msgstr ""
 
 #: data/calls/prank_15_garoto.tres
@@ -12579,7 +12579,7 @@ msgid "Locutor"
 msgstr ""
 
 #: data/calls/prank_16_rapaz.tres
-msgid "Parabéns! O senhor acaba de ganhar o grande prêmio da noite!"
+msgid "Parabéns! A senhora acaba de ganhar o grande prêmio da noite!"
 msgstr ""
 
 #: data/calls/prank_16_rapaz.tres
@@ -12607,11 +12607,11 @@ msgid "Ué! Então por que é que atendeu um macaco?"
 msgstr ""
 
 #: data/calls/prank_18_garoto.tres
-msgid "(voz grossa) Aqui quem fala é o prefeito. Exijo falar com o operador."
+msgid "(voz grossa) Aqui quem fala é o prefeito. Exijo falar com a telefonista."
 msgstr ""
 
 #: data/calls/prank_18_garoto.tres
-msgid "É ele mesmo. Pois não, senhor prefeito?"
+msgid "Sou eu mesma. Pois não, senhor prefeito?"
 msgstr ""
 
 #: data/calls/prank_18_garoto.tres
@@ -12619,7 +12619,7 @@ msgid "Quantos anos o senhor tem?"
 msgstr ""
 
 #: data/calls/prank_18_garoto.tres
-msgid "(a voz afina) ...Mãe! Ele descobriu!"
+msgid "(a voz afina) ...Mãe! Ela descobriu!"
 msgstr ""
 
 #: data/calls/prank_19_criancas.tres
@@ -12731,7 +12731,7 @@ msgid "Faz favor de me ligar {to_place}. {reason}"
 msgstr ""
 
 #: data/templates/transfer_08.tres
-msgid "{place}, moço."
+msgid "{place}, moça."
 msgstr ""
 
 #: data/templates/transfer_09.tres
@@ -12767,7 +12767,7 @@ msgid "Ótimo. Boa noite."
 msgstr ""
 
 #: data/content.tres
-msgid "Isso. Boa noite pro senhor."
+msgid "Isso. Boa noite pra senhora."
 msgstr ""
 
 #: data/content.tres
@@ -12807,7 +12807,7 @@ msgid "Anota aí: {far}."
 msgstr ""
 
 #: data/templates/trunk_02.tres
-msgid "{to_city}, moço. O número é {far}."
+msgid "{to_city}, moça. O número é {far}."
 msgstr ""
 
 #: data/templates/trunk_03.tres
@@ -13431,7 +13431,7 @@ msgid "Central de São Sotero, pois não?"
 msgstr ""
 
 #: data/content.tres
-msgid "Desculpe incomodar, o senhor deve estar cheio de ligação."
+msgid "Desculpe incomodar, a senhora deve estar cheia de ligação."
 msgstr ""
 
 #: data/content.tres
@@ -13451,7 +13451,7 @@ msgid "Ah... tá. Desculpe de novo."
 msgstr ""
 
 #: data/content.tres
-msgid "O senhor passa a noite inteira aí sozinho?"
+msgid "A senhora passa a noite inteira aí sozinha?"
 msgstr ""
 
 #: data/content.tres
@@ -13475,7 +13475,7 @@ msgid "Não incomoda, não."
 msgstr ""
 
 #: data/content.tres
-msgid "Vou contar pra ela que o senhor disse isso."
+msgid "Vou contar pra ela que a senhora disse isso."
 msgstr ""
 
 #: data/content.tres
@@ -13495,7 +13495,7 @@ msgid "Um chá de camomila ajuda."
 msgstr ""
 
 #: data/content.tres
-msgid "Já tomei dois, moço. Nem fez cócegas."
+msgid "Já tomei dois, moça. Nem fez cócegas."
 msgstr ""
 
 #: data/content.tres
@@ -13555,7 +13555,7 @@ msgid "Pega um casaco."
 msgstr ""
 
 #: data/content.tres
-msgid "Já tô com dois, moço!"
+msgid "Já tô com dois, moça!"
 msgstr ""
 
 #: data/content.tres
@@ -13587,7 +13587,7 @@ msgid "Ah... tá. Eu vejo amanhã, então."
 msgstr ""
 
 #: data/content.tres
-msgid "Meu relógio adiantou de novo. O senhor me diz a hora certa?"
+msgid "Meu relógio adiantou de novo. A senhora me diz a hora certa?"
 msgstr ""
 
 #: data/content.tres
@@ -13615,7 +13615,7 @@ msgid "Nem eu, e olha que é meu trabalho."
 msgstr ""
 
 #: data/content.tres
-msgid "Hehe, o senhor tem desculpa, eu não."
+msgid "Hehe, a senhora tem desculpa, eu não."
 msgstr ""
 
 #: data/content.tres
@@ -13723,7 +13723,7 @@ msgid "Normal."
 msgstr ""
 
 #: data/content.tres
-msgid "Normal pro senhor, né..."
+msgid "Normal pra senhora, né..."
 msgstr ""
 
 #: data/content.tres
@@ -13783,7 +13783,7 @@ msgid "Boato."
 msgstr ""
 
 #: data/content.tres
-msgid "Tomara que seja, moço."
+msgid "Tomara que seja, moça."
 msgstr ""
 
 #: data/content.tres
@@ -13795,7 +13795,7 @@ msgid "Cuidado por aí."
 msgstr ""
 
 #: data/content.tres
-msgid "Pode deixar, moço. Aqui é alto."
+msgid "Pode deixar, moça. Aqui é alto."
 msgstr ""
 
 #: data/content.tres
@@ -13811,7 +13811,7 @@ msgid "Não sai de casa, hein."
 msgstr ""
 
 #: data/content.tres
-msgid "Nem pensar, moço. Daqui não saio."
+msgid "Nem pensar, moça. Daqui não saio."
 msgstr ""
 
 #: data/content.tres
@@ -13963,7 +13963,7 @@ msgid "Tô aproveitando, com um cafezinho."
 msgstr ""
 
 #: data/content.tres
-msgid "A novela das oito tá boa demais. O senhor tem acompanhado?"
+msgid "A novela das oito tá boa demais. A senhora tem acompanhado?"
 msgstr ""
 
 #: data/content.tres
@@ -13979,7 +13979,7 @@ msgid "Não tenho tempo pra novela."
 msgstr ""
 
 #: data/content.tres
-msgid "Ah, é verdade, o senhor trabalha de noite..."
+msgid "Ah, é verdade, a senhora trabalha de noite..."
 msgstr ""
 
 #: data/content.tres
@@ -13999,7 +13999,7 @@ msgid "Não acompanho futebol."
 msgstr ""
 
 #: data/content.tres
-msgid "Ah, então o senhor é dos poucos aqui."
+msgid "Ah, então a senhora é das poucas aqui."
 msgstr ""
 
 #: data/content.tres
@@ -14023,7 +14023,7 @@ msgid "Obrigada... É, tem muita coisa pra arrumar ainda."
 msgstr ""
 
 #: data/content.tres
-msgid "O circo chegou na cidade. O senhor viu o cartaz?"
+msgid "O circo chegou na cidade. A senhora viu o cartaz?"
 msgstr ""
 
 #: data/content.tres
@@ -14171,7 +14171,7 @@ msgid "É um passatempo. A noite fica mais curta."
 msgstr ""
 
 #: data/content.tres
-msgid "O senhor sabe se a farmácia de plantão hoje é a Santa Rita?"
+msgid "A senhora sabe se a farmácia de plantão hoje é a Santa Rita?"
 msgstr ""
 
 #: data/content.tres
@@ -14211,7 +14211,7 @@ msgid "Pois devia! Trocaram as cadeiras, tá uma beleza."
 msgstr ""
 
 #: data/content.tres
-msgid "Vai indo, moço."
+msgid "Vai indo, moça."
 msgstr ""
 
 #: data/content.tres
@@ -14243,7 +14243,7 @@ msgid "Alô? Conseguiu?"
 msgstr ""
 
 #: data/content.tres
-msgid "Moço? A ligação caiu?"
+msgid "Moça? A ligação caiu?"
 msgstr ""
 
 #: data/content.tres
@@ -14315,7 +14315,7 @@ msgid "Tá, fico esperando."
 msgstr ""
 
 #: data/content.tres
-msgid "Sem pressa, moço."
+msgid "Sem pressa, moça."
 msgstr ""
 
 #: data/content.tres
@@ -14459,15 +14459,15 @@ msgid "Tô tentando faz tempo. Ninguém atende essa central?"
 msgstr ""
 
 #: data/content.tres
-msgid "O número que o senhor me deu não era o certo."
+msgid "O número que a senhora me deu não era o certo."
 msgstr ""
 
 #: data/content.tres
-msgid "Liguei pro número que o senhor passou e era de outra pessoa!"
+msgid "Liguei pro número que a senhora passou e era de outra pessoa!"
 msgstr ""
 
 #: data/content.tres
-msgid "Central, a informação que o senhor me deu tava errada."
+msgid "Central, a informação que a senhora me deu tava errada."
 msgstr ""
 
 #: data/content.tres
@@ -14807,7 +14807,7 @@ msgid "Boa noite. Pode me dar o número %s?"
 msgstr ""
 
 #: data/content.tres
-msgid "Central, o senhor sabe o número %s?"
+msgid "Central, a senhora sabe o número %s?"
 msgstr ""
 
 #: data/content.tres
@@ -14827,7 +14827,7 @@ msgid "Boa noite. Qual é o telefone %s?"
 msgstr ""
 
 #: data/content.tres
-msgid "O senhor tem aí o número %s?"
+msgid "A senhora tem aí o número %s?"
 msgstr ""
 
 #: data/content.tres
@@ -14843,7 +14843,7 @@ msgid "Muito obrigada. Boa noite."
 msgstr ""
 
 #: data/content.tres
-msgid "Brigado, moço."
+msgid "Brigado, moça."
 msgstr ""
 
 #: data/content.tres

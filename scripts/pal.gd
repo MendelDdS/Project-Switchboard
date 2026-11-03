@@ -32,7 +32,7 @@ const BOOK_LEAVES := Color("c6b994")   ## o miolo das listas visto de lado, na m
 const BOOK_PAGE := Color("e3d6b2")     ## ...e a página da lista aberta (`PhoneBook`)
 const BOOK_TAG: Array[Color] = [Color("e2d7b6"), Color("4a4038"), Color("d8cba6")]   ## na capa da lista de cima: a etiqueta colada, o ano nela e a folha à mostra na ponta dobrada
 const PAD_BACK: Array[Color] = [Color("8a7f6c"), Color("6c6253"), Color("463f35")]   ## o papelão de trás do bloco de fichas: a beira na luz, o papelão, a beira na sombra
-const PAD_TAPE: Array[Color] = [Color("5f6845"), Color("424930"), Color("292e1e")]   ## a fita de pano oliva (os tons do painel, `BOARD_METAL`) da colagem, no alto do bloco
+const PAD_TAPE: Array[Color] = [Color("b04a3e"), Color("8e2a22"), Color("5e1a14")]   ## a fita de pano vermelha da colagem, no alto do bloco (a lição da Cecília a chama assim; os vermelhos da folhinha, `CALENDAR_HEAD`)
 const NOTE_PAGE := Color("d2c5a0")     ## a ficha de ocorrências (o bloco de fichas)...
 const NOTE_RULE := Color("bfb38e")     ## ...a pauta...
 const NOTE_MARGIN := Color("b07060")   ## ...e a margem vermelha
@@ -45,12 +45,14 @@ const PENCIL_LEAD := Color("2a2620")
 ## Os carimbos do caderno (`Notebook.STAMPS`): Comum (tinta azul), Emergência (vermelho), Trote (sépia) e a não atendida
 ## (grafite: registrada sozinha).
 const LOG_STAMPS: Array[Color] = [Color("3a4f7a"), Color("8a2a1c"), Color("7a5214"), Color("5c5a55")]
-const PENDING: Array[Color] = [Color("d4c084"), Color("cdbda4")]   ## as tiras dos registros pendentes saindo do bloco de fichas
+## As tiras dos registros pendentes saindo do bloco de fichas, na cor do tipo da ligação (`Notebook.STRIPS`): Comum
+## (azul), Emergência (vermelho) e Trote (ocre), os carimbos num papel mais claro.
+const PENDING: Array[Color] = [Color("6a86b4"), Color("b8503e"), Color("cc9e3c")]
 const BOARD: Array[Color] = [Color("8a5e3a"), Color("6e4a2c"), Color("4a3018"), Color("7e5634")]   ## a tábua da prancheta: a beira de cima, na luz, a tábua, a beira na sombra e a da esquerda
 const SHEET := Color("cdc09c")       ## a folha da prancheta (a nova, ainda não lida: SHEET_NEW)
 const SHEET_NEW := Color("e0d5b4")
 const SHEET_INK: Array[Color] = [Color("5a5448"), Color("6a6458")]   ## a letra das folhas da prancheta: o título e as linhas
-const FORM_RED := Color("a8564a")    ## o fio vermelho do cabeçalho da folha, a marca das tiras e as tiras vermelhas das listas
+const FORM_RED := Color("a8564a")    ## o fio vermelho do cabeçalho da folha e as tiras vermelhas das listas
 const STRIP := Color("e0d4b0")       ## as tiras de papel creme marcando páginas nas listas
 const NEWSPRINT := Color("d3c69f")   ## o papel-jornal
 const NEWS_INK := Color("776c51")    ## a letra miúda das colunas do jornal

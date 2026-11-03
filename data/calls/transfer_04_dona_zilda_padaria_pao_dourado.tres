@@ -6,9 +6,9 @@
 script = ExtResource("1_rhixv")
 caller = "Dona Zilda"
 caller_name = "Zilda Leite"
-opening = PackedStringArray("Boa noite, querido.", "Quero falar com a Padaria Pão Dourado. É pra encomendar o pão de amanhã cedo.")
+opening = PackedStringArray("Boa noite, querida.", "Quero falar com a Padaria Pão Dourado. É pra encomendar o pão de amanhã cedo.")
 repeat = "A Pão Dourado. A padaria."
 target = "142"
 destination = "Padaria Pão Dourado"
-thanks = "Obrigada, querido."
+thanks = "Obrigada, querida."
 overheard = PackedStringArray("Boa noite, querido. É a Zilda. Quero o pão de amanhã cedo.", "O de sempre, Dona Zilda? Doze pãezinhos?", "Dezoito. Meus netos chegam amanhã.", "Então mando uma rosca de presente pra eles.", "Ai, que gentileza. Busco às seis.")

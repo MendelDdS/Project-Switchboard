@@ -233,8 +233,8 @@ script = ExtResource("2_lesson")
 kind = 3
 seconds = 15.0
 until = "registered"
-hint = "Registre as ligações da Cecília: na ficha de ocorrências, clique em [b]Ligação comum[/b], uma vez para cada."
-nudges = PackedStringArray("É o botão Ligação comum, embaixo da ficha. A segunda sobe sozinha depois da primeira.")
+hint = "Registre as ligações da Cecília: na ficha de ocorrências, clique em [b]Comum[/b], uma vez para cada."
+nudges = PackedStringArray("É o botão Comum, embaixo da ficha. A segunda sobe sozinha depois da primeira.")
 wrong = "Ih, essa foi comum! Carimbo não se apaga, e o supervisor confere. Hoje não conta, mas presta atenção."
 
 [sub_resource type="Resource" id="Lesson_45"]
@@ -476,7 +476,7 @@ text = "Por hoje é isso. A mesa é sua: a noite é calma, e o manual ali na par
 [sub_resource type="Resource" id="Lesson_90"]
 script = ExtResource("2_lesson")
 kind = 2
-options = PackedStringArray("Obrigado, Cecília!", "Obrigada, Cecília!", "Até a próxima!")
+options = PackedStringArray("Valeu, Cecília!", "Obrigada, Cecília!", "Até a próxima!")
 
 [sub_resource type="Resource" id="Lesson_91"]
 script = ExtResource("2_lesson")

@@ -3311,3 +3311,19 @@ Chaves:
     (setor 3, para a Generosa pedir por ele na 8; a Funerária Paz Eterna foi para o 253); os três complementos (o
     castigo só nas falas da 12, o gesso leva Maria ao hospital no final de sucesso, a linha ocupada no epílogo de
     fracasso). Motor: `PrankCall.prank`, `StoryCall.if_hung_up`, `TransferCall.busy_line`.
+533. #caderno #objetos #treinamento No tutorial, o carimbo do tipo na ficha saía "LIGAÇ..." (a coluna encolheu na
+    base 960×540): o tipo comum voltou a ser só "Comum" ("Regular", "Común"; o trote em inglês "Prank") e a coluna do
+    tipo alargou (`Notebook.X_PLACE`/`X_STAMP`, as legendas da cena junto) para "Não atendida" e "No contestada"
+    caberem. A Cecília diz que o bloco tem a fita vermelha, mas ela era oliva (item 380) e o bloco parecia branco com
+    uma linhazinha vermelha: a fita da colagem ficou vermelha (`Pal.PAD_TAPE`, na mesa e no papel aberto).
+534. #caderno #objetos As "fitas" da ficha eram as tiras dos registros pendentes saindo do bloco (creme com um
+    tracinho vermelho), não a fita do alto: cada tira agora tem a cor do tipo da ligação que espera registro (azul
+    comum, vermelho emergência, ocre trote, os tons dos carimbos mais claros; `Pal.PENDING`, `Notebook.STRIPS`,
+    `pending_strips`), na mesa e no caderno aberto, sem o tracinho. A fita do alto continua vermelha (item 533).
+535. #conteudo #idiomas Vários textos tratavam a personagem no masculino ("senhor", "moço", "meu filho", "querido"):
+    a telefonista é Maria. As falas dirigidas a ela (pedidos, agradecimentos, conversa fiada, trotes, retornos, o
+    bilhete da 6) passaram ao feminino ("a senhora", "moça", "minha filha", "querida", "atenta"; o prefeito do trote
+    exige "a telefonista"), com en ("miss", "ma'am", "love") e es ("hija", "señorita", "sola", "tranquila"); na
+    interface, "Você foi demitida", "Encerrada pela telefonista" e o "obrigada" do discador; no treinamento, a opção
+    "Obrigado, Cecília!" virou "Valeu, Cecília!". As falas sobre outra pessoa ou para quem atende do outro lado
+    ficaram.

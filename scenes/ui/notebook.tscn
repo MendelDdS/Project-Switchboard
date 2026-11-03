@@ -45,14 +45,14 @@ theme_type_variation = &"InkSoftLabel"
 theme_override_font_sizes/font_size = 11
 
 [node name="Caller" type="Label" parent="Content/Columns"]
-custom_minimum_size = Vector2(160, 0)
+custom_minimum_size = Vector2(136, 0)
 layout_mode = 2
 text = "COL_CALLER"
 theme_type_variation = &"InkSoftLabel"
 theme_override_font_sizes/font_size = 11
 
 [node name="Place" type="Label" parent="Content/Columns"]
-custom_minimum_size = Vector2(144, 0)
+custom_minimum_size = Vector2(138, 0)
 layout_mode = 2
 text = "COL_PLACE"
 theme_type_variation = &"InkSoftLabel"

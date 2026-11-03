@@ -26,7 +26,7 @@ RESTART_FIRST_NIGHT,Recomeçar do treinamento,Start over from the training,Empez
 SKIP_TRAINING,Pular o treinamento,Skip the training,Saltar el entrenamiento
 END_DEMO_TITLE,Fim da demonstração,End of demo,Fin de la demostración
 END_DEMO_QUESTION,Você atenderia novamente?,Would you answer again?,¿Volvería a contestar?
-END_FIRED_TITLE,Você foi demitido.,You've been fired.,Usted fue despedido.
+END_FIRED_TITLE,Você foi demitida.,You've been fired.,Usted fue despedida.
 END_FIRED_TEXT,Duas noites seguidas com conceito insuficiente. A companhia telefônica agradece seus serviços.,Two consecutive nights rated unsatisfactory. The telephone company thanks you for your service.,Dos noches seguidas con calificación insuficiente. La compañía telefónica le agradece sus servicios.
 END_NIGHT_TITLE,Fim da noite %d,End of night %d,Fin de la noche %d
 END_NIGHT_TEXT,"Amanhã, às 18:00, a central é sua de novo.","Tomorrow at 18:00, the switchboard is yours again.","Mañana, a las 18:00, la central es suya otra vez."
@@ -170,14 +170,14 @@ COL_CALLER,Solicitante,Caller,Solicitante
 COL_PLACE,Local / destino,Place / destination,Lugar / destino
 COL_TYPE,Tipo,Type,Tipo
 COL_UNIT,Unidade,Unit,Unidad
-TYPE_COMMON,Ligação comum,Regular call,Llamada común
+TYPE_COMMON,Comum,Regular,Común
 TYPE_EMERGENCY,Emergência,Emergency,Emergencia
-TYPE_PRANK,Trote,Prank call,Broma
+TYPE_PRANK,Trote,Prank,Broma
 TYPE_MISSED,Não atendida,Missed,No contestada
 OBS_WRONG_NUMBER,Conectada ao número errado.,Connected to the wrong number.,Conectada al número equivocado.
 OBS_ASKED_NUMBER,Pediu o número %s.,Asked for the number %s.,Pidió el número %s.
 OBS_WRONG_INFO,Informação errada.,Wrong information.,Información equivocada.
-OBS_OPERATOR_ENDED,Encerrada pelo operador.,Ended by the operator.,Terminada por el operador.
+OBS_OPERATOR_ENDED,Encerrada pela telefonista.,Ended by the operator.,Terminada por la operadora.
 OBS_NOT_ANSWERED,Não atendida.,Not answered.,No contestada.
 OBS_GAVE_UP,Desistiu na espera.,Gave up on hold.,Desistió en espera.
 OBS_NOT_CONNECTED,Não conectada.,Not connected.,No conectada.
@@ -499,7 +499,7 @@ DIAL_DISPATCH,USE O DESPACHO,USE DISPATCH,USE EL DESPACHO
 SYS_DIALING,(Discando %s...),(Dialing %s...),(Marcando %s...)
 LOG_DIALED,Ligação para %s,Call to %s,Llamada a %s
 CHOICE_DIAL_BYE,[Encerrar ligação],[End the call],[Terminar la llamada]
-OP_DIAL_BYE,"Vou desligar agora, obrigado.","I'll hang up now, thank you.","Voy a colgar ahora, gracias."
+OP_DIAL_BYE,"Vou desligar agora, obrigada.","I'll hang up now, thank you.","Voy a colgar ahora, gracias."
 TITLE_LOAD,Carregar jogo,Load game,Cargar partida
 TITLE_NEW,Novo jogo,New game,Nueva partida
 TITLE_QUIT,Sair,Quit,Salir
