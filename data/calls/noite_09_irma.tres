@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+[ext_resource type="Resource" path="res://data/calls/noite_09_irma_tiros.tres" id="2_turns"]
+
+[resource]
+script = ExtResource("1_call")
+group = 1
+voice = "f"
+caller = "Senhora"
+caller_name = "Irene Costa"
+opening = PackedStringArray("Boa noite, moça. Me liga com a Marta Costa, a minha irmã?", "O meu filho saiu pra casa dela e ainda não chegou.")
+repeat = "A Marta Costa, a minha irmã."
+target = "223"
+destination = "Marta Costa"
+thanks = "Obrigada, moça."
+turns = ExtResource("2_turns")

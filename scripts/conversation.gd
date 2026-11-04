@@ -183,6 +183,10 @@ func _transfer(c: PhoneCall) -> void:
 	for l in t.opening:
 		if not await say(c, l):
 			return
+	if t.turns != null:   # algo acontece onde ela está: a ligação vira emergência no meio do pedido
+		main.turn_emergency(c)
+		await _emergency_talk(c, 0.8)
+		return
 	if not await main.bureaucracy.request_made(c):   # o que as burocracias pedem depois do pedido (o código...)
 		return
 	# a conversa fiada vem depois, se o operador demorar (Main._nag)
@@ -378,7 +382,14 @@ func _emergency(c: PhoneCall) -> void:
 		c.sys(T.text(T.Key.SYS_CALLER_HUNG_UP))
 		main.end_call(c, PhoneCall.End.CALLER)
 		return
-	if not await wait(c, 0.3):
+	await _emergency_talk(c, 0.3)
+
+
+## O que aconteceu, contado depois de `pause` segundos, e as perguntas (também na que vira emergência no meio do
+## pedido, `TransferCall.turns`).
+func _emergency_talk(c: PhoneCall, pause: float) -> void:
+	var e: EmergencyCall = c.data
+	if not await wait(c, pause):
 		return
 	# quem liga de novo porque piorou já disse o que houve; dá para perguntar e despachar de novo
 	if c.retry != PhoneCall.Retry.WORSE and not await say(c, e.opening, 0.3):

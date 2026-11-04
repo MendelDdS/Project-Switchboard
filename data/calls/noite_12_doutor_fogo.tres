@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="EmergencyCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/emergency_call.gd" id="1_em"]
+
+[resource]
+script = ExtResource("1_em")
+voice = "m"
+caller = "Senhor"
+opening = "Moça! Tá saindo fumaça da casa do vizinho! Fogo na janela da cozinha!"
+questions = PackedStringArray("Qual é o endereço?", "Tem gente lá dentro?", "O fogo está passando para outras casas?")
+answers = PackedStringArray("Rua do Cruzeiro, 260! A casa do lado da minha!", "A vizinha já saiu com as crianças, tão aqui na rua comigo.", "Ainda não, é só na cozinha dela. Mas tá subindo!")
+street = "cruzeiro"
+block = 2
+address = "Rua do Cruzeiro, 260"
+occurrence = "Incêndio"
+units = PackedStringArray("bomb")
+after = "Os bombeiros chegaram. Moça, deixa o doutor pra depois, a febre da minha mulher espera. Vou ajudar com os baldes!"
+stage_sec = Vector3(45, 20, 20)
+worsening = "O fogo pegou no telhado! Tá caindo telha!"
+worsening_question = "Alguém voltou para dentro?"
+worsening_answer = "Não, tá todo mundo aqui fora. Graças a Deus."
+critical = "A vizinha tá passando mal com a fumaça, não para de tossir!"
+critical_units = PackedStringArray("amb")
+critical_question = "Ela consegue respirar?"
+critical_answer = "Mal e mal... tá sentada no meio-fio, sem ar!"
+lost = "A casa caiu, moça. Não sobrou nada."
+lost_answer = "A vizinha desmaiou com a fumaça! Precisa de ambulância!"
+lost_units = PackedStringArray("amb")

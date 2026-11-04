@@ -3342,3 +3342,14 @@ Chaves:
     oval, "só uma foto de uma mulher sorrindo sem muitos detalhes") e cartazes com panfletos. A foto e a legenda
     seguem a manchete: as da variante de `news_if` que vira manchete (`StoryText.photo`/`caption`), senão as da noite
     (`Night.news_photo`, agora o nome da foto em vez de uma textura que nenhuma noite usava; `Night.photo_for`).
+538. #ligacoes #conteudo #emergencia Dois tipos novos de ligação escrita. (1) A comum que vira emergência no meio do
+    pedido (`TransferCall.turns`, `Main.turn_emergency`): depois da abertura, a pessoa grita a emergência, a ligação
+    passa a emergência (despacho, barra, caderno como emergência) e **termina no despacho**, sem transferência: o
+    usuário pediu que a despedida justifique ("Moça, não precisa transferir para o ponto de táxi, vou tentar
+    ajudar!"). Na 7 o táxi e a briga no bar, na 9 a irmã e os tiros no filho, na 12 o doutor e o fogo no vizinho.
+    (2) Quem volta a ligar na mesma noite (`StoryCall.callback`, `Main._call_back`, 50–90 min depois, uma vez, só se
+    atendida), com a versão escolhida pelo desfecho da primeira: na 6 o pai do menino com febre (conectada: a febre
+    baixou, liga para o avô; cortada: a farmácia estava fechada, pede outra); na 7 Seu Raimundo (conectada: pede o
+    padre; cortada: pede a delegacia de novo). O robô do `test_shift` espera as viaturas voltarem em vez de mandar
+    cartão em branco (a virada pode chegar logo depois de outra emergência). O tipo 3 (emergência que parece trote)
+    ficou para depois.

@@ -43,6 +43,12 @@ enum Group {
 ## telefonista de lá.
 @export var far_number := ""
 
+@export_group("Vira emergência")
+## No meio do pedido (depois de `opening`), algo acontece onde a pessoa está e a ligação vira esta emergência
+## (`Main.turn_emergency`): ela grita o `opening` da emergência e dali em diante é emergência como as outras (barra,
+## despacho, caderno); despachado o socorro, o `after` dela diz por que não precisa mais da transferência.
+@export var turns: EmergencyCall
+
 @export_group("Se ninguém atender")
 ## Outro estabelecimento que o operador pode sugerir quando `target` não atende (sorteado: `PhoneCall.away`).
 @export var alt_target := ""

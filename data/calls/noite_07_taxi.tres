@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+[ext_resource type="Resource" path="res://data/calls/noite_07_taxi_briga.tres" id="2_turns"]
+
+[resource]
+script = ExtResource("1_call")
+group = 1
+voice = "m"
+caller = "Rapaz"
+caller_name = "Valter Nunes"
+opening = PackedStringArray("Boa noite, moça. O ponto de táxi da rodoviária, por favor.", "Preciso de um carro aqui na Rua do Mercado.")
+repeat = "O ponto de táxi da rodoviária."
+target = "176"
+destination = "Ponto de Táxi da Rodoviária"
+thanks = "Obrigado, moça."
+turns = ExtResource("2_turns")

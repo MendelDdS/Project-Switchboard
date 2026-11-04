@@ -15,6 +15,9 @@
 [ext_resource type="Resource" path="res://data/calls/story_07_miguel.tres" id="a_story_07_miguel"]
 [ext_resource type="Resource" path="res://data/calls/noite_07_baile.tres" id="j_baile"]
 [ext_resource type="Resource" path="res://data/calls/noite_07_parente.tres" id="j_parente"]
+[ext_resource type="Resource" path="res://data/calls/noite_07_taxi.tres" id="j_taxi"]
+[ext_resource type="Resource" path="res://data/calls/noite_07_raimundo_padre.tres" id="j_raimundo_padre"]
+[ext_resource type="Resource" path="res://data/calls/noite_07_raimundo_caiu.tres" id="j_raimundo_caiu"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -120,9 +123,25 @@ again = false
 script = ExtResource("x2_story_call")
 call = ExtResource("j_baile")
 
+[sub_resource type="Resource" id="J_back_raimundo_padre"]
+script = ExtResource("x2_story_call")
+call = ExtResource("j_raimundo_padre")
+requires = PackedStringArray("raimundo_delegacia_7")
+
+[sub_resource type="Resource" id="J_back_raimundo_caiu"]
+script = ExtResource("x2_story_call")
+call = ExtResource("j_raimundo_caiu")
+requires = PackedStringArray("!raimundo_delegacia_7")
+
 [sub_resource type="Resource" id="J_call_parente"]
 script = ExtResource("x2_story_call")
 call = ExtResource("j_parente")
+if_connected = PackedStringArray("raimundo_delegacia_7")
+callback = [SubResource("J_back_raimundo_padre"), SubResource("J_back_raimundo_caiu")]
+
+[sub_resource type="Resource" id="J_call_taxi"]
+script = ExtResource("x2_story_call")
+call = ExtResource("j_taxi")
 
 [resource]
 script = ExtResource("1_night")
@@ -131,6 +150,6 @@ street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource(
 dial = Array[ExtResource("x1_dial_call")]([SubResource("D_aviso")])
 story = Array[ExtResource("x2_story_call")]([SubResource("S_bar0"), SubResource("S_bar0w"), SubResource("S_bar1"), SubResource("S_bar1w"), SubResource("S_bar2"), SubResource("S_bar2w"), SubResource("A_story_07_miguel")])
 news_stories = PackedStringArray("Baile da praça termina em revista geral\nPerto da meia-noite, a polícia cercou a praça do Centro e revistou todos os que saíam do baile. Doze pessoas sem documento passaram a noite na delegacia. A prefeitura promete novos bailes.")
-calls = Array[ExtResource("x2_story_call")]([SubResource("J_call_baile"), SubResource("J_call_parente")])
+calls = Array[ExtResource("x2_story_call")]([SubResource("J_call_baile"), SubResource("J_call_parente"), SubResource("J_call_taxi")])
 news_photo = "viatura"
 news_caption = "A barreira na saída da praça."

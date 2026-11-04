@@ -409,6 +409,8 @@ func _initialize() -> void:
 						if steps == 0.0:
 							continue
 					else:
+						if not m.dispatch.fleet.required(e).any(m.dispatch.fleet.is_free):
+							continue   # (as viaturas ainda voltando de outra: espera, como uma pessoa, em vez de mandar o cartão em branco)
 						m.dispatch.set_location(e.street, e.block, e.address)
 						m.dispatch.set_occurrence(e.occurrence)
 						for u in m.dispatch.fleet.required(e):   # o que a situação pede agora (pode ter piorado)

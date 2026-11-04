@@ -90,11 +90,20 @@ func _check_talks() -> void:
 ## (avulsa, do roteiro de uma noite ou do treinamento, também a alternativa dela), o lugar que um molde pode sortear
 ## (`GameData.template_transfer`: com `spoken` e motivo) e o do mesmo ramo, oferecido quando ele não atende
 ## (`GameData.alternative`). Os só do despacho (`dispatch_only`) ficam de fora: servem às viaturas.
+## As ligações escritas da noite (`Night.calls`) e quem volta a ligar depois delas (`StoryCall.callback`).
+static func _night_calls(n: Night) -> Array:
+	var out: Array = []
+	for st: StoryCall in n.calls:
+		out.append(st)
+		out.append_array(st.callback)
+	return out
+
+
 func _check_destinations() -> void:
 	var C: GameContent = GameData.CONTENT
 	var written: Array[TransferCall] = C.transfers.duplicate()
 	for n: Night in C.nights + [C.training]:
-		for st: StoryCall in n.story + n.calls:
+		for st: StoryCall in (n.story as Array) + _night_calls(n):
 			if st.call is TransferCall:
 				written.append(st.call)
 		for step: LessonStep in n.lesson:
@@ -195,7 +204,7 @@ func _initialize() -> void:
 	var named := func(n: String): return n.split(" ").size() >= 2 and treat.search(n) == null
 	var calls: Array = C.transfers.duplicate()
 	for n: Night in C.nights:
-		calls.append_array((n.story + n.calls).map(func(st: StoryCall): return st.call).filter(func(x): return x is TransferCall))
+		calls.append_array(((n.story as Array) + _night_calls(n)).map(func(st: StoryCall): return st.call).filter(func(x): return x is TransferCall))
 	for t: TransferCall in calls:
 		ok(named.call(t.caller_name), "quem liga sem nome e sobrenome, ou com tratamento: " + t.resource_path)
 	for n in C.caller_names:
@@ -231,9 +240,13 @@ func _initialize() -> void:
 			"ligações do roteiro com roteiro escrito: " + n.resource_path)
 		# as escritas que entram no sorteio: transferências para um número do setor atendido, fora dos do roteiro da noite
 		var story_targets := n.story.map(func(st: StoryCall): return st.call.target if st.call is TransferCall else "")
-		for st: StoryCall in n.calls:
+		for st: StoryCall in _night_calls(n):
 			ok(st.call is TransferCall and int(st.call.target.left(1)) in GameData.sectors_for(i + 1) and not st.call.target in story_targets,
 				"ligação da noite no setor e sem disputar número com o roteiro: %s (%s)" % [n.resource_path, st.call.resource_path])
+			var e: EmergencyCall = st.call.turns if st.call is TransferCall else null
+			if e != null:   # a que vira emergência: no setor atendido, perguntas com resposta e a despedida que dispensa a transferência
+				ok(GameData.street(e.street).block_sector(e.block) in GameData.sectors_for(i + 1) and not e.units.is_empty()
+					and e.questions.size() == e.answers.size() and e.after != "", "emergência da ligação que vira: " + e.resource_path)
 		# as fotos do jornal, da noite e das manchetes que trocam a dela, existem
 		ok(([n.news_photo] + n.news_if.map(func(v: Resource): return v.photo)).all(func(ph: String): return ph == "" or ph in NewsView.PHOTOS),
 			"foto do jornal conhecida: " + n.resource_path)

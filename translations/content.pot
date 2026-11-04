@@ -4602,7 +4602,7 @@ msgstr ""
 msgid "Pensão Dona Cota"
 msgstr ""
 
-#: data/calls/noite_02_panfleto.tres data/calls/noite_11_parente.tres
+#: data/calls/noite_02_panfleto.tres data/calls/noite_07_raimundo_padre.tres data/calls/noite_11_parente.tres
 msgid "Deus lhe pague, moça."
 msgstr ""
 
@@ -5066,11 +5066,11 @@ msgstr ""
 msgid "Qual é o endereço?"
 msgstr ""
 
-#: data/calls/story_04_baleado.tres data/calls/emergency_03_mal_subito_rua_do_sol_230.tres data/calls/emergency_14_mal_subito_rua_do_sol_530.tres
+#: data/calls/story_04_baleado.tres data/calls/noite_09_irma_tiros.tres data/calls/emergency_03_mal_subito_rua_do_sol_230.tres
 msgid "Ele está consciente?"
 msgstr ""
 
-#: data/calls/story_04_baleado.tres
+#: data/calls/story_04_baleado.tres data/calls/noite_09_irma_tiros.tres
 msgid "Quem atirou ainda está aí?"
 msgstr ""
 
@@ -5610,7 +5610,7 @@ msgstr ""
 msgid "A delegacia, moça. Pelo amor de Deus."
 msgstr ""
 
-#: data/calls/noite_05_parente.tres data/calls/noite_07_parente.tres data/calls/noite_08_parente.tres
+#: data/calls/noite_05_parente.tres data/calls/noite_07_parente.tres data/calls/noite_07_raimundo_caiu.tres
 msgid "Delegacia de Polícia"
 msgstr ""
 
@@ -5942,7 +5942,7 @@ msgstr ""
 msgid "A casa do padre, minha filha. Um, dois, zero."
 msgstr ""
 
-#: data/calls/noite_06_parente.tres data/calls/noite_11_parente.tres data/calls/noite_14_parente.tres
+#: data/calls/noite_06_parente.tres data/calls/noite_07_raimundo_padre.tres data/calls/noite_11_parente.tres
 msgid "Casa Paroquial"
 msgstr ""
 
@@ -5972,6 +5972,138 @@ msgstr ""
 
 #: data/calls/noite_06_parente.tres
 msgid "Faço. Traga uma foto dele e uma muda de roupa."
+msgstr ""
+
+#: data/calls/noite_06_febre.tres
+msgid "Boa noite, moça. A Farmácia Central, por favor."
+msgstr ""
+
+#: data/calls/noite_06_febre.tres
+msgid "O meu menino está com febre alta. Não sei se ainda estão abertos."
+msgstr ""
+
+#: data/calls/noite_06_febre.tres
+msgid "A Farmácia Central."
+msgstr ""
+
+#: data/calls/noite_06_febre.tres data/calls/noite_08_jornal.tres data/calls/transfer_22_seu_anibal_farmacia_central.tres
+msgid "Farmácia Central"
+msgstr ""
+
+#: data/calls/noite_06_febre.tres data/calls/noite_06_febre_fechada.tres data/calls/noite_07_parente.tres
+msgid "Obrigado, moça."
+msgstr ""
+
+#: data/calls/noite_06_febre.tres
+msgid "Boa noite. A farmácia ainda está aberta? O meu filho está com febre alta."
+msgstr ""
+
+#: data/calls/noite_06_febre.tres
+msgid "Fechando, mas atendo. Quantos anos ele tem?"
+msgstr ""
+
+#: data/calls/noite_06_febre.tres
+msgid "Seis. Está quente que nem brasa."
+msgstr ""
+
+#: data/calls/noite_06_febre.tres
+msgid "Dê um banho morno e venha buscar o xarope. Deixo a porta encostada."
+msgstr ""
+
+#: data/calls/noite_06_febre.tres
+msgid "Deus lhe pague. Vou correndo."
+msgstr ""
+
+#: data/calls/noite_06_febre.tres
+msgid "Venha pela rua de trás. Tem polícia na praça."
+msgstr ""
+
+#: data/calls/noite_06_febre_baixou.tres
+msgid "Sou eu de novo, moça. O pai do menino da febre."
+msgstr ""
+
+#: data/calls/noite_06_febre_baixou.tres
+msgid "A febre baixou, graças a Deus! Me liga com o meu pai, o Paulo Nogueira? Ele está aflito."
+msgstr ""
+
+#: data/calls/noite_06_febre_baixou.tres
+msgid "O Paulo Nogueira, o meu pai."
+msgstr ""
+
+#: data/calls/noite_06_febre_baixou.tres data/calls/transfer_33_rapaz_paulo_nogueira.tres
+msgid "Paulo Nogueira"
+msgstr ""
+
+#: data/calls/noite_06_febre_baixou.tres
+msgid "Obrigado pela ajuda de mais cedo, moça."
+msgstr ""
+
+#: data/calls/noite_06_febre_baixou.tres
+msgid "Pai, sou eu. O Toninho já está sem febre."
+msgstr ""
+
+#: data/calls/noite_06_febre_baixou.tres
+msgid "Graças a Deus, meu filho. A sua mãe não parou de rezar."
+msgstr ""
+
+#: data/calls/noite_06_febre_baixou.tres
+msgid "O farmacêutico abriu só pra mim. Fui pela rua de trás."
+msgstr ""
+
+#: data/calls/noite_06_febre_baixou.tres
+msgid "Fez bem. Na praça estão parando todo mundo."
+msgstr ""
+
+#: data/calls/noite_06_febre_baixou.tres
+msgid "Amanhã a gente leva ele aí pra mãe ver."
+msgstr ""
+
+#: data/calls/noite_06_febre_baixou.tres
+msgid "Venham cedo. Antes da polícia acordar."
+msgstr ""
+
+#: data/calls/noite_06_febre_fechada.tres
+msgid "Moça, sou eu de novo. O pai do menino da febre."
+msgstr ""
+
+#: data/calls/noite_06_febre_fechada.tres
+msgid "A ligação caiu e eu fui a pé até a Farmácia Central. Estava fechada!"
+msgstr ""
+
+#: data/calls/noite_06_febre_fechada.tres
+msgid "Me liga com a Farmácia Santa Rita, por favor. A febre não baixa."
+msgstr ""
+
+#: data/calls/noite_06_febre_fechada.tres
+msgid "A Farmácia Santa Rita."
+msgstr ""
+
+#: data/calls/noite_06_febre_fechada.tres data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres data/calls/transfer_22_seu_anibal_farmacia_central.tres
+msgid "Farmácia Santa Rita"
+msgstr ""
+
+#: data/calls/noite_06_febre_fechada.tres
+msgid "Boa noite. Vocês ainda atendem? O meu filho está com febre alta desde a tarde."
+msgstr ""
+
+#: data/calls/noite_06_febre_fechada.tres
+msgid "Já fechamos, senhor. Só amanhã."
+msgstr ""
+
+#: data/calls/noite_06_febre_fechada.tres
+msgid "Pelo amor de Deus, ele tem seis anos!"
+msgstr ""
+
+#: data/calls/noite_06_febre_fechada.tres
+msgid "...Bata na porta dos fundos. Mas venha sozinho."
+msgstr ""
+
+#: data/calls/noite_06_febre_fechada.tres
+msgid "Obrigado. Obrigado mesmo."
+msgstr ""
+
+#: data/calls/noite_06_febre_fechada.tres
+msgid "E não passe pela praça."
 msgstr ""
 
 #: data/nights/night_06.tres
@@ -6206,7 +6338,7 @@ msgstr ""
 msgid "Nunca mais vou a baile na praça. Nunca mais."
 msgstr ""
 
-#: data/calls/noite_07_parente.tres
+#: data/calls/noite_07_parente.tres data/calls/noite_07_raimundo_padre.tres data/calls/noite_07_raimundo_caiu.tres
 msgid "Seu Raimundo"
 msgstr ""
 
@@ -6218,12 +6350,8 @@ msgstr ""
 msgid "Meu filho está preso aí desde o baile."
 msgstr ""
 
-#: data/calls/noite_07_parente.tres
+#: data/calls/noite_07_parente.tres data/calls/noite_07_raimundo_caiu.tres
 msgid "A delegacia do Centro."
-msgstr ""
-
-#: data/calls/noite_07_parente.tres data/calls/noite_09_toque.tres data/calls/noite_10_tiros.tres
-msgid "Obrigado, moça."
 msgstr ""
 
 #: data/calls/noite_07_parente.tres
@@ -6246,8 +6374,148 @@ msgstr ""
 msgid "Acabar o quê? Ele tem dezessete anos!"
 msgstr ""
 
-#: data/calls/noite_07_parente.tres
+#: data/calls/noite_07_parente.tres data/calls/noite_07_raimundo_caiu.tres
 msgid "Boa noite, senhor. Não insista."
+msgstr ""
+
+#: data/calls/noite_07_raimundo_padre.tres
+msgid "Sou eu de novo, moça. O pai do José, o do baile."
+msgstr ""
+
+#: data/calls/noite_07_raimundo_padre.tres
+msgid "Na delegacia não me disseram nada. Me liga com o Padre Anselmo? Ele conhece o delegado."
+msgstr ""
+
+#: data/calls/noite_07_raimundo_padre.tres
+msgid "A Casa Paroquial. O Padre Anselmo."
+msgstr ""
+
+#: data/calls/noite_07_raimundo_padre.tres
+msgid "Padre, é o Raimundo. O José continua preso, desde o baile."
+msgstr ""
+
+#: data/calls/noite_07_raimundo_padre.tres
+msgid "Eu soube, Raimundo. Ainda são onze lá dentro."
+msgstr ""
+
+#: data/calls/noite_07_raimundo_padre.tres
+msgid "O senhor fala com o delegado? Ele tem dezessete anos, padre."
+msgstr ""
+
+#: data/calls/noite_07_raimundo_padre.tres
+msgid "Vou amanhã cedo, depois da missa. Leve a certidão dele."
+msgstr ""
+
+#: data/calls/noite_07_raimundo_padre.tres
+msgid "Deus lhe pague, padre."
+msgstr ""
+
+#: data/calls/noite_07_raimundo_padre.tres
+msgid "Reze, Raimundo. E não fale disso no telefone."
+msgstr ""
+
+#: data/calls/noite_07_raimundo_caiu.tres
+msgid "Moça, sou eu de novo. O pai do José, o do baile."
+msgstr ""
+
+#: data/calls/noite_07_raimundo_caiu.tres
+msgid "A ligação caiu antes de eu falar com a delegacia. Me liga de novo, por favor?"
+msgstr ""
+
+#: data/calls/noite_07_raimundo_caiu.tres
+msgid "Boa noite. O meu filho, José Teles, está aí desde o baile. Liguei mais cedo e caiu."
+msgstr ""
+
+#: data/calls/noite_07_raimundo_caiu.tres
+msgid "José Teles... Está sendo ouvido. Sai quando acabar."
+msgstr ""
+
+#: data/calls/noite_07_raimundo_caiu.tres
+msgid "Acabar o quê? Ninguém me diz nada!"
+msgstr ""
+
+#: data/calls/noite_07_raimundo_caiu.tres
+msgid "Volte amanhã, senhor. De dia."
+msgstr ""
+
+#: data/calls/noite_07_raimundo_caiu.tres
+msgid "Ele tem dezessete anos!"
+msgstr ""
+
+#: data/calls/noite_07_taxi.tres
+msgid "Boa noite, moça. O ponto de táxi da rodoviária, por favor."
+msgstr ""
+
+#: data/calls/noite_07_taxi.tres
+msgid "Preciso de um carro aqui na Rua do Mercado."
+msgstr ""
+
+#: data/calls/noite_07_taxi.tres data/calls/transfer_27_moca_taxi_ponto_da_rodoviaria.tres
+msgid "O ponto de táxi da rodoviária."
+msgstr ""
+
+#: data/calls/noite_07_taxi.tres data/calls/noite_10_barreira.tres data/calls/transfer_03_rapaz_taxi_ponto_da_rodoviaria.tres
+msgid "Ponto de Táxi da Rodoviária"
+msgstr ""
+
+#: data/calls/noite_07_taxi_briga.tres
+msgid "Moça, espera! Começou uma briga aqui na frente do bar! Quatro em cima de um rapaz! Chama a polícia!"
+msgstr ""
+
+#: data/calls/noite_07_taxi_briga.tres data/calls/emergency_05_outro_rua_da_estacao_140.tres data/calls/emergency_18_invasao_rua_do_mercado_90.tres
+msgid "Alguém está ferido?"
+msgstr ""
+
+#: data/calls/noite_07_taxi_briga.tres data/calls/story_09_briga.tres data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres
+msgid "Eles estão armados?"
+msgstr ""
+
+#: data/calls/noite_07_taxi_briga.tres
+msgid "Rua do Mercado, 90! Na frente do bar!"
+msgstr ""
+
+#: data/calls/noite_07_taxi_briga.tres
+msgid "Ainda não, o rapaz tá se defendendo. Mas tão batendo pra valer!"
+msgstr ""
+
+#: data/calls/noite_07_taxi_briga.tres
+msgid "Não vi arma, não. É só soco e pontapé."
+msgstr ""
+
+#: data/calls/noite_07_taxi_briga.tres
+msgid "Tô ouvindo a sirene. Moça, não precisa mais transferir pro ponto de táxi. Vou ficar aqui e ajudar o rapaz!"
+msgstr ""
+
+#: data/calls/noite_07_taxi_briga.tres
+msgid "Derrubaram o rapaz no chão! Tão chutando ele!"
+msgstr ""
+
+#: data/calls/noite_07_taxi_briga.tres
+msgid "Ele está se mexendo?"
+msgstr ""
+
+#: data/calls/noite_07_taxi_briga.tres
+msgid "Mexe a mão... mas a cabeça tá sangrando muito!"
+msgstr ""
+
+#: data/calls/noite_07_taxi_briga.tres
+msgid "Ele parou de se mexer! Os outros fugiram correndo!"
+msgstr ""
+
+#: data/calls/noite_07_taxi_briga.tres data/calls/story_09_mae_atropelado.tres data/calls/emergency_03_mal_subito_rua_do_sol_230.tres
+msgid "Ele está respirando?"
+msgstr ""
+
+#: data/calls/noite_07_taxi_briga.tres
+msgid "Tá, mas bem fraquinho!"
+msgstr ""
+
+#: data/calls/noite_07_taxi_briga.tres
+msgid "Ele não respira mais, moça... era um menino."
+msgstr ""
+
+#: data/calls/noite_07_taxi_briga.tres
+msgid "Ninguém mais. Só ele, no chão."
 msgstr ""
 
 #: data/nights/night_07.tres
@@ -6584,10 +6852,6 @@ msgstr ""
 
 #: data/calls/noite_08_jornal.tres
 msgid "A Farmácia Central, moça."
-msgstr ""
-
-#: data/calls/noite_08_jornal.tres data/calls/transfer_22_seu_anibal_farmacia_central.tres data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
-msgid "Farmácia Central"
 msgstr ""
 
 #: data/calls/noite_08_jornal.tres data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres data/calls/transfer_20_dona_tereza_marta_costa.tres
@@ -7018,10 +7282,6 @@ msgstr ""
 msgid "Ele fechou os olhos! Fala comigo, filho!"
 msgstr ""
 
-#: data/calls/story_09_mae_atropelado.tres data/calls/emergency_03_mal_subito_rua_do_sol_230.tres data/calls/emergency_14_mal_subito_rua_do_sol_530.tres
-msgid "Ele está respirando?"
-msgstr ""
-
 #: data/calls/story_09_mae_atropelado.tres
 msgid "Tá, mas não responde!"
 msgstr ""
@@ -7036,10 +7296,6 @@ msgstr ""
 
 #: data/calls/story_09_briga.tres
 msgid "Central! Tá tendo briga na rua por causa da rádio! Uns gritando viva, outros batendo!"
-msgstr ""
-
-#: data/calls/story_09_briga.tres data/calls/emergency_04_invasao_roubo_avenida_brasil_150.tres data/calls/emergency_16_invasao_rua_do_cruzeiro_290.tres
-msgid "Eles estão armados?"
 msgstr ""
 
 #: data/calls/story_09_briga.tres
@@ -7172,6 +7428,78 @@ msgstr ""
 
 #: data/calls/noite_09_parente.tres
 msgid "Fechada pra todo mundo. Sinto muito."
+msgstr ""
+
+#: data/calls/noite_09_irma.tres
+msgid "Boa noite, moça. Me liga com a Marta Costa, a minha irmã?"
+msgstr ""
+
+#: data/calls/noite_09_irma.tres
+msgid "O meu filho saiu pra casa dela e ainda não chegou."
+msgstr ""
+
+#: data/calls/noite_09_irma.tres
+msgid "A Marta Costa, a minha irmã."
+msgstr ""
+
+#: data/calls/noite_09_irma.tres data/calls/transfer_20_dona_tereza_marta_costa.tres
+msgid "Marta Costa"
+msgstr ""
+
+#: data/calls/noite_09_irma.tres data/calls/noite_12_parente.tres data/calls/noite_14_parente.tres
+msgid "Obrigada, moça."
+msgstr ""
+
+#: data/calls/noite_09_irma_tiros.tres
+msgid "Meu Deus, tiro! Atiraram lá fora... tem um rapaz caído na esquina... é o Dudu! É o meu filho, moça!"
+msgstr ""
+
+#: data/calls/noite_09_irma_tiros.tres
+msgid "Rua Bela Vista, 230! Na esquina!"
+msgstr ""
+
+#: data/calls/noite_09_irma_tiros.tres
+msgid "Um carro passou atirando e sumiu... mas pode voltar!"
+msgstr ""
+
+#: data/calls/noite_09_irma_tiros.tres
+msgid "Tá gemendo... levou no braço, tá sangrando muito!"
+msgstr ""
+
+#: data/calls/noite_09_irma_tiros.tres
+msgid "Tô ouvindo a sirene... Moça, esquece a minha irmã. Eu vou com ele pro hospital."
+msgstr ""
+
+#: data/calls/noite_09_irma_tiros.tres
+msgid "Ele tá ficando branco, moça... o sangue não para!"
+msgstr ""
+
+#: data/calls/noite_09_irma_tiros.tres
+msgid "Dá para apertar o ferimento com um pano?"
+msgstr ""
+
+#: data/calls/noite_09_irma_tiros.tres
+msgid "Tô apertando! Tô apertando com a minha blusa!"
+msgstr ""
+
+#: data/calls/noite_09_irma_tiros.tres
+msgid "Ele fechou os olhos! Dudu! Dudu, fala comigo!"
+msgstr ""
+
+#: data/calls/noite_09_irma_tiros.tres data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
+msgid "Ele ainda respira?"
+msgstr ""
+
+#: data/calls/noite_09_irma_tiros.tres
+msgid "Respira... devagarinho."
+msgstr ""
+
+#: data/calls/noite_09_irma_tiros.tres
+msgid "Ele morreu, moça. Morreu no meu colo."
+msgstr ""
+
+#: data/calls/noite_09_irma_tiros.tres
+msgid "Ninguém... só o meu filho."
 msgstr ""
 
 #: data/nights/night_09.tres
@@ -7408,10 +7736,6 @@ msgstr ""
 
 #: data/calls/noite_10_barreira.tres
 msgid "O ponto de táxi, moça. Um, sete, seis."
-msgstr ""
-
-#: data/calls/noite_10_barreira.tres data/calls/transfer_03_rapaz_taxi_ponto_da_rodoviaria.tres data/calls/transfer_27_moca_taxi_ponto_da_rodoviaria.tres
-msgid "Ponto de Táxi da Rodoviária"
 msgstr ""
 
 #: data/calls/noite_10_barreira.tres
@@ -7954,10 +8278,6 @@ msgstr ""
 msgid "Sônia Vieira"
 msgstr ""
 
-#: data/calls/noite_12_parente.tres data/calls/noite_14_parente.tres data/calls/noite_15_parente.tres
-msgid "Obrigada, moça."
-msgstr ""
-
 #: data/calls/noite_12_parente.tres
 msgid "Sônia? É a Helena. Fica com as crianças amanhã?"
 msgstr ""
@@ -7980,6 +8300,82 @@ msgstr ""
 
 #: data/calls/noite_12_parente.tres
 msgid "Vai com Deus. E não fala o nome dele em voz alta."
+msgstr ""
+
+#: data/calls/noite_12_doutor.tres
+msgid "Boa noite. O Dr. Augusto Almeida, por favor."
+msgstr ""
+
+#: data/calls/noite_12_doutor.tres
+msgid "A minha mulher está com febre desde ontem."
+msgstr ""
+
+#: data/calls/noite_12_doutor.tres
+msgid "O Dr. Augusto Almeida."
+msgstr ""
+
+#: data/calls/noite_12_doutor.tres data/calls/transfer_11_morador_dr_augusto_almeida.tres data/calls/transfer_30_dona_elza_dr_augusto_almeida.tres
+msgid "Dr. Augusto Almeida"
+msgstr ""
+
+#: data/calls/noite_12_doutor_fogo.tres
+msgid "Moça! Tá saindo fumaça da casa do vizinho! Fogo na janela da cozinha!"
+msgstr ""
+
+#: data/calls/noite_12_doutor_fogo.tres
+msgid "Tem gente lá dentro?"
+msgstr ""
+
+#: data/calls/noite_12_doutor_fogo.tres
+msgid "O fogo está passando para outras casas?"
+msgstr ""
+
+#: data/calls/noite_12_doutor_fogo.tres
+msgid "Rua do Cruzeiro, 260! A casa do lado da minha!"
+msgstr ""
+
+#: data/calls/noite_12_doutor_fogo.tres
+msgid "A vizinha já saiu com as crianças, tão aqui na rua comigo."
+msgstr ""
+
+#: data/calls/noite_12_doutor_fogo.tres
+msgid "Ainda não, é só na cozinha dela. Mas tá subindo!"
+msgstr ""
+
+#: data/calls/noite_12_doutor_fogo.tres
+msgid "Os bombeiros chegaram. Moça, deixa o doutor pra depois, a febre da minha mulher espera. Vou ajudar com os baldes!"
+msgstr ""
+
+#: data/calls/noite_12_doutor_fogo.tres
+msgid "O fogo pegou no telhado! Tá caindo telha!"
+msgstr ""
+
+#: data/calls/noite_12_doutor_fogo.tres
+msgid "Alguém voltou para dentro?"
+msgstr ""
+
+#: data/calls/noite_12_doutor_fogo.tres
+msgid "Não, tá todo mundo aqui fora. Graças a Deus."
+msgstr ""
+
+#: data/calls/noite_12_doutor_fogo.tres
+msgid "A vizinha tá passando mal com a fumaça, não para de tossir!"
+msgstr ""
+
+#: data/calls/noite_12_doutor_fogo.tres
+msgid "Ela consegue respirar?"
+msgstr ""
+
+#: data/calls/noite_12_doutor_fogo.tres
+msgid "Mal e mal... tá sentada no meio-fio, sem ar!"
+msgstr ""
+
+#: data/calls/noite_12_doutor_fogo.tres
+msgid "A casa caiu, moça. Não sobrou nada."
+msgstr ""
+
+#: data/calls/noite_12_doutor_fogo.tres
+msgid "A vizinha desmaiou com a fumaça! Precisa de ambulância!"
 msgstr ""
 
 #: data/nights/night_12.tres
@@ -9818,10 +10214,6 @@ msgstr ""
 msgid "A farmácia de plantão, moça. A que fica aberta de noite."
 msgstr ""
 
-#: data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres data/calls/transfer_22_seu_anibal_farmacia_central.tres data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
-msgid "Farmácia Santa Rita"
-msgstr ""
-
 #: data/calls/transfer_01_dona_lurdes_farmacia_santa_rita.tres
 msgid "Obrigada, minha filha. Deus te abençoe."
 msgstr ""
@@ -10226,10 +10618,6 @@ msgstr ""
 msgid "O Dr. Almeida. O médico, do hospital."
 msgstr ""
 
-#: data/calls/transfer_11_morador_dr_augusto_almeida.tres data/calls/transfer_30_dona_elza_dr_augusto_almeida.tres
-msgid "Dr. Augusto Almeida"
-msgstr ""
-
 #: data/calls/transfer_11_morador_dr_augusto_almeida.tres
 msgid "Doutor, boa noite. Desculpa a hora."
 msgstr ""
@@ -10587,10 +10975,6 @@ msgid "Dois, dois, três. A Marta."
 msgstr ""
 
 #: data/calls/transfer_20_dona_tereza_marta_costa.tres
-msgid "Marta Costa"
-msgstr ""
-
-#: data/calls/transfer_20_dona_tereza_marta_costa.tres
 msgid "Comadre? É a Tereza."
 msgstr ""
 
@@ -10819,10 +11203,6 @@ msgid "Preciso de um carro de praça. O último ônibus sai às onze e eu não p
 msgstr ""
 
 #: data/calls/transfer_27_moca_taxi_ponto_da_rodoviaria.tres
-msgid "O ponto de táxi da rodoviária."
-msgstr ""
-
-#: data/calls/transfer_27_moca_taxi_ponto_da_rodoviaria.tres
 msgid "Boa noite. Preciso de um carro. O último ônibus sai às onze."
 msgstr ""
 
@@ -11040,10 +11420,6 @@ msgstr ""
 
 #: data/calls/transfer_33_rapaz_paulo_nogueira.tres
 msgid "Paulo Nogueira."
-msgstr ""
-
-#: data/calls/transfer_33_rapaz_paulo_nogueira.tres
-msgid "Paulo Nogueira"
 msgstr ""
 
 #: data/calls/transfer_33_rapaz_paulo_nogueira.tres
@@ -11996,10 +12372,6 @@ msgstr ""
 
 #: data/calls/emergency_05_outro_rua_da_estacao_140.tres
 msgid "Central! Tão brigando aqui no Bar do Zé! Um puxou uma faca!"
-msgstr ""
-
-#: data/calls/emergency_05_outro_rua_da_estacao_140.tres data/calls/emergency_18_invasao_rua_do_mercado_90.tres data/calls/emergency_20_acidente_avenida_brasil_420.tres
-msgid "Alguém está ferido?"
 msgstr ""
 
 #: data/calls/emergency_05_outro_rua_da_estacao_140.tres data/calls/emergency_12_outro_rua_das_acacias_330.tres
@@ -13132,10 +13504,6 @@ msgstr ""
 
 #: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
 msgid "Ele parou de responder! Tô sacudindo ele e nada!"
-msgstr ""
-
-#: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres
-msgid "Ele ainda respira?"
 msgstr ""
 
 #: data/calls/emergency_23_mal_subito_rua_das_acacias_450.tres

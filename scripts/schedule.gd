@@ -80,6 +80,7 @@ func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[Phon
 		elif own.has(i):
 			c = PhoneCall.from_script(own[i].call)
 			c.requires = own[i].requires
+			c.beat = own[i]   # o desfecho liga os marcadores dela, e quem volta a ligar (`StoryCall.callback`)
 		elif randf() < TRANSFER_SHARE:
 			# um número por noite: duas pessoas pedindo o mesmo destino ficariam esperando uma pela outra
 			var fresh := transfers.filter(func(x: TransferCall): return not x.target in targets and not x.alt_target in targets)

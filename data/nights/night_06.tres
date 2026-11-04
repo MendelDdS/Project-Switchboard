@@ -11,6 +11,9 @@
 [ext_resource type="Resource" path="res://data/calls/story_06_generosa.tres" id="a_story_06_generosa"]
 [ext_resource type="Resource" path="res://data/calls/noite_06_telefone.tres" id="j_telefone"]
 [ext_resource type="Resource" path="res://data/calls/noite_06_parente.tres" id="j_parente"]
+[ext_resource type="Resource" path="res://data/calls/noite_06_febre.tres" id="j_febre"]
+[ext_resource type="Resource" path="res://data/calls/noite_06_febre_baixou.tres" id="j_febre_baixou"]
+[ext_resource type="Resource" path="res://data/calls/noite_06_febre_fechada.tres" id="j_febre_fechada"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -67,6 +70,22 @@ call = ExtResource("j_telefone")
 script = ExtResource("x0_story_call")
 call = ExtResource("j_parente")
 
+[sub_resource type="Resource" id="J_back_febre_baixou"]
+script = ExtResource("x0_story_call")
+call = ExtResource("j_febre_baixou")
+requires = PackedStringArray("febre_farmacia_6")
+
+[sub_resource type="Resource" id="J_back_febre_fechada"]
+script = ExtResource("x0_story_call")
+call = ExtResource("j_febre_fechada")
+requires = PackedStringArray("!febre_farmacia_6")
+
+[sub_resource type="Resource" id="J_call_febre"]
+script = ExtResource("x0_story_call")
+call = ExtResource("j_febre")
+if_connected = PackedStringArray("febre_farmacia_6")
+callback = [SubResource("J_back_febre_baixou"), SubResource("J_back_febre_fechada")]
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Hoje o Centro tem baile e a praça cheia. Fique atenta. A linha do Bar do Zé continua bloqueada.\""
@@ -74,6 +93,6 @@ street_events = Array[ExtResource("2_event")]([SubResource("ev_0")])
 story = Array[ExtResource("x0_story_call")]([SubResource("S_acordo"), SubResource("S_bar1"), SubResource("S_bar2"), SubResource("A_story_06_miguel"), SubResource("A_story_06_generosa")])
 news_if = Array[ExtResource("j_story_text")]([SubResource("J_news_0")])
 news_stories = PackedStringArray("Polícia corta telefones de \"pontos de agitação\"\nPor ordem da delegacia, as linhas de bares e salões do Centro e de Vila Serena foram bloqueadas na central, a do Bar do Zé entre elas. \"Quem não deve não teme\", disse o delegado.")
-calls = Array[ExtResource("x0_story_call")]([SubResource("J_call_telefone"), SubResource("J_call_parente")])
+calls = Array[ExtResource("x0_story_call")]([SubResource("J_call_telefone"), SubResource("J_call_parente"), SubResource("J_call_febre")])
 news_photo = "rua"
 news_caption = "A rua do Bar do Zé, sem telefone desde ontem."

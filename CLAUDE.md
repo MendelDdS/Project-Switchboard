@@ -236,7 +236,9 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   `Pace.call_gap`; nada novo depois de `last_call` (23:40; a do roteiro marcada depois toca, `_story_late`) e, depois, o botão Encerrar turno; `GIVE_UP_SEC` 60 s;
   conversa fiada (`ChatTopic`, `Conversation.smalltalk`) só do cotidiano.
   Ligações escritas da noite (`Night.calls`: quem comenta a manchete, quem procura um parente preso) entram no
-  sorteio em vagas de transferência (`Schedule._random_calls`), com `requires` conferido na hora de tocar; não são missão. Relógio: 0,75 min de jogo por segundo.
+  sorteio em vagas de transferência (`Schedule._random_calls`), com `requires` conferido na hora de tocar; não são missão. A que vira
+  emergência no meio do pedido (`TransferCall.turns`, `Main.turn_emergency`) termina no despacho; quem volta a ligar
+  (`StoryCall.callback`, `Main._call_back`) escolhe a versão pelo desfecho da primeira. Relógio: 0,75 min de jogo por segundo.
 - O amanhecer da noite 15 (céu, sol atrás da igreja, luz do dia na sala): `scripts/ui/CLAUDE.md` e
   `docs/mapa-detalhado.md`.
 

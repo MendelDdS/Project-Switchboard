@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+group = 1
+voice = "m"
+caller = "Senhor"
+caller_name = "Geraldo Nogueira"
+opening = PackedStringArray("Moça, sou eu de novo. O pai do menino da febre.", "A ligação caiu e eu fui a pé até a Farmácia Central. Estava fechada!", "Me liga com a Farmácia Santa Rita, por favor. A febre não baixa.")
+repeat = "A Farmácia Santa Rita."
+target = "162"
+destination = "Farmácia Santa Rita"
+thanks = "Obrigado, moça."
+overheard = PackedStringArray("Boa noite. Vocês ainda atendem? O meu filho está com febre alta desde a tarde.", "Já fechamos, senhor. Só amanhã.", "Pelo amor de Deus, ele tem seis anos!", "...Bata na porta dos fundos. Mas venha sozinho.", "Obrigado. Obrigado mesmo.", "E não passe pela praça.")

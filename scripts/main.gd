@@ -18,6 +18,7 @@ const SMALLTALK_CHANCE := 0.6           # ...às vezes (respostas e limites: Con
 const NAG_AFTER := 22.0                 # segundos de silêncio até reclamar da demora (emergência: EMERGENCY_NAG_AFTER)
 const EMERGENCY_NAG_AFTER := 26.0
 const MAX_EMERGENCIES := 2              # emergências em andamento ao mesmo tempo (a próxima espera; o debug recusa)
+const CALL_BACK_AFTER := Vector2(50.0, 90.0)   # quem volta a ligar (`StoryCall.callback`): tantos minutos de jogo depois
 ## Atalhos das ferramentas (Input Map): aba -> ação.
 const DAY_DIM := 0.5   # o quanto o dia enfraquece o brilho da luminária e o halo das luzes (`Bloom`), na força toda
 const WARM_TINT := Color(1.0, 0.62, 0.36, 0.35)   # a luminária recém-acesa: o brilho dela nesse tom e nessa fração da força
@@ -57,6 +58,7 @@ var live: Array[PhoneCall] = []    ## tocando ou em andamento (podem ser várias
 ## Emergências que tocaram, a mais recente por último; as em andamento (`in_progress`) são no máximo
 ## `MAX_EMERGENCIES`. Uma que acabou fica até dar lugar a outra (o despacho ainda pode chegar a ela).
 var emergencies: Array[PhoneCall] = []
+var _called_back: Array[StoryCall] = []   # as ligações cujo `callback` já entrou na agenda nesta noite (uma vez cada)
 var _street_waiting: Array = []    ## cenas da rua com `requires`: conferidas na hora delas (`_street_check`)
 var _verdict := false              ## a conta da meia-noite da última noite já foi feita (`_midnight`)
 var ending := false
@@ -940,7 +942,7 @@ func _run_schedule() -> void:
 	if on_mission():
 		hush = true
 	# no máximo `MAX_EMERGENCIES` ao mesmo tempo: a próxima espera uma delas desligar e ter o socorro
-	if c.kind == PhoneCall.Kind.EMERGENCY and in_progress().size() >= MAX_EMERGENCIES:
+	if (c.kind == PhoneCall.Kind.EMERGENCY or c.data is TransferCall and c.data.turns != null) and in_progress().size() >= MAX_EMERGENCIES:
 		hush = true
 	# não sobrecarregar: com `Pace.max_live` ligações pedindo atenção, a próxima espera
 	if live.size() >= pace.max_live:
@@ -1024,12 +1026,7 @@ func ring(c: PhoneCall) -> void:
 	live.append(c)
 	tools.call_log.track(c)
 	if c.kind == PhoneCall.Kind.EMERGENCY:
-		for old in emergencies.filter(func(x: PhoneCall): return x.data == c.data or x.ended and not x.urgent()):
-			emergencies.erase(old)   # quem liga de novo recomeça; as que acabaram dão lugar
-			dispatch.fleet.close(old.data)
-		emergencies.append(c)
-		_sent.erase(c.data)
-		dispatch.set_incident(c.data, c.told)
+		_open_emergency(c)
 	_update_bell()
 	_refresh_panel()
 	if c.lesson:   # a dica é do treinamento
@@ -1044,6 +1041,25 @@ func ring(c: PhoneCall) -> void:
 		# por conexão e não `await`: a espera pendente prendia a ligação na memória depois de o Main sair (`restart`)
 		get_tree().create_timer(GIVE_UP_SEC * (0.75 if c.retry != PhoneCall.Retry.NONE else 1.5 if c.story else 1.0), false) \
 				.timeout.connect(_give_up.bind(c))
+
+
+## A emergência `c` entra no despacho e na barra; quem liga de novo recomeça e as que acabaram dão lugar.
+func _open_emergency(c: PhoneCall) -> void:
+	for old in emergencies.filter(func(x: PhoneCall): return x.data == c.data or x.ended and not x.urgent()):
+		emergencies.erase(old)
+		dispatch.fleet.close(old.data)
+	emergencies.append(c)
+	_sent.erase(c.data)
+	dispatch.set_incident(c.data, c.told)
+
+
+## O pedido de transferência `c` vira a emergência do roteiro dele (`TransferCall.turns`, chamado pela conversa no
+## meio do pedido): dali em diante é emergência como as outras.
+func turn_emergency(c: PhoneCall) -> void:
+	c.kind = PhoneCall.Kind.EMERGENCY
+	c.data = (c.data as TransferCall).turns
+	_open_emergency(c)
+	_refresh_panel()
 
 
 ## Ninguém atendeu a tempo (`ring`).
@@ -1154,6 +1170,21 @@ func _story_talk_over(n: int, cut: bool) -> void:
 	_story_flags(c, o.if_dropped if cut else (o.if_connected if str(c.dest_num) == c.target else o.if_elsewhere))
 
 
+## Quem volta a ligar depois da ligação `c` (`StoryCall.callback`): uma vez por noite, se ela foi atendida, daqui a
+## `CALL_BACK_AFTER` minutos (antes da última ligação); a versão que toca se escolhe pelos marcadores na hora.
+func _call_back(c: PhoneCall) -> void:
+	if c.beat == null or c.beat.callback.is_empty() or not c.answered or c.beat in _called_back:
+		return
+	_called_back.append(c.beat)
+	for st: StoryCall in c.beat.callback:
+		var n := PhoneCall.from_script(st.call)
+		n.requires = st.requires
+		n.beat = st
+		n.at = minf(minutes + randf_range(CALL_BACK_AFTER.x, CALL_BACK_AFTER.y), maxf(minutes + 2.0, last_call - 4.0))
+		sched.append(n)
+	sched.sort_custom(func(a: PhoneCall, b: PhoneCall): return a.at < b.at)
+
+
 func _story_flags(c: PhoneCall, sets: PackedStringArray) -> void:
 	for f in sets:
 		flags.apply(f.replace("{dest}", str(c.dest_num)))
@@ -1192,6 +1223,7 @@ func end_call(c: PhoneCall, reason: PhoneCall.End) -> void:
 	c.record = _record(c, reason)
 	notebook.add(c.record)
 	_story_outcome(c, reason)
+	_call_back(c)
 	supervisor.call_ended(c, reason)
 	bureaucracy.call_ended(c, reason)
 	await get_tree().create_timer(1.5, false).timeout

@@ -1505,6 +1505,44 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return 3 in b._draped.get(1, []) and b.ropes[3].asleep(), 10.0), "o fio enganchado no plug de baixo corre por cima dele e dorme")
 	b.go_home(1)
 	b.go_home(3)
+	# ---- 18b. a ligação comum que vira emergência no meio do pedido (`TransferCall.turns`) e quem volta a ligar
+	# (`StoryCall.callback`)
+	m.drop_all()
+	var clock := m.minutes   # (as conversas andam o relógio: o resto do teste conta com ele antes do fim do turno)
+	m.minutes = 60.0   # (às 19h: perto da última ligação, o retorno ficaria para logo antes dela)
+	var tv: TransferCall = load("res://data/calls/noite_07_taxi.tres")
+	var vc := PhoneCall.from_transfer(tv)
+	m.ring(vc)
+	_move(0, vc.line)
+	m.answer()
+	ok(await wait_until(func(): return vc.phase == PhoneCall.Phase.EMERGENCY, 40.0) and vc.kind == PhoneCall.Kind.EMERGENCY
+		and vc.data == tv.turns and vc in m.emergencies, "virada: depois do pedido, a ligação vira a emergência dela, no despacho e na barra")
+	m.conversation.emergency_dispatched(vc)
+	ok(await wait_until(func(): return vc.ended, 40.0) and vc.record.kind == PhoneCall.Kind.EMERGENCY
+		and vc.transcript.any(func(l: Dictionary): return l["text"] == tr(tv.turns.after)),
+		"virada: com o socorro, ela se despede dispensando a transferência e vai ao caderno como emergência")
+	var back := StoryCall.new()
+	back.call = load("res://data/calls/noite_07_raimundo_padre.tres")
+	back.requires = ["teste_volta"]
+	var first := StoryCall.new()
+	first.call = load("res://data/calls/noite_07_parente.tres")
+	first.callback = [back]
+	var backs := func(): return m.sched.filter(func(x: PhoneCall): return x.beat == back)
+	for k in 2:   # a mesma pessoa, atendida duas vezes: volta a ligar uma vez só
+		var fc := PhoneCall.from_transfer(first.call)
+		fc.beat = first
+		m.ring(fc)
+		_move(0, fc.line)
+		m.answer()
+		ok(await wait_until(func(): return fc.answered, 10.0), "retorno: atendida")
+		m.end_call(fc, PhoneCall.End.OPERATOR)
+	ok(backs.call().size() == 1 and backs.call()[0].at >= m.minutes + Main.CALL_BACK_AFTER.x - 0.01
+		and backs.call()[0].requires == PackedStringArray(["teste_volta"]), "retorno: quem volta a ligar entra na agenda, mais tarde e com os marcadores dele")
+	for x in backs.call():
+		m.sched.erase(x)
+	m.minutes = clock
+	m.drop_all()
+	_move(0, -1)
 	# ---- 19. recomeçar solta as ligações em andamento: a espera de desistir (`ring`) e as opções de fala (presas à
 	# própria ligação pelo `bind`) as prendiam na memória
 	var m2: Main = await load_main([1, 2, 3])

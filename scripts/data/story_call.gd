@@ -30,6 +30,10 @@ extends Resource
 @export var if_delivered: PackedStringArray = []
 ## Gravada (B4) e dada a Sebastião (o pacote branco, `Tapes.give`), no fim do turno.
 @export var if_sebastiao: PackedStringArray = []
+## Quem volta a ligar mais tarde na mesma noite (`Main._call_back`), uma vez, se esta foi atendida: cada uma entra na
+## agenda e toca se os `requires` dela baterem (os marcadores do desfecho desta escolhem a versão: conectada, cortada).
+## (`StoryCall`s: tipada como `Array[StoryCall]` aqui dentro, o script ficava preso na memória ao sair.)
+@export var callback: Array[Resource] = []
 ## Não atendida ou mal resolvida, a pessoa liga de novo uma vez, como as outras (`Supervisor.call_again`). Desligado,
 ## não liga: as novas tentativas ficam por conta do roteiro (outras `StoryCall` com `requires`).
 @export var again := true
