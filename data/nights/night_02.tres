@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
+[ext_resource type="Script" path="res://scripts/data/story_text.gd" id="j_story_text"]
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
 [ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
@@ -8,6 +9,7 @@
 [ext_resource type="Resource" path="res://data/calls/story_02_homem_bar_2.tres" id="x1_story_02_homem_bar_2"]
 [ext_resource type="Resource" path="res://data/calls/story_02_homem_bar_3.tres" id="x2_story_02_homem_bar_3"]
 [ext_resource type="Resource" path="res://data/calls/story_02_otavio_radio.tres" id="a_story_02_otavio_radio"]
+[ext_resource type="Resource" path="res://data/calls/noite_02_panfleto.tres" id="j_panfleto"]
 
 [sub_resource type="Resource" id="ChatReply_00_0"]
 script = ExtResource("9_reply")
@@ -74,8 +76,16 @@ at = 120.0
 call = ExtResource("a_story_02_otavio_radio")
 again = false
 
+[sub_resource type="Resource" id="J_call_panfleto"]
+script = ExtResource("3_story")
+call = ExtResource("j_panfleto")
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Hoje é como ontem: atenda, transfira e anote tudo na ficha.\""
 story = Array[ExtResource("3_story")]([SubResource("S_homem1"), SubResource("S_homem2"), SubResource("S_homem3"), SubResource("A_story_02_otavio_radio")])
 smalltalk = Array[ExtResource("8_chat")]([SubResource("ChatTopic_00"), SubResource("ChatTopic_01")])
+news_stories = PackedStringArray("Panfletos contra a Alta Cúpula aparecem na estação\nCentenas de folhas mimeografadas amanheceram espalhadas pela plataforma e pelos bancos da estação. A polícia recolheu o material e procura a gráfica clandestina. Quem souber de algo deve procurar a delegacia.")
+calls = Array[ExtResource("3_story")]([SubResource("J_call_panfleto")])
+news_photo = "papeis"
+news_caption = "Folhas recolhidas na plataforma da estação."

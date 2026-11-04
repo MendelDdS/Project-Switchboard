@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
+[ext_resource type="Script" path="res://scripts/data/story_text.gd" id="j_story_text"]
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
 [ext_resource type="Script" path="res://scripts/data/dial_call.gd" id="3_dial"]
@@ -12,6 +13,7 @@
 [ext_resource type="Resource" path="res://data/calls/story_04_atropelado.tres" id="x1_story_04_atropelado"]
 [ext_resource type="Resource" path="res://data/calls/story_04_bomba_loja.tres" id="x2_story_04_bomba_loja"]
 [ext_resource type="Resource" path="res://data/calls/story_04_briga.tres" id="x3_story_04_briga"]
+[ext_resource type="Resource" path="res://data/calls/noite_04_dinamite.tres" id="j_dinamite"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -146,9 +148,17 @@ at = 285.0
 call = ExtResource("x3_story_04_briga")
 again = false
 
+[sub_resource type="Resource" id="J_call_dinamite"]
+script = ExtResource("x0_story_call")
+call = ExtResource("j_dinamite")
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Houve explosões em vários pontos da cidade esta tarde, e há protesto marcado na praça. A noite vai ser pesada: emergência primeiro, e nada de conversa na linha. A delegacia pede que qualquer conversa suspeita na linha seja comunicada pelo 184.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0")])
 dial = Array[ExtResource("3_dial")]([SubResource("Dial_hotel"), SubResource("D_den")])
 story = Array[ExtResource("x0_story_call")]([SubResource("S_cine"), SubResource("S_pensao"), SubResource("S_radio"), SubResource("E_bal"), SubResource("E_atr"), SubResource("E_bom"), SubResource("E_bri")])
+news_stories = PackedStringArray("Somem doze caixas de dinamite de pedreira\nO paiol da pedreira do Alto da Serra amanheceu arrombado e sem doze caixas de explosivos. O vigia diz que não viu nada e foi levado para depoimento. A polícia pede que a população denuncie movimentos estranhos.")
+calls = Array[ExtResource("x0_story_call")]([SubResource("J_call_dinamite")])
+news_photo = "armas"
+news_caption = "Caixas como as que sumiram do paiol."

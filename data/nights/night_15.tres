@@ -17,6 +17,8 @@
 [ext_resource type="Resource" path="res://data/calls/story_15_cupula_armazem_armas.tres" id="c_story_15_cupula_armazem_armas"]
 [ext_resource type="Resource" path="res://data/calls/story_15_tv.tres" id="c_story_15_tv"]
 [ext_resource type="Resource" path="res://data/calls/story_15_policia_matriz.tres" id="c_story_15_policia_matriz"]
+[ext_resource type="Resource" path="res://data/calls/noite_15_padaria.tres" id="j_padaria"]
+[ext_resource type="Resource" path="res://data/calls/noite_15_parente.tres" id="j_parente"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -376,6 +378,22 @@ script = ExtResource("5_text")
 text = "O turno não termina. Ninguém sai da central naquela noite."
 requires = PackedStringArray("final_presa")
 
+[sub_resource type="Resource" id="J_news_0"]
+script = ExtResource("5_text")
+text = "Gravações levam à prisão de quatro no Bar do Zé\nGraças a gravações telefônicas, a polícia prendeu na madrugada quatro frequentadores do Bar do Zé, acusados de preparar \"desordens\" para os próximos dias. A Alta Cúpula agradece a colaboração da central."
+requires = PackedStringArray("obedeceu_bar_14")
+photo = "viatura"
+caption = "O camburão na porta do Bar do Zé."
+
+[sub_resource type="Resource" id="J_call_padaria"]
+script = ExtResource("3_story")
+call = ExtResource("j_padaria")
+
+[sub_resource type="Resource" id="J_call_parente"]
+script = ExtResource("3_story")
+call = ExtResource("j_parente")
+requires = PackedStringArray("obedeceu_bar_14")
+
 [resource]
 script = ExtResource("1_night")
 shift_end = 720.0
@@ -386,3 +404,8 @@ street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource(
 endings = Array[ExtResource("5_text")]([SubResource("End_sucesso"), SubResource("End_presa")])
 letters = Array[ExtResource("5_text")]([SubResource("letter_15"), SubResource("letter_15a")])
 dial = Array[ExtResource("6_dial")]([SubResource("D_den"), SubResource("D_cen"), SubResource("D_ser"), SubResource("D_sef"), SubResource("D_rad"), SubResource("D_bar")])
+news_if = Array[ExtResource("5_text")]([SubResource("J_news_0")])
+news_stories = PackedStringArray("Rádio e TV sob controle militar\nA Rádio Serena e a TV Orbital passam a ser guardadas pelo Exército \"até a normalidade\". A Alta Cúpula garante que a cidade está calma e pede que ninguém saia de casa à noite.")
+calls = Array[ExtResource("3_story")]([SubResource("J_call_padaria"), SubResource("J_call_parente")])
+news_photo = "torre"
+news_caption = "Soldados na porta da Rádio Serena."

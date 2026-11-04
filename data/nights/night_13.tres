@@ -1,7 +1,12 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
+[ext_resource type="Script" path="res://scripts/data/story_text.gd" id="j_story_text"]
+[ext_resource type="Script" path="res://scripts/data/story_call.gd" id="j_story_call"]
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
+[ext_resource type="Resource" path="res://data/calls/noite_13_cecilia.tres" id="j_cecilia"]
+[ext_resource type="Resource" path="res://data/calls/noite_13_enterro.tres" id="j_enterro"]
+[ext_resource type="Resource" path="res://data/calls/noite_13_parente.tres" id="j_parente"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -19,9 +24,23 @@ script = ExtResource("2_event")
 kind = "stranger"
 at = 240.0
 
+[sub_resource type="Resource" id="J_call_cecilia"]
+script = ExtResource("j_story_call")
+call = ExtResource("j_cecilia")
 
+[sub_resource type="Resource" id="J_call_enterro"]
+script = ExtResource("j_story_call")
+call = ExtResource("j_enterro")
+
+[sub_resource type="Resource" id="J_call_parente"]
+script = ExtResource("j_story_call")
+call = ExtResource("j_parente")
 
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Recebemos uma notícia triste: a Cecília, telefonista do Alto da Serra, faleceu de um mal súbito. Não temos mais detalhes. Por segurança, há policiais no prédio esta noite, para a sua proteção. Não abra a porta para ninguém e siga trabalhando normalmente.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1"), SubResource("ev_2")])
+news_stories = PackedStringArray("Alta Cúpula investiga vazamento nas centrais telefônicas\nSegundo a Alta Cúpula, informações de ligações da polícia chegaram aos rebeldes \"por dentro das centrais\". As telefonistas serão ouvidas. A Companhia Telefônica diz confiar nas suas funcionárias.", "Falecimentos\nCecília, telefonista da central do Alto da Serra por trinta anos, morreu ontem de mal súbito. O sepultamento será às dez horas, no cemitério municipal.")
+calls = Array[ExtResource("j_story_call")]([SubResource("J_call_cecilia"), SubResource("J_call_enterro"), SubResource("J_call_parente")])
+news_photo = "mulher"
+news_caption = "Cecília, telefonista do Alto da Serra."

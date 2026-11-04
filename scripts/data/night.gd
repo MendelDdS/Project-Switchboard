@@ -29,6 +29,11 @@ const StoryText := preload("res://scripts/data/story_text.gd")
 @export_group("Roteiro")
 ## Ligações do roteiro: sempre as mesmas, no horário marcado.
 @export var story: Array[StoryCall] = []
+## Ligações escritas desta noite que entram no sorteio, cada uma numa vaga sorteada no lugar de uma transferência
+## (`Schedule._random_calls`): quem comenta a manchete do jornal, quem procura um parente preso. Do `StoryCall` valem
+## só `call` e `requires` (conferido na hora de tocar: as versões de um mesmo assunto com marcadores opostos); não são
+## missão do roteiro, não têm horário nem desfecho.
+@export var calls: Array[StoryCall] = []
 ## Novidades da cidade nesta noite (conversa fiada): contadas antes dos assuntos gerais, uma vez por noite.
 @export var smalltalk: Array[ChatTopic] = []
 
@@ -46,8 +51,9 @@ const StoryText := preload("res://scripts/data/story_text.gd")
 @export_group("Jornal da manhã")
 ## A primeira página do jornal que está na mesa nesta noite (da segunda em diante), além das manchetes das emergências
 ## da noite anterior (`ShiftReport.news`). Tudo opcional: vazio, sai como sempre.
-## A foto (vazio = a cidade de manhã, desenhada em retícula), ajustada à coluna dela sem deformar.
-@export var news_photo: Texture2D
+## A foto, desenhada em retícula (uma de `NewsView.PHOTOS`; vazio, a cidade de manhã); a manchete de `news_if` que
+## traz a sua troca esta e a legenda (`photo_for`).
+@export var news_photo := ""
 ## A legenda embaixo da foto (vazio = só o traço da legenda).
 @export var news_caption := ""
 ## As matérias, uma por coluna: as duas embaixo das manchetes e a de baixo da foto, nessa ordem (as que passarem de
@@ -94,3 +100,13 @@ func stories_for(f: StoryFlags) -> PackedStringArray:
 			out.append(v.text)
 	out.append_array(news_stories)
 	return out
+
+
+## A foto e a legenda do jornal com os marcadores `f`: as da manchete, se ela vier de `news_if` com foto; senão, as da noite.
+func photo_for(f: StoryFlags) -> PackedStringArray:
+	for v in news_if:
+		if f != null and f.allows(v.requires):
+			if v.photo != "":
+				return PackedStringArray([v.photo, v.caption])
+			break
+	return PackedStringArray([news_photo, news_caption])

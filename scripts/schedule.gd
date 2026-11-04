@@ -56,10 +56,14 @@ func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[Phon
 			kinds[i] = PhoneCall.Kind.EMERGENCY
 			em_ats.append(ats[i])
 			free.erase(i)
-	for i in free.slice(0, randi_range(pace.pranks.x, pace.pranks.y)):
+	var n_pranks := randi_range(pace.pranks.x, pace.pranks.y)
+	for i in free.slice(0, n_pranks):
 		kinds[i] = PhoneCall.Kind.PRANK
+	var own := {}   # vaga -> StoryCall: as escritas da noite (`Night.calls`), nas vagas comuns que sobraram
+	for k in mini(night.calls.size(), free.size() - n_pranks):
+		own[free[n_pranks + k]] = night.calls[k]
 	var used := fixed.map(func(f: PhoneCall): return f.caller)
-	targets = fixed.map(func(f: PhoneCall): return f.target)
+	targets = fixed.map(func(f: PhoneCall): return f.target) + own.values().map(func(st: StoryCall): return st.call.target)
 	var transfers := C.transfers.filter(func(x): return not x.caller in used and GameData.serves(x))
 	var emergencies := C.emergencies.filter(func(e: EmergencyCall): return GameData.street(e.street).block_sector(e.block) in GameData.sectors)
 	var pranks := C.pranks.duplicate()
@@ -73,6 +77,9 @@ func _random_calls(night: Night, pace: Pace, last_call: float, fixed: Array[Phon
 			c = PhoneCall.from_emergency(GameData.with_case(emergencies.pop_back()) if written else GameData.template_emergency())
 		elif kinds[i] == PhoneCall.Kind.PRANK and not pranks.is_empty():
 			c = PhoneCall.from_prank(pranks.pop_back())
+		elif own.has(i):
+			c = PhoneCall.from_script(own[i].call)
+			c.requires = own[i].requires
 		elif randf() < TRANSFER_SHARE:
 			# um número por noite: duas pessoas pedindo o mesmo destino ficariam esperando uma pela outra
 			var fresh := transfers.filter(func(x: TransferCall): return not x.target in targets and not x.alt_target in targets)

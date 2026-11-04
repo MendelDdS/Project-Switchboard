@@ -4583,6 +4583,54 @@ msgstr "Sale al aire después del noticiero. Buena suerte."
 msgid "Otávio Almeida."
 msgstr "Otávio Almeida."
 
+#: data/calls/noite_02_panfleto.tres
+msgid "Dona Ivone"
+msgstr "Dona Ivone"
+
+#: data/calls/noite_02_panfleto.tres
+msgid "Boa noite, moça. Me liga com a Pensão Dona Cota?"
+msgstr "Buenas noches, señorita. ¿Me comunica con la Pensão Dona Cota?"
+
+#: data/calls/noite_02_panfleto.tres
+msgid "Quero falar com a dona Cota, é urgente."
+msgstr "Quiero hablar con doña Cota, es urgente."
+
+#: data/calls/noite_02_panfleto.tres
+msgid "A pensão da dona Cota, minha filha. Três, um, dois."
+msgstr "La pensión de doña Cota, hija. Tres, uno, dos."
+
+#: data/calls/noite_02_panfleto.tres data/calls/story_04_pensao_marido.tres data/calls/noite_14_pensao.tres
+msgid "Pensão Dona Cota"
+msgstr "Pensão Dona Cota"
+
+#: data/calls/noite_02_panfleto.tres data/calls/noite_11_parente.tres
+msgid "Deus lhe pague, moça."
+msgstr "Dios se lo pague, señorita."
+
+#: data/calls/noite_02_panfleto.tres
+msgid "Cota? É a Ivone. Você viu o jornal de hoje?"
+msgstr "¿Cota? Soy Ivone. ¿Viste el diario de hoy?"
+
+#: data/calls/noite_02_panfleto.tres
+msgid "Vi. Os papéis na estação. Um hóspede meu achou um na mala."
+msgstr "Lo vi. Los papeles en la estación. Un huésped mío encontró uno en la maleta."
+
+#: data/calls/noite_02_panfleto.tres
+msgid "Pois tinha um debaixo da minha porta também. Queimei no fogão."
+msgstr "Pues había uno debajo de mi puerta también. Lo quemé en la cocina."
+
+#: data/calls/noite_02_panfleto.tres
+msgid "Fez bem. A polícia passou aqui perguntando quem anda de noite."
+msgstr "Hiciste bien. La policía pasó por aquí preguntando quién anda de noche."
+
+#: data/calls/noite_02_panfleto.tres
+msgid "E você falou o quê?"
+msgstr "¿Y tú qué dijiste?"
+
+#: data/calls/noite_02_panfleto.tres
+msgid "Que aqui só dorme caixeiro-viajante. E é verdade."
+msgstr "Que aquí solo duermen viajantes de comercio. Y es verdad."
+
 #: data/nights/night_02.tres
 msgid "Disseram que a senhora ia na quermesse hoje à tarde e não apareceu, hein!"
 msgstr "¡Dijeron que usted iba a la kermés esta tarde y no apareció, eh!"
@@ -4622,6 +4670,14 @@ msgstr "Me imagino."
 #: data/nights/night_02.tres
 msgid "...Pois é."
 msgstr "...Pues sí."
+
+#: data/nights/night_02.tres
+msgid "Folhas recolhidas na plataforma da estação."
+msgstr "Hojas recogidas en el andén de la estación."
+
+#: data/nights/night_02.tres
+msgid "Panfletos contra a Alta Cúpula aparecem na estação\nCentenas de folhas mimeografadas amanheceram espalhadas pela plataforma e pelos bancos da estação. A polícia recolheu o material e procura a gráfica clandestina. Quem souber de algo deve procurar a delegacia."
+msgstr "Aparecen panfletos contra la Alta Cúpula en la estación\nCientos de hojas mimeografiadas amanecieron esparcidas por el andén y los bancos de la estación. La policía recogió el material y busca la imprenta clandestina. Quien sepa algo debe acudir a la comisaría."
 
 #: data/nights/night_03.tres
 msgid "O supervisor deixou um recado: \"Ordem da diretoria: a partir de hoje, peça o nome e o sobrenome de quem liga antes de completar a ligação. Quem não disser, não passa.\""
@@ -4783,6 +4839,62 @@ msgstr "Generosa... Tres, ocho, cuatro. ¡Lo escribí en la mano! Señorita, ust
 msgid "Ninguém? ...Vai ver ela não estava ouvindo. Obrigado assim mesmo."
 msgstr "¿Nadie? ...A lo mejor no estaba escuchando. Gracias igual."
 
+#: data/calls/noite_03_nome.tres data/calls/transfer_25_seu_jair_mercearia_silva.tres data/content.tres
+msgid "Seu Jair"
+msgstr "Seu Jair"
+
+#: data/calls/noite_03_nome.tres
+msgid "Boa noite. Li no jornal que agora tem que dar o nome pra telefonista."
+msgstr "Buenas noches. Leí en el diario que ahora hay que darle el nombre a la operadora."
+
+#: data/calls/noite_03_nome.tres
+msgid "Me liga com o Cine Odeon, faz favor."
+msgstr "Comuníqueme con el Cine Odeon, por favor."
+
+#: data/calls/noite_03_nome.tres data/calls/noite_09_toque.tres
+msgid "O cinema, moça. O Odeon."
+msgstr "El cine, señorita. El Odeon."
+
+#: data/calls/noite_03_nome.tres data/calls/story_04_mae_cinema.tres data/calls/noite_09_toque.tres
+msgid "Cine Odeon"
+msgstr "Cine Odeon"
+
+#: data/calls/noite_03_nome.tres
+msgid "Obrigado. E boa sorte com a papelada, moça."
+msgstr "Gracias. Y suerte con el papeleo, señorita."
+
+#: data/calls/noite_03_nome.tres
+msgid "Odeon? Aqui é o Jair. Que filme passa no sábado?"
+msgstr "¿Odeon? Habla Jair. ¿Qué película dan el sábado?"
+
+#: data/calls/noite_03_nome.tres
+msgid "Boa noite, seu Jair. Um faroeste, às sete e às nove."
+msgstr "Buenas noches, don Jair. Un western, a las siete y a las nueve."
+
+#: data/calls/noite_03_nome.tres
+msgid "Às nove ainda tem? Com essa história de nome e documento pra tudo..."
+msgstr "¿Todavía a las nueve? Con este asunto de nombre y documento para todo..."
+
+#: data/calls/noite_03_nome.tres
+msgid "Por enquanto tem. Mas a censura cortou meia hora do filme."
+msgstr "Por ahora sí. Pero la censura le cortó media hora a la película."
+
+#: data/calls/noite_03_nome.tres
+msgid "Cortou o quê?"
+msgstr "¿Qué le cortó?"
+
+#: data/calls/noite_03_nome.tres
+msgid "A parte do xerife que prende o governador. Ficou sem pé nem cabeça."
+msgstr "La parte del sheriff que arresta al gobernador. Quedó sin pies ni cabeza."
+
+#: data/calls/noite_03_nome.tres
+msgid "Jair Monteiro. Anota aí, já que agora é obrigado."
+msgstr "Jair Monteiro. Anótelo, ya que ahora es obligatorio."
+
+#: data/nights/night_03.tres
+msgid "Telefônica vai exigir o nome de quem liga\nA partir de hoje, a Companhia Telefônica de São Sotero só completa a ligação de quem disser nome e sobrenome à telefonista. A diretoria fala em \"segurança de todos\" e pede a compreensão dos assinantes."
+msgstr "La Telefónica exigirá el nombre de quien llama\nDesde hoy, la Compañía Telefónica de São Sotero solo completa la llamada de quien diga nombre y apellido a la operadora. La dirección habla de \"la seguridad de todos\" y pide comprensión a los abonados."
+
 #: data/nights/night_03.tres
 msgid "Bar do Zé."
 msgstr "Bar do Zé."
@@ -4851,10 +4963,6 @@ msgstr "¡Por el amor de Dios, el Cine Odeon! ¡Mi hija fue a la función de las
 msgid "O cinema, o Odeon! Rápido!"
 msgstr "¡El cine, el Odeon! ¡Rápido!"
 
-#: data/calls/story_04_mae_cinema.tres data/calls/transfer_08_dona_cida_cine_odeon.tres data/calls/transfer_29_rapaz_cine_odeon.tres
-msgid "Cine Odeon"
-msgstr "Cine Odeon"
-
 #: data/calls/story_04_mae_cinema.tres
 msgid "Obrigada, minha filha. Deus te pague."
 msgstr "Gracias, hija. Dios se lo pague."
@@ -4890,10 +4998,6 @@ msgstr "La Pensão Dona Cota, por favor. Mi marido fue a la protesta y no volvi�
 #: data/calls/story_04_pensao_marido.tres
 msgid "A pensão. A da Dona Cota."
 msgstr "La pensión. La de Dona Cota."
-
-#: data/calls/story_04_pensao_marido.tres data/calls/transfer_38_dona_benta_pensao_dona_cota.tres data/calls/transfer_39_caixeiro_hotel_estrela.tres
-msgid "Pensão Dona Cota"
-msgstr "Pensão Dona Cota"
 
 #: data/calls/story_04_pensao_marido.tres data/calls/story_08_generosa_recado.tres data/calls/story_10_generosa.tres
 msgid "Obrigada."
@@ -5203,6 +5307,62 @@ msgstr "Huyeron todos... y dejaron a dos en el suelo."
 msgid "Dois no chão, e um não se mexe!"
 msgstr "¡Dos en el suelo, y uno no se mueve!"
 
+#: data/calls/noite_04_dinamite.tres
+msgid "Seu Valter"
+msgstr "Seu Valter"
+
+#: data/calls/noite_04_dinamite.tres
+msgid "Boa noite. A Oficina do Tião, por favor."
+msgstr "Buenas noches. La Oficina do Tião, por favor."
+
+#: data/calls/noite_04_dinamite.tres
+msgid "Ele ainda está lá, eu vi a luz acesa."
+msgstr "Todavía está ahí, vi la luz encendida."
+
+#: data/calls/noite_04_dinamite.tres
+msgid "A oficina do Tião, moça. Três, um, oito."
+msgstr "El taller de Tião, señorita. Tres, uno, ocho."
+
+#: data/calls/noite_04_dinamite.tres data/calls/transfer_06_caminhoneiro_oficina_do_tiao.tres data/calls/transfer_40_motorista_borracharia_do_neno.tres
+msgid "Oficina do Tião"
+msgstr "Oficina do Tião"
+
+#: data/calls/noite_04_dinamite.tres
+msgid "Valeu, moça."
+msgstr "Gracias, señorita."
+
+#: data/calls/noite_04_dinamite.tres
+msgid "Tião? É o Valter. Leu o jornal? A dinamite da pedreira."
+msgstr "¿Tião? Soy Valter. ¿Leíste el diario? La dinamita de la cantera."
+
+#: data/calls/noite_04_dinamite.tres
+msgid "Li. Doze caixas. Meu cunhado é vigia lá e está na delegacia desde cedo."
+msgstr "Lo leí. Doce cajas. Mi cuñado es vigilante ahí y está en la comisaría desde temprano."
+
+#: data/calls/noite_04_dinamite.tres
+msgid "Ele viu alguma coisa?"
+msgstr "¿Vio algo?"
+
+#: data/calls/noite_04_dinamite.tres
+msgid "Diz que não. Mas levaram ele assim mesmo."
+msgstr "Dice que no. Pero se lo llevaron igual."
+
+#: data/calls/noite_04_dinamite.tres
+msgid "Depois das explosões de hoje, vão revirar tudo. Fecha cedo, Tião."
+msgstr "Después de las explosiones de hoy, van a revolverlo todo. Cierra temprano, Tião."
+
+#: data/calls/noite_04_dinamite.tres
+msgid "Já estou fechando. Aqui só tem graxa e parafuso."
+msgstr "Ya estoy cerrando. Aquí solo hay grasa y tornillos."
+
+#: data/nights/night_04.tres
+msgid "Caixas como as que sumiram do paiol."
+msgstr "Cajas como las que faltan del polvorín."
+
+#: data/nights/night_04.tres
+msgid "Somem doze caixas de dinamite de pedreira\nO paiol da pedreira do Alto da Serra amanheceu arrombado e sem doze caixas de explosivos. O vigia diz que não viu nada e foi levado para depoimento. A polícia pede que a população denuncie movimentos estranhos."
+msgstr "Desaparecen doce cajas de dinamita de una cantera\nEl polvorín de la cantera del Alto da Serra amaneció forzado y sin doce cajas de explosivos. El vigilante dice que no vio nada y fue llevado a declarar. La policía pide a la población que denuncie movimientos extraños."
+
 #: data/nights/night_04.tres
 msgid "Hotel, boa noite. Pois não?"
 msgstr "Hotel, buenas noches. ¿Dígame?"
@@ -5387,6 +5547,106 @@ msgstr "Todavía no. Pero yo espero."
 msgid "Então vai de novo, depois do noticiário."
 msgstr "Entonces sale de nuevo, después del noticiero."
 
+#: data/calls/noite_05_jornal.tres
+msgid "Seu Amaro"
+msgstr "Seu Amaro"
+
+#: data/calls/noite_05_jornal.tres
+msgid "Boa noite. Me liga com a Gazeta, a redação."
+msgstr "Buenas noches. Comuníqueme con la Gazeta, la redacción."
+
+#: data/calls/noite_05_jornal.tres
+msgid "Quero saber de uma coisa que saiu no jornal."
+msgstr "Quiero preguntar por algo que salió en el diario."
+
+#: data/calls/noite_05_jornal.tres
+msgid "A Gazeta de São Sotero, moça."
+msgstr "La Gazeta de São Sotero, señorita."
+
+#: data/calls/noite_05_jornal.tres data/calls/noite_10_tiros.tres data/calls/transfer_45_reporter_gazeta.tres
+msgid "Gazeta de São Sotero"
+msgstr "Gazeta de São Sotero"
+
+#: data/calls/noite_05_jornal.tres data/calls/transfer_22_seu_anibal_farmacia_central.tres
+msgid "Obrigado, minha filha."
+msgstr "Gracias, hija."
+
+#: data/calls/noite_05_jornal.tres
+msgid "Gazeta? Aqui é o Amaro, assinante há vinte anos."
+msgstr "¿Gazeta? Habla Amaro, suscriptor hace veinte años."
+
+#: data/calls/noite_05_jornal.tres
+msgid "Pois não, seu Amaro. A redação já está fechando."
+msgstr "Diga, don Amaro. La redacción ya está cerrando."
+
+#: data/calls/noite_05_jornal.tres
+msgid "Vocês escreveram \"dezenas de presos\" no protesto. Quantos, afinal?"
+msgstr "Ustedes escribieron \"decenas de detenidos\" en la protesta. ¿Cuántos, al final?"
+
+#: data/calls/noite_05_jornal.tres
+msgid "A polícia não deu número. Nem nomes."
+msgstr "La policía no dio el número. Ni los nombres."
+
+#: data/calls/noite_05_jornal.tres
+msgid "Meu vizinho não voltou pra casa. Ele só estava passando pela praça."
+msgstr "Mi vecino no volvió a casa. Solo estaba pasando por la plaza."
+
+#: data/calls/noite_05_jornal.tres
+msgid "Sinto muito, seu Amaro. A gente só publica o que a delegacia libera."
+msgstr "Lo siento, don Amaro. Solo publicamos lo que la comisaría autoriza."
+
+#: data/calls/noite_05_parente.tres
+msgid "Dona Rosa"
+msgstr "Dona Rosa"
+
+#: data/calls/noite_05_parente.tres
+msgid "Boa noite. A delegacia do Centro, por favor."
+msgstr "Buenas noches. La comisaría del Centro, por favor."
+
+#: data/calls/noite_05_parente.tres
+msgid "É sobre o meu filho. Ele foi preso no protesto."
+msgstr "Es por mi hijo. Lo detuvieron en la protesta."
+
+#: data/calls/noite_05_parente.tres
+msgid "A delegacia, moça. Pelo amor de Deus."
+msgstr "La comisaría, señorita. Por el amor de Dios."
+
+#: data/calls/noite_05_parente.tres data/calls/noite_07_parente.tres data/calls/noite_08_parente.tres
+msgid "Delegacia de Polícia"
+msgstr "Comisaría de Policía"
+
+#: data/calls/noite_05_parente.tres
+msgid "Obrigada. Reza por ele, moça."
+msgstr "Gracias. Rece por él, señorita."
+
+#: data/calls/noite_05_parente.tres
+msgid "Boa noite. Meu filho, Luís Medeiros, foi preso ontem na praça."
+msgstr "Buenas noches. A mi hijo, Luís Medeiros, lo detuvieron ayer en la plaza."
+
+#: data/calls/noite_05_parente.tres
+msgid "Medeiros... Não consta nada aqui, senhora."
+msgstr "Medeiros... Aquí no consta nada, señora."
+
+#: data/calls/noite_05_parente.tres
+msgid "Os vizinhos viram ele entrar no camburão. Dezoito anos, de camisa azul."
+msgstr "Los vecinos lo vieron subir al furgón. Dieciocho años, camisa azul."
+
+#: data/calls/noite_05_parente.tres
+msgid "Senhora, se não consta, não está aqui."
+msgstr "Señora, si no consta, no está aquí."
+
+#: data/calls/noite_05_parente.tres
+msgid "Então onde ele está?"
+msgstr "¿Entonces dónde está?"
+
+#: data/calls/noite_05_parente.tres
+msgid "Procure amanhã de dia. De noite não damos informação."
+msgstr "Vuelva mañana de día. De noche no damos información."
+
+#: data/nights/night_05.tres
+msgid "Viatura no Centro, na manhã de ontem."
+msgstr "Un patrullero en el Centro, ayer por la mañana."
+
 #: data/nights/night_05.tres
 msgid "Explosões em quatro pontos da cidade\nBombas caseiras atingiram uma subestação, dois postes de energia e a porta da delegacia do Centro na tarde de ontem. Não houve mortos. A polícia fala em atentado e promete resposta."
 msgstr "Explosiones en cuatro puntos de la ciudad\nBombas caseras alcanzaron una subestación, dos postes de luz y la puerta de la comisaría del Centro ayer por la tarde. No hubo muertos. La policía habla de atentado y promete una respuesta."
@@ -5398,6 +5658,10 @@ msgstr "La protesta termina con decenas de detenidos\nLa manifestación en la pl
 #: data/nights/night_05.tres
 msgid "Rebeldes ocupam a TV Orbital\nPor quase duas horas, na noite de ontem, a TV Orbital transmitiu a mensagem de um grupo que se diz a resistência de São Sotero. A polícia retomou a emissora de madrugada. Ninguém foi preso."
 msgstr "Rebeldes ocupan la TV Orbital\nDurante casi dos horas, anoche, la TV Orbital transmitió el mensaje de un grupo que se dice la resistencia de São Sotero. La policía retomó la emisora de madrugada. Nadie fue detenido."
+
+#: data/nights/night_05.tres
+msgid "A torre da TV Orbital, ocupada ontem à noite."
+msgstr "La torre de TV Orbital, ocupada anoche."
 
 #: data/nights/night_06.tres
 msgid "O supervisor deixou um recado: \"Hoje o Centro tem baile e a praça cheia. Fique atenta. A linha do Bar do Zé continua bloqueada.\""
@@ -5615,6 +5879,118 @@ msgstr "[Quedarse en silencio]"
 msgid "Tá bom. Boa noite."
 msgstr "Está bien. Buenas noches."
 
+#: data/calls/noite_06_telefone.tres
+msgid "Seu Celso"
+msgstr "Seu Celso"
+
+#: data/calls/noite_06_telefone.tres data/calls/noite_12_recompensa.tres
+msgid "Boa noite. O Bilhar do Tonho, por favor."
+msgstr "Buenas noches. El Bilhar do Tonho, por favor."
+
+#: data/calls/noite_06_telefone.tres
+msgid "Só quero ver se o telefone de lá ainda funciona."
+msgstr "Solo quiero ver si el teléfono de ahí todavía funciona."
+
+#: data/calls/noite_06_telefone.tres
+msgid "O bilhar, moça. Do Tonho."
+msgstr "El billar, señorita. El de Tonho."
+
+#: data/calls/noite_06_telefone.tres data/calls/noite_12_recompensa.tres data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
+msgid "Bilhar do Tonho"
+msgstr "Bilhar do Tonho"
+
+#: data/calls/noite_06_telefone.tres
+msgid "Funcionou! Obrigado, moça."
+msgstr "¡Funcionó! Gracias, señorita."
+
+#: data/calls/noite_06_telefone.tres
+msgid "Tonho? É o Celso. Ainda tem telefone aí, então."
+msgstr "¿Tonho? Soy Celso. Así que todavía tienes teléfono."
+
+#: data/calls/noite_06_telefone.tres
+msgid "Por enquanto. Cortaram o do Zé e de mais três salões."
+msgstr "Por ahora. Cortaron el de Zé y el de otros tres salones."
+
+#: data/calls/noite_06_telefone.tres
+msgid "O jornal diz que são \"pontos de agitação\"."
+msgstr "El diario dice que son \"focos de agitación\"."
+
+#: data/calls/noite_06_telefone.tres
+msgid "Agitação aqui é só quando alguém encaçapa a bola sete."
+msgstr "Aquí la única agitación es cuando alguien mete la bola siete."
+
+#: data/calls/noite_06_telefone.tres
+msgid "Cuidado com o que fala nessa linha, Tonho."
+msgstr "Cuidado con lo que dices en esta línea, Tonho."
+
+#: data/calls/noite_06_telefone.tres
+msgid "Estou sabendo. Vem amanhã, que a mesa nova chegou."
+msgstr "Ya sé. Ven mañana, que llegó la mesa nueva."
+
+#: data/calls/noite_06_parente.tres
+msgid "Dona Neusa"
+msgstr "Dona Neusa"
+
+#: data/calls/noite_06_parente.tres data/calls/noite_11_parente.tres
+msgid "Boa noite, moça. A Casa Paroquial, por caridade."
+msgstr "Buenas noches, señorita. La Casa Paroquial, por caridad."
+
+#: data/calls/noite_06_parente.tres
+msgid "Preciso falar com o padre."
+msgstr "Necesito hablar con el cura."
+
+#: data/calls/noite_06_parente.tres
+msgid "A casa do padre, minha filha. Um, dois, zero."
+msgstr "La casa del cura, hija. Uno, dos, cero."
+
+#: data/calls/noite_06_parente.tres data/calls/noite_11_parente.tres data/calls/noite_14_parente.tres
+msgid "Casa Paroquial"
+msgstr "Casa Paroquial"
+
+#: data/calls/noite_06_parente.tres
+msgid "Deus te abençoe, moça."
+msgstr "Dios la bendiga, señorita."
+
+#: data/calls/noite_06_parente.tres
+msgid "Padre? É a Neusa, mulher do Ernesto, da sapataria."
+msgstr "¿Padre? Soy Neusa, la mujer de Ernesto, el de la zapatería."
+
+#: data/calls/noite_06_parente.tres
+msgid "Neusa, minha filha. Alguma notícia dele?"
+msgstr "Neusa, hija. ¿Alguna noticia de él?"
+
+#: data/calls/noite_06_parente.tres
+msgid "Nenhuma. Desde o protesto. Na delegacia dizem que não está lá."
+msgstr "Ninguna. Desde la protesta. En la comisaría dicen que no está ahí."
+
+#: data/calls/noite_06_parente.tres
+msgid "Eu vou lá amanhã depois da missa. Comigo eles falam."
+msgstr "Iré mañana después de misa. Conmigo hablan."
+
+#: data/calls/noite_06_parente.tres
+msgid "O senhor faria isso, padre?"
+msgstr "¿Usted haría eso, padre?"
+
+#: data/calls/noite_06_parente.tres
+msgid "Faço. Traga uma foto dele e uma muda de roupa."
+msgstr "Lo haré. Traiga una foto de él y una muda de ropa."
+
+#: data/nights/night_06.tres
+msgid "A rua do Bar do Zé, sem telefone desde ontem."
+msgstr "La calle del Bar do Zé, sin teléfono desde ayer."
+
+#: data/nights/night_06.tres
+msgid "Polícia corta telefones de \"pontos de agitação\"\nPor ordem da delegacia, as linhas de bares e salões do Centro e de Vila Serena foram bloqueadas na central, a do Bar do Zé entre elas. \"Quem não deve não teme\", disse o delegado."
+msgstr "La policía corta los teléfonos de \"focos de agitación\"\nPor orden de la comisaría, las líneas de bares y salones del Centro y de Vila Serena quedaron bloqueadas en la central, la del Bar do Zé entre ellas. \"El que nada debe nada teme\", dijo el comisario."
+
+#: data/nights/night_06.tres
+msgid "Dono do Bar do Zé levado para depoimento\nDepois de uma denúncia feita por telefone, o dono do Bar do Zé, em Vila Serena, passou a tarde de ontem na delegacia. Foi solto à noite, sem acusação. O bar continua aberto; o telefone dele, não."
+msgstr "El dueño del Bar do Zé, llevado a declarar\nTras una denuncia hecha por teléfono, el dueño del Bar do Zé, en Vila Serena, pasó la tarde de ayer en la comisaría. Lo soltaron por la noche, sin cargos. El bar sigue abierto; su teléfono, no."
+
+#: data/nights/night_06.tres
+msgid "A viatura na porta do Bar do Zé."
+msgstr "El patrullero en la puerta del Bar do Zé."
+
 #: data/nights/night_07.tres
 msgid "O supervisor deixou um recado: \"Instalaram um gravador na sua mesa, a pedido das autoridades. A linha do bar foi liberada, e elas querem gravado tudo o que for para lá. Em noite com ligação para o bar, entregue às autoridades pelo menos uma fita, mesmo que a conversa não tenha nada: grave assim mesmo, para não ter reclamação. E daqui em diante, o que as autoridades pedirem, atenda, mesmo contra as regras: não vai haver advertência.\""
 msgstr "El supervisor dejó un recado: \"Instalaron una grabadora en su mesa, a pedido de las autoridades. La línea del bar fue liberada, y quieren grabado todo lo que vaya para allá. En una noche con llamadas al bar, entregue a las autoridades al menos una cinta, aunque la conversación no tenga nada: grábela igual, para que no haya reclamos. Y de ahora en adelante, lo que pidan las autoridades, hágalo, aunque vaya contra las reglas: no habrá amonestación.\""
@@ -5782,6 +6158,106 @@ msgstr "Mmm. Debe ser. ¡Buenas noches!"
 #: data/calls/story_07_miguel.tres
 msgid "Tá bom. Tchau."
 msgstr "Bueno. Chau."
+
+#: data/calls/noite_07_baile.tres
+msgid "Dona Dalva"
+msgstr "Dona Dalva"
+
+#: data/calls/noite_07_baile.tres
+msgid "Boa noite. Me liga com a Lúcia Pereira?"
+msgstr "Buenas noches. ¿Me comunica con Lúcia Pereira?"
+
+#: data/calls/noite_07_baile.tres
+msgid "Ela é minha amiga, mora no Centro."
+msgstr "Es mi amiga, vive en el Centro."
+
+#: data/calls/noite_07_baile.tres
+msgid "Lúcia Pereira. Um, quatro, sete."
+msgstr "Lúcia Pereira. Uno, cuatro, siete."
+
+#: data/calls/noite_07_baile.tres data/calls/transfer_21_moca_lucia_pereira.tres
+msgid "Lúcia Pereira"
+msgstr "Lúcia Pereira"
+
+#: data/calls/noite_07_baile.tres
+msgid "Obrigada, moça!"
+msgstr "¡Gracias, señorita!"
+
+#: data/calls/noite_07_baile.tres
+msgid "Lúcia? É a Dalva. Você chegou bem em casa ontem?"
+msgstr "¿Lúcia? Soy Dalva. ¿Llegaste bien a casa anoche?"
+
+#: data/calls/noite_07_baile.tres
+msgid "Cheguei. Saí antes da revista, por sorte. E você?"
+msgstr "Sí. Salí antes de la requisa, por suerte. ¿Y tú?"
+
+#: data/calls/noite_07_baile.tres
+msgid "Me revistaram a bolsa inteira. Até o batom abriram."
+msgstr "Me revisaron todo el bolso. Hasta el pintalabios abrieron."
+
+#: data/calls/noite_07_baile.tres
+msgid "E o Zeca? Vi levarem ele."
+msgstr "¿Y Zeca? Vi que se lo llevaban."
+
+#: data/calls/noite_07_baile.tres
+msgid "Estava sem documento. Passou a noite lá. A mãe dele está desesperada."
+msgstr "No tenía documentos. Pasó la noche ahí. Su madre está desesperada."
+
+#: data/calls/noite_07_baile.tres
+msgid "Nunca mais vou a baile na praça. Nunca mais."
+msgstr "Nunca más voy a un baile en la plaza. Nunca más."
+
+#: data/calls/noite_07_parente.tres
+msgid "Seu Raimundo"
+msgstr "Seu Raimundo"
+
+#: data/calls/noite_07_parente.tres
+msgid "A delegacia, moça. Rápido, por favor."
+msgstr "La comisaría, señorita. Rápido, por favor."
+
+#: data/calls/noite_07_parente.tres
+msgid "Meu filho está preso aí desde o baile."
+msgstr "Mi hijo está detenido ahí desde el baile."
+
+#: data/calls/noite_07_parente.tres
+msgid "A delegacia do Centro."
+msgstr "La comisaría del Centro."
+
+#: data/calls/noite_07_parente.tres data/calls/noite_09_toque.tres data/calls/noite_10_tiros.tres
+msgid "Obrigado, moça."
+msgstr "Gracias, joven."
+
+#: data/calls/noite_07_parente.tres
+msgid "Boa noite. O meu filho, José Teles, está aí desde o baile. Sem documento."
+msgstr "Buenas noches. Mi hijo, José Teles, está ahí desde el baile. Sin documentos."
+
+#: data/calls/noite_07_parente.tres
+msgid "Os do baile foram soltos de manhã. Quase todos."
+msgstr "Los del baile salieron por la mañana. Casi todos."
+
+#: data/calls/noite_07_parente.tres
+msgid "Quase todos? Ele não voltou pra casa."
+msgstr "¿Casi todos? Él no volvió a casa."
+
+#: data/calls/noite_07_parente.tres
+msgid "Então está entre os que estão sendo ouvidos. Sai quando acabar."
+msgstr "Entonces está entre los que están declarando. Saldrá cuando termine."
+
+#: data/calls/noite_07_parente.tres
+msgid "Acabar o quê? Ele tem dezessete anos!"
+msgstr "¿Cuando termine qué? ¡Tiene diecisiete años!"
+
+#: data/calls/noite_07_parente.tres
+msgid "Boa noite, senhor. Não insista."
+msgstr "Buenas noches, señor. No insista."
+
+#: data/nights/night_07.tres
+msgid "A barreira na saída da praça."
+msgstr "La barrera a la salida de la plaza."
+
+#: data/nights/night_07.tres
+msgid "Baile da praça termina em revista geral\nPerto da meia-noite, a polícia cercou a praça do Centro e revistou todos os que saíam do baile. Doze pessoas sem documento passaram a noite na delegacia. A prefeitura promete novos bailes."
+msgstr "El baile de la plaza termina en una requisa general\nCerca de la medianoche, la policía rodeó la plaza del Centro y registró a todos los que salían del baile. Doce personas sin documentos pasaron la noche en la comisaría. La alcaldía promete nuevos bailes."
 
 #: data/nights/night_07.tres
 msgid "Bar do Zé, boa noite."
@@ -6095,13 +6571,129 @@ msgstr "Conseguí su número con la prima de una amiga. Él jura que dejó recad
 msgid "Mas não faz mal. Ontem ele me deu um beijo!"
 msgstr "Pero no importa. ¡Ayer me dio un beso!"
 
+#: data/calls/noite_08_jornal.tres
+msgid "Dona Alzira"
+msgstr "Dona Alzira"
+
+#: data/calls/noite_08_jornal.tres
+msgid "Boa noite. A Farmácia Central, ainda abre?"
+msgstr "Buenas noches. ¿La Farmácia Central todavía atiende?"
+
+#: data/calls/noite_08_jornal.tres
+msgid "Preciso de um calmante pro meu marido."
+msgstr "Necesito un calmante para mi marido."
+
+#: data/calls/noite_08_jornal.tres
+msgid "A Farmácia Central, moça."
+msgstr "La Farmácia Central, señorita."
+
+#: data/calls/noite_08_jornal.tres data/calls/transfer_22_seu_anibal_farmacia_central.tres data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
+msgid "Farmácia Central"
+msgstr "Farmácia Central"
+
+#: data/calls/noite_08_jornal.tres data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres data/calls/transfer_20_dona_tereza_marta_costa.tres
+msgid "Obrigada, querida."
+msgstr "Gracias, querida."
+
+#: data/calls/noite_08_jornal.tres
+msgid "Farmácia? É a Alzira. Tem calmante? O Jorge não dorme desde o jornal."
+msgstr "¿Farmacia? Soy Alzira. ¿Hay calmante? Jorge no duerme desde el diario."
+
+#: data/calls/noite_08_jornal.tres
+msgid "Tenho, dona Alzira. Mas o que deu nele?"
+msgstr "Hay, doña Alzira. ¿Pero qué le pasa?"
+
+#: data/calls/noite_08_jornal.tres
+msgid "A polícia anda revirando a cidade de novo. Ele acha que vem bater aqui."
+msgstr "La policía anda revolviendo la ciudad otra vez. Él cree que van a golpear aquí."
+
+#: data/calls/noite_08_jornal.tres
+msgid "Vocês não têm nada a esconder."
+msgstr "Ustedes no tienen nada que esconder."
+
+#: data/calls/noite_08_jornal.tres
+msgid "Ninguém tem, até a polícia chegar. Guarda dois vidros pra mim?"
+msgstr "Nadie tiene, hasta que llega la policía. ¿Me guarda dos frascos?"
+
+#: data/calls/noite_08_jornal.tres
+msgid "Guardo. Mando o menino levar amanhã cedo."
+msgstr "Se los guardo. Mando al chico a llevarlos mañana temprano."
+
+#: data/calls/noite_08_parente.tres
+msgid "Dona Glória"
+msgstr "Dona Glória"
+
+#: data/calls/noite_08_parente.tres
+msgid "Boa noite. A delegacia, por favor."
+msgstr "Buenas noches. La comisaría, por favor."
+
+#: data/calls/noite_08_parente.tres
+msgid "Meu marido estava no porão da Rua das Acácias. Saiu no jornal."
+msgstr "Mi marido estaba en el sótano de la Rua das Acácias. Salió en el diario."
+
+#: data/calls/noite_08_parente.tres
+msgid "A delegacia, moça. É sobre os sete presos."
+msgstr "La comisaría, señorita. Es por los siete detenidos."
+
+#: data/calls/noite_08_parente.tres
+msgid "Obrigada, moça. Ninguém me diz nada."
+msgstr "Gracias, señorita. Nadie me dice nada."
+
+#: data/calls/noite_08_parente.tres
+msgid "Boa noite. O meu marido, Renato Fontes, é um dos sete do porão."
+msgstr "Buenas noches. Mi marido, Renato Fontes, es uno de los siete del sótano."
+
+#: data/calls/noite_08_parente.tres
+msgid "A senhora é parente? Os nomes não serão divulgados."
+msgstr "¿Usted es pariente? Los nombres no serán divulgados."
+
+#: data/calls/noite_08_parente.tres
+msgid "Eu não quero o nome no jornal. Quero saber se ele está vivo."
+msgstr "No quiero el nombre en el diario. Quiero saber si está vivo."
+
+#: data/calls/noite_08_parente.tres
+msgid "Os presos estão sendo ouvidos. Estão bem."
+msgstr "Los detenidos están declarando. Están bien."
+
+#: data/calls/noite_08_parente.tres
+msgid "Posso levar um cobertor? Uma comida?"
+msgstr "¿Puedo llevarle una manta? ¿Algo de comida?"
+
+#: data/calls/noite_08_parente.tres
+msgid "Não. E não ligue mais pra cá, senhora."
+msgstr "No. Y no llame más aquí, señora."
+
 #: data/nights/night_08.tres
 msgid "Polícia apreende armas em armazém\nDoze caixas de armas foram encontradas nesta madrugada no fundo de um armazém do Alto da Serra, escondidas sob sacos de café. A polícia agradece a colaboração de cidadãos."
 msgstr "La policía incauta armas en un almacén\nDoce cajas de armas fueron encontradas esta madrugada al fondo de un almacén del Alto da Serra, escondidas bajo sacos de café. La policía agradece la colaboración de los ciudadanos."
 
 #: data/nights/night_08.tres
+msgid "As armas achadas no armazém."
+msgstr "Las armas halladas en el almacén."
+
+#: data/nights/night_08.tres
 msgid "Batida em porão termina com sete presos\nNa Rua das Acácias, a polícia surpreendeu uma reunião clandestina num porão. Os presos não tiveram os nomes divulgados. A família de um deles procura notícias desde a madrugada."
 msgstr "Redada en un sótano termina con siete detenidos\nEn la Rua das Acácias, la policía sorprendió una reunión clandestina en un sótano. No se divulgaron los nombres de los detenidos. La familia de uno de ellos busca noticias desde la madrugada."
+
+#: data/nights/night_08.tres
+msgid "O camburão na porta do porão."
+msgstr "El furgón policial en la puerta del sótano."
+
+#: data/nights/night_08.tres
+msgid "Polícia guarda a Rádio Serena dia e noite\nDesde ontem, dois soldados ficam na porta da Rádio Serena AM, e quem entra mostra documento. A delegacia diz ter recebido \"informação segura\" de um plano contra a emissora."
+msgstr "La policía custodia la Rádio Serena día y noche\nDesde ayer, dos soldados se quedan en la puerta de la Rádio Serena AM, y quien entra muestra documentos. La comisaría dice haber recibido \"información segura\" de un plan contra la emisora."
+
+#: data/nights/night_08.tres
+msgid "A Rádio Serena, guardada."
+msgstr "Radio Serena, custodiada."
+
+#: data/nights/night_08.tres
+msgid "Busca em armazéns do Alto da Serra termina sem nada\nA polícia revirou três armazéns do Alto da Serra atrás de armas que, segundo a delegacia, estariam escondidas na cidade. Não achou nada. O delegado acredita que \"alguém avisou\"."
+msgstr "La búsqueda en almacenes del Alto da Serra termina sin nada\nLa policía revolvió tres almacenes del Alto da Serra en busca de armas que, según la comisaría, estarían escondidas en la ciudad. No encontró nada. El comisario cree que \"alguien avisó\"."
+
+#: data/nights/night_08.tres
+msgid "Caixotes vazios num dos armazéns."
+msgstr "Cajones vacíos en uno de los almacenes."
 
 #: data/nights/night_08.tres data/nights/night_10.tres
 msgid "Hospital São Lucas, boa noite."
@@ -6182,10 +6774,6 @@ msgstr "La comisaría, por favor. Es la policía."
 #: data/calls/story_09_policia_radio.tres
 msgid "A delegacia, por favor."
 msgstr "La comisaría, por favor."
-
-#: data/calls/story_09_policia_radio.tres data/calls/story_09_policia_cancao.tres data/calls/story_09_policia_cancao_caiu.tres
-msgid "Delegacia de Polícia"
-msgstr "Comisaría de Policía"
 
 #: data/calls/story_09_policia_radio.tres
 msgid "Plantão? Rubens, da rodoviária. Tem movimento perto da [place:Rádio Serena]."
@@ -6503,13 +7091,113 @@ msgstr "La verdulería se quemó entera... y se llevaron al señor en el coche d
 msgid "O senhor desmaiou no carro!"
 msgstr "¡El señor se desmayó en el coche!"
 
+#: data/calls/noite_09_toque.tres
+msgid "Seu Fábio"
+msgstr "Seu Fábio"
+
+#: data/calls/noite_09_toque.tres
+msgid "Boa noite. O Cine Odeon, por favor."
+msgstr "Buenas noches. El Cine Odeon, por favor."
+
+#: data/calls/noite_09_toque.tres
+msgid "Quero saber se ainda tem a sessão das nove."
+msgstr "Quiero saber si todavía hay función de las nueve."
+
+#: data/calls/noite_09_toque.tres
+msgid "Odeon? Tem a sessão das nove hoje?"
+msgstr "¿Odeon? ¿Hay función de las nueve hoy?"
+
+#: data/calls/noite_09_toque.tres
+msgid "Não tem mais, rapaz. Toque de recolher. A última é às sete."
+msgstr "Ya no, muchacho. Toque de queda. La última es a las siete."
+
+#: data/calls/noite_09_toque.tres
+msgid "Às sete? Eu saio do serviço às sete!"
+msgstr "¿A las siete? ¡Salgo del trabajo a las siete!"
+
+#: data/calls/noite_09_toque.tres
+msgid "Então só no domingo, na matinê."
+msgstr "Entonces solo el domingo, en la matiné."
+
+#: data/calls/noite_09_toque.tres
+msgid "E se eu for pego na rua depois das nove?"
+msgstr "¿Y si me agarran en la calle después de las nueve?"
+
+#: data/calls/noite_09_toque.tres
+msgid "Aí você vê o filme na delegacia. Vá direto pra casa."
+msgstr "Entonces ves la película en la comisaría. Vete derecho a casa."
+
+#: data/calls/noite_09_parente.tres
+msgid "Dona Odete"
+msgstr "Dona Odete"
+
+#: data/calls/noite_09_parente.tres
+msgid "Boa noite. O Hospital São Lucas, pelo amor de Deus."
+msgstr "Buenas noches. El Hospital São Lucas, por el amor de Dios."
+
+#: data/calls/noite_09_parente.tres
+msgid "Meu filho mora na Rua do Moinho. Teve tiro lá."
+msgstr "Mi hijo vive en la Rua do Moinho. Hubo tiros ahí."
+
+#: data/calls/noite_09_parente.tres
+msgid "O São Lucas, moça. Dois, um, três."
+msgstr "El São Lucas, señorita. Dos, uno, tres."
+
+#: data/calls/noite_09_parente.tres data/calls/story_16_generosa_hospital.tres data/calls/transfer_18_dona_rute_hospital_sao_lucas.tres
+msgid "Hospital São Lucas"
+msgstr "Hospital São Lucas"
+
+#: data/calls/noite_09_parente.tres data/calls/transfer_14_senhora_casa_paroquial.tres
+msgid "Obrigada, minha filha."
+msgstr "Gracias, hija."
+
+#: data/calls/noite_09_parente.tres
+msgid "Hospital? Chegou algum ferido da Rua do Moinho? Um rapaz, Sérgio Lins."
+msgstr "¿Hospital? ¿Llegó algún herido de la Rua do Moinho? Un muchacho, Sérgio Lins."
+
+#: data/calls/noite_09_parente.tres
+msgid "Chegaram dois, senhora. Mas vieram com a polícia, sem nome."
+msgstr "Llegaron dos, señora. Pero vinieron con la policía, sin nombre."
+
+#: data/calls/noite_09_parente.tres
+msgid "Um deles é magro, de bigode?"
+msgstr "¿Uno de ellos es flaco, de bigote?"
+
+#: data/calls/noite_09_parente.tres
+msgid "Não posso dizer, senhora. A ala está fechada."
+msgstr "No puedo decirle, señora. El pabellón está cerrado."
+
+#: data/calls/noite_09_parente.tres
+msgid "Fechada pra mãe?"
+msgstr "¿Cerrado para la madre?"
+
+#: data/calls/noite_09_parente.tres
+msgid "Fechada pra todo mundo. Sinto muito."
+msgstr "Cerrado para todo el mundo. Lo siento."
+
+#: data/nights/night_09.tres
+msgid "Rua do Centro às nove e cinco."
+msgstr "Una calle del Centro a las nueve y cinco."
+
+#: data/nights/night_09.tres
+msgid "Toque de recolher às nove da noite\nA partir de hoje, ninguém fica na rua depois das 21h sem salvo-conduto, por ordem da Alta Cúpula. Bares e cinemas fecham às oito e meia. Quem for pego na rua responde na delegacia."
+msgstr "Toque de queda a las nueve de la noche\nDesde hoy, nadie se queda en la calle después de las 21 h sin salvoconducto, por orden de la Alta Cúpula. Bares y cines cierran a las ocho y media. Quien sea sorprendido en la calle responderá en la comisaría."
+
 #: data/nights/night_09.tres
 msgid "Polícia ocupa a estação e a praça da Matriz\nDesde a madrugada, viaturas guardam a estação, a praça da Matriz e as saídas do Alto da Serra. A Alta Cúpula fala em \"prevenção\" e não dá detalhes."
 msgstr "La policía ocupa la estación y la plaza de la Matriz\nDesde la madrugada, patrullas vigilan la estación, la plaza de la Matriz y las salidas del Alto da Serra. La Alta Cúpula habla de \"prevención\" y no da detalles."
 
 #: data/nights/night_09.tres
+msgid "A viatura na praça da Matriz."
+msgstr "El patrullero en la plaza de la Matriz."
+
+#: data/nights/night_09.tres
 msgid "Cerco a armazém na Rua do Moinho\nA polícia cercou nesta madrugada um armazém da Rua do Moinho onde estaria escondido o chefe dos rebeldes. Houve tiros. A Alta Cúpula não confirma prisões."
 msgstr "Cerco a un almacén en la Rua do Moinho\nEsta madrugada la policía cercó un almacén de la Rua do Moinho donde estaría escondido el jefe de los rebeldes. Hubo disparos. La Alta Cúpula no confirma detenciones."
+
+#: data/nights/night_09.tres
+msgid "A barreira na Rua do Moinho."
+msgstr "La barrera en la Rua do Moinho."
 
 #: data/nights/night_10.tres
 msgid "O supervisor deixou um recado: \"Com os três setores, a noite fica mais cheia. Emergência vem primeiro.\""
@@ -6619,9 +7307,153 @@ msgstr "Gracias. Usted no sabe lo que hizo."
 msgid "Tá. Amanhã eu procuro nos hospitais, um por um. Boa noite."
 msgstr "Bueno. Mañana lo busco en los hospitales, uno por uno. Buenas noches."
 
+#: data/calls/noite_10_cancao.tres
+msgid "Dona Celeste"
+msgstr "Dona Celeste"
+
+#: data/calls/noite_10_cancao.tres data/calls/noite_15_padaria.tres
+msgid "Boa noite. A Padaria Pão Dourado, por favor."
+msgstr "Buenas noches. La Padaria Pão Dourado, por favor."
+
+#: data/calls/noite_10_cancao.tres
+msgid "A dona de lá é minha irmã."
+msgstr "La dueña es mi hermana."
+
+#: data/calls/noite_10_cancao.tres
+msgid "A padaria, moça. Pão Dourado."
+msgstr "La panadería, señorita. Pão Dourado."
+
+#: data/calls/noite_10_cancao.tres data/calls/noite_15_padaria.tres data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres
+msgid "Padaria Pão Dourado"
+msgstr "Padaria Pão Dourado"
+
+#: data/calls/noite_10_cancao.tres
+msgid "Obrigada, moça. Que noite."
+msgstr "Gracias, señorita. Qué noche."
+
+#: data/calls/noite_10_cancao.tres
+msgid "Nair? É a Celeste. Você ouviu a rádio ontem?"
+msgstr "¿Nair? Soy Celeste. ¿Oíste la radio anoche?"
+
+#: data/calls/noite_10_cancao.tres
+msgid "Ouvi. A Canção da Madrugada. Fazia quinze anos."
+msgstr "La oí. La Canção da Madrugada. Hacía quince años."
+
+#: data/calls/noite_10_cancao.tres
+msgid "Eu chorei na cozinha. O papai cantava essa."
+msgstr "Lloré en la cocina. Papá la cantaba."
+
+#: data/calls/noite_10_cancao.tres
+msgid "Cantava baixinho, pra vizinha não ouvir."
+msgstr "La cantaba bajito, para que la vecina no oyera."
+
+#: data/calls/noite_10_cancao.tres
+msgid "Será que volta a tocar?"
+msgstr "¿Volverá a sonar?"
+
+#: data/calls/noite_10_cancao.tres
+msgid "Se tocar, eu deixo a janela aberta."
+msgstr "Si suena, dejo la ventana abierta."
+
+#: data/calls/noite_10_tiros.tres
+msgid "Seu Hélio"
+msgstr "Seu Hélio"
+
+#: data/calls/noite_10_tiros.tres
+msgid "Boa noite. A Gazeta, por favor."
+msgstr "Buenas noches. La Gazeta, por favor."
+
+#: data/calls/noite_10_tiros.tres
+msgid "Quero saber os nomes dos presos da rádio."
+msgstr "Quiero saber los nombres de los detenidos de la radio."
+
+#: data/calls/noite_10_tiros.tres
+msgid "A Gazeta de São Sotero."
+msgstr "La Gazeta de São Sotero."
+
+#: data/calls/noite_10_tiros.tres
+msgid "Gazeta? Os três presos na rádio. Vocês sabem os nomes?"
+msgstr "¿Gazeta? Los tres detenidos en la radio. ¿Saben los nombres?"
+
+#: data/calls/noite_10_tiros.tres
+msgid "A polícia não divulgou, senhor."
+msgstr "La policía no los divulgó, señor."
+
+#: data/calls/noite_10_tiros.tres
+msgid "Meu sobrinho saiu de casa ontem e disse que ia ouvir música."
+msgstr "Mi sobrino salió de casa ayer y dijo que iba a escuchar música."
+
+#: data/calls/noite_10_tiros.tres
+msgid "Se ele estiver entre eles, a família vai ser avisada."
+msgstr "Si está entre ellos, avisarán a la familia."
+
+#: data/calls/noite_10_tiros.tres
+msgid "Avisada como? Pelo jornal?"
+msgstr "¿Avisarán cómo? ¿Por el diario?"
+
+#: data/calls/noite_10_tiros.tres
+msgid "Não sei, senhor. Aqui também ninguém sabe de nada."
+msgstr "No sé, señor. Aquí tampoco nadie sabe nada."
+
+#: data/calls/noite_10_barreira.tres
+msgid "Seu Ronaldo"
+msgstr "Seu Ronaldo"
+
+#: data/calls/noite_10_barreira.tres
+msgid "Boa noite. O ponto de táxi da rodoviária, por favor."
+msgstr "Buenas noches. La parada de taxis de la terminal, por favor."
+
+#: data/calls/noite_10_barreira.tres
+msgid "Preciso de um carro pra Capital amanhã cedo."
+msgstr "Necesito un coche a la Capital mañana temprano."
+
+#: data/calls/noite_10_barreira.tres
+msgid "O ponto de táxi, moça. Um, sete, seis."
+msgstr "La parada de taxis, señorita. Uno, siete, seis."
+
+#: data/calls/noite_10_barreira.tres data/calls/transfer_03_rapaz_taxi_ponto_da_rodoviaria.tres data/calls/transfer_27_moca_taxi_ponto_da_rodoviaria.tres
+msgid "Ponto de Táxi da Rodoviária"
+msgstr "Ponto de Táxi da Rodoviária"
+
+#: data/calls/noite_10_barreira.tres
+msgid "Táxi? É o Ronaldo. Tem carro pra Capital amanhã às seis?"
+msgstr "¿Taxi? Soy Ronaldo. ¿Hay coche a la Capital mañana a las seis?"
+
+#: data/calls/noite_10_barreira.tres
+msgid "Tem, seu Ronaldo. Mas tem barreira na saída da serra."
+msgstr "Hay, don Ronaldo. Pero hay un control a la salida de la sierra."
+
+#: data/calls/noite_10_barreira.tres
+msgid "Barreira? Desde quando?"
+msgstr "¿Un control? ¿Desde cuándo?"
+
+#: data/calls/noite_10_barreira.tres
+msgid "Desde a rádio. Revistam até mala de criança."
+msgstr "Desde lo de la radio. Revisan hasta las maletas de los niños."
+
+#: data/calls/noite_10_barreira.tres
+msgid "Eu só vou ao médico."
+msgstr "Yo solo voy al médico."
+
+#: data/calls/noite_10_barreira.tres
+msgid "Então leve o papel do médico. Sem papel, voltam todo mundo."
+msgstr "Entonces lleve el papel del médico. Sin papel, mandan a todos de vuelta."
+
 #: data/nights/night_10.tres
 msgid "Rádio Serena fora do controle por três horas\nNa noite de ontem, a Rádio Serena transmitiu uma mensagem da resistência e tocou a \"Canção da Madrugada\", proibida há anos. A Alta Cúpula diz que os responsáveis já foram identificados."
 msgstr "Rádio Serena fuera de control durante tres horas\nAnoche, la Rádio Serena transmitió un mensaje de la resistencia y tocó la \"Canção da Madrugada\", prohibida hace años. La Alta Cúpula dice que los responsables ya fueron identificados."
+
+#: data/nights/night_10.tres
+msgid "A torre da Rádio Serena."
+msgstr "La torre de Radio Serena."
+
+#: data/nights/night_10.tres
+msgid "Polícia impede a tomada da Rádio Serena\nUm grupo armado tentou entrar na Rádio Serena AM na noite de ontem e foi recebido a tiros pela guarda. Três foram presos; os outros fugiram pelo Alto da Serra. A emissora não saiu do ar."
+msgstr "La policía impide la toma de la Rádio Serena\nUn grupo armado intentó entrar en la Rádio Serena AM anoche y fue recibido a tiros por la guardia. Tres fueron detenidos; los demás huyeron por el Alto da Serra. La emisora no salió del aire."
+
+#: data/nights/night_10.tres
+msgid "A guarda na Rádio Serena, depois do tiroteio."
+msgstr "La guardia en Radio Serena, tras el tiroteo."
 
 #: data/nights/night_10.tres
 msgid "Padre"
@@ -6703,13 +7535,149 @@ msgstr "Escucha bien: si no estás con nosotros, todo se va a derrumbar. Para el
 msgid "Não me faça me arrepender de ter dito o seu nome, Maria."
 msgstr "No me hagas arrepentirme de haber dicho tu nombre, Maria."
 
+#: data/calls/noite_11_presas.tres
+msgid "Dona Aparecida"
+msgstr "Dona Aparecida"
+
+#: data/calls/noite_11_presas.tres
+msgid "Boa noite. A Mercearia Silva, por favor."
+msgstr "Buenas noches. La Mercearia Silva, por favor."
+
+#: data/calls/noite_11_presas.tres
+msgid "Preciso avisar o seu Silva de uma coisa."
+msgstr "Tengo que avisarle algo a don Silva."
+
+#: data/calls/noite_11_presas.tres
+msgid "A mercearia do Silva, moça. Dois, seis, dois."
+msgstr "La tienda de Silva, señorita. Dos, seis, dos."
+
+#: data/calls/noite_11_presas.tres data/calls/transfer_25_seu_jair_mercearia_silva.tres data/calls/transfer_49_menino_mercearia_silva.tres
+msgid "Mercearia Silva"
+msgstr "Mercearia Silva"
+
+#: data/calls/noite_11_presas.tres
+msgid "Obrigada, moça. Deus nos proteja."
+msgstr "Gracias, señorita. Que Dios nos proteja."
+
+#: data/calls/noite_11_presas.tres
+msgid "Silva? É a Aparecida, sua vizinha de trás."
+msgstr "¿Silva? Soy Aparecida, su vecina de atrás."
+
+#: data/calls/noite_11_presas.tres
+msgid "Aparecida! Você viu? Levaram a dona Rosa e os netos."
+msgstr "¡Aparecida! ¿Viste? Se llevaron a doña Rosa y a los nietos."
+
+#: data/calls/noite_11_presas.tres
+msgid "Vi da janela. O menorzinho chorando no camburão."
+msgstr "Lo vi desde la ventana. El más chiquito llorando en el furgón."
+
+#: data/calls/noite_11_presas.tres
+msgid "Ela me devia o fiado do mês. Nem me importa mais."
+msgstr "Me debía la cuenta del mes. Ya ni me importa."
+
+#: data/calls/noite_11_presas.tres
+msgid "Se perguntarem dela, a gente não sabe de nada."
+msgstr "Si preguntan por ella, no sabemos nada."
+
+#: data/calls/noite_11_presas.tres
+msgid "Não sei de nada. Nunca soube."
+msgstr "No sé nada. Nunca supe."
+
+#: data/calls/noite_11_vazias.tres
+msgid "Seu Damião"
+msgstr "Seu Damião"
+
+#: data/calls/noite_11_vazias.tres
+msgid "Boa noite. O Armazém Ferreira, por favor."
+msgstr "Buenas noches. El Armazém Ferreira, por favor."
+
+#: data/calls/noite_11_vazias.tres
+msgid "Sou vizinho dele, do Alto da Serra."
+msgstr "Soy su vecino, del Alto da Serra."
+
+#: data/calls/noite_11_vazias.tres
+msgid "O armazém do Ferreira, moça."
+msgstr "El almacén de Ferreira, señorita."
+
+#: data/calls/noite_11_vazias.tres data/calls/transfer_13_sr_ivo_armazem_ferreira.tres data/calls/transfer_32_seu_lauro_armazem_ferreira.tres
+msgid "Armazém Ferreira"
+msgstr "Armazém Ferreira"
+
+#: data/calls/noite_11_vazias.tres
+msgid "Ferreira? É o Damião. A polícia acabou de sair da minha rua."
+msgstr "¿Ferreira? Soy Damião. La policía acaba de irse de mi calle."
+
+#: data/calls/noite_11_vazias.tres
+msgid "Eu vi as viaturas. Levaram alguém?"
+msgstr "Vi las patrullas. ¿Se llevaron a alguien?"
+
+#: data/calls/noite_11_vazias.tres
+msgid "Ninguém. As casas estavam vazias. Nem o cachorro ficou."
+msgstr "A nadie. Las casas estaban vacías. Ni el perro quedó."
+
+#: data/calls/noite_11_vazias.tres
+msgid "Graças a Deus. Alguém avisou a tempo."
+msgstr "Gracias a Dios. Alguien avisó a tiempo."
+
+#: data/calls/noite_11_vazias.tres
+msgid "Não fala isso no telefone, Ferreira."
+msgstr "No digas eso por teléfono, Ferreira."
+
+#: data/calls/noite_11_vazias.tres
+msgid "Falei nada. Boa noite, Damião."
+msgstr "No dije nada. Buenas noches, Damião."
+
+#: data/calls/noite_11_parente.tres
+msgid "Dona Zulmira"
+msgstr "Dona Zulmira"
+
+#: data/calls/noite_11_parente.tres
+msgid "Levaram os meus netos."
+msgstr "Se llevaron a mis nietos."
+
+#: data/calls/noite_11_parente.tres
+msgid "A casa do padre, minha filha."
+msgstr "La casa del cura, hija."
+
+#: data/calls/noite_11_parente.tres
+msgid "Padre, é a Zulmira. Levaram minha filha e os dois meninos."
+msgstr "Padre, soy Zulmira. Se llevaron a mi hija y a los dos chicos."
+
+#: data/calls/noite_11_parente.tres
+msgid "Eu soube, Zulmira. Estou rezando por vocês."
+msgstr "Lo supe, Zulmira. Estoy rezando por ustedes."
+
+#: data/calls/noite_11_parente.tres
+msgid "Reza não basta, padre. Pra onde levam criança?"
+msgstr "Rezar no basta, padre. ¿Adónde se llevan a los niños?"
+
+#: data/calls/noite_11_parente.tres
+msgid "Dizem que para o abrigo do Estado, na Capital."
+msgstr "Dicen que al albergue del Estado, en la Capital."
+
+#: data/calls/noite_11_parente.tres
+msgid "Eu tenho a certidão deles. Eu sou a avó!"
+msgstr "¡Tengo sus partidas de nacimiento! ¡Soy la abuela!"
+
+#: data/calls/noite_11_parente.tres
+msgid "Venha amanhã cedo. Eu escrevo ao bispo."
+msgstr "Venga mañana temprano. Le escribo al obispo."
+
 #: data/nights/night_11.tres
 msgid "Famílias inteiras presas no Alto da Serra\nEntre os detidos na batida de ontem há mulheres, idosos e crianças. A polícia diz que são parentes de rebeldes e que \"ninguém está acima da lei\"."
 msgstr "Familias enteras detenidas en el Alto da Serra\nEntre los detenidos en la redada de ayer hay mujeres, ancianos y niños. La policía dice que son parientes de rebeldes y que \"nadie está por encima de la ley\"."
 
 #: data/nights/night_11.tres
+msgid "O camburão na subida do Alto da Serra."
+msgstr "El furgón policial en la subida al Alto da Serra."
+
+#: data/nights/night_11.tres
 msgid "Batida no Alto da Serra encontra casas vazias\nAs famílias procuradas pela polícia tinham deixado as casas horas antes. A paróquia nega ter dado abrigo a quem quer que seja."
 msgstr "Redada en el Alto da Serra encuentra casas vacías\nLas familias buscadas por la policía habían dejado las casas horas antes. La parroquia niega haber dado refugio a nadie."
+
+#: data/nights/night_11.tres
+msgid "As casas do Alto da Serra, de portas fechadas."
+msgstr "Las casas del Alto da Serra, con las puertas cerradas."
 
 #: data/nights/night_12.tres
 msgid "O supervisor deixou um recado: \"Não esqueça: tudo o que acontece vai para a ficha.\""
@@ -6931,9 +7899,253 @@ msgstr "La muchacha de la cinta amarilla. Él sabe."
 msgid "Vai ao ar depois do noticiário, moça. Melhoras pra ele."
 msgstr "Sale al aire después del noticiero, señorita. Que se mejore."
 
+#: data/calls/noite_12_recompensa.tres
+msgid "Seu Gilberto"
+msgstr "Seu Gilberto"
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Quero saber se tem mesa livre amanhã."
+msgstr "Quiero saber si hay mesa libre mañana."
+
+#: data/calls/noite_12_recompensa.tres
+msgid "O bilhar do Tonho, moça."
+msgstr "El billar de Tonho, señorita."
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Tonho? É o Gilberto. Viu a recompensa no jornal?"
+msgstr "¿Tonho? Soy Gilberto. ¿Viste la recompensa en el diario?"
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Vi. Dinheiro pra comprar uma casa."
+msgstr "La vi. Plata para comprar una casa."
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Tem gente aqui que entrega a mãe por menos."
+msgstr "Hay gente aquí que entrega a la madre por menos."
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Por isso eu não conheço ninguém. Nem você, Gilberto."
+msgstr "Por eso no conozco a nadie. Ni a ti, Gilberto."
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Nem eu me conheço, Tonho. Guarda a mesa das oito?"
+msgstr "Ni yo me conozco, Tonho. ¿Me guardas la mesa de las ocho?"
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Guardo. Mas às oito e meia eu fecho, por causa do toque."
+msgstr "Te la guardo. Pero a las ocho y media cierro, por el toque de queda."
+
+#: data/calls/noite_12_parente.tres
+msgid "Dona Helena"
+msgstr "Dona Helena"
+
+#: data/calls/noite_12_parente.tres
+msgid "Boa noite. Me liga com a Sônia Vieira? É minha irmã."
+msgstr "Buenas noches. ¿Me comunica con Sônia Vieira? Es mi hermana."
+
+#: data/calls/noite_12_parente.tres
+msgid "Dois, três, sete."
+msgstr "Dos, tres, siete."
+
+#: data/calls/noite_12_parente.tres
+msgid "Sônia Vieira, moça. Minha irmã."
+msgstr "Sônia Vieira, señorita. Mi hermana."
+
+#: data/calls/noite_12_parente.tres data/calls/transfer_35_seu_valdir_sonia_vieira.tres
+msgid "Sônia Vieira"
+msgstr "Sônia Vieira"
+
+#: data/calls/noite_12_parente.tres data/calls/noite_14_parente.tres data/calls/noite_15_parente.tres
+msgid "Obrigada, moça."
+msgstr "Gracias, joven."
+
+#: data/calls/noite_12_parente.tres
+msgid "Sônia? É a Helena. Fica com as crianças amanhã?"
+msgstr "¿Sônia? Soy Helena. ¿Te quedas con los chicos mañana?"
+
+#: data/calls/noite_12_parente.tres
+msgid "Fico. Você vai pra Capital?"
+msgstr "Me quedo. ¿Vas a la Capital?"
+
+#: data/calls/noite_12_parente.tres
+msgid "Vou. Dizem que levaram o Artur pro quartel de lá."
+msgstr "Voy. Dicen que llevaron a Artur al cuartel de allá."
+
+#: data/calls/noite_12_parente.tres
+msgid "Quem disse?"
+msgstr "¿Quién dijo?"
+
+#: data/calls/noite_12_parente.tres
+msgid "Uma mulher na fila da delegacia. Ela também procura o marido."
+msgstr "Una mujer en la fila de la comisaría. Ella también busca al marido."
+
+#: data/calls/noite_12_parente.tres
+msgid "Vai com Deus. E não fala o nome dele em voz alta."
+msgstr "Ve con Dios. Y no digas su nombre en voz alta."
+
+#: data/nights/night_12.tres
+msgid "Cartazes da recompensa na estação."
+msgstr "Carteles de la recompensa en la estación."
+
+#: data/nights/night_12.tres
+msgid "Alta Cúpula oferece recompensa pelo chefe dos rebeldes\nQuem der notícia do paradeiro do homem que a polícia chama de \"o comandante\" recebe recompensa em dinheiro e proteção. A Alta Cúpula garante sigilo a quem colaborar."
+msgstr "La Alta Cúpula ofrece recompensa por el jefe rebelde\nQuien dé noticia del paradero del hombre al que la policía llama \"el comandante\" recibirá una recompensa en dinero y protección. La Alta Cúpula garantiza el secreto a quien colabore."
+
 #: data/nights/night_13.tres
 msgid "O supervisor deixou um recado: \"Recebemos uma notícia triste: a Cecília, telefonista do Alto da Serra, faleceu de um mal súbito. Não temos mais detalhes. Por segurança, há policiais no prédio esta noite, para a sua proteção. Não abra a porta para ninguém e siga trabalhando normalmente.\""
 msgstr "El supervisor dejó una nota: \"Recibimos una triste noticia: Cecília, la telefonista del Alto da Serra, falleció de un mal súbito. No tenemos más detalles. Por seguridad, hay policías en el edificio esta noche, para su protección. No le abra la puerta a nadie y siga trabajando con normalidad.\""
+
+#: data/calls/noite_13_cecilia.tres
+msgid "Dona Ruth"
+msgstr "Dona Ruth"
+
+#: data/calls/noite_13_cecilia.tres
+msgid "Boa noite. A Laudelina Prado, por favor. Dois, oito, zero."
+msgstr "Buenas noches. Laudelina Prado, por favor. Dos, ocho, cero."
+
+#: data/calls/noite_13_cecilia.tres
+msgid "Ela não vai acreditar no que eu li."
+msgstr "No va a creer lo que leí."
+
+#: data/calls/noite_13_cecilia.tres
+msgid "Laudelina Prado, moça."
+msgstr "Laudelina Prado, señorita."
+
+#: data/calls/noite_13_cecilia.tres data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
+msgid "Laudelina Prado"
+msgstr "Laudelina Prado"
+
+#: data/calls/noite_13_cecilia.tres
+msgid "Obrigada, moça. Se cuide você também."
+msgstr "Gracias, señorita. Cuídese usted también."
+
+#: data/calls/noite_13_cecilia.tres
+msgid "Laudelina? Você leu? A Cecília da central morreu."
+msgstr "¿Laudelina? ¿Leíste? Murió Cecília, la de la central."
+
+#: data/calls/noite_13_cecilia.tres
+msgid "Li. Mal súbito, diz o jornal. Ela subia a serra a pé toda semana."
+msgstr "Lo leí. Algo repentino, dice el diario. Subía la sierra a pie cada semana."
+
+#: data/calls/noite_13_cecilia.tres
+msgid "Trinta anos atendendo a gente. Sabia a voz de cada um."
+msgstr "Treinta años atendiéndonos. Conocía la voz de cada uno."
+
+#: data/calls/noite_13_cecilia.tres
+msgid "Agora vão ouvir as telefonistas, dizem. Por causa de vazamento."
+msgstr "Ahora van a interrogar a las operadoras, dicen. Por una filtración."
+
+#: data/calls/noite_13_cecilia.tres
+msgid "Vazamento de quê?"
+msgstr "¿Filtración de qué?"
+
+#: data/calls/noite_13_cecilia.tres
+msgid "Não sei. E acho melhor a gente desligar."
+msgstr "No sé. Y creo que mejor cortamos."
+
+#: data/calls/noite_13_enterro.tres
+msgid "Seu Moacir"
+msgstr "Seu Moacir"
+
+#: data/calls/noite_13_enterro.tres
+msgid "Boa noite. A Funerária Paz Eterna, por favor."
+msgstr "Buenas noches. La Funerária Paz Eterna, por favor."
+
+#: data/calls/noite_13_enterro.tres
+msgid "Quero saber a hora do enterro da telefonista."
+msgstr "Quiero saber la hora del entierro de la operadora."
+
+#: data/calls/noite_13_enterro.tres
+msgid "A funerária, moça. Paz Eterna."
+msgstr "La funeraria, señorita. Paz Eterna."
+
+#: data/calls/noite_13_enterro.tres data/calls/transfer_09_senhor_funeraria_paz_eterna.tres
+msgid "Funerária Paz Eterna"
+msgstr "Funerária Paz Eterna"
+
+#: data/calls/noite_13_enterro.tres
+msgid "Obrigado, moça. Meus sentimentos. Ela era das suas."
+msgstr "Gracias, señorita. Mi más sentido pésame. Era de las suyas."
+
+#: data/calls/noite_13_enterro.tres
+msgid "Paz Eterna? O enterro da dona Cecília é a que horas?"
+msgstr "¿Paz Eterna? ¿A qué hora es el entierro de doña Cecília?"
+
+#: data/calls/noite_13_enterro.tres
+msgid "Às dez, no municipal. Mas o caixão vem fechado, senhor."
+msgstr "A las diez, en el municipal. Pero el ataúd viene cerrado, señor."
+
+#: data/calls/noite_13_enterro.tres
+msgid "Fechado? Por quê?"
+msgstr "¿Cerrado? ¿Por qué?"
+
+#: data/calls/noite_13_enterro.tres
+msgid "Ordem da família. Foi o que nos disseram."
+msgstr "Orden de la familia. Eso nos dijeron."
+
+#: data/calls/noite_13_enterro.tres
+msgid "Ela não tinha família. Só a central."
+msgstr "Ella no tenía familia. Solo la central."
+
+#: data/calls/noite_13_enterro.tres
+msgid "Então foi ordem de quem tem. Boa noite, senhor."
+msgstr "Entonces fue orden de quien sí tiene. Buenas noches, señor."
+
+#: data/calls/noite_13_parente.tres
+msgid "Seu Wagner"
+msgstr "Seu Wagner"
+
+#: data/calls/noite_13_parente.tres
+msgid "Boa noite. O Posto São Cristóvão, por favor."
+msgstr "Buenas noches. El Posto São Cristóvão, por favor."
+
+#: data/calls/noite_13_parente.tres
+msgid "O da estrada da serra."
+msgstr "El de la ruta de la sierra."
+
+#: data/calls/noite_13_parente.tres
+msgid "O posto da estrada, moça. Três, quatro, sete."
+msgstr "La estación de servicio de la ruta, señorita. Tres, cuatro, siete."
+
+#: data/calls/noite_13_parente.tres data/calls/transfer_07_motorista_posto_sao_cristovao.tres
+msgid "Posto São Cristóvão"
+msgstr "Posto São Cristóvão"
+
+#: data/calls/noite_13_parente.tres
+msgid "Posto? É o Wagner. O caminhão do meu irmão ainda está aí?"
+msgstr "¿Estación? Soy Wagner. ¿El camión de mi hermano sigue ahí?"
+
+#: data/calls/noite_13_parente.tres
+msgid "Está, parado no pátio desde ontem. Ninguém veio buscar."
+msgstr "Sí, parado en el patio desde ayer. Nadie vino a buscarlo."
+
+#: data/calls/noite_13_parente.tres
+msgid "E ele? O Marcos?"
+msgstr "¿Y él? ¿Marcos?"
+
+#: data/calls/noite_13_parente.tres
+msgid "A polícia parou o caminhão aqui. Levaram ele na viatura."
+msgstr "La policía paró el camión aquí. Se lo llevaron en la patrulla."
+
+#: data/calls/noite_13_parente.tres data/calls/story_15_cupula_armazem.tres data/calls/story_15_cupula_armazem_armas.tres
+msgid "Pra onde?"
+msgstr "¿Hacia dónde?"
+
+#: data/calls/noite_13_parente.tres
+msgid "Não disseram. Venha buscar o caminhão de dia, rapaz."
+msgstr "No dijeron. Venga a buscar el camión de día, muchacho."
+
+#: data/nights/night_13.tres
+msgid "Cecília, telefonista do Alto da Serra."
+msgstr "Cecília, telefonista del Alto da Serra."
+
+#: data/nights/night_13.tres
+msgid "Alta Cúpula investiga vazamento nas centrais telefônicas\nSegundo a Alta Cúpula, informações de ligações da polícia chegaram aos rebeldes \"por dentro das centrais\". As telefonistas serão ouvidas. A Companhia Telefônica diz confiar nas suas funcionárias."
+msgstr "La Alta Cúpula investiga una filtración en las centrales telefónicas\nSegún la Alta Cúpula, información de llamadas de la policía llegó a los rebeldes \"desde dentro de las centrales\". Las operadoras serán interrogadas. La Compañía Telefónica dice confiar en sus empleadas."
+
+#: data/nights/night_13.tres
+msgid "Falecimentos\nCecília, telefonista da central do Alto da Serra por trinta anos, morreu ontem de mal súbito. O sepultamento será às dez horas, no cemitério municipal."
+msgstr "Fallecimientos\nCecília, operadora de la central del Alto da Serra durante treinta años, murió ayer de forma repentina. El sepelio será a las diez, en el cementerio municipal."
 
 #: data/nights/night_14.tres
 msgid "O supervisor deixou um recado: \"Pedido das autoridades para hoje: grave toda conversa suspeita do bar e do hotel. As linhas da Rádio Serena e da TV Orbital estão bloqueadas, não transfira nada para elas. Amanhã é sua última noite deste período. Capriche.\""
@@ -7271,6 +8483,106 @@ msgstr "Si se entera, ¿me cuenta? ¿Promete?"
 msgid "Ninguém sabe de nada. Tchau."
 msgstr "Nadie sabe nada. Chau."
 
+#: data/calls/noite_14_pensao.tres
+msgid "Seu Norberto"
+msgstr "Seu Norberto"
+
+#: data/calls/noite_14_pensao.tres
+msgid "Boa noite, moça. A Pensão Dona Cota, por favor."
+msgstr "Buenas noches, señorita. La Pensão Dona Cota, por favor."
+
+#: data/calls/noite_14_pensao.tres
+msgid "Fui ao Hotel Serena e está lacrado."
+msgstr "Fui al Hotel Serena y está clausurado."
+
+#: data/calls/noite_14_pensao.tres
+msgid "A pensão da dona Cota."
+msgstr "La pensión de doña Cota."
+
+#: data/calls/noite_14_pensao.tres
+msgid "Obrigado, moça. Salvou minha noite."
+msgstr "Gracias, señorita. Me salvó la noche."
+
+#: data/calls/noite_14_pensao.tres
+msgid "Pensão? Tem um quarto? O Hotel Serena está lacrado."
+msgstr "¿Pensión? ¿Tiene un cuarto? El Hotel Serena está clausurado."
+
+#: data/calls/noite_14_pensao.tres
+msgid "Tem o último, nos fundos. O senhor é o terceiro do hotel que liga hoje."
+msgstr "Queda el último, al fondo. Usted es el tercero del hotel que llama hoy."
+
+#: data/calls/noite_14_pensao.tres
+msgid "Não tinha ninguém lá na porta. Só o aviso da polícia."
+msgstr "No había nadie en la puerta. Solo el aviso de la policía."
+
+#: data/calls/noite_14_pensao.tres
+msgid "Traga o documento. A polícia passa aqui toda noite olhando o livro."
+msgstr "Traiga el documento. La policía pasa todas las noches a mirar el libro."
+
+#: data/calls/noite_14_pensao.tres
+msgid "Eu sou vendedor de tecido, dona."
+msgstr "Soy vendedor de telas, señora."
+
+#: data/calls/noite_14_pensao.tres
+msgid "Todo mundo é. Chegue antes das nove."
+msgstr "Todos lo son. Llegue antes de las nueve."
+
+#: data/calls/noite_14_parente.tres
+msgid "Dona Iracema"
+msgstr "Dona Iracema"
+
+#: data/calls/noite_14_parente.tres
+msgid "Boa noite. A Casa Paroquial, por caridade."
+msgstr "Buenas noches. La Casa Paroquial, por caridad."
+
+#: data/calls/noite_14_parente.tres
+msgid "Levaram meu marido do Hotel Serena."
+msgstr "Se llevaron a mi marido del Hotel Serena."
+
+#: data/calls/noite_14_parente.tres
+msgid "A casa do padre, moça."
+msgstr "La casa del cura, señorita."
+
+#: data/calls/noite_14_parente.tres
+msgid "Padre? É a Iracema. O Osvaldo era porteiro do hotel. Levaram ele na batida."
+msgstr "¿Padre? Soy Iracema. Osvaldo era portero del hotel. Se lo llevaron en la redada."
+
+#: data/calls/noite_14_parente.tres
+msgid "Eu vi o camburão, Iracema. Cinco homens."
+msgstr "Vi el furgón, Iracema. Cinco hombres."
+
+#: data/calls/noite_14_parente.tres
+msgid "Ele só abria a porta pros hóspedes. Nunca perguntou nada a ninguém."
+msgstr "Él solo les abría la puerta a los huéspedes. Nunca le preguntó nada a nadie."
+
+#: data/calls/noite_14_parente.tres
+msgid "Às vezes é por isso mesmo que levam."
+msgstr "A veces es justamente por eso que se los llevan."
+
+#: data/calls/noite_14_parente.tres
+msgid "O que eu faço, padre?"
+msgstr "¿Qué hago, padre?"
+
+#: data/calls/noite_14_parente.tres
+msgid "Fique em casa. E amanhã, principalmente, não saia de casa."
+msgstr "Quédese en casa. Y mañana, sobre todo, no salga de casa."
+
+#: data/nights/night_14.tres
+msgid "Batida no Hotel Serena: cinco presos\nNa noite de ontem, um camburão e uma viatura pararam na porta do Hotel Serena, e a polícia saiu com cinco homens algemados. O hotel foi lacrado. A delegacia fala em \"ninho de agitadores\"."
+msgstr "Redada en el Hotel Serena: cinco detenidos\nAnoche, un furgón y una patrulla se detuvieron en la puerta del Hotel Serena, y la policía salió con cinco hombres esposados. El hotel fue clausurado. La comisaría habla de un \"nido de agitadores\"."
+
+#: data/nights/night_14.tres
+msgid "O Hotel Serena, lacrado depois da batida."
+msgstr "El Hotel Serena, clausurado tras la redada."
+
+#: data/nights/night_14.tres
+msgid "Hotel Serena é lacrado pela polícia\nO Hotel Serena amanheceu com as portas lacradas e um aviso da delegacia: \"fechado para averiguação\". Os hóspedes foram mandados embora de madrugada. O dono não foi encontrado."
+msgstr "El Hotel Serena, clausurado por la policía\nEl Hotel Serena amaneció con las puertas clausuradas y un aviso de la comisaría: \"cerrado por averiguación\". A los huéspedes los echaron de madrugada. Al dueño no lo encontraron."
+
+#: data/nights/night_14.tres
+msgid "A porta do Hotel Serena, com o lacre da delegacia."
+msgstr "La puerta del Hotel Serena, con el precinto de la comisaría."
+
 #: data/nights/night_15.tres
 msgid "O supervisor deixou um recado: \"Ordem das autoridades: as linhas da Rádio Serena e da TV Orbital estão bloqueadas. Transferir qualquer ligação para elas é crime, sujeito a prisão. Quem ligar para o bar ou para o hotel, denuncie na delegacia (184). Ligação para a delegacia ou para a Alta Cúpula passa na hora, sem demora. Última noite do período: o relatório de hoje vai para a diretoria.\""
 msgstr "El supervisor dejó una nota: \"Orden de las autoridades: las líneas de Rádio Serena y de TV Orbital están bloqueadas. Transferir cualquier llamada a ellas es delito, sujeto a prisión. Quien llame al bar o al hotel, denúncialo en la comisaría (184). Las llamadas a la comisaría o a la Alta Cúpula pasan en el acto, sin demora. Última noche del período: el informe de hoy va a la dirección.\""
@@ -7472,10 +8784,6 @@ msgid "[place:Armazém Ferreira], no Alto da Serra. Mas chegamos tarde: saíram 
 msgstr "El [place:Almacén Ferreira], en Alto da Serra. Pero llegamos tarde: salieron por la [street:Rua do Moinho]."
 
 #: data/calls/story_15_cupula_armazem.tres data/calls/story_15_cupula_armazem_armas.tres
-msgid "Pra onde?"
-msgstr "¿Hacia dónde?"
-
-#: data/calls/story_15_cupula_armazem.tres data/calls/story_15_cupula_armazem_armas.tres
 msgid "Pro Centro, pela [street:Rua Tiradentes]. Mandem tudo o que tiverem pra lá."
 msgstr "Al Centro, por la [street:Rua Tiradentes]. Manden todo lo que tengan para allá."
 
@@ -7522,6 +8830,106 @@ msgstr "Quédate ahí. Voy a mandar la ambulancia y lo que quede de patrullas."
 #: data/calls/story_15_policia_matriz.tres
 msgid "Manda logo. Eles estão vindo pra cá."
 msgstr "Mándalos ya. Vienen para acá."
+
+#: data/calls/noite_15_padaria.tres
+msgid "Dona Filomena"
+msgstr "Dona Filomena"
+
+#: data/calls/noite_15_padaria.tres
+msgid "Quero encomendar o pão de amanhã."
+msgstr "Quiero encargar el pan de mañana."
+
+#: data/calls/noite_15_padaria.tres
+msgid "A padaria, moça."
+msgstr "La panadería, señorita."
+
+#: data/calls/noite_15_padaria.tres
+msgid "Obrigada, moça. Boa noite pra você."
+msgstr "Gracias, señorita. Buenas noches para usted."
+
+#: data/calls/noite_15_padaria.tres
+msgid "Padaria? É a Filomena. Separa dez pães pra amanhã cedo?"
+msgstr "¿Panadería? Soy Filomena. ¿Me aparta diez panes para mañana temprano?"
+
+#: data/calls/noite_15_padaria.tres
+msgid "Separo, mas não sei se abro. Tem soldado na esquina da rádio."
+msgstr "Se los aparto, pero no sé si abro. Hay soldados en la esquina de la radio."
+
+#: data/calls/noite_15_padaria.tres
+msgid "Dizem que amanhã vai ter coisa."
+msgstr "Dicen que mañana va a pasar algo."
+
+#: data/calls/noite_15_padaria.tres
+msgid "Dizem tanta coisa. Meu marido encheu a caixa d'água."
+msgstr "Dicen tantas cosas. Mi marido llenó el tanque de agua."
+
+#: data/calls/noite_15_padaria.tres
+msgid "O meu comprou vela e querosene."
+msgstr "El mío compró velas y querosén."
+
+#: data/calls/noite_15_padaria.tres
+msgid "Então venha às seis. Se eu abrir, abro cedo."
+msgstr "Entonces venga a las seis. Si abro, abro temprano."
+
+#: data/calls/noite_15_parente.tres
+msgid "Dona Marlene"
+msgstr "Dona Marlene"
+
+#: data/calls/noite_15_parente.tres
+msgid "Boa noite. O Alberto Ramos, por favor. Um, seis, oito."
+msgstr "Buenas noches. Alberto Ramos, por favor. Uno, seis, ocho."
+
+#: data/calls/noite_15_parente.tres
+msgid "É o meu cunhado."
+msgstr "Es mi cuñado."
+
+#: data/calls/noite_15_parente.tres
+msgid "Alberto Ramos, moça."
+msgstr "Alberto Ramos, señorita."
+
+#: data/calls/noite_15_parente.tres data/calls/transfer_36_senhor_alberto_ramos.tres
+msgid "Alberto Ramos"
+msgstr "Alberto Ramos"
+
+#: data/calls/noite_15_parente.tres
+msgid "Alberto? É a Marlene. Levaram o Tadeu. Estava no Bar do Zé."
+msgstr "¿Alberto? Soy Marlene. Se llevaron a Tadeu. Estaba en el Bar do Zé."
+
+#: data/calls/noite_15_parente.tres
+msgid "Eu li no jornal. Quatro presos. Ele é um deles?"
+msgstr "Lo leí en el diario. Cuatro detenidos. ¿Él es uno?"
+
+#: data/calls/noite_15_parente.tres
+msgid "É. Disseram que gravaram ele falando ao telefone."
+msgstr "Sí. Dijeron que lo grabaron hablando por teléfono."
+
+#: data/calls/noite_15_parente.tres
+msgid "Gravaram? Quem grava telefone?"
+msgstr "¿Lo grabaron? ¿Quién graba un teléfono?"
+
+#: data/calls/noite_15_parente.tres
+msgid "Não sei. Mas alguém ouviu, Alberto. Alguém ouviu."
+msgstr "No sé. Pero alguien escuchó, Alberto. Alguien escuchó."
+
+#: data/calls/noite_15_parente.tres
+msgid "Então desliga. Desliga agora, Marlene."
+msgstr "Entonces corta. Corta ahora, Marlene."
+
+#: data/nights/night_15.tres
+msgid "Soldados na porta da Rádio Serena."
+msgstr "Soldados en la puerta de Radio Serena."
+
+#: data/nights/night_15.tres
+msgid "Rádio e TV sob controle militar\nA Rádio Serena e a TV Orbital passam a ser guardadas pelo Exército \"até a normalidade\". A Alta Cúpula garante que a cidade está calma e pede que ninguém saia de casa à noite."
+msgstr "Radio y TV bajo control militar\nLa Rádio Serena y la TV Orbital pasan a ser custodiadas por el Ejército \"hasta la normalidad\". La Alta Cúpula asegura que la ciudad está tranquila y pide que nadie salga de casa de noche."
+
+#: data/nights/night_15.tres
+msgid "Gravações levam à prisão de quatro no Bar do Zé\nGraças a gravações telefônicas, a polícia prendeu na madrugada quatro frequentadores do Bar do Zé, acusados de preparar \"desordens\" para os próximos dias. A Alta Cúpula agradece a colaboração da central."
+msgstr "Grabaciones llevan a la detención de cuatro en el Bar do Zé\nGracias a grabaciones telefónicas, la policía detuvo de madrugada a cuatro clientes del Bar do Zé, acusados de preparar \"desórdenes\" para los próximos días. La Alta Cúpula agradece la colaboración de la central."
+
+#: data/nights/night_15.tres
+msgid "O camburão na porta do Bar do Zé."
+msgstr "El furgón policial en la puerta del Bar do Zé."
 
 #: data/nights/night_15.tres
 msgid "Quero denunciar quem ligou para o bar e para o hotel."
@@ -8359,10 +9767,6 @@ msgstr "Quiero saber el horario de visitas."
 msgid "O São Lucas."
 msgstr "El São Lucas."
 
-#: data/calls/story_16_generosa_hospital.tres data/calls/transfer_18_dona_rute_hospital_sao_lucas.tres
-msgid "Hospital São Lucas"
-msgstr "Hospital São Lucas"
-
 #: data/calls/story_16_generosa_hospital.tres
 msgid "Hospital São Lucas."
 msgstr "Hospital São Lucas."
@@ -8495,10 +9899,6 @@ msgstr "Necesito un taxi. ¿Me comunica con la parada de la terminal?"
 msgid "O ponto de táxi. Da rodoviária."
 msgstr "La parada de taxis. De la terminal."
 
-#: data/calls/transfer_03_rapaz_taxi_ponto_da_rodoviaria.tres data/calls/transfer_27_moca_taxi_ponto_da_rodoviaria.tres
-msgid "Ponto de Táxi da Rodoviária"
-msgstr "Ponto de Táxi da Rodoviária"
-
 #: data/calls/transfer_03_rapaz_taxi_ponto_da_rodoviaria.tres data/calls/transfer_29_rapaz_cine_odeon.tres data/content.tres
 msgid "Valeu, central."
 msgstr "Gracias, central."
@@ -8542,14 +9942,6 @@ msgstr "Quiero hablar con la Padaria Pão Dourado. Es para encargar el pan de ma
 #: data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres
 msgid "A Pão Dourado. A padaria."
 msgstr "La Pão Dourado. La panadería."
-
-#: data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres data/calls/transfer_44_dona_glorinha_padaria_pao_dourado.tres
-msgid "Padaria Pão Dourado"
-msgstr "Padaria Pão Dourado"
-
-#: data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres data/calls/transfer_20_dona_tereza_marta_costa.tres
-msgid "Obrigada, querida."
-msgstr "Gracias, querida."
 
 #: data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres
 msgid "Boa noite, querido. É a Zilda. Quero o pão de amanhã cedo."
@@ -8627,10 +10019,6 @@ msgstr "Se me paró el camión cerca del molino. Tião, el del taller, atiende d
 msgid "A oficina do Tião. Na Rua do Moinho."
 msgstr "El taller de Tião. En la Rua do Moinho."
 
-#: data/calls/transfer_06_caminhoneiro_oficina_do_tiao.tres data/calls/transfer_40_motorista_borracharia_do_neno.tres
-msgid "Oficina do Tião"
-msgstr "Oficina do Tião"
-
 #: data/calls/transfer_06_caminhoneiro_oficina_do_tiao.tres data/calls/transfer_23_dona_aurora_igreja_matriz.tres data/calls/transfer_28_dona_olga_radio_serena_am.tres
 msgid "Deus lhe pague."
 msgstr "Dios se lo pague."
@@ -8674,10 +10062,6 @@ msgstr "Comuníqueme ahí, por favor. Casi no me queda gasolina."
 #: data/calls/transfer_07_motorista_posto_sao_cristovao.tres
 msgid "O Posto São Cristóvão."
 msgstr "El Posto São Cristóvão."
-
-#: data/calls/transfer_07_motorista_posto_sao_cristovao.tres
-msgid "Posto São Cristóvão"
-msgstr "Posto São Cristóvão"
 
 #: data/calls/transfer_07_motorista_posto_sao_cristovao.tres data/calls/transfer_36_senhor_alberto_ramos.tres
 msgid "Obrigado, central."
@@ -8762,14 +10146,6 @@ msgstr "Necesito hablar con la funeraria. Mi padre falleció hace un rato."
 #: data/calls/transfer_09_senhor_funeraria_paz_eterna.tres
 msgid "A funerária. A Paz Eterna."
 msgstr "La funeraria. La Paz Eterna."
-
-#: data/calls/transfer_09_senhor_funeraria_paz_eterna.tres
-msgid "Funerária Paz Eterna"
-msgstr "Funerária Paz Eterna"
-
-#: data/calls/transfer_09_senhor_funeraria_paz_eterna.tres
-msgid "Obrigado, moça."
-msgstr "Gracias, joven."
 
 #: data/calls/transfer_09_senhor_funeraria_paz_eterna.tres
 msgid "Boa noite... Meu pai faleceu agora há pouco."
@@ -8939,10 +10315,6 @@ msgstr "El del almacén. No el otro."
 msgid "Joaquim Ferreira, do armazém."
 msgstr "Joaquim Ferreira, el del almacén."
 
-#: data/calls/transfer_13_sr_ivo_armazem_ferreira.tres data/calls/transfer_32_seu_lauro_armazem_ferreira.tres data/calls/transfer_49_menino_mercearia_silva.tres
-msgid "Armazém Ferreira"
-msgstr "Armazém Ferreira"
-
 #: data/calls/transfer_13_sr_ivo_armazem_ferreira.tres
 msgid "Tá certo, obrigado."
 msgstr "Está bien, gracias."
@@ -8978,14 +10350,6 @@ msgstr "Es por la misa de séptimo día. Debe estar en su casa."
 #: data/calls/transfer_14_senhora_casa_paroquial.tres
 msgid "O Padre Anselmo. Na casa dele, não na igreja."
 msgstr "El padre Anselmo. En su casa, no en la iglesia."
-
-#: data/calls/transfer_14_senhora_casa_paroquial.tres data/calls/transfer_23_dona_aurora_igreja_matriz.tres data/calls/transfer_43_noivo_casa_paroquial.tres
-msgid "Casa Paroquial"
-msgstr "Casa Paroquial"
-
-#: data/calls/transfer_14_senhora_casa_paroquial.tres
-msgid "Obrigada, minha filha."
-msgstr "Gracias, hija."
 
 #: data/calls/transfer_14_senhora_casa_paroquial.tres
 msgid "Boa noite, padre. É sobre a missa de sétimo dia do meu marido."
@@ -9070,10 +10434,6 @@ msgstr "Célia Rocha. La de la avenida."
 #: data/calls/transfer_16_sobrinha_celia_rocha_av_brasil.tres
 msgid "Célia Rocha (Av. Brasil)"
 msgstr "Célia Rocha (Av. Brasil)"
-
-#: data/calls/transfer_16_sobrinha_celia_rocha_av_brasil.tres data/calls/transfer_27_moca_taxi_ponto_da_rodoviaria.tres
-msgid "Obrigada, moça."
-msgstr "Gracias, joven."
 
 #: data/calls/transfer_16_sobrinha_celia_rocha_av_brasil.tres
 msgid "Tia? É a sua sobrinha. Tudo bem por aí?"
@@ -9268,10 +10628,6 @@ msgid "Três, três, seis."
 msgstr "Tres, tres, seis."
 
 #: data/calls/transfer_21_moca_lucia_pereira.tres
-msgid "Lúcia Pereira"
-msgstr "Lúcia Pereira"
-
-#: data/calls/transfer_21_moca_lucia_pereira.tres
 msgid "Lúcia? Oi, sou eu."
 msgstr "¿Lúcia? Hola, soy yo."
 
@@ -9306,14 +10662,6 @@ msgstr "Buenas noches. ¿Me comunica con la Farmácia Central, la de la plaza?"
 #: data/calls/transfer_22_seu_anibal_farmacia_central.tres
 msgid "A Farmácia Central. Na Praça da Matriz."
 msgstr "La Farmácia Central. En la Praça da Matriz."
-
-#: data/calls/transfer_22_seu_anibal_farmacia_central.tres data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
-msgid "Farmácia Central"
-msgstr "Farmácia Central"
-
-#: data/calls/transfer_22_seu_anibal_farmacia_central.tres
-msgid "Obrigado, minha filha."
-msgstr "Gracias, hija."
 
 #: data/calls/transfer_22_seu_anibal_farmacia_central.tres
 msgid "Boa noite. Preciso de um remédio pra pressão."
@@ -9399,10 +10747,6 @@ msgstr "La secretaría de la iglesia no contesta. ¿Quiere que pruebe en la casa
 msgid "Isso, na casa do padre. Obrigada."
 msgstr "Sí, en la casa del padre. Gracias."
 
-#: data/calls/transfer_25_seu_jair_mercearia_silva.tres data/content.tres
-msgid "Seu Jair"
-msgstr "Seu Jair"
-
 #: data/calls/transfer_25_seu_jair_mercearia_silva.tres
 msgid "A Mercearia Silva ainda atende? O Silva mora nos fundos. Acabou a vela aqui em casa."
 msgstr "¿La Mercearia Silva todavía atiende? Silva vive en el fondo. Se acabaron las velas en casa."
@@ -9410,10 +10754,6 @@ msgstr "¿La Mercearia Silva todavía atiende? Silva vive en el fondo. Se acabar
 #: data/calls/transfer_25_seu_jair_mercearia_silva.tres
 msgid "A Mercearia Silva, na Rua do Cruzeiro."
 msgstr "La Mercearia Silva, en la Rua do Cruzeiro."
-
-#: data/calls/transfer_25_seu_jair_mercearia_silva.tres data/calls/transfer_49_menino_mercearia_silva.tres
-msgid "Mercearia Silva"
-msgstr "Mercearia Silva"
 
 #: data/calls/transfer_25_seu_jair_mercearia_silva.tres
 msgid "Obrigado. Tá um breu aqui."
@@ -9744,10 +11084,6 @@ msgid "Três, oito, quatro."
 msgstr "Tres, ocho, cuatro."
 
 #: data/calls/transfer_35_seu_valdir_sonia_vieira.tres
-msgid "Sônia Vieira"
-msgstr "Sônia Vieira"
-
-#: data/calls/transfer_35_seu_valdir_sonia_vieira.tres
 msgid "Brigado."
 msgstr "Gracias."
 
@@ -9778,10 +11114,6 @@ msgstr "Alberto Ramos, el de la Avenida Brasil. Somos socios."
 #: data/calls/transfer_36_senhor_alberto_ramos.tres
 msgid "Alberto Ramos."
 msgstr "Alberto Ramos."
-
-#: data/calls/transfer_36_senhor_alberto_ramos.tres
-msgid "Alberto Ramos"
-msgstr "Alberto Ramos"
 
 #: data/calls/transfer_36_senhor_alberto_ramos.tres
 msgid "Alberto, boa noite. Fechei a loja agora."
@@ -10016,10 +11348,6 @@ msgid "O bilhar do Tonho, na Rua do Comércio."
 msgstr "El billar de Tonho, en la Rua do Comércio."
 
 #: data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
-msgid "Bilhar do Tonho"
-msgstr "Bilhar do Tonho"
-
-#: data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
 msgid "Valeu! A senhora é das boas."
 msgstr "¡Gracias! Usted es de las buenas."
 
@@ -10212,10 +11540,6 @@ msgid "A Gazeta de São Sotero. A redação."
 msgstr "La Gazeta de São Sotero. La redacción."
 
 #: data/calls/transfer_45_reporter_gazeta.tres
-msgid "Gazeta de São Sotero"
-msgstr "Gazeta de São Sotero"
-
-#: data/calls/transfer_45_reporter_gazeta.tres
 msgid "Obrigado. Amanhã a senhora lê no jornal."
 msgstr "Gracias. Mañana lo lee en el diario."
 
@@ -10302,10 +11626,6 @@ msgstr "Laudelina Prado. Me prestó el molde de flan y quiero devolverlo mañana
 #: data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
 msgid "Laudelina Prado. Da Bela Vista."
 msgstr "Laudelina Prado. De la Bela Vista."
-
-#: data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
-msgid "Laudelina Prado"
-msgstr "Laudelina Prado"
 
 #: data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
 msgid "Dona Laudelina? É a Mirtes. Da forma de pudim."

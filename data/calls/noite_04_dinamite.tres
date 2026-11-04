@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+voice = "m"
+caller = "Seu Valter"
+caller_name = "Valter Nunes"
+opening = PackedStringArray("Boa noite. A Oficina do Tião, por favor.", "Ele ainda está lá, eu vi a luz acesa.")
+repeat = "A oficina do Tião, moça. Três, um, oito."
+target = "318"
+destination = "Oficina do Tião"
+thanks = "Valeu, moça."
+overheard = PackedStringArray("Tião? É o Valter. Leu o jornal? A dinamite da pedreira.", "Li. Doze caixas. Meu cunhado é vigia lá e está na delegacia desde cedo.", "Ele viu alguma coisa?", "Diz que não. Mas levaram ele assim mesmo.", "Depois das explosões de hoje, vão revirar tudo. Fecha cedo, Tião.", "Já estou fechando. Aqui só tem graxa e parafuso.")

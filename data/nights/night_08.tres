@@ -18,6 +18,8 @@
 [ext_resource type="Resource" path="res://data/calls/story_08_miguel.tres" id="a_story_08_miguel"]
 [ext_resource type="Resource" path="res://data/calls/story_08_generosa.tres" id="a_story_08_generosa"]
 [ext_resource type="Resource" path="res://data/calls/story_08_generosa_recado.tres" id="a_story_08_generosa_recado"]
+[ext_resource type="Resource" path="res://data/calls/noite_08_jornal.tres" id="j_jornal"]
+[ext_resource type="Resource" path="res://data/calls/noite_08_parente.tres" id="j_parente"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -28,11 +30,15 @@ at = 80.0
 script = ExtResource("x0_story_text")
 text = "Polícia apreende armas em armazém\nDoze caixas de armas foram encontradas nesta madrugada no fundo de um armazém do Alto da Serra, escondidas sob sacos de café. A polícia agradece a colaboração de cidadãos."
 requires = PackedStringArray("fita_armas_entregue")
+photo = "armas"
+caption = "As armas achadas no armazém."
 
 [sub_resource type="Resource" id="News_grupo_c"]
 script = ExtResource("x0_story_text")
 text = "Batida em porão termina com sete presos\nNa Rua das Acácias, a polícia surpreendeu uma reunião clandestina num porão. Os presos não tiveram os nomes divulgados. A família de um deles procura notícias desde a madrugada."
 requires = PackedStringArray("fita_grupo_c_entregue")
+photo = "viatura"
+caption = "O camburão na porta do porão."
 
 [sub_resource type="Resource" id="S_seb"]
 script = ExtResource("x1_story_call")
@@ -216,10 +222,34 @@ call = ExtResource("a_story_08_generosa_recado")
 requires = PackedStringArray("!otavio_numero")
 again = false
 
+[sub_resource type="Resource" id="J_news_0"]
+script = ExtResource("x0_story_text")
+text = "Polícia guarda a Rádio Serena dia e noite\nDesde ontem, dois soldados ficam na porta da Rádio Serena AM, e quem entra mostra documento. A delegacia diz ter recebido \"informação segura\" de um plano contra a emissora."
+requires = PackedStringArray("fita_radio_entregue")
+photo = "torre"
+caption = "A Rádio Serena, guardada."
+
+[sub_resource type="Resource" id="J_news_1"]
+script = ExtResource("x0_story_text")
+text = "Busca em armazéns do Alto da Serra termina sem nada\nA polícia revirou três armazéns do Alto da Serra atrás de armas que, segundo a delegacia, estariam escondidas na cidade. Não achou nada. O delegado acredita que \"alguém avisou\"."
+requires = PackedStringArray("!fita_armas_entregue", "!fita_grupo_c_entregue", "!fita_radio_entregue")
+photo = "armas"
+caption = "Caixotes vazios num dos armazéns."
+
+[sub_resource type="Resource" id="J_call_jornal"]
+script = ExtResource("x1_story_call")
+call = ExtResource("j_jornal")
+
+[sub_resource type="Resource" id="J_call_parente"]
+script = ExtResource("x1_story_call")
+call = ExtResource("j_parente")
+requires = PackedStringArray("fita_grupo_c_entregue")
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Pedido da polícia: grave as ligações para o Bar do Zé e para o Hotel Serena e entregue as fitas a eles no fim do turno.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0")])
-news_if = Array[ExtResource("x0_story_text")]([SubResource("News_armas"), SubResource("News_grupo_c")])
+news_if = Array[ExtResource("x0_story_text")]([SubResource("News_armas"), SubResource("News_grupo_c"), SubResource("J_news_0"), SubResource("J_news_1")])
 story = Array[ExtResource("x1_story_call")]([SubResource("S_seb"), SubResource("S_seb2"), SubResource("S_bar"), SubResource("S_barw"), SubResource("S_hot1"), SubResource("S_hot1a"), SubResource("S_hot1w"), SubResource("S_hot2"), SubResource("S_hot2w"), SubResource("A_story_08_miguel"), SubResource("A_story_08_generosa"), SubResource("A_story_08_generosa_recado")])
 dial = Array[ExtResource("x11_dial_call")]([SubResource("D_joana"), SubResource("D_hotel")])
+calls = Array[ExtResource("x1_story_call")]([SubResource("J_call_jornal"), SubResource("J_call_parente")])

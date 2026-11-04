@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
+[ext_resource type="Script" path="res://scripts/data/story_text.gd" id="j_story_text"]
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
 [ext_resource type="Script" path="res://scripts/data/story_call.gd" id="x0_story_call"]
@@ -11,6 +12,8 @@
 [ext_resource type="Resource" path="res://data/calls/story_12_supervisor.tres" id="x0_story_12_supervisor"]
 [ext_resource type="Resource" path="res://data/calls/story_12_miguel.tres" id="a_story_12_miguel"]
 [ext_resource type="Resource" path="res://data/calls/story_12_generosa_radio.tres" id="a_story_12_generosa_radio"]
+[ext_resource type="Resource" path="res://data/calls/noite_12_recompensa.tres" id="j_recompensa"]
+[ext_resource type="Resource" path="res://data/calls/noite_12_parente.tres" id="j_parente"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -86,8 +89,20 @@ at = 180.0
 call = ExtResource("a_story_12_generosa_radio")
 again = false
 
+[sub_resource type="Resource" id="J_call_recompensa"]
+script = ExtResource("x0_story_call")
+call = ExtResource("j_recompensa")
+
+[sub_resource type="Resource" id="J_call_parente"]
+script = ExtResource("x0_story_call")
+call = ExtResource("j_parente")
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Não esqueça: tudo o que acontece vai para a ficha.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1")])
 story = Array[ExtResource("x0_story_call")]([SubResource("S_seb"), SubResource("S_cup1"), SubResource("S_cup1d"), SubResource("S_cup1h"), SubResource("S_cup2"), SubResource("S_sup"), SubResource("A_story_12_miguel"), SubResource("A_story_12_generosa_radio")])
+news_stories = PackedStringArray("Alta Cúpula oferece recompensa pelo chefe dos rebeldes\nQuem der notícia do paradeiro do homem que a polícia chama de \"o comandante\" recebe recompensa em dinheiro e proteção. A Alta Cúpula garante sigilo a quem colaborar.")
+calls = Array[ExtResource("x0_story_call")]([SubResource("J_call_recompensa"), SubResource("J_call_parente")])
+news_photo = "papeis"
+news_caption = "Cartazes da recompensa na estação."

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+voice = "m"
+caller = "Seu Ronaldo"
+caller_name = "Ronaldo Pires"
+opening = PackedStringArray("Boa noite. O ponto de táxi da rodoviária, por favor.", "Preciso de um carro pra Capital amanhã cedo.")
+repeat = "O ponto de táxi, moça. Um, sete, seis."
+target = "176"
+destination = "Ponto de Táxi da Rodoviária"
+thanks = "Obrigado, moça."
+overheard = PackedStringArray("Táxi? É o Ronaldo. Tem carro pra Capital amanhã às seis?", "Tem, seu Ronaldo. Mas tem barreira na saída da serra.", "Barreira? Desde quando?", "Desde a rádio. Revistam até mala de criança.", "Eu só vou ao médico.", "Então leve o papel do médico. Sem papel, voltam todo mundo.")

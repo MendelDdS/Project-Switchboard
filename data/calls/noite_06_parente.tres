@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+voice = "f"
+caller = "Dona Neusa"
+caller_name = "Neusa Carvalho"
+opening = PackedStringArray("Boa noite, moça. A Casa Paroquial, por caridade.", "Preciso falar com o padre.")
+repeat = "A casa do padre, minha filha. Um, dois, zero."
+target = "120"
+destination = "Casa Paroquial"
+thanks = "Deus te abençoe, moça."
+overheard = PackedStringArray("Padre? É a Neusa, mulher do Ernesto, da sapataria.", "Neusa, minha filha. Alguma notícia dele?", "Nenhuma. Desde o protesto. Na delegacia dizem que não está lá.", "Eu vou lá amanhã depois da missa. Comigo eles falam.", "O senhor faria isso, padre?", "Faço. Traga uma foto dele e uma muda de roupa.")

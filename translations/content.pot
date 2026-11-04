@@ -4582,6 +4582,54 @@ msgstr ""
 msgid "Otávio Almeida."
 msgstr ""
 
+#: data/calls/noite_02_panfleto.tres
+msgid "Dona Ivone"
+msgstr ""
+
+#: data/calls/noite_02_panfleto.tres
+msgid "Boa noite, moça. Me liga com a Pensão Dona Cota?"
+msgstr ""
+
+#: data/calls/noite_02_panfleto.tres
+msgid "Quero falar com a dona Cota, é urgente."
+msgstr ""
+
+#: data/calls/noite_02_panfleto.tres
+msgid "A pensão da dona Cota, minha filha. Três, um, dois."
+msgstr ""
+
+#: data/calls/noite_02_panfleto.tres data/calls/story_04_pensao_marido.tres data/calls/noite_14_pensao.tres
+msgid "Pensão Dona Cota"
+msgstr ""
+
+#: data/calls/noite_02_panfleto.tres data/calls/noite_11_parente.tres
+msgid "Deus lhe pague, moça."
+msgstr ""
+
+#: data/calls/noite_02_panfleto.tres
+msgid "Cota? É a Ivone. Você viu o jornal de hoje?"
+msgstr ""
+
+#: data/calls/noite_02_panfleto.tres
+msgid "Vi. Os papéis na estação. Um hóspede meu achou um na mala."
+msgstr ""
+
+#: data/calls/noite_02_panfleto.tres
+msgid "Pois tinha um debaixo da minha porta também. Queimei no fogão."
+msgstr ""
+
+#: data/calls/noite_02_panfleto.tres
+msgid "Fez bem. A polícia passou aqui perguntando quem anda de noite."
+msgstr ""
+
+#: data/calls/noite_02_panfleto.tres
+msgid "E você falou o quê?"
+msgstr ""
+
+#: data/calls/noite_02_panfleto.tres
+msgid "Que aqui só dorme caixeiro-viajante. E é verdade."
+msgstr ""
+
 #: data/nights/night_02.tres
 msgid "Disseram que a senhora ia na quermesse hoje à tarde e não apareceu, hein!"
 msgstr ""
@@ -4620,6 +4668,14 @@ msgstr ""
 
 #: data/nights/night_02.tres
 msgid "...Pois é."
+msgstr ""
+
+#: data/nights/night_02.tres
+msgid "Folhas recolhidas na plataforma da estação."
+msgstr ""
+
+#: data/nights/night_02.tres
+msgid "Panfletos contra a Alta Cúpula aparecem na estação\nCentenas de folhas mimeografadas amanheceram espalhadas pela plataforma e pelos bancos da estação. A polícia recolheu o material e procura a gráfica clandestina. Quem souber de algo deve procurar a delegacia."
 msgstr ""
 
 #: data/nights/night_03.tres
@@ -4782,6 +4838,62 @@ msgstr ""
 msgid "Ninguém? ...Vai ver ela não estava ouvindo. Obrigado assim mesmo."
 msgstr ""
 
+#: data/calls/noite_03_nome.tres data/calls/transfer_25_seu_jair_mercearia_silva.tres data/content.tres
+msgid "Seu Jair"
+msgstr ""
+
+#: data/calls/noite_03_nome.tres
+msgid "Boa noite. Li no jornal que agora tem que dar o nome pra telefonista."
+msgstr ""
+
+#: data/calls/noite_03_nome.tres
+msgid "Me liga com o Cine Odeon, faz favor."
+msgstr ""
+
+#: data/calls/noite_03_nome.tres data/calls/noite_09_toque.tres
+msgid "O cinema, moça. O Odeon."
+msgstr ""
+
+#: data/calls/noite_03_nome.tres data/calls/story_04_mae_cinema.tres data/calls/noite_09_toque.tres
+msgid "Cine Odeon"
+msgstr ""
+
+#: data/calls/noite_03_nome.tres
+msgid "Obrigado. E boa sorte com a papelada, moça."
+msgstr ""
+
+#: data/calls/noite_03_nome.tres
+msgid "Odeon? Aqui é o Jair. Que filme passa no sábado?"
+msgstr ""
+
+#: data/calls/noite_03_nome.tres
+msgid "Boa noite, seu Jair. Um faroeste, às sete e às nove."
+msgstr ""
+
+#: data/calls/noite_03_nome.tres
+msgid "Às nove ainda tem? Com essa história de nome e documento pra tudo..."
+msgstr ""
+
+#: data/calls/noite_03_nome.tres
+msgid "Por enquanto tem. Mas a censura cortou meia hora do filme."
+msgstr ""
+
+#: data/calls/noite_03_nome.tres
+msgid "Cortou o quê?"
+msgstr ""
+
+#: data/calls/noite_03_nome.tres
+msgid "A parte do xerife que prende o governador. Ficou sem pé nem cabeça."
+msgstr ""
+
+#: data/calls/noite_03_nome.tres
+msgid "Jair Monteiro. Anota aí, já que agora é obrigado."
+msgstr ""
+
+#: data/nights/night_03.tres
+msgid "Telefônica vai exigir o nome de quem liga\nA partir de hoje, a Companhia Telefônica de São Sotero só completa a ligação de quem disser nome e sobrenome à telefonista. A diretoria fala em \"segurança de todos\" e pede a compreensão dos assinantes."
+msgstr ""
+
 #: data/nights/night_03.tres
 msgid "Bar do Zé."
 msgstr ""
@@ -4850,10 +4962,6 @@ msgstr ""
 msgid "O cinema, o Odeon! Rápido!"
 msgstr ""
 
-#: data/calls/story_04_mae_cinema.tres data/calls/transfer_08_dona_cida_cine_odeon.tres data/calls/transfer_29_rapaz_cine_odeon.tres
-msgid "Cine Odeon"
-msgstr ""
-
 #: data/calls/story_04_mae_cinema.tres
 msgid "Obrigada, minha filha. Deus te pague."
 msgstr ""
@@ -4888,10 +4996,6 @@ msgstr ""
 
 #: data/calls/story_04_pensao_marido.tres
 msgid "A pensão. A da Dona Cota."
-msgstr ""
-
-#: data/calls/story_04_pensao_marido.tres data/calls/transfer_38_dona_benta_pensao_dona_cota.tres data/calls/transfer_39_caixeiro_hotel_estrela.tres
-msgid "Pensão Dona Cota"
 msgstr ""
 
 #: data/calls/story_04_pensao_marido.tres data/calls/story_08_generosa_recado.tres data/calls/story_10_generosa.tres
@@ -5202,6 +5306,62 @@ msgstr ""
 msgid "Dois no chão, e um não se mexe!"
 msgstr ""
 
+#: data/calls/noite_04_dinamite.tres
+msgid "Seu Valter"
+msgstr ""
+
+#: data/calls/noite_04_dinamite.tres
+msgid "Boa noite. A Oficina do Tião, por favor."
+msgstr ""
+
+#: data/calls/noite_04_dinamite.tres
+msgid "Ele ainda está lá, eu vi a luz acesa."
+msgstr ""
+
+#: data/calls/noite_04_dinamite.tres
+msgid "A oficina do Tião, moça. Três, um, oito."
+msgstr ""
+
+#: data/calls/noite_04_dinamite.tres data/calls/transfer_06_caminhoneiro_oficina_do_tiao.tres data/calls/transfer_40_motorista_borracharia_do_neno.tres
+msgid "Oficina do Tião"
+msgstr ""
+
+#: data/calls/noite_04_dinamite.tres
+msgid "Valeu, moça."
+msgstr ""
+
+#: data/calls/noite_04_dinamite.tres
+msgid "Tião? É o Valter. Leu o jornal? A dinamite da pedreira."
+msgstr ""
+
+#: data/calls/noite_04_dinamite.tres
+msgid "Li. Doze caixas. Meu cunhado é vigia lá e está na delegacia desde cedo."
+msgstr ""
+
+#: data/calls/noite_04_dinamite.tres
+msgid "Ele viu alguma coisa?"
+msgstr ""
+
+#: data/calls/noite_04_dinamite.tres
+msgid "Diz que não. Mas levaram ele assim mesmo."
+msgstr ""
+
+#: data/calls/noite_04_dinamite.tres
+msgid "Depois das explosões de hoje, vão revirar tudo. Fecha cedo, Tião."
+msgstr ""
+
+#: data/calls/noite_04_dinamite.tres
+msgid "Já estou fechando. Aqui só tem graxa e parafuso."
+msgstr ""
+
+#: data/nights/night_04.tres
+msgid "Caixas como as que sumiram do paiol."
+msgstr ""
+
+#: data/nights/night_04.tres
+msgid "Somem doze caixas de dinamite de pedreira\nO paiol da pedreira do Alto da Serra amanheceu arrombado e sem doze caixas de explosivos. O vigia diz que não viu nada e foi levado para depoimento. A polícia pede que a população denuncie movimentos estranhos."
+msgstr ""
+
 #: data/nights/night_04.tres
 msgid "Hotel, boa noite. Pois não?"
 msgstr ""
@@ -5386,6 +5546,106 @@ msgstr ""
 msgid "Então vai de novo, depois do noticiário."
 msgstr ""
 
+#: data/calls/noite_05_jornal.tres
+msgid "Seu Amaro"
+msgstr ""
+
+#: data/calls/noite_05_jornal.tres
+msgid "Boa noite. Me liga com a Gazeta, a redação."
+msgstr ""
+
+#: data/calls/noite_05_jornal.tres
+msgid "Quero saber de uma coisa que saiu no jornal."
+msgstr ""
+
+#: data/calls/noite_05_jornal.tres
+msgid "A Gazeta de São Sotero, moça."
+msgstr ""
+
+#: data/calls/noite_05_jornal.tres data/calls/noite_10_tiros.tres data/calls/transfer_45_reporter_gazeta.tres
+msgid "Gazeta de São Sotero"
+msgstr ""
+
+#: data/calls/noite_05_jornal.tres data/calls/transfer_22_seu_anibal_farmacia_central.tres
+msgid "Obrigado, minha filha."
+msgstr ""
+
+#: data/calls/noite_05_jornal.tres
+msgid "Gazeta? Aqui é o Amaro, assinante há vinte anos."
+msgstr ""
+
+#: data/calls/noite_05_jornal.tres
+msgid "Pois não, seu Amaro. A redação já está fechando."
+msgstr ""
+
+#: data/calls/noite_05_jornal.tres
+msgid "Vocês escreveram \"dezenas de presos\" no protesto. Quantos, afinal?"
+msgstr ""
+
+#: data/calls/noite_05_jornal.tres
+msgid "A polícia não deu número. Nem nomes."
+msgstr ""
+
+#: data/calls/noite_05_jornal.tres
+msgid "Meu vizinho não voltou pra casa. Ele só estava passando pela praça."
+msgstr ""
+
+#: data/calls/noite_05_jornal.tres
+msgid "Sinto muito, seu Amaro. A gente só publica o que a delegacia libera."
+msgstr ""
+
+#: data/calls/noite_05_parente.tres
+msgid "Dona Rosa"
+msgstr ""
+
+#: data/calls/noite_05_parente.tres
+msgid "Boa noite. A delegacia do Centro, por favor."
+msgstr ""
+
+#: data/calls/noite_05_parente.tres
+msgid "É sobre o meu filho. Ele foi preso no protesto."
+msgstr ""
+
+#: data/calls/noite_05_parente.tres
+msgid "A delegacia, moça. Pelo amor de Deus."
+msgstr ""
+
+#: data/calls/noite_05_parente.tres data/calls/noite_07_parente.tres data/calls/noite_08_parente.tres
+msgid "Delegacia de Polícia"
+msgstr ""
+
+#: data/calls/noite_05_parente.tres
+msgid "Obrigada. Reza por ele, moça."
+msgstr ""
+
+#: data/calls/noite_05_parente.tres
+msgid "Boa noite. Meu filho, Luís Medeiros, foi preso ontem na praça."
+msgstr ""
+
+#: data/calls/noite_05_parente.tres
+msgid "Medeiros... Não consta nada aqui, senhora."
+msgstr ""
+
+#: data/calls/noite_05_parente.tres
+msgid "Os vizinhos viram ele entrar no camburão. Dezoito anos, de camisa azul."
+msgstr ""
+
+#: data/calls/noite_05_parente.tres
+msgid "Senhora, se não consta, não está aqui."
+msgstr ""
+
+#: data/calls/noite_05_parente.tres
+msgid "Então onde ele está?"
+msgstr ""
+
+#: data/calls/noite_05_parente.tres
+msgid "Procure amanhã de dia. De noite não damos informação."
+msgstr ""
+
+#: data/nights/night_05.tres
+msgid "Viatura no Centro, na manhã de ontem."
+msgstr ""
+
 #: data/nights/night_05.tres
 msgid "Explosões em quatro pontos da cidade\nBombas caseiras atingiram uma subestação, dois postes de energia e a porta da delegacia do Centro na tarde de ontem. Não houve mortos. A polícia fala em atentado e promete resposta."
 msgstr ""
@@ -5396,6 +5656,10 @@ msgstr ""
 
 #: data/nights/night_05.tres
 msgid "Rebeldes ocupam a TV Orbital\nPor quase duas horas, na noite de ontem, a TV Orbital transmitiu a mensagem de um grupo que se diz a resistência de São Sotero. A polícia retomou a emissora de madrugada. Ninguém foi preso."
+msgstr ""
+
+#: data/nights/night_05.tres
+msgid "A torre da TV Orbital, ocupada ontem à noite."
 msgstr ""
 
 #: data/nights/night_06.tres
@@ -5614,6 +5878,118 @@ msgstr ""
 msgid "Tá bom. Boa noite."
 msgstr ""
 
+#: data/calls/noite_06_telefone.tres
+msgid "Seu Celso"
+msgstr ""
+
+#: data/calls/noite_06_telefone.tres data/calls/noite_12_recompensa.tres
+msgid "Boa noite. O Bilhar do Tonho, por favor."
+msgstr ""
+
+#: data/calls/noite_06_telefone.tres
+msgid "Só quero ver se o telefone de lá ainda funciona."
+msgstr ""
+
+#: data/calls/noite_06_telefone.tres
+msgid "O bilhar, moça. Do Tonho."
+msgstr ""
+
+#: data/calls/noite_06_telefone.tres data/calls/noite_12_recompensa.tres data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
+msgid "Bilhar do Tonho"
+msgstr ""
+
+#: data/calls/noite_06_telefone.tres
+msgid "Funcionou! Obrigado, moça."
+msgstr ""
+
+#: data/calls/noite_06_telefone.tres
+msgid "Tonho? É o Celso. Ainda tem telefone aí, então."
+msgstr ""
+
+#: data/calls/noite_06_telefone.tres
+msgid "Por enquanto. Cortaram o do Zé e de mais três salões."
+msgstr ""
+
+#: data/calls/noite_06_telefone.tres
+msgid "O jornal diz que são \"pontos de agitação\"."
+msgstr ""
+
+#: data/calls/noite_06_telefone.tres
+msgid "Agitação aqui é só quando alguém encaçapa a bola sete."
+msgstr ""
+
+#: data/calls/noite_06_telefone.tres
+msgid "Cuidado com o que fala nessa linha, Tonho."
+msgstr ""
+
+#: data/calls/noite_06_telefone.tres
+msgid "Estou sabendo. Vem amanhã, que a mesa nova chegou."
+msgstr ""
+
+#: data/calls/noite_06_parente.tres
+msgid "Dona Neusa"
+msgstr ""
+
+#: data/calls/noite_06_parente.tres data/calls/noite_11_parente.tres
+msgid "Boa noite, moça. A Casa Paroquial, por caridade."
+msgstr ""
+
+#: data/calls/noite_06_parente.tres
+msgid "Preciso falar com o padre."
+msgstr ""
+
+#: data/calls/noite_06_parente.tres
+msgid "A casa do padre, minha filha. Um, dois, zero."
+msgstr ""
+
+#: data/calls/noite_06_parente.tres data/calls/noite_11_parente.tres data/calls/noite_14_parente.tres
+msgid "Casa Paroquial"
+msgstr ""
+
+#: data/calls/noite_06_parente.tres
+msgid "Deus te abençoe, moça."
+msgstr ""
+
+#: data/calls/noite_06_parente.tres
+msgid "Padre? É a Neusa, mulher do Ernesto, da sapataria."
+msgstr ""
+
+#: data/calls/noite_06_parente.tres
+msgid "Neusa, minha filha. Alguma notícia dele?"
+msgstr ""
+
+#: data/calls/noite_06_parente.tres
+msgid "Nenhuma. Desde o protesto. Na delegacia dizem que não está lá."
+msgstr ""
+
+#: data/calls/noite_06_parente.tres
+msgid "Eu vou lá amanhã depois da missa. Comigo eles falam."
+msgstr ""
+
+#: data/calls/noite_06_parente.tres
+msgid "O senhor faria isso, padre?"
+msgstr ""
+
+#: data/calls/noite_06_parente.tres
+msgid "Faço. Traga uma foto dele e uma muda de roupa."
+msgstr ""
+
+#: data/nights/night_06.tres
+msgid "A rua do Bar do Zé, sem telefone desde ontem."
+msgstr ""
+
+#: data/nights/night_06.tres
+msgid "Polícia corta telefones de \"pontos de agitação\"\nPor ordem da delegacia, as linhas de bares e salões do Centro e de Vila Serena foram bloqueadas na central, a do Bar do Zé entre elas. \"Quem não deve não teme\", disse o delegado."
+msgstr ""
+
+#: data/nights/night_06.tres
+msgid "Dono do Bar do Zé levado para depoimento\nDepois de uma denúncia feita por telefone, o dono do Bar do Zé, em Vila Serena, passou a tarde de ontem na delegacia. Foi solto à noite, sem acusação. O bar continua aberto; o telefone dele, não."
+msgstr ""
+
+#: data/nights/night_06.tres
+msgid "A viatura na porta do Bar do Zé."
+msgstr ""
+
 #: data/nights/night_07.tres
 msgid "O supervisor deixou um recado: \"Instalaram um gravador na sua mesa, a pedido das autoridades. A linha do bar foi liberada, e elas querem gravado tudo o que for para lá. Em noite com ligação para o bar, entregue às autoridades pelo menos uma fita, mesmo que a conversa não tenha nada: grave assim mesmo, para não ter reclamação. E daqui em diante, o que as autoridades pedirem, atenda, mesmo contra as regras: não vai haver advertência.\""
 msgstr ""
@@ -5780,6 +6156,106 @@ msgstr ""
 
 #: data/calls/story_07_miguel.tres
 msgid "Tá bom. Tchau."
+msgstr ""
+
+#: data/calls/noite_07_baile.tres
+msgid "Dona Dalva"
+msgstr ""
+
+#: data/calls/noite_07_baile.tres
+msgid "Boa noite. Me liga com a Lúcia Pereira?"
+msgstr ""
+
+#: data/calls/noite_07_baile.tres
+msgid "Ela é minha amiga, mora no Centro."
+msgstr ""
+
+#: data/calls/noite_07_baile.tres
+msgid "Lúcia Pereira. Um, quatro, sete."
+msgstr ""
+
+#: data/calls/noite_07_baile.tres data/calls/transfer_21_moca_lucia_pereira.tres
+msgid "Lúcia Pereira"
+msgstr ""
+
+#: data/calls/noite_07_baile.tres
+msgid "Obrigada, moça!"
+msgstr ""
+
+#: data/calls/noite_07_baile.tres
+msgid "Lúcia? É a Dalva. Você chegou bem em casa ontem?"
+msgstr ""
+
+#: data/calls/noite_07_baile.tres
+msgid "Cheguei. Saí antes da revista, por sorte. E você?"
+msgstr ""
+
+#: data/calls/noite_07_baile.tres
+msgid "Me revistaram a bolsa inteira. Até o batom abriram."
+msgstr ""
+
+#: data/calls/noite_07_baile.tres
+msgid "E o Zeca? Vi levarem ele."
+msgstr ""
+
+#: data/calls/noite_07_baile.tres
+msgid "Estava sem documento. Passou a noite lá. A mãe dele está desesperada."
+msgstr ""
+
+#: data/calls/noite_07_baile.tres
+msgid "Nunca mais vou a baile na praça. Nunca mais."
+msgstr ""
+
+#: data/calls/noite_07_parente.tres
+msgid "Seu Raimundo"
+msgstr ""
+
+#: data/calls/noite_07_parente.tres
+msgid "A delegacia, moça. Rápido, por favor."
+msgstr ""
+
+#: data/calls/noite_07_parente.tres
+msgid "Meu filho está preso aí desde o baile."
+msgstr ""
+
+#: data/calls/noite_07_parente.tres
+msgid "A delegacia do Centro."
+msgstr ""
+
+#: data/calls/noite_07_parente.tres data/calls/noite_09_toque.tres data/calls/noite_10_tiros.tres
+msgid "Obrigado, moça."
+msgstr ""
+
+#: data/calls/noite_07_parente.tres
+msgid "Boa noite. O meu filho, José Teles, está aí desde o baile. Sem documento."
+msgstr ""
+
+#: data/calls/noite_07_parente.tres
+msgid "Os do baile foram soltos de manhã. Quase todos."
+msgstr ""
+
+#: data/calls/noite_07_parente.tres
+msgid "Quase todos? Ele não voltou pra casa."
+msgstr ""
+
+#: data/calls/noite_07_parente.tres
+msgid "Então está entre os que estão sendo ouvidos. Sai quando acabar."
+msgstr ""
+
+#: data/calls/noite_07_parente.tres
+msgid "Acabar o quê? Ele tem dezessete anos!"
+msgstr ""
+
+#: data/calls/noite_07_parente.tres
+msgid "Boa noite, senhor. Não insista."
+msgstr ""
+
+#: data/nights/night_07.tres
+msgid "A barreira na saída da praça."
+msgstr ""
+
+#: data/nights/night_07.tres
+msgid "Baile da praça termina em revista geral\nPerto da meia-noite, a polícia cercou a praça do Centro e revistou todos os que saíam do baile. Doze pessoas sem documento passaram a noite na delegacia. A prefeitura promete novos bailes."
 msgstr ""
 
 #: data/nights/night_07.tres
@@ -6094,12 +6570,128 @@ msgstr ""
 msgid "Mas não faz mal. Ontem ele me deu um beijo!"
 msgstr ""
 
+#: data/calls/noite_08_jornal.tres
+msgid "Dona Alzira"
+msgstr ""
+
+#: data/calls/noite_08_jornal.tres
+msgid "Boa noite. A Farmácia Central, ainda abre?"
+msgstr ""
+
+#: data/calls/noite_08_jornal.tres
+msgid "Preciso de um calmante pro meu marido."
+msgstr ""
+
+#: data/calls/noite_08_jornal.tres
+msgid "A Farmácia Central, moça."
+msgstr ""
+
+#: data/calls/noite_08_jornal.tres data/calls/transfer_22_seu_anibal_farmacia_central.tres data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
+msgid "Farmácia Central"
+msgstr ""
+
+#: data/calls/noite_08_jornal.tres data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres data/calls/transfer_20_dona_tereza_marta_costa.tres
+msgid "Obrigada, querida."
+msgstr ""
+
+#: data/calls/noite_08_jornal.tres
+msgid "Farmácia? É a Alzira. Tem calmante? O Jorge não dorme desde o jornal."
+msgstr ""
+
+#: data/calls/noite_08_jornal.tres
+msgid "Tenho, dona Alzira. Mas o que deu nele?"
+msgstr ""
+
+#: data/calls/noite_08_jornal.tres
+msgid "A polícia anda revirando a cidade de novo. Ele acha que vem bater aqui."
+msgstr ""
+
+#: data/calls/noite_08_jornal.tres
+msgid "Vocês não têm nada a esconder."
+msgstr ""
+
+#: data/calls/noite_08_jornal.tres
+msgid "Ninguém tem, até a polícia chegar. Guarda dois vidros pra mim?"
+msgstr ""
+
+#: data/calls/noite_08_jornal.tres
+msgid "Guardo. Mando o menino levar amanhã cedo."
+msgstr ""
+
+#: data/calls/noite_08_parente.tres
+msgid "Dona Glória"
+msgstr ""
+
+#: data/calls/noite_08_parente.tres
+msgid "Boa noite. A delegacia, por favor."
+msgstr ""
+
+#: data/calls/noite_08_parente.tres
+msgid "Meu marido estava no porão da Rua das Acácias. Saiu no jornal."
+msgstr ""
+
+#: data/calls/noite_08_parente.tres
+msgid "A delegacia, moça. É sobre os sete presos."
+msgstr ""
+
+#: data/calls/noite_08_parente.tres
+msgid "Obrigada, moça. Ninguém me diz nada."
+msgstr ""
+
+#: data/calls/noite_08_parente.tres
+msgid "Boa noite. O meu marido, Renato Fontes, é um dos sete do porão."
+msgstr ""
+
+#: data/calls/noite_08_parente.tres
+msgid "A senhora é parente? Os nomes não serão divulgados."
+msgstr ""
+
+#: data/calls/noite_08_parente.tres
+msgid "Eu não quero o nome no jornal. Quero saber se ele está vivo."
+msgstr ""
+
+#: data/calls/noite_08_parente.tres
+msgid "Os presos estão sendo ouvidos. Estão bem."
+msgstr ""
+
+#: data/calls/noite_08_parente.tres
+msgid "Posso levar um cobertor? Uma comida?"
+msgstr ""
+
+#: data/calls/noite_08_parente.tres
+msgid "Não. E não ligue mais pra cá, senhora."
+msgstr ""
+
 #: data/nights/night_08.tres
 msgid "Polícia apreende armas em armazém\nDoze caixas de armas foram encontradas nesta madrugada no fundo de um armazém do Alto da Serra, escondidas sob sacos de café. A polícia agradece a colaboração de cidadãos."
 msgstr ""
 
 #: data/nights/night_08.tres
+msgid "As armas achadas no armazém."
+msgstr ""
+
+#: data/nights/night_08.tres
 msgid "Batida em porão termina com sete presos\nNa Rua das Acácias, a polícia surpreendeu uma reunião clandestina num porão. Os presos não tiveram os nomes divulgados. A família de um deles procura notícias desde a madrugada."
+msgstr ""
+
+#: data/nights/night_08.tres
+msgid "O camburão na porta do porão."
+msgstr ""
+
+#: data/nights/night_08.tres
+msgid "Polícia guarda a Rádio Serena dia e noite\nDesde ontem, dois soldados ficam na porta da Rádio Serena AM, e quem entra mostra documento. A delegacia diz ter recebido \"informação segura\" de um plano contra a emissora."
+msgstr ""
+
+#: data/nights/night_08.tres
+msgid "A Rádio Serena, guardada."
+msgstr ""
+
+#: data/nights/night_08.tres
+msgid "Busca em armazéns do Alto da Serra termina sem nada\nA polícia revirou três armazéns do Alto da Serra atrás de armas que, segundo a delegacia, estariam escondidas na cidade. Não achou nada. O delegado acredita que \"alguém avisou\"."
+msgstr ""
+
+#: data/nights/night_08.tres
+msgid "Caixotes vazios num dos armazéns."
 msgstr ""
 
 #: data/nights/night_08.tres data/nights/night_10.tres
@@ -6180,10 +6772,6 @@ msgstr ""
 
 #: data/calls/story_09_policia_radio.tres
 msgid "A delegacia, por favor."
-msgstr ""
-
-#: data/calls/story_09_policia_radio.tres data/calls/story_09_policia_cancao.tres data/calls/story_09_policia_cancao_caiu.tres
-msgid "Delegacia de Polícia"
 msgstr ""
 
 #: data/calls/story_09_policia_radio.tres
@@ -6502,12 +7090,112 @@ msgstr ""
 msgid "O senhor desmaiou no carro!"
 msgstr ""
 
+#: data/calls/noite_09_toque.tres
+msgid "Seu Fábio"
+msgstr ""
+
+#: data/calls/noite_09_toque.tres
+msgid "Boa noite. O Cine Odeon, por favor."
+msgstr ""
+
+#: data/calls/noite_09_toque.tres
+msgid "Quero saber se ainda tem a sessão das nove."
+msgstr ""
+
+#: data/calls/noite_09_toque.tres
+msgid "Odeon? Tem a sessão das nove hoje?"
+msgstr ""
+
+#: data/calls/noite_09_toque.tres
+msgid "Não tem mais, rapaz. Toque de recolher. A última é às sete."
+msgstr ""
+
+#: data/calls/noite_09_toque.tres
+msgid "Às sete? Eu saio do serviço às sete!"
+msgstr ""
+
+#: data/calls/noite_09_toque.tres
+msgid "Então só no domingo, na matinê."
+msgstr ""
+
+#: data/calls/noite_09_toque.tres
+msgid "E se eu for pego na rua depois das nove?"
+msgstr ""
+
+#: data/calls/noite_09_toque.tres
+msgid "Aí você vê o filme na delegacia. Vá direto pra casa."
+msgstr ""
+
+#: data/calls/noite_09_parente.tres
+msgid "Dona Odete"
+msgstr ""
+
+#: data/calls/noite_09_parente.tres
+msgid "Boa noite. O Hospital São Lucas, pelo amor de Deus."
+msgstr ""
+
+#: data/calls/noite_09_parente.tres
+msgid "Meu filho mora na Rua do Moinho. Teve tiro lá."
+msgstr ""
+
+#: data/calls/noite_09_parente.tres
+msgid "O São Lucas, moça. Dois, um, três."
+msgstr ""
+
+#: data/calls/noite_09_parente.tres data/calls/story_16_generosa_hospital.tres data/calls/transfer_18_dona_rute_hospital_sao_lucas.tres
+msgid "Hospital São Lucas"
+msgstr ""
+
+#: data/calls/noite_09_parente.tres data/calls/transfer_14_senhora_casa_paroquial.tres
+msgid "Obrigada, minha filha."
+msgstr ""
+
+#: data/calls/noite_09_parente.tres
+msgid "Hospital? Chegou algum ferido da Rua do Moinho? Um rapaz, Sérgio Lins."
+msgstr ""
+
+#: data/calls/noite_09_parente.tres
+msgid "Chegaram dois, senhora. Mas vieram com a polícia, sem nome."
+msgstr ""
+
+#: data/calls/noite_09_parente.tres
+msgid "Um deles é magro, de bigode?"
+msgstr ""
+
+#: data/calls/noite_09_parente.tres
+msgid "Não posso dizer, senhora. A ala está fechada."
+msgstr ""
+
+#: data/calls/noite_09_parente.tres
+msgid "Fechada pra mãe?"
+msgstr ""
+
+#: data/calls/noite_09_parente.tres
+msgid "Fechada pra todo mundo. Sinto muito."
+msgstr ""
+
+#: data/nights/night_09.tres
+msgid "Rua do Centro às nove e cinco."
+msgstr ""
+
+#: data/nights/night_09.tres
+msgid "Toque de recolher às nove da noite\nA partir de hoje, ninguém fica na rua depois das 21h sem salvo-conduto, por ordem da Alta Cúpula. Bares e cinemas fecham às oito e meia. Quem for pego na rua responde na delegacia."
+msgstr ""
+
 #: data/nights/night_09.tres
 msgid "Polícia ocupa a estação e a praça da Matriz\nDesde a madrugada, viaturas guardam a estação, a praça da Matriz e as saídas do Alto da Serra. A Alta Cúpula fala em \"prevenção\" e não dá detalhes."
 msgstr ""
 
 #: data/nights/night_09.tres
+msgid "A viatura na praça da Matriz."
+msgstr ""
+
+#: data/nights/night_09.tres
 msgid "Cerco a armazém na Rua do Moinho\nA polícia cercou nesta madrugada um armazém da Rua do Moinho onde estaria escondido o chefe dos rebeldes. Houve tiros. A Alta Cúpula não confirma prisões."
+msgstr ""
+
+#: data/nights/night_09.tres
+msgid "A barreira na Rua do Moinho."
 msgstr ""
 
 #: data/nights/night_10.tres
@@ -6618,8 +7306,152 @@ msgstr ""
 msgid "Tá. Amanhã eu procuro nos hospitais, um por um. Boa noite."
 msgstr ""
 
+#: data/calls/noite_10_cancao.tres
+msgid "Dona Celeste"
+msgstr ""
+
+#: data/calls/noite_10_cancao.tres data/calls/noite_15_padaria.tres
+msgid "Boa noite. A Padaria Pão Dourado, por favor."
+msgstr ""
+
+#: data/calls/noite_10_cancao.tres
+msgid "A dona de lá é minha irmã."
+msgstr ""
+
+#: data/calls/noite_10_cancao.tres
+msgid "A padaria, moça. Pão Dourado."
+msgstr ""
+
+#: data/calls/noite_10_cancao.tres data/calls/noite_15_padaria.tres data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres
+msgid "Padaria Pão Dourado"
+msgstr ""
+
+#: data/calls/noite_10_cancao.tres
+msgid "Obrigada, moça. Que noite."
+msgstr ""
+
+#: data/calls/noite_10_cancao.tres
+msgid "Nair? É a Celeste. Você ouviu a rádio ontem?"
+msgstr ""
+
+#: data/calls/noite_10_cancao.tres
+msgid "Ouvi. A Canção da Madrugada. Fazia quinze anos."
+msgstr ""
+
+#: data/calls/noite_10_cancao.tres
+msgid "Eu chorei na cozinha. O papai cantava essa."
+msgstr ""
+
+#: data/calls/noite_10_cancao.tres
+msgid "Cantava baixinho, pra vizinha não ouvir."
+msgstr ""
+
+#: data/calls/noite_10_cancao.tres
+msgid "Será que volta a tocar?"
+msgstr ""
+
+#: data/calls/noite_10_cancao.tres
+msgid "Se tocar, eu deixo a janela aberta."
+msgstr ""
+
+#: data/calls/noite_10_tiros.tres
+msgid "Seu Hélio"
+msgstr ""
+
+#: data/calls/noite_10_tiros.tres
+msgid "Boa noite. A Gazeta, por favor."
+msgstr ""
+
+#: data/calls/noite_10_tiros.tres
+msgid "Quero saber os nomes dos presos da rádio."
+msgstr ""
+
+#: data/calls/noite_10_tiros.tres
+msgid "A Gazeta de São Sotero."
+msgstr ""
+
+#: data/calls/noite_10_tiros.tres
+msgid "Gazeta? Os três presos na rádio. Vocês sabem os nomes?"
+msgstr ""
+
+#: data/calls/noite_10_tiros.tres
+msgid "A polícia não divulgou, senhor."
+msgstr ""
+
+#: data/calls/noite_10_tiros.tres
+msgid "Meu sobrinho saiu de casa ontem e disse que ia ouvir música."
+msgstr ""
+
+#: data/calls/noite_10_tiros.tres
+msgid "Se ele estiver entre eles, a família vai ser avisada."
+msgstr ""
+
+#: data/calls/noite_10_tiros.tres
+msgid "Avisada como? Pelo jornal?"
+msgstr ""
+
+#: data/calls/noite_10_tiros.tres
+msgid "Não sei, senhor. Aqui também ninguém sabe de nada."
+msgstr ""
+
+#: data/calls/noite_10_barreira.tres
+msgid "Seu Ronaldo"
+msgstr ""
+
+#: data/calls/noite_10_barreira.tres
+msgid "Boa noite. O ponto de táxi da rodoviária, por favor."
+msgstr ""
+
+#: data/calls/noite_10_barreira.tres
+msgid "Preciso de um carro pra Capital amanhã cedo."
+msgstr ""
+
+#: data/calls/noite_10_barreira.tres
+msgid "O ponto de táxi, moça. Um, sete, seis."
+msgstr ""
+
+#: data/calls/noite_10_barreira.tres data/calls/transfer_03_rapaz_taxi_ponto_da_rodoviaria.tres data/calls/transfer_27_moca_taxi_ponto_da_rodoviaria.tres
+msgid "Ponto de Táxi da Rodoviária"
+msgstr ""
+
+#: data/calls/noite_10_barreira.tres
+msgid "Táxi? É o Ronaldo. Tem carro pra Capital amanhã às seis?"
+msgstr ""
+
+#: data/calls/noite_10_barreira.tres
+msgid "Tem, seu Ronaldo. Mas tem barreira na saída da serra."
+msgstr ""
+
+#: data/calls/noite_10_barreira.tres
+msgid "Barreira? Desde quando?"
+msgstr ""
+
+#: data/calls/noite_10_barreira.tres
+msgid "Desde a rádio. Revistam até mala de criança."
+msgstr ""
+
+#: data/calls/noite_10_barreira.tres
+msgid "Eu só vou ao médico."
+msgstr ""
+
+#: data/calls/noite_10_barreira.tres
+msgid "Então leve o papel do médico. Sem papel, voltam todo mundo."
+msgstr ""
+
 #: data/nights/night_10.tres
 msgid "Rádio Serena fora do controle por três horas\nNa noite de ontem, a Rádio Serena transmitiu uma mensagem da resistência e tocou a \"Canção da Madrugada\", proibida há anos. A Alta Cúpula diz que os responsáveis já foram identificados."
+msgstr ""
+
+#: data/nights/night_10.tres
+msgid "A torre da Rádio Serena."
+msgstr ""
+
+#: data/nights/night_10.tres
+msgid "Polícia impede a tomada da Rádio Serena\nUm grupo armado tentou entrar na Rádio Serena AM na noite de ontem e foi recebido a tiros pela guarda. Três foram presos; os outros fugiram pelo Alto da Serra. A emissora não saiu do ar."
+msgstr ""
+
+#: data/nights/night_10.tres
+msgid "A guarda na Rádio Serena, depois do tiroteio."
 msgstr ""
 
 #: data/nights/night_10.tres
@@ -6702,12 +7534,148 @@ msgstr ""
 msgid "Não me faça me arrepender de ter dito o seu nome, Maria."
 msgstr ""
 
+#: data/calls/noite_11_presas.tres
+msgid "Dona Aparecida"
+msgstr ""
+
+#: data/calls/noite_11_presas.tres
+msgid "Boa noite. A Mercearia Silva, por favor."
+msgstr ""
+
+#: data/calls/noite_11_presas.tres
+msgid "Preciso avisar o seu Silva de uma coisa."
+msgstr ""
+
+#: data/calls/noite_11_presas.tres
+msgid "A mercearia do Silva, moça. Dois, seis, dois."
+msgstr ""
+
+#: data/calls/noite_11_presas.tres data/calls/transfer_25_seu_jair_mercearia_silva.tres data/calls/transfer_49_menino_mercearia_silva.tres
+msgid "Mercearia Silva"
+msgstr ""
+
+#: data/calls/noite_11_presas.tres
+msgid "Obrigada, moça. Deus nos proteja."
+msgstr ""
+
+#: data/calls/noite_11_presas.tres
+msgid "Silva? É a Aparecida, sua vizinha de trás."
+msgstr ""
+
+#: data/calls/noite_11_presas.tres
+msgid "Aparecida! Você viu? Levaram a dona Rosa e os netos."
+msgstr ""
+
+#: data/calls/noite_11_presas.tres
+msgid "Vi da janela. O menorzinho chorando no camburão."
+msgstr ""
+
+#: data/calls/noite_11_presas.tres
+msgid "Ela me devia o fiado do mês. Nem me importa mais."
+msgstr ""
+
+#: data/calls/noite_11_presas.tres
+msgid "Se perguntarem dela, a gente não sabe de nada."
+msgstr ""
+
+#: data/calls/noite_11_presas.tres
+msgid "Não sei de nada. Nunca soube."
+msgstr ""
+
+#: data/calls/noite_11_vazias.tres
+msgid "Seu Damião"
+msgstr ""
+
+#: data/calls/noite_11_vazias.tres
+msgid "Boa noite. O Armazém Ferreira, por favor."
+msgstr ""
+
+#: data/calls/noite_11_vazias.tres
+msgid "Sou vizinho dele, do Alto da Serra."
+msgstr ""
+
+#: data/calls/noite_11_vazias.tres
+msgid "O armazém do Ferreira, moça."
+msgstr ""
+
+#: data/calls/noite_11_vazias.tres data/calls/transfer_13_sr_ivo_armazem_ferreira.tres data/calls/transfer_32_seu_lauro_armazem_ferreira.tres
+msgid "Armazém Ferreira"
+msgstr ""
+
+#: data/calls/noite_11_vazias.tres
+msgid "Ferreira? É o Damião. A polícia acabou de sair da minha rua."
+msgstr ""
+
+#: data/calls/noite_11_vazias.tres
+msgid "Eu vi as viaturas. Levaram alguém?"
+msgstr ""
+
+#: data/calls/noite_11_vazias.tres
+msgid "Ninguém. As casas estavam vazias. Nem o cachorro ficou."
+msgstr ""
+
+#: data/calls/noite_11_vazias.tres
+msgid "Graças a Deus. Alguém avisou a tempo."
+msgstr ""
+
+#: data/calls/noite_11_vazias.tres
+msgid "Não fala isso no telefone, Ferreira."
+msgstr ""
+
+#: data/calls/noite_11_vazias.tres
+msgid "Falei nada. Boa noite, Damião."
+msgstr ""
+
+#: data/calls/noite_11_parente.tres
+msgid "Dona Zulmira"
+msgstr ""
+
+#: data/calls/noite_11_parente.tres
+msgid "Levaram os meus netos."
+msgstr ""
+
+#: data/calls/noite_11_parente.tres
+msgid "A casa do padre, minha filha."
+msgstr ""
+
+#: data/calls/noite_11_parente.tres
+msgid "Padre, é a Zulmira. Levaram minha filha e os dois meninos."
+msgstr ""
+
+#: data/calls/noite_11_parente.tres
+msgid "Eu soube, Zulmira. Estou rezando por vocês."
+msgstr ""
+
+#: data/calls/noite_11_parente.tres
+msgid "Reza não basta, padre. Pra onde levam criança?"
+msgstr ""
+
+#: data/calls/noite_11_parente.tres
+msgid "Dizem que para o abrigo do Estado, na Capital."
+msgstr ""
+
+#: data/calls/noite_11_parente.tres
+msgid "Eu tenho a certidão deles. Eu sou a avó!"
+msgstr ""
+
+#: data/calls/noite_11_parente.tres
+msgid "Venha amanhã cedo. Eu escrevo ao bispo."
+msgstr ""
+
 #: data/nights/night_11.tres
 msgid "Famílias inteiras presas no Alto da Serra\nEntre os detidos na batida de ontem há mulheres, idosos e crianças. A polícia diz que são parentes de rebeldes e que \"ninguém está acima da lei\"."
 msgstr ""
 
 #: data/nights/night_11.tres
+msgid "O camburão na subida do Alto da Serra."
+msgstr ""
+
+#: data/nights/night_11.tres
 msgid "Batida no Alto da Serra encontra casas vazias\nAs famílias procuradas pela polícia tinham deixado as casas horas antes. A paróquia nega ter dado abrigo a quem quer que seja."
+msgstr ""
+
+#: data/nights/night_11.tres
+msgid "As casas do Alto da Serra, de portas fechadas."
 msgstr ""
 
 #: data/nights/night_12.tres
@@ -6930,8 +7898,252 @@ msgstr ""
 msgid "Vai ao ar depois do noticiário, moça. Melhoras pra ele."
 msgstr ""
 
+#: data/calls/noite_12_recompensa.tres
+msgid "Seu Gilberto"
+msgstr ""
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Quero saber se tem mesa livre amanhã."
+msgstr ""
+
+#: data/calls/noite_12_recompensa.tres
+msgid "O bilhar do Tonho, moça."
+msgstr ""
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Tonho? É o Gilberto. Viu a recompensa no jornal?"
+msgstr ""
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Vi. Dinheiro pra comprar uma casa."
+msgstr ""
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Tem gente aqui que entrega a mãe por menos."
+msgstr ""
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Por isso eu não conheço ninguém. Nem você, Gilberto."
+msgstr ""
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Nem eu me conheço, Tonho. Guarda a mesa das oito?"
+msgstr ""
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Guardo. Mas às oito e meia eu fecho, por causa do toque."
+msgstr ""
+
+#: data/calls/noite_12_parente.tres
+msgid "Dona Helena"
+msgstr ""
+
+#: data/calls/noite_12_parente.tres
+msgid "Boa noite. Me liga com a Sônia Vieira? É minha irmã."
+msgstr ""
+
+#: data/calls/noite_12_parente.tres
+msgid "Dois, três, sete."
+msgstr ""
+
+#: data/calls/noite_12_parente.tres
+msgid "Sônia Vieira, moça. Minha irmã."
+msgstr ""
+
+#: data/calls/noite_12_parente.tres data/calls/transfer_35_seu_valdir_sonia_vieira.tres
+msgid "Sônia Vieira"
+msgstr ""
+
+#: data/calls/noite_12_parente.tres data/calls/noite_14_parente.tres data/calls/noite_15_parente.tres
+msgid "Obrigada, moça."
+msgstr ""
+
+#: data/calls/noite_12_parente.tres
+msgid "Sônia? É a Helena. Fica com as crianças amanhã?"
+msgstr ""
+
+#: data/calls/noite_12_parente.tres
+msgid "Fico. Você vai pra Capital?"
+msgstr ""
+
+#: data/calls/noite_12_parente.tres
+msgid "Vou. Dizem que levaram o Artur pro quartel de lá."
+msgstr ""
+
+#: data/calls/noite_12_parente.tres
+msgid "Quem disse?"
+msgstr ""
+
+#: data/calls/noite_12_parente.tres
+msgid "Uma mulher na fila da delegacia. Ela também procura o marido."
+msgstr ""
+
+#: data/calls/noite_12_parente.tres
+msgid "Vai com Deus. E não fala o nome dele em voz alta."
+msgstr ""
+
+#: data/nights/night_12.tres
+msgid "Cartazes da recompensa na estação."
+msgstr ""
+
+#: data/nights/night_12.tres
+msgid "Alta Cúpula oferece recompensa pelo chefe dos rebeldes\nQuem der notícia do paradeiro do homem que a polícia chama de \"o comandante\" recebe recompensa em dinheiro e proteção. A Alta Cúpula garante sigilo a quem colaborar."
+msgstr ""
+
 #: data/nights/night_13.tres
 msgid "O supervisor deixou um recado: \"Recebemos uma notícia triste: a Cecília, telefonista do Alto da Serra, faleceu de um mal súbito. Não temos mais detalhes. Por segurança, há policiais no prédio esta noite, para a sua proteção. Não abra a porta para ninguém e siga trabalhando normalmente.\""
+msgstr ""
+
+#: data/calls/noite_13_cecilia.tres
+msgid "Dona Ruth"
+msgstr ""
+
+#: data/calls/noite_13_cecilia.tres
+msgid "Boa noite. A Laudelina Prado, por favor. Dois, oito, zero."
+msgstr ""
+
+#: data/calls/noite_13_cecilia.tres
+msgid "Ela não vai acreditar no que eu li."
+msgstr ""
+
+#: data/calls/noite_13_cecilia.tres
+msgid "Laudelina Prado, moça."
+msgstr ""
+
+#: data/calls/noite_13_cecilia.tres data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
+msgid "Laudelina Prado"
+msgstr ""
+
+#: data/calls/noite_13_cecilia.tres
+msgid "Obrigada, moça. Se cuide você também."
+msgstr ""
+
+#: data/calls/noite_13_cecilia.tres
+msgid "Laudelina? Você leu? A Cecília da central morreu."
+msgstr ""
+
+#: data/calls/noite_13_cecilia.tres
+msgid "Li. Mal súbito, diz o jornal. Ela subia a serra a pé toda semana."
+msgstr ""
+
+#: data/calls/noite_13_cecilia.tres
+msgid "Trinta anos atendendo a gente. Sabia a voz de cada um."
+msgstr ""
+
+#: data/calls/noite_13_cecilia.tres
+msgid "Agora vão ouvir as telefonistas, dizem. Por causa de vazamento."
+msgstr ""
+
+#: data/calls/noite_13_cecilia.tres
+msgid "Vazamento de quê?"
+msgstr ""
+
+#: data/calls/noite_13_cecilia.tres
+msgid "Não sei. E acho melhor a gente desligar."
+msgstr ""
+
+#: data/calls/noite_13_enterro.tres
+msgid "Seu Moacir"
+msgstr ""
+
+#: data/calls/noite_13_enterro.tres
+msgid "Boa noite. A Funerária Paz Eterna, por favor."
+msgstr ""
+
+#: data/calls/noite_13_enterro.tres
+msgid "Quero saber a hora do enterro da telefonista."
+msgstr ""
+
+#: data/calls/noite_13_enterro.tres
+msgid "A funerária, moça. Paz Eterna."
+msgstr ""
+
+#: data/calls/noite_13_enterro.tres data/calls/transfer_09_senhor_funeraria_paz_eterna.tres
+msgid "Funerária Paz Eterna"
+msgstr ""
+
+#: data/calls/noite_13_enterro.tres
+msgid "Obrigado, moça. Meus sentimentos. Ela era das suas."
+msgstr ""
+
+#: data/calls/noite_13_enterro.tres
+msgid "Paz Eterna? O enterro da dona Cecília é a que horas?"
+msgstr ""
+
+#: data/calls/noite_13_enterro.tres
+msgid "Às dez, no municipal. Mas o caixão vem fechado, senhor."
+msgstr ""
+
+#: data/calls/noite_13_enterro.tres
+msgid "Fechado? Por quê?"
+msgstr ""
+
+#: data/calls/noite_13_enterro.tres
+msgid "Ordem da família. Foi o que nos disseram."
+msgstr ""
+
+#: data/calls/noite_13_enterro.tres
+msgid "Ela não tinha família. Só a central."
+msgstr ""
+
+#: data/calls/noite_13_enterro.tres
+msgid "Então foi ordem de quem tem. Boa noite, senhor."
+msgstr ""
+
+#: data/calls/noite_13_parente.tres
+msgid "Seu Wagner"
+msgstr ""
+
+#: data/calls/noite_13_parente.tres
+msgid "Boa noite. O Posto São Cristóvão, por favor."
+msgstr ""
+
+#: data/calls/noite_13_parente.tres
+msgid "O da estrada da serra."
+msgstr ""
+
+#: data/calls/noite_13_parente.tres
+msgid "O posto da estrada, moça. Três, quatro, sete."
+msgstr ""
+
+#: data/calls/noite_13_parente.tres data/calls/transfer_07_motorista_posto_sao_cristovao.tres
+msgid "Posto São Cristóvão"
+msgstr ""
+
+#: data/calls/noite_13_parente.tres
+msgid "Posto? É o Wagner. O caminhão do meu irmão ainda está aí?"
+msgstr ""
+
+#: data/calls/noite_13_parente.tres
+msgid "Está, parado no pátio desde ontem. Ninguém veio buscar."
+msgstr ""
+
+#: data/calls/noite_13_parente.tres
+msgid "E ele? O Marcos?"
+msgstr ""
+
+#: data/calls/noite_13_parente.tres
+msgid "A polícia parou o caminhão aqui. Levaram ele na viatura."
+msgstr ""
+
+#: data/calls/noite_13_parente.tres data/calls/story_15_cupula_armazem.tres data/calls/story_15_cupula_armazem_armas.tres
+msgid "Pra onde?"
+msgstr ""
+
+#: data/calls/noite_13_parente.tres
+msgid "Não disseram. Venha buscar o caminhão de dia, rapaz."
+msgstr ""
+
+#: data/nights/night_13.tres
+msgid "Cecília, telefonista do Alto da Serra."
+msgstr ""
+
+#: data/nights/night_13.tres
+msgid "Alta Cúpula investiga vazamento nas centrais telefônicas\nSegundo a Alta Cúpula, informações de ligações da polícia chegaram aos rebeldes \"por dentro das centrais\". As telefonistas serão ouvidas. A Companhia Telefônica diz confiar nas suas funcionárias."
+msgstr ""
+
+#: data/nights/night_13.tres
+msgid "Falecimentos\nCecília, telefonista da central do Alto da Serra por trinta anos, morreu ontem de mal súbito. O sepultamento será às dez horas, no cemitério municipal."
 msgstr ""
 
 #: data/nights/night_14.tres
@@ -7270,6 +8482,106 @@ msgstr ""
 msgid "Ninguém sabe de nada. Tchau."
 msgstr ""
 
+#: data/calls/noite_14_pensao.tres
+msgid "Seu Norberto"
+msgstr ""
+
+#: data/calls/noite_14_pensao.tres
+msgid "Boa noite, moça. A Pensão Dona Cota, por favor."
+msgstr ""
+
+#: data/calls/noite_14_pensao.tres
+msgid "Fui ao Hotel Serena e está lacrado."
+msgstr ""
+
+#: data/calls/noite_14_pensao.tres
+msgid "A pensão da dona Cota."
+msgstr ""
+
+#: data/calls/noite_14_pensao.tres
+msgid "Obrigado, moça. Salvou minha noite."
+msgstr ""
+
+#: data/calls/noite_14_pensao.tres
+msgid "Pensão? Tem um quarto? O Hotel Serena está lacrado."
+msgstr ""
+
+#: data/calls/noite_14_pensao.tres
+msgid "Tem o último, nos fundos. O senhor é o terceiro do hotel que liga hoje."
+msgstr ""
+
+#: data/calls/noite_14_pensao.tres
+msgid "Não tinha ninguém lá na porta. Só o aviso da polícia."
+msgstr ""
+
+#: data/calls/noite_14_pensao.tres
+msgid "Traga o documento. A polícia passa aqui toda noite olhando o livro."
+msgstr ""
+
+#: data/calls/noite_14_pensao.tres
+msgid "Eu sou vendedor de tecido, dona."
+msgstr ""
+
+#: data/calls/noite_14_pensao.tres
+msgid "Todo mundo é. Chegue antes das nove."
+msgstr ""
+
+#: data/calls/noite_14_parente.tres
+msgid "Dona Iracema"
+msgstr ""
+
+#: data/calls/noite_14_parente.tres
+msgid "Boa noite. A Casa Paroquial, por caridade."
+msgstr ""
+
+#: data/calls/noite_14_parente.tres
+msgid "Levaram meu marido do Hotel Serena."
+msgstr ""
+
+#: data/calls/noite_14_parente.tres
+msgid "A casa do padre, moça."
+msgstr ""
+
+#: data/calls/noite_14_parente.tres
+msgid "Padre? É a Iracema. O Osvaldo era porteiro do hotel. Levaram ele na batida."
+msgstr ""
+
+#: data/calls/noite_14_parente.tres
+msgid "Eu vi o camburão, Iracema. Cinco homens."
+msgstr ""
+
+#: data/calls/noite_14_parente.tres
+msgid "Ele só abria a porta pros hóspedes. Nunca perguntou nada a ninguém."
+msgstr ""
+
+#: data/calls/noite_14_parente.tres
+msgid "Às vezes é por isso mesmo que levam."
+msgstr ""
+
+#: data/calls/noite_14_parente.tres
+msgid "O que eu faço, padre?"
+msgstr ""
+
+#: data/calls/noite_14_parente.tres
+msgid "Fique em casa. E amanhã, principalmente, não saia de casa."
+msgstr ""
+
+#: data/nights/night_14.tres
+msgid "Batida no Hotel Serena: cinco presos\nNa noite de ontem, um camburão e uma viatura pararam na porta do Hotel Serena, e a polícia saiu com cinco homens algemados. O hotel foi lacrado. A delegacia fala em \"ninho de agitadores\"."
+msgstr ""
+
+#: data/nights/night_14.tres
+msgid "O Hotel Serena, lacrado depois da batida."
+msgstr ""
+
+#: data/nights/night_14.tres
+msgid "Hotel Serena é lacrado pela polícia\nO Hotel Serena amanheceu com as portas lacradas e um aviso da delegacia: \"fechado para averiguação\". Os hóspedes foram mandados embora de madrugada. O dono não foi encontrado."
+msgstr ""
+
+#: data/nights/night_14.tres
+msgid "A porta do Hotel Serena, com o lacre da delegacia."
+msgstr ""
+
 #: data/nights/night_15.tres
 msgid "O supervisor deixou um recado: \"Ordem das autoridades: as linhas da Rádio Serena e da TV Orbital estão bloqueadas. Transferir qualquer ligação para elas é crime, sujeito a prisão. Quem ligar para o bar ou para o hotel, denuncie na delegacia (184). Ligação para a delegacia ou para a Alta Cúpula passa na hora, sem demora. Última noite do período: o relatório de hoje vai para a diretoria.\""
 msgstr ""
@@ -7471,10 +8783,6 @@ msgid "[place:Armazém Ferreira], no Alto da Serra. Mas chegamos tarde: saíram 
 msgstr ""
 
 #: data/calls/story_15_cupula_armazem.tres data/calls/story_15_cupula_armazem_armas.tres
-msgid "Pra onde?"
-msgstr ""
-
-#: data/calls/story_15_cupula_armazem.tres data/calls/story_15_cupula_armazem_armas.tres
 msgid "Pro Centro, pela [street:Rua Tiradentes]. Mandem tudo o que tiverem pra lá."
 msgstr ""
 
@@ -7520,6 +8828,106 @@ msgstr ""
 
 #: data/calls/story_15_policia_matriz.tres
 msgid "Manda logo. Eles estão vindo pra cá."
+msgstr ""
+
+#: data/calls/noite_15_padaria.tres
+msgid "Dona Filomena"
+msgstr ""
+
+#: data/calls/noite_15_padaria.tres
+msgid "Quero encomendar o pão de amanhã."
+msgstr ""
+
+#: data/calls/noite_15_padaria.tres
+msgid "A padaria, moça."
+msgstr ""
+
+#: data/calls/noite_15_padaria.tres
+msgid "Obrigada, moça. Boa noite pra você."
+msgstr ""
+
+#: data/calls/noite_15_padaria.tres
+msgid "Padaria? É a Filomena. Separa dez pães pra amanhã cedo?"
+msgstr ""
+
+#: data/calls/noite_15_padaria.tres
+msgid "Separo, mas não sei se abro. Tem soldado na esquina da rádio."
+msgstr ""
+
+#: data/calls/noite_15_padaria.tres
+msgid "Dizem que amanhã vai ter coisa."
+msgstr ""
+
+#: data/calls/noite_15_padaria.tres
+msgid "Dizem tanta coisa. Meu marido encheu a caixa d'água."
+msgstr ""
+
+#: data/calls/noite_15_padaria.tres
+msgid "O meu comprou vela e querosene."
+msgstr ""
+
+#: data/calls/noite_15_padaria.tres
+msgid "Então venha às seis. Se eu abrir, abro cedo."
+msgstr ""
+
+#: data/calls/noite_15_parente.tres
+msgid "Dona Marlene"
+msgstr ""
+
+#: data/calls/noite_15_parente.tres
+msgid "Boa noite. O Alberto Ramos, por favor. Um, seis, oito."
+msgstr ""
+
+#: data/calls/noite_15_parente.tres
+msgid "É o meu cunhado."
+msgstr ""
+
+#: data/calls/noite_15_parente.tres
+msgid "Alberto Ramos, moça."
+msgstr ""
+
+#: data/calls/noite_15_parente.tres data/calls/transfer_36_senhor_alberto_ramos.tres
+msgid "Alberto Ramos"
+msgstr ""
+
+#: data/calls/noite_15_parente.tres
+msgid "Alberto? É a Marlene. Levaram o Tadeu. Estava no Bar do Zé."
+msgstr ""
+
+#: data/calls/noite_15_parente.tres
+msgid "Eu li no jornal. Quatro presos. Ele é um deles?"
+msgstr ""
+
+#: data/calls/noite_15_parente.tres
+msgid "É. Disseram que gravaram ele falando ao telefone."
+msgstr ""
+
+#: data/calls/noite_15_parente.tres
+msgid "Gravaram? Quem grava telefone?"
+msgstr ""
+
+#: data/calls/noite_15_parente.tres
+msgid "Não sei. Mas alguém ouviu, Alberto. Alguém ouviu."
+msgstr ""
+
+#: data/calls/noite_15_parente.tres
+msgid "Então desliga. Desliga agora, Marlene."
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "Soldados na porta da Rádio Serena."
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "Rádio e TV sob controle militar\nA Rádio Serena e a TV Orbital passam a ser guardadas pelo Exército \"até a normalidade\". A Alta Cúpula garante que a cidade está calma e pede que ninguém saia de casa à noite."
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "Gravações levam à prisão de quatro no Bar do Zé\nGraças a gravações telefônicas, a polícia prendeu na madrugada quatro frequentadores do Bar do Zé, acusados de preparar \"desordens\" para os próximos dias. A Alta Cúpula agradece a colaboração da central."
+msgstr ""
+
+#: data/nights/night_15.tres
+msgid "O camburão na porta do Bar do Zé."
 msgstr ""
 
 #: data/nights/night_15.tres
@@ -8358,10 +9766,6 @@ msgstr ""
 msgid "O São Lucas."
 msgstr ""
 
-#: data/calls/story_16_generosa_hospital.tres data/calls/transfer_18_dona_rute_hospital_sao_lucas.tres
-msgid "Hospital São Lucas"
-msgstr ""
-
 #: data/calls/story_16_generosa_hospital.tres
 msgid "Hospital São Lucas."
 msgstr ""
@@ -8494,10 +9898,6 @@ msgstr ""
 msgid "O ponto de táxi. Da rodoviária."
 msgstr ""
 
-#: data/calls/transfer_03_rapaz_taxi_ponto_da_rodoviaria.tres data/calls/transfer_27_moca_taxi_ponto_da_rodoviaria.tres
-msgid "Ponto de Táxi da Rodoviária"
-msgstr ""
-
 #: data/calls/transfer_03_rapaz_taxi_ponto_da_rodoviaria.tres data/calls/transfer_29_rapaz_cine_odeon.tres data/content.tres
 msgid "Valeu, central."
 msgstr ""
@@ -8540,14 +9940,6 @@ msgstr ""
 
 #: data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres
 msgid "A Pão Dourado. A padaria."
-msgstr ""
-
-#: data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres data/calls/transfer_44_dona_glorinha_padaria_pao_dourado.tres
-msgid "Padaria Pão Dourado"
-msgstr ""
-
-#: data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres data/calls/transfer_20_dona_tereza_marta_costa.tres
-msgid "Obrigada, querida."
 msgstr ""
 
 #: data/calls/transfer_04_dona_zilda_padaria_pao_dourado.tres
@@ -8626,10 +10018,6 @@ msgstr ""
 msgid "A oficina do Tião. Na Rua do Moinho."
 msgstr ""
 
-#: data/calls/transfer_06_caminhoneiro_oficina_do_tiao.tres data/calls/transfer_40_motorista_borracharia_do_neno.tres
-msgid "Oficina do Tião"
-msgstr ""
-
 #: data/calls/transfer_06_caminhoneiro_oficina_do_tiao.tres data/calls/transfer_23_dona_aurora_igreja_matriz.tres data/calls/transfer_28_dona_olga_radio_serena_am.tres
 msgid "Deus lhe pague."
 msgstr ""
@@ -8672,10 +10060,6 @@ msgstr ""
 
 #: data/calls/transfer_07_motorista_posto_sao_cristovao.tres
 msgid "O Posto São Cristóvão."
-msgstr ""
-
-#: data/calls/transfer_07_motorista_posto_sao_cristovao.tres
-msgid "Posto São Cristóvão"
 msgstr ""
 
 #: data/calls/transfer_07_motorista_posto_sao_cristovao.tres data/calls/transfer_36_senhor_alberto_ramos.tres
@@ -8760,14 +10144,6 @@ msgstr ""
 
 #: data/calls/transfer_09_senhor_funeraria_paz_eterna.tres
 msgid "A funerária. A Paz Eterna."
-msgstr ""
-
-#: data/calls/transfer_09_senhor_funeraria_paz_eterna.tres
-msgid "Funerária Paz Eterna"
-msgstr ""
-
-#: data/calls/transfer_09_senhor_funeraria_paz_eterna.tres
-msgid "Obrigado, moça."
 msgstr ""
 
 #: data/calls/transfer_09_senhor_funeraria_paz_eterna.tres
@@ -8938,10 +10314,6 @@ msgstr ""
 msgid "Joaquim Ferreira, do armazém."
 msgstr ""
 
-#: data/calls/transfer_13_sr_ivo_armazem_ferreira.tres data/calls/transfer_32_seu_lauro_armazem_ferreira.tres data/calls/transfer_49_menino_mercearia_silva.tres
-msgid "Armazém Ferreira"
-msgstr ""
-
 #: data/calls/transfer_13_sr_ivo_armazem_ferreira.tres
 msgid "Tá certo, obrigado."
 msgstr ""
@@ -8976,14 +10348,6 @@ msgstr ""
 
 #: data/calls/transfer_14_senhora_casa_paroquial.tres
 msgid "O Padre Anselmo. Na casa dele, não na igreja."
-msgstr ""
-
-#: data/calls/transfer_14_senhora_casa_paroquial.tres data/calls/transfer_23_dona_aurora_igreja_matriz.tres data/calls/transfer_43_noivo_casa_paroquial.tres
-msgid "Casa Paroquial"
-msgstr ""
-
-#: data/calls/transfer_14_senhora_casa_paroquial.tres
-msgid "Obrigada, minha filha."
 msgstr ""
 
 #: data/calls/transfer_14_senhora_casa_paroquial.tres
@@ -9068,10 +10432,6 @@ msgstr ""
 
 #: data/calls/transfer_16_sobrinha_celia_rocha_av_brasil.tres
 msgid "Célia Rocha (Av. Brasil)"
-msgstr ""
-
-#: data/calls/transfer_16_sobrinha_celia_rocha_av_brasil.tres data/calls/transfer_27_moca_taxi_ponto_da_rodoviaria.tres
-msgid "Obrigada, moça."
 msgstr ""
 
 #: data/calls/transfer_16_sobrinha_celia_rocha_av_brasil.tres
@@ -9267,10 +10627,6 @@ msgid "Três, três, seis."
 msgstr ""
 
 #: data/calls/transfer_21_moca_lucia_pereira.tres
-msgid "Lúcia Pereira"
-msgstr ""
-
-#: data/calls/transfer_21_moca_lucia_pereira.tres
 msgid "Lúcia? Oi, sou eu."
 msgstr ""
 
@@ -9304,14 +10660,6 @@ msgstr ""
 
 #: data/calls/transfer_22_seu_anibal_farmacia_central.tres
 msgid "A Farmácia Central. Na Praça da Matriz."
-msgstr ""
-
-#: data/calls/transfer_22_seu_anibal_farmacia_central.tres data/calls/transfer_42_dona_zefa_farmacia_santa_rita.tres
-msgid "Farmácia Central"
-msgstr ""
-
-#: data/calls/transfer_22_seu_anibal_farmacia_central.tres
-msgid "Obrigado, minha filha."
 msgstr ""
 
 #: data/calls/transfer_22_seu_anibal_farmacia_central.tres
@@ -9398,20 +10746,12 @@ msgstr ""
 msgid "Isso, na casa do padre. Obrigada."
 msgstr ""
 
-#: data/calls/transfer_25_seu_jair_mercearia_silva.tres data/content.tres
-msgid "Seu Jair"
-msgstr ""
-
 #: data/calls/transfer_25_seu_jair_mercearia_silva.tres
 msgid "A Mercearia Silva ainda atende? O Silva mora nos fundos. Acabou a vela aqui em casa."
 msgstr ""
 
 #: data/calls/transfer_25_seu_jair_mercearia_silva.tres
 msgid "A Mercearia Silva, na Rua do Cruzeiro."
-msgstr ""
-
-#: data/calls/transfer_25_seu_jair_mercearia_silva.tres data/calls/transfer_49_menino_mercearia_silva.tres
-msgid "Mercearia Silva"
 msgstr ""
 
 #: data/calls/transfer_25_seu_jair_mercearia_silva.tres
@@ -9743,10 +11083,6 @@ msgid "Três, oito, quatro."
 msgstr ""
 
 #: data/calls/transfer_35_seu_valdir_sonia_vieira.tres
-msgid "Sônia Vieira"
-msgstr ""
-
-#: data/calls/transfer_35_seu_valdir_sonia_vieira.tres
 msgid "Brigado."
 msgstr ""
 
@@ -9776,10 +11112,6 @@ msgstr ""
 
 #: data/calls/transfer_36_senhor_alberto_ramos.tres
 msgid "Alberto Ramos."
-msgstr ""
-
-#: data/calls/transfer_36_senhor_alberto_ramos.tres
-msgid "Alberto Ramos"
 msgstr ""
 
 #: data/calls/transfer_36_senhor_alberto_ramos.tres
@@ -10015,10 +11347,6 @@ msgid "O bilhar do Tonho, na Rua do Comércio."
 msgstr ""
 
 #: data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
-msgid "Bilhar do Tonho"
-msgstr ""
-
-#: data/calls/transfer_41_rapaz_bilhar_do_tonho.tres
 msgid "Valeu! A senhora é das boas."
 msgstr ""
 
@@ -10211,10 +11539,6 @@ msgid "A Gazeta de São Sotero. A redação."
 msgstr ""
 
 #: data/calls/transfer_45_reporter_gazeta.tres
-msgid "Gazeta de São Sotero"
-msgstr ""
-
-#: data/calls/transfer_45_reporter_gazeta.tres
 msgid "Obrigado. Amanhã a senhora lê no jornal."
 msgstr ""
 
@@ -10300,10 +11624,6 @@ msgstr ""
 
 #: data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
 msgid "Laudelina Prado. Da Bela Vista."
-msgstr ""
-
-#: data/calls/transfer_48_dona_mirtes_laudelina_prado.tres
-msgid "Laudelina Prado"
 msgstr ""
 
 #: data/calls/transfer_48_dona_mirtes_laudelina_prado.tres

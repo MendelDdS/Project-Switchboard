@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
+[ext_resource type="Script" path="res://scripts/data/story_text.gd" id="j_story_text"]
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
 [ext_resource type="Script" path="res://scripts/data/story_call.gd" id="x0_story_call"]
@@ -8,6 +9,8 @@
 [ext_resource type="Resource" path="res://data/calls/story_06_bar_sinal_2.tres" id="x3_story_06_bar_sinal_2"]
 [ext_resource type="Resource" path="res://data/calls/story_06_miguel.tres" id="a_story_06_miguel"]
 [ext_resource type="Resource" path="res://data/calls/story_06_generosa.tres" id="a_story_06_generosa"]
+[ext_resource type="Resource" path="res://data/calls/noite_06_telefone.tres" id="j_telefone"]
+[ext_resource type="Resource" path="res://data/calls/noite_06_parente.tres" id="j_parente"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -49,8 +52,28 @@ call = ExtResource("a_story_06_generosa")
 requires = PackedStringArray("generosa_3")
 again = false
 
+[sub_resource type="Resource" id="J_news_0"]
+script = ExtResource("j_story_text")
+text = "Dono do Bar do Zé levado para depoimento\nDepois de uma denúncia feita por telefone, o dono do Bar do Zé, em Vila Serena, passou a tarde de ontem na delegacia. Foi solto à noite, sem acusação. O bar continua aberto; o telefone dele, não."
+requires = PackedStringArray("denunciou_bar_4")
+photo = "viatura"
+caption = "A viatura na porta do Bar do Zé."
+
+[sub_resource type="Resource" id="J_call_telefone"]
+script = ExtResource("x0_story_call")
+call = ExtResource("j_telefone")
+
+[sub_resource type="Resource" id="J_call_parente"]
+script = ExtResource("x0_story_call")
+call = ExtResource("j_parente")
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Hoje o Centro tem baile e a praça cheia. Fique atenta. A linha do Bar do Zé continua bloqueada.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0")])
 story = Array[ExtResource("x0_story_call")]([SubResource("S_acordo"), SubResource("S_bar1"), SubResource("S_bar2"), SubResource("A_story_06_miguel"), SubResource("A_story_06_generosa")])
+news_if = Array[ExtResource("j_story_text")]([SubResource("J_news_0")])
+news_stories = PackedStringArray("Polícia corta telefones de \"pontos de agitação\"\nPor ordem da delegacia, as linhas de bares e salões do Centro e de Vila Serena foram bloqueadas na central, a do Bar do Zé entre elas. \"Quem não deve não teme\", disse o delegado.")
+calls = Array[ExtResource("x0_story_call")]([SubResource("J_call_telefone"), SubResource("J_call_parente")])
+news_photo = "rua"
+news_caption = "A rua do Bar do Zé, sem telefone desde ontem."

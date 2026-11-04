@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+voice = "m"
+caller = "Seu Hélio"
+caller_name = "Hélio Barros"
+opening = PackedStringArray("Boa noite. A Gazeta, por favor.", "Quero saber os nomes dos presos da rádio.")
+repeat = "A Gazeta de São Sotero."
+target = "101"
+destination = "Gazeta de São Sotero"
+thanks = "Obrigado, moça."
+overheard = PackedStringArray("Gazeta? Os três presos na rádio. Vocês sabem os nomes?", "A polícia não divulgou, senhor.", "Meu sobrinho saiu de casa ontem e disse que ia ouvir música.", "Se ele estiver entre eles, a família vai ser avisada.", "Avisada como? Pelo jornal?", "Não sei, senhor. Aqui também ninguém sabe de nada.")

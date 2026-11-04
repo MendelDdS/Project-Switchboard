@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+voice = "m"
+caller = "Seu Damião"
+caller_name = "Damião Queiroz"
+opening = PackedStringArray("Boa noite. O Armazém Ferreira, por favor.", "Sou vizinho dele, do Alto da Serra.")
+repeat = "O armazém do Ferreira, moça."
+target = "288"
+destination = "Armazém Ferreira"
+thanks = "Obrigado, moça."
+overheard = PackedStringArray("Ferreira? É o Damião. A polícia acabou de sair da minha rua.", "Eu vi as viaturas. Levaram alguém?", "Ninguém. As casas estavam vazias. Nem o cachorro ficou.", "Graças a Deus. Alguém avisou a tempo.", "Não fala isso no telefone, Ferreira.", "Falei nada. Boa noite, Damião.")

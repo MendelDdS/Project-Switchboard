@@ -226,7 +226,7 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   rádio, pontos, nível (`chance_alta/media/baixa`, ligados por `Rebellion.sync`, que liga também `tomada_caiu`, a rádio já perdida na hora, para as falas da 9; ordens de Sebastião da noite 15 não cumpridas
   são vacilos, `Rebellion.ORDERS`); à meia-noite da 15, `golpe_venceu` ou
   `golpe_falhou` (o turno acaba ali, `Main._midnight`). Bilhete e jornal com versões por marcador (`Night.notes`,
-  `news_if`, `StoryText`). Carta da noite (`Night.letters`, `letter_for`): envelope lacrado em cima do jornal desde o
+  `news_if`, `StoryText`); a primeira matéria do jornal é a manchete do dia (toda noite uma; as emergências descem); a foto e a legenda seguem a manchete (`Night.photo_for`, desenhadas em `NewsView._tone`). Carta da noite (`Night.letters`, `letter_for`): envelope lacrado em cima do jornal desde o
   começo (`Background.letter`, `_art_envelope`; aberta, sem o lacre, `letter_read`), aberta quando o jogador quiser
   (`Tools.LETTER`, `letter_view.gd`); a dica do começo avisa (`HINT_LETTER`).
 - `Progress` (`user://progress.cfg`): próxima noite, ritmo, `low_nights`, marcadores, jornal, palavras-chave,
@@ -234,7 +234,9 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
   ou o sentido de um campo, suba e converta no `load_saved`; o que não dá para ler fica ao lado (`aside`).
 - Agenda (`Schedule`, constantes no topo de `main.gd` e `schedule.gd`; emergência do roteiro conta no espaçamento das sorteadas): a ligação do roteiro espera a mesa em silêncio (`STORY_WAIT`); numa missão do roteiro (a ligação dele na mesa, a conversa dele escutada, a do discador) nada novo toca (`Main.on_mission`); intervalo
   `Pace.call_gap`; nada novo depois de `last_call` (23:40; a do roteiro marcada depois toca, `_story_late`) e, depois, o botão Encerrar turno; `GIVE_UP_SEC` 60 s;
-  conversa fiada (`ChatTopic`, `Conversation.smalltalk`) só do cotidiano. Relógio: 0,75 min de jogo por segundo.
+  conversa fiada (`ChatTopic`, `Conversation.smalltalk`) só do cotidiano.
+  Ligações escritas da noite (`Night.calls`: quem comenta a manchete, quem procura um parente preso) entram no
+  sorteio em vagas de transferência (`Schedule._random_calls`), com `requires` conferido na hora de tocar; não são missão. Relógio: 0,75 min de jogo por segundo.
 - O amanhecer da noite 15 (céu, sol atrás da igreja, luz do dia na sala): `scripts/ui/CLAUDE.md` e
   `docs/mapa-detalhado.md`.
 

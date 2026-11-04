@@ -963,3 +963,8 @@ forma, quantidade) e confira o nome do código pelo desenho, não pela palavra.
 ## `--import` com o editor aberto: confira antes e pare
 Rodei `pgrep ... && echo EDITOR; Godot --import` numa linha só: o aviso saiu e o import rodou mesmo assim. A
 conferência do editor tem de bloquear o comando (`pgrep ... || Godot --import`), nunca só avisar.
+
+## Contar ligações do roteiro pelas versões, não pelas entradas
+Disse que a noite 8 tinha 12 ligações do roteiro contando as entradas do `.tres`; quase todas eram versões que se
+excluem pelo `requires` (bar avisado ou não, três do hotel). Numa partida tocam ~6. Para falar de ritmo ou densidade,
+agrupe as entradas por horário e conte uma por grupo.

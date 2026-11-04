@@ -7,3 +7,7 @@ extends Resource
 @export var title := ""
 ## Os marcadores que precisam bater ("nome" ligado, "!nome" desligado; vazio: sempre).
 @export var requires: PackedStringArray = []
+## No jornal (`Night.news_if`), quando esta é a manchete: a foto da primeira página (uma de `NewsView.PHOTOS`; vazio,
+## a da noite, `Night.news_photo`) e a legenda dela.
+@export var photo := ""
+@export var caption := ""

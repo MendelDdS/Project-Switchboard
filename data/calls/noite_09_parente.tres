@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+voice = "f"
+caller = "Dona Odete"
+caller_name = "Odete Lins"
+opening = PackedStringArray("Boa noite. O Hospital São Lucas, pelo amor de Deus.", "Meu filho mora na Rua do Moinho. Teve tiro lá.")
+repeat = "O São Lucas, moça. Dois, um, três."
+target = "213"
+destination = "Hospital São Lucas"
+thanks = "Obrigada, minha filha."
+overheard = PackedStringArray("Hospital? Chegou algum ferido da Rua do Moinho? Um rapaz, Sérgio Lins.", "Chegaram dois, senhora. Mas vieram com a polícia, sem nome.", "Um deles é magro, de bigode?", "Não posso dizer, senhora. A ala está fechada.", "Fechada pra mãe?", "Fechada pra todo mundo. Sinto muito.")

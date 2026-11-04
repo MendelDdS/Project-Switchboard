@@ -94,7 +94,7 @@ func _check_destinations() -> void:
 	var C: GameContent = GameData.CONTENT
 	var written: Array[TransferCall] = C.transfers.duplicate()
 	for n: Night in C.nights + [C.training]:
-		for st: StoryCall in n.story:
+		for st: StoryCall in n.story + n.calls:
 			if st.call is TransferCall:
 				written.append(st.call)
 		for step: LessonStep in n.lesson:
@@ -195,7 +195,7 @@ func _initialize() -> void:
 	var named := func(n: String): return n.split(" ").size() >= 2 and treat.search(n) == null
 	var calls: Array = C.transfers.duplicate()
 	for n: Night in C.nights:
-		calls.append_array(n.story.map(func(st: StoryCall): return st.call).filter(func(x): return x is TransferCall))
+		calls.append_array((n.story + n.calls).map(func(st: StoryCall): return st.call).filter(func(x): return x is TransferCall))
 	for t: TransferCall in calls:
 		ok(named.call(t.caller_name), "quem liga sem nome e sobrenome, ou com tratamento: " + t.resource_path)
 	for n in C.caller_names:
@@ -225,9 +225,22 @@ func _initialize() -> void:
 	ok(seen.size() > 1, "o mesmo molde pede unidades diferentes conforme o caso")
 	for p in C.pranks:
 		ok(p.steps.back().kind == PrankStep.Kind.END, "trote termina: " + p.resource_path)
-	for n in C.nights:
+	for i in C.nights.size():
+		var n := C.nights[i]
 		ok(n.story.all(func(st: StoryCall): return st.call is TransferCall or st.call is EmergencyCall or st.call is PrankCall),
 			"ligações do roteiro com roteiro escrito: " + n.resource_path)
+		# as escritas que entram no sorteio: transferências para um número do setor atendido, fora dos do roteiro da noite
+		var story_targets := n.story.map(func(st: StoryCall): return st.call.target if st.call is TransferCall else "")
+		for st: StoryCall in n.calls:
+			ok(st.call is TransferCall and int(st.call.target.left(1)) in GameData.sectors_for(i + 1) and not st.call.target in story_targets,
+				"ligação da noite no setor e sem disputar número com o roteiro: %s (%s)" % [n.resource_path, st.call.resource_path])
+		# as fotos do jornal, da noite e das manchetes que trocam a dela, existem
+		ok(([n.news_photo] + n.news_if.map(func(v: Resource): return v.photo)).all(func(ph: String): return ph == "" or ph in NewsView.PHOTOS),
+			"foto do jornal conhecida: " + n.resource_path)
+	var f := StoryFlags.new()   # a foto segue a manchete: a da noite, ou a da variante que vira manchete
+	ok(C.nights[5].photo_for(f)[0] == "rua", "noite 6 sem denúncia: a foto da rua")
+	f.apply("denunciou_bar_4")
+	ok(C.nights[5].photo_for(f)[0] == "viatura" and C.nights[5].photo_for(f)[1] != C.nights[5].news_caption, "noite 6 com a denúncia: a viatura, com a legenda dela")
 	# conversa fiada: cada assunto traz as próprias respostas (uma simpática e uma seca), cada uma com a continuação
 	var topics: Array[ChatTopic] = C.smalltalk.duplicate()
 	for n in C.nights:

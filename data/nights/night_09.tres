@@ -14,6 +14,8 @@
 [ext_resource type="Resource" path="res://data/calls/story_09_baleado.tres" id="x1_story_09_baleado"]
 [ext_resource type="Resource" path="res://data/calls/story_09_mae_atropelado.tres" id="x2_story_09_atropelada"]
 [ext_resource type="Resource" path="res://data/calls/story_09_briga.tres" id="x3_story_09_briga"]
+[ext_resource type="Resource" path="res://data/calls/noite_09_toque.tres" id="j_toque"]
+[ext_resource type="Resource" path="res://data/calls/noite_09_parente.tres" id="j_parente"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -30,11 +32,15 @@ at = 180.0
 script = ExtResource("x0_story_text")
 text = "Polícia ocupa a estação e a praça da Matriz\nDesde a madrugada, viaturas guardam a estação, a praça da Matriz e as saídas do Alto da Serra. A Alta Cúpula fala em \"prevenção\" e não dá detalhes."
 requires = PackedStringArray("fita_grupos_entregue")
+photo = "viatura"
+caption = "A viatura na praça da Matriz."
 
 [sub_resource type="Resource" id="News_comandante"]
 script = ExtResource("x0_story_text")
 text = "Cerco a armazém na Rua do Moinho\nA polícia cercou nesta madrugada um armazém da Rua do Moinho onde estaria escondido o chefe dos rebeldes. Houve tiros. A Alta Cúpula não confirma prisões."
 requires = PackedStringArray("fita_comandante_entregue")
+photo = "viatura"
+caption = "A barreira na Rua do Moinho."
 
 [sub_resource type="Resource" id="S_seb"]
 script = ExtResource("x1_story_call")
@@ -116,9 +122,22 @@ at = 290.0
 call = ExtResource("x3_story_09_briga")
 again = false
 
+[sub_resource type="Resource" id="J_call_toque"]
+script = ExtResource("x1_story_call")
+call = ExtResource("j_toque")
+
+[sub_resource type="Resource" id="J_call_parente"]
+script = ExtResource("x1_story_call")
+call = ExtResource("j_parente")
+requires = PackedStringArray("fita_comandante_entregue")
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Último setor: a partir de hoje, o setor 2, o Alto da Serra, também fica com você. Os números que começam com 2 passam pela sua mesa. A cidade inteira está nas suas mãos. A pedido das autoridades, grave toda ligação suspeita.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1")])
 news_if = Array[ExtResource("x0_story_text")]([SubResource("News_grupos"), SubResource("News_comandante")])
 story = Array[ExtResource("x1_story_call")]([SubResource("S_seb"), SubResource("S_aut0"), SubResource("S_aut1"), SubResource("S_aut1a"), SubResource("S_aut2"), SubResource("S_aut2a"), SubResource("E_car"), SubResource("E_bal"), SubResource("E_atr"), SubResource("E_bri")])
+news_stories = PackedStringArray("Toque de recolher às nove da noite\nA partir de hoje, ninguém fica na rua depois das 21h sem salvo-conduto, por ordem da Alta Cúpula. Bares e cinemas fecham às oito e meia. Quem for pego na rua responde na delegacia.")
+calls = Array[ExtResource("x1_story_call")]([SubResource("J_call_toque"), SubResource("J_call_parente")])
+news_photo = "rua"
+news_caption = "Rua do Centro às nove e cinco."

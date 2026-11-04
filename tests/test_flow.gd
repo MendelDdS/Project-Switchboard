@@ -1219,7 +1219,12 @@ func _initialize() -> void:
 	m.background.pointer(pj)
 	ok(m.tools.open and m.tools.tab == Tools.NEWS, "o jornal na mesa abre")
 	ok(m.background.news_read, "lido, ele volta à mesa dobrado de outro jeito")
-	ok(m.tools.news.get_node("Page/Text/Lead").text.contains("Rua do Sol"), "o jornal traz as manchetes da noite anterior")
+	var text_of := func(): return m.tools.news.get_node("Page/Text/Lead").text + m.tools.news.get_node("Page/Text/Headlines").text
+	ok(text_of.call().contains("Rua do Sol"), "o jornal traz as manchetes da noite anterior")
+	var paper: Night = GameData.CONTENT.nights[8]   # (a noite 9: o toque de recolher sai sempre)
+	m.tools.news.show_news([{"outcome": 0, "template": GameData.CONTENT.news_ok[0], "occurrence": "Outro", "address": "Rua do Sol, 10"}], paper, 9, StoryFlags.new())
+	ok(m.tools.news.get_node("Page/Text/Lead").text == tr(paper.news_stories[0]).get_slice("\n", 0) and text_of.call().contains("Rua do Sol"),
+		"a matéria do dia é a manchete; as emergências descem para a lista")
 	m.tools.close()
 	# a persiana: clicada, desce até o peitoril e tampa o vidro; clicada de novo, sobe
 	await frames(12)

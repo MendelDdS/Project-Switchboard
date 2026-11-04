@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+voice = "m"
+caller = "Seu Raimundo"
+caller_name = "Raimundo Teles"
+opening = PackedStringArray("A delegacia, moça. Rápido, por favor.", "Meu filho está preso aí desde o baile.")
+repeat = "A delegacia do Centro."
+target = "184"
+destination = "Delegacia de Polícia"
+thanks = "Obrigado, moça."
+overheard = PackedStringArray("Boa noite. O meu filho, José Teles, está aí desde o baile. Sem documento.", "Os do baile foram soltos de manhã. Quase todos.", "Quase todos? Ele não voltou pra casa.", "Então está entre os que estão sendo ouvidos. Sai quando acabar.", "Acabar o quê? Ele tem dezessete anos!", "Boa noite, senhor. Não insista.")

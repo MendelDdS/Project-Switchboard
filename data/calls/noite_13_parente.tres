@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+voice = "m"
+caller = "Seu Wagner"
+caller_name = "Wagner Castro"
+opening = PackedStringArray("Boa noite. O Posto São Cristóvão, por favor.", "O da estrada da serra.")
+repeat = "O posto da estrada, moça. Três, quatro, sete."
+target = "347"
+destination = "Posto São Cristóvão"
+thanks = "Obrigado, moça."
+overheard = PackedStringArray("Posto? É o Wagner. O caminhão do meu irmão ainda está aí?", "Está, parado no pátio desde ontem. Ninguém veio buscar.", "E ele? O Marcos?", "A polícia parou o caminhão aqui. Levaram ele na viatura.", "Pra onde?", "Não disseram. Venha buscar o caminhão de dia, rapaz.")

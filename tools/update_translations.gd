@@ -19,7 +19,7 @@ const LANGS := ["en", "es"]
 const REVIEW := "res://build/traducoes.csv"
 ## Campos que não se traduzem: nomes próprios (contatos, ruas, endereços) e dados internos.
 const SKIP := ["name", "address", "number", "category", "target", "alt_target", "street", "id", "voice", "voices", "effect", "weather", "kind", "teacher", "teacher_voice", "until",
-	"fake_address", "caller_name", "caller_names", "message_to", "from_number", "urgency_reason", "deal_from", "deal_to", "deal_signal", "secret_signal", "block_labels", "units", "worsening_units", "critical_units", "lost_units", "requires", "sets", "overheard_sets", "overheard_flags", "if_connected", "if_elsewhere", "if_dropped", "if_missed", "if_hung_up", "if_delivered", "if_sebastiao", "key", "detail", "news_photo", "resource_name", "resource_path", "resource_scene_unique_id"]
+	"fake_address", "caller_name", "caller_names", "message_to", "from_number", "urgency_reason", "deal_from", "deal_to", "deal_signal", "secret_signal", "block_labels", "units", "worsening_units", "critical_units", "lost_units", "requires", "sets", "overheard_sets", "overheard_flags", "if_connected", "if_elsewhere", "if_dropped", "if_missed", "if_hung_up", "if_delivered", "if_sebastiao", "key", "detail", "news_photo", "photo", "resource_name", "resource_path", "resource_scene_unique_id"]
 
 var _ids := {}   ## msgid -> Array de arquivos onde aparece (em ordem de descoberta)
 var _fixes := {}  ## idioma -> {msgid: tradução} da tabela de revisão (`--apply`)

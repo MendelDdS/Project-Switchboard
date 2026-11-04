@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
+[ext_resource type="Script" path="res://scripts/data/story_text.gd" id="j_story_text"]
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
 [ext_resource type="Script" path="res://scripts/data/story_call.gd" id="x0_story_call"]
@@ -10,6 +11,7 @@
 [ext_resource type="Resource" path="res://data/calls/story_03_generosa.tres" id="a_story_03_generosa"]
 [ext_resource type="Resource" path="res://data/calls/story_03_miguel_trote.tres" id="a_story_03_miguel_trote"]
 [ext_resource type="Resource" path="res://data/calls/story_03_otavio.tres" id="a_story_03_otavio"]
+[ext_resource type="Resource" path="res://data/calls/noite_03_nome.tres" id="j_nome"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -120,9 +122,15 @@ at = 140.0
 call = ExtResource("a_story_03_otavio")
 again = false
 
+[sub_resource type="Resource" id="J_call_nome"]
+script = ExtResource("x0_story_call")
+call = ExtResource("j_nome")
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Ordem da diretoria: a partir de hoje, peça o nome e o sobrenome de quem liga antes de completar a ligação. Quem não disser, não passa.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0")])
 story = Array[ExtResource("x0_story_call")]([SubResource("S_cec1"), SubResource("S_cec2"), SubResource("A_story_03_generosa"), SubResource("A_story_03_miguel_trote"), SubResource("A_story_03_otavio")])
 dial = Array[ExtResource("x4_dial_call")]([SubResource("D_bar")])
+news_stories = PackedStringArray("Telefônica vai exigir o nome de quem liga\nA partir de hoje, a Companhia Telefônica de São Sotero só completa a ligação de quem disser nome e sobrenome à telefonista. A diretoria fala em \"segurança de todos\" e pede a compreensão dos assinantes.")
+calls = Array[ExtResource("x0_story_call")]([SubResource("J_call_nome")])

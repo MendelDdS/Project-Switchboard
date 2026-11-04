@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="Night" format=3]
 
+[ext_resource type="Script" path="res://scripts/data/story_text.gd" id="j_story_text"]
 [ext_resource type="Script" path="res://scripts/data/night.gd" id="1_night"]
 [ext_resource type="Script" path="res://scripts/data/street_event.gd" id="2_event"]
 [ext_resource type="Script" path="res://scripts/data/prank_step.gd" id="x0_prank_step"]
@@ -12,6 +13,8 @@
 [ext_resource type="Resource" path="res://data/calls/story_07_bar_grupo_c.tres" id="x7_story_07_bar_grupo_c"]
 [ext_resource type="Resource" path="res://data/calls/story_07_bar_grupo_c_avisado.tres" id="x8_story_07_bar_grupo_c_avisado"]
 [ext_resource type="Resource" path="res://data/calls/story_07_miguel.tres" id="a_story_07_miguel"]
+[ext_resource type="Resource" path="res://data/calls/noite_07_baile.tres" id="j_baile"]
+[ext_resource type="Resource" path="res://data/calls/noite_07_parente.tres" id="j_parente"]
 
 [sub_resource type="Resource" id="ev_0"]
 script = ExtResource("2_event")
@@ -113,9 +116,21 @@ call = ExtResource("a_story_07_miguel")
 if_hung_up = PackedStringArray("!miguel_amigo")
 again = false
 
+[sub_resource type="Resource" id="J_call_baile"]
+script = ExtResource("x2_story_call")
+call = ExtResource("j_baile")
+
+[sub_resource type="Resource" id="J_call_parente"]
+script = ExtResource("x2_story_call")
+call = ExtResource("j_parente")
+
 [resource]
 script = ExtResource("1_night")
 note = "O supervisor deixou um recado: \"Instalaram um gravador na sua mesa, a pedido das autoridades. A linha do bar foi liberada, e elas querem gravado tudo o que for para lá. Em noite com ligação para o bar, entregue às autoridades pelo menos uma fita, mesmo que a conversa não tenha nada: grave assim mesmo, para não ter reclamação. E daqui em diante, o que as autoridades pedirem, atenda, mesmo contra as regras: não vai haver advertência.\""
 street_events = Array[ExtResource("2_event")]([SubResource("ev_0"), SubResource("ev_1")])
 dial = Array[ExtResource("x1_dial_call")]([SubResource("D_aviso")])
 story = Array[ExtResource("x2_story_call")]([SubResource("S_bar0"), SubResource("S_bar0w"), SubResource("S_bar1"), SubResource("S_bar1w"), SubResource("S_bar2"), SubResource("S_bar2w"), SubResource("A_story_07_miguel")])
+news_stories = PackedStringArray("Baile da praça termina em revista geral\nPerto da meia-noite, a polícia cercou a praça do Centro e revistou todos os que saíam do baile. Doze pessoas sem documento passaram a noite na delegacia. A prefeitura promete novos bailes.")
+calls = Array[ExtResource("x2_story_call")]([SubResource("J_call_baile"), SubResource("J_call_parente")])
+news_photo = "viatura"
+news_caption = "A barreira na saída da praça."

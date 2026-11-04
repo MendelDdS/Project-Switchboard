@@ -3327,3 +3327,18 @@ Chaves:
     interface, "Você foi demitida", "Encerrada pela telefonista" e o "obrigada" do discador; no treinamento, a opção
     "Obrigado, Cecília!" virou "Valeu, Cecília!". As falas sobre outra pessoa ou para quem atende do outro lado
     ficaram.
+536. #jornal #noites #conteudo #ritmo Pedido de notas do jogo; o ponto fraco era o miolo das noites 10 a 13 com pouco
+    roteiro (a 11 com 1 ligação, a 13 sem nenhuma) e o peso das escolhas invisível. O usuário quis cada acontecimento
+    grande como manchete principal do jornal, uma notícia nova todo dia: com influência de Maria, a consequência
+    (fita entregue, denúncia, batida); sem ela, uma notícia que revela suspeita, plano desmontado, apreensão, coerente
+    com a história. A matéria do dia (`Night.stories_for`, a primeira) virou a manchete e as emergências desceram para
+    a lista; manchetes novas nas noites 2–4, 6–10 e 12–15. E dois tipos de ligação novos, escritos por noite
+    (`Night.calls`, entram no sorteio no lugar de transferências, não são missão do roteiro): quem comenta a manchete
+    e quem procura um parente preso (da 5 em diante, algumas só com o marcador da consequência: a família do porão com
+    a fita do grupo C, a mãe do Bar do Zé com a fita da 14). 28 ligações, 1 a 3 por noite.
+537. #jornal #visual Trocar a foto do jornal conforme a manchete. Fotos reaproveitáveis em retícula, desenhadas em
+    código (`NewsView.PHOTOS`, `_tone`): cidade, rua de noite com o poste e os fios, viatura com o cavalete, caixotes e
+    fuzis, torre da emissora, fachada do hotel lacrada, mulher sorrindo (a Cecília na 13; o usuário dispensou o retrato
+    oval, "só uma foto de uma mulher sorrindo sem muitos detalhes") e cartazes com panfletos. A foto e a legenda
+    seguem a manchete: as da variante de `news_if` que vira manchete (`StoryText.photo`/`caption`), senão as da noite
+    (`Night.news_photo`, agora o nome da foto em vez de uma textura que nenhuma noite usava; `Night.photo_for`).

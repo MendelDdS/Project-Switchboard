@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+voice = "f"
+caller = "Dona Iracema"
+caller_name = "Iracema Nobre"
+opening = PackedStringArray("Boa noite. A Casa Paroquial, por caridade.", "Levaram meu marido do Hotel Serena.")
+repeat = "A casa do padre, moça."
+target = "120"
+destination = "Casa Paroquial"
+thanks = "Obrigada, moça."
+overheard = PackedStringArray("Padre? É a Iracema. O Osvaldo era porteiro do hotel. Levaram ele na batida.", "Eu vi o camburão, Iracema. Cinco homens.", "Ele só abria a porta pros hóspedes. Nunca perguntou nada a ninguém.", "Às vezes é por isso mesmo que levam.", "O que eu faço, padre?", "Fique em casa. E amanhã, principalmente, não saia de casa.")

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="TransferCall" format=3]
+
+[ext_resource type="Script" path="res://scripts/data/transfer_call.gd" id="1_call"]
+
+[resource]
+script = ExtResource("1_call")
+voice = "w"
+caller = "Seu Moacir"
+caller_name = "Moacir Teixeira"
+opening = PackedStringArray("Boa noite. A Funerária Paz Eterna, por favor.", "Quero saber a hora do enterro da telefonista.")
+repeat = "A funerária, moça. Paz Eterna."
+target = "253"
+destination = "Funerária Paz Eterna"
+thanks = "Obrigado, moça. Meus sentimentos. Ela era das suas."
+overheard = PackedStringArray("Paz Eterna? O enterro da dona Cecília é a que horas?", "Às dez, no municipal. Mas o caixão vem fechado, senhor.", "Fechado? Por quê?", "Ordem da família. Foi o que nos disseram.", "Ela não tinha família. Só a central.", "Então foi ordem de quem tem. Boa noite, senhor.")
