@@ -2,6 +2,38 @@
 
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
 [ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
+
+[sub_resource type="Resource" id="Dial_0_0"]
+script = ExtResource("9_reply")
+text = "Qual é o horário de visita?"
+follow = "Das duas às quatro da tarde. À noite, só acompanhante."
+
+[sub_resource type="Resource" id="Dial_0_1"]
+script = ExtResource("9_reply")
+text = "Tem médico de plantão?"
+follow = "Tem o doutor Augusto. Urgência, é com o Municipal."
+
+[sub_resource type="Resource" id="Dial_0"]
+script = ExtResource("8_chat")
+line = "Hospital São Lucas, recepção."
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_0_0"), SubResource("Dial_0_1")])
+
+[sub_resource type="Resource" id="Dial_1_0"]
+script = ExtResource("9_reply")
+text = "Não, é só uma informação."
+follow = "Então seja breve, que a linha é das famílias."
+
+[sub_resource type="Resource" id="Dial_1_1"]
+script = ExtResource("9_reply")
+text = "Vocês dão notícia de paciente por telefone?"
+follow = "Só para a família, e só se o médico deixar."
+
+[sub_resource type="Resource" id="Dial_1"]
+script = ExtResource("8_chat")
+line = "São Lucas. A senhora quer notícia de algum internado?"
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_1_0"), SubResource("Dial_1_1")])
 
 [resource]
 script = ExtResource("1_entry")
@@ -12,3 +44,4 @@ number = "213"
 voice = "f"
 hello = "Hospital São Lucas, recepção."
 motives = Array[ExtResource("2_motive")]([])
+answers = Array[ExtResource("8_chat")]([SubResource("Dial_0"), SubResource("Dial_1")])

@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
 [ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
 
 [sub_resource type="Resource" id="Motive_18"]
 script = ExtResource("2_motive")
@@ -13,6 +15,36 @@ script = ExtResource("2_motive")
 text = "Preciso de um remédio pra pressão."
 talks = Array[PackedStringArray]([PackedStringArray("Boa noite. Acabou o remédio de pressão do meu pai.", "Tem a receita? É qual remédio?", "Tenho a caixa vazia aqui. O médico deu receita pra seis meses.", "Então traz a caixa e a receita, que eu vejo.", "Ele toma às {hour}. Ainda dá tempo?", "Dá. Vem logo, que eu fecho a porta e atendo pela janela."), PackedStringArray("Boa noite. A pressão da minha mãe subiu. Tem remédio aí?", "Tenho, mas sem receita não posso vender. Ela já toma algum?", "Toma, mas acabou ontem. A receita está com ela.", "Então traz a receita. E mede a pressão de novo daqui a {wait}.", "E se continuar alta?", "Aí liga pro médico, ou pra central chamar o hospital.")])
 
+[sub_resource type="Resource" id="Dial_0_0"]
+script = ExtResource("9_reply")
+text = "Até que horas vocês ficam abertos?"
+follow = "Até as dez. Depois, só a Santa Rita, que está de plantão."
+
+[sub_resource type="Resource" id="Dial_0_1"]
+script = ExtResource("9_reply")
+text = "Tem remédio para dor de cabeça?"
+follow = "Tem, mas venha antes das dez, que o farmacêutico vai embora."
+
+[sub_resource type="Resource" id="Dial_0"]
+script = ExtResource("8_chat")
+line = "Farmácia Central, boa noite. Estamos fechando."
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_0_0"), SubResource("Dial_0_1")])
+
+[sub_resource type="Resource" id="Dial_1_0"]
+script = ExtResource("9_reply")
+text = "Vocês entregam em casa?"
+follow = "Só de dia, com o menino da bicicleta."
+
+[sub_resource type="Resource" id="Dial_1_1"]
+script = ExtResource("9_reply")
+text = "Quem é o farmacêutico hoje?"
+follow = "O seu Aurélio. Faz trinta anos que é ele."
+
+[sub_resource type="Resource" id="Dial_1"]
+script = ExtResource("8_chat")
+line = "Central, farmácia. Pois não, moça?"
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_1_0"), SubResource("Dial_1_1")])
+
 [resource]
 script = ExtResource("1_entry")
 name = "Farmácia Central"
@@ -22,3 +54,6 @@ hello = "Farmácia Central, boa noite."
 category = "farmácia"
 spoken = "a Farmácia Central"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_18"), SubResource("Motive_19")])
+answers = Array[ExtResource("8_chat")]([SubResource("Dial_0"), SubResource("Dial_1")])
+bye = "Boa noite. Melhoras para quem precisa."
+closes = 240.0

@@ -16,8 +16,8 @@ motor (o que o roteiro precisa e o jogo ainda não faz), depois o conteúdo, com
    demissão continua. Calibrado: igual ao commit anterior fora da noite 15.
    B1: 40% das ligações comuns sem fala do nome só dizem quando pedido (`ask_share`). B3 da noite 10 na delegacia
    (184, plantão, no lugar do Ivo Teixeira), no Hospital São Lucas (213, era a Clínica) e na Alta Cúpula (296, no lugar
-   da Rosa Lima); o código da noite vai no bilhete do supervisor. As reações de quem não tem o código ainda são de
-   teste (`b3_codigo.tres`, `reactions`).
+   da Rosa Lima); o código da noite vai no bilhete do supervisor. As reações de quem não tem o código estão escritas
+   (`b3_codigo.tres`, `reactions`).
 3. **Feito.** O fator sucesso (`scripts/model/rebellion.gd`, testado caminho a caminho em `tests/test_story.gd`):
 
    | Fato (marcador) | Pontos |

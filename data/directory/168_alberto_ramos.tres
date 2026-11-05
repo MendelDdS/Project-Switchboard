@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
 [ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
 
 [sub_resource type="Resource" id="Motive_47"]
 script = ExtResource("2_motive")
@@ -13,6 +15,36 @@ script = ExtResource("2_motive")
 text = "Preciso confirmar a viagem de amanhã."
 talks = Array[PackedStringArray]([PackedStringArray("Alberto? A viagem de amanhã está confirmada?", "Está. O ônibus sai às {dawn}, da rodoviária.", "Às {dawn}? Achei que era mais tarde.", "Mudaram o horário. Leva casaco, que na capital está frio.", "E os papéis do banco, ficam comigo?", "Ficam. Não esquece a pasta, senão a viagem é perdida."), PackedStringArray("Boa noite, Alberto. Vamos mesmo amanhã pra capital?", "Vamos. Eu passo aí de carro às {dawn}.", "De carro? E a estrada da serra, está boa?", "Melhorou. Passaram a máquina na semana passada.", "Então eu levo o lanche pra viagem.", "Leva, e garrafa de café. Volta só de noite.")])
 
+[sub_resource type="Resource" id="Dial_0_0"]
+script = ExtResource("9_reply")
+text = "É da central. Estamos testando a linha."
+follow = "Pois está boa. Viajo cedo amanhã, então não me liguem tarde."
+
+[sub_resource type="Resource" id="Dial_0_1"]
+script = ExtResource("9_reply")
+text = "O senhor viaja amanhã?"
+follow = "Para a capital, no primeiro ônibus. Negócio da loja."
+
+[sub_resource type="Resource" id="Dial_0"]
+script = ExtResource("8_chat")
+line = "Alô, Alberto Ramos. Quem fala?"
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_0_0"), SubResource("Dial_0_1")])
+
+[sub_resource type="Resource" id="Dial_1_0"]
+script = ExtResource("9_reply")
+text = "Não é o seu sócio, é a central."
+follow = "Melhor assim. Ele só liga para dar notícia ruim."
+
+[sub_resource type="Resource" id="Dial_1_1"]
+script = ExtResource("9_reply")
+text = "Desculpe, foi engano."
+follow = "Engano a essa hora... Boa noite, então."
+
+[sub_resource type="Resource" id="Dial_1"]
+script = ExtResource("8_chat")
+line = "Alô? Se for o meu sócio, diga que eu já fui dormir."
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_1_0"), SubResource("Dial_1_1")])
+
 [resource]
 script = ExtResource("1_entry")
 name = "Alberto Ramos"
@@ -21,3 +53,5 @@ number = "168"
 voice = "m"
 spoken = "o seu Alberto Ramos"
 motives = Array[ExtResource("2_motive")]([SubResource("Motive_47"), SubResource("Motive_48")])
+answers = Array[ExtResource("8_chat")]([SubResource("Dial_0"), SubResource("Dial_1")])
+closes = 270.0

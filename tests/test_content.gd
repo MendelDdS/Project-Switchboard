@@ -262,10 +262,10 @@ func _initialize() -> void:
 		ok(t.line != "" and t.replies.all(func(r: ChatReply): return r.text != "" and r.follow != "")
 			and t.replies.any(func(r): return r.tone == ChatReply.Tone.WARM) and t.replies.any(func(r): return r.tone == ChatReply.Tone.CURT),
 			"assunto com resposta simpática e seca: " + t.line)
-	# o discador (`Dialing`): todo número de Vila Serena atende quem liga da central (os outros setores, ainda não), cada
+	# o discador (`Dialing`): todo número da cidade atende quem liga da central (as centrais, 001 e 002, à parte), cada
 	# atendimento com a fala e as perguntas com resposta; as ligações do roteiro num número da cidade, com o roteiro
 	for e in C.directory:
-		if e.number.begins_with("3") and not e.dispatch_only:
+		if not e.number.begins_with("0") and not e.dispatch_only:
 			ok(not e.answers.is_empty(), "o discador: %s atende quem liga da central" % e.name)
 		for t in e.answers:
 			ok(t.line != "" and not t.replies.is_empty() and t.replies.all(func(r: ChatReply): return r.text != "" and r.follow != ""),

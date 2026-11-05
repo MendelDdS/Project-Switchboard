@@ -23,7 +23,7 @@ O deste plano não transfere nada: só faz as ligações do próprio operador. T
    jogador clica nas teclas. Nada de teclado do computador.
 5. **O teclado antigo (item 2 do HISTORICO):** fica de fora; este novo pode ser testado e ajustado.
 
-**Estado:** fases 1 a 4 implementadas (abaixo, o plano com essas decisões aplicadas).
+**Estado:** fases 1 a 4 implementadas; em 05/11/2026 a fase 3 chegou ao Centro e ao Alto da Serra (todo número da cidade atende, menos os do despacho) (abaixo, o plano com essas decisões aplicadas).
 
 ---
 
@@ -44,7 +44,7 @@ O deste plano não transfere nada: só faz as ligações do próprio operador. T
    - número de um setor que o operador não atende: "NÃO COMPLETA";
    - tronco interurbano (9xx): "USE O TRONCO";
    - polícia, bombeiros e hospital (`dispatch_only`): "USE O DESPACHO";
-   - número sem conversa escrita: toca até "NÃO ATENDE". Fase 3 fecha isso no setor escolhido: lá, todo número atende.
+   - número sem conversa escrita: toca até "NÃO ATENDE". A fase 3 fechou isso: todo número da cidade atende (o Armazém Ferreira, 288, não depois de `fita_armas_entregue`).
 6. **Durante a ligação:**
    - Atender, Transferir e Escutar ficam apagadas;
    - Desligar do console faz o mesmo que Encerrar;

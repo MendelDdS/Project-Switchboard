@@ -186,11 +186,11 @@ Ordem sugerida: das que reaproveitam mais (o rig, a viatura, a passada) para as 
   chuva e névoa; `build/presa.gif`.
 - [ ] Aprovação do usuário.
 
-## 4. Fechando cada cena
-- [ ] Opção na captura (`tools/shot.gd`) e botão no F1.
-- [ ] `test_content` cobre a hora e a noite; `tests/run.sh` inteiro.
-- [ ] Item no `HISTORICO.md`, a linha da cena no `scripts/ui/CLAUDE.md` e, se mudar a regra, no `CLAUDE.md`.
-- [ ] Aprovação do usuário antes da próxima cena.
+## 4. Fechando cada cena (a lista de cada cena nova, não pendência)
+- Opção na captura (`tools/shot.gd`) e botão no F1.
+- `test_content` cobre a hora e a noite; `tests/run.sh` inteiro.
+- Item no `HISTORICO.md`, a linha da cena no `scripts/ui/CLAUDE.md` e, se mudar a regra, no `CLAUDE.md`.
+- Aprovação do usuário antes da próxima cena.
 
 ## 5. Decisões em aberto
 - (decidido: a banca fica fechada até o fim do jogo; a pichação é de letras inventadas, sem texto)

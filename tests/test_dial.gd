@@ -174,9 +174,10 @@ func _initialize() -> void:
 	d.dial()
 	ok(d.call != null and d.call.data != story, "feita, o número volta ao de sempre")
 	var done := {}   # as de dentro de uma noite: uma feita não cala as outras
-	for dc: DialCall in (load("res://data/nights/night_15.tres") as Night).dial:
+	var dials := (load("res://data/nights/night_15.tres") as Night).dial
+	for dc: DialCall in dials:
 		done[dc.done_flag()] = true
-	ok(done.size() == 5 and done.has("discou_night_15_D_ser"), "o marcador do feito é de cada ligação: %s" % [done.keys()])
+	ok(done.size() == dials.size() and done.has("discou_night_15_D_ser"), "o marcador do feito é de cada ligação: %s" % [done.keys()])
 	d.hang_up()
 	m.night.dial.erase(story)
 	finish("discador")

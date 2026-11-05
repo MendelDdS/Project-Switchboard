@@ -3405,3 +3405,10 @@ Chaves:
 551. #vista #rua "Quando o homem vai estender a bandeira na varanda, dá pra ver os pés dele atravessando o chão": visto
     de baixo, quem anda na varanda tem os pés abaixo da beira da laje; agora cortados nela (`_slab_clip`), também o
     fumante e quem esvazia o apartamento. A captura ganhou `--banner=t`.
+552. #discador #documentos "Faça 4 e correção nos documentos": o discador chega ao Centro e ao Alto da Serra: os 23
+    números de lá (fora os do despacho) atendem quem liga da central, dois atendimentos cada, com duas perguntas e a
+    despedida, e a hora de fechar dos que fecham (a secretaria da Matriz às 20h, a mercearia e o sítio às 21h...); o
+    Armazém Ferreira deixa de atender depois de `fita_armas_entregue` (o armazém caiu). Rascunho para revisar, com en e
+    es. O `test_content` cobra todos os setores; o `test_dial` contava 5 ligações do discador na noite 15 (são 6). Os
+    documentos deixam de dizer que as noites 3–15 são genéricas e que as reações da B3 são de teste; a lista do fim de
+    cada cena no `PLANO_RUA.md` deixa de parecer pendência.

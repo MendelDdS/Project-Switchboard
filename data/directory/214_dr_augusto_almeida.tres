@@ -2,6 +2,38 @@
 
 [ext_resource type="Script" path="res://scripts/data/directory_entry.gd" id="1_entry"]
 [ext_resource type="Script" path="res://scripts/data/motive.gd" id="2_motive"]
+[ext_resource type="Script" path="res://scripts/data/chat_topic.gd" id="8_chat"]
+[ext_resource type="Script" path="res://scripts/data/chat_reply.gd" id="9_reply"]
+
+[sub_resource type="Resource" id="Dial_0_0"]
+script = ExtResource("9_reply")
+text = "Não, doutor. É só a central testando a linha."
+follow = "Então desliga, minha filha, que eu estou no meio da ronda."
+
+[sub_resource type="Resource" id="Dial_0_1"]
+script = ExtResource("9_reply")
+text = "O senhor está de plantão hoje?"
+follow = "Hoje, amanhã e depois. O outro médico foi embora da cidade."
+
+[sub_resource type="Resource" id="Dial_0"]
+script = ExtResource("8_chat")
+line = "Doutor Augusto. É emergência?"
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_0_0"), SubResource("Dial_0_1")])
+
+[sub_resource type="Resource" id="Dial_1_0"]
+script = ExtResource("9_reply")
+text = "Não é da enfermaria, é da central."
+follow = "Ah. Pensei que fosse a irmã Luzia. Boa noite."
+
+[sub_resource type="Resource" id="Dial_1_1"]
+script = ExtResource("9_reply")
+text = "Desculpe incomodar, doutor."
+follow = "Incômodo é parte do ofício. Boa noite."
+
+[sub_resource type="Resource" id="Dial_1"]
+script = ExtResource("8_chat")
+line = "Alô, Augusto. Se for da enfermaria, já estou descendo."
+replies = Array[ExtResource("9_reply")]([SubResource("Dial_1_0"), SubResource("Dial_1_1")])
 
 [resource]
 script = ExtResource("1_entry")
@@ -10,3 +42,4 @@ address = "Rua das Palmeiras, 85"
 number = "214"
 voice = "m"
 motives = Array[ExtResource("2_motive")]([])
+answers = Array[ExtResource("8_chat")]([SubResource("Dial_0"), SubResource("Dial_1")])
