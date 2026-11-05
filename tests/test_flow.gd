@@ -1505,8 +1505,8 @@ func _initialize() -> void:
 	ok(await wait_until(func(): return 3 in b._draped.get(1, []) and b.ropes[3].asleep(), 10.0), "o fio enganchado no plug de baixo corre por cima dele e dorme")
 	b.go_home(1)
 	b.go_home(3)
-	# ---- 18b. a ligação comum que vira emergência no meio do pedido (`TransferCall.turns`) e quem volta a ligar
-	# (`StoryCall.callback`)
+	# ---- 18b. a ligação comum que vira emergência com a transferência demorando (`TransferCall.turns`) e quem volta a
+	# ligar (`StoryCall.callback`)
 	m.drop_all()
 	var clock := m.minutes   # (as conversas andam o relógio: o resto do teste conta com ele antes do fim do turno)
 	m.minutes = 60.0   # (às 19h: perto da última ligação, o retorno ficaria para logo antes dela)
@@ -1515,12 +1515,26 @@ func _initialize() -> void:
 	m.ring(vc)
 	_move(0, vc.line)
 	m.answer()
+	ok(await wait_until(_awaiting(vc), 20.0) and vc.kind == PhoneCall.Kind.TRANSFER, "virada: feito o pedido, ainda é ligação comum")
 	ok(await wait_until(func(): return vc.phase == PhoneCall.Phase.EMERGENCY, 40.0) and vc.kind == PhoneCall.Kind.EMERGENCY
-		and vc.data == tv.turns and vc in m.emergencies, "virada: depois do pedido, a ligação vira a emergência dela, no despacho e na barra")
+		and vc.data == tv.turns and vc in m.emergencies, "virada: com a transferência demorando, vira a emergência dela, no despacho e na barra")
 	m.conversation.emergency_dispatched(vc)
 	ok(await wait_until(func(): return vc.ended, 40.0) and vc.record.kind == PhoneCall.Kind.EMERGENCY
 		and vc.transcript.any(func(l: Dictionary): return l["text"] == tr(tv.turns.after)),
 		"virada: com o socorro, ela se despede dispensando a transferência e vai ao caderno como emergência")
+	var qc := PhoneCall.from_transfer(tv)   # transferida antes de virar: fica ligação comum
+	m.ring(qc)
+	_move(0, qc.line)
+	m.answer()
+	ok(await wait_until(_awaiting(qc), 20.0), "virada: pedido feito")
+	_move(1, qc.line + 10)
+	_move(2, int(tv.target))
+	m.transfer()
+	ok(await wait_until(func(): return qc.connected, 30.0) and qc.kind == PhoneCall.Kind.TRANSFER and not qc in m.emergencies,
+		"virada: transferida antes, conecta como ligação comum")
+	m.drop_all()
+	_move(1, -1)
+	_move(2, -1)
 	var back := StoryCall.new()
 	back.call = load("res://data/calls/noite_07_raimundo_padre.tres")
 	back.requires = ["teste_volta"]

@@ -3353,3 +3353,13 @@ Chaves:
     padre; cortada: pede a delegacia de novo). O robô do `test_shift` espera as viaturas voltarem em vez de mandar
     cartão em branco (a virada pode chegar logo depois de outra emergência). O tipo 3 (emergência que parece trote)
     ficou para depois.
+539. #ligacoes #conteudo A despedida do homem do táxi (noite 7, a briga no bar) passou de "Vou ficar aqui e ajudar o
+    rapaz!" para "Vou ficar aqui e ver no que posso auxiliar.": o usuário apontou que soava como se ele fosse entrar na
+    briga.
+540. #ligacoes #conteudo As despedidas das três ligações que viram emergência perderam o "Tô ouvindo a sirene" (táxi,
+    irmã) e o "Os bombeiros chegaram" (doutor): o usuário apontou que, logo depois do despacho, o socorro chegaria
+    rápido demais.
+541. #ligacoes #emergencia A ligação que vira emergência (`TransferCall.turns`) não vira mais logo depois do pedido:
+    como a conversa fiada, só se a transferência demora (`Main._nag`, `SMALLTALK_AFTER`, `Conversation.turn`), e
+    então o tipo muda na hora, de comum para emergência. Transferida antes, fica ligação comum (pedido do usuário). Não
+    vira com duas emergências em andamento (`MAX_EMERGENCIES`): ela espera.

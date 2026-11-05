@@ -6484,8 +6484,8 @@ msgid "Não vi arma, não. É só soco e pontapé."
 msgstr "I didn't see any weapon. Just fists and kicks."
 
 #: data/calls/noite_07_taxi_briga.tres
-msgid "Tô ouvindo a sirene. Moça, não precisa mais transferir pro ponto de táxi. Vou ficar aqui e ajudar o rapaz!"
-msgstr "I can hear the siren. Miss, no need to put me through to the taxi stand anymore. I'm staying to help the kid!"
+msgid "Moça, não precisa mais transferir pro ponto de táxi. Vou ficar aqui e ver no que posso auxiliar."
+msgstr "Miss, no need to put me through to the taxi stand anymore. I'll stay here and see how I can help."
 
 #: data/calls/noite_07_taxi_briga.tres
 msgid "Derrubaram o rapaz no chão! Tão chutando ele!"
@@ -7468,8 +7468,8 @@ msgid "Tá gemendo... levou no braço, tá sangrando muito!"
 msgstr "He's moaning... he got hit in the arm, he's bleeding a lot!"
 
 #: data/calls/noite_09_irma_tiros.tres
-msgid "Tô ouvindo a sirene... Moça, esquece a minha irmã. Eu vou com ele pro hospital."
-msgstr "I can hear the siren... Miss, forget my sister. I'm going with him to the hospital."
+msgid "Moça, esquece a minha irmã. Eu vou com ele pro hospital."
+msgstr "Miss, forget my sister. I'm going with him to the hospital."
 
 #: data/calls/noite_09_irma_tiros.tres
 msgid "Ele tá ficando branco, moça... o sangue não para!"
@@ -8223,42 +8223,6 @@ msgstr "The girl with the yellow ribbon. He'll know."
 msgid "Vai ao ar depois do noticiário, moça. Melhoras pra ele."
 msgstr "It goes on after the news, miss. I hope he gets better."
 
-#: data/calls/noite_12_recompensa.tres
-msgid "Seu Gilberto"
-msgstr "Seu Gilberto"
-
-#: data/calls/noite_12_recompensa.tres
-msgid "Quero saber se tem mesa livre amanhã."
-msgstr "I want to know if there's a free table tomorrow."
-
-#: data/calls/noite_12_recompensa.tres
-msgid "O bilhar do Tonho, moça."
-msgstr "Tonho's billiard hall, miss."
-
-#: data/calls/noite_12_recompensa.tres
-msgid "Tonho? É o Gilberto. Viu a recompensa no jornal?"
-msgstr "Tonho? It's Gilberto. Seen the reward in the paper?"
-
-#: data/calls/noite_12_recompensa.tres
-msgid "Vi. Dinheiro pra comprar uma casa."
-msgstr "I have. Enough money to buy a house."
-
-#: data/calls/noite_12_recompensa.tres
-msgid "Tem gente aqui que entrega a mãe por menos."
-msgstr "There are people round here who'd turn in their own mother for less."
-
-#: data/calls/noite_12_recompensa.tres
-msgid "Por isso eu não conheço ninguém. Nem você, Gilberto."
-msgstr "That's why I don't know anyone. Not even you, Gilberto."
-
-#: data/calls/noite_12_recompensa.tres
-msgid "Nem eu me conheço, Tonho. Guarda a mesa das oito?"
-msgstr "I don't even know myself, Tonho. Keep the eight o'clock table for me?"
-
-#: data/calls/noite_12_recompensa.tres
-msgid "Guardo. Mas às oito e meia eu fecho, por causa do toque."
-msgstr "I will. But I close at half past eight, because of the curfew."
-
 #: data/calls/noite_12_parente.tres
 msgid "Dona Helena"
 msgstr "Dona Helena"
@@ -8344,8 +8308,8 @@ msgid "Ainda não, é só na cozinha dela. Mas tá subindo!"
 msgstr "Not yet, it's just her kitchen. But it's climbing!"
 
 #: data/calls/noite_12_doutor_fogo.tres
-msgid "Os bombeiros chegaram. Moça, deixa o doutor pra depois, a febre da minha mulher espera. Vou ajudar com os baldes!"
-msgstr "The firemen are here. Miss, the doctor can wait, so can my wife's fever. I'm going to help with the buckets!"
+msgid "Moça, deixa o doutor pra depois, a febre da minha mulher espera. Vou ajudar com os baldes!"
+msgstr "Miss, the doctor can wait, so can my wife's fever. I'm going to help with the buckets!"
 
 #: data/calls/noite_12_doutor_fogo.tres
 msgid "O fogo pegou no telhado! Tá caindo telha!"
@@ -8378,6 +8342,42 @@ msgstr "The house fell in, miss. There's nothing left."
 #: data/calls/noite_12_doutor_fogo.tres
 msgid "A vizinha desmaiou com a fumaça! Precisa de ambulância!"
 msgstr "My neighbor passed out from the smoke! She needs an ambulance!"
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Seu Gilberto"
+msgstr "Seu Gilberto"
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Quero saber se tem mesa livre amanhã."
+msgstr "I want to know if there's a free table tomorrow."
+
+#: data/calls/noite_12_recompensa.tres
+msgid "O bilhar do Tonho, moça."
+msgstr "Tonho's billiard hall, miss."
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Tonho? É o Gilberto. Viu a recompensa no jornal?"
+msgstr "Tonho? It's Gilberto. Seen the reward in the paper?"
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Vi. Dinheiro pra comprar uma casa."
+msgstr "I have. Enough money to buy a house."
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Tem gente aqui que entrega a mãe por menos."
+msgstr "There are people round here who'd turn in their own mother for less."
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Por isso eu não conheço ninguém. Nem você, Gilberto."
+msgstr "That's why I don't know anyone. Not even you, Gilberto."
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Nem eu me conheço, Tonho. Guarda a mesa das oito?"
+msgstr "I don't even know myself, Tonho. Keep the eight o'clock table for me?"
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Guardo. Mas às oito e meia eu fecho, por causa do toque."
+msgstr "I will. But I close at half past eight, because of the curfew."
 
 #: data/nights/night_12.tres
 msgid "Cartazes da recompensa na estação."

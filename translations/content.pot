@@ -6483,7 +6483,7 @@ msgid "Não vi arma, não. É só soco e pontapé."
 msgstr ""
 
 #: data/calls/noite_07_taxi_briga.tres
-msgid "Tô ouvindo a sirene. Moça, não precisa mais transferir pro ponto de táxi. Vou ficar aqui e ajudar o rapaz!"
+msgid "Moça, não precisa mais transferir pro ponto de táxi. Vou ficar aqui e ver no que posso auxiliar."
 msgstr ""
 
 #: data/calls/noite_07_taxi_briga.tres
@@ -7467,7 +7467,7 @@ msgid "Tá gemendo... levou no braço, tá sangrando muito!"
 msgstr ""
 
 #: data/calls/noite_09_irma_tiros.tres
-msgid "Tô ouvindo a sirene... Moça, esquece a minha irmã. Eu vou com ele pro hospital."
+msgid "Moça, esquece a minha irmã. Eu vou com ele pro hospital."
 msgstr ""
 
 #: data/calls/noite_09_irma_tiros.tres
@@ -8222,42 +8222,6 @@ msgstr ""
 msgid "Vai ao ar depois do noticiário, moça. Melhoras pra ele."
 msgstr ""
 
-#: data/calls/noite_12_recompensa.tres
-msgid "Seu Gilberto"
-msgstr ""
-
-#: data/calls/noite_12_recompensa.tres
-msgid "Quero saber se tem mesa livre amanhã."
-msgstr ""
-
-#: data/calls/noite_12_recompensa.tres
-msgid "O bilhar do Tonho, moça."
-msgstr ""
-
-#: data/calls/noite_12_recompensa.tres
-msgid "Tonho? É o Gilberto. Viu a recompensa no jornal?"
-msgstr ""
-
-#: data/calls/noite_12_recompensa.tres
-msgid "Vi. Dinheiro pra comprar uma casa."
-msgstr ""
-
-#: data/calls/noite_12_recompensa.tres
-msgid "Tem gente aqui que entrega a mãe por menos."
-msgstr ""
-
-#: data/calls/noite_12_recompensa.tres
-msgid "Por isso eu não conheço ninguém. Nem você, Gilberto."
-msgstr ""
-
-#: data/calls/noite_12_recompensa.tres
-msgid "Nem eu me conheço, Tonho. Guarda a mesa das oito?"
-msgstr ""
-
-#: data/calls/noite_12_recompensa.tres
-msgid "Guardo. Mas às oito e meia eu fecho, por causa do toque."
-msgstr ""
-
 #: data/calls/noite_12_parente.tres
 msgid "Dona Helena"
 msgstr ""
@@ -8343,7 +8307,7 @@ msgid "Ainda não, é só na cozinha dela. Mas tá subindo!"
 msgstr ""
 
 #: data/calls/noite_12_doutor_fogo.tres
-msgid "Os bombeiros chegaram. Moça, deixa o doutor pra depois, a febre da minha mulher espera. Vou ajudar com os baldes!"
+msgid "Moça, deixa o doutor pra depois, a febre da minha mulher espera. Vou ajudar com os baldes!"
 msgstr ""
 
 #: data/calls/noite_12_doutor_fogo.tres
@@ -8376,6 +8340,42 @@ msgstr ""
 
 #: data/calls/noite_12_doutor_fogo.tres
 msgid "A vizinha desmaiou com a fumaça! Precisa de ambulância!"
+msgstr ""
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Seu Gilberto"
+msgstr ""
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Quero saber se tem mesa livre amanhã."
+msgstr ""
+
+#: data/calls/noite_12_recompensa.tres
+msgid "O bilhar do Tonho, moça."
+msgstr ""
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Tonho? É o Gilberto. Viu a recompensa no jornal?"
+msgstr ""
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Vi. Dinheiro pra comprar uma casa."
+msgstr ""
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Tem gente aqui que entrega a mãe por menos."
+msgstr ""
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Por isso eu não conheço ninguém. Nem você, Gilberto."
+msgstr ""
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Nem eu me conheço, Tonho. Guarda a mesa das oito?"
+msgstr ""
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Guardo. Mas às oito e meia eu fecho, por causa do toque."
 msgstr ""
 
 #: data/nights/night_12.tres

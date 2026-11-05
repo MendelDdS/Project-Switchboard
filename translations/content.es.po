@@ -6484,8 +6484,8 @@ msgid "Não vi arma, não. É só soco e pontapé."
 msgstr "No vi armas, no. Son puños y patadas."
 
 #: data/calls/noite_07_taxi_briga.tres
-msgid "Tô ouvindo a sirene. Moça, não precisa mais transferir pro ponto de táxi. Vou ficar aqui e ajudar o rapaz!"
-msgstr "Ya oigo la sirena. Señorita, ya no hace falta pasarme con la parada de taxis. ¡Me quedo a ayudar al muchacho!"
+msgid "Moça, não precisa mais transferir pro ponto de táxi. Vou ficar aqui e ver no que posso auxiliar."
+msgstr "Señorita, ya no hace falta pasarme con la parada de taxis. Me quedo aquí a ver en qué puedo ayudar."
 
 #: data/calls/noite_07_taxi_briga.tres
 msgid "Derrubaram o rapaz no chão! Tão chutando ele!"
@@ -7468,8 +7468,8 @@ msgid "Tá gemendo... levou no braço, tá sangrando muito!"
 msgstr "Está gimiendo... le dieron en el brazo, ¡sangra mucho!"
 
 #: data/calls/noite_09_irma_tiros.tres
-msgid "Tô ouvindo a sirene... Moça, esquece a minha irmã. Eu vou com ele pro hospital."
-msgstr "Ya oigo la sirena... Señorita, olvide a mi hermana. Me voy con él al hospital."
+msgid "Moça, esquece a minha irmã. Eu vou com ele pro hospital."
+msgstr "Señorita, olvide a mi hermana. Me voy con él al hospital."
 
 #: data/calls/noite_09_irma_tiros.tres
 msgid "Ele tá ficando branco, moça... o sangue não para!"
@@ -8223,42 +8223,6 @@ msgstr "La muchacha de la cinta amarilla. Él sabe."
 msgid "Vai ao ar depois do noticiário, moça. Melhoras pra ele."
 msgstr "Sale al aire después del noticiero, señorita. Que se mejore."
 
-#: data/calls/noite_12_recompensa.tres
-msgid "Seu Gilberto"
-msgstr "Seu Gilberto"
-
-#: data/calls/noite_12_recompensa.tres
-msgid "Quero saber se tem mesa livre amanhã."
-msgstr "Quiero saber si hay mesa libre mañana."
-
-#: data/calls/noite_12_recompensa.tres
-msgid "O bilhar do Tonho, moça."
-msgstr "El billar de Tonho, señorita."
-
-#: data/calls/noite_12_recompensa.tres
-msgid "Tonho? É o Gilberto. Viu a recompensa no jornal?"
-msgstr "¿Tonho? Soy Gilberto. ¿Viste la recompensa en el diario?"
-
-#: data/calls/noite_12_recompensa.tres
-msgid "Vi. Dinheiro pra comprar uma casa."
-msgstr "La vi. Plata para comprar una casa."
-
-#: data/calls/noite_12_recompensa.tres
-msgid "Tem gente aqui que entrega a mãe por menos."
-msgstr "Hay gente aquí que entrega a la madre por menos."
-
-#: data/calls/noite_12_recompensa.tres
-msgid "Por isso eu não conheço ninguém. Nem você, Gilberto."
-msgstr "Por eso no conozco a nadie. Ni a ti, Gilberto."
-
-#: data/calls/noite_12_recompensa.tres
-msgid "Nem eu me conheço, Tonho. Guarda a mesa das oito?"
-msgstr "Ni yo me conozco, Tonho. ¿Me guardas la mesa de las ocho?"
-
-#: data/calls/noite_12_recompensa.tres
-msgid "Guardo. Mas às oito e meia eu fecho, por causa do toque."
-msgstr "Te la guardo. Pero a las ocho y media cierro, por el toque de queda."
-
 #: data/calls/noite_12_parente.tres
 msgid "Dona Helena"
 msgstr "Dona Helena"
@@ -8344,8 +8308,8 @@ msgid "Ainda não, é só na cozinha dela. Mas tá subindo!"
 msgstr "Todavía no, es solo su cocina. ¡Pero está subiendo!"
 
 #: data/calls/noite_12_doutor_fogo.tres
-msgid "Os bombeiros chegaram. Moça, deixa o doutor pra depois, a febre da minha mulher espera. Vou ajudar com os baldes!"
-msgstr "Llegaron los bomberos. Señorita, el doctor puede esperar, la fiebre de mi mujer también. ¡Voy a ayudar con los baldes!"
+msgid "Moça, deixa o doutor pra depois, a febre da minha mulher espera. Vou ajudar com os baldes!"
+msgstr "Señorita, el doctor puede esperar, la fiebre de mi mujer también. ¡Voy a ayudar con los baldes!"
 
 #: data/calls/noite_12_doutor_fogo.tres
 msgid "O fogo pegou no telhado! Tá caindo telha!"
@@ -8378,6 +8342,42 @@ msgstr "La casa se vino abajo, señorita. No quedó nada."
 #: data/calls/noite_12_doutor_fogo.tres
 msgid "A vizinha desmaiou com a fumaça! Precisa de ambulância!"
 msgstr "¡La vecina se desmayó por el humo! ¡Necesita una ambulancia!"
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Seu Gilberto"
+msgstr "Seu Gilberto"
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Quero saber se tem mesa livre amanhã."
+msgstr "Quiero saber si hay mesa libre mañana."
+
+#: data/calls/noite_12_recompensa.tres
+msgid "O bilhar do Tonho, moça."
+msgstr "El billar de Tonho, señorita."
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Tonho? É o Gilberto. Viu a recompensa no jornal?"
+msgstr "¿Tonho? Soy Gilberto. ¿Viste la recompensa en el diario?"
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Vi. Dinheiro pra comprar uma casa."
+msgstr "La vi. Plata para comprar una casa."
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Tem gente aqui que entrega a mãe por menos."
+msgstr "Hay gente aquí que entrega a la madre por menos."
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Por isso eu não conheço ninguém. Nem você, Gilberto."
+msgstr "Por eso no conozco a nadie. Ni a ti, Gilberto."
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Nem eu me conheço, Tonho. Guarda a mesa das oito?"
+msgstr "Ni yo me conozco, Tonho. ¿Me guardas la mesa de las ocho?"
+
+#: data/calls/noite_12_recompensa.tres
+msgid "Guardo. Mas às oito e meia eu fecho, por causa do toque."
+msgstr "Te la guardo. Pero a las ocho y media cierro, por el toque de queda."
 
 #: data/nights/night_12.tres
 msgid "Cartazes da recompensa na estação."

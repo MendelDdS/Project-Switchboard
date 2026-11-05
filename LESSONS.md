@@ -968,3 +968,14 @@ conferência do editor tem de bloquear o comando (`pgrep ... || Godot --import`)
 Disse que a noite 8 tinha 12 ligações do roteiro contando as entradas do `.tres`; quase todas eram versões que se
 excluem pelo `requires` (bar avisado ou não, três do hotel). Numa partida tocam ~6. Para falar de ritmo ou densidade,
 agrupe as entradas por horário e conte uma por grupo.
+
+## Despedida de quem liga: o que uma pessoa comum faria de verdade
+Escrevi o homem do táxi se despedindo com "vou ficar aqui e ajudar o rapaz", e ele estava vendo quatro baterem num
+rapaz: soa como se ele fosse entrar na briga. Passou a "vou ficar aqui e ver no que posso auxiliar". Ao escrever a
+reação de quem presencia a emergência, confira se a frase descreve um gesto plausível e seguro para aquela pessoa,
+não um heroísmo que a cena não sustenta.
+
+## A despedida do despacho não ouve a sirene
+Escrevi as despedidas das ligações que viram emergência com "Tô ouvindo a sirene" e "Os bombeiros chegaram": a pessoa
+fala logo depois do despacho, e o socorro chegando ali é rápido demais. O `after` de uma emergência é dito na hora em
+que as unidades saem: nada de chegada, sirene ou socorro já no local.

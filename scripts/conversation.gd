@@ -183,10 +183,6 @@ func _transfer(c: PhoneCall) -> void:
 	for l in t.opening:
 		if not await say(c, l):
 			return
-	if t.turns != null:   # algo acontece onde ela está: a ligação vira emergência no meio do pedido
-		main.turn_emergency(c)
-		await _emergency_talk(c, 0.8)
-		return
 	if not await main.bureaucracy.request_made(c):   # o que as burocracias pedem depois do pedido (o código...)
 		return
 	# a conversa fiada vem depois, se o operador demorar (Main._nag)
@@ -194,6 +190,13 @@ func _transfer(c: PhoneCall) -> void:
 	c.state_changed.emit()
 	main.on_transfer_waiting(c)
 	transfer_choices(c)
+
+
+## A que vira emergência (`TransferCall.turns`), esperando a transferência sem ela sair (`Main._nag`, no lugar da
+## conversa fiada): algo acontece onde ela está, e dali em diante é emergência.
+func turn(c: PhoneCall) -> void:
+	main.turn_emergency(c)
+	await _emergency_talk(c, 0.0)
 
 
 func transfer_choices(c: PhoneCall) -> void:

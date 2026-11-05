@@ -478,7 +478,11 @@ func _nag() -> void:
 	if f.kind == PhoneCall.Kind.TRANSFER and f.phase == PhoneCall.Phase.AWAIT:
 		if _transferred(f):   # o destino está tocando ou atendeu: ela espera quieta
 			return
-		if not f.chatted and quiet > SMALLTALK_AFTER:
+		var turns: bool = f.data is TransferCall and f.data.turns != null   # (transferida antes, fica ligação comum)
+		if turns and quiet > SMALLTALK_AFTER and in_progress().size() < MAX_EMERGENCIES:
+			f.last_talk = talk_clock
+			conversation.turn(f)
+		elif not turns and not f.chatted and quiet > SMALLTALK_AFTER:
 			f.chatted = true
 			if randf() < SMALLTALK_CHANCE:
 				f.last_talk = talk_clock
@@ -1053,8 +1057,8 @@ func _open_emergency(c: PhoneCall) -> void:
 	dispatch.set_incident(c.data, c.told)
 
 
-## O pedido de transferência `c` vira a emergência do roteiro dele (`TransferCall.turns`, chamado pela conversa no
-## meio do pedido): dali em diante é emergência como as outras.
+## O pedido de transferência `c` vira a emergência do roteiro dele (`TransferCall.turns`; `Conversation.turn`, com a
+## transferência demorando): dali em diante é emergência como as outras.
 func turn_emergency(c: PhoneCall) -> void:
 	c.kind = PhoneCall.Kind.EMERGENCY
 	c.data = (c.data as TransferCall).turns
