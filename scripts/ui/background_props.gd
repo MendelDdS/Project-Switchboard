@@ -494,32 +494,29 @@ func _draw_calculograph(x0: float, zf: float) -> void:
 	if box.has("front"):
 		var f := PixelArt.bounds(box["front"])
 		f = Rect2(f.position.round(), f.size.round())
-		var win := Rect2(f.position.x + 3.0, f.position.y + 2.0, roundf(f.size.x * 0.76) - 3.0, 0)   # o visor, como o da aberta (`Toll._screen`)
+		var win := Rect2(f.position.x + 3.0, f.position.y + 2.0, f.size.x - 6.0, 0)   # o visor na frente toda, como o da aberta (`Toll._screen`)
 		var cell := Vector2(floorf(win.size.x / 5.0), maxf(floorf((f.size.y - 7.0) / 2.0), 1.0))   # (sem tela, no primeiro desenho, a frente tem 1 px)
 		win.size.y = cell.y * 2.0
 		_ci.draw_rect(win, tone.call(Pal.BOARD_INSET))
-		for n in range(1, Exchange.LINES + 1):
-			var o := win.position + Vector2((n - 1) % 5, (n - 1) / 5) * cell + Vector2(0, roundf(cell.y / 2.0) - 1.0)
+		for n in range(1, Exchange.LINES + 1):   # cada contador como o da aberta, em escala: plaquinha, tambores e lâmpada, no meio da célula
+			var o := win.position + Vector2((n - 1) % 5, (n - 1) / 5) * cell + Vector2(floorf((win.size.x - cell.x * 4.0 - 16.0) / 2.0), roundf(cell.y / 2.0) - 1.0)
 			var on := (counting & (1 << n)) != 0
-			_ci.draw_rect(Rect2(o + Vector2(1, 0), Vector2(2, 2)), tone.call(Pal.BOARD_TAG))   # a plaquinha da entrada
-			_ci.draw_rect(Rect2(o + Vector2(4, 0), Vector2(cell.x - 8.0, 2)), tone.call(Pal.SHEET_NEW if on else Pal.BOARD_METAL[4]))   # os tambores
-			var led := Rect2(o + Vector2(cell.x - 3.0, 0), Vector2(2, 2))
-			_ci.draw_rect(led, Pal.AMBER if on else Pal.AMBER.darkened(0.75))
+			_ci.draw_rect(Rect2(o, Vector2(5, 2)), tone.call(Pal.BOARD_TAG))   # a plaquinha da entrada
+			_ci.draw_rect(Rect2(o + Vector2(6, 0), Vector2(7, 2)), tone.call(Pal.INK))   # os tambores, escuros, com os algarismos
+			for i in 3:
+				_ci.draw_rect(Rect2(o + Vector2(7 + i * 2, 0), Vector2(1, 2)), tone.call(Pal.TEXT if on else Pal.INK_SOFT))
+			var led := Rect2(o + Vector2(14, 0), Vector2(2, 2))
+			_ci.draw_rect(led, Pal.AMBER if on else tone.call(Pal.LAMP_GLASS))   # apagada, o vidro, como a `CardMachines.led`
 			if on:
 				_light(led, Pal.AMBER, 0.4, true)
-		var side := Rect2(win.end.x + 3.0, f.position.y + 2.0, f.end.x - win.end.x - 6.0, f.size.y)
-		_ci.draw_rect(Rect2(side.position, Vector2(side.size.x, 3)), tone.call(Pal.SHELL[0]))   # a etiqueta
-		_ci.draw_rect(Rect2(side.position + Vector2(1, 1), Vector2(side.size.x - 2.0, 1)), tone.call(Pal.BOARD_TAG))
-		var lamp := Rect2(side.position + Vector2(0, 6), Vector2(2, 2))
-		_ci.draw_rect(lamp, Pal.AMBER if counting else Pal.AMBER.darkened(0.75))
-		if counting:
-			_light(lamp, Pal.AMBER, 0.6, true, true, DESK_SPILL)
-		for i in 3:   # a saída de ar
-			_ci.draw_rect(Rect2(side.position.x + 4.0, side.position.y + 6.0 + i * 2.0, side.size.x - 4.0, 1), tone.call(Pal.SHELL[0]))
-		var mw := roundf(f.size.x * TollTicket.SIZE.x / Toll.NOMINAL.x)   # a fenda, embaixo do meio dos contadores
+		var mw := roundf(f.size.x * TollTicket.SIZE.x / Toll.NOMINAL.x)   # a fenda, no meio
 		var mouth := Rect2(roundf(win.get_center().x - mw / 2.0), f.end.y - 3.0, mw, 1)
 		_ci.draw_rect(mouth, Pal.EDGE)
 		_ci.draw_rect(Rect2(mouth.position + Vector2(0, 1), mouth.size), tone.call(Pal.SHELL[4]))
+		var bx := roundf((mouth.end.x + win.end.x) / 2.0) - 3.0   # o selo da companhia, entre a fenda e a beira (o da aberta, `Switchboard.badge`, de 6 × 3)
+		for row: Vector3 in [Vector3(1, 0, 4), Vector3(0, 1, 6), Vector3(1, 2, 4)]:
+			_ci.draw_rect(Rect2(bx + row.x, mouth.position.y - 1.0 + row.y, row.z, 1), tone.call(Pal.BOARD_INK))
+		_ci.draw_rect(Rect2(bx + 1.0, mouth.position.y, 4, 1), tone.call(Pal.KEY_CAP[2]))
 		# a ponta do bilhete saindo dela para a mesinha fica com a camada dela, que a faz descer sem redesenhar a sala
 		_tip = Rect2(mouth.position + Vector2(1, 1), Vector2(mw - 2.0, 6))
 		_tip_tones = [tone.call(Pal.TICKET), tone.call(Pal.TICKET_EDGE)]

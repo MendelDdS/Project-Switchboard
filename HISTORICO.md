@@ -3389,3 +3389,19 @@ Chaves:
     (`Toll.PAD_LEFT` 24, era o `INSET` 36 da caixinha), e o carimbo em pé nela, na sala, não tapa mais a ponta do
     bilhete na fenda. O carimbo da ferramenta aberta já era alto (`Toll.STAMP` 88 × 201, a proporção de um datador): o
     "21 × 35" era um comentário velho do da sala, corrigido; nada a redesenhar.
+548. #calculografo #objetos "Divergências na máquina do calculógrafo em relação à miniatura": o painel dos contadores,
+    apertado pela placa CALCULÓGRAFO, a luz e a saída de ar à direita (encavalava a lâmpada de um na plaquinha do
+    seguinte), toma a frente toda (`Toll._screen`); a placa saiu (a chave `TOLL_MACHINE` também), e embaixo ficou o
+    selo CTSS entre a fenda e a beira; a fenda, no meio da máquina. A miniatura da mesa segue: o visor na frente toda,
+    cada contador como o da aberta em escala (plaquinha creme, tambores escuros com os algarismos, lâmpada de vidro),
+    a fenda no meio e o selo de 6 × 3 px.
+549. #mesa #objetos "A marca CTSS da mesa comutadora pode ficar centralizada na parte vazia também, mesmo que os cabos
+    fiquem por cima": o emblema desceu do alto do vão à esquerda do interurbano para o meio dele (na altura do meio do
+    bloco do interurbano); os plugs guardados ficam na frente dele (sobreposição pedida).
+550. #vista #rua "O homem de preto pode caminhar até depois do poste, pois ele fica pouco visível onde está": ele para
+    do outro lado do poste da esquina (`MAN_X` 5,2, era 7,4, na frente da porta acesa da loja), na quina do prédio de
+    tijolos; passando atrás do poste, a coluna é desenhada de novo na frente dele (`_draw_pole`). Na presa, o mesmo
+    lugar (`Arrest.POST`). A luz da vitrine do bar, que era centrada nele, fica no meio da vitrine.
+551. #vista #rua "Quando o homem vai estender a bandeira na varanda, dá pra ver os pés dele atravessando o chão": visto
+    de baixo, quem anda na varanda tem os pés abaixo da beira da laje; agora cortados nela (`_slab_clip`), também o
+    fumante e quem esvazia o apartamento. A captura ganhou `--banner=t`.

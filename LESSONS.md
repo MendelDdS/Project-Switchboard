@@ -995,3 +995,8 @@ Depois (item 545): o usuário compara com outro objeto que conhece na mão ("o c
 Crescer não é ampliar por igual: pense no objeto de verdade (um datador tem uns 10 cm de alto por 4,5 de largo) e
 cresça na direção que ele tem. O carimbo a 31 × 42 ficou atarracado ("crescendo pros lados"); a 21 × 50, certo.
 Meça o vizinho de referência em px na captura (o plug guardado: 12 × 48 à mostra).
+
+## Gente em lugar alto, vista de baixo
+Quem anda numa varanda acima dos olhos, atrás da beira da laje, tem os pés projetados abaixo dela: desenhada por
+inteiro, a pessoa "atravessa o chão" (item 551). Corte na beira de cima da laje (`_slab_clip`). E quem passa atrás
+de um poste, coluna ou objeto fino precisa dele desenhado de novo por cima (`_draw_pole`).

@@ -55,7 +55,7 @@ const CROSS_MANHOLE := Vector2(0.6, 19.0)   ## ...e a da rua do cruzamento
 const CROSS_DETAIL := 45.0   ## até onde (z, m) o chão da rua do cruzamento tem detalhe (depois, menor que um pixel)
 const DRAINS := [-9.1, 11.0]          ## as bocas de lobo no meio-fio de lá (x, m)
 const FAR_LAMPS := [6.2, -10.9, 15.1]  ## os postes da calçada de lá (x, m): o primeiro na esquina do prédio de tijolos, com o homem
-const MAN_X := 7.4        ## onde o homem fica, embaixo do poste da esquina
+const MAN_X := 5.2        ## onde o homem fica, embaixo do poste da esquina, já passado dele: contra a parede de tijolos acesa (com 7,4, antes do poste, na frente da porta da loja, quase não se via)
 const MAN_FROM := 13.0    ## de onde ele vem pela calçada (x, m; fora do vidro) e para onde volta
 const MAN_WALK := 4.5     ## quanto ele leva andando de lá até o poste (min de jogo: ~5 s, ~1,6 m/s)
 const BEHIND_BUSH := 3.6 ## a distância (m) em que quem vem para cá entra atrás da copa do arbusto (`_draw_arrest`)
@@ -1226,6 +1226,7 @@ func _draw_city_front(g: Rect2) -> void:
 	var mx := _man_x()   # (depois do poste: a luz dele, por cima, tingia o sobretudo de marrom; fica ao lado dele, sem cruzar)
 	if not is_nan(mx):
 		_draw_stranger(g, mx)
+		_draw_pole(g, FAR_LAMPS[0], posts)   # ele passa atrás do poste da esquina
 	for p: Dictionary in ahead:
 		_draw_rig(g, p, _door_clip(g, p["x"], p["z"]))
 	_draw_blood(g, true)
@@ -2797,8 +2798,8 @@ func _draw_facade_wear(g: Rect2, b: Dictionary, tone: Callable) -> void:
 			Vector2(span.position.x, y.call(ht * 0.4))]), PackedColorArray([sky, sky, Color(sky, 0.0), Color(sky, 0.0)]))
 
 
-## A vitrine acesa de um bar no térreo do prédio de tijolos, logo atrás do homem (`MAN_X`): ele fica em silhueta contra
-## ela. Vidro quente com o caixilho e o letreiro pintado, e a luz dela saindo pela calçada.
+## A vitrine acesa de um bar no térreo do prédio de tijolos, perto do poste da esquina (o homem de sobretudo, `MAN_X`,
+## fica do outro lado dele). Vidro quente com o caixilho e o letreiro pintado, e a luz dela saindo pela calçada.
 func _draw_shopfront(g: Rect2) -> void:
 	var ff: float = STREET["far"]
 	var x0 := CROSSING.y + 0.5   # (a quina do prédio fica em CROSSING.y: antes, a vitrine passava dela)
@@ -2835,11 +2836,12 @@ func _draw_shopfront(g: Rect2) -> void:
 	_r(lerpf(a.x, e.x, 0.5), a.y, PX, e.y - a.y, Pal.BAR_WOOD)   # o caixilho
 	_r(a.x, lerpf(a.y, e.y, 0.3), e.x - a.x, PX, Pal.BAR_WOOD)
 	_r(lerpf(a.x, e.x, 0.12), lerpf(a.y, e.y, 0.12), (e.x - a.x) * 0.5, PX, Pal.BAR_LETTERING)   # o letreiro pintado no vidro
-	var c := _o(g, MAN_X, STREET["far_curb"] + 0.3)   # a luz dela na calçada e no meio-fio
+	var mid := (x0 + x1) / 2.0
+	var c := _o(g, mid, STREET["far_curb"] + 0.3)   # a luz dela na calçada e no meio-fio
 	var rim := PackedVector2Array()
 	for i in 20:
 		var an := TAU * i / 20.0
-		rim.append(_o(g, MAN_X + cos(an) * 2.6, ff - 1.2 + sin(an) * 1.6))
+		rim.append(_o(g, mid + cos(an) * 2.6, ff - 1.2 + sin(an) * 1.6))
 	_light_fan(c, rim, Color(1.0, 0.75, 0.4, 0.2))
 
 
@@ -3432,7 +3434,7 @@ func _draw_smoker(g: Rect2) -> void:
 	var puff := fmod(_smoke_t, PUFF_EVERY)
 	var up := away == 0.0 and puff < 1.2
 	var s := signf(spot - (door.x + door.y) / 2.0) * (1.0 if _smoke_t < SMOKE_SEC / 2.0 else -1.0)   # saindo ou voltando
-	_figure(foot, _body(int(_smoke_t * WALK_STEPS * STRIDE.size()) if away > 0.0 else -1, k, s, up), Pal.SILHOUETTE)
+	_figure(foot, _body(int(_smoke_t * WALK_STEPS * STRIDE.size()) if away > 0.0 else -1, k, s, up), Pal.SILHOUETTE, _slab_clip(g))
 	var ember := foot + (Vector2(0.14, -1.55) if up else Vector2(0.24, -0.85)) * k
 	_p(roundf(ember.x), roundf(ember.y), 1, 1, EMBER if up else EMBER.darkened(0.45))
 	_p(roundf(ember.x) - 1, roundf(ember.y) - 1, 3, 3, Color(EMBER, 0.25 if up else 0.1))
@@ -3640,7 +3642,7 @@ func _draw_packer(g: Rect2) -> void:
 	var s := 1.0 if _scene_t["moving"] < Moving.BALCONY_AT + Moving.BALCONY_WALK + Moving.PIECE_SEC * Pal.LAUNDRY.size() and b.x >= -0.99 else -1.0
 	var k := OUT_F / z * 2.0
 	var foot := (_o(g, x, z, APT["floor"]) * 2.0).floor()
-	_figure(foot, _body(int(_scene_t["moving"] * WALK_STEPS * STRIDE.size()) if b.y > 0.0 else -1, k, s, b.z > 0.0), Pal.SILHOUETTE)
+	_figure(foot, _body(int(_scene_t["moving"] * WALK_STEPS * STRIDE.size()) if b.y > 0.0 else -1, k, s, b.z > 0.0), Pal.SILHOUETTE, _slab_clip(g))
 
 
 ## A parte parada da varanda do apartamento no prédio de tijolos (`APT`), na camada de trás: a porta (acesa, com a
@@ -3740,6 +3742,13 @@ func _draw_balcony_front(g: Rect2) -> void:
 	_draw_banner(g)
 
 
+## O que fica acima da beira da frente da laje da varanda (`APT`; px da tela): quem anda nela, atrás dessa beira, tem
+## os pés abaixo dela, vistos de baixo; cortados aqui, a laje os tapa (sem o corte, eles passavam pelo chão).
+func _slab_clip(g: Rect2) -> Rect2:
+	var top := floorf(_o(g, APT["x0"], STREET["far"] - APT["deep"], APT["floor"] + 0.15).y * 2.0)
+	return Rect2(-1e5, -1e5, 2e5, top + 1e5)
+
+
 ## A bandeira da noite 15 já começou (`Banner`): a luz da sala do apartamento vazio acesa de novo.
 func _banner_on() -> bool:
 	return _scene_t.get("banner", -1.0) >= 0.0
@@ -3773,7 +3782,7 @@ func _draw_banner_man(g: Rect2) -> void:
 	var pix := _rig_pixels(pose, k)
 	for at: Vector2i in pix:   # (a sala acesa atrás, o poste aceso logo embaixo: só um pouco de contraluz)
 		pix[at] = (pix[at] as Color).darkened(0.2)
-	_draw_pixels((_o(g, x, z, APT["floor"]) * 2.0).floor(), pix, k, Pal.CITY_LIT[1], 0.7, 1.0)
+	_draw_pixels((_o(g, x, z, APT["floor"]) * 2.0).floor(), pix, k, Pal.CITY_LIT[1], 0.7, 1.0, _slab_clip(g))
 
 
 ## A bandeira da noite 15 pendurada no corrimão da frente do gradil, por fora dele: o pano preto com o círculo amarelo
@@ -3841,13 +3850,22 @@ func _draw_lamp_post(g: Rect2, x: float, z: float) -> void:
 	var head := _o(g, x, z - 1.0, 5.0)
 	var k := (foot.y - top.y) / 5.0
 	var pole := Pal.LAMP_POST
-	_r(foot.x - maxf(PX, 0.08 * k), top.y, maxf(PX, 0.16 * k), foot.y - top.y, pole)
+	_draw_pole(g, x, z)
 	_ci.draw_line(top, head, pole, maxf(PX, 0.1 * k))
 	_r(head.x - 0.3 * k, head.y, 0.6 * k, maxf(PX, 0.15 * k), pole)
 	if _posts_on():
 		_r(head.x - 0.25 * k, head.y + 0.15 * k, 0.5 * k, maxf(PX, 0.12 * k), Pal.STREET_LAMP)
 		_poly(PackedVector2Array([head + Vector2(-0.25 * k, 0.2 * k), head + Vector2(0.25 * k, 0.2 * k),
 			Vector2(head.x + 1.6 * k, foot.y), Vector2(head.x - 1.6 * k, foot.y)]), Color(1.0, 0.85, 0.55, 0.05))
+
+
+## A coluna do poste em `x`, `z` (a de `_draw_lamp_post`), sozinha: desenhada de novo na frente de quem passa atrás
+## dele (o homem de sobretudo, que vem pela calçada de lá até depois do poste da esquina).
+func _draw_pole(g: Rect2, x: float, z: float) -> void:
+	var foot := _o(g, x, z)
+	var top := _o(g, x, z, 5.0)
+	var k := (foot.y - top.y) / 5.0
+	_r(foot.x - maxf(PX, 0.08 * k), top.y, maxf(PX, 0.16 * k), foot.y - top.y, Pal.LAMP_POST)
 
 
 ## Os postes da rua acesos: apagam com a luminária piscando e, na última noite, de manhã
@@ -3906,6 +3924,9 @@ func _draw_arrest(g: Rect2, near: bool) -> void:
 	if p.is_empty() or (float(p["z"]) < Arrest.CAR_NEAR) != near:
 		return
 	_arrest_rig(g, p)
+	var posts: float = STREET["far_curb"] + 0.4
+	if float(p["z"]) >= posts:   # na calçada de lá, ele passa atrás do poste da esquina
+		_draw_pole(g, FAR_LAMPS[0], posts)
 	var foot := (_o(g, p["x"], p["z"]) * 2.0).floor()
 	var k := OUT_F / float(p["z"]) * 2.0
 	if p.has("hand_at"):

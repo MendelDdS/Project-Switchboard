@@ -862,7 +862,7 @@ func _draw() -> void:
 				Pal.NUMBER_PAINT if exchange.dest(d) == Exchange.Dest.FREE else Pal.TEXT)
 
 	_draw_legend()   # na faixa do alto
-	_draw_badge(Vector2((FRAME + trunks.position.x) / 2.0, trunks.position.y + 4.0))
+	_draw_badge(Vector2((FRAME + trunks.position.x) / 2.0, trunks.get_center().y))   # no meio do vão; os plugs guardados ficam na frente
 
 
 ## As lâmpadas das linhas (com a luz delas no aro da entrada) e o aro aceso dos destinos. As luzes vão para o `Bloom`,

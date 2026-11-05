@@ -427,7 +427,7 @@ func _draw_header() -> void:
 	_lit_rect(Rect2(r.position.x + 2, r.end.y, r.size.x - 4, 1), _metal(2))
 
 
-## O emblema da companhia no vão à esquerda do interurbano, acima dos plugs guardados, com o meio em `c`: um oval
+## O emblema da companhia no meio do vão à esquerda do interurbano, atrás dos plugs guardados, com o meio em `c`: um oval
 ## ciano com a beira e a sigla em creme, como o logotipo nos terminais da série Ruptura.
 func _draw_badge(c: Vector2) -> void:
 	badge(_ci, c, Pal.BOARD_INK, Pal.KEY_CAP[2], 20.0, 12)
