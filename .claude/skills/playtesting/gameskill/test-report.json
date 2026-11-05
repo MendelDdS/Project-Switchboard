@@ -1,0 +1,192 @@
+{
+  "slug": "playtesting",
+  "skill": "playtesting",
+  "upstream": "poorvith-mp/skills-gamedev@d661d370a67c4532034e3d1d87c4aec237077f34",
+  "upstreamSha": "d661d370a67c4532034e3d1d87c4aec237077f34",
+  "date": "2026-10-30",
+  "engine": "agent skill (design docs), no engine",
+  "env": [
+    "Node v22.23.4",
+    "Python 3.13 (no third-party packages; Pillow only for the screenshot)",
+    "no agent run: the checks cover the skill's rules as code on our own fixtures"
+  ],
+  "trigger": "static",
+  "passed": 32,
+  "total": 32,
+  "commands": [
+    "(cd examples && python3 tests/run_rules.py)",
+    "(cd examples && python3 tests/card.py playtesting: plan and matrix rules ../screenshot.png -- python3 tests/run_rules.py)"
+  ],
+  "checks": [
+    {
+      "criterion": "trigger",
+      "name": "SKILL.md description says when to use it",
+      "pass": true,
+      "detail": "Structure playtest sessions and sort responses into UX friction, difficulty calibration and feature signal. Use when str"
+    },
+    {
+      "criterion": "trigger",
+      "name": "triggers on: \"Help me structure a playtest session with cohorts and a silent observer protocol\"",
+      "pass": true,
+      "detail": "rank 1/117, overlap 3"
+    },
+    {
+      "criterion": "trigger",
+      "name": "triggers on: \"How should I sort playtest feedback into UX friction, difficulty, and feature signal?\"",
+      "pass": true,
+      "detail": "rank 1/117, overlap 7"
+    },
+    {
+      "criterion": "trigger",
+      "name": "triggers on: \"Set up telemetry and a funnel drop-off metric for our playtest\"",
+      "pass": true,
+      "detail": "rank 1/117, overlap 2"
+    },
+    {
+      "criterion": "trigger",
+      "name": "does not trigger on: \"Write a GDD for the boss fight with phases and attack patterns\"",
+      "pass": true,
+      "detail": "rank 18/117, overlap 0"
+    },
+    {
+      "criterion": "trigger",
+      "name": "does not trigger on: \"Tune the camera shake and hit-stop to make combat feel better\"",
+      "pass": true,
+      "detail": "rank 16/117, overlap 0"
+    },
+    {
+      "criterion": "runs",
+      "name": "rules as code: plan_good_valid",
+      "pass": true
+    },
+    {
+      "criterion": "runs",
+      "name": "rules as code: plan_rejects_leading_question",
+      "pass": true
+    },
+    {
+      "criterion": "runs",
+      "name": "rules as code: plan_rejects_missing_cohort",
+      "pass": true
+    },
+    {
+      "criterion": "runs",
+      "name": "rules as code: plan_rejects_silent_observer_false",
+      "pass": true
+    },
+    {
+      "criterion": "runs",
+      "name": "rules as code: plan_rejects_missing_telemetry",
+      "pass": true
+    },
+    {
+      "criterion": "runs",
+      "name": "rules as code: completion_rate_formula",
+      "pass": true
+    },
+    {
+      "criterion": "runs",
+      "name": "rules as code: dropoff_gt_30_lethal",
+      "pass": true
+    },
+    {
+      "criterion": "runs",
+      "name": "rules as code: dropoff_eq_30_not_lethal",
+      "pass": true
+    },
+    {
+      "criterion": "runs",
+      "name": "rules as code: matrix_good_valid",
+      "pass": true
+    },
+    {
+      "criterion": "runs",
+      "name": "rules as code: matrix_rejects_bad_category",
+      "pass": true
+    },
+    {
+      "criterion": "runs",
+      "name": "rules as code: matrix_rejects_bad_player_id",
+      "pass": true
+    },
+    {
+      "criterion": "runs",
+      "name": "rules as code: matrix_rejects_missing_column",
+      "pass": true
+    },
+    {
+      "criterion": "runs",
+      "name": "rules as code: aggregate_groups_count",
+      "pass": true
+    },
+    {
+      "criterion": "runs",
+      "name": "rules as code: aggregate_ux_critical",
+      "pass": true
+    },
+    {
+      "criterion": "runs",
+      "name": "rules as code: aggregate_difficulty_high",
+      "pass": true
+    },
+    {
+      "criterion": "runs",
+      "name": "rules as code: aggregate_feature_noise_not_critical",
+      "pass": true
+    },
+    {
+      "criterion": "runs",
+      "name": "rules as code: aggregate_sorted_by_priority",
+      "pass": true
+    },
+    {
+      "criterion": "runs",
+      "name": "rules as code: routing_fires_playtest",
+      "pass": true
+    },
+    {
+      "criterion": "runs",
+      "name": "rules as code: routing_skips_regression",
+      "pass": true
+    },
+    {
+      "criterion": "runs",
+      "name": "rules as code: silent_observer_5min",
+      "pass": true
+    },
+    {
+      "criterion": "runs",
+      "name": "rules as code: exits 0 with no script errors",
+      "pass": true,
+      "detail": "exit 0"
+    },
+    {
+      "criterion": "output",
+      "name": "screenshot screenshot.png rendered",
+      "pass": true
+    },
+    {
+      "criterion": "output",
+      "name": "self-check list has at least 3 items",
+      "pass": true,
+      "detail": "5 items"
+    },
+    {
+      "criterion": "single",
+      "name": "one job per skill (reviewed)",
+      "pass": true,
+      "detail": "One job: plan playtest sessions and sort observations into UX friction, difficulty, and feature signal, handing the report to `ccgs-playtest-report`, design changes to `game-design-gdd`, and feel tuning to `game-feel`."
+    },
+    {
+      "criterion": "bilingual",
+      "name": "English SKILL.md from upstream",
+      "pass": true
+    },
+    {
+      "criterion": "bilingual",
+      "name": "Chinese guide written",
+      "pass": true,
+      "detail": "1325 chars"
+    }
+  ]
+}

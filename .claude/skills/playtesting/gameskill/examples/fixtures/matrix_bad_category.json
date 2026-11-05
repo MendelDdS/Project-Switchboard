@@ -1,0 +1,11 @@
+[
+  {
+    "Player ID": "#P01",
+    "Cohort": "FTUE",
+    "Encounter / Level": "Level 1: Night Garden Gate",
+    "Observed Behavior (Action)": "Stared at the gate",
+    "Stated Reason (Words)": "I was confused",
+    "Root Cause Category": "Bug: lever missing",
+    "Actionable Solution": "Fix lever"
+  }
+]
