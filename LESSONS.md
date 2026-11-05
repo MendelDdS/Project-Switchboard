@@ -991,3 +991,7 @@ confira as falas da Cecília; todo passo de espera precisa ser dito por ela ante
 A unidade de despacho, o calculógrafo e o carimbo estavam "no tamanho de verdade" (`PROP_K`) e mesmo assim pequenos
 perto das listas e do relógio: o usuário julga pelo peso na tela, não pela medida. Cresceram ~20% (o carimbo
 redesenhado em 25 × 39, nunca esticado) e a unidade recuou (`UNIT_AT`) para o calculógrafo não tapar a base dela.
+Depois (item 545): o usuário compara com outro objeto que conhece na mão ("o carimbo não é menor que um plug P10").
+Crescer não é ampliar por igual: pense no objeto de verdade (um datador tem uns 10 cm de alto por 4,5 de largo) e
+cresça na direção que ele tem. O carimbo a 31 × 42 ficou atarracado ("crescendo pros lados"); a 21 × 50, certo.
+Meça o vizinho de referência em px na captura (o plug guardado: 12 × 48 à mostra).

@@ -3375,3 +3375,13 @@ Chaves:
     estão pequenas demais": ~20% maiores (`UNIT` 47 × 7,5 com painel 20, era 39 × 6 e 16; `CALC` 34, era 28; o
     carimbo da mesinha redesenhado em 25 × 39 px, era 21 × 35); a unidade recuou no tampo (`UNIT_AT` 0,66, era 0,6)
     para a máquina do calculógrafo não tapar a base dela.
+545. #calculografo #carimbo #objetos "As miniaturas do calculógrafo ainda parecem pequenas, o carimbo não é menor que
+    um plug P10": `CALC` 38 × 6,25 (era 34; com 42 tampava a base da unidade de despacho), a unidade mais recuada
+    (`UNIT_AT` 0,72). O carimbo cresceu primeiro para os lados (31 × 42) e o usuário reprovou ("crescendo pros lados e
+    não para cima; pense em proporções reais"): redesenhado em 21 × 50, a largura do da ferramenta e a proporção de um
+    datador (uns 10 × 4,5 cm), cabo mais longo e armação mais alta; o plug guardado tem 48 à mostra. Na almofada, o
+    cabo passa uns 5 px por cima da frente da máquina (perguntado ao usuário).
+546. #calculografo #objetos "Remova o cabo do calculógrafo; traga ele um pouquinho para a frente, com espaço entre ele
+    e o mapa de despacho": o fio saiu (`_draw_cable` só na unidade de despacho); a mesinha foi para `CALC_AT` 0,045
+    (era 0,06, na linha do bloco de fichas; com 0,02 o carimbo e a caixinha sumiam embaixo do painel de baixo) e a
+    unidade recuou para `UNIT_AT` 0,76: uns 6 px de folga entre as duas.
