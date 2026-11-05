@@ -22,9 +22,9 @@ const PROP_K := 0.75 * 93.0 / 66.0   ## a escala dos objetos da mesa: no tamanho
 ## A unidade de despacho (`_draw_dispatch_unit`, na escala dos objetos, `PROP_K`): largura, altura da base e fundo da
 ## base até o painel (fração do tampo); o painel: a altura acima da base, o quanto o alto dele recua (fração do tampo,
 ## para ficar inclinado, de frente para os olhos) e o fundo do móvel todo (fração do tampo).
-const UNIT := Vector3(39, 6, 0.17)
+const UNIT := Vector3(47, 7.5, 0.17)   # (era 39 × 6 × 16 de painel: do tamanho das listas, pequena demais perto dos outros objetos)
 const BOOKS_SPAN := 40.0   ## o lugar das listas na fileira (na escala dos objetos): os 31 delas mais os volumes desencontrados e a lombada
-const UNIT_PANEL := 16.0
+const UNIT_PANEL := 20.0
 const PAD_W := 26.0    ## a largura do bloco de fichas (na escala dos objetos, uns 18 cm; o caderno aberto, com 46, tomava a fileira da frente)
 ## Onde o lápis fica largado no bloco de fichas, um lugar a cada ficha registrada (`written`): [a ponta, a borracha],
 ## em fração da folha abaixo da fita (x da largura, y da altura dela).
@@ -40,58 +40,63 @@ const LETTER_D := 0.62   ## ...e o fundo dele, em fração do fundo do jornal do
 const NEWS_W := 25.0   ## a largura do jornal dobrado (na escala dos objetos, uns 16 cm): com 32, o calculógrafo não cabia do lado
 const UNIT_TILT := 0.11
 const UNIT_D := 0.3
+const UNIT_AT := 0.66   ## a frente da unidade de despacho (fração do tampo): recuada, a máquina do calculógrafo, na frente dela, não tampa a base (com 0,6, a maior, de 34, tampava)
 ## O calculógrafo (`_draw_calculograph`, na escala dos objetos, `PROP_K`): a largura (uns 18 cm, com o bilhete de 6; com
 ## 14, o carimbo tinha 2 cm e o plug parecia gigante; com 22, larga e baixa demais perto da aberta), a altura da máquina,
 ## na proporção da da ferramenta (632 × 104), e o fundo dela (fração do tampo); na frente dela, a mesinha dela, na
 ## proporção da mesa da ferramenta (`Toll.NOMINAL`).
-const CALC := Vector3(28, 4.6, 0.06)
+const CALC := Vector3(34, 5.6, 0.06)   # (era 28: uma tira fina perto da unidade de despacho e das listas)
 const CABLE_STEPS := 24   # os trechos retos da curva de cada fio das máquinas até o fundo da mesa (`_draw_cable`)
 const CABLE_SAG := 0.12   # o quanto cada um já recua ao sair da máquina, até o fundo da mesa
 const CABLE_D := 2.0   # a grossura deles (na sala; na tela, 4 a 6 px pela distância: com 3, não cabem as faixas do cilindro)
 const CABLE_LIGHT := Vector2(0.45, -0.9)   # de onde vem a luz neles (a luminária, no alto à direita): o brilho fica desse lado
 const CABLE_SHADE := Vector2(-1, 2)   # a sombra deles no tampo, do outro lado (px)
 const TOLL_BOX_H := 4.5   ## a altura da caixinha dos bilhetes (na sala, uns 2 cm)
-## O carimbo em pé na mesinha, como o da ferramenta (`Toll`, 21 × 35 px, uns 6 cm): o cabo de baquelite em cogumelo,
+## O carimbo em pé na mesinha, como o da ferramenta (`Toll`, 21 × 35 px, uns 6 cm; aqui 25 × 39, para não sumir na mesinha maior): o cabo de baquelite em cogumelo,
 ## com o medalhão de latão no tampo e as faixas de luz de um cilindro (as do da ferramenta, `Toll.BAND_U`), afinando até
 ## o anel e a haste de níquel; o corpo com o tampo à vista e a plaqueta escrita; as rodas de latão com os tipos sujos de
 ## tinta e as pontas do eixo; as pernas e a sapata vazada. (Antes, o cabo era um disco escuro com dois pontos de latão
 ## e as rodas, um xadrez: parecia um robozinho.)
 const STAMP_ART := [
-	".......kkkkkkk.......",
-	".....kKKKKKKKKKk.....",
-	"....kKKKMmmmMKKKk....",
-	"....kKKKmllmmKKKk....",
-	"....kKKKMmmmMKKKk....",
-	"....khhHhhKKjjjkk....",
-	".....khHhhKKjjkk.....",
-	"......khHhKKjjk......",
-	".......kHhKjjk.......",
-	"........khKjk........",
-	"........khKjk........",
-	".......kHhKjjk.......",
-	".......dppcCdd.......",
-	".........pcC.........",
-	".cpppppppnCnpppppppC.",
-	".cpppppppppppppppppC.",
-	".cpppppppppppppppppC.",
-	".pncccccccccccccccCd.",
-	".pncpppppppppppppcCd.",
-	".pncppiiiiiiiiippcCd.",
-	".pncpppppppppppppcCd.",
-	".pncccccccccccccccCd.",
-	".ddddddddddddddddddd.",
-	"CcpllllllllllllllnCdC",
-	"nCpbbbBbbbBbbbBbbbCdn",
-	"CcpBrBBBrBBBrBBBrBCdC",
-	".cp...............Cd.",
-	".cp...............Cd.",
-	".cp...............Cd.",
-	".cp...............Cd.",
-	"cpppppppppppppppppppd",
-	"cpp...............Cpd",
-	"cpp...............Cpd",
-	"cpppppppppppppppppppd",
-	"CCCCCCCCCCCCCCCCCCCCd",
+	"........kkkkkkkkk........",
+	"......kKKKKKKKKKKKk......",
+	".....kKKKKMmmmMKKKKk.....",
+	".....kKKKKmllmmKKKKk.....",
+	".....kKKKKMmmmMKKKKk.....",
+	".....khhhHhhKKKjjjkk.....",
+	"......khhHhhKKjjjkk......",
+	".......khHhhKKjjjk.......",
+	"........khHhKKjjk........",
+	".........kHhKjjk.........",
+	"..........khKjk..........",
+	"..........khKjk..........",
+	"..........khKjk..........",
+	".........kHhKjjk.........",
+	".........dppcCdd.........",
+	"...........pcC...........",
+	".cpppppppppnCnpppppppppC.",
+	".cpppppppppppppppppppppC.",
+	".cpppppppppppppppppppppC.",
+	".cpppppppppppppppppppppC.",
+	".pncccccccccccccccccccCd.",
+	".pncpppppppppppppppppcCd.",
+	".pncppiiiiiiiiiiiiippcCd.",
+	".pncpppppppppppppppppcCd.",
+	".pncccccccccccccccccccCd.",
+	".ddddddddddddddddddddddd.",
+	"CcpllllllllllllllllllnCdC",
+	"nCpbbbBbbbBbbbBbbbBbbbCdn",
+	"CcpBrBBBrBBBrBBBrBBBrBCdC",
+	".cp...................Cd.",
+	".cp...................Cd.",
+	".cp...................Cd.",
+	".cp...................Cd.",
+	".cp...................Cd.",
+	"cpppppppppppppppppppppppd",
+	"cpp...................Cpd",
+	"cpp...................Cpd",
+	"cpppppppppppppppppppppppd",
+	"CCCCCCCCCCCCCCCCCCCCCCCCd",
 ]
 const CLOCK := Vector3(24, 12.5, 14) * PROP_K   ## o relógio de flip da mesa: largura, altura e fundo (na escala da sala; ~15 × 8 × 9 cm, como as listas de 21 cm)
 ## Quanto ele está virado para os olhos do operador (1 = de frente para eles; 0 = reto, para a parede). Reto: virado
@@ -256,11 +261,11 @@ func _draw_desk_props() -> void:
 	var edge := (size.x / 2.0 - EDGE_PX - _vp.x) * _at(0.06) / Z0   # perto, a parede já passou da beira da tela: o jornal vai até ela
 	var near := _row(cx + CALC.x * k, minf(r, edge), [0.0, PAD_W * k, NEWS_W * k]).slice(1)   # e os outros dois depois dele
 	if _here(Tools.DISPATCH):   # os fios antes das máquinas, que tapam a ponta deles (saem da traseira delas)
-		_draw_cable(back[0], _at(0.6) + _deep(UNIT_D * k), 7.0)
+		_draw_cable(back[0], _at(UNIT_AT) + _deep(UNIT_D * k), 7.0)
 	if _here(Tools.TOLL):   # (a máquina do calculógrafo fica atrás da mesinha, como em `_draw_calculograph`)
 		_draw_cable(cx, _at(0.06) + CALC.x * k * Toll.NOMINAL.y / Toll.NOMINAL.x + _deep(CALC.z * k), 2.5)
 	if _here(Tools.DISPATCH):
-		_draw_dispatch_unit(back[0], _at(0.6), UNIT.x * k)   # recuada: a máquina do calculógrafo, na frente dela, não tampa a base
+		_draw_dispatch_unit(back[0], _at(UNIT_AT), UNIT.x * k)
 	if _here(Tools.DIRECTORY):
 		_draw_books(back[1], _at(0.54), 31 * k, _deep(0.3 * k))
 	if _here(Tools.LOGBOOK):

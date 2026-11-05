@@ -979,3 +979,15 @@ não um heroísmo que a cena não sustenta.
 Escrevi as despedidas das ligações que viram emergência com "Tô ouvindo a sirene" e "Os bombeiros chegaram": a pessoa
 fala logo depois do despacho, e o socorro chegando ali é rápido demais. O `after` de uma emergência é dito na hora em
 que as unidades saem: nada de chegada, sirene ou socorro já no local.
+
+## Mecânica nova muda o treinamento junto
+O treinamento (`data/nights/night_00.tres`) ficou para trás: o mapa passou a pedir dois cliques (datilografar e
+imprimir), a escuta e o discador entraram, o despacho virou máquina creme, e a Cecília seguia com as falas antigas e
+citava o manual da parede, escondido. Com o `HintSlot` escondido, o que só estava no `hint` de um passo (tirar o cabo
+na lâmpada vermelha, voltar o FONE da espera) não chegava ao jogador. Mudou uma interação, um objeto ou uma tecla:
+confira as falas da Cecília; todo passo de espera precisa ser dito por ela antes, não só na dica.
+
+## Objeto da mesa em tamanho de verdade ainda precisa ler
+A unidade de despacho, o calculógrafo e o carimbo estavam "no tamanho de verdade" (`PROP_K`) e mesmo assim pequenos
+perto das listas e do relógio: o usuário julga pelo peso na tela, não pela medida. Cresceram ~20% (o carimbo
+redesenhado em 25 × 39, nunca esticado) e a unidade recuou (`UNIT_AT`) para o calculógrafo não tapar a base dela.

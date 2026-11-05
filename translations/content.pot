@@ -9547,6 +9547,14 @@ msgid "Quando atenderem, eu falo com eles e a ligação segue sozinha pelo cabo.
 msgstr ""
 
 #: data/nights/night_00.tres
+msgid "Quando a gente terminar, a lâmpada fica vermelha. Aí você tira as duas pontas do cabo."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Depois eu te ligo de novo, pela entrada 1."
+msgstr ""
+
+#: data/nights/night_00.tres
 msgid "Aperte [b]Transferir[/b] (Tab) para chamar o hotel."
 msgstr ""
 
@@ -9691,19 +9699,31 @@ msgid "Clique na [b]unidade de despacho[/b] na mesa, a do mapa (ou aperte 2)."
 msgstr ""
 
 #: data/nights/night_00.tres
-msgid "É o móvel de metal com o mapa sob o vidro. Ou aperta o 2."
+msgid "É a máquina creme com o mapa na tela, do lado da mesa comutadora. Ou aperta o 2."
 msgstr ""
 
 #: data/nights/night_00.tres
-msgid "Clica na rua que eu disse, no trecho do número. Passando o mouse, aparece a numeração de cada trecho."
+msgid "Clica na rua que eu disse, no trecho do número. A máquina datilografa o endereço."
 msgstr ""
 
 #: data/nights/night_00.tres
-msgid "No mapa, clique na [b]Rua das Flores[/b], no trecho de 1 a 99. A impressora solta um cartão."
+msgid "Confere e clica de novo no mesmo trecho: aí o cartão sai."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Passando o mouse, aparece a numeração de cada trecho. E o anel do lado do mapa aproxima."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "No mapa, clique na [b]Rua das Flores[/b], no trecho de 1 a 99: o primeiro clique datilografa o endereço, o segundo, no mesmo trecho, imprime o cartão."
 msgstr ""
 
 #: data/nights/night_00.tres
 msgid "A Rua das Flores corta a Vila Serena. O 45 fica no primeiro trecho, de 1 a 99."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Um clique datilografa. O segundo, no mesmo trecho, imprime."
 msgstr ""
 
 #: data/nights/night_00.tres
@@ -9735,7 +9755,7 @@ msgid "Pronto. Só sai um cartão por vez, então tem que se livrar do errado an
 msgstr ""
 
 #: data/nights/night_00.tres
-msgid "No mapa, clique na [b]Rua das Acácias[/b], no trecho de 1 a 99."
+msgid "No mapa, clique duas vezes na [b]Rua das Acácias[/b], no trecho de 1 a 99."
 msgstr ""
 
 #: data/nights/night_00.tres
@@ -9807,7 +9827,7 @@ msgid "Aí você tira o fone da linha de quem está falando e põe na que está 
 msgstr ""
 
 #: data/nights/night_00.tres
-msgid "Tenta: tira o fone da minha entrada e põe na entrada 1, só pra ver."
+msgid "Tenta: tira o fone da minha entrada, põe na entrada 1 e depois volta pra minha."
 msgstr ""
 
 #: data/nights/night_00.tres
@@ -9831,6 +9851,18 @@ msgid "Ninguém gosta de esperar: quem fica muito tempo em espera desiste e desl
 msgstr ""
 
 #: data/nights/night_00.tres
+msgid "Agora, a tecla Escutar. Com o fone numa linha já transferida, ela te põe dentro da conversa."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Só que é proibido, viu? E o povo percebe: fica quieto, pergunta se tem alguém na linha."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Aí denunciam, e a companhia cobra de você."
+msgstr ""
+
+#: data/nights/night_00.tres
 msgid "E o fim do turno: às 23:40 a central para de receber ligação nova."
 msgstr ""
 
@@ -9847,7 +9879,11 @@ msgid "E se der meia-noite com a mesa vazia e tudo registrado, o turno fecha soz
 msgstr ""
 
 #: data/nights/night_00.tres
-msgid "Por hoje é isso. A mesa é sua: a noite é calma, e o manual ali na parede ajuda. Precisando de mim, é só discar 002."
+msgid "Por hoje é isso. A mesa é sua, e a noite é calma."
+msgstr ""
+
+#: data/nights/night_00.tres
+msgid "Precisando de mim, é só discar 002 no discador, ali na prateleira."
 msgstr ""
 
 #: data/nights/night_00.tres

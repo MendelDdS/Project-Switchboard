@@ -9548,6 +9548,14 @@ msgid "Quando atenderem, eu falo com eles e a ligação segue sozinha pelo cabo.
 msgstr "When they answer, I talk to them and the call goes on by itself through the cord."
 
 #: data/nights/night_00.tres
+msgid "Quando a gente terminar, a lâmpada fica vermelha. Aí você tira as duas pontas do cabo."
+msgstr "When we're done, the lamp turns red. Then you pull out both ends of the cord."
+
+#: data/nights/night_00.tres
+msgid "Depois eu te ligo de novo, pela entrada 1."
+msgstr "Then I'll call you again, on input 1."
+
+#: data/nights/night_00.tres
 msgid "Aperte [b]Transferir[/b] (Tab) para chamar o hotel."
 msgstr "Press [b]Transfer[/b] (Tab) to ring the hotel."
 
@@ -9692,20 +9700,32 @@ msgid "Clique na [b]unidade de despacho[/b] na mesa, a do mapa (ou aperte 2)."
 msgstr "Click the [b]dispatch unit[/b] on the desk, the one with the map (or press 2)."
 
 #: data/nights/night_00.tres
-msgid "É o móvel de metal com o mapa sob o vidro. Ou aperta o 2."
-msgstr "It's the metal cabinet with the map under glass. Or press 2."
+msgid "É a máquina creme com o mapa na tela, do lado da mesa comutadora. Ou aperta o 2."
+msgstr "It's the cream machine with the map on the screen, next to the switchboard. Or press 2."
 
 #: data/nights/night_00.tres
-msgid "Clica na rua que eu disse, no trecho do número. Passando o mouse, aparece a numeração de cada trecho."
-msgstr "Click the street I said, on the stretch with the number. Hovering the mouse shows each stretch's numbers."
+msgid "Clica na rua que eu disse, no trecho do número. A máquina datilografa o endereço."
+msgstr "Click the street I said, on the stretch with the number. The machine types the address."
 
 #: data/nights/night_00.tres
-msgid "No mapa, clique na [b]Rua das Flores[/b], no trecho de 1 a 99. A impressora solta um cartão."
-msgstr "On the map, click [b]Rua das Flores[/b], on the 1 to 99 stretch. The printer puts out a card."
+msgid "Confere e clica de novo no mesmo trecho: aí o cartão sai."
+msgstr "Check it and click the same stretch again: then the card comes out."
+
+#: data/nights/night_00.tres
+msgid "Passando o mouse, aparece a numeração de cada trecho. E o anel do lado do mapa aproxima."
+msgstr "Hovering the mouse shows each stretch's numbers. And the ring beside the map zooms in."
+
+#: data/nights/night_00.tres
+msgid "No mapa, clique na [b]Rua das Flores[/b], no trecho de 1 a 99: o primeiro clique datilografa o endereço, o segundo, no mesmo trecho, imprime o cartão."
+msgstr "On the map, click [b]Rua das Flores[/b], on the 1 to 99 stretch: the first click types the address, the second, on the same stretch, prints the card."
 
 #: data/nights/night_00.tres
 msgid "A Rua das Flores corta a Vila Serena. O 45 fica no primeiro trecho, de 1 a 99."
 msgstr "Rua das Flores runs through Vila Serena. Number 45 is on the first stretch, 1 to 99."
+
+#: data/nights/night_00.tres
+msgid "Um clique datilografa. O segundo, no mesmo trecho, imprime."
+msgstr "One click types. The second, on the same stretch, prints."
 
 #: data/nights/night_00.tres
 msgid "Esse cartão saiu pra outro lugar. Joga na trituradora, a máquina da direita, e marca de novo."
@@ -9736,8 +9756,8 @@ msgid "Pronto. Só sai um cartão por vez, então tem que se livrar do errado an
 msgstr "There. Only one card comes out at a time, so you have to get rid of the wrong one first. Now mark the right place."
 
 #: data/nights/night_00.tres
-msgid "No mapa, clique na [b]Rua das Acácias[/b], no trecho de 1 a 99."
-msgstr "On the map, click [b]Rua das Acácias[/b], on the 1 to 99 stretch."
+msgid "No mapa, clique duas vezes na [b]Rua das Acácias[/b], no trecho de 1 a 99."
+msgstr "On the map, click [b]Rua das Acácias[/b] twice, on the 1 to 99 stretch."
 
 #: data/nights/night_00.tres
 msgid "A Rua das Acácias também é da Vila Serena. O 45 fica no trecho de 1 a 99."
@@ -9808,8 +9828,8 @@ msgid "Aí você tira o fone da linha de quem está falando e põe na que está 
 msgstr "Then you take the headset off the line you're on and put it in the one calling. Whoever's left without the headset is on hold."
 
 #: data/nights/night_00.tres
-msgid "Tenta: tira o fone da minha entrada e põe na entrada 1, só pra ver."
-msgstr "Try it: take the headset out of my input and put it in input 1, just to see."
+msgid "Tenta: tira o fone da minha entrada, põe na entrada 1 e depois volta pra minha."
+msgstr "Try it: take the headset out of my input, put it in input 1 and then come back to mine."
 
 #: data/nights/night_00.tres
 msgid "Tire o [b]FONE[/b] da entrada 3 e ponha na entrada 1."
@@ -9832,6 +9852,18 @@ msgid "Ninguém gosta de esperar: quem fica muito tempo em espera desiste e desl
 msgstr "Nobody likes to wait: whoever's on hold too long gives up and hangs up. So don't forget anyone there."
 
 #: data/nights/night_00.tres
+msgid "Agora, a tecla Escutar. Com o fone numa linha já transferida, ela te põe dentro da conversa."
+msgstr "Now, the Listen key. With the headset on a line that's already transferred, it puts you inside the conversation."
+
+#: data/nights/night_00.tres
+msgid "Só que é proibido, viu? E o povo percebe: fica quieto, pergunta se tem alguém na linha."
+msgstr "But it's forbidden, all right? And people notice: they go quiet, ask if someone's on the line."
+
+#: data/nights/night_00.tres
+msgid "Aí denunciam, e a companhia cobra de você."
+msgstr "Then they report it, and the company holds you to account."
+
+#: data/nights/night_00.tres
 msgid "E o fim do turno: às 23:40 a central para de receber ligação nova."
 msgstr "And the end of the shift: at 23:40 the exchange stops taking new calls."
 
@@ -9848,8 +9880,12 @@ msgid "E se der meia-noite com a mesa vazia e tudo registrado, o turno fecha soz
 msgstr "And if it hits midnight with the board empty and everything logged, the shift closes by itself."
 
 #: data/nights/night_00.tres
-msgid "Por hoje é isso. A mesa é sua: a noite é calma, e o manual ali na parede ajuda. Precisando de mim, é só discar 002."
-msgstr "That's it for today. The board is yours: the night is calm, and the manual there on the wall helps. If you need me, just dial 002."
+msgid "Por hoje é isso. A mesa é sua, e a noite é calma."
+msgstr "That's it for today. The board is yours, and the night is calm."
+
+#: data/nights/night_00.tres
+msgid "Precisando de mim, é só discar 002 no discador, ali na prateleira."
+msgstr "If you need me, just dial 002 on the dialer, there on the shelf."
 
 #: data/nights/night_00.tres
 msgid "Valeu, Cecília!"

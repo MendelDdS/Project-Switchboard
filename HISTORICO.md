@@ -3363,3 +3363,15 @@ Chaves:
     como a conversa fiada, só se a transferência demora (`Main._nag`, `SMALLTALK_AFTER`, `Conversation.turn`), e
     então o tipo muda na hora, de comum para emergência. Transferida antes, fica ligação comum (pedido do usuário). Não
     vira com duas emergências em andamento (`MAX_EMERGENCIES`): ela espera.
+542. #testes #ritmo A skill `playtesting` (gameskill.dev, `.claude/skills/playtesting/`) instalada no projeto a pedido
+    do usuário, e usada para analisar o jogo: o robô do `test_shift` em perfis como coortes simuladas (atento,
+    `--human`, `--clumsy`, `--eager`, `--nosy`, `--nosy --careless`) nas noites 1, 5, 9 e 13, semente 7.
+543. #treinamento #despacho #discador "O tutorial não está de acordo com as novas adições": a Cecília ensina o mapa
+    em dois cliques (datilografa e imprime) e o anel de aproximar; avisa, antes de transferir, que na lâmpada vermelha
+    se tiram as duas pontas e que liga de novo pela entrada 1, e, na espera, que é para voltar à linha dela (com o
+    `HintSlot` escondido, isso só estava na dica); explica a tecla Escutar (proibida, percebem e denunciam); o despacho
+    é a máquina creme com o mapa na tela; no fim, o 002 pelo discador da prateleira, sem o manual da parede (escondido).
+544. #despacho #calculografo #carimbo #objetos "As miniaturas da máquina de despacho, do calculógrafo e do carimbador
+    estão pequenas demais": ~20% maiores (`UNIT` 47 × 7,5 com painel 20, era 39 × 6 e 16; `CALC` 34, era 28; o
+    carimbo da mesinha redesenhado em 25 × 39 px, era 21 × 35); a unidade recuou no tampo (`UNIT_AT` 0,66, era 0,6)
+    para a máquina do calculógrafo não tapar a base dela.
