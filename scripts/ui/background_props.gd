@@ -53,7 +53,9 @@ const CABLE_D := 2.0   # a grossura deles (na sala; na tela, 4 a 6 px pela dist�
 const CABLE_LIGHT := Vector2(0.45, -0.9)   # de onde vem a luz neles (a luminária, no alto à direita): o brilho fica desse lado
 const CABLE_SHADE := Vector2(-1, 2)   # a sombra deles no tampo, do outro lado (px)
 const TOLL_BOX_H := 4.5   ## a altura da caixinha dos bilhetes (na sala, uns 2 cm)
-## O carimbo em pé na mesinha, como o da ferramenta (`Toll`, 21 × 35 px, uns 6 cm; aqui 21 × 50, na proporção de um datador de verdade, uns 10 cm de alto por 4,5 de largo: do tamanho do plug guardado da mesa comutadora, que tem 48 à mostra; com 25 e 31 de largura, crescia para os lados e ficava atarracado): o cabo de baquelite em cogumelo,
+## O carimbo em pé na mesinha, como o da ferramenta (`Toll.STAMP`, 88 × 201, na proporção de um datador de verdade, uns 10 cm de alto
+## por 4,5 de largo), em 21 × 50 px: do tamanho do plug guardado da mesa comutadora, que tem 48 à mostra (com 25 e 31 de
+## largura, crescia para os lados e ficava atarracado): o cabo de baquelite em cogumelo,
 ## com o medalhão de latão no tampo e as faixas de luz de um cilindro (as do da ferramenta, `Toll.BAND_U`), afinando até
 ## o anel e a haste de níquel; o corpo com o tampo à vista e a plaqueta escrita; as rodas de latão com os tipos sujos de
 ## tinta e as pontas do eixo; as pernas e a sapata vazada. (Antes, o cabo era um disco escuro com dois pontos de latão

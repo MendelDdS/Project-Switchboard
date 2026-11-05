@@ -20,6 +20,7 @@ const BOX := Vector2(204, 72)   ## ...e a caixinha dos bilhetes, embaixo à dire
 ## A folga da almofada e da caixinha até a beira dos lados e até a de baixo, a mesma nas duas. Encostadas nos cantos, na
 ## sala elas passavam dos lados da máquina (perto, a mesinha abre mais que ela) e o calculógrafo parecia torto.
 const INSET := Vector2(36, 9)
+const PAD_LEFT := 24.0   ## a da almofada à esquerda, menor: com 36, o carimbo em pé nela, na sala, tapava a ponta do bilhete na fenda
 const BOX_MOUTH := 24.0         ## da beira de trás da caixinha até a frente dela: a boca, onde o bilhete entra e some
 const SINK_SEC := 0.3           ## o bilhete descendo para dentro da caixinha
 const OUT_SEC := 0.45           ## o bilhete que esperava na fenda saindo dela quando a ferramenta abre
@@ -469,7 +470,7 @@ func _notification(what: int) -> void:
 
 
 func _pad(s := _desk.size) -> Rect2:
-	return Rect2(INSET.x, s.y - PAD.y - INSET.y, PAD.x, PAD.y)
+	return Rect2(PAD_LEFT, s.y - PAD.y - INSET.y, PAD.x, PAD.y)
 
 
 func _box(s := _desk.size) -> Rect2:

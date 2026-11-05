@@ -3385,3 +3385,7 @@ Chaves:
     e o mapa de despacho": o fio saiu (`_draw_cable` só na unidade de despacho); a mesinha foi para `CALC_AT` 0,045
     (era 0,06, na linha do bloco de fichas; com 0,02 o carimbo e a caixinha sumiam embaixo do painel de baixo) e a
     unidade recuou para `UNIT_AT` 0,76: uns 6 px de folga entre as duas.
+547. #calculografo #carimbo "Faça 1 e 2" (das melhorias sugeridas): a almofada da mesinha foi para a esquerda
+    (`Toll.PAD_LEFT` 24, era o `INSET` 36 da caixinha), e o carimbo em pé nela, na sala, não tapa mais a ponta do
+    bilhete na fenda. O carimbo da ferramenta aberta já era alto (`Toll.STAMP` 88 × 201, a proporção de um datador): o
+    "21 × 35" era um comentário velho do da sala, corrigido; nada a redesenhar.

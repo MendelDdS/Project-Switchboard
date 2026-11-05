@@ -22,7 +22,7 @@ peça (medidas, cores, o que foi tentado e saiu) está em `docs/mapa-ui-detalhad
   da mesa em duas fileiras (`_row`, `WALL_PAD`, `EDGE_PX`): atrás, o que é alto (unidade de despacho, listas, relógio
   com a caneca na frente); na frente, o que é baixo (calculógrafo, bloco de fichas, jornal). A prancheta fica
   pendurada na lateral da mesa comutadora (`_draw_hung_clipboard`). `test_layout` confere que nada se sobrepõe.
-- Fio da unidade de despacho (o do calculógrafo saiu a pedido): sai da traseira dela e vai, rentes ao console, para o fundo da mesa
+- Fio da unidade de despacho (o do calculógrafo saiu a pedido): sai da traseira dela e vai, rente ao console, para o fundo da mesa
   (`_draw_cable`, imagem guardada em `_cable_art` por `_cable_at`, que monta também os fios da caixa na parede), desenhado antes da máquina; sem plugue (a pedido). A mesa é
   afastada da parede: o fio passa da beira de trás e cai no vão, cortado nela. Objetos da
   mesa na paleta da mesa (relógio em `SHELL` com base oliva, caneca e lista do meio em azul-petróleo); os papéis com o
