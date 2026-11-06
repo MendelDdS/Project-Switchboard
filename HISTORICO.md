@@ -3448,3 +3448,9 @@ Chaves:
     entrar na tomada monta uma imagem por quadro, então algumas dezenas de cabos o enchiam; o desenho guarda só o RID
     da textura, e as camadas que não se redesenham (as chapas dos bancos, os plugs guardados) passavam a desenhar uma
     textura liberada, que sai branca. Agora o cache esvazia por `PixelArt._evict`, que manda tudo se redesenhar.
+559. #roteiro #ligacoes "Pode resolver o 1": os pedidos das autoridades vêm a menos de uma conversa um do outro para o
+    mesmo número (na 9, 22:05 e 22:30 à delegacia; na 12, 14 e 15, à delegacia e à Cúpula), e quem obedecia ao
+    primeiro achava a tomada do segundo ocupada. Agora a ligação do roteiro que toca para um destino em conversa encurta
+    a de lá para `FREE_FOR_STORY` (3 min de jogo; nunca no meio das falas escritas), `Main._free_dest_for`; o desfecho
+    da primeira continua "conectada". O cache das imagens (item 558) esvazia uma ou duas vezes por noite, com um quadro
+    de ~15 ms a mais (medido): fica como está.

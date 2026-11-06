@@ -343,6 +343,14 @@ func _initialize() -> void:
 	ok(a.ended and ex.line(ln) == Exchange.Line.CONN and ex.dest(tgt) == Exchange.Dest.CONN, "conectada com o FONE na entrada")
 	_move(0, -1)
 	ok(ex.line(ln) == Exchange.Line.CONN and ex.dest(tgt) == Exchange.Dest.CONN, "tirar o FONE não derruba")
+	var asks := _extra(a.data as TransferCall)   # um pedido do roteiro para o mesmo destino: a conversa de lá termina logo
+	var was := ex.line_until(ln)
+	m._free_dest_for(asks)
+	ok(ex.line_until(ln) == was, "ligação comum para o destino ocupado não mexe na conversa")
+	asks.story = true
+	m._free_dest_for(asks)
+	ok(ex.line(ln) == Exchange.Line.CONN and ex.line_until(ln) <= m.minutes + Main.FREE_FOR_STORY and ex.line_until(ln) < was,
+		"ligação do roteiro para o destino ocupado: a conversa de lá termina logo")
 	m.minutes = ex.line_until(ln) + 1.0
 	await frames(1)
 	ok(ex.line(ln) == Exchange.Line.DONE and ex.dest(tgt) == Exchange.Dest.DONE, "conversa terminou")

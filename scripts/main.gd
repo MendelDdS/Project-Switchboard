@@ -13,6 +13,7 @@ const CLEAR_SEC := 40.0                 # o som e a cor indo para a noite limpa 
 const WEATHERS := ["rain", "fog", "clear"]   # clima sorteado no começo do turno (`-- --weather=fog` força um)
 const QUIET_SHARE := 0.6               # mesa vazia por tanto do maior intervalo do ritmo (`Pace.call_gap`): toca uma a mais
 const GIVE_UP_SEC := 60.0               # quem liga desiste se ninguém atende (as do roteiro aguentam 1,5x; retornos, 0,75x)
+const FREE_FOR_STORY := 3.0            # min de jogo até a conversa num destino que uma ligação do roteiro vai pedir terminar (`_free_dest_for`)
 const SMALLTALK_AFTER := 10.0           # segundos de silêncio esperando a transferência até puxar conversa fiada...
 const SMALLTALK_CHANCE := 0.6           # ...às vezes (respostas e limites: Conversation); sem resposta, reclama da demora:
 const NAG_AFTER := 22.0                 # segundos de silêncio até reclamar da demora (emergência: EMERGENCY_NAG_AFTER)
@@ -1031,6 +1032,7 @@ func ring(c: PhoneCall) -> void:
 	tools.call_log.track(c)
 	if c.kind == PhoneCall.Kind.EMERGENCY:
 		_open_emergency(c)
+	_free_dest_for(c)
 	_update_bell()
 	_refresh_panel()
 	if c.lesson:   # a dica é do treinamento
@@ -1045,6 +1047,18 @@ func ring(c: PhoneCall) -> void:
 		# por conexão e não `await`: a espera pendente prendia a ligação na memória depois de o Main sair (`restart`)
 		get_tree().create_timer(GIVE_UP_SEC * (0.75 if c.retry != PhoneCall.Retry.NONE else 1.5 if c.story else 1.0), false) \
 				.timeout.connect(_give_up.bind(c))
+
+
+## Ligação do roteiro tocando para um destino já em conversa: a conversa de lá termina logo (`FREE_FOR_STORY`, e nunca
+## no meio das falas escritas), para a tomada estar livre quando ela pedir. Os pedidos das autoridades à delegacia e à
+## Cúpula vêm a menos de uma conversa um do outro (a 9: 22:05 e 22:30) e o segundo achava a tomada ocupada.
+func _free_dest_for(c: PhoneCall) -> void:
+	var t := c.data as TransferCall
+	if not c.story or t == null:
+		return
+	for n in range(1, Exchange.LINES + 1):
+		if exchange.line(n) == Exchange.Line.CONN and str(board.dest_of_output(n)) == t.target:
+			exchange.set_line(n, Exchange.Line.CONN, minf(exchange.line_until(n), minutes + FREE_FOR_STORY))
 
 
 ## A emergência `c` entra no despacho e na barra; quem liga de novo recomeça e as que acabaram dão lugar.

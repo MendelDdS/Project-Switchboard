@@ -145,7 +145,8 @@ detalhe no comentário do código, o porquê no `HISTORICO.md`. Atualize os `CLA
 - `Main.live`: ligações tocando ou em andamento. **Foco** = a ligação da entrada onde está o FONE (`Main._focus()`);
   quem não está em foco fica em espera e não fala (`_until_on_line`), salvo a já resolvida (`c.closing`).
 - Transferência: FONE na entrada → Atender → pedido → cabo saída→destino → Transferir (`transfer()`) → `_ring_dest` →
-  `_try_complete` → linha e destino CONN por `Pace.talk_len` → DONE até tirar as pontas. Destino que não atende: a
+  `_try_complete` → linha e destino CONN por `Pace.talk_len` → DONE até tirar as pontas. Ligação do roteiro
+  tocando para um destino em conversa encurta a de lá (`Main._free_dest_for`). Destino que não atende: a
   alternativa do mesmo ramo (`TransferCall.alt_target`, `DirectoryEntry.category`, `GameData.alternative`).
 - **Escuta** (`Eavesdrop`): chave de escuta por linha (`Exchange.key`); a conversa ouvida vem do motivo (`Motive`) ou
   das falas escritas (`TransferCall.overheard`); palavras-chave `[tipo:texto]` (`Clue`) vão para as anotações da
