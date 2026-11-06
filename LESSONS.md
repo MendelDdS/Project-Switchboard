@@ -1023,3 +1023,9 @@ A noite em que um setor é entregue segura o ritmo (`Pace.next`) para o jogador 
 (4 e 9) trocam as sorteadas por quatro emergências. O setor 2 na 9 juntava as duas coisas: alívio e aperto na mesma
 noite (item 556). Ao mexer em `SECTOR_NIGHTS` ou numa noite de evento, confira que não coincidem, e que o roteiro da
 noite não usa número de setor que ainda não chegou (o `test_content` só cobra as sorteadas, não as do roteiro).
+
+## Cache de textura esvaziado: quem não se redesenha fica branco
+O `draw_texture` guarda só o RID da textura; esvaziar um cache libera as texturas, e a camada que só se redesenha
+quando o estado muda passa a desenhar uma textura que não existe mais, um retângulo branco (item 558, as chapas dos
+bancos). Cache de textura que esvazia manda tudo se redesenhar (`PixelArt._evict`); e "esvaziar só custa remontar o
+que está na tela" só vale para o que se redesenha sozinho.

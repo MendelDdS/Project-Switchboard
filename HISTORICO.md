@@ -3443,3 +3443,8 @@ Chaves:
 557. #roteiro #bilhete "Como na noite 9 não tem nada, pode tirar do bilhete": o "grave toda ligação suspeita" saiu do
     bilhete da 9 e do da 10 (nenhuma das duas tem ligação marcada, `TransferCall.suspicious`; as marcadas são das
     noites 7, 8, 12 e 14).
+558. #mesa #pixel #bug "Teve um momento na noite 1 que as letras das placas dos setores ficaram brancas": o cache de
+    texturas do `PixelArt` (`art`, `disc`, `tiny`) se esvazia passando de `CACHE_MAX` (512), e o plug virando ao
+    entrar na tomada monta uma imagem por quadro, então algumas dezenas de cabos o enchiam; o desenho guarda só o RID
+    da textura, e as camadas que não se redesenham (as chapas dos bancos, os plugs guardados) passavam a desenhar uma
+    textura liberada, que sai branca. Agora o cache esvazia por `PixelArt._evict`, que manda tudo se redesenhar.
